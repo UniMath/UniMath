@@ -150,19 +150,9 @@ Proof.
   repeat use is_univalent_sigma_disp.
   - apply is_univalent_reindex_disp_cat.
     refine (pr2 (is_univalent_disp_iff_fibers_are_univalent _) _).
-    intros c a b.
-    (* Copied from HSET/Univalence *)
-    assert (idtoiso (a := a) (b := b) = pr1 (hset_id_weq_z_iso a b)).
-    {
-      apply funextfun.
-      intro p.
-      induction p.
-      apply z_iso_eq.
-      apply funextfun.
-      now intro.
-    }
-    rewrite X.
-    apply hset_id_weq_z_iso.
+    intro.
+    rewrite disp_over_unit_fiber_equals_cat.
+    exact is_univalent_HSET.
   - exact is_univalent_disp_algebraic_theory_algebra_data_full_disp_cat.
   - exact is_univalent_disp_algebraic_theory_algebra_full_disp_cat.
 Qed.

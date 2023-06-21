@@ -29,6 +29,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Limits.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
@@ -599,6 +600,18 @@ Qed.
 Definition disp_over_unit : disp_cat _ := _ ,, disp_over_unit_axioms.
 
 End over_terminal_category.
+
+Lemma disp_over_unit_fiber_equals_cat
+  (C : category)
+  (u : unit)
+  : (disp_over_unit C)[{u}] = C.
+Proof.
+  apply (subtypePath (λ _, isaprop_has_homsets _)).
+  refine (subtypePairEquality' _ (isaprop_is_precategory _ (homset_property C))).
+  induction C as [C Hhomsets].
+  induction C as [Cdata Hisprecategory].
+  exact (maponpaths (λ x, (pr1 Cdata) ,, x) (pathsdirprod (idpath _) (idpath _))).
+Qed.
 
 Section cartesian_product_pb.
 
