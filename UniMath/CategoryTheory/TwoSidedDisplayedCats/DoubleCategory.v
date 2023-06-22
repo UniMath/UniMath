@@ -400,6 +400,7 @@ Section DoubleCatLaws.
        =
        (τ ⋆h double_cat_id_mor _) ;;2 double_runitor h₂.
 
+  (*
   Definition double_cat_lassociator_nat_type
     : UU
     := ∏ (w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ : C)
@@ -425,6 +426,32 @@ Section DoubleCatLaws.
             (double_lassociator f₁ g₁ h₁ ;;2 (τf ⋆h (τg ⋆h τh))))
        =
        ((τf ⋆h τg) ⋆h τh) ;;2 double_lassociator f₂ g₂ h₂.
+   *)
+  Definition double_cat_rassociator_nat_type
+    : UU
+    := ∏ (w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ : C)
+         (f₁ : w₁ -->v x₁)
+         (g₁ : x₁ -->v y₁)
+         (h₁ : y₁ -->v z₁)
+         (f₂ : w₂ -->v x₂)
+         (g₂ : x₂ -->v y₂)
+         (h₂ : y₂ -->v z₂)
+         (vw : w₁ --> w₂)
+         (vx : x₁ --> x₂)
+         (vy : y₁ --> y₂)
+         (vz : z₁ --> z₂)
+         (τf : f₁ -->[ vw ][ vx ] f₂)
+         (τg : g₁ -->[ vx ][ vy ] g₂)
+         (τh : h₁ -->[ vy ][ vz ] h₂),
+       transportb
+         (λ z, _ -->[ z ][ _ ] _)
+         (id_right _ @ !(id_left _))
+         (transportb
+            (λ z, _ -->[ _ ][ z ] _)
+            (id_right _ @ !(id_left _))
+            (double_rassociator f₁ g₁ h₁ ;;2 ((τf ⋆h τg) ⋆h τh)))
+       =
+       (τf ⋆h (τg ⋆h τh)) ;;2 double_rassociator f₂ g₂ h₂.
 
   Definition double_cat_interchange_type
     : UU
@@ -449,6 +476,7 @@ Section DoubleCatLaws.
        =
        α ⋆h γ ;;2 (β ⋆h δ).
 
+  (*
   Definition double_cat_triangle_type
     : UU
     := ∏ (x y z : C)
@@ -463,7 +491,24 @@ Section DoubleCatLaws.
             (double_lassociator _ _ _ ;;2 (id_two_disp f ⋆h double_lunitor g)))
        =
        double_runitor f ⋆h id_two_disp g.
+   *)
 
+  Definition double_cat_triangle_type
+    : UU
+    := ∏ (x y z : C)
+         (f : x -->v y)
+         (g : y -->v z),
+       transportf
+         (λ z, _ -->[ z ][ _ ] _)
+         (id_left _)
+         (transportf
+            (λ z, _ -->[ _ ][ z ] _)
+            (id_left _)
+            (double_rassociator _ _ _ ;;2 (double_runitor f ⋆h id_two_disp g)))
+       =
+       id_two_disp f ⋆h double_lunitor g.
+
+  (*
   Definition double_cat_pentagon_type
     : UU
     := ∏ (v w x y z : C)
@@ -482,6 +527,25 @@ Section DoubleCatLaws.
        (double_lassociator f g h ⋆h id_two_disp k)
        ;;2 double_lassociator f (g ·v h) k
        ;;2 (id_two_disp f ⋆h double_lassociator g h k).
+   *)
+  Definition double_cat_pentagon_type
+    : UU
+    := ∏ (v w x y z : C)
+         (f : v -->v w)
+         (g : w -->v x)
+         (h : x -->v y)
+         (k : y -->v z),
+       transportb
+         (λ z, _ -->[ z ][ _ ] _)
+         (maponpaths (λ z, z · _) (id_left _))
+         (transportb
+            (λ z, _ -->[ _ ][ z ] _)
+            (maponpaths (λ z, z · _) (id_left _))
+            (double_rassociator f g (h ·v k) ;;2 double_rassociator (f ·v g) h k))
+       =
+       (id_two_disp f ⋆h double_rassociator g h k)
+       ;;2 double_rassociator f (g ·v h) k
+       ;;2 (double_rassociator f g h ⋆h id_two_disp k).
 
   Definition double_law_laws
     : UU
@@ -501,7 +565,7 @@ Section DoubleCatLaws.
        ×
        double_cat_runitor_nat_type
        ×
-       double_cat_lassociator_nat_type
+       double_cat_rassociator_nat_type
        ×
        double_cat_interchange_type
        ×
@@ -662,6 +726,7 @@ Section DoubleCatLawsAccessors.
     exact (pr122 (pr222 (pr222 C)) x₁ x₂ y₁ y₂ h₁ h₂ v₁ v₂ τ).
   Qed.
 
+  (*
   Proposition double_cat_lassociator_nat
               {w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ : C}
               {f₁ : w₁ -->v x₁}
@@ -686,6 +751,34 @@ Section DoubleCatLawsAccessors.
            (double_lassociator f₁ g₁ h₁ ;;2 (τf ⋆h (τg ⋆h τh))))
       =
       ((τf ⋆h τg) ⋆h τh) ;;2 double_lassociator f₂ g₂ h₂.
+  Proof.
+    exact (pr1 (pr222 (pr222 (pr222 C))) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ τf τg τh).
+  Qed.
+   *)
+  Proposition double_cat_rassociator_nat
+              {w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ : C}
+              {f₁ : w₁ -->v x₁}
+              {g₁ : x₁ -->v y₁}
+              {h₁ : y₁ -->v z₁}
+              {f₂ : w₂ -->v x₂}
+              {g₂ : x₂ -->v y₂}
+              {h₂ : y₂ -->v z₂}
+              {vw : w₁ --> w₂}
+              {vx : x₁ --> x₂}
+              {vy : y₁ --> y₂}
+              {vz : z₁ --> z₂}
+              (τf : f₁ -->[ vw ][ vx ] f₂)
+              (τg : g₁ -->[ vx ][ vy ] g₂)
+              (τh : h₁ -->[ vy ][ vz ] h₂)
+    : transportb
+        (λ z, _ -->[ z ][ _ ] _)
+        (id_right _ @ !(id_left _))
+        (transportb
+           (λ z, _ -->[ _ ][ z ] _)
+           (id_right _ @ !(id_left _))
+           (double_rassociator f₁ g₁ h₁ ;;2 ((τf ⋆h τg) ⋆h τh)))
+      =
+      (τf ⋆h (τg ⋆h τh)) ;;2 double_rassociator f₂ g₂ h₂.
   Proof.
     exact (pr1 (pr222 (pr222 (pr222 C))) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ τf τg τh).
   Qed.
@@ -715,6 +808,7 @@ Section DoubleCatLawsAccessors.
     exact (pr12 (pr222 (pr222 (pr222 C))) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ α β γ δ).
   Qed.
 
+  (*
   Proposition double_cat_triangle
               {x y z : C}
               (f : x -->v y)
@@ -731,7 +825,25 @@ Section DoubleCatLawsAccessors.
   Proof.
     exact (pr122 (pr222 (pr222 (pr222 C))) x y z f g).
   Qed.
+   *)
+  Proposition double_cat_triangle
+              {x y z : C}
+              (f : x -->v y)
+              (g : y -->v z)
+    : transportf
+        (λ z, _ -->[ z ][ _ ] _)
+        (id_left _)
+        (transportf
+           (λ z, _ -->[ _ ][ z ] _)
+           (id_left _)
+           (double_rassociator _ _ _ ;;2 (double_runitor f ⋆h id_two_disp g)))
+      =
+      id_two_disp f ⋆h double_lunitor g.
+  Proof.
+    exact (pr122 (pr222 (pr222 (pr222 C))) x y z f g).
+  Qed.
 
+  (*
   Proposition double_cat_pentagon
               {v w x y z : C}
               (f : v -->v w)
@@ -749,6 +861,28 @@ Section DoubleCatLawsAccessors.
       (double_lassociator f g h ⋆h id_two_disp k)
       ;;2 double_lassociator f (g ·v h) k
       ;;2 (id_two_disp f ⋆h double_lassociator g h k).
+  Proof.
+    exact (pr222 (pr222 (pr222 (pr222 C))) v w x y z f g h k).
+  Qed.
+   *)
+
+  Proposition double_cat_pentagon
+              {v w x y z : C}
+              (f : v -->v w)
+              (g : w -->v x)
+              (h : x -->v y)
+              (k : y -->v z)
+    : transportb
+        (λ z, _ -->[ z ][ _ ] _)
+        (maponpaths (λ z, z · _) (id_left _))
+        (transportb
+           (λ z, _ -->[ _ ][ z ] _)
+           (maponpaths (λ z, z · _) (id_left _))
+           (double_rassociator f g (h ·v k) ;;2 double_rassociator (f ·v g) h k))
+      =
+      (id_two_disp f ⋆h double_rassociator g h k)
+      ;;2 double_rassociator f (g ·v h) k
+      ;;2 (double_rassociator f g h ⋆h id_two_disp k).
   Proof.
     exact (pr222 (pr222 (pr222 (pr222 C))) v w x y z f g h k).
   Qed.

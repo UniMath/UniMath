@@ -10,8 +10,6 @@ Local Open Scope cat.
 (**
  rename homset_property.
 
- the second homset property can be improved
-
  two-sided inverse adds generality, but will make equivalence between the two definitions more difficult
  *)
 
@@ -286,7 +284,18 @@ Section FromDoubleCategoryViaTwoSided.
   Proof.
     intros x₁ x₂ x₃ x₄ y₁ y₂ y₃ y₄ f₁ f₂ h₁ h₂ k₁ k₂ g₁ g₂ g₃ g₄ α β γ.
     unfold hor_trans_id_right_sq, hor_trans_id_left_sq, boundary_sq_transport ; cbn.
-  Admitted.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      exact (!(double_cat_rassociator_nat α β γ)).
+    }
+    rewrite !twosided_swap_transport.
+    unfold transportb.
+    rewrite !twosided_prod_transport.
+    rewrite !transport_f_f.
+    apply maponpaths_2.
+    apply isasetdirprod ; apply Categories.homset_property.
+  Qed.
 
   Proposition predoublecategory_ver_unitor_coherence_double_cat
     : predoublecategory_ver_unitor_coherence
@@ -294,15 +303,55 @@ Section FromDoubleCategoryViaTwoSided.
   Proof.
     intros x y z f g.
     unfold hor_trans_id_right_sq, hor_trans_id_left_sq, boundary_sq_transport ; cbn.
-  Admitted.
+    refine (_ @ double_cat_triangle f g).
+    rewrite !twosided_swap_transport.
+    unfold transportb.
+    rewrite !twosided_prod_transport.
+    apply maponpaths_2.
+    apply isasetdirprod ; apply Categories.homset_property.
+  Qed.
 
   Proposition predoublecategory_ver_assoc_coherence_double_cat
     : predoublecategory_ver_assoc_coherence
         double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
   Proof.
-    intros x.
-    cbn.
-  Admitted.
+    intros v w x y z f g h k.
+    unfold hor_trans_id_right_sq, hor_trans_id_left_sq, boundary_sq_transport ; cbn.
+    refine (!_).
+    etrans.
+    {
+      do 4 apply maponpaths.
+      exact (!(double_cat_pentagon f g h k)).
+    }
+    unfold transportb.
+    refine (!_).
+    etrans.
+    {
+      rewrite twosided_swap_transport.
+      rewrite twosided_prod_transport.
+      apply idpath.
+    }
+    refine (!_).
+    etrans.
+    {
+      do 4 apply maponpaths.
+      rewrite twosided_prod_transport.
+      apply idpath.
+    }
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite twosided_swap_transport.
+      rewrite twosided_prod_transport.
+      rewrite transport_f_f.
+      apply idpath.
+    }
+    rewrite twosided_swap_transport.
+    rewrite twosided_prod_transport.
+    rewrite transport_f_f.
+    apply maponpaths_2.
+    apply isasetdirprod ; apply Categories.homset_property.
+  Qed.
 
   Proposition predoublecategory_interchange_double_cat
     : predoublecategory_interchange
