@@ -43,6 +43,7 @@ DCPOs/Examples/SubDCPO.v
 DCPOs/Examples/Equalizers.v
 DCPOs/Examples/BinaryProducts.v
 DCPOs/Examples/Products.v
+DCPOs/Examples/BinarySums.v
 DCPOs/Examples/Sums.v
 DCPOs/Examples/IdealCompletion.v
 

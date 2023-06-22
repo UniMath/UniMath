@@ -83,6 +83,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DCPOs/Examples/Equalizers.v](Combinatorics/DCPOs/Examples/Equalizers.v)
    - [DCPOs/Examples/BinaryProducts.v](Combinatorics/DCPOs/Examples/BinaryProducts.v)
    - [DCPOs/Examples/Products.v](Combinatorics/DCPOs/Examples/Products.v)
+   - [DCPOs/Examples/BinarySums.v](Combinatorics/DCPOs/Examples/BinarySums.v)
    - [DCPOs/Examples/Sums.v](Combinatorics/DCPOs/Examples/Sums.v)
    - [DCPOs/Examples/IdealCompletion.v](Combinatorics/DCPOs/Examples/IdealCompletion.v)
    - [DCPOs/Core/FubiniTheorem.v](Combinatorics/DCPOs/Core/FubiniTheorem.v)
