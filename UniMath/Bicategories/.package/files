@@ -336,8 +336,10 @@ OtherStructure/Examples/StructureOneTypes.v
 OtherStructure/Examples/StructureBicatOfEnrichedCats.v
 
 PseudoFunctors/DisplayedUniversalArrow.v
+PseudoFunctors/DisplayedUniversalArrowOnCat.v
 
 RezkCompletions/BicatToLocalUnivalentBicat.v
 RezkCompletions/RezkCompletionOfBicategory.v
+RezkCompletions/StructuredCats/TerminalObject.v
 
 DaggerCategories/BicatOfDaggerCats.v
