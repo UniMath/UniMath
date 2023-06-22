@@ -4,8 +4,17 @@
 
  In this file, we study the rounded ideal completion. Given an abstract basis,
  the rounded ideal completion gives a continuous DCPO with that particular
- basis. If the basis is reflexive (i.e., a preorder), then the resulting DCPO
- is algebraic.
+ basis. If the basis is reflexive (a preorder), then the resulting DCPO is
+ algebraic.
+
+ Given an abstract basis, the rounded ideal completion is defined to be the
+ DCPO whose inhabitants are ideal (i.e., directed lower sets of the basis). As
+ such, there are some nuances regarding the universe level. Let's say, the
+ basis lives in some universe U_ℓ. Then the ideal completion lives in the
+ universe U_{ℓ⁺}. However, using propositional resizing, we can improve on this
+ situation. This is because all propositions are equivalent to one in the
+ lowest universe (which we call U_0). Then the rounded ideal completion lives
+ in U_{max ℓ 1}.
 
  References:
  - Section 2.2.6 in https://www.cs.ox.ac.uk/files/298/handbook.pdf
