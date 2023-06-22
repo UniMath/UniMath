@@ -22,8 +22,9 @@
  1. Compact basis
  2. Accessors and builders for compact bases
  3. Every compact basis gives rise to a basis
- 4. Compact bases versus algebraicity
- 5. Constructing maps from their action on the basis
+ 4. Compact bases from bases of which every element is compact
+ 5. Compact bases versus algebraicity
+ 6. Constructing maps from their action on the basis
 
  ******************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -190,7 +191,79 @@ Proof.
 Defined.
 
 (**
- 4. Compact bases versus algebraicity
+ 4. Compact bases from bases of which every element is compact
+ *)
+Section BasisToCompact.
+  Context {X : dcpo}
+          (B : dcpo_basis X)
+          (HB : ∏ (b : B), is_compact_el (B b)).
+
+  Proposition dcpo_basis_with_compact_to_compact_basis_laws
+    : compact_basis_laws X B.
+  Proof.
+    refine (_ ,, _ ,, _).
+    - exact HB.
+    - intro x.
+      split.
+      + assert (H := directed_set_el (directed_set_from_basis B x)).
+        revert H.
+        use factor_through_squash.
+        {
+          apply propproperty.
+        }
+        intros b.
+        induction b as [ b p ].
+        refine (hinhpr (b ,, _)).
+        apply way_below_to_le.
+        exact p.
+      + intros i j.
+        induction i as [ b₁ p₁ ].
+        induction j as [ b₂ p₂ ].
+        assert (q₁ : B b₁ ≪ x).
+        {
+          refine (compact_el_way_below_le _ p₁).
+          apply HB.
+        }
+        assert (q₂ : B b₂ ≪ x).
+        {
+          refine (compact_el_way_below_le _ p₂).
+          apply HB.
+        }
+        assert (H := directed_set_top (directed_set_from_basis B x) (b₁ ,, q₁) (b₂ ,, q₂)).
+        revert H.
+        use factor_through_squash.
+        {
+          apply propproperty.
+        }
+        intros t.
+        induction t as [ [ t r₁ ] [ r₂ r₃ ]].
+        refine (hinhpr ((t ,, _) ,, (r₂ ,, r₃))).
+        apply way_below_to_le.
+        exact r₁.
+    - intro x.
+      split.
+      + intros b.
+        exact (pr2 b).
+      + intros y Hy.
+        use (pr2 (is_least_upperbound_basis B x) y).
+        intros b.
+        induction b as [ b p ].
+        use (Hy (b ,, _)).
+        apply way_below_to_le.
+        exact p.
+  Qed.
+
+  Definition dcpo_basis_with_compact_to_compact_basis
+    : compact_basis X.
+  Proof.
+    use make_compact_basis.
+    - exact B.
+    - exact dcpo_basis_with_compact_to_compact_basis_laws.
+  Defined.
+End BasisToCompact.
+
+(**
+ 5. Compact bases versus algebraicity
  *)
 Definition algebraic_struct_from_compact_basis
            {X : dcpo}
@@ -299,7 +372,7 @@ Proof.
 Defined.
 
 (**
- 5. Constructing maps from their action on the basis
+ 6. Constructing maps from their action on the basis
  *)
 Proposition scott_continuous_map_from_compact_basis_eq
             {X : dcpo}
