@@ -648,6 +648,10 @@ Section CoproductOfDCPO.
                  D).
   Qed.
 
+  Definition inl_scott_continuous_map
+    : scott_continuous_map X coproduct_dcpo
+    := inl ,, is_scott_continuous_inl.
+
   Proposition is_scott_continuous_inr
     : is_scott_continuous Y coproduct_dcpo inr.
   Proof.
@@ -662,6 +666,10 @@ Section CoproductOfDCPO.
                  _
                  D).
   Qed.
+
+  Definition inr_scott_continuous_map
+    : scott_continuous_map Y coproduct_dcpo
+    := inr ,, is_scott_continuous_inr.
 
   (**
    4. The sum of Scott continuous maps is Scott continuous
@@ -744,6 +752,13 @@ Section CoproductOfDCPO.
              rewrite p ; cbn.
              apply refl_dcpo.
   Qed.
+
+  Definition sumof_scott_continuous_maps
+             {Z : dcpo}
+             (f : scott_continuous_map X Z)
+             (g : scott_continuous_map Y Z)
+    : scott_continuous_map coproduct_dcpo Z
+    := sumofmaps f g ,, is_scott_continuous_sumofmaps (pr2 f) (pr2 g).
 End CoproductOfDCPO.
 
 (** Set-indexed coproducts *)
@@ -1106,6 +1121,11 @@ Section CoproductOfDCPO.
                  D).
   Qed.
 
+  Definition incl_scott_continuous_map
+             (x : X)
+    : scott_continuous_map (Y x) coproduct_set_dcpo
+    := (λ y, x ,, y) ,, is_scott_continuous_incl x.
+
   (**
    8. The set-indexed sum of Scott continuous maps
    *)
@@ -1151,4 +1171,12 @@ Section CoproductOfDCPO.
           rewrite (pr2 H i) ; cbn.
           apply refl_dcpo.
   Qed.
+
+  Definition set_coproduct_scott_continuous_map
+             {Z : dcpo}
+             (f : ∏ (x : X), scott_continuous_map (Y x) Z)
+    : scott_continuous_map coproduct_set_dcpo Z
+    := (λ xy, f (pr1 xy) (pr2 xy))
+       ,,
+       is_scott_continuous_set_coproduct_map (λ x, pr2 (f x)).
 End CoproductOfDCPO.

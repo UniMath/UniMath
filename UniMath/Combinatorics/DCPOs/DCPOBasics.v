@@ -219,6 +219,16 @@ Proof.
   apply refl_PartialOrder.
 Qed.
 
+Definition eq_to_le_dcpo
+           {X : dcpo}
+           {x y : X}
+           (p : x = y)
+  : x ≤ y.
+Proof.
+  induction p.
+  apply refl_dcpo.
+Qed.
+
 Proposition trans_dcpo
             {X : dcpo}
             {x y z : X}
