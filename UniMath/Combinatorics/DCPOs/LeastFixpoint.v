@@ -11,9 +11,9 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.Posets.Basics.
 Require Import UniMath.Combinatorics.Posets.MonotoneFunctions.
 Require Import UniMath.Combinatorics.Posets.PointedPosets.
-Require Import UniMath.Combinatorics.DCPOs.DirectedSets.
-Require Import UniMath.Combinatorics.DCPOs.DCPOBasics.
-Require Import UniMath.Combinatorics.DCPOs.ScottContinuous.
+Require Import UniMath.Combinatorics.DCPOs.Core.DirectedSets.
+Require Import UniMath.Combinatorics.DCPOs.Core.Basics.
+Require Import UniMath.Combinatorics.DCPOs.Core.ScottContinuous.
 
 Local Open Scope dcpo.
 
@@ -30,13 +30,6 @@ Section FixpointTheorem.
     - exact (f IHn).
   Defined.
 
-  Proposition bot_iteration_map_S
-              (n : ℕ)
-    : bot_iteration_map (S n) = f (bot_iteration_map n).
-  Proof.
-    apply idpath.
-  Qed.
-
   Lemma is_monotone_bot_iteration_map_S
         (n : ℕ)
     : bot_iteration_map n ≤ f (bot_iteration_map n).
@@ -46,49 +39,12 @@ Section FixpointTheorem.
     - exact (is_monotone_scott_continuous_map f IHn).
   Qed.
 
-  Lemma is_monotone_bot_iteration_map_help
-        (n k : ℕ)
-    : bot_iteration_map n ≤ bot_iteration_map (n + k).
-  Proof.
-    induction k as [ | k IHk ].
-    - rewrite natplusr0.
-      apply refl_dcpo.
-    - refine (trans_dcpo IHk _).
-      rewrite natplusnsm.
-      apply is_monotone_bot_iteration_map_S.
-  Qed.
-
-  Proposition is_monotone_bot_iteration_map
-              {n m : ℕ}
-              (p : (n ≤ m)%nat)
-    : bot_iteration_map n ≤ bot_iteration_map m.
-  Proof.
-    pose (nat_le_diff p) as H.
-    induction H as [ k H ].
-    rewrite <- H.
-    apply is_monotone_bot_iteration_map_help.
-  Qed.
-
-  Proposition is_directed_bot_iteration_map
-    : is_directed X bot_iteration_map.
-  Proof.
-    split.
-    - exact (hinhpr 5).
-    - intros i j.
-      apply hinhpr.
-      refine (i + j ,, _ ,, _).
-      + use is_monotone_bot_iteration_map.
-        apply natlehnplusnm.
-      + use is_monotone_bot_iteration_map.
-        apply natlehmplusnm.
-  Qed.
-
   Definition bot_iteration_directed_set
     : directed_set X.
   Proof.
-    simple refine (ℕ ,, (_ ,, _)).
+    use nat_directed_set.
     - exact bot_iteration_map.
-    - exact is_directed_bot_iteration_map.
+    - apply is_monotone_bot_iteration_map_S.
   Defined.
 
   Definition least_fixpoint
@@ -110,9 +66,7 @@ Section FixpointTheorem.
       cbn ; intro i.
       use less_than_dcpo_lub.
       + exact i.
-      + cbn.
-        use (@is_monotone_bot_iteration_map i (S i)).
-        apply natlehnsn.
+      + apply is_monotone_bot_iteration_map_S.
   Qed.
 
   Theorem is_least_fixpoint_least_fixpoint
@@ -124,8 +78,7 @@ Section FixpointTheorem.
     intro n.
     induction n as [ | n IHn ].
     - apply is_min_bottom_dcppo.
-    - rewrite bot_iteration_map_S.
-      rewrite <- p.
+    - rewrite <- p.
       exact (is_monotone_scott_continuous_map f IHn).
   Qed.
 End FixpointTheorem.

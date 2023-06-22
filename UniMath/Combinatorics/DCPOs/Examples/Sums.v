@@ -54,9 +54,9 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.Posets.
-Require Import UniMath.Combinatorics.DCPOs.DirectedSets.
-Require Import UniMath.Combinatorics.DCPOs.DCPOBasics.
-Require Import UniMath.Combinatorics.DCPOs.ScottContinuous.
+Require Import UniMath.Combinatorics.DCPOs.Core.DirectedSets.
+Require Import UniMath.Combinatorics.DCPOs.Core.Basics.
+Require Import UniMath.Combinatorics.DCPOs.Core.ScottContinuous.
 
 Local Open Scope dcpo.
 
