@@ -1,16 +1,16 @@
 (*****************************************************************
 
- Constructions on DCPOs
+ The unit DCPO
 
- In this file, we define numerous constructions on DCPOs. These
- constructions show that the category of DCPOs is complete.
-
- In addition, we show that every set gives rise to a discrete
- DCPO, whose underlying set is the given set and whose order is
- given by the identity relation.
+ In this file we give the unit DCPO and we prove properties about
+ it.
 
  Contents
- 1. The unit DCPO
+ 1. Definition of the unit DCPO
+ 2. The unit DCPO is pointed
+ 3. The universal property
+ 4. The way below relation
+ 5. A basis for the unit DCPO
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -50,6 +50,9 @@ Definition unit_dcpo
   : dcpo
   := _ ,, unit_dcpo_struct.
 
+(**
+ 2. The unit DCPO is pointed
+ *)
 Definition unit_dcppo_struct
   : dcppo_struct unitset.
 Proof.
@@ -65,6 +68,9 @@ Definition unit_dcppo
   : dcppo
   := _ ,, unit_dcppo_struct.
 
+(**
+ 3. The universal property
+ *)
 Proposition is_scott_continuous_to_unit
             {X : hSet}
             (DX : dcpo_struct X)
@@ -81,6 +87,9 @@ Proof.
       exact tt.
 Qed.
 
+(**
+ 4. The way below relation
+ *)
 Proposition unit_dcpo_way_below
             (x y : unit_dcpo)
   : x ≪ y.
@@ -96,6 +105,9 @@ Proof.
   exact (hinhpr (d ,, tt)).
 Qed.
 
+(**
+ 5. A basis for the unit DCPO
+ *)
 Definition unit_dcpo_basis_data
   : dcpo_basis_data unit_dcpo.
 Proof.

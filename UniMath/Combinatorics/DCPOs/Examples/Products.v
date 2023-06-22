@@ -1,27 +1,18 @@
 (*****************************************************************
 
- Constructions on DCPOs
+ Type indexed products of DCPOs
 
- In this file, we define numerous constructions on DCPOs. These
- constructions show that the category of DCPOs is complete.
-
- In addition, we show that every set gives rise to a discrete
- DCPO, whose underlying set is the given set and whose order is
- given by the identity relation.
+ In this file, we construct type indexed products of DCPOs, and
+ we prove the usual universal property. In addition, we use this
+ construction to construct the DCPO whose inhabitants are subsets
+ of a fixed set.
 
  Contents
- 1. The unit DCPO
- 2. Binary products of DCPOs
- 2.1. Upperbounds in the product
- 2.2. The DCPO
- 2.3. The first projection
- 2.4. The second projection
- 2.5. Pairing of functions
- 2.6. Lemmas on upperbounds in the product
- 3. Equalizers
- 4. Type indexed products
- 5. Discrete DCPOs
- 6. hProp
+ 1. Type indexed products
+ 2. The universal property
+ 3. It is pointed
+ 4. Functions to a fixed DCPO
+ 5. The subtype DCPO
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -31,11 +22,12 @@ Require Import UniMath.Combinatorics.Posets.MonotoneFunctions.
 Require Import UniMath.Combinatorics.DCPOs.Core.DirectedSets.
 Require Import UniMath.Combinatorics.DCPOs.Core.Basics.
 Require Import UniMath.Combinatorics.DCPOs.Core.ScottContinuous.
+Require Import UniMath.Combinatorics.DCPOs.Examples.Propositions.
 
 Local Open Scope dcpo.
 
 (**
- 4. Type indexed products
+ 1. Type indexed products
  *)
 Section TypeIndexedProductsDCPO.
   Context {I : UU}
@@ -106,6 +98,9 @@ Section TypeIndexedProductsDCPO.
     : dcpo
     := _ ,, depfunction_dcpo_struct.
 
+  (**
+   2. The universal property
+   *)
   Proposition is_scott_continuous_depfunction_pr
               (i : I)
     : is_scott_continuous
@@ -151,6 +146,9 @@ Section TypeIndexedProductsDCPO.
   Qed.
 End TypeIndexedProductsDCPO.
 
+(**
+ 3. It is pointed
+ *)
 Definition depfunction_dcppo_struct
            {I : UU}
            (D : I → dcppo)
@@ -199,3 +197,26 @@ Proof.
     intro.
     apply strict_scott_continuous_map_on_point.
 Qed.
+
+(**
+ 4. Functions to a fixed DCPO
+ *)
+Definition funset_dcpo
+           (X : UU)
+           (D : dcpo)
+  : dcpo
+  := @depfunction_dcpo X (λ _, D).
+
+Definition funset_dcppo
+           (X : UU)
+           (D : dcppo)
+  : dcppo
+  := @depfunction_dcppo X (λ _, D).
+
+(**
+ 5. The subtype DCPO
+ *)
+Definition subtype_dcppo
+           (X : UU)
+  : dcppo
+  := funset_dcppo X hProp_dcppo.

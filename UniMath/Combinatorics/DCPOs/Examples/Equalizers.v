@@ -1,27 +1,13 @@
 (*****************************************************************
 
- Constructions on DCPOs
+ Equalizers of DCPOs
 
- In this file, we define numerous constructions on DCPOs. These
- constructions show that the category of DCPOs is complete.
-
- In addition, we show that every set gives rise to a discrete
- DCPO, whose underlying set is the given set and whose order is
- given by the identity relation.
+ In this file, we construct equalizers of both DCPOs and pointed
+ DCPOs, and we prove the expected universal property for these.
 
  Contents
- 1. The unit DCPO
- 2. Binary products of DCPOs
- 2.1. Upperbounds in the product
- 2.2. The DCPO
- 2.3. The first projection
- 2.4. The second projection
- 2.5. Pairing of functions
- 2.6. Lemmas on upperbounds in the product
- 3. Equalizers
- 4. Type indexed products
- 5. Discrete DCPOs
- 6. hProp
+ 1. Equalizers
+ 2. Equalizers of pointed DCPOs
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -35,7 +21,7 @@ Require Import UniMath.Combinatorics.DCPOs.Core.ScottContinuous.
 Local Open Scope dcpo.
 
 (**
- 3. Equalizers
+ 1. Equalizers
  *)
 Section Equalizers.
   Context {X Y : dcpo}
@@ -179,6 +165,9 @@ Section Equalizers.
   Qed.
 End Equalizers.
 
+(**
+ 2. Equalizers of pointed DCPOs
+ *)
 Section EqualizersDCPPO.
   Context {X Y : dcppo}
           (f g : strict_scott_continuous_map X Y).

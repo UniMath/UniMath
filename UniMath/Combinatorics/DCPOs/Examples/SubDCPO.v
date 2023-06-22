@@ -1,3 +1,16 @@
+(*****************************************************************
+
+ Sub DCPO
+
+ If we have a DCPO and a predicate on it, then the subtype of the
+ elements satisfying that predicate, is a DCPO if the predicate is
+ closed under suprema.
+
+ Contents
+ 1. The sub DCPO
+ 2. The first projection is continuous
+
+ *****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.Posets.Basics.
@@ -9,6 +22,9 @@ Require Import UniMath.Combinatorics.DCPOs.Core.ScottContinuous.
 
 Local Open Scope dcpo.
 
+(**
+ 1. The sub DCPO
+ *)
 Section SubPartialOrder.
   Context {X : hSet}
           (PX : PartialOrder X)
@@ -107,6 +123,9 @@ Section SubDCPO.
       apply idpath.
   Qed.
 
+  (**
+   2. The first projection is continuous
+   *)
   Definition pr1_sub_scott_continuous
     : scott_continuous_map sub_dcpo X
     := _ ,, is_scott_continuous_pr1_sub.

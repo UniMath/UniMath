@@ -1,16 +1,13 @@
 (*****************************************************************
 
- Constructions on DCPOs
+ hProp as a DCPO
 
- In this file, we define numerous constructions on DCPOs. These
- constructions show that the category of DCPOs is complete.
+ In this file, we show that hProp is a DCPO. This DCPO is also
+ known as the Sierpinski space.
 
- In addition, we show that every set gives rise to a discrete
- DCPO, whose underlying set is the given set and whose order is
- given by the identity relation.
-
- Contents
- 6. hProp
+ Contents:
+ 1. hProp is a DCPO
+ 2. hProp is pointed
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -24,7 +21,7 @@ Require Import UniMath.Combinatorics.DCPOs.Core.ScottContinuous.
 Local Open Scope dcpo.
 
 (**
- 6. hProp is a DCPO
+ 1. hProp is a DCPO
  *)
 Proposition isPartialOrder_hProp
   : isPartialOrder (λ (P₁ P₂ : hProp), (P₁ ⇒ P₂)%logic).
@@ -72,6 +69,9 @@ Definition hProp_dcpo
   : dcpo
   := _ ,, hProp_dcpo_struct.
 
+(**
+ 2. hProp is pointed
+ *)
 Definition hProp_dcppo
   : dcppo.
 Proof.

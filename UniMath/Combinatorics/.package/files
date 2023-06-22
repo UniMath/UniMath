@@ -40,12 +40,11 @@ DCPOs/Examples/Unit.v
 DCPOs/Examples/Propositions.v
 DCPOs/Examples/Discrete.v
 DCPOs/Examples/SubDCPO.v
-DCPOs/Examples/Functions.v
-DCPOs/Examples/IdealCompletion.v
 DCPOs/Examples/Equalizers.v
 DCPOs/Examples/BinaryProducts.v
 DCPOs/Examples/Products.v
 DCPOs/Examples/Sums.v
+DCPOs/Examples/IdealCompletion.v
 
 DCPOs/Core/FubiniTheorem.v
 DCPOs/Core/CoordinateContinuity.v

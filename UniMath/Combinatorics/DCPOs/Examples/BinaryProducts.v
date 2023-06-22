@@ -1,27 +1,19 @@
 (*****************************************************************
 
- Constructions on DCPOs
+ Binary products of DCPOs
 
- In this file, we define numerous constructions on DCPOs. These
- constructions show that the category of DCPOs is complete.
-
- In addition, we show that every set gives rise to a discrete
- DCPO, whose underlying set is the given set and whose order is
- given by the identity relation.
+ The product of two DCPOs is again a DCPO, and this satisfies the
+ usual universal property. In addition, we construct a basis for
+ the product DCPO.
 
  Contents
- 1. The unit DCPO
- 2. Binary products of DCPOs
- 2.1. Upperbounds in the product
- 2.2. The DCPO
- 2.3. The first projection
- 2.4. The second projection
- 2.5. Pairing of functions
- 2.6. Lemmas on upperbounds in the product
- 3. Equalizers
- 4. Type indexed products
- 5. Discrete DCPOs
- 6. hProp
+ 1. Upperbounds in the product
+ 2. The DCPO
+ 3. The first projection
+ 4. The second projection
+ 5. Pairing of functions
+ 6. Lemmas on upperbounds in the product
+ 7. A basis for the product
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -38,11 +30,7 @@ Require Import UniMath.Combinatorics.DCPOs.Basis.Continuous.
 Local Open Scope dcpo.
 
 (**
- 2. Binary products of DCPOs
- *)
-
-(**
- 2.1. Upperbounds in the product
+ 1. Upperbounds in the product
  *)
 Proposition is_least_upperbound_pair
             {X Y : hSet}
@@ -85,7 +73,7 @@ Proof.
 Defined.
 
 (**
- 2.2. The DCPO
+ 2. The DCPO
  *)
 Definition prod_dcpo_struct
            {X Y : hSet}
@@ -140,7 +128,7 @@ Proof.
 Qed.
 
 (**
- 2.3. The first projection
+ 3. The first projection
  *)
 Proposition pr1_is_least_upperbound
             {X Y : hSet}
@@ -208,7 +196,7 @@ Definition dirprod_pr1_scott_continuous_map
 Notation "'π₁'" := (dirprod_pr1_scott_continuous_map _ _) : dcpo.
 
 (**
- 2.4. The second projection
+ 4. The second projection
  *)
 Proposition pr2_is_least_upperbound
             {X Y : hSet}
@@ -276,7 +264,7 @@ Definition dirprod_pr2_scott_continuous_map
 Notation "'π₂'" := (dirprod_pr2_scott_continuous_map _ _) : dcpo.
 
 (**
- 2.5. Pairing of functions
+ 5. Pairing of functions
  *)
 Proposition is_scott_continuous_prodtofun
             {W X Y : hSet}
@@ -351,7 +339,7 @@ Definition pair_scott_continuous
 Notation "⟨ f , g ⟩" := (pair_scott_continuous f g) : dcpo.
 
 (**
- 2.6. Lemmas on upperbounds in the product
+ 6. Lemmas on upperbounds in the product
  *)
 Proposition prod_dcpo_lub
             {X Y : dcpo}
@@ -423,7 +411,9 @@ Proof.
       * apply refl_dcpo.
 Qed.
 
-
+(**
+ 7. A basis for the product
+ *)
 Section ProductBasis.
   Context {X Y : dcpo}
           (BX : dcpo_basis X)

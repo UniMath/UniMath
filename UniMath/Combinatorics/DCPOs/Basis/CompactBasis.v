@@ -1,5 +1,23 @@
 (******************************************************************************
 
+ Compact Basis
+
+ In this file, we define the notion of a compact basis. The difference between
+ a basis and a compact basis is that a compact basis is required to only
+ consist of compact elements. We show that every compact basis gives the DCPO
+ the structure of an algebraic DCPO.
+
+ In addition, we also look at how to define maps using a compact basis. If we
+ have a basis on a DCPO, then every monotone map from the basis to a DCPO can
+ be extended to a Scott continuous map. However, this Scott continuous is in
+ general not unique. If the basis only consists of compact elements, then the
+ acquired map is actually unique. In addition, we have a stronger computation
+ rule [scott_continuous_map_from_compact_basis_eq]. For ordinary basis, this
+ rule only holds up to inequality.
+
+ References:
+ - Section 4.8 in https://tdejong.com/writings/phd-thesis.pdf
+
  Contents
  1. Compact basis
  2. Accessors and builders for compact bases

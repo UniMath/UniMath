@@ -1,5 +1,11 @@
 (******************************************************************************
 
+ Algebraic DCPOs
+
+ Continuous DCPOs are those with a basis: every elements is the supremum of all
+ elements that are way below it. The notion of algebraic DCPO is strong. It
+ says that there is a basis consisting of only compact elements (which are the
+ elements `x` such that `x ≪ x`).
 
  References:
  - Section 2 in https://www.cs.ox.ac.uk/files/298/handbook.pdf

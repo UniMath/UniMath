@@ -2,6 +2,22 @@
 
  The rounded ideal completion
 
+ In this file, we study the rounded ideal completion. Given an abstract basis,
+ the rounded ideal completion gives a continuous DCPO with that particular
+ basis. If the basis is reflexive (i.e., a preorder), then the resulting DCPO
+ is algebraic.
+
+ References:
+ - Section 2.2.6 in https://www.cs.ox.ac.uk/files/298/handbook.pdf
+ - Section 4.10 in https://tdejong.com/writings/phd-thesis.pdf
+
+ Contents
+ 1. Abstract bases
+ 2. Preorder to abstract basis
+ 3. Ideals
+ 4. Rounded ideal completion
+ 5. Rounded ideal completion for reflexive bases
+
  ******************************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.Posets.
@@ -13,10 +29,9 @@ Require Import UniMath.Combinatorics.DCPOs.Basis.Continuous.
 Require Import UniMath.Combinatorics.DCPOs.Basis.Algebraic.
 Require Import UniMath.Combinatorics.DCPOs.Basis.Basis.
 Require Import UniMath.Combinatorics.DCPOs.Basis.CompactBasis.
-Require Import UniMath.Combinatorics.DCPOs.Examples.Functions.
+Require Import UniMath.Combinatorics.DCPOs.Examples.Products.
 Require Import UniMath.Combinatorics.DCPOs.Examples.SubDCPO.
 Require Import UniMath.Combinatorics.DCPOs.Examples.Propositions.
-
 
 Local Open Scope dcpo.
 
@@ -143,7 +158,7 @@ Section PreorderToBasis.
 End PreorderToBasis.
 
 (**
- 3. Rounded ideal completion
+ 3. Ideals
  *)
 Section Ideals.
   Context {B : abstract_basis}.
@@ -200,6 +215,9 @@ Section Ideals.
   Qed.
 End Ideals.
 
+(**
+ 4. Rounded ideal completion
+ *)
 Section RoundedIdealCompletion.
   Context (B : abstract_basis).
 
@@ -491,6 +509,9 @@ Section RoundedIdealCompletion.
   Defined.
 End RoundedIdealCompletion.
 
+(**
+ 5. Rounded ideal completion for reflexive bases
+ *)
 Section RoundedIdealCompletionAlgebraic.
   Context (B : abstract_basis)
           (HB : is_reflexive_abstract_basis B).

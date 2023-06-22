@@ -18,12 +18,11 @@ Require Export UniMath.Combinatorics.DCPOs.Examples.Unit.
 Require Export UniMath.Combinatorics.DCPOs.Examples.Propositions.
 Require Export UniMath.Combinatorics.DCPOs.Examples.Discrete.
 Require Export UniMath.Combinatorics.DCPOs.Examples.SubDCPO.
-Require Export UniMath.Combinatorics.DCPOs.Examples.Functions.
-Require Export UniMath.Combinatorics.DCPOs.Examples.IdealCompletion.
 Require Export UniMath.Combinatorics.DCPOs.Examples.Equalizers.
 Require Export UniMath.Combinatorics.DCPOs.Examples.BinaryProducts.
 Require Export UniMath.Combinatorics.DCPOs.Examples.Products.
 Require Export UniMath.Combinatorics.DCPOs.Examples.Sums.
+Require Export UniMath.Combinatorics.DCPOs.Examples.IdealCompletion.
 Require Export UniMath.Combinatorics.DCPOs.Core.FubiniTheorem.
 Require Export UniMath.Combinatorics.DCPOs.Core.CoordinateContinuity.
 Require Export UniMath.Combinatorics.DCPOs.Examples.Exponentials.

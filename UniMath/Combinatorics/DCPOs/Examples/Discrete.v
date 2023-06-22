@@ -1,16 +1,15 @@
 (*****************************************************************
 
- Constructions on DCPOs
+ Discrete DCPOs
 
- In this file, we define numerous constructions on DCPOs. These
- constructions show that the category of DCPOs is complete.
-
- In addition, we show that every set gives rise to a discrete
- DCPO, whose underlying set is the given set and whose order is
- given by the identity relation.
+ Every set gives rise to a DCPO whose relation is given by
+ equality.
 
  Contents
- 5. Discrete DCPOs
+ 1. Definition of the discrete DCPO
+ 2. Maps from the discrete DCPO
+ 3. Counit of the discrete DCPO adjunction
+ 4. A basis for the discrete DCPO
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -27,7 +26,7 @@ Require Import UniMath.Combinatorics.DCPOs.Basis.Continuous.
 Local Open Scope dcpo.
 
 (**
- 5. Discrete DCPOs
+ 1. Definition of the discrete DCPO
  *)
 Section DiscreteDCPO.
   Context (A : hSet).
@@ -98,6 +97,9 @@ Proof.
     + apply refl_dcpo.
 Qed.
 
+(**
+ 2. Maps from the discrete DCPO
+ *)
 Definition monotone_function_discrete_dcpo
            {A : hSet}
            (X : dcpo)
@@ -175,6 +177,9 @@ Proof.
      apply refl_dcpo).
 Defined.
 
+(**
+ 3. Counit of the discrete DCPO adjunction
+ *)
 Definition discrete_dcpo_counit
            (A : dcpo)
   : is_scott_continuous (discrete_dcpo A) A (λ z, z).
@@ -229,6 +234,9 @@ Proof.
       apply refl_dcpo.
 Qed.
 
+(**
+ 4. A basis for the discrete DCPO
+ *)
 Section DiscreteDCPOBasis.
   Context (X : hSet).
 
