@@ -50,14 +50,14 @@ Section FixAFunctor.
  *)
 
 
-  Section cia_from_terminal_coalgebra.
+  Section cia_from_final_coalgebra.
 
     Context  (X : coalgebra_ob F) (isTerminalX : isTerminal (CoAlg_category F) X).
 
     Local Definition Xinv : algebra_ob F.
     Proof.
       exists (coalg_carrier _ X).
-      exact (inv_from_z_iso (terminalcoalgebra_z_iso _ _ _ isTerminalX)).
+      exact (inv_from_z_iso (finalcoalgebra_z_iso _ _ _ isTerminalX)).
     Defined.
 
     Local Definition ϕ_for_cia (x : C) (e : x --> CP (F x) (alg_carrier _ Xinv)) :
@@ -81,7 +81,7 @@ Section FixAFunctor.
       - intro H.
         red in H; red.
         apply pathsinv0 in H.
-        apply (z_iso_inv_on_left _ _ _ _ (terminalcoalgebra_z_iso _ _ _ isTerminalX)) in H.
+        apply (z_iso_inv_on_left _ _ _ _ (finalcoalgebra_z_iso _ _ _ isTerminalX)) in H.
         etrans; [ exact H |].
         clear H.
         unfold ϕ_for_cia.
@@ -136,7 +136,7 @@ Section FixAFunctor.
       - apply isaprop_cia_characteristic_formula.
     Qed.
 
-    Definition cia_from_terminal_coalgebra : cia Xinv.
+    Definition cia_from_final_coalgebra : cia Xinv.
     Proof.
       intros x e.
       simple refine (iscontrretract _ _ _ (primitive_corecursion CP isTerminalX (ϕ_for_cia x e))).
@@ -155,7 +155,7 @@ Section FixAFunctor.
     Qed.
 
 
-  End cia_from_terminal_coalgebra.
+  End cia_from_final_coalgebra.
 
 
 End FixAFunctor.

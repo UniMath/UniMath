@@ -61,7 +61,7 @@ Section FixTheContext.
 
   Definition I_H : functor V V := Const_plus_H I_{Mon_V}.
 
-Section TerminalCoalgebraToGHSS.
+Section FinalCoalgebraToGHSS.
 
   Context (νH : coalgebra_ob I_H)
           (isTerminalνH : isTerminal (CoAlg_category I_H) νH).
@@ -71,7 +71,7 @@ Section TerminalCoalgebraToGHSS.
   Let out_z_iso : z_iso t (I_H t) := terminalcoalgebra_z_iso _ I_H νH isTerminalνH.
   Let out_inv : I_H t --> t := inv_from_z_iso out_z_iso.
 
-  Definition terminal_coalg_to_ghss_step_term
+  Definition final_coalg_to_ghss_step_term
              {Z : PtdV} (f : pr1 Z --> t)
     : Z ⊗_{Act} t --> I_H (CP (Z ⊗_{Act} t) t).
   Proof.
@@ -83,7 +83,7 @@ Section TerminalCoalgebraToGHSS.
   Defined.
 
   (** an alternative route through completely iterative algebras *)
-  Definition terminal_coalg_to_ghss_equation_morphism
+  Definition final_coalg_to_ghss_equation_morphism
              {Z : PtdV} (f : pr1 Z --> t)
     : Z ⊗_{Act} t --> CP (I_H (Z ⊗_{Act} t)) t.
   Proof.
@@ -97,13 +97,13 @@ Section TerminalCoalgebraToGHSS.
       apply BinCoproductIn1.
   Defined.
 
-  Lemma terminal_coalg_to_ghss_equation_morphism_is_factor
+  Lemma final_coalg_to_ghss_equation_morphism_is_factor
     {Z : PtdV} (f : pr1 Z --> t)
-    :  terminal_coalg_to_ghss_step_term f =
+    :  final_coalg_to_ghss_step_term f =
          CompletelyIterativeAlgebras.ϕ_for_cia CP I_H νH isTerminalνH
-           (Z ⊗_{Act} t) (terminal_coalg_to_ghss_equation_morphism f).
+           (Z ⊗_{Act} t) (final_coalg_to_ghss_equation_morphism f).
   Proof.
-    unfold terminal_coalg_to_ghss_step_term, CompletelyIterativeAlgebras.ϕ_for_cia, terminal_coalg_to_ghss_equation_morphism.
+    unfold final_coalg_to_ghss_step_term, CompletelyIterativeAlgebras.ϕ_for_cia, final_coalg_to_ghss_equation_morphism.
     repeat rewrite assoc'.
     do 3 apply maponpaths.
     unfold Const_plus_H, GeneralizedSubstitutionSystems.Const_plus_H. cbn. unfold BinCoproduct_of_functors_mor.
@@ -135,7 +135,7 @@ Section TerminalCoalgebraToGHSS.
   Qed.
 
   Local Definition ϕ {Z : PtdV} (f : pr1 Z --> t)
-    := terminal_coalg_to_ghss_step_term f.
+    := final_coalg_to_ghss_step_term f.
   Local Definition Corec_ϕ {Z : PtdV} (f : pr1 Z --> t)
     := primitive_corecursion CP isTerminalνH (x :=  Z ⊗_{Act} t) (ϕ f).
 
@@ -183,7 +183,7 @@ Section TerminalCoalgebraToGHSS.
       apply idpath.
   Qed.
 
-  Lemma terminal_coalg_to_ghss_has_equivalent_characteristic_formula
+  Lemma final_coalg_to_ghss_has_equivalent_characteristic_formula
     {Z : PtdV} (f : pr1 Z --> t) (h : Z ⊗_{Act} t --> t) :
     primitive_corecursion_characteristic_formula CP (ϕ f) h ≃
       gbracket_property_parts Mon_V H θ t η τ (pr2 Z) f h.
@@ -200,7 +200,7 @@ Section TerminalCoalgebraToGHSS.
       { apply maponpaths.
         exact Hcorec. }
       clear Hcorec.
-      unfold ϕ, terminal_coalg_to_ghss_step_term.
+      unfold ϕ, final_coalg_to_ghss_step_term.
       etrans.
       { repeat rewrite assoc.
         do 6 apply cancel_postcomposition.
@@ -261,7 +261,7 @@ Section TerminalCoalgebraToGHSS.
       { apply cancel_postcomposition.
         exact Hghss. }
       clear Hghss.
-      unfold ϕ, terminal_coalg_to_ghss_step_term.
+      unfold ϕ, final_coalg_to_ghss_step_term.
       repeat rewrite assoc'.
       do 2 apply maponpaths.
       etrans.
@@ -292,7 +292,7 @@ Section TerminalCoalgebraToGHSS.
     - apply isaprop_gbracket_property_parts.
   Qed.
 
-  Definition terminal_coalg_to_ghss : ghss Mon_V H θ.
+  Definition final_coalg_to_ghss : ghss Mon_V H θ.
   Proof.
     exists t.
     exists η.
@@ -300,9 +300,9 @@ Section TerminalCoalgebraToGHSS.
     intros Z f.
     simple refine (iscontrretract _ _ _ (Corec_ϕ f)).
     - intros [h Hyp].
-      exists h. apply terminal_coalg_to_ghss_has_equivalent_characteristic_formula. exact Hyp.
+      exists h. apply final_coalg_to_ghss_has_equivalent_characteristic_formula. exact Hyp.
     - intros [h Hyp].
-      exists h. apply terminal_coalg_to_ghss_has_equivalent_characteristic_formula. exact Hyp.
+      exists h. apply final_coalg_to_ghss_has_equivalent_characteristic_formula. exact Hyp.
     - intros [h Hyp].
       use total2_paths_f.
       + apply idpath.
@@ -310,11 +310,11 @@ Section TerminalCoalgebraToGHSS.
   Defined.
 
   (** the alternative proof through cia *)
-  Lemma terminal_coalg_to_ghss_equation_morphism_has_equivalent_characteristic_formula
+  Lemma final_coalg_to_ghss_equation_morphism_has_equivalent_characteristic_formula
     {Z : PtdV} (f : pr1 Z --> t) (h : Z ⊗_{Act} t --> t) :
     cia_characteristic_formula CP I_H
       (CompletelyIterativeAlgebras.Xinv _ _ isTerminalνH)
-      (terminal_coalg_to_ghss_equation_morphism f) h ≃
+      (final_coalg_to_ghss_equation_morphism f) h ≃
       gbracket_property_parts Mon_V H θ t η τ (pr2 Z) f h.
   Proof.
     apply weqimplimpl.
@@ -327,7 +327,7 @@ Section TerminalCoalgebraToGHSS.
       { apply maponpaths.
         exact Hcia. }
       clear Hcia.
-      unfold terminal_coalg_to_ghss_equation_morphism.
+      unfold final_coalg_to_ghss_equation_morphism.
       etrans.
       { repeat rewrite assoc'.
         apply maponpaths.
@@ -381,7 +381,7 @@ Section TerminalCoalgebraToGHSS.
       etrans.
       { exact Hghss. }
       clear Hghss.
-      unfold terminal_coalg_to_ghss_equation_morphism.
+      unfold final_coalg_to_ghss_equation_morphism.
       repeat rewrite assoc'.
       do 3 apply maponpaths.
       unfold GeneralizedSubstitutionSystems.Const_plus_H. cbn.
@@ -410,25 +410,25 @@ Section TerminalCoalgebraToGHSS.
   Qed.
   (** this proof is a bit shorter and does not need the hand-crafted auxiliary lemma [changing_the_constant_Const_plus_H] *)
 
-  Definition terminal_coalg_to_ghss_alt : ghss Mon_V H θ.
+  Definition final_coalg_to_ghss_alt : ghss Mon_V H θ.
   Proof.
     exists t.
     exists η.
     exists τ.
     intros Z f.
-    simple refine (iscontrretract _ _ _ (cia_from_terminal_coalgebra CP I_H
-      _ isTerminalνH _ (terminal_coalg_to_ghss_equation_morphism f))).
+    simple refine (iscontrretract _ _ _ (cia_from_final_coalgebra CP I_H
+      _ isTerminalνH _ (final_coalg_to_ghss_equation_morphism f))).
     - intros [h Hyp].
-      exists h. apply terminal_coalg_to_ghss_equation_morphism_has_equivalent_characteristic_formula. exact Hyp.
+      exists h. apply final_coalg_to_ghss_equation_morphism_has_equivalent_characteristic_formula. exact Hyp.
     - intros [h Hyp].
-      exists h. apply terminal_coalg_to_ghss_equation_morphism_has_equivalent_characteristic_formula. exact Hyp.
+      exists h. apply final_coalg_to_ghss_equation_morphism_has_equivalent_characteristic_formula. exact Hyp.
     - intros [h Hyp].
       use total2_paths_f.
       + apply idpath.
       + apply isaprop_gbracket_property_parts.
   Defined.
 
-End TerminalCoalgebraToGHSS.
+End FinalCoalgebraToGHSS.
 
 Section InitialAlgebraToGHSS.
 
