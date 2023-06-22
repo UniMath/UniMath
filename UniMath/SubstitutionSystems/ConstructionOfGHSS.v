@@ -68,7 +68,7 @@ Section FinalCoalgebraToGHSS.
 
   Let t : V := pr1 νH.
   Let out : t --> I_H t := pr2 νH.
-  Let out_z_iso : z_iso t (I_H t) := terminalcoalgebra_z_iso _ I_H νH isTerminalνH.
+  Let out_z_iso : z_iso t (I_H t) := finalcoalgebra_z_iso _ I_H νH isTerminalνH.
   Let out_inv : I_H t --> t := inv_from_z_iso out_z_iso.
 
   Definition final_coalg_to_ghss_step_term
