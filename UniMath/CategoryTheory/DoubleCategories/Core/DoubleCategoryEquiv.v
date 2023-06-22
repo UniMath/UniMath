@@ -7,9 +7,6 @@ Require Import UniMath.CategoryTheory.DoubleCategories.Core.DoubleCategories.
 
 Local Open Scope cat.
 
-Definition TODO { A : UU } : A.
-Admitted.
-
 (**
  rename homset_property.
 
@@ -337,9 +334,9 @@ Section FromDoubleCategoryViaTwoSided.
       apply Categories.homset_property.
     - intros x y.
       use isaset_total2 ; [ | intro f ; use isaset_total2 ].
-      + admit.
-      + admit.
+      + apply Categories.homset_property.
+      + apply Categories.homset_property.
       + intro g ; cbn.
         apply isaset_disp_mor.
-  Admitted.
+  Defined.
 End FromDoubleCategoryViaTwoSided.
