@@ -541,6 +541,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [TwoSidedDisplayedCats/Total.v](CategoryTheory/TwoSidedDisplayedCats/Total.v)
    - [TwoSidedDisplayedCats/TwoSidedFibration.v](CategoryTheory/TwoSidedDisplayedCats/TwoSidedFibration.v)
    - [TwoSidedDisplayedCats/Fiber.v](CategoryTheory/TwoSidedDisplayedCats/Fiber.v)
+   - [TwoSidedDisplayedCats/DoubleCategory.v](CategoryTheory/TwoSidedDisplayedCats/DoubleCategory.v)
    - [TwoSidedDisplayedCats/DisplayedFunctor.v](CategoryTheory/TwoSidedDisplayedCats/DisplayedFunctor.v)
    - [TwoSidedDisplayedCats/DisplayedNatTrans.v](CategoryTheory/TwoSidedDisplayedCats/DisplayedNatTrans.v)
    - [TwoSidedDisplayedCats/Examples/Constant.v](CategoryTheory/TwoSidedDisplayedCats/Examples/Constant.v)
