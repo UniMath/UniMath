@@ -372,6 +372,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Examples/Reindexing.v](CategoryTheory/DisplayedCats/Examples/Reindexing.v)
    - [DisplayedCats/Constructions.v](CategoryTheory/DisplayedCats/Constructions.v)
    - [FunctorAlgebras.v](CategoryTheory/FunctorAlgebras.v)
+   - [CompletelyIterativeAlgebras.v](CategoryTheory/CompletelyIterativeAlgebras.v)
    - [Chains/Adamek.v](CategoryTheory/Chains/Adamek.v)
    - [Chains/CoAdamek.v](CategoryTheory/Chains/CoAdamek.v)
    - [Chains/OmegaCocontFunctors.v](CategoryTheory/Chains/OmegaCocontFunctors.v)
