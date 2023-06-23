@@ -1,6 +1,6 @@
 (** ****************************************************************
 
-Completely iterative algebras according to Stefan Milius (Information and Computation 2005)
+Completely iterative algebras according to Stefan Milius, Completely iterative algebras and completely iterative monads, https://doi.org/10.1016/j.ic.2004.05.003
 
 Ralph Matthes, June 2023
 
