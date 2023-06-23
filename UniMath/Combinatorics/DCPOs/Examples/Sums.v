@@ -2,7 +2,7 @@
 
  Set indexed coproducts of DCPOs
 
- We construct set indexed coproducts of DCPOs. For the idea
+ We construct set-indexed coproducts of DCPOs. For the idea
  behind the construction see the header of the file about binary
  sums.
 
