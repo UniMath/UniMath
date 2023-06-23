@@ -22,8 +22,8 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.Posets.Basics.
 Require Import UniMath.Combinatorics.Posets.MonotoneFunctions.
 Require Import UniMath.Combinatorics.Posets.PointedPosets.
-Require Import UniMath.Combinatorics.DCPOs.DirectedSets.
-Require Import UniMath.Combinatorics.DCPOs.DCPOBasics.
+Require Import UniMath.Combinatorics.DCPOs.Core.DirectedSets.
+Require Import UniMath.Combinatorics.DCPOs.Core.Basics.
 
 Local Open Scope dcpo.
 

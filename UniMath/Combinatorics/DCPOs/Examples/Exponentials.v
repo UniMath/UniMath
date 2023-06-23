@@ -19,12 +19,12 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.Posets.Basics.
 Require Import UniMath.Combinatorics.Posets.MonotoneFunctions.
 Require Import UniMath.Combinatorics.Posets.PointedPosets.
-Require Import UniMath.Combinatorics.DCPOs.DirectedSets.
-Require Import UniMath.Combinatorics.DCPOs.DCPOBasics.
-Require Import UniMath.Combinatorics.DCPOs.ScottContinuous.
-Require Import UniMath.Combinatorics.DCPOs.Constructions.
-Require Import UniMath.Combinatorics.DCPOs.FubiniTheorem.
-Require Import UniMath.Combinatorics.DCPOs.CoordinateContinuity.
+Require Import UniMath.Combinatorics.DCPOs.Core.DirectedSets.
+Require Import UniMath.Combinatorics.DCPOs.Core.Basics.
+Require Import UniMath.Combinatorics.DCPOs.Core.ScottContinuous.
+Require Import UniMath.Combinatorics.DCPOs.Core.FubiniTheorem.
+Require Import UniMath.Combinatorics.DCPOs.Core.CoordinateContinuity.
+Require Import UniMath.Combinatorics.DCPOs.Examples.BinaryProducts.
 
 Local Open Scope dcpo.
 

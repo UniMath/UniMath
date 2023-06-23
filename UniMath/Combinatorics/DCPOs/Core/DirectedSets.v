@@ -283,10 +283,43 @@ Proof.
       * exact p.
 Qed.
 
-Definition nat_directed_set
+Definition nat_directed_set_monotone
            {X : hSet}
            (PX : PartialOrder X)
            (D : ℕ → X)
            (HD : ∏ (i j : ℕ), i ≤ j → PX (D i) (D j))
   : directed_set PX
   := ℕ ,, D ,, is_directed_nat PX D HD.
+
+Proposition nat_directed_set_help_monotone
+            {X : hSet}
+            (PX : PartialOrder X)
+            (D : ℕ → X)
+            (HD : ∏ (i : ℕ), PX (D i) (D (S i)))
+            (i k : ℕ)
+  : PX (D i) (D (i + k)).
+Proof.
+  induction k as [ | k IHk ].
+  - rewrite natplusr0.
+    apply refl_PartialOrder.
+  - rewrite <- plus_n_Sm.
+    refine (trans_PartialOrder PX IHk _).
+    apply HD.
+Qed.
+
+Definition nat_directed_set
+           {X : hSet}
+           (PX : PartialOrder X)
+           (D : ℕ → X)
+           (HD : ∏ (i : ℕ), PX (D i) (D (S i)))
+  : directed_set PX.
+Proof.
+  use (nat_directed_set_monotone PX D).
+  abstract
+    (intros i j p ;
+     pose (k := nat_le_diff p) ;
+     induction k as [ k q ] ;
+     rewrite <- q ;
+     use nat_directed_set_help_monotone ;
+     exact HD).
+Defined.
