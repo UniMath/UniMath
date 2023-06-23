@@ -147,16 +147,14 @@ Section Total_Category.
     : is_z_isomorphism ff.
   Proof.
     exists (inv_from_z_iso fi,, pr1 ii).
-    split.
-    - use total2_paths_f.
-      apply (z_iso_inv_after_z_iso fi).
-      etrans. apply maponpaths. apply (inv_mor_after_z_iso_disp ii).
-      apply transportfbinv.
-    - use total2_paths_f.
-      apply (z_iso_after_z_iso_inv fi).
-      etrans. apply maponpaths. apply (z_iso_disp_after_inv_mor ii).
-      apply transportfbinv.
-  Qed.
+    abstract (
+      refine (total2_paths_f _ _ ,, total2_paths_f _ _);
+      [
+        exact (maponpaths _ (inv_mor_after_z_iso_disp ii) @ transportfbinv _ _ _) |
+        exact (maponpaths _ (z_iso_disp_after_inv_mor ii) @ transportfbinv _ _ _)
+      ]
+    ).
+  Defined.
 
   Definition inv_from_z_iso_in_total
              {C : category}
