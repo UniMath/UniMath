@@ -15,8 +15,10 @@
  We also look at properties of the way-below relation.
 
  References:
- - Section 2 in https://www.cs.ox.ac.uk/files/298/handbook.pdf
- - Section 4.2 in https://tdejong.com/writings/phd-thesis.pdf
+ - Section 2 in the chapter 'Domain Theory' of the Handbook for Logic in
+   Computer Science, Volume 3 (https://www.cs.ox.ac.uk/files/298/handbook.pdf)
+ - Section 4.2 in Domain Theory in Constructive and Predicative Univalent
+   Foundations (https://tdejong.com/writings/phd-thesis.pdf)
 
  Contents:
  1. Definition of the way-below relation

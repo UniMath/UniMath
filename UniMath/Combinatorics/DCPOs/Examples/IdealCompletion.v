@@ -17,8 +17,10 @@
  in U_{max ℓ 1}.
 
  References:
- - Section 2.2.6 in https://www.cs.ox.ac.uk/files/298/handbook.pdf
- - Section 4.10 in https://tdejong.com/writings/phd-thesis.pdf
+ - Section 2.2.6 in the chapter 'Domain Theory' of the Handbook for Logic in
+   Computer Science, Volume 3 (https://www.cs.ox.ac.uk/files/298/handbook.pdf)
+ - Section 4.10 in Domain Theory in Constructive and Predicative Univalent
+   Foundations (https://tdejong.com/writings/phd-thesis.pdf)
 
  Contents
  1. Abstract bases

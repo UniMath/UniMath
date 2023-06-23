@@ -3,13 +3,15 @@
  Algebraic DCPOs
 
  Continuous DCPOs are those with a basis: every elements is the supremum of all
- elements that are way below it. The notion of algebraic DCPO is strong. It
+ elements that are way below it. The notion of algebraic DCPO is stronger. It
  says that there is a basis consisting of only compact elements (which are the
  elements `x` such that `x ≪ x`).
 
  References:
- - Section 2 in https://www.cs.ox.ac.uk/files/298/handbook.pdf
- - Section 4.6 in https://tdejong.com/writings/phd-thesis.pdf
+ - Section 2 in the chapter 'Domain Theory' of the Handbook for Logic in
+   Computer Science, Volume 3 (https://www.cs.ox.ac.uk/files/298/handbook.pdf)
+ - Section 4.6 in Domain Theory in Constructive and Predicative Univalent
+   Foundations (https://tdejong.com/writings/phd-thesis.pdf)
 
  Contents
  1. Compact elements

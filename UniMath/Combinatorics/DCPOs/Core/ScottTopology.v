@@ -10,7 +10,8 @@
  We also prove some basic properties of these sets.
 
  References:
- - Section 2 in https://www.cs.ox.ac.uk/files/298/handbook.pdf
+ - Section 2 in the chapter 'Domain Theory' of the Handbook for Logic in
+   Computer Science, Volume 3 (https://www.cs.ox.ac.uk/files/298/handbook.pdf)
  - https://arxiv.org/pdf/2106.05064.pdf
 
  Contents
