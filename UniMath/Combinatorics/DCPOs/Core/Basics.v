@@ -27,7 +27,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.Posets.Basics.
 Require Import UniMath.Combinatorics.Posets.MonotoneFunctions.
 Require Import UniMath.Combinatorics.Posets.PointedPosets.
-Require Import UniMath.Combinatorics.DCPOs.DirectedSets.
+Require Import UniMath.Combinatorics.DCPOs.Core.DirectedSets.
 
 Local Open Scope dcpo.
 
@@ -217,6 +217,16 @@ Proposition refl_dcpo
   : x ≤ x.
 Proof.
   apply refl_PartialOrder.
+Qed.
+
+Definition eq_to_le_dcpo
+           {X : dcpo}
+           {x y : X}
+           (p : x = y)
+  : x ≤ y.
+Proof.
+  induction p.
+  apply refl_dcpo.
 Qed.
 
 Proposition trans_dcpo
