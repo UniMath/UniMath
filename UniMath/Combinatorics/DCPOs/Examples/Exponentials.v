@@ -288,6 +288,11 @@ Proof.
       exact (scott_continuous_map_on_lub f D).
 Qed.
 
+Definition eval_scott_continuous_map
+           (X Y : dcpo)
+  : scott_continuous_map (X × dcpo_funspace X Y) Y
+  := _ ,, is_scott_continuous_eval X Y.
+
 (**
  5. Abstraction
  *)
@@ -335,3 +340,17 @@ Proof.
       * exact i.
       * apply refl_dcpo.
 Qed.
+
+Definition lam_scott_continuous_map
+           {X Y Z : dcpo}
+           (f : scott_continuous_map (X × Z) Y)
+  : scott_continuous_map Z (dcpo_funspace X Y).
+Proof.
+  refine (_ ,, is_scott_continuous_lam f _).
+  abstract
+    (intro z ;
+     refine (comp_is_scott_continuous _ (pr2 f)) ;
+     use is_scott_continuous_prodtofun ;
+     [ apply id_is_scott_continuous
+     | apply is_scott_continuous_constant ]).
+Defined.

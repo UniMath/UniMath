@@ -31,8 +31,6 @@ DCPOs/Basis/CompactBasis.v
 DCPOs/Core/ScottTopology.v
 DCPOs/Core/IntrinsicApartness.v
 
-DCPOs/LeastFixpoint.v
-
 DCPOs/Elements/Sharp.v
 DCPOs/Elements/Maximal.v
 
@@ -40,6 +38,7 @@ DCPOs/Examples/Unit.v
 DCPOs/Examples/Propositions.v
 DCPOs/Examples/Discrete.v
 DCPOs/Examples/SubDCPO.v
+DCPOs/Examples/Fixpoints.v
 DCPOs/Examples/Equalizers.v
 DCPOs/Examples/BinaryProducts.v
 DCPOs/Examples/Products.v
@@ -51,6 +50,8 @@ DCPOs/Core/FubiniTheorem.v
 DCPOs/Core/CoordinateContinuity.v
 
 DCPOs/Examples/Exponentials.v
+
+DCPOs/FixpointTheorems/LeastFixpoint.v
 
 DCPOs.v
 
