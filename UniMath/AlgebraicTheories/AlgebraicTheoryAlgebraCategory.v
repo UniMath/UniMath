@@ -98,7 +98,7 @@ Proof.
   repeat (apply impred_isaprop; intro).
   apply setproperty.
 Qed.
-
+(*
 Lemma is_univalent_disp_algebraic_theory_algebra_data_full_disp_cat
   : is_univalent_disp algebraic_theory_algebra_data_full_disp_cat.
 Proof.
@@ -156,3 +156,4 @@ Proof.
   - exact is_univalent_disp_algebraic_theory_algebra_data_full_disp_cat.
   - exact is_univalent_disp_algebraic_theory_algebra_full_disp_cat.
 Qed.
+*)
