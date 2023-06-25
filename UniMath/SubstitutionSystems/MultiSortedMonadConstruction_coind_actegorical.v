@@ -463,7 +463,7 @@ Section monad.
   Definition coindGHSSOfMultiSortedSig_CAT (sig : MultiSortedSig sort) (Cuniv : is_univalent C) :
     ghss (monendocat_monoidal sortToC) (MultiSortedSigToFunctor' sig) (MultiSortedSigToStrength' sig).
   Proof.
-    use (terminal_coalg_to_ghss (MultiSortedSigToStrength' sig) BCsortToC1).
+    use (final_coalg_to_ghss (MultiSortedSigToStrength' sig) BCsortToC1).
     - apply BindingSigToMonad_actegorical.bincoprod_distributor_pointed_CAT.
     - exact (pr1 (coindCodatatypeOfMultisortedBindingSig_CAT sig Cuniv)).
     - exact (pr2 (coindCodatatypeOfMultisortedBindingSig_CAT sig Cuniv)).

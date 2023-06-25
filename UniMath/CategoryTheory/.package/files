@@ -219,6 +219,7 @@ DisplayedCats/Constructions.v
 DisplayedCats/Examples/Sigma.v
 
 FunctorAlgebras.v
+CompletelyIterativeAlgebras.v
 Chains/Adamek.v
 Chains/CoAdamek.v
 Chains/OmegaCocontFunctors.v
