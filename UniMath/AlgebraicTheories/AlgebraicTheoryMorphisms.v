@@ -90,7 +90,7 @@ Lemma isaprop_is_algebraic_theory_morphism
   : isaprop (is_algebraic_theory_morphism F).
 Proof.
   intros.
-  unfold is_algebraic_theory_morphism, preserves_composition.
+  unfold is_algebraic_theory_morphism, preserves_id_pr, preserves_composition.
   prove_hlevel.
 Qed.
 

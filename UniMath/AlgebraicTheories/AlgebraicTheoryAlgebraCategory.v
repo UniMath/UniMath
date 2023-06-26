@@ -35,15 +35,9 @@ Definition algebraic_theory_algebra_data_full_disp_cat
 Proof.
   use disp_struct.
   - intro X.
-    pose (T := pr1 X : algebraic_theory).
-    pose (A := pr2 X : hSet).
-    exact (∏ n, (T n : hSet) → (stn n → A) → A).
+    exact (∏ n, ((pr1 X : algebraic_theory) n : hSet) → (stn n → (pr2 X : hSet)) → (pr2 X : hSet)).
   - intros X X' action action' Y.
-    pose (A := make_algebraic_theory_algebra_data (pr2 X) action).
-    pose (A' := make_algebraic_theory_algebra_data (pr2 X') action').
-    pose (F := pr1 Y : algebraic_theory_morphism _ _).
-    pose (G := pr2 Y : A → A').
-    exact (∏ n f a, G (action n f a) = action' n (F _ f) (λ i, G (a i))).
+    exact (∏ n f a, (pr2 Y) (action n f a) = action' n ((pr1 Y : algebraic_theory_morphism _ _) _ f) (λ i, (pr2 Y) (a i))).
   - abstract (
       intros;
       prove_hlevel
@@ -92,6 +86,7 @@ Lemma displayed_algebra_morphism_eq
   : G = G'.
 Proof.
   apply (subtypePairEquality' H).
+  refine (_ : isaprop (∑ _: (∏ n, _), _)).
   prove_hlevel.
 Qed.
 
@@ -106,17 +101,21 @@ Proof.
     pose (H := pr1 f x x0 x1).
     refine (!_ @ H @ maponpaths (action' x x0) _).
     + refine (maponpaths (λ a, a (action x x0 x1)) (transportf_set _ _ _ _)).
+      refine (_ : isaset (_ = _)).
       prove_hlevel.
     + apply funextfun.
       intro.
       refine (maponpaths (λ a, a (x1 _)) (transportf_set _ _ _ _)).
+      refine (_ : isaset (_ = _)).
       prove_hlevel.
   - intro.
     prove_hlevel.
+    refine (_ : isofhlevel _ (∏ n, _)).
+    prove_hlevel.
   - intro.
     apply z_iso_eq.
-    do 3 (apply impred_isaprop; intro).
-    apply setproperty.
+    refine (pr1 ((_ : isofhlevel 1 (∏ n , _)) _ _)).
+    prove_hlevel.
 Qed.
 
 Lemma is_univalent_algebraic_theory_algebra_data_full_cat

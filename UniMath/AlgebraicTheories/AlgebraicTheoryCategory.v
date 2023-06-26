@@ -102,8 +102,12 @@ Proof.
     apply (pr1 f _).
   - intro.
     prove_hlevel.
+    refine (_ : isofhlevel _ (∏ m, _)).
+    prove_hlevel.
   - intro.
     apply z_iso_eq.
+    prove_hlevel.
+    refine (_ : isofhlevel _ (∏ m, _)).
     prove_hlevel.
 Qed.
 

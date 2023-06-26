@@ -26,6 +26,7 @@ Proof.
   use make_category.
   - exact finite_set_skeleton_precat.
   - do 2 intro.
+    refine (_ : isaset (_ → _)).
     prove_hlevel.
     apply isasetstn.
 Defined.
