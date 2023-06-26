@@ -15,6 +15,8 @@ Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms2.
 
+Require Import UniMath.AlgebraicTheories.Tactics.
+
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
 
@@ -87,10 +89,9 @@ Lemma isaprop_is_algebraic_theory_morphism
   (F : base_nat_trans T T')
   : isaprop (is_algebraic_theory_morphism F).
 Proof.
-  intro.
-  repeat apply isapropdirprod;
-    repeat (apply impred_isaprop; intro);
-    apply setproperty.
+  intros.
+  unfold is_algebraic_theory_morphism, preserves_composition.
+  prove_hlevel.
 Qed.
 
 Definition make_algebraic_theory_morphism
@@ -184,7 +185,7 @@ Proof.
     apply H1.
   - apply isaprop_is_nat_trans, homset_property.
   - apply setproperty.
-  - repeat (apply impred_isaprop; intro).
-    apply setproperty.
+  - unfold preserves_composition.
+    prove_hlevel.
   - exact isapropunit.
 Qed.

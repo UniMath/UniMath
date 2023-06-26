@@ -7,6 +7,8 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryAlgebras.
 
+Require Import UniMath.AlgebraicTheories.Tactics.
+
 Definition preserves_action
   {T : algebraic_theory_data}
   {A A' : algebraic_theory_algebra_data T}
@@ -43,6 +45,6 @@ Lemma isaprop_preserves_action
   (F : A → A')
   : isaprop (preserves_action F).
 Proof.
-  repeat (apply impred_isaprop; intro).
-  apply setproperty.
+  unfold preserves_action.
+  prove_hlevel.
 Qed.

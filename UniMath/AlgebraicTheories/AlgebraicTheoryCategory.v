@@ -21,6 +21,8 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 
+Require Import UniMath.AlgebraicTheories.Tactics.
+
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
 
@@ -36,7 +38,7 @@ Proof.
     exact ((T : base_functor) 1 : hSet).
   - intros T T' Tdata T'data F.
     exact ((F : base_nat_trans _ _) _ Tdata = T'data).
-  - abstract (intros; apply setproperty).
+  - abstract (intros; prove_hlevel).
   - now intros.
   - intros T T' T'' e e' e'' F F' HF HF'.
     now rewrite (!HF'), (!HF).
@@ -54,8 +56,7 @@ Proof.
   - exact (λ T T' Tdata T'data (F : pointed_functor_morphism T T'),
       ∏ m n f g, (F _ (Tdata m n f g)) = T'data m n (F _ f) (λ i, F _ (g i))).
   - intros.
-    repeat (apply impred_isaprop; intro).
-    apply setproperty.
+    prove_hlevel.
   - now intros.
   - intros T T' T'' Tdata T'data T''data F F' Fdata F'data m n f g.
     cbn.
@@ -100,13 +101,10 @@ Proof.
     do 4 (apply funextsec; intro).
     apply (pr1 f _).
   - intro.
-    assert (H : isaset algebraic_theory_data_disp_cat[{T}]); [ | apply H].
-    do 4 (apply impred_isaset; intro).
-    apply setproperty.
+    prove_hlevel.
   - intro.
     apply z_iso_eq.
-    do 4 (apply impred_isaprop; intro).
-    apply setproperty.
+    prove_hlevel.
 Qed.
 
 Lemma is_univalent_algebraic_theory_cat

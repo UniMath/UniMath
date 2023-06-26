@@ -25,6 +25,7 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheoryAlgebras.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryAlgebraMorphisms.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.AlgebraicTheories.Tactics.
 
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
@@ -45,8 +46,7 @@ Proof.
     exact (∏ n f a, G (action n f a) = action' n (F _ f) (λ i, G (a i))).
   - abstract (
       intros;
-      do 3 (apply impred_isaprop; intro);
-      apply setproperty
+      prove_hlevel
     ).
   - abstract (
       intros X action n f a;
@@ -92,9 +92,7 @@ Lemma displayed_algebra_morphism_eq
   : G = G'.
 Proof.
   apply (subtypePairEquality' H).
-  use (isapropdirprod _ _ _ isapropunit).
-  repeat (apply impred_isaprop; intro).
-  apply setproperty.
+  prove_hlevel.
 Qed.
 
 Lemma is_univalent_disp_algebraic_theory_algebra_data_full_disp_cat
@@ -108,14 +106,13 @@ Proof.
     pose (H := pr1 f x x0 x1).
     refine (!_ @ H @ maponpaths (action' x x0) _).
     + refine (maponpaths (λ a, a (action x x0 x1)) (transportf_set _ _ _ _)).
-      exact (isasetaprop (isasetunit _ _)).
+      prove_hlevel.
     + apply funextfun.
       intro.
       refine (maponpaths (λ a, a (x1 _)) (transportf_set _ _ _ _)).
-      exact (isasetaprop (isasetunit _ _)).
+      prove_hlevel.
   - intro.
-    do 3 (apply impred_isaset; intro).
-    apply setproperty.
+    prove_hlevel.
   - intro.
     apply z_iso_eq.
     do 3 (apply impred_isaprop; intro).

@@ -9,6 +9,8 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 
+Require Import UniMath.AlgebraicTheories.Tactics.
+
 Local Open Scope algebraic_theories.
 
 Definition algebraic_theory_morphism'_data (T T' : algebraic_theory_data) : UU
@@ -46,9 +48,8 @@ Lemma isaprop_is_algebraic_theory_morphism'
   (F : algebraic_theory_morphism'_data T T')
   : isaprop (is_algebraic_theory_morphism' F).
 Proof.
-  repeat apply isapropdirprod;
-    repeat (apply impred_isaprop; intros);
-    apply setproperty.
+  unfold is_algebraic_theory_morphism', preserves_composition, preserves_projections.
+  prove_hlevel.
 Qed.
 
 Definition algebraic_theory_morphism'

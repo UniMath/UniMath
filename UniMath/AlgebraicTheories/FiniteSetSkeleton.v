@@ -5,6 +5,8 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.Core.Categories.
 
+Require Import UniMath.AlgebraicTheories.Tactics.
+
 Definition finite_set_skeleton_precat : precategory.
 Proof.
   use make_precategory.
@@ -24,6 +26,6 @@ Proof.
   use make_category.
   - exact finite_set_skeleton_precat.
   - do 2 intro.
-    apply funspace_isaset.
+    prove_hlevel.
     apply isasetstn.
 Defined.

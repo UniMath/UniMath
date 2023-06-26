@@ -17,6 +17,8 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryAlgebras.
 
+Require Import UniMath.AlgebraicTheories.Tactics.
+
 Local Open Scope cat.
 Local Open Scope mor_disp.
 
@@ -29,13 +31,8 @@ Lemma concat_displayed_cartesian_morphisms
   (G : A -->[F] A') (G' : A' -->[F'] A'')
   : (G ;; G') = G · G'.
 Proof.
-  unfold comp_disp.
-  simpl.
-  unfold transportb.
-  rewrite transportf_set.
-  - apply idpath.
-  - apply isasetaprop,
-      isasetunit.
+  refine (transportf_set _ (! functor_comp (functor_to_unit _) F F') _ _).
+  prove_hlevel.
 Qed.
 
 Definition algebra_cleaving_algebra_data

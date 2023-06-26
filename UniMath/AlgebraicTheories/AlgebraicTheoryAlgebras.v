@@ -11,6 +11,8 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 
+Require Import UniMath.AlgebraicTheories.Tactics.
+
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
 
@@ -134,9 +136,8 @@ Lemma isaprop_is_algebraic_theory_algebra
   (A : algebraic_theory_algebra_data T)
   : isaprop (is_algebraic_theory_algebra A).
 Proof.
-  repeat apply isapropdirprod;
-    repeat (apply impred_isaprop; intro);
-    apply setproperty.
+  unfold is_algebraic_theory_algebra, is_assoc, is_unital, is_natural.
+  prove_hlevel.
 Qed.
 
 Lemma algebraic_theory_algebra_eq

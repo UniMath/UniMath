@@ -15,6 +15,8 @@ Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories2.
 
+Require Import UniMath.AlgebraicTheories.Tactics.
+
 Declare Scope algebraic_theories.
 
 Local Open Scope cat.
@@ -177,9 +179,8 @@ End MakeAlgebraicTheory'.
 
 Lemma isaprop_is_algebraic_theory (T : algebraic_theory_data) : isaprop (is_algebraic_theory T).
 Proof.
-  repeat apply isapropdirprod;
-    repeat (apply impred_isaprop; intro);
-    apply setproperty.
+  unfold is_algebraic_theory, comp_is_assoc, comp_is_unital, comp_identity_projections, comp_is_natural_l.
+  prove_hlevel.
 Qed.
 
 Definition algebraic_theory_comp_is_assoc (T : algebraic_theory) :
