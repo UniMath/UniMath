@@ -7,9 +7,9 @@ Lemma upgrade_isofhlevel
 Proof.
   induction n.
   - intros ? HT ? ?.
-    apply (isapropifcontr HT).
+    exact (isapropifcontr HT _ _).
   - intros ? HT ? ?.
-    apply (IHn _ (HT _ _)).
+    exact (IHn _ (HT _ _)).
 Qed.
 
 (* Convert different proofs to a proof about hlevels *)
@@ -53,8 +53,24 @@ Local Ltac finish :=
   | [ |- isofhlevel (S (S (S _))) _ ] => apply upgrade_isofhlevel; finish
   end.
 
+Ltac unfold_hlevel_expression :=
+  refine (_ : isofhlevel _ (_ × _)) ||
+  refine (_ : isofhlevel _ (_ → _)) ||
+  refine (_ : isofhlevel _ (∑ _, _)) ||
+  refine (_ : isofhlevel _ (∏ tmp, _)) ||
+  refine (_ : isofhlevel _ (_ = _)).
+
 (* Reduce a goal about hlevels to its components *)
-Ltac prove_hlevel :=
+Ltac prove_hlevel' n :=
   convert_to_hlevel;
   repeat progress_hlevel;
-  try finish.
+  match n with
+  | _ ?n' => unfold_hlevel_expression; prove_hlevel' n'
+  | _ => try finish
+  end.
+
+Tactic Notation "prove_hlevel" :=
+  prove_hlevel' 0.
+
+Tactic Notation "prove_hlevel" constr(n) :=
+  prove_hlevel' n.

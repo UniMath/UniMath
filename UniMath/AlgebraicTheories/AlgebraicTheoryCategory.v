@@ -101,14 +101,10 @@ Proof.
     do 4 (apply funextsec; intro).
     apply (pr1 f _).
   - intro.
-    prove_hlevel.
-    refine (_ : isofhlevel _ (∏ m, _)).
-    prove_hlevel.
+    prove_hlevel 1.
   - intro.
     apply z_iso_eq.
-    prove_hlevel.
-    refine (_ : isofhlevel _ (∏ m, _)).
-    prove_hlevel.
+    prove_hlevel 1.
 Qed.
 
 Lemma is_univalent_algebraic_theory_cat

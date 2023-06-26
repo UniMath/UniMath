@@ -32,8 +32,7 @@ Lemma concat_displayed_cartesian_morphisms
   : (G ;; G') = G · G'.
 Proof.
   refine (transportf_set _ (! functor_comp (functor_to_unit _) F F') _ _).
-  refine (_ : isaset (_ = _)).
-  prove_hlevel.
+  prove_hlevel 1.
 Qed.
 
 Definition algebra_cleaving_algebra_data

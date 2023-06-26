@@ -86,8 +86,7 @@ Lemma displayed_algebra_morphism_eq
   : G = G'.
 Proof.
   apply (subtypePairEquality' H).
-  refine (_ : isaprop (∑ _: (∏ n, _), _)).
-  prove_hlevel.
+  prove_hlevel 2.
 Qed.
 
 Lemma is_univalent_disp_algebraic_theory_algebra_data_full_disp_cat
@@ -101,21 +100,16 @@ Proof.
     pose (H := pr1 f x x0 x1).
     refine (!_ @ H @ maponpaths (action' x x0) _).
     + refine (maponpaths (λ a, a (action x x0 x1)) (transportf_set _ _ _ _)).
-      refine (_ : isaset (_ = _)).
-      prove_hlevel.
+      prove_hlevel 1.
     + apply funextfun.
       intro.
       refine (maponpaths (λ a, a (x1 _)) (transportf_set _ _ _ _)).
-      refine (_ : isaset (_ = _)).
-      prove_hlevel.
+      prove_hlevel 1.
   - intro.
-    prove_hlevel.
-    refine (_ : isofhlevel _ (∏ n, _)).
-    prove_hlevel.
+    prove_hlevel 1.
   - intro.
     apply z_iso_eq.
-    refine (pr1 ((_ : isofhlevel 1 (∏ n , _)) _ _)).
-    prove_hlevel.
+    prove_hlevel 1.
 Qed.
 
 Lemma is_univalent_algebraic_theory_algebra_data_full_cat

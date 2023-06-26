@@ -45,6 +45,5 @@ Lemma isaprop_preserves_action
   (F : A → A')
   : isaprop (preserves_action F).
 Proof.
-  unfold preserves_action.
-  prove_hlevel.
+  prove_hlevel 1.
 Qed.
