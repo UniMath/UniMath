@@ -41,4 +41,7 @@ DCPOs/Examples/Exponentials.v
 DCPOs/FixpointTheorems/LeastFixpoint.v
 DCPOs/FixpointTheorems/Pataraia.v
 
+DCPOs/AlternativeDefinitions/Dcpo.v
+DCPOs/AlternativeDefinitions/FixedPointTheorems.v
+
 DCPOs.v

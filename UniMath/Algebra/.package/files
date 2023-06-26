@@ -1,6 +1,4 @@
 
-Dcpo.v
-FixedPointTheorems.v
 BinaryOperations.v
 Monoids.v
 Groups.v

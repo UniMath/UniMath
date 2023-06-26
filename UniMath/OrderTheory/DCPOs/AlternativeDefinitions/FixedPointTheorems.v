@@ -9,7 +9,7 @@ Note: There is some duplication with material on posets elsewhere in the library
 
 ****************************************************************************
 Note: a newer and different implementation of DCPOs and fixed point theorems
-can be found in Combinatorics/DCPO.
+can be found in OrderTheory.DCPO.
 ****************************************************************************
 
 *)
@@ -17,7 +17,7 @@ can be found in Combinatorics/DCPO.
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.WellOrderedSets.
-Require Import UniMath.Algebra.Dcpo.
+Require Import UniMath.OrderTheory.DCPOs.AlternativeDefinitions.Dcpo.
 
 Local Open Scope poset. (* for ≤, < *)
 Local Open Scope logic. (* for logic in hProp *)
