@@ -43,26 +43,24 @@ Proof.
     pose (F := pr1 Y : algebraic_theory_morphism _ _).
     pose (G := pr2 Y : A → A').
     exact (∏ n f a, G (action n f a) = action' n (F _ f) (λ i, G (a i))).
-  - intros.
-    repeat (apply impred_isaprop; intro).
-    apply setproperty.
-  - intros X action n f a.
-    pose (A := pr2 X : hSet).
-    assert (H : pr2 (identity X) = identity (A : HSET)).
-    + apply (eqtohomot (transportf_const _ (A → A))).
-    + now rewrite H.
-  - intros X X' X'' action action' action'' y y' Gcommutes G'commutes n f a.
-    pose (A := pr2 X : hSet).
-    pose (A' := pr2 X' : hSet).
-    pose (A'' := pr2 X'' : hSet).
-    pose (G := pr2 y : A → A').
-    pose (G' := pr2 y' : A' → A'').
-    assert (H : pr2 (y · y') = (G : HSET⟦A, A'⟧) · G').
-    + apply (eqtohomot (transportf_const _ (A → A''))).
-    + rewrite H.
-      unfold compose.
-      simpl.
-      now rewrite Gcommutes, G'commutes.
+  - abstract (
+      intros;
+      do 3 (apply impred_isaprop; intro);
+      apply setproperty
+    ).
+  - abstract (
+      intros X action n f a;
+      now rewrite ((eqtohomot (transportf_const _ ((pr2 X : hSet) → (pr2 X : hSet))) _)
+        : pr2 (identity X) = identity _)
+    ).
+  - abstract (
+      intros X X' X'' action action' action'' y y' Gcommutes G'commutes n f a;
+      rewrite ((eqtohomot (transportf_const _ ((pr2 X : hSet) → (pr2 X'' : hSet))) _)
+        : pr2 (y · y') = ((pr2 y) : HSET⟦_, _⟧) · (pr2 y'));
+      unfold compose;
+      simpl;
+      now rewrite Gcommutes, G'commutes
+    ).
 Defined.
 
 Definition algebraic_theory_algebra_data_full_cat : category
@@ -98,7 +96,7 @@ Proof.
   repeat (apply impred_isaprop; intro).
   apply setproperty.
 Qed.
-(*
+
 Lemma is_univalent_disp_algebraic_theory_algebra_data_full_disp_cat
   : is_univalent_disp algebraic_theory_algebra_data_full_disp_cat.
 Proof.
@@ -108,10 +106,13 @@ Proof.
   - intro f.
     do 3 (apply funextsec; intro).
     pose (H := pr1 f x x0 x1).
-    cbn in H.
-    unfold transportb in H.
-    rewrite (transportf_set _ _ _ (isasetaprop (isasetunit _ _))) in H.
-    exact H.
+    refine (!_ @ H @ maponpaths (action' x x0) _).
+    + refine (maponpaths (λ a, a (action x x0 x1)) (transportf_set _ _ _ _)).
+      exact (isasetaprop (isasetunit _ _)).
+    + apply funextfun.
+      intro.
+      refine (maponpaths (λ a, a (x1 _)) (transportf_set _ _ _ _)).
+      exact (isasetaprop (isasetunit _ _)).
   - intro.
     do 3 (apply impred_isaset; intro).
     apply setproperty.
@@ -156,4 +157,3 @@ Proof.
   - exact is_univalent_disp_algebraic_theory_algebra_data_full_disp_cat.
   - exact is_univalent_disp_algebraic_theory_algebra_full_disp_cat.
 Qed.
-*)
