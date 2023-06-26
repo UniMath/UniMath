@@ -5,7 +5,7 @@ Require Import UniMath.MoreFoundations.Propositions.
 
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
-Require Import UniMath.Algebra.Lattice.Lattice.
+Require Import UniMath.OrderTheory.Lattice.Lattice.
 
 Definition bounded_latticeop {X : hSet} (l : lattice X) (bot top : X) :=
   (islunit (Lmax l) bot) × (islunit (Lmin l) top).

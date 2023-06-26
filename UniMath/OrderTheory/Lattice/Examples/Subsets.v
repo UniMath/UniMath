@@ -8,11 +8,11 @@ Require Export UniMath.MoreFoundations.Propositions.
 Require Export UniMath.MoreFoundations.Subtypes.
 
 Require Import UniMath.Algebra.BinaryOperations.
-Require Import UniMath.Algebra.Lattice.Lattice.
-Require Import UniMath.Algebra.Lattice.Bounded.
-Require Import UniMath.Algebra.Lattice.Distributive.
-Require Import UniMath.Algebra.Lattice.Complement.
-Require Import UniMath.Algebra.Lattice.Boolean.
+Require Import UniMath.OrderTheory.Lattice.Lattice.
+Require Import UniMath.OrderTheory.Lattice.Bounded.
+Require Import UniMath.OrderTheory.Lattice.Distributive.
+Require Import UniMath.OrderTheory.Lattice.Complement.
+Require Import UniMath.OrderTheory.Lattice.Boolean.
 
 Section Subsets.
   Context {X : hSet}.

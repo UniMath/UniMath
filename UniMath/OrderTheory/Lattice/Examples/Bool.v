@@ -4,11 +4,11 @@ Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Bool.
 
 Require Import UniMath.Algebra.BinaryOperations.
-Require Import UniMath.Algebra.Lattice.Lattice.
-Require Import UniMath.Algebra.Lattice.Bounded.
-Require Import UniMath.Algebra.Lattice.Distributive.
-Require Import UniMath.Algebra.Lattice.Complement.
-Require Import UniMath.Algebra.Lattice.Boolean.
+Require Import UniMath.OrderTheory.Lattice.Lattice.
+Require Import UniMath.OrderTheory.Lattice.Bounded.
+Require Import UniMath.OrderTheory.Lattice.Distributive.
+Require Import UniMath.OrderTheory.Lattice.Complement.
+Require Import UniMath.OrderTheory.Lattice.Boolean.
 
 Lemma boolset_lattice : lattice boolset.
 Proof.

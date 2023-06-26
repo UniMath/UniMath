@@ -3,8 +3,8 @@
 Require Import UniMath.Foundations.Preamble.
 
 Require Import UniMath.Algebra.Monoids.
-Require Import UniMath.Algebra.Lattice.Lattice.
-Require Import UniMath.Algebra.Lattice.Bounded.
+Require Import UniMath.OrderTheory.Lattice.Lattice.
+Require Import UniMath.OrderTheory.Lattice.Bounded.
 
 Section Def.
 
