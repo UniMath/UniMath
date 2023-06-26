@@ -16,6 +16,7 @@ PACKAGES += Tactics
 PACKAGES += NumberSystems
 PACKAGES += SyntheticHomotopyTheory
 PACKAGES += PAdics
+PACKAGES += OrderTheory
 PACKAGES += CategoryTheory
 PACKAGES += Bicategories
 PACKAGES += Ktheory
