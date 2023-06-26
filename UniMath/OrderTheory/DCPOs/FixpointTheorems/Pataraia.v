@@ -22,7 +22,7 @@
  fixpoint.
 
  References:
- - Theorem 3.2 in On the Bourbaki–Witt principle in toposes
+ - Theorem 3.2 in On the Bourbaki–Witt principle in toposes https://arxiv.org/abs/1201.0340
 
  Contents
  1. Progressive maps
