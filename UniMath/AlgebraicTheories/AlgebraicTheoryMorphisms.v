@@ -88,8 +88,7 @@ Lemma isaprop_is_algebraic_theory_morphism
   : isaprop (is_algebraic_theory_morphism F).
 Proof.
   intros.
-  unfold is_algebraic_theory_morphism, preserves_id_pr, preserves_composition.
-  prove_hlevel.
+  prove_hlevel 2.
 Qed.
 
 Definition make_algebraic_theory_morphism
@@ -182,8 +181,7 @@ Proof.
   - do 2 (apply funextsec; intro).
     apply H1.
   - apply isaprop_is_nat_trans, homset_property.
-  - apply setproperty.
-  - unfold preserves_composition.
-    prove_hlevel.
-  - exact isapropunit.
+  - prove_hlevel 1.
+  - prove_hlevel 1.
+  - prove_hlevel.
 Qed.

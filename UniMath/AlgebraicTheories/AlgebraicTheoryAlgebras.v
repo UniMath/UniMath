@@ -134,8 +134,7 @@ Lemma isaprop_is_algebraic_theory_algebra
   (A : algebraic_theory_algebra_data T)
   : isaprop (is_algebraic_theory_algebra A).
 Proof.
-  unfold is_algebraic_theory_algebra, is_assoc, is_unital, is_natural.
-  prove_hlevel.
+  prove_hlevel 2.
 Qed.
 
 Lemma algebraic_theory_algebra_eq

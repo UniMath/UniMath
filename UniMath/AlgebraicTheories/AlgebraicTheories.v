@@ -177,8 +177,7 @@ End MakeAlgebraicTheory'.
 
 Lemma isaprop_is_algebraic_theory (T : algebraic_theory_data) : isaprop (is_algebraic_theory T).
 Proof.
-  unfold is_algebraic_theory, comp_is_assoc, comp_is_unital, comp_identity_projections, comp_is_natural_l.
-  prove_hlevel.
+  prove_hlevel 2.
 Qed.
 
 Definition algebraic_theory_comp_is_assoc (T : algebraic_theory) :

@@ -46,8 +46,7 @@ Lemma isaprop_is_algebraic_theory_morphism'
   (F : algebraic_theory_morphism'_data T T')
   : isaprop (is_algebraic_theory_morphism' F).
 Proof.
-  unfold is_algebraic_theory_morphism', preserves_composition, preserves_projections.
-  prove_hlevel.
+  prove_hlevel 2.
 Qed.
 
 Definition algebraic_theory_morphism'
