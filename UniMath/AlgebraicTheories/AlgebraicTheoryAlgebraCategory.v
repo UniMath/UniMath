@@ -112,9 +112,11 @@ Proof.
       refine (maponpaths (λ a, a (x1 _)) (transportf_set _ _ _ _)).
       prove_hlevel 1.
   - intro.
+    refine (pr1 ((_ : isaprop _) _ _)).
     prove_hlevel 1.
   - intro.
     apply z_iso_eq.
+    refine (pr1 ((_ : isaprop _) _ _)).
     prove_hlevel 1.
 Qed.
 

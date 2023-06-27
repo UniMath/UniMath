@@ -101,9 +101,11 @@ Proof.
     do 4 (apply funextsec; intro).
     apply (pr1 f _).
   - intro.
+    use (pr1 ((_ : isaprop _) _ _)).
     prove_hlevel 1.
   - intro.
     apply z_iso_eq.
+    use (pr1 ((_ : isaprop _) _ _)).
     prove_hlevel 1.
 Qed.
 
