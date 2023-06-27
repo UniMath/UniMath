@@ -16,7 +16,6 @@ Qed.
 Local Ltac convert_to_hlevel :=
   match goal with
   | [ |- isofhlevel _ _ ] => idtac
-  | [ |- _ = _] => refine (pr1 ((_ : isofhlevel 1 _) _ _))
   | [ |- iscontr _ ] => refine (_ : isofhlevel 0 _)
   | [ |- isaprop _ ] => refine (_ : isofhlevel 1 _)
   | [ |- isaset _ ] => refine (_ : isofhlevel 2 _)
