@@ -35,12 +35,18 @@ Definition algebraic_theory_algebra_data_full_disp_cat
 Proof.
   use disp_struct.
   - intro X.
-    exact (∏ n, ((pr1 X : algebraic_theory) n : hSet) → (stn n → (pr2 X : hSet)) → (pr2 X : hSet)).
+    pose (T := pr1 X : algebraic_theory).
+    pose (A := pr2 X : hSet).
+    exact (∏ n, (T n : hSet) → (stn n → A) → A).
   - intros X X' action action' Y.
-    exact (∏ n f a, (pr2 Y) (action n f a) = action' n ((pr1 Y : algebraic_theory_morphism _ _) _ f) (λ i, (pr2 Y) (a i))).
+    pose (A := make_algebraic_theory_algebra_data (pr2 X) action).
+    pose (A' := make_algebraic_theory_algebra_data (pr2 X') action').
+    pose (F := pr1 Y : algebraic_theory_morphism _ _).
+    pose (G := pr2 Y : A → A').
+    exact (∏ n f a, G (action n f a) = action' n (F _ f) (λ i, G (a i))).
   - abstract (
       intros;
-      prove_hlevel
+      prove_hlevel 1
     ).
   - abstract (
       intros X action n f a;
