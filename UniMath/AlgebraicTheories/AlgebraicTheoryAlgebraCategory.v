@@ -24,9 +24,6 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryAlgebras.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryAlgebraMorphisms.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
-Require Import UniMath.AlgebraicTheories.Tactics.
-
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
 

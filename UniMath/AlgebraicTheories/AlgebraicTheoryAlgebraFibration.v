@@ -17,8 +17,6 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryAlgebras.
 
-Require Import UniMath.AlgebraicTheories.Tactics.
-
 Local Open Scope cat.
 Local Open Scope mor_disp.
 

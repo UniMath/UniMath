@@ -21,8 +21,6 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 
-Require Import UniMath.AlgebraicTheories.Tactics.
-
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
 

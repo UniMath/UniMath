@@ -11,8 +11,6 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 
-Require Import UniMath.AlgebraicTheories.Tactics.
-
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
 

@@ -7,8 +7,6 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryAlgebras.
 
-Require Import UniMath.AlgebraicTheories.Tactics.
-
 Definition preserves_action
   {T : algebraic_theory_data}
   {A A' : algebraic_theory_algebra_data T}

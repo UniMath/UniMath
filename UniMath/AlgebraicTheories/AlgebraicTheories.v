@@ -15,8 +15,6 @@ Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories2.
 
-Require Import UniMath.AlgebraicTheories.Tactics.
-
 Declare Scope algebraic_theories.
 
 Local Open Scope cat.
