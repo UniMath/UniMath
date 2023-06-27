@@ -9,7 +9,7 @@ Note: There is some duplication with material on posets elsewhere in the library
 
 ****************************************************************************
 Note: a newer and different implementation of DCPOs and fixed point theorems
-can be found in OrderTheory.DCPO.
+can be found in OrderTheory.DCPOs.
 ****************************************************************************
 
 *)
