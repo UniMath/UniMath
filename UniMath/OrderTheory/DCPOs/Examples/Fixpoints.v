@@ -4,7 +4,7 @@
 
  Let `f` be a Scott continuous map from a DCPO `X` to itself. Then
  there is a DCPO whose inhabitants are fixpoints of `f`. To
- construct this DCPO, it sufficies to show that fixpoints are
+ construct this DCPO, it suffices to show that fixpoints are
  closed under least upperbounds. This allows us to construct the
  desired DCPO as a subDCPO.
 
