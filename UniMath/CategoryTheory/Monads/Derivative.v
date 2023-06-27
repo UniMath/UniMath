@@ -40,7 +40,7 @@ Local Open Scope cat.
 Section comp_def.
 
 Section DistrLaws.
-Context {C : precategory_data} {S T : Monad_data C}.
+Context {C : category} {S T : Monad_data C}.
 
 (** distributivity law for a pair of monads *)
 Definition monad_dist_laws (a : T ∙ S ⟹ S ∙ T) :=
@@ -57,16 +57,16 @@ Definition monad_dist_law4 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) := 
 End DistrLaws.
 
 (** composition of monads with a distributive law *)
-Definition monad_comp_mu {C : precategory} {S T : Monad_data C} (a : T ∙ S ⟹ S ∙ T) :
+Definition monad_comp_mu {C : category} {S T : Monad_data C} (a : T ∙ S ⟹ S ∙ T) :
   (S ∙ T ∙ S ∙ T) ⟹ (S ∙ T) :=
   nat_trans_comp _ _ _ (post_whisker (pre_whisker S a) T)
                        (nat_trans_comp _ _ _ (pre_whisker (S ∙ S) (μ T)) (post_whisker (μ S) T)).
 
-Definition monad_comp_eta {C : precategory} {S T : Monad_data C} (a : T ∙ S ⟹ S ∙ T):
+Definition monad_comp_eta {C : category} {S T : Monad_data C} (a : T ∙ S ⟹ S ∙ T):
   functor_identity C ⟹ S ∙ T :=
   nat_trans_comp _ _ _ (η S) (pre_whisker S (η T)).
 
-Definition monad_comp_data {C : precategory} {S T : Monad_data C} (a : T ∙ S ⟹ S ∙ T) :
+Definition monad_comp_data {C : category} {S T : Monad_data C} (a : T ∙ S ⟹ S ∙ T) :
   Monad_data C :=
   (tpair _ (tpair _ (S ∙ T) (monad_comp_mu a)) (monad_comp_eta a)).
 
@@ -99,7 +99,7 @@ TSTSx ---------------> TTSSx ----------->  TSSx  ------------> TSx
  TSx ------------------------------------------------
  *)
 
-Context {C : precategory} {S T : Monad C}.
+Context {C : category} {S T : Monad C}.
 Local Lemma monad_comp_law1 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : ∏ x : C,
   (η S (T (S x))) · (η T (S (T (S x)))) · (#T (a (S x)) · (μ T (S (S x)) · #T (μ S x))) =
   identity (T (S x)).
@@ -414,7 +414,7 @@ Definition maybe_monad : Monad C :=
 (** Definition of the derivative of a monad, i.e. precomposing with the maybe monad *)
 Section deriv_def.
 
-Definition functor_deriv {D : precategory}
+Definition functor_deriv {D : category}
            (T : functor C D) : functor C D := maybe_monad ∙ T.
 
 (** The distributive law for any monad with the Maybe monad. This is the obvious map
@@ -521,7 +521,7 @@ Definition monad_to_deriv (T : Monad C) : Monad_Mor T (monad_deriv T) :=
   monad_to_comp (deriv_dist_is_monad_dist T).
 
 (** derivative of a left module over a monad *)
-Lemma LModule_comp_law1 {D : precategory} {T : Monad C} {S : Monad C}
+Lemma LModule_comp_law1 {D : category} {T : Monad C} {S : Monad C}
       {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) (L : LModule T D) : ∏ x : C,
   #L (#S (η T x)) · (#L (a x) · lm_mult T L (S x)) = identity (L (S x)).
 Proof.
@@ -529,7 +529,7 @@ Proof.
   now rewrite assoc, <- functor_comp, (monad_dist_law2 l), (LModule_law1 T (S x)).
 Defined.
 
-Lemma LModule_comp_law2 {D : precategory} {T : Monad C} {S : Monad C}
+Lemma LModule_comp_law2 {D : category} {T : Monad C} {S : Monad C}
       {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) (L : LModule T D) : ∏ x : C,
   #L (#S (μ T x)) · (#L (a x) · lm_mult T L (S x)) =
   (#L (a (T x)) · lm_mult T L (S (T x))) · (#L (a x) · lm_mult T L (S x)).
@@ -551,16 +551,16 @@ Proof.
   now rewrite !assoc.
 Defined.
 
-Definition LModule_comp_data {D : precategory} {T : Monad C} {S : Monad C} (a : T ∙ S ⟹ S ∙ T)
+Definition LModule_comp_data {D : category} {T : Monad C} {S : Monad C} (a : T ∙ S ⟹ S ∙ T)
                                                   (L : LModule T D) : LModule_data T D :=
   (S ∙ L,, nat_trans_comp _ _ _ (post_whisker a L) (pre_whisker S (lm_mult T L))).
 
-Definition LModule_comp_laws {D : precategory} {T : Monad C} {S : Monad C}
+Definition LModule_comp_laws {D : category} {T : Monad C} {S : Monad C}
       {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) (L : LModule T D) :
   (LModule_laws T (LModule_comp_data a L)) := make_dirprod (LModule_comp_law1 l L)
                                                           (LModule_comp_law2 l L).
 
-Definition LModule_deriv {D : precategory} {T : Monad C} (L : LModule T D) : LModule T D :=
+Definition LModule_deriv {D : category} {T : Monad C} (L : LModule T D) : LModule T D :=
   (LModule_comp_data (deriv_dist T) L,, LModule_comp_laws (deriv_dist_is_monad_dist T) L).
 
 End deriv_def.
@@ -579,7 +579,7 @@ Section pullback_deriv.
 
 
 
-  Let MOD (R : Monad C) := (precategory_LModule R D).
+  Let MOD (R : Monad C) := (category_LModule R D).
   Context {R S : Monad C} (f : Monad_Mor R S) (M : LModule S D).
   Local Notation "M '" := (LModule_deriv o bcpC M) (at level 30).
 
@@ -618,8 +618,7 @@ Section pullback_deriv.
     LModule_same_func_iso
       (pb_LModule_laws f (M '))
                       (LModule_comp_laws (deriv_dist_is_monad_dist o bcpC R) (pb_LModule f M))
-                      pb_LModule_deriv_eq_mult
-                      (homset_property D) .
+                      pb_LModule_deriv_eq_mult.
 
 
 End pullback_deriv.

@@ -219,7 +219,6 @@ Section InitialRep.
 
 (** ** Some variables and assumptions *)
 
-(** Assume having a precategory [C] whose hom-types are sets *)
 Variable C : category.
 Variable CP : BinCoproducts C.
 
