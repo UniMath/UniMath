@@ -124,15 +124,9 @@ Proposition is_directed_comp
   : is_directed PY (λ i, f(D i)).
 Proof.
   induction HD as [ H₁ H₂ ].
-  revert H₁.
-  use factor_through_squash.
-  {
-    apply propproperty.
-  }
-  intro i.
   split.
-  - exact (hinhpr i).
-  - clear i.
+  - exact H₁.
+  - clear H₁.
     intros i j.
     specialize (H₂ i j).
     revert H₂.
@@ -213,24 +207,15 @@ Proof.
   split.
   - assert (i₁ := directed_set_el D₁).
     assert (i₂ := directed_set_el D₂).
-    revert i₁.
-    use factor_through_squash ; [ apply propproperty | ].
-    intro i₁.
-    revert i₂.
-    use factor_through_squash ; [ apply propproperty | ].
-    intro i₂.
-    exact (hinhpr (i₁ ,, i₂)).
+    apply hinhand; assumption.
   - intros ij₁ ij₂.
     induction ij₁ as [ i₁ j₁ ].
     induction ij₂ as [ i₂ j₂ ].
     assert (k₁ := directed_set_top D₁ i₁ i₂).
     assert (k₂ := directed_set_top D₂ j₁ j₂).
-    revert k₁.
-    use factor_through_squash ; [ apply propproperty | ].
-    intro k₁.
-    revert k₂.
-    use factor_through_squash ; [ apply propproperty | ].
-    intro k₂.
+    simple refine (hinhuniv2 _ k₁ k₂).
+    clear k₁ k₂.
+    intros k₁ k₂.
     induction k₁ as [ k₁ [ H₁ H₂ ]].
     induction k₂ as [ k₂ [ H₃ H₄ ]].
     refine (hinhpr ((k₁ ,, k₂) ,, _)) ; cbn.
