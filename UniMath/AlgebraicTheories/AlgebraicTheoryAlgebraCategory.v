@@ -27,7 +27,6 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheoryAlgebraMorphisms.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 
 Local Open Scope cat.
-Local Open Scope algebraic_theories.
 
 Definition algebraic_theory_algebra_data_full_disp_cat
   : disp_cat (cartesian algebraic_theory_cat HSET).
@@ -157,3 +156,12 @@ Proof.
   - exact is_univalent_disp_algebraic_theory_algebra_data_full_disp_cat.
   - exact is_univalent_disp_algebraic_theory_algebra_full_disp_cat.
 Qed.
+
+Section Test.
+  Goal ∏ T, ob (algebraic_theory_algebra_cat T) = algebraic_theory_algebra T.
+    exact (λ _, idpath _).
+  Qed.
+  Goal ∏ (T : algebraic_theory) (A A' : algebraic_theory_algebra T), (algebraic_theory_algebra_cat T)⟦A, A'⟧ = algebraic_theory_algebra_morphism A A'.
+    exact (λ _ _ _, idpath _).
+  Qed.
+End Test.
