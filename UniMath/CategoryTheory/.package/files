@@ -433,6 +433,15 @@ TwoSidedDisplayedCats/Examples/Reindex.v
 TwoSidedDisplayedCats/Examples/Relations.v
 TwoSidedDisplayedCats/Examples/Spans.v
 
+# Indexed Categories
+IndexedCategories/IndexedCategory.v
+IndexedCategories/IndexedFunctor.v
+IndexedCategories/IndexedTransformation.v
+
+IndexedCategories/FibrationToIndexedCategory.v
+IndexedCategories/CartesianToIndexedFunctor.v
+IndexedCategories/NatTransToIndexed.v
+
 # RepresentableFunctors
 RepresentableFunctors/Precategories.v
 RepresentableFunctors/Bifunctor.v
