@@ -337,6 +337,19 @@ Proof.
   apply D.
 Defined.
 
+Proposition idtoiso_2_1_in_bicat_of_univ_cats
+            {C₁ C₂ : bicat_of_univ_cats}
+            {F G : C₁ --> C₂}
+            (p : F = G)
+            (x : pr1 C₁)
+  : pr11 (@idtoiso_2_1 bicat_of_univ_cats C₁ C₂ F G p) x
+    =
+    idtoiso (maponpaths (λ H, pr11 H x) p).
+Proof.
+  induction p ; cbn.
+  apply idpath.
+Qed.
+
 Definition univalent_cat_is_univalent_2_1
   : is_univalent_2_1 bicat_of_univ_cats.
 Proof.

@@ -26,6 +26,7 @@ Morphisms/Properties/Composition.v
 Morphisms/Properties/ClosedUnderInvertibles.v
 Morphisms/Properties.v
 
+Core/Examples/DiscreteBicat.v
 Core/Examples/OneTypes.v
 Core/Examples/PointedOneTypesBicat.v
 Core/Examples/TwoType.v
@@ -119,15 +120,18 @@ PseudoFunctors/Examples/OpFunctor.v
 PseudoFunctors/Examples/PseudofunctorFromMonoidal.v
 PseudoFunctors/Examples/Op2OfPseudoFunctor.v
 PseudoFunctors/Examples/BicatOfCatToUnivCat.v
+PseudoFunctors/Examples/PseudoFunctorsIntoCat.v
 Transformations/PseudoTransformation.v
 Transformations/Examples/Whiskering.v
 Transformations/Examples/Unitality.v
 Transformations/Examples/Associativity.v
 Transformations/Examples/ApTransformation.v
+Transformations/Examples/PseudoTransformationIntoCat.v
 Modifications/Modification.v
 Modifications/Examples/ApModification.v
 Modifications/Examples/Unitality.v
 Modifications/Examples/Associativity.v
+Modifications/Examples/ModificationIntoCat.v
 PseudoFunctors/Representable.v
 PseudoFunctors/Yoneda.v
 PseudoFunctors/Biequivalence.v
@@ -317,6 +321,8 @@ DisplayedBicats/FiberBicategory/TrivialFiber.v
 DisplayedBicats/FiberBicategory/CodomainFiber.v
 DisplayedBicats/FiberBicategory/SliceFiber.v
 DisplayedBicats/FiberBicategory/DisplayMapFiber.v
+
+PseudoFunctors/Examples/GrothendieckConstruction.v
 
 Logic/ComprehensionBicat.v
 
