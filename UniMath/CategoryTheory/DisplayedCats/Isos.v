@@ -499,3 +499,83 @@ Section Utilities.
     apply homset_property.
   Qed.
 End Utilities.
+
+(**
+ Displayed isomorphisms are closed under transporting
+ *)
+Definition is_z_iso_disp_transportf_fun_eq
+           {C : category}
+           {D : disp_cat C}
+           {x y : C}
+           {f g : z_iso x y}
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+           (p : pr1 f = pr1 g)
+           (Hff : is_z_iso_disp f ff)
+  : is_z_iso_disp
+      g
+      (transportf
+         (λ z, _ -->[ z ] _)
+         p
+         ff).
+Proof.
+  simple refine (_ ,, _ ,, _).
+  - refine (transportf
+              (λ z, _ -->[ z ] _)
+              _
+              (inv_mor_disp_from_z_iso Hff)).
+    abstract
+      (induction f as [ f Hf ] ;
+       induction g as [ g Hg ] ;
+       cbn in * ;
+       induction p ;
+       do 2 apply maponpaths ;
+       apply isaprop_is_z_isomorphism).
+  - abstract
+      (induction f as [ f Hf ] ;
+       induction g as [ g Hg ] ;
+       cbn in * ;
+       induction p ;
+       cbn ;
+       rewrite mor_disp_transportf_postwhisker ;
+       refine (maponpaths _ (z_iso_disp_after_inv_mor Hff) @ _) ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply homset_property).
+  - abstract
+      (induction f as [ f Hf ] ;
+       induction g as [ g Hg ] ;
+       cbn in * ;
+       induction p ;
+       cbn ;
+       rewrite mor_disp_transportf_prewhisker ;
+       refine (maponpaths _ (inv_mor_after_z_iso_disp Hff) @ _) ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply homset_property).
+Defined.
+
+Definition is_z_iso_disp_transportb_fun_eq
+           {C : category}
+           {D : disp_cat C}
+           {x y : C}
+           (f : z_iso x y)
+           {g : z_iso x y}
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[ f ] yy)
+           (p : pr1 g = pr1 f)
+           (Hff : is_z_iso_disp f ff)
+  : is_z_iso_disp
+      g
+      (transportb
+         (λ z, _ -->[ z ] _)
+         p
+         ff).
+Proof.
+  apply is_z_iso_disp_transportf_fun_eq.
+  exact Hff.
+Defined.
