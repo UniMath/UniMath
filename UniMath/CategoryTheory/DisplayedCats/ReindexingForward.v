@@ -127,7 +127,7 @@ Section reindexing_forward.
     intros p H.
     rewrite H.
     destruct p. cbn.
-    apply PartA.transportf_transpose_right.
+    apply transportf_transpose_right.
     unfold transportb.
     apply two_arg_paths.
     - apply uip.
