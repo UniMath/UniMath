@@ -3,8 +3,8 @@
    and the universal property that it respects.*)
 
 (*    D -- functor reindexing_forward --> reindexing_forward *)
-(*    ↓            ↓             ↓     *)
-(*    C ---------- F ----------> C'    *)
+(*    ↓                     ↓                      ↓         *)
+(*    C ------------------- F -------------------> C'        *)
 
 (* May 2023 *)
 
