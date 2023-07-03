@@ -75,7 +75,9 @@ Proof.
       (∏ n t, F _ ((pr1 appabs) n t) = (pr1 appabs') n (F _ t)) ×
       (∏ n t, F _ ((pr2 appabs) n t) = (pr2 appabs') n (F _ t))).
   - intros.
-    prove_hlevel.
+    apply isapropdirprod;
+    do 2 (apply impred; intro);
+    apply setproperty.
   - now intros.
   - intros ? ? ? ? ? ? ? ? Fdata F'data.
     use tpair;
@@ -96,12 +98,15 @@ Proof.
       apply f.
   - intro.
     refine (maponpaths (λ x, _ x _) _ @ maponpaths _ _ @ !(pathsdirprod_eta x));
-    refine (pr1 ((_ : isaprop _) _ _));
-      prove_hlevel.
+    refine (pr1 ((_ : isaset _) _ _ _ _));
+      do 2 (apply (impred 2); intro);
+      apply setproperty.
   - intro.
     apply z_iso_eq.
     refine (pr1 ((_ : isaprop _) _ _)).
-    prove_hlevel 1.
+    apply isapropdirprod;
+    do 2 (apply impred; intro);
+    apply setproperty.
 Qed.
 
 Definition lambda_theory_data_cat
@@ -207,7 +212,9 @@ Lemma isaprop_is_lambda_theory
   (L : lambda_theory_data)
   : isaprop (is_lambda_theory L).
 Proof.
-  prove_hlevel 1.
+  repeat apply isapropdirprod;
+  do 4 (apply impred; intro);
+  apply setproperty.
 Qed.
 
 Definition lambda_theory_morphism
