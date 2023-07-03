@@ -92,7 +92,7 @@ Section reindexing_forward.
   Proof.
     intros p e.
     unfold mor_disp. cbn.
-    rewrite PartA.pr1_transportf.
+    rewrite pr1_transportf.
     rewrite transportf_const.
     exact e.
   Qed.
@@ -145,8 +145,7 @@ Section reindexing_forward.
   Proof.
     intro.
     destruct p.
-    rewrite idpath_transportf.
-    exact (idpath (pr2 Df')). 
+    apply idpath.
   Qed.
 
 
