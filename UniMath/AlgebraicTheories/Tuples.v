@@ -15,6 +15,38 @@ Proof.
   - exact last.
 Defined.
 
+Definition extend_tuple_dep
+  {n : nat}
+  {T : UU}
+  {A : T → UU}
+  {f : stn n → T}
+  {last : T}
+  (af : ∏ i, A (f i))
+  (alast : A last)
+  : ∏ (i : stn (S n)), A (extend_tuple f last i).
+Proof.
+  intro i.
+  unfold extend_tuple.
+  induction (invweq (weqdnicoprod _ lastelement) i) as [a | ].
+  - exact (af a).
+  - exact alast.
+Defined.
+
+Lemma extend_tuple_dep_const
+  {T A : UU}
+  {n : nat}
+  {f : stn n → T}
+  {last : T}
+  (af : stn n → A)
+  (al : A)
+  : extend_tuple_dep (T := T) (A := λ _, A) (f := f) (last := last) af al = extend_tuple af al.
+Proof.
+  apply funextsec.
+  intro i.
+  unfold extend_tuple, extend_tuple_dep.
+  now induction (invweq (weqdnicoprod _ lastelement) i).
+Qed.
+
 Lemma extend_tuple_dni_lastelement
   {T : UU}
   {n : nat}
