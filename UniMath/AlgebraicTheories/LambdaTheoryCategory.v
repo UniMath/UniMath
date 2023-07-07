@@ -15,6 +15,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 
+Require Import UniMath.AlgebraicTheories.Tuples.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
@@ -131,32 +132,11 @@ Section Test.
 End Test.
 
 (* The datatype lambda_theory *)
-Definition extend_tuple
-  {T : nat → hSet}
-  {m n : nat}
-  (upgrade : ∏ n, T n → T (S n))
-  (last : ∏ n, T (S n))
-  (f : stn m → T n)
-  : stn (S m) → T (S n).
-Proof.
-  use weqvecfun.
-  assert (H : ∏ a b T (e : a = b), vec T a → vec T b).
-  {
-    intros ? ? ? e.
-    induction e.
-    apply idfun.
-  }
-  apply (H (m + 1) _ _ (natpluscomm _ _)).
-  apply vec_append.
-  - exact (invmap (weqvecfun _) (λ i, upgrade _ (f i))).
-  - exact ([(last _)]).
-Defined.
-
 Definition extend_finite_morphism_with_identity
   {m n : finite_set_skeleton_category}
   (f : finite_set_skeleton_category⟦m, n⟧)
   : finite_set_skeleton_category⟦S m, S n⟧
-  := extend_tuple (T := stnset) (λ n, dni_lastelement (n := n)) (λ _, lastelement) f.
+  := extend_tuple (T := stn (S n)) (λ i, dni_lastelement (f i)) lastelement.
 
 Definition extended_composition
   {T : algebraic_theory_data}
@@ -164,7 +144,7 @@ Definition extended_composition
   (f : T (S m) : hSet)
   (g : stn m → (T n : hSet))
   : (T (S n) : hSet)
-  := f • (extend_tuple (λ n, #T (dni_lastelement (n := n))) (λ _, (pr lastelement)) g).
+  := f • (extend_tuple (λ i, #T (dni_lastelement (n := n)) (g i)) (pr lastelement)).
 
 Definition is_lambda_theory (L : lambda_theory_data) : UU :=
     (∏ m n (a : finite_set_skeleton_category⟦m, n⟧) l, app (#L a l) = #L (extend_finite_morphism_with_identity a) (app l)) ×
