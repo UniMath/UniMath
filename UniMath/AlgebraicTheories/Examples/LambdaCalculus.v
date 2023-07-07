@@ -16,54 +16,70 @@ Definition lambda_calculus_theory_data
   := make_algebraic_theory'_data
     L
     (λ _, var)
-    (λ _ _ l targets, substitute l targets).
+    (λ _ _ l targets, subst l targets).
 
 Lemma lambda_calculus_is_theory
   : is_algebraic_theory' lambda_calculus_theory_data.
 Proof.
   use make_is_algebraic_theory'.
   - do 4 intro.
-    apply substitute_var.
+    apply subst_var.
   - unfold comp_identity_projections.
     cbn.
-    apply lambda_calculus_ind.
+    use (lambda_calculus_ind_prop (λ _ _, _ ,, _));
+      simpl.
+    + apply setproperty.
     + intros.
-      apply substitute_var.
+      apply subst_var.
     + intros ? ? ? Hl Hl'.
-      now rewrite substitute_app, Hl, Hl'.
+      now rewrite subst_app, Hl, Hl'.
     + intros n' l Hl.
-      rewrite substitute_abs.
+      rewrite subst_abs.
       apply maponpaths.
       refine (_ @ Hl).
       apply maponpaths.
       exact (extend_tuple_eq inflate_var (idpath _)).
+    + intros ? ? ? ? Hl Hf.
+      rewrite subst_subst.
+      apply maponpaths.
+      apply funextfun.
+      intro.
+      apply Hf. (* Apparently we don't need Hl in this proof *)
   - unfold comp_is_assoc.
     cbn.
     intros l m n f_l f_m f_n.
     revert l f_l m f_m n f_n.
-    refine (lambda_calculus_ind _ _ _ _).
+    use (lambda_calculus_ind_prop (λ _ _, _ ,, _));
+      simpl.
+    + do 4 (apply impred; intro).
+      apply setproperty.
     + intros.
-      now do 2 rewrite substitute_var.
+      now do 2 rewrite subst_var.
     + intros ? ? ? Hl Hl' ? ? ? ?.
-      do 3 rewrite substitute_app.
+      do 3 rewrite subst_app.
       now rewrite Hl, Hl'.
     + intros l f_l Hl m f_m n f_n.
-      do 3 rewrite substitute_abs.
+      do 3 rewrite subst_abs.
       rewrite Hl.
       do 2 apply maponpaths.
       refine (!extend_tuple_eq _ _).
       * intro i.
         rewrite extend_tuple_dni_lastelement.
-        revert n f_n.
-        refine (lambda_calculus_ind (λ _ f_m, ∏ n f_n, inflate (substitute f_m f_n) = substitute (inflate f_m) _) _ _ _ _ (f_m i));
-          clear m f_m i.
-        -- intros.
-          now rewrite inflate_var, substitute_var, substitute_var, extend_tuple_dni_lastelement.
-        -- intros ? ? ? Hf_m Hf_m' ? ?.
-          now rewrite substitute_app, inflate_app, inflate_app, substitute_app, Hf_m, Hf_m'.
-        -- intros m f_m Hf_m n f_n.
-          now rewrite substitute_abs, inflate_abs, inflate_abs, substitute_abs, Hf_m.
-      * now rewrite extend_tuple_lastelement, substitute_var, extend_tuple_lastelement.
+        rewrite inflate_subst.
+        unfold inflate.
+        rewrite subst_subst.
+        apply maponpaths.
+        apply funextfun.
+        intro.
+        now rewrite subst_var, extend_tuple_dni_lastelement.
+      * now rewrite extend_tuple_lastelement, subst_var, extend_tuple_lastelement.
+    + intros m n l f Hl Hf m' f_m' n' f_n'.
+      rewrite Hl.
+      do 2 rewrite subst_subst.
+      apply maponpaths.
+      apply funextfun.
+      intro.
+      now rewrite Hf.
 Qed.
 
 Definition lambda_theory
