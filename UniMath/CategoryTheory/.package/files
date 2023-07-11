@@ -17,7 +17,6 @@ DisplayedCats/Core.v
 DisplayedCats/Isos.v
 DisplayedCats/Functors.v
 DisplayedCats/NaturalTransformations.v
-DisplayedCats/ReindexingForward.v
 DisplayedCats/Univalence.v
 DisplayedCats/Total.v
 DisplayedCats/Fiber.v
@@ -257,6 +256,7 @@ DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
 DisplayedCats/StreetFibration.v
 DisplayedCats/StreetOpFibration.v
+DisplayedCats/ReindexingForward.v
 DisplayedCats/TotalCategoryFacts.v
 DisplayedCats/TotalAdjunction.v
 
