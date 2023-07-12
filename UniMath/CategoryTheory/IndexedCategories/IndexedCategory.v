@@ -24,6 +24,8 @@
  1. The data of an indexed category
  2. The laws of indexed categories
  3. Indexed categories
+ 3.1. Derived laws
+ 3.2. Isomorphisms for the identity and composition
 
  *************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -235,4 +237,111 @@ Section IndexedCatLaws.
   Proof.
     exact (pr2 (pr222 Φ) w x y z f g h ww).
   Qed.
+
+  (**
+   3.1. Derived laws
+   *)
+  Proposition indexed_cat_lunitor_alt
+              {x y : C}
+              (f : x --> y)
+              (xx : Φ x)
+    : # (Φ $ f) (indexed_cat_id Φ x xx)
+      · indexed_cat_comp Φ (identity x) f xx
+      =
+      idtoiso (maponpaths (λ g, (Φ $ g) xx) (!(id_left f))).
+  Proof.
+    refine (_ @ id_left _).
+    cbn.
+    rewrite (indexed_cat_lunitor f xx).
+    refine (!(id_right _) @ _).
+    rewrite !assoc'.
+    do 2 apply maponpaths.
+    refine (_ @ pr1_idtoiso_concat _ _).
+    change (identity ((Φ $ identity x · f) xx))
+      with (pr1 (idtoiso (idpath ((Φ $ identity x · f) xx)))).
+    do 2 apply maponpaths.
+    refine (_ @ maponpathscomp0 (λ g, (Φ $ g) xx)  _ _).
+    rewrite pathsinv0r.
+    apply idpath.
+  Qed.
+
+  Proposition indexed_cat_runitor_alt
+              {x y : C}
+              (f : x --> y)
+              (xx : Φ x)
+    : indexed_cat_id Φ y ((Φ $ f) xx)
+      · indexed_cat_comp Φ f (identity y) xx
+      =
+      idtoiso (maponpaths (λ g, (Φ $ g) xx) (!(id_right f))).
+  Proof.
+    refine (_ @ id_left _).
+    cbn.
+    rewrite (indexed_cat_runitor f xx).
+    refine (!(id_right _) @ _).
+    rewrite !assoc'.
+    do 2 apply maponpaths.
+    refine (_ @ pr1_idtoiso_concat _ _).
+    change (identity ((Φ $ f · identity y) xx))
+      with (pr1 (idtoiso (idpath ((Φ $ f · identity y) xx)))).
+    do 2 apply maponpaths.
+    refine (_ @ maponpathscomp0 (λ g, (Φ $ g) xx)  _ _).
+    rewrite pathsinv0r.
+    apply idpath.
+  Qed.
 End IndexedCatLaws.
+
+(**
+ 3.2. Isomorphisms for the identity and composition
+ *)
+Definition indexed_cat_id_z_iso
+           {C : category}
+           (Φ : indexed_cat C)
+           {x : C}
+           (xx : Φ x)
+  : z_iso xx ((Φ $ identity x) xx).
+Proof.
+  refine (indexed_cat_id Φ x xx ,, _).
+  apply is_z_isomorphism_indexed_cat_id.
+Defined.
+
+Definition indexed_cat_id_nat_z_iso
+           {C : category}
+           (Φ : indexed_cat C)
+           (x : C)
+  : nat_z_iso
+      (functor_identity (Φ x))
+      (Φ $ identity x).
+Proof.
+  refine (indexed_cat_id Φ x ,, _).
+  intro.
+  apply is_z_isomorphism_indexed_cat_id.
+Defined.
+
+Definition indexed_cat_comp_z_iso
+           {C : category}
+           (Φ : indexed_cat C)
+           {x y z : C}
+           (f : x --> y)
+           (g : y --> z)
+           (xx : Φ x)
+  : z_iso ((Φ $ g) ((Φ $ f) xx)) ((Φ $ (f · g)) xx).
+Proof.
+  refine (indexed_cat_comp Φ f g xx ,, _).
+  apply is_z_isomorphism_indexed_cat_comp.
+Defined.
+
+Definition indexed_cat_comp_nat_z_iso
+           {C : category}
+           (F : indexed_cat C)
+           {x y z : C}
+           (f : x --> y)
+           (g : y --> z)
+  : nat_z_iso
+      ((F $ f) ∙ (F $ g))
+      (F $ (f · g)).
+Proof.
+  use make_nat_z_iso.
+  - exact (indexed_cat_comp F f g).
+  - intro.
+    apply is_z_isomorphism_indexed_cat_comp.
+Defined.
