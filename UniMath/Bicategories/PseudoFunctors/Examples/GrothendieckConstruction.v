@@ -87,6 +87,8 @@ Local Open Scope cat.
 Definition TODO { A : UU } : A.
 Admitted.
 
+Local Open Scope cat.
+
 (**
  1. From fibrations to pseudofunctors
  *)

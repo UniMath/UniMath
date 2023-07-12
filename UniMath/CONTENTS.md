@@ -210,7 +210,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Isos.v](CategoryTheory/DisplayedCats/Isos.v)
    - [DisplayedCats/Functors.v](CategoryTheory/DisplayedCats/Functors.v)
    - [DisplayedCats/NaturalTransformations.v](CategoryTheory/DisplayedCats/NaturalTransformations.v)
-   - [DisplayedCats/ReindexingForward.v](CategoryTheory/DisplayedCats/ReindexingForward.v)
    - [DisplayedCats/Univalence.v](CategoryTheory/DisplayedCats/Univalence.v)
    - [DisplayedCats/Total.v](CategoryTheory/DisplayedCats/Total.v)
    - [DisplayedCats/Fiber.v](CategoryTheory/DisplayedCats/Fiber.v)
@@ -432,6 +431,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/ComprehensionC.v](CategoryTheory/DisplayedCats/ComprehensionC.v)
    - [DisplayedCats/StreetFibration.v](CategoryTheory/DisplayedCats/StreetFibration.v)
    - [DisplayedCats/StreetOpFibration.v](CategoryTheory/DisplayedCats/StreetOpFibration.v)
+   - [DisplayedCats/ReindexingForward.v](CategoryTheory/DisplayedCats/ReindexingForward.v)
    - [DisplayedCats/TotalCategoryFacts.v](CategoryTheory/DisplayedCats/TotalCategoryFacts.v)
    - [DisplayedCats/TotalAdjunction.v](CategoryTheory/DisplayedCats/TotalAdjunction.v)
    - [limits/Examples/AlgebraStructuresColimits.v](CategoryTheory/limits/Examples/AlgebraStructuresColimits.v)
@@ -585,11 +585,14 @@ The packages and files are listed here in logical order: each file depends only 
    - [IndexedCategories/FibrationToIndexedCategory.v](CategoryTheory/IndexedCategories/FibrationToIndexedCategory.v)
    - [IndexedCategories/CartesianToIndexedFunctor.v](CategoryTheory/IndexedCategories/CartesianToIndexedFunctor.v)
    - [IndexedCategories/NatTransToIndexed.v](CategoryTheory/IndexedCategories/NatTransToIndexed.v)
+<<<<<<< HEAD
    - [IndexedCategories/IndexedCategoryToFibration.v](CategoryTheory/IndexedCategories/IndexedCategoryToFibration.v)
    - [IndexedCategories/IndexedFunctorToCartesian.v](CategoryTheory/IndexedCategories/IndexedFunctorToCartesian.v)
    - [IndexedCategories/IndexedTransformationToTransformation.v](CategoryTheory/IndexedCategories/IndexedTransformationToTransformation.v)
    - [IndexedCategories/OpIndexedCategory.v](CategoryTheory/IndexedCategories/OpIndexedCategory.v)
    - [IndexedCategories/CoreIndexedCategory.v](CategoryTheory/IndexedCategories/CoreIndexedCategory.v)
+=======
+>>>>>>> 414b8a57e0db6a17f15f64055a9cbedc122f7dfe
    - [RepresentableFunctors/Precategories.v](CategoryTheory/RepresentableFunctors/Precategories.v)
    - [RepresentableFunctors/Bifunctor.v](CategoryTheory/RepresentableFunctors/Bifunctor.v)
    - [RepresentableFunctors/Representation.v](CategoryTheory/RepresentableFunctors/Representation.v)
