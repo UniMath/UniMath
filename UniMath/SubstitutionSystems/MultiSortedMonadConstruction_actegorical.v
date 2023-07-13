@@ -180,7 +180,7 @@ Section monad.
   (** the associated Sigma-monoid - defined separately *)
   Definition SigmaMonoidOfMultiSortedSig_CAT (sig : MultiSortedSig sort) : SigmaMonoid (MultiSortedSigToStrength' sig).
   Proof.
-    apply ghhs_to_sigma_monoid.
+    apply ghss_to_sigma_monoid.
     exact (GHSSOfMultiSortedSig_CAT sig).
   Defined.
 
