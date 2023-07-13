@@ -17,7 +17,6 @@ DisplayedCats/Core.v
 DisplayedCats/Isos.v
 DisplayedCats/Functors.v
 DisplayedCats/NaturalTransformations.v
-DisplayedCats/ReindexingForward.v
 DisplayedCats/Univalence.v
 DisplayedCats/Total.v
 DisplayedCats/Fiber.v
@@ -257,6 +256,7 @@ DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
 DisplayedCats/StreetFibration.v
 DisplayedCats/StreetOpFibration.v
+DisplayedCats/ReindexingForward.v
 DisplayedCats/TotalCategoryFacts.v
 DisplayedCats/TotalAdjunction.v
 
@@ -432,6 +432,15 @@ TwoSidedDisplayedCats/Examples/Profunctor.v
 TwoSidedDisplayedCats/Examples/Reindex.v
 TwoSidedDisplayedCats/Examples/Relations.v
 TwoSidedDisplayedCats/Examples/Spans.v
+
+# Indexed Categories
+IndexedCategories/IndexedCategory.v
+IndexedCategories/IndexedFunctor.v
+IndexedCategories/IndexedTransformation.v
+
+IndexedCategories/FibrationToIndexedCategory.v
+IndexedCategories/CartesianToIndexedFunctor.v
+IndexedCategories/NatTransToIndexed.v
 
 # RepresentableFunctors
 RepresentableFunctors/Precategories.v
