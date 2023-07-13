@@ -131,7 +131,7 @@ Proof.
 Qed.
 
 Lemma double_transport_compose
-  {C : precategory_ob_mor}
+  {C : precategory}
   {a a' b  b' c c' : C} {f : a --> b} {g : b --> c}
   {px : a = a'} {py : b = b'} {pz : c = c'}
   : double_transport px py f
