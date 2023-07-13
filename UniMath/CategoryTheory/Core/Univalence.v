@@ -106,6 +106,44 @@ Definition double_transport {C : precategory_ob_mor} {a a' b b' : ob C}
    (p : a = a') (q : b = b') (f : a --> b) : a' --> b' :=
   transportf (λ c, a' --> c) q (transportf (λ c, c --> b) p f).
 
+Lemma double_transport_transpose
+  {C : precategory_ob_mor}
+  {a a' b b' : C} {f : a --> b} {g : a' --> b'}
+  {px : a' = a} {py : b' = b}
+  : double_transport px py g = f -> g = double_transport (!px) (!py) f.
+Proof.
+  intro H.
+  destruct H.
+  destruct px, py.
+  reflexivity.
+Qed.
+
+Lemma double_transport_transpose'
+  {C : precategory_ob_mor}
+  {a a' b b' : C} {f : a' --> b'} {g : a --> b}
+  {px : a' = a} {py : b' = b}
+  : f = double_transport (!px) (!py) g -> double_transport px py f = g.
+Proof.
+  intro H.
+  destruct (!H).
+  destruct px, py.
+  reflexivity.
+Qed.
+
+Lemma double_transport_compose
+  {C : precategory_ob_mor}
+  {a a' b  b' c c' : C} {f : a --> b} {g : b --> c}
+  {px : a = a'} {py : b = b'} {pz : c = c'}
+  : double_transport px py f
+  · double_transport py pz g =
+  double_transport px pz (f · g).
+Proof.
+  unfold double_transport.
+  destruct px, py, pz.
+  reflexivity.
+Qed.
+
+
 Lemma idtoiso_postcompose (C : precategory) (a b b' : ob C)
   (p : b = b') (f : a --> b) :
       f · idtoiso p = transportf (λ b, a --> b) p f.
