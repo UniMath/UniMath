@@ -6,11 +6,22 @@ Univalent Mathematics
 This [Coq](https://coq.inria.fr/) library aims to formalize a substantial body of mathematics using the
 [univalent point of view](https://en.wikipedia.org/wiki/Univalent_foundations).
 
-Installation
-------------
 
-See
-[INSTALL.md](https://github.com/UniMath/UniMath/blob/master/INSTALL.md).
+Trying out UniMath
+------------------
+
+You can try out UniMath in the browser by clicking [here](https://unimath.github.io/live/).
+For instance, you can run the files from the [School on Univalent Mathematics](https://unimath.github.io/Schools/) in the browser.
+
+
+Using UniMath on your computer
+------------------------------
+
+To install UniMath on your computer, there are two options:
+
+- Install a released binary version of UniMath via the [Coq Platform](https://coq.inria.fr/download).
+- To develop, and contribute to, UniMath, you should compile the latest version of UniMath yourself - see [INSTALL.md](https://github.com/UniMath/UniMath/blob/master/INSTALL.md).
+
 
 Usage
 -----
