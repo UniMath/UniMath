@@ -472,7 +472,7 @@ Section monad.
   (** the associated Sigma-monoid *)
   Definition coindSigmaMonoidOfMultiSortedSig_CAT (sig : MultiSortedSig sort) (Cuniv : is_univalent C) : SigmaMonoid (MultiSortedSigToStrength' sig).
   Proof.
-    apply ghhs_to_sigma_monoid.
+    apply ghss_to_sigma_monoid.
     exact (coindGHSSOfMultiSortedSig_CAT sig Cuniv).
   Defined.
 

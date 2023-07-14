@@ -209,10 +209,10 @@ Section hss.
   Definition eta_from_alg : I_{Mon_V} --> gh := pr12 gh.
   Definition tau_from_alg : H gh --> gh := pr122 gh.
 
-  Definition ptd_from_gh : PtdV := (pr1 gh,,eta_from_alg).
-
   Local Notation η := eta_from_alg.
   Local Notation τ := tau_from_alg.
+
+  Definition Ptd_from_ghss : PtdV := (pr1 gh,,η).
 
   Definition gfbracket (Z : PtdV) (f : pr1 Z --> gh) : pr1 Z ⊗_{Mon_V} gh --> gh :=
     pr1 (pr1 (pr222 gh Z f)).
@@ -275,8 +275,8 @@ Section hss.
 
   (** As a consequence of naturality, we can compute [gfbracket f] from [gfbracket identity] for
       pointed morphisms [f] *)
-  Lemma compute_gfbracket {Z : PtdV} (f : Z --> ptd_from_gh) :
-    ⦃pr1 f⦄_{Z} = pr1 f ⊗^{ Mon_V}_{r} gh · ⦃identity gh⦄_{ptd_from_gh}.
+  Lemma compute_gfbracket {Z : PtdV} (f : Z --> Ptd_from_ghss) :
+    ⦃pr1 f⦄_{Z} = pr1 f ⊗^{ Mon_V}_{r} gh · ⦃identity gh⦄_{Ptd_from_ghss}.
   Proof.
     etrans.
     { rewrite <- (id_right (pr1 f)).
@@ -285,8 +285,6 @@ Section hss.
   Qed.
 
   (** we are constructing a monoid in the monoidal base category *)
-
-  Definition Ptd_from_ghss : PtdV := (pr1 gh,,η).
 
   Definition mu_from_ghss : gh ⊗_{Mon_V} gh --> gh := ⦃identity gh⦄_{Ptd_from_ghss}.
 
