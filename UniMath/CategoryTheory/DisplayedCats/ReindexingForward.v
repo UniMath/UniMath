@@ -30,17 +30,6 @@ Local Open Scope cat.
 
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
 
-Definition double_transport_disp {C C':category} {D':disp_cat C'} {a b a' b':C}
-(F:functor C C') (f:a-->b)  (x:D' (F a)) (y:D' (F b)) (p:a=a') (q:b=b')  
-: x-->[#F f]y 
--> transportf (λ z, D' (F z)) p x -->[# F (double_transport p q f)] 
-     transportf (λ z, D' (F z)) q y.
-Proof.
-  intro Df.
-  destruct p, q.
-  exact Df.
-Defined.
-
 Notation "X ◦ Y" := (disp_functor_composite X Y) (at level 45): cat. 
 
 Declare Scope reindexing_forward_scope.
