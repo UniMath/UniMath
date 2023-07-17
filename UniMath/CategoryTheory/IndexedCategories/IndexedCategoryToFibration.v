@@ -423,6 +423,34 @@ Section IndexedCatToFibration.
     - exact (indexed_cat_to_disp_cat_z_iso_weq_fiber xx₁ xx₂).
   Defined.
 
+  Definition is_z_iso_disp_indexed_cat_to_disp_cat
+             {x : C}
+             (xx₁ xx₂ : Φ x)
+             (f : xx₁ --> (Φ $ identity x) xx₂)
+             (Hf : is_z_isomorphism f)
+    : @is_z_iso_disp
+        _
+        indexed_cat_to_disp_cat
+        _ _
+        (identity_z_iso x)
+        xx₁ xx₂
+        f.
+  Proof.
+    pose (f' := f · inv_from_z_iso (indexed_cat_id_z_iso Φ xx₂)).
+    refine (transportf
+              (λ z, is_z_iso_disp _ z)
+              _
+              (indexed_cat_to_disp_cat_to_disp_iso xx₁ xx₂ f' _)).
+    - cbn ; unfold f'.
+      rewrite !assoc'.
+      refine (_ @ id_right _).
+      apply maponpaths.
+      apply z_iso_after_z_iso_inv.
+    - use is_z_isomorphism_comp.
+      + exact Hf.
+      + apply is_z_iso_inv_from_z_iso.
+  Defined.
+
   (**
    3. The univalence of that displayed category
    *)
@@ -613,7 +641,7 @@ Section IndexedCatToFibration.
       - exact is_cartesian_to_iso_indexed_cat_inv.
       - exact is_cartesian_to_iso_indexed_cat_left.
       - exact is_cartesian_to_iso_indexed_cat_right.
-    Qed.
+    Defined.
   End CartesianAreIsos.
 
   (**

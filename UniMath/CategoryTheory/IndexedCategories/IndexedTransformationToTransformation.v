@@ -124,3 +124,5 @@ Section IndexedTransformationToDispNatTrans.
     - exact indexed_nat_trans_to_disp_nat_trans_axioms.
   Defined.
 End IndexedTransformationToDispNatTrans.
+
+Arguments indexed_nat_trans_to_disp_nat_trans_data {C Φ Ψ τ θ} m /.

@@ -585,14 +585,11 @@ The packages and files are listed here in logical order: each file depends only 
    - [IndexedCategories/FibrationToIndexedCategory.v](CategoryTheory/IndexedCategories/FibrationToIndexedCategory.v)
    - [IndexedCategories/CartesianToIndexedFunctor.v](CategoryTheory/IndexedCategories/CartesianToIndexedFunctor.v)
    - [IndexedCategories/NatTransToIndexed.v](CategoryTheory/IndexedCategories/NatTransToIndexed.v)
-<<<<<<< HEAD
    - [IndexedCategories/IndexedCategoryToFibration.v](CategoryTheory/IndexedCategories/IndexedCategoryToFibration.v)
    - [IndexedCategories/IndexedFunctorToCartesian.v](CategoryTheory/IndexedCategories/IndexedFunctorToCartesian.v)
    - [IndexedCategories/IndexedTransformationToTransformation.v](CategoryTheory/IndexedCategories/IndexedTransformationToTransformation.v)
    - [IndexedCategories/OpIndexedCategory.v](CategoryTheory/IndexedCategories/OpIndexedCategory.v)
    - [IndexedCategories/CoreIndexedCategory.v](CategoryTheory/IndexedCategories/CoreIndexedCategory.v)
-=======
->>>>>>> 414b8a57e0db6a17f15f64055a9cbedc122f7dfe
    - [RepresentableFunctors/Precategories.v](CategoryTheory/RepresentableFunctors/Precategories.v)
    - [RepresentableFunctors/Bifunctor.v](CategoryTheory/RepresentableFunctors/Bifunctor.v)
    - [RepresentableFunctors/Representation.v](CategoryTheory/RepresentableFunctors/Representation.v)
@@ -903,7 +900,11 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedBicats/FiberBicategory/CodomainFiber.v](Bicategories/DisplayedBicats/FiberBicategory/CodomainFiber.v)
    - [DisplayedBicats/FiberBicategory/SliceFiber.v](Bicategories/DisplayedBicats/FiberBicategory/SliceFiber.v)
    - [DisplayedBicats/FiberBicategory/DisplayMapFiber.v](Bicategories/DisplayedBicats/FiberBicategory/DisplayMapFiber.v)
-   - [PseudoFunctors/Examples/GrothendieckConstruction.v](Bicategories/PseudoFunctors/Examples/GrothendieckConstruction.v)
+   - [Grothendieck/FibrationToPseudoFunctor.v](Bicategories/Grothendieck/FibrationToPseudoFunctor.v)
+   - [Grothendieck/PseudoFunctorToFibration.v](Bicategories/Grothendieck/PseudoFunctorToFibration.v)
+   - [Grothendieck/Unit.v](Bicategories/Grothendieck/Unit.v)
+   - [Grothendieck/Counit.v](Bicategories/Grothendieck/Counit.v)
+   - [Grothendieck/Biequivalence.v](Bicategories/Grothendieck/Biequivalence.v)
    - [Logic/ComprehensionBicat.v](Bicategories/Logic/ComprehensionBicat.v)
    - [Logic/Examples/TrivialComprehensionBicat.v](Bicategories/Logic/Examples/TrivialComprehensionBicat.v)
    - [Logic/Examples/PullbackComprehensionBicat.v](Bicategories/Logic/Examples/PullbackComprehensionBicat.v)

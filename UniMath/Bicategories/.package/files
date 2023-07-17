@@ -322,7 +322,11 @@ DisplayedBicats/FiberBicategory/CodomainFiber.v
 DisplayedBicats/FiberBicategory/SliceFiber.v
 DisplayedBicats/FiberBicategory/DisplayMapFiber.v
 
-PseudoFunctors/Examples/GrothendieckConstruction.v
+Grothendieck/FibrationToPseudoFunctor.v
+Grothendieck/PseudoFunctorToFibration.v
+Grothendieck/Unit.v
+Grothendieck/Counit.v
+Grothendieck/Biequivalence.v
 
 Logic/ComprehensionBicat.v
 
