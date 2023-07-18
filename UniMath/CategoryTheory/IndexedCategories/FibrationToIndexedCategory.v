@@ -32,7 +32,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.IndexedCategories.IndexedCategory.
 
 Section FibrationToIndexedCat.
-  Context {C : univalent_category}
+  Context {C : category}
           (D : disp_univalent_category C)
           (HD : cleaving D).
 

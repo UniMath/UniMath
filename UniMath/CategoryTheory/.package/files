@@ -442,6 +442,13 @@ IndexedCategories/FibrationToIndexedCategory.v
 IndexedCategories/CartesianToIndexedFunctor.v
 IndexedCategories/NatTransToIndexed.v
 
+IndexedCategories/IndexedCategoryToFibration.v
+IndexedCategories/IndexedFunctorToCartesian.v
+IndexedCategories/IndexedTransformationToTransformation.v
+
+IndexedCategories/OpIndexedCategory.v
+IndexedCategories/CoreIndexedCategory.v
+
 # RepresentableFunctors
 RepresentableFunctors/Precategories.v
 RepresentableFunctors/Bifunctor.v

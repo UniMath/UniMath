@@ -77,6 +77,18 @@ Definition indexed_functor_natural
       ((Φ $ f) ∙ τ y)
   := pr2 τ x y f.
 
+Definition indexed_functor_natural_z_iso
+           {C : category}
+           {Φ Ψ : indexed_cat C}
+           (τ : indexed_functor_data Φ Ψ)
+           {x y : C}
+           (f : x --> y)
+           (xx : Φ x)
+  : z_iso ((Ψ $ f) (τ x xx)) (τ y ((Φ $ f) xx))
+  := nat_z_iso_pointwise_z_iso
+       (indexed_functor_natural τ f)
+       xx.
+
 (**
  2. The laws of an indexed functor
  *)

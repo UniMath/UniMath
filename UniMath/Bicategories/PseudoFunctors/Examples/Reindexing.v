@@ -31,8 +31,8 @@ Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.OpFibrat
 Local Open Scope cat.
 
 Section ReindexFib.
-  Context {C₁ C₂ : bicat_of_univ_cats}
-          (F : C₁ --> C₂).
+  Context {C₁ C₂ : univalent_category}
+          (F : C₁ ⟶ C₂).
 
   Definition reindex_fib_psfunctor_data
     : psfunctor_data

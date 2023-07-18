@@ -95,3 +95,22 @@ Proposition indexed_nat_trans_natural
 Proof.
   exact (pr2 m x y f xx).
 Qed.
+
+Proposition indexed_nat_trans_natural_inv
+            {C : category}
+            {Φ Ψ : indexed_cat C}
+            {τ θ : indexed_functor Φ Ψ}
+            (m : indexed_nat_trans τ θ)
+            {x y : C}
+            (f : x --> y)
+            (xx : Φ x)
+  : m y ((Φ $ f) xx) · inv_from_z_iso (indexed_functor_natural_z_iso θ f xx)
+    =
+    inv_from_z_iso (indexed_functor_natural_z_iso τ f xx) · # (Ψ $ f) (m x xx).
+Proof.
+  refine (!_).
+  use z_iso_inv_on_right.
+  rewrite !assoc.
+  use z_iso_inv_on_left.
+  exact (indexed_nat_trans_natural m f xx).
+Qed.

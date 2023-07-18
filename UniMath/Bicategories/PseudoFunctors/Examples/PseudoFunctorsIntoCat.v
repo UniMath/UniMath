@@ -11,6 +11,7 @@
  1. Pseudofunctors from a discrete bicategory
  2. Every indexed category gives rise to a pseudofunctor
  3. Pseudofunctor into categories give an indexed category
+ 4. Transport on pseudofunctors into categories
 
  ******************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -21,6 +22,8 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.IndexedCategories.IndexedCategory.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.OppositeCategory.Core.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Discreteness.
@@ -333,3 +336,30 @@ Section PseudofunctorToIndexedCat.
     - exact psfunctor_to_indexed_cat_laws.
   Defined.
 End PseudofunctorToIndexedCat.
+
+(**
+ 4. Transport on pseudofunctors into categories
+ *)
+Proposition transportf_psfunctor_into_cat
+            {C : category}
+            {F : psfunctor (cat_to_bicat C^op) bicat_of_univ_cats}
+            {x y : C}
+            (f : x --> y)
+            (yy : pr1 (F y))
+            {g h : x --> y}
+            (p : g = h)
+            (ff : pr1 (# F f) yy --> pr1 (# F g) yy)
+  : transportf
+      (λ z, pr1 (#F f) yy --> pr1 (#F z) yy)
+      p
+      ff
+    =
+    ff · pr1 (##F p) yy.
+Proof.
+  induction p ; cbn.
+  refine (!(id_right _) @ _).
+  apply maponpaths.
+  refine (!(nat_trans_eq_pointwise (psfunctor_id2 F _) _) @ _).
+  refine (maponpaths (λ z, pr1 (##F z) yy) _).
+  apply homset_property.
+Qed.

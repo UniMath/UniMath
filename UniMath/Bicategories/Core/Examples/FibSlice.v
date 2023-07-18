@@ -23,7 +23,7 @@ Require Import UniMath.Bicategories.Core.Univalence.
 Local Open Scope cat.
 
 Section FibSlice.
-  Context (C : univalent_category).
+  Context (C : category).
 
   Definition fib_slice_precategory_ob_mor
     : precategory_ob_mor.
