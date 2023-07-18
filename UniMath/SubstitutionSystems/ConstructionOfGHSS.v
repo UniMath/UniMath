@@ -541,7 +541,7 @@ Section InitialAlgebraToGHSS.
         apply idpath.
   Defined.
 
-  Let σ : SigmaMonoid θ := ghhs_to_sigma_monoid θ initial_alg_to_ghss.
+  Let σ : SigmaMonoid θ := ghss_to_sigma_monoid θ initial_alg_to_ghss.
   Let μ : pr1 σ ⊗_{Mon_V} pr1 σ --> pr1 σ := pr11 (pr212 σ).
 
   Theorem SigmaMonoidFromInitialAlgebra_is_initial : isInitial _ σ.

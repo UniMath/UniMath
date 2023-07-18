@@ -110,7 +110,7 @@ Section GHSS_to_SigmaMonoid.
           {H : V ⟶ V}
           (θ : pointedtensorialstrength Mon_V H).
 
-  Definition ghhs_to_sigma_monoid (t : ghss Mon_V H θ)
+  Definition ghss_to_sigma_monoid (t : ghss Mon_V H θ)
     : SigmaMonoid θ.
   Proof.
     exists (pr1 t).

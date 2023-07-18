@@ -373,7 +373,7 @@ Section PuttingAllTogether.
   (** the associated Sigma-monoid *)
   Definition SigmaMonoidOfBindingSig_CAT : SigmaMonoid (BindingSigToStrengthCAT TC sig CC).
   Proof.
-    apply ghhs_to_sigma_monoid.
+    apply ghss_to_sigma_monoid.
     exact GHSSOfBindingSig_CAT.
   Defined.
 
