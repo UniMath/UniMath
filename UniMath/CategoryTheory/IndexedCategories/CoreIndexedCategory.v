@@ -1,3 +1,18 @@
+(*********************************************************************
+
+ The fiberwise core of an indexed category
+
+ In this file, we define the fiberwise core of an indexed category.
+ More specifically, if we have a category `Φ` indexed over `C`, then
+ the fiberwise core of `Φ` is defined to be the core of `Φ x` on every
+ object `x`.
+
+ Contents
+ 1. The data
+ 2. The laws
+ 3. The fiberwise core
+
+ *********************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -10,20 +25,13 @@ Require Import UniMath.CategoryTheory.IndexedCategories.IndexedCategory.
 
 Local Open Scope cat.
 
-Proposition idtoiso_core
-            {C : category}
-            {x y : C}
-            (p : x = y)
-  : pr11 (@idtoiso (core C) _ _ p) = pr1 (@idtoiso C _ _ p).
-Proof.
-  induction p ; cbn.
-  apply idpath.
-Qed.
-
 Section FiberwiseCore.
   Context {C : category}
           (Φ : indexed_cat C).
 
+  (**
+   1. The data
+   *)
   Definition core_indexed_cat_data
     : indexed_cat_data C.
   Proof.
@@ -52,6 +60,9 @@ Section FiberwiseCore.
     split ; intros ; apply is_pregroupoid_core.
   Defined.
 
+  (**
+   2. The laws
+   *)
   Proposition core_indexed_cat_laws
     : indexed_cat_laws core_indexed_cat_data.
   Proof.
@@ -91,6 +102,9 @@ Section FiberwiseCore.
       apply idpath.
   Qed.
 
+  (**
+   3. The fiberwise core
+   *)
   Definition core_indexed_cat
     : indexed_cat C.
   Proof.

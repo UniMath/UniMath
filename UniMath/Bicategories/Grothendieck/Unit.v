@@ -1,22 +1,29 @@
 (************************************************************************
 
- The Grothendieck Construction
+ Grothendieck construction: the unit
 
  The Grothendieck construction gives a biequivalence between the
  bicategory of fibrations over a fixed category `C` and the bicategory
- of indexd categories over `C`. In this file, our goal is to construct
- this particular equivalence. Except for some laws, this file collects
- constructions already given elsewhere in UniMath.
+ of indexed categories over `C`. To construct this biequivalence, we
+ need to construct the following:
+ 1. A pseudofunctor from the bicategory of fibrations to the bicategory
+    of pseudofunctors
+ 2. A pseudofunctor from the bicategory of pseudofunctors to the
+    bicategory of fibrations
+ 3. The unit and a proof that it is a pointwise adjoint equivalence
+ 4. The counit and a proof that it is a pointwise adjoint equivalence
 
- Note: at this moment, the construction is not complete yet, because we
- need to construct a biequivalence between the bicategory of fibrations
- on `C` and the bicategory of indexed categories. We currently only have
- the pseudofunctor from fibrations to indexed categories.
+ In this file, we construct the third part of this biequivalence, namely
+ the unit.
 
  Contents
- 3. The unit
- 4. The counit
- 5. The biequivalence
+ 1. Action on objects
+ 2. Action on 1-cells
+ 3. The data
+ 4. The laws
+ 5. The unit
+ 6. The action on objects forms an equivalence
+ 7. The unit is a pointwise adjoint equivalence
 
  ************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -70,16 +77,13 @@ Require Import UniMath.Bicategories.Grothendieck.PseudoFunctorToFibration.
 
 Local Open Scope cat.
 
-Definition TODO { A : UU } : A.
-Admitted.
-
-Local Open Scope cat.
-
 Section GrothendieckConstruction.
   Context {C : univalent_category}.
 
+  Local Notation "'tr' P x" := (transportf P _ x) (at level 100, only printing).
+
   (**
-   3. The unit
+   1. Action on objects
    *)
   Definition psfunctor_fib_to_psfunctor_unit_disp_functor_data
              (D : disp_univalent_category C)
@@ -204,6 +208,256 @@ Section GrothendieckConstruction.
     - exact (is_cartesian_psfunctor_fib_to_psfunctor_unit_disp_functor D HD).
   Defined.
 
+  (**
+   2. Action on 1-cells
+   *)
+  Definition psfunctor_fib_to_psfunctor_unit_natural_data
+             {D₁ D₂ : disp_univalent_category C}
+             (HD₁ : cleaving D₁)
+             (HD₂ : cleaving D₂)
+             (F : cartesian_disp_functor (functor_identity _) D₁ D₂)
+    : disp_nat_trans_data
+        (nat_trans_id _)
+        (disp_functor_over_id_composite
+           (psfunctor_fib_to_psfunctor_unit_disp_functor D₁ HD₁)
+           F)
+        (disp_functor_over_id_composite
+           (indexed_functor_to_disp_functor
+              (pstrans_to_indexed_functor
+                 (indexed_functor_to_pstrans
+                    (cartesian_disp_functor_to_indexed_functor HD₁ HD₂ F))))
+           (psfunctor_fib_to_psfunctor_unit_disp_functor D₂ HD₂))
+    := λ x xx, id_disp _.
+
+  Proposition psfunctor_fib_to_psfunctor_unit_natural_axioms
+              {D₁ D₂ : disp_univalent_category C}
+              (HD₁ : cleaving D₁)
+              (HD₂ : cleaving D₂)
+              (F : cartesian_disp_functor (functor_identity _) D₁ D₂)
+    : disp_nat_trans_axioms
+        (psfunctor_fib_to_psfunctor_unit_natural_data HD₁ HD₂ F).
+  Proof.
+    intros x y f xx yy ff ; cbn.
+    unfold transportb, fiber_functor_natural_inv, psfunctor_fib_to_psfunctor_unit_natural_data.
+    rewrite (disp_functor_transportf _ F).
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite !mor_disp_transportf_postwhisker.
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite !transport_f_f.
+    rewrite id_right_disp.
+    rewrite id_left_disp.
+    unfold transportb.
+    rewrite !transport_f_f.
+    rewrite assoc_disp_var.
+    rewrite transport_f_f.
+    rewrite cartesian_factorisation_commutes.
+    rewrite mor_disp_transportf_prewhisker.
+    rewrite transport_f_f.
+    rewrite disp_functor_comp.
+    unfold transportb.
+    rewrite transport_f_f.
+    apply maponpaths_2.
+    apply homset_property.
+  Qed.
+
+  Definition psfunctor_fib_to_psfunctor_unit_natural
+             {D₁ D₂ : disp_univalent_category C}
+             (HD₁ : cleaving D₁)
+             (HD₂ : cleaving D₂)
+             (F : cartesian_disp_functor (functor_identity _) D₁ D₂)
+    : disp_nat_trans
+        (nat_trans_id _)
+        (disp_functor_over_id_composite
+           (psfunctor_fib_to_psfunctor_unit_disp_functor D₁ HD₁)
+           F)
+        (disp_functor_over_id_composite
+           (indexed_functor_to_disp_functor
+              (pstrans_to_indexed_functor
+                 (indexed_functor_to_pstrans
+                    (cartesian_disp_functor_to_indexed_functor HD₁ HD₂ F))))
+           (psfunctor_fib_to_psfunctor_unit_disp_functor D₂ HD₂)).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (psfunctor_fib_to_psfunctor_unit_natural_data HD₁ HD₂ F).
+    - exact (psfunctor_fib_to_psfunctor_unit_natural_axioms HD₁ HD₂ F).
+  Defined.
+
+  (**
+   3. The data
+   *)
+  Definition psfunctor_fib_to_psfunctor_unit_data
+    : pstrans_data
+        (comp_psfunctor
+           (psfunctor_psfunctor_bicat_to_fib C)
+           (psfunctor_fib_to_psfunctor_bicat C))
+        (id_psfunctor _).
+  Proof.
+    use make_pstrans_data.
+    - exact (λ P, psfunctor_fib_to_psfunctor_unit_cartesian_disp_functor
+                    (pr1 P) (pr2 P)).
+    - simple refine (λ P₁ P₂ F, make_invertible_2cell _).
+      + exact (psfunctor_fib_to_psfunctor_unit_natural (pr2 P₁) (pr2 P₂) F).
+      + use is_invertible_2cell_fib_slice.
+        intros x xx.
+        apply id_is_z_iso_disp.
+  Defined.
+
+  (**
+   4. The laws
+   *)
+  Proposition is_pstrans_psfunctor_fib_to_psfunctor_unit
+    : is_pstrans psfunctor_fib_to_psfunctor_unit_data.
+  Proof.
+    refine (_ ,, _ ,, _).
+    - intros P₁ P₂ F G τ.
+      use disp_nat_trans_eq.
+      intros x xx.
+      cbn ; unfold psfunctor_fib_to_psfunctor_unit_natural_data.
+      rewrite mor_disp_transportf_prewhisker.
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite mor_disp_transportf_prewhisker.
+      rewrite !transport_f_f.
+      rewrite id_right_disp.
+      rewrite id_left_disp.
+      unfold transportb.
+      rewrite !transport_f_f.
+      rewrite assoc_disp_var.
+      rewrite transport_f_f.
+      rewrite cartesian_factorisation_commutes.
+      rewrite mor_disp_transportf_prewhisker.
+      rewrite transport_f_f.
+      rewrite id_right_disp.
+      unfold transportb.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply homset_property.
+    - intros P.
+      use disp_nat_trans_eq.
+      intros x xx.
+      cbn ; unfold psfunctor_fib_to_psfunctor_unit_natural_data.
+      rewrite transportf_object_cartesian_lift.
+      unfold transportb.
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite !mor_disp_transportf_postwhisker.
+      rewrite !transport_f_f.
+      rewrite !id_left_disp.
+      unfold transportb.
+      rewrite !mor_disp_transportf_postwhisker.
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite !transport_f_f.
+      rewrite !id_left_disp.
+      unfold transportb.
+      rewrite !transport_f_f.
+      refine (!_).
+      rewrite assoc_disp_var.
+      rewrite !transport_f_f.
+      rewrite assoc_disp_var.
+      rewrite !transport_f_f.
+      rewrite cartesian_factorisation_commutes.
+      rewrite !transport_f_f.
+      rewrite cartesian_factorisation_commutes.
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite !transport_f_f.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite assoc_disp.
+        unfold transportb.
+        rewrite cartesian_factorisation_commutes.
+        rewrite !mor_disp_transportf_postwhisker.
+        rewrite transport_f_f.
+        rewrite assoc_disp_var.
+        rewrite cartesian_factorisation_commutes.
+        rewrite transport_f_f.
+        apply idpath.
+      }
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite !transport_f_f.
+      rewrite id_right_disp.
+      unfold transportb.
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite transport_f_f.
+      rewrite cartesian_factorisation_commutes.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply homset_property.
+    - intros P₁ P₂ P₃ F G.
+      use disp_nat_trans_eq.
+      intros x xx.
+      cbn ; unfold psfunctor_fib_to_psfunctor_unit_natural_data.
+      rewrite transportf_object_cartesian_lift.
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite !mor_disp_transportf_postwhisker.
+      rewrite !transport_f_f.
+      rewrite !id_left_disp.
+      unfold transportb.
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite !mor_disp_transportf_postwhisker.
+      rewrite !transport_f_f.
+      rewrite (disp_functor_id (pr1 G)).
+      rewrite !id_right_disp.
+      unfold transportb.
+      rewrite !mor_disp_transportf_postwhisker.
+      rewrite !transport_f_f.
+      rewrite !id_left_disp.
+      unfold transportb.
+      rewrite !transport_f_f.
+      refine (!_).
+      rewrite assoc_disp_var.
+      rewrite transport_f_f.
+      rewrite assoc_disp_var.
+      rewrite transport_f_f.
+      rewrite cartesian_factorisation_commutes.
+      rewrite transport_f_f.
+      rewrite cartesian_factorisation_commutes.
+      rewrite !mor_disp_transportf_prewhisker.
+      rewrite transport_f_f.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite assoc_disp.
+        unfold transportb.
+        rewrite cartesian_factorisation_commutes.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite transport_f_f.
+        rewrite assoc_disp_var.
+        rewrite transport_f_f.
+        rewrite cartesian_factorisation_commutes.
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite transport_f_f.
+        rewrite id_right_disp.
+        unfold transportb.
+        rewrite transport_f_f.
+        apply idpath.
+      }
+      rewrite mor_disp_transportf_prewhisker.
+      rewrite transport_f_f.
+      rewrite cartesian_factorisation_commutes.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply homset_property.
+      Opaque comp_psfunctor.
+  Qed.
+  Transparent comp_psfunctor.
+
+  (**
+   5. The unit
+   *)
+  Definition psfunctor_fib_to_psfunctor_unit
+    : pstrans
+        (comp_psfunctor
+           (psfunctor_psfunctor_bicat_to_fib C)
+           (psfunctor_fib_to_psfunctor_bicat C))
+        (id_psfunctor _).
+  Proof.
+    use make_pstrans.
+    - exact psfunctor_fib_to_psfunctor_unit_data.
+    - exact is_pstrans_psfunctor_fib_to_psfunctor_unit.
+  Defined.
+
+  (**
+   6. The action on objects forms an equivalence
+   *)
   Definition psfunctor_fib_to_psfunctor_unit_disp_functor_inv_data
              (D : disp_univalent_category C)
              (HD : cleaving D)
@@ -355,175 +609,6 @@ Section GrothendieckConstruction.
     simple refine (_ ,, _).
     - exact (psfunctor_fib_to_psfunctor_unit_disp_functor_inv D HD).
     - exact (is_cartesian_psfunctor_fib_to_psfunctor_unit_disp_functor_inv D HD).
-  Defined.
-
-  Definition psfunctor_fib_to_psfunctor_unit_natural_data
-             {D₁ D₂ : disp_univalent_category C}
-             (HD₁ : cleaving D₁)
-             (HD₂ : cleaving D₂)
-             (F : cartesian_disp_functor (functor_identity _) D₁ D₂)
-    : disp_nat_trans_data
-        (nat_trans_id _)
-        (disp_functor_over_id_composite
-           (psfunctor_fib_to_psfunctor_unit_disp_functor D₁ HD₁)
-           F)
-        (disp_functor_over_id_composite
-           (indexed_functor_to_disp_functor
-              (pstrans_to_indexed_functor
-                 (indexed_functor_to_pstrans
-                    (cartesian_disp_functor_to_indexed_functor HD₁ HD₂ F))))
-           (psfunctor_fib_to_psfunctor_unit_disp_functor D₂ HD₂))
-    := λ x xx, id_disp _.
-
-  Proposition psfunctor_fib_to_psfunctor_unit_natural_axioms
-              {D₁ D₂ : disp_univalent_category C}
-              (HD₁ : cleaving D₁)
-              (HD₂ : cleaving D₂)
-              (F : cartesian_disp_functor (functor_identity _) D₁ D₂)
-    : disp_nat_trans_axioms
-        (psfunctor_fib_to_psfunctor_unit_natural_data HD₁ HD₂ F).
-  Proof.
-    intros x y f xx yy ff ; cbn.
-    unfold transportb, fiber_functor_natural_inv, psfunctor_fib_to_psfunctor_unit_natural_data.
-    rewrite (disp_functor_transportf _ F).
-    rewrite mor_disp_transportf_prewhisker.
-    rewrite !mor_disp_transportf_postwhisker.
-    rewrite mor_disp_transportf_prewhisker.
-    rewrite !transport_f_f.
-    rewrite id_right_disp.
-    rewrite id_left_disp.
-    unfold transportb.
-    rewrite !transport_f_f.
-    rewrite assoc_disp_var.
-    rewrite transport_f_f.
-    rewrite cartesian_factorisation_commutes.
-    rewrite mor_disp_transportf_prewhisker.
-    rewrite transport_f_f.
-    rewrite disp_functor_comp.
-    unfold transportb.
-    rewrite transport_f_f.
-    apply maponpaths_2.
-    apply homset_property.
-  Qed.
-
-  Definition psfunctor_fib_to_psfunctor_unit_natural
-             {D₁ D₂ : disp_univalent_category C}
-             (HD₁ : cleaving D₁)
-             (HD₂ : cleaving D₂)
-             (F : cartesian_disp_functor (functor_identity _) D₁ D₂)
-    : disp_nat_trans
-        (nat_trans_id _)
-        (disp_functor_over_id_composite
-           (psfunctor_fib_to_psfunctor_unit_disp_functor D₁ HD₁)
-           F)
-        (disp_functor_over_id_composite
-           (indexed_functor_to_disp_functor
-              (pstrans_to_indexed_functor
-                 (indexed_functor_to_pstrans
-                    (cartesian_disp_functor_to_indexed_functor HD₁ HD₂ F))))
-           (psfunctor_fib_to_psfunctor_unit_disp_functor D₂ HD₂)).
-  Proof.
-    simple refine (_ ,, _).
-    - exact (psfunctor_fib_to_psfunctor_unit_natural_data HD₁ HD₂ F).
-    - exact (psfunctor_fib_to_psfunctor_unit_natural_axioms HD₁ HD₂ F).
-  Defined.
-
-  Definition psfunctor_fib_to_psfunctor_unit_data
-    : pstrans_data
-        (comp_psfunctor
-           (psfunctor_psfunctor_bicat_to_fib C)
-           (psfunctor_fib_to_psfunctor_bicat C))
-        (id_psfunctor _).
-  Proof.
-    use make_pstrans_data.
-    - exact (λ P, psfunctor_fib_to_psfunctor_unit_cartesian_disp_functor
-                    (pr1 P) (pr2 P)).
-    - simple refine (λ P₁ P₂ F, make_invertible_2cell _).
-      + exact (psfunctor_fib_to_psfunctor_unit_natural (pr2 P₁) (pr2 P₂) F).
-      + use is_invertible_2cell_fib_slice.
-        intros x xx.
-        apply id_is_z_iso_disp.
-  Defined.
-
-  Proposition is_pstrans_psfunctor_fib_to_psfunctor_unit
-    : is_pstrans psfunctor_fib_to_psfunctor_unit_data.
-  Proof.
-    refine (_ ,, _ ,, _).
-    - intros P₁ P₂ F G τ.
-      use disp_nat_trans_eq.
-      intros x xx.
-      cbn ; unfold psfunctor_fib_to_psfunctor_unit_natural_data.
-      rewrite mor_disp_transportf_prewhisker.
-      rewrite mor_disp_transportf_postwhisker.
-      rewrite mor_disp_transportf_prewhisker.
-      rewrite !transport_f_f.
-      rewrite id_right_disp.
-      rewrite id_left_disp.
-      unfold transportb.
-      rewrite !transport_f_f.
-      rewrite assoc_disp_var.
-      rewrite transport_f_f.
-      rewrite cartesian_factorisation_commutes.
-      rewrite mor_disp_transportf_prewhisker.
-      rewrite transport_f_f.
-      rewrite id_right_disp.
-      unfold transportb.
-      rewrite transport_f_f.
-      apply maponpaths_2.
-      apply homset_property.
-    - intros P.
-      use disp_nat_trans_eq.
-      intros x xx.
-      cbn ; unfold psfunctor_fib_to_psfunctor_unit_natural_data.
-      unfold transportb.
-      rewrite !mor_disp_transportf_prewhisker.
-      rewrite !mor_disp_transportf_postwhisker.
-      rewrite !transport_f_f.
-      rewrite !id_left_disp.
-      unfold transportb.
-      rewrite !mor_disp_transportf_postwhisker.
-      rewrite !mor_disp_transportf_prewhisker.
-      rewrite !transport_f_f.
-      rewrite !id_left_disp.
-      unfold transportb.
-      rewrite !transport_f_f.
-      refine (!_).
-      apply TODO.
-    - intros P₁ P₂ P₃ F G.
-      use disp_nat_trans_eq.
-      intros x xx.
-      cbn ; unfold psfunctor_fib_to_psfunctor_unit_natural_data.
-      rewrite !mor_disp_transportf_prewhisker.
-      rewrite !mor_disp_transportf_postwhisker.
-      rewrite !transport_f_f.
-      rewrite !id_left_disp.
-      unfold transportb.
-      rewrite !mor_disp_transportf_prewhisker.
-      rewrite !mor_disp_transportf_postwhisker.
-      rewrite !transport_f_f.
-      rewrite (disp_functor_id (pr1 G)).
-      rewrite !id_right_disp.
-      unfold transportb.
-      rewrite !mor_disp_transportf_postwhisker.
-      rewrite !transport_f_f.
-      rewrite !id_left_disp.
-      unfold transportb.
-      rewrite !transport_f_f.
-      apply TODO.
-      Opaque comp_psfunctor.
-      Time Qed.
-  Transparent comp_psfunctor.
-
-  Definition psfunctor_fib_to_psfunctor_unit
-    : pstrans
-        (comp_psfunctor
-           (psfunctor_psfunctor_bicat_to_fib C)
-           (psfunctor_fib_to_psfunctor_bicat C))
-        (id_psfunctor _).
-  Proof.
-    use make_pstrans.
-    - exact psfunctor_fib_to_psfunctor_unit_data.
-    - exact is_pstrans_psfunctor_fib_to_psfunctor_unit.
   Defined.
 
   Definition psfunctor_fib_to_psfunctor_unit_equiv_unit_data
@@ -720,6 +805,9 @@ Section GrothendieckConstruction.
     - exact (psfunctor_fib_to_psfunctor_unit_equiv_counit_laws D HD).
   Defined.
 
+  (**
+   7. The unit is a pointwise adjoint equivalence
+   *)
   Definition psfunctor_fib_to_psfunctor_unit_equiv
              (D : disp_univalent_category C)
              (HD : cleaving D)

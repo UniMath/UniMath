@@ -191,6 +191,39 @@ Proof.
   exact (pstrans_id η X).
 Qed.
 
+Proposition pstrans_id_inv
+            {B₁ B₂ : bicat}
+            {F G : psfunctor B₁ B₂}
+            (τ : pstrans F G)
+            (x : B₁)
+  : (psnaturality_of τ (id₁ x))^-1 • (τ x ◃ (psfunctor_id G x)^-1)
+    =
+    ((psfunctor_id F x)^-1 ▹ τ x) • lunitor _ • rinvunitor _.
+Proof.
+  use vcomp_move_L_pM ; [ is_iso | ].
+  use vcomp_move_R_Mp ; [ is_iso | ].
+  use vcomp_move_L_pM; [ is_iso | ].
+  cbn -[psfunctor_id].
+  rewrite !vassocr.
+  exact (!(pstrans_id τ x)).
+Qed.
+
+Proposition pstrans_id_inv_alt
+            {B₁ B₂ : bicat}
+            {F G : psfunctor B₁ B₂}
+            (τ : pstrans F G)
+            (x : B₁)
+  : (psfunctor_id F x ▹ τ x) • (psnaturality_of τ (id₁ x))^-1
+    =
+    lunitor _ • rinvunitor _ • (τ x ◃ psfunctor_id G x).
+Proof.
+  use vcomp_move_R_pM ; [ is_iso ; apply property_from_invertible_2cell | ].
+  rewrite !vassocr.
+  use vcomp_move_L_Mp ; [ is_iso ; apply property_from_invertible_2cell | ].
+  cbn -[psfunctor_id].
+  apply pstrans_id_inv.
+Qed.
+
 Definition pstrans_comp_alt
            {C D : bicat}
            {F G : psfunctor C D}

@@ -1,17 +1,32 @@
 (************************************************************************
 
- The Grothendieck Construction
+ Grothendieck construction: fibrations to pseudofunctors
 
  The Grothendieck construction gives a biequivalence between the
  bicategory of fibrations over a fixed category `C` and the bicategory
- of indexd categories over `C`. In this file, our goal is to construct
- this particular equivalence. Except for some laws, this file collects
- constructions already given elsewhere in UniMath.
+ of indexed categories over `C`. To construct this biequivalence, we
+ need to construct the following:
+ 1. A pseudofunctor from the bicategory of fibrations to the bicategory
+    of pseudofunctors
+ 2. A pseudofunctor from the bicategory of pseudofunctors to the
+    bicategory of fibrations
+ 3. The unit and a proof that it is a pointwise adjoint equivalence
+ 4. The counit and a proof that it is a pointwise adjoint equivalence
 
- Note: at this moment, the construction is not complete yet, because we
- need to construct a biequivalence between the bicategory of fibrations
- on `C` and the bicategory of indexed categories. We currently only have
- the pseudofunctor from fibrations to indexed categories.
+ In this file, we construct the first part of this biequivalence (a
+ pseudofunctor from fibrations to pseudofunctors). This construction
+ mainly recollects statements that are already present in UniMath.
+
+ There are a couple of ideas behind this formalization. First of all,
+ for the Grothendieck construction, we are only interested in a rather
+ particular class of pseudofunctors, namely those pseudofunctors for
+ which the domain is a discrete bicategory (i.e., a category). This
+ allows us to simplify some of the coherences of pseudofunctors, which
+ is done in the file `PseudoTransformationIntoCat.v`. Second of all, we
+ explicitly use the notion of indexed categories (see the directory
+ `IndexedCategories` in `CategoryTheory`) for this construction, because
+ this allows us to formulate the fundamental constructions purely in the
+ language of category theory and without mentioning bicategories.
 
  Contents
  1. Preservation of the identity

@@ -1,3 +1,18 @@
+(*********************************************************************
+
+ The fiberwise opposite of an indexed category
+
+ In this file, we define the fiberwise opposite of indexed categories.
+ More specifically, if we have a category `Φ` indexed over `C`, then
+ the fiberwise opposite of `Φ` is defined to be the opposite of `Φ x`
+ on every object `x`.
+
+ Contents
+ 1. The data
+ 2. The laws
+ 3. The fiberwise core
+
+ *********************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -10,20 +25,13 @@ Require Import UniMath.CategoryTheory.IndexedCategories.IndexedCategory.
 
 Local Open Scope cat.
 
-Proposition idtoiso_opp
-            {C : category}
-            {x y : C}
-            (p : x = y)
-  : pr1 (@idtoiso (C^op) _ _ p) = pr1 (@idtoiso C _ _ (!p)).
-Proof.
-  induction p ; cbn.
-  apply idpath.
-Qed.
-
 Section FiberwiseOp.
   Context {C : category}
           (Φ : indexed_cat C).
 
+  (**
+   1. The data
+   *)
   Definition op_indexed_cat_data
     : indexed_cat_data C.
   Proof.
@@ -60,6 +68,9 @@ Section FiberwiseOp.
         apply is_z_isomorphism_identity.
   Defined.
 
+  (**
+   2. The laws
+   *)
   Proposition op_indexed_cat_laws
     : indexed_cat_laws op_indexed_cat_data.
   Proof.
@@ -170,6 +181,9 @@ Section FiberwiseOp.
       apply idpath.
   Qed.
 
+  (**
+   3. The fiberwise core
+   *)
   Definition op_indexed_cat
     : indexed_cat C.
   Proof.

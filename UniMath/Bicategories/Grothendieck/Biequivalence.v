@@ -1,37 +1,36 @@
 (************************************************************************
 
- The Grothendieck Construction
+ The Grothendieck Construction: the biequivalence
 
  The Grothendieck construction gives a biequivalence between the
  bicategory of fibrations over a fixed category `C` and the bicategory
- of indexd categories over `C`. In this file, our goal is to construct
- this particular equivalence. Except for some laws, this file collects
- constructions already given elsewhere in UniMath.
+ of indexed categories over `C`. To construct this biequivalence, we
+ need to construct the following:
+ 1. A pseudofunctor from the bicategory of fibrations to the bicategory
+    of pseudofunctors
+ 2. A pseudofunctor from the bicategory of pseudofunctors to the
+    bicategory of fibrations
+ 3. The unit and a proof that it is a pointwise adjoint equivalence
+ 4. The counit and a proof that it is a pointwise adjoint equivalence
 
- Note: at this moment, the construction is not complete yet, because we
- need to construct a biequivalence between the bicategory of fibrations
- on `C` and the bicategory of indexed categories. We currently only have
- the pseudofunctor from fibrations to indexed categories.
+ In this file, we collect all statements together so that we obtain the
+ desired biequivalence.
+
+ In the proof, we make use of the fact that a pseudotransformation is an
+ adjoint equivalence if it is a pointwise adjoint equivalence. The current
+ proof of that in UniMath requires the univalence of the codomain, so that
+ one can use induction on adjoint equivalences.
+
+ Note: currently, the equivalence has an open assumption, which says that
+ the bicategory of fibrations is univalent. There is a formalized proof
+ of this for the bicategory of Street fibrations, but not yet for
+ Grothendieck fibration. This requires showing that two displayed
+ categories are equal if we have an adjoint equivalence between them.
 
  Contents
- 1. From fibrations to pseudofunctors
- 1.1. Preservation of the identity
- 1.2. Preservation of composition
- 1.3. The data
- 1.4. The laws
- 1.5. Pseudofunctor from fibrations to pseudofunctors
- 2. From pseudofunctors to fibrations
- 2.1. The action on pseudofunctors
- 2.2. The action on pseudotransformations
- 2.3. The action on modifications
- 2.4. The identitor
- 2.5. The compositor
- 2.6. The data
- 2.7. The laws
- 2.8. The pseudofunctor from pseudofunctors to fibrations
- 3. The unit
- 4. The counit
- 5. The biequivalence
+ 1. Collecting the data of the biequivalence
+ 2. Collecting that the unit and counit are adjoint equivalences
+ 3. The Grothendieck construction as biequivalence
 
  ************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -92,7 +91,7 @@ Section GrothendieckConstruction.
   Context (C : univalent_category).
 
   (**
-   5. The biequivalence
+   1. Collecting the data of the biequivalence
    *)
   Definition psfunctor_fib_to_psfunctor_bicat_unit_counit
     : is_biequivalence_unit_counit
@@ -104,6 +103,9 @@ Section GrothendieckConstruction.
     - exact psfunctor_fib_to_psfunctor_counit.
   Defined.
 
+  (**
+   2. Collecting that the unit and counit are adjoint equivalences
+   *)
   Definition is_biequivalence_adjoints_psfunctor_fib_to_psfunctor_bicat
              (H : is_univalent_2 (fib_slice_bicat C))
     : is_biequivalence_adjoints psfunctor_fib_to_psfunctor_bicat_unit_counit.
@@ -125,6 +127,9 @@ Section GrothendieckConstruction.
           exact (equiv_psfunctor_fib_to_psfunctor_counit_data_ob_data_functor F x).
   Defined.
 
+  (**
+   3. The Grothendieck construction as biequivalence
+   *)
   Definition is_biequivalence_psfunctor_fib_to_psfunctor_bicat
              (H : is_univalent_2 (fib_slice_bicat C))
     : is_biequivalence (psfunctor_fib_to_psfunctor_bicat C)

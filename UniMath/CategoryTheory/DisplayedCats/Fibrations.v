@@ -2794,3 +2794,32 @@ Proof.
   rewrite id_left_disp.
   apply idpath.
 Qed.
+
+(**
+ Transporting the object of a cartesian lift
+ *)
+Proposition transportf_object_cartesian_lift
+            {C : category}
+            {D : disp_cat C}
+            (HD : cleaving D)
+            {x : C}
+            (xx : D x)
+            {f g : x --> x}
+            (p : f = g)
+            (ff : xx -->[ identity x ] object_of_cartesian_lift _ _ (HD x x f xx))
+  : transportf
+      (λ (h : x --> x),
+      _ -->[ identity x ] object_of_cartesian_lift _ _ (HD x x h xx))
+      p
+      ff
+    =
+    cartesian_factorisation
+      (HD x x g xx)
+      _
+      (ff ;; transportf (λ z, _ -->[ z ] _) p (HD x x f xx))%mor_disp.
+Proof.
+  induction p ; cbn.
+  use (cartesian_factorisation_unique (HD x x f xx)).
+  rewrite cartesian_factorisation_commutes.
+  apply idpath.
+Qed.

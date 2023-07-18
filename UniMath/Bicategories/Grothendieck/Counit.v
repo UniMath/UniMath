@@ -1,37 +1,42 @@
 (************************************************************************
 
- The Grothendieck Construction
+ Grothendieck construction: the counit
 
  The Grothendieck construction gives a biequivalence between the
  bicategory of fibrations over a fixed category `C` and the bicategory
- of indexd categories over `C`. In this file, our goal is to construct
- this particular equivalence. Except for some laws, this file collects
- constructions already given elsewhere in UniMath.
+ of indexed categories over `C`. To construct this biequivalence, we
+ need to construct the following:
+ 1. A pseudofunctor from the bicategory of fibrations to the bicategory
+    of pseudofunctors
+ 2. A pseudofunctor from the bicategory of pseudofunctors to the
+    bicategory of fibrations
+ 3. The unit and a proof that it is a pointwise adjoint equivalence
+ 4. The counit and a proof that it is a pointwise adjoint equivalence
 
- Note: at this moment, the construction is not complete yet, because we
- need to construct a biequivalence between the bicategory of fibrations
- on `C` and the bicategory of indexed categories. We currently only have
- the pseudofunctor from fibrations to indexed categories.
+ In this file, we construct the fourth part of this biequivalence, namely
+ the counit.
+
+ The counit gives a pseudotransformations between two endopseudofunctors
+ on the bicategory of pseudofunctors. As such, for every object, we need
+ to define a pseudotransformation. This is done in:
+   [psfunctor_fib_to_psfunctor_counit_data_ob]
+ In addition, we show that the counit is a pointwise adjoint equivalence.
+ Since it is a pseudotransformation at every point, we must show that
+ that particular pseudotransformation is a pointwise adjoint equivalence.
+ This is done in:
+   [equiv_psfunctor_fib_to_psfunctor_counit_data_ob_data_functor]
+ Afterwards we construct invertible modifications that witness the
+ naturality of this pseudotransformation. This is done in:
+   [psfunctor_fib_to_psfunctor_counit_natural]
+ Collecting all of these data and laws give us the desired
+ pseudotransformation.
 
  Contents
- 1. From fibrations to pseudofunctors
- 1.1. Preservation of the identity
- 1.2. Preservation of composition
- 1.3. The data
- 1.4. The laws
- 1.5. Pseudofunctor from fibrations to pseudofunctors
- 2. From pseudofunctors to fibrations
- 2.1. The action on pseudofunctors
- 2.2. The action on pseudotransformations
- 2.3. The action on modifications
- 2.4. The identitor
- 2.5. The compositor
- 2.6. The data
- 2.7. The laws
- 2.8. The pseudofunctor from pseudofunctors to fibrations
- 3. The unit
- 4. The counit
- 5. The biequivalence
+ 1. Action of the counit on objects
+ 2. Action of the counit on 1-cells
+ 3. The data of the counit
+ 4. The laws of the counit
+ 5. The counit
 
  ************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -83,57 +88,13 @@ Require Import UniMath.Bicategories.Modifications.Examples.ModificationIntoCat.
 Require Import UniMath.Bicategories.Grothendieck.FibrationToPseudoFunctor.
 Require Import UniMath.Bicategories.Grothendieck.PseudoFunctorToFibration.
 
-Definition TODO { A : UU } : A.
-Admitted.
-
 Local Open Scope cat.
-
-Proposition pstrans_id_inv
-            {B₁ B₂ : bicat}
-            {F G : psfunctor B₁ B₂}
-            (τ : pstrans F G)
-            (x : B₁)
-  : (psnaturality_of τ (id₁ x))^-1 • (τ x ◃ (psfunctor_id G x)^-1)
-    =
-    ((psfunctor_id F x)^-1 ▹ τ x) • lunitor _ • rinvunitor _.
-Proof.
-  use vcomp_move_L_pM ; [ is_iso | ].
-  use vcomp_move_R_Mp ; [ is_iso | ].
-  use vcomp_move_L_pM; [ is_iso | ].
-  cbn -[psfunctor_id].
-  rewrite !vassocr.
-  exact (!(pstrans_id τ x)).
-Qed.
-
-Proposition transportf_psfunctor_into_cat
-            {C : univalent_category}
-            {F : psfunctor (cat_to_bicat C^op) bicat_of_univ_cats}
-            {x y : C}
-            (f : x --> y)
-            (yy : pr1 (F y))
-            {g h : x --> y}
-            (p : g = h)
-            (ff : pr1 (# F f) yy --> pr1 (# F g) yy)
-  : transportf
-      (λ z, pr1 (#F f) yy --> pr1 (#F z) yy)
-      p
-      ff
-    =
-    ff · pr1 (##F p) yy.
-Proof.
-  induction p ; cbn.
-  refine (!(id_right _) @ _).
-  apply maponpaths.
-  refine (!(nat_trans_eq_pointwise (psfunctor_id2 F _) _) @ _).
-  refine (maponpaths (λ z, pr1 (##F z) yy) _).
-  apply homset_property.
-Qed.
 
 Section GrothendieckConstruction.
   Context {C : univalent_category}.
 
   (**
-   4. The counit
+   1. Action of the counit on objects
    *)
   Definition psfunctor_fib_to_psfunctor_counit_data_ob_data_functor_data
              (F : psfunctor (cat_to_bicat C^op) bicat_of_univ_cats)
@@ -584,9 +545,9 @@ Section GrothendieckConstruction.
       exact (psfunctor_fib_to_psfunctor_counit_data_ob_nat_z_iso F f).
   Defined.
 
-  Definition psfunctor_fib_to_psfunctor_counit_data_ob
+  Definition psfunctor_fib_to_psfunctor_counit_data_data_on_ob
              (F : psfunctor (cat_to_bicat C^op) bicat_of_univ_cats)
-    : pstrans
+    : pstrans_from_cat_into_cat_data
         (indexed_cat_to_psfunctor
            (cleaving_to_indexed_cat
               (indexed_cat_to_disp_cat (psfunctor_to_indexed_cat F),,
@@ -594,10 +555,18 @@ Section GrothendieckConstruction.
               (indexed_cat_to_cleaving (psfunctor_to_indexed_cat F))))
         F.
   Proof.
-    use pstrans_from_cat_into_cat.
+    use make_pstrans_from_cat_into_cat_data.
     - exact (psfunctor_fib_to_psfunctor_counit_data_ob_data_functor F).
     - intros x y f.
       exact (psfunctor_fib_to_psfunctor_counit_data_ob_nat_z_iso F f).
+  Defined.
+
+  Proposition psfunctor_fib_to_psfunctor_counit_data_laws_on_ob
+              (F : psfunctor (cat_to_bicat C^op) bicat_of_univ_cats)
+    : pstrans_from_cat_into_cat_laws
+        (psfunctor_fib_to_psfunctor_counit_data_data_on_ob F).
+  Proof.
+    split.
     - intros x xx ; cbn -[psfunctor_id].
       unfold psfunctor_fib_to_psfunctor_counit_data_ob_nat_trans_data.
       refine (id_right _ @ _).
@@ -612,11 +581,104 @@ Section GrothendieckConstruction.
       }
       rewrite functor_id.
       rewrite id_right.
-      cbn.
-      apply TODO.
-    - apply TODO.
+      refine (assoc' _ _ _ @ _).
+      etrans.
+      {
+        apply maponpaths.
+        etrans.
+        {
+          pose (p := nat_trans_eq_pointwise (psfunctor_F_runitor F (identity x)) xx).
+          cbn -[psfunctor_id psfunctor_comp] in p.
+          refine (_ @ !p).
+          rewrite id_right.
+          apply idpath.
+        }
+        apply psfunctor_idtoiso.
+      }
+      etrans.
+      {
+        apply maponpaths_2.
+        apply (transportf_indexed_cat_to_disp_cat (psfunctor_to_indexed_cat F)).
+      }
+      refine (assoc' _ _ _ @ _ @ id_right _).
+      apply maponpaths.
+      refine (!(pr1_idtoiso_concat _ _) @ _ @ idtoiso_idpath _).
+      do 2 apply maponpaths.
+      refine (!(maponpathscomp0 (λ z, pr1 (#(pr11 F) z) _) _ _) @ _).
+      refine (_ @ @maponpaths_idpath _ _ (λ z, pr1 (#(pr11 F) z) _) _).
+      apply maponpaths.
+      apply homset_property.
+    - intros x y z f g xx ; cbn -[psfunctor_id psfunctor_comp].
+      unfold psfunctor_fib_to_psfunctor_counit_data_ob_nat_trans_data.
+      rewrite !id_right.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths_2.
+        apply functor_id.
+      }
+      rewrite id_left.
+      etrans.
+      {
+        apply maponpaths_2.
+        cbn.
+        unfold is_cartesian_indexed_cat_factorisation.
+        cbn -[psfunctor_comp].
+        rewrite !functor_id.
+        rewrite !id_right.
+        apply maponpaths_2.
+        apply maponpaths.
+        apply id_left.
+      }
+      refine (assoc' _ _ _ @ _).
+      etrans.
+      {
+        apply maponpaths_2.
+        apply (transportf_indexed_cat_to_disp_cat (psfunctor_to_indexed_cat F)).
+      }
+      refine (assoc' _ _ _ @ _ @ id_right _).
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        cbn in g, f.
+        pose (p := nat_trans_eq_pointwise (psfunctor_F_runitor F (g · f)) xx).
+        cbn -[psfunctor_id psfunctor_comp] in p.
+        refine (_ @ !p).
+        rewrite id_right.
+        apply idpath.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        apply psfunctor_idtoiso.
+      }
+      refine (!(pr1_idtoiso_concat _ _) @ _ @ idtoiso_idpath _).
+      do 2 apply maponpaths.
+      refine (!(maponpathscomp0 (λ z, pr1 (#(pr11 F) z) _) _ _) @ _).
+      refine (_ @ @maponpaths_idpath _ _ (λ z, pr1 (#(pr11 F) z) _) _).
+      apply maponpaths.
+      apply homset_property.
+  Qed.
+
+  Definition psfunctor_fib_to_psfunctor_counit_data_ob
+             (F : psfunctor (cat_to_bicat C^op) bicat_of_univ_cats)
+    : pstrans
+        (indexed_cat_to_psfunctor
+           (cleaving_to_indexed_cat
+              (indexed_cat_to_disp_cat (psfunctor_to_indexed_cat F),,
+                 is_univalent_disp_indexed_cat_to_disp_cat (psfunctor_to_indexed_cat F))
+              (indexed_cat_to_cleaving (psfunctor_to_indexed_cat F))))
+        F.
+  Proof.
+    use pstrans_from_cat_into_cat.
+    - exact (psfunctor_fib_to_psfunctor_counit_data_data_on_ob F).
+    - exact (psfunctor_fib_to_psfunctor_counit_data_laws_on_ob F).
   Defined.
 
+  (**
+   2. Action of the counit on 1-cells
+   *)
   Definition psfunctor_fib_to_psfunctor_counit_natural_nat_trans_data
              {F G : psfunctor (cat_to_bicat C^op) bicat_of_univ_cats}
              (τ : pstrans F G)
@@ -821,7 +883,7 @@ Section GrothendieckConstruction.
     refine (_ @ nat_trans_eq_pointwise (psfunctor_id2 G _) _).
     refine (maponpaths (λ z, pr1 (##G z) _) _).
     apply homset_property.
-  Time Qed.
+  Qed.
 
   Definition psfunctor_fib_to_psfunctor_counit_natural
              {F G : psfunctor (cat_to_bicat C^op) bicat_of_univ_cats}
@@ -839,6 +901,9 @@ Section GrothendieckConstruction.
     - exact (psfunctor_fib_to_psfunctor_counit_natural_laws τ).
   Defined.
 
+  (**
+   3. The data of the counit
+   *)
   Definition psfunctor_fib_to_psfunctor_counit_data
     : pstrans_data
         (comp_psfunctor
@@ -851,6 +916,9 @@ Section GrothendieckConstruction.
     - exact @psfunctor_fib_to_psfunctor_counit_natural.
   Defined.
 
+  (**
+   4. The laws of the counit
+   *)
   Proposition psfunctor_fib_to_psfunctor_counit_is_pstrans
     : is_pstrans psfunctor_fib_to_psfunctor_counit_data.
   Proof.
@@ -863,9 +931,15 @@ Section GrothendieckConstruction.
       use nat_trans_eq ; [ apply homset_property | ].
       intros xx.
       refine (id_right _ @ _).
-      cbn.
+      cbn -[psfunctor_id].
       refine (_ @ !(id_left _)).
-      apply TODO.
+      refine (!_).
+      refine (_ @ id_right _).
+      refine (assoc' _ _ _ @ _).
+      apply maponpaths.
+      exact (nat_trans_eq_pointwise
+               (vcomp_rinv (psfunctor_id F₂ x))
+               (pr1 (pr111 n₂ x) xx)).
     - intros F.
       Opaque comp_psfunctor.
       use modification_eq.
@@ -889,7 +963,32 @@ Section GrothendieckConstruction.
                  (psfunctor_to_indexed_cat F)).
       }
       unfold psfunctor_psfunctor_bicat_to_fib_id_data.
-      apply TODO.
+      refine (_ @ nat_trans_eq_pointwise (vcomp_rinv (psfunctor_id F x)) xx).
+      cbn -[psfunctor_id].
+      do 3 refine (assoc' _ _ _ @ _).
+      apply maponpaths.
+      refine (_ @ id_left _).
+      do 2 refine (assoc _ _ _ @ _).
+      apply maponpaths_2.
+      etrans.
+      {
+        apply maponpaths_2.
+        etrans.
+        {
+          pose (p := nat_trans_eq_pointwise (psfunctor_linvunitor F (identity x)) xx).
+          cbn -[psfunctor_id psfunctor_comp] in p.
+          refine (_ @ !p).
+          apply maponpaths_2.
+          exact (!(id_left _)).
+        }
+        apply psfunctor_idtoiso.
+      }
+      refine (!(pr1_idtoiso_concat _ _) @ _ @ idtoiso_idpath _).
+      do 2 apply maponpaths.
+      refine (!(maponpathscomp0 (λ h, pr1 (#(F : psfunctor _ _) h) xx) _ _) @ _).
+      refine (_ @ @maponpaths_idpath _ _ (λ h, pr1 (#(F : psfunctor _ _) h) xx) _).
+      apply maponpaths.
+      apply homset_property.
     - intros F₁ F₂ F₃ τ θ.
       Opaque comp_psfunctor.
       use modification_eq.
@@ -912,11 +1011,48 @@ Section GrothendieckConstruction.
         apply id_right.
       }
       refine (id_left _ @ _).
-      apply TODO.
+      unfold psfunctor_psfunctor_bicat_to_fib_comp_data.
+      cbn -[psfunctor_id].
+      etrans.
+      {
+        apply maponpaths_2.
+        apply (transportf_indexed_cat_to_disp_cat (psfunctor_to_indexed_cat F₃)).
+      }
+      refine (_ @ nat_trans_eq_pointwise (vcomp_rinv (psfunctor_id F₃ x)) _).
+      cbn -[psfunctor_id].
+      do 3 refine (assoc' _ _ _ @ _).
+      apply maponpaths.
+      refine (_ @ id_left _).
+      do 2 refine (assoc _ _ _ @ _).
+      apply maponpaths_2.
+      etrans.
+      {
+        apply maponpaths_2.
+        etrans.
+        {
+          pose (p := nat_trans_eq_pointwise
+                       (psfunctor_linvunitor F₃ (identity x))
+                       (pr1 (pr111 θ x) (pr1 (pr111 τ x) xx))).
+          cbn -[psfunctor_id psfunctor_comp] in p.
+          refine (_ @ !p).
+          apply maponpaths_2.
+          exact (!(id_left _)).
+        }
+        apply psfunctor_idtoiso.
+      }
+      refine (!(pr1_idtoiso_concat _ _) @ _ @ idtoiso_idpath _).
+      do 2 apply maponpaths.
+      refine (!(maponpathscomp0 (λ h, pr1 (#(F₃ : psfunctor _ _) h) _) _ _) @ _).
+      refine (_ @ @maponpaths_idpath _ _ (λ h, pr1 (#(F₃ : psfunctor _ _) h) _) _).
+      apply maponpaths.
+      apply homset_property.
       Opaque comp_psfunctor.
   Qed.
   Transparent comp_psfunctor.
 
+  (**
+   5. The counit
+   *)
   Definition psfunctor_fib_to_psfunctor_counit
     : pstrans
         (comp_psfunctor
