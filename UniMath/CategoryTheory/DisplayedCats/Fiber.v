@@ -200,7 +200,7 @@ Section UnivalentFiber.
 End UnivalentFiber.
 
 Definition univalent_fiber_category
-           {C : univalent_category}
+           {C : category}
            (D : disp_univalent_category C)
            (c : C)
   : univalent_category.

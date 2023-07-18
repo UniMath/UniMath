@@ -341,7 +341,7 @@ End PseudofunctorToIndexedCat.
  4. Transport on pseudofunctors into categories
  *)
 Proposition transportf_psfunctor_into_cat
-            {C : univalent_category}
+            {C : category}
             {F : psfunctor (cat_to_bicat C^op) bicat_of_univ_cats}
             {x y : C}
             (f : x --> y)

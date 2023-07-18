@@ -262,8 +262,8 @@ Definition cartesian_disp_functor_is_cartesian
   := pr2 FF.
 
 Definition cartesian_disp_functor_on_cartesian
-           {C : univalent_category}
-           {D₁ D₂ : disp_univalent_category C}
+           {C : category}
+           {D₁ D₂ : disp_cat C}
            (F : cartesian_disp_functor (functor_identity C) D₁ D₂)
            {x y : C}
            {f : x --> y}
@@ -2599,9 +2599,10 @@ Arguments fiber_functor_from_cleaving_comp_data {C D} HD {x y z} f g /.
 (**
  The fiber functor of a cartesian functor is natural
  *)
+Locate cartesian_disp_functor_on_cartesian.
 Section FiberFunctorNatural.
-  Context {C : univalent_category}
-          {D₁ D₂ : disp_univalent_category C}
+  Context {C : category}
+          {D₁ D₂ : disp_cat C}
           (HD₁ : cleaving D₁)
           (HD₂ : cleaving D₂)
           (F : cartesian_disp_functor (functor_identity C) D₁ D₂)

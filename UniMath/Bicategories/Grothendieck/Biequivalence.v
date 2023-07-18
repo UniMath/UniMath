@@ -90,7 +90,7 @@ Require Import UniMath.Bicategories.Grothendieck.Counit.
 Local Open Scope cat.
 
 Section GrothendieckConstruction.
-  Context (C : univalent_category).
+  Context (C : category).
 
   (**
    1. Collecting the data of the biequivalence

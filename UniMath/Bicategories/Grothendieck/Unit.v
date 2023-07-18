@@ -78,7 +78,7 @@ Require Import UniMath.Bicategories.Grothendieck.PseudoFunctorToFibration.
 Local Open Scope cat.
 
 Section GrothendieckConstruction.
-  Context {C : univalent_category}.
+  Context {C : category}.
 
   Local Notation "'tr' P x" := (transportf P _ x) (at level 100, only printing).
 

@@ -91,7 +91,7 @@ Require Import UniMath.Bicategories.Grothendieck.PseudoFunctorToFibration.
 Local Open Scope cat.
 
 Section GrothendieckConstruction.
-  Context {C : univalent_category}.
+  Context {C : category}.
 
   (**
    1. Action of the counit on objects

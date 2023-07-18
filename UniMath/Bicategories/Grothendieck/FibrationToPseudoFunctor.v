@@ -78,13 +78,11 @@ Require Import UniMath.Bicategories.PseudoFunctors.Biequivalence.
 
 Local Open Scope cat.
 
-Local Open Scope cat.
-
 (**
  1. Preservation of the identity
  *)
 Definition psfunctor_id_fib_to_psfunctor_bicat_data
-           {C : univalent_category}
+           {C : category}
            (D : disp_univalent_category C)
            (HD : cleaving D)
   : invertible_modification_data
@@ -104,7 +102,7 @@ Proof.
 Defined.
 
 Proposition psfunctor_id_fib_to_psfunctor_bicat_laws
-           {C : univalent_category}
+           {C : category}
            (D : disp_univalent_category C)
            (HD : cleaving D)
   : is_modification (psfunctor_id_fib_to_psfunctor_bicat_data D HD).
@@ -143,7 +141,7 @@ Proof.
 Qed.
 
 Definition psfunctor_id_fib_to_psfunctor_bicat
-           {C : univalent_category}
+           {C : category}
            (D : disp_univalent_category C)
            (HD : cleaving D)
   : invertible_modification
@@ -166,7 +164,7 @@ Defined.
  2. Preservation of composition
  *)
 Definition psfunctor_comp_fib_to_psfunctor_bicat_data
-           {C : univalent_category}
+           {C : category}
            {D₁ D₂ D₃ : disp_univalent_category C}
            (HD₁ : cleaving D₁)
            (HD₂ : cleaving D₂)
@@ -192,7 +190,7 @@ Proof.
 Defined.
 
 Proposition psfunctor_comp_fib_to_psfunctor_bicat_laws
-            {C : univalent_category}
+            {C : category}
             {D₁ D₂ D₃ : disp_univalent_category C}
             (HD₁ : cleaving D₁)
             (HD₂ : cleaving D₂)
@@ -258,7 +256,7 @@ Proof.
 Qed.
 
 Definition psfunctor_comp_fib_to_psfunctor_bicat
-           {C : univalent_category}
+           {C : category}
            {D₁ D₂ D₃ : disp_univalent_category C}
            (HD₁ : cleaving D₁)
            (HD₂ : cleaving D₂)
@@ -284,7 +282,7 @@ Proof.
 Defined.
 
 Section GrothendieckConstruction.
-  Context (C : univalent_category).
+  Context (C : category).
 
   (**
    3. The data

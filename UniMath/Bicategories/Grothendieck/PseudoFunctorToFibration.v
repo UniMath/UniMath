@@ -76,12 +76,11 @@ Require Import UniMath.Bicategories.Transformations.PseudoTransformation.
 Require Import UniMath.Bicategories.Transformations.Examples.PseudoTransformationIntoCat.
 Require Import UniMath.Bicategories.Modifications.Modification.
 Require Import UniMath.Bicategories.Modifications.Examples.ModificationIntoCat.
-Require Import UniMath.Bicategories.PseudoFunctors.Biequivalence.
 
 Local Open Scope cat.
 
 Section GrothendieckConstruction.
-  Context (C : univalent_category).
+  Context (C : category).
 
   (**
    1. The action on pseudofunctors
