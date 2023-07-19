@@ -140,7 +140,7 @@ Section FromDoubleCategoryViaTwoSided.
       rewrite twosided_swap_transport.
       rewrite !twosided_prod_transport.
       apply maponpaths_2.
-      apply isasetdirprod ; apply Categories.homset_property.
+      apply isasetdirprod ; apply homset_property.
     - intros w x y z f g h k α.
       refine (_ @ !(id_two_disp_right_alt _)).
       cbn.
@@ -148,14 +148,14 @@ Section FromDoubleCategoryViaTwoSided.
       rewrite twosided_swap_transport.
       rewrite !twosided_prod_transport.
       apply maponpaths_2.
-      apply isasetdirprod ; apply Categories.homset_property.
+      apply isasetdirprod ; apply homset_property.
     - intros w₁ x₁ y₁ z₁ w₂ x₂ y₂ z₂ f₁ g₁ h₁ f₂ g₂ h₂ k₁ k₂ k₃ k₄ α β χ.
       refine (_ @ !(assoc_two_disp_alt _ _ _)).
       unfold hor_trans_assoc_sq, boundary_sq_transport ; cbn.
       rewrite twosided_swap_transport.
       rewrite !twosided_prod_transport.
       apply maponpaths_2.
-      apply isasetdirprod ; apply Categories.homset_property.
+      apply isasetdirprod ; apply homset_property.
   Qed.
 
   Definition double_cat_to_predoublecategory_hor_sq
@@ -198,14 +198,14 @@ Section FromDoubleCategoryViaTwoSided.
            rewrite twosided_swap_transport ;
            rewrite !twosided_prod_transport ;
            apply maponpaths_2 ;
-           apply isasetdirprod ; apply Categories.homset_property).
+           apply isasetdirprod ; apply homset_property).
       + abstract
           (unfold hor_trans_id_right_sq, boundary_sq_transport ; cbn ;
            refine (_ @ double_linvunitor_lunitor _) ;
            rewrite twosided_swap_transport ;
            rewrite !twosided_prod_transport ;
            apply maponpaths_2 ;
-           apply isasetdirprod ; apply Categories.homset_property).
+           apply isasetdirprod ; apply homset_property).
     - intros x y f.
       simple refine (_ ,, _ ,, _ ,, _) ; cbn.
       + apply double_runitor.
@@ -216,14 +216,14 @@ Section FromDoubleCategoryViaTwoSided.
            rewrite twosided_swap_transport ;
            rewrite !twosided_prod_transport ;
            apply maponpaths_2 ;
-           apply isasetdirprod ; apply Categories.homset_property).
+           apply isasetdirprod ; apply homset_property).
       + abstract
           (unfold hor_trans_id_right_sq, boundary_sq_transport ; cbn ;
            refine (_ @ double_rinvunitor_runitor _) ;
            rewrite twosided_swap_transport ;
            rewrite !twosided_prod_transport ;
            apply maponpaths_2 ;
-           apply isasetdirprod ; apply Categories.homset_property).
+           apply isasetdirprod ; apply homset_property).
     - intros w x y z f g h.
       simple refine (_ ,, _ ,, _ ,, _) ; cbn.
       + apply double_rassociator.
@@ -234,14 +234,14 @@ Section FromDoubleCategoryViaTwoSided.
            rewrite twosided_swap_transport ;
            rewrite !twosided_prod_transport ;
            apply maponpaths_2 ;
-           apply isasetdirprod ; apply Categories.homset_property).
+           apply isasetdirprod ; apply homset_property).
       + abstract
           (unfold hor_trans_id_right_sq, boundary_sq_transport ; cbn ;
            refine (_ @ double_lassociator_rassociator f g h) ;
            rewrite twosided_swap_transport ;
            rewrite !twosided_prod_transport ;
            apply maponpaths_2 ;
-           apply isasetdirprod ; apply Categories.homset_property).
+           apply isasetdirprod ; apply homset_property).
   Defined.
 
   Definition double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data
@@ -268,7 +268,7 @@ Section FromDoubleCategoryViaTwoSided.
     rewrite !twosided_prod_transport.
     rewrite !transport_f_f.
     apply maponpaths_2.
-    apply isasetdirprod ; apply Categories.homset_property.
+    apply isasetdirprod ; apply homset_property.
   Qed.
 
   Proposition predoublecategory_ver_right_unitor_naturality_double_cat
@@ -287,7 +287,7 @@ Section FromDoubleCategoryViaTwoSided.
     rewrite !twosided_prod_transport.
     rewrite !transport_f_f.
     apply maponpaths_2.
-    apply isasetdirprod ; apply Categories.homset_property.
+    apply isasetdirprod ; apply homset_property.
   Qed.
 
   Proposition predoublecategory_ver_assoc_naturality_double_cat
@@ -306,7 +306,7 @@ Section FromDoubleCategoryViaTwoSided.
     rewrite !twosided_prod_transport.
     rewrite !transport_f_f.
     apply maponpaths_2.
-    apply isasetdirprod ; apply Categories.homset_property.
+    apply isasetdirprod ; apply homset_property.
   Qed.
 
   Proposition predoublecategory_ver_unitor_coherence_double_cat
@@ -320,7 +320,7 @@ Section FromDoubleCategoryViaTwoSided.
     unfold transportb.
     rewrite !twosided_prod_transport.
     apply maponpaths_2.
-    apply isasetdirprod ; apply Categories.homset_property.
+    apply isasetdirprod ; apply homset_property.
   Qed.
 
   Proposition predoublecategory_ver_assoc_coherence_double_cat
@@ -362,7 +362,7 @@ Section FromDoubleCategoryViaTwoSided.
     rewrite twosided_prod_transport.
     rewrite transport_f_f.
     apply maponpaths_2.
-    apply isasetdirprod ; apply Categories.homset_property.
+    apply isasetdirprod ; apply homset_property.
   Qed.
 
   Proposition predoublecategory_interchange_double_cat
@@ -392,11 +392,11 @@ Section FromDoubleCategoryViaTwoSided.
     use make_doublecategory.
     - exact double_cat_to_predoublecategory.
     - intros x y.
-      apply Categories.homset_property.
+      apply homset_property.
     - intros x y.
       use isaset_total2 ; [ | intro f ; use isaset_total2 ].
-      + apply Categories.homset_property.
-      + apply Categories.homset_property.
+      + apply homset_property.
+      + apply homset_property.
       + intro g ; cbn.
         apply isaset_disp_mor.
   Defined.
