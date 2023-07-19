@@ -10,7 +10,6 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Foundations.Propositions.
 
 Require Export UniMath.CategoryTheory.Core.Categories.
 Require Export UniMath.CategoryTheory.Core.Functors.
@@ -22,35 +21,20 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.StreetFibration.
-
 
 Local Open Scope cat. 
 
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
 
-Definition transportf_mor {C:category} {a b a' b':C} 
-(p:a=a') (q:b=b') (x:a-->b) : a'-->b'
-:= transportf (precategory_morphisms a') q (transportf (λ z, z--> b) p x). 
-
-Definition transportf_mor_disp {C C':category} {D':disp_cat C'} {a b a' b':C}
-(F:functor C C') (f:a-->b)  (x:D' (F a)) (y:D' (F b)) (p:a=a') (q:b=b')  
-: x-->[#F f]y 
--> transportf (λ z, D' (F z)) p x 
-  -->[# F (transportf_mor p q f)] 
-     transportf (λ z, D' (F z)) q y.
-Proof.
-  intro Df.
-  destruct p, q.
-  exact Df.
-Defined.
-
 Notation "X ◦ Y" := (disp_functor_composite X Y) (at level 45): cat. 
 
 Declare Scope reindexing_forward_scope.
-Notation  "↙ x" := (pr1 x)  (at level 0):reindexing_forward_scope. 
-Notation  "← x" := (pr2 (pr2 x)) (at level 0):reindexing_forward_scope.
+Notation "↙ x" := (pr1 x)  (at level 0):reindexing_forward_scope. 
+Notation "← x" := (pr2 (pr2 x)) (at level 0):reindexing_forward_scope.
 Notation "¤ x" := (pr1(pr2 x)) (at level 0):reindexing_forward_scope.
 
 (* Recreate base objects from an object x' over c' of the reindexing_forward *)
@@ -68,8 +52,8 @@ Section reindexing_forward.
   Context {C C':category} (D :disp_cat C) (F :functor C C').
 
   (*    D -- functor reindexing_forward --> reindexing_forward *)
-  (*    ↓            ↓             ↓     *)
-  (*    C ---------- F ----------> C'    *)
+  (*    ↓                    ↓                      ↓          *)
+  (*    C ------------------- F -------------------> C'        *)
 
 
   Definition reindexing_forward_ob_mor : disp_cat_ob_mor C'.
@@ -78,78 +62,41 @@ Section reindexing_forward.
     - exact (λ c', ∑c:C,(F c=c' × ob_disp D c)).
     - intros a' b' x' y' f'.
       exact (∑f:(↙ x')-->(↙ y'),
-      (transportf_mor (¤ x') (¤ y') (# F f)=f' ×
+      (double_transport (¤ x') (¤ y') (# F f)=f' ×
       (← x')-->[f](← y'))).
   Defined.
 
-
-  (* Some lemmas to create the theorem to caracterize the equality of reindexing_forward morphisms*)
-  Lemma pr1_transportf_reindexing_forward {a' b':C'} {f' g': C' ⟦ a', b' ⟧} 
-  {x' :ob_disp reindexing_forward_ob_mor a'} {y' :ob_disp reindexing_forward_ob_mor b'} 
-  {Df' : x' -->[ f'] y'} {Dg' : x' -->[ g'] y'}
-  : ∏(p: g'=f'), ↙ Df'= ↙ Dg' → 
-  ↙ Df' = ↙ (transportf _ p  Dg').
-  Proof.
-    intros p e.
-    unfold mor_disp. cbn.
-    rewrite pr1_transportf.
-    rewrite transportf_const.
-    exact e.
-  Qed.
-
-  Lemma pr1_pr2_transportf_reindexing_forward {a' b':C'} {f' g': C' ⟦ a', b' ⟧} 
-  {x' :ob_disp reindexing_forward_ob_mor a'} {y' :ob_disp reindexing_forward_ob_mor b'}
-  {Df' : x' -->[ f'] y'} {Dg' : x' -->[ g'] y'} (e:↙ Dg' =↙ Df') 
-  : ∏ p: f' = g',
-  ¤ (transportf _ p Df') = 
-  transportf (λ f0:C ⟦↙ x',↙ y'⟧, 
-  transportf_mor (¤ x') (¤ y') (# F f0)=g') 
-  (pr1_transportf_reindexing_forward p e) 
-  (¤ Dg'). 
-  Proof.
-    intro.
-    destruct p. cbn.
-    induction Df' as (f,(pf,Df)).
-    induction Dg' as (g,(pg,Dg)).
-    cbn in *.
-    induction e. cbn.
-    apply homset_property.
-  Qed.    
-
-  Lemma pr2_pr2_transportf_reindexing_forward {a' b':C'} {f' g': C' ⟦ a', b' ⟧} 
-  {x' :ob_disp reindexing_forward_ob_mor a'} {y' :ob_disp reindexing_forward_ob_mor b'}
-  {Df' : x' -->[ f'] y'} {Dg' : x' -->[ g'] y'} (e:↙ Df' =↙ Dg') 
-  : ∏ p: f' = g',
-  ← Dg' = transportf _ e (← Df') ->
-  ← (transportf _ p Df') = 
-  transportf _ (pr1_transportf_reindexing_forward p (!e)) (← Dg'). 
-  Proof.
-    intros p H.
-    rewrite H.
-    destruct p. cbn.
-    apply transportf_transpose_right.
-    unfold transportb.
-    apply two_arg_paths.
-    - apply uip.
-      apply homset_property.
-    - reflexivity.
-  Qed.
-
-
-  Lemma pr2_transportf_reindexing_forward {a' b':C'} {f' g': C' ⟦ a', b' ⟧} 
-  {x' :ob_disp reindexing_forward_ob_mor a'} {y' :ob_disp reindexing_forward_ob_mor b'}
-  {Df' : x' -->[ f'] y'} 
-  : ∏ p: f' = g', 
-  pr2 (transportf _ p Df') =
-  ¤ (transportf _ p Df'),, ← (transportf (mor_disp x' y') p Df').
-  Proof.
-    intro.
-    destruct p.
-    apply idpath.
-  Qed.
-
-
   (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
+  (* Some lemmas to caracterize the equality of reindexing_forward objects and morphisms*)
+  Lemma reindexing_forward_ob_eq {c' : C'}
+  {x' :ob_disp reindexing_forward_ob_mor c'} {y' :ob_disp reindexing_forward_ob_mor c'}
+  (e0 : ↙x' = ↙y')
+  : transportf (λ c, F c = c') e0 ¤x' = ¤y' -> transportf _ e0 ←x' = ←y' -> x' = y'.
+  Proof.
+    intros e1 e2.
+    apply (total2_paths_f e0).
+    etrans. exact (transportf_dirprod C (λ c, F c = c') D x' y' e0).
+    apply dirprod_paths.
+    - exact e1.
+    - exact e2.
+  Defined.
+
+  Lemma reindexing_forward_mor_eq {a' b':C'} 
+  {x' :ob_disp reindexing_forward_ob_mor a'}
+  {y' :ob_disp reindexing_forward_ob_mor b'}
+  {f': C' ⟦ a', b' ⟧}
+  {Df' : x' -->[ f'] y'} {Dg' : x' -->[ f'] y'} (e:↙ Df' = ↙ Dg')
+  :transportf _ e ←Df' = ←Dg' -> Df'= Dg'.
+  Proof.
+    intro H.
+    apply (total2_paths_f e).
+    etrans. apply (transportf_dirprod (↙x' --> ↙ y')
+    (λ f, double_transport ¤ (x') ¤ (y') (# F f) = f') (mor_disp ←x' ←y') Df' Dg' e).
+    apply dirprod_paths.
+    - apply uip. apply homset_property.
+    - apply H.
+  Defined.
+
   (*Theorem about the equality of reindexing_forward morphisms*)
   Theorem reindexing_forward_paths_f_mor {a' b':C'} 
   {x' :ob_disp reindexing_forward_ob_mor a'}
@@ -159,35 +106,28 @@ Section reindexing_forward.
   :← Df' = transportf _ e (← Dg') -> (Df'=transportf _ p Dg').
   Proof.
     intro H.
-    apply (total2_paths_f (pr1_transportf_reindexing_forward p (!e))).
-    cbn; cbn in e, H.
-    rewrite (pr2_transportf_reindexing_forward p).
-    rewrite transportf_dirprod.
-    rewrite (pr1_pr2_transportf_reindexing_forward (!e)).
-    apply maponpaths.
-    rewrite (pr2_pr2_transportf_reindexing_forward e p H).
-    rewrite <- (pr1_transportf_reindexing_forward p (!e)).
-    cbn.
-    exact (idpath (← Df')). 
+    destruct p.
+    apply pathsinv0.
+    etrans. exact (idpath_transportf _ Dg').
+    exact (reindexing_forward_mor_eq e (! H)).
   Qed.
   (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
 
 
   Lemma reindexing_forward_id {c': C'} {x' : ob_disp reindexing_forward_ob_mor c'}
-  : identity c' = transportf_mor (¤ x') (¤ x') (# F (identity (↙ x'))).
+  : identity c' = double_transport (¤ x') (¤ x') (# F (identity (↙ x'))).
   Proof.
     destruct (¤ x').
     apply pathsinv0. 
-    apply functor_id_id.
-    reflexivity.
-  Defined.
+    exact (functor_id_id C C' F _ _ (idpath _)).
+  Qed.
 
 
   Lemma reindexing_forward_comp {a' b' c': C'} 
   {x' : ob_disp reindexing_forward_ob_mor a'} {y' : ob_disp reindexing_forward_ob_mor b'}
   {z' : ob_disp reindexing_forward_ob_mor c'} {f':C' ⟦ a', b' ⟧} {g':C' ⟦ b', c' ⟧}
   {Df':  x' -->[ f'] y'} {Dg': y' -->[ g'] z'}
-  :f' · g' = transportf_mor (¤ x') (¤ z') (# F (↙ Df' · ↙ Dg')).
+  :f' · g' = double_transport (¤ x') (¤ z') (# F (↙ Df' · ↙ Dg')).
   Proof.
     destruct (¤ Df'), (¤ Dg').
     destruct (¤ x'), (¤ y'), (¤ z'). cbn.
@@ -202,15 +142,13 @@ Section reindexing_forward.
       exists (identity (↙ x')).
       use tpair.
       * apply (! reindexing_forward_id). 
-      * cbn.
-        exact (id_disp (← x')).
+      * exact (id_disp (← x')).
     - intros a' b' c' f' g' x' y' z'.
       intros Df' Dg'.
       exists ((↙ Df')·(↙ Dg')). 
       use tpair. 
       * apply (! reindexing_forward_comp).
-      * cbn.
-        exact (comp_disp (← Df') (← Dg')).
+      * exact (comp_disp (← Df') (← Dg')).
   Defined.
 
 
@@ -324,7 +262,7 @@ Section functor_universal_property_reindexing_forward.
       exact (transportf (λ x, D'' (H x)) (¤ d') (DG  (↙ d') (← d'))).
     - intros a' b' x' y' f' Df'.
       apply (transportf (λ f0, mor_disp _ _ (# H f0)) (¤ Df')).
-      apply transportf_mor_disp.
+      apply double_transport_disp.
       exact ((♯ DG (← Df'))%mor_disp).
   Defined.
 
@@ -348,7 +286,7 @@ Section functor_universal_property_reindexing_forward.
     - intros a' b' c' x' y' z' f' g' Df' Dg'.
       induction Df' as (f,(pf,Df)).
       induction Dg' as (g,(pg,Dg)).
-      destruct pf, pg.  cbn.
+      destruct pf, pg. cbn.
       etrans. apply functtransportf.
       rewrite (disp_functor_comp DG).
       destruct (pr1 (pr2 x')), (pr1 (pr2 z')). cbn.
@@ -528,42 +466,6 @@ Section unicity_universal_property_reindexing_forward.
 End unicity_universal_property_reindexing_forward.
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
 
-Lemma transportf_mor_transpose
-  {C : category}
-  {a a' b b' : C} {f : a --> b} {g : a' --> b'}
-  {px : a' = a} {py : b' = b}
-  : transportf_mor px py g = f -> g = transportf_mor (!px) (!py) f.
-Proof.
-  intro H.
-  destruct H.
-  destruct px, py.
-  reflexivity.
-Qed.
-
-Lemma transportf_mor_transpose'
-  {C : category}
-  {a a' b b' : C} {f : a' --> b'} {g : a --> b}
-  {px : a' = a} {py : b' = b}
-  : f = transportf_mor (!px) (!py) g -> transportf_mor px py f = g.
-Proof.
-  intro H.
-  destruct (!H).
-  destruct px, py.
-  reflexivity.
-Qed.
-
-Lemma transportf_mor_compose
-  {C : category}
-  {a a' b  b' c c' : C} {f : a --> b} {g : b --> c}
-  {px : a = a'} {py : b = b'} {pz : c = c'}
-  : transportf_mor px py f
-  · transportf_mor py pz g =
-  transportf_mor px pz (f · g).
-Proof.
-  unfold transportf_mor.
-  destruct px, py, pz.
-  reflexivity.
-Qed.
 
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
@@ -587,7 +489,7 @@ Section fibrations_and_reindexing_forward.
     (ff' : x' -->[f'] y') (gg' : z' -->[g'] x') (hh' : z' -->[g' · f'] y')
     e
     (Hyp1 : ∏ g : C ⟦ ↙z', ↙x' ⟧, 
-    (# F g = transportf_mor (!¤z') (!¤x') g') × (g · ↙ff' = ↙hh') -> 
+    (# F g = double_transport (!¤z') (!¤x') g') × (g · ↙ff' = ↙hh') -> 
     ↙gg' = g)
     (Hyp2 : ∏ (gg : ←z' -->[ ↙gg' ] ←x'), 
     (gg ;; ←ff')%mor_disp = transportb (mor_disp ←z' ←y') e ←hh' -> 
@@ -600,7 +502,7 @@ Section fibrations_and_reindexing_forward.
     assert (↙gg' = g_bis) as eq_g.
     { apply Hyp1.
       split.
-      - exact (transportf_mor_transpose pg_bis).
+      - exact (double_transport_transpose pg_bis).
       - exact (maponpaths pr1 p). 
     }
     destruct eq_g.
@@ -627,12 +529,12 @@ Section fibrations_and_reindexing_forward.
     {a' b' c': C'} {f' : a' --> b'} {g' : c' --> a'}
     {x' : D' a'} {y' : D' b'} {z' : D' c'}
     (ff' : x' -->[f'] y') (hh' : z' -->[g' · f'] y')
-    : # F ↙hh' = transportf_mor (! ¤z') (! ¤x') g' · # F ↙ff'.
+    : # F ↙hh' = double_transport (! ¤z') (! ¤x') g' · # F ↙ff'.
   Proof.
-    etrans. apply (transportf_mor_transpose (¤hh')).
+    etrans. apply (double_transport_transpose (¤hh')).
     apply pathsinv0.
-    etrans. apply (maponpaths (λ f0', _ · f0') (transportf_mor_transpose (¤ff'))).
-    apply transportf_mor_compose.
+    etrans. apply (maponpaths (λ f0', _ · f0') (double_transport_transpose (¤ff'))).
+    apply double_transport_compose.
   Qed.
 
   Local Lemma commute_in_D'
@@ -640,18 +542,18 @@ Section fibrations_and_reindexing_forward.
     {x' : D' a'} {y' : D' b'} {z' : D' c'}
     (ff' : x' -->[f'] y') (hh' : z' -->[g' · f'] y')
     (Hyp1 : ∑ φ : C ⟦ ↙ (z'), ↙ (x') ⟧,
-    (# F φ = transportf_mor (! ¤z') (! ¤x') g') × (φ · ↙ff' = ↙hh'))
+    (# F φ = double_transport (! ¤z') (! ¤x') g') × (φ · ↙ff' = ↙hh'))
     (Hyp2 : ∑ gg : ←z' -->[pr1 Hyp1] ←x',
     (gg ;; ←ff')%mor_disp = transportb (mor_disp ←z' ←y') (pr22 Hyp1) ←hh')
     (g:= pr1 Hyp1)
-    (pg := transportf_mor_transpose' (pr12 Hyp1))
+    (pg := double_transport_transpose' (pr12 Hyp1))
     (gg := pr1 Hyp2)
     (gg' := g,, pg,,gg : z' -->[ g'] x')
     : (gg' ;; ff')%mor_disp = hh'.
   Proof.
     apply (total2_paths_f (pr22 Hyp1 : ↙(gg' ;; ff')%mor_disp = ↙hh')).
     assert (pr1 (transportf (λ f , 
-    ( transportf_mor ¤z' ¤y' (# F f) =  g' · f' ) × ( ←z' -->[ f] ←y'))
+    ( double_transport ¤z' ¤y' (# F f) =  g' · f' ) × ( ←z' -->[ f] ←y'))
     (pr22 Hyp1) (pr2 (gg' ;; ff')%mor_disp)) = ¤ hh').
     { apply uip. apply homset_property. }
     apply (total2_paths_f X).
@@ -660,7 +562,7 @@ Section fibrations_and_reindexing_forward.
     exact (transportf_transpose_left (pr2 Hyp2)).
   Qed.
 
-  Lemma is_cartesian_pushfoward_of_cleaving
+  Lemma is_cartesian_reindexing_forward_of_cleaving
     {a' b' : C'} {f' : a' --> b'}
     {x' : D' a'} {y' : D' b'} (ff' : x' -->[f'] y')
     (st_car : is_cartesian_sfib F (↙ff')) (car : is_cartesian (←ff'))
@@ -668,10 +570,10 @@ Section fibrations_and_reindexing_forward.
   Proof.
     intros c' g' z' hh'.
     (* introduction of variables *)
-    set (Hyp1 := st_car (↙z') (↙hh') (transportf_mor (!¤z') (!¤x') g') (commute_in_C' ff' hh')).
+    set (Hyp1 := st_car (↙z') (↙hh') (double_transport (!¤z') (!¤x') g') (commute_in_C' ff' hh')).
     set (Hyp2 := car (↙z') (pr11 Hyp1) (←z') (transportb (mor_disp _ _) (pr221 Hyp1) (←hh'))).
     set (g:= pr11 Hyp1).
-    set (pg := transportf_mor_transpose' (pr121 Hyp1)).
+    set (pg := double_transport_transpose' (pr121 Hyp1)).
     set (gg := pr11 Hyp2).
     (* introduction of gg' *)
     set (gg' := (g,, pg,, gg) : z' -->[ g'] x').
@@ -684,7 +586,7 @@ Section fibrations_and_reindexing_forward.
       (λ gg0, uniqueExists (b:= gg0) Hyp2 (pr21 Hyp2))).
   Defined.
 
-  Theorem is_cleaving_pushfoward_of_cleaving 
+  Theorem is_cleaving_reindexing_forward_of_cleaving 
     (cl:cleaving D) (st: street_fib F) (univ : is_univalent C')
     : cleaving D'.
   Proof.
@@ -697,8 +599,8 @@ Section fibrations_and_reindexing_forward.
     set (cl_fib := cl ↙y' a f ←y').
     set (x := pr1 cl_fib).
     set (ff := pr12 cl_fib : x -->[f] ←y').
-    assert (transportf_mor px ¤y' (# F f) = f') as pf.
-    { unfold transportf_mor. 
+    assert (double_transport px ¤y' (# F f) = f') as pf.
+    { unfold double_transport. 
       apply transportf_transpose_left.
       etrans. apply transportf_isotoid.
       apply z_iso_inv_on_right.
@@ -709,7 +611,7 @@ Section fibrations_and_reindexing_forward.
     exists x'.
     exists ff'.
     (*is cartesian *)
-    apply (is_cartesian_pushfoward_of_cleaving ff' (pr222 st_fib) cl_fib).
+    apply (is_cartesian_reindexing_forward_of_cleaving ff' (pr222 st_fib) cl_fib).
   Defined.
 
   Local Close Scope reindexing_forward_scope.
