@@ -35,7 +35,7 @@ Require Import UniMath.CategoryTheory.IndexedCategories.FibrationToIndexedCatego
 Require Import UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.
 
 Section NatTransToIndexedNatTrans.
-  Context {C : univalent_category}
+  Context {C : category}
           {D₁ D₂ : disp_univalent_category C}
           (HD₁ : cleaving D₁)
           (HD₂ : cleaving D₂)

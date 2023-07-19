@@ -262,8 +262,8 @@ Definition cartesian_disp_functor_is_cartesian
   := pr2 FF.
 
 Definition cartesian_disp_functor_on_cartesian
-           {C : univalent_category}
-           {D₁ D₂ : disp_univalent_category C}
+           {C : category}
+           {D₁ D₂ : disp_cat C}
            (F : cartesian_disp_functor (functor_identity C) D₁ D₂)
            {x y : C}
            {f : x --> y}
@@ -2599,9 +2599,10 @@ Arguments fiber_functor_from_cleaving_comp_data {C D} HD {x y z} f g /.
 (**
  The fiber functor of a cartesian functor is natural
  *)
+Locate cartesian_disp_functor_on_cartesian.
 Section FiberFunctorNatural.
-  Context {C : univalent_category}
-          {D₁ D₂ : disp_univalent_category C}
+  Context {C : category}
+          {D₁ D₂ : disp_cat C}
           (HD₁ : cleaving D₁)
           (HD₂ : cleaving D₂)
           (F : cartesian_disp_functor (functor_identity C) D₁ D₂)
@@ -2792,5 +2793,34 @@ Proposition idtoiso_disp_cartesian_lift
 Proof.
   induction p ; cbn.
   rewrite id_left_disp.
+  apply idpath.
+Qed.
+
+(**
+ Transporting the object of a cartesian lift
+ *)
+Proposition transportf_object_cartesian_lift
+            {C : category}
+            {D : disp_cat C}
+            (HD : cleaving D)
+            {x : C}
+            (xx : D x)
+            {f g : x --> x}
+            (p : f = g)
+            (ff : xx -->[ identity x ] object_of_cartesian_lift _ _ (HD x x f xx))
+  : transportf
+      (λ (h : x --> x),
+      _ -->[ identity x ] object_of_cartesian_lift _ _ (HD x x h xx))
+      p
+      ff
+    =
+    cartesian_factorisation
+      (HD x x g xx)
+      _
+      (ff ;; transportf (λ z, _ -->[ z ] _) p (HD x x f xx))%mor_disp.
+Proof.
+  induction p ; cbn.
+  use (cartesian_factorisation_unique (HD x x f xx)).
+  rewrite cartesian_factorisation_commutes.
   apply idpath.
 Qed.

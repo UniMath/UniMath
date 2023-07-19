@@ -31,6 +31,14 @@ Proof.
   exact (identity_z_iso a).
 Defined.
 
+Proposition idtoiso_idpath
+            {C : category}
+            (x : C)
+  : pr1 (idtoiso (idpath x)) = identity x.
+Proof.
+  apply idpath.
+Qed.
+
 (* use eta expanded version to force printing of object arguments *)
 Definition is_univalent (C : category) :=
   ∏ (a b : ob C), isweq (fun p : a = b => idtoiso p).

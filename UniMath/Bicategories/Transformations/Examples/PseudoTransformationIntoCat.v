@@ -122,45 +122,88 @@ End PseudoTransFromCat.
 (**
  2. Pseudotransformations between pseudofunctors to categories
  *)
+Definition pstrans_from_cat_into_cat_data
+           {C : category}
+           (F G : psfunctor (cat_to_bicat C) bicat_of_univ_cats)
+  : UU
+  := ∑ (τ₀ : ∏ (x : C), F x --> G x),
+     ∏ (x y : C)
+       (f : x --> y),
+     nat_z_iso (τ₀ x · # G f) (# F f · τ₀ y).
+
+Definition make_pstrans_from_cat_into_cat_data
+           {C : category}
+           {F G : psfunctor (cat_to_bicat C) bicat_of_univ_cats}
+           (τ₀ : ∏ (x : C), F x --> G x)
+           (τ₁ : ∏ (x y : C)
+                   (f : x --> y),
+                 nat_z_iso (τ₀ x · # G f) (# F f · τ₀ y))
+  : pstrans_from_cat_into_cat_data F G
+  := τ₀ ,, τ₁.
+
+Definition pstrans_from_cat_into_cat_data_to_ob
+           {C : category}
+           {F G : psfunctor (cat_to_bicat C) bicat_of_univ_cats}
+           (τ : pstrans_from_cat_into_cat_data F G)
+           (x : C)
+  : F x --> G x
+  := pr1 τ x.
+
+Coercion pstrans_from_cat_into_cat_data_to_ob : pstrans_from_cat_into_cat_data >-> Funclass.
+
+Definition pstrans_from_cat_into_cat_data_nat
+           {C : category}
+           {F G : psfunctor (cat_to_bicat C) bicat_of_univ_cats}
+           (τ : pstrans_from_cat_into_cat_data F G)
+           {x y : C}
+           (f : x --> y)
+  : nat_z_iso (τ x · # G f) (# F f · τ y)
+  := pr2 τ x y f.
+
+Definition pstrans_from_cat_into_cat_laws
+           {C : category}
+           {F G : psfunctor (cat_to_bicat C) bicat_of_univ_cats}
+           (τ : pstrans_from_cat_into_cat_data F G)
+  : UU
+  := (∏ (x : C)
+        (xx : pr1 (F x)),
+      pr11 (psfunctor_id G x) (pr1 (τ x) xx)
+      · pr1 (pstrans_from_cat_into_cat_data_nat τ (id₁ x)) xx
+      =
+      # (pr1 (τ x)) (pr11 (psfunctor_id F x) xx))
+     ×
+     (∏ (x y z : C)
+        (f : x --> y)
+        (g : y --> z)
+        (xx : pr1 (F x)),
+       pr11 (psfunctor_comp G f g) (pr1 (τ x) xx)
+       · pr1 (pstrans_from_cat_into_cat_data_nat τ (f · g)) xx
+       =
+       # (pr1 (# G g)) ((pr11 (pstrans_from_cat_into_cat_data_nat τ f)) xx)
+       · (pr11 (pstrans_from_cat_into_cat_data_nat τ g)) (pr1 (# F f) xx)
+       · # (pr1 (τ z)) (pr11 (psfunctor_comp F f g) xx)).
+
 Section PseudoTransIntoCat.
   Context {C : category}
           {F G : psfunctor (cat_to_bicat C) bicat_of_univ_cats}
-          (τ₀ : ∏ (x : C), F x --> G x)
-          (τ₁ : ∏ (x y : C)
-                  (f : x --> y),
-                nat_z_iso (τ₀ x · # G f) (# F f · τ₀ y))
-          (τid : ∏ (x : C)
-                   (xx : pr1 (F x)),
-                 pr11 (psfunctor_id G x) (pr1 (τ₀ x) xx)
-                 · pr1 (τ₁ x x (id₁ x)) xx
-                 =
-                 # (pr1 (τ₀ x)) (pr11 (psfunctor_id F x) xx))
-          (τc : ∏ (x y z : C)
-                  (f : x --> y)
-                  (g : y --> z)
-                  (xx : pr1 (F x)),
-                pr11 (psfunctor_comp G f g) (pr1 (τ₀ x) xx)
-                · pr1 (τ₁ x z (f · g)) xx
-                =
-                # (pr1 (# G g)) ((pr11 (τ₁ x y f)) xx)
-                · (pr11 (τ₁ y z g)) (pr1 (# F f) xx)
-                · # (pr1 (τ₀ z)) (pr11 (psfunctor_comp F f g) xx)).
+          (τ : pstrans_from_cat_into_cat_data F G)
+          (Hτ : pstrans_from_cat_into_cat_laws τ).
 
   Definition pstrans_from_cat_into_cat
     : pstrans F G.
   Proof.
     use make_pstrans_from_cat.
-    - exact τ₀.
+    - exact τ.
     - intros x y f.
       use nat_z_iso_to_invertible_2cell.
-      exact (τ₁ x y f).
+      exact (pstrans_from_cat_into_cat_data_nat τ f).
     - abstract
         (intros x ;
          use nat_trans_eq ; [ apply homset_property | ] ;
          intro xx ;
          cbn -[psfunctor_id] ;
          rewrite !id_left ;
-         exact (τid x xx)).
+         exact (pr1 Hτ x xx)).
     - abstract
         (intros x y z f g ;
          use nat_trans_eq ; [ apply homset_property | ] ;
@@ -168,7 +211,7 @@ Section PseudoTransIntoCat.
          cbn -[psfunctor_comp] ;
          rewrite !id_left ;
          rewrite !id_right ;
-         exact (τc x y z f g xx)).
+         exact (pr2 Hτ x y z f g xx)).
   Defined.
 End PseudoTransIntoCat.
 
@@ -184,10 +227,12 @@ Definition indexed_functor_to_pstrans
       (indexed_cat_to_psfunctor Ψ).
 Proof.
   use pstrans_from_cat_into_cat.
-  - exact τ.
-  - exact (λ x y f, indexed_functor_natural τ f).
-  - exact (λ x xx, indexed_functor_id τ xx).
-  - exact (λ x y z f g xx, indexed_functor_comp τ f g xx).
+  - use make_pstrans_from_cat_into_cat_data.
+    + exact τ.
+    + exact (λ x y f, indexed_functor_natural τ f).
+  - split.
+    + exact (λ x xx, indexed_functor_id τ xx).
+    + exact (λ x y z f g xx, indexed_functor_comp τ f g xx).
 Defined.
 
 (**

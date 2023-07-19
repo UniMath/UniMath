@@ -415,6 +415,8 @@ TwoSidedDisplayedCats/Total.v
 TwoSidedDisplayedCats/TwoSidedFibration.v
 TwoSidedDisplayedCats/Fiber.v
 
+TwoSidedDisplayedCats/DoubleCategory.v
+
 TwoSidedDisplayedCats/DisplayedFunctor.v
 TwoSidedDisplayedCats/DisplayedNatTrans.v
 
@@ -441,6 +443,13 @@ IndexedCategories/IndexedTransformation.v
 IndexedCategories/FibrationToIndexedCategory.v
 IndexedCategories/CartesianToIndexedFunctor.v
 IndexedCategories/NatTransToIndexed.v
+
+IndexedCategories/IndexedCategoryToFibration.v
+IndexedCategories/IndexedFunctorToCartesian.v
+IndexedCategories/IndexedTransformationToTransformation.v
+
+IndexedCategories/OpIndexedCategory.v
+IndexedCategories/CoreIndexedCategory.v
 
 # RepresentableFunctors
 RepresentableFunctors/Precategories.v
@@ -481,3 +490,4 @@ DaggerCategories/CatIso.v
 
 #Double Categories
 DoubleCategories/Core/DoubleCategories.v
+DoubleCategories/Core/DoubleCategoryEquiv.v
