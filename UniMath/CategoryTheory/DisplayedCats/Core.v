@@ -219,6 +219,17 @@ Defined.
 Definition homsets_disp {C} {D : disp_cat C} {x y} (f : x --> y) (xx : D x) (yy : D y)
   : isaset (xx -->[f] yy) := pr2 (pr2 (pr2 (pr2 D))) _ _ _ _ _.
 
+Definition double_transport_disp {C C':category} {D':disp_cat C'} {a b a' b':C}
+(F:functor C C') (f:a-->b)  (x:D' (F a)) (y:D' (F b)) (p:a=a') (q:b=b')  
+: x-->[#F f]y 
+-> transportf (λ z, D' (F z)) p x -->[# F (double_transport p q f)] 
+     transportf (λ z, D' (F z)) q y.
+Proof.
+  intro Df.
+  destruct p, q.
+  exact Df.
+Defined.
+
 (** ** Utility lemmas *)
 Section Lemmas.
 
