@@ -17,7 +17,6 @@ DisplayedCats/Core.v
 DisplayedCats/Isos.v
 DisplayedCats/Functors.v
 DisplayedCats/NaturalTransformations.v
-DisplayedCats/ReindexingForward.v
 DisplayedCats/Univalence.v
 DisplayedCats/Total.v
 DisplayedCats/Fiber.v
@@ -216,8 +215,10 @@ DisplayedCats/Examples/Opposite.v
 DisplayedCats/Fibrations.v
 DisplayedCats/Examples/Reindexing.v
 DisplayedCats/Constructions.v
+DisplayedCats/Examples/Sigma.v
 
 FunctorAlgebras.v
+CompletelyIterativeAlgebras.v
 Chains/Adamek.v
 Chains/CoAdamek.v
 Chains/OmegaCocontFunctors.v
@@ -255,6 +256,7 @@ DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
 DisplayedCats/StreetFibration.v
 DisplayedCats/StreetOpFibration.v
+DisplayedCats/ReindexingForward.v
 DisplayedCats/TotalCategoryFacts.v
 DisplayedCats/TotalAdjunction.v
 
@@ -432,6 +434,22 @@ TwoSidedDisplayedCats/Examples/Profunctor.v
 TwoSidedDisplayedCats/Examples/Reindex.v
 TwoSidedDisplayedCats/Examples/Relations.v
 TwoSidedDisplayedCats/Examples/Spans.v
+
+# Indexed Categories
+IndexedCategories/IndexedCategory.v
+IndexedCategories/IndexedFunctor.v
+IndexedCategories/IndexedTransformation.v
+
+IndexedCategories/FibrationToIndexedCategory.v
+IndexedCategories/CartesianToIndexedFunctor.v
+IndexedCategories/NatTransToIndexed.v
+
+IndexedCategories/IndexedCategoryToFibration.v
+IndexedCategories/IndexedFunctorToCartesian.v
+IndexedCategories/IndexedTransformationToTransformation.v
+
+IndexedCategories/OpIndexedCategory.v
+IndexedCategories/CoreIndexedCategory.v
 
 # RepresentableFunctors
 RepresentableFunctors/Precategories.v

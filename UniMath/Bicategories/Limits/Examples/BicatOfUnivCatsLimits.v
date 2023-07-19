@@ -394,13 +394,6 @@ Section ReindexingPullback.
       refine (maponpaths (λ z, z · _) _).
       apply id_left.
     }
-    etrans.
-    {
-      apply maponpaths.
-      exact (inv_from_z_iso_in_total
-               (is_invertible_2cell_to_is_nat_z_iso _ (pr2 (pb_cone_cell q)) x)
-               _).
-    }
     exact (nat_trans_eq_pointwise
              (vcomp_rinv
                 (pb_cone_cell q))

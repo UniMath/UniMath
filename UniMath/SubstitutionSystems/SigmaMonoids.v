@@ -11,6 +11,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
@@ -109,7 +110,7 @@ Section GHSS_to_SigmaMonoid.
           {H : V ⟶ V}
           (θ : pointedtensorialstrength Mon_V H).
 
-  Definition ghhs_to_sigma_monoid (t : ghss Mon_V H θ)
+  Definition ghss_to_sigma_monoid (t : ghss Mon_V H θ)
     : SigmaMonoid θ.
   Proof.
     exists (pr1 t).

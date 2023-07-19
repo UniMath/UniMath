@@ -11,6 +11,9 @@
  2. Functor from the core to the category
  3. Factoring via the core
  4. Functors between cores
+ 5. A diagonal functor on cores
+ 6. The functor from the core to the opposite
+ 7. Idtoiso in the core
 
  *********************************************************************)
 Require Import UniMath.Foundations.All.
@@ -324,7 +327,9 @@ Section CoreFunctor.
   Defined.
 End CoreFunctor.
 
-(** A diagonal functor on cores *)
+(**
+ 5. A diagonal functor on cores
+ *)
 Definition core_diag_data
            (C : category)
   : functor_data (core C) (category_binproduct C^op C).
@@ -350,7 +355,9 @@ Proof.
   - exact (core_diag_laws C).
 Defined.
 
-(** The functor from the core to the opposite *)
+(**
+ 6. The functor from the core to the opposite
+ *)
 Definition functor_core_op_data
            (C : category)
   : functor_data (core C) C^op.
@@ -375,3 +382,16 @@ Proof.
   - exact (functor_core_op_data C).
   - exact (functor_core_op_laws C).
 Defined.
+
+(**
+ 7. Idtoiso in the core
+ *)
+Proposition idtoiso_core
+            {C : category}
+            {x y : C}
+            (p : x = y)
+  : pr11 (@idtoiso (core C) _ _ p) = pr1 (@idtoiso C _ _ p).
+Proof.
+  induction p ; cbn.
+  apply idpath.
+Qed.

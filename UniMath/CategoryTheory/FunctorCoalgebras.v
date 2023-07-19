@@ -2,7 +2,7 @@
 
 Contents:
  - Category of coalgebras over an endofunctor.
- - Dual of Lambek's lemma: if (A,α) is terminal coalgebra, α is an isomorphism.
+ - Dual of Lambek's lemma: if (A,α) is final coalgebra, α is an isomorphism.
  - Primitive corecursion.
 
 ******************************************************************)
@@ -110,7 +110,7 @@ Section Coalgebra_Definition.
 End Coalgebra_Definition.
 
 Section Lambek_dual.
-(** Dual of Lambeks Lemma : If (A,α) is terminal F-coalgebra, then α is an iso *)
+(** Dual of Lambeks Lemma : If (A,α) is final F-coalgebra, then α is an iso *)
 
 Context (C : category)
         (F : functor C C)
@@ -167,7 +167,7 @@ Proof.
   apply (coalgebra_mor_commutes F f).
 Defined.
 
-Lemma terminalcoalgebra_is_z_iso : is_z_isomorphism α.
+Lemma finalcoalgebra_is_z_iso : is_z_isomorphism α.
 Proof.
   use make_is_z_isomorphism.
   - exact α'.
@@ -176,9 +176,9 @@ Proof.
     + exact α'α_idFA.
 Defined.
 
-Definition terminalcoalgebra_z_iso : z_iso A (F A) := α,, terminalcoalgebra_is_z_iso.
+Definition finalcoalgebra_z_iso : z_iso A (F A) := α,, finalcoalgebra_is_z_iso.
 
-(* Definition terminalcoalgebra_iso : iso A (F A) := z_iso_to_iso terminalcoalgebra_z_iso. *)
+(* Definition finalcoalgebra_iso : iso A (F A) := z_iso_to_iso finalcoalgebra_z_iso. *)
 
 End Lambek_dual.
 
