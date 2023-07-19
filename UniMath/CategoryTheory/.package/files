@@ -490,3 +490,4 @@ DaggerCategories/CatIso.v
 
 #Double Categories
 DoubleCategories/Core/DoubleCategories.v
+DoubleCategories/Core/DoubleCategoryEquiv.v

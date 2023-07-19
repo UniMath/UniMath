@@ -1,3 +1,21 @@
+(********************************************************************************
+
+ Equivalence of different notions of double categories
+
+ There are multiple ways to phrase the definition of a double category. One of
+ them, given in `DoubleCategories.Core.DoubleCategories`, is a direct definition
+ which follows the style of how categories are defied in UniMath. The other,
+ which is in `TwoSidedDisplayedCats.DoubleCategory`, makes use 2-sided displayed
+ categories. In this file, we prove an equivalence of these notions.
+
+ Note:
+ - `double_cat`: defined via 2-sided displayed categories
+ - `doublecategory`: directed definition
+
+ Contents
+ 1. From `double_cat` to `doublecategory`
+
+ ********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -8,11 +26,8 @@ Require Import UniMath.CategoryTheory.DoubleCategories.Core.DoubleCategories.
 Local Open Scope cat.
 
 (**
- rename homset_property.
-
- two-sided inverse adds generality, but will make equivalence between the two definitions more difficult
+ 1. From `double_cat` to `doublecategory`
  *)
-
 Section FromDoubleCategoryViaTwoSided.
   Context (C : double_cat).
 
@@ -174,9 +189,8 @@ Section FromDoubleCategoryViaTwoSided.
   Proof.
     repeat split.
     - intros x y f.
-      simple refine (_ ,, _ ,, _ ,, _ ,, _) ; cbn.
+      simple refine (_ ,, _ ,, _ ,, _) ; cbn.
       + apply double_lunitor.
-      + apply double_linvunitor.
       + apply double_linvunitor.
       + abstract
           (unfold hor_trans_id_right_sq, boundary_sq_transport ; cbn ;
@@ -193,9 +207,8 @@ Section FromDoubleCategoryViaTwoSided.
            apply maponpaths_2 ;
            apply isasetdirprod ; apply Categories.homset_property).
     - intros x y f.
-      simple refine (_ ,, _ ,, _ ,, _ ,, _) ; cbn.
+      simple refine (_ ,, _ ,, _ ,, _) ; cbn.
       + apply double_runitor.
-      + apply double_rinvunitor.
       + apply double_rinvunitor.
       + abstract
           (unfold hor_trans_id_right_sq, boundary_sq_transport ; cbn ;
@@ -212,9 +225,8 @@ Section FromDoubleCategoryViaTwoSided.
            apply maponpaths_2 ;
            apply isasetdirprod ; apply Categories.homset_property).
     - intros w x y z f g h.
-      simple refine (_ ,, _ ,, _ ,, _ ,, _) ; cbn.
+      simple refine (_ ,, _ ,, _ ,, _) ; cbn.
       + apply double_rassociator.
-      + apply double_lassociator.
       + apply double_lassociator.
       + abstract
           (unfold hor_trans_id_right_sq, boundary_sq_transport ; cbn ;

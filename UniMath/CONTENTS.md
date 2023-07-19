@@ -618,6 +618,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DaggerCategories/Functors/Precomp.v](CategoryTheory/DaggerCategories/Functors/Precomp.v)
    - [DaggerCategories/CatIso.v](CategoryTheory/DaggerCategories/CatIso.v)
    - [DoubleCategories/Core/DoubleCategories.v](CategoryTheory/DoubleCategories/Core/DoubleCategories.v)
+   - [DoubleCategories/Core/DoubleCategoryEquiv.v](CategoryTheory/DoubleCategories/Core/DoubleCategoryEquiv.v)
    - [All.v](CategoryTheory/All.v)
 ## Package [Bicategories](Bicategories/README.md)
    - [Core/Bicat.v](Bicategories/Core/Bicat.v)
