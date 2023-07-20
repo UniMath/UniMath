@@ -364,6 +364,16 @@ Section RoundedIdealCompletion.
     exact (trans_abstract_basis Hx p₁).
   Qed.
 
+  Proposition lt_way_below
+              {I : rounded_ideal_completion}
+              (b1 b2 : B)
+              (Hb : b1 ≺ b2)
+    : principal_ideal b1 ≪ principal_ideal b2.
+  Proof.
+    apply to_way_below_ideal.
+    exact Hb.
+  Qed.
+
   Proposition is_directed_below_ideal
               (I : rounded_ideal_completion)
     : is_directed
@@ -412,6 +422,16 @@ Section RoundedIdealCompletion.
     intros b.
     induction b as [ b [ p₁ p₂ ]].
     exact (hinhpr ((b ,, p₂) ,, p₁)).
+  Qed.
+  Proposition rounded_ideal_supremum_2
+              (I : rounded_ideal_completion)
+    : ⨆ below_ideal_directed_set I ≤ I.
+  Proof.
+    apply dcpo_lub_is_least.
+    intros [b Hb].
+    intros x Hx. simpl in Hx.
+    use (is_ideal_lower_set _ Hb Hx).
+    apply I.
   Qed.
 
   Definition rounded_ideal_completion_basis_data
