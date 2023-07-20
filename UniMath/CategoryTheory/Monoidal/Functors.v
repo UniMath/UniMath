@@ -807,9 +807,9 @@ Section MonoidalFunctors.
     : UU
     := ∏ (x y : C),
        monoidal_braiding_data (symmetric_to_braiding HN) (F x) (F y)
-       · pr1 (fmonoidal_fdata HF) y x
+       · fmonoidal_preservestensordata HF y x
        =
-       pr1 (fmonoidal_fdata HF) x y
+       fmonoidal_preservestensordata HF x y
        · #F(monoidal_braiding_data (symmetric_to_braiding HM) x y).
 
   (**
