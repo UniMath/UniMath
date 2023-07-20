@@ -408,7 +408,18 @@ Section RoundedIdealCompletion.
     - exact (is_directed_below_ideal I).
   Defined.
 
-  Proposition rounded_ideal_supremum
+  Proposition rounded_ideal_lub_2
+              (I : rounded_ideal_completion)
+    : ⨆ below_ideal_directed_set I ≤ I.
+  Proof.
+    apply dcpo_lub_is_least.
+    intros [b Hb].
+    intros x Hx. simpl in Hx.
+    use (is_ideal_lower_set _ Hb Hx).
+    apply I.
+  Qed.
+
+  Proposition rounded_ideal_lub_1
               (I : rounded_ideal_completion)
     : I ≤ ⨆ below_ideal_directed_set I.
   Proof.
@@ -423,15 +434,39 @@ Section RoundedIdealCompletion.
     induction b as [ b [ p₁ p₂ ]].
     exact (hinhpr ((b ,, p₂) ,, p₁)).
   Qed.
-  Proposition rounded_ideal_supremum_2
+
+  Proposition rounded_ideal_lub
               (I : rounded_ideal_completion)
-    : ⨆ below_ideal_directed_set I ≤ I.
+    : I = ⨆ below_ideal_directed_set I.
   Proof.
-    apply dcpo_lub_is_least.
-    intros [b Hb].
-    intros x Hx. simpl in Hx.
-    use (is_ideal_lower_set _ Hb Hx).
-    apply I.
+    apply antisymm_dcpo.
+    - apply rounded_ideal_lub_1.
+    - apply rounded_ideal_lub_2.
+  Qed.
+
+  Proposition from_way_below_ideal_completion
+              {I J : rounded_ideal_completion}
+              (Hb : I ≪ J)
+    : ∃ b₀ b₁, b₀ ∈ I ∧ b₁ ∈ J ∧ principal_ideal b₀ ≤ principal_ideal b₁.
+  Proof.
+    specialize (Hb (below_ideal_directed_set J) (rounded_ideal_lub_1 J)).
+    revert Hb.
+    use factor_through_squash.
+    {
+      apply propproperty.
+    }
+    intros [[b' Hb'] Hi]. simpl in Hi.
+    assert (H := is_ideal_el (pr2 I)).
+    revert H.
+    use factor_through_squash.
+    {
+      apply propproperty.
+    }
+    intros [b₀ Hb0].
+    use (hinhpr (b₀,, b',, (Hb0,, Hb',, _))).
+    simpl. intros x Hx.
+    apply Hi.
+    exact (is_ideal_lower_set (pr2 I) Hb0 Hx).
   Qed.
 
   Definition rounded_ideal_completion_basis_data
@@ -465,7 +500,7 @@ Section RoundedIdealCompletion.
         induction b₁ as [ b₁ p₁ ].
         induction b₂ as [ b₂ p₂ ].
         cbn -[way_below] in b₁, p₁, b₂, p₂.
-        assert (H := p₁ _ (rounded_ideal_supremum I)).
+        assert (H := p₁ _ (rounded_ideal_lub_1 I)).
         revert H.
         use factor_through_squash.
         {
@@ -473,7 +508,7 @@ Section RoundedIdealCompletion.
         }
         intros c₁.
         induction c₁ as ( ( c₁ & q₁ ) & s₁ ).
-        assert (H := p₂ _ (rounded_ideal_supremum I)).
+        assert (H := p₂ _ (rounded_ideal_lub_1 I)).
         revert H.
         use factor_through_squash.
         {
