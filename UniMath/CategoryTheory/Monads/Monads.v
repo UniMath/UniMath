@@ -318,6 +318,10 @@ Proof.
   apply homset_property.
 Qed.
 
+Definition Monad_composition {C : category} {T T' T'' : Monad C}
+  (α : Monad_Mor T T') (α' : Monad_Mor T' T'')
+  : Monad_Mor T T'' := α · α'.
+
 Definition forgetfunctor_Monad (C : category) : functor (category_Monad C) [C,C]
   := pr1_category monads_category_disp.
 
