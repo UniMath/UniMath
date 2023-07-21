@@ -438,10 +438,10 @@ Section Pullback_Identity_Module.
 
 Context {B : category} {M' : Monad B}  {C : category} {T : LModule M' C}.
 
-Local Notation pbmid := (pb_LModule (Monad_identity M') T).
+Local Notation pbmid := (pb_LModule (identity M') T).
 
 Lemma pbm_id_law :
-  ∏ c : B, (lm_mult _ T) c = (pb_LModule_σ (Monad_identity M') T) c.
+  ∏ c : B, (lm_mult _ T) c = (pb_LModule_σ (identity M') T) c.
 Proof.
   intro c.
   cbn.
@@ -470,10 +470,10 @@ Context {B : category} {M M' : Monad B} (m : Monad_Mor M M') {C : category}
         {M'' : Monad B} (m' : Monad_Mor M' M'') (T'' : LModule M'' C).
 
 Local Notation comp_pbm := (pb_LModule m (pb_LModule m' T'')).
-Local Notation pbm_comp := (pb_LModule (Monad_composition m  m') T'').
+Local Notation pbm_comp := (pb_LModule (m · m') T'').
 
   Lemma pb_LModule_comp_law  (c : B) :
-    (pb_LModule_σ m (pb_LModule m' T'')) c = (pb_LModule_σ (Monad_composition m m') T'') c.
+    (pb_LModule_σ m (pb_LModule m' T'')) c = (pb_LModule_σ (m · m') T'') c.
   Proof.
     cbn.
     etrans; [apply assoc|].
