@@ -335,45 +335,6 @@ Section RoundedIdealCompletion.
     exact (trans_abstract_basis q p).
   Qed.
 
-  Proposition to_way_below_ideal
-              {I : rounded_ideal_completion}
-              (b : B)
-              (Hb : b ∈ I)
-    : principal_ideal b ≪ I.
-  Proof.
-    assert (H := is_ideal_rounded (pr2 I) Hb).
-    revert H.
-    use factor_through_squash.
-    {
-      apply propproperty.
-    }
-    intro c.
-    induction c as ( c & p₁ & p₂ ).
-    intros D HD.
-    assert (H := HD c p₂).
-    revert H.
-    use factor_through_squash.
-    {
-      apply propproperty.
-    }
-    intro d ; cbn in d.
-    induction d as [ d Hd ].
-    refine (hinhpr (d ,, _)).
-    cbn ; intros x Hx.
-    use (is_ideal_lower_set (pr2 (D d)) Hd).
-    exact (trans_abstract_basis Hx p₁).
-  Qed.
-
-  Proposition lt_way_below
-              {I : rounded_ideal_completion}
-              (b1 b2 : B)
-              (Hb : b1 ≺ b2)
-    : principal_ideal b1 ≪ principal_ideal b2.
-  Proof.
-    apply to_way_below_ideal.
-    exact Hb.
-  Qed.
-
   Proposition is_directed_below_ideal
               (I : rounded_ideal_completion)
     : is_directed
@@ -444,10 +405,48 @@ Section RoundedIdealCompletion.
     - apply rounded_ideal_lub_2.
   Qed.
 
+  Proposition principal_ideal_way_below
+              {I : rounded_ideal_completion}
+              (b : B)
+              (Hb : b ∈ I)
+    : principal_ideal b ≪ I.
+  Proof.
+    assert (H := is_ideal_rounded (pr2 I) Hb).
+    revert H.
+    use factor_through_squash.
+    {
+      apply propproperty.
+    }
+    intro c.
+    induction c as ( c & p₁ & p₂ ).
+    intros D HD.
+    assert (H := HD c p₂).
+    revert H.
+    use factor_through_squash.
+    {
+      apply propproperty.
+    }
+    intro d ; cbn in d.
+    induction d as [ d Hd ].
+    refine (hinhpr (d ,, _)).
+    cbn ; intros x Hx.
+    use (is_ideal_lower_set (pr2 (D d)) Hd).
+    exact (trans_abstract_basis Hx p₁).
+  Qed.
+
+  Proposition lt_way_below
+              (b1 b2 : B)
+              (Hb : b1 ≺ b2)
+    : principal_ideal b1 ≪ principal_ideal b2.
+  Proof.
+    apply principal_ideal_way_below.
+    exact Hb.
+  Qed.
+
   Proposition from_way_below_ideal_completion
               {I J : rounded_ideal_completion}
               (Hb : I ≪ J)
-    : ∃ b₀ b₁, b₀ ∈ I ∧ b₁ ∈ J ∧ principal_ideal b₀ ≤ principal_ideal b₁.
+    : ∃ b₁, b₁ ∈ J ∧ I ≤ principal_ideal b₁.
   Proof.
     specialize (Hb (below_ideal_directed_set J) (rounded_ideal_lub_1 J)).
     revert Hb.
@@ -463,10 +462,30 @@ Section RoundedIdealCompletion.
       apply propproperty.
     }
     intros [b₀ Hb0].
-    use (hinhpr (b₀,, b',, (Hb0,, Hb',, _))).
-    simpl. intros x Hx.
-    apply Hi.
-    exact (is_ideal_lower_set (pr2 I) Hb0 Hx).
+    use (hinhpr (b',, (Hb',, _))).
+    - simpl. intros x Hx.
+      apply Hi. exact Hx.
+  Qed.
+
+  Proposition to_way_below_ideal_completion
+    {I J : rounded_ideal_completion}
+    (b₁ : B)
+    (Hb1 : b₁ ∈ J)
+    (HI : I ≤ principal_ideal b₁)
+    : I ≪ J.
+  Proof.
+    intros D HJ.
+    assert (HbJ : principal_ideal b₁ ≪ J).
+    { apply principal_ideal_way_below, Hb1. }
+    specialize (HbJ D HJ).
+    revert HbJ.
+    use factor_through_squash.
+    {
+      apply propproperty.
+    }
+    intros [i Hi].
+    use (hinhpr (i,, _)).
+    exact (trans_dcpo HI Hi).
   Qed.
 
   Definition rounded_ideal_completion_basis_data
@@ -494,7 +513,7 @@ Section RoundedIdealCompletion.
         intros b.
         induction b as [ b p ].
         refine (hinhpr (b ,, _)).
-        apply to_way_below_ideal.
+        apply principal_ideal_way_below.
         exact p.
       + intros b₁ b₂.
         induction b₁ as [ b₁ p₁ ].
@@ -526,7 +545,7 @@ Section RoundedIdealCompletion.
         intros t.
         induction t as ( t & r₁ & r₂ & r₃ ).
         simple refine (hinhpr ((t ,, _) ,, (_ ,, _))) ; cbn -[way_below].
-        * apply to_way_below_ideal.
+        * apply principal_ideal_way_below.
           exact r₁.
         * intros x v.
           refine (trans_abstract_basis _ r₂).
@@ -553,7 +572,7 @@ Section RoundedIdealCompletion.
         induction b as [ b [ q₁ q₂ ]].
         assert (H : principal_ideal b ≪ I).
         {
-          apply to_way_below_ideal.
+          apply principal_ideal_way_below.
           exact q₂.
         }
         exact (HI' (b ,, H) x q₁).
@@ -589,7 +608,7 @@ Section RoundedIdealCompletionAlgebraic.
   Proof.
     refine (_ ,, _ ,, _).
     - intros b ; cbn -[way_below] in *.
-      apply to_way_below_ideal ; cbn.
+      apply principal_ideal_way_below.
       apply HB.
     - intro I.
       split.
