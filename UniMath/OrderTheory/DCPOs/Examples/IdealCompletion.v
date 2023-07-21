@@ -488,6 +488,19 @@ Section RoundedIdealCompletion.
     exact (trans_dcpo HI Hi).
   Qed.
 
+  Proposition way_below_ideal_completion_eq (I J : rounded_ideal_completion) :
+    I ≪ J ≃ ∃ b₁, b₁ ∈ J ∧ I ≤ principal_ideal b₁.
+  Proof.
+    use weqimplimpl.
+    - apply from_way_below_ideal_completion.
+    - use factor_through_squash.
+      { apply propproperty. }
+      intros [b [HJ HI]].
+      apply (to_way_below_ideal_completion b HJ HI).
+    - apply propproperty.
+    - apply propproperty.
+  Defined.
+
   Definition rounded_ideal_completion_basis_data
     : dcpo_basis_data rounded_ideal_completion.
   Proof.
