@@ -75,6 +75,8 @@ Definition sort_in (T:[SET_over_sort,SET_over_sort]){Γ:SET_over_sort}(M:wellsor
 
 Context {T : Monad (HSET / sort)}.
 
+(* TEMPOARILY COMMENTED OUT BECAUSE OF REIMPLEMENATION OF MONADS
+
 Definition wellsorted_in (Γ:HSET_over_sort): hSet := pr1(pr1 T Γ).
 Definition sort_in {Γ:HSET_over_sort}(M:wellsorted_in Γ): sort := pr2 (pr1 T Γ) M.
 
@@ -497,6 +499,6 @@ Proof.
 
 
 
-
+END TEMPORARY DEACTIVATION *)
 
 End MonadsInHSET_over_sort.
