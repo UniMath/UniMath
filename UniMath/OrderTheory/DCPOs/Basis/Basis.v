@@ -455,7 +455,7 @@ Section BasisProperties.
   Section ScottContinuousFromBasis.
     Context {Y : dcpo}
             (f : B → Y)
-            (Hf : ∏ (i₁ i₂ : B), B i₁ ≤ B i₂ → f i₁ ≤ f i₂).
+            (Hf : ∏ (i₁ i₂ : B), B i₁ ≪ B i₂ → f i₁ ≤ f i₂).
 
     Proposition is_directed_map_from_basis
                 (x : X)
@@ -471,15 +471,17 @@ Section BasisProperties.
         intro i.
         exact (hinhpr i).
       - intros i j.
-        assert (H := directed_set_top (directed_set_from_basis B x) i j).
+        induction i as [i Hix].
+        induction j as [j Hjx].
+        assert (H := basis_binary_interpolation Hix Hjx).
         revert H.
         use factor_through_squash.
         {
           apply propproperty.
         }
         intro k.
-        induction k as  [ k [ p q ]].
-        refine (hinhpr (k ,, _ ,, _)).
+        induction k as  [ k [ p [ q r ]]].
+        refine (hinhpr ((k ,, r) ,, _ ,, _)).
         + apply Hf.
           exact p.
         + apply Hf.
@@ -588,7 +590,6 @@ Section BasisProperties.
       intro j.
       induction j as [ j p ] ; cbn.
       apply Hf.
-      apply way_below_to_le.
       exact p.
     Qed.
   End ScottContinuousFromBasis.
