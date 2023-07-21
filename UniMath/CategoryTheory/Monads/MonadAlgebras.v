@@ -379,7 +379,8 @@ Defined.
 
 Definition lift_monad : Monad (MonadAlg S).
 Proof.
-  exists ((lift_functor ,, lift_μ) ,, lift_η).
+  exists lift_functor.
+  exists (lift_μ ,, lift_η).
   abstract (split;
             [ split; intro X;
               apply subtypePath;

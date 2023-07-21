@@ -215,8 +215,11 @@ Section Monad_disp_def.
 
 End Monad_disp_def.
 
+Arguments category_Monad _ : clear implicits.
+Arguments Monad _ : clear implicits.
+
 Definition is_univalent_category_Monad (C : univalent_category) :
-  is_univalent (category_Monad(C:=C)).
+  is_univalent (category_Monad C).
 Proof.
   apply SIP.
   - apply is_univalent_functor_category. apply C.
@@ -279,43 +282,43 @@ Section pointfree.
 
 End pointfree.
 
-Definition Monad_Mor {C : category} (T T' : Monad) : UU
-  := category_Monad(C:=C) ⟦T, T'⟧.
+Definition Monad_Mor {C : category} (T T' : Monad C) : UU
+  := category_Monad C ⟦T, T'⟧.
 
-Coercion nat_trans_from_monad_mor {C : category} (T T' : Monad) (s : Monad_Mor(C:=C) T T')
+Coercion nat_trans_from_monad_mor {C : category} (T T' : Monad C) (s : Monad_Mor T T')
   : T ⟹ T' := pr1 s.
 
-Definition Monad_Mor_laws {C : category} {T T' : Monad} (α : T ⟹ T')
+Definition Monad_Mor_laws {C : category} {T T' : Monad C} (α : T ⟹ T')
   : UU :=
   (∏ a : C, μ T a · α a = α (T a) · #T' (α a) · μ T' a) ×
     (∏ a : C, η T a · α a = η T' a).
 
-Definition Monad_Mor_η {C : category} {T T' : Monad} (α : Monad_Mor T T')
+Definition Monad_Mor_η {C : category} {T T' : Monad C} (α : Monad_Mor T T')
   : ∏ a : C, η T a · α a = η T' a.
 Proof.
   exact (pr22 α).
 Qed.
 
-Definition Monad_Mor_μ {C : category} {T T' : Monad} (α : Monad_Mor T T')
+Definition Monad_Mor_μ {C : category} {T T' : Monad C} (α : Monad_Mor T T')
   : ∏ a : C, μ T a · α a = α (T a) · #T' (α a) · μ T' a.
 Proof.
   exact (pr12 α).
 Qed.
 
 Definition Monad_Mor_equiv {C : category}
-  {T T' : Monad} (α β : Monad_Mor(C:=C) T T')
+  {T T' : Monad C} (α β : Monad_Mor T T')
   : α = β ≃ (pr1 α = pr1 β).
 Proof.
   apply subtypeInjectivity; intro a.
   apply isaprop_disp_Monad_Mor_laws.
 Defined.
 
-Lemma isaset_Monad_Mor {C : category} (T T' : Monad) : isaset (Monad_Mor(C:=C) T T').
+Lemma isaset_Monad_Mor {C : category} (T T' : Monad C) : isaset (Monad_Mor T T').
 Proof.
   apply homset_property.
 Qed.
 
-Definition forgetfunctor_Monad (C : category) : functor (category_Monad(C:=C)) [C,C]
+Definition forgetfunctor_Monad (C : category) : functor (category_Monad C) [C,C]
   := pr1_category monads_category_disp.
 
 Lemma forgetMonad_faithful (C : category) : faithful (forgetfunctor_Monad C).
@@ -330,7 +333,7 @@ Section bind.
 
   (** Definition of bind *)
 
-  Context {C : category} {T : Monad(C:=C)}.
+  Context {C : category} {T : Monad C}.
 
   Definition bind {a b : C} (f : C⟦a,T b⟧) : C⟦T a,T b⟧ := # T f · μ T b.
 
@@ -365,7 +368,7 @@ End bind.
 (** * Operations for monads based on binary coproducts *)
 Section MonadsUsingCoproducts.
 
-  Context {C : category} (T : Monad(C:=C)) (BC : BinCoproducts C).
+  Context {C : category} (T : Monad C) (BC : BinCoproducts C).
 
   Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
 
@@ -472,42 +475,40 @@ Section MonadsUsingCoproducts.
 
 End MonadsUsingCoproducts.
 
-(* not clear if we need to have the following concepts
 (** * Helper lemma for showing two monads are equal *)
 Section Monad_eq_helper.
   (** * Alternate (equivalent) definition of Monad *)
   Section Monad'_def.
 
-    Definition raw_Monad_data (C : precategory_ob_mor) : UU :=
+    Definition raw_Monad_data (C : category) : UU :=
       ∑ F : C -> C, (((∏ a b : ob C, a --> b -> F a --> F b) ×
                       (∏ a : ob C, F (F a) --> F a)) ×
                      (∏ a : ob C, a --> F a)).
 
-    Coercion functor_data_from_raw_Monad_data {C : precategory_ob_mor} (T : raw_Monad_data C) :
+    Coercion functor_data_from_raw_Monad_data {C : category} (T : raw_Monad_data C) :
       functor_data C C := make_functor_data (pr1 T) (pr1 (pr1 (pr2 T))).
 
-    Definition Monad'_data_laws {C : precategory} (T : raw_Monad_data C) :=
+    Definition Monad'_data_laws {C : category} (T : raw_Monad_data C) :=
       ((is_functor T) ×
        (is_nat_trans (functor_composite_data T T) T (pr2 (pr1 (pr2 T))))) ×
       (is_nat_trans (functor_identity C) T (pr2 (pr2 T))).
 
-    Definition Monad'_data (C : precategory) := ∑ (T : raw_Monad_data C), Monad'_data_laws T.
+    Definition Monad'_data (C : category) := ∑ (T : raw_Monad_data C), Monad'_data_laws T.
 
-    Definition Monad'_data_to_Monad_data {C : precategory} (T : Monad'_data C) : Monad_data C :=
-      (((_,, pr1 (pr1 (pr2 T))),,
-        (pr2 (pr1 (pr2 (pr1 T))),, (pr2 (pr1 (pr2 T))))),,
-       (pr2 (pr2 (pr1 T)),, (pr2 (pr2 T)))).
+    Definition Monad'_data_to_Monad_data {C : category} (T : Monad'_data C) : disp_Monad_data (_,, pr1 (pr1 (pr2 T))) :=
+      ((pr2 (pr1 (pr2 (pr1 T))),, (pr2 (pr1 (pr2 T))))),,
+       (pr2 (pr2 (pr1 T)),, (pr2 (pr2 T))).
 
-    Definition Monad' (C : precategory) := ∑ (T : Monad'_data C),
-                                             (Monad_laws (Monad'_data_to_Monad_data T)).
+    Definition Monad' (C : category) := ∑ (T : Monad'_data C),
+                                             (disp_Monad_laws (Monad'_data_to_Monad_data T)).
   End Monad'_def.
 
   (** * Equivalence of Monad and Monad' *)
   Section Monad_Monad'_equiv.
-    Definition Monad'_to_Monad {C : precategory} (T : Monad' C) : Monad C :=
-      (Monad'_data_to_Monad_data (pr1 T),, pr2 T).
+    Definition Monad'_to_Monad {C : category} (T : Monad' C) : Monad C :=
+      (_,,(Monad'_data_to_Monad_data (pr1 T),, pr2 T)).
 
-    Definition Monad_to_raw_data {C : precategory} (T : Monad C) : raw_Monad_data C.
+    Definition Monad_to_raw_data {C : category} (T : Monad C) : raw_Monad_data C.
     Proof.
       use tpair.
       - exact (functor_on_objects T).
@@ -518,16 +519,16 @@ Section Monad_eq_helper.
         + exact (η T).
     Defined.
 
-    Definition Monad_to_Monad'_data {C : precategory} (T : Monad C) : Monad'_data C :=
+    Definition Monad_to_Monad'_data {C : category} (T : Monad C) : Monad'_data C :=
       (Monad_to_raw_data T,, ((pr2 (T : functor C C),, (pr2 (μ T))),, pr2 (η T))).
 
-    Definition Monad_to_Monad' {C : precategory} (T : Monad C) : Monad' C :=
-      (Monad_to_Monad'_data T,, pr2 T).
+    Definition Monad_to_Monad' {C : category} (T : Monad C) : Monad' C :=
+      (Monad_to_Monad'_data T,, pr22 T).
 
-    Definition Monad'_to_Monad_to_Monad' {C : precategory} (T : Monad' C) :
+    Definition Monad'_to_Monad_to_Monad' {C : category} (T : Monad' C) :
       Monad_to_Monad' (Monad'_to_Monad T) = T := (idpath T).
 
-    Definition Monad_to_Monad'_to_Monad {C : precategory} (T : Monad C) :
+    Definition Monad_to_Monad'_to_Monad {C : category} (T : Monad C) :
       Monad'_to_Monad (Monad_to_Monad' T) = T := (idpath T).
 
   End Monad_Monad'_equiv.
@@ -537,7 +538,7 @@ Section Monad_eq_helper.
   Proof.
     intro e.
     apply subtypePath.
-    - intro. now apply isaprop_Monad_laws.
+    - intro. now apply isaprop_disp_Monad_laws.
     - apply subtypePath.
       + intro. apply isapropdirprod.
         * apply isapropdirprod.
@@ -557,7 +558,7 @@ Section Monad_eq_helper.
   Qed.
 
 End Monad_eq_helper.
-*)
+
 Section Monads_from_adjunctions.
 
   Definition  functor_from_adjunction {C D : category}
@@ -592,16 +593,13 @@ Section Monads_from_adjunctions.
 
 
   Definition Monad_from_adjunction {C D : category} {L : functor C D}
-    {R : functor D C} (H : are_adjoints L R) : Monad(C:=C).
+    {R : functor D C} (H : are_adjoints L R) : Monad C.
   Proof.
     exists (functor_from_adjunction H).
     exact (Monad_data_from_adjunction H,, Monad_laws_from_adjunction H).
   Defined.
 
 End Monads_from_adjunctions.
-
-Arguments category_Monad _ : clear implicits.
-Arguments Monad _ : clear implicits.
 
 (*     NOW THE PREVIOUS FORMALIZATION
 
