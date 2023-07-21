@@ -639,11 +639,8 @@ Proof.
   eapply weqcomp.
   - apply hssMor_eq.
   - apply invweq.
-    (*
-    apply Monad_Mor_equiv.
+    use Monad_Mor_equiv.
 Defined.
-     *)
-    Admitted.
 
 (** *** The functor from hss to monads is faithful, i.e. forgets at most structure *)
 
