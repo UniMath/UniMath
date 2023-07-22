@@ -14,7 +14,6 @@ Require Import UniMath.MoreFoundations.All.
 Require Export UniMath.CategoryTheory.Core.Categories.
 Require Export UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.TransportMorphisms.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Isos.
 
@@ -30,12 +29,11 @@ Local Open Scope cat.
 
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
 
-Notation "X ◦ Y" := (disp_functor_composite X Y) (at level 45): cat. 
 
 Declare Scope reindexing_forward_scope.
-Notation "↙ x" := (pr1 x)  (at level 0):reindexing_forward_scope. 
-Notation "← x" := (pr2 (pr2 x)) (at level 0):reindexing_forward_scope.
-Notation "¤ x" := (pr1(pr2 x)) (at level 0):reindexing_forward_scope.
+Notation "↙ x" := (pr1 x)  (at level 2):reindexing_forward_scope. 
+Notation "← x" := (pr2 (pr2 x)) (at level 2):reindexing_forward_scope.
+Notation "¤ x" := (pr1(pr2 x)) (at level 2):reindexing_forward_scope.
 
 (* Recreate base objects from an object x' over c' of the reindexing_forward *)
 (*  x:= (← x') -----?-----> x' =: (↙ x', ¤ x', ← x') *)
@@ -66,12 +64,16 @@ Section reindexing_forward.
       (← x')-->[f](← y'))).
   Defined.
 
-  (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
-  (* Some lemmas to caracterize the equality of reindexing_forward objects and morphisms*)
+  (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
+  (* Some lemmas to caracterize the equality of reindexing_forward objects and morphisms *)
+
   Lemma reindexing_forward_ob_eq {c' : C'}
-  {x' :ob_disp reindexing_forward_ob_mor c'} {y' :ob_disp reindexing_forward_ob_mor c'}
+  {x' :ob_disp reindexing_forward_ob_mor c'}
+  {y' :ob_disp reindexing_forward_ob_mor c'}
   (e0 : ↙x' = ↙y')
-  : transportf (λ c, F c = c') e0 ¤x' = ¤y' -> transportf _ e0 ←x' = ←y' -> x' = y'.
+  : transportf (λ c, F c = c') e0 ¤x' = ¤y' -> 
+  transportf _ e0 ←x' = ←y' -> 
+  x' = y'.
   Proof.
     intros e1 e2.
     apply (total2_paths_f e0).
@@ -81,24 +83,27 @@ Section reindexing_forward.
     - exact e2.
   Defined.
 
+  (* As UIP can be used, equalities between morphisms are simpler *)
   Lemma reindexing_forward_mor_eq {a' b':C'} 
   {x' :ob_disp reindexing_forward_ob_mor a'}
   {y' :ob_disp reindexing_forward_ob_mor b'}
   {f': C' ⟦ a', b' ⟧}
-  {Df' : x' -->[ f'] y'} {Dg' : x' -->[ f'] y'} (e:↙ Df' = ↙ Dg')
+  {Df' : x' -->[ f'] y'} {Dg' : x' -->[ f'] y'} 
+  (e:↙ Df' = ↙ Dg')
   :transportf _ e ←Df' = ←Dg' -> Df'= Dg'.
   Proof.
     intro H.
     apply (total2_paths_f e).
     etrans. apply (transportf_dirprod (↙x' --> ↙ y')
-    (λ f, double_transport ¤ (x') ¤ (y') (# F f) = f') (mor_disp ←x' ←y') Df' Dg' e).
+    (λ f, double_transport ¤ (x') ¤ (y') (# F f) = f') 
+    (mor_disp ←x' ←y') Df' Dg' e).
     apply dirprod_paths.
     - apply uip. apply homset_property.
     - apply H.
   Defined.
 
-  (*Theorem about the equality of reindexing_forward morphisms*)
-  Theorem reindexing_forward_paths_f_mor {a' b':C'} 
+  (* Same than the one above but with transportf *)
+  Lemma reindexing_forward_paths_f_mor {a' b':C'} 
   {x' :ob_disp reindexing_forward_ob_mor a'}
   {y' :ob_disp reindexing_forward_ob_mor b'}
   {f': C' ⟦ a', b' ⟧} {g': C' ⟦ a', b' ⟧} {p:g'=f'}
@@ -107,14 +112,36 @@ Section reindexing_forward.
   Proof.
     intro H.
     destruct p.
-    apply pathsinv0.
-    etrans. exact (idpath_transportf _ Dg').
-    exact (reindexing_forward_mor_eq e (! H)).
+    exact (! reindexing_forward_mor_eq e (! H)).
   Qed.
-  (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
+
+  Lemma pr1_transportf_mor_disp_reindexing_forward
+    {a' b' : C'} {f' g' : a' --> b'} 
+    {x' :ob_disp reindexing_forward_ob_mor a'}
+    {y' :ob_disp reindexing_forward_ob_mor b'}
+    (e : f' = g') (ff' : x' -->[f'] y')
+    : pr1 (transportf (mor_disp x' y') e ff') = pr1 ff'.
+  Proof.
+    destruct e. reflexivity.
+  Defined.
+  Opaque pr1_transportf_mor_disp_reindexing_forward.
+
+  Lemma pr22_transportf_mor_disp_reindexing_forward
+    {a' b' : C'} {f' g' : a' --> b'} 
+    {x' :ob_disp reindexing_forward_ob_mor a'}
+    {y' :ob_disp reindexing_forward_ob_mor b'}
+    (e : f' = g') (ff' : x' -->[f'] y')
+    : pr22 (transportf (mor_disp x' y') e ff') = 
+    transportf (mor_disp (pr22 x') (pr22 y')) 
+    (! pr1_transportf_mor_disp_reindexing_forward e ff') (pr22 ff').
+  Proof.
+    destruct e. reflexivity.
+  Qed.
+  (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
 
 
-  Lemma reindexing_forward_id {c': C'} {x' : ob_disp reindexing_forward_ob_mor c'}
+  Lemma reindexing_forward_id {c': C'} 
+  {x' : ob_disp reindexing_forward_ob_mor c'}
   : identity c' = double_transport (¤ x') (¤ x') (# F (identity (↙ x'))).
   Proof.
     destruct (¤ x').
@@ -124,8 +151,10 @@ Section reindexing_forward.
 
 
   Lemma reindexing_forward_comp {a' b' c': C'} 
-  {x' : ob_disp reindexing_forward_ob_mor a'} {y' : ob_disp reindexing_forward_ob_mor b'}
-  {z' : ob_disp reindexing_forward_ob_mor c'} {f':C' ⟦ a', b' ⟧} {g':C' ⟦ b', c' ⟧}
+  {x' : ob_disp reindexing_forward_ob_mor a'}
+  {y' : ob_disp reindexing_forward_ob_mor b'}
+  {z' : ob_disp reindexing_forward_ob_mor c'} 
+  {f':C' ⟦ a', b' ⟧} {g':C' ⟦ b', c' ⟧}
   {Df':  x' -->[ f'] y'} {Dg': y' -->[ g'] z'}
   :f' · g' = double_transport (¤ x') (¤ z') (# F (↙ Df' · ↙ Dg')).
   Proof.
@@ -135,7 +164,8 @@ Section reindexing_forward.
     apply functor_comp.
   Defined.
 
-  Definition reindexing_forward_id_comp : disp_cat_id_comp C' reindexing_forward_ob_mor.
+  Definition reindexing_forward_id_comp 
+    : disp_cat_id_comp C' reindexing_forward_ob_mor.
   Proof.
     use tpair.
     - intros c' x'.
@@ -158,7 +188,8 @@ Section reindexing_forward.
 
   Local Open Scope mor_disp. 
 
-  Definition reindexing_forward_disp_cat_axioms : disp_cat_axioms C' reindexing_forward_disp_cat_data.
+  Definition reindexing_forward_disp_cat_axioms 
+    : disp_cat_axioms C' reindexing_forward_disp_cat_data.
   Proof.
     repeat apply tpair.
     - intros a' b' f' x' y' Df'.
@@ -205,7 +236,8 @@ Section functor_reindexing_forward.
   (*    C ---------- F ----------> C'    *)
 
 
-  Definition data_functor_reindexing_forward : disp_functor_data F D (reindexing_forward D F).
+  Definition data_functor_reindexing_forward 
+    : disp_functor_data F D (reindexing_forward D F).
   Proof.
     use tpair.
     - exact (λ (c:C) (d: D c), (c,, idpath (F c),,  d)).
@@ -215,16 +247,19 @@ Section functor_reindexing_forward.
 
   Local Open Scope mor_disp. 
 
-  Definition axioms_reindexing_forward_functor: disp_functor_axioms data_functor_reindexing_forward.
+  Definition axioms_reindexing_forward_functor
+    : disp_functor_axioms data_functor_reindexing_forward.
   Proof.
     use tpair.
     - intros a x.
-      apply (reindexing_forward_paths_f_mor D F (♯ (data_functor_reindexing_forward) (id_disp x)) 
+      apply (reindexing_forward_paths_f_mor D F 
+      (♯ (data_functor_reindexing_forward) (id_disp x)) 
       (id_disp (data_functor_reindexing_forward a x)) 
       (idpath _)).
       exact (idpath (id_disp x)).
     - intros a b c x y z f g Df Dg.
-      apply (reindexing_forward_paths_f_mor D F (♯ (data_functor_reindexing_forward) (Df;;Dg))
+      apply (reindexing_forward_paths_f_mor D F 
+      (♯ (data_functor_reindexing_forward) (Df;;Dg))
       (♯ data_functor_reindexing_forward Df ;; ♯ data_functor_reindexing_forward Dg)
       (idpath _)).
       exact (idpath (Df;;Dg)).
@@ -248,6 +283,8 @@ Section functor_universal_property_reindexing_forward.
   Let D' := reindexing_forward D F. Let DF := functor_reindexing_forward D F.
   Context (H: functor C' C'') (D'': disp_cat C'') (DG: disp_functor (F ∙ H) D D'').
 
+  Local Notation "X ◦ Y" := (disp_functor_composite X Y) (at level 45). 
+
   (*      ---------------- DG ---------------->     *)
   (*    D -- DF --> D' -- functor univ prop --> D'' *)
   (*    ↓    ↓      ↓             ↓             ↓   *)
@@ -255,7 +292,8 @@ Section functor_universal_property_reindexing_forward.
 
   Local Open Scope reindexing_forward_scope.
 
-  Definition data_functor_univ_prop_reindexing_forward: disp_functor_data H D' D''.
+  Definition data_functor_univ_prop_reindexing_forward
+    : disp_functor_data H D' D''.
   Proof.
     use tpair.
     - intros c' d'.
@@ -304,11 +342,12 @@ End functor_universal_property_reindexing_forward.
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
 
 
-Definition functor_univ_prop_reindexing_forward {C C' C'': category} {D:disp_cat C} {F: functor C C'}
-(H: functor C' C'') (D'': disp_cat C'') (DG: disp_functor (F ∙ H) D D'')
-: disp_functor H (reindexing_forward D F) D''
-:= (data_functor_univ_prop_reindexing_forward H D'' DG,,
-axioms_functor_univ_prop_reindexing_forward H D'' DG).
+Definition functor_univ_prop_reindexing_forward 
+  {C C' C'': category} {D:disp_cat C} {F: functor C C'}
+  (H: functor C' C'') (D'': disp_cat C'') (DG: disp_functor (F ∙ H) D D'')
+  : disp_functor H (reindexing_forward D F) D''
+  := (data_functor_univ_prop_reindexing_forward H D'' DG,,
+  axioms_functor_univ_prop_reindexing_forward H D'' DG).
 
 
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
@@ -320,8 +359,10 @@ Section unicity_universal_property_reindexing_forward.
   Context (H: functor C' C'') (D'': disp_cat C'') (DG: disp_functor (F ∙ H) D D'').
   Let DH := functor_univ_prop_reindexing_forward H D'' DG.
 
-  (* Here we prove the unicity of DH*)
-  (*      -------- DG -------->     *)
+  Local Notation "X ◦ Y" := (disp_functor_composite X Y) (at level 45). 
+
+  (* Here we prove the unicity of DH *)
+  (*      -------- DG -------->      *)
   (*    D -- DF --> D' -- DH --> D'' *)
   (*    ↓    ↓      ↓     ↓      ↓   *)
   (*    C -- F  --> C' -- H  --> C'' *)
@@ -570,8 +611,10 @@ Section fibrations_and_reindexing_forward.
   Proof.
     intros c' g' z' hh'.
     (* introduction of variables *)
-    set (Hyp1 := st_car (↙z') (↙hh') (double_transport (!¤z') (!¤x') g') (commute_in_C' ff' hh')).
-    set (Hyp2 := car (↙z') (pr11 Hyp1) (←z') (transportb (mor_disp _ _) (pr221 Hyp1) (←hh'))).
+    set (Hyp1 := st_car (↙z') (↙hh') 
+    (double_transport (!¤z') (!¤x') g') (commute_in_C' ff' hh')).
+    set (Hyp2 := car (↙z') (pr11 Hyp1) (←z') 
+    (transportb (mor_disp _ _) (pr221 Hyp1) (←hh'))).
     set (g:= pr11 Hyp1).
     set (pg := double_transport_transpose' (pr121 Hyp1)).
     set (gg := pr11 Hyp2).
@@ -617,6 +660,432 @@ Section fibrations_and_reindexing_forward.
   Local Close Scope reindexing_forward_scope.
 
 End fibrations_and_reindexing_forward.
+(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
+
+(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
+(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
+Section univalence_and_reindexing_forward.
+
+  Context {C C' C'': category} {D:disp_cat C} {F: functor C C'}.
+  Let D' := reindexing_forward D F.
+
+  (* D ---------> D'*)
+  (* ↓     ↓      ↓ *)
+  (* C --- F ---> C'*)
+
+  Local Notation "X ⁻¹" := (inv_from_z_iso X) (at level 0).
+  Local Notation "X ⁽⁻¹⁾" := (inv_mor_disp_from_z_iso X) (at level 0).
+
+  Local Open Scope reindexing_forward_scope.
+
+  (*Type equivalent to eqality in D' *)
+  Local Definition Split_eq {c' : C'} (x' y' : D' c')
+    := ∑ (e0:↙x' = ↙y'), 
+    (transportf (λ c, F c = c') e0 ¤x'= ¤y' 
+    × transportf D e0 ←x' = ←y').
+
+  (*Type equivalent to the z_iso_disp in D' *)
+  Local Definition Split_z_iso {c' : C'} (x' y' : D' c')
+    := ∑ (i0 : z_iso ↙x' ↙y'), 
+    (double_transport ¤x' ¤y' (# F i0) = identity c'
+    × z_iso_disp i0 ←x' ←y').
+
+  Local Close Scope reindexing_forward_scope.
+
+  (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
+  Section weq_Equality_to_Split_eq.
+
+    Local Definition reindexing_forward_ob_eq_to_Split_eq 
+      {c' : C'} {x' y' : D' c'} (e : x' = y')
+      : Split_eq x' y'.
+    Proof.
+      exists (maponpaths pr1 e).
+      split.
+      - etrans. exact (! functtransportf pr1 _ e _).
+        exact (transport_section (λ z', pr12 z') e).
+      - etrans. exact (! functtransportf pr1 _ e _).
+        exact (transport_section (λ z', pr22 z') e).
+    Defined.
+
+    Local Definition Split_eq_to_reindexing_forward_ob_eq 
+      {c' : C'} {x' y' : D' c'} (e' : Split_eq x' y') 
+      : x' = y'
+      := reindexing_forward_ob_eq D F (pr1 e') (pr12 e') (pr22 e').
+
+    Local Lemma weq_reindexing_forward_ob_eq_Split_eq_opaque
+      {c' : C'} {x' y' : D' c'} 
+      : (∏ (e : x' = y'), 
+      Split_eq_to_reindexing_forward_ob_eq (reindexing_forward_ob_eq_to_Split_eq e) = e)
+      ×
+      (∏ (e' : Split_eq x' y'),
+      reindexing_forward_ob_eq_to_Split_eq (Split_eq_to_reindexing_forward_ob_eq e') = e').
+    Proof.
+      split.
+      - intro e.
+        destruct e.
+        reflexivity.
+      - intro e'.
+        induction e' as (e0, (e1, e2)).
+        induction x' as (a, (px, x)).
+        induction y' as (b, (py, y)).
+        cbn in e0. destruct e0.
+        cbn in *. destruct e1, e2.
+        reflexivity.
+    Qed.
+
+
+    Lemma weq_reindexing_forward_ob_eq_Split_eq
+      {c' : C'} {x' y' : D' c'}
+      : weq (x' = y') (Split_eq x' y').
+    Proof.
+      apply (make_weq reindexing_forward_ob_eq_to_Split_eq).
+      apply (isweq_iso _ Split_eq_to_reindexing_forward_ob_eq).
+      - exact (pr1 weq_reindexing_forward_ob_eq_Split_eq_opaque).
+      - exact (pr2 weq_reindexing_forward_ob_eq_Split_eq_opaque).
+    Defined.
+
+  End weq_Equality_to_Split_eq.
+  (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
+
+
+  (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
+  Section weq_Split_z_iso_to_z_iso.
+
+    Context {c' : C'}.
+    Local Notation "x' -->[] y'" := (mor_disp x' y' (identity_z_iso c')) (at level 0).
+
+    Local Open Scope reindexing_forward_scope.
+
+
+    Local Lemma double_transport_z_iso_to_z_iso_inv
+      {a b c d: C'} (i : z_iso a b) (i' : z_iso c d)
+      {e1 : a = c} {e2 : b = d}
+      : double_transport e1 e2 (pr1 i) = pr1 i' ->
+      double_transport e2 e1 ( i⁻¹) = i'⁻¹.
+    Proof.
+      destruct e1, e2.
+      intro H.
+      apply z_iso_eq in H.
+      apply (maponpaths inv_from_z_iso H).
+    Qed.
+
+    Local Lemma disp_inverse_iso_f_from_iso_ff'
+      {x' y' : D' c'} {i0 : z_iso ↙x' ↙y'}
+      {e : double_transport ¤x' ¤y' (# F i0) = identity c'}
+      {i2 : z_iso_disp i0 ←x' ←y'} 
+      : is_disp_inverse (identity_z_iso c') 
+      (↙ i0,, e,, ↙ i2 : x' -->[] y') 
+      (i0⁻¹,, 
+      double_transport_z_iso_to_z_iso_inv (functor_on_z_iso F i0) (identity_z_iso c') e
+      ,, i2⁽⁻¹⁾ : y' -->[] x').
+    Proof.
+      split.
+      - refine (reindexing_forward_paths_f_mor D F _ _ _ _).
+        exact (pr122 i2).
+      - refine (reindexing_forward_paths_f_mor D F _ _ _ _).
+        exact (pr222 i2).
+    Qed.
+
+    Local Definition Split_z_iso_to_reindexing_forward_ob_z_iso
+      {x' y' : D' c'} (i : Split_z_iso x' y')
+      : z_iso_disp (identity_z_iso c') x' y'.
+    Proof.
+      exists ( pr11 i,, pr12 i ,, pr122 i : x' -->[] y'). 
+      exists ((pr1 i)⁻¹,, 
+      double_transport_z_iso_to_z_iso_inv (functor_on_z_iso F (pr1 i)) (identity_z_iso c') (pr12 i),, 
+      (pr22 i)⁽⁻¹⁾ : y' -->[] x').
+      exact disp_inverse_iso_f_from_iso_ff'.
+    Defined.
+
+    Local Lemma is_inverse_iso_f_from_iso_ff'
+      {x' y' : D' c'} {iso_ff' : z_iso_disp (identity_z_iso c') x' y'}
+      : is_inverse_in_precat (pr11 iso_ff') (pr112 iso_ff').
+    Proof.
+      split.
+      - etrans. apply (maponpaths pr1 (pr222 iso_ff')).
+        etrans. apply (! maponpaths pr1 (id_left_disp (id_disp x'))).
+        exact (id_left _).
+      - etrans. apply (maponpaths pr1 (pr122 iso_ff')).
+        etrans. apply (! maponpaths pr1 (id_left_disp (id_disp y'))).
+        exact (id_left _).
+    Qed.
+
+    Local Lemma iso_f_from_iso_ff'
+      {x' y' : D' c'} (iso_ff' : z_iso_disp (identity_z_iso c') x' y') 
+      : z_iso ↙x' ↙y'.
+    Proof.
+      exists (pr11 iso_ff').
+      exists (pr112 iso_ff').
+      exact is_inverse_iso_f_from_iso_ff'.
+    Defined.
+
+    Local Lemma pr22_composition
+      {x' y' : D' c'}
+      {f' g' : c' --> c'}
+      (ff' : x' -->[f'] y')
+      (gg' : y' -->[g'] x')
+      (e : f' · g' = identity c')
+      e'
+      : (ff' ;; gg')%mor_disp = transportb (mor_disp x' x') e (id_disp x') ->
+      (←ff' ;; ←gg')%mor_disp = transportb (mor_disp ←x' ←x') e' ←(id_disp x').
+    Proof.
+      intro H0.
+      specialize (fiber_paths (fiber_paths H0)) as H.
+      cbn in H.
+      rewrite transportf_const in H.
+      rewrite pr2_transportf in H.
+      unfold base_paths, transportb in H.
+      rewrite pr22_transportf_mor_disp_reindexing_forward in H.
+      apply transportb_transpose_right in H.
+      etrans. exact H.
+      etrans. apply transport_b_b.
+      apply maponpaths_2.
+      apply uip.
+      apply homset_property.
+    Qed.
+
+    Local Lemma is_disp_inverse_iso_ff_from_iso_ff'
+      {x' y' : D' c'} {iso_ff' : z_iso_disp (identity_z_iso c') x' y'}
+      : is_disp_inverse (iso_f_from_iso_ff' iso_ff') (pr221 iso_ff') (pr221 (pr2 iso_ff')).
+    Proof.
+      split.
+      - exact (pr22_composition _ _ _ _ (pr122 iso_ff')).
+      - exact (pr22_composition _ _ _ _ (pr222 iso_ff')).
+    Qed. 
+
+    Local Lemma iso_ff_from_iso_ff'
+      {x' y' : D' c'} (iso_ff' : z_iso_disp (identity_z_iso c') x' y')
+      : z_iso_disp (iso_f_from_iso_ff' iso_ff') ←x' ←y'.
+    Proof.
+      exists (pr22 (pr1 iso_ff')).
+      exists (pr22 (pr12 iso_ff')).
+      exact is_disp_inverse_iso_ff_from_iso_ff'.
+    Defined.
+
+    Local Definition reindexing_forward_ob_z_iso_to_Split_z_iso
+      {x' y' : D' c'}
+      : z_iso_disp (identity_z_iso c') x' y' -> 
+      Split_z_iso x' y'.
+    Proof.
+      intro iso_ff'.
+      exists (iso_f_from_iso_ff' iso_ff').
+      split.
+      - exact (pr12 (pr1 iso_ff')).
+      - exact (iso_ff_from_iso_ff' iso_ff').
+    Defined.
+
+    Local Lemma weq_reindexing_forward_Split_z_iso_ob_z_iso_opaque
+      {x' y' : D' c'}
+      : (∏ (i' : Split_z_iso x' y'), reindexing_forward_ob_z_iso_to_Split_z_iso
+      (Split_z_iso_to_reindexing_forward_ob_z_iso i') = i')
+      ×
+      (∏ (i : z_iso_disp (identity_z_iso c') x' y'), Split_z_iso_to_reindexing_forward_ob_z_iso
+      (reindexing_forward_ob_z_iso_to_Split_z_iso i) = i).
+    Proof.
+      split.
+      - intro i'.
+        use total2_paths_f.
+        * apply z_iso_eq. 
+          reflexivity.
+        * etrans. apply (transportf_dirprod (z_iso ↙x' ↙y') 
+          (λ i1, double_transport ¤ x' ¤ y' (# F i1) = identity c') 
+          (λ i1, z_iso_disp i1 ← x' ← y')).
+          apply dirprod_paths.
+          + apply uip.
+            apply homset_property.
+          + apply eq_z_iso_disp. 
+            etrans. apply transportf_z_iso_disp.
+            apply pathsinv0.
+            etrans. apply (! idpath_transportf _ (pr122 i')).
+            apply transportf_paths.
+            apply uip.
+            apply homset_property.
+      - intro i.
+        apply eq_z_iso_disp.
+        reflexivity.
+    Qed.
+
+    Lemma weq_reindexing_forward_Split_z_iso_ob_z_iso
+      {x' y' : D' c'}
+      : weq (Split_z_iso x' y') (z_iso_disp (identity_z_iso c') x' y').
+    Proof.
+      apply (make_weq Split_z_iso_to_reindexing_forward_ob_z_iso).
+      apply (isweq_iso _ reindexing_forward_ob_z_iso_to_Split_z_iso).
+      - exact (pr1 weq_reindexing_forward_Split_z_iso_ob_z_iso_opaque).
+      - exact (pr2 weq_reindexing_forward_Split_z_iso_ob_z_iso_opaque).
+    Defined.
+
+    Local Close Scope reindexing_forward_scope.
+  End weq_Split_z_iso_to_z_iso.
+  (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
+
+  (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
+  Section weq_Split_eq_to_Split_z_iso.
+
+    Context (uC : is_univalent C) (uC' : is_univalent C') 
+      (uD : is_univalent_disp D). 
+
+    Local Lemma transportf_path_C_paths {a b : C} {c' : C'}
+    (p : F a = c') (q : F b = c') (i :z_iso a b)
+    : (! p @ (isotoid C' uC' (functor_on_z_iso F i))) @ q = idpath c' ->
+    transportf (λ c, F c = c') (isotoid C uC i) p = q.
+    Proof.
+      intro H.
+      etrans. apply (functtransportf F (λ x, x = c') _ p).
+      etrans. apply (transportf_id2 (maponpaths F _) p).
+      etrans. apply (maponpaths (λ e0, ! e0 @ p) (maponpaths_isotoid _ _ _ _ uC' _ _ _)).
+      apply pathsinv0.
+      apply path_inverse_from_right.
+      etrans. apply (maponpaths (λ e0 , e0 @ q) (! path_comp_inv_inv _ _)).
+      etrans. apply (maponpaths (λ e0, (_ @ e0) @ _) (pathsinv0inv0 _)).
+      apply H.
+    Qed.
+
+    Local Lemma pr12_Split_eq_to_pr12_Split_z_iso {a b : C} {c' : C'}
+    (px : F a = c') (py : F b = c')
+    (i0: z_iso a b)
+    : double_transport px py (# F i0) = identity c' ->
+    transportf (λ c, F c = c') (isotoid C uC i0) px = py.
+    Proof.
+      intro H.
+      apply transportf_path_C_paths.
+      apply (idtoiso_inj C' uC').
+      apply z_iso_eq. simpl.
+      etrans. apply pr1_idtoiso_concat.
+      etrans. apply (maponpaths (λ X, pr1 X · _) (idtoiso_concat _ _ _ _ _ _)). simpl.
+      etrans. apply (maponpaths (λ X, _ · pr1 X · _) (idtoiso_isotoid _ _ _ _ _)).
+      apply pathsinv0.
+      etrans. apply (! H).
+      etrans. apply double_transport_idtoiso.
+      apply (maponpaths ( λ var, var · (idtoiso py))).
+      apply maponpaths_2. 
+      exact (maponpaths pr1 (! idtoiso_inv _ _ _ _)).
+    Qed.
+
+
+    Local Definition Split_z_iso_to_Split_eq {c' : C'} {x' y' : D' c'}
+    : Split_z_iso x' y' -> Split_eq x' y'.
+    Proof.
+      intro i'.
+      exists (isotoid C uC (pr1 i')).
+      split.
+      - apply pr12_Split_eq_to_pr12_Split_z_iso.
+        exact (pr12 i').
+      - apply (isotoid_disp uD).
+        exact (transportf (λ i, z_iso_disp i _ _) (! idtoiso_isotoid _ _ _ _ _) (pr22 i')).
+    Defined.
+
+    Local Lemma pr12_Split_z_iso_to_pr12_Split_eq {a b : C} {c' : C'}
+    (px : F a = c') (py : F b = c')
+    (e0: a = b)
+    : transportf (λ c, F c = c') (e0) px = py ->
+    double_transport px py (# F (idtoiso e0)) = identity c'.
+    Proof.
+      intro H.
+      destruct e0, px, H.
+      exact (functor_id F a).
+    Qed.
+
+    Local Definition Split_eq_to_Split_z_iso {c' : C'} {x' y' : D' c'}
+    : Split_eq x' y' -> Split_z_iso x' y'.
+    Proof.
+      intro e'.
+      exists (idtoiso (pr1 e')).
+      split.
+      - apply pr12_Split_z_iso_to_pr12_Split_eq.
+        exact (pr12 e').
+      - apply idtoiso_disp.
+        exact (pr22 e').
+    Defined.
+
+    Local Open Scope reindexing_forward_scope.
+
+    Lemma isotoid_disp_transportf_idtoiso_disp
+      {c c' : C} {e0 e1: c = c'} {d : D c} {d' : D c'} 
+      (e : transportf D e0 d = d') e2 e3
+      : isotoid_disp uD e1 
+      (transportf (λ i0 : z_iso c c', z_iso_disp i0 d d') e2
+      (idtoiso_disp e0 e))
+      = transportf (λ en : c =c', transportf D en d = d') e3 e.
+    Proof.
+      destruct e3, e0, e.
+      assert (e2 = idpath (identity_z_iso c)) as E.
+      { apply uip. apply isaset_z_iso. }
+      rewrite E.
+      etrans. apply (isotoid_idtoiso_disp uD (idpath c) (idpath d)).
+      reflexivity.
+    Qed.
+
+
+    Local Lemma weq_Split_eq_Split_z_iso_opaque 
+      {c' : C'} {x' y' : D' c'}
+      : (∏ (e' : Split_eq x' y'), Split_z_iso_to_Split_eq
+      (Split_eq_to_Split_z_iso e') = e')
+      ×
+      (∏ (i' : Split_z_iso x' y'), Split_eq_to_Split_z_iso
+      (Split_z_iso_to_Split_eq i') = i').
+    Proof.
+      split.
+      - intro e'.
+        apply pathsinv0.
+        use total2_paths_f.
+        * exact (! isotoid_idtoiso C uC ↙x' ↙y' (pr1 e')). 
+        * etrans. apply (transportf_dirprod (↙x' = ↙y') 
+          (λ e0, transportf (λ c : C, F c = c') e0 ¤ x' = ¤ y') 
+          (λ e0, transportf D e0 ← x' = ← y')).
+          apply dirprod_paths.
+          + apply uip. 
+            exact (univalent_category_has_groupoid_ob (C',, uC') (F ↙y') c').
+          + exact (! isotoid_disp_transportf_idtoiso_disp _ _ _).
+      - intro i'.
+        apply pathsinv0.
+        use total2_paths_f. 
+        * exact (! idtoiso_isotoid C uC ↙x' ↙y' (pr1 i')).
+        * etrans. apply (transportf_dirprod (z_iso ↙x' ↙y') 
+          (λ i0, double_transport ¤ x' ¤ y' (# F i0) = identity c') 
+          (λ i0, z_iso_disp i0 ← x' ← y')).
+          apply dirprod_paths.
+          + apply uip. 
+            apply homset_property.
+          + exact (! idtoiso_isotoid_disp _ _ _).
+    Qed.
+
+    Lemma weq_Split_eq_Split_z_iso {c' : C'} {x' y' : D' c'}
+    : weq (Split_eq x' y') (Split_z_iso x' y').
+    Proof.
+      apply (make_weq Split_eq_to_Split_z_iso).
+      apply (isweq_iso _ Split_z_iso_to_Split_eq).
+      - exact (pr1 weq_Split_eq_Split_z_iso_opaque).
+      - exact (pr2 weq_Split_eq_Split_z_iso_opaque).
+    Defined.
+
+    Local Close Scope reindexing_forward_scope.
+  End weq_Split_eq_to_Split_z_iso.
+  (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
+
+
+  Local Open Scope reindexing_forward_scope.
+
+  Theorem is_univalent_reindexing_forward_of_univalent
+    (uD : is_univalent_disp D) (uC' : is_univalent C') (uC : is_univalent C)
+    : is_univalent_disp D'.
+  Proof.
+    apply is_univalent_disp_from_fibers.
+    intros c' x' y'.
+    use weqhomot.
+    - apply (weqcomp weq_reindexing_forward_ob_eq_Split_eq).
+      apply (weqcomp (weq_Split_eq_Split_z_iso uC uC' uD)).
+      exact weq_reindexing_forward_Split_z_iso_ob_z_iso. 
+    - intro e.
+      destruct e.
+      apply eq_z_iso_disp.
+      cbn. apply maponpaths.
+      apply two_arg_paths.
+      * apply uip. apply homset_property.
+      * reflexivity.
+  Defined.
+
+End univalence_and_reindexing_forward.
 (*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
 
 
