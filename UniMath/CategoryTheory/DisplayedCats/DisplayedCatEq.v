@@ -1,3 +1,32 @@
+(*********************************************************************************
+
+ Equality of displayed functors
+
+ We are interested in the following bicategories:
+ - The bicategory of displayed categories
+ - The bicategory of fibrations over a fixed category
+ - The bicategory of fibrations
+ For each of these bicategories, we want to prove that it is univalent. That
+ requires two things:
+ - Proving that the identity of displayed functors is equivalent to the type of
+   displayed natural isomorphisms between them
+ - Proving that the identity of displayed categories is equivalent to the type of
+   displayed adjoint equivalences between them.
+
+ In this file, we look at the second of these two statements. The main idea of the
+ proof is to characterize the identity relation for displayed categories step by
+ step.
+
+ In addition, there is one important trick in this proof: we characterize the
+ identity relation for displayed categories lying over a fixed category `C` instead
+ of displayed categories who lie over categories that are equal. This simplifies the
+ construction, while no generality is lost.
+
+ Contents
+ 1. Lemmas about equality of displayed functors
+ 2. Equality of displayed functors is the same as natural isomorphisms
+
+ *********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
@@ -8,7 +37,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
-Require Import UniMath.CategoryTheory.DisplayedCats.Adjunctions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
 Require Import UniMath.CategoryTheory.DisplayedCats.DisplayedFunctorEq.
 Require Import UniMath.CategoryTheory.DisplayedCats.EquivalenceOverId.

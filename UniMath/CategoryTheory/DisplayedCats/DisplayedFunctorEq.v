@@ -25,9 +25,9 @@
  equivalence.
 
  In addition, there is one important trick in this proof: we characterize the
- identity relation for displayed functors lying over the same functor instead of
- displayed functors who lie over functors that are equal. This simplifies the
- construction, while no generality is lost.
+ identity relation for displayed functors lying over a fixed functor `F` instead of
+ displayed functors `FF` and `GG` lying over `F` and `G` with a path `p : F = G`.
+ This simplifies the construction, while no generality is lost.
 
  Contents
  1. Lemmas about equality of displayed functors
