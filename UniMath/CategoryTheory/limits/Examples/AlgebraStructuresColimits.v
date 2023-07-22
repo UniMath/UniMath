@@ -727,7 +727,7 @@ Section MonadToStruct.
             refine (_ @ assoc (#M ι₁) _ _).
             apply maponpaths.
             refine (!_).
-            apply Monad_law2.
+            apply (Monad_law2(T:=M)).
           }
           refine (_ @ id_left _).
           refine (assoc _ _ _ @ _).
@@ -802,7 +802,7 @@ Section MonadToStruct.
             refine (_ @ assoc (#M ι₂) _ _).
             apply maponpaths.
             refine (!_).
-            apply Monad_law2.
+            apply (Monad_law2(T:=M)).
           }
           refine (_ @ id_left _).
           refine (assoc _ _ _ @ _).

@@ -75,8 +75,10 @@ Definition sort_in (T:[SET_over_sort,SET_over_sort]){Γ:SET_over_sort}(M:wellsor
 
 Context {T : Monad (HSET / sort)}.
 
-Definition wellsorted_in (Γ:HSET_over_sort): hSet := pr1(pr1 T Γ).
-Definition sort_in {Γ:HSET_over_sort}(M:wellsorted_in Γ): sort := pr2 (pr1 T Γ) M.
+Local Definition T0 : functor (HSET / sort) (HSET / sort) := T.
+
+Definition wellsorted_in (Γ:HSET_over_sort): hSet := pr1(T0 Γ).
+Definition sort_in {Γ:HSET_over_sort}(M:wellsorted_in Γ): sort := pr2 (T0 Γ) M.
 
 Definition aux_fh {A1:hSet}{f1:A1->sort}{Γ2:HSET_over_sort}
    (f : A1->wellsorted_in Γ2)(H: forall a1:A1, sort_in (f a1) = f1 a1) : HSET_over_sort⟦(A1,,f1),T Γ2⟧.
@@ -492,11 +494,5 @@ Proof.
    (* the left-hand side is now of the form bind_slice f' H' M *)
    Admitted.
 *)
-
-
-
-
-
-
 
 End MonadsInHSET_over_sort.

@@ -72,7 +72,7 @@ Proof.
       * intro M.
         exact (∑ Ml : lineator_lax Mon_V Act Act (M: Monad C), ηandμlinear Ml).
       * intros M N [Ml islinM] [Nl islinN] α.
-        exact (is_linear_nat_trans Ml Nl (nat_trans_from_monad_mor _ _ _ α)).
+        exact (is_linear_nat_trans Ml Nl (nat_trans_from_monad_mor _ _ α)).
     + split.
       * intros M [Ml [islinMη islimMμ]]. cbn.
         apply is_linear_nat_trans_identity.

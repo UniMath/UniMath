@@ -37,19 +37,9 @@ Section FixTheContext.
   Let η : ENDO ⟦ monoidal_unit M_ENDO, x ⟧ := monoid_unit _ M.
   Let μ : ENDO ⟦ x ⊗_{M_ENDO} x, x⟧ := monoid_multiplication _ M.
 
-  Definition monoid_to_monad_multiplication : functor_with_μ C.
-  Proof.
-    exists x.
-    exact μ.
-  Defined.
+  Definition monoid_to_disp_Monad_data : disp_Monad_data x := μ,, η.
 
-  Definition monoid_to_monad_data : Monad_data C.
-  Proof.
-    exists monoid_to_monad_multiplication.
-    exact η.
-  Defined.
-
-  Lemma monoid_to_monoid_laws : Monad_laws monoid_to_monad_data.
+  Lemma monoid_to_disp_Monad_laws : disp_Monad_laws monoid_to_disp_Monad_data.
   Proof.
     repeat split.
     - intro c.
@@ -67,7 +57,7 @@ Section FixTheContext.
   Qed.
 
   Definition monoid_to_monad : Monad C
-    := _ ,, monoid_to_monoid_laws.
+    := _ ,, _ ,, monoid_to_disp_Monad_laws.
 
 End MonoidToMonadOb.
 
@@ -107,7 +97,8 @@ End MonadToMonoidOb.
     - abstract (intro M;
                 use total2_paths_f;
                 [apply idpath |
-                  apply isaprop_Monad_laws]).
+                  use total2_paths_f;
+                  [apply idpath | apply isaprop_disp_Monad_laws]]).
   Defined.
 
 Section MonoidToMonadMor.

@@ -168,9 +168,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition functor_with_mu_from_hss : functor_with_μ C := `T,, μ_2.
-
-Definition Monad_data_from_hss : Monad_data C := functor_with_mu_from_hss ,, μ_0.
+Definition disp_Monad_data_from_hss : disp_Monad_data `T := μ_2 ,, μ_0.
 
 (** *** Proof of the first monad law *)
 
@@ -559,13 +557,13 @@ Unset Printing Implicit.
 
 (** Finally putting together all the preparatory results to obtain a monad *)
 
-Lemma Monad_laws_from_hss : Monad_laws Monad_data_from_hss.
+Lemma disp_Monad_laws_from_hss : disp_Monad_laws disp_Monad_data_from_hss.
 Proof.
   split.
-  - unfold Monad_data_from_hss; simpl; split.
+  - unfold disp_Monad_data_from_hss; simpl; split.
     + apply Monad_law_1_from_hss.
     + apply Monad_law_2_from_hss.
-  - unfold Monad_data_from_hss; simpl.
+  - unfold disp_Monad_data_from_hss; simpl.
     intro c.
     intermediate_path (pr1 μ_3 c).
     + set (H1 := μ_3_T_μ_2_μ_2).
@@ -576,11 +574,7 @@ Proof.
       apply pathsinv0, H2.
 Qed.
 
-Definition Monad_from_hss : Monad C.
-Proof.
-  exists Monad_data_from_hss.
-  exact Monad_laws_from_hss.
-Defined.
+Definition Monad_from_hss : Monad C := _ ,, _ ,, disp_Monad_laws_from_hss.
 
 End mu_from_fbracket.
 
@@ -630,22 +624,14 @@ Lemma is_functor_hss_to_monad : is_functor hss_to_monad_functor_data.
 Proof.
   split; simpl.
   - intro a.
-    apply (invmap (Monad_Mor_equiv _ _ _ )).
+    apply (invmap (Monad_Mor_equiv _ _ )).
     apply idpath.
   - intros a b c f g.
-    apply (invmap (Monad_Mor_equiv _ _ _ )).
+    apply (invmap (Monad_Mor_equiv _ _ )).
     apply idpath.
 Qed.
 
 Definition hss_to_monad_functor : functor _ _ := tpair _ _ is_functor_hss_to_monad.
-
-Lemma isaset_Monad_Mor (T T' : Monad C) : isaset (Monad_Mor T T').
-Proof.
-  intros β β'.
-  apply (isofhlevelweqb _ (Monad_Mor_equiv _ _ _)).
-  apply isaset_nat_trans.
-  apply homset_property.
-Qed.
 
 Definition hssMor_Monad_Mor_eq {T T' : hss CP H} (β β' : hssMor T T')
   : β = β' ≃ Monad_Mor_from_hssMor β = Monad_Mor_from_hssMor β'.
@@ -653,7 +639,7 @@ Proof.
   eapply weqcomp.
   - apply hssMor_eq.
   - apply invweq.
-    apply Monad_Mor_equiv.
+    use Monad_Mor_equiv.
 Defined.
 
 (** *** The functor from hss to monads is faithful, i.e. forgets at most structure *)

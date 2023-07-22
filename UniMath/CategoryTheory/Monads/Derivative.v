@@ -40,7 +40,7 @@ Local Open Scope cat.
 Section comp_def.
 
 Section DistrLaws.
-Context {C : category} {S T : Monad_data C}.
+Context {C : category} {S T : Monad C}.
 
 (** distributivity law for a pair of monads *)
 Definition monad_dist_laws (a : T ∙ S ⟹ S ∙ T) :=
@@ -57,18 +57,18 @@ Definition monad_dist_law4 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) := 
 End DistrLaws.
 
 (** composition of monads with a distributive law *)
-Definition monad_comp_mu {C : category} {S T : Monad_data C} (a : T ∙ S ⟹ S ∙ T) :
+Definition monad_comp_mu {C : category} {S T : Monad C} (a : T ∙ S ⟹ S ∙ T) :
   (S ∙ T ∙ S ∙ T) ⟹ (S ∙ T) :=
   nat_trans_comp _ _ _ (post_whisker (pre_whisker S a) T)
                        (nat_trans_comp _ _ _ (pre_whisker (S ∙ S) (μ T)) (post_whisker (μ S) T)).
 
-Definition monad_comp_eta {C : category} {S T : Monad_data C} (a : T ∙ S ⟹ S ∙ T):
+Definition monad_comp_eta {C : category} {S T : Monad C} (a : T ∙ S ⟹ S ∙ T):
   functor_identity C ⟹ S ∙ T :=
   nat_trans_comp _ _ _ (η S) (pre_whisker S (η T)).
 
-Definition monad_comp_data {C : category} {S T : Monad_data C} (a : T ∙ S ⟹ S ∙ T) :
-  Monad_data C :=
-  (tpair _ (tpair _ (S ∙ T) (monad_comp_mu a)) (monad_comp_eta a)).
+Definition monad_comp_data {C : category} {S T : Monad C} (a : T ∙ S ⟹ S ∙ T) :
+  disp_Monad_data (S ∙ T) :=
+  tpair _ (monad_comp_mu a) (monad_comp_eta a).
 
 (** Below are the proofs of the monad laws for the composition of monads. We prove them as separate
     lemmas not only because they are somewhat lengthy, but also for the following reason: the μ and
@@ -266,9 +266,12 @@ Proof.
   now rewrite !assoc.
 Defined.
 
-Definition monad_comp {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : Monad C :=
-  (monad_comp_data a,,
-  make_dirprod (make_dirprod (monad_comp_law1 l) (monad_comp_law2 l)) (monad_comp_law3 l)).
+Definition monad_comp {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : Monad C.
+Proof.
+  exists (S ∙ T).
+  exists  (monad_comp_data a).
+  exact (make_dirprod (make_dirprod (monad_comp_law1 l) (monad_comp_law2 l)) (monad_comp_law3 l)).
+Defined.
 
 (** morphism from the factor T to the composite S ∙ T of two monads *)
 Definition monad_to_comp_data {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) :
@@ -368,7 +371,7 @@ Definition maybe_mu : maybe_functor ∙ maybe_functor ⟹ maybe_functor :=
 Definition maybe_eta : functor_identity C ⟹ maybe_functor :=
   coproduct_nat_trans_in2 C C co (constant_functor C C o) (functor_identity C).
 
-Definition maybe_monad_data : Monad_data C := (maybe_functor,, maybe_mu),, maybe_eta.
+Definition maybe_monad_data : disp_Monad_data maybe_functor := maybe_mu ,, maybe_eta.
 
 (** We prove the monad laws as separate lemmas for the reason explained in the comment
     near the beginning of the file *)
@@ -407,9 +410,12 @@ Proof.
               !id_left, BinCoproductIn1Commutes.
 Defined.
 
-Definition maybe_monad : Monad C :=
-  (maybe_monad_data,,
-  make_dirprod (make_dirprod maybe_monad_law1 maybe_monad_law2) maybe_monad_law3).
+Definition maybe_monad : Monad C.
+Proof.
+  exists maybe_functor.
+  exists maybe_monad_data.
+  exact (make_dirprod (make_dirprod maybe_monad_law1 maybe_monad_law2) maybe_monad_law3).
+Defined.
 
 (** Definition of the derivative of a monad, i.e. precomposing with the maybe monad *)
 Section deriv_def.
@@ -589,13 +595,13 @@ Section pullback_deriv.
 
   (** Pointwise equality of the involved multiplication *)
   Lemma pb_LModule_deriv_eq_mult c :
-    # M (BinCoproductOfArrows C (bcpC o (R c)) (bcpC o (S c)) (identity o) (pr1 f c)) ·
+    # M (BinCoproductOfArrows C (bcpC o (R c)) (bcpC o (S c)) (identity o) (pr1 (pr1 f) c)) ·
       (# (pr1 M)
          (BinCoproductArrow (bcpC o (S c)) (BinCoproductIn1 (bcpC o c) · pr1 (η S) (bcpC o c))
-                            (# (pr1 S) (BinCoproductIn2 (bcpC o c)))) · pr1 (lm_mult S M) (bcpC o c)) =
+                            (# (pr1 (pr1 S)) (BinCoproductIn2 (bcpC o c)))) · pr1 (lm_mult S M) (bcpC o c)) =
     # (pr1 M)
       (BinCoproductArrow (bcpC o (R c)) (BinCoproductIn1 (bcpC o c) · pr1 (η R) (bcpC o c))
-                         (# (pr1 R) (BinCoproductIn2 (bcpC o c)))) · (# (pr1 M) (pr1 f (bcpC o c)) ·
+                         (# (pr1 (pr1 R)) (BinCoproductIn2 (bcpC o c)))) · (# (pr1 M) (pr1 (pr1 f) (bcpC o c)) ·
                                                                           (lm_mult S M) (bcpC o c)).
   Proof.
     repeat rewrite assoc.
