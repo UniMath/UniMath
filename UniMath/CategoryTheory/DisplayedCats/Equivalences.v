@@ -573,9 +573,8 @@ Definition right_adjoint_over_id_data {C} {D D' : disp_cat C}
 Definition functor_of_right_adjoint_over_id {C} {D D' : disp_cat C}
   {FF : disp_functor _ D D'}
   (GG : right_adjoint_over_id_data FF)
-:= pr1 GG.
-Coercion functor_of_right_adjoint_over_id
-  : right_adjoint_over_id_data >-> disp_functor.
+  := pr1 GG.
+Coercion functor_of_right_adjoint_over_id : right_adjoint_over_id_data >-> disp_functor.
 
 Definition adjunction_of_right_adjoint_over_id_data {C} {D D' : disp_cat C}
     {FF : disp_functor _ D D'}
@@ -615,6 +614,21 @@ Definition right_adjoint_of_disp_adjunction_id {C} {D D' : disp_cat C}
 
 (* TODO: add the dual-handedness version, i.e. indexed over GG instead of FF. *)
 End AdjunctionsOverId.
+
+(**
+ Being an adjunction is a proposition
+ *)
+Proposition isaprop_form_disp_adjunction_id
+            {C : category}
+            {D₁ D₂ : disp_cat C}
+            (F : disp_functor (functor_identity C) D₁ D₂)
+            (HF : right_adjoint_over_id_data F)
+  : isaprop (form_disp_adjunction_id HF).
+Proof.
+  use isapropdirprod ; do 2 (use impred ; intro).
+  - apply D₂.
+  - apply D₁.
+Qed.
 
 Section EquivalencesOverId.
 (** ** Displayed equivalences over id (adjoint and quasi) *)
@@ -780,7 +794,7 @@ Proof.
     apply maponpaths. exact (z_iso_disp_after_inv_mor _). (*7b*)
   etrans. apply transport_f_f.
   unfold transportb. apply maponpaths_2, homset_property.
-Time Qed.
+Qed.
 (* TODO: [Qed.] takes about 30sec!  [etrans_dep] + [etrans_disp] make it shorter and more readable (see commit 7c1f411a), but make the typechecking time even worse. *)
 
 Lemma triangle_1_from_2_for_equiv_over_id
@@ -795,6 +809,70 @@ Abort.
 (* TODO: adjointification of a quasi-equivalence. *)
 
 End EquivalencesOverId.
+
+(**
+ Being an equivalence is a proposition
+ *)
+Proposition isaprop_form_equiv_over_id
+            {C : category}
+            {D₁ D₂ : disp_cat C}
+            (HF : disp_adjunction_id_data D₁ D₂)
+  : isaprop (form_equiv_over_id HF).
+Proof.
+  use isapropdirprod ; repeat (use impred ; intro) ; apply isaprop_is_z_iso_disp.
+Qed.
+
+(**
+ Useful lemma
+ *)
+Proposition triangle_1_over_id_alt
+            {C : category}
+            {D₁ : disp_cat C}
+            {D₂ : disp_cat C}
+            (LL : disp_functor (functor_identity _) D₁ D₂)
+            (HLL : is_equiv_over_id LL)
+            {x : C}
+            (xx : D₁ x)
+  : ♯ LL (inv_mor_disp_from_z_iso (is_z_iso_unit_over_id HLL x xx))
+    =
+    counit_over_id HLL x (LL x xx).
+Proof.
+  refine (_ @ !(id_left_disp_var _)).
+  rewrite disp_functor_id_var.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    apply maponpaths.
+    exact (!(transportf_transpose_left
+               (z_iso_disp_after_inv_mor (is_z_iso_unit_over_id HLL x xx)))).
+  }
+  rewrite disp_functor_transportf.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  rewrite disp_functor_comp.
+  unfold transportb.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  rewrite assoc_disp_var.
+  rewrite transport_f_f.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    exact (triangle_1_over_id HLL x xx).
+  }
+  unfold transportb.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite transport_f_f.
+  rewrite id_right_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  apply transportf_set.
+  apply homset_property.
+Qed.
 
 (** * Constructions on and of displayed equivalences over identity *)
 

@@ -282,7 +282,7 @@ Proof.
 Defined.
 
 Section GrothendieckConstruction.
-  Context (C : category).
+  Context (C : univalent_category).
 
   (**
    3. The data

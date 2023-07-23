@@ -284,6 +284,19 @@ Proof.
   apply isapropiscontr.
 Defined.
 
+
+Proposition isaprop_is_cartesian_disp_functor
+            {C₁ C₂ : category}
+            {F : C₁ ⟶ C₂}
+            {D₁ : disp_cat C₁}
+            {D₂ : disp_cat C₂}
+            (FF : disp_functor F D₁ D₂)
+  : isaprop (is_cartesian_disp_functor FF).
+Proof.
+  do 7 (use impred ; intro).
+  apply isaprop_is_cartesian.
+Qed.
+
 (* TODO: should the arguments be re-ordered as in [cartesian_lift]? If so, reorder in [isofibration] etc as well, for consistency. *)
 (* TODO: consider renaming to e.g. [cleaving] to follow convention that [is_] is reserved for hprops. *)
 Definition cleaving {C : category} (D : disp_cat C) : UU
@@ -1072,6 +1085,21 @@ Proof.
     + intro ; apply idpath.
 Defined.
 
+Definition isaprop_opcleaving
+           {C : univalent_category}
+           (D : disp_cat C)
+           (HD : is_univalent_disp D)
+  : isaprop (opcleaving D).
+Proof.
+  use (isofhlevelweqb
+         1
+         (opcleaving_weq_cleaving D)).
+  use (@isaprop_cleaving (op_unicat C) (op_disp_cat _) _).
+  apply is_univalent_op_disp_cat.
+  exact HD.
+Defined.
+
+
 (** Cloven opfibration *)
 Definition opfibration
            (C : category)
@@ -1097,6 +1125,18 @@ Definition is_opcartesian_disp_functor
         (d' : D c')
         (ff : d' -->[f] d),
      is_opcartesian ff -> is_opcartesian (♯ FF ff).
+
+Proposition isaprop_is_opcartesian_disp_functor
+            {C₁ C₂ : category}
+            {F : C₁ ⟶ C₂}
+            {D₁ : disp_cat C₁}
+            {D₂ : disp_cat C₂}
+            (FF : disp_functor F D₁ D₂)
+  : isaprop (is_opcartesian_disp_functor FF).
+Proof.
+  do 7 (use impred ; intro).
+  apply isaprop_is_opcartesian.
+Qed.
 
 Definition disp_functor_identity_is_opcartesian_disp_functor
            {C : category}
