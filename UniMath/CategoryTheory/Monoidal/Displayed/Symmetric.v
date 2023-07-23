@@ -17,7 +17,13 @@ Table of contents:
 3. Projection:
    - Proof that the forgetful functor, from the total to the base category, is symmetric [projection_is_symmetric]
 4. LocallyPropositional:
-   - A make constructor for locally propositional displayed categories; i.e., only the braiding and (inverse) has to be provided [make_disp_laws_braiding_locally_propositional].
+   - A make braiding constructor for locally propositional displayed categories;
+     i.e., only the braiding and (inverse) has to be provided [make_disp_laws_braiding_locally_propositional].
+   - A make symmetric constructor for locally propositional displayed categories [make_disp_symmetric_locally_propositional]
+5. InvertibleMorphismsBraiding
+   - A make braiding constructor for locally invertible displayed categories [make_disp_braiding_locally_groupoidal]
+6. InvertibleMorphismsSymmetric
+   - A make symmetric constructor for locally invertible displayed categories [make_disp_symmetric_locally_groupoidal]
 
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -784,12 +790,12 @@ Section LocallyPropositional.
     {C : category}
     {D : disp_cat C}
     {M : monoidal C}
-    (DM : disp_monoidal D M)
-    (B : braiding M).
+    (DM : disp_monoidal D M).
 
   Context (LP : locally_propositional D).
 
-  Definition make_disp_laws_braiding_locally_propositional
+  Lemma make_disp_laws_braiding_locally_propositional
+    {B : braiding M}
     (DB : disp_braiding_data DM (monoidal_braiding_data B))
     (DBinv : disp_braiding_data DM (monoidal_braiding_data_inv B))
     : disp_braiding_laws DM DB DBinv.
@@ -800,4 +806,131 @@ Section LocallyPropositional.
     - split ; intro ; intros ; apply LP.
   Qed.
 
+  Definition make_disp_braiding_locally_propositional
+    {B : braiding M}
+    (DB : disp_braiding_data DM (monoidal_braiding_data B))
+    (DBinv : disp_braiding_data DM (monoidal_braiding_data_inv B))
+    : disp_braiding DM B.
+  Proof.
+    refine (_,,_,,_).
+    exact (make_disp_laws_braiding_locally_propositional DB DBinv).
+  Defined.
+
+  Definition make_disp_laws_symmetric_locally_propositional
+    {B : symmetric M}
+    (DB : disp_braiding_data DM (monoidal_braiding_data B))
+    : disp_braiding_laws DM DB DB.
+  Proof.
+    refine (_ ,, _ ,, _).
+    - split ; intro ; intros ; apply LP.
+    - split ; apply LP.
+    - split ; intro ; intros ; apply LP.
+  Qed.
+
+  Definition make_disp_symmetric_locally_propositional
+    {B : symmetric M}
+    (DB : disp_braiding_data DM (monoidal_braiding_data B))
+    : disp_symmetric DM B.
+  Proof.
+    refine (_,,_).
+    exact (make_disp_laws_symmetric_locally_propositional DB).
+  Defined.
+
 End LocallyPropositional.
+
+Section InvertibleMorphismsBraiding.
+
+  Context
+    {C : category}
+    {D : disp_cat C}
+    {M : monoidal C}
+    (DM : disp_monoidal D M)
+    (B : braiding M).
+
+  Context (LG : groupoidal_disp_cat D).
+  Context (DB : disp_braiding_data DM (monoidal_braiding_data B)).
+
+  Definition DB_obj_inv
+    {x y : C} (xx : D x) (yy : D y)
+    : is_z_iso_disp
+         (make_z_iso' _ (monoidal_braiding_data_inv B x y,, monoidal_braiding_inverses B y x))
+         (DB y x yy xx).
+  Proof.
+    set (l := LG _ _ (monoidal_braiding_data B y x) (_ ,, monoidal_braiding_inverses B y x)).
+    exact (l _ _ (DB _ _ yy xx)).
+  Defined.
+
+  Definition DBinv
+    : disp_braiding_data DM (monoidal_braiding_data_inv B).
+  Proof.
+    intros x y xx yy.
+    exact (pr1 (DB_obj_inv xx yy)).
+  Defined.
+
+  Definition make_disp_laws_braiding_locally_groupoidal
+    (p_nat : disp_braiding_law_naturality DM DB)
+    (p_hex :  disp_braiding_law_hexagon DM DB)
+    : disp_braiding_laws DM DB DBinv.
+  Proof.
+    refine (_ ,, _ ,, _).
+    - exact p_nat.
+    - split ; apply DB_obj_inv.
+    - exact p_hex.
+  Qed.
+
+  Definition make_disp_braiding_locally_groupoidal
+    (p_nat : disp_braiding_law_naturality DM DB)
+    (p_hex :  disp_braiding_law_hexagon DM DB)
+    : disp_braiding DM B.
+  Proof.
+    refine (_ ,, _ ,, _).
+    exact (make_disp_laws_braiding_locally_groupoidal p_nat p_hex).
+  Qed.
+
+End InvertibleMorphismsBraiding.
+
+Section InvertibleMorphismsSymmetric.
+
+  Context
+    {C : category}
+    {D : disp_cat C}
+    {M : monoidal C}
+    (DM : disp_monoidal D M)
+    (B : symmetric M).
+
+  Context (LG : groupoidal_disp_cat D).
+  Context (DB : disp_braiding_data DM (monoidal_braiding_data B)).
+
+  Definition make_disp_laws_symmetric_locally_groupoidal
+    (p_nat : disp_sym_moncat_laws_tensored_nat DM DB)
+    (p_hex : disp_sym_moncat_laws_tensored_hex DM DB)
+    (p_sym : ∏ x y xx yy,
+        DB x y xx yy ;; DB y x yy xx
+        = transportb _ (pr2 (monoidal_braiding_inverses B y x)) (id_disp (xx ⊗⊗_{ DM} yy)))
+    : disp_sym_moncat_laws_tensored_inv DM DB.
+  Proof.
+    intro ; intros.
+    use transportf_transpose_left.
+    refine (_ @ pr12 (DB_obj_inv _ B LG DB xx yy) @ _).
+    - refine (p_sym _ _ xx yy @ _).
+      exact (! pr12 (DB_obj_inv _ B LG DB xx yy)).
+    - apply maponpaths_2.
+      apply homset_property.
+  Qed.
+
+  Definition make_disp_symmetric_locally_groupoidal
+    (p_nat : disp_sym_moncat_laws_tensored_nat DM DB)
+    (p_hex : disp_sym_moncat_laws_tensored_hex DM DB)
+    (p_sym : ∏ x y xx yy,
+        DB x y xx yy ;; DB y x yy xx
+        = transportb _ (pr2 (monoidal_braiding_inverses B y x)) (id_disp (xx ⊗⊗_{ DM} yy)))
+    : disp_symmetric DM B.
+  Proof.
+    use make_disp_symmetric.
+    - exact DB.
+    - exact (make_disp_laws_symmetric_locally_groupoidal p_nat p_hex p_sym).
+    - exact p_nat.
+    - exact p_hex.
+  Defined.
+
+End InvertibleMorphismsSymmetric.
