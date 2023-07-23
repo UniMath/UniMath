@@ -475,6 +475,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/Examples/BinopCartesianMonoidal.v](CategoryTheory/Monoidal/Examples/BinopCartesianMonoidal.v)
    - [Monoidal/Examples/SetWithSubset.v](CategoryTheory/Monoidal/Examples/SetWithSubset.v)
    - [Monoidal/Examples/SmashProductMonoidal.v](CategoryTheory/Monoidal/Examples/SmashProductMonoidal.v)
+   - [Monoidal/Examples/Fullsub.v](CategoryTheory/Monoidal/Examples/Fullsub.v)
    - [Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v](CategoryTheory/Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v)
    - [Monoidal/AlternativeDefinitions/MonoidalCategoriesTensored.v](CategoryTheory/Monoidal/AlternativeDefinitions/MonoidalCategoriesTensored.v)
    - [Monoidal/AlternativeDefinitions/EquivalenceWhiskeredNonCurriedMonoidalCategories.v](CategoryTheory/Monoidal/AlternativeDefinitions/EquivalenceWhiskeredNonCurriedMonoidalCategories.v)
