@@ -379,7 +379,7 @@ Proposition scott_continuous_map_from_compact_basis_eq
             (B : compact_basis X)
             {Y : dcpo}
             (f : B → Y)
-            (Hf : ∏ (i₁ i₂ : B), B i₁ ≤ B i₂ → f i₁ ≤ f i₂)
+            (Hf : ∏ (i₁ i₂ : B), B i₁ ≪ B i₂ → f i₁ ≤ f i₂)
             (i : B)
   : scott_continuous_map_from_basis
       (compact_basis_to_dcpo_basis B)
@@ -402,7 +402,7 @@ Definition scott_continuous_map_from_compact_basis_ump
            (B : compact_basis X)
            {Y : dcpo}
            (f : B → Y)
-           (Hf : ∏ (i₁ i₂ : B), B i₁ ≤ B i₂ → f i₁ ≤ f i₂)
+           (Hf : ∏ (i₁ i₂ : B), B i₁ ≪ B i₂ → f i₁ ≤ f i₂)
   : ∃! (g : scott_continuous_map X Y),
     ∏ (i : B), g (B i) = f i.
 Proof.

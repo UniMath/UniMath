@@ -105,9 +105,6 @@ categories/Type/Core.v
 categories/Type/MonoEpiIso.v
 SimplicialSets.v
 yoneda.v
-Monads/Monads.v
-Monads/KleisliCategory.v
-Monads/LModules.v
 FunctorCoalgebras.v
 precomp_fully_faithful.v
 precomp_ess_surj.v
@@ -148,11 +145,6 @@ LatticeObject.v
 Actions.v
 PowerObject.v
 ElementaryTopos.v
-Monads/KTriples.v
-Monads/Kleisli.v
-Monads/KTriplesEquiv.v
-Monads/Derivative.v
-Monads/MonadAlgebras.v
 Adjunctions/Restriction.v
 Adjunctions/Examples.v
 Subcategory/Reflective.v
@@ -235,6 +227,12 @@ DisplayedCats/Equivalences.v
 DisplayedCats/Codomain.v
 DisplayedCats/Projection.v
 DisplayedCats/SIP.v
+
+Monads/Monads.v
+Monads/LModules.v
+Monads/Derivative.v
+Monads/MonadAlgebras.v
+
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v
 DisplayedCats/Examples/UnitalBinop.v
@@ -259,6 +257,11 @@ DisplayedCats/StreetOpFibration.v
 DisplayedCats/ReindexingForward.v
 DisplayedCats/TotalCategoryFacts.v
 DisplayedCats/TotalAdjunction.v
+
+Monads/KleisliCategory.v
+Monads/KTriples.v
+Monads/Kleisli.v
+Monads/KTriplesEquiv.v
 
 limits/Examples/AlgebraStructuresColimits.v
 
