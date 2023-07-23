@@ -289,6 +289,7 @@ Monoidal/Displayed/WhiskeredDisplayedBifunctors.v
 Monoidal/Displayed/Monoidal.v
 Monoidal/Displayed/TotalMonoidal.v
 Monoidal/Displayed/MonoidalSections.v
+Monoidal/Displayed/TransportLemmas.v
 Monoidal/Displayed/Symmetric.v
 
 Monoidal/Examples/SetCartesianMonoidal.v
