@@ -442,6 +442,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [categories/Dialgebras.v](CategoryTheory/categories/Dialgebras.v)
    - [categories/CatIsoInserter.v](CategoryTheory/categories/CatIsoInserter.v)
    - [categories/EilenbergMoore.v](CategoryTheory/categories/EilenbergMoore.v)
+   - [categories/CoEilenbergMoore.v](CategoryTheory/categories/CoEilenbergMoore.v)
    - [categories/KleisliCategory.v](CategoryTheory/categories/KleisliCategory.v)
    - [limits/Examples/EilenbergMooreLimits.v](CategoryTheory/limits/Examples/EilenbergMooreLimits.v)
    - [Elements.v](CategoryTheory/Elements.v)

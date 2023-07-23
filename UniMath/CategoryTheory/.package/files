@@ -272,6 +272,7 @@ limits/Examples/AlgebraStructuresColimits.v
 categories/Dialgebras.v
 categories/CatIsoInserter.v
 categories/EilenbergMoore.v
+categories/CoEilenbergMoore.v
 categories/KleisliCategory.v
 limits/Examples/EilenbergMooreLimits.v
 Elements.v
