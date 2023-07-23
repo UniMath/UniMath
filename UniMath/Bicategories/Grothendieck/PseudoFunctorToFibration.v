@@ -80,7 +80,7 @@ Require Import UniMath.Bicategories.Modifications.Examples.ModificationIntoCat.
 Local Open Scope cat.
 
 Section GrothendieckConstruction.
-  Context (C : category).
+  Context (C : univalent_category).
 
   (**
    1. The action on pseudofunctors
