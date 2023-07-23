@@ -6,16 +6,18 @@
 
 Table of contents:
 1. DisplayedBraided:
-   - Definition of displayed braiding
-   - Construction of braiding on the total category
+   - Definition of displayed braiding [disp_braiding]
+   - Construction of braiding on the total category [total_braiding]
 2. DisplayedSymmetric:
-   - Definition of displayed symmetric
-   - Construction of symmetry on the total category
+   - Definition of displayed symmetric [disp_symmetric]
+   - Construction of symmetry on the total category [total_symmetric]
    - Proof of redundancy in the axioms of the braiding when considering a symmetric braiding.
+     The redundant set of axioms is given in [disp_symm_braiding_laws].
+     The proof that we get a braiding [make_disp_symmetric].
 3. Projection:
-   - Proof that the forgetful functor, from the total to the base category, is symmetric.
+   - Proof that the forgetful functor, from the total to the base category, is symmetric [projection_is_symmetric]
 4. LocallyPropositional:
-   - A make constructor for locally propositional displayed categories; i.e., only the braiding and (inverse) has to be provided.
+   - A make constructor for locally propositional displayed categories; i.e., only the braiding and (inverse) has to be provided [make_disp_laws_braiding_locally_propositional].
 
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
