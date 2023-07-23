@@ -18,6 +18,7 @@ DisplayedCats/Isos.v
 DisplayedCats/Functors.v
 DisplayedCats/NaturalTransformations.v
 DisplayedCats/Univalence.v
+DisplayedCats/DisplayedFunctorEq.v
 DisplayedCats/Total.v
 DisplayedCats/Fiber.v
 
@@ -224,6 +225,8 @@ Inductives/PropositionalLogic.v
 CategoricalRecursionSchemes.v
 
 DisplayedCats/Equivalences.v
+DisplayedCats/EquivalenceOverId.v
+DisplayedCats/DisplayedCatEq.v
 DisplayedCats/Codomain.v
 DisplayedCats/Projection.v
 DisplayedCats/SIP.v

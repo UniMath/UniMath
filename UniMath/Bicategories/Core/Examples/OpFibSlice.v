@@ -1,12 +1,12 @@
 (*********************************************************************************
 
- The fibrational slice bicategory
+ The opfibrational slice bicategory
 
- In this file, we define the fibrational slice bicategory. More specifically,
- given a *univalent* category `C`, we define the fibrational slice bicategory
+ In this file, we define the opfibrational slice bicategory. More specifically,
+ given a *univalent* category `C`, we define the opfibrational slice bicategory
  as follows:
- - Objects: (cloven) fibrations over `C`
- - 1-cells: cartesian functors making a triangle commute
+ - Objects: (cloven) opfibrations over `C`
+ - 1-cells: opcartesian functors making a triangle commute
  - 2-cells: natural transformations that satisfy some equality
  We also prove that this bicategory is univalent. For this, we need that the
  category `C` is univalent. In addition, we use the structure identity principle
@@ -14,11 +14,11 @@
  and only if we have an adjoint equivalence between them.
 
  Contents
- 1. The fibrational slice bicategory
- 2. Invertible 2-cells in the fibrational slice bicategory
- 3. Local univalence of the fibrational slice bicategory
- 4. Adjoint equivalences in the fibrational slice bicategory
- 5. Global univalence of the fibrational slice bicategory
+ 1. The opfibrational slice bicategory
+ 2. Invertible 2-cells in the opfibrational slice bicategory
+ 3. Local univalence of the opfibrational slice bicategory
+ 4. Adjoint equivalences in the opfibrational slice bicategory
+ 5. Global univalence of the opfibrational slice bicategory
 
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -53,49 +53,49 @@ Require Import UniMath.Bicategories.Core.Univalence.
 
 Local Open Scope cat.
 
-Section FibSlice.
+Section OpFibSlice.
   Context (C : univalent_category).
 
   (**
-   1. The fibrational slice bicategory
+   1. The opfibrational slice bicategory
    *)
-  Definition fib_slice_precategory_ob_mor
+  Definition opfib_slice_precategory_ob_mor
     : precategory_ob_mor.
   Proof.
     simple refine (_ ,, _).
-    - exact (∑ (D : disp_univalent_category C), cleaving D).
-    - exact (λ D₁ D₂, cartesian_disp_functor
+    - exact (∑ (D : disp_univalent_category C), opcleaving D).
+    - exact (λ D₁ D₂, opcartesian_disp_functor
                         (functor_identity _)
                         (pr1 D₁)
                         (pr1 D₂)).
   Defined.
 
-  Definition fib_slice_precategory_id_comp
-    : precategory_id_comp fib_slice_precategory_ob_mor.
+  Definition opfib_slice_precategory_id_comp
+    : precategory_id_comp opfib_slice_precategory_ob_mor.
   Proof.
     simple refine (_ ,, _).
     - exact (λ D, disp_functor_identity (pr1 D)
                   ,,
-                  disp_functor_identity_is_cartesian_disp_functor (pr1 D)).
+                  disp_functor_identity_is_opcartesian_disp_functor (pr1 D)).
     - exact (λ D₁ D₂ D₃ FF GG,
              disp_functor_over_id_composite (pr1 FF) (pr1 GG)
              ,,
-             disp_functor_over_id_composite_is_cartesian (pr2 FF) (pr2 GG)).
+             disp_functor_over_id_composite_is_opcartesian (pr2 FF) (pr2 GG)).
   Defined.
 
-  Definition fib_slice_precategory_data
+  Definition opfib_slice_precategory_data
     : precategory_data.
   Proof.
     simple refine (_ ,, _).
-    - exact fib_slice_precategory_ob_mor.
-    - exact fib_slice_precategory_id_comp.
+    - exact opfib_slice_precategory_ob_mor.
+    - exact opfib_slice_precategory_id_comp.
   Defined.
 
-  Definition fib_slice_prebicat_1_id_comp_cells
+  Definition opfib_slice_prebicat_1_id_comp_cells
     : prebicat_1_id_comp_cells.
   Proof.
     simple refine (_ ,, _).
-    - exact fib_slice_precategory_data.
+    - exact opfib_slice_precategory_data.
     - exact (λ D₁ D₂ FF GG,
              disp_nat_trans
                (nat_trans_id _)
@@ -103,8 +103,8 @@ Section FibSlice.
                (pr1 GG)).
   Defined.
 
-  Definition fib_slice_prebicat_2_id_comp_struct
-    : prebicat_2_id_comp_struct fib_slice_prebicat_1_id_comp_cells.
+  Definition opfib_slice_prebicat_2_id_comp_struct
+    : prebicat_2_id_comp_struct opfib_slice_prebicat_1_id_comp_cells.
   Proof.
     repeat split.
     - exact (λ D₁ D₂ FF, disp_nat_trans_id (pr1 FF)).
@@ -119,16 +119,16 @@ Section FibSlice.
     - exact (λ D₁ D₂ D₃ FF₁ FF₂ GG α, disp_nat_trans_over_id_postwhisker (pr1 GG) α).
   Defined.
 
-  Definition fib_slice_prebicat_data
+  Definition opfib_slice_prebicat_data
     : prebicat_data.
   Proof.
     simple refine (_ ,, _).
-    - exact fib_slice_prebicat_1_id_comp_cells.
-    - exact fib_slice_prebicat_2_id_comp_struct.
+    - exact opfib_slice_prebicat_1_id_comp_cells.
+    - exact opfib_slice_prebicat_2_id_comp_struct.
   Defined.
 
-  Definition fib_slice_prebicat_laws
-    : prebicat_laws fib_slice_prebicat_data.
+  Definition opfib_slice_prebicat_laws
+    : prebicat_laws opfib_slice_prebicat_data.
   Proof.
     repeat split.
     - intro ; intros ; use disp_nat_trans_eq ; intros ; cbn.
@@ -269,28 +269,28 @@ Section FibSlice.
       apply homset_property.
   Qed.
 
-  Definition fib_slice_prebicat
+  Definition opfib_slice_prebicat
     : prebicat.
   Proof.
     simple refine (_ ,, _).
-    - exact fib_slice_prebicat_data.
-    - exact fib_slice_prebicat_laws.
+    - exact opfib_slice_prebicat_data.
+    - exact opfib_slice_prebicat_laws.
   Defined.
 
-  Definition fib_slice_bicat
+  Definition opfib_slice_bicat
     : bicat.
   Proof.
     simple refine (_ ,, _).
-    - exact fib_slice_prebicat.
+    - exact opfib_slice_prebicat.
     - intro ; intros.
       apply isaset_disp_nat_trans.
   Defined.
 
   (**
-   2. Invertible 2-cells in the fibrational slice bicategory
+   2. Invertible 2-cells in the opfibrational slice bicategory
    *)
-  Definition is_invertible_2cell_fib_slice
-             {D₁ D₂ : fib_slice_bicat}
+  Definition is_invertible_2cell_opfib_slice
+             {D₁ D₂ : opfib_slice_bicat}
              {G₁ G₂ : D₁ --> D₂}
              (α : G₁ ==> G₂)
              (Hα : is_disp_nat_z_iso (nat_z_iso_id (functor_identity C)) α)
@@ -302,8 +302,8 @@ Section FibSlice.
     - apply pointwise_inverse_disp_nat_trans_over_id_right.
   Defined.
 
-  Definition disp_nat_z_iso_to_inv2cell_fib
-             {D₁ D₂ : fib_slice_bicat}
+  Definition disp_nat_z_iso_to_inv2cell_opfib
+             {D₁ D₂ : opfib_slice_bicat}
              {G₁ G₂ : D₁ --> D₂}
              (τ : disp_nat_z_iso
                     (pr1 G₁) (pr1 G₂)
@@ -312,12 +312,12 @@ Section FibSlice.
   Proof.
     use make_invertible_2cell.
     - exact (pr1 τ).
-    - apply is_invertible_2cell_fib_slice.
+    - apply is_invertible_2cell_opfib_slice.
       exact (pr2 τ).
   Defined.
 
-  Definition from_is_invertible_2cell_fib_slice
-             {D₁ D₂ : fib_slice_bicat}
+  Definition from_is_invertible_2cell_opfib_slice
+             {D₁ D₂ : opfib_slice_bicat}
              {G₁ G₂ : D₁ --> D₂}
              (α : G₁ ==> G₂)
              (Hα : is_invertible_2cell α)
@@ -340,25 +340,25 @@ Section FibSlice.
          apply homset_property).
   Defined.
 
-  Definition inv2cell_to_disp_nat_z_iso_fib
-             {D₁ D₂ : fib_slice_bicat}
+  Definition inv2cell_to_disp_nat_z_iso_opfib
+             {D₁ D₂ : opfib_slice_bicat}
              {G₁ G₂ : D₁ --> D₂}
              (τ : invertible_2cell G₁ G₂)
     : disp_nat_z_iso
         (pr1 G₁) (pr1 G₂)
         (nat_z_iso_id (functor_identity C))
-    := pr1 τ ,, from_is_invertible_2cell_fib_slice (pr1 τ) (pr2 τ).
+    := pr1 τ ,, from_is_invertible_2cell_opfib_slice (pr1 τ) (pr2 τ).
 
-  Definition invertible_2cell_fib_slice_weq
-             {D₁ D₂ : fib_slice_bicat}
+  Definition invertible_2cell_opfib_slice_weq
+             {D₁ D₂ : opfib_slice_bicat}
              (G₁ G₂ : D₁ --> D₂)
     : disp_nat_z_iso (pr1 G₁) (pr1 G₂) (nat_z_iso_id _)
       ≃
       invertible_2cell G₁ G₂.
   Proof.
     use weq_iso.
-    - exact disp_nat_z_iso_to_inv2cell_fib.
-    - exact inv2cell_to_disp_nat_z_iso_fib.
+    - exact disp_nat_z_iso_to_inv2cell_opfib.
+    - exact inv2cell_to_disp_nat_z_iso_opfib.
     - abstract
         (intro τ ;
          use subtypePath ; [ intro ; apply isaprop_is_disp_nat_z_iso | ] ;
@@ -370,17 +370,17 @@ Section FibSlice.
   Defined.
 
   (**
-   3. Local univalence of the fibrational slice bicategory
+   3. Local univalence of the opfibrational slice bicategory
    *)
-  Proposition is_univalent_2_1_fib_slice_bicat
-    : is_univalent_2_1 fib_slice_bicat.
+  Proposition is_univalent_2_1_opfib_slice_bicat
+    : is_univalent_2_1 opfib_slice_bicat.
   Proof.
     intros D₁ D₂ F G.
     use weqhomot.
-    - refine (invertible_2cell_fib_slice_weq F G
+    - refine (invertible_2cell_opfib_slice_weq F G
               ∘ disp_functor_eq_weq (pr1 F) (pr1 G) (pr1 D₂)
               ∘ path_sigma_hprop _ _ _ _)%weq.
-      apply isaprop_is_cartesian_disp_functor.
+      apply isaprop_is_opcartesian_disp_functor.
     - abstract
         (intro p ;
          induction p ;
@@ -391,10 +391,10 @@ Section FibSlice.
   Defined.
 
   (**
-   4. Adjoint equivalences in the fibrational slice bicategory
+   4. Adjoint equivalences in the opfibrational slice bicategory
    *)
-  Definition left_adjoint_equivalence_fib_slice
-             {D₁ D₂ : fib_slice_bicat}
+  Definition left_adjoint_equivalence_opfib_slice
+             {D₁ D₂ : opfib_slice_bicat}
              (F : D₁ --> D₂)
              (HF : is_equiv_over_id (pr1 F))
     : left_adjoint_equivalence F.
@@ -402,30 +402,30 @@ Section FibSlice.
     use equiv_to_adjequiv.
     simple refine (((_ ,, _) ,, (_ ,, _)) ,, _ ,, _).
     - exact HF.
-    - exact (is_cartesian_equiv_over_id (equiv_inv _ HF)).
+    - exact (is_opcartesian_equiv_over_id (equiv_inv _ HF)).
     - exact (unit_over_id HF).
     - exact (counit_over_id HF).
-    - use is_invertible_2cell_fib_slice.
+    - use is_invertible_2cell_opfib_slice.
       intros x xx.
       exact (is_z_iso_unit_over_id HF x xx).
-    - use is_invertible_2cell_fib_slice.
+    - use is_invertible_2cell_opfib_slice.
       intros x xx.
       exact (is_z_iso_counit_over_id HF x xx).
   Defined.
 
-  Definition adj_equiv_fib_slice
-             {D₁ D₂ : fib_slice_bicat}
+  Definition adj_equiv_opfib_slice
+             {D₁ D₂ : opfib_slice_bicat}
              (F : disp_functor (functor_identity C) (pr1 D₁) (pr1 D₂))
              (HF : is_equiv_over_id F)
     : adjoint_equivalence D₁ D₂.
   Proof.
     simple refine ((F ,, _) ,, _).
-    - exact (is_cartesian_equiv_over_id HF).
-    - exact (left_adjoint_equivalence_fib_slice (_ ,, _) HF).
+    - exact (is_opcartesian_equiv_over_id HF).
+    - exact (left_adjoint_equivalence_opfib_slice (_ ,, _) HF).
   Defined.
 
-  Proposition from_left_adjoint_equivalence_fib_slice
-              {D₁ D₂ : fib_slice_bicat}
+  Proposition from_left_adjoint_equivalence_opfib_slice
+              {D₁ D₂ : opfib_slice_bicat}
               (F : D₁ --> D₂)
               (HF : left_adjoint_equivalence F)
     : is_equiv_over_id (pr1 F).
@@ -475,20 +475,20 @@ Section FibSlice.
          apply maponpaths_2 ;
          apply homset_property).
     - intros x xx.
-      exact (from_is_invertible_2cell_fib_slice _ (pr122 HF) x xx).
+      exact (from_is_invertible_2cell_opfib_slice _ (pr122 HF) x xx).
     - intros x xx.
-      exact (from_is_invertible_2cell_fib_slice _ (pr222 HF) x xx).
+      exact (from_is_invertible_2cell_opfib_slice _ (pr222 HF) x xx).
   Defined.
 
-  Definition adj_equiv_fib_slice_weq
-             (D₁ D₂ : fib_slice_bicat)
+  Definition adj_equiv_opfib_slice_weq
+             (D₁ D₂ : opfib_slice_bicat)
     : (∑ (F : disp_functor (functor_identity C) (pr1 D₁) (pr1 D₂)), is_equiv_over_id F)
       ≃
       adjoint_equivalence D₁ D₂.
   Proof.
     use weq_iso.
-    - exact (λ F, adj_equiv_fib_slice (pr1 F) (pr2 F)).
-    - exact (λ F, pr11 F ,, from_left_adjoint_equivalence_fib_slice _ (pr2 F)).
+    - exact (λ F, adj_equiv_opfib_slice (pr1 F) (pr2 F)).
+    - exact (λ F, pr11 F ,, from_left_adjoint_equivalence_opfib_slice _ (pr2 F)).
     - abstract
         (intros F ;
          use subtypePath ; [ intro ; apply (isaprop_is_equiv_over_id (pr1 D₁) (pr1 D₂)) | ] ;
@@ -497,26 +497,26 @@ Section FibSlice.
         (intro F ;
          use subtypePath ;
          [ intro ;
-           apply (isaprop_left_adjoint_equivalence _ is_univalent_2_1_fib_slice_bicat)
+           apply (isaprop_left_adjoint_equivalence _ is_univalent_2_1_opfib_slice_bicat)
          | ] ;
-         use subtypePath ; [ intro ; apply isaprop_is_cartesian_disp_functor | ] ;
+         use subtypePath ; [ intro ; apply isaprop_is_opcartesian_disp_functor | ] ;
          cbn ;
          apply idpath).
   Defined.
 
   (**
-   5. Global univalence of the fibrational slice bicategory
+   5. Global univalence of the opfibrational slice bicategory
    *)
-  Proposition is_univalent_2_0_fib_slice_bicat
-    : is_univalent_2_0 fib_slice_bicat.
+  Proposition is_univalent_2_0_opfib_slice_bicat
+    : is_univalent_2_0 opfib_slice_bicat.
   Proof.
     intros D₁ D₂.
     use weqhomot.
-    - refine (adj_equiv_fib_slice_weq D₁ D₂
+    - refine (adj_equiv_opfib_slice_weq D₁ D₂
               ∘ disp_cat_eq (pr1 D₁) (pr1 D₂) (pr1 D₁) (pr1 D₂)
               ∘ path_sigma_hprop _ _ _ _
               ∘ path_sigma_hprop _ _ _ _)%weq.
-      + apply isaprop_cleaving.
+      + apply isaprop_opcleaving.
         apply (pr1 D₂).
       + apply isaprop_is_univalent_disp.
     - abstract
@@ -524,17 +524,17 @@ Section FibSlice.
          induction p ;
          use subtypePath ;
          [ intro ;
-           apply (isaprop_left_adjoint_equivalence _ is_univalent_2_1_fib_slice_bicat)
+           apply (isaprop_left_adjoint_equivalence _ is_univalent_2_1_opfib_slice_bicat)
          | ] ;
-         use subtypePath ; [ intro ; apply isaprop_is_cartesian_disp_functor | ] ;
+         use subtypePath ; [ intro ; apply isaprop_is_opcartesian_disp_functor | ] ;
          apply idpath).
   Defined.
 
-  Proposition is_univalent_2_fib_slice_bicat
-    : is_univalent_2 fib_slice_bicat.
+  Proposition is_univalent_2_opfib_slice_bicat
+    : is_univalent_2 opfib_slice_bicat.
   Proof.
     split.
-    - exact is_univalent_2_0_fib_slice_bicat.
-    - exact is_univalent_2_1_fib_slice_bicat.
+    - exact is_univalent_2_0_opfib_slice_bicat.
+    - exact is_univalent_2_1_opfib_slice_bicat.
   Defined.
-End FibSlice.
+End OpFibSlice.

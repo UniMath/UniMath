@@ -90,7 +90,7 @@ Require Import UniMath.Bicategories.Grothendieck.Counit.
 Local Open Scope cat.
 
 Section GrothendieckConstruction.
-  Context (C : category).
+  Context (C : univalent_category).
 
   (**
    1. Collecting the data of the biequivalence
@@ -109,12 +109,11 @@ Section GrothendieckConstruction.
    2. Collecting that the unit and counit are adjoint equivalences
    *)
   Definition is_biequivalence_adjoints_psfunctor_fib_to_psfunctor_bicat
-             (H : is_univalent_2 (fib_slice_bicat C))
     : is_biequivalence_adjoints psfunctor_fib_to_psfunctor_bicat_unit_counit.
   Proof.
     split.
     - use pointwise_adjequiv_to_adjequiv.
-      + exact H.
+      + exact (is_univalent_2_fib_slice_bicat C).
       + intro P.
         use equiv_to_adjequiv.
         exact (psfunctor_fib_to_psfunctor_unit_equiv (pr1 P) (pr2 P)).
@@ -133,20 +132,18 @@ Section GrothendieckConstruction.
    3. The Grothendieck construction as biequivalence
    *)
   Definition is_biequivalence_psfunctor_fib_to_psfunctor_bicat
-             (H : is_univalent_2 (fib_slice_bicat C))
     : is_biequivalence (psfunctor_fib_to_psfunctor_bicat C)
     := psfunctor_psfunctor_bicat_to_fib C
        ,,
        psfunctor_fib_to_psfunctor_bicat_unit_counit
        ,,
-       is_biequivalence_adjoints_psfunctor_fib_to_psfunctor_bicat H.
+       is_biequivalence_adjoints_psfunctor_fib_to_psfunctor_bicat.
 
   Definition grothendieck_construction
-             (H : is_univalent_2 (fib_slice_bicat C))
     : biequivalence
         (fib_slice_bicat C)
         (psfunctor_bicat (cat_to_bicat (C^op)) bicat_of_univ_cats)
     := psfunctor_fib_to_psfunctor_bicat C
        ,,
-       is_biequivalence_psfunctor_fib_to_psfunctor_bicat H.
+       is_biequivalence_psfunctor_fib_to_psfunctor_bicat.
 End GrothendieckConstruction.

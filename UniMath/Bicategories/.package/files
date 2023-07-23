@@ -39,6 +39,7 @@ Core/Examples/Final.v
 Core/Examples/BicategoryFromMonoidal.v
 Core/Examples/BicategoryFromWhiskeredMonoidal.v
 Core/Examples/FibSlice.v
+Core/Examples/OpFibSlice.v
 
 Morphisms/Properties/AdjunctionsRepresentable.v
 Morphisms/Examples/MorphismsInBicatOfUnivCats.v
@@ -58,9 +59,9 @@ DisplayedBicats/FiberBicategory.v
 DisplayedBicats/Examples/Sigma.v
 DisplayedBicats/Examples/DisplayedCatToBicat.v
 DisplayedBicats/Examples/FullSub.v
-DisplayedBicats/Examples/DispBicatOfDispCats.v
 DisplayedBicats/Examples/Slice.v
 DisplayedBicats/Examples/Sub1Cell.v
+DisplayedBicats/Examples/DispBicatOfDispCats.v
 DisplayedBicats/Examples/Prod.v
 DisplayedBicats/Examples/DispDepProd.v
 DisplayedBicats/Examples/Trivial.v
