@@ -4,6 +4,19 @@
 
  In this file, we define the notion of a symmetric displayed monoidal category and show how the total monoidal category is symmetric.
 
+Table of contents:
+1. DisplayedBraided:
+   - Definition of displayed braiding
+   - Construction of braiding on the total category
+2. DisplayedSymmetric:
+   - Definition of displayed symmetric
+   - Construction of symmetry on the total category
+   - Proof of redundancy in the axioms of the braiding when considering a symmetric braiding.
+3. Projection:
+   - Proof that the forgetful functor, from the total to the base category, is symmetric.
+4. LocallyPropositional:
+   - A make constructor for locally propositional displayed categories; i.e., only the braiding and (inverse) has to be provided.
+
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -14,20 +27,20 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
-Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Functors.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
 
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.TransportLemmas.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
-
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
@@ -36,98 +49,6 @@ Import BifunctorNotations.
 Import MonoidalNotations.
 Import DisplayedBifunctorNotations.
 Import DisplayedMonoidalNotations.
-
-Definition disp_z_iso_inv_on_left
-  {C : category}
-  {D : disp_cat C}
-  {x y z : C}
-  {f : x --> y}
-  {g : y --> z}
-  {h : x --> z}
-  (Hf : is_z_isomorphism f)
-  {xx : D x}
-  {yy : D y}
-  {zz : D z}
-  {ff : xx -->[ f ] yy}
-  {gg : yy -->[ g ] zz}
-  {hh : xx -->[ h ] zz}
-  (Hff : is_z_iso_disp (f ,, Hf) ff)
-  (p : f · g = h)
-  : gg = transportf _ (z_iso_inv_on_right _ _ _ (f,,Hf) g h (! p)) (pr1 Hff ;; hh)
-  -> ff ;; gg = transportb _ p hh.
-Proof.
-  intro q.
-  rewrite q.
-  clear q.
-  rewrite mor_disp_transportf_prewhisker.
-  use transportf_transpose_right.
-  unfold transportb.
-  rewrite transport_f_f.
-  rewrite assoc_disp.
-  unfold transportb.
-  rewrite transport_f_f.
-  etrans. {
-    apply maponpaths.
-    apply maponpaths_2.
-    exact (pr22 Hff).
-  }
-  unfold transportb.
-  rewrite mor_disp_transportf_postwhisker.
-  rewrite transport_f_f.
-
-  etrans. {
-    apply maponpaths_2.
-    refine (_ @ idpath (id_left _)).
-    apply homset_property.
-  }
-  apply pathsinv0, id_left_disp_var.
-Qed.
-
-Definition disp_z_iso_inv_on_right
-  {C : category}
-  {D : disp_cat C}
-  {x y z : C}
-  {f : x --> y}
-  {g : y --> z}
-  {h : x --> z}
-  (Hg : is_z_isomorphism g)
-  {xx : D x}
-  {yy : D y}
-  {zz : D z}
-  {ff : xx -->[ f ] yy}
-  {gg : yy -->[ g ] zz}
-  {hh : xx -->[ h ] zz}
-  (Hgg : is_z_iso_disp (g ,, Hg) gg)
-  (p : f · g = h)
-  : ff = transportb _ (z_iso_inv_on_left _ _ _ f (g,,Hg) h (! p)) (hh ;; pr1 Hgg)
-  -> ff ;; gg = transportb _ p hh.
-Proof.
-  intro q.
-  rewrite q.
-  clear q.
-  unfold transportb.
-  rewrite mor_disp_transportf_postwhisker.
-  use transportf_transpose_right.
-  unfold transportb.
-  rewrite transport_f_f.
-  rewrite assoc_disp_var.
-  rewrite transport_f_f.
-  etrans. {
-    do 2 apply maponpaths.
-    exact (pr12 Hgg).
-  }
-  unfold transportb.
-  rewrite mor_disp_transportf_prewhisker.
-  rewrite transport_f_f.
-
-  etrans. {
-    apply maponpaths_2.
-    refine (_ @ idpath (id_right _)).
-    apply homset_property.
-  }
-  apply pathsinv0, id_right_disp_var.
-Qed.
-
 
 Local Lemma specialized_transport_lemma
   {C : category} {D : disp_cat C}
@@ -195,22 +116,6 @@ Proof.
   unfold dispfunctoronmorphisms1.
   use transportf_transpose_right.
   apply pathsinv0, disp_tensor_with_id_on_right.
-Qed.
-
-Lemma precomp_disp_id_left_inj
-{C : category} {D : disp_cat C}
-  {y z : C}
-  {f : C⟦y,z⟧}
-  {yy : D y} {zz : D z}
-  (ff1 ff2 : yy -->[f] zz)
-  : id_disp yy ;; ff1 = id_disp yy ;; ff2 → ff1 = ff2.
-Proof.
-  intro p.
-  rewrite ! id_left_disp in p.
-  refine (transportb_transpose_right p @ _).
-  rewrite transport_b_b.
-  use transportf_set.
-  apply homset_property.
 Qed.
 
 Section DisplayedBraided.
@@ -851,3 +756,46 @@ Section DisplayedSymmetric.
   Defined.
 
 End DisplayedSymmetric.
+
+Section Projection.
+
+  Context
+    {C : category}
+    {D : disp_cat C}
+    {M : monoidal C}
+    {DM : disp_monoidal D M}
+    {B : symmetric M}
+    (DB : disp_symmetric DM B).
+
+  Definition projection_is_symmetric
+    : is_symmetric_monoidal_functor (total_symmetric DM DB) B (projection_fmonoidal DM).
+  Proof.
+    intro ; intro.
+    exact (id_right _ @ ! id_left _).
+  Qed.
+
+End Projection.
+
+Section LocallyPropositional.
+
+  Context
+    {C : category}
+    {D : disp_cat C}
+    {M : monoidal C}
+    (DM : disp_monoidal D M)
+    (B : braiding M).
+
+  Context (LP : locally_propositional D).
+
+  Definition make_disp_laws_braiding_locally_propositional
+    (DB : disp_braiding_data DM (monoidal_braiding_data B))
+    (DBinv : disp_braiding_data DM (monoidal_braiding_data_inv B))
+    : disp_braiding_laws DM DB DBinv.
+  Proof.
+    refine (_ ,, _ ,, _).
+    - split ; intro ; intros ; apply LP.
+    - split ; apply LP.
+    - split ; intro ; intros ; apply LP.
+  Qed.
+
+End LocallyPropositional.
