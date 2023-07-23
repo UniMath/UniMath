@@ -232,6 +232,7 @@ Monads/Monads.v
 Monads/LModules.v
 Monads/Derivative.v
 Monads/MonadAlgebras.v
+Monads/Comonads.v
 
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v

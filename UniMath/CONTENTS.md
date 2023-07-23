@@ -406,6 +406,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monads/LModules.v](CategoryTheory/Monads/LModules.v)
    - [Monads/Derivative.v](CategoryTheory/Monads/Derivative.v)
    - [Monads/MonadAlgebras.v](CategoryTheory/Monads/MonadAlgebras.v)
+   - [Monads/Comonads.v](CategoryTheory/Monads/Comonads.v)
    - [DisplayedCats/Limits.v](CategoryTheory/DisplayedCats/Limits.v)
    - [DisplayedCats/Examples.v](CategoryTheory/DisplayedCats/Examples.v)
    - [DisplayedCats/Examples/UnitalBinop.v](CategoryTheory/DisplayedCats/Examples/UnitalBinop.v)
