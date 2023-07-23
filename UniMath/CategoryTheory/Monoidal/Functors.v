@@ -8,16 +8,20 @@
  the identity and composition. In the end, we provide bundled versions of
  these defintions.
 
+ Note that for the bundled versions we reformulate the laws to guarantee the
+ notation is consistent with the bundled versions for monoidal categories.
+
  Contents
  1. Lax monoidal functors
  2. Strong monoidal functors
  3. Strict monoidal functors
- 4. The identity is strong monoidal
- 5. Composition preserves lax/strongly monoidal functors
- 6. Monoidal natural transformations
- 7. Inverses of monoidal natural transformations
- 8. Bundled versions
-
+ 4. Symmetric monoidal functors
+ 5. The identity is strong monoidal
+ 6. Composition preserves lax/strongly monoidal functors
+ 7. Monoidal natural transformations
+ 8. Inverses of monoidal natural transformations
+ 9. Bundled versions
+ 10. Builders for the bundled versions
 
 Note: after refactoring on March 10, 2023, the prior Git history of this development is found via
 git log -- UniMath/CategoryTheory/Monoidal/MonoidalFunctorsWhiskered.v
@@ -31,6 +35,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 
 Local Open Scope cat.
 
@@ -791,7 +796,24 @@ Section MonoidalFunctors.
   Defined.
 
   (**
-   4. The identity is strong monoidal
+   4. Symmetric monoidal functors
+   *)
+  Definition is_symmetric_monoidal_functor
+             {C D : category}
+             {M : monoidal C} {N : monoidal D}
+             (HM : symmetric M) (HN : symmetric N)
+             {F : functor C D}
+             (HF : fmonoidal_lax M N F)
+    : UU
+    := ∏ (x y : C),
+       monoidal_braiding_data (symmetric_to_braiding HN) (F x) (F y)
+       · fmonoidal_preservestensordata HF y x
+       =
+       fmonoidal_preservestensordata HF x y
+       · #F(monoidal_braiding_data (symmetric_to_braiding HM) x y).
+
+  (**
+   5. The identity is strong monoidal
    *)
   (** towards a bicategory of monoidal categories *)
   Definition identity_fmonoidal_data
@@ -849,8 +871,20 @@ Section MonoidalFunctors.
     : fmonoidal M M (functor_identity C)
     := identity_fmonoidal_lax M ,, identity_fmonoidal_stronglaws M.
 
+  Proposition is_symmetric_monoidal_identity
+              {C : category}
+              {M : monoidal C}
+              (HM : symmetric M)
+    : is_symmetric_monoidal_functor HM HM (identity_fmonoidal_lax M).
+  Proof.
+    intros x y.
+    cbn.
+    rewrite id_left, id_right.
+    apply idpath.
+  Qed.
+
   (**
-   5. Composition preserves lax/strongly monoidal functors
+   6. Composition preserves lax/strongly monoidal functors
    *)
   Definition comp_fmonoidal_data
              {C D E : category}
@@ -1073,10 +1107,46 @@ Section MonoidalFunctors.
       : fmonoidal M O (F ∙ G)
       := comp_fmonoidal_lax Fm Gm ,, comp_fmonoidal_stronglaws.
   End CompStrongMonoidal.
+
+  Proposition is_symmetric_monoidal_comp
+              {C D E : category}
+              {M : monoidal C}
+              {N : monoidal D}
+              {O : monoidal E}
+              {HM : symmetric M}
+              {HN : symmetric N}
+              {HO : symmetric O}
+              {F : C ⟶ D}
+              {G : D ⟶ E}
+              {HF : fmonoidal_lax M N F}
+              {HG : fmonoidal_lax N O G}
+              (HHF : is_symmetric_monoidal_functor HM HN HF)
+              (HHG : is_symmetric_monoidal_functor HN HO HG)
+    : is_symmetric_monoidal_functor HM HO (comp_fmonoidal_lax HF HG).
+  Proof.
+    intros x y.
+    cbn.
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply HHG.
+    }
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite <- functor_comp.
+      apply maponpaths.
+      apply HHF.
+    }
+    rewrite functor_comp.
+    apply idpath.
+  Qed.
 End MonoidalFunctors.
 
 (**
- 6. Monoidal natural transformations
+ 7. Monoidal natural transformations
  *)
 Section MonoidalNaturalTransformations.
 
@@ -1108,7 +1178,7 @@ Section MonoidalNaturalTransformations.
 End MonoidalNaturalTransformations.
 
 (**
- 7. Inverses of monoidal natural transformations
+ 8. Inverses of monoidal natural transformations
  *)
 Section InverseMonoidalNaturalTransformation.
   Context {C D : category}
@@ -1142,7 +1212,7 @@ End InverseMonoidalNaturalTransformation.
 Local Open Scope moncat.
 
 (**
- 8. Bundled versions
+ 9. Bundled versions
  *)
 Definition lax_monoidal_functor
            (V₁ V₂ : monoidal_cat)
@@ -1155,6 +1225,18 @@ Coercion lax_monoidal_functor_to_functor
   : V₁ ⟶ V₂
   := pr1 F.
 
+Definition symmetric_lax_monoidal_functor
+           (V₁ V₂ : sym_monoidal_cat)
+  : UU
+  := ∑ (F : lax_monoidal_functor V₁ V₂),
+     is_symmetric_monoidal_functor (pr2 V₁) (pr2 V₂) (pr2 F).
+
+Coercion symmetric_lax_monoidal_functor_to_lax_monoidal
+         {V₁ V₂ : sym_monoidal_cat}
+         (F : symmetric_lax_monoidal_functor V₁ V₂)
+  : lax_monoidal_functor V₁ V₂
+  := pr1 F.
+
 Definition strong_monoidal_functor
            (V₁ V₂ : monoidal_cat)
   : UU
@@ -1165,6 +1247,24 @@ Coercion strong_monoidal_functor_to_lax_monoidal_functor
          (F : strong_monoidal_functor V₁ V₂)
   : lax_monoidal_functor V₁ V₂
   := pr1 F ,, pr12 F.
+
+Definition symmetric_strong_monoidal_functor
+           (V₁ V₂ : sym_monoidal_cat)
+  : UU
+  := ∑ (F : strong_monoidal_functor V₁ V₂),
+     is_symmetric_monoidal_functor (pr2 V₁) (pr2 V₂) (pr2 F).
+
+Coercion symmetric_strong_monoidal_functor_to_strong_monoidal
+         {V₁ V₂ : sym_monoidal_cat}
+         (F : symmetric_strong_monoidal_functor V₁ V₂)
+  : strong_monoidal_functor V₁ V₂
+  := pr1 F.
+
+Coercion symmetric_strong_monoidal_functor_to_lax_symmetric
+         {V₁ V₂ : sym_monoidal_cat}
+         (F : symmetric_strong_monoidal_functor V₁ V₂)
+  : symmetric_lax_monoidal_functor V₁ V₂
+  := (pr11 F ,, pr121 F) ,, pr2 F.
 
 Definition mon_functor_unit
            {V₁ V₂ : monoidal_cat}
@@ -1432,3 +1532,154 @@ Section StrongMonoidalFunctorAccessors.
     apply (tensor_mon_functor_tensor F).
   Qed.
 End StrongMonoidalFunctorAccessors.
+
+Proposition symmetric_lax_monoidal_sym_mon_braiding
+            {V₁ V₂ : sym_monoidal_cat}
+            (F : symmetric_lax_monoidal_functor V₁ V₂)
+            (x y : V₁)
+  : sym_mon_braiding V₂ (F x) (F y) · mon_functor_tensor F y x
+    =
+    mon_functor_tensor F x y · #F (sym_mon_braiding V₁ x y).
+Proof.
+  exact (pr2 F x y).
+Qed.
+
+(**
+ 10. Builders for the bundled versions
+ *)
+Definition lax_monoidal_functor_laws
+           {V₁ V₂ : monoidal_cat}
+           (F : V₁ ⟶ V₂)
+           (μ : ∏ (x y : V₁), F x ⊗ F y --> F(x ⊗ y))
+           (η : I_{V₂} --> F(I_{V₁}))
+  : UU
+  := (∏ (x₁ x₂ y₁ y₂ : V₁)
+        (f : x₁ --> x₂)
+        (g : y₁ --> y₂),
+      #F f #⊗ #F g · μ x₂ y₂
+      =
+      μ x₁ y₁ · #F(f #⊗ g))
+     ×
+     (∏ (x : V₁),
+      η #⊗ identity _ · μ (I_{V₁}) x · #F (mon_lunitor x)
+      =
+      mon_lunitor (F x))
+     ×
+     (∏ (x : V₁),
+      identity _ #⊗ η · μ x (I_{V₁}) · #F (mon_runitor x)
+      =
+      mon_runitor (F x))
+     ×
+     (∏ (x y z : V₁),
+      (μ x y #⊗ identity _) · μ (x ⊗ y) z · #F(mon_lassociator x y z)
+      =
+      mon_lassociator (F x) (F y) (F z) · (identity _ #⊗ μ y z) · μ x (y ⊗ z)).
+
+Proposition lax_monoidal_functor_laws_to_monoidal_laws
+            {V₁ V₂ : monoidal_cat}
+            {F : V₁ ⟶ V₂}
+            {μ : ∏ (x y : V₁), F x ⊗ F y --> F(x ⊗ y)}
+            {η : I_{V₂} --> F(I_{V₁})}
+            (HF : lax_monoidal_functor_laws F μ η)
+  : fmonoidal_laxlaws (μ,, η).
+Proof.
+  repeat split.
+  - intros x y₁ y₂ g ; cbn.
+    refine (_ @ pr1 HF _ _ _ _ (identity _) g @ _).
+    + apply maponpaths_2.
+      unfold monoidal_cat_tensor_mor, functoronmorphisms1.
+      refine (!(id_left _) @ _).
+      apply maponpaths_2.
+      rewrite functor_id.
+      refine (!_).
+      apply (bifunctor_rightid (pr2 V₂)).
+    + do 2 apply maponpaths.
+      unfold monoidal_cat_tensor_mor, functoronmorphisms1.
+      refine (_ @ id_left _).
+      apply maponpaths_2.
+      apply (bifunctor_rightid (pr2 V₁)).
+  - intros x₁ x₂ y f ; cbn.
+    refine (_ @ pr1 HF _ _ _ _ f (identity _) @ _).
+    + apply maponpaths_2.
+      unfold monoidal_cat_tensor_mor, functoronmorphisms1.
+      refine (!(id_right _) @ _).
+      apply maponpaths.
+      rewrite functor_id.
+      refine (!_).
+      apply (bifunctor_leftid (pr2 V₂)).
+    + do 2 apply maponpaths.
+      unfold monoidal_cat_tensor_mor, functoronmorphisms1.
+      refine (_ @ id_right _).
+      apply maponpaths.
+      apply (bifunctor_leftid (pr2 V₁)).
+  - intros x y z ; cbn.
+    refine (_ @ pr222 HF x y z @ _).
+    + do 2 apply maponpaths_2.
+      unfold monoidal_cat_tensor_mor, functoronmorphisms1.
+      refine (!(id_right _) @ _).
+      apply maponpaths.
+      refine (!_).
+      apply (bifunctor_leftid (pr2 V₂)).
+    + apply maponpaths_2.
+      apply maponpaths.
+      unfold monoidal_cat_tensor_mor, functoronmorphisms1.
+      refine (_ @ id_left _).
+      apply maponpaths_2.
+      apply (bifunctor_rightid (pr2 V₂)).
+  - intros x ; cbn.
+    refine (_ @ pr12 HF x).
+    do 2 apply maponpaths_2.
+    unfold monoidal_cat_tensor_mor, functoronmorphisms1.
+    refine (!(id_right _) @ _).
+    apply maponpaths.
+    refine (!_).
+    apply (bifunctor_leftid (pr2 V₂)).
+  - intros x ; cbn.
+    refine (_ @ pr122 HF x).
+    do 2 apply maponpaths_2.
+    unfold monoidal_cat_tensor_mor, functoronmorphisms1.
+    refine (!(id_left _) @ _).
+    apply maponpaths_2.
+    refine (!_).
+    apply (bifunctor_rightid (pr2 V₂)).
+Qed.
+
+Definition make_lax_monoidal_functor
+           {V₁ V₂ : monoidal_cat}
+           (F : V₁ ⟶ V₂)
+           (μ : ∏ (x y : V₁), F x ⊗ F y --> F(x ⊗ y))
+           (η : I_{V₂} --> F(I_{V₁}))
+           (HF : lax_monoidal_functor_laws F μ η)
+  : lax_monoidal_functor V₁ V₂
+  := F ,, (μ ,, η) ,, lax_monoidal_functor_laws_to_monoidal_laws HF.
+
+Definition make_strong_monoidal_functor
+           {V₁ V₂ : monoidal_cat}
+           (F : lax_monoidal_functor V₁ V₂)
+           (Hμ : ∏ (x y : V₁), is_z_isomorphism (mon_functor_tensor F x y))
+           (Hη : is_z_isomorphism (mon_functor_unit F))
+  : strong_monoidal_functor V₁ V₂
+  := pr1 F ,, pr2 F ,, Hμ ,, Hη.
+
+Definition symmetric_monoidal_functor_laws
+           {V₁ V₂ : sym_monoidal_cat}
+           (F : lax_monoidal_functor V₁ V₂)
+  : UU
+  := ∏ (x y : V₁),
+     sym_mon_braiding V₂ (F x) (F y) · mon_functor_tensor F y x
+     =
+     mon_functor_tensor F x y · #F(sym_mon_braiding V₁ x y).
+
+Definition make_symmetric_lax_monoidal_functor
+           {V₁ V₂ : sym_monoidal_cat}
+           (F : lax_monoidal_functor V₁ V₂)
+           (HF : symmetric_monoidal_functor_laws F)
+  : symmetric_lax_monoidal_functor V₁ V₂
+  := F ,, HF.
+
+Definition make_symmetric_strong_monoidal_functor
+           {V₁ V₂ : sym_monoidal_cat}
+           (F : strong_monoidal_functor V₁ V₂)
+           (HF : symmetric_monoidal_functor_laws F)
+  : symmetric_strong_monoidal_functor V₁ V₂
+  := F ,, HF.
