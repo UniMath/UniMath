@@ -1,11 +1,14 @@
-(*************************************************************************************
+(********************************************************************************************
 
  Monoidal Adjunctions
 
  In this file, we define monoidal adjunctions. We define this notion in the following
  way: a monoidal adjunction  is adjunction of categories such that both functors are
  lax monoidal and such that the unit and counit are monoidal transformations. This is
- given in [monoidal_adjunction].
+ given in [monoidal_adjunction]. A reference for this notion is Section 5.14 in
+ https://www.irif.fr/~mellies/mpri/mpri-ens/biblio/categorical-semantics-of-linear-logic.pdf
+ Note: this notion is what you obtain by unfolding adjunctions internal to the
+ bicategory of monoidal categories.
 
  However, in practice it is often useful to use the following characterization: an
  adjunction is monoidal if the left adjoint is a strong monoidal functor. A reference
@@ -20,7 +23,7 @@
  3.2. Preservation of the tensor
  4. If the left adjoint is strong, then the adjunction is monoidal
 
- *************************************************************************************)
+ ********************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
