@@ -289,6 +289,7 @@ Monoidal/Structure/Closed.v
 Monoidal/Structure/Cartesian.v
 
 Monoidal/Functors.v
+Monoidal/Adjunctions.v
 Monoidal/CategoriesOfMonoids.v
 
 Monoidal/Displayed/WhiskeredDisplayedBifunctors.v
