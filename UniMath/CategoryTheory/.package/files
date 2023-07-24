@@ -235,6 +235,7 @@ Monads/Monads.v
 Monads/LModules.v
 Monads/Derivative.v
 Monads/MonadAlgebras.v
+Monads/Comonads.v
 
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v
@@ -271,6 +272,7 @@ limits/Examples/AlgebraStructuresColimits.v
 categories/Dialgebras.v
 categories/CatIsoInserter.v
 categories/EilenbergMoore.v
+categories/CoEilenbergMoore.v
 categories/KleisliCategory.v
 limits/Examples/EilenbergMooreLimits.v
 Elements.v
