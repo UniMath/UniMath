@@ -354,27 +354,27 @@ Section TwoMonoidalCategories.
     {W : category} (Mon_W : monoidal W)
     {F : W ⟶ V} (U : fmonoidal Mon_W Mon_V F).
 
-  Let ActW : actegory Mon_W C := lifted_actegory Mon_V Act Mon_W U.
+  Let ActW : actegory Mon_W C := reindexed_actegory Mon_V Act Mon_W U.
 
 Section BinaryCase.
 
   Context (BCP : BinCoproducts C) (δ : actegory_bincoprod_distributor Mon_V BCP Act).
 
-  Definition lifted_bincoprod_distributor_data : actegory_bincoprod_distributor_data Mon_W BCP ActW.
+  Definition reindexed_bincoprod_distributor_data : actegory_bincoprod_distributor_data Mon_W BCP ActW.
   Proof.
     intros w c c'.
     apply (δ (F w)).
   Defined.
 
-  Lemma lifted_bincoprod_distributor_law :
-    actegory_bincoprod_distributor_iso_law _ _ _ lifted_bincoprod_distributor_data.
+  Lemma reindexed_bincoprod_distributor_law :
+    actegory_bincoprod_distributor_iso_law _ _ _ reindexed_bincoprod_distributor_data.
   Proof.
     intros w c c'.
-    split; unfold lifted_bincoprod_distributor_data; apply (pr2 δ (F w)).
+    split; unfold reindexed_bincoprod_distributor_data; apply (pr2 δ (F w)).
   Qed.
 
-  Definition lifted_bincoprod_distributor : actegory_bincoprod_distributor Mon_W BCP ActW :=
-    _,,lifted_bincoprod_distributor_law.
+  Definition reindexed_bincoprod_distributor : actegory_bincoprod_distributor Mon_W BCP ActW :=
+    _,,reindexed_bincoprod_distributor_law.
 
 End BinaryCase.
 
@@ -382,21 +382,21 @@ Section IndexedCase.
 
   Context {I : UU} (CP : Coproducts I C) (δ : actegory_coprod_distributor Mon_V CP Act).
 
-  Definition lifted_coprod_distributor_data : actegory_coprod_distributor_data Mon_W CP ActW.
+  Definition reindexed_coprod_distributor_data : actegory_coprod_distributor_data Mon_W CP ActW.
   Proof.
     intros w cs.
     apply (δ (F w)).
   Defined.
 
-  Lemma lifted_coprod_distributor_law :
-    actegory_coprod_distributor_iso_law _ _ _ lifted_coprod_distributor_data.
+  Lemma reindexed_coprod_distributor_law :
+    actegory_coprod_distributor_iso_law _ _ _ reindexed_coprod_distributor_data.
   Proof.
     intros w cs.
-    split; unfold lifted_coprod_distributor_data; apply (pr2 δ).
+    split; unfold reindexed_coprod_distributor_data; apply (pr2 δ).
   Qed.
 
-  Definition lifted_coprod_distributor : actegory_coprod_distributor Mon_W CP ActW :=
-    _,,lifted_coprod_distributor_law.
+  Definition reindexed_coprod_distributor : actegory_coprod_distributor Mon_W CP ActW :=
+    _,,reindexed_coprod_distributor_law.
 
 End IndexedCase.
 

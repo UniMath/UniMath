@@ -1,7 +1,7 @@
 (**
   Construction of actions, over monoidal categories:
   - the monoidal category acting on itself
-  - lifting an action from the target of a strong monoidal functor to its source
+  - reindexing an action from the target of a strong monoidal functor to its source
 
   These modularize the construction of the action induced by a strong monoidal functor U, see [U_action].
 
@@ -44,7 +44,7 @@ Proof.
   split; [apply monoidal_cat_triangle_eq | apply monoidal_cat_pentagon_eq].
 Defined.
 
-Section Action_Lifting_Through_Strong_Monoidal_Functor.
+Section Action_Reindexing_Through_Strong_Monoidal_Functor.
 
 Context {Mon_A : monoidal_cat}.
 
@@ -66,11 +66,11 @@ Context {C : category} (actA : action Mon_A C).
 
 Local Definition odotA := act_odot actA.
 
-Definition lifted_odot : C ⊠ V ⟶ C :=
+Definition reindexed_odot : C ⊠ V ⟶ C :=
   functor_composite (pair_functor (functor_identity _) U) odotA.
 
-Definition lifted_action_right_unitor_nat_trans:
-  odot_I_functor Mon_V C lifted_odot ⟹ functor_identity C.
+Definition reindexed_action_right_unitor_nat_trans:
+  odot_I_functor Mon_V C reindexed_odot ⟹ functor_identity C.
 Proof.
   cbn.
   refine (nat_trans_comp _ _ _ _  (act_ϱ actA)).
@@ -85,9 +85,9 @@ Proof.
     exact (pr2 aux a a' f).
 Defined.
 
-Definition lifted_action_right_unitor: action_right_unitor Mon_V C lifted_odot.
+Definition reindexed_action_right_unitor: action_right_unitor Mon_V C reindexed_odot.
 Proof.
-  exists lifted_action_right_unitor_nat_trans.
+  exists reindexed_action_right_unitor_nat_trans.
   intro.
   cbn.
   use is_z_iso_comp_of_is_z_isos.
@@ -97,16 +97,16 @@ Proof.
     + apply (is_z_iso_inv_from_z_iso (strong_monoidal_functor_ϵ U)).
 Defined.
 
-Definition lifted_action_convertor_nat_trans :
-  odot_x_odot_y_functor _ C lifted_odot ⟹ odot_x_otimes_y_functor _ C lifted_odot.
+Definition reindexed_action_convertor_nat_trans :
+  odot_x_odot_y_functor _ C reindexed_odot ⟹ odot_x_otimes_y_functor _ C reindexed_odot.
 Proof.
   apply (nat_trans_comp _ _ _ (pre_whisker (pair_functor (pair_functor (functor_identity _) U) U) (act_χ actA))).
   exact (pre_whisker (precategory_binproduct_unassoc _ _ _) (post_whisker_fst_param (lax_monoidal_functor_μ U) odotA)).
 Defined.
 
-Definition lifted_action_convertor : action_convertor Mon_V C lifted_odot.
+Definition reindexed_action_convertor : action_convertor Mon_V C reindexed_odot.
 Proof.
-  exists lifted_action_convertor_nat_trans.
+  exists reindexed_action_convertor_nat_trans.
   intro x.
   pose (k := ob1 (ob1 x)); pose (k' := ob2 (ob1 x)); pose (k'' := ob2 x).
   use is_z_iso_comp_of_is_z_isos.
@@ -116,8 +116,8 @@ Proof.
     + exact (strong_monoidal_functor_μ_is_nat_z_iso U (k', k'')).
 Defined.
 
-Lemma lifted_action_tlaw : action_triangle_eq Mon_V C
-        lifted_odot lifted_action_right_unitor lifted_action_convertor.
+Lemma reindexed_action_tlaw : action_triangle_eq Mon_V C
+        reindexed_odot reindexed_action_right_unitor reindexed_action_convertor.
 Proof.
   red.
   intros a x.
@@ -189,8 +189,8 @@ Proof.
     apply (act_triangle actA).
 Qed.
 
-Lemma lifted_action_plaw : action_pentagon_eq Mon_V C
-                             lifted_odot lifted_action_convertor.
+Lemma reindexed_action_plaw : action_pentagon_eq Mon_V C
+                             reindexed_odot reindexed_action_convertor.
 Proof.
   red.
   intros a x y z.
@@ -282,17 +282,17 @@ Proof.
   apply idpath.
 Qed.
 
-Definition lifted_action: action Mon_V C.
+Definition reindexed_action: action Mon_V C.
 Proof.
-  exists lifted_odot.
-  exists lifted_action_right_unitor.
-  exists lifted_action_convertor.
+  exists reindexed_odot.
+  exists reindexed_action_right_unitor.
+  exists reindexed_action_convertor.
   split.
-  - exact lifted_action_tlaw.
-  - exact lifted_action_plaw.
+  - exact reindexed_action_tlaw.
+  - exact reindexed_action_plaw.
 Defined.
 
-End Action_Lifting_Through_Strong_Monoidal_Functor.
+End Action_Reindexing_Through_Strong_Monoidal_Functor.
 
 End A.
 
@@ -302,9 +302,9 @@ Section Strong_Monoidal_Functor_Action_Reloaded.
   Context (U : strong_monoidal_functor Mon_V Mon_A).
   Context (C : precategory).
 
-  Definition U_action_alt : action Mon_V (monoidal_cat_cat Mon_A) := lifted_action Mon_V U (action_on_itself Mon_A).
+  Definition U_action_alt : action Mon_V (monoidal_cat_cat Mon_A) := reindexed_action Mon_V U (action_on_itself Mon_A).
 
-(* the two actions would even be convertible - if one would ask for definedness of the proofs of the equations [lifted_action_tlaw] and [lifted_action_plaw] and also [U_action_tlaw] and [U_action_plaw]
+(* the two actions would even be convertible - if one would ask for definedness of the proofs of the equations [reindexed_action_tlaw] and [reindexed_action_plaw] and also [U_action_tlaw] and [U_action_plaw]
   Lemma U_action_alt_ok: U_action_alt = U_action _ U.
   Proof.
     apply idpath.

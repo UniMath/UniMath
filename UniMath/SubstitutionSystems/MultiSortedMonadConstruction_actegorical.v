@@ -202,7 +202,7 @@ Section CharEq.
   Lemma SigmaMonoidOfMultiSortedSig_CAT_char_eq_ok :
     SigmaMonoid_characteristic_equation (SigmaMonoid_carrier _ σ) (SigmaMonoid_η _ σ) (SigmaMonoid_μ _ σ) (SigmaMonoid_τ _ σ) st'.
   Proof.
-   Admitted. (* the proof depends on [lax_lineators_from_lifted_precomp_CAT_and_lifted_self_action_agree] to be defined! *)
+   Admitted. (* the proof depends on [lax_lineators_from_reindexed_precomp_CAT_and_reindexed_self_action_agree] to be defined! *)
  (*
     (** beginning of proof that depends on that currently deactivated definition *)
     assert (Hyp := SigmaMonoid_is_compatible (MultiSortedSigToStrengthFromSelfCAT sig) σ).

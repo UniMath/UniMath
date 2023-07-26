@@ -103,7 +103,7 @@ Section FixACategory.
     actegory_coprod_distributor Mon_ptdendo_CAT (Coproducts_functor_precat I C C CP)
       (actegory_with_canonical_pointed_action Mon_endo_CAT).
   Proof.
-    apply lifted_coprod_distributor.
+    apply reindexed_coprod_distributor.
     apply coprod_distributor_CAT.
   Defined.
 
@@ -120,7 +120,7 @@ Section FixACategory.
     actegory_bincoprod_distributor Mon_ptdendo_CAT (BinCoproducts_functor_precat C C BCP)
       (actegory_with_canonical_pointed_action Mon_endo_CAT).
   Proof.
-    apply lifted_bincoprod_distributor.
+    apply reindexed_bincoprod_distributor.
     apply bincoprod_distributor_CAT.
   Defined.
 
@@ -247,7 +247,7 @@ Section FixACategory.
   Proof.
     destruct n; simpl.
     - apply identity_lineator.
-    - use liftedstrength_from_δ.
+    - use reindexedstrength_from_δ.
       refine (lifteddistr_iter_functor1 (option_functor BCC TC) (lifteddistr_genopt TC BCC) n).
   Defined.
 
