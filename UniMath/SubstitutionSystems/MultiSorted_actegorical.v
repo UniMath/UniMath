@@ -158,8 +158,8 @@ Section strength_through_actegories.
   Local Definition pointedstrengthfromselfaction_CAT :=
     lineator_lax Mon_ptdendo_CAT ActPtd_CAT_FromSelf ActPtd_CAT_FromSelf.
 
-  Let ptdlifteddistributivity_CAT (G : sortToC1) : UU :=
-        BindingSigToMonad_actegorical.ptdlifteddistributivity_CAT G.
+  Let pointedlaxcommutator_CAT (G : sortToC1) : UU :=
+        BindingSigToMonad_actegorical.pointedlaxcommutator_CAT G.
 
   Local Definition δCCCATEndo (M : MultiSortedSig sort) :
     actegory_coprod_distributor Mon_ptdendo_CAT (CoproductsMultiSortedSig M) ActPtd_CAT_Endo.
@@ -175,24 +175,24 @@ Section strength_through_actegories.
     use SelfActCAT_CAT_coprod_distributor.
   Defined.
 
-  Definition lifteddistrCAT_option_functor (s : sort) :
-    ptdlifteddistributivity_CAT (sorted_option_functor s).
+  Definition ptdlaxcommutatorCAT_option_functor (s : sort) :
+    pointedlaxcommutator_CAT (sorted_option_functor s).
   Proof.
-    use BindingSigToMonad_actegorical.lifteddistr_genopt.
+    use BindingSigToMonad_actegorical.ptdlaxcommutator_genopt.
   Defined.
 
-  Definition lifteddistrCAT_option_list (xs : list sort) :
-    ptdlifteddistributivity_CAT (option_list xs).
+  Definition ptdlaxcommutatorCAT_option_list (xs : list sort) :
+    pointedlaxcommutator_CAT (option_list xs).
   Proof.
     induction xs as [[|n] xs].
     + induction xs.
-      apply unit_lifteddistributivity.
+      apply unit_relativelaxcommutator.
     + induction n as [|n IH].
       * induction xs as [m []].
-        apply lifteddistrCAT_option_functor.
+        apply ptdlaxcommutatorCAT_option_functor.
       * induction xs as [m [k xs]].
-        use composedlifteddistributivity.
-        -- exact (lifteddistrCAT_option_functor m).
+        use composedrelativelaxcommutator.
+        -- exact (ptdlaxcommutatorCAT_option_functor m).
         -- exact (IH (k,,xs)).
   Defined.
 
@@ -210,8 +210,8 @@ Section strength_through_actegories.
       3: { use reindexed_lax_lineator.
            2: { exact (lax_lineator_postcomp_actegories_from_precomp_CAT _ _ _ (projSortToC t)). }
       }
-      use reindexedstrength_from_δ.
-      exact (lifteddistrCAT_option_list (cons x xs)).
+      use reindexedstrength_from_commutator.
+      exact (ptdlaxcommutatorCAT_option_list (cons x xs)).
   Defined.
 
   Definition StrengthCAT_exp_functor_list (xs : list (list sort × sort)) :
@@ -292,9 +292,9 @@ Section strength_through_actegories.
   Proof.
     unfold hat_exp_functor_list'_piece, ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_piece.
     use comp_lineator_lax.
-    2: { refine (reindexedstrength_from_δ Mon_endo_CAT Mon_ptdendo_CAT (forget_monoidal_pointed_objects_monoidal Mon_endo_CAT)
+    2: { refine (reindexedstrength_from_commutator Mon_endo_CAT Mon_ptdendo_CAT (forget_monoidal_pointed_objects_monoidal Mon_endo_CAT)
                    _ (SelfActCAT sortToC)).
-         exact (lifteddistrCAT_option_list (pr1 (pr1 xt))).
+         exact (ptdlaxcommutatorCAT_option_list (pr1 (pr1 xt))).
     }
     use reindexed_lax_lineator.
     apply (lax_lineator_postcomp_SelfActCAT).
