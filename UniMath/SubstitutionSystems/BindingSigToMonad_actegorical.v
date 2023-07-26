@@ -124,10 +124,10 @@ Section FixACategory.
     apply bincoprod_distributor_CAT.
   Defined.
 
-  Local Definition ptdlifteddistributivity_CAT (G : functor C C) :=
-    lifteddistributivity Mon_endo_CAT Mon_ptdendo_CAT (forget_monoidal_pointed_objects_monoidal Mon_endo_CAT) G.
-  Local Definition ptdlifteddistributivity_CAT_data (G : functor C C) :=
-    lifteddistributivity_data Mon_endo_CAT (F:=pr1_category (coslice_cat_disp endoCAT I_{Mon_endo_CAT})) G.
+  Local Definition pointedlaxcommutator_CAT (G : functor C C) :=
+    relativelaxcommutator Mon_endo_CAT Mon_ptdendo_CAT (forget_monoidal_pointed_objects_monoidal Mon_endo_CAT) G.
+  Local Definition pointedlaxcommutator_CAT_data (G : functor C C) :=
+    relativelaxcommutator_data Mon_endo_CAT (F:=pr1_category (coslice_cat_disp endoCAT I_{Mon_endo_CAT})) G.
 
   Section ConstConst.
 
@@ -153,7 +153,7 @@ Section FixACategory.
 
   Local Definition genopt : endoCAT := constcoprod_functor1 BC a.
 
-  Definition lifteddistr_genopt_data : ptdlifteddistributivity_CAT_data genopt.
+  Definition ptdlaxcommutator_genopt_data : pointedlaxcommutator_CAT_data genopt.
   Proof.
     apply δ_genoption.
   Defined.
@@ -168,7 +168,7 @@ Section FixACategory.
         apply BinCoproductIn2.
  *)
 
-  Lemma lifteddistr_genopt_nat : lifteddistributivity_nat Mon_endo_CAT lifteddistr_genopt_data.
+  Lemma ptdlaxcommutator_genopt_nat : relativelaxcommutator_nat Mon_endo_CAT ptdlaxcommutator_genopt_data.
   Proof.
     intro Ze; induction Ze as [Z e]; intro Z'e'; induction Z'e' as [Z' e']; intro αX; induction αX as [α X]; simpl in *.
     apply nat_trans_eq; [apply homset_property |]; intro c; simpl.
@@ -184,8 +184,8 @@ Section FixACategory.
     - apply pathsinv0,  nat_trans_ax.
   Qed.
 
-  Lemma lifteddistr_genopt_tensor : lifteddistributivity_tensor Mon_endo_CAT Mon_ptdendo_CAT
-                                      (forget_monoidal_pointed_objects_monoidal Mon_endo_CAT) lifteddistr_genopt_data.
+  Lemma ptdlaxcommutator_genopt_tensor : relativelaxcommutator_tensor Mon_endo_CAT Mon_ptdendo_CAT
+                                      (forget_monoidal_pointed_objects_monoidal Mon_endo_CAT) ptdlaxcommutator_genopt_data.
   Proof.
     intros Ze Z'e'; induction Ze as [Z e]; induction Z'e' as [Z' e'].
     apply nat_trans_eq_alt; intro c; simpl.
@@ -210,8 +210,8 @@ Section FixACategory.
       apply pathsinv0, maponpaths, BinCoproductIn2Commutes.
   Qed.
 
-  Lemma lifteddistr_genopt_unit : lifteddistributivity_unit Mon_endo_CAT Mon_ptdendo_CAT
-                                    (forget_monoidal_pointed_objects_monoidal Mon_endo_CAT) lifteddistr_genopt_data.
+  Lemma ptdlaxcommutator_genopt_unit : relativelaxcommutator_unit Mon_endo_CAT Mon_ptdendo_CAT
+                                    (forget_monoidal_pointed_objects_monoidal Mon_endo_CAT) ptdlaxcommutator_genopt_data.
   Proof.
     apply nat_trans_eq_alt; intro c; simpl.
     unfold δ_genoption_mor, BinCoproduct_of_functors_ob, BinCoproduct_of_functors_mor, BinCoproductOfArrows; simpl.
@@ -220,24 +220,24 @@ Section FixACategory.
     apply idpath.
   Qed.
 
-  Definition lifteddistr_genopt : ptdlifteddistributivity_CAT genopt.
+  Definition ptdlaxcommutator_genopt : pointedlaxcommutator_CAT genopt.
   Proof.
-    exists lifteddistr_genopt_data.
+    exists ptdlaxcommutator_genopt_data.
     split3.
-    - exact lifteddistr_genopt_nat.
-    - exact lifteddistr_genopt_tensor.
-    - exact lifteddistr_genopt_unit.
+    - exact ptdlaxcommutator_genopt_nat.
+    - exact ptdlaxcommutator_genopt_tensor.
+    - exact ptdlaxcommutator_genopt_unit.
   Defined.
 
   End genopt.
 
     (** Define δ for G = F^n *)
-  Definition lifteddistr_iter_functor1 (G : functor C C) (δ : ptdlifteddistributivity_CAT G) (n: nat) :
-    ptdlifteddistributivity_CAT (iter_functor1 _ G n).
+  Definition ptdlaxcommutator_iter_functor1 (G : functor C C) (δ : pointedlaxcommutator_CAT G) (n: nat) :
+    pointedlaxcommutator_CAT (iter_functor1 _ G n).
   Proof.
     induction n as [|n IHn].
     - exact δ.
-    - use composedlifteddistributivity.
+    - use composedrelativelaxcommutator.
       + apply IHn.
       + exact δ.
   Defined.
@@ -247,8 +247,8 @@ Section FixACategory.
   Proof.
     destruct n; simpl.
     - apply identity_lineator.
-    - use reindexedstrength_from_δ.
-      refine (lifteddistr_iter_functor1 (option_functor BCC TC) (lifteddistr_genopt TC BCC) n).
+    - use reindexedstrength_from_commutator.
+      refine (ptdlaxcommutator_iter_functor1 (option_functor BCC TC) (ptdlaxcommutator_genopt TC BCC) n).
   Defined.
 
 
