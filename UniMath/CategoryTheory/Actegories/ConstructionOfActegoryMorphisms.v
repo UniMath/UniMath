@@ -42,14 +42,14 @@ Import BifunctorNotations.
 Import MonoidalNotations.
 Import ActegoryNotations.
 
-Section LiftedLineatorAndLiftedDistributivity.
+Section ReindexedLineatorAndLiftedDistributivity.
 
   Context {V : category} (Mon_V : monoidal V)
           {W : category} (Mon_W : monoidal W)
           {F : W ⟶ V} (U : fmonoidal Mon_W Mon_V F).
 
 
-Section LiftedLaxLineator.
+Section ReindexedLaxLineator.
 
   Context {C D : category} (ActC : actegory Mon_V C) (ActD : actegory Mon_V D).
 
@@ -57,19 +57,19 @@ Section OnFunctors.
 
   Context {H : functor C D} (ll : lineator_lax Mon_V ActC ActD H).
 
-  Definition lifted_lax_lineator_data : lineator_data Mon_W (lifted_actegory Mon_V ActC Mon_W U)
-                                                            (lifted_actegory Mon_V ActD Mon_W U) H.
+  Definition reindexed_lax_lineator_data : lineator_data Mon_W (reindexed_actegory Mon_V ActC Mon_W U)
+                                                            (reindexed_actegory Mon_V ActD Mon_W U) H.
   Proof.
     intros w c. exact (ll (F w) c).
   Defined.
 
-  Lemma lifted_lax_lineator_laws : lineator_laxlaws Mon_W (lifted_actegory Mon_V ActC Mon_W U)
-                                     (lifted_actegory Mon_V ActD Mon_W U) H lifted_lax_lineator_data.
+  Lemma reindexed_lax_lineator_laws : lineator_laxlaws Mon_W (reindexed_actegory Mon_V ActC Mon_W U)
+                                     (reindexed_actegory Mon_V ActD Mon_W U) H reindexed_lax_lineator_data.
   Proof.
     split4.
     - intro; intros. apply (lineator_linnatleft _ _ _ _ ll).
     - intro; intros. apply (lineator_linnatright _ _ _ _ ll).
-    - intro; intros. cbn. unfold lifted_lax_lineator_data, lifted_actor_data.
+    - intro; intros. cbn. unfold reindexed_lax_lineator_data, reindexed_actor_data.
       etrans.
       2: { repeat rewrite assoc'. apply maponpaths.
            rewrite assoc.
@@ -83,7 +83,7 @@ Section OnFunctors.
            apply maponpaths.
            apply functor_comp. }
       apply idpath.
-    - intro; intros. cbn. unfold lifted_lax_lineator_data, lifted_action_unitor_data.
+    - intro; intros. cbn. unfold reindexed_lax_lineator_data, reindexed_action_unitor_data.
       etrans.
       2: { apply maponpaths.
            apply (lineator_preservesunitor _ _ _ _ ll). }
@@ -98,9 +98,9 @@ Section OnFunctors.
       apply idpath.
   Qed.
 
-  Definition lifted_lax_lineator : lineator_lax Mon_W (lifted_actegory Mon_V ActC Mon_W U)
-                                                      (lifted_actegory Mon_V ActD Mon_W U) H :=
-    _,,lifted_lax_lineator_laws.
+  Definition reindexed_lax_lineator : lineator_lax Mon_W (reindexed_actegory Mon_V ActC Mon_W U)
+                                                      (reindexed_actegory Mon_V ActD Mon_W U) H :=
+    _,,reindexed_lax_lineator_laws.
 
 End OnFunctors.
 
@@ -110,8 +110,8 @@ Section OnNaturalTransformations.
     {K : functor C D} (Kl : lineator_lax Mon_V ActC ActD K)
     {ξ : H ⟹ K} (islntξ : is_linear_nat_trans Hl Kl ξ).
 
-  Lemma preserves_linearity_lifted_lax_lineator :
-    is_linear_nat_trans (lifted_lax_lineator Hl) (lifted_lax_lineator Kl) ξ.
+  Lemma preserves_linearity_reindexed_lax_lineator :
+    is_linear_nat_trans (reindexed_lax_lineator Hl) (reindexed_lax_lineator Kl) ξ.
   Proof.
     intros w c.
     apply islntξ.
@@ -119,7 +119,7 @@ Section OnNaturalTransformations.
 
 End OnNaturalTransformations.
 
-End LiftedLaxLineator.
+End ReindexedLaxLineator.
 
 Section LiftedDistributivity.
 
@@ -169,7 +169,7 @@ Section ActegoryMorphismFromLiftedDistributivity.
   Context (δ : lifteddistributivity) {C : category} (ActV : actegory Mon_V C).
 
   Local Definition FF: C ⟶ C := leftwhiskering_functor ActV v0.
-  Local Definition ActW: actegory Mon_W C := lifted_actegory Mon_V ActV Mon_W U.
+  Local Definition ActW: actegory Mon_W C := reindexed_actegory Mon_V ActV Mon_W U.
 
   Definition lineator_data_from_δ: lineator_data Mon_W ActW ActW FF.
   Proof.
@@ -181,8 +181,8 @@ Section ActegoryMorphismFromLiftedDistributivity.
   Proof.
     assert (δ_nat := lifteddistributivity_ldnat δ).
     do 2 red in δ_nat. cbn in δ_nat.
-    repeat split; red; intros; unfold lineator_data_from_δ; try unfold lifted_actor_data; try unfold lifted_action_unitor_data; cbn;
-      try unfold lifted_actor_data; try unfold lifted_action_unitor_data; cbn.
+    repeat split; red; intros; unfold lineator_data_from_δ; try unfold reindexed_actor_data; try unfold reindexed_action_unitor_data; cbn;
+      try unfold reindexed_actor_data; try unfold reindexed_action_unitor_data; cbn.
     - etrans.
       { repeat rewrite assoc.
         do 2 apply cancel_postcomposition.
@@ -400,14 +400,14 @@ Section ActegoryMorphismFromLiftedDistributivity.
       apply id_left.
   Qed.
 
-  Definition liftedstrength_from_δ: liftedstrength Mon_V Mon_W U ActV ActV FF :=
+  Definition reindexedstrength_from_δ: reindexedstrength Mon_V Mon_W U ActV ActV FF :=
     lineator_data_from_δ,,lineator_laxlaws_from_δ.
 
 End ActegoryMorphismFromLiftedDistributivity.
 
 End FixAnObject.
 
-Arguments liftedstrength_from_δ _ _ {_} _.
+Arguments reindexedstrength_from_δ _ _ {_} _.
 Arguments lifteddistributivity _ : clear implicits.
 Arguments lifteddistributivity_data _ : clear implicits.
 
@@ -865,7 +865,7 @@ End CompositionOfLiftedDistributivities.
 
 End LiftedDistributivity.
 
-End LiftedLineatorAndLiftedDistributivity.
+End ReindexedLineatorAndLiftedDistributivity.
 
 Arguments lifteddistributivity {_} _ {_} _ {_} _ _.
 Arguments lifteddistributivity_data {_} _ {_ _} _.

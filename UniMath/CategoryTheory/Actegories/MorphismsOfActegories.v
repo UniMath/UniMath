@@ -556,22 +556,22 @@ Section StrongFunctors.
     apply idpath.
   Qed.
 
-Section LiftedStrength.
+Section ReindexedStrength.
 
   Context {V : category} (Mon_V : monoidal V)
           {W : category} (Mon_W : monoidal W)
           {F : W ⟶ V} (U : fmonoidal Mon_W Mon_V F)
           {C D : category} (ActC : actegory Mon_V C) (ActD : actegory Mon_V D) (FF :  C ⟶ D).
 
-  Definition liftedstrength : UU :=
-    lineator_lax Mon_W (lifted_actegory Mon_V ActC Mon_W U) (lifted_actegory Mon_V ActD Mon_W U) FF.
+  Definition reindexedstrength : UU :=
+    lineator_lax Mon_W (reindexed_actegory Mon_V ActC Mon_W U) (reindexed_actegory Mon_V ActD Mon_W U) FF.
 
-  Identity Coercion id_liftedstrength : liftedstrength >-> lineator_lax.
+  Identity Coercion id_reindexedstrength : reindexedstrength >-> lineator_lax.
 
-End LiftedStrength.
+End ReindexedStrength.
 
   Definition pointedtensorialstrength {C : category} (M : monoidal C) (F : functor C C) : UU :=
-    liftedstrength M (monoidal_pointed_objects M) (forget_monoidal_pointed_objects_monoidal M)
+    reindexedstrength M (monoidal_pointed_objects M) (forget_monoidal_pointed_objects_monoidal M)
                    (actegory_with_canonical_self_action M) (actegory_with_canonical_self_action M) F.
 
   Goal ∏ (C : category)(M : monoidal C) (F : functor C C), pointedtensorialstrength M F =
@@ -582,7 +582,7 @@ End LiftedStrength.
     apply idpath.
   Qed.
 
-  Identity Coercion id_pointedtensorialstrength : pointedtensorialstrength >-> liftedstrength.
+  Identity Coercion id_pointedtensorialstrength : pointedtensorialstrength >-> reindexedstrength.
 
   Lemma pointedtensorialstrength_lineator_nat_left {C : category} (M : monoidal C)
     {F : functor C C} (pts : pointedtensorialstrength M F):
@@ -611,12 +611,12 @@ End LiftedStrength.
     - intros H c.
       assert (Hc := H c). clear H.
       cbn in Hc.
-      unfold total_unit, lifted_action_unitor_data in Hc. cbn in Hc.
+      unfold total_unit, reindexed_action_unitor_data in Hc. cbn in Hc.
       do 2 rewrite (bifunctor_rightid M) in Hc. do 2 rewrite id_left in Hc.
       exact Hc.
     - intros H c.
       cbn.
-      unfold total_unit, lifted_action_unitor_data. cbn.
+      unfold total_unit, reindexed_action_unitor_data. cbn.
       do 2 rewrite (bifunctor_rightid M). do 2 rewrite id_left.
       apply H.
     - apply impred; intro c. apply C.
@@ -634,12 +634,12 @@ End LiftedStrength.
     - intros H v w x.
       assert (Hinst := H v w x). clear H.
       cbn in Hinst.
-      unfold lifted_actor_data in Hinst. cbn in Hinst.
+      unfold reindexed_actor_data in Hinst. cbn in Hinst.
       do 2 rewrite (bifunctor_rightid M) in Hinst. do 2 rewrite id_left in Hinst.
       exact Hinst.
     - intros H v w x.
       cbn.
-      unfold lifted_actor_data. cbn.
+      unfold reindexed_actor_data. cbn.
       do 2 rewrite (bifunctor_rightid M). do 2 rewrite id_left.
       apply H.
     - do 3 (apply impred; intro). apply C.

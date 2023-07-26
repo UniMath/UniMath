@@ -164,14 +164,14 @@ Section strength_through_actegories.
   Local Definition δCCCATEndo (M : MultiSortedSig sort) :
     actegory_coprod_distributor Mon_ptdendo_CAT (CoproductsMultiSortedSig M) ActPtd_CAT_Endo.
   Proof.
-    use lifted_coprod_distributor.
+    use reindexed_coprod_distributor.
     use actegory_from_precomp_CAT_coprod_distributor.
   Defined.
 
   Local Definition δCCCATfromSelf (M : MultiSortedSig sort) :
     actegory_coprod_distributor Mon_ptdendo_CAT (CoproductsMultiSortedSig M) ActPtd_CAT_FromSelf.
   Proof.
-    use lifted_coprod_distributor.
+    use reindexed_coprod_distributor.
     use SelfActCAT_CAT_coprod_distributor.
   Defined.
 
@@ -203,14 +203,14 @@ Section strength_through_actegories.
     use list_ind.
     - cbn. (* in [MultiSorted_alt], the analogous construction [Sig_exp_functor] has a composition
               with the strength of the identity functor since [Gθ_Signature] needs a composition *)
-      use lifted_lax_lineator.
+      use reindexed_lax_lineator.
       exact (lax_lineator_postcomp_actegories_from_precomp_CAT _ _ _ (projSortToC t)).
     - intros x xs H; simpl.
       use comp_lineator_lax.
-      3: { use lifted_lax_lineator.
+      3: { use reindexed_lax_lineator.
            2: { exact (lax_lineator_postcomp_actegories_from_precomp_CAT _ _ _ (projSortToC t)). }
       }
-      use liftedstrength_from_δ.
+      use reindexedstrength_from_δ.
       exact (lifteddistrCAT_option_list (cons x xs)).
   Defined.
 
@@ -219,7 +219,7 @@ Section strength_through_actegories.
   Proof.
     induction xs as [[|n] xs].
     - induction xs.
-      use lifted_lax_lineator.
+      use reindexed_lax_lineator.
       apply constconst_functor_lax_lineator.
     - induction n as [|n IH].
       + induction xs as [m []].
@@ -237,7 +237,7 @@ Section strength_through_actegories.
     use comp_lineator_lax.
     - exact (ActPtd_CAT C).
     - apply StrengthCAT_exp_functor_list.
-    - use lifted_lax_lineator.
+    - use reindexed_lax_lineator.
       apply lax_lineator_postcomp_actegories_from_precomp_CAT.
   Defined.
 
@@ -255,7 +255,7 @@ Section strength_through_actegories.
   Definition MultiSortedSigToStrengthFromSelfCAT (M : MultiSortedSig sort) :
     pointedstrengthfromselfaction_CAT (MultiSortedSigToFunctor M).
   Proof.
-    apply EquivalenceLaxLineatorsHomogeneousCase.lax_lineators_from_lifted_precomp_CAT_and_lifted_self_action_agree.
+    apply EquivalenceLaxLineatorsHomogeneousCase.lax_lineators_from_reindexed_precomp_CAT_and_reindexed_self_action_agree.
     apply MultiSortedSigToStrengthCAT.
   Defined.
    *)
@@ -267,7 +267,7 @@ Section strength_through_actegories.
   Proof.
     apply weqSignatureLaxMorphismActegoriesHomogeneous_alt.
     exists (MultiSortedSigToFunctor M).
-    apply lax_lineators_from_lifted_precomp_and_lifted_self_action_agree.
+    apply lax_lineators_from_reindexed_precomp_and_reindexed_self_action_agree.
     apply MultiSortedSigToStrength.
   Defined.
 
@@ -292,11 +292,11 @@ Section strength_through_actegories.
   Proof.
     unfold hat_exp_functor_list'_piece, ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_piece.
     use comp_lineator_lax.
-    2: { refine (liftedstrength_from_δ Mon_endo_CAT Mon_ptdendo_CAT (forget_monoidal_pointed_objects_monoidal Mon_endo_CAT)
+    2: { refine (reindexedstrength_from_δ Mon_endo_CAT Mon_ptdendo_CAT (forget_monoidal_pointed_objects_monoidal Mon_endo_CAT)
                    _ (SelfActCAT sortToC)).
          exact (lifteddistrCAT_option_list (pr1 (pr1 xt))).
     }
-    use lifted_lax_lineator.
+    use reindexed_lax_lineator.
     apply (lax_lineator_postcomp_SelfActCAT).
     Defined.
 
@@ -306,7 +306,7 @@ Section strength_through_actegories.
     induction xst as [xs t].
     induction xs as [[|n] xs].
     - induction xs.
-      use lifted_lax_lineator.
+      use reindexed_lax_lineator.
       use comp_lineator_lax. (* the next two lines go through [actegory_from_precomp_CAT] *)
       2: { apply constconst_functor_lax_lineator. }
       apply lax_lineator_postcomp_SelfActCAT_alt.
