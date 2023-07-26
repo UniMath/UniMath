@@ -380,7 +380,7 @@ Section hss.
       apply (bifunctor_equalwhiskers Mon_V).
   Qed.
 
-  Definition gh_squared : PtdV := Ptd_from_mhss ⊗_{Mon_PtdV} Ptd_from_mhss.
+  Definition mh_squared : PtdV := Ptd_from_mhss ⊗_{Mon_PtdV} Ptd_from_mhss.
 
   Definition μ_2 : gh ⊗_{Mon_V} gh --> gh := μ.
 
@@ -397,18 +397,18 @@ Section hss.
     apply (bifunctor_equalwhiskers Mon_V).
   Qed.
 
-  Definition μ_2_Ptd : gh_squared --> Ptd_from_mhss := μ_2,,μ_2_is_Ptd_mor.
+  Definition μ_2_Ptd : mh_squared --> Ptd_from_mhss := μ_2,,μ_2_is_Ptd_mor.
 
-  Definition μ_3 : (gh ⊗_{Mon_V} gh) ⊗_{Mon_V} gh --> gh := ⦃μ_2⦄_{gh_squared}.
+  Definition μ_3 : (gh ⊗_{Mon_V} gh) ⊗_{Mon_V} gh --> gh := ⦃μ_2⦄_{mh_squared}.
 
-  Lemma mhss_third_monoidlaw_aux : θ (pr1 gh_squared,, pr2 gh_squared) gh · # H (μ ⊗^{Mon_V}_{r} gh) =
+  Lemma mhss_third_monoidlaw_aux : θ (pr1 mh_squared,, pr2 mh_squared) gh · # H (μ ⊗^{Mon_V}_{r} gh) =
                                      μ_2 ⊗^{Mon_V}_{r} H gh · θ Ptd_from_mhss gh.
   Proof.
     apply pathsinv0.
     assert (aux := lineator_linnatright Mon_PtdV
                      (actegory_with_canonical_pointed_action Mon_V)
                      (actegory_with_canonical_pointed_action Mon_V)
-                     H θ gh_squared Ptd_from_mhss gh μ_2_Ptd).
+                     H θ mh_squared Ptd_from_mhss gh μ_2_Ptd).
     simpl in aux. (* simpl not cbn for efficiency of Qed *)
     etrans.
     { exact aux. }
@@ -420,7 +420,7 @@ Section hss.
     red. cbn. apply pathsinv0.
     transitivity μ_3.
     - (** this case is the monoidal generalization of the second item on p.168 of Matthes & Uustalu, TCS 2004 *)
-      apply (mfbracket_unique(Z:=gh_squared)).
+      apply (mfbracket_unique(Z:=mh_squared)).
       split.
       + cbn.
         etrans.
@@ -452,7 +452,7 @@ Section hss.
         cbn.
         apply (bifunctor_equalwhiskers Mon_V).
     - (** this case is the monoidal generalization of the first item on p.168 of Matthes & Uustalu, TCS 2004 *)
-      apply pathsinv0, (mfbracket_unique(Z:=gh_squared)).
+      apply pathsinv0, (mfbracket_unique(Z:=mh_squared)).
       split.
       + cbn.
         etrans.
