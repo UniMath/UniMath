@@ -1,6 +1,6 @@
 (** Construction of actegory morphisms
 
-Part Generalization of pointed distributivity laws to lifted distributivity laws in general monads
+Part Generalization of pointed distributivity laws (a misnomer as it became clear in July 2023) to relative lax commutators in general monoidal categories
 - definition
 - construction of actegory morphism from it
 - composition
@@ -524,7 +524,7 @@ Arguments relativelaxcommutator_data _ : clear implicits.
       + exact unit_relativelaxcommutator_unit.
   Defined.
 
-Section CompositionOfLiftedDistributivities.
+Section CompositionOfRelativeLaxCommutators.
 
   Context (v1 v2 : V) (γ1 : relativelaxcommutator v1) (γ2 : relativelaxcommutator v2).
 
@@ -861,7 +861,7 @@ Section CompositionOfLiftedDistributivities.
            composedrelativelaxcommutator_unit).
   Defined.
 
-End CompositionOfLiftedDistributivities.
+End CompositionOfRelativeLaxCommutators.
 
 End RelativeLaxCommutator.
 

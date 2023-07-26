@@ -48,7 +48,12 @@ Local Notation "'Ptd'" := (category_Ptd C).
 Local Notation "'EndC'":= ([C, C]) .
 
 (** distributivity with laws as a simple form the strength with laws,
-    for endofunctors on the base category *)
+    for endofunctors on the base category
+
+    in July 2023, it became clear that this should rather have been
+    called a pointed lax commutator; since a paper is based on this
+    notion, we keep the name
+*)
 Section def_of_δ.
 
 Variable G : EndC.
