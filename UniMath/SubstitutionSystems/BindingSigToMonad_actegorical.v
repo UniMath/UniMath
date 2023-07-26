@@ -1,7 +1,7 @@
 (** a follow-up of [BindingSigToMonad], where the semantic signatures [Signature] are replaced by functors with tensorial strength
 
     the concept of binding signatures is inherited, as well as the reasoning about omega-cocontinuity
-    the strength notion is the one of generalized heterogeneous substitution systems (GHSS), and accordingly a GHSS
+    the strength notion is the one of monoidal heterogeneous substitution systems (MHSS), and accordingly a MHSS
     is constructed and a monad obtained through it
 
 author: Ralph Matthes, 2023
@@ -358,11 +358,11 @@ Section PuttingAllTogether.
     - apply ColimsFunctorCategory_of_shape, CLC.
   Defined.
 
-  (** the associated GHSS *)
-  Definition GHSSOfBindingSig_CAT :
-    ghss Mon_endo_CAT (BindingSigToFunctor TC sig CC) (BindingSigToStrengthCAT TC sig CC).
+  (** the associated MHSS *)
+  Definition MHSSOfBindingSig_CAT :
+    mhss Mon_endo_CAT (BindingSigToFunctor TC sig CC) (BindingSigToStrengthCAT TC sig CC).
   Proof.
-    use (initial_alg_to_ghss (BindingSigToStrengthCAT TC sig CC) BCC2 (bincoprod_distributor_pointed_CAT BCC)).
+    use (initial_alg_to_mhss (BindingSigToStrengthCAT TC sig CC) BCC2 (bincoprod_distributor_pointed_CAT BCC)).
     - apply (Initial_functor_precat _ _ IC).
     - apply ColimsFunctorCategory_of_shape, CLC.
     - apply (is_omega_cocont_BindingSigToFunctor TC CLC HF sig CC).
@@ -373,8 +373,8 @@ Section PuttingAllTogether.
   (** the associated Sigma-monoid *)
   Definition SigmaMonoidOfBindingSig_CAT : SigmaMonoid (BindingSigToStrengthCAT TC sig CC).
   Proof.
-    apply ghss_to_sigma_monoid.
-    exact GHSSOfBindingSig_CAT.
+    apply mhss_to_sigma_monoid.
+    exact MHSSOfBindingSig_CAT.
   Defined.
 
   (** the associated monad *)

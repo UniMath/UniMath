@@ -4,9 +4,9 @@
     the strength notion is based on lax lineators where endofunctors act on possibly non-endofunctors, but the
     signature functor generated from a multi-sorted binding signature falls into the special case of endofunctors,
     and the lineator notion can be transferred (through weak equivalence) to the strength notion of
-    generalized heterogeneous substitution systems (GHSS)
+    monoidal heterogeneous substitution systems (MHSS)
 
-    accordingly a GHSS is constructed and a monad obtained through it, cf. [MultiSortedMonadConstruction_actegorical]
+    accordingly a MHSS is constructed and a monad obtained through it, cf. [MultiSortedMonadConstruction_actegorical]
 
 author: Ralph Matthes, 2023
 
