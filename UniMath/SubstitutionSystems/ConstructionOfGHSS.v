@@ -1,7 +1,10 @@
-(** construction of generalized heterogeneous substitution systems from arbitrary final coalgebras
+(** construction of monoidal heterogeneous substitution systems from arbitrary final coalgebras
    and from initial algebras arising from iteration in omega-cocontinuous functors
 
 authors: Ralph Matthes, Kobe Wullaert, 2023
+
+Note: the name of the file still refers to GHSS although it would more appropriately be MHSS after the renaming from "generalized" to "monoidal" done in July 2023.
+
 *)
 
 
@@ -61,7 +64,7 @@ Section FixTheContext.
 
   Definition I_H : functor V V := Const_plus_H I_{Mon_V}.
 
-Section FinalCoalgebraToGHSS.
+Section FinalCoalgebraToMHSS.
 
   Context (νH : coalgebra_ob I_H)
           (isTerminalνH : isTerminal (CoAlg_category I_H) νH).
@@ -71,7 +74,7 @@ Section FinalCoalgebraToGHSS.
   Let out_z_iso : z_iso t (I_H t) := finalcoalgebra_z_iso _ I_H νH isTerminalνH.
   Let out_inv : I_H t --> t := inv_from_z_iso out_z_iso.
 
-  Definition final_coalg_to_ghss_step_term
+  Definition final_coalg_to_mhss_step_term
              {Z : PtdV} (f : pr1 Z --> t)
     : Z ⊗_{Act} t --> I_H (CP (Z ⊗_{Act} t) t).
   Proof.
@@ -83,7 +86,7 @@ Section FinalCoalgebraToGHSS.
   Defined.
 
   (** an alternative route through completely iterative algebras *)
-  Definition final_coalg_to_ghss_equation_morphism
+  Definition final_coalg_to_mhss_equation_morphism
              {Z : PtdV} (f : pr1 Z --> t)
     : Z ⊗_{Act} t --> CP (I_H (Z ⊗_{Act} t)) t.
   Proof.
@@ -97,13 +100,13 @@ Section FinalCoalgebraToGHSS.
       apply BinCoproductIn1.
   Defined.
 
-  Lemma final_coalg_to_ghss_equation_morphism_is_factor
+  Lemma final_coalg_to_mhss_equation_morphism_is_factor
     {Z : PtdV} (f : pr1 Z --> t)
-    :  final_coalg_to_ghss_step_term f =
+    :  final_coalg_to_mhss_step_term f =
          CompletelyIterativeAlgebras.ϕ_for_cia CP I_H νH isTerminalνH
-           (Z ⊗_{Act} t) (final_coalg_to_ghss_equation_morphism f).
+           (Z ⊗_{Act} t) (final_coalg_to_mhss_equation_morphism f).
   Proof.
-    unfold final_coalg_to_ghss_step_term, CompletelyIterativeAlgebras.ϕ_for_cia, final_coalg_to_ghss_equation_morphism.
+    unfold final_coalg_to_mhss_step_term, CompletelyIterativeAlgebras.ϕ_for_cia, final_coalg_to_mhss_equation_morphism.
     repeat rewrite assoc'.
     do 3 apply maponpaths.
     unfold Const_plus_H, GeneralizedSubstitutionSystems.Const_plus_H. cbn. unfold BinCoproduct_of_functors_mor.
@@ -135,7 +138,7 @@ Section FinalCoalgebraToGHSS.
   Qed.
 
   Local Definition ϕ {Z : PtdV} (f : pr1 Z --> t)
-    := final_coalg_to_ghss_step_term f.
+    := final_coalg_to_mhss_step_term f.
   Local Definition Corec_ϕ {Z : PtdV} (f : pr1 Z --> t)
     := primitive_corecursion CP isTerminalνH (x :=  Z ⊗_{Act} t) (ϕ f).
 
@@ -183,14 +186,14 @@ Section FinalCoalgebraToGHSS.
       apply idpath.
   Qed.
 
-  Lemma final_coalg_to_ghss_has_equivalent_characteristic_formula
+  Lemma final_coalg_to_mhss_has_equivalent_characteristic_formula
     {Z : PtdV} (f : pr1 Z --> t) (h : Z ⊗_{Act} t --> t) :
     primitive_corecursion_characteristic_formula CP (ϕ f) h ≃
-      gbracket_property_parts Mon_V H θ t η τ (pr2 Z) f h.
+      mbracket_property_parts Mon_V H θ t η τ (pr2 Z) f h.
   Proof.
     apply weqimplimpl.
     - intro Hcorec.
-      apply (pr2 (gbracket_property_single_equivalent _ _ _ _ _ _ CP _ _ _)).
+      apply (pr2 (mbracket_property_single_equivalent _ _ _ _ _ _ CP _ _ _)).
       red.
       red in Hcorec.
       fold out t in Hcorec.
@@ -200,7 +203,7 @@ Section FinalCoalgebraToGHSS.
       { apply maponpaths.
         exact Hcorec. }
       clear Hcorec.
-      unfold ϕ, final_coalg_to_ghss_step_term.
+      unfold ϕ, final_coalg_to_mhss_step_term.
       etrans.
       { repeat rewrite assoc.
         do 6 apply cancel_postcomposition.
@@ -247,21 +250,21 @@ Section FinalCoalgebraToGHSS.
       { apply maponpaths.
         apply (pr122 out_z_iso). }
       apply id_right.
-    - intro Hghss.
-      apply (pr1 (gbracket_property_single_equivalent _ _ _ _ _ _ CP _ _ _)) in Hghss.
+    - intro Hmhss.
+      apply (pr1 (mbracket_property_single_equivalent _ _ _ _ _ _ CP _ _ _)) in Hmhss.
       red.
-      red in Hghss.
+      red in Hmhss.
       fold out t.
-      rewrite ητ_is_out_inv in Hghss.
-      rewrite assoc' in Hghss.
+      rewrite ητ_is_out_inv in Hmhss.
+      rewrite assoc' in Hmhss.
       apply (z_iso_inv_to_left _ _ _ (_,,bincoprod_functor_lineator_strongly
-                                        Mon_PtdV CP Act δ (pr1 Z,, pr2 Z) (I_{ Mon_V},,H t))) in Hghss.
-      apply (z_iso_inv_to_left _ _ _ (functor_on_z_iso (leftwhiskering_functor Act (pr1 Z,, pr2 Z)) out_z_iso)) in Hghss.
+                                        Mon_PtdV CP Act δ (pr1 Z,, pr2 Z) (I_{ Mon_V},,H t))) in Hmhss.
+      apply (z_iso_inv_to_left _ _ _ (functor_on_z_iso (leftwhiskering_functor Act (pr1 Z,, pr2 Z)) out_z_iso)) in Hmhss.
       etrans.
       { apply cancel_postcomposition.
-        exact Hghss. }
-      clear Hghss.
-      unfold ϕ, final_coalg_to_ghss_step_term.
+        exact Hmhss. }
+      clear Hmhss.
+      unfold ϕ, final_coalg_to_mhss_step_term.
       repeat rewrite assoc'.
       do 2 apply maponpaths.
       etrans.
@@ -289,10 +292,10 @@ Section FinalCoalgebraToGHSS.
         apply (pr222 out_z_iso). }
       apply id_right.
     - apply V.
-    - apply isaprop_gbracket_property_parts.
+    - apply isaprop_mbracket_property_parts.
   Qed.
 
-  Definition final_coalg_to_ghss : ghss Mon_V H θ.
+  Definition final_coalg_to_mhss : mhss Mon_V H θ.
   Proof.
     exists t.
     exists η.
@@ -300,26 +303,26 @@ Section FinalCoalgebraToGHSS.
     intros Z f.
     simple refine (iscontrretract _ _ _ (Corec_ϕ f)).
     - intros [h Hyp].
-      exists h. apply final_coalg_to_ghss_has_equivalent_characteristic_formula. exact Hyp.
+      exists h. apply final_coalg_to_mhss_has_equivalent_characteristic_formula. exact Hyp.
     - intros [h Hyp].
-      exists h. apply final_coalg_to_ghss_has_equivalent_characteristic_formula. exact Hyp.
+      exists h. apply final_coalg_to_mhss_has_equivalent_characteristic_formula. exact Hyp.
     - intros [h Hyp].
       use total2_paths_f.
       + apply idpath.
-      + apply isaprop_gbracket_property_parts.
+      + apply isaprop_mbracket_property_parts.
   Defined.
 
   (** the alternative proof through cia *)
-  Lemma final_coalg_to_ghss_equation_morphism_has_equivalent_characteristic_formula
+  Lemma final_coalg_to_mhss_equation_morphism_has_equivalent_characteristic_formula
     {Z : PtdV} (f : pr1 Z --> t) (h : Z ⊗_{Act} t --> t) :
     cia_characteristic_formula CP I_H
       (CompletelyIterativeAlgebras.Xinv _ _ isTerminalνH)
-      (final_coalg_to_ghss_equation_morphism f) h ≃
-      gbracket_property_parts Mon_V H θ t η τ (pr2 Z) f h.
+      (final_coalg_to_mhss_equation_morphism f) h ≃
+      mbracket_property_parts Mon_V H θ t η τ (pr2 Z) f h.
   Proof.
     apply weqimplimpl.
     - intro Hcia.
-      apply (pr2 (gbracket_property_single_equivalent _ _ _ _ _ _ CP _ _ _)).
+      apply (pr2 (mbracket_property_single_equivalent _ _ _ _ _ _ CP _ _ _)).
       red.
       red in Hcia.
       rewrite ητ_is_out_inv.
@@ -327,7 +330,7 @@ Section FinalCoalgebraToGHSS.
       { apply maponpaths.
         exact Hcia. }
       clear Hcia.
-      unfold final_coalg_to_ghss_equation_morphism.
+      unfold final_coalg_to_mhss_equation_morphism.
       etrans.
       { repeat rewrite assoc'.
         apply maponpaths.
@@ -369,19 +372,19 @@ Section FinalCoalgebraToGHSS.
           apply BinCoproductOfArrowsIn2. }
         rewrite assoc'.
         apply idpath.
-    - intro Hghss.
-      apply (pr1 (gbracket_property_single_equivalent _ _ _ _ _ _ CP _ _ _)) in Hghss.
+    - intro Hmhss.
+      apply (pr1 (mbracket_property_single_equivalent _ _ _ _ _ _ CP _ _ _)) in Hmhss.
       red.
-      red in Hghss.
-      rewrite ητ_is_out_inv in Hghss.
-      rewrite assoc' in Hghss.
+      red in Hmhss.
+      rewrite ητ_is_out_inv in Hmhss.
+      rewrite assoc' in Hmhss.
       apply (z_iso_inv_to_left _ _ _ (_,,bincoprod_functor_lineator_strongly
-                                        Mon_PtdV CP Act δ (pr1 Z,, pr2 Z) (I_{ Mon_V},,H t))) in Hghss.
-      apply (z_iso_inv_to_left _ _ _ (functor_on_z_iso (leftwhiskering_functor Act (pr1 Z,, pr2 Z)) out_z_iso)) in Hghss.
+                                        Mon_PtdV CP Act δ (pr1 Z,, pr2 Z) (I_{ Mon_V},,H t))) in Hmhss.
+      apply (z_iso_inv_to_left _ _ _ (functor_on_z_iso (leftwhiskering_functor Act (pr1 Z,, pr2 Z)) out_z_iso)) in Hmhss.
       etrans.
-      { exact Hghss. }
-      clear Hghss.
-      unfold final_coalg_to_ghss_equation_morphism.
+      { exact Hmhss. }
+      clear Hmhss.
+      unfold final_coalg_to_mhss_equation_morphism.
       repeat rewrite assoc'.
       do 3 apply maponpaths.
       unfold GeneralizedSubstitutionSystems.Const_plus_H. cbn.
@@ -406,31 +409,31 @@ Section FinalCoalgebraToGHSS.
         rewrite assoc'.
         apply idpath.
     - apply V.
-    - apply isaprop_gbracket_property_parts.
+    - apply isaprop_mbracket_property_parts.
   Qed.
   (** this proof is a bit shorter and does not need the hand-crafted auxiliary lemma [changing_the_constant_Const_plus_H] *)
 
-  Definition final_coalg_to_ghss_alt : ghss Mon_V H θ.
+  Definition final_coalg_to_mhss_alt : mhss Mon_V H θ.
   Proof.
     exists t.
     exists η.
     exists τ.
     intros Z f.
     simple refine (iscontrretract _ _ _ (cia_from_final_coalgebra CP I_H
-      _ isTerminalνH _ (final_coalg_to_ghss_equation_morphism f))).
+      _ isTerminalνH _ (final_coalg_to_mhss_equation_morphism f))).
     - intros [h Hyp].
-      exists h. apply final_coalg_to_ghss_equation_morphism_has_equivalent_characteristic_formula. exact Hyp.
+      exists h. apply final_coalg_to_mhss_equation_morphism_has_equivalent_characteristic_formula. exact Hyp.
     - intros [h Hyp].
-      exists h. apply final_coalg_to_ghss_equation_morphism_has_equivalent_characteristic_formula. exact Hyp.
+      exists h. apply final_coalg_to_mhss_equation_morphism_has_equivalent_characteristic_formula. exact Hyp.
     - intros [h Hyp].
       use total2_paths_f.
       + apply idpath.
-      + apply isaprop_gbracket_property_parts.
+      + apply isaprop_mbracket_property_parts.
   Defined.
 
-End FinalCoalgebraToGHSS.
+End FinalCoalgebraToMHSS.
 
-Section InitialAlgebraToGHSS.
+Section InitialAlgebraToMHSS.
 
   Context (IV : Initial V) (CV : Colims_of_shape nat_graph V) (HH : is_omega_cocont H).
 
@@ -516,14 +519,14 @@ Section InitialAlgebraToGHSS.
   Context (initial_annihilates : ∏ (v : V), isInitial V (v ⊗_{Mon_V} (InitialObject IV))).
   Context (left_whiskering_omega_cocont : ∏ (v : V), is_omega_cocont (leftwhiskering_functor Mon_V v)).
 
-  Definition initial_alg_to_ghss : ghss Mon_V H θ.
+  Definition initial_alg_to_mhss : mhss Mon_V H θ.
   Proof.
     exists t.
     exists η.
     exists τ.
     intros Z f.
     red.
-    unfold gbracket_property_parts.
+    unfold mbracket_property_parts.
     set (Mendler_inst := SpecialGenMendlerIterationWithActegoryAndStrength Mon_PtdV IV CV Act
                            Z CP H HH I_{Mon_V} t θ τ (ru^{Mon_V}_{ pr1 Z} · f)
                            (initial_annihilates (pr1 Z)) (left_whiskering_omega_cocont (pr1 Z)) δ).
@@ -541,7 +544,7 @@ Section InitialAlgebraToGHSS.
         apply idpath.
   Defined.
 
-  Let σ : SigmaMonoid θ := ghss_to_sigma_monoid θ initial_alg_to_ghss.
+  Let σ : SigmaMonoid θ := mhss_to_sigma_monoid θ initial_alg_to_mhss.
   Let μ : pr1 σ ⊗_{Mon_V} pr1 σ --> pr1 σ := pr11 (pr212 σ).
 
   Theorem SigmaMonoidFromInitialAlgebra_is_initial : isInitial _ σ.
@@ -665,6 +668,6 @@ Section InitialAlgebraToGHSS.
   Definition SigmaMonoidFromInitialAlgebraInitial : Initial (SigmaMonoid θ)
     := σ,,SigmaMonoidFromInitialAlgebra_is_initial.
 
-End InitialAlgebraToGHSS.
+End InitialAlgebraToMHSS.
 
 End FixTheContext.
