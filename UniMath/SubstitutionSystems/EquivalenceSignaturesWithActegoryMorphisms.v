@@ -73,7 +73,7 @@ Section A.
    := monoidal_pointed_objects Mon_endo.
 
  Local Definition actegoryPtdEndosOnFunctors (E : category) : actegory Mon_ptdendo [C,E]
-   := lifted_actegory Mon_endo (actegoryfromprecomp C E) Mon_ptdendo
+   := reindexed_actegory Mon_endo (actegoryfromprecomp C E) Mon_ptdendo
         (forget_monoidal_pointed_objects_monoidal Mon_endo).
 
  (* not possible without some transparent proofs
@@ -98,7 +98,7 @@ Section A.
  Qed. (* slow *)
 
  (*
- Local Lemma lax_lineators_from_lifted_precomp_and_lifted_self_action_agree (F : functor [C, C] [C, C]) :
+ Local Lemma lax_lineators_from_reindexed_precomp_and_reindexed_self_action_agree (F : functor [C, C] [C, C]) :
    lineator_lax Mon_ptdendo (actegoryPtdEndosOnFunctors C) (actegoryPtdEndosOnFunctors C) F ≃
      lineator_lax Mon_ptdendo (actegory_with_canonical_pointed_action Mon_endo)
        (actegory_with_canonical_pointed_action Mon_endo) F.

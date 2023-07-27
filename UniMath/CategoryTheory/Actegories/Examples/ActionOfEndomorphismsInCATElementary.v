@@ -134,7 +134,7 @@ Lemma lax_lineators_for_actegory_from_precomp_CAT_and_self_action_agree (F : fun
 Proof.
   apply idpath.
 Qed.
-(** in fact, we need this with lifted actegories everywhere *)
+(** in fact, we need this with reindexed actegories everywhere *)
 
 End TheHomogeneousCase.
 
