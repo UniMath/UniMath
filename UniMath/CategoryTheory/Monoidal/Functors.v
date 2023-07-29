@@ -749,6 +749,50 @@ Section MonoidalFunctors.
     apply id_left.
   Qed.
 
+  Proposition strong_fmonoidal_preserves_associativity
+              {C D : category}
+              {M : monoidal C} {N : monoidal D}
+              {F : functor C D}
+              (Fm : fmonoidal M N F)
+              (x y z : C)
+    : # F (α^{M}_{x , y , z})
+      =
+      inv_from_z_iso (_ ,, fmonoidal_preservestensorstrongly Fm _ _)
+      · (inv_from_z_iso (_ ,, fmonoidal_preservestensorstrongly Fm _ _) ⊗^{N}_{r} _)
+      · (α^{N}_{ F x , F y , F z})
+      · (F x ⊗^{ N}_{l} fmonoidal_preservestensordata Fm y z)
+      · fmonoidal_preservestensordata Fm x (y ⊗_{ M} z).
+  Proof.
+    rewrite !assoc'.
+    refine (!_).
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite !assoc.
+      exact (!(fmonoidal_preservesassociativity Fm x y z)).
+    }
+    rewrite !assoc.
+    refine (_ @ id_left _).
+    apply maponpaths_2.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      apply maponpaths_2.
+      etrans.
+      {
+        refine (!_).
+        apply (bifunctor_rightcomp N).
+      }
+      apply maponpaths.
+      apply z_iso_after_z_iso_inv.
+    }
+    rewrite (bifunctor_rightid N).
+    rewrite id_left.
+    apply z_iso_after_z_iso_inv.
+  Qed.
+
   (**
    3. Strict monoidal functors
    *)

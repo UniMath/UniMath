@@ -1,6 +1,6 @@
 (** Construction of actegory morphisms
 
-Part Generalization of pointed distributivity laws to lifted distributivity laws in general monads
+Part Generalization of pointed distributivity laws (a misnomer as it became clear in July 2023) to relative lax commutators in general monoidal categories
 - definition
 - construction of actegory morphism from it
 - composition
@@ -42,14 +42,14 @@ Import BifunctorNotations.
 Import MonoidalNotations.
 Import ActegoryNotations.
 
-Section LiftedLineatorAndLiftedDistributivity.
+Section ReindexedLineatorAndRelativeLaxCommutator.
 
   Context {V : category} (Mon_V : monoidal V)
           {W : category} (Mon_W : monoidal W)
           {F : W ⟶ V} (U : fmonoidal Mon_W Mon_V F).
 
 
-Section LiftedLaxLineator.
+Section ReindexedLaxLineator.
 
   Context {C D : category} (ActC : actegory Mon_V C) (ActD : actegory Mon_V D).
 
@@ -57,19 +57,19 @@ Section OnFunctors.
 
   Context {H : functor C D} (ll : lineator_lax Mon_V ActC ActD H).
 
-  Definition lifted_lax_lineator_data : lineator_data Mon_W (lifted_actegory Mon_V ActC Mon_W U)
-                                                            (lifted_actegory Mon_V ActD Mon_W U) H.
+  Definition reindexed_lax_lineator_data : lineator_data Mon_W (reindexed_actegory Mon_V ActC Mon_W U)
+                                                            (reindexed_actegory Mon_V ActD Mon_W U) H.
   Proof.
     intros w c. exact (ll (F w) c).
   Defined.
 
-  Lemma lifted_lax_lineator_laws : lineator_laxlaws Mon_W (lifted_actegory Mon_V ActC Mon_W U)
-                                     (lifted_actegory Mon_V ActD Mon_W U) H lifted_lax_lineator_data.
+  Lemma reindexed_lax_lineator_laws : lineator_laxlaws Mon_W (reindexed_actegory Mon_V ActC Mon_W U)
+                                     (reindexed_actegory Mon_V ActD Mon_W U) H reindexed_lax_lineator_data.
   Proof.
     split4.
     - intro; intros. apply (lineator_linnatleft _ _ _ _ ll).
     - intro; intros. apply (lineator_linnatright _ _ _ _ ll).
-    - intro; intros. cbn. unfold lifted_lax_lineator_data, lifted_actor_data.
+    - intro; intros. cbn. unfold reindexed_lax_lineator_data, reindexed_actor_data.
       etrans.
       2: { repeat rewrite assoc'. apply maponpaths.
            rewrite assoc.
@@ -83,7 +83,7 @@ Section OnFunctors.
            apply maponpaths.
            apply functor_comp. }
       apply idpath.
-    - intro; intros. cbn. unfold lifted_lax_lineator_data, lifted_action_unitor_data.
+    - intro; intros. cbn. unfold reindexed_lax_lineator_data, reindexed_action_unitor_data.
       etrans.
       2: { apply maponpaths.
            apply (lineator_preservesunitor _ _ _ _ ll). }
@@ -98,9 +98,9 @@ Section OnFunctors.
       apply idpath.
   Qed.
 
-  Definition lifted_lax_lineator : lineator_lax Mon_W (lifted_actegory Mon_V ActC Mon_W U)
-                                                      (lifted_actegory Mon_V ActD Mon_W U) H :=
-    _,,lifted_lax_lineator_laws.
+  Definition reindexed_lax_lineator : lineator_lax Mon_W (reindexed_actegory Mon_V ActC Mon_W U)
+                                                      (reindexed_actegory Mon_V ActD Mon_W U) H :=
+    _,,reindexed_lax_lineator_laws.
 
 End OnFunctors.
 
@@ -110,8 +110,8 @@ Section OnNaturalTransformations.
     {K : functor C D} (Kl : lineator_lax Mon_V ActC ActD K)
     {ξ : H ⟹ K} (islntξ : is_linear_nat_trans Hl Kl ξ).
 
-  Lemma preserves_linearity_lifted_lax_lineator :
-    is_linear_nat_trans (lifted_lax_lineator Hl) (lifted_lax_lineator Kl) ξ.
+  Lemma preserves_linearity_reindexed_lax_lineator :
+    is_linear_nat_trans (reindexed_lax_lineator Hl) (reindexed_lax_lineator Kl) ξ.
   Proof.
     intros w c.
     apply islntξ.
@@ -119,70 +119,70 @@ Section OnNaturalTransformations.
 
 End OnNaturalTransformations.
 
-End LiftedLaxLineator.
+End ReindexedLaxLineator.
 
-Section LiftedDistributivity.
+Section RelativeLaxCommutator.
 
 Section FixAnObject.
 
   Context {v0 : V}.
 
-  Definition lifteddistributivity_data: UU := ∏ (w: W), F w ⊗_{Mon_V} v0 --> v0 ⊗_{Mon_V} F w.
+  Definition relativelaxcommutator_data: UU := ∏ (w: W), F w ⊗_{Mon_V} v0 --> v0 ⊗_{Mon_V} F w.
 
-  Identity Coercion lifteddistributivity_data_funclass: lifteddistributivity_data >-> Funclass.
+  Identity Coercion relativelaxcommutator_data_funclass: relativelaxcommutator_data >-> Funclass.
 
-Section δ_laws.
+Section γ_laws.
 
-  Context (δ : lifteddistributivity_data).
+  Context (γ : relativelaxcommutator_data).
 
-  Definition lifteddistributivity_nat: UU := is_nat_trans (functor_composite F (rightwhiskering_functor Mon_V v0))
-                                                           (functor_composite F (leftwhiskering_functor Mon_V v0)) δ.
+  Definition relativelaxcommutator_nat: UU := is_nat_trans (functor_composite F (rightwhiskering_functor Mon_V v0))
+                                                           (functor_composite F (leftwhiskering_functor Mon_V v0)) γ.
 
-  Definition lifteddistributivity_tensor_body (w w' : W): UU :=
-    δ (w ⊗_{Mon_W} w') = pr1 (fmonoidal_preservestensorstrongly U w w') ⊗^{Mon_V}_{r} v0 · α_{Mon_V} _ _ _ ·
-                           F w ⊗^{Mon_V}_{l} δ w' · αinv_{Mon_V} _ _ _ · δ w ⊗^{Mon_V}_{r} F w' ·
+  Definition relativelaxcommutator_tensor_body (w w' : W): UU :=
+    γ (w ⊗_{Mon_W} w') = pr1 (fmonoidal_preservestensorstrongly U w w') ⊗^{Mon_V}_{r} v0 · α_{Mon_V} _ _ _ ·
+                           F w ⊗^{Mon_V}_{l} γ w' · αinv_{Mon_V} _ _ _ · γ w ⊗^{Mon_V}_{r} F w' ·
                            α_{Mon_V} _ _ _ · v0 ⊗^{Mon_V}_{l} fmonoidal_preservestensordata U w w'.
 
-  Definition lifteddistributivity_tensor: UU := ∏ (w w' : W), lifteddistributivity_tensor_body w w'.
+  Definition relativelaxcommutator_tensor: UU := ∏ (w w' : W), relativelaxcommutator_tensor_body w w'.
 
-  Definition lifteddistributivity_unit: UU :=
-    δ I_{Mon_W} = pr1 (fmonoidal_preservesunitstrongly U) ⊗^{Mon_V}_{r} v0 · lu_{Mon_V} v0 ·
+  Definition relativelaxcommutator_unit: UU :=
+    γ I_{Mon_W} = pr1 (fmonoidal_preservesunitstrongly U) ⊗^{Mon_V}_{r} v0 · lu_{Mon_V} v0 ·
                   ruinv_{Mon_V} v0 · v0 ⊗^{Mon_V}_{l} fmonoidal_preservesunit U.
 
 
-End δ_laws.
+End γ_laws.
 
-Definition lifteddistributivity: UU := ∑ δ : lifteddistributivity_data,
-      lifteddistributivity_nat δ × lifteddistributivity_tensor δ × lifteddistributivity_unit δ.
+Definition relativelaxcommutator: UU := ∑ γ : relativelaxcommutator_data,
+      relativelaxcommutator_nat γ × relativelaxcommutator_tensor γ × relativelaxcommutator_unit γ.
 
-Definition lifteddistributivity_lddata (δ : lifteddistributivity): lifteddistributivity_data := pr1 δ.
-Coercion lifteddistributivity_lddata : lifteddistributivity >-> lifteddistributivity_data.
+Definition relativelaxcommutator_lddata (γ : relativelaxcommutator): relativelaxcommutator_data := pr1 γ.
+Coercion relativelaxcommutator_lddata : relativelaxcommutator >-> relativelaxcommutator_data.
 
-Definition lifteddistributivity_ldnat (δ : lifteddistributivity): lifteddistributivity_nat δ := pr12 δ.
-Definition lifteddistributivity_ldtensor (δ : lifteddistributivity): lifteddistributivity_tensor δ := pr122 δ.
-Definition lifteddistributivity_ldunit (δ : lifteddistributivity): lifteddistributivity_unit δ := pr222 δ.
+Definition relativelaxcommutator_ldnat (γ : relativelaxcommutator): relativelaxcommutator_nat γ := pr12 γ.
+Definition relativelaxcommutator_ldtensor (γ : relativelaxcommutator): relativelaxcommutator_tensor γ := pr122 γ.
+Definition relativelaxcommutator_ldunit (γ : relativelaxcommutator): relativelaxcommutator_unit γ := pr222 γ.
 
 
 
-Section ActegoryMorphismFromLiftedDistributivity.
+Section ActegoryMorphismFromRelativeLaxCommutator.
 
-  Context (δ : lifteddistributivity) {C : category} (ActV : actegory Mon_V C).
+  Context (γ : relativelaxcommutator) {C : category} (ActV : actegory Mon_V C).
 
   Local Definition FF: C ⟶ C := leftwhiskering_functor ActV v0.
-  Local Definition ActW: actegory Mon_W C := lifted_actegory Mon_V ActV Mon_W U.
+  Local Definition ActW: actegory Mon_W C := reindexed_actegory Mon_V ActV Mon_W U.
 
-  Definition lineator_data_from_δ: lineator_data Mon_W ActW ActW FF.
+  Definition lineator_data_from_commutator: lineator_data Mon_W ActW ActW FF.
   Proof.
     intros w x. unfold FF. cbn.
-    exact (aαinv^{ActV}_{F w, v0, x} · δ w ⊗^{ActV}_{r} x · aα^{ActV}_{v0, F w, x}).
+    exact (aαinv^{ActV}_{F w, v0, x} · γ w ⊗^{ActV}_{r} x · aα^{ActV}_{v0, F w, x}).
   Defined.
 
-  Lemma lineator_laxlaws_from_δ: lineator_laxlaws Mon_W ActW ActW FF lineator_data_from_δ.
+  Lemma lineator_laxlaws_from_commutator: lineator_laxlaws Mon_W ActW ActW FF lineator_data_from_commutator.
   Proof.
-    assert (δ_nat := lifteddistributivity_ldnat δ).
-    do 2 red in δ_nat. cbn in δ_nat.
-    repeat split; red; intros; unfold lineator_data_from_δ; try unfold lifted_actor_data; try unfold lifted_action_unitor_data; cbn;
-      try unfold lifted_actor_data; try unfold lifted_action_unitor_data; cbn.
+    assert (γ_nat := relativelaxcommutator_ldnat γ).
+    do 2 red in γ_nat. cbn in γ_nat.
+    repeat split; red; intros; unfold lineator_data_from_commutator; try unfold reindexed_actor_data; try unfold reindexed_action_unitor_data; cbn;
+      try unfold reindexed_actor_data; try unfold reindexed_action_unitor_data; cbn.
     - etrans.
       { repeat rewrite assoc.
         do 2 apply cancel_postcomposition.
@@ -215,7 +215,7 @@ Section ActegoryMorphismFromLiftedDistributivity.
       etrans.
       2: { apply (functor_comp (rightwhiskering_functor ActV x)). }
       apply maponpaths.
-      apply δ_nat.
+      apply γ_nat.
     - etrans.
       { apply maponpaths.
         apply (functor_comp (leftwhiskering_functor ActV v0)). }
@@ -238,7 +238,7 @@ Section ActegoryMorphismFromLiftedDistributivity.
       etrans.
       { do 2 apply cancel_postcomposition.
         do 2 apply maponpaths.
-        rewrite (lifteddistributivity_ldtensor δ).
+        rewrite (relativelaxcommutator_ldtensor γ).
         repeat rewrite assoc'.
         do 6 apply maponpaths.
         etrans.
@@ -361,7 +361,7 @@ Section ActegoryMorphismFromLiftedDistributivity.
       etrans.
       { do 2 apply cancel_postcomposition.
         do 2 apply maponpaths.
-        rewrite (lifteddistributivity_ldunit δ).
+        rewrite (relativelaxcommutator_ldunit γ).
         repeat rewrite assoc'.
         do 3 apply maponpaths.
         etrans.
@@ -400,27 +400,27 @@ Section ActegoryMorphismFromLiftedDistributivity.
       apply id_left.
   Qed.
 
-  Definition liftedstrength_from_δ: liftedstrength Mon_V Mon_W U ActV ActV FF :=
-    lineator_data_from_δ,,lineator_laxlaws_from_δ.
+  Definition reindexedstrength_from_commutator: reindexedstrength Mon_V Mon_W U ActV ActV FF :=
+    lineator_data_from_commutator,,lineator_laxlaws_from_commutator.
 
-End ActegoryMorphismFromLiftedDistributivity.
+End ActegoryMorphismFromRelativeLaxCommutator.
 
 End FixAnObject.
 
-Arguments liftedstrength_from_δ _ _ {_} _.
-Arguments lifteddistributivity _ : clear implicits.
-Arguments lifteddistributivity_data _ : clear implicits.
+Arguments reindexedstrength_from_commutator _ _ {_} _.
+Arguments relativelaxcommutator _ : clear implicits.
+Arguments relativelaxcommutator_data _ : clear implicits.
 
 
-  Definition unit_lifteddistributivity_data: lifteddistributivity_data I_{Mon_V}.
+  Definition unit_relativelaxcommutator_data: relativelaxcommutator_data I_{Mon_V}.
   Proof.
     intro w.
     exact (ru^{Mon_V}_{F w} · luinv^{Mon_V}_{F w}).
   Defined.
 
-  Lemma unit_lifteddistributivity_nat: lifteddistributivity_nat unit_lifteddistributivity_data.
+  Lemma unit_relativelaxcommutator_nat: relativelaxcommutator_nat unit_relativelaxcommutator_data.
   Proof.
-    intro; intros. unfold unit_lifteddistributivity_data.
+    intro; intros. unfold unit_relativelaxcommutator_data.
     cbn.
     etrans.
     { rewrite assoc.
@@ -431,9 +431,9 @@ Arguments lifteddistributivity_data _ : clear implicits.
     apply pathsinv0, monoidal_leftunitorinvnat.
   Qed.
 
-  Lemma unit_lifteddistributivity_tensor: lifteddistributivity_tensor unit_lifteddistributivity_data.
+  Lemma unit_relativelaxcommutator_tensor: relativelaxcommutator_tensor unit_relativelaxcommutator_data.
   Proof.
-    intro; intros. unfold lifteddistributivity_tensor_body, unit_lifteddistributivity_data.
+    intro; intros. unfold relativelaxcommutator_tensor_body, unit_relativelaxcommutator_data.
     etrans.
     2: { do 2 apply cancel_postcomposition.
          etrans.
@@ -494,9 +494,9 @@ Arguments lifteddistributivity_data _ : clear implicits.
     apply pathsinv0, id_right.
   Qed.
 
-  Lemma unit_lifteddistributivity_unit: lifteddistributivity_unit unit_lifteddistributivity_data.
+  Lemma unit_relativelaxcommutator_unit: relativelaxcommutator_unit unit_relativelaxcommutator_data.
   Proof.
-    unfold lifteddistributivity_unit, unit_lifteddistributivity_data.
+    unfold relativelaxcommutator_unit, unit_relativelaxcommutator_data.
     etrans.
     2: { do 2 apply cancel_postcomposition.
          rewrite unitors_coincide_on_unit.
@@ -514,33 +514,33 @@ Arguments lifteddistributivity_data _ : clear implicits.
     apply pathsinv0, id_left.
   Qed.
 
-  Definition unit_lifteddistributivity: lifteddistributivity I_{Mon_V}.
+  Definition unit_relativelaxcommutator: relativelaxcommutator I_{Mon_V}.
   Proof.
     use tpair.
-    - exact  unit_lifteddistributivity_data.
+    - exact  unit_relativelaxcommutator_data.
     - split3.
-      + exact unit_lifteddistributivity_nat.
-      + exact unit_lifteddistributivity_tensor.
-      + exact unit_lifteddistributivity_unit.
+      + exact unit_relativelaxcommutator_nat.
+      + exact unit_relativelaxcommutator_tensor.
+      + exact unit_relativelaxcommutator_unit.
   Defined.
 
-Section CompositionOfLiftedDistributivities.
+Section CompositionOfRelativeLaxCommutators.
 
-  Context (v1 v2 : V) (δ1 : lifteddistributivity v1) (δ2 : lifteddistributivity v2).
+  Context (v1 v2 : V) (γ1 : relativelaxcommutator v1) (γ2 : relativelaxcommutator v2).
 
-  Definition composedlifteddistributivity_data: lifteddistributivity_data (v1 ⊗_{Mon_V} v2).
+  Definition composedrelativelaxcommutator_data: relativelaxcommutator_data (v1 ⊗_{Mon_V} v2).
   Proof.
     red; intros.
-    exact (αinv_{Mon_V} _ _ _ · δ1 w ⊗^{Mon_V}_{r} v2 · α_{Mon_V} _ _ _
-             · v1 ⊗^{Mon_V}_{l} δ2 w · αinv_{Mon_V} _ _ _).
+    exact (αinv_{Mon_V} _ _ _ · γ1 w ⊗^{Mon_V}_{r} v2 · α_{Mon_V} _ _ _
+             · v1 ⊗^{Mon_V}_{l} γ2 w · αinv_{Mon_V} _ _ _).
   Defined.
 
-  Lemma composedlifteddistributivity_nat: lifteddistributivity_nat composedlifteddistributivity_data.
+  Lemma composedrelativelaxcommutator_nat: relativelaxcommutator_nat composedrelativelaxcommutator_data.
   Proof.
-    do 2 red; intros; unfold composedlifteddistributivity_data; cbn.
-    assert (δ1_nat := lifteddistributivity_ldnat δ1).
-    assert (δ2_nat := lifteddistributivity_ldnat δ2).
-    do 2 red in δ1_nat, δ2_nat; cbn in δ1_nat, δ2_nat.
+    do 2 red; intros; unfold composedrelativelaxcommutator_data; cbn.
+    assert (γ1_nat := relativelaxcommutator_ldnat γ1).
+    assert (γ2_nat := relativelaxcommutator_ldnat γ2).
+    do 2 red in γ1_nat, γ2_nat; cbn in γ1_nat, γ2_nat.
     etrans.
     { repeat rewrite assoc.
       do 4 apply cancel_postcomposition.
@@ -552,7 +552,7 @@ Section CompositionOfLiftedDistributivities.
       apply cancel_postcomposition.
       apply pathsinv0, (functor_comp (rightwhiskering_functor Mon_V v2)). }
     cbn.
-    rewrite δ1_nat.
+    rewrite γ1_nat.
     etrans.
     { rewrite assoc.
       do 2 apply cancel_postcomposition.
@@ -570,7 +570,7 @@ Section CompositionOfLiftedDistributivities.
          apply maponpaths.
          apply (functor_comp (leftwhiskering_functor Mon_V v1)). }
     cbn.
-    rewrite <- δ2_nat.
+    rewrite <- γ2_nat.
     etrans.
     2: { apply maponpaths.
          apply pathsinv0, (functor_comp (leftwhiskering_functor Mon_V v1)). }
@@ -580,11 +580,11 @@ Section CompositionOfLiftedDistributivities.
     apply pathsinv0, monoidal_associatornatleftright.
   Qed.
 
-  Lemma composedlifteddistributivity_tensor: lifteddistributivity_tensor composedlifteddistributivity_data.
+  Lemma composedrelativelaxcommutator_tensor: relativelaxcommutator_tensor composedrelativelaxcommutator_data.
   Proof.
-    do 2 red; intros; unfold composedlifteddistributivity_data; cbn.
-    rewrite (lifteddistributivity_ldtensor δ1).
-    rewrite (lifteddistributivity_ldtensor δ2).
+    do 2 red; intros; unfold composedrelativelaxcommutator_data; cbn.
+    rewrite (relativelaxcommutator_ldtensor γ1).
+    rewrite (relativelaxcommutator_ldtensor γ2).
     etrans.
     { do 3 apply cancel_postcomposition.
       apply maponpaths.
@@ -767,11 +767,11 @@ Section CompositionOfLiftedDistributivities.
     apply pathsinv0, monoidal_pentagonidentity.
   Qed.
 
-  Lemma composedlifteddistributivity_unit: lifteddistributivity_unit composedlifteddistributivity_data.
+  Lemma composedrelativelaxcommutator_unit: relativelaxcommutator_unit composedrelativelaxcommutator_data.
   Proof.
-    red; unfold composedlifteddistributivity_data; cbn.
-    rewrite (lifteddistributivity_ldunit δ1).
-    rewrite (lifteddistributivity_ldunit δ2).
+    red; unfold composedrelativelaxcommutator_data; cbn.
+    rewrite (relativelaxcommutator_ldunit γ1).
+    rewrite (relativelaxcommutator_ldunit γ2).
     etrans.
     { do 3 apply cancel_postcomposition.
       apply maponpaths.
@@ -853,22 +853,22 @@ Section CompositionOfLiftedDistributivities.
     apply id_left.
   Qed.
 
-  Definition composedlifteddistributivity: lifteddistributivity (v1 ⊗_{Mon_V} v2).
+  Definition composedrelativelaxcommutator: relativelaxcommutator (v1 ⊗_{Mon_V} v2).
   Proof.
-    exists composedlifteddistributivity_data.
-    exact (composedlifteddistributivity_nat,,
-           composedlifteddistributivity_tensor,,
-           composedlifteddistributivity_unit).
+    exists composedrelativelaxcommutator_data.
+    exact (composedrelativelaxcommutator_nat,,
+           composedrelativelaxcommutator_tensor,,
+           composedrelativelaxcommutator_unit).
   Defined.
 
-End CompositionOfLiftedDistributivities.
+End CompositionOfRelativeLaxCommutators.
 
-End LiftedDistributivity.
+End RelativeLaxCommutator.
 
-End LiftedLineatorAndLiftedDistributivity.
+End ReindexedLineatorAndRelativeLaxCommutator.
 
-Arguments lifteddistributivity {_} _ {_} _ {_} _ _.
-Arguments lifteddistributivity_data {_} _ {_ _} _.
+Arguments relativelaxcommutator {_} _ {_} _ {_} _ _.
+Arguments relativelaxcommutator_data {_} _ {_ _} _.
 
 Section PointwiseOperationsOnLinearFunctors.
 

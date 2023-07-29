@@ -48,9 +48,9 @@ Local Definition Mon_endo: monoidal_cat
 Context (U: strong_monoidal_functor Mon_M Mon_endo).
 
 Local Definition ab_strength_domain_action : action Mon_M (hom c0 d0')
-  := lifted_action Mon_M U (action_from_precomp c0 d0').
+  := reindexed_action Mon_M U (action_from_precomp c0 d0').
 Local Definition ab_strength_target_action : action Mon_M (hom c0 d0)
-  := lifted_action Mon_M U (action_from_precomp c0 d0).
+  := reindexed_action Mon_M U (action_from_precomp c0 d0).
 
 Context (F: hom c0 d0' ⟶ hom c0 d0).
 
