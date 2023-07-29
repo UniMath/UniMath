@@ -2,9 +2,9 @@
 
  Lifting posets as a monoidal comonad
 
- We show that the lifting operation on posets gives rise to a
- monoidal comonad on the monoidal category of pointed posets with
- the smash product.
+ We show that the lifting operation on posets (i.e., adding a new
+ bottom element) gives rise to a monoidal comonad on the monoidal
+ category of pointed posets with the smash product.
 
  Content
  1. Lifting as a functor

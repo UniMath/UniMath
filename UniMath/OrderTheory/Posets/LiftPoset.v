@@ -3,10 +3,10 @@
  The lift of a partial order
 
  We construct the lifting of partial order (adding a minimum
- element). We also show that this give the basic operations that
+ element). We also show that this gives the basic operations that
  show that this operation is a comonad on pointed partial orders.
  Note that on not necessarily pointed partial orders, this
- operation would be a monad
+ operation would be a monad.
 
  Contents
  1. The order on the lift

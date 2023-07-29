@@ -13,6 +13,7 @@
    univalent.
  - We have an isomorphism from the displayed bicategory of two-sided displayed
    categories to the displayed bicategory of displayed categories.
+ - Isomorphisms of displayed bicategories transport univalence.
  Note that this isomorphism lies over the diagonal pseudofunctor, because a
  two-sided displayed category over `C` is the same as a displayed category over
  `C × C`.
