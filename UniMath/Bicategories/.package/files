@@ -118,6 +118,7 @@ PseudoFunctors/Examples/Composition.v
 PseudoFunctors/Examples/Constant.v
 PseudoFunctors/Examples/ApFunctor.v
 PseudoFunctors/Examples/OpFunctor.v
+PseudoFunctors/Examples/CatDiag.v
 PseudoFunctors/Examples/PseudofunctorFromMonoidal.v
 PseudoFunctors/Examples/Op2OfPseudoFunctor.v
 PseudoFunctors/Examples/BicatOfCatToUnivCat.v
@@ -158,10 +159,13 @@ DisplayedBicats/Examples/LaxSlice.v
 DisplayedBicats/Examples/FunctorsIntoCat.v
 DisplayedBicats/Examples/Codomain.v
 DisplayedBicats/DispPseudofunctor.v
+DisplayedBicats/DispTransportLaws.v
+DisplayedBicats/UnivalenceTechniques.v
 Transformations/Examples/AlgebraMap.v
 DisplayedBicats/Examples/Monads.v
 DisplayedBicats/Examples/KleisliTriple.v
 DisplayedBicats/Examples/EnrichedCats.v
+DisplayedBicats/Examples/DispBicatOfTwoSidedDispCat.v
 DisplayedBicats/DispTransformation.v
 DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v

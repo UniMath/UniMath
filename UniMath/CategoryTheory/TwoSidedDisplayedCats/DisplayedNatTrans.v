@@ -15,6 +15,7 @@
  5. Composition of transformations
  6. Prewhiskering
  7. Postwhiskering
+ 8. Displayed two-sided natural transformations versus one-sided ones
 
  **********************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -23,6 +24,10 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
@@ -82,6 +87,49 @@ Section DisplayedNatTrans.
     := pr1 τθ x y xy.
 
   Coercion twosided_disp_nat_trans_ob : twosided_disp_nat_trans >-> Funclass.
+
+  Proposition twosided_disp_nat_trans_ax
+              (τθ : twosided_disp_nat_trans)
+              {x₁ x₂ : C₁}
+              {y₁ y₂ : C₂}
+              {f : x₁ --> x₂}
+              {g : y₁ --> y₂}
+              {xy₁ : D x₁ y₁}
+              {xy₂ : D x₂ y₂}
+              (fg : xy₁ -->[ f ][ g ] xy₂)
+    : #2 FG fg ;;2 τθ _ _ xy₂
+      =
+      transportb
+        (λ z, _ -->[ z ][ _] _)
+        (nat_trans_ax τ _ _ f)
+        (transportb
+           (λ z, _ -->[ _ ][ z ] _)
+           (nat_trans_ax θ _ _ g)
+           (τθ _ _ xy₁ ;;2 #2 FG' fg)).
+  Proof.
+    apply (pr2 τθ).
+  Qed.
+
+  Proposition isaprop_twosided_disp_nat_trans_laws
+              (τθ : twosided_disp_nat_trans_data)
+    : isaprop (twosided_disp_nat_trans_laws τθ).
+  Proof.
+    repeat (use impred ; intro).
+    apply D'.
+  Qed.
+
+  Proposition isaset_twosided_disp_nat_trans
+    : isaset twosided_disp_nat_trans.
+  Proof.
+    use isaset_total2.
+    - use impred_isaset ; intro x.
+      use impred_isaset ; intro y.
+      use impred_isaset ; intro xy.
+      apply D'.
+    - intro.
+      apply isasetaprop.
+      exact (isaprop_twosided_disp_nat_trans_laws _).
+  Qed.
 End DisplayedNatTrans.
 
 (**
@@ -199,6 +247,9 @@ Section IdNatTrans.
   Defined.
 End IdNatTrans.
 
+Arguments id_twosided_disp_nat_trans_data {C₁ C₁' C₂ C₂' F G D D'} FG /.
+Arguments id_twosided_disp_nat_trans {C₁ C₁' C₂ C₂' F G D D'} FG /.
+
 (**
  5. Composition of transformations
  *)
@@ -273,6 +324,9 @@ Section CompNatTrans.
   Defined.
 End CompNatTrans.
 
+Arguments comp_twosided_disp_nat_trans_data {C₁ C₁' C₂ C₂' F F' F'' τ τ' G G' G'' θ θ' D D' FG FG' FG''} _ _ /.
+Arguments comp_twosided_disp_nat_trans {C₁ C₁' C₂ C₂' F F' F'' τ τ' G G' G'' θ θ' D D' FG FG' FG''} _ _ /.
+
 (**
  6. Prewhiskering
  *)
@@ -328,6 +382,9 @@ Section Prewhisker.
     - exact pre_whisker_twosided_disp_nat_trans_laws.
   Defined.
 End Prewhisker.
+
+Arguments pre_whisker_twosided_disp_nat_trans_data {C₁ C₁' C₁'' C₂ C₂' C₂'' F G H H' τ K K' θ D D' D''} FG {HK HK'} _ /.
+Arguments pre_whisker_twosided_disp_nat_trans {C₁ C₁' C₁'' C₂ C₂' C₂'' F G H H' τ K K' θ D D' D''} FG {HK HK'} _ /.
 
 (**
  7. Postwhiskering
@@ -391,3 +448,255 @@ Section Postwhisker.
     - exact post_whisker_twosided_disp_nat_trans_laws.
   Defined.
 End Postwhisker.
+
+Arguments post_whisker_twosided_disp_nat_trans_data {C₁ C₁' C₁'' C₂ C₂' C₂'' F F' τ G G' θ H K D D' D'' FG FG'} HK _ /.
+Arguments post_whisker_twosided_disp_nat_trans {C₁ C₁' C₁'' C₂ C₂' C₂'' F F' τ G G' θ H K D D' D'' FG FG'} HK _ /.
+
+
+Definition twosided_disp_lunitor
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {D₁ : twosided_disp_cat C₁ C₁}
+           {D₂ : twosided_disp_cat C₂ C₂}
+           (FF : twosided_disp_functor F F D₁ D₂)
+  : twosided_disp_nat_trans
+      (nat_trans_id F) (nat_trans_id F)
+      (comp_twosided_disp_functor (twosided_disp_functor_identity D₁) FF)
+      FF.
+Proof.
+  simple refine (_ ,, _).
+  - exact (λ x y xy, id_two_disp _).
+  - abstract
+      (intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; cbn ;
+       rewrite id_two_disp_left, id_two_disp_right ;
+       rewrite !twosided_prod_transportb ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply isaset_dirprod ; apply homset_property).
+Defined.
+
+Definition twosided_disp_runitor
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {D₁ : twosided_disp_cat C₁ C₁}
+           {D₂ : twosided_disp_cat C₂ C₂}
+           (FF : twosided_disp_functor F F D₁ D₂)
+  : twosided_disp_nat_trans
+      (nat_trans_id F : F ∙ functor_identity _ ⟹ F)
+      (nat_trans_id F : F ∙ functor_identity _ ⟹ F)
+      (comp_twosided_disp_functor FF (twosided_disp_functor_identity D₂))
+      FF.
+Proof.
+  simple refine (_ ,, _).
+  - exact (λ x y xy, id_two_disp _).
+  - abstract
+      (intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; cbn ;
+       rewrite id_two_disp_left, id_two_disp_right ;
+       rewrite !twosided_prod_transportb ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply isaset_dirprod ; apply homset_property).
+Defined.
+
+Definition twosided_disp_linvunitor
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {D₁ : twosided_disp_cat C₁ C₁}
+           {D₂ : twosided_disp_cat C₂ C₂}
+           (FF : twosided_disp_functor F F D₁ D₂)
+  : twosided_disp_nat_trans
+      (nat_trans_id F) (nat_trans_id F)
+      FF
+      (comp_twosided_disp_functor (twosided_disp_functor_identity D₁) FF).
+Proof.
+  simple refine (_ ,, _).
+  - exact (λ x y xy, id_two_disp _).
+  - abstract
+      (intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; cbn ;
+       rewrite id_two_disp_left, id_two_disp_right ;
+       rewrite !twosided_prod_transportb ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply isaset_dirprod ; apply homset_property).
+Defined.
+
+Definition twosided_disp_rinvunitor
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {D₁ : twosided_disp_cat C₁ C₁}
+           {D₂ : twosided_disp_cat C₂ C₂}
+           (FF : twosided_disp_functor F F D₁ D₂)
+  : twosided_disp_nat_trans
+      (nat_trans_id F : F ⟹ F ∙ functor_identity _)
+      (nat_trans_id F : F ⟹ F ∙ functor_identity _)
+      FF
+      (comp_twosided_disp_functor FF (twosided_disp_functor_identity D₂)).
+Proof.
+  simple refine (_ ,, _).
+  - exact (λ x y xy, id_two_disp _).
+  - abstract
+      (intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; cbn ;
+       rewrite id_two_disp_left, id_two_disp_right ;
+       rewrite !twosided_prod_transportb ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply isaset_dirprod ; apply homset_property).
+Defined.
+
+Definition twosided_disp_rassociator
+           {C₁ C₂ C₃ C₄ : category}
+           {F : C₁ ⟶ C₂}
+           {G : C₂ ⟶ C₃}
+           {H : C₃ ⟶ C₄}
+           {D₁ : twosided_disp_cat C₁ C₁}
+           {D₂ : twosided_disp_cat C₂ C₂}
+           {D₃ : twosided_disp_cat C₃ C₃}
+           {D₄ : twosided_disp_cat C₄ C₄}
+           (FF : twosided_disp_functor F F D₁ D₂)
+           (GG : twosided_disp_functor G G D₂ D₃)
+           (HH : twosided_disp_functor H H D₃ D₄)
+  : twosided_disp_nat_trans
+      (nat_trans_id _ : (F ∙ G) ∙ H ⟹ F ∙ (G ∙ H))
+      (nat_trans_id _ : (F ∙ G) ∙ H ⟹ F ∙ (G ∙ H))
+      (comp_twosided_disp_functor (comp_twosided_disp_functor FF GG) HH)
+      (comp_twosided_disp_functor FF (comp_twosided_disp_functor GG HH)).
+Proof.
+  simple refine (_ ,, _).
+  - exact (λ x y xy, id_two_disp _).
+  - abstract
+      (intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; cbn ;
+       rewrite id_two_disp_left, id_two_disp_right ;
+       rewrite !twosided_prod_transportb ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply isaset_dirprod ; apply homset_property).
+Defined.
+
+Definition twosided_disp_lassociator
+           {C₁ C₂ C₃ C₄ : category}
+           {F : C₁ ⟶ C₂}
+           {G : C₂ ⟶ C₃}
+           {H : C₃ ⟶ C₄}
+           {D₁ : twosided_disp_cat C₁ C₁}
+           {D₂ : twosided_disp_cat C₂ C₂}
+           {D₃ : twosided_disp_cat C₃ C₃}
+           {D₄ : twosided_disp_cat C₄ C₄}
+           (FF : twosided_disp_functor F F D₁ D₂)
+           (GG : twosided_disp_functor G G D₂ D₃)
+           (HH : twosided_disp_functor H H D₃ D₄)
+  : twosided_disp_nat_trans
+      (nat_trans_id _ : F ∙ (G ∙ H) ⟹ (F ∙ G) ∙ H)
+      (nat_trans_id _ : F ∙ (G ∙ H) ⟹ (F ∙ G) ∙ H)
+      (comp_twosided_disp_functor FF (comp_twosided_disp_functor GG HH))
+      (comp_twosided_disp_functor (comp_twosided_disp_functor FF GG) HH).
+Proof.
+  simple refine (_ ,, _).
+  - exact (λ x y xy, id_two_disp _).
+  - abstract
+      (intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; cbn ;
+       rewrite id_two_disp_left, id_two_disp_right ;
+       rewrite !twosided_prod_transportb ;
+       unfold transportb ;
+       rewrite transport_f_f ;
+       apply maponpaths_2 ;
+       apply isaset_dirprod ; apply homset_property).
+Defined.
+
+(**
+ 8. Displayed two-sided natural transformations versus one-sided ones
+ *)
+Definition twosided_disp_nat_trans_to_disp_nat_trans
+           {C₁ C₁' C₂ C₂' : category}
+           {F F' : C₁ ⟶ C₁'}
+           {τ : F ⟹ F'}
+           {G G' : C₂ ⟶ C₂'}
+           {θ : G ⟹ G'}
+           {D : twosided_disp_cat C₁ C₂}
+           {D' : twosided_disp_cat C₁' C₂'}
+           {FG : twosided_disp_functor F G D D'}
+           {FG' : twosided_disp_functor F' G' D D'}
+           (τθ : twosided_disp_nat_trans τ θ FG FG')
+  : disp_nat_trans
+      (pair_nat_trans τ θ)
+      (two_sided_disp_functor_to_disp_functor FG)
+      (two_sided_disp_functor_to_disp_functor FG').
+Proof.
+  refine ((λ x xx, τθ (pr1 x) (pr2 x) xx) ,, _).
+  abstract
+    (intros x y xx yy f ff ;
+     cbn ;
+     rewrite twosided_disp_nat_trans_ax ;
+     rewrite <- transportb_dirprodeq ;
+     apply maponpaths_2 ;
+     apply isasetdirprod ; apply homset_property).
+Defined.
+
+Definition twosided_disp_nat_trans_from_disp_nat_trans
+           {C₁ C₁' C₂ C₂' : category}
+           {F F' : C₁ ⟶ C₁'}
+           {τ : F ⟹ F'}
+           {G G' : C₂ ⟶ C₂'}
+           {θ : G ⟹ G'}
+           {D : twosided_disp_cat C₁ C₂}
+           {D' : twosided_disp_cat C₁' C₂'}
+           {FG : twosided_disp_functor F G D D'}
+           {FG' : twosided_disp_functor F' G' D D'}
+           (τθ : disp_nat_trans
+                   (pair_nat_trans τ θ)
+                   (two_sided_disp_functor_to_disp_functor FG)
+                   (two_sided_disp_functor_to_disp_functor FG'))
+  : twosided_disp_nat_trans τ θ FG FG'.
+Proof.
+  refine ((λ x y xy, τθ (x ,, y) xy) ,, _).
+  abstract
+    (intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; cbn ;
+     pose (@disp_nat_trans_ax
+              _ _ _ _ _ _ _ _ _
+              τθ
+              (x₁ ,, y₁)
+              (x₂ ,, y₂)
+              (f ,, g)
+              xy₁ xy₂
+              fg)
+       as p ;
+     cbn in p ;
+     rewrite p ;
+     rewrite <- transportb_dirprodeq ;
+     apply maponpaths_2 ;
+     apply isasetdirprod ; apply homset_property).
+Defined.
+
+Definition twosided_disp_nat_trans_weq_disp_nat_trans
+           {C₁ C₁' C₂ C₂' : category}
+           {F F' : C₁ ⟶ C₁'}
+           (τ : F ⟹ F')
+           {G G' : C₂ ⟶ C₂'}
+           (θ : G ⟹ G')
+           {D : twosided_disp_cat C₁ C₂}
+           {D' : twosided_disp_cat C₁' C₂'}
+           (FG : twosided_disp_functor F G D D')
+           (FG' : twosided_disp_functor F' G' D D')
+  : twosided_disp_nat_trans τ θ FG FG'
+    ≃
+    disp_nat_trans
+      (pair_nat_trans τ θ)
+      (two_sided_disp_functor_to_disp_functor FG)
+      (two_sided_disp_functor_to_disp_functor FG').
+Proof.
+  use weq_iso.
+  - exact twosided_disp_nat_trans_to_disp_nat_trans.
+  - exact twosided_disp_nat_trans_from_disp_nat_trans.
+  - abstract
+      (intros τθ ;
+       use subtypePath ; [ intro ; apply isaprop_twosided_disp_nat_trans_laws | ] ;
+       apply idpath).
+  - abstract
+      (intros τθ ;
+       use subtypePath ; [ intro ; apply isaprop_disp_nat_trans_axioms | ] ;
+       apply idpath).
+Defined.
