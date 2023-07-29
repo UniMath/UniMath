@@ -69,15 +69,14 @@ Section def_cokernels.
 
   (* Other direction *)
 
-
-  Lemma equiv_Cokernel2_eq {a b : C} (f : C⟦a, b⟧) (CK : cokernels.Cokernel (equiv_Zero2 Z) f) :
+  Lemma equiv_Cokernel2_eq {a b : C} (f : C⟦a, b⟧) (CK : limits.cokernels.Cokernel (equiv_Zero2 Z) f) :
     f · CokernelArrow CK = ZeroArrow Z a b · CokernelArrow CK.
   Proof.
     rewrite CokernelCompZero. rewrite postcomp_with_ZeroArrow. apply equiv_ZeroArrow.
   Qed.
 
   Lemma equiv_Cokernel2_isCoequalizer {a b : C} (f : C⟦a, b⟧)
-        (CK : cokernels.Cokernel (equiv_Zero2 Z) f) :
+        (CK : limits.cokernels.Cokernel (equiv_Zero2 Z) f) :
     isCoequalizer C f (ZeroArrow Z a b) CK (CokernelArrow CK) (equiv_Cokernel2_eq f CK).
   Proof.
     use (make_isCoequalizer _ ).

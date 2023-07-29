@@ -248,7 +248,7 @@ Proof.
   set (XR := limits.pullbacks.make_Pullback _ X).
   use tpair.
   - use tpair.
-    + use (pullbacks.PullbackArrow XR).
+    + use (limits.pullbacks.PullbackArrow XR).
       * apply (coneOut cc One).
       * apply (coneOut cc Three).
       * abstract (
@@ -258,7 +258,7 @@ Proof.
         eapply pathscomp0; [| apply (XRT)]; apply idpath
          ).
     + use three_rec_dep.
-      * abstract (apply (pullbacks.PullbackArrow_PullbackPr1 XR)).
+      * abstract (apply (limits.pullbacks.PullbackArrow_PullbackPr1 XR)).
       * abstract (simpl;
         change (three_rec_dep (λ n, C⟦d,_⟧) _ _ _ _) with (p1 · f);
         rewrite assoc;
