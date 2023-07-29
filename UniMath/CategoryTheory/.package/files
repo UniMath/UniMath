@@ -314,6 +314,7 @@ Monoidal/Examples/BinopCartesianMonoidal.v
 Monoidal/Examples/SetWithSubset.v
 Monoidal/Examples/SmashProductMonoidal.v
 Monoidal/Examples/PosetsMonoidal.v
+Monoidal/Examples/LiftPoset.v
 Monoidal/Examples/Fullsub.v
 Monoidal/Examples/Relations.v
 

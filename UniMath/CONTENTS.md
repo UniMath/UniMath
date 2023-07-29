@@ -479,6 +479,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/Examples/SetWithSubset.v](CategoryTheory/Monoidal/Examples/SetWithSubset.v)
    - [Monoidal/Examples/SmashProductMonoidal.v](CategoryTheory/Monoidal/Examples/SmashProductMonoidal.v)
    - [Monoidal/Examples/PosetsMonoidal.v](CategoryTheory/Monoidal/Examples/PosetsMonoidal.v)
+   - [Monoidal/Examples/LiftPoset.v](CategoryTheory/Monoidal/Examples/LiftPoset.v)
    - [Monoidal/Examples/Fullsub.v](CategoryTheory/Monoidal/Examples/Fullsub.v)
    - [Monoidal/Examples/Relations.v](CategoryTheory/Monoidal/Examples/Relations.v)
    - [Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v](CategoryTheory/Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v)
