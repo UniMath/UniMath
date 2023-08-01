@@ -318,6 +318,7 @@ Monoidal/Examples/Fullsub.v
 Monoidal/Examples/Relations.v
 
 Monoidal/Comonoids/Comonoids.v
+Monoidal/Comonoids/ComonoidsCategory.v
 
 Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v
 Monoidal/AlternativeDefinitions/MonoidalCategoriesTensored.v
