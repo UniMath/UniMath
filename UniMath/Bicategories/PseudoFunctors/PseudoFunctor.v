@@ -538,6 +538,30 @@ Proof.
     ] ; apply (adj_equiv_to_equiv_cat (Fmor_univ F x y u1 u2)) ; exact (pr1 w x y).
 Defined.
 
+(**
+ `idtoiso_2_1` for pseudofunctors
+ *)
+Definition idtoiso_2_1_psfunctor
+           {B₁ B₂ : bicat}
+           (F : psfunctor B₁ B₂)
+           {x y : B₁}
+           {f g : x --> y}
+           (p : f = g)
+  : idtoiso_2_1 _ _ (maponpaths #F p)
+    =
+    ##F (idtoiso_2_1 _ _ p) ,, psfunctor_is_iso _ _.
+Proof.
+  induction p ; cbn.
+  use subtypePath.
+  {
+    intro.
+    apply isaprop_is_invertible_2cell.
+  }
+  cbn.
+  rewrite psfunctor_id2.
+  apply idpath.
+Qed.
+
 Module Notations.
   Notation "'##'" := (psfunctor_on_cells).
 End Notations.

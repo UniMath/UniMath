@@ -15,13 +15,16 @@
  4. The identity
  5. Composition
  6. Functors between discrete two-sided displayed categories form a set
+ 7. Two-sided displayed functors versus displayed functors
 
  **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
@@ -117,6 +120,13 @@ Section DisplayedFunctor.
              (FG : twosided_disp_functor_data)
     : UU
     := twosided_disp_functor_id_law FG × twosided_disp_functor_comp_law FG.
+
+  Proposition isaprop_twosided_disp_functor_laws
+              (FG : twosided_disp_functor_data)
+    : isaprop (twosided_disp_functor_laws FG).
+  Proof.
+    use isapropdirprod ; repeat (use impred ; intro) ; apply isaset_disp_mor.
+  Qed.
 
   Definition twosided_disp_functor
     : UU
@@ -423,9 +433,147 @@ Proof.
       apply isaset_disp_mor.
   - intro.
     apply isasetaprop.
-    apply isapropdirprod.
-    + repeat (use impred ; intro).
-      apply isaset_disp_mor.
-    + repeat (use impred ; intro).
-      apply isaset_disp_mor.
+    apply isaprop_twosided_disp_functor_laws.
 Qed.
+
+(**
+ 7. Two-sided displayed functors versus displayed functors
+ *)
+Section ToDispFunctor.
+  Context {C₁ C₁' C₂ C₂' : category}
+          {F : C₁ ⟶ C₁'}
+          {G : C₂ ⟶ C₂'}
+          {D₁ : twosided_disp_cat C₁ C₂}
+          {D₂ : twosided_disp_cat C₁' C₂'}
+          (FG : twosided_disp_functor F G D₁ D₂).
+
+  Definition two_sided_disp_functor_to_disp_functor_data
+    : disp_functor_data
+        (pair_functor F G)
+        (twosided_disp_cat_to_disp_cat _ _ D₁)
+        (twosided_disp_cat_to_disp_cat _ _ D₂).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ xy, FG (pr1 xy) (pr2 xy)).
+    - exact (λ x₁ x₂ xx₁ xx₂ f ff, #2 FG ff).
+  Defined.
+
+  Proposition two_sided_disp_functor_to_disp_functor_axioms
+    : disp_functor_axioms
+        two_sided_disp_functor_to_disp_functor_data.
+  Proof.
+    split.
+    - intros x xx ; cbn.
+      rewrite twosided_disp_functor_id.
+      rewrite <- transportb_dirprodeq.
+      apply maponpaths_2.
+      apply isasetdirprod ; apply homset_property.
+    - intros x y z xx yy zz f g ff gg ; cbn.
+      rewrite twosided_disp_functor_comp.
+      rewrite <- transportb_dirprodeq.
+      apply maponpaths_2.
+      apply isasetdirprod ; apply homset_property.
+  Qed.
+
+  Definition two_sided_disp_functor_to_disp_functor
+    : disp_functor
+        (pair_functor F G)
+        (twosided_disp_cat_to_disp_cat _ _ D₁)
+        (twosided_disp_cat_to_disp_cat _ _ D₂).
+  Proof.
+    simple refine (_ ,, _).
+    - exact two_sided_disp_functor_to_disp_functor_data.
+    - exact two_sided_disp_functor_to_disp_functor_axioms.
+  Defined.
+End ToDispFunctor.
+
+Section FromDispFunctor.
+  Context {C₁ C₁' C₂ C₂' : category}
+          {F : C₁ ⟶ C₁'}
+          {G : C₂ ⟶ C₂'}
+          {D₁ : twosided_disp_cat C₁ C₂}
+          {D₂ : twosided_disp_cat C₁' C₂'}
+          (FG : disp_functor
+                  (pair_functor F G)
+                  (twosided_disp_cat_to_disp_cat _ _ D₁)
+                  (twosided_disp_cat_to_disp_cat _ _ D₂)).
+
+  Definition disp_functor_to_two_sided_disp_functor_data
+    : twosided_disp_functor_data F G D₁ D₂.
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ x y xy, FG (x ,, y) xy).
+    - exact (λ x₁ x₂ y₁ y₂ xy₁ xy₂ f g fg,
+             @disp_functor_on_morphisms
+                _ _ _ _ _
+                FG
+                (x₁ ,, y₁) (x₂ ,, y₂)
+                xy₁ xy₂
+                (f ,, g)
+                fg).
+  Defined.
+
+  Proposition disp_functor_to_two_sided_disp_functor_axioms
+    : twosided_disp_functor_laws
+        F G D₁ D₂
+        disp_functor_to_two_sided_disp_functor_data.
+  Proof.
+    split.
+    - intros x y xy ; cbn.
+      etrans.
+      {
+        exact (@disp_functor_id _ _ _ _ _ FG (x ,, y) xy).
+      }
+      rewrite <- transportb_dirprodeq.
+      apply maponpaths_2.
+      apply isasetdirprod ; apply homset_property.
+    - intros x₁ x₂ x₃ y₁ y₂ y₃ xy₁ xy₂ xy₃ f₁ g₁ fg₁ f₂ g₂ fg₂ ; cbn.
+      etrans.
+      {
+        exact (@disp_functor_comp
+                 _ _ _ _ _
+                 FG
+                 (x₁ ,, y₁) (x₂ ,, y₂) (x₃ ,, y₃)
+                 xy₁ xy₂ xy₃
+                 (f₁ ,, g₁) (f₂ ,, g₂)
+                 fg₁ fg₂).
+      }
+      rewrite <- transportb_dirprodeq.
+      apply maponpaths_2.
+      apply isasetdirprod ; apply homset_property.
+  Qed.
+
+  Definition disp_functor_to_two_sided_disp_functor
+    : twosided_disp_functor F G D₁ D₂.
+  Proof.
+    simple refine (_ ,, _).
+    - exact disp_functor_to_two_sided_disp_functor_data.
+    - exact disp_functor_to_two_sided_disp_functor_axioms.
+  Defined.
+End FromDispFunctor.
+
+Definition two_sided_disp_functor_weq_disp_functor
+           {C₁ C₁' C₂ C₂' : category}
+           (F : C₁ ⟶ C₁')
+           (G : C₂ ⟶ C₂')
+           (D₁ : twosided_disp_cat C₁ C₂)
+           (D₂ : twosided_disp_cat C₁' C₂')
+  : twosided_disp_functor F G D₁ D₂
+    ≃
+    disp_functor
+      (pair_functor F G)
+      (twosided_disp_cat_to_disp_cat _ _ D₁)
+      (twosided_disp_cat_to_disp_cat _ _ D₂).
+Proof.
+  use weq_iso.
+  - exact two_sided_disp_functor_to_disp_functor.
+  - exact disp_functor_to_two_sided_disp_functor.
+  - abstract
+      (intros FG ;
+       use subtypePath ; [ intro ; apply isaprop_twosided_disp_functor_laws | ] ;
+       apply idpath).
+  - abstract
+      (intros FG ;
+       use subtypePath ; [ intro ; apply isaprop_disp_functor_axioms | ] ;
+       apply idpath).
+Defined.

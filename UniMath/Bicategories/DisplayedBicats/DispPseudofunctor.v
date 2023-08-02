@@ -420,6 +420,34 @@ Proof.
   apply idpath.
 Defined.
 
+Definition disp_psfunctor_cell_transportf
+           {B₁ B₂ : bicat}
+           {F : psfunctor B₁ B₂}
+           {D₁ : disp_bicat B₁}
+           {D₂ : disp_bicat B₂}
+           (FF : disp_psfunctor D₁ D₂ F)
+           {x y : B₁}
+           {f g : x --> y}
+           {φ ψ : f ==> g}
+           (p : φ = ψ)
+           {xx : D₁ x}
+           {yy : D₁ y}
+           {ff : xx -->[ f ] yy}
+           {gg : xx -->[ g ] yy}
+           (φφ : ff ==>[ φ ] gg)
+  : disp_psfunctor_cell
+      _ _ _ (pr1 FF)
+      (transportf (λ z, ff ==>[ z ] gg) p φφ)
+    =
+    transportf
+      (λ z, _ ==>[ z ] _)
+      (maponpaths (## F) p)
+      (disp_psfunctor_cell _ _ _ (pr1 FF) φφ).
+Proof.
+  induction p ; cbn.
+  apply idpath.
+Qed.
+
 Section DispPseudofunctorInvertible_2cell.
 
 Context {B₁ B₂ : bicat}

@@ -304,7 +304,6 @@ Monoidal/Displayed/Symmetric.v
 Monoidal/Examples/SetCartesianMonoidal.v
 Monoidal/Examples/CartesianMonoidal.v
 Monoidal/Examples/DisplayedCartesianMonoidal.v
-Monoidal/Examples/PosetsMonoidal.v
 Monoidal/Examples/StructuresMonoidal.v
 Monoidal/Examples/EndofunctorsMonoidalElementary.v
 Monoidal/Examples/MonadsAsMonoidsElementary.v
@@ -314,6 +313,8 @@ Monoidal/Examples/PointedSetCartesianMonoidal.v
 Monoidal/Examples/BinopCartesianMonoidal.v
 Monoidal/Examples/SetWithSubset.v
 Monoidal/Examples/SmashProductMonoidal.v
+Monoidal/Examples/PosetsMonoidal.v
+Monoidal/Examples/LiftPoset.v
 Monoidal/Examples/Fullsub.v
 Monoidal/Examples/Relations.v
 
