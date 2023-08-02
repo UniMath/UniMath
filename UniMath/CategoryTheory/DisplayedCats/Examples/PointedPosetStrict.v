@@ -236,9 +236,9 @@ Proof.
   - exact pointed_PartialOrder_boolset.
   - intros X Y PX PY.
     use (pointed_quotient_poset
-             (prod_pointed_PartialOrder PX PY)
-             (smash_set PX PY)
-             (smash_set_downward_closd PX PY)).
+           (prod_pointed_PartialOrder PX PY)
+           (smash_set PX PY)
+           (smash_set_downward_closd PX PY)).
     exact (pointed_poset_strict_smash_eqrel_equiv PX PY).
 Defined.
 
