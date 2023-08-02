@@ -60,7 +60,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBiadjunction.
 Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
 Import DispBicat.Notations.
 
-Require Import UniMath.Bicategories.PseudoFunctors.DisplayedUniversalArrow.
+Require Import UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrow.
 
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.BicatOfCatToUnivCat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOnCatToUniv.
