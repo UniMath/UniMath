@@ -48,7 +48,6 @@ Section CartesianMonoidalCategoryOfCommutativeComonoids.
 
     unfold is_commutative in c.
     unfold comonoid_data_comultiplication in c.
-
   Admitted.
 
   Lemma diagonal_is_comonoid_mor_unit
@@ -74,13 +73,13 @@ Section CartesianMonoidalCategoryOfCommutativeComonoids.
     {x : C} {m : comonoid M x} (c : is_commutative S m)
     : is_comonoid_mor_mult M m comonoid_disp_unit (pr21 m).
   Proof.
-    unfold is_comonoid_mor_mult.
-    unfold comonoid_data_comultiplication.
-    unfold tensor_of_comonoids.
-    cbn.
-    unfold is_commutative in c.
-    unfold comonoid_data_comultiplication in c.
-  Admitted.
+    refine (assoc _ _ _ @ _).
+    etrans. {
+      apply maponpaths_2.
+      apply comonoid_laws_unit_left'.
+    }
+    apply (monoidal_leftunitorinvnat M).
+  Qed.
 
   Lemma aug_is_comonoid_mor
     {x : C} {m : comonoid M x} (c : is_commutative S m)
