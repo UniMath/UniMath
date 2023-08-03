@@ -15,6 +15,7 @@ Import BifunctorNotations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
 
@@ -106,3 +107,21 @@ Section Category_of_commutative_comonoids.
     := total_category commutative_comonoids_disp_cat_over_base.
 
 End Category_of_commutative_comonoids.
+
+Section Aux.
+
+  Lemma comonoid_disp_cat_locally_propositional
+        {C : category} (M : monoidal C)
+  : locally_propositional (comonoid_disp_cat M).
+  Proof.
+    intro ; intros ; apply isaprop_is_comonoid_mor.
+  Qed.
+
+  Lemma comm_comonoid_disp_cat_locally_propositional
+        {C : category} {M : monoidal C} (S : symmetric M)
+  : locally_propositional (commutative_comonoids_disp_cat S).
+  Proof.
+    intro ; intros ; apply isapropunit.
+  Qed.
+
+End Aux.
