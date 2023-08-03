@@ -59,6 +59,18 @@ Proof.
   apply pathsinv0, unitors_coincide_on_unit.
 Qed.
 
+Lemma associator_before_rwhisker_with_lu
+  {C : category} (M : monoidal C)
+  : αinv^{ M }_{ I_{ M}, I_{ M}, I_{ M}} · lu^{M}_{I_{ M}} ⊗^{M} identity I_{ M}
+     = identity I_{ M} ⊗^{ M} lu^{M}_{I_{ M}}.
+Proof.
+  use (z_iso_inv_on_right _ _ _ (α^{M}_{ I_{ M}, I_{ M}, I_{ M}} ,, _ ,, _)).
+  {
+    apply monoidal_associatorisolaw.
+  }
+  apply pathsinv0, associator_before_lwhisker_with_lu.
+Qed.
+
 Section SymmetricMonoidalCategoryOfComonoids.
 
   Context {C : category} {M : monoidal C} (S : symmetric M).
@@ -609,6 +621,120 @@ Section SymmetricMonoidalCategoryOfComonoids.
     - exact (comonoid_disp_associator_unit xx yy zz).
   Qed.
 
+  Lemma comonoid_disp_associatorinv_mult
+    {x y z : C}
+    (xx : comonoid M x) (yy : comonoid M y) (zz : comonoid M z)
+    : is_comonoid_mor_mult M (tensor_of_comonoids xx (tensor_of_comonoids yy zz))
+     (tensor_of_comonoids (tensor_of_comonoids xx yy) zz) αinv^{ M }_{ x, y, z}.
+  Proof.
+    unfold is_comonoid_mor_mult.
+    cbn.
+
+    etrans.
+    2: {
+      rewrite assoc.
+      apply maponpaths_2.
+      apply maponpaths.
+      apply maponpaths.
+      apply id_right.
+    }
+    rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    rewrite ! assoc.
+
+    etrans.
+    2: {
+      do 2 apply maponpaths_2.
+      apply monoidal_associatorinv_nat2.
+    }
+
+    rewrite ! assoc'.
+
+    etrans. {
+      apply maponpaths_2.
+      apply maponpaths_2.
+      apply pathsinv0, id_right.
+    }
+
+    rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    rewrite ! assoc'.
+    apply maponpaths.
+    rewrite ! assoc.
+    apply rearrange_hexagoninv'.
+  Qed.
+
+  Lemma comonoid_disp_associatorinv_unit {x y z : C}
+    (xx : comonoid M x) (yy : comonoid M y) (zz : comonoid M z)
+    : is_comonoid_mor_unit M (tensor_of_comonoids xx (tensor_of_comonoids yy zz))
+        (tensor_of_comonoids (tensor_of_comonoids xx yy) zz) αinv^{ M }_{ x, y, z}.
+  Proof.
+    unfold is_comonoid_mor_unit.
+    cbn.
+
+    etrans. {
+      apply maponpaths.
+      apply maponpaths_2.
+      apply (tensor_comp_r_id_r (V := C,,M)).
+    }
+    unfold monoidal_cat_tensor_mor.
+    cbn.
+    rewrite ! assoc.
+    etrans. {
+      do 2 apply maponpaths_2.
+      apply pathsinv0, (tensor_rassociator (V := C,,M)).
+    }
+    unfold monoidal_cat_tensor_mor.
+    cbn.
+    apply maponpaths_2.
+    etrans. {
+      apply maponpaths_2.
+      apply (tensor_rassociator (V := C,,M)).
+    }
+    unfold monoidal_cat_tensor_mor.
+    cbn.
+    rewrite assoc'.
+    etrans. {
+      apply maponpaths.
+      apply pathsinv0.
+      apply (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    }
+    rewrite id_right.
+
+    etrans. {
+      apply maponpaths.
+      apply maponpaths.
+      apply pathsinv0, id_right.
+    }
+    rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    rewrite assoc.
+
+    etrans. {
+      apply maponpaths_2.
+      apply pathsinv0.
+      apply monoidal_associatorinv_nat2.
+    }
+
+    etrans.
+    2: {
+      apply maponpaths_2.
+      apply id_right.
+    }
+    rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    rewrite assoc'.
+    apply maponpaths.
+    apply associator_before_rwhisker_with_lu.
+  Qed.
+
+  Lemma comonoid_disp_associatorinv
+    {x y z : C}
+    (xx : comonoid M x) (yy : comonoid M y) (zz : comonoid M z)
+    : is_comonoid_mor M (tensor_of_comonoids xx (tensor_of_comonoids yy zz))
+        (tensor_of_comonoids (tensor_of_comonoids xx yy) zz) αinv^{M}_{x, y, z}.
+  Proof.
+    split.
+    - exact (comonoid_disp_associatorinv_mult xx yy zz).
+    - exact (comonoid_disp_associatorinv_unit xx yy zz).
+  Qed.
+
   Definition comonoid_disp_symmetric_monoidal
     :  ∑ DM : disp_monoidal (comonoid_disp_cat M) M, disp_symmetric DM S.
   Proof.
@@ -622,6 +748,7 @@ Section SymmetricMonoidalCategoryOfComonoids.
     - exact (λ _ xx, comonoid_disp_lunitor xx).
     - exact (λ _ xx, comonoid_disp_lunitor_inv xx).
     - exact (λ _ _ _ xx yy zz, comonoid_disp_associator xx yy zz).
+    - exact (λ _ _ _ xx yy zz, comonoid_disp_associatorinv xx yy zz).
   Defined.
 
   Definition monoidal_cat_of_comonoids

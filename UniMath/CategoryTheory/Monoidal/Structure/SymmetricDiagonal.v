@@ -59,23 +59,31 @@ Section Rearranging.
       = pr1 S _ _ · α _ _ _ · _ ⊗l pr1 S _ _.
   Proof.
     rewrite assoc.
-      set (p := pr2 (pr222 S) y w z).
-      rewrite ! assoc' in p.
-      etrans. {
-        apply maponpaths_2.
-        use (! z_iso_inv_on_right _ _ _ (_,,_) _ _ p).
-        use (is_z_iso_leftwhiskering_z_iso M).
-        apply (_ ,, pr122 S w z).
-      }
-      cbn.
-      etrans. {
-        rewrite ! assoc'.
-        do 3 apply maponpaths.
-        apply (pr2 (monoidal_associatorisolaw M z y w)).
-      }
-      rewrite id_right.
-      Check pr1 (pr222 S) _.
-  Admitted.
+    set (p := pr2 (pr222 S) y w z).
+    set (p' := pr1 (pr222 S) y w z).
+
+    apply pathsinv0.
+    use (z_iso_inv_to_right _ _ _ _ (_ ,, _)).
+    {
+      use (is_z_iso_leftwhiskering_z_iso M).
+      apply (_ ,, pr122 S _ _).
+    }
+    cbn.
+    rewrite ! assoc'.
+    etrans.
+    2: {
+      apply maponpaths.
+      rewrite assoc.
+      apply (pr1 (pr222 S) _ _ _).
+    }
+    rewrite ! assoc.
+    etrans.
+    2: {
+      do 2 apply maponpaths_2.
+      apply pathsinv0, (monoidal_associatorisolaw M).
+    }
+    now rewrite id_left.
+  Qed.
 
   Lemma precompose_rearrange_prod
     {x y z w : C}
@@ -258,9 +266,17 @@ Section Rearranging.
   Lemma TO_BE_MOVED'' (x : C)
     : I_{M} ⊗^{M}_{l} lu^{M}_{x} = lu^{M}_{I ⊗_{ M} x}.
   Proof.
+    refine (_ @ ! mon_lunitor_triangle_transposed x).
 
+    use (z_iso_inv_to_left _ _ _ (αinv I_{ M} I_{ M} x ,, α I_{ M} I_{ M} x ,, _)).
+    {
+      split ; apply monoidal_associatorisolaw.
+    }
 
-  Admitted.
+    refine (monoidal_triangleidentity M I x @ _).
+    apply maponpaths.
+    apply pathsinv0, unitors_coincide_on_unit.
+  Qed.
 
   Lemma TO_BE_MOVED' (x y : C)
     : I ⊗^{ M}_{l} (lu x ⊗^{ M}_{r} y)
@@ -340,6 +356,12 @@ Section Rearranging.
     : rearrange_prod x I_{ M} y I_{ M} · (x ⊗_{ M} y) ⊗^{ M}_{l} lu I_{ M} · ru^{ M }_{ x ⊗_{ M} y} = (ru x ⊗⊗ ru y).
   Proof.
 
+    Check mon_runitor_triangle.
+    Check tensor_runitor.
+    Check mon_triangle.
+    Check sym_mon_braiding_runitor.
+
+
 
 
   Admitted.
@@ -379,6 +401,16 @@ Section Rearranging.
         α^{ M }_{ x ⊗_{ M} x, y ⊗_{ M} y, z ⊗_{ M} z}
             · identity (x ⊗_{ M} x) ⊗^{ M} rearrange_prod y y z z
             · rearrange_prod x x (y ⊗_{ M} z) (y ⊗_{ M} z).
+  Proof.
+  Admitted.
+
+  Lemma rearrange_hexagoninv' (x y z : C)
+    : identity (x ⊗_{ M} x) ⊗^{ M} rearrange_prod y y z z
+  · rearrange_prod x x (y ⊗_{ M} z) (y ⊗_{ M} z)
+  · αinv^{ M }_{ x, y, z} ⊗^{ M} αinv^{ M }_{ x, y, z} =
+  αinv^{ M }_{ x ⊗_{ M} x, y ⊗_{ M} y, z ⊗_{ M} z}
+  · rearrange_prod x x y y ⊗^{ M} identity (z ⊗_{ M} z)
+  · rearrange_prod (x ⊗_{ M} y) (x ⊗_{ M} y) z z.
   Proof.
   Admitted.
 

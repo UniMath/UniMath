@@ -154,9 +154,30 @@ Section Construct_SymmetricMonoidal_On_LocallyProp_DisplayedCategories.
     rewrite ! mor_disp_transportf_prewhisker.
     rewrite ! transport_f_f.
     use transportf_transpose_right.
-  Admitted.
+    unfold transportb.
+    rewrite transport_f_f.
 
-  Definition TODO_JOKER (A : UU): A. Proof. Admitted.
+    rewrite ! assoc_disp.
+    unfold transportb.
+    rewrite mor_disp_transportf_postwhisker.
+    use transportf_transpose_right.
+    unfold transportb.
+    rewrite ! transport_f_f.
+    use transportf_set.
+    apply homset_property.
+  Qed.
+
+  (* Lemma B_naturality
+    : B x1 y1 xx1 yy1 ;; Tl yy1 ff = Tl _ ff *)
+
+  Context (T_equalwhiskers
+            : ∏ (x1 x2 y1 y2 : C) (f : C ⟦ x1, x2 ⟧) (g : C ⟦ y1, y2 ⟧)
+                (xx1 : D x1) (xx2 : D x2) (yy1 : D y1) (yy2 : D y2)
+                (ff : xx1 -->[ f] xx2) (gg : yy1 -->[ g] yy2),
+              Tr yy1 ff ;; Tl xx2 gg
+              = transportb _ (bifunctor_equalwhiskers M x1 x2 y1 y2 f g)
+                  (Tl xx1 gg ;; Tr yy2 ff)).
+
   Definition make_symmetric_monoidal_disp_cat_tensor
     : disp_tensor D M.
   Proof.
@@ -168,24 +189,7 @@ Section Construct_SymmetricMonoidal_On_LocallyProp_DisplayedCategories.
     - intro ; intros ; apply Tr_preserves_id.
     - exact Tl_preserves_comp.
     - intro ; intros ; apply Tr_preserves_comp.
-    - cbn.
-      unfold dispfunctoronmorphisms_are_equal.
-      cbn.
-      unfold dispfunctoronmorphisms1.
-      unfold dispfunctoronmorphisms2.
-      cbn.
-      unfold Tr.
-      cbn.
-
-      intro ; intros.
-      cbn in *.
-
-      rewrite mor_disp_transportf_postwhisker.
-      rewrite mor_disp_transportf_prewhisker.
-      use transportf_transpose_left.
-      rewrite transport_b_b.
-      rewrite transport_b_f.
-      apply TODO_JOKER. (*** **)
+    - intro ; intros ; apply T_equalwhiskers.
   Defined.
 
   Context (II : D I_{ M})
@@ -209,15 +213,7 @@ Section Construct_SymmetricMonoidal_On_LocallyProp_DisplayedCategories.
   Defined.
 
   Context (asas : disp_associator_data make_symmetric_monoidal_disp_cat_tensor).
-  Definition make_symmetric_monoidal_disp_cat_associator_inv
-    {x y z : C} (xx : D x) (yy : D y) (zz : D z)
-    : T xx (T yy zz) -->[αinv^{ M }_{ x, y, z}] T (T xx yy) zz.
-  Proof.
-    Check (_ ;; asas _ _ _ _ _ _ ;; B _ _ _ _).
-    refine (transportf _ _ (_ ;; asas _ _ _ _ _ _ ;; B _ _ _ _)) ; cbn.
-    - admit.
-    - admit.
-  Admitted.
+  Context (asasinv : disp_associatorinv_data make_symmetric_monoidal_disp_cat_tensor).
 
   Definition make_symmetric_monoidal_disp_cat_monoidal_data
     : disp_monoidal_data D M.
@@ -229,7 +225,7 @@ Section Construct_SymmetricMonoidal_On_LocallyProp_DisplayedCategories.
     exists (λ _ xx, make_symmetric_monoidal_disp_cat_rightunitor xx).
     exists (λ _ xx, make_symmetric_monoidal_disp_cat_rightunitor_inv xx).
     exists asas.
-    exact (λ _ _ _ xx yy zz, make_symmetric_monoidal_disp_cat_associator_inv xx yy zz).
+    exact asasinv.
   Defined.
 
   Definition make_symmetric_monoidal_disp_cat_monoidal_locally_prop
@@ -264,7 +260,9 @@ Definition make_symmetric_monoidal_disp_cat_locally_prop
   (lulu : ∏ (x : C) (xx : D x), T I_{ M} x II xx -->[ lu^{ M }_{ x}] xx)
   (luluinv : ∏ (x : C) (xx : D x), xx -->[ luinv^{ M }_{ x}] T I_{ M} x II xx)
   (assass : ∏ (x y z : C) (xx : D x) (yy : D y) (zz : D z),
-       (T _ _ (T _ _ xx yy) zz) -->[α^{ M }_{ x, y, z}] T _ _ xx (T _ _ yy zz))
+      (T _ _ (T _ _ xx yy) zz) -->[α^{ M }_{ x, y, z}] T _ _ xx (T _ _ yy zz))
+  (assassinv : ∏ (x y z : C) (xx : D x) (yy : D y) (zz : D z),
+      T _ _ xx (T _ _ yy zz) -->[αinv^{ M }_{ x, y, z}] (T _ _ (T _ _ xx yy) zz))
   : ∑ DM : disp_monoidal D M, disp_symmetric DM S.
 Proof.
   use make_symmetric_monoidal_disp_cat_locally_prop'.
@@ -274,9 +272,11 @@ Proof.
   - intro ; intros ; apply LP.
   - intro ; intros ; apply LP.
   - intro ; intros ; apply LP.
+  - intro ; intros ; apply LP.
   - exact II.
   - exact lulu.
   - exact luluinv.
   - exact assass.
+  - exact assassinv.
   - exact LP.
 Defined.
