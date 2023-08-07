@@ -326,6 +326,7 @@ Monoidal/Comonoids/ComonoidsCategory.v
 Monoidal/Comonoids/ComonoidsMonoidalCategory.v
 Monoidal/Comonoids/MonoidalCartesianBuilder.v
 Monoidal/Comonoids/CommComonoidsCartesian.v
+Monoidal/Comonoids/CartesianAsComonoids.v
 
 Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v
 Monoidal/AlternativeDefinitions/MonoidalCategoriesTensored.v

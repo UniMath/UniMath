@@ -54,14 +54,11 @@ Section Rearranging.
     exact (pr1 S y z ⊗r w).
   Defined.
 
-  Lemma TO_BE_MOVED (y z w : C)
+  Lemma sym_monoidal_braiding_hexagon1_variant (y z w : C)
     : αinv y z w · (pr1 S y z ⊗^{ M}_{r} w · α z y w)
       = pr1 S _ _ · α _ _ _ · _ ⊗l pr1 S _ _.
   Proof.
     rewrite assoc.
-    set (p := pr2 (pr222 S) y w z).
-    set (p' := pr1 (pr222 S) y w z).
-
     apply pathsinv0.
     use (z_iso_inv_to_right _ _ _ _ (_ ,, _)).
     {
@@ -114,14 +111,14 @@ Section Rearranging.
     rewrite ! assoc'.
     apply maponpaths.
 
-    rewrite (TO_BE_MOVED y z w).
+    rewrite (sym_monoidal_braiding_hexagon1_variant y z w).
 
     rewrite <- ! (when_bifunctor_becomes_leftwhiskering M).
     rewrite <- ! (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
     rewrite id_left, id_right.
     apply maponpaths.
 
-    rewrite (TO_BE_MOVED y' z' w').
+    rewrite (sym_monoidal_braiding_hexagon1_variant y' z' w').
 
     rewrite ! assoc.
     etrans.
@@ -263,7 +260,7 @@ Section Rearranging.
     apply monoidal_associatorisolaw.
   Qed.
 
-  Lemma TO_BE_MOVED'' (x : C)
+  Lemma rightwhisker_of_lunitor_with_unit (x : C)
     : I_{M} ⊗^{M}_{l} lu^{M}_{x} = lu^{M}_{I ⊗_{ M} x}.
   Proof.
     refine (_ @ ! mon_lunitor_triangle_transposed x).
@@ -278,7 +275,7 @@ Section Rearranging.
     apply pathsinv0, unitors_coincide_on_unit.
   Qed.
 
-  Lemma TO_BE_MOVED' (x y : C)
+  Lemma whiskering_on_both_sides_with_lunitor_left_unit (x y : C)
     : I ⊗^{ M}_{l} (lu x ⊗^{ M}_{r} y)
       = I_{ M} ⊗^{ M}_{l} α I_{ M} x y
           · (αinv I_{ M} I_{ M} (x ⊗_{ M} y) · lu I_{ M} ⊗^{ M}_{r} (x ⊗_{ M} y)).
@@ -287,7 +284,7 @@ Section Rearranging.
     rewrite (bifunctor_leftcomp M).
     apply maponpaths.
     refine (_ @ mon_lunitor_triangle_transposed _).
-    exact (TO_BE_MOVED'' (x ⊗ y)).
+    exact (rightwhisker_of_lunitor_with_unit (x ⊗ y)).
   Qed.
 
   Lemma precompose_rearrange_prod_with_lunitors_on_right (x y : C)
@@ -319,7 +316,7 @@ Section Rearranging.
         apply maponpaths.
         apply (sym_mon_braiding_runitor ((C,,M),,S)).
       }
-      apply TO_BE_MOVED'.
+      apply whiskering_on_both_sides_with_lunitor_left_unit.
     }
 
     rewrite <- (bifunctor_leftcomp M).
@@ -435,100 +432,6 @@ Section Rearranging.
     rewrite <- (when_bifunctor_becomes_rightwhiskering M).
     apply (! mon_lunitor_triangle (V := C,,M) y I).
   Qed.
-
-  Lemma composition_rearrange_and_braiding4
-    (x1 x2 y1 y2 : C)
-    : rearrange_prod x1 x2 y1 y2 · pr1 S x1 y1 ⊗^{ M} pr1 S x2 y2
-      = pr1 S (x1 ⊗_{ M} x2) (y1 ⊗_{ M} y2) · rearrange_prod y1 y2 x1 x2.
-  Proof.
-    unfold rearrange_prod.
-
-    assert (p1 :  αinv x1 y1 (x2 ⊗_{ M} y2) · pr1 S x1 y1 ⊗^{ M} pr1 S x2 y2
-                  = x1 ⊗l (y1 ⊗l pr1 S x2 y2) · αinv _ _ _ · pr1 S x1 y1 ⊗r _).
-    {
-      admit.
-    }
-
-    etrans. {
-      rewrite assoc'.
-      apply maponpaths.
-      rewrite assoc'.
-      apply maponpaths.
-      exact p1.
-    }
-    clear p1.
-    rewrite ! assoc.
-
-    Check pr1 (pr222 S) .
-
-    assert (p2 : x1 ⊗^{ M}_{l} (y1 ⊗^{ M}_{l} pr1 S x2 y2) · αinv x1 y1 (y2 ⊗_{ M} x2)
-                 = αinv _ _ _ · _ ⊗l pr1 S _ _).
-    {
-      admit.
-    }
-
-    etrans. {
-      apply maponpaths_2.
-      rewrite assoc'.
-      apply maponpaths.
-      exact p2.
-    }
-
-
-
-
-
-
-  Admitted.
-
-  Lemma composition_rearrange_and_braiding
-    (x y : C)
-    : rearrange_prod x x y y · pr1 S x y ⊗^{ M} pr1 S x y
-       = pr1 S (x ⊗_{ M} x) (y ⊗_{ M} y) · rearrange_prod y y x x.
-  Proof.
-    exact (composition_rearrange_and_braiding4 x x y y).
-  Qed.
-
-  Lemma composition_rearrange_and_braiding'
-    (x y : C)
-    : pr1 S x x ⊗^{ M} pr1 S y y · rearrange_prod x x y y · pr1 S (x ⊗_{ M} y) (x ⊗_{ M} y)
-      = rearrange_prod x x y y.
-  Proof.
-
-    unfold rearrange_prod.
-
-    set (t := pr112 S).
-    unfold braiding_law_naturality_left in t.
-    set (s := pr222 S).
-    unfold braiding_law_hexagon in s.
-    unfold braiding_law_hexagon1 in s.
-    unfold braiding_law_hexagon2 in s.
-
-    (* etrans. {
-      rewrite ! (bifunctor_leftcomp M).
-      rewrite ! assoc'.
-      do 4 apply maponpaths.
-
-      rewrite assoc'.
-      apply maponpaths.
-
-    use (z_iso_inv_to_right _ _ _ _ (_ ,, _)).
-    {
-      refine (_ ,, _).
-      apply (_ ,, monoidal_braiding_inverses S).
-    }
-    cbn.
-
-
-
-    use (z_iso_inv_to_left _ _ _ (_ ,, _)).
-    {
-      refine (_ ,, _).
-      apply (_ ,, monoidal_braiding_inverses S).
-    }*)
-
-
-  Admitted.
 
   Lemma rearrange_hexagon (x y : C)
      :  rearrange_prod (x ⊗_{ M} x) x (y ⊗_{ M} y) y

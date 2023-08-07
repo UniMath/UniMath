@@ -489,6 +489,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/Comonoids/ComonoidsMonoidalCategory.v](CategoryTheory/Monoidal/Comonoids/ComonoidsMonoidalCategory.v)
    - [Monoidal/Comonoids/MonoidalCartesianBuilder.v](CategoryTheory/Monoidal/Comonoids/MonoidalCartesianBuilder.v)
    - [Monoidal/Comonoids/CommComonoidsCartesian.v](CategoryTheory/Monoidal/Comonoids/CommComonoidsCartesian.v)
+   - [Monoidal/Comonoids/CartesianAsComonoids.v](CategoryTheory/Monoidal/Comonoids/CartesianAsComonoids.v)
    - [Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v](CategoryTheory/Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v)
    - [Monoidal/AlternativeDefinitions/MonoidalCategoriesTensored.v](CategoryTheory/Monoidal/AlternativeDefinitions/MonoidalCategoriesTensored.v)
    - [Monoidal/AlternativeDefinitions/EquivalenceWhiskeredNonCurriedMonoidalCategories.v](CategoryTheory/Monoidal/AlternativeDefinitions/EquivalenceWhiskeredNonCurriedMonoidalCategories.v)

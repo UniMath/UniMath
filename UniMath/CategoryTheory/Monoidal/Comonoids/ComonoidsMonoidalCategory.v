@@ -493,8 +493,7 @@ Section SymmetricMonoidalCategoryOfComonoids.
         apply (tensor_sym_mon_braiding ((C,,M),,S)).
       }
       rewrite ! assoc'.
-      apply maponpaths.
-      apply composition_rearrange_and_braiding.
+      apply comult_before_rearrange_and_swap.
     - unfold is_comonoid_mor_unit.
       cbn.
       rewrite ! assoc.
@@ -777,25 +776,8 @@ Section SymmetricMonoidalCategoryOfCommutativeComonoids.
     (sy : is_commutative S my)
     : is_commutative S (tensor_of_comonoids S mx my).
   Proof.
-    unfold is_commutative.
-    simpl.
-    unfold comonoid_data_comultiplication.
 
-    unfold is_commutative in sx, sy.
-    unfold comonoid_data_comultiplication in sx, sy.
-    rewrite <- sx.
-    rewrite <- sy.
-    rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
-
-    rewrite ! assoc'.
-    set (t := composition_rearrange_and_braiding' S x y).
-    rewrite assoc' in t.
-    rewrite t.
-    rewrite assoc.
-    apply maponpaths_2.
-    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
-    now rewrite sx, sy.
-  Qed.
+  Admitted.
 
   Definition disp_monoidal_cat_of_comm_comonoids
     : disp_monoidal (disp_full_sub

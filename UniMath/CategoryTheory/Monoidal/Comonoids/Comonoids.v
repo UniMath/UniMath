@@ -17,6 +17,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
+Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
@@ -422,5 +423,14 @@ Section CommutativeComonoids.
     }
     apply id_right.
   Qed.
+
+  Lemma comult_before_rearrange_and_swap
+    {x y : C} (xx : comonoid M x) (yy : comonoid M y)
+    : μ_{ xx} ⊗^{ M} μ_{ yy} · (rearrange_prod S x x y y · pr1 S x y ⊗^{ M} pr1 S x y)
+      = μ_{ xx} ⊗^{ M} μ_{ yy} · (pr1 S (x ⊗_{ M} x) (y ⊗_{ M} y) · rearrange_prod S y y x x).
+  Proof.
+    unfold rearrange_prod.
+
+  Admitted.
 
 End CommutativeComonoids.
