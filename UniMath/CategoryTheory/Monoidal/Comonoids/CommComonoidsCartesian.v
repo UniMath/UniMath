@@ -39,19 +39,13 @@ Section CartesianMonoidalCategoryOfCommutativeComonoids.
 
   Lemma diagonal_is_comonoid_mor_mult
     {x : C} {m : comonoid M x} (c : is_commutative S m)
-    : is_comonoid_mor_mult M m (tensor_of_comonoids S m m) (pr11 m).
+    : is_comonoid_mor_mult M m (tensor_of_comonoids S m m) μ_{m}.
   Proof.
-    unfold is_comonoid_mor_mult.
-    unfold comonoid_data_comultiplication.
-    unfold tensor_of_comonoids.
-    cbn.
-
-    unfold is_commutative in c.
-    unfold comonoid_data_comultiplication in c.
-  Admitted.
+    apply (! commutative_symmetric_braiding_after_4_copies S c).
+  Qed.
 
   Lemma diagonal_is_comonoid_mor_unit
-    {x : C} {m : comonoid M x} (c : is_commutative S m)
+    {x : C} (m : comonoid M x)
     : is_comonoid_mor_unit M m (tensor_of_comonoids S m m) (pr11 m).
   Proof.
     refine (_@ cancel_postcomposition _ _ (pr21 m) (pr12 m) @ id_left _).
@@ -66,11 +60,11 @@ Section CartesianMonoidalCategoryOfCommutativeComonoids.
     : is_comonoid_mor M m (tensor_of_comonoids S m m) (pr11 m).
   Proof.
     exists (diagonal_is_comonoid_mor_mult c).
-    exact (diagonal_is_comonoid_mor_unit c).
+    exact (diagonal_is_comonoid_mor_unit m).
   Qed.
 
   Lemma aug_is_comonoid_mor_mult
-    {x : C} {m : comonoid M x} (c : is_commutative S m)
+    {x : C} (m : comonoid M x)
     : is_comonoid_mor_mult M m comonoid_disp_unit (pr21 m).
   Proof.
     refine (assoc _ _ _ @ _).
@@ -82,10 +76,10 @@ Section CartesianMonoidalCategoryOfCommutativeComonoids.
   Qed.
 
   Lemma aug_is_comonoid_mor
-    {x : C} {m : comonoid M x} (c : is_commutative S m)
+    {x : C} (m : comonoid M x)
     : is_comonoid_mor M m comonoid_disp_unit (pr21 m).
   Proof.
-    exists (aug_is_comonoid_mor_mult c).
+    exists (aug_is_comonoid_mor_mult m).
     apply id_right.
   Qed.
 
@@ -97,7 +91,7 @@ Section CartesianMonoidalCategoryOfCommutativeComonoids.
     - refine (pr11 m ,, _ ,, tt).
       exact (diagonal_is_comonoid_mor c).
     - refine (pr21 m ,, _ ,, tt).
-      exact (aug_is_comonoid_mor c).
+      exact (aug_is_comonoid_mor m).
   Defined.
 
   Lemma commutative_comonoid_to_comonoid_of_comonoids_laws

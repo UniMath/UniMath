@@ -46,16 +46,26 @@ Section CartesianToCartesianAsComonoids.
 
   Context {C : category} {M : monoidal C} (Ccart : is_cartesian (C,,M)).
 
+  Let diag (x : C) := (BinProductArrow _ (is_cartesian_BinProduct Ccart x x) (identity x) (identity x)).
+
+  Let aug (x : C) := (semi_cart_to_unit Ccart x).
+
+  Lemma aug_of_unit : aug I_{M} = identity I_{M}.
+  Proof.
+    apply (semi_cart_to_unit_eq Ccart).
+  Qed.
+
+
   Definition cartesian_monoidal_has_enough_comonoids_data
     : ∏ x : C, comonoid_data M x.
   Proof.
     intro x.
-    exists (BinProductArrow _ (is_cartesian_BinProduct Ccart x x) (identity x) (identity x)).
-    exact (semi_cart_to_unit Ccart x).
+    exists (diag x).
+    exact (aug x).
   Defined.
 
   Lemma identity_of_lwhisker_with_unit (x : C)
-    :  monoidal_cat_tensor_mor (semi_cart_to_unit (pr1 Ccart) I_{ M}) (identity x)
+    :  monoidal_cat_tensor_mor (aug I_{ M}) (identity x)
        = identity (I_{M} ⊗_{M} x).
   Proof.
     etrans.
@@ -67,7 +77,7 @@ Section CartesianToCartesianAsComonoids.
   Qed.
 
   Lemma identity_of_rwhisker_with_unit (x : C)
-    :  monoidal_cat_tensor_mor (V := C,,M) (identity x) (semi_cart_to_unit (pr1 Ccart) I_{ M})
+    :  monoidal_cat_tensor_mor (V := C,,M) (identity x) (aug I_{ M})
        = identity (x ⊗_{M} I_{M}).
   Proof.
     etrans.
@@ -150,9 +160,7 @@ Section CartesianToCartesianAsComonoids.
   Qed.
 
   Lemma cartesian_rinvunitor' (x : C)
-    :  BinProductArrow C (is_cartesian_BinProduct Ccart x x) (identity x) (identity x)
-         · x ⊗^{ M}_{l} semi_cart_to_unit Ccart x
-       = ruinv^{M}_{x}.
+    : diag x · x ⊗^{ M}_{l} aug x = ruinv^{M}_{x}.
   Proof.
     etrans. {
       refine (_ @ postcompWithBinProductArrow _
@@ -169,6 +177,118 @@ Section CartesianToCartesianAsComonoids.
     do 2 rewrite id_left.
     exact (cartesian_rinvunitor x).
   Qed.
+
+  Lemma cartesian_associator (x y z : C)
+    : α^{ M }_{ x, y, z}
+      = BinProductArrow C
+          (is_cartesian_BinProduct Ccart _ _)
+          (semi_cart_tensor_pr1 Ccart _ _ · semi_cart_tensor_pr1 Ccart _ _)
+          (semi_cart_tensor_pr2 Ccart _ _ ⊗^{M}_{r} z).
+  Proof.
+    use (BinProductArrowUnique _ _ _ (is_cartesian_BinProduct Ccart _ _)).
+    - apply (mon_lassociator_pr1 Ccart).
+    - refine (mon_lassociator_pr2 Ccart x y z @ _).
+      unfold monoidal_cat_tensor_mor.
+      now apply (when_bifunctor_becomes_rightwhiskering M).
+  Qed.
+
+  (* Lemma bla' (x : C)
+    : monoidal_cat_tensor_mor (cartesian_to_braiding_data Ccart x x) (identity x)
+     · mon_lassociator (V := C,,M) x x x = _. *)
+
+  Lemma cartesian_ruinv_of_tensor (x : C)
+    : diag x ⊗^{ M} semi_cart_to_unit Ccart x = ruinv^{ M }_{ x ⊗_{ M} x}.
+  Proof.
+    refine (_ @ cartesian_rinvunitor _).
+    unfold is_cartesian in Ccart.
+
+  Admitted.
+
+  Lemma diagonal_commutes_with_assoc (x : C)
+    : diag x ⊗^{ M}_{r} x · α^{ M }_{ x, x, x}
+      = x ⊗^{ M}_{l} diag x.
+  Proof.
+    use (BinProductArrowsEq _ _ _ (is_cartesian_BinProduct Ccart _ _)) ; cbn.
+    - etrans. {
+        rewrite assoc'.
+        apply maponpaths.
+        apply (mon_lassociator_pr1 Ccart).
+      }
+
+      refine (_ @ idpath (semi_cart_tensor_pr1 Ccart x x) @ _).
+      + unfold semi_cart_tensor_pr1.
+        unfold monoidal_cat_tensor_mor.
+        unfold monoidal_cat_tensor_pt.
+        cbn.
+        etrans. {
+          rewrite ! assoc.
+          do 3 apply maponpaths_2.
+          rewrite <- (when_bifunctor_becomes_rightwhiskering M).
+          rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+        }
+        rewrite id_right, id_left.
+        rewrite <- (bifunctor_equalwhiskers M).
+        refine (_ @ id_left _).
+        rewrite ! assoc.
+        do 2 apply maponpaths_2.
+        refine (_ @ pr2 (monoidal_rightunitorisolaw M (x ⊗_{M} x))).
+        apply maponpaths_2.
+        apply cartesian_ruinv_of_tensor.
+      + apply pathsinv0.
+        etrans. {
+          rewrite <- (when_bifunctor_becomes_leftwhiskering M).
+          apply (cartesian_tensor_pr1 Ccart).
+        }
+        apply id_right.
+    - etrans. {
+        rewrite assoc'.
+        apply maponpaths.
+        apply (mon_lassociator_pr2 Ccart).
+      }
+
+      assert (p : diag x · semi_cart_tensor_pr2 Ccart x x = identity x).
+      {
+        admit.
+      }
+      refine (_ @ idpath (identity x ⊗^{M} identity x) @ _).
+      + rewrite <- (when_bifunctor_becomes_rightwhiskering M).
+        etrans. {
+          apply pathsinv0, (bifunctor_distributes_over_comp (F := M)) ; apply M.
+        }
+        rewrite id_right.
+        apply maponpaths_2.
+        exact p.
+      + unfold semi_cart_tensor_pr2.
+        cbn.
+        unfold monoidal_cat_tensor_mor.
+        cbn.
+
+        apply pathsinv0.
+        rewrite <- (when_bifunctor_becomes_leftwhiskering M).
+        rewrite assoc.
+        etrans. {
+          apply maponpaths_2.
+          apply pathsinv0, (bifunctor_distributes_over_comp (F := M)) ; apply M.
+        }
+        rewrite id_right.
+        rewrite id_left.
+        etrans. {
+          apply maponpaths.
+          apply pathsinv0, cartesian_lunitor.
+        }
+        unfold semi_cart_tensor_pr2.
+        unfold monoidal_cat_tensor_mor.
+        cbn.
+        rewrite assoc.
+        etrans. {
+          apply maponpaths_2.
+          use (! bifunctor_distributes_over_comp (F := M) _ _ _ _ _ _ _) ; apply M.
+        }
+
+        rewrite id_right.
+
+
+  Admitted.
 
   Lemma cartesian_monoidal_has_enough_comonoids_laws
     : ∏ x : C, comonoid_laws M (cartesian_monoidal_has_enough_comonoids_data x).
@@ -188,11 +308,8 @@ Section CartesianToCartesianAsComonoids.
       cbn.
       rewrite ! assoc'.
       apply maponpaths.
-
-      use (BinProductArrowsEq _ _ _ (is_cartesian_BinProduct Ccart _ _)).
-      + admit.
-      + admit.
-  Admitted.
+      apply diagonal_commutes_with_assoc.
+  Qed.
 
   Definition cartesian_monoidal_has_enough_comonoids
     : ∏ x : C, comonoid M x.

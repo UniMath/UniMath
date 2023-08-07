@@ -241,10 +241,186 @@ Section CommutativeComonoids.
 
   Context {C : category} {M : monoidal C} (S : symmetric M).
 
+  Notation "x ⊗ y" := (x ⊗_{M} y).
+  Notation "x ⊗l f" := (x ⊗^{M}_{l} f) (at level 31).
+  Notation "f ⊗r y" := (f ⊗^{M}_{r} y) (at level 31).
+  Notation "f ⊗⊗ g" := (f ⊗^{M} g) (at level 31).
+
+  Let I : C := monoidal_unit M.
+  Let lu : leftunitor_data M (monoidal_unit M) := monoidal_leftunitordata M.
+  Let ru : rightunitor_data M (monoidal_unit M) := monoidal_rightunitordata M.
+  Let α : associator_data M := monoidal_associatordata M.
+  Let luinv : leftunitorinv_data M (monoidal_unit M) := monoidal_leftunitorinvdata M.
+  Let ruinv : rightunitorinv_data M (monoidal_unit M) := monoidal_rightunitorinvdata M.
+  Let αinv : associatorinv_data M := monoidal_associatorinvdata M.
+
+  Let σ := pr1 S.
+
   Import ComonoidNotations.
 
   Definition is_commutative
     {x : C} (m : comonoid M x)
     : UU := μ_{m} · pr1 S x x = μ_{m}.
+
+  Lemma blaaa
+    {x : C} (m : comonoid M x)
+    : μ_{m} · μ_{m} ⊗^{M} μ_{m}
+      = μ_{m} · μ_{m} ⊗r x · α x x x · μ_{m} ⊗r _.
+  Proof.
+    set (p := pr222 m).
+    unfold comonoid_laws_assoc in p.
+
+    etrans. {
+      apply maponpaths.
+      apply (bifunctor_equalwhiskers M).
+    }
+
+    unfold functoronmorphisms2.
+    rewrite assoc.
+    apply maponpaths_2.
+    exact (! p).
+  Qed.
+
+  Lemma bla
+    {x : C} {m : comonoid M x} (s : is_commutative m)
+    : μ_{m} · μ_{m} ⊗^{M} μ_{m} · (pr1 S x x ⊗^{M} pr1 S x x)
+      = μ_{m} · μ_{m} ⊗^{M} μ_{m}.
+  Proof.
+    rewrite assoc'.
+    apply maponpaths.
+    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    now rewrite s.
+  Qed.
+
+  Lemma bla'
+    {x : C} {m : comonoid M x} (s : is_commutative m)
+    : μ_{m} · μ_{m} ⊗^{M} μ_{m} · (pr1 S x x ⊗^{M}_{r} (x ⊗ x))
+      = μ_{m} · μ_{m} ⊗^{M} μ_{m}.
+  Proof.
+    rewrite assoc'.
+    apply maponpaths.
+    rewrite <- (when_bifunctor_becomes_rightwhiskering M).
+    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    rewrite id_right.
+    now rewrite s.
+  Qed.
+
+  Lemma commutative_symmetric_braiding_after_blaa
+    {x : C} {m : comonoid M x} (s : is_commutative m)
+    : μ_{m} · μ_{m} ⊗^{M} μ_{m} · α^{M}_{_,_,_}
+      = μ_{m} · (x ⊗l μ_{m}) · (x ⊗l (x ⊗l μ_{m})).
+  Proof.
+    etrans.
+    2: {
+      apply maponpaths_2.
+      exact (pr222 m).
+    }
+    unfold functoronmorphisms1.
+    rewrite ! assoc'.
+    do 2 apply maponpaths.
+    apply pathsinv0.
+    apply (monoidal_associatornatleft M).
+  Qed.
+
+  Lemma commutative_symmetric_braiding_after_blaa0
+    {x : C} {m : comonoid M x} (s : is_commutative m)
+    : μ_{m} · (x ⊗l μ_{m}) · (x ⊗l (x ⊗l μ_{m})) · x ⊗l αinv x x x
+      = μ_{m} · (x ⊗l μ_{m}) · (x ⊗l (μ_{m} ⊗r x)).
+  Proof.
+    rewrite ! assoc'.
+    rewrite <- ! (bifunctor_leftcomp M).
+    do 2 apply maponpaths.
+    refine (_ @ ! comonoid_laws_assoc' M m).
+    apply assoc.
+  Qed.
+
+  Lemma commutative_symmetric_braiding_after_blaa1
+    {x : C} {m : comonoid M x} (s : is_commutative m)
+    : μ_{m} · (x ⊗l μ_{m}) · (x ⊗l (μ_{m} ⊗r x)) · x ⊗l ((σ x x) ⊗r x)
+      = μ_{m} · (x ⊗l μ_{m}) · (x ⊗l (μ_{m} ⊗r x)).
+  Proof.
+    rewrite ! assoc'.
+    do 2 apply maponpaths.
+    rewrite <- (bifunctor_leftcomp M).
+    apply maponpaths.
+    rewrite <- (bifunctor_rightcomp M).
+    apply maponpaths.
+    apply s.
+  Qed.
+
+  Lemma commutative_symmetric_braiding_after_blaa2
+    {x : C} {m : comonoid M x} (s : is_commutative m)
+    : μ_{m} · μ_{m} ⊗^{M} μ_{m} · α^{M}_{_,_,_} · x ⊗l αinv x x x · x ⊗l ((σ x x) ⊗r x)
+      = μ_{m} · (x ⊗l μ_{m}) · (x ⊗l (μ_{m} ⊗r x)).
+  Proof.
+    refine (_ @ commutative_symmetric_braiding_after_blaa1 s).
+    apply maponpaths_2.
+    refine (_ @ commutative_symmetric_braiding_after_blaa0 s).
+    apply maponpaths_2.
+    exact (commutative_symmetric_braiding_after_blaa s).
+  Qed.
+
+  Lemma comultiplication_comonoid_4times
+          {x : C} (m : comonoid M x) (s : is_commutative m)
+    : μ_{ m} · x ⊗^{ M}_{l} μ_{ m} · x ⊗^{ M}_{l} (μ_{ m} ⊗^{ M}_{r} x)
+      = μ_{ m} · μ_{ m} ⊗^{ M} μ_{ m} · α x x (x ⊗_{ M} x) · x ⊗^{ M}_{l} αinv x x x.
+  Proof.
+    etrans.
+    2: {
+      apply maponpaths_2.
+      exact (! commutative_symmetric_braiding_after_blaa s).
+    }
+
+    rewrite ! assoc'.
+    apply maponpaths.
+    rewrite <- ! (bifunctor_leftcomp M).
+    apply maponpaths.
+    refine (comonoid_laws_assoc' M m @ _).
+    apply assoc'.
+  Qed.
+
+  Lemma commutative_symmetric_braiding_after_4_copies'
+    {x : C} {m : comonoid M x} (s : is_commutative m)
+    : μ_{m} · μ_{m} ⊗^{M} μ_{m} · α^{M}_{_,_,_} · (x ⊗^{M}_{l} αinv^{M}_{_,_,_}) · (x ⊗^{M}_{l} (pr1 S x x ⊗^{M}_{r} x))
+      = μ_{m} · μ_{m} ⊗^{M} μ_{m} · α^{M}_{_,_,_} · x ⊗^{M}_{l} αinv^{M}_{_,_,_}.
+  Proof.
+    refine (commutative_symmetric_braiding_after_blaa2 s @ _).
+    exact (comultiplication_comonoid_4times m s).
+  Qed.
+
+  Lemma commutative_symmetric_braiding_after_4_copies
+    {x : C} {m : comonoid M x} (s : is_commutative m)
+    : μ_{m} · (μ_{ m} ⊗^{ M} μ_{ m}
+                 · (α^{ M }_{ x, x, x ⊗_{ M} x}
+                         · (x ⊗^{ M}_{l} (αinv^{ M }_{ x, x, x} · (pr1 S x x ⊗^{ M}_{r} x · α^{ M }_{ x, x, x}))
+                              · αinv^{ M }_{ x, x, x ⊗_{ M} x})))
+      = μ_{m} · μ_{m} ⊗^{ M} μ_{m}.
+  Proof.
+    rewrite ! assoc.
+    etrans. {
+      apply maponpaths_2.
+      rewrite ! (bifunctor_leftcomp M).
+      rewrite ! assoc.
+      apply maponpaths_2.
+      exact (commutative_symmetric_braiding_after_4_copies' s).
+    }
+
+    etrans. {
+      apply maponpaths_2.
+      rewrite assoc'.
+      apply maponpaths.
+      rewrite <- (bifunctor_leftcomp M).
+      rewrite (pr2 (monoidal_associatorisolaw M x x x)).
+      apply (bifunctor_leftid M).
+    }
+    rewrite id_right.
+
+    etrans. {
+      rewrite assoc'.
+      apply maponpaths.
+      apply (pr1 (monoidal_associatorisolaw M x x _)).
+    }
+    apply id_right.
+  Qed.
 
 End CommutativeComonoids.
