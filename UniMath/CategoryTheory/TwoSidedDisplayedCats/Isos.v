@@ -78,6 +78,19 @@ Definition iso_twosided_disp
   := ∑ (fg : xy₁ -->[ f ][ g ] xy₂),
      is_iso_twosided_disp (pr2 f) (pr2 g) fg.
 
+Coercion iso_twosided_disp_to_mor
+         {C₁ C₂ : category}
+         {D : twosided_disp_cat C₁ C₂}
+         {x₁ x₂ : C₁}
+         {y₁ y₂ : C₂}
+         {f : z_iso x₁ x₂}
+         {g : z_iso y₁ y₂}
+         {xy₁ : D x₁ y₁}
+         {xy₂ : D x₂ y₂}
+         (fg : iso_twosided_disp f g xy₁ xy₂)
+  : xy₁ -->[ f ][ g ] xy₂
+  := pr1 fg.
+
 (**
  2. Accessors for isos
  *)
@@ -311,6 +324,24 @@ Proof.
          (λ z, xy₂ -->[ pr1 z ][ dirprod_pr2 z ] xy₁)
          (_ ,, _)).
   apply isasetdirprod ; apply homset_property.
+Qed.
+
+Proposition isaset_iso_twosided_disp
+            {C₁ C₂ : category}
+            {D : twosided_disp_cat C₁ C₂}
+            {x₁ x₂ : C₁}
+            {y₁ y₂ : C₂}
+            (f : z_iso x₁ x₂)
+            (g : z_iso y₁ y₂)
+            (xy₁ : D x₁ y₁)
+            (xy₂ : D x₂ y₂)
+  : isaset (iso_twosided_disp f g xy₁ xy₂).
+Proof.
+  use isaset_total2.
+  - apply isaset_disp_mor.
+  - intro.
+    apply isasetaprop.
+    apply isaprop_is_iso_twosided_disp.
 Qed.
 
 (**

@@ -95,7 +95,7 @@ Definition disp_prebicat_1_id_comp_twosided_disp_cat
 Proof.
   simple refine (_ ,, _).
   - exact disp_cat_data_twosided_disp_cat.
-  - exact (λ C₁ C₂ F G τ D₁ D₂ FF GG, twosided_disp_nat_trans τ τ FF GG).
+  - exact (λ C₁ C₂ F G τ D₁ D₂ FF GG, twosided_disp_nat_trans τ τ (pr1 FF) (pr1 GG)).
 Defined.
 
 Definition disp_prebicat_ops_twosided_disp_cat
@@ -105,17 +105,23 @@ Proof.
   - exact (λ C₁ C₂ F D₁ D₂ FF,
            id_twosided_disp_nat_trans FF).
   - exact (λ C₁ C₂ F D₁ D₂ FF,
-           twosided_disp_lunitor FF).
+           id_twosided_disp_nat_trans FF).
   - exact (λ C₁ C₂ F D₁ D₂ FF,
-           twosided_disp_runitor FF).
+           id_twosided_disp_nat_trans FF).
   - exact (λ C₁ C₂ F D₁ D₂ FF,
-           twosided_disp_linvunitor FF).
+           id_twosided_disp_nat_trans FF).
   - exact (λ C₁ C₂ F D₁ D₂ FF,
-           twosided_disp_rinvunitor FF).
+           id_twosided_disp_nat_trans FF).
   - exact (λ C₁ C₂ C₃ C₄ F G H D₁ D₂ D₃ D₄ FF GG HH,
-           twosided_disp_rassociator FF GG HH).
+           id_twosided_disp_nat_trans
+             (comp_twosided_disp_functor
+                FF
+                (comp_twosided_disp_functor GG HH))).
   - exact (λ C₁ C₂ C₃ C₄ F G H D₁ D₂ D₃ D₄ FF GG HH,
-           twosided_disp_lassociator FF GG HH).
+           id_twosided_disp_nat_trans
+             (comp_twosided_disp_functor
+                (comp_twosided_disp_functor FF GG)
+                HH)).
   - exact (λ C₁ C₂ F G H τ θ D₁ D₂ FF GG HH ττ θθ,
            comp_twosided_disp_nat_trans ττ θθ).
   - exact (λ C₁ C₂ C₃ F G₁ G₂ τ D₁ D₂ D₃ FF GG₁ GG₂ ττ,
@@ -319,6 +325,10 @@ Proof.
   intros C₁ C₂ F G τ D₁ D₂ FF GG.
   apply isaset_twosided_disp_nat_trans.
 Defined.
+
+Definition bicat_twosided_disp_cat
+  : bicat
+  := total_bicat disp_bicat_twosided_disp_cat.
 
 (**
  2. A pseudofunctor into displayed categories
@@ -605,4 +615,28 @@ Proof.
   - exact univalent_cat_is_univalent_2_1.
   - exact univalent_cat_is_univalent_2_1.
   - exact disp_univalent_2_0_disp_bicat_of_univ_disp_cat.
+Defined.
+
+Definition is_univalent_2_1_bicat_twosided_disp_cat
+  : is_univalent_2_1 bicat_twosided_disp_cat.
+Proof.
+  use total_is_univalent_2_1.
+  - exact univalent_cat_is_univalent_2_1.
+  - exact (pr2 disp_univalent_2_disp_bicat_twosided_disp_cat).
+Defined.
+
+Definition is_univalent_2_0_bicat_twosided_disp_cat
+  : is_univalent_2_0 bicat_twosided_disp_cat.
+Proof.
+  use total_is_univalent_2_0.
+  - exact univalent_cat_is_univalent_2_0.
+  - exact (pr1 disp_univalent_2_disp_bicat_twosided_disp_cat).
+Defined.
+
+Definition is_univalent_2_bicat_twosided_disp_cat
+  : is_univalent_2 bicat_twosided_disp_cat.
+Proof.
+  use total_is_univalent_2.
+  - exact disp_univalent_2_disp_bicat_twosided_disp_cat.
+  - exact univalent_cat_is_univalent_2.
 Defined.

@@ -166,6 +166,7 @@ DisplayedBicats/Examples/Monads.v
 DisplayedBicats/Examples/KleisliTriple.v
 DisplayedBicats/Examples/EnrichedCats.v
 DisplayedBicats/Examples/DispBicatOfTwoSidedDispCat.v
+DisplayedBicats/Examples/DispBicatOfDoubleCats.v
 DisplayedBicats/DispTransformation.v
 DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
