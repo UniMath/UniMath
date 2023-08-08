@@ -8,7 +8,7 @@
  Contents
  1. Braided monoidal categories
  2. Symmetric monoidal categories
- 3. Accesors for symmetric monoidal categories
+ 3. Accessors for symmetric monoidal categories
 
 Note: after refactoring on March 10, 2023, the prior Git history of this development is found via
 git log -- UniMath/CategoryTheory/Monoidal/BraidedMonoidalCategoriesWhiskered.v
@@ -97,6 +97,7 @@ Section BraidedSymmetricMonoidalCategories.
     : UU
     := braiding_law_naturality B × braiding_iso B Binv × braiding_law_hexagon B.
 
+  (** the following is done for the situation of symmetric monoidal categories only *)
   Definition braiding_laws_one_hexagon
              {C : category}
              {M : monoidal C}
@@ -288,7 +289,7 @@ Section BraidedSymmetricMonoidalCategories.
 End BraidedSymmetricMonoidalCategories.
 
 (**
- 3. Accesors for symmetric monoidal categories
+ 3. Accessors for symmetric monoidal categories
  *)
 Definition sym_monoidal_cat
   : UU
@@ -456,6 +457,16 @@ Section Accessors.
     rewrite (bifunctor_rightid V).
     rewrite id_left, id_right.
     apply idpath.
+  Qed.
+
+  (** a sanity check *)
+  Lemma sym_mon_cat_laws_tensored_from_sym_mon :
+    sym_mon_cat_laws_tensored V sym_mon_braiding.
+  Proof.
+    repeat split.
+    - apply sym_mon_braiding_inv.
+    - intros; apply tensor_sym_mon_braiding.
+    - apply sym_mon_hexagon_lassociator.
   Qed.
 
   Proposition sym_mon_tensor_lassociator
