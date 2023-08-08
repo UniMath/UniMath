@@ -196,10 +196,9 @@ Arguments Comonad _ : clear implicits.
 Definition is_univalent_category_Comonad (C : univalent_category) :
   is_univalent (category_Comonad C).
 Proof.
-  apply SIP.
+  apply is_univalent_total_category.
   - apply is_univalent_functor_category. apply C.
-  - apply comonads_category_Pisset.
-  - intros F [T Tlaws] [T' T'laws]. apply comonads_category_Hstandard.
+  - apply is_univalent_comonads_category_disp.
 Defined.
 
 Section pointfree.
