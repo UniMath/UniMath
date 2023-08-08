@@ -71,7 +71,7 @@ Proposition double_id_mor_id
   : double_id_mor I (identity x) = id_two_disp _.
 Proof.
   exact (pr12 I x).
-Defined.
+Qed.
 
 Definition double_id_mor_id_comp
            {C : category}
@@ -83,7 +83,7 @@ Definition double_id_mor_id_comp
   : double_id_mor I (f · g) = double_id_mor I f ;;2 double_id_mor I g.
 Proof.
   exact (pr22 I x y z f g).
-Defined.
+Qed.
 
 (**
  2. Horizontal composition
@@ -187,7 +187,7 @@ Proposition double_hor_comp_mor_id
     id_two_disp (double_hor_comp Cm h₁ h₂).
 Proof.
   exact (pr12 Cm x y z h₁ h₂).
-Defined.
+Qed.
 
 Proposition double_hor_comp_mor_comp
             {C : category}
@@ -222,63 +222,73 @@ Proof.
            k₁ k₂
            l₁ l₂
            s₁ s₁' s₂ s₂').
-Defined.
+Qed.
 
-Proposition double_hor_comp_mor_transportf_left_left
+Proposition double_hor_comp_mor_transportf_disp_mor2_left
             {C : category}
             {D : twosided_disp_cat C C}
             (Cm : hor_comp D)
             {x₁ x₂ y₁ y₂ z₁ z₂ : C}
             {v₁ v₁' : x₁ --> x₂}
             (p : v₁ = v₁')
-            {v₂ : y₁ --> y₂}
-            {v₃ : z₁ --> z₂}
+            {v₂ v₂' : y₁ --> y₂}
+            (q : v₂ = v₂')
+            {v₃ v₃' : z₁ --> z₂}
+            (r : v₃ = v₃')
             {h₁ : D x₁ y₁}
             {h₂ : D y₁ z₁}
             {k₁ : D x₂ y₂}
             {k₂ : D y₂ z₂}
             (s₁ : h₁ -->[ v₁ ][ v₂ ] k₁)
-            (s₂ : h₂ -->[ v₂ ][ v₃ ] k₂)
+            (s₂ : h₂ -->[ v₂' ][ v₃ ] k₂)
   : double_hor_comp_mor
       Cm
-      (transportf (λ z, _ -->[ z ][ _ ] _) p s₁)
+      (transportf_disp_mor2 p q s₁)
       s₂
     =
-    transportf
-      (λ z, _ -->[ z ][ _ ] _)
+    transportf_disp_mor2
       p
-      (double_hor_comp_mor Cm s₁ s₂).
+      (!r)
+      (double_hor_comp_mor
+         Cm
+         s₁
+         (transportf_disp_mor2 (!q) r s₂)).
 Proof.
-  induction p ; cbn.
+  induction p, q, r ; cbn.
   apply idpath.
 Qed.
 
-Proposition double_hor_comp_mor_transportf_right_right
+Proposition double_hor_comp_mor_transportf_disp_mor2_right
             {C : category}
             {D : twosided_disp_cat C C}
             (Cm : hor_comp D)
             {x₁ x₂ y₁ y₂ z₁ z₂ : C}
-            {v₁ : x₁ --> x₂}
-            {v₂ : y₁ --> y₂}
+            {v₁ v₁' : x₁ --> x₂}
+            (p : v₁' = v₁)
+            {v₂ v₂' : y₁ --> y₂}
+            (q : v₂ = v₂')
             {v₃ v₃' : z₁ --> z₂}
-            (p : v₃ = v₃')
+            (r : v₃ = v₃')
             {h₁ : D x₁ y₁}
             {h₂ : D y₁ z₁}
             {k₁ : D x₂ y₂}
             {k₂ : D y₂ z₂}
-            (s₁ : h₁ -->[ v₁ ][ v₂ ] k₁)
+            (s₁ : h₁ -->[ v₁' ][ v₂' ] k₁)
             (s₂ : h₂ -->[ v₂ ][ v₃ ] k₂)
   : double_hor_comp_mor
       Cm
       s₁
-      (transportf (λ z, _ -->[ _ ][ z ] _) p s₂)
+      (transportf_disp_mor2 q r s₂)
     =
-    transportf
-      (λ z, _ -->[ _ ][ z ] _)
-      p
-      (double_hor_comp_mor Cm s₁ s₂).
+    transportf_disp_mor2
+      (!p)
+      r
+      (double_hor_comp_mor
+         Cm
+         (transportf_disp_mor2 p (!q) s₁)
+         s₂).
 Proof.
-  induction p ; cbn.
+  induction p, q, r ; cbn.
   apply idpath.
 Qed.
 
@@ -325,13 +335,10 @@ Definition double_lunitor_laws
        (v₁ : x₁ --> x₂)
        (v₂ : y₁ --> y₂)
        (τ : h₁ -->[ v₁ ][ v₂ ] h₂),
-     transportb
-       (λ z, _ -->[ z ][ _ ] _)
+     transportb_disp_mor2
        (id_right _ @ !(id_left _))
-       (transportb
-          (λ z, _ -->[ _ ][ z ] _)
-          (id_right _ @ !(id_left _))
-          (l _ _ h₁ ;;2 τ))
+       (id_right _ @ !(id_left _))
+       (l _ _ h₁ ;;2 τ)
      =
      double_hor_comp_mor Cm (double_id_mor I _) τ ;;2 l _ _ h₂.
 
@@ -404,15 +411,315 @@ Proposition double_lunitor_nat
             {v₁ : x₁ --> x₂}
             {v₂ : y₁ --> y₂}
             (τ : h₁ -->[ v₁ ][ v₂ ] h₂)
-  : transportb
-      (λ z, _ -->[ z ][ _ ] _)
+  : transportb_disp_mor2
       (id_right _ @ !(id_left _))
-      (transportb
-         (λ z, _ -->[ _ ][ z ] _)
-         (id_right _ @ !(id_left _))
-         (double_lunitor l h₁ ;;2 τ))
+      (id_right _ @ !(id_left _))
+      (double_lunitor l h₁ ;;2 τ)
     =
     double_hor_comp_mor Cm (double_id_mor I _) τ ;;2 double_lunitor l h₂.
 Proof.
   exact (pr2 l x₁ x₂ y₁ y₂ h₁ h₂ v₁ v₂ τ).
-Defined.
+Qed.
+
+(**
+ 4. Right unitor
+ *)
+Definition double_runitor_data
+           {C : category}
+           {D : twosided_disp_cat C C}
+           (I : hor_id D)
+           (Cm : hor_comp D)
+  : UU
+  := ∏ (x y : C)
+       (h : D x y),
+    iso_twosided_disp
+      (identity_z_iso x)
+      (identity_z_iso y)
+      (double_hor_comp Cm h (double_id I y))
+      h.
+
+Proposition isaset_double_runitor_data
+            {C : category}
+            {D : twosided_disp_cat C C}
+            (I : hor_id D)
+            (Cm : hor_comp D)
+  : isaset (double_runitor_data I Cm).
+Proof.
+  use impred_isaset ; intro x.
+  use impred_isaset ; intro y.
+  use impred_isaset ; intro h.
+  apply isaset_iso_twosided_disp.
+Qed.
+
+Definition double_runitor_laws
+           {C : category}
+           {D : twosided_disp_cat C C}
+           {I : hor_id D}
+           {Cm : hor_comp D}
+           (r : double_runitor_data I Cm)
+  : UU
+  := ∏ (x₁ x₂ y₁ y₂ : C)
+       (h₁ : D x₁ y₁)
+       (h₂ : D x₂ y₂)
+       (v₁ : x₁ --> x₂)
+       (v₂ : y₁ --> y₂)
+       (τ : h₁ -->[ v₁ ][ v₂ ] h₂),
+     transportb_disp_mor2
+       (id_right _ @ !(id_left _))
+       (id_right _ @ !(id_left _))
+       (r _ _ h₁ ;;2 τ)
+     =
+     double_hor_comp_mor Cm τ (double_id_mor I _) ;;2 r _ _ h₂.
+
+Proposition isaprop_double_runitor_laws
+            {C : category}
+            {D : twosided_disp_cat C C}
+            {I : hor_id D}
+            {Cm : hor_comp D}
+            (r : double_runitor_data I Cm)
+  : isaprop (double_runitor_laws r).
+Proof.
+  repeat (use impred ; intro).
+  apply isaset_disp_mor.
+Qed.
+
+Definition double_cat_runitor
+           {C : category}
+           {D : twosided_disp_cat C C}
+           (I : hor_id D)
+           (Cm : hor_comp D)
+  : UU
+  := ∑ (r : double_runitor_data I Cm), double_runitor_laws r.
+
+Proposition isaset_double_cat_runitor
+            {C : category}
+            {D : twosided_disp_cat C C}
+            (I : hor_id D)
+            (Cm : hor_comp D)
+  : isaset (double_cat_runitor I Cm).
+Proof.
+  use isaset_total2.
+  - apply isaset_double_runitor_data.
+  - intro.
+    apply isasetaprop.
+    apply isaprop_double_runitor_laws.
+Qed.
+
+Definition make_double_runitor
+           {C : category}
+           {D : twosided_disp_cat C C}
+           {I : hor_id D}
+           {Cm : hor_comp D}
+           (l : double_runitor_data I Cm)
+           (Hl : double_runitor_laws l)
+  : double_cat_runitor I Cm
+  := l ,, Hl.
+
+Definition double_runitor
+           {C : category}
+           {D : twosided_disp_cat C C}
+           {I : hor_id D}
+           {Cm : hor_comp D}
+           (r : double_cat_runitor I Cm)
+           {x y : C}
+           (h : D x y)
+  : double_hor_comp Cm h (double_id I y)
+    -->[ identity x ][ identity y ]
+    h
+  := pr1 r x y h.
+
+Proposition double_runitor_nat
+            {C : category}
+            {D : twosided_disp_cat C C}
+            {I : hor_id D}
+            {Cm : hor_comp D}
+            (r : double_cat_runitor I Cm)
+            {x₁ x₂ y₁ y₂ : C}
+            {h₁ : D x₁ y₁}
+            {h₂ : D x₂ y₂}
+            {v₁ : x₁ --> x₂}
+            {v₂ : y₁ --> y₂}
+            (τ : h₁ -->[ v₁ ][ v₂ ] h₂)
+  : transportb_disp_mor2
+      (id_right _ @ !(id_left _))
+      (id_right _ @ !(id_left _))
+      (double_runitor r h₁ ;;2 τ)
+    =
+    double_hor_comp_mor Cm τ (double_id_mor I _) ;;2 double_runitor r h₂.
+Proof.
+  exact (pr2 r x₁ x₂ y₁ y₂ h₁ h₂ v₁ v₂ τ).
+Qed.
+
+(**
+ 5. Associator
+ *)
+Definition double_associator_data
+           {C : category}
+           {D : twosided_disp_cat C C}
+           (Cm : hor_comp D)
+  : UU
+  := ∏ (w x y z : C)
+       (h₁ : D w x)
+       (h₂ : D x y)
+       (h₃ : D y z),
+    iso_twosided_disp
+      (identity_z_iso w)
+      (identity_z_iso z)
+      (double_hor_comp
+         Cm
+         h₁
+         (double_hor_comp
+            Cm
+            h₂
+            h₃))
+      (double_hor_comp
+         Cm
+         (double_hor_comp
+            Cm
+            h₁
+            h₂)
+         h₃).
+
+Proposition isaset_double_associator_data
+            {C : category}
+            {D : twosided_disp_cat C C}
+            (Cm : hor_comp D)
+  : isaset (double_associator_data Cm).
+Proof.
+  repeat (use impred_isaset ; intro).
+  apply isaset_iso_twosided_disp.
+Qed.
+
+Definition double_associator_laws
+           {C : category}
+           {D : twosided_disp_cat C C}
+           {Cm : hor_comp D}
+           (a : double_associator_data Cm)
+  : UU
+  := ∏ (w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ : C)
+       (h₁ : D w₁ x₁)
+       (h₂ : D w₂ x₂)
+       (j₁ : D x₁ y₁)
+       (j₂ : D x₂ y₂)
+       (k₁ : D y₁ z₁)
+       (k₂ : D y₂ z₂)
+       (vw : w₁ --> w₂)
+       (vx : x₁ --> x₂)
+       (vy : y₁ --> y₂)
+       (vz : z₁ --> z₂)
+       (τ₁ : h₁ -->[ vw ][ vx ] h₂)
+       (τ₂ : j₁ -->[ vx ][ vy ] j₂)
+       (τ₃ : k₁ -->[ vy ][ vz ] k₂),
+     transportb_disp_mor2
+       (id_right _ @ !(id_left _))
+       (id_right _ @ !(id_left _))
+       (a _ _ _ _ h₁ j₁ k₁ ;;2 double_hor_comp_mor Cm (double_hor_comp_mor Cm τ₁ τ₂) τ₃)
+     =
+     double_hor_comp_mor Cm τ₁ (double_hor_comp_mor Cm τ₂ τ₃) ;;2 a _ _ _ _ h₂ j₂ k₂.
+
+Proposition isaprop_double_associator_laws
+            {C : category}
+            {D : twosided_disp_cat C C}
+            {Cm : hor_comp D}
+            (a : double_associator_data Cm)
+  : isaprop (double_associator_laws a).
+Proof.
+  repeat (use impred ; intro).
+  apply isaset_disp_mor.
+Qed.
+
+Definition double_cat_associator
+           {C : category}
+           {D : twosided_disp_cat C C}
+           (Cm : hor_comp D)
+  : UU
+  := ∑ (a : double_associator_data Cm), double_associator_laws a.
+
+Proposition isaset_double_cat_associator
+            {C : category}
+            {D : twosided_disp_cat C C}
+            (Cm : hor_comp D)
+  : isaset (double_cat_associator Cm).
+Proof.
+  use isaset_total2.
+  - apply isaset_double_associator_data.
+  - intro.
+    apply isasetaprop.
+    apply isaprop_double_associator_laws.
+Qed.
+
+Definition make_double_associator
+           {C : category}
+           {D : twosided_disp_cat C C}
+           {Cm : hor_comp D}
+           (a : double_associator_data Cm)
+           (Ha : double_associator_laws a)
+  : double_cat_associator Cm
+  := a ,, Ha.
+
+Definition double_associator
+           {C : category}
+           {D : twosided_disp_cat C C}
+           {Cm : hor_comp D}
+           (a : double_cat_associator Cm)
+           {w x y z : C}
+           (h₁ : D w x)
+           (h₂ : D x y)
+           (h₃ : D y z)
+  : double_hor_comp
+      Cm
+      h₁
+      (double_hor_comp
+         Cm
+         h₂
+         h₃)
+    -->[ identity w ][ identity z ]
+    double_hor_comp
+      Cm
+      (double_hor_comp
+         Cm
+         h₁
+         h₂)
+      h₃
+  := pr1 a w x y z h₁ h₂ h₃.
+
+Proposition double_associator_nat
+            {C : category}
+            {D : twosided_disp_cat C C}
+            {Cm : hor_comp D}
+            (a : double_cat_associator Cm)
+            {w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ : C}
+            {h₁ : D w₁ x₁}
+            {h₂ : D w₂ x₂}
+            {j₁ : D x₁ y₁}
+            {j₂ : D x₂ y₂}
+            {k₁ : D y₁ z₁}
+            {k₂ : D y₂ z₂}
+            {vw : w₁ --> w₂}
+            {vx : x₁ --> x₂}
+            {vy : y₁ --> y₂}
+            {vz : z₁ --> z₂}
+            (τ₁ : h₁ -->[ vw ][ vx ] h₂)
+            (τ₂ : j₁ -->[ vx ][ vy ] j₂)
+            (τ₃ : k₁ -->[ vy ][ vz ] k₂)
+  : transportb_disp_mor2
+      (id_right _ @ !(id_left _))
+      (id_right _ @ !(id_left _))
+      (double_associator a h₁ j₁ k₁
+       ;;2
+       double_hor_comp_mor Cm (double_hor_comp_mor Cm τ₁ τ₂) τ₃)
+    =
+    double_hor_comp_mor Cm τ₁ (double_hor_comp_mor Cm τ₂ τ₃)
+    ;;2
+    double_associator a h₂ j₂ k₂.
+Proof.
+  apply (pr2 a).
+Qed.
+
+(**
+ 6. Triangle and pentagon laws
+ *)
+
+(**
+ 7. Bundled version of double categories
+ *)

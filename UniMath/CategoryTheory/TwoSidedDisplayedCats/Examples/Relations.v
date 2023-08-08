@@ -276,23 +276,22 @@ Proof.
   - exact set_rel_disp_cat_id_comp.
 Defined.
 
-
-Definition transportb_set_rel
+Definition transportf_set_rel
            {X₁ X₂ Y₁ Y₂ : UU}
            (R₁ : X₁ → Y₁ → hSet)
            (R₂ : X₂ → Y₂ → hSet)
            {f₁ f₂ : X₁ → X₂}
-           (p : f₁ = f₂)
+           (p : f₂ = f₁)
            {g₁ g₂ : Y₁ → Y₂}
-           (q : g₁ = g₂)
+           (q : g₂ = g₁)
            (α : ∏ (x : X₁) (y : Y₁), R₁ x y → R₂ (f₂ x) (g₂ y))
            {a : X₁}
            {b : Y₁}
            (r : R₁ a b)
-  : transportb
+  : transportf
       (λ (h : X₁ → X₂), ∏ (x : X₁) (y : Y₁), R₁ x y → R₂ (h x) (g₁ y))
       p
-      (transportb
+      (transportf
          (λ (h : Y₁ → Y₂), ∏ (x : X₁) (y : Y₁), R₁ x y → R₂ (f₂ x) (h y))
          q
          α)
@@ -300,10 +299,10 @@ Definition transportb_set_rel
       b
       r
     =
-    transportb
+    transportf
       (λ z, R₂ z _)
       (eqtohomot p _)
-      (transportb
+      (transportf
          (λ z, R₂ _ z)
          (eqtohomot q _)
          (α a b r)).
@@ -313,45 +312,43 @@ Proof.
   apply idpath.
 Qed.
 
-Definition transportb_id_left
+Definition transportf_id_left
            {X Y : hSet}
            (f : SET ⟦ X , Y ⟧)
            (P : Y → UU)
            (x : X)
            (p : P (f x))
-  : transportb
+  : transportf
       P
-      (eqtohomot (id_left f) x)
+      (eqtohomot (!(id_left f)) x)
       p
     =
     p.
 Proof.
-  unfold transportb.
   refine (_ @ idpath_transportf _ _).
   apply maponpaths_2.
   apply Y.
 Qed.
 
-Definition transportb_id_right
+Definition transportf_id_right
            {X Y : hSet}
            (f : SET ⟦ X , Y ⟧)
            (P : Y → UU)
            (x : X)
            (p : P (f x))
-  : transportb
+  : transportf
       P
-      (eqtohomot (id_right f) x)
+      (eqtohomot (!(id_right f)) x)
       p
     =
     p.
 Proof.
-  unfold transportb.
   refine (_ @ idpath_transportf _ _).
   apply maponpaths_2.
   apply Y.
 Qed.
 
-Definition transportb_assoc
+Definition transportf_assoc
            {W X Y Z : hSet}
            (f : SET ⟦ W , X ⟧)
            (g : SET ⟦ X , Y ⟧)
@@ -359,14 +356,13 @@ Definition transportb_assoc
            (P : Z → UU)
            (w : W)
            (p : P (h(g(f w))))
-  : transportb
+  : transportf
       P
-      (eqtohomot (assoc f g h) w)
+      (eqtohomot (!(assoc f g h)) w)
       p
     =
     p.
 Proof.
-  unfold transportb.
   refine (_ @ idpath_transportf _ _).
   apply maponpaths_2.
   apply Z.
@@ -381,32 +377,35 @@ Proof.
     use funextsec ; intro y.
     use funextsec ; intro r.
     cbn.
-    rewrite transportb_set_rel.
-    rewrite (transportb_id_left f).
-    rewrite (transportb_id_left g).
+    unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn.
+    rewrite transportf_set_rel.
+    rewrite (transportf_id_left f).
+    rewrite (transportf_id_left g).
     apply idpath.
   - intros X₁ X₂ Y₁ Y₂ R₁ R₂ f g α.
     use funextsec ; intro x.
     use funextsec ; intro y.
     use funextsec ; intro r.
     cbn.
-    rewrite transportb_set_rel.
-    rewrite (transportb_id_right f).
-    rewrite (transportb_id_right g).
+    unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn.
+    rewrite transportf_set_rel.
+    rewrite (transportf_id_right f).
+    rewrite (transportf_id_right g).
     apply idpath.
   - intros X₁ X₂ X₃ X₄ Y₁ Y₂ Y₃ Y₄ R₁ R₂ R₃ R₄ f₁ f₂ f₃ g₁ g₂ g₃ α β γ.
     use funextsec ; intro x.
     use funextsec ; intro y.
     use funextsec ; intro r.
     cbn.
-    rewrite transportb_set_rel.
+    unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn.
+    rewrite transportf_set_rel.
     refine (!_).
     etrans.
     {
       apply maponpaths.
-      apply (transportb_assoc g₁ g₂ g₃ (λ z, R₄ (f₃ (f₂ (f₁ x))) z)).
+      apply (transportf_assoc g₁ g₂ g₃ (λ z, R₄ (f₃ (f₂ (f₁ x))) z)).
     }
-    apply (transportb_assoc f₁ f₂ f₃ (λ z, R₄ z (g₃ (g₂ (g₁ y))))).
+    apply (transportf_assoc f₁ f₂ f₃ (λ z, R₄ z (g₃ (g₂ (g₁ y))))).
   - intros X₁ X₂ Y₁ Y₂ R₁ R₂ f g ; cbn.
     use impred_isaset ; intro x.
     use impred_isaset ; intro y.
@@ -439,18 +438,20 @@ Proof.
        use funextsec ; intro x ;
        use funextsec ; intro y ;
        use funextsec ; intro r ;
-       rewrite transportb_set_rel ;
+       unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn ;
+       rewrite transportf_set_rel ;
        refine (!_) ;
-       do 2 (refine (transportb_id_left _ _ _ _ @ _)) ;
+       do 2 (refine (transportf_id_left _ _ _ _ @ _)) ;
        exact (!(homotinvweqweq (f x y) r))).
   - abstract
       (cbn ;
        use funextsec ; intro x ;
        use funextsec ; intro y ;
        use funextsec ; intro r ;
-       rewrite transportb_set_rel ;
+       unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn ;
+       rewrite transportf_set_rel ;
        refine (!_) ;
-       do 2 (refine (transportb_id_left _ _ _ _ @ _)) ;
+       do 2 (refine (transportf_id_left _ _ _ _ @ _)) ;
        exact (!(homotweqinvweq (f x y) r))).
 Defined.
 
@@ -475,8 +476,9 @@ Proof.
                        y)
                     r) ;
        refine (p @ _) ; cbn ; clear p ;
-       rewrite transportb_set_rel ;
-       do 2 (refine (transportb_id_left _ _ _ _ @ _)) ;
+       unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn ;
+       rewrite transportf_set_rel ;
+       do 2 (refine (transportf_id_left _ _ _ _ @ _)) ;
        apply idpath).
   - abstract
       (intros r ;
@@ -488,8 +490,9 @@ Proof.
                        y)
                     r) ;
        refine (p @ _) ; cbn ; clear p ;
-       rewrite transportb_set_rel ;
-       do 2 (refine (transportb_id_left _ _ _ _ @ _)) ;
+       unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn ;
+       rewrite transportf_set_rel ;
+       do 2 (refine (transportf_id_left _ _ _ _ @ _)) ;
        apply idpath).
 Defined.
 

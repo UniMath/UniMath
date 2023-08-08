@@ -433,6 +433,9 @@ TwoSidedDisplayedCats/DisplayedFunctor.v
 TwoSidedDisplayedCats/DisplayedNatTrans.v
 
 TwoSidedDisplayedCats/DoubleCategory.v
+TwoSidedDisplayedCats/DoubleFunctor/Basics.v
+TwoSidedDisplayedCats/DoubleFunctor/LeftUnitor.v
+TwoSidedDisplayedCats/DoubleFunctor/RightUnitor.v
 TwoSidedDisplayedCats/DoubleFunctor.v
 TwoSidedDisplayedCats/DoubleTransformation.v
 

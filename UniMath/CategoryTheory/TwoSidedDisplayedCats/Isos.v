@@ -47,23 +47,17 @@ Definition is_iso_twosided_disp
              xy₁),
      (fg ;;2 gf
       =
-      transportb
-        (λ z, _ -->[ z ][ _ ] _)
+      transportb_disp_mor2
         (z_iso_inv_after_z_iso f_z_iso)
-        (transportb
-           (λ z, _ -->[ _ ][ z ] _)
-           (z_iso_inv_after_z_iso g_z_iso)
-           (id_two_disp _)))
+        (z_iso_inv_after_z_iso g_z_iso)
+        (id_two_disp _))
      ×
      (gf ;;2 fg
       =
-      transportb
-        (λ z, _ -->[ z ][ _ ] _)
+      transportb_disp_mor2
         (z_iso_after_z_iso_inv f_z_iso)
-        (transportb
-           (λ z, _ -->[ _ ][ z ] _)
-           (z_iso_after_z_iso_inv g_z_iso)
-           (id_two_disp _))).
+        (z_iso_after_z_iso_inv g_z_iso)
+        (id_two_disp _)).
 
 Definition iso_twosided_disp
            {C₁ C₂ : category}
@@ -127,13 +121,10 @@ Definition inv_after_iso_twosided_disp
            (Hfg : is_iso_twosided_disp Hf Hg fg)
   : fg ;;2 iso_inv_twosided_disp Hfg
     =
-    transportb
-      (λ z, _ -->[ z ][ _ ] _)
+    transportb_disp_mor2
       (z_iso_inv_after_z_iso (f ,, Hf))
-      (transportb
-         (λ z, _ -->[ _ ][ z ] _)
-         (z_iso_inv_after_z_iso (g ,, Hg))
-         (id_two_disp _))
+      (z_iso_inv_after_z_iso (g ,, Hg))
+      (id_two_disp _)
   := pr12 Hfg.
 
 Definition iso_after_inv_twosided_disp
@@ -151,13 +142,10 @@ Definition iso_after_inv_twosided_disp
            (Hfg : is_iso_twosided_disp Hf Hg fg)
   : iso_inv_twosided_disp Hfg ;;2 fg
     =
-    transportb
-      (λ z, _ -->[ z ][ _ ] _)
+    transportb_disp_mor2
       (z_iso_after_z_iso_inv (f ,, Hf))
-      (transportb
-         (λ z, _ -->[ _ ][ z ] _)
-         (z_iso_after_z_iso_inv (g ,, Hg))
-         (id_two_disp _))
+      (z_iso_after_z_iso_inv (g ,, Hg))
+      (id_two_disp _)
   := pr22 Hfg.
 
 Definition make_iso_twosided_disp
@@ -192,13 +180,10 @@ Definition inv_after_iso_twosided_disp_alt
            (Hfg : is_iso_twosided_disp Hf Hg fg)
   : id_two_disp _
     =
-    transportf
-      (λ z, _ -->[ z ][ _ ] _)
+    transportf_disp_mor2
       (z_iso_inv_after_z_iso (f ,, Hf))
-      (transportf
-         (λ z, _ -->[ _ ][ z ] _)
-         (z_iso_inv_after_z_iso (g ,, Hg))
-         (fg ;;2 iso_inv_twosided_disp Hfg)).
+      (z_iso_inv_after_z_iso (g ,, Hg))
+      (fg ;;2 iso_inv_twosided_disp Hfg).
 Proof.
   use (@transportf_transpose_right _ (λ z, _ -->[ z ][ _ ] _)).
   use (@transportf_transpose_right _ (λ z, _ -->[ _ ][ z ] _)).
@@ -226,13 +211,10 @@ Definition iso_after_inv_twosided_disp_alt
            (Hfg : is_iso_twosided_disp Hf Hg fg)
   : id_two_disp _
     =
-    transportf
-      (λ z, _ -->[ z ][ _ ] _)
+    transportf_disp_mor2
       (z_iso_after_z_iso_inv (f ,, Hf))
-      (transportf
-         (λ z, _ -->[ _ ][ z ] _)
-         (z_iso_after_z_iso_inv (g ,, Hg))
-         (iso_inv_twosided_disp Hfg ;;2 fg)).
+      (z_iso_after_z_iso_inv (g ,, Hg))
+      (iso_inv_twosided_disp Hfg ;;2 fg).
 Proof.
   use (@transportf_transpose_right _ (λ z, _ -->[ z ][ _ ] _)).
   use (@transportf_transpose_right _ (λ z, _ -->[ _ ][ z ] _)).
@@ -273,57 +255,32 @@ Proof.
   {
     apply id_two_disp_right_alt.
   }
-  refine (twosided_prod_transport _ _ _ @ _).
   etrans.
   {
     do 2 apply maponpaths.
     exact (inv_after_iso_twosided_disp_alt φ₂).
   }
-  rewrite two_disp_post_whisker_left.
-  rewrite two_disp_post_whisker_right.
-  etrans.
-  {
-    apply maponpaths.
-    apply twosided_prod_transport.
-  }
-  rewrite transport_f_f.
+  rewrite two_disp_post_whisker_f.
+  rewrite transport_f_f_disp_mor2.
   rewrite assoc_two_disp.
-  unfold transportb.
   etrans.
   {
-    apply maponpaths.
-    apply twosided_prod_transport.
+    apply transport_f_f_disp_mor2.
   }
-  rewrite transport_f_f.
   etrans.
   {
     apply maponpaths.
     apply maponpaths_2.
     apply (iso_after_inv_twosided_disp φ₁).
   }
-  unfold transportb.
-  rewrite two_disp_pre_whisker_left.
-  rewrite two_disp_pre_whisker_right.
-  etrans.
-  {
-    apply maponpaths.
-    apply twosided_prod_transport.
-  }
-  rewrite transport_f_f.
+  unfold transportb_disp_mor2.
+  rewrite two_disp_pre_whisker_f.
+  rewrite transport_f_f_disp_mor2.
   rewrite id_two_disp_left.
-  unfold transportb.
-  etrans.
-  {
-    apply maponpaths.
-    apply twosided_prod_transport.
-  }
-  rewrite transport_f_f.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
   unfold iso_inv_twosided_disp.
-  use (@transportf_set
-         _
-         (λ z, xy₂ -->[ pr1 z ][ dirprod_pr2 z ] xy₁)
-         (_ ,, _)).
-  apply isasetdirprod ; apply homset_property.
+  apply transportf_disp_mor2_idpath.
 Qed.
 
 Proposition isaset_iso_twosided_disp
@@ -383,17 +340,15 @@ Proof.
   - exact (pr1 ff).
   - exact (iso_inv_twosided_disp (pr2 ff)).
   - abstract
-      (cbn ;
-       refine (iso_after_inv_twosided_disp (pr2 ff) @ _) ;
-       rewrite <- transportb_dirprodeq ;
-       apply maponpaths_2 ;
-       apply isasetdirprod ; apply homset_property).
+      (refine (iso_after_inv_twosided_disp (pr2 ff) @ _) ;
+       cbn ;
+       refine (!_) ;
+       apply transportb_dirprodeq).
   - abstract
-      (cbn ;
-       refine (inv_after_iso_twosided_disp (pr2 ff) @ _) ;
-       rewrite <- transportb_dirprodeq ;
-       apply maponpaths_2 ;
-       apply isasetdirprod ; apply homset_property).
+      (refine (inv_after_iso_twosided_disp (pr2 ff) @ _) ;
+       cbn ;
+       refine (!_) ;
+       apply transportb_dirprodeq).
 Defined.
 
 Definition iso_twosided_disp_from_z_iso_disp
@@ -413,15 +368,15 @@ Proof.
   - exact (pr1 ff).
   - exact (inv_mor_disp_from_z_iso ff).
   - abstract
-      (cbn ;
-       refine (inv_mor_after_z_iso_disp ff @ _) ;
-       rewrite <- transportb_dirprodeq ;
+      (refine (inv_mor_after_z_iso_disp ff @ _) ;
+       refine (_ @ !twosided_prod_transport _ _ _) ;
+       unfold transportb ;
        apply maponpaths_2 ;
        apply isasetdirprod ; apply homset_property).
   - abstract
-      (cbn ;
-       refine (z_iso_disp_after_inv_mor ff @ _) ;
-       rewrite <- transportb_dirprodeq ;
+      (refine (z_iso_disp_after_inv_mor ff @ _) ;
+       refine (_ @ !twosided_prod_transport _ _ _) ;
+       unfold transportb ;
        apply maponpaths_2 ;
        apply isasetdirprod ; apply homset_property).
 Defined.

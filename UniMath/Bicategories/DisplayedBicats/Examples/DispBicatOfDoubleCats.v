@@ -131,6 +131,8 @@ Defined.
 Definition disp_univalent_2_1_disp_bicat_twosided_disp_cat_hor_id
   : disp_univalent_2_1 disp_bicat_twosided_disp_cat_hor_id.
 Proof.
+  use fiberwise_local_univalent_is_univalent_2_1.
+  intros x y f xx yy ff gg ; cbn.
 Admitted.
 
 Definition disp_univalent_2_0_disp_bicat_twosided_disp_cat_hor_id
@@ -389,26 +391,21 @@ Proof.
     cbn in p, q.
     rewrite id_two_disp_right in p.
     unfold transportb in p.
-    rewrite two_disp_pre_whisker_left in p.
-    rewrite two_disp_pre_whisker_right in p.
-    rewrite twosided_prod_transport_alt in p.
-    rewrite twosided_prod_transport in p.
+    rewrite two_disp_pre_whisker_b in p.
+    unfold transportb_disp_mor2 in p.
+    rewrite transport_f_f_disp_mor2 in p.
     rewrite double_hor_comp_mor_id in p.
     rewrite id_two_disp_left in p.
-    unfold transportb in p.
-    rewrite twosided_prod_transport in p.
-    rewrite transport_f_f in p.
+    unfold transportb_disp_mor2 in p.
+    rewrite transport_f_f_disp_mor2 in p.
     use subtypePath.
     {
       intro.
       apply isaprop_is_iso_twosided_disp.
     }
-    refine (!(transportbfinv _ _ _) @ maponpaths _ p @ _).
-    unfold transportb.
-    rewrite transport_f_f.
-    refine (_ @ idpath_transportf (λ z, _ -->[ pr1 z ][ pr2 z ] _) _).
-    apply maponpaths_2.
-    apply isasetdirprod ; apply homset_property.
+    refine (_ @ !p).
+    refine (!_).
+    apply transportf_disp_mor2_idpath.
 Qed.
 
 Definition disp_univalent_2_disp_bicat_lunitor
@@ -426,9 +423,9 @@ Definition disp_cat_ob_mor_runitor
   : disp_cat_ob_mor bicat_twosided_disp_cat_id_hor_comp.
 Proof.
   simple refine (_ ,, _).
-  - admit.
-  - admit.
-Admitted.
+  - exact (λ CD, double_cat_runitor (pr12 CD) (pr22 CD)).
+  - exact (λ CD₁ CD₂ l₁ l₂ FF, double_functor_runitor l₁ l₂ (pr12 FF) (pr22 FF)).
+Defined.
 
 Definition disp_cat_id_comp_runitor
   : disp_cat_id_comp
@@ -436,9 +433,11 @@ Definition disp_cat_id_comp_runitor
       disp_cat_ob_mor_runitor.
 Proof.
   split.
-  - admit.
-  - admit.
-Admitted.
+  - intros CD l.
+    exact (identity_functor_runitor l).
+  - intros CD₁ CD₂ CD₃ FF GG l₁ l₂ l₃ FFl GGl.
+    exact (comp_functor_runitor FFl GGl).
+Qed.
 
 Definition disp_cat_data_runitor
   : disp_cat_data bicat_twosided_disp_cat_id_hor_comp.
@@ -457,7 +456,8 @@ Definition disp_univalent_2_1_disp_bicat_runitor
 Proof.
   use disp_cell_unit_bicat_univalent_2_1.
   intros.
-Admitted.
+  apply isaprop_double_functor_runitor.
+Qed.
 
 Definition disp_univalent_2_0_disp_bicat_runitor
   : disp_univalent_2_0 disp_bicat_runitor.
@@ -465,11 +465,40 @@ Proof.
   use disp_cell_unit_bicat_univalent_2_0.
   - exact is_univalent_2_1_bicat_twosided_disp_cat_id_hor_comp.
   - intros.
-    admit.
+    apply isaprop_double_functor_runitor.
   - intros.
-    admit.
-  -
-Admitted.
+    apply isaset_double_cat_runitor.
+  - intros CD FF GG H.
+    induction H as [ H₁ H₂ ].
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_double_runitor_laws.
+    }
+    use funextsec ; intro x.
+    use funextsec ; intro y.
+    use funextsec ; intro f.
+    pose (p := H₁ x y f).
+    pose (q := H₂ x y f).
+    cbn in p, q.
+    rewrite id_two_disp_right in p.
+    unfold transportb in p.
+    rewrite two_disp_pre_whisker_b in p.
+    unfold transportb_disp_mor2 in p.
+    rewrite transport_f_f_disp_mor2 in p.
+    rewrite double_hor_comp_mor_id in p.
+    rewrite id_two_disp_left in p.
+    unfold transportb_disp_mor2 in p.
+    rewrite transport_f_f_disp_mor2 in p.
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_is_iso_twosided_disp.
+    }
+    refine (_ @ !p).
+    refine (!_).
+    apply transportf_disp_mor2_idpath.
+Qed.
 
 Definition disp_univalent_2_disp_bicat_runitor
   : disp_univalent_2 disp_bicat_runitor.
@@ -486,8 +515,9 @@ Definition disp_cat_ob_mor_lassociator
   : disp_cat_ob_mor bicat_twosided_disp_cat_id_hor_comp.
 Proof.
   simple refine (_ ,, _).
+  - exact (λ CD, double_cat_associator (pr22 CD)).
   - admit.
-  - admit.
+    (*exact (λ CD₁ CD₂ a₁ a₂ FF, double_functor_associator a₁ a₂ (pr22 FF)).*)
 Admitted.
 
 Definition disp_cat_id_comp_lassociator

@@ -32,13 +32,10 @@ Definition double_nat_trans_hor_id
   := ∏ (x : C₁),
      functor_double_id_cell FI x ;;2 ττ x x (double_id I₁ x)
      =
-     transportb
-       (λ z, _ -->[ z ][ _ ] _)
+     transportb_disp_mor2
        (id_left _ @ !(id_right _))
-       (transportb
-          (λ z, _ -->[ _ ][ z ] _)
-          (id_left _ @ !(id_right _))
-          (double_id_mor I₂ (τ x) ;;2 functor_double_id_cell GI x)).
+       (id_left _ @ !(id_right _))
+       (double_id_mor I₂ (τ x) ;;2 functor_double_id_cell GI x).
 
 Proposition isaprop_double_nat_trans_hor_id
             {C₁ C₂ : category}
@@ -83,15 +80,12 @@ Definition double_nat_trans_hor_comp
      ;;2
      ττ _ _ (double_hor_comp Cm₁ h k)
      =
-     transportb
-       (λ z, _ -->[ z ][ _ ] _)
+     transportb_disp_mor2
        (id_left _ @ !(id_right _))
-       (transportb
-          (λ z, _ -->[ _ ][ z ] _)
-          (id_left _ @ !(id_right _))
-          (double_hor_comp_mor Cm₂ (ττ _ _ h) (ττ _ _ k)
-           ;;2
-           functor_double_comp_cell GC h k)).
+       (id_left _ @ !(id_right _))
+       (double_hor_comp_mor Cm₂ (ττ _ _ h) (ττ _ _ k)
+        ;;2
+        functor_double_comp_cell GC h k).
 
 Proposition isaprop_double_nat_trans_hor_comp
             {C₁ C₂ : category}
@@ -132,14 +126,11 @@ Proposition id_twosided_disp_nat_trans_hor_id
 Proof.
   intros x ; cbn.
   rewrite double_id_mor_id.
-  rewrite <- transportb_dirprodeq.
   rewrite id_two_disp_left.
-  rewrite <- transportb_dirprodeq.
   rewrite id_two_disp_right.
-  rewrite <- transportb_dirprodeq.
-  rewrite transport_b_b.
-  apply maponpaths_2.
-  apply isaset_dirprod ; apply homset_property.
+  rewrite transport_b_b_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition comp_twosided_disp_nat_trans_hor_id
@@ -170,35 +161,25 @@ Proof.
   etrans.
   {
     rewrite assoc_two_disp.
-    rewrite <- transportb_dirprodeq.
     rewrite (ττI x).
-    unfold transportb.
-    rewrite two_disp_pre_whisker_left.
-    rewrite two_disp_pre_whisker_right.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
+    rewrite two_disp_pre_whisker_b.
+    rewrite transport_b_b_disp_mor2.
     rewrite assoc_two_disp_alt.
-    unfold transportb.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
     rewrite (ττI' x).
-    unfold transportb.
-    rewrite two_disp_post_whisker_left.
-    rewrite two_disp_post_whisker_right.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
+    rewrite two_disp_post_whisker_b.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
     rewrite assoc_two_disp.
-    unfold transportb.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
     apply idpath.
   }
   refine (!_).
-  unfold transportb.
-  rewrite twosided_prod_transport.
   rewrite double_id_mor_id_comp.
-  apply maponpaths_2.
-  apply isasetdirprod ; apply homset_property.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition pre_whisker_twosided_disp_nat_trans_hor_id
@@ -228,57 +209,40 @@ Proof.
   intros x ; cbn.
   etrans.
   {
-    unfold transportb.
-    rewrite two_disp_pre_whisker_right.
-    rewrite two_disp_pre_whisker_left.
-    rewrite twosided_prod_transport_alt.
+    rewrite two_disp_pre_whisker_f.
     rewrite assoc_two_disp_alt.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
-    etrans.
-    {
-      do 2 apply maponpaths.
-      apply (pr2 ττ).
-    }
-    unfold transportb.
-    rewrite two_disp_post_whisker_left.
-    rewrite two_disp_post_whisker_right.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
+    rewrite transport_f_f_disp_mor2.
+    rewrite (pr2 ττ).
+    rewrite two_disp_post_whisker_b.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
     rewrite assoc_two_disp.
-    unfold transportb.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
     etrans.
     {
       apply maponpaths.
       apply maponpaths_2.
       exact (ττI (F x)).
     }
-    unfold transportb.
-    rewrite two_disp_pre_whisker_left.
-    rewrite two_disp_pre_whisker_right.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
+    rewrite two_disp_pre_whisker_b.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
     rewrite assoc_two_disp_alt.
-    unfold transportb.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
     apply idpath.
   }
   refine (!_).
   etrans.
   {
-    unfold transportb.
-    rewrite two_disp_post_whisker_right.
-    rewrite two_disp_post_whisker_left.
-    rewrite twosided_prod_transport.
-    rewrite twosided_prod_transport_alt.
-    rewrite !transport_f_f.
+    rewrite two_disp_post_whisker_f.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
     apply idpath.
   }
-  apply maponpaths_2.
-  apply isasetdirprod ; apply homset_property.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition post_whisker_twosided_disp_nat_trans_hor_id
@@ -308,66 +272,49 @@ Proof.
   intros x ; cbn.
   etrans.
   {
-    unfold transportb.
-    rewrite two_disp_pre_whisker_right.
-    rewrite two_disp_pre_whisker_left.
-    rewrite twosided_prod_transport_alt.
+    rewrite two_disp_pre_whisker_f.
     rewrite assoc_two_disp_alt.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
+    rewrite transport_f_f_disp_mor2.
     rewrite twosided_disp_functor_comp_alt.
-    rewrite two_disp_post_whisker_left.
-    rewrite two_disp_post_whisker_right.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
+    rewrite two_disp_post_whisker_f.
+    rewrite transport_f_f_disp_mor2.
     rewrite (ττI x).
-    rewrite transportb_twosided_disp_functor_left.
-    rewrite transportb_twosided_disp_functor_right.
-    unfold transportb.
-    rewrite two_disp_post_whisker_left.
-    rewrite two_disp_post_whisker_right.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
+    rewrite transportb_twosided_disp_functor.
+    rewrite two_disp_post_whisker_b.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
     rewrite twosided_disp_functor_comp.
-    unfold transportb.
-    rewrite two_disp_post_whisker_left.
-    rewrite two_disp_post_whisker_right.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
+    rewrite two_disp_post_whisker_b.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
     rewrite assoc_two_disp.
-    unfold transportb.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
     apply idpath.
   }
   refine (!_).
   etrans.
   {
     unfold transportb.
-    rewrite two_disp_post_whisker_right.
-    rewrite two_disp_post_whisker_left.
-    rewrite twosided_prod_transport_alt.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
+    rewrite two_disp_post_whisker_f.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
     rewrite assoc_two_disp.
-    unfold transportb.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
     etrans.
     {
       apply maponpaths.
       apply maponpaths_2.
       exact (functor_double_id_eq GGI (τ x)).
     }
-    unfold transportb.
-    rewrite two_disp_pre_whisker_left.
-    rewrite two_disp_pre_whisker_right.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
+    rewrite two_disp_pre_whisker_b.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
     apply idpath.
   }
-  apply maponpaths_2.
-  apply isasetdirprod ; apply homset_property.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition lunitor_twosided_disp_nat_trans_hor_id
@@ -386,28 +333,20 @@ Proposition lunitor_twosided_disp_nat_trans_hor_id
 Proof.
   intros x ; cbn.
   rewrite double_id_mor_id.
-  rewrite <- transportb_dirprodeq.
   rewrite id_two_disp_left.
-  rewrite <- transportb_dirprodeq.
-  rewrite transport_b_b.
-  unfold transportb.
-  rewrite twosided_prod_transport_alt.
+  rewrite transport_b_b_disp_mor2.
   rewrite id_two_disp_right.
-  rewrite <- transportb_dirprodeq.
-  unfold transportb.
-  rewrite transport_f_f.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
   rewrite twosided_disp_functor_id.
-  unfold transportb.
-  rewrite two_disp_post_whisker_left.
-  rewrite two_disp_post_whisker_right.
-  rewrite twosided_prod_transport.
-  rewrite transport_f_f.
+  rewrite two_disp_post_whisker_b.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
   rewrite id_two_disp_right.
-  rewrite <- transportb_dirprodeq.
-  unfold transportb.
-  rewrite transport_f_f.
-  apply maponpaths_2.
-  apply isaset_dirprod ; apply homset_property.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition runitor_twosided_disp_nat_trans_hor_id
@@ -426,23 +365,17 @@ Proposition runitor_twosided_disp_nat_trans_hor_id
 Proof.
   intros x ; cbn.
   rewrite double_id_mor_id.
-  refine (!_).
-  rewrite <- transportb_dirprodeq.
   rewrite id_two_disp_left.
-  rewrite <- !transportb_dirprodeq.
-  rewrite transport_b_b.
-  unfold transportb.
-  rewrite twosided_prod_transport_alt.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
   rewrite id_two_disp_right.
-  rewrite <- transportb_dirprodeq.
-  unfold transportb.
-  rewrite transport_f_f.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
   rewrite id_two_disp_left.
-  rewrite <- transportb_dirprodeq.
-  unfold transportb.
-  rewrite transport_f_f.
-  apply maponpaths_2.
-  apply isaset_dirprod ; apply homset_property.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition linvunitor_twosided_disp_nat_trans_hor_id
@@ -461,28 +394,20 @@ Proposition linvunitor_twosided_disp_nat_trans_hor_id
 Proof.
   intros x ; cbn.
   rewrite double_id_mor_id.
-  rewrite <- transportb_dirprodeq.
   rewrite id_two_disp_left.
-  rewrite <- transportb_dirprodeq.
-  rewrite transport_b_b.
-  unfold transportb.
-  rewrite twosided_prod_transport_alt.
+  rewrite transport_b_b_disp_mor2.
   rewrite id_two_disp_right.
-  rewrite <- transportb_dirprodeq.
-  unfold transportb.
-  rewrite transport_f_f.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
   rewrite twosided_disp_functor_id.
-  unfold transportb.
-  rewrite two_disp_post_whisker_left.
-  rewrite two_disp_post_whisker_right.
-  rewrite twosided_prod_transport.
-  rewrite transport_f_f.
+  rewrite two_disp_post_whisker_b.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
   rewrite id_two_disp_right.
-  rewrite <- transportb_dirprodeq.
-  unfold transportb.
-  rewrite transport_f_f.
-  apply maponpaths_2.
-  apply isaset_dirprod ; apply homset_property.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition rinvunitor_twosided_disp_nat_trans_hor_id
@@ -501,23 +426,17 @@ Proposition rinvunitor_twosided_disp_nat_trans_hor_id
 Proof.
   intros x ; cbn.
   rewrite double_id_mor_id.
-  refine (!_).
-  rewrite <- transportb_dirprodeq.
   rewrite id_two_disp_left.
-  rewrite <- !transportb_dirprodeq.
-  rewrite transport_b_b.
-  unfold transportb.
-  rewrite twosided_prod_transport_alt.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
   rewrite id_two_disp_right.
-  rewrite <- transportb_dirprodeq.
-  unfold transportb.
-  rewrite transport_f_f.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
   rewrite id_two_disp_left.
-  rewrite <- transportb_dirprodeq.
-  unfold transportb.
-  rewrite transport_f_f.
-  apply maponpaths_2.
-  apply isaset_dirprod ; apply homset_property.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition rassociator_twosided_disp_nat_trans_hor_id
@@ -548,50 +467,28 @@ Proposition rassociator_twosided_disp_nat_trans_hor_id
       (comp_hor_id FI (comp_hor_id GI HI)).
 Proof.
   intros x ; cbn.
-  rewrite transportb_twosided_disp_functor_right.
-  rewrite transportb_twosided_disp_functor_left.
-  unfold transportb.
-  etrans.
-  {
-    rewrite two_disp_post_whisker_right.
-    rewrite two_disp_post_whisker_left.
-    rewrite !twosided_prod_transport_alt.
-    rewrite !transport_f_f.
-    rewrite id_two_disp_right.
-    unfold transportb.
-    rewrite !twosided_prod_transport.
-    rewrite transport_f_f.
-    apply idpath.
-  }
-  refine (!_).
-  etrans.
-  {
-    rewrite two_disp_post_whisker_right.
-    rewrite two_disp_post_whisker_left.
-    rewrite two_disp_pre_whisker_right.
-    rewrite two_disp_pre_whisker_left.
-    rewrite !twosided_prod_transport_alt.
-    rewrite !twosided_prod_transport.
-    rewrite !transport_f_f.
-    rewrite double_id_mor_id.
-    rewrite id_two_disp_left.
-    unfold transportb.
-    rewrite !twosided_prod_transport.
-    rewrite !transport_f_f.
-    apply idpath.
-  }
+  rewrite transportf_twosided_disp_functor.
+  rewrite !two_disp_post_whisker_f.
+  rewrite !two_disp_pre_whisker_f.
+  rewrite !two_disp_post_whisker_f.
+  unfold transportb_disp_mor2.
+  rewrite !transport_f_f_disp_mor2.
+  rewrite id_two_disp_right.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
+  rewrite double_id_mor_id.
+  rewrite id_two_disp_left.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
   rewrite twosided_disp_functor_comp.
-  unfold transportb.
-  rewrite two_disp_post_whisker_left.
-  rewrite two_disp_post_whisker_right.
-  rewrite !twosided_prod_transport.
-  rewrite transport_f_f.
+  unfold transportb_disp_mor2.
+  rewrite !two_disp_post_whisker_f.
+  rewrite transport_f_f_disp_mor2.
   rewrite assoc_two_disp.
-  unfold transportb.
-  rewrite !twosided_prod_transport.
-  rewrite !transport_f_f.
-  apply maponpaths_2.
-  apply isaset_dirprod ; apply homset_property.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition lassociator_twosided_disp_nat_trans_hor_id
@@ -622,49 +519,27 @@ Proposition lassociator_twosided_disp_nat_trans_hor_id
       (comp_hor_id (comp_hor_id FI GI) HI).
 Proof.
   intros x ; cbn.
-  rewrite transportb_twosided_disp_functor_right.
-  rewrite transportb_twosided_disp_functor_left.
-  unfold transportb.
-  etrans.
-  {
-    rewrite !two_disp_pre_whisker_right.
-    rewrite !two_disp_pre_whisker_left.
-    rewrite !twosided_prod_transport_alt.
-    rewrite id_two_disp_right.
-    unfold transportb.
-    rewrite !twosided_prod_transport.
-    rewrite !transport_f_f.
-    apply idpath.
-  }
-  refine (!_).
-  etrans.
-  {
-    rewrite !two_disp_post_whisker_right.
-    rewrite !two_disp_post_whisker_left.
-    rewrite !two_disp_post_whisker_right.
-    rewrite !two_disp_post_whisker_left.
-    rewrite !twosided_prod_transport_alt.
-    rewrite !twosided_prod_transport.
-    rewrite !transport_f_f.
-    rewrite double_id_mor_id.
-    rewrite id_two_disp_left.
-    unfold transportb.
-    rewrite !twosided_prod_transport.
-    rewrite !transport_f_f.
-    apply idpath.
-  }
+  rewrite transportf_twosided_disp_functor.
+  rewrite !two_disp_post_whisker_f.
+  rewrite !two_disp_pre_whisker_f.
+  unfold transportb_disp_mor2.
+  rewrite !transport_f_f_disp_mor2.
+  rewrite id_two_disp_right.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
+  rewrite double_id_mor_id.
+  rewrite id_two_disp_left.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
   rewrite twosided_disp_functor_comp.
-  unfold transportb.
-  rewrite two_disp_post_whisker_left.
-  rewrite two_disp_post_whisker_right.
-  rewrite !twosided_prod_transport.
-  rewrite transport_f_f.
+  unfold transportb_disp_mor2.
+  rewrite !two_disp_post_whisker_f.
+  rewrite transport_f_f_disp_mor2.
   rewrite assoc_two_disp.
-  unfold transportb.
-  rewrite !twosided_prod_transport.
-  rewrite !transport_f_f.
-  apply maponpaths_2.
-  apply isaset_dirprod ; apply homset_property.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition id_twosided_disp_nat_trans_hor_comp
@@ -680,14 +555,11 @@ Proposition id_twosided_disp_nat_trans_hor_comp
 Proof.
   intros x y z h k ; cbn.
   rewrite double_hor_comp_mor_id.
-  rewrite <- transportb_dirprodeq.
   rewrite id_two_disp_left.
-  rewrite <- transportb_dirprodeq.
+  rewrite transport_b_b_disp_mor2.
   rewrite id_two_disp_right.
-  rewrite <- transportb_dirprodeq.
-  rewrite transport_b_b.
-  apply maponpaths_2.
-  apply isaset_dirprod ; apply homset_property.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition comp_twosided_disp_nat_trans_hor_comp
@@ -715,38 +587,23 @@ Proposition comp_twosided_disp_nat_trans_hor_comp
       FFC''.
 Proof.
   intros x y z h k ; cbn.
-  etrans.
-  {
-    rewrite assoc_two_disp.
-    rewrite <- transportb_dirprodeq.
-    rewrite (ττC x).
-    unfold transportb.
-    rewrite two_disp_pre_whisker_left.
-    rewrite two_disp_pre_whisker_right.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
-    rewrite assoc_two_disp_alt.
-    unfold transportb.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
-    rewrite (ττC' x).
-    unfold transportb.
-    rewrite two_disp_post_whisker_left.
-    rewrite two_disp_post_whisker_right.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
-    rewrite assoc_two_disp.
-    unfold transportb.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
-    apply idpath.
-  }
-  refine (!_).
+  rewrite assoc_two_disp.
+  rewrite (ττC x).
+  rewrite two_disp_pre_whisker_b.
+  rewrite transport_b_b_disp_mor2.
+  rewrite assoc_two_disp_alt.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
   unfold transportb.
-  rewrite twosided_prod_transport.
+  rewrite (ττC' x).
+  rewrite two_disp_post_whisker_b.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
   rewrite double_hor_comp_mor_comp.
-  apply maponpaths_2.
-  apply isasetdirprod ; apply homset_property.
+  rewrite assoc_two_disp_alt.
+  rewrite transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition pre_whisker_twosided_disp_nat_trans_hor_comp
@@ -774,59 +631,28 @@ Proposition pre_whisker_twosided_disp_nat_trans_hor_comp
       (comp_hor_comp FFC GGC').
 Proof.
   intros x y z h k ; cbn.
-  etrans.
-  {
-    unfold transportb.
-    rewrite two_disp_pre_whisker_right.
-    rewrite two_disp_pre_whisker_left.
-    rewrite twosided_prod_transport_alt.
-    rewrite assoc_two_disp_alt.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
-    etrans.
-    {
-      do 2 apply maponpaths.
-      apply (pr2 ττ).
-    }
-    unfold transportb.
-    rewrite two_disp_post_whisker_left.
-    rewrite two_disp_post_whisker_right.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
-    rewrite assoc_two_disp.
-    unfold transportb.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
-    etrans.
-    {
-      apply maponpaths.
-      apply maponpaths_2.
-      exact (ττC _ _ _ _ _).
-    }
-    unfold transportb.
-    rewrite two_disp_pre_whisker_left.
-    rewrite two_disp_pre_whisker_right.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
-    rewrite assoc_two_disp_alt.
-    unfold transportb.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
-    apply idpath.
-  }
-  refine (!_).
-  etrans.
-  {
-    unfold transportb.
-    rewrite two_disp_post_whisker_right.
-    rewrite two_disp_post_whisker_left.
-    rewrite twosided_prod_transport.
-    rewrite twosided_prod_transport_alt.
-    rewrite !transport_f_f.
-    apply idpath.
-  }
-  apply maponpaths_2.
-  apply isasetdirprod ; apply homset_property.
+  rewrite two_disp_pre_whisker_b.
+  rewrite two_disp_post_whisker_b.
+  rewrite transport_b_b_disp_mor2.
+  rewrite assoc_two_disp_alt.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
+  rewrite (pr2 ττ).
+  rewrite two_disp_post_whisker_b.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
+  rewrite assoc_two_disp.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
+  rewrite ττC.
+  rewrite two_disp_pre_whisker_b.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
+  rewrite assoc_two_disp_alt.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition post_whisker_twosided_disp_nat_trans_hor_comp
@@ -854,68 +680,36 @@ Proposition post_whisker_twosided_disp_nat_trans_hor_comp
       (comp_hor_comp FFC' GGC).
 Proof.
   intros x y z h k ; cbn.
-  etrans.
-  {
-    unfold transportb.
-    rewrite two_disp_pre_whisker_right.
-    rewrite two_disp_pre_whisker_left.
-    rewrite twosided_prod_transport_alt.
-    rewrite assoc_two_disp_alt.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
-    rewrite twosided_disp_functor_comp_alt.
-    rewrite two_disp_post_whisker_left.
-    rewrite two_disp_post_whisker_right.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
-    rewrite (ττC x y z h k).
-    rewrite transportb_twosided_disp_functor_left.
-    rewrite transportb_twosided_disp_functor_right.
-    unfold transportb.
-    rewrite two_disp_post_whisker_left.
-    rewrite two_disp_post_whisker_right.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
-    rewrite twosided_disp_functor_comp.
-    unfold transportb.
-    rewrite two_disp_post_whisker_left.
-    rewrite two_disp_post_whisker_right.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
-    rewrite assoc_two_disp.
-    unfold transportb.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
-    apply idpath.
-  }
-  refine (!_).
-  etrans.
-  {
-    unfold transportb.
-    rewrite two_disp_post_whisker_right.
-    rewrite two_disp_post_whisker_left.
-    rewrite twosided_prod_transport_alt.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
-    rewrite assoc_two_disp.
-    unfold transportb.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
-    etrans.
-    {
-      apply maponpaths.
-      apply maponpaths_2.
-      exact (functor_double_comp_eq GGC _ _).
-    }
-    unfold transportb.
-    rewrite two_disp_pre_whisker_left.
-    rewrite two_disp_pre_whisker_right.
-    rewrite twosided_prod_transport.
-    rewrite transport_f_f.
-    apply idpath.
-  }
-  apply maponpaths_2.
-  apply isasetdirprod ; apply homset_property.
+  rewrite two_disp_pre_whisker_b.
+  rewrite assoc_two_disp_alt.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
+  rewrite twosided_disp_functor_comp_alt.
+  rewrite two_disp_post_whisker_f.
+  rewrite transport_f_f_disp_mor2.
+  rewrite (ττC x y z h k).
+  rewrite transportb_twosided_disp_functor.
+  rewrite two_disp_post_whisker_b.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
+  rewrite twosided_disp_functor_comp.
+  rewrite two_disp_post_whisker_b.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
+  rewrite assoc_two_disp.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
+  rewrite two_disp_post_whisker_f.
+  rewrite transport_f_f_disp_mor2.
+  rewrite assoc_two_disp.
+  unfold transportb_disp_mor2.
+  rewrite transport_f_f_disp_mor2.
+  rewrite (functor_double_comp_eq GGC _ _).
+  unfold transportb_disp_mor2.
+  rewrite two_disp_pre_whisker_f.
+  rewrite transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition lunitor_twosided_disp_nat_trans_hor_comp
@@ -934,28 +728,18 @@ Proposition lunitor_twosided_disp_nat_trans_hor_comp
 Proof.
   intros x y z h k ; cbn.
   rewrite double_hor_comp_mor_id.
-  rewrite <- transportb_dirprodeq.
+  rewrite two_disp_pre_whisker_b.
+  rewrite id_two_disp_right.
+  rewrite transport_b_b_disp_mor2.
   rewrite id_two_disp_left.
-  rewrite <- transportb_dirprodeq.
-  rewrite transport_b_b.
-  unfold transportb.
-  rewrite twosided_prod_transport_alt.
-  rewrite id_two_disp_right.
-  rewrite <- transportb_dirprodeq.
-  unfold transportb.
-  rewrite transport_f_f.
+  rewrite transport_b_b_disp_mor2.
   rewrite twosided_disp_functor_id.
-  unfold transportb.
-  rewrite two_disp_post_whisker_left.
-  rewrite two_disp_post_whisker_right.
-  rewrite twosided_prod_transport.
-  rewrite transport_f_f.
+  rewrite two_disp_post_whisker_b.
+  rewrite transport_b_b_disp_mor2.
   rewrite id_two_disp_right.
-  rewrite <- transportb_dirprodeq.
-  unfold transportb.
-  rewrite transport_f_f.
-  apply maponpaths_2.
-  apply isaset_dirprod ; apply homset_property.
+  rewrite transport_b_b_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition runitor_twosided_disp_nat_trans_hor_comp
@@ -974,23 +758,15 @@ Proposition runitor_twosided_disp_nat_trans_hor_comp
 Proof.
   intros x y z h k ; cbn.
   rewrite double_hor_comp_mor_id.
-  refine (!_).
-  rewrite <- transportb_dirprodeq.
-  rewrite id_two_disp_left.
-  rewrite <- !transportb_dirprodeq.
-  rewrite transport_b_b.
-  unfold transportb.
-  rewrite twosided_prod_transport_alt.
+  rewrite two_disp_pre_whisker_b.
   rewrite id_two_disp_right.
-  rewrite <- transportb_dirprodeq.
-  unfold transportb.
-  rewrite transport_f_f.
+  rewrite transport_b_b_disp_mor2.
   rewrite id_two_disp_left.
-  rewrite <- transportb_dirprodeq.
-  unfold transportb.
-  rewrite transport_f_f.
-  apply maponpaths_2.
-  apply isaset_dirprod ; apply homset_property.
+  rewrite transport_b_b_disp_mor2.
+  rewrite id_two_disp_left.
+  rewrite transport_b_b_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition linvunitor_twosided_disp_nat_trans_hor_comp
@@ -1009,28 +785,18 @@ Proposition linvunitor_twosided_disp_nat_trans_hor_comp
 Proof.
   intros x y z h k ; cbn.
   rewrite double_hor_comp_mor_id.
-  rewrite <- transportb_dirprodeq.
+  rewrite two_disp_post_whisker_b.
+  rewrite id_two_disp_right.
+  rewrite transport_b_b_disp_mor2.
   rewrite id_two_disp_left.
-  rewrite <- transportb_dirprodeq.
-  rewrite transport_b_b.
-  unfold transportb.
-  rewrite twosided_prod_transport_alt.
-  rewrite id_two_disp_right.
-  rewrite <- transportb_dirprodeq.
-  unfold transportb.
-  rewrite transport_f_f.
+  rewrite transport_b_b_disp_mor2.
   rewrite twosided_disp_functor_id.
-  unfold transportb.
-  rewrite two_disp_post_whisker_left.
-  rewrite two_disp_post_whisker_right.
-  rewrite twosided_prod_transport.
-  rewrite transport_f_f.
+  rewrite two_disp_post_whisker_b.
+  rewrite transport_b_b_disp_mor2.
   rewrite id_two_disp_right.
-  rewrite <- transportb_dirprodeq.
-  unfold transportb.
-  rewrite transport_f_f.
-  apply maponpaths_2.
-  apply isaset_dirprod ; apply homset_property.
+  rewrite transport_b_b_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition rinvunitor_twosided_disp_nat_trans_hor_comp
@@ -1049,23 +815,15 @@ Proposition rinvunitor_twosided_disp_nat_trans_hor_comp
 Proof.
   intros x y z h k ; cbn.
   rewrite double_hor_comp_mor_id.
-  refine (!_).
-  rewrite <- transportb_dirprodeq.
-  rewrite id_two_disp_left.
-  rewrite <- !transportb_dirprodeq.
-  rewrite transport_b_b.
-  unfold transportb.
-  rewrite twosided_prod_transport_alt.
+  rewrite two_disp_post_whisker_b.
   rewrite id_two_disp_right.
-  rewrite <- transportb_dirprodeq.
-  unfold transportb.
-  rewrite transport_f_f.
+  rewrite transport_b_b_disp_mor2.
   rewrite id_two_disp_left.
-  rewrite <- transportb_dirprodeq.
-  unfold transportb.
-  rewrite transport_f_f.
-  apply maponpaths_2.
-  apply isaset_dirprod ; apply homset_property.
+  rewrite transport_b_b_disp_mor2.
+  rewrite id_two_disp_left.
+  rewrite transport_b_b_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition rassociator_twosided_disp_nat_trans_hor_comp
@@ -1096,50 +854,25 @@ Proposition rassociator_twosided_disp_nat_trans_hor_comp
       (comp_hor_comp FC (comp_hor_comp GC HC)).
 Proof.
   intros x y z h k ; cbn.
-  rewrite transportb_twosided_disp_functor_right.
-  rewrite transportb_twosided_disp_functor_left.
-  unfold transportb.
-  etrans.
-  {
-    rewrite two_disp_post_whisker_right.
-    rewrite two_disp_post_whisker_left.
-    rewrite !twosided_prod_transport_alt.
-    rewrite !transport_f_f.
-    rewrite id_two_disp_right.
-    unfold transportb.
-    rewrite !twosided_prod_transport.
-    rewrite transport_f_f.
-    apply idpath.
-  }
-  refine (!_).
-  etrans.
-  {
-    rewrite two_disp_post_whisker_right.
-    rewrite two_disp_post_whisker_left.
-    rewrite two_disp_pre_whisker_right.
-    rewrite two_disp_pre_whisker_left.
-    rewrite !twosided_prod_transport_alt.
-    rewrite !twosided_prod_transport.
-    rewrite !transport_f_f.
-    rewrite double_hor_comp_mor_id.
-    rewrite id_two_disp_left.
-    unfold transportb.
-    rewrite !twosided_prod_transport.
-    rewrite !transport_f_f.
-    apply idpath.
-  }
+  rewrite transportb_twosided_disp_functor.
+  rewrite two_disp_post_whisker_b.
+  rewrite transport_b_b_disp_mor2.
+  rewrite id_two_disp_right.
+  rewrite transport_b_b_disp_mor2.
+  rewrite two_disp_post_whisker_b.
+  rewrite two_disp_pre_whisker_b.
+  rewrite two_disp_post_whisker_b.
+  rewrite !transport_b_b_disp_mor2.
+  rewrite double_hor_comp_mor_id.
+  rewrite id_two_disp_left.
+  rewrite transport_b_b_disp_mor2.
   rewrite twosided_disp_functor_comp.
-  unfold transportb.
-  rewrite two_disp_post_whisker_left.
-  rewrite two_disp_post_whisker_right.
-  rewrite !twosided_prod_transport.
-  rewrite transport_f_f.
+  rewrite two_disp_post_whisker_b.
+  rewrite transport_b_b_disp_mor2.
   rewrite assoc_two_disp.
-  unfold transportb.
-  rewrite !twosided_prod_transport.
-  rewrite !transport_f_f.
-  apply maponpaths_2.
-  apply isaset_dirprod ; apply homset_property.
+  rewrite transport_b_b_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 Proposition lassociator_twosided_disp_nat_trans_hor_comp
@@ -1170,47 +903,23 @@ Proposition lassociator_twosided_disp_nat_trans_hor_comp
       (comp_hor_comp (comp_hor_comp FC GC) HC).
 Proof.
   intros x y z h k ; cbn.
-  rewrite transportb_twosided_disp_functor_right.
-  rewrite transportb_twosided_disp_functor_left.
-  unfold transportb.
-  etrans.
-  {
-    rewrite !two_disp_pre_whisker_right.
-    rewrite !two_disp_pre_whisker_left.
-    rewrite !twosided_prod_transport_alt.
-    rewrite id_two_disp_right.
-    unfold transportb.
-    rewrite !twosided_prod_transport.
-    rewrite !transport_f_f.
-    apply idpath.
-  }
-  refine (!_).
-  etrans.
-  {
-    rewrite !two_disp_post_whisker_right.
-    rewrite !two_disp_post_whisker_left.
-    rewrite !two_disp_post_whisker_right.
-    rewrite !two_disp_post_whisker_left.
-    rewrite !twosided_prod_transport_alt.
-    rewrite !twosided_prod_transport.
-    rewrite !transport_f_f.
-    rewrite double_hor_comp_mor_id.
-    rewrite id_two_disp_left.
-    unfold transportb.
-    rewrite !twosided_prod_transport.
-    rewrite !transport_f_f.
-    apply idpath.
-  }
+  rewrite transportb_twosided_disp_functor.
+  rewrite two_disp_post_whisker_b.
+  rewrite transport_b_b_disp_mor2.
+  rewrite id_two_disp_right.
+  rewrite transport_b_b_disp_mor2.
+  rewrite two_disp_post_whisker_b.
+  rewrite two_disp_pre_whisker_b.
+  rewrite two_disp_post_whisker_b.
+  rewrite !transport_b_b_disp_mor2.
+  rewrite double_hor_comp_mor_id.
+  rewrite id_two_disp_left.
+  rewrite transport_b_b_disp_mor2.
   rewrite twosided_disp_functor_comp.
-  unfold transportb.
-  rewrite two_disp_post_whisker_left.
-  rewrite two_disp_post_whisker_right.
-  rewrite !twosided_prod_transport.
-  rewrite transport_f_f.
+  rewrite two_disp_post_whisker_b.
+  rewrite transport_b_b_disp_mor2.
   rewrite assoc_two_disp.
-  unfold transportb.
-  rewrite !twosided_prod_transport.
-  rewrite !transport_f_f.
-  apply maponpaths_2.
-  apply isaset_dirprod ; apply homset_property.
+  rewrite transport_b_b_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.

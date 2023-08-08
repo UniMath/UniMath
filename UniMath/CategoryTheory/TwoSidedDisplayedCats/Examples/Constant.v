@@ -59,13 +59,13 @@ Section ConstantTwoSidedDispCat.
     : twosided_disp_cat_axioms constant_twosided_disp_cat_data.
   Proof.
     repeat split.
-    - intro ; intros ; unfold transportb ; cbn in *.
+    - intro ; intros ; unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn in *.
       rewrite !transportf_const ; cbn.
       apply id_left.
-    - intro ; intros ; unfold transportb ; cbn in *.
+    - intro ; intros ; unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn in *.
       rewrite !transportf_const ; cbn.
       apply id_right.
-    - intro ; intros ; unfold transportb ; cbn in *.
+    - intro ; intros ; unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn in *.
       rewrite !transportf_const ; cbn.
       apply assoc.
     - intro ; intros.
@@ -104,12 +104,12 @@ Section ConstantTwoSidedDispCat.
     - exact (inv_from_z_iso f_iso).
     - abstract
         (cbn ;
-         unfold transportb ;
+         unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn ;
          rewrite !transportf_const ;
          apply Hf).
     - abstract
         (cbn ;
-         unfold transportb ;
+         unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn ;
          rewrite !transportf_const ;
          apply Hf).
   Defined.
@@ -150,12 +150,14 @@ Section ConstantTwoSidedDispCat.
     - split.
       + abstract
           (pose (p := pr122 f) ; cbn in p ;
-           unfold transportb in p ;
+           unfold transportb_disp_mor2, transportf_disp_mor2 in p ;
+           cbn in p ;
            rewrite !transportf_const in p ;
            exact p).
       + abstract
           (pose (p := pr222 f) ; cbn in p ;
-           unfold transportb in p ;
+           unfold transportb_disp_mor2, transportf_disp_mor2 in p ;
+           cbn in p ;
            rewrite !transportf_const in p ;
            exact p).
   Defined.
