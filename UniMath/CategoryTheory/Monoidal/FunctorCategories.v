@@ -101,10 +101,9 @@ Definition is_univalent_category_lax_monoidal_functors
   (M : monoidal C) (N : monoidal D)
   : is_univalent (category_lax_monoidal_functors M N).
 Proof.
-  apply SIP.
+  apply is_univalent_total_category.
   - apply is_univalent_functor_category. apply D.
-  - apply lax_monoidal_functors_Pisset.
-  - intros F Fm Fm'. apply lax_monoidal_functors_Hstandard.
+  - apply is_univalent_disp_cat_lax_monoidal_functors.
 Defined.
 
 Section SymmetricLaxMonoidalFunctorCategory.
@@ -147,7 +146,10 @@ Definition is_univalent_category_symmetric_lax_monoidal_functors
   (HM : symmetric M) (HN : symmetric N) :
   is_univalent (category_symmetric_lax_monoidal_functors HM HN).
 Proof.
-Admitted.
+  apply is_univalent_total_category.
+  - apply is_univalent_functor_category. apply D.
+  - apply is_univalent_disp_cat_symmetric_lax_monoidal_functors.
+Defined.
 
 Section SymmetricMonoidalComonads.
 
@@ -256,8 +258,7 @@ Definition is_univalent_symmetric_monoidal_comonad (C : univalent_category)
   {M : monoidal C} (HM : symmetric M)
   : is_univalent (category_symmetric_monoidal_comonad HM).
 Proof.
-  apply SIP.
+  apply is_univalent_total_category.
   - apply is_univalent_category_symmetric_lax_monoidal_functors.
-  - apply symmetric_monoidal_comonad_category_Pisset.
-  - intros F TT TT'. apply symmetric_monoidal_comonad_category_Hstandard.
+  - apply is_univalent_disp_cat_symmetric_monoidal_comonads.
 Defined.
