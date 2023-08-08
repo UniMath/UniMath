@@ -250,6 +250,16 @@ Section MonoidalFunctors.
           (fmonoidal_preservestensordata fmd)
           (fmonoidal_preservesunit fmd)).
 
+  Lemma isaprop_fmonoidal_laxlaws
+             {C D : category}
+             {M : monoidal C}
+             {N : monoidal D}
+             {F : functor C D}
+             (fmd : fmonoidal_data M N F) : isaprop (fmonoidal_laxlaws fmd).
+  Proof.
+    repeat (apply isapropdirprod); repeat (apply impred; intro); apply D.
+  Qed.
+
   Definition fmonoidal_lax
              {C D : category}
              (M : monoidal C)
@@ -267,6 +277,19 @@ Section MonoidalFunctors.
     : fmonoidal_data M N F
     := pr1 fm.
   Coercion fmonoidal_fdata : fmonoidal_lax >-> fmonoidal_data.
+
+  Lemma fmonoidal_lax_eq
+             {C D : category}
+             {M : monoidal C}
+             {N : monoidal D}
+             {F : functor C D}
+             (fmd fmd' : fmonoidal_lax M N F) :
+    pr1 fmd = pr1 fmd' -> fmd = fmd'.
+  Proof.
+    intro H.
+    use total2_paths_f; [apply H |].
+    apply isaprop_fmonoidal_laxlaws.
+  Qed.
 
   Definition fmonoidal_flaws
              {C D : category}
@@ -855,6 +878,17 @@ Section MonoidalFunctors.
        =
        fmonoidal_preservestensordata HF x y
        · #F(monoidal_braiding_data (symmetric_to_braiding HM) x y).
+
+  Lemma isaprop_is_symmetric_monoidal_functor
+             {C D : category}
+             {M : monoidal C} {N : monoidal D}
+             (HM : symmetric M) (HN : symmetric N)
+             {F : functor C D}
+             (HF : fmonoidal_lax M N F) :
+    isaprop (is_symmetric_monoidal_functor HM HN HF).
+  Proof.
+    apply impred; intro c; apply impred; intro c'; apply D.
+  Qed.
 
   (**
    5. The identity is strong monoidal
