@@ -85,19 +85,9 @@ Section TheConstruction.
   Lemma bidisp_monlaxbicat_disp_prebicat_ops :
     disp_prebicat_ops bidisp_monlaxbicat_disp_prebicat_1_id_comp_cells.
   Proof.
+    split.
+    { intros; apply is_mon_nat_trans_identity. }
     repeat split; try red; cbn; unfold fmonoidal_preservestensordata, fmonoidal_preservesunit; intros; show_id_type.
-    (** first 10 equations for identity, then 10 equations for composition *)
-    - etrans.
-      2: { apply cancel_postcomposition.
-           apply pathsinv0, bifunctor_distributes_over_id.
-           - cbn in *.
-             apply (bifunctor_leftid y).
-           - cbn in *.
-             apply (bifunctor_rightid y).
-      }
-      rewrite id_left.
-      apply id_right.
-    - apply id_right.
     - rewrite functor_id.
       do 2 rewrite id_right.
       etrans.
@@ -181,28 +171,8 @@ Section TheConstruction.
       repeat rewrite assoc'.
       apply maponpaths.
       apply pathsinv0, functor_comp.
-    - etrans.
-      2: { apply cancel_postcomposition.
-           apply pathsinv0, bifunctor_distributes_over_comp.
-           - cbn in *.
-             apply (bifunctor_leftcomp y).
-           - cbn in *.
-             apply (bifunctor_rightcomp y).
-           - cbn in *.
-             apply (bifunctor_equalwhiskers y).
-      }
-      rewrite assoc.
-      etrans.
-      { apply cancel_postcomposition.
-        apply (pr1 X a0 a'). }
-      repeat rewrite assoc'.
-      apply maponpaths.
-      apply (pr1 X0).
-    - rewrite assoc.
-      etrans.
-      { apply cancel_postcomposition.
-        apply (pr2 X). }
-      apply (pr2 X0).
+    - apply (pr1 (is_mon_nat_trans_comp _ _ _ _ _ X X0)).
+    - apply (pr2 (is_mon_nat_trans_comp _ _ _ _ _ X X0)).
     - assert (aux := pr1 X (pr1 f a0) (pr1 f a')).
       unfold fmonoidal_preservestensordata in aux.
       etrans.
