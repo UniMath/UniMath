@@ -1219,7 +1219,69 @@ Section MonoidalNaturalTransformations.
       apply D.
     - apply D.
   Qed.
+
 End MonoidalNaturalTransformations.
+
+Section SomeMonoidalNaturalTransformations.
+
+  Lemma is_mon_nat_trans_identity {C D : category}
+    {M : monoidal C} {N : monoidal D}
+    {F : functor C D}
+    (Fm : fmonoidal_lax M N F) :
+    is_mon_nat_trans Fm Fm (nat_trans_id _).
+  Proof.
+    split; red; cbn; unfold fmonoidal_preservestensordata, fmonoidal_preservesunit; intros.
+    - etrans.
+      2: { apply cancel_postcomposition.
+           apply pathsinv0, bifunctor_distributes_over_id.
+           - cbn in *.
+             apply (bifunctor_leftid N).
+           - cbn in *.
+             apply (bifunctor_rightid N).
+      }
+      rewrite id_left.
+      apply id_right.
+    - apply id_right.
+  Qed.
+
+  Lemma is_mon_nat_trans_comp {C D : category}
+    {M : monoidal C} {N : monoidal D}
+    {F G H : functor C D}
+    (Fm : fmonoidal_lax M N F)
+    (Gm : fmonoidal_lax M N G)
+    (Hm : fmonoidal_lax M N H)
+    (α : F ⟹ G) (β : G ⟹ H)
+    :
+    is_mon_nat_trans Fm Gm α -> is_mon_nat_trans Gm Hm β ->
+    is_mon_nat_trans Fm Hm (nat_trans_comp _ _ _ α β).
+  Proof.
+    intros Hα Hβ.
+    split; red; cbn; unfold fmonoidal_preservestensordata, fmonoidal_preservesunit; intros.
+    - etrans.
+      2: { apply cancel_postcomposition.
+           apply pathsinv0, bifunctor_distributes_over_comp.
+           - cbn in *.
+             apply (bifunctor_leftcomp N).
+           - cbn in *.
+             apply (bifunctor_rightcomp N).
+           - cbn in *.
+             apply (bifunctor_equalwhiskers N).
+      }
+      rewrite assoc.
+      etrans.
+      { apply cancel_postcomposition.
+        apply (pr1 Hα a a'). }
+      repeat rewrite assoc'.
+      apply maponpaths.
+      apply (pr1 Hβ).
+    - rewrite assoc.
+      etrans.
+      { apply cancel_postcomposition.
+        apply (pr2 Hα). }
+      apply (pr2 Hβ).
+  Qed.
+
+End SomeMonoidalNaturalTransformations.
 
 (**
  8. Inverses of monoidal natural transformations

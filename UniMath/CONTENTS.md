@@ -458,6 +458,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/Structure/Closed.v](CategoryTheory/Monoidal/Structure/Closed.v)
    - [Monoidal/Structure/Cartesian.v](CategoryTheory/Monoidal/Structure/Cartesian.v)
    - [Monoidal/Functors.v](CategoryTheory/Monoidal/Functors.v)
+   - [Monoidal/FunctorCategories.v](CategoryTheory/Monoidal/FunctorCategories.v)
    - [Monoidal/Adjunctions.v](CategoryTheory/Monoidal/Adjunctions.v)
    - [Monoidal/CategoriesOfMonoids.v](CategoryTheory/Monoidal/CategoriesOfMonoids.v)
    - [Monoidal/Displayed/WhiskeredDisplayedBifunctors.v](CategoryTheory/Monoidal/Displayed/WhiskeredDisplayedBifunctors.v)
