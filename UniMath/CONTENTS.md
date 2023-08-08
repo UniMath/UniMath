@@ -704,6 +704,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [MonoidalCategories/ConstructionOfActions.v](Bicategories/MonoidalCategories/ConstructionOfActions.v)
    - [MonoidalCategories/WhiskeredMonoidalFromBicategory.v](Bicategories/MonoidalCategories/WhiskeredMonoidalFromBicategory.v)
    - [MonoidalCategories/ActionOfEndomorphismsInBicatWhiskered.v](Bicategories/MonoidalCategories/ActionOfEndomorphismsInBicatWhiskered.v)
+   - [MonoidalCategories/BicatOfWhiskeredMonCatsLax.v](Bicategories/MonoidalCategories/BicatOfWhiskeredMonCatsLax.v)
    - [MonoidalCategories/BicatOfWhiskeredMonCats.v](Bicategories/MonoidalCategories/BicatOfWhiskeredMonCats.v)
    - [MonoidalCategories/EndofunctorsWhiskeredMonoidal.v](Bicategories/MonoidalCategories/EndofunctorsWhiskeredMonoidal.v)
    - [MonoidalCategories/PointedFunctorsWhiskeredMonoidal.v](Bicategories/MonoidalCategories/PointedFunctorsWhiskeredMonoidal.v)

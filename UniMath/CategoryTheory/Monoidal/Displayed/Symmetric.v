@@ -408,8 +408,7 @@ Section DisplayedSymmetric.
 
   Definition disp_sym_moncat_laws_tensored_inv
     {B : symmetric M}
-    (c : ∏ (x y : C) (xx : D x) (yy : D y),
-        xx ⊗⊗_{ DM} yy -->[pr1 B x y] yy ⊗⊗_{ DM} xx)
+    (c : disp_braiding_data DM B)
     : UU
     := ∏ (x y : C) (xx : D x) (yy : D y),
          transportf _ (pr1 (monoidal_braiding_inverses B x y)) (c x y xx yy ;; c y x yy xx)
@@ -417,8 +416,7 @@ Section DisplayedSymmetric.
 
   Definition disp_sym_moncat_laws_tensored_nat
     {B : symmetric M}
-    (c : ∏ (x y : C) (xx : D x) (yy : D y),
-        xx ⊗⊗_{ DM} yy -->[pr1 B x y] yy ⊗⊗_{ DM} xx)
+    (c : disp_braiding_data DM B)
     : UU
     := ∏ (x1 x2 y1 y2 : C) (f : C⟦x1, x2⟧) (g : C⟦y1, y2⟧)
          (xx1 : D x1) (xx2 : D x2) (yy1 : D y1) (yy2 : D y2)
@@ -429,8 +427,7 @@ Section DisplayedSymmetric.
 
   Definition disp_sym_moncat_laws_tensored_hex
                {B : symmetric M}
-    (c : ∏ (x y : C) (xx : D x) (yy : D y),
-        xx ⊗⊗_{ DM} yy -->[pr1 B x y] yy ⊗⊗_{ DM} xx)
+    (c : disp_braiding_data DM B)
     : UU
     := ∏ (x y z : C) (xx : D x) (yy : D y) (zz : D z),
       transportf _ (sym_mon_hexagon_lassociator ((C,,M),,B) x y z)
@@ -443,8 +440,7 @@ Section DisplayedSymmetric.
 
   Definition disp_symm_braiding_laws
     {B : symmetric M}
-    (c : ∏ (x y : C) (xx : D x) (yy : D y),
-        xx ⊗⊗_{ DM} yy -->[pr1 B x y] yy ⊗⊗_{ DM} xx)
+    (c : disp_braiding_data DM B)
     : UU
     := disp_sym_moncat_laws_tensored_inv c
          × disp_sym_moncat_laws_tensored_nat c
