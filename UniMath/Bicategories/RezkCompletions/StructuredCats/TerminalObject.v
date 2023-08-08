@@ -66,8 +66,8 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOnCatToUni
 
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.
 
-Require Import UniMath.Bicategories.PseudoFunctors.DisplayedUniversalArrow.
-Require Import UniMath.Bicategories.PseudoFunctors.DisplayedUniversalArrowOnCat.
+Require Import UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrow.
+Require Import UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrowOnCat.
 
 Local Open Scope cat.
 
