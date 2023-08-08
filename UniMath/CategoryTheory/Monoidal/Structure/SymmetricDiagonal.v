@@ -480,31 +480,26 @@ Section Rearranging.
     unfold monoidal_cat_tensor_mor, mon_lassociator, mon_rassociator.
     cbn.
 
-    assert (p : identity y1 ⊗^{ M} pr1 S (x1 ⊗_{ M} x2) y2
-               · y1 ⊗^{ M}_{l} (αinv y2 x1 x2 · pr1 S y2 x1 ⊗^{ M}_{r} x2 · α x1 y2 x2) = y1 ⊗l (α _ _ _ · x1 ⊗l σ _ _)).
-    {
-      admit.
-    }
     etrans.
     2: {
       apply maponpaths_2.
       rewrite assoc'.
       apply maponpaths.
-      exact (! p).
-    }
-
-    assert (q : α^{ M }_{ y1, x1 ⊗_{ M} x2, y2} · y1 ⊗^{ M}_{l} (α x1 x2 y2 · x1 ⊗^{ M}_{l} σ x2 y2)
-                · αinv y1 x1 (y2 ⊗_{ M} x2) = (αinv _ _ _ ⊗r _) · α _ _ _ · _ ⊗l σ x2 y2).
-    {
-      admit.
+      rewrite (when_bifunctor_becomes_leftwhiskering M).
+      etrans.
+      2: apply (bifunctor_leftcomp M y1).
+      apply maponpaths.
+      rewrite ! assoc.
+      apply pathsinv0.
+      apply (sym_mon_hexagon_rassociator0 ((C,,M),,S)).
     }
 
     etrans.
     2: {
       rewrite ! assoc'.
       do 2 apply maponpaths.
-      refine (! q @ _).
-      now rewrite ! assoc.
+      refine (! sym_mon_hexagon_lassociator1 ((C,,M),,S) _ _ _ _ @ _).
+      now rewrite ! assoc'.
     }
 
     unfold functoronmorphisms1.
@@ -522,17 +517,11 @@ Section Rearranging.
     rewrite (bifunctor_leftcomp M).
     rewrite ! assoc.
 
-    assert (h :  α (x1 ⊗_{ M} x2) y1 y2 · α x1 x2 (y1 ⊗_{ M} y2) · x1 ⊗^{ M}_{l} αinv x2 y1 y2
-                 = α _ _ _ ⊗r y2 · α _ _ _).
-    {
-      admit.
-
-    }
-
     etrans.
     2: {
       do 3 apply maponpaths_2.
-      exact (! h).
+      apply pathsinv0.
+      apply (mon_lassociator_lassociator' (V := C,,M)).
     }
     rewrite (bifunctor_leftid M).
     rewrite id_right.
@@ -553,19 +542,13 @@ Section Rearranging.
       apply pathsinv0, (monoidal_associatornatright M).
     }
 
-    assert (i :  pr1 S (x1 ⊗_{ M} x2) y1 · αinv y1 x1 x2 · pr1 S y1 x1 ⊗^{ M}_{r} x2
-                 =  α x1 x2 y1 · (x1 ⊗l σ _ _) · αinv _ _ _).
-    {
-      admit.
-    }
-
     etrans.
     2: {
       rewrite assoc.
       apply maponpaths_2.
       rewrite <- ! (bifunctor_rightcomp M).
       apply maponpaths.
-      exact (! i).
+      apply pathsinv0, (sym_mon_hexagon_rassociator1 ((C,,M),,S)).
     }
 
     rewrite ! (bifunctor_rightcomp M).
@@ -574,6 +557,8 @@ Section Rearranging.
     rewrite ! assoc.
     rewrite (bifunctor_leftcomp M).
     rewrite assoc.
+    unfold sym_mon_braiding, mon_lassociator, monoidal_cat_tensor_pt.
+    cbn.
     rewrite (monoidal_associatornatleftright M).
     rewrite ! assoc'.
     apply maponpaths.
@@ -581,6 +566,7 @@ Section Rearranging.
     assert (j :  α^{ M }_{ x1, y1 ⊗_{ M} x2, y2} · (x1 ⊗^{ M}_{l} α y1 x2 y2 · αinv x1 y1 (x2 ⊗_{ M} y2))
                  = αinv x1 y1 x2 ⊗^{ M}_{r} y2 · α^{ M }_{ x1 ⊗_{ M} y1, x2, y2}).
     {
+      (* This is a variant of mon_lassociator_lassociator *)
       admit.
     }
     exact j.

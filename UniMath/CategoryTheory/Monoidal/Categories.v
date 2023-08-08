@@ -1813,6 +1813,35 @@ Section MonoidalCatAccessors.
     apply idpath.
   Qed.
 
+  Proposition mon_lassociator_lassociator'
+              {w x y z : V}
+    : mon_lassociator (w ⊗ x) y z
+        · mon_lassociator w x (y ⊗ z)
+        · w ⊗^{V}_{l} mon_rassociator x y z
+      = mon_lassociator w x y ⊗^{V}_{r} z
+      · mon_lassociator w (x ⊗ y) z.
+  Proof.
+     etrans. {
+        apply maponpaths_2.
+        apply mon_lassociator_lassociator.
+      }
+      rewrite <- (when_bifunctor_becomes_leftwhiskering V).
+      rewrite ! assoc'.
+      etrans. {
+        do 2 apply maponpaths.
+        apply pathsinv0, tensor_comp_id_l.
+      }
+      etrans. {
+        do 2 apply maponpaths.
+        apply maponpaths.
+        apply mon_lassociator_rassociator.
+      }
+      rewrite tensor_id_id.
+      rewrite id_right.
+      apply maponpaths_2.
+      apply (when_bifunctor_becomes_rightwhiskering V).
+  Qed.
+
   Proposition mon_rassociator_rassociator
               {w x y z : V}
     : mon_rassociator w x (y ⊗ z)

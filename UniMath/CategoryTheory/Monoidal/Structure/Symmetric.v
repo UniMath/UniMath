@@ -458,6 +458,17 @@ Section Accessors.
     apply idpath.
   Qed.
 
+  Proposition sym_mon_hexagon_lassociator1
+              (x y1 y2 z : V)
+    : mon_lassociator x (y1 ⊗ y2) z
+        · x ⊗^{ V}_{l} (mon_lassociator y1 y2 z · y1 ⊗^{ V}_{l} sym_mon_braiding y2 z)
+        · mon_rassociator x y1 (z ⊗ y2)
+      = mon_rassociator x y1 y2 ⊗^{ V}_{r} z
+          · mon_lassociator (x ⊗ y1) y2 z
+          · (x ⊗ y1) ⊗^{ V}_{l} sym_mon_braiding y2 z.
+  Proof.
+  Admitted.
+
   Proposition sym_mon_tensor_lassociator
               (x y z : V)
     : sym_mon_braiding x (y ⊗ z)
@@ -574,6 +585,66 @@ Section Accessors.
     rewrite !assoc.
     rewrite mon_lassociator_rassociator.
     apply id_left.
+  Qed.
+
+  Proposition sym_mon_hexagon_rassociator0
+              (x y z : V)
+    : sym_mon_braiding (x ⊗ y) z
+        · mon_rassociator z x y
+        · sym_mon_braiding _ _ ⊗^{V}_{r} y
+        · mon_lassociator _ _ _
+      =
+        mon_lassociator x y z
+          · x ⊗^{V}_{l} sym_mon_braiding y z.
+  Proof.
+    rewrite sym_mon_tensor_rassociator.
+    rewrite ! assoc'.
+    etrans. {
+      do 4 apply maponpaths.
+      rewrite assoc.
+      now rewrite mon_lassociator_rassociator.
+    }
+    rewrite id_left.
+    apply maponpaths.
+    etrans. {
+      do 2 apply maponpaths.
+      rewrite assoc.
+      do 2 apply maponpaths_2.
+      apply (when_bifunctor_becomes_rightwhiskering V).
+    }
+
+    etrans. {
+      do 2 apply maponpaths.
+      apply maponpaths_2.
+      apply pathsinv0, (bifunctor_rightcomp V).
+    }
+    rewrite sym_mon_braiding_inv.
+    rewrite (bifunctor_rightid V).
+    rewrite id_left.
+    rewrite mon_rassociator_lassociator.
+    rewrite id_right.
+    apply (when_bifunctor_becomes_leftwhiskering V).
+  Qed.
+
+  Proposition sym_mon_hexagon_rassociator1
+              (x y z : V)
+    :  sym_mon_braiding (x ⊗ y) z · mon_rassociator z x y · sym_mon_braiding z x ⊗^{ V}_{r} y
+       = mon_lassociator x y z · x ⊗^{ V}_{l} sym_mon_braiding y z · mon_rassociator x z y.
+  Proof.
+     etrans.
+      2: {
+        apply maponpaths_2.
+        apply sym_mon_hexagon_rassociator0.
+      }
+
+      etrans.
+      2: {
+        rewrite assoc'.
+        apply maponpaths.
+        apply pathsinv0, mon_lassociator_rassociator.
+      }
+      rewrite ! assoc'.
+      now rewrite id_right.
   Qed.
 
   Proposition sym_mon_braiding_lunitor
