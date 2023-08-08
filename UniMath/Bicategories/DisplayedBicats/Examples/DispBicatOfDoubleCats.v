@@ -511,14 +511,17 @@ Qed.
 (**
  6. Two-sided displayed categories with associators
  *)
+Definition TODO { A : UU } : A.
+Admitted.
+
 Definition disp_cat_ob_mor_lassociator
   : disp_cat_ob_mor bicat_twosided_disp_cat_id_hor_comp.
 Proof.
   simple refine (_ ,, _).
   - exact (λ CD, double_cat_associator (pr22 CD)).
-  - admit.
+  - apply TODO.
     (*exact (λ CD₁ CD₂ a₁ a₂ FF, double_functor_associator a₁ a₂ (pr22 FF)).*)
-Admitted.
+Defined.
 
 Definition disp_cat_id_comp_lassociator
   : disp_cat_id_comp
@@ -620,13 +623,21 @@ Qed.
  8. Displayed bicategory of double categories
  *)
 Definition bicat_of_double_cats
-  : bicat.
-Proof.
-  refine (fullsubbicat bicat_unitors_and_associator _).
-Admitted.
+  : bicat
+  := fullsubbicat bicat_unitors_and_associator
+       (λ CD,
+        let l := pr12 CD in
+        let r := pr122 CD in
+        let a := pr222 CD in
+        triangle_law l r a × pentagon_law a).
 
 Definition is_univalent_2_bicat_of_double_cats
   : is_univalent_2 bicat_of_double_cats.
 Proof.
-  (* use is_univalent_2_fullsubbicat. *)
-Admitted.
+  use is_univalent_2_fullsubbicat.
+  - exact is_univalent_2_bicat_unitors_and_associator.
+  - intros L.
+    apply isapropdirprod.
+    + apply isaprop_triangle_law.
+    + apply isaprop_pentagon_law.
+Qed.

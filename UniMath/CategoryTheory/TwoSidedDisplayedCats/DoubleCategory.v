@@ -719,6 +719,73 @@ Qed.
 (**
  6. Triangle and pentagon laws
  *)
+Definition triangle_law
+           {C : category}
+           {D : twosided_disp_cat C C}
+           {I : hor_id D}
+           {Cm : hor_comp D}
+           (l : double_cat_lunitor I Cm)
+           (r : double_cat_runitor I Cm)
+           (a : double_cat_associator Cm)
+  : UU
+  := ∏ (x y z : C)
+       (h : D x y)
+       (k : D y z),
+     transportf_disp_mor2
+       (id_left _)
+       (id_left _)
+       (double_associator a h _ k
+        ;;2
+        double_hor_comp_mor Cm (double_runitor r h) (id_two_disp _))
+     =
+     double_hor_comp_mor Cm (id_two_disp _) (double_lunitor l k).
+
+Proposition isaprop_triangle_law
+            {C : category}
+            {D : twosided_disp_cat C C}
+            {I : hor_id D}
+            {Cm : hor_comp D}
+            (l : double_cat_lunitor I Cm)
+            (r : double_cat_runitor I Cm)
+            (a : double_cat_associator Cm)
+  : isaprop (triangle_law l r a).
+Proof.
+  repeat (use impred ; intro).
+  apply isaset_disp_mor.
+Qed.
+
+Definition pentagon_law
+           {C : category}
+           {D : twosided_disp_cat C C}
+           {Cm : hor_comp D}
+           (a : double_cat_associator Cm)
+  : UU
+  := ∏ (v w x y z : C)
+       (h₁ : D v w)
+       (h₂ : D w x)
+       (h₃ : D x y)
+       (h₄ : D y z),
+     transportb_disp_mor2
+       (id_right _)
+       (id_right _)
+       (double_associator a h₁ h₂ (double_hor_comp Cm h₃ h₄)
+        ;;2
+        double_associator a (double_hor_comp Cm h₁ h₂) h₃ h₄)
+     =
+     double_hor_comp_mor Cm (id_two_disp _) (double_associator a h₂ h₃ h₄)
+     ;;2 double_associator a h₁ (double_hor_comp Cm h₂ h₃) h₄
+     ;;2 double_hor_comp_mor Cm (double_associator a h₁ h₂ h₃) (id_two_disp _).
+
+Proposition isaprop_pentagon_law
+            {C : category}
+            {D : twosided_disp_cat C C}
+            {Cm : hor_comp D}
+            (a : double_cat_associator Cm)
+  : isaprop (pentagon_law a).
+Proof.
+  repeat (use impred ; intro).
+  apply isaset_disp_mor.
+Qed.
 
 (**
  7. Bundled version of double categories
