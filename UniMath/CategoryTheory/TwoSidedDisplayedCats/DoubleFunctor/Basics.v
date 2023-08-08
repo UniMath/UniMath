@@ -349,6 +349,50 @@ Proof.
   apply isaset_disp_mor.
 Qed.
 
+Definition double_functor_associator
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {D₁ : twosided_disp_cat C₁ C₁}
+           {D₂ : twosided_disp_cat C₂ C₂}
+           {Cm₁ : hor_comp D₁}
+           {Cm₂ : hor_comp D₂}
+           (a₁ : double_cat_associator Cm₁)
+           (a₂ : double_cat_associator Cm₂)
+           {FF : twosided_disp_functor F F D₁ D₂}
+           (FC : double_functor_hor_comp FF Cm₁ Cm₂)
+  : UU
+  := ∏ (w x y z : C₁)
+       (f : D₁ w x)
+       (g : D₁ x y)
+       (h : D₁ y z),
+     double_associator a₂ (FF _ _ f) (FF _ _ g) (FF _ _ h)
+     ;;2 double_hor_comp_mor Cm₂ (functor_double_comp_cell FC f g) (id_two_disp _)
+     ;;2 functor_double_comp_cell FC (double_hor_comp Cm₁ f g) h
+     =
+     transportf_disp_mor2
+       (maponpaths (λ q, _ · q) (functor_id F _))
+       (maponpaths (λ q, _ · q) (functor_id F _))
+       (double_hor_comp_mor Cm₂ (id_two_disp _) (functor_double_comp_cell FC g h)
+        ;;2 functor_double_comp_cell FC f (double_hor_comp Cm₁ g h)
+        ;;2 #2 FF (double_associator a₁ f g h)).
+
+Proposition isaprop_double_functor_associator
+            {C₁ C₂ : category}
+            {F : C₁ ⟶ C₂}
+            {D₁ : twosided_disp_cat C₁ C₁}
+            {D₂ : twosided_disp_cat C₂ C₂}
+            {Cm₁ : hor_comp D₁}
+            {Cm₂ : hor_comp D₂}
+            (a₁ : double_cat_associator Cm₁)
+            (a₂ : double_cat_associator Cm₂)
+            {FF : twosided_disp_functor F F D₁ D₂}
+            (FC : double_functor_hor_comp FF Cm₁ Cm₂)
+  : isaprop (double_functor_associator a₁ a₂ FC).
+Proof.
+  repeat (use impred ; intro).
+  apply isaset_disp_mor.
+Qed.
+
 (**
  4. Bundled version of the definition
  *)
@@ -462,6 +506,27 @@ Proof.
   rewrite transport_f_f_disp_mor2.
   refine (!_).
   apply transportf_disp_mor2_idpath.
+Qed.
+
+Proposition identity_functor_associator
+            {C : category}
+            {D : twosided_disp_cat C C}
+            {Cm : hor_comp D}
+            (a : double_cat_associator Cm)
+  : double_functor_associator a a (identity_hor_comp Cm).
+Proof.
+  intros w x y z f g h ; cbn.
+  rewrite id_two_disp_right.
+  rewrite double_hor_comp_mor_id.
+  rewrite id_two_disp_right.
+  rewrite transport_b_b_disp_mor2.
+  rewrite id_two_disp_right.
+  rewrite double_hor_comp_mor_id.
+  rewrite two_disp_pre_whisker_b.
+  rewrite id_two_disp_left.
+  rewrite transport_b_b_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
 Qed.
 
 (**

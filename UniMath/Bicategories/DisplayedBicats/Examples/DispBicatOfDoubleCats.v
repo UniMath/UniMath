@@ -390,7 +390,6 @@ Proof.
     pose (q := H₂ x y f).
     cbn in p, q.
     rewrite id_two_disp_right in p.
-    unfold transportb in p.
     rewrite two_disp_pre_whisker_b in p.
     unfold transportb_disp_mor2 in p.
     rewrite transport_f_f_disp_mor2 in p.
@@ -482,7 +481,6 @@ Proof.
     pose (q := H₂ x y f).
     cbn in p, q.
     rewrite id_two_disp_right in p.
-    unfold transportb in p.
     rewrite two_disp_pre_whisker_b in p.
     unfold transportb_disp_mor2 in p.
     rewrite transport_f_f_disp_mor2 in p.
@@ -511,16 +509,12 @@ Qed.
 (**
  6. Two-sided displayed categories with associators
  *)
-Definition TODO { A : UU } : A.
-Admitted.
-
 Definition disp_cat_ob_mor_lassociator
   : disp_cat_ob_mor bicat_twosided_disp_cat_id_hor_comp.
 Proof.
   simple refine (_ ,, _).
   - exact (λ CD, double_cat_associator (pr22 CD)).
-  - apply TODO.
-    (*exact (λ CD₁ CD₂ a₁ a₂ FF, double_functor_associator a₁ a₂ (pr22 FF)).*)
+  - exact (λ CD₁ CD₂ a₁ a₂ FF, double_functor_associator a₁ a₂ (pr22 FF)).
 Defined.
 
 Definition disp_cat_id_comp_lassociator
@@ -529,7 +523,8 @@ Definition disp_cat_id_comp_lassociator
       disp_cat_ob_mor_lassociator.
 Proof.
   split.
-  - admit.
+  - intros.
+    apply identity_functor_associator.
   - admit.
 Admitted.
 
@@ -550,7 +545,8 @@ Definition disp_univalent_2_1_disp_bicat_lassociator
 Proof.
   use disp_cell_unit_bicat_univalent_2_1.
   intros.
-Admitted.
+  apply isaprop_double_functor_associator.
+Qed.
 
 Definition disp_univalent_2_0_disp_bicat_lassociator
   : disp_univalent_2_0 disp_bicat_lassociator.
@@ -558,11 +554,45 @@ Proof.
   use disp_cell_unit_bicat_univalent_2_0.
   - exact is_univalent_2_1_bicat_twosided_disp_cat_id_hor_comp.
   - intros.
-    admit.
+    apply isaprop_double_functor_associator.
   - intros.
-    admit.
-  -
-Admitted.
+    apply isaset_double_cat_associator.
+  - intros CD FF GG H.
+    induction H as [ H₁ H₂ ].
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_double_associator_laws.
+    }
+    use funextsec ; intro w.
+    use funextsec ; intro x.
+    use funextsec ; intro y.
+    use funextsec ; intro z.
+    use funextsec ; intro f.
+    use funextsec ; intro g.
+    use funextsec ; intro h.
+    pose (p := H₁ w x y z f g h).
+    cbn in p.
+    rewrite id_two_disp_right in p.
+    rewrite double_hor_comp_mor_id in p.
+    rewrite id_two_disp_right in p.
+    rewrite transport_b_b_disp_mor2 in p.
+    rewrite double_hor_comp_mor_id in p.
+    rewrite id_two_disp_left in p.
+    rewrite two_disp_pre_whisker_b in p.
+    rewrite id_two_disp_left in p.
+    rewrite transport_b_b_disp_mor2 in p.
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_is_iso_twosided_disp.
+    }
+    refine (_ @ maponpaths _ (!p) @ transportfb_disp_mor2 _ _ _).
+    refine (!_).
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
+    apply transportf_disp_mor2_idpath.
+Qed.
 
 Definition disp_univalent_2_disp_bicat_lassociator
   : disp_univalent_2 disp_bicat_lassociator.
