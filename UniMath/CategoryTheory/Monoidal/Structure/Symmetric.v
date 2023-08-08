@@ -485,6 +485,22 @@ Section Accessors.
     apply id_left.
   Qed.
 
+  Proposition sym_mon_tensor_lassociator0
+              (x y z : V)
+    : sym_mon_braiding x (y ⊗ z)
+        · mon_lassociator y z x
+      =
+      mon_rassociator x y z
+      · sym_mon_braiding x y #⊗ identity z
+      · mon_lassociator y x z
+      · identity y #⊗ sym_mon_braiding x z.
+  Proof.
+    rewrite sym_mon_tensor_lassociator.
+    rewrite ! assoc'.
+    rewrite mon_rassociator_lassociator.
+    now rewrite id_right.
+  Qed.
+
   Proposition sym_mon_tensor_lassociator'
               (x y z : V)
     : sym_mon_braiding x y #⊗ identity z

@@ -777,7 +777,32 @@ Section SymmetricMonoidalCategoryOfCommutativeComonoids.
     : is_commutative S (tensor_of_comonoids S mx my).
   Proof.
 
-  Admitted.
+    use (z_iso_inv_on_left _ _ _ _ (rearrange_prod S _ _ _ _ ,, rearrange_prod S _ _ _ _ ,, _)).
+    { apply rearrange_prod_is_z_isomorphism. }
+    cbn.
+    unfold comonoid_data_comultiplication.
+    cbn.
+
+    rewrite assoc'.
+    rewrite <- (rearrange_commute_with_swap S).
+    rewrite assoc.
+    etrans.
+    2: {
+      apply maponpaths_2.
+      rewrite assoc'.
+      apply maponpaths.
+      apply pathsinv0, (rearrange_prod_inv S).
+    }
+    rewrite id_right.
+    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    etrans.
+    2: {
+      apply maponpaths_2.
+      apply (! sx).
+    }
+    apply maponpaths.
+    exact (! sy).
+  Qed.
 
   Definition disp_monoidal_cat_of_comm_comonoids
     : disp_monoidal (disp_full_sub

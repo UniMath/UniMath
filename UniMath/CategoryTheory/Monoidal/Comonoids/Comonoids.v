@@ -424,13 +424,16 @@ Section CommutativeComonoids.
     apply id_right.
   Qed.
 
+
+
   Lemma comult_before_rearrange_and_swap
     {x y : C} (xx : comonoid M x) (yy : comonoid M y)
     : μ_{ xx} ⊗^{ M} μ_{ yy} · (rearrange_prod S x x y y · pr1 S x y ⊗^{ M} pr1 S x y)
       = μ_{ xx} ⊗^{ M} μ_{ yy} · (pr1 S (x ⊗_{ M} x) (y ⊗_{ M} y) · rearrange_prod S y y x x).
   Proof.
-    unfold rearrange_prod.
+    apply maponpaths.
+    apply rearrange_commute_with_swap.
+  Qed.
 
-  Admitted.
 
 End CommutativeComonoids.
