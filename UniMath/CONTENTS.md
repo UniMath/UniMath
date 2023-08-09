@@ -464,6 +464,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/Displayed/WhiskeredDisplayedBifunctors.v](CategoryTheory/Monoidal/Displayed/WhiskeredDisplayedBifunctors.v)
    - [Monoidal/Displayed/Monoidal.v](CategoryTheory/Monoidal/Displayed/Monoidal.v)
    - [Monoidal/Displayed/TotalMonoidal.v](CategoryTheory/Monoidal/Displayed/TotalMonoidal.v)
+   - [Monoidal/Displayed/FullMonoidalSubcategory.v](CategoryTheory/Monoidal/Displayed/FullMonoidalSubcategory.v)
    - [Monoidal/Displayed/MonoidalSections.v](CategoryTheory/Monoidal/Displayed/MonoidalSections.v)
    - [Monoidal/Displayed/TransportLemmas.v](CategoryTheory/Monoidal/Displayed/TransportLemmas.v)
    - [Monoidal/Displayed/Symmetric.v](CategoryTheory/Monoidal/Displayed/Symmetric.v)
