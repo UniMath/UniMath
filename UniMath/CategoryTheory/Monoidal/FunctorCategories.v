@@ -48,7 +48,7 @@ Defined.
 Definition category_lax_monoidal_functors : category
   := total_category disp_cat_lax_monoidal_functors.
 
-Lemma lax_monoidal_functors_Pisset (F : [C, D]) : isaset (fmonoidal_lax M N F).
+Lemma lax_monoidal_functors_Pisset (F : C ⟶ D) : isaset (fmonoidal_lax M N F).
 Proof.
   change isaset with (isofhlevel 2).
   apply isofhleveltotal2.
@@ -61,7 +61,7 @@ Proof.
   apply isaprop_fmonoidal_laxlaws.
 Qed.
 
-Lemma lax_monoidal_functors_Hstandard {F : [C, D]}
+Lemma lax_monoidal_functors_Hstandard {F : C ⟶ D}
   (Fm Fm' : fmonoidal_lax M N F) :
   is_mon_nat_trans Fm Fm' (nat_trans_id (pr1 F))
   → is_mon_nat_trans Fm' Fm (nat_trans_id (pr1 F)) → Fm = Fm'.
