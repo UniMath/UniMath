@@ -26,6 +26,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Examples.PointedPosetStrict.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Functors.
+Require Import UniMath.CategoryTheory.Monoidal.FunctorCategories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.SmashProductMonoidal.
@@ -329,6 +330,22 @@ Proof.
     intro x.
     induction x ; cbn ; apply idpath.
 Qed.
+
+Definition lift_poset_symmetric_monoidal_comonad :
+  symmetric_monoidal_comonad (pr21 pointed_poset_sym_mon_closed_cat).
+Proof.
+  use tpair.
+  - use tpair.
+    + exact (pr1 lift_poset_comonad).
+    + use tpair.
+      * exact lax_monoidal_lift_poset_comonad.
+      * exact is_symmetric_lift_poset_comonad.
+  - use tpair.
+    + exact (pr2 lift_poset_comonad).
+    + split.
+      * apply is_mon_nat_trans_lift_poset_dupl.
+      * apply is_mon_nat_trans_lift_poset_extract.
+Defined.
 
 (**
  6. Every object has a natural comonoid structure
