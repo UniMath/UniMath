@@ -89,6 +89,8 @@ Proof.
   - intro. apply (@isaprop_is_z_iso_disp _ (disp_full_sub C P)).
 Defined.
 
+Definition full_subcat (C : category) (P : C → UU) : category := total_category (disp_full_sub C P).
+
 End full_subcat.
 
 (** * Displayed category from structure on objects and compatibility on morphisms *)
