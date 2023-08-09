@@ -287,8 +287,9 @@ Section MonoidalFunctors.
     pr1 fmd = pr1 fmd' -> fmd = fmd'.
   Proof.
     intro H.
-    use total2_paths_f; [apply H |].
-    apply isaprop_fmonoidal_laxlaws.
+    apply subtypePath.
+    - intro; apply isaprop_fmonoidal_laxlaws.
+    - exact H.
   Qed.
 
   Definition fmonoidal_flaws

@@ -209,8 +209,9 @@ Proof.
   intro H.
   induction T as [T Textralaws].
   induction T' as [T' T'extralaws].
-  use total2_paths_f; [apply H |].
-  apply isaprop_symmetric_monoidal_comonads_extra_laws.
+  apply subtypePath.
+  - intro; apply isaprop_symmetric_monoidal_comonads_extra_laws.
+  - exact H.
 Qed.
 
 Lemma symmetric_monoidal_comonad_category_Pisset
