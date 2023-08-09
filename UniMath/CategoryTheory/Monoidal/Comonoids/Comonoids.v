@@ -424,8 +424,6 @@ Section CommutativeComonoids.
     apply id_right.
   Qed.
 
-
-
   Lemma comult_before_rearrange_and_swap
     {x y : C} (xx : comonoid M x) (yy : comonoid M y)
     : μ_{ xx} ⊗^{ M} μ_{ yy} · (rearrange_prod S x x y y · pr1 S x y ⊗^{ M} pr1 S x y)

@@ -55,6 +55,15 @@ Section Rearranging.
     exact (pr1 S y z ⊗r w).
   Defined.
 
+  Definition rearrange_prod' (x y z w : C)
+    : C ⟦(x ⊗_{ M} y) ⊗_{ M} (z ⊗_{ M} w), (x ⊗_{ M} z) ⊗_{ M} (y ⊗_{ M} w)⟧.
+  Proof.
+    refine (α _ _ _ · _).
+    refine (_ · αinv _ _ _).
+    refine (x ⊗l _).
+    exact (pr1 S _ _ · α _ _ _ · _ ⊗l pr1 S _ _).
+  Defined.
+
   Lemma sym_monoidal_braiding_hexagon1_variant (y z w : C)
     : αinv y z w · (pr1 S y z ⊗^{ M}_{r} w · α z y w)
       = pr1 S _ _ · α _ _ _ · _ ⊗l pr1 S _ _.
@@ -72,6 +81,10 @@ Section Rearranging.
     2: {
       apply maponpaths.
       rewrite assoc.
+      (*
+         The following is: sym_mon_hexagon_lassociator ((C,, M),, S).
+         Difference: sym_mon_hexagon_lassociator is written in whiskered form
+       *)
       apply (pr1 (pr222 S) _ _ _).
     }
     rewrite ! assoc.
@@ -81,6 +94,17 @@ Section Rearranging.
       apply pathsinv0, (monoidal_associatorisolaw M).
     }
     now rewrite id_left.
+  Qed.
+
+  Lemma rearrange_prod_characterization
+    (x y z w : C)
+    : rearrange_prod x y z w = rearrange_prod' x y z w.
+  Proof.
+    unfold rearrange_prod, rearrange_prod'.
+    apply maponpaths.
+    apply maponpaths_2.
+    apply maponpaths.
+    apply sym_monoidal_braiding_hexagon1_variant.
   Qed.
 
   Lemma precompose_rearrange_prod
@@ -352,7 +376,8 @@ Section Rearranging.
   Qed.
 
   Lemma precompose_rearrange_prod_with_lunitors_and_runitor (x y : C)
-    : rearrange_prod x I_{ M} y I_{ M} · (x ⊗_{ M} y) ⊗^{ M}_{l} lu I_{ M} · ru^{ M }_{ x ⊗_{ M} y} = (ru x ⊗⊗ ru y).
+    : rearrange_prod x I_{ M} y I_{ M} · (x ⊗_{ M} y) ⊗^{ M}_{l} lu I_{ M} · ru^{ M }_{ x ⊗_{ M} y}
+      = (ru x ⊗⊗ ru y).
   Proof.
 
     unfold rearrange_prod.
@@ -434,18 +459,47 @@ Section Rearranging.
     apply (! mon_lunitor_triangle (V := C,,M) y I).
   Qed.
 
-  Lemma rearrange_hexagon (x y : C)
-     :  rearrange_prod (x ⊗_{ M} x) x (y ⊗_{ M} y) y
-  · (rearrange_prod x x y y ⊗^{ M}_{r} (x ⊗_{ M} y)
-       · α^{ M }_{ x ⊗_{ M} y, x ⊗_{ M} y, x ⊗_{ M} y})
-        = α^{ M }_{ x, x, x} ⊗^{ M} α^{ M }_{ y, y, y}
-                                        · (rearrange_prod x (x ⊗_{ M} x) y (y ⊗_{ M} y)
-                                             · (x ⊗_{ M} y) ⊗^{ M}_{l} rearrange_prod x x y y).
+  Lemma rearrange_hexagon (x1 x2 y1 y2 z1 z2 : C)
+    :  rearrange_prod (x1 ⊗_{ M} x2) y1 (y2 ⊗_{ M} z1) z2
+         · (rearrange_prod x1 x2 y2 z1 ⊗^{ M}_{r} (y1 ⊗_{ M} z2)
+              · α^{ M }_{ x1 ⊗_{ M} y2, x2 ⊗_{ M} z1, y1 ⊗_{ M} z2})
+       = (α^{ M }_{ x1, x2, y1} ⊗^{ M} α^{ M }_{ y2, z1, z2})
+           · (rearrange_prod x1 (x2 ⊗_{ M} y1) y2 (z1 ⊗_{ M} z2)
+                · (x1 ⊗_{ M} y2) ⊗^{ M}_{l} rearrange_prod x2 y1 z1 z2).
+  Proof.
+    rewrite ! rearrange_prod_characterization.
+    unfold rearrange_prod'.
+
+    rewrite ! (bifunctor_leftcomp M).
+    rewrite ! (bifunctor_rightcomp M).
+    rewrite ! assoc.
+
+
+  Admitted.
+
+  Lemma rearrange_hexagon_2 (x y : C)
+    :  rearrange_prod (x ⊗_{ M} x) x (y ⊗_{ M} y) y
+         · (rearrange_prod x x y y ⊗^{ M}_{r} (x ⊗_{ M} y)
+              · α^{ M }_{ x ⊗_{ M} y, x ⊗_{ M} y, x ⊗_{ M} y})
+       = α^{ M }_{ x, x, x} ⊗^{ M} α^{ M }_{ y, y, y}
+                                       · (rearrange_prod x (x ⊗_{ M} x) y (y ⊗_{ M} y)
+                                            · (x ⊗_{ M} y) ⊗^{ M}_{l} rearrange_prod x x y y).
+  Proof.
+    apply rearrange_hexagon.
+  Qed.
+
+  Lemma rearrange_hexagon' (x1 x2 y1 y2 z1 z2 : C)
+    : rearrange_prod x1 x2 y1 y2 ⊗^{ M} identity (z1 ⊗_{ M} z2)
+        · rearrange_prod (x1 ⊗_{ M} y1) (x2 ⊗_{ M} y2) z1 z2
+        · α^{ M }_{ x1, y1, z1} ⊗^{ M} α^{ M }_{ x2, y2, z2}
+      = α^{ M }_{x1 ⊗_{ M} x2, y1 ⊗_{ M} y2, z1 ⊗_{ M} z2}
+            · identity (x1 ⊗_{ M} x2) ⊗^{ M} rearrange_prod y1 y2 z1 z2
+            · rearrange_prod x1 x2 (y1 ⊗_{ M} z1) (y2 ⊗_{ M} z2).
   Proof.
 
   Admitted.
 
-  Lemma rearrange_hexagon' (x y z : C)
+  Lemma rearrange_hexagon'_3 (x y z : C)
     : rearrange_prod x x y y ⊗^{ M} identity (z ⊗_{ M} z)
         · rearrange_prod (x ⊗_{ M} y) (x ⊗_{ M} y) z z
         · α^{ M }_{ x, y, z} ⊗^{ M} α^{ M }_{ x, y, z}
@@ -453,7 +507,8 @@ Section Rearranging.
             · identity (x ⊗_{ M} x) ⊗^{ M} rearrange_prod y y z z
             · rearrange_prod x x (y ⊗_{ M} z) (y ⊗_{ M} z).
   Proof.
-  Admitted.
+    apply rearrange_hexagon'.
+  Qed.
 
   Lemma rearrange_hexagoninv' (x y z : C)
     : identity (x ⊗_{ M} x) ⊗^{ M} rearrange_prod y y z z
@@ -463,7 +518,32 @@ Section Rearranging.
   · rearrange_prod x x y y ⊗^{ M} identity (z ⊗_{ M} z)
   · rearrange_prod (x ⊗_{ M} y) (x ⊗_{ M} y) z z.
   Proof.
-  Admitted.
+    set (t := rearrange_hexagon' x x y y z z).
+    apply pathsinv0.
+    use (z_iso_inv_on_left _ _ _ _ (α _ _ _ ⊗^{M} α _ _ _,, αinv _ _ _ ⊗^{M} αinv _ _ _ ,, _)).
+    {
+      apply (pr2 (is_z_iso_bifunctor_z_iso M
+                    (α _ _ _) (α _ _ _)
+                    (_ ,, monoidal_associatorisolaw M _ _ _)
+                    (_ ,, monoidal_associatorisolaw M _ _ _))).
+    }
+    cbn.
+    etrans.
+    2: {
+      rewrite ! assoc'.
+      apply maponpaths.
+      rewrite assoc.
+      apply (! t).
+    }
+    etrans.
+    2: {
+      rewrite ! assoc.
+      do 2 apply maponpaths_2.
+      apply pathsinv0.
+      apply (mon_rassociator_lassociator (V := C,,M)).
+    }
+    now rewrite id_left.
+  Qed.
 
   Lemma rearrange_commute_with_swap (x1 x2 y1 y2 : C)
     : rearrange_prod x1 x2 y1 y2 · pr1 S x1 y1 ⊗^{ M} pr1 S x2 y2
@@ -566,6 +646,7 @@ Section Rearranging.
     assert (j :  α^{ M }_{ x1, y1 ⊗_{ M} x2, y2} · (x1 ⊗^{ M}_{l} α y1 x2 y2 · αinv x1 y1 (x2 ⊗_{ M} y2))
                  = αinv x1 y1 x2 ⊗^{ M}_{r} y2 · α^{ M }_{ x1 ⊗_{ M} y1, x2, y2}).
     {
+      Check mon_lassociator_lassociator'.
       (* This is a variant of mon_lassociator_lassociator *)
       admit.
     }
