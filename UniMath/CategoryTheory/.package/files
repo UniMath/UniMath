@@ -310,6 +310,7 @@ Monoidal/Examples/EndofunctorsMonoidalElementary.v
 Monoidal/Examples/MonadsAsMonoidsElementary.v
 Monoidal/Examples/MonoidalPointedObjects.v
 Monoidal/Examples/MonoidalDialgebras.v
+Monoidal/Examples/SymmetricMonoidalDialgebras.v
 Monoidal/Examples/PointedSetCartesianMonoidal.v
 Monoidal/Examples/BinopCartesianMonoidal.v
 Monoidal/Examples/SetWithSubset.v
