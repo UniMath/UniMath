@@ -144,6 +144,23 @@ Section DisplayedFunctor.
         (id_two_disp (FG _ _ xy))
     := pr12 FG x y xy.
 
+  Definition twosided_disp_functor_id_alt
+             (FG : twosided_disp_functor)
+             {x : C₁}
+             {y : C₂}
+             (xy : D₁ x y)
+    : id_two_disp (FG _ _ xy)
+      =
+      transportf_disp_mor2
+        (functor_id F x)
+        (functor_id G y)
+        (#2 FG (id_two_disp xy)).
+  Proof.
+    rewrite twosided_disp_functor_id.
+    rewrite transportfb_disp_mor2.
+    apply idpath.
+  Qed.
+
   Definition twosided_disp_functor_comp
              (FG : twosided_disp_functor)
              {x₁ x₂ x₃ : C₁}

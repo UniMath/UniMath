@@ -250,6 +250,51 @@ Proof.
   apply idpath.
 Qed.
 
+Proposition functor_double_comp_eq_transport
+            {C₁ C₂ : category}
+            {D₁ : twosided_disp_cat C₁ C₁}
+            {D₂ : twosided_disp_cat C₂ C₂}
+            {F : C₁ ⟶ C₂}
+            {FF : twosided_disp_functor F F D₁ D₂}
+            {Cm₁ : hor_comp D₁}
+            {Cm₂ : hor_comp D₂}
+            (FC : double_functor_hor_comp FF Cm₁ Cm₂)
+            {x₁ x₂ y₁ y₂ z₁ z₂ : C₁}
+            {v₁ : x₁ --> x₂} {v₁' : F x₁ --> F x₂}
+            {v₂ : y₁ --> y₂} {v₂' : F y₁ --> F y₂}
+            {v₃ : z₁ --> z₂} {v₃' : F z₁ --> F z₂}
+            (p : #F v₁ = v₁')
+            (q q' : #F v₂ = v₂')
+            (r : #F v₃ = v₃')
+            {h₁ : D₁ x₁ y₁} {h₂ : D₁ x₂ y₂}
+            {k₁ : D₁ y₁ z₁} {k₂ : D₁ y₂ z₂}
+            (s₁ : h₁ -->[ v₁ ][ v₂ ] h₂)
+            (s₂ : k₁ -->[ v₂ ][ v₃ ] k₂)
+  : double_hor_comp_mor
+      Cm₂
+      (transportf_disp_mor2 p q (#2 FF s₁))
+      (transportf_disp_mor2 q' r (#2 FF s₂))
+    ;;2
+    functor_double_comp_cell FC _ _
+    =
+    transportf_disp_mor2
+      (id_left _ @ p @ !(id_right _))
+      (id_left _ @ r @ !(id_right _))
+      (functor_double_comp_cell FC _ _ ;;2 #2 FF (double_hor_comp_mor Cm₁ s₁ s₂)).
+Proof.
+  induction p, q, r.
+  assert (q' = idpath _) as H.
+  {
+    apply homset_property.
+  }
+  rewrite H.
+  cbn.
+  rewrite functor_double_comp_eq.
+  unfold transportb_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
+Qed.
+
 (**
  3. Preservation of the unitors and associators
  *)

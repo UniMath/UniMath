@@ -525,8 +525,9 @@ Proof.
   split.
   - intros.
     apply identity_functor_associator.
-  - admit.
-Admitted.
+  - intros CD₁ CD₂ CD₃ FF GG a₁ a₂ a₃ FFa GGa.
+    exact (comp_functor_associator FFa GGa).
+Qed.
 
 Definition disp_cat_data_lassociator
   : disp_cat_data bicat_twosided_disp_cat_id_hor_comp.

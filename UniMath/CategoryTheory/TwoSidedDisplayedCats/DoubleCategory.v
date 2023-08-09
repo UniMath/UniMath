@@ -258,6 +258,39 @@ Proof.
   apply idpath.
 Qed.
 
+Proposition double_hor_comp_mor_transportf_disp_mor2_right_idpath
+            {C : category}
+            {D : twosided_disp_cat C C}
+            (Cm : hor_comp D)
+            {x₁ x₂ y₁ y₂ z₁ z₂ : C}
+            {v₁ : x₁ --> x₂}
+            {v₂ v₂' : y₁ --> y₂}
+            (q : v₂ = v₂')
+            {v₃ v₃' : z₁ --> z₂}
+            (r : v₃ = v₃')
+            {h₁ : D x₁ y₁}
+            {h₂ : D y₁ z₁}
+            {k₁ : D x₂ y₂}
+            {k₂ : D y₂ z₂}
+            (s₁ : h₁ -->[ v₁ ][ v₂' ] k₁)
+            (s₂ : h₂ -->[ v₂ ][ v₃ ] k₂)
+  : double_hor_comp_mor
+      Cm
+      s₁
+      (transportf_disp_mor2 q r s₂)
+    =
+    transportf_disp_mor2
+      (idpath _)
+      r
+      (double_hor_comp_mor
+         Cm
+         (transportf_disp_mor2 (idpath _) (!q) s₁)
+         s₂).
+Proof.
+  induction q, r ; cbn.
+  apply idpath.
+Qed.
+
 Proposition double_hor_comp_mor_transportf_disp_mor2_right
             {C : category}
             {D : twosided_disp_cat C C}
@@ -289,6 +322,58 @@ Proposition double_hor_comp_mor_transportf_disp_mor2_right
          s₂).
 Proof.
   induction p, q, r ; cbn.
+  apply idpath.
+Qed.
+
+Proposition double_hor_comp_transport_mor
+            {C : category}
+            {D : twosided_disp_cat C C}
+            {Cm : hor_comp D}
+            {x₁ x₂ x₃ y₁ y₂ y₃ z₁ z₂ z₃ : C}
+            {v₁ : x₁ --> x₂} {v₁' : x₂ --> x₃}
+            {v₂ : y₁ --> y₂} {v₂' : y₂ --> y₃} {v₂'' : y₂ --> y₃}
+            {v₃ : z₁ --> z₂} {v₃' : z₂ --> z₃}
+            {u₁ : x₁ --> x₃}
+            {u₂ : y₁ --> y₃}
+            {u₃ : z₁ --> z₃}
+            {h₁ : D x₁ y₁} {h₂ : D y₁ z₁}
+            {k₁ : D x₂ y₂} {k₂ : D y₂ z₂}
+            {l₁ : D x₃ y₃} {l₂ : D y₃ z₃}
+            (s₁ : h₁ -->[ v₁ ][ v₂ ] k₁)
+            (s₁' : k₁ -->[ v₁' ][ v₂'] l₁)
+            (s₂ : h₂ -->[ v₂ ][ v₃ ] k₂)
+            (s₂' : k₂ -->[ v₂'' ][ v₃' ] l₂)
+            (p : v₁ · v₁' = u₁)
+            (q : v₂ · v₂' = u₂)
+            (q' : v₂ · v₂'' = u₂)
+            (s : v₂' = v₂'')
+            (r : v₃ · v₃' = u₃)
+  : double_hor_comp_mor
+      Cm
+      (transportf_disp_mor2
+         p
+         q
+         (s₁ ;;2 s₁'))
+      (transportf_disp_mor2
+         q'
+         r
+         (s₂ ;;2 s₂'))
+    =
+    transportf_disp_mor2
+      p
+      r
+      (double_hor_comp_mor Cm s₁ s₂
+       ;;2
+       double_hor_comp_mor Cm (transportf_disp_mor2 (idpath _) s s₁') s₂').
+Proof.
+  induction p, q, s, r.
+  assert (q' = idpath _) as H.
+  {
+    apply homset_property.
+  }
+  rewrite H.
+  cbn.
+  rewrite double_hor_comp_mor_comp.
   apply idpath.
 Qed.
 

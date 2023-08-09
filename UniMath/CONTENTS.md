@@ -582,6 +582,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [TwoSidedDisplayedCats/DoubleFunctor/Basics.v](CategoryTheory/TwoSidedDisplayedCats/DoubleFunctor/Basics.v)
    - [TwoSidedDisplayedCats/DoubleFunctor/LeftUnitor.v](CategoryTheory/TwoSidedDisplayedCats/DoubleFunctor/LeftUnitor.v)
    - [TwoSidedDisplayedCats/DoubleFunctor/RightUnitor.v](CategoryTheory/TwoSidedDisplayedCats/DoubleFunctor/RightUnitor.v)
+   - [TwoSidedDisplayedCats/DoubleFunctor/Associator.v](CategoryTheory/TwoSidedDisplayedCats/DoubleFunctor/Associator.v)
    - [TwoSidedDisplayedCats/DoubleFunctor.v](CategoryTheory/TwoSidedDisplayedCats/DoubleFunctor.v)
    - [TwoSidedDisplayedCats/DoubleTransformation.v](CategoryTheory/TwoSidedDisplayedCats/DoubleTransformation.v)
    - [TwoSidedDisplayedCats/Examples/Constant.v](CategoryTheory/TwoSidedDisplayedCats/Examples/Constant.v)
