@@ -467,7 +467,43 @@ Section Accessors.
           · mon_lassociator (x ⊗ y1) y2 z
           · (x ⊗ y1) ⊗^{ V}_{l} sym_mon_braiding y2 z.
   Proof.
-  Admitted.
+
+    apply pathsinv0.
+    use (z_iso_inv_on_left _ _ _ _ (mon_lassociator _ _ _ ,, mon_rassociator _ _ _ ,, _)).
+    { apply monoidal_associatorisolaw. }
+    cbn.
+
+    etrans.
+    2: {
+      rewrite assoc'.
+      apply maponpaths.
+      apply monoidal_associatornatleft.
+    }
+
+    rewrite (bifunctor_leftcomp V).
+    rewrite ! assoc.
+    apply maponpaths_2.
+
+    etrans.
+    2: {
+      rewrite assoc'.
+      apply maponpaths.
+      apply pathsinv0, mon_lassociator_lassociator.
+    }
+
+    rewrite ! assoc.
+    rewrite <- (when_bifunctor_becomes_leftwhiskering V).
+    apply maponpaths_2.
+    rewrite <- (when_bifunctor_becomes_rightwhiskering V).
+    etrans.
+    2: {
+      apply maponpaths_2.
+      apply tensor_comp_id_r.
+    }
+    rewrite mon_rassociator_lassociator.
+    rewrite tensor_id_id.
+    exact (! id_left _).
+  Qed.
 
   Proposition sym_mon_tensor_lassociator
               (x y z : V)
