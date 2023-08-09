@@ -97,12 +97,12 @@ Defined.
 End LaxMonoidalFunctorCategory.
 
 Definition is_univalent_category_lax_monoidal_functors
-  {C : category} (D : univalent_category)
+  {C D : category} (HD : is_univalent D)
   (M : monoidal C) (N : monoidal D)
   : is_univalent (category_lax_monoidal_functors M N).
 Proof.
   apply is_univalent_total_category.
-  - apply is_univalent_functor_category. apply D.
+  - apply is_univalent_functor_category. apply HD.
   - apply is_univalent_disp_cat_lax_monoidal_functors.
 Defined.
 
@@ -142,12 +142,12 @@ Defined.
 End SymmetricLaxMonoidalFunctorCategory.
 
 Definition is_univalent_category_symmetric_lax_monoidal_functors
-  {C : category} (D : univalent_category) {M : monoidal C} {N : monoidal D}
+  {C D : category} (HD : is_univalent D) {M : monoidal C} {N : monoidal D}
   (HM : symmetric M) (HN : symmetric N) :
   is_univalent (category_symmetric_lax_monoidal_functors HM HN).
 Proof.
   apply is_univalent_total_category.
-  - apply is_univalent_functor_category. apply D.
+  - apply is_univalent_functor_category. apply HD.
   - apply is_univalent_disp_cat_symmetric_lax_monoidal_functors.
 Defined.
 
@@ -254,11 +254,11 @@ Defined.
 
 End SymmetricMonoidalComonads.
 
-Definition is_univalent_symmetric_monoidal_comonad (C : univalent_category)
+Definition is_univalent_symmetric_monoidal_comonad {C : category} (HC : is_univalent C)
   {M : monoidal C} (HM : symmetric M)
   : is_univalent (category_symmetric_monoidal_comonad HM).
 Proof.
   apply is_univalent_total_category.
-  - apply is_univalent_category_symmetric_lax_monoidal_functors.
+  - apply (is_univalent_category_symmetric_lax_monoidal_functors HC).
   - apply is_univalent_disp_cat_symmetric_monoidal_comonads.
 Defined.
