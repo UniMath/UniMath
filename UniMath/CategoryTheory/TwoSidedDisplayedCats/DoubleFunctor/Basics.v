@@ -48,6 +48,21 @@ Definition double_functor_hor_id_laws
        (id_right _ @ !(id_left _))
        (FI x ;;2 #2 FF (double_id_mor I₁ f)).
 
+Proposition isaprop_double_functor_hor_id_laws
+            {C₁ C₂ : category}
+            {D₁ : twosided_disp_cat C₁ C₁}
+            {D₂ : twosided_disp_cat C₂ C₂}
+            {F : C₁ ⟶ C₂}
+            {FF : twosided_disp_functor F F D₁ D₂}
+            {I₁ : hor_id D₁}
+            {I₂ : hor_id D₂}
+            (FI : double_functor_hor_id_data FF I₁ I₂)
+  : isaprop (double_functor_hor_id_laws FI).
+Proof.
+  repeat (use impred ; intro).
+  apply isaset_disp_mor.
+Qed.
+
 Definition double_functor_hor_id
            {C₁ C₂ : category}
            {D₁ : twosided_disp_cat C₁ C₁}
@@ -151,6 +166,21 @@ Definition double_functor_hor_comp_laws
        (id_right _ @ !(id_left _))
        (id_right _ @ !(id_left _))
        (FC _ _ _ _ _ ;;2 #2 FF (double_hor_comp_mor Cm₁ s₁ s₂)).
+
+Proposition isaprop_double_functor_hor_comp_laws
+            {C₁ C₂ : category}
+            {D₁ : twosided_disp_cat C₁ C₁}
+            {D₂ : twosided_disp_cat C₂ C₂}
+            {F : C₁ ⟶ C₂}
+            {FF : twosided_disp_functor F F D₁ D₂}
+            {Cm₁ : hor_comp D₁}
+            {Cm₂ : hor_comp D₂}
+            (FC : double_functor_hor_comp_data FF Cm₁ Cm₂)
+  : isaprop (double_functor_hor_comp_laws FC).
+Proof.
+  repeat (use impred ; intro).
+  apply isaset_disp_mor.
+Qed.
 
 Definition double_functor_hor_comp
            {C₁ C₂ : category}
