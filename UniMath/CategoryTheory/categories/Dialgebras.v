@@ -12,6 +12,7 @@ Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
@@ -21,51 +22,29 @@ Section Dialgebra.
   Context {C₁ C₂ : category}
           (F G : C₁ ⟶ C₂).
 
-  Definition dialgebra_disp_cat_ob_mor : disp_cat_ob_mor C₁.
-  Proof.
-    simple refine (_ ,, _).
-    - exact (λ x, F x --> G x).
-    - exact (λ x y hx hy f, hx · #G f = #F f · hy).
-  Defined.
-
-  Definition dialgebra_disp_cat_id_comp
-    : disp_cat_id_comp C₁ dialgebra_disp_cat_ob_mor.
-  Proof.
-    split.
-    - intros x hx ; cbn.
-      rewrite !functor_id.
-      rewrite id_left, id_right.
-      apply idpath.
-    - intros x y z f g hx hy hz hf hg ; cbn in *.
-      rewrite !functor_comp.
-      rewrite !assoc.
-      rewrite hf.
-      rewrite !assoc'.
-      rewrite hg.
-      apply idpath.
-  Qed.
-
-  Definition dialgebra_disp_cat_data : disp_cat_data C₁.
-  Proof.
-    simple refine (_ ,, _).
-    - exact dialgebra_disp_cat_ob_mor.
-    - exact dialgebra_disp_cat_id_comp.
-  Defined.
-
-  Definition dialgebra_disp_cat_axioms
-    : disp_cat_axioms C₁ dialgebra_disp_cat_data.
-  Proof.
-    repeat split ; intros ; try (apply homset_property).
-    apply isasetaprop.
-    apply homset_property.
-  Qed.
-
   Definition dialgebra_disp_cat : disp_cat C₁.
   Proof.
-    simple refine (_ ,, _).
-    - exact dialgebra_disp_cat_data.
-    - exact dialgebra_disp_cat_axioms.
+    use disp_struct.
+    - exact (λ x, F x --> G x).
+    - exact (λ x y hx hy f, hx · #G f = #F f · hy).
+    - intros. apply C₂.
+    - abstract (intros x hx ; cbn;
+      rewrite !functor_id;
+      rewrite id_left, id_right;
+      apply idpath).
+    - abstract (intros x y z f g hx hy hz hf hg ; cbn in *;
+      rewrite !functor_comp;
+      rewrite !assoc;
+      rewrite hf;
+      rewrite !assoc';
+      rewrite hg;
+      apply idpath).
   Defined.
+
+  Lemma is_locally_propositional_dialgebra_disp_cat: locally_propositional dialgebra_disp_cat.
+  Proof.
+    red; intros; apply C₂.
+  Qed.
 
   Definition is_z_iso_disp_dialgebra
              {x y : C₁}
