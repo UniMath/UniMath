@@ -302,6 +302,7 @@ Monoidal/Displayed/FullMonoidalSubcategory.v
 Monoidal/Displayed/MonoidalSections.v
 Monoidal/Displayed/TransportLemmas.v
 Monoidal/Displayed/Symmetric.v
+Monoidal/Displayed/FullSymmetricMonoidalSubcategory.v
 
 Monoidal/Examples/SetCartesianMonoidal.v
 Monoidal/Examples/CartesianMonoidal.v

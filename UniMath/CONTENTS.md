@@ -468,6 +468,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/Displayed/MonoidalSections.v](CategoryTheory/Monoidal/Displayed/MonoidalSections.v)
    - [Monoidal/Displayed/TransportLemmas.v](CategoryTheory/Monoidal/Displayed/TransportLemmas.v)
    - [Monoidal/Displayed/Symmetric.v](CategoryTheory/Monoidal/Displayed/Symmetric.v)
+   - [Monoidal/Displayed/FullSymmetricMonoidalSubcategory.v](CategoryTheory/Monoidal/Displayed/FullSymmetricMonoidalSubcategory.v)
    - [Monoidal/Examples/SetCartesianMonoidal.v](CategoryTheory/Monoidal/Examples/SetCartesianMonoidal.v)
    - [Monoidal/Examples/CartesianMonoidal.v](CategoryTheory/Monoidal/Examples/CartesianMonoidal.v)
    - [Monoidal/Examples/DisplayedCartesianMonoidal.v](CategoryTheory/Monoidal/Examples/DisplayedCartesianMonoidal.v)
