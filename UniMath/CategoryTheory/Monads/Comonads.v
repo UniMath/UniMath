@@ -193,11 +193,11 @@ End Comonad_disp_def.
 Arguments category_Comonad _ : clear implicits.
 Arguments Comonad _ : clear implicits.
 
-Definition is_univalent_category_Comonad (C : univalent_category) :
+Definition is_univalent_category_Comonad {C : category} (HC : is_univalent C) :
   is_univalent (category_Comonad C).
 Proof.
   apply is_univalent_total_category.
-  - apply is_univalent_functor_category. apply C.
+  - apply is_univalent_functor_category. apply HC.
   - apply is_univalent_comonads_category_disp.
 Defined.
 
