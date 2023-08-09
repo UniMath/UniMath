@@ -57,7 +57,26 @@ Section FixTwoSymmetricMonoidalFunctors.
     red in xx, yy. cbn in xx, yy.
     cbn.
     unfold dialgebra_disp_tensor_op.
-  Admitted.
+    repeat rewrite assoc'.
+    apply (z_iso_inv_on_right _ _ _ (_,,fmonoidal_preservestensorstrongly Fm x y)).
+    etrans.
+    { apply maponpaths.
+      apply pathsinv0, Gs. }
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    cbn.
+    etrans.
+    2: { do 2 apply cancel_postcomposition.
+         exact (Fs x y).
+    }
+    etrans.
+    2: { apply cancel_postcomposition.
+         rewrite assoc'.
+         apply maponpaths.
+         apply pathsinv0, (z_iso_inv_after_z_iso (_ ,, fmonoidal_preservestensorstrongly Fm y x)). }
+    rewrite id_right.
+    apply (tensor_sym_mon_braiding (((B,,W):monoidal_cat),,HW)).
+  Qed.
 
   Definition dialgebra_disp_symmetric_monoidal : disp_symmetric base_mon_disp HV.
   Proof.
