@@ -432,14 +432,6 @@ TwoSidedDisplayedCats/Fiber.v
 TwoSidedDisplayedCats/DisplayedFunctor.v
 TwoSidedDisplayedCats/DisplayedNatTrans.v
 
-TwoSidedDisplayedCats/DoubleCategory.v
-TwoSidedDisplayedCats/DoubleFunctor/Basics.v
-TwoSidedDisplayedCats/DoubleFunctor/LeftUnitor.v
-TwoSidedDisplayedCats/DoubleFunctor/RightUnitor.v
-TwoSidedDisplayedCats/DoubleFunctor/Associator.v
-TwoSidedDisplayedCats/DoubleFunctor.v
-TwoSidedDisplayedCats/DoubleTransformation.v
-
 TwoSidedDisplayedCats/Examples/Constant.v
 TwoSidedDisplayedCats/Examples/DispCatOnTwoSidedDispCat.v
 TwoSidedDisplayedCats/Examples/FiberwiseProduct.v

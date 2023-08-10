@@ -7,8 +7,8 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedNatTrans.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DoubleCategory.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DoubleFunctor.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleFunctor.
 
 Local Open Scope cat.
 

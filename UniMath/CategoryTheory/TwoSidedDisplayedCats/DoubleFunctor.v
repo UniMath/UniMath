@@ -1,4 +1,0 @@
-Require Export UniMath.CategoryTheory.TwoSidedDisplayedCats.DoubleFunctor.Basics.
-Require Export UniMath.CategoryTheory.TwoSidedDisplayedCats.DoubleFunctor.LeftUnitor.
-Require Export UniMath.CategoryTheory.TwoSidedDisplayedCats.DoubleFunctor.RightUnitor.
-Require Export UniMath.CategoryTheory.TwoSidedDisplayedCats.DoubleFunctor.Associator.

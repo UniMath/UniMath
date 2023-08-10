@@ -14,9 +14,6 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedNatTrans.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DoubleCategory.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DoubleFunctor.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DoubleTransformation.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
@@ -29,6 +26,9 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleFunctor.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleTransformation.
 
 Local Open Scope cat.
 

@@ -6,11 +6,9 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DoubleCategory.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
 
 Local Open Scope cat.
-
-Set Kernel Term Sharing.
 
 (**
  1. Preservation of the identity
