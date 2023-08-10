@@ -173,4 +173,4 @@ Proof.
   rewrite !transport_f_f_disp_mor2.
   use transportf_disp_mor2_eq.
   apply idpath.
-Admitted. (* this proof compiles, but the memory consumption is too high (5.6 GB) *)
+Qed. (* this proof compiles, but the memory consumption is too high (5.6 GB) *)
