@@ -50,6 +50,15 @@ Definition hor_id_laws
       =
       double_id_mor I f ;;2 double_id_mor I g).
 
+Proposition isaprop_hor_id_laws
+            {C : category}
+            {D : twosided_disp_cat C C}
+            (I : hor_id_data D)
+  : isaprop (hor_id_laws I).
+Proof.
+  use isapropdirprod ; (repeat (use impred ; intro)) ; apply isaset_disp_mor.
+Qed.
+
 Definition hor_id
            {C : category}
            (D : twosided_disp_cat C C)
@@ -161,6 +170,15 @@ Definition hor_comp_laws
       double_hor_comp_mor Cm (s₁ ;;2 s₁') (s₂ ;;2 s₂')
       =
       double_hor_comp_mor Cm s₁ s₂ ;;2 double_hor_comp_mor Cm s₁' s₂').
+
+Proposition isaprop_hor_comp_laws
+            {C : category}
+            {D : twosided_disp_cat C C}
+            (Cm : hor_comp_data D)
+  : isaprop (hor_comp_laws Cm).
+Proof.
+  use isapropdirprod ; (repeat (use impred ; intro)) ; apply isaset_disp_mor.
+Qed.
 
 Definition hor_comp
            {C : category}
