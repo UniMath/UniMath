@@ -36,13 +36,6 @@ Section Construction.
   Local Definition cat_co_eilenberg_moore : category
     := co_eilenberg_moore_cat T.
 
-  (* not necessary:
-  Definition mon_cat_co_eilenberg_moore_disp_base
-    : disp_monoidal (dialgebra_disp_cat (functor_identity C) T) M
-    := dialgebra_disp_monoidal (identity_fmonoidal M)
-         (lax_monoidal_from_symmetric_monoidal_comonad HM T).
-   *)
-
   Definition mon_cat_co_eilenberg_moore_base
     : monoidal (dialgebra (functor_identity C) T)
     := dialgebra_monoidal (identity_fmonoidal M)
@@ -149,11 +142,13 @@ Section Construction.
     full_subcat (dialgebra (functor_identity C) T)
       mon_cat_co_eilenberg_moore_extra_condition.
 
-  Definition monoidal_cat_co_eilenberg_moore : monoidal cat_co_eilenberg_moore.
-  Proof.
-    apply (monoidal_fullsubcat mon_cat_co_eilenberg_moore_base
-             mon_cat_co_eilenberg_moore_extra_condition unit_case tensor_case).
-  Defined. (* slow *)
+  Definition monoidal_cat_co_eilenberg_moore : monoidal _ :=
+    monoidal_fullsubcat mon_cat_co_eilenberg_moore_base
+      mon_cat_co_eilenberg_moore_extra_condition unit_case tensor_case.
+
+  (* slow:
+     Check (monoidal_cat_co_eilenberg_moore : monoidal cat_co_eilenberg_moore).
+   *)
 
   Definition symmetric_monoidal_cat_co_eilenberg_moore :
     symmetric monoidal_cat_co_eilenberg_moore.
@@ -164,15 +159,15 @@ Section Construction.
              unit_case
              tensor_case
              sym_mon_cat_co_eilenberg_moore_base).
-  Defined. (* very slow *)
+  Defined.
 
   Definition sym_monoidal_cat_co_eilenberg_moore : sym_monoidal_cat.
   Proof.
     use tpair.
     - use tpair.
       + exact mon_cat_co_eilenberg_moore_category.
-      + exact monoidal_cat_co_eilenberg_moore. (* slow *)
-    - apply symmetric_monoidal_cat_co_eilenberg_moore. (* slow *)
-  Defined. (* very slow *)
+      + exact monoidal_cat_co_eilenberg_moore.
+    - apply symmetric_monoidal_cat_co_eilenberg_moore.
+  Defined.
 
 End Construction.
