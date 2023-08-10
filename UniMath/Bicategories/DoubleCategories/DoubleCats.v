@@ -564,7 +564,7 @@ Proof.
   exact (pr222 (pr12 (pr221 C) w x y z f g h)).
 Qed.
 
-Proposition lassociator_square
+Proposition lassociator_h_square
             {C : double_cat}
             {w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ : C}
             {vw : w₁ -->v w₂} {vx : x₁ -->v x₂}
@@ -670,15 +670,15 @@ Definition comp_lax_double_functor
 (**
  5. Accessors for lax functors
  *)
-Definition lax_double_functor_ob
+Definition lax_double_functor_ver
            {C₁ C₂ : double_cat}
            (F : lax_double_functor C₁ C₂)
   : C₁ ⟶ C₂
   := pr1 (pr111 F).
 
-Coercion lax_double_functor_ob : lax_double_functor >-> functor.
+Coercion lax_double_functor_ver : lax_double_functor >-> functor.
 
-Definition lax_double_functor_ob_ver_mor
+Definition lax_double_functor_ver_mor
            {C₁ C₂ : double_cat}
            (F : lax_double_functor C₁ C₂)
            {x y : C₁}
@@ -686,17 +686,184 @@ Definition lax_double_functor_ob_ver_mor
   : F x -->v F y
   := pr211 (pr111 F) x y f.
 
-(*
-Notation "v# F f" := (lax_double_functor_ob_ver_mor F f) (at level 100).
+Notation "'#v' F f" := (lax_double_functor_ver_mor F f)
+                         (at level 10, F at next level, f at next level) : double_cat.
 
 Proposition lax_double_functor_id_v
             {C₁ C₂ : double_cat}
             (F : lax_double_functor C₁ C₂)
             (x : C₁)
-  : UU.
-  refine (v# F _ = identity_v _).
-  : v# F (identity_v x) = identity_v _.
- *)
+  : #v F (identity_v x) = identity_v _.
+Proof.
+  apply functor_id.
+Defined.
+
+Proposition lax_double_functor_comp_v
+            {C₁ C₂ : double_cat}
+            (F : lax_double_functor C₁ C₂)
+            {x y z : C₁}
+            (f : x -->v y)
+            (g : y -->v z)
+  : #v F (f ·v g) = #v F f ·v #v F g.
+Proof.
+  apply functor_comp.
+Defined.
+
+Definition lax_double_functor_hor_mor
+           {C₁ C₂ : double_cat}
+           (F : lax_double_functor C₁ C₂)
+  : twosided_disp_functor F F (hor_mor C₁) (hor_mor C₂)
+  := pr2 (pr111 F).
+
+Notation "'#h' F f" := (lax_double_functor_hor_mor F _ _ f)
+                         (at level 10, F at next level, f at next level) : double_cat.
+Notation "'#s' F s" := (#2 (lax_double_functor_hor_mor F) s)
+                         (at level 10, F at next level, s at next level) : double_cat.
+
+Proposition lax_double_functor_id_square
+            {C₁ C₂ : double_cat}
+            (F : lax_double_functor C₁ C₂)
+            {x y : C₁}
+            (h : x -->h y)
+  : #s F (id_v_square h)
+    =
+    transportb_square
+      (id_v_square _)
+      (lax_double_functor_id_v _ _)
+      (lax_double_functor_id_v _ _).
+Proof.
+  exact (twosided_disp_functor_id _ _ _ _ (lax_double_functor_hor_mor F) h).
+Qed.
+
+Proposition lax_double_functor_comp_v_square
+            {C₁ C₂ : double_cat}
+            (F : lax_double_functor C₁ C₂)
+            {x₁ x₂ y₁ y₂ z₁ z₂ : C₁}
+            {v₁ : x₁ -->v y₁} {v₁' : y₁ --> z₁}
+            {v₂ : x₂ -->v y₂} {v₂' : y₂ --> z₂}
+            {h₁ : x₁ -->h x₂}
+            {h₂ : y₁ -->h y₂}
+            {h₃ : z₁ -->h z₂}
+            (s₁ : square v₁ v₂ h₁ h₂)
+            (s₂ : square v₁' v₂' h₂ h₃)
+  : #s F (s₁ ⋆v s₂)
+    =
+    transportb_square
+      (#s F s₁ ⋆v #s F s₂)
+      (lax_double_functor_comp_v _ _ _)
+      (lax_double_functor_comp_v _ _ _).
+Proof.
+  apply (twosided_disp_functor_comp _ _ _ _ (lax_double_functor_hor_mor F)).
+Qed.
+
+Definition lax_double_functor_id_h
+           {C₁ C₂ : double_cat}
+           (F : lax_double_functor C₁ C₂)
+           (x : C₁)
+  : square (identity_v _) (identity_v (F x)) (identity_h _) (#h F (identity_h _)).
+Proof.
+  exact (pr11 (pr211 F) x).
+Defined.
+
+Proposition lax_double_functor_id_h_mor
+            {C₁ C₂ : double_cat}
+            (F : lax_double_functor C₁ C₂)
+            {x y : C₁}
+            (f : x -->v y)
+  : id_h_square (#v F f) ⋆v lax_double_functor_id_h F y
+    =
+    transportb_square
+      (lax_double_functor_id_h F x ⋆v #s F (id_h_square f))
+      (id_v_right _ @ !(id_v_left _))
+      (id_v_right _ @ !(id_v_left _)).
+Proof.
+  exact (pr21 (pr211 F) x y f).
+Qed.
+
+Definition lax_double_functor_comp_h
+           {C₁ C₂ : double_cat}
+           (F : lax_double_functor C₁ C₂)
+           {x y z : C₁}
+           (h : x -->h y)
+           (k : y -->h z)
+  : square (identity _) (identity _) (#h F h ·h #h F k) (#h F (h ·h k))
+  := pr12 (pr211 F) x y z h k.
+
+Proposition lax_double_functor_comp_h_mor
+            {C₁ C₂ : double_cat}
+            (F : lax_double_functor C₁ C₂)
+            {x₁ x₂ y₁ y₂ z₁ z₂ : C₁}
+            {vx : x₁ -->v x₂}
+            {vy : y₁ -->v y₂}
+            {vz : z₁ -->v z₂}
+            {h₁ : x₁ -->h y₁} {h₂ : x₂ -->h y₂}
+            {k₁ : y₁ -->h z₁} {k₂ : y₂ -->h z₂}
+            (sh : square vx vy h₁ h₂)
+            (sk : square vy vz k₁ k₂)
+  : (#s F sh ⋆h #s F sk) ⋆v lax_double_functor_comp_h F h₂ k₂
+    =
+    transportb_square
+      (lax_double_functor_comp_h F h₁ k₁ ⋆v #s F (sh ⋆h sk))
+      (id_v_right _ @ !(id_v_left _))
+      (id_v_right _ @ !(id_v_left _)).
+Proof.
+  exact (pr22 (pr211 F) x₁ x₂ y₁ y₂ z₁ z₂ vx vy vz h₁ h₂ k₁ k₂ sh sk).
+Qed.
+
+Proposition lax_double_functor_lunitor_h
+            {C₁ C₂ : double_cat}
+            (F : lax_double_functor C₁ C₂)
+            {x y : C₁}
+            (f : x -->h y)
+  : lunitor_h (#h F f)
+    =
+    transportf_square
+      ((lax_double_functor_id_h F _ ⋆h id_v_square _)
+       ⋆v lax_double_functor_comp_h F _ _
+       ⋆v #s F (lunitor_h f))
+      (assocr_v _ _ _ @ id_v_left _ @ id_v_left _ @ lax_double_functor_id_v _ _)
+      (assocr_v _ _ _ @ id_v_left _ @ id_v_left _ @ lax_double_functor_id_v _ _).
+Proof.
+  exact (pr121 F x y f).
+Qed.
+
+Proposition lax_double_functor_runitor_h
+            {C₁ C₂ : double_cat}
+            (F : lax_double_functor C₁ C₂)
+            {x y : C₁}
+            (f : x -->h y)
+  : runitor_h (#h F f)
+    =
+    transportf_square
+      ((id_v_square _ ⋆h lax_double_functor_id_h F _)
+       ⋆v lax_double_functor_comp_h F _ _
+       ⋆v #s F (runitor_h f))
+      (assocr_v _ _ _ @ id_v_left _ @ id_v_left _ @ lax_double_functor_id_v _ _)
+      (assocr_v _ _ _ @ id_v_left _ @ id_v_left _ @ lax_double_functor_id_v _ _).
+Proof.
+  exact (pr1 (pr221 F) x y f).
+Qed.
+
+Proposition lax_double_functor_lassociator_h
+            {C₁ C₂ : double_cat}
+            (F : lax_double_functor C₁ C₂)
+            {w x y z : C₁}
+            (f : w -->h x)
+            (g : x -->h y)
+            (h : y -->h z)
+  : lassociator_h (#h F f) (#h F g) (#h F h)
+    ⋆v (lax_double_functor_comp_h F f g ⋆h id_v_square _)
+    ⋆v lax_double_functor_comp_h F (f ·h g) h
+    =
+    transportf_square
+      ((id_v_square _ ⋆h lax_double_functor_comp_h F g h)
+       ⋆v lax_double_functor_comp_h F f (g ·h h)
+       ⋆v #s F (lassociator_h f g h))
+      (maponpaths _ (lax_double_functor_id_v _ _))
+      (maponpaths _ (lax_double_functor_id_v _ _)).
+Proof.
+  exact (pr2 (pr221 F) w x y z f g h).
+Qed.
 
 (**
  6. Builder for lax functors
