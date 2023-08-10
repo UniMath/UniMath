@@ -204,6 +204,23 @@ Definition symmetric_monoidal_comonad_extra_laws (T : symmetric_monoidal_comonad
   : symmetric_monoidal_comonads_extra_laws (pr121 T) (δ T) (ε T)
   := pr22 T.
 
+Definition make_symmetric_monoidal_comonad
+  {T : Comonad C}
+  {Tm : fmonoidal_lax M M (pr1 T)}
+  (Ts : is_symmetric_monoidal_functor HM HM Tm)
+  (Hδ : is_mon_nat_trans Tm (comp_fmonoidal_lax Tm Tm) (δ T))
+  (Hε : is_mon_nat_trans Tm (identity_fmonoidal_lax M) (ε T))
+  : symmetric_monoidal_comonad.
+Proof.
+  use tpair.
+  - use tpair.
+    + exact (pr1 T).
+    + exact (Tm,,Ts).
+  - use tpair.
+    + exact (pr2 T).
+    + exact (Hδ,,Hε).
+Defined.
+
 Lemma category_symmetric_monoidal_comonad_disp_eq
   (F : category_symmetric_lax_monoidal_functors HM HM)
   (T T' : disp_cat_symmetric_monoidal_comonads F)
