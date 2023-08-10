@@ -456,7 +456,7 @@ Section FromAdjEquivHorId.
            rewrite transport_f_f_disp_mor2 ;
            use transportf_disp_mor2_eq ;
            apply idpath).
-Defined.
+  Defined.
 
   Proposition weq_disp_left_adjequiv_hor_id_inv_laws
     : double_functor_hor_id_laws
@@ -705,7 +705,7 @@ Proof.
     apply isaprop_double_nat_trans_hor_comp.
 Defined.
 
-Definition is_disp_invertible_2cell_hor_comp
+Definition is_disp_invertible_2cell_hor_comp_over_id
            {CD₁ CD₂ : bicat_twosided_disp_cat}
            {F : CD₁ --> CD₂}
            {Cm₁ : disp_bicat_twosided_disp_cat_hor_comp CD₁}
@@ -730,6 +730,25 @@ Proof.
     refine (_ @ !p @ _) ; use transportf_disp_mor2_eq ; apply idpath.
   - apply isaprop_double_nat_trans_hor_comp.
   - apply isaprop_double_nat_trans_hor_comp.
+Qed.
+
+Definition is_disp_invertible_2cell_hor_comp
+           {CD₁ CD₂ : bicat_twosided_disp_cat}
+           {F G : CD₁ --> CD₂}
+           {τ : invertible_2cell F G}
+           {Cm₁ : disp_bicat_twosided_disp_cat_hor_comp CD₁}
+           {Cm₂ : disp_bicat_twosided_disp_cat_hor_comp CD₂}
+           {FC : Cm₁ -->[ F ] Cm₂}
+           {GC : Cm₁ -->[ G ] Cm₂}
+           (ττ : FC ==>[ τ ] GC)
+  : is_disp_invertible_2cell τ ττ.
+Proof.
+  revert CD₁ CD₂ F G τ Cm₁ Cm₂ FC GC ττ.
+  use J_2_1.
+  - apply is_univalent_2_1_bicat_twosided_disp_cat.
+  - cbn.
+    intro ; intros.
+    apply is_disp_invertible_2cell_hor_comp_over_id.
 Qed.
 
 Section HorCompDispInv2cell.
@@ -815,10 +834,393 @@ Proof.
     apply isaprop_double_nat_trans_hor_comp.
 Qed.
 
+Section AdjEquivHorComp.
+  Context {CD : bicat_twosided_disp_cat}
+          (FF GG : disp_bicat_twosided_disp_cat_hor_comp CD)
+          (τ : FF -->[ identity CD ] GG)
+          (Hτ : ∏ (x y z : pr11 CD)
+                  (h : pr12 CD x y)
+                  (k : pr12 CD y z),
+                is_iso_twosided_disp
+                  (identity_is_z_iso _)
+                  (identity_is_z_iso _)
+                  (pr1 τ x y z h k)).
+
+  Definition to_disp_left_adjequiv_hor_comp_inv_data
+    : double_functor_hor_comp_data (twosided_disp_functor_identity _) GG FF
+    := λ x y z h k, pr1 (Hτ x y z h k).
+
+  Arguments to_disp_left_adjequiv_hor_id_inv_data /.
+
+  Proposition to_disp_left_adjequiv_hor_comp_inv_laws
+    : double_functor_hor_comp_laws to_disp_left_adjequiv_hor_comp_inv_data.
+  Proof.
+    intros x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ h₂ k₁ k₂ s₁ s₂ ; cbn.
+    pose (pr2 τ x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ h₂ k₁ k₂ s₁ s₂) as p ; cbn in p.
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      apply id_two_disp_right_alt.
+    }
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
+    rewrite assoc_two_disp_alt.
+    rewrite transport_f_f_disp_mor2.
+    etrans.
+    {
+      do 3 apply maponpaths.
+      exact (inv_after_iso_twosided_disp_alt (Hτ _ _ _ _ _)).
+    }
+    rewrite !two_disp_post_whisker_f.
+    rewrite transport_f_f_disp_mor2.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite assoc_two_disp.
+      apply maponpaths.
+      apply maponpaths_2.
+      apply (pr2 τ).
+    }
+    unfold transportb_disp_mor2.
+    rewrite !two_disp_pre_whisker_f.
+    rewrite !two_disp_post_whisker_f.
+    rewrite !transport_f_f_disp_mor2.
+    rewrite !assoc_two_disp.
+    unfold transportb_disp_mor2.
+    rewrite !two_disp_pre_whisker_f.
+    rewrite !transport_f_f_disp_mor2.
+    etrans.
+    {
+      apply maponpaths.
+      do 2 apply maponpaths_2.
+      apply Hτ.
+    }
+    unfold transportb_disp_mor2.
+    rewrite !two_disp_pre_whisker_f.
+    rewrite !transport_f_f_disp_mor2.
+    rewrite id_two_disp_left.
+    unfold transportb_disp_mor2.
+    rewrite !two_disp_pre_whisker_f.
+    rewrite !transport_f_f_disp_mor2.
+    apply transportf_disp_mor2_idpath.
+  Qed.
+
+  Definition to_disp_left_adjequiv_hor_comp_inv
+    : double_functor_hor_comp (twosided_disp_functor_identity _) GG FF.
+  Proof.
+    use make_double_functor_hor_comp.
+    - exact to_disp_left_adjequiv_hor_comp_inv_data.
+    - exact to_disp_left_adjequiv_hor_comp_inv_laws.
+  Defined.
+
+  Proposition to_disp_left_adjequiv_hor_comp_unit
+    : double_nat_trans_hor_comp
+        (id_twosided_disp_nat_trans (twosided_disp_functor_identity _))
+        (identity_hor_comp FF)
+        (comp_hor_comp τ to_disp_left_adjequiv_hor_comp_inv).
+  Proof.
+    intros x y z h k ; cbn.
+    rewrite id_two_disp_left.
+    unfold transportb_disp_mor2.
+    rewrite two_disp_post_whisker_f.
+    rewrite transport_f_f_disp_mor2.
+    rewrite double_hor_comp_mor_id.
+    rewrite id_two_disp_left.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      apply Hτ.
+    }
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
+    use transportf_disp_mor2_eq.
+    apply idpath.
+  Qed.
+
+  Proposition to_disp_left_adjequiv_hor_comp_counit
+    : double_nat_trans_hor_comp
+        (id_twosided_disp_nat_trans (twosided_disp_functor_identity _))
+        (comp_hor_comp to_disp_left_adjequiv_hor_comp_inv τ)
+        (identity_hor_comp GG).
+  Proof.
+    intros x y z h k ; cbn.
+    rewrite !id_two_disp_right.
+    unfold transportb_disp_mor2.
+    rewrite !transport_f_f_disp_mor2.
+    rewrite double_hor_comp_mor_id.
+    etrans.
+    {
+      apply maponpaths.
+      apply Hτ.
+    }
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
+    use transportf_disp_mor2_eq.
+    apply idpath.
+  Qed.
+
+  Definition to_disp_left_adjequiv_hor_comp
+    : disp_left_adjoint_equivalence (internal_adjoint_equivalence_identity CD) τ.
+  Proof.
+    simple refine ((_ ,, (_ ,, _)) ,, ((_ ,, _) ,, (_ ,, _))).
+    - exact to_disp_left_adjequiv_hor_comp_inv.
+    - exact to_disp_left_adjequiv_hor_comp_unit.
+    - exact to_disp_left_adjequiv_hor_comp_counit.
+    - apply isaprop_double_nat_trans_hor_comp.
+    - apply isaprop_double_nat_trans_hor_comp.
+    - apply is_disp_invertible_2cell_hor_comp.
+    - apply is_disp_invertible_2cell_hor_comp.
+  Qed.
+End AdjEquivHorComp.
+
+Definition weq_disp_left_adjequiv_hor_comp_map
+           {CD : bicat_twosided_disp_cat}
+           {FF GG : disp_bicat_twosided_disp_cat_hor_comp CD}
+           (τ : ∏ (x y z : pr11 CD)
+                  (h : pr12 CD x y)
+                  (k : pr12 CD y z),
+                iso_twosided_disp
+                  (identity_z_iso _) (identity_z_iso _)
+                  (double_hor_comp (pr1 GG) h k)
+                  (double_hor_comp (pr1 FF) h k))
+           (Hτ : double_functor_hor_comp_laws
+                   (FF := twosided_disp_functor_identity _)
+                   (Cm₁ := FF) (Cm₂ := GG)
+                   (λ x y z h k, pr1 (τ x y z h k)))
+  : disp_adjoint_equivalence (internal_adjoint_equivalence_identity CD) FF GG.
+Proof.
+  simple refine (_ ,, _).
+  - simple refine (_ ,, _).
+    + exact τ.
+    + exact Hτ.
+  - use to_disp_left_adjequiv_hor_comp.
+    intros x y z h k.
+    exact (pr2 (τ x y z h k)).
+Defined.
+
+Section FromAdjEquivHorComp.
+  Context {CD : bicat_twosided_disp_cat}
+          {FF GG : disp_bicat_twosided_disp_cat_hor_comp CD}
+          (τ : disp_adjoint_equivalence (internal_adjoint_equivalence_identity CD) FF GG).
+
+  Definition weq_disp_left_adjequiv_hor_comp_inv_iso
+             {x y z : pr11 CD}
+             (h : pr12 CD x y)
+             (k : pr12 CD y z)
+    : is_iso_twosided_disp (identity_is_z_iso x) (identity_is_z_iso z) (pr11 τ x y z h k).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (pr1 (pr112 τ) x y z h k).
+    - split.
+      + abstract
+          (cbn ;
+           pose (p := pr2 (pr212 τ) x y z h k) ;
+           cbn in p ;
+           rewrite id_two_disp_right in p ;
+           rewrite double_hor_comp_mor_id in p ;
+           rewrite id_two_disp_left in p ;
+           unfold transportb_disp_mor2 in p ;
+           rewrite !transport_f_f_disp_mor2 in p ;
+           refine (!(transportbf_disp_mor2 _ _ _) @ maponpaths _ p @ _) ;
+           unfold transportb_disp_mor2 ;
+           rewrite transport_f_f_disp_mor2 ;
+           use transportf_disp_mor2_eq ;
+           apply idpath).
+      + abstract
+          (pose (p := pr1 (pr212 τ) x y z h k) ;
+           cbn in p ;
+           rewrite id_two_disp_left in p ;
+           rewrite double_hor_comp_mor_id in p ;
+           rewrite id_two_disp_left in p ;
+           unfold transportb_disp_mor2 in p ;
+           rewrite !transport_f_f_disp_mor2 in p ;
+           refine (!(transportbf_disp_mor2 _ _ _) @ maponpaths _ (!p) @ _) ;
+           unfold transportb_disp_mor2 ;
+           rewrite transport_f_f_disp_mor2 ;
+           use transportf_disp_mor2_eq ;
+           apply idpath).
+Defined.
+
+  Proposition weq_disp_left_adjequiv_hor_comp_inv_laws
+    : double_functor_hor_comp_laws
+        (FF := twosided_disp_functor_identity _)
+        (Cm₁ := FF) (Cm₂ := GG)
+        (λ x, pr11 τ x).
+  Proof.
+    intros x y f.
+    exact (pr21 τ x y f).
+  Qed.
+End FromAdjEquivHorComp.
+
+Definition weq_disp_left_adjequiv_hor_comp_inv
+           {CD : bicat_twosided_disp_cat}
+           {FF GG : disp_bicat_twosided_disp_cat_hor_comp CD}
+           (τ : disp_adjoint_equivalence
+                  (internal_adjoint_equivalence_identity CD)
+                  FF GG)
+  : ∑ (F : ∏ (x y z : pr11 CD)
+             (h : pr12 CD x y)
+             (k : pr12 CD y z),
+           iso_twosided_disp
+             (identity_z_iso _) (identity_z_iso _)
+             (double_hor_comp (pr1 GG) h k)
+             (double_hor_comp (pr1 FF) h k)),
+    double_functor_hor_comp_laws
+      (FF := twosided_disp_functor_identity _)
+      (Cm₁ := FF) (Cm₂ := GG)
+      (λ x y z h k, pr1 (F x y z h k)).
+Proof.
+  simple refine (_ ,, _).
+  - intros x y z h k.
+    simple refine (_ ,, _).
+    + exact (pr11 τ x y z h k).
+    + exact (weq_disp_left_adjequiv_hor_comp_inv_iso τ h k).
+  - exact (weq_disp_left_adjequiv_hor_comp_inv_laws τ).
+Defined.
+
+Definition weq_disp_left_adjequiv_hor_comp
+           {CD : bicat_twosided_disp_cat}
+           (FF GG : disp_bicat_twosided_disp_cat_hor_comp CD)
+  : (∑ (F : ∏ (x y z : pr11 CD)
+              (h : pr12 CD x y)
+              (k : pr12 CD y z),
+            iso_twosided_disp
+              (identity_z_iso _) (identity_z_iso _)
+              (double_hor_comp (pr1 GG) h k)
+              (double_hor_comp (pr1 FF) h k)),
+     double_functor_hor_comp_laws
+       (FF := twosided_disp_functor_identity _)
+       (Cm₁ := FF) (Cm₂ := GG)
+       (λ x y z h k, pr1 (F x y z h k)))
+    ≃
+    disp_adjoint_equivalence (internal_adjoint_equivalence_identity CD) FF GG.
+Proof.
+  use weq_iso.
+  - intros F.
+    exact (weq_disp_left_adjequiv_hor_comp_map (pr1 F) (pr2 F)).
+  - exact weq_disp_left_adjequiv_hor_comp_inv.
+  - abstract
+      (intro τ ;
+       use subtypePath ; [ intro ; apply isaprop_double_functor_hor_comp_laws | ] ;
+       repeat (use funextsec ; intro) ;
+       use subtypePath ; [ intro ; apply isaprop_is_iso_twosided_disp | ] ;
+       cbn ;
+       apply idpath).
+  - abstract
+      (intro τ ;
+       use subtypePath ;
+       [ intro ;
+         apply isaprop_disp_left_adjoint_equivalence ;
+         [ apply is_univalent_2_1_bicat_twosided_disp_cat
+         | apply disp_univalent_2_1_disp_bicat_twosided_disp_cat_hor_comp ]
+       | ] ;
+       use subtypePath ; [ intro ; apply isaprop_double_functor_hor_comp_laws | ] ;
+       use funextsec ; intro ;
+       cbn ;
+       apply idpath).
+Defined.
+
 Definition disp_univalent_2_0_disp_bicat_twosided_disp_cat_hor_comp
   : disp_univalent_2_0 disp_bicat_twosided_disp_cat_hor_comp.
 Proof.
-Admitted.
+  use fiberwise_univalent_2_0_to_disp_univalent_2_0.
+  intros CD FF GG.
+  use weqhomot.
+  - refine (weq_disp_left_adjequiv_hor_comp FF GG
+            ∘ weqtotal2
+                (weqonsecfibers
+                   _ _
+                   (λ x,
+                    weqonsecfibers
+                      _ _
+                      (λ y,
+                       weqonsecfibers
+                         _ _
+                         (λ z,
+                          weqonsecfibers
+                            _ _
+                            (λ h,
+                             weqonsecfibers
+                               _ _
+                               (λ k,
+                                make_weq _ (pr22 CD _ _ _ _ (idpath _) (idpath _) _ _)
+                                ∘ weqpathsinv0 _ _)
+                             ∘ weqtoforallpaths _ _ _)
+                          ∘ weqtoforallpaths _ _ _)
+                       ∘ weqtoforallpaths _ _ _)
+                    ∘ weqtoforallpaths _ _ _)
+                 ∘ weqtoforallpaths _ _ _)
+                _
+            ∘ total2_paths_equiv _ _ _
+            ∘ path_sigma_hprop _ _ _ (isaprop_hor_comp_laws _))%weq.
+    cbn.
+    induction FF as [ [ FF₁ FF₂ ] H ].
+    induction GG as [ [ GG₁ GG₂ ] K ].
+    intro p.
+    pose (q := p : FF₁ = GG₁).
+    assert (p = q) by apply idpath.
+    induction q.
+    rewrite X ; clear p X.
+    cbn.
+    use weqimplimpl.
+    + intro q.
+      intros x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ h₂ k₁ k₂ s₁ s₂ ; cbn.
+      rewrite q.
+      rewrite id_two_disp_left.
+      rewrite id_two_disp_right.
+      rewrite transport_b_b_disp_mor2.
+      use transportf_disp_mor2_eq.
+      apply idpath.
+    + intro q.
+      use funextsec ; intro x₁.
+      use funextsec ; intro x₂.
+      use funextsec ; intro y₁.
+      use funextsec ; intro y₂.
+      use funextsec ; intro z₁.
+      use funextsec ; intro z₂.
+      use funextsec ; intro v₁.
+      use funextsec ; intro v₂.
+      use funextsec ; intro v₃.
+      use funextsec ; intro h₁.
+      use funextsec ; intro h₂.
+      use funextsec ; intro k₁.
+      use funextsec ; intro k₂.
+      use funextsec ; intro s₁.
+      use funextsec ; intro s₂.
+      pose (q x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ k₁ h₂ k₂ s₁ s₂) as p.
+      cbn in p.
+      rewrite id_two_disp_left in p.
+      rewrite id_two_disp_right in p.
+      rewrite transport_b_b_disp_mor2 in p.
+      refine (!(transportfb_disp_mor2 _ _ _) @ maponpaths _ (!p) @ _).
+      unfold transportb_disp_mor2.
+      rewrite transport_f_f_disp_mor2.
+      apply transportf_disp_mor2_idpath.
+    + do 15 (use impred_isaset ; intro).
+      apply isaset_disp_mor.
+    + apply isaprop_double_functor_hor_comp_laws.
+  - intro p.
+    cbn in p.
+    induction p.
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_disp_left_adjoint_equivalence.
+      - apply is_univalent_2_1_bicat_twosided_disp_cat.
+      - apply disp_univalent_2_1_disp_bicat_twosided_disp_cat_hor_comp.
+    }
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_double_functor_hor_comp_laws.
+    }
+    cbn.
+    apply idpath.
+Qed.
 
 Definition disp_univalent_2_disp_bicat_twosided_disp_cat_hor_comp
   : disp_univalent_2 disp_bicat_twosided_disp_cat_hor_comp.
