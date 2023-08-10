@@ -24,6 +24,8 @@
  5. Accessors for lax functors
  6. Builder for lax functors
  7. Double transformations
+ 8. Accessors for double transformations
+ 9. Builder for double transformations
 
  **********************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -756,6 +758,15 @@ Proof.
   apply (twosided_disp_functor_comp _ _ _ _ (lax_double_functor_hor_mor F)).
 Qed.
 
+Definition lax_double_functor_hor_id
+           {C₁ C₂ : double_cat}
+           (F : lax_double_functor C₁ C₂)
+  : double_functor_hor_id
+      (lax_double_functor_hor_mor F)
+      (hor_id_double_cat C₁)
+      (hor_id_double_cat C₂)
+  := pr1 (pr211 F).
+
 Definition lax_double_functor_id_h
            {C₁ C₂ : double_cat}
            (F : lax_double_functor C₁ C₂)
@@ -779,6 +790,15 @@ Proposition lax_double_functor_id_h_mor
 Proof.
   exact (pr21 (pr211 F) x y f).
 Qed.
+
+Definition lax_double_functor_hor_comp
+           {C₁ C₂ : double_cat}
+           (F : lax_double_functor C₁ C₂)
+  : double_functor_hor_comp
+      (lax_double_functor_hor_mor F)
+      (hor_comp_double_cat C₁)
+      (hor_comp_double_cat C₂)
+  := pr2 (pr211 F).
 
 Definition lax_double_functor_comp_h
            {C₁ C₂ : double_cat}
@@ -912,3 +932,118 @@ Definition double_transformation
            (F G : lax_double_functor C₁ C₂)
   : UU
   := F ==> G.
+
+(**
+ 8. Accessors for double transformations
+ *)
+Definition double_transformation_to_nat_trans
+           {C₁ C₂ : double_cat}
+           {F G : lax_double_functor C₁ C₂}
+           (τ : double_transformation F G)
+  : F ⟹ G
+  := pr1 (pr111 τ).
+
+Coercion double_transformation_to_nat_trans : double_transformation >-> nat_trans.
+
+Proposition double_transformation_ver_mor
+            {C₁ C₂ : double_cat}
+            {F G : lax_double_functor C₁ C₂}
+            (τ : double_transformation F G)
+            {x y : C₁}
+            (f : x -->v y)
+  : #v F f ·v τ y = τ x ·v #v G f.
+Proof.
+  exact (nat_trans_ax τ x y f).
+Defined.
+
+Definition double_transformation_hor_mor
+           {C₁ C₂ : double_cat}
+           {F G : lax_double_functor C₁ C₂}
+           (τ : double_transformation F G)
+           {x y : C₁}
+           (f : x -->h y)
+  : square (τ x) (τ y) (#h F f) (#h G f)
+  := pr12 (pr111 τ) x y f.
+
+Proposition double_transformation_square
+            {C₁ C₂ : double_cat}
+            {F G : lax_double_functor C₁ C₂}
+            (τ : double_transformation F G)
+            {x₁ x₂ y₁ y₂ : C₁}
+            {vx : x₁ -->v x₂}
+            {vy : y₁ -->v y₂}
+            {h : x₁ -->h y₁}
+            {k : x₂ -->h y₂}
+            (s : square vx vy h k)
+  : #s F s ⋆v double_transformation_hor_mor τ k
+    =
+    transportb_square
+      (double_transformation_hor_mor τ h ⋆v #s G s)
+      (double_transformation_ver_mor _ _)
+      (double_transformation_ver_mor _ _).
+Proof.
+  exact (pr22 (pr111 τ) x₁ x₂ y₁ y₂ vx vy h k s).
+Qed.
+
+Proposition double_transformation_id_h
+            {C₁ C₂ : double_cat}
+            {F G : lax_double_functor C₁ C₂}
+            (τ : double_transformation F G)
+            (x : C₁)
+  : lax_double_functor_id_h F x ⋆v double_transformation_hor_mor τ (identity_h x)
+    =
+    transportb_square
+      (id_h_square (τ x) ⋆v lax_double_functor_id_h G x)
+      (id_v_left _ @ !(id_v_right _))
+      (id_v_left _ @ !(id_v_right _)).
+Proof.
+  exact (pr1 (pr211 τ) x).
+Qed.
+
+Proposition double_transformation_comp_h
+            {C₁ C₂ : double_cat}
+            {F G : lax_double_functor C₁ C₂}
+            (τ : double_transformation F G)
+            {x y z : C₁}
+            (h : x -->h y)
+            (k : y -->h z)
+  : lax_double_functor_comp_h F h k
+    ⋆v double_transformation_hor_mor τ (h ·h k)
+    =
+    transportb_square
+      ((double_transformation_hor_mor τ h ⋆h double_transformation_hor_mor τ k)
+       ⋆v lax_double_functor_comp_h G h k)
+      (id_v_left _ @ !(id_v_right _))
+      (id_v_left _ @ !(id_v_right _)).
+Proof.
+  exact (pr2 (pr211 τ) x y z h k).
+Qed.
+
+(**
+ 9. Builder for double transformations
+ *)
+Definition make_double_transformation
+           {C₁ C₂ : double_cat}
+           {F G : lax_double_functor C₁ C₂}
+           (τ : F ⟹ G)
+           (ττ : twosided_disp_nat_trans
+                   τ τ
+                   (lax_double_functor_hor_mor F)
+                   (lax_double_functor_hor_mor G))
+           (τI : double_nat_trans_hor_id
+                   ττ
+                   (lax_double_functor_hor_id F)
+                   (lax_double_functor_hor_id G))
+           (τC : double_nat_trans_hor_comp
+                   ττ
+                   (lax_double_functor_hor_comp F)
+                   (lax_double_functor_hor_comp G))
+  : double_transformation F G.
+Proof.
+  simple refine ((((_ ,, _) ,, _) ,, (tt ,, tt ,, tt)) ,, tt).
+  - exact τ.
+  - exact ττ.
+  - split ; cbn.
+    + exact τI.
+    + exact τC.
+Defined.
