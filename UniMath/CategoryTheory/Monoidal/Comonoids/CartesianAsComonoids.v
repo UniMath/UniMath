@@ -37,11 +37,6 @@ Local Open Scope cat.
 Import MonoidalNotations.
 Import ComonoidNotations.
 
-(* Definition Cartesian_as_comonoids
-  {C : category} {M : monoidal C} (S : symmetric M)
-  : UU
-  := ∑ (m : ∏ x : C, iscontr (comonoid M x),  *)
-
 Section CartesianToCartesianAsComonoids.
 
   Context {C : category} {M : monoidal C} (Ccart : is_cartesian (C,,M)).
@@ -54,7 +49,6 @@ Section CartesianToCartesianAsComonoids.
   Proof.
     apply (semi_cart_to_unit_eq Ccart).
   Qed.
-
 
   Definition cartesian_monoidal_has_enough_comonoids_data
     : ∏ x : C, comonoid_data M x.
@@ -191,10 +185,6 @@ Section CartesianToCartesianAsComonoids.
       unfold monoidal_cat_tensor_mor.
       now apply (when_bifunctor_becomes_rightwhiskering M).
   Qed.
-
-  (* Lemma bla' (x : C)
-    : monoidal_cat_tensor_mor (cartesian_to_braiding_data Ccart x x) (identity x)
-     · mon_lassociator (V := C,,M) x x x = _. *)
 
   Lemma cartesian_ruinv_of_tensor (x : C)
     : diag x ⊗^{ M} semi_cart_to_unit Ccart x = ruinv^{ M }_{ x ⊗_{ M} x}.
