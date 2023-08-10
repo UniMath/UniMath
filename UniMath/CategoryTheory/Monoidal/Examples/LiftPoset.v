@@ -334,17 +334,12 @@ Qed.
 Definition lift_poset_symmetric_monoidal_comonad :
   symmetric_monoidal_comonad (pr21 pointed_poset_sym_mon_closed_cat).
 Proof.
-  use tpair.
-  - use tpair.
-    + exact (pr1 lift_poset_comonad).
-    + use tpair.
-      * exact lax_monoidal_lift_poset_comonad.
-      * exact is_symmetric_lift_poset_comonad.
-  - use tpair.
-    + exact (pr2 lift_poset_comonad).
-    + split.
-      * apply is_mon_nat_trans_lift_poset_dupl.
-      * apply is_mon_nat_trans_lift_poset_extract.
+  use make_symmetric_monoidal_comonad.
+  - exact lift_poset_comonad.
+  - exact lax_monoidal_lift_poset_comonad.
+  - exact is_symmetric_lift_poset_comonad.
+  - apply is_mon_nat_trans_lift_poset_dupl.
+  - apply is_mon_nat_trans_lift_poset_extract.
 Defined.
 
 (**
