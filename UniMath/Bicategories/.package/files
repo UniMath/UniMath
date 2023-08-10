@@ -178,6 +178,7 @@ DoubleCategories/DoubleFunctor/Associator.v
 DoubleCategories/DoubleFunctor.v
 DoubleCategories/DoubleTransformation.v
 DoubleCategories/BicatOfDoubleCats.v
+DoubleCategories/DoubleCats.v
 
 PseudoFunctors/Examples/ChangeOfBaseEnriched.v
 DisplayedBicats/Examples/MonadsLax.v
