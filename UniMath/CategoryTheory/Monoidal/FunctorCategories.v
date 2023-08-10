@@ -197,6 +197,9 @@ Coercion comonad_from_symmetric_monoidal_comonad (T : symmetric_monoidal_comonad
   : Comonad C
   := pr11 T ,, pr12 T.
 
+Definition lax_monoidal_from_symmetric_monoidal_comonad (T : symmetric_monoidal_comonad) : fmonoidal_lax M M T
+  := pr121 T.
+
 Definition symmetric_monoidal_comonad_extra_laws (T : symmetric_monoidal_comonad)
   : symmetric_monoidal_comonads_extra_laws (pr121 T) (δ T) (ε T)
   := pr22 T.

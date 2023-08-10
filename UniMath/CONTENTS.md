@@ -476,6 +476,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/Examples/MonoidalPointedObjects.v](CategoryTheory/Monoidal/Examples/MonoidalPointedObjects.v)
    - [Monoidal/Examples/MonoidalDialgebras.v](CategoryTheory/Monoidal/Examples/MonoidalDialgebras.v)
    - [Monoidal/Examples/SymmetricMonoidalDialgebras.v](CategoryTheory/Monoidal/Examples/SymmetricMonoidalDialgebras.v)
+   - [Monoidal/Examples/SymmetricMonoidalCoEilenbergMoore.v](CategoryTheory/Monoidal/Examples/SymmetricMonoidalCoEilenbergMoore.v)
    - [Monoidal/Examples/PointedSetCartesianMonoidal.v](CategoryTheory/Monoidal/Examples/PointedSetCartesianMonoidal.v)
    - [Monoidal/Examples/BinopCartesianMonoidal.v](CategoryTheory/Monoidal/Examples/BinopCartesianMonoidal.v)
    - [Monoidal/Examples/SetWithSubset.v](CategoryTheory/Monoidal/Examples/SetWithSubset.v)
