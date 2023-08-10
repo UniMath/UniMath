@@ -642,15 +642,31 @@ Section Rearranging.
     rewrite (monoidal_associatornatleftright M).
     rewrite ! assoc'.
     apply maponpaths.
-
-    assert (j :  α^{ M }_{ x1, y1 ⊗_{ M} x2, y2} · (x1 ⊗^{ M}_{l} α y1 x2 y2 · αinv x1 y1 (x2 ⊗_{ M} y2))
-                 = αinv x1 y1 x2 ⊗^{ M}_{r} y2 · α^{ M }_{ x1 ⊗_{ M} y1, x2, y2}).
+    rewrite assoc.
+    apply pathsinv0.
+    use (z_iso_inv_on_left _ _ _ _ (α _ _ _ ,, αinv _ _ _ ,, _)).
     {
-      Check mon_lassociator_lassociator'.
-      (* This is a variant of mon_lassociator_lassociator *)
-      admit.
+      apply monoidal_associatorisolaw.
     }
-    exact j.
-  Admitted.
+    cbn.
+    rewrite assoc'.
+    etrans.
+    2: {
+      apply maponpaths.
+      apply pathsinv0, (mon_lassociator_lassociator (V := C,,M)).
+    }
+    unfold monoidal_cat_tensor_mor.
+    unfold mon_lassociator.
+    unfold mon_rassociator.
+    unfold monoidal_cat_tensor_pt.
+    cbn.
+    rewrite ! assoc.
+    rewrite (when_bifunctor_becomes_rightwhiskering M).
+    rewrite <- (bifunctor_rightcomp M).
+    rewrite (pr2 (monoidal_associatorisolaw M _ _ _)).
+    rewrite (bifunctor_rightid M).
+    rewrite id_left.
+    now rewrite (when_bifunctor_becomes_leftwhiskering M).
+  Qed.
 
 End Rearranging.
