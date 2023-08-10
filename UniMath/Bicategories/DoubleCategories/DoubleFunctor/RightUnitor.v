@@ -1,3 +1,10 @@
+(**********************************************************************************
+
+ Preservation of the right unitor by the composition of double functors
+
+ This file is split due to high memory consumption
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.

@@ -1,3 +1,24 @@
+(**********************************************************************************
+
+ Basics of double functors
+
+ We define the basic notions for double functors. Note that the double functors we
+ consider are *lax* double functors. Note the direction of the squares in
+ [double_functor_hor_id_data] and in [double_functor_hor_comp_data] and compare to
+ definition 6.1 in 'Framed Bicategories and Monoidal Fibrations' by Shulman
+ (http://www.tac.mta.ca/tac/volumes/20/18/20-18.pdf). In addition, we show that the
+ identity is a double functor.
+
+ The proof that the composition of double functors is again a double functor, is
+ split over multiple files (LeftUnitor.v, RightUnitor.v, and Associator.v).
+
+ Contents
+ 1. Preservation of the identity
+ 2. Preservation of composition
+ 3. Preservation of the unitors and associators
+ 4. The identity double functor
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -467,11 +488,7 @@ Proof.
 Qed.
 
 (**
- 4. Bundled version of the definition
- *)
-
-(**
- 5. The identity double functor
+ 4. The identity double functor
  *)
 Definition identity_hor_id_data
            (C : category)

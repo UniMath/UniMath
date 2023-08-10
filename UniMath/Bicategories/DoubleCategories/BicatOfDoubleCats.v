@@ -1,3 +1,72 @@
+(**********************************************************************************
+
+ The Bicategory of Double Categories
+
+ In this file, we define the bicategory of univalent double categories, and we
+ prove that this bicategory is univalent. To do so, we make heavy use of the
+ machinery of displayed bicategories.
+
+ The idea behind this construction is to split up the notion of double category into
+ several independent parts. More specifically, a univalent double category is a
+ univalent category with another collection of morphisms and a collection of squares.
+ As such, the starting point of this construction is the univalent bicategory of
+ univalent categories.
+
+ First, we add the collection of morphisms and squares to the structure, which is
+ done by a 2-sided displayed category. This construction is defined in the file
+ `DispBicatOfTwoSidedDispCat.v` where it is also proven that this gives rise to a
+ univalent bicategory.
+
+ Next, there are two pieces of data to add: identity morphisms and horizontal
+ composition. So, we define two displayed bicategories on top of the bicategory of
+ categories with a 2-sided displayed category
+ - The displayed objects of the first one are horizontal identities, the displayed
+   morphisms are squares that witness the lax preservation of identities, and the
+   displayed 2-cells are coherences (i.e., the coherence for horizontal identities
+   for double transformations).
+ - The displayed objects of the first one are functions that take horizontal
+   compositions, the displayed morphisms are squares that witness the lax
+   preservation of composition, and the displayed 2-cells are coherences (i.e., the
+   coherence for horizontal composition for double transformations).
+ We take the product of these two displayed bicategories, and we continue with the
+ resulting total bicategory. While the 2-cells in this bicategory are double
+ transformations, we need to add more structure in order to get double categories
+ as objects and double functors as morphisms.
+
+ As such, we define three displayed bicategories on top of that total bicategory.
+ - The displayed objects of the first one are left unitors, and the displayed
+   morphisms are coherences (i.e., the coherence equation for left unitors by
+   double functors).
+ - The displayed objects of the first one are right unitors, and the displayed
+   morphisms are coherences (i.e., the coherence equation for right unitors by
+   double functors).
+ - The displayed objects of the first one are associator, and the displayed
+   morphisms are coherences (i.e., the coherence equation for associator by
+   double functors).
+ Again we take the product of these three displayed bicategories, and we look
+ at the resulting total bicategory. The 1-cells are double functors and the 2-cells
+ are double transformations. However, the objects are not yet double categories:
+ the triangle and pentagon coherence are missing.
+
+ We finish the construction by taking a full subbicategory where the condition that
+ we require is precisely the triangle and the pentagon equation. As a consequence,
+ the objects of the resulting bicategory are actually double categories.
+
+ In every step, we also prove the displayed univalence of the involved displayed
+ bicategories. This allows us to prove in the end that the bicategory of double
+ categories is a univalent bicategory.
+
+ Contents
+ 1. Two-sided displayed categories with identities
+ 2. Two-sided displayed categories with horizontal composition
+ 3. Two-sided displayed categories with identities and horizontal composition
+ 4. Two-sided displayed categories with left unitors
+ 5. Two-sided displayed categories with right unitors
+ 6. Two-sided displayed categories with associators
+ 7. Two-sided displayed categories with unitors and associators
+ 8. Displayed bicategory of double categories
+
+ **********************************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.

@@ -794,6 +794,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DoubleCategories/DoubleFunctor/Associator.v](Bicategories/DoubleCategories/DoubleFunctor/Associator.v)
    - [DoubleCategories/DoubleFunctor.v](Bicategories/DoubleCategories/DoubleFunctor.v)
    - [DoubleCategories/DoubleTransformation.v](Bicategories/DoubleCategories/DoubleTransformation.v)
+   - [DoubleCategories/BicatOfDoubleCats.v](Bicategories/DoubleCategories/BicatOfDoubleCats.v)
    - [PseudoFunctors/Examples/ChangeOfBaseEnriched.v](Bicategories/PseudoFunctors/Examples/ChangeOfBaseEnriched.v)
    - [DisplayedBicats/Examples/MonadsLax.v](Bicategories/DisplayedBicats/Examples/MonadsLax.v)
    - [DisplayedBicats/Examples/DispBicatOnCatToUniv.v](Bicategories/DisplayedBicats/Examples/DispBicatOnCatToUniv.v)

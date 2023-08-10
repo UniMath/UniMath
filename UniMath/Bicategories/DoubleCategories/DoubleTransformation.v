@@ -1,3 +1,17 @@
+(**********************************************************************************
+
+ Double Transformations
+
+ We define double transformations between lax double functors. In addition, we give
+ some examples of these, namely the examples that are needed to construct the
+ bicategory of double categories.
+
+ Contents
+ 1. Preservation of the identity
+ 2. Preservation of composition
+ 3. Examples of double transformations
+
+ **********************************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -107,11 +121,7 @@ Proof.
 Qed.
 
 (**
- 3. Bundled version
- *)
-
-(**
- 4. Examples of double transformations
+ 3. Examples of double transformations
  *)
 Proposition id_twosided_disp_nat_trans_hor_id
             {C₁ C₂ : category}

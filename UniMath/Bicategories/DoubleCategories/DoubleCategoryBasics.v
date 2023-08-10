@@ -1,3 +1,29 @@
+(**********************************************************************************
+
+ Basics of double categories
+
+ In this file, we define the basic notions for double categories. There are a
+ couple of ideas behind the definition that we use
+ - First of all, a double category is a category with extra structure. This extra
+   structure includes another collection of morphisms, and we use 2-sided displayed
+   categories to represent these.
+ - Second of all, ultimately, we use these definitions to define the bicategory of
+   double categories. This bicategory is defined by adding structure to the
+   bicategory of 2-sided displayed categories using the machinery of displayed
+   bicategories.
+
+ We identify which structure to add to a 2-sided displayed category in order to
+ obtain a double category.
+
+ Contents
+ 1. Horizontal identities
+ 2. Horizontal composition
+ 3. Left unitor
+ 4. Right unitor
+ 5. Associator
+ 6. Triangle and pentagon laws
+
+ **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -889,7 +915,3 @@ Proof.
   repeat (use impred ; intro).
   apply isaset_disp_mor.
 Qed.
-
-(**
- 7. Bundled version of double categories
- *)
