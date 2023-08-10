@@ -311,7 +311,6 @@ Monoidal/Examples/MonadsAsMonoidsElementary.v
 Monoidal/Examples/MonoidalPointedObjects.v
 Monoidal/Examples/MonoidalDialgebras.v
 Monoidal/Examples/SymmetricMonoidalDialgebras.v
-Monoidal/Examples/SymmetricMonoidalCoEilenbergMoore.v
 Monoidal/Examples/PointedSetCartesianMonoidal.v
 Monoidal/Examples/BinopCartesianMonoidal.v
 Monoidal/Examples/SetWithSubset.v
@@ -320,6 +319,7 @@ Monoidal/Examples/PosetsMonoidal.v
 Monoidal/Examples/LiftPoset.v
 Monoidal/Examples/Fullsub.v
 Monoidal/Examples/Relations.v
+Monoidal/Examples/SymmetricMonoidalCoEilenbergMoore.v
 
 Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v
 Monoidal/AlternativeDefinitions/MonoidalCategoriesTensored.v
