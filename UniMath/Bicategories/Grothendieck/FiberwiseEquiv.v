@@ -39,6 +39,17 @@
  for all morphisms, whereas for fibrations, it suffices to check it
  only for those morphisms lying above the identity.
 
+ Note the following as well: another version of the Grothendieck
+ construction says that the bicategory of fibrations over `C` with all
+ functors is equivalent to the bicategory of pseudofunctors with oplax
+ transformations. However, using this version would not give a stronger
+ statement than the one in this file. That is because to check whether
+ an oplax transformation is an adjoint equivalence, we need to check
+ whether it is a pointwise equivalence and whether it is a
+ pseudotransformation. Checking whether the corresponding oplax
+ transformation is a pseudotransformation, amounts to proving that the
+ functor in question is cartesian.
+
  *********************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
