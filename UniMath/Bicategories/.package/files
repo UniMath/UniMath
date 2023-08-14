@@ -171,6 +171,16 @@ DisplayedBicats/DispTransformation.v
 DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
 
+DoubleCategories/DoubleCategoryBasics.v
+DoubleCategories/DoubleFunctor/Basics.v
+DoubleCategories/DoubleFunctor/LeftUnitor.v
+DoubleCategories/DoubleFunctor/RightUnitor.v
+DoubleCategories/DoubleFunctor/Associator.v
+DoubleCategories/DoubleFunctor.v
+DoubleCategories/DoubleTransformation.v
+DoubleCategories/BicatOfDoubleCats.v
+DoubleCategories/DoubleCats.v
+
 PseudoFunctors/Examples/ChangeOfBaseEnriched.v
 DisplayedBicats/Examples/MonadsLax.v
 DisplayedBicats/Examples/DispBicatOnCatToUniv.v

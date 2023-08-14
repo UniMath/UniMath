@@ -99,7 +99,7 @@ Section FiberCat.
     repeat split.
     - intros xy₁ xy₂ f ; cbn.
       rewrite id_two_disp_left.
-      unfold transportb.
+      unfold transportb, transportb_disp_mor2, transportf_disp_mor2 ;
       rewrite !twosided_prod_transport.
       rewrite transport_f_f.
       use (transportf_set
@@ -108,7 +108,7 @@ Section FiberCat.
       apply isasetdirprod ; apply homset_property.
     - intros xy₁ xy₂ f ; cbn.
       rewrite id_two_disp_right.
-      unfold transportb.
+      unfold transportb, transportb_disp_mor2, transportf_disp_mor2.
       rewrite !twosided_prod_transport.
       rewrite transport_f_f.
       use (transportf_set
@@ -121,7 +121,7 @@ Section FiberCat.
       rewrite two_disp_pre_whisker_left.
       rewrite two_disp_pre_whisker_right.
       rewrite assoc_two_disp.
-      unfold transportb.
+      unfold transportb, transportb_disp_mor2, transportf_disp_mor2.
       rewrite !twosided_prod_transport.
       rewrite !transport_f_f.
       apply maponpaths_2.
@@ -161,7 +161,7 @@ Section FiberCat.
          pose (p := z_iso_inv_after_z_iso f) ;
          cbn in p ;
          rewrite <- p ;
-         unfold transportb ;
+         unfold transportb, transportb_disp_mor2, transportf_disp_mor2 ;
          rewrite !twosided_swap_transport ;
          refine (!_) ;
          refine (transportbfinv (λ z, _ -->[ z ][ _ ] _) _ _ @ _) ;
@@ -171,7 +171,7 @@ Section FiberCat.
          pose (p := z_iso_after_z_iso_inv f) ;
          cbn in p ;
          rewrite <- p ;
-         unfold transportb ;
+         unfold transportb, transportb_disp_mor2, transportf_disp_mor2 ;
          rewrite !twosided_swap_transport ;
          refine (!_) ;
          refine (transportbfinv (λ z, _ -->[ z ][ _ ] _) _ _ @ _) ;
@@ -192,7 +192,7 @@ Section FiberCat.
            pose (p := inv_after_iso_twosided_disp (pr2 f)) ;
            cbn in p ;
            rewrite p ;
-           unfold transportb ;
+           unfold transportb, transportb_disp_mor2, transportf_disp_mor2 ;
            rewrite !twosided_swap_transport ;
            refine (transportfbinv (λ z, _ -->[ z ][ _ ] _) _ _ @ _) ;
            exact (transportfbinv (λ z, _ -->[ _ ][ z ] _) _ _)).
@@ -201,7 +201,7 @@ Section FiberCat.
            pose (p := iso_after_inv_twosided_disp (pr2 f)) ;
            cbn in p ;
            rewrite p ;
-           unfold transportb ;
+           unfold transportb, transportb_disp_mor2, transportf_disp_mor2 ;
            rewrite !twosided_swap_transport ;
            refine (transportfbinv (λ z, _ -->[ z ][ _ ] _) _ _ @ _) ;
            exact (transportfbinv (λ z, _ -->[ _ ][ z ] _) _ _)).

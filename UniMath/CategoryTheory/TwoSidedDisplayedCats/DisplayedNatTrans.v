@@ -47,8 +47,8 @@ Section DisplayedNatTrans.
           (θ : G ⟹ G')
           {D : twosided_disp_cat C₁ C₂}
           {D' : twosided_disp_cat C₁' C₂'}
-          (FG : twosided_disp_functor F G D D')
-          (FG' : twosided_disp_functor F' G' D D').
+          (FG : twosided_disp_functor_data F G D D')
+          (FG' : twosided_disp_functor_data F' G' D D').
 
   Definition twosided_disp_nat_trans_data
     : UU
@@ -66,13 +66,10 @@ Section DisplayedNatTrans.
          (fg : xy₁ -->[ f ][ g ] xy₂),
        #2 FG fg ;;2 τθ _ _ xy₂
        =
-       transportb
-         (λ z, _ -->[ z ][ _] _)
+       transportb_disp_mor2
          (nat_trans_ax τ _ _ f)
-         (transportb
-            (λ z, _ -->[ _ ][ z ] _)
-            (nat_trans_ax θ _ _ g)
-            (τθ _ _ xy₁ ;;2 #2 FG' fg)).
+         (nat_trans_ax θ _ _ g)
+         (τθ _ _ xy₁ ;;2 #2 FG' fg).
 
   Definition twosided_disp_nat_trans
     : UU
@@ -99,13 +96,10 @@ Section DisplayedNatTrans.
               (fg : xy₁ -->[ f ][ g ] xy₂)
     : #2 FG fg ;;2 τθ _ _ xy₂
       =
-      transportb
-        (λ z, _ -->[ z ][ _] _)
+      transportb_disp_mor2
         (nat_trans_ax τ _ _ f)
-        (transportb
-           (λ z, _ -->[ _ ][ z ] _)
-           (nat_trans_ax θ _ _ g)
-           (τθ _ _ xy₁ ;;2 #2 FG' fg)).
+        (nat_trans_ax θ _ _ g)
+        (τθ _ _ xy₁ ;;2 #2 FG' fg).
   Proof.
     apply (pr2 τθ).
   Qed.
@@ -143,8 +137,8 @@ Definition eq_twosided_disp_nat_trans
            {θ : G ⟹ G'}
            {D : twosided_disp_cat C₁ C₂}
            {D' : twosided_disp_cat C₁' C₂'}
-           {FG : twosided_disp_functor F G D D'}
-           {FG' : twosided_disp_functor F' G' D D'}
+           {FG : twosided_disp_functor_data F G D D'}
+           {FG' : twosided_disp_functor_data F' G' D D'}
            {τθ τθ' : twosided_disp_nat_trans τ θ FG FG'}
            (p : ∏ (x : C₁) (y : C₂) (xy : D x y), τθ x y xy = τθ' x y xy)
   : τθ = τθ'.
@@ -218,24 +212,18 @@ Section IdNatTrans.
     : twosided_disp_nat_trans_data (nat_trans_id F) (nat_trans_id G) FG FG
     := λ x y xy, id_two_disp _.
 
+  Arguments id_twosided_disp_nat_trans_data /.
+
   Definition id_twosided_disp_nat_trans_laws
     : twosided_disp_nat_trans_laws
         _ _ _ _
         id_twosided_disp_nat_trans_data.
   Proof.
-    intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; unfold id_twosided_disp_nat_trans_data.
-    refine (id_two_disp_right _ @ _).
-    refine (!_).
-    etrans.
-    {
-      do 2 apply maponpaths.
-      apply id_two_disp_left.
-    }
-    rewrite !twosided_prod_transportb.
-    unfold transportb.
-    rewrite transport_f_f.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; cbn.
+    rewrite id_two_disp_right, id_two_disp_left.
+    rewrite transport_b_b_disp_mor2.
+    use transportb_disp_mor2_eq.
+    apply idpath.
   Qed.
 
   Definition id_twosided_disp_nat_trans
@@ -276,40 +264,30 @@ Section CompNatTrans.
         FG FG''
     := λ x y xy, τθ _ _ xy ;;2 τθ' _ _ xy.
 
+  Arguments comp_twosided_disp_nat_trans_data /.
+
   Definition comp_twosided_disp_nat_trans_laws
     : twosided_disp_nat_trans_laws
         _ _ _ _
         comp_twosided_disp_nat_trans_data.
   Proof.
-    intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; unfold comp_twosided_disp_nat_trans_data.
-    cbn.
+    intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; cbn.
     rewrite assoc_two_disp.
-    etrans.
-    {
-      do 2 apply maponpaths.
-      apply maponpaths_2.
-      apply (pr2 τθ).
-    }
-    unfold transportb.
-    rewrite two_disp_pre_whisker_left.
-    rewrite two_disp_pre_whisker_right.
+    rewrite (pr2 τθ).
+    rewrite two_disp_pre_whisker_b.
+    rewrite transport_b_b_disp_mor2.
     rewrite assoc_two_disp_alt.
-    rewrite !twosided_prod_transport.
-    rewrite !transport_f_f.
-    etrans.
-    {
-      do 2 apply maponpaths.
-      apply (pr2 τθ').
-    }
-    unfold transportb.
-    rewrite two_disp_post_whisker_left.
-    rewrite two_disp_post_whisker_right.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
+    rewrite (pr2 τθ').
+    rewrite two_disp_post_whisker_b.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
     rewrite assoc_two_disp.
-    unfold transportb.
-    rewrite !twosided_prod_transport.
-    rewrite !transport_f_f.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
+    use transportf_disp_mor2_eq.
+    apply idpath.
   Qed.
 
   Definition comp_twosided_disp_nat_trans
@@ -323,6 +301,7 @@ Section CompNatTrans.
     - exact comp_twosided_disp_nat_trans_laws.
   Defined.
 End CompNatTrans.
+
 
 Arguments comp_twosided_disp_nat_trans_data {C₁ C₁' C₂ C₂' F F' F'' τ τ' G G' G'' θ θ' D D' FG FG' FG''} _ _ /.
 Arguments comp_twosided_disp_nat_trans {C₁ C₁' C₂ C₂' F F' F'' τ τ' G G' G'' θ θ' D D' FG FG' FG''} _ _ /.
@@ -354,20 +333,17 @@ Section Prewhisker.
         (comp_twosided_disp_functor FG HK')
     := λ x y xy, τθ _ _ (FG _ _ xy).
 
+  Arguments pre_whisker_twosided_disp_nat_trans_data /.
+
   Definition pre_whisker_twosided_disp_nat_trans_laws
     : twosided_disp_nat_trans_laws
         _ _ _ _
         pre_whisker_twosided_disp_nat_trans_data.
   Proof.
-    intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; unfold pre_whisker_twosided_disp_nat_trans_data.
-    cbn.
-    etrans.
-    {
-      apply (pr2 τθ).
-    }
-    rewrite !twosided_prod_transportb.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; cbn.
+    rewrite (pr2 τθ).
+    use transportf_disp_mor2_eq.
+    apply idpath.
   Qed.
 
   Definition pre_whisker_twosided_disp_nat_trans
@@ -413,27 +389,23 @@ Section Postwhisker.
         (comp_twosided_disp_functor FG' HK)
     := λ x y xy, #2 HK (τθ _ _ xy).
 
+  Arguments post_whisker_twosided_disp_nat_trans_data /.
+
   Definition post_whisker_twosided_disp_nat_trans_laws
     : twosided_disp_nat_trans_laws
         _ _ _ _
         post_whisker_twosided_disp_nat_trans_data.
   Proof.
-    intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; unfold post_whisker_twosided_disp_nat_trans_data.
-    cbn.
+    intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; cbn.
     rewrite !twosided_disp_functor_comp_alt.
-    etrans.
-    {
-      do 3 apply maponpaths.
-      apply (pr2 τθ).
-    }
-    rewrite transportb_twosided_disp_functor_left.
-    rewrite transportb_twosided_disp_functor_right.
-    rewrite !twosided_prod_transportb.
-    rewrite !twosided_prod_transport.
-    unfold transportb.
-    rewrite !transport_f_f.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
+    rewrite (pr2 τθ).
+    rewrite transportb_twosided_disp_functor.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
+    use transportf_disp_mor2_eq.
+    apply idpath.
   Qed.
 
   Definition post_whisker_twosided_disp_nat_trans
@@ -451,161 +423,6 @@ End Postwhisker.
 
 Arguments post_whisker_twosided_disp_nat_trans_data {C₁ C₁' C₁'' C₂ C₂' C₂'' F F' τ G G' θ H K D D' D'' FG FG'} HK _ /.
 Arguments post_whisker_twosided_disp_nat_trans {C₁ C₁' C₁'' C₂ C₂' C₂'' F F' τ G G' θ H K D D' D'' FG FG'} HK _ /.
-
-
-Definition twosided_disp_lunitor
-           {C₁ C₂ : category}
-           {F : C₁ ⟶ C₂}
-           {D₁ : twosided_disp_cat C₁ C₁}
-           {D₂ : twosided_disp_cat C₂ C₂}
-           (FF : twosided_disp_functor F F D₁ D₂)
-  : twosided_disp_nat_trans
-      (nat_trans_id F) (nat_trans_id F)
-      (comp_twosided_disp_functor (twosided_disp_functor_identity D₁) FF)
-      FF.
-Proof.
-  simple refine (_ ,, _).
-  - exact (λ x y xy, id_two_disp _).
-  - abstract
-      (intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; cbn ;
-       rewrite id_two_disp_left, id_two_disp_right ;
-       rewrite !twosided_prod_transportb ;
-       unfold transportb ;
-       rewrite transport_f_f ;
-       apply maponpaths_2 ;
-       apply isaset_dirprod ; apply homset_property).
-Defined.
-
-Definition twosided_disp_runitor
-           {C₁ C₂ : category}
-           {F : C₁ ⟶ C₂}
-           {D₁ : twosided_disp_cat C₁ C₁}
-           {D₂ : twosided_disp_cat C₂ C₂}
-           (FF : twosided_disp_functor F F D₁ D₂)
-  : twosided_disp_nat_trans
-      (nat_trans_id F : F ∙ functor_identity _ ⟹ F)
-      (nat_trans_id F : F ∙ functor_identity _ ⟹ F)
-      (comp_twosided_disp_functor FF (twosided_disp_functor_identity D₂))
-      FF.
-Proof.
-  simple refine (_ ,, _).
-  - exact (λ x y xy, id_two_disp _).
-  - abstract
-      (intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; cbn ;
-       rewrite id_two_disp_left, id_two_disp_right ;
-       rewrite !twosided_prod_transportb ;
-       unfold transportb ;
-       rewrite transport_f_f ;
-       apply maponpaths_2 ;
-       apply isaset_dirprod ; apply homset_property).
-Defined.
-
-Definition twosided_disp_linvunitor
-           {C₁ C₂ : category}
-           {F : C₁ ⟶ C₂}
-           {D₁ : twosided_disp_cat C₁ C₁}
-           {D₂ : twosided_disp_cat C₂ C₂}
-           (FF : twosided_disp_functor F F D₁ D₂)
-  : twosided_disp_nat_trans
-      (nat_trans_id F) (nat_trans_id F)
-      FF
-      (comp_twosided_disp_functor (twosided_disp_functor_identity D₁) FF).
-Proof.
-  simple refine (_ ,, _).
-  - exact (λ x y xy, id_two_disp _).
-  - abstract
-      (intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; cbn ;
-       rewrite id_two_disp_left, id_two_disp_right ;
-       rewrite !twosided_prod_transportb ;
-       unfold transportb ;
-       rewrite transport_f_f ;
-       apply maponpaths_2 ;
-       apply isaset_dirprod ; apply homset_property).
-Defined.
-
-Definition twosided_disp_rinvunitor
-           {C₁ C₂ : category}
-           {F : C₁ ⟶ C₂}
-           {D₁ : twosided_disp_cat C₁ C₁}
-           {D₂ : twosided_disp_cat C₂ C₂}
-           (FF : twosided_disp_functor F F D₁ D₂)
-  : twosided_disp_nat_trans
-      (nat_trans_id F : F ⟹ F ∙ functor_identity _)
-      (nat_trans_id F : F ⟹ F ∙ functor_identity _)
-      FF
-      (comp_twosided_disp_functor FF (twosided_disp_functor_identity D₂)).
-Proof.
-  simple refine (_ ,, _).
-  - exact (λ x y xy, id_two_disp _).
-  - abstract
-      (intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; cbn ;
-       rewrite id_two_disp_left, id_two_disp_right ;
-       rewrite !twosided_prod_transportb ;
-       unfold transportb ;
-       rewrite transport_f_f ;
-       apply maponpaths_2 ;
-       apply isaset_dirprod ; apply homset_property).
-Defined.
-
-Definition twosided_disp_rassociator
-           {C₁ C₂ C₃ C₄ : category}
-           {F : C₁ ⟶ C₂}
-           {G : C₂ ⟶ C₃}
-           {H : C₃ ⟶ C₄}
-           {D₁ : twosided_disp_cat C₁ C₁}
-           {D₂ : twosided_disp_cat C₂ C₂}
-           {D₃ : twosided_disp_cat C₃ C₃}
-           {D₄ : twosided_disp_cat C₄ C₄}
-           (FF : twosided_disp_functor F F D₁ D₂)
-           (GG : twosided_disp_functor G G D₂ D₃)
-           (HH : twosided_disp_functor H H D₃ D₄)
-  : twosided_disp_nat_trans
-      (nat_trans_id _ : (F ∙ G) ∙ H ⟹ F ∙ (G ∙ H))
-      (nat_trans_id _ : (F ∙ G) ∙ H ⟹ F ∙ (G ∙ H))
-      (comp_twosided_disp_functor (comp_twosided_disp_functor FF GG) HH)
-      (comp_twosided_disp_functor FF (comp_twosided_disp_functor GG HH)).
-Proof.
-  simple refine (_ ,, _).
-  - exact (λ x y xy, id_two_disp _).
-  - abstract
-      (intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; cbn ;
-       rewrite id_two_disp_left, id_two_disp_right ;
-       rewrite !twosided_prod_transportb ;
-       unfold transportb ;
-       rewrite transport_f_f ;
-       apply maponpaths_2 ;
-       apply isaset_dirprod ; apply homset_property).
-Defined.
-
-Definition twosided_disp_lassociator
-           {C₁ C₂ C₃ C₄ : category}
-           {F : C₁ ⟶ C₂}
-           {G : C₂ ⟶ C₃}
-           {H : C₃ ⟶ C₄}
-           {D₁ : twosided_disp_cat C₁ C₁}
-           {D₂ : twosided_disp_cat C₂ C₂}
-           {D₃ : twosided_disp_cat C₃ C₃}
-           {D₄ : twosided_disp_cat C₄ C₄}
-           (FF : twosided_disp_functor F F D₁ D₂)
-           (GG : twosided_disp_functor G G D₂ D₃)
-           (HH : twosided_disp_functor H H D₃ D₄)
-  : twosided_disp_nat_trans
-      (nat_trans_id _ : F ∙ (G ∙ H) ⟹ (F ∙ G) ∙ H)
-      (nat_trans_id _ : F ∙ (G ∙ H) ⟹ (F ∙ G) ∙ H)
-      (comp_twosided_disp_functor FF (comp_twosided_disp_functor GG HH))
-      (comp_twosided_disp_functor (comp_twosided_disp_functor FF GG) HH).
-Proof.
-  simple refine (_ ,, _).
-  - exact (λ x y xy, id_two_disp _).
-  - abstract
-      (intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; cbn ;
-       rewrite id_two_disp_left, id_two_disp_right ;
-       rewrite !twosided_prod_transportb ;
-       unfold transportb ;
-       rewrite transport_f_f ;
-       apply maponpaths_2 ;
-       apply isaset_dirprod ; apply homset_property).
-Defined.
 
 (**
  8. Displayed two-sided natural transformations versus one-sided ones
@@ -631,7 +448,9 @@ Proof.
     (intros x y xx yy f ff ;
      cbn ;
      rewrite twosided_disp_nat_trans_ax ;
-     rewrite <- transportb_dirprodeq ;
+     unfold transportb_disp_mor2, transportf_disp_mor2 ;
+     rewrite twosided_prod_transport ;
+     unfold transportb ;
      apply maponpaths_2 ;
      apply isasetdirprod ; apply homset_property).
 Defined.
@@ -666,7 +485,9 @@ Proof.
        as p ;
      cbn in p ;
      rewrite p ;
-     rewrite <- transportb_dirprodeq ;
+     unfold transportb_disp_mor2, transportf_disp_mor2 ;
+     rewrite twosided_prod_transport ;
+     unfold transportb ;
      apply maponpaths_2 ;
      apply isasetdirprod ; apply homset_property).
 Defined.

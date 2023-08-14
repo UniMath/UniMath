@@ -82,17 +82,17 @@ Section FiberwiseProduct.
   Proof.
     repeat split.
     - intro ; intros ; cbn.
-      unfold transportb.
+      unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn.
       rewrite transportf_dirprod_fam.
       rewrite transportf_dirprod_fam.
       use dirprod_paths ; apply id_two_disp_left.
     - intro ; intros ; cbn.
-      unfold transportb.
+      unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn.
       rewrite transportf_dirprod_fam.
       rewrite transportf_dirprod_fam.
       use dirprod_paths ; apply id_two_disp_right.
     - intro ; intros ; cbn.
-      unfold transportb.
+      unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn.
       rewrite transportf_dirprod_fam.
       rewrite transportf_dirprod_fam.
       use dirprod_paths ; apply assoc_two_disp.
@@ -141,14 +141,14 @@ Section FiberwiseProduct.
     - exact (pr1 Hfg₂).
     - abstract
         (cbn ;
-         unfold transportb ;
+         unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn ;
          rewrite !transportf_dirprod_fam ;
          use pathsdirprod ;
          [ apply Hfg₁
          | apply Hfg₂ ]).
     - abstract
         (cbn ;
-         unfold transportb ;
+         unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn ;
          rewrite !transportf_dirprod_fam ;
          use pathsdirprod ;
          [ apply Hfg₁
@@ -217,12 +217,12 @@ Section FiberwiseProduct.
     - exact (pr112 fg).
     - abstract
         (refine (maponpaths dirprod_pr1 (pr122 fg) @ _) ; cbn ;
-         unfold transportb ;
+         unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn ;
          rewrite !transportf_dirprod_fam ;
          apply idpath).
     - abstract
         (refine (maponpaths dirprod_pr1 (pr222 fg) @ _) ; cbn ;
-         unfold transportb ;
+         unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn ;
          rewrite !transportf_dirprod_fam ;
          apply idpath).
   Defined.
@@ -250,12 +250,12 @@ Section FiberwiseProduct.
     - exact (pr212 fg).
     - abstract
         (refine (maponpaths dirprod_pr2 (pr122 fg) @ _) ; cbn ;
-         unfold transportb ;
+         unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn ;
          rewrite !transportf_dirprod_fam ;
          apply idpath).
     - abstract
         (refine (maponpaths dirprod_pr2 (pr222 fg) @ _) ; cbn ;
-         unfold transportb ;
+         unfold transportb_disp_mor2, transportf_disp_mor2 ; cbn ;
          rewrite !transportf_dirprod_fam ;
          apply idpath).
   Defined.

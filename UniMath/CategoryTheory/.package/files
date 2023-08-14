@@ -432,8 +432,6 @@ TwoSidedDisplayedCats/Total.v
 TwoSidedDisplayedCats/TwoSidedFibration.v
 TwoSidedDisplayedCats/Fiber.v
 
-TwoSidedDisplayedCats/DoubleCategory.v
-
 TwoSidedDisplayedCats/DisplayedFunctor.v
 TwoSidedDisplayedCats/DisplayedNatTrans.v
 
@@ -507,4 +505,4 @@ DaggerCategories/CatIso.v
 
 #Double Categories
 DoubleCategories/Core/DoubleCategories.v
-DoubleCategories/Core/DoubleCategoryEquiv.v
+# DoubleCategories/Core/DoubleCategoryEquiv.v
