@@ -339,8 +339,8 @@ Section BiequivReflectAdjequiv.
           (L : biequivalence B₁ B₂).
 
   Let R : psfunctor B₂ B₁ := inv_psfunctor_of_is_biequivalence L.
-  Let η := unit_of_is_biequivalence L.
-  Let Hη := is_biequivalence_adjoint_unit L.
+  Let η : pstrans (comp_psfunctor R L) (id_psfunctor B₁) := unit_of_is_biequivalence L.
+  Let Hη : left_adjoint_equivalence η := is_biequivalence_adjoint_unit L.
 
   Context {x y : B₁}
           {f : x --> y}
