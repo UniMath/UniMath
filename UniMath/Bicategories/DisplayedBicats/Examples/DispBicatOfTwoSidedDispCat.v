@@ -95,7 +95,7 @@ Definition disp_prebicat_1_id_comp_twosided_disp_cat
 Proof.
   simple refine (_ ,, _).
   - exact disp_cat_data_twosided_disp_cat.
-  - exact (λ C₁ C₂ F G τ D₁ D₂ FF GG, twosided_disp_nat_trans τ τ FF GG).
+  - exact (λ C₁ C₂ F G τ D₁ D₂ FF GG, twosided_disp_nat_trans τ τ (pr1 FF) (pr1 GG)).
 Defined.
 
 Definition disp_prebicat_ops_twosided_disp_cat
@@ -105,17 +105,23 @@ Proof.
   - exact (λ C₁ C₂ F D₁ D₂ FF,
            id_twosided_disp_nat_trans FF).
   - exact (λ C₁ C₂ F D₁ D₂ FF,
-           twosided_disp_lunitor FF).
+           id_twosided_disp_nat_trans FF).
   - exact (λ C₁ C₂ F D₁ D₂ FF,
-           twosided_disp_runitor FF).
+           id_twosided_disp_nat_trans FF).
   - exact (λ C₁ C₂ F D₁ D₂ FF,
-           twosided_disp_linvunitor FF).
+           id_twosided_disp_nat_trans FF).
   - exact (λ C₁ C₂ F D₁ D₂ FF,
-           twosided_disp_rinvunitor FF).
+           id_twosided_disp_nat_trans FF).
   - exact (λ C₁ C₂ C₃ C₄ F G H D₁ D₂ D₃ D₄ FF GG HH,
-           twosided_disp_rassociator FF GG HH).
+           id_twosided_disp_nat_trans
+             (comp_twosided_disp_functor
+                FF
+                (comp_twosided_disp_functor GG HH))).
   - exact (λ C₁ C₂ C₃ C₄ F G H D₁ D₂ D₃ D₄ FF GG HH,
-           twosided_disp_lassociator FF GG HH).
+           id_twosided_disp_nat_trans
+             (comp_twosided_disp_functor
+                (comp_twosided_disp_functor FF GG)
+                HH)).
   - exact (λ C₁ C₂ F G H τ θ D₁ D₂ FF GG HH ττ θθ,
            comp_twosided_disp_nat_trans ττ θθ).
   - exact (λ C₁ C₂ C₃ F G₁ G₂ τ D₁ D₂ D₃ FF GG₁ GG₂ ττ,
@@ -146,13 +152,10 @@ Proposition transportb_prebicat_twosided_disp_cat
             (xy : pr11 D₁ x y)
   : pr1 (transportb (λ z, FF ==>[ z ] GG) p θθ) x y xy
     =
-    transportb
-      (λ z, _ -->[ z ][ _ ] _)
+    transportb_disp_mor2
       (maponpaths (λ n, pr1 n x) p)
-      (transportb
-         (λ z, _ -->[ _ ][ z ] _)
-         (maponpaths (λ n, pr1 n y) p)
-         (pr1 θθ x y xy)).
+      (maponpaths (λ n, pr1 n y) p)
+      (pr1 θθ x y xy).
 Proof.
   induction p.
   cbn.
@@ -167,141 +170,92 @@ Proof.
   use eq_twosided_disp_nat_trans ;
   intros ;
   refine (_ @ !(transportb_prebicat_twosided_disp_cat _ _ _ _ _)) ; cbn.
-  - rewrite id_two_disp_left.
-    rewrite !twosided_prod_transportb.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+  - cbn.
+    rewrite id_two_disp_left.
+    use transportb_disp_mor2_eq.
+    apply idpath.
   - rewrite id_two_disp_right.
-    rewrite !twosided_prod_transportb.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    use transportb_disp_mor2_eq.
+    apply idpath.
   - rewrite assoc_two_disp.
-    rewrite !twosided_prod_transportb.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
-  - rewrite !twosided_prod_transportb.
-    refine (!_).
-    etrans.
-    {
-      apply maponpaths_2.
-      refine (_ @ idpath (idpath _)).
-      apply isaset_dirprod ; apply homset_property.
-    }
+    use transportb_disp_mor2_eq.
     apply idpath.
+  - refine (!_).
+    use transportb_disp_mor2_idpath.
   - rewrite twosided_disp_functor_id.
-    rewrite !twosided_prod_transportb.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
-  - rewrite !twosided_prod_transportb.
-    refine (!_).
-    etrans.
-    {
-      apply maponpaths_2.
-      refine (_ @ idpath (idpath _)).
-      apply isaset_dirprod ; apply homset_property.
-    }
+    use transportb_disp_mor2_eq.
     apply idpath.
+  - refine (!_).
+    use transportb_disp_mor2_idpath.
   - rewrite twosided_disp_functor_comp_alt.
-    rewrite twosided_prod_transport.
-    rewrite !twosided_prod_transportb.
-    unfold transportb.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    use transportf_disp_mor2_eq.
+    apply idpath.
   - rewrite id_two_disp_left, id_two_disp_right.
-    rewrite !twosided_prod_transportb.
-    unfold transportb.
-    rewrite transport_f_f.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    rewrite transport_b_b_disp_mor2.
+    use transportb_disp_mor2_eq.
+    apply idpath.
   - rewrite id_two_disp_left, id_two_disp_right.
-    rewrite !twosided_prod_transportb.
-    unfold transportb.
-    rewrite transport_f_f.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    rewrite transport_b_b_disp_mor2.
+    use transportb_disp_mor2_eq.
+    apply idpath.
   - rewrite id_two_disp_left, id_two_disp_right.
-    rewrite !twosided_prod_transportb.
-    unfold transportb.
-    rewrite transport_f_f.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    rewrite transport_b_b_disp_mor2.
+    use transportb_disp_mor2_eq.
+    apply idpath.
   - rewrite id_two_disp_left, id_two_disp_right.
-    rewrite !twosided_prod_transportb.
-    unfold transportb.
-    rewrite transport_f_f.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    rewrite transport_b_b_disp_mor2.
+    use transportb_disp_mor2_eq.
+    apply idpath.
   - rewrite id_two_disp_left, id_two_disp_right.
-    rewrite !twosided_prod_transportb.
-    unfold transportb.
-    rewrite transport_f_f.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    rewrite transport_b_b_disp_mor2.
+    use transportb_disp_mor2_eq.
+    apply idpath.
   - rewrite (pr2 φφ).
-    rewrite !twosided_prod_transportb.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    use transportb_disp_mor2_eq.
+    apply idpath.
   - rewrite id_two_disp_left.
-    rewrite !twosided_prod_transportb.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    use transportb_disp_mor2_eq.
+    apply idpath.
   - rewrite id_two_disp_left.
-    rewrite !twosided_prod_transportb.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    use transportb_disp_mor2_eq.
+    apply idpath.
   - rewrite id_two_disp_left.
-    rewrite !twosided_prod_transportb.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    use transportb_disp_mor2_eq.
+    apply idpath.
   - rewrite id_two_disp_left.
-    rewrite !twosided_prod_transportb.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    use transportb_disp_mor2_eq.
+    apply idpath.
   - rewrite id_two_disp_left.
-    rewrite !twosided_prod_transportb.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    use transportb_disp_mor2_eq.
+    apply idpath.
   - rewrite id_two_disp_left.
-    rewrite !twosided_prod_transportb.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    use transportb_disp_mor2_eq.
+    apply idpath.
   - rewrite id_two_disp_left.
     rewrite twosided_disp_functor_id.
-    rewrite !twosided_prod_transportb.
-    unfold transportb.
-    rewrite !transport_f_f.
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    rewrite transport_b_b_disp_mor2.
+    use transportb_disp_mor2_eq.
+    apply idpath.
   - etrans.
     {
       rewrite id_two_disp_left.
       unfold transportb.
-      rewrite two_disp_pre_whisker_left.
-      rewrite two_disp_pre_whisker_right.
-      rewrite twosided_prod_transport.
+      rewrite two_disp_pre_whisker_b.
       rewrite id_two_disp_left.
-      unfold transportb.
-      rewrite twosided_prod_transport.
-      rewrite transport_f_f.
+      rewrite transport_b_b_disp_mor2.
       rewrite twosided_disp_functor_id.
-      unfold transportb.
-      rewrite twosided_prod_transport.
-      rewrite transport_f_f.
+      rewrite transport_b_b_disp_mor2.
       apply idpath.
     }
     refine (!_).
     etrans.
     {
-      unfold transportb.
-      rewrite twosided_prod_transport.
       rewrite id_two_disp_left.
-      unfold transportb.
-      rewrite twosided_prod_transport.
-      rewrite transport_f_f.
+      rewrite transport_b_b_disp_mor2.
       apply idpath.
     }
-    apply maponpaths_2.
-    apply isaset_dirprod ; apply homset_property.
+    use transportb_disp_mor2_eq.
+    apply idpath.
 Qed.
 
 Definition disp_prebicat_twosided_disp_cat
@@ -320,6 +274,10 @@ Proof.
   apply isaset_twosided_disp_nat_trans.
 Defined.
 
+Definition bicat_twosided_disp_cat
+  : bicat
+  := total_bicat disp_bicat_twosided_disp_cat.
+
 (**
  2. A pseudofunctor into displayed categories
  *)
@@ -336,8 +294,9 @@ Proof.
     (intros x y f xx yy ff ; cbn ;
      rewrite id_two_disp_right ;
      rewrite id_two_disp_left ;
-     rewrite <- !transportb_dirprodeq ;
-     rewrite transport_b_b ;
+     unfold transportb_disp_mor2, transportf_disp_mor2, transportb ;
+     rewrite !twosided_prod_transport ;
+     rewrite transport_f_f ;
      apply maponpaths_2 ;
      apply isasetdirprod ; apply homset_property).
 Defined.
@@ -364,8 +323,9 @@ Proof.
     (intros x y f xx yy ff ; cbn ;
      rewrite id_two_disp_right ;
      rewrite id_two_disp_left ;
-     rewrite <- !transportb_dirprodeq ;
-     rewrite transport_b_b ;
+     unfold transportb_disp_mor2, transportf_disp_mor2, transportb ;
+     rewrite !twosided_prod_transport ;
+     rewrite transport_f_f ;
      apply maponpaths_2 ;
      apply isasetdirprod ; apply homset_property).
 Defined.
@@ -388,8 +348,9 @@ Proof.
         (intros x y f xx yy ff ; cbn ;
          rewrite id_two_disp_right ;
          rewrite id_two_disp_left ;
-         rewrite <- !transportb_dirprodeq ;
-         rewrite transport_b_b ;
+         unfold transportb_disp_mor2, transportf_disp_mor2, transportb ;
+         rewrite !twosided_prod_transport ;
+         rewrite transport_f_f ;
          apply maponpaths_2 ;
          apply isasetdirprod ; apply homset_property).
     + abstract
@@ -398,8 +359,8 @@ Proof.
          unfold transportb ;
          refine (_ @ !(disp_nat_trans_transportf _ _ _ _ _ _ _ _ _ _)) ; cbn ;
          rewrite id_two_disp_left ;
-         rewrite <- transportb_dirprodeq ;
-         unfold transportb ;
+         unfold transportb_disp_mor2, transportf_disp_mor2, transportb ;
+         rewrite !twosided_prod_transport ;
          apply maponpaths_2 ;
          apply isasetdirprod ; apply homset_property).
     + abstract
@@ -408,8 +369,8 @@ Proof.
          unfold transportb ;
          refine (_ @ !(disp_nat_trans_transportf _ _ _ _ _ _ _ _ _ _)) ; cbn ;
          rewrite id_two_disp_left ;
-         rewrite <- transportb_dirprodeq ;
-         unfold transportb ;
+         unfold transportb_disp_mor2, transportf_disp_mor2, transportb ;
+         rewrite !twosided_prod_transport ;
          apply maponpaths_2 ;
          apply isasetdirprod ; apply homset_property).
   - intros C₁ C₂ C₃ F G D₁ D₂ D₃ FF GG.
@@ -420,8 +381,9 @@ Proof.
         (intros x y f xx yy ff ; cbn ;
          rewrite id_two_disp_right ;
          rewrite id_two_disp_left ;
-         rewrite <- !transportb_dirprodeq ;
-         rewrite transport_b_b ;
+         unfold transportb_disp_mor2, transportf_disp_mor2, transportb ;
+         rewrite !twosided_prod_transport ;
+         rewrite transport_f_f ;
          apply maponpaths_2 ;
          apply isasetdirprod ; apply homset_property).
     + abstract
@@ -430,8 +392,8 @@ Proof.
          unfold transportb ;
          refine (_ @ !(disp_nat_trans_transportf _ _ _ _ _ _ _ _ _ _)) ; cbn ;
          rewrite id_two_disp_left ;
-         rewrite <- transportb_dirprodeq ;
-         unfold transportb ;
+         unfold transportb_disp_mor2, transportf_disp_mor2, transportb ;
+         rewrite !twosided_prod_transport ;
          apply maponpaths_2 ;
          apply isasetdirprod ; apply homset_property).
     + abstract
@@ -440,8 +402,8 @@ Proof.
          unfold transportb ;
          refine (_ @ !(disp_nat_trans_transportf _ _ _ _ _ _ _ _ _ _)) ; cbn ;
          rewrite id_two_disp_left ;
-         rewrite <- transportb_dirprodeq ;
-         unfold transportb ;
+         unfold transportb_disp_mor2, transportf_disp_mor2, transportb ;
+         rewrite !twosided_prod_transport ;
          apply maponpaths_2 ;
          apply isasetdirprod ; apply homset_property).
 Defined.
@@ -490,10 +452,10 @@ Proof.
       apply disp_nat_trans_transportf.
     }
     cbn.
-    do 2 (rewrite id_two_disp_right ; rewrite <- transportb_dirprodeq).
+    do 2 rewrite id_two_disp_right.
     rewrite twosided_disp_functor_id.
-    rewrite <- transportb_dirprodeq.
-    unfold transportb.
+    unfold transportb_disp_mor2, transportf_disp_mor2, transportb.
+    rewrite !twosided_prod_transport.
     rewrite !transport_f_f.
     rewrite transportf_set.
     + apply idpath.
@@ -508,8 +470,9 @@ Proof.
       apply disp_nat_trans_transportf.
     }
     cbn.
-    do 2 (rewrite id_two_disp_right ; rewrite <- transportb_dirprodeq).
-    unfold transportb.
+    do 2 rewrite id_two_disp_right.
+    unfold transportb_disp_mor2, transportf_disp_mor2, transportb.
+    rewrite !twosided_prod_transport.
     rewrite !transport_f_f.
     rewrite transportf_set.
     + apply idpath.
@@ -525,10 +488,10 @@ Proof.
     }
     cbn.
     rewrite twosided_disp_functor_id.
-    rewrite <- transportb_dirprodeq.
-    do 3 (rewrite id_two_disp_right ; rewrite <- transportb_dirprodeq).
-    rewrite id_two_disp_left ; rewrite <- transportb_dirprodeq.
-    unfold transportb.
+    do 3 rewrite id_two_disp_right.
+    rewrite id_two_disp_left.
+    unfold transportb_disp_mor2, transportf_disp_mor2, transportb.
+    rewrite !twosided_prod_transport.
     rewrite !transport_f_f.
     apply maponpaths_2.
     apply isasetdirprod ; apply homset_property.
@@ -542,9 +505,10 @@ Proof.
       apply disp_nat_trans_transportf.
     }
     cbn.
-    rewrite id_two_disp_right ; rewrite <- transportb_dirprodeq.
-    rewrite id_two_disp_left ; rewrite <- transportb_dirprodeq.
-    unfold transportb.
+    rewrite id_two_disp_right.
+    rewrite id_two_disp_left.
+    unfold transportb_disp_mor2, transportf_disp_mor2, transportb.
+    rewrite !twosided_prod_transport.
     rewrite !transport_f_f.
     apply maponpaths_2.
     apply isasetdirprod ; apply homset_property.
@@ -558,9 +522,10 @@ Proof.
       apply disp_nat_trans_transportf.
     }
     cbn.
-    rewrite id_two_disp_right ; rewrite <- transportb_dirprodeq.
-    rewrite id_two_disp_left ; rewrite <- transportb_dirprodeq.
-    unfold transportb.
+    rewrite id_two_disp_right.
+    rewrite id_two_disp_left.
+    unfold transportb_disp_mor2, transportf_disp_mor2, transportb.
+    rewrite !twosided_prod_transport.
     rewrite !transport_f_f.
     apply maponpaths_2.
     apply isasetdirprod ; apply homset_property.
@@ -605,4 +570,28 @@ Proof.
   - exact univalent_cat_is_univalent_2_1.
   - exact univalent_cat_is_univalent_2_1.
   - exact disp_univalent_2_0_disp_bicat_of_univ_disp_cat.
+Defined.
+
+Definition is_univalent_2_1_bicat_twosided_disp_cat
+  : is_univalent_2_1 bicat_twosided_disp_cat.
+Proof.
+  use total_is_univalent_2_1.
+  - exact univalent_cat_is_univalent_2_1.
+  - exact (pr2 disp_univalent_2_disp_bicat_twosided_disp_cat).
+Defined.
+
+Definition is_univalent_2_0_bicat_twosided_disp_cat
+  : is_univalent_2_0 bicat_twosided_disp_cat.
+Proof.
+  use total_is_univalent_2_0.
+  - exact univalent_cat_is_univalent_2_0.
+  - exact (pr1 disp_univalent_2_disp_bicat_twosided_disp_cat).
+Defined.
+
+Definition is_univalent_2_bicat_twosided_disp_cat
+  : is_univalent_2 bicat_twosided_disp_cat.
+Proof.
+  use total_is_univalent_2.
+  - exact disp_univalent_2_disp_bicat_twosided_disp_cat.
+  - exact univalent_cat_is_univalent_2.
 Defined.
