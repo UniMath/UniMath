@@ -7,7 +7,7 @@
  machinery of displayed bicategories.
 
  The idea behind this construction is to split up the notion of double category into
- several independent parts. More specifically, a univalent double category is a
+ several layers. More specifically, a univalent double category is a
  univalent category with another collection of morphisms and a collection of squares.
  As such, the starting point of this construction is the univalent bicategory of
  univalent categories.
