@@ -19,7 +19,21 @@ Require Import UniMath.Bicategories.DoubleCategories.DoubleFunctor.Basics.
 Local Open Scope cat.
 
 Unset Kernel Term Sharing.
-(* this is to reduce the memory consumption of this file *)
+(**
+ This is to reduce the memory consumption of this file.
+ Usually, the Coq kernel uses lazy evaluation, but with this command,
+ strict evaluation is used. As a result, the memory consumption might
+ decrease while the time consumption might increase.
+
+ On my laptop (M2 Macbook Air, 2022):
+
+ Without kernel term sharing:
+ - The final Qed takes 33.027 seconds
+ - At the end of the file, 5.92 GB of RAM is used
+ With kernel term sharing:
+ - The final Qed takes 42.759 seconds
+ - At the end of the file, 7.27 GB of RAM is used
+ *)
 
 Proposition comp_functor_associator
             {C₁ C₂ C₃ : category}
@@ -180,4 +194,4 @@ Proof.
   rewrite !transport_f_f_disp_mor2.
   use transportf_disp_mor2_eq.
   apply idpath.
-Qed. (* this proof compiles, but the memory consumption is too high (5.6 GB) *)
+Qed.
