@@ -3,7 +3,7 @@
  Basics of double categories
 
  In this file, we define the basic notions for double categories. There are a
- couple of ideas behind the definition that we use
+ couple of ideas behind the definition that we use:
  - First of all, a double category is a category with extra structure. This extra
    structure includes another collection of morphisms, and we use 2-sided displayed
    categories to represent these.
