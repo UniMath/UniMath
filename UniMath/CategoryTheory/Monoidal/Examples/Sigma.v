@@ -285,3 +285,71 @@ Section SigmaConstructionSymmetric.
   Defined.
 
 End SigmaConstructionSymmetric.
+
+Section DirprodConstruction.
+
+  Import DisplayedMonoidalNotations.
+
+  Context {C : category} {M : monoidal C}
+    {D : disp_cat C} (DM : disp_monoidal D M)
+    {D' : disp_cat C} (D'M : disp_monoidal D' M).
+
+  Context (D_prop : locally_propositional D)
+    (D'_prop : locally_propositional D').
+
+  Definition dirprod_disp_tensor
+    : disp_bifunctor M (D × D') (D × D') (D × D').
+  Proof.
+    simple refine ((_ ,, (_,,_)) ,, _).
+    - intros x y xx yy.
+      exact (pr1 xx ⊗⊗_{DM} pr1 yy ,, pr2 xx ⊗⊗_{D'M} pr2 yy).
+    - intros x y1 y2 g xx yy1 yy2 gg.
+      exact (pr1 xx ⊗⊗^{DM}_{l} pr1 gg ,, pr2 xx ⊗⊗^{D'M}_{l} pr2 gg).
+    - intros y1 y2 x f yy1 yy2 xx ff.
+      exact (pr1 ff ⊗⊗^{DM}_{r} pr1 xx ,, pr2 ff ⊗⊗^{D'M}_{r} pr2 xx).
+    - abstract (repeat split ;
+                (try (intro ; intros) ; use total2_paths_f ; [apply D_prop | apply D'_prop])).
+  Defined.
+
+  Definition dirprod_disp_cat_monoidal_data
+    : disp_monoidal_data (dirprod_disp_cat D D') M.
+  Proof.
+    simple refine (_ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _).
+    - exact dirprod_disp_tensor.
+    - exact (dI_{DM} ,, dI_{D'M}).
+    - intros x [x1 x2].
+      exact (dlu^{DM} _ x1 ,, dlu^{D'M} _ x2).
+    - intros x [x1 x2].
+      exact (dluinv^{DM} _ x1 ,, dluinv^{D'M} _ x2).
+    - intros x [x1 x2].
+      exact (dru^{DM} _ x1 ,, dru^{D'M} _ x2).
+    - intros x [x1 x2].
+      exact (druinv^{DM} _ x1 ,, druinv^{D'M} _ x2).
+    - intros x y z [x1 x2] [y1 y2] [z1 z2].
+      exact (dα^{DM} _ _ _ x1 y1 z1 ,, dα^{D'M} _ _ _ x2 y2 z2).
+    - intros x y z [x1 x2] [y1 y2] [z1 z2].
+      exact (dαinv^{DM} _ _ _ x1 y1 z1 ,, dαinv^{D'M} _ _ _ x2 y2 z2).
+  Defined.
+
+  Definition dirprod_disp_cat_monoidal
+    : disp_monoidal (dirprod_disp_cat D D') M.
+  Proof.
+    exists dirprod_disp_cat_monoidal_data.
+    abstract (repeat split ;
+              (try (intro ; intros) ; use total2_paths_f ; [apply D_prop | apply D'_prop])).
+  Defined.
+
+  Definition dirprod_disp_cat_symmetric_monoidal
+    {S : symmetric M}
+    (SM : disp_symmetric DM S)
+    (S'M : disp_symmetric D'M S)
+    : disp_symmetric dirprod_disp_cat_monoidal S.
+  Proof.
+    use tpair.
+    - intros x y [x1 x2] [y1 y2].
+      exact (pr1 SM _ _ x1 y1 ,, pr1 S'M _ _ x2 y2).
+    - abstract (repeat split ;
+              (try (intro ; intros) ; use total2_paths_f ; [apply D_prop | apply D'_prop])).
+  Defined.
+
+End DirprodConstruction.

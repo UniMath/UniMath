@@ -25,8 +25,8 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
 
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Comonoids.
-Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsCategory.
-Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsMonoidalCategory.
+(* Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsCategory. *)
+Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsMonoidal.
 
 Local Open Scope cat.
 Import MonoidalNotations.
@@ -43,7 +43,9 @@ Import MonoidalNotations.
 
 Section CartesianBuilder.
 
-  Context {C : category} (M : monoidal C).
+  Context (V : monoidal_cat).
+  Let C : category := V.
+  Let M : monoidal C := V.
 
   Notation "x ⊗ y" := (x ⊗_{M} y).
   Notation "x ⊗l f" := (x ⊗^{M}_{l} f) (at level 31).
@@ -97,7 +99,7 @@ Section CartesianBuilder.
     Let k := make_isbinprod_from_comonoid_existence_mor.
 
     Lemma make_is_binprod_from_comonoids_existence_mor_1
-      : ∇_{z} · fx ⊗⊗ fy · (identity x ⊗^{ M} !_{y} · ru x) = fx.
+      : ∇_{z} · fx ⊗⊗ fy · (identity x ⊗^{M} !_{y} · ru x) = fx.
     Proof.
       rewrite ! assoc'.
       etrans. {
@@ -119,8 +121,8 @@ Section CartesianBuilder.
         apply maponpaths.
         rewrite assoc'.
         apply maponpaths.
-        set (h := tensor_runitor (V := C,,M) fx); cbn in h.
-        unfold monoidal_cat_tensor_mor, mon_runitor, monoidal_unit in h ; cbn in h.
+        set (h := tensor_runitor fx); cbn in h.
+        (* unfold monoidal_cat_tensor_mor, mon_runitor, monoidal_unit in h ; cbn in h. *)
         exact h.
       }
       rewrite ! assoc.
@@ -155,7 +157,7 @@ Section CartesianBuilder.
         apply maponpaths.
         rewrite assoc'.
         apply maponpaths.
-        set (h := tensor_lunitor (V := C,,M) fy); cbn in h.
+        set (h := tensor_lunitor fy); cbn in h.
         unfold monoidal_cat_tensor_mor, mon_runitor, monoidal_unit in h ; cbn in h.
         exact h.
       }
@@ -213,7 +215,7 @@ Section CartesianBuilder.
     (pT : ∏ x y : C,
           ∇_{ x ⊗_{ M} y} · (x ⊗^{ M}_{l} !_{ y}) ⊗^{ M} (!_{ x} ⊗^{ M}_{r} y) · ru x ⊗^{ M} lu y
           = identity (x ⊗_{ M} y))
-    : tensor_isBinProduct (M := C,,M) (monoidal_is_semicartesian_from_comonoid pI).
+    : tensor_isBinProduct (monoidal_is_semicartesian_from_comonoid pI).
   Proof.
     intros x y.
     use make_isBinProduct.
@@ -233,7 +235,7 @@ Section CartesianBuilder.
     (pT : ∏ x y : C,
           ∇_{ x ⊗_{ M} y} · (x ⊗^{ M}_{l} !_{ y}) ⊗^{ M} (!_{ x} ⊗^{ M}_{r} y) · ru x ⊗^{ M} lu y
           = identity (x ⊗_{ M} y))
-    : is_cartesian (C,,M).
+    : is_cartesian V.
   Proof.
     exists (monoidal_is_semicartesian_from_comonoid pI).
     exact (monoidal_is_binproduct_from_comonoid pI pT).
@@ -243,7 +245,10 @@ End CartesianBuilder.
 
 Section CartesianBuilderCommutative.
 
-  Context {C : category} {M : monoidal C} (S : symmetric M).
+  Context (V : sym_monoidal_cat).
+  Let C := V : category.
+  Let M := V : monoidal C.
+  Let S := (pr2 V) : symmetric M.
 
   Notation "x ⊗ y" := (x ⊗_{M} y).
   Notation "x ⊗l f" := (x ⊗^{M}_{l} f) (at level 31).
@@ -265,7 +270,7 @@ Section CartesianBuilderCommutative.
   Notation "!_{ x }" := (pr21 (m x)).
 
   Lemma comonoid_unit_law_right_inv (x : C)
-    : ru x · (∇_{ x} · x ⊗^{ M}_{l} !_{ x}) = identity _.
+    : ru x · (∇_{x} · x ⊗^{ M}_{l} !_{x}) = identity _.
   Proof.
     etrans. {
       apply maponpaths.
@@ -275,7 +280,7 @@ Section CartesianBuilderCommutative.
   Qed.
 
   Lemma comonoid_unit_law_left_inv (y : C)
-    : lu y · (∇_{ y} · !_{ y} ⊗^{ M}_{r} y) = identity _.
+    : lu y · (∇_{y} · !_{y} ⊗^{ M}_{r} y) = identity _.
   Proof.
     etrans. {
       apply maponpaths.
@@ -342,7 +347,7 @@ Section CartesianBuilderCommutative.
   Qed.
 
   Definition symm_monoidal_is_cartesian_from_comonoid
-    : is_cartesian (C,,M).
+    : is_cartesian V.
   Proof.
     use monoidal_is_cartesian_from_comonoid.
     - exact m.

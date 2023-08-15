@@ -17,6 +17,7 @@ Require Import UniMath.CategoryTheory.catiso.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 Require Import UniMath.CategoryTheory.DisplayedCats.CatIsoDisplayed.
 
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -31,8 +32,8 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
 
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Comonoids.
-Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsCategory.
-Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsMonoidalCategory.
+Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsCategoryAsDialg.
+Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsMonoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.MonoidalCartesianBuilder.
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.CommComonoidsCartesian.
 
@@ -43,6 +44,7 @@ Import ComonoidNotations.
 Section CartesianToCartesianAsComonoids.
 
   Context {C : category} {M : monoidal C} (Ccart : is_cartesian (C,,M)).
+  Let V : sym_monoidal_cat := (C,,M),, cartesian_to_symmetric Ccart.
 
   Let diag (x : C) := (BinProductArrow _ (is_cartesian_BinProduct Ccart x x) (identity x) (identity x)).
 
@@ -381,9 +383,19 @@ Section CartesianToCartesianAsComonoids.
     exact (cartesian_monoidal_has_enough_comonoids_mor_unit f).
   Qed.
 
+  Definition cartesian_monoidal_has_enough_comonoids_mor'
+    {x y : C} (f : C⟦x, y⟧)
+    : diag x · monoidal_cat_tensor_mor (V := V) f f = f · diag y × aug x · identity I_{ M} = f · aug y.
+  Proof.
+    split.
+    - exact (cartesian_monoidal_has_enough_comonoids_mor_mult f).
+    - refine (_ @ ! cartesian_monoidal_has_enough_comonoids_mor_unit f).
+      apply id_right.
+  Qed.
+
   Definition cartesian_mon_is_comm_comonoids
     : is_catiso (pr1_category
-                   (commutative_comonoids_disp_cat_over_base (cartesian_to_symmetric Ccart))).
+                   (commutative_comonoids_disp_cat V)).
   Proof.
     use forgetful_is_iso.
     - intro c.
@@ -397,11 +409,15 @@ Section CartesianToCartesianAsComonoids.
         apply (cartesian_monoidal_has_unique_comonoids c).
     - intro ; intros.
       use unique_exists.
-      + apply cartesian_monoidal_has_enough_comonoids_mor.
+      + refine (_ ,, tt).
+        apply cartesian_monoidal_has_enough_comonoids_mor'.
       + exact tt.
       + exact (λ _, isapropunit).
       + intro ; intro.
-        apply isaprop_is_comonoid_mor.
+        use proofirrelevance.
+        simpl.
+        use (isaprop_total2 (_ ,, _) (λ _ , _ ,, isapropunit)).
+        apply (isaprop_total2 (_ ,, homset_property _ _ _ _ _) (λ _ , _ ,, homset_property _ _ _ _ _)).
   Defined.
 
 End CartesianToCartesianAsComonoids.

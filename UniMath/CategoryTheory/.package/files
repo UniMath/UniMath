@@ -325,8 +325,8 @@ Monoidal/Examples/Relations.v
 Monoidal/Examples/Sigma.v
 
 Monoidal/Comonoids/Comonoids.v
-Monoidal/Comonoids/ComonoidsCategory.v
-Monoidal/Comonoids/ComonoidsMonoidalCategory.v
+Monoidal/Comonoids/ComonoidsMonoidal.v
+Monoidal/Comonoids/ComonoidsCategoryAsDialg.v
 Monoidal/Comonoids/MonoidalCartesianBuilder.v
 Monoidal/Comonoids/CommComonoidsCartesian.v
 Monoidal/Comonoids/CartesianAsComonoids.v

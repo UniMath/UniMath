@@ -1,5 +1,5 @@
 (*
-In this file, it is shown how the (displayed) category of comonoids (resp. commutative comonoids) is (displayed) symmetric.
+In this file, the necessary ingredients to show how the (displayed) category of comonoids (resp. commutative comonoids) is (displayed) symmetric.
 *)
 
 Require Import UniMath.Foundations.All.
@@ -29,17 +29,20 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.
-Require Import UniMath.CategoryTheory.Monoidal.Displayed.SymmetricMonoidalBuilder.
+(* Require Import UniMath.CategoryTheory.Monoidal.Displayed.SymmetricMonoidalBuilder. *)
 
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Comonoids.
-Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsCategory.
+(* Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsCategory. *)
 
 Local Open Scope cat.
 Import MonoidalNotations.
 
 Section SymmetricMonoidalCategoryOfComonoids.
 
-  Context {C : category} {M : monoidal C} (S : symmetric M).
+  Context (V : sym_monoidal_cat).
+  Let C : category := V.
+  Let M : monoidal C := V.
+  Let S : symmetric M := pr2 V.
 
   Notation "x ⊗ y" := (x ⊗_{M} y).
   Notation "x ⊗l f" := (x ⊗^{M}_{l} f) (at level 31).
@@ -346,7 +349,7 @@ Section SymmetricMonoidalCategoryOfComonoids.
   Qed.
 
   Definition comonoid_disp_unit
-    :  comonoid_disp_cat M (monoidal_unit M).
+    :  comonoid M (monoidal_unit M).
   Proof.
     exists comonoid_disp_unit_data.
     exact comonoid_disp_unit_laws.
@@ -456,7 +459,7 @@ Section SymmetricMonoidalCategoryOfComonoids.
       2: {
         rewrite assoc.
         apply maponpaths_2.
-        apply (tensor_sym_mon_braiding ((C,,M),,S)).
+        apply (tensor_sym_mon_braiding).
       }
       rewrite ! assoc'.
       apply comult_before_rearrange_and_swap.
@@ -464,11 +467,11 @@ Section SymmetricMonoidalCategoryOfComonoids.
       cbn.
       rewrite ! assoc.
       apply maponpaths_2.
-      etrans. { apply pathsinv0, (tensor_sym_mon_braiding ((C,,M),,S)). }
+      etrans. { apply pathsinv0, (tensor_sym_mon_braiding V). }
       cbn.
       refine (_ @ id_right _).
       apply maponpaths.
-      apply (sym_mon_braiding_id ((C,,M),,S)).
+      apply sym_mon_braiding_id.
   Qed.
 
   Lemma comonoid_disp_associator_mult
@@ -524,21 +527,21 @@ Section SymmetricMonoidalCategoryOfComonoids.
     etrans. {
       apply maponpaths.
       apply maponpaths_2.
-      apply (tensor_comp_l_id_l (V := C,,M)).
+      apply tensor_comp_l_id_l.
     }
     unfold monoidal_cat_tensor_mor.
     cbn.
     rewrite ! assoc.
     etrans. {
       do 2 apply maponpaths_2.
-      apply pathsinv0, (tensor_lassociator (V := C,,M)).
+      apply pathsinv0, tensor_lassociator.
     }
     unfold monoidal_cat_tensor_mor.
     cbn.
     apply maponpaths_2.
     etrans. {
       apply maponpaths_2.
-      apply (tensor_lassociator (V := C,,M)).
+      apply tensor_lassociator.
     }
     unfold monoidal_cat_tensor_mor.
     cbn.
@@ -638,21 +641,21 @@ Section SymmetricMonoidalCategoryOfComonoids.
     etrans. {
       apply maponpaths.
       apply maponpaths_2.
-      apply (tensor_comp_r_id_r (V := C,,M)).
+      apply (tensor_comp_r_id_r).
     }
     unfold monoidal_cat_tensor_mor.
     cbn.
     rewrite ! assoc.
     etrans. {
       do 2 apply maponpaths_2.
-      apply pathsinv0, (tensor_rassociator (V := C,,M)).
+      apply pathsinv0, tensor_rassociator.
     }
     unfold monoidal_cat_tensor_mor.
     cbn.
     apply maponpaths_2.
     etrans. {
       apply maponpaths_2.
-      apply (tensor_rassociator (V := C,,M)).
+      apply tensor_rassociator.
     }
     unfold monoidal_cat_tensor_mor.
     cbn.
@@ -700,7 +703,7 @@ Section SymmetricMonoidalCategoryOfComonoids.
     - exact (comonoid_disp_associatorinv_unit xx yy zz).
   Qed.
 
-  Definition comonoid_disp_symmetric_monoidal
+  (* Definition comonoid_disp_symmetric_monoidal
     :  ∑ DM : disp_monoidal (comonoid_disp_cat M) M, disp_symmetric DM S.
   Proof.
     use make_symmetric_monoidal_disp_cat_locally_prop.
@@ -728,19 +731,22 @@ Section SymmetricMonoidalCategoryOfComonoids.
     use total_symmetric.
     { exact S. }
     exact (pr2 comonoid_disp_symmetric_monoidal).
-  Defined.
+  Defined. *)
 
 End SymmetricMonoidalCategoryOfComonoids.
 
 Section SymmetricMonoidalCategoryOfCommutativeComonoids.
 
-  Context {C : category} {M : monoidal C} (S : symmetric M).
+  Context (V : sym_monoidal_cat).
+  Let C : category := V.
+  Let M : monoidal C := V.
+  Let S : symmetric M := pr2 V.
 
   Lemma tensor_of_comm_comonoids
     {x y : C} {mx : comonoid M x} {my : comonoid M y}
     (sx : is_commutative S mx)
     (sy : is_commutative S my)
-    : is_commutative S (tensor_of_comonoids S mx my).
+    : is_commutative S (tensor_of_comonoids V mx my).
   Proof.
 
     use (z_iso_inv_on_left _ _ _ _ (rearrange_prod S _ _ _ _ ,, rearrange_prod S _ _ _ _ ,, _)).
@@ -770,7 +776,7 @@ Section SymmetricMonoidalCategoryOfCommutativeComonoids.
     exact (! sy).
   Qed.
 
-  Definition disp_monoidal_cat_of_comm_comonoids
+  (* Definition disp_monoidal_cat_of_comm_comonoids
     : disp_monoidal (disp_full_sub
                        (category_of_comonoids_in_monoidal_cat M)
                        (λ x : ∑ x : C, comonoid M x, is_commutative S (pr2 x)))
@@ -813,6 +819,6 @@ Section SymmetricMonoidalCategoryOfCommutativeComonoids.
     - use sigma_disp_cat_monoidal_symmetric.
       + apply (comonoid_disp_symmetric_monoidal S).
       + apply disp_symmetric_monoidal_cat_of_comm_comonoids.
-  Defined.
+  Defined. *)
 
 End SymmetricMonoidalCategoryOfCommutativeComonoids.
