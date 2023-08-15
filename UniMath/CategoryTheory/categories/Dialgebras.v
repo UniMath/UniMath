@@ -963,7 +963,7 @@ Section DialgebraEquivalence.
 
   Definition dialgebra_adj_equivalence_of_cats
     : adj_equivalence_of_cats dialgebra_equivalence_of_cats_functor
-    := adjointificiation dialgebra_equivalence_of_cats.
+    := adjointification dialgebra_equivalence_of_cats.
 End DialgebraEquivalence.
 
 
