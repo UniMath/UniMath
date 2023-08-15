@@ -777,8 +777,7 @@ Section SymmetricMonoidalCategoryOfCommutativeComonoids.
         (monoidal_cat_of_comonoids S).
   Proof.
     use (disp_monoidal_fullsub _
-           (λ x : category_of_comonoids_in_monoidal_cat M, (is_commutative S (pr2 x) ,, _))).
-    - intro ; apply homset_property.
+           (λ x : category_of_comonoids_in_monoidal_cat M, (is_commutative S (pr2 x : comonoid M (pr1 x))))).
     - refine (_ @ id_right _).
       apply maponpaths.
       exact (sym_mon_braiding_id ((C,,M),,S)).
