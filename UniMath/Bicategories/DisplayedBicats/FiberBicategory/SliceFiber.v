@@ -204,7 +204,7 @@ Section LaxSliceFiber.
 
   Definition adj_equivalence_lax_slice_fib_to_hom
     : adj_equivalence_of_cats lax_slice_fib_to_hom
-    := adjointificiation equiv_lax_slice_fib_hom.
+    := adjointification equiv_lax_slice_fib_hom.
 
   Definition adj_equiv_lax_slice_fib_hom
     : adj_equiv fib homc
@@ -450,7 +450,7 @@ Section OplaxSliceFiber.
 
   Definition adj_equivalence_oplax_slice_fib_to_hom
     : adj_equivalence_of_cats oplax_slice_fib_to_hom
-    := adjointificiation equiv_oplax_slice_fib_hom.
+    := adjointification equiv_oplax_slice_fib_hom.
 
   Definition adj_equiv_oplax_slice_fib_hom
     : adj_equiv fib homc
@@ -709,7 +709,7 @@ Section SliceFiber.
 
   Definition adj_equivalence_slice_fib_to_hom
     : adj_equivalence_of_cats slice_fib_to_hom
-    := adjointificiation equiv_slice_fib_hom.
+    := adjointification equiv_slice_fib_hom.
 
   Definition adj_equiv_slice_fib_hom
     : adj_equiv fib homc
