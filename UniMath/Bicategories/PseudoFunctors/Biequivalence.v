@@ -16,6 +16,8 @@ Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
+Require Import UniMath.Bicategories.Morphisms.Properties.ClosedUnderInvertibles.
+Require Import UniMath.Bicategories.Morphisms.Properties.Composition.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Composition.
@@ -328,3 +330,54 @@ Proof.
   - apply lunitor_linvunitor_pstrans.
   - apply linvunitor_lunitor_pstrans.
 Defined.
+
+(**
+ Biequivalences reflect adjoint equivalences
+ *)
+Section BiequivReflectAdjequiv.
+  Context {B₁ B₂ : bicat}
+          (L : biequivalence B₁ B₂).
+
+  Let R : psfunctor B₂ B₁ := inv_psfunctor_of_is_biequivalence L.
+  Let η : pstrans (comp_psfunctor R L) (id_psfunctor B₁) := unit_of_is_biequivalence L.
+  Let Hη : left_adjoint_equivalence η := is_biequivalence_adjoint_unit L.
+
+  Context {x y : B₁}
+          {f : x --> y}
+          (Hf : left_adjoint_equivalence (#L f)).
+
+  Let f' : x --> y
+    := left_adjoint_right_adjoint (pointwise_adjequiv _ Hη x) · #R(#L f) · η y.
+
+  Definition biequiv_reflect_adjequiv_cell
+    : invertible_2cell f f'
+    := comp_of_invertible_2cell
+         (linvunitor_invertible_2cell _)
+         (comp_of_invertible_2cell
+            (rwhisker_of_invertible_2cell
+               _
+               (inv_of_invertible_2cell
+                  (left_equivalence_counit_iso (pointwise_adjequiv _ Hη x))))
+            (comp_of_invertible_2cell
+               (rassociator_invertible_2cell _ _ _)
+               (comp_of_invertible_2cell
+                  (lwhisker_of_invertible_2cell
+                     _
+                     (psnaturality_of η f))
+                  (lassociator_invertible_2cell _ _ _)))).
+
+  Definition biequiv_reflect_adjequiv
+    : left_adjoint_equivalence f.
+  Proof.
+    use left_adjoint_equivalence_invertible.
+    - exact f'.
+    - use comp_left_adjoint_equivalence.
+      + use comp_left_adjoint_equivalence.
+        * apply inv_left_adjoint_equivalence.
+        * use (psfunctor_preserves_adjequiv' R).
+          exact Hf.
+      + exact (pointwise_adjequiv _ Hη y).
+    - exact biequiv_reflect_adjequiv_cell.
+    - apply property_from_invertible_2cell.
+  Defined.
+End BiequivReflectAdjequiv.

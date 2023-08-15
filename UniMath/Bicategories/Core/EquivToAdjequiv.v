@@ -338,6 +338,17 @@ Proof.
   - split ; cbn ; is_iso.
 Defined.
 
+Definition inv_left_adjoint_equivalence
+           {B : bicat}
+           {x y : B}
+           {f : x --> y}
+           (Hf : left_adjoint_equivalence f)
+  : left_adjoint_equivalence (left_adjoint_right_adjoint Hf).
+Proof.
+  use equiv_to_adjequiv.
+  exact (inv_equiv (left_equivalence_of_left_adjoint_equivalence Hf)).
+Defined.
+
 Definition inv_adjequiv
            {C : bicat}
            {X Y : C}
