@@ -11,15 +11,11 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
-Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
-Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
@@ -29,7 +25,6 @@ Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifun
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
 
-Require Import UniMath.CategoryTheory.Monoidal.Displayed.TransportLemmas.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.
 
@@ -38,18 +33,14 @@ Local Open Scope mor_disp_scope.
 
 Import BifunctorNotations.
 Import MonoidalNotations.
-Import DisplayedBifunctorNotations.
-Import DisplayedMonoidalNotations.
 
 Section FullSubOfMonoidal.
 
   Context {C : category}
     (M : monoidal C)
-    (P : C → hProp).
-
-  Context
-    (P_u : P (monoidal_unit M))
-      (P_t :  ∏ x y : C, P x → P y → P (x ⊗_{ M} y)).
+    (P : C → UU)
+    (P_u : P I_{M})
+    (P_t : ∏ x y : C, P x → P y → P (x ⊗_{ M} y)).
 
   Definition disp_monoidal_tensor_data_fullsub
     : disp_bifunctor_data M (disp_full_sub C P) (disp_full_sub C P) (disp_full_sub C P).
@@ -91,6 +82,9 @@ Section FullSubOfMonoidal.
     : disp_monoidal (disp_full_sub C P) M
     := _ ,, disp_monoidal_laws_fullsub.
 
+  Definition monoidal_fullsubcat : monoidal (full_subcat C P)
+  := total_monoidal disp_monoidal_fullsub.
+
   Definition disp_braiding_fullsub
     (B : braiding M)
     : disp_braiding disp_monoidal_fullsub B.
@@ -101,6 +95,10 @@ Section FullSubOfMonoidal.
     - abstract (repeat split ; try (intro ; intros) ; apply isapropunit).
   Defined.
 
+  Definition braided_monoidal_fullsubcat (B : braiding M)
+  : braiding monoidal_fullsubcat
+  := total_braiding disp_monoidal_fullsub (disp_braiding_fullsub B).
+
   Definition disp_symmetric_fullsub
     (B : symmetric M)
     : disp_symmetric disp_monoidal_fullsub B.
@@ -109,5 +107,9 @@ Section FullSubOfMonoidal.
     - intro ; intros ; exact tt.
     - abstract (repeat split ; try (intro ; intros) ; apply isapropunit).
   Defined.
+
+  Definition symmetric_monoidal_fullsubcat (B : symmetric M)
+  : symmetric monoidal_fullsubcat
+  := total_symmetric disp_monoidal_fullsub (disp_symmetric_fullsub B).
 
 End FullSubOfMonoidal.

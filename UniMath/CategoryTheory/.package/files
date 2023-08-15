@@ -293,6 +293,7 @@ Monoidal/Structure/Closed.v
 Monoidal/Structure/Cartesian.v
 
 Monoidal/Functors.v
+Monoidal/FunctorCategories.v
 Monoidal/Adjunctions.v
 Monoidal/CategoriesOfMonoids.v
 
@@ -307,16 +308,18 @@ Monoidal/Displayed/SymmetricMonoidalBuilder.v
 Monoidal/Examples/SetCartesianMonoidal.v
 Monoidal/Examples/CartesianMonoidal.v
 Monoidal/Examples/DisplayedCartesianMonoidal.v
-Monoidal/Examples/PosetsMonoidal.v
 Monoidal/Examples/StructuresMonoidal.v
 Monoidal/Examples/EndofunctorsMonoidalElementary.v
 Monoidal/Examples/MonadsAsMonoidsElementary.v
 Monoidal/Examples/MonoidalPointedObjects.v
 Monoidal/Examples/MonoidalDialgebras.v
+Monoidal/Examples/SymmetricMonoidalDialgebras.v
 Monoidal/Examples/PointedSetCartesianMonoidal.v
 Monoidal/Examples/BinopCartesianMonoidal.v
 Monoidal/Examples/SetWithSubset.v
 Monoidal/Examples/SmashProductMonoidal.v
+Monoidal/Examples/PosetsMonoidal.v
+Monoidal/Examples/LiftPoset.v
 Monoidal/Examples/Fullsub.v
 Monoidal/Examples/Relations.v
 Monoidal/Examples/Sigma.v
@@ -327,6 +330,8 @@ Monoidal/Comonoids/ComonoidsMonoidalCategory.v
 Monoidal/Comonoids/MonoidalCartesianBuilder.v
 Monoidal/Comonoids/CommComonoidsCartesian.v
 Monoidal/Comonoids/CartesianAsComonoids.v
+
+Monoidal/Examples/SymmetricMonoidalCoEilenbergMoore.v
 
 Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v
 Monoidal/AlternativeDefinitions/MonoidalCategoriesTensored.v
@@ -439,8 +444,6 @@ TwoSidedDisplayedCats/Total.v
 TwoSidedDisplayedCats/TwoSidedFibration.v
 TwoSidedDisplayedCats/Fiber.v
 
-TwoSidedDisplayedCats/DoubleCategory.v
-
 TwoSidedDisplayedCats/DisplayedFunctor.v
 TwoSidedDisplayedCats/DisplayedNatTrans.v
 
@@ -514,4 +517,4 @@ DaggerCategories/CatIso.v
 
 #Double Categories
 DoubleCategories/Core/DoubleCategories.v
-DoubleCategories/Core/DoubleCategoryEquiv.v
+# DoubleCategories/Core/DoubleCategoryEquiv.v

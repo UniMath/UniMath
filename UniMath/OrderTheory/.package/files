@@ -2,6 +2,7 @@ Posets/Basics.v
 Posets/MonotoneFunctions.v
 Posets/PosetSum.v
 Posets/PointedPosets.v
+Posets/LiftPoset.v
 Posets/QuotientPoset.v
 Posets.v
 

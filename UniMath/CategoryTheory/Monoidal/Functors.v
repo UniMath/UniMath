@@ -250,6 +250,16 @@ Section MonoidalFunctors.
           (fmonoidal_preservestensordata fmd)
           (fmonoidal_preservesunit fmd)).
 
+  Lemma isaprop_fmonoidal_laxlaws
+             {C D : category}
+             {M : monoidal C}
+             {N : monoidal D}
+             {F : functor C D}
+             (fmd : fmonoidal_data M N F) : isaprop (fmonoidal_laxlaws fmd).
+  Proof.
+    repeat (apply isapropdirprod); repeat (apply impred; intro); apply D.
+  Qed.
+
   Definition fmonoidal_lax
              {C D : category}
              (M : monoidal C)
@@ -267,6 +277,20 @@ Section MonoidalFunctors.
     : fmonoidal_data M N F
     := pr1 fm.
   Coercion fmonoidal_fdata : fmonoidal_lax >-> fmonoidal_data.
+
+  Lemma fmonoidal_lax_eq
+             {C D : category}
+             {M : monoidal C}
+             {N : monoidal D}
+             {F : functor C D}
+             (fmd fmd' : fmonoidal_lax M N F) :
+    pr1 fmd = pr1 fmd' -> fmd = fmd'.
+  Proof.
+    intro H.
+    apply subtypePath.
+    - intro; apply isaprop_fmonoidal_laxlaws.
+    - exact H.
+  Qed.
 
   Definition fmonoidal_flaws
              {C D : category}
@@ -856,6 +880,17 @@ Section MonoidalFunctors.
        fmonoidal_preservestensordata HF x y
        · #F(monoidal_braiding_data (symmetric_to_braiding HM) x y).
 
+  Lemma isaprop_is_symmetric_monoidal_functor
+             {C D : category}
+             {M : monoidal C} {N : monoidal D}
+             (HM : symmetric M) (HN : symmetric N)
+             {F : functor C D}
+             (HF : fmonoidal_lax M N F) :
+    isaprop (is_symmetric_monoidal_functor HM HN HF).
+  Proof.
+    apply impred; intro c; apply impred; intro c'; apply D.
+  Qed.
+
   (**
    5. The identity is strong monoidal
    *)
@@ -1219,7 +1254,69 @@ Section MonoidalNaturalTransformations.
       apply D.
     - apply D.
   Qed.
+
 End MonoidalNaturalTransformations.
+
+Section SomeMonoidalNaturalTransformations.
+
+  Lemma is_mon_nat_trans_identity {C D : category}
+    {M : monoidal C} {N : monoidal D}
+    {F : functor C D}
+    (Fm : fmonoidal_lax M N F) :
+    is_mon_nat_trans Fm Fm (nat_trans_id _).
+  Proof.
+    split; red; cbn; unfold fmonoidal_preservestensordata, fmonoidal_preservesunit; intros.
+    - etrans.
+      2: { apply cancel_postcomposition.
+           apply pathsinv0, bifunctor_distributes_over_id.
+           - cbn in *.
+             apply (bifunctor_leftid N).
+           - cbn in *.
+             apply (bifunctor_rightid N).
+      }
+      rewrite id_left.
+      apply id_right.
+    - apply id_right.
+  Qed.
+
+  Lemma is_mon_nat_trans_comp {C D : category}
+    {M : monoidal C} {N : monoidal D}
+    {F G H : functor C D}
+    (Fm : fmonoidal_lax M N F)
+    (Gm : fmonoidal_lax M N G)
+    (Hm : fmonoidal_lax M N H)
+    (α : F ⟹ G) (β : G ⟹ H)
+    :
+    is_mon_nat_trans Fm Gm α -> is_mon_nat_trans Gm Hm β ->
+    is_mon_nat_trans Fm Hm (nat_trans_comp _ _ _ α β).
+  Proof.
+    intros Hα Hβ.
+    split; red; cbn; unfold fmonoidal_preservestensordata, fmonoidal_preservesunit; intros.
+    - etrans.
+      2: { apply cancel_postcomposition.
+           apply pathsinv0, bifunctor_distributes_over_comp.
+           - cbn in *.
+             apply (bifunctor_leftcomp N).
+           - cbn in *.
+             apply (bifunctor_rightcomp N).
+           - cbn in *.
+             apply (bifunctor_equalwhiskers N).
+      }
+      rewrite assoc.
+      etrans.
+      { apply cancel_postcomposition.
+        apply (pr1 Hα a a'). }
+      repeat rewrite assoc'.
+      apply maponpaths.
+      apply (pr1 Hβ).
+    - rewrite assoc.
+      etrans.
+      { apply cancel_postcomposition.
+        apply (pr2 Hα). }
+      apply (pr2 Hβ).
+  Qed.
+
+End SomeMonoidalNaturalTransformations.
 
 (**
  8. Inverses of monoidal natural transformations

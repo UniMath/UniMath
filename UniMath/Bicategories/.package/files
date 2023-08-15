@@ -78,6 +78,7 @@ MonoidalCategories/Actions.v
 MonoidalCategories/ConstructionOfActions.v
 MonoidalCategories/WhiskeredMonoidalFromBicategory.v
 MonoidalCategories/ActionOfEndomorphismsInBicatWhiskered.v
+MonoidalCategories/BicatOfWhiskeredMonCatsLax.v
 MonoidalCategories/BicatOfWhiskeredMonCats.v
 MonoidalCategories/EndofunctorsWhiskeredMonoidal.v
 MonoidalCategories/PointedFunctorsWhiskeredMonoidal.v
@@ -118,6 +119,7 @@ PseudoFunctors/Examples/Composition.v
 PseudoFunctors/Examples/Constant.v
 PseudoFunctors/Examples/ApFunctor.v
 PseudoFunctors/Examples/OpFunctor.v
+PseudoFunctors/Examples/CatDiag.v
 PseudoFunctors/Examples/PseudofunctorFromMonoidal.v
 PseudoFunctors/Examples/Op2OfPseudoFunctor.v
 PseudoFunctors/Examples/BicatOfCatToUnivCat.v
@@ -158,13 +160,26 @@ DisplayedBicats/Examples/LaxSlice.v
 DisplayedBicats/Examples/FunctorsIntoCat.v
 DisplayedBicats/Examples/Codomain.v
 DisplayedBicats/DispPseudofunctor.v
+DisplayedBicats/DispTransportLaws.v
+DisplayedBicats/UnivalenceTechniques.v
 Transformations/Examples/AlgebraMap.v
 DisplayedBicats/Examples/Monads.v
 DisplayedBicats/Examples/KleisliTriple.v
 DisplayedBicats/Examples/EnrichedCats.v
+DisplayedBicats/Examples/DispBicatOfTwoSidedDispCat.v
 DisplayedBicats/DispTransformation.v
 DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
+
+DoubleCategories/DoubleCategoryBasics.v
+DoubleCategories/DoubleFunctor/Basics.v
+DoubleCategories/DoubleFunctor/LeftUnitor.v
+DoubleCategories/DoubleFunctor/RightUnitor.v
+DoubleCategories/DoubleFunctor/Associator.v
+DoubleCategories/DoubleFunctor.v
+DoubleCategories/DoubleTransformation.v
+DoubleCategories/BicatOfDoubleCats.v
+DoubleCategories/DoubleCats.v
 
 PseudoFunctors/Examples/ChangeOfBaseEnriched.v
 DisplayedBicats/Examples/MonadsLax.v
@@ -346,8 +361,8 @@ OtherStructure/Examples/StructureBicatOfUnivCats.v
 OtherStructure/Examples/StructureOneTypes.v
 OtherStructure/Examples/StructureBicatOfEnrichedCats.v
 
-PseudoFunctors/DisplayedUniversalArrow.v
-PseudoFunctors/DisplayedUniversalArrowOnCat.v
+DisplayedBicats/DisplayedUniversalArrow.v
+DisplayedBicats/DisplayedUniversalArrowOnCat.v
 
 RezkCompletions/BicatToLocalUnivalentBicat.v
 RezkCompletions/RezkCompletionOfBicategory.v
