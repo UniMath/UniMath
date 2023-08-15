@@ -504,6 +504,7 @@ Section Accessors.
     rewrite mon_rassociator_lassociator.
     rewrite tensor_id_id.
     exact (! id_left _).
+  Qed.
 
   (** a sanity check *)
   Lemma sym_mon_cat_laws_tensored_from_sym_mon :
