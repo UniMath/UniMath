@@ -190,14 +190,14 @@ Section Construct_SymmetricMonoidal_On_LocallyProp_DisplayedCategories.
   Defined.
 
   Context (II : D I_{ M})
-    (lulu : disp_leftunitor_data make_symmetric_monoidal_disp_cat_tensor II)
-    (luluinv : disp_leftunitorinv_data make_symmetric_monoidal_disp_cat_tensor II).
+    (lu_lu : disp_leftunitor_data make_symmetric_monoidal_disp_cat_tensor II)
+    (lu_lu_inv : disp_leftunitorinv_data make_symmetric_monoidal_disp_cat_tensor II).
 
   Lemma make_symmetric_monoidal_disp_cat_rightunitor
     {x : C} (xx : D x)
     : T xx II -->[ ru^{ M }_{ x}] xx.
   Proof.
-    use (transportf _ _ (B _ _ xx II ;; lulu _ xx)).
+    use (transportf _ _ (B _ _ xx II ;; lu_lu _ xx)).
     apply (sym_mon_braiding_lunitor ((C,,M),,S)).
   Defined.
 
@@ -205,7 +205,7 @@ Section Construct_SymmetricMonoidal_On_LocallyProp_DisplayedCategories.
     {x : C} (xx : D x)
     : xx -->[ruinv^{ M }_{ x}] T xx II.
   Proof.
-    use (transportf _ _ (luluinv _ xx ;; B _ _ _ _)).
+    use (transportf _ _ (lu_lu_inv _ xx ;; B _ _ _ _)).
     apply (sym_mon_braiding_linvunitor ((C,,M),,S)).
   Defined.
 
@@ -217,8 +217,8 @@ Section Construct_SymmetricMonoidal_On_LocallyProp_DisplayedCategories.
   Proof.
     exists make_symmetric_monoidal_disp_cat_tensor.
     exists II.
-    exists lulu.
-    exists luluinv.
+    exists lu_lu.
+    exists lu_lu_inv.
     exists (λ _ xx, make_symmetric_monoidal_disp_cat_rightunitor xx).
     exists (λ _ xx, make_symmetric_monoidal_disp_cat_rightunitor_inv xx).
     exists asas.
@@ -254,8 +254,8 @@ Definition make_symmetric_monoidal_disp_cat_locally_prop
       → T x y1 xx yy1 -->[ x ⊗^{ M}_{l} g] T x y2 xx yy2)
   (B :  ∏ (x y : C) (xx : D x) (yy : D y), T x y xx yy -->[ pr1 S x y] T y x yy xx)
   (II :  D I_{ M})
-  (lulu : ∏ (x : C) (xx : D x), T I_{ M} x II xx -->[ lu^{ M }_{ x}] xx)
-  (luluinv : ∏ (x : C) (xx : D x), xx -->[ luinv^{ M }_{ x}] T I_{ M} x II xx)
+  (lu_lu : ∏ (x : C) (xx : D x), T I_{ M} x II xx -->[ lu^{ M }_{ x}] xx)
+  (lu_lu_inv : ∏ (x : C) (xx : D x), xx -->[ luinv^{ M }_{ x}] T I_{ M} x II xx)
   (assass : ∏ (x y z : C) (xx : D x) (yy : D y) (zz : D z),
       (T _ _ (T _ _ xx yy) zz) -->[α^{ M }_{ x, y, z}] T _ _ xx (T _ _ yy zz))
   (assassinv : ∏ (x y z : C) (xx : D x) (yy : D y) (zz : D z),
@@ -271,8 +271,8 @@ Proof.
   - intro ; intros ; apply LP.
   - intro ; intros ; apply LP.
   - exact II.
-  - exact lulu.
-  - exact luluinv.
+  - exact lu_lu.
+  - exact lu_lu_inv.
   - exact assass.
   - exact assassinv.
   - exact LP.
