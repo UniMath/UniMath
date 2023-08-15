@@ -22,9 +22,6 @@ Require Import UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 
-Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Comonoids.
-Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsCategory.
-
 Local Open Scope cat.
 Import MonoidalNotations.
 
