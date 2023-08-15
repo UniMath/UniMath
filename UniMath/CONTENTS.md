@@ -307,7 +307,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [RightKanExtension.v](CategoryTheory/RightKanExtension.v)
    - [coslicecat.v](CategoryTheory/coslicecat.v)
    - [catiso.v](CategoryTheory/catiso.v)
-   - [catiso_displayed.v](CategoryTheory/catiso_displayed.v)
+   - [DisplayedCats/CatIsoDisplayed.v](CategoryTheory/DisplayedCats/CatIsoDisplayed.v)
    - [CategoryEquality.v](CategoryTheory/CategoryEquality.v)
    - [WeakEquivalences.v](CategoryTheory/WeakEquivalences.v)
    - [rezk_completion.v](CategoryTheory/rezk_completion.v)

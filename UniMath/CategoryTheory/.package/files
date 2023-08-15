@@ -118,7 +118,7 @@ ArrowCategory.v
 RightKanExtension.v
 coslicecat.v
 catiso.v
-catiso_displayed.v
+DisplayedCats/CatIsoDisplayed.v
 CategoryEquality.v
 WeakEquivalences.v
 rezk_completion.v

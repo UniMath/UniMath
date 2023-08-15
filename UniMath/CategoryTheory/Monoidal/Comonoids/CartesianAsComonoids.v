@@ -17,7 +17,7 @@ Require Import UniMath.CategoryTheory.catiso.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.catiso_displayed.
+Require Import UniMath.CategoryTheory.DisplayedCats.CatIsoDisplayed.
 
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
