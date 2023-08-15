@@ -945,6 +945,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Grothendieck/Unit.v](Bicategories/Grothendieck/Unit.v)
    - [Grothendieck/Counit.v](Bicategories/Grothendieck/Counit.v)
    - [Grothendieck/Biequivalence.v](Bicategories/Grothendieck/Biequivalence.v)
+   - [Grothendieck/FiberwiseEquiv.v](Bicategories/Grothendieck/FiberwiseEquiv.v)
    - [Logic/ComprehensionBicat.v](Bicategories/Logic/ComprehensionBicat.v)
    - [Logic/Examples/TrivialComprehensionBicat.v](Bicategories/Logic/Examples/TrivialComprehensionBicat.v)
    - [Logic/Examples/PullbackComprehensionBicat.v](Bicategories/Logic/Examples/PullbackComprehensionBicat.v)
