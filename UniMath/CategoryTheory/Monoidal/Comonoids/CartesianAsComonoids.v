@@ -1,5 +1,9 @@
 (*
-In this file, we show that a symmetric monoidal category is cartesian if and only if the forgetful functor from the category of commutative comonoids is an isomorphism of categories.
+In this file, we show:
+   if a symmetric monoidal category is cartesian, the forgetful functor from the category of commutative comonoids is an isomorphism of categories.
+
+The converse of this statement remains to be done.
+At this moment, one property remains to be proven. The condition is axiomatized in the context.
  *)
 
 Require Import UniMath.Foundations.All.
@@ -13,7 +17,6 @@ Require Import UniMath.CategoryTheory.catiso.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-(* Require Import UniMath.CategoryTheory.DisplayedCats.Constructions. *)
 Require Import UniMath.CategoryTheory.catiso_displayed.
 
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -186,137 +189,46 @@ Section CartesianToCartesianAsComonoids.
       now apply (when_bifunctor_becomes_rightwhiskering M).
   Qed.
 
-  Lemma cartesian_ruinv_of_tensor (x : C)
-    : diag x ⊗^{ M} semi_cart_to_unit Ccart x = ruinv^{ M }_{ x ⊗_{ M} x}.
+  Lemma BinProductArrow_as_diag (x y z : C) (f : C⟦x,y⟧) (g : C⟦x,z⟧)
+    : diag x · f ⊗^{M} g
+      = BinProductArrow C (is_cartesian_BinProduct Ccart y z) f g.
   Proof.
-    refine (_ @ cartesian_rinvunitor _).
-    unfold is_cartesian in Ccart.
-
-  Admitted.
-
-  Lemma diagonal_commutes_with_assoc (x : C)
-    : diag x ⊗^{ M}_{r} x · α^{ M }_{ x, x, x}
-      = x ⊗^{ M}_{l} diag x.
-  Proof.
-    use (BinProductArrowsEq _ _ _ (is_cartesian_BinProduct Ccart _ _)) ; cbn.
-    - etrans. {
-        rewrite assoc'.
+    use (BinProductArrowUnique _ _ _ (is_cartesian_BinProduct Ccart _ _)).
+    - rewrite assoc'.
+      etrans. {
         apply maponpaths.
-        apply (mon_lassociator_pr1 Ccart).
-      }
-
-      refine (_ @ idpath (semi_cart_tensor_pr1 Ccart x x) @ _).
-      + unfold semi_cart_tensor_pr1.
-        unfold monoidal_cat_tensor_mor.
-        unfold monoidal_cat_tensor_pt.
-        cbn.
-        etrans. {
-          rewrite ! assoc.
-          do 3 apply maponpaths_2.
-          rewrite <- (when_bifunctor_becomes_rightwhiskering M).
-          rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
-        }
-        rewrite id_right, id_left.
-        rewrite <- (bifunctor_equalwhiskers M).
-        refine (_ @ id_left _).
-        rewrite ! assoc.
-        do 2 apply maponpaths_2.
-        refine (_ @ pr2 (monoidal_rightunitorisolaw M (x ⊗_{M} x))).
         apply maponpaths_2.
-        apply cartesian_ruinv_of_tensor.
-      + apply pathsinv0.
-        etrans. {
-          rewrite <- (when_bifunctor_becomes_leftwhiskering M).
-          apply (cartesian_tensor_pr1 Ccart).
-        }
-        apply id_right.
-    - etrans. {
-        rewrite assoc'.
+        apply (cartesian_tensor_mor Ccart f g).
+      }
+      etrans. {
         apply maponpaths.
-        apply (mon_lassociator_pr2 Ccart).
+        apply (BinProductOfArrowsPr1 _ (is_cartesian_BinProduct Ccart _ _)).
       }
-
-      assert (p : diag x · semi_cart_tensor_pr2 Ccart x x = identity x).
-      {
-        admit.
-      }
-      refine (_ @ idpath (identity x ⊗^{M} identity x) @ _).
-      + rewrite <- (when_bifunctor_becomes_rightwhiskering M).
-        etrans. {
-          apply pathsinv0, (bifunctor_distributes_over_comp (F := M)) ; apply M.
-        }
-        rewrite id_right.
+      rewrite assoc.
+      refine (_ @ id_left _).
+      apply maponpaths_2.
+      unfold diag.
+      refine ((BinProductPr1Commutes) _ _ _ (is_cartesian_BinProduct Ccart _ _) _ _ _).
+    - rewrite assoc'.
+      etrans. {
+        apply maponpaths.
         apply maponpaths_2.
-        exact p.
-      + unfold semi_cart_tensor_pr2.
-        cbn.
-        unfold monoidal_cat_tensor_mor.
-        cbn.
-
-        apply pathsinv0.
-        rewrite <- (when_bifunctor_becomes_leftwhiskering M).
-        rewrite assoc.
-        etrans. {
-          apply maponpaths_2.
-          apply pathsinv0, (bifunctor_distributes_over_comp (F := M)) ; apply M.
-        }
-        rewrite id_right.
-        rewrite id_left.
-        etrans. {
-          apply maponpaths.
-          apply pathsinv0, cartesian_lunitor.
-        }
-        unfold semi_cart_tensor_pr2.
-        unfold monoidal_cat_tensor_mor.
-        cbn.
-        rewrite assoc.
-        etrans. {
-          apply maponpaths_2.
-          use (! bifunctor_distributes_over_comp (F := M) _ _ _ _ _ _ _) ; apply M.
-        }
-
-        rewrite id_right.
-
-
-  Admitted.
-
-  Lemma cartesian_monoidal_has_enough_comonoids_laws
-    : ∏ x : C, comonoid_laws M (cartesian_monoidal_has_enough_comonoids_data x).
-  Proof.
-    repeat split.
-    - unfold comonoid_laws_unit_left.
-      cbn.
-      refine (_ @ mon_linvunitor_lunitor (V := C,,M) x).
+        apply (cartesian_tensor_mor Ccart f g).
+      }
+      etrans. {
+        apply maponpaths.
+        apply (BinProductOfArrowsPr2 _ (is_cartesian_BinProduct Ccart _ _)).
+      }
+      rewrite assoc.
+      refine (_ @ id_left _).
       apply maponpaths_2.
-      exact (cartesian_linvunitor' x).
-    - unfold comonoid_laws_unit_right.
-      cbn.
-      refine (_ @ mon_rinvunitor_runitor (V := C,,M) x).
-      apply maponpaths_2.
-      exact (cartesian_rinvunitor' x).
-    - unfold comonoid_laws_assoc.
-      cbn.
-      rewrite ! assoc'.
-      apply maponpaths.
-      apply diagonal_commutes_with_assoc.
+      unfold diag.
+      refine ((BinProductPr2Commutes) _ _ _ (is_cartesian_BinProduct Ccart _ _) _ _ _).
   Qed.
 
-  Definition cartesian_monoidal_has_enough_comonoids
-    : ∏ x : C, comonoid M x.
+  Lemma diag_is_symmetric (x : C)
+    :  diag x · cartesian_to_braiding_data Ccart x x = diag x.
   Proof.
-    intro x.
-    exists (cartesian_monoidal_has_enough_comonoids_data x).
-    exact (cartesian_monoidal_has_enough_comonoids_laws x).
-  Defined.
-
-  Definition cartesian_monoidal_has_enough_comm_comonoids
-    : ∏ x : C, is_commutative
-                 (cartesian_to_symmetric Ccart)
-                 (cartesian_monoidal_has_enough_comonoids x).
-  Proof.
-    intro x.
-    unfold is_commutative.
-    simpl.
     etrans. {
       apply (precompWithBinProductArrow _ (is_cartesian_BinProduct Ccart _ _)).
     }
@@ -340,6 +252,50 @@ Section CartesianToCartesianAsComonoids.
     refine (_ @ cartesian_linvunitor' x).
     apply maponpaths.
     apply (when_bifunctor_becomes_rightwhiskering M).
+  Qed.
+
+  (* Lemma diagonal_commutes_with_assoc (x : C)
+    : diag x ⊗^{ M}_{r} x · α^{ M }_{ x, x, x}
+      = x ⊗^{ M}_{l} diag x.
+  Proof.
+` Admitted. *)
+  Context (diagonal_commutes_with_assoc
+            : ∏ (x : C), diag x · diag x ⊗^{ M}_{r} x · α^{ M }_{ x, x, x}
+                         = diag x · x ⊗^{ M}_{l} diag x).
+
+  Lemma cartesian_monoidal_has_enough_comonoids_laws
+    : ∏ x : C, comonoid_laws M (cartesian_monoidal_has_enough_comonoids_data x).
+  Proof.
+    repeat split.
+    - unfold comonoid_laws_unit_left.
+      cbn.
+      refine (_ @ mon_linvunitor_lunitor (V := C,,M) x).
+      apply maponpaths_2.
+      exact (cartesian_linvunitor' x).
+    - unfold comonoid_laws_unit_right.
+      cbn.
+      refine (_ @ mon_rinvunitor_runitor (V := C,,M) x).
+      apply maponpaths_2.
+      exact (cartesian_rinvunitor' x).
+    - unfold comonoid_laws_assoc.
+      cbn.
+      apply diagonal_commutes_with_assoc.
+  Qed.
+
+  Definition cartesian_monoidal_has_enough_comonoids
+    : ∏ x : C, comonoid M x.
+  Proof.
+    intro x.
+    exists (cartesian_monoidal_has_enough_comonoids_data x).
+    exact (cartesian_monoidal_has_enough_comonoids_laws x).
+  Defined.
+
+  Definition cartesian_monoidal_has_enough_comm_comonoids
+    : ∏ x : C, is_commutative
+                 (cartesian_to_symmetric Ccart)
+                 (cartesian_monoidal_has_enough_comonoids x).
+  Proof.
+    exact (λ x, diag_is_symmetric x).
   Qed.
 
   Lemma cartesian_monoidal_has_unique_comonoids
@@ -467,9 +423,11 @@ End CartesianToCartesianAsComonoids.
     - exact S.
     - intro ; apply (catiso_is_globally_contr i_i).
     - intro ; intros.
+      (* apply catiso_is_locally_contr. *)
       admit.
-    - simpl.
-      cbn.
-
+    - admit.
+    - intro ; intro.
+      admit.
+  Admitted.
 
 End CartesianFromComonoidsToCartesian. *)

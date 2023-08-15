@@ -1,3 +1,8 @@
+(*
+In this file, builders are provided for showing that a monoidal (resp. symmetric monoidal) category is cartesian;
+i.e., the tensor product (resp. unit) coincides with the (categorical) product (resp terminal object).
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
@@ -7,7 +12,6 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-(* Require Import UniMath.CategoryTheory.DisplayedCats.Constructions. *)
 
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.

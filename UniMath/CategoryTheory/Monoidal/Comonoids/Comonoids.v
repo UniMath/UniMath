@@ -263,14 +263,11 @@ Section CommutativeComonoids.
     {x : C} (m : comonoid M x)
     : UU := μ_{m} · pr1 S x x = μ_{m}.
 
-  Lemma blaaa
+  Lemma comultiplication_comonoid_4times'
     {x : C} (m : comonoid M x)
     : μ_{m} · μ_{m} ⊗^{M} μ_{m}
       = μ_{m} · μ_{m} ⊗r x · α x x x · μ_{m} ⊗r _.
   Proof.
-    set (p := pr222 m).
-    unfold comonoid_laws_assoc in p.
-
     etrans. {
       apply maponpaths.
       apply (bifunctor_equalwhiskers M).
@@ -279,10 +276,11 @@ Section CommutativeComonoids.
     unfold functoronmorphisms2.
     rewrite assoc.
     apply maponpaths_2.
-    exact (! p).
+    apply pathsinv0.
+    apply comonoid_to_assoc_law.
   Qed.
 
-  Lemma bla
+  Lemma comultiplication_comonoid_4times_symmetry
     {x : C} {m : comonoid M x} (s : is_commutative m)
     : μ_{m} · μ_{m} ⊗^{M} μ_{m} · (pr1 S x x ⊗^{M} pr1 S x x)
       = μ_{m} · μ_{m} ⊗^{M} μ_{m}.
@@ -293,7 +291,7 @@ Section CommutativeComonoids.
     now rewrite s.
   Qed.
 
-  Lemma bla'
+  Lemma comultiplication_comonoid_4times_symmetry_left
     {x : C} {m : comonoid M x} (s : is_commutative m)
     : μ_{m} · μ_{m} ⊗^{M} μ_{m} · (pr1 S x x ⊗^{M}_{r} (x ⊗ x))
       = μ_{m} · μ_{m} ⊗^{M} μ_{m}.
@@ -306,7 +304,7 @@ Section CommutativeComonoids.
     now rewrite s.
   Qed.
 
-  Lemma commutative_symmetric_braiding_after_blaa
+  Lemma commutative_symmetric_braiding_using_lwhisker
     {x : C} {m : comonoid M x} (s : is_commutative m)
     : μ_{m} · μ_{m} ⊗^{M} μ_{m} · α^{M}_{_,_,_}
       = μ_{m} · (x ⊗l μ_{m}) · (x ⊗l (x ⊗l μ_{m})).
@@ -314,7 +312,7 @@ Section CommutativeComonoids.
     etrans.
     2: {
       apply maponpaths_2.
-      exact (pr222 m).
+      apply comonoid_to_assoc_law.
     }
     unfold functoronmorphisms1.
     rewrite ! assoc'.
@@ -323,7 +321,7 @@ Section CommutativeComonoids.
     apply (monoidal_associatornatleft M).
   Qed.
 
-  Lemma commutative_symmetric_braiding_after_blaa0
+  Lemma commutative_symmetric_braiding_using_lrwhisker
     {x : C} {m : comonoid M x} (s : is_commutative m)
     : μ_{m} · (x ⊗l μ_{m}) · (x ⊗l (x ⊗l μ_{m})) · x ⊗l αinv x x x
       = μ_{m} · (x ⊗l μ_{m}) · (x ⊗l (μ_{m} ⊗r x)).
@@ -335,7 +333,7 @@ Section CommutativeComonoids.
     apply assoc.
   Qed.
 
-  Lemma commutative_symmetric_braiding_after_blaa1
+  Lemma commutative_symmetric_braiding_using_lrwhisker'
     {x : C} {m : comonoid M x} (s : is_commutative m)
     : μ_{m} · (x ⊗l μ_{m}) · (x ⊗l (μ_{m} ⊗r x)) · x ⊗l ((σ x x) ⊗r x)
       = μ_{m} · (x ⊗l μ_{m}) · (x ⊗l (μ_{m} ⊗r x)).
@@ -349,16 +347,16 @@ Section CommutativeComonoids.
     apply s.
   Qed.
 
-  Lemma commutative_symmetric_braiding_after_blaa2
+  Lemma commutative_symmetric_braiding_using_lrwhisker''
     {x : C} {m : comonoid M x} (s : is_commutative m)
     : μ_{m} · μ_{m} ⊗^{M} μ_{m} · α^{M}_{_,_,_} · x ⊗l αinv x x x · x ⊗l ((σ x x) ⊗r x)
       = μ_{m} · (x ⊗l μ_{m}) · (x ⊗l (μ_{m} ⊗r x)).
   Proof.
-    refine (_ @ commutative_symmetric_braiding_after_blaa1 s).
+    refine (_ @ commutative_symmetric_braiding_using_lrwhisker' s).
     apply maponpaths_2.
-    refine (_ @ commutative_symmetric_braiding_after_blaa0 s).
+    refine (_ @ commutative_symmetric_braiding_using_lrwhisker s).
     apply maponpaths_2.
-    exact (commutative_symmetric_braiding_after_blaa s).
+    exact (commutative_symmetric_braiding_using_lwhisker s).
   Qed.
 
   Lemma comultiplication_comonoid_4times
@@ -369,7 +367,7 @@ Section CommutativeComonoids.
     etrans.
     2: {
       apply maponpaths_2.
-      exact (! commutative_symmetric_braiding_after_blaa s).
+      exact (! commutative_symmetric_braiding_using_lwhisker s).
     }
 
     rewrite ! assoc'.
@@ -385,7 +383,7 @@ Section CommutativeComonoids.
     : μ_{m} · μ_{m} ⊗^{M} μ_{m} · α^{M}_{_,_,_} · (x ⊗^{M}_{l} αinv^{M}_{_,_,_}) · (x ⊗^{M}_{l} (pr1 S x x ⊗^{M}_{r} x))
       = μ_{m} · μ_{m} ⊗^{M} μ_{m} · α^{M}_{_,_,_} · x ⊗^{M}_{l} αinv^{M}_{_,_,_}.
   Proof.
-    refine (commutative_symmetric_braiding_after_blaa2 s @ _).
+    refine (commutative_symmetric_braiding_using_lrwhisker'' s @ _).
     exact (comultiplication_comonoid_4times m s).
   Qed.
 

@@ -1,3 +1,9 @@
+(*
+This file contains certain (coherence) properties involving the braiding, of a fixed symmetric monoidal category.
+Two coherences, needed somewhere else, are admitted. These holes will be fixed.
+
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
@@ -6,20 +12,12 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.limits.binproducts.
-(* Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.DisplayedCats.Constructions. *)
 
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Import BifunctorNotations.
 Require Import UniMath.CategoryTheory.Monoidal.Functors.
-(* Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
-Require Import UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
-Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
-Require Import UniMath.CategoryTheory.Monoidal.Displayed.MonoidalSections.
-Require Import UniMath.CategoryTheory.Monoidal.Examples.Fullsub. *)
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 
 Local Open Scope cat.
@@ -64,6 +62,25 @@ Section Rearranging.
     exact (pr1 S _ _ · α _ _ _ · _ ⊗l pr1 S _ _).
   Defined.
 
+  Definition rearrange_prod'' (x y z w : C)
+    : C ⟦(x ⊗_{ M} y) ⊗_{ M} (z ⊗_{ M} w), (x ⊗_{ M} z) ⊗_{ M} (y ⊗_{ M} w)⟧.
+  Proof.
+    refine (α _ _ _ · _).
+    refine (x ⊗l _ · _).
+    - exact (pr1 S _ _ · α _ _ _).
+    - exact (αinv x z (w ⊗ y) · (x ⊗_{ M} z) ⊗^{ M}_{l} pr1 S w y).
+  Defined.
+
+  Definition rearrange_prod''' (x y z w : C)
+    : C ⟦(x ⊗_{ M} y) ⊗_{ M} (z ⊗_{ M} w), (x ⊗_{ M} z) ⊗_{ M} (y ⊗_{ M} w)⟧.
+  Proof.
+    refine (pr1 S _ _ ⊗^{ M}_{r} _  · α _ _ _ · pr1 S _ (_ ⊗_{ M} _) · _).
+    refine (_ · _ ⊗l pr1 S _ _).
+    refine (_ · αinv _ _ _).
+    refine (_ · x ⊗l α _ _ _).
+    apply α.
+  Defined.
+
   Lemma sym_monoidal_braiding_hexagon1_variant (y z w : C)
     : αinv y z w · (pr1 S y z ⊗^{ M}_{r} w · α z y w)
       = pr1 S _ _ · α _ _ _ · _ ⊗l pr1 S _ _.
@@ -105,6 +122,44 @@ Section Rearranging.
     apply maponpaths_2.
     apply maponpaths.
     apply sym_monoidal_braiding_hexagon1_variant.
+  Qed.
+
+  Lemma rearrange_prod_characterization' (x y z w : C)
+    : rearrange_prod' x y z w = rearrange_prod'' x y z w.
+  Proof.
+    unfold rearrange_prod', rearrange_prod''.
+    apply maponpaths.
+    rewrite ! (bifunctor_leftcomp M).
+    rewrite ! assoc'.
+    do 2 apply maponpaths.
+    apply monoidal_associatorinvnatleft.
+  Qed.
+
+  Lemma rearrange_prod_characterization''
+    (x y z w : C)
+    : rearrange_prod x y z w = rearrange_prod'' x y z w.
+  Proof.
+    refine (rearrange_prod_characterization _ _ _ _ @ _).
+    apply rearrange_prod_characterization'.
+  Qed.
+
+  Lemma rearrange_prod_characterization''' (x y z w : C)
+    : rearrange_prod'' x y z w = rearrange_prod''' x y z w.
+  Proof.
+    unfold rearrange_prod'', rearrange_prod'''.
+    rewrite ! assoc.
+    do 2 apply maponpaths_2.
+    rewrite ! (bifunctor_leftcomp M).
+    rewrite ! assoc.
+    apply maponpaths_2.
+    apply (sym_mon_tensor_lassociator1 ((C,,M),,S)).
+  Qed.
+
+  Lemma rearrange_prod_characterization'''' (x y z w : C)
+    : rearrange_prod x y z w = rearrange_prod''' x y z w.
+  Proof.
+    etrans. { apply rearrange_prod_characterization''. }
+    apply rearrange_prod_characterization'''.
   Qed.
 
   Lemma precompose_rearrange_prod
@@ -459,6 +514,11 @@ Section Rearranging.
     apply (! mon_lunitor_triangle (V := C,,M) y I).
   Qed.
 
+  (* TO BE REMOVED LATER ON *)
+  Notation αl := (α _ _ _).
+  Notation αr := (αinv _ _ _).
+  Notation σσ := (pr1 S _ _).
+
   Lemma rearrange_hexagon (x1 x2 y1 y2 z1 z2 : C)
     :  rearrange_prod (x1 ⊗_{ M} x2) y1 (y2 ⊗_{ M} z1) z2
          · (rearrange_prod x1 x2 y2 z1 ⊗^{ M}_{r} (y1 ⊗_{ M} z2)
@@ -467,14 +527,6 @@ Section Rearranging.
            · (rearrange_prod x1 (x2 ⊗_{ M} y1) y2 (z1 ⊗_{ M} z2)
                 · (x1 ⊗_{ M} y2) ⊗^{ M}_{l} rearrange_prod x2 y1 z1 z2).
   Proof.
-    rewrite ! rearrange_prod_characterization.
-    unfold rearrange_prod'.
-
-    rewrite ! (bifunctor_leftcomp M).
-    rewrite ! (bifunctor_rightcomp M).
-    rewrite ! assoc.
-
-
   Admitted.
 
   Lemma rearrange_hexagon_2 (x y : C)
@@ -496,7 +548,6 @@ Section Rearranging.
             · identity (x1 ⊗_{ M} x2) ⊗^{ M} rearrange_prod y1 y2 z1 z2
             · rearrange_prod x1 x2 (y1 ⊗_{ M} z1) (y2 ⊗_{ M} z2).
   Proof.
-
   Admitted.
 
   Lemma rearrange_hexagon'_3 (x y z : C)

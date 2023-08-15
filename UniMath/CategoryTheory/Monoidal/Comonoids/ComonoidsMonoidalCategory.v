@@ -1,3 +1,7 @@
+(*
+In this file, it is shown how the (displayed) category of comonoids (resp. commutative comonoids) is (displayed) symmetric.
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
@@ -32,44 +36,6 @@ Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsCategory.
 
 Local Open Scope cat.
 Import MonoidalNotations.
-
-Lemma lunitorinv_preserves_leftwhiskering_with_unit
-  {C : category} (M : monoidal C)
-  : luinv^{M}_{I_{ M}} ⊗^{ M}_{r} I_{ M} · α^{ M }_{ I_{ M}, I_{ M}, I_{ M}}
-    = I_{ M} ⊗^{ M}_{l} luinv^{M}_{I_{ M}}.
-Proof.
-  set (t := monoidal_triangle_identity_inv_alt M I_{M} I_{M}).
-
-  use (_ @ ! z_iso_inv_on_left _ _ _ _ (_,, α^{M}_{_,_,_} ,, _) _ (! t)).
-  - apply maponpaths_2.
-    now rewrite unitorsinv_coincide_on_unit_alt.
-  - split ; apply (monoidal_associatorisolaw M).
-Qed.
-
-Lemma associator_before_lwhisker_with_lu
-  {C : category} (M : monoidal C)
-  : α^{ M }_{ I_{ M}, I_{ M}, I_{ M}} · identity I_{ M} ⊗^{ M} lu^{M}_{I_{ M}}
-    = lu^{M}_{I_{ M}} ⊗^{ M} identity I_{ M}.
-Proof.
-  etrans. {
-    apply pathsinv0.
-    apply (mon_triangle (V := C,,M)).
-  }
-  apply maponpaths_2.
-  apply pathsinv0, unitors_coincide_on_unit.
-Qed.
-
-Lemma associator_before_rwhisker_with_lu
-  {C : category} (M : monoidal C)
-  : αinv^{ M }_{ I_{ M}, I_{ M}, I_{ M}} · lu^{M}_{I_{ M}} ⊗^{M} identity I_{ M}
-     = identity I_{ M} ⊗^{ M} lu^{M}_{I_{ M}}.
-Proof.
-  use (z_iso_inv_on_right _ _ _ (α^{M}_{ I_{ M}, I_{ M}, I_{ M}} ,, _ ,, _)).
-  {
-    apply monoidal_associatorisolaw.
-  }
-  apply pathsinv0, associator_before_lwhisker_with_lu.
-Qed.
 
 Section SymmetricMonoidalCategoryOfComonoids.
 

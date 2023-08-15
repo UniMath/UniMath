@@ -132,13 +132,14 @@ Section DisplayedCatIso.
 
 End DisplayedCatIso.
 
-(* Section CatIsoToContractibleFibers.
+Section CatIsoToContractibleFibers.
 
   Context {C : category} {D : disp_cat C} (F : is_catiso (pr1_category D)).
 
   Let inv_i := inv_catiso (_ ,, F).
 
-  Definition object_is_proj (x : C) : x = pr1 (inv_i x)
+  Definition object_is_proj (x : C)
+    : x = pr1 (inv_i x)
     := ! homotweqinvweq  (make_weq pr1 (pr2 F)) x.
 
   Definition object_as_proj_equal_fibers (x : C)
@@ -179,23 +180,22 @@ End DisplayedCatIso.
     - intro ; apply catiso_is_globally_prop.
   Defined.
 
-  (* Definition catiso_is_locally_contr
+  (* Definition catiso_is_locally_contr'
     {x y : C} (f : C⟦x, y⟧)
-    : iscontr (pr2 (inv_i x) -->[double_transport _ _ f] pr2 (inv_i y)). *)
+    : iscontr (pr2 (inv_i x)
+                 -->[Univalence.double_transport (object_is_proj x) (object_is_proj y) f]
+                 pr2 (inv_i y)).
+  Proof.
+    set (ff := pr2 (#inv_i f)).
+  Admitted.
 
   Definition catiso_is_locally_contr
     {x y : C} (f : C⟦x, y⟧)
     : iscontr (pr1 (catiso_is_globally_contr x) -->[f] pr1 (catiso_is_globally_contr y)).
   Proof.
-    set (ff := pr2 (#inv_i f)).
-    simpl in ff.
+    use (iscontrweqb' (catiso_is_locally_contr' f)).
 
 
+  Defined. *)
 
-    use (iscontrweqb' _ (object_as_proj_equal_fibers x)).
-    use tpair.
-    - exact (pr2 (inv_i x)).
-    - intro ; apply catiso_is_globally_prop.
-  Defined.
-
-End CatIsoToContractibleFibers. *)
+End CatIsoToContractibleFibers.

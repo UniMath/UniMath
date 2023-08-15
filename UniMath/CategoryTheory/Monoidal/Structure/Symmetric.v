@@ -575,6 +575,46 @@ Section Accessors.
     apply mon_lassociator_rassociator.
   Qed.
 
+  Lemma sym_mon_tensor_lassociator1 (x y z : V)
+    : mon_lassociator y x z · y ⊗^{V}_{l} sym_mon_braiding x z
+      = sym_mon_braiding y x ⊗^{V}_{r} z
+          · mon_lassociator x y z
+          · sym_mon_braiding x (y ⊗ z)
+          · mon_lassociator y z x.
+  Proof.
+    apply pathsinv0.
+
+    etrans. {
+      rewrite assoc'.
+      apply maponpaths.
+      exact (sym_mon_tensor_lassociator0 x y z).
+    }
+    etrans. {
+      rewrite ! assoc.
+      do 3 apply maponpaths_2.
+      rewrite assoc'.
+      apply maponpaths.
+      apply mon_lassociator_rassociator.
+    }
+    rewrite id_right.
+    rewrite <- (when_bifunctor_becomes_leftwhiskering V).
+    rewrite <- (when_bifunctor_becomes_rightwhiskering V).
+
+    etrans. {
+      do 2 apply maponpaths_2.
+      rewrite (when_bifunctor_becomes_rightwhiskering V).
+      apply maponpaths.
+      apply (when_bifunctor_becomes_rightwhiskering V).
+    }
+    etrans. {
+      do 2 apply maponpaths_2.
+      apply pathsinv0, (bifunctor_rightcomp V).
+    }
+    rewrite sym_mon_braiding_inv.
+    rewrite bifunctor_rightid.
+    now rewrite id_left.
+  Qed.
+
   Proposition sym_mon_hexagon_rassociator
               (x y z : V)
     : mon_rassociator x y z
