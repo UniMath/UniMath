@@ -343,6 +343,7 @@ Grothendieck/PseudoFunctorToFibration.v
 Grothendieck/Unit.v
 Grothendieck/Counit.v
 Grothendieck/Biequivalence.v
+Grothendieck/FiberwiseEquiv.v
 
 Logic/ComprehensionBicat.v
 
