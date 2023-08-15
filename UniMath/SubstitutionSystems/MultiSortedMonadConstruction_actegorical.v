@@ -264,7 +264,7 @@ Section InstanceHSET.
     2: { do 2 apply is_univalent_functor_category.
          apply is_univalent_HSET. }
     transparent assert (HypAdj' : (adj_equivalence_of_cats (left_functor HypAdj))).
-    { apply adjointificiation. }
+    { apply adjointification. }
     use tpair.
     2: { apply (adj_equivalence_of_cats_inv HypAdj'). }
   Defined.

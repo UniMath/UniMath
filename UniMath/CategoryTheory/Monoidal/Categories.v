@@ -976,14 +976,14 @@ Section EquivalenceFromTensorWithUnit.
     : fully_faithful (leftwhiskering_functor M I_{M}).
   Proof.
     apply fully_faithful_from_equivalence.
-    exact (adjointificiation lequivalence_from_tensor_with_unit).
+    exact (adjointification lequivalence_from_tensor_with_unit).
   Defined.
 
   Lemma rightwhiskering_fullyfaithful
     : fully_faithful (rightwhiskering_functor M I_{M}).
   Proof.
     apply fully_faithful_from_equivalence.
-    exact (adjointificiation requivalence_from_tensor_with_unit).
+    exact (adjointification requivalence_from_tensor_with_unit).
   Defined.
 
   Lemma leftwhiskering_faithful

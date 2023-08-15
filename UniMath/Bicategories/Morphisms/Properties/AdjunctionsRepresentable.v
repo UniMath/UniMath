@@ -297,7 +297,7 @@ Section LeftAdjointToLeftAdjointRepr.
 
   Definition left_adjequiv_to_left_adjequiv_repr
     : left_adjoint_equivalence_repr l
-    := λ w, adjointificiation (left_adjequiv_to_left_adjequiv_repr_equiv w).
+    := λ w, adjointification (left_adjequiv_to_left_adjequiv_repr_equiv w).
 End LeftAdjointToLeftAdjointRepr.
 
 (**

@@ -367,7 +367,7 @@ Section Final.
     : is_bifinal_repr X.
   Proof.
     intros Y.
-    exact (adjointificiation (is_bifinal_to_is_bifinal_repr_help HX Y)).
+    exact (adjointification (is_bifinal_to_is_bifinal_repr_help HX Y)).
   Defined.
 
   Definition is_bifinal_weq_is_bifinal_repr
