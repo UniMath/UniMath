@@ -957,6 +957,17 @@ Proof.
   - exact (functor_comp F f g @ feq).
 Defined.
 
+(** a simpler instance of that principle *)
+Lemma faithful_reflects_morphism_equality {C D : precategory} (F : functor C D)
+      (FF : faithful F) {a b : ob C} (f g : C ⟦a, b⟧) :
+  # F f = # F g → f = g.
+Proof.
+  intros feq.
+  apply (Injectivity (# F)).
+  - apply isweqonpathsincl, FF.
+  - exact feq.
+Defined.
+
 (** ** Full functors *)
 
 Definition full {C D : precategory_data} (F : functor C D) :=

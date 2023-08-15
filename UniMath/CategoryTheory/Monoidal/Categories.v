@@ -1155,15 +1155,9 @@ Section UnitorsCoincide.
   Lemma unitors_coincide_on_unit
     : lu_{M} I_{M} = ru_{M} I_{M}.
   Proof.
-    refine (! id_right _ @ _).
-    use faithful_reflects_commutative_triangle.
+    use faithful_reflects_morphism_equality.
     3: { apply rightwhiskering_faithful. }
-    refine (_ @ unitors_coincide_on_unit').
-    etrans. {
-      apply maponpaths.
-      apply bifunctor_rightid.
-    }
-    apply id_right.
+    apply unitors_coincide_on_unit'.
   Qed.
 
   Corollary unitorsinv_coincide_on_unit
