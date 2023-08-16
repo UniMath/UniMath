@@ -24,9 +24,9 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
 
-Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Comonoids.
+Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
 (* Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsCategory. *)
-Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Tensor.
 
 Local Open Scope cat.
 Import MonoidalNotations.
@@ -61,26 +61,29 @@ Section CartesianBuilder.
   Let αinv : associatorinv_data M := monoidal_associatorinvdata M.
 
   Context
-    (m : ∏ x : C, comonoid M x)
-      (mf : ∏ (x y : C) (f : C⟦x,y⟧), is_comonoid_mor M (m x) (m y) f).
+    (m : ∏ x : C, disp_cat_of_comonoids V x)
+      (mf : ∏ (x y : C) (f : C⟦x,y⟧), comonoid_mor_struct M (_ ,, m x) (_ ,, m y) f).
 
-  Notation "∇_{ x }" := (pr11 (m x)).
-  Notation "!_{ x }" := (pr21 (m x)).
+  Import ComonoidNotations.
+
+  Let εI := ε_{(I ,, m I) : comonoid V}.
 
   Lemma terminal_from_aug_id (x : C)
-    :  comonoid_data_counit M (m I) = identity I
+    :  εI = identity I
        → iscontr (C⟦x, I⟧).
   Proof.
-    exists (!_{x}).
-    abstract (intro f ;
-    refine ( _ @ pr2 (mf _ _ f));
-    refine (! id_right _ @ _);
-    apply maponpaths, pathsinv0;
-    assumption).
+    exists (ε_{(x ,, m x) : comonoid V}).
+    abstract (
+        intro f
+        ; refine (_ @ id_right _)
+        ; refine (_ @ ! (pr21 (mf _ _ f)))
+        ; refine (! id_right _ @ _)
+        ; apply maponpaths, pathsinv0
+        ; assumption).
   Defined.
 
   Definition monoidal_is_semicartesian_from_comonoid
-    (pI : comonoid_data_counit M (m I) = identity I)
+    (pI : εI = identity I)
     : is_semicartesian M.
   Proof.
     intro ; apply terminal_from_aug_id.
@@ -89,24 +92,31 @@ Section CartesianBuilder.
 
   Section make_cartesian.
 
-    Context (pI : comonoid_data_counit M (m I) = identity I)
+    Context (pI : εI = identity I)
       {x y z : C} (fx : C⟦z, x⟧) (fy : C⟦z, y⟧).
+
+    Let δx := δ_{(x ,, m x) : comonoid V}.
+    Let δy := δ_{(y ,, m y) : comonoid V}.
+    Let δz := δ_{(z ,, m z) : comonoid V}.
+    Let εx := ε_{(x ,, m x) : comonoid V}.
+    Let εy := ε_{(y ,, m y) : comonoid V}.
+    Let εz := ε_{(z ,, m z) : comonoid V}.
 
     Definition make_isbinprod_from_comonoid_existence_mor
       : C ⟦ z, x ⊗ y⟧
-      := ∇_{z} · fx ⊗⊗ fy.
+      := δz · fx ⊗⊗ fy.
 
     Let k := make_isbinprod_from_comonoid_existence_mor.
 
     Lemma make_is_binprod_from_comonoids_existence_mor_1
-      : ∇_{z} · fx ⊗⊗ fy · (identity x ⊗^{M} !_{y} · ru x) = fx.
+      : δz · fx ⊗⊗ fy · (identity x ⊗^{M} εy · ru x) = fx.
     Proof.
       rewrite ! assoc'.
       etrans. {
         apply maponpaths.
         rewrite assoc.
         apply maponpaths_2.
-        refine (_ @ idpath ((identity z ⊗⊗ !_{z}) · (fx ⊗⊗ identity _))).
+        refine (_ @ idpath ((identity z ⊗⊗ εz) · (fx ⊗⊗ identity _))).
         simpl.
         rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
         rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
@@ -135,14 +145,14 @@ Section CartesianBuilder.
     Qed.
 
     Lemma make_is_binprod_from_comonoids_existence_mor_2
-      : ∇_{z} · fx ⊗⊗ fy · (!_{x} ⊗^{ M} identity y · lu y) = fy.
+      : δz · fx ⊗⊗ fy · (εx ⊗^{ M} identity y · lu y) = fy.
     Proof.
       rewrite ! assoc'.
       etrans. {
         apply maponpaths.
         rewrite assoc.
         apply maponpaths_2.
-        refine (_ @ idpath ((!_{z} ⊗⊗ identity z ) · (identity _ ⊗⊗ fy))).
+        refine (_ @ idpath ((εz ⊗⊗ identity z ) · (identity _ ⊗⊗ fy))).
         simpl.
         rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
         rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
@@ -170,13 +180,15 @@ Section CartesianBuilder.
       apply (when_bifunctor_becomes_rightwhiskering M).
     Qed.
 
-    Context (p : ∇_{x ⊗ y} · ((x ⊗l !_{y}) ⊗⊗ (!_{x} ⊗r y)) · (ru x ⊗⊗ lu y)
-                 = identity (x ⊗ y)).
+    Context (p : identity (x ⊗_{ M} y) =
+                   pr11 (m (x ⊗_{ M} y))
+                     · ((identity x ⊗^{ M} εy) ⊗^{ M} (εx ⊗^{ M} identity y) · ru x ⊗^{ M} lu y)).
+
     Lemma make_is_binprod_from_comonoids_uniqueness
       (f : C ⟦ z, x ⊗ y ⟧)
-      (px : f · (identity x ⊗^{ M} !_{y} · ru x) = fx)
-      (py : f · (!_{x} ⊗^{ M} identity y · lu y) = fy)
-      : f = ∇_{ z} · fx ⊗^{ M} fy.
+      (px : f · (identity x ⊗^{ M} εy · ru x) = fx)
+      (py : f · (εx ⊗^{ M} identity y · lu y) = fy)
+      : f = δz · fx ⊗^{ M} fy.
     Proof.
       rewrite <- px.
       rewrite <- py.
@@ -188,32 +200,21 @@ Section CartesianBuilder.
       etrans.
       2: {
         apply maponpaths_2.
-        apply (! pr1 (mf _ _ f)).
+        apply (! pr11 (mf _ _ f)).
       }
       cbn.
-      etrans.
-      2: {
-        rewrite assoc'.
-        apply maponpaths.
-        refine (! p @ _).
-        rewrite assoc'.
-        apply maponpaths.
-        apply maponpaths_2.
-        rewrite ! (when_bifunctor_becomes_rightwhiskering M).
-        apply maponpaths_2.
-        unfold functoronmorphisms1.
-        rewrite (bifunctor_rightid M).
-        apply (! id_left _).
-      }
-      apply (! id_right _).
+      refine (! id_right _ @ _).
+      rewrite assoc'.
+      apply maponpaths.
+      apply p.
     Qed.
 
   End make_cartesian.
 
   Lemma monoidal_is_binproduct_from_comonoid
-    (pI : comonoid_data_counit M (m I) = identity I)
+    (pI : εI = identity I)
     (pT : ∏ x y : C,
-          ∇_{ x ⊗_{ M} y} · (x ⊗^{ M}_{l} !_{ y}) ⊗^{ M} (!_{ x} ⊗^{ M}_{r} y) · ru x ⊗^{ M} lu y
+          δ_{(x ⊗_{ M} y ,, m _) : comonoid V} · ((identity x ⊗^{ M} ε_{(y ,, m y) : comonoid V}) ⊗^{ M} (ε_{(x ,, m x) : comonoid V} ⊗^{ M} identity y) · ru x ⊗^{ M} lu y)
           = identity (x ⊗_{ M} y))
     : tensor_isBinProduct (monoidal_is_semicartesian_from_comonoid pI).
   Proof.
@@ -227,13 +228,13 @@ Section CartesianBuilder.
     - intro f.
       use subtypePath.
       { intro ; apply isapropdirprod ; apply homset_property. }
-      exact (make_is_binprod_from_comonoids_uniqueness fx fy (pT x y) (pr1 f) (pr12 f) (pr22 f)).
+      exact (make_is_binprod_from_comonoids_uniqueness fx fy (! pT x y) (pr1 f) (pr12 f) (pr22 f)).
   Qed.
 
   Definition monoidal_is_cartesian_from_comonoid
-    (pI : comonoid_data_counit M (m I) = identity I)
+    (pI : εI = identity I)
     (pT : ∏ x y : C,
-          ∇_{ x ⊗_{ M} y} · (x ⊗^{ M}_{l} !_{ y}) ⊗^{ M} (!_{ x} ⊗^{ M}_{r} y) · ru x ⊗^{ M} lu y
+          δ_{(x ⊗_{ M} y ,, m _) : comonoid V} · ((identity x ⊗^{ M} ε_{(y ,, m y) : comonoid V}) ⊗^{ M} (ε_{(x ,, m x) : comonoid V} ⊗^{ M} identity y) · ru x ⊗^{ M} lu y)
           = identity (x ⊗_{ M} y))
     : is_cartesian V.
   Proof.
@@ -263,37 +264,42 @@ Section CartesianBuilderCommutative.
   Let ruinv : rightunitorinv_data M (monoidal_unit M) := monoidal_rightunitorinvdata M.
   Let αinv : associatorinv_data M := monoidal_associatorinvdata M.
 
-  Context (m : ∏ x : C, comonoid M x)
-    (mf : ∏ (x y : C) (f : C⟦x,y⟧), is_comonoid_mor M (m x) (m y) f).
+  Context
+    (m : ∏ x : C, disp_cat_of_comonoids V x)
+      (mf : ∏ (x y : C) (f : C⟦x,y⟧), comonoid_mor_struct M (_ ,, m x) (_ ,, m y) f).
 
-  Notation "∇_{ x }" := (pr11 (m x)).
-  Notation "!_{ x }" := (pr21 (m x)).
+  Import ComonoidNotations.
+
+  Let εI := ε_{(I ,, m I) : comonoid V}.
+
+  Let cm := λ x : C, (x ,, m x) : comonoid V.
 
   Lemma comonoid_unit_law_right_inv (x : C)
-    : ru x · (∇_{x} · x ⊗^{ M}_{l} !_{x}) = identity _.
+    : ru x · (δ_{cm x} · x ⊗^{ M}_{l} ε_{cm x})
+      = identity _.
   Proof.
     etrans. {
       apply maponpaths.
-      apply (comonoid_laws_unit_right' M (m x)).
+      apply (comonoid_laws_unit_right' M (x ,, m x)).
     }
     apply monoidal_rightunitorisolaw.
   Qed.
 
   Lemma comonoid_unit_law_left_inv (y : C)
-    : lu y · (∇_{y} · !_{y} ⊗^{ M}_{r} y) = identity _.
+    : lu y · (δ_{cm y} · ε_{cm y} ⊗^{ M}_{r} y) = identity _.
   Proof.
     etrans. {
       apply maponpaths.
-      apply (comonoid_laws_unit_left' M (m y)).
+      apply (comonoid_laws_unit_left' M (y ,, m y)).
     }
     apply monoidal_leftunitorisolaw.
   Qed.
 
   Lemma rearranging_before_aug (x y : C)
-    : rearrange_prod S x x y y · (x ⊗^{ M}_{l} !_{ y}) ⊗^{ M} (!_{ x} ⊗^{ M}_{r} y)
-      = (_ ⊗^{ M}_{l} !_{_}) ⊗^{M} (!_{_} ⊗^{M}_{r} _).
+    : rearrange_prod S x x y y · (x ⊗^{ M}_{l} ε_{cm y}) ⊗^{ M} (ε_{cm _} ⊗^{ M}_{r} y)
+      = (_ ⊗^{ M}_{l} ε_{cm _}) ⊗^{M} (ε_{cm _} ⊗^{M}_{r} _).
   Proof.
-    refine (_ @ precompose_rearrange_prod S (identity x) !_{x} !_{y} (identity y) @ _).
+    refine (_ @ precompose_rearrange_prod S (identity x) ε_{cm x} ε_{cm y} (identity y) @ _).
     {
       now rewrite (when_bifunctor_becomes_leftwhiskering M),
         (when_bifunctor_becomes_rightwhiskering M).
@@ -305,13 +311,13 @@ Section CartesianBuilderCommutative.
     apply id_right.
   Qed.
 
-  Context (aug_of_unit : !_{I} = identity I_{ M}).
+  Context (aug_of_unit : εI = identity I_{ M}).
   Context (diagonal_of_tensor
-            : ∏ x y : C, ∇_{x ⊗ y} = (∇_{x} ⊗⊗ ∇_{y}) · rearrange_prod S x x y y).
+            : ∏ x y : C, δ_{cm (x ⊗ y)} = (δ_{cm x} ⊗⊗ δ_{cm y}) · rearrange_prod S x x y y).
 
   Lemma whisker_to_total'
           (x y : C)
-    : ru x ⊗^{ M} lu y · ∇_{ x ⊗_{ M} y} · (x ⊗^{ M}_{l} !_{ y}) ⊗^{ M} (!_{ x} ⊗^{ M}_{r} y)
+    : ru x ⊗^{ M} lu y · δ_{cm (x ⊗_{ M} y)} · (x ⊗^{ M}_{l} ε_{cm y}) ⊗^{ M} (ε_{cm x} ⊗^{ M}_{r} y)
       = identity _.
   Proof.
     rewrite diagonal_of_tensor.
@@ -329,7 +335,7 @@ Section CartesianBuilderCommutative.
 
   Lemma whisker_to_total
           (x y : C)
-    : ∇_{ x ⊗_{ M} y} · (x ⊗^{ M}_{l} !_{ y}) ⊗^{ M} (!_{ x} ⊗^{ M}_{r} y) · ru x ⊗^{ M} lu y
+    : δ_{cm (x ⊗_{ M} y)} · (x ⊗^{ M}_{l} ε_{cm y}) ⊗^{ M} (ε_{cm x} ⊗^{ M}_{r} y) · ru x ⊗^{ M} lu y
       = identity (x ⊗_{ M} y).
   Proof.
     use (z_iso_inv_to_right _ _ _ _ (_,,_)).
@@ -353,7 +359,13 @@ Section CartesianBuilderCommutative.
     - exact m.
     - exact mf.
     - exact aug_of_unit.
-    - intro ; intro ; apply whisker_to_total.
+    - abstract (
+          intro ; intro
+          ; refine (_ @ whisker_to_total x y)
+          ; rewrite (when_bifunctor_becomes_rightwhiskering V)
+          ; rewrite (when_bifunctor_becomes_leftwhiskering V)
+          ; rewrite ! assoc
+          ; apply idpath).
   Defined.
 
 End CartesianBuilderCommutative.

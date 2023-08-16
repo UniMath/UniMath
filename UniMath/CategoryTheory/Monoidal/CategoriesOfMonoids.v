@@ -215,3 +215,33 @@ Section Category_of_Monoids.
     : monoid_laws_assoc (monoid_struct X)
     := monoid_to_assoc_law (monoid_struct X).
 End Category_of_Monoids.
+
+Definition unit_monoid
+  (V : monoidal_cat)
+  : monoid V (monoidal_unit V).
+Proof.
+  use tpair.
+  - exists (monoidal_leftunitordata V (monoidal_unit V)).
+    exact (identity (monoidal_unit V)).
+  - refine (_ ,, _ ,, _).
+    + etrans. {
+        apply maponpaths_2.
+        apply (bifunctor_rightid V).
+      }
+      apply id_left.
+    + etrans. {
+        apply maponpaths_2.
+        apply (bifunctor_leftid V).
+      }
+      refine (id_left _ @ _).
+      apply unitors_coincide_on_unit.
+    + etrans. {
+        apply maponpaths_2.
+        refine (_ @ associator_before_lwhisker_with_lu V).
+        apply maponpaths.
+        apply pathsinv0,
+          (when_bifunctor_becomes_leftwhiskering V).
+      }
+      apply maponpaths_2.
+      apply (when_bifunctor_becomes_rightwhiskering V).
+Defined.

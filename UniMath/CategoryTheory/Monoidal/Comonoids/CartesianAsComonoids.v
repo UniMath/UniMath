@@ -31,11 +31,14 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
 
-Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Comonoids.
-Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsCategoryAsDialg.
-Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsMonoidal.
-Require Import UniMath.CategoryTheory.Monoidal.Comonoids.MonoidalCartesianBuilder.
-Require Import UniMath.CategoryTheory.Monoidal.Comonoids.CommComonoidsCartesian.
+Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
+Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Tensor.
+Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Monoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Symmetric.
+
+(* Require Import UniMath.CategoryTheory.Monoidal.Comonoids.CommComonoidsCartesian.
+Require Import UniMath.CategoryTheory.Monoidal.Comonoids.MonoidalCartesianBuilder. *)
+
 
 Local Open Scope cat.
 Import MonoidalNotations.

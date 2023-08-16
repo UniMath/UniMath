@@ -24,9 +24,14 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.
 
-Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Comonoids.
-Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsMonoidal.
-Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsCategoryAsDialg.
+Require Import UniMath.CategoryTheory.categories.Dialgebras.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras.
+
+Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
+Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Tensor.
+Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Monoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Symmetric.
+
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.MonoidalCartesianBuilder.
 
 Local Open Scope cat.
@@ -35,69 +40,68 @@ Import ComonoidNotations.
 
 Section CartesianMonoidalCategoryOfCommutativeComonoids.
 
-  Context {C : category} {M : monoidal C} (S : symmetric M).
-  Let V : sym_monoidal_cat := (C,,M),,S.
+  Context (V : sym_monoidal_cat).
 
-  Lemma diagonal_is_comonoid_mor_mult
-    {x : C} {m : comonoid M x} (c : is_commutative S m)
-    : is_comonoid_mor_mult M m (tensor_of_comonoids V m m) δ_{m}.
-  Proof.
-    apply (! commutative_symmetric_braiding_after_4_copies S c).
-  Qed.
+  Notation "x ⊗ y" := (x ⊗_{V} y).
+  Notation "x ⊗l f" := (x ⊗^{V}_{l} f) (at level 31).
+  Notation "f ⊗r y" := (f ⊗^{V}_{r} y) (at level 31).
+  Notation "f ⊗⊗ g" := (f ⊗^{V} g) (at level 31).
 
-  Lemma diagonal_is_comonoid_mor_unit
-    {x : C} (m : comonoid M x)
-    : is_comonoid_mor_unit M m (tensor_of_comonoids V m m) (pr11 m).
+  Let I : V := monoidal_unit V.
+  Let lu : leftunitor_data V (monoidal_unit V) := monoidal_leftunitordata V.
+  Let ru : rightunitor_data V (monoidal_unit V) := monoidal_rightunitordata V.
+  Let α : associator_data V := monoidal_associatordata V.
+  Let luinv : leftunitorinv_data V (monoidal_unit V) := monoidal_leftunitorinvdata V.
+  Let ruinv : rightunitorinv_data V (monoidal_unit V) := monoidal_rightunitorinvdata V.
+  Let αinv : associatorinv_data V := monoidal_associatorinvdata V.
+  Let σ := pr12 V.
+
+  Lemma diagonal_is_comonoid_mor_counit
+    (m : comonoid V)
+    : is_comonoid_mor_counit V m (tensor_of_comonoids V m m) δ_{m}.
   Proof.
-    refine (_@ cancel_postcomposition _ _ (pr21 m) (pr12 m) @ id_left _).
+    unfold is_comonoid_mor_counit.
+    cbn.
+    unfold functoronmorphisms1.
     rewrite ! assoc'.
-    apply maponpaths.
-    rewrite <- (monoidal_leftunitornat M _ _ (pr21 m)).
-    now rewrite ! assoc.
+    etrans. {
+      apply maponpaths.
+      apply maponpaths.
+      exact (monoidal_leftunitornat V _ _ ε_{m}).
+    }
+    refine (_ @ id_left _).
+    rewrite ! assoc.
+    apply maponpaths_2.
+    exact (comonoid_to_law_unit_left _ m).
   Qed.
 
-  Lemma diagonal_is_comonoid_mor
-    {x : C} {m : comonoid M x} (c : is_commutative S m)
-    : is_comonoid_mor M m (tensor_of_comonoids V m m) (pr11 m).
-  Proof.
-    exists (diagonal_is_comonoid_mor_mult c).
-    exact (diagonal_is_comonoid_mor_unit m).
-  Qed.
-
-  Lemma aug_is_comonoid_mor_mult
-    {x : C} (m : comonoid M x)
-    : is_comonoid_mor_mult M m (comonoid_disp_unit V) (pr21 m).
+  Lemma aug_is_comonoid_mor_comult
+    (m : comonoid V)
+    : is_comonoid_mor_comult V m (comonoid_disp_unit V) ε_{m}.
   Proof.
     refine (assoc _ _ _ @ _).
     etrans. {
       apply maponpaths_2.
       apply comonoid_laws_unit_left'.
     }
-    apply (monoidal_leftunitorinvnat M).
-  Qed.
-
-  Lemma aug_is_comonoid_mor
-    {x : C} (m : comonoid M x)
-    : is_comonoid_mor M m (comonoid_disp_unit V) (pr21 m).
-  Proof.
-    exists (aug_is_comonoid_mor_mult m).
-    apply id_right.
+    apply monoidal_leftunitorinvnat.
   Qed.
 
   Definition commutative_comonoid_to_comonoid_of_comonoids_data
-    {x : C} {m : comonoid M x} (c : is_commutative S m)
-    : comonoid_data (sym_monoidal_cat_commutative_comonoids V) (x,,m,,c).
+    (m : commutative_comonoid V)
+    : comonoid_data (symmetric_cat_commutative_comonoids V).
   Proof.
+    exists m.
     refine (_ ,, _).
-    - refine (pr11 m ,, (_ ,, tt) ,, tt).
+    - refine (δ_{m} ,, (_ ,, tt) ,, tt).
       split ; cbn.
-      + refine (diagonal_is_comonoid_mor_mult c @ _).
+      + refine (! commutative_symmetric_braiding_after_4_copies V m @ _).
         apply maponpaths.
         cbn.
         unfold MonoidalDialgebras.dialgebra_disp_tensor_op.
         apply maponpaths_2.
         apply pathsinv0, id_left.
-      + refine (_ @ ! diagonal_is_comonoid_mor_unit m @ _).
+      + refine (_ @ ! diagonal_is_comonoid_mor_counit m @ _).
         * apply id_right.
         * cbn.
           apply maponpaths.
@@ -105,9 +109,9 @@ Section CartesianMonoidalCategoryOfCommutativeComonoids.
           cbn.
           apply maponpaths_2.
           apply pathsinv0, id_left.
-    - refine (pr21 m ,, (_ ,, tt) ,, tt).
+    - refine (ε_{m} ,, (_ ,, tt) ,, tt).
       split ; cbn.
-      + refine (aug_is_comonoid_mor_mult m @ _).
+      + refine (aug_is_comonoid_mor_comult m @ _).
         apply maponpaths.
         apply pathsinv0, id_left.
       + refine (_ @ assoc' _ _ _).
@@ -115,76 +119,55 @@ Section CartesianMonoidalCategoryOfCommutativeComonoids.
   Defined.
 
   Lemma commutative_comonoid_to_comonoid_of_comonoids_laws
-    {x : C} {m : comonoid M x} (c : is_commutative S m)
-    : comonoid_laws (sym_monoidal_cat_commutative_comonoids V)
-        (commutative_comonoid_to_comonoid_of_comonoids_data c).
+    (m : commutative_comonoid V)
+    : comonoid_laws (symmetric_cat_commutative_comonoids V)
+        (commutative_comonoid_to_comonoid_of_comonoids_data m).
   Proof.
     repeat split ;
       (use subtypePath ;
-       [intro ; apply cat_commutative_comonoids_is_locally_propositional
-       | apply m]).
+       [intro ; apply is_locally_propositional_commutative_comonoid
+       | apply (pr12 m)]).
   Qed.
 
   Definition commutative_comonoid_to_comonoid_of_comonoids
-    {x : C} {m : comonoid M x} (c : is_commutative S m)
-    : comonoid (sym_monoidal_cat_commutative_comonoids V) (x,,m,,c).
+    (m : commutative_comonoid V)
+    : comonoid (symmetric_cat_commutative_comonoids V).
   Proof.
-    exists (commutative_comonoid_to_comonoid_of_comonoids_data c).
-    exact (commutative_comonoid_to_comonoid_of_comonoids_laws c).
+    exists m.
+    exists (pr2 (commutative_comonoid_to_comonoid_of_comonoids_data m)).
+    exact (commutative_comonoid_to_comonoid_of_comonoids_laws m).
   Defined.
 
-  Lemma comonoid_mor_is_comonoid_mor_mult
-    {mx my : sym_monoidal_cat_commutative_comonoids V}
-    (f : ((sym_monoidal_cat_commutative_comonoids V))⟦mx, my⟧)
-    : is_comonoid_mor_mult (sym_monoidal_cat_commutative_comonoids V)
-        (commutative_comonoid_to_comonoid_of_comonoids (pr22 mx))
-        (commutative_comonoid_to_comonoid_of_comonoids (pr22 my))
-        f.
+  Definition comonoid_mor_is_comonoid_mor {x y : commutative_comonoid V} (f : _⟦x,y⟧)
+    :  comonoid_mor_struct (symmetric_cat_commutative_comonoids V)
+    (x,,
+     (λ m : symmetric_cat_commutative_comonoids V,
+      pr2 (commutative_comonoid_to_comonoid_of_comonoids m)) x)
+    (y,,
+     (λ m : symmetric_cat_commutative_comonoids V,
+         pr2 (commutative_comonoid_to_comonoid_of_comonoids m)) y) f.
   Proof.
-    use subtypePath.
-    - intro ; apply cat_commutative_comonoids_is_locally_propositional.
-    - apply (pr2 f).
-  Qed.
-
-  Lemma comonoid_mor_is_comonoid_mor_unit
-    {mx my : sym_monoidal_cat_commutative_comonoids V}
-    (f : (sym_monoidal_cat_commutative_comonoids V)⟦mx, my⟧)
-    : is_comonoid_mor_unit (sym_monoidal_cat_commutative_comonoids V)
-        (commutative_comonoid_to_comonoid_of_comonoids (pr22 mx))
-        (commutative_comonoid_to_comonoid_of_comonoids (pr22 my))
-        f.
-  Proof.
-    use subtypePath.
-    - intro ; apply cat_commutative_comonoids_is_locally_propositional.
-    - refine (! pr2 (pr112 f) @ _).
-      apply id_right.
-  Qed.
-
-  Lemma comonoid_mor_is_comonoid_mor
-    {mx my : sym_monoidal_cat_commutative_comonoids V}
-    (f : (sym_monoidal_cat_commutative_comonoids V)⟦mx, my⟧)
-    : is_comonoid_mor (sym_monoidal_cat_commutative_comonoids V)
-        (commutative_comonoid_to_comonoid_of_comonoids (pr22 mx))
-        (commutative_comonoid_to_comonoid_of_comonoids (pr22 my))
-        f.
-  Proof.
-    split.
-    - exact (comonoid_mor_is_comonoid_mor_mult f).
-    - exact (comonoid_mor_is_comonoid_mor_unit f).
+    apply make_is_comonoid_mor.
+    - use subtypePath.
+      + intro ; apply is_locally_propositional_commutative_comonoid.
+      + apply (pr2 f).
+    - use subtypePath.
+      + intro ; apply is_locally_propositional_commutative_comonoid.
+      + exact (pr2 (pr112 f)).
   Qed.
 
   Definition cartesian_monoidal_cat_of_comm_comonoids
-    : is_cartesian (sym_monoidal_cat_commutative_comonoids V).
+    : is_cartesian (symmetric_cat_commutative_comonoids V).
   Proof.
     use symm_monoidal_is_cartesian_from_comonoid.
-    - exact (λ m, commutative_comonoid_to_comonoid_of_comonoids (pr22 m)).
+    - exact (λ m, pr2 (commutative_comonoid_to_comonoid_of_comonoids m)).
     - exact (λ _ _ f, comonoid_mor_is_comonoid_mor f).
     - use subtypePath.
-      + intro ; apply cat_commutative_comonoids_is_locally_propositional.
+      + intro ; apply is_locally_propositional_commutative_comonoid.
       + apply id_right.
     - intros mx my.
       use subtypePath.
-      + intro ; apply cat_commutative_comonoids_is_locally_propositional.
+      + intro ; apply is_locally_propositional_commutative_comonoid.
       + cbn.
         unfold MonoidalDialgebras.dialgebra_disp_tensor_op.
         cbn.

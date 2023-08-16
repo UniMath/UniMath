@@ -323,13 +323,15 @@ Monoidal/Examples/LiftPoset.v
 Monoidal/Examples/Fullsub.v
 Monoidal/Examples/Relations.v
 Monoidal/Examples/Sigma.v
+Monoidal/Examples/DiagonalFunctor.v
+Monoidal/Examples/ConstantFunctor.v
 
-Monoidal/Comonoids/Comonoids.v
-Monoidal/Comonoids/ComonoidsMonoidal.v
-Monoidal/Comonoids/ComonoidsCategoryAsDialg.v
+Monoidal/Comonoids/Category.v
+Monoidal/Comonoids/Tensor.v
+Monoidal/Comonoids/Monoidal.v
+Monoidal/Comonoids/Symmetric.v
 Monoidal/Comonoids/MonoidalCartesianBuilder.v
 Monoidal/Comonoids/CommComonoidsCartesian.v
-Monoidal/Comonoids/CartesianAsComonoids.v
 
 Monoidal/Examples/SymmetricMonoidalCoEilenbergMoore.v
 
