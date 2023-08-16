@@ -40,7 +40,7 @@ Section CartesianMonoidalCategoryOfCommutativeComonoids.
 
   Lemma diagonal_is_comonoid_mor_mult
     {x : C} {m : comonoid M x} (c : is_commutative S m)
-    : is_comonoid_mor_mult M m (tensor_of_comonoids V m m) μ_{m}.
+    : is_comonoid_mor_mult M m (tensor_of_comonoids V m m) δ_{m}.
   Proof.
     apply (! commutative_symmetric_braiding_after_4_copies S c).
   Qed.
