@@ -160,7 +160,7 @@ Section CartesianBuilder.
     Qed.
 
     Context (p : identity (x ⊗_{V} y) =
-                   pr11 (m (x ⊗_{V} y))
+                   δ_{(x ⊗_{V} y ,, m _) : comonoid V}
                      · ((identity x ⊗^{V} εy) ⊗^{V} (εx ⊗^{V} identity y) · ru^{V}_{x} ⊗^{V} lu^{V}_{y})).
 
     Lemma make_is_binprod_from_comonoids_uniqueness
@@ -240,7 +240,7 @@ Section CartesianBuilderCommutative.
 
   Context
     (m : ∏ x : V, disp_cat_of_comonoids V x)
-      (mf : ∏ (x y : V) (f : V⟦x,y⟧), comonoid_mor_struct V (_ ,, m x) (_ ,, m y) f).
+      (is_comonoid_mor : ∏ (x y : V) (f : V⟦x,y⟧), comonoid_mor_struct V (_ ,, m x) (_ ,, m y) f).
 
   Import ComonoidNotations.
 
@@ -336,7 +336,7 @@ Section CartesianBuilderCommutative.
   Proof.
     use monoidal_is_cartesian_from_comonoid.
     - exact m.
-    - exact mf.
+    - exact is_comonoid_mor.
     - exact aug_of_unit.
     - abstract (
           intro ; intro
