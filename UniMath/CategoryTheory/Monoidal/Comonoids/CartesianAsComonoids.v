@@ -36,31 +36,22 @@ Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Tensor.
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Monoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Symmetric.
 
-Local Open Scope cat.
+
 Import MonoidalNotations.
 Import ComonoidNotations.
+
+Local Open Scope cat.
+Local Open Scope moncat.
 
 Section CartesianToCartesianAsComonoids.
 
   Context {M : monoidal_cat} (Ccart : is_cartesian M).
   Let V : sym_monoidal_cat := M,, cartesian_to_symmetric Ccart.
 
-  Let diag (x : V) := (BinProductArrow _ (is_cartesian_BinProduct Ccart x x) (identity x) (identity x)).
+  Let diag (x : V) : V⟦x, x ⊗_{M} x⟧
+      := (BinProductArrow _ (is_cartesian_BinProduct Ccart x x) (identity x) (identity x)).
 
-  Let aug (x : V) := (semi_cart_to_unit Ccart x).
-
-  Lemma aug_of_unit : aug I_{M} = identity I_{M}.
-  Proof.
-    apply (semi_cart_to_unit_eq Ccart).
-  Qed.
-
-  (* Definition cartesian_monoidal_has_enough_comonoids_data
-    : ∏ x : M, comonoid_data M x.
-  Proof.
-    intro x.
-    exists (diag x).
-    exact (aug x).
-  Defined. *)
+  Let aug (x : V) : V⟦x, I_{M}⟧ := (semi_cart_to_unit Ccart x).
 
   Lemma identity_of_lwhisker_with_unit (x : V)
     : monoidal_cat_tensor_mor (aug I_{ M}) (identity x)
@@ -197,7 +188,7 @@ Section CartesianToCartesianAsComonoids.
       }
       etrans. {
         apply maponpaths.
-        apply (BinProductOfArrowsPr1 _ (is_cartesian_BinProduct Ccart _ _)).
+        apply (BinProductOfArrowsPr1 _ (is_cartesian_BinProduct Ccart _ _) (is_cartesian_BinProduct Ccart _ _)).
       }
       rewrite assoc.
       refine (_ @ id_left _).
@@ -212,7 +203,7 @@ Section CartesianToCartesianAsComonoids.
       }
       etrans. {
         apply maponpaths.
-        apply (BinProductOfArrowsPr2 _ (is_cartesian_BinProduct Ccart _ _)).
+        apply (BinProductOfArrowsPr2 _ (is_cartesian_BinProduct Ccart _ _) (is_cartesian_BinProduct Ccart _ _)).
       }
       rewrite assoc.
       refine (_ @ id_left _).
