@@ -252,8 +252,11 @@ Section CartesianToCartesianAsComonoids.
       + apply id_left.
   Qed.
 
-  Lemma cartesian_monoidal_has_enough_comonoids_laws
-    : ∏ x : V, comonoid_laws M (x ,, diag x ,, aug x).
+  Definition cartesian_comonoid_data (x : V)
+    : comonoid_data V := x ,, diag x ,, aug x.
+
+  Lemma cartesian_comonoid_laws (x : V)
+    : comonoid_laws M (cartesian_comonoid_data x).
   Proof.
     repeat split.
     - unfold comonoid_laws_unit_left.
@@ -276,7 +279,7 @@ Section CartesianToCartesianAsComonoids.
   Proof.
     intro x.
     refine (x ,, _ ,, _).
-    exact (cartesian_monoidal_has_enough_comonoids_laws x).
+    exact (cartesian_comonoid_laws x).
   Defined.
 
   (* Definition cartesian_monoidal_has_enough_commcomonoids
@@ -289,7 +292,7 @@ Section CartesianToCartesianAsComonoids.
     : ∏ x : V, disp_cat_of_commutative_comonoids V x.
   Proof.
     intro x.
-    exists (pr2 (cartesian_monoidal_has_enough_comonoids x)).
+    exists (comonoid_to_struct V (cartesian_monoidal_has_enough_comonoids x)).
     apply diag_is_symmetric.
   Defined.
 
