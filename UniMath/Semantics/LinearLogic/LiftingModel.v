@@ -6,7 +6,12 @@
 
  ****************************************************************************)
 Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.OrderTheory.Posets.
 Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
+Require Import UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
+Require Import UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.PointedPosetStrict.
 Require Import UniMath.CategoryTheory.Monads.Comonads.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Functors.
@@ -37,16 +42,62 @@ Proposition lifting_linear_category_laws
   : linear_category_laws lifting_linear_category_data.
 Proof.
   repeat split.
-  - admit.
-  - admit.
-  - admit.
-  - admit.
-  - admit.
-  - admit.
-  - admit.
-  - admit.
-  - admit.
-Admitted.
+  - intros X Y f.
+    use eq_mor_hset_struct.
+    intro x ; cbn in x.
+    induction x as [ x | ].
+    + cbn ; apply idpath.
+    + cbn ; apply idpath.
+  - intros X Y f.
+    use eq_mor_hset_struct.
+    intro x ; cbn in x.
+    induction x as [ x | ].
+    + cbn ; apply idpath.
+    + cbn ; apply idpath.
+  - intros X.
+    use eq_mor_hset_struct.
+    intro x ; cbn in x.
+    induction x as [ x | ].
+    + cbn ; apply idpath.
+    + cbn ; apply idpath.
+  - intros X.
+    use eq_mor_hset_struct.
+    intro x ; cbn in x.
+    induction x as [ x | ].
+    + cbn ; apply idpath.
+    + cbn ; apply idpath.
+  - intros X.
+    use eq_mor_hset_struct.
+    intro x ; cbn in x.
+    induction x as [ x | ].
+    + cbn ; apply idpath.
+    + cbn ; apply idpath.
+  - intros X.
+    use eq_mor_hset_struct.
+    intro x ; cbn in x.
+    induction x as [ x | ].
+    + cbn ; apply idpath.
+    + cbn ; apply idpath.
+  - intros X.
+    use eq_mor_hset_struct.
+    intro x ; cbn in x.
+    induction x as [ x | ].
+    + cbn ; apply idpath.
+    + cbn ; apply idpath.
+  - intros X.
+    use eq_mor_hset_struct.
+    intro x ; cbn in x.
+    induction x as [ x | t ].
+    + cbn ; apply idpath.
+    + induction t.
+      cbn ; apply idpath.
+  - intros X.
+    use eq_mor_hset_struct.
+    intro x ; cbn in x.
+    induction x as [ x | ].
+    + cbn ; apply idpath.
+    + cbn ; apply idpath.
+Qed.
 
 Definition lifting_linear_category
   : linear_category.
