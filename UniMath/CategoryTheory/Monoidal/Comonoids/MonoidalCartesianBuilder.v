@@ -54,7 +54,7 @@ Section CartesianBuilder.
   Let εI := ε_{(monoidal_unit V ,, m _) : comonoid V}.
 
   Lemma terminal_from_aug_id (x : V)
-    :  εI = identity (monoidal_unit V)
+    : εI = identity (monoidal_unit V)
        → iscontr (V⟦x, monoidal_unit V⟧).
   Proof.
     exists (ε_{(x ,, m x) : comonoid V}).

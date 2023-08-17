@@ -55,7 +55,7 @@ Section CartesianToCartesianAsComonoids.
 
   Lemma identity_of_lwhisker_with_unit (x : V)
     : monoidal_cat_tensor_mor (aug I_{ M}) (identity x)
-       = identity (I_{M} ⊗_{M} x).
+       = identity (I_{V} ⊗ x).
   Proof.
     refine (_ @ tensor_id_id _ _).
     apply maponpaths_2.
@@ -64,7 +64,7 @@ Section CartesianToCartesianAsComonoids.
 
   Lemma identity_of_rwhisker_with_unit (x : V)
     : monoidal_cat_tensor_mor (identity x) (aug I_{ M})
-       = identity (x ⊗_{M} I_{M}).
+       = identity (x ⊗ I_{V}).
   Proof.
     refine (_ @ tensor_id_id _ _).
     apply maponpaths.
@@ -176,7 +176,7 @@ Section CartesianToCartesianAsComonoids.
   Qed.
 
   Lemma BinProductArrow_as_diag (x y z : V) (f : V⟦x,y⟧) (g : V⟦x,z⟧)
-    : diag x · f ⊗^{M} g
+    : diag x · f #⊗ g
       = BinProductArrow V (is_cartesian_BinProduct Ccart y z) f g.
   Proof.
     etrans.
@@ -360,7 +360,7 @@ Section CartesianToCartesianAsComonoids.
 
   Definition cartesian_monoidal_has_enough_comonoids_mor'
     {x y : V} (f : V⟦x, y⟧)
-    : diag x · monoidal_cat_tensor_mor f f
+    : diag x · f #⊗ f
       = f · diag y × aug x · identity I_{ M} = f · aug y.
   Proof.
     split.
