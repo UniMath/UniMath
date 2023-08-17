@@ -170,44 +170,10 @@ Section TheConstruction.
       apply pathsinv0, functor_comp.
     - apply (pr1 (is_mon_nat_trans_comp _ _ _ _ _ X X0)).
     - apply (pr2 (is_mon_nat_trans_comp _ _ _ _ _ X X0)).
-    - assert (aux := pr1 X (pr1 f a0) (pr1 f a')).
-      unfold fmonoidal_preservestensordata in aux.
-      etrans.
-      2: { rewrite assoc.
-           apply cancel_postcomposition.
-           exact aux. }
-      clear aux.
-      repeat rewrite assoc'.
-      apply maponpaths.
-      apply nat_trans_ax.
-    - assert (aux := pr2 X).
-      red in aux.
-      unfold fmonoidal_preservesunit in aux.
-      rewrite <- aux.
-      repeat rewrite assoc'.
-      apply maponpaths.
-      apply nat_trans_ax.
-    - etrans.
-      { rewrite assoc'.
-        apply maponpaths.
-        apply pathsinv0, functor_comp. }
-      etrans.
-      { do 2 apply maponpaths.
-        apply (pr1 X).
-      }
-      unfold fmonoidal_preservestensordata.
-      rewrite functor_comp.
-      repeat rewrite assoc.
-      apply cancel_postcomposition.
-      apply pathsinv0, preservestensor_is_nattrans_full.
-      + apply (fmonoidal_preservestensornatleft (gg : fmonoidal _ _ g)).
-      + apply (fmonoidal_preservestensornatright (gg : fmonoidal _ _ g)).
-    - rewrite assoc'.
-      apply maponpaths.
-      etrans.
-      { apply pathsinv0, functor_comp. }
-      apply maponpaths.
-      apply (pr2 X).
+    - apply (pr1 (is_mon_nat_trans_prewhisker _ X)).
+    - apply (pr2 (is_mon_nat_trans_prewhisker _ X)).
+    - apply (pr1 (is_mon_nat_trans_postwhisker X _)).
+    - apply (pr2 (is_mon_nat_trans_postwhisker X _)).
   Qed.
 
   Definition bidisp_monbicat_disp_prebicat_data : disp_prebicat_data bicat_of_cats

@@ -1338,10 +1338,27 @@ Proposition is_mon_nat_trans_prewhisker
 Proof.
   split.
   - intros x y ; cbn.
-    admit.
+    unfold fmonoidal_preservestensordata.
+    assert (aux := pr1 Hτ (F x) (F y)).
+    unfold fmonoidal_preservestensordata in aux.
+    etrans.
+    2: { rewrite assoc.
+         apply cancel_postcomposition.
+         exact aux. }
+    clear aux.
+    repeat rewrite assoc'.
+    apply maponpaths.
+    apply nat_trans_ax.
   - unfold is_mon_nat_trans_unitlaw ; cbn.
-    admit.
-Admitted.
+    unfold fmonoidal_preservesunit.
+    assert (aux := pr2 Hτ).
+    red in aux.
+    unfold fmonoidal_preservesunit in aux.
+    rewrite <- aux.
+    repeat rewrite assoc'.
+    apply maponpaths.
+    apply nat_trans_ax.
+Qed.
 
 Proposition is_mon_nat_trans_postwhisker
             {C₁ C₂ C₃ : category}
@@ -1362,10 +1379,31 @@ Proposition is_mon_nat_trans_postwhisker
 Proof.
   split.
   - intros x y ; cbn.
-    admit.
+    unfold fmonoidal_preservestensordata.
+    etrans.
+      { rewrite assoc'.
+        apply maponpaths.
+        apply pathsinv0, functor_comp. }
+      etrans.
+      { do 2 apply maponpaths.
+        apply (pr1 Hτ).
+      }
+      unfold fmonoidal_preservestensordata.
+      rewrite functor_comp.
+      repeat rewrite assoc.
+      apply cancel_postcomposition.
+      apply pathsinv0, preservestensor_is_nattrans_full.
+      + apply (fmonoidal_preservestensornatleft HG).
+      + apply (fmonoidal_preservestensornatright HG).
   - unfold is_mon_nat_trans_unitlaw ; cbn.
-    admit.
-Admitted.
+    unfold fmonoidal_preservesunit.
+    rewrite assoc'.
+    apply maponpaths.
+    etrans.
+    { apply pathsinv0, functor_comp. }
+    apply maponpaths.
+    apply (pr2 Hτ).
+Qed.
 
 (**
  8. Inverses of monoidal natural transformations
