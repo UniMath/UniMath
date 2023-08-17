@@ -114,21 +114,21 @@ Section MonoidalCategoryOfComonoids.
   Proof.
     apply disp_monoidal_fullsub.
     - exact disp_monoidal_comonoids_comonoid_law_unit.
-    - intros x y mx my.
+    - intros [x1 x2] [y1 y2] mx my.
       repeat split.
-      + refine (_ @ tensor_of_comonoids_laws_unit_left V (pr1 x ,, pr2 x ,,mx) (pr1 y ,, pr2 y ,, my)).
+      + refine (_ @ tensor_of_comonoids_laws_unit_left V (x1 ,, x2 ,, mx) (y1 ,, y2 ,, my)).
         cbn.
         unfold dialgebra_disp_tensor_op.
         apply maponpaths_2.
         cbn.
         now do 2 rewrite id_left.
-      + refine (_ @ tensor_of_comonoids_laws_unit_right V (pr1 x ,, pr2 x ,,mx) (pr1 y ,, pr2 y ,, my)).
+      + refine (_ @ tensor_of_comonoids_laws_unit_right V (x1 ,, x2 ,, mx) (y1 ,, y2 ,, my)).
         apply maponpaths_2.
         cbn.
         unfold dialgebra_disp_tensor_op.
         cbn.
         now do 2 rewrite id_left.
-      + refine (_ @ tensor_of_comonoids_laws_assoc V (pr1 x ,, pr2 x ,,mx) (pr1 y ,, pr2 y ,, my) @ _).
+      + refine (_ @ tensor_of_comonoids_laws_assoc V (x1 ,, x2 ,, mx) (y1 ,, y2 ,, my) @ _).
         * apply maponpaths_2.
           cbn.
           unfold dialgebra_disp_tensor_op.
@@ -156,8 +156,8 @@ Section MonoidalCategoryOfComonoids.
     - refine (_ @ id_right _).
       apply maponpaths.
       apply sym_mon_braiding_id.
-    - intros x y mx my.
-      refine (_ @ tensor_of_comm_comonoids V (pr1 x ,, pr2 x ,, mx) (pr1 y ,, pr2 y ,, my) @ _).
+    - intros [x1 x2] [y1 y2] mx my.
+      refine (_ @ tensor_of_comm_comonoids V (x1 ,, x2 ,, mx) (y1 ,, y2 ,, my) @ _).
       + apply maponpaths_2.
         cbn.
         unfold dialgebra_disp_tensor_op.
