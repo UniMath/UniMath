@@ -48,14 +48,15 @@ Section CartesianToCartesianAsComonoids.
   Context {M : monoidal_cat} (Ccart : is_cartesian M).
   Let V : sym_monoidal_cat := M,, cartesian_to_symmetric Ccart.
 
-  Let diag (x : V) : V⟦x, x ⊗_{M} x⟧
+  Let diag (x : V) : V⟦x, x ⊗ x⟧
       := (BinProductArrow _ (is_cartesian_BinProduct Ccart x x) (identity x) (identity x)).
 
-  Let aug (x : V) : V⟦x, I_{M}⟧ := (semi_cart_to_unit Ccart x).
+  Let aug (x : V) : V⟦x, monoidal_unit M⟧
+      := (semi_cart_to_unit Ccart x).
 
   Lemma identity_of_lwhisker_with_unit (x : V)
-    : monoidal_cat_tensor_mor (aug I_{ M}) (identity x)
-       = identity (I_{V} ⊗ x).
+    : monoidal_cat_tensor_mor (aug (monoidal_unit M)) (identity x)
+       = identity (_ ⊗ x).
   Proof.
     refine (_ @ tensor_id_id _ _).
     apply maponpaths_2.
@@ -63,7 +64,7 @@ Section CartesianToCartesianAsComonoids.
   Qed.
 
   Lemma identity_of_rwhisker_with_unit (x : V)
-    : monoidal_cat_tensor_mor (identity x) (aug I_{ M})
+    : monoidal_cat_tensor_mor (identity x) (aug I_{M})
        = identity (x ⊗ I_{V}).
   Proof.
     refine (_ @ tensor_id_id _ _).
@@ -72,7 +73,7 @@ Section CartesianToCartesianAsComonoids.
   Qed.
 
   Lemma cartesian_lunitor (x : V)
-    : semi_cart_tensor_pr2 (pr1 Ccart) I_{ M} x = lu^{M}_{x}.
+    : semi_cart_tensor_pr2 (pr1 Ccart) I_{ M} x = mon_lunitor x.
   Proof.
     refine (_ @ id_left _).
     unfold semi_cart_tensor_pr2.
@@ -81,7 +82,7 @@ Section CartesianToCartesianAsComonoids.
   Qed.
 
   Lemma cartesian_runitor (x : V)
-    : semi_cart_tensor_pr1 (pr1 Ccart) x I_{M} = ru^{M}_{x}.
+    : semi_cart_tensor_pr1 (pr1 Ccart) x I_{M} = mon_runitor x.
   Proof.
     refine (_ @ id_left _).
     unfold semi_cart_tensor_pr1.
@@ -93,7 +94,7 @@ Section CartesianToCartesianAsComonoids.
     : BinProductArrow V (is_cartesian_BinProduct Ccart I_{ M} x)
         (semi_cart_to_unit Ccart x)
         (identity x)
-      = luinv^{M}_{x}.
+      = mon_linvunitor x.
   Proof.
     apply pathsinv0.
     use BinProductArrowUnique.
@@ -107,8 +108,8 @@ Section CartesianToCartesianAsComonoids.
 
   Lemma cartesian_linvunitor' (x : V)
     : BinProductArrow V (is_cartesian_BinProduct Ccart x x) (identity x) (identity x)
-         · semi_cart_to_unit Ccart x ⊗^{ M}_{r} x
-       = luinv^{M}_{x}.
+         · semi_cart_to_unit Ccart x ⊗^{M}_{r} x
+       = mon_linvunitor x.
   Proof.
     etrans. {
       refine (_ @ postcompWithBinProductArrow _
@@ -130,7 +131,7 @@ Section CartesianToCartesianAsComonoids.
     : BinProductArrow V (is_cartesian_BinProduct Ccart x I_{ M})
         (identity x)
         (semi_cart_to_unit Ccart x)
-      = ruinv^{M}_{x}.
+      = mon_rinvunitor x.
   Proof.
     apply pathsinv0.
     use BinProductArrowUnique.
@@ -143,7 +144,7 @@ Section CartesianToCartesianAsComonoids.
   Qed.
 
   Lemma cartesian_rinvunitor' (x : V)
-    : diag x · x ⊗^{ M}_{l} aug x = ruinv^{M}_{x}.
+    : diag x · x ⊗^{ M}_{l} aug x = mon_rinvunitor x.
   Proof.
     etrans. {
       refine (_ @ postcompWithBinProductArrow _
@@ -162,7 +163,7 @@ Section CartesianToCartesianAsComonoids.
   Qed.
 
   Lemma cartesian_associator (x y z : V)
-    : α^{ M }_{ x, y, z}
+    : mon_lassociator x y z
       = BinProductArrow V
           (is_cartesian_BinProduct Ccart _ _)
           (semi_cart_tensor_pr1 Ccart _ _ · semi_cart_tensor_pr1 Ccart _ _)
@@ -213,7 +214,7 @@ Section CartesianToCartesianAsComonoids.
   Qed.
 
   Lemma diagonal_commutes_with_assoc (x : V)
-    : diag x · diag x ⊗^{M}_{r} x · α^{M}_{ x, x, x} = diag x · x ⊗^{M}_{l} diag x.
+    : diag x · diag x ⊗^{M}_{r} x · mon_lassociator x x x = diag x · x ⊗^{M}_{l} diag x.
   Proof.
     rewrite cartesian_associator.
     etrans.
@@ -230,7 +231,7 @@ Section CartesianToCartesianAsComonoids.
          apply pathsinv0, BinProductArrow_as_diag.
     }
     etrans.
-    { apply (precompWithBinProductArrow _ (is_cartesian_BinProduct Ccart x (x ⊗_{ M} x))). }
+    { apply (precompWithBinProductArrow _ (is_cartesian_BinProduct Ccart x (x ⊗ x))). }
     apply maponpaths_12.
     - rewrite assoc.
       etrans.
@@ -288,7 +289,7 @@ Section CartesianToCartesianAsComonoids.
     : ∏ x : V,  iscontr (disp_cat_of_comonoids V x).
   Proof.
     intro x.
-    exists ((diag x ,, aug x) ,, cartesian_monoidal_has_enough_comonoids_laws x).
+    exists (comonoid_to_struct V (cartesian_monoidal_has_enough_comonoids x)).
     intro m.
     use subtypePath.
     { intro ; apply isaprop_comonoid_laws. }
@@ -361,7 +362,7 @@ Section CartesianToCartesianAsComonoids.
   Definition cartesian_monoidal_has_enough_comonoids_mor'
     {x y : V} (f : V⟦x, y⟧)
     : diag x · f #⊗ f
-      = f · diag y × aug x · identity I_{ M} = f · aug y.
+      = f · diag y × aug x · identity (monoidal_unit V) = f · aug y.
   Proof.
     split.
     - exact (cartesian_monoidal_has_enough_comonoids_mor_comult f).

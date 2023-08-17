@@ -80,28 +80,26 @@ Section CartesianMonoidalCategoryOfCommutativeComonoids.
     exists m.
     refine (_ ,, _).
     - refine (δ_{m} ,, (_ ,, tt) ,, tt).
-      split ; cbn.
-      + refine (! commutative_symmetric_braiding_after_4_copies V m @ _).
-        apply maponpaths.
-        cbn.
-        unfold dialgebra_disp_tensor_op.
-        apply maponpaths_2.
-        apply pathsinv0, id_left.
-      + refine (_ @ ! diagonal_is_comonoid_mor_counit m @ _).
-        * apply id_right.
-        * cbn.
-          apply maponpaths.
-          unfold dialgebra_disp_tensor_op.
-          cbn.
-          apply maponpaths_2.
-          apply pathsinv0, id_left.
+      abstract (split ; cbn;
+      [ refine (! commutative_symmetric_braiding_after_4_copies V m @ _);
+        apply maponpaths;
+        cbn;
+        unfold dialgebra_disp_tensor_op;
+        apply maponpaths_2;
+        apply pathsinv0, id_left
+      | refine (id_right _ @ ! diagonal_is_comonoid_mor_counit m @ _);
+        apply maponpaths;
+        unfold dialgebra_disp_tensor_op;
+          cbn;
+        apply maponpaths_2;
+        apply pathsinv0, id_left]).
     - refine (ε_{m} ,, (_ ,, tt) ,, tt).
-      split ; cbn.
-      + refine (aug_is_comonoid_mor_comult m @ _).
-        apply maponpaths.
-        apply pathsinv0, id_left.
-      + refine (_ @ assoc' _ _ _).
-        apply pathsinv0, id_right.
+      abstract (split ; cbn;
+                [ refine (aug_is_comonoid_mor_comult m @ _);
+                  apply maponpaths;
+                  apply pathsinv0, id_left
+                | refine (_ @ assoc' _ _ _);
+                  apply pathsinv0, id_right]).
   Defined.
 
   Lemma commutative_comonoid_to_comonoid_of_comonoids_laws
