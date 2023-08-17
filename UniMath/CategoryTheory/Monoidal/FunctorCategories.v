@@ -283,3 +283,14 @@ Proof.
   - apply (is_univalent_category_symmetric_lax_monoidal_functors HC).
   - apply is_univalent_disp_cat_symmetric_monoidal_comonads.
 Defined.
+
+(**
+ Alias for the bundled case
+ *)
+Definition sym_monoidal_cmd
+           (V : sym_monoidal_cat)
+  : UU
+  := symmetric_monoidal_comonad (pr2 V).
+
+Identity Coercion sym_monoidal_cmd_to_symmetric_monoidal_comonad
+  : sym_monoidal_cmd >-> symmetric_monoidal_comonad.
