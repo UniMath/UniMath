@@ -496,6 +496,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/Comonoids/Symmetric.v](CategoryTheory/Monoidal/Comonoids/Symmetric.v)
    - [Monoidal/Comonoids/MonoidalCartesianBuilder.v](CategoryTheory/Monoidal/Comonoids/MonoidalCartesianBuilder.v)
    - [Monoidal/Comonoids/CommComonoidsCartesian.v](CategoryTheory/Monoidal/Comonoids/CommComonoidsCartesian.v)
+   - [Monoidal/Comonoids/CartesianAsComonoids.v](CategoryTheory/Monoidal/Comonoids/CartesianAsComonoids.v)
    - [Monoidal/Examples/SymmetricMonoidalCoEilenbergMoore.v](CategoryTheory/Monoidal/Examples/SymmetricMonoidalCoEilenbergMoore.v)
    - [Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v](CategoryTheory/Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v)
    - [Monoidal/AlternativeDefinitions/MonoidalCategoriesTensored.v](CategoryTheory/Monoidal/AlternativeDefinitions/MonoidalCategoriesTensored.v)
