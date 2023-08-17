@@ -1,5 +1,6 @@
 LinearLogic/LinearNonLinear.v
 LinearLogic/LinearCategory.v
+LinearLogic/LiftingModel.v
 
 EnrichedEffectCalculus/EECModel.v
 EnrichedEffectCalculus/ContinuationModel.v

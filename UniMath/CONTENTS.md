@@ -1112,6 +1112,7 @@ The packages and files are listed here in logical order: each file depends only 
 ## Package Semantics
    - [LinearLogic/LinearNonLinear.v](Semantics/LinearLogic/LinearNonLinear.v)
    - [LinearLogic/LinearCategory.v](Semantics/LinearLogic/LinearCategory.v)
+   - [LinearLogic/LiftingModel.v](Semantics/LinearLogic/LiftingModel.v)
    - [EnrichedEffectCalculus/EECModel.v](Semantics/EnrichedEffectCalculus/EECModel.v)
    - [EnrichedEffectCalculus/ContinuationModel.v](Semantics/EnrichedEffectCalculus/ContinuationModel.v)
    - [EnrichedEffectCalculus/CopowerModel.v](Semantics/EnrichedEffectCalculus/CopowerModel.v)
