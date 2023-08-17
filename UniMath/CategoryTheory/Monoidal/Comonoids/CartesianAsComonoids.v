@@ -381,7 +381,7 @@ Section CartesianToCartesianAsComonoids.
     - apply (semi_cart_to_unit_eq Ccart).
   Qed.
 
-  Definition cartesian_monoidal_has_enough_comonoids_mor'
+  Lemma cartesian_monoidal_has_enough_comonoids_mor'
     {x y : V} (f : V⟦x, y⟧)
     : diag x · f #⊗ f
       = f · diag y × aug x · identity (monoidal_unit V) = f · aug y.
@@ -389,6 +389,33 @@ Section CartesianToCartesianAsComonoids.
     split.
     - exact (cartesian_monoidal_has_enough_comonoids_mor_comult f).
     - apply (semi_cart_to_unit_eq Ccart).
+  Qed.
+
+  Lemma comult_is_diag
+    {c : V} (m : disp_cat_of_commutative_comonoids V c)
+    : δ_{(_ ,, pr1 m) : comonoid V} = diag c.
+  Proof.
+    refine (idpath (pr111 m) @ _). (* the triple projection is presentend to apply maponpaths without an argument *)
+    etrans. {
+      do 3 apply maponpaths.
+      exact (proofirrelevancecontr (cartesian_monoidal_has_unique_comm_comonoids c)
+               m (cartesian_monoidal_has_enough_comm_comonoids c)).
+    }
+    apply idpath.
+  Qed.
+
+  Lemma cartesian_monoidal_has_enough_comm_comonoids_mor_mult_diag
+    {c1 c2 : V}
+    (m1 : disp_cat_of_commutative_comonoids V c1)
+    (m2 : disp_cat_of_commutative_comonoids V c2)
+    (f : V ⟦ c1, c2 ⟧)
+    : δ_{(_ ,, pr1 m1) : comonoid V} · f #⊗ f = f · δ_{(_ ,, pr1 m2) : comonoid V}.
+  Proof.
+    refine (_ @ cartesian_monoidal_has_enough_comonoids_mor_comult f @ _).
+    -- apply maponpaths_2.
+       apply comult_is_diag.
+    -- apply maponpaths.
+       apply pathsinv0, comult_is_diag.
   Qed.
 
   Lemma sigma_with_unit (A : UU)
@@ -416,20 +443,7 @@ Section CartesianToCartesianAsComonoids.
       apply iscontraprop1.
       { apply isapropdirprod ; apply homset_property. }
       split.
-      + refine (_ @ cartesian_monoidal_has_enough_comonoids_mor_comult f @ _).
-        -- apply maponpaths_2.
-           etrans. {
-             do 3 apply maponpaths.
-             exact (proofirrelevancecontr (cartesian_monoidal_has_unique_comm_comonoids c1) d1 (cartesian_monoidal_has_enough_comm_comonoids c1)).
-           }
-           apply idpath.
-        -- apply maponpaths.
-           etrans.
-           2: {
-             do 3 apply maponpaths.
-             exact (! (proofirrelevancecontr (cartesian_monoidal_has_unique_comm_comonoids c2) d2 (cartesian_monoidal_has_enough_comm_comonoids c2))).
-           }
-           apply idpath.
+      + apply cartesian_monoidal_has_enough_comm_comonoids_mor_mult_diag.
       + apply (semi_cart_to_unit_eq Ccart).
   Qed.
 
