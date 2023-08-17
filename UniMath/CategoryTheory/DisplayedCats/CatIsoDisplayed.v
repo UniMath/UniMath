@@ -62,8 +62,8 @@ Section DisplayedCatIso.
   Lemma weq_hom'
     {c1 : C} {c2 : C}
     (f : C ⟦ c1, c2 ⟧)
-    : ∃! x : ∑ f0 : C ⟦ c1, c2 ⟧,
-          pr1 (uo c1) -->[ f0] pr1 (uo c2),
+    : ∃! x : (∑ f0 : C ⟦ c1, c2 ⟧,
+          pr1 (uo c1) -->[ f0] pr1 (uo c2)),
           pr1 x = f.
   Proof.
     use tpair.
@@ -88,7 +88,7 @@ Section DisplayedCatIso.
     (d1 : D c1)
     (d2 : D c2)
     (f : C ⟦ c1, c2 ⟧)
-    : ∃! x : ∑ f0 : C ⟦ c1, c2 ⟧, d1 -->[ f0] d2, pr1 x = f.
+    : ∃! x : (∑ f0 : C ⟦ c1, c2 ⟧, d1 -->[ f0] d2), pr1 x = f.
   Proof.
     use tpair.
     - simple refine ((_ ,, _) ,, _).
