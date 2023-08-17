@@ -18,76 +18,63 @@ Import BifunctorNotations.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 
 Local Open Scope cat.
+Local Open Scope moncat.
 
 Import MonoidalNotations.
 
 Section Rearranging.
 
-  Context {C : category} {M : monoidal C} (S : symmetric M).
+  Context (V : sym_monoidal_cat).
 
-  Notation "x ⊗ y" := (x ⊗_{M} y).
-  Notation "x ⊗l f" := (x ⊗^{M}_{l} f) (at level 31).
-  Notation "f ⊗r y" := (f ⊗^{M}_{r} y) (at level 31).
-  Notation "f ⊗⊗ g" := (f ⊗^{M} g) (at level 31).
-
-  Let I : C := monoidal_unit M.
-  Let lu : leftunitor_data M (monoidal_unit M) := monoidal_leftunitordata M.
-  Let ru : rightunitor_data M (monoidal_unit M) := monoidal_rightunitordata M.
-  Let α : associator_data M := monoidal_associatordata M.
-  Let luinv : leftunitorinv_data M (monoidal_unit M) := monoidal_leftunitorinvdata M.
-  Let ruinv : rightunitorinv_data M (monoidal_unit M) := monoidal_rightunitorinvdata M.
-  Let αinv : associatorinv_data M := monoidal_associatorinvdata M.
-  Let σ := pr1 S.
-
-  Definition rearrange_prod (x y z w : C)
-    : C ⟦(x ⊗_{ M} y) ⊗_{ M} (z ⊗_{ M} w), (x ⊗_{ M} z) ⊗_{ M} (y ⊗_{ M} w)⟧.
+  Definition rearrange_prod (x y z w : V)
+    : V⟦(x ⊗ y) ⊗ (z ⊗ w), (x ⊗ z) ⊗ (y ⊗ w)⟧.
   Proof.
-    refine (α _ _ _ · _).
-    refine (_ · αinv _ _ _).
-    refine (x ⊗l _).
-    refine (αinv _ _ _ · _).
-    refine (_ · α _ _ _).
-    exact (pr1 S y z ⊗r w).
+    refine (mon_lassociator _ _ _ · _).
+    refine (_ · mon_rassociator _ _ _).
+    refine (x ⊗^{V}_{l} _).
+    refine (mon_rassociator _ _ _ · _).
+    refine (_ · mon_lassociator _ _ _).
+    exact (sym_mon_braiding V y z ⊗^{V}_{r} w).
   Defined.
 
-  Definition rearrange_prod' (x y z w : C)
-    : C ⟦(x ⊗_{ M} y) ⊗_{ M} (z ⊗_{ M} w), (x ⊗_{ M} z) ⊗_{ M} (y ⊗_{ M} w)⟧.
+  Definition rearrange_prod' (x y z w : V)
+    : V⟦(x ⊗ y) ⊗ (z ⊗ w), (x ⊗ z) ⊗ (y ⊗ w)⟧.
   Proof.
-    refine (α _ _ _ · _).
-    refine (_ · αinv _ _ _).
-    refine (x ⊗l _).
-    exact (pr1 S _ _ · α _ _ _ · _ ⊗l pr1 S _ _).
+    refine (mon_lassociator _ _ _ · _).
+    refine (_ · mon_rassociator _ _ _).
+    refine (x ⊗^{V}_{l} _).
+    exact (sym_mon_braiding _ _ _ · mon_lassociator _ _ _ · _ ⊗^{V}_{l} sym_mon_braiding _ _ _).
   Defined.
 
-  Definition rearrange_prod'' (x y z w : C)
-    : C ⟦(x ⊗_{ M} y) ⊗_{ M} (z ⊗_{ M} w), (x ⊗_{ M} z) ⊗_{ M} (y ⊗_{ M} w)⟧.
+  Definition rearrange_prod'' (x y z w : V)
+    : V⟦(x ⊗ y) ⊗ (z ⊗ w), (x ⊗ z) ⊗ (y ⊗ w)⟧.
   Proof.
-    refine (α _ _ _ · _).
-    refine (x ⊗l _ · _).
-    - exact (pr1 S _ _ · α _ _ _).
-    - exact (αinv x z (w ⊗ y) · (x ⊗_{ M} z) ⊗^{ M}_{l} pr1 S w y).
+    refine (mon_lassociator _ _ _ · _).
+    refine (x ⊗^{V}_{l} _ · _).
+    - exact (sym_mon_braiding _ _ _ · mon_lassociator _ _ _).
+    - exact (mon_rassociator x z (w ⊗ y) · (x ⊗ z) ⊗^{V}_{l} sym_mon_braiding _ w y).
   Defined.
 
-  Definition rearrange_prod''' (x y z w : C)
-    : C ⟦(x ⊗_{ M} y) ⊗_{ M} (z ⊗_{ M} w), (x ⊗_{ M} z) ⊗_{ M} (y ⊗_{ M} w)⟧.
+  Definition rearrange_prod''' (x y z w : V)
+    : V⟦(x ⊗ y) ⊗ (z ⊗ w), (x ⊗ z) ⊗ (y ⊗ w)⟧.
   Proof.
-    refine (pr1 S _ _ ⊗^{ M}_{r} _  · α _ _ _ · pr1 S _ (_ ⊗_{ M} _) · _).
-    refine (_ · _ ⊗l pr1 S _ _).
-    refine (_ · αinv _ _ _).
-    refine (_ · x ⊗l α _ _ _).
-    apply α.
+    refine (sym_mon_braiding _ _ _ ⊗^{V}_{r} _  · mon_lassociator _ _ _ · sym_mon_braiding _ _ (_ ⊗ _) · _).
+    refine (_ · _ ⊗^{V}_{l} sym_mon_braiding _ _ _).
+    refine (_ · mon_rassociator _ _ _).
+    refine (_ · x ⊗^{V}_{l} mon_lassociator _ _ _).
+    apply mon_lassociator.
   Defined.
 
-  Lemma sym_monoidal_braiding_hexagon1_variant (y z w : C)
-    : αinv y z w · (pr1 S y z ⊗^{ M}_{r} w · α z y w)
-      = pr1 S _ _ · α _ _ _ · _ ⊗l pr1 S _ _.
+  Lemma sym_monoidal_braiding_hexagon1_variant (y z w : V)
+    : mon_rassociator y z w · (sym_mon_braiding _ y z ⊗^{V}_{r} w · mon_lassociator z y w)
+      = sym_mon_braiding _ _ _ · mon_lassociator _ _ _ · _ ⊗^{V}_{l} sym_mon_braiding _ _ _.
   Proof.
     rewrite assoc.
     apply pathsinv0.
     use (z_iso_inv_to_right _ _ _ _ (_ ,, _)).
     {
-      use (is_z_iso_leftwhiskering_z_iso M).
-      apply (_ ,, pr122 S _ _).
+      use (is_z_iso_leftwhiskering_z_iso V).
+      apply is_z_isomorphism_sym_mon_braiding.
     }
     cbn.
     rewrite ! assoc'.
@@ -95,23 +82,21 @@ Section Rearranging.
     2: {
       apply maponpaths.
       rewrite assoc.
-      (*
-         The following is: sym_mon_hexagon_lassociator ((C,, M),, S).
-         Difference: sym_mon_hexagon_lassociator is written in whiskered form
-       *)
-      apply (pr1 (pr222 S) _ _ _).
+      refine (sym_mon_hexagon_lassociator V _ _ _ @ _).
+      rewrite <- (when_bifunctor_becomes_rightwhiskering V).
+      now rewrite <- (when_bifunctor_becomes_leftwhiskering V).
     }
     rewrite ! assoc.
     etrans.
     2: {
       do 2 apply maponpaths_2.
-      apply pathsinv0, (monoidal_associatorisolaw M).
+      apply pathsinv0, monoidal_associatorisolaw.
     }
     now rewrite id_left.
   Qed.
 
   Lemma rearrange_prod_characterization
-    (x y z w : C)
+    (x y z w : V)
     : rearrange_prod x y z w = rearrange_prod' x y z w.
   Proof.
     unfold rearrange_prod, rearrange_prod'.
@@ -121,38 +106,38 @@ Section Rearranging.
     apply sym_monoidal_braiding_hexagon1_variant.
   Qed.
 
-  Lemma rearrange_prod_characterization' (x y z w : C)
+  Lemma rearrange_prod_characterization' (x y z w : V)
     : rearrange_prod' x y z w = rearrange_prod'' x y z w.
   Proof.
     unfold rearrange_prod', rearrange_prod''.
     apply maponpaths.
-    rewrite ! (bifunctor_leftcomp M).
+    rewrite ! (bifunctor_leftcomp V).
     rewrite ! assoc'.
     do 2 apply maponpaths.
     apply monoidal_associatorinvnatleft.
   Qed.
 
   Lemma rearrange_prod_characterization''
-    (x y z w : C)
+    (x y z w : V)
     : rearrange_prod x y z w = rearrange_prod'' x y z w.
   Proof.
     refine (rearrange_prod_characterization _ _ _ _ @ _).
     apply rearrange_prod_characterization'.
   Qed.
 
-  Lemma rearrange_prod_characterization''' (x y z w : C)
+  Lemma rearrange_prod_characterization''' (x y z w : V)
     : rearrange_prod'' x y z w = rearrange_prod''' x y z w.
   Proof.
     unfold rearrange_prod'', rearrange_prod'''.
     rewrite ! assoc.
     do 2 apply maponpaths_2.
-    rewrite ! (bifunctor_leftcomp M).
+    rewrite ! (bifunctor_leftcomp V).
     rewrite ! assoc.
     apply maponpaths_2.
-    apply (sym_mon_tensor_lassociator1 ((C,,M),,S)).
+    apply sym_mon_tensor_lassociator1.
   Qed.
 
-  Lemma rearrange_prod_characterization'''' (x y z w : C)
+  Lemma rearrange_prod_characterization'''' (x y z w : V)
     : rearrange_prod x y z w = rearrange_prod''' x y z w.
   Proof.
     etrans. { apply rearrange_prod_characterization''. }
@@ -160,14 +145,14 @@ Section Rearranging.
   Qed.
 
   Lemma precompose_rearrange_prod
-    {x y z w : C}
-    {x' y' z' w' : C}
-    (fx : C⟦x,x'⟧)
-    (fy : C⟦y,y'⟧)
-    (fz : C⟦z,z'⟧)
-    (fw : C⟦w,w'⟧)
-    : rearrange_prod x y z w · ((fx ⊗⊗ fz) ⊗⊗ (fy ⊗⊗ fw))
-      = ((fx ⊗⊗ fy) ⊗⊗ (fz ⊗⊗ fw)) · rearrange_prod _ _ _ _.
+    {x y z w : V}
+    {x' y' z' w' : V}
+    (fx : V⟦x,x'⟧)
+    (fy : V⟦y,y'⟧)
+    (fz : V⟦z,z'⟧)
+    (fw : V⟦w,w'⟧)
+    : rearrange_prod x y z w · ((fx #⊗ fz) #⊗ (fy #⊗ fw))
+      = ((fx #⊗ fy) #⊗ (fz #⊗ fw)) · rearrange_prod _ _ _ _.
   Proof.
     unfold rearrange_prod.
 
@@ -175,7 +160,7 @@ Section Rearranging.
       rewrite ! assoc'.
       do 2 apply maponpaths.
       apply pathsinv0.
-      exact (monoidal_associatorinv_nat2 M fx fz (fy ⊗⊗ fw)).
+      exact (monoidal_associatorinv_nat2 V fx fz (fy #⊗ fw)).
     }
 
     rewrite ! assoc.
@@ -188,20 +173,29 @@ Section Rearranging.
     rewrite ! assoc'.
     apply maponpaths.
 
-    rewrite (sym_monoidal_braiding_hexagon1_variant y z w).
+    etrans. {
+      apply maponpaths_2.
+      apply maponpaths.
+      apply (sym_monoidal_braiding_hexagon1_variant y z w).
+    }
 
-    rewrite <- ! (when_bifunctor_becomes_leftwhiskering M).
-    rewrite <- ! (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    rewrite <- ! (when_bifunctor_becomes_leftwhiskering V).
+    refine (! tensor_comp_mor _ _ _ _ @ _).
+    refine (_ @ tensor_comp_mor _ _ _ _ ).
     rewrite id_left, id_right.
     apply maponpaths.
 
-    rewrite (sym_monoidal_braiding_hexagon1_variant y' z' w').
+    etrans.
+    2: {
+      apply maponpaths.
+      exact (! sym_monoidal_braiding_hexagon1_variant y' z' w').
+    }
 
     rewrite ! assoc.
     etrans.
     2: {
       do 2 apply maponpaths_2.
-      apply pathsinv0, (tensor_sym_mon_braiding ((C,,M),,S)).
+      apply pathsinv0, tensor_sym_mon_braiding.
     }
     rewrite ! assoc'.
     apply maponpaths.
@@ -216,42 +210,40 @@ Section Rearranging.
     }
     rewrite ! assoc'.
     apply maponpaths.
-    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    refine (! tensor_comp_mor _ _ _ _ @ _).
 
     rewrite id_left.
     etrans. {
       apply maponpaths.
-      apply pathsinv0, (tensor_sym_mon_braiding ((C,,M),,S)).
+      apply pathsinv0, tensor_sym_mon_braiding.
     }
     cbn.
-    rewrite <- (when_bifunctor_becomes_leftwhiskering M).
-    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
-    now rewrite id_right.
+    rewrite <- (when_bifunctor_becomes_leftwhiskering V).
+    refine (_ @ tensor_comp_mor _ _ _ _).
+    apply maponpaths_2.
+    apply pathsinv0, id_right.
   Qed.
 
-  Lemma rearrange_along_unit (x y : C)
-    : rearrange_prod x I_{M} I_{M} y = identity _.
+  Lemma rearrange_along_unit (x y : V)
+    : rearrange_prod x I_{V} I_{V} y = identity _.
   Proof.
     unfold rearrange_prod.
-    set (pf := sym_mon_braiding_id ((C,,M),,S)).
-    cbn in pf.
-
-    rewrite pf.
-    rewrite (bifunctor_rightid M).
+    rewrite sym_mon_braiding_id.
+    rewrite (bifunctor_rightid V).
     rewrite id_left.
     etrans. {
       apply maponpaths.
       apply maponpaths_2.
       apply maponpaths.
-      exact (pr2 (monoidal_associatorisolaw M I I y)).
+      apply monoidal_associatorisolaw.
     }
-    rewrite (bifunctor_leftid M).
+    rewrite (bifunctor_leftid V).
     rewrite id_left.
-    exact (pr1 (monoidal_associatorisolaw M _ _ _)).
+    apply monoidal_associatorisolaw.
   Qed.
 
   Lemma rearrange_prod_inv
-    (x y z w : C)
+    (x y z w : V)
     : rearrange_prod x y z w · rearrange_prod x z y w = identity _.
   Proof.
     unfold rearrange_prod.
@@ -259,20 +251,20 @@ Section Rearranging.
     rewrite ! assoc'.
     use (z_iso_inv_to_left _ _ _ (_ ,, _)).
     {
-      apply (_ ,, monoidal_associatorisolaw M _ _ _).
+      apply (_ ,, monoidal_associatorisolaw V _ _ _).
     }
     cbn.
     rewrite ! assoc.
-    use (z_iso_inv_on_left _ _ _ _ (α _ _ _ ,, αinv _ _ _ ,, _)).
+    use (z_iso_inv_on_left _ _ _ _ (mon_lassociator _ _ _ ,, mon_rassociator _ _ _ ,, _)).
     {
-      apply (_ ,, monoidal_associatorisolaw M _ _ _).
+      apply (_ ,, monoidal_associatorisolaw _ _ _ _).
     }
     cbn.
     rewrite id_right.
     etrans.
     2: {
       apply pathsinv0.
-      apply (monoidal_associatorisolaw M).
+      apply monoidal_associatorisolaw.
     }
     cbn.
 
@@ -280,17 +272,17 @@ Section Rearranging.
       apply maponpaths_2.
       rewrite assoc'.
       apply maponpaths.
-      apply (monoidal_associatorisolaw M).
+      apply monoidal_associatorisolaw.
     }
     rewrite id_right.
-    rewrite <- (bifunctor_leftcomp M).
+    refine (! bifunctor_leftcomp V _ _ _ _ _ _ @ _).
     etrans. {
       apply maponpaths.
       rewrite assoc'.
       apply maponpaths.
       rewrite ! assoc.
       do 2 apply maponpaths_2.
-      apply (monoidal_associatorisolaw M).
+      apply monoidal_associatorisolaw.
     }
     rewrite id_left.
     etrans. {
@@ -299,21 +291,21 @@ Section Rearranging.
       apply maponpaths_2.
       rewrite assoc'.
       apply maponpaths.
-      rewrite <- (bifunctor_rightcomp M).
+      refine (! bifunctor_rightcomp V _ _ _ _ _ _ @ _).
       apply maponpaths.
-      apply (monoidal_braiding_inverses S).
+      apply (monoidal_braiding_inverses V).
     }
-    rewrite (bifunctor_rightid M).
+    rewrite (bifunctor_rightid V).
     rewrite id_right.
     etrans. {
       apply maponpaths.
-      apply (monoidal_associatorisolaw M).
+      apply monoidal_associatorisolaw.
     }
-    apply (bifunctor_leftid M).
+    apply (bifunctor_leftid V).
   Qed.
 
   Lemma rearrange_prod_is_z_isomorphism
-    (x y z w : C)
+    (x y z w : V)
     : is_z_isomorphism (rearrange_prod x y z w).
   Proof.
     use make_is_z_isomorphism.
@@ -321,14 +313,14 @@ Section Rearranging.
     - split ; apply rearrange_prod_inv.
   Defined.
 
-  Lemma mon_lunitor_triangle_transposed (x : C)
-    : lu^{ M }_{ I ⊗_{ M} x}
-      = αinv I_{ M} I_{ M} x · lu I_{ M} ⊗^{ M}_{r} x.
+  Lemma mon_lunitor_triangle_transposed (x : V)
+    : mon_lunitor (monoidal_unit V ⊗_{V} x)
+      = mon_rassociator I_{V} I_{V} x · mon_lunitor I_{V} ⊗^{V}_{r} x.
   Proof.
-    rewrite <- (when_bifunctor_becomes_rightwhiskering M).
+    rewrite <- (when_bifunctor_becomes_rightwhiskering V).
     etrans.
     2: {
-      apply maponpaths, (mon_lunitor_triangle (V := C,,M) I x).
+      apply maponpaths, mon_lunitor_triangle.
     }
     rewrite assoc.
     refine (! id_left _ @ _).
@@ -337,77 +329,78 @@ Section Rearranging.
     apply monoidal_associatorisolaw.
   Qed.
 
-  Lemma rightwhisker_of_lunitor_with_unit (x : C)
-    : I_{M} ⊗^{M}_{l} lu^{M}_{x} = lu^{M}_{I ⊗_{ M} x}.
+  Lemma rightwhisker_of_lunitor_with_unit (x : V)
+    : monoidal_unit V ⊗^{V}_{l} lu^{V}_{x} = lu^{V}_{monoidal_unit V ⊗ x}.
   Proof.
     refine (_ @ ! mon_lunitor_triangle_transposed x).
 
-    use (z_iso_inv_to_left _ _ _ (αinv I_{ M} I_{ M} x ,, α I_{ M} I_{ M} x ,, _)).
+    use (z_iso_inv_to_left _ _ _ (mon_rassociator _ _ _ ,, mon_lassociator _ _ _ ,, _)).
     {
       split ; apply monoidal_associatorisolaw.
     }
 
-    refine (monoidal_triangleidentity M I x @ _).
+    refine (monoidal_triangleidentity _ _ _ @ _).
     apply maponpaths.
     apply pathsinv0, unitors_coincide_on_unit.
   Qed.
 
-  Lemma whiskering_on_both_sides_with_lunitor_left_unit (x y : C)
-    : I ⊗^{ M}_{l} (lu x ⊗^{ M}_{r} y)
-      = I_{ M} ⊗^{ M}_{l} α I_{ M} x y
-          · (αinv I_{ M} I_{ M} (x ⊗_{ M} y) · lu I_{ M} ⊗^{ M}_{r} (x ⊗_{ M} y)).
+  Lemma whiskering_on_both_sides_with_lunitor_left_unit (x y : V)
+    : monoidal_unit V ⊗^{V}_{l} (mon_lunitor x ⊗^{V}_{r} y)
+      = monoidal_unit V ⊗^{V}_{l} mon_lassociator _ _ _
+          · (mon_rassociator _ _ (x ⊗ y) · mon_lunitor _ ⊗^{V}_{r} (x ⊗ y)).
   Proof.
     refine (Categories.right_whisker_with_lunitor' _ _ _ @ _).
-    rewrite (bifunctor_leftcomp M).
+    rewrite (bifunctor_leftcomp V).
     apply maponpaths.
     refine (_ @ mon_lunitor_triangle_transposed _).
     exact (rightwhisker_of_lunitor_with_unit (x ⊗ y)).
   Qed.
 
-  Lemma precompose_rearrange_prod_with_lunitors_on_right (x y : C)
-    : rearrange_prod I_{ M} x I_{ M} y · lu I_{ M} ⊗^{ M}_{r} (x ⊗_{ M} y) · lu (x ⊗ y)
-      = (lu x ⊗⊗ lu y).
+  Lemma precompose_rearrange_prod_with_lunitors_on_right (x y : V)
+    : rearrange_prod (monoidal_unit V) x (monoidal_unit V) y
+        · mon_lunitor (monoidal_unit V) ⊗^{V}_{r} (x ⊗ y) · mon_lunitor (x ⊗ y)
+      = (mon_lunitor x #⊗ mon_lunitor y).
   Proof.
     unfold rearrange_prod.
 
-    rewrite ! (bifunctor_leftcomp M).
+    rewrite ! (bifunctor_leftcomp V).
     etrans. {
       apply maponpaths_2.
       rewrite ! assoc'.
       do 2 apply maponpaths.
 
-      refine (_ @ idpath (I ⊗l (ru x ⊗r y))).
+      refine (_ @ idpath (monoidal_unit V ⊗^{V}_{l} (mon_runitor x ⊗^{V}_{r} y))).
 
       apply pathsinv0.
       use (z_iso_inv_to_left _ _ _ (_ ,, _)).
       {
         use is_z_iso_leftwhiskering_z_iso.
-        use (is_z_iso_rightwhiskering_z_iso M).
-        apply (_ ,, monoidal_braiding_inverses S _ _).
+        use (is_z_iso_rightwhiskering_z_iso V).
+        apply (_ ,, monoidal_braiding_inverses V _ _).
       }
       cbn.
-      rewrite <- (bifunctor_leftcomp M).
+      rewrite <- (bifunctor_leftcomp V).
       etrans. {
         apply maponpaths.
-        rewrite <- (bifunctor_rightcomp M).
+        refine (! bifunctor_rightcomp V _ _ _ _ _ _ @ _).
         apply maponpaths.
-        apply (sym_mon_braiding_runitor ((C,,M),,S)).
+        apply sym_mon_braiding_runitor.
       }
       apply whiskering_on_both_sides_with_lunitor_left_unit.
     }
 
-    rewrite <- (bifunctor_leftcomp M).
+    rewrite <- (bifunctor_leftcomp V).
     etrans. {
       apply maponpaths_2.
       do 2 apply maponpaths.
       etrans. {
         apply maponpaths.
-        refine (_ @ mon_triangle (V := C,,M) x y).
-        apply pathsinv0, (when_bifunctor_becomes_rightwhiskering M).
+        refine (_ @ mon_triangle x y).
+        apply pathsinv0, (when_bifunctor_becomes_rightwhiskering V).
       }
       rewrite assoc.
       apply maponpaths_2.
-      apply (monoidal_associatorisolaw M).
+      apply monoidal_associatorisolaw.
     }
     rewrite id_left.
     unfold monoidal_cat_tensor_mor.
@@ -415,71 +408,72 @@ Section Rearranging.
     etrans. {
       rewrite assoc'.
       apply maponpaths.
-      refine (_ @ tensor_lunitor (V := C,,M) (identity x ⊗^{ M} lu y)).
-      now rewrite <- (when_bifunctor_becomes_leftwhiskering M).
+      refine (_ @ tensor_lunitor (identity x #⊗ mon_lunitor y)).
+      now rewrite <- (when_bifunctor_becomes_leftwhiskering V).
     }
 
     rewrite assoc.
     etrans. {
       apply maponpaths_2.
-      apply (mon_lunitor_triangle (V := C,,M)).
+      apply mon_lunitor_triangle.
     }
-    apply pathsinv0, (tensor_split' (V := C,,M)).
+    apply pathsinv0, tensor_split'.
   Qed.
 
-  Lemma precompose_rearrange_prod_with_lunitors_and_runitor (x y : C)
-    : rearrange_prod x I_{ M} y I_{ M} · (x ⊗_{ M} y) ⊗^{ M}_{l} lu I_{ M} · ru^{ M }_{ x ⊗_{ M} y}
-      = (ru x ⊗⊗ ru y).
+  Lemma precompose_rearrange_prod_with_lunitors_and_runitor (x y : V)
+    : rearrange_prod x (monoidal_unit V) y (monoidal_unit V)
+        · (x ⊗ y) ⊗^{V}_{l} mon_lunitor (monoidal_unit V) · mon_runitor (x ⊗ y)
+      = (mon_runitor x #⊗ mon_runitor y).
   Proof.
 
     unfold rearrange_prod.
 
-    rewrite ! (bifunctor_leftcomp M).
+    rewrite ! (bifunctor_leftcomp V).
     etrans. {
       apply maponpaths_2.
       rewrite ! assoc'.
       do 2 apply maponpaths.
-      refine (_ @ idpath (x ⊗l (lu y ⊗r I) · αinv _ _ _)).
+      refine (_ @ idpath (x ⊗^{V}_{l} (mon_lunitor y ⊗^{V}_{r} monoidal_unit V) · mon_rassociator _ _ _)).
 
       apply pathsinv0.
       use (z_iso_inv_to_left _ _ _ (_ ,, _)).
       {
         use is_z_iso_leftwhiskering_z_iso.
-        use (is_z_iso_rightwhiskering_z_iso M).
-        apply (_ ,, monoidal_braiding_inverses S _ _).
+        use (is_z_iso_rightwhiskering_z_iso V).
+        apply (_ ,, monoidal_braiding_inverses V _ _).
       }
       cbn.
       rewrite ! assoc.
-      rewrite <- (bifunctor_leftcomp M).
+      rewrite <- (bifunctor_leftcomp V).
       etrans. {
         apply maponpaths_2.
-        rewrite <- (bifunctor_rightcomp M).
         apply maponpaths.
+        refine (! bifunctor_rightcomp V _ _ _ _ _ _ @ _).
         apply maponpaths.
-        apply (sym_mon_braiding_lunitor ((C,,M),,S)).
+        apply sym_mon_braiding_lunitor.
       }
 
       etrans. {
         apply maponpaths_2.
         apply maponpaths.
-        refine (_ @ mon_triangle (V := C,,M) y I).
+        refine (_ @ mon_triangle _ _).
         apply pathsinv0.
-        apply (when_bifunctor_becomes_rightwhiskering M).
+        apply (when_bifunctor_becomes_rightwhiskering V).
       }
       cbn.
-      rewrite (bifunctor_leftcomp M).
+      rewrite (bifunctor_leftcomp V).
       rewrite ! assoc'.
       apply maponpaths.
       unfold monoidal_cat_tensor_mor.
       cbn.
-      rewrite (when_bifunctor_becomes_leftwhiskering M).
-      apply (monoidal_associatorinvnatleft M).
+      rewrite (when_bifunctor_becomes_leftwhiskering V).
+      apply (monoidal_associatorinvnatleft V).
     }
 
     rewrite ! assoc'.
     etrans. {
       do 3 apply maponpaths.
-      apply (mon_runitor_triangle (V := C,,M)).
+      apply mon_runitor_triangle.
     }
     unfold monoidal_cat_tensor_mor.
     cbn.
@@ -489,91 +483,87 @@ Section Rearranging.
 
     rewrite ! assoc.
     apply maponpaths_2.
-    rewrite (bifunctor_rightid M).
+    rewrite (bifunctor_rightid V).
     rewrite id_right.
     rewrite assoc'.
-    rewrite <- (bifunctor_leftcomp M).
+    rewrite <- (bifunctor_leftcomp V).
 
     etrans.
     2: {
-      refine (! mon_triangle (V := C,,M) _ _ @ _).
-      apply (when_bifunctor_becomes_rightwhiskering M).
+      refine (! mon_triangle  _ _ @ _).
+      apply (when_bifunctor_becomes_rightwhiskering V).
     }
 
     apply maponpaths.
-    rewrite <- (when_bifunctor_becomes_leftwhiskering M).
+    rewrite <- (when_bifunctor_becomes_leftwhiskering V).
     apply maponpaths.
 
-    use (z_iso_inv_on_right _ _ _ (α I y I ,, _ ,, _)).
+    use (z_iso_inv_on_right _ _ _ (mon_lassociator _ _ _ ,, _ ,, _)).
     { apply monoidal_associatorisolaw. }
     cbn.
-    rewrite <- (when_bifunctor_becomes_rightwhiskering M).
-    apply (! mon_lunitor_triangle (V := C,,M) y I).
+    rewrite <- (when_bifunctor_becomes_rightwhiskering V).
+    apply (! mon_lunitor_triangle _ _).
   Qed.
 
-  (* TO BE REMOVED LATER ON *)
-  Notation αl := (α _ _ _).
-  Notation αr := (αinv _ _ _).
-  Notation σσ := (pr1 S _ _).
-
-  Lemma rearrange_hexagon (x1 x2 y1 y2 z1 z2 : C)
-    :  rearrange_prod (x1 ⊗_{ M} x2) y1 (y2 ⊗_{ M} z1) z2
-         · (rearrange_prod x1 x2 y2 z1 ⊗^{ M}_{r} (y1 ⊗_{ M} z2)
-              · α^{ M }_{ x1 ⊗_{ M} y2, x2 ⊗_{ M} z1, y1 ⊗_{ M} z2})
-       = (α^{ M }_{ x1, x2, y1} ⊗^{ M} α^{ M }_{ y2, z1, z2})
-           · (rearrange_prod x1 (x2 ⊗_{ M} y1) y2 (z1 ⊗_{ M} z2)
-                · (x1 ⊗_{ M} y2) ⊗^{ M}_{l} rearrange_prod x2 y1 z1 z2).
+  Lemma rearrange_hexagon (x1 x2 y1 y2 z1 z2 : V)
+    : rearrange_prod (x1 ⊗ x2) y1 (y2 ⊗ z1) z2
+         · (rearrange_prod x1 x2 y2 z1 ⊗^{V}_{r} (y1 ⊗ z2)
+              · mon_lassociator _ _ _)
+       = (mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _)
+           · (rearrange_prod x1 (x2 ⊗ y1) y2 (z1 ⊗ z2)
+                · (x1 ⊗ y2) ⊗^{V}_{l} rearrange_prod x2 y1 z1 z2).
   Proof.
   Admitted.
 
-  Lemma rearrange_hexagon_2 (x y : C)
-    :  rearrange_prod (x ⊗_{ M} x) x (y ⊗_{ M} y) y
-         · (rearrange_prod x x y y ⊗^{ M}_{r} (x ⊗_{ M} y)
-              · α^{ M }_{ x ⊗_{ M} y, x ⊗_{ M} y, x ⊗_{ M} y})
-       = α^{ M }_{ x, x, x} ⊗^{ M} α^{ M }_{ y, y, y}
-                                       · (rearrange_prod x (x ⊗_{ M} x) y (y ⊗_{ M} y)
-                                            · (x ⊗_{ M} y) ⊗^{ M}_{l} rearrange_prod x x y y).
+  Lemma rearrange_hexagon_2 (x y : V)
+    : rearrange_prod (x ⊗ x) x (y ⊗ y) y
+         · (rearrange_prod x x y y ⊗^{V}_{r} (x ⊗ y)
+              · mon_lassociator _ _ _)
+       = mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _
+           · (rearrange_prod x (x ⊗ x) y (y ⊗ y)
+                · (x ⊗ y) ⊗^{V}_{l} rearrange_prod x x y y).
   Proof.
     apply rearrange_hexagon.
   Qed.
 
-  Lemma rearrange_hexagon' (x1 x2 y1 y2 z1 z2 : C)
-    : rearrange_prod x1 x2 y1 y2 ⊗^{ M} identity (z1 ⊗_{ M} z2)
-        · rearrange_prod (x1 ⊗_{ M} y1) (x2 ⊗_{ M} y2) z1 z2
-        · α^{ M }_{ x1, y1, z1} ⊗^{ M} α^{ M }_{ x2, y2, z2}
-      = α^{ M }_{x1 ⊗_{ M} x2, y1 ⊗_{ M} y2, z1 ⊗_{ M} z2}
-            · identity (x1 ⊗_{ M} x2) ⊗^{ M} rearrange_prod y1 y2 z1 z2
-            · rearrange_prod x1 x2 (y1 ⊗_{ M} z1) (y2 ⊗_{ M} z2).
+  Lemma rearrange_hexagon' (x1 x2 y1 y2 z1 z2 : V)
+    : rearrange_prod x1 x2 y1 y2 #⊗ identity (z1 ⊗ z2)
+        · rearrange_prod (x1 ⊗ y1) (x2 ⊗ y2) z1 z2
+        · mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _
+      = mon_lassociator _ _ _
+            · identity (x1 ⊗ x2) #⊗ rearrange_prod y1 y2 z1 z2
+            · rearrange_prod x1 x2 (y1 ⊗ z1) (y2 ⊗ z2).
   Proof.
   Admitted.
 
-  Lemma rearrange_hexagon'_3 (x y z : C)
-    : rearrange_prod x x y y ⊗^{ M} identity (z ⊗_{ M} z)
-        · rearrange_prod (x ⊗_{ M} y) (x ⊗_{ M} y) z z
-        · α^{ M }_{ x, y, z} ⊗^{ M} α^{ M }_{ x, y, z}
-      = α^{ M }_{ x ⊗_{ M} x, y ⊗_{ M} y, z ⊗_{ M} z}
-            · identity (x ⊗_{ M} x) ⊗^{ M} rearrange_prod y y z z
-            · rearrange_prod x x (y ⊗_{ M} z) (y ⊗_{ M} z).
+  Lemma rearrange_hexagon'_3 (x y z : V)
+    : rearrange_prod x x y y #⊗ identity (z ⊗ z)
+        · rearrange_prod (x ⊗ y) (x ⊗ y) z z
+        · mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _
+      = mon_lassociator _ _ _
+            · identity (x ⊗_ x) #⊗ rearrange_prod y y z z
+            · rearrange_prod x x (y ⊗ z) (y ⊗ z).
   Proof.
     apply rearrange_hexagon'.
   Qed.
 
-  Lemma rearrange_hexagoninv' (x y z : C)
-    : identity (x ⊗_{ M} x) ⊗^{ M} rearrange_prod y y z z
-  · rearrange_prod x x (y ⊗_{ M} z) (y ⊗_{ M} z)
-  · αinv^{ M }_{ x, y, z} ⊗^{ M} αinv^{ M }_{ x, y, z} =
-  αinv^{ M }_{ x ⊗_{ M} x, y ⊗_{ M} y, z ⊗_{ M} z}
-  · rearrange_prod x x y y ⊗^{ M} identity (z ⊗_{ M} z)
-  · rearrange_prod (x ⊗_{ M} y) (x ⊗_{ M} y) z z.
+  Lemma rearrange_hexagoninv' (x y z : V)
+    : identity (x ⊗ x) #⊗ rearrange_prod y y z z
+  · rearrange_prod x x (y ⊗ z) (y ⊗ z)
+  · mon_rassociator _ _ _ #⊗ mon_rassociator _ _ _ =
+  mon_rassociator _ _ _
+  · rearrange_prod x x y y #⊗ identity (z ⊗ z)
+  · rearrange_prod (x ⊗ y) (x ⊗ y) z z.
   Proof.
     set (t := rearrange_hexagon' x x y y z z).
     apply pathsinv0.
-    use (z_iso_inv_on_left _ _ _ _ (α _ _ _ ⊗^{M} α _ _ _,, αinv _ _ _ ⊗^{M} αinv _ _ _ ,, _)).
+    use (z_iso_inv_on_left _ _ _ _ (mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _,,
+                                      mon_rassociator _ _ _ #⊗ mon_rassociator _ _ _ ,, _)).
     {
-      apply (pr2 (is_z_iso_bifunctor_z_iso M
-                    (α _ _ _) (α _ _ _)
-                    (_ ,, monoidal_associatorisolaw M _ _ _)
-                    (_ ,, monoidal_associatorisolaw M _ _ _))).
+      apply (pr2 (is_z_iso_bifunctor_z_iso V
+                    (mon_lassociator _ _ _) (mon_lassociator _ _ _)
+                    (_ ,, monoidal_associatorisolaw V _ _ _)
+                    (_ ,, monoidal_associatorisolaw V _ _ _))).
     }
     cbn.
     etrans.
@@ -588,14 +578,14 @@ Section Rearranging.
       rewrite ! assoc.
       do 2 apply maponpaths_2.
       apply pathsinv0.
-      apply (mon_rassociator_lassociator (V := C,,M)).
+      apply mon_rassociator_lassociator.
     }
     now rewrite id_left.
   Qed.
 
-  Lemma rearrange_commute_with_swap (x1 x2 y1 y2 : C)
-    : rearrange_prod x1 x2 y1 y2 · pr1 S x1 y1 ⊗^{ M} pr1 S x2 y2
-      = pr1 S (x1 ⊗_{ M} x2) (y1 ⊗_{ M} y2) · rearrange_prod y1 y2 x1 x2.
+  Lemma rearrange_commute_with_swap (x1 x2 y1 y2 : V)
+    : rearrange_prod x1 x2 y1 y2 · sym_mon_braiding _ x1 y1 #⊗ sym_mon_braiding _ x2 y2
+      = sym_mon_braiding _ (x1 ⊗ x2) (y1 ⊗ y2) · rearrange_prod y1 y2 x1 x2.
   Proof.
     unfold rearrange_prod.
     rewrite ! assoc.
@@ -603,7 +593,7 @@ Section Rearranging.
     etrans.
     2: {
       do 2 apply maponpaths_2.
-      apply pathsinv0, (sym_mon_tensor_lassociator0 ((C,,M),,S)).
+      apply pathsinv0, sym_mon_tensor_lassociator0.
     }
     unfold monoidal_cat_tensor_mor, mon_lassociator, mon_rassociator.
     cbn.
@@ -613,20 +603,20 @@ Section Rearranging.
       apply maponpaths_2.
       rewrite assoc'.
       apply maponpaths.
-      rewrite (when_bifunctor_becomes_leftwhiskering M).
+      rewrite (when_bifunctor_becomes_leftwhiskering V).
       etrans.
-      2: apply (bifunctor_leftcomp M y1).
+      2: apply (bifunctor_leftcomp V y1).
       apply maponpaths.
       rewrite ! assoc.
       apply pathsinv0.
-      apply (sym_mon_hexagon_rassociator0 ((C,,M),,S)).
+      apply sym_mon_hexagon_rassociator0.
     }
 
     etrans.
     2: {
       rewrite ! assoc'.
       do 2 apply maponpaths.
-      refine (! sym_mon_hexagon_lassociator1 ((C,,M),,S) _ _ _ _ @ _).
+      refine (! sym_mon_hexagon_lassociator1 _ _ _ _ _ @ _).
       now rewrite ! assoc'.
     }
 
@@ -638,28 +628,28 @@ Section Rearranging.
 
     rewrite ! assoc'.
     apply pathsinv0.
-    use (z_iso_inv_on_right _ _ _ (α _ _ _ ,, αinv _ _ _ ,, _)).
-    { apply (monoidal_associatorisolaw M). }
+    use (z_iso_inv_on_right _ _ _ (mon_lassociator _ _ _ ,, mon_rassociator _ _ _ ,, _)).
+    { apply monoidal_associatorisolaw. }
     cbn.
 
-    rewrite (bifunctor_leftcomp M).
+    rewrite (bifunctor_leftcomp V).
     rewrite ! assoc.
 
     etrans.
     2: {
       do 3 apply maponpaths_2.
       apply pathsinv0.
-      apply (mon_lassociator_lassociator' (V := C,,M)).
+      apply mon_lassociator_lassociator'.
     }
-    rewrite (bifunctor_leftid M).
+    rewrite (bifunctor_leftid V).
     rewrite id_right.
 
     apply pathsinv0.
     use (z_iso_inv_to_right _ _ _ _ (_ ,, _)).
     {
-      use (is_z_iso_rightwhiskering_z_iso M).
+      use (is_z_iso_rightwhiskering_z_iso V).
       refine (_ ,, _).
-      apply (_ ,, monoidal_braiding_inverses S).
+      apply (_ ,, monoidal_braiding_inverses V).
     }
     cbn.
 
@@ -667,32 +657,32 @@ Section Rearranging.
     2: {
       rewrite assoc'.
       apply maponpaths.
-      apply pathsinv0, (monoidal_associatornatright M).
+      apply pathsinv0, monoidal_associatornatright.
     }
 
     etrans.
     2: {
       rewrite assoc.
       apply maponpaths_2.
-      rewrite <- ! (bifunctor_rightcomp M).
+      rewrite <- ! (bifunctor_rightcomp V).
       apply maponpaths.
-      apply pathsinv0, (sym_mon_hexagon_rassociator1 ((C,,M),,S)).
+      apply pathsinv0, sym_mon_hexagon_rassociator1.
     }
 
-    rewrite ! (bifunctor_rightcomp M).
+    rewrite ! (bifunctor_rightcomp V).
     rewrite ! assoc'.
     apply maponpaths.
     rewrite ! assoc.
-    rewrite (bifunctor_leftcomp M).
+    rewrite (bifunctor_leftcomp V).
     rewrite assoc.
     unfold sym_mon_braiding, mon_lassociator, monoidal_cat_tensor_pt.
     cbn.
-    rewrite (monoidal_associatornatleftright M).
+    rewrite (monoidal_associatornatleftright V).
     rewrite ! assoc'.
     apply maponpaths.
     rewrite assoc.
     apply pathsinv0.
-    use (z_iso_inv_on_left _ _ _ _ (α _ _ _ ,, αinv _ _ _ ,, _)).
+    use (z_iso_inv_on_left _ _ _ _ (mon_lassociator _ _ _ ,, mon_rassociator _ _ _ ,, _)).
     {
       apply monoidal_associatorisolaw.
     }
@@ -701,7 +691,7 @@ Section Rearranging.
     etrans.
     2: {
       apply maponpaths.
-      apply pathsinv0, (mon_lassociator_lassociator (V := C,,M)).
+      apply pathsinv0, mon_lassociator_lassociator.
     }
     unfold monoidal_cat_tensor_mor.
     unfold mon_lassociator.
@@ -709,12 +699,17 @@ Section Rearranging.
     unfold monoidal_cat_tensor_pt.
     cbn.
     rewrite ! assoc.
-    rewrite (when_bifunctor_becomes_rightwhiskering M).
-    rewrite <- (bifunctor_rightcomp M).
-    rewrite (pr2 (monoidal_associatorisolaw M _ _ _)).
-    rewrite (bifunctor_rightid M).
+    rewrite (when_bifunctor_becomes_rightwhiskering V).
+    rewrite <- (bifunctor_rightcomp V).
+    etrans.
+    2: {
+      do 2 apply maponpaths_2.
+      apply maponpaths.
+      apply pathsinv0, (monoidal_associatorisolaw V).
+    }
+    rewrite (bifunctor_rightid V).
     rewrite id_left.
-    now rewrite (when_bifunctor_becomes_leftwhiskering M).
+    now rewrite (when_bifunctor_becomes_leftwhiskering V).
   Qed.
 
 End Rearranging.
