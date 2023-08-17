@@ -84,14 +84,14 @@ Section CartesianMonoidalCategoryOfCommutativeComonoids.
       + refine (! commutative_symmetric_braiding_after_4_copies V m @ _).
         apply maponpaths.
         cbn.
-        unfold MonoidalDialgebras.dialgebra_disp_tensor_op.
+        unfold dialgebra_disp_tensor_op.
         apply maponpaths_2.
         apply pathsinv0, id_left.
       + refine (_ @ ! diagonal_is_comonoid_mor_counit m @ _).
         * apply id_right.
         * cbn.
           apply maponpaths.
-          unfold MonoidalDialgebras.dialgebra_disp_tensor_op.
+          unfold dialgebra_disp_tensor_op.
           cbn.
           apply maponpaths_2.
           apply pathsinv0, id_left.
@@ -155,7 +155,7 @@ Section CartesianMonoidalCategoryOfCommutativeComonoids.
       use subtypePath.
       + intro ; apply is_locally_propositional_commutative_comonoid.
       + cbn.
-        unfold MonoidalDialgebras.dialgebra_disp_tensor_op.
+        unfold dialgebra_disp_tensor_op.
         cbn.
         now rewrite id_left.
   Qed.
