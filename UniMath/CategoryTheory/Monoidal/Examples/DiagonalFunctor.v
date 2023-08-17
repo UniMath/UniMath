@@ -189,7 +189,7 @@ Section DiagFunctorMonoidal.
   Defined.
 
   Definition diag_functor_is_strong_fmonoidal
-    :  fmonoidal_stronglaws
+    : fmonoidal_stronglaws
          (fmonoidal_preservestensordata diag_functor_fmonoidal_lax)
          (fmonoidal_preservesunit diag_functor_fmonoidal_lax).
   Proof.
