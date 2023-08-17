@@ -122,14 +122,11 @@ Section CartesianMonoidalCategoryOfCommutativeComonoids.
     exact (commutative_comonoid_to_comonoid_of_comonoids_laws m).
   Defined.
 
-  Definition comonoid_mor_is_comonoid_mor {x y : commutative_comonoid V} (f : _⟦x,y⟧)
+  Definition comonoid_mor_is_comonoid_mor
+    {x y : commutative_comonoid V} (f : _⟦x,y⟧)
     : comonoid_mor_struct (symmetric_cat_commutative_comonoids V)
-    (x,,
-     (λ m : symmetric_cat_commutative_comonoids V,
-      pr2 (commutative_comonoid_to_comonoid_of_comonoids m)) x)
-    (y,,
-     (λ m : symmetric_cat_commutative_comonoids V,
-         pr2 (commutative_comonoid_to_comonoid_of_comonoids m)) y) f.
+        (x,, pr2 (commutative_comonoid_to_comonoid_of_comonoids x))
+        (y,, pr2 (commutative_comonoid_to_comonoid_of_comonoids y)) f.
   Proof.
     apply make_is_comonoid_mor.
     - use subtypePath.
