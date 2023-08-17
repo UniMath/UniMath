@@ -179,75 +179,77 @@ Section CartesianToCartesianAsComonoids.
     : diag x · f ⊗^{M} g
       = BinProductArrow V (is_cartesian_BinProduct Ccart y z) f g.
   Proof.
-    use (BinProductArrowUnique _ _ _ (is_cartesian_BinProduct Ccart _ _)).
-    - rewrite assoc'.
-      etrans. {
-        apply maponpaths.
-        apply maponpaths_2.
-        apply (cartesian_tensor_mor Ccart f g).
-      }
-      etrans. {
-        apply maponpaths.
-        apply (BinProductOfArrowsPr1 _ (is_cartesian_BinProduct Ccart _ _) (is_cartesian_BinProduct Ccart _ _)).
-      }
-      rewrite assoc.
-      refine (_ @ id_left _).
-      apply maponpaths_2.
-      unfold diag.
-      refine ((BinProductPr1Commutes) _ _ _ (is_cartesian_BinProduct Ccart _ _) _ _ _).
-    - rewrite assoc'.
-      etrans. {
-        apply maponpaths.
-        apply maponpaths_2.
-        apply (cartesian_tensor_mor Ccart f g).
-      }
-      etrans. {
-        apply maponpaths.
-        apply (BinProductOfArrowsPr2 _ (is_cartesian_BinProduct Ccart _ _) (is_cartesian_BinProduct Ccart _ _)).
-      }
-      rewrite assoc.
-      refine (_ @ id_left _).
-      apply maponpaths_2.
-      unfold diag.
-      refine ((BinProductPr2Commutes) _ _ _ (is_cartesian_BinProduct Ccart _ _) _ _ _).
+    etrans.
+    {
+      apply maponpaths.
+      apply (cartesian_tensor_mor Ccart).
+    }
+    etrans.
+    {
+      apply (postcompWithBinProductArrow _
+               (is_cartesian_BinProduct Ccart y z) (is_cartesian_BinProduct Ccart x x)).
+    }
+    now do 2 rewrite id_left.
   Qed.
 
   Lemma diag_is_symmetric (x : V)
     : diag x · cartesian_to_braiding_data Ccart x x = diag x.
   Proof.
-    etrans. {
-      apply (precompWithBinProductArrow _ (is_cartesian_BinProduct Ccart _ _)).
-    }
-
-    etrans. {
-      apply maponpaths.
-      refine (_ @ idpath (identity x)).
-      refine (assoc _ _ _ @ _).
-      refine (_ @ mon_rinvunitor_runitor x).
-      apply maponpaths_2.
-      refine (_ @ cartesian_rinvunitor' x).
-      apply maponpaths.
-      apply (when_bifunctor_becomes_leftwhiskering M).
-    }
-
-    apply maponpaths_2.
-    unfold semi_cart_tensor_pr2.
-    refine (assoc _ _ _ @ _).
-    refine (_ @ mon_linvunitor_lunitor x).
-    apply maponpaths_2.
-    refine (_ @ cartesian_linvunitor' x).
-    apply maponpaths.
-    apply (when_bifunctor_becomes_rightwhiskering M).
+    apply (BinProductArrowsEq _ _ _ (is_cartesian_BinProduct Ccart x x)).
+    - rewrite assoc'.
+      etrans.
+      { apply maponpaths.
+        apply (BinProductPr1Commutes _ _ _ (is_cartesian_BinProduct Ccart x x)). }
+      etrans.
+      { apply (BinProductPr2Commutes _ _ _ (is_cartesian_BinProduct Ccart x x)). }
+      apply pathsinv0, (BinProductPr1Commutes _ _ _ (is_cartesian_BinProduct Ccart x x)).
+    - rewrite assoc'.
+      etrans.
+      { apply maponpaths.
+        apply (BinProductPr2Commutes _ _ _ (is_cartesian_BinProduct Ccart x x)). }
+      etrans.
+      { apply (BinProductPr1Commutes _ _ _ (is_cartesian_BinProduct Ccart x x)). }
+      apply pathsinv0, (BinProductPr2Commutes _ _ _ (is_cartesian_BinProduct Ccart x x)).
   Qed.
 
-  (* Lemma diagonal_commutes_with_assoc (x : C)
-    : diag x ⊗^{ M}_{r} x · α^{ M }_{ x, x, x}
-      = x ⊗^{ M}_{l} diag x.
+  Lemma diagonal_commutes_with_assoc (x : V)
+    : diag x · diag x ⊗^{M}_{r} x · α^{M}_{ x, x, x} = diag x · x ⊗^{M}_{l} diag x.
   Proof.
-` Admitted. *)
-  Context (diagonal_commutes_with_assoc
-            : ∏ (x : V), diag x · diag x ⊗^{ M}_{r} x · α^{ M }_{ x, x, x}
-                         = diag x · x ⊗^{ M}_{l} diag x).
+    rewrite cartesian_associator.
+    etrans.
+    { apply cancel_postcomposition.
+      etrans.
+      { apply maponpaths.
+        apply pathsinv0, (when_bifunctor_becomes_rightwhiskering M). }
+      apply BinProductArrow_as_diag.
+    }
+    etrans.
+    2: { etrans.
+         2: { apply maponpaths.
+              apply (when_bifunctor_becomes_leftwhiskering M). }
+         apply pathsinv0, BinProductArrow_as_diag.
+    }
+    etrans.
+    { apply (precompWithBinProductArrow _ (is_cartesian_BinProduct Ccart x (x ⊗_{ M} x))). }
+    apply maponpaths_12.
+    - rewrite assoc.
+      etrans.
+      { apply cancel_postcomposition.
+        apply (BinProductPr1Commutes _ _ _ (is_cartesian_BinProduct Ccart _ _)). }
+      apply (BinProductPr1Commutes _ _ _ (is_cartesian_BinProduct Ccart x x)).
+    - etrans.
+      { apply maponpaths.
+        etrans.
+        { apply pathsinv0, (when_bifunctor_becomes_rightwhiskering M). }
+        apply (cartesian_tensor_mor Ccart). }
+      etrans.
+      { apply (postcompWithBinProductArrow _
+                 (is_cartesian_BinProduct Ccart x x)
+                 (is_cartesian_BinProduct Ccart (is_cartesian_BinProduct Ccart x x) x)). }
+      apply maponpaths_12.
+      + apply (BinProductPr2Commutes _ _ _ (is_cartesian_BinProduct Ccart _ _)).
+      + apply id_left.
+  Qed.
 
   Lemma cartesian_monoidal_has_enough_comonoids_laws
     : ∏ x : V, comonoid_laws M (x ,, diag x ,, aug x).
