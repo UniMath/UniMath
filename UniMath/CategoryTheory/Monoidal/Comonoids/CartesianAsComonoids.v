@@ -279,11 +279,19 @@ Section CartesianToCartesianAsComonoids.
     exact (cartesian_monoidal_has_enough_comonoids_laws x).
   Defined.
 
-  Definition cartesian_monoidal_has_enough_comm_comonoids
+  (* Definition cartesian_monoidal_has_enough_commcomonoids
     : ∏ x : V, is_commutative V (cartesian_monoidal_has_enough_comonoids x).
   Proof.
     exact (λ x, diag_is_symmetric x).
-  Qed.
+  Qed. *)
+
+  Definition cartesian_monoidal_has_enough_comm_comonoids
+    : ∏ x : V, disp_cat_of_commutative_comonoids V x.
+  Proof.
+    intro x.
+    exists (pr2 (cartesian_monoidal_has_enough_comonoids x)).
+    apply diag_is_symmetric.
+  Defined.
 
   Lemma cartesian_monoidal_has_unique_comonoids
     : ∏ x : V,  iscontr (disp_cat_of_comonoids V x).
@@ -318,6 +326,20 @@ Section CartesianToCartesianAsComonoids.
         apply (semi_cart_to_unit_eq Ccart).
     - apply (semi_cart_to_unit_eq Ccart).
   Qed.
+
+  Lemma cartesian_monoidal_has_unique_comm_comonoids
+    : ∏ x : V,  iscontr (disp_cat_of_commutative_comonoids V x).
+  Proof.
+    intro x.
+    apply iscontraprop1.
+    - apply isaproptotal2.
+      + intro ; apply homset_property.
+      + intro ; intros.
+        apply proofirrelevance.
+        apply isapropifcontr.
+        apply cartesian_monoidal_has_unique_comonoids.
+    - apply cartesian_monoidal_has_enough_comm_comonoids.
+  Defined.
 
   Lemma cartesian_monoidal_has_enough_comonoids_mor_comult
     {x y : V} (f : V⟦x, y⟧)
@@ -369,32 +391,47 @@ Section CartesianToCartesianAsComonoids.
     - apply (semi_cart_to_unit_eq Ccart).
   Qed.
 
+  Lemma sigma_with_unit (A : UU)
+    : (∑ _ : A, unit) ≃ A.
+  Proof.
+    use weq_iso.
+    - exact pr1.
+    - exact (λ x , x ,, tt).
+    - intro.
+      use subtypePath.
+      { intro ; apply isapropunit. }
+      apply idpath.
+    - intro ; apply idpath.
+  Defined.
+
   Definition cartesian_mon_is_comm_comonoids
     : is_catiso (pr1_category (disp_cat_of_commutative_comonoids V)).
   Proof.
-    use forgetful_is_iso.
-    - intro c.
-      use unique_exists.
-      + apply cartesian_monoidal_has_enough_comonoids.
-      + apply cartesian_monoidal_has_enough_comm_comonoids.
-      + intro ; apply homset_property.
-      + intro ; intro.
-        use proofirrelevance.
-        apply isapropifcontr.
-
-        apply (cartesian_monoidal_has_unique_comonoids c).
+    apply forgetful_is_iso_univ.
+    - apply disp_cat_of_commutative_comonoids_is_univalent.
+    - apply cartesian_monoidal_has_enough_comm_comonoids.
     - intro ; intros.
-      use unique_exists.
-      + refine (_ ,, tt).
-        apply cartesian_monoidal_has_enough_comonoids_mor'.
-      + exact tt.
-      + exact (λ _, isapropunit).
-      + intro ; intro.
-        use proofirrelevance.
-        simpl.
-        use (isaprop_total2 (_ ,, _) (λ _ , _ ,, isapropunit)).
-        apply (isaprop_total2 (_ ,, homset_property _ _ _ _ _) (λ _ , _ ,, homset_property _ _ _ _ _)).
-  Defined.
+      use (iscontrweqb' _ (sigma_with_unit _)).
+      use (iscontrweqb' _ (sigma_with_unit _)).
+      apply iscontraprop1.
+      { apply isapropdirprod ; apply homset_property. }
+      split.
+      + refine (_ @ cartesian_monoidal_has_enough_comonoids_mor_comult f @ _).
+        -- apply maponpaths_2.
+           etrans. {
+             do 3 apply maponpaths.
+             exact (proofirrelevancecontr (cartesian_monoidal_has_unique_comm_comonoids c1) d1 (cartesian_monoidal_has_enough_comm_comonoids c1)).
+           }
+           apply idpath.
+        -- apply maponpaths.
+           etrans.
+           2: {
+             do 3 apply maponpaths.
+             exact (! (proofirrelevancecontr (cartesian_monoidal_has_unique_comm_comonoids c2) d2 (cartesian_monoidal_has_enough_comm_comonoids c2))).
+           }
+           apply idpath.
+      + apply (semi_cart_to_unit_eq Ccart).
+  Qed.
 
 End CartesianToCartesianAsComonoids.
 
