@@ -2,7 +2,7 @@
 
  Linear categories
 
- In this file, we define linaer categories.
+ In this file, we define linear categories.
 
  Note that the laws in [linear_category_laws] are written out explicitly.
 
