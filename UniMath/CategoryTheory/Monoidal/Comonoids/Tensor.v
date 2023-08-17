@@ -29,10 +29,8 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.
-(* Require Import UniMath.CategoryTheory.Monoidal.Displayed.SymmetricMonoidalBuilder. *)
 
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
-(* Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsCategory. *)
 
 Import MonoidalNotations.
 Import ComonoidNotations.
@@ -44,15 +42,6 @@ Section TensorOfComonoids.
 
   Context (M : sym_monoidal_cat).
 
-  Notation "σ_{ x , y }" := (sym_mon_braiding M x y).
-
-  Let S_nat_l := monoidal_braiding_naturality_left (pr2 M).
-  Let S_nat_r := monoidal_braiding_naturality_right (pr2 M).
-  Let S_iso := is_z_isomorphism_sym_mon_braiding M.
-  Search braiding_law_hexagon1.
-  Let S_pent1 := (pr1(pr222 (pr2 M))).
-  Let S_pent2 := (pr2(pr222 (pr2 M))).
-
   Definition tensor_of_comonoids_data
     (mx my : comonoid M)
     : comonoid_data M.
@@ -60,7 +49,7 @@ Section TensorOfComonoids.
     exists (mx ⊗ my).
     split.
     - refine (δ_{mx} ⊗^{M} δ_{my} · _).
-      exact (rearrange_prod (pr2 M) mx mx my my).
+      exact (rearrange_prod M mx mx my my).
     - exact (ε_{mx} ⊗^{M} ε_{my} · lu^{M}_{_}).
   Defined.
 
@@ -105,7 +94,10 @@ Section TensorOfComonoids.
   Proof.
     refine (_ @ precompose_rearrange_prod (M) (identity _) δ_{mx} (identity _) δ_{my} @ _).
     - rewrite <- (when_bifunctor_becomes_leftwhiskering M).
-      now (rewrite <- (bifunctor_distributes_over_id (F := M)) ; try (apply (pr21 M))).
+      apply maponpaths.
+      apply maponpaths_2.
+      apply pathsinv0.
+      apply tensor_id_id.
     - now rewrite <- ! (when_bifunctor_becomes_leftwhiskering M).
   Qed.
 
@@ -169,7 +161,11 @@ Section TensorOfComonoids.
     }
 
     rewrite assoc.
-    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
+    etrans. {
+      do 3 apply maponpaths_2.
+      apply pathsinv0, tensor_comp_mor.
+    }
+
     etrans. {
       rewrite ! assoc'.
       apply maponpaths.
@@ -417,7 +413,7 @@ Section TensorOfComonoids.
       etrans.
       2: {
         apply maponpaths.
-        apply (precompose_rearrange_prod_with_lunitors_on_right (M)).
+        apply (precompose_rearrange_prod_with_lunitors_on_right M).
       }
 
       apply pathsinv0.
@@ -434,23 +430,24 @@ Section TensorOfComonoids.
         apply maponpaths.
         rewrite assoc.
         apply maponpaths_2.
-        rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
+        apply pathsinv0, tensor_comp_mor.
       }
       etrans. {
         apply maponpaths.
         do 2 apply maponpaths_2.
-        exact (pr2 (monoidal_leftunitorisolaw M I_{M})).
+        apply monoidal_leftunitorisolaw.
       }
       rewrite id_right.
-      rewrite <- (bifunctor_equalwhiskers M).
-      rewrite (when_bifunctor_becomes_leftwhiskering M).
       etrans. {
-        apply maponpaths, (monoidal_leftunitornat M _ _ δ_{m}).
+        apply maponpaths.
+        refine (_ @ monoidal_leftunitornat M _ _ δ_{m}).
+        apply maponpaths_2.
+        apply (when_bifunctor_becomes_leftwhiskering M).
       }
       rewrite assoc.
       refine (_ @ id_left _).
       apply maponpaths_2.
-      apply (pr2 (monoidal_leftunitorisolaw M m)).
+      apply monoidal_leftunitorisolaw.
     - cbn.
       rewrite assoc.
       apply pathsinv0.
@@ -461,7 +458,7 @@ Section TensorOfComonoids.
       }
       rewrite assoc'.
       apply maponpaths.
-      exact (pr2 (monoidal_leftunitorisolaw M _)).
+      apply monoidal_leftunitorisolaw.
   Qed.
 
   Lemma comonoid_disp_braiding
@@ -522,6 +519,7 @@ Section TensorOfComonoids.
         apply maponpaths.
         apply pathsinv0, id_right.
       }
+
       rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
       rewrite ! assoc'.
       apply maponpaths.
@@ -580,8 +578,10 @@ Section TensorOfComonoids.
         apply maponpaths.
         apply id_right.
       }
-
-      rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
+      etrans.
+      2: {
+        apply pathsinv0, tensor_comp_mor.
+      }
       rewrite assoc'.
       apply maponpaths.
       apply associator_before_lwhisker_with_lu.
@@ -701,36 +701,6 @@ Section TensorOfComonoids.
     - exact (comonoid_disp_associatorinv_unit xx yy zz).
   Qed. *)
 
-  (* Definition comonoid_disp_symmetric_monoidal
-    :  ∑ DM : disp_monoidal (comonoid_disp_cat M) M, disp_symmetric DM S.
-  Proof.
-    use make_symmetric_monoidal_disp_cat_locally_prop.
-    - apply comonoid_disp_cat_locally_propositional.
-    - exact (λ _ _ xx yy, tensor_of_comonoids xx yy).
-    - intro ; intros ; apply tensor_of_comonoid_mor_left.
-      assumption.
-    - exact (λ _ _ xx yy, comonoid_disp_braiding xx yy).
-    - exact comonoid_disp_unit.
-    - exact (λ _ xx, comonoid_disp_lunitor xx).
-    - exact (λ _ xx, comonoid_disp_lunitor_inv xx).
-    - exact (λ _ _ _ xx yy zz, comonoid_disp_associator xx yy zz).
-    - exact (λ _ _ _ xx yy zz, comonoid_disp_associatorinv xx yy zz).
-  Defined.
-
-  Definition monoidal_cat_of_comonoids
-    : monoidal (category_of_comonoids_in_monoidal_cat M).
-  Proof.
-    exact (total_monoidal (pr1 comonoid_disp_symmetric_monoidal)).
-  Defined.
-
-  Definition symmetric_monoidal_cat_of_comonoids
-    : symmetric monoidal_cat_of_comonoids.
-  Proof.
-    use total_symmetric.
-    { exact S. }
-    exact (pr2 comonoid_disp_symmetric_monoidal).
-  Defined. *)
-
 End TensorOfComonoids.
 
 Section TensorOfCommutativeComonoids.
@@ -772,50 +742,5 @@ Section TensorOfCommutativeComonoids.
     apply maponpaths.
     apply pathsinv0, commutative_comonoid_is_commutative.
   Qed.
-
-  (* Definition disp_monoidal_cat_of_comm_comonoids
-    : disp_monoidal (disp_full_sub
-                       (category_of_comonoids_in_monoidal_cat M)
-                       (λ x : ∑ x : C, comonoid M x, is_commutative S (pr2 x)))
-        (monoidal_cat_of_comonoids S).
-  Proof.
-    use (disp_monoidal_fullsub _
-           (λ x : category_of_comonoids_in_monoidal_cat M, (is_commutative S (pr2 x : comonoid M (pr1 x))))).
-    - refine (_ @ id_right _).
-      apply maponpaths.
-      exact (sym_mon_braiding_id ((C,,M),,S)).
-    - intros ? ? sx xy.
-      apply (tensor_of_comm_comonoids sx xy).
-  Defined.
-
-  Definition monoidal_cat_of_comm_comonoids
-    : monoidal (category_of_comm_comonoids_in_monoidal_cat S).
-  Proof.
-    use total_monoidal.
-    - exact M.
-    - use sigma_disp_cat_monoidal.
-      + apply (comonoid_disp_symmetric_monoidal S).
-      + apply disp_monoidal_cat_of_comm_comonoids.
-      + apply comm_comonoid_disp_cat_locally_propositional.
-  Defined.
-
-  Definition disp_symmetric_monoidal_cat_of_comm_comonoids
-    : disp_symmetric disp_monoidal_cat_of_comm_comonoids
-        (symmetric_monoidal_cat_of_comonoids S).
-  Proof.
-    use tpair.
-    - intro ; intros ; exact tt.
-    - repeat split ; try (intro ; intros) ; apply isapropunit.
-  Qed.
-
-  Definition symmetric_monoidal_cat_of_comm_comonoids
-    : symmetric monoidal_cat_of_comm_comonoids.
-  Proof.
-    use total_symmetric.
-    - exact S.
-    - use sigma_disp_cat_monoidal_symmetric.
-      + apply (comonoid_disp_symmetric_monoidal S).
-      + apply disp_symmetric_monoidal_cat_of_comm_comonoids.
-  Defined. *)
 
 End TensorOfCommutativeComonoids.
