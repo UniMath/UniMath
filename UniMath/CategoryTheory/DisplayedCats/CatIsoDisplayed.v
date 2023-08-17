@@ -2,7 +2,7 @@
 In this file, it is shown that the projection functor (from a displayed category to its base) is an isomorphism of categories,
    if the corresponding displayed category is trivial in the sense that the fibers (both over objects and morphisms) are contractible [forgetful_is_iso].
 
-If the displayed category is univalent, the requirement that the fibers over an objects are contractible, can be weakenend to only requiring existence, i.e., chosen displayed objects.
+If the displayed category is univalent, the requirement that the fibers over any object are contractible can be weakenend to only requiring existence, i.e., chosen displayed objects.
 
 *)
 
@@ -28,7 +28,7 @@ Section DisplayedCatIso.
 
   Context
     (uo : ∏ c : C, iscontr (D c)).
-  Context (uf : ∏ (c1 c2 : C) (f : C⟦c1,c2⟧),
+  Context (is_contr_disp_mor : ∏ (c1 c2 : C) (f : C⟦c1,c2⟧),
               iscontr (pr1 (uo c1) -->[f] (pr1 (uo c2)))).
 
   Lemma uf_eq {c1 c2 : C} (f : C⟦c1,c2⟧)
@@ -55,7 +55,7 @@ Section DisplayedCatIso.
     : ∏ (d1 : D c1) (d2 : D c2), iscontr (d1 -->[f] d2).
   Proof.
     intros d1 d2.
-    use (iscontrweqb' (uf _ _ f)).
+    use (iscontrweqb' (is_contr_disp_mor _ _ f)).
     apply uf_eq.
   Defined.
 
@@ -69,7 +69,7 @@ Section DisplayedCatIso.
     use tpair.
     - simple refine ((_ ,, _) ,, _).
       + exact f.
-      + apply (pr1 (uf _ _ f)).
+      + apply (pr1 (is_contr_disp_mor _ _ f)).
       + apply idpath.
     - intros [[g gg] p].
       use subtypePath.
@@ -78,7 +78,7 @@ Section DisplayedCatIso.
       {
         intro.
         apply isapropifcontr.
-        apply uf.
+        apply is_contr_disp_mor.
       }
       exact p.
   Qed.
@@ -109,7 +109,7 @@ Section DisplayedCatIso.
   Qed.
 
   Lemma weq_ob (c : C)
-    : ∃! x : ∑ x : C, D x, pr1 x = c.
+    : ∃! x : (∑ x : C, D x), pr1 x = c.
   Proof.
     use tpair.
     - simple refine ((c ,, _) ,, _).
