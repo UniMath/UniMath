@@ -9,6 +9,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
@@ -26,9 +27,6 @@ Import MonoidalNotations.
 Section ConstantFunctor.
 
   Context (V : monoidal_cat).
-
-  Notation "x ⊗ y" := (monoidal_cat_tensor_pt x y).
-  Notation "f ⊗⊗ g" := (monoidal_cat_tensor_mor f g) (at level 31).
 
   Context {x : V} (m : monoid V x).
 
@@ -61,8 +59,8 @@ Section ConstantFunctor.
     exact constant_functor_fmonoidal_laxlaws.
   Defined.
 
-  Context (comul_iso : Isos.is_z_isomorphism (pr11 m))
-    (counit_iso : Isos.is_z_isomorphism (pr21 m)).
+  Context (comul_iso : is_z_isomorphism (monoid_data_multiplication _ m))
+    (counit_iso : is_z_isomorphism (monoid_data_unit _ m)).
   Definition constant_functor_fmonoidal_strong
     :   fmonoidal_stronglaws
           (fmonoidal_preservestensordata constant_functor_fmonoidal_lax)
@@ -83,7 +81,8 @@ Section ConstantFunctor.
 
   Definition constant_functor_is_symmetric
                (S : symmetric V)
-               (m_is_comm : pr1 S x x · pr11 m = pr11 m)
+               (m_is_comm : pr1 S x x · monoid_data_multiplication _ m
+                            = monoid_data_multiplication _ m)
     : is_symmetric_monoidal_functor S S constant_functor_fmonoidal.
   Proof.
     intro ; intro.

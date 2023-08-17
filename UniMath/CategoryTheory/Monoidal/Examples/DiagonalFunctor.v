@@ -25,23 +25,20 @@ Section DiagFunctor.
 
   Context (V : monoidal_cat).
 
-  Notation "x ⊗ y" := (monoidal_cat_tensor_pt x y).
-  Notation "f ⊗⊗ g" := (monoidal_cat_tensor_mor f g) (at level 31).
-
   Definition diag_functor_data
     : functor_data V V.
   Proof.
     use make_functor_data.
-    - exact (λ x, x ⊗ x).
-    - exact (λ _ _ f, f ⊗⊗ f).
+    - exact (λ x, x ⊗_{V} x).
+    - exact (λ _ _ f, f ⊗^{V} f).
   Defined.
 
   Lemma diag_is_functor
     : is_functor diag_functor_data.
   Proof.
     split ; intro ; intros.
-    - apply (bifunctor_distributes_over_id (F := V)) ; apply (pr2 V).
-    - apply (bifunctor_distributes_over_comp (F := V)) ; apply (pr2 V).
+    - apply tensor_id_id.
+    - apply tensor_comp_mor.
   Qed.
 
   Definition diag_functor
@@ -57,15 +54,12 @@ Section DiagFunctorMonoidal.
 
   Context (V : sym_monoidal_cat).
 
-  Notation "x ⊗ y" := (monoidal_cat_tensor_pt x y).
-  Notation "f ⊗⊗ g" := (monoidal_cat_tensor_mor f g) (at level 31).
-
   Let diag := diag_functor V.
 
   Definition diag_preserves_tensor_data
     : preserves_tensordata V V diag.
   Proof.
-    exact (λ x y, rearrange_prod (pr2 V) x x y y).
+    exact (λ x y, rearrange_prod V x x y y).
   Defined.
 
   Definition diag_preserves_unit
@@ -86,11 +80,11 @@ Section DiagFunctorMonoidal.
   Proof.
     intros y x1 x2 f.
     apply pathsinv0.
-    refine (_ @ precompose_rearrange_prod (pr2 V) (identity y) (identity y) f f @ _).
+    refine (_ @ precompose_rearrange_prod V (identity y) (identity y) f f @ _).
     - now rewrite (when_bifunctor_becomes_leftwhiskering V).
     - rewrite <- (when_bifunctor_becomes_leftwhiskering V).
-      rewrite (bifunctor_distributes_over_id (F := V)) ; try (apply (pr21 V)).
-      apply idpath.
+      do 2 apply maponpaths_2.
+      apply tensor_id_id.
   Qed.
 
   Lemma diag_functor_fmonoidal_nat_right
@@ -98,11 +92,12 @@ Section DiagFunctorMonoidal.
   Proof.
     intros x1 x2 y f.
     apply pathsinv0.
-    refine (_ @ precompose_rearrange_prod (pr2 V) f f (identity y) (identity y) @ _).
+    refine (_ @ precompose_rearrange_prod V f f (identity y) (identity y) @ _).
     - now rewrite (when_bifunctor_becomes_rightwhiskering V).
     - rewrite <- (when_bifunctor_becomes_rightwhiskering V).
-      rewrite (bifunctor_distributes_over_id (F := V)) ; try (apply (pr21 V)).
-      apply idpath.
+      apply maponpaths_2.
+      apply maponpaths.
+      apply tensor_id_id.
   Qed.
 
   Lemma diag_functor_fmonoidal_assoc
@@ -123,7 +118,7 @@ Section DiagFunctorMonoidal.
 
     etrans. {
       apply maponpaths.
-      apply (! precompose_rearrange_prod_with_lunitors_on_right (pr2 V) x x).
+      apply (! precompose_rearrange_prod_with_lunitors_on_right V x x).
     }
     etrans. {
       rewrite ! assoc.
@@ -137,9 +132,9 @@ Section DiagFunctorMonoidal.
       apply maponpaths_2.
       rewrite <- (bifunctor_rightcomp V).
       apply maponpaths.
-      apply (pr2 (monoidal_leftunitorisolaw V _)).
+      apply monoidal_leftunitorisolaw.
     }
-    rewrite (bifunctor_rightid V).
+    rewrite bifunctor_rightid.
     apply id_left.
   Qed.
 
@@ -154,7 +149,8 @@ Section DiagFunctorMonoidal.
     unfold diag_preserves_tensor_data.
     etrans. {
       apply maponpaths.
-      apply (! precompose_rearrange_prod_with_lunitors_and_runitor (pr2 V) x x).
+      apply pathsinv0.
+      apply precompose_rearrange_prod_with_lunitors_and_runitor.
     }
     etrans. {
       rewrite ! assoc.
@@ -168,7 +164,7 @@ Section DiagFunctorMonoidal.
       apply maponpaths_2.
       rewrite <- (bifunctor_leftcomp V).
       apply maponpaths.
-      apply (pr2 (monoidal_leftunitorisolaw V _)).
+      apply monoidal_leftunitorisolaw.
     }
     rewrite (bifunctor_leftid V).
     apply id_left.
@@ -213,11 +209,11 @@ Section DiagFunctorMonoidal.
   Defined.
 
   Definition diag_functor_is_symmetric
-    : is_symmetric_monoidal_functor (pr2 V) (pr2 V) diag_functor_fmonoidal.
+    : is_symmetric_monoidal_functor V V diag_functor_fmonoidal.
   Proof.
     intro ; intro.
     apply pathsinv0.
-    apply (rearrange_commute_with_swap (pr2 V)).
+    apply (rearrange_commute_with_swap V).
   Defined.
 
 End DiagFunctorMonoidal.
