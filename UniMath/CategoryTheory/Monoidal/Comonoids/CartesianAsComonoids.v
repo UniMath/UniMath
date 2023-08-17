@@ -36,10 +36,6 @@ Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Tensor.
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Monoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Symmetric.
 
-(* Require Import UniMath.CategoryTheory.Monoidal.Comonoids.CommComonoidsCartesian.
-Require Import UniMath.CategoryTheory.Monoidal.Comonoids.MonoidalCartesianBuilder. *)
-
-
 Local Open Scope cat.
 Import MonoidalNotations.
 Import ComonoidNotations.
