@@ -1283,6 +1283,43 @@ Section MonoidalLaws.
     apply (z_iso_inv_on_left _ _ _ _ ruiyx).
     exact (! (left_whisker_with_runitor M) x y).
   Qed.
+
+  Lemma lunitorinv_preserves_leftwhiskering_with_unit
+    {C : category} (M : monoidal C)
+    : luinv^{M}_{I_{ M}} ⊗^{ M}_{r} I_{ M} · α^{ M }_{ I_{ M}, I_{ M}, I_{ M}}
+      = I_{ M} ⊗^{ M}_{l} luinv^{M}_{I_{ M}}.
+  Proof.
+    set (t := monoidal_triangle_identity_inv_alt M I_{M} I_{M}).
+
+    use (_ @ ! z_iso_inv_on_left _ _ _ _ (_,, α^{M}_{_,_,_} ,, _) _ (! t)).
+    - apply maponpaths_2.
+      apply maponpaths.
+      apply unitorsinv_coincide_on_unit_alt.
+    - split ; apply (monoidal_associatorisolaw M).
+  Qed.
+
+  Lemma associator_before_lwhisker_with_lu
+    {C : category} (M : monoidal C)
+    : α^{ M }_{ I_{ M}, I_{ M}, I_{ M}} · I_{ M} ⊗^{ M}_{l} lu^{M}_{I_{ M}}
+      = lu^{M}_{I_{ M}} ⊗^{ M}_{r} I_{ M}.
+  Proof.
+    etrans. {
+      apply monoidal_triangleidentity.
+    }
+    apply pathsinv0, unitors_coincide_on_unit'.
+  Qed.
+
+  Lemma associator_before_rwhisker_with_lu
+    {C : category} (M : monoidal C)
+    : αinv^{ M }_{ I_{ M}, I_{ M}, I_{ M}} · lu^{M}_{I_{ M}} ⊗^{M}_{r} I_{ M}
+      = I_{ M} ⊗^{ M}_{l} lu^{M}_{I_{ M}}.
+  Proof.
+    use (z_iso_inv_on_right _ _ _ (α^{M}_{ I_{ M}, I_{ M}, I_{ M}} ,, _ ,, _)).
+    {
+      apply monoidal_associatorisolaw.
+    }
+    apply pathsinv0, associator_before_lwhisker_with_lu.
+  Qed.
 End MonoidalLaws.
 
 (**
@@ -1789,6 +1826,18 @@ Section MonoidalCatAccessors.
     apply idpath.
   Qed.
 
+  Lemma mon_associator_I_before_lwhisker_I_with_lunitor_I
+    :  mon_lassociator I_{V} I_{V} I_{V} · identity I_{V} #⊗ mon_lunitor I_{V}
+       = mon_lunitor I_{V} #⊗ identity I_{V}.
+  Proof.
+    etrans.
+    {
+      apply pathsinv0, mon_triangle.
+    }
+    apply maponpaths_2.
+    apply pathsinv0, unitors_coincide_on_unit.
+  Qed.
+
   Proposition mon_lassociator_lassociator
               {w x y z : V}
     : mon_lassociator (w ⊗ x) y z
@@ -1941,48 +1990,3 @@ Proof.
   - exact (monoidal_cat_tensor_data V).
   - exact (is_functor_monoidal_cat_tensor V).
 Defined.
-
-Section HelperLemmas.
-
-  Import MonoidalNotations.
-
-  Lemma lunitorinv_preserves_leftwhiskering_with_unit
-    {C : category} (M : monoidal C)
-    : luinv^{M}_{I_{ M}} ⊗^{ M}_{r} I_{ M} · α^{ M }_{ I_{ M}, I_{ M}, I_{ M}}
-      = I_{ M} ⊗^{ M}_{l} luinv^{M}_{I_{ M}}.
-  Proof.
-    set (t := monoidal_triangle_identity_inv_alt M I_{M} I_{M}).
-
-    use (_ @ ! z_iso_inv_on_left _ _ _ _ (_,, α^{M}_{_,_,_} ,, _) _ (! t)).
-    - apply maponpaths_2.
-      apply maponpaths.
-      apply unitorsinv_coincide_on_unit_alt.
-    - split ; apply (monoidal_associatorisolaw M).
-  Qed.
-
-  Lemma associator_before_lwhisker_with_lu
-    {C : category} (M : monoidal C)
-    : α^{ M }_{ I_{ M}, I_{ M}, I_{ M}} · identity I_{ M} ⊗^{ M} lu^{M}_{I_{ M}}
-      = lu^{M}_{I_{ M}} ⊗^{ M} identity I_{ M}.
-  Proof.
-    etrans. {
-      apply pathsinv0.
-      apply (mon_triangle (V := C,,M)).
-    }
-    apply maponpaths_2.
-    apply pathsinv0, unitors_coincide_on_unit.
-  Qed.
-
-  Lemma associator_before_rwhisker_with_lu
-    {C : category} (M : monoidal C)
-    : αinv^{ M }_{ I_{ M}, I_{ M}, I_{ M}} · lu^{M}_{I_{ M}} ⊗^{M} identity I_{ M}
-      = identity I_{ M} ⊗^{ M} lu^{M}_{I_{ M}}.
-  Proof.
-    use (z_iso_inv_on_right _ _ _ (α^{M}_{ I_{ M}, I_{ M}, I_{ M}} ,, _ ,, _)).
-    {
-      apply monoidal_associatorisolaw.
-    }
-    apply pathsinv0, associator_before_lwhisker_with_lu.
-  Qed.
-
-End HelperLemmas.

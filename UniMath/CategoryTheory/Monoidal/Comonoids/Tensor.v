@@ -582,7 +582,7 @@ Section TensorOfComonoids.
       }
       rewrite assoc'.
       apply maponpaths.
-      apply associator_before_lwhisker_with_lu.
+      apply mon_associator_I_before_lwhisker_I_with_lunitor_I.
   Qed.
 
   (* Lemma comonoid_disp_associatorinv_mult
