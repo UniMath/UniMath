@@ -54,7 +54,7 @@ Section MonoidalCategoryOfComonoids.
   Let V_comult
       := dialgebra_disp_monoidal (identity_fmonoidal V) (diag_functor_fmonoidal V).
 
-  Definition V_counit
+  Local Definition V_counit
     : disp_monoidal (dialgebra_disp_cat (functor_identity V) (constant_functor _ _ I_{V})) V.
   Proof.
     use (dialgebra_disp_monoidal (identity_fmonoidal V)
@@ -156,23 +156,10 @@ Section MonoidalCategoryOfComonoids.
     - refine (_ @ id_right _).
       apply maponpaths.
       apply sym_mon_braiding_id.
-    - cbn.
-      intros x y mx my.
-
-      transparent assert (m : (commutative_comonoid V)).
-      {
-        refine (_ ,, _ ,, _).
-        exact mx.
-      }
-      transparent assert (n : (commutative_comonoid V)).
-      {
-        refine (_ ,, _ ,, _).
-        exact my.
-      }
-
-
-      refine (_ @ tensor_of_comm_comonoids V m n @ _).
+    - intros x y mx my.
+      refine (_ @ tensor_of_comm_comonoids V (pr1 x ,, pr2 x ,, mx) (pr1 y ,, pr2 y ,, my) @ _).
       + apply maponpaths_2.
+        cbn.
         unfold dialgebra_disp_tensor_op.
         cbn.
         now rewrite id_left.
