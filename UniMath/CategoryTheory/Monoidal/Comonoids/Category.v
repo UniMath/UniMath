@@ -35,8 +35,6 @@ Require Import UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.
 Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
 
 Require Import UniMath.CategoryTheory.categories.Dialgebras.
-(* Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras.
-Require Import UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras. *)
 
 Local Open Scope cat.
 
@@ -139,22 +137,13 @@ Section CategoryOfComonoids.
   Coercion comonoid_to_data : comonoid >-> comonoid_data.
 
   Definition comonoid_to_law_assoc (m : comonoid)
-    : comonoid_laws_assoc m.
-  Proof.
-    apply (pr2 m).
-  Qed.
+    : comonoid_laws_assoc m := pr2 (pr222 m).
 
   Definition comonoid_to_law_unit_left (m : comonoid)
-    : comonoid_laws_unit_left m.
-  Proof.
-    apply (pr2 m).
-  Qed.
+    : comonoid_laws_unit_left m := pr122 m.
 
   Definition comonoid_to_law_unit_right (m : comonoid)
-    : comonoid_laws_unit_right m.
-  Proof.
-    apply (pr2 m).
-  Qed.
+    : comonoid_laws_unit_right m := pr1 (pr222 m).
 
   Definition comonoid_mor_struct (m n : comonoid) (f : V⟦m,n⟧): UU
     := (comonoid_to_struct m) -->[f] (comonoid_to_struct n).
@@ -218,24 +207,10 @@ Section CategoryOfCommutativeComonoids.
 
   Context (V : sym_monoidal_cat).
 
-  Notation "x ⊗ y" := (x ⊗_{V} y).
-  Notation "x ⊗l f" := (x ⊗^{V}_{l} f) (at level 31).
-  Notation "f ⊗r y" := (f ⊗^{V}_{r} y) (at level 31).
-  Notation "f ⊗⊗ g" := (f ⊗^{V} g) (at level 31).
-
-  Let I : V := monoidal_unit V.
-  Let lu : leftunitor_data V (monoidal_unit V) := monoidal_leftunitordata V.
-  Let ru : rightunitor_data V (monoidal_unit V) := monoidal_rightunitordata V.
-  Let α : associator_data V := monoidal_associatordata V.
-  Let luinv : leftunitorinv_data V (monoidal_unit V) := monoidal_leftunitorinvdata V.
-  Let ruinv : rightunitorinv_data V (monoidal_unit V) := monoidal_rightunitorinvdata V.
-  Let αinv : associatorinv_data V := monoidal_associatorinvdata V.
-  Let σ := pr12 V.
-
   Import ComonoidNotations.
 
   Definition is_commutative (m : comonoid V) : UU
-    := δ_{m} · σ m m = δ_{m}.
+    := δ_{m} · sym_mon_braiding V m m = δ_{m}.
 
   Definition commutative_comonoids_laws_disp_cat
     : disp_cat (comonoid_category V).
@@ -282,38 +257,26 @@ Section ComonoidAux.
 
   Context (M : monoidal_cat).
 
-  Notation "x ⊗ y" := (x ⊗_{M} y).
-  Notation "x ⊗l f" := (x ⊗^{M}_{l} f) (at level 31).
-  Notation "f ⊗r y" := (f ⊗^{M}_{r} y) (at level 31).
-  Notation "f ⊗⊗ g" := (f ⊗^{M} g) (at level 31).
-
-  Let I : M := monoidal_unit M.
-  Let lu : leftunitor_data M (monoidal_unit M) := monoidal_leftunitordata M.
-  Let ru : rightunitor_data M (monoidal_unit M) := monoidal_rightunitordata M.
-  Let α : associator_data M := monoidal_associatordata M.
-  Let luinv : leftunitorinv_data M (monoidal_unit M) := monoidal_leftunitorinvdata M.
-  Let ruinv : rightunitorinv_data M (monoidal_unit M) := monoidal_rightunitorinvdata M.
-  Let αinv : associatorinv_data M := monoidal_associatorinvdata M.
-
   Import ComonoidNotations.
 
   Definition comonoid_laws_assoc'
     (m : comonoid M)
-    : δ_{m} · (δ_{m} ⊗r m) = δ_{m} · m ⊗l δ_{m} · αinv m m m.
+    : δ_{m} · (δ_{m} ⊗^{M}_{r} m) = δ_{m} · m ⊗^{M}_{l} δ_{m} · mon_rassociator m m m.
   Proof.
     rewrite <- comonoid_to_law_assoc.
     rewrite ! assoc'.
     etrans.
     2: {
       do 2 apply maponpaths.
-      exact (! pr1 (monoidal_associatorisolaw M _ _ _)).
+      apply pathsinv0.
+      apply monoidal_associatorisolaw.
     }
     now rewrite id_right.
   Qed.
 
   Definition comonoid_laws_unit_left'
     (m : comonoid M)
-    : δ_{m} · (ε_{m} ⊗r m) = luinv m.
+    : δ_{m} · (ε_{m} ⊗^{M}_{r} m) = mon_linvunitor m.
   Proof.
     refine (_ @ id_left _).
     rewrite <- comonoid_to_law_unit_left.
@@ -321,14 +284,15 @@ Section ComonoidAux.
     etrans.
     2: {
       do 2 apply maponpaths.
-      exact (! pr1 (monoidal_leftunitorisolaw M _)).
+      apply pathsinv0.
+      apply monoidal_leftunitorisolaw.
     }
     now rewrite id_right.
   Qed.
 
   Definition comonoid_laws_unit_right'
     (m : comonoid M)
-    : δ_{m} · (m ⊗l ε_{m})  = ruinv m.
+    : δ_{m} · (m ⊗^{M}_{l} ε_{m})  = mon_rinvunitor m.
   Proof.
     refine (_ @ id_left _).
     rewrite <- (comonoid_to_law_unit_right M _).
@@ -336,7 +300,8 @@ Section ComonoidAux.
     etrans.
     2: {
       do 2 apply maponpaths.
-      exact (! pr1 (monoidal_rightunitorisolaw M _)).
+      apply pathsinv0.
+      apply monoidal_rightunitorisolaw.
     }
     now rewrite id_right.
   Qed.
@@ -346,27 +311,12 @@ End ComonoidAux.
 Section CommutativeComonoids.
 
   Context (M : sym_monoidal_cat).
-
-  Notation "x ⊗ y" := (x ⊗_{M} y).
-  Notation "x ⊗l f" := (x ⊗^{M}_{l} f) (at level 31).
-  Notation "f ⊗r y" := (f ⊗^{M}_{r} y) (at level 31).
-  Notation "f ⊗⊗ g" := (f ⊗^{M} g) (at level 31).
-
-  Let I : M := monoidal_unit M.
-  Let lu : leftunitor_data M (monoidal_unit M) := monoidal_leftunitordata M.
-  Let ru : rightunitor_data M (monoidal_unit M) := monoidal_rightunitordata M.
-  Let α : associator_data M := monoidal_associatordata M.
-  Let luinv : leftunitorinv_data M (monoidal_unit M) := monoidal_leftunitorinvdata M.
-  Let ruinv : rightunitorinv_data M (monoidal_unit M) := monoidal_rightunitorinvdata M.
-  Let αinv : associatorinv_data M := monoidal_associatorinvdata M.
-  Let σ := pr12 M.
-
   Import ComonoidNotations.
 
   Lemma comultiplication_comonoid_4times'
     (m : comonoid M)
     : δ_{m} · δ_{m} ⊗^{M} δ_{m}
-      = δ_{m} · δ_{m} ⊗r m · α _ _ _ · δ_{m} ⊗r _.
+      = δ_{m} · δ_{m} ⊗^{M}_{r} m · mon_lassociator _ _ _ · δ_{m}  ⊗^{M}_{r} _.
   Proof.
     etrans. {
       apply maponpaths.
@@ -382,32 +332,33 @@ Section CommutativeComonoids.
 
   Lemma comultiplication_comonoid_4times_symmetry
     (m : commutative_comonoid M)
-    : δ_{m} · δ_{m} ⊗^{M} δ_{m} · (σ m m ⊗^{M} σ m m)
+    : δ_{m} · δ_{m} ⊗^{M} δ_{m} · (sym_mon_braiding M m m ⊗^{M} sym_mon_braiding M m m)
       = δ_{m} · δ_{m} ⊗^{M} δ_{m}.
   Proof.
     rewrite assoc'.
     apply maponpaths.
-    rewrite <- (bifunctor_distributes_over_comp (F := M)); try (apply (pr21 M)).
+    refine (! tensor_comp_mor _ _ _ _ @ _).
     now rewrite commutative_comonoid_is_commutative.
   Qed.
 
   Lemma comultiplication_comonoid_4times_symmetry_left
     (m : commutative_comonoid M)
-    : δ_{m} · δ_{m} ⊗^{M} δ_{m} · (σ m m ⊗^{M}_{r} (m ⊗ m))
+    : δ_{m} · δ_{m} ⊗^{M} δ_{m} · (sym_mon_braiding M m m ⊗^{M}_{r} (m ⊗_{M} m))
       = δ_{m} · δ_{m} ⊗^{M} δ_{m}.
   Proof.
     rewrite assoc'.
     apply maponpaths.
     rewrite <- (when_bifunctor_becomes_rightwhiskering M).
-    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
+    refine (! tensor_comp_mor _ _ _ _ @ _).
     rewrite id_right.
-    now rewrite commutative_comonoid_is_commutative.
+    apply maponpaths_2.
+    apply commutative_comonoid_is_commutative.
   Qed.
 
   Lemma commutative_symmetric_braiding_using_lwhisker
     (m : commutative_comonoid M)
     : δ_{m} · δ_{m} ⊗^{M} δ_{m} · α^{M}_{_,_,_}
-      = δ_{m} · (m ⊗l δ_{m}) · (m ⊗l (m ⊗l δ_{m})).
+      = δ_{m} · (m ⊗^{M}_{l} δ_{m}) · (m ⊗^{M}_{l} (m ⊗^{M}_{l} δ_{m})).
   Proof.
     etrans.
     2: {
@@ -423,8 +374,8 @@ Section CommutativeComonoids.
 
   Lemma commutative_symmetric_braiding_using_lrwhisker
     (m : commutative_comonoid M)
-    : δ_{m} · (m ⊗l δ_{m}) · (m ⊗l (m ⊗l δ_{m})) · m ⊗l αinv _ _ _
-      = δ_{m} · (m ⊗l δ_{m}) · (m ⊗l (δ_{m} ⊗r m)).
+    : δ_{m} · (m ⊗^{M}_{l} δ_{m}) · (m ⊗^{M}_{l} (m ⊗^{M}_{l} δ_{m})) · m ⊗^{M}_{l} mon_rassociator _ _ _
+      = δ_{m} · (m ⊗^{M}_{l} δ_{m}) · (m ⊗^{M}_{l} (δ_{m} ⊗^{M}_{r} m)).
   Proof.
     rewrite ! assoc'.
     rewrite <- ! (bifunctor_leftcomp M).
@@ -435,8 +386,8 @@ Section CommutativeComonoids.
 
   Lemma commutative_symmetric_braiding_using_lrwhisker'
     (m : commutative_comonoid M)
-    : δ_{m} · (m ⊗l δ_{m}) · (m ⊗l (δ_{m} ⊗r m)) · m ⊗l ((σ m m) ⊗r m)
-      = δ_{m} · (m ⊗l δ_{m}) · (m ⊗l (δ_{m} ⊗r m)).
+    : δ_{m} · (m ⊗^{M}_{l} δ_{m}) · (m ⊗^{M}_{l} (δ_{m} ⊗^{M}_{r} m)) · m ⊗^{M}_{l} ((sym_mon_braiding M m m) ⊗^{M}_{r} m)
+      = δ_{m} · (m ⊗^{M}_{l} δ_{m}) · (m ⊗^{M}_{l} (δ_{m} ⊗^{M}_{r} m)).
   Proof.
     rewrite ! assoc'.
     do 2 apply maponpaths.
@@ -449,8 +400,8 @@ Section CommutativeComonoids.
 
   Lemma commutative_symmetric_braiding_using_lrwhisker''
     (m : commutative_comonoid M)
-    : δ_{m} · δ_{m} ⊗^{M} δ_{m} · α^{M}_{_,_,_} · m ⊗l αinv _ _ _ · m ⊗l ((σ m m) ⊗r m)
-      = δ_{m} · (m ⊗l δ_{m}) · (m ⊗l (δ_{m} ⊗r m)).
+    : δ_{m} · δ_{m} ⊗^{M} δ_{m} · α^{M}_{_,_,_} · m ⊗^{M}_{l} mon_rassociator _ _ _ · m ⊗^{M}_{l} ((sym_mon_braiding M m m) ⊗^{M}_{r} m)
+      = δ_{m} · (m ⊗^{M}_{l} δ_{m}) · (m ⊗^{M}_{l} (δ_{m} ⊗^{M}_{r} m)).
   Proof.
     refine (_ @ commutative_symmetric_braiding_using_lrwhisker' _).
     apply maponpaths_2.
@@ -462,7 +413,7 @@ Section CommutativeComonoids.
   Lemma comultiplication_comonoid_4times
     (m : commutative_comonoid M)
     : δ_{ m} · m ⊗^{ M}_{l} δ_{ m} · m ⊗^{ M}_{l} (δ_{ m} ⊗^{ M}_{r} m)
-      = δ_{ m} · δ_{ m} ⊗^{ M} δ_{ m} · α _ _ (_ ⊗_{ M} m) · m ⊗^{ M}_{l} αinv _ _ _.
+      = δ_{ m} · δ_{ m} ⊗^{ M} δ_{ m} · mon_lassociator _ _ (_ ⊗_{ M} m) · m ⊗^{ M}_{l} mon_rassociator _ _ _.
   Proof.
     etrans.
     2: {
@@ -480,7 +431,7 @@ Section CommutativeComonoids.
 
   Lemma commutative_symmetric_braiding_after_4_copies'
     (m : commutative_comonoid M)
-    : δ_{m} · δ_{m} ⊗^{M} δ_{m} · α^{M}_{_,_,_} · (m ⊗^{M}_{l} αinv^{M}_{_,_,_}) · (m ⊗^{M}_{l} (σ m m ⊗^{M}_{r} m))
+    : δ_{m} · δ_{m} ⊗^{M} δ_{m} · α^{M}_{_,_,_} · (m ⊗^{M}_{l} αinv^{M}_{_,_,_}) · (m ⊗^{M}_{l} (sym_mon_braiding M m m ⊗^{M}_{r} m))
       = δ_{m} · δ_{m} ⊗^{M} δ_{m} · α^{M}_{_,_,_} · m ⊗^{M}_{l} αinv^{M}_{_,_,_}.
   Proof.
     refine (commutative_symmetric_braiding_using_lrwhisker'' _ @ _).
@@ -491,7 +442,7 @@ Section CommutativeComonoids.
     (m : commutative_comonoid M)
     : δ_{m} · (δ_{ m} ⊗^{ M} δ_{ m}
                  · (α^{ M }_{ m, m, m ⊗_{ M} m}
-                         · (m ⊗^{ M}_{l} (αinv^{ M }_{ m, m, m} · (σ m m ⊗^{ M}_{r} m · α^{ M }_{ m, m, m}))
+                         · (m ⊗^{ M}_{l} (αinv^{ M }_{ m, m, m} · (sym_mon_braiding M m m ⊗^{ M}_{r} m · α^{ M }_{ m, m, m}))
                               · αinv^{ M }_{ m, m, m ⊗_{ M} m})))
       = δ_{m} · δ_{m} ⊗^{ M} δ_{m}.
   Proof.
@@ -510,7 +461,7 @@ Section CommutativeComonoids.
       apply maponpaths.
       rewrite <- (bifunctor_leftcomp M).
       apply maponpaths.
-      apply (pr2 (monoidal_associatorisolaw M m m m)).
+      apply (monoidal_associatorisolaw M m m m).
     }
     rewrite (bifunctor_leftid M).
     rewrite id_right.
@@ -518,15 +469,15 @@ Section CommutativeComonoids.
     etrans. {
       rewrite assoc'.
       apply maponpaths.
-      apply (pr1 (monoidal_associatorisolaw M m m _)).
+      apply (monoidal_associatorisolaw M m m _).
     }
     apply id_right.
   Qed.
 
   Lemma comult_before_rearrange_and_swap
     (mx my : comonoid M)
-    : δ_{mx} ⊗^{ M} δ_{my} · (rearrange_prod (pr2 M) _ _ _ _ · σ _ _ ⊗^{ M} σ _ _)
-      = δ_{mx} ⊗^{ M} δ_{my} · (σ (_ ⊗_{ M} _) (_ ⊗_{ M} _) · rearrange_prod (pr2 M) _ _ _ _).
+    : δ_{mx} ⊗^{ M} δ_{my} · (rearrange_prod M _ _ _ _ · sym_mon_braiding M _ _ ⊗^{ M} sym_mon_braiding M _ _)
+      = δ_{mx} ⊗^{ M} δ_{my} · (sym_mon_braiding M (_ ⊗_{ M} _) (_ ⊗_{ M} _) · rearrange_prod M _ _ _ _).
   Proof.
     apply maponpaths.
     apply rearrange_commute_with_swap.
