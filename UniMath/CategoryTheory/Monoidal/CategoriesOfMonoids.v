@@ -68,6 +68,21 @@ Section Category_of_Monoids.
   Definition monoid (x : C) : UU
     := ∑ m : monoid_data x, monoid_laws m.
 
+  Definition make_monoid
+    {x : C} (μ : C⟦x ⊗ x, x⟧) (η : C⟦monoidal_unit M, x⟧)
+    (p_ul : (η ⊗r x) · μ = lu x)
+    (p_ur : (x ⊗l η) · μ = ru x)
+    (p_assoc : α x x x · (x ⊗l μ) · μ = μ ⊗r x · μ)
+    : monoid x.
+  Proof.
+    simple refine ((_ ,, _) ,, (_ ,, _ ,, _)).
+    - exact μ.
+    - exact η.
+    - exact p_ul.
+    - exact p_ur.
+    - exact p_assoc.
+  Defined.
+
   Definition monoid_to_monoid_data {x : C} (m : monoid x)
     : monoid_data x := pr1 m.
   Coercion monoid_to_monoid_data : monoid >-> monoid_data.
@@ -220,28 +235,27 @@ Definition unit_monoid
   (V : monoidal_cat)
   : monoid V (monoidal_unit V).
 Proof.
-  use tpair.
-  - exists (monoidal_leftunitordata V (monoidal_unit V)).
-    exact (identity (monoidal_unit V)).
-  - refine (_ ,, _ ,, _).
-    + etrans. {
-        apply maponpaths_2.
-        apply (bifunctor_rightid V).
-      }
-      apply id_left.
-    + etrans. {
-        apply maponpaths_2.
-        apply (bifunctor_leftid V).
-      }
-      refine (id_left _ @ _).
-      apply unitors_coincide_on_unit.
-    + etrans. {
-        apply maponpaths_2.
-        refine (_ @ associator_before_lwhisker_with_lu V).
-        apply maponpaths.
-        apply pathsinv0,
-          (when_bifunctor_becomes_leftwhiskering V).
-      }
+  use make_monoid.
+  - exact (monoidal_leftunitordata V (monoidal_unit V)).
+  - exact (identity (monoidal_unit V)).
+  - etrans. {
       apply maponpaths_2.
-      apply (when_bifunctor_becomes_rightwhiskering V).
+      apply (bifunctor_rightid V).
+    }
+    apply id_left.
+  - etrans. {
+      apply maponpaths_2.
+      apply (bifunctor_leftid V).
+    }
+    refine (id_left _ @ _).
+    apply unitors_coincide_on_unit.
+  - etrans. {
+      apply maponpaths_2.
+      refine (_ @ associator_before_lwhisker_with_lu V).
+      apply maponpaths.
+      apply pathsinv0,
+        (when_bifunctor_becomes_leftwhiskering V).
+    }
+    apply maponpaths_2.
+    apply (when_bifunctor_becomes_rightwhiskering V).
 Defined.

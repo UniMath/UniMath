@@ -65,7 +65,7 @@ Section DiagFunctorMonoidal.
   Definition diag_preserves_unit
     : preserves_unit V V diag.
   Proof.
-    exact (luinv^{V}_{I_{V}}).
+    apply mon_linvunitor.
   Defined.
 
   Definition diag_functor_fmonoidal_data
@@ -215,5 +215,14 @@ Section DiagFunctorMonoidal.
     apply pathsinv0.
     apply (rearrange_commute_with_swap V).
   Defined.
+
+  (* Definition diag_functor_lax_monoidal_functor
+    : lax_monoidal_functor V V.
+  Proof.
+    use make_lax_monoidal_functor.
+    - exact diag.
+    - exact diag_preserves_tensor_data.
+    - exact diag_preserves_unit.
+    - . *)
 
 End DiagFunctorMonoidal.
