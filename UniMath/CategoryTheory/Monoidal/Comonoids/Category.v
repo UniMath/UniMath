@@ -484,8 +484,8 @@ Section CommutativeComonoids.
 
   Lemma comult_before_rearrange_and_swap
     (mx my : comonoid M)
-    : δ_{mx} #⊗ δ_{my} · (rearrange_prod M _ _ _ _ · sym_mon_braiding M _ _ #⊗ sym_mon_braiding M _ _)
-      = δ_{mx} #⊗ δ_{my} · (sym_mon_braiding M (_ ⊗ _) (_ ⊗ _) · rearrange_prod M _ _ _ _).
+    : δ_{mx} #⊗ δ_{my} · (inner_swap M _ _ _ _ · sym_mon_braiding M _ _ #⊗ sym_mon_braiding M _ _)
+      = δ_{mx} #⊗ δ_{my} · (sym_mon_braiding M (_ ⊗ _) (_ ⊗ _) · inner_swap M _ _ _ _).
   Proof.
     apply maponpaths.
     apply rearrange_commute_with_swap.

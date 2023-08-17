@@ -49,50 +49,50 @@ Section TensorOfComonoids.
     exists (mx ⊗ my).
     split.
     - refine (δ_{mx} ⊗^{M} δ_{my} · _).
-      exact (rearrange_prod M mx mx my my).
+      exact (inner_swap M mx mx my my).
     - exact (ε_{mx} ⊗^{M} ε_{my} · lu^{M}_{_}).
   Defined.
 
-  Lemma precompose_rearrange_prod_with_augs_on_left
+  Lemma precompose_inner_swap_with_augs_on_left
     (mx my : comonoid M)
-    : rearrange_prod M mx mx my my · (ε_{ mx} ⊗^{ M} ε_{ my}) ⊗^{ M}_{r} (mx ⊗_{ M} my)
-      = (ε_{ mx} ⊗^{M}_{r} _) ⊗^{M} (ε_{ my} ⊗^{M}_{r} my) · rearrange_prod M _ _ _ _.
+    : inner_swap M mx mx my my · (ε_{ mx} ⊗^{ M} ε_{ my}) ⊗^{ M}_{r} (mx ⊗_{ M} my)
+      = (ε_{ mx} ⊗^{M}_{r} _) ⊗^{M} (ε_{ my} ⊗^{M}_{r} my) · inner_swap M _ _ _ _.
   Proof.
-    refine (_ @ precompose_rearrange_prod (M) ε_{mx} (identity _)  ε_{my} (identity _) @ _).
+    refine (_ @ precompose_inner_swap (M) ε_{mx} (identity _)  ε_{my} (identity _) @ _).
     - rewrite <- (when_bifunctor_becomes_rightwhiskering M).
       do 2 apply maponpaths.
       apply pathsinv0, tensor_id_id.
     - now rewrite <- ! (when_bifunctor_becomes_rightwhiskering M).
   Qed.
 
-  Lemma precompose_rearrange_prod_with_diag_on_left
+  Lemma precompose_inner_swap_with_diag_on_left
     (mx my : comonoid M)
-    : rearrange_prod (M) mx mx my my · (δ_{ mx} ⊗^{ M} δ_{ my}) ⊗^{ M}_{r} (mx ⊗_{ M} my)
-      = (δ_{ mx} ⊗^{M}_{r} _) ⊗^{M} (δ_{ my} ⊗^{M}_{r} my) · rearrange_prod M _ _ _ _.
+    : inner_swap (M) mx mx my my · (δ_{ mx} ⊗^{ M} δ_{ my}) ⊗^{ M}_{r} (mx ⊗_{ M} my)
+      = (δ_{ mx} ⊗^{M}_{r} _) ⊗^{M} (δ_{ my} ⊗^{M}_{r} my) · inner_swap M _ _ _ _.
   Proof.
-    refine (_ @ precompose_rearrange_prod (M) δ_{mx} (identity _) δ_{my} (identity _) @ _).
+    refine (_ @ precompose_inner_swap (M) δ_{mx} (identity _) δ_{my} (identity _) @ _).
     - rewrite <- (when_bifunctor_becomes_rightwhiskering M).
       now (rewrite <- (bifunctor_distributes_over_id (F := M)) ; try (apply (pr21 M))).
     - now rewrite <- ! (when_bifunctor_becomes_rightwhiskering M).
   Qed.
 
-  Lemma precompose_rearrange_prod_with_augs_on_right
+  Lemma precompose_inner_swap_with_augs_on_right
     (mx my : comonoid M)
-    : rearrange_prod (M) mx mx my my · (mx ⊗_{ M} my) ⊗^{ M}_{l} (ε_{mx} ⊗^{ M} ε_{my})
-      = (_ ⊗^{M}_{l} ε_{mx}) ⊗^{M} (_ ⊗^{M}_{l} ε_{my}) · rearrange_prod (M) _ _ _ _.
+    : inner_swap (M) mx mx my my · (mx ⊗_{ M} my) ⊗^{ M}_{l} (ε_{mx} ⊗^{ M} ε_{my})
+      = (_ ⊗^{M}_{l} ε_{mx}) ⊗^{M} (_ ⊗^{M}_{l} ε_{my}) · inner_swap (M) _ _ _ _.
   Proof.
-    refine (_ @ precompose_rearrange_prod (M) (identity _) ε_{mx} (identity _) ε_{my} @ _).
+    refine (_ @ precompose_inner_swap (M) (identity _) ε_{mx} (identity _) ε_{my} @ _).
     - rewrite <- (when_bifunctor_becomes_leftwhiskering M).
       now (rewrite <- (bifunctor_distributes_over_id (F := M)) ; try (apply (pr21 M))).
     - now rewrite <- ! (when_bifunctor_becomes_leftwhiskering M).
   Qed.
 
-  Lemma precompose_rearrange_prod_with_diag_on_right
+  Lemma precompose_inner_swap_with_diag_on_right
     (mx my : comonoid M)
-    : rearrange_prod (M) mx mx my my · (mx ⊗_{ M} my) ⊗^{ M}_{l} (δ_{ mx} ⊗^{ M} δ_{ my})
-      = (_ ⊗^{M}_{l} δ_{ mx}) ⊗^{M} (_ ⊗^{M}_{l} δ_{ my}) · rearrange_prod (M) _ _ _ _.
+    : inner_swap (M) mx mx my my · (mx ⊗_{ M} my) ⊗^{ M}_{l} (δ_{ mx} ⊗^{ M} δ_{ my})
+      = (_ ⊗^{M}_{l} δ_{ mx}) ⊗^{M} (_ ⊗^{M}_{l} δ_{ my}) · inner_swap (M) _ _ _ _.
   Proof.
-    refine (_ @ precompose_rearrange_prod (M) (identity _) δ_{mx} (identity _) δ_{my} @ _).
+    refine (_ @ precompose_inner_swap (M) (identity _) δ_{mx} (identity _) δ_{my} @ _).
     - rewrite <- (when_bifunctor_becomes_leftwhiskering M).
       apply maponpaths.
       apply maponpaths_2.
@@ -113,7 +113,7 @@ Section TensorOfComonoids.
       do 2 apply maponpaths_2.
       rewrite assoc'.
       apply maponpaths.
-      apply precompose_rearrange_prod_with_augs_on_left.
+      apply precompose_inner_swap_with_augs_on_left.
     }
 
     rewrite assoc.
@@ -126,7 +126,7 @@ Section TensorOfComonoids.
       rewrite ! assoc'.
       apply maponpaths.
       rewrite assoc.
-      exact (precompose_rearrange_prod_with_lunitors_on_right (M) mx my).
+      exact (precompose_inner_swap_with_lunitors_on_right (M) mx my).
     }
     cbn.
     etrans. {
@@ -157,7 +157,7 @@ Section TensorOfComonoids.
       do 2 apply maponpaths_2.
       rewrite assoc'.
       apply maponpaths.
-      apply precompose_rearrange_prod_with_augs_on_right.
+      apply precompose_inner_swap_with_augs_on_right.
     }
 
     rewrite assoc.
@@ -170,7 +170,7 @@ Section TensorOfComonoids.
       rewrite ! assoc'.
       apply maponpaths.
       rewrite assoc.
-      exact (precompose_rearrange_prod_with_lunitors_and_runitor (M) mx my).
+      exact (precompose_inner_swap_with_lunitors_and_runitor (M) mx my).
     }
 
     etrans. {
@@ -204,7 +204,7 @@ Section TensorOfComonoids.
       rewrite ! assoc.
       do 2 apply maponpaths_2.
       apply pathsinv0.
-      apply precompose_rearrange_prod_with_diag_on_left.
+      apply precompose_inner_swap_with_diag_on_left.
     }
 
     rewrite (bifunctor_leftcomp M).
@@ -214,7 +214,7 @@ Section TensorOfComonoids.
       rewrite assoc.
       apply maponpaths_2.
       apply pathsinv0.
-      apply precompose_rearrange_prod_with_diag_on_right.
+      apply precompose_inner_swap_with_diag_on_right.
     }
 
     rewrite ! assoc.
@@ -277,7 +277,7 @@ Section TensorOfComonoids.
     etrans. {
       rewrite assoc'.
       apply maponpaths.
-      refine (_ @ precompose_rearrange_prod (M) (identity _) (identity _) g g).
+      refine (_ @ precompose_inner_swap (M) (identity _) (identity _) g g).
       now rewrite <- (when_bifunctor_becomes_leftwhiskering M).
     }
     rewrite ! assoc.
@@ -365,7 +365,7 @@ Section TensorOfComonoids.
       etrans. {
         apply maponpaths.
         apply pathsinv0.
-        apply (precompose_rearrange_prod_with_lunitors_on_right (M)).
+        apply (precompose_inner_swap_with_lunitors_on_right (M)).
       }
 
       refine (_ @ monoidal_leftunitornat M _ _ δ_{m}).
@@ -376,7 +376,7 @@ Section TensorOfComonoids.
         apply maponpaths_2.
         rewrite assoc'.
         apply maponpaths.
-        apply rearrange_prod_inv.
+        apply inner_swap_inv.
       }
       rewrite id_right.
       rewrite <- (when_bifunctor_becomes_rightwhiskering M).
@@ -411,7 +411,7 @@ Section TensorOfComonoids.
       etrans.
       2: {
         apply maponpaths.
-        apply (precompose_rearrange_prod_with_lunitors_on_right M).
+        apply (precompose_inner_swap_with_lunitors_on_right M).
       }
 
       apply pathsinv0.
@@ -420,7 +420,7 @@ Section TensorOfComonoids.
         do 2 apply maponpaths.
         rewrite assoc.
         apply maponpaths_2.
-        apply rearrange_prod_inv.
+        apply inner_swap_inv.
       }
       rewrite id_left.
       rewrite <- (when_bifunctor_becomes_rightwhiskering M).
@@ -712,8 +712,8 @@ Section TensorOfCommutativeComonoids.
     unfold disp_cat_of_commutative_comonoids.
     cbn.
 
-    use (z_iso_inv_on_left _ _ _ _ (rearrange_prod V _ _ _ _ ,, rearrange_prod V _ _ _ _ ,, _)).
-    { apply rearrange_prod_is_z_isomorphism. }
+    use (z_iso_inv_on_left _ _ _ _ (inner_swap V _ _ _ _ ,, inner_swap V _ _ _ _ ,, _)).
+    { apply inner_swap_is_z_isomorphism. }
     cbn.
     rewrite assoc'.
     etrans.
@@ -728,7 +728,7 @@ Section TensorOfCommutativeComonoids.
       apply maponpaths_2.
       rewrite assoc'.
       apply maponpaths.
-      apply pathsinv0, rearrange_prod_inv.
+      apply pathsinv0, inner_swap_inv.
     }
     rewrite id_right.
     refine (_@ tensor_comp_mor _ _ _ _).

@@ -26,7 +26,7 @@ Section Rearranging.
 
   Context (V : sym_monoidal_cat).
 
-  Definition rearrange_prod (x y z w : V)
+  Definition inner_swap (x y z w : V)
     : V⟦(x ⊗ y) ⊗ (z ⊗ w), (x ⊗ z) ⊗ (y ⊗ w)⟧.
   Proof.
     refine (mon_lassociator _ _ _ · _).
@@ -37,7 +37,7 @@ Section Rearranging.
     exact (sym_mon_braiding V y z ⊗^{V}_{r} w).
   Defined.
 
-  Definition rearrange_prod' (x y z w : V)
+  Definition inner_swap' (x y z w : V)
     : V⟦(x ⊗ y) ⊗ (z ⊗ w), (x ⊗ z) ⊗ (y ⊗ w)⟧.
   Proof.
     refine (mon_lassociator _ _ _ · _).
@@ -46,7 +46,7 @@ Section Rearranging.
     exact (sym_mon_braiding _ _ _ · mon_lassociator _ _ _ · _ ⊗^{V}_{l} sym_mon_braiding _ _ _).
   Defined.
 
-  Definition rearrange_prod'' (x y z w : V)
+  Definition inner_swap'' (x y z w : V)
     : V⟦(x ⊗ y) ⊗ (z ⊗ w), (x ⊗ z) ⊗ (y ⊗ w)⟧.
   Proof.
     refine (mon_lassociator _ _ _ · _).
@@ -55,7 +55,7 @@ Section Rearranging.
     - exact (mon_rassociator x z (w ⊗ y) · (x ⊗ z) ⊗^{V}_{l} sym_mon_braiding _ w y).
   Defined.
 
-  Definition rearrange_prod''' (x y z w : V)
+  Definition inner_swap''' (x y z w : V)
     : V⟦(x ⊗ y) ⊗ (z ⊗ w), (x ⊗ z) ⊗ (y ⊗ w)⟧.
   Proof.
     refine (sym_mon_braiding _ _ _ ⊗^{V}_{r} _  · mon_lassociator _ _ _ · sym_mon_braiding _ _ (_ ⊗ _) · _).
@@ -95,21 +95,21 @@ Section Rearranging.
     now rewrite id_left.
   Qed.
 
-  Lemma rearrange_prod_characterization
+  Lemma inner_swap_characterization
     (x y z w : V)
-    : rearrange_prod x y z w = rearrange_prod' x y z w.
+    : inner_swap x y z w = inner_swap' x y z w.
   Proof.
-    unfold rearrange_prod, rearrange_prod'.
+    unfold inner_swap, inner_swap'.
     apply maponpaths.
     apply maponpaths_2.
     apply maponpaths.
     apply sym_monoidal_braiding_hexagon1_variant.
   Qed.
 
-  Lemma rearrange_prod_characterization' (x y z w : V)
-    : rearrange_prod' x y z w = rearrange_prod'' x y z w.
+  Lemma inner_swap_characterization' (x y z w : V)
+    : inner_swap' x y z w = inner_swap'' x y z w.
   Proof.
-    unfold rearrange_prod', rearrange_prod''.
+    unfold inner_swap', inner_swap''.
     apply maponpaths.
     rewrite ! (bifunctor_leftcomp V).
     rewrite ! assoc'.
@@ -117,18 +117,18 @@ Section Rearranging.
     apply monoidal_associatorinvnatleft.
   Qed.
 
-  Lemma rearrange_prod_characterization''
+  Lemma inner_swap_characterization''
     (x y z w : V)
-    : rearrange_prod x y z w = rearrange_prod'' x y z w.
+    : inner_swap x y z w = inner_swap'' x y z w.
   Proof.
-    refine (rearrange_prod_characterization _ _ _ _ @ _).
-    apply rearrange_prod_characterization'.
+    refine (inner_swap_characterization _ _ _ _ @ _).
+    apply inner_swap_characterization'.
   Qed.
 
-  Lemma rearrange_prod_characterization''' (x y z w : V)
-    : rearrange_prod'' x y z w = rearrange_prod''' x y z w.
+  Lemma inner_swap_characterization''' (x y z w : V)
+    : inner_swap'' x y z w = inner_swap''' x y z w.
   Proof.
-    unfold rearrange_prod'', rearrange_prod'''.
+    unfold inner_swap'', inner_swap'''.
     rewrite ! assoc.
     do 2 apply maponpaths_2.
     rewrite ! (bifunctor_leftcomp V).
@@ -137,24 +137,24 @@ Section Rearranging.
     apply sym_mon_tensor_lassociator1.
   Qed.
 
-  Lemma rearrange_prod_characterization'''' (x y z w : V)
-    : rearrange_prod x y z w = rearrange_prod''' x y z w.
+  Lemma inner_swap_characterization'''' (x y z w : V)
+    : inner_swap x y z w = inner_swap''' x y z w.
   Proof.
-    etrans. { apply rearrange_prod_characterization''. }
-    apply rearrange_prod_characterization'''.
+    etrans. { apply inner_swap_characterization''. }
+    apply inner_swap_characterization'''.
   Qed.
 
-  Lemma precompose_rearrange_prod
+  Lemma precompose_inner_swap
     {x y z w : V}
     {x' y' z' w' : V}
     (fx : V⟦x,x'⟧)
     (fy : V⟦y,y'⟧)
     (fz : V⟦z,z'⟧)
     (fw : V⟦w,w'⟧)
-    : rearrange_prod x y z w · ((fx #⊗ fz) #⊗ (fy #⊗ fw))
-      = ((fx #⊗ fy) #⊗ (fz #⊗ fw)) · rearrange_prod _ _ _ _.
+    : inner_swap x y z w · ((fx #⊗ fz) #⊗ (fy #⊗ fw))
+      = ((fx #⊗ fy) #⊗ (fz #⊗ fw)) · inner_swap _ _ _ _.
   Proof.
-    unfold rearrange_prod.
+    unfold inner_swap.
 
     etrans. {
       rewrite ! assoc'.
@@ -225,9 +225,9 @@ Section Rearranging.
   Qed.
 
   Lemma rearrange_along_unit (x y : V)
-    : rearrange_prod x I_{V} I_{V} y = identity _.
+    : inner_swap x I_{V} I_{V} y = identity _.
   Proof.
-    unfold rearrange_prod.
+    unfold inner_swap.
     rewrite sym_mon_braiding_id.
     rewrite (bifunctor_rightid V).
     rewrite id_left.
@@ -242,11 +242,11 @@ Section Rearranging.
     apply monoidal_associatorisolaw.
   Qed.
 
-  Lemma rearrange_prod_inv
+  Lemma inner_swap_inv
     (x y z w : V)
-    : rearrange_prod x y z w · rearrange_prod x z y w = identity _.
+    : inner_swap x y z w · inner_swap x z y w = identity _.
   Proof.
-    unfold rearrange_prod.
+    unfold inner_swap.
     apply pathsinv0.
     rewrite ! assoc'.
     use (z_iso_inv_to_left _ _ _ (_ ,, _)).
@@ -304,13 +304,13 @@ Section Rearranging.
     apply (bifunctor_leftid V).
   Qed.
 
-  Lemma rearrange_prod_is_z_isomorphism
+  Lemma inner_swap_is_z_isomorphism
     (x y z w : V)
-    : is_z_isomorphism (rearrange_prod x y z w).
+    : is_z_isomorphism (inner_swap x y z w).
   Proof.
     use make_is_z_isomorphism.
-    - apply rearrange_prod.
-    - split ; apply rearrange_prod_inv.
+    - apply inner_swap.
+    - split ; apply inner_swap_inv.
   Defined.
 
   Lemma mon_lunitor_triangle_transposed (x : V)
@@ -356,12 +356,12 @@ Section Rearranging.
     exact (rightwhisker_of_lunitor_with_unit (x ⊗ y)).
   Qed.
 
-  Lemma precompose_rearrange_prod_with_lunitors_on_right (x y : V)
-    : rearrange_prod (monoidal_unit V) x (monoidal_unit V) y
+  Lemma precompose_inner_swap_with_lunitors_on_right (x y : V)
+    : inner_swap (monoidal_unit V) x (monoidal_unit V) y
         · mon_lunitor (monoidal_unit V) ⊗^{V}_{r} (x ⊗ y) · mon_lunitor (x ⊗ y)
       = (mon_lunitor x #⊗ mon_lunitor y).
   Proof.
-    unfold rearrange_prod.
+    unfold inner_swap.
 
     rewrite ! (bifunctor_leftcomp V).
     etrans. {
@@ -420,13 +420,13 @@ Section Rearranging.
     apply pathsinv0, tensor_split'.
   Qed.
 
-  Lemma precompose_rearrange_prod_with_lunitors_and_runitor (x y : V)
-    : rearrange_prod x (monoidal_unit V) y (monoidal_unit V)
+  Lemma precompose_inner_swap_with_lunitors_and_runitor (x y : V)
+    : inner_swap x (monoidal_unit V) y (monoidal_unit V)
         · (x ⊗ y) ⊗^{V}_{l} mon_lunitor (monoidal_unit V) · mon_runitor (x ⊗ y)
       = (mon_runitor x #⊗ mon_runitor y).
   Proof.
 
-    unfold rearrange_prod.
+    unfold inner_swap.
 
     rewrite ! (bifunctor_leftcomp V).
     etrans. {
@@ -506,54 +506,54 @@ Section Rearranging.
   Qed.
 
   Lemma rearrange_hexagon (x1 x2 y1 y2 z1 z2 : V)
-    : rearrange_prod (x1 ⊗ x2) y1 (y2 ⊗ z1) z2
-         · (rearrange_prod x1 x2 y2 z1 ⊗^{V}_{r} (y1 ⊗ z2)
+    : inner_swap (x1 ⊗ x2) y1 (y2 ⊗ z1) z2
+         · (inner_swap x1 x2 y2 z1 ⊗^{V}_{r} (y1 ⊗ z2)
               · mon_lassociator _ _ _)
        = (mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _)
-           · (rearrange_prod x1 (x2 ⊗ y1) y2 (z1 ⊗ z2)
-                · (x1 ⊗ y2) ⊗^{V}_{l} rearrange_prod x2 y1 z1 z2).
+           · (inner_swap x1 (x2 ⊗ y1) y2 (z1 ⊗ z2)
+                · (x1 ⊗ y2) ⊗^{V}_{l} inner_swap x2 y1 z1 z2).
   Proof.
   Admitted.
 
   Lemma rearrange_hexagon_2 (x y : V)
-    : rearrange_prod (x ⊗ x) x (y ⊗ y) y
-         · (rearrange_prod x x y y ⊗^{V}_{r} (x ⊗ y)
+    : inner_swap (x ⊗ x) x (y ⊗ y) y
+         · (inner_swap x x y y ⊗^{V}_{r} (x ⊗ y)
               · mon_lassociator _ _ _)
        = mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _
-           · (rearrange_prod x (x ⊗ x) y (y ⊗ y)
-                · (x ⊗ y) ⊗^{V}_{l} rearrange_prod x x y y).
+           · (inner_swap x (x ⊗ x) y (y ⊗ y)
+                · (x ⊗ y) ⊗^{V}_{l} inner_swap x x y y).
   Proof.
     apply rearrange_hexagon.
   Qed.
 
   Lemma rearrange_hexagon' (x1 x2 y1 y2 z1 z2 : V)
-    : rearrange_prod x1 x2 y1 y2 #⊗ identity (z1 ⊗ z2)
-        · rearrange_prod (x1 ⊗ y1) (x2 ⊗ y2) z1 z2
+    : inner_swap x1 x2 y1 y2 #⊗ identity (z1 ⊗ z2)
+        · inner_swap (x1 ⊗ y1) (x2 ⊗ y2) z1 z2
         · mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _
       = mon_lassociator _ _ _
-            · identity (x1 ⊗ x2) #⊗ rearrange_prod y1 y2 z1 z2
-            · rearrange_prod x1 x2 (y1 ⊗ z1) (y2 ⊗ z2).
+            · identity (x1 ⊗ x2) #⊗ inner_swap y1 y2 z1 z2
+            · inner_swap x1 x2 (y1 ⊗ z1) (y2 ⊗ z2).
   Proof.
   Admitted.
 
   Lemma rearrange_hexagon'_3 (x y z : V)
-    : rearrange_prod x x y y #⊗ identity (z ⊗ z)
-        · rearrange_prod (x ⊗ y) (x ⊗ y) z z
+    : inner_swap x x y y #⊗ identity (z ⊗ z)
+        · inner_swap (x ⊗ y) (x ⊗ y) z z
         · mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _
       = mon_lassociator _ _ _
-            · identity (x ⊗_ x) #⊗ rearrange_prod y y z z
-            · rearrange_prod x x (y ⊗ z) (y ⊗ z).
+            · identity (x ⊗_ x) #⊗ inner_swap y y z z
+            · inner_swap x x (y ⊗ z) (y ⊗ z).
   Proof.
     apply rearrange_hexagon'.
   Qed.
 
   Lemma rearrange_hexagoninv' (x y z : V)
-    : identity (x ⊗ x) #⊗ rearrange_prod y y z z
-  · rearrange_prod x x (y ⊗ z) (y ⊗ z)
+    : identity (x ⊗ x) #⊗ inner_swap y y z z
+  · inner_swap x x (y ⊗ z) (y ⊗ z)
   · mon_rassociator _ _ _ #⊗ mon_rassociator _ _ _ =
   mon_rassociator _ _ _
-  · rearrange_prod x x y y #⊗ identity (z ⊗ z)
-  · rearrange_prod (x ⊗ y) (x ⊗ y) z z.
+  · inner_swap x x y y #⊗ identity (z ⊗ z)
+  · inner_swap (x ⊗ y) (x ⊗ y) z z.
   Proof.
     set (t := rearrange_hexagon' x x y y z z).
     apply pathsinv0.
@@ -584,10 +584,10 @@ Section Rearranging.
   Qed.
 
   Lemma rearrange_commute_with_swap (x1 x2 y1 y2 : V)
-    : rearrange_prod x1 x2 y1 y2 · sym_mon_braiding _ x1 y1 #⊗ sym_mon_braiding _ x2 y2
-      = sym_mon_braiding _ (x1 ⊗ x2) (y1 ⊗ y2) · rearrange_prod y1 y2 x1 x2.
+    : inner_swap x1 x2 y1 y2 · sym_mon_braiding _ x1 y1 #⊗ sym_mon_braiding _ x2 y2
+      = sym_mon_braiding _ (x1 ⊗ x2) (y1 ⊗ y2) · inner_swap y1 y2 x1 x2.
   Proof.
-    unfold rearrange_prod.
+    unfold inner_swap.
     rewrite ! assoc.
 
     etrans.

@@ -59,7 +59,7 @@ Section DiagFunctorMonoidal.
   Definition diag_preserves_tensor_data
     : preserves_tensordata V V diag.
   Proof.
-    exact (λ x y, rearrange_prod V x x y y).
+    exact (λ x y, inner_swap V x x y y).
   Defined.
 
   Definition diag_preserves_unit
@@ -80,7 +80,7 @@ Section DiagFunctorMonoidal.
   Proof.
     intros y x1 x2 f.
     apply pathsinv0.
-    refine (_ @ precompose_rearrange_prod V (identity y) (identity y) f f @ _).
+    refine (_ @ precompose_inner_swap V (identity y) (identity y) f f @ _).
     - apply maponpaths.
       etrans.
       2: {
@@ -99,7 +99,7 @@ Section DiagFunctorMonoidal.
   Proof.
     intros x1 x2 y f.
     apply pathsinv0.
-    refine (_ @ precompose_rearrange_prod V f f (identity y) (identity y) @ _).
+    refine (_ @ precompose_inner_swap V f f (identity y) (identity y) @ _).
     - apply maponpaths.
       etrans.
       2: {
@@ -132,14 +132,14 @@ Section DiagFunctorMonoidal.
 
     etrans. {
       apply maponpaths.
-      apply (! precompose_rearrange_prod_with_lunitors_on_right V x x).
+      apply (! precompose_inner_swap_with_lunitors_on_right V x x).
     }
     etrans. {
       rewrite ! assoc.
       do 2 apply maponpaths_2.
       rewrite assoc'.
       apply maponpaths.
-      apply rearrange_prod_is_z_isomorphism.
+      apply inner_swap_is_z_isomorphism.
     }
     rewrite id_right.
     etrans. {
@@ -164,14 +164,14 @@ Section DiagFunctorMonoidal.
     etrans. {
       apply maponpaths.
       apply pathsinv0.
-      apply precompose_rearrange_prod_with_lunitors_and_runitor.
+      apply precompose_inner_swap_with_lunitors_and_runitor.
     }
     etrans. {
       rewrite ! assoc.
       do 2 apply maponpaths_2.
       rewrite assoc'.
       apply maponpaths.
-      apply rearrange_prod_is_z_isomorphism.
+      apply inner_swap_is_z_isomorphism.
     }
     rewrite id_right.
     etrans. {
@@ -210,7 +210,7 @@ Section DiagFunctorMonoidal.
     unfold fmonoidal_stronglaws.
     split.
     - intro ; intro.
-      apply rearrange_prod_is_z_isomorphism.
+      apply inner_swap_is_z_isomorphism.
     - refine (_ ,, _).
       split ; apply (monoidal_leftunitorisolaw V I_{V}).
   Defined.

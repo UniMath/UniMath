@@ -270,10 +270,10 @@ Section CartesianBuilderCommutative.
   Qed.
 
   Lemma rearranging_before_aug (x y : V)
-    : rearrange_prod V x x y y · (x ⊗^{V}_{l} ε_{cm y}) ⊗^{V} (ε_{cm _} ⊗^{V}_{r} y)
+    : inner_swap V x x y y · (x ⊗^{V}_{l} ε_{cm y}) ⊗^{V} (ε_{cm _} ⊗^{V}_{r} y)
       = (_ ⊗^{V}_{l} ε_{cm _}) ⊗^{V} (ε_{cm _} ⊗^{V}_{r} _).
   Proof.
-    refine (_ @ precompose_rearrange_prod V (identity x) ε_{cm x} ε_{cm y} (identity y) @ _).
+    refine (_ @ precompose_inner_swap V (identity x) ε_{cm x} ε_{cm y} (identity y) @ _).
     {
 
       now rewrite <- (when_bifunctor_becomes_leftwhiskering V),
@@ -288,7 +288,7 @@ Section CartesianBuilderCommutative.
 
   Context (aug_of_unit : εI = identity I_{V}).
   Context (diagonal_of_tensor
-            : ∏ x y : V, δ_{cm (x ⊗_{V} y)} = (δ_{cm x} ⊗^{V} δ_{cm y}) · rearrange_prod V x x y y).
+            : ∏ x y : V, δ_{cm (x ⊗_{V} y)} = (δ_{cm x} ⊗^{V} δ_{cm y}) · inner_swap V x x y y).
 
   Lemma whisker_to_total'
           (x y : V)
