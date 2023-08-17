@@ -81,7 +81,14 @@ Section DiagFunctorMonoidal.
     intros y x1 x2 f.
     apply pathsinv0.
     refine (_ @ precompose_rearrange_prod V (identity y) (identity y) f f @ _).
-    - now rewrite (when_bifunctor_becomes_leftwhiskering V).
+    - apply maponpaths.
+      etrans.
+      2: {
+        apply maponpaths.
+        apply pathsinv0, (when_bifunctor_becomes_leftwhiskering V).
+      }
+      cbn ; apply maponpaths_2.
+      apply pathsinv0, (when_bifunctor_becomes_leftwhiskering V).
     - rewrite <- (when_bifunctor_becomes_leftwhiskering V).
       do 2 apply maponpaths_2.
       apply tensor_id_id.
@@ -93,7 +100,14 @@ Section DiagFunctorMonoidal.
     intros x1 x2 y f.
     apply pathsinv0.
     refine (_ @ precompose_rearrange_prod V f f (identity y) (identity y) @ _).
-    - now rewrite (when_bifunctor_becomes_rightwhiskering V).
+    - apply maponpaths.
+      etrans.
+      2: {
+        apply maponpaths.
+        apply pathsinv0, (when_bifunctor_becomes_rightwhiskering V).
+      }
+      cbn ; apply maponpaths_2.
+      apply pathsinv0, (when_bifunctor_becomes_rightwhiskering V).
     - rewrite <- (when_bifunctor_becomes_rightwhiskering V).
       apply maponpaths_2.
       apply maponpaths.
@@ -105,8 +119,8 @@ Section DiagFunctorMonoidal.
   Proof.
     intros x y z.
     refine (_ @ rearrange_hexagon'_3 (pr2 V) x y z @ _).
-    - now rewrite (when_bifunctor_becomes_rightwhiskering V).
-    - now rewrite (when_bifunctor_becomes_leftwhiskering V).
+    - now rewrite <- (when_bifunctor_becomes_rightwhiskering V).
+    - now rewrite <- (when_bifunctor_becomes_leftwhiskering V).
   Qed.
 
   Lemma diag_functor_fmonoidal_leftunitality
@@ -130,7 +144,7 @@ Section DiagFunctorMonoidal.
     rewrite id_right.
     etrans. {
       apply maponpaths_2.
-      rewrite <- (bifunctor_rightcomp V).
+      refine (! bifunctor_rightcomp V _ _ _ _ _ _ @ _).
       apply maponpaths.
       apply monoidal_leftunitorisolaw.
     }
@@ -162,7 +176,7 @@ Section DiagFunctorMonoidal.
     rewrite id_right.
     etrans. {
       apply maponpaths_2.
-      rewrite <- (bifunctor_leftcomp V).
+      refine (! bifunctor_leftcomp V _ _ _ _ _ _ @ _).
       apply maponpaths.
       apply monoidal_leftunitorisolaw.
     }

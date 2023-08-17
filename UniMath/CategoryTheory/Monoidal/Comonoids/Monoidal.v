@@ -94,7 +94,7 @@ Section MonoidalCategoryOfComonoids.
       unfold fmonoidal_preservesunit.
       cbn.
       unfold diag_preserves_unit.
-      rewrite <- unitors_coincide_on_unit.
+      rewrite mon_runitor_I_mon_lunitor_I.
       apply monoidal_leftunitorisolaw.
     - unfold comonoid_laws_assoc.
       cbn.

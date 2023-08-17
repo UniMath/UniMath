@@ -276,12 +276,12 @@ Section CartesianBuilderCommutative.
     refine (_ @ precompose_rearrange_prod V (identity x) ε_{cm x} ε_{cm y} (identity y) @ _).
     {
 
-      now rewrite (when_bifunctor_becomes_leftwhiskering V),
-        (when_bifunctor_becomes_rightwhiskering V).
+      now rewrite <- (when_bifunctor_becomes_leftwhiskering V),
+        <- (when_bifunctor_becomes_rightwhiskering V).
     }
 
-    rewrite (when_bifunctor_becomes_leftwhiskering V),
-      (when_bifunctor_becomes_rightwhiskering V).
+    rewrite <- (when_bifunctor_becomes_leftwhiskering V),
+      <- (when_bifunctor_becomes_rightwhiskering V).
     rewrite rearrange_along_unit.
     apply id_right.
   Qed.

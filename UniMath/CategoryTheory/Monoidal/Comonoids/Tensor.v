@@ -278,16 +278,14 @@ Section TensorOfComonoids.
       rewrite assoc'.
       apply maponpaths.
       refine (_ @ precompose_rearrange_prod (M) (identity _) (identity _) g g).
-      now rewrite (when_bifunctor_becomes_leftwhiskering M).
+      now rewrite <- (when_bifunctor_becomes_leftwhiskering M).
     }
     rewrite ! assoc.
     apply maponpaths_2.
-    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
-    rewrite (bifunctor_equalwhiskers M).
-    unfold functoronmorphisms2.
-    do 2 apply maponpaths.
-    rewrite (bifunctor_distributes_over_id (F := M)) ; try (apply (pr21 M)).
-    apply id_right.
+    refine (! tensor_comp_mor _ _ _ _ @ _).
+    rewrite tensor_id_id.
+    rewrite id_right.
+    apply (bifunctor_equalwhiskers M).
   Qed.
 
   Definition tensor_of_comonoid_mor_unit_left
@@ -341,7 +339,7 @@ Section TensorOfComonoids.
       cbn.
       rewrite (bifunctor_leftid M).
       rewrite id_right.
-      rewrite <- unitors_coincide_on_unit.
+      rewrite mon_runitor_I_mon_lunitor_I.
       apply monoidal_leftunitorisolaw.
     - unfold comonoid_laws_assoc.
       cbn.

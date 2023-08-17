@@ -10,6 +10,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
@@ -29,6 +30,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.Sigma.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.Fullsub.
+
 Require Import UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.
 
@@ -490,3 +492,28 @@ Section CommutativeComonoids.
   Qed.
 
 End CommutativeComonoids.
+
+Section Univalence.
+
+  Lemma disp_cat_of_comonoids_is_univalent
+    (V : monoidal_cat)
+    : is_univalent_disp (disp_cat_of_comonoids V).
+  Proof.
+    apply is_univalent_sigma_disp.
+    - apply dirprod_disp_cat_is_univalent
+      ; apply is_univalent_dialgebra_disp_cat.
+    - apply disp_full_sub_univalent.
+      intro ; apply isaprop_comonoid_laws.
+  Qed.
+
+  Lemma disp_cat_of_commutative_comonoids_is_univalent
+    (V : sym_monoidal_cat)
+    : is_univalent_disp (disp_cat_of_commutative_comonoids V).
+  Proof.
+    apply is_univalent_sigma_disp.
+    - apply disp_cat_of_comonoids_is_univalent.
+    - apply disp_full_sub_univalent.
+      intro ; apply homset_property.
+  Qed.
+
+End Univalence.
