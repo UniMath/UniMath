@@ -33,6 +33,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
@@ -1318,6 +1319,54 @@ Section SomeMonoidalNaturalTransformations.
 
 End SomeMonoidalNaturalTransformations.
 
+Proposition is_mon_nat_trans_prewhisker
+            {C₁ C₂ C₃ : category}
+            {M₁ : monoidal C₁}
+            {M₂ : monoidal C₂}
+            {M₃ : monoidal C₃}
+            {F : C₁ ⟶ C₂}
+            (HF : fmonoidal_lax M₁ M₂ F)
+            {G₁ G₂ : C₂ ⟶ C₃}
+            {HG₁ : fmonoidal_lax M₂ M₃ G₁}
+            {HG₂ : fmonoidal_lax M₂ M₃ G₂}
+            {τ : G₁ ⟹ G₂}
+            (Hτ : is_mon_nat_trans HG₁ HG₂ τ)
+  : is_mon_nat_trans
+      (comp_fmonoidal_lax HF HG₁)
+      (comp_fmonoidal_lax HF HG₂)
+      (pre_whisker F τ).
+Proof.
+  split.
+  - intros x y ; cbn.
+    admit.
+  - unfold is_mon_nat_trans_unitlaw ; cbn.
+    admit.
+Admitted.
+
+Proposition is_mon_nat_trans_postwhisker
+            {C₁ C₂ C₃ : category}
+            {M₁ : monoidal C₁}
+            {M₂ : monoidal C₂}
+            {M₃ : monoidal C₃}
+            {F₁ F₂ : C₁ ⟶ C₂}
+            {HF₁ : fmonoidal_lax M₁ M₂ F₁}
+            {HF₂ : fmonoidal_lax M₁ M₂ F₂}
+            {τ : F₁ ⟹ F₂}
+            (Hτ : is_mon_nat_trans HF₁ HF₂ τ)
+            {G : C₂ ⟶ C₃}
+            (HG : fmonoidal_lax M₂ M₃ G)
+  : is_mon_nat_trans
+      (comp_fmonoidal_lax HF₁ HG)
+      (comp_fmonoidal_lax HF₂ HG)
+      (post_whisker τ G).
+Proof.
+  split.
+  - intros x y ; cbn.
+    admit.
+  - unfold is_mon_nat_trans_unitlaw ; cbn.
+    admit.
+Admitted.
+
 (**
  8. Inverses of monoidal natural transformations
  *)
@@ -1365,6 +1414,12 @@ Coercion lax_monoidal_functor_to_functor
          (F : lax_monoidal_functor V₁ V₂)
   : V₁ ⟶ V₂
   := pr1 F.
+
+Coercion lax_monoidal_functor_to_fmonoidal_lax
+         {V₁ V₂ : monoidal_cat}
+         (F : lax_monoidal_functor V₁ V₂)
+  : fmonoidal_lax V₁ V₂ F
+  := pr2 F.
 
 Definition symmetric_lax_monoidal_functor
            (V₁ V₂ : sym_monoidal_cat)

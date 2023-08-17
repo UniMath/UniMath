@@ -1,3 +1,6 @@
+LinearLogic/LinearNonLinear.v
+LinearLogic/LinearCategory.v
+
 EnrichedEffectCalculus/EECModel.v
 EnrichedEffectCalculus/ContinuationModel.v
 EnrichedEffectCalculus/CopowerModel.v

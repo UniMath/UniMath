@@ -15,6 +15,8 @@
  for this result is Lemma 13 in https://hal.science/hal-00154229/document. The relevant
  statements are [monoidal_adjunction_from_strong] and [is_strong_left_adjoint].
 
+ We prove the same results for symmetric monoidal adjunctions.
+
  Contents
  1. Monoidal adjunctions
  2. Accessors and builders
@@ -22,6 +24,10 @@
  3.1. Preservation of the unit
  3.2. Preservation of the tensor
  4. If the left adjoint is strong, then the adjunction is monoidal
+ 5. Symmetric monoidal adjunctions
+ 6. Accessors
+ 7. Symmetric monoidal adjunctions from strong functors
+ 8. Symmetric monoidal adjunctions to comonads
 
  ********************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -30,10 +36,13 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Monads.Comonads.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Monoidal.FunctorCategories.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Functors.
+Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 
 Local Open Scope cat.
 
@@ -94,7 +103,6 @@ Section MonoidalAdjunctionAccessors.
           (η := adjunit A)
           (ε := adjcounit A)
           (HA : monoidal_adjunction M₁ M₂ A).
-
 
   Definition fmonoidal_lax_left_adjoint
     : fmonoidal_lax M₁ M₂ L
@@ -1026,3 +1034,205 @@ Section MonoidalAdjunctionFromStrong.
     - exact monoidal_adjunction_from_strong_counit.
   Defined.
 End MonoidalAdjunctionFromStrong.
+
+(**
+ 5. Symmetric monoidal adjunctions
+ *)
+Definition is_sym_monoidal_adjunction
+           {C₁ C₂ : category}
+           {M₁ : monoidal C₁}
+           {M₂ : monoidal C₂}
+           (S₁ : symmetric M₁)
+           (S₂ : symmetric M₂)
+           {A : adjunction C₁ C₂}
+           (HA : monoidal_adjunction M₁ M₂ A)
+  : UU
+  := is_symmetric_monoidal_functor S₁ S₂ (fmonoidal_lax_left_adjoint HA)
+     ×
+     is_symmetric_monoidal_functor S₂ S₁ (fmonoidal_lax_right_adjoint HA).
+
+Definition sym_monoidal_adjunction
+           {C₁ C₂ : category}
+           {M₁ : monoidal C₁}
+           {M₂ : monoidal C₂}
+           (S₁ : symmetric M₁)
+           (S₂ : symmetric M₂)
+           (A : adjunction C₁ C₂)
+  : UU
+  := ∑ (HA : monoidal_adjunction M₁ M₂ A), is_sym_monoidal_adjunction S₁ S₂ HA.
+
+(**
+ 6. Accessors
+ *)
+Section SymMonoidalAdjunctionAccessors.
+  Context {C₁ C₂ : category}
+          {M₁ : monoidal C₁}
+          {M₂ : monoidal C₂}
+          {S₁ : symmetric M₁}
+          {S₂ : symmetric M₂}
+          {A : adjunction C₁ C₂}
+          (L := left_adjoint A : C₁ ⟶ C₂)
+          (R := right_adjoint A : C₂ ⟶ C₁)
+          (η := adjunit A)
+          (ε := adjcounit A)
+          {HA : monoidal_adjunction M₁ M₂ A}
+          (HAA : is_sym_monoidal_adjunction S₁ S₂ HA).
+
+  Definition is_symmetric_monoidal_functor_left_adjoint
+    : is_symmetric_monoidal_functor S₁ S₂ (fmonoidal_lax_left_adjoint HA)
+    := pr1 HAA.
+
+  Definition is_symmetric_monoidal_functor_right_adjoint
+    : is_symmetric_monoidal_functor S₂ S₁ (fmonoidal_lax_right_adjoint HA)
+    := pr2 HAA.
+End SymMonoidalAdjunctionAccessors.
+
+Coercion sym_monoidal_adjunction_to_monoidal_adjunction
+         {C₁ C₂ : category}
+         {M₁ : monoidal C₁}
+         {M₂ : monoidal C₂}
+         {S₁ : symmetric M₁}
+         {S₂ : symmetric M₂}
+         {A : adjunction C₁ C₂}
+         (HA : sym_monoidal_adjunction S₁ S₂ A)
+  : monoidal_adjunction M₁ M₂ A
+  := pr1 HA.
+
+Coercion sym_monoidal_adjunction_to_is_symmetric
+         {C₁ C₂ : category}
+         {M₁ : monoidal C₁}
+         {M₂ : monoidal C₂}
+         {S₁ : symmetric M₁}
+         {S₂ : symmetric M₂}
+         {A : adjunction C₁ C₂}
+         (HA : sym_monoidal_adjunction S₁ S₂ A)
+  : is_sym_monoidal_adjunction S₁ S₂ HA
+  := pr2 HA.
+
+(**
+ 7. Symmetric monoidal adjunctions from strong functors
+ *)
+Coercion sym_monoidal_cat_to_symmetric
+         (V : sym_monoidal_cat)
+  : symmetric V
+  := pr2 V.
+
+Section SymMonoidalAdjunctionFromStrong.
+  Context {V₁ V₂ : sym_monoidal_cat}
+          {A : adjunction V₁ V₂}
+          (L := left_adjoint A : V₁ ⟶ V₂)
+          (R := right_adjoint A : V₂ ⟶ V₁)
+          (η := adjunit A : functor_identity _ ⟹ L ∙ R)
+          (ε := adjcounit A : R ∙ L ⟹ functor_identity _)
+          (HL : fmonoidal V₁ V₂ L)
+          (HHL : is_symmetric_monoidal_functor V₁ V₂ HL).
+
+  Proposition is_sym_monoidal_adjunction_from_strong
+    : is_sym_monoidal_adjunction V₁ V₂ (monoidal_adjunction_from_strong HL).
+  Proof.
+    split.
+    - exact HHL.
+    - intros x y ; cbn.
+      rewrite !assoc.
+      etrans.
+      {
+        apply maponpaths_2.
+        apply (nat_trans_ax η).
+      }
+      rewrite !assoc'.
+      apply maponpaths.
+      cbn.
+      rewrite <- !functor_comp.
+      apply maponpaths.
+      refine (!_).
+      rewrite !assoc'.
+      etrans.
+      {
+        apply maponpaths.
+        apply tensor_sym_mon_braiding.
+      }
+      rewrite !assoc.
+      apply maponpaths_2.
+      use z_iso_inv_on_right.
+      rewrite !assoc.
+      use z_iso_inv_on_left.
+      cbn.
+      refine (!_).
+      apply HHL.
+  Qed.
+
+  Definition sym_monoidal_adjunction_from_strong
+    : sym_monoidal_adjunction V₁ V₂ A
+    := _ ,, is_sym_monoidal_adjunction_from_strong.
+End SymMonoidalAdjunctionFromStrong.
+
+(**
+ 8. Symmetric monoidal adjunctions to comonads
+ *)
+Lemma sym_monoidal_adjunction_to_sym_monoidal_cmd_comult
+      {V₁ V₂ : sym_monoidal_cat}
+      (A : adjunction V₁ V₂)
+      (HA : sym_monoidal_adjunction V₁ V₂ A)
+  : is_mon_nat_trans
+      (comp_fmonoidal_lax
+         (fmonoidal_lax_right_adjoint HA)
+         (fmonoidal_lax_left_adjoint HA))
+      (comp_fmonoidal_lax
+         (comp_fmonoidal_lax
+            (fmonoidal_lax_right_adjoint HA)
+            (fmonoidal_lax_left_adjoint HA))
+         (comp_fmonoidal_lax
+            (fmonoidal_lax_right_adjoint HA)
+            (fmonoidal_lax_left_adjoint HA)))
+      (δ (Comonad_from_adjunction A)).
+Proof.
+  cbn.
+  pose (is_mon_nat_trans_prewhisker
+          (fmonoidal_lax_right_adjoint HA)
+          (is_mon_nat_trans_postwhisker
+             (monoidal_adjunit HA)
+             (fmonoidal_lax_left_adjoint HA)))
+    as H.
+  split.
+  - intros x y.
+    refine (_ @ pr1 H x y @ _).
+    + cbn.
+      rewrite functor_id.
+      rewrite id_right.
+      apply idpath.
+    + cbn.
+      rewrite !assoc'.
+      rewrite <- !functor_comp.
+      rewrite !assoc'.
+      rewrite <- !functor_comp.
+      apply idpath.
+  - refine (_ @ pr2 H @ _).
+    + cbn.
+      rewrite functor_id.
+      rewrite id_right.
+      apply idpath.
+    + cbn.
+      rewrite !assoc'.
+      rewrite <- !functor_comp.
+      rewrite !assoc'.
+      rewrite <- !functor_comp.
+      apply idpath.
+Qed.
+
+Definition sym_monoidal_adjunction_to_sym_monoidal_cmd
+           {V₁ V₂ : sym_monoidal_cat}
+           (A : adjunction V₁ V₂)
+           (HA : sym_monoidal_adjunction V₁ V₂ A)
+  : sym_monoidal_cmd V₂.
+Proof.
+  use make_symmetric_monoidal_comonad.
+  - exact (Comonad_from_adjunction A).
+  - exact (comp_fmonoidal_lax
+             (fmonoidal_lax_right_adjoint HA)
+             (fmonoidal_lax_left_adjoint HA)).
+  - exact (is_symmetric_monoidal_comp
+             (is_symmetric_monoidal_functor_right_adjoint HA)
+             (is_symmetric_monoidal_functor_left_adjoint HA)).
+  - exact (sym_monoidal_adjunction_to_sym_monoidal_cmd_comult A HA).
+  - exact (monoidal_adjcounit HA).
+Defined.
