@@ -95,7 +95,7 @@ Section Rearranging.
     now rewrite id_left.
   Qed.
 
-  Lemma inner_swap_characterization
+  Lemma inner_swap_characterization01
     (x y z w : V)
     : inner_swap x y z w = inner_swap' x y z w.
   Proof.
@@ -106,7 +106,7 @@ Section Rearranging.
     apply sym_monoidal_braiding_hexagon1_variant.
   Qed.
 
-  Lemma inner_swap_characterization' (x y z w : V)
+  Lemma inner_swap_characterization12 (x y z w : V)
     : inner_swap' x y z w = inner_swap'' x y z w.
   Proof.
     unfold inner_swap', inner_swap''.
@@ -117,15 +117,15 @@ Section Rearranging.
     apply monoidal_associatorinvnatleft.
   Qed.
 
-  Lemma inner_swap_characterization''
+  Lemma inner_swap_characterization02
     (x y z w : V)
     : inner_swap x y z w = inner_swap'' x y z w.
   Proof.
-    refine (inner_swap_characterization _ _ _ _ @ _).
-    apply inner_swap_characterization'.
+    refine (inner_swap_characterization01 _ _ _ _ @ _).
+    apply inner_swap_characterization12.
   Qed.
 
-  Lemma inner_swap_characterization''' (x y z w : V)
+  Lemma inner_swap_characterization23 (x y z w : V)
     : inner_swap'' x y z w = inner_swap''' x y z w.
   Proof.
     unfold inner_swap'', inner_swap'''.
@@ -137,11 +137,11 @@ Section Rearranging.
     apply sym_mon_tensor_lassociator1.
   Qed.
 
-  Lemma inner_swap_characterization'''' (x y z w : V)
+  Lemma inner_swap_characterization03 (x y z w : V)
     : inner_swap x y z w = inner_swap''' x y z w.
   Proof.
-    etrans. { apply inner_swap_characterization''. }
-    apply inner_swap_characterization'''.
+    etrans. { apply inner_swap_characterization02. }
+    apply inner_swap_characterization23.
   Qed.
 
   Lemma precompose_inner_swap
