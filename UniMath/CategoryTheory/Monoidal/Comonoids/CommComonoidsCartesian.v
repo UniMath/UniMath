@@ -125,7 +125,7 @@ Section CartesianMonoidalCategoryOfCommutativeComonoids.
   Defined.
 
   Definition comonoid_mor_is_comonoid_mor {x y : commutative_comonoid V} (f : _⟦x,y⟧)
-    :  comonoid_mor_struct (symmetric_cat_commutative_comonoids V)
+    : comonoid_mor_struct (symmetric_cat_commutative_comonoids V)
     (x,,
      (λ m : symmetric_cat_commutative_comonoids V,
       pr2 (commutative_comonoid_to_comonoid_of_comonoids m)) x)

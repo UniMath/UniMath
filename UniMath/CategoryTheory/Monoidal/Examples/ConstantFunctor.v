@@ -62,7 +62,7 @@ Section ConstantFunctor.
   Context (comul_iso : is_z_isomorphism (monoid_data_multiplication _ m))
     (counit_iso : is_z_isomorphism (monoid_data_unit _ m)).
   Definition constant_functor_fmonoidal_strong
-    :   fmonoidal_stronglaws
+    : fmonoidal_stronglaws
           (fmonoidal_preservestensordata constant_functor_fmonoidal_lax)
           (fmonoidal_preservesunit constant_functor_fmonoidal_lax).
   Proof.
