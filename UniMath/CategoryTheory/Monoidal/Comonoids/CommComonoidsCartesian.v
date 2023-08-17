@@ -42,20 +42,6 @@ Section CartesianMonoidalCategoryOfCommutativeComonoids.
 
   Context (V : sym_monoidal_cat).
 
-  Notation "x ⊗ y" := (x ⊗_{V} y).
-  Notation "x ⊗l f" := (x ⊗^{V}_{l} f) (at level 31).
-  Notation "f ⊗r y" := (f ⊗^{V}_{r} y) (at level 31).
-  Notation "f ⊗⊗ g" := (f ⊗^{V} g) (at level 31).
-
-  Let I : V := monoidal_unit V.
-  Let lu : leftunitor_data V (monoidal_unit V) := monoidal_leftunitordata V.
-  Let ru : rightunitor_data V (monoidal_unit V) := monoidal_rightunitordata V.
-  Let α : associator_data V := monoidal_associatordata V.
-  Let luinv : leftunitorinv_data V (monoidal_unit V) := monoidal_leftunitorinvdata V.
-  Let ruinv : rightunitorinv_data V (monoidal_unit V) := monoidal_rightunitorinvdata V.
-  Let αinv : associatorinv_data V := monoidal_associatorinvdata V.
-  Let σ := pr12 V.
-
   Lemma diagonal_is_comonoid_mor_counit
     (m : comonoid V)
     : is_comonoid_mor_counit V m (tensor_of_comonoids V m m) δ_{m}.

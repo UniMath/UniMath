@@ -52,22 +52,8 @@ Section SymmetricMonoidalCategoryOfComonoids.
 
   Context (V : sym_monoidal_cat).
 
-  Notation "x ⊗ y" := (x ⊗_{V} y).
-  Notation "x ⊗l f" := (x ⊗^{V}_{l} f) (at level 31).
-  Notation "f ⊗r y" := (f ⊗^{V}_{r} y) (at level 31).
-  Notation "f ⊗⊗ g" := (f ⊗^{V} g) (at level 31).
-
-  Let I : V := monoidal_unit V.
-  Let lu : leftunitor_data V (monoidal_unit V) := monoidal_leftunitordata V.
-  Let ru : rightunitor_data V (monoidal_unit V) := monoidal_rightunitordata V.
-  Let α : associator_data V := monoidal_associatordata V.
-  Let luinv : leftunitorinv_data V (monoidal_unit V) := monoidal_leftunitorinvdata V.
-  Let ruinv : rightunitorinv_data V (monoidal_unit V) := monoidal_rightunitorinvdata V.
-  Let αinv : associatorinv_data V := monoidal_associatorinvdata V.
-  Let σ := pr12 V.
-
   Definition disp_symmetric_comonoids_data
-    : disp_symmetric (disp_monoidal_comonoids_data V) (pr2 V).
+    : disp_symmetric (disp_monoidal_comonoids_data V) V.
   Proof.
     use dirprod_disp_cat_symmetric_monoidal.
     - use dialgebra_disp_symmetric_monoidal.
@@ -99,7 +85,7 @@ Section SymmetricMonoidalCategoryOfComonoids.
   Defined.
 
   Definition disp_symmetric_commutative_comonoids
-    : disp_symmetric (disp_monoidal_commutative_comonoids V) (pr2 V).
+    : disp_symmetric (disp_monoidal_commutative_comonoids V) V.
   Proof.
     use (sigma_disp_cat_monoidal_symmetric).
     - exact disp_symmetric_comonoids.

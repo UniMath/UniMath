@@ -300,6 +300,11 @@ Coercion sym_monoidal_cat_to_monoidal_cat
   : monoidal_cat
   := pr1 V.
 
+Coercion sym_monoidal_cat_to_symmetric
+         (V : sym_monoidal_cat)
+  : symmetric V
+  := pr2 V.
+
 Definition sym_mon_cat_laws_tensored
            (V : monoidal_cat)
            (c : ∏ (x y : V), x ⊗ y --> y ⊗ x)

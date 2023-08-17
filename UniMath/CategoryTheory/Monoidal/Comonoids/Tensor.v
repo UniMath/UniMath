@@ -34,96 +34,83 @@ Require Import UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
 (* Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsCategory. *)
 
-Local Open Scope cat.
-
 Import MonoidalNotations.
 Import ComonoidNotations.
 
+Local Open Scope cat.
+Local Open Scope moncat.
+
 Section TensorOfComonoids.
 
-  Context (V : sym_monoidal_cat).
-  Let C : category := V.
-  Let M : monoidal C := V.
-  Let S : symmetric M := pr2 V.
+  Context (M : sym_monoidal_cat).
 
-  Notation "x ⊗ y" := (x ⊗_{M} y).
-  Notation "x ⊗l f" := (x ⊗^{M}_{l} f) (at level 31).
-  Notation "f ⊗r y" := (f ⊗^{M}_{r} y) (at level 31).
-  Notation "f ⊗⊗ g" := (f ⊗^{M} g) (at level 31).
+  Notation "σ_{ x , y }" := (sym_mon_braiding M x y).
 
-  Let I : C := monoidal_unit M.
-  Let lu : leftunitor_data M (monoidal_unit M) := monoidal_leftunitordata M.
-  Let ru : rightunitor_data M (monoidal_unit M) := monoidal_rightunitordata M.
-  Let α : associator_data M := monoidal_associatordata M.
-  Let luinv : leftunitorinv_data M (monoidal_unit M) := monoidal_leftunitorinvdata M.
-  Let ruinv : rightunitorinv_data M (monoidal_unit M) := monoidal_rightunitorinvdata M.
-  Let αinv : associatorinv_data M := monoidal_associatorinvdata M.
-
-  Notation "σ_{ x , y }" := (monoidal_braiding_data (symmetric_to_braiding S) x y).
-
-  Let S_nat_l := (pr112 S).
-  Let S_nat_r := (pr212 S).
-  Let S_iso := (pr122 S).
-  Let S_pent1 := (pr1(pr222 S)).
-  Let S_pent2 := (pr2(pr222 S)).
+  Let S_nat_l := monoidal_braiding_naturality_left (pr2 M).
+  Let S_nat_r := monoidal_braiding_naturality_right (pr2 M).
+  Let S_iso := is_z_isomorphism_sym_mon_braiding M.
+  Search braiding_law_hexagon1.
+  Let S_pent1 := (pr1(pr222 (pr2 M))).
+  Let S_pent2 := (pr2(pr222 (pr2 M))).
 
   Definition tensor_of_comonoids_data
-    (mx my : comonoid V)
+    (mx my : comonoid M)
     : comonoid_data M.
   Proof.
     exists (mx ⊗ my).
     split.
-    - refine (δ_{mx} ⊗⊗ δ_{my} · _).
-      exact (rearrange_prod S mx mx my my).
-    - refine (ε_{mx} ⊗⊗ ε_{my} · lu _).
+    - refine (δ_{mx} ⊗^{M} δ_{my} · _).
+      exact (rearrange_prod (pr2 M) mx mx my my).
+    - exact (ε_{mx} ⊗^{M} ε_{my} · lu^{M}_{_}).
   Defined.
 
   Lemma precompose_rearrange_prod_with_augs_on_left
-    (mx my : comonoid V)
-    : rearrange_prod S mx mx my my · (ε_{ mx} ⊗^{ M} ε_{ my}) ⊗^{ M}_{r} (mx ⊗_{ M} my)
-      = (ε_{ mx} ⊗r _) ⊗⊗ (ε_{ my} ⊗r my) · rearrange_prod S _ _ _ _.
+    (mx my : comonoid M)
+    : rearrange_prod M mx mx my my · (ε_{ mx} ⊗^{ M} ε_{ my}) ⊗^{ M}_{r} (mx ⊗_{ M} my)
+      = (ε_{ mx} ⊗^{M}_{r} _) ⊗^{M} (ε_{ my} ⊗^{M}_{r} my) · rearrange_prod M _ _ _ _.
   Proof.
-    refine (_ @ precompose_rearrange_prod S ε_{mx} (identity _)  ε_{my} (identity _) @ _).
+    refine (_ @ precompose_rearrange_prod (M) ε_{mx} (identity _)  ε_{my} (identity _) @ _).
     - rewrite <- (when_bifunctor_becomes_rightwhiskering M).
-      now (rewrite <- (bifunctor_distributes_over_id (F := M)) ; try (apply M)).
+      do 2 apply maponpaths.
+      apply pathsinv0, tensor_id_id.
     - now rewrite <- ! (when_bifunctor_becomes_rightwhiskering M).
   Qed.
 
   Lemma precompose_rearrange_prod_with_diag_on_left
-    (mx my : comonoid V)
-    : rearrange_prod S mx mx my my · (δ_{ mx} ⊗^{ M} δ_{ my}) ⊗^{ M}_{r} (mx ⊗_{ M} my)
-      = (δ_{ mx} ⊗r _) ⊗⊗ (δ_{ my} ⊗r my) · rearrange_prod S _ _ _ _.
+    (mx my : comonoid M)
+    : rearrange_prod (M) mx mx my my · (δ_{ mx} ⊗^{ M} δ_{ my}) ⊗^{ M}_{r} (mx ⊗_{ M} my)
+      = (δ_{ mx} ⊗^{M}_{r} _) ⊗^{M} (δ_{ my} ⊗^{M}_{r} my) · rearrange_prod M _ _ _ _.
   Proof.
-    refine (_ @ precompose_rearrange_prod S δ_{mx} (identity _) δ_{my} (identity _) @ _).
+    refine (_ @ precompose_rearrange_prod (M) δ_{mx} (identity _) δ_{my} (identity _) @ _).
     - rewrite <- (when_bifunctor_becomes_rightwhiskering M).
-      now (rewrite <- (bifunctor_distributes_over_id (F := M)) ; try (apply M)).
+      now (rewrite <- (bifunctor_distributes_over_id (F := M)) ; try (apply (pr21 M))).
     - now rewrite <- ! (when_bifunctor_becomes_rightwhiskering M).
   Qed.
 
   Lemma precompose_rearrange_prod_with_augs_on_right
-    (mx my : comonoid V)
-    : rearrange_prod S mx mx my my · (mx ⊗_{ M} my) ⊗^{ M}_{l} (ε_{mx} ⊗^{ M} ε_{my})
-      = (_ ⊗l ε_{mx}) ⊗⊗ (_ ⊗l ε_{my}) · rearrange_prod S _ _ _ _.
+    (mx my : comonoid M)
+    : rearrange_prod (M) mx mx my my · (mx ⊗_{ M} my) ⊗^{ M}_{l} (ε_{mx} ⊗^{ M} ε_{my})
+      = (_ ⊗^{M}_{l} ε_{mx}) ⊗^{M} (_ ⊗^{M}_{l} ε_{my}) · rearrange_prod (M) _ _ _ _.
   Proof.
-    refine (_ @ precompose_rearrange_prod S (identity _) ε_{mx} (identity _) ε_{my} @ _).
+    refine (_ @ precompose_rearrange_prod (M) (identity _) ε_{mx} (identity _) ε_{my} @ _).
     - rewrite <- (when_bifunctor_becomes_leftwhiskering M).
-      now (rewrite <- (bifunctor_distributes_over_id (F := M)) ; try (apply M)).
+      now (rewrite <- (bifunctor_distributes_over_id (F := M)) ; try (apply (pr21 M))).
     - now rewrite <- ! (when_bifunctor_becomes_leftwhiskering M).
   Qed.
 
   Lemma precompose_rearrange_prod_with_diag_on_right
-    (mx my : comonoid V)
-    : rearrange_prod S mx mx my my · (mx ⊗_{ M} my) ⊗^{ M}_{l} (δ_{ mx} ⊗^{ M} δ_{ my})
-      = (_ ⊗l δ_{ mx}) ⊗⊗ (_ ⊗l δ_{ my}) · rearrange_prod S _ _ _ _.
+    (mx my : comonoid M)
+    : rearrange_prod (M) mx mx my my · (mx ⊗_{ M} my) ⊗^{ M}_{l} (δ_{ mx} ⊗^{ M} δ_{ my})
+      = (_ ⊗^{M}_{l} δ_{ mx}) ⊗^{M} (_ ⊗^{M}_{l} δ_{ my}) · rearrange_prod (M) _ _ _ _.
   Proof.
-    refine (_ @ precompose_rearrange_prod S (identity _) δ_{mx} (identity _) δ_{my} @ _).
+    refine (_ @ precompose_rearrange_prod (M) (identity _) δ_{mx} (identity _) δ_{my} @ _).
     - rewrite <- (when_bifunctor_becomes_leftwhiskering M).
-      now (rewrite <- (bifunctor_distributes_over_id (F := M)) ; try (apply M)).
+      now (rewrite <- (bifunctor_distributes_over_id (F := M)) ; try (apply (pr21 M))).
     - now rewrite <- ! (when_bifunctor_becomes_leftwhiskering M).
   Qed.
 
   Lemma tensor_of_comonoids_laws_unit_left
-    (mx my : comonoid V)
+    (mx my : comonoid M)
     : comonoid_laws_unit_left M (tensor_of_comonoids_data mx my).
   Proof.
     unfold comonoid_laws_unit_left.
@@ -138,30 +125,36 @@ Section TensorOfComonoids.
     }
 
     rewrite assoc.
-    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    etrans. {
+      do 3 apply maponpaths_2.
+      apply pathsinv0, tensor_comp_mor.
+    }
+
     etrans. {
       rewrite ! assoc'.
       apply maponpaths.
       rewrite assoc.
-      exact (precompose_rearrange_prod_with_lunitors_on_right S mx my).
+      exact (precompose_rearrange_prod_with_lunitors_on_right (M) mx my).
     }
-
-    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    cbn.
+    etrans. {
+      apply pathsinv0.
+      apply tensor_comp_mor.
+    }
     etrans. {
       apply maponpaths.
-      (* TO BE CHANGED: use accessor *)
-      exact (pr122 my).
+      apply comonoid_to_law_unit_left.
     }
+
     etrans. {
       apply maponpaths_2.
-      (* TO BE CHANGED: *)
-      exact (pr122 mx).
+      apply comonoid_to_law_unit_left.
     }
-    apply (bifunctor_distributes_over_id (F := M)) ; apply M.
+    apply tensor_id_id.
   Qed.
 
   Lemma tensor_of_comonoids_laws_unit_right
-    (mx my : comonoid V)
+    (mx my : comonoid M)
     : comonoid_laws_unit_right M (tensor_of_comonoids_data mx my).
   Proof.
     unfold comonoid_laws_unit_right.
@@ -176,28 +169,31 @@ Section TensorOfComonoids.
     }
 
     rewrite assoc.
-    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
     etrans. {
       rewrite ! assoc'.
       apply maponpaths.
       rewrite assoc.
-      exact (precompose_rearrange_prod_with_lunitors_and_runitor S mx my).
+      exact (precompose_rearrange_prod_with_lunitors_and_runitor (M) mx my).
     }
 
-    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    etrans. {
+      apply pathsinv0, tensor_comp_mor.
+    }
+
     etrans. {
       apply maponpaths.
-      exact (pr1 (pr222 my)).
+      apply comonoid_to_law_unit_right.
     }
     etrans. {
       apply maponpaths_2.
-      exact (pr1 (pr222 mx)).
+      apply comonoid_to_law_unit_right.
     }
-    apply (bifunctor_distributes_over_id (F := M)) ; apply M.
+    apply tensor_id_id.
   Qed.
 
   Lemma tensor_of_comonoids_laws_assoc
-    (mx my : comonoid V)
+    (mx my : comonoid M)
     : comonoid_laws_assoc M (tensor_of_comonoids_data mx my).
   Proof.
     unfold comonoid_laws_assoc.
@@ -226,7 +222,7 @@ Section TensorOfComonoids.
     }
 
     rewrite ! assoc.
-    rewrite <- ! (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    rewrite <- ! (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
 
     etrans.
     2: {
@@ -240,14 +236,14 @@ Section TensorOfComonoids.
       apply comonoid_to_law_assoc.
     }
 
-    rewrite ! (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    rewrite ! (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
     rewrite ! assoc'.
     do 2 apply maponpaths.
     apply rearrange_hexagon.
   Qed.
 
   Lemma tensor_of_comonoids_laws
-    (mx my : comonoid V)
+    (mx my : comonoid M)
     : comonoid_laws M (tensor_of_comonoids_data mx my).
   Proof.
     refine (_ ,, _ ,, _).
@@ -257,18 +253,18 @@ Section TensorOfComonoids.
   Qed.
 
   Definition tensor_of_comonoids
-    (mx my : comonoid V)
-    : comonoid V.
+    (mx my : comonoid M)
+    : comonoid M.
   Proof.
     refine (_ ,, _ ,, _).
     exact (tensor_of_comonoids_laws mx my).
   Defined.
 
   Definition tensor_of_comonoid_mor_mult_left
-    (m : comonoid V) {m1 m2 : comonoid V}
-    {g : V⟦m1,m2⟧}
-    (gg : δ_{_} · g ⊗⊗ g = g · δ_{_})
-    : δ_{tensor_of_comonoids m m1} · (m ⊗^{ M}_{l} g) ⊗⊗ (m ⊗^{ M}_{l} g) = (m ⊗^{ M}_{l} g) · δ_{tensor_of_comonoids m m2}.
+    (m : comonoid M) {m1 m2 : comonoid M}
+    {g : M⟦m1,m2⟧}
+    (gg : δ_{_} · g ⊗^{M} g = g · δ_{_})
+    : δ_{tensor_of_comonoids m m1} · (m ⊗^{ M}_{l} g) ⊗^{M} (m ⊗^{ M}_{l} g) = (m ⊗^{ M}_{l} g) · δ_{tensor_of_comonoids m m2}.
   Proof.
     cbn.
     etrans.
@@ -285,24 +281,24 @@ Section TensorOfComonoids.
     etrans. {
       rewrite assoc'.
       apply maponpaths.
-      refine (_ @ precompose_rearrange_prod S (identity _) (identity _) g g).
+      refine (_ @ precompose_rearrange_prod (M) (identity _) (identity _) g g).
       now rewrite (when_bifunctor_becomes_leftwhiskering M).
     }
     rewrite ! assoc.
     apply maponpaths_2.
-    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
     rewrite (bifunctor_equalwhiskers M).
     unfold functoronmorphisms2.
     do 2 apply maponpaths.
-    rewrite (bifunctor_distributes_over_id (F := M)) ; try (apply M).
+    rewrite (bifunctor_distributes_over_id (F := M)) ; try (apply (pr21 M)).
     apply id_right.
   Qed.
 
   Definition tensor_of_comonoid_mor_unit_left
-    (m : comonoid V) {m1 m2 : comonoid V}
-    {g : V⟦m1,m2⟧}
-    (gg : ε_{_} · identity I_{V} = g · ε_{_})
-    : ε_{tensor_of_comonoids _ _} · identity I_{V} =  (m ⊗^{ M}_{l} g) · ε_{tensor_of_comonoids _ _}.
+    (m : comonoid M) {m1 m2 : comonoid M}
+    {g : M⟦m1,m2⟧}
+    (gg : ε_{_} · identity I_{M} = g · ε_{_})
+    : ε_{tensor_of_comonoids _ _} · identity I_{M} =  (m ⊗^{ M}_{l} g) · ε_{tensor_of_comonoids _ _}.
   Proof.
     cbn.
     rewrite id_right.
@@ -310,18 +306,18 @@ Section TensorOfComonoids.
     apply maponpaths_2.
     rewrite id_right in gg.
     rewrite <- (when_bifunctor_becomes_leftwhiskering M).
-    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
     rewrite id_left.
     apply maponpaths.
     exact gg.
   Qed.
 
   Definition tensor_of_comonoid_mor_left
-    (m : comonoid V) {m1 m2 : comonoid V}
-    {g : V⟦m1,m2⟧}
-    (gg1 : δ_{_} · g ⊗⊗ g = g · δ_{_})
-    (gg2 : ε_{_} · identity I_{V} = g · ε_{_})
-    : comonoid_mor_struct V (tensor_of_comonoids m m1) (tensor_of_comonoids m m2) (m ⊗^{ M}_{l} g).
+    (m : comonoid M) {m1 m2 : comonoid M}
+    {g : M⟦m1,m2⟧}
+    (gg1 : δ_{_} · g ⊗^{M} g = g · δ_{_})
+    (gg2 : ε_{_} · identity I_{M} = g · ε_{_})
+    : comonoid_mor_struct M (tensor_of_comonoids m m1) (tensor_of_comonoids m m2) (m ⊗^{ M}_{l} g).
   Proof.
     use make_is_comonoid_mor.
     - apply (tensor_of_comonoid_mor_mult_left m gg1).
@@ -329,10 +325,10 @@ Section TensorOfComonoids.
   Qed.
 
   Definition comonoid_disp_unit_data
-    : comonoid_data V.
+    : comonoid_data M.
   Proof.
     exists (monoidal_unit M).
-    exists (luinv _).
+    exists (luinv^{M}_{_}).
     apply identity.
   Defined.
 
@@ -359,7 +355,7 @@ Section TensorOfComonoids.
   Qed.
 
   Definition comonoid_disp_unit
-    :  comonoid V.
+    :  comonoid M.
   Proof.
     exists comonoid_disp_unit_data.
     refine (_ ,, _).
@@ -367,12 +363,17 @@ Section TensorOfComonoids.
   Defined.
 
   Lemma comonoid_disp_lunitor
-    (m : comonoid V)
-    : comonoid_mor_struct V (tensor_of_comonoids comonoid_disp_unit m) m lu^{ M }_{m}.
+    (m : comonoid M)
+    : comonoid_mor_struct M (tensor_of_comonoids comonoid_disp_unit m) m lu^{ M }_{m}.
   Proof.
     use make_is_comonoid_mor.
     - cbn.
-      rewrite <- (precompose_rearrange_prod_with_lunitors_on_right S).
+      etrans. {
+        apply maponpaths.
+        apply pathsinv0.
+        apply (precompose_rearrange_prod_with_lunitors_on_right (M)).
+      }
+
       refine (_ @ monoidal_leftunitornat M _ _ δ_{m}).
       rewrite ! assoc.
       apply maponpaths_2.
@@ -385,11 +386,14 @@ Section TensorOfComonoids.
       }
       rewrite id_right.
       rewrite <- (when_bifunctor_becomes_rightwhiskering M).
-      rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+      etrans. {
+        apply pathsinv0, tensor_comp_mor.
+      }
+
       rewrite id_right.
       rewrite <- (when_bifunctor_becomes_leftwhiskering M).
       apply maponpaths_2.
-      exact (pr2 (monoidal_leftunitorisolaw M I_{M})).
+      apply (monoidal_leftunitorisolaw M I_{M}).
     - refine (_ @ monoidal_leftunitornat M _ _ ε_{m}).
       rewrite id_right.
       cbn.
@@ -398,8 +402,8 @@ Section TensorOfComonoids.
   Qed.
 
   Lemma comonoid_disp_lunitor_inv
-    (m : comonoid V)
-    : comonoid_mor_struct V m (tensor_of_comonoids comonoid_disp_unit m) luinv^{M}_{m}.
+    (m : comonoid M)
+    : comonoid_mor_struct M m (tensor_of_comonoids comonoid_disp_unit m) luinv^{M}_{m}.
   Proof.
     use make_is_comonoid_mor.
     - cbn.
@@ -410,7 +414,12 @@ Section TensorOfComonoids.
         ; apply (_ ,, pr2 i ,, pr1 i).
       }
       cbn.
-      rewrite <- (precompose_rearrange_prod_with_lunitors_on_right S).
+      etrans.
+      2: {
+        apply maponpaths.
+        apply (precompose_rearrange_prod_with_lunitors_on_right (M)).
+      }
+
       apply pathsinv0.
       etrans. {
         rewrite ! assoc'.
@@ -425,7 +434,7 @@ Section TensorOfComonoids.
         apply maponpaths.
         rewrite assoc.
         apply maponpaths_2.
-        rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+        rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
       }
       etrans. {
         apply maponpaths.
@@ -456,8 +465,8 @@ Section TensorOfComonoids.
   Qed.
 
   Lemma comonoid_disp_braiding
-    (mx my : comonoid V)
-    : comonoid_mor_struct V (tensor_of_comonoids mx my) (tensor_of_comonoids my mx) (pr1 S mx my).
+    (mx my : comonoid M)
+    : comonoid_mor_struct M (tensor_of_comonoids mx my) (tensor_of_comonoids my mx) (sym_mon_braiding M mx my).
   Proof.
     apply make_is_comonoid_mor.
     - cbn.
@@ -474,7 +483,7 @@ Section TensorOfComonoids.
       rewrite id_right.
       apply maponpaths_2.
       etrans.
-      2: { apply (tensor_sym_mon_braiding V). }
+      2: { apply (tensor_sym_mon_braiding M). }
       cbn.
       refine (! id_right _ @ _).
       apply maponpaths.
@@ -482,8 +491,8 @@ Section TensorOfComonoids.
   Qed.
 
   Lemma comonoid_disp_associator
-    (xx yy zz : comonoid V)
-    : comonoid_mor_struct V
+    (xx yy zz : comonoid M)
+    : comonoid_mor_struct M
         (tensor_of_comonoids (tensor_of_comonoids xx yy) zz)
         (tensor_of_comonoids xx (tensor_of_comonoids yy zz)) α^{ M }_{xx, yy, zz}.
   Proof.
@@ -497,7 +506,7 @@ Section TensorOfComonoids.
         apply maponpaths_2.
         apply id_right.
       }
-      rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+      rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
       rewrite ! assoc.
 
       etrans.
@@ -513,7 +522,7 @@ Section TensorOfComonoids.
         apply maponpaths.
         apply pathsinv0, id_right.
       }
-      rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+      rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
       rewrite ! assoc'.
       apply maponpaths.
       rewrite ! assoc.
@@ -546,7 +555,7 @@ Section TensorOfComonoids.
       etrans. {
         apply maponpaths.
         apply pathsinv0.
-        apply (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+        apply tensor_comp_mor.
       }
       rewrite id_left.
 
@@ -555,7 +564,10 @@ Section TensorOfComonoids.
         apply maponpaths_2.
         apply pathsinv0, id_right.
       }
-      rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+      etrans. {
+        apply maponpaths.
+        apply tensor_comp_mor.
+      }
       rewrite assoc.
 
       etrans. {
@@ -568,7 +580,8 @@ Section TensorOfComonoids.
         apply maponpaths.
         apply id_right.
       }
-      rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+
+      rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
       rewrite assoc'.
       apply maponpaths.
       apply associator_before_lwhisker_with_lu.
@@ -723,9 +736,6 @@ End TensorOfComonoids.
 Section TensorOfCommutativeComonoids.
 
   Context (V : sym_monoidal_cat).
-  Let C : category := V.
-  Let M : monoidal C := V.
-  Let S : symmetric M := pr2 V.
 
   Lemma tensor_of_comm_comonoids
     (mx my : commutative_comonoid V)
@@ -734,21 +744,26 @@ Section TensorOfCommutativeComonoids.
     unfold disp_cat_of_commutative_comonoids.
     cbn.
 
-    use (z_iso_inv_on_left _ _ _ _ (rearrange_prod S _ _ _ _ ,, rearrange_prod S _ _ _ _ ,, _)).
+    use (z_iso_inv_on_left _ _ _ _ (rearrange_prod V _ _ _ _ ,, rearrange_prod V _ _ _ _ ,, _)).
     { apply rearrange_prod_is_z_isomorphism. }
     cbn.
     rewrite assoc'.
-    rewrite <- (rearrange_commute_with_swap S).
+    etrans.
+    2: {
+      apply maponpaths.
+      apply rearrange_commute_with_swap.
+    }
+
     rewrite assoc.
     etrans.
     2: {
       apply maponpaths_2.
       rewrite assoc'.
       apply maponpaths.
-      apply pathsinv0, (rearrange_prod_inv S).
+      apply pathsinv0, rearrange_prod_inv.
     }
     rewrite id_right.
-    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply M).
+    refine (_@ tensor_comp_mor _ _ _ _).
     etrans.
     2: {
       apply maponpaths_2.

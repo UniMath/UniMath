@@ -37,33 +37,19 @@ Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
 
 Require Import UniMath.CategoryTheory.categories.Dialgebras.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras.
-(* Require Import UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras. *)
 
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Tensor.
 
-Local Open Scope cat.
-
 Import MonoidalNotations.
 Import ComonoidNotations.
+
+Local Open Scope cat.
+Local Open Scope moncat.
 
 Section MonoidalCategoryOfComonoids.
 
   Context (V : sym_monoidal_cat).
-
-  Notation "x ⊗ y" := (x ⊗_{V} y).
-  Notation "x ⊗l f" := (x ⊗^{V}_{l} f) (at level 31).
-  Notation "f ⊗r y" := (f ⊗^{V}_{r} y) (at level 31).
-  Notation "f ⊗⊗ g" := (f ⊗^{V} g) (at level 31).
-
-  Let I : V := monoidal_unit V.
-  Let lu : leftunitor_data V (monoidal_unit V) := monoidal_leftunitordata V.
-  Let ru : rightunitor_data V (monoidal_unit V) := monoidal_rightunitordata V.
-  Let α : associator_data V := monoidal_associatordata V.
-  Let luinv : leftunitorinv_data V (monoidal_unit V) := monoidal_leftunitorinvdata V.
-  Let ruinv : rightunitorinv_data V (monoidal_unit V) := monoidal_rightunitorinvdata V.
-  Let αinv : associatorinv_data V := monoidal_associatorinvdata V.
-  Let σ := pr12 V.
 
   Let V_comult
       := dialgebra_disp_monoidal (identity_fmonoidal V) (diag_functor_fmonoidal V).
@@ -79,7 +65,7 @@ Section MonoidalCategoryOfComonoids.
   Defined.
 
   Definition disp_monoidal_comonoids_data
-    : disp_monoidal (Category.disp_cat_of_comonoids_data V) V.
+    : disp_monoidal (disp_cat_of_comonoids_data V) V.
   Proof.
     use dirprod_disp_cat_monoidal.
     - exact V_comult.
