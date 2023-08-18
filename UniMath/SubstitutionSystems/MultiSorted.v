@@ -361,7 +361,7 @@ Defined.
 
 Local Lemma is_left_adjoint_proj_functor (s : sort) : is_left_adjoint (proj_functor s).
 Proof.
-apply (is_left_adjoint_z_iso _ _ (_,,is_z_iso_nat_trans_proj_functor s)).
+apply (is_left_adjoint_closed_under_iso _ _ (_,,is_z_iso_nat_trans_proj_functor s)).
 apply is_left_adjoint_proj_functor'.
 Defined.
 
