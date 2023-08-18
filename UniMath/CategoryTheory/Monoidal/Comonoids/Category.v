@@ -482,7 +482,7 @@ Section CommutativeComonoids.
     apply id_right.
   Qed.
 
-  Lemma comult_before_rearrange_and_swap
+  Lemma comult_before_inner_swap_and_swap
     (mx my : comonoid M)
     : δ_{mx} #⊗ δ_{my} · (inner_swap M _ _ _ _ · sym_mon_braiding M _ _ #⊗ sym_mon_braiding M _ _)
       = δ_{mx} #⊗ δ_{my} · (sym_mon_braiding M (_ ⊗ _) (_ ⊗ _) · inner_swap M _ _ _ _).

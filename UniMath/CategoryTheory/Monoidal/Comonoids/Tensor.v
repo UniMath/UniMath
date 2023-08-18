@@ -470,7 +470,7 @@ Section TensorOfComonoids.
         apply (tensor_sym_mon_braiding).
       }
       rewrite ! assoc'.
-      apply comult_before_rearrange_and_swap.
+      apply comult_before_inner_swap_and_swap.
     - cbn.
       rewrite ! assoc.
       rewrite id_right.
