@@ -18,6 +18,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
 
 Local Open Scope cat.
+Local Open Scope moncat.
 
 Import MonoidalNotations.
 
@@ -29,8 +30,8 @@ Section DiagFunctor.
     : functor_data V V.
   Proof.
     use make_functor_data.
-    - exact (λ x, x ⊗_{V} x).
-    - exact (λ _ _ f, f ⊗^{V} f).
+    - exact (λ x, x ⊗ x).
+    - exact (λ _ _ f, f #⊗ f).
   Defined.
 
   Lemma diag_is_functor
@@ -118,7 +119,7 @@ Section DiagFunctorMonoidal.
     : preserves_associativity (fmonoidal_preservestensordata diag_functor_fmonoidal_data).
   Proof.
     intros x y z.
-    refine (_ @ rearrange_hexagon'_3 (pr2 V) x y z @ _).
+    refine (_ @ rearrange_hexagon'_3 V x y z @ _).
     - now rewrite <- (when_bifunctor_becomes_rightwhiskering V).
     - now rewrite <- (when_bifunctor_becomes_leftwhiskering V).
   Qed.
