@@ -1,3 +1,13 @@
+(*
+In this file, we construct a displayed monoidal structure on the sigma construction (of displayed categories), given both displayed categories have a displayed monoidal structure.
+For simplicity, we assume that the most upper displayed category is locally propositional (this assumption is satisfied for the instantiations).
+
+Contents:
+        1. SigmaConstruction: Constructs the monoidal structure [sigma_disp_cat_monoidal];
+        2. SigmaConstructionSymmetric: Constructs a symmetric monoidal structure [sigma_disp_cat_monoidal_symmetric];
+        3. Dirprodconstruction: Explicit construction of the product of displayed monoidal categories [dirprod_disp_cat_monoidal, dirprod_disp_cat_symmetric_monoidal].
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
