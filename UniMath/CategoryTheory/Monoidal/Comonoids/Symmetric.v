@@ -95,7 +95,6 @@ Section SymmetricMonoidalCategoryOfComonoids.
   Definition symmetric_cat_commutative_comonoids
     : sym_monoidal_cat.
   Proof.
-    Check disp_monoidal_commutative_comonoids.
     exists (monoidal_cat_of_commutative_comonoids V).
     exact (total_symmetric _ disp_symmetric_commutative_comonoids).
   Defined.
