@@ -48,15 +48,15 @@ Section TensorOfComonoids.
   Proof.
     exists (mx ⊗ my).
     split.
-    - refine (δ_{mx} ⊗^{M} δ_{my} · _).
+    - refine (δ_{mx} #⊗ δ_{my} · _).
       exact (inner_swap M mx mx my my).
-    - exact (ε_{mx} ⊗^{M} ε_{my} · lu^{M}_{_}).
+    - exact (ε_{mx} #⊗ ε_{my} · lu^{M}_{_}).
   Defined.
 
   Lemma precompose_inner_swap_with_augs_on_left
     (mx my : comonoid M)
     : inner_swap M mx mx my my · (ε_{ mx} ⊗^{ M} ε_{ my}) ⊗^{ M}_{r} (mx ⊗_{ M} my)
-      = (ε_{ mx} ⊗^{M}_{r} _) ⊗^{M} (ε_{ my} ⊗^{M}_{r} my) · inner_swap M _ _ _ _.
+      = (ε_{ mx} ⊗^{M}_{r} _) #⊗ (ε_{ my} ⊗^{M}_{r} my) · inner_swap M _ _ _ _.
   Proof.
     refine (_ @ precompose_inner_swap (M) ε_{mx} (identity _)  ε_{my} (identity _) @ _).
     - rewrite <- (when_bifunctor_becomes_rightwhiskering M).
@@ -68,7 +68,7 @@ Section TensorOfComonoids.
   Lemma precompose_inner_swap_with_diag_on_left
     (mx my : comonoid M)
     : inner_swap (M) mx mx my my · (δ_{ mx} ⊗^{ M} δ_{ my}) ⊗^{ M}_{r} (mx ⊗_{ M} my)
-      = (δ_{ mx} ⊗^{M}_{r} _) ⊗^{M} (δ_{ my} ⊗^{M}_{r} my) · inner_swap M _ _ _ _.
+      = (δ_{ mx} ⊗^{M}_{r} _) #⊗ (δ_{ my} ⊗^{M}_{r} my) · inner_swap M _ _ _ _.
   Proof.
     refine (_ @ precompose_inner_swap (M) δ_{mx} (identity _) δ_{my} (identity _) @ _).
     - rewrite <- (when_bifunctor_becomes_rightwhiskering M).
@@ -79,7 +79,7 @@ Section TensorOfComonoids.
   Lemma precompose_inner_swap_with_augs_on_right
     (mx my : comonoid M)
     : inner_swap (M) mx mx my my · (mx ⊗_{ M} my) ⊗^{ M}_{l} (ε_{mx} ⊗^{ M} ε_{my})
-      = (_ ⊗^{M}_{l} ε_{mx}) ⊗^{M} (_ ⊗^{M}_{l} ε_{my}) · inner_swap (M) _ _ _ _.
+      = (_ ⊗^{M}_{l} ε_{mx}) #⊗ (_ ⊗^{M}_{l} ε_{my}) · inner_swap (M) _ _ _ _.
   Proof.
     refine (_ @ precompose_inner_swap (M) (identity _) ε_{mx} (identity _) ε_{my} @ _).
     - rewrite <- (when_bifunctor_becomes_leftwhiskering M).
@@ -90,7 +90,7 @@ Section TensorOfComonoids.
   Lemma precompose_inner_swap_with_diag_on_right
     (mx my : comonoid M)
     : inner_swap (M) mx mx my my · (mx ⊗_{ M} my) ⊗^{ M}_{l} (δ_{ mx} ⊗^{ M} δ_{ my})
-      = (_ ⊗^{M}_{l} δ_{ mx}) ⊗^{M} (_ ⊗^{M}_{l} δ_{ my}) · inner_swap (M) _ _ _ _.
+      = (_ ⊗^{M}_{l} δ_{ mx}) #⊗ (_ ⊗^{M}_{l} δ_{ my}) · inner_swap (M) _ _ _ _.
   Proof.
     refine (_ @ precompose_inner_swap (M) (identity _) δ_{mx} (identity _) δ_{my} @ _).
     - rewrite <- (when_bifunctor_becomes_leftwhiskering M).
@@ -218,7 +218,7 @@ Section TensorOfComonoids.
     }
 
     rewrite ! assoc.
-    rewrite <- ! (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
+    rewrite <- ! tensor_comp_mor.
 
     etrans.
     2: {
@@ -231,8 +231,7 @@ Section TensorOfComonoids.
       apply maponpaths.
       apply comonoid_to_law_assoc.
     }
-
-    rewrite ! (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
+    rewrite ! tensor_comp_mor.
     rewrite ! assoc'.
     do 2 apply maponpaths.
     apply rearrange_hexagon.
@@ -259,17 +258,17 @@ Section TensorOfComonoids.
   Definition tensor_of_comonoid_mor_mult_left
     (m : comonoid M) {m1 m2 : comonoid M}
     {g : M⟦m1,m2⟧}
-    (gg : δ_{_} · g ⊗^{M} g = g · δ_{_})
-    : δ_{tensor_of_comonoids m m1} · (m ⊗^{ M}_{l} g) ⊗^{M} (m ⊗^{ M}_{l} g) = (m ⊗^{ M}_{l} g) · δ_{tensor_of_comonoids m m2}.
+    (gg : δ_{_} · g #⊗ g = g · δ_{_})
+    : δ_{tensor_of_comonoids m m1} · (m ⊗^{ M}_{l} g) #⊗ (m ⊗^{M}_{l} g) = (m ⊗^{M}_{l} g) · δ_{tensor_of_comonoids m m2}.
   Proof.
     cbn.
     etrans.
     2:{
-      rewrite (bifunctor_equalwhiskers M).
-      unfold functoronmorphisms2.
-      rewrite ! assoc.
-      rewrite <- (bifunctor_leftcomp M).
-      do 2 apply maponpaths_2.
+      rewrite assoc.
+      apply maponpaths_2.
+      rewrite <- (when_bifunctor_becomes_leftwhiskering M).
+      refine (_ @ tensor_comp_mor _ _ _ _ ).
+      rewrite id_left.
       apply maponpaths.
       exact gg.
     }
@@ -284,8 +283,7 @@ Section TensorOfComonoids.
     apply maponpaths_2.
     refine (! tensor_comp_mor _ _ _ _ @ _).
     rewrite tensor_id_id.
-    rewrite id_right.
-    apply (bifunctor_equalwhiskers M).
+    now rewrite id_right.
   Qed.
 
   Definition tensor_of_comonoid_mor_unit_left
@@ -300,7 +298,7 @@ Section TensorOfComonoids.
     apply maponpaths_2.
     rewrite id_right in gg.
     rewrite <- (when_bifunctor_becomes_leftwhiskering M).
-    rewrite <- (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
+    refine (_ @ tensor_comp_mor _ _ _ _).
     rewrite id_left.
     apply maponpaths.
     exact gg.
@@ -309,7 +307,7 @@ Section TensorOfComonoids.
   Definition tensor_of_comonoid_mor_left
     (m : comonoid M) {m1 m2 : comonoid M}
     {g : M⟦m1,m2⟧}
-    (gg1 : δ_{_} · g ⊗^{M} g = g · δ_{_})
+    (gg1 : δ_{_} · g #⊗ g = g · δ_{_})
     (gg2 : ε_{_} · identity I_{M} = g · ε_{_})
     : comonoid_mor_struct M (tensor_of_comonoids m m1) (tensor_of_comonoids m m2) (m ⊗^{ M}_{l} g).
   Proof.
@@ -322,7 +320,7 @@ Section TensorOfComonoids.
     : comonoid_data M.
   Proof.
     exists (monoidal_unit M).
-    exists (luinv^{M}_{_}).
+    exists (mon_linvunitor _).
     apply identity.
   Defined.
 
@@ -358,7 +356,7 @@ Section TensorOfComonoids.
 
   Lemma comonoid_disp_lunitor
     (m : comonoid M)
-    : comonoid_mor_struct M (tensor_of_comonoids comonoid_disp_unit m) m lu^{ M }_{m}.
+    : comonoid_mor_struct M (tensor_of_comonoids comonoid_disp_unit m) m (mon_lunitor m).
   Proof.
     use make_is_comonoid_mor.
     - cbn.
@@ -397,7 +395,7 @@ Section TensorOfComonoids.
 
   Lemma comonoid_disp_lunitor_inv
     (m : comonoid M)
-    : comonoid_mor_struct M m (tensor_of_comonoids comonoid_disp_unit m) luinv^{M}_{m}.
+    : comonoid_mor_struct M m (tensor_of_comonoids comonoid_disp_unit m) (mon_linvunitor m).
   Proof.
     use make_is_comonoid_mor.
     - cbn.
@@ -452,7 +450,7 @@ Section TensorOfComonoids.
       etrans. {
         apply maponpaths_2.
         refine (_ @ monoidal_leftunitorinvnat M _ _ ε_{m}).
-        now rewrite (when_bifunctor_becomes_leftwhiskering M).
+        now rewrite <- (when_bifunctor_becomes_leftwhiskering M).
       }
       rewrite assoc'.
       apply maponpaths.
@@ -489,7 +487,8 @@ Section TensorOfComonoids.
     (xx yy zz : comonoid M)
     : comonoid_mor_struct M
         (tensor_of_comonoids (tensor_of_comonoids xx yy) zz)
-        (tensor_of_comonoids xx (tensor_of_comonoids yy zz)) α^{ M }_{xx, yy, zz}.
+        (tensor_of_comonoids xx (tensor_of_comonoids yy zz))
+        (mon_lassociator xx yy zz).
   Proof.
     apply make_is_comonoid_mor.
     - cbn.
@@ -501,7 +500,7 @@ Section TensorOfComonoids.
         apply maponpaths_2.
         apply id_right.
       }
-      rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
+      rewrite tensor_comp_mor.
       rewrite ! assoc.
 
       etrans.
@@ -518,7 +517,7 @@ Section TensorOfComonoids.
         apply pathsinv0, id_right.
       }
 
-      rewrite (bifunctor_distributes_over_comp (F := M)) ; try (apply (pr21 M)).
+      rewrite tensor_comp_mor.
       rewrite ! assoc'.
       apply maponpaths.
       rewrite ! assoc.
