@@ -57,11 +57,11 @@ Section SymmetricMonoidalCategoryOfComonoids.
   Proof.
     use dirprod_disp_cat_symmetric_monoidal.
     - use dialgebra_disp_symmetric_monoidal.
-      + exact (pr2 V).
+      + apply V.
       + apply is_symmetric_monoidal_identity.
       + apply diag_functor_is_symmetric.
     - use dialgebra_disp_symmetric_monoidal.
-      + exact (pr2 V).
+      + apply V.
       + apply is_symmetric_monoidal_identity.
       + apply constant_functor_is_symmetric.
         refine (sym_mon_braiding_lunitor _ _ @ _).
@@ -70,7 +70,7 @@ Section SymmetricMonoidalCategoryOfComonoids.
   Defined.
 
   Definition disp_symmetric_comonoids
-    : disp_symmetric (disp_monoidal_comonoids V) (pr2 V).
+    : disp_symmetric (disp_monoidal_comonoids V) V.
   Proof.
     use (sigma_disp_cat_monoidal_symmetric).
     - exact disp_symmetric_comonoids_data.
