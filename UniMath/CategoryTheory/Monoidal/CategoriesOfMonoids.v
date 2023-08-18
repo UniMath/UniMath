@@ -249,13 +249,9 @@ Proof.
     }
     refine (id_left _ @ _).
     apply unitors_coincide_on_unit.
-  - etrans. {
-      apply maponpaths_2.
-      refine (_ @ associator_before_lwhisker_with_lu V).
-      apply maponpaths.
-      apply pathsinv0,
-        (when_bifunctor_becomes_leftwhiskering V).
-    }
-    apply maponpaths_2.
-    apply (when_bifunctor_becomes_rightwhiskering V).
+  - apply maponpaths_2.
+    etrans.
+    2: { rewrite unitors_coincide_on_unit.
+         apply monoidal_triangleidentity. }
+    apply idpath.
 Defined.
