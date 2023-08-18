@@ -7,7 +7,7 @@
  - "Categorical Semantics of Linear Logic"
  - "A Mixed Linear Non-Linear Logic: Proofs, Terms, and Models"
  - "Categorical Models of Linear Logic Revisited"
- We also give a symmetric monoidal comonad arising from these monads, which
+ We also give a symmetric monoidal comonad arising from these models, which
  gives an interpretation to the !-modality.
 
  Contents
