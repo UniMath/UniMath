@@ -51,7 +51,8 @@ Section CartesianBuilder.
 
   Import ComonoidNotations.
 
-  Let εI := ε_{(monoidal_unit V ,, m _) : comonoid V}.
+  Let εI : V ⟦monoidal_unit V , monoidal_unit V⟧
+      := ε_{(monoidal_unit V ,, m _) : comonoid V}.
 
   Lemma terminal_from_aug_id (x : V)
     : εI = identity (monoidal_unit V)
