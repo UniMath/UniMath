@@ -1,3 +1,7 @@
+(*
+In this file, we provide a builder to construct a symmetric displayed monoidal category on a locally propositional displayed category [make_symmetric_monoidal_disp_cat_locally_prop].
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
