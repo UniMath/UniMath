@@ -282,40 +282,45 @@ Coercion adjunction_data_from_is_left_adjoint {A B : category}
       + apply (pr2 H2).
   Defined.
 
-  Lemma is_left_adjoint_z_iso {A B : category}
-        (F G : functor A B) (αiso : @z_iso [A,B] F G) (HF : is_left_adjoint F) :
-    is_left_adjoint G.
+  Lemma are_adjoints_z_iso {A B : category}
+        (F G : functor A B) (H : functor B A) (αiso : @z_iso [A,B] F G) (HF : are_adjoints F H) :
+    are_adjoints G H.
   Proof.
     set (α := pr1 αiso : nat_trans F G).
     set (αinv := inv_from_z_iso αiso : nat_trans G F).
-    destruct HF as [F' [[α' β'] [HF1 HF2]]]; simpl in HF1, HF2.
-    use tpair.
-    - apply F'.
-    - use make_are_adjoints.
-      + apply (nat_trans_comp _ _ _ α' (post_whisker α F')).
-      + apply (nat_trans_comp _ _ _ (pre_whisker F' αinv) β').
-      + split.
-        * unfold triangle_1_statement.
-          simpl; intro a; rewrite assoc, functor_comp.
-          etrans; [ apply cancel_postcomposition; rewrite <- assoc;
-                    apply maponpaths, (nat_trans_ax αinv)|].
-          etrans; [ rewrite assoc, <- !assoc;
-                    apply maponpaths, maponpaths, (nat_trans_ax β')|].
-          simpl; rewrite assoc.
-          etrans; [ apply cancel_postcomposition, (nat_trans_ax αinv)|].
-          rewrite assoc.
-          etrans; [ apply cancel_postcomposition; rewrite <- assoc;
-                    apply maponpaths, HF1|].
-          now rewrite id_right; apply (nat_trans_eq_pointwise (z_iso_after_z_iso_inv αiso)).
-        * unfold triangle_2_statement in *.
-          simpl; intro b; rewrite functor_comp, assoc.
-          etrans; [ apply cancel_postcomposition; rewrite <- assoc;
-                    eapply maponpaths, pathsinv0, functor_comp|].
-          etrans; [ apply cancel_postcomposition, maponpaths, maponpaths,
-                    (nat_trans_eq_pointwise (z_iso_inv_after_z_iso αiso))|].
-          cbn. rewrite (functor_id F'), id_right. apply (HF2 b).
+    destruct HF as [[α' β'] [HF1 HF2]]; simpl in HF1, HF2.
+    use make_are_adjoints.
+    + apply (nat_trans_comp _ _ _ α' (post_whisker α H)).
+    + apply (nat_trans_comp _ _ _ (pre_whisker H αinv) β').
+    + split.
+      * unfold triangle_1_statement.
+        simpl; intro a; rewrite assoc, functor_comp.
+        etrans; [ apply cancel_postcomposition; rewrite <- assoc;
+                  apply maponpaths, (nat_trans_ax αinv)|].
+        etrans; [ rewrite assoc, <- !assoc;
+                  apply maponpaths, maponpaths, (nat_trans_ax β')|].
+        simpl; rewrite assoc.
+        etrans; [ apply cancel_postcomposition, (nat_trans_ax αinv)|].
+        rewrite assoc.
+        etrans; [ apply cancel_postcomposition; rewrite <- assoc;
+                  apply maponpaths, HF1|].
+        now rewrite id_right; apply (nat_trans_eq_pointwise (z_iso_after_z_iso_inv αiso)).
+      * unfold triangle_2_statement in *.
+        simpl; intro b; rewrite functor_comp, assoc.
+        etrans; [ apply cancel_postcomposition; rewrite <- assoc;
+                  eapply maponpaths, pathsinv0, functor_comp|].
+        etrans; [ apply cancel_postcomposition, maponpaths, maponpaths,
+            (nat_trans_eq_pointwise (z_iso_inv_after_z_iso αiso))|].
+        cbn. rewrite (functor_id H), id_right. apply (HF2 b).
   Defined.
 
+  Corollary is_left_adjoint_z_iso {A B : category}
+        (F G : functor A B) (αiso : @z_iso [A,B] F G) (HF : is_left_adjoint F) :
+    is_left_adjoint G.
+  Proof.
+    destruct HF as [F' Hisadj].
+    exact (F',,are_adjoints_z_iso F G F' αiso Hisadj).
+  Defined.
 
   (** * Identity functor is a left adjoint *)
 
