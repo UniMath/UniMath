@@ -62,12 +62,12 @@ Section ClosedMonoidalCategories.
   Definition monoidal_biclosed {C : category} (M : monoidal C) : UU
     := monoidal_leftclosed M × monoidal_rightclosed M.
 
-  Lemma adj_unique_up_to_nat_z_iso
+  Lemma adj_closed_under_nat_z_iso
         {C D : category} {F1 F2 : functor C D} (α : nat_z_iso F1 F2) (G : functor D C)
     : are_adjoints F2 G -> are_adjoints F1 G.
   Proof.
     intro adj.
-    simple refine (are_adjoints_z_iso F2 F1 G _ adj).
+    simple refine (are_adjoints_closed_under_iso F2 F1 G _ adj).
     apply z_iso_inv.
     apply z_iso_is_nat_z_iso.
     assumption.
@@ -79,7 +79,7 @@ Section ClosedMonoidalCategories.
     intros B LC.
     intro x.
     exists (monoidal_leftclosed_exp LC x).
-    apply (adj_unique_up_to_nat_z_iso (F2 := rightwhiskering_functor M x)).
+    apply (adj_closed_under_nat_z_iso (F2 := rightwhiskering_functor M x)).
     - apply symmetric_whiskers_swap_nat_z_iso.
       exact B.
     - exact (pr2 (LC x)).

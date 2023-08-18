@@ -282,7 +282,7 @@ Coercion adjunction_data_from_is_left_adjoint {A B : category}
       + apply (pr2 H2).
   Defined.
 
-  Lemma are_adjoints_z_iso_data {A B : category}
+  Lemma are_adjoints_closed_under_iso_data {A B : category}
     (F G : functor A B) (H : functor B A) (αiso : @z_iso [A,B] F G) (HF : are_adjoints F H)
     : adjunction_data A B.
   Proof.
@@ -295,9 +295,9 @@ Coercion adjunction_data_from_is_left_adjoint {A B : category}
     - apply (nat_trans_comp _ _ _ (pre_whisker H αinv) β').
   Defined.
 
-  Lemma are_adjoints_z_iso_laws {A B : category}
+  Lemma are_adjoints_closed_under_iso_laws {A B : category}
     (F G : functor A B) (H : functor B A) (αiso : @z_iso [A,B] F G) (HF : are_adjoints F H)
-    : form_adjunction' (are_adjoints_z_iso_data F G H αiso HF).
+    : form_adjunction' (are_adjoints_closed_under_iso_data F G H αiso HF).
   Proof.
     set (α := pr1 αiso : nat_trans F G).
     set (αinv := inv_from_z_iso αiso : nat_trans G F).
@@ -324,23 +324,23 @@ Coercion adjunction_data_from_is_left_adjoint {A B : category}
       cbn. rewrite (functor_id H), id_right. apply (HF2 b).
   Qed.
 
-  Lemma are_adjoints_z_iso {A B : category}
+  Lemma are_adjoints_closed_under_iso {A B : category}
         (F G : functor A B) (H : functor B A) (αiso : @z_iso [A,B] F G) (HF : are_adjoints F H) :
     are_adjoints G H.
   Proof.
-    set (adj_data := are_adjoints_z_iso_data F G H αiso HF).
+    set (adj_data := are_adjoints_closed_under_iso_data F G H αiso HF).
     use make_are_adjoints.
     - exact (adjunit adj_data).
     - exact (adjcounit adj_data).
-    - apply are_adjoints_z_iso_laws.
+    - apply are_adjoints_closed_under_iso_laws.
   Defined.
 
-  Corollary is_left_adjoint_z_iso {A B : category}
+  Corollary is_left_adjoint_closed_under_iso {A B : category}
         (F G : functor A B) (αiso : @z_iso [A,B] F G) (HF : is_left_adjoint F) :
     is_left_adjoint G.
   Proof.
     destruct HF as [F' Hisadj].
-    exact (F',,are_adjoints_z_iso F G F' αiso Hisadj).
+    exact (F',,are_adjoints_closed_under_iso F G F' αiso Hisadj).
   Defined.
 
   (** * Identity functor is a left adjoint *)
