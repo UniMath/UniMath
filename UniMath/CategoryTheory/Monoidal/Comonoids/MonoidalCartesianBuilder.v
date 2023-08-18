@@ -25,11 +25,11 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
 
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
-(* Require Import UniMath.CategoryTheory.Monoidal.Comonoids.ComonoidsCategory. *)
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Tensor.
 
 Local Open Scope cat.
 Import MonoidalNotations.
+Local Open Scope moncat.
 
 (* Definition make_section_into_comonoids
     : section_disp (comonoid_disp_cat M).
@@ -81,21 +81,21 @@ Section CartesianBuilder.
     Context (pI : εI = identity (monoidal_unit V))
       {x y z : V} (fx : V⟦z, x⟧) (fy : V⟦z, y⟧).
 
-    Let δx := δ_{(x ,, m x) : comonoid V}.
-    Let δy := δ_{(y ,, m y) : comonoid V}.
-    Let δz := δ_{(z ,, m z) : comonoid V}.
-    Let εx := ε_{(x ,, m x) : comonoid V}.
-    Let εy := ε_{(y ,, m y) : comonoid V}.
-    Let εz := ε_{(z ,, m z) : comonoid V}.
+    Let δx := δ_{(x ,, m x) : comonoid V} : V⟦x, x ⊗ x⟧.
+    Let δy := δ_{(y ,, m y) : comonoid V} : V⟦y, y ⊗ y⟧.
+    Let δz := δ_{(z ,, m z) : comonoid V} : V⟦z, z ⊗ z⟧.
+    Let εx := ε_{(x ,, m x) : comonoid V} : V⟦x, monoidal_unit V⟧.
+    Let εy := ε_{(y ,, m y) : comonoid V} : V⟦y, monoidal_unit V⟧.
+    Let εz := ε_{(z ,, m z) : comonoid V} : V⟦z, monoidal_unit V⟧.
 
     Definition make_isbinprod_from_comonoid_existence_mor
-      : V⟦z, x ⊗_{V} y⟧
-      := δz · fx ⊗^{V} fy.
+      : V⟦z, x ⊗ y⟧
+      := δz · fx #⊗ fy.
 
     Let k := make_isbinprod_from_comonoid_existence_mor.
 
     Lemma make_is_binprod_from_comonoids_existence_mor_1
-      : δz · fx ⊗^{V} fy · (identity x ⊗^{V} εy · ru^{V}_{x}) = fx.
+      : δz · fx #⊗ fy · (identity x #⊗ εy · mon_runitor x) = fx.
     Proof.
       rewrite ! assoc'.
       etrans. {
@@ -122,13 +122,13 @@ Section CartesianBuilder.
       rewrite ! assoc.
       refine (_ @ id_left _).
       apply maponpaths_2.
-      refine ( _ @ comonoid_to_law_unit_right V _).
+      refine ( _ @ comonoid_to_law_unit_right V ((z ,, m z) : comonoid V)).
       apply maponpaths_2, maponpaths.
       apply (when_bifunctor_becomes_leftwhiskering V).
     Qed.
 
     Lemma make_is_binprod_from_comonoids_existence_mor_2
-      : δz · fx ⊗^{V} fy · (εx ⊗^{V} identity y · lu^{V}_{y}) = fy.
+      : δz · fx #⊗ fy · (εx #⊗ identity y · mon_lunitor y) = fy.
     Proof.
       rewrite ! assoc'.
       etrans. {
@@ -155,14 +155,14 @@ Section CartesianBuilder.
       rewrite ! assoc.
       refine (_ @ id_left _).
       apply maponpaths_2.
-      refine ( _ @ comonoid_to_law_unit_left V _).
+      refine ( _ @ comonoid_to_law_unit_left V ((z ,, m z) : comonoid V)).
       apply maponpaths_2, maponpaths.
       apply (when_bifunctor_becomes_rightwhiskering V).
     Qed.
 
-    Context (p : identity (x ⊗_{V} y) =
-                   δ_{(x ⊗_{V} y ,, m _) : comonoid V}
-                     · ((identity x ⊗^{V} εy) ⊗^{V} (εx ⊗^{V} identity y) · ru^{V}_{x} ⊗^{V} lu^{V}_{y})).
+    Context (p : identity (x ⊗ y) =
+                   δ_{(x ⊗ y ,, m _) : comonoid V}
+                     · ((identity x #⊗ εy) #⊗ (εx #⊗ identity y) · mon_runitor x #⊗ mon_lunitor y)).
 
     Lemma make_is_binprod_from_comonoids_uniqueness
       (f : V⟦z, x ⊗_{V} y⟧)
@@ -250,7 +250,7 @@ Section CartesianBuilderCommutative.
   Let cm := λ x : V, (x ,, m x) : comonoid V.
 
   Lemma comonoid_unit_law_right_inv (x : V)
-    : ru^{V}_{x} · (δ_{cm x} · x ⊗^{V}_{l} ε_{cm x})
+    : mon_runitor x · (δ_{cm x} · x ⊗^{V}_{l} ε_{cm x})
       = identity _.
   Proof.
     etrans. {
@@ -261,7 +261,7 @@ Section CartesianBuilderCommutative.
   Qed.
 
   Lemma comonoid_unit_law_left_inv (y : V)
-    : lu^{V}_{y} · (δ_{cm y} · ε_{cm y} ⊗^{V}_{r} y) = identity _.
+    : mon_lunitor y · (δ_{cm y} · ε_{cm y} ⊗^{V}_{r} y) = identity _.
   Proof.
     etrans. {
       apply maponpaths.
@@ -271,8 +271,8 @@ Section CartesianBuilderCommutative.
   Qed.
 
   Lemma rearranging_before_aug (x y : V)
-    : inner_swap V x x y y · (x ⊗^{V}_{l} ε_{cm y}) ⊗^{V} (ε_{cm _} ⊗^{V}_{r} y)
-      = (_ ⊗^{V}_{l} ε_{cm _}) ⊗^{V} (ε_{cm _} ⊗^{V}_{r} _).
+    : inner_swap V x x y y · (x ⊗^{V}_{l} ε_{cm y}) #⊗ (ε_{cm _} ⊗^{V}_{r} y)
+      = (_ ⊗^{V}_{l} ε_{cm _}) #⊗ (ε_{cm _} ⊗^{V}_{r} _).
   Proof.
     refine (_ @ precompose_inner_swap V (identity x) ε_{cm x} ε_{cm y} (identity y) @ _).
     {
@@ -289,11 +289,13 @@ Section CartesianBuilderCommutative.
 
   Context (aug_of_unit : εI = identity I_{V}).
   Context (diagonal_of_tensor
-            : ∏ x y : V, δ_{cm (x ⊗_{V} y)} = (δ_{cm x} ⊗^{V} δ_{cm y}) · inner_swap V x x y y).
+            : ∏ x y : V, δ_{cm (x ⊗ y)} = (δ_{cm x} #⊗ δ_{cm y}) · inner_swap V x x y y).
 
   Lemma whisker_to_total'
           (x y : V)
-    : ru^{V}_{x} ⊗^{V} lu^{V}_{y} · δ_{cm (x ⊗_{V} y)} · (x ⊗^{V}_{l} ε_{cm y}) ⊗^{V} (ε_{cm x} ⊗^{V}_{r} y)
+    : mon_runitor x #⊗ mon_lunitor y
+        · δ_{cm (x ⊗ y)}
+        · (x ⊗^{V}_{l} ε_{cm y}) #⊗ (ε_{cm x} ⊗^{V}_{r} y)
       = identity _.
   Proof.
     rewrite diagonal_of_tensor.
@@ -315,8 +317,10 @@ Section CartesianBuilderCommutative.
 
   Lemma whisker_to_total
           (x y : V)
-    : δ_{cm (x ⊗_{V} y)} · (x ⊗^{V}_{l} ε_{cm y}) ⊗^{V} (ε_{cm x} ⊗^{V}_{r} y) · ru^{V}_{x} ⊗^{V} lu^{V}_{y}
-      = identity (x ⊗_{V} y).
+    : δ_{cm (x ⊗ y)}
+        · (x ⊗^{V}_{l} ε_{cm y}) #⊗ (ε_{cm x} ⊗^{V}_{r} y)
+        · mon_runitor x ⊗^{V} mon_lunitor y
+      = identity (x ⊗ y).
   Proof.
     use (z_iso_inv_to_right _ _ _ _ (_,,_)).
     {
