@@ -488,7 +488,7 @@ Section CommutativeComonoids.
       = δ_{mx} #⊗ δ_{my} · (sym_mon_braiding M (_ ⊗ _) (_ ⊗ _) · inner_swap M _ _ _ _).
   Proof.
     apply maponpaths.
-    apply rearrange_commute_with_swap.
+    apply inner_swap_commute_with_swap.
   Qed.
 
 End CommutativeComonoids.

@@ -81,7 +81,7 @@ Section DiagFunctorMonoidal.
   Proof.
     intros y x1 x2 f.
     apply pathsinv0.
-    refine (_ @ precompose_inner_swap V (identity y) (identity y) f f @ _).
+    refine (_ @ naturality_inner_swap V (identity y) (identity y) f f @ _).
     - apply maponpaths.
       etrans.
       2: {
@@ -100,7 +100,7 @@ Section DiagFunctorMonoidal.
   Proof.
     intros x1 x2 y f.
     apply pathsinv0.
-    refine (_ @ precompose_inner_swap V f f (identity y) (identity y) @ _).
+    refine (_ @ naturality_inner_swap V f f (identity y) (identity y) @ _).
     - apply maponpaths.
       etrans.
       2: {
@@ -119,7 +119,7 @@ Section DiagFunctorMonoidal.
     : preserves_associativity (fmonoidal_preservestensordata diag_functor_fmonoidal_data).
   Proof.
     intros x y z.
-    refine (_ @ rearrange_hexagon'_3 V x y z @ _).
+    refine (_ @ inner_swap_hexagon'_3 V x y z @ _).
     - now rewrite <- (when_bifunctor_becomes_rightwhiskering V).
     - now rewrite <- (when_bifunctor_becomes_leftwhiskering V).
   Qed.
@@ -228,7 +228,7 @@ Section DiagFunctorMonoidal.
   Proof.
     intro ; intro.
     apply pathsinv0.
-    apply (rearrange_commute_with_swap V).
+    apply (inner_swap_commute_with_swap V).
   Defined.
 
   (* Definition diag_functor_lax_monoidal_functor

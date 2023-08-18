@@ -58,7 +58,7 @@ Section TensorOfComonoids.
     : inner_swap M mx mx my my · (ε_{ mx} ⊗^{ M} ε_{ my}) ⊗^{ M}_{r} (mx ⊗_{ M} my)
       = (ε_{ mx} ⊗^{M}_{r} _) #⊗ (ε_{ my} ⊗^{M}_{r} my) · inner_swap M _ _ _ _.
   Proof.
-    refine (_ @ precompose_inner_swap (M) ε_{mx} (identity _)  ε_{my} (identity _) @ _).
+    refine (_ @ naturality_inner_swap (M) ε_{mx} (identity _)  ε_{my} (identity _) @ _).
     - rewrite <- (when_bifunctor_becomes_rightwhiskering M).
       do 2 apply maponpaths.
       apply pathsinv0, tensor_id_id.
@@ -70,7 +70,7 @@ Section TensorOfComonoids.
     : inner_swap (M) mx mx my my · (δ_{ mx} ⊗^{ M} δ_{ my}) ⊗^{ M}_{r} (mx ⊗_{ M} my)
       = (δ_{ mx} ⊗^{M}_{r} _) #⊗ (δ_{ my} ⊗^{M}_{r} my) · inner_swap M _ _ _ _.
   Proof.
-    refine (_ @ precompose_inner_swap (M) δ_{mx} (identity _) δ_{my} (identity _) @ _).
+    refine (_ @ naturality_inner_swap (M) δ_{mx} (identity _) δ_{my} (identity _) @ _).
     - rewrite <- (when_bifunctor_becomes_rightwhiskering M).
       now (rewrite <- (bifunctor_distributes_over_id (F := M)) ; try (apply (pr21 M))).
     - now rewrite <- ! (when_bifunctor_becomes_rightwhiskering M).
@@ -81,7 +81,7 @@ Section TensorOfComonoids.
     : inner_swap (M) mx mx my my · (mx ⊗_{ M} my) ⊗^{ M}_{l} (ε_{mx} ⊗^{ M} ε_{my})
       = (_ ⊗^{M}_{l} ε_{mx}) #⊗ (_ ⊗^{M}_{l} ε_{my}) · inner_swap (M) _ _ _ _.
   Proof.
-    refine (_ @ precompose_inner_swap (M) (identity _) ε_{mx} (identity _) ε_{my} @ _).
+    refine (_ @ naturality_inner_swap (M) (identity _) ε_{mx} (identity _) ε_{my} @ _).
     - rewrite <- (when_bifunctor_becomes_leftwhiskering M).
       now (rewrite <- (bifunctor_distributes_over_id (F := M)) ; try (apply (pr21 M))).
     - now rewrite <- ! (when_bifunctor_becomes_leftwhiskering M).
@@ -92,7 +92,7 @@ Section TensorOfComonoids.
     : inner_swap (M) mx mx my my · (mx ⊗_{ M} my) ⊗^{ M}_{l} (δ_{ mx} ⊗^{ M} δ_{ my})
       = (_ ⊗^{M}_{l} δ_{ mx}) #⊗ (_ ⊗^{M}_{l} δ_{ my}) · inner_swap (M) _ _ _ _.
   Proof.
-    refine (_ @ precompose_inner_swap (M) (identity _) δ_{mx} (identity _) δ_{my} @ _).
+    refine (_ @ naturality_inner_swap (M) (identity _) δ_{mx} (identity _) δ_{my} @ _).
     - rewrite <- (when_bifunctor_becomes_leftwhiskering M).
       apply maponpaths.
       apply maponpaths_2.
@@ -234,7 +234,7 @@ Section TensorOfComonoids.
     rewrite ! tensor_comp_mor.
     rewrite ! assoc'.
     do 2 apply maponpaths.
-    apply rearrange_hexagon.
+    apply inner_swap_hexagon.
   Qed.
 
   Lemma tensor_of_comonoids_laws
@@ -276,7 +276,7 @@ Section TensorOfComonoids.
     etrans. {
       rewrite assoc'.
       apply maponpaths.
-      refine (_ @ precompose_inner_swap (M) (identity _) (identity _) g g).
+      refine (_ @ naturality_inner_swap (M) (identity _) (identity _) g g).
       now rewrite <- (when_bifunctor_becomes_leftwhiskering M).
     }
     rewrite ! assoc.
@@ -521,7 +521,7 @@ Section TensorOfComonoids.
       rewrite ! assoc'.
       apply maponpaths.
       rewrite ! assoc.
-      apply rearrange_hexagon'.
+      apply inner_swap_hexagon'.
     - cbn.
       apply pathsinv0.
       etrans. {
@@ -721,7 +721,7 @@ Section TensorOfCommutativeComonoids.
     etrans.
     2: {
       apply maponpaths.
-      apply rearrange_commute_with_swap.
+      apply inner_swap_commute_with_swap.
     }
 
     rewrite assoc.

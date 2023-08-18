@@ -22,7 +22,7 @@ Local Open Scope moncat.
 
 Import MonoidalNotations.
 
-Section Rearranging.
+Section Swapping.
 
   Context (V : sym_monoidal_cat).
 
@@ -353,7 +353,7 @@ Section Rearranging.
     rewrite (bifunctor_leftcomp V).
     apply maponpaths.
     refine (_ @ mon_lunitor_triangle_transposed _).
-    exact (rightwhisker_of_lunitor_with_unit (x ⊗ y)).
+    exact (leftwhisker_of_lunitor_with_unit (x ⊗ y)).
   Qed.
 
   Lemma precompose_inner_swap_with_lunitors_on_right (x y : V)
@@ -505,7 +505,7 @@ Section Rearranging.
     apply (! mon_lunitor_triangle _ _).
   Qed.
 
-  Lemma rearrange_hexagon (x1 x2 y1 y2 z1 z2 : V)
+  Lemma inner_swap_hexagon (x1 x2 y1 y2 z1 z2 : V)
     : inner_swap (x1 ⊗ x2) y1 (y2 ⊗ z1) z2
          · (inner_swap x1 x2 y2 z1 ⊗^{V}_{r} (y1 ⊗ z2)
               · mon_lassociator _ _ _)
@@ -515,7 +515,7 @@ Section Rearranging.
   Proof.
   Admitted.
 
-  Lemma rearrange_hexagon_2 (x y : V)
+  Lemma inner_swap_hexagon_2 (x y : V)
     : inner_swap (x ⊗ x) x (y ⊗ y) y
          · (inner_swap x x y y ⊗^{V}_{r} (x ⊗ y)
               · mon_lassociator _ _ _)
@@ -523,10 +523,10 @@ Section Rearranging.
            · (inner_swap x (x ⊗ x) y (y ⊗ y)
                 · (x ⊗ y) ⊗^{V}_{l} inner_swap x x y y).
   Proof.
-    apply rearrange_hexagon.
+    apply inner_swap_hexagon.
   Qed.
 
-  Lemma rearrange_hexagon' (x1 x2 y1 y2 z1 z2 : V)
+  Lemma inner_swap_hexagon' (x1 x2 y1 y2 z1 z2 : V)
     : inner_swap x1 x2 y1 y2 #⊗ identity (z1 ⊗ z2)
         · inner_swap (x1 ⊗ y1) (x2 ⊗ y2) z1 z2
         · mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _
@@ -536,7 +536,7 @@ Section Rearranging.
   Proof.
   Admitted.
 
-  Lemma rearrange_hexagon'_3 (x y z : V)
+  Lemma inner_swap_hexagon'_3 (x y z : V)
     : inner_swap x x y y #⊗ identity (z ⊗ z)
         · inner_swap (x ⊗ y) (x ⊗ y) z z
         · mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _
@@ -544,10 +544,10 @@ Section Rearranging.
             · identity (x ⊗_ x) #⊗ inner_swap y y z z
             · inner_swap x x (y ⊗ z) (y ⊗ z).
   Proof.
-    apply rearrange_hexagon'.
+    apply inner_swap_hexagon'.
   Qed.
 
-  Lemma rearrange_hexagoninv' (x y z : V)
+  Lemma inner_swap_hexagoninv' (x y z : V)
     : identity (x ⊗ x) #⊗ inner_swap y y z z
   · inner_swap x x (y ⊗ z) (y ⊗ z)
   · mon_rassociator _ _ _ #⊗ mon_rassociator _ _ _ =
@@ -555,7 +555,7 @@ Section Rearranging.
   · inner_swap x x y y #⊗ identity (z ⊗ z)
   · inner_swap (x ⊗ y) (x ⊗ y) z z.
   Proof.
-    set (t := rearrange_hexagon' x x y y z z).
+    set (t := inner_swap_hexagon' x x y y z z).
     apply pathsinv0.
     use (z_iso_inv_on_left _ _ _ _ (mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _,,
                                       mon_rassociator _ _ _ #⊗ mon_rassociator _ _ _ ,, _)).
@@ -583,7 +583,7 @@ Section Rearranging.
     now rewrite id_left.
   Qed.
 
-  Lemma rearrange_commute_with_swap (x1 x2 y1 y2 : V)
+  Lemma inner_swap_commute_with_swap (x1 x2 y1 y2 : V)
     : inner_swap x1 x2 y1 y2 · sym_mon_braiding _ x1 y1 #⊗ sym_mon_braiding _ x2 y2
       = sym_mon_braiding _ (x1 ⊗ x2) (y1 ⊗ y2) · inner_swap y1 y2 x1 x2.
   Proof.
@@ -712,4 +712,4 @@ Section Rearranging.
     now rewrite (when_bifunctor_becomes_leftwhiskering V).
   Qed.
 
-End Rearranging.
+End Swapping.

@@ -274,7 +274,7 @@ Section CartesianBuilderCommutative.
     : inner_swap V x x y y · (x ⊗^{V}_{l} ε_{cm y}) #⊗ (ε_{cm _} ⊗^{V}_{r} y)
       = (_ ⊗^{V}_{l} ε_{cm _}) #⊗ (ε_{cm _} ⊗^{V}_{r} _).
   Proof.
-    refine (_ @ precompose_inner_swap V (identity x) ε_{cm x} ε_{cm y} (identity y) @ _).
+    refine (_ @ naturality_inner_swap V (identity x) ε_{cm x} ε_{cm y} (identity y) @ _).
     {
 
       now rewrite <- (when_bifunctor_becomes_leftwhiskering V),
@@ -283,7 +283,7 @@ Section CartesianBuilderCommutative.
 
     rewrite <- (when_bifunctor_becomes_leftwhiskering V),
       <- (when_bifunctor_becomes_rightwhiskering V).
-    rewrite rearrange_along_unit.
+    rewrite inner_swap_along_unit.
     apply id_right.
   Qed.
 
