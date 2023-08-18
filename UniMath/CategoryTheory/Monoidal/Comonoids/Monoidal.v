@@ -153,20 +153,22 @@ Section MonoidalCategoryOfComonoids.
     : disp_monoidal (commutative_comonoids_laws_disp_cat V) (total_monoidal disp_monoidal_comonoids).
   Proof.
     apply disp_monoidal_fullsub.
-    - refine (_ @ id_right _).
-      apply maponpaths.
-      apply sym_mon_braiding_id.
-    - intros [x1 x2] [y1 y2] mx my.
-      refine (_ @ tensor_of_comm_comonoids V (x1 ,, x2 ,, mx) (y1 ,, y2 ,, my) @ _).
-      + apply maponpaths_2.
-        cbn.
-        unfold dialgebra_disp_tensor_op.
-        cbn.
-        now rewrite id_left.
-      + cbn.
-        unfold dialgebra_disp_tensor_op.
-        cbn.
-        now rewrite id_left.
+    - abstract (
+          refine (_ @ id_right _);
+          apply maponpaths;
+          apply sym_mon_braiding_id).
+    - abstract (
+          intros [x1 x2] [y1 y2] mx my;
+          refine (_ @ tensor_of_comm_comonoids V (x1 ,, x2 ,, mx) (y1 ,, y2 ,, my) @ _);
+          [ apply maponpaths_2;
+            cbn;
+            unfold dialgebra_disp_tensor_op;
+            cbn;
+            now rewrite id_left
+          | cbn;
+            unfold dialgebra_disp_tensor_op;
+            cbn;
+            now rewrite id_left]).
   Defined.
 
   Definition disp_monoidal_commutative_comonoids
