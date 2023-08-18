@@ -1,5 +1,8 @@
 (*
 In this file, we provide a builder to construct a symmetric displayed monoidal category on a locally propositional displayed category [make_symmetric_monoidal_disp_cat_locally_prop].
+
+This builder takes into account the symmetric aspects found in a monoidal category,
+e.g., the (displayed) right unitor can be constructed from the left unitor (provided a braiding); the assumptions on the right unitor, follow from those on the left unitor.
 *)
 
 Require Import UniMath.Foundations.All.
