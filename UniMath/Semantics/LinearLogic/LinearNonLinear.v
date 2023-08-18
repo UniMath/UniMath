@@ -94,7 +94,6 @@ Definition make_linear_non_linear_from_strong
            (𝕄 : sym_monoidal_cat)
            (A : adjunction 𝕄 𝕃)
            (HM : is_cartesian 𝕄)
-           (L := left_adjoint A)
            (HL₁ : fmonoidal 𝕄 𝕃 (left_adjoint A))
            (HL₂ : is_symmetric_monoidal_functor 𝕄 𝕃 HL₁)
   : linear_non_linear_model.
