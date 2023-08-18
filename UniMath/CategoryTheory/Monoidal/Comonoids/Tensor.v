@@ -711,9 +711,6 @@ Section TensorOfCommutativeComonoids.
     (mx my : commutative_comonoid V)
     : is_commutative V (tensor_of_comonoids V mx my).
   Proof.
-    unfold disp_cat_of_commutative_comonoids.
-    cbn.
-
     use (z_iso_inv_on_left _ _ _ _ (inner_swap V _ _ _ _ ,, inner_swap V _ _ _ _ ,, _)).
     { apply inner_swap_is_z_isomorphism. }
     cbn.
