@@ -48,6 +48,7 @@ Section CartesianMonoidalCategoryOfCommutativeComonoids.
   Proof.
     unfold is_comonoid_mor_counit.
     cbn.
+    unfold monoidal_cat_tensor_mor.
     unfold functoronmorphisms1.
     rewrite ! assoc'.
     etrans. {
