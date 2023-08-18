@@ -144,7 +144,7 @@ Section Rearranging.
     apply inner_swap_characterization23.
   Qed.
 
-  Lemma precompose_inner_swap
+  Lemma naturality_inner_swap
     {x y z w : V}
     {x' y' z' w' : V}
     (fx : V⟦x,x'⟧)
@@ -224,7 +224,7 @@ Section Rearranging.
     apply pathsinv0, id_right.
   Qed.
 
-  Lemma rearrange_along_unit (x y : V)
+  Lemma inner_swap_along_unit (x y : V)
     : inner_swap x I_{V} I_{V} y = identity _.
   Proof.
     unfold inner_swap.
@@ -329,7 +329,7 @@ Section Rearranging.
     apply monoidal_associatorisolaw.
   Qed.
 
-  Lemma rightwhisker_of_lunitor_with_unit (x : V)
+  Lemma leftwhisker_of_lunitor_with_unit (x : V)
     : monoidal_unit V ⊗^{V}_{l} lu^{V}_{x} = lu^{V}_{monoidal_unit V ⊗ x}.
   Proof.
     refine (_ @ ! mon_lunitor_triangle_transposed x).
