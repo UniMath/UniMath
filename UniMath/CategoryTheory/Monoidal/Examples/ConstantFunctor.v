@@ -88,6 +88,6 @@ Section ConstantFunctor.
     intro ; intro.
     rewrite id_right.
     apply m_is_comm.
-  Defined.
+  Qed.
 
 End ConstantFunctor.
