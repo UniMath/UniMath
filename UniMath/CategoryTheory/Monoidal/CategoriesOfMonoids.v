@@ -250,5 +250,8 @@ Proof.
     refine (id_left _ @ _).
     apply unitors_coincide_on_unit.
   - apply maponpaths_2.
-    apply associator_before_lwhisker_with_lu.
+    etrans.
+    2: { rewrite unitors_coincide_on_unit.
+         apply monoidal_triangleidentity. }
+    apply idpath.
 Defined.

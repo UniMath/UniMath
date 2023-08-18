@@ -1297,30 +1297,7 @@ Section MonoidalLaws.
       apply unitorsinv_coincide_on_unit_alt.
     - split ; apply (monoidal_associatorisolaw M).
   Qed.
-
-  Lemma associator_before_lwhisker_with_lu
-    {C : category} (M : monoidal C)
-    : α^{ M }_{ I_{ M}, I_{ M}, I_{ M}} · I_{ M} ⊗^{ M}_{l} lu^{M}_{I_{ M}}
-      = lu^{M}_{I_{ M}} ⊗^{ M}_{r} I_{ M}.
-  Proof.
-    etrans. {
-      apply monoidal_triangleidentity.
-    }
-    apply pathsinv0, unitors_coincide_on_unit'.
-  Qed.
-
-  Lemma associator_before_rwhisker_with_lu
-    {C : category} (M : monoidal C)
-    : αinv^{ M }_{ I_{ M}, I_{ M}, I_{ M}} · lu^{M}_{I_{ M}} ⊗^{M}_{r} I_{ M}
-      = I_{ M} ⊗^{ M}_{l} lu^{M}_{I_{ M}}.
-  Proof.
-    use (z_iso_inv_on_right _ _ _ (α^{M}_{ I_{ M}, I_{ M}, I_{ M}} ,, _ ,, _)).
-    {
-      apply monoidal_associatorisolaw.
-    }
-    apply pathsinv0, associator_before_lwhisker_with_lu.
-  Qed.
-End MonoidalLaws.
+ End MonoidalLaws.
 
 (**
  7. Bundled approach to monoidal categories
@@ -1824,18 +1801,6 @@ Section MonoidalCatAccessors.
   Proof.
     rewrite mon_rinvunitor_I_mon_linvunitor_I.
     apply idpath.
-  Qed.
-
-  Lemma mon_associator_I_before_lwhisker_I_with_lunitor_I
-    :  mon_lassociator I_{V} I_{V} I_{V} · identity I_{V} #⊗ mon_lunitor I_{V}
-       = mon_lunitor I_{V} #⊗ identity I_{V}.
-  Proof.
-    etrans.
-    {
-      apply pathsinv0, mon_triangle.
-    }
-    apply maponpaths_2.
-    apply pathsinv0, unitors_coincide_on_unit.
   Qed.
 
   Proposition mon_lassociator_lassociator
