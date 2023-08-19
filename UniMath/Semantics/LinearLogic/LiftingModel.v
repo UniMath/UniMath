@@ -73,24 +73,15 @@ Proof.
     + cbn ; apply idpath.
     + cbn ; apply idpath.
   - intros X.
-    use eq_mor_hset_struct.
-    intro x ; cbn in x.
-    induction x as [ x | ].
-    + cbn ; apply idpath.
-    + cbn ; apply idpath.
+    rewrite <-tensor_mor_left. rewrite <-tensor_mor_right.
+    apply pathsinv0, (comonoid_to_law_assoc _ (lift_commutative_comonoid X)).
   - intros X.
-    use eq_mor_hset_struct.
-    intro x ; cbn in x.
-    induction x as [ x | t ].
-    + cbn ; apply idpath.
-    + induction t.
-      cbn ; apply idpath.
+    rewrite <-tensor_mor_right.
+    etrans.
+    2: { apply (comonoid_to_law_unit_left _ (lift_commutative_comonoid X)). }
+    apply idpath.
   - intros X.
-    use eq_mor_hset_struct.
-    intro x ; cbn in x.
-    induction x as [ x | ].
-    + cbn ; apply idpath.
-    + cbn ; apply idpath.
+    apply (commutative_comonoid_is_commutative _ (lift_commutative_comonoid X)).
 Qed.
 
 Definition lifting_linear_category
