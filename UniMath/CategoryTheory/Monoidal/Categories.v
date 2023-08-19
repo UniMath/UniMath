@@ -1283,7 +1283,21 @@ Section MonoidalLaws.
     apply (z_iso_inv_on_left _ _ _ _ ruiyx).
     exact (! (left_whisker_with_runitor M) x y).
   Qed.
-End MonoidalLaws.
+
+  Lemma lunitorinv_preserves_leftwhiskering_with_unit
+    {C : category} (M : monoidal C)
+    : luinv^{M}_{I_{ M}} ⊗^{ M}_{r} I_{ M} · α^{ M }_{ I_{ M}, I_{ M}, I_{ M}}
+      = I_{ M} ⊗^{ M}_{l} luinv^{M}_{I_{ M}}.
+  Proof.
+    set (t := monoidal_triangle_identity_inv_alt M I_{M} I_{M}).
+
+    use (_ @ ! z_iso_inv_on_left _ _ _ _ (_,, α^{M}_{_,_,_} ,, _) _ (! t)).
+    - apply maponpaths_2.
+      apply maponpaths.
+      apply unitorsinv_coincide_on_unit_alt.
+    - split ; apply (monoidal_associatorisolaw M).
+  Qed.
+ End MonoidalLaws.
 
 (**
  7. Bundled approach to monoidal categories
@@ -1805,6 +1819,35 @@ Section MonoidalCatAccessors.
     rewrite (bifunctor_leftid V).
     rewrite !id_left, id_right.
     apply idpath.
+  Qed.
+
+  Proposition mon_lassociator_lassociator'
+              {w x y z : V}
+    : mon_lassociator (w ⊗ x) y z
+        · mon_lassociator w x (y ⊗ z)
+        · w ⊗^{V}_{l} mon_rassociator x y z
+      = mon_lassociator w x y ⊗^{V}_{r} z
+      · mon_lassociator w (x ⊗ y) z.
+  Proof.
+     etrans. {
+        apply maponpaths_2.
+        apply mon_lassociator_lassociator.
+      }
+      rewrite <- (when_bifunctor_becomes_leftwhiskering V).
+      rewrite ! assoc'.
+      etrans. {
+        do 2 apply maponpaths.
+        apply pathsinv0, tensor_comp_id_l.
+      }
+      etrans. {
+        do 2 apply maponpaths.
+        apply maponpaths.
+        apply mon_lassociator_rassociator.
+      }
+      rewrite tensor_id_id.
+      rewrite id_right.
+      apply maponpaths_2.
+      apply (when_bifunctor_becomes_rightwhiskering V).
   Qed.
 
   Proposition mon_rassociator_rassociator
