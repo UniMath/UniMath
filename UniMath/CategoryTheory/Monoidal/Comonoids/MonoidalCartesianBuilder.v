@@ -81,12 +81,12 @@ Section CartesianBuilder.
     Context (pI : εI = identity (monoidal_unit V))
       {x y z : V} (fx : V⟦z, x⟧) (fy : V⟦z, y⟧).
 
-    Let δx := δ_{(x ,, m x) : comonoid V} : V⟦x, x ⊗ x⟧.
-    Let δy := δ_{(y ,, m y) : comonoid V} : V⟦y, y ⊗ y⟧.
-    Let δz := δ_{(z ,, m z) : comonoid V} : V⟦z, z ⊗ z⟧.
-    Let εx := ε_{(x ,, m x) : comonoid V} : V⟦x, monoidal_unit V⟧.
-    Let εy := ε_{(y ,, m y) : comonoid V} : V⟦y, monoidal_unit V⟧.
-    Let εz := ε_{(z ,, m z) : comonoid V} : V⟦z, monoidal_unit V⟧.
+    Let δx : V⟦x, x ⊗ x⟧ := δ_{(x ,, m x) : comonoid V}.
+    Let δy : V⟦y, y ⊗ y⟧ := δ_{(y ,, m y) : comonoid V}.
+    Let δz : V⟦z, z ⊗ z⟧ := δ_{(z ,, m z) : comonoid V}.
+    Let εx : V⟦x, monoidal_unit V⟧ := ε_{(x ,, m x) : comonoid V} .
+    Let εy : V⟦y, monoidal_unit V⟧ := ε_{(y ,, m y) : comonoid V}.
+    Let εz : V⟦z, monoidal_unit V⟧ := ε_{(z ,, m z) : comonoid V}.
 
     Definition make_isbinprod_from_comonoid_existence_mor
       : V⟦z, x ⊗ y⟧
@@ -245,7 +245,8 @@ Section CartesianBuilderCommutative.
 
   Import ComonoidNotations.
 
-  Let εI := ε_{(monoidal_unit V ,, m _) : comonoid V}.
+  Let εI : V⟦monoidal_unit V, monoidal_unit V⟧
+      := ε_{(monoidal_unit V ,, m _) : comonoid V}.
 
   Let cm := λ x : V, (x ,, m x) : comonoid V.
 
