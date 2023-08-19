@@ -507,11 +507,12 @@ Section Swapping.
 
   Lemma inner_swap_hexagon (x1 x2 y1 y2 z1 z2 : V)
     : inner_swap (x1 ⊗ x2) y1 (y2 ⊗ z1) z2
-         · (inner_swap x1 x2 y2 z1 ⊗^{V}_{r} (y1 ⊗ z2)
-              · mon_lassociator _ _ _)
-       = (mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _)
-           · (inner_swap x1 (x2 ⊗ y1) y2 (z1 ⊗ z2)
-                · (x1 ⊗ y2) ⊗^{V}_{l} inner_swap x2 y1 z1 z2).
+      · (inner_swap x1 x2 y2 z1 ⊗^{V}_{r} (y1 ⊗ z2)
+         · mon_lassociator _ _ _)
+      =
+      (mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _)
+      · (inner_swap x1 (x2 ⊗ y1) y2 (z1 ⊗ z2)
+      · (x1 ⊗ y2) ⊗^{V}_{l} inner_swap x2 y1 z1 z2).
   Proof.
   Admitted.
 
@@ -534,7 +535,49 @@ Section Swapping.
             · identity (x1 ⊗ x2) #⊗ inner_swap y1 y2 z1 z2
             · inner_swap x1 x2 (y1 ⊗ z1) (y2 ⊗ z2).
   Proof.
-  Admitted.
+    refine (!(id_right _) @ _).
+    rewrite <- inner_swap_inv.
+    rewrite !assoc.
+    apply maponpaths_2.
+    refine (!(id_right _) @ _).
+    etrans.
+    {
+      apply maponpaths.
+      rewrite <- tensor_id_id.
+      rewrite <- inner_swap_inv.
+      rewrite tensor_comp_id_l.
+      apply idpath.
+    }
+    rewrite !assoc.
+    apply maponpaths_2.
+    etrans.
+    {
+      rewrite !assoc'.
+      do 2 apply maponpaths.
+      rewrite <- tensor_mor_left.
+      refine (!_).
+      apply inner_swap_hexagon.
+    }
+    rewrite tensor_mor_right.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite inner_swap_inv.
+      rewrite id_left.
+      apply idpath.
+    }
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (!_).
+      apply tensor_comp_id_r.
+    }
+    rewrite inner_swap_inv.
+    rewrite tensor_id_id.
+    apply id_left.
+  Qed.
 
   Lemma inner_swap_hexagon'_3 (x y z : V)
     : inner_swap x x y y #⊗ identity (z ⊗ z)
