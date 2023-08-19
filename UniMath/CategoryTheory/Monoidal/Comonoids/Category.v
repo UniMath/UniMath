@@ -246,6 +246,70 @@ Section CategoryOfCommutativeComonoids.
     := pr1_category _.
 End CategoryOfCommutativeComonoids.
 
+(**
+ This gives a more convenient builder for commutative comonoids for
+ the bundled version. Note: only one identity law has to be proven
+ *)
+Section MakeCommutativeComonoid.
+  Context {V : sym_monoidal_cat}
+          (x : V)
+          (δ : x --> x ⊗ x)
+          (ε : x --> I_{V})
+          (unit_left : δ · (ε #⊗ identity x) · mon_lunitor x = identity x)
+          (assocδ : δ · (δ #⊗ identity x) · mon_lassociator x x x = δ · (identity x #⊗ δ))
+          (comm : δ · sym_mon_braiding V x x = δ).
+
+  Definition make_commutative_comonoid_data
+    : comonoid_data V
+    := x ,, δ ,, ε.
+
+  Proposition make_commutative_comonoid_laws
+    : comonoid_laws V make_commutative_comonoid_data.
+  Proof.
+    repeat split.
+    - refine (_ @ unit_left) ; cbn.
+      apply maponpaths_2.
+      apply maponpaths.
+      rewrite tensor_mor_right.
+      apply idpath.
+    - refine (_ @ unit_left) ; cbn.
+      refine (!_).
+      etrans.
+      {
+        do 2 apply maponpaths_2.
+        exact (!(comm)).
+      }
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_sym_mon_braiding.
+      rewrite !assoc'.
+      rewrite sym_mon_braiding_lunitor.
+      apply maponpaths_2.
+      rewrite tensor_mor_left.
+      apply idpath.
+    - unfold comonoid_laws_assoc ; cbn.
+      refine (_ @ assocδ @ _).
+      + apply maponpaths_2.
+        apply maponpaths.
+        rewrite tensor_mor_right.
+        apply idpath.
+      + apply maponpaths.
+        rewrite tensor_mor_left.
+        apply idpath.
+  Qed.
+
+  Definition make_commutative_comonoid
+    : commutative_comonoid V.
+  Proof.
+    simple refine (x ,, ((δ ,, ε) ,, _) ,, _) ; cbn.
+    - exact make_commutative_comonoid_laws.
+    - exact comm.
+  Defined.
+End MakeCommutativeComonoid.
+
+Arguments make_commutative_comonoid_data /.
+
 Section ComonoidAux.
 
   Context (M : monoidal_cat).
