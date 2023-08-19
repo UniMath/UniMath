@@ -308,8 +308,6 @@ Section MakeCommutativeComonoid.
   Defined.
 End MakeCommutativeComonoid.
 
-Arguments make_commutative_comonoid_data /.
-
 Section ComonoidAux.
 
   Context (M : monoidal_cat).

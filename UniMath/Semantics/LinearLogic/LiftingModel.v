@@ -22,6 +22,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Examples.SmashProductMonoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.PosetsMonoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.LiftPoset.
 Require Import UniMath.Semantics.LinearLogic.LinearCategory.
+Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
 
 Import MonoidalNotations.
 
