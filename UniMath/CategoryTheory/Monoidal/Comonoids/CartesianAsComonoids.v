@@ -3,7 +3,6 @@ In this file, we show:
    if a symmetric monoidal category is cartesian, the forgetful functor from the category of commutative comonoids is an isomorphism of categories.
 
 The converse of this statement remains to be done.
-At this moment, one property remains to be proven. The condition is axiomatized in the context.
  *)
 
 Require Import UniMath.Foundations.All.
@@ -49,7 +48,7 @@ Section CartesianToCartesianAsComonoids.
   Let V : sym_monoidal_cat := M,, cartesian_to_symmetric Ccart.
 
   Let diag (x : V) : V⟦x, x ⊗ x⟧
-      := (BinProductArrow _ (is_cartesian_BinProduct Ccart x x) (identity x) (identity x)).
+      := diagonalMap' (is_cartesian_BinProduct Ccart) x.
 
   Let aug (x : V) : V⟦x, monoidal_unit M⟧
       := (semi_cart_to_unit Ccart x).
@@ -107,7 +106,7 @@ Section CartesianToCartesianAsComonoids.
   Qed.
 
   Lemma cartesian_linvunitor' (x : V)
-    : BinProductArrow V (is_cartesian_BinProduct Ccart x x) (identity x) (identity x)
+    : diag x
          · semi_cart_to_unit Ccart x ⊗^{M}_{r} x
        = mon_linvunitor x.
   Proof.
@@ -247,7 +246,7 @@ Section CartesianToCartesianAsComonoids.
       { apply (postcompWithBinProductArrow _
                  (is_cartesian_BinProduct Ccart x x)
                  (is_cartesian_BinProduct Ccart (is_cartesian_BinProduct Ccart x x) x)). }
-      apply maponpaths_12.
+      unfold diag at 2; unfold diagonalMap'; apply maponpaths_12.
       + apply (BinProductPr2Commutes _ _ _ (is_cartesian_BinProduct Ccart _ _)).
       + apply id_left.
   Qed.
@@ -305,7 +304,7 @@ Section CartesianToCartesianAsComonoids.
     use subtypePath.
     { intro ; apply isaprop_comonoid_laws. }
 
-    use total2_paths_f.
+    apply dirprodeq.
     - use (BinProductArrowUnique _ _ _ (is_cartesian_BinProduct Ccart x x)).
       + refine (_ @ comonoid_to_law_unit_right _ (_,,m)).
         cbn.
@@ -331,7 +330,7 @@ Section CartesianToCartesianAsComonoids.
   Qed.
 
   Lemma cartesian_monoidal_has_unique_comm_comonoids
-    : ∏ x : V,  iscontr (disp_cat_of_commutative_comonoids V x).
+    : ∏ x : V, iscontr (disp_cat_of_commutative_comonoids V x).
   Proof.
     intro x.
     apply iscontraprop1.
@@ -398,7 +397,7 @@ Section CartesianToCartesianAsComonoids.
     {c : V} (m : disp_cat_of_commutative_comonoids V c)
     : δ_{(_ ,, pr1 m) : comonoid V} = diag c.
   Proof.
-    refine (idpath (pr111 m) @ _). (* the triple projection is presentend to apply maponpaths without an argument *)
+    refine (idpath (pr111 m) @ _). (* the triple projection is presented to apply maponpaths without an argument *)
     etrans. {
       do 3 apply maponpaths.
       exact (proofirrelevancecontr (cartesian_monoidal_has_unique_comm_comonoids c)
@@ -441,8 +440,8 @@ Section CartesianToCartesianAsComonoids.
     - apply disp_cat_of_commutative_comonoids_is_univalent.
     - apply cartesian_monoidal_has_enough_comm_comonoids.
     - intro ; intros.
-      use (iscontrweqb' _ (sigma_with_unit _)).
-      use (iscontrweqb' _ (sigma_with_unit _)).
+      use (iscontrweqf (weqtodirprodwithunit _)).
+      use (iscontrweqf (weqtodirprodwithunit _)).
       apply iscontraprop1.
       { apply isapropdirprod ; apply homset_property. }
       split.
