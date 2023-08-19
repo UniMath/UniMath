@@ -241,6 +241,9 @@ Section CategoryOfCommutativeComonoids.
              (λ _ , _ ,, homset_property _ _ _ _ _)).
   Qed.
 
+  Definition underlying_commutative_comonoid
+    : commutative_comonoid_category ⟶ V
+    := pr1_category _.
 End CategoryOfCommutativeComonoids.
 
 Section ComonoidAux.
