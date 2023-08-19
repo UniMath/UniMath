@@ -34,8 +34,8 @@ Proof.
   use make_linear_category_data.
   - exact pointed_poset_sym_mon_closed_cat.
   - exact lift_poset_symmetric_monoidal_comonad.
-  - exact lift_poset_comult.
-  - exact lift_poset_counit.
+  - exact (λ X, lift_poset_comult X).
+  - exact (λ X, lift_poset_counit X).
 Defined.
 
 Proposition lifting_linear_category_laws
@@ -43,17 +43,10 @@ Proposition lifting_linear_category_laws
 Proof.
   repeat split.
   - intros X Y f.
-    use eq_mor_hset_struct.
-    intro x ; cbn in x.
-    induction x as [ x | ].
-    + cbn ; apply idpath.
-    + cbn ; apply idpath.
+    exact (nat_trans_ax lift_poset_comult X Y f).
   - intros X Y f.
-    use eq_mor_hset_struct.
-    intro x ; cbn in x.
-    induction x as [ x | ].
-    + cbn ; apply idpath.
-    + cbn ; apply idpath.
+    refine (nat_trans_ax lift_poset_counit X Y f @ _).
+    apply id_right.
   - intros X.
     use eq_mor_hset_struct.
     intro x ; cbn in x.
