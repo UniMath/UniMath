@@ -86,7 +86,6 @@ Section Construct_SymmetricMonoidal_On_LocallyProp_DisplayedCategories.
     : Tr yy (id_disp xx) =
         transportb _ (bifunctor_rightid V y x) (id_disp (T xx yy)).
   Proof.
-    set (l := disp_lwhisker_preserves_id _ _ yy xx).
     unfold Tr.
     cbn.
 
@@ -94,9 +93,8 @@ Section Construct_SymmetricMonoidal_On_LocallyProp_DisplayedCategories.
       apply maponpaths.
       apply maponpaths_2.
       apply maponpaths.
-      exact l.
+      apply disp_lwhisker_preserves_id.
     }
-    clear l.
     unfold transportb.
     rewrite mor_disp_transportf_prewhisker.
     rewrite mor_disp_transportf_postwhisker.
