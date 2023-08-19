@@ -281,12 +281,6 @@ Section CartesianToCartesianAsComonoids.
     exact (cartesian_comonoid_laws x).
   Defined.
 
-  (* Definition cartesian_monoidal_has_enough_commcomonoids
-    : ∏ x : V, is_commutative V (cartesian_monoidal_has_enough_comonoids x).
-  Proof.
-    exact (λ x, diag_is_symmetric x).
-  Qed. *)
-
   Definition cartesian_monoidal_has_enough_comm_comonoids
     : ∏ x : V, disp_cat_of_commutative_comonoids V x.
   Proof.
