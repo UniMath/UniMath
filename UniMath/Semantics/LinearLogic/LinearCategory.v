@@ -13,6 +13,7 @@
  ****************************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monads.Comonads.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Functors.
@@ -296,4 +297,29 @@ Section AccessorsLaws.
     - rewrite id_right.
       exact (!(linear_category_counit_comonoid_mor_counit x)).
   Qed.
+
+  Definition linear_category_comult_nat_trans
+    : linear_category_bang 𝕃
+      ⟹
+      bindelta_pair_functor (linear_category_bang 𝕃) (linear_category_bang 𝕃)
+      ∙
+      monoidal_cat_tensor 𝕃.
+  Proof.
+    use make_nat_trans.
+    - exact (λ x, linear_category_comult 𝕃 x).
+    - abstract
+        (intros x y f ; cbn ;
+         apply linear_category_comult_nat).
+  Defined.
+
+  Definition linear_category_counit_nat_trans
+    : linear_category_bang 𝕃 ⟹ constant_functor _ _ I_{𝕃}.
+  Proof.
+    use make_nat_trans.
+    - exact (λ x, linear_category_counit 𝕃 x).
+    - abstract
+        (intros x y f ; cbn ;
+         rewrite id_right ;
+         apply linear_category_counit_nat).
+  Defined.
 End AccessorsLaws.
