@@ -135,7 +135,7 @@ Section CartesianBuilder.
         apply maponpaths.
         rewrite assoc.
         apply maponpaths_2.
-        refine (_ @ idpath ((εz ⊗^{V} identity z ) · (identity _ ⊗^{V} fy))).
+        refine (_ @ idpath ((εz #⊗ identity z ) · (identity _ #⊗ fy))).
         simpl.
         refine (! tensor_comp_mor _ _ _ _ @ _).
         refine (_ @ tensor_comp_mor _ _ _ _).
@@ -225,8 +225,8 @@ Section CartesianBuilder.
   Definition monoidal_is_cartesian_from_comonoid
     (pI : εI = identity (monoidal_unit V))
     (pT : ∏ x y : V,
-          δ_{(x ⊗_{V} y ,, m _) : comonoid V} · ((identity x #⊗ ε_{(y ,, m y) : comonoid V}) #⊗ (ε_{(x ,, m x) : comonoid V} #⊗ identity y) · mon_runitor x #⊗ mon_lunitor y)
-          = identity (x ⊗_{V} y))
+          δ_{(x ⊗ y ,, m _) : comonoid V} · ((identity x #⊗ ε_{(y ,, m y) : comonoid V}) #⊗ (ε_{(x ,, m x) : comonoid V} #⊗ identity y) · mon_runitor x #⊗ mon_lunitor y)
+          = identity (x ⊗ y))
     : is_cartesian V.
   Proof.
     exists (monoidal_is_semicartesian_from_comonoid pI).
@@ -270,7 +270,7 @@ Section CartesianBuilderCommutative.
     apply monoidal_leftunitorisolaw.
   Qed.
 
-  Lemma rearranging_before_aug (x y : V)
+  Lemma inner_swap_before_aug (x y : V)
     : inner_swap V x x y y · (x ⊗^{V}_{l} ε_{cm y}) #⊗ (ε_{cm _} ⊗^{V}_{r} y)
       = (_ ⊗^{V}_{l} ε_{cm _}) #⊗ (ε_{cm _} ⊗^{V}_{r} _).
   Proof.
@@ -302,7 +302,7 @@ Section CartesianBuilderCommutative.
     etrans. {
       rewrite ! assoc'.
       do 2 apply maponpaths.
-      apply rearranging_before_aug.
+      apply inner_swap_before_aug.
     }
 
     etrans. {
