@@ -291,11 +291,9 @@ Section AccessorsLaws.
            (linear_category_cocommutative_comonoid x))
         (δ (linear_category_bang 𝕃) x).
   Proof.
-    use make_is_comonoid_mor.
-    - cbn.
-      exact (!(linear_category_counit_comonoid_mor_comult x)).
-    - cbn.
-      rewrite id_right.
+    use make_is_comonoid_mor ; cbn.
+    - exact (!(linear_category_counit_comonoid_mor_comult x)).
+    - rewrite id_right.
       exact (!(linear_category_counit_comonoid_mor_counit x)).
   Qed.
 End AccessorsLaws.
