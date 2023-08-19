@@ -113,14 +113,14 @@ Definition linear_category_laws
       δ (linear_category_bang 𝕃) x
       · #(linear_category_bang 𝕃) (linear_category_counit 𝕃 x))
      ×
-     (* the counit of the comonad is a comonoid morphism (counit) *)
+     (* the comultiplication of the comonad is a comonoid morphism (counit) *)
      (∏ (x : 𝕃),
       δ (linear_category_bang 𝕃) x
       · linear_category_counit 𝕃 (linear_category_bang 𝕃 x)
       =
       linear_category_counit 𝕃 x)
      ×
-     (* the counit of the comonad is a comonoid morphism (comultiplication) *)
+     (* the comultiplication of the comonad is a comonoid morphism (comultiplication) *)
      (∏ (x : 𝕃),
       δ (linear_category_bang 𝕃) x
       · linear_category_comult 𝕃 (linear_category_bang 𝕃 x)
@@ -281,4 +281,21 @@ Section AccessorsLaws.
     - exact (!(linear_category_coassoc x)).
     - exact (linear_category_cocommutative x).
   Defined.
+
+  Proposition linear_category_counit_comonoid_mor_struct
+              (x : 𝕃)
+    : comonoid_mor_struct
+        𝕃
+        (linear_category_cocommutative_comonoid x)
+        (linear_category_cocommutative_comonoid
+           (linear_category_cocommutative_comonoid x))
+        (δ (linear_category_bang 𝕃) x).
+  Proof.
+    use make_is_comonoid_mor.
+    - cbn.
+      exact (!(linear_category_counit_comonoid_mor_comult x)).
+    - cbn.
+      rewrite id_right.
+      exact (!(linear_category_counit_comonoid_mor_counit x)).
+  Qed.
 End AccessorsLaws.
