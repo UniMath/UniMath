@@ -42,7 +42,7 @@ Section Construct_SymmetricMonoidal_On_LocallyProp_DisplayedCategories.
 
   Context (disp_lwhisker : ∏ (x y1 y2 : V) (g : V⟦ y1, y2 ⟧) (xx : D x) (yy1 : D y1) (yy2 : D y2),
               yy1 -->[ g] yy2 → T xx yy1 -->[ x ⊗^{V}_{l} g] T xx yy2).
-  Definition Tl
+  Let Tl
     {x y1 y2 : V} {g : V⟦ y1, y2 ⟧} (xx : D x) {yy1 : D y1} {yy2 : D y2}
     (gg : yy1 -->[ g] yy2)
     : T xx yy1 -->[ x ⊗^{V}_{l} g] T xx yy2
@@ -81,7 +81,7 @@ Section Construct_SymmetricMonoidal_On_LocallyProp_DisplayedCategories.
   Context (B_inv : ∏ (x y : V) (xx : D x) (yy : D y),
               B xx yy ;; B yy xx = transportb _ (sym_mon_braiding_inv V x y) (id_disp _)).
 
-  Lemma disp_rwhisker_preserves_id
+  Local Lemma disp_rwhisker_preserves_id
     {x y : V} (xx : D x) (yy : D y)
     : Tr yy (id_disp xx) =
         transportb _ (bifunctor_rightid V y x) (id_disp (T xx yy)).
@@ -120,7 +120,7 @@ Section Construct_SymmetricMonoidal_On_LocallyProp_DisplayedCategories.
       = transportb _ (bifunctor_leftcomp V x y1 y2 y3 g1 g2)
           (Tl _ gg1 ;; Tl _ gg2)).
 
-  Lemma disp_rwhisker_preserves_comp
+  Local Lemma disp_rwhisker_preserves_comp
     {x1 x2 x3 y : V} {f1 : V⟦ x1, x2 ⟧} {f2 : V⟦ x2, x3 ⟧} {xx1 : D x1}
     {xx2 : D x2} {xx3 : D x3} (yy : D y)
     (ff1 : xx1 -->[ f1] xx2) (ff2 : xx2 -->[ f2] xx3)
