@@ -102,7 +102,7 @@ Section CartesianBuilder.
         apply maponpaths.
         rewrite assoc.
         apply maponpaths_2.
-        refine (_ @ idpath ((identity z ⊗^{V} εz) · (fx ⊗^{V} identity _))).
+        refine (_ @ idpath ((identity z #⊗ εz) · (fx #⊗ identity _))).
         simpl.
         refine (! tensor_comp_mor _ _ _ _ @ _).
         refine (_ @ tensor_comp_mor _ _ _ _).
@@ -135,7 +135,7 @@ Section CartesianBuilder.
         apply maponpaths.
         rewrite assoc.
         apply maponpaths_2.
-        refine (_ @ idpath ((εz ⊗^{V} identity z ) · (identity _ ⊗^{V} fy))).
+        refine (_ @ idpath ((εz #⊗ identity z ) · (identity _ #⊗ fy))).
         simpl.
         refine (! tensor_comp_mor _ _ _ _ @ _).
         refine (_ @ tensor_comp_mor _ _ _ _).
@@ -166,9 +166,9 @@ Section CartesianBuilder.
 
     Lemma make_is_binprod_from_comonoids_uniqueness
       (f : V⟦z, x ⊗_{V} y⟧)
-      (px : f · (identity x ⊗^{V} εy · ru^{V}_{x}) = fx)
-      (py : f · (εx ⊗^{V} identity y · lu^{V}_{y}) = fy)
-      : f = δz · fx ⊗^{V} fy.
+      (px : f · (identity x #⊗ εy · ru^{V}_{x}) = fx)
+      (py : f · (εx #⊗ identity y · lu^{V}_{y}) = fy)
+      : f = δz · fx #⊗ fy.
     Proof.
       rewrite <- px.
       rewrite <- py.
@@ -205,8 +205,8 @@ Section CartesianBuilder.
   Lemma monoidal_is_binproduct_from_comonoid
     (pI : εI = identity (monoidal_unit V))
     (pT : ∏ x y : V,
-          δ_{(x ⊗_{V} y ,, m _) : comonoid V} · ((identity x ⊗^{V} ε_{(y ,, m y) : comonoid V}) ⊗^{V} (ε_{(x ,, m x) : comonoid V} ⊗^{V} identity y) · ru^{V}_{x} ⊗^{V} lu^{V}_{y})
-          = identity (x ⊗_{V} y))
+          δ_{(x ⊗ y ,, m _) : comonoid V} · ((identity x #⊗ ε_{(y ,, m y) : comonoid V}) #⊗ (ε_{(x ,, m x) : comonoid V} #⊗ identity y) · mon_runitor x #⊗ mon_lunitor y)
+          = identity (x ⊗ y))
     : tensor_isBinProduct (monoidal_is_semicartesian_from_comonoid pI).
   Proof.
     intros x y.
@@ -225,8 +225,8 @@ Section CartesianBuilder.
   Definition monoidal_is_cartesian_from_comonoid
     (pI : εI = identity (monoidal_unit V))
     (pT : ∏ x y : V,
-          δ_{(x ⊗_{V} y ,, m _) : comonoid V} · ((identity x ⊗^{V} ε_{(y ,, m y) : comonoid V}) ⊗^{V} (ε_{(x ,, m x) : comonoid V} ⊗^{V} identity y) · ru^{V}_{x} ⊗^{V} lu^{V}_{y})
-          = identity (x ⊗_{V} y))
+          δ_{(x ⊗ y ,, m _) : comonoid V} · ((identity x #⊗ ε_{(y ,, m y) : comonoid V}) #⊗ (ε_{(x ,, m x) : comonoid V} #⊗ identity y) · mon_runitor x #⊗ mon_lunitor y)
+          = identity (x ⊗ y))
     : is_cartesian V.
   Proof.
     exists (monoidal_is_semicartesian_from_comonoid pI).
@@ -270,7 +270,7 @@ Section CartesianBuilderCommutative.
     apply monoidal_leftunitorisolaw.
   Qed.
 
-  Lemma rearranging_before_aug (x y : V)
+  Lemma inner_swap_before_aug (x y : V)
     : inner_swap V x x y y · (x ⊗^{V}_{l} ε_{cm y}) #⊗ (ε_{cm _} ⊗^{V}_{r} y)
       = (_ ⊗^{V}_{l} ε_{cm _}) #⊗ (ε_{cm _} ⊗^{V}_{r} _).
   Proof.
@@ -302,7 +302,7 @@ Section CartesianBuilderCommutative.
     etrans. {
       rewrite ! assoc'.
       do 2 apply maponpaths.
-      apply rearranging_before_aug.
+      apply inner_swap_before_aug.
     }
 
     etrans. {
@@ -346,8 +346,8 @@ Section CartesianBuilderCommutative.
     - abstract (
           intro ; intro
           ; refine (_ @ whisker_to_total x y)
-          ; rewrite (when_bifunctor_becomes_rightwhiskering V)
-          ; rewrite (when_bifunctor_becomes_leftwhiskering V)
+          ; rewrite <- (when_bifunctor_becomes_rightwhiskering V)
+          ; rewrite <- (when_bifunctor_becomes_leftwhiskering V)
           ; rewrite ! assoc
           ; apply idpath).
   Defined.
