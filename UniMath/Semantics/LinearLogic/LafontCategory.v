@@ -2,7 +2,7 @@
 
  Lafont Categories
 
- In this file, we define Lafont categories and we show that every lafont
+ In this file, we define Lafont categories and we show that every Lafont
  category gives rise to a linear-non-linear model.
 
  Contents
