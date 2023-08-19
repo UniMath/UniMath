@@ -19,6 +19,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Functors.
 Require Import UniMath.CategoryTheory.Monoidal.FunctorCategories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
+Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
 
 Import MonoidalNotations.
 
@@ -139,8 +140,8 @@ Definition linear_category_laws
      (* counitality *)
      (∏ (x : 𝕃),
       linear_category_comult 𝕃 x
-      · (identity _ #⊗ linear_category_counit 𝕃 x)
-      · mon_runitor _
+      · (linear_category_counit 𝕃 x #⊗ identity _)
+      · mon_lunitor _
       =
       identity _)
      ×
@@ -250,8 +251,8 @@ Section AccessorsLaws.
   Proposition linear_category_counitality
               (x : 𝕃)
     : linear_category_comult 𝕃 x
-      · (identity _ #⊗ linear_category_counit 𝕃 x)
-      · mon_runitor _
+      · (linear_category_counit 𝕃 x #⊗ identity _)
+      · mon_lunitor _
       =
       identity _.
   Proof.
@@ -267,4 +268,17 @@ Section AccessorsLaws.
   Proof.
     exact (pr222 (pr222 (pr222 𝕃)) x).
   Qed.
+
+  Definition linear_category_cocommutative_comonoid
+             (x : 𝕃)
+    : commutative_comonoid 𝕃.
+  Proof.
+    use make_commutative_comonoid.
+    - exact (linear_category_bang 𝕃 x).
+    - exact (linear_category_comult 𝕃 x).
+    - exact (linear_category_counit 𝕃 x).
+    - exact (linear_category_counitality x).
+    - exact (!(linear_category_coassoc x)).
+    - exact (linear_category_cocommutative x).
+  Defined.
 End AccessorsLaws.

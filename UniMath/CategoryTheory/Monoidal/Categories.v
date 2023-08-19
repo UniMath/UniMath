@@ -1329,6 +1329,42 @@ Definition monoidal_cat_tensor_mor
 
 Notation "f #⊗ g" := (monoidal_cat_tensor_mor f g) (at level 31) : moncat.
 
+Proposition tensor_mor_left
+            {V : monoidal_cat}
+            (x : V)
+            {y z : V}
+            (f : y --> z)
+  : x ⊗^{V}_{l} f = identity x #⊗ f.
+Proof.
+  unfold monoidal_cat_tensor_mor.
+  unfold functoronmorphisms1.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths_2.
+    apply (bifunctor_rightid V).
+  }
+  apply id_left.
+Qed.
+
+Proposition tensor_mor_right
+            {V : monoidal_cat}
+            (x : V)
+            {y z : V}
+            (f : y --> z)
+  : f ⊗^{V}_{r} x = f #⊗ identity x.
+Proof.
+  unfold monoidal_cat_tensor_mor.
+  unfold functoronmorphisms1.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    apply (bifunctor_leftid V).
+  }
+  apply id_right.
+Qed.
+
 Section MonoidalCatAccessors.
   Context {V : monoidal_cat}.
 
