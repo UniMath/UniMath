@@ -9,6 +9,7 @@
  Contents
  1. Data of linear categories
  2. Laws of linear categories
+ 3. Other accessors for linear categories
 
  ****************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -269,57 +270,64 @@ Section AccessorsLaws.
   Proof.
     exact (pr222 (pr222 (pr222 𝕃)) x).
   Qed.
-
-  Definition linear_category_cocommutative_comonoid
-             (x : 𝕃)
-    : commutative_comonoid 𝕃.
-  Proof.
-    use make_commutative_comonoid.
-    - exact (linear_category_bang 𝕃 x).
-    - exact (linear_category_comult 𝕃 x).
-    - exact (linear_category_counit 𝕃 x).
-    - exact (linear_category_counitality x).
-    - exact (!(linear_category_coassoc x)).
-    - exact (linear_category_cocommutative x).
-  Defined.
-
-  Proposition linear_category_counit_comonoid_mor_struct
-              (x : 𝕃)
-    : comonoid_mor_struct
-        𝕃
-        (linear_category_cocommutative_comonoid x)
-        (linear_category_cocommutative_comonoid
-           (linear_category_cocommutative_comonoid x))
-        (δ (linear_category_bang 𝕃) x).
-  Proof.
-    use make_is_comonoid_mor ; cbn.
-    - exact (!(linear_category_counit_comonoid_mor_comult x)).
-    - rewrite id_right.
-      exact (!(linear_category_counit_comonoid_mor_counit x)).
-  Qed.
-
-  Definition linear_category_comult_nat_trans
-    : linear_category_bang 𝕃
-      ⟹
-      bindelta_pair_functor (linear_category_bang 𝕃) (linear_category_bang 𝕃)
-      ∙
-      monoidal_cat_tensor 𝕃.
-  Proof.
-    use make_nat_trans.
-    - exact (λ x, linear_category_comult 𝕃 x).
-    - abstract
-        (intros x y f ; cbn ;
-         apply linear_category_comult_nat).
-  Defined.
-
-  Definition linear_category_counit_nat_trans
-    : linear_category_bang 𝕃 ⟹ constant_functor _ _ I_{𝕃}.
-  Proof.
-    use make_nat_trans.
-    - exact (λ x, linear_category_counit 𝕃 x).
-    - abstract
-        (intros x y f ; cbn ;
-         rewrite id_right ;
-         apply linear_category_counit_nat).
-  Defined.
 End AccessorsLaws.
+
+(**
+ 3. Other accessors for linear categories
+ *)
+Definition linear_category_cocommutative_comonoid
+           (𝕃 : linear_category)
+           (x : 𝕃)
+  : commutative_comonoid 𝕃.
+Proof.
+  use make_commutative_comonoid.
+  - exact (linear_category_bang 𝕃 x).
+  - exact (linear_category_comult 𝕃 x).
+  - exact (linear_category_counit 𝕃 x).
+  - exact (linear_category_counitality x).
+  - exact (!(linear_category_coassoc x)).
+  - exact (linear_category_cocommutative x).
+Defined.
+
+Proposition linear_category_counit_comonoid_mor_struct
+            (𝕃 : linear_category)
+            (x : 𝕃)
+  : comonoid_mor_struct
+      𝕃
+      (linear_category_cocommutative_comonoid 𝕃 x)
+      (linear_category_cocommutative_comonoid 𝕃
+         (linear_category_cocommutative_comonoid 𝕃 x))
+      (δ (linear_category_bang 𝕃) x).
+Proof.
+  use make_is_comonoid_mor ; cbn.
+  - exact (!(linear_category_counit_comonoid_mor_comult x)).
+  - rewrite id_right.
+    exact (!(linear_category_counit_comonoid_mor_counit x)).
+Qed.
+
+Definition linear_category_comult_nat_trans
+           (𝕃 : linear_category)
+  : linear_category_bang 𝕃
+    ⟹
+    bindelta_pair_functor (linear_category_bang 𝕃) (linear_category_bang 𝕃)
+    ∙
+    monoidal_cat_tensor 𝕃.
+Proof.
+  use make_nat_trans.
+  - exact (λ x, linear_category_comult 𝕃 x).
+  - abstract
+      (intros x y f ; cbn ;
+       apply linear_category_comult_nat).
+Defined.
+
+Definition linear_category_counit_nat_trans
+           (𝕃 : linear_category)
+  : linear_category_bang 𝕃 ⟹ constant_functor _ _ I_{𝕃}.
+Proof.
+  use make_nat_trans.
+  - exact (λ x, linear_category_counit 𝕃 x).
+  - abstract
+      (intros x y f ; cbn ;
+       rewrite id_right ;
+       apply linear_category_counit_nat).
+Defined.
