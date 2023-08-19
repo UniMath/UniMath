@@ -364,7 +364,7 @@ Defined.
 (** The exponential functor has a right adjoint. *)
 Theorem is_left_adjoint_exp_yoneda : is_left_adjoint (exp (Yon c)).
 Proof.
-  use is_left_adjoint_z_iso.
+  use is_left_adjoint_closed_under_iso.
   - exact precomp_prod_functor.
   - use iso_exp_precomp_prod_functor.
   - use precomp_prod_functor_has_right_adjoint.
