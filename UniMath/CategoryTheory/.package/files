@@ -118,6 +118,7 @@ ArrowCategory.v
 RightKanExtension.v
 coslicecat.v
 catiso.v
+DisplayedCats/CatIsoDisplayed.v
 CategoryEquality.v
 WeakEquivalences.v
 rezk_completion.v
@@ -287,6 +288,7 @@ Monoidal/Categories.v
 Monoidal/StrongMonad.v
 
 Monoidal/Structure/Symmetric.v
+Monoidal/Structure/SymmetricDiagonal.v
 Monoidal/Structure/Closed.v
 Monoidal/Structure/Cartesian.v
 
@@ -301,6 +303,7 @@ Monoidal/Displayed/TotalMonoidal.v
 Monoidal/Displayed/MonoidalSections.v
 Monoidal/Displayed/TransportLemmas.v
 Monoidal/Displayed/Symmetric.v
+Monoidal/Displayed/SymmetricMonoidalBuilder.v
 
 Monoidal/Examples/SetCartesianMonoidal.v
 Monoidal/Examples/CartesianMonoidal.v
@@ -319,6 +322,18 @@ Monoidal/Examples/PosetsMonoidal.v
 Monoidal/Examples/LiftPoset.v
 Monoidal/Examples/Fullsub.v
 Monoidal/Examples/Relations.v
+Monoidal/Examples/Sigma.v
+Monoidal/Examples/DiagonalFunctor.v
+Monoidal/Examples/ConstantFunctor.v
+
+Monoidal/Comonoids/Category.v
+Monoidal/Comonoids/Tensor.v
+Monoidal/Comonoids/Monoidal.v
+Monoidal/Comonoids/Symmetric.v
+Monoidal/Comonoids/MonoidalCartesianBuilder.v
+Monoidal/Comonoids/CommComonoidsCartesian.v
+Monoidal/Comonoids/CartesianAsComonoids.v
+
 Monoidal/Examples/SymmetricMonoidalCoEilenbergMoore.v
 
 Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v
