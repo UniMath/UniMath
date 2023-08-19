@@ -1124,6 +1124,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [All.v](AlgebraicTheories/All.v)
 ## Package Semantics
    - [LinearLogic/LinearNonLinear.v](Semantics/LinearLogic/LinearNonLinear.v)
+   - [LinearLogic/LafontCategory.v](Semantics/LinearLogic/LafontCategory.v)
    - [LinearLogic/LinearCategory.v](Semantics/LinearLogic/LinearCategory.v)
    - [LinearLogic/LiftingModel.v](Semantics/LinearLogic/LiftingModel.v)
    - [EnrichedEffectCalculus/EECModel.v](Semantics/EnrichedEffectCalculus/EECModel.v)

@@ -1,4 +1,5 @@
 LinearLogic/LinearNonLinear.v
+LinearLogic/LafontCategory.v
 LinearLogic/LinearCategory.v
 LinearLogic/LiftingModel.v
 
