@@ -1112,11 +1112,6 @@ Coercion sym_monoidal_adjunction_to_is_symmetric
 (**
  7. Symmetric monoidal adjunctions from strong functors
  *)
-Coercion sym_monoidal_cat_to_symmetric
-         (V : sym_monoidal_cat)
-  : symmetric V
-  := pr2 V.
-
 Section SymMonoidalAdjunctionFromStrong.
   Context {V₁ V₂ : sym_monoidal_cat}
           {A : adjunction V₁ V₂}
