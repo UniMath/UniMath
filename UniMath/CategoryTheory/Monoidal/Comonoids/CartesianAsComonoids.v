@@ -420,19 +420,6 @@ Section CartesianToCartesianAsComonoids.
        apply pathsinv0, comult_is_diag.
   Qed.
 
-  Lemma sigma_with_unit (A : UU)
-    : (∑ _ : A, unit) ≃ A.
-  Proof.
-    use weq_iso.
-    - exact pr1.
-    - exact (λ x , x ,, tt).
-    - intro.
-      use subtypePath.
-      { intro ; apply isapropunit. }
-      apply idpath.
-    - intro ; apply idpath.
-  Defined.
-
   Definition cartesian_mon_is_comm_comonoids
     : is_catiso (pr1_category (disp_cat_of_commutative_comonoids V)).
   Proof.
