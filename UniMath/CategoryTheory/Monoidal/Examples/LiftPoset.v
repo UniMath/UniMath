@@ -33,6 +33,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Examples.SmashProductMonoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.PosetsMonoidal.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.CategoryOfPosets.
 Require Import UniMath.CategoryTheory.Monads.Comonads.
+Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
 
 Local Open Scope cat.
 
@@ -417,5 +418,30 @@ Proof.
        use eq_mor_hset_struct ;
        intro x ;
        induction x as [ x | ] ; cbn ;
+       apply idpath).
+Defined.
+
+Definition lift_commutative_comonoid
+           (X : pointed_poset_sym_mon_closed_cat)
+  : commutative_comonoid pointed_poset_sym_mon_closed_cat.
+Proof.
+  use make_commutative_comonoid.
+  - exact (lift_poset_functor X).
+  - exact (lift_poset_comult X).
+  - exact (lift_poset_counit X).
+  - abstract
+      (use eq_mor_hset_struct ;
+       intro x ; cbn in x ;
+       induction x as [ x | [ ] ] ;
+       apply idpath).
+  - abstract
+      (use eq_mor_hset_struct ;
+       intro x ; cbn in x ;
+       induction x as [ x | [ ] ] ;
+       apply idpath).
+  - abstract
+      (use eq_mor_hset_struct ;
+       intro x ; cbn in x ;
+       induction x as [ x | [ ] ] ;
        apply idpath).
 Defined.
