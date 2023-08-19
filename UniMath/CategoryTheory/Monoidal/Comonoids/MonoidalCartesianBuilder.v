@@ -92,8 +92,6 @@ Section CartesianBuilder.
       : V⟦z, x ⊗ y⟧
       := δz · fx #⊗ fy.
 
-    Let k := make_isbinprod_from_comonoid_existence_mor.
-
     Lemma make_is_binprod_from_comonoids_existence_mor_1
       : δz · fx #⊗ fy · (identity x #⊗ εy · mon_runitor x) = fx.
     Proof.
