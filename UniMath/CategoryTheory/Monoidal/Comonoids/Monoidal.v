@@ -54,7 +54,7 @@ Section MonoidalCategoryOfComonoids.
   Let V_comult : disp_monoidal (dialgebra_disp_cat _ _) V
       := dialgebra_disp_monoidal (identity_fmonoidal V) (diag_functor_fmonoidal V).
 
-  Local Definition V_counit
+  Let V_counit
     : disp_monoidal (dialgebra_disp_cat (functor_identity V) (constant_functor _ _ I_{V})) V.
   Proof.
     use (dialgebra_disp_monoidal (identity_fmonoidal V)
