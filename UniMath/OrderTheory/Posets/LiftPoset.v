@@ -88,9 +88,9 @@ Defined.
 Proposition lift_strict_and_monotone_map
             {X Y : hSet}
             {f : X → Y}
-            {PX : pointed_PartialOrder X}
-            {PY : pointed_PartialOrder Y}
-            (Pf : is_strict_and_monotone PX PY f)
+            {PX : PartialOrder X}
+            {PY : PartialOrder Y}
+            (Pf : is_monotone PX PY f)
   : is_strict_and_monotone
       (lift_pointed_PartialOrder PX)
       (lift_pointed_PartialOrder PY)
