@@ -47,7 +47,7 @@ Definition lift_poset_functor_data
 Proof.
   use make_functor_data.
   - exact (λ X, _ ,, lift_pointed_PartialOrder (pr12 X)).
-  - exact (λ X Y f, _ ,, lift_strict_and_monotone_map (pr2 f)).
+  - exact (λ X Y f, _ ,, lift_strict_and_monotone_map (pr12 f)).
 Defined.
 
 Proposition lift_poset_functor_laws
