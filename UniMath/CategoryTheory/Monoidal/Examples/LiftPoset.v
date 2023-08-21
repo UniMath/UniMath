@@ -42,8 +42,8 @@ Local Open Scope cat.
  *)
 Definition lift_poset_functor_data
   : functor_data
-      pointed_poset_sym_mon_closed_cat
-      pointed_poset_sym_mon_closed_cat.
+      category_of_pointed_poset_strict
+      category_of_pointed_poset_strict.
 Proof.
   use make_functor_data.
   - exact (λ X, _ ,, lift_pointed_PartialOrder (pr12 X)).
@@ -69,7 +69,7 @@ Proof.
 Qed.
 
 Definition lift_poset_functor
-  : pointed_poset_sym_mon_closed_cat ⟶ pointed_poset_sym_mon_closed_cat.
+  : category_of_pointed_poset_strict ⟶ category_of_pointed_poset_strict.
 Proof.
   use make_functor.
   - exact lift_poset_functor_data.
@@ -333,7 +333,7 @@ Proof.
 Qed.
 
 Definition lift_poset_symmetric_monoidal_comonad :
-  symmetric_monoidal_comonad (pr21 pointed_poset_sym_mon_closed_cat).
+  symmetric_monoidal_comonad pointed_poset_sym_mon_closed_cat.
 Proof.
   use make_symmetric_monoidal_comonad.
   - exact lift_poset_comonad.
@@ -349,7 +349,7 @@ Defined.
 Definition lift_poset_comult_map
            {X : pointed_poset_sym_mon_closed_cat}
            (x : pr11 X ⨿ unit)
-  : pr11 (lift_poset_functor X ∧* lift_poset_functor X).
+  : pr11 (lift_poset_comonad X ∧* lift_poset_comonad X).
 Proof.
   induction x as [ x | ].
   - exact (setquotpr _ (inl x ,, inl x)).
@@ -359,8 +359,8 @@ Defined.
 Proposition is_strict_and_monotone_lift_poset_comult_map
             (X : pointed_poset_sym_mon_closed_cat)
   : is_strict_and_monotone
-      (pr2 (lift_poset_functor X))
-      (pr2 (lift_poset_functor X ∧* lift_poset_functor X))
+      (pr2 (lift_poset_comonad X))
+      (pr2 (lift_poset_comonad X ∧* lift_poset_comonad X))
       (@lift_poset_comult_map X).
 Proof.
   split.

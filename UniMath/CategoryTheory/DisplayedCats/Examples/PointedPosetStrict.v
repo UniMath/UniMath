@@ -70,6 +70,10 @@ Definition struct_pointed_poset_strict
   : hset_struct
   := struct_pointed_poset_strict_data ,, struct_pointed_poset_strict_laws.
 
+Definition category_of_pointed_poset_strict
+  : category
+  := category_of_hset_struct struct_pointed_poset_strict.
+
 (**
  2. The cartesian structure of pointed posets
  *)
