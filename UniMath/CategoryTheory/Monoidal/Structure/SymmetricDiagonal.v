@@ -1,6 +1,12 @@
 (*
 This file contains certain (coherence) properties involving the braiding, of a fixed symmetric monoidal category.
-Two coherences, needed somewhere else, are admitted. These holes will be fixed.
+.
+
+Remark: There are numerous proofs that could profit from an implementation of coherence theorems
+        for monoidal categories. However, the basic situation of pure monoidal categories where
+        equality of morphisms (built only from identities and the monoidal isos) can be seen from
+        their types would only help to a small extent. Some of those situations are marked in the
+        proofs below. Symmetric monoidal categories do not have such a simple coherence theorem.
 
 *)
 
@@ -349,7 +355,7 @@ Section Swapping.
                     = identity x #⊗ mon_lassociator (z ⊗ y1) y2 w ·
                       identity x #⊗ mon_lassociator z y1 (y2 ⊗ w) ·
                       mon_rassociator x z (y1 ⊗ (y2 ⊗ w))).
-    {
+    { (* the goal is an instance of coherence for monoidal categories *)
       refine (!_).
       etrans.
       {
@@ -397,7 +403,7 @@ Section Swapping.
   · identity x #⊗ (mon_lassociator y1 y2 z #⊗ identity w) =
         mon_lassociator (x ⊗ y1) y2 (z ⊗ w) · identity (x ⊗ y1) #⊗ mon_rassociator y2 z w
           · mon_lassociator x y1 (y2 ⊗ z ⊗ w) · identity x #⊗ αinv^{ V }_{ y1, y2 ⊗ z, w}).
-    {
+    { (* the goal is an instance of coherence for monoidal categories *)
       refine (!_).
       etrans.
       {
@@ -440,6 +446,7 @@ Section Swapping.
     do 5 apply maponpaths.
     rewrite !assoc.
     apply maponpaths_2.
+    (* the goal is an instance of coherence for monoidal categories *)
     refine (!_).
     etrans.
     {
@@ -557,7 +564,7 @@ Section Swapping.
     rewrite tensor_id_id.
     apply idpath.
   Qed.
-  (* it should follow by turning around all morphisms in the previous lemma *)
+  (* the proof is essentially by turning around all morphisms in the previous lemma *)
 
   Lemma mon_lassociator_inner_swap (x y z w : V)
     : mon_lassociator _ _ _ ·
@@ -1030,7 +1037,8 @@ Section Swapping.
         apply maponpaths.
         show_id_type.
         intermediate_path (identity ((x1 ⊗ (x2 ⊗ y2)) ⊗ (z1 ⊗ y1 ⊗ z2))).
-        - etrans.
+        - (* the goal is an instance of coherence for monoidal categories *)
+          etrans.
           {
             do 3 apply maponpaths.
             rewrite !assoc.
@@ -1094,6 +1102,7 @@ Section Swapping.
       do 2 rewrite tensor_id_id.
       rewrite id_left.
       unfold middle.
+      (* the goal is an instance of coherence for monoidal categories *)
       refine (!_).
       etrans.
       {
@@ -1228,9 +1237,9 @@ Section Swapping.
       { do 6 apply maponpaths_2.
         rewrite !assoc'.
         apply maponpaths.
-        show_id_type.
+        (* show_id_type. *)
         intermediate_path (identity (x1 ⊗ (y2 ⊗ x2) ⊗ (y1 ⊗ z1 ⊗ z2))).
-        - (** this is plainly an instance of coherence for monoidal categories *)
+        - (* the goal is an instance of coherence for monoidal categories *)
           etrans.
           {
             do 3 apply maponpaths.
@@ -1308,6 +1317,7 @@ Section Swapping.
       do 2 rewrite tensor_id_id.
       rewrite id_left.
       unfold middle.
+      (* the goal is an instance of coherence for monoidal categories *)
       refine (!_).
       etrans.
       {
