@@ -22,7 +22,7 @@
 
  The main idea behind the third point is that there is a distributive law
  between the power set monad and the free commutative monoid monad. The proof
- in this file is a combines these 4 facts.
+ in this file combines these 4 facts.
 
  First we construct the cofree comonoid ([cofree_comonoid_REL]) using the free
  commutative monoid.
