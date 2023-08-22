@@ -411,27 +411,14 @@ Section RoundedIdealCompletion.
               (Hb : b ∈ I)
     : principal_ideal b ≪ I.
   Proof.
-    assert (H := is_ideal_rounded (pr2 I) Hb).
-    revert H.
-    use factor_through_squash.
-    {
-      apply propproperty.
-    }
-    intro c.
-    induction c as ( c & p₁ & p₂ ).
     intros D HD.
-    assert (H := HD c p₂).
-    revert H.
-    use factor_through_squash.
-    {
-      apply propproperty.
-    }
+    assert (H := HD _ Hb). revert H.
+    use factor_through_squash_hProp.
     intro d ; cbn in d.
     induction d as [ d Hd ].
     refine (hinhpr (d ,, _)).
     cbn ; intros x Hx.
-    use (is_ideal_lower_set (pr2 (D d)) Hd).
-    exact (trans_abstract_basis Hx p₁).
+    exact (is_ideal_lower_set (pr2 (D d)) Hd Hx).
   Qed.
 
   Proposition lt_way_below
