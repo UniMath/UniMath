@@ -514,7 +514,49 @@ Section Swapping.
         mon_rassociator _ _ _ ·
         inner_swap (x ⊗ z1) y z2 w.
   Proof.
-  Admitted.
+    refine (!(id_right _) @ _).
+    rewrite <- inner_swap_inv.
+    rewrite !assoc.
+    apply maponpaths_2.
+    refine (!(id_right _) @ _).
+    rewrite <- mon_lassociator_rassociator.
+    rewrite !assoc.
+    apply maponpaths_2.
+    refine (!(id_right _) @ _).
+    rewrite <- inner_swap_inv.
+    rewrite !assoc.
+    refine (_ @ id_left _).
+    apply maponpaths_2.
+    rewrite !assoc'.
+    etrans.
+    {
+      do 3 apply maponpaths.
+      rewrite !assoc.
+      refine (!_).
+      apply inner_swap_composite_second_arg.
+    }
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_comp_id_r.
+      rewrite mon_rassociator_lassociator.
+      rewrite tensor_id_id.
+      rewrite id_left.
+      apply idpath.
+    }
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite inner_swap_inv.
+      apply id_left.
+    }
+    rewrite <- tensor_comp_id_l.
+    rewrite mon_rassociator_lassociator.
+    rewrite tensor_id_id.
+    apply idpath.
+  Qed.
   (* it should follow by turning around all morphisms in the previous lemma *)
 
   Lemma mon_lassociator_inner_swap (x y z w : V)
