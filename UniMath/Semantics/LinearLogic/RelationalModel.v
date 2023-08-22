@@ -44,6 +44,19 @@
  homomorphisms in `SET` ([comonoid_mor_REL_to_monoid_mor]). This is so that we
  can instantiate the uniqueness of the universal property.
 
+ The construction of comonoids in `REL` from monoids in `SET` can be seen as the
+ composition of the following functors.
+ - We have a functor from `Mon(SET) -> Mon(REL)`. It sends a monoid `X` to the
+   powerset of `X`. The reason why this functor exists, is because we have a
+   distributive law between the free monoid monad and the powerset monad.
+ - For every symmetric monoidal category `V` we have an equivalence
+   `Mon(V) ≃ Comon(V^op)`. This follows from the fact that the notion of monoid
+   and comonoid are dual to each other.
+ - From an equivalence `V ≃ V'` we get an equivalence `Comon(V) ≃ Comon(V')`.
+ - We have that `REL ≃ REL^op`, because relations can be reversed.
+ Now we can make the following composition of functors:
+ `Mon(SET) -> Mon(REL) ≃ Comon(REL^op) ≃ Comon(REL)`
+
  Contents
  1. The cofree comonoid on a set
  2. Every comonoid in `REL` gives rise to a monoid in `SET`
