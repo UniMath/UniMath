@@ -246,6 +246,56 @@ Section CategoryOfCommutativeComonoids.
     := pr1_category _.
 End CategoryOfCommutativeComonoids.
 
+Section CommutativeComonoidsMorBuilder.
+  Import ComonoidNotations.
+
+  Context {V : sym_monoidal_cat}
+          (C₁ C₂ : commutative_comonoid V)
+          (f : underlying_commutative_comonoid _ C₁ --> underlying_commutative_comonoid _ C₂)
+          (fδ : δ_{C₁} · f #⊗ f = f · δ_{C₂})
+          (fε : ε_{C₁} = f · ε_{C₂}).
+
+  Definition make_commutative_comonoid_mor
+    : C₁ --> C₂.
+  Proof.
+    refine (f ,, ((_ ,, _) ,, tt) ,, tt).
+    - exact fδ.
+    - cbn.
+      rewrite id_right.
+      exact fε.
+  Defined.
+End CommutativeComonoidsMorBuilder.
+
+Definition underlying_comonoid_mor
+           {V : sym_monoidal_cat}
+           {C₁ C₂ : commutative_comonoid V}
+           (f : C₁ --> C₂)
+  : underlying_commutative_comonoid _ C₁ --> underlying_commutative_comonoid _ C₂
+  := pr1 f.
+
+Section CommutativeComonoidsMorProjections.
+  Import ComonoidNotations.
+
+  Context {V : sym_monoidal_cat}
+          {C₁ C₂ : commutative_comonoid V}
+          (f : C₁ --> C₂).
+
+  Proposition underlying_comonoid_mor_comult
+    : δ_{C₁} · underlying_comonoid_mor f #⊗ underlying_comonoid_mor f
+      =
+      underlying_comonoid_mor f · δ_{C₂}.
+  Proof.
+    exact (pr1 (pr112 f)).
+  Qed.
+
+  Proposition underlying_comonoid_mor_counit
+    : ε_{C₁} = underlying_comonoid_mor f · ε_{C₂}.
+  Proof.
+    refine (_ @ pr2 (pr112 f)).
+    exact (!(id_right _)).
+  Qed.
+End CommutativeComonoidsMorProjections.
+
 (**
  This gives a more convenient builder for commutative comonoids for
  the bundled version. Note: only one identity law has to be proven
