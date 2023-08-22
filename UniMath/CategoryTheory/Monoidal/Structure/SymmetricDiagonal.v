@@ -349,8 +349,21 @@ Section Swapping.
                     = identity x #⊗ mon_lassociator (z ⊗ y1) y2 w ·
                       identity x #⊗ mon_lassociator z y1 (y2 ⊗ w) ·
                       mon_rassociator x z (y1 ⊗ (y2 ⊗ w))).
-    { (** this is plainly an instance of coherence for monoidal categories *)
-      admit. }
+    {
+      refine (!_).
+      etrans.
+      {
+        rewrite <- tensor_comp_id_l.
+        rewrite mon_lassociator_lassociator.
+        rewrite !tensor_comp_id_l.
+        apply idpath.
+      }
+      rewrite !assoc'.
+      do 2 apply maponpaths.
+      rewrite tensor_rassociator.
+      rewrite tensor_id_id.
+      apply idpath.
+    }
     etrans.
     { rewrite !assoc'.
       do 7 apply maponpaths.
@@ -384,8 +397,42 @@ Section Swapping.
   · identity x #⊗ (mon_lassociator y1 y2 z #⊗ identity w) =
         mon_lassociator (x ⊗ y1) y2 (z ⊗ w) · identity (x ⊗ y1) #⊗ mon_rassociator y2 z w
           · mon_lassociator x y1 (y2 ⊗ z ⊗ w) · identity x #⊗ αinv^{ V }_{ y1, y2 ⊗ z, w}).
-    { (** this is plainly an instance of coherence for monoidal categories *)
-      admit. }
+    {
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths_2.
+        rewrite !assoc'.
+        rewrite <- tensor_id_id.
+        rewrite tensor_lassociator.
+        rewrite !assoc.
+        rewrite mon_lassociator_lassociator.
+        apply idpath.
+      }
+      rewrite !assoc'.
+      do 2 apply maponpaths.
+      rewrite <- !tensor_comp_id_l.
+      apply maponpaths.
+      refine ((!id_left _) @ _).
+      rewrite <- mon_rassociator_lassociator.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite mon_lassociator_lassociator.
+      rewrite !assoc'.
+      refine (_ @ id_right _).
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite <- tensor_comp_id_l.
+        rewrite mon_lassociator_rassociator.
+        rewrite tensor_id_id.
+        apply id_left.
+      }
+      apply mon_lassociator_rassociator.
+    }
     etrans.
     { do 3 apply maponpaths_2.
       exact cohe2. }
@@ -393,10 +440,71 @@ Section Swapping.
     do 5 apply maponpaths.
     rewrite !assoc.
     apply maponpaths_2.
-    (** this is plainly an instance of coherence for monoidal categories *)
-    admit.
-  Admitted.
-  (** only instances of coherence for monoidal categories are admitted in this proof *)
+    refine (!_).
+    etrans.
+    {
+      rewrite !assoc'.
+      do 3 apply maponpaths.
+      rewrite !assoc.
+      rewrite mon_rassociator_lassociator.
+      rewrite id_left.
+      apply idpath.
+    }
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_id_id.
+      rewrite tensor_lassociator.
+      apply idpath.
+    }
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      do 3 apply maponpaths_2.
+      apply mon_rassociator_lassociator.
+    }
+    rewrite id_left.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        refine (!_).
+        apply tensor_comp_id_l.
+      }
+      refine (!_).
+      apply tensor_comp_id_l.
+    }
+    refine (!(tensor_comp_id_l _ _) @ _).
+    apply maponpaths.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply mon_rassociator_rassociator.
+    }
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      do 2 apply maponpaths_2.
+      refine (!_).
+      apply tensor_comp_id_l.
+    }
+    rewrite mon_lassociator_rassociator.
+    rewrite tensor_id_id.
+    rewrite id_left.
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply mon_lassociator_rassociator.
+    }
+    apply id_left.
+  Qed.
 
   Lemma inner_swap_composite_third_arg (x y z1 z2 w : V)
     : (identity _) #⊗ mon_rassociator _ _ _ ·
@@ -880,8 +988,54 @@ Section Swapping.
         apply maponpaths.
         show_id_type.
         intermediate_path (identity ((x1 ⊗ (x2 ⊗ y2)) ⊗ (z1 ⊗ y1 ⊗ z2))).
-        - (** this is plainly an instance of coherence for monoidal categories *)
-          admit.
+        - etrans.
+          {
+            do 3 apply maponpaths.
+            rewrite !assoc.
+            apply maponpaths_2.
+            rewrite !assoc'.
+            rewrite tensor_lassociator.
+            rewrite !assoc.
+            apply maponpaths_2.
+            apply mon_lassociator_lassociator.
+          }
+          etrans.
+          {
+            do 2 apply maponpaths.
+            rewrite !assoc.
+            rewrite <- tensor_comp_id_r.
+            rewrite mon_rassociator_lassociator.
+            rewrite tensor_id_id.
+            rewrite id_left.
+            apply idpath.
+          }
+          etrans.
+          {
+            apply maponpaths.
+            rewrite !assoc.
+            rewrite mon_rassociator_lassociator.
+            rewrite id_left.
+            apply idpath.
+          }
+          rewrite tensor_id_id.
+          rewrite <- tensor_comp_mor.
+          rewrite id_left, id_right.
+          etrans.
+          {
+            apply maponpaths.
+            refine (!_).
+            apply tensor_comp_mor.
+          }
+          refine (!(tensor_comp_mor _ _ _ _) @ _).
+          rewrite id_right, id_left.
+          etrans.
+          {
+            apply maponpaths.
+            apply mon_lassociator_rassociator.
+          }
+          refine (_ @ tensor_id_id _ _).
+          apply maponpaths_2.
+          apply mon_rassociator_lassociator.
         - apply idpath.
       }
       rewrite id_right.
@@ -897,8 +1051,98 @@ Section Swapping.
       }
       do 2 rewrite tensor_id_id.
       rewrite id_left.
-      (** this is plainly an instance of coherence for monoidal categories *)
-      admit.
+      unfold middle.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths_2.
+        apply tensor_split.
+      }
+      rewrite !assoc'.
+      apply maponpaths.
+      refine (!_).
+      refine (!(id_left _) @ _).
+      rewrite <- mon_lassociator_rassociator.
+      rewrite !assoc'.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite mon_rassociator_rassociator.
+        rewrite !assoc'.
+        do 2 apply maponpaths.
+        rewrite !assoc.
+        rewrite <- !tensor_comp_id_r.
+        rewrite mon_rassociator_lassociator.
+        rewrite id_left.
+        rewrite !tensor_comp_id_r.
+        apply idpath.
+      }
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite !assoc.
+        rewrite <- tensor_rassociator.
+        apply idpath.
+      }
+      rewrite !assoc'.
+      etrans.
+      {
+        do 3 apply maponpaths.
+        refine (!(id_left _) @ _).
+        rewrite <- tensor_id_id.
+        rewrite <- mon_lassociator_rassociator.
+        rewrite tensor_comp_id_l.
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite !assoc.
+        apply maponpaths_2.
+        refine (!_).
+        apply mon_rassociator_rassociator.
+      }
+      rewrite !assoc'.
+      rewrite mon_rassociator_lassociator.
+      rewrite id_right.
+      refine (_ @ id_right _).
+      rewrite <- mon_lassociator_rassociator.
+      rewrite !assoc.
+      apply maponpaths_2.
+      rewrite !assoc'.
+      refine (!_).
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite <- tensor_id_id.
+        apply tensor_lassociator.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite mon_lassociator_lassociator.
+        apply idpath.
+      }
+      rewrite !assoc.
+      rewrite <- tensor_comp_id_r.
+      rewrite mon_rassociator_lassociator.
+      rewrite tensor_id_id.
+      rewrite id_left.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite <- !tensor_comp_id_l.
+      apply maponpaths.
+      refine (!(id_left _) @ _).
+      rewrite <- mon_rassociator_lassociator.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite mon_lassociator_lassociator.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite <- tensor_comp_id_l.
+      rewrite mon_lassociator_rassociator.
+      rewrite tensor_id_id.
+      apply id_right.
     - rewrite tensor_comp_id_l.
       rewrite tensor_comp_id_r.
       rewrite assoc'.
@@ -945,7 +1189,67 @@ Section Swapping.
         show_id_type.
         intermediate_path (identity (x1 ⊗ (y2 ⊗ x2) ⊗ (y1 ⊗ z1 ⊗ z2))).
         - (** this is plainly an instance of coherence for monoidal categories *)
-          admit.
+          etrans.
+          {
+            do 3 apply maponpaths.
+            rewrite !assoc.
+            etrans.
+            {
+              do 2 apply maponpaths_2.
+              etrans.
+              {
+                apply maponpaths.
+                apply maponpaths_2.
+                exact (!(tensor_id_id _ _)).
+              }
+              refine (!_).
+              apply tensor_rassociator.
+            }
+            rewrite !assoc'.
+            apply maponpaths.
+            rewrite !assoc.
+            etrans.
+            {
+              apply maponpaths_2.
+              apply mon_rassociator_rassociator.
+            }
+            rewrite !assoc'.
+            rewrite tensor_mor_right.
+            rewrite <- tensor_comp_id_r.
+            rewrite mon_rassociator_lassociator.
+            rewrite tensor_id_id.
+            rewrite id_right.
+            apply idpath.
+          }
+          refine (_ @ mon_lassociator_rassociator _ _ _).
+          rewrite !assoc.
+          apply maponpaths_2.
+          etrans.
+          {
+            do 3 apply maponpaths_2.
+            rewrite <- tensor_id_id.
+            rewrite tensor_lassociator.
+            apply idpath.
+          }
+          rewrite !assoc'.
+          refine (_ @ id_right _).
+          apply maponpaths.
+          rewrite <- !tensor_comp_id_l.
+          refine (_ @ tensor_id_id _ _).
+          apply maponpaths.
+          refine (_ @ mon_lassociator_rassociator _ _ _).
+          rewrite !assoc.
+          apply maponpaths_2.
+          rewrite <- tensor_id_id.
+          rewrite tensor_lassociator.
+          rewrite !assoc'.
+          refine (_ @ id_right _).
+          apply maponpaths.
+          rewrite <- !tensor_id_id.
+          rewrite <- !tensor_comp_id_l.
+          do 2 apply maponpaths.
+          rewrite !tensor_id_id.
+          apply mon_lassociator_rassociator.
         - apply idpath.
       }
       rewrite id_right.
@@ -961,10 +1265,48 @@ Section Swapping.
       }
       do 2 rewrite tensor_id_id.
       rewrite id_left.
-      (** this is plainly an instance of coherence for monoidal categories *)
-      admit.
-  Admitted.
-  (** only instances of coherence for monoidal categories are admitted in this proof *)
+      unfold middle.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths_2.
+        rewrite tensor_split'.
+        apply idpath.
+      }
+      rewrite tensor_mor_right.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_id_id.
+      rewrite tensor_lassociator.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite <- !tensor_comp_id_l.
+      apply maponpaths.
+      refine (_ @ id_right _).
+      rewrite <- mon_lassociator_rassociator.
+      rewrite !assoc.
+      apply maponpaths_2.
+      rewrite !assoc'.
+      refine (!_).
+      etrans.
+      {
+        do 2 apply maponpaths.
+        apply mon_lassociator_lassociator.
+      }
+      rewrite !assoc.
+      refine (_ @ id_left _).
+      apply maponpaths_2.
+      refine (_ @ mon_rassociator_lassociator _ _ _).
+      apply maponpaths_2.
+      refine (_ @ id_right _).
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite <- tensor_id_id.
+      rewrite <- tensor_comp_id_r.
+      rewrite mon_rassociator_lassociator.
+      apply idpath.
+  Qed.
 
   Lemma inner_swap_hexagon_2 (x y : V)
     : inner_swap (x ⊗ x) x (y ⊗ y) y
