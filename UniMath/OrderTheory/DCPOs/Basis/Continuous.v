@@ -24,7 +24,7 @@
  Note that we can generalize interpolation to finite sets. These interpolation
  properties are useful when proving stuff about continuous DCPOs.
 
- We also show that if a DCPO is continuous (as a property), then we also have
+ We also show that if a DCPO is continuous (as a property), then we  have
  a canonical continuity structure on that DCPO. We define the approximating
  family for `x` to consist of all elements `y` such that `y ≪ x`. We can show
  that this set is directed, and for that we use that we know that the DCPO is
