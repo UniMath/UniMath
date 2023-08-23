@@ -23,6 +23,8 @@
  2. A pseudofunctor into displayed categories
  3. This pseudofunctor is an isomorphism
  4. The univalence
+ 5. Invertible 2-cells
+ 6. Adjoints equivalences
 
  **********************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -41,6 +43,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedNatTrans.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
@@ -595,3 +598,205 @@ Proof.
   - exact disp_univalent_2_disp_bicat_twosided_disp_cat.
   - exact univalent_cat_is_univalent_2.
 Defined.
+
+(**
+ 5. Invertible 2-cells
+ *)
+Section ToInvertible.
+  Context {C₁ C₂ : univalent_category}
+          {F : C₁ ⟶ C₂}
+          {D₁ : disp_bicat_twosided_disp_cat C₁}
+          {D₂ : disp_bicat_twosided_disp_cat C₂}
+          {FF GG : D₁ -->[ F ] D₂}
+          (ττ : FF ==>[ id2 _ ] GG)
+          (Hττ : ∏ (x y : C₁)
+                   (f : pr1 D₁ x y),
+                 is_iso_twosided_disp
+                   (identity_is_z_iso _)
+                   (identity_is_z_iso _)
+                   (pr1 ττ x y f)).
+
+  Definition is_disp_invertible_2cell_twosided_disp_cat_over_id_inv_data
+    : twosided_disp_nat_trans_data
+        (nat_trans_id _) (nat_trans_id _)
+        (pr1 GG)
+        (pr1 FF)
+    := λ x y f, iso_inv_twosided_disp (Hττ x y f).
+
+  Arguments is_disp_invertible_2cell_twosided_disp_cat_over_id_inv_data /.
+
+  Proposition is_disp_invertible_2cell_twosided_disp_cat_over_id_inv_laws
+    : twosided_disp_nat_trans_laws
+        (nat_trans_id _) (nat_trans_id _)
+        (pr1 GG) (pr1 FF)
+        is_disp_invertible_2cell_twosided_disp_cat_over_id_inv_data.
+  Proof.
+    intros x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; cbn.
+    refine (!_).
+    refine (id_two_disp_right_alt _ @ _).
+    unfold transportb_disp_mor2.
+    rewrite two_disp_pre_whisker_f.
+    rewrite transport_f_f_disp_mor2.
+    rewrite (inv_after_iso_twosided_disp_alt (Hττ x₂ y₂ xy₂)).
+    rewrite two_disp_post_whisker_f.
+    rewrite transport_f_f_disp_mor2.
+    rewrite assoc_two_disp_alt.
+    rewrite transport_f_f_disp_mor2.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite assoc_two_disp.
+      apply maponpaths.
+      apply maponpaths_2.
+      apply ττ.
+    }
+    unfold transportb_disp_mor2.
+    rewrite two_disp_pre_whisker_f.
+    rewrite transport_f_f_disp_mor2.
+    rewrite two_disp_post_whisker_f.
+    rewrite transport_f_f_disp_mor2.
+    rewrite assoc_two_disp.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
+    rewrite assoc_two_disp.
+    unfold transportb_disp_mor2.
+    rewrite two_disp_pre_whisker_f.
+    rewrite transport_f_f_disp_mor2.
+    etrans.
+    {
+      apply maponpaths.
+      do 2 apply maponpaths_2.
+      exact (iso_after_inv_twosided_disp (Hττ x₁ y₁ xy₁)).
+    }
+    unfold transportb_disp_mor2.
+    rewrite !two_disp_pre_whisker_f.
+    rewrite transport_f_f_disp_mor2.
+    rewrite id_two_disp_left.
+    unfold transportb_disp_mor2.
+    rewrite !two_disp_pre_whisker_f.
+    rewrite transport_f_f_disp_mor2.
+    apply transportf_disp_mor2_idpath.
+  Qed.
+
+  Definition is_disp_invertible_2cell_twosided_disp_cat_over_id_inv
+    : twosided_disp_nat_trans
+        (nat_trans_id _) (nat_trans_id _)
+        (pr1 GG)
+        (pr1 FF).
+  Proof.
+    simple refine (_ ,, _).
+    - exact is_disp_invertible_2cell_twosided_disp_cat_over_id_inv_data.
+    - exact is_disp_invertible_2cell_twosided_disp_cat_over_id_inv_laws.
+  Defined.
+
+  Definition is_disp_invertible_2cell_twosided_disp_cat_over_id
+    : is_disp_invertible_2cell (id2_invertible_2cell _) ττ.
+  Proof.
+    refine (is_disp_invertible_2cell_twosided_disp_cat_over_id_inv ,, _ ,, _).
+    - abstract
+        (use eq_twosided_disp_nat_trans ;
+         intros x y xy ;
+         refine (_ @ !(transportb_prebicat_twosided_disp_cat _ _ _ _ _)) ; cbn ;
+         refine (inv_after_iso_twosided_disp (Hττ x y xy) @ _) ;
+         use transportf_disp_mor2_eq ;
+         apply idpath).
+    - abstract
+        (use eq_twosided_disp_nat_trans ;
+         intros x y xy ;
+         refine (_ @ !(transportb_prebicat_twosided_disp_cat _ _ _ _ _)) ; cbn ;
+         refine (iso_after_inv_twosided_disp (Hττ x y xy) @ _) ;
+         use transportf_disp_mor2_eq ;
+         apply idpath).
+  Defined.
+End ToInvertible.
+
+Definition is_disp_invertible_2cell_twosided_disp_cat_help
+           {C₁ C₂ : bicat_of_univ_cats}
+           {F G : C₁ --> C₂}
+           (τ : invertible_2cell F G)
+           (Hτ := is_invertible_2cell_to_is_nat_z_iso _ (pr2 τ))
+           {D₁ : disp_bicat_twosided_disp_cat C₁}
+           {D₂ : disp_bicat_twosided_disp_cat C₂}
+           {FF : D₁ -->[ F ] D₂}
+           {GG : D₁ -->[ G ] D₂}
+           (ττ : FF ==>[ τ ] GG)
+           (Hττ : ∏ (x y : pr1 C₁)
+                    (f : pr1 D₁ x y),
+                  is_iso_twosided_disp
+                    (Hτ x)
+                    (Hτ y)
+                    (pr1 ττ x y f))
+  : is_disp_invertible_2cell (is_nat_z_iso_to_is_invertible_2cell _ Hτ) ττ.
+Proof.
+  revert C₁ C₂ F G τ Hτ D₁ D₂ FF GG ττ Hττ.
+  use J_2_1.
+  - exact univalent_cat_is_univalent_2_1.
+  - intros C₁ C₂ F D₁ D₂ FF GG ττ Hττ.
+    cbn ; cbn in Hττ.
+    refine (transportf (λ z, is_disp_invertible_2cell z _) _ _).
+    2: apply is_disp_invertible_2cell_twosided_disp_cat_over_id.
+    + apply isaprop_is_invertible_2cell.
+    + intros x y f.
+      refine (transportf
+                (λ z, is_iso_twosided_disp z _ _)
+                _
+                (transportf
+                   (λ z, is_iso_twosided_disp _ z _)
+                   _
+                   (Hττ x y f))).
+      * apply isaprop_is_z_isomorphism.
+      * apply isaprop_is_z_isomorphism.
+Qed.
+
+Definition is_disp_invertible_2cell_twosided_disp_cat
+           {C₁ C₂ : bicat_of_univ_cats}
+           {F G : C₁ --> C₂}
+           (τ : F ==> G)
+           (Hτ : is_nat_z_iso (pr1 τ))
+           {D₁ : disp_bicat_twosided_disp_cat C₁}
+           {D₂ : disp_bicat_twosided_disp_cat C₂}
+           {FF : D₁ -->[ F ] D₂}
+           {GG : D₁ -->[ G ] D₂}
+           (ττ : FF ==>[ τ ] GG)
+           (Hττ : ∏ (x y : pr1 C₁)
+                    (f : pr1 D₁ x y),
+                  is_iso_twosided_disp
+                    (Hτ x) (Hτ y)
+                    (pr1 ττ x y f))
+  : is_disp_invertible_2cell (is_nat_z_iso_to_is_invertible_2cell _ Hτ) ττ.
+Proof.
+  refine (transportf (λ z, is_disp_invertible_2cell z _) _ _).
+  2: use (is_disp_invertible_2cell_twosided_disp_cat_help
+            (τ ,, is_nat_z_iso_to_is_invertible_2cell _ Hτ)).
+  - apply isaprop_is_invertible_2cell.
+  - intros x y f.
+      refine (transportf
+                (λ z, is_iso_twosided_disp z _ _)
+                _
+                (transportf
+                   (λ z, is_iso_twosided_disp _ z _)
+                   _
+                   (Hττ x y f))).
+      * apply isaprop_is_z_isomorphism.
+      * apply isaprop_is_z_isomorphism.
+Qed.
+
+Definition is_invertible_2cell_bicat_twosided_disp_cat
+           {CD₁ CD₂ : bicat_twosided_disp_cat}
+           {F G : CD₁ --> CD₂}
+           (τ : F ==> G)
+           (Hτ : is_nat_z_iso (pr11 τ))
+           (Hττ : ∏ (x y : pr11 CD₁)
+                    (f : pr12 CD₁ x y),
+                  is_iso_twosided_disp
+                    (Hτ x) (Hτ y)
+                    (pr12 τ x y f))
+  : is_invertible_2cell τ.
+Proof.
+  use is_invertible_disp_to_total.
+  simple refine (_ ,, _).
+  - use is_nat_z_iso_to_is_invertible_2cell.
+    exact Hτ.
+  - use is_disp_invertible_2cell_twosided_disp_cat.
+    exact Hττ.
+Qed.
