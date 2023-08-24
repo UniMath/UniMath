@@ -18,14 +18,12 @@ Lattice/Examples/Subsets.v
 DCPOs/Core/DirectedSets.v
 DCPOs/Core/Basics.v
 DCPOs/Core/WayBelow.v
-DCPOs/Core/ScottTopology.v
-DCPOs/Core/IntrinsicApartness.v
-DCPOs/Core/ScottContinuous.v
-DCPOs/Core/FubiniTheorem.v
-DCPOs/Core/CoordinateContinuity.v
 
 DCPOs/Basis/Continuous.v
 DCPOs/Basis/Algebraic.v
+
+DCPOs/Core/ScottTopology.v
+DCPOs/Core/IntrinsicApartness.v
 
 DCPOs/Core/ScottContinuous.v
 
@@ -46,6 +44,9 @@ DCPOs/Examples/Products.v
 DCPOs/Examples/BinarySums.v
 DCPOs/Examples/Sums.v
 DCPOs/Examples/IdealCompletion.v
+
+DCPOs/Core/FubiniTheorem.v
+DCPOs/Core/CoordinateContinuity.v
 
 DCPOs/Examples/Exponentials.v
 
