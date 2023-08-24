@@ -67,59 +67,36 @@ Section Relations.
     - intro p.
       use (factor_through_squash_hProp ((f · g · h) x x0) _ p).
       clear p ; intro p.
-
       use (factor_through_squash_hProp ((f · g · h) x x0) _ (pr22 p)).
       intro q.
       apply hinhpr.
       exists (pr1 q).
-      use tpair.
+      split.
       + apply hinhpr.
         exact (pr1 p ,, pr12 p ,, pr12 q).
       + exact (pr22 q).
     - intro p.
-      use (factor_through_squash_hProp ((f · g · h) x x0) _ p).
-      + clear p ; intro p.
-        use (factor_through_squash_hProp ((f · g · h) x x0) _ (pr12 p)).
-        intro q.
-        apply hinhpr.
-        exists (pr1 p).
-        use tpair.
-        * apply hinhpr.
-          exact (pr1 q,,  pr12 q ,, pr22 q).
-        * exact (pr22 p).
+      use (factor_through_squash_hProp ((f · (g · h)) x x0) _ p).
       + clear p ; intro p.
         use (factor_through_squash_hProp ((f · (g · h)) x x0) _ (pr12 p)).
         intro q.
         apply hinhpr.
         exists (pr1 q).
-        use tpair.
-        -- exact (pr12 q).
-        -- use (factor_through_squash_hProp _ _ (pr12 p)).
-           intro q0.
-           apply hinhpr.
-           exact (pr1 p ,, pr22 q ,, pr22 p).
+        split.
+        * exact (pr12 q).
+        * apply hinhpr.
+          exact (pr1 p,,  pr22 q ,, pr22 p).
     - intro p.
-      use (factor_through_squash_hProp ((f · g · h) x x0) _ p).
-      + clear p ; intro p.
-        use (factor_through_squash_hProp ((f · g · h) x x0) _ (pr12 p)).
-        intro q.
-        apply hinhpr.
-        exists (pr1 p).
-        use tpair.
-        * apply hinhpr.
-          exact (pr1 q,,  pr12 q ,, pr22 q).
-        * exact (pr22 p).
+      use (factor_through_squash_hProp ((f · (g · h)) x x0) _ p).
       + clear p ; intro p.
         use (factor_through_squash_hProp ((f · (g · h)) x x0) _ (pr12 p)).
         intro q.
         apply hinhpr.
         exists (pr1 q).
-        use tpair.
-        -- exact (pr12 q).
-        -- use (factor_through_squash_hProp _ _ (pr12 p)).
-           intro q0.
-           apply hinhpr.
-           exact (pr1 p ,, pr22 q ,, pr22 p).
+        split.
+        * exact (pr12 q).
+        * apply hinhpr.
+          exact (pr1 p,,  pr22 q ,, pr22 p).
     - intro p.
       use (factor_through_squash_hProp ((f · g · h) x x0) _ p).
       + clear p ; intro p.
@@ -127,7 +104,7 @@ Section Relations.
         intro q.
         apply hinhpr.
         exists (pr1 q).
-        use tpair.
+        split.
         * apply hinhpr.
           exact (pr1 p ,, pr12 p ,, pr12 q).
         * exact (pr22 q).
@@ -213,7 +190,7 @@ Section Isos.
       apply hinhpr.
       exists x.
       split.
-      - apply (pr2 q).
+      - exact (pr22 q).
       - exact p.
     }
 
@@ -232,7 +209,7 @@ Section Isos.
     - exact (inverse_swap_relation (pr2 (z_iso_inv ((r,,i) : z_iso (C := REL) _ _))) y x).
   Qed.
 
-  Definition invertible_relation_is_injective
+  Definition invertible_relation_is_functional
              {X Y : hSet} {r : bin_hrel X Y}
              (p : is_z_isomorphism (C := REL) r)
     : ∏ (x : X) (y1 y2 : Y),
@@ -243,7 +220,7 @@ Section Isos.
     apply (path_to_fun q').
     apply hinhpr.
     exists x.
-    use tpair.
+    split.
     2: exact r2.
     exact (inverse_swap_relation p _ _ r1).
   Qed.
@@ -257,7 +234,7 @@ Section Isos.
     apply isaproptotal2.
     - intro ; apply r.
     - intros y1 y2.
-      apply invertible_relation_is_injective.
+      apply invertible_relation_is_functional.
       exact p.
   Qed.
 
@@ -268,11 +245,8 @@ Section Isos.
   Proof.
     intro x.
     set (q := pr12 p).
-    set (q' := base_paths _ _ (eqtohomot ((eqtohomot q) x) x)).
-
-    set (w := (eqweqmap q')).
-    set (y := invmap w (idpath _)).
-
+    set (q' := base_paths _ _ (!(eqtohomot ((eqtohomot q) x) x))).
+    set (y := path_to_fun q' (idpath _)).
     use (factor_through_squash_hProp (_ ,, bin_hrel_is_z_iso_to_image_isaprop p x) _ y).
     intro v.
     exact (pr1 v ,, pr12 v).
@@ -359,9 +333,7 @@ Section Isos.
 
         use (exists_unique_function P Q _ p).
         intro x.
-        exact (inverse_swap_relation_iff
-                 (pr2 (z_iso_inv (((r,, i) : z_iso (C := REL) _ _))))
-                 y x).
+        exact (inverse_swap_relation_iff j y x).
     - apply unique_image_to_is_z_iso_in_REL.
   Qed.
 
@@ -372,7 +344,7 @@ Section Isos.
   Proof.
     intro x.
 
-    use (invertible_relation_is_injective (pr2 (z_iso_inv ((r,,p) : z_iso (C := REL) X Y)))).
+    use (invertible_relation_is_functional (pr2 (z_iso_inv ((r,,p) : z_iso (C := REL) X Y)))).
     - exact (bin_hrel_is_z_iso_to_function p x).
     - exact (pr2 (bin_hrel_is_z_iso_to_image (is_z_iso_inv_from_z_iso ((r,, p) : z_iso (C := REL) _ _))  (pr1 (bin_hrel_is_z_iso_to_image p x)))).
     - apply inverse_swap_relation_iff.
