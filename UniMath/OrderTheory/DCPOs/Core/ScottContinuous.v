@@ -385,8 +385,8 @@ Proposition is_monotone_scott_continuous_map
             {X Y : dcpo}
             (f : scott_continuous_map X Y)
             {x₁ x₂ : X}
-            (p : x₁ ≤ x₂)
-  : f x₁ ≤ f x₂.
+            (p : x₁ ⊑ x₂)
+  : f x₁ ⊑ f x₂.
 Proof.
   exact (pr12 f x₁ x₂ p).
 Qed.
@@ -419,7 +419,7 @@ Defined.
 Section MakeScottContinuous.
   Context {X Y : dcpo}
           (f : X → Y)
-          (Hf₁ : ∏ (x₁ x₂ : X), x₁ ≤ x₂ → f x₁ ≤ f x₂).
+          (Hf₁ : ∏ (x₁ x₂ : X), x₁ ⊑ x₂ → f x₁ ⊑ f x₂).
 
   Definition make_dcpo_is_monotone
     : monotone_function X Y
@@ -492,7 +492,7 @@ Qed.
 Section MakeStrictScottContinuous.
   Context {X Y : dcppo}
           (f : X → Y)
-          (Hf₁ : ∏ (x₁ x₂ : X), x₁ ≤ x₂ → f x₁ ≤ f x₂)
+          (Hf₁ : ∏ (x₁ x₂ : X), x₁ ⊑ x₂ → f x₁ ⊑ f x₂)
           (Hf₂ : ∏ (D : directed_set X), f (⨆ D) = ⨆_{D} (f ,, Hf₁))
           (Hf₃ : f ⊥_{X} = ⊥_{Y}).
 
