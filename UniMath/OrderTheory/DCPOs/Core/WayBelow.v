@@ -42,7 +42,7 @@ Definition way_below
            {X : dcpo}
            (x y : X)
   : hProp
-  := (∀ (D : directed_set X), y ≤ ⨆ D ⇒ ∃ (i : D), x ≤ D i)%logic.
+  := (∀ (D : directed_set X), y ⊑ ⨆ D ⇒ ∃ (i : D), x ⊑ D i)%logic.
 
 Notation "x ≪ y" := (way_below x y) (at level 70). (* \ll *)
 
@@ -51,8 +51,8 @@ Proposition way_below_elem
             {x y : X}
             (p : x ≪ y)
             (D : directed_set X)
-            (HD : y ≤ ⨆ D)
-  : ∃ (i : D), x ≤ D i.
+            (HD : y ⊑ ⨆ D)
+  : ∃ (i : D), x ⊑ D i.
 Proof.
   exact (p D HD).
 Qed.
@@ -78,7 +78,7 @@ Section PropertiesOfWayBelow.
     }
     intros H.
     induction H as [ i H ].
-    assert (H' : y ≤ ⨆ D).
+    assert (H' : y ⊑ ⨆ D).
     {
       refine (trans_dcpo H _).
       use (less_than_dcpo_lub D _ i).
@@ -93,7 +93,7 @@ Section PropertiesOfWayBelow.
   Proposition trans_way_below_le
               {x y z : X}
               (p : x ≪ y)
-              (q : y ≤ z)
+              (q : y ⊑ z)
     : x ≪ z.
   Proof.
     intros D HD.
@@ -102,7 +102,7 @@ Section PropertiesOfWayBelow.
 
   Proposition trans_le_way_below
               {x y z : X}
-              (p : x ≤ y)
+              (p : x ⊑ y)
               (q : y ≪ z)
     : x ≪ z.
   Proof.
@@ -122,10 +122,10 @@ Section PropertiesOfWayBelow.
   Proposition way_below_to_le
               {x y : X}
               (p : x ≪ y)
-    : x ≤ y.
+    : x ⊑ y.
   Proof.
     pose (D := nat_directed_set X (λ _, y) (λ _, refl_dcpo _)).
-    assert (q : y ≤ ⨆ D).
+    assert (q : y ⊑ ⨆ D).
     {
       exact (less_than_dcpo_lub D y 0 (refl_dcpo _)).
     }

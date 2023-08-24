@@ -3,7 +3,7 @@
  Maximal elements in a DCPO
 
  In this file, we define maximal elements in DCPOs. In classical foundations,
- an element `x` is called maximal if for every `y` such that `x ≤ y`, we have
+ an element `x` is called maximal if for every `y` such that `x ⊑ y`, we have
  that `x = y`. However, constructively, there is a better notion, namely that
  of a strongly maximal element (see https://arxiv.org/pdf/2106.05064.pdf).
 
@@ -54,7 +54,7 @@ Definition is_maximal
            {X : dcpo}
            (x : X)
   : hProp
-  := (∀ (y : X), x ≤ y ⇒ y ≤ x)%logic.
+  := (∀ (y : X), x ⊑ y ⇒ y ⊑ x)%logic.
 
 (**
  2. Hausdorff separated elements
@@ -104,7 +104,7 @@ Section PropertiesHausdorffSeparated.
   Proposition is_hausdorff_separated_not_le
               {x y : X}
               (H : is_hausdorff_separated x y)
-    : ¬(x ≤ y).
+    : ¬(x ⊑ y).
   Proof.
     intro p.
     revert H.
