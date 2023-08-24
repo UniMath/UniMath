@@ -36,7 +36,7 @@ Definition is_sharp
            {X : dcpo}
            (x : X)
   : hProp
-  := (∀ (y z : X), y ≪ z ⇒ (y ≪ x ∨ ¬(z ≤ x)))%logic.
+  := (∀ (y z : X), y ≪ z ⇒ (y ≪ x ∨ ¬(z ⊑ x)))%logic.
 
 (**
  2. Characterization of sharp elements in a continuous DCPO
@@ -105,7 +105,7 @@ Lemma is_sharp_to_le
       {x y : X}
       (Hy : is_sharp y)
       (p : ¬(x ⊄ y))
-  : x ≤ y.
+  : x ⊑ y.
 Proof.
   use (invmap (continuous_dcpo_struct_le_via_approximation CX x y)).
   intros z q.

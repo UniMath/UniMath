@@ -206,7 +206,8 @@ Coercion dcpo_to_PartialOrder (X : dcpo) : PartialOrder X := pr12 X.
 
 Definition dcpo_order {X : dcpo} (x y : X) : hProp := pr12 X x y.
 
-Notation "x ≤ y" := (dcpo_order x y) : dcpo.
+Notation "x ⊑ y" := (dcpo_order x y) (no associativity, at level 70) : dcpo.
+(* ⊑ - \sqsubseteq  *)
 
 (**
  4. Accessors for DCPOs
@@ -214,7 +215,7 @@ Notation "x ≤ y" := (dcpo_order x y) : dcpo.
 Proposition refl_dcpo
             {X : dcpo}
             (x : X)
-  : x ≤ x.
+  : x ⊑ x.
 Proof.
   apply refl_PartialOrder.
 Qed.
@@ -223,7 +224,7 @@ Definition eq_to_le_dcpo
            {X : dcpo}
            {x y : X}
            (p : x = y)
-  : x ≤ y.
+  : x ⊑ y.
 Proof.
   induction p.
   apply refl_dcpo.
@@ -232,9 +233,9 @@ Qed.
 Proposition trans_dcpo
             {X : dcpo}
             {x y z : X}
-            (p : x ≤ y)
-            (q : y ≤ z)
-  : x ≤ z.
+            (p : x ⊑ y)
+            (q : y ⊑ z)
+  : x ⊑ z.
 Proof.
   exact (trans_PartialOrder X p q).
 Qed.
@@ -242,8 +243,8 @@ Qed.
 Proposition antisymm_dcpo
             {X : dcpo}
             {x y : X}
-            (p : x ≤ y)
-            (q : y ≤ x)
+            (p : x ⊑ y)
+            (q : y ⊑ x)
   : x = y.
 Proof.
   exact (antisymm_PartialOrder X p q).
@@ -256,14 +257,15 @@ Definition dcpo_lub
   := pr22 X _ D (directed_set_is_directed D).
 
 Notation "⨆ D" := (dcpo_lub D) (at level 20) : dcpo.
+(* ⊔ - \sqcup *)
 Notation "⨆_{ D } f" := (⨆ (f {{ D }})) (at level 20) : dcpo.
 
 Definition make_dcpo_is_least_upperbound
            {X : dcpo}
            (D : directed_set X)
            (x : X)
-           (H₁ : ∏ (i : D), D i ≤ x)
-           (H₂ : ∏ (x' : X), (∏ (i : D), D i ≤ x') → x ≤ x')
+           (H₁ : ∏ (i : D), D i ⊑ x)
+           (H₂ : ∏ (x' : X), (∏ (i : D), D i ⊑ x') → x ⊑ x')
   : is_least_upperbound X D x.
 Proof.
   split.
@@ -284,8 +286,8 @@ Proposition less_than_dcpo_lub
             (D : directed_set X)
             (x : X)
             (i : D)
-            (H : x ≤ D i)
-  : x ≤ ⨆ D.
+            (H : x ⊑ D i)
+  : x ⊑ ⨆ D.
 Proof.
   exact (trans_PartialOrder
            X
@@ -299,8 +301,8 @@ Proposition dcpo_lub_is_least
             {X : dcpo}
             (D : directed_set X)
             (x : X)
-            (H : ∏ (i : D), D i ≤ x)
-  : ⨆ D ≤ x.
+            (H : ∏ (i : D), D i ⊑ x)
+  : ⨆ D ⊑ x.
 Proof.
   exact (is_least_upperbound_is_least (is_least_upperbound_dcpo_lub D) x H).
 Qed.
@@ -400,11 +402,12 @@ Definition bottom_dcppo
   := pr122 X.
 
 Notation "⊥_{ X }" := (bottom_dcppo X) : dcpo.
+(* ⊥ - \bot*)
 
 Proposition is_min_bottom_dcppo
             {X : dcppo}
             (x : X)
-  : ⊥_{ X } ≤ x.
+  : ⊥_{ X } ⊑ x.
 Proof.
   exact (pr222 X x).
 Qed.

@@ -48,7 +48,7 @@ Proposition compact_el_way_below_le
             {X : dcpo}
             {x y : X}
             (p : is_compact_el x)
-            (q : x ≤ y)
+            (q : x ⊑ y)
   : x ≪ y.
 Proof.
   exact (trans_way_below_le p q).
