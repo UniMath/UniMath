@@ -210,8 +210,58 @@ Section ConstructionOfComonoidsInLinearCategory.
     unfold comonoid_laws_assoc.
     cbn.
     unfold comonoid_comult_data_in_linear_category.
-    (* page 155 *)
-  Admitted.
+
+    rewrite tensor_mor_left.
+    rewrite tensor_mor_right.
+    rewrite ! tensor_comp_id_l.
+    rewrite ! tensor_comp_id_r.
+    rewrite ! assoc.
+
+    etrans.
+    2: {
+      do 2 apply maponpaths_2.
+      exact (! diagram_2).
+    }
+
+    etrans. {
+      do 3 apply maponpaths_2.
+      exact diagram_1.
+    }
+
+    etrans.
+    2: {
+      apply maponpaths_2.
+      rewrite assoc'.
+      apply maponpaths.
+      apply tensor_swap'.
+    }
+
+    etrans.
+    2: {
+      rewrite assoc.
+      do 2 apply maponpaths_2.
+      rewrite assoc'.
+      apply maponpaths.
+      rewrite <- tensor_mor_left.
+      apply comonoid_to_law_assoc.
+    }
+    rewrite tensor_mor_right.
+    rewrite ! assoc'.
+    do 2 apply maponpaths.
+
+    rewrite <- tensor_split'.
+    etrans.
+    2: {
+      apply maponpaths.
+      apply tensor_lassociator.
+    }
+    rewrite ! assoc.
+    apply maponpaths_2.
+    rewrite <- tensor_split.
+    do 2 rewrite <- tensor_comp_mor.
+    apply maponpaths.
+    exact (id_right _ @ ! id_left _).
+  Qed.
 
   Definition comonoid_in_linear_category
     : disp_cat_of_comonoids L a.
