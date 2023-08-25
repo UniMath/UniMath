@@ -110,6 +110,6 @@ Section EquivalenceFullSub.
 
   Definition full_sub_category_adj_equivalence
     : adj_equivalence_of_cats (full_sub_category_functor P Q L HL)
-    := adjointificiation
+    := adjointification
          full_sub_category_equivalence.
 End EquivalenceFullSub.

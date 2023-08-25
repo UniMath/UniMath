@@ -16,6 +16,7 @@ PACKAGES += Tactics
 PACKAGES += NumberSystems
 PACKAGES += SyntheticHomotopyTheory
 PACKAGES += PAdics
+PACKAGES += OrderTheory
 PACKAGES += CategoryTheory
 PACKAGES += Bicategories
 PACKAGES += Ktheory
@@ -28,6 +29,7 @@ PACKAGES += AlgebraicGeometry
 PACKAGES += Paradoxes
 PACKAGES += Induction
 PACKAGES += AlgebraicTheories
+PACKAGES += Semantics
 ############################################
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= no

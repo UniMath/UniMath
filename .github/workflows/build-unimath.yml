@@ -37,7 +37,7 @@ jobs:
       - name: Run sanity checks
         run: |
           cd $GITHUB_WORKSPACE
-          time make -k sanity-checks
+          time make -k sanity-checks || time make sanity-checks
 
   # Build the current PR/branch with the latest stable release of Coq.
   build-Unimath-ubuntu:
@@ -145,6 +145,9 @@ jobs:
         satellite: [SetHITs, largecatmodules, GrpdHITs, TypeTheory]
         coq-version: [latest, dev]
         ocaml-version: [4.14-flambda]
+        exclude:
+          - satellite: GrpdHITs
+            coq-version: dev
     name: Build ${{ matrix.satellite }} (Coq ${{ matrix.coq-version }})
     runs-on: ubuntu-22.04
 

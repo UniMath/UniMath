@@ -130,7 +130,7 @@ Definition STLC_M : sortToSet2 :=
   alg_carrier _ (InitialObject STLC_Functor_Initial).
 
 (* The functor parts coincide *)
-Lemma STLC_Monad_ok : STLC_M = pr1 (pr1 (pr1 STLC_Monad)).
+Lemma STLC_Monad_ok : STLC_M = pr1 STLC_Monad.
 Proof.
 apply idpath.
 Qed.

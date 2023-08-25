@@ -36,7 +36,7 @@ Section FixACategory.
  Local Definition ptdendo_CAT : category := coslice_cat_total endoCAT I_{Mon_endo_CAT}.
  Local Definition Mon_ptdendo_CAT : monoidal ptdendo_CAT := monoidal_pointed_objects Mon_endo_CAT.
  Local Definition actegoryPtdEndosOnFunctors_CAT (E : category) : actegory Mon_ptdendo_CAT [C,E]
-   := lifted_actegory Mon_endo_CAT (actegory_from_precomp_CAT C E) Mon_ptdendo_CAT
+   := reindexed_actegory Mon_endo_CAT (actegory_from_precomp_CAT C E) Mon_ptdendo_CAT
         (forget_monoidal_pointed_objects_monoidal Mon_endo_CAT).
 
  (* not possible without some transparent proofs
@@ -63,7 +63,7 @@ Section FixACategory.
 
  (* commented for reasons of time consumption (easily more than 3 minutes compilation time)
 
-Local Lemma lax_lineators_data_from_lifted_precomp_CAT_and_lifted_self_action_agree (H : functor [C, C] [C, C]) :
+Local Lemma lax_lineators_data_from_reindexed_precomp_CAT_and_reindexed_self_action_agree (H : functor [C, C] [C, C]) :
    lineator_data Mon_ptdendo_CAT (actegoryPtdEndosOnFunctors_CAT C) (actegoryPtdEndosOnFunctors_CAT C) H ≃
      lineator_data Mon_ptdendo_CAT (actegory_with_canonical_pointed_action Mon_endo_CAT)
        (actegory_with_canonical_pointed_action Mon_endo_CAT) H.
@@ -88,12 +88,12 @@ Defined. (* 57s on modern Intel machine *)
 
 (* commented for reasons of time consumption (easily more than 30 minutes compilation time) - no longer needed with the modified definition [MultiSortedSigToStrength'] of signature functor
 
- Local Lemma lax_lineators_from_lifted_precomp_CAT_and_lifted_self_action_agree (H : functor [C, C] [C, C]) :
+ Local Lemma lax_lineators_from_reindexed_precomp_CAT_and_reindexed_self_action_agree (H : functor [C, C] [C, C]) :
    lineator_lax Mon_ptdendo_CAT (actegoryPtdEndosOnFunctors_CAT C) (actegoryPtdEndosOnFunctors_CAT C) H ≃
      lineator_lax Mon_ptdendo_CAT (actegory_with_canonical_pointed_action Mon_endo_CAT)
        (actegory_with_canonical_pointed_action Mon_endo_CAT) H.
  Proof.
-   use (weqbandf (lax_lineators_data_from_lifted_precomp_CAT_and_lifted_self_action_agree H)).
+   use (weqbandf (lax_lineators_data_from_reindexed_precomp_CAT_and_reindexed_self_action_agree H)).
    intro ld.
    use weqimplimpl.
    4: { apply isaprop_lineator_laxlaws. }

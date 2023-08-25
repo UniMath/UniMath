@@ -595,6 +595,73 @@ Proof.
   intros f [x p]. exact (f x p).
 Defined.
 
+
+(** ** Paths in coproducts *)
+
+Definition inv_equality_by_case_equality_by_case
+           {A B : UU}
+           {x y : A ⨿ B}
+           (p : x = y)
+  : @inv_equality_by_case A B x y (equality_by_case p) = p.
+Proof.
+  induction x, y, p ; apply idpath.
+Defined.
+
+Definition equality_by_case_inv_equality_by_case
+           {A B : UU}
+           {x y : A ⨿ B}
+           (p : equality_cases x y)
+  : equality_by_case (inv_equality_by_case p) = p.
+Proof.
+  induction x, y, p; apply idpath.
+Defined.
+
+Lemma equality_by_case_equiv {A B} (t u : A ⨿ B) : (t = u) ≃ equality_cases t u.
+Proof.
+  use weq_iso.
+  - apply equality_by_case.
+  - apply inv_equality_by_case.
+  - apply inv_equality_by_case_equality_by_case.
+  - apply equality_by_case_inv_equality_by_case.
+Defined.
+
+Definition paths_inl_inl_equiv {A B : UU} (a a' : A)
+  : @inl A B a = inl a' ≃ a = a'.
+Proof.
+  apply @equality_by_case_equiv.
+Defined.
+
+Definition paths_inl_inr_equiv {A B : UU} (a : A) (b : B)
+  : inl a = inr b ≃ empty.
+Proof.
+  apply @equality_by_case_equiv.
+Defined.
+
+Definition paths_inr_inr_equiv {A B : UU} (b b' : B)
+  : @inr A B b = inr b' ≃ b = b'.
+Proof.
+  apply @equality_by_case_equiv.
+Defined.
+
+Definition paths_inr_inl_equiv {A B : UU} (a : A) (b : B)
+  : inr b = inl a ≃ empty.
+Proof.
+  apply @equality_by_case_equiv.
+Defined.
+
+(* Note: the following lemmas are near-duplicates of [isinclii1], [isinclii2] provided in [Foundations]. *)
+Lemma isInjective_inl {A B : UU} : isInjective (@inl A B).
+Proof.
+  intros ? ?.
+  refine (isweqinvmap (@paths_inl_inl_equiv _ _ _ _)).
+Defined.
+
+Lemma isInjective_inr {A B : UU} : isInjective (@inr A B).
+Proof.
+  intros ? ?.
+  refine (isweqinvmap (@paths_inr_inr_equiv _ _ _ _)).
+Defined.
+
 (** ** Sections and functions *)
 
 Notation homotsec := homot.
@@ -1311,6 +1378,8 @@ Proof.
   - apply idweq.
   - apply weqdirprodcomm.
 Defined.
+
+(** ** Surjectivity *)
 
 Section surjectivity.
   Lemma issurjective_idfun (X : UU) : issurjective (idfun X).

@@ -613,4 +613,59 @@ Section AccessorsExponentials.
     rewrite id_left.
     apply idpath.
   Qed.
+
+  Proposition exp_funext
+              {x y z : C}
+              {f g : z --> exp x y}
+              (p : ∏ (a : C)
+                     (h : a --> x),
+                   BinProductOfArrows C _ (prodC a z) h f · exp_eval x y
+                   =
+                   BinProductOfArrows C _ (prodC a z) h g · exp_eval x y)
+    : f = g.
+  Proof.
+    refine (exp_eta f @ _ @ !(exp_eta g)).
+    apply maponpaths.
+    apply p.
+  Qed.
+
+  Proposition exp_lam_natural
+              {w x y z : C}
+              (f : prodC y x --> z)
+              (s : w --> x)
+    : s · exp_lam f
+      =
+      exp_lam (BinProductOfArrows _ _ _ (identity _ ) s · f).
+  Proof.
+    use exp_funext.
+    intros a h.
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      exact (!(id_right _)).
+    }
+    rewrite <- BinProductOfArrows_comp.
+    rewrite !assoc'.
+    rewrite exp_beta.
+    refine (!_).
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      exact (!(id_right _)).
+    }
+    etrans.
+    {
+      apply maponpaths_2.
+      apply maponpaths.
+      exact (!(id_left _)).
+    }
+    rewrite <- BinProductOfArrows_comp.
+    rewrite !assoc'.
+    rewrite exp_beta.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite BinProductOfArrows_comp.
+    rewrite id_left, id_right.
+    apply idpath.
+  Qed.
 End AccessorsExponentials.

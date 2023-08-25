@@ -1,6 +1,9 @@
 (** a generalization of heterogeneous substitution systems to monoidal categories in place of endofunctor categories
 
 author: Ralph Matthes 2022
+
+Update in 2023: Instead of speaking about generalized heterogeneous substitution systems (short ghss), it seems better to call them monoidal heterogeneous substitution systems (short mhss). The name of the file stays the same.
+
 *)
 
 Require Import UniMath.Foundations.All.
@@ -42,23 +45,23 @@ Section hss.
 
     Context (t : V) (η : I_{Mon_V} --> t) (τ : H t --> t).
 
-  Definition gbracket_property_parts {z : V} (e : I_{Mon_V} --> z) (f : z --> t) (h : z ⊗_{Mon_V} t --> t) : UU :=
+  Definition mbracket_property_parts {z : V} (e : I_{Mon_V} --> z) (f : z --> t) (h : z ⊗_{Mon_V} t --> t) : UU :=
     (ru^{Mon_V}_{z} · f = z ⊗^{Mon_V}_{l} η · h) ×
       (θ (z,,e) t · #H h · τ =  z ⊗^{Mon_V}_{l} τ · h).
 
-  Definition gbracket_parts_at {z : V} (e : I_{Mon_V} --> z) (f : z --> t) : UU :=
-    ∃! h : z ⊗_{Mon_V} t --> t, gbracket_property_parts e f h.
+  Definition mbracket_parts_at {z : V} (e : I_{Mon_V} --> z) (f : z --> t) : UU :=
+    ∃! h : z ⊗_{Mon_V} t --> t, mbracket_property_parts e f h.
 
-  Definition gbracket : UU :=
-    ∏ (Z : PtdV) (f : pr1 Z --> t), gbracket_parts_at (pr2 Z) f.
+  Definition mbracket : UU :=
+    ∏ (Z : PtdV) (f : pr1 Z --> t), mbracket_parts_at (pr2 Z) f.
 
-  Lemma isaprop_gbracket_property_parts {z : V} (e : I_{Mon_V} --> z) (f : z --> t) (h : z ⊗_{Mon_V} t --> t) :
-    isaprop (gbracket_property_parts e f h).
+  Lemma isaprop_mbracket_property_parts {z : V} (e : I_{Mon_V} --> z) (f : z --> t) (h : z ⊗_{Mon_V} t --> t) :
+    isaprop (mbracket_property_parts e f h).
   Proof.
     apply isapropdirprod; apply V.
   Qed.
 
-  Lemma isaprop_gbracket : isaprop gbracket.
+  Lemma isaprop_mbracket : isaprop mbracket.
   Proof.
     apply impred_isaprop; intro Z.
     apply impred_isaprop; intro f.
@@ -71,20 +74,20 @@ Section hss.
 
   Definition Const_plus_H (v : V) : functor V V := BinCoproduct_of_functors _ _ CP (constant_functor _ _ v) H.
 
-  Definition gbracket_property_single {z : V} (e : I_{Mon_V} --> z) (f : z --> t) (h : z ⊗_{Mon_V} t --> t) : UU :=
+  Definition mbracket_property_single {z : V} (e : I_{Mon_V} --> z) (f : z --> t) (h : z ⊗_{Mon_V} t --> t) : UU :=
     actegory_bincoprod_antidistributor Mon_PtdV CP Act (z,,e) I_{Mon_V} (H t) ·
       (z,,e) ⊗^{Act}_{l} (BinCoproductArrow (CP _ _) η τ) · h =
     BinCoproductOfArrows _ (CP _ _) (CP _ _) (ru_{Mon_V} z) (θ (z,,e) t) ·
       #(Const_plus_H z) h · BinCoproductArrow (CP _ _) f τ.
 
-  Lemma isaprop_gbracket_property_single {z : V} (e : I_{Mon_V} --> z) (f : z --> t) (h : z ⊗_{Mon_V} t --> t) :
-    isaprop (gbracket_property_single e f h).
+  Lemma isaprop_mbracket_property_single {z : V} (e : I_{Mon_V} --> z) (f : z --> t) (h : z ⊗_{Mon_V} t --> t) :
+    isaprop (mbracket_property_single e f h).
   Proof.
     apply V.
   Qed.
 
-  Lemma gbracket_property_single_equivalent {z : V} (e : I_{Mon_V} --> z) (f : z --> t) (h : z ⊗_{Mon_V} t --> t) :
-    gbracket_property_parts e f h <-> gbracket_property_single e f h.
+  Lemma mbracket_property_single_equivalent {z : V} (e : I_{Mon_V} --> z) (f : z --> t) (h : z ⊗_{Mon_V} t --> t) :
+    mbracket_property_parts e f h <-> mbracket_property_single e f h.
   Proof.
     split.
     - intros [Hη Hτ].
@@ -199,28 +202,28 @@ Section hss.
 
   End TheProperty.
 
-  Definition ghss : UU := ∑ (t : V) (η : I_{Mon_V} --> t) (τ : H t --> t), gbracket t η τ.
-  Coercion carrierghss (t : ghss) : V := pr1 t.
+  Definition mhss : UU := ∑ (t : V) (η : I_{Mon_V} --> t) (τ : H t --> t), mbracket t η τ.
+  Coercion carriermhss (t : mhss) : V := pr1 t.
 
-  Section FixAGhss.
+  Section FixAMhss.
 
-  Context (gh : ghss).
+  Context (gh : mhss).
 
   Definition eta_from_alg : I_{Mon_V} --> gh := pr12 gh.
   Definition tau_from_alg : H gh --> gh := pr122 gh.
 
-  Definition ptd_from_gh : PtdV := (pr1 gh,,eta_from_alg).
-
   Local Notation η := eta_from_alg.
   Local Notation τ := tau_from_alg.
 
-  Definition gfbracket (Z : PtdV) (f : pr1 Z --> gh) : pr1 Z ⊗_{Mon_V} gh --> gh :=
+  Definition Ptd_from_mhss : PtdV := (pr1 gh,,η).
+
+  Definition mfbracket (Z : PtdV) (f : pr1 Z --> gh) : pr1 Z ⊗_{Mon_V} gh --> gh :=
     pr1 (pr1 (pr222 gh Z f)).
 
-  Notation "⦃ f ⦄_{ Z }" := (gfbracket Z f)(at level 0).
+  Notation "⦃ f ⦄_{ Z }" := (mfbracket Z f)(at level 0).
 
-  Lemma gfbracket_unique {Z : PtdV} (f : pr1 Z --> gh)
-    : ∏ α : pr1 Z ⊗_{Mon_V} gh --> gh, gbracket_property_parts gh η τ (pr2 Z) f α
+  Lemma mfbracket_unique {Z : PtdV} (f : pr1 Z --> gh)
+    : ∏ α : pr1 Z ⊗_{Mon_V} gh --> gh, mbracket_property_parts gh η τ (pr2 Z) f α
    → α = ⦃f⦄_{Z}.
   Proof.
     intros α Hyp.
@@ -228,23 +231,23 @@ Section hss.
     assumption.
   Qed.
 
-  Lemma gfbracket_η {Z : PtdV} (f : pr1 Z --> gh) :
+  Lemma mfbracket_η {Z : PtdV} (f : pr1 Z --> gh) :
     ru^{Mon_V}_{pr1 Z} · f = pr1 Z ⊗^{Mon_V}_{l} η · ⦃f⦄_{Z}.
   Proof.
     exact (pr1 ((pr2 (pr1 (pr222 gh Z f))))).
   Qed.
 
-  Lemma gfbracket_τ {Z : PtdV} (f : pr1 Z --> gh) :
+  Lemma mfbracket_τ {Z : PtdV} (f : pr1 Z --> gh) :
     θ Z gh · #H ⦃f⦄_{Z} · τ =  pr1 Z ⊗^{Mon_V}_{l} τ · ⦃f⦄_{Z}.
   Proof.
     exact (pr2 ((pr2 (pr1 (pr222 gh Z f))))).
   Qed.
 
   (** there is a restricted form of naturality in the [f] argument, only for pointed [f] *)
-  Lemma gfbracket_natural {Z Z' : PtdV} (f : Z --> Z') (g : pr1 Z' --> gh) :
+  Lemma mfbracket_natural {Z Z' : PtdV} (f : Z --> Z') (g : pr1 Z' --> gh) :
     pr1 f ⊗^{ Mon_V}_{r} gh · ⦃g⦄_{Z'} = ⦃pr1 f · g⦄_{Z}.
   Proof.
-    apply gfbracket_unique.
+    apply mfbracket_unique.
     split.
     - etrans.
       2: { rewrite assoc.
@@ -254,7 +257,7 @@ Section hss.
       etrans.
       2: { rewrite assoc'.
            apply maponpaths.
-           apply gfbracket_η. }
+           apply mfbracket_η. }
       repeat rewrite assoc.
       apply cancel_postcomposition.
       apply pathsinv0, monoidal_rightunitornat.
@@ -266,35 +269,33 @@ Section hss.
       etrans.
       2: { rewrite assoc'.
            apply maponpaths.
-           apply gfbracket_τ. }
+           apply mfbracket_τ. }
       rewrite functor_comp.
       repeat rewrite assoc.
       do 2 apply cancel_postcomposition.
       apply pathsinv0, (lineator_linnatright Mon_PtdV Act Act).
   Qed.
 
-  (** As a consequence of naturality, we can compute [gfbracket f] from [gfbracket identity] for
+  (** As a consequence of naturality, we can compute [mfbracket f] from [mfbracket identity] for
       pointed morphisms [f] *)
-  Lemma compute_gfbracket {Z : PtdV} (f : Z --> ptd_from_gh) :
-    ⦃pr1 f⦄_{Z} = pr1 f ⊗^{ Mon_V}_{r} gh · ⦃identity gh⦄_{ptd_from_gh}.
+  Lemma compute_mfbracket {Z : PtdV} (f : Z --> Ptd_from_mhss) :
+    ⦃pr1 f⦄_{Z} = pr1 f ⊗^{ Mon_V}_{r} gh · ⦃identity gh⦄_{Ptd_from_mhss}.
   Proof.
     etrans.
     { rewrite <- (id_right (pr1 f)).
-      apply pathsinv0, gfbracket_natural. }
+      apply pathsinv0, mfbracket_natural. }
     apply idpath.
   Qed.
 
   (** we are constructing a monoid in the monoidal base category *)
 
-  Definition Ptd_from_ghss : PtdV := (pr1 gh,,η).
+  Definition mu_from_mhss : gh ⊗_{Mon_V} gh --> gh := ⦃identity gh⦄_{Ptd_from_mhss}.
 
-  Definition mu_from_ghss : gh ⊗_{Mon_V} gh --> gh := ⦃identity gh⦄_{Ptd_from_ghss}.
-
-  Local Notation μ := mu_from_ghss.
+  Local Notation μ := mu_from_mhss.
 
   Definition μ_0 : I_{Mon_V} --> gh := η.
 
-  Definition μ_0_Ptd : I_{Mon_PtdV} --> Ptd_from_ghss.
+  Definition μ_0_Ptd : I_{Mon_PtdV} --> Ptd_from_mhss.
   Proof.
     exists μ_0.
     cbn. apply id_left.
@@ -304,7 +305,7 @@ Section hss.
 
   Lemma μ_1_is_instance_of_left_unitor : μ_1 = lu^{Mon_V}_{gh}.
   Proof.
-    apply pathsinv0, (gfbracket_unique(Z:=I_{Mon_PtdV})).
+    apply pathsinv0, (mfbracket_unique(Z:=I_{Mon_PtdV})).
     split.
     - cbn. unfold μ_0.
       rewrite monoidal_leftunitornat.
@@ -318,18 +319,18 @@ Section hss.
       apply pathsinv0, monoidal_leftunitornat.
   Qed.
 
-  Definition ghss_monoid_data : monoid_data Mon_V gh := μ,,μ_0.
+  Definition mhss_monoid_data : monoid_data Mon_V gh := μ,,μ_0.
 
-  Lemma ghss_first_monoidlaw : monoid_laws_unit_right Mon_V ghss_monoid_data.
+  Lemma mhss_first_monoidlaw : monoid_laws_unit_right Mon_V mhss_monoid_data.
   Proof.
     red. cbn.
     etrans.
-    { apply pathsinv0, (gfbracket_η(Z:=Ptd_from_ghss)). }
+    { apply pathsinv0, (mfbracket_η(Z:=Ptd_from_mhss)). }
     apply id_right.
   Qed.
 
 
-  Lemma ghss_second_monoidlaw_aux :
+  Lemma mhss_second_monoidlaw_aux :
     ru^{Mon_V}_{I_{Mon_V}} · η = I_{Mon_V} ⊗^{Mon_V}_{l} η · (η ⊗^{Mon_V}_{r} gh · μ).
   Proof.
     rewrite assoc.
@@ -340,20 +341,20 @@ Section hss.
     rewrite assoc'.
     etrans.
     2: { apply maponpaths.
-         apply pathsinv0, ghss_first_monoidlaw. }
+         apply pathsinv0, mhss_first_monoidlaw. }
     apply pathsinv0, monoidal_rightunitornat.
   Qed.
 
-  Lemma ghss_second_monoidlaw : monoid_laws_unit_left Mon_V ghss_monoid_data.
+  Lemma mhss_second_monoidlaw : monoid_laws_unit_left Mon_V mhss_monoid_data.
   Proof.
     red. cbn.
     etrans.
     2: { apply μ_1_is_instance_of_left_unitor. }
-    apply (gfbracket_unique(Z:=I_{Mon_PtdV})).
+    apply (mfbracket_unique(Z:=I_{Mon_PtdV})).
     split.
-    - exact ghss_second_monoidlaw_aux.
+    - exact mhss_second_monoidlaw_aux.
     - rewrite functor_comp.
-      transitivity (μ_0 ⊗^{ Mon_V}_{r} H (pr1 gh) · θ Ptd_from_ghss (pr1 gh) · # H μ · τ). (* give this term due to efficiency problems *)
+      transitivity (μ_0 ⊗^{ Mon_V}_{r} H (pr1 gh) · θ Ptd_from_mhss (pr1 gh) · # H μ · τ). (* give this term due to efficiency problems *)
       { apply cancel_postcomposition.
         rewrite assoc.
         apply cancel_postcomposition.
@@ -361,7 +362,7 @@ Section hss.
         set (aux := lineator_linnatright Mon_PtdV
                       (actegory_with_canonical_pointed_action Mon_V)
                       (actegory_with_canonical_pointed_action Mon_V)
-                      H θ I_{ Mon_PtdV} Ptd_from_ghss (pr1 gh) μ_0_Ptd).
+                      H θ I_{ Mon_PtdV} Ptd_from_mhss (pr1 gh) μ_0_Ptd).
         cbn in aux.
         etrans.
         { exact aux. }
@@ -371,7 +372,7 @@ Section hss.
       { do 2 rewrite assoc'.
         apply maponpaths.
         rewrite assoc.
-        apply (gfbracket_τ(Z:=Ptd_from_ghss)).
+        apply (mfbracket_τ(Z:=Ptd_from_mhss)).
       }
       repeat rewrite assoc.
       apply cancel_postcomposition.
@@ -379,7 +380,7 @@ Section hss.
       apply (bifunctor_equalwhiskers Mon_V).
   Qed.
 
-  Definition gh_squared : PtdV := Ptd_from_ghss ⊗_{Mon_PtdV} Ptd_from_ghss.
+  Definition mh_squared : PtdV := Ptd_from_mhss ⊗_{Mon_PtdV} Ptd_from_mhss.
 
   Definition μ_2 : gh ⊗_{Mon_V} gh --> gh := μ.
 
@@ -390,36 +391,36 @@ Section hss.
     cbn.
     rewrite unitors_coincide_on_unit.
     etrans.
-    2: { apply pathsinv0, ghss_second_monoidlaw_aux. }
+    2: { apply pathsinv0, mhss_second_monoidlaw_aux. }
     rewrite assoc.
     apply cancel_postcomposition.
     apply (bifunctor_equalwhiskers Mon_V).
   Qed.
 
-  Definition μ_2_Ptd : gh_squared --> Ptd_from_ghss := μ_2,,μ_2_is_Ptd_mor.
+  Definition μ_2_Ptd : mh_squared --> Ptd_from_mhss := μ_2,,μ_2_is_Ptd_mor.
 
-  Definition μ_3 : (gh ⊗_{Mon_V} gh) ⊗_{Mon_V} gh --> gh := ⦃μ_2⦄_{gh_squared}.
+  Definition μ_3 : (gh ⊗_{Mon_V} gh) ⊗_{Mon_V} gh --> gh := ⦃μ_2⦄_{mh_squared}.
 
-  Lemma ghss_third_monoidlaw_aux : θ (pr1 gh_squared,, pr2 gh_squared) gh · # H (μ ⊗^{Mon_V}_{r} gh) =
-                                     μ_2 ⊗^{Mon_V}_{r} H gh · θ Ptd_from_ghss gh.
+  Lemma mhss_third_monoidlaw_aux : θ (pr1 mh_squared,, pr2 mh_squared) gh · # H (μ ⊗^{Mon_V}_{r} gh) =
+                                     μ_2 ⊗^{Mon_V}_{r} H gh · θ Ptd_from_mhss gh.
   Proof.
     apply pathsinv0.
     assert (aux := lineator_linnatright Mon_PtdV
                      (actegory_with_canonical_pointed_action Mon_V)
                      (actegory_with_canonical_pointed_action Mon_V)
-                     H θ gh_squared Ptd_from_ghss gh μ_2_Ptd).
+                     H θ mh_squared Ptd_from_mhss gh μ_2_Ptd).
     simpl in aux. (* simpl not cbn for efficiency of Qed *)
     etrans.
     { exact aux. }
     apply idpath.
   Qed.
 
-  Lemma ghss_third_monoidlaw : monoid_laws_assoc Mon_V ghss_monoid_data.
+  Lemma mhss_third_monoidlaw : monoid_laws_assoc Mon_V mhss_monoid_data.
   Proof.
     red. cbn. apply pathsinv0.
     transitivity μ_3.
     - (** this case is the monoidal generalization of the second item on p.168 of Matthes & Uustalu, TCS 2004 *)
-      apply (gfbracket_unique(Z:=gh_squared)).
+      apply (mfbracket_unique(Z:=mh_squared)).
       split.
       + cbn.
         etrans.
@@ -430,7 +431,7 @@ Section hss.
         etrans.
         2: { rewrite assoc'.
              apply maponpaths.
-             apply pathsinv0, ghss_first_monoidlaw.
+             apply pathsinv0, mhss_first_monoidlaw.
         }
         apply pathsinv0, monoidal_rightunitornat.
       + etrans.
@@ -438,20 +439,20 @@ Section hss.
           rewrite functor_comp.
           rewrite assoc.
           apply cancel_postcomposition.
-          exact ghss_third_monoidlaw_aux.
+          exact mhss_third_monoidlaw_aux.
         }
         etrans.
         { do 2 rewrite assoc'.
           apply maponpaths.
           rewrite assoc.
-          apply (gfbracket_τ(Z:=Ptd_from_ghss)).
+          apply (mfbracket_τ(Z:=Ptd_from_mhss)).
         }
         do 2 rewrite assoc.
         apply cancel_postcomposition.
         cbn.
         apply (bifunctor_equalwhiskers Mon_V).
     - (** this case is the monoidal generalization of the first item on p.168 of Matthes & Uustalu, TCS 2004 *)
-      apply pathsinv0, (gfbracket_unique(Z:=gh_squared)).
+      apply pathsinv0, (mfbracket_unique(Z:=mh_squared)).
       split.
       + cbn.
         etrans.
@@ -465,7 +466,7 @@ Section hss.
         etrans.
         2: { apply cancel_postcomposition.
              do 2 apply maponpaths.
-             apply pathsinv0, ghss_first_monoidlaw. }
+             apply pathsinv0, mhss_first_monoidlaw. }
         apply cancel_postcomposition.
         apply pathsinv0, left_whisker_with_runitor.
       + etrans.
@@ -486,12 +487,12 @@ Section hss.
             rewrite functor_comp.
             rewrite assoc.
             apply cancel_postcomposition.
-            apply pathsinv0, (lineator_linnatleft Mon_PtdV _ _ H θ Ptd_from_ghss _ _ μ).
+            apply pathsinv0, (lineator_linnatleft Mon_PtdV _ _ H θ Ptd_from_mhss _ _ μ).
           }
           repeat rewrite assoc'.
           apply maponpaths.
           rewrite assoc.
-          apply (gfbracket_τ(Z:=Ptd_from_ghss)).
+          apply (mfbracket_τ(Z:=Ptd_from_mhss)).
         }
         cbn.
         repeat rewrite assoc.
@@ -502,7 +503,7 @@ Section hss.
           do 2 rewrite <- (bifunctor_leftcomp Mon_V).
           apply maponpaths.
           rewrite assoc.
-          apply (gfbracket_τ(Z:=Ptd_from_ghss)).
+          apply (mfbracket_τ(Z:=Ptd_from_mhss)).
         }
         cbn.
         rewrite (bifunctor_leftcomp Mon_V).
@@ -511,12 +512,12 @@ Section hss.
         apply monoidal_associatornatleft.
   Qed.
 
-  Definition ghss_monoid : monoid Mon_V gh.
+  Definition mhss_monoid : monoid Mon_V gh.
   Proof.
-    exists ghss_monoid_data.
-    exact (ghss_second_monoidlaw,,ghss_first_monoidlaw,,ghss_third_monoidlaw).
+    exists mhss_monoid_data.
+    exact (mhss_second_monoidlaw,,mhss_first_monoidlaw,,mhss_third_monoidlaw).
   Defined.
 
-  End FixAGhss.
+  End FixAMhss.
 
 End hss.

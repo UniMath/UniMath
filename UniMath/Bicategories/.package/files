@@ -17,6 +17,7 @@ Core/AdjointUnique.v
 Core/UnivalenceOp.v
 Core/Discreteness.v
 
+Morphisms/ExtensionsAndLiftings.v
 Morphisms/InternalStreetFibration.v
 Morphisms/InternalStreetOpFibration.v
 
@@ -25,6 +26,7 @@ Morphisms/Properties/Composition.v
 Morphisms/Properties/ClosedUnderInvertibles.v
 Morphisms/Properties.v
 
+Core/Examples/DiscreteBicat.v
 Core/Examples/OneTypes.v
 Core/Examples/PointedOneTypesBicat.v
 Core/Examples/TwoType.v
@@ -37,6 +39,7 @@ Core/Examples/Final.v
 Core/Examples/BicategoryFromMonoidal.v
 Core/Examples/BicategoryFromWhiskeredMonoidal.v
 Core/Examples/FibSlice.v
+Core/Examples/OpFibSlice.v
 
 Morphisms/Properties/AdjunctionsRepresentable.v
 Morphisms/Examples/MorphismsInBicatOfUnivCats.v
@@ -56,9 +59,9 @@ DisplayedBicats/FiberBicategory.v
 DisplayedBicats/Examples/Sigma.v
 DisplayedBicats/Examples/DisplayedCatToBicat.v
 DisplayedBicats/Examples/FullSub.v
-DisplayedBicats/Examples/DispBicatOfDispCats.v
 DisplayedBicats/Examples/Slice.v
 DisplayedBicats/Examples/Sub1Cell.v
+DisplayedBicats/Examples/DispBicatOfDispCats.v
 DisplayedBicats/Examples/Prod.v
 DisplayedBicats/Examples/DispDepProd.v
 DisplayedBicats/Examples/Trivial.v
@@ -66,6 +69,7 @@ DisplayedBicats/Examples/BicatOfInvertibles.v
 DisplayedBicats/Examples/EndoMap.v
 
 Core/Examples/StructuredCategories.v
+DisplayedBicats/Examples/CategoriesWithStructure.v
 
 MonoidalCategories/MonoidalFromBicategory.v
 MonoidalCategories/EndofunctorsMonoidal.v
@@ -74,6 +78,7 @@ MonoidalCategories/Actions.v
 MonoidalCategories/ConstructionOfActions.v
 MonoidalCategories/WhiskeredMonoidalFromBicategory.v
 MonoidalCategories/ActionOfEndomorphismsInBicatWhiskered.v
+MonoidalCategories/BicatOfWhiskeredMonCatsLax.v
 MonoidalCategories/BicatOfWhiskeredMonCats.v
 MonoidalCategories/EndofunctorsWhiskeredMonoidal.v
 MonoidalCategories/PointedFunctorsWhiskeredMonoidal.v
@@ -114,17 +119,22 @@ PseudoFunctors/Examples/Composition.v
 PseudoFunctors/Examples/Constant.v
 PseudoFunctors/Examples/ApFunctor.v
 PseudoFunctors/Examples/OpFunctor.v
+PseudoFunctors/Examples/CatDiag.v
 PseudoFunctors/Examples/PseudofunctorFromMonoidal.v
 PseudoFunctors/Examples/Op2OfPseudoFunctor.v
+PseudoFunctors/Examples/BicatOfCatToUnivCat.v
+PseudoFunctors/Examples/PseudoFunctorsIntoCat.v
 Transformations/PseudoTransformation.v
 Transformations/Examples/Whiskering.v
 Transformations/Examples/Unitality.v
 Transformations/Examples/Associativity.v
 Transformations/Examples/ApTransformation.v
+Transformations/Examples/PseudoTransformationIntoCat.v
 Modifications/Modification.v
 Modifications/Examples/ApModification.v
 Modifications/Examples/Unitality.v
 Modifications/Examples/Associativity.v
+Modifications/Examples/ModificationIntoCat.v
 PseudoFunctors/Representable.v
 PseudoFunctors/Yoneda.v
 PseudoFunctors/Biequivalence.v
@@ -150,16 +160,30 @@ DisplayedBicats/Examples/LaxSlice.v
 DisplayedBicats/Examples/FunctorsIntoCat.v
 DisplayedBicats/Examples/Codomain.v
 DisplayedBicats/DispPseudofunctor.v
+DisplayedBicats/DispTransportLaws.v
+DisplayedBicats/UnivalenceTechniques.v
 Transformations/Examples/AlgebraMap.v
 DisplayedBicats/Examples/Monads.v
 DisplayedBicats/Examples/KleisliTriple.v
 DisplayedBicats/Examples/EnrichedCats.v
+DisplayedBicats/Examples/DispBicatOfTwoSidedDispCat.v
 DisplayedBicats/DispTransformation.v
 DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
 
+DoubleCategories/DoubleCategoryBasics.v
+DoubleCategories/DoubleFunctor/Basics.v
+DoubleCategories/DoubleFunctor/LeftUnitor.v
+DoubleCategories/DoubleFunctor/RightUnitor.v
+DoubleCategories/DoubleFunctor/Associator.v
+DoubleCategories/DoubleFunctor.v
+DoubleCategories/DoubleTransformation.v
+DoubleCategories/BicatOfDoubleCats.v
+DoubleCategories/DoubleCats.v
+
 PseudoFunctors/Examples/ChangeOfBaseEnriched.v
 DisplayedBicats/Examples/MonadsLax.v
+DisplayedBicats/Examples/DispBicatOnCatToUniv.v
 PseudoFunctors/Examples/MonadInclusion.v
 PseudoFunctors/Examples/OpFunctorEnriched.v
 
@@ -314,6 +338,13 @@ DisplayedBicats/FiberBicategory/CodomainFiber.v
 DisplayedBicats/FiberBicategory/SliceFiber.v
 DisplayedBicats/FiberBicategory/DisplayMapFiber.v
 
+Grothendieck/FibrationToPseudoFunctor.v
+Grothendieck/PseudoFunctorToFibration.v
+Grothendieck/Unit.v
+Grothendieck/Counit.v
+Grothendieck/Biequivalence.v
+Grothendieck/FiberwiseEquiv.v
+
 Logic/ComprehensionBicat.v
 
 Logic/Examples/TrivialComprehensionBicat.v
@@ -331,9 +362,11 @@ OtherStructure/Examples/StructureBicatOfUnivCats.v
 OtherStructure/Examples/StructureOneTypes.v
 OtherStructure/Examples/StructureBicatOfEnrichedCats.v
 
-PseudoFunctors/DisplayedUniversalArrow.v
+DisplayedBicats/DisplayedUniversalArrow.v
+DisplayedBicats/DisplayedUniversalArrowOnCat.v
 
 RezkCompletions/BicatToLocalUnivalentBicat.v
 RezkCompletions/RezkCompletionOfBicategory.v
+RezkCompletions/StructuredCats/TerminalObject.v
 
 DaggerCategories/BicatOfDaggerCats.v

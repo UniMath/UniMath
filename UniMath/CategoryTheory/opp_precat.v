@@ -565,3 +565,16 @@ Proof.
   - intro.
     apply identity_is_z_iso.
 Defined.
+
+(**
+ idtoiso in the opposite
+ *)
+Proposition idtoiso_opp
+            {C : category}
+            {x y : C}
+            (p : x = y)
+  : pr1 (@idtoiso (C^op) _ _ p) = pr1 (@idtoiso C _ _ (!p)).
+Proof.
+  induction p ; cbn.
+  apply idpath.
+Qed.

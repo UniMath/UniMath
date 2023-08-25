@@ -20,6 +20,7 @@ Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Examples.FibSlice.
+Require Import UniMath.Bicategories.Core.Examples.OpFibSlice.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Import PseudoFunctor.Notations.
@@ -31,8 +32,8 @@ Require Import UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.OpFibrat
 Local Open Scope cat.
 
 Section ReindexFib.
-  Context {C₁ C₂ : bicat_of_univ_cats}
-          (F : C₁ --> C₂).
+  Context {C₁ C₂ : univalent_category}
+          (F : C₁ ⟶ C₂).
 
   Definition reindex_fib_psfunctor_data
     : psfunctor_data

@@ -508,8 +508,8 @@ Section TotalOfTwoSidedDispCat.
       + apply id_left.
       + cbn.
         rewrite id_two_disp_left.
-        rewrite transportfbinv.
-        apply idpath.
+        unfold transportb_disp_mor2, transportf_disp_mor2.
+        apply (transportfbinv (λ z, _ -->[ z ][ _ ] _) _ _).
     - intro ; intros.
       unfold mor_disp ; cbn.
       rewrite transportb_total2.
@@ -517,8 +517,7 @@ Section TotalOfTwoSidedDispCat.
       + apply id_right.
       + cbn.
         rewrite id_two_disp_right.
-        rewrite transportfbinv.
-        apply idpath.
+        apply (transportfbinv (λ z, _ -->[ z ][ _ ] _) _ _).
     - intro ; intros.
       unfold mor_disp ; cbn.
       rewrite transportb_total2.
@@ -526,8 +525,7 @@ Section TotalOfTwoSidedDispCat.
       + apply assoc.
       + cbn.
         rewrite assoc_two_disp.
-        rewrite transportfbinv.
-        apply idpath.
+        apply (transportfbinv (λ z, _ -->[ z ][ _ ] _) _ _).
     - intros.
       apply isaset_total2.
       + apply homset_property.
@@ -562,16 +560,14 @@ Section TotalOfTwoSidedDispCat.
          use total2_paths_f ; [ apply z_iso_after_z_iso_inv | ] ;
          cbn ;
          etrans ; [ apply maponpaths ; apply (iso_after_inv_twosided_disp (pr2 fg)) | ] ;
-         rewrite transportfbinv ;
-         apply idpath).
+         apply (transportfbinv (λ z, _ -->[ z ][ _ ] _) _ _)).
     - abstract
         (unfold mor_disp ; cbn ;
          rewrite transportb_total2 ; cbn ;
          use total2_paths_f ; [ apply z_iso_inv_after_z_iso | ] ;
          cbn ;
          etrans ; [ apply maponpaths ; apply (inv_after_iso_twosided_disp (pr2 fg)) | ] ;
-         rewrite transportfbinv ;
-         apply idpath).
+         apply (transportfbinv (λ z, _ -->[ z ][ _ ] _) _ _)).
   Defined.
 
   Definition from_iso_left_total_of_twosided_disp_cat_pr1
@@ -610,7 +606,7 @@ Section TotalOfTwoSidedDispCat.
         (pose (p := inv_mor_after_z_iso_disp f) ; unfold mor_disp in p ; cbn in p ;
          rewrite transportb_total2 in p ;
          refine (!(fiber_paths (!p)) @ _) ; cbn ;
-         unfold transportb ;
+         unfold transportb, transportb_disp_mor2, transportf_disp_mor2 ;
          rewrite !twosided_prod_transport ;
          apply maponpaths_2 ;
          apply isaset_dirprod ; apply homset_property).
@@ -618,7 +614,7 @@ Section TotalOfTwoSidedDispCat.
         (pose (p := z_iso_disp_after_inv_mor f) ; unfold mor_disp in p ; cbn in p ;
          rewrite transportb_total2 in p ;
          refine (!(fiber_paths (!p)) @ _) ; cbn ;
-         unfold transportb ;
+         unfold transportb, transportb_disp_mor2, transportf_disp_mor2 ;
          rewrite !twosided_prod_transport ;
          apply maponpaths_2 ;
          apply isaset_dirprod ; apply homset_property).
@@ -751,7 +747,7 @@ Section TotalOfTwoSidedDispCat.
       + apply id_left.
       + cbn.
         rewrite id_two_disp_left.
-        unfold transportb.
+        unfold transportb, transportb_disp_mor2, transportf_disp_mor2.
         rewrite <- twosided_swap_transport.
         apply transportfbinv.
     - intro ; intros.
@@ -761,7 +757,7 @@ Section TotalOfTwoSidedDispCat.
       + apply id_right.
       + cbn.
         rewrite id_two_disp_right.
-        unfold transportb.
+        unfold transportb, transportb_disp_mor2, transportf_disp_mor2.
         rewrite <- twosided_swap_transport.
         apply transportfbinv.
     - intro ; intros.
@@ -771,7 +767,7 @@ Section TotalOfTwoSidedDispCat.
       + apply assoc.
       + cbn.
         rewrite assoc_two_disp.
-        unfold transportb.
+        unfold transportb, transportb_disp_mor2, transportf_disp_mor2.
         rewrite <- twosided_swap_transport.
         apply transportfbinv.
     - intros.
@@ -808,7 +804,7 @@ Section TotalOfTwoSidedDispCat.
          use total2_paths_f ; [ apply z_iso_after_z_iso_inv | ] ;
          cbn ;
          etrans ; [ apply maponpaths ; apply (iso_after_inv_twosided_disp (pr2 fg)) | ] ;
-         unfold transportb ;
+         unfold transportb, transportb_disp_mor2, transportf_disp_mor2 ;
          rewrite <- twosided_swap_transport ;
          apply transportfbinv).
     - abstract
@@ -817,7 +813,7 @@ Section TotalOfTwoSidedDispCat.
          use total2_paths_f ; [ apply z_iso_inv_after_z_iso | ] ;
          cbn ;
          etrans ; [ apply maponpaths ; apply (inv_after_iso_twosided_disp (pr2 fg)) | ] ;
-         unfold transportb ;
+         unfold transportb, transportb_disp_mor2, transportf_disp_mor2 ;
          rewrite <- twosided_swap_transport ;
          apply transportfbinv).
   Defined.
@@ -859,7 +855,7 @@ Section TotalOfTwoSidedDispCat.
         (pose (p := inv_mor_after_z_iso_disp g) ; unfold mor_disp in p ; cbn in p ;
          rewrite transportb_total2 in p ;
          refine (!(fiber_paths (!p)) @ _) ; cbn ;
-         unfold transportb ;
+         unfold transportb, transportb_disp_mor2, transportf_disp_mor2 ;
          rewrite twosided_swap_transport ;
          rewrite !twosided_prod_transport ;
          apply maponpaths_2 ;
@@ -868,7 +864,7 @@ Section TotalOfTwoSidedDispCat.
         (pose (p := z_iso_disp_after_inv_mor g) ; unfold mor_disp in p ; cbn in p ;
          rewrite transportb_total2 in p ;
          refine (!(fiber_paths (!p)) @ _) ; cbn ;
-         unfold transportb ;
+         unfold transportb, transportb_disp_mor2, transportf_disp_mor2 ;
          rewrite twosided_swap_transport ;
          rewrite !twosided_prod_transport ;
          apply maponpaths_2 ;

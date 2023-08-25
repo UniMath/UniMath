@@ -1,7 +1,7 @@
-(** this file is a follow-up of [MultisortedMonadConstruction_alt], where the semantic signatures [Signature] are replaced by functors with tensorial strength and HSS by GHSS
+(** this file is a follow-up of [MultisortedMonadConstruction_alt], where the semantic signatures [Signature] are replaced by functors with tensorial strength and HSS by MHSS
 
 based on the lax lineator constructed in [Multisorted_actegories] and transferred (through weak equivalence) to the strength notion of
-generalized heterogeneous substitution systems (GHSS), a GHSS is constructed and a monad obtained through it
+monoidal heterogeneous substitution systems (MHSS), a MHSS is constructed and a monad obtained through it
 
 author: Ralph Matthes, 2023
 
@@ -152,11 +152,11 @@ Section monad.
     - apply HCsortToC1.
   Defined.
 
-  (** the associated GHSS *)
-  Definition GHSSOfMultiSortedSig_CAT (sig : MultiSortedSig sort) :
-    ghss (monendocat_monoidal sortToC) (MultiSortedSigToFunctor' sig) (MultiSortedSigToStrength' sig).
+  (** the associated MHSS *)
+  Definition MHSSOfMultiSortedSig_CAT (sig : MultiSortedSig sort) :
+    mhss (monendocat_monoidal sortToC) (MultiSortedSigToFunctor' sig) (MultiSortedSigToStrength' sig).
   Proof.
-    use (initial_alg_to_ghss (MultiSortedSigToStrength' sig) BCsortToC1).
+    use (initial_alg_to_mhss (MultiSortedSigToStrength' sig) BCsortToC1).
     - apply BindingSigToMonad_actegorical.bincoprod_distributor_pointed_CAT.
     - exact ICsortToC1.
     - apply HCsortToC1.
@@ -180,8 +180,8 @@ Section monad.
   (** the associated Sigma-monoid - defined separately *)
   Definition SigmaMonoidOfMultiSortedSig_CAT (sig : MultiSortedSig sort) : SigmaMonoid (MultiSortedSigToStrength' sig).
   Proof.
-    apply ghhs_to_sigma_monoid.
-    exact (GHSSOfMultiSortedSig_CAT sig).
+    apply mhss_to_sigma_monoid.
+    exact (MHSSOfMultiSortedSig_CAT sig).
   Defined.
 
 (* currently obsolete because this was only for the original definition with [MultiSortedSigToFunctor]
@@ -202,7 +202,7 @@ Section CharEq.
   Lemma SigmaMonoidOfMultiSortedSig_CAT_char_eq_ok :
     SigmaMonoid_characteristic_equation (SigmaMonoid_carrier _ σ) (SigmaMonoid_η _ σ) (SigmaMonoid_μ _ σ) (SigmaMonoid_τ _ σ) st'.
   Proof.
-   Admitted. (* the proof depends on [lax_lineators_from_lifted_precomp_CAT_and_lifted_self_action_agree] to be defined! *)
+   Admitted. (* the proof depends on [lax_lineators_from_reindexed_precomp_CAT_and_reindexed_self_action_agree] to be defined! *)
  (*
     (** beginning of proof that depends on that currently deactivated definition *)
     assert (Hyp := SigmaMonoid_is_compatible (MultiSortedSigToStrengthFromSelfCAT sig) σ).
@@ -264,7 +264,7 @@ Section InstanceHSET.
     2: { do 2 apply is_univalent_functor_category.
          apply is_univalent_HSET. }
     transparent assert (HypAdj' : (adj_equivalence_of_cats (left_functor HypAdj))).
-    { apply adjointificiation. }
+    { apply adjointification. }
     use tpair.
     2: { apply (adj_equivalence_of_cats_inv HypAdj'). }
   Defined.

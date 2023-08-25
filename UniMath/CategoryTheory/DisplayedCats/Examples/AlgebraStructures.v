@@ -106,7 +106,7 @@ Section MonadToStruct.
     - intros X f ; cbn.
       rewrite (functor_id M).
       apply idpath.
-    - intros X Y Z fX fY fZ h₁ h₂ Mh₁ Mh₂ ; cbn in *.
+    - intros X Y Z fX fY fZ h₁ h₂ Mh₁ Mh₂ ; cbn -[Monad] in *.
       use funextsec.
       intro x.
       rewrite (eqtohomot Mh₁).
@@ -119,7 +119,7 @@ Section MonadToStruct.
         intro.
         apply isapropdirprod ; apply homset_property.
       }
-      cbn in *.
+      cbn -[Monad] in *.
       use funextsec.
       intro x.
       refine (eqtohomot p x @ _).
@@ -277,7 +277,7 @@ Section MonadToStruct.
       apply idpath.
     - intros X Y f g ; cbn.
       apply idpath.
-    - intros W X Y fW fX fY g₁ g₂ Mg₁ Mg₂ ; cbn in *.
+    - intros W X Y fW fX fY g₁ g₂ Mg₁ Mg₂ ; cbn -[Monad] in *.
       use funextsec.
       intro x.
       use pathsdirprod ; cbn.
@@ -409,7 +409,7 @@ Section MonadToStruct.
         intro.
         apply setproperty.
       }
-      cbn in *.
+      cbn -[Monad] in *.
       refine (eqtohomot Mk x @ _).
       apply maponpaths.
       refine (!_).
@@ -503,7 +503,7 @@ Section MonadToStruct.
     - intros D PD i.
       apply idpath.
     - intros D PD W hW ps Mps.
-      cbn in *.
+      cbn -[Monad] in *.
       use funextsec ; intro x.
       use funextsec ; intro i.
       refine (eqtohomot (Mps i) x @ _).

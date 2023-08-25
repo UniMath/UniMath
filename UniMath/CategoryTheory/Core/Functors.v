@@ -887,6 +887,15 @@ Proof.
   apply impred; intro; apply isapropishinh.
 Defined.
 
+Lemma identity_functor_is_essentially_surjective (C : category)
+  : essentially_surjective (functor_identity C).
+Proof.
+  intro x.
+  apply hinhpr.
+  exists x.
+  apply identity_z_iso.
+Qed.
+
 (** Composition of essentially surjective functors yields an essentially
     surjective functor. *)
 
@@ -946,6 +955,17 @@ Proof.
   apply (Injectivity (# F)).
   - apply isweqonpathsincl, FF.
   - exact (functor_comp F f g @ feq).
+Defined.
+
+(** a simpler instance of that principle *)
+Lemma faithful_reflects_morphism_equality {C D : precategory} (F : functor C D)
+      (FF : faithful F) {a b : ob C} (f g : C ⟦a, b⟧) :
+  # F f = # F g → f = g.
+Proof.
+  intros feq.
+  apply (Injectivity (# F)).
+  - apply isweqonpathsincl, FF.
+  - exact feq.
 Defined.
 
 (** ** Full functors *)

@@ -37,56 +37,6 @@ Definition is_discrete_bicat
      isaprop_2cells B.
 
 (**
- Discrete bicategory from a category
- *)
-Definition isaprop_2cells_discrete_bicat
-           (C : category)
-  : isaprop_2cells (discrete_bicat C).
-Proof.
-  intro ; intros.
-  apply homset_property.
-Qed.
-
-Definition locally_groupoid_discrete_bicat
-           (C : category)
-  : locally_groupoid (discrete_bicat C).
-Proof.
-  intros x y f g α.
-  use make_is_invertible_2cell.
-  - exact (!α).
-  - apply isaprop_2cells_discrete_bicat.
-  - apply isaprop_2cells_discrete_bicat.
-Defined.
-
-Definition is_univalent_2_1_discrete_bicat
-           (C : category)
-  : is_univalent_2_1 (discrete_bicat C).
-Proof.
-  intros x y f g.
-  use isweq_iso.
-  - exact (λ p, pr1 p).
-  - abstract
-      (intro p ; cbn ;
-       apply homset_property).
-  - abstract
-      (intro p ;
-       use subtypePath ;
-       [ intro ;
-         apply isaprop_is_invertible_2cell
-       | apply homset_property ]).
-Defined.
-
-Definition discrete_bicat_is_discrete_bicat
-           (C : category)
-  : is_discrete_bicat (discrete_bicat C).
-Proof.
-  repeat split.
-  - exact (is_univalent_2_1_discrete_bicat C).
-  - exact (locally_groupoid_discrete_bicat C).
-  - exact (isaprop_2cells_discrete_bicat C).
-Defined.
-
-(**
  Category from a discrete bicategory
  *)
 Definition discrete_bicat_to_precategory_data
