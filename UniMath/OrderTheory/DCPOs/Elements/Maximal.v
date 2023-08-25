@@ -18,6 +18,8 @@
  5. Strongly maximal elements are sharp
  6. The intrinsic apartness relation on strongly maximal elements
  7. In a continuous DCPO, strongly maximal elements are maximal
+ 8. A simplified strong maximality condition in a continuous DCPO
+ 9. Apartness for strongly maximal elements is Hausdorff separatedness
 
  ******************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -27,6 +29,7 @@ Require Import UniMath.OrderTheory.DCPOs.Core.WayBelow.
 Require Import UniMath.OrderTheory.DCPOs.Core.ScottTopology.
 Require Import UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.
 Require Import UniMath.OrderTheory.DCPOs.Basis.Continuous.
+Require Import UniMath.OrderTheory.DCPOs.Basis.Basis.
 Require Import UniMath.OrderTheory.DCPOs.Elements.Sharp.
 
 Local Open Scope dcpo.
@@ -118,6 +121,17 @@ Section PropertiesHausdorffSeparated.
     - refine (is_scott_open_upper_set P₁ Px p).
     - exact Py.
   Qed.
+
+  Lemma is_hausdorff_separated_le (x y z : X) :
+    y ⊑ z → is_hausdorff_separated y x → is_hausdorff_separated z x.
+  Proof.
+    intros Hyz.
+    use factor_through_squash_hProp.
+    intros (S1 & S2 & H1 & H2 & Hdisj).
+    apply hinhpr.
+    use (S1,, S2,, _,, H2,, Hdisj).
+    exact (is_scott_open_upper_set S1 H1 Hyz).
+  Qed.
 End PropertiesHausdorffSeparated.
 
 (**
@@ -128,6 +142,31 @@ Definition is_strongly_maximal
            (x : X)
   : hProp
   := (∀ (u v : X), u ≪ v ⇒ (u ≪ x ∨ is_hausdorff_separated v x))%logic.
+
+Definition strongly_maximal
+           (X : dcpo)
+  : hSet
+  := (∑ (x : X), hProp_to_hSet (is_strongly_maximal x))%set.
+
+Coercion element_of_strongly_maximal
+         {X : dcpo}
+         (x : strongly_maximal X)
+  : X
+  := pr1 x.
+
+Definition eq_strongly_maximal
+           {X : dcpo}
+           {x y : strongly_maximal X}
+           (p : pr1 x = pr1 y)
+  : x = y.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    apply propproperty.
+  }
+  exact p.
+Qed.
 
 (**
  5. Strongly maximal elements are sharp
@@ -209,4 +248,139 @@ Proof.
   - exact r.
   - apply fromempty.
     exact (is_hausdorff_separated_not_le (symm_is_hausdorff_separated r) p).
+Qed.
+
+Definition eq_strongly_maximal_via_le
+           {X : dcpo}
+           (CX : continuous_dcpo_struct X)
+           {x y : strongly_maximal X}
+           (p : x ⊑ y)
+  : x = y.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    apply propproperty.
+  }
+  use antisymm_dcpo.
+  - exact p.
+  - exact (is_maximal_is_strongly_maximal CX (pr2 x) _ p).
+Qed.
+
+Definition eq_strongly_maximal_via_top
+           {X : dcpo}
+           (CX : continuous_dcpo_struct X)
+           {x y : strongly_maximal X}
+           (z : X)
+           (p : x ⊑ z)
+           (q : y ⊑ z)
+  : x = y.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    apply propproperty.
+  }
+  transitivity z.
+  - use antisymm_dcpo.
+    + exact p.
+    + exact (is_maximal_is_strongly_maximal CX (pr2 x) _ p).
+  - refine (!_).
+    use antisymm_dcpo.
+    + exact q.
+    + exact (is_maximal_is_strongly_maximal CX (pr2 y) _ q).
+Qed.
+
+(** ** 8. A simplified strong maximality condition in a continuous DCPO,
+          in terms of the basis *)
+
+Lemma is_strongly_maximal_basis_1  {X : dcpo} (B : dcpo_basis X) (x : X) :
+  (∀ (i j : B), B i ≪ B j ⇒ (B i ≪ x ∨ is_hausdorff_separated (B j) x))%logic →
+  is_strongly_maximal x.
+Proof.
+  intros HB u v Huv.
+  assert (Hb := basis_unary_interpolation B Huv).
+  revert Hb.
+  use factor_through_squash.
+  {
+    apply propproperty.
+  }
+  intros [i [Hui Hiv]].
+  assert (Hb := basis_unary_interpolation B Hiv).
+  revert Hb.
+  use factor_through_squash.
+  {
+    apply propproperty.
+  }
+  intros [j [Hij Hjv]].
+  specialize (HB _ _ Hij).
+  revert HB.
+  use factor_through_squash.
+  {
+    apply propproperty.
+  }
+  intros [Hix | Hsep].
+  { apply hinhpr. left.
+    use (trans_way_below Hui Hix). }
+  { apply hinhpr. right.
+    use (is_hausdorff_separated_le _ _ _ _ Hsep).
+    apply way_below_to_le, Hjv. }
+Qed.
+
+Lemma is_strongly_maximal_basis_2  {X : dcpo} (B : dcpo_basis X) (x : X) :
+  is_strongly_maximal x →
+  (∀ (i j : B), B i ≪ B j ⇒ (B i ≪ x ∨ is_hausdorff_separated (B j) x))%logic.
+Proof.
+  intros HX i j p.
+  exact (HX (B i) (B j) p).
+Qed.
+
+Lemma is_strongly_maximal_basis {X : dcpo} (B : dcpo_basis X) (x : X) :
+  (∀ (i j : B), B i ≪ B j ⇒ (B i ≪ x ∨ is_hausdorff_separated (B j) x))%logic ≃ is_strongly_maximal x.
+Proof.
+  use weqimplimpl.
+  - apply is_strongly_maximal_basis_1.
+  - apply is_strongly_maximal_basis_2.
+  - apply propproperty.
+  - apply propproperty.
+Qed.
+
+(** ** 9. Apartness for strongly maximal elements is Hausdorff separatedness *)
+Lemma strongly_maximal_apart
+       {D : dcpo}
+       (C : continuous_dcpo_struct D)
+       {x y : D}
+       (Hx : is_strongly_maximal x)
+       (Hy : is_strongly_maximal y)
+       (p : x # y)
+  : is_hausdorff_separated x y.
+Proof.
+  revert p.
+  use factor_through_squash_hProp.
+  intros [Hxy | Hyx].
+  - assert (Hb := continuous_not_specialization_weq C _ _ Hxy).
+    revert Hb.
+    use factor_through_squash_hProp.
+    intros (b & Hbx & Hby).
+    specialize (Hy b x Hbx).
+    revert Hy.
+    use factor_through_squash_hProp.
+    intros [Hby' | Hxy' ].
+    + apply fromempty.
+      use (Hby _).
+      exact (way_below_to_le Hby').
+    + exact Hxy'.
+  - assert (Hb := continuous_not_specialization_weq C _ _ Hyx).
+    revert Hb.
+    use factor_through_squash_hProp.
+    intros (b & Hby & Hbx).
+    specialize (Hx b y Hby).
+    revert Hx.
+    use factor_through_squash_hProp.
+    intros [Hbx' | Hxy' ].
+    + apply fromempty.
+      use (Hbx _).
+      exact (way_below_to_le Hbx').
+    + apply symm_is_hausdorff_separated.
+      exact Hxy'.
 Qed.
