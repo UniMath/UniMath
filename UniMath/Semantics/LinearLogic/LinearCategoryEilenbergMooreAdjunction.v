@@ -42,7 +42,7 @@ Section CofreeAdjunction.
   Context (L : linear_category).
 
   Definition eilenberg_moore_cofree
-    :  pr1 L ⟶ co_eilenberg_moore_cat (linear_category_bang L).
+    : L ⟶ co_eilenberg_moore_cat (linear_category_bang L).
   Proof.
     use functor_to_co_eilenberg_moore_cat.
     - apply (linear_category_bang L).
@@ -61,20 +61,8 @@ Section CofreeAdjunction.
           exact (Comonad_law3 (T := linear_category_bang L) x)).
   Defined.
 
-  (* Lemma test_ob (x : L)
-    : pr11 (eilenberg_moore_cofree x) = linear_category_bang L x.
-  Proof.
-    apply idpath.
-  Qed.
-
-  Lemma test_mor (x : L)
-    : pr21 (eilenberg_moore_cofree x) =  δ (linear_category_bang L) x.
-  Proof.
-    apply id_left.
-  Qed. *)
-
   Local Definition eilenberg_moore_forget
-    : full_subcat (dialgebra (functor_identity (pr1 L)) (linear_category_bang L))
+    : full_subcat (dialgebra (functor_identity L) (linear_category_bang L))
         mon_cat_co_eilenberg_moore_extra_condition ⟶ L.
     (* : co_eilenberg_moore_cat (linear_category_bang L) ⟶ L. *)
   Proof.
@@ -83,7 +71,7 @@ Section CofreeAdjunction.
 
   Local Definition eilenberg_moore_adj_unit
     : functor_identity
-        (full_subcat (dialgebra (functor_identity (pr1 L)) (linear_category_bang L))
+        (full_subcat (dialgebra (functor_identity L) (linear_category_bang L))
            mon_cat_co_eilenberg_moore_extra_condition) ⟹
         eilenberg_moore_forget ∙ eilenberg_moore_cofree.
   Proof.
@@ -121,7 +109,7 @@ Section CofreeAdjunction.
 
   Definition eilenberg_moore_cmd_adj
     : adjunction
-    (full_subcat (dialgebra (functor_identity (pr1 L)) (linear_category_bang L))
+    (full_subcat (dialgebra (functor_identity L) (linear_category_bang L))
        mon_cat_co_eilenberg_moore_extra_condition) L.
   Proof.
     use make_adjunction.
