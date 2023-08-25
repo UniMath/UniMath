@@ -25,6 +25,7 @@ Require Import UniMath.CategoryTheory.categories.Dialgebras.
 
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
 
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.MonoidalCartesianBuilder.
@@ -44,26 +45,10 @@ Local Open Scope moncat.
 
 Import ComonoidNotations.
 
-Section ToBeMoved.
-
-  (* In here, I will add some accessors that need to be moved to a more appropriate place *)
-
-  Context (L : linear_category).
-
-  Definition bang_comult_is_mon_nat_trans
-    := pr1 (symmetric_monoidal_comonad_extra_laws _ (linear_category_bang L)).
-
-  Definition bang_counit_is_mon_nat_trans
-    := pr2 (symmetric_monoidal_comonad_extra_laws _ (linear_category_bang L)).
-
-End ToBeMoved.
-
-(*** **)
-
 Section ConstructionOfComonoidsInLinearCategory.
 
   Context {L : linear_category}.
-  Context (B : comonoid L) (a : L) (i : L⟦a,B⟧) (r : L⟦B,a⟧) (ir : is_retraction i r).
+  Context (B : comonoid L) {a : L} (i : L⟦a,B⟧) (r : L⟦B,a⟧) (ir : is_retraction i r).
   Context (p : i · δ_{B} · (r #⊗ r) · (i #⊗ i) = i · δ_{B}).
 
   Definition comonoid_comult_data_in_linear_category
@@ -287,28 +272,15 @@ End ConstructionOfComonoidsInLinearCategory.
 
 Section LiftingPropertyCoalgebraMorSection.
 
-  Context (L : linear_category).
-
-  Let EM := (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L)).
-  Let bang : sym_monoidal_cmd L
-      := linear_category_bang L.
-
-  Context (xx aa bb : EM).
-
-  Let x : L := pr11 xx.
-  Let hx : L⟦x, bang x⟧ := pr21 xx.
-  Let a : L := pr11 aa.
-  Let ha : L⟦a, bang a⟧ := pr21 aa.
-  Let b : L := pr11 bb.
-  Let hb : L⟦b, bang b⟧ := pr21 bb.
-
-  Context (i : EM⟦aa,bb⟧) (f : L⟦x,a⟧).
-
-  Context (f_i_coalg : hx · #(linear_category_bang L) (f · pr11 i) = (f · pr11 i) · hb).
-  Context (r : L⟦b,a⟧) (ir_id : is_retraction (pr11 i) r).
-
   Lemma postcomp_with_section_reflect_coalg_mor
-    : hx · #(linear_category_bang L) f = f · ha.
+    (L : linear_category)
+    (xx aa bb : @sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L))
+    (i : _⟦aa,bb⟧)
+    (f : L⟦pr11 xx, pr11 aa⟧)
+    (f_i_coalg : pr21 xx · #(linear_category_bang L) (f · pr11 i) = (f · pr11 i) · pr21 bb)
+    (r : L⟦pr11 bb, pr11 aa⟧)
+    (ir_id : is_retraction (pr11 i) r)
+    : pr21 xx · #(linear_category_bang L) f = f · pr21 aa.
   Proof.
     pose (p := cancel_postcomposition _ _ (#(linear_category_bang L) r) f_i_coalg).
     rewrite assoc' in p.
@@ -336,39 +308,14 @@ Section LiftingPropertyCoalgebraMorSection.
       exact ir_id.
   Qed.
 
-  (* Let ff : EM⟦xx,aa⟧.
-  Proof.
-    use make_mor_co_eilenberg_moore.
-    - exact f.
-    - exact lifting_is_coalg_mor.
-  Defined.
-  *)
-
-End LiftingPropertyCoalgebraMorSection.
-
-Section LiftingPropertyCoalgebraMorSectionCor.
-
-  Context (L : linear_category).
-
-  Let EM := (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L)).
-  Let bang : sym_monoidal_cmd L
-      := linear_category_bang L.
-
-  Context {xx aa bb : EM}.
-
-  Let x : L := pr11 xx.
-  Let hx : L⟦x, bang x⟧ := pr21 xx.
-  Let a : L := pr11 aa.
-  Let ha : L⟦a, bang a⟧ := pr21 aa.
-  Let b : L := pr11 bb.
-  Let hb : L⟦b, bang b⟧ := pr21 bb.
-
-  Context {g : EM⟦xx,bb⟧} {i : EM⟦aa,bb⟧} {f : L⟦x,a⟧}.
-  Context {r : L⟦b,a⟧} (ir_id : is_retraction (pr11 i) r).
-  Context (p : f · pr11 i = pr11 g).
-
   Definition lifting_is_coalg_mor
-    : hx · #(linear_category_bang L) f = f · ha.
+    {L : linear_category}
+    {xx aa bb : (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L))}
+    {g : _⟦xx,bb⟧} {i : _⟦aa,bb⟧} {f : L⟦pr11 xx, pr11 aa⟧}
+    {r : L⟦pr11 bb, pr11 aa⟧}
+    (ir_id : is_retraction (pr11 i) r)
+    (p : f · pr11 i = pr11 g)
+    : pr21 xx · #(linear_category_bang L) f = f · pr21 aa.
   Proof.
     use (postcomp_with_section_reflect_coalg_mor L xx aa bb i f _ r ir_id).
     etrans. {
@@ -383,7 +330,7 @@ Section LiftingPropertyCoalgebraMorSectionCor.
     exact (pr21 g).
   Qed.
 
-End LiftingPropertyCoalgebraMorSectionCor.
+End LiftingPropertyCoalgebraMorSection.
 
 Section TransportationFreeCoalgebraComonoid.
 
@@ -416,7 +363,7 @@ Section TransportationFreeCoalgebraComonoid.
     use two_arg_paths ; apply Comonad_law1.
   Qed.
 
-  Lemma yank
+  Local Lemma yank (* any suggestions for the name are welcome *)
     : hx · δ_{comonoid_on_bang_x} · ε bang x #⊗ ε bang x · hx #⊗ hx
       = hx · δ_{comonoid_on_bang_x}.
   Proof.
@@ -552,7 +499,6 @@ Section ConstructionOfComonoidsInEilenbergMoore.
   Let x : L := pr11 xx.
   Let hx : L⟦x, bang x⟧ := pr21 xx.
 
-  (* The following lemma is actually an application that coalgebra morphisms are closed under composition, I c(sh)ould use this directly, however, I have to find the proof of that first (in the formalization) *)
   Lemma comonoid_in_eilenberg_moore_from_coalg_counit_alg_mor
     :  hx · #bang ε_{(x,, transport_comonoid_from_free L xx) : comonoid L}
        = ε_{(x,, transport_comonoid_from_free L xx) : comonoid L}
@@ -595,11 +541,10 @@ Section ConstructionOfComonoidsInEilenbergMoore.
       use two_arg_paths ; apply (pr2 xx).
     }
 
-    use (lifting_is_coalg_mor L
+    use (lifting_is_coalg_mor
            (xx := xx)
            (aa :=  xx ⊗ xx)
            (bb := (eilenberg_moore_cofree L x : EM) ⊗ (eilenberg_moore_cofree L x : EM))
-           (* (bb := ((bang x ⊗ bang x,,_),,(_,,_))) *)
            (g := (hx · linear_category_comult L x ,, _) ,, tt)
            (i := (hx #⊗ hx,, _) ,, tt)
            (f := δ_{ x,, transport_comonoid_from_free L xx : comonoid L})
@@ -607,7 +552,7 @@ Section ConstructionOfComonoidsInEilenbergMoore.
            retr
         ).
 
-    - (* hx · linear_category_comult L x is a coalgebra morphism, because it is the composition of coalgebra morphisms *)
+    - (* (hx · linear_category_comult L x) is a coalgebra morphism, because it is the composition of coalgebra morphisms *)
       cbn.
       unfold dialgebra_disp_tensor_op.
       cbn.
@@ -727,86 +672,117 @@ Section EilenbergMooreCartesian.
       exact (! linear_category_counit_nat (pr11 f)).
   Qed.
 
+  (* Unfortunately, I'm unable to clean up this lemma.
+     If I do this, I will have to do some manipulation in
+     definition linear_category_eilenberg_moore_cartesian.
+     The purpose of this lemma is to avoid having to prove this property in that definition.
+   *)
+  Local Lemma aux
+    (x y : @sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L))
+    :
+    identity (pr11 x ⊗ pr11 y)
+      · (pr21 x #⊗ pr21 y)
+      · fmonoidal_preservestensordata
+      (lax_monoidal_from_symmetric_monoidal_comonad _ (linear_category_bang L))
+      (pr11 x) (pr11 y)
+      · linear_category_comult L (pr11 x ⊗ pr11 y)
+      · ε (linear_category_bang L) (pr11 x ⊗ pr11 y) #⊗ ε (linear_category_bang L) (pr11 x ⊗ pr11 y)
+    = rightwhiskering_on_morphisms (pr1 L) (pr11 y) _ _
+        (pr21 x · linear_category_comult L (pr11 x) · ε (linear_category_bang L) (pr11 x) #⊗ ε (linear_category_bang L) (pr11 x))
+        · leftwhiskering_on_morphisms (pr1 L) (pr11 x ⊗ pr11 x) _ _
+        (pr21 y · linear_category_comult L (pr11 y)
+           · ε (linear_category_bang L) (pr11 y) #⊗ ε (linear_category_bang L) (pr11 y))
+  · pr11 (inner_swap sym_monoidal_cat_co_eilenberg_moore x x y y).
+  Proof.
+    Opaque SymmetricDiagonal.inner_swap. (* I do not include the file SymmetricDiagonal because this is the only place I use it *)
+
+    rewrite ! tensor_mor_right.
+    rewrite ! tensor_mor_left.
+    unfold dialgebra_disp_tensor_op.
+    cbn.
+    rewrite id_left.
+    etrans.
+    2: {
+      apply maponpaths_2.
+      apply tensor_split'.
+    }
+    etrans.
+    2: {
+      apply maponpaths_2.
+      apply pathsinv0, tensor_comp_mor.
+    }
+    etrans.
+    2: {
+      do 2 apply maponpaths_2.
+      apply pathsinv0, tensor_comp_mor.
+    }
+
+    rewrite ! assoc'.
+    apply maponpaths.
+    etrans.
+    2: {
+      apply maponpaths.
+      apply naturality_inner_swap.
+    }
+
+    etrans.
+    2: {
+      do 2 apply maponpaths.
+      etrans.
+      2: {
+        apply maponpaths.
+        refine (_ @ id_right _).
+        apply (symmetric_monoidal_comonad_extra_laws _ (linear_category_bang L)).
+      }
+      apply maponpaths_2.
+      refine (_ @ id_right _).
+      apply (symmetric_monoidal_comonad_extra_laws _ (linear_category_bang L)).
+    }
+    rewrite ! tensor_comp_mor.
+    rewrite ! assoc.
+    apply maponpaths_2.
+    refine (linear_category_comult_preserves_tensor (pr11 x) (pr11 y) @ _).
+    apply assoc.
+  Qed.
+
   Definition linear_category_eilenberg_moore_cartesian
     : is_cartesian (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L)).
   Proof.
     use symm_monoidal_is_cartesian_from_comonoid.
     - intro ; apply comonoid_in_eilenberg_moore_from_coalg.
     - intro ; intros ; apply comonoid_mor_in_eilenberg_moore.
-    - use eq_mor_co_eilenberg_moore.
-      refine (assoc' _ _ _ @ _).
-      refine (id_left _ @ _).
-      apply linear_category_counit_preserves_unit.
+    - abstract (
+          use eq_mor_co_eilenberg_moore;
+          refine (assoc' _ _ _ @ _);
+          refine (id_left _ @ _);
+          apply linear_category_counit_preserves_unit).
     - intros x y.
       use eq_mor_co_eilenberg_moore.
-      Opaque SymmetricDiagonal.inner_swap.
-      cbn.
-      unfold comonoid_comult_data_in_linear_category.
-      cbn.
-      rewrite ! tensor_mor_right.
-      rewrite ! tensor_mor_left.
-      unfold dialgebra_disp_tensor_op.
-      cbn.
-      rewrite id_left.
-      etrans.
-      2: {
-        apply maponpaths_2.
-        apply tensor_split'.
-      }
-      etrans.
-      2: {
-        apply maponpaths_2.
-        apply pathsinv0, tensor_comp_mor.
-      }
-      etrans.
-      2: {
-        do 2 apply maponpaths_2.
-        apply pathsinv0, tensor_comp_mor.
-      }
-
-      rewrite ! assoc'.
-      apply maponpaths.
-      etrans.
-      2: {
-        apply maponpaths.
-        apply naturality_inner_swap.
-      }
-
-      etrans.
-      2: {
-        do 2 apply maponpaths.
-        etrans.
-        2: {
-          apply maponpaths.
-          exact (pr1 (bang_counit_is_mon_nat_trans L) (pr11 x) (pr11 y) @ id_right _).
-        }
-        apply maponpaths_2.
-        exact (pr1 (bang_counit_is_mon_nat_trans L) (pr11 x) (pr11 y) @ id_right _).
-      }
-      rewrite ! tensor_comp_mor.
-      rewrite ! assoc.
-      apply maponpaths_2.
-      refine (linear_category_comult_preserves_tensor (pr11 x) (pr11 y) @ _).
-      apply assoc.
+      apply aux.
   Qed.
 
 End EilenbergMooreCartesian.
 
 Section LinearToLNL.
 
-  Definition linear_to_lnl (L : linear_category)
-    : linear_non_linear_model.
+  Context (L : linear_category).
+
+  Local Definition em_projection
+    : fmonoidal
+        sym_monoidal_cat_co_eilenberg_moore
+        L
+        (left_adjoint (eilenberg_moore_cmd_adj L)).
   Proof.
-    use make_linear_non_linear_from_strong.
-    - exact (linear_category_data_to_sym_mon_closed_cat L).
-    - exact (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L)).
-    - apply eilenberg_moore_cmd_adj.
-    - apply linear_category_eilenberg_moore_cartesian.
-    - use comp_fmonoidal.
-      + apply mon_cat_co_eilenberg_moore_base.
-      + apply TotalMonoidal.projection_fmonoidal.
-      + apply TotalMonoidal.projection_fmonoidal.
-    - intros x y.
+    use comp_fmonoidal.
+    - apply mon_cat_co_eilenberg_moore_base.
+    - apply projection_fmonoidal.
+    - apply projection_fmonoidal.
+  Defined.
+
+  Local Lemma em_projection_is_symmetric
+    : is_symmetric_monoidal_functor sym_monoidal_cat_co_eilenberg_moore L em_projection.
+  Proof.
+    intros x y.
       etrans. {
         apply maponpaths.
         apply id_right.
@@ -818,6 +794,18 @@ Section LinearToLNL.
       apply pathsinv0.
       refine (id_left _ @ _).
       apply id_left.
+  Qed.
+
+  Definition linear_to_lnl
+    : linear_non_linear_model.
+  Proof.
+    use make_linear_non_linear_from_strong.
+    - exact (linear_category_data_to_sym_mon_closed_cat L).
+    - exact (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L)).
+    - apply eilenberg_moore_cmd_adj.
+    - apply linear_category_eilenberg_moore_cartesian.
+    - exact em_projection.
+    - exact em_projection_is_symmetric.
   Defined.
 
 End LinearToLNL.
