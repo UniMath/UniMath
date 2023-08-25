@@ -329,7 +329,7 @@ Section RoundedIdealCompletion.
   Proposition principal_ideal_monotone
               {b₁ b₂ : B}
               (p : b₁ ≺ b₂)
-    : principal_ideal b₁ ≤ principal_ideal b₂.
+    : principal_ideal b₁ ⊑ principal_ideal b₂.
   Proof.
     intros a q ; cbn in *.
     exact (trans_abstract_basis q p).
@@ -371,7 +371,7 @@ Section RoundedIdealCompletion.
 
   Proposition rounded_ideal_lub_2
               (I : rounded_ideal_completion)
-    : ⨆ below_ideal_directed_set I ≤ I.
+    : ⨆ below_ideal_directed_set I ⊑ I.
   Proof.
     apply dcpo_lub_is_least.
     intros [b Hb].
@@ -382,7 +382,7 @@ Section RoundedIdealCompletion.
 
   Proposition rounded_ideal_lub_1
               (I : rounded_ideal_completion)
-    : I ≤ ⨆ below_ideal_directed_set I.
+    : I ⊑ ⨆ below_ideal_directed_set I.
   Proof.
     intros x Hx.
     assert (H := is_ideal_rounded (pr2 I) Hx).
@@ -411,27 +411,14 @@ Section RoundedIdealCompletion.
               (Hb : b ∈ I)
     : principal_ideal b ≪ I.
   Proof.
-    assert (H := is_ideal_rounded (pr2 I) Hb).
-    revert H.
-    use factor_through_squash.
-    {
-      apply propproperty.
-    }
-    intro c.
-    induction c as ( c & p₁ & p₂ ).
     intros D HD.
-    assert (H := HD c p₂).
-    revert H.
-    use factor_through_squash.
-    {
-      apply propproperty.
-    }
+    assert (H := HD _ Hb). revert H.
+    use factor_through_squash_hProp.
     intro d ; cbn in d.
     induction d as [ d Hd ].
     refine (hinhpr (d ,, _)).
     cbn ; intros x Hx.
-    use (is_ideal_lower_set (pr2 (D d)) Hd).
-    exact (trans_abstract_basis Hx p₁).
+    exact (is_ideal_lower_set (pr2 (D d)) Hd Hx).
   Qed.
 
   Proposition lt_way_below
@@ -446,7 +433,7 @@ Section RoundedIdealCompletion.
   Proposition from_way_below_ideal_completion
               {I J : rounded_ideal_completion}
               (Hb : I ≪ J)
-    : ∃ b₁, b₁ ∈ J ∧ I ≤ principal_ideal b₁.
+    : ∃ b₁, b₁ ∈ J ∧ I ⊑ principal_ideal b₁.
   Proof.
     specialize (Hb (below_ideal_directed_set J) (rounded_ideal_lub_1 J)).
     revert Hb.
@@ -471,7 +458,7 @@ Section RoundedIdealCompletion.
     {I J : rounded_ideal_completion}
     (b₁ : B)
     (Hb1 : b₁ ∈ J)
-    (HI : I ≤ principal_ideal b₁)
+    (HI : I ⊑ principal_ideal b₁)
     : I ≪ J.
   Proof.
     intros D HJ.
@@ -489,7 +476,7 @@ Section RoundedIdealCompletion.
   Qed.
 
   Proposition way_below_ideal_completion_eq (I J : rounded_ideal_completion) :
-    I ≪ J ≃ ∃ b₁, b₁ ∈ J ∧ I ≤ principal_ideal b₁.
+    I ≪ J ≃ ∃ b₁, b₁ ∈ J ∧ I ⊑ principal_ideal b₁.
   Proof.
     use weqimplimpl.
     - apply from_way_below_ideal_completion.
