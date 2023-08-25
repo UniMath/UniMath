@@ -275,7 +275,7 @@ Section LiftingPropertyCoalgebraMorSection.
   Lemma postcomp_with_section_reflect_coalg_mor
     (L : linear_category)
     (xx aa bb : @sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L))
-    (i : _⟦aa,bb⟧)
+    (i : aa --> bb)
     (f : L⟦pr11 xx, pr11 aa⟧)
     (f_i_coalg : pr21 xx · #(linear_category_bang L) (f · pr11 i) = (f · pr11 i) · pr21 bb)
     (r : L⟦pr11 bb, pr11 aa⟧)
@@ -311,7 +311,7 @@ Section LiftingPropertyCoalgebraMorSection.
   Definition lifting_is_coalg_mor
     {L : linear_category}
     {xx aa bb : (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L))}
-    {g : _⟦xx,bb⟧} {i : _⟦aa,bb⟧} {f : L⟦pr11 xx, pr11 aa⟧}
+    {g : xx --> bb} {i : aa --> bb} {f : L⟦pr11 xx, pr11 aa⟧}
     {r : L⟦pr11 bb, pr11 aa⟧}
     (ir_id : is_retraction (pr11 i) r)
     (p : f · pr11 i = pr11 g)
@@ -615,7 +615,7 @@ Section EilenbergMooreCartesian.
   (* naturality of the comultiplication and counit *)
   Lemma comonoid_mor_in_eilenberg_moore
     {x y : (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L))}
-    (f : _⟦x, y⟧)
+    (f : x --> y)
     : comonoid_mor_struct
          (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L))
          (comonoid_in_eilenberg_moore_from_coalg L x)
