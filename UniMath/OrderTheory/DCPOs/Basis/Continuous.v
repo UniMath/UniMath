@@ -440,7 +440,7 @@ Proposition is_continuous_dcpo_is_directed
             {X : dcpo}
             (CX : is_continuous_dcpo X)
             (x : X)
-  : is_directed X (λ (z : ∑ b : X, b ≪ x), pr1 z).
+  : is_directed X (λ (z : ∑ (b : X), b ≪ x), pr1 z).
 Proof.
   revert CX.
   use factor_through_squash_hProp.
