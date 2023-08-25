@@ -29,6 +29,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
 
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.MonoidalCartesianBuilder.
+Require Import UniMath.CategoryTheory.Monoidal.Comonoids.TransportComonoidAlongRetraction.
 
 Require Import UniMath.CategoryTheory.categories.CoEilenbergMoore.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras.
@@ -44,231 +45,6 @@ Local Open Scope cat.
 Local Open Scope moncat.
 
 Import ComonoidNotations.
-
-Section TransportingComonoidAlongRetractionPair.
-
-  Context {L : monoidal_cat}.
-  Context (B : comonoid L) {a : L} (i : L⟦a,B⟧) (r : L⟦B,a⟧) (ir : is_retraction i r).
-  Context (p : i · δ_{B} · (r #⊗ r) · (i #⊗ i) = i · δ_{B}).
-
-  Definition comonoid_comult_data_in_linear_category
-    : L⟦a, a ⊗ a⟧.
-  Proof.
-    exact (i · δ_{B} · r #⊗ r).
-  Defined.
-
-  Definition comonoid_counit_data_in_linear_category
-    : L⟦a, monoidal_unit L⟧.
-  Proof.
-    exact (i · ε_{B}).
-  Defined.
-
-  Definition comonoid_data_in_linear_category
-    : disp_cat_of_comonoids_data L a.
-  Proof.
-    split.
-    - exact comonoid_comult_data_in_linear_category.
-    - exact comonoid_counit_data_in_linear_category.
-  Defined.
-
-  Local Lemma diagram_1
-    : i · δ_{B} · (r #⊗ r) · (i #⊗ identity a) = i · δ_{B} · identity (pr1 B) #⊗ r.
-  Proof.
-    etrans.
-    2: {
-      apply maponpaths_2.
-      exact p.
-    }
-    rewrite ! assoc'.
-    do 3 apply maponpaths.
-    rewrite <- tensor_comp_mor.
-    rewrite id_right.
-    apply maponpaths.
-    apply pathsinv0, ir.
-  Qed.
-
-  Local Lemma diagram_2
-    : i · δ_{B} · (r #⊗ r) · (identity a #⊗ i) = i · δ_{B} · r #⊗ identity (pr1 B).
-  Proof.
-    etrans.
-    2: {
-      apply maponpaths_2.
-      exact p.
-    }
-    rewrite ! assoc'.
-    do 3 apply maponpaths.
-    rewrite <- tensor_comp_mor.
-    rewrite id_right.
-    apply maponpaths_2.
-    apply pathsinv0, ir.
-  Qed.
-
-  Lemma comonoid_laws_unit_left_in_linear_category
-    : comonoid_laws_unit_left L (a,, comonoid_data_in_linear_category).
-  Proof.
-    unfold comonoid_laws_unit_left.
-    cbn.
-    unfold comonoid_comult_data_in_linear_category.
-
-    etrans. {
-      apply maponpaths_2.
-      unfold comonoid_counit_data_in_linear_category.
-      rewrite tensor_mor_right.
-      rewrite tensor_comp_id_r.
-      rewrite assoc.
-      apply maponpaths_2.
-      apply diagram_1.
-    }
-
-    etrans. {
-      apply maponpaths_2.
-      rewrite assoc'.
-      apply maponpaths.
-      apply tensor_swap'.
-    }
-
-    etrans. {
-      rewrite assoc'.
-      apply maponpaths.
-      rewrite assoc'.
-      apply maponpaths.
-      apply tensor_lunitor.
-    }
-
-    etrans. {
-      rewrite assoc'.
-      apply maponpaths.
-      rewrite ! assoc.
-      apply maponpaths_2.
-      rewrite <- tensor_mor_right.
-      apply comonoid_to_law_unit_left.
-    }
-    rewrite id_left.
-    exact ir.
-  Qed.
-
-  Lemma comonoid_laws_unit_right_in_linear_category
-    : comonoid_laws_unit_right L (a,, comonoid_data_in_linear_category).
-  Proof.
-    unfold comonoid_laws_unit_right.
-    cbn.
-    unfold comonoid_comult_data_in_linear_category.
-
-    etrans. {
-      apply maponpaths_2.
-      unfold comonoid_counit_data_in_linear_category.
-      rewrite tensor_mor_left.
-      rewrite tensor_comp_id_l.
-      rewrite assoc.
-      apply maponpaths_2.
-      apply diagram_2.
-    }
-
-    etrans. {
-      apply maponpaths_2.
-      rewrite assoc'.
-      apply maponpaths.
-      apply tensor_swap.
-    }
-
-    etrans. {
-      rewrite assoc'.
-      apply maponpaths.
-      rewrite assoc'.
-      apply maponpaths.
-      apply tensor_runitor.
-    }
-
-    etrans. {
-      rewrite assoc'.
-      apply maponpaths.
-      rewrite ! assoc.
-      apply maponpaths_2.
-      rewrite <- tensor_mor_left.
-      apply comonoid_to_law_unit_right.
-    }
-    rewrite id_left.
-    exact ir.
-  Qed.
-
-  Lemma comonoid_laws_assoc_in_linear_category
-    : comonoid_laws_assoc L (a,, comonoid_data_in_linear_category).
-  Proof.
-    unfold comonoid_laws_assoc.
-    cbn.
-    unfold comonoid_comult_data_in_linear_category.
-
-    rewrite tensor_mor_left.
-    rewrite tensor_mor_right.
-    rewrite ! tensor_comp_id_l.
-    rewrite ! tensor_comp_id_r.
-    rewrite ! assoc.
-
-    etrans.
-    2: {
-      do 2 apply maponpaths_2.
-      exact (! diagram_2).
-    }
-
-    etrans. {
-      do 3 apply maponpaths_2.
-      exact diagram_1.
-    }
-
-    etrans.
-    2: {
-      apply maponpaths_2.
-      rewrite assoc'.
-      apply maponpaths.
-      apply tensor_swap'.
-    }
-
-    etrans.
-    2: {
-      rewrite assoc.
-      do 2 apply maponpaths_2.
-      rewrite assoc'.
-      apply maponpaths.
-      rewrite <- tensor_mor_left.
-      apply comonoid_to_law_assoc.
-    }
-    rewrite tensor_mor_right.
-    rewrite ! assoc'.
-    do 2 apply maponpaths.
-
-    rewrite <- tensor_split'.
-    etrans.
-    2: {
-      apply maponpaths.
-      apply tensor_lassociator.
-    }
-    rewrite ! assoc.
-    apply maponpaths_2.
-    rewrite <- tensor_split.
-    do 2 rewrite <- tensor_comp_mor.
-    apply maponpaths.
-    exact (id_right _ @ ! id_left _).
-  Qed.
-
-  Definition comonoid_in_linear_category
-    : disp_cat_of_comonoids L a.
-  Proof.
-    simple refine (_ ,, _ ,, _ ,, _).
-    - exact comonoid_data_in_linear_category.
-    - exact comonoid_laws_unit_left_in_linear_category.
-    - exact comonoid_laws_unit_right_in_linear_category.
-    - exact comonoid_laws_assoc_in_linear_category.
-  Defined.
-
-  Definition comonoid_mor_in_linear_category
-    : comonoid_mor_struct L (a,,comonoid_in_linear_category) B i.
-  Proof.
-    use make_is_comonoid_mor.
-    - exact p.
-    - apply id_right.
-  Qed.
-
-End TransportingComonoidAlongRetractionPair.
 
 Section LiftingPropertyCoalgebraMorSection.
 
@@ -406,7 +182,7 @@ Section TransportationFreeCoalgebraComonoid.
   Definition transport_comonoid_struct_from_free
     : disp_cat_of_comonoids L x.
   Proof.
-    use comonoid_in_linear_category.
+    use transported_comonoid.
     - exact comonoid_on_bang_x.
     - exact hx.
     - exact (ε (linear_category_bang L) x).
@@ -509,7 +285,7 @@ Section ConstructionOfComonoidsInEilenbergMoore.
            · mon_functor_unit (_,, lax_monoidal_from_symmetric_monoidal_comonad L bang).
   Proof.
     cbn.
-    unfold comonoid_counit_data_in_linear_category.
+    unfold transported_comonoid_counit_data.
     rewrite functor_comp.
     rewrite assoc.
     etrans. {
@@ -629,7 +405,7 @@ Section EilenbergMooreCartesian.
     use make_is_comonoid_mor.
     - use eq_mor_co_eilenberg_moore.
       cbn.
-      unfold comonoid_comult_data_in_linear_category.
+      unfold transported_comonoid_comult_data.
       cbn.
       refine (_ @ assoc' _ _ _).
       etrans.
@@ -670,7 +446,7 @@ Section EilenbergMooreCartesian.
       }
       rewrite id_right.
       cbn.
-      unfold comonoid_counit_data_in_linear_category.
+      unfold transported_comonoid_counit_data.
       rewrite assoc'.
       apply maponpaths.
       exact (! linear_category_counit_nat (pr11 f)).
