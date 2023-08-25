@@ -17,16 +17,18 @@ Lattice/Examples/Subsets.v
 
 DCPOs/Core/DirectedSets.v
 DCPOs/Core/Basics.v
-DCPOs/Core/ScottContinuous.v
 DCPOs/Core/WayBelow.v
 
 DCPOs/Basis/Continuous.v
 DCPOs/Basis/Algebraic.v
-DCPOs/Basis/Basis.v
-DCPOs/Basis/CompactBasis.v
 
 DCPOs/Core/ScottTopology.v
 DCPOs/Core/IntrinsicApartness.v
+
+DCPOs/Core/ScottContinuous.v
+
+DCPOs/Basis/Basis.v
+DCPOs/Basis/CompactBasis.v
 
 DCPOs/Elements/Sharp.v
 DCPOs/Elements/Maximal.v

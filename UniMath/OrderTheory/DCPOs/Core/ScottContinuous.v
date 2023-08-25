@@ -15,8 +15,9 @@
  5. Bundled approach
  6. Accessors and builders for the bundled approach
  7. Examples of Scott continuous maps (bundled)
-
- *****************************************************************)
+ 8. Scott continuous maps are continuous in the Scott topology
+ 9. Scott continuous maps reflect apartness
+*****************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.OrderTheory.Posets.Basics.
@@ -24,6 +25,8 @@ Require Import UniMath.OrderTheory.Posets.MonotoneFunctions.
 Require Import UniMath.OrderTheory.Posets.PointedPosets.
 Require Import UniMath.OrderTheory.DCPOs.Core.DirectedSets.
 Require Import UniMath.OrderTheory.DCPOs.Core.Basics.
+Require Import UniMath.OrderTheory.DCPOs.Core.ScottTopology.
+Require Import UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.
 
 Local Open Scope dcpo.
 
@@ -385,8 +388,8 @@ Proposition is_monotone_scott_continuous_map
             {X Y : dcpo}
             (f : scott_continuous_map X Y)
             {x₁ x₂ : X}
-            (p : x₁ ≤ x₂)
-  : f x₁ ≤ f x₂.
+            (p : x₁ ⊑ x₂)
+  : f x₁ ⊑ f x₂.
 Proof.
   exact (pr12 f x₁ x₂ p).
 Qed.
@@ -419,7 +422,7 @@ Defined.
 Section MakeScottContinuous.
   Context {X Y : dcpo}
           (f : X → Y)
-          (Hf₁ : ∏ (x₁ x₂ : X), x₁ ≤ x₂ → f x₁ ≤ f x₂).
+          (Hf₁ : ∏ (x₁ x₂ : X), x₁ ⊑ x₂ → f x₁ ⊑ f x₂).
 
   Definition make_dcpo_is_monotone
     : monotone_function X Y
@@ -492,7 +495,7 @@ Qed.
 Section MakeStrictScottContinuous.
   Context {X Y : dcppo}
           (f : X → Y)
-          (Hf₁ : ∏ (x₁ x₂ : X), x₁ ≤ x₂ → f x₁ ≤ f x₂)
+          (Hf₁ : ∏ (x₁ x₂ : X), x₁ ⊑ x₂ → f x₁ ⊑ f x₂)
           (Hf₂ : ∏ (D : directed_set X), f (⨆ D) = ⨆_{D} (f ,, Hf₁))
           (Hf₃ : f ⊥_{X} = ⊥_{Y}).
 
@@ -555,3 +558,60 @@ Definition constant_strict_scott_continuous_map
            {Y : dcppo}
   : strict_scott_continuous_map X Y
   := (λ x, ⊥_{Y}) ,, is_strict_scott_continuous_constant _ _.
+
+(**
+ 8. Scott continuous maps are continuous in the Scott topology
+ *)
+Proposition preimage_scott_open
+            {X Y : dcpo}
+            (f : scott_continuous_map X Y)
+            {P : Y → hProp}
+            (HP : is_scott_open P)
+  : is_scott_open (λ x, P (f x)).
+Proof.
+  split.
+  - intros y₁ y₂ p q.
+    use (is_scott_open_upper_set HP p).
+    apply (is_monotone_scott_continuous_map f).
+    exact q.
+  - intros D H.
+    rewrite scott_continuous_map_on_lub in H.
+    assert (H' := is_scott_open_lub_inaccessible HP _ H).
+    revert H'.
+    use factor_through_squash_hProp.
+    exact (λ ip, hinhpr ip).
+Qed.
+
+(**
+ 9. Scott contiuous maps reflect apartness
+ *)
+Proposition reflect_apartness
+            {X Y : dcpo}
+            (f : scott_continuous_map X Y)
+            {x y : X}
+  : f x # f y → x # y.
+Proof.
+  use factor_through_squash_hProp.
+  intro p.
+  induction p as [ p | p ].
+  - revert p.
+    use factor_through_squash_hProp.
+    intros ( P & HP & HPfx & HPfy ).
+    use hdisj_in1.
+    use hinhpr.
+    simple refine (_ ,, _ ,, _ ,, _).
+    + exact (λ x, P(f x)).
+    + exact (preimage_scott_open f HP).
+    + exact HPfx.
+    + exact HPfy.
+  - revert p.
+    use factor_through_squash_hProp.
+    intros ( P & HP & HPfx & HPfy ).
+    use hdisj_in2.
+    use hinhpr.
+    simple refine (_ ,, _ ,, _ ,, _).
+    + exact (λ x, P(f x)).
+    + exact (preimage_scott_open f HP).
+    + exact HPfx.
+    + exact HPfy.
+Qed.

@@ -725,6 +725,21 @@ Section CofreeComonoidUMP.
       rewrite <- p₂ in p₁.
       exact p₁.
   Qed.
+
+  Corollary cofree_comonoid_REL_map_contr
+    : iscontr
+        (∑ f' : commutative_comonoid_category REL_sym_mon_closed_cat ⟦ C, cofree_comonoid_REL X ⟧,
+         f
+         =
+         # (underlying_commutative_comonoid REL_sym_mon_closed_cat) f'
+         · map_to_cofree_comonoid_REL X).
+  Proof.
+    use iscontraprop1.
+    - apply cofree_comonoid_REL_map_unique.
+    - simple refine (_ ,, _).
+      + exact cofree_comonoid_REL_map.
+      + exact cofree_comonoid_REL_map_comm.
+  Defined.
 End CofreeComonoidUMP.
 
 (** * 4. The relational model of linear logic *)
@@ -736,10 +751,5 @@ Proof.
   - use left_adjoint_from_partial.
     + exact cofree_comonoid_REL.
     + exact map_to_cofree_comonoid_REL.
-    + intros X C f.
-      use iscontraprop1.
-      * apply cofree_comonoid_REL_map_unique.
-      * simple refine (_ ,, _).
-        ** exact (cofree_comonoid_REL_map X C f).
-        ** exact (cofree_comonoid_REL_map_comm X C f).
+    + exact cofree_comonoid_REL_map_contr.
 Defined.

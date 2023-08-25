@@ -7,9 +7,9 @@
 
  There are two fundamental notions required for this proof. The
  first one is the notion of progressive maps. A map `f` is called
- progressive if for all `x` we have `x ≤ f x`. The second one is
+ progressive if for all `x` we have `x ⊑ f x`. The second one is
  the notion of post fixpoints. A post fixpoint for a map `f` is a
- point `x` such that `x ≤ f x`.
+ point `x` such that `x ⊑ f x`.
 
  The key observation of the proof is that every DCPO has a largest
  progressive map [largest_progressive_map]. This is so because the
@@ -49,7 +49,7 @@ Definition is_progressive
            {X : dcpo}
            (f : monotone_function X X)
   : hProp
-  := ∀ (x : X), x ≤ f x.
+  := ∀ (x : X), x ⊑ f x.
 
 Definition progressive_map
            (X : dcpo)
@@ -190,7 +190,7 @@ Proposition le_largest_progressive_map
             {X : dcpo}
             (f : progressive_map X)
             (x : X)
-  : f x ≤ largest_progressive_map X x.
+  : f x ⊑ largest_progressive_map X x.
 Proof.
   exact (less_than_dcpo_lub
            (directed_set_progressive_maps X)
@@ -207,8 +207,8 @@ Proposition lub_post_fixpoint
             {X : dcpo}
             (f : monotone_function X X)
             (D : directed_set X)
-            (HD : ∏ (d : D), D d ≤ f (D d))
-  : ⨆ D ≤ f (⨆ D).
+            (HD : ∏ (d : D), D d ⊑ f (D d))
+  : ⨆ D ⊑ f (⨆ D).
 Proof.
   use dcpo_lub_is_least.
   intro d.
@@ -223,7 +223,7 @@ Definition post_fixpoint_dcpo
            {X : dcpo}
            (f : monotone_function X X)
   : dcpo
-  := sub_dcpo X (λ x, x ≤ f x) (lub_post_fixpoint f).
+  := sub_dcpo X (λ x, x ⊑ f x) (lub_post_fixpoint f).
 
 Definition restriction_to_post_fixpoint
            {X : dcpo}

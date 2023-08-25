@@ -120,9 +120,9 @@ Notation "X × Y" := (prod_dcpo X Y) : dcpo.
 Proposition prod_dcpo_le
             {X Y : dcpo}
             (xy₁ xy₂ : (X × Y)%dcpo)
-            (p : pr1 xy₁ ≤ pr1 xy₂)
-            (q : pr2 xy₁ ≤ pr2 xy₂)
-  : xy₁ ≤ xy₂.
+            (p : pr1 xy₁ ⊑ pr1 xy₂)
+            (q : pr2 xy₁ ⊑ pr2 xy₂)
+  : xy₁ ⊑ xy₂.
 Proof.
   exact (p ,, q).
 Qed.
@@ -426,7 +426,7 @@ Section ProductBasis.
   Proof.
     intros D q.
     pose (D' := prod_directed_set_dcpo D (directed_set_from_basis BY (pr2 xy₂))).
-    assert (HD : xy₂ ≤ ⨆ D').
+    assert (HD : xy₂ ⊑ ⨆ D').
     {
       unfold D'.
       rewrite prod_dcpo_lub'.
@@ -451,7 +451,7 @@ Section ProductBasis.
   Proof.
     intros D q.
     pose (D' := prod_directed_set_dcpo (directed_set_from_basis BX (pr1 xy₂)) D).
-    assert (HD : xy₂ ≤ ⨆ D').
+    assert (HD : xy₂ ⊑ ⨆ D').
     {
       unfold D'.
       rewrite prod_dcpo_lub'.
