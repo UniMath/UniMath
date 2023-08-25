@@ -10,6 +10,8 @@
  Contents
  1. Definition via two-sided displayed categories
  2. Discreteness and univalence
+ 3. Builders and accessors
+ 4. Identity and composition of lenses
 
  **********************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -326,4 +328,391 @@ Section Lenses.
         (intro ; intros ;
          simple refine (tt ,, _ ,, _) ; apply isapropunit).
   Defined.
+
+  (**
+   3. Builders and accessors
+   *)
+  Definition lens
+             (s v : C)
+    : UU
+    := twosided_disp_cat_of_lenses s v.
+
+  Definition lens_data
+             (s v : C)
+    : UU
+    := s --> v × prodC v s --> s.
+
+  Definition make_lens_data
+             {s v : C}
+             (get : s --> v)
+             (put : prodC v s --> s)
+    : lens_data s v
+    := get ,, put.
+
+  Coercion lens_to_data
+           {s v : C}
+           (l : lens s v)
+    : lens_data s v
+    := pr1 l.
+
+  Definition lens_get
+             {s v : C}
+             (l : lens_data s v)
+    : s --> v
+    := pr1 l.
+
+  Definition lens_put
+             {s v : C}
+             (l : lens_data s v)
+    : prodC v s --> s
+    := pr2 l.
+
+  Proposition lens_put_get
+              {s v : C}
+              (l : lens s v)
+    : lens_put l · lens_get l
+      =
+      BinProductPr1 _ _.
+  Proof.
+    exact (pr12 l).
+  Qed.
+
+  Proposition lens_get_put
+              {s v : C}
+              (l : lens s v)
+    : BinProductArrow _ _ (lens_get l) (identity s) · lens_put l
+      =
+      identity s.
+  Proof.
+    exact (pr122 l).
+  Qed.
+
+  Proposition lens_put_put
+              {s v : C}
+              (l : lens s v)
+    : BinProductOfArrows
+        _
+        (prodC v _)
+        (prodC _ _)
+        (identity v)
+        (lens_put l)
+      · lens_put l
+      =
+      BinProductArrow
+        _ _
+        (BinProductPr1 _ _)
+        (BinProductPr2 _ _ · BinProductPr2 _ _)
+      · lens_put l.
+  Proof.
+    exact (pr222 l).
+  Qed.
+
+  Definition make_lens
+             {s v : C}
+             (l : lens_data s v)
+             (Hl : lenses_laws l)
+    : lens s v.
+  Proof.
+    simple refine (_ ,, _).
+    - exact l.
+    - exact Hl.
+  Defined.
+
+  Definition lens_mor
+             {s₁ s₂ v₁ v₂ : C}
+             (l₁ : lens s₁ v₁)
+             (l₂ : lens s₂ v₂)
+             (f : s₁ --> s₂)
+             (g : v₁ --> v₂)
+    : UU
+    := l₁ -->[ f ][ g ] l₂.
+
+  Definition make_lens_mor
+             {s₁ s₂ v₁ v₂ : C}
+             {l₁ : lens s₁ v₁}
+             {l₂ : lens s₂ v₂}
+             {f : s₁ --> s₂}
+             {g : v₁ --> v₂}
+             (p_get : lens_get l₁ · g = f · lens_get l₂)
+             (p_put : lens_put l₁ · f
+                      =
+                      BinProductOfArrows C (prodC v₂ s₂) (prodC v₁ s₁) g f · lens_put l₂)
+    : lens_mor l₁ l₂ f g
+    := (p_get ,, p_put) ,, tt.
+
+  Proposition lens_mor_get
+              {s₁ s₂ v₁ v₂ : C}
+              {l₁ : lens s₁ v₁}
+              {l₂ : lens s₂ v₂}
+              {f : s₁ --> s₂}
+              {g : v₁ --> v₂}
+              (fg : lens_mor l₁ l₂ f g)
+    : lens_get l₁ · g = f · lens_get l₂.
+  Proof.
+    exact (pr11 fg).
+  Qed.
+
+  Proposition lens_mor_put
+              {s₁ s₂ v₁ v₂ : C}
+              {l₁ : lens s₁ v₁}
+              {l₂ : lens s₂ v₂}
+              {f : s₁ --> s₂}
+              {g : v₁ --> v₂}
+              (fg : lens_mor l₁ l₂ f g)
+    : lens_put l₁ · f
+      =
+      BinProductOfArrows C (prodC v₂ s₂) (prodC v₁ s₁) g f · lens_put l₂.
+  Proof.
+    exact (pr21 fg).
+  Qed.
+
+  (**
+   4. Identity and composition of lenses
+   *)
+  Definition identity_lens_data
+             (x : C)
+    : lens_data x x.
+  Proof.
+    use make_lens_data.
+    - exact (identity x).
+    - exact (BinProductPr1 _ _).
+  Defined.
+
+  Proposition identity_lens_laws
+              (x : C)
+    : lenses_laws (identity_lens_data x).
+  Proof.
+    repeat split ; cbn.
+    - apply id_right.
+    - apply BinProductPr1Commutes.
+    - rewrite BinProductOfArrowsPr1.
+      rewrite id_right.
+      rewrite BinProductPr1Commutes.
+      apply idpath.
+  Qed.
+
+  Definition identity_lens
+             (x : C)
+    : lens x x.
+  Proof.
+    use make_lens.
+    - exact (identity_lens_data x).
+    - exact (identity_lens_laws x).
+  Defined.
+
+  Proposition identity_lens_mor
+              {x y : C}
+              (f : x --> y)
+    : lens_mor (identity_lens x) (identity_lens y) f f.
+  Proof.
+    use make_lens_mor ; cbn.
+    - rewrite id_left, id_right.
+      apply idpath.
+    - rewrite BinProductOfArrowsPr1.
+      apply idpath.
+  Qed.
+
+  Definition comp_lens_data
+             {x y z : C}
+             (l₁ : lens x y)
+             (l₂ : lens y z)
+    : lens_data x z.
+  Proof.
+    use make_lens_data.
+    - exact (lens_get l₁ · lens_get l₂).
+    - exact (BinProductArrow
+               _ _
+               (identity _)
+                (BinProductPr2 _ _)
+             · BinProductOfArrows
+                 _
+                 (prodC _ _) (prodC _ _)
+                 (BinProductOfArrows
+                    _
+                    (prodC _ _) (prodC _ _)
+                    (identity _)
+                    (lens_get l₁)
+                  · lens_put l₂)
+                 (identity _)
+             · lens_put l₁).
+  Defined.
+
+  Proposition comp_lens_laws
+              {x y z : C}
+              (l₁ : lens x y)
+              (l₂ : lens y z)
+    : lenses_laws (comp_lens_data l₁ l₂).
+  Proof.
+    repeat split ; cbn.
+    - rewrite !assoc'.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite !assoc.
+        rewrite lens_put_get.
+        apply idpath.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite BinProductOfArrowsPr1.
+        rewrite !assoc'.
+        rewrite lens_put_get.
+        apply idpath.
+      }
+      rewrite !assoc.
+      rewrite !BinProductPr1Commutes.
+      rewrite id_left.
+      rewrite BinProductOfArrowsPr1.
+      rewrite id_right.
+      apply idpath.
+    - rewrite !assoc.
+      etrans.
+      {
+        apply maponpaths_2.
+        rewrite !assoc'.
+        rewrite !postcompWithBinProductArrow.
+        rewrite id_right.
+        rewrite precompWithBinProductArrow.
+        rewrite BinProductPr2Commutes.
+        apply idpath.
+      }
+      refine (_ @ lens_get_put l₁).
+      do 2 apply maponpaths_2.
+      refine (_ @ id_right _).
+      rewrite <- (lens_get_put l₂).
+      rewrite !assoc.
+      apply maponpaths_2.
+      rewrite !precompWithBinProductArrow.
+      rewrite id_right.
+      rewrite id_right.
+      rewrite postcompWithBinProductArrow.
+      rewrite id_left, id_right.
+      apply idpath.
+    - pose (p₁ := lens_put_get l₁).
+      pose (p₂ := lens_put_put l₂).
+      pose (p₃ := lens_put_put l₁).
+      etrans.
+      {
+        rewrite !assoc.
+        apply maponpaths_2.
+        rewrite !postcompWithBinProductArrow.
+        rewrite precompWithBinProductArrow.
+        rewrite !postcompWithBinProductArrow.
+        rewrite !id_left.
+        rewrite !id_right.
+        rewrite BinProductOfArrowsPr2.
+        rewrite !assoc.
+        rewrite precompWithBinProductArrow.
+        apply maponpaths_2.
+        rewrite BinProductOfArrows_comp.
+        rewrite id_left.
+        rewrite !assoc'.
+        rewrite p₁.
+        rewrite BinProductPr1Commutes.
+        etrans.
+        {
+          do 2 apply maponpaths_2.
+          exact (!(id_left _)).
+        }
+        rewrite <- BinProductOfArrows_comp.
+        rewrite !assoc'.
+        rewrite p₂.
+        rewrite !assoc.
+        rewrite precompWithBinProductArrow.
+        rewrite BinProductOfArrowsPr1.
+        rewrite id_right.
+        rewrite !assoc.
+        rewrite !BinProductOfArrowsPr2.
+        rewrite !assoc'.
+        rewrite BinProductOfArrowsPr2.
+        apply idpath.
+      }
+      clear p₁ p₂.
+      etrans.
+      {
+        etrans.
+        {
+          do 2 apply maponpaths_2.
+          exact (!(id_right _)).
+        }
+        etrans.
+        {
+          apply maponpaths_2.
+          refine (!_).
+          apply (postcompWithBinProductArrow _ (prodC _ _) (prodC _ _)).
+        }
+        rewrite !assoc'.
+        rewrite p₃.
+        rewrite !assoc.
+        rewrite precompWithBinProductArrow.
+        rewrite !assoc.
+        rewrite !BinProductPr1Commutes.
+        rewrite !BinProductPr2Commutes.
+        apply idpath.
+      }
+      rewrite !assoc.
+      apply maponpaths_2.
+      rewrite !precompWithBinProductArrow.
+      rewrite !postcompWithBinProductArrow.
+      rewrite !id_right.
+      rewrite !BinProductPr2Commutes.
+      apply maponpaths_2.
+      rewrite !assoc.
+      apply maponpaths_2.
+      rewrite !postcompWithBinProductArrow.
+      rewrite id_right.
+      apply idpath.
+  Qed.
+
+  Definition comp_lens
+             {x y z : C}
+             (l₁ : lens x y)
+             (l₂ : lens y z)
+    : lens x z.
+  Proof.
+    use make_lens.
+    - exact (comp_lens_data l₁ l₂).
+    - exact (comp_lens_laws l₁ l₂).
+  Defined.
+
+  Proposition comp_lens_mor
+              {x₁ x₂ y₁ y₂ z₁ z₂ : C}
+              {v₁ : x₁ --> x₂} {v₂ : y₁ --> y₂} {v₃ : z₁ --> z₂}
+              {l₁ : lens x₁ y₁}
+              {l₂ : lens y₁ z₁}
+              {l₃ : lens x₂ y₂}
+              {l₄ : lens y₂ z₂}
+              (φ : lens_mor l₁ l₃ v₁ v₂)
+              (ψ : lens_mor l₂ l₄ v₂ v₃)
+    : lens_mor (comp_lens l₁ l₂) (comp_lens l₃ l₄) v₁ v₃.
+  Proof.
+    use make_lens_mor ; cbn.
+    - rewrite !assoc'.
+      rewrite (lens_mor_get ψ).
+      rewrite !assoc.
+      rewrite (lens_mor_get φ).
+      apply idpath.
+    - rewrite !assoc'.
+      rewrite (lens_mor_put φ).
+      rewrite !assoc.
+      apply maponpaths_2.
+      rewrite !postcompWithBinProductArrow.
+      rewrite !precompWithBinProductArrow.
+      rewrite !postcompWithBinProductArrow.
+      rewrite !id_right.
+      rewrite BinProductOfArrowsPr2.
+      apply maponpaths_2.
+      rewrite !assoc'.
+      rewrite (lens_mor_put ψ).
+      rewrite !assoc.
+      apply maponpaths_2.
+      rewrite id_left.
+      rewrite !BinProductOfArrows_comp.
+      rewrite id_left, id_right.
+      apply maponpaths.
+      rewrite (lens_mor_get φ).
+      apply idpath.
+  Qed.
 End Lenses.
