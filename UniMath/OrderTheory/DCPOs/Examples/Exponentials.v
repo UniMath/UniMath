@@ -114,7 +114,7 @@ Definition scott_continuous_map_PartialOrder
   : PartialOrder (scott_continuous_map_hSet X Y).
 Proof.
   use make_PartialOrder.
-  - exact (λ f g, ∀ (x : X), pr1 f x ≤ pr1 g x).
+  - exact (λ f g, ∀ (x : X), pr1 f x ⊑ pr1 g x).
   - refine ((_ ,, _) ,, _).
     + abstract
         (intros f g h p q x ;
@@ -156,8 +156,8 @@ Section FunctionLub.
 
   Proposition is_monotone_pointwise_lub
               (x₁ x₂ : X)
-              (p : x₁ ≤ x₂)
-    : pointwise_lub x₁ ≤ pointwise_lub x₂.
+              (p : x₁ ⊑ x₂)
+    : pointwise_lub x₁ ⊑ pointwise_lub x₂.
   Proof.
     unfold pointwise_lub.
     use dcpo_lub_is_least ; cbn.

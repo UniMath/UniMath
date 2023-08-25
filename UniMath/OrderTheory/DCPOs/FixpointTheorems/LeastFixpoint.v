@@ -67,7 +67,7 @@ Section FixpointTheorem.
 
   Lemma is_monotone_bot_iteration_map_S
         (n : ℕ)
-    : bot_iteration_map n ≤ f (bot_iteration_map n).
+    : bot_iteration_map n ⊑ f (bot_iteration_map n).
   Proof.
     induction n as [ | n IHn ].
     - apply is_min_bottom_dcppo.
@@ -107,7 +107,7 @@ Section FixpointTheorem.
   Theorem is_least_fixpoint_least_fixpoint
           (x : X)
           (p : f x = x)
-    : least_fixpoint ≤ x.
+    : least_fixpoint ⊑ x.
   Proof.
     use dcpo_lub_is_least ; cbn.
     intro n.
