@@ -260,9 +260,10 @@ Section CommutativeComonoidsMorBuilder.
   Proof.
     refine (f ,, ((_ ,, _) ,, tt) ,, tt).
     - exact fδ.
-    - cbn.
-      rewrite id_right.
-      exact fε.
+    - abstract
+        (cbn ;
+         rewrite id_right ;
+         exact fε).
   Defined.
 End CommutativeComonoidsMorBuilder.
 
