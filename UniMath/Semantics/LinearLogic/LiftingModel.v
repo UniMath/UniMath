@@ -87,16 +87,7 @@ Proof.
     use setquotunivprop' ; [ intro ; apply setproperty | ].
     intros xy.
     induction xy as [ x y ].
-    induction x as [ x | ], y as [ y | ] ; cbn.
-    + apply idpath.
-    + apply idpath.
-    + apply idpath.
-    + apply idpath.
-  - use eq_mor_hset_struct.
-    intro x.
-    induction x as [ | ] ; cbn.
-    + apply idpath.
-    + apply idpath.
+    induction x as [ x | ], y as [ y | ] ; simpl ; apply idpath.
   - use eq_mor_hset_struct.
     intro x.
     induction x as [ | ].
@@ -114,7 +105,16 @@ Proof.
     use setquotunivprop' ; [ intro ; apply setproperty | ].
     intros xy.
     induction xy as [ x y ].
-    induction x as [ x | ], y as [ y | ] ; simpl ; apply idpath.
+    induction x as [ x | ], y as [ y | ] ; cbn.
+    + apply idpath.
+    + apply idpath.
+    + apply idpath.
+    + apply idpath.
+  - use eq_mor_hset_struct.
+    intro x.
+    induction x as [ | ] ; cbn.
+    + apply idpath.
+    + apply idpath.
 Qed.
 
 Definition lifting_linear_category
