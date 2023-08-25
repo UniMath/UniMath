@@ -31,7 +31,7 @@ Import MonoidalNotations.
 Section Construction.
 
   Context {C : category} {M : monoidal C} {HM : symmetric M}
-    {T : symmetric_monoidal_comonad HM}.
+    (T : symmetric_monoidal_comonad HM).
 
   Local Definition cat_co_eilenberg_moore : category
     := co_eilenberg_moore_cat T.

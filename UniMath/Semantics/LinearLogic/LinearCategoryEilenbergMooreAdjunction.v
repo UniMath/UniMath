@@ -62,7 +62,7 @@ Section CofreeAdjunction.
 
   Local Definition eilenberg_moore_forget
     : full_subcat (dialgebra (functor_identity L) (linear_category_bang L))
-        mon_cat_co_eilenberg_moore_extra_condition ⟶ L.
+        (mon_cat_co_eilenberg_moore_extra_condition (linear_category_bang L)) ⟶ L.
     (* : co_eilenberg_moore_cat (linear_category_bang L) ⟶ L. *)
   Proof.
     exact (functor_composite (pr1_category _) (pr1_category _)).
@@ -71,7 +71,7 @@ Section CofreeAdjunction.
   Local Definition eilenberg_moore_adj_unit
     : functor_identity
         (full_subcat (dialgebra (functor_identity L) (linear_category_bang L))
-           mon_cat_co_eilenberg_moore_extra_condition) ⟹
+           (mon_cat_co_eilenberg_moore_extra_condition (linear_category_bang L))) ⟹
         eilenberg_moore_forget ∙ eilenberg_moore_cofree.
   Proof.
     use make_nat_trans.
@@ -109,7 +109,7 @@ Section CofreeAdjunction.
   Definition eilenberg_moore_cmd_adj
     : adjunction
     (full_subcat (dialgebra (functor_identity L) (linear_category_bang L))
-       mon_cat_co_eilenberg_moore_extra_condition) L.
+       (mon_cat_co_eilenberg_moore_extra_condition (linear_category_bang L))) L.
   Proof.
     use make_adjunction.
     - simple refine (_ ,, _ ,, _ ,, _).

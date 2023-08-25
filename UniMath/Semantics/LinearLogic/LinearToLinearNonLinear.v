@@ -449,7 +449,7 @@ Section MakeComonoidInEilenbergMooreFromComonoidInLinear.
   Defined.
 
   Definition make_comonoid_struct_data_in_eilenberg_moore
-    : disp_cat_of_comonoids_data sym_monoidal_cat_co_eilenberg_moore
+    : disp_cat_of_comonoids_data (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang L))
         make_comonoid_object_in_eilenberg_moore.
   Proof.
     use tpair.
@@ -471,7 +471,7 @@ Section MakeComonoidInEilenbergMooreFromComonoidInLinear.
   Defined.
 
   Definition make_comonoid_laws_in_eilenberg_moore
-    : comonoid_laws sym_monoidal_cat_co_eilenberg_moore
+    : comonoid_laws (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang L))
         (make_comonoid_object_in_eilenberg_moore ,, make_comonoid_struct_data_in_eilenberg_moore).
   Proof.
     refine (_ ,, _ ,, _) ; use eq_mor_co_eilenberg_moore.
@@ -696,7 +696,7 @@ Section EilenbergMooreCartesian.
         · leftwhiskering_on_morphisms (pr1 L) (pr11 x ⊗ pr11 x) _ _
         (pr21 y · linear_category_comult L (pr11 y)
            · ε (linear_category_bang L) (pr11 y) #⊗ ε (linear_category_bang L) (pr11 y))
-  · pr11 (inner_swap sym_monoidal_cat_co_eilenberg_moore x x y y).
+  · pr11 (inner_swap (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang L)) x x y y).
   Proof.
     Opaque SymmetricDiagonal.inner_swap. (* I do not include the file SymmetricDiagonal because this is the only place I use it *)
 
@@ -773,7 +773,7 @@ Section LinearToLNL.
 
   Local Definition em_projection
     : fmonoidal
-        sym_monoidal_cat_co_eilenberg_moore
+        (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang L))
         L
         (left_adjoint (eilenberg_moore_cmd_adj L)).
   Proof.
@@ -784,7 +784,7 @@ Section LinearToLNL.
   Defined.
 
   Local Lemma em_projection_is_symmetric
-    : is_symmetric_monoidal_functor sym_monoidal_cat_co_eilenberg_moore L em_projection.
+    : is_symmetric_monoidal_functor (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang L)) L em_projection.
   Proof.
     intros x y.
       etrans. {
