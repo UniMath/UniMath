@@ -455,7 +455,7 @@ Proof.
     refine (D d ,, _).
     apply approximating_family_way_below.
   - intros [ b₁ p₁ ] [ b₂ p₂ ].
-    assert (x ≤ ⨆ D) as q.
+    assert (x ⊑ ⨆ D) as q.
     {
       rewrite <- (approximating_family_lub CX x).
       apply refl_dcpo.
