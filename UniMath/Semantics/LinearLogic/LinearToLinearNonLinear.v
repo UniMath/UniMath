@@ -363,14 +363,11 @@ Section TransportationFreeCoalgebraComonoid.
     use two_arg_paths ; apply Comonad_law1.
   Qed.
 
-  Local Lemma yank (* any suggestions for the name are welcome *)
+  Local Lemma transport_comonoid_from_free_lem
     : hx · δ_{comonoid_on_bang_x} · ε bang x #⊗ ε bang x · hx #⊗ hx
       = hx · δ_{comonoid_on_bang_x}.
   Proof.
     cbn.
-    set (t := pr22 xx).
-    cbn in t.
-
     etrans. {
       rewrite assoc'.
       apply maponpaths.
@@ -406,7 +403,7 @@ Section TransportationFreeCoalgebraComonoid.
     exact linear_category_comult_factors_through_comult_bang.
   Qed.
 
-  Definition transport_comonoid_from_free
+  Definition transport_comonoid_struct_from_free
     : disp_cat_of_comonoids L x.
   Proof.
     use comonoid_in_linear_category.
@@ -414,7 +411,14 @@ Section TransportationFreeCoalgebraComonoid.
     - exact hx.
     - exact (ε (linear_category_bang L) x).
     - exact (pr12 xx).
-    - exact yank.
+    - exact transport_comonoid_from_free_lem.
+  Defined.
+
+  Definition transport_comonoid_from_free
+    : comonoid L.
+  Proof.
+    exists x.
+    exact transport_comonoid_struct_from_free.
   Defined.
 
 End TransportationFreeCoalgebraComonoid.
@@ -500,8 +504,8 @@ Section ConstructionOfComonoidsInEilenbergMoore.
   Let hx : L⟦x, bang x⟧ := pr21 xx.
 
   Lemma comonoid_in_eilenberg_moore_from_coalg_counit_alg_mor
-    :  hx · #bang ε_{(x,, transport_comonoid_from_free L xx) : comonoid L}
-       = ε_{(x,, transport_comonoid_from_free L xx) : comonoid L}
+    :  hx · #bang ε_{transport_comonoid_from_free L xx}
+       = ε_{transport_comonoid_from_free L xx}
            · mon_functor_unit (_,, lax_monoidal_from_symmetric_monoidal_comonad L bang).
   Proof.
     cbn.
@@ -521,8 +525,8 @@ Section ConstructionOfComonoidsInEilenbergMoore.
   Qed.
 
   Lemma comonoid_in_eilenberg_moore_from_coalg_comult_alg_mor
-    :  hx · #bang δ_{(x,, transport_comonoid_from_free L xx) : comonoid L}
-       = δ_{(x,, transport_comonoid_from_free L xx) : comonoid L}
+    :  hx · #bang δ_{transport_comonoid_from_free L xx}
+       = δ_{transport_comonoid_from_free L xx}
            ·  (hx #⊗ hx
      · mon_functor_tensor (_,,lax_monoidal_from_symmetric_monoidal_comonad L (linear_category_bang L)) x x).
   Proof.
@@ -547,7 +551,7 @@ Section ConstructionOfComonoidsInEilenbergMoore.
            (bb := (eilenberg_moore_cofree L x : EM) ⊗ (eilenberg_moore_cofree L x : EM))
            (g := (hx · linear_category_comult L x ,, _) ,, tt)
            (i := (hx #⊗ hx,, _) ,, tt)
-           (f := δ_{ x,, transport_comonoid_from_free L xx : comonoid L})
+           (f := δ_{transport_comonoid_from_free L xx})
            (r := ε bang x #⊗ ε bang x)
            retr
         ).
@@ -591,14 +595,14 @@ Section ConstructionOfComonoidsInEilenbergMoore.
       apply maponpaths_2.
       refine (! tensor_comp_mor _ _ _ _ @ _ @ tensor_comp_mor _ _ _ _).
       use two_arg_paths ; exact (! pr22 xx).
-    - apply yank.
+    - apply transport_comonoid_from_free_lem.
   Qed.
 
   Definition comonoid_in_eilenberg_moore_from_coalg
     : comonoid EM.
   Proof.
     use (make_comonoid_in_eilenberg_moore L).
-    - exact (_ ,, transport_comonoid_from_free L xx).
+    - exact (transport_comonoid_from_free L xx).
     - exact hx.
     - exact (pr12 xx).
     - exact (pr22 xx).
