@@ -15,14 +15,14 @@
  comes equipped with a continuity structure. Second, we look at the standard
  properties of continuous DCPOs and we reformulate them using the basis. For
  example, in a continuous DCPO the order relation can be characterized using
- the approximations (i.e., `x ≤ y` if and only if for every `z` such that
+ the approximations (i.e., `x ⊑ y` if and only if for every `z` such that
  `z ≪ x`, we have `z ≪ y`). Another standard property would be interpolation:
  if we have `x ≪ y`, then we can find an element of the basis `x ≪ b ≪ y`.
  Lastly, we look at the mapping property of a DCPO with a basis. We look at
  three properties:
  1. Two maps are equal if they are equal on the basis
- 2. We have `f x ≤ g x` for every `x` if for every basis element `b` we have
-   `f b ≤ g b`
+ 2. We have `f x ⊑ g x` for every `x` if for every basis element `b` we have
+   `f b ⊑ g b`
  3. If we have a monotone map from the basis to some DCPO `Y`, then we can
     extend that map to `X`.
  Note that the map from the third point is unique. The uniqueness would be
@@ -261,7 +261,7 @@ Section BasisProperties.
    *)
   Proposition dcpo_basis_le_via_approximation
               (x y : X)
-    : x ≤ y
+    : x ⊑ y
       ≃
       ∀ (z : B), (B z ≪ x ⇒ B z ≪ y)%logic.
   Proof.
@@ -320,7 +320,7 @@ Section BasisProperties.
     }
     intro z.
     induction z as [ z [ q₁ q₂ ] ].
-    assert (r : y ≤ ⨆ directed_set_from_basis B y).
+    assert (r : y ⊑ ⨆ directed_set_from_basis B y).
     {
       rewrite approximating_basis_lub.
       apply refl_dcpo.
@@ -422,9 +422,9 @@ Section BasisProperties.
   Proposition scott_continuous_map_le_on_basis
               {Y : dcpo}
               {f g : scott_continuous_map X Y}
-              (p : ∏ (i : B), f (B i) ≤ g (B i))
+              (p : ∏ (i : B), f (B i) ⊑ g (B i))
               (x : X)
-    : f x ≤ g x.
+    : f x ⊑ g x.
   Proof.
     rewrite (maponpaths f (!((approximating_basis_lub B x)))).
     rewrite (maponpaths g (!(approximating_basis_lub B x))).
@@ -440,11 +440,11 @@ Section BasisProperties.
   Proposition map_le_on_basis_if_scott_continuous
               {Y : dcpo}
               {f g : X → Y}
-              (p : ∏ (i : B), f (B i) ≤ g (B i))
+              (p : ∏ (i : B), f (B i) ⊑ g (B i))
               (Hf : is_scott_continuous X Y f)
               (Hg : is_scott_continuous X Y g)
               (x : X)
-    : f x ≤ g x.
+    : f x ⊑ g x.
   Proof.
     exact (@scott_continuous_map_le_on_basis Y (f ,, Hf) (g ,, Hg) p x).
   Qed.
@@ -455,7 +455,7 @@ Section BasisProperties.
   Section ScottContinuousFromBasis.
     Context {Y : dcpo}
             (f : B → Y)
-            (Hf : ∏ (i₁ i₂ : B), B i₁ ≪ B i₂ → f i₁ ≤ f i₂).
+            (Hf : ∏ (i₁ i₂ : B), B i₁ ≪ B i₂ → f i₁ ⊑ f i₂).
 
     Proposition is_directed_map_from_basis
                 (x : X)
@@ -505,8 +505,8 @@ Section BasisProperties.
 
     Proposition map_from_basis_monotone
                 (x₁ x₂ : X)
-                (p : x₁ ≤ x₂)
-      : map_from_basis x₁ ≤ map_from_basis x₂.
+                (p : x₁ ⊑ x₂)
+      : map_from_basis x₁ ⊑ map_from_basis x₂.
     Proof.
       unfold map_from_basis.
       use dcpo_lub_is_least ; cbn.
@@ -584,7 +584,7 @@ Section BasisProperties.
 
     Proposition scott_continuous_map_from_basis_le
                 (i : B)
-      : scott_continuous_map_from_basis (B i) ≤ f i.
+      : scott_continuous_map_from_basis (B i) ⊑ f i.
     Proof.
       use dcpo_lub_is_least ; cbn.
       intro j.
