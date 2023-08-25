@@ -816,6 +816,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DoubleCategories/DoubleCats.v](Bicategories/DoubleCategories/DoubleCats.v)
    - [DoubleCategories/InvertiblesAndEquivalences.v](Bicategories/DoubleCategories/InvertiblesAndEquivalences.v)
    - [DoubleCategories/Examples/SquareDoubleCat.v](Bicategories/DoubleCategories/Examples/SquareDoubleCat.v)
+   - [DoubleCategories/Examples/LensesDoubleCat.v](Bicategories/DoubleCategories/Examples/LensesDoubleCat.v)
    - [PseudoFunctors/Examples/ChangeOfBaseEnriched.v](Bicategories/PseudoFunctors/Examples/ChangeOfBaseEnriched.v)
    - [DisplayedBicats/Examples/MonadsLax.v](Bicategories/DisplayedBicats/Examples/MonadsLax.v)
    - [DisplayedBicats/Examples/DispBicatOnCatToUniv.v](Bicategories/DisplayedBicats/Examples/DispBicatOnCatToUniv.v)
