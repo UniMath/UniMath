@@ -24,6 +24,18 @@
  Note that we can generalize interpolation to finite sets. These interpolation
  properties are useful when proving stuff about continuous DCPOs.
 
+ We also show that if a DCPO is continuous (as a property), then we  have
+ a canonical continuity structure on that DCPO. We define the approximating
+ family for `x` to consist of all elements `y` such that `y ≪ x`. We can show
+ that this set is directed, and for that we use that we know that the DCPO is
+ continuous (as a property). We can use this assumption, because being directed
+ is a proposition. In addition, we can also show that the supremum of the
+ approximating family of `x` is indeed `x`. Here we again use the continuity,
+ and since equality of elements in DCPOs is a proposition, we can indeed do so.
+ Intuitively, what is happening here, is that there is a canonical choice for
+ the approximating family, and this allows us to choose a continuity structure
+ if we know one exists.
+
  References:
  - Section 2 in the chapter 'Domain Theory' of the Handbook for Logic in
    Computer Science, Volume 3 (https://www.cs.ox.ac.uk/files/298/handbook.pdf)
@@ -38,6 +50,7 @@
  5. Nullary interpolation
  6. Unary interpolation
  7. Binary interpolation
+ 8. Continuity structure from the property
 
  ******************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -419,3 +432,110 @@ Section PropertiesContinuousDCPO.
     - apply approximating_family_way_below.
   Qed.
 End PropertiesContinuousDCPO.
+
+(**
+ 8. Continuity structure from the property
+ *)
+Proposition is_continuous_dcpo_is_directed
+            {X : dcpo}
+            (CX : is_continuous_dcpo X)
+            (x : X)
+  : is_directed X (λ (z : ∑ (b : X), b ≪ x), pr1 z).
+Proof.
+  revert CX.
+  use factor_through_squash_hProp.
+  intros CX.
+  pose (D := approximating_family CX x).
+  split.
+  - assert (H := directed_set_el D).
+    revert H.
+    use factor_through_squash_hProp.
+    intros d.
+    use hinhpr.
+    refine (D d ,, _).
+    apply approximating_family_way_below.
+  - intros [ b₁ p₁ ] [ b₂ p₂ ].
+    assert (x ⊑ ⨆ D) as q.
+    {
+      rewrite <- (approximating_family_lub CX x).
+      apply refl_dcpo.
+    }
+    assert (H := way_below_elem p₁ D q).
+    revert H.
+    use factor_through_squash_hProp.
+    intros [ c₁ r₁ ].
+    assert (H := way_below_elem p₂ D q).
+    revert H.
+    use factor_through_squash_hProp.
+    intros [ c₂ r₂ ].
+    assert (H := directed_set_top D c₁ c₂).
+    revert H.
+    use factor_through_squash_hProp.
+    intros [ k [ s₂ s₃ ]].
+    use hinhpr.
+    simple refine ((D k ,, _) ,, _ ,, _).
+    + apply approximating_family_way_below.
+    + exact (trans_dcpo r₁ s₂).
+    + exact (trans_dcpo r₂ s₃).
+Qed.
+
+Definition is_continuous_dcpo_directed_set
+           {X : dcpo}
+           (CX : is_continuous_dcpo X)
+           (x : X)
+  : directed_set X.
+Proof.
+  use make_directed_set.
+  - exact (∑ (b : X), b ≪ x).
+  - exact (λ z, pr1 z).
+  - exact (is_continuous_dcpo_is_directed CX x).
+Defined.
+
+Proposition is_continuous_dcpo_directed_set_lub
+            {X : dcpo}
+            (CX : is_continuous_dcpo X)
+            (x : X)
+  : ⨆ (is_continuous_dcpo_directed_set CX x) = x.
+Proof.
+  revert CX.
+  use factor_dep_through_squash.
+  {
+    intro.
+    apply setproperty.
+  }
+  intros CX.
+  pose (D := approximating_family CX x).
+  cbn.
+  use antisymm_dcpo.
+  - use dcpo_lub_is_least.
+    intros i.
+    apply way_below_to_le.
+    exact (pr2 i).
+  - refine (trans_dcpo _ _).
+    {
+      apply eq_to_le_dcpo.
+      exact (!(approximating_family_lub CX x)).
+    }
+    use dcpo_lub_is_least.
+    intros i.
+    use less_than_dcpo_lub ; cbn -[way_below].
+    + refine (D i ,, _).
+      apply approximating_family_way_below.
+    + apply refl_dcpo.
+Qed.
+
+Definition is_continuous_to_continuous_struct
+           {X : dcpo}
+           (CX : is_continuous_dcpo X)
+  : continuous_dcpo_struct X.
+Proof.
+  intros x.
+  refine (is_continuous_dcpo_directed_set CX x ,, _ ,, _).
+  - abstract
+      (intros i ;
+       apply i).
+  - abstract
+      (pose (is_least_upperbound_dcpo_lub (is_continuous_dcpo_directed_set CX x)) as h ;
+       rewrite (is_continuous_dcpo_directed_set_lub CX x) in h ;
+       exact h).
+Defined.
