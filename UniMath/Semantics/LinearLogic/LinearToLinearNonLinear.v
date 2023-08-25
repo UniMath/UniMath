@@ -45,9 +45,9 @@ Local Open Scope moncat.
 
 Import ComonoidNotations.
 
-Section ConstructionOfComonoidsInLinearCategory.
+Section TransportingComonoidAlongRetractionPair.
 
-  Context {L : linear_category}.
+  Context {L : monoidal_cat}.
   Context (B : comonoid L) {a : L} (i : L⟦a,B⟧) (r : L⟦B,a⟧) (ir : is_retraction i r).
   Context (p : i · δ_{B} · (r #⊗ r) · (i #⊗ i) = i · δ_{B}).
 
@@ -268,7 +268,7 @@ Section ConstructionOfComonoidsInLinearCategory.
     - apply id_right.
   Qed.
 
-End ConstructionOfComonoidsInLinearCategory.
+End TransportingComonoidAlongRetractionPair.
 
 Section LiftingPropertyCoalgebraMorSection.
 
