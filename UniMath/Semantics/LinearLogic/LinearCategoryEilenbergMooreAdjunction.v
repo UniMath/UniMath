@@ -1,5 +1,5 @@
 (*
-In this file, the cofree adjunction between a linear category and its eilenberg-moore category is constructed.
+In this file, the cofree adjunction between a linear category and its Eilenberg-Moore category is constructed.
 *)
 
 Require Import UniMath.MoreFoundations.All.
