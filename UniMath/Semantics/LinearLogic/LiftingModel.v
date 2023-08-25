@@ -82,7 +82,11 @@ Proof.
     apply idpath.
   - intros X.
     apply (commutative_comonoid_is_commutative _ (lift_commutative_comonoid X)).
-Qed.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+Admitted.
 
 Definition lifting_linear_category
   : linear_category.

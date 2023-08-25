@@ -19,6 +19,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.categories.Dialgebras.
 
@@ -33,6 +34,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalCoEilenbergMoore.
 
 Require Import UniMath.Semantics.LinearLogic.LinearCategory.
+Require Import UniMath.Semantics.LinearLogic.LinearCategoryEilenbergMooreAdjunction.
 Require Import UniMath.Semantics.LinearLogic.LinearNonLinear.
 
 Import MonoidalNotations.
@@ -300,15 +302,15 @@ Section LiftingPropertyCoalgebraMorSection.
   Let b : L := pr11 bb.
   Let hb : L⟦b, bang b⟧ := pr21 bb.
 
-  Context (g : EM⟦xx,bb⟧) (i : EM⟦aa,bb⟧) (f : L⟦x,a⟧).
+  Context (i : EM⟦aa,bb⟧) (f : L⟦x,a⟧).
 
   Context (f_i_coalg : hx · #(linear_category_bang L) (f · pr11 i) = (f · pr11 i) · hb).
   Context (r : L⟦b,a⟧) (ir_id : is_retraction (pr11 i) r).
 
-  Definition lifting_is_coalg_mor
+  Lemma postcomp_with_section_reflect_coalg_mor
     : hx · #(linear_category_bang L) f = f · ha.
   Proof.
-    assert (p := cancel_postcomposition _ _ (#(linear_category_bang L) r) f_i_coalg).
+    pose (p := cancel_postcomposition _ _ (#(linear_category_bang L) r) f_i_coalg).
     rewrite assoc' in p.
     rewrite <- functor_comp in p.
     rewrite assoc' in p.
@@ -334,19 +336,62 @@ Section LiftingPropertyCoalgebraMorSection.
       exact ir_id.
   Qed.
 
+  (* Let ff : EM⟦xx,aa⟧.
+  Proof.
+    use make_mor_co_eilenberg_moore.
+    - exact f.
+    - exact lifting_is_coalg_mor.
+  Defined.
+  *)
+
 End LiftingPropertyCoalgebraMorSection.
 
-
-Section ConstructionOfComonoidsInEilenbergMoore.
+Section LiftingPropertyCoalgebraMorSectionCor.
 
   Context (L : linear_category).
 
   Let EM := (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L)).
-
   Let bang : sym_monoidal_cmd L
       := linear_category_bang L.
 
-  Context (xx : EM).
+  Context {xx aa bb : EM}.
+
+  Let x : L := pr11 xx.
+  Let hx : L⟦x, bang x⟧ := pr21 xx.
+  Let a : L := pr11 aa.
+  Let ha : L⟦a, bang a⟧ := pr21 aa.
+  Let b : L := pr11 bb.
+  Let hb : L⟦b, bang b⟧ := pr21 bb.
+
+  Context {g : EM⟦xx,bb⟧} {i : EM⟦aa,bb⟧} {f : L⟦x,a⟧}.
+  Context {r : L⟦b,a⟧} (ir_id : is_retraction (pr11 i) r).
+  Context (p : f · pr11 i = pr11 g).
+
+  Definition lifting_is_coalg_mor
+    : hx · #(linear_category_bang L) f = f · ha.
+  Proof.
+    use (postcomp_with_section_reflect_coalg_mor L xx aa bb i f _ r ir_id).
+    etrans. {
+      do 2 apply maponpaths.
+      exact p.
+    }
+    etrans.
+    2: {
+      apply maponpaths_2.
+      exact (! p).
+    }
+    exact (pr21 g).
+  Qed.
+
+End LiftingPropertyCoalgebraMorSectionCor.
+
+Section TransportationFreeCoalgebraComonoid.
+
+  Context (L : linear_category).
+  Let bang : sym_monoidal_cmd L
+      := linear_category_bang L.
+
+  Context (xx : (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L))).
   Let x : L := pr11 xx.
   Let hx : L⟦x, bang x⟧ := pr21 xx.
 
@@ -414,53 +459,106 @@ Section ConstructionOfComonoidsInEilenbergMoore.
     exact linear_category_comult_factors_through_comult_bang.
   Qed.
 
-  Let comonoid_on_x
-    : disp_cat_of_comonoids L x
-      := comonoid_in_linear_category comonoid_on_bang_x x hx (ε bang x) (pr12 xx) yank.
-
-  Lemma comonoid_comult_is_coalgebra_mor
-    : hx · # ((linear_category_bang L)) δ_{(x,, comonoid_on_x) : comonoid L}
-      = δ_{(x,, comonoid_on_x) : comonoid L}
-          · MonoidalDialgebras.dialgebra_disp_tensor_op (identity_fmonoidal (pr1 L))
-          (lax_monoidal_from_symmetric_monoidal_comonad L (linear_category_bang L))
-          hx hx.
+  Definition transport_comonoid_from_free
+    : disp_cat_of_comonoids L x.
   Proof.
-    (* page 157 *)
-
-    (* summary *)
-    assert (δ_{(x ,, comonoid_on_x) : comonoid L} · hx #⊗ hx = hx · δ_{comonoid_on_bang_x}).
-    {
-      admit.
-    }
-
-    (* The right hand side is a coalgebra morphisms *)
-    (* Corollary 20, now gives a criteria to conclude:
-       (hx #⊗ hx) coalgebra_mor → δ_x coalgebra_mor.
-     *)
-
-    use ((lifting_is_coalg_mor L xx (xx ⊗ xx) ((bang x ⊗ bang x ,, _) ,, _) ((hx #⊗ hx ,, _) ,, tt) δ_{ x,, comonoid_on_x : comonoid L}) _ (ε bang x #⊗ ε bang x)) ; cbn.
-    (* The use statement should be cleaned up, e.g., arguments 4 and 5 are part of a larger structure that we should have available. This reduces the amount of goals as well *)
-
-  Admitted.
-
-  Definition comonoid_comult_coalgebra_mor
-    : EM⟦xx, xx ⊗ xx⟧.
-  Proof.
-    use make_mor_co_eilenberg_moore.
-    - exact δ_{(x ,, comonoid_on_x) : comonoid L}.
-    - exact comonoid_comult_is_coalgebra_mor.
+    use comonoid_in_linear_category.
+    - exact comonoid_on_bang_x.
+    - exact hx.
+    - exact (ε (linear_category_bang L) x).
+    - exact (pr12 xx).
+    - exact yank.
   Defined.
 
+End TransportationFreeCoalgebraComonoid.
+
+Section MakeComonoidInEilenbergMooreFromComonoidInLinear.
+
+  Context (L : linear_category).
+
+  Context (m : comonoid L).
+
+  Let bang := linear_category_bang L.
+
+  Context
+    (x_b : L⟦m, bang m⟧)
+      (x_b_u : x_b · ε bang m = identity (pr1 m))
+      (x_b_m : x_b · δ bang (pr1 m) = x_b · #bang x_b)
+      (mx_t : x_b · #bang δ_{ m} = δ_{ m} · (x_b #⊗ x_b · mon_functor_tensor (_ ,, lax_monoidal_from_symmetric_monoidal_comonad L bang) m m))
+      (mx_u :  x_b · #bang ε_{ m} = ε_{ m} · mon_functor_unit (_ ,, lax_monoidal_from_symmetric_monoidal_comonad L bang)).
+
+  Definition make_comonoid_object_in_eilenberg_moore
+    : @sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L).
+  Proof.
+    use make_ob_co_eilenberg_moore.
+    - apply m.
+    - exact x_b.
+    - exact x_b_u.
+    - exact x_b_m.
+  Defined.
+
+  Definition make_comonoid_struct_data_in_eilenberg_moore
+    : disp_cat_of_comonoids_data sym_monoidal_cat_co_eilenberg_moore
+        make_comonoid_object_in_eilenberg_moore.
+  Proof.
+    use tpair.
+    - use make_mor_co_eilenberg_moore.
+      + exact δ_{m}.
+      + abstract (
+            refine (mx_t @ _);
+            apply maponpaths;
+            apply pathsinv0;
+            refine (assoc' _ _ _ @ _);
+            apply id_left).
+    - use make_mor_co_eilenberg_moore.
+      + exact ε_{m}.
+      + abstract (
+            refine (mx_u @ _);
+        apply maponpaths;
+        apply pathsinv0;
+            apply id_left).
+  Defined.
+
+  Definition make_comonoid_laws_in_eilenberg_moore
+    : comonoid_laws sym_monoidal_cat_co_eilenberg_moore
+        (make_comonoid_object_in_eilenberg_moore ,, make_comonoid_struct_data_in_eilenberg_moore).
+  Proof.
+    refine (_ ,, _ ,, _) ; use eq_mor_co_eilenberg_moore.
+    - apply comonoid_to_law_unit_left.
+    - apply comonoid_to_law_unit_right.
+    - apply comonoid_to_law_assoc.
+  Qed.
+
+  Definition make_comonoid_in_eilenberg_moore
+    : comonoid (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L)).
+  Proof.
+    exists make_comonoid_object_in_eilenberg_moore.
+    exists make_comonoid_struct_data_in_eilenberg_moore.
+    exact make_comonoid_laws_in_eilenberg_moore.
+  Defined.
+
+End MakeComonoidInEilenbergMooreFromComonoidInLinear.
+
+Section ConstructionOfComonoidsInEilenbergMoore.
+
+  Context (L : linear_category).
+
+  Let EM := (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L)).
+
+  Let bang : sym_monoidal_cmd L
+      := linear_category_bang L.
+
+  Context (xx : EM).
+  Let x : L := pr11 xx.
+  Let hx : L⟦x, bang x⟧ := pr21 xx.
+
   (* The following lemma is actually an application that coalgebra morphisms are closed under composition, I c(sh)ould use this directly, however, I have to find the proof of that first (in the formalization) *)
-  Lemma comonoid_counit_is_coalgebra_mor
-    : hx · # (linear_category_bang L) ε_{ x,, comonoid_on_x : comonoid L}
-      = ε_{ x,, comonoid_on_x : comonoid L} · pr21 (constant_functor EM EM I_{ EM} xx).
+  Lemma comonoid_in_eilenberg_moore_from_coalg_counit_alg_mor
+    :  hx · #bang ε_{(x,, transport_comonoid_from_free L xx) : comonoid L}
+       = ε_{(x,, transport_comonoid_from_free L xx) : comonoid L}
+           · mon_functor_unit (_,, lax_monoidal_from_symmetric_monoidal_comonad L bang).
   Proof.
     cbn.
-    unfold MonoidalDialgebras.dialgebra_disp_unit.
-    cbn.
-    rewrite id_left.
-    cbn in *.
     unfold comonoid_counit_data_in_linear_category.
     rewrite functor_comp.
     rewrite assoc.
@@ -476,51 +574,91 @@ Section ConstructionOfComonoidsInEilenbergMoore.
     apply linear_category_counit_coalgebra_mor.
   Qed.
 
-  Definition comonoid_counit_coalgebra_mor
-    : EM⟦xx, monoidal_unit EM⟧.
+  Lemma comonoid_in_eilenberg_moore_from_coalg_comult_alg_mor
+    :  hx · #bang δ_{(x,, transport_comonoid_from_free L xx) : comonoid L}
+       = δ_{(x,, transport_comonoid_from_free L xx) : comonoid L}
+           ·  (hx #⊗ hx
+     · mon_functor_tensor (_,,lax_monoidal_from_symmetric_monoidal_comonad L (linear_category_bang L)) x x).
   Proof.
-    use make_mor_co_eilenberg_moore.
-    - exact ε_{(x ,, comonoid_on_x) : comonoid L}.
-    - exact comonoid_counit_is_coalgebra_mor.
-  Defined.
+    assert (p : pr21 (xx ⊗ xx) = (hx #⊗ hx
+     · mon_functor_tensor
+     (_,,lax_monoidal_from_symmetric_monoidal_comonad L (linear_category_bang L)) x x)).
+    {
+      refine (assoc' _ _ _ @ _).
+      apply id_left.
+    }
+    rewrite <- p.
 
-  Definition comonoid_data_in_eilenberg_moore
-    : disp_cat_of_comonoids_data EM xx.
-  Proof.
-    split.
-    - exact comonoid_comult_coalgebra_mor.
-    - exact comonoid_counit_coalgebra_mor.
-  Defined.
+    assert (retr :  is_retraction (hx #⊗ hx) (ε bang x #⊗ ε bang x)).
+    {
+      refine (! tensor_comp_mor _ _ _ _ @ _ @ tensor_id_id _ _).
+      use two_arg_paths ; apply (pr2 xx).
+    }
 
-  Lemma comonoid_laws_unit_left_in_eilenberg_moore
-    : comonoid_laws_unit_left EM (xx,, comonoid_data_in_eilenberg_moore).
-  Proof.
-    use eq_mor_co_eilenberg_moore.
-    exact (comonoid_laws_unit_left_in_linear_category comonoid_on_bang_x x hx (ε bang x) (pr12 xx) yank).
+    use (lifting_is_coalg_mor L
+           (xx := xx)
+           (aa :=  xx ⊗ xx)
+           (bb := (eilenberg_moore_cofree L x : EM) ⊗ (eilenberg_moore_cofree L x : EM))
+           (* (bb := ((bang x ⊗ bang x,,_),,(_,,_))) *)
+           (g := (hx · linear_category_comult L x ,, _) ,, tt)
+           (i := (hx #⊗ hx,, _) ,, tt)
+           (f := δ_{ x,, transport_comonoid_from_free L xx : comonoid L})
+           (r := ε bang x #⊗ ε bang x)
+           retr
+        ).
+
+    - (* hx · linear_category_comult L x is a coalgebra morphism, because it is the composition of coalgebra morphisms *)
+      cbn.
+      unfold dialgebra_disp_tensor_op.
+      cbn.
+      rewrite id_left.
+      rewrite ! assoc'.
+      rewrite ! id_left.
+
+      rewrite functor_comp.
+      rewrite assoc.
+      etrans. {
+        apply maponpaths_2.
+        exact (! pr22 xx).
+      }
+
+      etrans.
+      2: {
+        apply maponpaths.
+        apply pathsinv0.
+        exact (assoc _ _ _ @ linear_category_comult_coalgebra_mor x).
+      }
+      apply assoc'.
+
+    - cbn.
+      unfold dialgebra_disp_tensor_op.
+      cbn.
+      rewrite ! id_left.
+
+      etrans. {
+        rewrite assoc'.
+        apply maponpaths.
+        apply pathsinv0.
+        apply (tensor_mon_functor_tensor (_ ,, lax_monoidal_from_symmetric_monoidal_comonad _ bang) hx hx).
+      }
+
+      do 2 rewrite assoc.
+      apply maponpaths_2.
+      refine (! tensor_comp_mor _ _ _ _ @ _ @ tensor_comp_mor _ _ _ _).
+      use two_arg_paths ; exact (! pr22 xx).
+    - apply yank.
   Qed.
 
-  Lemma comonoid_laws_unit_right_in_eilenberg_moore
-    : comonoid_laws_unit_right EM (xx,, comonoid_data_in_eilenberg_moore).
+  Definition comonoid_in_eilenberg_moore_from_coalg
+    : comonoid EM.
   Proof.
-    use eq_mor_co_eilenberg_moore.
-    exact (comonoid_laws_unit_right_in_linear_category comonoid_on_bang_x x hx (ε bang x) (pr12 xx) yank).
-  Qed.
-
-  Lemma comonoid_laws_assoc_in_eilenberg_moore
-    : comonoid_laws_assoc EM (xx,, comonoid_data_in_eilenberg_moore).
-  Proof.
-    use eq_mor_co_eilenberg_moore.
-    exact (comonoid_laws_assoc_in_linear_category comonoid_on_bang_x x hx (ε bang x) (pr12 xx) yank).
-  Qed.
-
-  Definition comonoid_in_eilenberg_moore
-    : disp_cat_of_comonoids EM xx.
-  Proof.
-    simple refine (_ ,, _ ,, _ ,, _).
-    - exact comonoid_data_in_eilenberg_moore.
-    - exact comonoid_laws_unit_left_in_eilenberg_moore.
-    - exact comonoid_laws_unit_right_in_eilenberg_moore.
-    - exact comonoid_laws_assoc_in_eilenberg_moore.
+    use (make_comonoid_in_eilenberg_moore L).
+    - exact (_ ,, transport_comonoid_from_free L xx).
+    - exact hx.
+    - exact (pr12 xx).
+    - exact (pr22 xx).
+    - exact comonoid_in_eilenberg_moore_from_coalg_comult_alg_mor.
+    - exact comonoid_in_eilenberg_moore_from_coalg_counit_alg_mor.
   Defined.
 
 End ConstructionOfComonoidsInEilenbergMoore.
@@ -533,10 +671,10 @@ Section EilenbergMooreCartesian.
   Lemma comonoid_mor_in_eilenberg_moore
     {x y : (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L))}
     (f : _⟦x, y⟧)
-    :  comonoid_mor_struct
+    : comonoid_mor_struct
          (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L))
-         (x,, comonoid_in_eilenberg_moore L x)
-         (y,, comonoid_in_eilenberg_moore L y)
+         (comonoid_in_eilenberg_moore_from_coalg L x)
+         (comonoid_in_eilenberg_moore_from_coalg L y)
          f.
   Proof.
     use make_is_comonoid_mor.
@@ -589,42 +727,17 @@ Section EilenbergMooreCartesian.
       exact (! linear_category_counit_nat (pr11 f)).
   Qed.
 
-  Lemma linear_category_counit_of_unit_coincides_with_counit_bang_comonad
-    : linear_category_counit L I_{ L} = ε (linear_category_bang L) I_{ L}.
-  Proof.
-    (* This should follow from the monoidality of the counit natural transformation *)
-  Admitted.
-
-  Lemma comonad_preserves_unit_strongly
-    :  fmonoidal_preservesunit
-         (lax_monoidal_from_symmetric_monoidal_comonad L (linear_category_bang L))
-         · linear_category_counit L (monoidal_unit L)
-       = identity (monoidal_unit L).
-  Proof.
-    (* unit law for the monoidal natural transformation *)
-    refine (_ @ pr22 (symmetric_monoidal_comonad_extra_laws L (linear_category_bang L))).
-    apply maponpaths.
-    exact linear_category_counit_of_unit_coincides_with_counit_bang_comonad.
-  Qed.
-
   Definition linear_category_eilenberg_moore_cartesian
     : is_cartesian (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L)).
   Proof.
     use symm_monoidal_is_cartesian_from_comonoid.
-    - intro ; apply comonoid_in_eilenberg_moore.
+    - intro ; apply comonoid_in_eilenberg_moore_from_coalg.
     - intro ; intros ; apply comonoid_mor_in_eilenberg_moore.
     - use eq_mor_co_eilenberg_moore.
-      (* A suitable accessor has to be used (might need to be created) *)
-      refine (_ @ pr222 (pr2 (linear_category_bang L))).
-      cbn.
-      unfold comonoid_counit_data_in_linear_category.
-      unfold MonoidalDialgebras.dialgebra_disp_unit.
-      cbn.
-      rewrite id_left.
-      apply maponpaths.
-      apply linear_category_counit_of_unit_coincides_with_counit_bang_comonad.
+      refine (assoc' _ _ _ @ _).
+      refine (id_left _ @ _).
+      apply linear_category_counit_preserves_unit.
     - intros x y.
-      (* the natural transformations are monoidal; page 159 *)
       use eq_mor_co_eilenberg_moore.
       Opaque SymmetricDiagonal.inner_swap.
       cbn.
@@ -673,111 +786,11 @@ Section EilenbergMooreCartesian.
       rewrite ! tensor_comp_mor.
       rewrite ! assoc.
       apply maponpaths_2.
-      (* now apply (d := linear_comult L) is a monoidal natural transformation *)
-      (* to clean up the goal *)
-      set (m :=  fmonoidal_preservestensordata
-    (lax_monoidal_from_symmetric_monoidal_comonad _ (linear_category_bang L))
-    (pr11 x) (pr11 y)).
-
-      refine (idpath (m · _) @ _).
-      refine (_ @ idpath (_ · (m #⊗ m))).
-
-      admit.
-  Admitted.
+      refine (linear_category_comult_preserves_tensor (pr11 x) (pr11 y) @ _).
+      apply assoc.
+  Qed.
 
 End EilenbergMooreCartesian.
-
-Section CofreeAdjunction.
-
-  Context (L : linear_category).
-
-  Lemma bla (x : L)
-    :  # ((linear_category_bang L)) (δ (linear_category_bang L) x) =
-         δ (linear_category_bang L) ((linear_category_bang L) x).
-  Proof.
-  Admitted.
-
-  Lemma bla' (x : L)
-    :  # (linear_category_bang L) (ε (linear_category_bang L) x) =
-         ε (linear_category_bang L) (linear_category_bang L x).
-  Proof.
-  Admitted.
-
-  Definition TO_BE_REPLACED
-    :  pr1 L ⟶ co_eilenberg_moore_cat (linear_category_bang L).
-  Proof.
-    use functor_to_co_eilenberg_moore_cat.
-    - apply (linear_category_bang L).
-    - use nat_trans_comp.
-      2: { apply nat_trans_functor_id_left. }
-      exact (δ (linear_category_bang L)).
-    - intro x.
-      refine (_ @ Comonad_law1 (T := linear_category_bang L) x).
-      refine (assoc' _ _ _ @ _).
-      apply id_left.
-    - intro x.
-      cbn.
-      rewrite id_left.
-      apply maponpaths.
-      apply bla.
-  Defined.
-
-  Local Definition eilenberg_moore_forget
-    :  full_subcat (dialgebra (functor_identity (pr1 L)) (linear_category_bang L))
-         mon_cat_co_eilenberg_moore_extra_condition ⟶ L.
-  Proof.
-    use functor_composite.
-    2: {
-      apply Total.pr1_category.
-    }
-    apply Total.pr1_category.
-  Defined.
-
-  Local Definition eilenberg_moore_adj_unit
-    : functor_identity
-        (full_subcat (dialgebra (functor_identity (pr1 L)) (linear_category_bang L))
-           mon_cat_co_eilenberg_moore_extra_condition) ⟹
-        eilenberg_moore_forget ∙ TO_BE_REPLACED
-  .
-  Proof.
-    use make_nat_trans.
-    -- intro x.
-       use make_mor_co_eilenberg_moore.
-       ++ exact (pr21 x).
-       ++ refine (! pr22 x @ _).
-          apply maponpaths,
-            pathsinv0,
-            id_left.
-    -- intros x y f.
-       use eq_mor_co_eilenberg_moore.
-       exact (! pr21 f).
-  Defined.
-
-  Definition eilenberg_moore_cmd_adj
-    : adjunction
-    (full_subcat (dialgebra (functor_identity (pr1 L)) (linear_category_bang L))
-       mon_cat_co_eilenberg_moore_extra_condition) L.
-  Proof.
-    use make_adjunction.
-    - use tpair.
-      + exact eilenberg_moore_forget.
-      + exists TO_BE_REPLACED.
-        split.
-        * exact eilenberg_moore_adj_unit.
-        * exact (ε (linear_category_bang L)).
-    - split.
-      + exact (λ x, pr12 x).
-      + intro x.
-        use eq_mor_co_eilenberg_moore.
-        cbn.
-        refine (assoc' _ _ _ @ _).
-        refine (id_left _ @ _).
-        refine (_ @ Comonad_law1 (T := linear_category_bang L) x).
-        apply maponpaths.
-        apply bla'.
-  Defined.
-
-End CofreeAdjunction.
 
 Section LinearToLNL.
 

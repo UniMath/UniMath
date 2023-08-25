@@ -1126,6 +1126,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [LinearLogic/LinearNonLinear.v](Semantics/LinearLogic/LinearNonLinear.v)
    - [LinearLogic/LafontCategory.v](Semantics/LinearLogic/LafontCategory.v)
    - [LinearLogic/LinearCategory.v](Semantics/LinearLogic/LinearCategory.v)
+   - [LinearLogic/LinearCategoryEilenbergMooreAdjunction.v](Semantics/LinearLogic/LinearCategoryEilenbergMooreAdjunction.v)
+   - [LinearLogic/LinearToLinearNonLinear.v](Semantics/LinearLogic/LinearToLinearNonLinear.v)
    - [LinearLogic/LiftingModel.v](Semantics/LinearLogic/LiftingModel.v)
    - [EnrichedEffectCalculus/EECModel.v](Semantics/EnrichedEffectCalculus/EECModel.v)
    - [EnrichedEffectCalculus/ContinuationModel.v](Semantics/EnrichedEffectCalculus/ContinuationModel.v)
