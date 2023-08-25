@@ -44,7 +44,7 @@ Definition dcpo_specialization
   : hProp
   := (∀ (P : X → hProp), is_scott_open P ⇒ P x ⇒ P y)%logic.
 
-Notation "x ≤s y" := (dcpo_specialization x y) (at level 70) : dcpo.
+Notation "x ⊑s y" := (dcpo_specialization x y) (at level 70) : dcpo.
 
 (**
  2. Properties of the specialization preorder
@@ -54,7 +54,7 @@ Section PropertiesSpecialization.
 
   Proposition refl_dcpo_specialization
               (x : X)
-    : x ≤s x.
+    : x ⊑s x.
   Proof.
     intros P HP Px.
     exact Px.
@@ -62,9 +62,9 @@ Section PropertiesSpecialization.
 
   Proposition trans_dcpo_specialization
               {x y z : X}
-              (p : x ≤s y)
-              (q : y ≤s z)
-    : x ≤s z.
+              (p : x ⊑s y)
+              (q : y ⊑s z)
+    : x ⊑s z.
   Proof.
     intros P HP Px.
     apply (q P HP).
@@ -73,8 +73,8 @@ Section PropertiesSpecialization.
 
   Proposition le_dcpo_specialization
               {x y : X}
-              (p : x ≤ y)
-    : x ≤s y.
+              (p : x ⊑ y)
+    : x ⊑s y.
   Proof.
     intros P HP Px.
     exact (is_scott_open_upper_set HP Px p).
@@ -83,7 +83,7 @@ Section PropertiesSpecialization.
   Proposition le_dcpo_specialization_equiv
               (CX : continuous_dcpo_struct X)
               (x y : X)
-    : x ≤ y ≃ x ≤s y.
+    : x ⊑ y ≃ x ⊑s y.
   Proof.
     use weqimplimpl.
     - exact le_dcpo_specialization.
@@ -130,7 +130,7 @@ Section PropertiesNotSpecialization.
   Proposition dcpo_not_specialization_le
               {x y : X}
               (p : x ⊄ y)
-    : ¬(x ≤ y).
+    : ¬(x ⊑ y).
   Proof.
     intro q.
     revert p.
@@ -147,7 +147,7 @@ Section PropertiesNotSpecialization.
   Proposition continuous_not_specialization_weq
               (CX : continuous_dcpo_struct X)
               (x y : X)
-    : x ⊄ y ≃ (∃ (b : X), b ≪ x ∧ ¬(b ≤ y))%logic.
+    : x ⊄ y ≃ (∃ (b : X), b ≪ x ∧ ¬(b ⊑ y))%logic.
   Proof.
     use weqimplimpl.
     - use factor_through_squash.

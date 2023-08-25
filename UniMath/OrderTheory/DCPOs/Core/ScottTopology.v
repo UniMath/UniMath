@@ -41,12 +41,12 @@ Section ScottTopology.
   Definition is_lower_set
              (P : X → hProp)
     : hProp
-    := (∀ (x y : X), P y ⇒ x ≤ y ⇒ P x)%logic.
+    := (∀ (x y : X), P y ⇒ x ⊑ y ⇒ P x)%logic.
 
   Definition is_upper_set
              (P : X → hProp)
     : hProp
-    := (∀ (x y : X), P x ⇒ x ≤ y ⇒ P y)%logic.
+    := (∀ (x y : X), P x ⇒ x ⊑ y ⇒ P y)%logic.
 
   (**
    2. Scott open and Scott closed sets
@@ -126,7 +126,7 @@ Section ScottClosedAccessors.
   Proposition is_scott_closed_lower_set
               {x y : X}
               (Py : P y)
-              (p : x ≤ y)
+              (p : x ⊑ y)
     : P x.
   Proof.
     exact (pr1 HP x y Py p).
@@ -149,7 +149,7 @@ Section ScottOpenAccessors.
   Proposition is_scott_open_upper_set
               {x y : X}
               (Py : P x)
-              (p : x ≤ y)
+              (p : x ⊑ y)
     : P y.
   Proof.
     exact (pr1 HP x y Py p).
@@ -172,7 +172,7 @@ Section PropertiesScottTopology.
    *)
   Proposition lower_set_is_scott_closed
               (x : X)
-    : is_scott_closed (λ y, y ≤ x).
+    : is_scott_closed (λ y, y ⊑ x).
   Proof.
     split.
     - intros y₁ y₂ p q.
