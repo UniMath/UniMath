@@ -1,6 +1,5 @@
 (*
-In this file, we show how any linear category induces a linear non linear model.
-This boils down to proving how the eilenberg moore category of the (symmetric monoidal) comonad, given by a linear category, is cartesian monoidal.
+In this file, the cofree adjunction between a linear category and its eilenberg-moore category is constructed.
 *)
 
 Require Import UniMath.MoreFoundations.All.
