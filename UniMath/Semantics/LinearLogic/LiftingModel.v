@@ -82,11 +82,40 @@ Proof.
     apply idpath.
   - intros X.
     apply (commutative_comonoid_is_commutative _ (lift_commutative_comonoid X)).
-  - admit.
-  - admit.
-  - admit.
-  - admit.
-Admitted.
+  - intros X Y.
+    use eq_mor_hset_struct.
+    use setquotunivprop' ; [ intro ; apply setproperty | ].
+    intros xy.
+    induction xy as [ x y ].
+    induction x as [ x | ], y as [ y | ] ; cbn.
+    + apply idpath.
+    + apply idpath.
+    + apply idpath.
+    + apply idpath.
+  - use eq_mor_hset_struct.
+    intro x.
+    induction x as [ | ] ; cbn.
+    + apply idpath.
+    + apply idpath.
+  - use eq_mor_hset_struct.
+    intro x.
+    induction x as [ | ].
+    + cbn.
+      apply idpath.
+    + use iscompsetquotpr ; cbn.
+      refine (hinhpr (inr _)).
+      split.
+      * unfold product_point_coordinate ; cbn.
+        exact (inl (idpath _)).
+      * unfold product_point_coordinate ; cbn.
+        exact (inr (idpath _)).
+  - intros X Y.
+    use eq_mor_hset_struct.
+    use setquotunivprop' ; [ intro ; apply setproperty | ].
+    intros xy.
+    induction xy as [ x y ].
+    induction x as [ x | ], y as [ y | ] ; simpl ; apply idpath.
+Qed.
 
 Definition lifting_linear_category
   : linear_category.
