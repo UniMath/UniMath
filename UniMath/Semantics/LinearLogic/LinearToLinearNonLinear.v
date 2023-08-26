@@ -474,7 +474,7 @@ Section EilenbergMooreCartesian.
            · ε (linear_category_bang L) (pr11 y) #⊗ ε (linear_category_bang L) (pr11 y))
   · pr11 (inner_swap (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang L)) x x y y).
   Proof.
-    Opaque SymmetricDiagonal.inner_swap. (* I do not include the file SymmetricDiagonal because this is the only place I use it *)
+    Opaque inner_swap.
 
     rewrite ! tensor_mor_right.
     rewrite ! tensor_mor_left.
