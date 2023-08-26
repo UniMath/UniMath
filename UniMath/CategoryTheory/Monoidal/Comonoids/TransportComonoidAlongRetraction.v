@@ -1,11 +1,14 @@
+(*
+Consider a morphism i : B --> a in a monoidal category.
+Given a comonoid structure on B, we show how the comonoid structure can be transported to a, provided i is part of a retraction pair (and a compatibility condition).
+Furthermore, i becomes a comonoid homomorphism.
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Monoidal.Categories.
-
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
 
 Local Open Scope cat.
