@@ -112,14 +112,7 @@ Section CoEilenbergMooreCategory.
     use make_is_z_isomorphism.
     - use make_mor_co_eilenberg_moore.
       + exact (inv_from_z_iso H).
-      + abstract
-          (refine (!_);
-           use z_iso_inv_on_right;
-           rewrite assoc;
-           rewrite functor_on_inv_from_z_iso;
-           use z_iso_inv_on_left;
-           refine (!_);
-           exact (pr21 f)).
+      + apply (is_z_iso_disp_dialgebra _ _ Hf (pr21 f)).
      - split.
       + abstract
           (use eq_mor_co_eilenberg_moore ; cbn ;
