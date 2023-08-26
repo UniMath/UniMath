@@ -50,7 +50,7 @@ Section LiftingPropertyCoalgebraMorSection.
 
   Lemma postcomp_with_section_reflect_coalg_mor
     (L : linear_category)
-    (xx aa bb : @sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L))
+    (xx aa bb : sym_monoidal_cat_co_eilenberg_moore (linear_category_bang L))
     (i : aa --> bb)
     (f : L⟦pr11 xx, pr11 aa⟧)
     (f_i_coalg : pr21 xx · #(linear_category_bang L) (f · pr11 i) = (f · pr11 i) · pr21 bb)
@@ -86,7 +86,7 @@ Section LiftingPropertyCoalgebraMorSection.
 
   Definition lifting_is_coalg_mor
     {L : linear_category}
-    {xx aa bb : (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L))}
+    {xx aa bb : sym_monoidal_cat_co_eilenberg_moore (linear_category_bang L)}
     {g : xx --> bb} {i : aa --> bb} {f : L⟦pr11 xx, pr11 aa⟧}
     {r : L⟦pr11 bb, pr11 aa⟧}
     (ir_id : is_retraction (pr11 i) r)
@@ -114,7 +114,7 @@ Section TransportationFreeCoalgebraComonoid.
   Let bang : sym_monoidal_cmd L
       := linear_category_bang L.
 
-  Context (xx : (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L))).
+  Context (xx : sym_monoidal_cat_co_eilenberg_moore (linear_category_bang L)).
   Let x : L := pr11 xx.
   Let hx : L⟦x, bang x⟧ := pr21 xx.
 
@@ -215,7 +215,7 @@ Section MakeComonoidInEilenbergMooreFromComonoidInLinear.
       (mx_u :  x_b · #bang ε_{ m} = ε_{ m} · mon_functor_unit (_ ,, lax_monoidal_from_symmetric_monoidal_comonad L bang)).
 
   Definition make_comonoid_object_in_eilenberg_moore
-    : @sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L).
+    : sym_monoidal_cat_co_eilenberg_moore (linear_category_bang L).
   Proof.
     use make_ob_co_eilenberg_moore.
     - apply m.
@@ -257,7 +257,7 @@ Section MakeComonoidInEilenbergMooreFromComonoidInLinear.
   Qed.
 
   Definition make_comonoid_in_eilenberg_moore
-    : comonoid (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L)).
+    : comonoid (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang L)).
   Proof.
     exists make_comonoid_object_in_eilenberg_moore.
     exists make_comonoid_struct_data_in_eilenberg_moore.
@@ -270,7 +270,7 @@ Section ConstructionOfComonoidsInEilenbergMoore.
 
   Context (L : linear_category).
 
-  Let EM := (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L)).
+  Let EM := sym_monoidal_cat_co_eilenberg_moore (linear_category_bang L).
 
   Let bang : sym_monoidal_cmd L
       := linear_category_bang L.
@@ -394,10 +394,10 @@ Section EilenbergMooreCartesian.
 
   (* naturality of the comultiplication and counit *)
   Lemma comonoid_mor_in_eilenberg_moore
-    {x y : (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L))}
+    {x y : sym_monoidal_cat_co_eilenberg_moore (linear_category_bang L)}
     (f : x --> y)
     : comonoid_mor_struct
-         (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L))
+         (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang L))
          (comonoid_in_eilenberg_moore_from_coalg L x)
          (comonoid_in_eilenberg_moore_from_coalg L y)
          f.
@@ -458,7 +458,7 @@ Section EilenbergMooreCartesian.
      The purpose of this lemma is to avoid having to prove this property in that definition.
    *)
   Local Lemma aux
-    (x y : @sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L))
+    (x y : sym_monoidal_cat_co_eilenberg_moore (linear_category_bang L))
     :
     identity (pr11 x ⊗ pr11 y)
       · (pr21 x #⊗ pr21 y)
@@ -526,7 +526,7 @@ Section EilenbergMooreCartesian.
   Qed.
 
   Definition linear_category_eilenberg_moore_cartesian
-    : is_cartesian (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L)).
+    : is_cartesian (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang L)).
   Proof.
     use symm_monoidal_is_cartesian_from_comonoid.
     - intro ; apply comonoid_in_eilenberg_moore_from_coalg.
@@ -581,7 +581,7 @@ Section LinearToLNL.
   Proof.
     use make_linear_non_linear_from_strong.
     - exact (linear_category_data_to_sym_mon_closed_cat L).
-    - exact (@sym_monoidal_cat_co_eilenberg_moore _ _ _ (linear_category_bang L)).
+    - exact (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang L)).
     - apply eilenberg_moore_cmd_adj.
     - apply linear_category_eilenberg_moore_cartesian.
     - exact em_projection.
