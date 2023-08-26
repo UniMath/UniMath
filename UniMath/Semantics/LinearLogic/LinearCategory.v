@@ -23,6 +23,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
+Require Import UniMath.CategoryTheory.categories.Dialgebras.
 
 Import MonoidalNotations.
 
@@ -408,4 +409,28 @@ Proof.
       (intros x y f ; cbn ;
        rewrite id_right ;
        apply linear_category_counit_nat).
+Defined.
+
+Definition linear_category_comult_coalgebra_morphism
+  (𝕃 : linear_category) (x : 𝕃)
+  :  CoAlg_category (linear_category_bang 𝕃)
+        ⟦ ((linear_category_bang 𝕃) x) ,, δ (linear_category_bang 𝕃) x,
+          (linear_category_bang 𝕃 x ⊗ linear_category_bang 𝕃 x ,,
+             (δ (linear_category_bang 𝕃) x #⊗ δ (linear_category_bang 𝕃) x)
+             · mon_functor_tensor (linear_category_bang_functor 𝕃) _ _ )⟧.
+Proof.
+  use tpair.
+  - exact (linear_category_comult 𝕃 x).
+  - cbn. rewrite assoc. apply pathsinv0, linear_category_comult_coalgebra_mor.
+Defined.
+
+Definition linear_category_counit_coalgebra_morphism
+  (𝕃 : linear_category) (x : 𝕃)
+  : CoAlg_category (linear_category_bang 𝕃)
+        ⟦ ((linear_category_bang 𝕃) x) ,, δ (linear_category_bang 𝕃) x,
+          (I_{𝕃} ,, mon_functor_unit (linear_category_bang_functor 𝕃)) ⟧.
+Proof.
+  use tpair.
+  - exact (linear_category_counit 𝕃 x).
+  - refine (!_). apply linear_category_counit_coalgebra_mor.
 Defined.
