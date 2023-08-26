@@ -38,31 +38,31 @@ Local Open Scope moncat.
 
 Section CofreeAdjunction.
 
-  Context (L : linear_category).
+  Context (𝕃 : linear_category).
 
   Definition eilenberg_moore_cofree
-    : L ⟶ co_eilenberg_moore_cat (linear_category_bang L).
+    : 𝕃 ⟶ co_eilenberg_moore_cat (linear_category_bang 𝕃).
   Proof.
     use functor_to_co_eilenberg_moore_cat.
-    - apply (linear_category_bang L).
+    - apply (linear_category_bang 𝕃).
     - use nat_trans_comp.
       2: { apply nat_trans_functor_id_left. }
-      exact (δ (linear_category_bang L)).
+      exact (δ (linear_category_bang 𝕃)).
     - abstract (
           intro x;
-          refine (_ @ Comonad_law1 (T := linear_category_bang L) x);
+          refine (_ @ Comonad_law1 (T := linear_category_bang 𝕃) x);
           refine (assoc' _ _ _ @ _);
           apply id_left).
     - abstract (
           intro x;
           cbn;
           rewrite id_left;
-          exact (Comonad_law3 (T := linear_category_bang L) x)).
+          exact (Comonad_law3 (T := linear_category_bang 𝕃) x)).
   Defined.
 
   Local Definition eilenberg_moore_forget
-    : full_subcat (dialgebra (functor_identity L) (linear_category_bang L))
-        (mon_cat_co_eilenberg_moore_extra_condition (linear_category_bang L)) ⟶ L.
+    : full_subcat (dialgebra (functor_identity 𝕃) (linear_category_bang 𝕃))
+        (mon_cat_co_eilenberg_moore_extra_condition (linear_category_bang 𝕃)) ⟶ 𝕃.
     (* : co_eilenberg_moore_cat (linear_category_bang L) ⟶ L. *)
   Proof.
     exact (functor_composite (pr1_category _) (pr1_category _)).
@@ -70,8 +70,8 @@ Section CofreeAdjunction.
 
   Local Definition eilenberg_moore_adj_unit
     : functor_identity
-        (full_subcat (dialgebra (functor_identity L) (linear_category_bang L))
-           (mon_cat_co_eilenberg_moore_extra_condition (linear_category_bang L))) ⟹
+        (full_subcat (dialgebra (functor_identity 𝕃) (linear_category_bang 𝕃))
+           (mon_cat_co_eilenberg_moore_extra_condition (linear_category_bang 𝕃))) ⟹
         eilenberg_moore_forget ∙ eilenberg_moore_cofree.
   Proof.
     use make_nat_trans.
@@ -94,7 +94,7 @@ Section CofreeAdjunction.
          (eilenberg_moore_forget,,
             eilenberg_moore_cofree,,
             eilenberg_moore_adj_unit,,
-            ε (linear_category_bang L)).
+            ε (linear_category_bang 𝕃)).
   Proof.
     split.
     - exact (λ x, pr12 x).
@@ -103,20 +103,20 @@ Section CofreeAdjunction.
       cbn.
       refine (assoc' _ _ _ @ _).
       refine (id_left _ @ _).
-      exact (Comonad_law2 (T := linear_category_bang L) x).
+      exact (Comonad_law2 (T := linear_category_bang 𝕃) x).
   Qed.
 
   Definition eilenberg_moore_cmd_adj
     : adjunction
-    (full_subcat (dialgebra (functor_identity L) (linear_category_bang L))
-       (mon_cat_co_eilenberg_moore_extra_condition (linear_category_bang L))) L.
+    (full_subcat (dialgebra (functor_identity 𝕃) (linear_category_bang 𝕃))
+       (mon_cat_co_eilenberg_moore_extra_condition (linear_category_bang 𝕃))) 𝕃.
   Proof.
     use make_adjunction.
     - simple refine (_ ,, _ ,, _ ,, _).
       + exact eilenberg_moore_forget.
       + exact eilenberg_moore_cofree.
       + exact eilenberg_moore_adj_unit.
-      + exact (ε (linear_category_bang L)).
+      + exact (ε (linear_category_bang 𝕃)).
     - exact eilenberg_moore_cmd_form_adj.
   Defined.
 
