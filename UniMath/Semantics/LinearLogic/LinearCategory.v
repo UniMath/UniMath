@@ -421,7 +421,7 @@ Definition linear_category_comult_coalgebra_morphism
 Proof.
   use tpair.
   - exact (linear_category_comult 𝕃 x).
-  - cbn. rewrite assoc. apply pathsinv0, linear_category_comult_coalgebra_mor.
+  - abstract (cbn; rewrite assoc; apply pathsinv0, linear_category_comult_coalgebra_mor).
 Defined.
 
 Definition linear_category_counit_coalgebra_morphism
@@ -432,5 +432,5 @@ Definition linear_category_counit_coalgebra_morphism
 Proof.
   use tpair.
   - exact (linear_category_counit 𝕃 x).
-  - refine (!_). apply linear_category_counit_coalgebra_mor.
+  - abstract (apply pathsinv0, linear_category_counit_coalgebra_mor).
 Defined.
