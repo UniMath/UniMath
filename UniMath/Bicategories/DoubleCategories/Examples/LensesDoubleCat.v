@@ -9,6 +9,26 @@
  - Horizontal morphisms: lenses in `C`
  The squares in this double category are commutative squares.
 
+ This double category is essentially also constructed in Proposition 2.0.4 in
+ "Categories of Optics" by Riley ( https://arxiv.org/pdf/1809.00738.pdf).
+ There are two difference between the formalization in this file and the reference.
+ In te reference, a category of lenses is constructed, and this amounts to
+ constructing the horizontal composition and identities of lenses, whereas here
+ a double category is constructed. The other difference is the method taken: the
+ reference uses an abstract theorem about optics, whereas we construct the desired
+ double category directly.
+
+ Note that a double category of lenses has also been considered by Clarke in
+ "The double category of lenses" (https://figshare.mq.edu.au/articles/thesis/The_double_category_of_lenses/22045073/1).
+ The difference between the formalization and that thesis is that a different
+ notion of lens is considered. Clarke looks at delta-lenses, so the resulting
+ double category is as follows:
+ - Objects: categories
+ - Vertical morphisms: delta-lenses
+ - Horizontal morphisms: functors
+ This is different from what we look at, because we look at lenses in a category
+ with finite products.
+
  Contents
  1. The horizontal identity
  2. Horizontal composition
