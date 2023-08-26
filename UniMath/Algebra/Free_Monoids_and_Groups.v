@@ -282,6 +282,18 @@ Proof.
     refine (!setquotunivcomm _ _ _ _ _).
 Defined.
 
+Proposition free_abmonoid_mor_eq
+            {X : hSet}
+            {Y : abmonoid}
+            {f g : monoidfun (free_abmonoid X) Y}
+            (p : ∏ (x : X), f (free_abmonoid_unit x) = g (free_abmonoid_unit x))
+  : f = g.
+Proof.
+  use (invmaponpathsweq (invweq (free_abmonoid_universal_property X Y)) f g).
+  use funextsec.
+  exact p.
+Qed.
+
 (* Abelian monoid presented by a set of generators and relations *)
 
 Definition presented_abmonoid (X : hSet) (R : hrel (free_abmonoid X)) : abmonoid :=
