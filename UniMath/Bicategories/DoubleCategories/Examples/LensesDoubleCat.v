@@ -12,7 +12,7 @@
  This double category is essentially also constructed in Proposition 2.0.4 in
  "Categories of Optics" by Riley ( https://arxiv.org/pdf/1809.00738.pdf).
  There are two difference between the formalization in this file and the reference.
- In te reference, a category of lenses is constructed, and this amounts to
+ In the reference, a category of lenses is constructed, and this amounts to
  constructing the horizontal composition and identities of lenses, whereas here
  a double category is constructed. The other difference is the method taken: the
  reference uses an abstract theorem about optics, whereas we construct the desired
