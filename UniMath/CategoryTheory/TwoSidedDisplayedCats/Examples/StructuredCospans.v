@@ -948,7 +948,7 @@ Section FunctorOnCospans.
           {L₂ : A₂ ⟶ X₂}
           {FA : A₁ ⟶ A₂}
           {FX : X₁ ⟶ X₂}
-          (α : nat_z_iso (FA ∙ L₂) (L₁ ∙ FX)).
+          (α : FA ∙ L₂ ⟹ L₁ ∙ FX).
 
   Definition functor_on_struct_cospan
              {x y : A₁}

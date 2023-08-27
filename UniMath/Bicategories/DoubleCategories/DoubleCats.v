@@ -23,9 +23,10 @@
  4. Lax functors for double categories
  5. Accessors for lax functors
  6. Builder for lax functors
- 7. Double transformations
- 8. Accessors for double transformations
- 9. Builder for double transformations
+ 7. Strong double functors
+ 8. Double transformations
+ 9. Accessors for double transformations
+ 10. Builder for double transformations
 
  **********************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -932,7 +933,69 @@ Proof.
 Defined.
 
 (**
- 7. Double transformations
+ 7. Strong double functors
+ *)
+Definition is_strong_double_functor
+           {C₁ C₂ : double_cat}
+           (F : lax_double_functor C₁ C₂)
+  : UU
+  := (∏ (x : C₁),
+      is_iso_twosided_disp
+        (identity_is_z_iso _)
+        (identity_is_z_iso _)
+        (lax_double_functor_id_h F x))
+     ×
+     (∏ (x y z : C₁)
+        (h : x -->h y)
+        (k : y -->h z),
+      is_iso_twosided_disp
+        (identity_is_z_iso _)
+        (identity_is_z_iso _)
+        (lax_double_functor_comp_h F h k)).
+
+Definition is_iso_strong_double_functor_id_h
+           {C₁ C₂ : double_cat}
+           {F : lax_double_functor C₁ C₂}
+           (HF : is_strong_double_functor F)
+           (x : C₁)
+  : is_iso_twosided_disp
+      (identity_is_z_iso _)
+      (identity_is_z_iso _)
+      (lax_double_functor_id_h F x)
+  := pr1 HF x.
+
+Definition is_iso_strong_double_functor_comp_h
+           {C₁ C₂ : double_cat}
+           {F : lax_double_functor C₁ C₂}
+           (HF : is_strong_double_functor F)
+           {x y z : C₁}
+           (h : x -->h y)
+           (k : y -->h z)
+  : is_iso_twosided_disp
+      (identity_is_z_iso _)
+      (identity_is_z_iso _)
+      (lax_double_functor_comp_h F h k)
+  := pr2 HF x y z h k.
+
+Definition strong_double_functor
+           (C₁ C₂ : double_cat)
+  : UU
+  := ∑ (F : lax_double_functor C₁ C₂), is_strong_double_functor F.
+
+Coercion strong_double_functor_to_lax
+         {C₁ C₂ : double_cat}
+         (F : strong_double_functor C₁ C₂)
+  : lax_double_functor C₁ C₂
+  := pr1 F.
+
+Coercion strong_double_functor_to_strong
+         {C₁ C₂ : double_cat}
+         (F : strong_double_functor C₁ C₂)
+  : is_strong_double_functor F
+  := pr2 F.
+
+(**
+ 8. Double transformations
  *)
 Definition double_transformation
            {C₁ C₂ : double_cat}
@@ -941,7 +1004,7 @@ Definition double_transformation
   := F ==> G.
 
 (**
- 8. Accessors for double transformations
+ 9. Accessors for double transformations
  *)
 Definition double_transformation_to_nat_trans
            {C₁ C₂ : double_cat}
@@ -1027,7 +1090,7 @@ Proof.
 Qed.
 
 (**
- 9. Builder for double transformations
+ 10. Builder for double transformations
  *)
 Definition make_double_transformation
            {C₁ C₂ : double_cat}

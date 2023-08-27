@@ -4,14 +4,16 @@
 
  Suppose that we have the following square of functors:
 
+<<
           L₁
        A₁ ⟶ X₁
     FA |      | FX
        V      V
        A₂ ⟶ X₂
           L₂
+>>
 
- and suppose that we have a natural isomorphism from `FA ∙ L₂` to `L₁ ∙ FX`. Then
+ and suppose that we have a natural transformation from `FA ∙ L₂` to `L₁ ∙ FX`. Then
  we have a double functor from the double category of `L₁`-structured cospans to
  the double category of `L₂`-structured cospans. The description on this double
  functor on the vertical categories is given by `FA`. A structured cospan
@@ -25,15 +27,20 @@
  A reference for this construction is Theorem 4.2 in "Structured Cospans" by Baez,
  and Courser.
     https://arxiv.org/pdf/1911.04630.pdf
- Note that in their version of the theorem, one of the functors is required to
- preserve pushouts. This is used to show that the acquired lax double functor
- preserves the monoidal product, which is not proven in this file.
+ Another reference is Theorem 2.4 in "Structured and decorated cospans from the
+ viewpoint of double category theory" by Patterson.
+    https://arxiv.org/pdf/2304.00447.pdf
+ Note that Baez and Courser look at strong double functors, whereas our notion of
+ double functor is lax be default. If we assume that the natural transformation is
+ an isomorphism and that the functor `FX` preserves pushouts, then this double
+ functor is strong.
 
  Contents
  1. Preservation of horizontal identities
  2. Preservation of horizontal composition
  3. The coherences
  4. The double functors between the double categories of structured cospans
+ 5. Conditions under which this double functor is strong
 
  **********************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -58,6 +65,7 @@ Require Import UniMath.Bicategories.DoubleCategories.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Examples.StructuredCospansDoubleCat.
 
 Local Open Scope cat.
+Local Open Scope double_cat.
 
 Section StructuredCospansDoubleFunctor.
   Context {A₁ A₂ X₁ X₂ : univalent_category}
@@ -67,7 +75,7 @@ Section StructuredCospansDoubleFunctor.
           {L₂ : A₂ ⟶ X₂}
           {FA : A₁ ⟶ A₂}
           {FX : X₁ ⟶ X₂}
-          (α : nat_z_iso (FA ∙ L₂) (L₁ ∙ FX)).
+          (α : FA ∙ L₂ ⟹ L₁ ∙ FX).
 
   (**
    1. Preservation of horizontal identities
@@ -466,5 +474,116 @@ Section StructuredCospansDoubleFunctor.
     - exact structured_cospans_double_cat_functor_lunitor.
     - exact structured_cospans_double_cat_functor_runitor.
     - exact structured_cospans_double_cat_functor_associator.
+  Defined.
+
+  (**
+   5. Conditions under which this double functor is strong
+   *)
+  Context (Hα : is_nat_z_iso α)
+          (HFX : preserves_pushout FX).
+
+  Definition structured_cospans_double_cat_functor_unit_iso
+             (x : A₁)
+    : is_iso_twosided_disp
+        (identity_is_z_iso _)
+        (identity_is_z_iso _)
+        (lax_double_functor_id_h structured_cospans_double_cat_functor x).
+  Proof.
+    use is_iso_twosided_disp_struct_cospan_sqr.
+    apply Hα.
+  Defined.
+
+  Section PreservesComp.
+    Context {x y z : structured_cospans_double_cat PX₁ L₁}
+            (h : x -->h y)
+            (k : y -->h z).
+
+    Local Lemma structured_cospans_double_cat_functor_comp_iso_inv_eq
+      : # FX (mor_right_of_struct_cospan L₁ h)
+        · # FX (PushoutIn1 (comp_struct_cospan_Pushout L₁ PX₁ h k))
+        =
+        # FX (mor_left_of_struct_cospan L₁ k)
+        · # FX (PushoutIn2 (comp_struct_cospan_Pushout L₁ PX₁ h k)).
+    Proof.
+      rewrite <- !functor_comp.
+      apply maponpaths.
+      apply PushoutSqrCommutes.
+    Qed.
+
+    Let P : Pushout
+              (# FX (mor_right_of_struct_cospan L₁ h))
+              (# FX (mor_left_of_struct_cospan L₁ k))
+      := make_Pushout
+           _ _ _ _ _
+           structured_cospans_double_cat_functor_comp_iso_inv_eq
+           (HFX
+              _ _ _ _ _ _ _ _ _ _
+              (isPushout_Pushout (comp_struct_cospan_Pushout L₁ PX₁ h k))).
+
+    Definition structured_cospans_double_cat_functor_comp_iso_inv
+      : FX (comp_struct_cospan_Pushout L₁ PX₁ h k)
+        -->
+        comp_struct_cospan_Pushout
+          L₂ PX₂
+          (functor_on_struct_cospan α h) (functor_on_struct_cospan α k).
+    Proof.
+      use (PushoutArrow P).
+      - exact (PushoutIn1 _).
+      - exact (PushoutIn2 _).
+      - abstract
+          (use (cancel_z_iso' (make_z_iso _ _ (Hα y))) ;
+           rewrite !assoc ;
+           apply PushoutSqrCommutes).
+    Defined.
+
+    Proposition structured_cospans_double_cat_functor_comp_iso_inv_laws
+      : is_inverse_in_precat
+          (struct_cospan_sqr_ob_mor L₂
+             (lax_double_functor_comp_h
+                structured_cospans_double_cat_functor h k))
+          structured_cospans_double_cat_functor_comp_iso_inv.
+    Proof.
+      split ; unfold structured_cospans_double_cat_functor_comp_iso_inv.
+      - use (MorphismsOutofPushoutEqual (isPushout_Pushout (PX₂ _ _ _ _ _))) ; cbn.
+        + rewrite !assoc.
+          rewrite PushoutArrow_PushoutIn1.
+          rewrite id_right.
+          apply (PushoutArrow_PushoutIn1 P).
+        + rewrite !assoc.
+          rewrite PushoutArrow_PushoutIn2.
+          rewrite id_right.
+          apply (PushoutArrow_PushoutIn2 P).
+      - use (MorphismsOutofPushoutEqual (isPushout_Pushout P)) ; cbn.
+        + rewrite !assoc.
+          rewrite (PushoutArrow_PushoutIn1 P).
+          rewrite PushoutArrow_PushoutIn1.
+          rewrite id_right.
+          apply idpath.
+        + rewrite !assoc.
+          rewrite (PushoutArrow_PushoutIn2 P).
+          rewrite PushoutArrow_PushoutIn2.
+          rewrite id_right.
+          apply idpath.
+    Qed.
+
+    Definition structured_cospans_double_cat_functor_comp_iso
+      : is_iso_twosided_disp
+          (identity_is_z_iso _)
+          (identity_is_z_iso _)
+          (lax_double_functor_comp_h structured_cospans_double_cat_functor h k).
+    Proof.
+      use is_iso_twosided_disp_struct_cospan_sqr.
+      use make_is_z_isomorphism.
+      - exact structured_cospans_double_cat_functor_comp_iso_inv.
+      - exact structured_cospans_double_cat_functor_comp_iso_inv_laws.
+    Defined.
+  End PreservesComp.
+
+  Definition is_strong_structured_cospans_double_cat_functor
+    : is_strong_double_functor structured_cospans_double_cat_functor.
+  Proof.
+    split.
+    - exact structured_cospans_double_cat_functor_unit_iso.
+    - exact (λ x y z h k, structured_cospans_double_cat_functor_comp_iso h k).
   Defined.
 End StructuredCospansDoubleFunctor.

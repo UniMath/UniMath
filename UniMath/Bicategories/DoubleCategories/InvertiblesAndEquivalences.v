@@ -114,18 +114,7 @@ End Invertibles.
 Section Equivalences.
   Context {C₁ C₂ : double_cat}
           (F : lax_double_functor C₁ C₂)
-          (Fid : ∏ (x : C₁),
-                 is_iso_twosided_disp
-                   (identity_is_z_iso _)
-                   (identity_is_z_iso _)
-                   (lax_double_functor_id_h F x))
-          (Fcomp : ∏ (x y z : C₁)
-                     (h : x -->h y)
-                     (k : y -->h z),
-                   is_iso_twosided_disp
-                     (identity_is_z_iso _)
-                     (identity_is_z_iso _)
-                     (lax_double_functor_comp_h F h k))
+          (HF : is_strong_double_functor F)
           (R : C₂ ⟶ C₁)
           (RR : twosided_disp_functor R R (hor_mor C₂) (hor_mor C₁))
           (η : functor_identity _ ⟹ F ∙ R)
@@ -175,10 +164,10 @@ Section Equivalences.
       split.
       + (* horizontal identities *)
         use disp_left_adjequiv_hor_id.
-        exact Fid.
+        exact (is_iso_strong_double_functor_id_h HF).
       + (* horizontal compositions *)
         use disp_left_adjequiv_hor_comp.
-        exact Fcomp.
+        exact (λ x y z h k, is_iso_strong_double_functor_comp_h HF h k).
   Qed.
 
   Definition left_adjoint_equivalence_lax_double_functor
