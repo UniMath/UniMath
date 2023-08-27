@@ -26,7 +26,8 @@
  and Courser.
     https://arxiv.org/pdf/1911.04630.pdf
  Note that in their version of the theorem, one of the functors is required to
- preserve pushouts. However, our construction does not need this assumption.
+ preserve pushouts. This is used to show that the acquired lax double functor
+ preserves the monoidal product, which is not proven in this file.
 
  Contents
  1. Preservation of horizontal identities
