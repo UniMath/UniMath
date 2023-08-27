@@ -165,6 +165,13 @@ Definition hor_mor
 
 Notation "x -->h y" := (hor_mor _ x y) (at level 55) : double_cat.
 
+Proposition is_univalent_twosided_disp_cat_hor_mor
+            (C : double_cat)
+  : is_univalent_twosided_disp_cat (hor_mor C).
+Proof.
+  exact (pr22 (pr111 C)).
+Qed.
+
 Definition hor_id_double_cat
            (C : double_cat)
   : hor_id (hor_mor C)
