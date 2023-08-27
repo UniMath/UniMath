@@ -333,7 +333,7 @@ Section AccessorsLaws.
     exact (pr122 (pr222 (pr222 (pr222 𝕃)))).
   Qed.
 
-  Proposition linear_category_bang_preserves_tensor
+  Proposition linear_category_counit_preserves_tensor
     (x y : 𝕃)
     : mon_functor_tensor (linear_category_bang_functor 𝕃) x y
         · linear_category_counit 𝕃 (x ⊗ y)
@@ -343,7 +343,7 @@ Section AccessorsLaws.
     exact (pr1 (pr222 (pr222 (pr222 (pr222 𝕃)))) x y).
   Qed.
 
-  Proposition linear_category_bang_preserves_unit
+  Proposition linear_category_counit_preserves_unit
     : mon_functor_unit (linear_category_bang_functor 𝕃)
         · linear_category_counit 𝕃 I_{𝕃}
       = identity I_{𝕃}.
@@ -413,14 +413,14 @@ Proof.
        apply linear_category_counit_nat).
 Defined.
 
-Definition linear_category_bang_is_mon_nat_trans
+Definition linear_category_counit_is_mon_nat_trans
   (𝕃 : linear_category):
   is_mon_nat_trans (linear_category_bang_functor 𝕃)
     (constant_functor_fmonoidal_lax _ (unit_monoid 𝕃)) (linear_category_counit_nat_trans 𝕃).
 Proof.
   split.
-  - intros x y. apply linear_category_bang_preserves_tensor.
-  - apply linear_category_bang_preserves_unit.
+  - intros x y. apply linear_category_counit_preserves_tensor.
+  - apply linear_category_counit_preserves_unit.
 Defined.
 
 Definition linear_category_comult_coalgebra_morphism
