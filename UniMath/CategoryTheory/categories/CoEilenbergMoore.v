@@ -25,8 +25,8 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.Dialgebras.
-Require Import UniMath.CategoryTheory.Subcategory.Core.
-Require Import UniMath.CategoryTheory.Subcategory.Full.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.Monads.Comonads.
 
 Local Open Scope cat.
@@ -51,7 +51,7 @@ Section CoEilenbergMooreCategory.
 
   Definition co_eilenberg_moore_cat
     : category
-    := full_sub_category
+    := full_subcat
          (dialgebra (functor_identity _) m)
          co_eilenberg_moore_cat_pred.
 
@@ -65,6 +65,7 @@ Section CoEilenbergMooreCategory.
     apply is_univalent_full_subcat.
     apply is_univalent_dialgebra.
     exact HC.
+    apply co_eilenberg_moore_cat_pred.
   Defined.
 
   (**
@@ -196,7 +197,7 @@ Definition co_eilenberg_moore_pr
   : co_eilenberg_moore_cat m ⟶ C.
 Proof.
   refine (functor_composite _ _).
-  - exact (full_sub_category_pr (C:=dialgebra (functor_identity _) m) (co_eilenberg_moore_cat_pred m)).
+  - apply pr1_category.
   - apply dialgebra_pr1.
 Defined.
 
