@@ -120,6 +120,22 @@ Proof.
   exact (pr22 I x y z f g).
 Qed.
 
+Definition make_hor_id_data
+           {C : category}
+           (D : twosided_disp_cat C C)
+           (I : ∏ (x : C), D x x)
+           (sI : ∏ (x y : C) (f : x --> y), I x -->[ f ][ f] I y)
+  : hor_id_data D
+  := I ,, sI.
+
+Definition make_hor_id
+           {C : category}
+           (D : twosided_disp_cat C C)
+           (I : hor_id_data D)
+           (HI : hor_id_laws I)
+  : hor_id D
+  := I ,, HI.
+
 (**
  2. Horizontal composition
  *)
@@ -267,6 +283,33 @@ Proof.
            l₁ l₂
            s₁ s₁' s₂ s₂').
 Qed.
+
+
+Definition make_hor_comp_data
+           {C : category}
+           {D : twosided_disp_cat C C}
+           (Cm : ∏ (x y z : C), D x y → D y z → D x z)
+           (sC : ∏ (x₁ x₂ y₁ y₂ z₁ z₂ : C)
+                   (v₁ : x₁ --> x₂)
+                   (v₂ : y₁ --> y₂)
+                   (v₃ : z₁ --> z₂)
+                   (h₁ : D x₁ y₁)
+                   (h₂ : D y₁ z₁)
+                   (k₁ : D x₂ y₂)
+                   (k₂ : D y₂ z₂)
+                   (s₁ : h₁ -->[ v₁ ][ v₂ ] k₁)
+                   (s₂ : h₂ -->[ v₂ ][ v₃ ] k₂),
+                 Cm _ _ _ h₁ h₂ -->[ v₁ ][ v₃ ] Cm _ _ _ k₁ k₂)
+  : hor_comp_data D
+  := Cm ,, sC.
+
+Definition make_hor_comp
+           {C : category}
+           {D : twosided_disp_cat C C}
+           (Cm : hor_comp_data D)
+           (HC : hor_comp_laws Cm)
+  : hor_comp D
+  := Cm ,, HC.
 
 Proposition double_hor_comp_mor_transportf_disp_mor2_left
             {C : category}

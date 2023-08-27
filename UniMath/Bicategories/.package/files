@@ -180,6 +180,9 @@ DoubleCategories/DoubleFunctor.v
 DoubleCategories/DoubleTransformation.v
 DoubleCategories/BicatOfDoubleCats.v
 DoubleCategories/DoubleCats.v
+DoubleCategories/InvertiblesAndEquivalences.v
+DoubleCategories/Examples/SquareDoubleCat.v
+DoubleCategories/Examples/LensesDoubleCat.v
 
 PseudoFunctors/Examples/ChangeOfBaseEnriched.v
 DisplayedBicats/Examples/MonadsLax.v
