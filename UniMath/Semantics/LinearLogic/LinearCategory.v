@@ -26,6 +26,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.
 Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
 Require Import UniMath.CategoryTheory.categories.Dialgebras.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.
 
 Import MonoidalNotations.
 
@@ -390,9 +391,7 @@ Definition linear_category_comult_nat_trans
            (𝕃 : linear_category)
   : linear_category_bang 𝕃
     ⟹
-    bindelta_pair_functor (linear_category_bang 𝕃) (linear_category_bang 𝕃)
-    ∙
-    monoidal_cat_tensor 𝕃.
+    linear_category_bang 𝕃∙ diag_functor 𝕃.
 Proof.
   use make_nat_trans.
   - exact (λ x, linear_category_comult 𝕃 x).
@@ -411,6 +410,17 @@ Proof.
       (intros x y f ; cbn ;
        rewrite id_right ;
        apply linear_category_counit_nat).
+Defined.
+
+Definition linear_category_comult_is_mon_nat_trans
+  (𝕃 : linear_category):
+  is_mon_nat_trans (linear_category_bang_functor 𝕃)
+    (comp_fmonoidal_lax (linear_category_bang_functor 𝕃) (diag_functor_fmonoidal_lax 𝕃))
+    (linear_category_comult_nat_trans 𝕃).
+Proof.
+  split.
+  - intros x y. apply linear_category_comult_preserves_tensor.
+  - apply linear_category_comult_preserves_unit.
 Defined.
 
 Definition linear_category_counit_is_mon_nat_trans
