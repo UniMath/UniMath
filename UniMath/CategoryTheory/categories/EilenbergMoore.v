@@ -191,36 +191,14 @@ Definition eq_of_eilenberg_moore_mor
 (**
  4.1 The cone
  *)
-Definition eilenberg_moore_pr_data
-           {C : category}
-           (m : Monad C)
-  : functor_data (eilenberg_moore_cat m) C.
-Proof.
-  use make_functor_data.
-  - exact (λ h, ob_of_eilenberg_moore_ob h).
-  - exact (λ h₁ h₂ α, mor_of_eilenberg_moore_mor α).
-Defined.
-
-Definition eilenberg_moore_pr_is_functor
-           {C : category}
-           (m : Monad C)
-  : is_functor (eilenberg_moore_pr_data m).
-Proof.
-  split.
-  - intro x ; cbn.
-    apply idpath.
-  - intros x y z f g ; cbn.
-    apply idpath.
-Qed.
-
 Definition eilenberg_moore_pr
            {C : category}
            (m : Monad C)
   : eilenberg_moore_cat m ⟶ C.
 Proof.
-  use make_functor.
-  - exact (eilenberg_moore_pr_data m).
-  - exact (eilenberg_moore_pr_is_functor m).
+  refine (functor_composite _ _).
+  - exact (full_sub_category_pr (C:=dialgebra m (functor_identity _)) (eilenberg_moore_cat_pred m)).
+  - apply dialgebra_pr1.
 Defined.
 
 Definition eilenberg_moore_nat_trans

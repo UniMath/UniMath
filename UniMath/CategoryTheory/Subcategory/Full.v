@@ -73,6 +73,37 @@ Definition full_sub_category (C : category)
   : category
   := make_category _ (has_homsets_full_sub_precategory C C').
 
+Definition full_sub_category_pr_data
+           {C : category}
+           (C': hsubtype (ob C))
+  : functor_data (full_sub_category C C') C.
+Proof.
+  use make_functor_data.
+  - exact (λ h, pr1 h).
+  - exact (λ h₁ h₂ α, pr1 α).
+Defined.
+
+Definition full_sub_category_pr_is_functor
+           {C : category}
+           (C': hsubtype (ob C))
+  : is_functor (full_sub_category_pr_data C').
+Proof.
+  split.
+  - intro x ; cbn.
+    apply idpath.
+  - intros x y z f g ; cbn.
+    apply idpath.
+Qed.
+
+Definition full_sub_category_pr
+           {C : category}
+           (C': hsubtype (ob C))
+  : full_sub_category C C' ⟶ C.
+Proof.
+  use make_functor.
+  - exact (full_sub_category_pr_data C').
+  - exact (full_sub_category_pr_is_functor C').
+Defined.
 
 (** ** The inclusion of a full subcategory is fully faithful *)
 
