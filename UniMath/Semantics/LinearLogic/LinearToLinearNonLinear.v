@@ -535,7 +535,7 @@ Section EilenbergMooreCartesian.
           use eq_mor_co_eilenberg_moore;
           refine (assoc' _ _ _ @ _);
           refine (id_left _ @ _);
-          apply linear_category_counit_preserves_unit).
+          apply linear_category_bang_preserves_unit).
     - intros x y.
       use eq_mor_co_eilenberg_moore.
       apply aux.
