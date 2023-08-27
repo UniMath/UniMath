@@ -4,7 +4,9 @@
 
  In this file, we define linear categories.
 
- Note that the laws in [linear_category_laws] are written out explicitly.
+ Note that the thirteen laws in [linear_category_laws] are written out explicitly.
+ In the "other accessors" (part 3 below), each of the laws enters a mathematical structure, so as
+ to validate its purpose.
 
  Contents
  1. Data of linear categories
