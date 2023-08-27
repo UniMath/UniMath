@@ -421,7 +421,7 @@ Proof.
   split.
   - intros x y. apply linear_category_counit_preserves_tensor.
   - apply linear_category_counit_preserves_unit.
-Defined.
+Qed.
 
 Definition linear_category_comult_coalgebra_morphism
   (𝕃 : linear_category) (x : 𝕃)
