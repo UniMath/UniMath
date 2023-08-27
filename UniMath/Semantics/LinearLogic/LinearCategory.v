@@ -178,13 +178,13 @@ Definition linear_category_laws
                   · mon_functor_unit (linear_category_bang_functor 𝕃)
                   #⊗ mon_functor_unit (linear_category_bang_functor 𝕃))
      ×
-     (* bang preserves tensor *)
+     (* counit preserves tensor *)
      (∏ x y : 𝕃, mon_functor_tensor (linear_category_bang_functor 𝕃) x y
                            · linear_category_counit 𝕃 (x ⊗ y)
                          = linear_category_counit 𝕃 x #⊗ linear_category_counit 𝕃 y
                              · mon_lunitor (monoidal_unit 𝕃))
      ×
-     (* bang preserves unit *)
+     (* counit preserves unit *)
      (mon_functor_unit (linear_category_bang_functor 𝕃)
                 · linear_category_counit 𝕃 I_{𝕃}
               = identity I_{𝕃}).
