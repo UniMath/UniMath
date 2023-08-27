@@ -464,6 +464,7 @@ TwoSidedDisplayedCats/Examples/Profunctor.v
 TwoSidedDisplayedCats/Examples/Reindex.v
 TwoSidedDisplayedCats/Examples/Relations.v
 TwoSidedDisplayedCats/Examples/Spans.v
+TwoSidedDisplayedCats/Examples/StructuredCospans.v
 
 # Indexed Categories
 IndexedCategories/IndexedCategory.v

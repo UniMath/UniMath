@@ -486,6 +486,44 @@ Proof.
     exact (pr2 (τ x)).
 Defined.
 
+Definition disp_left_adjequiv_hor_id_help
+           {CD₁ CD₂ : bicat_twosided_disp_cat}
+           (F : adjoint_equivalence CD₁ CD₂)
+           {I₁ : disp_bicat_twosided_disp_cat_hor_id CD₁}
+           {I₂ : disp_bicat_twosided_disp_cat_hor_id CD₂}
+           (τ : I₁ -->[ F ] I₂)
+           (Hτ : ∏ (x : pr11 CD₁),
+                 is_iso_twosided_disp
+                   (identity_is_z_iso _)
+                   (identity_is_z_iso _)
+                   (pr1 τ x))
+  : disp_left_adjoint_equivalence F τ.
+Proof.
+  revert CD₁ CD₂ F I₁ I₂ τ Hτ.
+  use J_2_0.
+  - exact is_univalent_2_0_bicat_twosided_disp_cat.
+  - intros CD I₁ I₂ τ Hτ.
+    use to_disp_left_adjequiv_hor_id.
+    exact Hτ.
+Qed.
+
+Definition disp_left_adjequiv_hor_id
+           {CD₁ CD₂ : bicat_twosided_disp_cat}
+           {F : CD₁ --> CD₂}
+           (HF : left_adjoint_equivalence F)
+           {I₁ : disp_bicat_twosided_disp_cat_hor_id CD₁}
+           {I₂ : disp_bicat_twosided_disp_cat_hor_id CD₂}
+           (τ : I₁ -->[ F ] I₂)
+           (Hτ : ∏ (x : pr11 CD₁),
+                 is_iso_twosided_disp
+                   (identity_is_z_iso _)
+                   (identity_is_z_iso _)
+                   (pr1 τ x))
+  : disp_left_adjoint_equivalence HF τ.
+Proof.
+  exact (disp_left_adjequiv_hor_id_help (F ,, HF) τ Hτ).
+Qed.
+
 Section FromAdjEquivHorId.
   Context {CD : bicat_twosided_disp_cat}
           {FF GG : disp_bicat_twosided_disp_cat_hor_id CD}
@@ -1071,6 +1109,48 @@ Proof.
     exact (pr2 (τ x y z h k)).
 Defined.
 
+Definition disp_left_adjequiv_hor_comp_help
+           {CD₁ CD₂ : bicat_twosided_disp_cat}
+           (F : adjoint_equivalence CD₁ CD₂)
+           {Cm₁ : disp_bicat_twosided_disp_cat_hor_comp CD₁}
+           {Cm₂ : disp_bicat_twosided_disp_cat_hor_comp CD₂}
+           (τ : Cm₁ -->[ F ] Cm₂)
+           (Hτ : ∏ (x y z : pr11 CD₁)
+                   (h : pr12 CD₁ x y)
+                   (k : pr12 CD₁ y z),
+                 is_iso_twosided_disp
+                   (identity_is_z_iso _)
+                   (identity_is_z_iso _)
+                   (pr1 τ x y z h k))
+  : disp_left_adjoint_equivalence F τ.
+Proof.
+  revert CD₁ CD₂ F Cm₁ Cm₂ τ Hτ.
+  use J_2_0.
+  - exact is_univalent_2_0_bicat_twosided_disp_cat.
+  - intros CD I₁ I₂ τ Hτ.
+    use to_disp_left_adjequiv_hor_comp.
+    exact Hτ.
+Qed.
+
+Definition disp_left_adjequiv_hor_comp
+           {CD₁ CD₂ : bicat_twosided_disp_cat}
+           {F : CD₁ --> CD₂}
+           (HF : left_adjoint_equivalence F)
+           {Cm₁ : disp_bicat_twosided_disp_cat_hor_comp CD₁}
+           {Cm₂ : disp_bicat_twosided_disp_cat_hor_comp CD₂}
+           (τ : Cm₁ -->[ F ] Cm₂)
+           (Hτ : ∏ (x y z : pr11 CD₁)
+                   (h : pr12 CD₁ x y)
+                   (k : pr12 CD₁ y z),
+                 is_iso_twosided_disp
+                   (identity_is_z_iso _)
+                   (identity_is_z_iso _)
+                   (pr1 τ x y z h k))
+  : disp_left_adjoint_equivalence HF τ.
+Proof.
+  exact (disp_left_adjequiv_hor_comp_help (F ,, HF) τ Hτ).
+Qed.
+
 Section FromAdjEquivHorComp.
   Context {CD : bicat_twosided_disp_cat}
           {FF GG : disp_bicat_twosided_disp_cat_hor_comp CD}
@@ -1452,6 +1532,55 @@ Proof.
   - exact disp_univalent_2_1_disp_bicat_lunitor.
 Qed.
 
+Definition is_disp_left_adjoint_equivalence_disp_bicat_lunitor_help
+           {C₁ C₂ : bicat_twosided_disp_cat_id_hor_comp}
+           (F : adjoint_equivalence C₁ C₂)
+           {l₁ : disp_bicat_lunitor C₁}
+           {l₂ : disp_bicat_lunitor C₂}
+           (Fl : l₁ -->[ F ] l₂)
+  : disp_left_adjoint_equivalence F Fl.
+Proof.
+  revert C₁ C₂ F l₁ l₂ Fl.
+  use J_2_0.
+  - exact is_univalent_2_0_bicat_twosided_disp_cat_id_hor_comp.
+  - intros C l₁ l₂ Fl.
+    use disp_cell_unit_bicat_left_adjoint_equivalence.
+    intros x y f ; cbn.
+    pose (p := Fl x y f) ; cbn in p.
+    rewrite double_hor_comp_mor_id.
+    rewrite double_hor_comp_mor_id in p.
+    rewrite id_two_disp_left.
+    unfold transportb_disp_mor2.
+    rewrite two_disp_pre_whisker_f.
+    rewrite transport_f_f_disp_mor2.
+    rewrite id_two_disp_left in p.
+    unfold transportb_disp_mor2 in p.
+    rewrite two_disp_pre_whisker_f in p.
+    rewrite transport_f_f_disp_mor2 in p.
+    rewrite id_two_disp_left.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
+    rewrite id_two_disp_left in p.
+    unfold transportb_disp_mor2 in p.
+    rewrite transport_f_f_disp_mor2 in p.
+    rewrite p.
+    rewrite transport_f_f_disp_mor2.
+    refine (!_).
+    apply transportf_disp_mor2_idpath.
+Qed.
+
+Definition is_disp_left_adjoint_equivalence_disp_bicat_lunitor
+           {C₁ C₂ : bicat_twosided_disp_cat_id_hor_comp}
+           {F : C₁ --> C₂}
+           (HF : left_adjoint_equivalence F)
+           {l₁ : disp_bicat_lunitor C₁}
+           {l₂ : disp_bicat_lunitor C₂}
+           (Fl : l₁ -->[ F ] l₂)
+  : disp_left_adjoint_equivalence HF Fl.
+Proof.
+  exact (is_disp_left_adjoint_equivalence_disp_bicat_lunitor_help (F ,, HF) Fl).
+Qed.
+
 (**
  5. Two-sided displayed categories with right unitors
  *)
@@ -1541,6 +1670,55 @@ Proof.
   split.
   - exact disp_univalent_2_0_disp_bicat_runitor.
   - exact disp_univalent_2_1_disp_bicat_runitor.
+Qed.
+
+Definition is_disp_left_adjoint_equivalence_disp_bicat_runitor_help
+           {C₁ C₂ : bicat_twosided_disp_cat_id_hor_comp}
+           (F : adjoint_equivalence C₁ C₂)
+           {r₁ : disp_bicat_runitor C₁}
+           {r₂ : disp_bicat_runitor C₂}
+           (Fr : r₁ -->[ F ] r₂)
+  : disp_left_adjoint_equivalence F Fr.
+Proof.
+  revert C₁ C₂ F r₁ r₂ Fr.
+  use J_2_0.
+  - exact is_univalent_2_0_bicat_twosided_disp_cat_id_hor_comp.
+  - intros C r₁ r₂ Fr.
+    use disp_cell_unit_bicat_left_adjoint_equivalence.
+    intros x y f ; cbn.
+    pose (p := Fr x y f) ; cbn in p.
+    rewrite double_hor_comp_mor_id.
+    rewrite double_hor_comp_mor_id in p.
+    rewrite id_two_disp_left.
+    unfold transportb_disp_mor2.
+    rewrite two_disp_pre_whisker_f.
+    rewrite transport_f_f_disp_mor2.
+    rewrite id_two_disp_left in p.
+    unfold transportb_disp_mor2 in p.
+    rewrite two_disp_pre_whisker_f in p.
+    rewrite transport_f_f_disp_mor2 in p.
+    rewrite id_two_disp_left.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
+    rewrite id_two_disp_left in p.
+    unfold transportb_disp_mor2 in p.
+    rewrite transport_f_f_disp_mor2 in p.
+    rewrite p.
+    rewrite transport_f_f_disp_mor2.
+    refine (!_).
+    apply transportf_disp_mor2_idpath.
+Qed.
+
+Definition is_disp_left_adjoint_equivalence_disp_bicat_runitor
+           {C₁ C₂ : bicat_twosided_disp_cat_id_hor_comp}
+           {F : C₁ --> C₂}
+           (HF : left_adjoint_equivalence F)
+           {r₁ : disp_bicat_runitor C₁}
+           {r₂ : disp_bicat_runitor C₂}
+           (Fr : r₁ -->[ F ] r₂)
+  : disp_left_adjoint_equivalence HF Fr.
+Proof.
+  exact (is_disp_left_adjoint_equivalence_disp_bicat_runitor_help (F ,, HF) Fr).
 Qed.
 
 (**
@@ -1638,6 +1816,60 @@ Proof.
   split.
   - exact disp_univalent_2_0_disp_bicat_lassociator.
   - exact disp_univalent_2_1_disp_bicat_lassociator.
+Qed.
+
+Definition is_disp_left_adjoint_equivalence_disp_bicat_lassociator_help
+           {C₁ C₂ : bicat_twosided_disp_cat_id_hor_comp}
+           (F : adjoint_equivalence C₁ C₂)
+           {a₁ : disp_bicat_lassociator C₁}
+           {a₂ : disp_bicat_lassociator C₂}
+           (Fa : a₁ -->[ F ] a₂)
+  : disp_left_adjoint_equivalence F Fa.
+Proof.
+  revert C₁ C₂ F a₁ a₂ Fa.
+  use J_2_0.
+  - exact is_univalent_2_0_bicat_twosided_disp_cat_id_hor_comp.
+  - intros C a₁ a₂ Fa.
+    use disp_cell_unit_bicat_left_adjoint_equivalence.
+    intros w x y z f g h ; cbn.
+    pose (p := Fa w x y z f g h) ; cbn in p.
+    rewrite !double_hor_comp_mor_id.
+    rewrite !double_hor_comp_mor_id in p.
+    rewrite id_two_disp_right.
+    rewrite id_two_disp_right.
+    rewrite id_two_disp_right.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
+    rewrite id_two_disp_right in p.
+    rewrite id_two_disp_right in p.
+    rewrite id_two_disp_right in p.
+    unfold transportb_disp_mor2 in p.
+    rewrite transport_f_f_disp_mor2 in p.
+    rewrite two_disp_pre_whisker_f.
+    rewrite id_two_disp_left.
+    unfold transportb_disp_mor2.
+    rewrite transport_f_f_disp_mor2.
+    rewrite two_disp_pre_whisker_f in p.
+    rewrite id_two_disp_left in p.
+    unfold transportb_disp_mor2 in p.
+    rewrite transport_f_f_disp_mor2 in p.
+    refine (_ @ !p @ _).
+    + use transportf_disp_mor2_eq.
+      apply idpath.
+    + use transportf_disp_mor2_eq.
+      apply idpath.
+Qed.
+
+Definition is_disp_left_adjoint_equivalence_disp_bicat_lassociator
+           {C₁ C₂ : bicat_twosided_disp_cat_id_hor_comp}
+           {F : C₁ --> C₂}
+           (HF : left_adjoint_equivalence F)
+           {a₁ : disp_bicat_lassociator C₁}
+           {a₂ : disp_bicat_lassociator C₂}
+           (Fa : a₁ -->[ F ] a₂)
+  : disp_left_adjoint_equivalence HF Fa.
+Proof.
+  exact (is_disp_left_adjoint_equivalence_disp_bicat_lassociator_help (F ,, HF) Fa).
 Qed.
 
 (**
