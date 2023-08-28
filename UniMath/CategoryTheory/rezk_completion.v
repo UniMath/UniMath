@@ -55,7 +55,7 @@ Defined.
 Definition Rezk_completion : univalent_category.
 Proof.
   exists category_Rezk_completion.
-  apply is_univalent_full_subcat.
+  apply is_univalent_full_sub_category.
   apply (is_univalent_functor_category _ _ is_univalent_HSET).
 Defined.
 
