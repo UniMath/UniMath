@@ -1,4 +1,4 @@
-(*
+(**
 Consider a morphism i : B --> a in a monoidal category.
 Given a comonoid structure on B, we show how the comonoid structure can be transported to a, provided i is part of a retraction pair (and a compatibility condition).
 Furthermore, i becomes a comonoid homomorphism.

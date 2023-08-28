@@ -1,4 +1,4 @@
-(*
+(**
 In this file, we show how any linear category induces a linear/non-linear model.
 This boils down to proving that the Eilenberg-Moore category of the (symmetric monoidal) comonad, given by a linear category, is cartesian monoidal.
 *)

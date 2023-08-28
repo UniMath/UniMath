@@ -1,4 +1,4 @@
-(*
+(**
 In this file, the cofree adjunction between a linear category and its Eilenberg-Moore category is constructed.
 *)
 
