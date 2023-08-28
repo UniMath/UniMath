@@ -26,8 +26,8 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.Dialgebras.
-Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+Require Import UniMath.CategoryTheory.Subcategory.Core.
+Require Import UniMath.CategoryTheory.Subcategory.Full.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 
 Local Open Scope cat.
@@ -52,7 +52,7 @@ Section EilenbergMooreCategory.
 
   Definition eilenberg_moore_cat
     : category
-    := full_subcat
+    := full_sub_category
          (dialgebra m (functor_identity _))
          eilenberg_moore_cat_pred.
 
@@ -63,10 +63,9 @@ Section EilenbergMooreCategory.
              (HC : is_univalent C)
     : is_univalent eilenberg_moore_cat.
   Proof.
-    apply is_univalent_full_subcat.
+    apply is_univalent_full_sub_category.
     apply is_univalent_dialgebra.
     exact HC.
-    apply eilenberg_moore_cat_pred.
   Defined.
 
   (**
@@ -198,7 +197,7 @@ Definition eilenberg_moore_pr
   : eilenberg_moore_cat m ⟶ C.
 Proof.
   refine (functor_composite _ _).
-  - apply pr1_category.
+  - apply full_sub_category_pr.
   - apply dialgebra_pr1.
 Defined.
 

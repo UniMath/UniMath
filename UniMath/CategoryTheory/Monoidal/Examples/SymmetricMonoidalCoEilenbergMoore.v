@@ -33,9 +33,6 @@ Section Construction.
   Context {C : category} {M : monoidal C} {HM : symmetric M}
     (T : symmetric_monoidal_comonad HM).
 
-  Local Definition cat_co_eilenberg_moore : category
-    := co_eilenberg_moore_cat T.
-
   Definition mon_cat_co_eilenberg_moore_base
     : monoidal (dialgebra (functor_identity C) T)
     := dialgebra_monoidal (identity_fmonoidal M)
@@ -51,6 +48,10 @@ Section Construction.
   Definition mon_cat_co_eilenberg_moore_extra_condition
     : dialgebra (functor_identity C) T -> UU
     := fun f => pr1 (co_eilenberg_moore_cat_pred T f).
+
+  Definition cat_co_eilenberg_moore : category
+    := full_subcat (dialgebra (functor_identity C) T)
+           mon_cat_co_eilenberg_moore_extra_condition.
 
   Local Lemma unit_case : mon_cat_co_eilenberg_moore_extra_condition
                             I_{ mon_cat_co_eilenberg_moore_base}.

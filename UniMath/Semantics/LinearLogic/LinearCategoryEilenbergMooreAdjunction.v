@@ -41,7 +41,7 @@ Section CofreeAdjunction.
   Context (𝕃 : linear_category).
 
   Definition eilenberg_moore_cofree
-    : 𝕃 ⟶ co_eilenberg_moore_cat (linear_category_bang 𝕃).
+    : 𝕃 ⟶ cat_co_eilenberg_moore (linear_category_bang 𝕃).
   Proof.
     use functor_to_co_eilenberg_moore_cat.
     - apply (linear_category_bang 𝕃).
@@ -60,10 +60,16 @@ Section CofreeAdjunction.
           exact (Comonad_law3 (T := linear_category_bang 𝕃) x)).
   Defined.
 
+  Local Definition eilenberg_moore_forget
+    : cat_co_eilenberg_moore (linear_category_bang 𝕃) ⟶ 𝕃.
+  Proof.
+    exact (functor_composite (pr1_category _) (pr1_category _)).
+  Defined.
+
   Local Definition eilenberg_moore_adj_unit
     : functor_identity
-        (co_eilenberg_moore_cat (linear_category_bang 𝕃)) ⟹
-        co_eilenberg_moore_pr (linear_category_bang 𝕃) ∙ eilenberg_moore_cofree.
+        (cat_co_eilenberg_moore (linear_category_bang 𝕃)) ⟹
+        eilenberg_moore_forget ∙ eilenberg_moore_cofree.
   Proof.
     use make_nat_trans.
     - intro x.
@@ -82,7 +88,7 @@ Section CofreeAdjunction.
 
   Lemma eilenberg_moore_cmd_form_adj
     :  form_adjunction'
-         (co_eilenberg_moore_pr (linear_category_bang 𝕃),,
+         (eilenberg_moore_forget,,
             eilenberg_moore_cofree,,
             eilenberg_moore_adj_unit,,
             ε (linear_category_bang 𝕃)).
@@ -99,11 +105,11 @@ Section CofreeAdjunction.
 
   Definition eilenberg_moore_cmd_adj
     : adjunction
-    (co_eilenberg_moore_cat (linear_category_bang 𝕃)) 𝕃.
+    (cat_co_eilenberg_moore (linear_category_bang 𝕃)) 𝕃.
   Proof.
     use make_adjunction.
     - simple refine (_ ,, _ ,, _ ,, _).
-      + exact (co_eilenberg_moore_pr (linear_category_bang 𝕃)).
+      + exact eilenberg_moore_forget.
       + exact eilenberg_moore_cofree.
       + exact eilenberg_moore_adj_unit.
       + exact (ε (linear_category_bang 𝕃)).

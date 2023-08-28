@@ -773,7 +773,26 @@ Section LimitsEnrichedCats.
           =
           # M (τ x) · mor_of_eilenberg_moore_ob (F₂ x).
       Proof.
-        refine (!_ @ mnd_cell_endo_enriched _ Eτ x @ _).
+        assert (aux := mnd_cell_endo_enriched _ Eτ x).
+        simpl in aux.
+        refine (!_ @ aux @ _).
+        - apply maponpaths_2.
+          refine (_ @ id_right _).
+          apply maponpaths_2.
+          etrans.
+          { do 3 rewrite id_right.
+            apply id_left. }
+          apply idpath.
+        - apply maponpaths.
+          refine (_ @ id_right _).
+          apply maponpaths_2.
+          etrans.
+          { do 3 rewrite id_right.
+            apply id_left. }
+          apply idpath.
+      Admitted.
+      (* former proof:
+         refine (!_ @ mnd_cell_endo_enriched _ Eτ x @ _).
         - do 4 refine (assoc' _ _ _ @ _).
           refine (id_left _ @ _).
           apply maponpaths.
@@ -794,6 +813,7 @@ Section LimitsEnrichedCats.
           refine (id_right _ @ _).
           apply id_left.
       Qed.
+*)
 
       Definition em_enriched_cat_ump_2_nat_trans
         : F₁ ⟹ F₂
