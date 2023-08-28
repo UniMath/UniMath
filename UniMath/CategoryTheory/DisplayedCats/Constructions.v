@@ -19,6 +19,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
@@ -90,6 +91,15 @@ Proof.
 Defined.
 
 Definition full_subcat (C : category) (P : C → UU) : category := total_category (disp_full_sub C P).
+
+Definition is_univalent_full_subcat (C : category) (univC : is_univalent C) (P : C → UU) :
+  (∏ x : C, isaprop (P x)) → is_univalent (full_subcat C P).
+Proof.
+  intro H.
+  apply is_univalent_total_category.
+  - exact univC.
+  - exact (disp_full_sub_univalent _ _ H).
+Defined.
 
 End full_subcat.
 

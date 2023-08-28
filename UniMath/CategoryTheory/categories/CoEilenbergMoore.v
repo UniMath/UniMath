@@ -25,8 +25,8 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.Dialgebras.
-Require Import UniMath.CategoryTheory.Subcategory.Core.
-Require Import UniMath.CategoryTheory.Subcategory.Full.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.Monads.Comonads.
 
 Local Open Scope cat.
@@ -51,7 +51,7 @@ Section CoEilenbergMooreCategory.
 
   Definition co_eilenberg_moore_cat
     : category
-    := full_sub_category
+    := full_subcat
          (dialgebra (functor_identity _) m)
          co_eilenberg_moore_cat_pred.
 
@@ -65,6 +65,7 @@ Section CoEilenbergMooreCategory.
     apply is_univalent_full_subcat.
     apply is_univalent_dialgebra.
     exact HC.
+    apply co_eilenberg_moore_cat_pred.
   Defined.
 
   (**
@@ -112,14 +113,7 @@ Section CoEilenbergMooreCategory.
     use make_is_z_isomorphism.
     - use make_mor_co_eilenberg_moore.
       + exact (inv_from_z_iso H).
-      + abstract
-          (refine (!_);
-           use z_iso_inv_on_right;
-           rewrite assoc;
-           rewrite functor_on_inv_from_z_iso;
-           use z_iso_inv_on_left;
-           refine (!_);
-           exact (pr21 f)).
+      + apply (is_z_iso_disp_dialgebra _ _ Hf (pr21 f)).
      - split.
       + abstract
           (use eq_mor_co_eilenberg_moore ; cbn ;
@@ -197,36 +191,14 @@ Definition eq_of_co_eilenberg_moore_mor
 (**
  4.1 The cone
  *)
-Definition co_eilenberg_moore_pr_data
-           {C : category}
-           (m : Comonad C)
-  : functor_data (co_eilenberg_moore_cat m) C.
-Proof.
-  use make_functor_data.
-  - exact (λ h, ob_of_co_eilenberg_moore_ob h).
-  - exact (λ h₁ h₂ α, mor_of_co_eilenberg_moore_mor α).
-Defined.
-
-Definition co_eilenberg_moore_pr_is_functor
-           {C : category}
-           (m : Comonad C)
-  : is_functor (co_eilenberg_moore_pr_data m).
-Proof.
-  split.
-  - intro x ; cbn.
-    apply idpath.
-  - intros x y z f g ; cbn.
-    apply idpath.
-Qed.
-
 Definition co_eilenberg_moore_pr
            {C : category}
            (m : Comonad C)
   : co_eilenberg_moore_cat m ⟶ C.
 Proof.
-  use make_functor.
-  - exact (co_eilenberg_moore_pr_data m).
-  - exact (co_eilenberg_moore_pr_is_functor m).
+  refine (functor_composite _ _).
+  - apply pr1_category.
+  - apply dialgebra_pr1.
 Defined.
 
 Definition co_eilenberg_moore_nat_trans
