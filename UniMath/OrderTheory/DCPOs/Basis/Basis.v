@@ -592,5 +592,29 @@ Section BasisProperties.
       apply Hf.
       exact p.
     Qed.
+
+    Proposition scott_continuous_map_from_basis_greatest
+      (g : scott_continuous_map X Y)
+      (Hg : ∏ (i : B), g (B i) ⊑ f i)
+      (x : X)
+      : g x ⊑ scott_continuous_map_from_basis x.
+    Proof.
+      assert (g x ⊑ g (⨆ directed_set_from_basis B x)) as p.
+      {
+        apply (is_monotone_scott_continuous_map g).
+        rewrite (approximating_basis_lub B x).
+        apply refl_dcpo.
+      }
+      refine (trans_dcpo p _).
+      rewrite scott_continuous_map_on_lub.
+      cbn ; unfold map_from_basis.
+      use dcpo_lub_is_least.
+      intro i.
+      cbn in i.
+      use less_than_dcpo_lub.
+      - exact i.
+      - apply Hg.
+    Qed.
+
   End ScottContinuousFromBasis.
 End BasisProperties.
