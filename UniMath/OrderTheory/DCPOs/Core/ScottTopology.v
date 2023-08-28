@@ -21,7 +21,8 @@
  4. Accessors for Scott open and Scott closed sets
  5. Lower sets are Scott closed
  6. Upper sets (with respect to the way-below relation) are Scott open
- 7. Complements of Scott open sets
+ 7. Empty and top sets are Scott open
+ 8. Complements of Scott open sets
 
  ******************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -214,8 +215,39 @@ Section PropertiesScottTopology.
       exact (trans_way_below_le q₁ r).
   Qed.
 
+  (** * 7. Empty and top sets are Scott open *)
+  Definition true_scott_open_set
+    (A : dcpo)
+    : scott_open_set A.
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ _, htrue).
+    - split.
+      + abstract
+          (intros x y p q ;
+           exact tt).
+      + abstract
+          (intros D x ;
+           assert (H := directed_set_el D) ;
+           revert H ;
+           use factor_through_squash_hProp ;
+           intro d ;
+           exact (hinhpr (d ,, tt))).
+  Defined.
+
+  Definition false_scott_open_set
+    (A : dcpo)
+    : scott_open_set A.
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ _, hfalse).
+    - split.
+      + abstract (intros x y p q; exact (fromempty p)).
+      + abstract (intros D p; exact (fromempty p)).
+  Defined.
+
   (**
-   7. Complements of Scott open sets
+   8. Complements of Scott open sets
    *)
   Proposition complement_of_scott_open
               (P : X → hProp)
