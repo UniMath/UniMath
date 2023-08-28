@@ -457,7 +457,7 @@ Section EilenbergMooreCartesian.
      definition linear_category_eilenberg_moore_cartesian.
      The purpose of this lemma is to avoid having to prove this property in that definition.
    *)
-  Local Lemma aux
+  Local Lemma linear_category_eilenberg_moore_cartesian_lem
     (x y : sym_monoidal_cat_co_eilenberg_moore (linear_category_bang 𝕃))
     :
     identity (pr11 x ⊗ pr11 y)
@@ -538,7 +538,7 @@ Section EilenbergMooreCartesian.
           apply linear_category_counit_preserves_unit).
     - intros x y.
       use eq_mor_co_eilenberg_moore.
-      apply aux.
+      apply linear_category_eilenberg_moore_cartesian_lem.
   Qed.
 
 End EilenbergMooreCartesian.
