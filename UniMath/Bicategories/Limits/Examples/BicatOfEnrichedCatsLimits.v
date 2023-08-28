@@ -773,24 +773,31 @@ Section LimitsEnrichedCats.
           =
           # M (τ x) · mor_of_eilenberg_moore_ob (F₂ x).
       Proof.
-        assert (aux := mnd_cell_endo_enriched _ Eτ x).
-        simpl in aux.
-        refine (!_ @ aux @ _).
-        - apply maponpaths_2.
+        refine (!_ @ mnd_cell_endo_enriched _ Eτ x @ _).
+        - apply cancel_postcomposition.
+          (* apply (cancel_postcomposition (pr11 (mnd_mor_endo (# (mnd_incl (bicat_of_enriched_cats V)) FE₁ · mor_of_em_cone EM em_enriched_cat_cone)) x)
+     (mor_of_eilenberg_moore_ob (F₁ x)) (τ x)). *)
           refine (_ @ id_right _).
-          apply maponpaths_2.
-          etrans.
-          { do 3 rewrite id_right.
-            apply id_left. }
+          do 3 refine (assoc' _ _ _ @ _).
+          refine (id_left _ @ _).
+          do 3 refine (_ @ id_right _).
+          do 2 refine (assoc _ _ _ @ _).
+          apply (cancel_postcomposition _ _ (id₁ (pr11 (pr11 FE₁ x)))).
+          refine (assoc _ _ _ @ _).
+          apply (cancel_postcomposition _ _ (id₁ (pr11 (pr11 FE₁ x)))).
+          apply (cancel_postcomposition _ _ (id₁ (pr11 (pr11 FE₁ x)))).
+          apply (cancel_postcomposition _ _ (id₁ (pr11 (pr11 FE₁ x)))).
           apply idpath.
-        - apply maponpaths.
-          refine (_ @ id_right _).
-          apply maponpaths_2.
-          etrans.
-          { do 3 rewrite id_right.
-            apply id_left. }
+        - apply (maponpaths (compose (# M (τ x)))).
+          refine (_ @ id_left _).
+          do 4 refine (_ @ id_right _).
+          apply (cancel_postcomposition _ _ (id₁ (pr11 (pr11 FE₂ x)))).
+          refine (_ @ assoc _ _ _).
+          apply (cancel_postcomposition _ _ (id₁ (pr11 (pr11 FE₂ x)) · id₁ (pr11 (pr11 FE₂ x)))).
+          apply (cancel_postcomposition _ _ (id₁ (pr11 (pr11 FE₂ x)))).
+          apply (cancel_postcomposition _ _ (mor_of_eilenberg_moore_ob (F₂ x))).
           apply idpath.
-      Admitted.
+      Time Qed. (* a little over 5 min on a 2022 Intel processor *)
       (* former proof:
          refine (!_ @ mnd_cell_endo_enriched _ Eτ x @ _).
         - do 4 refine (assoc' _ _ _ @ _).
