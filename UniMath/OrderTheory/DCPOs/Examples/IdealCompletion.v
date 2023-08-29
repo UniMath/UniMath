@@ -28,6 +28,7 @@
  3. Ideals
  4. Rounded ideal completion
  5. Rounded ideal completion for reflexive bases
+ 6. Hausdorff separatedness in the ideal completion
 
  ******************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -40,6 +41,7 @@ Require Import UniMath.OrderTheory.DCPOs.Basis.Continuous.
 Require Import UniMath.OrderTheory.DCPOs.Basis.Algebraic.
 Require Import UniMath.OrderTheory.DCPOs.Basis.Basis.
 Require Import UniMath.OrderTheory.DCPOs.Basis.CompactBasis.
+Require Import UniMath.OrderTheory.DCPOs.Elements.Maximal.
 Require Import UniMath.OrderTheory.DCPOs.Examples.Products.
 Require Import UniMath.OrderTheory.DCPOs.Examples.SubDCPO.
 Require Import UniMath.OrderTheory.DCPOs.Examples.Propositions.
@@ -682,3 +684,62 @@ Section RoundedIdealCompletionAlgebraic.
     - exact rounded_ideal_completion_compact_basis_laws.
   Defined.
 End RoundedIdealCompletionAlgebraic.
+
+(** * 6. Hausdorff separatedness in the ideal completion *)
+Lemma hausdorff_separated_ideal_completion
+      (B : abstract_basis)
+      (x y : rounded_ideal_completion B)
+  : is_hausdorff_separated x y
+    ≃
+    (∃ (b1 b2 : B),
+     in_rounded_ideal _ b1 x
+     ∧
+     in_rounded_ideal _ b2 y
+     ∧
+     ¬(∃ (b3 : B),
+       principal_ideal _ b1 ≪ principal_ideal _ b3
+       ∧
+       principal_ideal _ b2 ≪ principal_ideal _ b3))%logic.
+Proof.
+  use logeqweq.
+  - intros H.
+    assert (H' := hausdorff_separated_continuous_dcpo_weq
+                    (rounded_ideal_completion_basis B)
+                    x y
+                    H).
+    revert H'.
+    use factor_through_squash_hProp.
+    intros ( b₁ & b₂ & p₁ & p₂ & p₃ ).
+    assert (Q := from_way_below_ideal_completion B p₁).
+    revert Q.
+    use factor_through_squash_hProp.
+    intros ( c & r₁ & r₂ ).
+    assert (Q := from_way_below_ideal_completion B p₂).
+    revert Q.
+    use factor_through_squash_hProp.
+    intros ( d & s₁ & s₂ ).
+    refine (hinhpr (c ,, d ,, _ ,, _ ,, _)).
+    + exact r₁.
+    + exact s₁.
+    + use factor_through_squash.
+      {
+        apply isapropempty.
+      }
+      intros ( e & t₁ & t₂ ).
+      refine (p₃ _).
+      refine (hinhpr (e ,, _ ,, _)).
+      * exact (trans_le_way_below r₂ t₁).
+      * exact (trans_le_way_below s₂ t₂).
+  - use factor_through_squash_hProp.
+    intros ( b₁ & b₂ & p₁ & p₂ & p₃ ).
+    apply (invmap
+             (hausdorff_separated_continuous_dcpo_weq
+                (rounded_ideal_completion_basis B)
+                x y)).
+    refine (hinhpr (b₁ ,, b₂ ,, _ ,, _ ,, _)).
+    + apply principal_ideal_way_below.
+      exact p₁.
+    + apply principal_ideal_way_below.
+      exact p₂.
+    + exact p₃.
+Defined.
