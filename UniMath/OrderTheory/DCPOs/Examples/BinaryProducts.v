@@ -11,9 +11,11 @@
  2. The DCPO
  3. The first projection
  4. The second projection
- 5. Pairing of functions
- 6. Lemmas on upperbounds in the product
- 7. A basis for the product
+ 5. Pairing and products of functions
+ 6. Swap & associativity functions
+ 7. Lemmas on upperbounds in the product
+ 8. A basis for the product
+ 9. Products of Scott opens sets
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -23,15 +25,15 @@ Require Import UniMath.OrderTheory.Posets.MonotoneFunctions.
 Require Import UniMath.OrderTheory.DCPOs.Core.DirectedSets.
 Require Import UniMath.OrderTheory.DCPOs.Core.Basics.
 Require Import UniMath.OrderTheory.DCPOs.Core.ScottContinuous.
+Require Import UniMath.OrderTheory.DCPOs.Core.ScottTopology.
 Require Import UniMath.OrderTheory.DCPOs.Core.WayBelow.
 Require Import UniMath.OrderTheory.DCPOs.Basis.Basis.
 Require Import UniMath.OrderTheory.DCPOs.Basis.Continuous.
+Require Import UniMath.OrderTheory.DCPOs.Elements.Maximal.
 
 Local Open Scope dcpo.
 
-(**
- 1. Upperbounds in the product
- *)
+(** * 1. Upperbounds in the product *)
 Proposition is_least_upperbound_pair
             {X Y : hSet}
             (DX : dcpo_struct X)
@@ -72,9 +74,7 @@ Proof.
     + exact (pr2 y).
 Defined.
 
-(**
- 2. The DCPO
- *)
+(** * 2. The DCPO *)
 Definition prod_dcpo_struct
            {X Y : hSet}
            (DX : dcpo_struct X)
@@ -127,9 +127,7 @@ Proof.
   exact (p ,, q).
 Qed.
 
-(**
- 3. The first projection
- *)
+(** * 3. The first projection *)
 Proposition pr1_is_least_upperbound
             {X Y : hSet}
             {DX : dcpo_struct X}
@@ -195,9 +193,7 @@ Definition dirprod_pr1_scott_continuous_map
 
 Notation "'π₁'" := (dirprod_pr1_scott_continuous_map _ _) : dcpo.
 
-(**
- 4. The second projection
- *)
+(** * 4. The second projection *)
 Proposition pr2_is_least_upperbound
             {X Y : hSet}
             {DX : dcpo_struct X}
@@ -263,9 +259,7 @@ Definition dirprod_pr2_scott_continuous_map
 
 Notation "'π₂'" := (dirprod_pr2_scott_continuous_map _ _) : dcpo.
 
-(**
- 5. Pairing of functions
- *)
+(** * 5. Pairing and (tensor) products of functions *)
 Proposition is_scott_continuous_prodtofun
             {W X Y : hSet}
             {DW : dcpo_struct W}
@@ -338,9 +332,30 @@ Definition pair_scott_continuous
 
 Notation "⟨ f , g ⟩" := (pair_scott_continuous f g) : dcpo.
 
-(**
- 6. Lemmas on upperbounds in the product
- *)
+Definition tensor_scott_continuous_map
+           {X₁ X₂ Y₁ Y₂ : dcpo}
+           (f₁ : scott_continuous_map X₁ Y₁)
+           (f₂ : scott_continuous_map X₂ Y₂)
+  : scott_continuous_map (X₁ × X₂) (Y₁ × Y₂)
+  := ⟨ π₁ · f₁ , π₂ · f₂ ⟩.
+
+Notation "f₁ ⊗ f₂" := (tensor_scott_continuous_map f₁ f₂) : dcpo.
+
+(** * 6. Swap & associativity functions *)
+Definition dcpo_swap
+           (A B : dcpo)
+  : scott_continuous_map (A × B) (B × A)
+  := ⟨ dirprod_pr2_scott_continuous_map _ _
+     , dirprod_pr1_scott_continuous_map _ _ ⟩.
+
+Definition assoc_scott_continuous_map
+           (X Y Z : dcpo)
+  : scott_continuous_map (X × Y × Z) ((X × Y) × Z)
+  := ⟨ ⟨ π₁ , π₂ · π₁ ⟩ , π₂ · π₂ ⟩.
+
+Notation "'α'" := (assoc_scott_continuous_map _ _ _) : dcpo.
+
+(** * 7. Lemmas on upperbounds in the product *)
 Proposition prod_dcpo_lub
             {X Y : dcpo}
             (D : directed_set (X × Y))
@@ -411,9 +426,7 @@ Proof.
       * apply refl_dcpo.
 Qed.
 
-(**
- 7. A basis for the product
- *)
+(** * 8. A basis for the product *)
 Section ProductBasis.
   Context {X Y : dcpo}
           (BX : dcpo_basis X)
@@ -657,3 +670,270 @@ Proof.
   - use basis_from_continuous_struct.
     exact CY.
 Defined.
+
+(** * 9. Products of Scott-open sets
+
+The Scott-open sets in the binary product are the products of Scott-open sets.
+ *)
+Section scott_open_binprod.
+  Context {A B : dcpo}.
+
+  Proposition is_scott_open_pr1
+              (P : scott_open_set (A × B)%dcpo)
+              (b : B)
+    : is_scott_open (λ a, P (a ,, b)).
+  Proof.
+    split.
+    - intros a₁ a₂ p₁ p₂.
+      use (is_scott_open_upper_set P p₁).
+      split.
+      + exact p₂.
+      + apply refl_dcpo.
+    - intros D Dp.
+      pose (is_scott_open_lub_inaccessible
+              P
+              (prod_directed_set_dcpo D (const_directed_set B b D (directed_set_el D))))
+        as p.
+      rewrite prod_dcpo_lub' in p.
+      rewrite const_lub in p.
+      assert (H := p Dp).
+      revert H.
+      use factor_through_squash_hProp.
+      intros ( i & H ) ; cbn in i, H.
+      refine (hinhpr (pr1 i ,, _)).
+      exact H.
+  Qed.
+
+  Definition scott_open_pr1
+             (P : scott_open_set (A × B))
+             (b : B)
+    : scott_open_set A.
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ a, P (a ,, b)).
+    - exact (is_scott_open_pr1 P b).
+  Defined.
+
+  Proposition is_scott_open_pr2
+              (P : scott_open_set (A × B))
+              (a : A)
+    : is_scott_open (λ b, P (a ,, b)).
+  Proof.
+    split.
+    - intros b₁ b₂ p₁ p₂.
+      use (is_scott_open_upper_set P p₁).
+      split.
+      + apply refl_dcpo.
+      + exact p₂.
+    - intros D Dp.
+      pose (is_scott_open_lub_inaccessible
+              P
+              (prod_directed_set_dcpo (const_directed_set A a D (directed_set_el D)) D))
+        as p.
+      rewrite prod_dcpo_lub' in p.
+      rewrite const_lub in p.
+      assert (H := p Dp).
+      revert H.
+      use factor_through_squash_hProp.
+      intros ( i & H ) ; cbn in i, H.
+      refine (hinhpr (pr2 i ,, _)).
+      exact H.
+  Qed.
+
+  Definition scott_open_pr2
+             (P : scott_open_set (A × B))
+             (a : A)
+    : scott_open_set B.
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ b, P (a ,, b)).
+    - exact (is_scott_open_pr2 P a).
+  Defined.
+
+  Proposition prod_is_scott_open
+              (PA : scott_open_set A)
+              (PB : scott_open_set B)
+    : is_scott_open (λ (x : (A × B)%dcpo), PA (pr1 x) ∧ PB (pr2 x)).
+  Proof.
+    split.
+    - intros ( a₁ & b₁ ) ( a₂ & b₂ ) ( p₁ & p₂ ) ( q₁ & q₂ ).
+      exact (is_scott_open_upper_set PA p₁ q₁ ,, is_scott_open_upper_set PB p₂ q₂).
+    - intros D ( p & q ).
+      rewrite prod_dcpo_lub in p, q.
+      cbn in p, q.
+      assert (H₁ := is_scott_open_lub_inaccessible PA (directed_set_comp π₁ D) p).
+      assert (H₂ := is_scott_open_lub_inaccessible PB (directed_set_comp π₂ D) q).
+      revert H₁.
+      use factor_through_squash_hProp.
+      intros ( i₁ & H₁ ) ; cbn in i₁, H₁.
+      revert H₂.
+      use factor_through_squash_hProp.
+      intros ( i₂ & H₂ ) ; cbn in i₂, H₂.
+      assert (H₃ := directed_set_top D i₁ i₂).
+      revert H₃.
+      use factor_through_squash_hProp.
+      intros ( k & r₁ & r₂ ) ; cbn in k, r₁, r₂.
+      refine (hinhpr (k ,, _ ,, _)).
+      + exact (is_scott_open_upper_set PA H₁ (pr1 r₁)).
+      + exact (is_scott_open_upper_set PB H₂ (pr2 r₂)).
+  Qed.
+
+  Definition prod_scott_open
+             (PA : scott_open_set A)
+             (PB : scott_open_set B)
+    : scott_open_set (A × B).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ x, PA (pr1 x) ∧ PB (pr2 x)).
+    - exact (prod_is_scott_open PA PB).
+  Defined.
+
+End scott_open_binprod.
+
+(** * 10. Strongly maximal elements in products
+
+     Applies to continuous DCPOs
+ *)
+Section StronglyMaximal.
+  Context {A B : dcpo}
+          (CA : continuous_dcpo_struct A)
+          (CB : continuous_dcpo_struct B).
+
+  Let basis_A : dcpo_basis A := basis_from_continuous_struct CA.
+  Let basis_B : dcpo_basis B := basis_from_continuous_struct CB.
+
+  Proposition strongly_maximal_pr1
+              {a : A}
+              {b : B}
+              (Hab : @is_strongly_maximal (A × B)%dcpo (a ,, b))
+    : is_strongly_maximal a.
+  Proof.
+    assert (H := nullary_interpolation CB b).
+    revert H.
+    use factor_through_squash_hProp.
+    intros ( bl & p ).
+    intros x y q.
+    pose (qp := @to_way_below_prod A B (x ,, bl) (y ,, b) q p).
+    assert (H := Hab (x ,, bl) (y ,, b) qp).
+    revert H.
+    use factor_through_squash_hProp.
+    intros [ H | H ].
+    - use hdisj_in1.
+      exact (way_below_prod_pr1 basis_B H).
+    - use hdisj_in2.
+      revert H.
+      use factor_through_squash_hProp.
+      intros ( P₁ & P₂ & H₁ & H₂ & H₃ ).
+      use hinhpr.
+      refine (scott_open_pr1 P₁ b ,, scott_open_pr1 P₂ b ,, _ ,, _ ,, _) ; cbn.
+      + exact H₁.
+      + exact H₂.
+      + intros z n.
+        refine (H₃ (z ,, b) _).
+        exact n.
+  Qed.
+
+  Proposition strongly_maximal_pr2
+              {a : A}
+              {b : B}
+              (Hab : @is_strongly_maximal (A × B)%dcpo (a ,, b))
+    : is_strongly_maximal b.
+  Proof.
+    assert (H := nullary_interpolation CA a).
+    revert H.
+    use factor_through_squash_hProp.
+    intros ( al & p ).
+    intros x y q.
+    pose (qp := @to_way_below_prod A B (al ,, x) (a ,, y) p q).
+    assert (H := Hab (al ,, x) (a ,, y) qp).
+    revert H.
+    use factor_through_squash_hProp.
+    intros [ H | H ].
+    - use hdisj_in1.
+      exact (way_below_prod_pr2 basis_A H).
+    - use hdisj_in2.
+      revert H.
+      use factor_through_squash_hProp.
+      intros ( P₁ & P₂ & H₁ & H₂ & H₃ ).
+      use hinhpr.
+      refine (scott_open_pr2 P₁ a ,, scott_open_pr2 P₂ a ,, _ ,, _ ,, _) ; cbn.
+      + exact H₁.
+      + exact H₂.
+      + intros z n.
+        refine (H₃ (a ,, z) _).
+        exact n.
+  Qed.
+
+  Proposition strongly_maximal_pair
+              {a : A}
+              {b : B}
+              (Ha : is_strongly_maximal a)
+              (Hb : is_strongly_maximal b)
+    : @is_strongly_maximal (A × B)%dcpo (a ,, b).
+  Proof.
+    intros ( x₁ & y₁ ) ( x₂ & y₂ ) q.
+    pose (p₁ := way_below_prod_pr1 basis_B q : x₁ ≪ x₂).
+    pose (p₂ := way_below_prod_pr2 basis_A q : y₁ ≪ y₂).
+    assert (H :=  Ha x₁ x₂ p₁).
+    revert H.
+    use factor_through_squash_hProp.
+    intros H₁.
+    assert (H :=  Hb y₁ y₂ p₂).
+    revert H.
+    use factor_through_squash_hProp.
+    intros H₂.
+    induction H₁ as [ H₁ | H₁ ], H₂ as [ H₂ | H₂ ].
+    - use hdisj_in1.
+      use to_way_below_prod.
+      + exact H₁.
+      + exact H₂.
+    - use hdisj_in2.
+      revert H₂.
+      use factor_through_squash_hProp.
+      intros ( P₁ & P₂ & r₁ & r₂ & r₃ ).
+      refine (hinhpr _).
+      refine (prod_scott_open (true_scott_open_set _) P₁ ,, _).
+      refine (prod_scott_open (true_scott_open_set _) P₂ ,, _ ,, _ ,, _) ; cbn.
+      + exact (tt ,, r₁).
+      + exact (tt ,, r₂).
+      + intros ( x₃ & y₃ ).
+        intros ( ( _ & s₁ ) & ( _ & s₂ ) ) ; cbn in s₁, s₂.
+        exact (r₃ _ (s₁ ,, s₂)).
+    - use hdisj_in2.
+      revert H₁.
+      use factor_through_squash_hProp.
+      intros ( P₁ & P₂ & r₁ & r₂ & r₃ ).
+      refine (hinhpr _).
+      refine (prod_scott_open P₁ (true_scott_open_set _) ,, _).
+      refine (prod_scott_open P₂ (true_scott_open_set _) ,, _ ,, _ ,, _) ; cbn.
+      + exact (r₁ ,, tt).
+      + exact (r₂ ,, tt).
+      + intros ( x₃ & y₃ ).
+        intros ( ( s₁ & _ ) & ( s₂ & _ ) ) ; cbn in s₁, s₂.
+        exact (r₃ _ (s₁ ,, s₂)).
+    - use hdisj_in2.
+      revert H₁.
+      use factor_through_squash_hProp.
+      intros ( P₁ & P₂ & r₁ & r₂ & r₃ ).
+      refine (hinhpr _).
+      refine (prod_scott_open P₁ (true_scott_open_set _) ,, _).
+      refine (prod_scott_open P₂ (true_scott_open_set _) ,, _ ,, _ ,, _) ; cbn.
+      + exact (r₁ ,, tt).
+      + exact (r₂ ,, tt).
+      + intros ( x₃ & y₃ ).
+        intros ( ( s₁ & _ ) & ( s₂ & _ ) ) ; cbn in s₁, s₂.
+        exact (r₃ _ (s₁ ,, s₂)).
+  Qed.
+
+  Definition strongly_maximal_prod_weq
+             (a : A)
+             (b : B)
+    : @is_strongly_maximal (A × B)%dcpo (a ,, b)
+       ≃
+       (is_strongly_maximal a ∧ is_strongly_maximal b).
+  Proof.
+    use logeqweq.
+    - exact (λ p, strongly_maximal_pr1 p ,, strongly_maximal_pr2 p).
+    - exact (λ p, strongly_maximal_pair (pr1 p) (pr2 p)).
+  Defined.
+End StronglyMaximal.

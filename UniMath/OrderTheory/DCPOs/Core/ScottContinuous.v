@@ -534,6 +534,8 @@ Definition comp_scott_continuous_map
   : scott_continuous_map X Z
   := (λ x, g(f x)) ,, comp_is_scott_continuous (pr2 f) (pr2 g).
 
+Notation "f '·' g" := (comp_scott_continuous_map f g) : dcpo.
+
 Definition constant_scott_continuous_map
            (X : dcpo)
            {Y : dcpo}
