@@ -332,6 +332,7 @@ Monoidal/Comonoids/Symmetric.v
 Monoidal/Comonoids/MonoidalCartesianBuilder.v
 Monoidal/Comonoids/CommComonoidsCartesian.v
 Monoidal/Comonoids/CartesianAsComonoids.v
+Monoidal/Comonoids/TransportComonoidAlongRetraction.v
 
 Monoidal/Examples/LiftPoset.v
 Monoidal/Examples/SymmetricMonoidalCoEilenbergMoore.v

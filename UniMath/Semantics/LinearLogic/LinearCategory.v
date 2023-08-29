@@ -4,7 +4,9 @@
 
  In this file, we define linear categories.
 
- Note that the laws in [linear_category_laws] are written out explicitly.
+ Note that the thirteen laws in [linear_category_laws] are written out explicitly.
+ In the "other accessors" (part 3 below), each of the laws enters a mathematical structure, so as
+ to validate its purpose.
 
  Contents
  1. Data of linear categories
@@ -20,8 +22,13 @@ Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Functors.
 Require Import UniMath.CategoryTheory.Monoidal.FunctorCategories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
+Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.
+Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+Require Import UniMath.CategoryTheory.categories.Dialgebras.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.
 
 Import MonoidalNotations.
 
@@ -152,7 +159,39 @@ Definition linear_category_laws
       linear_category_comult 𝕃 x
       · sym_mon_braiding 𝕃 _ _
       =
-      linear_category_comult 𝕃 x).
+        linear_category_comult 𝕃 x)
+     ×
+     (* comult preserves tensor *)
+     (∏ x y : 𝕃,
+         mon_functor_tensor (linear_category_bang_functor 𝕃) x y
+           · linear_category_comult 𝕃 (x ⊗ y)
+         = (linear_category_comult 𝕃 x) #⊗ (linear_category_comult 𝕃 y)
+             · (inner_swap 𝕃
+                  (linear_category_bang 𝕃 x)
+                  (linear_category_bang 𝕃 x)
+                  (linear_category_bang 𝕃 y)
+                  (linear_category_bang 𝕃 y)
+                  · mon_functor_tensor (linear_category_bang_functor 𝕃) x y
+                  #⊗ mon_functor_tensor (linear_category_bang_functor 𝕃) x y))
+     ×
+     (* comult preserves unit *)
+     (mon_functor_unit (linear_category_bang_functor 𝕃)
+                · linear_category_comult 𝕃 I_{𝕃}
+              = mon_linvunitor I_{𝕃}
+                  · mon_functor_unit (linear_category_bang_functor 𝕃)
+                  #⊗ mon_functor_unit (linear_category_bang_functor 𝕃))
+     ×
+     (* counit preserves tensor *)
+     (∏ x y : 𝕃, mon_functor_tensor (linear_category_bang_functor 𝕃) x y
+                           · linear_category_counit 𝕃 (x ⊗ y)
+                         = linear_category_counit 𝕃 x #⊗ linear_category_counit 𝕃 y
+                             · mon_lunitor (monoidal_unit 𝕃))
+     ×
+     (* counit preserves unit *)
+     (mon_functor_unit (linear_category_bang_functor 𝕃)
+                · linear_category_counit 𝕃 I_{𝕃}
+              = identity I_{𝕃}).
+
 
 Definition linear_category
   : UU
@@ -268,8 +307,53 @@ Section AccessorsLaws.
       =
       linear_category_comult 𝕃 x.
   Proof.
-    exact (pr222 (pr222 (pr222 𝕃)) x).
+    exact (pr1 (pr222 (pr222 (pr222 𝕃))) x).
   Qed.
+
+  Proposition linear_category_comult_preserves_tensor
+    (x y : 𝕃)
+    : mon_functor_tensor (linear_category_bang_functor 𝕃) x y
+           · linear_category_comult 𝕃 (x ⊗ y)
+         = (linear_category_comult 𝕃 x) #⊗ (linear_category_comult 𝕃 y)
+             · (inner_swap 𝕃
+                  (linear_category_bang 𝕃 x)
+                  (linear_category_bang 𝕃 x)
+                  (linear_category_bang 𝕃 y)
+                  (linear_category_bang 𝕃 y)
+                  · mon_functor_tensor (linear_category_bang_functor 𝕃) x y
+                  #⊗ mon_functor_tensor (linear_category_bang_functor 𝕃) x y).
+  Proof.
+    exact (pr12 (pr222 (pr222 (pr222 𝕃))) x y).
+  Qed.
+
+  Proposition linear_category_comult_preserves_unit
+    : mon_functor_unit (linear_category_bang_functor 𝕃)
+        · linear_category_comult 𝕃 I_{𝕃}
+      = mon_linvunitor I_{𝕃}
+          · mon_functor_unit (linear_category_bang_functor 𝕃)
+          #⊗ mon_functor_unit (linear_category_bang_functor 𝕃).
+  Proof.
+    exact (pr122 (pr222 (pr222 (pr222 𝕃)))).
+  Qed.
+
+  Proposition linear_category_counit_preserves_tensor
+    (x y : 𝕃)
+    : mon_functor_tensor (linear_category_bang_functor 𝕃) x y
+        · linear_category_counit 𝕃 (x ⊗ y)
+      = linear_category_counit 𝕃 x #⊗ linear_category_counit 𝕃 y
+          · mon_lunitor (monoidal_unit 𝕃).
+  Proof.
+    exact (pr1 (pr222 (pr222 (pr222 (pr222 𝕃)))) x y).
+  Qed.
+
+  Proposition linear_category_counit_preserves_unit
+    : mon_functor_unit (linear_category_bang_functor 𝕃)
+        · linear_category_counit 𝕃 I_{𝕃}
+      = identity I_{𝕃}.
+  Proof.
+    exact (pr2 (pr222 (pr222 (pr222 (pr222 𝕃))))).
+  Qed.
+
 End AccessorsLaws.
 
 (**
@@ -309,9 +393,7 @@ Definition linear_category_comult_nat_trans
            (𝕃 : linear_category)
   : linear_category_bang 𝕃
     ⟹
-    bindelta_pair_functor (linear_category_bang 𝕃) (linear_category_bang 𝕃)
-    ∙
-    monoidal_cat_tensor 𝕃.
+    linear_category_bang 𝕃∙ diag_functor 𝕃.
 Proof.
   use make_nat_trans.
   - exact (λ x, linear_category_comult 𝕃 x).
@@ -330,4 +412,49 @@ Proof.
       (intros x y f ; cbn ;
        rewrite id_right ;
        apply linear_category_counit_nat).
+Defined.
+
+Definition linear_category_comult_is_mon_nat_trans
+  (𝕃 : linear_category):
+  is_mon_nat_trans (linear_category_bang_functor 𝕃)
+    (comp_fmonoidal_lax (linear_category_bang_functor 𝕃) (diag_functor_fmonoidal_lax 𝕃))
+    (linear_category_comult_nat_trans 𝕃).
+Proof.
+  split.
+  - intros x y. apply linear_category_comult_preserves_tensor.
+  - apply linear_category_comult_preserves_unit.
+Defined.
+
+Definition linear_category_counit_is_mon_nat_trans
+  (𝕃 : linear_category):
+  is_mon_nat_trans (linear_category_bang_functor 𝕃)
+    (constant_functor_fmonoidal_lax _ (unit_monoid 𝕃)) (linear_category_counit_nat_trans 𝕃).
+Proof.
+  split.
+  - intros x y. apply linear_category_counit_preserves_tensor.
+  - apply linear_category_counit_preserves_unit.
+Qed.
+
+Definition linear_category_comult_coalgebra_morphism
+  (𝕃 : linear_category) (x : 𝕃)
+  :  CoAlg_category (linear_category_bang 𝕃)
+        ⟦ ((linear_category_bang 𝕃) x) ,, δ (linear_category_bang 𝕃) x,
+          (linear_category_bang 𝕃 x ⊗ linear_category_bang 𝕃 x ,,
+             (δ (linear_category_bang 𝕃) x #⊗ δ (linear_category_bang 𝕃) x)
+             · mon_functor_tensor (linear_category_bang_functor 𝕃) _ _ )⟧.
+Proof.
+  use tpair.
+  - exact (linear_category_comult 𝕃 x).
+  - abstract (cbn; rewrite assoc; apply pathsinv0, linear_category_comult_coalgebra_mor).
+Defined.
+
+Definition linear_category_counit_coalgebra_morphism
+  (𝕃 : linear_category) (x : 𝕃)
+  : CoAlg_category (linear_category_bang 𝕃)
+        ⟦ ((linear_category_bang 𝕃) x) ,, δ (linear_category_bang 𝕃) x,
+          (I_{𝕃} ,, mon_functor_unit (linear_category_bang_functor 𝕃)) ⟧.
+Proof.
+  use tpair.
+  - exact (linear_category_counit 𝕃 x).
+  - abstract (apply pathsinv0, linear_category_counit_coalgebra_mor).
 Defined.
