@@ -27,7 +27,7 @@ Reorganized: Langston Barrett (@siddharthist) (March 2018)
 
       Full subcategory of a univalent_category is
         a univalent_category
-        [is_univalent_full_subcat]
+        [is_univalent_full_sub_category]
 
 *)
 
@@ -73,6 +73,37 @@ Definition full_sub_category (C : category)
   : category
   := make_category _ (has_homsets_full_sub_precategory C C').
 
+Definition full_sub_category_pr_data
+           {C : category}
+           (C': hsubtype (ob C))
+  : functor_data (full_sub_category C C') C.
+Proof.
+  use make_functor_data.
+  - exact (λ h, pr1 h).
+  - exact (λ h₁ h₂ α, pr1 α).
+Defined.
+
+Definition full_sub_category_pr_is_functor
+           {C : category}
+           (C': hsubtype (ob C))
+  : is_functor (full_sub_category_pr_data C').
+Proof.
+  split.
+  - intro x ; cbn.
+    apply idpath.
+  - intros x y z f g ; cbn.
+    apply idpath.
+Qed.
+
+Definition full_sub_category_pr
+           {C : category}
+           (C': hsubtype (ob C))
+  : full_sub_category C C' ⟶ C.
+Proof.
+  use make_functor.
+  - exact (full_sub_category_pr_data C').
+  - exact (full_sub_category_pr_is_functor C').
+Defined.
 
 (** ** The inclusion of a full subcategory is fully faithful *)
 
@@ -437,7 +468,7 @@ Defined.
 (** ** Proof of the targeted theorem: full subcats of cats are cats *)
 
 
-Lemma is_univalent_full_subcat (H : is_univalent C) : is_univalent (full_sub_category C C').
+Lemma is_univalent_full_sub_category (H : is_univalent C) : is_univalent (full_sub_category C C').
 Proof.
   unfold is_univalent.
   intros; apply isweq_sub_precat_paths_to_iso; assumption.
@@ -451,7 +482,7 @@ Definition subcategory_univalent (C : univalent_category) (C' : hsubtype (ob C))
 Proof.
   use make_univalent_category.
   - exact (subcategory C (full_sub_precategory C')).
-  - apply is_univalent_full_subcat, univalent_category_is_univalent.
+  - apply is_univalent_full_sub_category, univalent_category_is_univalent.
 Defined.
 
 Definition univalent_image
@@ -461,7 +492,7 @@ Definition univalent_image
 Proof.
   use make_univalent_category.
   - exact (full_img_sub_precategory F).
-  - use is_univalent_full_subcat.
+  - use is_univalent_full_sub_category.
     exact (pr2 C₂).
 Defined.
 

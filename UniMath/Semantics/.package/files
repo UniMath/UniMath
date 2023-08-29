@@ -1,6 +1,8 @@
 LinearLogic/LinearNonLinear.v
 LinearLogic/LafontCategory.v
 LinearLogic/LinearCategory.v
+LinearLogic/LinearCategoryEilenbergMooreAdjunction.v
+LinearLogic/LinearToLinearNonLinear.v
 LinearLogic/RelationalModel.v
 LinearLogic/LiftingModel.v
 
