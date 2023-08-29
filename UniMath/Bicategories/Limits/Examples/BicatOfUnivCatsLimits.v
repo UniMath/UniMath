@@ -1014,9 +1014,6 @@ Section EilenbergMooreUMP.
              pose (nat_trans_eq_pointwise (mnd_cell_endo α) x) as p ;
              simpl in p ;
              rewrite !id_left, !id_right in p ;
-             unfold mor_of_eilenberg_moore_mor in p ;
-             simpl in p ;
-             rewrite !id_left, !id_right in p ;
              exact p).
       + abstract
           (use eq_mnd_cell ;
