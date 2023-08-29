@@ -773,6 +773,8 @@ Section LimitsEnrichedCats.
           =
           # M (τ x) · mor_of_eilenberg_moore_ob (F₂ x).
       Proof.
+      Abort.
+      (*
         refine (!_ @ mnd_cell_endo_enriched _ Eτ x @ _).
         - apply cancel_postcomposition.
           (* apply (cancel_postcomposition (pr11 (mnd_mor_endo (# (mnd_incl (bicat_of_enriched_cats V)) FE₁ · mor_of_em_cone EM em_enriched_cat_cone)) x)
@@ -798,6 +800,7 @@ Section LimitsEnrichedCats.
           apply (cancel_postcomposition _ _ (mor_of_eilenberg_moore_ob (F₂ x))).
           apply idpath.
       Time Qed. (* a little over 5 min on a 2022 Intel processor *)
+       *)
       (* former proof:
          refine (!_ @ mnd_cell_endo_enriched _ Eτ x @ _).
         - do 4 refine (assoc' _ _ _ @ _).
@@ -822,6 +825,7 @@ Section LimitsEnrichedCats.
       Qed.
 *)
 
+      (*
       Definition em_enriched_cat_ump_2_nat_trans
         : F₁ ⟹ F₂
         := nat_trans_to_eilenberg_moore_cat M F₁ F₂ τ em_enriched_cat_ump_2_eq.
@@ -834,8 +838,10 @@ Section LimitsEnrichedCats.
         - use nat_trans_to_eilenberg_moore_cat_enrichment.
           apply (pr21 Eτ).
       Defined.
+*)
     End EilenbergMooreUMP2.
 
+  (*
     Definition em_enriched_cat_ump_2
       : em_ump_2 EM em_enriched_cat_cone.
     Proof.
@@ -869,10 +875,13 @@ Section LimitsEnrichedCats.
       - exact em_enriched_cat_ump_1.
       - exact em_enriched_cat_ump_2.
     Defined.
+*)
   End EilenbergMooreEnrichedCat.
 
+  (*
   Definition has_em_bicat_of_enriched_cats
              (HV : Equalizers V)
     : bicat_has_em (bicat_of_enriched_cats V)
     := λ EM, em_enriched_cat_cone HV EM ,, em_enriched_cat_ump HV EM.
+*)
 End LimitsEnrichedCats.
