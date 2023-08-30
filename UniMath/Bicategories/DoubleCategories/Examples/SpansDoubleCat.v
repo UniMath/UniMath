@@ -8,7 +8,7 @@
  - Vertical morphisms: morphisms in `C`
  - Horizontal morphisms: spans in `C`
  - Squares: morphisms of spans
- Spans are compose by taking a pullback.
+ Spans are composed by taking a pullback.
 
  Contents
  1. Horizontal identities
