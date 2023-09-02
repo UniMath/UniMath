@@ -1165,62 +1165,6 @@ Definition chaotic_bicat : bicat
 End chaotic_bicat.
 
 (* ----------------------------------------------------------------------------------- *)
-(** ** Discrete bicat                                                                  *)
-(* ----------------------------------------------------------------------------------- *)
-
-Section discrete_bicat.
-  Context (C : category).
-
-  Definition discrete_prebicat_data : prebicat_data.
-  Proof.
-    use build_prebicat_data.
-    - exact C.
-    - exact (λ x y, x --> y).
-    - exact (λ x y f g, f = g).
-    - exact (λ x, identity x).
-    - exact (λ x y z f g, f · g).
-    - abstract
-        (exact (λ x y f, idpath f)).
-    - abstract
-        (exact (λ x y f g h p q, p @ q)).
-    - abstract
-        (exact (λ x y z f g h p, maponpaths (λ z, f · z) p)).
-    - abstract
-        (exact (λ x y z g h f p, maponpaths (λ z, z · f) p)).
-    - abstract
-        (exact (λ x y f, id_left f)).
-    - abstract
-        (exact (λ x y f, !(id_left f))).
-    - abstract
-        (exact (λ x y f, id_right f)).
-    - abstract
-        (exact (λ x y f, !(id_right f))).
-    - abstract
-        (exact (λ w x y z f g h, assoc f g h)).
-    - abstract
-        (exact (λ w x y z f g h, assoc' f g h)).
-  Defined.
-
-  Lemma discrete_prebicat_laws : prebicat_laws discrete_prebicat_data.
-  Proof.
-    repeat split ; intro ; intros ; apply homset_property.
-  Qed.
-
-  Definition discrete_prebicat
-    : prebicat
-    := _ ,, discrete_prebicat_laws.
-
-  Definition discrete_bicat
-    : bicat.
-  Proof.
-    simple refine (discrete_prebicat ,, _).
-    intros x y f g.
-    apply isasetaprop.
-    apply homset_property.
-  Defined.
-End discrete_bicat.
-
-(* ----------------------------------------------------------------------------------- *)
 (** ** Associators and unitors are isos.                                               *)
 (* ----------------------------------------------------------------------------------- *)
 

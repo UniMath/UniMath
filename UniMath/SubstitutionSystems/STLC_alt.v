@@ -45,6 +45,7 @@ Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
+Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_alt.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted_alt.
 
 Local Open Scope cat.
@@ -129,7 +130,7 @@ Definition STLC_M : sortToSet2 :=
   alg_carrier _ (InitialObject STLC_Functor_Initial).
 
 (* The functor parts coincide *)
-Lemma STLC_Monad_ok : STLC_M = pr1 (pr1 (pr1 STLC_Monad)).
+Lemma STLC_Monad_ok : STLC_M = pr1 STLC_Monad.
 Proof.
 apply idpath.
 Qed.

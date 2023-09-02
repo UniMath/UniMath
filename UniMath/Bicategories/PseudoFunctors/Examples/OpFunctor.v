@@ -17,34 +17,6 @@ Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 
 Local Open Scope cat.
 
-Definition functor_identity_op
-           (C : category)
-  : functor_identity (C^op)
-    ⟹
-    functor_opp (functor_identity C).
-Proof.
-  use make_nat_trans.
-  - exact (λ x, identity x).
-  - abstract
-      (intros x y f ; cbn ;
-       rewrite id_left, id_right ;
-       apply idpath).
-Defined.
-
-Definition functor_comp_op
-           {C₁ C₂ C₃ : category}
-           (F : C₁ ⟶ C₂)
-           (G : C₂ ⟶ C₃)
-  : functor_opp F ∙ functor_opp G ⟹ functor_opp (F ∙ G).
-Proof.
-  use make_nat_trans.
-  - exact (λ x, identity _).
-  - abstract
-      (intros x y f ; cbn ;
-       rewrite id_left, id_right ;
-       apply idpath).
-Defined.
-
 Local Notation "∁" := bicat_of_univ_cats.
 
 Definition op_psfunctor_data : psfunctor_data (op2_bicat ∁) ∁.
@@ -100,12 +72,10 @@ Proof.
   split.
   - intro C.
     use is_nat_z_iso_to_is_invertible_2cell.
-    intro.
-    apply identity_is_z_iso.
+    apply is_nat_z_iso_functor_identity_op.
   - intros C₁ C₂ C₃ F G.
     use is_nat_z_iso_to_is_invertible_2cell.
-    intro.
-    apply identity_is_z_iso.
+    apply is_nat_z_iso_functor_comp_op.
 Defined.
 
 Definition op_psfunctor : psfunctor (op2_bicat ∁) ∁.

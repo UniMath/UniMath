@@ -15,8 +15,8 @@ Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsMonoidal.
@@ -48,9 +48,9 @@ Local Definition Mon_endo: monoidal_cat
 Context (U: strong_monoidal_functor Mon_M Mon_endo).
 
 Local Definition ab_strength_domain_action : action Mon_M (hom c0 d0')
-  := lifted_action Mon_M U (action_from_precomp c0 d0').
+  := reindexed_action Mon_M U (action_from_precomp c0 d0').
 Local Definition ab_strength_target_action : action Mon_M (hom c0 d0)
-  := lifted_action Mon_M U (action_from_precomp c0 d0).
+  := reindexed_action Mon_M U (action_from_precomp c0 d0).
 
 Context (F: hom c0 d0' ⟶ hom c0 d0).
 

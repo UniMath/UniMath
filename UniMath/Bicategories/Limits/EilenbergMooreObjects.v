@@ -1003,7 +1003,7 @@ Section EMObject.
 
     Definition has_em_ump_adj_equivalence_of_cats
       : adj_equivalence_of_cats (em_hom_functor e x)
-      := adjointificiation has_em_ump_equivalence_of_cats.
+      := adjointification has_em_ump_equivalence_of_cats.
   End UMPIsUniversal.
 
   Definition has_em_ump_is_universal
@@ -1683,7 +1683,7 @@ Section EMObject.
   Definition eilenberg_moore_adj_equiv_mnd_incl
              (x : B)
     : adj_equivalence_of_cats (eilenberg_moore_to_hom x)
-    := adjointificiation (eilenberg_moore_equiv_mnd_incl x).
+    := adjointification (eilenberg_moore_equiv_mnd_incl x).
 
   Definition eilenberg_moore_adj_mnd_incl_nat_trans
              (e : em_cone)

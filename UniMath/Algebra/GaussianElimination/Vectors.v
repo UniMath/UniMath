@@ -379,9 +379,8 @@ Section Pulse_Functions.
   Proof.
     unfold is_pulse_function in * |- ; intros j.
     intros neq; unfold pointwise.
-    replace (f j) with (@rigunel1 R).
-    - apply rigmult0x.
-    - now rewrite H.
+    etrans. { apply maponpaths_2. apply(H j neq). }
+    apply rigmult0x.
   Defined.
 
   Lemma sum_stdb_vector_pointwise_prod { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn)

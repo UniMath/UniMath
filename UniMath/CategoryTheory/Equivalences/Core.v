@@ -329,7 +329,7 @@ Proof.
   - apply adjointification_triangle_1.
 Qed.
 
-Definition adjointificiation : adj_equivalence_of_cats F.
+Definition adjointification : adj_equivalence_of_cats F.
 Proof.
   use make_adj_equivalence_of_cats.
   - exact G.

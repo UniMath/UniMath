@@ -394,13 +394,6 @@ Section ReindexingPullback.
       refine (maponpaths (λ z, z · _) _).
       apply id_left.
     }
-    etrans.
-    {
-      apply maponpaths.
-      exact (inv_from_z_iso_in_total
-               (is_invertible_2cell_to_is_nat_z_iso _ (pr2 (pb_cone_cell q)) x)
-               _).
-    }
     exact (nat_trans_eq_pointwise
              (vcomp_rinv
                 (pb_cone_cell q))
@@ -1019,9 +1012,6 @@ Section EilenbergMooreUMP.
         * abstract
             (intro x ;
              pose (nat_trans_eq_pointwise (mnd_cell_endo α) x) as p ;
-             simpl in p ;
-             rewrite !id_left, !id_right in p ;
-             unfold mor_of_eilenberg_moore_mor in p ;
              simpl in p ;
              rewrite !id_left, !id_right in p ;
              exact p).

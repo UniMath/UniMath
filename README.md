@@ -1,14 +1,27 @@
+[![DOI](https://zenodo.org/badge/17321421.svg)](https://zenodo.org/badge/latestdoi/17321421)
+
 Univalent Mathematics
 =====================
 
 This [Coq](https://coq.inria.fr/) library aims to formalize a substantial body of mathematics using the
 [univalent point of view](https://en.wikipedia.org/wiki/Univalent_foundations).
 
-Installation
-------------
 
-See
-[INSTALL.md](https://github.com/UniMath/UniMath/blob/master/INSTALL.md).
+Trying out UniMath
+------------------
+
+You can try out UniMath in the browser by clicking [here](https://unimath.github.io/live/).
+For instance, you can run the files from the [School on Univalent Mathematics](https://unimath.github.io/Schools/) in the browser.
+
+
+Using UniMath on your computer
+------------------------------
+
+To install UniMath on your computer, there are two options:
+
+- Install a released binary version of UniMath via the [Coq Platform](https://coq.inria.fr/download).
+- To develop, and contribute to, UniMath, you should compile the latest version of UniMath yourself - see [INSTALL.md](https://github.com/UniMath/UniMath/blob/master/INSTALL.md).
+
 
 Usage
 -----
@@ -48,9 +61,11 @@ To cite UniMath in your article, you can use the following bibtex item:
 ```bibtex
 @Misc{UniMath,
     author = {Voevodsky, Vladimir and Ahrens, Benedikt and Grayson, Daniel and others},
-    title = {{UniMath --- a computer-checked library of univalent mathematics}},
+    title = {UniMath --- a computer-checked library of univalent mathematics},
     url = {https://github.com/UniMath/UniMath},
-    howpublished = {available at \url{http://unimath.org}}
+    howpublished = {available at \url{http://unimath.org}},
+    doi          = {10.5281/zenodo.7848572},
+    url          = {https://doi.org/10.5281/zenodo.7848572}
  }
 ```
 Note that this requires ```\usepackage{url}``` or ```\usepackage{hyperref}```.

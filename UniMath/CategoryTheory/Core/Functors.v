@@ -621,6 +621,18 @@ Proof.
   reflexivity.
 Defined.
 
+Definition functor_on_fully_faithful_inv_hom
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (HF : fully_faithful F)
+           {x y : C₁}
+           (f : F x --> F y)
+  : #F (fully_faithful_inv_hom HF x y f) = f.
+Proof.
+  unfold fully_faithful_inv_hom.
+  exact (homotweqinvweq (weq_from_fully_faithful HF x y) f).
+Qed.
+
 Lemma fully_faithful_inv_identity (C D : precategory_data) (F : functor C D)
       (FF : fully_faithful F) (a : ob C) :
          FF^-1 (identity (F a)) = identity _.
@@ -875,6 +887,15 @@ Proof.
   apply impred; intro; apply isapropishinh.
 Defined.
 
+Lemma identity_functor_is_essentially_surjective (C : category)
+  : essentially_surjective (functor_identity C).
+Proof.
+  intro x.
+  apply hinhpr.
+  exists x.
+  apply identity_z_iso.
+Qed.
+
 (** Composition of essentially surjective functors yields an essentially
     surjective functor. *)
 
@@ -934,6 +955,17 @@ Proof.
   apply (Injectivity (# F)).
   - apply isweqonpathsincl, FF.
   - exact (functor_comp F f g @ feq).
+Defined.
+
+(** a simpler instance of that principle *)
+Lemma faithful_reflects_morphism_equality {C D : precategory} (F : functor C D)
+      (FF : faithful F) {a b : ob C} (f g : C ⟦a, b⟧) :
+  # F f = # F g → f = g.
+Proof.
+  intros feq.
+  apply (Injectivity (# F)).
+  - apply isweqonpathsincl, FF.
+  - exact feq.
 Defined.
 
 (** ** Full functors *)

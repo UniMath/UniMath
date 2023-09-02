@@ -60,16 +60,11 @@ Section MonadToCatMonad.
   Defined.
 
   Definition mnd_to_cat_Monad_data
-    : Monad_data (hom x (pr1 m)).
-  Proof.
-    simple refine ((_ ,, _) ,, _).
-    - exact mnd_to_functor.
-    - exact mnd_to_cat_mu.
-    - exact mnd_to_cat_unit.
-  Defined.
+    : disp_Monad_data(C:=hom x (pr1 m)) mnd_to_functor
+    := mnd_to_cat_mu,, mnd_to_cat_unit.
 
   Definition mnd_to_cat_Monad_laws
-    : Monad_laws mnd_to_cat_Monad_data.
+    : disp_Monad_laws mnd_to_cat_Monad_data.
   Proof.
     repeat split ; intro f ; cbn.
     - rewrite !vassocl.
@@ -162,7 +157,8 @@ Section MonadToCatMonad.
   Definition mnd_to_cat_Monad
     : Monad (hom x (pr1 m)).
   Proof.
-    simple refine (_ ,, _).
+    simple refine (_,,(_ ,, _)).
+    - exact mnd_to_functor.
     - exact mnd_to_cat_Monad_data.
     - exact mnd_to_cat_Monad_laws.
   Defined.

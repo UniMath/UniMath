@@ -49,7 +49,7 @@ End Monad_Lemmas.
 
 Section Kleisli_Categories.
 
-Definition Kleisli_precat_ob_mor_monad {C : precategory_data} (T : Monad_data C) :
+Definition Kleisli_precat_ob_mor_monad {C : category} (T : Monad C) :
   precategory_ob_mor.
 Proof.
   use tpair.
@@ -58,7 +58,7 @@ Proof.
     exact (X --> T Y).
 Defined.
 
-Definition Kleisli_precat_data_monad {C : precategory_data} (T : Monad_data C) :
+Definition Kleisli_precat_data_monad {C : category} (T : Monad C) :
   precategory_data.
 Proof.
   use make_precategory_data.

@@ -190,7 +190,7 @@ Lemma vcomp_move_L_Vp
            (Hε : is_invertible_2cell ε)
   : ε o η₁ = η₂ -> η₁ = Hε^-1 o η₂.
 Proof.
-  intros ?.
+  intro.
   rewrite <- (id2_right η₁).
   rewrite <- (vcomp_rinv Hε).
   rewrite vassocr.
@@ -222,7 +222,7 @@ Lemma vcomp_move_R_Mp
            (Hε : is_invertible_2cell ε)
   : η₁ = Hε^-1 o η₂ -> ε o η₁ = η₂.
 Proof.
-  intros ?.
+  intro.
   rewrite <- (id2_right η₂).
   rewrite <- (vcomp_linv Hε).
   rewrite vassocr.
@@ -254,7 +254,7 @@ Lemma vcomp_move_L_Mp
            (Hε : is_invertible_2cell ε)
   : Hε^-1 o η₁ = η₂ -> η₁ = ε o η₂.
 Proof.
-  intros ?.
+  intros.
   rewrite <- (id2_right η₁).
   rewrite <- (vcomp_linv Hε).
   rewrite vassocr.

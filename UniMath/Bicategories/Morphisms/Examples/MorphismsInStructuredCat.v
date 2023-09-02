@@ -58,14 +58,14 @@ Section DispAdjunctionTerminalObj.
   Proof.
     use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)) ; simpl.
     - apply isapropdirprod.
-      + apply isaprop_preserves_terminal.
       + apply isapropunit.
+      + apply isaprop_preserves_terminal.
     - use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)).
       + use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)).
         * simpl.
           apply isapropdirprod.
-          ** apply isaprop_preserves_terminal.
           ** apply isapropunit.
+          ** apply isaprop_preserves_terminal.
         * apply isapropdirprod.
           ** simpl ; apply isapropdirprod ; apply isapropunit.
           ** simpl ; apply isapropdirprod ; apply isapropunit.
@@ -75,12 +75,12 @@ Section DispAdjunctionTerminalObj.
   Section MakeDispAdj.
     Context (H : preserves_terminal (pr1 a)).
 
-    Let F : CC₁ -->[ a ] CC₂ := H ,, tt.
+    Let F : CC₁ -->[ a ] CC₂ := tt ,, H.
 
     Local Definition disp_left_adjoint_data_univ_cat_with_terminal_obj
       : disp_left_adjoint_data a F.
     Proof.
-      refine ((_ ,, tt) ,, ((tt ,, tt) ,, (tt ,, tt))).
+      refine ((tt ,, _) ,, ((tt ,, tt) ,, (tt ,, tt))).
       exact (right_adjoint_preserves_terminal _ (left_adjoint_to_is_left_adjoint a)).
     Defined.
 
@@ -133,14 +133,14 @@ Section DispAdjunctionBinproduct.
   Proof.
     use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)) ; simpl.
     - apply isapropdirprod.
-      + apply isaprop_preserves_binproduct.
       + apply isapropunit.
+      + apply isaprop_preserves_binproduct.
     - use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)).
       + use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)).
         * simpl.
           apply isapropdirprod.
-          ** apply isaprop_preserves_binproduct.
           ** apply isapropunit.
+          ** apply isaprop_preserves_binproduct.
         * apply isapropdirprod.
           ** simpl ; apply isapropdirprod ; apply isapropunit.
           ** simpl ; apply isapropdirprod ; apply isapropunit.
@@ -150,12 +150,12 @@ Section DispAdjunctionBinproduct.
   Section MakeDispAdj.
     Context (H : preserves_binproduct (pr1 a)).
 
-    Let F : CC₁ -->[ a ] CC₂ := H ,, tt.
+    Let F : CC₁ -->[ a ] CC₂ := tt ,, H.
 
     Local Definition disp_left_adjoint_data_univ_cat_with_binprod
       : disp_left_adjoint_data a F.
     Proof.
-      refine ((_ ,, tt) ,, ((tt ,, tt) ,, (tt ,, tt))).
+      refine ((tt ,, _) ,, ((tt ,, tt) ,, (tt ,, tt))).
       exact (right_adjoint_preserves_binproduct _ (left_adjoint_to_is_left_adjoint a)).
     Defined.
 
@@ -208,14 +208,14 @@ Section DispAdjunctionPullback.
   Proof.
     use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)) ; simpl.
     - apply isapropdirprod.
-      + apply isaprop_preserves_pullback.
       + apply isapropunit.
+      + apply isaprop_preserves_pullback.
     - use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)).
       + use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)).
         * simpl.
           apply isapropdirprod.
-          ** apply isaprop_preserves_pullback.
           ** apply isapropunit.
+          ** apply isaprop_preserves_pullback.
         * apply isapropdirprod.
           ** simpl ; apply isapropdirprod ; apply isapropunit.
           ** simpl ; apply isapropdirprod ; apply isapropunit.
@@ -225,12 +225,12 @@ Section DispAdjunctionPullback.
   Section MakeDispAdj.
     Context (H : preserves_pullback (pr1 a)).
 
-    Let F : CC₁ -->[ a ] CC₂ := H ,, tt.
+    Let F : CC₁ -->[ a ] CC₂ := tt ,, H.
 
     Local Definition disp_left_adjoint_data_univ_cat_with_pb
       : disp_left_adjoint_data a F.
     Proof.
-      refine ((_ ,, tt) ,, ((tt ,, tt) ,, (tt ,, tt))).
+      refine ((tt ,, _) ,, ((tt ,, tt) ,, (tt ,, tt))).
       exact (right_adjoint_preserves_pullback _ (left_adjoint_to_is_left_adjoint a)).
     Defined.
 
@@ -283,14 +283,14 @@ Section DispAdjunctionInitial.
   Proof.
     use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)) ; simpl.
     - apply isapropdirprod.
-      + apply isaprop_preserves_initial.
       + apply isapropunit.
+      + apply isaprop_preserves_initial.
     - use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)).
       + use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)).
         * simpl.
           apply isapropdirprod.
-          ** apply isaprop_preserves_initial.
           ** apply isapropunit.
+          ** apply isaprop_preserves_initial.
         * apply isapropdirprod.
           ** simpl ; apply isapropdirprod ; apply isapropunit.
           ** simpl ; apply isapropdirprod ; apply isapropunit.
@@ -303,7 +303,7 @@ Section DispAdjunctionInitial.
     Local Definition disp_left_adjoint_univ_cat_with_initial_1cell
       : CC₁ -->[ a ] CC₂.
     Proof.
-      refine (_ ,, tt).
+      refine (tt ,, _).
       exact (left_adjoint_preserves_initial _ (left_adjoint_to_is_left_adjoint a)).
     Defined.
 
@@ -312,7 +312,7 @@ Section DispAdjunctionInitial.
     Local Definition disp_left_adjoint_data_univ_cat_with_initial
       : disp_left_adjoint_data a F.
     Proof.
-      refine ((H ,, tt) ,, ((tt ,, tt) ,, (tt ,, tt))).
+      refine ((tt ,, H) ,, ((tt ,, tt) ,, (tt ,, tt))).
     Defined.
 
     Local Definition disp_left_adjoint_axioms_univ_cat_with_initial
@@ -364,14 +364,14 @@ Section DispAdjunctionCoprod.
   Proof.
     use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)) ; simpl.
     - apply isapropdirprod.
-      + apply isaprop_preserves_bincoproduct.
       + apply isapropunit.
+      + apply isaprop_preserves_bincoproduct.
     - use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)).
       + use (isaprop_total2 (_ ,, _) (λ _, _ ,, _)).
         * simpl.
           apply isapropdirprod.
-          ** apply isaprop_preserves_bincoproduct.
           ** apply isapropunit.
+          ** apply isaprop_preserves_bincoproduct.
         * apply isapropdirprod.
           ** simpl ; apply isapropdirprod ; apply isapropunit.
           ** simpl ; apply isapropdirprod ; apply isapropunit.
@@ -384,7 +384,7 @@ Section DispAdjunctionCoprod.
     Local Definition disp_left_adjoint_univ_cat_with_bincoprod_1cell
       : CC₁ -->[ a ] CC₂.
     Proof.
-      refine (_ ,, tt).
+      refine (tt ,, _).
       exact (left_adjoint_preserves_bincoproduct
                _
                (left_adjoint_to_is_left_adjoint a)).
@@ -395,7 +395,7 @@ Section DispAdjunctionCoprod.
     Local Definition disp_left_adjoint_data_univ_cat_with_bincoprod
       : disp_left_adjoint_data a F.
     Proof.
-      refine ((H ,, tt) ,, ((tt ,, tt) ,, (tt ,, tt))).
+      refine ((tt ,, H) ,, ((tt ,, tt) ,, (tt ,, tt))).
     Defined.
 
     Local Definition disp_left_adjoint_axioms_univ_cat_with_bincoprod

@@ -27,16 +27,6 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Local Open Scope cat.
 
-Definition functor_compose {A B C : category} (F : ob [A, B])
-      (G : ob [B , C]) : ob [A , C] :=
-   functor_composite F G.
-
-(*
-Local Notation "G 'O' F '{' hsB  hsC '}'" :=
-        (functor_compose hsB hsC F G) (at level 200).
-Local Notation "G 'o' F '{' hsB  hsC '}'" :=
-        (functor_compose hsB hsC  F G : functor _ _ ) (at level 200).
-*)
 (** * Whiskering: Composition of a natural transformation with a functor *)
 
 (** Prewhiskering *)

@@ -11,7 +11,7 @@ Require Import UniMath.MoreFoundations.Orders.
 
 Require Import UniMath.Algebra.BinaryOperations
                UniMath.Algebra.Apartness
-               UniMath.Algebra.Lattice.Lattice.
+               UniMath.OrderTheory.Lattice.Lattice.
 
 (** * Partially-defined inverse functions *)
 

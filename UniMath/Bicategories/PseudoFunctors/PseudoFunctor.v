@@ -16,6 +16,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
@@ -466,6 +467,16 @@ Proof.
     + exact (psfunctor_is_iso F (left_equivalence_counit_iso Hf)).
 Defined.
 
+Lemma psfunctor_preserve_adj_equiv
+      {C D : bicat}
+      (F : psfunctor C D) (x y : C)
+  : adjoint_equivalence x y -> adjoint_equivalence (pr111 F x) (pr111 F y).
+Proof.
+  intro a.
+  exists (pr211 F _ _ (pr1 a)).
+  use psfunctor_preserves_adjequiv'.
+  exact (pr2 a).
+Defined.
 
 Definition local_equivalence
            {B₁ B₂ : bicat}
@@ -481,6 +492,12 @@ Definition local_equivalence
           F x y
           B₁_is_univalent_2_1
           B₂_is_univalent_2_1).
+
+Definition local_weak_equivalence
+           {B1 B2 : bicat} (F : psfunctor B1 B2) : UU
+  := ∏ (x y : B1),
+    Functors.essentially_surjective (Fmor F x y)
+                                    × fully_faithful (Fmor F x y).
 
 Definition essentially_surjective
            {B₁ B₂ : bicat}
@@ -498,7 +515,52 @@ Definition weak_equivalence
        B₁_is_univalent_2_1
        B₂_is_univalent_2_1
        F
-     × essentially_surjective F.
+       × essentially_surjective F.
+
+Definition weak_biequivalence
+           {B1 B2 : bicat} (F : psfunctor B1 B2) : UU
+  := essentially_surjective F × local_weak_equivalence F.
+
+Lemma weak_equivalence_to_is_weak_biequivalence
+      {B1 B2 : bicat}
+      {u1 : is_univalent_2_1 B1}
+      {u2 : is_univalent_2_1 B2}
+      (F : psfunctor B1 B2)
+  : weak_equivalence u1 u2 F -> weak_biequivalence F.
+Proof.
+  intro w.
+  exists (pr2 w).
+  intros x y.
+  set (a := pr1 w x y).
+  split ;
+    [apply functor_from_equivalence_is_essentially_surjective |
+      apply fully_faithful_from_equivalence
+    ] ; apply (adj_equiv_to_equiv_cat (Fmor_univ F x y u1 u2)) ; exact (pr1 w x y).
+Defined.
+
+(**
+ `idtoiso_2_1` for pseudofunctors
+ *)
+Definition idtoiso_2_1_psfunctor
+           {B₁ B₂ : bicat}
+           (F : psfunctor B₁ B₂)
+           {x y : B₁}
+           {f g : x --> y}
+           (p : f = g)
+  : idtoiso_2_1 _ _ (maponpaths #F p)
+    =
+    ##F (idtoiso_2_1 _ _ p) ,, psfunctor_is_iso _ _.
+Proof.
+  induction p ; cbn.
+  use subtypePath.
+  {
+    intro.
+    apply isaprop_is_invertible_2cell.
+  }
+  cbn.
+  rewrite psfunctor_id2.
+  apply idpath.
+Qed.
 
 Module Notations.
   Notation "'##'" := (psfunctor_on_cells).

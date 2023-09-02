@@ -35,7 +35,6 @@ Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.whiskering.
 
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
-Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
@@ -220,7 +219,6 @@ Section InitialRep.
 
 (** ** Some variables and assumptions *)
 
-(** Assume having a precategory [C] whose hom-types are sets *)
 Variable C : category.
 Variable CP : BinCoproducts C.
 

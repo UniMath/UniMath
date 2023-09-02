@@ -73,7 +73,7 @@ Section DisplayedAdjunction.
              (FF := left_adj_over X)
              (ηη := unit_over X)
              (εε := counit_over X) : UU
-    := ∏ x xx, #FF (ηη x xx) ;;  εε _ (FF _ xx)
+    := ∏ x xx, ♯ FF (ηη x xx) ;;  εε _ (FF _ xx)
                = transportb _ (triangle_id_left_ad A x ) (id_disp _) .
 
   Definition triangle_2_statement_over
@@ -82,7 +82,7 @@ Section DisplayedAdjunction.
              (GG := right_adj_over AA)
              (ηη := unit_over AA)
              (εε := counit_over AA) : UU
-    := ∏ x xx, ηη _ (GG x xx) ;; # GG (εε _ xx)
+    := ∏ x xx, ηη _ (GG x xx) ;; ♯ GG (εε _ xx)
                = transportb _ (triangle_id_right_ad A _ ) (id_disp _).
 
   Definition form_disp_adjunction {C C' : category}
@@ -294,7 +294,7 @@ Section DisplayedEquivalences.
         etrans. apply assoc_disp.
         eapply transportf_bind.
         etrans. eapply cancel_postcomposition_disp.
-          exact (disp_nat_trans_ax η (# GG (ε x yy))). (*2*)
+          exact (disp_nat_trans_ax η (♯ GG (ε x yy))). (*2*)
         eapply transportf_bind.
         etrans. apply assoc_disp_var.
         eapply transportf_bind.
@@ -371,7 +371,7 @@ Section Constructions.
   (** * Constructions on and of displayed equivalences *)
 
   (** ** Full + faithful + ess split => equivalence *)
-
+  Local Open Scope cat.
   Section Equiv_from_ff_plus_ess_split.
     (* TODO: consider naming throughout this section!  Especially: anything with [ses] should be fixed. *)
 
@@ -386,23 +386,23 @@ Section Constructions.
     (** *** Utility lemmas from fullness+faithfulness *)
 
     (* TODO: inline throughout? *)
-    Let FFweq {x y} xx yy (f : x --> y) : xx -->[ f] yy ≃ FF x xx -->[ (# F)%Cat f] FF y yy
+    Let FFweq {x y} xx yy (f : x --> y) : xx -->[ f] yy ≃ FF x xx -->[#F f] FF y yy
         := disp_functor_ff_weq _ FF_ff xx yy f.
-    Let FFinv {x y} {xx} {yy} {f} : FF x xx -->[ (# F)%Cat f] FF y yy → xx -->[ f] yy
+    Let FFinv {x y} {xx} {yy} {f} : FF x xx -->[#F f] FF y yy → xx -->[ f] yy
         := @disp_functor_ff_inv _ _ _ _ _ _ FF_ff x y xx yy f.
 
     (* TODO: once [disp_functor_ff_transportf_gen] is done, replace this with that. *)
     Lemma FFinv_transportf
           {x y : C} {f f' : x --> y} (e : f = f')
-          {xx : D x} {yy : D y} (ff : FF _ xx -->[(#F)%cat f] FF _ yy)
-      : FFinv (transportf (λ f', _ -->[ (#F)%Cat f'] _ ) e ff) = transportf _ e (FFinv ff).
+          {xx : D x} {yy : D y} (ff : FF _ xx -->[#F f] FF _ yy)
+      : FFinv (transportf (λ f', _ -->[#F f'] _ ) e ff) = transportf _ e (FFinv ff).
     Proof.
       destruct e. apply idpath.
     Qed.
 
     Definition disp_functor_ff_reflects_isos
                {x y} {xx : D x} {yy : D y} {f : z_iso x y}
-               (ff : xx -->[ f ] yy) (isiso: is_z_iso_disp (functor_on_z_iso F f) (# FF ff))
+               (ff : xx -->[ f ] yy) (isiso: is_z_iso_disp (functor_on_z_iso F f) (♯ FF ff))
       : is_z_iso_disp _ ff.
     Proof.
       set (FFffinv := inv_mor_disp_from_z_iso isiso).
@@ -522,7 +522,7 @@ Definition triangle_1_statement_over_id  {C} {D D' : disp_cat C}
     (η := unit_over_id A)
     (ε := counit_over_id A)
   : UU
-:= ∏ x xx, #FF ( η x xx) ;;  ε _ (FF _ xx)
+:= ∏ x xx, ♯ FF ( η x xx) ;;  ε _ (FF _ xx)
             = transportb _ (id_left _ ) (id_disp _) .
 
 Definition triangle_2_statement_over_id  {C} {D D' : disp_cat C}
@@ -531,7 +531,7 @@ Definition triangle_2_statement_over_id  {C} {D D' : disp_cat C}
     (η := unit_over_id A)
     (ε := counit_over_id A)
   : UU
-:= ∏ x xx, η _ (GG x xx) ;; # GG (ε _ xx)
+:= ∏ x xx, η _ (GG x xx) ;; ♯ GG (ε _ xx)
            = transportb _ (id_left _ ) (id_disp _).
 
 Definition form_disp_adjunction_id {C} {D D' : disp_cat C}
@@ -573,9 +573,8 @@ Definition right_adjoint_over_id_data {C} {D D' : disp_cat C}
 Definition functor_of_right_adjoint_over_id {C} {D D' : disp_cat C}
   {FF : disp_functor _ D D'}
   (GG : right_adjoint_over_id_data FF)
-:= pr1 GG.
-Coercion functor_of_right_adjoint_over_id
-  : right_adjoint_over_id_data >-> disp_functor.
+  := pr1 GG.
+Coercion functor_of_right_adjoint_over_id : right_adjoint_over_id_data >-> disp_functor.
 
 Definition adjunction_of_right_adjoint_over_id_data {C} {D D' : disp_cat C}
     {FF : disp_functor _ D D'}
@@ -615,6 +614,21 @@ Definition right_adjoint_of_disp_adjunction_id {C} {D D' : disp_cat C}
 
 (* TODO: add the dual-handedness version, i.e. indexed over GG instead of FF. *)
 End AdjunctionsOverId.
+
+(**
+ Being an adjunction is a proposition
+ *)
+Proposition isaprop_form_disp_adjunction_id
+            {C : category}
+            {D₁ D₂ : disp_cat C}
+            (F : disp_functor (functor_identity C) D₁ D₂)
+            (HF : right_adjoint_over_id_data F)
+  : isaprop (form_disp_adjunction_id HF).
+Proof.
+  use isapropdirprod ; do 2 (use impred ; intro).
+  - apply D₂.
+  - apply D₁.
+Qed.
 
 Section EquivalencesOverId.
 (** ** Displayed equivalences over id (adjoint and quasi) *)
@@ -733,7 +747,7 @@ Proof.
       etrans. apply assoc_disp.
       eapply transportf_bind.
       etrans. eapply cancel_postcomposition_disp.
-        exact (disp_nat_trans_ax η (# GG (ε x yy))). (*2*)
+        exact (disp_nat_trans_ax η (♯ GG (ε x yy))). (*2*)
       eapply transportf_bind.
       etrans. apply assoc_disp_var.
       eapply transportf_bind.
@@ -780,7 +794,7 @@ Proof.
     apply maponpaths. exact (z_iso_disp_after_inv_mor _). (*7b*)
   etrans. apply transport_f_f.
   unfold transportb. apply maponpaths_2, homset_property.
-Time Qed.
+Qed.
 (* TODO: [Qed.] takes about 30sec!  [etrans_dep] + [etrans_disp] make it shorter and more readable (see commit 7c1f411a), but make the typechecking time even worse. *)
 
 Lemma triangle_1_from_2_for_equiv_over_id
@@ -795,6 +809,70 @@ Abort.
 (* TODO: adjointification of a quasi-equivalence. *)
 
 End EquivalencesOverId.
+
+(**
+ Being an equivalence is a proposition
+ *)
+Proposition isaprop_form_equiv_over_id
+            {C : category}
+            {D₁ D₂ : disp_cat C}
+            (HF : disp_adjunction_id_data D₁ D₂)
+  : isaprop (form_equiv_over_id HF).
+Proof.
+  use isapropdirprod ; repeat (use impred ; intro) ; apply isaprop_is_z_iso_disp.
+Qed.
+
+(**
+ Useful lemma
+ *)
+Proposition triangle_1_over_id_alt
+            {C : category}
+            {D₁ : disp_cat C}
+            {D₂ : disp_cat C}
+            (LL : disp_functor (functor_identity _) D₁ D₂)
+            (HLL : is_equiv_over_id LL)
+            {x : C}
+            (xx : D₁ x)
+  : ♯ LL (inv_mor_disp_from_z_iso (is_z_iso_unit_over_id HLL x xx))
+    =
+    counit_over_id HLL x (LL x xx).
+Proof.
+  refine (_ @ !(id_left_disp_var _)).
+  rewrite disp_functor_id_var.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    apply maponpaths.
+    exact (!(transportf_transpose_left
+               (z_iso_disp_after_inv_mor (is_z_iso_unit_over_id HLL x xx)))).
+  }
+  rewrite disp_functor_transportf.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  rewrite disp_functor_comp.
+  unfold transportb.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  rewrite assoc_disp_var.
+  rewrite transport_f_f.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    exact (triangle_1_over_id HLL x xx).
+  }
+  unfold transportb.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite transport_f_f.
+  rewrite id_right_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  apply transportf_set.
+  apply homset_property.
+Qed.
 
 (** * Constructions on and of displayed equivalences over identity *)
 
@@ -825,7 +903,7 @@ Qed.
 
 Definition disp_functor_id_ff_reflects_isos
   {x y} {xx : D' x} {yy : D' y} {f : z_iso x y}
-  (ff : xx -->[ f ] yy) (isiso: is_z_iso_disp f (# FF ff))
+  (ff : xx -->[ f ] yy) (isiso: is_z_iso_disp f (♯ FF ff))
   : is_z_iso_disp _ ff.
 Proof.
   use (disp_functor_ff_reflects_isos FF FF_ff).
@@ -1174,7 +1252,7 @@ Lemma inv_triangle_1_statement_over_id
 Proof.
   intros x xx. cbn.
         set (XR:= @z_iso_disp_precomp).
-        set (Gepsxxx := (#GG (ε x xx))).
+        set (Gepsxxx := (♯ GG (ε x xx))).
         set (RG := @disp_functor_on_is_z_iso_disp _ _ (functor_identity C)).
         specialize (RG _ _ GG).
         specialize (RG _ _ _ _ (identity_z_iso _ )  (ε x xx)).

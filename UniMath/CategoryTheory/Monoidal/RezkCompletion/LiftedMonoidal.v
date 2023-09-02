@@ -39,6 +39,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.catiso.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PrecompEquivalence.
 
@@ -50,8 +51,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.TotalCategoryFacts.
 
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorCategory.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorCategory.
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedTensor.
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedTensorUnit.
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedUnitors.
@@ -810,6 +811,21 @@ Section RezkMonoidal.
     - exact precomp_monoidal_is_eso.
   Defined.
 
+  Definition precomp_monoidal_catiso
+    : catiso (total_category (functor_monoidal_disp_cat
+                                (TransportedLeftUnitor Duniv H_eso H_ff TC I lu) luE
+                                (TransportedRightUnitor Duniv H_eso H_ff TC I ru) ruE
+                                (TransportedAssociator Duniv H_eso H_ff TC α) αE
+             ))
+             (total_category (functor_monoidal_disp_cat
+                                lu luE ru ruE α αE
+             )).
+  Proof.
+    use (adj_equivalence_of_cats_to_cat_iso precomp_monoidal_adj_equiv _ _).
+    - apply is_univalent_LaxMonoidalFunctorCategory.
+    - apply is_univalent_LaxMonoidalFunctorCategory'.
+  Defined.
+
   Definition precomp_strongmonoidal_adj_equiv
     : adj_equivalence_of_cats (total_functor precompStrongMonoidal).
   Proof.
@@ -817,6 +833,26 @@ Section RezkMonoidal.
     - apply is_univalent_StrongMonoidalFunctorCategory.
     - exact precomp_strongmonoidal_is_ff.
     - exact precomp_strongmonoidal_is_eso.
+  Defined.
+
+  Definition precomp_strongmonoidal_catiso
+    : catiso (total_category (functor_strong_monoidal_disp_cat
+                                (TransportedLeftUnitor Duniv H_eso H_ff TC I lu) luE
+                                (TransportedRightUnitor Duniv H_eso H_ff TC I ru) ruE
+                                (TransportedAssociator Duniv H_eso H_ff TC α) αE
+             ))
+             (total_category (functor_strong_monoidal_disp_cat
+                                lu luE ru ruE α αE
+             )).
+  Proof.
+    use (adj_equivalence_of_cats_to_cat_iso precomp_strongmonoidal_adj_equiv _ _).
+    - apply is_univalent_StrongMonoidalFunctorCategory.
+    - apply is_univalent_total_category.
+      + apply is_univalent_LaxMonoidalFunctorCategory'.
+      + apply Constructions.disp_full_sub_univalent.
+        intro ; apply isapropdirprod.
+        * apply NaturalTransformations.isaprop_is_nat_z_iso.
+        * apply Isos.isaprop_is_z_isomorphism.
   Defined.
 
 End RezkMonoidal.

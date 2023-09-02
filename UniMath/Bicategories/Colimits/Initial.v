@@ -367,7 +367,7 @@ Section Initial.
     : is_biinitial_repr X.
   Proof.
     intros Y.
-    exact (adjointificiation (is_biinitial_to_is_biinitial_repr_help HX Y)).
+    exact (adjointification (is_biinitial_to_is_biinitial_repr_help HX Y)).
   Defined.
 
   Definition is_biinitial_weq_is_biinitial_repr

@@ -13,6 +13,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
+Require Import UniMath.Bicategories.Core.Univalence.
+Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Export UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
@@ -527,8 +529,8 @@ Proof.
   exists (left_adjoint_data_total_to_disp ff).
   use isweq_iso.
   - exact (left_adjoint_data_disp_to_total ff).
-  - intros ?. reflexivity.
-  - intros ?. reflexivity.
+  - intro. reflexivity.
+  - intro. reflexivity.
 Defined.
 
 (** The equivalence for adjunction laws *)
@@ -622,7 +624,7 @@ Proof.
   - apply isofhleveltotal2; try intro; apply cellset_property.
   - apply isofhleveltotal2.
     { apply isofhleveltotal2; try intro; apply cellset_property. }
-    intros ?.
+    intro.
     apply isofhleveltotal2; try intro; apply disp_cellset_property.
 Defined.
 
@@ -726,7 +728,7 @@ Proof.
   - apply isapropdirprod; apply isaprop_is_invertible_2cell.
   - apply isofhleveltotal2.
     { apply isapropdirprod; apply isaprop_is_invertible_2cell. }
-    intros ?.
+    intro.
     apply isapropdirprod; apply isaprop_is_disp_invertible_2cell.
 Defined.
 
@@ -922,3 +924,20 @@ Definition disp_left_equivalence_to_left_adjoint_equivalence
   := left_adjoint_equivalence_total_disp_weq
        f ff
        (pr2 (equiv_to_adjequiv _ (disp_left_equivalence_to_total Hff))).
+
+Definition disp_left_equivalence_to_left_adjoint_equivalence_over_id
+           {B : bicat}
+           {D : disp_bicat B}
+           (HB : is_univalent_2_1 B)
+           {x : B}
+           {xx yy : D x}
+           {ff : xx -->[ id₁ x ] yy}
+           (Hff : disp_left_equivalence (internal_adjoint_equivalence_identity _) ff)
+  : disp_left_adjoint_equivalence (internal_adjoint_equivalence_identity _) ff.
+Proof.
+  refine (transportf
+            (λ z, disp_left_adjoint_equivalence z ff)
+            _
+            (pr2 (disp_left_equivalence_to_left_adjoint_equivalence Hff))).
+  apply (isaprop_left_adjoint_equivalence _ HB).
+Qed.

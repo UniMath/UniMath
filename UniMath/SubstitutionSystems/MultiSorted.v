@@ -1,6 +1,6 @@
 (**
 
-This file contains a fomalization of multisorted binding signatures:
+This file contains a formalization of multisorted binding signatures:
 
 - Definition of multisorted binding signatures ([MultiSortedSig])
 - Construction of a functor from a multisorted binding signature
@@ -9,8 +9,9 @@ This file contains a fomalization of multisorted binding signatures:
   signature ([MultiSortedSigToSignature])
 - Proof that the functor obtained from a multisorted binding signature
   is omega-cocontinuous ([is_omega_cocont_MultiSortedSigToFunctor])
-- Construction of a monad on Set/sort from a multisorted signature
-  ([MultiSortedSigToMonad])
+
+The construction of a monad on Set/sort from a multisorted signature
+is now found in [UniMath.SubstitutionSystems.MultiSortedMonadConstruction].
 
 
 Written by: Anders Mörtberg, 2016. The formalization follows a note
@@ -58,13 +59,9 @@ Require Import UniMath.CategoryTheory.slicecat.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
-Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
-Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
-Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
-Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted.
 
 Local Open Scope cat.
@@ -122,7 +119,7 @@ use tpair.
   exists (pr1 f (pr1 p)).
   abstract (now induction f as [h hh]; induction p as [x hx]; simpl in *; rewrite <- hx, hh).
 - abstract (split; [intros X|intros X Y Z f g];
-            apply funextsec; intro p; apply subtypePath; trivial;
+            apply funextsec; intro p; apply subtypePath; try apply idpath;
             intros x; apply setproperty).
 Defined.
 
@@ -332,7 +329,7 @@ use make_nat_trans.
   apply (!pr2 H).
 - intros x y f.
   apply funextsec; intro w.
-  apply subtypePath; trivial.
+  apply subtypePath; try apply idpath.
   intro z; apply setproperty.
 Defined.
 
@@ -345,14 +342,14 @@ use tpair.
     exists (tt,,pr1 xy).
     apply (!pr2 xy).
   - abstract (intros X Y f; apply funextsec; intros x;
-              apply subtypePath; trivial; intros w; apply setproperty).
+              apply subtypePath; try apply idpath; intros w; apply setproperty).
 + abstract (split;
   [ apply subtypePath; [intros x; apply isaprop_is_nat_trans, has_homsets_HSET|];
     apply funextsec; intro x; apply funextsec; intro y; cbn;
     now rewrite pathsinv0inv0; induction y as [y' y3]; induction y' as [y'' y2]; induction y''
   | apply (nat_trans_eq has_homsets_HSET); simpl; intros x;
     apply funextsec; intros z; simpl in *;
-    now apply subtypePath; trivial; intros w; apply setproperty]).
+    now apply subtypePath; try apply idpath; intros w; apply setproperty]).
 Defined.
 
 Local Lemma is_left_adjoint_proj_functor' (s : sort) : is_left_adjoint (proj_functor' s).
@@ -364,7 +361,7 @@ Defined.
 
 Local Lemma is_left_adjoint_proj_functor (s : sort) : is_left_adjoint (proj_functor s).
 Proof.
-apply (is_left_adjoint_z_iso _ _ (_,,is_z_iso_nat_trans_proj_functor s)).
+apply (is_left_adjoint_closed_under_iso _ _ (_,,is_z_iso_nat_trans_proj_functor s)).
 apply is_left_adjoint_proj_functor'.
 Defined.
 
@@ -383,7 +380,7 @@ use make_are_adjoints.
 + use make_nat_trans.
   - intros X; simpl; intros x; apply (x,,idpath s).
   - intros X Y f; simpl; apply funextsec; intro x; cbn.
-    now apply subtypePath; trivial; intros y; apply setproperty.
+    now apply subtypePath; try apply idpath; intros y; apply setproperty.
 + use make_nat_trans.
   - intros X; simpl in *.
     use tpair; simpl.
@@ -393,7 +390,7 @@ use make_are_adjoints.
 + split.
   - now intros X; apply eq_mor_slicecat.
   - intros X; apply funextsec; intro x.
-    now apply subtypePath; trivial; intros x'; apply setproperty.
+    now apply subtypePath; try apply idpath; intros x'; apply setproperty.
 Defined.
 
 Local Lemma is_omega_cocont_exp_functor (a : list sort × sort)
@@ -468,51 +465,4 @@ Defined.
 End omega_cocont.
 
 
-(** * Construction of a monad from a multisorted signature *)
-Section monad.
-
-Let Id_H := Id_H (HSET / sort) (BinCoproducts_HSET_slice sort).
-
-(* ** Construction of initial algebra for a signature with strength on Set / sort *)
-Definition SignatureInitialAlgebraSetSort
-  (H : Signature HSET_over_sort HSET_over_sort HSET_over_sort) (Hs : is_omega_cocont H) :
-  Initial (FunctorAlg (Id_H H)).
-Proof.
-use colimAlgInitial.
-- apply Initial_functor_precat, Initial_slice_precat, InitialHSET.
-- apply (is_omega_cocont_Id_H), Hs.
-- apply ColimsFunctorCategory_of_shape, slice_precat_colims_of_shape,
-        ColimsHSET_of_shape.
-Defined.
-
-Let HSS := @hss_category _ (BinCoproducts_HSET_slice sort).
-
-(* ** Multisorted signature to a HSS *)
-Definition MultiSortedSigToHSS (sig : MultiSortedSig) :
-  HSS (MultiSortedSigToSignature sig).
-Proof.
-apply SignatureToHSS.
-+ apply Initial_slice_precat, InitialHSET.
-+ apply slice_precat_colims_of_shape, ColimsHSET_of_shape.
-+ apply is_omega_cocont_MultiSortedSigToSignature.
-  apply slice_precat_colims_of_shape, ColimsHSET_of_shape.
-Defined.
-
-(* The above HSS is initial *)
-Definition MultiSortedSigToHSSisInitial (sig : MultiSortedSig) :
-  isInitial _ (MultiSortedSigToHSS sig).
-Proof.
-now unfold MultiSortedSigToHSS, SignatureToHSS; destruct InitialHSS.
-Qed.
-
-(** ** Function from multisorted binding signatures to monads *)
-Definition MultiSortedSigToMonad (sig : MultiSortedSig) : Monad (HSET / sort).
-Proof.
-use Monad_from_hss.
-- apply BinCoproducts_HSET_slice.
-- apply (MultiSortedSigToSignature sig).
-- apply MultiSortedSigToHSS.
-Defined.
-
-End monad.
 End MBindingSig.

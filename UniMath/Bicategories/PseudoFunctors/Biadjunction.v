@@ -436,6 +436,6 @@ Section BiadjunctionHom.
   Definition biadj_hom_equiv
     : adj_equivalence_of_cats biadj_left_hom.
   Proof.
-    exact (adjointificiation biadj_hom_equivalence).
+    exact (adjointification biadj_hom_equivalence).
   Defined.
 End BiadjunctionHom.

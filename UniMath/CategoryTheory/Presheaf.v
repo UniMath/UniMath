@@ -28,8 +28,8 @@ Written by: Anders Mörtberg, 2017-2019
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.Algebra.Monoids.
-Require Import UniMath.Algebra.Lattice.Lattice.
-Require Import UniMath.Algebra.Lattice.Bounded.
+Require Import UniMath.OrderTheory.Lattice.Lattice.
+Require Import UniMath.OrderTheory.Lattice.Bounded.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.

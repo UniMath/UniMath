@@ -11,6 +11,9 @@
  2. Functor from the core to the category
  3. Factoring via the core
  4. Functors between cores
+ 5. A diagonal functor on cores
+ 6. The functor from the core to the opposite
+ 7. Idtoiso in the core
 
  *********************************************************************)
 Require Import UniMath.Foundations.All.
@@ -21,6 +24,8 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Groupoids.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Local Open Scope cat.
 
@@ -321,3 +326,72 @@ Section CoreFunctor.
     - exact core_functor_is_functor.
   Defined.
 End CoreFunctor.
+
+(**
+ 5. A diagonal functor on cores
+ *)
+Definition core_diag_data
+           (C : category)
+  : functor_data (core C) (category_binproduct C^op C).
+Proof.
+  use make_functor_data.
+  - exact (λ x, x ,, x).
+  - exact (λ x y f, inv_from_z_iso f ,, pr1 f).
+Defined.
+
+Definition core_diag_laws
+           (C : category)
+  : is_functor (core_diag_data C).
+Proof.
+  split ; intro ; intros ; apply idpath.
+Qed.
+
+Definition core_diag
+           (C : category)
+  : core C ⟶ category_binproduct C^op C.
+Proof.
+  use make_functor.
+  - exact (core_diag_data C).
+  - exact (core_diag_laws C).
+Defined.
+
+(**
+ 6. The functor from the core to the opposite
+ *)
+Definition functor_core_op_data
+           (C : category)
+  : functor_data (core C) C^op.
+Proof.
+  use make_functor_data.
+  - exact (λ x, x).
+  - exact (λ x y f, inv_from_z_iso f).
+Defined.
+
+Definition functor_core_op_laws
+           (C : category)
+  : is_functor (functor_core_op_data C).
+Proof.
+  split ; intro ; intros ; apply idpath.
+Qed.
+
+Definition functor_core_op
+           (C : category)
+  : core C ⟶ C^op.
+Proof.
+  use make_functor.
+  - exact (functor_core_op_data C).
+  - exact (functor_core_op_laws C).
+Defined.
+
+(**
+ 7. Idtoiso in the core
+ *)
+Proposition idtoiso_core
+            {C : category}
+            {x y : C}
+            (p : x = y)
+  : pr11 (@idtoiso (core C) _ _ p) = pr1 (@idtoiso C _ _ p).
+Proof.
+  induction p ; cbn.
+  apply idpath.
+Qed.

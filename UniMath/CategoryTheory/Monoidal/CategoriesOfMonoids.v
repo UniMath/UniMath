@@ -1,149 +1,257 @@
-(** Categories of monoids for monoidal categories **)
+(** In this file, the category of monoids internal to a monoidal category is defined
 
-Require Import UniMath.Foundations.PartD.
+Note: after refactoring on March 10, 2023, the prior Git history of this development is found via
+git log -- UniMath/CategoryTheory/Monoidal/CategoriesOfMonoidsWhiskered.v
+(git log -- UniMath/CategoryTheory/Monoidal/CategoriesOfMonoids.v gives information on a prior development for the "tensored" format of monoidal categories)
+
+*)
+
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+
+Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Import BifunctorNotations.
+
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
 Local Open Scope cat.
 
 Section Category_of_Monoids.
 
-Context (Mon : monoidal_cat).
+  Context {C : category} (M : monoidal C).
 
-Local Definition tensor := monoidal_cat_tensor Mon.
-Notation "X ⊗ Y" := (tensor (X , Y)).
-Notation "f #⊗ g" := (# tensor (f #, g)) (at level 31).
-Local Definition I := monoidal_cat_unit Mon.
-Local Definition α' := monoidal_cat_associator Mon.
-Local Definition λ' := monoidal_cat_left_unitor Mon.
-Local Definition ρ' := monoidal_cat_right_unitor Mon.
+  Notation "x ⊗ y" := (x ⊗_{M} y).
+  Notation "x ⊗l f" := (x ⊗^{M}_{l} f) (at level 31).
+  Notation "f ⊗r y" := (f ⊗^{M}_{r} y) (at level 31).
+  Notation "f ⊗⊗ g" := (f ⊗^{M} g) (at level 31).
 
-Definition monoid_ob_data : UU :=
-  ∑ X : Mon, (X ⊗ X --> X) × (I --> X).
+  Let I : C := monoidal_unit M.
+  Let lu : leftunitor_data M (monoidal_unit M) := monoidal_leftunitordata M.
+  Let ru : rightunitor_data M (monoidal_unit M) := monoidal_rightunitordata M.
+  Let α : associator_data M := monoidal_associatordata M.
 
-Definition is_monoid_ob (X : Mon) (μ : X ⊗ X --> X) (η : I --> X) : UU :=
-	(μ #⊗ id X · μ = pr1 α' ((X, X), X) · id X #⊗ μ · μ) × (* Pentagon diagram *)
-	(pr1 λ' X = η #⊗ id X · μ) × (pr1 ρ' X = id X #⊗ η · μ). (* Unitor diagrams *)
-(* This definition deviates from that by Mac Lane (CWM 2nd ed., p.170) since the associator goes in the opposite direction. However, it conforms to the def. on Wikipedia for monoid objects. *)
+  Definition monoid_data (x : C) : UU
+    := C⟦x ⊗ x, x⟧ × C⟦I, x⟧.
 
+  Definition monoid_data_multiplication {x : C} (m : monoid_data x)
+    : C⟦x ⊗ x, x⟧
+    := pr1 m.
+  Notation "μ_{ m }" := (monoid_data_multiplication m).
 
-Definition monoid_ob : UU :=
-	∑ X : monoid_ob_data, is_monoid_ob (pr1 X) (pr1 (pr2 X)) (pr2 (pr2 X)).
+  Definition monoid_data_unit {x : C} (m : monoid_data x)
+    : C⟦I, x⟧
+    := pr2 m.
+  Notation "η_{ m }" := (monoid_data_unit m).
 
-Definition monoid_carrier (X : monoid_ob) : Mon := pr1 (pr1 X).
-Local Coercion monoid_carrier : monoid_ob >-> ob.
+  Definition monoid_laws_assoc {x : C} (m : monoid_data x) : UU
+    := α x x x · (x ⊗l μ_{m}) · μ_{m} = μ_{m} ⊗r x · μ_{m}.
 
-Definition monoid_mult (X : monoid_ob) := pr1 (pr2 (pr1 X)).
+  Definition monoid_laws_unit_left {x : C} (m : monoid_data x) : UU
+    := (η_{m} ⊗r x) · μ_{m} = lu x.
+  Definition monoid_laws_unit_right {x : C} (m : monoid_data x) : UU
+    := (x ⊗l η_{m}) · μ_{m} = ru x.
 
-Definition monoid_unit (X : monoid_ob) := pr2 (pr2 (pr1 X)).
+  Definition monoid_laws {x : C} (m : monoid_data x) : UU
+    := monoid_laws_unit_left m × monoid_laws_unit_right m × monoid_laws_assoc m.
 
-Definition is_monoid_mor (X Y : monoid_ob) (f : monoid_carrier X --> monoid_carrier Y) : UU :=
-  ((@monoid_mult X) · f = f #⊗ f · (@monoid_mult Y)) ×
-   (@monoid_unit X) · f = (@monoid_unit Y).
+  Lemma isaprop_monoid_laws {x : C} (m : monoid_data x)
+    : isaprop (monoid_laws m).
+  Proof.
+    repeat (apply isapropdirprod) ; apply homset_property.
+  Qed.
 
-Definition monoid_mor (X Y : monoid_ob) : UU :=
-  ∑ f : X --> Y, is_monoid_mor X Y f.
-Coercion mor_from_monoid_mor (X Y : monoid_ob) (f : monoid_mor X Y) : X --> Y := pr1 f.
+  Definition monoid (x : C) : UU
+    := ∑ m : monoid_data x, monoid_laws m.
 
-Definition isaprop_is_monoid_mor (X Y : monoid_ob) (f : monoid_carrier X --> monoid_carrier Y):
-  isaprop (is_monoid_mor X Y f).
-Proof.
-  use isapropdirprod; apply homset_property.
-Qed.
+  Definition make_monoid
+    {x : C} (μ : C⟦x ⊗ x, x⟧) (η : C⟦monoidal_unit M, x⟧)
+    (p_ul : (η ⊗r x) · μ = lu x)
+    (p_ur : (x ⊗l η) · μ = ru x)
+    (p_assoc : α x x x · (x ⊗l μ) · μ = μ ⊗r x · μ)
+    : monoid x.
+  Proof.
+    simple refine ((_ ,, _) ,, (_ ,, _ ,, _)).
+    - exact μ.
+    - exact η.
+    - exact p_ul.
+    - exact p_ur.
+    - exact p_assoc.
+  Defined.
 
-Definition isaset_monoid_mor (X Y : monoid_ob) : isaset (monoid_mor X Y).
-Proof.
-  apply (isofhleveltotal2 2).
-  - apply homset_property.
-  - intro.
-    apply isasetaprop.
-    apply isaprop_is_monoid_mor.
-Qed.
+  Definition monoid_to_monoid_data {x : C} (m : monoid x)
+    : monoid_data x := pr1 m.
+  Coercion monoid_to_monoid_data : monoid >-> monoid_data.
 
-Definition monoid_mor_eq {X Y : monoid_ob} {f g : monoid_mor X Y} :
-  (f : X --> Y) = g ≃ f = g.
-Proof.
-  apply invweq.
-  apply subtypeInjectivity.
-  intro.
-  apply isaprop_is_monoid_mor.
-Defined.
+  Definition monoid_to_monoid_laws {x : C} (m : monoid x)
+    : monoid_laws m := pr2 m.
 
-Definition monoid_mor_id (X : monoid_ob) : monoid_mor X X.
-Proof.
-  exists (id _).
-  red.
-  rewrite id_right.
-  rewrite tensor_id.
-  rewrite id_left.
-  rewrite id_right.
-  split; apply idpath.
-Defined.
+  Definition monoid_to_unit_left_law {x : C} (m : monoid x)
+    : monoid_laws_unit_left m := pr1 (monoid_to_monoid_laws m).
 
-Definition monoid_mor_comp (X Y Z : monoid_ob) (f : monoid_mor X Y) (g : monoid_mor Y Z) : monoid_mor X Z.
-Proof.
-  use tpair; [| split].
-  - exact (f · g).
-  - rewrite assoc.
-    change (monoid_mult X · pr1 f · g = # tensor (f · g #, f · g) · monoid_mult Z).
-    rewrite (pr1 (pr2 f)).
-    rewrite <- assoc.
-    change ((# tensor (f #, f) · (monoid_mult Y · g) =
-             # tensor (catbinprodmor (f · g) (f · g)) · monoid_mult Z)).
-    rewrite binprod_comp.
-    change ((# tensor (pr1 f #, pr1 f) · (monoid_mult Y · pr1 g) =
-             # tensor ((f #, f) · (g #, g)) · monoid_mult Z)).
-    rewrite functor_comp.
-    rewrite (pr1 (pr2 g)).
-    rewrite assoc.
-    apply idpath.
-  - rewrite assoc.
-    rewrite <- (pr2 (pr2 g)).
-    rewrite <- (pr2 (pr2 f)).
-    apply idpath.
-Defined.
+  Definition monoid_to_unit_right_law {x : C} (m : monoid x)
+    : monoid_laws_unit_right m := pr12 (monoid_to_monoid_laws m).
 
-Definition precategory_monoid_ob_mor : precategory_ob_mor.
-Proof.
-  exists monoid_ob.
-  exact monoid_mor.
-Defined.
+  Definition monoid_to_assoc_law {x : C} (m : monoid x)
+    : monoid_laws_assoc m := pr22 (monoid_to_monoid_laws m).
 
-Definition precategory_monoid_data : precategory_data.
-Proof.
-  exists precategory_monoid_ob_mor.
-  exists monoid_mor_id.
-  exact monoid_mor_comp.
-Defined.
+  Definition is_monoid_mor_mult {x y : C}
+             (mx : monoid x) (my : monoid y) (f : C⟦x,y⟧) : UU
+    := (f ⊗⊗ f) · μ_{my} = μ_{mx} · f.
 
-Lemma is_precategory_precategory_monoid_data
-  : is_precategory precategory_monoid_data.
-Proof.
-  repeat split; intros; simpl; apply monoid_mor_eq.
-  - apply id_left.
-  - apply id_right.
-  - apply assoc.
-  - apply assoc'.
-Defined.
+  Definition is_monoid_mor_unit {x y : C}
+             (mx : monoid x) (my : monoid y) (f : C⟦x,y⟧) : UU
+    := η_{mx} · f = η_{my}.
 
-Definition precategory_monoid
-  : precategory := tpair _ _ is_precategory_precategory_monoid_data.
+  Definition is_monoid_mor {x y : C}
+             (mx : monoid x) (my : monoid y) (f : C⟦x,y⟧) : UU
+    := is_monoid_mor_mult mx my f × is_monoid_mor_unit mx my f.
 
-Local Notation monoid := precategory_monoid.
+  Lemma isaprop_is_monoid_mor {x y : C}
+        (mx : monoid x) (my : monoid y) (f : C⟦x,y⟧)
+    : isaprop (is_monoid_mor mx my f).
+  Proof.
+    apply isapropdirprod ; apply homset_property.
+  Qed.
 
-Lemma precategory_monoid_has_homsets: has_homsets precategory_monoid.
-Proof.
-  red.
-  intros X Y.
-  red.
-  intros f g.
-  apply (isofhlevelweqf 1 (monoid_mor_eq(f := f)(g := g))).
-  apply homset_property.
-Qed.
+  Definition monoid_disp_cat_ob_mor : disp_cat_ob_mor C.
+  Proof.
+    exists (λ x, monoid x).
+    exact (λ x y mx my f, is_monoid_mor mx my f).
+  Defined.
 
-Definition category_monoid: category := precategory_monoid ,, precategory_monoid_has_homsets.
+  Lemma id_is_monoid_mor {x : C} (xx : monoid x)
+    : is_monoid_mor xx xx (identity x).
+  Proof.
+    split.
+    - refine (_ @ ! id_right _).
+      etrans. {
+        apply maponpaths_2, bifunctor_distributes_over_id.
+        apply (bifunctor_leftid M).
+        apply (bifunctor_rightid M).
+      }
+      apply id_left.
+    - apply id_right.
+  Qed.
 
+  Lemma comp_is_monoid_mor {x y z : C}
+        {f : C ⟦ x, y ⟧} {g : C ⟦ y, z ⟧}
+        {xx : monoid x} {yy : monoid y} {zz : monoid z}
+        (pf : is_monoid_mor xx yy f) (pg : is_monoid_mor yy zz g)
+    : is_monoid_mor xx zz (f · g).
+  Proof.
+    split.
+    - etrans. {
+        apply maponpaths_2.
+        apply bifunctor_distributes_over_comp.
+        apply (bifunctor_leftcomp M).
+        apply (bifunctor_rightcomp M).
+        apply (bifunctor_equalwhiskers M).
+      }
+      etrans.
+      1: apply assoc'.
+      etrans.
+      1: apply maponpaths, (pr1 pg).
+      etrans.
+      1: apply assoc.
+      etrans.
+      1: apply maponpaths_2, (pr1 pf).
+      apply assoc'.
+    - unfold is_monoid_mor_unit.
+      etrans.
+      1: apply assoc.
+      etrans.
+      1: apply maponpaths_2, (pr2 pf).
+      apply (pr2 pg).
+  Qed.
+
+  Definition monoid_disp_cat_id_comp
+    : disp_cat_id_comp C monoid_disp_cat_ob_mor.
+  Proof.
+    split.
+    - intro ; intro ; apply id_is_monoid_mor.
+    - intros x y z f g xx yy zz pf pg.
+      exact (comp_is_monoid_mor pf pg).
+  Qed.
+
+  Definition monoid_disp_cat_data : disp_cat_data C.
+  Proof.
+    exists monoid_disp_cat_ob_mor.
+    exact monoid_disp_cat_id_comp.
+  Defined.
+
+  Definition monoid_disp_cat_axioms
+    : disp_cat_axioms C monoid_disp_cat_data.
+  Proof.
+    repeat split ; intro ; intros ; try (apply isaprop_is_monoid_mor).
+    apply isasetaprop ; apply isaprop_is_monoid_mor.
+  Qed.
+
+  Definition monoid_disp_cat : disp_cat C.
+  Proof.
+    exists monoid_disp_cat_data.
+    exact monoid_disp_cat_axioms.
+  Defined.
+
+  Definition category_of_monoids_in_monoidal_cat : category
+    := total_category monoid_disp_cat.
+
+  Let MON : category := category_of_monoids_in_monoidal_cat.
+
+  Definition monoid_carrier
+             (X : MON)
+    : ob C := pr1 X.
+
+  Definition monoid_struct (X : MON)
+    : monoid (monoid_carrier X)
+    := pr2 X.
+
+  Definition monoid_multiplication (X : MON)
+    : C⟦monoid_carrier X ⊗_{ M} monoid_carrier X, monoid_carrier X⟧
+    := monoid_data_multiplication (monoid_struct X).
+
+  Definition monoid_unit (X : MON)
+    : C⟦I, monoid_carrier X⟧
+    := monoid_data_unit (monoid_struct X).
+
+  Definition monoid_left_unit_law (X : MON)
+    : monoid_laws_unit_left (monoid_struct X)
+    := monoid_to_unit_left_law (monoid_struct X).
+
+  Definition monoid_right_unit_law (X : MON)
+    : monoid_laws_unit_right (monoid_struct X)
+    := monoid_to_unit_right_law (monoid_struct X).
+
+  Definition monoid_assoc_law (X : MON)
+    : monoid_laws_assoc (monoid_struct X)
+    := monoid_to_assoc_law (monoid_struct X).
 End Category_of_Monoids.
+
+Definition unit_monoid
+  (V : monoidal_cat)
+  : monoid V (monoidal_unit V).
+Proof.
+  use make_monoid.
+  - exact (monoidal_leftunitordata V (monoidal_unit V)).
+  - exact (identity (monoidal_unit V)).
+  - etrans. {
+      apply maponpaths_2.
+      apply (bifunctor_rightid V).
+    }
+    apply id_left.
+  - etrans. {
+      apply maponpaths_2.
+      apply (bifunctor_leftid V).
+    }
+    refine (id_left _ @ _).
+    apply unitors_coincide_on_unit.
+  - apply maponpaths_2.
+    etrans.
+    2: { rewrite unitors_coincide_on_unit.
+         apply monoidal_triangleidentity. }
+    apply idpath.
+Defined.

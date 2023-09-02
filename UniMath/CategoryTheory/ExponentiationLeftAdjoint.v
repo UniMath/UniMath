@@ -208,8 +208,8 @@ Lemma second_iso_nat_in_x (F : PreShv C) :
 Proof.
   intros X Y f.
   apply funextsec; intro g.
-  apply (nat_trans_eq has_homsets_HSET); intros ?.
-  apply funextsec; intros ?.
+  apply (nat_trans_eq has_homsets_HSET); intro.
+  apply funextsec; intro.
   apply maponpaths; apply idpath.
 Qed.
 
@@ -219,9 +219,9 @@ Lemma second_iso_nat_in_F :
                                     (second_iso_on_sets F) (second_iso_nat_in_x F)).
 Proof.
   intros X Y f.
-  apply (nat_trans_eq has_homsets_HSET); intros ?.
+  apply (nat_trans_eq has_homsets_HSET); intro.
   apply funextsec; intros g.
-  apply (nat_trans_eq has_homsets_HSET); intros ?.
+  apply (nat_trans_eq has_homsets_HSET); intro.
   apply funextsec; intros h.
   apply (maponpaths (pr1 f x0)).
   apply (maponpaths (pr1 (pr1 g x0 (pr2 h)) x0)).
@@ -298,9 +298,9 @@ Lemma third_iso_nat_in_F :
                                     (third_iso_on_sets F) (third_iso_nat_in_x F)).
 Proof.
   intros X Y f.
-  apply (nat_trans_eq has_homsets_HSET); intros ?.
+  apply (nat_trans_eq has_homsets_HSET); intro.
   apply funextsec; intros g.
-  apply (nat_trans_eq has_homsets_HSET); intros ?.
+  apply (nat_trans_eq has_homsets_HSET); intro.
   apply funextsec; intros h.
   apply maponpaths; apply idpath.
 Qed.
@@ -336,7 +336,7 @@ Lemma fourth_iso_nat_in_F:
     (λ F, make_nat_trans (pr1 (Fun3 F)) _ (fourth_iso_on_sets F) (fourth_iso_nat_in_x F)).
 Proof.
   intros X Y f.
-  apply (nat_trans_eq has_homsets_HSET); intros ?.
+  apply (nat_trans_eq has_homsets_HSET); intro.
   apply funextsec; intros g.
   apply idpath.
 Qed.
@@ -364,7 +364,7 @@ Defined.
 (** The exponential functor has a right adjoint. *)
 Theorem is_left_adjoint_exp_yoneda : is_left_adjoint (exp (Yon c)).
 Proof.
-  use is_left_adjoint_z_iso.
+  use is_left_adjoint_closed_under_iso.
   - exact precomp_prod_functor.
   - use iso_exp_precomp_prod_functor.
   - use precomp_prod_functor_has_right_adjoint.

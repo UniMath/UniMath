@@ -19,12 +19,13 @@ Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PrecompEquivalence.
+Require Import UniMath.CategoryTheory.catiso.
 
 Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorCategory.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorCategory.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
@@ -32,6 +33,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.TotalCategoryFacts.
 
+Local Open Scope mor_disp.
 Local Open Scope cat.
 
 Section TensorRezk.
@@ -202,10 +204,10 @@ Section TensorRezk.
              (GG1 : functor_tensor_disp_cat TD TE G1)
              (GG2 : functor_tensor_disp_cat TD TE G2)
              (β : [D, E] ⟦ G1, G2 ⟧)
-    : isincl (λ ff : GG1 -->[ β] GG2, (# HT)%mor_disp ff).
+    : isincl (λ ff : GG1 -->[ β] GG2, ♯ HT ff).
   Proof.
     do 3 intro.
-    assert (p : isaset ( hfiber (λ ff : GG1 -->[ β] GG2, (# HT)%mor_disp ff) y)).
+    assert (p : isaset ( hfiber (λ ff : GG1 -->[ β] GG2, ♯ HT ff) y)).
     {
       use isaset_hfiber ; use isasetaprop ; apply isaprop_is_nat_trans_tensor.
     }
@@ -224,7 +226,7 @@ Section TensorRezk.
              (GG1 : functor_tensor_disp_cat TD TE G1)
              (GG2 : functor_tensor_disp_cat TD TE G2)
              (β : [D, E] ⟦ G1, G2 ⟧)
-    :   issurjective (λ ff : GG1 -->[ β] GG2, (# HT)%mor_disp ff).
+    :   issurjective (λ ff : GG1 -->[ β] GG2, ♯ HT ff).
   Proof.
     intro βHH.
     apply hinhpr.
@@ -333,6 +335,15 @@ Section TensorRezk.
       + apply functor_tensor_disp_cat_is_univalent.
     - exact precomp_tensor_is_ff.
     - exact precomp_tensor_is_eso.
+  Defined.
+
+  Definition precomp_tensor_catiso
+    : catiso (total_category (functor_tensor_disp_cat TransportedTensor TE))
+             (total_category (functor_tensor_disp_cat TC TE)).
+  Proof.
+    use (adj_equivalence_of_cats_to_cat_iso precomp_tensor_adj_equiv _ _).
+    - apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_tensor_disp_cat_is_univalent _ _)).
+    - apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_tensor_disp_cat_is_univalent _ _)).
   Defined.
 
 End TensorRezk.

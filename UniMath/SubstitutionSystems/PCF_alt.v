@@ -45,6 +45,7 @@ Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
+Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_alt.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.STLC_alt.
 

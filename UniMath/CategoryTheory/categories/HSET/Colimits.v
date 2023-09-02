@@ -361,3 +361,105 @@ Section finite_subsets.
   Defined.
 
 End finite_subsets.
+
+(**
+ Concrete construction of coequalizers of sets
+ *)
+Section HSETCoequalizer.
+  Context {X Y : hSet}
+          (f g : X → Y).
+
+  Definition coequalizer_eqrel
+    : eqrel Y.
+  Proof.
+    use make_eqrel.
+    - exact (eqrel_from_hrel (λ y₁ y₂, ∃ (x : X) , f x = y₁ × g x = y₂)).
+    - apply iseqrel_eqrel_from_hrel.
+  Defined.
+
+  Definition coequalizer_hSet
+    : hSet
+    := setquotinset coequalizer_eqrel.
+
+  Definition coequalizer_map_hSet
+    : Y → coequalizer_hSet
+    := setquotpr coequalizer_eqrel.
+
+  Proposition coequalizer_eq_hSet
+              (x : X)
+    : coequalizer_map_hSet (f x)
+      =
+      coequalizer_map_hSet (g x).
+  Proof.
+    apply iscompsetquotpr.
+    use eqrel_impl.
+    apply hinhpr.
+    exists x.
+    split.
+    - apply idpath.
+    - apply idpath.
+  Qed.
+
+  Lemma coequalizer_out_hSet_equality
+        (Z : hSet)
+        (h : Y → Z)
+        (p : ∏ (x : X), h(f x) = h(g x))
+    : iscomprelfun coequalizer_eqrel h.
+  Proof.
+    intros y₁ y₂ q.
+    cbn in *.
+    use (q (make_eqrel (λ y₁ y₂, make_hProp (h y₁ = h y₂) _) _)).
+    - apply setproperty.
+    - repeat split.
+      + exact (λ _ _ _ r₁ r₂, r₁ @ r₂).
+      + exact (λ _ _ r, !r).
+    - intros x y ; cbn.
+      use factor_through_squash.
+      {
+        apply setproperty.
+      }
+      intros r.
+      rewrite <- (pr12 r).
+      rewrite <- (pr22 r).
+      apply p.
+  Qed.
+
+  Definition coequalizer_out_hSet
+             {Z : hSet}
+             (h : Y → Z)
+             (p : ∏ (x : X), h(f x) = h(g x))
+    : coequalizer_hSet → Z.
+  Proof.
+    use setquotuniv.
+    - exact h.
+    - exact (coequalizer_out_hSet_equality Z h p).
+  Defined.
+End HSETCoequalizer.
+
+Definition Coequalizers_HSET
+  : Coequalizers HSET.
+Proof.
+  intros X Y f g.
+  use make_Coequalizer.
+  - exact (coequalizer_hSet f g).
+  - exact (coequalizer_map_hSet f g).
+  - abstract
+      (use funextsec ;
+       intro x ;
+       cbn ;
+       exact (coequalizer_eq_hSet f g x)).
+  - intros Z h p.
+    use iscontraprop1.
+    + abstract
+        (use invproofirrelevance ;
+         intros φ₁ φ₂ ;
+         use subtypePath ; [ intro ; apply homset_property | ] ;
+         use funextsec ;
+         use setquotunivprop' ; [ intro ; apply setproperty | ] ;
+         intro x ; cbn ;
+         exact (eqtohomot (pr2 φ₁ @ !(pr2 φ₂)) x)).
+    + simple refine (_ ,, _).
+      * exact (coequalizer_out_hSet f g h (eqtohomot p)).
+      * abstract
+          (apply idpath).
+Defined.

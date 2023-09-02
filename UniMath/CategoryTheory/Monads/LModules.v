@@ -43,7 +43,7 @@ Local Notation "F ;;; G" := (nat_trans_comp _ _ _ F G) (at level 35).
 (** * Definition of module *)
 Section LModule_over_monad.
 
- Context {B:precategory_data} (M:Monad B) .
+ Context {B : category} (M : Monad B) .
   (** Definition of modules over M of codomain D **)
 
 Section LModule_def.
@@ -51,37 +51,37 @@ Section LModule_def.
 
 
 
-Definition LModule_data (D:precategory_data) : UU
+Definition LModule_data (D : category) : UU
   := ∑ F : functor B D, M ∙ F ⟹ F.
 
-Coercion functor_from_LModule_data (C : precategory_data) (F : LModule_data C)
+Coercion functor_from_LModule_data (C : category) (F : LModule_data C)
   : functor B C := pr1 F.
 
-Definition lm_mult {C : precategory_data} (F : LModule_data C) : M ∙ F ⟹ F := pr2 F.
+Definition lm_mult {C : category} (F : LModule_data C) : M ∙ F ⟹ F := pr2 F.
 Local Notation σ := lm_mult.
 
-Definition LModule_laws  {C:precategory_data} (T : LModule_data C) : UU :=
+Definition LModule_laws  {C : category} (T : LModule_data C) : UU :=
       (∏ c : B, #T (η M c) · σ T c = identity (T c))
         × (∏ c : B, #T ((μ M) c) · σ T c = σ T (M c) · σ T c).
 
-Lemma isaprop_LModule_laws (C : precategory_data) (hs : has_homsets C) (T : LModule_data C) :
+Lemma isaprop_LModule_laws (C : category) (T : LModule_data C) :
    isaprop (LModule_laws T).
 Proof.
   repeat apply isapropdirprod;
-  apply impred; intro c; apply hs.
+  apply impred; intro c; apply C.
 Qed.
 
-Definition LModule (C : precategory_data) : UU := ∑ T : LModule_data C, LModule_laws T.
+Definition LModule (C : category) : UU := ∑ T : LModule_data C, LModule_laws T.
 
-Coercion LModule_data_from_LModule (C : precategory_data) (T : LModule C) : LModule_data C := pr1 T.
+Coercion LModule_data_from_LModule (C : category) (T : LModule C) : LModule_data C := pr1 T.
 
 
-Lemma LModule_law1 {C : precategory_data} {T : LModule C} : ∏ c : B, #T (η M c) · σ T c = identity (T c).
+Lemma LModule_law1 {C : category} {T : LModule C} : ∏ c : B, #T (η M c) · σ T c = identity (T c).
 Proof.
 exact ( (pr1 (pr2 T))).
 Qed.
 
-Lemma LModule_law2 {C : precategory_data} {T : LModule C} :
+Lemma LModule_law2 {C : category} {T : LModule C} :
   ∏ c : B, #T ((μ M) c) · σ T c = σ T (M c) · σ T c.
 Proof.
 exact (pr2 ( (pr2 T))).
@@ -89,47 +89,47 @@ Qed.
 
 End LModule_def.
 
-(** * Monad precategory *)
-Section LModule_precategory.
+(** * Monad category *)
+Section LModule_category.
 
 Local Notation σ := lm_mult.
-Definition LModule_Mor_laws {C : precategory_data} {T T' : LModule_data C} (α : T ⟹ T')
+Definition LModule_Mor_laws {C : category} {T T' : LModule_data C} (α : T ⟹ T')
   : UU :=
   ∏ a : B, α (M a) · σ T' a = σ T a · α a.
 
 
-Lemma isaprop_LModule_Mor_laws (C : precategory_data) (hs : has_homsets C)
+Lemma isaprop_LModule_Mor_laws (C : category)
   (T T' : LModule_data C) (α : T ⟹ T')
   : isaprop (LModule_Mor_laws α).
 Proof.
-  apply impred; intro c; apply hs.
+  apply impred; intro c; apply C.
 Qed.
 
-Definition LModule_Mor {C : precategory_data} (T T' : LModule C) : UU
+Definition LModule_Mor {C : category} (T T' : LModule C) : UU
   := ∑ α : T ⟹ T', LModule_Mor_laws α.
 
 
-Coercion nat_trans_from_module_mor (C : precategory_data) (T T' : LModule C) (s : LModule_Mor T T')
+Coercion nat_trans_from_module_mor (C : category) (T T' : LModule C) (s : LModule_Mor T T')
    : T ⟹ T' := pr1 s.
 
-Definition LModule_Mor_σ {C : precategory_data} {T T' : LModule C} (α : LModule_Mor T T')
+Definition LModule_Mor_σ {C : category} {T T' : LModule C} (α : LModule_Mor T T')
            : ∏ a : B, α (M a) · σ T' a = σ T a · α a
   := pr2 α.
 
-Lemma LModule_identity_laws {C : precategory} (T : LModule C)
+Lemma LModule_identity_laws {C : category} (T : LModule C)
   : LModule_Mor_laws (nat_trans_id T).
 Proof.
   intro x.
   now rewrite id_right, id_left.
 Qed.
 
-Definition LModule_identity {C : precategory} (T : LModule C)
+Definition LModule_identity {C : category} (T : LModule C)
 : LModule_Mor T T := tpair _ _ (LModule_identity_laws T).
 
-Lemma LModule_composition_laws {C : precategory} {T T' T'' : LModule C}
+Lemma LModule_composition_laws {C : category} {T T' T'' : LModule C}
   (α : LModule_Mor T T') (α' : LModule_Mor T' T'') : LModule_Mor_laws (nat_trans_comp _ _ _ α α').
 Proof.
-  red;intros; simpl.
+  red; intros; simpl.
   unfold nat_trans_from_module_mor.
   rewrite assoc.
     etrans; revgoals.
@@ -140,25 +140,25 @@ Proof.
     apply (LModule_Mor_σ α' a).
 Qed.
 
-Definition LModule_composition {C : precategory} {T T' T'' : LModule C}
+Definition LModule_composition {C : category} {T T' T'' : LModule C}
   (α : LModule_Mor T T') (α' : LModule_Mor T' T'')
   : LModule_Mor T T'' := tpair _ _ (LModule_composition_laws α α').
 
-Definition LModule_Mor_equiv {C : precategory_data} (hs : has_homsets C)
+Definition LModule_Mor_equiv {C : category}
   {T T' : LModule C} (α β : LModule_Mor T T')
   : α = β ≃ (pr1 α = pr1 β).
 Proof.
   apply subtypeInjectivity; intro a.
-  apply isaprop_LModule_Mor_laws, hs.
+  apply isaprop_LModule_Mor_laws.
 Defined.
 
-Definition precategory_LModule_ob_mor (C : precategory_data) : precategory_ob_mor.
+Definition precategory_LModule_ob_mor (C : category) : precategory_ob_mor.
 Proof.
   exists (LModule C).
   exact (λ T T' : LModule C, LModule_Mor T T').
 Defined.
 
-Definition precategory_LModule_data (C : precategory) : precategory_data.
+Definition precategory_LModule_data (C : category) : precategory_data.
 Proof.
   exists (precategory_LModule_ob_mor C).
   exists (@LModule_identity C).
@@ -166,22 +166,22 @@ Proof.
 Defined.
 
 
-Lemma precategory_LModule_axioms (C : precategory) (hs : has_homsets C)
+Lemma precategory_LModule_axioms (C : category)
   : is_precategory (precategory_LModule_data C).
 Proof.
     repeat split; simpl; intros.
-  - apply (invmap (LModule_Mor_equiv hs _ _ )).
-    apply (@id_left (functor_precategory B C hs)).
-  - apply (invmap (LModule_Mor_equiv hs _ _ )).
-    apply (@id_right (functor_precategory B C hs)).
-  - apply (invmap (LModule_Mor_equiv hs _ _ )).
-    apply (@assoc (functor_precategory B C hs)).
-  - apply (invmap (LModule_Mor_equiv hs _ _ )).
-    apply (@assoc' (functor_precategory B C hs)).
+  - apply (invmap (LModule_Mor_equiv _ _ )).
+    apply (@id_left (functor_category B C)).
+  - apply (invmap (LModule_Mor_equiv _ _ )).
+    apply (@id_right (functor_category B C)).
+  - apply (invmap (LModule_Mor_equiv _ _ )).
+    apply (@assoc (functor_category B C)).
+  - apply (invmap (LModule_Mor_equiv _ _ )).
+    apply (@assoc' (functor_category B C)).
 Qed.
 
 Definition precategory_LModule (C : category) : precategory
-  := tpair _ _ (precategory_LModule_axioms C (homset_property C)).
+  := tpair _ _ (precategory_LModule_axioms C).
 
 Lemma has_homsets_LModule (C : category) :
   has_homsets (precategory_LModule C).
@@ -193,7 +193,6 @@ Proof.
   - intros m.
     apply isasetaprop.
     apply isaprop_LModule_Mor_laws.
-    apply homset_property.
 Qed.
 
 Definition category_LModule (C : category) : category :=
@@ -201,7 +200,7 @@ Definition category_LModule (C : category) : category :=
 
 
 
-End LModule_precategory.
+End LModule_category.
 
 (** Any monad is a left module over itself *)
 Definition tautological_LModule_data  : LModule_data B := ((M:functor _ _) ,, μ M).
@@ -221,8 +220,8 @@ End LModule_over_monad.
 (** The forgetful functor from the category of left modules to the category of
   endofunctors *)
 Section ForgetLModFunctor.
-  Context {B : precategory} (R : Monad B) (C : category).
-  Local Notation MOD := (precategory_LModule R C).
+  Context {B : category} (R : Monad B) (C : category).
+  Local Notation MOD := (category_LModule R C).
 
   Definition LModule_forget_functor_data : functor_data MOD [B,C] :=
     make_functor_data (C := MOD) (C' := [B,C])
@@ -247,10 +246,10 @@ If T is a module over M', we call m* T the pullback module of T along m
 Section Pullback_module.
 
 
-  Context {B: precategory_data} {M M': Monad B} (m: Monad_Mor M M').
-  Context {C: precategory}.
+  Context {B: category} {M M': Monad B} (m: Monad_Mor M M').
+  Context {C: category}.
 
-  Variable (T:LModule M' C).
+  Variable (T : LModule M' C).
   Notation "Z ∘ α" := (post_whisker α Z).
   Local Notation σ := lm_mult.
 
@@ -304,7 +303,7 @@ between the pullback modules along m.
 *)
 Section Pullback_Module_Morphism.
 
-  Context {B: precategory_data} {M M': Monad B} (m: Monad_Mor M M') {C: precategory} {T T': LModule M' C}
+  Context {B: category} {M M': Monad B} (m: Monad_Mor M M') {C: category} {T T': LModule M' C}
           (n: LModule_Mor _ T T').
 
   Local Notation pbmT := (pb_LModule m T).
@@ -333,8 +332,8 @@ A monad morphism  f : R -> S induces a functor between the category of modules o
 and the category of modules over R.
  *)
 Section PbmFunctor.
-  Context {B : precategory} {C : category} {R S : Monad B} (f : Monad_Mor R S).
-  Let MOD (R : Monad B) := (precategory_LModule R C).
+  Context {B C : category} {R S : Monad B} (f : Monad_Mor R S).
+  Let MOD (R : Monad B) := (category_LModule R C).
   Definition pb_LModule_functor_data : functor_data (MOD S) (MOD R) :=
     make_functor_data (C := MOD S) (C' := MOD R) (pb_LModule f )
                     (@pb_LModule_Mor _ _ _ f _).
@@ -342,9 +341,9 @@ Section PbmFunctor.
   Proof.
     split.
     - intro M.
-      apply LModule_Mor_equiv;[apply homset_property|]; apply idpath.
+      apply LModule_Mor_equiv; apply idpath.
     - intros X Y Z u v.
-      apply LModule_Mor_equiv;[apply homset_property|]; apply idpath.
+      apply LModule_Mor_equiv; apply idpath.
   Qed.
 
   Definition pb_LModule_functor : functor (MOD S) (MOD R) :=
@@ -355,7 +354,7 @@ Construction of an isomorphism between modules sharing the same underlying
       functor and have pointwise equal multiplication [LModule_M1_M2_iso]
 *)
 Section IsoLModPb.
-  Context {B} {R:Monad B}  {C:precategory}
+  Context {B : category} {R : Monad B}  {C : category}
           {F : functor B C}.
 
   (**  Module morphism between two modules sharing the same functor F
@@ -402,19 +401,19 @@ Section IsoLModPb.
 
 
   (** Isomorphism between M1 and M2 *)
-  Lemma LModule_same_func_Mor_is_inverse hsC :
-    is_inverse_in_precat (C := precategory_LModule R (make_category C hsC) )
+  Lemma LModule_same_func_Mor_is_inverse :
+    is_inverse_in_precat (C := category_LModule R C)
                          (LModule_same_func_Mor hm m1_law m2_law)
                          (LModule_same_func_Mor (fun c => ! (hm c)) m2_law m1_law).
   Proof.
     use make_is_inverse_in_precat.
-    - apply LModule_Mor_equiv;[ apply homset_property|].
-      apply  (id_left (C := [B ,C , hsC])).
-    - apply LModule_Mor_equiv;[ apply homset_property|].
-      apply  (id_right (C := [B ,C , hsC])).
+    - apply LModule_Mor_equiv.
+      apply  (id_left (C := [B, C])).
+    - apply LModule_Mor_equiv.
+      apply  (id_right (C := [B, C])).
   Qed.
 
-  Definition LModule_same_func_iso hsC : iso (C := precategory_LModule R (make_category C hsC) )
+  Definition LModule_same_func_iso : iso (C := category_LModule R C )
                                          M1 M2.
   Proof.
     eapply make_iso.
@@ -437,12 +436,12 @@ and also the morphism id* T -> T
 *)
 Section Pullback_Identity_Module.
 
-Context {B : precategory} {M' : Monad B}  {C : precategory} {T : LModule M' C}.
+Context {B : category} {M' : Monad B}  {C : category} {T : LModule M' C}.
 
-Local Notation pbmid := (pb_LModule (Monad_identity M') T).
+Local Notation pbmid := (pb_LModule (identity M') T).
 
 Lemma pbm_id_law :
-  ∏ c : B, (lm_mult _ T) c = (pb_LModule_σ (Monad_identity M') T) c.
+  ∏ c : B, (lm_mult _ T) c = (pb_LModule_σ (identity M') T) c.
 Proof.
   intro c.
   cbn.
@@ -452,8 +451,8 @@ Proof.
   apply functor_id.
 Qed.
 
-Definition pb_LModule_id_iso hsC : iso (C := precategory_LModule _ (C ,, hsC)) T pbmid :=
-  LModule_same_func_iso _ _ pbm_id_law hsC.
+Definition pb_LModule_id_iso : iso (C := precategory_LModule _ C) T pbmid :=
+  LModule_same_func_iso _ _ pbm_id_law.
 
 
 
@@ -467,14 +466,14 @@ m*(m'*(T'')) and (m o m')*(T'') where m and m' are monad
 
 Section Pullback_Composition.
 
-Context {B : precategory} {M M' : Monad B} (m : Monad_Mor M M') {C : precategory}
+Context {B : category} {M M' : Monad B} (m : Monad_Mor M M') {C : category}
         {M'' : Monad B} (m' : Monad_Mor M' M'') (T'' : LModule M'' C).
 
 Local Notation comp_pbm := (pb_LModule m (pb_LModule m' T'')).
-Local Notation pbm_comp := (pb_LModule (Monad_composition m  m') T'').
+Local Notation pbm_comp := (pb_LModule (m · m') T'').
 
   Lemma pb_LModule_comp_law  (c : B) :
-    (pb_LModule_σ m (pb_LModule m' T'')) c = (pb_LModule_σ (Monad_composition m m') T'') c.
+    (pb_LModule_σ m (pb_LModule m' T'')) c = (pb_LModule_σ (m · m') T'') c.
   Proof.
     cbn.
     etrans; [apply assoc|].
@@ -483,8 +482,8 @@ Local Notation pbm_comp := (pb_LModule (Monad_composition m  m') T'').
     apply functor_comp.
   Qed.
 
-  Definition pb_LModule_comp_iso hsC
-    : iso  (C := category_LModule _ (make_category C hsC)) comp_pbm pbm_comp
-    := LModule_same_func_iso _ _ pb_LModule_comp_law hsC.
+  Definition pb_LModule_comp_iso
+    : iso  (C := category_LModule _ C) comp_pbm pbm_comp
+    := LModule_same_func_iso _ _ pb_LModule_comp_law.
 
 End Pullback_Composition.

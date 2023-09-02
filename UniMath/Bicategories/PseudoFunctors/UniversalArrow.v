@@ -128,7 +128,7 @@ Section RightUniversalArrow.
     Proof.
       simple refine (R ,, ε ,, _) ; cbn.
       intros x y.
-      exact (adjointificiation (make_right_universal_arrow_equivalence x y)).
+      exact (adjointification (make_right_universal_arrow_equivalence x y)).
     Defined.
   End Constructor.
 
@@ -285,7 +285,7 @@ Section LeftUniversalArrow.
     Proof.
       simple refine (L ,, η ,, _) ; cbn.
       intros x y.
-      exact (adjointificiation (make_left_universal_arrow_equivalence x y)).
+      exact (adjointification (make_left_universal_arrow_equivalence x y)).
     Defined.
   End Constructor.
 

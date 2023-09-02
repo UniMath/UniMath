@@ -17,16 +17,17 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.catiso.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
 
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorCategory.
+Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorCategory.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
@@ -37,6 +38,7 @@ Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedTensor.
 
+Local Open Scope mor_disp.
 Local Open Scope cat.
 
 Section LiftedUnit.
@@ -100,10 +102,10 @@ Section LiftedUnit.
              (GG1 : functor_unit_disp_cat ID IE G1)
              (GG2 : functor_unit_disp_cat ID IE G2)
              (β : [D, E] ⟦ G1, G2 ⟧)
-    : isincl (λ ff : GG1 -->[ β] GG2, (# HU)%mor_disp ff).
+    : isincl (λ ff : GG1 -->[ β] GG2, ♯ HU ff).
   Proof.
     do 3 intro.
-    assert (p : isaset ( hfiber (λ ff : GG1 -->[ β] GG2, (# HU)%mor_disp ff) y)).
+    assert (p : isaset ( hfiber (λ ff : GG1 -->[ β] GG2, ♯ HU ff) y)).
     {
       use isaset_hfiber ; use isasetaprop ; apply homset_property.
     }
@@ -122,7 +124,7 @@ Section LiftedUnit.
              (GG1 : functor_unit_disp_cat ID IE G1)
              (GG2 : functor_unit_disp_cat ID IE G2)
              (β : [D, E] ⟦ G1, G2 ⟧)
-    :   issurjective (λ ff : GG1 -->[ β] GG2, (# HU)%mor_disp ff).
+    :   issurjective (λ ff : GG1 -->[ β] GG2, ♯ HU ff).
   Proof.
     intro βHH.
     apply hinhpr.
@@ -179,6 +181,15 @@ Section LiftedUnit.
       + apply functor_unit_disp_cat_is_univalent.
     - exact precomp_unit_is_ff.
     - exact precomp_unit_is_eso.
+  Defined.
+
+  Definition precomp_unit_catiso
+    : catiso (total_category (functor_unit_disp_cat (H I) IE))
+             (total_category (functor_unit_disp_cat I IE)).
+  Proof.
+    use (adj_equivalence_of_cats_to_cat_iso precomp_unit_adj_equiv).
+    - apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_unit_disp_cat_is_univalent _ _)).
+    - apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_unit_disp_cat_is_univalent _ _)).
   Defined.
 
 End LiftedUnit.
@@ -254,7 +265,7 @@ Section LiftedTensorUnit.
       exact Euniv.
   Qed.
 
-  Definition precomp_tensorunit_cat_is_weak_equivalence
+  Definition precomp_tensorunit_adj_equiv
     : adj_equivalence_of_cats precomp_tensorunit_functor.
   Proof.
     apply rad_equivalence_of_cats.
@@ -263,6 +274,15 @@ Section LiftedTensorUnit.
       exact is_disp_univalent_functor_tensorunit_disp_cat.
     - exact precomp_tensorunit_is_ff.
     - exact precomp_tensorunit_is_eso.
+  Defined.
+
+  Definition precomp_tensorunit_catiso
+    : catiso (total_category (functor_tensorunit_disp_cat TD TE (H I) IE))
+             (total_category (functor_tensorunit_disp_cat TC TE I IE)).
+  Proof.
+    use (adj_equivalence_of_cats_to_cat_iso precomp_tensorunit_adj_equiv _ _).
+    - apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_tensorunit_disp_cat_is_univalent _ _ _ _)).
+    - apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_tensorunit_disp_cat_is_univalent _ _ _ _)).
   Defined.
 
 End LiftedTensorUnit.

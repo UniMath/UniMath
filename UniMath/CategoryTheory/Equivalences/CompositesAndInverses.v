@@ -298,7 +298,7 @@ Definition nat_iso_adj_equivalence_of_cats
            (Hα : is_nat_z_iso α)
            (HF : adj_equivalence_of_cats F)
   : adj_equivalence_of_cats G
-  := adjointificiation (nat_z_iso_equivalence_of_cats α Hα HF).
+  := adjointification (nat_z_iso_equivalence_of_cats α Hα HF).
 
 (**
  2 out of 3 property
@@ -487,4 +487,4 @@ Definition pair_adj_equivalence_of_cats
            (HF : adj_equivalence_of_cats F)
            (HG : adj_equivalence_of_cats G)
   : adj_equivalence_of_cats (pair_functor F G)
-  := adjointificiation (pair_equivalence_of_cats HF HG).
+  := adjointification (pair_equivalence_of_cats HF HG).
