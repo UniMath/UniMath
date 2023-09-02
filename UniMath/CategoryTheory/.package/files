@@ -362,7 +362,6 @@ Actegories/Examples/ActionOfEndomorphismsInCATElementary.v
 Actegories/Examples/SelfActionInCATElementary.v
 Actegories/ConstructionOfActegoryMorphisms.v
 Actegories/ActionBasedStrongMonads.v
->>>>>>> formonoidalfunctorlifting
 
 DisplayedCats/MoreFibrations/Prefibrations.v
 DisplayedCats/MoreFibrations/CartesiannessOfComposites.v
