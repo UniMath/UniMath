@@ -59,7 +59,7 @@ Proof.
   apply subtypePath.
   { intro; apply isaprop_is_mon_nat_trans. }
   apply subtypePath.
-  { intro; apply isaprop_is_nat_trans. apply homset_property.}
+  { intro; apply isaprop_is_nat_trans. apply homset_property. }
   apply funextsec ; intro ; apply p.
 Qed.
 
@@ -132,7 +132,7 @@ Context {Mon_V Mon_W : monbicat} (Fm Gm : monbicat⟦ Mon_V, Mon_W ⟧).
   Definition monbicat_inserter_ump_1_inv_2cell
              (q : inserter_cone Fm Gm)
     : invertible_2cell
-    ((_,, fmonoidal_underlying_inserter_1cell' q : monbicat ⟦q, monbicat_inserter_cone⟧)
+    ((_,, fmonoidal_underlying_inserter_1cell q : monbicat ⟦q, monbicat_inserter_cone⟧)
        · inserter_cone_pr1 monbicat_inserter_cone) (inserter_cone_pr1 q).
   Proof.
     use tpair.
@@ -152,7 +152,7 @@ Context {Mon_V Mon_W : monbicat} (Fm Gm : monbicat⟦ Mon_V, Mon_W ⟧).
     intro q.
     use make_inserter_1cell.
     - exists (underlying_inserter_1cell q).
-      exact (fmonoidal_underlying_inserter_1cell' q).
+      exact (fmonoidal_underlying_inserter_1cell q).
     - exact (monbicat_inserter_ump_1_inv_2cell q).
     - abstract (
           use equality_2cells_monbicat ;
