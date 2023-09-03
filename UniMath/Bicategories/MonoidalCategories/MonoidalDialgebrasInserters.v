@@ -2,7 +2,7 @@
 
 Ralph Matthes
 
-August 2022
+August 2022, simplified by Kobe Wullaert in December 2022
 *)
 
 (** **********************************************************
