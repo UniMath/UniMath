@@ -115,7 +115,7 @@ Section BinopIsCartesianMonoidal.
         apply idpath.
   Defined.
 
-  Lemma BO_disp_tensor_laws : is_disp_bifunctor(F:=SET_cartesian_monoidal) BO_disp_tensor_data.
+  Lemma BO_disp_tensor_laws : is_disp_bifunctor SET_cartesian_monoidal BO_disp_tensor_data.
   Proof.
     repeat split; red; intros; apply isapropisbinopfun.
   Qed.

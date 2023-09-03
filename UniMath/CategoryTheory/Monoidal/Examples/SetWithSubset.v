@@ -114,7 +114,7 @@ Section SetWithSubsetMonoidal.
         exact (pr222 x1y).
   Defined.
 
-  Lemma SS_disp_cat_tensor_laws : is_disp_bifunctor(F:=SET_cart_monoidal) SS_disp_cat_tensor_data.
+  Lemma SS_disp_cat_tensor_laws : is_disp_bifunctor SET_cart_monoidal SS_disp_cat_tensor_data.
   Proof.
     repeat split; red; intros; apply isaprop_hsubtype_preserving.
   Qed.
