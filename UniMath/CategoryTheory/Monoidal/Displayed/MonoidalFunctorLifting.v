@@ -26,17 +26,17 @@ Section MonoidalFunctorLifting.
   Import DisplayedMonoidalNotations.
 
   Context {C' C : category} {F : functor C' C} {D : disp_cat C}.
-  Local Notation TD := (total_category D).
+  Let TD : category := (total_category D).
   Context {M' : monoidal C'}
           {M : monoidal C}
           (Fm : fmonoidal_lax M' M F)
           (DM : disp_monoidal D M).
-  Local Notation TM := (total_monoidal DM).
+  Let TM : monoidal TD := total_monoidal DM.
 
   Context (sd : functor_lifting D F).
 
   Definition fl_preserves_tensor_data : UU
-    := ∏ (x y : C'),   sd x ⊗⊗_{ DM} sd y -->[ fmonoidal_preservestensordata Fm x y] sd (x ⊗_{ M'} y).
+    := ∏ (x y : C'), sd x ⊗⊗_{ DM} sd y -->[ fmonoidal_preservestensordata Fm x y] sd (x ⊗_{ M'} y).
 
   Lemma functorlifting_preserves_tensordata
         (sd_pt : fl_preserves_tensor_data)
@@ -190,19 +190,19 @@ Section MonoidalFunctorLifting.
   Definition flmonoidal_preserves_tensornatright
              {ms : flmonoidal_data} (msl : flmonoidal_laxlaws ms)
     : fl_preserves_tensor_nat_right (flmonoidal_preserves_tensor_data ms)
-    := pr1 (pr2 msl).
+    := pr12 msl.
   Definition flmonoidal_preserves_associativity
              {ms : flmonoidal_data} (msl : flmonoidal_laxlaws ms)
     : fl_preserves_associativity (flmonoidal_preserves_tensor_data ms)
-    := pr1 (pr2 (pr2 msl)).
+    := pr122 msl.
   Definition flmonoidal_preserves_leftunitality
              {ms : flmonoidal_data} (msl : flmonoidal_laxlaws ms)
     : fl_preserves_leftunitality (flmonoidal_preserves_tensor_data ms) (flmonoidal_preserves_unit ms)
-    := pr1 (pr2 (pr2 (pr2 msl))).
+    := pr122 (pr2 msl).
   Definition flmonoidal_preserves_rightunitality
              {ms : flmonoidal_data} (msl : flmonoidal_laxlaws ms)
     : fl_preserves_rightunitality (flmonoidal_preserves_tensor_data ms) (flmonoidal_preserves_unit ms)
-    := pr2 (pr2 (pr2 (pr2 msl))).
+    := pr222 (pr2 msl).
 
   Definition flmonoidal_lax : UU
     := ∑ (ms : flmonoidal_data), flmonoidal_laxlaws ms.
@@ -304,7 +304,7 @@ Section MonoidalFunctorLifting.
     - use tpair.
       + use total2_paths_b.
         * exact (pr12 (Fs x y)).
-        * exact (pr2 (pr2 (pfstrong x y))).
+        * exact (pr22 (pfstrong x y)).
       + use total2_paths_b.
         * exact (pr22 (Fs x y)).
         * exact (pr12 (pfstrong x y)).
