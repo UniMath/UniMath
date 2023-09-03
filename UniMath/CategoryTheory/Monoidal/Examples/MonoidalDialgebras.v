@@ -29,7 +29,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifun
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.MonoidalSections.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorLiftingWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorLifting.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.

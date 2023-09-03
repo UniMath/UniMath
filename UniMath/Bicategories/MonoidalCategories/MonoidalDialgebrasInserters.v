@@ -38,7 +38,7 @@ Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Functors.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras.
-Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorLiftingWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctorLifting.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
 
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCats.
