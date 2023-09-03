@@ -69,8 +69,9 @@ Section MonoidalFunctorLifting.
              (ms : flmonoidal_data)
     : fmonoidal_data M' TM (lifted_functor sd).
   Proof.
-    exists (functorlifting_preserves_tensordata (flmonoidal_preserves_tensor_data ms)).
-    exact (functorlifting_preserves_unit (flmonoidal_preserves_unit ms)).
+    split.
+    - exact (functorlifting_preserves_tensordata (flmonoidal_preserves_tensor_data ms)).
+    - exact (functorlifting_preserves_unit (flmonoidal_preserves_unit ms)).
   Defined.
 
   (* This notation comes from Constructions.v, but there is no Notation module, this has to be added *)
@@ -177,11 +178,11 @@ Section MonoidalFunctorLifting.
   Qed.
 
   Definition flmonoidal_laxlaws (ms : flmonoidal_data) : UU
-    := (fl_preserves_tensor_nat_left (flmonoidal_preserves_tensor_data ms)) ×
-       (fl_preserves_tensor_nat_right (flmonoidal_preserves_tensor_data ms)) ×
-       (fl_preserves_associativity (flmonoidal_preserves_tensor_data ms)) ×
-       (fl_preserves_leftunitality (flmonoidal_preserves_tensor_data ms) (flmonoidal_preserves_unit ms)) ×
-       (fl_preserves_rightunitality (flmonoidal_preserves_tensor_data ms) (flmonoidal_preserves_unit ms)).
+    := fl_preserves_tensor_nat_left (flmonoidal_preserves_tensor_data ms) ×
+       fl_preserves_tensor_nat_right (flmonoidal_preserves_tensor_data ms) ×
+       fl_preserves_associativity (flmonoidal_preserves_tensor_data ms) ×
+       fl_preserves_leftunitality (flmonoidal_preserves_tensor_data ms) (flmonoidal_preserves_unit ms) ×
+       fl_preserves_rightunitality (flmonoidal_preserves_tensor_data ms) (flmonoidal_preserves_unit ms).
 
   Definition flmonoidal_preserves_tensornatleft
              {ms : flmonoidal_data} (msl : flmonoidal_laxlaws ms)
