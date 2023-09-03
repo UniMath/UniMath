@@ -51,7 +51,7 @@ Section FullSubOfMonoidal.
   Defined.
 
   Lemma disp_monoidal_tensor_is_tensor_fullsub
-    :  is_disp_bifunctor disp_monoidal_tensor_data_fullsub.
+    :  is_disp_bifunctor(F:=M) disp_monoidal_tensor_data_fullsub.
   Proof.
     repeat split ; intro ; intros ; apply isapropunit.
   Qed.

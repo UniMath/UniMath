@@ -29,7 +29,7 @@ Section DisplayedBifunctor.
 
   Definition disp_bifunctor_data
              {A B C : category}
-             (F : bifunctor A B C)
+             (F : bifunctor_data A B C)
              (DA : disp_cat A)
              (DB : disp_cat B)
              (DC : disp_cat C)
@@ -55,7 +55,7 @@ Section DisplayedBifunctor.
 
   Definition make_disp_bifunctor_data
              {A B C : category}
-             (F : bifunctor A B C)
+             (F : bifunctor_data A B C)
              (DA : disp_cat A)
              (DB : disp_cat B)
              (DC : disp_cat C)
@@ -82,7 +82,7 @@ Section DisplayedBifunctor.
 
   Definition disp_bifunctor_on_objects
              {A B C : category}
-             {F : bifunctor A B C}
+             {F : bifunctor_data A B C}
              {DA : disp_cat A}
              {DB : disp_cat B}
              {DC : disp_cat C}
@@ -96,7 +96,7 @@ Section DisplayedBifunctor.
 
   Definition disp_leftwhiskering_on_morphisms
              {A B C : category}
-             {F : bifunctor A B C}
+             {F : bifunctor_data A B C}
              {DA : disp_cat A}
              {DB : disp_cat B}
              {DC : disp_cat C}
@@ -118,7 +118,7 @@ Section DisplayedBifunctor.
 
   Definition disp_rightwhiskering_on_morphisms
              {A B C : category}
-             {F : bifunctor A B C}
+             {F : bifunctor_data A B C}
              {DA : disp_cat A}
              {DB : disp_cat B}
              {DC : disp_cat C}

@@ -76,7 +76,7 @@ Proof.
 Defined.
 
 Lemma monoidal_pointed_objects_disp_tensor_data_is_disp_bifunctor
-  : is_disp_bifunctor monoidal_pointed_objects_disp_tensor_data.
+  : is_disp_bifunctor(F:=Mon_V) monoidal_pointed_objects_disp_tensor_data.
 Proof.
   split5; intro; intros; apply V.
 Qed.

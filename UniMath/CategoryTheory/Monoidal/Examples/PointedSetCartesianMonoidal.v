@@ -141,7 +141,7 @@ Section PointedSetIsCartesianMonoidal.
         apply idpath.
   Defined.
 
-  Lemma PS_disp_tensor_laws : is_disp_bifunctor PS_disp_tensor_data.
+  Lemma PS_disp_tensor_laws : is_disp_bifunctor(F:=SET_cartesian_monoidal) PS_disp_tensor_data.
   Proof.
     repeat split; red; intros; apply isaprop_preserve_ptset.
   Qed.
