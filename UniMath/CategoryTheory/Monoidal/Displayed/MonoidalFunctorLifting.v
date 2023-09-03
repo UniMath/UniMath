@@ -26,7 +26,7 @@ Section MonoidalFunctorLifting.
   Import DisplayedMonoidalNotations.
 
   Context {C' C : category} {F : functor C' C} {D : disp_cat C}.
-  Let TD : category := (total_category D).
+  Let TD : category := total_category D.
   Context {M' : monoidal C'}
           {M : monoidal C}
           (Fm : fmonoidal_lax M' M F)
@@ -36,7 +36,7 @@ Section MonoidalFunctorLifting.
   Context (sd : functor_lifting D F).
 
   Definition fl_preserves_tensor_data : UU
-    := ∏ (x y : C'), sd x ⊗⊗_{ DM} sd y -->[ fmonoidal_preservestensordata Fm x y] sd (x ⊗_{ M'} y).
+    := ∏ (x y : C'), sd x ⊗⊗_{DM} sd y -->[fmonoidal_preservestensordata Fm x y] sd (x ⊗_{M'} y).
 
   Lemma functorlifting_preserves_tensordata
         (sd_pt : fl_preserves_tensor_data)
@@ -48,7 +48,7 @@ Section MonoidalFunctorLifting.
   Defined.
 
   Definition fl_preserves_unit : UU
-    := dI_{ DM} -->[ fmonoidal_preservesunit Fm] sd I_{ M'}.
+    := dI_{DM} -->[fmonoidal_preservesunit Fm] sd I_{M'}.
 
   Lemma functorlifting_preserves_unit
         (sp_pu : fl_preserves_unit)
@@ -79,10 +79,10 @@ Section MonoidalFunctorLifting.
   Definition fl_preserves_tensor_nat_left
              (spt : fl_preserves_tensor_data) : UU
     := ∏ (x y1 y2 : C') (g : C'⟦y1,y2⟧),
-      sd x ⊗⊗^{ DM}_{l} # sd g ;; spt x y2
+      sd x ⊗⊗^{DM}_{l} # sd g ;; spt x y2
       = transportb _
                    (fmonoidal_preservestensornatleft Fm x y1 y2 g)
-                   (spt x y1 ;; # sd (x ⊗^{ M'}_{l} g)).
+                   (spt x y1 ;; # sd (x ⊗^{M'}_{l} g)).
 
   Lemma functorlifting_preserves_tensor_nat_left
         {spt : fl_preserves_tensor_data} (sptnl : fl_preserves_tensor_nat_left spt)
@@ -98,10 +98,10 @@ Section MonoidalFunctorLifting.
              (spt : fl_preserves_tensor_data)
     : UU
     := ∏ (x1 x2 y : C') (f : C'⟦x1,x2⟧),
-      # sd f ⊗⊗^{ DM}_{r} sd y ;; spt x2 y
+      # sd f ⊗⊗^{DM}_{r} sd y ;; spt x2 y
       = transportb _
                    (fmonoidal_preservestensornatright Fm x1 x2 y f)
-                   (spt x1 y ;; # sd (f ⊗^{ M'}_{r} y)).
+                   (spt x1 y ;; # sd (f ⊗^{M'}_{r} y)).
 
   Lemma functorlifting_preserves_tensor_nat_right
         {spt : fl_preserves_tensor_data}
@@ -118,10 +118,10 @@ Section MonoidalFunctorLifting.
              (spt : fl_preserves_tensor_data)
              (spu : fl_preserves_unit) : UU
     := ∏ (x : C'),
-      spu ⊗⊗^{ DM}_{r} sd x ;; spt I_{ M'} x ;; # sd lu^{ M' }_{ x}
+      spu ⊗⊗^{DM}_{r} sd x ;; spt I_{M'} x ;; # sd lu^{M'}_{x}
       = transportb _
                    (fmonoidal_preservesleftunitality Fm x)
-                   dlu^{ DM }_{ sd x}.
+                   dlu^{DM}_{sd x}.
 
   Definition functorlifting_preserves_leftunitality
              {spt : fl_preserves_tensor_data}
@@ -139,10 +139,10 @@ Section MonoidalFunctorLifting.
              (spt : fl_preserves_tensor_data)
              (spu : fl_preserves_unit)
     : UU := ∏ (x : C'),
-      sd x ⊗⊗^{ DM}_{l} spu ;; spt x I_{ M'} ;; # sd ru^{ M' }_{ x}
+      sd x ⊗⊗^{DM}_{l} spu ;; spt x I_{M'} ;; # sd ru^{M'}_{x}
       = transportb _
                    (fmonoidal_preservesrightunitality Fm x)
-                   dru^{ DM }_{ sd x}.
+                   dru^{DM}_{sd x}.
 
   Definition functorlifting_preserves_rightunitality
              {spt : fl_preserves_tensor_data}
@@ -160,10 +160,10 @@ Section MonoidalFunctorLifting.
   Definition fl_preserves_associativity
              (spt : fl_preserves_tensor_data ) : UU
     := ∏ (x y z : C'),
-      spt x y ⊗⊗^{ DM}_{r} sd z ;; spt (x ⊗_{ M'} y) z ;; # sd α^{ M' }_{ x, y, z}
+      spt x y ⊗⊗^{DM}_{r} sd z ;; spt (x ⊗_{M'} y) z ;; # sd α^{M'}_{x, y, z}
       = transportb _
           (fmonoidal_preservesassociativity Fm x y z)
-          (dα^{ DM }_{ sd x, sd y, sd z} ;; sd x ⊗⊗^{ DM}_{l} spt y z ;; spt x (y ⊗_{ M'} z)).
+          (dα^{DM}_{sd x, sd y, sd z} ;; sd x ⊗⊗^{DM}_{l} spt y z ;; spt x (y ⊗_{M'} z)).
 
   Definition functorlifting_preserves_associativity
              {spt : fl_preserves_tensor_data}
