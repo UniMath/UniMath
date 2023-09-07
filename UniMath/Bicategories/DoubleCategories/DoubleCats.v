@@ -953,6 +953,14 @@ Definition is_strong_double_functor
         (identity_is_z_iso _)
         (lax_double_functor_comp_h F h k)).
 
+Proposition isaprop_is_strong_double_functor
+            {C₁ C₂ : double_cat}
+            (F : lax_double_functor C₁ C₂)
+  : isaprop (is_strong_double_functor F).
+Proof.
+  use isapropdirprod ; repeat (use impred ; intro) ; apply isaprop_is_iso_twosided_disp.
+Qed.
+
 Definition is_iso_strong_double_functor_id_h
            {C₁ C₂ : double_cat}
            {F : lax_double_functor C₁ C₂}
@@ -976,6 +984,17 @@ Definition is_iso_strong_double_functor_comp_h
       (identity_is_z_iso _)
       (lax_double_functor_comp_h F h k)
   := pr2 HF x y z h k.
+
+Proposition is_strong_double_functor_id
+            (C : double_cat)
+  : is_strong_double_functor (id₁ C).
+Proof.
+  split.
+  - intro x.
+    apply id_is_iso_twosided_disp.
+  - intros.
+    apply id_is_iso_twosided_disp.
+Defined.
 
 Definition strong_double_functor
            (C₁ C₂ : double_cat)
