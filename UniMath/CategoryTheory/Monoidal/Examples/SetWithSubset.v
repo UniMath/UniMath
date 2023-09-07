@@ -46,14 +46,17 @@ Section SetWithSubset.
       apply (comp_hsubtype_preserving fsp gsp).
   Defined.
 
-  Definition SS_disp_cat_axioms : disp_cat_axioms hset_category SS_disp_cat_data.
+  Lemma SS_disp_cat_locally_prop : locally_propositional SS_disp_cat_data.
   Proof.
-    repeat split; cbn; intros; try (apply proofirrelevance, isaprop_hsubtype_preserving).
-    apply isasetaprop. apply isaprop_hsubtype_preserving.
-  Defined.
+    intro; intros; apply isaprop_hsubtype_preserving.
+  Qed.
 
-  Definition SS_disp_cat : disp_cat hset_category
-    := SS_disp_cat_data ,, SS_disp_cat_axioms.
+  Definition SS_disp_cat : disp_cat hset_category.
+  Proof.
+    use make_disp_cat_locally_prop.
+    - exact SS_disp_cat_data.
+    - exact SS_disp_cat_locally_prop.
+  Defined.
 
   Definition total_subset_section_data : section_disp_data SS_disp_cat.
   Proof.
@@ -114,11 +117,6 @@ Section SetWithSubsetMonoidal.
       + rewrite (! pr12 x1y).
         exact (pr222 x1y).
   Defined.
-
-  Lemma SS_disp_cat_locally_prop : locally_propositional SS_disp_cat.
-  Proof.
-    repeat split; red; intros; apply isaprop_hsubtype_preserving.
-  Qed.
 
   Definition SS_disp_cat_tensor : disp_tensor SS_disp_cat SET_cart_monoidal.
   Proof.

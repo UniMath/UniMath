@@ -21,7 +21,6 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 (** for second construction: *)
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 
 Local Open Scope cat.
 
@@ -135,19 +134,20 @@ Proof.
     exact Hyph'.
 Qed.
 
+Definition coslice_cat_disp_data : disp_cat_data C :=
+  coslice_cat_disp_ob_mor ,, coslice_cat_disp_id_comp.
+
+Lemma coslice_cat_disp_locally_prop : locally_propositional coslice_cat_disp_data.
+Proof.
+  intro; intros; apply C.
+Qed.
+
 Definition coslice_cat_disp : disp_cat C.
 Proof.
-  use tpair.
-  - use tpair.
-    + exact coslice_cat_disp_ob_mor.
-    + exact coslice_cat_disp_id_comp.
-  - abstract (split4; intros; [apply C | apply C | apply C | apply isasetaprop; apply C]).
+  use make_disp_cat_locally_prop.
+  - exact coslice_cat_disp_data.
+  - exact coslice_cat_disp_locally_prop.
 Defined.
-
-Lemma coslice_cat_disp_locally_prop : locally_propositional coslice_cat_disp.
-Proof.
-  intro; intros. apply C.
-Qed.
 
 Definition coslice_cat_total : category := total_category coslice_cat_disp.
 

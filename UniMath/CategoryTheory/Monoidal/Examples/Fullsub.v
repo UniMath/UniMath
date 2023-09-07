@@ -17,7 +17,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
@@ -43,11 +42,6 @@ Section FullSubOfMonoidal.
     (P_u : P I_{M})
     (P_t : ∏ x y : C, P x → P y → P (x ⊗_{ M} y)).
 
-  Lemma disp_full_sub_locally_prop : locally_propositional (disp_full_sub C P).
-  Proof.
-    intro; intros; apply isapropunit.
-  Qed.
-
   Definition disp_monoidal_tensor_data_fullsub
     : disp_bifunctor_data M (disp_full_sub C P) (disp_full_sub C P) (disp_full_sub C P).
   Proof.
@@ -60,7 +54,7 @@ Section FullSubOfMonoidal.
     : disp_tensor (disp_full_sub C P) M.
   Proof.
     use make_disp_bifunctor_locally_prop.
-    - exact disp_full_sub_locally_prop.
+    - apply disp_full_sub_locally_prop.
     - exact disp_monoidal_tensor_data_fullsub.
   Defined.
 
@@ -77,7 +71,7 @@ Section FullSubOfMonoidal.
     : disp_monoidal (disp_full_sub C P) M.
   Proof.
     use make_disp_monoidal_locally_prop.
-    - exact disp_full_sub_locally_prop.
+    - apply disp_full_sub_locally_prop.
     - exact disp_monoidal_data_fullsub.
   Defined.
 

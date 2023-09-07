@@ -23,7 +23,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
-Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
