@@ -23,6 +23,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
@@ -623,7 +624,7 @@ Section DisplayedMonoidalCategories.
              {C : category}
              {D : disp_cat C}
              {M : monoidal C}
-             (DMD :  disp_monoidal_data D M)
+             (DMD : disp_monoidal_data D M)
     : UU
     := (disp_leftunitor_law dlu_{DMD} dluinv_{DMD})
        × (disp_rightunitor_law dru_{DMD} druinv_{DMD})
@@ -637,6 +638,18 @@ Section DisplayedMonoidalCategories.
              (M : monoidal C)
     : UU
     := ∑ (MD : disp_monoidal_data D M), (disp_monoidal_laws MD).
+
+  Definition make_disp_monoidal_locally_prop
+             {C : category}
+             {D : disp_cat C}
+             (LP : locally_propositional D)
+             {M : monoidal C}
+             (DMD : disp_monoidal_data D M)
+    : disp_monoidal D M.
+  Proof.
+    exists DMD.
+    abstract (repeat split ; try intro ; intros ; apply LP).
+  Defined.
 
   Definition disp_monoidal_mondata
              {C : category}

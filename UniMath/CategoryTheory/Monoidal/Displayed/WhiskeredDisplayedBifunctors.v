@@ -17,6 +17,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 
@@ -381,6 +382,20 @@ Section DisplayedBifunctor.
              (H : is_disp_bifunctor DF)
     : disp_bifunctor F DA DB DC
     := (DF,,H).
+
+  Definition make_disp_bifunctor_locally_prop
+             {A B C : category}
+             {F : bifunctor A B C}
+             {DA : disp_cat A}
+             {DB : disp_cat B}
+             {DC : disp_cat C}
+             {LP : locally_propositional DC}
+             (DF : disp_bifunctor_data F DA DB DC)
+    : disp_bifunctor F DA DB DC.
+  Proof.
+    exists DF.
+    abstract (repeat split ; try intro ; intros ; apply LP).
+  Defined.
 
   Definition disp_bifunctordata_from_disp_bifunctor
              {A B C : category}
