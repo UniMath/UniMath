@@ -304,6 +304,20 @@ Qed.
 (**
  5. The identity iso
  *)
+Definition id_is_iso_twosided_disp
+           {C₁ C₂ : category}
+           {D : twosided_disp_cat C₁ C₂}
+           {x : C₁}
+           {y : C₂}
+           (xy : D x y)
+  : is_iso_twosided_disp (identity_is_z_iso x) (identity_is_z_iso y) (id_two_disp xy).
+Proof.
+  simple refine (_ ,, _ ,, _).
+  - apply id_two_disp.
+  - apply id_two_disp_left.
+  - apply id_two_disp_left.
+Defined.
+
 Definition id_iso_twosided_disp
            {C₁ C₂ : category}
            {D : twosided_disp_cat C₁ C₂}
@@ -314,10 +328,7 @@ Definition id_iso_twosided_disp
 Proof.
   use make_iso_twosided_disp.
   - apply id_two_disp.
-  - simple refine (_ ,, _ ,, _).
-    + apply id_two_disp.
-    + apply id_two_disp_left.
-    + apply id_two_disp_left.
+  - exact (id_is_iso_twosided_disp xy).
 Defined.
 
 (**
