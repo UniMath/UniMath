@@ -21,6 +21,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 (** for second construction: *)
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 
 Local Open Scope cat.
 
@@ -142,6 +143,11 @@ Proof.
     + exact coslice_cat_disp_id_comp.
   - abstract (split4; intros; [apply C | apply C | apply C | apply isasetaprop; apply C]).
 Defined.
+
+Lemma coslice_cat_disp_locally_prop : locally_propositional coslice_cat_disp.
+Proof.
+  intro; intros. apply C.
+Qed.
 
 Definition coslice_cat_total : category := total_category coslice_cat_disp.
 
