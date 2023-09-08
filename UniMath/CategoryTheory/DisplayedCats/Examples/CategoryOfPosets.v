@@ -54,6 +54,11 @@ Proof.
   - exact (λ X₁ X₂ X₃ R₁ R₂ R₃ f g Hf Hg, comp_is_monotone Hf Hg).
 Defined.
 
+Lemma poset_disp_cat_locally_prop : locally_propositional poset_disp_cat.
+Proof.
+  intro; intros; apply isaprop_is_monotone.
+Qed.
+
 Proposition is_univalent_poset_disp_cat
   : is_univalent_disp poset_disp_cat.
 Proof.
@@ -94,15 +99,11 @@ Defined.
 Definition dispTerminal_poset_disp_cat
   : dispTerminal poset_disp_cat TerminalHSET.
 Proof.
-  simple refine (_ ,, _).
+  use make_dispTerminal_locally_prop.
+  - exact poset_disp_cat_locally_prop.
   - exact unit_PartialOrder.
   - intros X RX.
-    use iscontraprop1.
-    + abstract
-        (use invproofirrelevance ;
-         intros f g ;
-         apply isaprop_is_monotone).
-    + exact (λ x y p, tt).
+    exact (λ x y p, tt).
 Defined.
 
 Definition Terminal_category_of_posets
@@ -120,27 +121,15 @@ Definition dispBinProducts_poset_disp_cat
   : dispBinProducts poset_disp_cat BinProductsHSET.
 Proof.
   intros X₁ X₂ R₁ R₂.
-  simple refine ((_ ,, _) ,, _).
-  - exact (prod_PartialOrder R₁ R₂).
-  - split ; cbn.
+  use make_dispBinProduct_locally_prop.
+  - exact poset_disp_cat_locally_prop.
+  - exists (prod_PartialOrder R₁ R₂).
+    split ; cbn.
     + exact (dirprod_pr1_is_monotone R₁ R₂).
     + exact (dirprod_pr2_is_monotone R₁ R₂).
   - cbn.
     intros W f g RW Hf Hg.
-    use iscontraprop1.
-    + abstract
-        (use invproofirrelevance ;
-         intros φ₁ φ₂ ;
-         use subtypePath ;
-         [ intro ;
-           apply isapropdirprod ;
-           apply poset_disp_cat
-         | ] ;
-         apply isaprop_is_monotone).
-    + simple refine (_ ,, _ ,, _).
-      * exact (prodtofun_is_monotone Hf Hg).
-      * apply isaprop_is_monotone.
-      * apply isaprop_is_monotone.
+    exact (prodtofun_is_monotone Hf Hg).
 Defined.
 
 Definition BinProducts_category_of_posets

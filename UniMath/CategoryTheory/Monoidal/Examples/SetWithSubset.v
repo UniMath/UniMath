@@ -12,6 +12,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
@@ -45,14 +46,17 @@ Section SetWithSubset.
       apply (comp_hsubtype_preserving fsp gsp).
   Defined.
 
-  Definition SS_disp_cat_axioms : disp_cat_axioms hset_category SS_disp_cat_data.
+  Lemma SS_disp_cat_locally_prop : locally_propositional SS_disp_cat_data.
   Proof.
-    repeat split; cbn; intros; try (apply proofirrelevance, isaprop_hsubtype_preserving).
-    apply isasetaprop. apply isaprop_hsubtype_preserving.
-  Defined.
+    intro; intros; apply isaprop_hsubtype_preserving.
+  Qed.
 
-  Definition SS_disp_cat : disp_cat hset_category
-    := SS_disp_cat_data ,, SS_disp_cat_axioms.
+  Definition SS_disp_cat : disp_cat hset_category.
+  Proof.
+    use make_disp_cat_locally_prop.
+    - exact SS_disp_cat_data.
+    - exact SS_disp_cat_locally_prop.
+  Defined.
 
   Definition total_subset_section_data : section_disp_data SS_disp_cat.
   Proof.
@@ -114,13 +118,12 @@ Section SetWithSubsetMonoidal.
         exact (pr222 x1y).
   Defined.
 
-  Lemma SS_disp_cat_tensor_laws : is_disp_bifunctor SS_disp_cat_tensor_data.
+  Definition SS_disp_cat_tensor : disp_tensor SS_disp_cat SET_cart_monoidal.
   Proof.
-    repeat split; red; intros; apply isaprop_hsubtype_preserving.
-  Qed.
-
-  Definition SS_disp_cat_tensor : disp_tensor SS_disp_cat SET_cart_monoidal
-    := SS_disp_cat_tensor_data,, SS_disp_cat_tensor_laws.
+    use make_disp_bifunctor_locally_prop.
+    - exact SS_disp_cat_locally_prop.
+    - exact SS_disp_cat_tensor_data.
+  Defined.
 
   Definition SS_disp_monoidal_data : disp_monoidal_data SS_disp_cat SET_cart_monoidal.
   Proof.
@@ -177,13 +180,12 @@ Section SetWithSubsetMonoidal.
       repeat split ; apply (pr22 xyzinUVW).
   Defined.
 
-  Definition SS_disp_monoidal_laws : disp_monoidal_laws (SS_disp_monoidal_data).
+  Definition SS_disp_monoidal : disp_monoidal SS_disp_cat SET_cart_monoidal.
   Proof.
-    repeat split ; try (intro ; intros) ; apply isaprop_hsubtype_preserving.
-  Qed.
-
-  Definition SS_disp_monoidal : disp_monoidal SS_disp_cat SET_cart_monoidal
-    := SS_disp_monoidal_data,, SS_disp_monoidal_laws.
+    apply make_disp_monoidal_locally_prop.
+    - exact SS_disp_cat_locally_prop.
+    - exact SS_disp_monoidal_data.
+  Defined.
 
   Definition total_subset_section_monoidal_data
     : smonoidal_data SET_cart_monoidal SS_disp_monoidal total_subset_section.

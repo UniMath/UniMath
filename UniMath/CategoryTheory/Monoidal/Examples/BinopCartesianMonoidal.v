@@ -39,40 +39,36 @@ Section BinopCategory.
             (make_binopfun (X := (Y,,n)) (Y := (Z,,o)) g pg)).
   Defined.
 
+  Lemma Binop_disp_cat_locally_prop : locally_propositional Binop_disp_cat.
+  Proof.
+    intro; intros; apply isapropisbinopfun.
+  Qed.
+
   Definition Binop_cat : category := total_category Binop_disp_cat.
 
   Definition Binop_dispBinproducts : dispBinProducts Binop_disp_cat BinProductsHSET.
   Proof.
     intros X Y m n.
-    use tpair.
+    use make_dispBinProduct_locally_prop.
+    - exact Binop_disp_cat_locally_prop.
     - use tpair.
       + intros xy1 xy2.
         exact (m (pr1 xy1) (pr1 xy2),, n (pr2 xy1) (pr2 xy2)).
       + split; intros x1 x2; apply idpath.
-    - cbn. intros Z f g o pf pg.
-      use unique_exists.
-      + cbn. intros x1 x2.
-        apply dirprodeq; cbn.
-        * rewrite pf. apply idpath.
-        * rewrite pg. apply idpath.
-      + split; apply isapropisbinopfun.
-      + intro pfg.
-        apply isapropdirprod; apply isasetaprop, isapropisbinopfun.
-      + intro pfg.
-        cbn.
-        intros.
-        apply isapropisbinopfun.
+    - intros Z f g o pf pg.
+      cbn. intros x1 x2.
+      apply dirprodeq; cbn.
+      + rewrite pf. apply idpath.
+      + rewrite pg. apply idpath.
   Defined.
 
   Definition Binop_dispTerminal : dispTerminal Binop_disp_cat TerminalHSET.
   Proof.
-    use tpair.
+    use make_dispTerminal_locally_prop.
+    - exact Binop_disp_cat_locally_prop.
     - exact (fun _ _ => tt).
     - cbn.
-      intros X m.
-      use tpair.
-      + intros ? ?. apply idpath.
-      + intro pf. apply isapropisbinopfun.
+      intros X m. intros ? ?. apply idpath.
   Defined.
 
   Definition Binop_cat_cart_monoidal_via_cartesian : monoidal Binop_cat.
@@ -115,13 +111,12 @@ Section BinopIsCartesianMonoidal.
         apply idpath.
   Defined.
 
-  Lemma BO_disp_tensor_laws : is_disp_bifunctor BO_disp_tensor_data.
+  Definition BO_disp_tensor : disp_tensor DBO SET_cartesian_monoidal.
   Proof.
-    repeat split; red; intros; apply isapropisbinopfun.
-  Qed.
-
-  Definition BO_disp_tensor : disp_tensor DBO SET_cartesian_monoidal
-    := (BO_disp_tensor_data,, BO_disp_tensor_laws).
+    use make_disp_bifunctor_locally_prop.
+    - exact Binop_disp_cat_locally_prop.
+    - exact BO_disp_tensor_data.
+  Defined.
 
   Definition BO_cart_disp_monoidal_data : disp_monoidal_data DBO SET_cartesian_monoidal.
   Proof.
@@ -132,13 +127,12 @@ Section BinopIsCartesianMonoidal.
       + repeat split.
   Defined.
 
-  Lemma BO_cart_disp_monoidal_laws : disp_monoidal_laws BO_cart_disp_monoidal_data.
+  Definition BO_cart_disp_monoidal_elementary : disp_monoidal DBO SET_cartesian_monoidal.
   Proof.
-    repeat split; try (red; intros; apply isapropisbinopfun); try (apply isapropisbinopfun).
-  Qed.
-
-  Definition BO_cart_disp_monoidal_elementary : disp_monoidal DBO SET_cartesian_monoidal
-    := (BO_cart_disp_monoidal_data,, BO_cart_disp_monoidal_laws).
+    use make_disp_monoidal_locally_prop.
+    - exact Binop_disp_cat_locally_prop.
+    - exact BO_cart_disp_monoidal_data.
+  Defined.
 
  End ElementaryProof.
 

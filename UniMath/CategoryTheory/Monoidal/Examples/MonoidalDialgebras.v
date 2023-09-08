@@ -506,33 +506,11 @@ Section FixTwoMonoidalFunctors.
     exact dialgebra_disp_associatorinv_data.
   Defined.
 
-  Lemma dialgebra_disp_leftunitor_law :
-    disp_leftunitor_law dlu^{ dialgebra_disp_monoidal_data} dluinv^{ dialgebra_disp_monoidal_data}.
-  Proof.
-    repeat (split; try (red; intros; apply base_disp_cells_isaprop)); try apply base_disp_cells_isaprop.
-  Qed.
-
-  Lemma dialgebra_disp_rightunitor_law :
-    disp_rightunitor_law dru^{ dialgebra_disp_monoidal_data} druinv^{ dialgebra_disp_monoidal_data}.
-  Proof.
-    repeat (split; try (red; intros; apply base_disp_cells_isaprop)); try apply base_disp_cells_isaprop.
-  Qed.
-
-  Lemma dialgebra_disp_associator_law :
-    disp_associator_law dα^{ dialgebra_disp_monoidal_data} dαinv^{ dialgebra_disp_monoidal_data}.
-  Proof.
-    repeat (split; try (red; intros; apply base_disp_cells_isaprop)); try apply base_disp_cells_isaprop.
-  Qed.
-
   Definition dialgebra_disp_monoidal : disp_monoidal base_disp V.
   Proof.
-    exists dialgebra_disp_monoidal_data.
-    split.
-    { exact dialgebra_disp_leftunitor_law. }
-    split; [ exact dialgebra_disp_rightunitor_law |].
-    split; [ exact dialgebra_disp_associator_law |].
-    (** now we benefit from working in a displayed monoidal category *)
-    split; red; intros; apply base_disp_cells_isaprop.
+    use make_disp_monoidal_locally_prop.
+    - apply is_locally_propositional_dialgebra_disp_cat.
+    - exact dialgebra_disp_monoidal_data.
   Defined.
 
   Definition dialgebra_monoidal : monoidal (dialgebra F G) := total_monoidal dialgebra_disp_monoidal.
