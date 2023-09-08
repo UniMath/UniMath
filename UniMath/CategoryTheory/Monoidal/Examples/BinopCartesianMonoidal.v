@@ -64,13 +64,11 @@ Section BinopCategory.
 
   Definition Binop_dispTerminal : dispTerminal Binop_disp_cat TerminalHSET.
   Proof.
-    use tpair.
+    use make_dispTerminal_locally_prop.
+    - exact Binop_disp_cat_locally_prop.
     - exact (fun _ _ => tt).
     - cbn.
-      intros X m.
-      use tpair.
-      + intros ? ?. apply idpath.
-      + intro pf. apply isapropisbinopfun.
+      intros X m. intros ? ?. apply idpath.
   Defined.
 
   Definition Binop_cat_cart_monoidal_via_cartesian : monoidal Binop_cat.

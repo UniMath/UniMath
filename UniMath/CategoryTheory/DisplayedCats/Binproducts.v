@@ -483,6 +483,18 @@ Section FixDispCat.
   Definition dispTerminal (P : Terminal C) : UU :=
     ∑ pp :  D (TerminalObject P), is_dispTerminal P pp.
 
+  Definition make_dispTerminal_locally_prop (P : Terminal C)
+    (LP : locally_propositional D) (dTO_data : D (TerminalObject P))
+    (mediating : ∏ (a : C) (aa : D a), aa -->[TerminalArrow P a] dTO_data)
+    : dispTerminal P.
+  Proof.
+    exists dTO_data.
+    intro; intros.
+    use tpair.
+    - exact (mediating a aa).
+    - intro; apply LP.
+  Defined.
+
   Definition dispTerminalObject {P : Terminal C} (dP : dispTerminal P) : D (TerminalObject P) := pr1 dP.
 
   Definition is_dispTerminal_dispTerminal (P : Terminal C) (dP : dispTerminal P) :

@@ -99,15 +99,11 @@ Defined.
 Definition dispTerminal_poset_disp_cat
   : dispTerminal poset_disp_cat TerminalHSET.
 Proof.
-  simple refine (_ ,, _).
+  use make_dispTerminal_locally_prop.
+  - exact poset_disp_cat_locally_prop.
   - exact unit_PartialOrder.
   - intros X RX.
-    use iscontraprop1.
-    + abstract
-        (use invproofirrelevance ;
-         intros f g ;
-         apply isaprop_is_monotone).
-    + exact (λ x y p, tt).
+    exact (λ x y p, tt).
 Defined.
 
 Definition Terminal_category_of_posets
