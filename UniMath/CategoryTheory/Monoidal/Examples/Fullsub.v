@@ -50,17 +50,12 @@ Section FullSubOfMonoidal.
     - split ; intro ; intros ; exact tt.
   Defined.
 
-  Lemma disp_monoidal_tensor_is_tensor_fullsub
-    :  is_disp_bifunctor M disp_monoidal_tensor_data_fullsub.
-  Proof.
-    repeat split ; intro ; intros ; apply isapropunit.
-  Qed.
-
   Definition disp_monoidal_tensor_fullsub
     : disp_tensor (disp_full_sub C P) M.
   Proof.
-    exists disp_monoidal_tensor_data_fullsub.
-    exact disp_monoidal_tensor_is_tensor_fullsub.
+    use make_disp_bifunctor_locally_prop.
+    - apply disp_full_sub_locally_prop.
+    - exact disp_monoidal_tensor_data_fullsub.
   Defined.
 
   Definition disp_monoidal_data_fullsub
@@ -72,15 +67,13 @@ Section FullSubOfMonoidal.
     repeat (use tpair) ; intro ; intros ; exact tt.
   Defined.
 
-  Lemma disp_monoidal_laws_fullsub
-    : disp_monoidal_laws disp_monoidal_data_fullsub.
-  Proof.
-    repeat split ; try (intro ; intros) ; apply isapropunit.
-  Qed.
-
   Definition disp_monoidal_fullsub
-    : disp_monoidal (disp_full_sub C P) M
-    := _ ,, disp_monoidal_laws_fullsub.
+    : disp_monoidal (disp_full_sub C P) M.
+  Proof.
+    use make_disp_monoidal_locally_prop.
+    - apply disp_full_sub_locally_prop.
+    - exact disp_monoidal_data_fullsub.
+  Defined.
 
   Definition monoidal_fullsubcat : monoidal (full_subcat C P)
   := total_monoidal disp_monoidal_fullsub.

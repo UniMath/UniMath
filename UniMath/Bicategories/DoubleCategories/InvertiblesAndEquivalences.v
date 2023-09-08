@@ -19,6 +19,13 @@
  not have to show that the inverse is a double functor or that the involved natural
  transformations are double transformations.
 
+ We also show that these conditions are necessary. For the invertible 2-cells, this
+ follows from the fact that the first projection of an invertible 2-cell in the
+ total bicategory is also invertible. For adjoint equivalence, we need the analogous
+ statement, but we also need to show that adjoint equivalences are strong double
+ functors. For that, we use induction on adjoint equivalences, and the fact that
+ the identity functor is a strong double functor.
+
  Contents
  1. Invertible 2-cells
  2. Adjoint equivalences
@@ -39,6 +46,7 @@ Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
+Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
@@ -64,12 +72,7 @@ Section Invertibles.
   Context {C₁ C₂ : double_cat}
           {F G : lax_double_functor C₁ C₂}
           (τ : double_transformation F G)
-          (Hτ : ∏ (x : C₁), is_z_isomorphism (τ x))
-          (Hττ : ∏ (x y : C₁)
-                   (f : x -->h y),
-                 is_iso_twosided_disp
-                   (Hτ x) (Hτ y)
-                   (double_transformation_hor_mor τ f)).
+          (Hτ : is_invertible_2cell (pr111 τ)).
 
   Definition is_invertible_2cell_double_transformation_help
     : is_invertible_2cell (pr11 τ).
@@ -77,9 +80,7 @@ Section Invertibles.
     use is_invertible_disp_to_total.
     simple refine (_ ,, _).
     - (* 2-sided displayed categories *)
-      use is_invertible_2cell_bicat_twosided_disp_cat.
-      + exact Hτ.
-      + exact Hττ.
+      exact Hτ.
     - use (pair_is_disp_invertible_2cell _ _ (_ ,, _) (pr211 τ)).
       split.
       + (* horizontal identities *)
@@ -108,10 +109,95 @@ Section Invertibles.
   Qed.
 End Invertibles.
 
+Definition invertible_double_nat_trans_weq
+           {C₁ C₂ : double_cat}
+           {F G : lax_double_functor C₁ C₂}
+           (τ : double_transformation F G)
+  : is_invertible_2cell τ ≃ is_invertible_2cell (pr111 τ).
+Proof.
+  use weqimplimpl.
+  - intros Hτ.
+    exact (is_invertible_total_to_base
+             _ _
+             (is_invertible_total_to_base
+                _ _
+                (is_invertible_total_to_base _ _ Hτ))).
+  - intros Hτ.
+    use is_invertible_2cell_double_transformation.
+    exact Hτ.
+  - apply isaprop_is_invertible_2cell.
+  - apply isaprop_is_invertible_2cell.
+Defined.
+
+Section InvertiblesUnfolded.
+  Context {C₁ C₂ : double_cat}
+          {F G : lax_double_functor C₁ C₂}
+          (τ : double_transformation F G)
+          (Hτ : ∏ (x : C₁), is_z_isomorphism (τ x))
+          (Hττ : ∏ (x y : C₁)
+                   (f : x -->h y),
+                 is_iso_twosided_disp
+                   (Hτ x) (Hτ y)
+                   (double_transformation_hor_mor τ f)).
+
+  Definition is_invertible_2cell_double_transformation_unfolded
+    : is_invertible_2cell τ.
+  Proof.
+    use is_invertible_2cell_double_transformation.
+    use is_invertible_2cell_bicat_twosided_disp_cat.
+    - exact Hτ.
+    - exact Hττ.
+  Qed.
+End InvertiblesUnfolded.
+
 (**
  2. Adjoint equivalences
  *)
 Section Equivalences.
+  Context {C₁ C₂ : double_cat}
+          (F : lax_double_functor C₁ C₂)
+          (HF : is_strong_double_functor F)
+          (* `F` is an adjoint equivalence of 2-sided displayed categories *)
+          (HF' : left_adjoint_equivalence (pr111 F)).
+
+  Definition left_adjoint_equivalence_lax_double_functor_help
+    : left_adjoint_equivalence (pr11 F).
+  Proof.
+    use (invmap (left_adjoint_equivalence_total_disp_weq _ _)).
+    simple refine (_ ,, _).
+    - (* 2-sided displayed categories *)
+      exact HF'.
+    - use (pair_left_adjoint_equivalence _ _ (_ ,, _) (pr211 F)).
+      split.
+      + (* horizontal identities *)
+        use disp_left_adjequiv_hor_id.
+        exact (is_iso_strong_double_functor_id_h HF).
+      + (* horizontal compositions *)
+        use disp_left_adjequiv_hor_comp.
+        exact (λ x y z h k, is_iso_strong_double_functor_comp_h HF h k).
+  Qed.
+
+  Definition left_adjoint_equivalence_lax_double_functor
+    : left_adjoint_equivalence F.
+  Proof.
+    use bicat_left_adjoint_equivalence_to_fullsub_left_adjoint_equivalence.
+    use (invmap (left_adjoint_equivalence_total_disp_weq _ _)).
+    simple refine (_ ,, _).
+    - exact left_adjoint_equivalence_lax_double_functor_help.
+    - use (pair_left_adjoint_equivalence _ _ (_ ,, _) (pr21 F)).
+      split.
+      + (* left unitors *)
+        apply is_disp_left_adjoint_equivalence_disp_bicat_lunitor.
+      + use (pair_left_adjoint_equivalence _ _ (_ ,, _) (pr221 F)).
+        split.
+        * (* right unitors *)
+          apply is_disp_left_adjoint_equivalence_disp_bicat_runitor.
+        * (* associators *)
+          apply is_disp_left_adjoint_equivalence_disp_bicat_lassociator.
+  Qed.
+End Equivalences.
+
+Section EquivalencesUnfolded.
   Context {C₁ C₂ : double_cat}
           (F : lax_double_functor C₁ C₂)
           (HF : is_strong_double_functor F)
@@ -153,39 +239,69 @@ Section Equivalences.
       + exact Hεε.
   Qed.
 
-  Definition left_adjoint_equivalence_lax_double_functor_help
-    : left_adjoint_equivalence (pr11 F).
-  Proof.
-    use (invmap (left_adjoint_equivalence_total_disp_weq _ _)).
-    simple refine (_ ,, _).
-    - (* 2-sided displayed categories *)
-      exact left_adjoint_equivalence_lax_double_functor_base.
-    - use (pair_left_adjoint_equivalence _ _ (_ ,, _) (pr211 F)).
-      split.
-      + (* horizontal identities *)
-        use disp_left_adjequiv_hor_id.
-        exact (is_iso_strong_double_functor_id_h HF).
-      + (* horizontal compositions *)
-        use disp_left_adjequiv_hor_comp.
-        exact (λ x y z h k, is_iso_strong_double_functor_comp_h HF h k).
-  Qed.
-
-  Definition left_adjoint_equivalence_lax_double_functor
+  Definition left_adjoint_equivalence_lax_double_functor_unfolded
     : left_adjoint_equivalence F.
   Proof.
-    use bicat_left_adjoint_equivalence_to_fullsub_left_adjoint_equivalence.
-    use (invmap (left_adjoint_equivalence_total_disp_weq _ _)).
-    simple refine (_ ,, _).
-    - exact left_adjoint_equivalence_lax_double_functor_help.
-    - use (pair_left_adjoint_equivalence _ _ (_ ,, _) (pr21 F)).
-      split.
-      + (* left unitors *)
-        apply is_disp_left_adjoint_equivalence_disp_bicat_lunitor.
-      + use (pair_left_adjoint_equivalence _ _ (_ ,, _) (pr221 F)).
-        split.
-        * (* right unitors *)
-          apply is_disp_left_adjoint_equivalence_disp_bicat_runitor.
-        * (* associators *)
-          apply is_disp_left_adjoint_equivalence_disp_bicat_lassociator.
+    use left_adjoint_equivalence_lax_double_functor.
+    - exact HF.
+    - exact left_adjoint_equivalence_lax_double_functor_base.
   Qed.
-End Equivalences.
+End EquivalencesUnfolded.
+
+Definition left_adjoint_equivalence_to_strong_help
+           {C₁ C₂ : double_cat}
+           (F : adjoint_equivalence C₁ C₂)
+  : is_strong_double_functor (pr1 F).
+Proof.
+  revert C₁ C₂ F.
+  use J_2_0.
+  - apply is_univalent_2_bicat_of_double_cats.
+  - intro C.
+    apply is_strong_double_functor_id.
+Defined.
+
+Section FromEquivalence.
+  Context {C₁ C₂ : double_cat}
+          (F : lax_double_functor C₁ C₂)
+          (HF : left_adjoint_equivalence F).
+
+  Let HF₁ : left_adjoint_equivalence (pr1 F)
+    := pr1 (left_adjoint_equivalence_total_disp_weq _ _ HF).
+
+  Let HF₂ : left_adjoint_equivalence (pr11 F)
+    := pr1 (left_adjoint_equivalence_total_disp_weq _ _ HF₁).
+
+  Definition left_adjoint_equivalence_to_strong
+    : is_strong_double_functor F
+    := left_adjoint_equivalence_to_strong_help (F ,, HF).
+
+  Definition left_adjoint_equivalence_to_twosided_equiv
+    : left_adjoint_equivalence (pr111 F).
+  Proof.
+    exact (pr1 (left_adjoint_equivalence_total_disp_weq _ _ HF₂)).
+  Defined.
+End FromEquivalence.
+
+Definition left_adjoint_equivalence_lax_double_functor_weq
+           {C₁ C₂ : double_cat}
+           (F : lax_double_functor C₁ C₂)
+  : left_adjoint_equivalence F
+    ≃
+    (is_strong_double_functor F × left_adjoint_equivalence (pr111 F)).
+Proof.
+  use weqimplimpl.
+  - intros HF.
+    split.
+    + exact (left_adjoint_equivalence_to_strong F HF).
+    + exact (left_adjoint_equivalence_to_twosided_equiv F HF).
+  - intros HF.
+    use left_adjoint_equivalence_lax_double_functor.
+    + exact (pr1 HF).
+    + exact (pr2 HF).
+  - apply isaprop_left_adjoint_equivalence.
+    apply is_univalent_2_bicat_of_double_cats.
+  - apply isapropdirprod.
+    + apply isaprop_is_strong_double_functor.
+    + apply isaprop_left_adjoint_equivalence.
+      exact is_univalent_2_1_bicat_twosided_disp_cat.
+Defined.

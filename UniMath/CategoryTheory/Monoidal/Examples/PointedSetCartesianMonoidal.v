@@ -70,45 +70,38 @@ Section PointedSetCategory.
       apply (comp_preserve_ptset pf pg).
   Defined.
 
+  Lemma ptset_disp_cat_locally_prop : locally_propositional ptset_disp_cat.
+  Proof.
+    intros x y m n f. apply isaprop_preserve_ptset.
+  Qed.
+
   Definition ptset_cat : category := total_category ptset_disp_cat.
 
-  Definition ptset_dispBinproducts : dispBinProducts ptset_disp_cat BinProductsHSET.
+  Definition ptset_dispBinProducts : dispBinProducts ptset_disp_cat BinProductsHSET.
   Proof.
     intros X Y x y.
-    use tpair.
-    - use tpair.
-      + exact (x ,, y).
-      + split; apply idpath.
+    use make_dispBinProduct_locally_prop.
+    - exact ptset_disp_cat_locally_prop.
+    - exists (x ,, y).
+      split; apply idpath.
     - cbn. intros Z f g z pf pg.
-      use unique_exists.
-      + cbn. unfold preserve_ptset. unfold prodtofuntoprod. cbn. rewrite pf, pg.
-        apply idpath.
-      + cbn. split.
-        * (* show_id_type. *) apply X.
-        * apply Y.
-      + intro pfg.
-        apply isapropdirprod; apply isasetaprop, isaprop_preserve_ptset.
-      + intro pfg.
-        cbn.
-        intros.
-        apply isaprop_preserve_ptset.
+      unfold preserve_ptset. unfold prodtofuntoprod. cbn. rewrite pf, pg.
+      apply idpath.
   Defined.
 
   Definition ptset_dispTerminal : dispTerminal ptset_disp_cat TerminalHSET.
   Proof.
-    use tpair.
+    use make_dispTerminal_locally_prop.
+    - exact ptset_disp_cat_locally_prop.
     - exact tt.
     - cbn.
-      intros X x.
-      use tpair.
-      + apply idpath.
-      + intro f. apply isaprop_preserve_ptset.
+      intros X x. apply idpath.
   Defined.
 
   Definition PS_cat_cart_monoidal_via_cartesian : monoidal ptset_cat.
   Proof.
     use cartesian_monoidal.
-    - apply (total_category_Binproducts _ BinProductsHSET ptset_dispBinproducts).
+    - apply (total_category_Binproducts _ BinProductsHSET ptset_dispBinProducts).
     - apply (total_category_Terminal _ TerminalHSET ptset_dispTerminal).
   Defined.
 
@@ -120,7 +113,7 @@ Section PointedSetIsCartesianMonoidal.
   Local Notation DPS := ptset_disp_cat.
 
   Definition PS_cart_disp_monoidal : disp_monoidal DPS SET_cartesian_monoidal
-    := displayedcartesianmonoidalcat BinProductsHSET TerminalHSET ptset_disp_cat ptset_dispBinproducts ptset_dispTerminal.
+    := displayedcartesianmonoidalcat BinProductsHSET TerminalHSET ptset_disp_cat ptset_dispBinProducts ptset_dispTerminal.
 
   Section ElementaryProof.
 

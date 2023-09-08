@@ -134,13 +134,19 @@ Proof.
     exact Hyph'.
 Qed.
 
+Definition coslice_cat_disp_data : disp_cat_data C :=
+  coslice_cat_disp_ob_mor ,, coslice_cat_disp_id_comp.
+
+Lemma coslice_cat_disp_locally_prop : locally_propositional coslice_cat_disp_data.
+Proof.
+  intro; intros; apply C.
+Qed.
+
 Definition coslice_cat_disp : disp_cat C.
 Proof.
-  use tpair.
-  - use tpair.
-    + exact coslice_cat_disp_ob_mor.
-    + exact coslice_cat_disp_id_comp.
-  - abstract (split4; intros; [apply C | apply C | apply C | apply isasetaprop; apply C]).
+  use make_disp_cat_locally_prop.
+  - exact coslice_cat_disp_data.
+  - exact coslice_cat_disp_locally_prop.
 Defined.
 
 Definition coslice_cat_total : category := total_category coslice_cat_disp.

@@ -67,15 +67,19 @@ Definition disp_full_sub_data (C : precategory_data) (P : C → UU)
   : disp_cat_data C
   :=  disp_full_sub_ob_mor C P,, disp_full_sub_id_comp C P.
 
-Definition disp_full_sub_axioms (C : category) (P : C → UU)
-  : disp_cat_axioms _ (disp_full_sub_data C P).
+Lemma disp_full_sub_locally_prop (C : category) (P : C → UU) :
+  locally_propositional (disp_full_sub_data C P).
 Proof.
-  repeat split; intros; try (apply proofirrelevance; apply isapropunit).
-  apply isasetaprop; apply isapropunit.
+  intro; intros; apply isapropunit.
 Qed.
 
 Definition disp_full_sub (C : category) (P : C → UU)
-  : disp_cat C := _ ,, disp_full_sub_axioms C P.
+  : disp_cat C.
+Proof.
+  use make_disp_cat_locally_prop.
+  - exact (disp_full_sub_data C P).
+  - apply disp_full_sub_locally_prop.
+Defined.
 
 Lemma disp_full_sub_univalent (C : category) (P : C → UU) :
   (∏ x : C, isaprop (P x)) →
@@ -133,13 +137,12 @@ Qed.
 
 Definition disp_struct_data : disp_cat_data C := _ ,, disp_struct_id_comp.
 
-Definition disp_struct_axioms : disp_cat_axioms _ disp_struct_data.
+Definition disp_struct : disp_cat C.
 Proof.
-  repeat split; intros; try (apply proofirrelevance; apply Hisprop).
-  apply isasetaprop; apply Hisprop.
-Qed.
-
-Definition disp_struct : disp_cat C := _ ,, disp_struct_axioms.
+  use make_disp_cat_locally_prop.
+  - exact disp_struct_data.
+  - intro; intros; apply Hisprop.
+Defined.
 
 End struct_hom.
 

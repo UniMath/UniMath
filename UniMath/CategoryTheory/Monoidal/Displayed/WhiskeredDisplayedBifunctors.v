@@ -382,6 +382,20 @@ Section DisplayedBifunctor.
     : disp_bifunctor F DA DB DC
     := (DF,,H).
 
+  Definition make_disp_bifunctor_locally_prop
+             {A B C : category}
+             {F : bifunctor A B C}
+             {DA : disp_cat A}
+             {DB : disp_cat B}
+             {DC : disp_cat C}
+             {LP : locally_propositional DC}
+             (DF : disp_bifunctor_data F DA DB DC)
+    : disp_bifunctor F DA DB DC.
+  Proof.
+    exists DF.
+    abstract (repeat split ; try intro ; intros ; apply LP).
+  Defined.
+
   Definition disp_bifunctordata_from_disp_bifunctor
              {A B C : category}
              {F : bifunctor A B C}

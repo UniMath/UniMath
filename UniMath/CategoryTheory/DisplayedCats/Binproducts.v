@@ -54,6 +54,24 @@ Section FixDispCat.
                      (pp -->[BinProductPr1 _ P] cc) × (pp -->[BinProductPr2 _ P] dd)),
         is_dispBinProduct c d P cc dd (pr1 pppp1pp2) (pr1 (pr2 pppp1pp2)) (pr2 (pr2 pppp1pp2)).
 
+  Definition make_dispBinProduct_locally_prop (c d : C) (P : BinProduct C c d) (cc : D c) (dd : D d)
+    (LP : locally_propositional D)
+    (dBP_data : ∑ pp : D (BinProductObject _ P),
+          (pp -->[BinProductPr1 _ P] cc) × (pp -->[BinProductPr2 _ P] dd))
+    (mediating : ∏ (a : C) (f : a --> c) (g : a --> d) (aa : D a)
+                   (ff : aa -->[f] cc) (gg : aa -->[g] dd),
+        aa -->[ BinProductArrow C P f g] pr1 dBP_data)
+    : dispBinProduct c d P cc dd.
+  Proof.
+    exists dBP_data.
+    intro; intros.
+    use tpair.
+    - exists (mediating a f g aa ff gg).
+      abstract (split; apply LP).
+    - abstract (intro t; apply subtypePath;
+                [intro; apply isapropdirprod; apply homsets_disp | apply LP]).
+  Defined.
+
   Definition dispBinProductObject {c d : C} (P : BinProduct C c d) {cc : D c} {dd : D d}
     (dP : dispBinProduct c d P cc dd) : D (BinProductObject _ P) := pr1 (pr1 dP).
 
@@ -464,6 +482,18 @@ Section FixDispCat.
 
   Definition dispTerminal (P : Terminal C) : UU :=
     ∑ pp :  D (TerminalObject P), is_dispTerminal P pp.
+
+  Definition make_dispTerminal_locally_prop (P : Terminal C)
+    (LP : locally_propositional D) (dTO_data : D (TerminalObject P))
+    (mediating : ∏ (a : C) (aa : D a), aa -->[TerminalArrow P a] dTO_data)
+    : dispTerminal P.
+  Proof.
+    exists dTO_data.
+    intro; intros.
+    use tpair.
+    - exact (mediating a aa).
+    - intro; apply LP.
+  Defined.
 
   Definition dispTerminalObject {P : Terminal C} (dP : dispTerminal P) : D (TerminalObject P) := pr1 dP.
 

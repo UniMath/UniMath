@@ -75,16 +75,12 @@ Proof.
   - exact monoidal_pointed_objects_disp_tensor_data_aux2.
 Defined.
 
-Lemma monoidal_pointed_objects_disp_tensor_data_is_disp_bifunctor
-  : is_disp_bifunctor Mon_V monoidal_pointed_objects_disp_tensor_data.
+Definition monoidal_pointed_objects_disp_tensor : disp_tensor cosliced Mon_V.
 Proof.
-  split5; intro; intros; apply V.
-Qed.
-
-Definition monoidal_pointed_objects_disp_tensor : disp_tensor cosliced Mon_V
-  := monoidal_pointed_objects_disp_tensor_data
-     ,,
-     monoidal_pointed_objects_disp_tensor_data_is_disp_bifunctor.
+  use make_disp_bifunctor_locally_prop.
+  - apply coslice_cat_disp_locally_prop.
+  - exact monoidal_pointed_objects_disp_tensor_data.
+Defined.
 
 Lemma monoidal_pointed_objects_disp_data_verif :
   disp_leftunitor_data monoidal_pointed_objects_disp_tensor (identity I_{Mon_V})
@@ -187,14 +183,12 @@ Proof.
   - exact monoidal_pointed_objects_disp_data_verif.
 Defined.
 
-Lemma monoidal_pointed_objects_disp_laws
-  : disp_monoidal_laws monoidal_pointed_objects_disp_data.
+Definition monoidal_pointed_objects_disp : disp_monoidal cosliced Mon_V.
 Proof.
-  repeat split; try intro; intros; apply V.
-Qed.
-
-Definition monoidal_pointed_objects_disp : disp_monoidal cosliced Mon_V
-  := monoidal_pointed_objects_disp_data,,monoidal_pointed_objects_disp_laws.
+  apply make_disp_monoidal_locally_prop.
+  - apply coslice_cat_disp_locally_prop.
+  - exact monoidal_pointed_objects_disp_data.
+Defined.
 
 Definition monoidal_pointed_objects : monoidal (coslice_cat_total V I_{Mon_V})
   := total_monoidal monoidal_pointed_objects_disp.
