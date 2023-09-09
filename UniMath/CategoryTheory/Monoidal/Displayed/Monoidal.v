@@ -691,17 +691,18 @@ Section DisplayedMonoidalCategories.
              (i : D I_{M})
              (dlu : disp_leftunitor_data DT i)
              (dru : disp_rightunitor_data DT i)
-             (dα : disp_associator_data DT)
-             (dlu_nat : disp_leftunitor_nat dlu_{make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα})
-             (dru_nat : disp_rightunitor_nat dru_{make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα})
-             (dα_nat_left : disp_associator_nat_leftwhisker dα_{make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα})
-             (dα_nat_right : disp_associator_nat_rightwhisker dα_{make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα})
-             (dα_nat_left_right : disp_associator_nat_leftrightwhisker dα_{make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα})
-             (dtriangle : disp_triangle_identity dlu_{make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα} dru_{make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα} dα_{make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα})
-             (dpentagon : disp_pentagon_identity dα_{make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα})
-    : disp_monoidal D M.
+             (dα : disp_associator_data DT) :
+    let DMD := make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα in
+           ∏ (dlu_nat : disp_leftunitor_nat dlu_{DMD})
+             (dru_nat : disp_rightunitor_nat dru_{DMD})
+             (dα_nat_left : disp_associator_nat_leftwhisker dα_{DMD})
+             (dα_nat_right : disp_associator_nat_rightwhisker dα_{DMD})
+             (dα_nat_left_right : disp_associator_nat_leftrightwhisker dα_{DMD})
+             (dtriangle : disp_triangle_identity dlu_{DMD} dru_{DMD} dα_{DMD})
+             (dpentagon : disp_pentagon_identity dα_{DMD}),
+      disp_monoidal D M.
   Proof.
-    set (DMD := make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα).
+    intros.
     use tpair.
     - exact DMD.
     - split5.
