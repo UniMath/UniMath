@@ -682,8 +682,49 @@ Section DisplayedMonoidalCategories.
     abstract (repeat split ; try intro ; intros ; apply LP).
   Defined.
 
-
-
+  Definition make_disp_monoidal_groupoidal
+             {C : category}
+             {D : disp_cat C}
+             (gdisp : groupoidal_disp_cat D)
+             {M : monoidal C}
+             (DT : disp_tensor D M)
+             (i : D I_{M})
+             (dlu : disp_leftunitor_data DT i)
+             (dru : disp_rightunitor_data DT i)
+             (dα : disp_associator_data DT)
+             (dlu_nat : disp_leftunitor_nat dlu_{make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα})
+             (dru_nat : disp_rightunitor_nat dru_{make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα})
+             (dα_nat_left : disp_associator_nat_leftwhisker dα_{make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα})
+             (dα_nat_right : disp_associator_nat_rightwhisker dα_{make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα})
+             (dα_nat_left_right : disp_associator_nat_leftrightwhisker dα_{make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα})
+             (dtriangle : disp_triangle_identity dlu_{make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα} dru_{make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα} dα_{make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα})
+             (dpentagon : disp_pentagon_identity dα_{make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα})
+    : disp_monoidal D M.
+  Proof.
+    set (DMD := make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα).
+    use tpair.
+    - exact DMD.
+    - split5.
+      + split.
+        * exact dlu_nat.
+        * intros x xx.
+          set (aux := gdisp _ _ _ (pr2 (leftunitor_nat_z_iso M) x) _ _ (dlu x xx)).
+          exact (pr2 aux).
+      + split.
+        * exact dru_nat.
+        * intros x xx.
+          set (aux := gdisp _ _ _ (pr2 (rightunitor_nat_z_iso M) x) _ _ (dru x xx)).
+          exact (pr2 aux).
+      + split4.
+        * exact dα_nat_left.
+        * exact dα_nat_right.
+        * exact dα_nat_left_right.
+        * intros x y z xx yy zz.
+          set (aux := gdisp _ _ _ (pr2 (z_iso_from_associator_iso M x y z)) _ _ (dα x y z xx yy zz)).
+          exact (pr2 aux).
+      + exact dtriangle.
+      + exact dpentagon.
+  Defined.
 
   Definition disp_monoidal_mondata
              {C : category}
