@@ -382,8 +382,21 @@ Section DisplayedSymmetric.
     {M : monoidal C}
     (DM : disp_monoidal D M).
 
+  Definition disp_symmetric_data (B : symmetric M) : UU
+    := disp_braiding_data DM B.
+
   Definition disp_symmetric (B : symmetric M) : UU
-    := ∑ DB : disp_braiding_data DM B, disp_braiding_laws _ DB DB.
+    := ∑ DB : disp_symmetric_data B, disp_braiding_laws _ DB DB.
+
+  Definition make_disp_symmetric_locally_prop
+    (LP : locally_propositional D)
+    {B : symmetric M}
+    (DSD : disp_symmetric_data B)
+    : disp_symmetric B.
+  Proof.
+    exists DSD.
+    split3; try split; try (intro; intros); apply LP.
+  Defined.
 
   Definition disp_symmetric_to_braiding
     {B : symmetric M}

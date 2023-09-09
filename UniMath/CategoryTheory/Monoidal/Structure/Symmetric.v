@@ -105,6 +105,23 @@ Section BraidedSymmetricMonoidalCategories.
     : UU
     := braiding_law_naturality B × braiding_iso B B × braiding_law_hexagon1 B.
 
+  (*
+  Definition braiding_laws_to_braiding_laws_one_hexagon
+             {C : category}
+             {M : monoidal C}
+             (B : braiding_data M) :
+    braiding_laws B B -> braiding_laws_one_hexagon B.
+  Proof.
+    intro Hyp.
+    split3.
+    - exact (pr1 Hyp).
+    - exact (pr12 Hyp).
+    - exact (pr122 Hyp).
+  Defined.
+
+  Coercion braiding_laws_to_braiding_laws_one_hexagon : braiding_laws >-> braiding_laws_one_hexagon.
+   *)
+
   Definition braiding_laws_one_hexagon_braiding_z_iso
              {C : category}
              {M : monoidal C}
