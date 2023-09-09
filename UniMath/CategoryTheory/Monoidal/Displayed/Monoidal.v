@@ -15,10 +15,12 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
@@ -112,6 +114,36 @@ Section DisplayedMonoidalCategories.
        × (disp_rightunitorinv_data DT i)
        × (disp_associator_data DT)
        × (disp_associatorinv_data DT).
+
+  Definition make_disp_monoidal_data_groupoidal
+             {C : category}
+             (D : disp_cat C)
+             (gdisp : groupoidal_disp_cat D)
+             (M : monoidal C)
+             (DT : disp_tensor D M)
+             (i : D I_{M})
+             (dlu : disp_leftunitor_data DT i)
+             (dru : disp_rightunitor_data DT i)
+             (dα : disp_associator_data DT)
+    : disp_monoidal_data D M.
+  Proof.
+    exists DT. exists i. exists dlu.
+    use tpair.
+    { intros x xx.
+      set (aux := gdisp _ _ _ (pr2 (leftunitor_nat_z_iso M) x) _ _ (dlu x xx)).
+      exact (pr1 aux).
+    }
+    exists dru.
+    use tpair.
+    { intros x xx.
+      set (aux := gdisp _ _ _ (pr2 (rightunitor_nat_z_iso M) x) _ _ (dru x xx)).
+      exact (pr1 aux).
+    }
+    exists dα.
+    intros x y z xx yy zz.
+    set (aux := gdisp _ _ _ (pr2 (z_iso_from_associator_iso M x y z)) _ _ (dα x y z xx yy zz)).
+    exact (pr1 aux).
+  Defined.
 
   Definition disp_monoidal_tensor
              {C : category}
@@ -649,6 +681,9 @@ Section DisplayedMonoidalCategories.
     exists DMD.
     abstract (repeat split ; try intro ; intros ; apply LP).
   Defined.
+
+
+
 
   Definition disp_monoidal_mondata
              {C : category}
