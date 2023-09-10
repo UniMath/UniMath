@@ -51,7 +51,7 @@ Section FixADisplayedCategory.
       exact (dispBinProductOfArrows _ _ _ ff (id_disp dd)).
   Defined.
 
-  Definition DCM_tensor_laws : is_disp_bifunctor DCM_tensor_data.
+  Definition DCM_tensor_laws : is_disp_bifunctor M DCM_tensor_data.
   Proof.
     red; repeat split; red; intros.
     - cbn. unfold dispBinProductOfArrows. apply pathsinv0. apply dispBinProductArrowUnique.

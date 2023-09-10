@@ -133,6 +133,22 @@ Section MonoidalFunctors.
     : preserves_unit M N F
     := pr2 fmd.
 
+  Lemma fmonoidal_data_eq
+             {C D : category}
+             {M : monoidal C}
+             {N : monoidal D}
+             {F : functor C D}
+             (fmd1 fmd2 : fmonoidal_data M N F)
+    : (∏ x y : C,  fmonoidal_preservestensordata fmd1 x y = fmonoidal_preservestensordata fmd2 x y) ->
+      fmonoidal_preservesunit fmd1 = fmonoidal_preservesunit fmd2 -> fmd1 = fmd2.
+  Proof.
+    intros pT pU.
+    use total2_paths_f.
+    - do 2 (apply funextsec ; intro) ; apply pT.
+    - rewrite transportf_const.
+      apply pU.
+  Qed.
+
   (** Properties **)
   Definition preserves_tensor_nat_left
              {C D : category}
@@ -574,6 +590,16 @@ Section MonoidalFunctors.
     : UU
     := preserves_tensor_strongly pt × preserves_unit_strongly pu.
 
+  Lemma isaprop_fmonoidal_stronglaws
+             {C D : category}
+             {M : monoidal C} {N : monoidal D}
+             {F : functor C D}
+             (Fm : fmonoidal_data M N F)
+    : isaprop (fmonoidal_stronglaws (pr1 Fm) (pr2 Fm)).
+  Proof.
+    apply isapropdirprod ; repeat (apply impred_isaprop ; intro) ; apply isaprop_is_z_isomorphism.
+  Qed.
+
   (**
    2. Strong monoidal functors
    *)
@@ -610,6 +636,20 @@ Section MonoidalFunctors.
              (Fm : fmonoidal M N F)
     : preserves_unit_strongly (fmonoidal_preservesunit Fm)
     := pr22 Fm.
+
+  Lemma fmonoidal_eq
+             {C D : category}
+             {M : monoidal C}
+             {N : monoidal D}
+             {F : functor C D}
+             (fmd fmd' : fmonoidal M N F) :
+    pr1 fmd = pr1 fmd' -> fmd = fmd'.
+  Proof.
+    intro H.
+    apply subtypePath.
+    - intro; apply isaprop_fmonoidal_stronglaws.
+    - exact H.
+  Qed.
 
   (** We now show that everything behaves as expected **)
   Definition functor_imageoftensor

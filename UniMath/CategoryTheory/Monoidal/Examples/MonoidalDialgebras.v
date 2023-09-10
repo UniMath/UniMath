@@ -30,6 +30,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.MonoidalSections.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.
+Require Import UniMath.CategoryTheory.Monoidal.Displayed.MonoidalFunctorLifting.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
@@ -51,17 +52,18 @@ Section FixTwoMonoidalFunctors.
           {V : monoidal A} {W : monoidal B}
           {F G : A ⟶ B}
           (Fm : fmonoidal V W F) (Gm : fmonoidal_lax V W G).
+  (** it is expected that [Fm] could just be an oplax monoidal functor *)
 
   Local Definition base_disp : disp_cat A := dialgebra_disp_cat F G.
 
-  Local Lemma base_disp_cells_isaprop (x y : A) (f : A⟦ x, y ⟧)
-        (xx : base_disp x) (yy : base_disp y): isaprop (xx -->[ f] yy).
+  Local Lemma base_disp_cells_isaprop (x y : A) (f : A⟦x, y⟧)
+        (xx : base_disp x) (yy : base_disp y): isaprop (xx -->[f] yy).
   Proof.
     intros Hyp Hyp'.
     apply B.
   Qed.
 
-  Definition dialgebra_disp_tensor_op {a a' : A} (f : base_disp a) (f' : base_disp a') : base_disp (a ⊗_{ V} a').
+  Definition dialgebra_disp_tensor_op {a a' : A} (f : base_disp a) (f' : base_disp a') : base_disp (a ⊗_{V} a').
   Proof.
     refine (_ · fmonoidal_preservestensordata Gm a a').
     refine (pr1 (fmonoidal_preservestensorstrongly Fm a a') · _).
@@ -70,7 +72,7 @@ Section FixTwoMonoidalFunctors.
 
   Lemma dialgebra_disp_tensor_comp_aux1 {a a2 a2' : A} {h': a2 --> a2'}
     (f : base_disp a) (f' : base_disp a2) (g' : base_disp a2')
-    : f'-->[h'] g' -> dialgebra_disp_tensor_op f f' -->[ a ⊗^{V}_{l} h' ] dialgebra_disp_tensor_op f g'.
+    : f'-->[h'] g' -> dialgebra_disp_tensor_op f f' -->[a ⊗^{V}_{l} h'] dialgebra_disp_tensor_op f g'.
   Proof.
     intro Hyp'.
     cbn in Hyp'.
@@ -106,7 +108,7 @@ Section FixTwoMonoidalFunctors.
 
   Lemma dialgebra_disp_tensor_comp_aux2 {a1 a1' a : A} {h: a1 --> a1'}
     (f : base_disp a1) (f' : base_disp a) (g : base_disp a1')
-    : f -->[h] g -> dialgebra_disp_tensor_op f f' -->[ h ⊗^{V}_{r} a ] dialgebra_disp_tensor_op g f'.
+    : f -->[h] g -> dialgebra_disp_tensor_op f f' -->[h ⊗^{V}_{r} a] dialgebra_disp_tensor_op g f'.
   Proof.
     intro Hyp.
     cbn in Hyp.
@@ -142,7 +144,7 @@ Section FixTwoMonoidalFunctors.
   (** the following "morally right" formulation does not follow the division into the two whiskerings
   Lemma dialgebra_disp_tensor_comp_aux {a1 a2 a1' a2' : A} {h: a1 --> a1'} {h': a2 --> a2'}
     (f : base_disp a1) (f' : base_disp a2) (g : base_disp a1') (g' : base_disp a2')
-    : f -->[h] g -> f'-->[h'] g' -> dialgebra_disp_tensor_op f f' -->[ h ⊗^{V} h' ] dialgebra_disp_tensor_op g g'.
+    : f -->[h] g -> f'-->[h'] g' -> dialgebra_disp_tensor_op f f' -->[h ⊗^{V} h'] dialgebra_disp_tensor_op g g'.
   Proof.
     intros Hyp Hyp'.
     hnf in Hyp, Hyp' |- *.
@@ -269,9 +271,9 @@ Section FixTwoMonoidalFunctors.
     repeat rewrite assoc'.
     apply (z_iso_inv_on_right _ _ _ (_,,fmonoidal_preservestensorstrongly Fm _ _)).
     cbn.
-    transparent assert (aux1 : (z_iso (F (a1 ⊗_{ V} a2) ⊗_{ W} F a3) ((F a1 ⊗_{ W} F a2) ⊗_{ W} F a3))).
-    { exists (pr1 (fmonoidal_preservestensorstrongly Fm a1 a2) ⊗^{ W}_{r} F a3).
-      exists (fmonoidal_preservestensordata Fm a1 a2 ⊗^{ W}_{r} F a3).
+    transparent assert (aux1 : (z_iso (F (a1 ⊗_{V} a2) ⊗_{W} F a3) ((F a1 ⊗_{W} F a2) ⊗_{W} F a3))).
+    { exists (pr1 (fmonoidal_preservestensorstrongly Fm a1 a2) ⊗^{W}_{r} F a3).
+      exists (fmonoidal_preservestensordata Fm a1 a2 ⊗^{W}_{r} F a3).
       split.
       - rewrite <- (bifunctor_rightcomp W).
         etrans.
@@ -306,9 +308,9 @@ Section FixTwoMonoidalFunctors.
     unfold functoronmorphisms1 at 2.
     repeat rewrite assoc.
     apply cancel_postcomposition.
-    transparent assert (aux2 : (z_iso (G a1 ⊗_{ W} F (a2 ⊗_{ V} a3)) (G a1 ⊗_{ W} (F a2 ⊗_{ W} F a3)))).
-    { exists (G a1 ⊗^{ W}_{l} pr1 (fmonoidal_preservestensorstrongly Fm a2 a3)).
-      exists (G a1 ⊗^{ W}_{l} fmonoidal_preservestensordata Fm a2 a3).
+    transparent assert (aux2 : (z_iso (G a1 ⊗_{W} F (a2 ⊗_{V} a3)) (G a1 ⊗_{W} (F a2 ⊗_{W} F a3)))).
+    { exists (G a1 ⊗^{W}_{l} pr1 (fmonoidal_preservestensorstrongly Fm a2 a3)).
+      exists (G a1 ⊗^{W}_{l} fmonoidal_preservestensordata Fm a2 a3).
       split.
       - rewrite <- (bifunctor_leftcomp W).
         etrans.
@@ -383,9 +385,9 @@ Section FixTwoMonoidalFunctors.
 
     Lemma monnattrans_to_monoidal_section_laws :
       smonoidal_laxlaws V dialgebra_disp_monoidal monnattrans_to_monoidal_section_data.
-      Proof.
-        repeat split; red; intros; apply base_disp_cells_isaprop.
-      Qed.
+    Proof.
+      repeat split; red; intros; apply base_disp_cells_isaprop.
+    Qed.
 
     Lemma monnattrans_to_monoidal_section_strongtensor :
       smonoidal_strongtensor V dialgebra_disp_monoidal
@@ -574,7 +576,8 @@ Section FixTwoMonoidalFunctors.
           + unfold section_preserves_unit.
             apply base_disp_cells_isaprop.
       Qed.
-    End RoundtripForSDData.
+
+  End RoundtripForSDData.
 
   Section Symmetric.
 
@@ -615,4 +618,290 @@ Section FixTwoMonoidalFunctors.
       - exact dialgebra_disp_symmetric_data.
     Qed.
   End Symmetric.
+
 End FixTwoMonoidalFunctors.
+
+Section MonoidalNatTransToDialgebraLifting.
+
+  Context {C1 C2 C3 : category}
+          {M1 : monoidal C1}
+          {M2 : monoidal C2}
+          {M3 : monoidal C3}
+          {F G : C2 ⟶ C3}
+          {Fm : fmonoidal M2 M3 F}
+          {Gm : fmonoidal M2 M3 G}
+          {K : C1 ⟶ C2}
+          {Km : fmonoidal M1 M2 K}
+          {α : K ∙ F ⟹ K ∙ G}
+          (αm : is_mon_nat_trans (comp_fmonoidal Km Fm) (comp_fmonoidal Km Gm) α).
+
+  Definition monoidal_nat_trans_to_dialgebra_lifting_data
+    : flmonoidal_data Km (dialgebra_disp_monoidal Fm Gm) (nat_trans_to_dialgebra_lifting K α).
+  Proof.
+    use tpair.
+    - intros x y.
+      cbn.
+      unfold dialgebra_disp_tensor_op.
+      rewrite ! assoc'.
+      etrans. {
+        apply maponpaths.
+        exact (! pr1 αm x y).
+      }
+      cbn.
+
+      etrans. {
+        do 2 rewrite assoc.
+        do 2 apply maponpaths_2.
+        apply (pr2 (fmonoidal_preservestensorstrongly Fm (K x) (K y))).
+      }
+      rewrite assoc'.
+      apply id_left.
+    - cbn.
+      unfold dialgebra_disp_unit.
+      etrans. {
+        rewrite assoc'.
+        apply maponpaths.
+        exact (! pr2 αm).
+      }
+
+      cbn.
+
+      etrans. {
+        do 2 rewrite assoc.
+        do 2 apply maponpaths_2.
+        apply (pr2 (fmonoidal_preservesunitstrongly Fm)).
+      }
+      rewrite assoc'.
+      apply id_left.
+  Qed.
+
+  Lemma monoidal_nat_trans_to_dialgebra_lifting_laxlaws
+    : flmonoidal_laxlaws Km (dialgebra_disp_monoidal Fm Gm) (nat_trans_to_dialgebra_lifting K α)
+                          monoidal_nat_trans_to_dialgebra_lifting_data.
+  Proof.
+    repeat split ; intro ; intros ; apply homset_property.
+  Qed.
+
+  Definition monoidal_nat_trans_to_dialgebra_lifting
+    : flmonoidal_lax Km (dialgebra_disp_monoidal Fm Gm) (nat_trans_to_dialgebra_lifting K α).
+  Proof.
+    exists monoidal_nat_trans_to_dialgebra_lifting_data.
+    exact monoidal_nat_trans_to_dialgebra_lifting_laxlaws.
+  Defined.
+
+  Lemma monoidal_nat_trans_to_dialgebra_lifting_stronglaws
+    : fl_stronglaws Km (dialgebra_disp_monoidal Fm Gm) (nat_trans_to_dialgebra_lifting K α) monoidal_nat_trans_to_dialgebra_lifting (pr2 Km).
+  Proof.
+    split.
+    - intros x y.
+      use tpair.
+      + cbn.
+
+        transparent assert (pfG_is_z_iso : (is_z_isomorphism ( (# G)%Cat (inv_from_z_iso (fmonoidal_preservestensordata Km x y,, fmonoidal_preservestensorstrongly (_,, pr2 Km) x y))))).
+        {
+          use functor_on_is_z_isomorphism.
+          apply is_z_iso_inv_from_z_iso.
+        }
+        use (z_iso_inv_to_right _ _ _ _ (_ ,, pfG_is_z_iso)).
+
+        transparent assert (pfF_is_z_iso : (is_z_isomorphism ((# F)%Cat
+    (inv_from_z_iso
+       (fmonoidal_preservestensordata Km x y,, fmonoidal_preservestensorstrongly (_,, pr2 Km) x y))))).
+        {
+          use functor_on_is_z_isomorphism.
+          apply is_z_iso_inv_from_z_iso.
+        }
+
+        rewrite assoc'.
+        use (z_iso_inv_to_left _ _ _ (_ ,, pfF_is_z_iso)).
+        exact (! pr1 monoidal_nat_trans_to_dialgebra_lifting_data x y).
+      + repeat (apply funextsec ; intro).
+        split ; apply base_disp_cells_isaprop.
+    - use tpair.
+      + cbn.
+
+        transparent assert (pfL_is_z_iso :
+                             (is_z_isomorphism ( (# F)%Cat (inv_from_z_iso (fmonoidal_preservesunit Km,, fmonoidal_preservesunitstrongly (_ ,, pr2 Km)))))
+                           ).
+        {
+          use functor_on_is_z_isomorphism.
+          apply is_z_iso_inv_from_z_iso.
+        }
+
+        use (z_iso_inv_to_left _ _ _ (_ ,, pfL_is_z_iso)).
+
+        transparent assert (pfR_is_z_iso
+                             : (is_z_isomorphism
+                                  ((# G)%Cat (inv_from_z_iso (fmonoidal_preservesunit Km,, fmonoidal_preservesunitstrongly (_,, pr2 Km)))))).
+        {
+          use functor_on_is_z_isomorphism.
+          apply is_z_iso_inv_from_z_iso.
+        }
+
+        rewrite assoc.
+        use (z_iso_inv_to_right _ _ _ _ (_ ,, pfR_is_z_iso)).
+        exact (! pr2 monoidal_nat_trans_to_dialgebra_lifting_data).
+      + split ; apply base_disp_cells_isaprop.
+  Qed.
+
+  Definition monoidal_nat_trans_to_dialgebra_lifting_strong
+    : flmonoidal Km (dialgebra_disp_monoidal Fm Gm) (nat_trans_to_dialgebra_lifting K α) (pr2 Km).
+  Proof.
+    exists monoidal_nat_trans_to_dialgebra_lifting.
+    exact monoidal_nat_trans_to_dialgebra_lifting_stronglaws.
+  Defined.
+
+  Definition monoidal_nat_trans_to_dialgebra
+    : fmonoidal_lax _ _ (nat_trans_to_dialgebra K α)
+    := functorlifting_fmonoidal_lax _ _ _ monoidal_nat_trans_to_dialgebra_lifting.
+
+  Definition monoidal_nat_trans_to_dialgebra_strong
+    : fmonoidal _ _ (nat_trans_to_dialgebra K α)
+    := functorlifting_fmonoidal _ _ _ monoidal_nat_trans_to_dialgebra_lifting_strong.
+
+End MonoidalNatTransToDialgebraLifting.
+
+Section MonoidalDialgebraLiftingToNatTrans.
+
+  Context {C1 C2 C3 : category}
+          {M1 : monoidal C1}
+          {M2 : monoidal C2}
+          {M3 : monoidal C3}
+          {F G : C2 ⟶ C3}
+          {Fm : fmonoidal M2 M3 F}
+          {Gm : fmonoidal M2 M3 G}
+          {K : C1 ⟶ C2}
+          {Km : fmonoidal M1 M2 K}
+          {fl : functor_lifting (dialgebra_disp_cat F G) K}
+          (Fl : flmonoidal_lax Km
+                               (dialgebra_disp_monoidal Fm Gm)
+                               fl).
+
+  Let α : K ∙ F ⟹ K ∙ G := dialgebra_lifting_to_nat_trans _ fl.
+
+  Definition monoidal_dialgebra_lifting_to_monoidal_nat_trans
+    : is_mon_nat_trans (comp_fmonoidal Km Fm) (comp_fmonoidal Km Gm) α.
+  Proof.
+    split.
+    - intros x y.
+      cbn.
+
+      etrans. {
+        rewrite assoc'.
+        apply maponpaths.
+        exact (! pr11 Fl x y).
+      }
+
+      cbn.
+      do 2 rewrite assoc.
+      apply maponpaths_2.
+      unfold dialgebra_disp_tensor_op.
+      cbn.
+      do 2 rewrite assoc.
+      etrans. {
+        do 2 apply maponpaths_2.
+        apply (fmonoidal_preservestensorstrongly Fm (K x) (K y)).
+      }
+      rewrite assoc'.
+      apply id_left.
+    - red. cbn.
+      etrans. {
+        rewrite assoc'.
+        apply maponpaths.
+        exact (! pr21 Fl).
+      }
+
+      rewrite assoc.
+      apply maponpaths_2.
+
+      cbn.
+      unfold dialgebra_disp_unit.
+      rewrite assoc.
+      etrans. {
+        apply maponpaths_2.
+        apply  (fmonoidal_preservesunitstrongly Fm).
+      }
+      apply id_left.
+  Qed.
+
+  (* Definition monoidal_dialgebra_lifting_to_invertible_monoidal_nat_trans *)
+
+End MonoidalDialgebraLiftingToNatTrans.
+
+Section RoundtripForLiftingData.
+
+  Context {C1 C2 C3 : category}
+          {M1 : monoidal C1}
+          {M2 : monoidal C2}
+          {M3 : monoidal C3}
+          {F G : C2 ⟶ C3}
+          {Fm : fmonoidal M2 M3 F}
+          {Gm : fmonoidal M2 M3 G}
+          {K : C1 ⟶ C2}
+          {Km : fmonoidal M1 M2 K}.
+
+  Local Definition source_type': UU
+    := ∑ α : K ∙ F ⟹ K ∙ G,
+        is_mon_nat_trans (comp_fmonoidal Km Fm) (comp_fmonoidal Km Gm) α.
+
+  Local Definition target_type': UU
+    := ∑ fl : functor_lifting (dialgebra_disp_cat F G) K,
+        flmonoidal_lax Km (dialgebra_disp_monoidal Fm Gm) fl.
+
+  Local Definition target_type_s': UU
+    := ∑ fl : functor_lifting (dialgebra_disp_cat F G) K,
+        flmonoidal Km (dialgebra_disp_monoidal Fm Gm) fl (pr2 Km).
+
+  Local Definition source_to_target'
+    : source_type' -> target_type'
+    := λ α, _ ,, monoidal_nat_trans_to_dialgebra_lifting (pr2 α).
+
+  Local Definition target_to_source'
+    : target_type' -> source_type'
+    := λ fl, _ ,, monoidal_dialgebra_lifting_to_monoidal_nat_trans (pr2 fl).
+
+  Local Definition source_to_target_s'
+    : source_type' -> target_type_s'.
+  Proof.
+    intro α.
+    use tpair.
+    2: apply (monoidal_nat_trans_to_dialgebra_lifting_strong (pr2 α)).
+  Defined.
+
+  Local Definition target_to_source_s'
+    : target_type_s' -> source_type'
+    := λ fl, _ ,, monoidal_dialgebra_lifting_to_monoidal_nat_trans (pr2 fl).
+
+  Local Lemma roundtrip1' (ass: source_type')
+    : target_to_source' (source_to_target' ass) = ass.
+  Proof.
+    use total2_paths_f.
+    - apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip1_with_liftings.
+    - apply isaprop_is_mon_nat_trans.
+  Qed.
+
+  Local Lemma roundtrip1_s' (ass: source_type')
+    : target_to_source_s' (source_to_target_s' ass) = ass.
+  Proof.
+    use total2_paths_f.
+    - apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip1_with_liftings.
+    - apply isaprop_is_mon_nat_trans.
+  Qed.
+
+  Local Lemma roundtrip2' (ass: target_type')
+    : source_to_target' (target_to_source' ass) = ass.
+  Proof.
+    use total2_paths_f.
+    - apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip2_with_liftings.
+    - use flmonoidal_equality ; intros ; apply homset_property.
+  Qed.
+
+  Local Lemma roundtrip2_s' (ass: target_type_s')
+    : source_to_target_s' (target_to_source_s' ass) = ass.
+  Proof.
+    use total2_paths_f.
+    - apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip2_with_liftings.
+    - use flmonoidal_strong_equality ; intros ; apply homset_property.
+  Qed.
+
+End RoundtripForLiftingData.
