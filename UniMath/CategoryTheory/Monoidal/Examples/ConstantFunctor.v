@@ -91,3 +91,29 @@ Section ConstantFunctor.
   Qed.
 
 End ConstantFunctor.
+
+Section UnitExample.
+
+  Context (V : monoidal_cat).
+
+  Definition constantly_unit_functor_fmonoidal
+    : fmonoidal V V (constant_functor _ _ (I_{V})).
+  Proof.
+    use constant_functor_fmonoidal.
+    - apply unit_monoid.
+    - exact (pr2 (leftunitor_nat_z_iso V) (I_{V})).
+    - apply identity_is_z_iso.
+  Defined.
+
+  Definition constantly_unit_functor_is_symmetric
+    (S : symmetric V)
+    : is_symmetric_monoidal_functor S S constantly_unit_functor_fmonoidal.
+  Proof.
+    use constant_functor_is_symmetric.
+    cbn.
+    refine (_ @ id_left _).
+    apply maponpaths_2.
+    apply (sym_mon_braiding_id (V,,S)).
+  Defined.
+
+End UnitExample.
