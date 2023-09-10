@@ -22,7 +22,6 @@ Require Import UniMath.CategoryTheory.Monoidal.Functors.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
-Require Import UniMath.CategoryTheory.Monoidal.Displayed.MonoidalSections.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.Fullsub.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.Sigma.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.

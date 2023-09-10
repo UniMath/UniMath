@@ -64,7 +64,7 @@ Section SigmaConstruction.
   Defined.
 
   Lemma sigma_disp_is_tensor
-    : is_disp_bifunctor sigma_disp_cat_tensor_data.
+    : is_disp_bifunctor M sigma_disp_cat_tensor_data.
   Proof.
     repeat split.
     - intros x y [xx xxx] [yy yyy].

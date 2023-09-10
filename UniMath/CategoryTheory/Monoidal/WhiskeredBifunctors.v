@@ -325,19 +325,19 @@ Section WhiskeredBinaturaltransformation.
 
   Context {A B C : category}.
 
-  Definition binat_trans_data (F G : bifunctor A B C) : UU :=
+  Definition binat_trans_data (F G : bifunctor_data A B C) : UU :=
     ∏ (a : A) (b : B), C⟦a ⊗_{F} b, a ⊗_{G} b⟧.
 
-  Definition make_binat_trans_data {F G : bifunctor A B C} (α : ∏ (a : A) (b : B), C⟦a ⊗_{F} b, a ⊗_{G} b⟧) : binat_trans_data F G := α.
+  Definition make_binat_trans_data {F G : bifunctor_data A B C} (α : ∏ (a : A) (b : B), C⟦a ⊗_{F} b, a ⊗_{G} b⟧) : binat_trans_data F G := α.
 
-  Definition is_binat_trans {F G : bifunctor A B C} (α : binat_trans_data F G) :=
+  Definition is_binat_trans {F G : bifunctor_data A B C} (α : binat_trans_data F G) :=
     (∏ (a : A) (b1 b2 : B) (g : B⟦b1,b2⟧),
        (a ⊗^{ F}_{l} g) · (α a b2) = (α a b1) · (a ⊗^{ G}_{l} g))
                                            ×
        (∏ (a1 a2 : A) (b : B) (f : A⟦a1,a2⟧),
        (f ⊗^{ F}_{r} b) · (α a2 b) = (α a1 b) · (f ⊗^{ G}_{r} b)).
 
-  Lemma full_naturality_condition {F G : bifunctor A B C} {α : binat_trans_data F G} (αn : is_binat_trans α) {a1 a2 : A} {b1 b2 : B} (f : A⟦a1,a2⟧) (g : B⟦b1,b2⟧) : (f ⊗^{F} g)·(α a2 b2) = (α a1 b1)·(f ⊗^{G} g).
+  Lemma full_naturality_condition {F G : bifunctor_data A B C} {α : binat_trans_data F G} (αn : is_binat_trans α) {a1 a2 : A} {b1 b2 : B} (f : A⟦a1,a2⟧) (g : B⟦b1,b2⟧) : (f ⊗^{F} g)·(α a2 b2) = (α a1 b1)·(f ⊗^{G} g).
   Proof.
     unfold functoronmorphisms1.
     rewrite assoc'.
@@ -347,28 +347,28 @@ Section WhiskeredBinaturaltransformation.
     apply assoc'.
   Qed.
 
-  Definition binat_trans (F G : bifunctor A B C) : UU :=
+  Definition binat_trans (F G : bifunctor_data A B C) : UU :=
     ∑ (α : binat_trans_data F G), is_binat_trans α.
 
-  Definition binattransdata_from_binattrans {F G : bifunctor A B C} (α : binat_trans F G) : binat_trans_data F G := pr1 α.
+  Definition binattransdata_from_binattrans {F G : bifunctor_data A B C} (α : binat_trans F G) : binat_trans_data F G := pr1 α.
 
   (* Something like this is done in Core.NaturalTransformation, but I don't really know what this funclass is,
      I inserted this to use (α x y) without having to project, it would be good to have some explanation,
      also I don't understand why making a coercion for binattransdata_from_binattrans is not sufficient
      since I already have a identity coercion for binat_trans_data. *)
-  Definition binattransdata_from_binattrans_funclass {F G : bifunctor A B C} (α : binat_trans F G)
+  Definition binattransdata_from_binattrans_funclass {F G : bifunctor_data A B C} (α : binat_trans F G)
     : ∏ (a : A) (b : B), C⟦a ⊗_{F} b, a ⊗_{G} b⟧ := pr1 α.
   Coercion binattransdata_from_binattrans_funclass : binat_trans >-> Funclass.
 
-  Definition make_binat_trans {F G : bifunctor A B C} (α : binat_trans_data F G) (H : is_binat_trans α)
+  Definition make_binat_trans {F G : bifunctor_data A B C} (α : binat_trans_data F G) (H : is_binat_trans α)
     : binat_trans F G := (α,,H).
 
-  Definition is_binatiso {F G : bifunctor A B C} (α : binat_trans F G)
+  Definition is_binatiso {F G : bifunctor_data A B C} (α : binat_trans F G)
     := ∏ (a : A) (b : B), is_z_isomorphism (pr1 α a b).
 
-  Definition inv_from_binatiso {F G : bifunctor A B C} {α : binat_trans F G} (isiso: is_binatiso α) : binat_trans_data G F := fun a b => pr1 (isiso a b).
+  Definition inv_from_binatiso {F G : bifunctor_data A B C} {α : binat_trans F G} (isiso: is_binatiso α) : binat_trans_data G F := fun a b => pr1 (isiso a b).
 
-  Lemma is_binat_trans_inv_from_binatiso {F G : bifunctor A B C} {α : binat_trans F G} (isiso: is_binatiso α) : is_binat_trans (inv_from_binatiso isiso).
+  Lemma is_binat_trans_inv_from_binatiso {F G : bifunctor_data A B C} {α : binat_trans F G} (isiso: is_binatiso α) : is_binat_trans (inv_from_binatiso isiso).
   Proof.
     split.
     - intros ? ? ? ?.
@@ -385,7 +385,7 @@ Section WhiskeredBinaturaltransformation.
       apply pathsinv0, (pr22 α).
   Qed.
 
-  Definition inv_binattrans_from_binatiso {F G : bifunctor A B C} {α : binat_trans F G} (isiso: is_binatiso α) : binat_trans G F := inv_from_binatiso isiso,, is_binat_trans_inv_from_binatiso isiso.
+  Definition inv_binattrans_from_binatiso {F G : bifunctor_data A B C} {α : binat_trans F G} (isiso: is_binatiso α) : binat_trans G F := inv_from_binatiso isiso,, is_binat_trans_inv_from_binatiso isiso.
 
 End WhiskeredBinaturaltransformation.
 
