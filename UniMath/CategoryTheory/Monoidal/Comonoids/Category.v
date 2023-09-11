@@ -48,7 +48,7 @@ Section CategoryOfComonoids.
   Context (V : monoidal_cat).
 
   Definition disp_cat_of_comonoids_data
-    : disp_cat _
+    : disp_cat V
     := dirprod_disp_cat
          (dialgebra_disp_cat (functor_identity V) (diag_functor V))
          (dialgebra_disp_cat (functor_identity V) (constant_functor _ _ I_{V})).
