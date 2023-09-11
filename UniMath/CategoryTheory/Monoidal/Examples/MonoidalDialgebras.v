@@ -579,46 +579,6 @@ Section FixTwoMonoidalFunctors.
 
   End RoundtripForSDData.
 
-  Section Symmetric.
-
-    Context (SV : symmetric V) (SW : symmetric W)
-      (Fs : is_symmetric_monoidal_functor SV SW Fm)
-      (Gs : is_symmetric_monoidal_functor SV SW Gm).
-
-
-    Definition dialgebra_disp_symmetric_data : disp_symmetric_data dialgebra_disp_monoidal SV.
-    Proof.
-      intros x y xx yy.
-      cbn. unfold dialgebra_disp_tensor_op.
-      etrans.
-      { repeat rewrite assoc'.
-        do 2 apply maponpaths.
-        apply pathsinv0, Gs. }
-      repeat rewrite assoc. apply maponpaths_2.
-      rewrite assoc'.
-      apply (z_iso_inv_on_right _ _ _ (_,,fmonoidal_preservestensorstrongly Fm x y)).
-      etrans.
-      2: { repeat rewrite assoc.
-           do 2 apply maponpaths_2.
-           apply Fs. }
-      etrans.
-      2: { apply maponpaths_2.
-           rewrite assoc'.
-           apply maponpaths.
-           apply pathsinv0, (z_iso_inv_after_z_iso
-                               (_,,fmonoidal_preservestensorstrongly Fm y x)). }
-      rewrite id_right.
-      apply (tensor_sym_mon_braiding ((B,,W),,SW)).
-    Qed.
-
-    Definition dialgebra_disp_symmetric : disp_symmetric dialgebra_disp_monoidal SV.
-    Proof.
-      use make_disp_symmetric_locally_prop.
-      - apply is_locally_propositional_dialgebra_disp_cat.
-      - exact dialgebra_disp_symmetric_data.
-    Qed.
-  End Symmetric.
-
 End FixTwoMonoidalFunctors.
 
 Section MonoidalNatTransToDialgebraLifting.
