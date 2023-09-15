@@ -41,7 +41,7 @@ Section Dialgebra.
       apply idpath).
   Defined.
 
-  Lemma is_locally_propositional_dialgebra_disp_cat: locally_propositional dialgebra_disp_cat.
+  Lemma is_locally_propositional_dialgebra_disp_cat : locally_propositional dialgebra_disp_cat.
   Proof.
     red; intros; apply C₂.
   Qed.
@@ -66,6 +66,11 @@ Section Dialgebra.
     - apply homset_property.
     - apply homset_property.
   Qed.
+
+  Corollary groupoidal_dialgebra_disp_cat : groupoidal_disp_cat dialgebra_disp_cat.
+  Proof.
+    intro; intros; apply is_z_iso_disp_dialgebra.
+  Defined.
 
   Definition is_univalent_dialgebra_disp_cat
     : is_univalent_disp dialgebra_disp_cat.

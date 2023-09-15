@@ -50,7 +50,7 @@ Section FixTwoSymmetricMonoidalFunctors.
   Local Definition base_mon_disp : disp_monoidal (dialgebra_disp_cat F G) V :=
     dialgebra_disp_monoidal Fm Gm.
 
-  Lemma dialgebra_disp_symmetric_braiding_data : disp_braiding_data base_mon_disp HV.
+  Lemma dialgebra_disp_symmetric_data : disp_symmetric_data base_mon_disp HV.
   Proof.
     intros x y xx yy.
     red in xx, yy. cbn in xx, yy.
@@ -81,7 +81,7 @@ Section FixTwoSymmetricMonoidalFunctors.
   Proof.
     use make_disp_symmetric_locally_propositional.
     - apply is_locally_propositional_dialgebra_disp_cat.
-    - exact dialgebra_disp_symmetric_braiding_data.
+    - exact dialgebra_disp_symmetric_data.
   Defined.
 
   Definition dialgebra_symmetric_monoidal : symmetric (dialgebra_monoidal Fm Gm)

@@ -52,17 +52,11 @@ Section MonoidalCategoryOfComonoids.
   Context (V : sym_monoidal_cat).
 
   Let V_comult : disp_monoidal (dialgebra_disp_cat _ _) V
-      := dialgebra_disp_monoidal (identity_fmonoidal V) (diag_functor_fmonoidal V).
+      := dialgebra_disp_monoidal (identity_fmonoidal V) (diag_functor_fmonoidal_lax V).
 
   Let V_counit
-    : disp_monoidal (dialgebra_disp_cat (functor_identity V) (constant_functor _ _ I_{V})) V.
-  Proof.
-    use (dialgebra_disp_monoidal (identity_fmonoidal V)
-           (constant_functor_fmonoidal V (unit_monoid V) _ _)).
-    - refine (_ ,, _).
-      apply (monoidal_leftunitorisolaw V).
-    - apply identity_is_z_iso.
-  Defined.
+      : disp_monoidal (dialgebra_disp_cat (functor_identity V) (constant_functor _ _ I_{V})) V
+      := dialgebra_disp_monoidal (identity_fmonoidal V) (constantly_unit_functor_fmonoidal V).
 
   Definition disp_monoidal_comonoids_data
     : disp_monoidal (disp_cat_of_comonoids_data V) V.

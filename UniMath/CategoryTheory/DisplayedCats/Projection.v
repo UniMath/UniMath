@@ -122,7 +122,7 @@ Defined.
  *)
 Definition groupoidal_disp_cat
            {C : category}
-           (D : disp_cat C)
+           (D : disp_cat_data C)
   : UU
   := ∏ (x y : C)
        (f : x --> y)
