@@ -1,6 +1,6 @@
 
-Require Import UniMath.Foundations.PartA.
-Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -13,6 +13,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.
@@ -164,6 +165,30 @@ Section Fiber.
     intros a b.
     apply is_univalent_fiber_cat.
   Defined.
+
+  Definition fiber_to_total_functor_data
+  : functor_data fiber_category (total_category D).
+  Proof.
+    use make_functor_data.
+      + exact (tpair _ c).
+      + exact (λ _ _, tpair _ (identity c)).
+  Defined.
+
+  Lemma fiber_to_total_is_functor
+    : is_functor fiber_to_total_functor_data.
+  Proof.
+    use tpair.
+    - now intro.
+    - do 5 intro.
+      use total2_paths_f.
+      + exact (!id_right _).
+      + refine (transport_f_f _ _ _ _ @ _).
+        now rewrite pathsinv0r.
+  Qed.
+
+  Definition fiber_to_total_functor
+    : fiber_category ⟶ total_category D
+    := make_functor _ fiber_to_total_is_functor.
 
 End Fiber.
 
