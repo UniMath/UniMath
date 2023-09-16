@@ -136,7 +136,6 @@ Definition creates_limits_pointed_functor_disp_cat
   := creates_limit_disp_struct _
     (tip_pointed_functor_disp_cat _)
     (cone_pointed_functor_disp_cat _)
-    (uniqueness_pointed_functor_disp_cat _)
     (is_limit_pointed_functor_disp_cat _).
 
 Definition pointed_functor_cat
@@ -262,8 +261,15 @@ Definition creates_limits_algebraic_theory_data_disp_cat
   := creates_limit_disp_struct _
     (tip_algebraic_theory_data_disp_cat _)
     (cone_algebraic_theory_data_disp_cat _)
-    (uniqueness_algebraic_theory_data_disp_cat _)
     (is_limit_algebraic_theory_data_disp_cat _).
+
+Definition creates_limits_unique_algebraic_theory_data_disp_cat
+  {J : graph}
+  (d : diagram J _)
+  : creates_limit_unique algebraic_theory_data_disp_cat d (limits_pointed_functor_cat _ _)
+  := creates_limit_unique_disp_struct _
+    (creates_limits_algebraic_theory_data_disp_cat _)
+    (uniqueness_algebraic_theory_data_disp_cat _).
 
 Definition algebraic_theory_data_cat
   : category
@@ -279,7 +285,7 @@ Qed.
 
 Definition limits_algebraic_theory_data_cat
   : Lims algebraic_theory_data_cat
-  := λ _ _, (total_limit _ (limits_pointed_functor_cat _ _) (creates_limits_algebraic_theory_data_disp_cat _)).
+  := λ _ _, total_limit _ _ (creates_limits_algebraic_theory_data_disp_cat _).
 
 (* The category of algebraic theories *)
 Definition algebraic_theory_disp_cat
