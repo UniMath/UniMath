@@ -47,6 +47,48 @@ Proof.
   now induction (invweq (weqdnicoprod _ lastelement) i).
 Qed.
 
+Lemma extend_tuple_i
+  {T : UU}
+  {n : nat}
+  (f : stn n → T)
+  (last : T)
+  (i : nat)
+  (Hi1 : i < S n)
+  (Hi2 : i < n)
+  : extend_tuple f last (i ,, Hi1) = f (make_stn _ i Hi2).
+Proof.
+  unfold extend_tuple.
+  assert (H : invweq (weqdnicoprod n lastelement) (i ,, Hi1) = inl (make_stn _ i Hi2)); [ | now rewrite H].
+  apply (invmaponpathsweq (weqdnicoprod n lastelement)).
+  refine (homotweqinvweq _ _ @ _).
+  apply subtypePairEquality.
+  - intro.
+    apply isasetbool.
+  - unfold di.
+    induction (natlthorgeh (make_stn n i Hi2) (lastelement (n := n))) as [a | a].
+    + apply idpath.
+    + induction (natgehtonegnatlth _ _ a Hi2).
+Qed.
+
+Lemma extend_tuple_last
+  {T : UU}
+  {n : nat}
+  (f : stn n → T)
+  (last : T)
+  (i : stn (S n))
+  (Hi : stntonat _ i = n)
+  : extend_tuple f last i = last.
+Proof.
+  unfold extend_tuple.
+  assert (H : invweq (weqdnicoprod n lastelement) i = inr tt); [ | now rewrite H].
+  apply (invmaponpathsweq (weqdnicoprod n lastelement)).
+  refine (homotweqinvweq _ _ @ _).
+  apply subtypePairEquality.
+  - intro.
+    apply isasetbool.
+  - apply Hi.
+Qed.
+
 Lemma extend_tuple_dni_lastelement
   {T : UU}
   {n : nat}
@@ -55,10 +97,7 @@ Lemma extend_tuple_dni_lastelement
   (i : stn n)
   : extend_tuple f last (dni_lastelement i) = f i.
 Proof.
-  unfold extend_tuple.
-  assert (H : invweq (weqdnicoprod n lastelement) (dni_lastelement i) = inl i); [ | now rewrite H].
-  apply (invmaponpathsweq (weqdnicoprod n lastelement)).
-  refine (homotweqinvweq _ _ @ maponpaths (λ x, x i) (!replace_dni_last _)).
+  apply extend_tuple_i.
 Qed.
 
 Lemma extend_tuple_lastelement
@@ -68,10 +107,7 @@ Lemma extend_tuple_lastelement
   (last : T)
   : extend_tuple f last (lastelement) = last.
 Proof.
-  unfold extend_tuple.
-  assert (H : invweq (weqdnicoprod n lastelement) lastelement = inr tt); [ | now rewrite H].
-  apply (invmaponpathsweq (weqdnicoprod n lastelement)).
-  exact (homotweqinvweq _ _).
+  now apply extend_tuple_last.
 Qed.
 
 Lemma extend_tuple_eq
