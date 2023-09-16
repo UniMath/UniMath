@@ -425,9 +425,12 @@ Defined.
 Local Notation "'π'" := (pr1_category disp_cat_functor_alg).
 
 Definition creates_limits_functor_alg
-  : creates_limits disp_cat_functor_alg.
+  : creates_limits_unique disp_cat_functor_alg.
 Proof.
-  intros J D x L isL.
+  unfold creates_limits_unique.
+  intros J D.
+  induction L as [tmp isL].
+  induction tmp as [x L].
   unfold creates_limit. cbn.
   transparent assert (FC : (cone (mapdiagram π D) (F x))).
   { use make_cone.
