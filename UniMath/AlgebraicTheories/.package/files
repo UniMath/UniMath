@@ -11,6 +11,8 @@ AlgebraicTheoryAlgebras.v
 AlgebraicTheoryAlgebraMorphisms.v
 AlgebraicTheoryAlgebraCategory.v
 AlgebraicTheoryAlgebraFibration.v
+Presheaves.v
+PresheafCategory.v
 
 Examples/OnePointTheory.v
 Examples/ProjectionsTheory.v
