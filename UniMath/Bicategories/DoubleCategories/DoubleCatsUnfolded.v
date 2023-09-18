@@ -241,13 +241,11 @@ Definition sqq {C: predoublecategory_ob_mor_sq_data}
 
 Definition boundary_sq_transport {C : predoublecategory_ob_mor_sq_data}
 { a b c d : C } {f1: a -h-> b} {g1: a -v-> c} {h1: b -v-> d} {k1: c -h-> d}
-  {f2: a -h-> b} {g2: a -v-> c} {h2: b -v-> d} {k2: c -h-> d}
-    (eqf: f1 = f2) (eqg: g1 = g2) (eqh: h1 = h2) (eqk: k1 = k2)
-    (α : sqq f1 g1 h1 k1) : sqq f2 g2 h2 k2 :=
-    (transportf (fun k0 : c-h-> d => sqq f2 g2 h2 k0) eqk
-    (transportf (fun h0 : b-v-> d => sqq f2 g2 h0 k1) eqh
-    (transportf (fun g0 : a-v-> c => sqq f2 g0 h1 k1) eqg
-      (transportf (fun f0 : a-h-> b => sqq f0 g1 h1 k1) eqf α)))).
+  {f2: a -h-> b} {k2: c -h-> d}
+    (eqf: f1 = f2) (eqk: k1 = k2)
+    (α : sqq f2 g1 h1 k2) : sqq f1 g1 h1 k1 :=
+    (transportb (fun k0 : c-h-> d => sqq f1 g1 h1 k0) eqk
+    (transportb (fun f0 : a-h-> b => sqq f0 g1 h1 k2) eqf α)).
 
 End Squares.
 
@@ -311,33 +309,33 @@ Notation "α ∘sqh β" := (hor_sq_compose α β) (at level 60).
 
 Definition hor_trans_id_left_sq {C : predoublecategory_sq_hor_data}
     { a b c d : C } {f: a -h-> b} {g: a -v-> c} {h: b -v-> d} {k: c -h-> d}
-      (α: sqq ((hor_identity a) ·h f) g h ((hor_identity c) ·h k )) :
-      sqq f g h k
-      := boundary_sq_transport (id_hor_left f) (idpath g) (idpath h) (id_hor_left k) α.
+      (α: sqq f g h k) :
+      sqq ((hor_identity a) ·h f) g h ((hor_identity c) ·h k )
+      := boundary_sq_transport (id_hor_left f) (id_hor_left k) α.
 
 Definition hor_trans_id_right_sq {C : predoublecategory_sq_hor_data}
           { a b c d : C } {f: a -h-> b} {g: a -v-> c} {h: b -v-> d} {k: c -h-> d}
-            (α: sqq (f ·h (hor_identity b)) g h (k ·h (hor_identity d))) : sqq f g h k
-            := boundary_sq_transport (id_hor_right f) (idpath g) (idpath h) (id_hor_right k) α.
+            (α :  sqq f g h k) :  sqq (f ·h (hor_identity b)) g h (k ·h (hor_identity d))
+            := boundary_sq_transport (id_hor_right f) (id_hor_right k) α.
 
 Definition hor_trans_assoc_sq {C : predoublecategory_sq_hor_data}
             { a0 b0 c0 d0 a1 b1 c1 d1 : C }
             {f0: a0 -h-> b0} {g0: b0 -h-> c0} {h0: c0 -h-> d0}
             {f1: a1 -h-> b1} {g1: b1 -h-> c1} {h1: c1 -h-> d1}
             {ma: a0 -v-> a1}  {md: d0 -v-> d1}
-            (α: sqq (f0 ·h (g0 ·h h0)) ma md (f1 ·h (g1 ·h h1))):
-            sqq ((f0 ·h g0) ·h h0) ma md ((f1 ·h g1) ·h h1)
-            := boundary_sq_transport (assoc_hor f0 g0 h0) (idpath ma) (idpath md) (assoc_hor f1 g1 h1) α.
+            (α: sqq ((f0 ·h g0) ·h h0) ma md ((f1 ·h g1) ·h h1)):
+             sqq (f0 ·h (g0 ·h h0)) ma md (f1 ·h (g1 ·h h1))
+            := boundary_sq_transport (assoc_hor f0 g0 h0) (assoc_hor f1 g1 h1) α.
 
 Definition is_predoublecategory_hor_sq (C : predoublecategory_sq_hor_data) : UU (* Data of horizontal composition of squares *)
   :=
     ((∏ (a b c d : C) (f: a -h-> b) (g: a -v-> c) (h: b -v-> d) (k: c -h-> d)
       (α : mor_sq C a b c d f g h k),
-      hor_trans_id_left_sq((hor_sq_identity g) ·sqh α) = α))
+      (hor_sq_identity g) ·sqh α = hor_trans_id_left_sq α))
      ×
      ((∏ (a b c d : C) (f: a -h-> b) (g: a -v-> c) (h: b -v-> d) (k: c -h-> d)
       (α : mor_sq C a b c d f g h k),
-      hor_trans_id_right_sq(α ·sqh (hor_sq_identity h)) = α))
+      α ·sqh (hor_sq_identity h) = hor_trans_id_right_sq  α))
     ×
     (∏ ( a0 b0 c0 d0 a1 b1 c1 d1 : C )
     (f0: a0 -h-> b0) (g0: b0 -h-> c0) (h0: c0 -h-> d0)
@@ -346,7 +344,7 @@ Definition is_predoublecategory_hor_sq (C : predoublecategory_sq_hor_data) : UU 
     (α: sqq f0 ma mb f1)
     (β: sqq g0 mb mc g1)
     (γ: sqq h0 mc md h1),
-    hor_trans_assoc_sq (α ·sqh (β ·sqh γ)) = (α ·sqh β) ·sqh γ) .
+    α ·sqh (β ·sqh γ) = hor_trans_assoc_sq  ((α ·sqh β) ·sqh γ)) .
 
 Definition predoublecategory_hor_sq: UU := total2 is_predoublecategory_hor_sq.
   (* Double Graph with Squares horizontal morphism and square composition + axioms*)
@@ -361,20 +359,20 @@ Coercion predoublecategory_sq_hor_data_from_predoublecategory_hor_sq : predouble
 
 Definition get_id_hor_sq_left (C : predoublecategory_hor_sq) :
   ∏ (a b c d : pr1 C) (f : a -h-> b) (g : a -v-> c) (h : b -v-> d) (k : c -h-> d)
-      (α : sqq f g h k), hor_trans_id_left_sq ((hor_sq_identity g) ·sqh α) = α := pr12 C.
+      (α : sqq f g h k), (hor_sq_identity g) ·sqh α = hor_trans_id_left_sq α := pr12 C.
 
 Definition id_hor_sq_left {C : predoublecategory_hor_sq}
   {a b c d : pr1 C} {f : a -h-> b} {g : a -v-> c} {h : b -v-> d} {k : c -h-> d} (α : sqq f g h k)
-    : hor_trans_id_left_sq ((hor_sq_identity g) ·sqh α) = α
+    : (hor_sq_identity g) ·sqh α =hor_trans_id_left_sq  α
     := get_id_hor_sq_left C a b c d f g h k α.
 
 Definition get_id_hor_sq_right (C : predoublecategory_hor_sq) :
   ∏ (a b c d : pr1 C) (f : a -h-> b) (g : a -v-> c) (h : b -v-> d) (k : c -h-> d)
-    (α : sqq f g h k), hor_trans_id_right_sq (α ·sqh (hor_sq_identity h)) = α := pr122 C.
+    (α : sqq f g h k), α ·sqh (hor_sq_identity h) = hor_trans_id_right_sq α := pr122 C.
 
 Definition id_hor_sq_right {C : predoublecategory_hor_sq}
   {a b c d : pr1 C} {f : a -h-> b} {g : a -v-> c} {h : b -v-> d} {k : c -h-> d} (α : sqq f g h k)
-    : hor_trans_id_right_sq (α ·sqh (hor_sq_identity h)) = α
+    : α ·sqh (hor_sq_identity h) = hor_trans_id_right_sq α
     := get_id_hor_sq_right C a b c d f g h k α.
 
 Definition get_assoc_sq_hor (C : predoublecategory_hor_sq) :
@@ -385,7 +383,7 @@ Definition get_assoc_sq_hor (C : predoublecategory_hor_sq) :
     (α: sqq f0 ma mb f1)
     (β: sqq g0 mb mc g1)
     (γ: sqq h0 mc md h1),
-    hor_trans_assoc_sq (α ·sqh (β ·sqh γ)) = (α ·sqh β) ·sqh γ := pr222 C.
+    α ·sqh (β ·sqh γ) = hor_trans_assoc_sq( (α ·sqh β) ·sqh γ) := pr222 C.
 
 Definition assoc_sq_hor {C : predoublecategory_hor_sq}
     {a0 b0 c0 d0 a1 b1 c1 d1 : pr1 C} {f0: a0 -h-> b0} {g0: b0 -h-> c0} {h0: c0 -h-> d0}
@@ -394,7 +392,7 @@ Definition assoc_sq_hor {C : predoublecategory_hor_sq}
         (α: sqq f0 ma mb f1)
         (β: sqq g0 mb mc g1)
         (γ: sqq h0 mc md h1)
-      : hor_trans_assoc_sq (α ·sqh (β ·sqh γ)) = (α ·sqh β) ·sqh γ
+      :  α ·sqh (β ·sqh γ) =hor_trans_assoc_sq ( (α ·sqh β) ·sqh γ)
       := get_assoc_sq_hor C a0 b0 c0 d0 a1 b1 c1 d1 f0 g0 h0 f1 g1 h1 ma mb mc md α β γ.
 
 End Horizontal_Composition_Squares.
@@ -411,7 +409,7 @@ Definition get_predoublecat_sq_special {C: predoublecategory_ob_mor_sq_data} {a 
 Definition is_iso_square {C: predoublecategory_sq_hor_data} {a b : C} {g: a -v-> b} {h: a -v-> b}
   (α : get_predoublecat_sq_special g h): UU
   := ∑ (β : get_predoublecat_sq_special h g),
-  (hor_trans_id_right_sq (α ·sqh β) = (hor_sq_identity g)) × (hor_trans_id_right_sq (β ·sqh α) = (hor_sq_identity h)).
+  ( (α ·sqh β) =hor_trans_id_right_sq (hor_sq_identity g)) × ( (β ·sqh α) = hor_trans_id_right_sq (hor_sq_identity h)).
 
 Definition get_special_iso_squares {C: predoublecategory_sq_hor_data} {a b : C} (g: a -v-> b) (h: a -v-> b)
   : UU
@@ -516,36 +514,36 @@ Definition predoublecategory_ver_left_unitor_naturality ( C : predoublecategory_
   ∏ (a b c d : C)
   (f: a -h-> b) (g: a -v-> c) (h: b -v-> d) (k: c -h-> d)
   (α : sqq f g h k),
-  (( hor_trans_id_right_sq ((( ver_sq_identity f) ·sqv α) ·sqh (pr1 (get_ver_left_unitor h)))) = ( hor_trans_id_left_sq ((pr1 (get_ver_left_unitor g)) ·sqh α))).
+    ( hor_trans_id_left_sq ( ((ver_sq_identity f) ·sqv α) ·sqh (pr1 (get_ver_left_unitor h)))  = hor_trans_assoc_sq  (hor_trans_id_right_sq  ( ((pr1 (get_ver_left_unitor g)) ·sqh α)))).
 
 Definition predoublecategory_ver_right_unitor_naturality ( C : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
   ∏ (a b c d : C)
   (f: a -h-> b) (g: a -v-> c) (h: b -v-> d) (k: c -h-> d)
   (α : sqq f g h k),
-  (( hor_trans_id_right_sq ((α ·sqv (ver_sq_identity k)) ·sqh (pr1 (get_ver_right_unitor h)))) = ( hor_trans_id_left_sq ((pr1 (get_ver_right_unitor g)) ·sqh α))).
+  (( hor_trans_id_left_sq ((α ·sqv (ver_sq_identity k)) ·sqh (pr1 (get_ver_right_unitor h)))) = hor_trans_assoc_sq ( hor_trans_id_right_sq ((pr1 (get_ver_right_unitor g)) ·sqh α))).
 
 Definition predoublecategory_ver_assoc_naturality ( C : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
   ∏ (a0 a1 a2 a3 b0 b1 b2 b3 : C)
   (fa: a0 -v-> a1) (fb: b0 -v-> b1) (ha: a1 -v-> a2) (hb: b1 -v-> b2) (ka: a2 -v-> a3) (kb: b2 -v-> b3)
   (g0: a0 -h-> b0) (g1: a1 -h-> b1) (g2: a2 -h-> b2) (g3: a3 -h-> b3)
   (α : sqq g0 fa fb g1) (β : sqq g1 ha hb g2) (γ : sqq g2 ka kb g3),
-  (hor_trans_id_right_sq ( ( (α) ·sqv ( (β) ·sqv (γ)) ) ·sqh (pr1 (get_ver_associator fb hb kb)))) =
-  (hor_trans_id_left_sq ((pr1 (get_ver_associator fa ha ka)) ·sqh ( (α ·sqv β) ·sqv (γ) )) ).
+  (hor_trans_id_left_sq ( ( (α) ·sqv ( (β) ·sqv (γ)) ) ·sqh (pr1 (get_ver_associator fb hb kb)))) =
+  (hor_trans_assoc_sq  (hor_trans_id_right_sq ((pr1 (get_ver_associator fa ha ka)) ·sqh ( (α ·sqv β) ·sqv (γ) )) )).
 
 Definition predoublecategory_ver_unitor_coherence ( C : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
   ∏ (a b c: C)
   (f: a -v-> b) (g: b -v-> c),
-    (hor_trans_id_right_sq ((pr1 (get_ver_associator f (ver_identity b) g)) ·sqh ( (pr1 (get_ver_right_unitor f)) ·sqv (hor_sq_identity g) ))  =
-    ((hor_sq_identity f) ·sqv (pr1 (get_ver_left_unitor g)))).
+    ( ((pr1 (get_ver_associator f (ver_identity b) g)) ·sqh ( (pr1 (get_ver_right_unitor f)) ·sqv (hor_sq_identity g) ))  =
+      hor_trans_id_left_sq ((hor_sq_identity f) ·sqv (pr1 (get_ver_left_unitor g)))).
 
 Definition predoublecategory_ver_assoc_coherence ( C : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
   ∏  (a b c d e: C) (f : a -v-> b) (g : b -v-> c) (h : c -v-> d) (k : d -v-> e),
   (hor_trans_id_right_sq ( (pr1 (get_ver_associator f g (h ·v k))) ·sqh (pr1 (get_ver_associator (f ·v g) h k)) ))  =
-  (hor_trans_id_right_sq(hor_trans_id_right_sq ( ( ( (hor_sq_identity f) ·sqv (pr1 (get_ver_associator g h k)) )
+  ( ( ( (hor_sq_identity f) ·sqv (pr1 (get_ver_associator g h k)) )
   ·sqh (pr1 (get_ver_associator f (g ·v h) k)) )
-  ·sqh  (  (pr1 (get_ver_associator f g h)) ·sqv (hor_sq_identity k)) ) )).
+  ·sqh  (  (pr1 (get_ver_associator f g h)) ·sqv (hor_sq_identity k)) ) .
 
-Definition predoublecategory_interchange ( C : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
+Definition predoublecategory_interchange_comp ( C : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
   ∏ (a0 a1 a2 b0 b1 b2 c0 c1 c2 : C)
   (fa: a0 -h-> a1) (ga: a1 -h-> a2) (fb: b0 -h-> b1) (gb: b1 -h-> b2) (fc: c0 -h-> c1) (gc: c1 -h-> c2)
   (h0: a0 -v-> b0) (k0: b0 -v-> c0) (h1: a1 -v-> b1) (k1: b1 -v-> c1) (h2: a2 -v-> b2) (k2: b2 -v-> c2)
@@ -554,6 +552,24 @@ Definition predoublecategory_interchange ( C : predoublecategory_sq_hor_ver_unit
   (γ : sqq fb k0 k1 fc)
   (δ : sqq gb k1 k2 gc),
   (α ·sqh β) ·sqv (γ ·sqh δ) = (α ·sqv γ) ·sqh (β ·sqv δ).
+
+Definition predoublecategory_interchange_id_obj  ( C : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
+  ∏ (a :C), ver_sq_identity (hor_identity a) = hor_sq_identity (ver_identity a).
+
+Definition predoublecategory_interchange_id_hor  ( C : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
+  ∏ (a b c: C) (f: a -h-> b) (g: b -h-> c),
+    (ver_sq_identity f) ·sqh (ver_sq_identity g) =ver_sq_identity(f ·h g).
+
+
+Definition predoublecategory_interchange_id_ver  ( C : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
+   ∏ (a b c: C) (f: a -v-> b) (g: b -v-> c),
+    (hor_sq_identity f) ·sqv (hor_sq_identity g) =hor_sq_identity(f ·v g).
+
+      Definition predoublecategory_interchange  ( C : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
+        predoublecategory_interchange_id_obj C ×
+          predoublecategory_interchange_id_hor C ×
+          predoublecategory_interchange_id_ver C ×
+           predoublecategory_interchange_comp C.
 
 End Vertical_Unitor_and_Associator_Coherences.
 
@@ -632,7 +648,7 @@ Definition und_ver_cat_precategory_data (C: predoublecategory_hor_sq) : precateg
 
 Lemma und_ver_cat_morphism_eq_principle {C: predoublecategory_hor_sq} {c d : und_ver_cat_ob C} (f g : und_ver_cat_ob_mor C c d)
 (equp: (pr1 f) = (pr1 g)) (eqdown: (pr12 f) = (pr12 g))
-(eqmid: boundary_sq_transport (equp) (idpath (pr22 c)) (idpath (pr22 d)) (eqdown) (pr22 f) = (pr22 g) ) : f = g.
+(eqmid: (pr22 f) =  boundary_sq_transport (equp) (eqdown) (pr22 g) ) : f = g.
 Proof.
   induction f as [ f1 [ f2 sq1 ]].
   induction g as [ g1 [ g2 sq2 ]].
@@ -641,8 +657,7 @@ Proof.
   induction eqdown.
   apply maponpaths.
   apply maponpaths.
-  induction eqmid.
-  exact (idpath sq1).
+  exact (eqmid).
 Defined.
 
 Definition und_ver_left_unit
