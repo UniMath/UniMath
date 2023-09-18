@@ -2,7 +2,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.Examples.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Cartesian.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
@@ -91,7 +91,7 @@ Section lift.
       : (induced_morphism ;; lifted_presheaf_morphism) = hh.
     Proof.
       apply displayed_presheaf_morphism_eq.
-      refine (comp_displayed_cartesian_morphisms _ _ _ _ @ _).
+      refine (comp_disp_cartesian _ _ _ _ @ _).
       apply (nat_trans_eq (homset_property HSET)).
       intro.
       apply funextfun.
@@ -106,7 +106,7 @@ Section lift.
       apply displayed_presheaf_morphism_eq.
       refine (
         nat_trans_eq (homset_property HSET) _ _ _ _ _ @
-        !comp_displayed_cartesian_morphisms _ _ (pr11 t) _ @
+        !comp_disp_cartesian _ _ (pr11 t) _ @
         maponpaths _ (pr2 t)
       ).
       intro.

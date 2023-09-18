@@ -7,7 +7,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.Examples.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Cartesian.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 
@@ -96,7 +96,7 @@ Definition algebra_lift
 Proof.
   exists (algebra_cleaving_induced_morphism F F' G').
   apply displayed_algebra_morphism_eq.
-  exact (comp_displayed_cartesian_morphisms _ _ _ _).
+  exact (comp_disp_cartesian _ _ _ _).
 Defined.
 
 Lemma algebra_lift_is_unique
@@ -111,7 +111,7 @@ Proof.
   intro.
   apply subtypePairEquality'.
   + apply displayed_algebra_morphism_eq.
-    exact (!comp_displayed_cartesian_morphisms _ _ (pr11 t) _ @ maponpaths _ (pr2 t)).
+    exact (!comp_disp_cartesian _ _ (pr11 t) _ @ maponpaths _ (pr2 t)).
   + apply homsets_disp.
 Qed.
 

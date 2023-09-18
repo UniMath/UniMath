@@ -4,7 +4,7 @@ Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.DisplayedCats.Examples.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Cartesian.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
@@ -33,75 +33,6 @@ Require Import UniMath.AlgebraicTheories.Presheaves.
 
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
-
-Definition pr2_functor
-  (C C' : category)
-  : (cartesian C C') ⟶ C'.
-Proof.
-  use make_functor.
-  - use make_functor_data.
-    + exact pr2.
-    + exact (λ _ _, pr2).
-  - abstract (
-      use tpair;
-      repeat intro;
-      exact (maponpaths (λ x, x _) (transportf_const _ _))
-    ).
-Defined.
-
-(* TODO: Pick this apart, and move to Examples (or even better yet: to its own file) *)
-Definition limits_cartesian
-  (C C' : category)
-  {J : graph}
-  {d : diagram J (cartesian C C')}
-  (L : LimCone (mapdiagram (pr1_category _) d))
-  (L' : LimCone (mapdiagram (pr2_functor _ _) d))
-  : LimCone d.
-Proof.
-  use make_LimCone.
-  - use tpair.
-    + exact (lim L).
-    + exact (lim L').
-  - use (_ ,, _).
-    + intro.
-      use tpair.
-      * apply (limOut L).
-      * apply (limOut L').
-    + abstract (
-        do 3 intro;
-        use total2_paths2;
-        [ apply (limOutCommutes L)
-        | (refine (maponpaths (λ x, x _ ) (transportf_const _ _) @ _);
-          apply (limOutCommutes L')) ]
-      ).
-  - intros c cc.
-    use tpair.
-    + use tpair.
-      * use tpair.
-        -- apply (limArrow L _ (mapcone (pr1_category _) d cc)).
-        -- apply (limArrow L' _ (mapcone (pr2_functor _ _) d cc)).
-      * abstract (
-          intro u;
-          use total2_paths2;
-          [ apply (limArrowCommutes L)
-          | exact (maponpaths (λ x, x _ ) (transportf_const _ _) @ limArrowCommutes L' _ _ _ ) ]
-        ).
-    + abstract (
-        intro t;
-        use total2_paths_f;
-        [ use total2_paths2;
-          [ apply (limArrowUnique L);
-            intro u;
-            exact (maponpaths pr1 (pr2 t u))
-          | abstract (
-              apply (limArrowUnique L');
-              intro u;
-              exact (maponpaths (λ x, x _) (!transportf_const _ _) @ maponpaths (λ x, x _) (!transportf_const _ _) @ pr2 (total2_paths_equiv _ _ _ (pr2 t u))) ) ]
-        | apply impred_isaprop;
-          intro;
-          apply (homset_property (total_category _)) ]
-      ).
-Defined.
 
 Definition limits_presheaf_base
   : Lims (cartesian algebraic_theory_cat base_functor_category).

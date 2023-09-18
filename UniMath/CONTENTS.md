@@ -420,6 +420,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Structures/StructureLimitsAndColimits.v](CategoryTheory/DisplayedCats/Structures/StructureLimitsAndColimits.v)
    - [DisplayedCats/Structures/StructuresSmashProduct.v](CategoryTheory/DisplayedCats/Structures/StructuresSmashProduct.v)
    - [DisplayedCats/Examples/AlgebraStructures.v](CategoryTheory/DisplayedCats/Examples/AlgebraStructures.v)
+   - [DisplayedCats/Examples/Cartesian.v](CategoryTheory/DisplayedCats/Examples/Cartesian.v)
    - [DisplayedCats/Examples/DCPOStructures.v](CategoryTheory/DisplayedCats/Examples/DCPOStructures.v)
    - [DisplayedCats/Examples/PointedDCPOStructures.v](CategoryTheory/DisplayedCats/Examples/PointedDCPOStructures.v)
    - [DisplayedCats/Examples/PointedDCPOStrict.v](CategoryTheory/DisplayedCats/Examples/PointedDCPOStrict.v)

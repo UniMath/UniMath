@@ -246,6 +246,7 @@ DisplayedCats/Structures/CartesianStructure.v
 DisplayedCats/Structures/StructureLimitsAndColimits.v
 DisplayedCats/Structures/StructuresSmashProduct.v
 DisplayedCats/Examples/AlgebraStructures.v
+DisplayedCats/Examples/Cartesian.v
 DisplayedCats/Examples/DCPOStructures.v
 DisplayedCats/Examples/PointedDCPOStructures.v
 DisplayedCats/Examples/PointedDCPOStrict.v
