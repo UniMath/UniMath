@@ -337,26 +337,20 @@ Section DoubleCats_to_DoubleCatsUnfolded.
       simple refine (_ ,, _ ,, _ ,, _) ; cbn.
       + exact (lunitor_h f).
       + exact (linvunitor_h f).
-      + refine (lunitor_linvunitor_h f @ _).
-        apply TODO.
-      + refine (linvunitor_lunitor_h f @ _).
-        apply TODO.
+      + exact (lunitor_linvunitor_h f).
+      + exact (linvunitor_lunitor_h f).
     - intros x y f.
       simple refine (_ ,, _ ,, _ ,, _) ; cbn.
       + exact (runitor_h f).
       + exact (rinvunitor_h f).
-      + refine (runitor_rinvunitor_h f @ _).
-        apply TODO.
-      + refine (rinvunitor_runitor_h f @ _).
-        apply TODO.
+      + exact (runitor_rinvunitor_h f).
+      + exact (rinvunitor_runitor_h f).
     - intros w x y z f g h.
       simple refine (_ ,, _ ,, _ ,, _) ; cbn.
       + exact (lassociator_h f g h).
       + exact (rassociator_h f g h).
-      + refine (lassociator_rassociator_h f g h @ _).
-        apply TODO.
-      + refine (rassociator_lassociator_h f g h @ _).
-        apply TODO.
+      + exact (lassociator_rassociator_h f g h).
+      + exact (rassociator_lassociator_h f g h).
   Defined.
 
   Definition double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data
@@ -371,44 +365,52 @@ Section DoubleCats_to_DoubleCatsUnfolded.
     : predoublecategory_ver_left_unitor_naturality
         double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
   Proof.
-    unfold predoublecategory_ver_left_unitor_naturality ; cbn.
     intros w x y z v₁ h₁ h₂ v₂ α.
-    etrans.
-    {
-      apply maponpaths.
-      exact (lunitor_square α).
-    }
-  Admitted.
+    exact (lunitor_square α).
+  Defined.
 
   Proposition double_cat_to_predoublecategory_ver_right_unitor_naturality
     : predoublecategory_ver_right_unitor_naturality
         double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
   Proof.
-  Admitted.
+    intros w x y z v₁ h₁ h₂ v₂ α.
+    exact (runitor_square α).
+  Defined.
 
   Proposition double_cat_to_predoublecategory_ver_assoc_naturality
     : predoublecategory_ver_assoc_naturality
         double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
   Proof.
-  Admitted.
+    intro ; intros ; cbn.
+    apply lassociator_h_square.
+  Defined.
 
   Proposition double_cat_to_predoublecategory_ver_unitor_coherence
     : predoublecategory_ver_unitor_coherence
         double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
   Proof.
+    intro ; intros ; cbn.
+
   Admitted.
 
   Proposition double_cat_to_predoublecategory_ver_assoc_coherence
     : predoublecategory_ver_assoc_coherence
         double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
   Proof.
-  Admitted.
+    intro ; intros ; cbn.
+    apply double_pentagon.
+  Defined.
 
   Proposition double_cat_to_predoublecategory_interchange
     : predoublecategory_interchange
         double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
   Proof.
-  Admitted.
+    repeat split ; intro ; intros ; cbn.
+    - apply id_h_square_id.
+    - apply id_h_square_comp.
+    - apply comp_h_square_id.
+    - apply comp_h_square_comp.
+  Defined.
 
   Definition double_cat_to_predoublecategory
     : predoublecategory.

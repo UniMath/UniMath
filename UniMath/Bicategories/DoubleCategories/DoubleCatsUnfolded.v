@@ -418,7 +418,7 @@ Definition get_predoublecat_sq_special {C: predoublecategory_ob_mor_sq_data} {a 
 Definition is_iso_square {C: predoublecategory_sq_hor_data} {a b : C} {g: a -v-> b} {h: a -v-> b}
   (α : get_predoublecat_sq_special g h): UU
   := ∑ (β : get_predoublecat_sq_special h g),
-  ( (α ·sqh β) =hor_trans_id_right_sq (hor_sq_identity g)) × ( (β ·sqh α) = hor_trans_id_right_sq (hor_sq_identity h)).
+  ( (α ·sqh β) =hor_trans_id_left_sq (hor_sq_identity g)) × ( (β ·sqh α) = hor_trans_id_left_sq (hor_sq_identity h)).
 
 Definition get_special_iso_squares {C: predoublecategory_sq_hor_data} {a b : C} (g: a -v-> b) (h: a -v-> b)
   : UU
@@ -519,25 +519,39 @@ Definition get_ver_associator {C: predoublecategory_sq_hor_ver_unit_assoc_data} 
     (f : a -v-> b) (g : b -v-> c) (h : c -v-> d) : sqq_iso_special (f ·v (g ·v h)) ((f ·v g) ·v h)
       := (pr222 C) a b c d f g h.
 
-Definition predoublecategory_ver_left_unitor_naturality ( C : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
-  ∏ (a b c d : C)
+Definition predoublecategory_ver_left_unitor_naturality ( C : predoublecategory_sq_hor_ver_unit_assoc_data) : UU
+  := ∏ (a b c d : C)
   (f: a -h-> b) (g: a -v-> c) (h: b -v-> d) (k: c -h-> d)
   (α : sqq f g h k),
-    ( hor_trans_id_left_sq ( ((ver_sq_identity f) ·sqv α) ·sqh (pr1 (get_ver_left_unitor h)))  = hor_trans_assoc_sq  (hor_trans_id_right_sq  ( ((pr1 (get_ver_left_unitor g)) ·sqh α)))).
+    ((ver_sq_identity f) ·sqv α) ·sqh (pr1 (get_ver_left_unitor h))
+    =
+    boundary_sq_transport
+      (id_hor_right _ @ !(id_hor_left _))
+      (id_hor_right _ @ !(id_hor_left _))
+      ((pr1 (get_ver_left_unitor g)) ·sqh α).
 
 Definition predoublecategory_ver_right_unitor_naturality ( C : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
   ∏ (a b c d : C)
   (f: a -h-> b) (g: a -v-> c) (h: b -v-> d) (k: c -h-> d)
   (α : sqq f g h k),
-  (( hor_trans_id_left_sq ((α ·sqv (ver_sq_identity k)) ·sqh (pr1 (get_ver_right_unitor h)))) = hor_trans_assoc_sq ( hor_trans_id_right_sq ((pr1 (get_ver_right_unitor g)) ·sqh α))).
+    (α ·sqv (ver_sq_identity k)) ·sqh (pr1 (get_ver_right_unitor h))
+     =
+     boundary_sq_transport
+      (id_hor_right _ @ !(id_hor_left _))
+      (id_hor_right _ @ !(id_hor_left _))
+      ((pr1 (get_ver_right_unitor g)) ·sqh α).
 
 Definition predoublecategory_ver_assoc_naturality ( C : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
   ∏ (a0 a1 a2 a3 b0 b1 b2 b3 : C)
   (fa: a0 -v-> a1) (fb: b0 -v-> b1) (ha: a1 -v-> a2) (hb: b1 -v-> b2) (ka: a2 -v-> a3) (kb: b2 -v-> b3)
   (g0: a0 -h-> b0) (g1: a1 -h-> b1) (g2: a2 -h-> b2) (g3: a3 -h-> b3)
   (α : sqq g0 fa fb g1) (β : sqq g1 ha hb g2) (γ : sqq g2 ka kb g3),
-  (hor_trans_id_left_sq ( ( (α) ·sqv ( (β) ·sqv (γ)) ) ·sqh (pr1 (get_ver_associator fb hb kb)))) =
-  (hor_trans_assoc_sq  (hor_trans_id_right_sq ((pr1 (get_ver_associator fa ha ka)) ·sqh ( (α ·sqv β) ·sqv (γ) )) )).
+  ( (α) ·sqv ( (β) ·sqv (γ)) ) ·sqh (pr1 (get_ver_associator fb hb kb))
+  =
+  boundary_sq_transport
+      (id_hor_right _ @ !(id_hor_left _))
+      (id_hor_right _ @ !(id_hor_left _))
+      ((pr1 (get_ver_associator fa ha ka)) ·sqh ( (α ·sqv β) ·sqv (γ) )).
 
 Definition predoublecategory_ver_unitor_coherence ( C : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
   ∏ (a b c: C)
@@ -567,7 +581,7 @@ Definition predoublecategory_interchange_id_obj  ( C : predoublecategory_sq_hor_
 
 Definition predoublecategory_interchange_id_hor  ( C : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
   ∏ (a b c: C) (f: a -h-> b) (g: b -h-> c),
-    (ver_sq_identity f) ·sqh (ver_sq_identity g) =ver_sq_identity(f ·h g).
+  ver_sq_identity(f ·h g) = (ver_sq_identity f) ·sqh (ver_sq_identity g).
 
 
 Definition predoublecategory_interchange_id_ver  ( C : predoublecategory_sq_hor_ver_unit_assoc_data) : UU :=
