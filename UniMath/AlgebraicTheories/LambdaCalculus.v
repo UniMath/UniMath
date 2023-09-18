@@ -285,3 +285,46 @@ Definition lambda_calculus_rect_subst {L : lambda_calculus} {A f_var f_app f_abs
     (lambda_calculus_rect _ f_var f_app f_abs f_subst f_paths _ l)
     (λ i, lambda_calculus_rect _ f_var f_app f_abs f_subst f_paths _ (f i))
   := lambda_calculus_ind_subst l f.
+
+(***** Subst *)
+
+Lemma subst_l_var
+  {L : lambda_calculus}
+  {n : nat}
+  (l : L n)
+  : subst l var = l.
+Proof.
+  use (lambda_calculus_ind_prop (λ n l, (subst l var = l) ,, (setproperty _ _ _)));
+    intros;
+    cbn.
+  - apply subst_var.
+  - now rewrite subst_app, X, X0.
+  - rewrite subst_abs.
+    apply maponpaths.
+    refine (_ @ X).
+    apply maponpaths.
+    apply extend_tuple_eq.
+    + intro.
+      apply inflate_var.
+    + apply idpath.
+  - rewrite subst_subst.
+    apply maponpaths.
+    apply funextfun.
+    intro.
+    apply X0.
+Qed.
+
+(**** A tactic for reducing lambda terms to a "canonical" form *)
+
+Ltac reduce_lambda := (
+  rewrite subst_var +
+  rewrite subst_l_var +
+  rewrite subst_app +
+  rewrite subst_abs +
+  rewrite inflate_var +
+  rewrite inflate_app +
+  rewrite inflate_abs +
+  rewrite beta_equality +
+  rewrite extend_tuple_dni_lastelement +
+  rewrite extend_tuple_lastelement
+).

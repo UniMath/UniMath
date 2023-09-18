@@ -234,3 +234,9 @@ Section Test.
     exact (λ _ _, idpath _).
   Qed.
 End Test.
+
+Definition has_beta (L : lambda_theory) : UU
+  := ∏ n (l : (L (S n) : hSet)), app (abs l) = l.
+
+Definition has_eta (L : lambda_theory) : UU
+  := ∏ n (l : (L n : hSet)), abs (app l) = l.

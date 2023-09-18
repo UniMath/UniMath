@@ -64,18 +64,6 @@ Section Monoid.
     apply setproperty.
   Qed.
 
-  Ltac reduce_lambda := (
-    rewrite subst_var +
-    rewrite subst_app +
-    rewrite subst_abs +
-    rewrite inflate_var +
-    rewrite inflate_app +
-    rewrite inflate_abs +
-    rewrite beta_equality +
-    rewrite extend_tuple_dni_lastelement +
-    rewrite extend_tuple_lastelement
-  ).
-
   Ltac extend_tuple_2 := (
     rewrite (extend_tuple_i _ _ _ _ (idpath true : make_stn 2 0 (idpath true) < 1)) +
     rewrite (extend_tuple_last _ _ _ (idpath 1 : stntonat _ (make_stn 2 1 (idpath true)) = 1))

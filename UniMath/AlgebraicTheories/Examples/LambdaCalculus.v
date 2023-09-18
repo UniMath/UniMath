@@ -138,4 +138,38 @@ Definition lambda_calculus_lambda_theory
   : lambda_theory
   := _ ,, lambda_calculus_is_lambda_theory.
 
+Lemma lambda_calculus_has_eta
+  : has_eta lambda_calculus_lambda_theory.
+Proof.
+  unfold has_eta.
+  cbn.
+  intros n l.
+  apply eta_equality.
+Qed.
+
+Lemma lambda_calculus_has_beta
+  : has_beta lambda_calculus_lambda_theory.
+Proof.
+  unfold has_beta.
+  cbn.
+  intros n l.
+  repeat reduce_lambda.
+  rewrite subst_subst.
+  refine (_ @ subst_l_var _).
+  apply maponpaths.
+  apply funextfun.
+  intro.
+  set (tmp := (extend_tuple var (var lastelement))).
+  unfold extend_tuple.
+  induction (idpath _ : extend_tuple _ _ = tmp).
+  refine (_ @ maponpaths _ (homotweqinvweq (weqdnicoprod n lastelement) x)).
+  simpl.
+  induction (invmap (weqdnicoprod n lastelement) x).
+  - cbn.
+    repeat reduce_lambda.
+    now rewrite replace_dni_last.
+  - cbn.
+    now repeat reduce_lambda.
+Qed.
+
 End LambdaCalculus.
