@@ -20,24 +20,6 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheoryAlgebras.
 Local Open Scope cat.
 Local Open Scope mor_disp.
 
-Lemma concat_displayed_cartesian_morphisms
-  {C C' : category}
-  (D := disp_cartesian C C')
-  {c c' c'' : C}
-  {F : C⟦c, c'⟧} {F' : C⟦c', c''⟧}
-  {A : D c} {A' : D c'} {A'' : D c''}
-  (G : A -->[F] A') (G' : A' -->[F'] A'')
-  : (G ;; G') = G · G'.
-Proof.
-  unfold comp_disp.
-  simpl.
-  unfold transportb.
-  rewrite transportf_set.
-  - apply idpath.
-  - apply isasetaprop,
-      isasetunit.
-Qed.
-
 Definition algebra_cleaving_algebra_data
   {T T' : algebraic_theory}
   (F : algebraic_theory_morphism T' T)
@@ -114,7 +96,7 @@ Definition algebra_lift
 Proof.
   exists (algebra_cleaving_induced_morphism F F' G').
   apply displayed_algebra_morphism_eq.
-  exact (concat_displayed_cartesian_morphisms _ _).
+  exact (comp_displayed_cartesian_morphisms _ _ _ _).
 Defined.
 
 Lemma algebra_lift_is_unique
@@ -129,7 +111,7 @@ Proof.
   intro.
   apply subtypePairEquality'.
   + apply displayed_algebra_morphism_eq.
-    exact (!concat_displayed_cartesian_morphisms (pr11 t) _ @ maponpaths _ (pr2 t)).
+    exact (!comp_displayed_cartesian_morphisms _ _ (pr11 t) _ @ maponpaths _ (pr2 t)).
   + apply homsets_disp.
 Qed.
 

@@ -649,6 +649,23 @@ Variable C C' : category.
 Definition disp_cartesian : disp_cat C
   := reindex_disp_cat (functor_to_unit C) (disp_over_unit C').
 
+Lemma comp_displayed_cartesian_morphisms
+  (D := disp_cartesian)
+  {c c' c'' : C}
+  {F : C⟦c, c'⟧} {F' : C⟦c', c''⟧}
+  {A : D c} {A' : D c'} {A'' : D c''}
+  (G : A -->[F] A') (G' : A' -->[F'] A'')
+  : (G ;; G') = G · G'.
+Proof.
+  unfold comp_disp.
+  simpl.
+  unfold transportb.
+  rewrite transportf_set.
+  - apply idpath.
+  - apply isasetaprop,
+      isasetunit.
+Qed.
+
 Definition cartesian : category := total_category disp_cartesian.
 
 Lemma cartesian_is_binproduct

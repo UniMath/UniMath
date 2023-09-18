@@ -49,6 +49,7 @@ Proof.
     ).
 Defined.
 
+(* TODO: Pick this apart, and move to Examples (or even better yet: to its own file) *)
 Definition limits_cartesian
   (C C' : category)
   {J : graph}
@@ -332,6 +333,21 @@ Proof.
   - exact is_univalent_disp_presheaf_full_disp_cat.
 Qed.
 
+Lemma displayed_presheaf_morphism_eq
+  {T T' : algebraic_theory}
+  {F : algebraic_theory_morphism T T'}
+  {P : presheaf T}
+  {P' : presheaf T'}
+  (G G' : (P : presheaf_disp_cat _) -->[F] P')
+  (H : pr1 G = pr1 G')
+  : G = G'.
+Proof.
+  apply (subtypePairEquality' H).
+  use (isapropdirprod _ _ _ isapropunit).
+  do 4 (apply impred_isaprop; intro).
+  apply setproperty.
+Qed.
+
 Definition presheaf_cat
   (T : algebraic_theory)
   := fiber_category presheaf_disp_cat T.
@@ -343,3 +359,13 @@ Proof.
   refine (is_univalent_fiber_cat _ _ _).
   exact is_univalent_disp_presheaf_disp_cat.
 Qed.
+
+Section Test.
+  Goal ∏ T, ob (presheaf_cat T) = presheaf T.
+    exact (λ _, idpath _).
+  Qed.
+  Goal ∏ (T : algebraic_theory) (P P' : presheaf T), (presheaf_cat T)⟦P, P'⟧ = presheaf_morphism P P'.
+    intros.
+    apply idpath.
+  Qed.
+End Test.
