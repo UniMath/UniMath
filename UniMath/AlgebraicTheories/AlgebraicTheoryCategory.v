@@ -331,7 +331,7 @@ Proof.
   - exact is_univalent_disp_algebraic_theory_disp_cat.
 Qed.
 
-Definition products_algebraic_theory_cat
+Definition limits_algebraic_theory_cat
   : Lims algebraic_theory_cat
   := λ _ _, total_limit _ (limits_algebraic_theory_data_cat _ _) (creates_limits_algebraic_theory_disp_cat _).
 
