@@ -431,6 +431,7 @@ Section DoubleCats_to_DoubleCatsUnfolded.
     use make_doublecategory.
     - exact double_cat_to_predoublecategory.
     - apply homset_property.
-    - apply TODO.
+    - intro ; intros ; cbn.
+      apply isaset_disp_mor.
   Defined.
 End DoubleCats_to_DoubleCatsUnfolded.

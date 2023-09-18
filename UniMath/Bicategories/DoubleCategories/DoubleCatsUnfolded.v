@@ -602,7 +602,10 @@ Notation "α ∘sqv β" := (ver_sq_compose α β) (at level 60).
 Section Pre_Double_Categories. (*Finally we define double categories by adding appropriate set truncation conditions. *)
 
 Definition has_sq_hor_homsets (C : predoublecategory_hor_sq) : UU :=
-  ∏ (a b c d : C) (g: a -v-> c) (h: b -v-> d), isaset (hom_sq_between_ver C g h).
+  ∏ (a b c d : C)
+    (g: a -v-> c) (h: b -v-> d)
+    (f : a -h-> b) (k : c -h-> d),
+    isaset (Sq[ a -hv- f h -hv-> b, c -vh- g k -vh-> d]).
 
 Definition doublecategory_hor_sq := ∑ C:predoublecategory_hor_sq, has_sq_hor_homsets C.
 
@@ -732,7 +735,7 @@ End Underlying_Category_Vertical_Morphisms_Squares.
 
 Section Double_Categories. (* We now use the underlying categories to define double categories *)
 
-Definition doublecategory := ∑ C:predoublecategory, (has_homsets (und_ob_hor_precategory C) × has_homsets (und_ver_precategory C)).
+  Definition doublecategory := ∑ C:predoublecategory, (has_homsets (und_ob_hor_precategory C) × has_sq_hor_homsets C).
 
 Definition make_doublecategory C h k : doublecategory := C,,h,,k.
 
@@ -740,16 +743,27 @@ Definition doublecategory_to_predoublecategory : doublecategory → predoublecat
 
 Coercion doublecategory_to_predoublecategory : doublecategory >-> predoublecategory.
 
-Coercion homset_sq_property (C : doublecategory) : (has_homsets (und_ob_hor_precategory C) × has_homsets (und_ver_precategory C)) := pr2 C.
+Coercion homset_sq_property (C : doublecategory) : (has_homsets (und_ob_hor_precategory C) × has_sq_hor_homsets C) := pr2 C.
 
 Definition und_ob_hor_cat (C: doublecategory) : category := make_category (und_ob_hor_precategory C) (pr12 C).
 
-Definition und_ver_cat (C: doublecategory) : category := make_category (und_ver_precategory C) (pr22 C).
-
+Definition und_ver_cat (C: doublecategory) : category.
+Proof.
+  use (make_category (und_ver_precategory C)).
+  intros x y.
+  use isaset_total2.
+  - apply C.
+  - intro.
+    use isaset_total2.
+    + apply C.
+    + intro.
+      apply C.
+Defined.
 End Double_Categories.
 
 Section Univalent_Double_Categories.
 (* We now use the underlying categories to define double univalence, as the univalence of the underlying two categories *)
+
 
 Definition is_double_univalent (C: doublecategory) := (is_univalent (und_ob_hor_cat C) × is_univalent (und_ver_cat C)).
 
