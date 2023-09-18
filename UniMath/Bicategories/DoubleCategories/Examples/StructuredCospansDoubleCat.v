@@ -309,7 +309,7 @@ Section StructuredCospansDoubleCat.
   Proof.
     intro ; intros.
     use struct_cospan_sqr_eq.
-    rewrite transportf_disp_mor2_struct_cospan ; cbn.
+    rewrite transportb_disp_mor2_struct_cospan ; cbn.
     use (MorphismsOutofPushoutEqual (isPushout_Pushout (PX _ _ _ _ _))) ; cbn.
     - unfold struct_cospan_associator_mor, mor_of_comp_struct_cospan_mor ; cbn.
       rewrite !assoc.

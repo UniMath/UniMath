@@ -390,8 +390,8 @@ Section DoubleCats_to_DoubleCatsUnfolded.
         double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
   Proof.
     intro ; intros ; cbn.
-
-  Admitted.
+    apply double_triangle.
+  Defined.
 
   Proposition double_cat_to_predoublecategory_ver_assoc_coherence
     : predoublecategory_ver_assoc_coherence

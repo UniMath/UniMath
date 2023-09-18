@@ -603,12 +603,12 @@ Proposition double_triangle
             {x y z : C}
             (h : x -->h y)
             (k : y -->h z)
-  : transportf_square
-      (lassociator_h h _ k ⋆v (runitor_h h ⋆h id_v_square _))
-      (id_v_left _)
-      (id_v_left _)
+  : lassociator_h h _ k ⋆v (runitor_h h ⋆h id_v_square _)
     =
-    id_v_square h ⋆h lunitor_h k.
+    transportb_square
+      (id_v_square h ⋆h lunitor_h k)
+      (id_v_left _)
+      (id_v_left _).
 Proof.
   exact (pr12 C x y z h k).
 Qed.
