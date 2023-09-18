@@ -239,13 +239,22 @@ Definition sqq {C: predoublecategory_ob_mor_sq_data}
 {a b c d : C} (f: a -h-> b)  (g: a -v-> c) (h: b -v-> d) (k: c -h-> d):  UU
 := get_predoublecat_sq C a b c d f g h k.
 
-Definition boundary_sq_transport {C : predoublecategory_ob_mor_sq_data}
-{ a b c d : C } {f1: a -h-> b} {g1: a -v-> c} {h1: b -v-> d} {k1: c -h-> d}
-  {f2: a -h-> b} {k2: c -h-> d}
-    (eqf: f1 = f2) (eqk: k1 = k2)
-    (α : sqq f2 g1 h1 k2) : sqq f1 g1 h1 k1 :=
-    (transportb (fun k0 : c-h-> d => sqq f1 g1 h1 k0) eqk
-    (transportb (fun f0 : a-h-> b => sqq f0 g1 h1 k2) eqf α)).
+Definition boundary_sq_transport
+           {C : predoublecategory_ob_mor_sq_data}
+           { a b c d : C }
+           {f1: a -h-> b} {g1: a -v-> c}
+           {h1: b -v-> d} {k1: c -h-> d}
+           {f2: a -h-> b} {k2: c -h-> d}
+           (eqf: f1 = f2) (eqk: k1 = k2)
+           (α : sqq f2 g1 h1 k2)
+  : sqq f1 g1 h1 k1
+  := transportb
+       (fun f0 => sqq f0 _ _ _)
+       eqf
+       (transportb
+          (fun k0 => sqq _ _ _ k0)
+          eqk
+          α).
 
 End Squares.
 
