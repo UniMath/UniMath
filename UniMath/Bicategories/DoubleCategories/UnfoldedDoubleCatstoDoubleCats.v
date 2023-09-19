@@ -54,145 +54,170 @@ Definition TODO { A : UU} : A.
 Admitted.
 
 Section DoubleCatsUnfolded_to_DoubleCats.
-  Context (C : doublecategory).
+  Context (C : univalent_doublecategory).
 
   Definition doublecategory_to_cat : category :=
-     (und_ob_hor_cat C).
+    (und_ob_hor_cat C).
 
   Definition doublecategory_to_twosided_disp_cat_data
     : twosided_disp_cat_data  (und_ob_hor_cat C) (und_ob_hor_cat C).
-   Proof.
-     use tpair.
-     - use tpair.
-       * intros x y.
-         exact (x -v-> y).
-       * intros x y z w f g h k.
-         exact (sqq h f g k).
-     - use tpair.
-       * intros x y f.
-         exact (hor_sq_identity f).
-       * intros x y z a b c f1 f2 f3 f4 f5 f6 f7 α β.
-         exact (α ·sqh β).
-   Defined.
+  Proof.
+    use tpair.
+    - use tpair.
+      * intros x y.
+        exact (x -v-> y).
+      * intros x y z w f g h k.
+        exact (sqq h f g k).
+    - use tpair.
+      * intros x y f.
+        exact (hor_sq_identity f).
+      * intros x y z a b c f1 f2 f3 f4 f5 f6 f7 α β.
+        exact (α ·sqh β).
+  Defined.
 
-   Definition doublecategory_to_twosided_disp_cat
-     : twosided_disp_cat doublecategory_to_cat doublecategory_to_cat.
-   Proof.
-      use tpair.
-      - exact doublecategory_to_twosided_disp_cat_data.
-      - repeat split.
-        + intros x0 x1 y0 y1 f0 f1 g0 g1 α.
-          exact (id_hor_sq_left α).
-        + intros x0 x1 y0 y1 f0 f1 g0 g1 α.
-          exact (id_hor_sq_right α).
-        + intros ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? α β γ.
-          exact (assoc_sq_hor α β γ).
-        + intros ? ? ? ? ? ? ? ?.
-          apply TODO. (* this law is formulated differently! *)
-   Defined.
+  Definition doublecategory_to_twosided_disp_cat
+    : twosided_disp_cat doublecategory_to_cat doublecategory_to_cat.
+  Proof.
+    use tpair.
+    - exact doublecategory_to_twosided_disp_cat_data.
+    - repeat split.
+      + intros x0 x1 y0 y1 f0 f1 g0 g1 α.
+        exact (id_hor_sq_left α).
+      + intros x0 x1 y0 y1 f0 f1 g0 g1 α.
+        exact (id_hor_sq_right α).
+      + intros ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? α β γ.
+        exact (assoc_sq_hor α β γ).
+      + intros x0 x1 y0 y1 f0 g0 f1 g1.
+        exact (get_has_sq_hor_homsets f0 g0 f1 g1).
+  Defined.
 
-   Let D : twosided_disp_cat doublecategory_to_cat doublecategory_to_cat
-     := doublecategory_to_twosided_disp_cat.
+  Let D : twosided_disp_cat doublecategory_to_cat doublecategory_to_cat
+      := doublecategory_to_twosided_disp_cat.
 
-   Definition doublecategory_to_horid : hor_id D.
-   Proof.
-     use make_hor_id.
-     - use make_hor_id_data.
-       + apply TODO.
-       + apply TODO.
-     - split.
-       + apply TODO.
-       + apply TODO.
-   Defined.
+  Definition doublecategory_to_horid : hor_id D.
+  Proof.
+    use make_hor_id.
+    - use make_hor_id_data.
+      + intro x.
+        exact (ver_identity x).
+      + intros x y f.
+        exact (ver_sq_identity f).
+    - split.
+      + intro x.
+        exact (get_predoublecategory_interchange_id_obj x).
+      + intros x y z f g.
+        exact ( get_predoublecategory_interchange_id_hor f g).
+  Defined.
 
-   Let I : hor_id D := doublecategory_to_horid.
+  Let I : hor_id D := doublecategory_to_horid.
 
-   Definition doublecategory_to_horcomp : hor_comp D.
-   Proof.
-     use make_hor_comp.
-     - use make_hor_comp_data.
-       + apply TODO.
-       + apply TODO.
-     - split.
-       + apply TODO.
-       + apply TODO.
-   Defined.
+  Definition doublecategory_to_horcomp : hor_comp D.
+  Proof.
+    use make_hor_comp.
+    - use make_hor_comp_data.
+      + intros x y z f g.
+        exact (ver_compose f g).
+      + cbn in *.
+        intros x1 x2 y1 y2 z1 z2 v1 v2 v3 h1 h2 k1 k2 α β.
+        exact (ver_sq_compose α β).
+    - split.
+      + cbn in *.
+        intros x y z f g.
+        exact (get_predoublecategory_interchange_id_ver f g).
+      + cbn in *.
+        intros a0 a1 a2 b0 b1 b2 c0 c1 c2 fa ga fb gb fc gc h0 k0 h1 k1 h2 k2 α β γ δ.
+        exact (get_predoublecategory_interchange_comp α β γ δ).
+  Defined.
 
-   Let Cm : hor_comp D := doublecategory_to_horcomp.
+  Let Cm : hor_comp D := doublecategory_to_horcomp.
 
-   Definition  doublecategory_to_lunitor : double_cat_lunitor I Cm.
-   Proof.
-     use make_double_lunitor.
-     - intros x y h.
-       use make_iso_twosided_disp.
-       + apply TODO.
-       + simple refine (_ ,, _ ,, _).
-         * apply TODO.
-         * apply TODO.
-         * apply TODO.
-     - apply TODO.
-   Defined.
+  Definition  doublecategory_to_lunitor : double_cat_lunitor I Cm.
+  Proof.
+    use make_double_lunitor.
+    - intros x y h.
+      use make_iso_twosided_disp.
+      + cbn in *.
+        exact (pr1 (get_ver_left_unitor h)).
+      + simple refine (_ ,, _ ,, _).
+        * exact (pr12 (get_ver_left_unitor h)).
+        * cbn in *. exact (pr122 (get_ver_left_unitor h)).
+        * exact (pr222 (get_ver_left_unitor h)).
+    - cbn in *.
+      intros a b c d f g h k α.
+      exact (! get_predoublecategory_ver_left_unitor_naturality α).
+  Defined.
 
-   Let l : double_cat_lunitor I Cm := doublecategory_to_lunitor.
+  Let l : double_cat_lunitor I Cm := doublecategory_to_lunitor.
 
-   Definition doublecategory_to_runitor : double_cat_runitor I Cm.
-   Proof.
-     use make_double_runitor.
-     - intros x y h.
-       use make_iso_twosided_disp.
-       + apply TODO.
-       + simple refine (_ ,, _ ,, _).
-         * apply TODO.
-         * apply TODO.
-         * apply TODO.
-     - apply TODO.
-   Defined.
+  Definition doublecategory_to_runitor : double_cat_runitor I Cm.
+  Proof.
+    use make_double_runitor.
+    - intros x y h.
+      use make_iso_twosided_disp.
+      + cbn in *.
+        exact (pr1 (get_ver_right_unitor h)).
+      + simple refine (_ ,, _ ,, _).
+        * exact (pr12 (get_ver_right_unitor h)).
+        * cbn in *. exact (pr122 (get_ver_right_unitor h)).
+        * exact (pr222 (get_ver_right_unitor h)).
+    - cbn in *.
+      intros a b c d f g h k α.
+      exact (! get_predoublecategory_ver_right_unitor_naturality α).
+  Defined.
 
-   Let r : double_cat_runitor I Cm := doublecategory_to_runitor.
+  Let r : double_cat_runitor I Cm := doublecategory_to_runitor.
 
-   Definition doublecategory_to_associator : double_cat_associator Cm.
-   Proof.
-     use make_double_associator.
-     - intros w x y z h₁ h₂ h₃.
-       use make_iso_twosided_disp.
-       + apply TODO.
-       + simple refine (_ ,, _ ,, _).
-         * apply TODO.
-         * apply TODO.
-         * apply TODO.
-     - apply TODO.
-   Defined.
+  Definition doublecategory_to_associator : double_cat_associator Cm.
+  Proof.
+    use make_double_associator.
+    - intros w x y z f g h.
+      use make_iso_twosided_disp.
+      + exact (pr1 (get_ver_associator f g h)).
+      + simple refine (_ ,, _ ,, _).
+        * exact (pr12 (get_ver_associator f g h)).
+        * exact (pr122 (get_ver_associator f g h)).
+        * exact (pr222 (get_ver_associator f g h)).
+    - cbn in *.
+      intros a0 a1 a2 a3 b0 b1 b2 b3 fa fb ha hb ka kb g0 g1 g2 g3 α β γ.
+      exact (! get_predoublecategory_ver_assoc_naturality α β γ).
+  Defined.
 
-   Let a : double_cat_associator Cm := doublecategory_to_associator.
+  Let a : double_cat_associator Cm := doublecategory_to_associator.
 
-   Proposition doublecategory_to_triangle : triangle_law l r a.
-   Proof.
-   Admitted.
+  Proposition doublecategory_to_triangle : triangle_law l r a.
+  Proof.
+    intros x y z h k.
+    cbn in *.
+    exact (get_predoublecategory_ver_unitor_coherence h k).
+  Defined.
 
-   Let tr : triangle_law l r a := doublecategory_to_triangle.
+  Let tr : triangle_law l r a := doublecategory_to_triangle.
 
-   Proposition doublecategory_to_pentagon : pentagon_law a.
-   Proof.
-   Admitted.
+  Proposition doublecategory_to_pentagon : pentagon_law a.
+  Proof.
+    intros i b c d e f g h k.
+    exact (get_predoublecategory_ver_assoc_coherence f g h k).
+  Defined.
 
-   Let pe : pentagon_law a := doublecategory_to_pentagon.
+  Let pe : pentagon_law a := doublecategory_to_pentagon.
 
-   Definition is_univalent_und_ob_hor_cat : is_univalent (und_ob_hor_cat C).
-   Proof.
-   Admitted.
+  Definition is_univalent_und_ob_hor_cat : is_univalent (und_ob_hor_cat C).
+  Proof.
+    apply C.
+  Defined.
 
-   Let HC : is_univalent (und_ob_hor_cat C) := is_univalent_und_ob_hor_cat.
+  Let HC : is_univalent (und_ob_hor_cat C) := is_univalent_und_ob_hor_cat.
 
-   Definition is_univalent_doublecategory_to_twosided_disp_cat
-     : is_univalent_twosided_disp_cat D.
-   Proof.
-   Admitted.
+  Definition is_univalent_doublecategory_to_twosided_disp_cat
+    : is_univalent_twosided_disp_cat D.
+  Proof.
+  Admitted.
 
-   Let HD : is_univalent_twosided_disp_cat D
-     := is_univalent_doublecategory_to_twosided_disp_cat.
+  Let HD : is_univalent_twosided_disp_cat D
+      := is_univalent_doublecategory_to_twosided_disp_cat.
 
-   Definition  doublecategory_to_double_cat : double_cat :=
-     make_double_cat (und_ob_hor_cat C) D I Cm l r a tr pe HC HD.
+  Definition  doublecategory_to_double_cat : double_cat :=
+    make_double_cat (und_ob_hor_cat C) D I Cm l r a tr pe HC HD.
 End DoubleCatsUnfolded_to_DoubleCats.
 
 Section DoubleCats_to_DoubleCatsUnfolded.
@@ -434,4 +459,73 @@ Section DoubleCats_to_DoubleCatsUnfolded.
     - intro ; intros ; cbn.
       apply isaset_disp_mor.
   Defined.
+
+  Definition double_cat_to_univalent_doublecategory
+    : univalent_doublecategory.
+  Proof.
+    simple refine (double_cat_to_doublecategory ,, _ ,, _).
+    - exact (pr21 (pr111 C)).
+    - apply TODO.
+  Defined.
 End DoubleCats_to_DoubleCatsUnfolded.
+
+Proposition double_cat_weq_univalent_doublecategory_inv₁
+            (C : double_cat)
+  : doublecategory_to_double_cat (double_cat_to_univalent_doublecategory C) = C.
+Proof.
+  induction C as [ C1 H ].
+  use subtypePath.
+  {
+    intro.
+    apply isapropdirprod ; repeat (use impred ; intro) ; apply isaset_disp_mor.
+  }
+  induction C1 as [ [ [ C D ] IC ] UnAs ].
+  use total2_paths_f.
+  - use total2_paths_f.
+    + use total2_paths_f.
+      * apply idpath.
+      * use subtypePath.
+        {
+          intro.
+          apply isaprop_is_univalent_twosided_disp_cat.
+        }
+        apply idpath.
+    + (* rewrite transportf_total2_paths_f. *)
+      admit.
+  - admit.
+Admitted.
+
+Proposition double_cat_weq_univalent_doublecategory_inv₂
+            (C : univalent_doublecategory)
+  : double_cat_to_univalent_doublecategory (doublecategory_to_double_cat C) = C.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    apply isapropdirprod.
+    - apply isaprop_is_univalent.
+    - admit.
+  }
+  use subtypePath.
+  {
+    intro.
+    use isapropdirprod ;
+    repeat (use impred ; intro) ;
+    apply isapropiscontr.
+  }
+  induction C as [ [ [ C1 C2 ] C3 ] H ] ; cbn.
+  refine (maponpaths (λ z, _ ,, z) _).
+  repeat (use pathsdirprod) ;
+  repeat (use funextsec ; intro) ;
+  apply get_has_sq_hor_homsets.
+Admitted.
+
+Definition double_cat_weq_univalent_doublecategory
+  : double_cat ≃ univalent_doublecategory.
+Proof.
+  use weq_iso.
+  - exact double_cat_to_univalent_doublecategory.
+  - exact doublecategory_to_double_cat.
+  - exact double_cat_weq_univalent_doublecategory_inv₁.
+  - intros C.
+    revert C.
