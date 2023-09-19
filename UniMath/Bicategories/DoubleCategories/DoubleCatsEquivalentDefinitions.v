@@ -2,47 +2,26 @@
 
   Authors: Benedikt Ahrens, Paige North, Nima Rasekh, Niels van der Weide
   June 2023
-  Based on definition of weak double category in Section 3.3 of the book Higher Dimensional Categories by Marco Grandis.
+
+  We construct an equivalence between the unfolded definition and the folded
+  definition of double categories. The proof is a matter of reorganizing the
+  sigma type.
+
+  Contents:
+  1. The map from unfolded double categories to double categories
+  2. The inverse
+  3. It forms an equivalences
  *)
 
-
-(** ** Contents :
-
-  - Define a pre double category as a ``weak double category`` in the sense of Grandis.
-    This means one direction is weak and the other direction is strict.
-
-  - Double categories: A double category is a pre-double category with two set-truncated hom sets.
-  -
-  - Univalent Double Categories: A univalent double category is a double category with two univalent underlying categories.
-
-  - The structure is defined from scratch rather than building on a category.
-    This makes further generalizations easier.
- *)
-
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.PartA.
-Require Import UniMath.MoreFoundations.Notations.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedNatTrans.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
-Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
-Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleFunctor.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleTransformation.
 Require Import UniMath.Bicategories.DoubleCategories.BicatOfDoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleCatsUnfolded.
@@ -50,49 +29,17 @@ Require Import UniMath.Bicategories.DoubleCategories.DoubleCatsUnfolded.
 Local Open Scope cat.
 Local Open Scope double_cat.
 
-Definition TODO { A : UU} : A.
-Admitted.
-
+(**
+ 1. The map from unfolded double categories to double categories
+ *)
 Section DoubleCatsUnfolded_to_DoubleCats.
   Context (C : univalent_doublecategory).
 
   Definition doublecategory_to_cat : category :=
     (und_ob_hor_cat C).
 
-  Definition doublecategory_to_twosided_disp_cat_data
-    : twosided_disp_cat_data  (und_ob_hor_cat C) (und_ob_hor_cat C).
-  Proof.
-    use tpair.
-    - use tpair.
-      * intros x y.
-        exact (x -v-> y).
-      * intros x y z w f g h k.
-        exact (sqq h f g k).
-    - use tpair.
-      * intros x y f.
-        exact (hor_sq_identity f).
-      * intros x y z a b c f1 f2 f3 f4 f5 f6 f7 α β.
-        exact (α ·sqh β).
-  Defined.
-
-  Definition doublecategory_to_twosided_disp_cat
-    : twosided_disp_cat doublecategory_to_cat doublecategory_to_cat.
-  Proof.
-    use tpair.
-    - exact doublecategory_to_twosided_disp_cat_data.
-    - repeat split.
-      + intros x0 x1 y0 y1 f0 f1 g0 g1 α.
-        exact (id_hor_sq_left α).
-      + intros x0 x1 y0 y1 f0 f1 g0 g1 α.
-        exact (id_hor_sq_right α).
-      + intros ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? α β γ.
-        exact (assoc_sq_hor α β γ).
-      + intros x0 x1 y0 y1 f0 g0 f1 g1.
-        exact (get_has_sq_hor_homsets f0 g0 f1 g1).
-  Defined.
-
   Let D : twosided_disp_cat doublecategory_to_cat doublecategory_to_cat
-      := doublecategory_to_twosided_disp_cat.
+      := doublecategory_to_twosided_disp_cat C.
 
   Definition doublecategory_to_horid : hor_id D.
   Proof.
@@ -211,7 +158,8 @@ Section DoubleCatsUnfolded_to_DoubleCats.
   Definition is_univalent_doublecategory_to_twosided_disp_cat
     : is_univalent_twosided_disp_cat D.
   Proof.
-  Admitted.
+    apply C.
+  Defined.
 
   Let HD : is_univalent_twosided_disp_cat D
       := is_univalent_doublecategory_to_twosided_disp_cat.
@@ -220,6 +168,9 @@ Section DoubleCatsUnfolded_to_DoubleCats.
     make_double_cat (und_ob_hor_cat C) D I Cm l r a tr pe HC HD.
 End DoubleCatsUnfolded_to_DoubleCats.
 
+(**
+ 2. The inverse
+ *)
 Section DoubleCats_to_DoubleCatsUnfolded.
   Context (C : double_cat).
 
@@ -465,10 +416,13 @@ Section DoubleCats_to_DoubleCatsUnfolded.
   Proof.
     simple refine (double_cat_to_doublecategory ,, _ ,, _).
     - exact (pr21 (pr111 C)).
-    - apply TODO.
+    - exact (pr22 (pr111 C)).
   Defined.
 End DoubleCats_to_DoubleCatsUnfolded.
 
+(**
+ 3. It forms an equivalences
+ *)
 Proposition double_cat_weq_univalent_doublecategory_inv₁
             (C : double_cat)
   : doublecategory_to_double_cat (double_cat_to_univalent_doublecategory C) = C.
@@ -479,21 +433,28 @@ Proof.
     intro.
     apply isapropdirprod ; repeat (use impred ; intro) ; apply isaset_disp_mor.
   }
-  induction C1 as [ [ [ C D ] IC ] UnAs ].
-  use total2_paths_f.
-  - use total2_paths_f.
-    + use total2_paths_f.
-      * apply idpath.
-      * use subtypePath.
-        {
-          intro.
-          apply isaprop_is_univalent_twosided_disp_cat.
-        }
-        apply idpath.
-    + (* rewrite transportf_total2_paths_f. *)
-      admit.
-  - admit.
-Admitted.
+  use total2_paths_f ; [ apply idpath | ].
+  use pathsdirprod.
+  - use subtypePath.
+    {
+      intro.
+      apply isaprop_double_lunitor_laws.
+    }
+    apply idpath.
+  - use pathsdirprod.
+    + use subtypePath.
+      {
+        intro.
+        apply isaprop_double_runitor_laws.
+      }
+      apply idpath.
+    + use subtypePath.
+      {
+        intro.
+        apply isaprop_double_associator_laws.
+      }
+      apply idpath.
+Qed.
 
 Proposition double_cat_weq_univalent_doublecategory_inv₂
             (C : univalent_doublecategory)
@@ -504,7 +465,7 @@ Proof.
     intro.
     apply isapropdirprod.
     - apply isaprop_is_univalent.
-    - admit.
+    - apply isaprop_is_univalent_twosided_disp_cat.
   }
   use subtypePath.
   {
@@ -513,12 +474,11 @@ Proof.
     repeat (use impred ; intro) ;
     apply isapropiscontr.
   }
-  induction C as [ [ [ C1 C2 ] C3 ] H ] ; cbn.
-  refine (maponpaths (λ z, _ ,, z) _).
+  use total2_paths_f ; [ apply idpath | ].
   repeat (use pathsdirprod) ;
   repeat (use funextsec ; intro) ;
   apply get_has_sq_hor_homsets.
-Admitted.
+Qed.
 
 Definition double_cat_weq_univalent_doublecategory
   : double_cat ≃ univalent_doublecategory.
@@ -527,5 +487,5 @@ Proof.
   - exact double_cat_to_univalent_doublecategory.
   - exact doublecategory_to_double_cat.
   - exact double_cat_weq_univalent_doublecategory_inv₁.
-  - intros C.
-    revert C.
+  - exact double_cat_weq_univalent_doublecategory_inv₂.
+Defined.

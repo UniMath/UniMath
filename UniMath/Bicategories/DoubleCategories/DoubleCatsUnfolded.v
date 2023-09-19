@@ -20,11 +20,12 @@
  *)
 
 Require Import UniMath.Foundations.Propositions.
-  Require Import UniMath.Foundations.Sets.
-  Require Import UniMath.MoreFoundations.PartA.
-  Require Import UniMath.MoreFoundations.Notations.
-  Require Import UniMath.CategoryTheory.Core.Prelude.
-
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.Notations.
+Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 
 Section Definition_of_Double_Graphs.
 (*  Definition of a double graph.*)
@@ -849,15 +850,52 @@ Proof.
       apply C.
 Defined.
 
+Definition doublecategory_to_twosided_disp_cat_data
+           (C : doublecategory)
+  : twosided_disp_cat_data (und_ob_hor_cat C) (und_ob_hor_cat C).
+Proof.
+  use tpair.
+  - use tpair.
+    * intros x y.
+      exact (x -v-> y).
+    * intros x y z w f g h k.
+      exact (sqq h f g k).
+  - use tpair.
+    * intros x y f.
+      exact (hor_sq_identity f).
+    * intros x y z a b c f1 f2 f3 f4 f5 f6 f7 α β.
+      exact (α ·sqh β).
+Defined.
+
+Definition doublecategory_to_twosided_disp_cat
+           (C : doublecategory)
+  : twosided_disp_cat (und_ob_hor_cat C) (und_ob_hor_cat C).
+Proof.
+  use tpair.
+  - exact (doublecategory_to_twosided_disp_cat_data C).
+  - repeat split.
+    + intros x0 x1 y0 y1 f0 f1 g0 g1 α.
+      exact (id_hor_sq_left α).
+    + intros x0 x1 y0 y1 f0 f1 g0 g1 α.
+      exact (id_hor_sq_right α).
+    + intros ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? α β γ.
+      exact (assoc_sq_hor α β γ).
+    + intros x0 x1 y0 y1 f0 g0 f1 g1.
+      exact (get_has_sq_hor_homsets f0 g0 f1 g1).
+Defined.
+
 End Double_Categories.
 
 Section Univalent_Double_Categories.
 (* We now use the underlying categories to define double univalence, as the univalence of the underlying two categories *)
 
-Definition is_double_univalent (C: doublecategory) := (is_univalent (und_ob_hor_cat C) × is_univalent (und_ver_cat C)).
+  Definition is_double_univalent
+             (C : doublecategory)
+    := (is_univalent (und_ob_hor_cat C)
+        ×
+        is_univalent_twosided_disp_cat (doublecategory_to_twosided_disp_cat C)).
 
-Definition univalent_doublecategory : UU := ∑ (C: doublecategory), is_double_univalent C.
+  Definition univalent_doublecategory : UU := ∑ (C: doublecategory), is_double_univalent C.
 
-Coercion univalent_doublecategory_to_doublecategory (C: univalent_doublecategory) := pr1 C.
-
+  Coercion univalent_doublecategory_to_doublecategory (C: univalent_doublecategory) := pr1 C.
 End Univalent_Double_Categories.

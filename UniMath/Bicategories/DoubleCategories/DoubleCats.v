@@ -325,7 +325,7 @@ Proposition id_h_square_id
   : id_h_square (identity_v x) = id_v_square (identity_h x).
 Proof.
   exact (pr121 (pr211 C) x).
-Qed.
+Defined.
 
 Proposition id_h_square_comp
             {C : double_cat}
@@ -337,7 +337,7 @@ Proposition id_h_square_comp
     id_h_square v₁ ⋆v id_h_square v₂.
 Proof.
   exact (pr221 (pr211 C) x y z v₁ v₂).
-Qed.
+Defined.
 
 (**
  2.5. Functoriality of horizontal composition
@@ -367,7 +367,7 @@ Proposition comp_h_square_id
   : id_v_square h₁ ⋆h id_v_square h₂ = id_v_square (h₁ ·h h₂).
 Proof.
   exact (pr122 (pr211 C) x y z h₁ h₂).
-Qed.
+Defined.
 
 Proposition comp_h_square_comp
             {C : double_cat}
@@ -396,7 +396,7 @@ Proof.
            l₁ l₂
            s₁ s₁'
            s₂ s₂').
-Qed.
+Defined.
 
 (**
  2.6. Left unitor
@@ -458,7 +458,7 @@ Proposition lunitor_square
       (id_v_right _ @ !(id_v_left _)).
 Proof.
   exact (!(pr2 (pr121 C) x₁ x₂ y₁ y₂ h₁ h₂ v₁ v₂ s)).
-Qed.
+Defined.
 
 (**
  2.7. Right unitor
@@ -520,7 +520,7 @@ Proposition runitor_square
       (id_v_right _ @ !(id_v_left _)).
 Proof.
   exact (!(pr21 (pr221 C) x₁ x₂ y₁ y₂ h₁ h₂ v₁ v₂ s)).
-Qed.
+Defined.
 
 (**
  2.8. Associator
@@ -593,7 +593,7 @@ Proposition lassociator_h_square
       (id_v_right _ @ !(id_v_left _)).
 Proof.
   exact (!(pr22 (pr221 C) w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ h₁ h₂ j₁ j₂ k₁ k₂ vw vx vy vz s₁ s₂ s₃)).
-Qed.
+Defined.
 
 (**
  2.9. Triangle and pentagon equations
