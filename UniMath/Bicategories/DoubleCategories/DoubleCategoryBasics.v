@@ -903,14 +903,14 @@ Definition triangle_law
   := ∏ (x y z : C)
        (h : D x y)
        (k : D y z),
-     transportf_disp_mor2
-       (id_left _)
-       (id_left _)
-       (double_associator a h _ k
-        ;;2
-        double_hor_comp_mor Cm (double_runitor r h) (id_two_disp _))
+     double_associator a h _ k
+     ;;2
+     double_hor_comp_mor Cm (double_runitor r h) (id_two_disp _)
      =
-     double_hor_comp_mor Cm (id_two_disp _) (double_lunitor l k).
+     transportb_disp_mor2
+       (id_left _)
+       (id_left _)
+       (double_hor_comp_mor Cm (id_two_disp _) (double_lunitor l k)).
 
 Proposition isaprop_triangle_law
             {C : category}

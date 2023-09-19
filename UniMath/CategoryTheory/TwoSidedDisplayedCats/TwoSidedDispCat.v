@@ -460,7 +460,7 @@ Section TwoSidedDispCat.
         fg.
   Proof.
     exact (pr12 D _ _ _ _ _ _ _ _ fg).
-  Qed.
+  Defined.
 
   Definition id_two_disp_right
              {D : twosided_disp_cat}
@@ -479,7 +479,7 @@ Section TwoSidedDispCat.
         fg.
   Proof.
     exact (pr122 D _ _ _ _ _ _ _ _ fg).
-  Qed.
+  Defined.
 
   Definition assoc_two_disp
              {D : twosided_disp_cat}
@@ -506,7 +506,7 @@ Section TwoSidedDispCat.
         ((fg₁ ;;2 fg₂) ;;2 fg₃).
   Proof.
     exact (pr1 (pr222 D) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ fg₁ fg₂ fg₃).
-  Qed.
+  Defined.
 
   Definition isaset_disp_mor
              {D : twosided_disp_cat}
@@ -519,7 +519,7 @@ Section TwoSidedDispCat.
     : isaset (xy₁ -->[ f ][ g ] xy₂).
   Proof.
     exact (pr2 (pr222 D) _ _ _ _ xy₁ xy₂ f g).
-  Qed.
+  Defined.
 
   (**
    1.2. Derived laws

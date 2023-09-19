@@ -273,7 +273,7 @@ Proposition square_id_left_v
     transportb_square s (id_left _) (id_left _).
 Proof.
   apply id_two_disp_left.
-Qed.
+Defined.
 
 Proposition square_id_right_v
             {C : double_cat}
@@ -288,7 +288,7 @@ Proposition square_id_right_v
     transportb_square s (id_right _) (id_right _).
 Proof.
   apply id_two_disp_right.
-Qed.
+Defined.
 
 Proposition square_assoc_v
             {C : double_cat}
@@ -307,7 +307,7 @@ Proposition square_assoc_v
     transportb_square ((s₁ ⋆v s₂) ⋆v s₃) (assoc _ _ _) (assoc _ _ _).
 Proof.
   exact (assoc_two_disp s₁ s₂ s₃).
-Qed.
+Defined.
 
 (**
  2.4. Functoriality of horizontal identities
@@ -325,7 +325,7 @@ Proposition id_h_square_id
   : id_h_square (identity_v x) = id_v_square (identity_h x).
 Proof.
   exact (pr121 (pr211 C) x).
-Qed.
+Defined.
 
 Proposition id_h_square_comp
             {C : double_cat}
@@ -337,7 +337,7 @@ Proposition id_h_square_comp
     id_h_square v₁ ⋆v id_h_square v₂.
 Proof.
   exact (pr221 (pr211 C) x y z v₁ v₂).
-Qed.
+Defined.
 
 (**
  2.5. Functoriality of horizontal composition
@@ -367,7 +367,7 @@ Proposition comp_h_square_id
   : id_v_square h₁ ⋆h id_v_square h₂ = id_v_square (h₁ ·h h₂).
 Proof.
   exact (pr122 (pr211 C) x y z h₁ h₂).
-Qed.
+Defined.
 
 Proposition comp_h_square_comp
             {C : double_cat}
@@ -396,7 +396,7 @@ Proof.
            l₁ l₂
            s₁ s₁'
            s₂ s₂').
-Qed.
+Defined.
 
 (**
  2.6. Left unitor
@@ -429,7 +429,7 @@ Proposition lunitor_linvunitor_h
     transportb_square (id_v_square _) (id_v_left _) (id_v_left _).
 Proof.
   exact (pr122 (pr1 (pr121 C) x y f)).
-Qed.
+Defined.
 
 Proposition linvunitor_lunitor_h
             {C : double_cat}
@@ -440,7 +440,7 @@ Proposition linvunitor_lunitor_h
     transportb_square (id_v_square _) (id_v_left _) (id_v_left _).
 Proof.
   exact (pr222 (pr1 (pr121 C) x y f)).
-Qed.
+Defined.
 
 Proposition lunitor_square
             {C : double_cat}
@@ -458,7 +458,7 @@ Proposition lunitor_square
       (id_v_right _ @ !(id_v_left _)).
 Proof.
   exact (!(pr2 (pr121 C) x₁ x₂ y₁ y₂ h₁ h₂ v₁ v₂ s)).
-Qed.
+Defined.
 
 (**
  2.7. Right unitor
@@ -491,7 +491,7 @@ Proposition runitor_rinvunitor_h
     transportb_square (id_v_square _) (id_v_left _) (id_v_left _).
 Proof.
   exact (pr122 (pr11 (pr221 C) x y f)).
-Qed.
+Defined.
 
 Proposition rinvunitor_runitor_h
             {C : double_cat}
@@ -502,7 +502,7 @@ Proposition rinvunitor_runitor_h
     transportb_square (id_v_square _) (id_v_left _) (id_v_left _).
 Proof.
   exact (pr222 (pr11 (pr221 C) x y f)).
-Qed.
+Defined.
 
 Proposition runitor_square
             {C : double_cat}
@@ -520,7 +520,7 @@ Proposition runitor_square
       (id_v_right _ @ !(id_v_left _)).
 Proof.
   exact (!(pr21 (pr221 C) x₁ x₂ y₁ y₂ h₁ h₂ v₁ v₂ s)).
-Qed.
+Defined.
 
 (**
  2.8. Associator
@@ -559,7 +559,7 @@ Proposition lassociator_rassociator_h
     transportb_square (id_v_square _) (id_v_left _) (id_v_left _).
 Proof.
   exact (pr122 (pr12 (pr221 C) w x y z f g h)).
-Qed.
+Defined.
 
 Proposition rassociator_lassociator_h
             {C : double_cat}
@@ -572,7 +572,7 @@ Proposition rassociator_lassociator_h
     transportb_square (id_v_square _) (id_v_left _) (id_v_left _).
 Proof.
   exact (pr222 (pr12 (pr221 C) w x y z f g h)).
-Qed.
+Defined.
 
 Proposition lassociator_h_square
             {C : double_cat}
@@ -593,7 +593,7 @@ Proposition lassociator_h_square
       (id_v_right _ @ !(id_v_left _)).
 Proof.
   exact (!(pr22 (pr221 C) w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ h₁ h₂ j₁ j₂ k₁ k₂ vw vx vy vz s₁ s₂ s₃)).
-Qed.
+Defined.
 
 (**
  2.9. Triangle and pentagon equations
@@ -603,12 +603,12 @@ Proposition double_triangle
             {x y z : C}
             (h : x -->h y)
             (k : y -->h z)
-  : transportf_square
-      (lassociator_h h _ k ⋆v (runitor_h h ⋆h id_v_square _))
-      (id_v_left _)
-      (id_v_left _)
+  : lassociator_h h _ k ⋆v (runitor_h h ⋆h id_v_square _)
     =
-    id_v_square h ⋆h lunitor_h k.
+    transportb_square
+      (id_v_square h ⋆h lunitor_h k)
+      (id_v_left _)
+      (id_v_left _).
 Proof.
   exact (pr12 C x y z h k).
 Qed.

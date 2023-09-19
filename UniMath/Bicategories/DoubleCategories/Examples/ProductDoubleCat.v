@@ -228,13 +228,13 @@ Section ProdOfDoubleCat.
         prod_double_cat_associator.
   Proof.
     intro ; intros ; cbn.
-    rewrite transportf_twosided_disp_cat_product.
+    rewrite transportb_twosided_disp_cat_product.
     use dirprodeq ; cbn.
-    - refine (_ @ double_triangle _ _).
-      apply transportf_disp_mor2_eq.
+    - refine (double_triangle _ _ @ _).
+      apply transportb_disp_mor2_eq.
       apply idpath.
-    - refine (_ @ double_triangle _ _).
-      apply transportf_disp_mor2_eq.
+    - refine (double_triangle _ _ @ _).
+      apply transportb_disp_mor2_eq.
       apply idpath.
   Qed.
 

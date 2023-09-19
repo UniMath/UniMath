@@ -263,7 +263,7 @@ Section SpansDoubleCat.
   Proof.
     intro ; intros.
     use span_sqr_eq.
-    rewrite transportf_disp_mor2_span ; cbn.
+    rewrite transportb_disp_mor2_span ; cbn.
     use (MorphismsIntoPullbackEqual (isPullback_Pullback (PC _ _ _ _ _))) ; cbn.
     - unfold span_associator_mor, mor_of_comp_span_mor ; cbn.
       rewrite !assoc'.
