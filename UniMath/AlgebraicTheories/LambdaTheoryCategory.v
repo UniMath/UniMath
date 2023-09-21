@@ -15,54 +15,13 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 
-Require Import UniMath.AlgebraicTheories.Tuples.
+Require Import UniMath.AlgebraicTheories.LambdaTheories.
+Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
-Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 
 Local Open Scope cat.
-Local Open Scope vec.
-Local Open Scope algebraic_theories.
-
-(* The datatype lambda_theory_data *)
-Definition lambda_theory_data : UU
-  := ∑ (T : algebraic_theory), ((∏ n, (T n : hSet) → (T (S n) : hSet)) × (∏ n, (T (S n) : hSet) → (T n : hSet))).
-
-Coercion lambda_theory_data_to_algebraic_theory (L : lambda_theory_data) : algebraic_theory := pr1 L.
-
-Definition app {L : lambda_theory_data} {n : nat} : (L n : hSet) → (L (S n) : hSet) := pr12 L n.
-
-Definition abs {L : lambda_theory_data} {n : nat} : (L (S n) : hSet) → (L n : hSet) := pr22 L n.
-
-Definition lambda_theory_data_morphism
-  (L L' : lambda_theory_data)
-  : UU
-  := ∑ (F : algebraic_theory_morphism L L'),
-      (∏ n t, F _ (app t) = app (F n t)) ×
-      (∏ n t, F _ (abs t) = abs (F (S n) t)).
-
-Coercion lambda_theory_data_morphism_to_algebraic_theory_morphism
-  {L L' : lambda_theory_data}
-  (F : lambda_theory_data_morphism L L')
-  : algebraic_theory_morphism L L'
-  := pr1 F.
-
-Definition lambda_theory_data_morphism_preserves_app
-  {L L' : lambda_theory_data}
-  (F : lambda_theory_data_morphism L L')
-  (n : nat) (t : (L n : hSet))
-  : F _ (app t) = app (F _ t)
-  := pr12 F n t.
-
-Definition lambda_theory_data_morphism_preserves_abs
-  {L L' : lambda_theory_data}
-  (F : lambda_theory_data_morphism L L')
-  (n : nat) (t : (L (S n) : hSet))
-  : F _ (abs t) = abs (F _ t)
-  := pr22 F n t.
-
-Definition force_hlevel (n : nat) (T : UU) (H : isofhlevel n T) : isofhlevel n T := H.
 
 (* The category of the data of lambda theories *)
 Definition lambda_theory_data_disp_cat
@@ -131,77 +90,6 @@ Section Test.
   Qed.
 End Test.
 
-(* The datatype lambda_theory *)
-Definition extend_finite_morphism_with_identity
-  {m n : finite_set_skeleton_category}
-  (f : finite_set_skeleton_category⟦m, n⟧)
-  : finite_set_skeleton_category⟦S m, S n⟧
-  := extend_tuple (T := stn (S n)) (λ i, dni_lastelement (f i)) lastelement.
-
-Definition extended_composition
-  {T : algebraic_theory_data}
-  {m n : nat}
-  (f : T (S m) : hSet)
-  (g : stn m → (T n : hSet))
-  : (T (S n) : hSet)
-  := f • (extend_tuple (λ i, #T (dni_lastelement (n := n)) (g i)) (pr lastelement)).
-
-Definition is_lambda_theory (L : lambda_theory_data) : UU :=
-    (∏ m n (a : finite_set_skeleton_category⟦m, n⟧) l, app (#L a l) = #L (extend_finite_morphism_with_identity a) (app l)) ×
-    (∏ m n (a : finite_set_skeleton_category⟦m, n⟧) l, abs (#L (extend_finite_morphism_with_identity a) l) = #L a (abs l)) ×
-    (∏ m n f (g : stn m → (L n : hSet)), app (f • g) = extended_composition (app f) g) ×
-    (∏ m n f (g : stn m → (L n : hSet)), abs (extended_composition f g) = (abs f) • g).
-
-Definition lambda_theory : UU := ∑ L, is_lambda_theory L.
-
-Coercion lambda_theory_to_lambda_theory_data (L : lambda_theory) : lambda_theory_data := pr1 L.
-
-Definition lambda_theory_app_is_natural
-  {L : lambda_theory}
-  {m n : nat}
-  (a : finite_set_skeleton_category⟦m, n⟧)
-  (l : (L m : hSet))
-  : app (#L a l) = #L (extend_finite_morphism_with_identity a) (app l)
-  := pr12 L m n a l.
-
-Definition lambda_theory_abs_is_natural
-  {L : lambda_theory}
-  {m n : nat}
-  (a : finite_set_skeleton_category⟦m, n⟧)
-  (l : (L (S m) : hSet))
-  : abs (#L (extend_finite_morphism_with_identity a) l) = #L a (abs l)
-  := pr122 L m n a l.
-
-Definition lambda_theory_app_compatible_with_comp
-  {L : lambda_theory}
-  {m n : nat}
-  (f : (L m : hSet))
-  (g : stn m → (L n : hSet))
-  : app (f • g) = extended_composition (app f) g
-  := pr1 (pr222 L) m n f g.
-
-Definition lambda_theory_abs_compatible_with_comp
-  {L : lambda_theory}
-  {m n : nat}
-  (f : (L (S m) : hSet))
-  (g : stn m → (L n : hSet))
-  : abs (extended_composition f g) = (abs f) • g
-  := pr2 (pr222 L) m n f g.
-
-Lemma isaprop_is_lambda_theory
-  (L : lambda_theory_data)
-  : isaprop (is_lambda_theory L).
-Proof.
-  repeat apply isapropdirprod;
-  do 4 (apply impred; intro);
-  apply setproperty.
-Qed.
-
-Definition lambda_theory_morphism
-  (L L' : lambda_theory)
-  : UU
-  := lambda_theory_data_morphism L L' × unit.
-
 (* The category of lambda theories without beta or eta *)
 Definition lambda_theory_disp_cat
   : disp_cat lambda_theory_data_cat
@@ -234,9 +122,3 @@ Section Test.
     exact (λ _ _, idpath _).
   Qed.
 End Test.
-
-Definition has_beta (L : lambda_theory) : UU
-  := ∏ n (l : (L (S n) : hSet)), app (abs l) = l.
-
-Definition has_eta (L : lambda_theory) : UU
-  := ∏ n (l : (L n : hSet)), abs (app l) = l.

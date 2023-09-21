@@ -1,22 +1,31 @@
 FiniteSetSkeleton.v
 Tuples.v
-LambdaCalculus.v
 
 AlgebraicTheories2.v
 AlgebraicTheories.v
 AlgebraicTheoryMorphisms2.v
 AlgebraicTheoryMorphisms.v
 AlgebraicTheoryCategory.v
+
 AlgebraicTheoryAlgebras.v
 AlgebraicTheoryAlgebraMorphisms.v
 AlgebraicTheoryAlgebraCategory.v
 AlgebraicTheoryAlgebraFibration.v
+
+LambdaCalculus.v
+LambdaTheories.v
+LambdaTheoryMorphisms.v
+LambdaTheoryCategory.v
+
 Presheaves.v
 PresheafCategory.v
 
-Examples/OnePointTheory.v
-Examples/ProjectionsTheory.v
 Examples/EndomorphismTheory.v
 Examples/FreeMonoidTheory.v
+Examples/FreeTheory.v
+Examples/LambdaCalculus.v
+Examples/OnePointTheory.v
+Examples/ProjectionsTheory.v
 
+LambdaAlgebraMonoid.v
 AlgebraicTheoryAlgebraWeqEndomorphismTheoryMorphism.v
