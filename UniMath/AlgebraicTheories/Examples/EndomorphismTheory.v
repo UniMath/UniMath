@@ -146,8 +146,8 @@ Section EndomorphismAlgebraicTheory.
     := adjunction_hom_weq (pr2 E) _ _.
 
   Local Definition product_iso (n : nat)
-    : iso (C_finite_products (S n) (λ _, X)) (product_power n)
-    := invweq weq_iso_z_iso (z_iso_between_Product _ _).
+    : z_iso (C_finite_products (S n) (λ _, X)) (product_power n)
+    := z_iso_between_Product _ _.
 
   Definition endomorphism_lambda_theory_data
     : lambda_theory_data.
@@ -155,16 +155,9 @@ Section EndomorphismAlgebraicTheory.
     use make_lambda_theory_data.
     - exact endomorphism_theory.
     - intros n f.
-      pose (f' := f · app).
-      refine (_ · invmap (hom_weq n) f').
-      apply morphism_from_iso.
-      apply product_iso.
+      exact (product_iso n · invmap (hom_weq n) (f · app)).
     - intros n f.
-      refine (_ · abs).
-      apply hom_weq.
-      refine (_ · f).
-      apply inv_from_iso.
-      apply product_iso.
+      exact (hom_weq n (inv_from_z_iso (product_iso n) · f) · abs).
   Defined.
 
   Proposition BinProductArrow_eq
@@ -217,7 +210,6 @@ Section EndomorphismAlgebraicTheory.
     - intros m n f g.
       unfold LambdaTheories.abs, endomorphism_lambda_theory_data, comp'.
       cbn.
-      unfold precomp_with.
       do 2 rewrite assoc.
       rewrite <- φ_adj_natural_precomp.
       cbn.
@@ -228,7 +220,6 @@ Section EndomorphismAlgebraicTheory.
       apply (maponpaths (λ x, x · _)).
       apply ProductArrow_eq.
       intro.
-      do 3 rewrite id_right.
       do 2 rewrite assoc'.
       do 2 rewrite (pow_commutes (S m)).
       set (tmp := (extend_tuple (λ i0, BinProductPr2 _ _ · ProductPr _ _ (C_finite_products n (λ _, X)) i0) _)).
@@ -253,6 +244,7 @@ Section EndomorphismAlgebraicTheory.
         rewrite (pow_commutes 1).
         rewrite (pow_commutes (S n)).
         rewrite bp_commutes_1.
+        rewrite id_right.
         now rewrite extend_tuple_lastelement.
   Qed.
 
@@ -273,8 +265,8 @@ Section EndomorphismAlgebraicTheory.
     cbn -[ProductArrow product_iso].
     rewrite φ_adj_inv_after_φ_adj.
     rewrite assoc.
-    rewrite (idpath _ : ProductArrow _ _ _ _ = morphism_from_iso (product_iso n)).
-    rewrite iso_inv_after_iso.
+    rewrite (idpath _ : ProductArrow _ _ _ _ = product_iso n).
+    rewrite z_iso_inv_after_z_iso.
     apply id_left.
   Qed.
 
@@ -286,8 +278,8 @@ Section EndomorphismAlgebraicTheory.
     unfold LambdaTheories.abs, LambdaTheories.app.
     simpl.
     rewrite assoc.
-    rewrite (idpath _ : ProductArrow _ _ _ _ = morphism_from_iso (product_iso n)).
-    rewrite iso_after_iso_inv.
+    rewrite (idpath _ : ProductArrow _ _ _ _ = product_iso n).
+    rewrite z_iso_after_z_iso_inv.
     rewrite id_left.
     cbn.
     rewrite φ_adj_after_φ_adj_inv.
