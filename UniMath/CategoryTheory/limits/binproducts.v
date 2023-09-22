@@ -34,6 +34,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 
 Local Open Scope cat.
@@ -1481,3 +1482,58 @@ Proof.
          rewrite id_left ;
          apply (BinProductPr2Commutes _ _ _ (make_BinProduct _ _ _ _ _ _ H))).
 Defined.
+
+Section BinProductsFromProducts.
+
+Context {C : category}.
+Context (c d : C).
+
+Local Definition binproduct_indexing_set : UU
+  := coprod unit unit.
+
+Local Definition binproduct_indexed_objects : binproduct_indexing_set → C.
+Proof.
+  intro i.
+  induction i.
+  - exact c.
+  - exact d.
+Defined.
+
+Context (P : Product binproduct_indexing_set C binproduct_indexed_objects).
+
+Definition BinProduct_from_Product
+  : BinProduct _ c d.
+Proof.
+  use ((_ ,, _ ,, _) ,, (λ p' pr1' pr2', ((_ ,, _ ,, _) ,, _))).
+  - exact (ProductObject _ _ P).
+  - exact (ProductPr _ _ P (inl tt)).
+  - exact (ProductPr _ _ P (inr tt)).
+  - apply ProductArrow.
+    intro i.
+    induction i.
+    + exact pr1'.
+    + exact pr2'.
+  - exact (ProductPrCommutes _ _ _ P _ _ (inl tt)).
+  - exact (ProductPrCommutes _ _ _ P _ _ (inr tt)).
+  - abstract (
+      intro t;
+      apply subtypePairEquality';
+      [ apply (ProductArrowUnique _ _ _ P);
+        intro i;
+        induction i as [a | b];
+        [ rewrite (pr2 iscontrunit a);
+          exact (pr12 t)
+        | rewrite (pr2 iscontrunit b);
+          exact (pr22 t) ]
+      | apply isapropdirprod;
+        apply homset_property]
+    ).
+Defined.
+
+End BinProductsFromProducts.
+
+Definition BinProducts_from_Products
+  {C : category}
+  (P : Products (coprod unit unit) C)
+  : BinProducts C
+  := λ c d, BinProduct_from_Product c d (P _).
