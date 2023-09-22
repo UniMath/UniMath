@@ -73,23 +73,23 @@ Section EndomorphismAlgebraicTheory.
   Definition endomorphism_theory : algebraic_theory
     := make_algebraic_theory' _ endomorphism_is_theory'.
 
-  Context (BP : BinProducts C).
+  Context (C_BinProducts : BinProducts C).
 
   Local Definition pow_commutes (n : nat)
     := (ProductPrCommutes _ _ _ (C_finite_products n (λ _, X))).
 
   Local Definition bp_commutes_1 (n : nat)
-    := BinProductPr1Commutes _ _ _ (BP X (C_finite_products n (λ _, X))).
+    := BinProductPr1Commutes _ _ _ (C_BinProducts X (C_finite_products n (λ _, X))).
 
   Local Definition bp_commutes_2 (n : nat)
-    := BinProductPr2Commutes _ _ _ (BP X (C_finite_products n (λ _, X))).
+    := BinProductPr2Commutes _ _ _ (C_BinProducts X (C_finite_products n (λ _, X))).
 
   Definition product_power
     (n : nat)
     : Product (⟦ S n ⟧)%stn C (λ _ : (⟦ S n ⟧)%stn, X).
   Proof.
     use ((_ ,, _) ,, _).
-    - exact (BP X (C_finite_products n (λ _, X))).
+    - exact (C_BinProducts X (C_finite_products n (λ _, X))).
     - simpl.
       use extend_tuple.
       + intro i.
@@ -100,7 +100,7 @@ Section EndomorphismAlgebraicTheory.
       + apply BinProductPr1.
     - intros c' cone'.
       use ((_ ,, _) ,, _); cbn.
-      + use (BinProductArrow _ (BP X _) _ _).
+      + use (BinProductArrow _ (C_BinProducts X _) _ _).
         * exact (cone' lastelement).
         * apply ProductArrow.
           intro i.
@@ -137,7 +137,7 @@ Section EndomorphismAlgebraicTheory.
         ).
   Defined.
 
-  Context (E : is_exponentiable BP X).
+  Context (E : is_exponentiable C_BinProducts X).
   Context (abs : C⟦pr1 E X, X⟧).
   Context (app : C⟦X, pr1 E X⟧).
 
