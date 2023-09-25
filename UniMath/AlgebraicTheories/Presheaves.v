@@ -71,19 +71,19 @@ Definition make_presheaf
   := (pr1 P) ,, (pr2 P) ,, H.
 
 Definition presheaf_is_assoc
-  {T : algebraic_theory}
+  {T : algebraic_theory_data}
   (P : presheaf T)
   : is_assoc P
   := pr122 P.
 
 Definition presheaf_identity_projections
-  {T : algebraic_theory}
+  {T : algebraic_theory_data}
   (P : presheaf T)
   : identity_projections P
   := pr1 (pr222 P).
 
 Definition presheaf_action_is_natural
-  {T : algebraic_theory}
+  {T : algebraic_theory_data}
   (P : presheaf T)
   : action_is_natural P
   := pr2 (pr222 P).
@@ -95,8 +95,50 @@ Proof.
     apply setproperty.
 Qed.
 
+Lemma presheaf_functor_uses_projections
+  {T : algebraic_theory_data}
+  (P : presheaf T)
+  {m n : finite_set_skeleton_category}
+  (a : finite_set_skeleton_category⟦m, n⟧)
+  (x : P m : hSet)
+  : #P a x = action x (λ i, pr (a i)).
+Proof.
+  rewrite <- (presheaf_identity_projections _ _ (#P _ _)).
+  apply presheaf_action_is_natural.
+Qed.
+
 Definition presheaf_morphism {T : algebraic_theory_data} (P P' : presheaf_data T) : UU
   := ∑ (F: P ⟹ P') (HF: ∏ m n a f, F n (action a f) = action (F m a) f), unit.
+
+Definition make_presheaf_morphism
+  {T : algebraic_theory_data}
+  {P P' : presheaf_data T}
+  (F: P ⟹ P')
+  (HF: ∏ m n a f, F n (action a f) = action (F m a) f)
+  : presheaf_morphism P P'
+  := F ,, HF ,, tt.
+
+Definition make_presheaf_morphism'
+  {T : algebraic_theory_data}
+  {P P' : presheaf T}
+  (F: ∏ n, (P n : hSet) → (P' n : hSet))
+  (HF: ∏ m n a f, F n (action a f) = action (F m a) f)
+  : presheaf_morphism P P'.
+Proof.
+  use make_presheaf_morphism.
+  - use make_nat_trans.
+    + exact F.
+    + abstract (
+        intros n n' a;
+        use funextfun;
+        intro x;
+        cbn;
+        rewrite (presheaf_functor_uses_projections P);
+        rewrite (presheaf_functor_uses_projections P');
+        apply HF
+      ).
+  - exact HF.
+Defined.
 
 Coercion presheaf_morphism_to_nat_trans
   {T : algebraic_theory_data}
