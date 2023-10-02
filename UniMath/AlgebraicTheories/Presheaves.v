@@ -147,6 +147,16 @@ Coercion presheaf_morphism_to_nat_trans
   : nat_trans P P'
   := pr1 f.
 
+Definition presheaf_morphism_commutes_with_action
+  {T : algebraic_theory_data}
+  {P P' : presheaf_data T}
+  (F : presheaf_morphism P P')
+  {m n : nat}
+  (t : (P m : hSet))
+  (f : stn m → (T n : hSet))
+  : F n (action t f) = action (F m t) f
+  := pr12 F m n t f.
+
 Lemma presheaf_morphism_eq
   {T : algebraic_theory_data}
   {P P' : presheaf_data T}

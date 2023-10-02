@@ -23,6 +23,7 @@ Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
@@ -221,16 +222,18 @@ Proof.
   apply creates_limit_disp_full_sub.
   - intro.
     apply isaprop_is_presheaf.
-  - use make_is_presheaf;
-      repeat intro;
-      (use total2_paths_f;
-      [ apply funextsec;
-        intro
-      | do 3 (apply impred_isaprop; intro);
-        apply setproperty ]).
-    + apply (pr1 (pr2 (dob d _))).
-    + apply (pr12 (pr2 (dob d _))).
-    + apply (pr22 (pr2 (dob d _))).
+  - abstract (
+      use make_is_presheaf;
+        repeat intro;
+        (use total2_paths_f;
+        [ apply funextsec;
+          intro
+        | do 3 (apply impred_isaprop; intro);
+          apply setproperty ]);
+      [ apply (pr1 (pr2 (dob d _)))
+      | apply (pr12 (pr2 (dob d _)))
+      | apply (pr22 (pr2 (dob d _))) ]
+    ).
 Defined.
 
 Definition creates_limits_unique_presheaf_full_disp_cat
@@ -457,3 +460,110 @@ Section Test.
     apply idpath.
   Qed.
 End Test.
+
+Lemma presheaf_mor_comp
+  {T : algebraic_theory}
+  {P P' P'' : presheaf_cat T}
+  (F : presheaf_cat T⟦P, P'⟧)
+  (F' : presheaf_cat T⟦P', P''⟧)
+  (n : nat)
+  : pr11 (F · F') n = (pr11 F n) · (pr11 F' n).
+Proof.
+  refine (maponpaths (λ z, pr1 z _) (pr1_transportf (B := λ _, _ ⟹ _) _ _) @ _).
+  refine (maponpaths (λ z, pr1 (z _) _) (transportf_const _ _) @ _).
+  exact (maponpaths (λ z, pr1 (z _) _) (transportf_const _ _)).
+Qed.
+
+Definition TODO {A : UU} : A.
+Admitted.
+
+Definition bin_products_presheaf_cat
+  (T : algebraic_theory)
+  : BinProducts (presheaf_cat T).
+Proof.
+  refine (λ (P P': presheaf T), _).
+  use make_BinProduct.
+  - use make_presheaf'.
+    + use make_presheaf_data'.
+      (* Define the underlying set as the product *)
+      * exact (λ n, dirprod_hSet (P n) (P' n)).
+      (* Define the action on the product *)
+      * exact (λ m n t f, (action (pr1 t) f ,, action (pr2 t) f)).
+    + apply TODO.
+  (* Projection on the first coordinate *)
+  - use (make_presheaf_morphism' (P := make_presheaf' _ _)).
+    + intro n.
+      exact pr1.
+    + abstract trivial.
+  (* Projection on the second coordinate *)
+  - use (make_presheaf_morphism' (P := make_presheaf' _ _)).
+    + intro n.
+      exact pr2.
+    + abstract trivial.
+  - use make_isBinProduct.
+    + refine (λ (Q : presheaf T) (F: presheaf_morphism Q P) (F' : presheaf_morphism Q P'), _).
+      use make_iscontr.
+      * use tpair.
+        (* The arrow stemming from the universal property *)
+        -- use (make_presheaf_morphism' (P' := make_presheaf' _ _)).
+          ++ intros n t.
+            exact (F _ t ,, F' _ t).
+          ++ abstract (
+            intros m n t f;
+            apply pathsdirprod;
+              apply presheaf_morphism_commutes_with_action ).
+        -- apply TODO.
+        (* split;
+            apply displayed_presheaf_morphism_eq;
+            apply (nat_trans_eq (homset_property HSET));
+            intro n;
+            exact (presheaf_mor_comp _ _ _). *)
+      * apply TODO.
+Defined.
+
+Definition products_presheaf_cat
+  (T : algebraic_theory)
+  (I : UU)
+  : Products I (presheaf_cat T).
+Proof.
+  refine (λ (P : I → presheaf T), _).
+  use make_Product.
+  - use make_presheaf'.
+    + use make_presheaf_data'.
+      (* Define the underlying set as the product *)
+      * intro n.
+        use make_hSet.
+        -- exact (∏ i, P i n : hSet).
+        -- apply TODO.
+      (* Define the action on the product *)
+      * exact (λ m n t f i, action (t i) f).
+    + apply TODO.
+  (* Projection on the first coordinate *)
+  - intro i.
+    use (make_presheaf_morphism' (P := make_presheaf' _ _)).
+    + exact (λ n t, t i).
+    + abstract trivial.
+  (* Projection on the second coordinate *)
+  - use make_isProduct.
+    + apply homset_property.
+    + intros Q F.
+      use make_iscontr.
+      * use tpair.
+        (* The arrow stemming from the universal property *)
+        -- use (make_presheaf_morphism' (P' := make_presheaf' _ _)).
+          ++ intros n t.
+            exact (λ i, (F i : presheaf_morphism (Q : presheaf T) (P i)) n t).
+          ++ abstract (
+              intros;
+              apply funextsec;
+              intro;
+              apply presheaf_morphism_commutes_with_action
+            ).
+        -- apply TODO.
+        (* split;
+            apply displayed_presheaf_morphism_eq;
+            apply (nat_trans_eq (homset_property HSET));
+            intro n;
+            exact (presheaf_mor_comp _ _ _). *)
+      * apply TODO.
+Defined.

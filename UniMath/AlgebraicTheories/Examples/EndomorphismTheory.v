@@ -14,6 +14,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
@@ -26,17 +27,163 @@ Require Import UniMath.AlgebraicTheories.Tuples.
 
 Local Open Scope cat.
 
+Definition Terminal_is_empty_product
+  {C : category}
+  (T : Terminal C)
+  (c : stn 0 → C)
+  : Product (stn 0) C c.
+Proof.
+  use make_Product.
+  - exact (TerminalObject T).
+  - abstract (
+      intro i;
+      apply fromempty;
+      exact (negnatlthn0 _ (stnlt i))
+    ).
+  - use make_isProduct.
+    + apply homset_property.
+    + intros.
+      use make_iscontr.
+      * use tpair.
+        -- apply (TerminalArrow T).
+        -- abstract (
+            intro i;
+            apply fromempty;
+            exact (negnatlthn0 _ (stnlt i))
+          ).
+      * abstract (
+          intro t;
+          use subtypePairEquality;
+          [ intro i;
+            apply impred_isaprop;
+            intro;
+            apply homset_property
+          | apply (TerminalArrowUnique T) ]
+        ).
+Defined.
+
+Lemma stn_eq
+  {n : nat}
+  (i i' : stn n)
+  (H : pr1 i = pr1 i')
+  : i = i'.
+Proof.
+  use subtypePath.
+  - intro.
+    apply isasetbool.
+  - exact H.
+Qed.
+
+Definition eqstnweq
+  {n n' : nat}
+  (H : n = n')
+  : stn n ≃ stn n'.
+Proof.
+  use weq_iso.
+  - intro i.
+    refine (make_stn _ i _).
+    abstract exact (transportf (λ x, i < x) H (stnlt i)).
+  - intro i.
+    refine (make_stn _ i _).
+    abstract exact (transportf (λ x, i < x) (!H) (stnlt i)).
+  - abstract (intro i; now apply stn_eq).
+  - abstract (intro i; now apply stn_eq).
+Defined.
+
+Local Definition stnweq {n : nat}
+  : stn n ⨿ stn 1 ≃ stn (1 + n)
+  := ((eqstnweq (natpluscomm _ _)) ∘ (weqfromcoprodofstn n 1))%weq.
+
+Definition n_power_to_sn_power
+  {C : category}
+  (BP : BinProducts C)
+  (n : nat)
+  (c : C)
+  (P : Product (stn n) C (λ _, c))
+  : Product (stn (S n)) C (λ _, c).
+Proof.
+  use ((_ ,, _) ,, _).
+  - exact (BP c P).
+  - intro i.
+    induction (invmap stnweq i) as [i' | i'].
+    + exact (
+        BinProductPr2 _ _ ·
+        ProductPr _ _ _ i'
+      ).
+    + apply BinProductPr1.
+  - intros c' cone'.
+    use ((_ ,, _) ,, _).
+    + use BinProductArrow.
+      * apply (cone' (stnweq (inr firstelement))).
+      * apply ProductArrow.
+        intro i.
+        apply (cone' (stnweq (inl i))).
+    + abstract (
+        intro i;
+        refine (_ @ maponpaths _ (homotweqinvweq stnweq i));
+        simpl;
+        induction (invmap (Y := stn (S n)) stnweq i) as [i' | i'];
+        [ simpl;
+          rewrite assoc;
+          rewrite BinProductPr2Commutes;
+          apply (ProductPrCommutes _ _ _ P)
+        | rewrite (BinProductPr1Commutes _ _ _ (BP c P));
+          apply maponpaths;
+          apply stn_eq;
+          apply (maponpaths (add n));
+          exact (!natlth1tois0 _ (stnlt i')) ]
+      ).
+    + abstract (
+        intro t;
+        apply subtypePairEquality;
+        [ intro;
+          apply impred_isaprop;
+          intro;
+          apply homset_property
+        | apply BinProductArrowUnique;
+          [ refine (!_ @ pr2 t _);
+            apply maponpaths;
+            exact (maponpaths _ (homotinvweqweq _ _))
+          | apply ProductArrowUnique;
+            intro i;
+            refine (_ @ pr2 t _);
+            refine (assoc' _ _ _ @ _);
+            refine (maponpaths _ (!_));
+            exact (maponpaths _ (homotinvweqweq _ _)) ] ]
+      ).
+Defined.
+
+Definition bin_product_power
+  (C : category)
+  (c : C)
+  (T : Terminal C)
+  (BP : BinProducts C)
+  (n : nat)
+  : Product (stn n) C (λ _, c).
+Proof.
+  induction n.
+  - exact (Terminal_is_empty_product T _).
+  - apply (n_power_to_sn_power BP _ _ IHn).
+Defined.
+
 Section EndomorphismAlgebraicTheory.
 
   Context {C : category}.
-  Context (C_finite_products : finite_products C).
+  Context (C_terminal : Terminal C).
+  Context (C_bin_products : BinProducts C).
+
   Variable (X : C).
+
+  Definition power
+    (n : nat)
+    : Product (stn n) C (λ _, X)
+    := bin_product_power C X C_terminal C_bin_products n.
 
   Definition endomorphism_theory'_data : algebraic_theory'_data.
   Proof.
     use make_algebraic_theory'_data.
     - intro n.
-      pose (power := ProductObject _ _ (C_finite_products n (λ _, X))).
+      pose (power := ProductObject _ _ (power n)).
       exact (homset power X).
     - intro.
       apply ProductPr.
@@ -73,81 +220,22 @@ Section EndomorphismAlgebraicTheory.
   Definition endomorphism_theory : algebraic_theory
     := make_algebraic_theory' _ endomorphism_is_theory'.
 
-  Context (C_BinProducts : BinProducts C).
-
   Local Definition pow_commutes (n : nat)
-    := (ProductPrCommutes _ _ _ (C_finite_products n (λ _, X))).
+    := (ProductPrCommutes _ _ _ (power n)).
 
   Local Definition bp_commutes_1 (n : nat)
-    := BinProductPr1Commutes _ _ _ (C_BinProducts X (C_finite_products n (λ _, X))).
+    := BinProductPr1Commutes _ _ _ (C_bin_products X (power n)).
 
   Local Definition bp_commutes_2 (n : nat)
-    := BinProductPr2Commutes _ _ _ (C_BinProducts X (C_finite_products n (λ _, X))).
+    := BinProductPr2Commutes _ _ _ (C_bin_products X (power n)).
 
-  Definition product_power
-    (n : nat)
-    : Product (⟦ S n ⟧)%stn C (λ _ : (⟦ S n ⟧)%stn, X).
-  Proof.
-    use ((_ ,, _) ,, _).
-    - exact (C_BinProducts X (C_finite_products n (λ _, X))).
-    - simpl.
-      use extend_tuple.
-      + intro i.
-        exact (
-          (BinProductPr2 _ _) ·
-          (ProductPr _ _ _ i)
-        ).
-      + apply BinProductPr1.
-    - intros c' cone'.
-      use ((_ ,, _) ,, _); cbn.
-      + use (BinProductArrow _ (C_BinProducts X _) _ _).
-        * exact (cone' lastelement).
-        * apply ProductArrow.
-          intro i.
-          exact (cone' (dni lastelement i)).
-      + abstract (
-          intro i;
-          unfold extend_tuple;
-          refine (_ @ maponpaths _ (homotweqinvweq (weqdnicoprod n lastelement) i));
-          simpl;
-          induction (invmap (weqdnicoprod n lastelement) i);
-          [ simpl;
-            rewrite assoc;
-            rewrite bp_commutes_2;
-            apply pow_commutes
-          | apply bp_commutes_1 ]
-        ).
-      + abstract (
-          intro t;
-          apply subtypePairEquality';
-          [ apply BinProductArrowUnique;
-            [ refine (!_ @ pr2 t lastelement);
-              apply maponpaths;
-              apply extend_tuple_lastelement
-            | apply ProductArrowUnique;
-              intro i;
-              rewrite <- (pr2 t (dni lastelement i));
-              rewrite assoc';
-              apply maponpaths;
-              rewrite replace_dni_last;
-              now rewrite extend_tuple_dni_lastelement]
-          | apply impred_isaprop;
-            intro;
-            apply homset_property ]
-        ).
-  Defined.
-
-  Context (E : is_exponentiable C_BinProducts X).
+  Context (E : is_exponentiable C_bin_products X).
   Context (abs : C⟦pr1 E X, X⟧).
   Context (app : C⟦X, pr1 E X⟧).
 
   Local Definition hom_weq (n: nat)
-    : C⟦product_power n, X⟧ ≃ C⟦(C_finite_products n (λ _, X)), pr1 E X⟧
-    := adjunction_hom_weq (pr2 E) _ _.
-
-  Local Definition product_iso (n : nat)
-    : z_iso (C_finite_products (S n) (λ _, X)) (product_power n)
-    := z_iso_between_Product _ _.
+    : C⟦power (S n), X⟧ ≃ C⟦power n, pr1 E X⟧
+    := adjunction_hom_weq (pr2 E) (power n) X.
 
   Definition endomorphism_lambda_theory_data
     : lambda_theory_data.
@@ -155,9 +243,9 @@ Section EndomorphismAlgebraicTheory.
     use make_lambda_theory_data.
     - exact endomorphism_theory.
     - intros n f.
-      exact (product_iso n · invmap (hom_weq n) (f · app)).
+      exact (invmap (hom_weq n) (f · app)).
     - intros n f.
-      exact (hom_weq n (inv_from_z_iso (product_iso n) · f) · abs).
+      exact (hom_weq n f · abs).
   Defined.
 
   Proposition BinProductArrow_eq
@@ -178,74 +266,85 @@ Section EndomorphismAlgebraicTheory.
   Proof.
     use make_is_lambda_theory'; simpl.
     - intros m n f g.
-      unfold LambdaTheories.app, endomorphism_lambda_theory_data.
-      simpl.
-      cbn.
-      rewrite assoc'.
-      rewrite φ_adj_inv_natural_precomp.
-      simpl.
-      do 2 rewrite assoc.
+      refine (maponpaths _ (assoc' _ _ _) @ _).
+      refine (φ_adj_inv_natural_precomp (pr2 E) _ _ _ _ _ @ _).
       apply (maponpaths (λ x, x · _)).
-      unfold BinProduct_of_functors_mor, BinProductOfArrows.
       apply BinProductArrow_eq.
-      * cbn.
-        do 2 rewrite assoc'.
-        rewrite id_right.
-        do 2 rewrite (bp_commutes_1 m).
-        rewrite (bp_commutes_1 n).
-        rewrite pow_commutes.
-        rewrite extend_tuple_lastelement.
-        now rewrite pow_commutes.
-      * cbn.
-        do 2 rewrite replace_dni_last.
-        do 2 rewrite assoc'.
+      + refine (bp_commutes_1 _ _ _ _ @ _).
+        refine (id_right _ @ !_).
+        refine (bp_commutes_1 _ _ _ _ @ _).
+        refine (maponpaths _ (_ : _ = inr tt) @ _).
+        {
+          apply invmap_eq.
+          apply stn_eq.
+          apply natplusr0.
+        }
+        refine (bp_commutes_1 _ _ _ _ @ _).
+        refine (maponpaths _ (_ : _ = inr firstelement)).
+        apply invmap_eq.
+        apply stn_eq.
+        exact (!natplusr0 _).
+      + do 2 refine (bp_commutes_2 _ _ _ _ @ !_).
         apply ProductArrow_eq.
-        intro.
-        rewrite (bp_commutes_2 m).
-        rewrite assoc.
-        do 2 rewrite bp_commutes_2.
-        do 2 rewrite assoc'.
-        do 4 rewrite pow_commutes.
-        now rewrite extend_tuple_dni_lastelement.
+        intro i.
+        refine (assoc' _ _ _ @ _).
+        refine (maponpaths _ (pow_commutes _ _ _ _) @ !_).
+        refine (pow_commutes _ _ _ _ @ _).
+        refine (maponpaths _ (_ : _ = inl i) @ _).
+        {
+          apply invmap_eq.
+          apply stn_eq.
+          exact (!di_eq1 (stnlt i)).
+        }
+        apply (maponpaths (λ x, x · _)).
+        apply ProductArrow_eq.
+        intro j.
+        refine (pow_commutes _ _ _ _ @ _).
+        refine (maponpaths _ (_ : _ = inl j)).
+        apply invmap_eq.
+        now apply stn_eq.
     - intros m n f g.
-      unfold LambdaTheories.abs, endomorphism_lambda_theory_data, comp'.
-      cbn.
-      do 2 rewrite assoc.
-      rewrite <- φ_adj_natural_precomp.
-      cbn.
-      unfold BinProduct_of_functors_mor, BinProductOfArrows.
-      cbn.
-      apply (maponpaths (λ x, _ (x) · _)).
-      rewrite assoc.
-      apply (maponpaths (λ x, x · _)).
+      refine (_ @ assoc' _ _ _).
+      refine (_ @ maponpaths (λ x, x · _) (φ_adj_natural_precomp (pr2 E) _ _ _ _ _)).
+      apply (maponpaths (λ x, _ (x · _) · _)).
       apply ProductArrow_eq.
       intro.
-      do 2 rewrite assoc'.
-      do 2 rewrite (pow_commutes (S m)).
-      set (tmp := (extend_tuple (λ i0, BinProductPr2 _ _ · ProductPr _ _ (C_finite_products n (λ _, X)) i0) _)).
-      unfold extend_tuple.
-      induction (idpath _ : extend_tuple _ _ = tmp).
+      refine (pow_commutes _ _ _ _ @ !_).
+      unfold ProductPr.
+      refine (_ @ maponpaths _ (homotweqinvweq stnweq i)).
       simpl.
-      induction (invmap (weqdnicoprod m lastelement) i).
-      + cbn.
-        do 2 rewrite assoc.
-        rewrite bp_commutes_2.
-        do 2 rewrite assoc'.
-        rewrite (pow_commutes m).
-        rewrite assoc.
+      induction (invmap (Y := stn (S m)) stnweq i).
+      + refine (assoc _ _ _ @ _).
+        refine (maponpaths (λ x, x · _) (bp_commutes_2 _ _ _ _) @ _).
+        refine (assoc' _ _ _ @ _).
+        refine (maponpaths (λ x, _ · x) (pow_commutes _ _ _ _) @ !_).
+        refine (maponpaths _ (_ : _ = inl a) @ _).
+        {
+          apply invmap_eq.
+          apply stn_eq.
+          exact (!di_eq1 (stnlt a)).
+        }
         apply (maponpaths (λ x, x · _)).
         apply ProductArrow_eq.
         intro.
-        rewrite assoc'.
-        rewrite (pow_commutes n).
-        rewrite (pow_commutes (S n)).
-        now rewrite extend_tuple_dni_lastelement.
-      + cbn.
-        rewrite (pow_commutes 1).
-        rewrite (pow_commutes (S n)).
-        rewrite bp_commutes_1.
-        rewrite id_right.
-        now rewrite extend_tuple_lastelement.
+        refine (pow_commutes _ _ _ _ @ _).
+        refine (maponpaths _ (_ : _ = inl i0)).
+        apply invmap_eq.
+        now apply stn_eq.
+      + refine (bp_commutes_1 _ _ _ _ @ _).
+        refine (id_right _ @ !_).
+        refine (maponpaths _ (_ : _ = inr tt) @ _).
+        {
+          apply invmap_eq.
+          apply stn_eq.
+          refine (maponpaths _ _ @ natplusr0 _).
+          exact (natlth1tois0 _ (stnlt b)).
+        }
+        refine (bp_commutes_1 _ _ _ _ @ _).
+        refine (maponpaths _ (_ : _ = inr firstelement)).
+        apply invmap_eq.
+        apply stn_eq.
+        exact (!natplusr0 _).
   Qed.
 
   Definition endomorphism_lambda_theory
@@ -262,12 +361,7 @@ Section EndomorphismAlgebraicTheory.
     rewrite assoc'.
     rewrite app_after_abs.
     rewrite id_right.
-    cbn -[ProductArrow product_iso].
-    rewrite φ_adj_inv_after_φ_adj.
-    rewrite assoc.
-    rewrite (idpath _ : ProductArrow _ _ _ _ = product_iso n).
-    rewrite z_iso_inv_after_z_iso.
-    apply id_left.
+    apply (φ_adj_inv_after_φ_adj (pr2 E)).
   Qed.
 
   Lemma endomorphism_theory_has_eta
@@ -276,11 +370,6 @@ Section EndomorphismAlgebraicTheory.
   Proof.
     intros n l.
     unfold LambdaTheories.abs, LambdaTheories.app.
-    simpl.
-    rewrite assoc.
-    rewrite (idpath _ : ProductArrow _ _ _ _ = product_iso n).
-    rewrite z_iso_after_z_iso_inv.
-    rewrite id_left.
     cbn.
     rewrite φ_adj_after_φ_adj_inv.
     rewrite assoc'.
@@ -289,8 +378,8 @@ Section EndomorphismAlgebraicTheory.
   Qed.
 
 End EndomorphismAlgebraicTheory.
-
+(*
 Definition set_endomorphism_theory
   (X : hSet)
   : algebraic_theory
-  := endomorphism_theory (λ n, ProductsHSET (stn n)) (X : ob HSET).
+  := endomorphism_theory (λ n, ProductsHSET (stn n)) (X : ob HSET). *)

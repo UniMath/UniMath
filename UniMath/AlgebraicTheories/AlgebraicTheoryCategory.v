@@ -306,17 +306,19 @@ Definition creates_limits_algebraic_theory_disp_cat
 Proof.
   apply creates_limit_disp_full_sub.
   - apply isaprop_is_algebraic_theory.
-  - use make_is_algebraic_theory;
-      repeat intro;
-      (use total2_paths_f;
-      [ apply funextsec;
-        intro
-      | do 3 (apply impred_isaprop; intro);
-        apply setproperty ]).
-    + apply algebraic_theory_comp_is_assoc.
-    + apply (algebraic_theory_comp_is_unital _ _ (pr1 f _)).
-    + apply algebraic_theory_comp_identity_projections.
-    + apply algebraic_theory_comp_is_natural_l.
+  - abstract (
+      use make_is_algebraic_theory;
+        repeat intro;
+        (use total2_paths_f;
+        [ apply funextsec;
+          intro
+        | do 3 (apply impred_isaprop; intro);
+          apply setproperty ]);
+      [ apply algebraic_theory_comp_is_assoc
+      | apply (algebraic_theory_comp_is_unital _ _ (pr1 f _))
+      | apply algebraic_theory_comp_identity_projections
+      | apply algebraic_theory_comp_is_natural_l ]
+    ).
 Defined.
 
 Definition algebraic_theory_cat
