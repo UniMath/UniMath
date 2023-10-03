@@ -62,38 +62,6 @@ Proof.
         ).
 Defined.
 
-Lemma stn_eq
-  {n : nat}
-  (i i' : stn n)
-  (H : pr1 i = pr1 i')
-  : i = i'.
-Proof.
-  use subtypePath.
-  - intro.
-    apply isasetbool.
-  - exact H.
-Qed.
-
-Definition eqstnweq
-  {n n' : nat}
-  (H : n = n')
-  : stn n ≃ stn n'.
-Proof.
-  use weq_iso.
-  - intro i.
-    refine (make_stn _ i _).
-    abstract exact (transportf (λ x, i < x) H (stnlt i)).
-  - intro i.
-    refine (make_stn _ i _).
-    abstract exact (transportf (λ x, i < x) (!H) (stnlt i)).
-  - abstract (intro i; now apply stn_eq).
-  - abstract (intro i; now apply stn_eq).
-Defined.
-
-Local Definition stnweq {n : nat}
-  : stn n ⨿ stn 1 ≃ stn (1 + n)
-  := ((eqstnweq (natpluscomm _ _)) ∘ (weqfromcoprodofstn n 1))%weq.
-
 Definition n_power_to_sn_power
   {C : category}
   (BP : BinProducts C)
@@ -114,7 +82,7 @@ Proof.
   - intros c' cone'.
     use ((_ ,, _) ,, _).
     + use BinProductArrow.
-      * apply (cone' (stnweq (inr firstelement))).
+      * apply (cone' (stnweq (inr tt))).
       * apply ProductArrow.
         intro i.
         apply (cone' (stnweq (inl i))).
@@ -129,9 +97,7 @@ Proof.
           apply (ProductPrCommutes _ _ _ P)
         | rewrite (BinProductPr1Commutes _ _ _ (BP c P));
           apply maponpaths;
-          apply stn_eq;
-          apply (maponpaths (add n));
-          exact (!natlth1tois0 _ (stnlt i')) ]
+          now apply stn_eq ]
       ).
     + abstract (
         intro t;
@@ -273,36 +239,24 @@ Section EndomorphismAlgebraicTheory.
       + refine (bp_commutes_1 _ _ _ _ @ _).
         refine (id_right _ @ !_).
         refine (bp_commutes_1 _ _ _ _ @ _).
-        refine (maponpaths _ (_ : _ = inr tt) @ _).
-        {
-          apply invmap_eq.
-          apply stn_eq.
-          apply natplusr0.
-        }
+        refine (maponpaths _ (homotinvweqweq _ _) @ _).
         refine (bp_commutes_1 _ _ _ _ @ _).
-        refine (maponpaths _ (_ : _ = inr firstelement)).
-        apply invmap_eq.
-        apply stn_eq.
-        exact (!natplusr0 _).
+        refine (maponpaths _ (_ : _ = inr tt)).
+        now apply invmap_eq.
       + do 2 refine (bp_commutes_2 _ _ _ _ @ !_).
         apply ProductArrow_eq.
         intro i.
         refine (assoc' _ _ _ @ _).
         refine (maponpaths _ (pow_commutes _ _ _ _) @ !_).
         refine (pow_commutes _ _ _ _ @ _).
-        refine (maponpaths _ (_ : _ = inl i) @ _).
-        {
-          apply invmap_eq.
-          apply stn_eq.
-          exact (!di_eq1 (stnlt i)).
-        }
+        refine (maponpaths _ (homotinvweqweq _ _) @ _).
         apply (maponpaths (λ x, x · _)).
         apply ProductArrow_eq.
         intro j.
         refine (pow_commutes _ _ _ _ @ _).
         refine (maponpaths _ (_ : _ = inl j)).
         apply invmap_eq.
-        now apply stn_eq.
+        exact (!eqtohomot (replace_dni_last _) j).
     - intros m n f g.
       refine (_ @ assoc' _ _ _).
       refine (_ @ maponpaths (λ x, x · _) (φ_adj_natural_precomp (pr2 E) _ _ _ _ _)).
@@ -318,33 +272,19 @@ Section EndomorphismAlgebraicTheory.
         refine (maponpaths (λ x, x · _) (bp_commutes_2 _ _ _ _) @ _).
         refine (assoc' _ _ _ @ _).
         refine (maponpaths (λ x, _ · x) (pow_commutes _ _ _ _) @ !_).
-        refine (maponpaths _ (_ : _ = inl a) @ _).
-        {
-          apply invmap_eq.
-          apply stn_eq.
-          exact (!di_eq1 (stnlt a)).
-        }
+        refine (maponpaths _ (homotinvweqweq _ (inl a)) @ _).
         apply (maponpaths (λ x, x · _)).
         apply ProductArrow_eq.
         intro.
         refine (pow_commutes _ _ _ _ @ _).
         refine (maponpaths _ (_ : _ = inl i0)).
         apply invmap_eq.
-        now apply stn_eq.
+        exact (!eqtohomot (replace_dni_last _) i0).
       + refine (bp_commutes_1 _ _ _ _ @ _).
         refine (id_right _ @ !_).
-        refine (maponpaths _ (_ : _ = inr tt) @ _).
-        {
-          apply invmap_eq.
-          apply stn_eq.
-          refine (maponpaths _ _ @ natplusr0 _).
-          exact (natlth1tois0 _ (stnlt b)).
-        }
+        refine (maponpaths _ (homotinvweqweq _ (inr tt)) @ _).
         refine (bp_commutes_1 _ _ _ _ @ _).
-        refine (maponpaths _ (_ : _ = inr firstelement)).
-        apply invmap_eq.
-        apply stn_eq.
-        exact (!natplusr0 _).
+        refine (maponpaths _ (homotinvweqweq _ (inr tt))).
   Qed.
 
   Definition endomorphism_lambda_theory
@@ -378,8 +318,8 @@ Section EndomorphismAlgebraicTheory.
   Qed.
 
 End EndomorphismAlgebraicTheory.
-(*
+
 Definition set_endomorphism_theory
   (X : hSet)
   : algebraic_theory
-  := endomorphism_theory (λ n, ProductsHSET (stn n)) (X : ob HSET). *)
+  := endomorphism_theory (TerminalHSET) BinProductsHSET (X : ob HSET).

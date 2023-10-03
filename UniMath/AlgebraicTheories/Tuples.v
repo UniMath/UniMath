@@ -2,6 +2,38 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
+Lemma stn_eq
+  {n : nat}
+  (i i' : stn n)
+  (H : pr1 i = pr1 i')
+  : i = i'.
+Proof.
+  use subtypePath.
+  - intro.
+    apply isasetbool.
+  - exact H.
+Qed.
+
+Definition eqstnweq
+  {n n' : nat}
+  (H : n = n')
+  : stn n ≃ stn n'.
+Proof.
+  use weq_iso.
+  - intro i.
+    refine (make_stn _ i _).
+    abstract exact (transportf (λ x, i < x) H (stnlt i)).
+  - intro i.
+    refine (make_stn _ i _).
+    abstract exact (transportf (λ x, i < x) (!H) (stnlt i)).
+  - abstract (intro i; now apply stn_eq).
+  - abstract (intro i; now apply stn_eq).
+Defined.
+
+Definition stnweq {n : nat}
+  : stn n ⨿ unit ≃ stn (1 + n)
+  := weqdnicoprod _ lastelement.
+
 Definition extend_tuple
   {T : UU}
   {n : nat}
@@ -10,7 +42,7 @@ Definition extend_tuple
   : stn (S n) → T.
 Proof.
   intro i.
-  induction (invweq (weqdnicoprod _ lastelement) i) as [a | ].
+  induction (invmap stnweq i) as [a | ].
   - exact (f a).
   - exact last.
 Defined.
@@ -27,7 +59,7 @@ Definition extend_tuple_dep
 Proof.
   intro i.
   unfold extend_tuple.
-  induction (invweq (weqdnicoprod _ lastelement) i) as [a | ].
+  induction (invmap stnweq i) as [a | ].
   - exact (af a).
   - exact alast.
 Defined.
@@ -58,7 +90,7 @@ Lemma extend_tuple_i
   : extend_tuple f last (i ,, Hi1) = f (make_stn _ i Hi2).
 Proof.
   unfold extend_tuple.
-  assert (H : invweq (weqdnicoprod n lastelement) (i ,, Hi1) = inl (make_stn _ i Hi2)); [ | now rewrite H].
+  refine (maponpaths _ (_ : invmap stnweq (i ,, Hi1) = inl (make_stn _ i Hi2))).
   apply (invmaponpathsweq (weqdnicoprod n lastelement)).
   refine (homotweqinvweq _ _ @ _).
   apply subtypePairEquality.
@@ -80,7 +112,7 @@ Lemma extend_tuple_last
   : extend_tuple f last i = last.
 Proof.
   unfold extend_tuple.
-  assert (H : invweq (weqdnicoprod n lastelement) i = inr tt); [ | now rewrite H].
+  refine (maponpaths _ (_ : invmap stnweq i = inr tt)).
   apply (invmaponpathsweq (weqdnicoprod n lastelement)).
   refine (homotweqinvweq _ _ @ _).
   apply subtypePairEquality.
@@ -122,8 +154,9 @@ Lemma extend_tuple_eq
 Proof.
   apply funextfun.
   intro i.
-  refine ((idpath _ : (_ = coprod_rect _ _ _ (invmap _ _))) @ _ @ maponpaths g (homotweqinvweq (weqdnicoprod n lastelement) i)).
-  induction (invmap (weqdnicoprod n lastelement) i).
+  unfold extend_tuple.
+  refine (_ @ maponpaths g (homotweqinvweq stnweq i)).
+  induction (invmap stnweq i).
   - exact (Hf a @ maponpaths (λ x, g (x a)) (!replace_dni_last _)).
   - exact Hlast.
 Qed.
