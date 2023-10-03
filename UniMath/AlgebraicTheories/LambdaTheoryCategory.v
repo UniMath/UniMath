@@ -7,14 +7,18 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
+Require Import UniMath.CategoryTheory.DisplayedCats.Limits.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 
+Require Import UniMath.AlgebraicTheories.Tuples.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
@@ -69,9 +73,69 @@ Proof.
     apply setproperty.
 Qed.
 
+Section Limits.
+
+  Context (D := lambda_theory_data_disp_cat).
+  Context {J : graph}.
+  Context (d : diagram J (total_category D)).
+  Context (L := limits_algebraic_theory_cat J (mapdiagram (pr1_category _) d)).
+
+  Definition tip_lambda_theory_data_disp_cat
+    : D (lim L).
+  Proof.
+    split;
+      intros n f;
+      (use tpair;
+        [intro u | ]).
+      * exact (pr12 (dob d u) _ (pr1 f u)).
+      * abstract exact (λ u v e, pr12 (dmor d e) _ _ @ maponpaths _ (pr2 f _ _ _)).
+      * exact (pr22 (dob d u) _ (pr1 f u)).
+      * abstract exact (λ u v e, pr22 (dmor d e) _ _ @ maponpaths _ (pr2 f _ _ _)).
+  Defined.
+
+  Lemma cone_lambda_theory_data_disp_cat
+    (j : vertex J)
+    : tip_lambda_theory_data_disp_cat -->[limOut L j] pr2 (dob d j).
+  Proof.
+    easy.
+  Qed.
+
+  Lemma is_limit_lambda_theory_data_disp_cat
+    (d' : total_category D)
+    (cone_out : ∏ u, d' --> (dob d u))
+    (is_cone : ∏ u v e, cone_out u · (dmor d e) = cone_out v)
+    : pr2 d' -->[limArrow L _ (make_cone (d := (mapdiagram (pr1_category D) d)) _ (λ u v e, (maponpaths pr1 (is_cone u v e)))) ] tip_lambda_theory_data_disp_cat.
+  Proof.
+    split;
+      intros n f;
+      (apply subtypePath;
+        [ intro;
+          repeat (apply impred_isaprop; intro);
+          apply setproperty | ]);
+      apply funextsec;
+      intro i.
+    - exact (pr12 (cone_out i) n f).
+    - exact (pr22 (cone_out i) n f).
+  Qed.
+
+End Limits.
+
+Definition creates_limits_lambda_theory_data_disp_cat
+  {J : graph}
+  (d : diagram J _)
+  : creates_limit lambda_theory_data_disp_cat d (limits_algebraic_theory_cat _ _)
+  := creates_limit_disp_struct _
+    (tip_lambda_theory_data_disp_cat _)
+    (cone_lambda_theory_data_disp_cat _)
+    (is_limit_lambda_theory_data_disp_cat _).
+
 Definition lambda_theory_data_cat
   : category
   := total_category lambda_theory_data_disp_cat.
+
+Definition limits_lambda_theory_data_cat
+  : Lims lambda_theory_data_cat
+  := λ _ _, total_limit _ _ (creates_limits_lambda_theory_data_disp_cat _).
 
 Lemma is_univalent_lambda_theory_data_cat
   : is_univalent lambda_theory_data_cat.
@@ -102,6 +166,43 @@ Proof.
   exact isaprop_is_lambda_theory.
 Qed.
 
+Definition creates_limits_lambda_theory_disp_cat
+  {J : graph}
+  (d : diagram J _)
+  : creates_limit lambda_theory_disp_cat d (limits_lambda_theory_data_cat _ _).
+Proof.
+  use creates_limit_disp_full_sub.
+  - intro.
+    repeat apply isapropdirprod;
+    repeat (apply impred_isaprop; intro);
+    apply setproperty.
+  - abstract (
+      use make_is_lambda_theory';
+      intros m n f g;
+      (use subtypePath;
+        [ intro;
+          repeat (apply impred_isaprop; intro);
+          apply setproperty
+        | apply funextsec;
+          intro u ]);
+      [ refine (lambda_theory_app_compatible_with_comp _ _ @ _);
+        unfold extended_composition;
+        apply (maponpaths (comp (_ (pr1 f u))));
+        apply extend_tuple_eq;
+        [ intro i;
+          now rewrite extend_tuple_dni_lastelement
+        | now rewrite extend_tuple_lastelement ]
+      | refine (!_ @ lambda_theory_abs_compatible_with_comp _ _);
+        unfold extended_composition;
+        apply (maponpaths (λ x, abs (comp (pr1 f u) x)));
+        apply extend_tuple_eq;
+        [ intro i;
+          now rewrite extend_tuple_dni_lastelement
+        | now rewrite extend_tuple_lastelement ]
+      ]
+      ).
+Defined.
+
 Definition lambda_theory_cat
   : category
   := total_category lambda_theory_disp_cat.
@@ -113,6 +214,10 @@ Proof.
   - exact is_univalent_lambda_theory_data_cat.
   - exact is_univalent_disp_lambda_theory_disp_cat.
 Qed.
+
+Definition limits_lambda_theory_cat
+  : Lims lambda_theory_cat
+  := λ _ _, total_limit _ _ (creates_limits_lambda_theory_disp_cat _).
 
 Section Test.
   Goal ob lambda_theory_cat = lambda_theory.
