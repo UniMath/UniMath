@@ -24,6 +24,7 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms2.
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 
 Local Open Scope cat.
@@ -340,3 +341,61 @@ Definition limits_algebraic_theory_cat
 Definition algebraic_theory_univalent_category
   : univalent_category
   := make_univalent_category _ is_univalent_algebraic_theory_cat.
+
+Definition make_algebraic_theory_z_iso
+  (a b : algebraic_theory)
+  (F : ∏ n, z_iso (C := HSET) (a n : hSet) (b n : hSet))
+  (Hpr : ∏ n i, morphism_from_z_iso _ _ (F n) (pr i) = pr i)
+  (Hcomp : ∏ m n f (g : stn m → (a n : hSet)), morphism_from_z_iso _ _ (F n) (f • g) = morphism_from_z_iso _ _ (F m) f • (λ i, (morphism_from_z_iso _ _ (F n) (g i))))
+  : z_iso (a : algebraic_theory_cat) (b : algebraic_theory_cat).
+Proof.
+  use make_z_iso.
+  - use make_algebraic_theory_morphism'.
+    + intro n.
+      exact (morphism_from_z_iso _ _ (F n)).
+    + abstract (
+        split;
+        [ exact Hcomp
+        | exact Hpr ]
+      ).
+  - use make_algebraic_theory_morphism'.
+    + intro n.
+      exact (inv_from_z_iso (F n)).
+    + abstract (
+        split;
+        [ intros m n f g;
+          refine (!_ @ maponpaths (λ x, x _) (z_iso_inv_after_z_iso (F n)));
+          refine (maponpaths (λ x, inv_from_z_iso (F n) x) (Hcomp _ _ _ _) @ _);
+          apply maponpaths;
+          refine (maponpaths (λ x, (x f) • _) (z_iso_after_z_iso_inv (F m)) @ _);
+          apply maponpaths;
+          apply funextfun;
+          intro;
+          exact (maponpaths (λ x, x (g _)) (z_iso_after_z_iso_inv (F n)))
+        | intros n i;
+          refine (!_ @ maponpaths (λ x, x _) (z_iso_inv_after_z_iso (F n)));
+          apply (maponpaths (inv_from_z_iso (F n)));
+          apply Hpr ]
+      ).
+  - abstract (
+      split;
+      ( apply subtypePath;
+        [ intro;
+          apply isapropunit | ]);
+      ( apply subtypePath;
+        [ intro;
+          repeat (apply impred_isaprop; intro);
+          apply setproperty | ]);
+      ( apply subtypePath;
+        [ intro;
+          apply setproperty | ] );
+      ( apply subtypePath;
+        [ intro;
+          repeat (apply impred_isaprop; intro);
+          apply homset_property | ] );
+      apply funextsec;
+      intro n;
+      [ apply (z_iso_inv_after_z_iso (F n)) |
+        apply (z_iso_after_z_iso_inv (F n)) ]
+    ).
+Defined.

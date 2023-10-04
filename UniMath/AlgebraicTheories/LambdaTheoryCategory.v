@@ -2,6 +2,7 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
@@ -23,6 +24,7 @@ Require Import UniMath.AlgebraicTheories.LambdaTheories.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms2.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
 
 Local Open Scope cat.
@@ -227,3 +229,50 @@ Section Test.
     exact (λ _ _, idpath _).
   Qed.
 End Test.
+
+Definition make_lambda_theory_z_iso
+  (a b : lambda_theory)
+  (F : z_iso (C := algebraic_theory_cat) (a : algebraic_theory) (b : algebraic_theory))
+  (Happ : ∏ n f, (morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) (S n) (app f) = app ((morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) _ f))
+  (Habs : ∏ n f, (morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) n (abs f) = abs ((morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) _ f))
+  : z_iso (a : lambda_theory_cat) (b : lambda_theory_cat).
+Proof.
+  use make_z_iso.
+  - use make_lambda_theory_morphism.
+    use make_lambda_theory_data_morphism.
+    + exact (morphism_from_z_iso _ _ F).
+    + exact Happ.
+    + exact Habs.
+  - use make_lambda_theory_morphism.
+    use make_lambda_theory_data_morphism.
+    + exact (inv_from_z_iso F).
+    + abstract (
+        intros n f;
+        refine (!_ @ maponpaths (λ x, (x : algebraic_theory_morphism a a) (S n) _) (z_iso_inv_after_z_iso F));
+        apply (maponpaths ((inv_from_z_iso F : algebraic_theory_morphism b a) (S n)));
+        refine (Happ _ _ @ _);
+        apply maponpaths;
+        exact (maponpaths (λ x, (x : algebraic_theory_morphism b b) n f) (z_iso_after_z_iso_inv F))
+      ).
+    + abstract (
+        intros n f;
+        refine (!_ @ maponpaths (λ x, (x : algebraic_theory_morphism a a) _ _) (z_iso_inv_after_z_iso F));
+        apply (maponpaths ((inv_from_z_iso F : algebraic_theory_morphism b a) n));
+        refine (Habs _ _ @ _);
+        apply maponpaths;
+        exact (maponpaths (λ x, (x : algebraic_theory_morphism b b) _ f) (z_iso_after_z_iso_inv F))
+      ).
+  - abstract (
+      split;
+      (apply subtypePath;
+      [ intro;
+        apply isapropunit | ]);
+      (apply subtypePath;
+      [ intro;
+        apply isapropdirprod;
+        do 2 (apply impred_isaprop; intro);
+        apply setproperty | ]);
+      [ apply (z_iso_inv_after_z_iso F) |
+        apply (z_iso_after_z_iso_inv F) ]
+    ).
+Defined.
