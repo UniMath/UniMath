@@ -175,20 +175,6 @@ Proof.
     + exact H.
 Qed.
 
-Definition theory_presheaf (T : algebraic_theory)
-  : presheaf T.
-Proof.
-  use make_presheaf.
-  - use make_presheaf_data.
-    + exact T.
-    + intros ? ?.
-      exact comp.
-  - use make_is_presheaf.
-    + exact (algebraic_theory_comp_is_assoc T).
-    + exact (algebraic_theory_comp_identity_projections T).
-    + exact (algebraic_theory_comp_is_natural_l T).
-Defined.
-
 Definition presheaf_data' (T : algebraic_theory_data) : UU
   := ∑ (P : nat → hSet),
     ∏ m n, P m → (stn m → (T n : hSet)) → P n.
@@ -301,6 +287,31 @@ Section MakePresheaf'.
     := make_presheaf _ presheaf'_to_is_presheaf.
 
 End MakePresheaf'.
+
+Definition theory_presheaf_data
+  (T : algebraic_theory)
+  : presheaf_data T.
+Proof.
+  use make_presheaf_data.
+  - exact T.
+  - intros ? ? f g.
+    exact (f • g).
+Defined.
+
+Lemma theory_is_presheaf
+  (T : algebraic_theory)
+  : is_presheaf (theory_presheaf_data T).
+Proof.
+  use make_is_presheaf.
+  - apply algebraic_theory_comp_is_assoc.
+  - apply algebraic_theory_comp_identity_projections.
+  - apply algebraic_theory_comp_is_natural_l.
+Qed.
+
+Definition theory_presheaf
+  (T : algebraic_theory)
+  : presheaf T
+  := make_presheaf _ (theory_is_presheaf T).
 
 (* Definition yoneda_lemma
   (T : algebraic_theory)
