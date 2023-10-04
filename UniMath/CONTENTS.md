@@ -1156,6 +1156,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Examples/FreeTheory.v](AlgebraicTheories/Examples/FreeTheory.v)
    - [Examples/LambdaCalculus.v](AlgebraicTheories/Examples/LambdaCalculus.v)
    - [Examples/OnePointTheory.v](AlgebraicTheories/Examples/OnePointTheory.v)
+   - [Examples/Plus1Presheaf.v](AlgebraicTheories/Examples/Plus1Presheaf.v)
    - [Examples/ProjectionsTheory.v](AlgebraicTheories/Examples/ProjectionsTheory.v)
    - [LambdaAlgebraMonoid.v](AlgebraicTheories/LambdaAlgebraMonoid.v)
    - [AlgebraicTheoryAlgebraWeqEndomorphismTheoryMorphism.v](AlgebraicTheories/AlgebraicTheoryAlgebraWeqEndomorphismTheoryMorphism.v)

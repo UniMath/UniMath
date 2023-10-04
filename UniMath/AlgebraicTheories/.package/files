@@ -25,6 +25,7 @@ Examples/FreeMonoidTheory.v
 Examples/FreeTheory.v
 Examples/LambdaCalculus.v
 Examples/OnePointTheory.v
+Examples/Plus1Presheaf.v
 Examples/ProjectionsTheory.v
 
 LambdaAlgebraMonoid.v
