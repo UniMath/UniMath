@@ -33,7 +33,7 @@ Definition extend_finite_morphism_with_identity
   {m n : finite_set_skeleton_category}
   (f : finite_set_skeleton_category⟦m, n⟧)
   : finite_set_skeleton_category⟦S m, S n⟧
-  := extend_tuple (T := stn (S n)) (λ i, dni_lastelement (f i)) lastelement.
+  := extend_tuple (T := stn (S n)) (λ i, dni lastelement (f i)) lastelement.
 
 Definition extended_composition
   {T : algebraic_theory_data}
@@ -41,7 +41,7 @@ Definition extended_composition
   (f : T (S m) : hSet)
   (g : stn m → (T n : hSet))
   : (T (S n) : hSet)
-  := f • (extend_tuple (λ i, #T (dni_lastelement (n := n)) (g i)) (pr lastelement)).
+  := f • (extend_tuple (λ i, #T (dni lastelement (n := n)) (g i)) (pr lastelement)).
 
 Definition is_lambda_theory (L : lambda_theory_data) : UU :=
     (∏ m n (a : finite_set_skeleton_category⟦m, n⟧) l, app (#L a l) = #L (extend_finite_morphism_with_identity a) (app l)) ×
@@ -67,8 +67,7 @@ Proof.
   use (make_is_lambda_theory _ _ app_comp abs_comp);
     intros m n a l;
     do 2 rewrite algebraic_theory_functor_uses_projections;
-    [
-      rewrite app_comp;
+    [ rewrite app_comp;
       apply (maponpaths (λ x, (app l) • x))
     | rewrite <- abs_comp;
       apply (maponpaths (λ x, abs (l • x)));
@@ -79,10 +78,10 @@ Proof.
       refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _);
       apply maponpaths;
       symmetry;
-      exact (extend_tuple_dni_lastelement _ _ _)
+      exact (extend_tuple_inl _ _ _)
     | apply maponpaths;
       symmetry;
-      apply extend_tuple_lastelement ] ).
+      apply extend_tuple_inr ] ).
 Qed.
 
 Definition lambda_theory : UU := ∑ L, is_lambda_theory L.

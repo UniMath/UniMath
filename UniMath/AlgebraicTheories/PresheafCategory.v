@@ -475,6 +475,16 @@ Proof.
   exact (maponpaths (λ z, pr1 (z _) _) (transportf_const _ _)).
 Qed.
 
+Lemma presheaf_identity_on_element
+  {T : algebraic_theory}
+  {n : nat}
+  (P : presheaf T)
+  (x : (P n : hSet))
+  : pr11 (identity (P : presheaf_cat T)) n x = x.
+Proof.
+  exact (maponpaths (λ x, pr1 (x _) _ _) (transportb_const _ (P ⟹ P))).
+Qed.
+
 Definition terminal_presheaf_cat
   (T : algebraic_theory)
   : Terminal (presheaf_cat T).

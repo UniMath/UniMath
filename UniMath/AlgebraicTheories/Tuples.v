@@ -121,25 +121,25 @@ Proof.
   - apply Hi.
 Qed.
 
-Lemma extend_tuple_dni_lastelement
+Lemma extend_tuple_inl
   {T : UU}
   {n : nat}
   (f : stn n → T)
   (last : T)
   (i : stn n)
-  : extend_tuple f last (dni_lastelement i) = f i.
+  : extend_tuple f last (stnweq (inl i)) = f i.
 Proof.
-  apply extend_tuple_i.
+  exact (maponpaths _ (homotinvweqweq _ (inl i))).
 Qed.
 
-Lemma extend_tuple_lastelement
+Lemma extend_tuple_inr
   {T : UU}
   {n : nat}
   (f : stn n → T)
   (last : T)
-  : extend_tuple f last (lastelement) = last.
+  : extend_tuple f last (stnweq (inr tt)) = last.
 Proof.
-  now apply extend_tuple_last.
+  exact (maponpaths _ (homotinvweqweq _ _)).
 Qed.
 
 Lemma extend_tuple_eq
@@ -148,8 +148,8 @@ Lemma extend_tuple_eq
   {last : T}
   {f : stn n → T}
   {g : stn (S n) → T}
-  (Hf : ∏ i, f i = g (dni_lastelement i))
-  (Hlast : last = g lastelement)
+  (Hf : ∏ i, f i = g (stnweq (inl i)))
+  (Hlast : last = g (stnweq (inr tt)))
   : extend_tuple f last = g.
 Proof.
   apply funextfun.
@@ -157,6 +157,6 @@ Proof.
   unfold extend_tuple.
   refine (_ @ maponpaths g (homotweqinvweq stnweq i)).
   induction (invmap stnweq i).
-  - exact (Hf a @ maponpaths (λ x, g (x a)) (!replace_dni_last _)).
+  - exact (Hf a).
   - exact Hlast.
 Qed.

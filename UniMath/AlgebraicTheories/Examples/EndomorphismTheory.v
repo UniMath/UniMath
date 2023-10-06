@@ -230,7 +230,7 @@ Section EndomorphismAlgebraicTheory.
   Lemma endomorphism_theory_is_lambda
     : is_lambda_theory endomorphism_lambda_theory_data.
   Proof.
-    use make_is_lambda_theory'; simpl.
+    use make_is_lambda_theory'.
     - intros m n f g.
       refine (maponpaths _ (assoc' _ _ _) @ _).
       refine (φ_adj_inv_natural_precomp (pr2 E) _ _ _ _ _ @ _).
@@ -239,24 +239,21 @@ Section EndomorphismAlgebraicTheory.
       + refine (bp_commutes_1 _ _ _ _ @ _).
         refine (id_right _ @ !_).
         refine (bp_commutes_1 _ _ _ _ @ _).
-        refine (maponpaths _ (homotinvweqweq _ _) @ _).
+        refine (extend_tuple_inr _ _ @ _).
         refine (bp_commutes_1 _ _ _ _ @ _).
-        refine (maponpaths _ (_ : _ = inr tt)).
-        now apply invmap_eq.
+        refine (extend_tuple_inr _ _).
       + do 2 refine (bp_commutes_2 _ _ _ _ @ !_).
         apply ProductArrow_eq.
         intro i.
         refine (assoc' _ _ _ @ _).
         refine (maponpaths _ (pow_commutes _ _ _ _) @ !_).
         refine (pow_commutes _ _ _ _ @ _).
-        refine (maponpaths _ (homotinvweqweq _ _) @ _).
+        refine (extend_tuple_inl _ _ _ @ _).
         apply (maponpaths (λ x, x · _)).
         apply ProductArrow_eq.
         intro j.
         refine (pow_commutes _ _ _ _ @ _).
-        refine (maponpaths _ (_ : _ = inl j)).
-        apply invmap_eq.
-        exact (!eqtohomot (replace_dni_last _) j).
+        refine (extend_tuple_inl _ _ _).
     - intros m n f g.
       refine (_ @ assoc' _ _ _).
       refine (_ @ maponpaths (λ x, x · _) (φ_adj_natural_precomp (pr2 E) _ _ _ _ _)).
@@ -264,27 +261,25 @@ Section EndomorphismAlgebraicTheory.
       apply ProductArrow_eq.
       intro.
       refine (pow_commutes _ _ _ _ @ !_).
-      unfold ProductPr.
       refine (_ @ maponpaths _ (homotweqinvweq stnweq i)).
+      unfold ProductPr.
       simpl.
       induction (invmap (Y := stn (S m)) stnweq i).
       + refine (assoc _ _ _ @ _).
         refine (maponpaths (λ x, x · _) (bp_commutes_2 _ _ _ _) @ _).
         refine (assoc' _ _ _ @ _).
         refine (maponpaths (λ x, _ · x) (pow_commutes _ _ _ _) @ !_).
-        refine (maponpaths _ (homotinvweqweq _ (inl a)) @ _).
+        refine (extend_tuple_inl _ _ _ @ _).
         apply (maponpaths (λ x, x · _)).
         apply ProductArrow_eq.
         intro.
         refine (pow_commutes _ _ _ _ @ _).
-        refine (maponpaths _ (_ : _ = inl i0)).
-        apply invmap_eq.
-        exact (!eqtohomot (replace_dni_last _) i0).
+        refine (maponpaths _ (homotinvweqweq _ (inl i0))).
       + refine (bp_commutes_1 _ _ _ _ @ _).
         refine (id_right _ @ !_).
-        refine (maponpaths _ (homotinvweqweq _ (inr tt)) @ _).
+        refine (extend_tuple_inr _ _ @ _).
         refine (bp_commutes_1 _ _ _ _ @ _).
-        refine (maponpaths _ (homotinvweqweq _ (inr tt))).
+        refine (extend_tuple_inr _ _).
   Qed.
 
   Definition endomorphism_lambda_theory

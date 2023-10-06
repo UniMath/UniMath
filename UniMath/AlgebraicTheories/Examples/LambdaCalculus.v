@@ -65,15 +65,17 @@ Proof.
       do 2 apply maponpaths.
       refine (!extend_tuple_eq _ _).
       * intro i.
-        rewrite extend_tuple_dni_lastelement.
+        refine (_ @ !maponpaths (λ x, subst x _) (extend_tuple_inl _ _ _)).
         rewrite inflate_subst.
         unfold inflate.
         rewrite subst_subst.
         apply maponpaths.
         apply funextfun.
         intro.
-        now rewrite subst_var, extend_tuple_dni_lastelement.
-      * now rewrite extend_tuple_lastelement, subst_var, extend_tuple_lastelement.
+        rewrite subst_var.
+        exact (!extend_tuple_inl _ _ _).
+      * rewrite extend_tuple_inr, subst_var.
+        exact (!extend_tuple_inr _ _).
     + intros m n l f Hl Hf m' f_m' n' f_n'.
       rewrite Hl.
       do 2 rewrite subst_subst.
@@ -105,14 +107,14 @@ Proof.
     cbn;
     intros;
     unfold extend_finite_morphism_with_identity, inflate.
-  - rewrite subst_subst, subst_app, subst_var, extend_tuple_lastelement.
+  - rewrite subst_subst, subst_app, subst_var.
     apply (maponpaths (λ x, _ x _)).
     unfold inflate.
     rewrite subst_subst.
     apply maponpaths.
     apply funextfun.
     intro.
-    now rewrite subst_var, subst_var, extend_tuple_dni_lastelement.
+    now rewrite subst_var, subst_var. extend_tuple_dni_lastelement.
   - rewrite subst_abs.
     do 2 apply maponpaths.
     refine (!extend_tuple_eq _ _).

@@ -14,7 +14,7 @@ Definition lambda_calculus_data : UU := ∑
   (app : ∏ n, L n → L n → L n)
   (abs : ∏ n, L (S n) → L n)
   (subst : ∏ m n, L m → (stn m → L n) → L n)
-  (inflate := (λ _ l, subst _ _ l (λ i, (var _ (dni_lastelement i)))) : ∏ n, L n → L (S n))
+  (inflate := (λ _ l, subst _ _ l (λ i, (var _ (dni lastelement i)))) : ∏ n, L n → L (S n))
   (subst_var : ∏ m n i (f : stn m → L n), subst _ _ (var _ i) f = f i)
   (subst_app : ∏ m n l l' (f : stn m → L n), subst _ _ (app _ l l') f = app _ (subst _ _ l f) (subst _ _ l' f))
   (subst_abs : ∏ m n l (f : stn m → L n), subst _ _ (abs _ l) f = abs _ (subst _ _ l (extend_tuple (λ i, inflate _ (f i)) (var _ lastelement))))
@@ -32,7 +32,7 @@ Definition lambda_calculus_data : UU := ∑
       A _ l → A _ (abs n l))
     (f_subst : ∏ m n l f,
       A _ l → (∏ i, A _ (f i)) → A _ (subst m n l f))
-    (f_inflate := (λ n _ al, f_subst _ _ _ _ al (λ i, (f_var _ (dni_lastelement i)))) : ∏ n (l : L n),
+    (f_inflate := (λ n _ al, f_subst _ _ _ _ al (λ i, (f_var _ (dni lastelement i)))) : ∏ n (l : L n),
       A n l → A (S n) (inflate _ l))
     (f_subst_var : ∏ m n i f af,
       PathOver (Y := A n) (subst_var m n i f) (f_subst _ _ _ _ (f_var _ i) af) (af i))
@@ -57,7 +57,7 @@ Definition app {L : lambda_calculus_data} {n : nat} (l l' : L n) : L n := pr122 
 Definition abs {L : lambda_calculus_data} {n : nat} (l : L (S n)) : L n := pr1 (pr222 L) n l.
 Definition subst {L : lambda_calculus_data} {m n : nat} (l : L m) (f : stn m → L n) : L n := pr12 (pr222 L) m n l f.
 
-Definition inflate {L : lambda_calculus_data} {n} (l : L n) : L (S n) := subst l (λ i, (var (dni_lastelement i))).
+Definition inflate {L : lambda_calculus_data} {n} (l : L n) : L (S n) := subst l (λ i, (var (dni lastelement i))).
 Definition subst_var {L : lambda_calculus_data} {m n} i (f : stn m → L n) : subst (var i) f = f i := pr122 (pr222 L) m n i f.
 Definition subst_app {L : lambda_calculus_data} {m n} l l' (f : stn m → L n) : subst (app l l') f = app (subst l f) (subst l' f) := pr1 (pr222 (pr222 L)) m n l l' f.
 Definition subst_abs {L : lambda_calculus_data} {m n} l (f : stn m → L n) : subst (abs l) f = abs (subst l (extend_tuple (λ i, inflate (f i)) (var lastelement))) := pr12 (pr222 (pr222 L)) m n l f.
@@ -77,7 +77,7 @@ Definition lambda_calculus_ind
     A _ l → A n (abs l))
   (f_subst : ∏ m n l f,
     A m l → (∏ i, A _ (f i)) → A n (subst l f))
-  (f_inflate := (λ n _ al, f_subst _ _ _ _ al (λ i, (f_var _ (dni_lastelement i)))) : ∏ n (l : L n),
+  (f_inflate := (λ n _ al, f_subst _ _ _ _ al (λ i, (f_var _ (dni lastelement i)))) : ∏ n (l : L n),
     A n l → A (S n) (inflate l))
   (f_paths :
     (∏ m n i f af,
@@ -105,7 +105,7 @@ Definition lambda_calculus_rect
   (f_app : ∏ n, A n → A n → A n)
   (f_abs : ∏ n, A (S n) → A n)
   (f_subst : ∏ m n, A m → (stn m → A n) → A n)
-  (f_inflate := (λ n a, f_subst _ _ a (λ i, (f_var _ (dni_lastelement i)))) : ∏ n, A n → A (S n))
+  (f_inflate := (λ n a, f_subst _ _ a (λ i, (f_var _ (dni lastelement i)))) : ∏ n, A n → A (S n))
   (f_paths :
     (∏ m n i af,
       (f_subst m n (f_var m i) af) = (af i)) ×
@@ -173,7 +173,7 @@ Defined.
 
 (***** Inflate *)
 Definition inflate_var {L : lambda_calculus_data} {n} (i : stn n)
-  : inflate (L := L) (var i) = var (dni_lastelement i)
+  : inflate (L := L) (var i) = var (dni lastelement i)
   := subst_var i _.
 
 Definition inflate_app {L : lambda_calculus_data} {n} (l l' : L n)
@@ -325,6 +325,6 @@ Ltac reduce_lambda := (
   rewrite inflate_app +
   rewrite inflate_abs +
   rewrite beta_equality +
-  rewrite extend_tuple_dni_lastelement +
-  rewrite extend_tuple_lastelement
+  rewrite extend_tuple_inl +
+  rewrite extend_tuple_inr
 ).

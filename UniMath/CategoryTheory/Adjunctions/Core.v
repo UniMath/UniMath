@@ -404,27 +404,38 @@ Proof.
   use make_nat_trans.
   * intro x.
     apply (pr1 (pr1 (Huniv (F x) x (identity _)))).
-  *  intros x y f; simpl.
-     destruct (Huniv (F y) y (identity (F y))) as [t p], t as [t p0]; simpl.
-     destruct (Huniv (F x) x (identity (F x))) as [t0 p1], t0 as [t0 p2]; simpl.
-     destruct
-       (Huniv (F y) (G0 (F x)) (eps (F x) · # F f)) as [t1 p3], t1 as [t1 p4]; simpl.
-     assert (H1 : # F f = # F (t0 · t1) · eps (F y));
-     [now rewrite functor_comp, <- assoc, <- p4, assoc, <- p2, id_left|];
-     destruct (Huniv (F y) x (# F f)) as [t2 p5];
-     set (HH := (maponpaths pr1 (p5 (_,,H1))));
-     simpl in HH; rewrite HH.
-     assert (H2 : # F f = # F (f · t) · eps (F y));
-     [now rewrite functor_comp, <- assoc, <- p0, id_right|];
-     set (HHH := (maponpaths pr1 (p5 (_,,H2)))); simpl in HHH;
-     now rewrite HHH.
+  * abstract (
+      intros x y f;
+      simpl;
+      destruct (Huniv (F y) y (identity (F y))) as [t p], t as [t p0];
+      simpl;
+      destruct (Huniv (F x) x (identity (F x))) as [t0 p1], t0 as [t0 p2];
+      simpl;
+      destruct
+        (Huniv (F y) (G0 (F x)) (eps (F x) · # F f)) as [t1 p3], t1 as [t1 p4];
+      simpl;
+      assert (H1 : # F f = # F (t0 · t1) · eps (F y));
+      [now rewrite functor_comp, <- assoc, <- p4, assoc, <- p2, id_left|];
+      destruct (Huniv (F y) x (# F f)) as [t2 p5];
+      set (HH := (maponpaths pr1 (p5 (_,,H1))));
+      simpl in HH;
+      rewrite HH;
+      assert (H2 : # F f = # F (f · t) · eps (F y));
+      [now rewrite functor_comp, <- assoc, <- p0, id_right|];
+      set (HHH := (maponpaths pr1 (p5 (_,,H2)))); simpl in HHH;
+      now rewrite HHH
+    ).
 Defined.
 
 Local Definition counit : nat_trans (functor_composite G F) (functor_identity A).
 Proof.
   use tpair.
-  * red. apply eps.
-  * abstract (intros a b f; simpl; apply (pathsinv0 (pr2 (pr1 (Huniv b (G0 a) (eps a · f)))))).
+  * red.
+    apply eps.
+  * abstract (
+      intros a b f;
+      apply (pathsinv0 (pr2 (pr1 (Huniv b (G0 a) (eps a · f)))))
+    ).
 Defined.
 
 Local Lemma form_adjunctionFG : form_adjunction F G unit counit.
