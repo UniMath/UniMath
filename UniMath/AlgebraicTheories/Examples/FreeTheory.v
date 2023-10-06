@@ -26,9 +26,9 @@ Proof.
     exact (setcoprod (stnset n) X).
   - exact (λ _ i, inl i).
   - intros m n f g.
-    induction f.
-    + exact (g a).
-    + exact (inr b).
+    induction f as [f' | f'].
+    + exact (g f').
+    + exact (inr f').
 Defined.
 
 Definition free_is_theory' {X : hSet} : is_algebraic_theory' (free_theory'_data X).

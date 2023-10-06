@@ -449,16 +449,16 @@ Section RepresentationTheorem.
       refine (_ @ algebraic_theory_comp_identity_projections _ _ _).
       apply maponpaths.
       apply funextfun.
-      intro.
-      refine (_ @ maponpaths _ (homotweqinvweq stnweq x)).
-      induction (invmap stnweq x).
+      intro i.
+      refine (_ @ maponpaths _ (homotweqinvweq stnweq i)).
+      induction (invmap stnweq i) as [i' | i'].
       - refine (maponpaths (λ x, x • _) (algebraic_theory_comp_projects_component _ _ _ _ _) @ _).
         refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
         refine (extend_tuple_i _ _ _ _ (dni_last_lt _) @ _).
         apply maponpaths.
         apply stn_eq.
         apply di_eq1.
-        exact (stnlt (dni lastelement a)).
+        exact (stnlt (dni lastelement i')).
       - refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
         exact (maponpaths _ (homotinvweqweq _ _)).
     Qed.
@@ -482,7 +482,7 @@ Section RepresentationTheorem.
       simpl.
       unfold ProductPr.
       simpl.
-      induction (invmap (Y := _ (S n)) stnweq i).
+      induction (invmap (Y := _ (S n)) stnweq i) as [i' | i'].
       - refine (maponpaths (λ x, x _) (presheaf_mor_comp (P'' := theory_presheaf L) _ _ _) @ _).
         refine (presheaf_morphism_commutes_with_action (ProductPr _ _ (pow n) _ : presheaf_morphism (ProductObject _ _ (pow _) : presheaf L) (theory_presheaf L)) _ _ @ _).
         refine (maponpaths (λ x, x _ • _) (!presheaf_mor_comp (P'' := theory_presheaf L) _ _ _) @ _).

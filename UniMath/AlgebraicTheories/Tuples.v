@@ -42,8 +42,8 @@ Definition extend_tuple
   : stn (S n) → T.
 Proof.
   intro i.
-  induction (invmap stnweq i) as [a | ].
-  - exact (f a).
+  induction (invmap stnweq i) as [i' | ].
+  - exact (f i').
   - exact last.
 Defined.
 
@@ -59,8 +59,8 @@ Definition extend_tuple_dep
 Proof.
   intro i.
   unfold extend_tuple.
-  induction (invmap stnweq i) as [a | ].
-  - exact (af a).
+  induction (invmap stnweq i) as [i' | ].
+  - exact (af i').
   - exact alast.
 Defined.
 
@@ -96,10 +96,8 @@ Proof.
   apply subtypePairEquality.
   - intro.
     apply isasetbool.
-  - unfold di.
-    induction (natlthorgeh (make_stn n i Hi2) (lastelement (n := n))) as [a | a].
-    + apply idpath.
-    + induction (natgehtonegnatlth _ _ a Hi2).
+  - refine (!di_eq1 _).
+    apply Hi2.
 Qed.
 
 Lemma extend_tuple_last
@@ -156,7 +154,7 @@ Proof.
   intro i.
   unfold extend_tuple.
   refine (_ @ maponpaths g (homotweqinvweq stnweq i)).
-  induction (invmap stnweq i).
-  - exact (Hf a).
+  induction (invmap stnweq i) as [i' | i'].
+  - exact (Hf i').
   - exact Hlast.
 Qed.

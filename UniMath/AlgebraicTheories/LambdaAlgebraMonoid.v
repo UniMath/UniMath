@@ -48,7 +48,7 @@ Section Monoid.
 
   Definition make_functional (a : A) (n: nat) : A.
   Proof.
-    induction n as [|n' a'].
+    induction n as [| n' a'].
     - exact a.
     - pose (f := (abs (app
       (var (make_stn 2 0 (idpath true)))

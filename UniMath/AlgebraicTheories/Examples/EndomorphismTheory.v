@@ -127,7 +127,7 @@ Definition bin_product_power
   (n : nat)
   : Product (stn n) C (λ _, c).
 Proof.
-  induction n.
+  induction n as [ | n IHn].
   - exact (Terminal_is_empty_product T _).
   - apply (n_power_to_sn_power BP _ _ IHn).
 Defined.
@@ -264,7 +264,7 @@ Section EndomorphismAlgebraicTheory.
       refine (_ @ maponpaths _ (homotweqinvweq stnweq i)).
       unfold ProductPr.
       simpl.
-      induction (invmap (Y := stn (S m)) stnweq i).
+      induction (invmap (Y := stn (S m)) stnweq i) as [i' | i'].
       + refine (assoc _ _ _ @ _).
         refine (maponpaths (λ x, x · _) (bp_commutes_2 _ _ _ _) @ _).
         refine (assoc' _ _ _ @ _).

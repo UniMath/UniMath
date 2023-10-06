@@ -160,18 +160,14 @@ Proof.
   refine (_ @ subst_l_var _).
   apply maponpaths.
   apply funextfun.
-  intro.
-  set (tmp := (extend_tuple var (var lastelement))).
+  intro i.
   unfold extend_tuple.
-  induction (idpath _ : extend_tuple _ _ = tmp).
-  refine (_ @ maponpaths _ (homotweqinvweq stnweq x)).
-  induction (invmap stnweq x).
-  - simpl.
+  refine (_ @ maponpaths _ (homotweqinvweq stnweq i)).
+  induction (invmap stnweq i) as [i' | i'];
+    simpl;
     repeat reduce_lambda.
-    exact (extend_tuple_inl _ _ _).
-  - simpl.
-    reduce_lambda.
-    exact (extend_tuple_inr _ _).
+  - exact (extend_tuple_inl _ _ _).
+  - exact (extend_tuple_inr _ _).
 Qed.
 
 End LambdaCalculus.
