@@ -409,6 +409,7 @@ EnrichedCats/Examples/StructureEnriched.v
 EnrichedCats/Examples/SmashStructureEnriched.v
 EnrichedCats/Examples/HomFunctor.v
 EnrichedCats/Examples/FunctorCategory.v
+EnrichedCats/Examples/Yoneda.v
 
 EnrichedCats/Examples/OppositeEnriched.v
 EnrichedCats/Examples/EmptyEnriched.v
