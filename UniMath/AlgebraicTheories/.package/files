@@ -30,3 +30,5 @@ Examples/ProjectionsTheory.v
 
 LambdaAlgebraMonoid.v
 AlgebraicTheoryAlgebraWeqEndomorphismTheoryMorphism.v
+
+RepresentationTheorem.v

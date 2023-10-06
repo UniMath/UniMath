@@ -387,7 +387,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Fibrations.v](CategoryTheory/DisplayedCats/Fibrations.v)
    - [DisplayedCats/Examples/Reindexing.v](CategoryTheory/DisplayedCats/Examples/Reindexing.v)
    - [DisplayedCats/Constructions.v](CategoryTheory/DisplayedCats/Constructions.v)
-   - [DisplayedCats/Examples/Sigma.v](CategoryTheory/DisplayedCats/Examples/Sigma.v)
    - [FunctorAlgebras.v](CategoryTheory/FunctorAlgebras.v)
    - [CompletelyIterativeAlgebras.v](CategoryTheory/CompletelyIterativeAlgebras.v)
    - [Chains/Adamek.v](CategoryTheory/Chains/Adamek.v)
@@ -413,6 +412,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monads/MonadAlgebras.v](CategoryTheory/Monads/MonadAlgebras.v)
    - [Monads/Comonads.v](CategoryTheory/Monads/Comonads.v)
    - [DisplayedCats/Limits.v](CategoryTheory/DisplayedCats/Limits.v)
+   - [DisplayedCats/Examples/Sigma.v](CategoryTheory/DisplayedCats/Examples/Sigma.v)
    - [DisplayedCats/Examples.v](CategoryTheory/DisplayedCats/Examples.v)
    - [DisplayedCats/Examples/UnitalBinop.v](CategoryTheory/DisplayedCats/Examples/UnitalBinop.v)
    - [DisplayedCats/Examples/CategoryOfPosets.v](CategoryTheory/DisplayedCats/Examples/CategoryOfPosets.v)
@@ -1160,6 +1160,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Examples/ProjectionsTheory.v](AlgebraicTheories/Examples/ProjectionsTheory.v)
    - [LambdaAlgebraMonoid.v](AlgebraicTheories/LambdaAlgebraMonoid.v)
    - [AlgebraicTheoryAlgebraWeqEndomorphismTheoryMorphism.v](AlgebraicTheories/AlgebraicTheoryAlgebraWeqEndomorphismTheoryMorphism.v)
+   - [RepresentationTheorem.v](AlgebraicTheories/RepresentationTheorem.v)
    - [All.v](AlgebraicTheories/All.v)
 ## Package Semantics
    - [LinearLogic/LinearNonLinear.v](Semantics/LinearLogic/LinearNonLinear.v)
