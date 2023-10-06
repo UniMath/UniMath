@@ -13,10 +13,15 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms2.
 Require Import UniMath.AlgebraicTheories.Examples.EndomorphismTheory.
 
-Definition algebra_to_algebraic_theory_morphism'_data
+(* Definition algebra_to_algebraic_theory_morphism'_data
   {T : algebraic_theory}
   (X : algebraic_theory_algebra T)
-  : algebraic_theory_morphism'_data T (set_endomorphism_theory X)
+  : algebraic_theory_morphism'_data T (set_endomorphism_theory X).
+Proof.
+  pose (@action T X).
+  intros n f.
+
+  simpl.
   := @action T X.
 
 Lemma algebra_to_is_algebraic_theory_morphism'
@@ -101,4 +106,4 @@ Definition algebra_weq_algebraic_theory_morphism
     (λ (A : algebraic_theory_algebra T), (A : hSet) ,, algebra_to_algebraic_theory_morphism A)
     (λ X, algebraic_theory_morphism_to_algebra (pr2 X))
     algebra_to_algebraic_theory_morphism_and_back
-    algebraic_theory_morphism_to_algebra_and_back.
+    algebraic_theory_morphism_to_algebra_and_back. *)

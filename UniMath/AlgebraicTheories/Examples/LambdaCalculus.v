@@ -107,33 +107,33 @@ Proof.
     cbn;
     intros;
     unfold extend_finite_morphism_with_identity, inflate.
-  - rewrite subst_subst, subst_app, subst_var.
+  - rewrite subst_subst, subst_app, subst_var, subst_subst.
+    rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _).
     apply (maponpaths (λ x, _ x _)).
-    unfold inflate.
-    rewrite subst_subst.
     apply maponpaths.
     apply funextfun.
     intro.
-    now rewrite subst_var, subst_var. extend_tuple_dni_lastelement.
+    now rewrite subst_var, subst_var, (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _).
   - rewrite subst_abs.
     do 2 apply maponpaths.
     refine (!extend_tuple_eq _ _).
     + intro.
-      rewrite extend_tuple_dni_lastelement.
+      refine (_ @ maponpaths _ (!extend_tuple_inl _ _ _)).
       apply inflate_var.
-    + now rewrite extend_tuple_lastelement.
-  - rewrite subst_app, subst_subst, subst_subst, subst_var, subst_var, extend_tuple_lastelement.
+    + exact (maponpaths _ (!extend_tuple_inr _ _)).
+  - rewrite subst_app, subst_subst, subst_subst, subst_var, subst_var, (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _).
     apply (maponpaths (λ x, _ x _)).
     apply maponpaths.
     apply funextfun.
     intro.
-    now rewrite subst_var, extend_tuple_dni_lastelement.
+    now rewrite subst_var, (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _).
   - rewrite subst_abs.
     do 2 apply maponpaths.
     apply extend_tuple_eq.
     + intro.
-      now rewrite extend_tuple_dni_lastelement.
-    + now rewrite subst_var, extend_tuple_lastelement.
+      refine (!extend_tuple_inl _ _ _).
+    + rewrite subst_var.
+      exact (!extend_tuple_inr _ _).
 Qed.
 
 Definition lambda_calculus_lambda_theory
@@ -164,14 +164,14 @@ Proof.
   set (tmp := (extend_tuple var (var lastelement))).
   unfold extend_tuple.
   induction (idpath _ : extend_tuple _ _ = tmp).
-  refine (_ @ maponpaths _ (homotweqinvweq (weqdnicoprod n lastelement) x)).
-  simpl.
-  induction (invmap (weqdnicoprod n lastelement) x).
-  - cbn.
+  refine (_ @ maponpaths _ (homotweqinvweq stnweq x)).
+  induction (invmap stnweq x).
+  - simpl.
     repeat reduce_lambda.
-    now rewrite replace_dni_last.
-  - cbn.
-    now repeat reduce_lambda.
+    exact (extend_tuple_inl _ _ _).
+  - simpl.
+    reduce_lambda.
+    exact (extend_tuple_inr _ _).
 Qed.
 
 End LambdaCalculus.
