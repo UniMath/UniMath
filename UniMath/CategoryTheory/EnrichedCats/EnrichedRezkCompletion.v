@@ -24,6 +24,7 @@ Require Import UniMath.CategoryTheory.Subcategory.Full.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
+Require Import UniMath.CategoryTheory.EnrichedCats.FullyFaithful.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.OppositeEnriched.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.FunctorCategory.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.SelfEnriched.
