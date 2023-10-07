@@ -793,3 +793,7 @@ Section YonedaEmbedding.
        ,,
        enriched_yoneda_enrichment.
 End YonedaEmbedding.
+
+Arguments enriched_repr_presheaf_enrichment_data /.
+Arguments enriched_yoneda_enrichment_data_ob /.
+Arguments enriched_yoneda_enrichment_data /.

@@ -411,6 +411,8 @@ EnrichedCats/Examples/HomFunctor.v
 EnrichedCats/Examples/FunctorCategory.v
 EnrichedCats/Examples/Yoneda.v
 
+EnrichedCats/YonedaLemma.v
+
 EnrichedCats/Examples/OppositeEnriched.v
 EnrichedCats/Examples/EmptyEnriched.v
 EnrichedCats/Examples/UnitEnriched.v
