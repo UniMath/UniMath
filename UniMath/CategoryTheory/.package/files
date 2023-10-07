@@ -426,6 +426,8 @@ EnrichedCats/Examples/ProductEnriched.v
 
 EnrichedCats/Examples/ChangeOfBase.v
 
+EnrichedCats/EnrichedRezkCompletion.v
+
 EnrichedCats/Examples/KleisliEnriched.v
 EnrichedCats/Examples/UnivalentKleisliEnriched.v
 

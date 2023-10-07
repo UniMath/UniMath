@@ -575,6 +575,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [EnrichedCats/Examples/EilenbergMooreEnriched.v](CategoryTheory/EnrichedCats/Examples/EilenbergMooreEnriched.v)
    - [EnrichedCats/Examples/ProductEnriched.v](CategoryTheory/EnrichedCats/Examples/ProductEnriched.v)
    - [EnrichedCats/Examples/ChangeOfBase.v](CategoryTheory/EnrichedCats/Examples/ChangeOfBase.v)
+   - [EnrichedCats/EnrichedRezkCompletion.v](CategoryTheory/EnrichedCats/EnrichedRezkCompletion.v)
    - [EnrichedCats/Examples/KleisliEnriched.v](CategoryTheory/EnrichedCats/Examples/KleisliEnriched.v)
    - [EnrichedCats/Examples/UnivalentKleisliEnriched.v](CategoryTheory/EnrichedCats/Examples/UnivalentKleisliEnriched.v)
    - [EnrichedCats/Limits/Examples/OppositeEnrichedLimits.v](CategoryTheory/EnrichedCats/Limits/Examples/OppositeEnrichedLimits.v)

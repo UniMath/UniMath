@@ -1,3 +1,19 @@
+(*************************************************************************
+
+ The Rezk Completion for Enriched Categories
+
+ We use the Yoneda lemma and the image factorization to construct the
+ Rezk completion for enriched categories. For this construction, we have
+ to assume that the monoidal category `V` over which we enrich, is a
+ univalent category. The structure of the proof is the mostly same as for
+ ordinary categories. The main difference is that instead of looking at
+ all presheaves, we only look at those presheaves that are enriched.
+
+ Contents
+ 1. The Rezk completion and its enrichment
+ 2. The weak equivalence
+
+ *************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
@@ -32,6 +48,7 @@ Section EnrichedRezkCompletion.
           (PV' : Products (C × C) V)
           (HV : is_univalent V).
 
+  (** * 1. The Rezk completion and its enrichment *)
   Definition enriched_rezk_completion
     : univalent_category.
   Proof.
@@ -49,6 +66,7 @@ Section EnrichedRezkCompletion.
     exact (enriched_presheaf_enrichment E EqV PV PV').
   Defined.
 
+  (** * 2. The weak equivalence *)
   Definition enriched_rezk_completion_map
     : C ⟶ enriched_rezk_completion
     := functor_full_img _.
