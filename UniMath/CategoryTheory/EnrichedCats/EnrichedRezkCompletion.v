@@ -9,6 +9,26 @@
  ordinary categories. The main difference is that instead of looking at
  all presheaves, we only look at those presheaves that are enriched.
 
+ Note that we do not extend the Rezk completion for ordinary categories.
+ Such an approach would be possible as well, and it would consists of the
+ following steps:
+ - Showing that enrichments can be lifted along weak equivalences. This
+   requires the enriching category `V` to be univalent. In addition, one
+   needs to formulate enrichments via functors. Composition and identity
+   need to be lifted as well. Here one needs that the opposite, the
+   product, and the core of categories preserve univalence.
+ - Showing that enriched functors and enriched transformations can be
+   lifted along weak equivalences.
+ Such an approach is more complicated than what we do in this file. Our
+ approach is an application of the Yoneda lemma, and we do not need any
+ heavy lifting. However, the advantage of the lifting approach is that
+ if one assumes that the Rezk completion preserves the universe level
+ (which would be the case if one construct the Rezk completion as a
+ higher inductive type), then the resulting Rezk completion for enriched
+ categories also preserves the universe level. Our approach increases the
+ universe level for the same reason as why the Rezk completion for ordinary
+ categories increases the universe level.
+
  Contents
  1. The Rezk completion and its enrichment
  2. The weak equivalence
