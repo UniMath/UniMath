@@ -25,8 +25,7 @@ Proof.
   use make_is_algebraic_theory'.
   - do 4 intro.
     apply subst_var.
-  - unfold comp_identity_projections.
-    cbn.
+  - unfold comp_identity_projections, comp'.
     use (lambda_calculus_ind_prop (λ _ _, _ ,, _));
       simpl.
     + apply setproperty.
@@ -46,8 +45,7 @@ Proof.
       apply funextfun.
       intro.
       apply Hf. (* Apparently we don't need Hl in this proof *)
-  - unfold comp_is_assoc.
-    cbn.
+  - unfold comp_is_assoc, comp'.
     intros l m n f_l f_m f_n.
     revert l f_l m f_m n f_n.
     use (lambda_calculus_ind_prop (λ _ _, _ ,, _));
@@ -104,8 +102,8 @@ Definition lambda_calculus_is_lambda_theory
   : is_lambda_theory lambda_calculus_lambda_theory_data.
 Proof.
   repeat split;
-    cbn;
     intros;
+    cbn;
     unfold extend_finite_morphism_with_identity, inflate.
   - rewrite subst_subst, subst_app, subst_var, subst_subst.
     rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _).
@@ -144,7 +142,6 @@ Lemma lambda_calculus_has_eta
   : has_eta lambda_calculus_lambda_theory.
 Proof.
   unfold has_eta.
-  cbn.
   intros n l.
   apply eta_equality.
 Qed.
@@ -152,8 +149,8 @@ Qed.
 Lemma lambda_calculus_has_beta
   : has_beta lambda_calculus_lambda_theory.
 Proof.
-  unfold has_beta.
-  cbn.
+  unfold has_beta, LambdaTheories.app, LambdaTheories.abs.
+  simpl.
   intros n l.
   repeat reduce_lambda.
   rewrite subst_subst.
@@ -166,8 +163,8 @@ Proof.
   induction (invmap stnweq i) as [i' | i'];
     simpl;
     repeat reduce_lambda.
-  - exact (extend_tuple_inl _ _ _).
-  - exact (extend_tuple_inr _ _).
+  - apply extend_tuple_inl.
+  - apply extend_tuple_inr.
 Qed.
 
 End LambdaCalculus.

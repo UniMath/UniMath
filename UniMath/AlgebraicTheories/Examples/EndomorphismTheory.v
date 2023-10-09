@@ -305,10 +305,9 @@ Section EndomorphismAlgebraicTheory.
   Proof.
     intros n l.
     unfold LambdaTheories.abs, LambdaTheories.app.
-    cbn.
-    rewrite φ_adj_after_φ_adj_inv.
-    rewrite assoc'.
-    rewrite abs_after_app.
+    refine (maponpaths (λ x, x · _) (φ_adj_after_φ_adj_inv _ _) @ _).
+    refine (assoc' _ _ _ @ _).
+    refine (maponpaths (λ x, _ · x) abs_after_app @ _).
     apply id_right.
   Qed.
 

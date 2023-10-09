@@ -132,9 +132,8 @@ Proof.
         intros n n' a;
         use funextfun;
         intro x;
-        cbn;
-        rewrite (presheaf_functor_uses_projections P);
-        rewrite (presheaf_functor_uses_projections P');
+        refine (maponpaths _ (presheaf_functor_uses_projections P _ _) @ !_);
+        refine (presheaf_functor_uses_projections P' _ _ @ !_);
         apply HF
       ).
   - exact HF.

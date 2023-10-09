@@ -175,8 +175,8 @@ Proof.
   - abstract easy.
   - abstract (
       intros T T' T'' Tdata T'data T''data F F' Fdata F'data m n f g;
-      cbn;
-      now rewrite Fdata, F'data
+      refine (maponpaths _ (Fdata _ _ _ _) @ _);
+      apply F'data
     ).
 Defined.
 
