@@ -127,7 +127,7 @@ Proof.
   - exact (λ _ _ _, f_app _).
   - exact (λ _ _, f_abs _).
   - exact (λ _ _ _ _, f_subst _ _).
-  - repeat use tpair;
+  - repeat split;
       simpl;
       intros;
       refine (PathOverConstant_map1 _ _).
@@ -164,7 +164,7 @@ Proof.
   - exact f_app.
   - exact f_abs.
   - exact f_subst.
-  - repeat use tpair;
+  - repeat split;
       simpl;
       intros;
       apply transportf_weq_pathover;
@@ -295,23 +295,26 @@ Lemma subst_l_var
   : subst l var = l.
 Proof.
   use (lambda_calculus_ind_prop (λ n l, (subst l var = l) ,, (setproperty _ _ _)));
-    intros;
     cbn.
-  - apply subst_var.
-  - now rewrite subst_app, X, X0.
-  - rewrite subst_abs.
+  - intros.
+    apply subst_var.
+  - intros ? ? ? H1 H2.
+    now rewrite subst_app, H1, H2.
+  - intros ? ? H.
+    rewrite subst_abs.
     apply maponpaths.
-    refine (_ @ X).
+    refine (_ @ H).
     apply maponpaths.
     apply extend_tuple_eq.
     + intro.
       apply inflate_var.
     + apply idpath.
-  - rewrite subst_subst.
+  - intros ? ? ? ? ? H.
+    rewrite subst_subst.
     apply maponpaths.
     apply funextfun.
     intro.
-    apply X0.
+    apply H.
 Qed.
 
 (**** A tactic for reducing lambda terms to a "canonical" form *)

@@ -98,7 +98,7 @@ Lemma free_monoid_theory_algebra_to_isunit (A : algebraic_theory_algebra free_mo
     (op (X := free_monoid_theory_algebra_to_setwithbinop A))
     (free_monoid_theory_algebra_to_unit A).
 Proof.
-  use tpair;
+  split;
     intro x;
     now rewrite (idpath _ : op (X := free_monoid_theory_algebra_to_setwithbinop A) _ _
         = action (T := free_monoid_theory) _ _),

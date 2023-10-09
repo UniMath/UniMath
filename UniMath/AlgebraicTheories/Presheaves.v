@@ -240,7 +240,7 @@ Section MakePresheaf'.
   Lemma presheaf'_to_is_functor
     : is_functor presheaf'_to_functor_data.
   Proof.
-    use tpair.
+    split.
     - intro n.
       use funextfun.
       intro t.

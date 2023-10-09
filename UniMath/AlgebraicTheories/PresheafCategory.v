@@ -339,17 +339,15 @@ Section fibration.
     Proof.
       use make_is_presheaf.
       - do 6 intro.
-        cbn.
         refine (presheaf_is_assoc d _ _ _ _ _ _ @ _).
-        apply maponpaths.
+        apply (maponpaths (pr12 d l n a)).
         apply funextfun.
         intro.
         symmetry.
         apply algebraic_theory_morphism_preserves_composition.
       - do 2 intro.
-        cbn.
         refine (_ @ presheaf_identity_projections d _ _).
-        apply maponpaths.
+        apply (maponpaths (pr12 d n n a)).
         apply funextfun.
         intro.
         apply algebraic_theory_morphism_preserves_projections.

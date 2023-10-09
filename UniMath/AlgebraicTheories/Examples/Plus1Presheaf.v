@@ -28,11 +28,10 @@ Lemma plus_1_is_presheaf'
   (P : presheaf T)
   : is_presheaf' (plus_1_presheaf_data' P).
 Proof.
-  - use make_is_presheaf';
-      repeat intro.
-    + unfold action'.
+  - use make_is_presheaf'.
+    + intros l m n x f g.
       refine (presheaf_is_assoc _ _ _ _ _ _ _ @ _).
-      apply (maponpaths (action (a : (P _ : hSet)))).
+      apply (maponpaths (action (x : (P _ : hSet)))).
       apply funextfun.
       intro i.
       induction (invmap stnweq i) as [i' | i'].
@@ -44,8 +43,9 @@ Proof.
         exact (maponpaths _ (homotinvweqweq stnweq _)).
       * refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
         exact (maponpaths _ (homotinvweqweq stnweq _)).
-    + refine (_ @ presheaf_identity_projections _ _ _).
-      apply (maponpaths (action (a : (P _ : hSet)))).
+    + intros n x.
+      refine (_ @ presheaf_identity_projections _ _ _).
+      apply (maponpaths (action (x : (P _ : hSet)))).
       apply funextfun.
       intro i.
       refine (_ @ maponpaths _ (homotweqinvweq stnweq i)).

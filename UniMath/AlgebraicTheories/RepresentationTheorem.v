@@ -366,9 +366,9 @@ Section RepresentationTheorem.
       : L_to_presheaf n (presheaf_to_L n l) = l.
     Proof.
       apply (presheaf_morphism_eq _ (l : presheaf_morphism (ProductObject _ _ (pow n) : presheaf L) ((theory_presheaf L)))).
-      intro.
+      intro m.
       apply funextfun.
-      intro.
+      intro x.
       refine (!presheaf_morphism_commutes_with_action (l : presheaf_morphism (ProductObject _ _ (pow n) : presheaf L) (theory_presheaf L)) _ _ @ _).
       apply maponpaths.
       refine (!presheaf_morphism_commutes_with_action ((inv_from_z_iso (pow_iso n)) : presheaf_morphism (ProductObject _ _ (pow' n) : presheaf L) (ProductObject _ _ (pow n) : presheaf L)) _ _ @ _).
@@ -497,7 +497,7 @@ Section RepresentationTheorem.
       use make_lambda_theory_z_iso.
       - apply z_iso_inv.
         use make_algebraic_theory_z_iso.
-        + intro.
+        + intro n.
           use make_z_iso.
           * exact (λ l, L_to_presheaf n l).
           * exact (λ l, presheaf_to_L n l).

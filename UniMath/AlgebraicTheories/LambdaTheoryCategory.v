@@ -46,7 +46,7 @@ Proof.
     apply setproperty.
   - now intros.
   - intros ? ? ? ? ? ? ? ? Fdata F'data.
-    use tpair;
+    split;
       do 2 intro.
     + exact (maponpaths _ (pr1 Fdata _ _) @ (pr1 F'data _ _)).
     + exact (maponpaths _ (pr2 Fdata _ _) @ (pr2 F'data _ _)).
@@ -62,8 +62,8 @@ Proof.
     use pathsdirprod;
       do 2 (apply funextsec; intro);
       apply f.
-  - intro.
-    refine (maponpaths (λ x, _ x _) _ @ maponpaths _ _ @ !(pathsdirprod_eta x));
+  - intro e.
+    refine (maponpaths (λ x, _ x _) _ @ maponpaths _ _ @ !(pathsdirprod_eta e));
     refine (pr1 ((_ : isaset _) _ _ _ _));
       do 2 (apply (impred 2); intro);
       apply setproperty.

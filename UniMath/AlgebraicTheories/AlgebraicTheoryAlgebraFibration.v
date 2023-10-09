@@ -38,7 +38,7 @@ Lemma algebra_cleaving_is_algebra
   (A : algebraic_theory_algebra T)
   : is_algebraic_theory_algebra (algebra_cleaving_algebra_data F A).
 Proof.
-  use (_ ,, _ ,, _).
+  repeat split.
   - do 5 intro.
     simpl.
     rewrite (algebraic_theory_morphism_preserves_composition F).
@@ -108,7 +108,7 @@ Lemma algebra_lift_is_unique
   (G' : (A'' : algebraic_theory_algebra_disp_cat _) -->[(F' : algebraic_theory_cat⟦_, _⟧) · F] A)
   : ∏ t : (∑ gg, (gg ;; algebra_cleaving_morphism F A) = G'), t = (algebra_lift F F' G').
 Proof.
-  intro.
+  intro t.
   apply subtypePairEquality'.
   + apply displayed_algebra_morphism_eq.
     exact (!comp_disp_cartesian _ _ (pr11 t) _ @ maponpaths _ (pr2 t)).

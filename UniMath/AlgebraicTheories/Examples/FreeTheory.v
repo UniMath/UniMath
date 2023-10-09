@@ -62,10 +62,10 @@ Proof.
           | intros n f;
             now induction f]
         ).
-  - use tpair.
+  - split.
     + abstract (
-        intro;
-        use (algebraic_theory_morphism_eq (T := free_theory a) (T' := free_theory a));
+        intro A;
+        use (algebraic_theory_morphism_eq (T := free_theory A) (T' := free_theory A));
         intros n f;
         now induction f
       ).
@@ -103,7 +103,6 @@ Lemma lift_constant_eq
   (H : f = f')
   : lift_constant n f = f' • g.
 Proof.
-  intros.
   refine (maponpaths (comp f) _ @ maponpaths (λ x, x • g) H).
   apply funextfun.
   intro x.
@@ -150,7 +149,6 @@ Proof.
       ).
   - abstract (
       use tpair;
-      repeat intro;
       easy
     ).
 Defined.

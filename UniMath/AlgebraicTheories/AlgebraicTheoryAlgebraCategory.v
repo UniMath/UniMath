@@ -102,13 +102,12 @@ Proof.
   use isweq_iso.
   - intro f.
     do 3 (apply funextsec; intro).
-    pose (H := pr1 f x x0 x1).
-    refine (!_ @ H @ maponpaths (action' x x0) _).
-    + refine (maponpaths (λ a, a (action x x0 x1)) (transportf_set _ _ _ _)).
+    refine (!_ @ pr1 f _ _ _ @ maponpaths (action' _ _) _).
+    + refine (maponpaths (λ a, a _) (transportf_set _ _ _ _)).
       exact (isasetaprop (isasetunit _ _)).
     + apply funextfun.
       intro.
-      refine (maponpaths (λ a, a (x1 _)) (transportf_set _ _ _ _)).
+      refine (maponpaths (λ a, a _) (transportf_set _ _ _ _)).
       exact (isasetaprop (isasetunit _ _)).
   - intro.
     do 3 (apply impred_isaset; intro).

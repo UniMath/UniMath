@@ -60,9 +60,9 @@ Proof.
   - abstract (intros; apply setproperty).
   - now intros.
   - abstract (
-    intros T T' T'' e e' e'' F F' HF HF';
-    now rewrite (!HF'), (!HF)
-  ).
+      intros T T' T'' e e' e'' F F' HF HF';
+      now rewrite (!HF'), (!HF)
+    ).
 Defined.
 
 Lemma is_univalent_disp_pointed_functor_disp_cat
@@ -164,14 +164,16 @@ Proof.
   - exact (λ T T' Tdata T'data (F : pointed_functor_morphism T T'),
       ∏ m n f g, (F _ (Tdata m n f g)) = T'data m n (F _ f) (λ i, F _ (g i))).
   - abstract (
-    intros;
-    repeat (apply impred_isaprop; intro);
-    apply setproperty).
-  - abstract now intros.
+      intros;
+      repeat (apply impred_isaprop; intro);
+      apply setproperty
+    ).
+  - abstract easy.
   - abstract (
-    intros T T' T'' Tdata T'data T''data F F' Fdata F'data m n f g;
-    cbn;
-    now rewrite Fdata, F'data).
+      intros T T' T'' Tdata T'data T''data F F' Fdata F'data m n f g;
+      cbn;
+      now rewrite Fdata, F'data
+    ).
 Defined.
 
 Lemma is_univalent_disp_algebraic_theory_data_disp_cat
@@ -184,7 +186,7 @@ Proof.
     do 4 (apply funextsec; intro).
     apply (pr1 f _).
   - intro.
-    assert (H : isaset algebraic_theory_data_disp_cat[{T}]); [ | apply H].
+    refine (pr1 ((_ : isaset algebraic_theory_data_disp_cat[{T}]) _ _ _ _)).
     do 4 (apply impred_isaset; intro).
     apply setproperty.
   - intro.
@@ -316,7 +318,7 @@ Proof.
         | do 3 (apply impred_isaprop; intro);
           apply setproperty ]);
       [ apply algebraic_theory_comp_is_assoc
-      | apply (algebraic_theory_comp_is_unital _ _ (pr1 f _))
+      | apply (algebraic_theory_comp_is_unital _ _ (pr1 _ _))
       | apply algebraic_theory_comp_identity_projections
       | apply algebraic_theory_comp_is_natural_l ]
     ).

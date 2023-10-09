@@ -42,7 +42,7 @@ Proof.
     ).
   - use make_isProduct.
     + apply homset_property.
-    + intros.
+    + intros c' cone'.
       use make_iscontr.
       * use tpair.
         -- apply (TerminalArrow T).
@@ -259,7 +259,7 @@ Section EndomorphismAlgebraicTheory.
       refine (_ @ maponpaths (λ x, x · _) (φ_adj_natural_precomp (pr2 E) _ _ _ _ _)).
       apply (maponpaths (λ x, _ (x · _) · _)).
       apply ProductArrow_eq.
-      intro.
+      intro i.
       refine (pow_commutes _ _ _ _ @ !_).
       refine (_ @ maponpaths _ (homotweqinvweq stnweq i)).
       unfold ProductPr.
@@ -272,9 +272,9 @@ Section EndomorphismAlgebraicTheory.
         refine (extend_tuple_inl _ _ _ @ _).
         apply (maponpaths (λ x, x · _)).
         apply ProductArrow_eq.
-        intro.
+        intro j.
         refine (pow_commutes _ _ _ _ @ _).
-        refine (maponpaths _ (homotinvweqweq _ (inl i0))).
+        refine (maponpaths _ (homotinvweqweq _ (inl j))).
       + refine (bp_commutes_1 _ _ _ _ @ _).
         refine (id_right _ @ !_).
         refine (extend_tuple_inr _ _ @ _).

@@ -64,7 +64,7 @@ Proof.
       rewrite Hl.
       do 2 apply maponpaths.
       refine (!extend_tuple_eq _ _).
-      * intro i.
+      * intro.
         refine (_ @ !maponpaths (λ x, subst x _) (extend_tuple_inl _ _ _)).
         rewrite inflate_subst.
         unfold inflate.
@@ -96,14 +96,14 @@ Proof.
     simpl.
   - intros ? l.
     exact (app (inflate l) (var lastelement)).
-  - intros ?.
+  - intro.
     exact abs.
 Defined.
 
 Definition lambda_calculus_is_lambda_theory
   : is_lambda_theory lambda_calculus_lambda_theory_data.
 Proof.
-  repeat apply tpair;
+  repeat split;
     cbn;
     intros;
     unfold extend_finite_morphism_with_identity, inflate.

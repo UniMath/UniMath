@@ -1,6 +1,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryCategory.
+Require Import UniMath.AlgebraicTheories.LambdaTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryAlgebras.
 Require Import UniMath.AlgebraicTheories.LambdaCalculus.
@@ -110,7 +111,7 @@ Section Monoid.
             do 3 extend_tuple_3;
             do 7 reduce_lambda
           ).
-    - use tpair.
+    - split.
       + abstract now (
           intros a b c;
           apply subtypePairEquality'; [ | apply isaprop_is_functional];
@@ -132,7 +133,13 @@ Section Monoid.
           do 12 reduce_lambda;
           do 6 extend_tuple_3;
           cbn -[v];
-          do 41 reduce_lambda
+          do 21 reduce_lambda;
+          do 3 rewrite (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _);
+          do 10 reduce_lambda;
+          do 4 rewrite (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _);
+          rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _);
+          do 2 reduce_lambda;
+          rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _)
         ).
       + use tpair.
         * use tpair.
@@ -150,7 +157,7 @@ Section Monoid.
               cbn;
               reduce_lambda
             ).
-        * use tpair;
+        * split;
            (
             intro a;
             pose (v := weqvecfun 1 [(pr1 a)]);
@@ -171,7 +178,10 @@ Section Monoid.
             do 9 reduce_lambda;
             do 3 extend_tuple_3;
             cbn -[action v];
-            do 7 reduce_lambda;
+            do 4 reduce_lambda;
+            rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _);
+            reduce_lambda;
+            rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _);
             exact (!pr2 a)
           ).
   Defined.
@@ -209,7 +219,7 @@ Section Monoid.
       + intros a b f.
         intro g.
         exact (op g f).
-    - use tpair.
+    - split.
       + intro.
         use funextfun.
         intro.

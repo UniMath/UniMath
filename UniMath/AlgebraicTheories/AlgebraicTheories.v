@@ -125,7 +125,7 @@ Section MakeAlgebraicTheory'.
   Lemma algebraic_theory'_to_is_functor (C : algebraic_theory')
     : is_functor (algebraic_theory'_to_functor_data C).
   Proof.
-    apply tpair.
+    split.
     - intro.
       apply funextfun.
       intro.
@@ -289,14 +289,10 @@ Qed.
 Lemma algebraic_theory_id_pr_is_pr (T : algebraic_theory)
   : id_pr = pr (T := T) (@firstelement 0).
 Proof.
-  unfold pr.
-  assert (H : identity (1 : finite_set_skeleton_category) = (λ _, firstelement)).
-  {
-    apply funextfun.
-    intro.
-    use (subtypePairEquality' _ (isasetbool _ _)).
-    exact (natlth1tois0 _ (stnlt x)).
-  }
-  rewrite <- H.
-  now rewrite (functor_id T).
+  refine (eqtohomot (!functor_id T _) id_pr @ _).
+  apply (maponpaths (λ x, # T x id_pr)).
+  apply funextfun.
+  intro.
+  use (subtypePairEquality' _ (isasetbool _ _)).
+  exact (natlth1tois0 _ (stnlt x)).
 Qed.
