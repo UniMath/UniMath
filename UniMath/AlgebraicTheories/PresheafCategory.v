@@ -142,12 +142,14 @@ Section Limits.
   Proof.
     do 4 (apply funextsec; intro).
     apply subtypePairEquality.
-    - intro.
+    {
+      intro.
       repeat (apply impred_isaprop; intro).
       apply setproperty.
-    - apply funextsec.
-      intro.
-      exact (cone_out _ _ _ _ _).
+    }
+    apply funextsec.
+    intro.
+    apply (cone_out _ _ _ _ _).
   Qed.
 
   Lemma is_limit_presheaf_data_disp_cat
@@ -158,12 +160,14 @@ Section Limits.
   Proof.
     intros m n f g.
     apply subtypePairEquality.
-    - intro.
+    {
+      intro.
       repeat (apply impred_isaprop; intro).
       exact (setproperty _ _ _).
-    - apply funextsec.
-      intro i.
-      exact (pr2 (cone_out i) m n f g).
+    }
+    apply funextsec.
+    intro i.
+    exact (pr2 (cone_out i) m n f g).
   Qed.
 
 End Limits.
@@ -298,7 +302,8 @@ Lemma displayed_presheaf_morphism_eq
   (H : pr1 G = pr1 G')
   : G = G'.
 Proof.
-  apply (subtypePairEquality' H).
+  refine (subtypePath _ H).
+  intro.
   use (isapropdirprod _ _ _ isapropunit).
   do 4 (apply impred_isaprop; intro).
   apply setproperty.
@@ -400,7 +405,11 @@ Section fibration.
         (t : ∑ induced_morphism', (induced_morphism' ;; lifted_presheaf_morphism) = hh)
         : t = induced_morphism ,, induced_morphism_commutes.
       Proof.
-        apply subtypePairEquality'; [ | apply homsets_disp].
+        apply subtypePairEquality.
+        {
+          intro.
+          apply homsets_disp.
+        }
         apply displayed_presheaf_morphism_eq.
         refine (
           nat_trans_eq (homset_property HSET) _ _ _ _ _ @

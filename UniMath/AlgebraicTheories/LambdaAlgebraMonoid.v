@@ -114,7 +114,7 @@ Section Monoid.
     - split.
       + abstract now (
           intros a b c;
-          apply subtypePairEquality'; [ | apply isaprop_is_functional];
+          apply subtypePairEquality; [intro; apply isaprop_is_functional | ];
           cbn -[weqvecfun action];
           pose (v := weqvecfun _ [(pr1 a ; pr1 b ; pr1 c)]);
           pose (Hv := λ i Hi,
@@ -161,7 +161,7 @@ Section Monoid.
            (
             intro a;
             pose (v := weqvecfun 1 [(pr1 a)]);
-            use subtypePairEquality'; [ | apply isaprop_is_functional];
+            use subtypePairEquality; [intro; apply isaprop_is_functional | ];
             cbn -[weqvecfun action];
             etrans; [now rewrite <- (algebraic_theory_algebra_projects_component _ _ (make_stn 1 0 (idpath true)) v : _ = pr1 a) | ];
 

@@ -179,12 +179,28 @@ Lemma algebraic_theory_morphism_eq
   (H1 : ∏ n f, F n f = F' n f)
   : F = F'.
 Proof.
-  repeat use subtypePairEquality'.
-  - do 2 (apply funextsec; intro).
-    apply H1.
-  - apply isaprop_is_nat_trans, homset_property.
-  - apply setproperty.
-  - repeat (apply impred_isaprop; intro).
+  use subtypePath.
+  {
+    intro.
+    exact isapropunit.
+  }
+  use subtypePath.
+  {
+    intro.
+    repeat (apply impred_isaprop; intro).
     apply setproperty.
-  - exact isapropunit.
+  }
+  use subtypePath.
+  {
+    intro.
+    apply setproperty.
+  }
+  use subtypePath.
+  {
+    intro.
+    apply isaprop_is_nat_trans.
+    apply homset_property.
+  }
+  do 2 (apply funextsec; intro).
+  apply H1.
 Qed.

@@ -106,11 +106,13 @@ Section Limits.
     : d' = tip_pointed_functor_disp_cat.
   Proof.
     apply subtypePairEquality.
-    - intro.
+    {
+      intro.
       repeat (apply impred_isaprop; intro).
       apply setproperty.
-    - apply funextsec.
-      exact cone_out.
+    }
+    apply funextsec.
+    exact cone_out.
   Qed.
 
   Lemma is_limit_pointed_functor_disp_cat
@@ -120,12 +122,14 @@ Section Limits.
     : pr2 d' -->[limArrow L _ (make_cone (d := (mapdiagram (pr1_category D) d)) _ (λ u v e, (maponpaths pr1 (is_cone u v e))))] tip_pointed_functor_disp_cat.
   Proof.
     apply subtypePairEquality.
-    - intro.
+    {
+      intro.
       repeat (apply impred_isaprop; intro).
       apply setproperty.
-    - apply funextsec.
-      intro i.
-      exact (pr2 (cone_out i)).
+    }
+    apply funextsec.
+    intro i.
+    exact (pr2 (cone_out i)).
   Qed.
 
 End Limits.
@@ -231,12 +235,14 @@ Section Limits.
   Proof.
     do 4 (apply funextsec; intro).
     apply subtypePairEquality.
-    - intro.
+    {
+      intro.
       repeat (apply impred_isaprop; intro).
       apply setproperty.
-    - apply funextsec.
-      intro.
-      exact (cone_out _ _ _ _ _).
+    }
+    apply funextsec.
+    intro.
+    exact (cone_out _ _ _ _ _).
   Qed.
 
   Lemma is_limit_algebraic_theory_data_disp_cat
@@ -247,12 +253,14 @@ Section Limits.
   Proof.
     intros m n f g.
     apply subtypePairEquality.
-    - intro.
+    {
+      intro.
       repeat (apply impred_isaprop; intro).
       exact (setproperty _ _ _).
-    - apply funextsec.
-      intro i.
-      exact (pr2 (cone_out i) m n f g).
+    }
+    apply funextsec.
+    intro i.
+    exact (pr2 (cone_out i) m n f g).
   Qed.
 
 End Limits.

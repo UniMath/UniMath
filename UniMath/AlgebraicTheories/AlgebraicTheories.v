@@ -14,6 +14,7 @@ Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories2.
+Require Import UniMath.AlgebraicTheories.Tuples.
 
 Declare Scope algebraic_theories.
 
@@ -208,7 +209,7 @@ Lemma algebraic_theory_eq
     (@comp X) = (@comp Y))
   : X = Y.
 Proof.
-  use (subtypePairEquality' _ (isaprop_is_algebraic_theory _)).
+  use (subtypePath isaprop_is_algebraic_theory).
   use total2_paths_f.
   - use total2_paths_f.
     + apply (functor_eq _ _ (homset_property HSET)).
@@ -293,6 +294,6 @@ Proof.
   apply (maponpaths (λ x, # T x id_pr)).
   apply funextfun.
   intro.
-  use (subtypePairEquality' _ (isasetbool _ _)).
+  apply stn_eq.
   exact (natlth1tois0 _ (stnlt x)).
 Qed.

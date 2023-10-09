@@ -8,10 +8,9 @@ Lemma stn_eq
   (H : pr1 i = pr1 i')
   : i = i'.
 Proof.
-  use subtypePath.
-  - intro.
-    apply isasetbool.
-  - exact H.
+  refine (subtypePath _ H).
+  intro.
+  apply isasetbool.
 Qed.
 
 Definition eqstnweq
@@ -93,11 +92,9 @@ Proof.
   refine (maponpaths _ (_ : invmap stnweq (i ,, Hi1) = inl (make_stn _ i Hi2))).
   apply (invmaponpathsweq (weqdnicoprod n lastelement)).
   refine (homotweqinvweq _ _ @ _).
-  apply subtypePairEquality.
-  - intro.
-    apply isasetbool.
-  - refine (!di_eq1 _).
-    apply Hi2.
+  apply stn_eq.
+  refine (!di_eq1 _).
+  apply Hi2.
 Qed.
 
 Lemma extend_tuple_last
@@ -113,10 +110,8 @@ Proof.
   refine (maponpaths _ (_ : invmap stnweq i = inr tt)).
   apply (invmaponpathsweq (weqdnicoprod n lastelement)).
   refine (homotweqinvweq _ _ @ _).
-  apply subtypePairEquality.
-  - intro.
-    apply isasetbool.
-  - apply Hi.
+  apply stn_eq.
+  apply Hi.
 Qed.
 
 Lemma extend_tuple_inl

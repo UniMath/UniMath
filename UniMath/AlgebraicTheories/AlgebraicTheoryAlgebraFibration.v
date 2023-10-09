@@ -109,10 +109,13 @@ Lemma algebra_lift_is_unique
   : ∏ t : (∑ gg, (gg ;; algebra_cleaving_morphism F A) = G'), t = (algebra_lift F F' G').
 Proof.
   intro t.
-  apply subtypePairEquality'.
-  + apply displayed_algebra_morphism_eq.
-    exact (!comp_disp_cartesian _ _ (pr11 t) _ @ maponpaths _ (pr2 t)).
-  + apply homsets_disp.
+  apply subtypePath.
+  {
+    intro.
+    apply homsets_disp.
+  }
+  apply displayed_algebra_morphism_eq.
+  exact (!comp_disp_cartesian _ _ (pr11 t) _ @ maponpaths _ (pr2 t)).
 Qed.
 
 Definition algebra_cleaving_is_cartesian

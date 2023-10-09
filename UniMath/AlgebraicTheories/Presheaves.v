@@ -164,15 +164,17 @@ Lemma presheaf_morphism_eq
   (H : ∏ n, F n = F' n)
   : F = F'.
 Proof.
-  apply subtypePairEquality.
-  - intro.
+  apply subtypePath.
+  {
+    intro.
     use isapropdirprod.
     + do 4 (apply impred_isaprop; intro).
       apply setproperty.
     + exact isapropunit.
-  - apply nat_trans_eq.
-    + apply homset_property.
-    + exact H.
+  }
+  apply nat_trans_eq.
+  - apply homset_property.
+  - exact H.
 Qed.
 
 Definition presheaf_data' (T : algebraic_theory_data) : UU

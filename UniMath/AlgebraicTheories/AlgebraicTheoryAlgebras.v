@@ -149,15 +149,18 @@ Proof.
   use total2_paths_f.
   - exact H1.
   - rewrite transportf_total2.
-    use subtypePairEquality'.
-    + rewrite transportf_sec_constant.
-      apply funextsec.
+    use subtypePairEquality.
+    {
       intro.
-      rewrite transportf_sec_constant.
-      apply funextsec.
-      intro.
-      apply H2.
-    + exact (isaprop_is_algebraic_theory_algebra _).
+      apply isaprop_is_algebraic_theory_algebra.
+    }
+    rewrite transportf_sec_constant.
+    apply funextsec.
+    intro.
+    rewrite transportf_sec_constant.
+    apply funextsec.
+    intro.
+    apply H2.
 Qed.
 
 (* Properties of algebraic theory algebras *)

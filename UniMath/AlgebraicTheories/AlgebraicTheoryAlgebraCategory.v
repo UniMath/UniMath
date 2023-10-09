@@ -88,7 +88,8 @@ Lemma displayed_algebra_morphism_eq
   (H : pr1 G = pr1 G')
   : G = G'.
 Proof.
-  apply (subtypePairEquality' H).
+  refine (subtypePath _ H).
+  intro x.
   use (isapropdirprod _ _ _ isapropunit).
   repeat (apply impred_isaprop; intro).
   apply setproperty.

@@ -185,8 +185,9 @@ Proof.
         [ intro;
           repeat (apply impred_isaprop; intro);
           apply setproperty
-        | apply funextsec;
-          intro u ]);
+        | ];
+        apply funextsec;
+        intro u);
       [ refine (lambda_theory_app_compatible_with_comp _ _ @ _);
         unfold extended_composition;
         apply (maponpaths (comp (_ (pr1 f u))));

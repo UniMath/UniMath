@@ -151,7 +151,12 @@ Definition monoid_to_free_monoid_theory_algebra (M : monoid)
 Lemma monoid_to_free_monoid_theory_algebra_and_back (M : monoid)
   : free_monoid_theory_algebra_to_monoid (monoid_to_free_monoid_theory_algebra M) = M.
 Proof.
-  exact (subtypePairEquality' (idpath (pr1monoid _)) (isapropismonoidop _)).
+  apply subtypePath.
+  {
+    intro.
+    apply isapropismonoidop.
+  }
+  apply idpath.
 Qed.
 
 Lemma free_monoid_theory_algebra_to_monoid_and_back
