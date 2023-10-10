@@ -26,6 +26,17 @@ Proof.
   exact (pr2 i).
 Defined.
 
+Lemma stn_eq
+  {n : nat}
+  (i i' : stn n)
+  (H : pr1 i = pr1 i')
+  : i = i'.
+Proof.
+  refine (subtypePath _ H).
+  intro.
+  apply isasetbool.
+Qed.
+
 (* old way:
    Notation " 'stnel' ( i , j ) " :=
       ( make_stn _ _  ( ctlong natlth isdecrelnatlth j i ( idpath true ) ) )
@@ -1704,6 +1715,22 @@ Proof. revert n'.
          + intro X. apply (fromempty ( negweqstnsn0 n X)).
          + intro X. apply maponpaths. apply IHn.
            apply weqcutforstn. assumption.
+Defined.
+
+Definition eqtoweqstn
+  {n n' : nat}
+  (H : n = n')
+  : stn n ≃ stn n'.
+Proof.
+  use weq_iso.
+  - intro i.
+    refine (make_stn _ i _).
+    abstract exact (transportf (λ x, i < x) H (stnlt i)).
+  - intro i.
+    refine (make_stn _ i _).
+    abstract exact (transportf (λ x, i < x) (!H) (stnlt i)).
+  - abstract (intro i; now apply stn_eq).
+  - abstract (intro i; now apply stn_eq).
 Defined.
 
 Corollary stnsdnegweqtoeq ( n n' : nat ) ( dw : dneg (⟦n⟧ ≃ ⟦n'⟧) ) : n = n'.

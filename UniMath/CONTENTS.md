@@ -1159,7 +1159,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [Examples/Plus1Presheaf.v](AlgebraicTheories/Examples/Plus1Presheaf.v)
    - [Examples/ProjectionsTheory.v](AlgebraicTheories/Examples/ProjectionsTheory.v)
    - [LambdaAlgebraMonoid.v](AlgebraicTheories/LambdaAlgebraMonoid.v)
-   - [AlgebraicTheoryAlgebraWeqEndomorphismTheoryMorphism.v](AlgebraicTheories/AlgebraicTheoryAlgebraWeqEndomorphismTheoryMorphism.v)
    - [RepresentationTheorem.v](AlgebraicTheories/RepresentationTheorem.v)
    - [All.v](AlgebraicTheories/All.v)
 ## Package Semantics

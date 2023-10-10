@@ -35,7 +35,9 @@ Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Local Open Scope cat.
 
@@ -1537,3 +1539,75 @@ Definition BinProducts_from_Products
   (P : Products (coprod unit unit) C)
   : BinProducts C
   := λ c d, BinProduct_from_Product c d (P _).
+
+Definition n_power_to_sn_power
+  {C : category}
+  (BP : BinProducts C)
+  (n : nat)
+  (c : C)
+  (P : Product (stn n) C (λ _, c))
+  : Product (stn (S n)) C (λ _, c).
+Proof.
+  pose (stnweq := (weqdnicoprod n lastelement)).
+  use ((_ ,, _) ,, _).
+  - exact (BP c P).
+  - intro i.
+    induction (invmap stnweq i) as [i' | i'].
+    + exact (
+        BinProductPr2 _ _ ·
+        ProductPr _ _ _ i'
+      ).
+    + apply BinProductPr1.
+  - intros c' cone'.
+    use ((_ ,, _) ,, _).
+    + use BinProductArrow.
+      * apply (cone' (stnweq (inr tt))).
+      * apply ProductArrow.
+        intro i.
+        apply (cone' (stnweq (inl i))).
+    + abstract (
+        intro i;
+        refine (_ @ maponpaths _ (homotweqinvweq stnweq i));
+        simpl;
+        induction (invmap (Y := stn (S n)) stnweq i) as [i' | i'];
+        [ simpl;
+          rewrite assoc;
+          rewrite BinProductPr2Commutes;
+          apply (ProductPrCommutes _ _ _ P)
+        | rewrite (BinProductPr1Commutes _ _ _ (BP c P));
+          apply maponpaths;
+          now apply stn_eq ]
+      ).
+    + abstract (
+        intro t;
+        apply subtypePairEquality;
+        [ intro;
+          apply impred_isaprop;
+          intro;
+          apply homset_property
+        | apply BinProductArrowUnique;
+          [ refine (!_ @ pr2 t _);
+            apply maponpaths;
+            exact (maponpaths _ (homotinvweqweq _ _))
+          | apply ProductArrowUnique;
+            intro i;
+            refine (_ @ pr2 t _);
+            refine (assoc' _ _ _ @ _);
+            refine (maponpaths _ (!_));
+            exact (maponpaths _ (homotinvweqweq _ _)) ] ]
+      ).
+Defined.
+
+Definition bin_product_power
+  (C : category)
+  (c : C)
+  (T : Terminal C)
+  (BP : BinProducts C)
+  (n : nat)
+  : Product (stn n) C (λ _, c).
+Proof.
+  induction n as [ | n IHn].
+  - refine (transportf (λ x, Product x C (λ y: x, c)) _ (Terminal_is_empty_product T _)).
+    abstract exact (invmap (univalence _ _) (invweq weqstn0toempty)).
+  - apply (n_power_to_sn_power BP _ _ IHn).
+Defined.

@@ -123,6 +123,39 @@ Section Terminal_and_EmptyProd.
     abstract (intros t; apply ProductArrowUnique; intros i; apply (fromempty i)).
   Defined.
 
+  Definition Terminal_is_empty_product
+    {C : category}
+    (T : Terminal C)
+    (c : empty → C)
+    : Product empty C c.
+  Proof.
+    use make_Product.
+    - exact (TerminalObject T).
+    - abstract (
+        intro i;
+        apply (fromempty i)
+      ).
+    - use make_isProduct.
+      + apply homset_property.
+      + intros c' cone'.
+        use make_iscontr.
+        * use tpair.
+          -- apply (TerminalArrow T).
+          -- abstract (
+              intro i;
+              apply (fromempty i)
+            ).
+        * abstract (
+            intro t;
+            use subtypePairEquality;
+            [ intro i;
+              apply impred_isaprop;
+              intro;
+              apply homset_property
+            | apply (TerminalArrowUnique T) ]
+          ).
+  Defined.
+
 End Terminal_and_EmptyProd.
 
 (* Section Terminal_from_Lims. *)

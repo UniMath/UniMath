@@ -480,9 +480,9 @@ Section RepresentationTheorem.
       intro i.
       refine (_ @ maponpaths _ (homotweqinvweq stnweq i)).
       simpl.
-      unfold ProductPr.
+      unfold ProductPr, stnweq.
       simpl.
-      induction (invmap (Y := _ (S n)) stnweq i) as [i' | i'].
+      induction (invmap (Y := _ (S n)) (weqdnicoprod _ lastelement) i) as [i' | i'].
       - refine (maponpaths (λ x, x _) (presheaf_mor_comp (P'' := theory_presheaf L) _ _ _) @ _).
         refine (presheaf_morphism_commutes_with_action (ProductPr _ _ (pow n) _ : presheaf_morphism (ProductObject _ _ (pow _) : presheaf L) (theory_presheaf L)) _ _ @ _).
         refine (maponpaths (λ x, x _ • _) (!presheaf_mor_comp (P'' := theory_presheaf L) _ _ _) @ _).

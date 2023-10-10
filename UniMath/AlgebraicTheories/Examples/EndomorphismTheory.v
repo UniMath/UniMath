@@ -27,111 +27,6 @@ Require Import UniMath.AlgebraicTheories.Tuples.
 
 Local Open Scope cat.
 
-Definition Terminal_is_empty_product
-  {C : category}
-  (T : Terminal C)
-  (c : stn 0 → C)
-  : Product (stn 0) C c.
-Proof.
-  use make_Product.
-  - exact (TerminalObject T).
-  - abstract (
-      intro i;
-      apply fromempty;
-      exact (negnatlthn0 _ (stnlt i))
-    ).
-  - use make_isProduct.
-    + apply homset_property.
-    + intros c' cone'.
-      use make_iscontr.
-      * use tpair.
-        -- apply (TerminalArrow T).
-        -- abstract (
-            intro i;
-            apply fromempty;
-            exact (negnatlthn0 _ (stnlt i))
-          ).
-      * abstract (
-          intro t;
-          use subtypePairEquality;
-          [ intro i;
-            apply impred_isaprop;
-            intro;
-            apply homset_property
-          | apply (TerminalArrowUnique T) ]
-        ).
-Defined.
-
-Definition n_power_to_sn_power
-  {C : category}
-  (BP : BinProducts C)
-  (n : nat)
-  (c : C)
-  (P : Product (stn n) C (λ _, c))
-  : Product (stn (S n)) C (λ _, c).
-Proof.
-  use ((_ ,, _) ,, _).
-  - exact (BP c P).
-  - intro i.
-    induction (invmap stnweq i) as [i' | i'].
-    + exact (
-        BinProductPr2 _ _ ·
-        ProductPr _ _ _ i'
-      ).
-    + apply BinProductPr1.
-  - intros c' cone'.
-    use ((_ ,, _) ,, _).
-    + use BinProductArrow.
-      * apply (cone' (stnweq (inr tt))).
-      * apply ProductArrow.
-        intro i.
-        apply (cone' (stnweq (inl i))).
-    + abstract (
-        intro i;
-        refine (_ @ maponpaths _ (homotweqinvweq stnweq i));
-        simpl;
-        induction (invmap (Y := stn (S n)) stnweq i) as [i' | i'];
-        [ simpl;
-          rewrite assoc;
-          rewrite BinProductPr2Commutes;
-          apply (ProductPrCommutes _ _ _ P)
-        | rewrite (BinProductPr1Commutes _ _ _ (BP c P));
-          apply maponpaths;
-          now apply stn_eq ]
-      ).
-    + abstract (
-        intro t;
-        apply subtypePairEquality;
-        [ intro;
-          apply impred_isaprop;
-          intro;
-          apply homset_property
-        | apply BinProductArrowUnique;
-          [ refine (!_ @ pr2 t _);
-            apply maponpaths;
-            exact (maponpaths _ (homotinvweqweq _ _))
-          | apply ProductArrowUnique;
-            intro i;
-            refine (_ @ pr2 t _);
-            refine (assoc' _ _ _ @ _);
-            refine (maponpaths _ (!_));
-            exact (maponpaths _ (homotinvweqweq _ _)) ] ]
-      ).
-Defined.
-
-Definition bin_product_power
-  (C : category)
-  (c : C)
-  (T : Terminal C)
-  (BP : BinProducts C)
-  (n : nat)
-  : Product (stn n) C (λ _, c).
-Proof.
-  induction n as [ | n IHn].
-  - exact (Terminal_is_empty_product T _).
-  - apply (n_power_to_sn_power BP _ _ IHn).
-Defined.
-
 Section EndomorphismAlgebraicTheory.
 
   Context {C : category}.
@@ -140,7 +35,7 @@ Section EndomorphismAlgebraicTheory.
 
   Variable (X : C).
 
-  Definition power
+  Local Definition power
     (n : nat)
     : Product (stn n) C (λ _, X)
     := bin_product_power C X C_terminal C_bin_products n.
@@ -262,9 +157,9 @@ Section EndomorphismAlgebraicTheory.
       intro i.
       refine (pow_commutes _ _ _ _ @ !_).
       refine (_ @ maponpaths _ (homotweqinvweq stnweq i)).
-      unfold ProductPr.
+      unfold ProductPr, stnweq.
       simpl.
-      induction (invmap (Y := stn (S m)) stnweq i) as [i' | i'].
+      induction (invmap (Y := stn (S m)) (weqdnicoprod m lastelement) i) as [i' | i'].
       + refine (assoc _ _ _ @ _).
         refine (maponpaths (λ x, x · _) (bp_commutes_2 _ _ _ _) @ _).
         refine (assoc' _ _ _ @ _).

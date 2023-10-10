@@ -2,33 +2,6 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Lemma stn_eq
-  {n : nat}
-  (i i' : stn n)
-  (H : pr1 i = pr1 i')
-  : i = i'.
-Proof.
-  refine (subtypePath _ H).
-  intro.
-  apply isasetbool.
-Qed.
-
-Definition eqstnweq
-  {n n' : nat}
-  (H : n = n')
-  : stn n ≃ stn n'.
-Proof.
-  use weq_iso.
-  - intro i.
-    refine (make_stn _ i _).
-    abstract exact (transportf (λ x, i < x) H (stnlt i)).
-  - intro i.
-    refine (make_stn _ i _).
-    abstract exact (transportf (λ x, i < x) (!H) (stnlt i)).
-  - abstract (intro i; now apply stn_eq).
-  - abstract (intro i; now apply stn_eq).
-Defined.
-
 Definition stnweq {n : nat}
   : stn n ⨿ unit ≃ stn (1 + n)
   := weqdnicoprod _ lastelement.
