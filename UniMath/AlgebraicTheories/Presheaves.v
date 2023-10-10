@@ -1,3 +1,8 @@
+(*
+  Defines what a presheaf for an algebraic theory is,
+  gives an alternate way to construct one [make_presheaf']
+  and shows that an algebraic theory is itself a presheaf [theory_presheaf].
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 

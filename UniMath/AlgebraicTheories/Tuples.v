@@ -1,3 +1,8 @@
+(*
+  Provides a couple of definitions and lemmas about "Tuples". These are morphisms from stn n into
+  some type. It defines a way to add one element to a tuple [extend_tuple] and then provides an
+  equality lemma [extend_tuple_eq] and a couple of lemmas about the elements of [extend_tuple].
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.

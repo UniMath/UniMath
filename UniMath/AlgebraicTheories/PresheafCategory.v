@@ -1,4 +1,8 @@
-(* Defines the category of presheaves for an algebraic theory and shows that it is univalent and has all limits *)
+(*
+  Defines the category of presheaves for an algebraic theory
+  and shows that it is univalent and has a terminal object, products and all limits
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 

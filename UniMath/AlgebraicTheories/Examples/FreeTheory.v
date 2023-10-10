@@ -1,3 +1,6 @@
+(*
+  Defines the free algebraic theory on a given set.
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.

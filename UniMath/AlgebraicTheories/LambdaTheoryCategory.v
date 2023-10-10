@@ -1,4 +1,4 @@
-(* Defines the univalent category of lambda theories *)
+(* Defines the univalent category of lambda theories and shows that it has all limits *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.

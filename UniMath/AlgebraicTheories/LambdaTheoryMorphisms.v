@@ -1,3 +1,6 @@
+(*
+  Defines the type of morphisms for a λ-theory.
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.

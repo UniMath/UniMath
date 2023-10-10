@@ -1,3 +1,8 @@
+(*
+ Defines the univalent category of algebras for an algebraic theory
+ and shows that it has all limits.
+ *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.

@@ -1,3 +1,7 @@
+(*
+  Defines what a λ-theory is
+  and gives an alternate way to give a part of its data [make_is_lambda_theory'].
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.

@@ -1,3 +1,12 @@
+(*
+  A proof of the representation theorem for the λ-calculus, first proven by Dana Scott in 1980.
+  It shows that any model for the λ-calculus can be viewed as the set of endomorphisms of some
+  (reflexive) object in some category.
+  This file first shows that the object [theory_presheaf]
+  can be exponentiated [theory_presheaf_exponentiable],
+  then constructs its endomorphism λ-theory [presheaf_lambda_theory]
+  and finally shows that it is isomorphic to our original λ-theory [presheaf_lambda_theory_iso].
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.

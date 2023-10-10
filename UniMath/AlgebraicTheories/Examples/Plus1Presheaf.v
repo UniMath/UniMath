@@ -1,3 +1,6 @@
+(*
+  Shows that, given a presheaf P, there exists a presheaf P' with P'(n) = P(S n).
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Functors.
