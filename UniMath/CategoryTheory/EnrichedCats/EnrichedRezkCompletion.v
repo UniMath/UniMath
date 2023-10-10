@@ -24,10 +24,11 @@
  heavy lifting. However, the advantage of the lifting approach is that
  if one assumes that the Rezk completion preserves the universe level
  (which would be the case if one construct the Rezk completion as a
- higher inductive type), then the resulting Rezk completion for enriched
- categories also preserves the universe level. Our approach increases the
- universe level for the same reason as why the Rezk completion for ordinary
- categories increases the universe level.
+ higher inductive type provided that the HIT is postulated in an appropriate
+ way), then the resulting Rezk completion for enriched categories also
+ preserves the universe level. Our approach increases the universe level for
+ the same reason as why the Rezk completion for ordinary categories
+ increases the universe level.
 
  Contents
  1. The Rezk completion and its enrichment
