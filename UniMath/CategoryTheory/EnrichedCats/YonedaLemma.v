@@ -6,7 +6,7 @@
 
  For enriched categories, there are several options for formulating the
  Yoneda lemma. First of all, one could look at the weak Yoneda lemma. The
- weak Yoneda lemma says something the *set* of natural transformations,
+ weak Yoneda lemma says something about the *set* of natural transformations,
  namely that this section is isomorphic to the collection of global
  elements. This statement is proven in Section 1.9 of [1].
 
