@@ -5,7 +5,7 @@
  We use the Yoneda lemma and the image factorization to construct the
  Rezk completion for enriched categories. For this construction, we have
  to assume that the monoidal category `V` over which we enrich, is a
- univalent category. The structure of the proof is the mostly same as for
+ univalent category. The structure of the proof is mostly same as for
  ordinary categories. The main difference is that instead of looking at
  all presheaves, we only look at those presheaves that are enriched.
 
