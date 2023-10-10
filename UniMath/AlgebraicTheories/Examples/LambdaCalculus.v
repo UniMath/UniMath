@@ -1,3 +1,7 @@
+(*
+  Defines the lambda theory corresponding to the lambda calculus itself and shows that it has
+  eta and beta equality (since the lambda calculus has these equalities).
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
@@ -105,33 +109,32 @@ Proof.
     intros;
     cbn;
     unfold extend_finite_morphism_with_identity, inflate.
-  - rewrite subst_subst, subst_app, subst_var, subst_subst.
-    rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _).
+  - do 5 reduce_lambda.
     apply (maponpaths (λ x, _ x _)).
     apply maponpaths.
     apply funextfun.
     intro.
-    now rewrite subst_var, subst_var, (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _).
-  - rewrite subst_abs.
+    now do 3 reduce_lambda.
+  - reduce_lambda.
     do 2 apply maponpaths.
     refine (!extend_tuple_eq _ _).
     + intro.
-      refine (_ @ maponpaths _ (!extend_tuple_inl _ _ _)).
-      apply inflate_var.
+      reduce_lambda.
+      apply maponpaths.
+      exact (!extend_tuple_inl _ _ i).
     + exact (maponpaths _ (!extend_tuple_inr _ _)).
-  - rewrite subst_app, subst_subst, subst_subst, subst_var, subst_var, (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _).
+  - do 6 reduce_lambda.
     apply (maponpaths (λ x, _ x _)).
     apply maponpaths.
     apply funextfun.
     intro.
-    now rewrite subst_var, (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _).
-  - rewrite subst_abs.
+    now do 2 reduce_lambda.
+  - do 2 reduce_lambda.
     do 2 apply maponpaths.
     apply extend_tuple_eq.
     + intro.
       refine (!extend_tuple_inl _ _ _).
-    + rewrite subst_var.
-      exact (!extend_tuple_inr _ _).
+    + exact (!extend_tuple_inr _ _).
 Qed.
 
 Definition lambda_calculus_lambda_theory
@@ -152,8 +155,7 @@ Proof.
   unfold has_beta, LambdaTheories.app, LambdaTheories.abs.
   simpl.
   intros n l.
-  repeat reduce_lambda.
-  rewrite subst_subst.
+  do 3 reduce_lambda.
   refine (_ @ subst_l_var _).
   apply maponpaths.
   apply funextfun.

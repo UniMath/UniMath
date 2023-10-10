@@ -1,3 +1,7 @@
+(*
+  Gives the monoid of functional elements of a λ-theory [algebra_monoid].
+  The functional elements are the elements f that are equal to λ x, f x.
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryCategory.
@@ -133,13 +137,7 @@ Section Monoid.
           do 12 reduce_lambda;
           do 6 extend_tuple_3;
           cbn -[v];
-          do 21 reduce_lambda;
-          do 3 rewrite (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _);
-          do 10 reduce_lambda;
-          do 4 rewrite (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _);
-          rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _);
-          do 2 reduce_lambda;
-          rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _)
+          do 42 reduce_lambda
         ).
       + use tpair.
         * use tpair.
@@ -157,8 +155,7 @@ Section Monoid.
               cbn;
               reduce_lambda
             ).
-        * split;
-           (
+        * abstract (split; (
             intro a;
             pose (v := weqvecfun 1 [(pr1 a)]);
             use subtypePairEquality; [intro; apply isaprop_is_functional | ];
@@ -178,12 +175,9 @@ Section Monoid.
             do 9 reduce_lambda;
             do 3 extend_tuple_3;
             cbn -[action v];
-            do 4 reduce_lambda;
-            rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _);
-            reduce_lambda;
-            rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _);
+            do 7 reduce_lambda;
             exact (!pr2 a)
-          ).
+          ) ).
   Defined.
 
   Definition monoid_category (m : monoid) : category.

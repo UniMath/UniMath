@@ -1,3 +1,6 @@
+(*
+  Defines what (a model for) the lambda calculus looks like.
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
@@ -324,10 +327,11 @@ Ltac reduce_lambda := (
   rewrite subst_l_var +
   rewrite subst_app +
   rewrite subst_abs +
+  rewrite subst_subst +
   rewrite inflate_var +
   rewrite inflate_app +
   rewrite inflate_abs +
   rewrite beta_equality +
-  rewrite extend_tuple_inl +
-  rewrite extend_tuple_inr
+  rewrite (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _) +
+  rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _)
 ).
