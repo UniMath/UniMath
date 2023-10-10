@@ -106,7 +106,10 @@ Section Limits.
     (d' : total_category D)
     (cone_out : ∏ u, d' --> (dob d u))
     (is_cone : ∏ u v e, cone_out u · (dmor d e) = cone_out v)
-    : pr2 d' -->[limArrow L _ (make_cone (d := (mapdiagram (pr1_category D) d)) _ (λ u v e, (maponpaths pr1 (is_cone u v e)))) ] tip_lambda_theory_data_disp_cat.
+    : pr2 d' -->[limArrow L _
+        (make_cone (d := (mapdiagram (pr1_category D) d)) _
+        (λ u v e, (maponpaths pr1 (is_cone u v e))))
+      ] tip_lambda_theory_data_disp_cat.
   Proof.
     split;
       intros n f;
@@ -151,7 +154,8 @@ Section Test.
   Goal ob lambda_theory_data_cat = lambda_theory_data.
     exact (idpath _).
   Qed.
-  Goal ∏ (L L' : lambda_theory_data), lambda_theory_data_cat⟦L, L'⟧ = lambda_theory_data_morphism L L'.
+  Goal ∏ (L L' : lambda_theory_data),
+    lambda_theory_data_cat⟦L, L'⟧ = lambda_theory_data_morphism L L'.
     exact (λ _ _, idpath _).
   Qed.
 End Test.
@@ -234,8 +238,10 @@ End Test.
 Definition make_lambda_theory_z_iso
   (a b : lambda_theory)
   (F : z_iso (C := algebraic_theory_cat) (a : algebraic_theory) (b : algebraic_theory))
-  (Happ : ∏ n f, (morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) (S n) (app f) = app ((morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) _ f))
-  (Habs : ∏ n f, (morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) n (abs f) = abs ((morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) _ f))
+  (Happ : ∏ n f, (morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) (S n) (app f)
+    = app ((morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) _ f))
+  (Habs : ∏ n f, (morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) n (abs f)
+    = abs ((morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) _ f))
   : z_iso (a : lambda_theory_cat) (b : lambda_theory_cat).
 Proof.
   use make_z_iso.
@@ -249,7 +255,10 @@ Proof.
     + exact (inv_from_z_iso F).
     + abstract (
         intros n f;
-        refine (!_ @ maponpaths (λ x, (x : algebraic_theory_morphism a a) (S n) _) (z_iso_inv_after_z_iso F));
+        refine (!_ @ maponpaths
+          (λ x, (x : algebraic_theory_morphism a a) (S n) _)
+          (z_iso_inv_after_z_iso F)
+        );
         apply (maponpaths ((inv_from_z_iso F : algebraic_theory_morphism b a) (S n)));
         refine (Happ _ _ @ _);
         apply maponpaths;
@@ -257,7 +266,10 @@ Proof.
       ).
     + abstract (
         intros n f;
-        refine (!_ @ maponpaths (λ x, (x : algebraic_theory_morphism a a) _ _) (z_iso_inv_after_z_iso F));
+        refine (!_ @ maponpaths
+          (λ x, (x : algebraic_theory_morphism a a) _ _)
+          (z_iso_inv_after_z_iso F)
+        );
         apply (maponpaths ((inv_from_z_iso F : algebraic_theory_morphism b a) n));
         refine (Habs _ _ @ _);
         apply maponpaths;

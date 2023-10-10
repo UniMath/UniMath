@@ -28,7 +28,9 @@ Coercion presheaf_data_to_functor {T : algebraic_theory_data} (P : presheaf_data
   : finite_set_skeleton_category ⟶ HSET
   := pr1 P.
 
-Definition action {T} {P : presheaf_data T} {m n} : (P m : hSet) → (stn m → (T n : hSet)) → (P n : hSet) := pr2 P m n.
+Definition action {T} {P : presheaf_data T} {m n}
+  : (P m : hSet) → (stn m → (T n : hSet)) → (P n : hSet)
+  := pr2 P m n.
 
 Definition make_presheaf_data {T : algebraic_theory_data}
   (P : finite_set_skeleton_category ⟶ HSET)
@@ -38,7 +40,8 @@ Definition make_presheaf_data {T : algebraic_theory_data}
 
 (* The presheaf type *)
 Definition is_assoc {T : algebraic_theory_data} (P : presheaf_data T) : UU
-  := ∏ l m n (a : (P l : hSet)) f (g : stn m → (T n : hSet)), action (action a f) g = action a (λ i, (f i) • g).
+  := ∏ l m n (a : (P l : hSet)) f (g : stn m → (T n : hSet)),
+    action (action a f) g = action a (λ i, (f i) • g).
 
 Definition identity_projections {T : algebraic_theory_data} (P : presheaf_data T) : UU
   := ∏ n (a : (P n : hSet)), action a (λ i, pr i) = a.
@@ -66,7 +69,9 @@ Definition presheaf (T : algebraic_theory_data) : UU := ∑
   (action : ∏ m n, (P m : hSet) → (stn m → (T n : hSet)) → (P n : hSet)),
     is_presheaf (make_presheaf_data P action).
 
-Coercion presheaf_to_presheaf_data {T : algebraic_theory_data} (P : presheaf T) : presheaf_data T := make_presheaf_data (pr1 P) (pr12 P).
+Coercion presheaf_to_presheaf_data {T : algebraic_theory_data} (P : presheaf T)
+  : presheaf_data T
+  := make_presheaf_data (pr1 P) (pr12 P).
 
 Definition make_presheaf
   {T : algebraic_theory_data}
@@ -93,7 +98,8 @@ Definition presheaf_action_is_natural
   : action_is_natural P
   := pr2 (pr222 P).
 
-Lemma isaprop_is_presheaf {T : algebraic_theory_data} (P : presheaf_data T) : isaprop (is_presheaf P).
+Lemma isaprop_is_presheaf {T : algebraic_theory_data} (P : presheaf_data T)
+  : isaprop (is_presheaf P).
 Proof.
   repeat apply isapropdirprod;
     repeat (apply impred_isaprop; intro);
@@ -210,7 +216,8 @@ Definition make_presheaf_data'
   := P ,, action.
 
 Definition is_assoc' {T : algebraic_theory_data} (P : presheaf_data' T) : UU
-  := ∏ l m n (a : P l) f (g : stn m → (T n : hSet)), action' (action' a f) g = action' a (λ i, (f i) • g).
+  := ∏ l m n (a : P l) f (g : stn m → (T n : hSet)),
+    action' (action' a f) g = action' a (λ i, (f i) • g).
 
 Definition identity_projections' {T : algebraic_theory_data} (P : presheaf_data' T) : UU
   := ∏ n (a : P n), action' a pr = a.

@@ -81,11 +81,13 @@ Proof.
     ).
   - abstract (
       intros X action n m f a;
-      now refine (maponpaths (λ x, _ (x _) _ _) (transportf_const _ _) @ _ @ !maponpaths (λ x, _ (_ (x _) _ _) _) (transportf_const _ _))
+      refine (maponpaths (λ x, _ (x _) _ _) (transportf_const _ _) @ !_);
+      exact (maponpaths (λ x, _ (_ (x _) _ _) _) (transportf_const _ _))
     ).
   - abstract (
       intros X X' X'' action action' action'' y y' Gcommutes G'commutes m n a f;
-      refine (maponpaths (λ x, _ (x _) _ _) (transportf_const _ _) @ _ @ !maponpaths (λ x, _ (_ (x _) _ _) _) (transportf_const _ _));
+      refine (maponpaths (λ x, _ (x _) _ _) (transportf_const _ _) @ !_);
+      refine (maponpaths (λ x, _ (_ (x _) _ _) _) (transportf_const _ _) @ !_);
       exact (maponpaths _ (Gcommutes _ _ _ _) @ (G'commutes _ _ _ _))
     ).
 Defined.
@@ -98,7 +100,8 @@ Proof.
   use isweq_iso.
   - intro F.
     do 4 (apply funextsec; intro).
-    now refine (!maponpaths (λ x, _ (x _) _ _) (transportf_const _ _) @ pr1 F _ _ _ _ @ maponpaths (λ x, _ (_ (x _) _ _) _) (transportf_const _ _) @ _).
+    refine (maponpaths (λ x, _ (x _) _ _) (!transportf_const _ _) @ pr1 F _ _ _ _ @ _).
+    exact (maponpaths (λ x, _ (_ (x _) _ _) _) (transportf_const _ _)).
   - intro.
     do 4 (apply impred_isaset; intro).
     apply setproperty.
@@ -160,7 +163,10 @@ Section Limits.
     (d' : total_category D)
     (cone_out : ∏ u, d' --> (dob d u))
     (is_cone : ∏ u v e, cone_out u · (dmor d e) = cone_out v)
-    : pr2 d' -->[limArrow L _ (make_cone (d := (mapdiagram (pr1_category D) d)) _ (λ u v e, (maponpaths pr1 (is_cone u v e))))] tip_presheaf_data_disp_cat.
+    : pr2 d' -->[limArrow L _ (make_cone
+        (d := (mapdiagram (pr1_category D) d)) _
+        (λ u v e, (maponpaths pr1 (is_cone u v e))))
+      ] tip_presheaf_data_disp_cat.
   Proof.
     intros m n f g.
     apply subtypePairEquality.
@@ -202,7 +208,9 @@ Lemma is_univalent_presheaf_data_cat
 Proof.
   apply is_univalent_total_category.
   - rewrite cartesian_is_binproduct.
-    exact (is_univalent_category_binproduct is_univalent_algebraic_theory_cat (is_univalent_functor_category _ _ is_univalent_HSET)).
+    use is_univalent_category_binproduct.
+    + exact is_univalent_algebraic_theory_cat.
+    + exact (is_univalent_functor_category _ _ is_univalent_HSET).
   - exact is_univalent_disp_presheaf_data_disp_cat.
 Qed.
 
@@ -467,7 +475,8 @@ Section Test.
   Goal ∏ T, ob (presheaf_cat T) = presheaf T.
     exact (λ _, idpath _).
   Qed.
-  Goal ∏ (T : algebraic_theory) (P P' : presheaf T), (presheaf_cat T)⟦P, P'⟧ = presheaf_morphism P P'.
+  Goal ∏ (T : algebraic_theory) (P P' : presheaf T),
+    presheaf_cat T ⟦P, P'⟧ = presheaf_morphism P P'.
     intros.
     apply idpath.
   Qed.

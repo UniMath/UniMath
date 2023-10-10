@@ -119,7 +119,10 @@ Section Limits.
     (d' : total_category D)
     (cone_out : ∏ u, d' --> (dob d u))
     (is_cone : ∏ u v e, cone_out u · (dmor d e) = cone_out v)
-    : pr2 d' -->[limArrow L _ (make_cone (d := (mapdiagram (pr1_category D) d)) _ (λ u v e, (maponpaths pr1 (is_cone u v e))))] tip_pointed_functor_disp_cat.
+    : pr2 d' -->[limArrow L _ (make_cone
+        (d := (mapdiagram (pr1_category D) d)) _
+        (λ u v e, (maponpaths pr1 (is_cone u v e))))
+      ] tip_pointed_functor_disp_cat.
   Proof.
     apply subtypePairEquality.
     {
@@ -157,7 +160,9 @@ Qed.
 
 Definition limits_pointed_functor_cat
   : Lims pointed_functor_cat
-  := λ _ _, (total_limit _ (limits_base_functor_category _ _) (creates_limits_pointed_functor_disp_cat _)).
+  := λ _ _, total_limit _
+    (limits_base_functor_category _ _)
+    (creates_limits_pointed_functor_disp_cat _).
 
 (* The category of algebraic theory data *)
 Definition algebraic_theory_data_disp_cat
@@ -249,7 +254,10 @@ Section Limits.
     (d' : total_category D)
     (cone_out : ∏ u, d' --> (dob d u))
     (is_cone : ∏ u v e, cone_out u · (dmor d e) = cone_out v)
-    : pr2 d' -->[limArrow L _ (make_cone (d := (mapdiagram (pr1_category D) d)) _ (λ u v e, (maponpaths pr1 (is_cone u v e))))] tip_algebraic_theory_data_disp_cat.
+    : pr2 d' -->[limArrow L _ (make_cone
+        (d := (mapdiagram (pr1_category D) d)) _
+        (λ u v e, (maponpaths pr1 (is_cone u v e))))
+      ] tip_algebraic_theory_data_disp_cat.
   Proof.
     intros m n f g.
     apply subtypePairEquality.
@@ -346,7 +354,9 @@ Qed.
 
 Definition limits_algebraic_theory_cat
   : Lims algebraic_theory_cat
-  := λ _ _, total_limit _ (limits_algebraic_theory_data_cat _ _) (creates_limits_algebraic_theory_disp_cat _).
+  := λ _ _, total_limit _
+    (limits_algebraic_theory_data_cat _ _)
+    (creates_limits_algebraic_theory_disp_cat _).
 
 Definition algebraic_theory_univalent_category
   : univalent_category
@@ -356,7 +366,9 @@ Definition make_algebraic_theory_z_iso
   (a b : algebraic_theory)
   (F : ∏ n, z_iso (C := HSET) (a n : hSet) (b n : hSet))
   (Hpr : ∏ n i, morphism_from_z_iso _ _ (F n) (pr i) = pr i)
-  (Hcomp : ∏ m n f (g : stn m → (a n : hSet)), morphism_from_z_iso _ _ (F n) (f • g) = morphism_from_z_iso _ _ (F m) f • (λ i, (morphism_from_z_iso _ _ (F n) (g i))))
+  (Hcomp : ∏ m n f (g : stn m → (a n : hSet)),
+    morphism_from_z_iso _ _ (F n) (f • g)
+    = morphism_from_z_iso _ _ (F m) f • (λ i, (morphism_from_z_iso _ _ (F n) (g i))))
   : z_iso (a : algebraic_theory_cat) (b : algebraic_theory_cat).
 Proof.
   use make_z_iso.

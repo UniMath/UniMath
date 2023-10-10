@@ -132,23 +132,26 @@ Proof.
           [ intros ? ? f ?;
             induction f;
             [ exact (!algebraic_theory_comp_projects_component _ _ _ _ _)
-            | exact (lift_constant_eq _ _ _ _ (idpath _) @ !algebraic_theory_comp_is_assoc _ _ _ _ _ _ _) ]
+            | refine (lift_constant_eq _ _ _ _ (idpath _) @ !_);
+              apply algebraic_theory_comp_is_assoc ]
           | now intros ]
         ).
-    + abstract (
+    +  (
         refine (λ (F : algebraic_theory_morphism _ _), _);
         apply algebraic_theory_morphism_eq;
         intros ? f;
         induction f;
         [ exact (!algebraic_theory_morphism_preserves_projections _ _)
-        | exact (lift_constant_eq _ _ _ _ (idpath _) @ !algebraic_theory_morphism_preserves_composition F _ _ _ _
-          : lift_constant _ _ = F _ (lift_constant _ _))]
+        | refine (lift_constant_eq _ _ _ _ (idpath _) @ _);
+          exact (!algebraic_theory_morphism_preserves_composition F _ _ _ _
+            : _ = F _ (lift_constant _ _)) ]
       ).
     + abstract (
         intro;
         apply funextfun;
         intro;
-        refine (lift_constant_eq _ _ _ _ (idpath _) @ algebraic_theory_comp_identity_projections _ _ _)
+        refine (lift_constant_eq _ _ _ _ (idpath _) @ _);
+        exact (algebraic_theory_comp_identity_projections _ _ _)
       ).
   - abstract (
       use tpair;

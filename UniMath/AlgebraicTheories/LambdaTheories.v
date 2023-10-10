@@ -17,7 +17,9 @@ Local Open Scope algebraic_theories.
 
 (* The datatype lambda_theory_data *)
 Definition lambda_theory_data : UU
-  := ∑ (T : algebraic_theory), ((∏ n, (T n : hSet) → (T (S n) : hSet)) × (∏ n, (T (S n) : hSet) → (T n : hSet))).
+  := ∑ (T : algebraic_theory),
+    (∏ n, (T n : hSet) → (T (S n) : hSet)) ×
+    (∏ n, (T (S n) : hSet) → (T n : hSet)).
 
 Definition make_lambda_theory_data
   (T : algebraic_theory)
@@ -26,7 +28,9 @@ Definition make_lambda_theory_data
   : lambda_theory_data
   := T ,, abs ,, app.
 
-Coercion lambda_theory_data_to_algebraic_theory (L : lambda_theory_data) : algebraic_theory := pr1 L.
+Coercion lambda_theory_data_to_algebraic_theory (L : lambda_theory_data)
+  : algebraic_theory
+  := pr1 L.
 
 Definition app {L : lambda_theory_data} {n : nat} : (L n : hSet) → (L (S n) : hSet) := pr12 L n.
 
@@ -48,15 +52,17 @@ Definition extended_composition
   := f • (extend_tuple (λ i, #T (dni lastelement (n := n)) (g i)) (pr lastelement)).
 
 Definition is_lambda_theory (L : lambda_theory_data) : UU :=
-    (∏ m n (a : finite_set_skeleton_category⟦m, n⟧) l, app (#L a l) = #L (extend_finite_morphism_with_identity a) (app l)) ×
-    (∏ m n (a : finite_set_skeleton_category⟦m, n⟧) l, abs (#L (extend_finite_morphism_with_identity a) l) = #L a (abs l)) ×
+    (∏ m n (a : _⟦m, n⟧) l, app (#L a l) = #L (extend_finite_morphism_with_identity a) (app l)) ×
+    (∏ m n (a : _⟦m, n⟧) l, abs (#L (extend_finite_morphism_with_identity a) l) = #L a (abs l)) ×
     (∏ m n f (g : stn m → (L n : hSet)), app (f • g) = extended_composition (app f) g) ×
     (∏ m n f (g : stn m → (L n : hSet)), abs (extended_composition f g) = (abs f) • g).
 
 Definition make_is_lambda_theory
   {L : lambda_theory_data}
-  (app_natural: ∏ m n (a : finite_set_skeleton_category⟦m, n⟧) l, app (#L a l) = #L (extend_finite_morphism_with_identity a) (app l))
-  (abs_natural : ∏ m n (a : finite_set_skeleton_category⟦m, n⟧) l, abs (#L (extend_finite_morphism_with_identity a) l) = #L a (abs l))
+  (app_natural: ∏ m n (a : finite_set_skeleton_category⟦m, n⟧) l,
+    app (#L a l) = #L (extend_finite_morphism_with_identity a) (app l))
+  (abs_natural : ∏ m n (a : finite_set_skeleton_category⟦m, n⟧) l,
+    abs (#L (extend_finite_morphism_with_identity a) l) = #L a (abs l))
   (app_comp : ∏ m n f (g : stn m → (L n : hSet)), app (f • g) = extended_composition (app f) g)
   (abs_comp : ∏ m n f (g : stn m → (L n : hSet)), abs (extended_composition f g) = (abs f) • g)
   : is_lambda_theory L

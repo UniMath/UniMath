@@ -164,7 +164,8 @@ Section Test.
   Goal ∏ T, ob (algebraic_theory_algebra_cat T) = algebraic_theory_algebra T.
     exact (λ _, idpath _).
   Qed.
-  Goal ∏ (T : algebraic_theory) (A A' : algebraic_theory_algebra T), (algebraic_theory_algebra_cat T)⟦A, A'⟧ = algebraic_theory_algebra_morphism A A'.
+  Goal ∏ (T : algebraic_theory) (A A' : algebraic_theory_algebra T),
+    (algebraic_theory_algebra_cat T)⟦A, A'⟧ = algebraic_theory_algebra_morphism A A'.
     exact (λ _ _ _, idpath _).
   Qed.
 End Test.

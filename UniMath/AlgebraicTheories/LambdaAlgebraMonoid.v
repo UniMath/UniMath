@@ -160,9 +160,20 @@ Section Monoid.
             pose (v := weqvecfun 1 [(pr1 a)]);
             use subtypePairEquality; [intro; apply isaprop_is_functional | ];
             cbn -[weqvecfun action];
-            etrans; [now rewrite <- (algebraic_theory_algebra_projects_component _ _ (make_stn 1 0 (idpath true)) v : _ = pr1 a) | ];
+            etrans;
+            [now rewrite <- (algebraic_theory_algebra_projects_component _ _
+              (make_stn 1 0 (idpath true))
+              v
+            : _ = pr1 a) | ];
 
-            pose (H1 := algebraic_theory_algebra_is_natural A 0 1 (weqvecfun 0 [()]) (abs (var (make_stn 1 0 (idpath true)))) v);
+            pose (H1 := algebraic_theory_algebra_is_natural
+              A
+              0
+              1
+              (weqvecfun 0 [()])
+              (abs (var (make_stn 1 0 (idpath true))))
+              v
+            );
             assert (H2 : (λ i, v (weqvecfun _ [()] i)) = (weqvecfun _ [()]));
             [ now apply (invmaponpathsweq (invweq (weqvecfun _))) | ];
             cbn -[weqvecfun action] in H1, H2;
