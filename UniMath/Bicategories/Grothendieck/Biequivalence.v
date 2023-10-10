@@ -21,14 +21,6 @@
  proof of that in UniMath requires the univalence of the codomain, so that
  one can use induction on adjoint equivalences.
 
- Note: currently, the equivalence has an open assumption, which says that
- the bicategory of fibrations is univalent. There is a formalized proof
- of this for the bicategory of Street fibrations, but not yet for
- Grothendieck fibration. This requires showing that two displayed
- categories are equal if we have an adjoint equivalence between them
- (which also is the key ingredient for proving that the bicategory of
- univalent displayed bicategories is univalent).
-
  Contents
  1. Collecting the data of the biequivalence
  2. Collecting that the unit and counit are adjoint equivalences
