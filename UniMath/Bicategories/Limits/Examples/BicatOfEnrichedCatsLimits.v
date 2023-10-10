@@ -4,7 +4,7 @@
 
  In this file we construct several limits of enriched categories. The construction
  of these limits is similar as for categories: final objects are constructed via
- the unit category, inserters are constructed via dialgebras, equaifiers are
+ the unit category, inserters are constructed via dialgebras, equifiers are
  constructed via full subcategories, and Eilenberg-Moore objects are constructed
  using the Eilenberg-Moore category of a monad.
 
