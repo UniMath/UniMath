@@ -375,6 +375,7 @@ SkewMonoidal/CategoriesOfMonoids.v
 EnrichedCats/Enrichment.v
 EnrichedCats/EnrichmentFunctor.v
 EnrichedCats/EnrichmentTransformation.v
+EnrichedCats/FullyFaithful.v
 EnrichedCats/EnrichmentAdjunction.v
 EnrichedCats/EnrichmentMonad.v
 
@@ -408,9 +409,12 @@ EnrichedCats/Examples/PosetEnriched.v
 EnrichedCats/Examples/StructureEnriched.v
 EnrichedCats/Examples/SmashStructureEnriched.v
 EnrichedCats/Examples/HomFunctor.v
-EnrichedCats/Examples/FunctorCategory.v
-
 EnrichedCats/Examples/OppositeEnriched.v
+EnrichedCats/Examples/FunctorCategory.v
+EnrichedCats/Examples/Yoneda.v
+
+EnrichedCats/YonedaLemma.v
+
 EnrichedCats/Examples/EmptyEnriched.v
 EnrichedCats/Examples/UnitEnriched.v
 EnrichedCats/Examples/FullSubEnriched.v
@@ -421,6 +425,8 @@ EnrichedCats/Examples/EilenbergMooreEnriched.v
 EnrichedCats/Examples/ProductEnriched.v
 
 EnrichedCats/Examples/ChangeOfBase.v
+
+EnrichedCats/EnrichedRezkCompletion.v
 
 EnrichedCats/Examples/KleisliEnriched.v
 EnrichedCats/Examples/UnivalentKleisliEnriched.v

@@ -39,15 +39,12 @@
  1. The category of enriched functors
  2. This category is univalent
  3. The enrichment
+ 4. Enrichment for presheaf categories
 
  **********************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
@@ -57,6 +54,8 @@ Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.HomFunctor.
+Require Import UniMath.CategoryTheory.EnrichedCats.Examples.OppositeEnriched.
+Require Import UniMath.CategoryTheory.EnrichedCats.Examples.SelfEnriched.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
@@ -199,7 +198,7 @@ Section EnrichedFunctorCategory.
   Defined.
 End EnrichedFunctorCategory.
 
-Definition enriched_univalent_category
+Definition enriched_univalent_functor_category
            {V : monoidal_cat}
            (C₁ C₂ : univalent_category)
            (E₁ : enrichment C₁ V)
@@ -968,3 +967,25 @@ Section EnrichedFunctorCategory.
        ,,
        enriched_functor_category_enrichment_laws.
 End EnrichedFunctorCategory.
+
+(**
+ 4. Enrichment for presheaf categories
+ *)
+Definition enriched_presheaf_enrichment
+           {V : sym_mon_closed_cat}
+           {C : category}
+           (E : enrichment C V)
+           (EqV : Equalizers V)
+           (PV : Products C V)
+           (PV' : Products (C × C) V)
+  : enrichment
+      (enriched_functor_category
+         (op_enrichment V E)
+         (self_enrichment V))
+      V
+  := enriched_functor_category_enrichment
+       (op_enrichment V E)
+       (self_enrichment V)
+       EqV
+       PV
+       PV'.
