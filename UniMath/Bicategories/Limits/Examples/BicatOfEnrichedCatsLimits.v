@@ -2,7 +2,29 @@
 
  Limits of enriched categories
 
- In this file we construct several limits of enriched categories.
+ In this file we construct several limits of enriched categories. The construction
+ of these limits is similar as for categories: final objects are constructed via
+ the unit category, inserters are constructed via dialgebras, equifiers are
+ constructed via full subcategories, and Eilenberg-Moore objects are constructed
+ using the Eilenberg-Moore category of a monad.
+
+ Note that we give two different constructions of the final object. For one of
+ them, we assume that the monoidal category is semi-cartesian. This way, the
+ enrichment is given by the unit of the monoidal category. In the other construction,
+ we assume that the monoidal category has a terminal object.
+
+ Another thing to notice, is that to construct inserters (and to construct
+ Eilenberg-Moore objects), we assume that the category `V` over which we enrich,
+ has equalizers. Morphisms in the category of dialgebras are given by a morphism
+ such that a certain diagram commutes. Equalizers are used to phrase this
+ commutativity condition. To construct equifiers, we don't need to make any
+ additional assumptions on `V`, because full subcategories of enriched categories
+ can be constructed in general.
+
+ The largest part of the formalization of these limits is collecting functors and
+ natural transformation that we already constructed in the directory on enriched
+ categories. The only parts that remain to be proven, are the coherences that
+ need to be proven.
 
  Contents:
  1. Final object
@@ -13,17 +35,14 @@
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
 Require Import UniMath.CategoryTheory.Subcategory.Full.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.categories.Dialgebras.
 Require Import UniMath.CategoryTheory.categories.EilenbergMoore.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
@@ -66,13 +85,13 @@ Section LimitsEnrichedCats.
    *)
 
   (**
-   Note that to construct the final object, we assume that the
-   monoidal category `V` is semi-cartesian, which means that
+   Note that in this construction of the final object, we assume that
+   the monoidal category `V` is semi-cartesian, which means that
    the unit is a terminal object. We use this to construct the
    univalent enriched unit category.
    *)
   Section FinalObject.
-    Context (HV : isTerminal V (I_{V})).
+    Context (HV : is_semicartesian V).
 
     Let enriched_bifinal : bicat_of_enriched_cats V
       := unit_category ,, unit_enrichment V HV.
@@ -100,6 +119,41 @@ Section LimitsEnrichedCats.
     Definition bifinal_enriched_cats
       : bifinal_obj (bicat_of_enriched_cats V)
       := enriched_bifinal ,, is_bifinal_enriched_cats.
+  End FinalObject.
+
+  (**
+   Note that in this construction of the final object, we assume that
+   the monoidal category `V` has a terminal object.
+   *)
+  Section FinalObject.
+    Context (T : Terminal V).
+
+    Let enriched_bifinal_from_terminal : bicat_of_enriched_cats V
+      := unit_category ,, unit_enrichment_from_terminal V T.
+
+    Definition is_bifinal_enriched_cats_from_terminal
+      : is_bifinal enriched_bifinal_from_terminal.
+    Proof.
+      use make_is_bifinal.
+      - exact (λ E,
+               functor_to_unit _
+               ,,
+               functor_to_unit_enrichment_from_terminal V T (pr2 E)).
+      - exact (λ C F G,
+               unit_category_nat_trans (pr1 F) (pr1 G)
+               ,,
+               nat_trans_to_unit_enrichment_from_terminal _ _ _ (pr2 F) (pr2 G)).
+      - abstract
+          (intros C f g α β ;
+           use subtypePath ;
+           [ intro ; apply isaprop_nat_trans_enrichment
+           | ] ;
+           apply nat_trans_to_unit_eq).
+    Defined.
+
+    Definition bifinal_enriched_cats_from_terminal
+      : bifinal_obj (bicat_of_enriched_cats V)
+      := enriched_bifinal_from_terminal ,, is_bifinal_enriched_cats_from_terminal.
   End FinalObject.
 
   (**
@@ -773,59 +827,44 @@ Section LimitsEnrichedCats.
           =
           # M (τ x) · mor_of_eilenberg_moore_ob (F₂ x).
       Proof.
-      Abort.
-      (*
-        refine (!_ @ mnd_cell_endo_enriched _ Eτ x @ _).
-        - apply cancel_postcomposition.
-          (* apply (cancel_postcomposition (pr11 (mnd_mor_endo (# (mnd_incl (bicat_of_enriched_cats V)) FE₁ · mor_of_em_cone EM em_enriched_cat_cone)) x)
-     (mor_of_eilenberg_moore_ob (F₁ x)) (τ x)). *)
-          refine (_ @ id_right _).
-          do 3 refine (assoc' _ _ _ @ _).
-          refine (id_left _ @ _).
-          do 3 refine (_ @ id_right _).
-          do 2 refine (assoc _ _ _ @ _).
-          apply (cancel_postcomposition _ _ (id₁ (pr11 (pr11 FE₁ x)))).
-          refine (assoc _ _ _ @ _).
-          apply (cancel_postcomposition _ _ (id₁ (pr11 (pr11 FE₁ x)))).
-          apply (cancel_postcomposition _ _ (id₁ (pr11 (pr11 FE₁ x)))).
-          apply (cancel_postcomposition _ _ (id₁ (pr11 (pr11 FE₁ x)))).
-          apply idpath.
-        - apply (maponpaths (compose (# M (τ x)))).
-          refine (_ @ id_left _).
-          do 4 refine (_ @ id_right _).
-          apply (cancel_postcomposition _ _ (id₁ (pr11 (pr11 FE₂ x)))).
-          refine (_ @ assoc _ _ _).
-          apply (cancel_postcomposition _ _ (id₁ (pr11 (pr11 FE₂ x)) · id₁ (pr11 (pr11 FE₂ x)))).
-          apply (cancel_postcomposition _ _ (id₁ (pr11 (pr11 FE₂ x)))).
-          apply (cancel_postcomposition _ _ (mor_of_eilenberg_moore_ob (F₂ x))).
-          apply idpath.
-      Time Qed. (* a little over 5 min on a 2022 Intel processor *)
-       *)
-      (* former proof:
-         refine (!_ @ mnd_cell_endo_enriched _ Eτ x @ _).
-        - do 4 refine (assoc' _ _ _ @ _).
-          refine (id_left _ @ _).
-          apply maponpaths.
-          refine (id_left _ @ _).
-          refine (assoc _ _ _ @ _).
-          refine (_ @ id_left _).
-          simpl.
+        etrans.
+        {
           apply maponpaths_2.
-          refine (id_right _ @ _).
-          apply id_left.
-        - apply maponpaths.
-          do 3 refine (assoc' _ _ _ @ _).
-          refine (id_left _ @ _).
-          refine (_ @ id_right _).
-          simpl.
+          refine (!(id_right _) @ _).
+          apply maponpaths_2.
+          refine (!(id_right _) @ _).
+          etrans.
+          {
+            apply maponpaths.
+            exact (!(id_left _)).
+          }
+          apply maponpaths_2.
+          refine (!(id_right _) @ _).
+          apply maponpaths_2.
+          exact (!(id_left _)).
+        }
+        refine (!_).
+        etrans.
+        {
           apply maponpaths.
-          refine (id_left _ @ _).
-          refine (id_right _ @ _).
-          apply id_left.
+          refine (!(id_right _) @ _).
+          apply maponpaths_2.
+          refine (!(id_right _) @ _).
+          etrans.
+          {
+            apply maponpaths.
+            exact (!(id_left _)).
+          }
+          apply maponpaths_2.
+          refine (!(id_right _) @ _).
+          apply maponpaths_2.
+          exact (!(id_left _)).
+        }
+        refine (!_).
+        pose (mnd_cell_endo_enriched _ Eτ x) as p.
+        exact p.
       Qed.
-*)
 
-      (*
       Definition em_enriched_cat_ump_2_nat_trans
         : F₁ ⟹ F₂
         := nat_trans_to_eilenberg_moore_cat M F₁ F₂ τ em_enriched_cat_ump_2_eq.
@@ -838,10 +877,8 @@ Section LimitsEnrichedCats.
         - use nat_trans_to_eilenberg_moore_cat_enrichment.
           apply (pr21 Eτ).
       Defined.
-*)
     End EilenbergMooreUMP2.
 
-  (*
     Definition em_enriched_cat_ump_2
       : em_ump_2 EM em_enriched_cat_cone.
     Proof.
@@ -875,13 +912,10 @@ Section LimitsEnrichedCats.
       - exact em_enriched_cat_ump_1.
       - exact em_enriched_cat_ump_2.
     Defined.
-*)
   End EilenbergMooreEnrichedCat.
 
-  (*
   Definition has_em_bicat_of_enriched_cats
              (HV : Equalizers V)
     : bicat_has_em (bicat_of_enriched_cats V)
     := λ EM, em_enriched_cat_cone HV EM ,, em_enriched_cat_ump HV EM.
-*)
 End LimitsEnrichedCats.

@@ -5,21 +5,31 @@
  We construct the unit enriched category and we define some functors
  and natural transformations related to it.
 
- We write `𝟙` for the unit of the monoidal category. The objects of the
- unit enriched category and inhabitants of the unit type and the
- enrichment is the `𝟙`. As a consequence, the morphisms in this enriched
- category should be isomorphic to `𝟙 --> 𝟙`.
+ We give two constructions of this enriched category. For the first
+ construction, we assume that the monoidal category is semi-cartesian.
+ Writing `𝟙` for the unit of the monoidal category, we define the objects
+ and morphisms  of the unit enriched category to be inhabitants of the
+ unit type, and the enrichment is given by `𝟙`. As a consequence, the
+ morphisms in this enriched category are be isomorphic to `𝟙 --> 𝟙`.
 
- Note that in this definition we assume that the unit of the involved
+ Note that in this construction we assume that the unit of the involved
  monoidal category `V` is a terminal object, which is usually not
  required in textbooks. The reason for that is that if we don't require
  the unit to be terminal, there could be multiple isomorphisms from `𝟙`
  to `𝟙`. The resulting enriched category is then not guaranteed to be
  univalent.
 
+ For the other construction, we assume that `V` has a terminal object.
+ The construction proceeds mostly the same, but the only difference is
+ that the enrichment is given by the terminal object. This construction
+ always gives rise to a terminal object in the bicategory of enriched
+ categories.
+
  Contents
  1. The enrichment of the unit category
  2. Enrichment for functors/natural transformations to the unit
+ 3. The enrichment of the unit category via terminal objects
+ 4. Enrichment for functors/natural transformations to the unit via terminal objects
 
  **********************************************************************)
 Require Import UniMath.Foundations.All.
@@ -34,6 +44,7 @@ Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
 Require Import UniMath.CategoryTheory.limits.terminal.
 
 Import MonoidalNotations.
@@ -43,7 +54,7 @@ Local Open Scope moncat.
 
 Section UnitEnrichment.
   Context (V : monoidal_cat)
-          (HV : isTerminal V (I_{V})).
+          (HV : is_semicartesian V).
 
   (**
    1. The enrichment of the unit category
@@ -86,7 +97,7 @@ Section UnitEnrichment.
     - cbn ; intros x y f.
       apply isasetunit.
     - cbn ; intros x y f.
-      apply (@TerminalArrowEq _ (_ ,, HV)).
+      apply (@TerminalArrowEq _ (_ ,, (HV : isTerminal _ _))).
     - cbn ; intro x.
       apply isasetunit.
     - cbn ; intros x y z f g.
@@ -117,11 +128,11 @@ Section UnitEnrichment.
         unit_enrichment.
   Proof.
     simple refine (_ ,, _).
-    - exact (λ x y, TerminalArrow (_ ,, HV) _).
+    - exact (λ x y, TerminalArrow (_ ,, (HV : isTerminal _ _)) _).
     - abstract
         (repeat split ;
          intros ;
-         apply (@TerminalArrowEq _ (_ ,, HV))).
+         apply (@TerminalArrowEq _ (_ ,, (HV : isTerminal _ _)))).
   Defined.
 
   Definition nat_trans_to_unit_enrichment
@@ -150,7 +161,7 @@ Section UnitEnrichment.
       apply tensor_lunitor.
     }
     rewrite !assoc.
-    apply (@TerminalArrowEq _ (_ ,, HV)).
+    apply (@TerminalArrowEq _ (_ ,, (HV : isTerminal _ _))).
   Qed.
 
   Definition constant_functor_enrichment
@@ -236,3 +247,92 @@ Section UnitEnrichment.
     apply idpath.
   Qed.
 End UnitEnrichment.
+
+Section UnitEnrichmentViaTerminal.
+  Context (V : monoidal_cat)
+          (T : Terminal V).
+
+  (**
+   3. The enrichment of the unit category via terminal objects
+   *)
+  Definition unit_enrichment_data_from_terminal
+    : enrichment_data unit_category V.
+  Proof.
+    simple refine (_ ,, _ ,, _ ,, _ ,, _).
+    - exact (λ _ _, T).
+    - exact (λ _, TerminalArrow T _).
+    - exact (λ _ _ _, TerminalArrow T _).
+    - exact (λ _ _ _, TerminalArrow T _).
+    - abstract
+        (intros x y f ;
+         cbn ;
+         apply isapropunit).
+  Defined.
+
+  Definition unit_enrichment_laws_from_terminal
+    : enrichment_laws unit_enrichment_data_from_terminal.
+  Proof.
+    repeat split.
+    - cbn ; intros x y.
+      apply TerminalArrowEq.
+    - cbn ; intros x y.
+      apply TerminalArrowEq.
+    - cbn ; intros w x y z.
+      apply TerminalArrowEq.
+    - cbn ; intros x y f.
+      apply isasetunit.
+    - cbn ; intros x y f.
+      apply (@TerminalArrowEq _ T).
+    - cbn ; intro x.
+      apply isasetunit.
+    - cbn ; intros x y z f g.
+      apply isasetunit.
+  Qed.
+
+  Definition unit_enrichment_from_terminal
+    : enrichment unit_category V.
+  Proof.
+    simple refine (_ ,, _).
+    - exact unit_enrichment_data_from_terminal.
+    - exact unit_enrichment_laws_from_terminal.
+  Defined.
+
+  Definition unit_cat_with_enrichment_from_terminal
+    : cat_with_enrichment V
+    := pr1 unit_category ,, unit_enrichment_from_terminal.
+
+  (**
+   4. Enrichment for functors/natural transformations to the unit via terminal objects
+   *)
+  Definition functor_to_unit_enrichment_from_terminal
+             {C : category}
+             (E : enrichment C V)
+    : functor_enrichment
+        (functor_to_unit C)
+        E
+        unit_enrichment_from_terminal.
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ x y, TerminalArrow T _).
+    - abstract
+        (repeat split ;
+         intros ;
+         apply (@TerminalArrowEq _ T)).
+  Defined.
+
+  Definition nat_trans_to_unit_enrichment_from_terminal
+             {C : category}
+             (E : enrichment C V)
+             {F G : C ⟶ unit_category}
+             (EF : functor_enrichment F E unit_enrichment_from_terminal)
+             (EG : functor_enrichment F E unit_enrichment_from_terminal)
+    : nat_trans_enrichment
+        (unit_category_nat_trans F G)
+        EF
+        EG.
+  Proof.
+    intros x y ; cbn.
+    rewrite !assoc'.
+    apply TerminalArrowEq.
+  Qed.
+End UnitEnrichmentViaTerminal.
