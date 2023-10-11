@@ -254,6 +254,9 @@ Limits/PullbackEquivalences.v
 Limits/InserterEquivalences.v
 Limits/EquifierEquivalences.v
 
+OrthogonalFactorization/Orthogonality.v
+OrthogonalFactorization/FactorizationSystem.v
+
 Morphisms/Eso.v
 Morphisms/Properties/Projections.v
 Morphisms/Properties/ClosedUnderPullback.v
