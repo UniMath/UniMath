@@ -86,7 +86,21 @@ Definition factorization_1cell
      ×
      R _ _ r
      ×
-     invertible_2cell f (l · r).
+     invertible_2cell (l · r) f.
+
+Definition make_factorization_1cell
+           {B : bicat}
+           {L R : ∏ (x y : B), x --> y → hProp}
+           {x y : B}
+           {f : x --> y}
+           (a : B)
+           (l : x --> a)
+           (r : a --> y)
+           (Ll : L _ _ l)
+           (Rr : R _ _ r)
+           (τ : invertible_2cell (l · r) f)
+  : factorization_1cell L R f
+  := a ,, l ,, r ,, Ll ,, Rr ,, τ.
 
 Coercion factorization_1cell_ob
          {B : bicat}
@@ -122,8 +136,8 @@ Section ProjectionsFactorization.
 
   Definition factorization_1cell_commutes
     : invertible_2cell
-        f
         (factorization_1cell_left · factorization_1cell_right)
+        f
     := pr22 (pr222 fact).
 End ProjectionsFactorization.
 
@@ -235,8 +249,8 @@ Section Projections.
              {x y : B}
              (f : x --> y)
     : invertible_2cell
-        f
         (orthogonal_factorization_left f · orthogonal_factorization_right f)
+        f
     := factorization_1cell_commutes (pr122 fact_B x y f).
 
   Definition orthogonal_left_inv2cell

@@ -310,11 +310,11 @@ Definition eso_ff_factorization
   := ∏ (b₁ b₂ : B)
        (f : b₁ --> b₂),
      ∑ (im : B)
-       (m : im --> b₂)
-       (f' : b₁ --> im),
-     fully_faithful_1cell m
-     ×
+       (f' : b₁ --> im)
+       (m : im --> b₂),
      is_eso f'
+     ×
+     fully_faithful_1cell m
      ×
      invertible_2cell (f' · m) f.
 

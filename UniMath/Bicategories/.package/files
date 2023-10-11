@@ -267,6 +267,8 @@ Morphisms/Examples/MorphismsInSliceBicat.v
 Morphisms/Examples/MorphismsInStructuredCat.v
 Morphisms/Examples/MorphismsInBicatOfEnrichedCats.v
 
+OrthogonalFactorization/EsoFactorizationSystem.v
+
 Colimits/Initial.v
 Colimits/Coproducts.v
 Colimits/Extensive.v

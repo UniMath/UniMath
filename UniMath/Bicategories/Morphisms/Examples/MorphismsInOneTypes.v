@@ -481,11 +481,11 @@ Definition eso_ff_factorization_one_types
 Proof.
   intros X Y f.
   refine (HLevel_image f ,, _).
-  refine (pr1_image f ,, prtoimage f ,, _ ,, _ ,, _).
-  - apply one_types_isInjective_fully_faithful_1cell.
-    apply isInjective_pr1_image.
+  refine (prtoimage f ,, pr1_image f ,, _ ,, _ ,, _).
   - apply issurjective_is_eso.
     apply issurjprtoimage.
+  - apply one_types_isInjective_fully_faithful_1cell.
+    apply isInjective_pr1_image.
   - use make_invertible_2cell.
     + intro x.
       apply idpath.

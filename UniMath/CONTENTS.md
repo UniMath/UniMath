@@ -896,6 +896,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Morphisms/Examples/MorphismsInSliceBicat.v](Bicategories/Morphisms/Examples/MorphismsInSliceBicat.v)
    - [Morphisms/Examples/MorphismsInStructuredCat.v](Bicategories/Morphisms/Examples/MorphismsInStructuredCat.v)
    - [Morphisms/Examples/MorphismsInBicatOfEnrichedCats.v](Bicategories/Morphisms/Examples/MorphismsInBicatOfEnrichedCats.v)
+   - [OrthogonalFactorization/EsoFactorizationSystem.v](Bicategories/OrthogonalFactorization/EsoFactorizationSystem.v)
    - [Colimits/Initial.v](Bicategories/Colimits/Initial.v)
    - [Colimits/Coproducts.v](Bicategories/Colimits/Coproducts.v)
    - [Colimits/Extensive.v](Bicategories/Colimits/Extensive.v)
