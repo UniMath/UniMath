@@ -54,8 +54,9 @@
  Contents
  1. Factorizations
  2. Orthogonal factorization systems
- 3. Projections for orthogonal factorization systems
- 4. Properties of orthogonal factorization systems
+ 3. Builder for orthogonal factorization systems
+ 4. Projections for orthogonal factorization systems
+ 5. Properties of orthogonal factorization systems
 
  *****************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -163,17 +164,27 @@ Definition orthogonal_factorization_system
      ×
      orthogonal_maps L R.
 
-Definition make_orthogonal_factorization_system
-           {B : bicat}
-           (L R : ∏ (x y : B), x --> y → hProp)
-           (fact : ∏ (x y : B) (f : x --> y), factorization_1cell L R f)
-           (HL : closed_under_invertible_2cell L)
-           (HR : closed_under_invertible_2cell R)
-           (LR : orthogonal_maps L R)
-  : orthogonal_factorization_system B
-  := L ,, R ,, fact ,, HL ,, HR ,, LR.
+(** * 3. Builder for orthogonal factorization systems *)
+Section MakeFactorizationSystem.
+  Context {B : bicat}
+          (L R : ∏ (x y : B), x --> y → UU)
+          (isapropL : ∏ (x y : B) (f : x --> y), isaprop (L _ _ f))
+          (isapropR : ∏ (x y : B) (f : x --> y), isaprop (R _ _ f)).
 
-(** * 3. Projections for orthogonal factorization systems *)
+  Let L' : ∏ (x y : B), x --> y → hProp := λ x y f, L x y f ,, isapropL x y f.
+  Let R' : ∏ (x y : B), x --> y → hProp := λ x y f, R x y f ,, isapropR x y f.
+
+  Context (fact : ∏ (x y : B) (f : x --> y), factorization_1cell L' R' f)
+          (HL : closed_under_invertible_2cell L')
+          (HR : closed_under_invertible_2cell R')
+          (LR : orthogonal_maps L' R').
+
+  Definition make_orthogonal_factorization_system
+    : orthogonal_factorization_system B
+    := L' ,, R' ,, fact ,, HL ,, HR ,, LR.
+End MakeFactorizationSystem.
+
+(** * 4. Projections for orthogonal factorization systems *)
 Section Projections.
   Context {B : bicat}
           (fact_B : orthogonal_factorization_system B).
@@ -254,7 +265,7 @@ Section Projections.
     := pr22 (pr222 fact_B) _ _ _ _ f g Lf Rg.
 End Projections.
 
-(** * 4. Properties of orthogonal factorization systems *)
+(** * 5. Properties of orthogonal factorization systems *)
 Section Properties.
   Context {B : bicat}
           (fact_B : orthogonal_factorization_system B)
