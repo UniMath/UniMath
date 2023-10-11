@@ -270,34 +270,13 @@ Section EsoMorphisms.
   (**
    4. Esos via pullbacks
    *)
-  Definition is_eso_via_pb_cone
-             (HB_2_1 : is_univalent_2_1 B)
-             {c₁ c₂ : B}
-             (m : c₁ --> c₂)
-             (Hm : fully_faithful_1cell m)
-    : @pb_cone
-        bicat_of_univ_cats
-        (univ_hom HB_2_1 b₁ c₁)
-        (univ_hom HB_2_1 b₂ c₂)
-        (univ_hom HB_2_1 b₁ c₂)
-        (post_comp b₁ m)
-        (pre_comp c₂ f).
-  Proof.
-    use make_pb_cone.
-    - exact (univ_hom HB_2_1 b₂ c₁).
-    - exact (pre_comp c₁ f).
-    - exact (post_comp b₂ m).
-    - use nat_z_iso_to_invertible_2cell.
-      exact (pre_comp_post_comp_commute_z_iso f m).
-  Defined.
-
   Definition is_eso_via_pb
              (HB_2_1 : is_univalent_2_1 B)
     : UU
     := ∏ (c₁ c₂ : B)
          (m : c₁ --> c₂)
          (Hm : fully_faithful_1cell m),
-       has_pb_ump (is_eso_via_pb_cone HB_2_1 m Hm).
+       orthogonal_via_pb f m HB_2_1.
 
   Definition isaprop_is_eso_via_pb
              (HB_2_1 : is_univalent_2_1 B)
@@ -307,150 +286,18 @@ Section EsoMorphisms.
     use impred ; intro c₂.
     use impred ; intro m.
     use impred ; intro Hm.
-    use isaprop_has_pb_ump.
-    exact univalent_cat_is_univalent_2_1.
-  Defined.
-
-  (**
-   5. Equivalence of the definitions
-   *)
-  Definition is_eso_to_is_eso_via_pb
-             (HB_2_1 : is_univalent_2_1 B)
-             (Hf : is_eso)
-    : is_eso_via_pb HB_2_1.
-  Proof.
-    intros c₁ c₂ m Hm.
-    specialize (Hf c₁ c₂ m Hm).
-    use (left_adjoint_equivalence_to_pb
-           _ _ _
-           (@iso_comma_has_pb_ump
-               (univ_hom HB_2_1 b₁ c₁)
-               (univ_hom HB_2_1 b₂ c₂)
-               (univ_hom HB_2_1 b₁ c₂)
-               (post_comp b₁ m)
-               (pre_comp c₂ f))
-           _
-           _).
-    - exact univalent_cat_is_univalent_2_0.
-    - exact (orthogonal_functor f m).
-    - exact (@equiv_cat_to_adj_equiv
-               (univ_hom HB_2_1 b₂ c₁)
-               (@univalent_iso_comma
-                  (univ_hom HB_2_1 b₁ c₁)
-                  (univ_hom HB_2_1 b₂ c₂)
-                  (univ_hom HB_2_1 b₁ c₂)
-                  (post_comp b₁ m)
-                  (pre_comp c₂ f))
-               (orthogonal_functor f m)
-               Hf).
-    - use nat_z_iso_to_invertible_2cell.
-      use make_nat_z_iso.
-      + use make_nat_trans.
-        * exact (λ _, id2 _).
-        * abstract
-            (intros h₁ h₂ α ; cbn ;
-             rewrite id2_left, id2_right ;
-             apply idpath).
-      + intro.
-        use is_inv2cell_to_is_z_iso ; cbn.
-        is_iso.
-    - use nat_z_iso_to_invertible_2cell.
-      use make_nat_z_iso.
-      + use make_nat_trans.
-        * exact (λ _, id2 _).
-        * abstract
-            (intros h₁ h₂ α ; cbn ;
-             rewrite id2_left, id2_right ;
-             apply idpath).
-      + intro.
-        use is_inv2cell_to_is_z_iso ; cbn.
-        is_iso.
-    - abstract
-        (use nat_trans_eq ; [ apply homset_property | ] ;
-         intro x ; cbn ;
-         rewrite id2_rwhisker, lwhisker_id2 ;
-         rewrite !id2_left, !id2_right ;
-         apply idpath).
-  Defined.
-
-  Definition is_eso_via_pb_to_is_eso_nat_trans
-             (HB_2_1 : is_univalent_2_1 B)
-             {c₁ c₂ : B}
-             {m : c₁ --> c₂}
-             (Hm : fully_faithful_1cell m)
-    : orthogonal_functor f m
-      ⟹
-      pr1 (pb_ump_mor
-             (@iso_comma_has_pb_ump
-                (univ_hom HB_2_1 b₁ c₁)
-                (univ_hom HB_2_1 b₂ c₂)
-                (univ_hom HB_2_1 b₁ c₂)
-                (post_comp b₁ m)
-                (pre_comp c₂ f))
-             (is_eso_via_pb_cone HB_2_1 m Hm)).
-  Proof.
-    use make_nat_trans.
-    - intro h.
-      simple refine ((id2 _ ,, id2 _) ,, _).
-      abstract
-        (cbn ;
-         rewrite id2_rwhisker, lwhisker_id2, id2_left, id2_right ;
-         apply idpath).
-    - abstract
-        (intros h₁ h₂ γ ;
-         use subtypePath ; [ intro ; apply cellset_property | ] ;
-         cbn ;
-         rewrite !id2_left, !id2_right ;
-         apply idpath).
-  Defined.
-
-  Definition is_eso_via_pb_to_is_eso
-             (HB_2_1 : is_univalent_2_1 B)
-             (Hf : is_eso_via_pb HB_2_1)
-    : is_eso.
-  Proof.
-    intros c₁ c₂ m Hm.
-    specialize (Hf c₁ c₂ m Hm).
-    apply (@adj_equiv_to_equiv_cat
-             (univ_hom HB_2_1 b₂ c₁)
-             (@univalent_iso_comma
-                (univ_hom HB_2_1 b₁ c₁)
-                (univ_hom HB_2_1 b₂ c₂)
-                (univ_hom HB_2_1 b₁ c₂)
-                (post_comp b₁ m)
-                (pre_comp c₂ f))
-             (orthogonal_functor f m)).
-    pose (pb_ump_mor_left_adjoint_equivalence
-            _
-            _
-            (@iso_comma_has_pb_ump
-               (univ_hom HB_2_1 b₁ c₁)
-               (univ_hom HB_2_1 b₂ c₂)
-               (univ_hom HB_2_1 b₁ c₂)
-               (post_comp b₁ m)
-               (pre_comp c₂ f))
-            Hf)
-      as p.
-    use (left_adjoint_equivalence_invertible p).
-    - exact (is_eso_via_pb_to_is_eso_nat_trans HB_2_1 Hm).
-    - use is_nat_z_iso_to_is_invertible_2cell.
-      intro.
-      use is_z_iso_iso_comma.
-      + use is_inv2cell_to_is_z_iso ; cbn.
-        is_iso.
-      + use is_inv2cell_to_is_z_iso ; cbn.
-        is_iso.
+    exact (isaprop_orthogonal_via_pb f m HB_2_1).
   Defined.
 
   Definition is_eso_weq_is_eso_via_pb
              (HB_2_1 : is_univalent_2_1 B)
     : is_eso ≃ is_eso_via_pb HB_2_1.
   Proof.
-    use weqimplimpl.
-    - exact (is_eso_to_is_eso_via_pb HB_2_1).
-    - exact (is_eso_via_pb_to_is_eso HB_2_1).
-    - exact (isaprop_is_eso HB_2_1).
-    - exact (isaprop_is_eso_via_pb HB_2_1).
+    use weqonsecfibers ; intro c₁.
+    use weqonsecfibers ; intro c₂.
+    use weqonsecfibers ; intro m.
+    use weqonsecfibers ; intro Hm₁.
+    exact (orthogonal_weq_orthogonal_via_pb f m HB_2_1).
   Defined.
 End EsoMorphisms.
 
