@@ -1,12 +1,22 @@
-(*
-  Defines what a λ-theory is
-  and gives an alternate way to give a part of its data [make_is_lambda_theory'].
- *)
+(**************************************************************************************************
+
+  λ-theories
+
+  Defines what a λ-theory is and gives accessors, constructors and defines what it means for a
+  λ-theory to have β- and η-equality.
+
+  Contents
+  1. A definition for λ-theories [lambda_theory]
+  2. An alternate constructor for the properties of a λ-theory [make_is_lambda_theory']
+  3. A definition for β-equality [has_beta]
+  4. A definiiton for η-equality [has_eta]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
@@ -15,7 +25,8 @@ Require Import UniMath.AlgebraicTheories.Tuples.
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
 
-(* The datatype lambda_theory_data *)
+(** * 1. A definition for λ-theories *)
+
 Definition lambda_theory_data : UU
   := ∑ (T : algebraic_theory),
     (∏ n, (T n : hSet) → (T (S n) : hSet)) ×
@@ -36,7 +47,6 @@ Definition app {L : lambda_theory_data} {n : nat} : (L n : hSet) → (L (S n) : 
 
 Definition abs {L : lambda_theory_data} {n : nat} : (L (S n) : hSet) → (L n : hSet) := pr22 L n.
 
-(* The datatype lambda_theory *)
 Definition extend_finite_morphism_with_identity
   {m n : finite_set_skeleton_category}
   (f : finite_set_skeleton_category⟦m, n⟧)
@@ -67,32 +77,6 @@ Definition make_is_lambda_theory
   (abs_comp : ∏ m n f (g : stn m → (L n : hSet)), abs (extended_composition f g) = (abs f) • g)
   : is_lambda_theory L
   := app_natural ,, abs_natural ,, app_comp ,, abs_comp.
-
-Lemma make_is_lambda_theory'
-  {L : lambda_theory_data}
-  (app_comp : ∏ m n f (g : stn m → (L n : hSet)), app (f • g) = extended_composition (app f) g)
-  (abs_comp : ∏ m n f (g : stn m → (L n : hSet)), abs (extended_composition f g) = (abs f) • g)
-  : is_lambda_theory L.
-Proof.
-  use (make_is_lambda_theory _ _ app_comp abs_comp);
-    intros m n a l;
-    do 2 rewrite algebraic_theory_functor_uses_projections;
-    [ rewrite app_comp;
-      apply (maponpaths (λ x, (app l) • x))
-    | rewrite <- abs_comp;
-      apply (maponpaths (λ x, abs (l • x)));
-      symmetry];
-    (apply extend_tuple_eq;
-    [ intro i;
-      refine (algebraic_theory_functor_uses_projections _ _ _ _ _ @ _);
-      refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _);
-      apply maponpaths;
-      symmetry;
-      exact (extend_tuple_inl _ _ _)
-    | apply maponpaths;
-      symmetry;
-      apply extend_tuple_inr ] ).
-Qed.
 
 Definition lambda_theory : UU := ∑ L, is_lambda_theory L.
 
@@ -145,8 +129,40 @@ Proof.
   apply setproperty.
 Qed.
 
+(** * 2. An alternate constructor for the properties of a λ-theory *)
+
+Lemma make_is_lambda_theory'
+  {L : lambda_theory_data}
+  (app_comp : ∏ m n f (g : stn m → (L n : hSet)), app (f • g) = extended_composition (app f) g)
+  (abs_comp : ∏ m n f (g : stn m → (L n : hSet)), abs (extended_composition f g) = (abs f) • g)
+  : is_lambda_theory L.
+Proof.
+  use (make_is_lambda_theory _ _ app_comp abs_comp);
+    intros m n a l;
+    do 2 rewrite algebraic_theory_functor_uses_projections;
+    [ rewrite app_comp;
+      apply (maponpaths (λ x, (app l) • x))
+    | rewrite <- abs_comp;
+      apply (maponpaths (λ x, abs (l • x)));
+      symmetry];
+    (apply extend_tuple_eq;
+    [ intro i;
+      refine (algebraic_theory_functor_uses_projections _ _ _ _ _ @ _);
+      refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _);
+      apply maponpaths;
+      symmetry;
+      exact (extend_tuple_inl _ _ _)
+    | apply maponpaths;
+      symmetry;
+      apply extend_tuple_inr ] ).
+Qed.
+
+(** * 3. A definition for β-equality *)
+
 Definition has_beta (L : lambda_theory) : UU
   := ∏ n (l : (L (S n) : hSet)), app (abs l) = l.
+
+(** * 4. A definiiton for η-equality *)
 
 Definition has_eta (L : lambda_theory) : UU
   := ∏ n (l : (L n : hSet)), abs (app l) = l.

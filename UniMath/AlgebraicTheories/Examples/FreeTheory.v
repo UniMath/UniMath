@@ -1,26 +1,38 @@
-(*
-  Defines the free algebraic theory on a given set.
- *)
+(**************************************************************************************************
+
+  The free theory
+
+  This file defines the free functor from sets to algebraic theories, and shows that it is left
+  adjoint to the forgetful functor.
+
+  Contents
+  1. The free functor [free_functor]
+  2. The forgetful functor [forgetful_functor]
+  3. The adjunction [free_functor_is_free]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories2.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms2.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
 
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
+
+(** * 1. The free functor *)
 
 Definition free_theory'_data (X : hSet) : algebraic_theory'_data.
 Proof.
@@ -80,6 +92,8 @@ Proof.
       ).
 Defined.
 
+(** * 2. The forgetful functor *)
+
 Definition forgetful_functor_data : functor_data algebraic_theory_cat HSET.
 Proof.
   use make_functor_data.
@@ -97,6 +111,8 @@ Qed.
 
 Definition forgetful_functor : algebraic_theory_cat ⟶ HSET
   := make_functor _ forgetful_is_functor.
+
+(** * 3. The adjunction *)
 
 Lemma lift_constant_eq
   (T : algebraic_theory)

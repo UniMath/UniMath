@@ -1,35 +1,49 @@
-(* Defines the univalent category of lambda theories and shows that it has all limits *)
+(**************************************************************************************************
 
+  The category of λ-theories
+
+  Defines the category of λ-theories. The category is formalized via a stack of displayed
+  categories. The displayed category structure is then leveraged to show that the category is
+  univalent and has all limits.
+
+  Contents
+  1. The category of λ-theories [lambda_theory_cat]
+  2. A characterization of iso's of λ-theories [make_lambda_theory_z_iso]
+  3. Univalence [is_univalent_lambda_theory_cat]
+  4. Limits [limits_lambda_theory_cat]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Limits.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 
-Require Import UniMath.AlgebraicTheories.Tuples.
-Require Import UniMath.AlgebraicTheories.LambdaTheories.
-Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms2.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
+Require Import UniMath.AlgebraicTheories.LambdaTheories.
+Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
+Require Import UniMath.AlgebraicTheories.Tuples.
 
 Local Open Scope cat.
 
-(* The category of the data of lambda theories *)
+(** * 1. The category of λ-theories *)
+
 Definition lambda_theory_data_disp_cat
   : disp_cat algebraic_theory_cat.
 Proof.
@@ -51,6 +65,96 @@ Proof.
     + exact (maponpaths _ (pr1 Fdata _ _) @ (pr1 F'data _ _)).
     + exact (maponpaths _ (pr2 Fdata _ _) @ (pr2 F'data _ _)).
 Defined.
+
+Definition lambda_theory_data_cat
+  : category
+  := total_category lambda_theory_data_disp_cat.
+
+Section Test.
+  Goal ob lambda_theory_data_cat = lambda_theory_data.
+    exact (idpath _).
+  Qed.
+  Goal ∏ (L L' : lambda_theory_data),
+    lambda_theory_data_cat⟦L, L'⟧ = lambda_theory_data_morphism L L'.
+    exact (λ _ _, idpath _).
+  Qed.
+End Test.
+
+Definition lambda_theory_disp_cat
+  : disp_cat lambda_theory_data_cat
+  := disp_full_sub lambda_theory_data_cat is_lambda_theory.
+
+Definition lambda_theory_cat
+  : category
+  := total_category lambda_theory_disp_cat.
+
+Section Test.
+  Goal ob lambda_theory_cat = lambda_theory.
+    exact (idpath _).
+  Qed.
+  Goal ∏ (L L' : lambda_theory), lambda_theory_cat⟦L, L'⟧ = lambda_theory_morphism L L'.
+    exact (λ _ _, idpath _).
+  Qed.
+End Test.
+
+(** * 2. A characterization of iso's of λ-theories *)
+
+Definition make_lambda_theory_z_iso
+  (a b : lambda_theory)
+  (F : z_iso (C := algebraic_theory_cat) (a : algebraic_theory) (b : algebraic_theory))
+  (Happ : ∏ n f, (morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) (S n) (app f)
+    = app ((morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) _ f))
+  (Habs : ∏ n f, (morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) n (abs f)
+    = abs ((morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) _ f))
+  : z_iso (a : lambda_theory_cat) (b : lambda_theory_cat).
+Proof.
+  use make_z_iso.
+  - use make_lambda_theory_morphism.
+    use make_lambda_theory_data_morphism.
+    + exact (morphism_from_z_iso _ _ F).
+    + exact Happ.
+    + exact Habs.
+  - use make_lambda_theory_morphism.
+    use make_lambda_theory_data_morphism.
+    + exact (inv_from_z_iso F).
+    + abstract (
+        intros n f;
+        refine (!_ @ maponpaths
+          (λ x, (x : algebraic_theory_morphism a a) (S n) _)
+          (z_iso_inv_after_z_iso F)
+        );
+        apply (maponpaths ((inv_from_z_iso F : algebraic_theory_morphism b a) (S n)));
+        refine (Happ _ _ @ _);
+        apply maponpaths;
+        exact (maponpaths (λ x, (x : algebraic_theory_morphism b b) n f) (z_iso_after_z_iso_inv F))
+      ).
+    + abstract (
+        intros n f;
+        refine (!_ @ maponpaths
+          (λ x, (x : algebraic_theory_morphism a a) _ _)
+          (z_iso_inv_after_z_iso F)
+        );
+        apply (maponpaths ((inv_from_z_iso F : algebraic_theory_morphism b a) n));
+        refine (Habs _ _ @ _);
+        apply maponpaths;
+        exact (maponpaths (λ x, (x : algebraic_theory_morphism b b) _ f) (z_iso_after_z_iso_inv F))
+      ).
+  - abstract (
+      split;
+      (apply subtypePath;
+      [ intro;
+        apply isapropunit | ]);
+      (apply subtypePath;
+      [ intro;
+        apply isapropdirprod;
+        do 2 (apply impred_isaprop; intro);
+        apply setproperty | ]);
+      [ apply (z_iso_inv_after_z_iso F) |
+        apply (z_iso_after_z_iso_inv F) ]
+    ).
+Defined.
+
+(** * 3. Univalence *)
 
 Lemma is_univalent_disp_lambda_theory_data_disp_cat
   : is_univalent_disp lambda_theory_data_disp_cat.
@@ -74,6 +178,31 @@ Proof.
     do 2 (apply impred; intro);
     apply setproperty.
 Qed.
+
+Lemma is_univalent_lambda_theory_data_cat
+  : is_univalent lambda_theory_data_cat.
+Proof.
+  apply is_univalent_total_category.
+  - exact is_univalent_algebraic_theory_cat.
+  - exact is_univalent_disp_lambda_theory_data_disp_cat.
+Qed.
+
+Lemma is_univalent_disp_lambda_theory_disp_cat
+  : is_univalent_disp lambda_theory_disp_cat.
+Proof.
+  apply disp_full_sub_univalent.
+  exact isaprop_is_lambda_theory.
+Qed.
+
+Lemma is_univalent_lambda_theory_cat
+  : is_univalent lambda_theory_cat.
+Proof.
+  apply is_univalent_total_category.
+  - exact is_univalent_lambda_theory_data_cat.
+  - exact is_univalent_disp_lambda_theory_disp_cat.
+Qed.
+
+(** * 4. Limits *)
 
 Section Limits.
 
@@ -134,43 +263,9 @@ Definition creates_limits_lambda_theory_data_disp_cat
     (cone_lambda_theory_data_disp_cat _)
     (is_limit_lambda_theory_data_disp_cat _).
 
-Definition lambda_theory_data_cat
-  : category
-  := total_category lambda_theory_data_disp_cat.
-
 Definition limits_lambda_theory_data_cat
   : Lims lambda_theory_data_cat
   := λ _ _, total_limit _ _ (creates_limits_lambda_theory_data_disp_cat _).
-
-Lemma is_univalent_lambda_theory_data_cat
-  : is_univalent lambda_theory_data_cat.
-Proof.
-  apply is_univalent_total_category.
-  - exact is_univalent_algebraic_theory_cat.
-  - exact is_univalent_disp_lambda_theory_data_disp_cat.
-Qed.
-
-Section Test.
-  Goal ob lambda_theory_data_cat = lambda_theory_data.
-    exact (idpath _).
-  Qed.
-  Goal ∏ (L L' : lambda_theory_data),
-    lambda_theory_data_cat⟦L, L'⟧ = lambda_theory_data_morphism L L'.
-    exact (λ _ _, idpath _).
-  Qed.
-End Test.
-
-(* The category of lambda theories without beta or eta *)
-Definition lambda_theory_disp_cat
-  : disp_cat lambda_theory_data_cat
-  := disp_full_sub lambda_theory_data_cat is_lambda_theory.
-
-Lemma is_univalent_disp_lambda_theory_disp_cat
-  : is_univalent_disp lambda_theory_disp_cat.
-Proof.
-  apply disp_full_sub_univalent.
-  exact isaprop_is_lambda_theory.
-Qed.
 
 Definition creates_limits_lambda_theory_disp_cat
   {J : graph}
@@ -210,82 +305,6 @@ Proof.
       ).
 Defined.
 
-Definition lambda_theory_cat
-  : category
-  := total_category lambda_theory_disp_cat.
-
-Lemma is_univalent_lambda_theory_cat
-  : is_univalent lambda_theory_cat.
-Proof.
-  apply is_univalent_total_category.
-  - exact is_univalent_lambda_theory_data_cat.
-  - exact is_univalent_disp_lambda_theory_disp_cat.
-Qed.
-
 Definition limits_lambda_theory_cat
   : Lims lambda_theory_cat
   := λ _ _, total_limit _ _ (creates_limits_lambda_theory_disp_cat _).
-
-Section Test.
-  Goal ob lambda_theory_cat = lambda_theory.
-    exact (idpath _).
-  Qed.
-  Goal ∏ (L L' : lambda_theory), lambda_theory_cat⟦L, L'⟧ = lambda_theory_morphism L L'.
-    exact (λ _ _, idpath _).
-  Qed.
-End Test.
-
-Definition make_lambda_theory_z_iso
-  (a b : lambda_theory)
-  (F : z_iso (C := algebraic_theory_cat) (a : algebraic_theory) (b : algebraic_theory))
-  (Happ : ∏ n f, (morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) (S n) (app f)
-    = app ((morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) _ f))
-  (Habs : ∏ n f, (morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) n (abs f)
-    = abs ((morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) _ f))
-  : z_iso (a : lambda_theory_cat) (b : lambda_theory_cat).
-Proof.
-  use make_z_iso.
-  - use make_lambda_theory_morphism.
-    use make_lambda_theory_data_morphism.
-    + exact (morphism_from_z_iso _ _ F).
-    + exact Happ.
-    + exact Habs.
-  - use make_lambda_theory_morphism.
-    use make_lambda_theory_data_morphism.
-    + exact (inv_from_z_iso F).
-    + abstract (
-        intros n f;
-        refine (!_ @ maponpaths
-          (λ x, (x : algebraic_theory_morphism a a) (S n) _)
-          (z_iso_inv_after_z_iso F)
-        );
-        apply (maponpaths ((inv_from_z_iso F : algebraic_theory_morphism b a) (S n)));
-        refine (Happ _ _ @ _);
-        apply maponpaths;
-        exact (maponpaths (λ x, (x : algebraic_theory_morphism b b) n f) (z_iso_after_z_iso_inv F))
-      ).
-    + abstract (
-        intros n f;
-        refine (!_ @ maponpaths
-          (λ x, (x : algebraic_theory_morphism a a) _ _)
-          (z_iso_inv_after_z_iso F)
-        );
-        apply (maponpaths ((inv_from_z_iso F : algebraic_theory_morphism b a) n));
-        refine (Habs _ _ @ _);
-        apply maponpaths;
-        exact (maponpaths (λ x, (x : algebraic_theory_morphism b b) _ f) (z_iso_after_z_iso_inv F))
-      ).
-  - abstract (
-      split;
-      (apply subtypePath;
-      [ intro;
-        apply isapropunit | ]);
-      (apply subtypePath;
-      [ intro;
-        apply isapropdirprod;
-        do 2 (apply impred_isaprop; intro);
-        apply setproperty | ]);
-      [ apply (z_iso_inv_after_z_iso F) |
-        apply (z_iso_after_z_iso_inv F) ]
-    ).
-Defined.

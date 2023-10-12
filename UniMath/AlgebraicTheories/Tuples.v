@@ -1,8 +1,16 @@
-(*
-  Provides a couple of definitions and lemmas about "Tuples". These are morphisms from stn n into
-  some type. It defines a way to add one element to a tuple [extend_tuple] and then provides an
-  equality lemma [extend_tuple_eq] and a couple of lemmas about the elements of [extend_tuple].
- *)
+(**************************************************************************************************
+
+  Tuples
+
+  This file provides a couple of definitions and lemmas about "Tuples". These are morphisms from
+  stn n into some type. The main definition is a way to append one element to a tuple.
+
+  Contents
+  1. A way to append one element to a tuple [extend_tuple]
+  2. A couple of lemmas about the elements of an extended tuple
+  3. A lemma specifying when extend_tuple is equal to another tuple [extend_tuple_eq]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.

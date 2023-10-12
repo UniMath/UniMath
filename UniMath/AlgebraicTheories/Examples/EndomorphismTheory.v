@@ -1,23 +1,37 @@
-(*
-  Defines the endomorphism theory of an object X in some category with products, given by
-  T(n) = (X^n → X). Also gives a specialization for X a set.
-*)
+(**************************************************************************************************
 
+  Endomorphism Theory
+
+  Algebraic theories and λ-theories describe objects with "variables" and a substitution operation.
+  An important class of examples are the so-called "endomorphism theories". Given an object X in a
+  category with products, the endomorphism theory of X is the algebraic theory T with T(n) the set
+  of morphisms from X^n to X.
+  If X is also exponentiable and we have morphisms between X and X^X, we can turn X into a lambda
+  theory.
+
+  Contents
+  1. The definition of the endomorphism algebraic theory [endomorphism_theory]
+  2. The definition of the endomorphism λ-theory [endomorphism_lambda_theory]
+  3. A characterization of the endomorphism theories with β-equality [endomorphism_theory_has_beta]
+  4. A characterization of the endomorphism theories with η-equality [endomorphism_theory_has_eta]
+  5. The endomorphism theory of a set [set_endomorphism_theory]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories2.
@@ -26,6 +40,8 @@ Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.Tuples.
 
 Local Open Scope cat.
+
+(** * 1. The definition of the endomorphism algebraic theory *)
 
 Section EndomorphismAlgebraicTheory.
 
@@ -80,6 +96,8 @@ Section EndomorphismAlgebraicTheory.
 
   Definition endomorphism_theory : algebraic_theory
     := make_algebraic_theory' _ endomorphism_is_theory'.
+
+  (** * 2. The definition of the endomorphism λ-theory *)
 
   Local Definition pow_commutes (n : nat)
     := (ProductPrCommutes _ _ _ (power n)).
@@ -181,32 +199,38 @@ Section EndomorphismAlgebraicTheory.
     : lambda_theory
     := make_lambda_theory _ endomorphism_theory_is_lambda.
 
+(** * 3. A characterization of the endomorphism theories with β-equality *)
+
   Lemma endomorphism_theory_has_beta
     (app_after_abs : abs · app = identity _)
     : has_beta endomorphism_lambda_theory.
   Proof.
     intros n l.
-    unfold LambdaTheories.abs, LambdaTheories.app.
-    simpl.
-    rewrite assoc'.
-    rewrite app_after_abs.
-    rewrite id_right.
-    apply (φ_adj_inv_after_φ_adj (pr2 E)).
+    refine (_ @ φ_adj_inv_after_φ_adj (pr2 E) _).
+    apply (maponpaths (φ_adj_inv _)).
+    refine (assoc' _ _ _ @ _).
+    refine (_ @ id_right _).
+    apply maponpaths.
+    exact app_after_abs.
   Qed.
+
+(** * 4. A characterization of the endomorphism theories with η-equality *)
 
   Lemma endomorphism_theory_has_eta
     (abs_after_app : app · abs = identity _)
     : has_eta endomorphism_lambda_theory.
   Proof.
     intros n l.
-    unfold LambdaTheories.abs, LambdaTheories.app.
     refine (maponpaths (λ x, x · _) (φ_adj_after_φ_adj_inv _ _) @ _).
     refine (assoc' _ _ _ @ _).
-    refine (maponpaths (λ x, _ · x) abs_after_app @ _).
-    apply id_right.
+    refine (_ @ id_right _).
+    apply maponpaths.
+    exact abs_after_app.
   Qed.
 
 End EndomorphismAlgebraicTheory.
+
+(** * 5. The endomorphism theory of a set *)
 
 Definition set_endomorphism_theory
   (X : hSet)

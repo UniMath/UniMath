@@ -1,53 +1,61 @@
-(*
+ (**************************************************************************************************
+
+  Scott's representation theorem
+
   A proof of the representation theorem for the λ-calculus, first proven by Dana Scott in 1980.
   It shows that any model for the λ-calculus can be viewed as the set of endomorphisms of some
   (reflexive) object in some category.
-  This file first shows that the object [theory_presheaf]
-  can be exponentiated [theory_presheaf_exponentiable],
-  then constructs its endomorphism λ-theory [presheaf_lambda_theory]
-  and finally shows that it is isomorphic to our original λ-theory [presheaf_lambda_theory_iso].
- *)
+
+  Contents
+  1. A proof that the object (theory_presheaf) can be exponentiated [theory_presheaf_exponentiable]
+  2. A construction of its λ-theory [presheaf_lambda_theory]
+  3. An isomorphism between the two λ-theories [presheaf_lambda_theory_iso]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Cartesian.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Require Import UniMath.AlgebraicTheories.Tuples.
-Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories2.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms2.
 Require Import UniMath.AlgebraicTheories.Examples.EndomorphismTheory.
 Require Import UniMath.AlgebraicTheories.Examples.Plus1Presheaf.
+Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
-Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryCategory.
-Require Import UniMath.AlgebraicTheories.Presheaves.
+Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.PresheafCategory.
+Require Import UniMath.AlgebraicTheories.PresheafMorphisms.
+Require Import UniMath.AlgebraicTheories.Presheaves.
+Require Import UniMath.AlgebraicTheories.Tuples.
 
 Local Open Scope algebraic_theories.
 Local Open Scope cat.
 Local Open Scope mor_disp.
+
+(** * 1. A proof that the object (theory_presheaf) can be exponentiated *)
 
 Section RepresentationTheorem.
 
@@ -342,6 +350,8 @@ Section RepresentationTheorem.
 
   End Exponentiable.
 
+  (** * 2. A construction of its λ-theory *)
+
   Lemma presheaf_lambda_theory_aux
     {m n : nat}
     (f : stn m → (L _ : hSet))
@@ -387,6 +397,8 @@ Section RepresentationTheorem.
           apply presheaf_lambda_theory_aux
         ).
   Defined.
+
+  (** * 3. An isomorphism between the two λ-theories *)
 
   Section Iso.
 

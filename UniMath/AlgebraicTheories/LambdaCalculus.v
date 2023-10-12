@@ -1,15 +1,27 @@
-(*
-  Defines what (a model for) the lambda calculus looks like.
- *)
+(**************************************************************************************************
+
+  The λ-calculus
+
+  Defines what (a model for) the λ-calculus with β- and η-equality looks like and provides related
+  definitions and lemmas.
+
+  Contents
+  1. The data of the λ-calculus [lambda_calculus_data]
+  2. Properties and operations derived from the data
+  3. A definition of the λ-calculus with compatibility between the pieces of data [lambda_calculus]
+  4. Properties derived from the full λ-calculus
+  4.1. Properties of rect
+  4.2. Properties of subst [subst_l_var]
+  4.3. A tactic for reducing λ-terms [reduce_lambda]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.Tuples.
 
-(** The core datatype *)
-
-(*** The data of the lambda calculus *)
+(** * 1. The data of the λ-calculus *)
 
 Definition lambda_calculus_data : UU := ∑
   (L : nat → hSet)
@@ -176,7 +188,7 @@ Definition lambda_calculus_ind
     (pr12 (pr222 f_paths))
     (pr22 (pr222 f_paths)).
 
-(**** Operations derived from the data *)
+(** * 2. Properties and operations derived from the data *)
 
 Definition lambda_calculus_rect
   {L : lambda_calculus_data}
@@ -252,7 +264,6 @@ Proof.
       apply propproperty.
 Defined.
 
-(***** Inflate *)
 Definition inflate_var {L : lambda_calculus_data} {n} (i : stn n)
   : inflate (L := L) (var i) = var (dni lastelement i)
   := subst_var i _.
@@ -278,7 +289,7 @@ Definition inflate_subst {L : lambda_calculus_data} {m n} (l : L m) (f : stn m �
   : inflate (subst l f) = subst l (λ i, (inflate (f i)))
   := subst_subst l f _.
 
-(*** The properties of the lambda calculus *)
+(** * 3. A definition of the λ-calculus with compatibility between the pieces of data *)
 
 Definition ind_var (L : lambda_calculus_data) : UU := ∏ A f_var f_app f_abs f_subst f_paths n i,
   lambda_calculus_ind (L := L) A f_var f_app f_abs f_subst f_paths n (var i) = f_var _ i.
@@ -304,8 +315,6 @@ Definition is_lambda_calculus (L : lambda_calculus_data) : UU :=
   ind_app L ×
   ind_abs L ×
   ind_subst L.
-
-(*** The combined datatype of data and properties *)
 
 Definition lambda_calculus : UU := ∑ L, is_lambda_calculus L.
 
@@ -347,9 +356,10 @@ Definition lambda_calculus_ind_subst
     (λ i, lambda_calculus_ind _ f_var f_app f_abs f_subst f_paths _ (f i))
   := pr2 (pr222 L) A f_var f_app f_abs f_subst f_paths m n l f.
 
-(**** Derived properties *)
+(** * 4. Properties derived from the full λ-calculus *)
 
-(***** Rect *)
+(** ** 4.1. Properties of rect *)
+
 Definition lambda_calculus_rect_var {L : lambda_calculus} {A f_var f_app f_abs f_subst f_paths n} i
   : lambda_calculus_rect (L := L) A f_var f_app f_abs f_subst f_paths n (var i) = f_var _ i
   := lambda_calculus_ind_var i.
@@ -379,7 +389,7 @@ Definition lambda_calculus_rect_subst
     (λ i, lambda_calculus_rect _ f_var f_app f_abs f_subst f_paths _ (f i))
   := lambda_calculus_ind_subst l f.
 
-(***** Subst *)
+(** ** 4.2. Properties of subst [subst_l_var] *)
 
 Lemma subst_l_var
   {L : lambda_calculus}
@@ -410,7 +420,7 @@ Proof.
     apply H.
 Qed.
 
-(**** A tactic for reducing lambda terms to a "canonical" form *)
+(** ** 4.3. A tactic for reducing λ-terms [reduce_lambda] *)
 
 Ltac reduce_lambda := (
   rewrite subst_var +

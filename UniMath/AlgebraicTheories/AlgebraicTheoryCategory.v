@@ -1,15 +1,28 @@
-(* Defines the univalent category of algebraic theories and shows that it has all limits *)
+(**************************************************************************************************
 
+  The category of algebraic theories
+
+  Defines the category of algebraic theories. The category is formalized via a stack of displayed
+  categories and this displayed category structure is then leveraged to show that the category is
+  univalent and has all limits.
+
+  Contents
+  1. The category of algebraic theories [algebraic_theory_cat]
+  2. A characterization of iso's of algebraic theories [make_algebraic_theory_z_iso]
+  3. Univalence [is_univalent_algebraic_theory_cat]
+  4. Limits [limits_algebraic_theory_cat]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
@@ -17,9 +30,9 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Limits.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
@@ -30,25 +43,12 @@ Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
 
-(* Base category of functors from the finite set skeleton to HSET *)
+(** * 1. The category of algebraic theories *)
+
 Definition base_functor_category
   : category
   := [finite_set_skeleton_category, HSET].
 
-Lemma is_univalent_base_functor_category
-  : is_univalent base_functor_category.
-Proof.
-  apply is_univalent_functor_category.
-  apply is_univalent_HSET.
-Qed.
-
-Definition limits_base_functor_category
-  : Lims base_functor_category.
-Proof.
-  apply LimsFunctorCategory, LimsHSET.
-Defined.
-
-(* The category of functors T, together with a point in T 1 *)
 Definition pointed_functor_disp_cat
   : disp_cat base_functor_category.
 Proof.
@@ -65,21 +65,114 @@ Proof.
     ).
 Defined.
 
-Lemma is_univalent_disp_pointed_functor_disp_cat
-  : is_univalent_disp pointed_functor_disp_cat.
-Proof.
-  apply is_univalent_disp_iff_fibers_are_univalent.
-  do 3 intro.
-  use isweq_iso.
-  - exact pr1.
-  - intro.
-    apply setproperty.
-  - intro.
-    apply z_iso_eq.
-    apply setproperty.
-Qed.
+Definition pointed_functor_cat
+  : category
+  := total_category pointed_functor_disp_cat.
 
-Section Limits.
+Definition algebraic_theory_data_disp_cat
+  : disp_cat pointed_functor_cat.
+Proof.
+  use disp_struct.
+  - exact (λ (T : pointed_functor), ∏ m n, (T m : hSet) → (stn m → (T n : hSet)) → (T n : hSet)).
+  - exact (λ T T' Tdata T'data (F : pointed_functor_morphism T T'),
+      ∏ m n f g, (F _ (Tdata m n f g)) = T'data m n (F _ f) (λ i, F _ (g i))).
+  - abstract (
+      intros;
+      repeat (apply impred_isaprop; intro);
+      apply setproperty
+    ).
+  - abstract easy.
+  - abstract (
+      intros T T' T'' Tdata T'data T''data F F' Fdata F'data m n f g;
+      refine (maponpaths _ (Fdata _ _ _ _) @ _);
+      apply F'data
+    ).
+Defined.
+
+Definition algebraic_theory_data_cat
+  : category
+  := total_category algebraic_theory_data_disp_cat.
+
+Definition algebraic_theory_disp_cat
+  : disp_cat algebraic_theory_data_cat
+  := disp_full_sub algebraic_theory_data_cat is_algebraic_theory.
+
+Definition algebraic_theory_cat
+  : category
+  := total_category algebraic_theory_disp_cat.
+
+(** * 2. A characterization of iso's of algebraic theories *)
+
+Definition make_algebraic_theory_z_iso
+  (a b : algebraic_theory)
+  (F : ∏ n, z_iso (C := HSET) (a n : hSet) (b n : hSet))
+  (Hpr : ∏ n i, morphism_from_z_iso _ _ (F n) (pr i) = pr i)
+  (Hcomp : ∏ m n f (g : stn m → (a n : hSet)),
+    morphism_from_z_iso _ _ (F n) (f • g)
+    = morphism_from_z_iso _ _ (F m) f • (λ i, (morphism_from_z_iso _ _ (F n) (g i))))
+  : z_iso (a : algebraic_theory_cat) (b : algebraic_theory_cat).
+Proof.
+  use make_z_iso.
+  - use make_algebraic_theory_morphism'.
+    + intro n.
+      exact (morphism_from_z_iso _ _ (F n)).
+    + abstract (
+        split;
+        [ exact Hcomp
+        | exact Hpr ]
+      ).
+  - use make_algebraic_theory_morphism'.
+    + intro n.
+      exact (inv_from_z_iso (F n)).
+    + abstract (
+        split;
+        [ intros m n f g;
+          refine (!_ @ maponpaths (λ x, x _) (z_iso_inv_after_z_iso (F n)));
+          refine (maponpaths (λ x, inv_from_z_iso (F n) x) (Hcomp _ _ _ _) @ _);
+          apply maponpaths;
+          refine (maponpaths (λ x, (x f) • _) (z_iso_after_z_iso_inv (F m)) @ _);
+          apply maponpaths;
+          apply funextfun;
+          intro;
+          exact (maponpaths (λ x, x (g _)) (z_iso_after_z_iso_inv (F n)))
+        | intros n i;
+          refine (!_ @ maponpaths (λ x, x _) (z_iso_inv_after_z_iso (F n)));
+          apply (maponpaths (inv_from_z_iso (F n)));
+          apply Hpr ]
+      ).
+  - abstract (
+      split;
+      ( apply subtypePath;
+        [ intro;
+          apply isapropunit | ]);
+      ( apply subtypePath;
+        [ intro;
+          repeat (apply impred_isaprop; intro);
+          apply setproperty | ]);
+      ( apply subtypePath;
+        [ intro;
+          apply setproperty | ] );
+      ( apply subtypePath;
+        [ intro;
+          repeat (apply impred_isaprop; intro);
+          apply homset_property | ] );
+      apply funextsec;
+      intro n;
+      [ apply (z_iso_inv_after_z_iso (F n)) |
+        apply (z_iso_after_z_iso_inv (F n)) ]
+    ).
+Defined.
+
+(** * 3. Univalence [is_univalent_algebraic_theory_cat] *)
+
+Definition limits_base_functor_category
+  : Lims base_functor_category.
+Proof.
+  apply LimsFunctorCategory, LimsHSET.
+Defined.
+
+Section PointedLimits.
+
   Context (D := pointed_functor_disp_cat).
   Context {J : graph}.
   Context (d : diagram J (total_category D)).
@@ -135,7 +228,7 @@ Section Limits.
     exact (pr2 (cone_out i)).
   Qed.
 
-End Limits.
+End PointedLimits.
 
 Definition creates_limits_pointed_functor_disp_cat
   {J : graph}
@@ -146,65 +239,14 @@ Definition creates_limits_pointed_functor_disp_cat
     (cone_pointed_functor_disp_cat _)
     (is_limit_pointed_functor_disp_cat _).
 
-Definition pointed_functor_cat
-  : category
-  := total_category pointed_functor_disp_cat.
-
-Lemma is_univalent_pointed_functor_cat
-  : is_univalent pointed_functor_cat.
-Proof.
-  apply is_univalent_total_category.
-  - exact is_univalent_base_functor_category.
-  - exact is_univalent_disp_pointed_functor_disp_cat.
-Qed.
-
 Definition limits_pointed_functor_cat
   : Lims pointed_functor_cat
   := λ _ _, total_limit _
     (limits_base_functor_category _ _)
     (creates_limits_pointed_functor_disp_cat _).
 
-(* The category of algebraic theory data *)
-Definition algebraic_theory_data_disp_cat
-  : disp_cat pointed_functor_cat.
-Proof.
-  use disp_struct.
-  - exact (λ (T : pointed_functor), ∏ m n, (T m : hSet) → (stn m → (T n : hSet)) → (T n : hSet)).
-  - exact (λ T T' Tdata T'data (F : pointed_functor_morphism T T'),
-      ∏ m n f g, (F _ (Tdata m n f g)) = T'data m n (F _ f) (λ i, F _ (g i))).
-  - abstract (
-      intros;
-      repeat (apply impred_isaprop; intro);
-      apply setproperty
-    ).
-  - abstract easy.
-  - abstract (
-      intros T T' T'' Tdata T'data T''data F F' Fdata F'data m n f g;
-      refine (maponpaths _ (Fdata _ _ _ _) @ _);
-      apply F'data
-    ).
-Defined.
+Section AlgebraicTheoryLimits.
 
-Lemma is_univalent_disp_algebraic_theory_data_disp_cat
-  : is_univalent_disp algebraic_theory_data_disp_cat.
-Proof.
-  apply is_univalent_disp_iff_fibers_are_univalent.
-  intros T comp comp'.
-  use isweq_iso.
-  - intro f.
-    do 4 (apply funextsec; intro).
-    apply (pr1 f _).
-  - intro.
-    refine (pr1 ((_ : isaset algebraic_theory_data_disp_cat[{T}]) _ _ _ _)).
-    do 4 (apply impred_isaset; intro).
-    apply setproperty.
-  - intro.
-    apply z_iso_eq.
-    do 4 (apply impred_isaprop; intro).
-    apply setproperty.
-Qed.
-
-Section Limits.
   Context (D := algebraic_theory_data_disp_cat).
   Context {J : graph}.
   Context (d : diagram J (total_category D)).
@@ -271,7 +313,7 @@ Section Limits.
     exact (pr2 (cone_out i) m n f g).
   Qed.
 
-End Limits.
+End AlgebraicTheoryLimits.
 
 Definition creates_limits_algebraic_theory_data_disp_cat
   {J : graph}
@@ -290,33 +332,9 @@ Definition creates_limits_unique_algebraic_theory_data_disp_cat
     (creates_limits_algebraic_theory_data_disp_cat _)
     (uniqueness_algebraic_theory_data_disp_cat _).
 
-Definition algebraic_theory_data_cat
-  : category
-  := total_category algebraic_theory_data_disp_cat.
-
-Lemma is_univalent_algebraic_theory_data_cat
-  : is_univalent algebraic_theory_data_cat.
-Proof.
-  apply is_univalent_total_category.
-  - exact is_univalent_pointed_functor_cat.
-  - exact is_univalent_disp_algebraic_theory_data_disp_cat.
-Qed.
-
 Definition limits_algebraic_theory_data_cat
   : Lims algebraic_theory_data_cat
   := λ _ _, total_limit _ _ (creates_limits_algebraic_theory_data_disp_cat _).
-
-(* The category of algebraic theories *)
-Definition algebraic_theory_disp_cat
-  : disp_cat algebraic_theory_data_cat
-  := disp_full_sub algebraic_theory_data_cat is_algebraic_theory.
-
-Lemma is_univalent_disp_algebraic_theory_disp_cat
-  : is_univalent_disp algebraic_theory_disp_cat.
-Proof.
-  apply disp_full_sub_univalent.
-  exact isaprop_is_algebraic_theory.
-Qed.
 
 Definition creates_limits_algebraic_theory_disp_cat
   {J : graph}
@@ -340,9 +358,70 @@ Proof.
     ).
 Defined.
 
-Definition algebraic_theory_cat
-  : category
-  := total_category algebraic_theory_disp_cat.
+(** * 4. Limits [limits_algebraic_theory_cat] *)
+
+Lemma is_univalent_base_functor_category
+  : is_univalent base_functor_category.
+Proof.
+  apply is_univalent_functor_category.
+  apply is_univalent_HSET.
+Qed.
+
+Lemma is_univalent_disp_pointed_functor_disp_cat
+  : is_univalent_disp pointed_functor_disp_cat.
+Proof.
+  apply is_univalent_disp_iff_fibers_are_univalent.
+  do 3 intro.
+  use isweq_iso.
+  - exact pr1.
+  - intro.
+    apply setproperty.
+  - intro.
+    apply z_iso_eq.
+    apply setproperty.
+Qed.
+
+Lemma is_univalent_pointed_functor_cat
+  : is_univalent pointed_functor_cat.
+Proof.
+  apply is_univalent_total_category.
+  - exact is_univalent_base_functor_category.
+  - exact is_univalent_disp_pointed_functor_disp_cat.
+Qed.
+
+Lemma is_univalent_disp_algebraic_theory_data_disp_cat
+  : is_univalent_disp algebraic_theory_data_disp_cat.
+Proof.
+  apply is_univalent_disp_iff_fibers_are_univalent.
+  intros T comp comp'.
+  use isweq_iso.
+  - intro f.
+    do 4 (apply funextsec; intro).
+    apply (pr1 f _).
+  - intro.
+    refine (pr1 ((_ : isaset algebraic_theory_data_disp_cat[{T}]) _ _ _ _)).
+    do 4 (apply impred_isaset; intro).
+    apply setproperty.
+  - intro.
+    apply z_iso_eq.
+    do 4 (apply impred_isaprop; intro).
+    apply setproperty.
+Qed.
+
+Lemma is_univalent_algebraic_theory_data_cat
+  : is_univalent algebraic_theory_data_cat.
+Proof.
+  apply is_univalent_total_category.
+  - exact is_univalent_pointed_functor_cat.
+  - exact is_univalent_disp_algebraic_theory_data_disp_cat.
+Qed.
+
+Lemma is_univalent_disp_algebraic_theory_disp_cat
+  : is_univalent_disp algebraic_theory_disp_cat.
+Proof.
+  apply disp_full_sub_univalent.
+  exact isaprop_is_algebraic_theory.
+Qed.
 
 Lemma is_univalent_algebraic_theory_cat
   : is_univalent algebraic_theory_cat.
@@ -357,67 +436,3 @@ Definition limits_algebraic_theory_cat
   := λ _ _, total_limit _
     (limits_algebraic_theory_data_cat _ _)
     (creates_limits_algebraic_theory_disp_cat _).
-
-Definition algebraic_theory_univalent_category
-  : univalent_category
-  := make_univalent_category _ is_univalent_algebraic_theory_cat.
-
-Definition make_algebraic_theory_z_iso
-  (a b : algebraic_theory)
-  (F : ∏ n, z_iso (C := HSET) (a n : hSet) (b n : hSet))
-  (Hpr : ∏ n i, morphism_from_z_iso _ _ (F n) (pr i) = pr i)
-  (Hcomp : ∏ m n f (g : stn m → (a n : hSet)),
-    morphism_from_z_iso _ _ (F n) (f • g)
-    = morphism_from_z_iso _ _ (F m) f • (λ i, (morphism_from_z_iso _ _ (F n) (g i))))
-  : z_iso (a : algebraic_theory_cat) (b : algebraic_theory_cat).
-Proof.
-  use make_z_iso.
-  - use make_algebraic_theory_morphism'.
-    + intro n.
-      exact (morphism_from_z_iso _ _ (F n)).
-    + abstract (
-        split;
-        [ exact Hcomp
-        | exact Hpr ]
-      ).
-  - use make_algebraic_theory_morphism'.
-    + intro n.
-      exact (inv_from_z_iso (F n)).
-    + abstract (
-        split;
-        [ intros m n f g;
-          refine (!_ @ maponpaths (λ x, x _) (z_iso_inv_after_z_iso (F n)));
-          refine (maponpaths (λ x, inv_from_z_iso (F n) x) (Hcomp _ _ _ _) @ _);
-          apply maponpaths;
-          refine (maponpaths (λ x, (x f) • _) (z_iso_after_z_iso_inv (F m)) @ _);
-          apply maponpaths;
-          apply funextfun;
-          intro;
-          exact (maponpaths (λ x, x (g _)) (z_iso_after_z_iso_inv (F n)))
-        | intros n i;
-          refine (!_ @ maponpaths (λ x, x _) (z_iso_inv_after_z_iso (F n)));
-          apply (maponpaths (inv_from_z_iso (F n)));
-          apply Hpr ]
-      ).
-  - abstract (
-      split;
-      ( apply subtypePath;
-        [ intro;
-          apply isapropunit | ]);
-      ( apply subtypePath;
-        [ intro;
-          repeat (apply impred_isaprop; intro);
-          apply setproperty | ]);
-      ( apply subtypePath;
-        [ intro;
-          apply setproperty | ] );
-      ( apply subtypePath;
-        [ intro;
-          repeat (apply impred_isaprop; intro);
-          apply homset_property | ] );
-      apply funextsec;
-      intro n;
-      [ apply (z_iso_inv_after_z_iso (F n)) |
-        apply (z_iso_after_z_iso_inv (F n)) ]
-    ).
-Defined.

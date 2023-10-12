@@ -1,65 +1,66 @@
-(*
-  Defines the category of presheaves for an algebraic theory
-  and shows that it is univalent and has a terminal object, products and all limits
-*)
+(**************************************************************************************************
 
+  The category of algebraic theory presheaves
+
+  Defines the category of presheaves for an algebraic theory. First, the category of dependent pairs
+  of theories and presheaves is formalized as a stack of displayed categories, then the category of
+  presheaves is a fiber of a (repeated) sigma category of this. It is shown that presheaves are
+  fibered over algebraic theories. The displayed category structure is then leveraged to show that
+  the category is univalent and has all limits. To facilitate computation, concrete definitions of
+  the terminal object, binary product and product are given.
+
+  Contents
+  1. The dependent product category of theories and presheaves [presheaf_full_cat]
+  2. The category of presheaves [presheaf_cat]
+  3. Univalence [is_univalent_presheaf_cat]
+  4. Fibration [presheaf_fibration]
+  5. Limits [limits_presheaf_cat]
+  6. Terminal object [terminal_presheaf_cat]
+  7. Binary products [bin_products_presheaf_cat]
+  8. Products [products_presheaf_cat]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Cartesian.
-Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
-Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
-Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
-Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
-Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
-Require Import UniMath.CategoryTheory.DisplayedCats.Limits.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Cartesian.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Limits.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
+Require Import UniMath.AlgebraicTheories.PresheafMorphisms.
 Require Import UniMath.AlgebraicTheories.Presheaves.
 
 Local Open Scope algebraic_theories.
 Local Open Scope cat.
 Local Open Scope mor_disp.
 
-Definition creates_limits_presheaf_base_disp
-  : creates_limits (disp_cartesian algebraic_theory_cat base_functor_category).
-Proof.
-  intros J d L.
-  use creates_limits_disp_cartesian.
-  - apply limits_base_functor_category.
-Defined.
+(** * 1. The dependent product category of theories and presheaves *)
 
-Definition limits_presheaf_base
-  : Lims (cartesian algebraic_theory_cat base_functor_category).
-Proof.
-  intros J d.
-  use total_limit.
-  - apply limits_algebraic_theory_cat.
-  - apply creates_limits_presheaf_base_disp.
-Defined.
-
-(* The displayed category of presheaf data *)
 Definition presheaf_data_disp_cat
   : disp_cat (cartesian algebraic_theory_cat base_functor_category).
 Proof.
@@ -92,218 +93,24 @@ Proof.
     ).
 Defined.
 
-Lemma is_univalent_disp_presheaf_data_disp_cat
-  : is_univalent_disp presheaf_data_disp_cat.
-Proof.
-  apply is_univalent_disp_iff_fibers_are_univalent.
-  intros TA action action'.
-  use isweq_iso.
-  - intro F.
-    do 4 (apply funextsec; intro).
-    refine (maponpaths (λ x, _ (x _) _ _) (!transportf_const _ _) @ pr1 F _ _ _ _ @ _).
-    exact (maponpaths (λ x, _ (_ (x _) _ _) _) (transportf_const _ _)).
-  - intro.
-    do 4 (apply impred_isaset; intro).
-    apply setproperty.
-  - intro.
-    apply z_iso_eq.
-    do 4 (apply impred_isaprop; intro).
-    apply setproperty.
-Qed.
-
-Section Limits.
-  Context (D := presheaf_data_disp_cat).
-  Context {J : graph}.
-  Context (d : diagram J (total_category D)).
-  Context (L := limits_presheaf_base J (mapdiagram (pr1_category _) d)).
-
-  Definition tip_presheaf_data_disp_cat
-    : D (lim L).
-  Proof.
-    intros m n a f.
-    use tpair.
-    - intro u.
-      exact (pr2 (dob d u) m n (pr1 a u) (λ i, pr1 (f i) u)).
-    - abstract (
-        intros u v e;
-        refine (pr2 (dmor d e) _ _ _ _ @ _);
-        refine (maponpaths (λ x, _ x _) _ @ maponpaths _ _);
-        [ exact (pr2 a u v e)
-        | apply funextfun;
-          intro;
-          exact (pr2 (f _) u v e) ]
-      ).
-  Defined.
-
-  Lemma cone_presheaf_data_disp_cat
-    (j : vertex J)
-    : tip_presheaf_data_disp_cat -->[limOut L j] pr2 (dob d j).
-  Proof.
-    easy.
-  Qed.
-
-  Lemma uniqueness_presheaf_data_disp_cat
-    (d' : D (lim L))
-    (cone_out : ∏ j, d' -->[limOut L j] (pr2 (dob d j)))
-    : d' = tip_presheaf_data_disp_cat.
-  Proof.
-    do 4 (apply funextsec; intro).
-    apply subtypePairEquality.
-    {
-      intro.
-      repeat (apply impred_isaprop; intro).
-      apply setproperty.
-    }
-    apply funextsec.
-    intro.
-    apply (cone_out _ _ _ _ _).
-  Qed.
-
-  Lemma is_limit_presheaf_data_disp_cat
-    (d' : total_category D)
-    (cone_out : ∏ u, d' --> (dob d u))
-    (is_cone : ∏ u v e, cone_out u · (dmor d e) = cone_out v)
-    : pr2 d' -->[limArrow L _ (make_cone
-        (d := (mapdiagram (pr1_category D) d)) _
-        (λ u v e, (maponpaths pr1 (is_cone u v e))))
-      ] tip_presheaf_data_disp_cat.
-  Proof.
-    intros m n f g.
-    apply subtypePairEquality.
-    {
-      intro.
-      repeat (apply impred_isaprop; intro).
-      exact (setproperty _ _ _).
-    }
-    apply funextsec.
-    intro i.
-    exact (pr2 (cone_out i) m n f g).
-  Qed.
-
-End Limits.
-
-Definition creates_limits_presheaf_data_disp_cat
-  {J}
-  (d : diagram J _)
-  : creates_limit presheaf_data_disp_cat d (limits_presheaf_base _ _)
-  := creates_limit_disp_struct _
-    (tip_presheaf_data_disp_cat _)
-    (cone_presheaf_data_disp_cat _)
-    (is_limit_presheaf_data_disp_cat _).
-
-Definition creates_limits_unique_presheaf_data_disp_cat
-  {J}
-  (d : diagram J _)
-  : creates_limit_unique presheaf_data_disp_cat d (limits_presheaf_base _ _)
-  := creates_limit_unique_disp_struct _
-    (creates_limits_presheaf_data_disp_cat _)
-    (uniqueness_presheaf_data_disp_cat _).
-
 Definition presheaf_data_cat
   : category
   := total_category presheaf_data_disp_cat.
 
-Lemma is_univalent_presheaf_data_cat
-  : is_univalent presheaf_data_cat.
-Proof.
-  apply is_univalent_total_category.
-  - rewrite cartesian_is_binproduct.
-    use is_univalent_category_binproduct.
-    + exact is_univalent_algebraic_theory_cat.
-    + exact (is_univalent_functor_category _ _ is_univalent_HSET).
-  - exact is_univalent_disp_presheaf_data_disp_cat.
-Qed.
-
-Definition limits_presheaf_data_cat
-  : Lims presheaf_data_cat
-  := λ _ _, (total_limit _ _ (creates_limits_presheaf_data_disp_cat _)).
-
-(* The category of presheaves *)
 Definition presheaf_full_disp_cat
   : disp_cat presheaf_data_cat
   := disp_full_sub presheaf_data_cat
     (λ X, is_presheaf (make_presheaf_data (pr21 X) (pr2 X))).
 
-Lemma is_univalent_disp_presheaf_full_disp_cat
-  : is_univalent_disp presheaf_full_disp_cat.
-Proof.
-  apply disp_full_sub_univalent.
-  exact (λ _, isaprop_is_presheaf _).
-Qed.
-
-Definition creates_limits_presheaf_full_disp_cat
-  {J : graph}
-  (d : diagram J _)
-  : creates_limit presheaf_full_disp_cat d (limits_presheaf_data_cat _ _).
-Proof.
-  apply creates_limit_disp_full_sub.
-  - intro.
-    apply isaprop_is_presheaf.
-  - abstract (
-      use make_is_presheaf;
-        repeat intro;
-        (use total2_paths_f;
-        [ apply funextsec;
-          intro
-        | do 3 (apply impred_isaprop; intro);
-          apply setproperty ]);
-      [ apply (pr1 (pr2 (dob d _)))
-      | apply (pr12 (pr2 (dob d _)))
-      | apply (pr22 (pr2 (dob d _))) ]
-    ).
-Defined.
-
-Definition creates_limits_unique_presheaf_full_disp_cat
-  {J : graph}
-  (d : diagram J _)
-  : creates_limit_unique presheaf_full_disp_cat d (limits_presheaf_data_cat _ _)
-  := creates_limit_unique_disp_full_sub
-    (λ _, isaprop_is_presheaf _)
-    _
-    (creates_limits_presheaf_full_disp_cat _).
-
 Definition presheaf_full_cat
   : category
   := total_category presheaf_full_disp_cat.
 
-Lemma is_univalent_presheaf_full_cat
-  : is_univalent presheaf_full_cat.
-Proof.
-  apply is_univalent_total_category.
-  - exact is_univalent_presheaf_data_cat.
-  - exact is_univalent_disp_presheaf_full_disp_cat.
-Qed.
-
-Definition limits_presheaf_full_cat
-  : Lims presheaf_full_cat
-  := λ _ _, (total_limit _ _ (creates_limits_presheaf_full_disp_cat _)).
+(** * 2. The category of presheaves *)
 
 Definition presheaf_disp_cat
   : disp_cat algebraic_theory_cat
   := sigma_disp_cat (sigma_disp_cat presheaf_full_disp_cat).
-
-Lemma is_univalent_disp_presheaf_disp_cat
-  : is_univalent_disp presheaf_disp_cat.
-Proof.
-  repeat use is_univalent_sigma_disp.
-  - apply is_univalent_reindex_disp_cat.
-    apply is_univalent_disp_disp_over_unit.
-    apply is_univalent_functor_category.
-    exact is_univalent_HSET.
-  - exact is_univalent_disp_presheaf_data_disp_cat.
-  - exact is_univalent_disp_presheaf_full_disp_cat.
-Qed.
-
-Definition creates_limits_presheaf_disp_cat
-  {J : graph}
-  (d : diagram J _)
-  : creates_limit presheaf_disp_cat d (limits_algebraic_theory_cat _ _).
-Proof.
-  repeat use creates_limits_sigma_disp_cat.
-  - exact (creates_limits_presheaf_base_disp _ _ _).
-  - exact (creates_limits_presheaf_data_disp_cat _).
-  - exact (creates_limits_presheaf_full_disp_cat _).
-Defined.
 
 Lemma displayed_presheaf_morphism_eq
   {T T' : algebraic_theory}
@@ -326,6 +133,99 @@ Definition presheaf_cat
   : category
   := fiber_category presheaf_disp_cat T.
 
+Section Test.
+  Goal ∏ T, ob (presheaf_cat T) = presheaf T.
+    exact (λ _, idpath _).
+  Qed.
+  Goal ∏ (T : algebraic_theory) (P P' : presheaf T),
+    presheaf_cat T ⟦P, P'⟧ = presheaf_morphism P P'.
+    intros.
+    apply idpath.
+  Qed.
+End Test.
+
+Lemma presheaf_mor_comp
+  {T : algebraic_theory}
+  {P P' P'' : presheaf_cat T}
+  (F : presheaf_cat T⟦P, P'⟧)
+  (F' : presheaf_cat T⟦P', P''⟧)
+  (n : nat)
+  : pr11 (F · F') n = (pr11 F n) · (pr11 F' n).
+Proof.
+  refine (maponpaths (λ z, pr1 z _) (pr1_transportf (B := λ _, _ ⟹ _) _ _) @ _).
+  refine (maponpaths (λ z, pr1 (z _) _) (transportf_const _ _) @ _).
+  exact (maponpaths (λ z, pr1 (z _) _) (transportf_const _ _)).
+Qed.
+
+Lemma presheaf_identity_on_element
+  {T : algebraic_theory}
+  {n : nat}
+  (P : presheaf T)
+  (x : (P n : hSet))
+  : pr11 (identity (P : presheaf_cat T)) n x = x.
+Proof.
+  exact (maponpaths (λ x, pr1 (x _) _ _) (transportb_const _ (P ⟹ P))).
+Qed.
+
+(** * 3. Univalence *)
+
+Lemma is_univalent_disp_presheaf_data_disp_cat
+  : is_univalent_disp presheaf_data_disp_cat.
+Proof.
+  apply is_univalent_disp_iff_fibers_are_univalent.
+  intros TA action action'.
+  use isweq_iso.
+  - intro F.
+    do 4 (apply funextsec; intro).
+    refine (maponpaths (λ x, _ (x _) _ _) (!transportf_const _ _) @ pr1 F _ _ _ _ @ _).
+    exact (maponpaths (λ x, _ (_ (x _) _ _) _) (transportf_const _ _)).
+  - intro.
+    do 4 (apply impred_isaset; intro).
+    apply setproperty.
+  - intro.
+    apply z_iso_eq.
+    do 4 (apply impred_isaprop; intro).
+    apply setproperty.
+Qed.
+
+Lemma is_univalent_presheaf_data_cat
+  : is_univalent presheaf_data_cat.
+Proof.
+  apply is_univalent_total_category.
+  - rewrite cartesian_is_binproduct.
+    use is_univalent_category_binproduct.
+    + exact is_univalent_algebraic_theory_cat.
+    + exact (is_univalent_functor_category _ _ is_univalent_HSET).
+  - exact is_univalent_disp_presheaf_data_disp_cat.
+Qed.
+
+Lemma is_univalent_disp_presheaf_full_disp_cat
+  : is_univalent_disp presheaf_full_disp_cat.
+Proof.
+  apply disp_full_sub_univalent.
+  exact (λ _, isaprop_is_presheaf _).
+Qed.
+
+Lemma is_univalent_presheaf_full_cat
+  : is_univalent presheaf_full_cat.
+Proof.
+  apply is_univalent_total_category.
+  - exact is_univalent_presheaf_data_cat.
+  - exact is_univalent_disp_presheaf_full_disp_cat.
+Qed.
+
+Lemma is_univalent_disp_presheaf_disp_cat
+  : is_univalent_disp presheaf_disp_cat.
+Proof.
+  repeat use is_univalent_sigma_disp.
+  - apply is_univalent_reindex_disp_cat.
+    apply is_univalent_disp_disp_over_unit.
+    apply is_univalent_functor_category.
+    exact is_univalent_HSET.
+  - exact is_univalent_disp_presheaf_data_disp_cat.
+  - exact is_univalent_disp_presheaf_full_disp_cat.
+Qed.
+
 Lemma is_univalent_presheaf_cat
   (T : algebraic_theory)
   : is_univalent (presheaf_cat T).
@@ -333,6 +233,8 @@ Proof.
   refine (is_univalent_fiber_cat _ _ _).
   exact is_univalent_disp_presheaf_disp_cat.
 Qed.
+
+(** * 4. Fibration *)
 
 Section fibration.
 
@@ -460,6 +362,163 @@ Section fibration.
 
 End fibration.
 
+(** * 5. Limits *)
+
+Definition creates_limits_presheaf_base_disp
+  : creates_limits (disp_cartesian algebraic_theory_cat base_functor_category).
+Proof.
+  intros J d L.
+  use creates_limits_disp_cartesian.
+  - apply limits_base_functor_category.
+Defined.
+
+Definition limits_presheaf_base
+  : Lims (cartesian algebraic_theory_cat base_functor_category).
+Proof.
+  intros J d.
+  use total_limit.
+  - apply limits_algebraic_theory_cat.
+  - apply creates_limits_presheaf_base_disp.
+Defined.
+
+Section DataLimits.
+  Context (D := presheaf_data_disp_cat).
+  Context {J : graph}.
+  Context (d : diagram J (total_category D)).
+  Context (L := limits_presheaf_base J (mapdiagram (pr1_category _) d)).
+
+  Definition tip_presheaf_data_disp_cat
+    : D (lim L).
+  Proof.
+    intros m n a f.
+    use tpair.
+    - intro u.
+      exact (pr2 (dob d u) m n (pr1 a u) (λ i, pr1 (f i) u)).
+    - abstract (
+        intros u v e;
+        refine (pr2 (dmor d e) _ _ _ _ @ _);
+        refine (maponpaths (λ x, _ x _) _ @ maponpaths _ _);
+        [ exact (pr2 a u v e)
+        | apply funextfun;
+          intro;
+          exact (pr2 (f _) u v e) ]
+      ).
+  Defined.
+
+  Lemma cone_presheaf_data_disp_cat
+    (j : vertex J)
+    : tip_presheaf_data_disp_cat -->[limOut L j] pr2 (dob d j).
+  Proof.
+    easy.
+  Qed.
+
+  Lemma uniqueness_presheaf_data_disp_cat
+    (d' : D (lim L))
+    (cone_out : ∏ j, d' -->[limOut L j] (pr2 (dob d j)))
+    : d' = tip_presheaf_data_disp_cat.
+  Proof.
+    do 4 (apply funextsec; intro).
+    apply subtypePairEquality.
+    {
+      intro.
+      repeat (apply impred_isaprop; intro).
+      apply setproperty.
+    }
+    apply funextsec.
+    intro.
+    apply (cone_out _ _ _ _ _).
+  Qed.
+
+  Lemma is_limit_presheaf_data_disp_cat
+    (d' : total_category D)
+    (cone_out : ∏ u, d' --> (dob d u))
+    (is_cone : ∏ u v e, cone_out u · (dmor d e) = cone_out v)
+    : pr2 d' -->[limArrow L _ (make_cone
+        (d := (mapdiagram (pr1_category D) d)) _
+        (λ u v e, (maponpaths pr1 (is_cone u v e))))
+      ] tip_presheaf_data_disp_cat.
+  Proof.
+    intros m n f g.
+    apply subtypePairEquality.
+    {
+      intro.
+      repeat (apply impred_isaprop; intro).
+      exact (setproperty _ _ _).
+    }
+    apply funextsec.
+    intro i.
+    exact (pr2 (cone_out i) m n f g).
+  Qed.
+
+End DataLimits.
+
+Definition creates_limits_presheaf_data_disp_cat
+  {J}
+  (d : diagram J _)
+  : creates_limit presheaf_data_disp_cat d (limits_presheaf_base _ _)
+  := creates_limit_disp_struct _
+    (tip_presheaf_data_disp_cat _)
+    (cone_presheaf_data_disp_cat _)
+    (is_limit_presheaf_data_disp_cat _).
+
+Definition creates_limits_unique_presheaf_data_disp_cat
+  {J}
+  (d : diagram J _)
+  : creates_limit_unique presheaf_data_disp_cat d (limits_presheaf_base _ _)
+  := creates_limit_unique_disp_struct _
+    (creates_limits_presheaf_data_disp_cat _)
+    (uniqueness_presheaf_data_disp_cat _).
+
+Definition limits_presheaf_data_cat
+  : Lims presheaf_data_cat
+  := λ _ _, (total_limit _ _ (creates_limits_presheaf_data_disp_cat _)).
+
+Definition creates_limits_presheaf_full_disp_cat
+  {J : graph}
+  (d : diagram J _)
+  : creates_limit presheaf_full_disp_cat d (limits_presheaf_data_cat _ _).
+Proof.
+  apply creates_limit_disp_full_sub.
+  - intro.
+    apply isaprop_is_presheaf.
+  - abstract (
+      use make_is_presheaf;
+        repeat intro;
+        (use total2_paths_f;
+        [ apply funextsec;
+          intro
+        | do 3 (apply impred_isaprop; intro);
+          apply setproperty ]);
+      [ apply (pr1 (pr2 (dob d _)))
+      | apply (pr12 (pr2 (dob d _)))
+      | apply (pr22 (pr2 (dob d _))) ]
+    ).
+Defined.
+
+Definition creates_limits_unique_presheaf_full_disp_cat
+  {J : graph}
+  (d : diagram J _)
+  : creates_limit_unique presheaf_full_disp_cat d (limits_presheaf_data_cat _ _)
+  := creates_limit_unique_disp_full_sub
+    (λ _, isaprop_is_presheaf _)
+    _
+    (creates_limits_presheaf_full_disp_cat _).
+
+Definition limits_presheaf_full_cat
+  : Lims presheaf_full_cat
+  := λ _ _, (total_limit _ _ (creates_limits_presheaf_full_disp_cat _)).
+
+Definition creates_limits_presheaf_disp_cat
+  {J : graph}
+  (d : diagram J _)
+  : creates_limit presheaf_disp_cat d (limits_algebraic_theory_cat _ _).
+Proof.
+  repeat use creates_limits_sigma_disp_cat.
+  - exact (creates_limits_presheaf_base_disp _ _ _).
+  - exact (creates_limits_presheaf_data_disp_cat _).
+  - exact (creates_limits_presheaf_full_disp_cat _).
+Defined.
+
 Definition limits_presheaf_cat
   (T : algebraic_theory)
   : Lims (presheaf_cat T).
@@ -471,39 +530,7 @@ Proof.
   - apply presheaf_cleaving.
 Defined.
 
-Section Test.
-  Goal ∏ T, ob (presheaf_cat T) = presheaf T.
-    exact (λ _, idpath _).
-  Qed.
-  Goal ∏ (T : algebraic_theory) (P P' : presheaf T),
-    presheaf_cat T ⟦P, P'⟧ = presheaf_morphism P P'.
-    intros.
-    apply idpath.
-  Qed.
-End Test.
-
-Lemma presheaf_mor_comp
-  {T : algebraic_theory}
-  {P P' P'' : presheaf_cat T}
-  (F : presheaf_cat T⟦P, P'⟧)
-  (F' : presheaf_cat T⟦P', P''⟧)
-  (n : nat)
-  : pr11 (F · F') n = (pr11 F n) · (pr11 F' n).
-Proof.
-  refine (maponpaths (λ z, pr1 z _) (pr1_transportf (B := λ _, _ ⟹ _) _ _) @ _).
-  refine (maponpaths (λ z, pr1 (z _) _) (transportf_const _ _) @ _).
-  exact (maponpaths (λ z, pr1 (z _) _) (transportf_const _ _)).
-Qed.
-
-Lemma presheaf_identity_on_element
-  {T : algebraic_theory}
-  {n : nat}
-  (P : presheaf T)
-  (x : (P n : hSet))
-  : pr11 (identity (P : presheaf_cat T)) n x = x.
-Proof.
-  exact (maponpaths (λ x, pr1 (x _) _ _) (transportb_const _ (P ⟹ P))).
-Qed.
+(** * 6. Terminal object *)
 
 Definition terminal_presheaf_cat
   (T : algebraic_theory)
@@ -511,7 +538,7 @@ Definition terminal_presheaf_cat
 Proof.
   use tpair.
   - use make_presheaf'.
-    + use make_presheaf_data'.
+    + use make_presheaf'_data.
       * exact (λ _, unitset).
       * exact (λ _ _ _ _, tt).
     + abstract (
@@ -538,6 +565,8 @@ Proof.
       ).
 Defined.
 
+(** * 7. Binary products *)
+
 Definition bin_products_presheaf_cat
   (T : algebraic_theory)
   : BinProducts (presheaf_cat T).
@@ -545,7 +574,7 @@ Proof.
   refine (λ (P P': presheaf T), _).
   use make_BinProduct.
   - use make_presheaf'.
-    + use make_presheaf_data'.
+    + use make_presheaf'_data.
       (* Define the underlying set as the product *)
       * exact (λ n, dirprod_hSet (P n) (P' n)).
       (* Define the action on the product *)
@@ -607,6 +636,8 @@ Proof.
         ).
 Defined.
 
+(** * 8. Products *)
+
 Definition products_presheaf_cat
   (T : algebraic_theory)
   (I : UU)
@@ -615,7 +646,7 @@ Proof.
   refine (λ (P : I → presheaf T), _).
   use make_Product.
   - use make_presheaf'.
-    + use make_presheaf_data'.
+    + use make_presheaf'_data.
       (* Define the underlying set as the product *)
       * intro n.
         exact (forall_hSet (λ i, P i n)).

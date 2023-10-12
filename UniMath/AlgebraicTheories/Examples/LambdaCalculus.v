@@ -1,7 +1,17 @@
-(*
-  Defines the lambda theory corresponding to the lambda calculus itself and shows that it has
-  eta and beta equality (since the lambda calculus has these equalities).
- *)
+(**************************************************************************************************
+
+  The λ-calculus λ-theory
+
+  Given a model for the λ-calculus, this file constructs a λ-theory and shows that it has
+  eta and beta equality (since we assume that the λ-calculus has these equalities).
+
+  Contents
+  1. The algebraic theory of the λ-calculus [lambda_calculus_algebraic_theory]
+  2. The λ-theory of the λ-calculus [lambda_calculus_lambda_theory]
+  3. The λ-theory has β-equality [lambda_calculus_has_beta]
+  4. The λ-theory has η-equality [lambda_calculus_has_eta]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
@@ -9,8 +19,10 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories2.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
-Require Import UniMath.AlgebraicTheories.Tuples.
 Require Import UniMath.AlgebraicTheories.LambdaCalculus.
+Require Import UniMath.AlgebraicTheories.Tuples.
+
+(** * 1. The algebraic theory of the λ-calculus *)
 
 Section LambdaCalculus.
 
@@ -91,6 +103,8 @@ Definition lambda_calculus_algebraic_theory
   : algebraic_theory
   := make_algebraic_theory' _ lambda_calculus_is_algebraic_theory.
 
+(** * 2. The λ-theory of the λ-calculus *)
+
 Definition lambda_calculus_lambda_theory_data
   : lambda_theory_data.
 Proof.
@@ -141,13 +155,7 @@ Definition lambda_calculus_lambda_theory
   : lambda_theory
   := _ ,, lambda_calculus_is_lambda_theory.
 
-Lemma lambda_calculus_has_eta
-  : has_eta lambda_calculus_lambda_theory.
-Proof.
-  unfold has_eta.
-  intros n l.
-  apply eta_equality.
-Qed.
+(** * 3. The λ-theory has β-equality *)
 
 Lemma lambda_calculus_has_beta
   : has_beta lambda_calculus_lambda_theory.
@@ -167,6 +175,15 @@ Proof.
     repeat reduce_lambda.
   - apply extend_tuple_inl.
   - apply extend_tuple_inr.
+Qed.
+
+(** * 4. The λ-theory has η-equality *)
+
+Lemma lambda_calculus_has_eta
+  : has_eta lambda_calculus_lambda_theory.
+Proof.
+  intros n l.
+  apply eta_equality.
 Qed.
 
 End LambdaCalculus.

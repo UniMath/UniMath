@@ -1,31 +1,41 @@
-(*
-  Gives the monoid of functional elements of a λ-theory [algebra_monoid].
-  The functional elements are the elements f that are equal to λ x, f x.
- *)
+(**************************************************************************************************
+
+  The lambda algebra monoid
+
+  For any algebra for a λ-theory, its functional elements form a monoid. This file defines this
+  monoid. The functional elements are the elements f that are equal to λ x, f x.
+
+  Contents
+  1. The definition of the functional monoid [algebra_monoid]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.AlgebraicTheories.LambdaTheoryCategory.
-Require Import UniMath.AlgebraicTheories.LambdaTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryAlgebras.
-Require Import UniMath.AlgebraicTheories.LambdaCalculus.
-Require Import UniMath.AlgebraicTheories.Examples.LambdaCalculus.
-Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import UniMath.Combinatorics.Vectors.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.AlgebraicTheories.Tuples.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Presheaf.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import UniMath.Combinatorics.Vectors.
+
+Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
+Require Import UniMath.AlgebraicTheories.Algebras.
+Require Import UniMath.AlgebraicTheories.Examples.LambdaCalculus.
+Require Import UniMath.AlgebraicTheories.LambdaTheories.
+Require Import UniMath.AlgebraicTheories.LambdaCalculus.
+Require Import UniMath.AlgebraicTheories.LambdaTheoryCategory.
 
 Local Open Scope cat.
 Local Open Scope vec.
 
+(** * 1. The definition of the functional monoid [algebra_monoid] *)
+
 Section Monoid.
   Variable lambda : lambda_calculus.
   Context (L := (lambda_calculus_lambda_theory lambda)).
-  Variable A : algebraic_theory_algebra L.
+  Variable A : algebra L.
 
   Lemma move_action_through_vector {n m : nat} (f : vec (L m : hSet) n) (a : stn m → A):
     weqvecfun _ (vec_map (λ fi, action fi a) f)
@@ -106,7 +116,7 @@ Section Monoid.
             unfold is_functional, make_functional;
             cbn -[weqvecfun action];
             rewrite move_action_through_vector_1;
-            rewrite <- algebraic_theory_algebra_is_assoc;
+            rewrite <- algebra_is_assoc;
             cbn -[weqvecfun];
             do 4 reduce_lambda;
             do 2 extend_tuple_2;
@@ -122,17 +132,17 @@ Section Monoid.
           cbn -[weqvecfun action];
           pose (v := weqvecfun _ [(pr1 a ; pr1 b ; pr1 c)]);
           pose (Hv := λ i Hi,
-            !(algebraic_theory_algebra_projects_component _ _ (make_stn 3 i Hi) v));
+            !(algebra_projects_component _ _ (make_stn 3 i Hi) v));
           rewrite (Hv 0 (idpath true) : pr1 a = _),
             (Hv 1 (idpath true) : pr1 b = _),
             (Hv 2 (idpath true) : pr1 c = _);
           do 2 rewrite move_action_through_vector_2;
-          do 2 rewrite <- algebraic_theory_algebra_is_assoc;
+          do 2 rewrite <- algebra_is_assoc;
           cbn -[weqvecfun action];
           do 15 reduce_lambda;
           do 6 extend_tuple_3;
           do 2 rewrite move_action_through_vector_2;
-          do 2 rewrite <- algebraic_theory_algebra_is_assoc;
+          do 2 rewrite <- algebra_is_assoc;
           cbn -[weqvecfun v];
           do 12 reduce_lambda;
           do 6 extend_tuple_3;
@@ -146,7 +156,7 @@ Section Monoid.
               unfold is_functional, make_functional;
               cbn -[weqvecfun action];
               rewrite move_action_through_vector_1;
-              rewrite <- algebraic_theory_algebra_is_assoc;
+              rewrite <- algebra_is_assoc;
               cbn -[weqvecfun action];
               do 4 reduce_lambda;
               do 2 extend_tuple_2;
@@ -161,12 +171,12 @@ Section Monoid.
             use subtypePairEquality; [intro; apply isaprop_is_functional | ];
             cbn -[weqvecfun action];
             etrans;
-            [now rewrite <- (algebraic_theory_algebra_projects_component _ _
+            [now rewrite <- (algebra_projects_component _ _
               (make_stn 1 0 (idpath true))
               v
             : _ = pr1 a) | ];
 
-            pose (H1 := algebraic_theory_algebra_is_natural
+            pose (H1 := algebra_is_natural
               A
               0
               1
@@ -181,7 +191,7 @@ Section Monoid.
             clear H1 H2;
 
             rewrite move_action_through_vector_2;
-            rewrite <- algebraic_theory_algebra_is_assoc;
+            rewrite <- algebra_is_assoc;
             cbn -[weqvecfun action];
             do 9 reduce_lambda;
             do 3 extend_tuple_3;

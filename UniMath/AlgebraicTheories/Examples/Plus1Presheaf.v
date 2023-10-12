@@ -1,6 +1,14 @@
-(*
-  Shows that, given a presheaf P, there exists a presheaf P' with P'(n) = P(S n).
- *)
+(**************************************************************************************************
+
+  The "plus 1" presheaf
+
+  Given a presheaf P, we can construct another presheaf P' with P'(n) = P(S n), in which the action
+  of the algebraic theory leaves the last variable unchanged.
+
+  Contents
+  1. The definition of the plus 1 presheaf [plus_1_presheaf]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -11,12 +19,14 @@ Require Import UniMath.AlgebraicTheories.Tuples.
 
 Local Open Scope algebraic_theories.
 
-Definition plus_1_presheaf_data'
+(** * 1. The definition of the plus 1 presheaf *)
+
+Definition plus_1_presheaf'_data
   {T : algebraic_theory}
   (P : presheaf T)
-  : presheaf_data' T.
+  : presheaf'_data T.
 Proof.
-  - use make_presheaf_data'.
+  - use make_presheaf'_data.
     + exact (λ n, P (1 + n)).
     + intros m n s t.
       refine (action (T := T) (P := P) s _).
@@ -29,7 +39,7 @@ Defined.
 Lemma plus_1_is_presheaf'
   {T : algebraic_theory}
   (P : presheaf T)
-  : is_presheaf' (plus_1_presheaf_data' P).
+  : is_presheaf' (plus_1_presheaf'_data P).
 Proof.
   - use make_is_presheaf'.
     + intros l m n x f g.

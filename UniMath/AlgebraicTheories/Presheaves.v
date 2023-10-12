@@ -1,15 +1,23 @@
-(*
-  Defines what a presheaf for an algebraic theory is,
-  gives an alternate way to construct one [make_presheaf']
-  and shows that an algebraic theory is itself a presheaf [theory_presheaf].
- *)
+(**************************************************************************************************
+
+  Presheaves
+
+  Defines what a presheaf for an algebraic theory is and gives constructors, accessors and related
+  definitions and lemmas.
+
+  Contents
+  1. The definition of a presheaf [presheaf]
+  2. An alternate constructor [make_presheaf']
+  3. The presheaf given by the algebraic theory itself [theory_presheaf]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
@@ -19,7 +27,8 @@ Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
 
-(* The presheaf data type *)
+(** * 1. The definition of a presheaf *)
+
 Definition presheaf_data (T : algebraic_theory_data) : UU
   := ∑ P : (finite_set_skeleton_category ⟶ HSET),
     ∏ m n, (P m : hSet) → (stn m → (T n : hSet)) → (P n : hSet).
@@ -38,7 +47,6 @@ Definition make_presheaf_data {T : algebraic_theory_data}
   : presheaf_data T
   := (P ,, action).
 
-(* The presheaf type *)
 Definition is_assoc {T : algebraic_theory_data} (P : presheaf_data T) : UU
   := ∏ l m n (a : (P l : hSet)) f (g : stn m → (T n : hSet)),
     action (action a f) g = action a (λ i, (f i) • g).
@@ -118,118 +126,51 @@ Proof.
   apply presheaf_action_is_natural.
 Qed.
 
-Definition presheaf_morphism {T : algebraic_theory_data} (P P' : presheaf_data T) : UU
-  := ∑ (F: P ⟹ P') (HF: ∏ m n a f, F n (action a f) = action (F m a) f), unit.
+(** * 2. An alternate constructor *)
 
-Definition make_presheaf_morphism
-  {T : algebraic_theory_data}
-  {P P' : presheaf_data T}
-  (F: P ⟹ P')
-  (HF: ∏ m n a f, F n (action a f) = action (F m a) f)
-  : presheaf_morphism P P'
-  := F ,, HF ,, tt.
-
-Definition make_presheaf_morphism'
-  {T : algebraic_theory_data}
-  {P P' : presheaf T}
-  (F: ∏ n, (P n : hSet) → (P' n : hSet))
-  (HF: ∏ m n a f, F n (action a f) = action (F m a) f)
-  : presheaf_morphism P P'.
-Proof.
-  use make_presheaf_morphism.
-  - use make_nat_trans.
-    + exact F.
-    + abstract (
-        intros n n' a;
-        use funextfun;
-        intro x;
-        refine (maponpaths _ (presheaf_functor_uses_projections P _ _) @ !_);
-        refine (presheaf_functor_uses_projections P' _ _ @ !_);
-        apply HF
-      ).
-  - exact HF.
-Defined.
-
-Coercion presheaf_morphism_to_nat_trans
-  {T : algebraic_theory_data}
-  {P P' : presheaf_data T}
-  (f : presheaf_morphism P P')
-  : nat_trans P P'
-  := pr1 f.
-
-Definition presheaf_morphism_commutes_with_action
-  {T : algebraic_theory_data}
-  {P P' : presheaf_data T}
-  (F : presheaf_morphism P P')
-  {m n : nat}
-  (t : (P m : hSet))
-  (f : stn m → (T n : hSet))
-  : F n (action t f) = action (F m t) f
-  := pr12 F m n t f.
-
-Lemma presheaf_morphism_eq
-  {T : algebraic_theory_data}
-  {P P' : presheaf_data T}
-  (F F' : presheaf_morphism P P')
-  (H : ∏ n, F n = F' n)
-  : F = F'.
-Proof.
-  apply subtypePath.
-  {
-    intro.
-    use isapropdirprod.
-    + do 4 (apply impred_isaprop; intro).
-      apply setproperty.
-    + exact isapropunit.
-  }
-  apply nat_trans_eq.
-  - apply homset_property.
-  - exact H.
-Qed.
-
-Definition presheaf_data' (T : algebraic_theory_data) : UU
+Definition presheaf'_data (T : algebraic_theory_data) : UU
   := ∑ (P : nat → hSet),
     ∏ m n, P m → (stn m → (T n : hSet)) → P n.
 
-Definition presheaf_data'_to_function
+Definition presheaf'_data_to_function
   {T : algebraic_theory_data}
-  (P : presheaf_data' T)
+  (P : presheaf'_data T)
   : nat → hSet
   := pr1 P.
 
-Coercion presheaf_data'_to_function : presheaf_data' >-> Funclass.
+Coercion presheaf'_data_to_function : presheaf'_data >-> Funclass.
 
 Definition action'
   {T : algebraic_theory_data}
-  {P : presheaf_data' T}
+  {P : presheaf'_data T}
   {m n : nat}
   (f : P m)
   (g : stn m → (T n : hSet))
   : P n
   := pr2 P m n f g.
 
-Definition make_presheaf_data'
+Definition make_presheaf'_data
   {T : algebraic_theory_data}
   (P : nat → hSet)
   (action : ∏ m n, P m → (stn m → (T n : hSet)) → P n)
-  : presheaf_data' T
+  : presheaf'_data T
   := P ,, action.
 
-Definition is_assoc' {T : algebraic_theory_data} (P : presheaf_data' T) : UU
+Definition is_assoc' {T : algebraic_theory_data} (P : presheaf'_data T) : UU
   := ∏ l m n (a : P l) f (g : stn m → (T n : hSet)),
     action' (action' a f) g = action' a (λ i, (f i) • g).
 
-Definition identity_projections' {T : algebraic_theory_data} (P : presheaf_data' T) : UU
+Definition identity_projections' {T : algebraic_theory_data} (P : presheaf'_data T) : UU
   := ∏ n (a : P n), action' a pr = a.
 
 Definition is_presheaf' {T : algebraic_theory_data}
-  (P : presheaf_data' T)
+  (P : presheaf'_data T)
   := is_assoc' P ×
     identity_projections' P.
 
 Definition make_is_presheaf'
   {T : algebraic_theory_data}
-  {P : presheaf_data' T}
+  {P : presheaf'_data T}
   (H1 : is_assoc' P)
   (H2 : identity_projections' P)
   : is_presheaf' P
@@ -238,7 +179,7 @@ Definition make_is_presheaf'
 Section MakePresheaf'.
 
   Context {T : algebraic_theory}.
-  Context (P : presheaf_data' T).
+  Context (P : presheaf'_data T).
   Context (H : is_presheaf' P).
 
   Definition presheaf'_to_functor_data
@@ -301,6 +242,8 @@ Section MakePresheaf'.
 
 End MakePresheaf'.
 
+(** * 3. The presheaf given by the algebraic theory itself *)
+
 Definition theory_presheaf_data
   (T : algebraic_theory)
   : presheaf_data T.
@@ -325,8 +268,3 @@ Definition theory_presheaf
   (T : algebraic_theory)
   : presheaf T
   := make_presheaf _ (theory_is_presheaf T).
-
-(* Definition yoneda_lemma
-  (T : algebraic_theory)
-  (X : presheaf T)
-  : (presheaf_cat T)⟦⟧ *)
