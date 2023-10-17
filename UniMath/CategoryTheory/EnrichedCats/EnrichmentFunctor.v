@@ -150,6 +150,19 @@ Section FunctorLaws.
   Proof.
     exact (pr222 FE x y f).
   Qed.
+
+  Proposition functor_enrichment_to_arr
+              {x y : C₁}
+              (f : I_{V} --> E₁ ⦃ x , y ⦄)
+    : enriched_to_arr E₂ (f · FE x y)
+      =
+      #F (enriched_to_arr E₁ f).
+  Proof.
+    use (invmaponpathsweq (make_weq _ (isweq_enriched_from_arr E₂ _ _))) ; cbn.
+    rewrite functor_enrichment_from_arr.
+    rewrite !enriched_from_to_arr.
+    apply idpath.
+  Qed.
 End FunctorLaws.
 
 Definition functor_with_enrichment
@@ -179,6 +192,18 @@ Definition fully_faithful_enriched_functor
            (EF : functor_enrichment F E₁ E₂)
   : UU
   := ∏ (x y : C₁), is_z_isomorphism (EF x y).
+
+Definition fully_faithful_enriched_functor_z_iso
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {V : monoidal_cat}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           {EF : functor_enrichment F E₁ E₂}
+           (HF : fully_faithful_enriched_functor EF)
+           (x y : C₁)
+  : z_iso (E₁ ⦃ x , y ⦄) (E₂ ⦃ F x , F y ⦄)
+  := _ ,, HF x y.
 
 Definition isaprop_fully_faithful_enriched_functor
            {C₁ C₂ : category}
@@ -214,10 +239,53 @@ Proof.
   refine (!(enriched_to_from_arr E₁ (pr1 φ₁)) @ _).
   refine (_ @ enriched_to_from_arr E₁ (pr1 φ₂)).
   apply maponpaths.
-  use (cancel_z_iso _ _ (_ ,, HEF x y)) ; cbn.
+  use (cancel_z_iso _ _ (fully_faithful_enriched_functor_z_iso HEF x y)) ; cbn.
   pose (maponpaths (enriched_from_arr E₂) (pr2 φ₁ @ !(pr2 φ₂))) as p.
   rewrite !(functor_enrichment_from_arr EF) in p.
   exact p.
+Qed.
+
+Definition fully_faithful_enriched_functor_to_full
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {V : monoidal_cat}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           (EF : functor_enrichment F E₁ E₂)
+           (HEF : fully_faithful_enriched_functor EF)
+  : full F.
+Proof.
+  intros x y f.
+  use hinhpr.
+  simple refine (_ ,, _).
+  - exact (enriched_to_arr
+             E₁
+             (enriched_from_arr E₂ f
+              · inv_from_z_iso (fully_faithful_enriched_functor_z_iso HEF x y))).
+  - cbn.
+    rewrite <- (functor_enrichment_to_arr EF).
+    refine (_ @ enriched_to_from_arr E₂ f).
+    apply maponpaths.
+    rewrite !assoc'.
+    refine (_ @ id_right _).
+    apply maponpaths.
+    apply z_iso_after_z_iso_inv.
+Qed.
+
+Definition fully_faithful_enriched_functor_to_fully_faithful
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {V : monoidal_cat}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           (EF : functor_enrichment F E₁ E₂)
+           (HEF : fully_faithful_enriched_functor EF)
+  : fully_faithful F.
+Proof.
+  use full_and_faithful_implies_fully_faithful.
+  split.
+  - exact (fully_faithful_enriched_functor_to_full EF HEF).
+  - exact (fully_faithful_enriched_functor_to_faithful EF HEF).
 Qed.
 
 (**

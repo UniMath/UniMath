@@ -27,6 +27,7 @@
  1. The displayed bicategory
  2. Local univalence
  3. Global univalence
+ 4. Accessors for the bicategory of enriched categories
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
@@ -68,9 +69,7 @@ Opaque mon_linvunitor mon_rinvunitor.
 Section EnrichedCats.
   Context (V : monoidal_cat).
 
-  (**
-   1. The displayed bicategory
-   *)
+  (** * 1. The displayed bicategory *)
   Definition disp_cat_ob_mor_of_enriched_cats
     : disp_cat_ob_mor bicat_of_univ_cats.
   Proof.
@@ -164,9 +163,7 @@ Section EnrichedCats.
     apply isaprop_nat_trans_enrichment.
   Qed.
 
-  (**
-   2. Local univalence
-   *)
+  (** * 2. Local univalence *)
   Definition disp_univalent_2_1_enriched_cats
     : disp_univalent_2_1 disp_bicat_of_enriched_cats.
   Proof.
@@ -232,9 +229,7 @@ Section EnrichedCats.
         apply isaprop_nat_trans_enrichment.
   Qed.
 
-  (**
-   3. Global univalence
-   *)
+  (** * 3. Global univalence *)
   Section DispAdjointEquivalence.
     Context {C : bicat_of_univ_cats}
             (E₁ E₂ : disp_bicat_of_enriched_cats C).
@@ -926,11 +921,87 @@ Section EnrichedCats.
     : psfunctor bicat_of_enriched_cats bicat_of_univ_cats
     := pr1_psfunctor _.
 
-  Definition eq_2cell_enriched
-             {E₁ E₂ : bicat_of_enriched_cats}
-             {F G : E₁ --> E₂}
-             {τ₁ τ₂ : F ==> G}
-             (p : ∏ x, pr11 τ₁ x = pr11 τ₂ x)
+  (** * 4. Accessors for the bicategory of enriched categories *)
+  Definition enriched_cat
+    : UU
+    := bicat_of_enriched_cats.
+
+  Coercion enriched_cat_to_univalent_category
+           (E : enriched_cat)
+    : univalent_category
+    := pr1 E.
+
+  Coercion enriched_cat_to_enrichment
+           (E : enriched_cat)
+    : enrichment E V
+    := pr2 E.
+
+  Definition make_enriched_cat
+             (C : univalent_category)
+             (E : enrichment C V)
+    : enriched_cat
+    := C ,, E.
+
+  Definition enriched_functor
+             (E₁ E₂ : enriched_cat)
+    : UU
+    := E₁ --> E₂.
+
+  Coercion enriched_functor_to_functor
+           {E₁ E₂ : enriched_cat}
+           (F : enriched_functor E₁ E₂)
+    : E₁ ⟶ E₂
+    := pr1 F.
+
+  Definition enriched_functor_enrichment
+             {E₁ E₂ : enriched_cat}
+             (F : enriched_functor E₁ E₂)
+    : functor_enrichment F E₁ E₂
+    := pr2 F.
+
+  Definition make_enriched_functor
+             {E₁ E₂ : enriched_cat}
+             (F : E₁ ⟶ E₂)
+             (EF : functor_enrichment F E₁ E₂)
+    : enriched_functor E₁ E₂
+    := F ,, EF.
+
+  Definition enriched_nat_trans
+             {E₁ E₂ : enriched_cat}
+             (F G : enriched_functor E₁ E₂)
+    : UU
+    := F ==> G.
+
+  Coercion enriched_nat_trans_to_nat_trans
+           {E₁ E₂ : enriched_cat}
+           {F G : enriched_functor E₁ E₂}
+           (τ : enriched_nat_trans F G)
+    : F ⟹ G
+    := pr1 τ.
+
+  Coercion enriched_nat_trans_enrichment
+           {E₁ E₂ : enriched_cat}
+           {F G : enriched_functor E₁ E₂}
+           (τ : enriched_nat_trans F G)
+    : nat_trans_enrichment τ (enriched_functor_enrichment F) (enriched_functor_enrichment G)
+    := pr2 τ.
+
+  Definition make_enriched_nat_trans
+             {E₁ E₂ : enriched_cat}
+             {F G : enriched_functor E₁ E₂}
+             (τ : F ⟹ G)
+             (Eτ : nat_trans_enrichment
+                     τ
+                     (enriched_functor_enrichment F)
+                     (enriched_functor_enrichment G))
+    : enriched_nat_trans F G
+    := τ ,, Eτ.
+
+  Definition eq_enriched_nat_trans
+             {E₁ E₂ : enriched_cat}
+             {F G : enriched_functor E₁ E₂}
+             {τ₁ τ₂ : enriched_nat_trans F G}
+             (p : ∏ (x : E₁), τ₁ x = τ₂ x)
     : τ₁ = τ₂.
   Proof.
     use subtypePath.
@@ -945,11 +1016,22 @@ Section EnrichedCats.
     exact p.
   Qed.
 
+  Proposition from_eq_enriched_nat_trans
+              {E₁ E₂ : enriched_cat}
+              {F G : enriched_functor E₁ E₂}
+              {τ₁ τ₂ : enriched_nat_trans F G}
+              (p : τ₁ = τ₂)
+              (x : E₁)
+    : τ₁ x = τ₂ x.
+  Proof.
+    exact (maponpaths (λ z, pr11 z x) p).
+  Qed.
+
   Definition from_is_invertible_2cell_enriched
-             {E₁ E₂ : bicat_of_enriched_cats}
-             {F G : E₁ --> E₂}
+             {E₁ E₂ : enriched_cat}
+             {F G : enriched_functor E₁ E₂}
              (τ : invertible_2cell F G)
-    : nat_z_iso (pr1 F) (pr1 G).
+    : nat_z_iso F G.
   Proof.
     use invertible_2cell_to_nat_z_iso.
     exact (_ ,, psfunctor_is_iso underlying_cat τ).
@@ -957,10 +1039,10 @@ Section EnrichedCats.
 
   Definition make_is_invertible_2cell_enriched
              (HV : faithful_moncat V)
-             {E₁ E₂ : bicat_of_enriched_cats}
-             {F G : E₁ --> E₂}
-             (τ : F ==> G)
-             (Hτ : is_nat_z_iso (pr11 τ))
+             {E₁ E₂ : enriched_cat}
+             {F G : enriched_functor E₁ E₂}
+             (τ : enriched_nat_trans F G)
+             (Hτ : is_nat_z_iso τ)
     : is_invertible_2cell τ.
   Proof.
     use make_is_invertible_2cell.
@@ -970,12 +1052,20 @@ Section EnrichedCats.
                  HV
                  (pr1 (nat_z_iso_inv (make_nat_z_iso _ _ _ Hτ)))).
     - abstract
-        (use eq_2cell_enriched ;
+        (use eq_enriched_nat_trans ;
          intro x ;
          apply (z_iso_inv_after_z_iso (_ ,, Hτ x))).
     - abstract
-        (use eq_2cell_enriched ;
+        (use eq_enriched_nat_trans ;
          intro x ;
          apply (z_iso_after_z_iso_inv (_ ,, Hτ x))).
   Defined.
 End EnrichedCats.
+
+Arguments make_enriched_cat {V} C E.
+Arguments enriched_functor {V} E₁ E₂.
+Arguments enriched_functor_enrichment {V E₁ E₂} F.
+Arguments make_enriched_functor {V E₁ E₂} F EF.
+Arguments enriched_nat_trans {V E₁ E₂} F G.
+Arguments make_enriched_nat_trans {V E₁ E₂ F G} τ Eτ.
+Arguments from_eq_enriched_nat_trans {V E₁ E₂ F G τ₁ τ₂} p x.

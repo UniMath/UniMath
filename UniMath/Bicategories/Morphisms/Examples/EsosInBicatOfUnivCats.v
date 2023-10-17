@@ -36,23 +36,6 @@ Require Import UniMath.Bicategories.Limits.Examples.BicatOfUnivCatsLimits.
 
 Local Open Scope cat.
 
-Definition transportf_z_iso_functors
-           {C₁ C₂ : category}
-           (F : C₁ ⟶ C₂)
-           {x₁ x₂ : C₁}
-           (y : C₂)
-           (p : x₁ = x₂)
-           (i : z_iso (F x₁) y)
-  : pr1 (transportf (λ (x : C₁), z_iso (F x) y) p i)
-    =
-    #F (inv_from_z_iso (idtoiso p)) · i.
-Proof.
-  induction p ; cbn.
-  rewrite functor_id.
-  rewrite id_left.
-  apply idpath.
-Qed.
-
 (**
  1. Esos
  *)

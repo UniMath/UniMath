@@ -44,8 +44,10 @@ Section FullyFaithfulPrecomp.
   Section Iso.
     Context (x y  : C₁).
 
-    Let φ : z_iso (E₁ ⦃ x , y ⦄) (E₃ ⦃ G (F x) , G (F y) ⦄) := _ ,, HFG x y.
-    Let ψ : z_iso _ _ := _ ,, HG (F x) (F y).
+    Let φ : z_iso (E₁ ⦃ x , y ⦄) (E₃ ⦃ G (F x) , G (F y) ⦄)
+      := fully_faithful_enriched_functor_z_iso HFG x y.
+    Let ψ : z_iso _ _
+      := fully_faithful_enriched_functor_z_iso HG (F x) (F y).
 
     Definition fully_faithful_precomp_inv
       : E₂ ⦃ F x , F y ⦄ --> E₁ ⦃ x , y ⦄
@@ -106,7 +108,8 @@ Section FullyFaithfulIso.
   Section Iso.
     Context (x y : C₁).
 
-    Let φ : z_iso (E₁ ⦃ x , y ⦄) (E₂ ⦃ F x , F y ⦄) := _ ,, HF x y.
+    Let φ : z_iso (E₁ ⦃ x , y ⦄) (E₂ ⦃ F x , F y ⦄)
+      := fully_faithful_enriched_functor_z_iso HF x y.
 
     Definition fully_faithful_enriched_nat_z_iso_inv
       : E₂ ⦃ G x , G y ⦄ --> E₁ ⦃ x, y ⦄
