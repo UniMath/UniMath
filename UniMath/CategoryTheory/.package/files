@@ -411,6 +411,7 @@ EnrichedCats/Examples/SmashStructureEnriched.v
 EnrichedCats/Examples/HomFunctor.v
 EnrichedCats/Examples/OppositeEnriched.v
 EnrichedCats/Examples/FunctorCategory.v
+EnrichedCats/Examples/Precomposition.v
 EnrichedCats/Examples/Yoneda.v
 
 EnrichedCats/YonedaLemma.v
@@ -426,7 +427,10 @@ EnrichedCats/Examples/ProductEnriched.v
 
 EnrichedCats/Examples/ChangeOfBase.v
 
-EnrichedCats/EnrichedRezkCompletion.v
+EnrichedCats/RezkCompletion/PrecompFullyFaithful.v
+EnrichedCats/RezkCompletion/PrecompEssentiallySurjective.v
+EnrichedCats/RezkCompletion/EnrichedRezkCompletion.v
+EnrichedCats/RezkCompletion/RezkUniversalProperty.v
 
 EnrichedCats/Examples/KleisliEnriched.v
 EnrichedCats/Examples/UnivalentKleisliEnriched.v
