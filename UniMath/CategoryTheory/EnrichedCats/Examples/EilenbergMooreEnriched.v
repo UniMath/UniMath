@@ -255,23 +255,6 @@ Section EnrichedEilenbergMoore.
       rewrite functor_to_em_enrichment_mor_incl.
       apply idpath.
     Qed.
-
-    Definition functor_to_eilenberg_moore_cat_pr_enrichment_inv
-      : nat_trans_enrichment
-          (nat_z_iso_inv
-             (functor_to_eilenberg_moore_cat_pr_nat_z_iso M F τ τη τμ))
-          FE
-          (functor_comp_enrichment
-             functor_to_eilenberg_moore_cat_enrichment
-             eilenberg_moore_pr_enrichment).
-    Proof.
-      use nat_trans_enrichment_via_comp.
-      intros x y ; cbn.
-      rewrite precomp_arr_id, postcomp_arr_id.
-      rewrite !id_right.
-      rewrite functor_to_em_enrichment_mor_incl.
-      apply idpath.
-    Qed.
   End EilenbergMooreUMP1.
 
   Definition nat_trans_to_eilenberg_moore_cat_enrichment

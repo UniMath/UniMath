@@ -1084,28 +1084,8 @@ Section PreCompEssentiallySurjective.
              enriched_rezk_completion_ump_functor_enrichment)
           EG.
     Proof.
-      use nat_trans_enrichment_via_comp.
-      intros x y ; cbn.
-      rewrite (enriched_rezk_completion_ump_functor_enrichment_eq
-                 (identity_z_iso (F x))
-                 (identity_z_iso (F y))) ; cbn.
-      rewrite precomp_arr_id, postcomp_arr_id.
-      rewrite !id_left.
-      rewrite !assoc.
-      refine (!_).
-      etrans.
-      {
-        do 4 apply maponpaths_2.
-        exact (z_iso_inv_after_z_iso
-                 (fully_faithful_enriched_functor_z_iso HF₂ x y)).
-      }
-      rewrite id_left.
-      rewrite !assoc'.
-      apply maponpaths.
-      rewrite <- postcomp_arr_comp.
-      rewrite z_iso_inv_after_z_iso.
-      rewrite postcomp_arr_id.
-      apply id_right.
+      apply nat_z_iso_inv_enrichment.
+      apply enriched_rezk_completion_ump_comm_enrichment.
     Qed.
   End EssentiallySurjective.
 

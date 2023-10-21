@@ -155,18 +155,9 @@ Section EnrichedFactorizationSystem.
       - use make_enriched_nat_trans.
         + apply full_image_inclusion_commute_nat_iso.
         + apply image_factorization_enriched_commutes.
-      - use make_is_invertible_2cell.
-        + use make_enriched_nat_trans.
-          * exact (nat_z_iso_inv (full_image_inclusion_commute_nat_iso _)).
-          * apply image_factorization_enriched_commutes_inv.
-        + abstract
-            (use eq_enriched_nat_trans ;
-             intro x ; cbn ;
-             apply id_left).
-        + abstract
-            (use eq_enriched_nat_trans ;
-             intro x ; cbn ;
-             apply id_left).
+      - use make_is_invertible_2cell_enriched.
+        intro x.
+        apply is_z_isomorphism_identity.
     Defined.
 
     Definition enriched_eso_ff_factorization
@@ -657,94 +648,6 @@ Section EnrichedFactorizationSystem.
         - exact enriched_eso_ff_lift_comm1_is_nat_z_iso.
       Defined.
 
-      Proposition enriched_eso_ff_lift_comm1_nat_trans_data_inv_eq
-                  (x : B₁)
-        : #G (inv_from_z_iso
-                (nat_z_iso_pointwise_z_iso enriched_eso_ff_lift_comm1_nat_z_iso x))
-          =
-          τ_iso x · inv_from_z_iso (enriched_eso_ff_lift_z_iso (pr1 (pr1 F) x)).
-      Proof.
-        use z_iso_inv_on_left.
-        refine (!(id_left _) @ _).
-        use (z_iso_inv_to_right _ _ _ _ (nat_z_iso_pointwise_z_iso τ_iso x)).
-        rewrite !assoc'.
-        refine (!_).
-        etrans.
-        {
-          apply maponpaths.
-          exact (!(enriched_eso_ff_lift_comm1_nat_trans_data_eq x)).
-        }
-        refine (!(functor_comp G _ _) @ _ @ functor_id G _).
-        apply maponpaths.
-        apply z_iso_after_z_iso_inv.
-      Qed.
-
-      Proposition enriched_eso_ff_lift_comm1_inv_enrichment
-        : nat_trans_enrichment
-            (nat_z_iso_inv enriched_eso_ff_lift_comm1_nat_z_iso)
-            (enriched_functor_enrichment Φ₁)
-            (enriched_functor_enrichment (F · enriched_eso_ff_lift_enriched_functor)).
-      Proof.
-        use nat_trans_enrichment_via_comp.
-        intros x y ; cbn.
-        rewrite !assoc'.
-        refine (!(id_right _) @ _ @ id_right _).
-        rewrite <- !(z_iso_inv_after_z_iso (fully_faithful_enriched_functor_z_iso HG _ _)).
-        rewrite !assoc.
-        apply maponpaths_2 ; cbn.
-        rewrite !assoc'.
-        etrans.
-        {
-          apply maponpaths.
-          rewrite <- functor_enrichment_precomp_arr.
-          do 3 apply maponpaths.
-          rewrite !assoc.
-          rewrite z_iso_after_z_iso_inv.
-          apply id_left.
-        }
-        etrans.
-        {
-          do 5 apply maponpaths.
-          exact (enriched_eso_ff_lift_comm1_nat_trans_data_inv_eq x).
-        }
-        refine (!_).
-        etrans.
-        {
-          rewrite <- functor_enrichment_postcomp_arr.
-          do 3 apply maponpaths.
-          exact (enriched_eso_ff_lift_comm1_nat_trans_data_inv_eq y).
-        }
-        etrans.
-        {
-          rewrite postcomp_arr_comp.
-          rewrite !assoc.
-          apply maponpaths_2.
-          exact (!(nat_trans_enrichment_to_comp (pr1 τ : enriched_nat_trans _ _) x y)).
-        }
-        cbn.
-        rewrite !assoc'.
-        do 2 apply maponpaths.
-        rewrite <- precomp_postcomp_arr.
-        rewrite !assoc.
-        apply maponpaths_2.
-        rewrite <- precomp_arr_comp.
-        apply maponpaths.
-        rewrite !assoc'.
-        refine (!(id_right _) @ !_).
-        apply maponpaths.
-        apply z_iso_after_z_iso_inv.
-      Qed.
-
-      Definition enriched_eso_ff_lift_comm1_enriched_nat_trans_inv
-        : enriched_nat_trans
-            Φ₁
-            (F · enriched_eso_ff_lift_enriched_functor).
-      Proof.
-        use make_enriched_nat_trans.
-        - exact (nat_z_iso_inv enriched_eso_ff_lift_comm1_nat_z_iso).
-        - exact enriched_eso_ff_lift_comm1_inv_enrichment.
-      Defined.
-
       Definition enriched_eso_ff_lift_comm1_inv2cell
         : invertible_2cell
             (F · enriched_eso_ff_lift_enriched_functor)
@@ -752,16 +655,8 @@ Section EnrichedFactorizationSystem.
       Proof.
         use make_invertible_2cell.
         - exact enriched_eso_ff_lift_comm1_enriched_nat_trans.
-        - use make_is_invertible_2cell.
-          + exact enriched_eso_ff_lift_comm1_enriched_nat_trans_inv.
-          + abstract
-              (use eq_enriched_nat_trans ;
-               intro x ; cbn ;
-               apply (enriched_eso_ff_lift_comm1_is_nat_z_iso x)).
-          + abstract
-              (use eq_enriched_nat_trans ;
-               intro x ; cbn ;
-               apply (enriched_eso_ff_lift_comm1_is_nat_z_iso x)).
+        - use make_is_invertible_2cell_enriched.
+          apply enriched_eso_ff_lift_comm1_is_nat_z_iso.
       Defined.
 
       Definition enriched_eso_ff_lift_comm2_nat_trans_data
@@ -841,69 +736,13 @@ Section EnrichedFactorizationSystem.
         apply z_iso_is_z_isomorphism.
       Defined.
 
-      Definition enriched_eso_ff_lift_comm2_enriched_nat_z_iso
-        : nat_z_iso
-            (enriched_eso_ff_lift_enriched_functor · G : enriched_functor _ _)
-            Φ₂.
-      Proof.
-        use make_nat_z_iso.
-        - exact enriched_eso_ff_lift_comm2_nat_trans.
-        - exact enriched_eso_ff_lift_comm2_enriched_is_nat_z_iso.
-      Defined.
-
-      Proposition enriched_eso_ff_lift_comm2_inv_enrichment
-        : nat_trans_enrichment
-            (nat_z_iso_inv enriched_eso_ff_lift_comm2_enriched_nat_z_iso)
-            (enriched_functor_enrichment Φ₂)
-            (enriched_functor_enrichment (enriched_eso_ff_lift_enriched_functor · G)).
-      Proof.
-        use nat_trans_enrichment_via_comp.
-        intros x y ; cbn.
-        refine (_ @ id_right _).
-        rewrite !assoc'.
-        apply maponpaths.
-        rewrite !assoc.
-        rewrite precomp_postcomp_arr.
-        rewrite !assoc'.
-        apply maponpaths.
-        etrans.
-        {
-          apply maponpaths.
-          rewrite !assoc.
-          rewrite z_iso_after_z_iso_inv.
-          apply id_left.
-        }
-        rewrite <- precomp_arr_comp.
-        rewrite <- precomp_arr_id.
-        apply maponpaths.
-        apply z_iso_after_z_iso_inv.
-      Qed.
-
-      Definition enriched_eso_ff_lift_comm2_enriched_nat_trans_inv
-        : enriched_nat_trans
-            Φ₂
-            (enriched_eso_ff_lift_enriched_functor · G).
-      Proof.
-        use make_enriched_nat_trans.
-        - exact (nat_z_iso_inv enriched_eso_ff_lift_comm2_enriched_nat_z_iso).
-        - exact enriched_eso_ff_lift_comm2_inv_enrichment.
-      Defined.
-
       Definition enriched_eso_ff_lift_comm2_inv2cell
         : invertible_2cell (enriched_eso_ff_lift_enriched_functor · G) Φ₂.
       Proof.
         use make_invertible_2cell.
         - exact enriched_eso_ff_lift_comm2_enriched_nat_trans.
-        - use make_is_invertible_2cell.
-          + exact enriched_eso_ff_lift_comm2_enriched_nat_trans_inv.
-          + abstract
-              (use eq_enriched_nat_trans ;
-               intro x ; cbn ;
-               apply z_iso_inv_after_z_iso).
-          + abstract
-              (use eq_enriched_nat_trans ;
-               intro x ; cbn ;
-               apply z_iso_after_z_iso_inv).
+        - use make_is_invertible_2cell_enriched.
+          apply enriched_eso_ff_lift_comm2_enriched_is_nat_z_iso.
       Defined.
 
       Proposition enriched_eso_ff_lift_comm_eq

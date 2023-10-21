@@ -275,24 +275,6 @@ Proof.
   apply idpath.
 Qed.
 
-Definition functor_identity_op_inv_enrichment
-           (V : sym_monoidal_cat)
-           {C : category}
-           (E : enrichment C V)
-  : nat_trans_enrichment
-      (nat_z_iso_inv
-         (functor_identity_op_nat_z_iso C))
-      (functor_op_enrichment V (functor_id_enrichment E))
-      (functor_id_enrichment (op_enrichment V E)).
-Proof.
-  use nat_trans_enrichment_via_comp.
-  intros x y ; cbn in *.
-  rewrite !id_left.
-  rewrite op_enrichment_precomp, op_enrichment_postcomp.
-  rewrite precomp_arr_id, postcomp_arr_id.
-  apply idpath.
-Qed.
-
 (**
  2.4. Opposite of the composition of enriched functors
  *)
@@ -319,38 +301,6 @@ Definition functor_comp_op_enrichment
       (functor_op_enrichment
          V
          (functor_comp_enrichment EF EG)).
-Proof.
-  use nat_trans_enrichment_via_comp.
-  intros x y ; cbn in *.
-  rewrite op_enrichment_precomp, op_enrichment_postcomp.
-  rewrite precomp_arr_id, postcomp_arr_id.
-  apply idpath.
-Qed.
-
-Definition functor_comp_op_inv_enrichment
-           (V : sym_monoidal_cat)
-           {C₁ C₂ C₃ : category}
-           {E₁ : enrichment C₁ V}
-           {E₂ : enrichment C₂ V}
-           {E₃ : enrichment C₃ V}
-           {F : C₁ ⟶ C₂}
-           {G : C₂ ⟶ C₃}
-           (EF : functor_enrichment F E₁ E₂)
-           (EG : functor_enrichment G E₂ E₃)
-  : @nat_trans_enrichment
-      V
-      (C₁^opp) (C₃^opp)
-      _ _
-      (nat_z_iso_inv
-         (functor_comp_op_nat_z_iso F G))
-      _
-      _
-      (functor_op_enrichment
-         V
-         (functor_comp_enrichment EF EG))
-      (functor_comp_enrichment
-         (functor_op_enrichment V EF)
-         (functor_op_enrichment V EG)).
 Proof.
   use nat_trans_enrichment_via_comp.
   intros x y ; cbn in *.
@@ -448,28 +398,6 @@ Proof.
   apply idpath.
 Qed.
 
-Definition op_enriched_unit_naturality_inv
-           (V : sym_monoidal_cat)
-           {C₁ C₂ : category}
-           {F : C₁ ⟶ C₂}
-           {E₁ : enrichment C₁ V}
-           {E₂ : enrichment C₂ V}
-           (EF : functor_enrichment F E₁ E₂)
-  : nat_trans_enrichment
-      (nat_z_iso_to_trans_inv (op_unit_nat_z_iso F))
-      (functor_comp_enrichment EF (op_enriched_unit V E₂))
-      (functor_comp_enrichment
-         (op_enriched_unit V E₁)
-         (functor_op_enrichment V (functor_op_enrichment V EF))).
-Proof.
-  use nat_trans_enrichment_via_comp.
-  intros x y ; cbn in *.
-  rewrite !id_left, !id_right.
-  rewrite (precomp_arr_id (op_enrichment V (op_enrichment V E₂))).
-  rewrite (postcomp_arr_id (op_enrichment V (op_enrichment V E₂))).
-  apply idpath.
-Qed.
-
 Definition op_enriched_unit_inv_naturality
            (V : sym_monoidal_cat)
            {C₁ C₂ : category}
@@ -483,27 +411,6 @@ Definition op_enriched_unit_inv_naturality
       (functor_comp_enrichment
          (functor_op_enrichment V (functor_op_enrichment V EF))
          (op_enriched_unit_inv V E₂)).
-Proof.
-  use nat_trans_enrichment_via_comp.
-  intros x y ; cbn in *.
-  rewrite !id_left, !id_right.
-  rewrite precomp_arr_id, postcomp_arr_id.
-  apply idpath.
-Qed.
-
-Definition op_enriched_unit_inv_naturality_inv
-           (V : sym_monoidal_cat)
-           {C₁ C₂ : category}
-           {F : C₁ ⟶ C₂}
-           {E₁ : enrichment C₁ V}
-           {E₂ : enrichment C₂ V}
-           (EF : functor_enrichment F E₁ E₂)
-  : nat_trans_enrichment
-      (nat_z_iso_to_trans_inv (op_unit_inv_nat_z_iso F))
-      (functor_comp_enrichment
-         (functor_op_enrichment V (functor_op_enrichment V EF))
-         (op_enriched_unit_inv V E₂))
-      (functor_comp_enrichment (op_enriched_unit_inv V E₁) EF).
 Proof.
   use nat_trans_enrichment_via_comp.
   intros x y ; cbn in *.
@@ -533,23 +440,6 @@ Proof.
   apply idpath.
 Qed.
 
-Definition op_enriched_unit_unit_inv_inv
-           (V : sym_monoidal_cat)
-           {C : category}
-           (E : enrichment C V)
-  : nat_trans_enrichment
-      (nat_z_iso_to_trans_inv (op_unit_unit_inv_nat_z_iso C))
-      (functor_comp_enrichment (op_enriched_unit V E)
-         (op_enriched_unit_inv V E))
-      (functor_id_enrichment E).
-Proof.
-  use nat_trans_enrichment_via_comp.
-  intros x y ; cbn in *.
-  rewrite !id_left.
-  rewrite precomp_arr_id, postcomp_arr_id.
-  apply idpath.
-Qed.
-
 Definition op_enriched_unit_inv_unit
            (V : sym_monoidal_cat)
            {C : category}
@@ -560,25 +450,6 @@ Definition op_enriched_unit_inv_unit
          (op_enriched_unit_inv V E)
          (op_enriched_unit V E))
       (functor_id_enrichment (op_enrichment V (op_enrichment V E))).
-Proof.
-  use nat_trans_enrichment_via_comp.
-  intros x y ; cbn in *.
-  rewrite !id_left.
-  rewrite (precomp_arr_id (op_enrichment V (op_enrichment V E))).
-  rewrite (postcomp_arr_id (op_enrichment V (op_enrichment V E))).
-  apply idpath.
-Qed.
-
-Definition op_enriched_unit_inv_unit_inv
-           (V : sym_monoidal_cat)
-           {C : category}
-           (E : enrichment C V)
-  : nat_trans_enrichment
-      (nat_z_iso_to_trans_inv (op_unit_inv_unit_nat_z_iso C))
-      (functor_id_enrichment (op_enrichment V (op_enrichment V E)))
-      (functor_comp_enrichment
-         (op_enriched_unit_inv V E)
-         (op_enriched_unit V E)).
 Proof.
   use nat_trans_enrichment_via_comp.
   intros x y ; cbn in *.
@@ -599,23 +470,6 @@ Definition op_enriched_triangle
       (λ _, identity _)
       (op_enriched_unit V (op_enrichment V E))
       (functor_op_enrichment V (op_enriched_unit V E)).
-Proof.
-  use nat_trans_enrichment_via_comp.
-  intros x y ; cbn in *.
-  rewrite !id_left.
-  rewrite (precomp_arr_id (op_enrichment V (op_enrichment V (op_enrichment V E)))).
-  rewrite (postcomp_arr_id (op_enrichment V (op_enrichment V (op_enrichment V E)))).
-  apply idpath.
-Qed.
-
-Definition op_enriched_triangle_inv
-           (V : sym_monoidal_cat)
-           {C : category}
-           (E : enrichment C V)
-  : nat_trans_enrichment
-      (λ _, identity _)
-      (functor_op_enrichment V (op_enriched_unit V E))
-      (op_enriched_unit V (op_enrichment V E)).
 Proof.
   use nat_trans_enrichment_via_comp.
   intros x y ; cbn in *.

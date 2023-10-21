@@ -92,36 +92,13 @@ Section OppositePseudofunctor.
   Proof.
     split.
     - refine (λ (E : enriched_cat V), _).
-      use make_is_invertible_2cell.
-      + use make_enriched_nat_trans.
-        * exact (nat_z_iso_to_trans_inv
-                   (functor_identity_op_nat_z_iso _)).
-        * exact (functor_identity_op_inv_enrichment V E).
-      + abstract
-          (use eq_enriched_nat_trans ;
-           intro x ; cbn ;
-           apply id_left).
-      + abstract
-          (use eq_enriched_nat_trans ;
-           intro x ; cbn ;
-           apply id_left).
+      use make_is_invertible_2cell_enriched.
+      intro x.
+      apply is_z_isomorphism_identity.
     - refine (λ (E₁ E₂ E₃ : enriched_cat V) (F G : enriched_functor _ _), _).
-      use make_is_invertible_2cell.
-      + use make_enriched_nat_trans.
-        * exact (nat_z_iso_to_trans_inv
-                   (functor_comp_op_nat_z_iso _ _)).
-        * exact (functor_comp_op_inv_enrichment
-                   V
-                   (enriched_functor_enrichment F)
-                   (enriched_functor_enrichment G)).
-      + abstract
-          (use eq_enriched_nat_trans ;
-           intro x ; cbn ;
-           apply id_left).
-      + abstract
-          (use eq_enriched_nat_trans ;
-           intro x ; cbn ;
-           apply id_left).
+      use make_is_invertible_2cell_enriched.
+      intro x.
+      apply is_z_isomorphism_identity.
   Defined.
 
   Definition op_enriched_psfunctor

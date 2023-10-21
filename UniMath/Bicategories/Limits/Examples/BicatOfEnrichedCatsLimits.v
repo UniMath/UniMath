@@ -240,26 +240,9 @@ Section LimitsEnrichedCats.
                      (pr2 F) (pr2 G)
                      (pr1 (inserter_cone_cell q))
                      (pr2 (inserter_cone_cell q))).
-        + use make_is_invertible_2cell.
-          * use make_enriched_nat_trans.
-            ** exact (nat_z_iso_inv
-                        (nat_trans_to_dialgebra_pr1_nat_z_iso
-                           (pr1 (inserter_cone_pr1 q))
-                           (pr1 (inserter_cone_cell q)))).
-            ** exact (nat_trans_to_dialgebra_pr1_enrichment_inv
-                        _
-                        HV
-                        (pr2 F) (pr2 G)
-                        (pr1 (inserter_cone_cell q))
-                        (pr2 (inserter_cone_cell q))).
-          * abstract
-              (use eq_enriched_nat_trans ;
-               intro x ; cbn ;
-               apply id_left).
-          * abstract
-              (use eq_enriched_nat_trans ;
-               intro x ; cbn ;
-               apply id_left).
+        + use make_is_invertible_2cell_enriched.
+          intros x.
+          apply is_z_isomorphism_identity.
       - abstract
           (use eq_enriched_nat_trans ;
            intro x ; cbn ;
@@ -518,16 +501,9 @@ Section LimitsEnrichedCats.
       Proof.
         use make_invertible_2cell.
         - exact equifier_bicat_of_enriched_cats_ump_1_cell.
-        - use make_is_invertible_2cell.
-          + exact equifier_bicat_of_enriched_cats_ump_1_inv.
-          + abstract
-              (use eq_enriched_nat_trans ;
-               intro ;
-               apply id_right).
-          + abstract
-              (use eq_enriched_nat_trans ;
-               intro ;
-               apply id_right).
+        - use make_is_invertible_2cell_enriched.
+          intros x ; cbn.
+          apply is_z_isomorphism_identity.
       Defined.
     End EquifierUMP1.
 
@@ -740,24 +716,6 @@ Section LimitsEnrichedCats.
              apply (functor_id M)).
       Defined.
 
-      Definition em_enriched_cat_ump_1_inv2cell_inv
-        : mor_of_mnd_mor (mor_of_em_cone EM q)
-          ==>
-          mor_of_mnd_mor
-          (# (mnd_incl (bicat_of_enriched_cats V))
-             em_enriched_cat_ump_1_mor
-           · mor_of_em_cone EM em_enriched_cat_cone).
-      Proof.
-        use make_enriched_nat_trans.
-        - exact (nat_z_iso_to_trans_inv
-                   (functor_to_eilenberg_moore_cat_pr_nat_z_iso
-                      M
-                      (pr1 (mor_of_mnd_mor (mor_of_em_cone _ q)))
-                      (pr1 (mnd_mor_endo (mor_of_em_cone _ q)))
-                      _ _)).
-        - apply functor_to_eilenberg_moore_cat_pr_enrichment_inv.
-      Defined.
-
       Definition em_enriched_cat_ump_1_inv2cell
         : invertible_2cell
             (# (mnd_incl (bicat_of_enriched_cats V))
@@ -768,16 +726,9 @@ Section LimitsEnrichedCats.
         use make_invertible_2cell.
         - exact em_enriched_cat_ump_1_inv2cell_cell.
         - use is_invertible_mnd_2cell.
-          use make_is_invertible_2cell.
-          + exact em_enriched_cat_ump_1_inv2cell_inv.
-          + abstract
-              (use eq_enriched_nat_trans ;
-               intro x ;
-               apply id_left).
-          + abstract
-              (use eq_enriched_nat_trans ;
-               intro x ;
-               apply id_left).
+          use make_is_invertible_2cell_enriched.
+          intro x.
+          apply is_z_isomorphism_identity.
       Defined.
     End EilenbergMooreUMP1.
 

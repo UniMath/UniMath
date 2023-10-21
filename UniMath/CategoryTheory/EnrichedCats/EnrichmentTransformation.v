@@ -181,6 +181,50 @@ Proof.
     apply idpath.
 Qed.
 
+Proposition nat_z_iso_inv_enrichment
+            {V : monoidal_cat}
+            {C₁ C₂ : category}
+            {E₁ : enrichment C₁ V}
+            {E₂ : enrichment C₂ V}
+            {F G : C₁ ⟶ C₂}
+            {EF : functor_enrichment F E₁ E₂}
+            {EG : functor_enrichment G E₁ E₂}
+            (τ : nat_z_iso F G)
+            (Eτ : nat_trans_enrichment τ EF EG)
+  : nat_trans_enrichment (nat_z_iso_inv τ) EG EF.
+Proof.
+  use nat_trans_enrichment_via_comp.
+  intros x y ; cbn.
+  refine (!(id_right _) @ _).
+  rewrite <- postcomp_arr_id.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    exact (!(z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso τ y))).
+  }
+  rewrite postcomp_arr_comp.
+  rewrite !assoc.
+  apply maponpaths_2.
+  rewrite !assoc'.
+  rewrite precomp_postcomp_arr.
+  cbn.
+  rewrite !assoc.
+  etrans.
+  {
+    apply maponpaths_2.
+    apply (!nat_trans_enrichment_to_comp Eτ x y).
+  }
+  rewrite !assoc'.
+  rewrite <- precomp_arr_comp.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    exact (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso τ x)).
+  }
+  rewrite precomp_arr_id.
+  apply id_right.
+Qed.
+
 (**
  2. The identity transformation
  *)

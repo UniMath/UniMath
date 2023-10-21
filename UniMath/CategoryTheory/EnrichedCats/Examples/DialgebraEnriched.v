@@ -674,22 +674,6 @@ Section EnrichedDialgebras.
       refine (!_).
       apply nat_trans_to_dialgebra_enrichment_mor_incl.
     Qed.
-
-    Definition nat_trans_to_dialgebra_pr1_enrichment_inv
-      : nat_trans_enrichment
-          (nat_z_iso_inv
-             (nat_trans_to_dialgebra_pr1_nat_z_iso K τ))
-          EK
-          (functor_comp_enrichment
-             nat_trans_to_dialgebra_enrichment
-             dialgebra_pr1_enrichment).
-    Proof.
-      use nat_trans_enrichment_via_comp.
-      intros x y ; cbn.
-      rewrite precomp_arr_id, id_right.
-      rewrite postcomp_arr_id, id_right.
-      apply nat_trans_to_dialgebra_enrichment_mor_incl.
-    Qed.
   End FunctorToDialgebraEnrichment.
 
   (**
