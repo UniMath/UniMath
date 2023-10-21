@@ -2,7 +2,7 @@
 
  The factorization system of esos and ff morphisms
 
- In this file, we construct the factorization system of eso 1-cells and
+ In this file, we construct, in any bicategory, the factorization system of eso 1-cells and
  fully faithful 1-cells. In the file `Eso.v`, we defined `eso_ff_factorization`,
  which only expresses the existence of the factorization. Here we show that
  it actually gives rise to an orthogonal factorization system. We also
