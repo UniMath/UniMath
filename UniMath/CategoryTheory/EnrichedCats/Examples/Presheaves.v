@@ -5,10 +5,10 @@
  In this file, we define an enrichment for the category of presheaves.
 
  In the file `FunctorCategory.v`, we showed that the category of
- enriched functors between two enriched categories forms an enriched
+ V-enriched functors between two V-enriched categories forms a V-enriched
  category as well. However, this does not capture all examples that
- one might want to have, such as the category of presheaves. If we were
- to use the category of enriched functors, then we only get presheaves
+ one might want to have, such as the category of V-valued presheaves. If we were
+ to use the category of V-enriched functors, then we only get V-valued presheaves
  on categories `C` enriched over `V`. As such, we do not naturally get
  all the examples that one might want to consider, such as presheaves
  over partial orders.
