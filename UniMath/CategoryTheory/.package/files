@@ -412,6 +412,7 @@ EnrichedCats/Examples/HomFunctor.v
 EnrichedCats/Examples/OppositeEnriched.v
 EnrichedCats/Examples/FunctorCategory.v
 EnrichedCats/Examples/Precomposition.v
+EnrichedCats/Examples/Presheaves.v
 EnrichedCats/Examples/Yoneda.v
 
 EnrichedCats/YonedaLemma.v
