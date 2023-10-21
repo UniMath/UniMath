@@ -254,6 +254,9 @@ Limits/PullbackEquivalences.v
 Limits/InserterEquivalences.v
 Limits/EquifierEquivalences.v
 
+OrthogonalFactorization/Orthogonality.v
+OrthogonalFactorization/FactorizationSystem.v
+
 Morphisms/Eso.v
 Morphisms/Properties/Projections.v
 Morphisms/Properties/ClosedUnderPullback.v
@@ -263,6 +266,8 @@ Morphisms/Examples/EsosInBicatOfUnivCats.v
 Morphisms/Examples/MorphismsInSliceBicat.v
 Morphisms/Examples/MorphismsInStructuredCat.v
 Morphisms/Examples/MorphismsInBicatOfEnrichedCats.v
+
+OrthogonalFactorization/EsoFactorizationSystem.v
 
 Colimits/Initial.v
 Colimits/Coproducts.v
