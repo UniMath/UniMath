@@ -305,6 +305,74 @@ Section EnrichedKleisli.
     - exact Kleisli_cat_monad_enrichment_laws.
   Defined.
 
+  Proposition Kleisli_cat_enrichment_precomp_arr
+              {x y : Kleisli_cat_monad M}
+              (w : Kleisli_cat_monad M)
+              (f : x --> y)
+    : precomp_arr
+        Kleisli_cat_monad_enrichment
+        w
+        f
+      =
+      EM y (M w)
+      · postcomp_arr E _ (μ M w)
+      · precomp_arr E _ f.
+  Proof.
+    unfold precomp_arr ; cbn.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_split.
+      rewrite tensor_split'.
+      apply idpath.
+    }
+    rewrite !assoc.
+    rewrite tensor_rinvunitor.
+    rewrite !tensor_comp_id_r.
+    rewrite !assoc'.
+    do 2 apply maponpaths.
+    rewrite enriched_comp_postcomp_arr.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite <- tensor_split.
+    rewrite <- tensor_split'.
+    do 2 apply maponpaths.
+    refine (_ @ id_right _).
+    apply maponpaths.
+    apply bind_η.
+  Qed.
+
+  Proposition Kleisli_cat_enrichment_postcomp_arr
+              {x y : Kleisli_cat_monad M}
+              (w : Kleisli_cat_monad M)
+              (f : x --> y)
+    : postcomp_arr
+        Kleisli_cat_monad_enrichment
+        w
+        f
+      =
+      postcomp_arr E w (#M f · μ M y).
+  Proof.
+    unfold postcomp_arr ; cbn.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite enriched_comp_postcomp_arr.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite <- !tensor_comp_id_r.
+    apply maponpaths_2.
+    rewrite <- functor_enrichment_from_arr.
+    rewrite enriched_from_arr_postcomp.
+    apply maponpaths.
+    apply maponpaths_2.
+    apply maponpaths.
+    refine (_ @ id_right _).
+    apply maponpaths.
+    apply bind_η.
+  Qed.
+
   Definition Left_Kleisli_functor_enrichment_laws
     : @is_functor_enrichment
         _ _ _
