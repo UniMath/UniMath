@@ -281,7 +281,7 @@ Section LimitsEnrichedCats.
              cbn in p' ;
              rewrite !id_left, !id_right in p' ;
              exact p').
-        + apply build_nat_trans_to_dialgebra_enrichment.
+        + apply make_nat_trans_to_dialgebra_enrichment.
           exact (pr2 α).
       - abstract
           (use eq_enriched_nat_trans ;

@@ -249,27 +249,10 @@ Definition nat_trans_op_enrichment
       (functor_op_enrichment V EG)
       (functor_op_enrichment V EF).
 Proof.
+  use nat_trans_enrichment_via_comp.
   intros x y ; cbn in *.
-  pose (p := Eτ y x).
-  etrans.
-  {
-    rewrite !assoc.
-    apply maponpaths_2.
-    rewrite !assoc'.
-    rewrite tensor_sym_mon_braiding.
-    rewrite !assoc.
-    rewrite sym_mon_braiding_rinvunitor.
-    apply idpath.
-  }
-  refine (!p @ _) ; clear p.
-  refine (!_).
-  rewrite !assoc.
-  apply maponpaths_2.
-  rewrite !assoc'.
-  rewrite tensor_sym_mon_braiding.
-  rewrite !assoc.
-  rewrite sym_mon_braiding_linvunitor.
-  apply idpath.
+  rewrite op_enrichment_precomp, op_enrichment_postcomp.
+  exact (!(nat_trans_enrichment_to_comp Eτ y x)).
 Qed.
 
 (**
@@ -284,16 +267,11 @@ Definition functor_identity_op_enrichment
       (functor_id_enrichment (op_enrichment V E))
       (functor_op_enrichment V (functor_id_enrichment E)).
 Proof.
-  intros x y ; cbn.
-  rewrite! enriched_from_arr_id.
-  rewrite !assoc'.
-  rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)).
-  rewrite !tensor_sym_mon_braiding.
-  rewrite !assoc'.
-  rewrite <- enrichment_id_left, <- enrichment_id_right.
-  rewrite sym_mon_braiding_lunitor, sym_mon_braiding_runitor.
-  rewrite mon_rinvunitor_runitor.
-  rewrite mon_linvunitor_lunitor.
+  use nat_trans_enrichment_via_comp.
+  intros x y ; cbn in *.
+  rewrite !id_left.
+  rewrite op_enrichment_precomp, op_enrichment_postcomp.
+  rewrite precomp_arr_id, postcomp_arr_id.
   apply idpath.
 Qed.
 
@@ -307,16 +285,11 @@ Definition functor_identity_op_inv_enrichment
       (functor_op_enrichment V (functor_id_enrichment E))
       (functor_id_enrichment (op_enrichment V E)).
 Proof.
-  intros x y ; cbn.
-  rewrite! enriched_from_arr_id.
-  rewrite !assoc'.
-  rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)).
-  rewrite !tensor_sym_mon_braiding.
-  rewrite !assoc'.
-  rewrite <- enrichment_id_left, <- enrichment_id_right.
-  rewrite sym_mon_braiding_lunitor, sym_mon_braiding_runitor.
-  rewrite mon_rinvunitor_runitor.
-  rewrite mon_linvunitor_lunitor.
+  use nat_trans_enrichment_via_comp.
+  intros x y ; cbn in *.
+  rewrite !id_left.
+  rewrite op_enrichment_precomp, op_enrichment_postcomp.
+  rewrite precomp_arr_id, postcomp_arr_id.
   apply idpath.
 Qed.
 
@@ -347,48 +320,10 @@ Definition functor_comp_op_enrichment
          V
          (functor_comp_enrichment EF EG)).
 Proof.
-  intros x y ; cbn.
-  rewrite! enriched_from_arr_id.
-  rewrite !assoc'.
-  rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)).
-  rewrite !tensor_sym_mon_braiding.
-  rewrite !assoc.
-  rewrite sym_mon_braiding_linvunitor, sym_mon_braiding_rinvunitor.
-  rewrite <- (functor_enrichment_id EG).
-  rewrite <- (functor_enrichment_id EF).
-  rewrite !assoc'.
-  etrans.
-  {
-    apply maponpaths.
-    rewrite tensor_comp_r_id_l.
-    rewrite tensor_comp_mor.
-    rewrite !assoc'.
-    rewrite <- (functor_enrichment_comp EG).
-    rewrite !assoc.
-    apply maponpaths_2.
-    rewrite !assoc'.
-    rewrite <- (functor_enrichment_comp EF).
-    rewrite !assoc.
-    rewrite <- enrichment_id_left.
-    apply idpath.
-  }
-  rewrite !assoc.
-  rewrite mon_linvunitor_lunitor.
-  rewrite id_left.
-  refine (!_).
-  etrans.
-  {
-    rewrite !assoc'.
-    apply maponpaths.
-    rewrite tensor_split'.
-    rewrite !assoc'.
-    rewrite <- enrichment_id_right.
-    rewrite tensor_runitor.
-    apply idpath.
-  }
-  rewrite !assoc.
-  rewrite mon_rinvunitor_runitor.
-  rewrite id_left.
+  use nat_trans_enrichment_via_comp.
+  intros x y ; cbn in *.
+  rewrite op_enrichment_precomp, op_enrichment_postcomp.
+  rewrite precomp_arr_id, postcomp_arr_id.
   apply idpath.
 Qed.
 
@@ -417,48 +352,10 @@ Definition functor_comp_op_inv_enrichment
          (functor_op_enrichment V EF)
          (functor_op_enrichment V EG)).
 Proof.
-  intros x y ; cbn.
-  rewrite! enriched_from_arr_id.
-  rewrite !assoc'.
-  rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)).
-  rewrite !tensor_sym_mon_braiding.
-  rewrite !assoc.
-  rewrite sym_mon_braiding_linvunitor, sym_mon_braiding_rinvunitor.
-  rewrite <- (functor_enrichment_id EG).
-  rewrite <- (functor_enrichment_id EF).
-  rewrite !assoc'.
-  etrans.
-  {
-    apply maponpaths.
-    rewrite tensor_comp_r_id_l.
-    rewrite tensor_comp_mor.
-    rewrite !assoc'.
-    rewrite <- (functor_enrichment_comp EG).
-    rewrite !assoc.
-    apply maponpaths_2.
-    rewrite !assoc'.
-    rewrite <- (functor_enrichment_comp EF).
-    rewrite !assoc.
-    rewrite <- enrichment_id_left.
-    apply idpath.
-  }
-  rewrite !assoc.
-  rewrite mon_linvunitor_lunitor.
-  rewrite id_left.
-  refine (!_).
-  etrans.
-  {
-    rewrite !assoc'.
-    apply maponpaths.
-    rewrite tensor_split'.
-    rewrite !assoc'.
-    rewrite <- enrichment_id_right.
-    rewrite tensor_runitor.
-    apply idpath.
-  }
-  rewrite !assoc.
-  rewrite mon_rinvunitor_runitor.
-  rewrite id_left.
+  use nat_trans_enrichment_via_comp.
+  intros x y ; cbn in *.
+  rewrite op_enrichment_precomp, op_enrichment_postcomp.
+  rewrite precomp_arr_id, postcomp_arr_id.
   apply idpath.
 Qed.
 
@@ -543,29 +440,11 @@ Definition op_enriched_unit_naturality
          (functor_op_enrichment V (functor_op_enrichment V EF)))
       (functor_comp_enrichment EF (op_enriched_unit V E₂)).
 Proof.
-  intros x y ; cbn.
-  rewrite !assoc'.
-  rewrite !(maponpaths (λ z, _ · (_ · z)) (assoc _ _ _)).
-  rewrite !sym_mon_braiding_inv.
+  use nat_trans_enrichment_via_comp.
+  intros x y ; cbn in *.
   rewrite !id_left, !id_right.
-  rewrite !enriched_from_arr_id.
-  etrans.
-  {
-    rewrite tensor_split'.
-    rewrite !assoc'.
-    rewrite <- enrichment_id_right.
-    rewrite tensor_runitor.
-    rewrite !assoc.
-    rewrite mon_rinvunitor_runitor.
-    apply id_left.
-  }
-  rewrite tensor_split.
-  rewrite !assoc'.
-  rewrite <- enrichment_id_left.
-  rewrite tensor_lunitor.
-  rewrite !assoc.
-  rewrite mon_linvunitor_lunitor.
-  rewrite id_left.
+  rewrite (precomp_arr_id (op_enrichment V (op_enrichment V E₂))).
+  rewrite (postcomp_arr_id (op_enrichment V (op_enrichment V E₂))).
   apply idpath.
 Qed.
 
@@ -583,29 +462,11 @@ Definition op_enriched_unit_naturality_inv
          (op_enriched_unit V E₁)
          (functor_op_enrichment V (functor_op_enrichment V EF))).
 Proof.
-  intros x y ; cbn.
-  rewrite !assoc'.
-  rewrite !(maponpaths (λ z, _ · (_ · z)) (assoc _ _ _)).
-  rewrite !sym_mon_braiding_inv.
+  use nat_trans_enrichment_via_comp.
+  intros x y ; cbn in *.
   rewrite !id_left, !id_right.
-  rewrite !enriched_from_arr_id.
-  etrans.
-  {
-    rewrite tensor_split'.
-    rewrite !assoc'.
-    rewrite <- enrichment_id_right.
-    rewrite tensor_runitor.
-    rewrite !assoc.
-    rewrite mon_rinvunitor_runitor.
-    apply id_left.
-  }
-  rewrite tensor_split.
-  rewrite !assoc'.
-  rewrite <- enrichment_id_left.
-  rewrite tensor_lunitor.
-  rewrite !assoc.
-  rewrite mon_linvunitor_lunitor.
-  rewrite id_left.
+  rewrite (precomp_arr_id (op_enrichment V (op_enrichment V E₂))).
+  rewrite (postcomp_arr_id (op_enrichment V (op_enrichment V E₂))).
   apply idpath.
 Qed.
 
@@ -623,26 +484,10 @@ Definition op_enriched_unit_inv_naturality
          (functor_op_enrichment V (functor_op_enrichment V EF))
          (op_enriched_unit_inv V E₂)).
 Proof.
-  intros x y ; cbn.
-  rewrite !enriched_from_arr_id.
-  rewrite id_left, id_right.
-  etrans.
-  {
-    rewrite tensor_split'.
-    rewrite !assoc'.
-    rewrite <- enrichment_id_right.
-    rewrite tensor_runitor.
-    rewrite !assoc.
-    rewrite mon_rinvunitor_runitor.
-    apply id_left.
-  }
-  rewrite tensor_split.
-  rewrite !assoc'.
-  rewrite <- enrichment_id_left.
-  rewrite tensor_lunitor.
-  rewrite !assoc.
-  rewrite mon_linvunitor_lunitor.
-  rewrite id_left.
+  use nat_trans_enrichment_via_comp.
+  intros x y ; cbn in *.
+  rewrite !id_left, !id_right.
+  rewrite precomp_arr_id, postcomp_arr_id.
   apply idpath.
 Qed.
 
@@ -660,26 +505,10 @@ Definition op_enriched_unit_inv_naturality_inv
          (op_enriched_unit_inv V E₂))
       (functor_comp_enrichment (op_enriched_unit_inv V E₁) EF).
 Proof.
-  intros x y ; cbn.
-  rewrite !enriched_from_arr_id.
-  rewrite id_left, id_right.
-  etrans.
-  {
-    rewrite tensor_split'.
-    rewrite !assoc'.
-    rewrite <- enrichment_id_right.
-    rewrite tensor_runitor.
-    rewrite !assoc.
-    rewrite mon_rinvunitor_runitor.
-    apply id_left.
-  }
-  rewrite tensor_split.
-  rewrite !assoc'.
-  rewrite <- enrichment_id_left.
-  rewrite tensor_lunitor.
-  rewrite !assoc.
-  rewrite mon_linvunitor_lunitor.
-  rewrite id_left.
+  use nat_trans_enrichment_via_comp.
+  intros x y ; cbn in *.
+  rewrite !id_left, !id_right.
+  rewrite precomp_arr_id, postcomp_arr_id.
   apply idpath.
 Qed.
 
@@ -697,14 +526,10 @@ Definition op_enriched_unit_unit_inv
          (op_enriched_unit V E)
          (op_enriched_unit_inv V E)).
 Proof.
-  intros x y ; cbn.
-  rewrite !enriched_from_arr_id.
-  rewrite id_left.
-  rewrite !assoc'.
-  rewrite <- enrichment_id_right.
-  rewrite mon_rinvunitor_runitor.
-  rewrite <- enrichment_id_left.
-  rewrite mon_linvunitor_lunitor.
+  use nat_trans_enrichment_via_comp.
+  intros x y ; cbn in *.
+  rewrite !id_left.
+  rewrite precomp_arr_id, postcomp_arr_id.
   apply idpath.
 Qed.
 
@@ -718,14 +543,10 @@ Definition op_enriched_unit_unit_inv_inv
          (op_enriched_unit_inv V E))
       (functor_id_enrichment E).
 Proof.
-  intros x y ; cbn.
-  rewrite !enriched_from_arr_id.
-  rewrite id_left.
-  rewrite !assoc'.
-  rewrite <- enrichment_id_right.
-  rewrite mon_rinvunitor_runitor.
-  rewrite <- enrichment_id_left.
-  rewrite mon_linvunitor_lunitor.
+  use nat_trans_enrichment_via_comp.
+  intros x y ; cbn in *.
+  rewrite !id_left.
+  rewrite precomp_arr_id, postcomp_arr_id.
   apply idpath.
 Qed.
 
@@ -740,16 +561,11 @@ Definition op_enriched_unit_inv_unit
          (op_enriched_unit V E))
       (functor_id_enrichment (op_enrichment V (op_enrichment V E))).
 Proof.
-  intros x y ; cbn.
-  rewrite !assoc'.
-  rewrite !(maponpaths (λ z, _ · (_ · z)) (assoc _ _ _)).
-  rewrite !sym_mon_braiding_inv.
+  use nat_trans_enrichment_via_comp.
+  intros x y ; cbn in *.
   rewrite !id_left.
-  rewrite !enriched_from_arr_id.
-  rewrite <- enrichment_id_right.
-  rewrite mon_rinvunitor_runitor.
-  rewrite <- enrichment_id_left.
-  rewrite mon_linvunitor_lunitor.
+  rewrite (precomp_arr_id (op_enrichment V (op_enrichment V E))).
+  rewrite (postcomp_arr_id (op_enrichment V (op_enrichment V E))).
   apply idpath.
 Qed.
 
@@ -764,16 +580,11 @@ Definition op_enriched_unit_inv_unit_inv
          (op_enriched_unit_inv V E)
          (op_enriched_unit V E)).
 Proof.
-  intros x y ; cbn.
-  rewrite !assoc'.
-  rewrite !(maponpaths (λ z, _ · (_ · z)) (assoc _ _ _)).
-  rewrite !sym_mon_braiding_inv.
+  use nat_trans_enrichment_via_comp.
+  intros x y ; cbn in *.
   rewrite !id_left.
-  rewrite !enriched_from_arr_id.
-  rewrite <- enrichment_id_right.
-  rewrite mon_rinvunitor_runitor.
-  rewrite <- enrichment_id_left.
-  rewrite mon_linvunitor_lunitor.
+  rewrite (precomp_arr_id (op_enrichment V (op_enrichment V E))).
+  rewrite (postcomp_arr_id (op_enrichment V (op_enrichment V E))).
   apply idpath.
 Qed.
 
@@ -789,21 +600,11 @@ Definition op_enriched_triangle
       (op_enriched_unit V (op_enrichment V E))
       (functor_op_enrichment V (op_enriched_unit V E)).
 Proof.
-  intros x y  ; cbn.
-  rewrite !assoc'.
-  rewrite !(maponpaths (λ z, _ · (_ · z)) (assoc _ _ _)).
-  rewrite !sym_mon_braiding_inv.
+  use nat_trans_enrichment_via_comp.
+  intros x y ; cbn in *.
   rewrite !id_left.
-  rewrite !enriched_from_arr_id.
-  rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)).
-  rewrite !tensor_sym_mon_braiding.
-  rewrite !assoc'.
-  rewrite <- enrichment_id_right.
-  rewrite <- enrichment_id_left.
-  rewrite sym_mon_braiding_lunitor.
-  rewrite sym_mon_braiding_runitor.
-  rewrite mon_rinvunitor_runitor.
-  rewrite mon_linvunitor_lunitor.
+  rewrite (precomp_arr_id (op_enrichment V (op_enrichment V (op_enrichment V E)))).
+  rewrite (postcomp_arr_id (op_enrichment V (op_enrichment V (op_enrichment V E)))).
   apply idpath.
 Qed.
 
@@ -816,20 +617,10 @@ Definition op_enriched_triangle_inv
       (functor_op_enrichment V (op_enriched_unit V E))
       (op_enriched_unit V (op_enrichment V E)).
 Proof.
-  intros x y  ; cbn.
-  rewrite !assoc'.
-  rewrite !(maponpaths (λ z, _ · (_ · z)) (assoc _ _ _)).
-  rewrite !sym_mon_braiding_inv.
+  use nat_trans_enrichment_via_comp.
+  intros x y ; cbn in *.
   rewrite !id_left.
-  rewrite !enriched_from_arr_id.
-  rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)).
-  rewrite !tensor_sym_mon_braiding.
-  rewrite !assoc'.
-  rewrite <- enrichment_id_right.
-  rewrite <- enrichment_id_left.
-  rewrite sym_mon_braiding_lunitor.
-  rewrite sym_mon_braiding_runitor.
-  rewrite mon_rinvunitor_runitor.
-  rewrite mon_linvunitor_lunitor.
+  rewrite (precomp_arr_id (op_enrichment V (op_enrichment V (op_enrichment V E)))).
+  rewrite (postcomp_arr_id (op_enrichment V (op_enrichment V (op_enrichment V E)))).
   apply idpath.
 Qed.
