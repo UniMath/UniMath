@@ -51,6 +51,9 @@
  Finally, we show that every morphism that is both in `L` and `R` must also
  be an adjoint equivalence.
 
+ A source for the definition of orthogonal factorization system in a bicategory
+ is "Categorical notions of fibration" by Loregian and Riehl.
+
  Contents
  1. Factorizations
  2. Orthogonal factorization systems

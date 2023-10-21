@@ -132,3 +132,6 @@ Section ImageEnriched.
     apply mon_rinvunitor_runitor.
   Qed.
 End ImageEnriched.
+
+Arguments image_enrichment {V C₁ C₂} E₂ F.
+Arguments image_incl_enrichment {V C₁ C₂} E₂ F.

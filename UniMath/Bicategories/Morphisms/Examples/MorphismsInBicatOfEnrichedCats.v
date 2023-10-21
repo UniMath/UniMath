@@ -13,6 +13,7 @@
  2. Fully faithful 1-cells
  3. Conservative 1-cells
  4. Discrete 1-cells
+ 5. Enriched adjunctions
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -48,29 +49,19 @@ Import MonoidalNotations.
 Local Open Scope cat.
 Local Open Scope moncat.
 
-(**
- 1. Faithful 1-cells
- *)
+(** * 1. Faithful 1-cells *)
 Section MorphismsEnrichedCats.
   Context (V : monoidal_cat).
 
   Definition enriched_cat_faithful_is_faithful_1cell
-             {E₁ E₂ : bicat_of_enriched_cats V}
-             (F : E₁ --> E₂)
-             (HF : faithful (pr1 F))
+             {E₁ E₂ : enriched_cat V}
+             (F : enriched_functor E₁ E₂)
+             (HF : faithful F)
     : faithful_1cell F.
   Proof.
     intros E₃ G₁ G₂ α₁ α₂ p.
     cbn in *.
-    use subtypePath.
-    {
-      intro.
-      apply isaprop_nat_trans_enrichment.
-    }
-    use nat_trans_eq.
-    {
-      apply homset_property.
-    }
+    use eq_enriched_nat_trans.
     intro x.
     use (invmaponpathsincl _ (HF (pr1 G₁ x) (pr1 G₂ x))).
     exact (maponpaths (λ z, pr11 z x) p).
@@ -78,44 +69,36 @@ Section MorphismsEnrichedCats.
 
   Definition enriched_cat_faithful_1cell_is_faithful
              (HV : isTerminal V (I_{V}))
-             {E₁ E₂ : bicat_of_enriched_cats V}
-             (F : E₁ --> E₂)
+             {E₁ E₂ : enriched_cat V}
+             (F : enriched_functor E₁ E₂)
              (HF : faithful_1cell F)
-    : faithful (pr1 F).
+    : faithful F.
   Proof.
     intros x y ; cbn in *.
     use isinclweqonpaths.
     intros f g.
     use isweqimplimpl.
     - intro p.
-      refine (maponpaths
-                (λ z, pr11 z tt)
+      refine (from_eq_enriched_nat_trans
                 (@faithful_1cell_eq_cell
-                   _ _ _ _
-                   HF
-                   (unit_category ,, unit_enrichment V HV)
-                   (constant_functor unit_category (pr1 E₁) x
-                    ,,
-                    constant_functor_enrichment V HV (pr11 E₁ ,, pr2 E₁) x)
-                   (constant_functor unit_category (pr1 E₁) y
-                    ,,
-                    constant_functor_enrichment V HV (pr11 E₁ ,, pr2 E₁) y)
-                   (constant_nat_trans _ f
-                    ,,
-                    constant_nat_trans_enrichment _ _ _ _)
-                   (constant_nat_trans _ g
-                    ,,
-                    constant_nat_trans_enrichment _ _ _ _)
-                   _)).
-      use subtypePath.
-      {
-        intro.
-        apply isaprop_nat_trans_enrichment.
-      }
-      use nat_trans_eq.
-      {
-        apply homset_property.
-      }
+                    _ _ _ _
+                    HF
+                    (unit_category ,, unit_enrichment V HV)
+                    (constant_functor unit_category (pr1 E₁) x
+                     ,,
+                     constant_functor_enrichment V HV (pr11 E₁ ,, pr2 E₁) x)
+                    (constant_functor unit_category (pr1 E₁) y
+                     ,,
+                     constant_functor_enrichment V HV (pr11 E₁ ,, pr2 E₁) y)
+                    (constant_nat_trans _ f
+                     ,,
+                     constant_nat_trans_enrichment _ _ _ _)
+                    (constant_nat_trans _ g
+                     ,,
+                     constant_nat_trans_enrichment _ _ _ _)
+                    _)
+                tt).
+      use eq_enriched_nat_trans.
       intro z.
       exact p.
     - apply homset_property.
@@ -124,9 +107,9 @@ Section MorphismsEnrichedCats.
 
   Definition enriched_cat_faithful_weq_faithful_1cell
              (HV : isTerminal V (I_{V}))
-             {E₁ E₂ : bicat_of_enriched_cats V}
-             (F : E₁ --> E₂)
-    : faithful (pr1 F) ≃ faithful_1cell F.
+             {E₁ E₂ : enriched_cat V}
+             (F : enriched_functor E₁ E₂)
+    : faithful F ≃ faithful_1cell F.
   Proof.
     use weqimplimpl.
     - exact (enriched_cat_faithful_is_faithful_1cell F).
@@ -135,31 +118,29 @@ Section MorphismsEnrichedCats.
     - apply isaprop_faithful_1cell.
   Qed.
 
-  (**
-   2. Fully faithful 1-cells
-   *)
+  (** * 2. Fully faithful 1-cells *)
   Section ToFullyFaithfulCell.
-    Context {E₁ E₂ : bicat_of_enriched_cats V}
-            {F : E₁ --> E₂}
-            (HF : fully_faithful_enriched_functor (pr2 F))
-            {E₀ : bicat_of_enriched_cats V}
-            {G₁ G₂ : E₀ --> E₁}
-            (β : G₁ · F ==> G₂ · F).
+    Context {E₁ E₂ : enriched_cat V}
+            {F : enriched_functor E₁ E₂}
+            (HF : fully_faithful_enriched_functor
+                    (enriched_functor_enrichment F))
+            {E₀ : enriched_cat V}
+            {G₁ G₂ : enriched_functor E₀ E₁}
+            (β : enriched_nat_trans (G₁ · F) (G₂ · F)).
 
     Definition enriched_cat_fully_faithful_to_fully_faithful_1cell_nat_trans_data
-      : nat_trans_data
-          (pr11 G₁)
-          (pr11 G₂)
+      : nat_trans_data G₁ G₂
       := λ x,
          enriched_to_arr
-           (pr12 E₁)
-           (enriched_from_arr (pr12 E₂) (pr11 β x)
-            · pr1 (HF (pr11 G₁ x) (pr11 G₂ x))).
+           E₁
+           (enriched_from_arr E₂ (β x)
+            · pr1 (HF (G₁ x) (G₂ x))).
 
     Definition enriched_cat_fully_faithful_to_fully_faithful_1cell_enrichment
       : nat_trans_enrichment
           enriched_cat_fully_faithful_to_fully_faithful_1cell_nat_trans_data
-          (pr2 G₁) (pr2 G₂).
+          (enriched_functor_enrichment G₁)
+          (enriched_functor_enrichment G₂).
     Proof.
       intros x y.
       cbn.
@@ -173,16 +154,16 @@ Section MorphismsEnrichedCats.
         apply maponpaths.
         apply tensor_comp_l_id_r.
       }
-      assert (pr12 F (pr11 G₂ x) (pr11 G₂ y) #⊗ identity _
+      assert (enriched_functor_enrichment F (G₂ x) (G₂ y) #⊗ identity _
               · enriched_comp
-                  (pr12 E₂)
-                  (pr11 F (pr11 G₁ x))
-                  (pr11 F (pr11 G₂ x))
-                  (pr11 F (pr11 G₂ y))
+                  E₂
+                  (F (G₁ x))
+                  (F (G₂ x))
+                  (F (G₂ y))
               · pr1 (HF _ _)
               =
-              id₁ _ #⊗ pr1 (HF ((pr11 G₁) x) ((pr11 G₂) x))
-              · enriched_comp (pr12 E₁) (pr11 G₁ x) (pr11 G₂ x) (pr11 G₂ y))
+              id₁ _ #⊗ pr1 (HF (G₁ x) (G₂ x))
+              · enriched_comp E₁ (G₁ x) (G₂ x) (G₂ y))
         as X.
       {
         refine (!_).
@@ -235,7 +216,7 @@ Section MorphismsEnrichedCats.
       use (z_iso_inv_on_left _ _ _ _ (_ ,, _)).
       cbn.
       rewrite !assoc'.
-      rewrite (functor_enrichment_comp (pr2 F)).
+      rewrite (functor_enrichment_comp (enriched_functor_enrichment F)).
       rewrite !assoc.
       apply maponpaths_2.
       refine (_ @ tensor_comp_mor _ _ _ _).
@@ -255,7 +236,7 @@ Section MorphismsEnrichedCats.
     Qed.
 
     Definition enriched_cat_fully_faithful_to_fully_faithful_1cell_nat_trans
-      : pr11 G₁ ⟹ pr11 G₂.
+      : G₁ ⟹ G₂.
     Proof.
       use make_nat_trans.
       - exact enriched_cat_fully_faithful_to_fully_faithful_1cell_nat_trans_data.
@@ -265,7 +246,7 @@ Section MorphismsEnrichedCats.
     Definition enriched_cat_fully_faithful_to_fully_faithful_1cell_cell
       : G₁ ==> G₂.
     Proof.
-      simple refine (_ ,, _).
+      use make_enriched_nat_trans.
       - exact enriched_cat_fully_faithful_to_fully_faithful_1cell_nat_trans.
       - exact enriched_cat_fully_faithful_to_fully_faithful_1cell_enrichment.
     Defined.
@@ -273,21 +254,13 @@ Section MorphismsEnrichedCats.
     Definition enriched_cat_fully_faithful_to_fully_faithful_1cell_eq
       : enriched_cat_fully_faithful_to_fully_faithful_1cell_cell ▹ F = β.
     Proof.
-      use subtypePath.
-      {
-        intro.
-        apply isaprop_nat_trans_enrichment.
-      }
-      use nat_trans_eq.
-      {
-        apply homset_property.
-      }
+      use eq_enriched_nat_trans.
       intro x.
       cbn.
       unfold enriched_cat_fully_faithful_to_fully_faithful_1cell_nat_trans_data.
-      use (invmaponpathsweq (_ ,, isweq_enriched_from_arr (pr2 E₂) _ _)).
+      use (invmaponpathsweq (_ ,, isweq_enriched_from_arr E₂ _ _)).
       cbn.
-      rewrite (functor_enrichment_from_arr (pr2 F)).
+      rewrite (functor_enrichment_from_arr (enriched_functor_enrichment F)).
       rewrite enriched_from_to_arr.
       rewrite !assoc'.
       refine (_ @ id_right _).
@@ -297,9 +270,10 @@ Section MorphismsEnrichedCats.
   End ToFullyFaithfulCell.
 
   Definition enriched_cat_fully_faithful_to_fully_faithful_1cell
-             {E₁ E₂ : bicat_of_enriched_cats V}
-             (F : E₁ --> E₂)
-             (HF : fully_faithful_enriched_functor (pr2 F))
+             {E₁ E₂ : enriched_cat V}
+             (F : enriched_functor E₁ E₂)
+             (HF : fully_faithful_enriched_functor
+                     (enriched_functor_enrichment F))
     : fully_faithful_1cell F.
   Proof.
     use make_fully_faithful.
@@ -311,14 +285,12 @@ Section MorphismsEnrichedCats.
       + exact (enriched_cat_fully_faithful_to_fully_faithful_1cell_eq HF β).
   Defined.
 
-  (**
-   3. Conservative 1-cells
-   *)
+  (** * 3. Conservative 1-cells *)
   Definition enriched_cat_conservative_to_conservative_1cell
              (HV : faithful_moncat V)
-             {E₁ E₂ : bicat_of_enriched_cats V}
-             {F : E₁ --> E₂}
-             (HF : conservative (pr1 F))
+             {E₁ E₂ : enriched_cat V}
+             {F : enriched_functor E₁ E₂}
+             (HF : conservative F)
      : conservative_1cell F.
    Proof.
      intros E₀ G₁ G₂ τ Hτ.
@@ -331,20 +303,20 @@ Section MorphismsEnrichedCats.
    Definition enriched_cat_conservative_1cell_to_conservative
               (HV : isTerminal V (I_{V}))
               (HV' : faithful_moncat V)
-              {E₁ E₂ : bicat_of_enriched_cats V}
-              {F : E₁ --> E₂}
+              {E₁ E₂ : enriched_cat V}
+              {F : enriched_functor E₁ E₂}
               (HF : conservative_1cell F)
-     : conservative (pr1 F).
+     : conservative F.
    Proof.
      intros x y f Hf.
-     pose (unit_category ,, unit_enrichment V HV : bicat_of_enriched_cats V)
+     pose (make_enriched_cat unit_category (unit_enrichment V HV))
        as unit_enriched.
-     pose (constant_functor unit_category (pr11 E₁) x
+     pose (constant_functor unit_category E₁ x
            ,,
            constant_functor_enrichment V HV (pr11 E₁ ,, pr2 E₁) x
            : unit_enriched --> E₁)
        as G₁.
-     pose (constant_functor unit_category (pr11 E₁) y
+     pose (constant_functor unit_category (E₁) y
            ,,
            constant_functor_enrichment V HV (pr11 E₁ ,, pr2 E₁) y
            : unit_enriched --> E₁)
@@ -370,9 +342,9 @@ Section MorphismsEnrichedCats.
    Definition enriched_cat_conservative_weq_conservative_1cell
               (HV : isTerminal V (I_{V}))
               (HV' : faithful_moncat V)
-              {E₁ E₂ : bicat_of_enriched_cats V}
-              (F : E₁ --> E₂)
-    : conservative (pr1 F) ≃ conservative_1cell F.
+              {E₁ E₂ : enriched_cat V}
+              (F : enriched_functor E₁ E₂)
+    : conservative F ≃ conservative_1cell F.
   Proof.
     use weqimplimpl.
     - exact (enriched_cat_conservative_to_conservative_1cell HV').
@@ -381,15 +353,13 @@ Section MorphismsEnrichedCats.
     - apply isaprop_conservative_1cell.
   Qed.
 
-  (**
-   4. Discrete 1-cells
-   *)
+  (** * 4. Discrete 1-cells *)
   Definition enriched_cat_discretee_weq_discrete_1cell
              (HV : isTerminal V (I_{V}))
              (HV' : faithful_moncat V)
-             {E₁ E₂ : bicat_of_enriched_cats V}
-             (F : E₁ --> E₂)
-    : faithful (pr1 F) × conservative (pr1 F) ≃ discrete_1cell F.
+             {E₁ E₂ : enriched_cat V}
+             (F : enriched_functor E₁ E₂)
+    : faithful F × conservative F ≃ discrete_1cell F.
   Proof.
     use weqdirprodf.
     - exact (enriched_cat_faithful_weq_faithful_1cell HV F).
@@ -397,12 +367,10 @@ Section MorphismsEnrichedCats.
   Qed.
 End MorphismsEnrichedCats.
 
-(**
-
- *)
+(** * 5. Enriched adjunctions *)
 Definition adjunction_enrichment_weq
            {V : monoidal_cat}
-           (E₁ E₂ : bicat_of_enriched_cats V)
+           (E₁ E₂ : enriched_cat V)
            (L : adjunction (pr1 E₁) (pr1 E₂))
   : disp_adjunction L (pr2 E₁) (pr2 E₂)
     ≃
@@ -435,7 +403,7 @@ Defined.
 
 Definition adjunction_enriched_cats_weq_enriched_adjunction
            {V : monoidal_cat}
-           (E₁ E₂ : bicat_of_enriched_cats V)
+           (E₁ E₂ : enriched_cat V)
   : adjunction E₁ E₂ ≃ enriched_adjunction (pr2 E₁) (pr2 E₂)
   := (weqtotal2
         (adjunction_weq_adjunction_univ_cats

@@ -13,8 +13,8 @@ Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman (January 2013)
   - Natural isomorphisms
  *)
 
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -569,4 +569,23 @@ Proof.
   { apply homset_property. }
   intro.
   apply assoc.
+Qed.
+
+(** Essential surjectivity is preserved under natural isomorphism *)
+Definition essentially_surjective_nat_z_iso
+           {C₁ C₂ : category}
+           {F G : C₁ ⟶ C₂}
+           (τ : nat_z_iso F G)
+           (HF : essentially_surjective F)
+  : essentially_surjective G.
+Proof.
+  intro y.
+  assert (H := HF y).
+  revert H.
+  use factor_through_squash_hProp.
+  intros x.
+  induction x as [ x f ].
+  refine (hinhpr (x ,, _)).
+  refine (z_iso_comp _ f).
+  exact (nat_z_iso_pointwise_z_iso (nat_z_iso_inv τ) x).
 Qed.
