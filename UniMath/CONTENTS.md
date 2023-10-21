@@ -564,6 +564,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [EnrichedCats/Examples/HomFunctor.v](CategoryTheory/EnrichedCats/Examples/HomFunctor.v)
    - [EnrichedCats/Examples/OppositeEnriched.v](CategoryTheory/EnrichedCats/Examples/OppositeEnriched.v)
    - [EnrichedCats/Examples/FunctorCategory.v](CategoryTheory/EnrichedCats/Examples/FunctorCategory.v)
+   - [EnrichedCats/Examples/Presheaves.v](CategoryTheory/EnrichedCats/Examples/Presheaves.v)
    - [EnrichedCats/Examples/Yoneda.v](CategoryTheory/EnrichedCats/Examples/Yoneda.v)
    - [EnrichedCats/YonedaLemma.v](CategoryTheory/EnrichedCats/YonedaLemma.v)
    - [EnrichedCats/Examples/EmptyEnriched.v](CategoryTheory/EnrichedCats/Examples/EmptyEnriched.v)
