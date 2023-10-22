@@ -287,14 +287,13 @@ Section MorphismsEnrichedCats.
 
   (** * 3. Conservative 1-cells *)
   Definition enriched_cat_conservative_to_conservative_1cell
-             (HV : faithful_moncat V)
              {E₁ E₂ : enriched_cat V}
              {F : enriched_functor E₁ E₂}
              (HF : conservative F)
      : conservative_1cell F.
    Proof.
      intros E₀ G₁ G₂ τ Hτ.
-     use (make_is_invertible_2cell_enriched _ HV).
+     use (make_is_invertible_2cell_enriched _).
      intro x.
      apply HF.
      apply (from_is_invertible_2cell_enriched _ (_ ,, Hτ)).
@@ -302,7 +301,6 @@ Section MorphismsEnrichedCats.
 
    Definition enriched_cat_conservative_1cell_to_conservative
               (HV : isTerminal V (I_{V}))
-              (HV' : faithful_moncat V)
               {E₁ E₂ : enriched_cat V}
               {F : enriched_functor E₁ E₂}
               (HF : conservative_1cell F)
@@ -328,7 +326,7 @@ Section MorphismsEnrichedCats.
        as τ.
      assert (is_invertible_2cell (τ ▹ F)) as H.
      {
-       use (make_is_invertible_2cell_enriched _ HV').
+       use (make_is_invertible_2cell_enriched _).
        intro.
        exact Hf.
      }
@@ -341,14 +339,13 @@ Section MorphismsEnrichedCats.
 
    Definition enriched_cat_conservative_weq_conservative_1cell
               (HV : isTerminal V (I_{V}))
-              (HV' : faithful_moncat V)
               {E₁ E₂ : enriched_cat V}
               (F : enriched_functor E₁ E₂)
     : conservative F ≃ conservative_1cell F.
   Proof.
     use weqimplimpl.
-    - exact (enriched_cat_conservative_to_conservative_1cell HV').
-    - exact (enriched_cat_conservative_1cell_to_conservative HV HV').
+    - exact (enriched_cat_conservative_to_conservative_1cell).
+    - exact (enriched_cat_conservative_1cell_to_conservative HV).
     - apply isaprop_conservative.
     - apply isaprop_conservative_1cell.
   Qed.
@@ -356,14 +353,13 @@ Section MorphismsEnrichedCats.
   (** * 4. Discrete 1-cells *)
   Definition enriched_cat_discretee_weq_discrete_1cell
              (HV : isTerminal V (I_{V}))
-             (HV' : faithful_moncat V)
              {E₁ E₂ : enriched_cat V}
              (F : enriched_functor E₁ E₂)
     : faithful F × conservative F ≃ discrete_1cell F.
   Proof.
     use weqdirprodf.
     - exact (enriched_cat_faithful_weq_faithful_1cell HV F).
-    - exact (enriched_cat_conservative_weq_conservative_1cell HV HV' F).
+    - exact (enriched_cat_conservative_weq_conservative_1cell HV F).
   Qed.
 End MorphismsEnrichedCats.
 

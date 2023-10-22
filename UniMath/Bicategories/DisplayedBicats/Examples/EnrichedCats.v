@@ -1038,7 +1038,6 @@ Section EnrichedCats.
   Defined.
 
   Definition make_is_invertible_2cell_enriched
-             (HV : faithful_moncat V)
              {E₁ E₂ : enriched_cat}
              {F G : enriched_functor E₁ E₂}
              (τ : enriched_nat_trans F G)
@@ -1048,9 +1047,9 @@ Section EnrichedCats.
     use make_is_invertible_2cell.
     - simple refine (_ ,, _).
       + exact (pr1 (nat_z_iso_inv (make_nat_z_iso _ _ _ Hτ))).
-      + apply (faithful_moncat_nat_trans_enrichment
-                 HV
-                 (pr1 (nat_z_iso_inv (make_nat_z_iso _ _ _ Hτ)))).
+      + abstract
+          (use nat_z_iso_inv_enrichment ;
+           exact (pr2 τ)).
     - abstract
         (use eq_enriched_nat_trans ;
          intro x ;

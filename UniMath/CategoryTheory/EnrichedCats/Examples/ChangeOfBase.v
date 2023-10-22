@@ -373,6 +373,50 @@ Section ChangeOfBase.
       - exact change_of_base_enrichment_data.
       - exact change_of_base_enrichment_laws.
     Defined.
+
+    Proposition change_of_base_precomp
+                {x y : C}
+                (w : C)
+                (f : x --> y)
+      : precomp_arr change_of_base_enrichment w f
+        =
+        #F (precomp_arr E w f).
+    Proof.
+      unfold precomp_arr ; cbn.
+      rewrite !functor_comp.
+      rewrite !assoc.
+      apply maponpaths_2.
+      rewrite mon_functor_rinvunitor.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite <- tensor_mon_functor_tensor.
+      rewrite functor_id.
+      rewrite !assoc.
+      rewrite <- tensor_comp_id_l.
+      apply idpath.
+    Qed.
+
+    Proposition change_of_base_postcomp
+                {x y : C}
+                (w : C)
+                (f : x --> y)
+      : postcomp_arr change_of_base_enrichment w f
+        =
+        #F (postcomp_arr E w f).
+    Proof.
+      unfold postcomp_arr ; cbn.
+      rewrite !functor_comp.
+      rewrite !assoc.
+      apply maponpaths_2.
+      rewrite mon_functor_linvunitor.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite <- tensor_mon_functor_tensor.
+      rewrite functor_id.
+      rewrite !assoc.
+      rewrite <- tensor_comp_id_r.
+      apply idpath.
+    Qed.
   End Enrichment.
 
   (**
@@ -448,68 +492,12 @@ Section ChangeOfBase.
         (change_of_base_functor_enrichment HE₁)
         (change_of_base_functor_enrichment HE₂).
   Proof.
+    use nat_trans_enrichment_via_comp.
     intros x y ; cbn.
-    rewrite !assoc'.
-    etrans.
-    {
-      apply maponpaths.
-      etrans.
-      {
-        apply maponpaths_2.
-        apply tensor_comp_l_id_l.
-      }
-      rewrite !assoc'.
-      apply maponpaths.
-      rewrite !assoc.
-      etrans.
-      {
-        apply maponpaths_2.
-        apply (tensor_mon_functor_tensor F).
-      }
-      rewrite !assoc'.
-      rewrite <- functor_comp.
-      apply idpath.
-    }
-    etrans.
-    {
-      rewrite !assoc.
-      apply maponpaths_2.
-      refine (!_).
-      apply (mon_functor_rinvunitor F).
-    }
-    refine (!_).
-    etrans.
-    {
-      apply maponpaths.
-      etrans.
-      {
-        apply maponpaths_2.
-        apply tensor_comp_r_id_l.
-      }
-      rewrite !assoc'.
-      apply maponpaths.
-      rewrite !assoc.
-      etrans.
-      {
-        apply maponpaths_2.
-        apply (tensor_mon_functor_tensor F).
-      }
-      rewrite !assoc'.
-      rewrite <- functor_comp.
-      apply idpath.
-    }
-    etrans.
-    {
-      rewrite !assoc.
-      apply maponpaths_2.
-      refine (!_).
-      apply (mon_functor_linvunitor F).
-    }
+    rewrite change_of_base_precomp, change_of_base_postcomp.
     rewrite <- !functor_comp.
     apply maponpaths.
-    rewrite !assoc.
-    refine (!_).
-    apply Hτ.
+    exact (nat_trans_enrichment_to_comp Hτ x y).
   Qed.
 
   (**
@@ -523,53 +511,10 @@ Section ChangeOfBase.
         (functor_id_enrichment (change_of_base_enrichment E))
         (change_of_base_functor_enrichment (functor_id_enrichment E)).
   Proof.
+    use nat_trans_enrichment_via_comp.
     intros x y ; cbn.
-    rewrite !enriched_from_arr_id.
-    rewrite !assoc'.
-    etrans.
-    {
-      apply maponpaths.
-      rewrite tensor_comp_l_id_l.
-      rewrite !assoc'.
-      apply maponpaths.
-      rewrite !assoc.
-      rewrite (tensor_mon_functor_tensor F).
-      rewrite !assoc'.
-      rewrite <- functor_comp.
-      rewrite <- enrichment_id_right.
-      apply idpath.
-    }
-    etrans.
-    {
-      apply maponpaths.
-      rewrite !assoc.
-      refine (!_).
-      apply (mon_functor_runitor F).
-    }
-    rewrite mon_rinvunitor_runitor.
-    refine (!_).
-    etrans.
-    {
-      apply maponpaths.
-      rewrite tensor_comp_r_id_l.
-      rewrite !assoc'.
-      apply maponpaths.
-      rewrite <- !functor_id.
-      rewrite !assoc.
-      rewrite (tensor_mon_functor_tensor F).
-      rewrite !assoc'.
-      rewrite <- functor_comp.
-      rewrite <- enrichment_id_left.
-      apply idpath.
-    }
-    etrans.
-    {
-      apply maponpaths.
-      rewrite !assoc.
-      refine (!_).
-      apply (mon_functor_lunitor F).
-    }
-    rewrite mon_linvunitor_lunitor.
+    rewrite precomp_arr_id, postcomp_arr_id.
+    rewrite functor_id.
     apply idpath.
   Qed.
 
@@ -581,53 +526,10 @@ Section ChangeOfBase.
         (change_of_base_functor_enrichment (functor_id_enrichment E))
         (functor_id_enrichment (change_of_base_enrichment E)).
   Proof.
+    use nat_trans_enrichment_via_comp.
     intros x y ; cbn.
-    rewrite !enriched_from_arr_id.
-    rewrite !assoc'.
-    etrans.
-    {
-      apply maponpaths.
-      rewrite tensor_comp_l_id_l.
-      rewrite !assoc'.
-      apply maponpaths.
-      rewrite !assoc.
-      rewrite <- functor_id.
-      rewrite (tensor_mon_functor_tensor F).
-      rewrite !assoc'.
-      rewrite <- functor_comp.
-      rewrite <- enrichment_id_right.
-      apply idpath.
-    }
-    etrans.
-    {
-      apply maponpaths.
-      rewrite !assoc.
-      refine (!_).
-      apply (mon_functor_runitor F).
-    }
-    rewrite mon_rinvunitor_runitor.
-    refine (!_).
-    etrans.
-    {
-      apply maponpaths.
-      rewrite tensor_comp_r_id_l.
-      rewrite !assoc'.
-      apply maponpaths.
-      rewrite !assoc.
-      rewrite (tensor_mon_functor_tensor F).
-      rewrite !assoc'.
-      rewrite <- functor_comp.
-      rewrite <- enrichment_id_left.
-      apply idpath.
-    }
-    etrans.
-    {
-      apply maponpaths.
-      rewrite !assoc.
-      refine (!_).
-      apply (mon_functor_lunitor F).
-    }
-    rewrite mon_linvunitor_lunitor.
+    rewrite precomp_arr_id, postcomp_arr_id.
+    rewrite functor_id.
     apply idpath.
   Qed.
 
@@ -650,68 +552,11 @@ Section ChangeOfBase.
            (change_of_base_functor_enrichment EG₂))
         (change_of_base_functor_enrichment (functor_comp_enrichment EG₁ EG₂)).
   Proof.
+    use nat_trans_enrichment_via_comp.
     intros x y ; cbn.
-    rewrite !enriched_from_arr_id.
-    rewrite !assoc'.
-    etrans.
-    {
-      apply maponpaths.
-      rewrite tensor_comp_l_id_l.
-      rewrite !assoc'.
-      apply maponpaths.
-      rewrite !assoc.
-      rewrite (tensor_mon_functor_tensor F).
-      rewrite !assoc'.
-      rewrite <- functor_comp.
-      do 2 apply maponpaths.
-      rewrite tensor_split'.
-      rewrite !assoc'.
-      rewrite <- enrichment_id_right.
-      rewrite tensor_runitor.
-      apply idpath.
-    }
+    rewrite precomp_arr_id, postcomp_arr_id.
+    rewrite !id_right.
     rewrite functor_comp.
-    etrans.
-    {
-      apply maponpaths.
-      rewrite !assoc.
-      rewrite <- (mon_functor_runitor F).
-      apply idpath.
-    }
-    rewrite !assoc.
-    rewrite mon_rinvunitor_runitor.
-    rewrite id_left.
-    refine (!_).
-    rewrite !assoc'.
-    etrans.
-    {
-      apply maponpaths.
-      rewrite <- functor_comp.
-      rewrite tensor_comp_r_id_l.
-      rewrite !assoc'.
-      apply maponpaths.
-      rewrite !assoc.
-      rewrite (tensor_mon_functor_tensor F).
-      rewrite !assoc'.
-      rewrite <- functor_comp.
-      do 2 apply maponpaths.
-      rewrite tensor_split.
-      rewrite !assoc'.
-      rewrite <- enrichment_id_left.
-      rewrite tensor_lunitor.
-      apply idpath.
-    }
-    rewrite functor_comp.
-    etrans.
-    {
-      apply maponpaths.
-      rewrite !assoc.
-      rewrite <- (mon_functor_lunitor F).
-      apply idpath.
-    }
-    rewrite !assoc.
-    rewrite mon_linvunitor_lunitor.
-    rewrite id_left.
     apply idpath.
   Qed.
 
@@ -731,68 +576,11 @@ Section ChangeOfBase.
            (change_of_base_functor_enrichment EG₁)
            (change_of_base_functor_enrichment EG₂)).
   Proof.
+    use nat_trans_enrichment_via_comp.
     intros x y ; cbn.
-    rewrite !enriched_from_arr_id.
-    rewrite !assoc'.
-    etrans.
-    {
-      apply maponpaths.
-      rewrite <- functor_comp.
-      rewrite tensor_comp_l_id_l.
-      rewrite !assoc'.
-      apply maponpaths.
-      rewrite !assoc.
-      rewrite (tensor_mon_functor_tensor F).
-      rewrite !assoc'.
-      rewrite <- functor_comp.
-      do 2 apply maponpaths.
-      rewrite tensor_split'.
-      rewrite !assoc'.
-      rewrite <- enrichment_id_right.
-      rewrite tensor_runitor.
-      apply idpath.
-    }
+    rewrite precomp_arr_id, postcomp_arr_id.
+    rewrite !id_right.
     rewrite functor_comp.
-    etrans.
-    {
-      apply maponpaths.
-      rewrite !assoc.
-      rewrite <- (mon_functor_runitor F).
-      apply idpath.
-    }
-    rewrite !assoc.
-    rewrite mon_rinvunitor_runitor.
-    rewrite id_left.
-    refine (!_).
-    rewrite !assoc'.
-    etrans.
-    {
-      apply maponpaths.
-      rewrite tensor_comp_r_id_l.
-      rewrite !assoc'.
-      apply maponpaths.
-      rewrite !assoc.
-      rewrite (tensor_mon_functor_tensor F).
-      rewrite !assoc'.
-      rewrite <- functor_comp.
-      do 2 apply maponpaths.
-      rewrite tensor_split.
-      rewrite !assoc'.
-      rewrite <- enrichment_id_left.
-      rewrite tensor_lunitor.
-      apply idpath.
-    }
-    rewrite functor_comp.
-    etrans.
-    {
-      apply maponpaths.
-      rewrite !assoc.
-      rewrite <- (mon_functor_lunitor F).
-      apply idpath.
-    }
-    rewrite !assoc.
-    rewrite mon_linvunitor_lunitor.
-    rewrite id_left.
     apply idpath.
   Qed.
 End ChangeOfBase.

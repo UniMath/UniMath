@@ -116,6 +116,41 @@ Section UnitEnrichment.
     : cat_with_enrichment V
     := pr1 unit_category ,, unit_enrichment.
 
+  Proposition precomp_arr_unit_enrichment
+              {x y : unit_category}
+              (w : unit_category)
+              (f : x --> y)
+    : precomp_arr
+        unit_enrichment
+        w
+        f
+      =
+      identity _.
+  Proof.
+    unfold precomp_arr ; cbn.
+    rewrite tensor_id_id.
+    rewrite id_right.
+    rewrite mon_lunitor_I_mon_runitor_I.
+    apply mon_rinvunitor_runitor.
+  Qed.
+
+  Proposition postcomp_arr_unit_enrichment
+              {x y : unit_category}
+              (w : unit_category)
+              (f : x --> y)
+    : postcomp_arr
+        unit_enrichment
+        w
+        f
+      =
+      identity _.
+  Proof.
+    unfold postcomp_arr ; cbn.
+    rewrite tensor_id_id.
+    rewrite id_right.
+    apply mon_linvunitor_lunitor.
+  Qed.
+
   (**
    2. Enrichment for functors/natural transformations to the unit
    *)
@@ -146,21 +181,21 @@ Section UnitEnrichment.
         EF
         EG.
   Proof.
-    intros x y ; cbn.
-    rewrite !assoc'.
+    use nat_trans_enrichment_via_comp.
+    intros x y.
     etrans.
     {
       apply maponpaths.
-      rewrite mon_lunitor_I_mon_runitor_I.
-      apply tensor_runitor.
+      apply precomp_arr_unit_enrichment.
     }
+    refine (id_right _ @ _).
     refine (!_).
     etrans.
     {
       apply maponpaths.
-      apply tensor_lunitor.
+      apply postcomp_arr_unit_enrichment.
     }
-    rewrite !assoc.
+    refine (id_right _ @ _).
     apply (@TerminalArrowEq _ (_ ,, (HV : isTerminal _ _))).
   Qed.
 
@@ -212,38 +247,10 @@ Section UnitEnrichment.
         (constant_functor_enrichment (C ,, E) x)
         (constant_functor_enrichment (C ,, E) y).
   Proof.
+    use nat_trans_enrichment_via_comp.
     intros z₁ z₂ ; cbn.
-    etrans.
-    {
-      rewrite tensor_split.
-      rewrite !assoc'.
-      rewrite <- enrichment_id_left.
-      rewrite tensor_lunitor.
-      rewrite !assoc.
-      rewrite mon_lunitor_I_mon_runitor_I.
-      etrans.
-      {
-        apply maponpaths_2.
-        apply mon_rinvunitor_runitor.
-      }
-      apply id_left.
-    }
-    refine (!_).
-    etrans.
-    {
-      rewrite tensor_split'.
-      rewrite !assoc'.
-      rewrite <- enrichment_id_right.
-      rewrite tensor_runitor.
-      rewrite !assoc.
-      rewrite mon_runitor_I_mon_lunitor_I.
-      etrans.
-      {
-        apply maponpaths_2.
-        apply mon_linvunitor_lunitor.
-      }
-      apply id_left.
-    }
+    rewrite enriched_id_precomp_arr.
+    rewrite enriched_id_postcomp_arr.
     apply idpath.
   Qed.
 End UnitEnrichment.

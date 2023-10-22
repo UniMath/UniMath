@@ -294,93 +294,44 @@ Section YonedaEmbedding.
           (enriched_repr_presheaf_enrichment y₁)
           (enriched_repr_presheaf_enrichment y₂).
     Proof.
+      use nat_trans_enrichment_via_comp.
       intros x₁ x₂ ; cbn -[sym_mon_braiding].
       use internal_funext.
       intros a h.
-      unfold internal_comp.
       rewrite !tensor_comp_r_id_r.
       rewrite !assoc'.
-      rewrite !internal_beta.
+      rewrite self_enrichment_precomp.
+      rewrite internal_beta.
+      rewrite self_enrichment_postcomp.
+      rewrite internal_beta.
       etrans.
       {
-        apply maponpaths.
-        rewrite !assoc.
-        rewrite tensor_lassociator.
-        rewrite !assoc'.
-        apply maponpaths.
         rewrite !assoc.
         rewrite <- tensor_comp_mor.
-        unfold internal_from_arr.
-        rewrite internal_beta.
-        rewrite tensor_split.
         rewrite id_right.
+        rewrite tensor_split.
         rewrite !assoc'.
         rewrite internal_beta.
         apply idpath.
       }
       refine (!_).
-      etrans.
-      {
-        apply maponpaths.
-        rewrite !assoc.
-        rewrite tensor_lassociator.
-        rewrite !assoc'.
-        apply maponpaths.
-        rewrite !assoc.
-        rewrite <- tensor_comp_mor.
-        unfold internal_from_arr.
-        rewrite internal_beta.
-        rewrite tensor_split.
-        rewrite id_right.
-        rewrite !assoc'.
-        rewrite internal_beta.
-        apply idpath.
-      }
-      refine (!_).
-      etrans.
-      {
-        rewrite tensor_comp_id_l.
-        rewrite !assoc.
-        do 3 apply maponpaths_2.
-        rewrite !assoc'.
-        rewrite <- mon_triangle.
-        rewrite tensor_split.
-        rewrite !assoc'.
-        rewrite <- tensor_comp_id_r.
-        rewrite mon_rinvunitor_runitor.
-        rewrite tensor_id_id.
-        apply id_right.
-      }
-      refine (!_).
-      etrans.
-      {
-        apply maponpaths_2.
-        rewrite tensor_split.
-        apply idpath.
-      }
-      rewrite !assoc'.
-      apply maponpaths.
       etrans.
       {
         rewrite !assoc.
         apply maponpaths_2.
+        rewrite tensor_split.
         rewrite !assoc'.
-        rewrite tensor_lunitor.
-        rewrite !assoc.
-        do 2 apply maponpaths_2.
-        rewrite !assoc'.
-        rewrite mon_lunitor_triangle.
-        rewrite <- tensor_comp_id_r.
-        rewrite mon_linvunitor_lunitor.
-        rewrite tensor_id_id.
+        rewrite internal_beta.
         apply idpath.
       }
-      rewrite id_left.
       rewrite !assoc'.
       rewrite enriched_comp_postcomp_arr.
       rewrite !assoc.
       apply maponpaths_2.
-      rewrite tensor_sym_mon_braiding.
+      rewrite !assoc'.
+      rewrite <- tensor_sym_mon_braiding.
+      rewrite !assoc.
+      rewrite tensor_comp_id_l.
       apply idpath.
     Qed.
 

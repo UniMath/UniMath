@@ -333,6 +333,14 @@ Section KleisliUMP1.
     intro x.
     apply is_z_isomorphism_identity.
   Defined.
+
+  Definition functor_from_kleisli_cat_monad_nat_z_iso
+    : nat_z_iso (Left_Kleisli_functor m ∙ functor_from_kleisli_cat_monad) F.
+  Proof.
+    use make_nat_z_iso.
+    - exact functor_from_kleisli_cat_monad_nat_trans.
+    - exact functor_from_kleisli_cat_monad_nat_trans_is_z_iso.
+  Defined.
 End KleisliUMP1.
 
 Definition kleisli_monad_nat_trans

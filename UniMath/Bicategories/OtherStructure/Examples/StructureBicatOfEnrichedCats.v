@@ -67,18 +67,9 @@ Section DualityInvolutionEnriched.
       + use make_enriched_nat_trans.
         * exact (op_unit_nat_trans F).
         * exact (op_enriched_unit_naturality V (enriched_functor_enrichment F)).
-      + use make_is_invertible_2cell.
-        * use make_enriched_nat_trans.
-          ** exact (nat_z_iso_to_trans_inv (op_unit_nat_z_iso F)).
-          ** exact (op_enriched_unit_naturality_inv V (enriched_functor_enrichment F)).
-        * abstract
-            (use eq_enriched_nat_trans ;
-             intro x ; cbn ;
-             apply id_left).
-        * abstract
-            (use eq_enriched_nat_trans ;
-             intro x ; cbn ;
-             apply id_left).
+      + use make_is_invertible_2cell_enriched.
+        intro x.
+        apply is_z_isomorphism_identity.
   Defined.
 
   Proposition bicat_of_enriched_cat_duality_unit_is_pstrans
@@ -131,18 +122,9 @@ Section DualityInvolutionEnriched.
       + use make_enriched_nat_trans.
         * exact (op_unit_inv_nat_trans F).
         * exact (op_enriched_unit_inv_naturality V (enriched_functor_enrichment F)).
-      + use make_is_invertible_2cell.
-        * use make_enriched_nat_trans.
-          ** exact (nat_z_iso_to_trans_inv (op_unit_inv_nat_z_iso F)).
-          ** exact (op_enriched_unit_inv_naturality_inv V (enriched_functor_enrichment F)).
-        * abstract
-            (use eq_enriched_nat_trans ;
-             intro x ; cbn ;
-             apply id_left).
-        * abstract
-            (use eq_enriched_nat_trans ;
-             intro x ; cbn ;
-             apply id_left).
+      + use make_is_invertible_2cell_enriched.
+        intro x.
+        apply is_z_isomorphism_identity.
   Defined.
 
   Proposition bicat_of_enriched_cat_duality_unit_inv_is_pstrans
@@ -194,18 +176,9 @@ Section DualityInvolutionEnriched.
     - use make_enriched_nat_trans.
       + exact (op_unit_unit_inv_nat_trans _).
       + exact (op_enriched_unit_unit_inv V E).
-    - use make_is_invertible_2cell.
-      + use make_enriched_nat_trans.
-        * exact (nat_z_iso_to_trans_inv (op_unit_unit_inv_nat_z_iso _)).
-        * exact (op_enriched_unit_unit_inv_inv V E).
-      + abstract
-          (use eq_enriched_nat_trans ;
-           intros x ; cbn ;
-           apply id_left).
-      + abstract
-          (use eq_enriched_nat_trans ;
-           intros x ; cbn ;
-           apply id_left).
+    - use make_is_invertible_2cell_enriched.
+      intro x.
+      apply is_z_isomorphism_identity.
   Defined.
 
   Proposition bicat_of_enriched_cat_duality_unit_unit_inv_laws
@@ -238,18 +211,9 @@ Section DualityInvolutionEnriched.
     - use make_enriched_nat_trans.
       + exact (op_unit_inv_unit_nat_trans _).
       + exact (op_enriched_unit_inv_unit V E).
-    - use make_is_invertible_2cell.
-      + use make_enriched_nat_trans.
-        * exact (nat_z_iso_to_trans_inv (op_unit_inv_unit_nat_z_iso _)).
-        * exact (op_enriched_unit_inv_unit_inv V E).
-      + abstract
-          (use eq_enriched_nat_trans ;
-           intros x ; cbn ;
-           apply id_left).
-      + abstract
-          (use eq_enriched_nat_trans ;
-           intros x ; cbn ;
-           apply id_left).
+    - use make_is_invertible_2cell_enriched.
+      intro x.
+      apply is_z_isomorphism_identity.
   Defined.
 
   Proposition bicat_of_enriched_cat_duality_unit_inv_unit_laws
@@ -282,18 +246,8 @@ Section DualityInvolutionEnriched.
     - use make_enriched_nat_trans.
       + exact (op_triangle_nat_trans _).
       + exact (op_enriched_triangle V E).
-    - use make_is_invertible_2cell.
-      + use make_enriched_nat_trans.
-        * exact (nat_z_iso_to_trans_inv (op_triangle_nat_z_iso _)).
-        * exact (op_enriched_triangle_inv V E).
-      + abstract
-          (use eq_enriched_nat_trans ;
-           intros x ; cbn ;
-           apply id_left).
-      + abstract
-          (use eq_enriched_nat_trans ;
-           intros x ; cbn ;
-           apply id_left).
+    - use make_is_invertible_2cell_enriched.
+      apply op_triangle_nat_z_iso.
   Defined.
 
   Definition bicat_of_enriched_cat_duality_data

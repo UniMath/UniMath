@@ -61,6 +61,36 @@ Section EnrichedEilenbergMoore.
     - exact (functor_id_enrichment E).
   Defined.
 
+  Proposition eilenberg_moore_enrichment_precomp_arr
+              {f g : eilenberg_moore_cat M}
+              (h : eilenberg_moore_cat M)
+              (τ : f --> g)
+    : precomp_arr
+        eilenberg_moore_enrichment
+        h
+        τ
+      · dialgebra_enrichment_mor_incl _ _ _ _ _ _
+      =
+      dialgebra_enrichment_mor_incl _ _ _ _ _ _ · precomp_arr _ _ (pr11 τ).
+  Proof.
+    apply dialgebra_enrichment_precomp_arr.
+  Qed.
+
+  Proposition eilenberg_moore_enrichment_postcomp_arr
+              {f g : eilenberg_moore_cat M}
+              (h : eilenberg_moore_cat M)
+              (τ : f --> g)
+    : postcomp_arr
+        eilenberg_moore_enrichment
+        h
+        τ
+      · dialgebra_enrichment_mor_incl _ _ _ _ _ _
+      =
+      dialgebra_enrichment_mor_incl _ _ _ _ _ _ · postcomp_arr _ _ (pr11 τ).
+  Proof.
+    apply dialgebra_enrichment_postcomp_arr.
+  Qed.
+
   (**
    2. The cone
    *)
@@ -137,35 +167,12 @@ Section EnrichedEilenbergMoore.
                     (F x) (F y)
                     (τ x) (τ y).
     Proof.
-      unfold dialgebra_enrichment_mor_left.
-      unfold dialgebra_enrichment_mor_right.
+      unfold dialgebra_enrichment_mor_left, dialgebra_enrichment_mor_right ; cbn.
+      rewrite id_left.
       rewrite !assoc.
-      rewrite tensor_rinvunitor.
-      rewrite tensor_linvunitor.
-      rewrite !assoc'.
-      rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)).
-      etrans.
-      {
-        apply maponpaths.
-        apply maponpaths_2.
-        refine (!_).
-        apply tensor_comp_mor.
-      }
-      refine (!_).
-      etrans.
-      {
-        apply maponpaths.
-        apply maponpaths_2.
-        refine (!_).
-        apply tensor_comp_mor.
-      }
-      refine (!_).
-      rewrite !id_left, !id_right.
-      rewrite !assoc.
-      pose (p := Eτ x y).
-      cbn in p.
-      rewrite id_left in p.
-      exact p.
+      refine (_ @ nat_trans_enrichment_to_comp Eτ x y) ; cbn.
+      rewrite id_left.
+      apply idpath.
     Qed.
 
     Definition functor_to_em_enrichment_mor
@@ -241,75 +248,12 @@ Section EnrichedEilenbergMoore.
              eilenberg_moore_pr_enrichment)
           FE.
     Proof.
+      use nat_trans_enrichment_via_comp.
       intros x y ; cbn.
+      rewrite precomp_arr_id, postcomp_arr_id.
+      rewrite !id_right.
       rewrite functor_to_em_enrichment_mor_incl.
-      rewrite !enriched_from_arr_id.
-      etrans.
-      {
-        rewrite tensor_split'.
-        rewrite !assoc'.
-        rewrite <- enrichment_id_right.
-        rewrite tensor_runitor.
-        rewrite !assoc.
-        etrans.
-        {
-          apply maponpaths_2.
-          apply mon_rinvunitor_runitor.
-        }
-        apply id_left.
-      }
-      refine (!_).
-      rewrite tensor_split.
-      rewrite !assoc'.
-      rewrite <- enrichment_id_left.
-      rewrite tensor_lunitor.
-      rewrite !assoc.
-      etrans.
-      {
-        apply maponpaths_2.
-        apply mon_linvunitor_lunitor.
-      }
-      apply id_left.
-    Qed.
-
-    Definition functor_to_eilenberg_moore_cat_pr_enrichment_inv
-      : nat_trans_enrichment
-          (nat_z_iso_inv
-             (functor_to_eilenberg_moore_cat_pr_nat_z_iso M F τ τη τμ))
-          FE
-          (functor_comp_enrichment
-             functor_to_eilenberg_moore_cat_enrichment
-             eilenberg_moore_pr_enrichment).
-    Proof.
-      intros x y ; cbn.
-      rewrite functor_to_em_enrichment_mor_incl.
-      rewrite !enriched_from_arr_id.
-      etrans.
-      {
-        rewrite tensor_split'.
-        rewrite !assoc'.
-        rewrite <- enrichment_id_right.
-        rewrite tensor_runitor.
-        rewrite !assoc.
-        etrans.
-        {
-          apply maponpaths_2.
-          apply mon_rinvunitor_runitor.
-        }
-        apply id_left.
-      }
-      refine (!_).
-      rewrite tensor_split.
-      rewrite !assoc'.
-      rewrite <- enrichment_id_left.
-      rewrite tensor_lunitor.
-      rewrite !assoc.
-      etrans.
-      {
-        apply maponpaths_2.
-        apply mon_linvunitor_lunitor.
-      }
-      apply id_left.
+      apply idpath.
     Qed.
   End EilenbergMooreUMP1.
 
@@ -333,57 +277,28 @@ Section EnrichedEilenbergMoore.
         FE₁
         FE₂.
   Proof.
+    use nat_trans_enrichment_via_comp.
     intros x y ; cbn.
     use (dialgebra_enrichment_mor_eq_of_mor
            V
            HV
            EM (functor_id_enrichment _)).
+    cbn.
     rewrite !assoc'.
     etrans.
     {
-      do 2 apply maponpaths.
-      apply dialgebra_enrichment_comp_incl.
-    }
-    unfold dialgebra_enrichment_comp_mor.
-    rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)).
-    etrans.
-    {
       apply maponpaths.
-      apply maponpaths_2.
-      refine (!_).
-      apply tensor_comp_mor.
-    }
-    refine (!_).
-    etrans.
-    {
-      rewrite !assoc'.
-      do 2 apply maponpaths.
-      apply dialgebra_enrichment_comp_incl.
-    }
-    unfold dialgebra_enrichment_comp_mor.
-    rewrite !(maponpaths (λ z, _ · z) (assoc _ _ _)).
-    etrans.
-    {
-      apply maponpaths.
-      apply maponpaths_2.
-      refine (!_).
-      apply tensor_comp_mor.
-    }
-    etrans.
-    {
-      apply maponpaths.
-      do 2 apply maponpaths_2.
-      apply dialgebra_enrichment_from_arr_incl.
+      apply eilenberg_moore_enrichment_precomp_arr.
     }
     refine (!_).
     etrans.
     {
       apply maponpaths.
-      apply maponpaths_2.
-      apply maponpaths.
-      apply dialgebra_enrichment_from_arr_incl.
+      apply eilenberg_moore_enrichment_postcomp_arr.
     }
+    cbn.
     rewrite !assoc.
-    exact (Eτ x y).
+    refine (!_).
+    exact (nat_trans_enrichment_to_comp Eτ x y).
   Qed.
 End EnrichedEilenbergMoore.
