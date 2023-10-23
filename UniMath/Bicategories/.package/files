@@ -192,7 +192,6 @@ DoubleCategories/Examples/StructuredCospansDoubleFunctor.v
 DoubleCategories/DoubleCatsUnfolded.v
 DoubleCategories/DoubleCatsEquivalentDefinitions.v
 
-PseudoFunctors/Examples/ChangeOfBaseEnriched.v
 DisplayedBicats/Examples/MonadsLax.v
 DisplayedBicats/Examples/DispBicatOnCatToUniv.v
 PseudoFunctors/Examples/MonadInclusion.v
@@ -303,6 +302,7 @@ DisplayedBicats/DispBuilders.v
 DisplayedBicats/Examples/MonadKtripleBiequiv.v
 DisplayedBicats/Examples/PointedGroupoid.v
 PseudoFunctors/Examples/LiftingActegories.v
+PseudoFunctors/Examples/ChangeOfBaseEnriched.v
 WkCatEnrichment/prebicategory.v
 WkCatEnrichment/Notations.v
 WkCatEnrichment/whiskering.v
