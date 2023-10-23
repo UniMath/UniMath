@@ -3,7 +3,7 @@
   Algebraic Theories
 
   These objects are known by many names: algebraic theories, abstract clones, cartesian operads
-  and lawvere theories. This file defines them and gives constructors, accessors and related
+  and Lawvere theories. This file defines them and gives constructors, accessors and related
   definitions and lemmas.
 
   Contents

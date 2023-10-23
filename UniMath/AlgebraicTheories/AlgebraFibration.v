@@ -2,7 +2,7 @@
 
   The algebra fibration
 
-  This file shows that algebras form a grothendieck fibration (a displayed category with a cleaving)
+  This file shows that algebras form a Grothendieck fibration (a displayed category with a cleaving)
   over algebraic theories.
 
   Contents
