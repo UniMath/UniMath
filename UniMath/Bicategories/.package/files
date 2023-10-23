@@ -281,6 +281,7 @@ Colimits/Examples/OpCellBicatColimits.v
 Colimits/Examples/OneTypesColimits.v
 Colimits/Examples/BicatOfCatsColimits.v
 Colimits/Examples/BicatOfUnivCatsColimits.v
+Colimits/Examples/BicatOfEnrichedCatsColimits.v
 Colimits/Examples/SliceBicategoryColimits.v
 
 Colimits/CoproductEquivalences.v

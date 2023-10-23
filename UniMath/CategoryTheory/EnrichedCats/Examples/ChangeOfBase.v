@@ -518,21 +518,6 @@ Section ChangeOfBase.
     apply idpath.
   Qed.
 
-  Definition change_of_base_enrichment_identity_inv
-             {C : univalent_category}
-             (E : enrichment C V₁)
-    : nat_trans_enrichment
-        (λ _, identity _)
-        (change_of_base_functor_enrichment (functor_id_enrichment E))
-        (functor_id_enrichment (change_of_base_enrichment E)).
-  Proof.
-    use nat_trans_enrichment_via_comp.
-    intros x y ; cbn.
-    rewrite precomp_arr_id, postcomp_arr_id.
-    rewrite functor_id.
-    apply idpath.
-  Qed.
-
   (**
    6. Change of base on composition
    *)
@@ -551,30 +536,6 @@ Section ChangeOfBase.
            (change_of_base_functor_enrichment EG₁)
            (change_of_base_functor_enrichment EG₂))
         (change_of_base_functor_enrichment (functor_comp_enrichment EG₁ EG₂)).
-  Proof.
-    use nat_trans_enrichment_via_comp.
-    intros x y ; cbn.
-    rewrite precomp_arr_id, postcomp_arr_id.
-    rewrite !id_right.
-    rewrite functor_comp.
-    apply idpath.
-  Qed.
-
-  Definition change_of_base_enrichment_comp_inv
-             {C₁ C₂ C₃ : univalent_category}
-             {G₁ : C₁ ⟶ C₂}
-             {G₂ : C₂ ⟶ C₃}
-             {E₁ : enrichment C₁ V₁}
-             {E₂ : enrichment C₂ V₁}
-             {E₃ : enrichment C₃ V₁}
-             (EG₁ : functor_enrichment G₁ E₁ E₂)
-             (EG₂ : functor_enrichment G₂ E₂ E₃)
-    : nat_trans_enrichment
-        (λ c, identity _)
-        (change_of_base_functor_enrichment (functor_comp_enrichment EG₁ EG₂))
-        (functor_comp_enrichment
-           (change_of_base_functor_enrichment EG₁)
-           (change_of_base_functor_enrichment EG₂)).
   Proof.
     use nat_trans_enrichment_via_comp.
     intros x y ; cbn.

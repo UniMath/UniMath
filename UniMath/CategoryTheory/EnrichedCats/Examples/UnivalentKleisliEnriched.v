@@ -149,12 +149,36 @@ Section EnrichedKleisli.
   (**
     2. Enrichment of the univalent Kleisli category
    *)
-  Definition Kleisli_cat_enrichment
+  Definition kleisli_cat_enrichment
     : enrichment (kleisli_cat M) V.
   Proof.
     use image_enrichment.
     exact (eilenberg_moore_enrichment HV EM).
   Defined.
+
+  Proposition kleisli_cat_enrichment_precomp_arr
+              {x y : kleisli_cat M}
+              (w : kleisli_cat M)
+              (f : x --> y)
+    : precomp_arr kleisli_cat_enrichment w f
+      · dialgebra_enrichment_mor_incl _ _ _ _ _ _
+      =
+      dialgebra_enrichment_mor_incl _ _ _ _ _ _ · precomp_arr _ _ (pr111 f).
+  Proof.
+    apply eilenberg_moore_enrichment_precomp_arr.
+  Qed.
+
+  Proposition kleisli_cat_enrichment_postcomp_arr
+              {x y : kleisli_cat M}
+              (w : kleisli_cat M)
+              (f : x --> y)
+    : postcomp_arr kleisli_cat_enrichment w f
+      · dialgebra_enrichment_mor_incl _ _ _ _ _ _
+      =
+      dialgebra_enrichment_mor_incl _ _ _ _ _ _ · postcomp_arr _ _ (pr111 f).
+  Proof.
+    apply eilenberg_moore_enrichment_postcomp_arr.
+  Qed.
 
   (**
    3. Functor to the Kleisli category
@@ -163,11 +187,57 @@ Section EnrichedKleisli.
     : functor_enrichment
         (kleisli_incl M)
         E
-        Kleisli_cat_enrichment.
+        kleisli_cat_enrichment.
   Proof.
     use image_proj_enrichment.
     exact free_alg_enrichment.
   Defined.
+
+  Proposition kleisli_nat_trans_enrichment
+    : nat_trans_enrichment
+        (kleisli_nat_trans M)
+        (functor_comp_enrichment
+           EM
+           kleisli_incl_enrichment)
+        kleisli_incl_enrichment.
+  Proof.
+    use nat_trans_enrichment_via_comp.
+    intros x y ; cbn.
+    use (dialgebra_enrichment_mor_eq_of_mor
+           V
+           HV
+           EM (functor_id_enrichment _)).
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      exact (kleisli_cat_enrichment_precomp_arr
+               (kleisli_incl M y)
+               (kleisli_nat_trans M x)).
+    }
+    etrans.
+    {
+      rewrite !assoc.
+      apply maponpaths_2.
+      apply free_alg_enrichment_mor_incl.
+    }
+    refine (!_).
+    etrans.
+    {
+      do 2 apply maponpaths.
+      exact (kleisli_cat_enrichment_postcomp_arr (kleisli_incl M (M x)) (kleisli_nat_trans M y)).
+    }
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      apply maponpaths_2.
+      apply free_alg_enrichment_mor_incl.
+    }
+    cbn.
+    rewrite !assoc.
+    exact (!(nat_trans_enrichment_to_comp (mu_of_monad_enrichment EM) x y)).
+  Qed.
 
   (**
    4. Functor between the two different versions of the Kleisli category
@@ -247,7 +317,7 @@ Section EnrichedKleisli.
         _ _ _
         (functor_to_kleisli_cat M)
         (Kleisli_cat_monad_enrichment EM)
-        Kleisli_cat_enrichment
+        kleisli_cat_enrichment
         functor_to_kleisli_cat_enrichment_data.
   Proof.
     repeat split.
@@ -381,12 +451,48 @@ Section EnrichedKleisli.
     : functor_enrichment
         (functor_to_kleisli_cat M)
         (Kleisli_cat_monad_enrichment EM)
-        Kleisli_cat_enrichment.
+        kleisli_cat_enrichment.
   Proof.
     simple refine (_ ,, _).
     - exact functor_to_kleisli_cat_enrichment_data.
     - exact functor_to_kleisli_cat_enrichment_is_enrichment.
   Defined.
+
+  Proposition functor_to_kleisli_incl_nat_trans_enrichment
+    : nat_trans_enrichment
+        (functor_to_kleisli_cat_incl_nat_trans M)
+        kleisli_incl_enrichment
+        (functor_comp_enrichment
+           (Left_Kleisli_functor_enrichment EM)
+           functor_to_kleisli_cat_enrichment).
+  Proof.
+    use nat_trans_enrichment_via_comp.
+    intros x y.
+    use (dialgebra_enrichment_mor_eq_of_mor
+           V HV
+           EM (functor_id_enrichment E)).
+    rewrite !assoc'.
+    rewrite kleisli_cat_enrichment_precomp_arr.
+    rewrite kleisli_cat_enrichment_postcomp_arr.
+    rewrite !assoc ; cbn.
+    rewrite precomp_arr_id, postcomp_arr_id.
+    rewrite !id_right.
+    rewrite !assoc'.
+    rewrite functor_to_kleisli_cat_enrichment_data_incl.
+    rewrite free_alg_enrichment_mor_incl.
+    unfold functor_to_kleisli_cat_enrichment_mor.
+    rewrite !assoc.
+    rewrite <- functor_enrichment_postcomp_arr.
+    rewrite !assoc'.
+    rewrite <- postcomp_arr_comp.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      exact (@Monad_law2 _ M y).
+    }
+    rewrite postcomp_arr_id.
+    apply id_right.
+  Qed.
 
   (**
    5. The functor is fully faithful
@@ -395,7 +501,7 @@ Section EnrichedKleisli.
     Context (x y : C).
 
     Definition functor_to_kleisli_cat_enrichment_inv
-      : Kleisli_cat_enrichment ⦃ functor_to_kleisli_cat M x, functor_to_kleisli_cat M y ⦄
+      : kleisli_cat_enrichment ⦃ functor_to_kleisli_cat M x, functor_to_kleisli_cat M y ⦄
         -->
         Kleisli_cat_monad_enrichment EM ⦃ x, y ⦄
       := dialgebra_enrichment_mor_incl _ _ _ _ _ _ · precomp_arr _ _ (η M x).
