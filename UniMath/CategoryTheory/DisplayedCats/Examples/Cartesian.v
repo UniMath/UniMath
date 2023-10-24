@@ -1,10 +1,22 @@
-(*
-  One can view any category as a displayed category over the unit category.
-  One can then reindex this over another category, to obtain the product category, cartesian C C, as a displayed category.
-  The product category has limits of a certain shape if its constituents have these limits.
-  The arrow category is a displayed category over the total category of cartesian C C, consisting of all the morphisms in C.
-*)
+(**************************************************************************************************
 
+  The cartesian product as a displayed category
+
+  One can view any category C' as a displayed category over the unit category. One can then reindex
+  this over another category C, to obtain a displayed category over C, that represents the cartesian
+  product. This product category creates limits of a certain shape if C and C' have these limits.
+  The arrow category of C is a displayed category over the product category of C with itself
+  consisting of all the morphisms in C.
+
+  Contents
+  1. One can consider any category as a displayed category over the unit category [disp_over_unit]
+  1.1. Univalence of the category over the unit category [is_univalent_disp_disp_over_unit]
+  2. The cartesian product as a displayed category over the first component [disp_cartesian]
+  2.1 The cartesian product creates limits [creates_limits_disp_cartesian]
+  3. The arrow category [arrow]
+  4. A direct definition of the product category as a displayed category [disp_cartesian']
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -29,7 +41,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Local Open Scope cat.
 Local Open Scope mor_disp.
 
-(** * Any category is a displayed category over unit *)
+(** * 1. One can consider any category as a displayed category over the unit category *)
 Section over_terminal_category.
 
   Variable C : category.
@@ -61,25 +73,31 @@ Section over_terminal_category.
 
   Definition disp_over_unit : disp_cat _ := _ ,, disp_over_unit_axioms.
 
-  Lemma is_univalent_disp_disp_over_unit
+(** ** 1.1. Univalence of the category over the unit category *)
+
+  Lemma isweq_z_iso_to_z_iso_disp
+    (a : disp_over_unit tt)
+    (b : disp_over_unit tt)
+    : isweq (X := z_iso a b) (Y := z_iso_disp (identity_z_iso (tt : unit_category)) a b)
+      (λ f, (_ ,, _ ,, z_iso_after_z_iso_inv f ,, z_iso_inv_after_z_iso f)).
+  Proof.
+    use isweq_iso.
+    - intro f.
+      exact (make_z_iso _ _ (inv_mor_after_z_iso_disp f ,, z_iso_disp_after_inv_mor f)).
+    - intro.
+      now apply z_iso_eq.
+    - intro.
+      now apply eq_z_iso_disp.
+  Qed.
+
+  Proposition is_univalent_disp_disp_over_unit
     (HC : is_univalent C)
     : is_univalent_disp disp_over_unit.
   Proof.
     intros a b e aa bb.
-    induction e.
-    assert (H : isweq (λ (f : z_iso aa bb), (morphism_from_z_iso _ _ f ,, inv_from_z_iso f ,, z_iso_after_z_iso_inv f ,, z_iso_inv_after_z_iso f) : z_iso_disp (identity_z_iso a) aa bb)).
-    {
-      use isweq_iso.
-      - exact (λ (f : z_iso_disp (identity_z_iso a) aa bb), (make_z_iso (mor_disp_from_z_iso f) (inv_mor_disp_from_z_iso f) (inv_mor_after_z_iso_disp f ,, z_iso_disp_after_inv_mor f))).
-      - intro.
-        apply z_iso_eq.
-        apply idpath.
-      - intro.
-        apply eq_z_iso_disp.
-        apply idpath.
-    }
+    induction e, a.
     use weqhomot.
-    - exact (weqcomp (make_weq _ (HC _ _)) (make_weq _ H)).
+    - exact (weqcomp (make_weq _ (HC _ _)) (make_weq _ (isweq_z_iso_to_z_iso_disp aa bb))).
     - intro ee.
       induction ee.
       apply eq_z_iso_disp.
@@ -100,6 +118,7 @@ Proof.
   exact (maponpaths (λ x, (pr1 Cdata) ,, x) (pathsdirprod (idpath _) (idpath _))).
 Qed.
 
+(** * 2. The cartesian product as a displayed category over the first component *)
 Section cartesian_product_pb.
   Variable C C' : category.
 
@@ -133,14 +152,15 @@ Section cartesian_product_pb.
       [ | apply isaprop_has_homsets].
     apply subtypePairEquality';
       [ | apply isaprop_is_precategory, has_homsets_precategory_binproduct; apply homset_property].
-    use total2_paths_f.
-    - apply idpath.
-    - use total2_paths_f;
-        [| rewrite transportf_const];
-        repeat (apply funextsec; intro);
-        (use total2_paths_f; [apply idpath | ]);
-        cbn;
-        exact (transportf_set _ _ _ (isasetaprop (isasetunit _ _))).
+    apply (maponpaths (tpair _ _)).
+    use pathsdirprod.
+    - apply funextsec.
+      intro.
+      apply (maponpaths (tpair _ _)).
+      exact (transportf_set _ _ _ (isasetaprop (isasetunit _ _))).
+    - do 5 (apply funextsec; intro).
+      apply (maponpaths (tpair _ _)).
+      exact (transportf_set _ _ _ (isasetaprop (isasetunit _ _))).
   Qed.
 
   Definition pr2_functor
@@ -157,6 +177,8 @@ Section cartesian_product_pb.
         exact (maponpaths (λ x, x _) (transportf_const _ _))
       ).
   Defined.
+
+(** ** 2.1 The cartesian product creates limits *)
 
   Section Limits.
 
@@ -250,6 +272,8 @@ Section cartesian_product_pb.
 
 End cartesian_product_pb.
 
+(** * 3. The arrow category *)
+
 Section arrow.
 
   Variable C : category.
@@ -262,23 +286,24 @@ Section arrow.
         exact (pr1 H --> pr2 H).
       + cbn. intros xy ab f g h.
         exact (compose f (pr2 h) = compose (pr1 h) g ).
-    - split; intros.
-      + cbn.
-        apply pathsinv0.
-        etrans. apply id_left.
-        cbn in xx.
-        unfold mor_disp. cbn.
-        etrans. eapply pathsinv0. apply id_right.
-        apply maponpaths, pathsinv0.
-        apply (eqtohomot (transportf_const _ _)).
-      + cbn in *.
-        unfold mor_disp. cbn.
-        etrans. apply maponpaths, (eqtohomot (transportf_const _ _)).
-        etrans. apply assoc.
-        etrans. apply maponpaths_2. apply X.
-        etrans. eapply pathsinv0, assoc.
-        etrans. apply maponpaths. apply X0.
-        apply assoc.
+    - split.
+      + abstract (
+          intros;
+          apply pathsinv0;
+          refine (id_left xx @ _);
+          refine (!id_right xx @ _);
+          apply maponpaths, pathsinv0;
+          apply (eqtohomot (transportf_const _ (C⟦_, _⟧)))
+        ).
+      + abstract (
+          intros;
+          refine (maponpaths (λ x, _ (x _)) (transportf_const _ (C⟦_, _⟧)) @ _);
+          refine (assoc _ _ _ @ _);
+          refine (maponpaths_2 _ X _ @ _);
+          refine (!assoc _ _ _ @ _);
+          refine (maponpaths _ X0 @ _);
+          apply assoc
+        ).
   Defined.
 
   Definition disp_arrow_axioms : disp_cat_axioms _ disp_arrow_data.
@@ -298,6 +323,8 @@ Section arrow.
   Definition total_domain := total_category disp_domain.
 
 End arrow.
+
+(** * 4. A direct definition of the product category as a displayed category *)
 
 Section cartesian_product.
 

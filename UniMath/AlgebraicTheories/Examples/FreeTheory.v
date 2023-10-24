@@ -4,8 +4,8 @@
 
   This file defines the free functor from sets to algebraic theories, and shows that it is left
   adjoint to the forgetful functor. The free algebraic theory on set X is the theory with just
-  constants (taken from X) and variables. The algebras for the free theories on X correspond to
-  pairs of a set Y, together with a function X → Y.
+  constants (taken from X) and variables. The category of algebras for the free theory on X
+  is equivalent to the coslice category X ↓ SET.
 
   Contents
   1. The free functor [free_functor]

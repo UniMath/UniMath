@@ -2,14 +2,17 @@
 
   λ-theories
 
-  Defines what a λ-theory is and gives accessors, constructors and defines what it means for a
-  λ-theory to have β- and η-equality.
+  A λ-theory is a model for the untyped λ-calculus. It is a structure with variables, substitution,
+  abstraction and application. Here it is formalized as an algebraic theory L, with functions
+  between the L n and L (S n) that are compatible with the substitution in some way.
+  This file defines what a λ-theory is and gives accessors, constructors and defines what it means
+  for a λ-theory to have β- and η-equality.
 
   Contents
-  1. A definition for λ-theories [lambda_theory]
+  1. The definition of λ-theories [lambda_theory]
   2. An alternate constructor for the properties of a λ-theory [make_is_lambda_theory']
-  3. A definition for β-equality [has_beta]
-  4. A definiiton for η-equality [has_eta]
+  3. The definition of β-equality [has_beta]
+  4. The definiiton of η-equality [has_eta]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -20,12 +23,12 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
-Require Import UniMath.AlgebraicTheories.Tuples.
+Require Import UniMath.Combinatorics.Tuples.
 
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
 
-(** * 1. A definition for λ-theories *)
+(** * 1. The definition of λ-theories *)
 
 Definition lambda_theory_data : UU
   := ∑ (T : algebraic_theory),
@@ -157,12 +160,12 @@ Proof.
       apply extend_tuple_inr ] ).
 Qed.
 
-(** * 3. A definition for β-equality *)
+(** * 3. The definition of β-equality *)
 
 Definition has_beta (L : lambda_theory) : UU
   := ∏ n (l : (L (S n) : hSet)), app (abs l) = l.
 
-(** * 4. A definiiton for η-equality *)
+(** * 4. The definiiton of η-equality *)
 
 Definition has_eta (L : lambda_theory) : UU
   := ∏ n (l : (L n : hSet)), abs (app l) = l.

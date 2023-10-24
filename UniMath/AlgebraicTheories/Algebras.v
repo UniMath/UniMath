@@ -6,7 +6,7 @@
   some properties.
 
   Contents
-  1. A definition of an algebra [algebra]
+  1. The definition of algebras [algebra]
   2. An alternate constructor for its properties [make_is_algebra']
   3. An equality lemma [algebra_eq]
   4. Some properties of algebras
@@ -23,7 +23,7 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
 
-(** * 1. A definition of an algebra *)
+(** * 1. The definition of algebras *)
 
 Definition algebra_data
   (T : algebraic_theory_data)

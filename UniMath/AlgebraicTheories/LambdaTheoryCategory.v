@@ -38,7 +38,7 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms2.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
-Require Import UniMath.AlgebraicTheories.Tuples.
+Require Import UniMath.Combinatorics.Tuples.
 
 Local Open Scope cat.
 
@@ -54,16 +54,20 @@ Proof.
   - exact (λ _ _ appabs appabs' (F : algebraic_theory_morphism _ _),
       (∏ n t, F _ ((pr1 appabs) n t) = (pr1 appabs') n (F _ t)) ×
       (∏ n t, F _ ((pr2 appabs) n t) = (pr2 appabs') n (F _ t))).
-  - intros.
-    apply isapropdirprod;
-    do 2 (apply impred; intro);
-    apply setproperty.
-  - now intros.
-  - intros ? ? ? ? ? ? ? ? Fdata F'data.
-    split;
-      do 2 intro.
-    + exact (maponpaths _ (pr1 Fdata _ _) @ (pr1 F'data _ _)).
-    + exact (maponpaths _ (pr2 Fdata _ _) @ (pr2 F'data _ _)).
+  - abstract (
+      intros;
+      apply isapropdirprod;
+      do 2 (apply impred; intro);
+      apply setproperty
+    ).
+  - abstract now intros.
+  - abstract (
+      intros ? ? ? ? ? ? ? ? Fdata F'data;
+      split;
+      do 2 intro;
+      [ exact (maponpaths _ (pr1 Fdata _ _) @ (pr1 F'data _ _))
+      | exact (maponpaths _ (pr2 Fdata _ _) @ (pr2 F'data _ _)) ]
+    ).
 Defined.
 
 Definition lambda_theory_data_cat
@@ -99,60 +103,94 @@ End Test.
 
 (** * 2. A characterization of iso's of λ-theories *)
 
-Definition make_lambda_theory_z_iso
-  (a b : lambda_theory)
-  (F : z_iso (C := algebraic_theory_cat) (a : algebraic_theory) (b : algebraic_theory))
-  (Happ : ∏ n f, (morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) (S n) (app f)
-    = app ((morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) _ f))
-  (Habs : ∏ n f, (morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) n (abs f)
-    = abs ((morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) _ f))
-  : z_iso (a : lambda_theory_cat) (b : lambda_theory_cat).
-Proof.
-  use make_z_iso.
-  - use make_lambda_theory_morphism.
+Section Iso.
+
+  Context (a b : lambda_theory).
+  Context (F : z_iso (C := algebraic_theory_cat) (a : algebraic_theory) (b : algebraic_theory)).
+  Context (Happ : ∏ n f, (morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) (S n) (app f)
+     = app ((morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) _ f)).
+  Context (Habs : ∏ n f, (morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) n (abs f)
+      = abs ((morphism_from_z_iso _ _ F : algebraic_theory_morphism _ _) _ f)).
+
+  Definition iso_morphism
+    : lambda_theory_morphism a b.
+  Proof.
+    use make_lambda_theory_morphism.
     use make_lambda_theory_data_morphism.
-    + exact (morphism_from_z_iso _ _ F).
-    + exact Happ.
-    + exact Habs.
-  - use make_lambda_theory_morphism.
-    use make_lambda_theory_data_morphism.
-    + exact (inv_from_z_iso F).
-    + abstract (
-        intros n f;
-        refine (!_ @ maponpaths
-          (λ x, (x : algebraic_theory_morphism a a) (S n) _)
-          (z_iso_inv_after_z_iso F)
-        );
-        apply (maponpaths ((inv_from_z_iso F : algebraic_theory_morphism b a) (S n)));
-        refine (Happ _ _ @ _);
-        apply maponpaths;
-        exact (maponpaths (λ x, (x : algebraic_theory_morphism b b) n f) (z_iso_after_z_iso_inv F))
-      ).
-    + abstract (
-        intros n f;
-        refine (!_ @ maponpaths
-          (λ x, (x : algebraic_theory_morphism a a) _ _)
-          (z_iso_inv_after_z_iso F)
-        );
-        apply (maponpaths ((inv_from_z_iso F : algebraic_theory_morphism b a) n));
-        refine (Habs _ _ @ _);
-        apply maponpaths;
-        exact (maponpaths (λ x, (x : algebraic_theory_morphism b b) _ f) (z_iso_after_z_iso_inv F))
-      ).
-  - abstract (
-      split;
-      (apply subtypePath;
-      [ intro;
-        apply isapropunit | ]);
-      (apply subtypePath;
-      [ intro;
-        apply isapropdirprod;
-        do 2 (apply impred_isaprop; intro);
-        apply setproperty | ]);
-      [ apply (z_iso_inv_after_z_iso F) |
-        apply (z_iso_after_z_iso_inv F) ]
+    - exact (morphism_from_z_iso _ _ F).
+    - exact Happ.
+    - exact Habs.
+  Defined.
+
+  Definition iso_inv_data
+    : algebraic_theory_morphism b a
+    := inv_from_z_iso F.
+
+  Lemma iso_inv_preserves_app
+    (n : nat)
+    (f : (b n : hSet))
+    : iso_inv_data (S n) (app f) = app (iso_inv_data n f).
+  Proof.
+    refine (!_ @ maponpaths
+      (λ x, (x : algebraic_theory_morphism a a) (S n) _)
+      (z_iso_inv_after_z_iso F)
     ).
-Defined.
+    apply (maponpaths ((inv_from_z_iso F : algebraic_theory_morphism b a) (S n))).
+    refine (Happ _ _ @ _).
+    apply maponpaths.
+    exact (maponpaths (λ x, (x : algebraic_theory_morphism b b) n f) (z_iso_after_z_iso_inv F)).
+  Qed.
+
+  Lemma iso_inv_preserves_abs
+    (n : nat)
+    (f : (b (S n) : hSet))
+    : iso_inv_data n (abs f) = abs (iso_inv_data (S n) f).
+  Proof.
+    refine (!_ @ maponpaths
+      (λ x, (x : algebraic_theory_morphism a a) _ _)
+      (z_iso_inv_after_z_iso F)
+    ).
+    apply (maponpaths ((inv_from_z_iso F : algebraic_theory_morphism b a) n)).
+    refine (Habs _ _ @ _).
+    apply maponpaths.
+    exact (maponpaths (λ x, (x : algebraic_theory_morphism b b) _ f) (z_iso_after_z_iso_inv F)).
+  Qed.
+
+  Definition iso_inv
+    : lambda_theory_morphism b a
+    := make_lambda_theory_morphism
+      (make_lambda_theory_data_morphism
+        iso_inv_data
+        iso_inv_preserves_app
+        iso_inv_preserves_abs
+      ).
+
+  Lemma iso_is_inverse
+    : is_inverse_in_precat (C := lambda_theory_cat) iso_morphism iso_inv.
+  Proof.
+    split;
+    (apply subtypePath;
+    [ intro;
+      apply isapropunit | ]);
+    (apply subtypePath;
+    [ intro;
+      apply isapropdirprod;
+      do 2 (apply impred_isaprop; intro);
+      apply setproperty | ]).
+    - apply (z_iso_inv_after_z_iso F).
+    - apply (z_iso_after_z_iso_inv F).
+  Qed.
+
+  Definition make_lambda_theory_z_iso
+    : z_iso (a : lambda_theory_cat) (b : lambda_theory_cat).
+  Proof.
+    use make_z_iso.
+    - exact iso_morphism.
+    - exact iso_inv.
+    - exact iso_is_inverse.
+  Defined.
+
+End Iso.
 
 (** * 3. Univalence *)
 
@@ -235,10 +273,10 @@ Section Limits.
     (d' : total_category D)
     (cone_out : ∏ u, d' --> (dob d u))
     (is_cone : ∏ u v e, cone_out u · (dmor d e) = cone_out v)
-    : pr2 d' -->[limArrow L _
-        (make_cone (d := (mapdiagram (pr1_category D) d)) _
-        (λ u v e, (maponpaths pr1 (is_cone u v e))))
-      ] tip_lambda_theory_data_disp_cat.
+    (algebraic_theory_arrow := limArrow L _
+      (make_cone (d := (mapdiagram (pr1_category D) d)) _
+      (λ u v e, (maponpaths pr1 (is_cone u v e)))))
+    : pr2 d' -->[algebraic_theory_arrow] tip_lambda_theory_data_disp_cat.
   Proof.
     split;
       intros n f;

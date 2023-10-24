@@ -7,7 +7,7 @@
   definitions and lemmas.
 
   Contents
-  1. A definition for algebraic theories [algebraic_theory]
+  1. The definition of algebraic theories [algebraic_theory]
   2. An alternate constructor [make_algebraic_theory']
   3. An equality lemma [algebraic_theory_eq]
   4. Some useful properties and definitions
@@ -23,14 +23,14 @@ Require Import UniMath.Combinatorics.Vectors.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories2.
 Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
-Require Import UniMath.AlgebraicTheories.Tuples.
+Require Import UniMath.Combinatorics.Tuples.
 
 Declare Scope algebraic_theories.
 
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
 
-(** * 1. A definition for algebraic theories *)
+(** * 1. The definition of algebraic theories *)
 
 Definition base_functor
   : UU

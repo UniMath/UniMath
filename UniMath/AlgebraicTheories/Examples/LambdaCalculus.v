@@ -20,7 +20,7 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories2.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
 Require Import UniMath.AlgebraicTheories.LambdaCalculus.
-Require Import UniMath.AlgebraicTheories.Tuples.
+Require Import UniMath.Combinatorics.Tuples.
 
 (** * 1. The algebraic theory of the λ-calculus *)
 

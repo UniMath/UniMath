@@ -1,9 +1,17 @@
 (**************************************************************************************************
 
-  The λ-calculus
+  The untyped λ-calculus
 
-  Defines what (a model for) the λ-calculus with β- and η-equality looks like and provides related
+  Gives an axiomatization of the pure untyped λ-calculus with β-equality and provides related
   definitions and lemmas.
+  The untyped λ-calculus can be formalized as an inductive type, and a quotient of that type would
+  then give the λ-calculus with β-equality. Alternatively one could formalize it as a higher
+  inductive type.
+  However, inductive types are frowned upon in the UniMath library and coq does not support higher
+  inductive types natively, so instead this file axiomatizes the type of the λ-calculus: it gives a
+  description of what such a(n) (inductive) type of the λ-calculus would have, including induction
+  principle. It allows one to add (L : lambda_calculus) as a hypothesis to a definition, or as a
+  section variable, which then gives access to "the" (or "a") λ-calculus.
 
   Contents
   1. The data of the λ-calculus [lambda_calculus_data]
@@ -19,7 +27,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Require Import UniMath.AlgebraicTheories.Tuples.
+Require Import UniMath.Combinatorics.Tuples.
 
 (** * 1. The data of the λ-calculus *)
 

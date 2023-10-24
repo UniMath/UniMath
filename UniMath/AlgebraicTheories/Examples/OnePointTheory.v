@@ -2,7 +2,7 @@
 
   The "one point" algebraic theory
 
-  The trivial algebraic theory T is given by T(n) = {*}. Coindicentally, this is the terminal
+  The trivial algebraic theory T is given by T(n) = {*}. Coincidentally, this is the terminal
   algebraic theory.
 
   Contents

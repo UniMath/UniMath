@@ -5,7 +5,11 @@
   Algebraic theories and λ-theories describe objects with "variables" and a substitution operation.
   An important class of examples are the so-called "endomorphism theories". Given an object X in a
   category with products, the endomorphism theory of X is the algebraic theory T with T(n) the set
-  of morphisms from X^n to X.
+  of morphisms from X^n to X with the projections as variables, where substitution of
+  g1, …, gm: X^n → X into f: X^m → X creates the composite morphism X^n → X^m → X.
+  One of the places where the endomorphism theory shows up, is in Scott's representation theorem,
+  which shows that every model for the λ-calculus arises as the endomorphism theory of some object
+  in some category.
   If X is also exponentiable and we have morphisms between X and X^X, we can turn X into a lambda
   theory.
 
@@ -22,11 +26,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.products.
@@ -37,7 +37,7 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories2.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
-Require Import UniMath.AlgebraicTheories.Tuples.
+Require Import UniMath.Combinatorics.Tuples.
 
 Local Open Scope cat.
 
@@ -51,7 +51,7 @@ Section EndomorphismAlgebraicTheory.
 
   Variable (X : C).
 
-  Local Definition power
+  Let power
     (n : nat)
     : Product (stn n) C (λ _, X)
     := bin_product_power C X C_terminal C_bin_products n.
@@ -60,8 +60,7 @@ Section EndomorphismAlgebraicTheory.
   Proof.
     use make_algebraic_theory'_data.
     - intro n.
-      pose (power := ProductObject _ _ (power n)).
-      exact (homset power X).
+      exact (homset (power n) X).
     - intro.
       apply ProductPr.
     - intros m n f g.
@@ -99,20 +98,23 @@ Section EndomorphismAlgebraicTheory.
 
   (** * 2. The definition of the endomorphism λ-theory *)
 
-  Local Definition pow_commutes (n : nat)
-    := (ProductPrCommutes _ _ _ (power n)).
+  Let pow_commutes (n : nat) (c : C) (f : stn n → C⟦c, X⟧) (i : stn n)
+    : ProductArrow _ _ (power n) f · ProductPr _ _ (power n) i = f i
+    := (ProductPrCommutes _ _ _ (power n)) c f i.
 
-  Local Definition bp_commutes_1 (n : nat)
-    := BinProductPr1Commutes _ _ _ (C_bin_products X (power n)).
+  Let bp_commutes_1 (n : nat) (c : C) (f : C⟦c, X⟧) (g : C⟦c, power n⟧)
+    : BinProductArrow _ (C_bin_products X (power n)) f g · BinProductPr1 _ _ = f
+    := BinProductPr1Commutes _ _ _ (C_bin_products X (power n)) c f g.
 
-  Local Definition bp_commutes_2 (n : nat)
-    := BinProductPr2Commutes _ _ _ (C_bin_products X (power n)).
+  Let bp_commutes_2 (n : nat) (c : C) (f : C⟦c, X⟧) (g : C⟦c, power n⟧)
+    : BinProductArrow _ (C_bin_products X (power n)) f g · BinProductPr2 _ _ = g
+    := BinProductPr2Commutes _ _ _ (C_bin_products X (power n)) c f g.
 
   Context (E : is_exponentiable C_bin_products X).
   Context (abs : C⟦pr1 E X, X⟧).
   Context (app : C⟦X, pr1 E X⟧).
 
-  Local Definition hom_weq (n: nat)
+  Let hom_weq (n: nat)
     : C⟦power (S n), X⟧ ≃ C⟦power n, pr1 E X⟧
     := adjunction_hom_weq (pr2 E) (power n) X.
 
@@ -127,19 +129,6 @@ Section EndomorphismAlgebraicTheory.
       exact (hom_weq n f · abs).
   Defined.
 
-  Proposition BinProductArrow_eq
-              {a b : C}
-              (w : C)
-              (x : BinProduct _ a b)
-              (f g : w --> x)
-              (Ha : f · BinProductPr1 _ x = g · BinProductPr1 _ x)
-              (Hb : f · BinProductPr2 _ x = g · BinProductPr2 _ x)
-    : f = g.
-  Proof.
-    refine (BinProductArrowEta _ _ _ _ _ _ @ _ @ !(BinProductArrowEta _ _ _ _ _ _)).
-    now rewrite Ha, Hb.
-  Qed.
-
   Lemma endomorphism_theory_is_lambda
     : is_lambda_theory endomorphism_lambda_theory_data.
   Proof.
@@ -148,7 +137,7 @@ Section EndomorphismAlgebraicTheory.
       refine (maponpaths _ (assoc' _ _ _) @ _).
       refine (φ_adj_inv_natural_precomp (pr2 E) _ _ _ _ _ @ _).
       apply (maponpaths (λ x, x · _)).
-      apply BinProductArrow_eq.
+      apply BinProductArrowsEq.
       + refine (bp_commutes_1 _ _ _ _ @ _).
         refine (id_right _ @ !_).
         refine (bp_commutes_1 _ _ _ _ @ _).
@@ -170,7 +159,7 @@ Section EndomorphismAlgebraicTheory.
     - intros m n f g.
       refine (_ @ assoc' _ _ _).
       refine (_ @ maponpaths (λ x, x · _) (φ_adj_natural_precomp (pr2 E) _ _ _ _ _)).
-      apply (maponpaths (λ x, _ (x · _) · _)).
+      apply (maponpaths (λ x, φ_adj (pr2 E) (x · _) · _)).
       apply ProductArrow_eq.
       intro i.
       refine (pow_commutes _ _ _ _ @ !_).

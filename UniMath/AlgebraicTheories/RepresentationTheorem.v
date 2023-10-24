@@ -8,7 +8,7 @@
 
   Contents
   1. A proof that the object (theory_presheaf) can be exponentiated [theory_presheaf_exponentiable]
-  2. A construction of its λ-theory [presheaf_lambda_theory]
+  2. A construction of the lambda endomorphism theory of theory_presheaf [presheaf_lambda_theory]
   3. An isomorphism between the two λ-theories [presheaf_lambda_theory_iso]
 
  **************************************************************************************************)
@@ -49,7 +49,7 @@ Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.PresheafCategory.
 Require Import UniMath.AlgebraicTheories.PresheafMorphisms.
 Require Import UniMath.AlgebraicTheories.Presheaves.
-Require Import UniMath.AlgebraicTheories.Tuples.
+Require Import UniMath.Combinatorics.Tuples.
 
 Local Open Scope algebraic_theories.
 Local Open Scope cat.
@@ -61,37 +61,37 @@ Section RepresentationTheorem.
 
   Context (L : lambda_theory).
 
-  Local Definition pow
+  Let pow
     (n : nat)
     : Product (stn n) (presheaf_cat L) (λ _, theory_presheaf L)
-    := EndomorphismTheory.power (terminal_presheaf_cat _) (bin_products_presheaf_cat _) _ _.
+    := bin_product_power (presheaf_cat L) (theory_presheaf L) (terminal_presheaf_cat _) (bin_products_presheaf_cat _) n.
 
-  Local Definition PO
+  Let PO
     (n : nat)
     : presheaf L
     := ProductObject _ _ (pow n).
 
-  Local Definition pow'
+  Let pow'
     (n : nat)
     : Product (stn n) (presheaf_cat L) (λ _, theory_presheaf L)
     := products_presheaf_cat L (stn n) (λ _, (theory_presheaf L)).
 
-  Local Definition PO'
+  Let PO'
     (n : nat)
     : presheaf L
     := ProductObject _ _ (pow' n).
 
-  Local Definition pow_iso
+  Let pow_iso
     (n : nat)
     : z_iso (pow n) (pow' n)
     := z_iso_between_Product (pow n) (pow' n).
 
-  Local Definition pow_f
+  Let pow_f
     (n : nat)
     : presheaf_morphism (PO n) (PO' n)
     := morphism_from_z_iso _ _ (pow_iso n).
 
-  Local Definition pow_f_inv
+  Let pow_f_inv
     (n : nat)
     : presheaf_morphism (PO' n) (PO n)
     := inv_from_z_iso (pow_iso n).
@@ -112,8 +112,8 @@ Section RepresentationTheorem.
       refine (action (P := P) (pr2 t) _).
       intro i.
       induction (invmap stnweq i) as [i' | i'].
-      * exact (pr i').
-      * exact (pr1 t).
+      - exact (pr i').
+      - exact (pr1 t).
     Defined.
 
     Lemma presheaf_exponent_is_morphism
@@ -350,7 +350,7 @@ Section RepresentationTheorem.
 
   End Exponentiable.
 
-  (** * 2. A construction of its λ-theory *)
+  (** * 2. A construction of the lambda endomorphism theory of theory_presheaf *)
 
   Lemma presheaf_lambda_theory_aux
     {m n : nat}
@@ -503,7 +503,7 @@ Section RepresentationTheorem.
           maponpaths (λ x, pr11 x l t) (ProductPrCommutes _ _ _ (pow m) _ _ i)).
     Qed.
 
-    Lemma aux2
+    Local Lemma aux2
       (n : nat)
       : pr2 (pow_f_inv (S n) (S n) pr)
       = action (P := PO n) (pow_f_inv n n pr) (λ i, pr (stnweq (inl i))).

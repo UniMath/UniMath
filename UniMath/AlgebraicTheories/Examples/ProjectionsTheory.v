@@ -4,6 +4,9 @@
 
   This algebraic theory is the free theory on the empty set. Therefore, it is also the initial
   algebraic theory. The set T(n) just consists of the n variables.
+  This theory is called the "projections theory" because Hyland calls variables "projections". When
+  interpreting an algebraic theory as the endomorphism theory (the theory consisting of the
+  morphisms X^n -> X for some object X in some category), the variables are exactly the projections.
 
   Contents
   1. The definition of the projections theory [projections_theory]

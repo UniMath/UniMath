@@ -5,24 +5,25 @@
   Defines what a morphism of algebras is.
 
   Contents
-  1. A definition for algebra morphisms [algebra_morphism]
+  1. The definition of algebra morphisms [algebra_morphism]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.Algebras.
 
-(** * 1. A definition for algebra morphisms *)
+(** * 1. The definition of algebra morphisms *)
 
 Definition preserves_action
   {T : algebraic_theory_data}
   {A A' : algebra_data T}
   (F : A → A')
   : UU
-  := ∏ n f (a : stn n → A), F (action f a) = action f (λ i, F (a i)).
+  := ∏ (n : nat) (f : (T n : hSet)) (a : stn n → A), F (action f a) = action f (λ i, F (a i)).
 
 Definition algebra_morphism
   {T : algebraic_theory_data}

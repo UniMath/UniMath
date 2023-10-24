@@ -67,6 +67,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DecSet.v](Combinatorics/DecSet.v)
    - [Maybe.v](Combinatorics/Maybe.v)
    - [MoreLists.v](Combinatorics/MoreLists.v)
+   - [Tuples.v](Combinatorics/Tuples.v)
    - [All.v](Combinatorics/All.v)
 ## Package [Algebra](Algebra/README.md)
    - [BinaryOperations.v](Algebra/BinaryOperations.v)
@@ -1135,7 +1136,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [All.v](Induction/All.v)
 ## Package AlgebraicTheories
    - [FiniteSetSkeleton.v](AlgebraicTheories/FiniteSetSkeleton.v)
-   - [Tuples.v](AlgebraicTheories/Tuples.v)
    - [AlgebraicTheories2.v](AlgebraicTheories/AlgebraicTheories2.v)
    - [AlgebraicTheories.v](AlgebraicTheories/AlgebraicTheories.v)
    - [AlgebraicTheoryMorphisms2.v](AlgebraicTheories/AlgebraicTheoryMorphisms2.v)

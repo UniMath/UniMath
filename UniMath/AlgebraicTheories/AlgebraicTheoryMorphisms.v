@@ -6,7 +6,7 @@
   properties.
 
   Contents
-  1. A definition for an algebraic theory morphism [algebraic_theory_morphism]
+  1. The definition of algebraic theory morphisms [algebraic_theory_morphism]
   2. An alternate constructor [make_algebraic_theory_morphism']
   3. An equality lemma
 
@@ -26,7 +26,7 @@ Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
 
-(** * 1. A definition for an algebraic theory morphism *)
+(** * 1. The definition of algebraic theory morphisms *)
 
 Definition base_nat_trans
   (T T' : base_functor)
@@ -64,7 +64,7 @@ Definition algebraic_theory_data_morphism
   := ∑ (F : pointed_functor_morphism T T'), preserves_composition F.
 
 Coercion algebraic_theory_data_morphism_to_pointed_functor_morphism
-  {T T'}
+  {T T' : algebraic_theory}
   (F : algebraic_theory_data_morphism T T')
   : pointed_functor_morphism T T'
   := pr1 F.
@@ -75,7 +75,7 @@ Definition algebraic_theory_morphism
   := ∑ X : algebraic_theory_data_morphism T T', unit.
 
 Coercion algebraic_theory_morphism_to_algebraic_theory_data_morphism
-  {T T'}
+  {T T' : algebraic_theory}
   (F : algebraic_theory_morphism T T')
   : algebraic_theory_data_morphism T T'
   := pr1 F.
@@ -111,19 +111,19 @@ Definition make_algebraic_theory_morphism
   := (((F ,, pr1 H) ,, pr2 H) ,, tt).
 
 Definition algebraic_theory_morphism_preserves_id_pr
-  {T T'}
+  {T T' : algebraic_theory}
   (F : algebraic_theory_morphism T T')
   : preserves_id_pr F
   := pr211 F.
 
 Definition algebraic_theory_morphism_preserves_composition
-  {T T'}
+  {T T' : algebraic_theory}
   (F : algebraic_theory_morphism T T')
   : preserves_composition F
   := pr21 F.
 
 Lemma algebraic_theory_morphism_preserves_projections
-  {T T'}
+  {T T' : algebraic_theory}
   (F : algebraic_theory_morphism T T')
   {n : nat}
   (i : stn n)
@@ -188,7 +188,7 @@ End MakeAlgebraicTheoryMorphisms2.
 (** * 3. An equality lemma *)
 
 Lemma algebraic_theory_morphism_eq
-  {T T'}
+  {T T' : algebraic_theory}
   (F F' : algebraic_theory_morphism T T')
   (H1 : ∏ n f, F n f = F' n f)
   : F = F'.

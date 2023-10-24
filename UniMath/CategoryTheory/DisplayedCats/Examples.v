@@ -428,7 +428,7 @@ Definition creates_limits_functor_alg
   : creates_limits_unique disp_cat_functor_alg.
 Proof.
   unfold creates_limits_unique.
-  intros J D.
+  intros J D L.
   induction L as [tmp isL].
   induction tmp as [x L].
   unfold creates_limit. cbn.

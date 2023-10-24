@@ -2,11 +2,10 @@
   the sigma category of E is a displayed category over C,
   with dependent pairs of objects and morphims of D and E as objects and morphisms.
   This file defines and proves
-  - The sigma category: sigma_disp_cat;
-  - The displayed projection functor from sigma to D: sigmapr1_disp_functor;
-  - Displayed univalence for sigma: is_univalent_sigma_disp;
-  - Sigma creates limits: creates_limits_sigma_disp_cat. *)
-
+  - The sigma category [sigma_disp_cat]
+  - The displayed projection functor from sigma to D [sigmapr1_disp_functor]
+  - Displayed univalence for sigma [is_univalent_sigma_disp]
+  - Sigma creates limits [creates_limits_sigma_disp_cat] *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.

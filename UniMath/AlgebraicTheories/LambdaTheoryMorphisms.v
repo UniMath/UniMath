@@ -5,7 +5,7 @@
   Defines what a morphism of λ-theories is.
 
   Contents
-  1. A definition for λ-theory morphisms [lambda_theory_morphism]
+  1. The definition of λ-theory morphisms [lambda_theory_morphism]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -21,7 +21,7 @@ Require Import UniMath.AlgebraicTheories.LambdaTheories.
 
 Local Open Scope algebraic_theories.
 
-(** * 1. A definition for λ-theory morphisms [lambda_theory_morphism] *)
+(** * 1. The definition of λ-theory morphisms [lambda_theory_morphism] *)
 
 Definition lambda_theory_data_morphism
   (L L' : lambda_theory_data)

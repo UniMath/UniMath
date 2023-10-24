@@ -1,6 +1,6 @@
 (**************************************************************************************************
 
-  Algebraic theory morphisms 2
+  The minimal data for constructing algebraic theory morphisms
 
   The category-theoretic definition of algebraic theories and their morphisms is nice to work with,
   but unnecessarily complicated for constructing the objects directly. This file provides a way to
