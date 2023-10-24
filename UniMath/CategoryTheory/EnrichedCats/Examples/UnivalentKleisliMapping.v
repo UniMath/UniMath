@@ -3,7 +3,7 @@
  The universal mapping property of the enriched univalent Kleisli category
 
  In this file, we establish the universal mapping property of the enriched univalent
- Kleisli category. More precisely, we establish that mapping properties that show that
+ Kleisli category. More precisely, we establish the mapping properties that show that
  the bicategory of enriched categories has Kleisli objects.
 
  The proof in this file is mostly formal. The main idea is as follows:
