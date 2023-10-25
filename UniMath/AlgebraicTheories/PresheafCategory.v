@@ -719,7 +719,7 @@ Section BinProduct.
 
   End UniversalProperty.
 
-  Definition bin_products_presheaf_cat
+  Definition bin_product_presheaf_cat
     : BinProduct (presheaf_cat T) P P'.
   Proof.
     use make_BinProduct.
@@ -736,6 +736,11 @@ Section BinProduct.
   Defined.
 
 End BinProduct.
+
+Definition bin_products_presheaf_cat
+  (T : algebraic_theory)
+  : BinProducts (presheaf_cat T)
+  := bin_product_presheaf_cat T.
 
 (** * 8. Products *)
 
@@ -852,7 +857,7 @@ Section Product.
 
   End UniversalProperty.
 
-  Definition products_presheaf_cat
+  Definition product_presheaf_cat
     : Product I (presheaf_cat T) P.
   Proof.
     use make_Product.
@@ -868,3 +873,9 @@ Section Product.
   Defined.
 
 End Product.
+
+Definition products_presheaf_cat
+  (T : algebraic_theory)
+  (I : UU)
+  : Products I (presheaf_cat T)
+  := product_presheaf_cat T I.

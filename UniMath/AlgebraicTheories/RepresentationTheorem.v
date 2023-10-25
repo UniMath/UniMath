@@ -298,7 +298,7 @@ Section RepresentationTheorem.
       = pr11 G m (pr2 l) • (extend_tuple pr (pr1 l)).
     Proof.
       refine (maponpaths (λ x, x _) (presheaf_mor_comp (P'' := theory_presheaf L) _ _ _) @ _).
-      refine (maponpaths (λ x, x • _) _ @ maponpaths (λ x, _ • x) _).
+      refine (maponpaths (λ x, x • _) _ @ maponpaths (λ x, (pr11 G) m (pr2 l) • x) _).
       - exact (maponpaths (λ x, x _) (presheaf_mor_comp _ G _)).
       - refine (!extend_tuple_eq _ _).
         + intro i.
@@ -521,11 +521,11 @@ Section RepresentationTheorem.
       rewrite (ProductPrCommutes _ _ _ (pow n) _ _ i).
       refine (eqtohomot (presheaf_morphism_commutes_with_action (pow_f n) _ _) i @ _).
       refine (maponpaths
-        (λ x, action (P := PO' n) (x _) _ _)
-        (!presheaf_mor_comp (P := PO' n) (P'' := PO' n) _ _ _)
+        (λ x, action (P := PO' n) (x pr) _ _)
+        (!presheaf_mor_comp (P := PO' n) (P'' := PO' n) _ (pow_f _) _)
       @ _).
       refine (maponpaths
-        (λ x, action (P := PO' n) (pr11 x _ _) _ _)
+        (λ x, action (P := PO' n) (pr11 x n pr) _ _)
         (z_iso_after_z_iso_inv (pow_iso n))
       @ _).
       refine (maponpaths
@@ -585,12 +585,10 @@ Section RepresentationTheorem.
       apply (maponpaths (pow_f_inv (S n) _)).
       apply funextsec.
       intro i.
-      refine (_ @ maponpaths _ (homotweqinvweq stnweq i)).
-      simpl.
-      unfold ProductPr, stnweq.
-      simpl.
-      induction (invmap (Y := _ (S n)) (weqdnicoprod _ lastelement) i) as [i' | i'].
-      - refine (maponpaths (λ x, x _) (presheaf_mor_comp (P'' := theory_presheaf L) _ _ _) @ _).
+      rewrite <- (homotweqinvweq stnweq i).
+      induction (invmap stnweq i) as [i' | i'].
+      - refine (maponpaths (λ x, (_ x : presheaf_morphism _ _) _ _) (homotinvweqweq stnweq (inl i')) @ _).
+        refine (maponpaths (λ x, x _) (presheaf_mor_comp (P'' := theory_presheaf L) _ _ _) @ _).
         refine (presheaf_morphism_commutes_with_action
           (ProductPr _ _ (pow n) _ : presheaf_morphism (PO _) (theory_presheaf L))
         _ _ @ _).
@@ -600,7 +598,7 @@ Section RepresentationTheorem.
         @ _).
         refine (maponpaths (λ x, pr11 x _ _ • _) (ProductPrCommutes _ _ _ (pow _) _ _ _) @ _).
         apply algebraic_theory_comp_projects_component.
-      - apply idpath.
+      - exact (maponpaths (λ x, (_ x : presheaf_morphism _ _) _ _) (homotinvweqweq stnweq _)).
     Qed.
 
     Definition presheaf_lambda_theory_iso
