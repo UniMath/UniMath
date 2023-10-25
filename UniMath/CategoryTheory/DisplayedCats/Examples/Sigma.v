@@ -159,8 +159,8 @@ Section Limits.
   Context {d : diagram J (total_category D')}.
   Context {L : LimCone (mapdiagram (pr1_category _) d)}.
 
-  Context (HD : creates_limit D (mapdiagram (total_functor sigmapr1_disp_functor) d) L).
-  Context (HE : creates_limit E (mapdiagram sigma_to_E_total_functor d) (total_limit _ _ HD)).
+  Context (HD : creates_limit (mapdiagram (total_functor sigmapr1_disp_functor) d) L).
+  Context (HE : creates_limit (mapdiagram sigma_to_E_total_functor d) (total_limit _ HD)).
 
   Definition tip_sigma_disp_cat
     : D' (lim L)
@@ -235,9 +235,9 @@ Definition creates_limits_sigma_disp_cat
   {J : graph}
   (F : diagram J (total_category sigma_disp_cat))
   (L : LimCone (mapdiagram (pr1_category _) F))
-  (HD : creates_limit D (mapdiagram (total_functor sigmapr1_disp_functor) F) L)
-  (HE : creates_limit E (mapdiagram sigma_to_E_total_functor F) (total_limit _ _ HD))
-  : creates_limit sigma_disp_cat F L
+  (HD : creates_limit (mapdiagram (total_functor sigmapr1_disp_functor) F) L)
+  (HE : creates_limit (mapdiagram sigma_to_E_total_functor F) (total_limit _ HD))
+  : creates_limit F L
   := make_creates_limit
     (tip_sigma_disp_cat HD HE)
     (cone_sigma_disp_cat HD HE)

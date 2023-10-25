@@ -24,7 +24,7 @@ Section Creates_Limits.
 (* TODO: consider implicitness of argument *)
 Definition creates_limit
   {C : category}
-  (D : disp_cat C)
+  {D : disp_cat C}
   {J : graph}
   (F : diagram J (total_category D))
   (L : LimCone (mapdiagram (pr1_category D) F)) : UU
@@ -45,12 +45,12 @@ Definition make_creates_limit
   (δ : ∏ j : vertex J, d -->[limOut L j] (pr2 (dob F j)))
   (Hcone : forms_cone (c := (lim L ,, d)) F (λ j, (limOut L j ,, δ j)))
   (Hlim : isLimCone _ _ (make_cone _ Hcone))
-  : creates_limit D F L
+  : creates_limit F L
   := ((d ,, δ ,, Hcone) ,, Hlim).
 
 Definition creates_limit_unique
   {C : category}
-  (D : disp_cat C)
+  {D : disp_cat C}
   {J : graph}
   (F : diagram J (total_category D))
   (L : LimCone (mapdiagram (pr1_category D) F)) : UU
@@ -67,13 +67,13 @@ Definition make_creates_limit_unique
   {J : graph}
   {F : diagram J (total_category D)}
   {L : LimCone (mapdiagram (pr1_category D) F)}
-  (CC : creates_limit D F L)
+  (CC : creates_limit F L)
   (Hunique : ∏ (d : D (lim L))
     (δ : ∏ j : vertex J, d -->[limOut L j] (pr2 (dob F j)))
     (H : forms_cone (c := (lim L ,, d)) F (λ j, (limOut L j ,, δ j))),
     (d ,, δ ,, H) = pr1 CC
   )
-  : creates_limit_unique D F L.
+  : creates_limit_unique F L.
 Proof.
   refine ((pr1 CC ,, _) ,, pr2 CC).
   exact (λ _, Hunique _ _ _).
@@ -81,11 +81,11 @@ Defined.
 
 Definition creates_limit_unique_to_creates_limit
   {C : category}
-  (D : disp_cat C)
+  {D : disp_cat C}
   {J : graph}
   (F : diagram J (total_category D))
   (L : LimCone (mapdiagram (pr1_category D) F))
-  : creates_limit_unique D F L → creates_limit D F L
+  : creates_limit_unique F L → creates_limit F L
   := λ CC, (pr11 CC ,, pr2 CC).
 
 Definition creates_limit_disp_struct
@@ -104,7 +104,7 @@ Definition creates_limit_disp_struct
       (d := (mapdiagram (pr1_category D) F)) _
       (λ u v e, maponpaths pr1 (is_cone u v e)))),
     pr2 d' -->[L_lim_arrow] d)
-  : creates_limit D F L.
+  : creates_limit F L.
 Proof.
   use (make_creates_limit d cone _ (λ d' cone', (_ ,, _) ,, _)).
   - abstract (
@@ -140,10 +140,10 @@ Definition creates_limit_unique_disp_struct
   (D := disp_struct C P H Hprop Hid Hcomp)
   {J : graph}
   {F : diagram J (total_category D)}
-  (L : LimCone (mapdiagram (pr1_category D) F))
-  (CC : creates_limit D F L)
+  {L : LimCone (mapdiagram (pr1_category D) F)}
+  (CC : creates_limit F L)
   (d_is_unique : ∏ d', (∏ j : vertex J, d' -->[limOut L j] (pr2 (dob F j))) → d' = pr11 CC)
-  : creates_limit_unique D F L.
+  : creates_limit_unique F L.
 Proof.
   use (make_creates_limit_unique CC).
   abstract (
@@ -167,7 +167,7 @@ Definition creates_limit_disp_full_sub
   {F : diagram J (total_category D)}
   (L : LimCone (mapdiagram (pr1_category D) F))
   (d : P (lim L))
-  : creates_limit D F L.
+  : creates_limit F L.
 Proof.
   use (make_creates_limit (d : (D _)) _ _ (λ d' cone', (_ ,, _) ,, _)).
   - abstract exact (λ _, tt).
@@ -207,8 +207,8 @@ Definition creates_limit_unique_disp_full_sub
   {J : graph}
   {F : diagram J (total_category D)}
   (L : LimCone (mapdiagram (pr1_category D) F))
-  (CC : creates_limit D F L)
-  : creates_limit_unique D F L.
+  (CC : creates_limit F L)
+  : creates_limit_unique F L.
 Proof.
   use (make_creates_limit_unique CC).
   abstract (
@@ -231,50 +231,50 @@ Definition creates_limits {C : category} (D : disp_cat C) : UU := ∏
   (J : graph)
   (F : diagram J (total_category D))
   (L : LimCone (mapdiagram (pr1_category D) F) ),
-  creates_limit _ _ L.
+  creates_limit F L.
 
 Definition creates_limits_unique {C : category} (D : disp_cat C) : UU := ∏
   (J : graph)
   (F : diagram J (total_category D))
   (L : LimCone (mapdiagram (pr1_category D) F) ),
-  creates_limit_unique _ _ L.
+  creates_limit_unique F L.
 
 End Creates_Limits.
 
 Definition total_limit
   {C : category}
-  (D : disp_cat C)
+  {D : disp_cat C}
   {J : graph}
   {F : diagram J (total_category D)}
   (L : LimCone (mapdiagram (pr1_category D) F))
-  (H : creates_limit _ _ L)
+  (H : creates_limit F L)
   : LimCone F
   := make_LimCone _ _ _ (pr2 H).
 
 Definition total_limits
   {C : category}
-  (D : disp_cat C)
-  (J : graph)
+  {D : disp_cat C}
+  {J : graph}
   (H : creates_limits D)
   (X : Lims_of_shape J C)
   : Lims_of_shape J (total_category D)
-  := λ d, total_limit _ (X _) (H _ _ _).
+  := λ d, total_limit (X _) (H _ _ _).
 
 Section fiber.
 
   Context {C : category}.
-  Context (D : disp_cat C).
+  Context {D : disp_cat C}.
   Context (c : C).
   Context {J : graph}.
 
   Context {F : diagram J (fiber_category D c)}.
   Context (L : LimCone (constant_diagram J c)).
-  Context (H : creates_limit _ _ ((L : LimCone
+  Context (H : creates_limit _ ((L : LimCone
     (mapdiagram (fiber_to_total_functor D c ∙ pr1_category D) F)
   ) : LimCone (mapdiagram (pr1_category _) (mapdiagram _ F)))).
 
-  Context (Δ := limArrow L _ (constant_cone J c)).
-  Context (L' := make_LimCone _ _ _ (pr2 H)).
+  Let Δ := limArrow L _ (constant_cone J c).
+  Let L' := make_LimCone _ _ _ (pr2 H).
 
   Context (candidate : cartesian_lift (pr11 H) Δ).
 
@@ -405,14 +405,14 @@ Check fiber_limit.
 
 Definition fiber_limits
   {C : category}
-  (D : disp_cat C)
+  {D : disp_cat C}
   (c : C)
-  (J : graph)
+  {J : graph}
   (H : creates_limits D)
   (L : Lims_of_shape J C)
   (cl : cleaving D)
   : Lims_of_shape J (D[{c}])
-  := λ F, fiber_limit D c
+  := λ F, fiber_limit c
     (L _)
     (H _ _ _)
     (cl _ _ _ _).

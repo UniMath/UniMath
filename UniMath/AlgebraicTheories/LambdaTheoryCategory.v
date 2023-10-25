@@ -294,8 +294,8 @@ End Limits.
 
 Definition creates_limits_lambda_theory_data_disp_cat
   {J : graph}
-  (d : diagram J _)
-  : creates_limit lambda_theory_data_disp_cat d (limits_algebraic_theory_cat _ _)
+  (d : diagram J (total_category lambda_theory_data_disp_cat))
+  : creates_limit d (limits_algebraic_theory_cat _ _)
   := creates_limit_disp_struct _
     (tip_lambda_theory_data_disp_cat _)
     (cone_lambda_theory_data_disp_cat _)
@@ -303,12 +303,12 @@ Definition creates_limits_lambda_theory_data_disp_cat
 
 Definition limits_lambda_theory_data_cat
   : Lims lambda_theory_data_cat
-  := λ _ _, total_limit _ _ (creates_limits_lambda_theory_data_disp_cat _).
+  := λ _ _, total_limit _ (creates_limits_lambda_theory_data_disp_cat _).
 
 Definition creates_limits_lambda_theory_disp_cat
   {J : graph}
-  (d : diagram J _)
-  : creates_limit lambda_theory_disp_cat d (limits_lambda_theory_data_cat _ _).
+  (d : diagram J (total_category lambda_theory_disp_cat))
+  : creates_limit d (limits_lambda_theory_data_cat _ _).
 Proof.
   use creates_limit_disp_full_sub.
   - intro.
@@ -345,4 +345,4 @@ Defined.
 
 Definition limits_lambda_theory_cat
   : Lims lambda_theory_cat
-  := λ _ _, total_limit _ _ (creates_limits_lambda_theory_disp_cat _).
+  := λ _ _, total_limit _ (creates_limits_lambda_theory_disp_cat _).

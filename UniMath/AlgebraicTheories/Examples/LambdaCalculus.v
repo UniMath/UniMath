@@ -168,13 +168,11 @@ Proof.
   apply maponpaths.
   apply funextfun.
   intro i.
-  unfold extend_tuple.
-  refine (_ @ maponpaths _ (homotweqinvweq stnweq i)).
-  induction (invmap stnweq i) as [i' | i'];
+  rewrite <- (homotweqinvweq stnweq i).
+  now induction (invmap stnweq i) as [i' | i'];
+    refine (maponpaths (λ x, subst (_ x) _) (homotinvweqweq stnweq _) @ _);
     simpl;
     repeat reduce_lambda.
-  - apply extend_tuple_inl.
-  - apply extend_tuple_inr.
 Qed.
 
 (** * 4. The λ-theory has η-equality *)

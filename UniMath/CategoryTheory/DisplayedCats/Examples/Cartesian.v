@@ -251,7 +251,7 @@ Section cartesian_product_pb.
     End Arrow.
 
     Definition creates_limits_disp_cartesian
-      : creates_limit disp_cartesian d L.
+      : creates_limit d L.
     Proof.
       use make_creates_limit.
       - exact cartesian_limit_tip.
@@ -266,7 +266,7 @@ Section cartesian_product_pb.
 
     Definition limits_cartesian
       : LimCone d
-      := total_limit _ _ creates_limits_disp_cartesian.
+      := total_limit _ creates_limits_disp_cartesian.
 
   End Limits.
 

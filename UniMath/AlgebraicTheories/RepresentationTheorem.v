@@ -586,9 +586,9 @@ Section RepresentationTheorem.
       apply funextsec.
       intro i.
       rewrite <- (homotweqinvweq stnweq i).
-      induction (invmap stnweq i) as [i' | i'].
-      - refine (maponpaths (λ x, (_ x : presheaf_morphism _ _) _ _) (homotinvweqweq stnweq (inl i')) @ _).
-        refine (maponpaths (λ x, x _) (presheaf_mor_comp (P'' := theory_presheaf L) _ _ _) @ _).
+      induction (invmap stnweq i) as [i' | i'];
+        refine (maponpaths (λ x, (_ x : presheaf_morphism _ _) _ _) (homotinvweqweq stnweq _) @ _).
+      - refine (maponpaths (λ x, x _) (presheaf_mor_comp (P'' := theory_presheaf L) _ _ _) @ _).
         refine (presheaf_morphism_commutes_with_action
           (ProductPr _ _ (pow n) _ : presheaf_morphism (PO _) (theory_presheaf L))
         _ _ @ _).
@@ -598,7 +598,7 @@ Section RepresentationTheorem.
         @ _).
         refine (maponpaths (λ x, pr11 x _ _ • _) (ProductPrCommutes _ _ _ (pow _) _ _ _) @ _).
         apply algebraic_theory_comp_projects_component.
-      - exact (maponpaths (λ x, (_ x : presheaf_morphism _ _) _ _) (homotinvweqweq stnweq _)).
+      - apply idpath.
     Qed.
 
     Definition presheaf_lambda_theory_iso

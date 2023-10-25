@@ -163,10 +163,9 @@ Section EndomorphismAlgebraicTheory.
       apply ProductArrow_eq.
       intro i.
       refine (pow_commutes _ _ _ _ @ !_).
-      refine (_ @ maponpaths _ (homotweqinvweq stnweq i)).
-      unfold ProductPr, stnweq.
-      simpl.
-      induction (invmap (Y := stn (S m)) (weqdnicoprod m lastelement) i) as [i' | i'].
+      rewrite <- (homotweqinvweq stnweq i).
+      induction (invmap stnweq i) as [i' | i'];
+        refine (maponpaths (λ x, _ · (_ x)) (homotinvweqweq stnweq _) @ _).
       + refine (assoc _ _ _ @ _).
         refine (maponpaths (λ x, x · _) (bp_commutes_2 _ _ _ _) @ _).
         refine (assoc' _ _ _ @ _).

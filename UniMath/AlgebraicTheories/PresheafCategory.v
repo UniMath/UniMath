@@ -454,8 +454,8 @@ End DataLimits.
 
 Definition creates_limits_presheaf_data_disp_cat
   {J : graph}
-  (d : diagram J _)
-  : creates_limit presheaf_data_disp_cat d (limits_presheaf_base _ _)
+  (d : diagram J (total_category presheaf_data_disp_cat))
+  : creates_limit d (limits_presheaf_base _ _)
   := creates_limit_disp_struct _
     (tip_presheaf_data_disp_cat _)
     (cone_presheaf_data_disp_cat _)
@@ -463,20 +463,20 @@ Definition creates_limits_presheaf_data_disp_cat
 
 Definition creates_limits_unique_presheaf_data_disp_cat
   {J : graph}
-  (d : diagram J _)
-  : creates_limit_unique presheaf_data_disp_cat d (limits_presheaf_base _ _)
-  := creates_limit_unique_disp_struct _
+  (d : diagram J (total_category presheaf_data_disp_cat))
+  : creates_limit_unique d (limits_presheaf_base _ _)
+  := creates_limit_unique_disp_struct
     (creates_limits_presheaf_data_disp_cat _)
     (uniqueness_presheaf_data_disp_cat _).
 
 Definition limits_presheaf_data_cat
   : Lims presheaf_data_cat
-  := λ _ _, (total_limit _ _ (creates_limits_presheaf_data_disp_cat _)).
+  := λ _ _, total_limit _ (creates_limits_presheaf_data_disp_cat _).
 
 Definition creates_limits_presheaf_full_disp_cat
   {J : graph}
-  (d : diagram J _)
-  : creates_limit presheaf_full_disp_cat d (limits_presheaf_data_cat _ _).
+  (d : diagram J (total_category presheaf_full_disp_cat))
+  : creates_limit d (limits_presheaf_data_cat _ _).
 Proof.
   apply creates_limit_disp_full_sub.
   - intro.
@@ -497,8 +497,8 @@ Defined.
 
 Definition creates_limits_unique_presheaf_full_disp_cat
   {J : graph}
-  (d : diagram J _)
-  : creates_limit_unique presheaf_full_disp_cat d (limits_presheaf_data_cat _ _)
+  (d : diagram J (total_category presheaf_full_disp_cat))
+  : creates_limit_unique d (limits_presheaf_data_cat _ _)
   := creates_limit_unique_disp_full_sub
     (λ _, isaprop_is_presheaf _)
     _
@@ -506,12 +506,12 @@ Definition creates_limits_unique_presheaf_full_disp_cat
 
 Definition limits_presheaf_full_cat
   : Lims presheaf_full_cat
-  := λ _ _, (total_limit _ _ (creates_limits_presheaf_full_disp_cat _)).
+  := λ _ _, total_limit _ (creates_limits_presheaf_full_disp_cat _).
 
 Definition creates_limits_presheaf_disp_cat
   {J : graph}
-  (d : diagram J _)
-  : creates_limit presheaf_disp_cat d (limits_algebraic_theory_cat _ _).
+  (d : diagram J (total_category presheaf_disp_cat))
+  : creates_limit d (limits_algebraic_theory_cat _ _).
 Proof.
   repeat use creates_limits_sigma_disp_cat.
   - exact (creates_limits_presheaf_base_disp _ _ _).

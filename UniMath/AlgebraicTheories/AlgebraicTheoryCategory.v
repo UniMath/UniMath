@@ -165,6 +165,79 @@ Defined.
 
 (** * 3. Univalence [is_univalent_algebraic_theory_cat] *)
 
+Lemma is_univalent_base_functor_category
+  : is_univalent base_functor_category.
+Proof.
+  apply is_univalent_functor_category.
+  apply is_univalent_HSET.
+Qed.
+
+Lemma is_univalent_disp_pointed_functor_disp_cat
+  : is_univalent_disp pointed_functor_disp_cat.
+Proof.
+  apply is_univalent_disp_iff_fibers_are_univalent.
+  do 3 intro.
+  use isweq_iso.
+  - exact pr1.
+  - intro.
+    apply setproperty.
+  - intro.
+    apply z_iso_eq.
+    apply setproperty.
+Qed.
+
+Lemma is_univalent_pointed_functor_cat
+  : is_univalent pointed_functor_cat.
+Proof.
+  apply is_univalent_total_category.
+  - exact is_univalent_base_functor_category.
+  - exact is_univalent_disp_pointed_functor_disp_cat.
+Qed.
+
+Lemma is_univalent_disp_algebraic_theory_data_disp_cat
+  : is_univalent_disp algebraic_theory_data_disp_cat.
+Proof.
+  apply is_univalent_disp_iff_fibers_are_univalent.
+  intros T comp comp'.
+  use isweq_iso.
+  - intro f.
+    do 4 (apply funextsec; intro).
+    apply (pr1 f _).
+  - intro.
+    refine (pr1 ((_ : isaset algebraic_theory_data_disp_cat[{T}]) _ _ _ _)).
+    do 4 (apply impred_isaset; intro).
+    apply setproperty.
+  - intro.
+    apply z_iso_eq.
+    do 4 (apply impred_isaprop; intro).
+    apply setproperty.
+Qed.
+
+Lemma is_univalent_algebraic_theory_data_cat
+  : is_univalent algebraic_theory_data_cat.
+Proof.
+  apply is_univalent_total_category.
+  - exact is_univalent_pointed_functor_cat.
+  - exact is_univalent_disp_algebraic_theory_data_disp_cat.
+Qed.
+
+Lemma is_univalent_disp_algebraic_theory_disp_cat
+  : is_univalent_disp algebraic_theory_disp_cat.
+Proof.
+  apply disp_full_sub_univalent.
+  exact isaprop_is_algebraic_theory.
+Qed.
+
+Lemma is_univalent_algebraic_theory_cat
+  : is_univalent algebraic_theory_cat.
+Proof.
+  apply is_univalent_total_category.
+  - exact is_univalent_algebraic_theory_data_cat.
+  - exact is_univalent_disp_algebraic_theory_disp_cat.
+Qed.
+
+(** * 4. Limits [limits_algebraic_theory_cat] *)
+
 Definition limits_base_functor_category
   : Lims base_functor_category.
 Proof.
@@ -233,7 +306,7 @@ End PointedLimits.
 Definition creates_limits_pointed_functor_disp_cat
   {J : graph}
   (d : diagram J _)
-  : creates_limit pointed_functor_disp_cat d (limits_base_functor_category _ _)
+  : creates_limit d (limits_base_functor_category _ _)
   := creates_limit_disp_struct _
     (tip_pointed_functor_disp_cat _)
     (cone_pointed_functor_disp_cat _)
@@ -241,7 +314,7 @@ Definition creates_limits_pointed_functor_disp_cat
 
 Definition limits_pointed_functor_cat
   : Lims pointed_functor_cat
-  := λ _ _, total_limit _
+  := λ _ _, total_limit
     (limits_base_functor_category _ _)
     (creates_limits_pointed_functor_disp_cat _).
 
@@ -317,8 +390,8 @@ End AlgebraicTheoryLimits.
 
 Definition creates_limits_algebraic_theory_data_disp_cat
   {J : graph}
-  (d : diagram J _)
-  : creates_limit algebraic_theory_data_disp_cat d (limits_pointed_functor_cat _ _)
+  (d : diagram J (total_category algebraic_theory_data_disp_cat))
+  : creates_limit d (limits_pointed_functor_cat _ _)
   := creates_limit_disp_struct _
     (tip_algebraic_theory_data_disp_cat _)
     (cone_algebraic_theory_data_disp_cat _)
@@ -326,20 +399,20 @@ Definition creates_limits_algebraic_theory_data_disp_cat
 
 Definition creates_limits_unique_algebraic_theory_data_disp_cat
   {J : graph}
-  (d : diagram J _)
-  : creates_limit_unique algebraic_theory_data_disp_cat d (limits_pointed_functor_cat _ _)
-  := creates_limit_unique_disp_struct _
+  (d : diagram J (total_category algebraic_theory_data_disp_cat))
+  : creates_limit_unique d (limits_pointed_functor_cat _ _)
+  := creates_limit_unique_disp_struct
     (creates_limits_algebraic_theory_data_disp_cat _)
     (uniqueness_algebraic_theory_data_disp_cat _).
 
 Definition limits_algebraic_theory_data_cat
   : Lims algebraic_theory_data_cat
-  := λ _ _, total_limit _ _ (creates_limits_algebraic_theory_data_disp_cat _).
+  := λ _ _, total_limit _ (creates_limits_algebraic_theory_data_disp_cat _).
 
 Definition creates_limits_algebraic_theory_disp_cat
   {J : graph}
-  (d : diagram J _)
-  : creates_limit algebraic_theory_disp_cat d (limits_algebraic_theory_data_cat _ _).
+  (d : diagram J (total_category algebraic_theory_disp_cat))
+  : creates_limit d (limits_algebraic_theory_data_cat _ _).
 Proof.
   apply creates_limit_disp_full_sub.
   - apply isaprop_is_algebraic_theory.
@@ -358,81 +431,8 @@ Proof.
     ).
 Defined.
 
-(** * 4. Limits [limits_algebraic_theory_cat] *)
-
-Lemma is_univalent_base_functor_category
-  : is_univalent base_functor_category.
-Proof.
-  apply is_univalent_functor_category.
-  apply is_univalent_HSET.
-Qed.
-
-Lemma is_univalent_disp_pointed_functor_disp_cat
-  : is_univalent_disp pointed_functor_disp_cat.
-Proof.
-  apply is_univalent_disp_iff_fibers_are_univalent.
-  do 3 intro.
-  use isweq_iso.
-  - exact pr1.
-  - intro.
-    apply setproperty.
-  - intro.
-    apply z_iso_eq.
-    apply setproperty.
-Qed.
-
-Lemma is_univalent_pointed_functor_cat
-  : is_univalent pointed_functor_cat.
-Proof.
-  apply is_univalent_total_category.
-  - exact is_univalent_base_functor_category.
-  - exact is_univalent_disp_pointed_functor_disp_cat.
-Qed.
-
-Lemma is_univalent_disp_algebraic_theory_data_disp_cat
-  : is_univalent_disp algebraic_theory_data_disp_cat.
-Proof.
-  apply is_univalent_disp_iff_fibers_are_univalent.
-  intros T comp comp'.
-  use isweq_iso.
-  - intro f.
-    do 4 (apply funextsec; intro).
-    apply (pr1 f _).
-  - intro.
-    refine (pr1 ((_ : isaset algebraic_theory_data_disp_cat[{T}]) _ _ _ _)).
-    do 4 (apply impred_isaset; intro).
-    apply setproperty.
-  - intro.
-    apply z_iso_eq.
-    do 4 (apply impred_isaprop; intro).
-    apply setproperty.
-Qed.
-
-Lemma is_univalent_algebraic_theory_data_cat
-  : is_univalent algebraic_theory_data_cat.
-Proof.
-  apply is_univalent_total_category.
-  - exact is_univalent_pointed_functor_cat.
-  - exact is_univalent_disp_algebraic_theory_data_disp_cat.
-Qed.
-
-Lemma is_univalent_disp_algebraic_theory_disp_cat
-  : is_univalent_disp algebraic_theory_disp_cat.
-Proof.
-  apply disp_full_sub_univalent.
-  exact isaprop_is_algebraic_theory.
-Qed.
-
-Lemma is_univalent_algebraic_theory_cat
-  : is_univalent algebraic_theory_cat.
-Proof.
-  apply is_univalent_total_category.
-  - exact is_univalent_algebraic_theory_data_cat.
-  - exact is_univalent_disp_algebraic_theory_disp_cat.
-Qed.
-
 Definition limits_algebraic_theory_cat
   : Lims algebraic_theory_cat
-  := λ _ _, total_limit _
+  := λ _ _, total_limit
     (limits_algebraic_theory_data_cat _ _)
     (creates_limits_algebraic_theory_disp_cat _).
