@@ -179,34 +179,60 @@ Section Limits.
     apply (pr2 (mapcone E_to_sigma_total_functor _ (make_cone _ (pr221 HE)))).
   Qed.
 
+  Section Arrow.
+
+    Context (d' : total_category D').
+    Context (d'_cone : cone d d').
+
+    Let d_cone := (make_LimCone _ _ _ (pr2 HE)).
+    Let e_cone := mapcone sigma_to_E_total_functor _ d'_cone.
+
+    Definition sigma_lim_arrow
+      : total_category D'⟦d', lim L,, tip_sigma_disp_cat⟧
+      := (# E_to_sigma_total_functor)%cat (limArrow d_cone _ e_cone).
+
+    Lemma sigma_lim_arrow_commutes
+      : is_cone_mor d'_cone
+        (make_cone _ forms_cone_sigma_disp_cat)
+        sigma_lim_arrow.
+    Proof.
+      intro u.
+      exact (maponpaths (# E_to_sigma_total_functor)%cat (limArrowCommutes d_cone _ e_cone u)).
+    Qed.
+
+    Lemma sigma_lim_arrow_unique
+      (t : ∑ x, is_cone_mor d'_cone (make_cone _ forms_cone_sigma_disp_cat) x)
+      : t = sigma_lim_arrow ,, sigma_lim_arrow_commutes.
+    Proof.
+      use subtypePairEquality.
+      {
+        intro.
+        apply impred_isaprop.
+        intro.
+        apply homset_property.
+      }
+      pose (f' := (# sigma_to_E_total_functor)%cat (pr1 t)).
+      pose (Hf' := λ u, maponpaths (# sigma_to_E_total_functor)%cat (pr2 t u)).
+      pose (uniq := limArrowUnique d_cone _ e_cone f' Hf').
+      exact (maponpaths (# E_to_sigma_total_functor)%cat uniq).
+    Qed.
+
+  End Arrow.
+
   Definition is_lim_cone_sigma_disp_cat
     : isLimCone _ _ (make_cone _ (forms_cone_sigma_disp_cat)).
   Proof.
     intros d' d'_cone.
-    pose (d_cone := (make_LimCone _ _ _ (pr2 HE))).
-    pose (e_cone := mapcone sigma_to_E_total_functor _ d'_cone).
     use ((_ ,, _) ,, _).
-    - exact ((# E_to_sigma_total_functor)%cat (limArrow d_cone _ e_cone)).
-    - intro u.
-      exact (maponpaths (# E_to_sigma_total_functor)%cat (limArrowCommutes d_cone _ e_cone u)).
-    - abstract (
-        intro t;
-        use subtypePairEquality;
-        [ intro;
-          apply impred_isaprop;
-          intro;
-          apply homset_property
-        | pose (f' := (# sigma_to_E_total_functor)%cat (pr1 t));
-          pose (Hf' := λ u, maponpaths (# sigma_to_E_total_functor)%cat (pr2 t u));
-          pose (uniq := limArrowUnique d_cone _ e_cone f' Hf');
-          exact (maponpaths (# E_to_sigma_total_functor)%cat uniq) ]
-      ).
+    - exact (sigma_lim_arrow d' d'_cone).
+    - exact (sigma_lim_arrow_commutes d' d'_cone).
+    - exact (sigma_lim_arrow_unique d' d'_cone).
   Defined.
 
 End Limits.
 
 Definition creates_limits_sigma_disp_cat
-  {J}
+  {J : graph}
   (F : diagram J (total_category sigma_disp_cat))
   (L : LimCone (mapdiagram (pr1_category _) F))
   (HD : creates_limit D (mapdiagram (total_functor sigmapr1_disp_functor) F) L)

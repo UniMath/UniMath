@@ -30,9 +30,9 @@ Definition creates_limit
   (L : LimCone (mapdiagram (pr1_category D) F)) : UU
 :=
   ∑ (CC :
-      ( ∑ (d : D (pr11 L))
+      ( ∑ (d : D (lim L))
           (δ : ∏ j : vertex J, d -->[limOut L j] (pr2 (dob F j))),
-          forms_cone (c:=((pr11 L),,d)) F (λ j, (limOut L j ,, δ j))))
+          forms_cone (c := (lim L ,, d)) F (λ j, (limOut L j ,, δ j))))
   , isLimCone _ _ (make_cone _ (pr2 (pr2 CC))).
 
 Definition make_creates_limit
@@ -41,9 +41,9 @@ Definition make_creates_limit
   {J : graph}
   {F : diagram J (total_category D)}
   {L : LimCone (mapdiagram (pr1_category D) F)}
-  (d : D (pr11 L))
+  (d : D (lim L))
   (δ : ∏ j : vertex J, d -->[limOut L j] (pr2 (dob F j)))
-  (Hcone : forms_cone (c:=((pr11 L),,d)) F (λ j, (limOut L j ,, δ j)))
+  (Hcone : forms_cone (c := (lim L ,, d)) F (λ j, (limOut L j ,, δ j)))
   (Hlim : isLimCone _ _ (make_cone _ Hcone))
   : creates_limit D F L
   := ((d ,, δ ,, Hcone) ,, Hlim).
@@ -56,9 +56,9 @@ Definition creates_limit_unique
   (L : LimCone (mapdiagram (pr1_category D) F)) : UU
 :=
   ∑ (CC :
-      ( ∃! (d : D (pr11 L))
+      ( ∃! (d : D (lim L))
           (δ : ∏ j : vertex J, d -->[limOut L j] (pr2 (dob F j))),
-          forms_cone(c:=((pr11 L),,d)) F (λ j, (limOut L j ,, δ j))))
+          forms_cone (c := (lim L ,, d)) F (λ j, (limOut L j ,, δ j))))
   , isLimCone _ _ (make_cone _ (pr2 (pr2 (pr1 CC)))).
 
 Definition make_creates_limit_unique
@@ -68,10 +68,9 @@ Definition make_creates_limit_unique
   {F : diagram J (total_category D)}
   {L : LimCone (mapdiagram (pr1_category D) F)}
   (CC : creates_limit D F L)
-  (Hunique : ∏
-    (d : D (pr11 L))
+  (Hunique : ∏ (d : D (lim L))
     (δ : ∏ j : vertex J, d -->[limOut L j] (pr2 (dob F j)))
-    (H : forms_cone(c:=((pr11 L),,d)) F (λ j, (limOut L j ,, δ j))),
+    (H : forms_cone (c := (lim L ,, d)) F (λ j, (limOut L j ,, δ j))),
     (d ,, δ ,, H) = pr1 CC
   )
   : creates_limit_unique D F L.
@@ -96,9 +95,15 @@ Definition creates_limit_disp_struct
   {J : graph}
   {F : diagram J (total_category D)}
   (L : LimCone (mapdiagram (pr1_category D) F))
-  (d : D (pr11 L))
+  (d : D (lim L))
   (cone : ∏ j : vertex J, d -->[limOut L j] (pr2 (dob F j)))
-  (is_limit : ∏ (d' : total_category D) (cone_out : ∏ u, d' --> (dob F u)) (is_cone : ∏ u v e, cone_out u · (dmor F e) = cone_out v), pr2 d' -->[limArrow L _ (make_cone (d := (mapdiagram (pr1_category D) F)) _ (λ u v e, (maponpaths pr1 (is_cone u v e))))] d)
+  (is_limit : ∏ (d' : total_category D)
+    (cone_out : ∏ u, d' --> (dob F u))
+    (is_cone : ∏ u v e, cone_out u · (dmor F e) = cone_out v)
+    (L_lim_arrow := limArrow L _ (make_cone
+      (d := (mapdiagram (pr1_category D) F)) _
+      (λ u v e, maponpaths pr1 (is_cone u v e)))),
+    pr2 d' -->[L_lim_arrow] d)
   : creates_limit D F L.
 Proof.
   use (make_creates_limit d cone _ (λ d' cone', (_ ,, _) ,, _)).
@@ -161,7 +166,7 @@ Definition creates_limit_disp_full_sub
   {J : graph}
   {F : diagram J (total_category D)}
   (L : LimCone (mapdiagram (pr1_category D) F))
-  (d : P (pr11 L))
+  (d : P (lim L))
   : creates_limit D F L.
 Proof.
   use (make_creates_limit (d : (D _)) _ _ (λ d' cone', (_ ,, _) ,, _)).
@@ -264,7 +269,9 @@ Section fiber.
 
   Context {F : diagram J (fiber_category D c)}.
   Context (L : LimCone (constant_diagram J c)).
-  Context (H : creates_limit _ _ ((L : LimCone (mapdiagram (fiber_to_total_functor D c ∙ pr1_category D) F)) : LimCone (mapdiagram (pr1_category _) (mapdiagram _ F)))).
+  Context (H : creates_limit _ _ ((L : LimCone
+    (mapdiagram (fiber_to_total_functor D c ∙ pr1_category D) F)
+  ) : LimCone (mapdiagram (pr1_category _) (mapdiagram _ F)))).
 
   Context (Δ := limArrow L _ (constant_cone J c)).
   Context (L' := make_LimCone _ _ _ (pr2 H)).
@@ -385,7 +392,11 @@ Section fiber.
     use tpair.
     - use (fiber_lim ,, (fiber_lim_out ,, fiber_lim_out_commutes)).
     - intros d' d'_cone.
-      exact ((_ ,, fiber_limit_arrow_commutes d' d'_cone) ,, (λ h, fiber_limit_arrow_unique d' d'_cone (pr1 h) (pr2 h))).
+      exact ((
+        _ ,,
+        fiber_limit_arrow_commutes d' d'_cone) ,,
+        (λ h, fiber_limit_arrow_unique d' d'_cone (pr1 h) (pr2 h))
+      ).
   Defined.
 
 End fiber.

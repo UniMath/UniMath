@@ -68,8 +68,10 @@ Definition constant_cone
 Proof.
   use tpair.
   - exact (λ _, identity c).
-  - do 3 intro.
-    apply id_left.
+  - abstract (
+      do 3 intro;
+      apply id_left
+    ).
 Defined.
 
 Definition isLimCone {C : precategory} {g : graph} (d : diagram g C) (c0 : C)

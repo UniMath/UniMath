@@ -111,50 +111,89 @@ Section Terminal_and_EmptyProd.
 
   (** Construct Terminal from empty arbitrary product. *)
   Definition terminal_from_empty_product (C : category) :
-    Product empty C fromempty -> Terminal C.
+    Product ∅ C fromempty -> Terminal C.
   Proof.
     intros X.
     use (make_Terminal (ProductObject _ C X)).
     use make_isTerminal.
     intros a.
-    assert (H : ∏ i : empty, C⟦a, fromempty i⟧) by
+    assert (H : ∏ i : ∅, C⟦a, fromempty i⟧) by
         (intros i; apply (fromempty i)).
     apply (make_iscontr (ProductArrow _ _ X H)).
     abstract (intros t; apply ProductArrowUnique; intros i; apply (fromempty i)).
   Defined.
 
-  Definition Terminal_is_empty_product
-    {C : category}
-    (T : Terminal C)
-    (c : empty → C)
-    : Product empty C c.
-  Proof.
-    use make_Product.
-    - exact (TerminalObject T).
-    - abstract (
-        intro i;
-        apply (fromempty i)
-      ).
-    - use make_isProduct.
-      + apply homset_property.
-      + intros c' cone'.
-        use make_iscontr.
-        * use tpair.
-          -- apply (TerminalArrow T).
-          -- abstract (
-              intro i;
-              apply (fromempty i)
-            ).
-        * abstract (
-            intro t;
-            use subtypePairEquality;
-            [ intro i;
-              apply impred_isaprop;
-              intro;
-              apply homset_property
-            | apply (TerminalArrowUnique T) ]
-          ).
-  Defined.
+  Section TerminalToProduct.
+
+    Context {C : category}.
+    Context (T : Terminal C).
+    Context (c : ∅ → C).
+
+    Definition terminal_product_object
+      : C
+      := T.
+
+    Definition terminal_product_projection
+      (i : ∅)
+      : C⟦terminal_product_object, c i⟧.
+    Proof.
+      induction i.
+    Defined.
+
+    Section Arrow.
+
+      Context (c' : C).
+      Context (cone' : ∏ i, C⟦c', c i⟧).
+
+      Definition terminal_product_arrow
+        : C⟦c', terminal_product_object⟧
+        := TerminalArrow T c'.
+
+      Lemma terminal_product_arrow_commutes
+        (i : ∅)
+        : terminal_product_arrow · terminal_product_projection i = cone' i.
+      Proof.
+        induction i.
+      Qed.
+
+      Lemma terminal_product_arrow_unique
+        (t : ∑ k, ∏ i : ∅, k · terminal_product_projection i = cone' i)
+        : t = terminal_product_arrow ,, terminal_product_arrow_commutes.
+      Proof.
+        use subtypePairEquality.
+        {
+          intro i.
+          apply impred_isaprop.
+          intro.
+          apply homset_property.
+        }
+        apply TerminalArrowUnique.
+      Qed.
+
+    End Arrow.
+
+    Definition terminal_is_product
+      : isProduct _ _ _ terminal_product_object terminal_product_projection.
+    Proof.
+      use (make_isProduct _ _ (homset_property C)).
+      intros c' cone'.
+      use make_iscontr.
+      - use tpair.
+        + exact (terminal_product_arrow c').
+        + exact (terminal_product_arrow_commutes c' cone').
+      - exact (terminal_product_arrow_unique c' cone').
+    Defined.
+
+    Definition Terminal_is_empty_product
+      : Product ∅ C c.
+    Proof.
+      use make_Product.
+      - exact terminal_product_object.
+      - exact terminal_product_projection.
+      - exact terminal_is_product.
+    Defined.
+
+  End TerminalToProduct.
 
 End Terminal_and_EmptyProd.
 

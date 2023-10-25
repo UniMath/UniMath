@@ -170,8 +170,8 @@ Section Fiber.
   : functor_data fiber_category (total_category D).
   Proof.
     use make_functor_data.
-      + exact (tpair _ c).
-      + exact (λ _ _, tpair _ (identity c)).
+    - exact (tpair _ c).
+    - exact (λ _ _, tpair _ (identity c)).
   Defined.
 
   Lemma fiber_to_total_is_functor
