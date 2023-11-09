@@ -52,10 +52,7 @@ Section EnrichedRezkCompletionUMP.
     use rad_equivalence_of_cats.
     - use is_univalent_enriched_functor_cat.
       apply univalent_category_is_univalent.
-    - use full_and_faithful_implies_fully_faithful.
-      split.
-      + exact (enriched_rezk_completion_ump_full EF HF₁ HF₂).
-      + exact (enriched_rezk_completion_ump_faithful EF HF₁).
+    - apply (enriched_rezk_completion_ump_fully_faithful EF HF₁ HF₂).
     - exact (enriched_rezk_completion_ump_essentially_surjective EF HF₁ HF₂).
   Defined.
 
