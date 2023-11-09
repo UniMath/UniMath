@@ -7,7 +7,9 @@
 
  Contents
  1. Functors with enrichments
- 2. Fully faithful functors
+ 2. Properties for enriched functors
+ 2.1. Fully faithful functors
+ 2.2. Weak equivalences
  3. The enriched identity functor
  4. The composition of enriched functors
  5. The constant functor
@@ -26,9 +28,7 @@ Import MonoidalNotations.
 Local Open Scope cat.
 Local Open Scope moncat.
 
-(**
- 1. Functors with enrichments
- *)
+(** * 1. Functors with enrichments *)
 Definition functor_enrichment_data
            {V : monoidal_cat}
            {C₁ C₂ : category}
@@ -180,9 +180,9 @@ Coercion functor_with_enrichment_to_functor
   : E₁ ⟶ E₂
   := pr1 F.
 
-(**
- 2. Fully faithful functors
- *)
+(** * 2. Properties for enriched functors *)
+
+(** ** 2.1. Fully faithful functors *)
 Definition fully_faithful_enriched_functor
            {C₁ C₂ : category}
            {F : C₁ ⟶ C₂}
@@ -288,9 +288,18 @@ Proof.
   - exact (fully_faithful_enriched_functor_to_faithful EF HEF).
 Qed.
 
-(**
- 3. The enriched identity functor
- *)
+(** ** 2.2. Weak equivalences *)
+Definition enriched_weak_equivalence
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {V : monoidal_cat}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           (EF : functor_enrichment F E₁ E₂)
+  : UU
+  := essentially_surjective F × fully_faithful_enriched_functor EF.
+
+(** 3. The enriched identity functor *)
 Definition functor_id_enrichment
            {V : monoidal_cat}
            {C : category}
@@ -324,9 +333,7 @@ Proof.
   apply is_z_isomorphism_identity.
 Defined.
 
-(**
- 4. The composition of enriched functors
- *)
+(** * 4. The composition of enriched functors *)
 Definition functor_comp_enrichment
            {V : monoidal_cat}
            {C₁ C₂ C₃ : category}
@@ -396,9 +403,7 @@ Proof.
   - apply HF₂.
 Defined.
 
-(**
- 5. The constant functor
- *)
+(** * 5. The constant functor *)
 Definition functor_constant_enrichment
            {V : monoidal_cat}
            (HV : isTerminal V (I_{V}))
@@ -444,9 +449,7 @@ Proof.
        apply (@TerminalArrowEq _ (_ ,, HV))).
 Defined.
 
-(**
- 6. Lemmas for pre- and postcomposition
- *)
+(** * 6. Lemmas for pre- and postcomposition *)
 Definition functor_enrichment_precomp_arr
            {V : monoidal_cat}
            {C₁ C₂ : category}

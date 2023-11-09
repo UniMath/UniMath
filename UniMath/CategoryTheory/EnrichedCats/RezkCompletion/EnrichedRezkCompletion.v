@@ -33,6 +33,7 @@
  Contents
  1. The Rezk completion and its enrichment
  2. The weak equivalence
+ 3. Bundled version
 
  *************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -120,4 +121,29 @@ Section EnrichedRezkCompletion.
              (fully_faithful_enriched_yoneda _ _ _ _)
              image_incl_enrichment_fully_faithful).
   Qed.
+
+  Proposition enriched_weak_equivalence_enriched_rezk_completion_map
+    : enriched_weak_equivalence enriched_rezk_completion_map_enrichment.
+  Proof.
+    split.
+    - exact is_essentially_surjective_enriched_rezk_completion_map.
+    - exact is_fully_faithful_enriched_rezk_completion_map.
+  Qed.
+
+  (** * 3. Bundled version *)
+  Definition enriched_rezk_completion_bundled
+    : ∑ (RC : univalent_category)
+        (ERC : enrichment RC V)
+        (F : C ⟶ RC)
+        (EF : functor_enrichment F E ERC),
+      enriched_weak_equivalence EF
+    := enriched_rezk_completion
+       ,,
+       enriched_rezk_completion_enrichment
+       ,,
+       enriched_rezk_completion_map
+       ,,
+       enriched_rezk_completion_map_enrichment
+       ,,
+       enriched_weak_equivalence_enriched_rezk_completion_map.
 End EnrichedRezkCompletion.
