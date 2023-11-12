@@ -430,21 +430,7 @@ Section EnrichedKleisli.
       rewrite !assoc.
       rewrite <- functor_enrichment_from_arr.
       rewrite enriched_from_arr_postcomp.
-      apply maponpaths.
-      rewrite !functor_comp.
-      rewrite !assoc'.
-      apply maponpaths.
-      rewrite !assoc.
-      rewrite <- functor_comp.
-      refine (!_).
-      etrans.
-      {
-        apply maponpaths_2.
-        apply maponpaths.
-        exact (@Monad_law2 _ M y).
-      }
-      rewrite functor_id.
-      apply id_left.
+      apply idpath.
   Qed.
 
   Definition functor_to_kleisli_cat_enrichment

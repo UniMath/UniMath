@@ -65,7 +65,7 @@ Section EnrichedKleisli.
              endo_of_monad_enrichment EM y (M z) #⊗ identity _
              · enriched_comp E x (M y) (M(M z))
              · postcomp_arr E x (μ M z)).
-    - exact (λ x y f, enriched_from_arr E (f · η M y)).
+    - exact (λ x y f, enriched_from_arr E f).
     - exact (λ x y f, enriched_to_arr E f).
   Defined.
 
@@ -253,45 +253,14 @@ Section EnrichedKleisli.
       rewrite <- postcomp_arr_comp.
       apply idpath.
     - intros x y f ; cbn.
-      etrans.
-      {
-        do 3 apply maponpaths.
-        exact (@bind_η _ M y).
-      }
-      rewrite id_right.
       apply enriched_to_from_arr.
     - intros x y f ; cbn.
-      etrans.
-      {
-        do 2 apply maponpaths.
-        exact (@bind_η _ M y).
-      }
-      rewrite id_right.
       apply enriched_from_to_arr.
     - intros x ; cbn.
       apply enriched_to_from_arr.
     - intros x y z f g ; cbn.
       refine (!_).
-      etrans.
-      {
-        rewrite !assoc'.
-        do 2 apply maponpaths.
-        apply maponpaths_2.
-        etrans.
-        {
-          do 3 apply maponpaths.
-          exact (@bind_η _ M y).
-        }
-        rewrite id_right.
-        apply maponpaths_2.
-        etrans.
-        {
-          do 2 apply maponpaths.
-          exact (@bind_η _ M z).
-        }
-        rewrite id_right.
-        apply idpath.
-      }
+      rewrite !assoc'.
       rewrite enriched_comp_postcomp_arr.
       etrans.
       {
@@ -350,10 +319,7 @@ Section EnrichedKleisli.
     apply maponpaths_2.
     rewrite <- tensor_split.
     rewrite <- tensor_split'.
-    do 2 apply maponpaths.
-    refine (_ @ id_right _).
-    apply maponpaths.
-    apply bind_η.
+    apply idpath.
   Qed.
 
   Proposition Kleisli_cat_enrichment_postcomp_arr
@@ -377,12 +343,7 @@ Section EnrichedKleisli.
     apply maponpaths_2.
     rewrite <- functor_enrichment_from_arr.
     rewrite enriched_from_arr_postcomp.
-    apply maponpaths.
-    apply maponpaths_2.
-    apply maponpaths.
-    refine (_ @ id_right _).
-    apply maponpaths.
-    apply bind_η.
+    apply idpath.
   Qed.
 
   (** * 4. Enriched functors from the Kleisli category *)
@@ -446,10 +407,7 @@ Section EnrichedKleisli.
       apply id_left.
     - intros x y f ; cbn.
       rewrite enriched_from_arr_postcomp.
-      apply maponpaths.
-      refine (_ @ id_right _).
-      apply maponpaths.
-      apply bind_η.
+      apply idpath.
   Qed.
 
   Definition Left_Kleisli_functor_enrichment
@@ -581,12 +539,7 @@ Section EnrichedKleisli.
         rewrite !assoc.
         rewrite <- functor_enrichment_from_arr.
         rewrite enriched_from_arr_postcomp.
-        apply maponpaths.
-        apply maponpaths_2.
-        apply maponpaths.
-        refine (!(_ @ id_right _)).
-        apply maponpaths.
-        apply bind_η.
+        apply idpath.
     Qed.
 
     Definition functor_from_kleisli_cat_enrichment
