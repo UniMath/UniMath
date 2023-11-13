@@ -395,4 +395,13 @@ Section PrecompositionFullyFaithful.
          rewrite id_left, id_right in p ;
          exact (!p)).
   Defined.
+
+  Proposition enriched_rezk_completion_ump_fully_faithful
+    : fully_faithful (enriched_precomp E₃ EF).
+  Proof.
+    use full_and_faithful_implies_fully_faithful.
+    split.
+    - exact enriched_rezk_completion_ump_full.
+    - exact enriched_rezk_completion_ump_faithful.
+  Qed.
 End PrecompositionFullyFaithful.

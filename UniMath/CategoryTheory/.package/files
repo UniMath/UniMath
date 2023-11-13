@@ -436,6 +436,7 @@ EnrichedCats/RezkCompletion/RezkUniversalProperty.v
 
 EnrichedCats/Examples/KleisliEnriched.v
 EnrichedCats/Examples/UnivalentKleisliEnriched.v
+EnrichedCats/Examples/UnivalentKleisliMapping.v
 
 EnrichedCats/Limits/Examples/OppositeEnrichedLimits.v
 EnrichedCats/Limits/Examples/PosetEnrichedLimits.v

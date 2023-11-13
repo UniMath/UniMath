@@ -163,6 +163,52 @@ Section EnrichedCats.
     apply isaprop_nat_trans_enrichment.
   Qed.
 
+  Proposition disp_locally_sym_enriched_cats
+    : disp_locally_sym disp_bicat_of_enriched_cats.
+  Proof.
+    intros C₁ C₂ F G τ E₁ E₂ EF EG Eτ.
+    use nat_trans_enrichment_via_comp.
+    intros x y ; cbn.
+    refine (!(id_right _) @ _).
+    rewrite <- postcomp_arr_id.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      exact (!(maponpaths (λ z, pr1 z y) (vcomp_rinv τ))).
+    }
+    cbn.
+    rewrite postcomp_arr_comp.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite !assoc'.
+    rewrite precomp_postcomp_arr.
+    cbn.
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply (!nat_trans_enrichment_to_comp Eτ x y).
+    }
+    rewrite !assoc'.
+    rewrite <- precomp_arr_comp.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      exact (maponpaths (λ z, pr1 z x) (vcomp_linv τ)).
+    }
+    cbn.
+    rewrite precomp_arr_id.
+    apply id_right.
+  Qed.
+
+  Proposition disp_locally_groupoid_enriched_cats
+    : disp_locally_groupoid disp_bicat_of_enriched_cats.
+  Proof.
+    use make_disp_locally_groupoid.
+    - exact disp_locally_sym_enriched_cats.
+    - exact disp_2cell_isapprop_enriched_cats.
+  Qed.
+
   (** * 2. Local univalence *)
   Definition disp_univalent_2_1_enriched_cats
     : disp_univalent_2_1 disp_bicat_of_enriched_cats.
