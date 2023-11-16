@@ -22,7 +22,6 @@ DisplayedCats/DisplayedFunctorEq.v
 DisplayedCats/Total.v
 DisplayedCats/Fiber.v
 
-categories/CategoryOfSetCategories.v
 opp_precat.v
 OppositeCategory/Core.v
 Groupoids.v
@@ -92,7 +91,6 @@ limits/Ends.v
 DisplayedCats/Binproducts.v
 
 limits/Examples/CategoryProductLimits.v
-limits/Examples/CategoryOfSetcategoriesLimits.v
 limits/StandardDiagrams.v
 limits/Filtered.v
 IsoCommaCategory.v
@@ -151,6 +149,8 @@ Adjunctions/Restriction.v
 Adjunctions/Examples.v
 Subcategory/Reflective.v
 
+categories/CategoryOfSetCategories.v
+limits/Examples/CategoryOfSetcategoriesLimits.v
 categories/setwith2binops.v
 categories/monoids.v
 categories/abmonoids.v
