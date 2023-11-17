@@ -1,15 +1,25 @@
-(*
-  Defines a type for passing data to make_algebraic_theory_morphism' in AlgebraicTheoryMorphisms.v.
-*)
+(**************************************************************************************************
 
+  The minimal data for constructing algebraic theory morphisms
+
+  The category-theoretic definition of algebraic theories and their morphisms is nice to work with,
+  but unnecessarily complicated for constructing the objects directly. This file provides a way to
+  define algebraic theory morphisms in a simpler way.
+
+  Contents
+  1. A type containing the minimal data needed to construct a morphism [algebraic_theory_morphism']
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 
 Local Open Scope algebraic_theories.
+
+(** * 1. A type containing the minimal data needed to construct a morphism *)
 
 Definition algebraic_theory_morphism'_data (T T' : algebraic_theory_data) : UU
   := ∏ n, (T n : hSet) → (T' n : hSet).

@@ -60,6 +60,20 @@ Definition is_cone_mor {C : precategory} {g : graph} {d : diagram g C} {c1 : C}
            (cc1 : cone d c1) {c2 : C} (cc2 : cone d c2) (x : c1 --> c2) : UU :=
   ∏ (v : vertex g), x · coneOut cc2 v = coneOut cc1 v.
 
+Definition constant_cone
+  {C : category}
+  (J : graph)
+  (c : C)
+  : cone (constant_diagram J c) c.
+Proof.
+  use tpair.
+  - exact (λ _, identity c).
+  - abstract (
+      do 3 intro;
+      apply id_left
+    ).
+Defined.
+
 Definition isLimCone {C : precategory} {g : graph} (d : diagram g C) (c0 : C)
   (cc0 : cone d c0) : UU := ∏ (c : C) (cc : cone d c),
     iscontr (∑ x : C⟦c,c0⟧, is_cone_mor cc cc0 x).

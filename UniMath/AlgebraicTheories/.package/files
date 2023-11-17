@@ -5,14 +5,29 @@ AlgebraicTheories.v
 AlgebraicTheoryMorphisms2.v
 AlgebraicTheoryMorphisms.v
 AlgebraicTheoryCategory.v
-AlgebraicTheoryAlgebras.v
-AlgebraicTheoryAlgebraMorphisms.v
-AlgebraicTheoryAlgebraCategory.v
-AlgebraicTheoryAlgebraFibration.v
 
-Examples/OnePointTheory.v
-Examples/ProjectionsTheory.v
+Algebras.v
+AlgebraMorphisms.v
+AlgebraCategory.v
+AlgebraFibration.v
+
+LambdaCalculus.v
+LambdaTheories.v
+LambdaTheoryMorphisms.v
+LambdaTheoryCategory.v
+
+Presheaves.v
+PresheafMorphisms.v
+PresheafCategory.v
+
 Examples/EndomorphismTheory.v
 Examples/FreeMonoidTheory.v
+Examples/FreeTheory.v
+Examples/LambdaCalculus.v
+Examples/OnePointTheory.v
+Examples/Plus1Presheaf.v
+Examples/ProjectionsTheory.v
 
-AlgebraicTheoryAlgebraWeqEndomorphismTheoryMorphism.v
+LambdaAlgebraMonoid.v
+
+RepresentationTheorem.v

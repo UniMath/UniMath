@@ -68,6 +68,13 @@ Definition diagram_from_functor : diagram graph_from_precategory C :=
 
 End diagram_from_functor.
 
+Definition constant_diagram
+  {C : category}
+  (J : graph)
+  (c : C)
+  : diagram J C
+  := make_diagram (λ _, c) (λ _ _ _, identity c).
+
 End diagram_def.
 
 Coercion graph_from_precategory : precategory >-> graph.

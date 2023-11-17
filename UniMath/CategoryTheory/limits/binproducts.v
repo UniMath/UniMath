@@ -34,7 +34,10 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Local Open Scope cat.
 
@@ -1480,4 +1483,170 @@ Proof.
          rewrite z_iso_after_z_iso_inv ;
          rewrite id_left ;
          apply (BinProductPr2Commutes _ _ _ (make_BinProduct _ _ _ _ _ _ H))).
+Defined.
+
+Section BinProductsFromProducts.
+
+Context {C : category}.
+Context (c d : C).
+
+Let binproduct_indexed_objects
+  (i : bool)
+  : C
+  := if i then c else d.
+
+Context (P : Product bool C binproduct_indexed_objects).
+
+Definition BinProduct_from_Product
+  : BinProduct _ c d.
+Proof.
+  use ((_ ,, _ ,, _) ,, (λ p' π₁ π₂, ((_ ,, _ ,, _) ,, _))).
+  - exact (ProductObject _ _ P).
+  - exact (ProductPr _ _ P true).
+  - exact (ProductPr _ _ P false).
+  - apply ProductArrow.
+    intro i.
+    induction i.
+    + exact π₁.
+    + exact π₂.
+  - exact (ProductPrCommutes _ _ _ P _ _ true).
+  - exact (ProductPrCommutes _ _ _ P _ _ false).
+  - abstract (
+      intro t;
+      apply subtypePath;
+      [ intro;
+        apply isapropdirprod;
+        apply homset_property | ];
+      apply (ProductArrowUnique _ _ _ P);
+      intro i;
+      induction i;
+      [ exact (pr12 t)
+      | exact (pr22 t) ]
+    ).
+Defined.
+
+End BinProductsFromProducts.
+
+Definition BinProducts_from_Products
+  {C : category}
+  (P : Products bool C)
+  : BinProducts C
+  := λ c d, BinProduct_from_Product c d (P _).
+
+Section ProductsFromBinProducts.
+
+  Context {C : category}.
+  Context (BP : BinProducts C).
+  Context {n : nat}.
+  Context {c : C}.
+  Context (P : Product (stn n) C (λ _, c)).
+  Let stnweq := (weqdnicoprod n lastelement).
+
+  Definition sn_power_object
+    : C
+    := BP c P.
+
+  Definition sn_power_projection
+    (i : stn (S n))
+    : C ⟦ sn_power_object, c ⟧.
+  Proof.
+    induction (invmap stnweq i) as [i' | i'].
+    - exact (
+        BinProductPr2 _ _ ·
+        ProductPr _ _ _ i'
+      ).
+    - apply BinProductPr1.
+  Defined.
+
+  Section Arrow.
+
+    Context (c' : C).
+    Context (cone' : stn (S n) → C⟦c', c⟧).
+
+    Definition sn_power_arrow
+      : C ⟦c', sn_power_object⟧.
+    Proof.
+      use BinProductArrow.
+      - apply (cone' (stnweq (inr tt))).
+      - apply ProductArrow.
+        intro i.
+        apply (cone' (stnweq (inl i))).
+    Defined.
+
+    Lemma sn_power_arrow_commutes
+      (i : stn (S n))
+      : sn_power_arrow · sn_power_projection i = cone' i.
+    Proof.
+      rewrite <- (homotweqinvweq stnweq i).
+      induction (invmap stnweq i) as [i' | i'].
+      - refine (maponpaths (λ x, _ · (_ x)) (homotinvweqweq stnweq (inl i')) @ _).
+        refine (assoc _ _ _ @ _).
+        refine (maponpaths (λ x, x · _) (BinProductPr2Commutes _ _ _ _ _ _ _) @ _).
+        apply (ProductPrCommutes _ _ _ P).
+      - refine (maponpaths (λ x, _ · (_ x)) (homotinvweqweq stnweq (inr i')) @ _).
+        refine (BinProductPr1Commutes _ _ _ (BP c P) _ _ _ @ _).
+        apply maponpaths.
+        now apply stn_eq.
+    Qed.
+
+    Lemma sn_power_arrow_unique
+      (t : ∑ (f: C ⟦c', sn_power_object⟧),
+        ∏ i, f · sn_power_projection i = cone' i)
+      : t = (sn_power_arrow ,, sn_power_arrow_commutes).
+    Proof.
+      apply subtypePairEquality.
+      {
+        intro.
+        apply impred_isaprop.
+        intro.
+        apply homset_property.
+      }
+      apply BinProductArrowUnique.
+      - refine (!_ @ pr2 t _).
+        apply maponpaths.
+        exact (maponpaths _ (homotinvweqweq _ _)).
+      - apply ProductArrowUnique.
+        intro i.
+        refine (_ @ pr2 t _).
+        refine (assoc' _ _ _ @ _).
+        refine (maponpaths _ (!_)).
+        exact (maponpaths _ (homotinvweqweq _ _)).
+    Qed.
+
+  End Arrow.
+
+  Definition sn_power_is_product
+    : isProduct _ _ _ sn_power_object sn_power_projection.
+  Proof.
+    use (make_isProduct _ _ (homset_property C)).
+    intros c' cone'.
+    use make_iscontr.
+    + exists (sn_power_arrow c' cone').
+      exact (sn_power_arrow_commutes c' cone').
+    + exact (sn_power_arrow_unique c' cone').
+  Defined.
+
+  Definition n_power_to_sn_power
+    : Product (stn (S n)) C (λ _, c).
+  Proof.
+    use make_Product.
+    - exact sn_power_object.
+    - exact sn_power_projection.
+    - exact sn_power_is_product.
+  Defined.
+
+End ProductsFromBinProducts.
+
+Definition bin_product_power
+  (C : category)
+  (c : C)
+  (T : Terminal C)
+  (BP : BinProducts C)
+  (n : nat)
+  : Product (stn n) C (λ _, c).
+Proof.
+  induction n as [ | n IHn].
+  - refine (transportf (λ x, Product x C (λ y: x, c)) _ (Terminal_is_empty_product T _)).
+    abstract exact (invmap (univalence _ _) (invweq weqstn0toempty)).
+  - apply (n_power_to_sn_power BP IHn).
 Defined.
