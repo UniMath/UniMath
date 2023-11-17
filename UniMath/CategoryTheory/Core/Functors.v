@@ -1250,6 +1250,84 @@ Proof.
     apply isapropissurjective.
 Qed.
 
+(** More on equality of functors *)
+Definition path_functor_ob
+           {C₁ C₂ : category}
+           {F G : C₁ ⟶ C₂}
+           (p : F = G)
+           (x : C₁)
+  : F x = G x.
+Proof.
+  induction p.
+  apply idpath.
+Defined.
+
+Definition path_functor_mor
+           {C₁ C₂ : category}
+           {F G : C₁ ⟶ C₂}
+           (p : F = G)
+           {x y : C₁}
+           (f : x --> y)
+  : #F f · idtoiso (path_functor_ob p y)
+    =
+    idtoiso (path_functor_ob p x) · #G f.
+Proof.
+  induction p ; cbn.
+  rewrite id_left, id_right.
+  apply idpath.
+Qed.
+
+Definition path_functor_mor_alt
+           {C₁ C₂ : category}
+           {F G : C₁ ⟶ C₂}
+           (p : F = G)
+           {x y : C₁}
+           (f : x --> y)
+  : idtoiso (!(path_functor_ob p x)) · #F f · idtoiso (path_functor_ob p y)
+    =
+    #G f.
+Proof.
+  induction p ; cbn.
+  rewrite id_left, id_right.
+  apply idpath.
+Qed.
+
+Proposition functor_data_eq_alt
+            {C C' : category}
+            {F F' : functor_data C C'}
+            (p : F ~ F')
+            (q : ∏ (x y : C)
+                   (f : x --> y),
+                 #F f · idtoiso (p y)
+                 =
+                 idtoiso (p x) · #F' f)
+  : F = F'.
+Proof.
+  use functor_data_eq.
+  - exact p.
+  - intros x y f.
+    specialize (q x y f).
+    unfold double_transport.
+    rewrite <- idtoiso_postcompose.
+    rewrite <- idtoiso_precompose.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      exact q.
+    }
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (!_).
+      apply pr1_idtoiso_concat.
+    }
+    rewrite pathsinv0l.
+    cbn.
+    apply id_left.
+Qed.
+
 
 Notation "F ∙ G" := (functor_composite F G) : cat.
 (* to input: type "\." with Agda input method *)
