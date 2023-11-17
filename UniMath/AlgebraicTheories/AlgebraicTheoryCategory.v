@@ -103,65 +103,79 @@ Definition algebraic_theory_cat
 
 (** * 2. A characterization of iso's of algebraic theories *)
 
-Definition make_algebraic_theory_z_iso
-  (a b : algebraic_theory)
-  (F : ∏ n, z_iso (C := HSET) (a n : hSet) (b n : hSet))
-  (Hpr : ∏ n i, morphism_from_z_iso _ _ (F n) (pr i) = pr i)
-  (Hcomp : ∏ m n f (g : stn m → (a n : hSet)),
-    morphism_from_z_iso _ _ (F n) (f • g)
-    = morphism_from_z_iso _ _ (F m) f • (λ i, (morphism_from_z_iso _ _ (F n) (g i))))
-  : z_iso (a : algebraic_theory_cat) (b : algebraic_theory_cat).
-Proof.
-  use make_z_iso.
-  - use make_algebraic_theory_morphism'.
-    + intro n.
-      exact (morphism_from_z_iso _ _ (F n)).
-    + abstract (
-        split;
-        [ exact Hcomp
-        | exact Hpr ]
-      ).
-  - use make_algebraic_theory_morphism'.
-    + intro n.
-      exact (inv_from_z_iso (F n)).
-    + abstract (
-        split;
-        [ intros m n f g;
-          refine (!_ @ maponpaths (λ x, x _) (z_iso_inv_after_z_iso (F n)));
-          refine (maponpaths (λ x, inv_from_z_iso (F n) x) (Hcomp _ _ _ _) @ _);
-          apply maponpaths;
-          refine (maponpaths (λ x, (x f) • _) (z_iso_after_z_iso_inv (F m)) @ _);
-          apply maponpaths;
-          apply funextfun;
-          intro;
-          exact (maponpaths (λ x, x (g _)) (z_iso_after_z_iso_inv (F n)))
-        | intros n i;
-          refine (!_ @ maponpaths (λ x, x _) (z_iso_inv_after_z_iso (F n)));
-          apply (maponpaths (inv_from_z_iso (F n)));
-          apply Hpr ]
-      ).
-  - abstract (
-      split;
-      ( apply subtypePath;
-        [ intro;
-          apply isapropunit | ]);
-      ( apply subtypePath;
-        [ intro;
-          repeat (apply impred_isaprop; intro);
-          apply setproperty | ]);
-      ( apply subtypePath;
-        [ intro;
-          apply setproperty | ] );
-      ( apply subtypePath;
-        [ intro;
-          repeat (apply impred_isaprop; intro);
-          apply homset_property | ] );
-      apply funextsec;
-      intro n;
-      [ apply (z_iso_inv_after_z_iso (F n)) |
-        apply (z_iso_after_z_iso_inv (F n)) ]
-    ).
-Defined.
+Section Iso.
+
+  Context (a b : algebraic_theory).
+  Context (F : ∏ (n : nat), z_iso (C := HSET) (a n : hSet) (b n : hSet)).
+  Context (Hpr : ∏ (n : nat) (i : stn n), morphism_from_z_iso _ _ (F n) (pr i) = pr i).
+  Context (Hcomp : ∏ (m n : nat) (f : (a m : hSet)) (g : stn m → (a n : hSet)),
+      morphism_from_z_iso _ _ (F n) (f • g)
+      = morphism_from_z_iso _ _ (F m) f • (λ i, (morphism_from_z_iso _ _ (F n) (g i)))).
+
+  Definition make_algebraic_theory_z_iso_mor_data
+    : algebraic_theory_morphism'_data a b
+    := λ n, morphism_from_z_iso _ _ (F n).
+
+  Lemma make_algebraic_theory_z_iso_is_mor
+    : is_algebraic_theory_morphism' make_algebraic_theory_z_iso_mor_data.
+  Proof.
+    use make_is_algebraic_theory_morphism'.
+    - exact Hcomp.
+    - exact Hpr.
+  Qed.
+
+  Definition make_algebraic_theory_z_iso_mor
+    : algebraic_theory_morphism a b
+    := make_algebraic_theory_morphism' _ make_algebraic_theory_z_iso_is_mor.
+
+  Definition make_algebraic_theory_z_iso_inv_data
+    : algebraic_theory_morphism'_data b a
+    := λ n, inv_from_z_iso (F n).
+
+  Lemma make_algebraic_theory_z_iso_is_inv
+    : is_algebraic_theory_morphism' make_algebraic_theory_z_iso_inv_data.
+  Proof.
+    use make_is_algebraic_theory_morphism'.
+    - intros m n f g.
+      refine (!_ @ maponpaths (λ x, x _) (z_iso_inv_after_z_iso (F n))).
+      refine (maponpaths (λ x, inv_from_z_iso (F n) x) (Hcomp _ _ _ _) @ _).
+      apply maponpaths.
+      refine (maponpaths (λ x, (x f) • _) (z_iso_after_z_iso_inv (F m)) @ _).
+      apply maponpaths.
+      apply funextfun.
+      intro.
+      exact (maponpaths (λ x, x (g _)) (z_iso_after_z_iso_inv (F n))).
+    - intros n i.
+      refine (!_ @ maponpaths (λ x, x _) (z_iso_inv_after_z_iso (F n))).
+      apply (maponpaths (inv_from_z_iso (F n))).
+      apply Hpr.
+  Qed.
+
+  Definition make_algebraic_theory_z_iso_inv
+    : algebraic_theory_morphism b a
+    := make_algebraic_theory_morphism' _ make_algebraic_theory_z_iso_is_inv.
+
+  Lemma make_algebraic_theory_z_iso_is_iso
+    : is_inverse_in_precat (C := algebraic_theory_cat)
+      make_algebraic_theory_z_iso_mor
+      make_algebraic_theory_z_iso_inv.
+  Proof.
+    split;
+      apply algebraic_theory_morphism_eq;
+      intros n f;
+      refine (eqtohomot _ f).
+    - apply (z_iso_inv_after_z_iso (F n)).
+    - apply (z_iso_after_z_iso_inv (F n)).
+  Qed.
+
+  Definition make_algebraic_theory_z_iso
+    : z_iso (C := algebraic_theory_cat) a b
+    := make_z_iso (C := algebraic_theory_cat)
+      make_algebraic_theory_z_iso_mor
+      make_algebraic_theory_z_iso_inv
+      make_algebraic_theory_z_iso_is_iso.
+
+End Iso.
 
 (** * 3. Univalence [is_univalent_algebraic_theory_cat] *)
 
@@ -268,7 +282,7 @@ Section PointedLimits.
 
   Lemma uniqueness_pointed_functor_disp_cat
     (d' : D (lim L))
-    (cone_out : ∏ j, d' -->[limOut L j] (pr2 (dob d j)))
+    (cone_out : ∏ (j : vertex J), d' -->[limOut L j] (pr2 (dob d j)))
     : d' = tip_pointed_functor_disp_cat.
   Proof.
     apply subtypePairEquality.
@@ -283,8 +297,8 @@ Section PointedLimits.
 
   Lemma is_limit_pointed_functor_disp_cat
     (d' : total_category D)
-    (cone_out : ∏ u, d' --> (dob d u))
-    (is_cone : ∏ u v e, cone_out u · (dmor d e) = cone_out v)
+    (cone_out : ∏ (u : vertex J), d' --> (dob d u))
+    (is_cone : ∏ (u v : vertex J) (e : edge u v), cone_out u · (dmor d e) = cone_out v)
     : pr2 d' -->[limArrow L _ (make_cone
         (d := (mapdiagram (pr1_category D) d)) _
         (λ u v e, (maponpaths pr1 (is_cone u v e))))
@@ -350,7 +364,7 @@ Section AlgebraicTheoryLimits.
 
   Lemma uniqueness_algebraic_theory_data_disp_cat
     (d' : D (lim L))
-    (cone_out : ∏ j, d' -->[limOut L j] (pr2 (dob d j)))
+    (cone_out : ∏ (j : vertex J), d' -->[limOut L j] (pr2 (dob d j)))
     : d' = tip_algebraic_theory_data_disp_cat.
   Proof.
     do 4 (apply funextsec; intro).
@@ -367,8 +381,8 @@ Section AlgebraicTheoryLimits.
 
   Lemma is_limit_algebraic_theory_data_disp_cat
     (d' : total_category D)
-    (cone_out : ∏ u, d' --> (dob d u))
-    (is_cone : ∏ u v e, cone_out u · (dmor d e) = cone_out v)
+    (cone_out : ∏ (u : vertex J), d' --> (dob d u))
+    (is_cone : ∏ (u v : vertex J) (e : edge u v), cone_out u · (dmor d e) = cone_out v)
     : pr2 d' -->[limArrow L _ (make_cone
         (d := (mapdiagram (pr1_category D) d)) _
         (λ u v e, (maponpaths pr1 (is_cone u v e))))
