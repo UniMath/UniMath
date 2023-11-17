@@ -252,14 +252,17 @@ Section Limits.
   Definition tip_lambda_theory_data_disp_cat
     : D (lim L).
   Proof.
-    split;
-      intros n f;
-      (use tpair;
-        [intro u | ]).
-      * exact (pr12 (dob d u) _ (pr1 f u)).
-      * abstract exact (λ u v e, pr12 (dmor d e) _ _ @ maponpaths _ (pr2 f _ _ _)).
-      * exact (pr22 (dob d u) _ (pr1 f u)).
-      * abstract exact (λ u v e, pr22 (dmor d e) _ _ @ maponpaths _ (pr2 f _ _ _)).
+    split.
+    - intros n f.
+      use tpair.
+      + intro u.
+        exact (pr12 (dob d u) _ (pr1 f u)).
+      + abstract exact (λ u v e, pr12 (dmor d e) _ _ @ maponpaths _ (pr2 f _ _ _)).
+    - intros n f.
+      use tpair.
+      + intro u.
+        exact (pr22 (dob d u) _ (pr1 f u)).
+      + abstract exact (λ u v e, pr22 (dmor d e) _ _ @ maponpaths _ (pr2 f _ _ _)).
   Defined.
 
   Lemma cone_lambda_theory_data_disp_cat
