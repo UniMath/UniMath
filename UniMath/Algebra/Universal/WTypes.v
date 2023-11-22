@@ -74,58 +74,6 @@ Proof.
     apply (IHn (pr2 v)).
 Defined.
 
-Context (σ: signature_simple_single_sorted).
-
-Definition A := names σ.
-
-Definition B (a: A) := ⟦ length (arity a) ⟧.
-
-(* Polynomial functor corresponding to signature σ *)
-
-Local Notation F := (polynomial_functor A B).
-
-(** Prove that algebra_ob and algebra are equal types *)
-
-Definition algebra_to_functoralgebra (a: algebra σ)
-  : algebra_ob F.
-Proof.
-  induction a as [carrier ops].
-  unfold algebra_ob.
-  exists (carrier tt).
-  simpl.
-  intro X.
-  induction X as [nm subterms].
-  refine (ops nm _).
-  apply vec_to_h1const.
-  exact (make_vec subterms).
-Defined.
-
-Definition functoralgebra_to_algebra (FAlg: algebra_ob F)
-  : algebra σ.
-Proof.
-  induction FAlg as [carrier ops].
-  simpl in ops.
-  exists (λ _, carrier).
-  intro nm.
-  intro subterms.
-  apply h1const_to_vec in subterms.
-  exact (ops (nm ,, el subterms)).
-Defined.
-
-Lemma alg_funcalg_alg (a: algebra_ob F)
-  : algebra_to_functoralgebra (functoralgebra_to_algebra a) = a.
-Proof.
-  use total2_paths2_f.
-  - apply idpath.
-  - rewrite idpath_transportf.
-    apply funextfun.
-    intro X.
-    simpl.
-    rewrite vec_h1const_vec.
-    rewrite el_make_vec_fun.
-    apply idpath.
-Qed.
-
 (** This is the inverse of eta_unit **)
 
 Lemma eta_unit' {X : UU} (f : unit -> X) : (λ _, f tt) = f.
@@ -201,6 +149,58 @@ Proof.
       apply idpath.
     + apply (IHn (pr2 hv)).
 Defined.
+
+Context (σ: signature_simple_single_sorted).
+
+Definition A := names σ.
+
+Definition B (a: A) := ⟦ length (arity a) ⟧.
+
+(* Polynomial functor corresponding to signature σ *)
+
+Local Notation F := (polynomial_functor A B).
+
+(** Prove that algebra_ob and algebra are equal types *)
+
+Definition algebra_to_functoralgebra (a: algebra σ)
+  : algebra_ob F.
+Proof.
+  induction a as [carrier ops].
+  unfold algebra_ob.
+  exists (carrier tt).
+  simpl.
+  intro X.
+  induction X as [nm subterms].
+  refine (ops nm _).
+  apply vec_to_h1const.
+  exact (make_vec subterms).
+Defined.
+
+Definition functoralgebra_to_algebra (FAlg: algebra_ob F)
+  : algebra σ.
+Proof.
+  induction FAlg as [carrier ops].
+  simpl in ops.
+  exists (λ _, carrier).
+  intro nm.
+  intro subterms.
+  apply h1const_to_vec in subterms.
+  exact (ops (nm ,, el subterms)).
+Defined.
+
+Lemma alg_funcalg_alg (a: algebra_ob F)
+  : algebra_to_functoralgebra (functoralgebra_to_algebra a) = a.
+Proof.
+  use total2_paths2_f.
+  - apply idpath.
+  - rewrite idpath_transportf.
+    apply funextfun.
+    intro X.
+    simpl.
+    rewrite vec_h1const_vec.
+    rewrite el_make_vec_fun.
+    apply idpath.
+Qed.
 
 Lemma funcalg_alg_funcalg (a: algebra σ)
   : functoralgebra_to_algebra (algebra_to_functoralgebra a) = a.
