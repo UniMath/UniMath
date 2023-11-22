@@ -101,6 +101,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Universal/FreeAlgebras.v](Algebra/Universal/FreeAlgebras.v)
    - [Universal/Equations.v](Algebra/Universal/Equations.v)
    - [Universal/EqAlgebras.v](Algebra/Universal/EqAlgebras.v)
+   - [Universal/WTypes.v](Algebra/Universal/WTypes.v)
    - [Universal/Examples/Nat.v](Algebra/Universal/Examples/Nat.v)
    - [Universal/Examples/Bool.v](Algebra/Universal/Examples/Bool.v)
    - [Universal/Examples/Monoid.v](Algebra/Universal/Examples/Monoid.v)

@@ -30,6 +30,7 @@ Universal/VTerms.v
 Universal/FreeAlgebras.v
 Universal/Equations.v
 Universal/EqAlgebras.v
+Universal/WTypes.v
 Universal/Examples/Nat.v
 Universal/Examples/Bool.v
 Universal/Examples/Monoid.v
