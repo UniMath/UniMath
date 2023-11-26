@@ -32,6 +32,15 @@ Definition category_from_setcategory (C : setcategory) : category :=
   (pr1 C,, (dirprod_pr2 (pr2 C))).
 Coercion category_from_setcategory : setcategory >-> category.
 
+Definition make_setcategory
+           (C : category)
+           (H : isaset C)
+  : setcategory.
+Proof.
+  refine (pr1 C ,, H ,, _).
+  apply homset_property.
+Defined.
+
 Lemma isaprop_is_setcategory (C : precategory) : isaprop (is_setcategory C).
 Proof.
   apply isapropdirprod.

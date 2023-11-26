@@ -464,6 +464,9 @@ TwoSidedDisplayedCats/Fiber.v
 TwoSidedDisplayedCats/DisplayedFunctor.v
 TwoSidedDisplayedCats/DisplayedNatTrans.v
 
+TwoSidedDisplayedCats/Strictness.v
+TwoSidedDisplayedCats/TransportLaws.v
+
 TwoSidedDisplayedCats/Examples/Constant.v
 TwoSidedDisplayedCats/Examples/DispCatOnTwoSidedDispCat.v
 TwoSidedDisplayedCats/Examples/FiberwiseProduct.v
@@ -480,6 +483,8 @@ TwoSidedDisplayedCats/Examples/Reindex.v
 TwoSidedDisplayedCats/Examples/Relations.v
 TwoSidedDisplayedCats/Examples/Spans.v
 TwoSidedDisplayedCats/Examples/StructuredCospans.v
+
+DisplayedCats/Examples/StrictTwoSidedDispCat.v
 
 # Indexed Categories
 IndexedCategories/IndexedCategory.v
