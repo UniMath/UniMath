@@ -383,6 +383,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [OppositeCategory/OppositeOfFunctorCategory.v](CategoryTheory/OppositeCategory/OppositeOfFunctorCategory.v)
    - [Chains/Chains.v](CategoryTheory/Chains/Chains.v)
    - [Chains/Cochains.v](CategoryTheory/Chains/Cochains.v)
+   - [DisplayedCats/Examples/DispFunctorPair.v](CategoryTheory/DisplayedCats/Examples/DispFunctorPair.v)
    - [DisplayedCats/Examples/Opposite.v](CategoryTheory/DisplayedCats/Examples/Opposite.v)
    - [DisplayedCats/Fibrations.v](CategoryTheory/DisplayedCats/Fibrations.v)
    - [DisplayedCats/Examples/Reindexing.v](CategoryTheory/DisplayedCats/Examples/Reindexing.v)

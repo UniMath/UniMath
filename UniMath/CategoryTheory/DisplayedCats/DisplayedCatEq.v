@@ -47,9 +47,7 @@ Local Open Scope mor_disp.
 Section DisplayedCatEq.
   Context {C : category}
           (D₁ : disp_cat C)
-          (D₂ : disp_cat C)
-          (HD₁ : is_univalent_disp D₁)
-          (HD₂ : is_univalent_disp D₂).
+          (D₂ : disp_cat C).
 
   (**
    1. Lemmas about equality of displayed categories
@@ -305,6 +303,23 @@ Section DisplayedCatEq.
     - apply idpath.
   Defined.
 
+  Definition disp_cat_eq
+    : D₁ = D₂
+      ≃
+      ∑ (F : disp_functor (functor_identity C) D₁ D₂),
+      (∏ (x : C), isweq (F x))
+      ×
+      disp_functor_ff F
+    := (disp_cat_eq_step_6
+        ∘ disp_cat_eq_step_5
+        ∘ disp_cat_eq_step_4
+        ∘ disp_cat_eq_step_3
+        ∘ disp_cat_eq_step_2
+        ∘ disp_cat_eq_step_1)%weq.
+
+  Context (HD₁ : is_univalent_disp D₁)
+          (HD₂ : is_univalent_disp D₂).
+
   Definition disp_cat_eq_step_7
     : (∑ (F : disp_functor (functor_identity C) D₁ D₂),
        (∏ (x : C), isweq (F x))
@@ -367,7 +382,7 @@ Section DisplayedCatEq.
     - exact (isaprop_is_equiv_over_id HD₁ HD₂ F).
   Defined.
 
-  Definition disp_cat_eq
+  Definition univ_disp_cat_eq
     : D₁ = D₂
       ≃
       ∑ (F : disp_functor (functor_identity C) D₁ D₂),

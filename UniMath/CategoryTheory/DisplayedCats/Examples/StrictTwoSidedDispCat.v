@@ -19,6 +19,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.categories.CategoryOfSetCategories.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
@@ -26,6 +27,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+Require Import UniMath.CategoryTheory.DisplayedCats.DisplayedCatEq.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.DispFunctorPair.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedNatTrans.
@@ -452,10 +455,100 @@ Definition cat_of_strict_twosided_disp_cat
   := total_category disp_cat_of_strict_twosided_disp_cat.
 
 (** * 5. The proof that it is univalent *)
+Section StrictTwosidedDispCatIso.
+  Context {C : setcategory}
+          {D₁ D₂ : strict_twosided_disp_cat C C}
+          (F : disp_functor
+                 (functor_identity _)
+                 (twosided_disp_cat_to_disp_cat C C D₁)
+                 (twosided_disp_cat_to_disp_cat C C D₂)).
+
+  Proposition is_z_iso_disp_strict_twosided_disp_cat_to_ff
+              (HF : is_z_iso_disp
+                      (D := disp_cat_of_strict_twosided_disp_cat)
+                      (@identity_z_iso cat_of_setcategory C)
+                      (disp_functor_to_two_sided_disp_functor (disp_functor_over_pair F)))
+    : disp_functor_ff F.
+  Proof.
+    intros x y xx yy f.
+  Admitted.
+
+  Proposition is_z_iso_disp_strict_twosided_disp_cat_to_ob_weq
+              (HF : is_z_iso_disp
+                      (D := disp_cat_of_strict_twosided_disp_cat)
+                      (@identity_z_iso cat_of_setcategory C)
+                      (disp_functor_to_two_sided_disp_functor (disp_functor_over_pair F)))
+              (x : C × C)
+    : isweq (F x).
+  Proof.
+  Admitted.
+
+  Proposition to_is_z_iso_disp_strict_twosided_disp_cat
+              (HF_ff : disp_functor_ff F)
+              (HF_weq : ∏ (x : C × C), isweq (F x))
+    : is_z_iso_disp
+        (D := disp_cat_of_strict_twosided_disp_cat)
+        (@identity_z_iso cat_of_setcategory C)
+        (disp_functor_to_two_sided_disp_functor (disp_functor_over_pair F)).
+  Proof.
+  Admitted.
+
+  Proposition is_z_iso_disp_strict_twosided_disp_cat_weq
+    : (∏ (x : C × C), isweq (F x)) × disp_functor_ff F
+      ≃
+      is_z_iso_disp
+        (D := disp_cat_of_strict_twosided_disp_cat)
+        (@identity_z_iso cat_of_setcategory C)
+        (disp_functor_to_two_sided_disp_functor (disp_functor_over_pair F)).
+  Proof.
+    use weqimplimpl.
+    - intros HF.
+      induction HF as [ HF_weq HF_ff ].
+      exact (to_is_z_iso_disp_strict_twosided_disp_cat HF_ff HF_weq).
+    - intros HF.
+      split.
+      + exact (is_z_iso_disp_strict_twosided_disp_cat_to_ob_weq HF).
+      + exact (is_z_iso_disp_strict_twosided_disp_cat_to_ff HF).
+    - use isapropdirprod.
+      + use impred ; intro.
+        apply isapropisweq.
+      + apply isaprop_disp_functor_ff.
+    - apply isaprop_is_z_iso_disp.
+  Qed.
+End StrictTwosidedDispCatIso.
+
 Proposition is_univalent_disp_disp_cat_of_strict_twosided_disp_cat
   : is_univalent_disp disp_cat_of_strict_twosided_disp_cat.
 Proof.
-Admitted.
+  use is_univalent_disp_from_fibers.
+  intros C D₁ D₂.
+  cbn in C, D₁, D₂.
+  use weqhomot.
+  - refine (_ ∘ path_sigma_hprop _ _ _ (isaprop_is_strict_twosided_disp_cat _))%weq.
+    refine (_ ∘ make_weq _ (isweqmaponpaths (two_sided_disp_cat_weq_disp_cat C C) D₁ D₂))%weq.
+    refine (_ ∘ disp_cat_eq _ _)%weq.
+    use weqtotal2.
+    + exact (invweq
+               (two_sided_disp_functor_weq_disp_functor
+                  (functor_identity C)
+                  (functor_identity C) D₁ D₂)
+             ∘ disp_functor_over_pair_weq _ _)%weq.
+    + intro F.
+      apply is_z_iso_disp_strict_twosided_disp_cat_weq.
+  - intro p.
+    induction p.
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_is_z_iso_disp.
+    }
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_twosided_disp_functor_laws.
+    }
+    apply idpath.
+Qed.
 
 Proposition is_univalent_cat_of_strict_twosided_disp_cat
   : is_univalent cat_of_strict_twosided_disp_cat.

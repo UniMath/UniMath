@@ -40,6 +40,15 @@ Definition is_strict_twosided_disp_cat
        (y : C₂),
      isaset (D x y).
 
+Proposition isaprop_is_strict_twosided_disp_cat
+            {C₁ C₂ : category}
+            (D : twosided_disp_cat C₁ C₂)
+  : isaprop (is_strict_twosided_disp_cat D).
+Proof.
+  do 2 (use impred ; intro).
+  apply isapropisaset.
+Qed.
+
 Definition strict_twosided_disp_cat
            (C₁ C₂ : category)
   : UU
