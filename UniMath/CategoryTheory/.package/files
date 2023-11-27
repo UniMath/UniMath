@@ -210,7 +210,6 @@ DisplayedCats/Examples/Opposite.v
 DisplayedCats/Fibrations.v
 DisplayedCats/Examples/Reindexing.v
 DisplayedCats/Constructions.v
-DisplayedCats/Examples/Sigma.v
 
 FunctorAlgebras.v
 CompletelyIterativeAlgebras.v
@@ -240,6 +239,7 @@ Monads/MonadAlgebras.v
 Monads/Comonads.v
 
 DisplayedCats/Limits.v
+DisplayedCats/Examples/Sigma.v
 DisplayedCats/Examples.v
 DisplayedCats/Examples/UnitalBinop.v
 DisplayedCats/Examples/CategoryOfPosets.v
@@ -247,6 +247,7 @@ DisplayedCats/Structures/CartesianStructure.v
 DisplayedCats/Structures/StructureLimitsAndColimits.v
 DisplayedCats/Structures/StructuresSmashProduct.v
 DisplayedCats/Examples/AlgebraStructures.v
+DisplayedCats/Examples/Cartesian.v
 DisplayedCats/Examples/DCPOStructures.v
 DisplayedCats/Examples/PointedDCPOStructures.v
 DisplayedCats/Examples/PointedDCPOStrict.v

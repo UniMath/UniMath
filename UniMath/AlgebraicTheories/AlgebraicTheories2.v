@@ -1,8 +1,20 @@
-(* Defines a type for passing data to make_algebraic_theory' in AlgebraicTheories.v. *)
+(**************************************************************************************************
 
+  Algebraic Theories 2
+
+  The category-theoretic definition of algebraic theories is nice to work with, but unnecessarily
+  complicated for constructing the objects directly. This file provides a way to define algebraic
+  theories in a simpler way.
+
+  Contents
+  1. A type containing the minimal data needed to construct an algebraic theory [algebraic_theory']
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
+
+(** * 1. A type containing the minimal data needed to construct an algebraic theory *)
 
 Definition algebraic_theory'_data :=
   ∑ (C : nat → hSet),
@@ -29,20 +41,17 @@ Definition comp' {C : algebraic_theory'_data} {m n}
   : C m → (stn m → C n) → C n
   := pr22 C m n.
 
-(* Define the unitality property of the algebraic theory *)
 Definition comp_project_component (C : algebraic_theory'_data) : UU := ∏
   (m n : nat)
   (i : stn m)
   (f : stn m → C n),
     comp' (pr' i) f = f i.
 
-(* Define the compatibility of the projection function with composition *)
 Definition comp_identity_projections (C : algebraic_theory'_data) : UU := ∏
   (n : nat)
   (f : C n),
     comp' f (λ i, pr' i) = f.
 
-(* Define the associativity property of the algebraic theory *)
 Definition comp_is_assoc (C : algebraic_theory'_data) : UU := ∏
   (l m n : nat)
   (f_l : C l)

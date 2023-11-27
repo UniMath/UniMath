@@ -665,9 +665,38 @@ Proof.
   induction t, r1, r2. reflexivity.
 Defined.
 
+Definition transportf_to_pathover {X:Type}
+           {x x':X} (p:x=x')
+           {Y : X -> Type} (y : Y x) (y' : Y x')
+  : (transportf _ p y = y') → PathOver p y y'.
+Proof.
+  intro.
+  now induction p.
+Defined.
 
+Definition isweq_transportf_to_pathover
+  {X : Type}
+  {x x' : X}
+  (p : x=x')
+  {Y : X -> Type}
+  (y : Y x)
+  (y' : Y x')
+  : isweq (transportf_to_pathover p y y').
+Proof.
+  use isweq_iso;
+    intro;
+    now induction p.
+Defined.
 
-
+Definition transportf_weq_pathover
+  {X : Type}
+  {x x' : X}
+  (p : x=x')
+  {Y : X -> Type}
+  (y : Y x)
+  (y' : Y x')
+  : (transportf _ p y = y') ≃ PathOver p y y'
+  := make_weq _ (isweq_transportf_to_pathover p y y').
 
 Module PathsOverNotations.
 Notation "'Δ' q" := (fromPathOverIdpath q) (at level 10) : pathsover.

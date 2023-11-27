@@ -1,24 +1,36 @@
-(*
-  These objects are known by many names: algebraic theories, abstract clones, cartesian operads
-  and lawvere theories. This file defines them, gives two ways of constructing them, gives
-  corresponding accessors of the data and some derived properties and provides an equality lemma.
-*)
+(**************************************************************************************************
 
+  Algebraic Theories
+
+  These objects are known by many names: algebraic theories, abstract clones, cartesian operads
+  and Lawvere theories. This file defines them and gives constructors, accessors and related
+  definitions and lemmas.
+
+  Contents
+  1. The definition of algebraic theories [algebraic_theory]
+  2. An alternate constructor [make_algebraic_theory']
+  3. An equality lemma [algebraic_theory_eq]
+  4. Some useful properties and definitions
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import UniMath.Combinatorics.Vectors.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import UniMath.Combinatorics.Vectors.
 
-Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories2.
+Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
+Require Import UniMath.Combinatorics.Tuples.
 
 Declare Scope algebraic_theories.
 
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
+
+(** * 1. The definition of algebraic theories *)
 
 Definition base_functor
   : UU
@@ -34,7 +46,6 @@ Coercion pointed_functor_to_base_functor (T : pointed_functor) : base_functor :=
 
 Definition id_pr {T : pointed_functor} : (T 1 : hSet) := pr2 T.
 
-(* Accessor for the projections *)
 Definition pr {T : pointed_functor} {n : nat} (i : stn n) : (T n : hSet) := # T (λ _, i) id_pr.
 
 Definition algebraic_theory_data
@@ -45,7 +56,6 @@ Coercion algebraic_theory_data_to_pointed_functor (T : algebraic_theory_data)
   : pointed_functor
   := pr1 T.
 
-(* Accessor for the composition *)
 Definition comp {T : algebraic_theory_data} {m n : nat}
   : ((T m : hSet) → (stn m → (T n : hSet)) → (T n : hSet))
   := pr2 T m n.
@@ -90,7 +100,6 @@ Coercion algebraic_theory_to_algebraic_theory_data (T : algebraic_theory)
   : algebraic_theory_data
   := pr1 T.
 
-(* Constructors for the algebraic theory type *)
 Definition make_algebraic_theory_data
   (T : base_functor)
   (id_pr : (T 1 : hSet))
@@ -113,6 +122,24 @@ Definition make_algebraic_theory
   : algebraic_theory
   := T ,, H.
 
+Definition algebraic_theory_comp_is_assoc (T : algebraic_theory) :
+  comp_is_assoc T
+  := pr12 T.
+
+Definition algebraic_theory_comp_is_unital (T : algebraic_theory)
+  : comp_is_unital T
+  := pr122 T.
+
+Definition algebraic_theory_comp_identity_projections (T : algebraic_theory)
+  : comp_identity_projections T
+  := pr1 (pr222 T).
+
+Definition algebraic_theory_comp_is_natural_l (T : algebraic_theory)
+  : comp_is_natural_l T
+  := pr2 (pr222 T).
+
+(** * 2. An alternate constructor *)
+
 Section MakeAlgebraicTheory'.
   Definition algebraic_theory'_to_functor_data (C : algebraic_theory')
     : functor_data finite_set_skeleton_category HSET.
@@ -125,7 +152,7 @@ Section MakeAlgebraicTheory'.
   Lemma algebraic_theory'_to_is_functor (C : algebraic_theory')
     : is_functor (algebraic_theory'_to_functor_data C).
   Proof.
-    apply tpair.
+    split.
     - intro.
       apply funextfun.
       intro.
@@ -182,21 +209,7 @@ Proof.
     apply setproperty.
 Qed.
 
-Definition algebraic_theory_comp_is_assoc (T : algebraic_theory) :
-  comp_is_assoc T
-  := pr12 T.
-
-Definition algebraic_theory_comp_is_unital (T : algebraic_theory)
-  : comp_is_unital T
-  := pr122 T.
-
-Definition algebraic_theory_comp_identity_projections (T : algebraic_theory)
-  : comp_identity_projections T
-  := pr1 (pr222 T).
-
-Definition algebraic_theory_comp_is_natural_l (T : algebraic_theory)
-  : comp_is_natural_l T
-  := pr2 (pr222 T).
+(** * 3. An equality lemma *)
 
 Lemma algebraic_theory_eq
   (X Y : algebraic_theory)
@@ -208,7 +221,7 @@ Lemma algebraic_theory_eq
     (@comp X) = (@comp Y))
   : X = Y.
 Proof.
-  use (subtypePairEquality' _ (isaprop_is_algebraic_theory _)).
+  use (subtypePath isaprop_is_algebraic_theory).
   use total2_paths_f.
   - use total2_paths_f.
     + apply (functor_eq _ _ (homset_property HSET)).
@@ -244,11 +257,12 @@ Proof.
     exact H4.
 Qed.
 
+(** * 4. Some useful properties and definitions *)
+
 Definition lift_constant {T : algebraic_theory_data} (n : nat) (f : (T 0 : hSet))
   : (T n : hSet)
   := f • (weqvecfun _ vnil).
 
-(* Properties of algebraic theories *)
 Lemma algebraic_theory_functor_uses_projections
   (T : algebraic_theory)
   (m n : finite_set_skeleton_category)
@@ -289,14 +303,10 @@ Qed.
 Lemma algebraic_theory_id_pr_is_pr (T : algebraic_theory)
   : id_pr = pr (T := T) (@firstelement 0).
 Proof.
-  unfold pr.
-  assert (H : identity (1 : finite_set_skeleton_category) = (λ _, firstelement)).
-  {
-    apply funextfun.
-    intro.
-    use (subtypePairEquality' _ (isasetbool _ _)).
-    exact (natlth1tois0 _ (stnlt x)).
-  }
-  rewrite <- H.
-  now rewrite (functor_id T).
+  refine (eqtohomot (!functor_id T _) id_pr @ _).
+  apply (maponpaths (λ x, # T x id_pr)).
+  apply funextfun.
+  intro.
+  apply stn_eq.
+  exact (natlth1tois0 _ (stnlt x)).
 Qed.

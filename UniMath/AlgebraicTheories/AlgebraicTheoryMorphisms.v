@@ -1,22 +1,32 @@
-(*
-  Defines morphisms of algebraic theories, gives two ways of constructing them, gives corresponding
-  accessors for the data and properties and provides an equality lemma.
-*)
+(**************************************************************************************************
 
+  Algebraic theory morphisms
+
+  Defines morphisms of algebraic theories, together with constructors, accessors and some
+  properties.
+
+  Contents
+  1. The definition of algebraic theory morphisms [algebraic_theory_morphism]
+  2. An alternate constructor [make_algebraic_theory_morphism']
+  3. An equality lemma
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms2.
+Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
+
+(** * 1. The definition of algebraic theory morphisms *)
 
 Definition base_nat_trans
   (T T' : base_functor)
@@ -54,7 +64,7 @@ Definition algebraic_theory_data_morphism
   := ∑ (F : pointed_functor_morphism T T'), preserves_composition F.
 
 Coercion algebraic_theory_data_morphism_to_pointed_functor_morphism
-  {T T'}
+  {T T' : algebraic_theory}
   (F : algebraic_theory_data_morphism T T')
   : pointed_functor_morphism T T'
   := pr1 F.
@@ -65,7 +75,7 @@ Definition algebraic_theory_morphism
   := ∑ X : algebraic_theory_data_morphism T T', unit.
 
 Coercion algebraic_theory_morphism_to_algebraic_theory_data_morphism
-  {T T'}
+  {T T' : algebraic_theory}
   (F : algebraic_theory_morphism T T')
   : algebraic_theory_data_morphism T T'
   := pr1 F.
@@ -99,6 +109,33 @@ Definition make_algebraic_theory_morphism
   (H : is_algebraic_theory_morphism F)
   : algebraic_theory_morphism T T'
   := (((F ,, pr1 H) ,, pr2 H) ,, tt).
+
+Definition algebraic_theory_morphism_preserves_id_pr
+  {T T' : algebraic_theory}
+  (F : algebraic_theory_morphism T T')
+  : preserves_id_pr F
+  := pr211 F.
+
+Definition algebraic_theory_morphism_preserves_composition
+  {T T' : algebraic_theory}
+  (F : algebraic_theory_morphism T T')
+  : preserves_composition F
+  := pr21 F.
+
+Lemma algebraic_theory_morphism_preserves_projections
+  {T T' : algebraic_theory}
+  (F : algebraic_theory_morphism T T')
+  {n : nat}
+  (i : stn n)
+  : F _ (pr i) = pr i.
+Proof.
+  unfold pr.
+  rewrite <- (algebraic_theory_morphism_preserves_id_pr F).
+  apply (maponpaths (λ x, x id_pr) : ((λ x, F _ (# T _ x)) = (λ x, # T' _ (F _ x))) → _).
+  apply (nat_trans_ax F).
+Qed.
+
+(** * 2. An alternate constructor *)
 
 Section MakeAlgebraicTheoryMorphisms2.
   Lemma algebraic_theory_morphism'_to_is_nat_trans
@@ -148,43 +185,36 @@ Section MakeAlgebraicTheoryMorphisms2.
       (algebraic_theory_morphism'_to_is_algebraic_theory_morphism (F ,, H)).
 End MakeAlgebraicTheoryMorphisms2.
 
-Definition algebraic_theory_morphism_preserves_id_pr
-  {T T'}
-  (F : algebraic_theory_morphism T T')
-  : preserves_id_pr F
-  := pr211 F.
-
-Definition algebraic_theory_morphism_preserves_composition
-  {T T'}
-  (F : algebraic_theory_morphism T T')
-  : preserves_composition F
-  := pr21 F.
-
-Lemma algebraic_theory_morphism_preserves_projections
-  {T T'}
-  (F : algebraic_theory_morphism T T')
-  {n : nat}
-  (i : stn n)
-  : F _ (pr i) = pr i.
-Proof.
-  unfold pr.
-  rewrite <- (algebraic_theory_morphism_preserves_id_pr F).
-  apply (maponpaths (λ x, x id_pr) : ((λ x, F _ (# T _ x)) = (λ x, # T' _ (F _ x))) → _).
-  apply (nat_trans_ax F).
-Qed.
+(** * 3. An equality lemma *)
 
 Lemma algebraic_theory_morphism_eq
-  {T T'}
+  {T T' : algebraic_theory}
   (F F' : algebraic_theory_morphism T T')
   (H1 : ∏ n f, F n f = F' n f)
   : F = F'.
 Proof.
-  repeat use subtypePairEquality'.
-  - do 2 (apply funextsec; intro).
-    apply H1.
-  - apply isaprop_is_nat_trans, homset_property.
-  - apply setproperty.
-  - repeat (apply impred_isaprop; intro).
+  use subtypePath.
+  {
+    intro.
+    exact isapropunit.
+  }
+  use subtypePath.
+  {
+    intro.
+    repeat (apply impred_isaprop; intro).
     apply setproperty.
-  - exact isapropunit.
+  }
+  use subtypePath.
+  {
+    intro.
+    apply setproperty.
+  }
+  use subtypePath.
+  {
+    intro.
+    apply isaprop_is_nat_trans.
+    apply homset_property.
+  }
+  do 2 (apply funextsec; intro).
+  apply H1.
 Qed.
