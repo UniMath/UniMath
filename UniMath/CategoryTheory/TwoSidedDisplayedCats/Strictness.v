@@ -3,7 +3,7 @@
  Strict 2-sided displayed categories
 
  A strict 2-sided displayed category is a 2-sided displayed category for which
- the objects form a set. Generally speaking, this notion is rather restricting.
+ the displayed objects form a set. Generally speaking, this notion is rather restricting.
  Most examples of (displayed) categories are univalent but not strict. However,
  if one is looking at strict categories, then strict 2-sided displayed categories
  come up naturally.
