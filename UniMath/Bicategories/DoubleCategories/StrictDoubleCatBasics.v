@@ -2,7 +2,7 @@
 
  Basics for strict double categories
 
- In this file, we lay down the basics notions to define strict double categories.
+ In this file, we lay down the basic notions to define strict double categories.
  In a strict double category, the identity and associativity laws hold strictly,
  so up to an equality of horizontal morphisms. We also show that the type of
  horizontal identities and the type of horizontal composition operations form
