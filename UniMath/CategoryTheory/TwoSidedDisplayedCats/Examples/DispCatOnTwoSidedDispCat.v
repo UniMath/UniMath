@@ -561,7 +561,7 @@ Section DispCatOnTwoSidedDispCat.
            _ _ D₁
            _ _ _ _ _ _
            _ _
-           (idtoiso_twosided_disp (idpath _) (idpath _) _ _ p))
+           (idtoiso_twosided_disp (idpath _) (idpath _) p))
         (pr2 xy₁)
         (pr2 xy₂).
   Proof.

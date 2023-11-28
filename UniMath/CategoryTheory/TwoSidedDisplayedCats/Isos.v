@@ -85,6 +85,19 @@ Coercion iso_twosided_disp_to_mor
   : xy₁ -->[ f ][ g ] xy₂
   := pr1 fg.
 
+Coercion iso_twosided_disp_to_mor_is_iso
+         {C₁ C₂ : category}
+         {D : twosided_disp_cat C₁ C₂}
+         {x₁ x₂ : C₁}
+         {y₁ y₂ : C₂}
+         {f : z_iso x₁ x₂}
+         {g : z_iso y₁ y₂}
+         {xy₁ : D x₁ y₁}
+         {xy₂ : D x₂ y₂}
+         (fg : iso_twosided_disp f g xy₁ xy₂)
+  : is_iso_twosided_disp (pr2 f) (pr2 g) fg
+  := pr2 fg.
+
 (**
  2. Accessors for isos
  *)

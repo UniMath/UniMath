@@ -35,8 +35,8 @@ Definition idtoiso_twosided_disp
            {y₁ y₂ : C₂}
            (p : x₁ = x₂)
            (q : y₁ = y₂)
-           (xy₁ : D x₁ y₁)
-           (xy₂ : D x₂ y₂)
+           {xy₁ : D x₁ y₁}
+           {xy₂ : D x₂ y₂}
            (r : transportf (λ z, D z _) p (transportf (λ z, D _ z) q xy₁) = xy₂)
   : iso_twosided_disp (idtoiso p) (idtoiso q) xy₁ xy₂.
 Proof.
@@ -56,7 +56,7 @@ Definition is_univalent_twosided_disp_cat
        (q : y₁ = y₂)
        (xy₁ : D x₁ y₁)
        (xy₂ : D x₂ y₂),
-     isweq (idtoiso_twosided_disp p q xy₁ xy₂).
+     isweq (idtoiso_twosided_disp p q (xy₁ := xy₁) (xy₂ := xy₂)).
 
 Definition isaprop_is_univalent_twosided_disp_cat
            {C₁ C₂ : category}

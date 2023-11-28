@@ -205,6 +205,7 @@ OppositeCategory/OppositeOfFunctorCategory.v
 Chains/Chains.v
 Chains/Cochains.v
 
+DisplayedCats/Examples/DispFunctorPair.v
 DisplayedCats/Examples/Opposite.v
 DisplayedCats/Fibrations.v
 DisplayedCats/Examples/Reindexing.v
@@ -465,6 +466,9 @@ TwoSidedDisplayedCats/Fiber.v
 TwoSidedDisplayedCats/DisplayedFunctor.v
 TwoSidedDisplayedCats/DisplayedNatTrans.v
 
+TwoSidedDisplayedCats/Strictness.v
+TwoSidedDisplayedCats/TransportLaws.v
+
 TwoSidedDisplayedCats/Examples/Constant.v
 TwoSidedDisplayedCats/Examples/DispCatOnTwoSidedDispCat.v
 TwoSidedDisplayedCats/Examples/FiberwiseProduct.v
@@ -481,6 +485,8 @@ TwoSidedDisplayedCats/Examples/Reindex.v
 TwoSidedDisplayedCats/Examples/Relations.v
 TwoSidedDisplayedCats/Examples/Spans.v
 TwoSidedDisplayedCats/Examples/StructuredCospans.v
+
+DisplayedCats/Examples/StrictTwoSidedDispCat.v
 
 # Indexed Categories
 IndexedCategories/IndexedCategory.v

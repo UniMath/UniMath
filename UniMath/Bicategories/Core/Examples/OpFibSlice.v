@@ -513,7 +513,7 @@ Section OpFibSlice.
     intros D₁ D₂.
     use weqhomot.
     - refine (adj_equiv_opfib_slice_weq D₁ D₂
-              ∘ disp_cat_eq (pr1 D₁) (pr1 D₂) (pr1 D₁) (pr1 D₂)
+              ∘ univ_disp_cat_eq (pr1 D₁) (pr1 D₂) (pr1 D₁) (pr1 D₂)
               ∘ path_sigma_hprop _ _ _ _
               ∘ path_sigma_hprop _ _ _ _)%weq.
       + apply isaprop_opcleaving.

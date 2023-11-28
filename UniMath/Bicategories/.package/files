@@ -181,6 +181,10 @@ DoubleCategories/DoubleTransformation.v
 DoubleCategories/BicatOfDoubleCats.v
 DoubleCategories/DoubleCats.v
 DoubleCategories/InvertiblesAndEquivalences.v
+
+DoubleCategories/StrictDoubleCatBasics.v
+DoubleCategories/CatOfStrictDoubleCats.v
+
 DoubleCategories/Examples/UnitDoubleCat.v
 DoubleCategories/Examples/ProductDoubleCat.v
 DoubleCategories/Examples/SquareDoubleCat.v

@@ -604,7 +604,7 @@ Proof.
   intros C D₁ D₂.
   use weqhomot.
   - refine (disp_bicat_of_univ_disp_cats_adjequiv_weq D₁ D₂
-            ∘ disp_cat_eq (pr1 D₁) (pr1 D₂) (pr2 D₁) (pr2 D₂)
+            ∘ univ_disp_cat_eq (pr1 D₁) (pr1 D₂) (pr2 D₁) (pr2 D₂)
             ∘ path_sigma_hprop _ _ _ _)%weq.
     apply isaprop_is_univalent_disp.
   - abstract
