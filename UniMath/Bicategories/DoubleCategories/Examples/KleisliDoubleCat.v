@@ -241,4 +241,13 @@ Proof.
        rewrite !assoc' ;
        apply maponpaths ;
        apply (@Monad_law3 _ M)).
+  - abstract
+      (intro ; intros ;
+       apply homset_property).
+  - abstract
+      (intro ; intros ;
+       apply homset_property).
+  - abstract
+      (intro ; intros ;
+       apply homset_property).
 Defined.

@@ -188,26 +188,30 @@ Definition transportf_s_square
            {x₁ x₂ y₁ y₂ : C}
            {v₁ v₁' : x₁ -->v y₁}
            {v₂ v₂' : x₂ -->v y₂}
-           {h₁ : x₁ -->h x₂}
-           {h₂ : y₁ -->h y₂}
-           (s₁ : s_square v₁ v₂ h₁ h₂)
-           (p : v₁ = v₁')
-           (q : v₂ = v₂')
-  : s_square v₁' v₂' h₁ h₂
-  := transportf_disp_mor2 p q s₁.
+           {h₁ h₁' : x₁ -->h x₂}
+           {h₂ h₂' : y₁ -->h y₂}
+           (s : s_square v₁ v₂ h₁ h₂)
+           (p₁ : v₁ = v₁')
+           (p₂ : v₂ = v₂')
+           (p₃ : h₁ = h₁')
+           (p₄ : h₂ = h₂')
+  : s_square v₁' v₂' h₁' h₂'
+  := transportf_disp_mor2 p₁ p₂ (transportf_hor_mor p₃ p₄ s).
 
 Definition transportb_s_square
            {C : strict_double_cat}
            {x₁ x₂ y₁ y₂ : C}
            {v₁ v₁' : x₁ -->v y₁}
            {v₂ v₂' : x₂ -->v y₂}
-           {h₁ : x₁ -->h x₂}
-           {h₂ : y₁ -->h y₂}
-           (s₁ : s_square v₁' v₂' h₁ h₂)
-           (p : v₁ = v₁')
-           (q : v₂ = v₂')
+           {h₁ h₁' : x₁ -->h x₂}
+           {h₂ h₂' : y₁ -->h y₂}
+           (s : s_square v₁' v₂' h₁' h₂')
+           (p₁ : v₁ = v₁')
+           (p₂ : v₂ = v₂')
+           (p₃ : h₁ = h₁')
+           (p₄ : h₂ = h₂')
   : s_square v₁ v₂ h₁ h₂
-  := transportb_disp_mor2 p q s₁.
+  := transportb_disp_mor2 p₁ p₂ (transportb_hor_mor p₃ p₄ s).
 
 Proposition s_square_id_left_v
             {C : strict_double_cat}
@@ -219,7 +223,7 @@ Proposition s_square_id_left_v
             (s : s_square v₁ v₂ h₁ h₂)
   : s_id_v_square h₁ ⋆v s
     =
-    transportb_s_square s (id_left _) (id_left _).
+    transportb_s_square s (id_left _) (id_left _) (idpath _) (idpath _).
 Proof.
   apply id_two_disp_left.
 Defined.
@@ -234,7 +238,7 @@ Proposition s_square_id_right_v
             (s : s_square v₁ v₂ h₁ h₂)
   : s ⋆v s_id_v_square h₂
     =
-    transportb_s_square s (id_right _) (id_right _).
+    transportb_s_square s (id_right _) (id_right _) (idpath _) (idpath _).
 Proof.
   apply id_two_disp_right.
 Defined.
@@ -253,7 +257,10 @@ Proposition s_square_assoc_v
             (s₃ : s_square v₁'' v₂'' h₃ h₄)
   : s₁ ⋆v (s₂ ⋆v s₃)
     =
-    transportb_s_square ((s₁ ⋆v s₂) ⋆v s₃) (assoc _ _ _) (assoc _ _ _).
+    transportb_s_square
+      ((s₁ ⋆v s₂) ⋆v s₃)
+      (assoc _ _ _) (assoc _ _ _)
+      (idpath _) (idpath _).
 Proof.
   exact (assoc_two_disp s₁ s₂ s₃).
 Defined.
@@ -360,7 +367,68 @@ Proposition s_assocl_h
             (h₃ : y -->h z)
   : h₁ ·h (h₂ ·h h₃) = (h₁ ·h h₂) ·h h₃.
 Proof.
-  exact (pr222 C w x y z h₁ h₂ h₃).
+  exact (pr1 (pr222 C) w x y z h₁ h₂ h₃).
+Defined.
+
+Proposition strict_square_id_left
+            {C : strict_double_cat}
+            {x₁ x₂ y₁ y₂ : C}
+            {v₁ : x₁ -->v x₂}
+            {v₂ : y₁ -->v y₂}
+            {h : x₁ -->h y₁}
+            {k : x₂ -->h y₂}
+            (s : s_square v₁ v₂ h k)
+  : s_id_h_square v₁ ⋆h s
+    =
+    transportb_s_square
+      s
+      (idpath _) (idpath _)
+      (s_id_h_left _)
+      (s_id_h_left _).
+Proof.
+  exact (pr12 (pr222 C) x₁ x₂ y₁ y₂ v₁ v₂ h k s).
+Defined.
+
+Proposition strict_square_id_right
+            {C : strict_double_cat}
+            {x₁ x₂ y₁ y₂ : C}
+            {v₁ : x₁ -->v x₂}
+            {v₂ : y₁ -->v y₂}
+            {h : x₁ -->h y₁}
+            {k : x₂ -->h y₂}
+            (s : s_square v₁ v₂ h k)
+  : s ⋆h s_id_h_square v₂
+    =
+    transportb_s_square
+      s
+      (idpath _) (idpath _)
+      (s_id_h_right _)
+      (s_id_h_right _).
+Proof.
+  exact (pr122 (pr222 C) x₁ x₂ y₁ y₂ v₁ v₂ h k s).
+Defined.
+
+Proposition strict_square_assoc
+            {C : strict_double_cat}
+            {w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ : C}
+            {vw : w₁ -->v w₂}
+            {vx : x₁ -->v x₂}
+            {vy : y₁ -->v y₂}
+            {vz : z₁ -->v z₂}
+            {h₁ : w₁ -->h x₁} {h₂ : x₁ -->h y₁} {h₃ : y₁ -->h z₁}
+            {k₁ : w₂ -->h x₂} {k₂ : x₂ -->h y₂} {k₃ : y₂ -->h z₂}
+            (s₁ : s_square vw vx h₁ k₁)
+            (s₂ : s_square vx vy h₂ k₂)
+            (s₃ : s_square vy vz h₃ k₃)
+  : s₁ ⋆h (s₂ ⋆h s₃)
+    =
+    transportb_s_square
+      ((s₁ ⋆h s₂) ⋆h s₃)
+      (idpath _) (idpath _)
+      (s_assocl_h _ _ _)
+      (s_assocl_h _ _ _).
+Proof.
+  apply (pr222 (pr222 C) w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ vw vx vy vz h₁ h₂ h₃ k₁ k₂ k₃ s₁ s₂ s₃).
 Defined.
 
 Definition id_h_to_s_square
@@ -381,8 +449,11 @@ Definition make_strict_double_cat
            (idl : strict_double_cat_id_left I Cm)
            (idr : strict_double_cat_id_right I Cm)
            (assoc : strict_double_cat_assoc Cm)
+           (s_idl : strict_double_cat_id_left_square idl)
+           (s_idr : strict_double_cat_id_right_square idr)
+           (s_assoc : strict_double_cat_assoc_square assoc)
   : strict_double_cat
-  := ((C ,, (D ,, HD)) ,, (I ,, Cm)) ,, (idl ,, idr ,, assoc).
+  := ((C ,, (D ,, HD)) ,, (I ,, Cm)) ,, (idl ,, idr ,, assoc ,, s_idl ,,s_idr ,, s_assoc).
 
 (** * 4. Strict functors for strict double categories *)
 Definition strict_double_functor
@@ -463,7 +534,8 @@ Proposition strict_double_functor_id_square
     transportb_s_square
       (s_id_v_square _)
       (strict_double_functor_id_v _ _)
-      (strict_double_functor_id_v _ _).
+      (strict_double_functor_id_v _ _)
+      (idpath _) (idpath _).
 Proof.
   exact (twosided_disp_functor_id _ _ _ _ (strict_double_functor_hor_mor F) h).
 Qed.
@@ -484,7 +556,8 @@ Proposition lax_double_functor_comp_v_square
     transportb_s_square
       (#s F s₁ ⋆v #s F s₂)
       (strict_double_functor_comp_v _ _ _)
-      (strict_double_functor_comp_v _ _ _).
+      (strict_double_functor_comp_v _ _ _)
+      (idpath _) (idpath _).
 Proof.
   apply (twosided_disp_functor_comp _ _ _ _ (strict_double_functor_hor_mor F)).
 Qed.
@@ -517,7 +590,8 @@ Proposition strict_double_functor_hor_id_mor
     transportf_s_square
       (id_h_to_s_square (strict_double_functor_hor_id F x) ⋆v s_id_h_square (#F f))
       (s_id_v_left _ @ !(s_id_v_right _))
-      (s_id_v_left _ @ !(s_id_v_right _)).
+      (s_id_v_left _ @ !(s_id_v_right _))
+      (idpath _) (idpath _).
 Proof.
   exact (is_natural_preserves_hor_id (strict_double_functor_preserves_hor_id F) f).
 Defined.
@@ -560,7 +634,8 @@ Proposition strict_double_functor_hor_comp_mor
     transportf_s_square
       (id_h_to_s_square (strict_double_functor_hor_comp F h₁ k₁) ⋆v (#s F s₁ ⋆h #s F s₂))
       (s_id_v_left _ @ !(s_id_v_right _))
-      (s_id_v_left _ @ !(s_id_v_right _)).
+      (s_id_v_left _ @ !(s_id_v_right _))
+      (idpath _) (idpath _).
 Proof.
   exact (is_natural_preserves_hor_comp
            (strict_double_functor_preserves_hor_comp F)

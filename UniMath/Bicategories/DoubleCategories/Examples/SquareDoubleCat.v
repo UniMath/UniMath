@@ -202,4 +202,13 @@ Proof.
   - abstract
       (intros w x y z f g h ; cbn ;
        apply assoc).
+  - abstract
+      (intro ; intros ;
+       apply homset_property).
+  - abstract
+      (intro ; intros ;
+       apply homset_property).
+  - abstract
+      (intro ; intros ;
+       apply homset_property).
 Defined.

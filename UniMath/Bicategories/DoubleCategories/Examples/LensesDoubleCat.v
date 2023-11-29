@@ -233,4 +233,13 @@ Proof.
   - abstract
       (intros w x y z f g h ; cbn ;
        exact (lens_assoc C PC f g h)).
+  - abstract
+      (intro ; intros ;
+       apply discrete_lenses_twosided_disp_cat).
+  - abstract
+      (intro ; intros ;
+       apply discrete_lenses_twosided_disp_cat).
+  - abstract
+      (intro ; intros ;
+       apply discrete_lenses_twosided_disp_cat).
 Defined.
