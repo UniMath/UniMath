@@ -192,6 +192,7 @@ DoubleCategories/Examples/SquareDoubleCat.v
 DoubleCategories/Examples/LensesDoubleCat.v
 DoubleCategories/Examples/SpansDoubleCat.v
 DoubleCategories/Examples/KleisliDoubleCat.v
+DoubleCategories/Examples/Dual.v
 DoubleCategories/Examples/StructuredCospansDoubleCat.v
 DoubleCategories/Examples/StructuredCospansDoubleFunctor.v
 DoubleCategories/DoubleCatsUnfolded.v

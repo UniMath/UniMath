@@ -8,11 +8,6 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 
 Local Open Scope cat.
 
-(*
-change the category to data and add the category laws to two_cat_laws (including that the 2-cells are a set)
-there should be a coercion from 2-category data to category data
- *)
-
 Definition two_cat_data
   : UU
   := ∑ (C : precategory_data)
@@ -28,6 +23,24 @@ Definition two_cat_data
           (f1 f2 : x --> y)
           (g : y --> z),
         cells_C _ _ f1 f2 → cells_C _ _ (f1 · g) (f2 · g)).
+
+Definition make_two_cat_data
+           (C : precategory_data)
+           (cellsC : ∏ (x y : C), x --> y → x --> y → UU)
+           (id : ∏ (x y : C) (f : x --> y), cellsC _ _ f f)
+           (vC : ∏ (x y : C)
+                   (f g h : x --> y),
+                 cellsC _ _ f g → cellsC _ _ g h → cellsC _ _ f h)
+           (lW : ∏ (x y z : C)
+                   (f : x --> y)
+                   (g1 g2 : y --> z),
+                 cellsC _ _ g1 g2 → cellsC _ _ (f · g1) (f · g2))
+           (rW : ∏ (x y z : C)
+                   (f1 f2 : x --> y)
+                   (g : y --> z),
+                 cellsC _ _ f1 f2 → cellsC _ _ (f1 · g) (f2 · g))
+  : two_cat_data
+  := C ,, cellsC ,, id ,, vC ,, lW ,, rW.
 
 Coercion precategory_from_two_cat_data (C : two_cat_data)
   : precategory_data
@@ -102,6 +115,14 @@ Definition two_cat_category
   : UU
   := ∑ (C : two_cat_data), is_precategory C × has_homsets C.
 
+
+Definition make_two_cat_category
+           (C : two_cat_data)
+           (HC₁ : is_precategory C)
+           (HC₂ : has_homsets C)
+  : two_cat_category
+  := C ,, HC₁ ,, HC₂.
+
 Definition category_from_two_cat_data (C : two_cat_category)
   : category.
 Proof.
@@ -153,6 +174,12 @@ Definition two_cat_laws (C : two_cat_category)
         idto2mor (assoc f h i) • (x ▹ h ▹ i) = (x ▹ h · i) • idto2mor (assoc g h i)).
 
 Definition two_precat : UU := ∑ C : two_cat_category, two_cat_laws C.
+
+Definition make_two_precat
+           (C : two_cat_category)
+           (HC : two_cat_laws C)
+  : two_precat
+  := C ,, HC.
 
 Coercion two_cat_category_from_two_cat (C : two_precat) : two_cat_category := pr1 C.
 Coercion two_cat_laws_from_two_cat (C : two_precat) : two_cat_laws C := pr2 C.
@@ -244,6 +271,12 @@ Definition isaset_cells (C : two_precat) : UU
 
 Definition two_cat : UU
   := ∑ C : two_precat, isaset_cells C.
+
+Definition make_two_cat
+           (C : two_precat)
+           (HC : isaset_cells C)
+  : two_cat
+  := C ,, HC.
 
 Coercion two_cat_to_two_precat
          (C : two_cat)

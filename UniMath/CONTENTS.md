@@ -842,6 +842,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DoubleCategories/Examples/LensesDoubleCat.v](Bicategories/DoubleCategories/Examples/LensesDoubleCat.v)
    - [DoubleCategories/Examples/SpansDoubleCat.v](Bicategories/DoubleCategories/Examples/SpansDoubleCat.v)
    - [DoubleCategories/Examples/KleisliDoubleCat.v](Bicategories/DoubleCategories/Examples/KleisliDoubleCat.v)
+   - [DoubleCategories/Examples/Dual.v](Bicategories/DoubleCategories/Examples/Dual.v)
    - [DoubleCategories/Examples/StructuredCospansDoubleCat.v](Bicategories/DoubleCategories/Examples/StructuredCospansDoubleCat.v)
    - [DoubleCategories/Examples/StructuredCospansDoubleFunctor.v](Bicategories/DoubleCategories/Examples/StructuredCospansDoubleFunctor.v)
    - [DoubleCategories/DoubleCatsUnfolded.v](Bicategories/DoubleCategories/DoubleCatsUnfolded.v)
