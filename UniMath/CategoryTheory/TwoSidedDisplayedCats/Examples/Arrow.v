@@ -17,6 +17,7 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedFibration.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
 
@@ -97,6 +98,13 @@ Section ArrowTwoSidedDispCat.
   (**
    2. Discreteness and univalence
    *)
+  Proposition is_strict_arrow_twosided_disp_cat
+    : is_strict_twosided_disp_cat arrow_twosided_disp_cat.
+  Proof.
+    intros x y ; cbn.
+    apply homset_property.
+  Qed.
+
   Definition arrow_twosided_disp_cat_is_iso
     : all_disp_mor_iso arrow_twosided_disp_cat.
   Proof.

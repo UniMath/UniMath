@@ -8,36 +8,36 @@
  - Vertical morphisms: morphisms of `C`
  - Horizontal morphisms: Kleisli morphisms
  - Squares: commuting squares
+ We give both a univalent and a strict variant.
 
  Contents
  1. Horizontal operations
  2. The Kleisli double category
+ 3. The strict Kleisli double category
 
  **********************************************************************************)
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Comma.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.StrictDoubleCatBasics.
+Require Import UniMath.Bicategories.DoubleCategories.StrictDoubleCats.
 
 Local Open Scope cat.
 
-(**
- 1. Horizontal operations
- *)
+(** * 1. Horizontal operations *)
 Section Kleisli.
-  Context {C : univalent_category}
+  Context {C : category}
           (M : Monad C).
 
   Let K : twosided_disp_cat C C := comma_twosided_disp_cat (functor_identity C) M.
@@ -184,24 +184,61 @@ Section Kleisli.
     - intro ; intros.
       apply homset_property.
   Qed.
-
-  (**
-   2. The Kleisli double category
-   *)
-  Definition kleisli_double_cat
-    : double_cat.
-  Proof.
-    use make_double_cat.
-    - exact C.
-    - exact K.
-    - exact hor_id_kleisli.
-    - exact hor_comp_kleisli.
-    - exact double_cat_lunitor_kleisli.
-    - exact double_cat_runitor_kleisli.
-    - exact double_cat_associator_kleisli.
-    - abstract (intro ; intros ; apply homset_property).
-    - abstract (intro ; intros ; apply homset_property).
-    - apply univalent_category_is_univalent.
-    - apply is_univalent_comma_twosided_disp_cat.
-  Defined.
 End Kleisli.
+
+(** * 2. The Kleisli double category *)
+Definition kleisli_double_cat
+           {C : univalent_category}
+           (M : Monad C)
+  : double_cat.
+Proof.
+  use make_double_cat.
+  - exact C.
+  - exact (comma_twosided_disp_cat (functor_identity C) M).
+  - exact (hor_id_kleisli M).
+  - exact (hor_comp_kleisli M).
+  - exact (double_cat_lunitor_kleisli M).
+  - exact (double_cat_runitor_kleisli M).
+  - exact (double_cat_associator_kleisli M).
+  - abstract (intro ; intros ; apply homset_property).
+  - abstract (intro ; intros ; apply homset_property).
+  - apply univalent_category_is_univalent.
+  - apply is_univalent_comma_twosided_disp_cat.
+Defined.
+
+(** * 3. The strict Kleisli double category *)
+Definition strict_kleisli_double_cat
+           {C : setcategory}
+           (M : Monad C)
+  : strict_double_cat.
+Proof.
+  use make_strict_double_cat.
+  - exact C.
+  - exact (comma_twosided_disp_cat (functor_identity C) M).
+  - apply is_strict_comma_twosided_disp_cat.
+  - exact (hor_id_kleisli M).
+  - exact (hor_comp_kleisli M).
+  - abstract
+      (intros x y f ; cbn ;
+       refine (maponpaths (λ z, z · _) (!(nat_trans_ax (η M) _ _ f)) @ _) ; cbn ;
+       refine (_ @ id_right _) ;
+       rewrite !assoc' ;
+       apply maponpaths ;
+       exact (@Monad_law1 _ M y)).
+  - abstract
+      (intros x y f ; cbn ;
+       refine (_ @ id_right _) ;
+       rewrite !assoc' ;
+       apply maponpaths ;
+       exact (@Monad_law2 _ M y)).
+  - abstract
+      (intros w x y z f g h ; cbn ;
+       rewrite !functor_comp ;
+       rewrite !assoc' ;
+       do 2 apply maponpaths ;
+       rewrite !assoc ;
+       refine (_ @ maponpaths (λ z, z · _) (nat_trans_ax (μ M) _ _ h)) ; cbn ;
+       rewrite !assoc' ;
+       apply maponpaths ;
+       apply (@Monad_law3 _ M)).
+Defined.

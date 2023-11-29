@@ -9,32 +9,33 @@
  in `C`. To define this double category, we use the 2-sided displayed category of
  arrows. The operations on horizontal morphisms are inherited from `C`.
 
+ We also define the strict variation of this construction for strict categories.
+
  Contents
  1. Horizontal operations
  2. The square double category
+ 3. The strict square double category
 
  **********************************************************************************)
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Arrow.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.StrictDoubleCatBasics.
+Require Import UniMath.Bicategories.DoubleCategories.StrictDoubleCats.
 
 Local Open Scope cat.
 
-(**
- 1. Horizontal operations
- *)
+(** * 1. Horizontal operations *)
 Section ArrowDoubleCategory.
   Context (C : category).
 
@@ -162,9 +163,7 @@ Section ArrowDoubleCategory.
   Qed.
 End ArrowDoubleCategory.
 
-(**
- 2. The square double category
- *)
+(** * 2. The square double category *)
 Definition square_double_cat
            (C : univalent_category)
   : double_cat.
@@ -181,4 +180,26 @@ Proof.
   - exact (pentagon_law_arrow_twosided_disp_cat C).
   - apply univalent_category_is_univalent.
   - apply is_univalent_arrow_twosided_disp_cat.
+Defined.
+
+(** * 3. The strict square double category *)
+Definition strict_square_double_cat
+           (C : setcategory)
+  : strict_double_cat.
+Proof.
+  use make_strict_double_cat.
+  - exact C.
+  - exact (arrow_twosided_disp_cat C).
+  - apply is_strict_arrow_twosided_disp_cat.
+  - exact (hor_id_arrow_twosided_disp_cat C).
+  - exact (hor_comp_arrow_twosided_disp_cat C).
+  - abstract
+      (intros x y f ; cbn ;
+       apply id_left).
+  - abstract
+      (intros x y f ; cbn ;
+       apply id_right).
+  - abstract
+      (intros w x y z f g h ; cbn ;
+       apply assoc).
 Defined.

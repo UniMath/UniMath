@@ -835,6 +835,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DoubleCategories/InvertiblesAndEquivalences.v](Bicategories/DoubleCategories/InvertiblesAndEquivalences.v)
    - [DoubleCategories/StrictDoubleCatBasics.v](Bicategories/DoubleCategories/StrictDoubleCatBasics.v)
    - [DoubleCategories/CatOfStrictDoubleCats.v](Bicategories/DoubleCategories/CatOfStrictDoubleCats.v)
+   - [DoubleCategories/StrictDoubleCats.v](Bicategories/DoubleCategories/StrictDoubleCats.v)
    - [DoubleCategories/Examples/UnitDoubleCat.v](Bicategories/DoubleCategories/Examples/UnitDoubleCat.v)
    - [DoubleCategories/Examples/ProductDoubleCat.v](Bicategories/DoubleCategories/Examples/ProductDoubleCat.v)
    - [DoubleCategories/Examples/SquareDoubleCat.v](Bicategories/DoubleCategories/Examples/SquareDoubleCat.v)

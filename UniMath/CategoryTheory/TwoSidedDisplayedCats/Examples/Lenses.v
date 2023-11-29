@@ -12,6 +12,7 @@
  2. Discreteness and univalence
  3. Builders and accessors
  4. Identity and composition of lenses
+ 5. Identity and composition laws of lenses
 
  **********************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -27,6 +28,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Total.
@@ -39,9 +41,7 @@ Section Lenses.
   Context (C : category)
           (prodC : BinProducts C).
 
-  (**
-   1. Definition via two-sided displayed categories
-   *)
+  (** * 1. Definition via two-sided displayed categories *)
   Definition twosided_disp_cat_of_lenses_get_ob_mor
     : twosided_disp_cat_ob_mor C C.
   Proof.
@@ -189,6 +189,14 @@ Section Lenses.
           (BinProductPr2 _ _ · BinProductPr2 _ _)
         · p).
 
+  Proposition isaprop_lenses_laws
+              {s v : C}
+              (l : twosided_disp_cat_of_lawless_lenses s v)
+    : isaprop (lenses_laws l).
+  Proof.
+    repeat (apply isapropdirprod) ; apply homset_property.
+  Qed.
+
   Definition disp_cat_of_lenses_laws
     : disp_cat
         (total_twosided_disp_category twosided_disp_cat_of_lawless_lenses).
@@ -203,9 +211,18 @@ Section Lenses.
          twosided_disp_cat_of_lawless_lenses
          disp_cat_of_lenses_laws.
 
-  (**
-   2. Discreteness and univalence
-   *)
+  (** * 2. Discreteness and univalence *)
+  Proposition is_strict_twosided_disp_cat_of_lenses
+    : is_strict_twosided_disp_cat twosided_disp_cat_of_lenses.
+  Proof.
+    intros x y ; cbn.
+    use isaset_total2.
+    - use isasetdirprod ; apply homset_property.
+    - intro.
+      apply isasetaprop.
+      apply isaprop_lenses_laws.
+  Qed.
+
   Definition lenses_get_twosided_disp_cat_is_iso
     : all_disp_mor_iso twosided_disp_cat_of_lenses_get.
   Proof.
@@ -321,7 +338,7 @@ Section Lenses.
     - abstract
         (use disp_full_sub_univalent ;
          intro x ;
-         repeat (apply isapropdirprod) ; apply homset_property).
+         apply isaprop_lenses_laws).
     - intro ; intros.
       apply isapropunit.
     - abstract
@@ -329,9 +346,7 @@ Section Lenses.
          simple refine (tt ,, _ ,, _) ; apply isapropunit).
   Defined.
 
-  (**
-   3. Builders and accessors
-   *)
+  (** * 3. Builders and accessors *)
   Definition lens
              (s v : C)
     : UU
@@ -418,6 +433,23 @@ Section Lenses.
     - exact Hl.
   Defined.
 
+  Proposition eq_lens
+              {s v : C}
+              (l₁ l₂ : lens s v)
+              (p : lens_get l₁ = lens_get l₂)
+              (q : lens_put l₁ = lens_put l₂)
+    : l₁ = l₂.
+  Proof.
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_lenses_laws.
+    }
+    use pathsdirprod.
+    - exact p.
+    - exact q.
+  Qed.
+
   Definition lens_mor
              {s₁ s₂ v₁ v₂ : C}
              (l₁ : lens s₁ v₁)
@@ -466,9 +498,7 @@ Section Lenses.
     exact (pr21 fg).
   Qed.
 
-  (**
-   4. Identity and composition of lenses
-   *)
+  (** * 4. Identity and composition of lenses *)
   Definition identity_lens_data
              (x : C)
     : lens_data x x.
@@ -713,6 +743,72 @@ Section Lenses.
       rewrite id_left, id_right.
       apply maponpaths.
       rewrite (lens_mor_get φ).
+      apply idpath.
+  Qed.
+
+  (** * 5. Identity and composition laws of lenses *)
+  Proposition lens_id_left
+              {s v : C}
+              (f : lens s v)
+    : comp_lens (identity_lens s) f = f.
+  Proof.
+    use eq_lens ; cbn.
+    - apply id_left.
+    - rewrite !assoc'.
+      rewrite BinProductOfArrowsPr1.
+      rewrite !assoc.
+      rewrite BinProductPr1Commutes.
+      rewrite id_left.
+      rewrite BinProductOfArrows_id.
+      apply id_left.
+  Qed.
+
+  Proposition lens_id_right
+              {s v : C}
+              (f : lens s v)
+    : comp_lens f (identity_lens v) = f.
+  Proof.
+    use eq_lens ; cbn.
+    - apply id_right.
+    - rewrite !assoc'.
+      rewrite BinProductOfArrowsPr1.
+      rewrite !assoc.
+      rewrite postcompWithBinProductArrow.
+      rewrite id_left, !id_right.
+      refine (_ @ id_left _).
+      apply maponpaths_2.
+      rewrite <- BinProductOfArrows_id.
+      unfold BinProductOfArrows.
+      rewrite !id_right.
+      apply idpath.
+  Qed.
+
+  Proposition lens_assoc
+              {w x y z : C}
+              (f : lens w x)
+              (g : lens x y)
+              (h : lens y z)
+    : comp_lens f (comp_lens g h) = comp_lens (comp_lens f g) h.
+  Proof.
+    use eq_lens ; cbn.
+    - rewrite assoc.
+      apply idpath.
+    - rewrite !postcompWithBinProductArrow.
+      rewrite !assoc.
+      rewrite !id_left, !id_right.
+      apply maponpaths_2.
+      rewrite !precompWithBinProductArrow.
+      rewrite !BinProductOfArrowsPr2.
+      rewrite BinProductPr2Commutes.
+      apply maponpaths_2.
+      rewrite !assoc.
+      apply maponpaths_2.
+      rewrite !postcompWithBinProductArrow.
+      apply maponpaths_2.
+      rewrite id_right.
+      apply maponpaths_2.
+      rewrite BinProductOfArrows_comp.
+      rewrite id_right.
       apply idpath.
   Qed.
 End Lenses.

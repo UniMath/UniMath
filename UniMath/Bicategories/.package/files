@@ -184,6 +184,7 @@ DoubleCategories/InvertiblesAndEquivalences.v
 
 DoubleCategories/StrictDoubleCatBasics.v
 DoubleCategories/CatOfStrictDoubleCats.v
+DoubleCategories/StrictDoubleCats.v
 
 DoubleCategories/Examples/UnitDoubleCat.v
 DoubleCategories/Examples/ProductDoubleCat.v
