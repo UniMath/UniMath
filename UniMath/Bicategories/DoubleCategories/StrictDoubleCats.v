@@ -51,6 +51,14 @@ Definition ver_mor_strict_double_cat
 
 Notation "x -->v y" := (ver_mor_strict_double_cat x y) (at level 55) : strict_double_cat.
 
+Proposition isaset_ver_mor_strict_double_cat
+            {C : strict_double_cat}
+            (x y : C)
+  : isaset (x -->v y).
+Proof.
+  apply homset_property.
+Defined.
+
 Definition s_identity_v
            {C : strict_double_cat}
            (x : C)
@@ -123,6 +131,14 @@ Definition strict_hor_mor
 
 Notation "x -->h y" := (strict_hor_mor _ x y) (at level 55) : strict_double_cat.
 
+Proposition isaset_hor_mor_strict_double_cat
+            {C : strict_double_cat}
+            (x y : C)
+  : isaset (x -->h y).
+Proof.
+  apply is_strict_strict_twosided_disp_cat.
+Defined.
+
 Definition hor_id_strict_double_cat
            (C : strict_double_cat)
   : hor_id (strict_hor_mor C)
@@ -159,6 +175,18 @@ Definition s_square
            (h₂ : y₁ -->h y₂)
   : UU
   := h₁ -->[ v₁ ][ v₂ ] h₂.
+
+Proposition isaset_s_square
+            {C : strict_double_cat}
+            {x₁ x₂ y₁ y₂ : C}
+            (v₁ : x₁ -->v y₁)
+            (v₂ : x₂ -->v y₂)
+            (h₁ : x₁ -->h x₂)
+            (h₂ : y₁ -->h y₂)
+  : isaset (s_square v₁ v₂ h₁ h₂).
+Proof.
+  apply isaset_disp_mor.
+Defined.
 
 Definition s_id_v_square
            {C : strict_double_cat}
