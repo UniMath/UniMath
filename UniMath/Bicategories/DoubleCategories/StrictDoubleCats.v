@@ -43,7 +43,7 @@ Definition ob_strict_double_cat
 
 Coercion ob_strict_double_cat : strict_double_cat >-> setcategory.
 
-Definition isaset_ob_ob_strict_double_cat
+Definition isaset_ob_strict_double_cat
            (C : strict_double_cat)
   : isaset C.
 Proof.

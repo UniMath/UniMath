@@ -88,7 +88,7 @@ Section Dual.
   Proof.
     use make_setcategory.
     - exact dual_strict_double_cat_category.
-    - apply isaset_ob_ob_strict_double_cat.
+    - apply isaset_ob_strict_double_cat.
   Defined.
 
   (** * 2. The 2-sided displayed category *)

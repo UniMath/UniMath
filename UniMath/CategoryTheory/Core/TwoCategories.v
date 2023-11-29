@@ -337,3 +337,30 @@ Section IdTo2MorLaws.
     apply id2_rwhisker.
   Qed.
 End IdTo2MorLaws.
+
+Definition is_two_setcat
+           (C : two_cat)
+  : UU
+  := isaset C.
+
+Definition two_setcat
+  : UU
+  := ∑ (C : two_cat), is_two_setcat C.
+
+Definition make_two_setcat
+           (C : two_cat)
+           (HC : is_two_setcat C)
+  : two_setcat
+  := C ,, HC.
+
+Coercion two_setcat_to_two_cat
+         (C : two_setcat)
+  : two_cat
+  := pr1 C.
+
+Proposition is_two_setcat_two_setcat
+            (C : two_setcat)
+  : isaset C.
+Proof.
+  exact (pr2 C).
+Qed.
