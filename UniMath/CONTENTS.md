@@ -845,6 +845,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DoubleCategories/Examples/Dual.v](Bicategories/DoubleCategories/Examples/Dual.v)
    - [DoubleCategories/Examples/StructuredCospansDoubleCat.v](Bicategories/DoubleCategories/Examples/StructuredCospansDoubleCat.v)
    - [DoubleCategories/Examples/StructuredCospansDoubleFunctor.v](Bicategories/DoubleCategories/Examples/StructuredCospansDoubleFunctor.v)
+   - [DoubleCategories/VerticalTwoCategory.v](Bicategories/DoubleCategories/VerticalTwoCategory.v)
    - [DoubleCategories/DoubleCatsUnfolded.v](Bicategories/DoubleCategories/DoubleCatsUnfolded.v)
    - [DoubleCategories/DoubleCatsEquivalentDefinitions.v](Bicategories/DoubleCategories/DoubleCatsEquivalentDefinitions.v)
    - [DisplayedBicats/Examples/MonadsLax.v](Bicategories/DisplayedBicats/Examples/MonadsLax.v)

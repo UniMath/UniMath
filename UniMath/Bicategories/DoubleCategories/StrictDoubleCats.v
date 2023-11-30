@@ -1,3 +1,31 @@
+(******************************************************************************
+
+ Strict double categories
+
+ In this file, we give accessors, notations, and builders for strict double
+ categories and strict functors between them. We also provide some laws for
+ transporting squares (i.e., equalities on the horizontal and vertical sides).
+ These transporting lemmas are technical, but they are useful to construct the
+ underlying vertical 2-category.
+
+ Contents
+ 1. Strict double categories
+ 2. Accessors for double categories
+ 2.1. The vertical category
+ 2.2. Horizontal morphisms
+ 2.3. Squares
+ 2.4. Transporting squares
+ 2.5. Laws for squares
+ 2.6. Functoriality of horizontal identities
+ 2.7. Functoriality of horizontal composition
+ 2.8. Laws for horizontal composition
+ 2.9. Transport laws
+ 3. Builder for strict double categories
+ 4. Strict functors for strict double categories
+ 5. Accessors for strict double functors
+ 6. Builder for strict double functors
+
+ ******************************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
@@ -218,6 +246,7 @@ Definition s_comp_v_square
 Notation "s₁ ⋆v s₂" := (s_comp_v_square s₁ s₂) (at level 40, left associativity)
     : strict_double_cat.
 
+(** ** 2.4. Transporting squares *)
 Definition transportf_s_square
            {C : strict_double_cat}
            {x₁ x₂ y₁ y₂ : C}
@@ -225,11 +254,11 @@ Definition transportf_s_square
            {v₂ v₂' : x₂ -->v y₂}
            {h₁ h₁' : x₁ -->h x₂}
            {h₂ h₂' : y₁ -->h y₂}
-           (s : s_square v₁ v₂ h₁ h₂)
            (p₁ : v₁ = v₁')
            (p₂ : v₂ = v₂')
            (p₃ : h₁ = h₁')
            (p₄ : h₂ = h₂')
+           (s : s_square v₁ v₂ h₁ h₂)
   : s_square v₁' v₂' h₁' h₂'
   := transportf_disp_mor2 p₁ p₂ (transportf_hor_mor p₃ p₄ s).
 
@@ -240,14 +269,83 @@ Definition transportb_s_square
            {v₂ v₂' : x₂ -->v y₂}
            {h₁ h₁' : x₁ -->h x₂}
            {h₂ h₂' : y₁ -->h y₂}
-           (s : s_square v₁' v₂' h₁' h₂')
            (p₁ : v₁ = v₁')
            (p₂ : v₂ = v₂')
            (p₃ : h₁ = h₁')
            (p₄ : h₂ = h₂')
+           (s : s_square v₁' v₂' h₁' h₂')
   : s_square v₁ v₂ h₁ h₂
-  := transportb_disp_mor2 p₁ p₂ (transportb_hor_mor p₃ p₄ s).
+  := transportf_s_square (!p₁) (!p₂) (!p₃) (!p₄) s.
 
+Proposition transportfb_s_square
+            {C : strict_double_cat}
+            {x₁ x₂ y₁ y₂ : C}
+            {v₁ v₁' : x₁ -->v y₁}
+            {v₂ v₂' : x₂ -->v y₂}
+            {h₁ h₁' : x₁ -->h x₂}
+            {h₂ h₂' : y₁ -->h y₂}
+            (s : s_square v₁' v₂' h₁' h₂')
+            (p₁ p₁' : v₁ = v₁')
+            (p₂ p₂' : v₂ = v₂')
+            (p₃ p₃' : h₁ = h₁')
+            (p₄ p₄' : h₂ = h₂')
+  : transportf_s_square
+      p₁' p₂'
+      p₃' p₄'
+      (transportb_s_square
+         p₁ p₂
+         p₃ p₄
+         s)
+    =
+    s.
+Proof.
+  assert (p₁ = p₁') as r by apply isaset_ver_mor_strict_double_cat.
+  induction r.
+  assert (p₂ = p₂') as r by apply isaset_ver_mor_strict_double_cat.
+  induction r.
+  assert (p₃ = p₃') as r by apply isaset_hor_mor_strict_double_cat.
+  induction r.
+  assert (p₄ = p₄') as r by apply isaset_hor_mor_strict_double_cat.
+  induction r.
+  induction p₁, p₂, p₃, p₄ ; cbn.
+  apply idpath.
+Qed.
+
+Proposition transportbf_s_square
+            {C : strict_double_cat}
+            {x₁ x₂ y₁ y₂ : C}
+            {v₁ v₁' : x₁ -->v y₁}
+            {v₂ v₂' : x₂ -->v y₂}
+            {h₁ h₁' : x₁ -->h x₂}
+            {h₂ h₂' : y₁ -->h y₂}
+            (s : s_square v₁ v₂ h₁ h₂)
+            (p₁ p₁' : v₁ = v₁')
+            (p₂ p₂' : v₂ = v₂')
+            (p₃ p₃' : h₁ = h₁')
+            (p₄ p₄' : h₂ = h₂')
+  : transportb_s_square
+      p₁' p₂'
+      p₃' p₄'
+      (transportf_s_square
+         p₁ p₂
+         p₃ p₄
+         s)
+    =
+    s.
+Proof.
+  assert (p₁ = p₁') as r by apply isaset_ver_mor_strict_double_cat.
+  induction r.
+  assert (p₂ = p₂') as r by apply isaset_ver_mor_strict_double_cat.
+  induction r.
+  assert (p₃ = p₃') as r by apply isaset_hor_mor_strict_double_cat.
+  induction r.
+  assert (p₄ = p₄') as r by apply isaset_hor_mor_strict_double_cat.
+  induction r.
+  induction p₁, p₂, p₃, p₄ ; cbn.
+  apply idpath.
+Qed.
+
+(** ** 2.5. Laws for squares *)
 Proposition s_square_id_left_v
             {C : strict_double_cat}
             {x₁ x₂ y₁ y₂ : C}
@@ -258,7 +356,7 @@ Proposition s_square_id_left_v
             (s : s_square v₁ v₂ h₁ h₂)
   : s_id_v_square h₁ ⋆v s
     =
-    transportb_s_square s (id_left _) (id_left _) (idpath _) (idpath _).
+    transportb_s_square (id_left _) (id_left _) (idpath _) (idpath _) s.
 Proof.
   apply id_two_disp_left.
 Defined.
@@ -273,7 +371,7 @@ Proposition s_square_id_right_v
             (s : s_square v₁ v₂ h₁ h₂)
   : s ⋆v s_id_v_square h₂
     =
-    transportb_s_square s (id_right _) (id_right _) (idpath _) (idpath _).
+    transportb_s_square (id_right _) (id_right _) (idpath _) (idpath _) s.
 Proof.
   apply id_two_disp_right.
 Defined.
@@ -293,14 +391,14 @@ Proposition s_square_assoc_v
   : s₁ ⋆v (s₂ ⋆v s₃)
     =
     transportb_s_square
-      ((s₁ ⋆v s₂) ⋆v s₃)
       (assoc _ _ _) (assoc _ _ _)
-      (idpath _) (idpath _).
+      (idpath _) (idpath _)
+      ((s₁ ⋆v s₂) ⋆v s₃).
 Proof.
   exact (assoc_two_disp s₁ s₂ s₃).
 Defined.
 
-(** ** 2.4. Functoriality of horizontal identities *)
+(** ** 2.6. Functoriality of horizontal identities *)
 Definition s_id_h_square
            {C : strict_double_cat}
            {x y : C}
@@ -328,7 +426,7 @@ Proof.
   apply double_id_mor_id_comp.
 Defined.
 
-(** ** 2.5. Functoriality of horizontal composition *)
+(** ** 2.7. Functoriality of horizontal composition *)
 Definition s_comp_h_square
            {C : strict_double_cat}
            {x₁ x₂ y₁ y₂ z₁ z₂ : C}
@@ -344,7 +442,7 @@ Definition s_comp_h_square
   : s_square v₁ v₃ (h₁ ·h h₂) (k₁ ·h k₂)
   := double_hor_comp_mor (hor_comp_strict_double_cat C) s₁ s₂.
 
-Notation "s₁ ⋆h s₂" := (s_comp_h_square s₁ s₂) (at level 40, left associativity)
+Notation "s₁ ⋆h s₂" := (s_comp_h_square s₁ s₂) (at level 37, left associativity)
     : strict_double_cat.
 
 Proposition s_comp_h_square_id
@@ -375,7 +473,7 @@ Proof.
   apply double_hor_comp_mor_comp.
 Defined.
 
-(** ** 2.6. Laws for horizontal composition *)
+(** ** 2.8. Laws for horizontal composition *)
 Proposition s_id_h_left
             {C : strict_double_cat}
             {x y : C}
@@ -416,10 +514,10 @@ Proposition strict_square_id_left
   : s_id_h_square v₁ ⋆h s
     =
     transportb_s_square
-      s
       (idpath _) (idpath _)
       (s_id_h_left _)
-      (s_id_h_left _).
+      (s_id_h_left _)
+      s.
 Proof.
   exact (pr12 (pr222 C) x₁ x₂ y₁ y₂ v₁ v₂ h k s).
 Defined.
@@ -435,10 +533,10 @@ Proposition strict_square_id_right
   : s ⋆h s_id_h_square v₂
     =
     transportb_s_square
-      s
       (idpath _) (idpath _)
       (s_id_h_right _)
-      (s_id_h_right _).
+      (s_id_h_right _)
+      s.
 Proof.
   exact (pr122 (pr222 C) x₁ x₂ y₁ y₂ v₁ v₂ h k s).
 Defined.
@@ -458,10 +556,10 @@ Proposition strict_square_assoc
   : s₁ ⋆h (s₂ ⋆h s₃)
     =
     transportb_s_square
-      ((s₁ ⋆h s₂) ⋆h s₃)
       (idpath _) (idpath _)
       (s_assocl_h _ _ _)
-      (s_assocl_h _ _ _).
+      (s_assocl_h _ _ _)
+      ((s₁ ⋆h s₂) ⋆h s₃).
 Proof.
   apply (pr222 (pr222 C) w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ vw vx vy vz h₁ h₂ h₃ k₁ k₂ k₃ s₁ s₂ s₃).
 Defined.
@@ -473,6 +571,281 @@ Definition id_h_to_s_square
            (p : h₁ = h₂)
   : s_square (s_identity_v x) (s_identity_v y) h₁ h₂
   := pr1 (idtoiso_twosided_disp (idpath _) (idpath _) p).
+
+(** ** 2.9. Transport laws *)
+Proposition transportf_f_s_square
+            {C : strict_double_cat}
+            {x₁ x₂ y₁ y₂ : C}
+            {v₁ v₁' v₁'' : x₁ -->v y₁}
+            {v₂ v₂' v₂'' : x₂ -->v y₂}
+            {h₁ h₁' h₁'' : x₁ -->h x₂}
+            {h₂ h₂' h₂'' : y₁ -->h y₂}
+            (s : s_square v₁ v₂ h₁ h₂)
+            (p₁ : v₁ = v₁') (q₁ : v₁' = v₁'')
+            (p₂ : v₂ = v₂') (q₂ : v₂' = v₂'')
+            (p₃ : h₁ = h₁') (q₃ : h₁' = h₁'')
+            (p₄ : h₂ = h₂') (q₄ : h₂' = h₂'')
+  : transportf_s_square
+      q₁ q₂
+      q₃ q₄
+      (transportf_s_square
+         p₁ p₂
+         p₃ p₄
+         s)
+    =
+    transportf_s_square
+      (p₁ @ q₁) (p₂ @ q₂)
+      (p₃ @ q₃) (p₄ @ q₄)
+      s.
+Proof.
+  induction p₁, p₂, p₃, p₄, q₁, q₂, q₃, q₄ ; cbn.
+  apply idpath.
+Qed.
+
+Proposition transportf_s_square_eq
+            {C : strict_double_cat}
+            {x₁ x₂ y₁ y₂ : C}
+            {v₁ v₁' : x₁ -->v y₁}
+            {v₂ v₂' : x₂ -->v y₂}
+            {h₁ h₁' : x₁ -->h x₂}
+            {h₂ h₂' : y₁ -->h y₂}
+            {s s' : s_square v₁ v₂ h₁ h₂}
+            (q : s = s')
+            (p₁ p₁' : v₁ = v₁')
+            (p₂ p₂' : v₂ = v₂')
+            (p₃ p₃' : h₁ = h₁')
+            (p₄ p₄' : h₂ = h₂')
+  : transportf_s_square p₁ p₂ p₃ p₄ s
+    =
+    transportf_s_square p₁' p₂' p₃' p₄' s'.
+Proof.
+  assert (p₁ = p₁') as r by apply isaset_ver_mor_strict_double_cat.
+  induction r.
+  assert (p₂ = p₂') as r by apply isaset_ver_mor_strict_double_cat.
+  induction r.
+  assert (p₃ = p₃') as r by apply isaset_hor_mor_strict_double_cat.
+  induction r.
+  assert (p₄ = p₄') as r by apply isaset_hor_mor_strict_double_cat.
+  induction r.
+  induction p₁, p₂, p₃, p₄ ; cbn.
+  exact q.
+Qed.
+
+Proposition transportf_s_square_pre_whisker_h
+            {C : strict_double_cat}
+            {x₁ x₂ y₁ y₂ z₁ z₂ : C}
+            {vx : x₁ -->v x₂}
+            {vy : y₁ -->v y₂}
+            {vz : z₁ -->v z₂}
+            {h₁ h₁' : x₁ -->h y₁}
+            (p : h₁ = h₁')
+            {h₂ h₂' : x₂ -->h y₂}
+            (q : h₂ = h₂')
+            (k₁ : y₁ -->h z₁)
+            (k₂ : y₂ -->h z₂)
+            (s₁ : s_square vx vy h₁ h₂)
+            (s₂ : s_square vy vz k₁ k₂)
+  : transportf_s_square (idpath _) (idpath _) p q s₁ ⋆h s₂
+    =
+    transportf_s_square
+      (idpath _) (idpath _)
+      (maponpaths (λ z, z ·h _) p) (maponpaths (λ z, z ·h _) q)
+      (s₁ ⋆h s₂).
+Proof.
+  induction p, q ; cbn.
+  apply idpath.
+Qed.
+
+Proposition transportf_s_square_pre_whisker_h'
+            {C : strict_double_cat}
+            {x₁ x₂ y₁ y₂ z₁ z₂ : C}
+            {vx vx' : x₁ -->v x₂}
+            (p₁ : vx = vx')
+            {vy vy' : y₁ -->v y₂}
+            (p₂ : vy = vy')
+            {vz vz' : z₁ -->v z₂}
+            {h₁ h₁' : x₁ -->h y₁}
+            (p₃ : h₁ = h₁')
+            {h₂ h₂' : x₂ -->h y₂}
+            (p₄ : h₂ = h₂')
+            (r : vz = vz')
+            (k₁ : y₁ -->h z₁)
+            (k₂ : y₂ -->h z₂)
+            (s₁ : s_square vx vy h₁ h₂)
+            (s₂ : s_square vy' vz k₁ k₂)
+  : transportf_s_square p₁ p₂ p₃ p₄ s₁ ⋆h s₂
+    =
+    transportf_s_square
+      p₁
+      (!r)
+      (maponpaths (λ z, z ·h _) p₃)
+      (maponpaths (λ z, z ·h _) p₄)
+      (s₁ ⋆h transportf_s_square (!p₂) r (idpath _) (idpath _) s₂).
+Proof.
+  induction p₁, p₂, p₃, p₄, r ; cbn.
+  apply idpath.
+Qed.
+
+Proposition transportf_s_square_post_whisker_h
+            {C : strict_double_cat}
+            {x₁ x₂ y₁ y₂ z₁ z₂ : C}
+            {vx : x₁ -->v x₂}
+            {vy : y₁ -->v y₂}
+            {vz : z₁ -->v z₂}
+            (h₁ : x₁ -->h y₁)
+            (h₂ : x₂ -->h y₂)
+            {k₁ k₁' : y₁ -->h z₁}
+            (p : k₁ = k₁')
+            {k₂ k₂' : y₂ -->h z₂}
+            (q : k₂ = k₂')
+            (s₁ : s_square vx vy h₁ h₂)
+            (s₂ : s_square vy vz k₁ k₂)
+  : s₁ ⋆h transportf_s_square (idpath _) (idpath _) p q s₂
+    =
+    transportf_s_square
+      (idpath _) (idpath _)
+      (maponpaths (λ z, _ ·h z) p) (maponpaths (λ z, _ ·h z) q)
+      (s₁ ⋆h s₂).
+Proof.
+  induction p, q ; cbn.
+  apply idpath.
+Qed.
+
+Proposition transportf_s_square_post_whisker_h'
+            {C : strict_double_cat}
+            {x₁ x₂ y₁ y₂ z₁ z₂ : C}
+            {vx vx' : x₁ -->v x₂}
+            {vy vy' : y₁ -->v y₂}
+            (p₁ : vy = vy')
+            {vz vz' : z₁ -->v z₂}
+            (p₂ : vz = vz')
+            (h₁ : x₁ -->h y₁)
+            (h₂ : x₂ -->h y₂)
+            {k₁ k₁' : y₁ -->h z₁}
+            (p₃ : k₁ = k₁')
+            {k₂ k₂' : y₂ -->h z₂}
+            (p₄ : k₂ = k₂')
+            (r : vx = vx')
+            (s₁ : s_square vx vy' h₁ h₂)
+            (s₂ : s_square vy vz k₁ k₂)
+  : s₁ ⋆h transportf_s_square p₁ p₂ p₃ p₄ s₂
+    =
+    transportf_s_square
+      (!r)
+      p₂
+      (maponpaths (λ z, _ ·h z) p₃)
+      (maponpaths (λ z, _ ·h z) p₄)
+      (transportf_s_square r (!p₁) (idpath _) (idpath _) s₁ ⋆h s₂).
+Proof.
+  induction p₁, p₂, p₃, p₄, r ; cbn.
+  apply idpath.
+Qed.
+
+Proposition transportf_s_square_pre_whisker_v
+            {C : strict_double_cat}
+            {x₁ x₂ y₁ y₂ z₁ z₂ : C}
+            {v₁ v₁' : x₁ -->v y₁} {w₁ : y₁ --> z₁}
+            {v₂ v₂' : x₂ -->v y₂} {w₂ : y₂ --> z₂}
+            (p : v₁ = v₁')
+            (q : v₂ = v₂')
+            {h₁ : x₁ -->h x₂}
+            {h₂ : y₁ -->h y₂}
+            {k : z₁ -->h z₂}
+            (s₁ : s_square v₁ v₂ h₁ h₂)
+            (s₂ : s_square w₁ w₂ h₂ k)
+  : transportf_s_square p q (idpath _) (idpath _) s₁ ⋆v s₂
+    =
+    transportf_s_square
+      (maponpaths (λ z, z ·v _) p) (maponpaths (λ z, z ·v _) q)
+      (idpath _) (idpath _)
+      (s₁ ⋆v s₂).
+Proof.
+  induction p, q ; cbn.
+  apply idpath.
+Qed.
+
+Proposition transportf_s_square_post_whisker_v
+            {C : strict_double_cat}
+            {x₁ x₂ y₁ y₂ z₁ z₂ : C}
+            {v₁ : x₁ -->v y₁} {w₁ w₁' : y₁ --> z₁}
+            {v₂ : x₂ -->v y₂} {w₂ w₂' : y₂ --> z₂}
+            (p : w₁ = w₁')
+            (q : w₂ = w₂')
+            {h₁ : x₁ -->h x₂}
+            {h₂ : y₁ -->h y₂}
+            {k : z₁ -->h z₂}
+            (s₁ : s_square v₁ v₂ h₁ h₂)
+            (s₂ : s_square w₁ w₂ h₂ k)
+  : s₁ ⋆v transportf_s_square p q (idpath _) (idpath _) s₂
+    =
+    transportf_s_square
+      (maponpaths (λ z, _ ·v z) p) (maponpaths (λ z, _ ·v z) q)
+      (idpath _) (idpath _)
+      (s₁ ⋆v s₂).
+Proof.
+  induction p, q ; cbn.
+  apply idpath.
+Qed.
+
+Proposition transportf_s_square_pre_whisker_v'
+            {C : strict_double_cat}
+            {x₁ x₂ y₁ y₂ z₁ z₂ : C}
+            {v₁ v₁' : x₁ -->v y₁} {w₁ : y₁ --> z₁}
+            {v₂ v₂' : x₂ -->v y₂} {w₂ : y₂ --> z₂}
+            (p₁ : v₁ = v₁')
+            (p₂ : v₂ = v₂')
+            {h₁ h₁' : x₁ -->h x₂}
+            (p₃ : h₁ = h₁')
+            {h₂ h₂' : y₁ -->h y₂}
+            (p₄ : h₂ = h₂')
+            {k k' : z₁ -->h z₂}
+            (r : k = k')
+            (s₁ : s_square v₁ v₂ h₁ h₂)
+            (s₂ : s_square w₁ w₂ h₂' k')
+  : transportf_s_square p₁ p₂ p₃ p₄ s₁ ⋆v s₂
+    =
+    transportf_s_square
+      (maponpaths (λ z, z ·v _) p₁)
+      (maponpaths (λ z, z ·v _) p₂)
+      p₃
+      r
+      (s₁ ⋆v transportf_s_square (idpath _) (idpath _) (!p₄) (!r) s₂).
+Proof.
+  induction p₁, p₂, p₃, p₄, r ; cbn.
+  apply idpath.
+Qed.
+
+Proposition transportf_s_square_post_whisker_v'
+            {C : strict_double_cat}
+            {x₁ x₂ y₁ y₂ z₁ z₂ : C}
+            {v₁ : x₁ -->v y₁} {w₁ w₁' : y₁ --> z₁}
+            {v₂ : x₂ -->v y₂} {w₂ w₂' : y₂ --> z₂}
+            (p₁ : w₁ = w₁')
+            (p₂ : w₂ = w₂')
+            {h₁ h₁' : x₁ -->h x₂}
+            {h₂ h₂' : y₁ -->h y₂}
+            (p₃ : h₂' = h₂)
+            {k k' : z₁ -->h z₂}
+            (p₄ : k = k')
+            (r : h₁ = h₁')
+            (s₁ : s_square v₁ v₂ h₁' h₂)
+            (s₂ : s_square w₁ w₂ h₂' k)
+  : s₁ ⋆v transportf_s_square p₁ p₂ p₃ p₄ s₂
+    =
+    transportf_s_square
+      (maponpaths (λ z, _ ·v z) p₁)
+      (maponpaths (λ z, _ ·v z) p₂)
+      r
+      p₄
+      (transportf_s_square
+         (idpath _) (idpath _)
+         (!r) (!p₃)
+         s₁
+         ⋆v s₂).
+Proof.
+  induction p₁, p₂, p₃, p₄, r ; cbn.
+  apply idpath.
+Qed.
 
 (** * 3. Builder for strict double categories *)
 Definition make_strict_double_cat
@@ -567,10 +940,10 @@ Proposition strict_double_functor_id_square
   : #s F (s_id_v_square h)
     =
     transportb_s_square
-      (s_id_v_square _)
       (strict_double_functor_id_v _ _)
       (strict_double_functor_id_v _ _)
-      (idpath _) (idpath _).
+      (idpath _) (idpath _)
+      (s_id_v_square _).
 Proof.
   exact (twosided_disp_functor_id _ _ _ _ (strict_double_functor_hor_mor F) h).
 Qed.
@@ -589,10 +962,10 @@ Proposition lax_double_functor_comp_v_square
   : #s F (s₁ ⋆v s₂)
     =
     transportb_s_square
-      (#s F s₁ ⋆v #s F s₂)
       (strict_double_functor_comp_v _ _ _)
       (strict_double_functor_comp_v _ _ _)
-      (idpath _) (idpath _).
+      (idpath _) (idpath _)
+      (#s F s₁ ⋆v #s F s₂).
 Proof.
   apply (twosided_disp_functor_comp _ _ _ _ (strict_double_functor_hor_mor F)).
 Qed.
@@ -623,10 +996,10 @@ Proposition strict_double_functor_hor_id_mor
   : #s F (s_id_h_square f) ⋆v id_h_to_s_square (strict_double_functor_hor_id F y)
     =
     transportf_s_square
-      (id_h_to_s_square (strict_double_functor_hor_id F x) ⋆v s_id_h_square (#F f))
       (s_id_v_left _ @ !(s_id_v_right _))
       (s_id_v_left _ @ !(s_id_v_right _))
-      (idpath _) (idpath _).
+      (idpath _) (idpath _)
+      (id_h_to_s_square (strict_double_functor_hor_id F x) ⋆v s_id_h_square (#F f)).
 Proof.
   exact (is_natural_preserves_hor_id (strict_double_functor_preserves_hor_id F) f).
 Defined.
@@ -667,10 +1040,10 @@ Proposition strict_double_functor_hor_comp_mor
   : #s F (s₁ ⋆h s₂) ⋆v id_h_to_s_square (strict_double_functor_hor_comp F h₂ k₂)
     =
     transportf_s_square
-      (id_h_to_s_square (strict_double_functor_hor_comp F h₁ k₁) ⋆v (#s F s₁ ⋆h #s F s₂))
       (s_id_v_left _ @ !(s_id_v_right _))
       (s_id_v_left _ @ !(s_id_v_right _))
-      (idpath _) (idpath _).
+      (idpath _) (idpath _)
+      (id_h_to_s_square (strict_double_functor_hor_comp F h₁ k₁) ⋆v (#s F s₁ ⋆h #s F s₂)).
 Proof.
   exact (is_natural_preserves_hor_comp
            (strict_double_functor_preserves_hor_comp F)

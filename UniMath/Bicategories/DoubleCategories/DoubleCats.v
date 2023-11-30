@@ -357,7 +357,7 @@ Definition comp_h_square
   : square v₁ v₃ (h₁ ·h h₂) (k₁ ·h k₂)
   := pr212 (pr211 C) x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ h₂ k₁ k₂ s₁ s₂.
 
-Notation "s₁ ⋆h s₂" := (comp_h_square s₁ s₂) (at level 40, left associativity) : double_cat.
+Notation "s₁ ⋆h s₂" := (comp_h_square s₁ s₂) (at level 37, left associativity) : double_cat.
 
 Proposition comp_h_square_id
             {C : double_cat}
