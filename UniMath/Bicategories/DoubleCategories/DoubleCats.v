@@ -27,7 +27,6 @@
  8. Double transformations
  9. Accessors for double transformations
  10. Builder for double transformations
- 11. Extra laws for transport and `idtoiso`
 
  **********************************************************************************)
 Require Import UniMath.MoreFoundations.All.
