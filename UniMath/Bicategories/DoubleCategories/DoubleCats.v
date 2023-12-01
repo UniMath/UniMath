@@ -27,6 +27,7 @@
  8. Double transformations
  9. Accessors for double transformations
  10. Builder for double transformations
+ 11. Extra laws for transport and `idtoiso`
 
  **********************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -63,20 +64,14 @@ Declare Scope double_cat.
 
 Local Open Scope double_cat.
 
-(**
- 1. Double categories
- *)
+(** * 1. Double categories *)
 Definition double_cat
   : UU
   := ob bicat_of_double_cats.
 
-(**
- 2. Accessors for double categories
- *)
+(** * 2. Accessors for double categories *)
 
-(**
- 2.1. The vertical category
- *)
+(** ** 2.1. The vertical category *)
 Definition ob_double_cat
            (C : double_cat)
   : category
@@ -156,9 +151,7 @@ Proof.
   apply homset_property.
 Qed.
 
-(**
- 2.2. Horizontal morphisms
- *)
+(** ** 2.2. Horizontal morphisms *)
 Definition hor_mor
            (C : double_cat)
   : twosided_disp_cat C C
@@ -199,9 +192,7 @@ Definition hor_mor_comp_double_cat
 
 Notation "f ·h g" := (hor_mor_comp_double_cat f g) (at level 60) : double_cat.
 
-(**
- 2.3. Squares
- *)
+(** ** 2.3. Squares *)
 Definition square
            {C : double_cat}
            {x₁ x₂ y₁ y₂ : C}
@@ -211,6 +202,18 @@ Definition square
            (h₂ : y₁ -->h y₂)
   : UU
   := h₁ -->[ v₁ ][ v₂ ] h₂.
+
+Proposition isaset_square
+            {C : double_cat}
+            {x₁ x₂ y₁ y₂ : C}
+            (v₁ : x₁ -->v y₁)
+            (v₂ : x₂ -->v y₂)
+            (h₁ : x₁ -->h x₂)
+            (h₂ : y₁ -->h y₂)
+  : isaset (square v₁ v₂ h₁ h₂).
+Proof.
+  apply isaset_disp_mor.
+Qed.
 
 Definition id_v_square
            {C : double_cat}
@@ -241,11 +244,11 @@ Definition transportf_square
            {v₂ v₂' : x₂ -->v y₂}
            {h₁ : x₁ -->h x₂}
            {h₂ : y₁ -->h y₂}
-           (s₁ : square v₁ v₂ h₁ h₂)
            (p : v₁ = v₁')
            (q : v₂ = v₂')
+           (s : square v₁ v₂ h₁ h₂)
   : square v₁' v₂' h₁ h₂
-  := transportf_disp_mor2 p q s₁.
+  := transportf_disp_mor2 p q s.
 
 Definition transportb_square
            {C : double_cat}
@@ -254,11 +257,43 @@ Definition transportb_square
            {v₂ v₂' : x₂ -->v y₂}
            {h₁ : x₁ -->h x₂}
            {h₂ : y₁ -->h y₂}
-           (s₁ : square v₁' v₂' h₁ h₂)
            (p : v₁ = v₁')
            (q : v₂ = v₂')
+           (s : square v₁' v₂' h₁ h₂)
   : square v₁ v₂ h₁ h₂
-  := transportb_disp_mor2 p q s₁.
+  := transportf_square (!p) (!q) s.
+
+Proposition transportfb_square
+            {C : double_cat}
+            {x₁ x₂ y₁ y₂ : C}
+            {v₁ v₁' : x₁ -->v y₁}
+            {v₂ v₂' : x₂ -->v y₂}
+            {h₁ : x₁ -->h x₂}
+            {h₂ : y₁ -->h y₂}
+            (p : v₁ = v₁')
+            (q : v₂ = v₂')
+            (s : square v₁' v₂' h₁ h₂)
+  : transportf_square p q (transportb_square p q s) = s.
+Proof.
+  induction p, q.
+  apply idpath.
+Qed.
+
+Proposition transportbf_square
+            {C : double_cat}
+            {x₁ x₂ y₁ y₂ : C}
+            {v₁ v₁' : x₁ -->v y₁}
+            {v₂ v₂' : x₂ -->v y₂}
+            {h₁ : x₁ -->h x₂}
+            {h₂ : y₁ -->h y₂}
+            (p : v₁ = v₁')
+            (q : v₂ = v₂')
+            (s : square v₁ v₂ h₁ h₂)
+  : transportb_square p q (transportf_square p q s) = s.
+Proof.
+  induction p, q.
+  apply idpath.
+Qed.
 
 Proposition square_id_left_v
             {C : double_cat}
@@ -270,7 +305,7 @@ Proposition square_id_left_v
             (s : square v₁ v₂ h₁ h₂)
   : id_v_square h₁ ⋆v s
     =
-    transportb_square s (id_left _) (id_left _).
+    transportb_square (id_left _) (id_left _) s.
 Proof.
   apply id_two_disp_left.
 Defined.
@@ -285,7 +320,7 @@ Proposition square_id_right_v
             (s : square v₁ v₂ h₁ h₂)
   : s ⋆v id_v_square h₂
     =
-    transportb_square s (id_right _) (id_right _).
+    transportb_square (id_right _) (id_right _) s.
 Proof.
   apply id_two_disp_right.
 Defined.
@@ -304,14 +339,80 @@ Proposition square_assoc_v
             (s₃ : square v₁'' v₂'' h₃ h₄)
   : s₁ ⋆v (s₂ ⋆v s₃)
     =
-    transportb_square ((s₁ ⋆v s₂) ⋆v s₃) (assoc _ _ _) (assoc _ _ _).
+    transportb_square (assoc _ _ _) (assoc _ _ _) ((s₁ ⋆v s₂) ⋆v s₃).
 Proof.
   exact (assoc_two_disp s₁ s₂ s₃).
 Defined.
 
-(**
- 2.4. Functoriality of horizontal identities
- *)
+Definition globular_iso_square
+           {C : double_cat}
+           {x y : C}
+           (h₁ h₂ : x -->h y)
+  : UU
+  := iso_twosided_disp (identity_z_iso _) (identity_z_iso _) h₁ h₂.
+
+Coercion globular_iso_square_to_hor_mor
+         {C : double_cat}
+         {x y : C}
+         {h₁ h₂ : x -->h y}
+         (s : globular_iso_square h₁ h₂)
+  : square (identity_v _) (identity_v _) h₁ h₂
+  := pr1 s.
+
+Definition globular_iso_square_inv
+           {C : double_cat}
+           {x y : C}
+           {h₁ h₂ : x -->h y}
+           (s : globular_iso_square h₁ h₂)
+  : square (identity_v _) (identity_v _) h₂ h₁
+  := pr12 s.
+
+Proposition globular_iso_square_left
+            {C : double_cat}
+            {x y : C}
+            {h₁ h₂ : x -->h y}
+            (s : globular_iso_square h₁ h₂)
+  : s ⋆v globular_iso_square_inv s
+    =
+    transportb_square (id_v_left _) (id_v_left _) (id_v_square _).
+Proof.
+  exact (pr122 s).
+Qed.
+
+Proposition globular_iso_square_right
+            {C : double_cat}
+            {x y : C}
+            {h₁ h₂ : x -->h y}
+            (s : globular_iso_square h₁ h₂)
+  : globular_iso_square_inv s ⋆v s
+    =
+    transportb_square (id_v_left _) (id_v_left _) (id_v_square _).
+Proof.
+  exact (pr222 s).
+Qed.
+
+Definition globular_iso_square_to_path
+           {C : double_cat}
+           {x y : C}
+           {h₁ h₂ : x -->h y}
+           (s : globular_iso_square h₁ h₂)
+  : h₁ = h₂.
+Proof.
+  exact (isotoid_twosided_disp
+           (is_univalent_twosided_disp_cat_hor_mor C)
+           (idpath _) (idpath _)
+           s).
+Defined.
+
+Definition path_to_globular_iso_square
+           {C : double_cat}
+           {x y : C}
+           {h₁ h₂ : x -->h y}
+           (p : h₁ = h₂)
+  : globular_iso_square h₁ h₂
+  := idtoiso_twosided_disp (idpath _) (idpath _) p.
+
+(** ** 2.4. Functoriality of horizontal identities *)
 Definition id_h_square
            {C : double_cat}
            {x y : C}
@@ -339,9 +440,7 @@ Proof.
   exact (pr221 (pr211 C) x y z v₁ v₂).
 Defined.
 
-(**
- 2.5. Functoriality of horizontal composition
- *)
+(** ** 2.5. Functoriality of horizontal composition *)
 Definition comp_h_square
            {C : double_cat}
            {x₁ x₂ y₁ y₂ z₁ z₂ : C}
@@ -398,9 +497,7 @@ Proof.
            s₂ s₂').
 Defined.
 
-(**
- 2.6. Left unitor
- *)
+(** ** 2.6. Left unitor *)
 Definition double_cat_double_lunitor
            (C : double_cat)
   : double_cat_lunitor (hor_id_double_cat C) (hor_comp_double_cat C)
@@ -412,6 +509,13 @@ Definition lunitor_h
            (f : x -->h y)
   : square (identity_v x) (identity_v y) (identity_h x ·h f) f
   := pr1 (pr1 (pr121 C) x y f).
+
+Definition lunitor_globural_iso_square
+           {C : double_cat}
+           {x y : C}
+           (f : x -->h y)
+  : globular_iso_square (identity_h x ·h f) f
+  := pr1 (pr121 C) x y f.
 
 Definition linvunitor_h
            {C : double_cat}
@@ -426,7 +530,7 @@ Proposition lunitor_linvunitor_h
             (f : x -->h y)
   : lunitor_h f ⋆v linvunitor_h f
     =
-    transportb_square (id_v_square _) (id_v_left _) (id_v_left _).
+    transportb_square (id_v_left _) (id_v_left _) (id_v_square _).
 Proof.
   exact (pr122 (pr1 (pr121 C) x y f)).
 Defined.
@@ -437,7 +541,7 @@ Proposition linvunitor_lunitor_h
             (f : x -->h y)
   : linvunitor_h f ⋆v lunitor_h f
     =
-    transportb_square (id_v_square _) (id_v_left _) (id_v_left _).
+    transportb_square (id_v_left _) (id_v_left _) (id_v_square _).
 Proof.
   exact (pr222 (pr1 (pr121 C) x y f)).
 Defined.
@@ -453,16 +557,14 @@ Proposition lunitor_square
   : (id_h_square _ ⋆h s) ⋆v lunitor_h h₂
     =
     transportb_square
-      (lunitor_h h₁ ⋆v s)
       (id_v_right _ @ !(id_v_left _))
-      (id_v_right _ @ !(id_v_left _)).
+      (id_v_right _ @ !(id_v_left _))
+      (lunitor_h h₁ ⋆v s).
 Proof.
   exact (!(pr2 (pr121 C) x₁ x₂ y₁ y₂ h₁ h₂ v₁ v₂ s)).
 Defined.
 
-(**
- 2.7. Right unitor
- *)
+(** ** 2.7. Right unitor *)
 Definition double_cat_double_runitor
            (C : double_cat)
   : double_cat_runitor (hor_id_double_cat C) (hor_comp_double_cat C)
@@ -474,6 +576,13 @@ Definition runitor_h
            (f : x -->h y)
   : square (identity_v x) (identity_v y) (f ·h identity_h y) f
   := pr1 (pr11 (pr221 C) x y f).
+
+Definition runitor_globural_iso_square
+           {C : double_cat}
+           {x y : C}
+           (f : x -->h y)
+  : globular_iso_square (f ·h identity_h y) f
+  := pr11 (pr221 C) x y f.
 
 Definition rinvunitor_h
            {C : double_cat}
@@ -488,7 +597,7 @@ Proposition runitor_rinvunitor_h
             (f : x -->h y)
   : runitor_h f ⋆v rinvunitor_h f
     =
-    transportb_square (id_v_square _) (id_v_left _) (id_v_left _).
+    transportb_square (id_v_left _) (id_v_left _) (id_v_square _).
 Proof.
   exact (pr122 (pr11 (pr221 C) x y f)).
 Defined.
@@ -499,7 +608,7 @@ Proposition rinvunitor_runitor_h
             (f : x -->h y)
   : rinvunitor_h f ⋆v runitor_h f
     =
-    transportb_square (id_v_square _) (id_v_left _) (id_v_left _).
+    transportb_square (id_v_left _) (id_v_left _) (id_v_square _).
 Proof.
   exact (pr222 (pr11 (pr221 C) x y f)).
 Defined.
@@ -515,16 +624,14 @@ Proposition runitor_square
   : (s ⋆h id_h_square _) ⋆v runitor_h h₂
     =
     transportb_square
-      (runitor_h h₁ ⋆v s)
       (id_v_right _ @ !(id_v_left _))
-      (id_v_right _ @ !(id_v_left _)).
+      (id_v_right _ @ !(id_v_left _))
+      (runitor_h h₁ ⋆v s).
 Proof.
   exact (!(pr21 (pr221 C) x₁ x₂ y₁ y₂ h₁ h₂ v₁ v₂ s)).
 Defined.
 
-(**
- 2.8. Associator
- *)
+(** ** 2.8. Associator *)
 Definition double_cat_double_associator
            (C : double_cat)
   : double_cat_associator (hor_comp_double_cat C)
@@ -538,6 +645,15 @@ Definition lassociator_h
            (h : y -->h z)
   : square (identity_v w) (identity_v z) (f ·h (g ·h h)) ((f ·h g) ·h h)
   := pr1 (pr12 (pr221 C) w x y z f g h).
+
+Definition associator_globural_iso_square
+           {C : double_cat}
+           {w x y z : C}
+           (f : w -->h x)
+           (g : x -->h y)
+           (h : y -->h z)
+  : globular_iso_square (f ·h (g ·h h)) ((f ·h g) ·h h)
+  := pr12 (pr221 C) w x y z f g h.
 
 Definition rassociator_h
            {C : double_cat}
@@ -556,7 +672,7 @@ Proposition lassociator_rassociator_h
             (h : y -->h z)
   : lassociator_h f g h ⋆v rassociator_h f g h
     =
-    transportb_square (id_v_square _) (id_v_left _) (id_v_left _).
+    transportb_square (id_v_left _) (id_v_left _) (id_v_square _).
 Proof.
   exact (pr122 (pr12 (pr221 C) w x y z f g h)).
 Defined.
@@ -569,7 +685,7 @@ Proposition rassociator_lassociator_h
             (h : y -->h z)
   : rassociator_h f g h ⋆v lassociator_h f g h
     =
-    transportb_square (id_v_square _) (id_v_left _) (id_v_left _).
+    transportb_square (id_v_left _) (id_v_left _) (id_v_square _).
 Proof.
   exact (pr222 (pr12 (pr221 C) w x y z f g h)).
 Defined.
@@ -588,16 +704,14 @@ Proposition lassociator_h_square
   : (s₁ ⋆h (s₂ ⋆h s₃)) ⋆v lassociator_h h₂ j₂ k₂
     =
     transportb_square
-      (lassociator_h h₁ j₁ k₁ ⋆v ((s₁ ⋆h s₂) ⋆h s₃))
       (id_v_right _ @ !(id_v_left _))
-      (id_v_right _ @ !(id_v_left _)).
+      (id_v_right _ @ !(id_v_left _))
+      (lassociator_h h₁ j₁ k₁ ⋆v ((s₁ ⋆h s₂) ⋆h s₃)).
 Proof.
   exact (!(pr22 (pr221 C) w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ h₁ h₂ j₁ j₂ k₁ k₂ vw vx vy vz s₁ s₂ s₃)).
 Defined.
 
-(**
- 2.9. Triangle and pentagon equations
- *)
+(** ** 2.9. Triangle and pentagon equations *)
 Proposition double_triangle
             {C : double_cat}
             {x y z : C}
@@ -606,9 +720,9 @@ Proposition double_triangle
   : lassociator_h h _ k ⋆v (runitor_h h ⋆h id_v_square _)
     =
     transportb_square
-      (id_v_square h ⋆h lunitor_h k)
       (id_v_left _)
-      (id_v_left _).
+      (id_v_left _)
+      (id_v_square h ⋆h lunitor_h k).
 Proof.
   exact (pr12 C x y z h k).
 Qed.
@@ -621,9 +735,9 @@ Proposition double_pentagon
             (h₃ : x -->h y)
             (h₄ : y -->h z)
   : transportb_square
+      (id_right _)
+      (id_right _)
       (lassociator_h h₁ h₂ (h₃ ·h h₄) ⋆v lassociator_h (h₁ ·h h₂) h₃ h₄)
-      (id_right _)
-      (id_right _)
     =
     (id_v_square h₁ ⋆h lassociator_h h₂ h₃ h₄)
     ⋆v lassociator_h h₁ (h₂ ·h h₃) h₄
@@ -632,9 +746,7 @@ Proof.
   exact (pr22 C v w x y z h₁ h₂ h₃ h₄).
 Qed.
 
-(**
- 3. Builder for double categories
- *)
+(** * 3. Builder for double categories *)
 Definition make_double_cat
            (C : category)
            (D : twosided_disp_cat C C)
@@ -657,9 +769,7 @@ Proof.
   - exact (tr ,, pe).
 Defined.
 
-(**
- 4. Lax functors for double categories
- *)
+(** * 4. Lax functors for double categories *)
 Definition lax_double_functor
            (C₁ C₂ : double_cat)
   : UU
@@ -677,9 +787,7 @@ Definition comp_lax_double_functor
   : lax_double_functor C₁ C₃
   := F · G.
 
-(**
- 5. Accessors for lax functors
- *)
+(** * 5. Accessors for lax functors *)
 Definition lax_double_functor_ver
            {C₁ C₂ : double_cat}
            (F : lax_double_functor C₁ C₂)
@@ -738,9 +846,9 @@ Proposition lax_double_functor_id_square
   : #s F (id_v_square h)
     =
     transportb_square
-      (id_v_square _)
       (lax_double_functor_id_v _ _)
-      (lax_double_functor_id_v _ _).
+      (lax_double_functor_id_v _ _)
+      (id_v_square _).
 Proof.
   exact (twosided_disp_functor_id _ _ _ _ (lax_double_functor_hor_mor F) h).
 Qed.
@@ -759,9 +867,9 @@ Proposition lax_double_functor_comp_v_square
   : #s F (s₁ ⋆v s₂)
     =
     transportb_square
-      (#s F s₁ ⋆v #s F s₂)
       (lax_double_functor_comp_v _ _ _)
-      (lax_double_functor_comp_v _ _ _).
+      (lax_double_functor_comp_v _ _ _)
+      (#s F s₁ ⋆v #s F s₂).
 Proof.
   apply (twosided_disp_functor_comp _ _ _ _ (lax_double_functor_hor_mor F)).
 Qed.
@@ -792,9 +900,9 @@ Proposition lax_double_functor_id_h_mor
   : id_h_square (#v F f) ⋆v lax_double_functor_id_h F y
     =
     transportb_square
-      (lax_double_functor_id_h F x ⋆v #s F (id_h_square f))
       (id_v_right _ @ !(id_v_left _))
-      (id_v_right _ @ !(id_v_left _)).
+      (id_v_right _ @ !(id_v_left _))
+      (lax_double_functor_id_h F x ⋆v #s F (id_h_square f)).
 Proof.
   exact (pr21 (pr211 F) x y f).
 Qed.
@@ -831,9 +939,9 @@ Proposition lax_double_functor_comp_h_mor
   : (#s F sh ⋆h #s F sk) ⋆v lax_double_functor_comp_h F h₂ k₂
     =
     transportb_square
-      (lax_double_functor_comp_h F h₁ k₁ ⋆v #s F (sh ⋆h sk))
       (id_v_right _ @ !(id_v_left _))
-      (id_v_right _ @ !(id_v_left _)).
+      (id_v_right _ @ !(id_v_left _))
+      (lax_double_functor_comp_h F h₁ k₁ ⋆v #s F (sh ⋆h sk)).
 Proof.
   exact (pr22 (pr211 F) x₁ x₂ y₁ y₂ z₁ z₂ vx vy vz h₁ h₂ k₁ k₂ sh sk).
 Qed.
@@ -846,11 +954,11 @@ Proposition lax_double_functor_lunitor_h
   : lunitor_h (#h F f)
     =
     transportf_square
+      (assocr_v _ _ _ @ id_v_left _ @ id_v_left _ @ lax_double_functor_id_v _ _)
+      (assocr_v _ _ _ @ id_v_left _ @ id_v_left _ @ lax_double_functor_id_v _ _)
       ((lax_double_functor_id_h F _ ⋆h id_v_square _)
        ⋆v lax_double_functor_comp_h F _ _
-       ⋆v #s F (lunitor_h f))
-      (assocr_v _ _ _ @ id_v_left _ @ id_v_left _ @ lax_double_functor_id_v _ _)
-      (assocr_v _ _ _ @ id_v_left _ @ id_v_left _ @ lax_double_functor_id_v _ _).
+       ⋆v #s F (lunitor_h f)).
 Proof.
   exact (pr121 F x y f).
 Qed.
@@ -863,11 +971,11 @@ Proposition lax_double_functor_runitor_h
   : runitor_h (#h F f)
     =
     transportf_square
+      (assocr_v _ _ _ @ id_v_left _ @ id_v_left _ @ lax_double_functor_id_v _ _)
+      (assocr_v _ _ _ @ id_v_left _ @ id_v_left _ @ lax_double_functor_id_v _ _)
       ((id_v_square _ ⋆h lax_double_functor_id_h F _)
        ⋆v lax_double_functor_comp_h F _ _
-       ⋆v #s F (runitor_h f))
-      (assocr_v _ _ _ @ id_v_left _ @ id_v_left _ @ lax_double_functor_id_v _ _)
-      (assocr_v _ _ _ @ id_v_left _ @ id_v_left _ @ lax_double_functor_id_v _ _).
+       ⋆v #s F (runitor_h f)).
 Proof.
   exact (pr1 (pr221 F) x y f).
 Qed.
@@ -884,18 +992,16 @@ Proposition lax_double_functor_lassociator_h
     ⋆v lax_double_functor_comp_h F (f ·h g) h
     =
     transportf_square
+      (maponpaths _ (lax_double_functor_id_v _ _))
+      (maponpaths _ (lax_double_functor_id_v _ _))
       ((id_v_square _ ⋆h lax_double_functor_comp_h F g h)
        ⋆v lax_double_functor_comp_h F f (g ·h h)
-       ⋆v #s F (lassociator_h f g h))
-      (maponpaths _ (lax_double_functor_id_v _ _))
-      (maponpaths _ (lax_double_functor_id_v _ _)).
+       ⋆v #s F (lassociator_h f g h)).
 Proof.
   exact (pr2 (pr221 F) w x y z f g h).
 Qed.
 
-(**
- 6. Builder for lax functors
- *)
+(** * 6. Builder for lax functors *)
 Definition make_lax_double_functor
            {C₁ C₂ : double_cat}
            (F : C₁ ⟶ C₂)
@@ -932,9 +1038,7 @@ Proof.
     + exact Fa.
 Defined.
 
-(**
- 7. Strong double functors
- *)
+(** * 7. Strong double functors *)
 Definition is_strong_double_functor
            {C₁ C₂ : double_cat}
            (F : lax_double_functor C₁ C₂)
@@ -1013,18 +1117,14 @@ Coercion strong_double_functor_to_strong
   : is_strong_double_functor F
   := pr2 F.
 
-(**
- 8. Double transformations
- *)
+(** * 8. Double transformations *)
 Definition double_transformation
            {C₁ C₂ : double_cat}
            (F G : lax_double_functor C₁ C₂)
   : UU
   := F ==> G.
 
-(**
- 9. Accessors for double transformations
- *)
+(** * 9. Accessors for double transformations *)
 Definition double_transformation_to_nat_trans
            {C₁ C₂ : double_cat}
            {F G : lax_double_functor C₁ C₂}
@@ -1067,9 +1167,9 @@ Proposition double_transformation_square
   : #s F s ⋆v double_transformation_hor_mor τ k
     =
     transportb_square
-      (double_transformation_hor_mor τ h ⋆v #s G s)
       (double_transformation_ver_mor _ _)
-      (double_transformation_ver_mor _ _).
+      (double_transformation_ver_mor _ _)
+      (double_transformation_hor_mor τ h ⋆v #s G s).
 Proof.
   exact (pr22 (pr111 τ) x₁ x₂ y₁ y₂ vx vy h k s).
 Qed.
@@ -1082,9 +1182,9 @@ Proposition double_transformation_id_h
   : lax_double_functor_id_h F x ⋆v double_transformation_hor_mor τ (identity_h x)
     =
     transportb_square
-      (id_h_square (τ x) ⋆v lax_double_functor_id_h G x)
       (id_v_left _ @ !(id_v_right _))
-      (id_v_left _ @ !(id_v_right _)).
+      (id_v_left _ @ !(id_v_right _))
+      (id_h_square (τ x) ⋆v lax_double_functor_id_h G x).
 Proof.
   exact (pr1 (pr211 τ) x).
 Qed.
@@ -1100,17 +1200,15 @@ Proposition double_transformation_comp_h
     ⋆v double_transformation_hor_mor τ (h ·h k)
     =
     transportb_square
-      ((double_transformation_hor_mor τ h ⋆h double_transformation_hor_mor τ k)
-       ⋆v lax_double_functor_comp_h G h k)
       (id_v_left _ @ !(id_v_right _))
-      (id_v_left _ @ !(id_v_right _)).
+      (id_v_left _ @ !(id_v_right _))
+      ((double_transformation_hor_mor τ h ⋆h double_transformation_hor_mor τ k)
+       ⋆v lax_double_functor_comp_h G h k).
 Proof.
   exact (pr2 (pr211 τ) x y z h k).
 Qed.
 
-(**
- 10. Builder for double transformations
- *)
+(** * 10. Builder for double transformations *)
 Definition make_double_transformation
            {C₁ C₂ : double_cat}
            {F G : lax_double_functor C₁ C₂}

@@ -30,6 +30,7 @@ Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.SymmetricUnivalent.
 Require Import UniMath.Bicategories.DoubleCategories.StrictDoubleCatBasics.
 Require Import UniMath.Bicategories.DoubleCategories.StrictDoubleCats.
 
@@ -181,6 +182,45 @@ Proof.
   - apply univalent_category_is_univalent.
   - apply is_univalent_arrow_twosided_disp_cat.
 Defined.
+
+Proposition symmetric_univalent_square_double_cat
+            (C : univalent_category)
+  : symmetric_univalent (square_double_cat C).
+Proof.
+  use make_symmetric_univalent.
+  - intros x y ; cbn.
+    apply homset_property.
+  - cbn.
+    assert (dual_category (square_double_cat C) (λ x y, homset_property C x y) = C) as p.
+    {
+      use subtypePath.
+      {
+        intro.
+        apply isaprop_has_homsets.
+      }
+      induction C as [ [ C H₁ ] H₂ ].
+      cbn.
+      refine (maponpaths (λ z, _ ,, z) _).
+      apply isaprop_is_precategory.
+      apply homset_property.
+    }
+    pose (univalent_category_is_univalent C) as H.
+    rewrite <- p in H.
+    exact H.
+  - intros x₁ x₂ y₁ y₂ p₁ p₂ xy₁ xy₂.
+    induction p₁, p₂ ; cbn.
+    use isweqimplimpl.
+    + intros f.
+      pose (p := pr1 f) ; cbn in p.
+      rewrite id_left, id_right in p.
+      exact (p).
+    + apply homset_property.
+    + use isaproptotal2.
+      * intro.
+        apply isaprop_is_iso_twosided_disp.
+      * intros.
+        apply homset_property.
+Qed.
 
 (** * 3. The strict square double category *)
 Definition strict_square_double_cat

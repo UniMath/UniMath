@@ -180,11 +180,14 @@ DoubleCategories/DoubleFunctor.v
 DoubleCategories/DoubleTransformation.v
 DoubleCategories/BicatOfDoubleCats.v
 DoubleCategories/DoubleCats.v
+DoubleCategories/DoubleCatsLaws.v
 DoubleCategories/InvertiblesAndEquivalences.v
 
 DoubleCategories/StrictDoubleCatBasics.v
 DoubleCategories/CatOfStrictDoubleCats.v
 DoubleCategories/StrictDoubleCats.v
+
+DoubleCategories/SymmetricUnivalent.v
 
 DoubleCategories/Examples/UnitDoubleCat.v
 DoubleCategories/Examples/ProductDoubleCat.v
