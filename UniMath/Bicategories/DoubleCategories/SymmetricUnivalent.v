@@ -242,7 +242,7 @@ Section DualPseudoDoubleCat.
       }
       unfold transportb_square.
       rewrite transportf_f_square.
-      rewrite lassociator_h_square.
+      rewrite lassociator_square.
       unfold transportb_square.
       rewrite transportf_square_prewhisker.
       rewrite transportf_f_square.

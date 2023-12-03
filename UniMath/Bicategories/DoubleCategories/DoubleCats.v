@@ -278,6 +278,26 @@ Proof.
   apply idpath.
 Qed.
 
+Proposition transportfb_square'
+            {C : double_cat}
+            {x₁ x₂ y₁ y₂ : C}
+            {v₁ v₁' : x₁ -->v y₁}
+            {v₂ v₂' : x₂ -->v y₂}
+            {h₁ : x₁ -->h x₂}
+            {h₂ : y₁ -->h y₂}
+            (p p' : v₁ = v₁')
+            (q q' : v₂ = v₂')
+            (s : square v₁' v₂' h₁ h₂)
+  : transportf_square p q (transportb_square p' q' s) = s.
+Proof.
+  induction p, q.
+  assert (p' = idpath _) as r by apply isaset_ver_mor.
+  rewrite r ; clear r.
+  assert (q' = idpath _) as r by apply isaset_ver_mor.
+  rewrite r ; clear r.
+  apply idpath.
+Qed.
+
 Proposition transportbf_square
             {C : double_cat}
             {x₁ x₂ y₁ y₂ : C}
@@ -291,6 +311,26 @@ Proposition transportbf_square
   : transportb_square p q (transportf_square p q s) = s.
 Proof.
   induction p, q.
+  apply idpath.
+Qed.
+
+Proposition transportbf_square'
+            {C : double_cat}
+            {x₁ x₂ y₁ y₂ : C}
+            {v₁ v₁' : x₁ -->v y₁}
+            {v₂ v₂' : x₂ -->v y₂}
+            {h₁ : x₁ -->h x₂}
+            {h₂ : y₁ -->h y₂}
+            (p p' : v₁ = v₁')
+            (q q' : v₂ = v₂')
+            (s : square v₁ v₂ h₁ h₂)
+  : transportb_square p q (transportf_square p' q' s) = s.
+Proof.
+  induction p, q.
+  assert (p' = idpath _) as r by apply isaset_ver_mor.
+  rewrite r ; clear r.
+  assert (q' = idpath _) as r by apply isaset_ver_mor.
+  rewrite r ; clear r.
   apply idpath.
 Qed.
 
@@ -689,7 +729,7 @@ Proof.
   exact (pr222 (pr12 (pr221 C) w x y z f g h)).
 Defined.
 
-Proposition lassociator_h_square
+Proposition lassociator_square
             {C : double_cat}
             {w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ : C}
             {vw : w₁ -->v w₂} {vx : x₁ -->v x₂}
@@ -710,6 +750,29 @@ Proof.
   exact (!(pr22 (pr221 C) w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ h₁ h₂ j₁ j₂ k₁ k₂ vw vx vy vz s₁ s₂ s₃)).
 Defined.
 
+Proposition lassociator_square'
+            {C : double_cat}
+            {w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ : C}
+            {vw : w₁ -->v w₂} {vx : x₁ -->v x₂}
+            {vy : y₁ -->v y₂} {vz : z₁ -->v z₂}
+            {h₁ : w₁ -->h x₁} {h₂ : w₂ -->h x₂}
+            {j₁ : x₁ -->h y₁} {j₂ : x₂ -->h y₂}
+            {k₁ : y₁ -->h z₁} {k₂ : y₂ -->h z₂}
+            (s₁ : square vw vx h₁ h₂)
+            (s₂ : square vx vy j₁ j₂)
+            (s₃ : square vy vz k₁ k₂)
+  : transportf_square
+      (id_v_right _ @ !(id_v_left _))
+      (id_v_right _ @ !(id_v_left _))
+      ((s₁ ⋆h (s₂ ⋆h s₃)) ⋆v lassociator_h h₂ j₂ k₂)
+    =
+    lassociator_h h₁ j₁ k₁ ⋆v ((s₁ ⋆h s₂) ⋆h s₃).
+Proof.
+  rewrite lassociator_square.
+  rewrite transportfb_square.
+  apply idpath.
+Qed.
+
 (** ** 2.9. Triangle and pentagon equations *)
 Proposition double_triangle
             {C : double_cat}
@@ -724,6 +787,23 @@ Proposition double_triangle
       (id_v_square h ⋆h lunitor_h k).
 Proof.
   exact (pr12 C x y z h k).
+Qed.
+
+Proposition double_triangle'
+            {C : double_cat}
+            {x y z : C}
+            (h : x -->h y)
+            (k : y -->h z)
+  : transportf_square
+      (id_v_left _)
+      (id_v_left _)
+      (lassociator_h h _ k ⋆v (runitor_h h ⋆h id_v_square _))
+    =
+    id_v_square h ⋆h lunitor_h k.
+Proof.
+  rewrite double_triangle.
+  rewrite transportfb_square.
+  apply idpath.
 Qed.
 
 Proposition double_pentagon
@@ -743,6 +823,27 @@ Proposition double_pentagon
     ⋆v (lassociator_h h₁ h₂ h₃ ⋆h id_v_square h₄).
 Proof.
   exact (pr22 C v w x y z h₁ h₂ h₃ h₄).
+Qed.
+
+Proposition double_pentagon'
+            {C : double_cat}
+            {v w x y z : C}
+            (h₁ : v -->h w)
+            (h₂ : w -->h x)
+            (h₃ : x -->h y)
+            (h₄ : y -->h z)
+  : lassociator_h h₁ h₂ (h₃ ·h h₄) ⋆v lassociator_h (h₁ ·h h₂) h₃ h₄
+    =
+    transportf_square
+      (id_right _)
+      (id_right _)
+      ((id_v_square h₁ ⋆h lassociator_h h₂ h₃ h₄)
+       ⋆v lassociator_h h₁ (h₂ ·h h₃) h₄
+       ⋆v (lassociator_h h₁ h₂ h₃ ⋆h id_v_square h₄)).
+Proof.
+  rewrite <- double_pentagon.
+  rewrite transportfb_square.
+  apply idpath.
 Qed.
 
 (** * 3. Builder for double categories *)

@@ -1,43 +1,28 @@
-(*********************************************************************************
-
- The underlying vertical 2-category of a strict double category
-
- Every strict double category `C` has an underlying vertical 2-category:
- - Objects: objects in `C`
- - 1-cells: vertical morphisms in `C`
- - 2-cells: squares in `C` whose horizontal sides are the horizontal identity
- All operations are inherited from `C`.
-
- Note: since every strict double category has a dual, we can also directly define
- the underlying horizontal 2-category. We do so by taking the underlying vertical
- 2-category of the dual.
-
- Contents
- 1. The underlying category
- 2. The data of the 2-category
- 3. The laws of the 2-category
- 4. The underlying vertical 2-category
-
- *********************************************************************************)
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.Core.TwoCategories.
+Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Comma.
+Require Import UniMath.Bicategories.Core.Bicat.
+Import Bicat.Notations.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.StrictDoubleCatBasics.
-Require Import UniMath.Bicategories.DoubleCategories.StrictDoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleCatsLaws.
+Import DoubleCatsLaws.TransportSquare.
 
 Local Open Scope cat.
-Local Open Scope strict_double_cat.
+Local Open Scope double_cat.
 
-Section UnderlyingVerticalCategory.
-  Context (C : strict_double_cat).
+Section Und.
+  Context (C : double_cat).
 
-  (** * 1. The underlying category *)
-  Definition strict_underlying_vertical_precategory_ob_mor
+  Definition underlying_precategory_ob_mor
     : precategory_ob_mor.
   Proof.
     use make_precategory_ob_mor.
@@ -45,269 +30,824 @@ Section UnderlyingVerticalCategory.
     - exact (λ x y, x -->v y).
   Defined.
 
-  Definition strict_underlying_vertical_precategory_data
+  Definition underlying_precategory_data
     : precategory_data.
   Proof.
     use make_precategory_data.
-    - exact strict_underlying_vertical_precategory_ob_mor.
-    - exact (λ x, s_identity_v x).
-    - exact (λ _ _ _ v₁ v₂, v₁ ·v v₂).
+    - exact underlying_precategory_ob_mor.
+    - exact (λ x, identity_v x).
+    - exact (λ x y z v w, v ·v w).
   Defined.
 
-  Proposition is_precategory_strict_underlying_vertical_two_cat_data
-    : is_precategory strict_underlying_vertical_precategory_data.
+  Proposition underlying_precategory_laws
+    : is_precategory underlying_precategory_data.
   Proof.
-    repeat split.
-    - cbn ; intros x y f.
-      apply s_id_v_left.
-    - cbn ; intros x y f.
-      apply s_id_v_right.
-    - cbn ; intros w x y z f g h.
-      apply s_assocl_v.
-    - cbn ; intros w x y z f g h.
-      apply s_assocr_v.
+    use is_precategory_one_assoc_to_two.
+    repeat split ; cbn.
+    - intros x y v.
+      apply id_v_left.
+    - intros x y v.
+      apply id_v_right.
+    - intros w x y z v₁ v₂ v₃.
+      apply assocl_v.
   Defined.
 
-  (** * 2. The data of the 2-category *)
-  Definition strict_underlying_vertical_two_cat_data
+  Definition underlying_two_cat_data
     : two_cat_data.
   Proof.
     use make_two_cat_data.
-    - exact strict_underlying_vertical_precategory_data.
-    - exact (λ x y v₁ v₂, s_square v₁ v₂ (s_identity_h x) (s_identity_h y)).
-    - exact (λ x y v, s_id_h_square v).
-    - exact (λ x y v₁ v₂ v₃ s₁ s₂,
-             transportf_s_square
-               (idpath _)
-               (idpath _)
-               (s_id_h_left _)
-               (s_id_h_left _)
-               (s₁ ⋆h s₂)).
-    - exact (λ x y z v w₁ w₂ s, s_id_h_square v ⋆v s).
-    - exact (λ x y z v₁ v₂ w s, s ⋆v s_id_h_square w).
+    - exact underlying_precategory_data.
+    - exact (λ x y v₁ v₂, square v₁ v₂ (identity_h x) (identity_h y)).
+    - exact (λ x y f, id_h_square f).
+    - cbn.
+      refine (λ x y v₁ v₂ v₃ s₁ s₂, _).
+      refine (transportf_square
+                (id_v_right _ @ id_v_left _)
+                (id_v_right _ @ id_v_left _)
+                (linvunitor_h _ ⋆v s₁ ⋆h s₂ ⋆v lunitor_h _)).
+    - exact (λ x y z v w₁ w₂ s, id_h_square v ⋆v s).
+    - exact (λ x y z v₁ v₂ w s, s ⋆v id_h_square w).
   Defined.
 
-  Definition strict_underlying_vertical_two_cat_category
+  Definition underlying_two_cat_category
     : two_cat_category.
   Proof.
     use make_two_cat_category.
-    - exact strict_underlying_vertical_two_cat_data.
-    - exact is_precategory_strict_underlying_vertical_two_cat_data.
-    - abstract
-        (intros x y ;
-         apply homset_property).
+    - exact underlying_two_cat_data.
+    - exact underlying_precategory_laws.
+    - intros x y.
+      apply isaset_ver_mor.
   Defined.
 
-  (** * 3. The laws of the 2-category *)
-  Proposition vertical_two_cat_category_idto2mor
+  Proposition idto2mor_underlying_two_cat
               {x y : C}
-              {f g : x -->v y}
-              (p : f = g)
-    : idto2mor (C := strict_underlying_vertical_two_cat_data) p
+              {v₁ v₂ : x -->v y}
+              (p : v₁ = v₂)
+    : idto2mor (C := underlying_two_cat_data) p
       =
-      transportf_s_square
+      transportf_square
         (idpath _)
         p
-        (idpath _)
-        (idpath _)
-        (s_id_h_square f).
+        (id_h_square v₁).
   Proof.
     induction p ; cbn.
     apply idpath.
   Qed.
 
-  Proposition two_cat_laws_strict_underlying_vertical_two_cat_category
-    : two_cat_laws strict_underlying_vertical_two_cat_category.
+  (** We prove associativity for 2-cells with a series of lemmata *)
+  Section Assoc.
+    Context {x y : C}
+            {v₁ v₂ v₃ v₄ : x -->v y}
+            (s₁ : square v₁ v₂ (identity_h x) (identity_h y))
+            (s₂ : square v₂ v₃ (identity_h x) (identity_h y))
+            (s₃ : square v₃ v₄ (identity_h x) (identity_h y)).
+
+    Local Lemma assoc_step_1
+                p q
+      : lassociator_h _ _ _
+        ⋆v (s₁ ⋆h s₂) ⋆h s₃
+        ⋆v rassociator_h _ _ _
+        =
+        transportf_square
+          p
+          q
+          (s₁ ⋆h (s₂ ⋆h s₃)).
+    Proof.
+      rewrite <- lassociator_square'.
+      rewrite transportf_square_prewhisker.
+      rewrite <- square_assoc_v'.
+      rewrite transportf_f_square.
+      rewrite lassociator_rassociator_h.
+      unfold transportb_square.
+      rewrite transportf_square_postwhisker.
+      rewrite transportf_f_square.
+      rewrite square_id_right_v.
+      unfold transportb_square.
+      rewrite transportf_f_square.
+      use transportf_square_eq.
+      apply idpath.
+    Qed.
+
+    Local Lemma assoc_step_2
+                p q
+      : id_v_square _ ⋆h linvunitor_h _
+        ⋆v (lassociator_h _ _ _
+        ⋆v ((s₁ ⋆h s₂) ⋆h s₃
+        ⋆v (rassociator_h _ _ _
+        ⋆v id_v_square _ ⋆h lunitor_h _)))
+        =
+        transportf_square
+          p
+          q
+          ((id_v_square _ ⋆h linvunitor_h _)
+           ⋆v s₁ ⋆h (s₂ ⋆h s₃)
+           ⋆v id_v_square _ ⋆h lunitor_h _).
+    Proof.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !square_assoc_v.
+        unfold transportb_square.
+        rewrite transportf_f_square.
+        apply maponpaths.
+        apply maponpaths_2.
+        use assoc_step_1.
+        - rewrite id_v_right.
+          exact (!(id_v_left _)).
+        - rewrite id_v_right.
+          exact (!(id_v_left _)).
+      }
+      rewrite transportf_square_prewhisker.
+      rewrite !transportf_square_postwhisker.
+      rewrite transportf_f_square.
+      rewrite !square_assoc_v.
+      unfold transportb_square.
+      rewrite transportf_f_square.
+      use transportf_square_eq.
+      apply idpath.
+    Qed.
+
+    Lemma assoc_step_3
+          p q
+      : linvunitor_h _ ⋆h id_v_square _
+        ⋆v ((s₁ ⋆h s₂) ⋆h s₃
+        ⋆v lunitor_h _ ⋆h id_v_square _)
+        =
+        transportf_square
+          p
+          q
+          (id_v_square _ ⋆h linvunitor_h _
+           ⋆v (lassociator_h _ _ _
+           ⋆v ((s₁ ⋆h s₂) ⋆h s₃
+           ⋆v (rassociator_h _ _ _
+           ⋆v id_v_square _ ⋆h lunitor_h _)))).
+    Proof.
+      refine (!_).
+      etrans.
+      {
+        do 4 apply maponpaths.
+        apply double_triangle_alt.
+      }
+      unfold transportb_square.
+      rewrite !transportf_square_postwhisker.
+      rewrite transportf_f_square.
+      rewrite runitor_h_lunitor_h.
+      rewrite !square_assoc_v.
+      unfold transportb_square.
+      rewrite !transportf_f_square.
+      rewrite double_triangle_alt_inv.
+      unfold transportb_square.
+      rewrite !transportf_square_prewhisker.
+      rewrite !transportf_f_square.
+      use transportf_square_eq.
+      rewrite linvunitor_h_rinvunitor_h.
+      apply idpath.
+    Qed.
+
+    Lemma assoc_step_4
+      : linvunitor_h _ ⋆h id_v_square _
+        ⋆v ((s₁ ⋆h s₂) ⋆h s₃
+        ⋆v lunitor_h _ ⋆h id_v_square _)
+        =
+        (linvunitor_h (identity_h x)
+         ⋆v ((s₁ ⋆h s₂)
+         ⋆v lunitor_h (identity_h y)))
+        ⋆h (id_v_square _ ⋆v (s₃ ⋆v id_v_square _)).
+    Proof.
+      rewrite <- !comp_h_square_comp.
+      apply idpath.
+    Qed.
+
+    Lemma assoc_step_5
+          (p₁ : (identity_v x ·v v₁) ·v identity_v y = v₁)
+          (p₃ : (identity_v x ·v v₃) ·v identity_v y = v₃)
+          (p₄ : identity_v x ·v (v₄ ·v identity_v y) = v₄)
+      : (transportf_square
+           p₁
+           p₃
+           (linvunitor_h (identity_h x)
+            ⋆v s₁ ⋆h s₂
+            ⋆v lunitor_h (identity_h y)))
+        ⋆h s₃
+        =
+        transportf_square
+          (assocl_v _ _ _ @ p₁)
+          p₄
+          ((linvunitor_h (identity_h x)
+            ⋆v ((s₁ ⋆h s₂)
+            ⋆v lunitor_h (identity_h y)))
+           ⋆h (id_v_square _ ⋆v (s₃ ⋆v id_v_square _))).
+    Proof.
+      rewrite square_id_left_v, square_id_right_v.
+      unfold transportb_square.
+      rewrite transportf_f_square.
+      rewrite square_assoc_v.
+      unfold transportb_square.
+      rewrite !transportf_hcomp_l.
+      rewrite !transportf_f_square.
+      refine (!_).
+      rewrite transportf_hcomp_r.
+      rewrite transportf_f_square.
+      use transportf_square_eq.
+      use eq_hcomp_square.
+      - refine (!_ @ !(id_v_right _)).
+        apply id_v_left.
+      - use transportf_square_eq.
+        apply idpath.
+      - rewrite transportf_f_square.
+        rewrite transportf_square_id.
+        apply idpath.
+    Qed.
+
+    Proposition underlying_two_cat_assoc
+                (p₁ : (identity_v x ·v v₁) ·v identity_v y = v₁)
+                (p₂ : (identity_v x ·v v₂) ·v identity_v y = v₂)
+                (p₃ : (identity_v x ·v v₃) ·v identity_v y = v₃)
+                (p₄ : (identity_v x ·v v₄) ·v identity_v y = v₄)
+      : s₁
+        ⋆h
+        transportf_square
+          p₂
+          p₄
+          (linvunitor_h (identity_h x) ⋆v s₂ ⋆h s₃ ⋆v lunitor_h (identity_h y))
+        =
+        (transportf_square
+           p₁
+           p₃
+           (linvunitor_h (identity_h x) ⋆v s₁ ⋆h s₂ ⋆v lunitor_h (identity_h y)))
+        ⋆h
+        s₃.
+    Proof.
+      refine (!_).
+      etrans.
+      {
+        use assoc_step_5.
+        refine (id_v_left _ @ _).
+        apply id_v_right.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        refine (!_).
+        apply assoc_step_4.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        use assoc_step_3.
+        - do 2 refine (id_v_left _ @ _).
+          rewrite !id_v_right.
+          exact (!(id_v_left _)).
+        - do 2 refine (id_v_left _ @ _).
+          rewrite !id_v_right.
+          exact (!(id_v_left _)).
+      }
+      rewrite transportf_f_square.
+      etrans.
+      {
+        apply maponpaths.
+        use assoc_step_2.
+        - rewrite !id_v_right.
+          refine (!_).
+          apply id_v_left.
+        - rewrite !id_v_right.
+          refine (!_).
+          apply id_v_left.
+      }
+      rewrite transportf_f_square.
+      rewrite <- !comp_h_square_comp.
+      rewrite square_id_left_v.
+      rewrite square_id_right_v.
+      unfold transportb_square.
+      rewrite transportf_f_square.
+      rewrite transportf_hcomp_l.
+      rewrite !transportf_hcomp_r.
+      rewrite transportf_square_id.
+      rewrite transportf_f_square.
+      use transportf_square_eq.
+      apply maponpaths_2.
+      use transportf_square_eq.
+      apply idpath.
+    Qed.
+  End Assoc.
+
+  Proposition underlying_two_cat_laws
+    : two_cat_laws underlying_two_cat_category.
   Proof.
-    repeat split ; cbn -[transportf_s_square].
+    repeat split ; cbn.
     - intros x y v₁ v₂ s.
-      rewrite strict_square_id_left.
-      rewrite transportfb_s_square.
-      apply idpath.
+      rewrite <- square_assoc_v'.
+      rewrite transportf_f_square.
+      rewrite lunitor_square.
+      unfold transportb_square.
+      rewrite transportf_square_postwhisker.
+      rewrite transportf_f_square.
+      etrans.
+      {
+        apply maponpaths.
+        apply square_assoc_v.
+      }
+      unfold transportb_square.
+      rewrite transportf_f_square.
+      rewrite linvunitor_lunitor_h.
+      unfold transportb_square.
+      rewrite transportf_square_prewhisker.
+      rewrite transportf_f_square.
+      rewrite square_id_left_v.
+      unfold transportb_square.
+      rewrite transportf_f_square.
+      apply transportf_square_id.
     - intros x y v₁ v₂ s.
-      rewrite strict_square_id_right.
-      rewrite transportfb_s_square.
-      apply idpath.
+      rewrite <- square_assoc_v'.
+      rewrite transportf_f_square.
+      rewrite lunitor_h_runitor_h.
+      rewrite runitor_square.
+      unfold transportb_square.
+      rewrite transportf_square_postwhisker.
+      rewrite transportf_f_square.
+      etrans.
+      {
+        apply maponpaths.
+        apply square_assoc_v.
+      }
+      unfold transportb_square.
+      rewrite transportf_f_square.
+      rewrite runitor_h_lunitor_h.
+      rewrite linvunitor_lunitor_h.
+      unfold transportb_square.
+      rewrite transportf_square_prewhisker.
+      rewrite transportf_f_square.
+      rewrite square_id_left_v.
+      unfold transportb_square.
+      rewrite transportf_f_square.
+      apply transportf_square_id.
     - intros x y v₁ v₂ v₃ v₄ s₁ s₂ s₃.
-      rewrite transportf_s_square_post_whisker_h.
-      rewrite transportf_s_square_pre_whisker_h.
-      rewrite !transportf_f_s_square.
-      rewrite strict_square_assoc.
-      unfold transportb_s_square.
-      rewrite transportf_f_s_square.
-      use transportf_s_square_eq.
-      apply idpath.
-    - intros x y z v₁ v₂.
-      rewrite s_id_h_square_comp.
-      apply idpath.
-    - intros x y z v₁ v₂.
-      rewrite s_id_h_square_comp.
-      apply idpath.
-    - intros x y z v w₁ w₂ w₄ s₁ s₂.
-      rewrite comp_h_square_comp.
-      rewrite strict_square_id_left.
-      unfold transportb_s_square.
-      refine (!_).
-      exact (transportf_s_square_post_whisker_v'
-                 _ _ _ _ _ _ _).
-    - intros x y z v₁ v₂ v₃ w s₁ s₂.
-      rewrite comp_h_square_comp.
-      rewrite strict_square_id_left.
-      unfold transportb_s_square.
-      rewrite (transportf_s_square_pre_whisker_v' _ _ _ _ (s_id_h_left (s_identity_h z))).
-      apply idpath.
-    - intros x y z v₁ v₂ w₁ w₂ s₁ s₂.
-      rewrite !comp_h_square_comp.
-      rewrite !strict_square_id_left.
-      rewrite !strict_square_id_right.
-      use transportf_s_square_eq.
-      assert (s_id_h_left (s_identity_h x) = s_id_h_right (s_identity_h x)) as r.
-      {
-        apply isaset_hor_mor_strict_double_cat.
-      }
-      rewrite r ; clear r.
-      assert (s_id_h_left (s_identity_h y) = s_id_h_right (s_identity_h y)) as r.
-      {
-        apply isaset_hor_mor_strict_double_cat.
-      }
-      rewrite r ; clear r.
       apply maponpaths.
-      use transportf_s_square_eq.
+      apply maponpaths_2.
+      apply maponpaths.
+      apply underlying_two_cat_assoc.
+    - intros x y z v₁ v₂.
+      rewrite id_h_square_comp.
       apply idpath.
-    - intros x y v₁ v₂ s.
-      rewrite !vertical_two_cat_category_idto2mor.
+    - intros x y z v₁ v₂.
+      rewrite id_h_square_comp.
+      apply idpath.
+    - intros x y z v w₁ w₂ w₃ s₁ s₂.
+      rewrite transportf_square_postwhisker.
+      rewrite comp_h_square_comp.
       etrans.
       {
-        apply maponpaths.
-        exact (transportf_s_square_post_whisker_h' _ _ _ _ _ _ (s_id_v_left _) _ _).
+        rewrite square_assoc_v.
+        unfold transportb_square.
+        rewrite !transportf_square_prewhisker.
+        rewrite transportf_f_square.
+        rewrite linvunitor_square.
+        rewrite !transportf_square_prewhisker.
+        rewrite transportf_f_square.
+        rewrite <- square_assoc_v'.
+        rewrite transportf_f_square.
+        rewrite <- square_assoc_v'.
+        rewrite transportf_f_square.
+        apply idpath.
       }
-      rewrite strict_square_id_right.
-      rewrite s_id_h_square_id.
-      rewrite s_square_id_left_v.
+      rewrite <- square_assoc_v'.
+      rewrite transportf_square_postwhisker.
+      rewrite transportf_f_square.
+      use transportf_square_eq.
+      apply idpath.
+    - intros x y z v w₁ w₂ w₃ s₁ s₂.
+      rewrite transportf_square_prewhisker.
+      rewrite comp_h_square_comp.
+      rewrite <- square_assoc_v'.
+      rewrite transportf_f_square.
+      rewrite <- square_assoc_v'.
+      rewrite transportf_square_postwhisker.
+      rewrite transportf_f_square.
+      rewrite lunitor_square.
+      unfold transportb_square.
+      rewrite !transportf_square_postwhisker.
+      rewrite transportf_f_square.
+      rewrite <- square_assoc_v'.
+      rewrite transportf_f_square.
       refine (!_).
       etrans.
       {
         apply maponpaths.
-        exact (transportf_s_square_pre_whisker_h' _ _ _ _ (idpath _) _ _ _ _).
+        refine (!_).
+        apply square_assoc_v'.
       }
-      rewrite strict_square_id_left.
-      unfold transportb_s_square.
-      rewrite !transportf_f_s_square.
-      use transportf_s_square_eq.
+      rewrite transportf_f_square.
+      use transportf_square_eq.
       apply idpath.
-    - intros x y v₁ v₂ s.
-      rewrite !vertical_two_cat_category_idto2mor.
+    - intros x y z v w₁ w₂ w₃ s₁ s₂.
+      rewrite !comp_h_square_comp.
       etrans.
       {
-        apply maponpaths.
-        exact (transportf_s_square_post_whisker_h' _ _ _ _ _ _ (s_id_v_right _) _ _).
+        rewrite <- square_assoc_v'.
+        rewrite transportf_f_square.
+        rewrite <- square_assoc_v'.
+        rewrite transportf_square_postwhisker.
+        rewrite transportf_f_square.
+        rewrite lunitor_square.
+        unfold transportb_square.
+        rewrite !transportf_square_postwhisker.
+        rewrite transportf_f_square.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          apply square_assoc_v.
+        }
+        unfold transportb_square.
+        rewrite !transportf_square_postwhisker.
+        rewrite transportf_f_square.
+        rewrite lunitor_h_runitor_h.
+        rewrite runitor_square.
+        unfold transportb_square.
+        rewrite transportf_square_prewhisker.
+        rewrite transportf_square_postwhisker.
+        rewrite transportf_f_square.
+        rewrite square_assoc_v.
+        unfold transportb_square.
+        rewrite transportf_f_square.
+        etrans.
+        {
+          apply maponpaths.
+          apply maponpaths_2.
+          apply square_assoc_v.
+        }
+        unfold transportb_square.
+        rewrite transportf_square_prewhisker.
+        rewrite transportf_f_square.
+        rewrite runitor_h_lunitor_h.
+        rewrite linvunitor_lunitor_h.
+        unfold transportb_square.
+        rewrite !transportf_square_prewhisker.
+        rewrite transportf_f_square.
+        rewrite square_id_left_v.
+        unfold transportb_square.
+        rewrite !transportf_square_prewhisker.
+        rewrite transportf_f_square.
+        apply idpath.
       }
-      rewrite strict_square_id_right.
-      rewrite s_id_h_square_id.
-      rewrite s_square_id_right_v.
       refine (!_).
       etrans.
       {
-        apply maponpaths.
-        exact (transportf_s_square_pre_whisker_h' _ _ _ _ (idpath _) _ _ _ _).
+        rewrite <- square_assoc_v'.
+        rewrite transportf_f_square.
+        rewrite <- square_assoc_v'.
+        rewrite transportf_square_postwhisker.
+        rewrite transportf_f_square.
+        rewrite lunitor_h_runitor_h.
+        rewrite runitor_square.
+        unfold transportb_square.
+        rewrite !transportf_square_postwhisker.
+        rewrite transportf_f_square.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          apply square_assoc_v.
+        }
+        unfold transportb_square.
+        rewrite !transportf_square_postwhisker.
+        rewrite transportf_f_square.
+        rewrite runitor_h_lunitor_h.
+        rewrite lunitor_square.
+        unfold transportb_square.
+        rewrite transportf_square_prewhisker.
+        rewrite transportf_square_postwhisker.
+        rewrite transportf_f_square.
+        rewrite square_assoc_v.
+        unfold transportb_square.
+        rewrite transportf_f_square.
+        etrans.
+        {
+          apply maponpaths.
+          apply maponpaths_2.
+          apply square_assoc_v.
+        }
+        unfold transportb_square.
+        rewrite transportf_square_prewhisker.
+        rewrite transportf_f_square.
+        rewrite linvunitor_lunitor_h.
+        unfold transportb_square.
+        rewrite !transportf_square_prewhisker.
+        rewrite transportf_f_square.
+        rewrite square_id_left_v.
+        unfold transportb_square.
+        rewrite !transportf_square_prewhisker.
+        rewrite transportf_f_square.
+        apply idpath.
       }
-      rewrite strict_square_id_left.
-      unfold transportb_s_square.
-      rewrite !transportf_f_s_square.
-      use transportf_s_square_eq.
+      use transportf_square_eq.
+      apply idpath.
+    - intros x y v₁ v₂ s.
+      rewrite !idto2mor_underlying_two_cat.
+      etrans.
+      {
+        rewrite <- square_assoc_v'.
+        rewrite transportf_f_square.
+        rewrite transportf_hcomp_r.
+        rewrite transportf_square_prewhisker.
+        rewrite transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite lunitor_h_runitor_h.
+        rewrite runitor_square.
+        unfold transportb_square.
+        rewrite !transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite square_assoc_v.
+        unfold transportb_square.
+        rewrite !transportf_f_square.
+        rewrite runitor_h_lunitor_h.
+        rewrite linvunitor_lunitor_h.
+        unfold transportb_square.
+        rewrite !transportf_square_prewhisker.
+        rewrite transportf_f_square.
+        rewrite square_id_left_v.
+        unfold transportb_square.
+        rewrite transportf_f_square.
+        rewrite id_h_square_id.
+        rewrite square_id_left_v.
+        unfold transportb_square.
+        rewrite transportf_f_square.
+        apply idpath.
+      }
+      refine (!_).
+      etrans.
+      {
+        rewrite <- square_assoc_v'.
+        rewrite transportf_f_square.
+        rewrite transportf_hcomp_l.
+        rewrite transportf_square_prewhisker.
+        rewrite transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite lunitor_square.
+        unfold transportb_square.
+        rewrite !transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite square_assoc_v.
+        unfold transportb_square.
+        rewrite !transportf_f_square.
+        rewrite linvunitor_lunitor_h.
+        unfold transportb_square.
+        rewrite !transportf_square_prewhisker.
+        rewrite transportf_f_square.
+        rewrite square_id_left_v.
+        unfold transportb_square.
+        rewrite transportf_f_square.
+        apply idpath.
+      }
+      use transportf_square_eq.
+      apply idpath.
+    - intros x y v₁ v₂ s.
+      rewrite !idto2mor_underlying_two_cat.
+      etrans.
+      {
+        rewrite <- square_assoc_v'.
+        rewrite transportf_f_square.
+        rewrite transportf_hcomp_r.
+        rewrite transportf_square_prewhisker.
+        rewrite transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite lunitor_h_runitor_h.
+        rewrite runitor_square.
+        unfold transportb_square.
+        rewrite !transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite square_assoc_v.
+        unfold transportb_square.
+        rewrite !transportf_f_square.
+        rewrite runitor_h_lunitor_h.
+        rewrite linvunitor_lunitor_h.
+        unfold transportb_square.
+        rewrite !transportf_square_prewhisker.
+        rewrite transportf_f_square.
+        rewrite square_id_left_v.
+        unfold transportb_square.
+        rewrite transportf_f_square.
+        rewrite id_h_square_id.
+        rewrite square_id_right_v.
+        unfold transportb_square.
+        rewrite transportf_f_square.
+        apply idpath.
+      }
+      refine (!_).
+      etrans.
+      {
+        rewrite <- square_assoc_v'.
+        rewrite transportf_f_square.
+        rewrite transportf_hcomp_l.
+        rewrite transportf_square_prewhisker.
+        rewrite transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite lunitor_square.
+        unfold transportb_square.
+        rewrite !transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite square_assoc_v.
+        unfold transportb_square.
+        rewrite !transportf_f_square.
+        rewrite linvunitor_lunitor_h.
+        unfold transportb_square.
+        rewrite !transportf_square_prewhisker.
+        rewrite transportf_f_square.
+        rewrite square_id_left_v.
+        unfold transportb_square.
+        rewrite transportf_f_square.
+        apply idpath.
+      }
+      use transportf_square_eq.
       apply idpath.
     - intros x₁ x₂ x₃ x₄ u v w₁ w₂ s.
-      rewrite !vertical_two_cat_category_idto2mor.
+      rewrite !idto2mor_underlying_two_cat.
       etrans.
       {
-        apply maponpaths.
-        exact (transportf_s_square_post_whisker_h' _ _ _ _ _ _ (s_assocl_v _ _ _) _ _).
+        rewrite <- square_assoc_v'.
+        rewrite transportf_f_square.
+        rewrite transportf_hcomp_r.
+        rewrite transportf_square_prewhisker.
+        rewrite transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite lunitor_h_runitor_h.
+        rewrite runitor_square.
+        unfold transportb_square.
+        rewrite !transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite square_assoc_v.
+        unfold transportb_square.
+        rewrite !transportf_f_square.
+        rewrite runitor_h_lunitor_h.
+        rewrite linvunitor_lunitor_h.
+        unfold transportb_square.
+        rewrite !transportf_square_prewhisker.
+        rewrite transportf_f_square.
+        rewrite square_id_left_v.
+        unfold transportb_square.
+        rewrite transportf_f_square.
+        apply idpath.
       }
-      rewrite strict_square_id_right.
-      rewrite s_square_assoc_v.
       refine (!_).
       etrans.
       {
-        apply maponpaths.
-        exact (transportf_s_square_pre_whisker_h' _ _ _ _ (idpath _) _ _ _ _).
+        rewrite <- square_assoc_v'.
+        rewrite transportf_f_square.
+        rewrite transportf_hcomp_l.
+        rewrite transportf_square_prewhisker.
+        rewrite transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite lunitor_square.
+        unfold transportb_square.
+        rewrite !transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite square_assoc_v.
+        unfold transportb_square.
+        rewrite !transportf_f_square.
+        rewrite linvunitor_lunitor_h.
+        unfold transportb_square.
+        rewrite !transportf_square_prewhisker.
+        rewrite transportf_f_square.
+        rewrite square_id_left_v.
+        unfold transportb_square.
+        rewrite transportf_f_square.
+        rewrite id_h_square_comp.
+        rewrite <- square_assoc_v'.
+        rewrite transportf_f_square.
+        apply idpath.
       }
-      rewrite strict_square_id_left.
-      rewrite s_id_h_square_comp.
-      unfold transportb_s_square.
-      rewrite !transportf_f_s_square.
-      use transportf_s_square_eq.
+      use transportf_square_eq.
       apply idpath.
     - intros x₁ x₂ x₃ x₄ u v₁ v₂ w s.
-      rewrite !vertical_two_cat_category_idto2mor.
+      rewrite !idto2mor_underlying_two_cat.
       etrans.
       {
-        apply maponpaths.
-        exact (transportf_s_square_post_whisker_h' _ _ _ _ _ _ (s_assocl_v _ _ _) _ _).
+        rewrite <- square_assoc_v'.
+        rewrite transportf_f_square.
+        rewrite transportf_hcomp_r.
+        rewrite transportf_square_prewhisker.
+        rewrite transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite lunitor_h_runitor_h.
+        rewrite runitor_square.
+        unfold transportb_square.
+        rewrite !transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite square_assoc_v.
+        unfold transportb_square.
+        rewrite !transportf_f_square.
+        rewrite runitor_h_lunitor_h.
+        rewrite linvunitor_lunitor_h.
+        unfold transportb_square.
+        rewrite !transportf_square_prewhisker.
+        rewrite transportf_f_square.
+        rewrite square_id_left_v.
+        unfold transportb_square.
+        rewrite transportf_f_square.
+        apply idpath.
       }
-      rewrite strict_square_id_right.
-      rewrite s_square_assoc_v.
       refine (!_).
       etrans.
       {
-        apply maponpaths.
-        exact (transportf_s_square_pre_whisker_h' _ _ _ _ (idpath _) _ _ _ _).
+        rewrite <- square_assoc_v'.
+        rewrite transportf_f_square.
+        rewrite transportf_hcomp_l.
+        rewrite transportf_square_prewhisker.
+        rewrite transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite lunitor_square.
+        unfold transportb_square.
+        rewrite !transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite square_assoc_v.
+        unfold transportb_square.
+        rewrite !transportf_f_square.
+        rewrite linvunitor_lunitor_h.
+        unfold transportb_square.
+        rewrite !transportf_square_prewhisker.
+        rewrite transportf_f_square.
+        rewrite square_id_left_v.
+        unfold transportb_square.
+        rewrite transportf_f_square.
+        rewrite <- square_assoc_v'.
+        rewrite transportf_f_square.
+        apply idpath.
       }
-      rewrite strict_square_id_left.
-      unfold transportb_s_square.
-      rewrite !transportf_f_s_square.
-      use transportf_s_square_eq.
+      use transportf_square_eq.
       apply idpath.
     - intros x₁ x₂ x₃ x₄ u₁ u₂ v w s.
-      rewrite !vertical_two_cat_category_idto2mor.
+      rewrite !idto2mor_underlying_two_cat.
+      etrans.
+      {
+        rewrite <- square_assoc_v'.
+        rewrite transportf_f_square.
+        rewrite transportf_hcomp_l.
+        rewrite transportf_square_prewhisker.
+        rewrite transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite lunitor_square.
+        unfold transportb_square.
+        rewrite !transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite square_assoc_v.
+        unfold transportb_square.
+        rewrite !transportf_f_square.
+        rewrite linvunitor_lunitor_h.
+        unfold transportb_square.
+        rewrite !transportf_square_prewhisker.
+        rewrite transportf_f_square.
+        rewrite square_id_left_v.
+        unfold transportb_square.
+        rewrite transportf_f_square.
+        apply idpath.
+      }
       refine (!_).
       etrans.
       {
-        apply maponpaths.
-        exact (transportf_s_square_post_whisker_h' _ _ _ _ _ _ (s_assocl_v _ _ _) _ _).
+        rewrite <- square_assoc_v'.
+        rewrite transportf_f_square.
+        rewrite transportf_hcomp_r.
+        rewrite transportf_square_prewhisker.
+        rewrite transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite lunitor_h_runitor_h.
+        rewrite runitor_square.
+        unfold transportb_square.
+        rewrite !transportf_square_postwhisker.
+        rewrite !transportf_f_square.
+        rewrite square_assoc_v.
+        unfold transportb_square.
+        rewrite !transportf_f_square.
+        rewrite runitor_h_lunitor_h.
+        rewrite linvunitor_lunitor_h.
+        unfold transportb_square.
+        rewrite !transportf_square_prewhisker.
+        rewrite transportf_f_square.
+        rewrite square_id_left_v.
+        unfold transportb_square.
+        rewrite transportf_f_square.
+        rewrite id_h_square_comp.
+        rewrite square_assoc_v.
+        unfold transportb_square.
+        rewrite transportf_f_square.
+        apply idpath.
       }
-      rewrite strict_square_id_right.
-      refine (!_).
-      etrans.
-      {
-        apply maponpaths.
-        exact (transportf_s_square_pre_whisker_h' _ _ _ _ (idpath _) _ _ _ _).
-      }
-      rewrite strict_square_id_left.
-      rewrite s_id_h_square_comp.
-      rewrite s_square_assoc_v.
-      unfold transportb_s_square.
-      rewrite !transportf_f_s_square.
-      use transportf_s_square_eq.
+      use transportf_square_eq.
       apply idpath.
   Qed.
 
-  (** * 4. The underlying vertical 2-category *)
-  Definition strict_underlying_vertical_two_precat
+  Definition underlying_two_precat
     : two_precat.
   Proof.
     use make_two_precat.
-    - exact strict_underlying_vertical_two_cat_category.
-    - exact two_cat_laws_strict_underlying_vertical_two_cat_category.
+    - exact underlying_two_cat_category.
+    - exact underlying_two_cat_laws.
   Defined.
 
-  Definition strict_underlying_vertical_two_cat
+  Definition underlying_two_cat
     : two_cat.
   Proof.
     use make_two_cat.
-    - exact strict_underlying_vertical_two_precat.
+    - exact underlying_two_precat.
     - intros x y f g.
-      apply isaset_disp_mor.
+      apply isaset_square.
   Defined.
-
-  Proposition is_strict_strict_underlying_vertical_two_cat
-    : is_two_setcat strict_underlying_vertical_two_cat.
-  Proof.
-    apply isaset_ob_strict_double_cat.
-  Qed.
-
-  Definition strict_underlying_vertical_two_setcat
-    : two_setcat
-    := make_two_setcat
-         strict_underlying_vertical_two_cat
-         is_strict_strict_underlying_vertical_two_cat.
-End UnderlyingVerticalCategory.
+End Und.
