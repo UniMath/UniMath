@@ -1,3 +1,71 @@
+(********************************************************************************
+
+ Vertical 2-category of a pseudo double category
+
+ In this file, we show that every pseudo double category `C` gives rise to a
+ underlying vertical 2-category. This 2-category is defined as follows:
+ - Objects: objects of `C`
+ - 1-cells: vertical morphisms in `C`
+ - 2-cells: squares in `C` whose horizontal sides are identities
+ Note that we assume that the associativity and unitality laws in `C` hold
+ strictly for vertical morphisms. For this reason, this really is a 2-category
+ rather than a bicategory. In addition, if we assume `C` to be a univalent double
+ category, then the category of objects and vertical morphisms in `C` is a
+ univalent category. The resulting vertical 2-category is then univalent as well:
+ it is a univalent category enriched over the category of strict categories.
+
+ In the file `VerticalTwoCategoryStrict.v`, we define the vertical 2-category of
+ strict double categories. Most of the development is similar except for how we
+ define the composition of 2-cells. Suppose that we have the following diagram in
+ a double category
+
+<<
+  x --|--> x --|--> x
+  |        |        |
+  |   s₁   |   s₂   |
+  V        V        V
+  y --|--> y --|--> y
+>>
+
+ Each of the horizontal morphisms in this diagram is an identity. If we perform
+ this composition in the vertical 2-category, then we should obtain a square whose
+ horizontal sides are identity as well. If we assume our double category to be
+ strict, then these horizontal sides in the new square are equal to the identity.
+ However, for pseudo double categories, we need to compose it with suitable
+ unitors as follows
+
+<<
+  x -------|------> x
+  |                 |
+  |                 |
+  V                 V
+  x --|--> x --|--> x
+  |        |        |
+  |   s₁   |   s₂   |
+  V        V        V
+  y --|--> y --|--> y
+  |                 |
+  |                 |
+  V                 V
+  y -------|------> y
+>>
+
+ If we compose these squares directly, then the vertical sides of this square
+ are composed with the identity on the left. However, since vertical composition
+ is strictly unital, we can remove these identities. This explains how composition
+ is defined in [underlying_vert_two_cat_data].
+
+ Most of the axioms of 2-categories can be checked directly. The most difficult
+ one is associativity. We prove this in `underlying_two_cat_assoc` using several
+ lemmas.
+
+ Content
+ 1. The underlying vertical category
+ 2. The data of the vertical 2-category
+ 3. The laws of the vertical 2-category
+ 4. The vertical 2-category of a pseudo double category
+
+ ********************************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
@@ -19,10 +87,11 @@ Import DoubleCatsLaws.TransportSquare.
 Local Open Scope cat.
 Local Open Scope double_cat.
 
-Section Und.
+Section VerticalCat.
   Context (C : double_cat).
 
-  Definition underlying_precategory_ob_mor
+  (** * 1. The underlying vertical category *)
+  Definition underlying_vert_precategory_ob_mor
     : precategory_ob_mor.
   Proof.
     use make_precategory_ob_mor.
@@ -30,17 +99,17 @@ Section Und.
     - exact (λ x y, x -->v y).
   Defined.
 
-  Definition underlying_precategory_data
+  Definition underlying_vert_precategory_data
     : precategory_data.
   Proof.
     use make_precategory_data.
-    - exact underlying_precategory_ob_mor.
+    - exact underlying_vert_precategory_ob_mor.
     - exact (λ x, identity_v x).
     - exact (λ x y z v w, v ·v w).
   Defined.
 
-  Proposition underlying_precategory_laws
-    : is_precategory underlying_precategory_data.
+  Proposition underlying_vert_precategory_laws
+    : is_precategory underlying_vert_precategory_data.
   Proof.
     use is_precategory_one_assoc_to_two.
     repeat split ; cbn.
@@ -52,11 +121,12 @@ Section Und.
       apply assocl_v.
   Defined.
 
-  Definition underlying_two_cat_data
+  (** * 2. The data of the vertical 2-category *)
+  Definition underlying_vert_two_cat_data
     : two_cat_data.
   Proof.
     use make_two_cat_data.
-    - exact underlying_precategory_data.
+    - exact underlying_vert_precategory_data.
     - exact (λ x y v₁ v₂, square v₁ v₂ (identity_h x) (identity_h y)).
     - exact (λ x y f, id_h_square f).
     - cbn.
@@ -69,21 +139,22 @@ Section Und.
     - exact (λ x y z v₁ v₂ w s, s ⋆v id_h_square w).
   Defined.
 
-  Definition underlying_two_cat_category
+  Definition underlying_vert_two_cat_category
     : two_cat_category.
   Proof.
     use make_two_cat_category.
-    - exact underlying_two_cat_data.
-    - exact underlying_precategory_laws.
+    - exact underlying_vert_two_cat_data.
+    - exact underlying_vert_precategory_laws.
     - intros x y.
       apply isaset_ver_mor.
   Defined.
 
-  Proposition idto2mor_underlying_two_cat
+  (** * 3. The laws of the vertical 2-category *)
+  Proposition idto2mor_underlying_vert_two_cat
               {x y : C}
               {v₁ v₂ : x -->v y}
               (p : v₁ = v₂)
-    : idto2mor (C := underlying_two_cat_data) p
+    : idto2mor (C := underlying_vert_two_cat_data) p
       =
       transportf_square
         (idpath _)
@@ -259,7 +330,7 @@ Section Und.
         apply idpath.
     Qed.
 
-    Proposition underlying_two_cat_assoc
+    Proposition underlying_vert_two_cat_assoc
                 (p₁ : (identity_v x ·v v₁) ·v identity_v y = v₁)
                 (p₂ : (identity_v x ·v v₂) ·v identity_v y = v₂)
                 (p₃ : (identity_v x ·v v₃) ·v identity_v y = v₃)
@@ -331,8 +402,8 @@ Section Und.
     Qed.
   End Assoc.
 
-  Proposition underlying_two_cat_laws
-    : two_cat_laws underlying_two_cat_category.
+  Proposition underlying_vert_two_cat_laws
+    : two_cat_laws underlying_vert_two_cat_category.
   Proof.
     repeat split ; cbn.
     - intros x y v₁ v₂ s.
@@ -385,7 +456,7 @@ Section Und.
       apply maponpaths.
       apply maponpaths_2.
       apply maponpaths.
-      apply underlying_two_cat_assoc.
+      apply underlying_vert_two_cat_assoc.
     - intros x y z v₁ v₂.
       rewrite id_h_square_comp.
       apply idpath.
@@ -541,7 +612,7 @@ Section Und.
       use transportf_square_eq.
       apply idpath.
     - intros x y v₁ v₂ s.
-      rewrite !idto2mor_underlying_two_cat.
+      rewrite !idto2mor_underlying_vert_two_cat.
       etrans.
       {
         rewrite <- square_assoc_v'.
@@ -600,7 +671,7 @@ Section Und.
       use transportf_square_eq.
       apply idpath.
     - intros x y v₁ v₂ s.
-      rewrite !idto2mor_underlying_two_cat.
+      rewrite !idto2mor_underlying_vert_two_cat.
       etrans.
       {
         rewrite <- square_assoc_v'.
@@ -659,7 +730,7 @@ Section Und.
       use transportf_square_eq.
       apply idpath.
     - intros x₁ x₂ x₃ x₄ u v w₁ w₂ s.
-      rewrite !idto2mor_underlying_two_cat.
+      rewrite !idto2mor_underlying_vert_two_cat.
       etrans.
       {
         rewrite <- square_assoc_v'.
@@ -717,7 +788,7 @@ Section Und.
       use transportf_square_eq.
       apply idpath.
     - intros x₁ x₂ x₃ x₄ u v₁ v₂ w s.
-      rewrite !idto2mor_underlying_two_cat.
+      rewrite !idto2mor_underlying_vert_two_cat.
       etrans.
       {
         rewrite <- square_assoc_v'.
@@ -774,7 +845,7 @@ Section Und.
       use transportf_square_eq.
       apply idpath.
     - intros x₁ x₂ x₃ x₄ u₁ u₂ v w s.
-      rewrite !idto2mor_underlying_two_cat.
+      rewrite !idto2mor_underlying_vert_two_cat.
       etrans.
       {
         rewrite <- square_assoc_v'.
@@ -834,20 +905,21 @@ Section Und.
       apply idpath.
   Qed.
 
-  Definition underlying_two_precat
+  (** * 4. The vertical 2-category of a pseudo double category *)
+  Definition underlying_vert_two_precat
     : two_precat.
   Proof.
     use make_two_precat.
-    - exact underlying_two_cat_category.
-    - exact underlying_two_cat_laws.
+    - exact underlying_vert_two_cat_category.
+    - exact underlying_vert_two_cat_laws.
   Defined.
 
-  Definition underlying_two_cat
+  Definition underlying_vert_two_cat
     : two_cat.
   Proof.
     use make_two_cat.
-    - exact underlying_two_precat.
+    - exact underlying_vert_two_precat.
     - intros x y f g.
       apply isaset_square.
   Defined.
-End Und.
+End VerticalCat.
