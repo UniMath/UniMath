@@ -6,7 +6,7 @@
  they are useful. There also is the module `TransportSquare`. Importing this
  module gives nicer notations for transporting squares, so that the goals look
  simpler, and it makes the map from `paths` to globular iso squares opaque, which
- makes the computational behavior a bit nicer. The reason for that, is that `cbn`
+ makes the computational behavior a bit nicer. The reason for that is that `cbn`
  would unfold `path_to_globular_iso` to `id_two_disp`, even though it is nicer to
  have `id_v_square`.
 
