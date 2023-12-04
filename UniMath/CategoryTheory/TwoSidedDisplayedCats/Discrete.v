@@ -141,7 +141,7 @@ Definition mortoid_discrete_twosided_disp
            (r : xy₁ -->[ identity x ][ identity y ] xy₂)
   : xy₁ = xy₂.
 Proof.
-  use (isotoid_twosided_disp (pr22 HD) (idpath _) (idpath _) xy₁ xy₂).
+  use (isotoid_twosided_disp (pr22 HD) (idpath _) (idpath _)).
   simple refine (r ,, _).
   apply HD.
 Defined.

@@ -29,22 +29,23 @@
  This is different from what we look at, because we look at lenses in a category
  with finite products.
 
+ We provide both a univalent and a strict version.
+
  Contents
  1. The horizontal identity
  2. Horizontal composition
  3. Unitors and associators
  4. The double category
+ 5. The strict double category
 
  **********************************************************************************)
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.
 Require Import UniMath.Bicategories.Core.Bicat.
@@ -52,16 +53,16 @@ Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.StrictDoubleCatBasics.
+Require Import UniMath.Bicategories.DoubleCategories.StrictDoubleCats.
 
 Local Open Scope cat.
 
 Section LensesDoubleCat.
-  Context (C : univalent_category)
+  Context (C : category)
           (PC : BinProducts C).
 
-  (**
-   1. The horizontal identity
-   *)
+  (** * 1. The horizontal identity *)
   Definition lenses_double_cat_hor_id_data
     : hor_id_data (twosided_disp_cat_of_lenses C PC).
   Proof.
@@ -81,9 +82,7 @@ Section LensesDoubleCat.
          apply discrete_lenses_twosided_disp_cat).
   Defined.
 
-  (**
-   2. Horizontal composition
-   *)
+  (** * 2. Horizontal composition *)
   Definition lenses_double_cat_hor_comp_data
     : hor_comp_data (twosided_disp_cat_of_lenses C PC).
   Proof.
@@ -103,9 +102,7 @@ Section LensesDoubleCat.
          apply discrete_lenses_twosided_disp_cat).
   Defined.
 
-  (**
-   3. Unitors and associators
-   *)
+  (** * 3. Unitors and associators *)
   Definition lenses_double_cat_lunitor
     : double_cat_lunitor lenses_double_cat_hor_id lenses_double_cat_hor_comp.
   Proof.
@@ -189,28 +186,60 @@ Section LensesDoubleCat.
     - intro ; intros.
       apply discrete_lenses_twosided_disp_cat.
   Qed.
-
-  (**
-   4. The double category
-   *)
-  Definition lenses_double_cat
-    : double_cat.
-  Proof.
-    use make_double_cat.
-    - exact C.
-    - exact (twosided_disp_cat_of_lenses C PC).
-    - exact lenses_double_cat_hor_id.
-    - exact lenses_double_cat_hor_comp.
-    - exact lenses_double_cat_lunitor.
-    - exact lenses_double_cat_runitor.
-    - exact lenses_double_cat_associator.
-    - abstract
-        (intro ; intros ;
-         apply discrete_lenses_twosided_disp_cat).
-    - abstract
-        (intro ; intros ;
-         apply discrete_lenses_twosided_disp_cat).
-    - apply univalent_category_is_univalent.
-    - apply is_univalent_lenses_twosided_disp_cat.
-  Defined.
 End LensesDoubleCat.
+
+(** * 4. The double category *)
+Definition lenses_double_cat
+           (C : univalent_category)
+           (PC : BinProducts C)
+  : double_cat.
+Proof.
+  use make_double_cat.
+  - exact C.
+  - exact (twosided_disp_cat_of_lenses C PC).
+  - exact (lenses_double_cat_hor_id C PC).
+  - exact (lenses_double_cat_hor_comp C PC).
+  - exact (lenses_double_cat_lunitor C PC).
+  - exact (lenses_double_cat_runitor C PC).
+  - exact (lenses_double_cat_associator C PC).
+  - abstract
+      (intro ; intros ;
+       apply discrete_lenses_twosided_disp_cat).
+  - abstract
+      (intro ; intros ;
+       apply discrete_lenses_twosided_disp_cat).
+  - apply univalent_category_is_univalent.
+  - apply is_univalent_lenses_twosided_disp_cat.
+Defined.
+
+(** * 5. The strict double category *)
+Definition lenses_strict_double_cat
+           (C : setcategory)
+           (PC : BinProducts C)
+  : strict_double_cat.
+Proof.
+  use make_strict_double_cat.
+  - exact C.
+  - exact (twosided_disp_cat_of_lenses C PC).
+  - apply is_strict_twosided_disp_cat_of_lenses.
+  - exact (lenses_double_cat_hor_id C PC).
+  - exact (lenses_double_cat_hor_comp C PC).
+  - abstract
+      (intros x y f ; cbn ;
+       exact (lens_id_left C PC f)).
+  - abstract
+      (intros x y f ; cbn ;
+       exact (lens_id_right C PC f)).
+  - abstract
+      (intros w x y z f g h ; cbn ;
+       exact (lens_assoc C PC f g h)).
+  - abstract
+      (intro ; intros ;
+       apply discrete_lenses_twosided_disp_cat).
+  - abstract
+      (intro ; intros ;
+       apply discrete_lenses_twosided_disp_cat).
+  - abstract
+      (intro ; intros ;
+       apply discrete_lenses_twosided_disp_cat).
+Defined.

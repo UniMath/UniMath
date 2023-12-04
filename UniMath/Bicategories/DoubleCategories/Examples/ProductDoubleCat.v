@@ -202,10 +202,10 @@ Section ProdOfDoubleCat.
     intro ; intros ; cbn.
     rewrite transportb_twosided_disp_cat_product.
     use dirprodeq ; cbn.
-    - refine (_ @ !(lassociator_h_square _ _ _)).
+    - refine (_ @ !(lassociator_square _ _ _)).
       apply transportb_disp_mor2_eq.
       apply idpath.
-    - refine (_ @ !(lassociator_h_square _ _ _)).
+    - refine (_ @ !(lassociator_square _ _ _)).
       apply transportb_disp_mor2_eq.
       apply idpath.
   Qed.
