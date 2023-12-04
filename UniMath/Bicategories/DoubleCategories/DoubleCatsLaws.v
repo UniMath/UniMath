@@ -278,6 +278,19 @@ Proof.
            p).
 Qed.
 
+Definition path_weq_globular_iso_square
+           {C : double_cat}
+           {x y : C}
+           (h₁ h₂ : x -->h y)
+  : h₁ = h₂ ≃ globular_iso_square h₁ h₂.
+Proof.
+  use weq_iso.
+  - apply path_to_globular_iso_square.
+  - apply globular_iso_square_to_path.
+  - apply path_to_globular_iso_to_path.
+  - apply globular_iso_to_path_to_iso.
+Defined.
+
 (** * 3. Transport laws for squares *)
 Proposition transportf_f_square
             {C : double_cat}

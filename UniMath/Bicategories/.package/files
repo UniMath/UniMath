@@ -199,6 +199,7 @@ DoubleCategories/Examples/Dual.v
 DoubleCategories/Examples/StructuredCospansDoubleCat.v
 DoubleCategories/Examples/StructuredCospansDoubleFunctor.v
 
+DoubleCategories/HorizontalBicategory.v
 DoubleCategories/VerticalTwoCategory.v
 DoubleCategories/VerticalTwoCategoryStrict.v
 
