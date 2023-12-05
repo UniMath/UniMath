@@ -48,6 +48,46 @@ Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
 
 Local Open Scope cat.
 
+Definition transportf_hor_mor
+           {C : category}
+           {D : twosided_disp_cat C C}
+           {x₁ x₂ y₁ y₂ : C}
+           {vx : x₁ --> x₂}
+           {vy : y₁ --> y₂}
+           {h₁ h₂ : D x₁ y₁}
+           (p : h₁ = h₂)
+           {k₁ k₂ : D x₂ y₂}
+           (q : k₁ = k₂)
+           (s : h₁ -->[ vx ][ vy ] k₁)
+  : h₂ -->[ vx ][ vy ] k₂
+  := transportf
+       (λ z, z -->[ _ ][ _ ] _)
+       p
+       (transportf
+          (λ z, _ -->[ _ ][ _ ] z)
+          q
+          s).
+
+Definition transportb_hor_mor
+           {C : category}
+           {D : twosided_disp_cat C C}
+           {x₁ x₂ y₁ y₂ : C}
+           {vx : x₁ --> x₂}
+           {vy : y₁ --> y₂}
+           {h₁ h₂ : D x₁ y₁}
+           (p : h₁ = h₂)
+           {k₁ k₂ : D x₂ y₂}
+           (q : k₁ = k₂)
+           (s : h₂ -->[ vx ][ vy ] k₂)
+  : h₁ -->[ vx ][ vy ] k₁
+  := transportb
+       (λ z, z -->[ _ ][ _ ] _)
+       p
+       (transportb
+          (λ z, _ -->[ _ ][ _ ] z)
+          q
+          s).
+
 (** * 1. Laws for strict double categories *)
 Definition strict_double_cat_id_left
            {C : category}
@@ -59,6 +99,26 @@ Definition strict_double_cat_id_left
        (f : D x y),
      double_hor_comp Cm (double_id I x) f = f.
 
+Definition strict_double_cat_id_left_square
+           {C : category}
+           {D : twosided_disp_cat C C}
+           {I : hor_id D}
+           {Cm : hor_comp D}
+           (lp : strict_double_cat_id_left I Cm)
+  : UU
+  := ∏ (x₁ x₂ y₁ y₂ : C)
+       (v₁ : x₁ --> x₂)
+       (v₂ : y₁ --> y₂)
+       (h : D x₁ y₁)
+       (k : D x₂ y₂)
+       (s : h -->[ v₁ ][ v₂ ] k),
+     double_hor_comp_mor Cm (double_id_mor I v₁) s
+     =
+     transportb_hor_mor
+       (lp _ _ h)
+       (lp _ _ k)
+       s.
+
 Definition strict_double_cat_id_right
            {C : category}
            {D : twosided_disp_cat C C}
@@ -68,6 +128,26 @@ Definition strict_double_cat_id_right
   := ∏ (x y : C)
        (f : D x y),
      double_hor_comp Cm f (double_id I y) = f.
+
+Definition strict_double_cat_id_right_square
+           {C : category}
+           {D : twosided_disp_cat C C}
+           {I : hor_id D}
+           {Cm : hor_comp D}
+           (rp : strict_double_cat_id_right I Cm)
+  : UU
+  := ∏ (x₁ x₂ y₁ y₂ : C)
+       (v₁ : x₁ --> x₂)
+       (v₂ : y₁ --> y₂)
+       (h : D x₁ y₁)
+       (k : D x₂ y₂)
+       (s : h -->[ v₁ ][ v₂ ] k),
+     double_hor_comp_mor Cm s (double_id_mor I v₂)
+     =
+     transportb_hor_mor
+       (rp _ _ h)
+       (rp _ _ k)
+       s.
 
 Definition strict_double_cat_assoc
            {C : category}
@@ -82,17 +162,43 @@ Definition strict_double_cat_assoc
      =
      double_hor_comp Cm (double_hor_comp Cm f g) h.
 
+Definition strict_double_cat_assoc_square
+           {C : category}
+           {D : twosided_disp_cat C C}
+           {Cm : hor_comp D}
+           (ap : strict_double_cat_assoc Cm)
+  : UU
+  := ∏ (w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ : C)
+       (vw : w₁ --> w₂)
+       (vx : x₁ --> x₂)
+       (vy : y₁ --> y₂)
+       (vz : z₁ --> z₂)
+       (h₁ : D w₁ x₁) (h₂ : D x₁ y₁) (h₃ : D y₁ z₁)
+       (k₁ : D w₂ x₂) (k₂ : D x₂ y₂) (k₃ : D y₂ z₂)
+       (s₁ : h₁ -->[ vw ][ vx ] k₁)
+       (s₂ : h₂ -->[ vx ][ vy ] k₂)
+       (s₃ : h₃ -->[ vy ][ vz ] k₃),
+     double_hor_comp_mor Cm s₁ (double_hor_comp_mor Cm s₂ s₃)
+     =
+     transportb_hor_mor
+       (ap _ _ _ _ _ _ _)
+       (ap _ _ _ _ _ _ _)
+       (double_hor_comp_mor Cm (double_hor_comp_mor Cm s₁ s₂) s₃).
+
 Definition strict_double_cat_laws
            {C : category}
            {D : twosided_disp_cat C C}
            (I : hor_id D)
            (Cm : hor_comp D)
   : UU
-  := strict_double_cat_id_left I Cm
+  := ∑ (lp : strict_double_cat_id_left I Cm)
+       (rp : strict_double_cat_id_right I Cm)
+       (ap : strict_double_cat_assoc Cm),
+     strict_double_cat_id_left_square lp
      ×
-     strict_double_cat_id_right I Cm
+     strict_double_cat_id_right_square rp
      ×
-     strict_double_cat_assoc Cm.
+     strict_double_cat_assoc_square ap.
 
 Proposition isaprop_strict_double_cat_laws
             {C : category}
@@ -101,9 +207,25 @@ Proposition isaprop_strict_double_cat_laws
             (Cm : hor_comp D)
   : isaprop (strict_double_cat_laws I Cm).
 Proof.
+  use (@isaprop_total2 (make_hProp _ _) (λ _, make_hProp _ _)).
+  {
+    repeat (use impred ; intro).
+    apply is_strict_strict_twosided_disp_cat.
+  }
+  use (@isaprop_total2 (make_hProp _ _) (λ _, make_hProp _ _)).
+  {
+    repeat (use impred ; intro).
+    apply is_strict_strict_twosided_disp_cat.
+  }
+  use (@isaprop_total2 (make_hProp _ _) (λ _, make_hProp _ _)).
+  {
+    repeat (use impred ; intro).
+    apply is_strict_strict_twosided_disp_cat.
+  }
+  cbn -[isaprop] in *.
   repeat (use isapropdirprod) ;
   repeat (use impred ; intro) ;
-  apply is_strict_strict_twosided_disp_cat.
+    apply isaset_disp_mor.
 Qed.
 
 (** * 2. Horizontal identities/composition forms a set *)

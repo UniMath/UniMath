@@ -11,12 +11,12 @@
  **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedFibration.
 
@@ -101,6 +101,13 @@ Section CommaTwoSidedDispCat.
   (**
    2. Discreteness and univalence
    *)
+  Proposition is_strict_comma_twosided_disp_cat
+    : is_strict_twosided_disp_cat comma_twosided_disp_cat.
+  Proof.
+    intros x y ; cbn.
+    apply homset_property.
+  Qed.
+
   Definition comma_twosided_disp_cat_is_iso
     : all_disp_mor_iso comma_twosided_disp_cat.
   Proof.

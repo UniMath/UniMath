@@ -358,7 +358,7 @@ Section DoubleCats_to_DoubleCatsUnfolded.
         double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
   Proof.
     intro ; intros ; cbn.
-    apply lassociator_h_square.
+    apply lassociator_square.
   Defined.
 
   Proposition double_cat_to_predoublecategory_ver_unitor_coherence

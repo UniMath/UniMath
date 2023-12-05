@@ -75,11 +75,43 @@ Definition isotoid_twosided_disp
            {y₁ y₂ : C₂}
            (p : x₁ = x₂)
            (q : y₁ = y₂)
-           (xy₁ : D x₁ y₁)
-           (xy₂ : D x₂ y₂)
+           {xy₁ : D x₁ y₁}
+           {xy₂ : D x₂ y₂}
            (r : iso_twosided_disp (idtoiso p) (idtoiso q) xy₁ xy₂)
   : transportf (λ z, D z _) p (transportf (λ z, D _ z) q xy₁) = xy₂
   := invmap (_ ,, HD x₁ x₂ y₁ y₂ p q xy₁ xy₂) r.
+
+Proposition idtoisotoid_twosided_disp
+            {C₁ C₂ : category}
+            {D : twosided_disp_cat C₁ C₂}
+            (HD : is_univalent_twosided_disp_cat D)
+            {x₁ x₂ : C₁}
+            {y₁ y₂ : C₂}
+            (p : x₁ = x₂)
+            (q : y₁ = y₂)
+            {xy₁ : D x₁ y₁}
+            {xy₂ : D x₂ y₂}
+            (r : transportf (λ z, D z _) p (transportf (λ z, D _ z) q xy₁) = xy₂)
+  : isotoid_twosided_disp HD p q (idtoiso_twosided_disp p q r) = r.
+Proof.
+  apply homotinvweqweq.
+Qed.
+
+Proposition isotoidtoiso_twosided_disp
+            {C₁ C₂ : category}
+            {D : twosided_disp_cat C₁ C₂}
+            (HD : is_univalent_twosided_disp_cat D)
+            {x₁ x₂ : C₁}
+            {y₁ y₂ : C₂}
+            (p : x₁ = x₂)
+            (q : y₁ = y₂)
+            {xy₁ : D x₁ y₁}
+            {xy₂ : D x₂ y₂}
+            (r : iso_twosided_disp (idtoiso p) (idtoiso q) xy₁ xy₂)
+  : idtoiso_twosided_disp p q (isotoid_twosided_disp HD p q r) = r.
+Proof.
+  apply (homotweqinvweq (_ ,, HD x₁ x₂ y₁ y₂ p q xy₁ xy₂)).
+Qed.
 
 Definition univalent_twosided_disp_cat
            (C₁ C₂ : category)
