@@ -21,17 +21,15 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.BicatOfDoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Core.BicatOfDoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.AlternativeDefinitions.DoubleCatsUnfolded.
 
 Local Open Scope cat.
 Local Open Scope double_cat.
 
-(**
- 1. The map from unfolded double categories to double categories
- *)
+(** * 1. The map from unfolded double categories to double categories *)
 Section DoubleCatsUnfolded_to_DoubleCats.
   Context (C : univalent_doublecategory).
 
@@ -168,9 +166,7 @@ Section DoubleCatsUnfolded_to_DoubleCats.
     make_double_cat (und_ob_hor_cat C) D I Cm l r a tr pe HC HD.
 End DoubleCatsUnfolded_to_DoubleCats.
 
-(**
- 2. The inverse
- *)
+(** * 2. The inverse *)
 Section DoubleCats_to_DoubleCatsUnfolded.
   Context (C : double_cat).
 
@@ -420,9 +416,7 @@ Section DoubleCats_to_DoubleCatsUnfolded.
   Defined.
 End DoubleCats_to_DoubleCatsUnfolded.
 
-(**
- 3. It forms an equivalences
- *)
+(** * 3. It forms an equivalence *)
 Proposition double_cat_weq_univalent_doublecategory_inv₁
             (C : double_cat)
   : doublecategory_to_double_cat (double_cat_to_univalent_doublecategory C) = C.

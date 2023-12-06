@@ -47,8 +47,8 @@ Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCatsLaws.
-Import DoubleCatsLaws.TransportSquare.
+Require Import UniMath.Bicategories.DoubleCategories.DerivedLaws.
+Import TransportSquare.
 
 Local Open Scope cat.
 Local Open Scope double_cat.
