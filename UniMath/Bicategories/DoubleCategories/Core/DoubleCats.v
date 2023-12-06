@@ -33,28 +33,11 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedNatTrans.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
-Require Import UniMath.Bicategories.Core.Bicat.
-Import Bicat.Notations.
-Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
-Import DispBicat.Notations.
-Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
-Require Import UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOfDispCats.
-Require Import UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOfTwoSidedDispCat.
-Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
-Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
-Require Import UniMath.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.
-Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleTransformation.
-Require Import UniMath.Bicategories.DoubleCategories.Core.BicatOfDoubleCats.
 
 Local Open Scope cat.
 
