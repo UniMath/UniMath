@@ -1,8 +1,8 @@
 (*********************************************************************************
 
- The dual of a strict double category
+ The transpose of a strict double category
 
- If we have a strict double category `C`, then we can define its dual as follows:
+ If we have a strict double category `C`, then we can define its tranpose as follows:
  - Objects: objects in `C`
  - Vertical morphisms: horizontal morphisms in `C`
  - Horizontal morphisms: vertical morphisms in `C`
@@ -16,7 +16,7 @@
  3. The horizontal identity
  4. Horizontal composition
  5. Double category laws
- 6. The dual double category
+ 6. The transpose double category
 
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -32,11 +32,11 @@ Require Import UniMath.Bicategories.DoubleCategories.StrictDoubleCats.
 Local Open Scope cat.
 Local Open Scope strict_double_cat.
 
-Section Dual.
+Section Transpose.
   Context (C : strict_double_cat).
 
   (** * 1. The precategory *)
-  Definition dual_strict_double_cat_precategory_ob_mor
+  Definition transpose_strict_double_cat_precategory_ob_mor
     : precategory_ob_mor.
   Proof.
     use make_precategory_ob_mor.
@@ -44,17 +44,17 @@ Section Dual.
     - exact (λ x y, x -->h y).
   Defined.
 
-  Definition dual_strict_double_cat_precategory_data
+  Definition transpose_strict_double_cat_precategory_data
     : precategory_data.
   Proof.
     use make_precategory_data.
-    - exact dual_strict_double_cat_precategory_ob_mor.
+    - exact transpose_strict_double_cat_precategory_ob_mor.
     - exact (λ x, s_identity_h x).
     - exact (λ x y z h k, h ·h k).
   Defined.
 
-  Proposition is_precategory_dual_strict_double_cat_precategory_data
-    : is_precategory dual_strict_double_cat_precategory_data.
+  Proposition is_precategory_transpose_strict_double_cat_precategory_data
+    : is_precategory transpose_strict_double_cat_precategory_data.
   Proof.
     use is_precategory_one_assoc_to_two.
     repeat split.
@@ -66,44 +66,44 @@ Section Dual.
       apply s_assocl_h.
   Defined.
 
-  Definition dual_strict_double_cat_precategory
+  Definition transpose_strict_double_cat_precategory
     : precategory.
   Proof.
     use make_precategory.
-    - exact dual_strict_double_cat_precategory_data.
-    - exact is_precategory_dual_strict_double_cat_precategory_data.
+    - exact transpose_strict_double_cat_precategory_data.
+    - exact is_precategory_transpose_strict_double_cat_precategory_data.
   Defined.
 
-  Definition dual_strict_double_cat_category
+  Definition transpose_strict_double_cat_category
     : category.
   Proof.
     use make_category.
-    - exact dual_strict_double_cat_precategory.
+    - exact transpose_strict_double_cat_precategory.
     - intros x y.
       apply isaset_hor_mor_strict_double_cat.
   Defined.
 
-  Definition dual_strict_double_cat_setcategory
+  Definition transpose_strict_double_cat_setcategory
     : setcategory.
   Proof.
     use make_setcategory.
-    - exact dual_strict_double_cat_category.
+    - exact transpose_strict_double_cat_category.
     - apply isaset_ob_strict_double_cat.
   Defined.
 
   (** * 2. The 2-sided displayed category *)
-  Definition dual_strict_double_cat_twosided_disp_cat_ob_mor
+  Definition transpose_strict_double_cat_twosided_disp_cat_ob_mor
     : twosided_disp_cat_ob_mor
-        dual_strict_double_cat_setcategory
-        dual_strict_double_cat_setcategory.
+        transpose_strict_double_cat_setcategory
+        transpose_strict_double_cat_setcategory.
   Proof.
     simple refine (_ ,, _) ; cbn.
     - exact (λ x y, x -->v y).
     - exact (λ x₁ x₂ y₁ y₂ v₁ v₂ h₁ h₂, s_square v₁ v₂ h₁ h₂).
   Defined.
 
-  Definition dual_strict_double_cat_twosided_disp_cat_id_comp
-    : twosided_disp_cat_id_comp dual_strict_double_cat_twosided_disp_cat_ob_mor.
+  Definition transpose_strict_double_cat_twosided_disp_cat_id_comp
+    : twosided_disp_cat_id_comp transpose_strict_double_cat_twosided_disp_cat_ob_mor.
   Proof.
     simple refine (_ ,, _).
     - exact (λ x y v, s_id_h_square v).
@@ -111,18 +111,18 @@ Section Dual.
       exact (s₁ ⋆h s₂).
   Defined.
 
-  Definition dual_strict_double_cat_twosided_disp_cat_data
+  Definition transpose_strict_double_cat_twosided_disp_cat_data
     : twosided_disp_cat_data
-        dual_strict_double_cat_setcategory
-        dual_strict_double_cat_setcategory.
+        transpose_strict_double_cat_setcategory
+        transpose_strict_double_cat_setcategory.
   Proof.
     simple refine (_ ,, _).
-    - exact dual_strict_double_cat_twosided_disp_cat_ob_mor.
-    - exact dual_strict_double_cat_twosided_disp_cat_id_comp.
+    - exact transpose_strict_double_cat_twosided_disp_cat_ob_mor.
+    - exact transpose_strict_double_cat_twosided_disp_cat_id_comp.
   Defined.
 
-  Proposition dual_strict_double_cat_twosided_disp_cat_axioms
-    : twosided_disp_cat_axioms dual_strict_double_cat_twosided_disp_cat_data.
+  Proposition transpose_strict_double_cat_twosided_disp_cat_axioms
+    : twosided_disp_cat_axioms transpose_strict_double_cat_twosided_disp_cat_data.
   Proof.
     repeat split.
     - intros x₁ x₂ y₁ y₂ v₁ v₂ h k s ; cbn in *.
@@ -138,27 +138,27 @@ Section Dual.
       apply isaset_s_square.
   Qed.
 
-  Definition dual_strict_double_cat_twosided_disp_cat
+  Definition transpose_strict_double_cat_twosided_disp_cat
     : twosided_disp_cat
-        dual_strict_double_cat_setcategory
-        dual_strict_double_cat_setcategory.
+        transpose_strict_double_cat_setcategory
+        transpose_strict_double_cat_setcategory.
   Proof.
     simple refine (_ ,, _).
-    - exact dual_strict_double_cat_twosided_disp_cat_data.
-    - exact dual_strict_double_cat_twosided_disp_cat_axioms.
+    - exact transpose_strict_double_cat_twosided_disp_cat_data.
+    - exact transpose_strict_double_cat_twosided_disp_cat_axioms.
   Defined.
 
   (** * 3. The horizontal identity *)
-  Definition dual_strict_double_cat_hor_id_data
-    : hor_id_data dual_strict_double_cat_twosided_disp_cat.
+  Definition transpose_strict_double_cat_hor_id_data
+    : hor_id_data transpose_strict_double_cat_twosided_disp_cat.
   Proof.
     use make_hor_id_data.
     - exact (λ x, s_identity_v _).
     - exact (λ x y h, s_id_v_square h).
   Defined.
 
-  Proposition dual_strict_double_cat_hor_id_laws
-    : hor_id_laws dual_strict_double_cat_hor_id_data.
+  Proposition transpose_strict_double_cat_hor_id_laws
+    : hor_id_laws transpose_strict_double_cat_hor_id_data.
   Proof.
     split ; cbn.
     - intro x.
@@ -169,25 +169,25 @@ Section Dual.
       apply idpath.
   Qed.
 
-  Definition dual_strict_double_cat_hor_id
-    : hor_id dual_strict_double_cat_twosided_disp_cat.
+  Definition transpose_strict_double_cat_hor_id
+    : hor_id transpose_strict_double_cat_twosided_disp_cat.
   Proof.
     use make_hor_id.
-    - exact dual_strict_double_cat_hor_id_data.
-    - exact dual_strict_double_cat_hor_id_laws.
+    - exact transpose_strict_double_cat_hor_id_data.
+    - exact transpose_strict_double_cat_hor_id_laws.
   Defined.
 
   (** * 4. Horizontal composition *)
-  Definition dual_strict_double_cat_hor_comp_data
-    : hor_comp_data dual_strict_double_cat_twosided_disp_cat.
+  Definition transpose_strict_double_cat_hor_comp_data
+    : hor_comp_data transpose_strict_double_cat_twosided_disp_cat.
   Proof.
     use make_hor_comp_data ; cbn.
     - exact (λ x y z v₁ v₂, v₁ ·v v₂).
     - exact (λ x₁ x₂ y₁ y₂ z₁ z₂ h₁ h₂ h₃ v₁ v₂ w₁ w₂ s₁ s₂, s₁ ⋆v s₂).
   Defined.
 
-  Proposition dual_strict_double_cat_hor_comp_laws
-    : hor_comp_laws dual_strict_double_cat_hor_comp_data.
+  Proposition transpose_strict_double_cat_hor_comp_laws
+    : hor_comp_laws transpose_strict_double_cat_hor_comp_data.
   Proof.
     split ; cbn.
     - intros x y z v₁ v₂.
@@ -198,77 +198,77 @@ Section Dual.
       apply idpath.
   Qed.
 
-  Definition dual_strict_double_cat_hor_comp
-    : hor_comp dual_strict_double_cat_twosided_disp_cat.
+  Definition transpose_strict_double_cat_hor_comp
+    : hor_comp transpose_strict_double_cat_twosided_disp_cat.
   Proof.
     use make_hor_comp.
-    - exact dual_strict_double_cat_hor_comp_data.
-    - exact dual_strict_double_cat_hor_comp_laws.
+    - exact transpose_strict_double_cat_hor_comp_data.
+    - exact transpose_strict_double_cat_hor_comp_laws.
   Defined.
 
   (** * 5. Double category laws *)
-  Proposition dual_strict_double_cat_id_left
+  Proposition transpose_strict_double_cat_id_left
     : strict_double_cat_id_left
-        dual_strict_double_cat_hor_id
-        dual_strict_double_cat_hor_comp.
+        transpose_strict_double_cat_hor_id
+        transpose_strict_double_cat_hor_comp.
   Proof.
     intros x y v ; cbn in v ; cbn.
     apply s_id_v_left.
   Defined.
 
-  Proposition dual_strict_double_cat_id_right
+  Proposition transpose_strict_double_cat_id_right
     : strict_double_cat_id_right
-        dual_strict_double_cat_hor_id
-        dual_strict_double_cat_hor_comp.
+        transpose_strict_double_cat_hor_id
+        transpose_strict_double_cat_hor_comp.
   Proof.
     intros x y v ; cbn in v ; cbn.
     apply s_id_v_right.
   Defined.
 
-  Proposition dual_strict_double_cat_assoc
-    : strict_double_cat_assoc dual_strict_double_cat_hor_comp.
+  Proposition transpose_strict_double_cat_assoc
+    : strict_double_cat_assoc transpose_strict_double_cat_hor_comp.
   Proof.
     intros w x y z v₁ v₂ v₃ ; cbn.
     apply s_assocl_v.
   Defined.
 
-  Proposition dual_strict_double_cat_id_left_square
-    : strict_double_cat_id_left_square dual_strict_double_cat_id_left.
+  Proposition transpose_strict_double_cat_id_left_square
+    : strict_double_cat_id_left_square transpose_strict_double_cat_id_left.
   Proof.
     intros x₁ x₂ y₁ y₂ v₁ v₂ h k s ; cbn.
     apply s_square_id_left_v.
   Qed.
 
-  Proposition dual_strict_double_cat_id_right_square
-    : strict_double_cat_id_right_square dual_strict_double_cat_id_right.
+  Proposition transpose_strict_double_cat_id_right_square
+    : strict_double_cat_id_right_square transpose_strict_double_cat_id_right.
   Proof.
     intros x₁ x₂ y₁ y₂ v₁ v₂ h k s ; cbn.
     apply s_square_id_right_v.
   Qed.
 
-  Proposition dual_strict_double_cat_assoc_square
-    : strict_double_cat_assoc_square dual_strict_double_cat_assoc.
+  Proposition transpose_strict_double_cat_assoc_square
+    : strict_double_cat_assoc_square transpose_strict_double_cat_assoc.
   Proof.
     intros w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ vw vx vy vz h₁ h₂ h₃ k₁ k₂ k₃ s₁ s₂ s₃ ; cbn.
     apply s_square_assoc_v.
   Defined.
 
   (** * 6. The dual double category *)
-  Definition dual_strict_double_cat
+  Definition transpose_strict_double_cat
     : strict_double_cat.
   Proof.
     use make_strict_double_cat.
-    - exact dual_strict_double_cat_setcategory.
-    - exact dual_strict_double_cat_twosided_disp_cat.
+    - exact transpose_strict_double_cat_setcategory.
+    - exact transpose_strict_double_cat_twosided_disp_cat.
     - intros x y.
       apply isaset_ver_mor_strict_double_cat.
-    - exact dual_strict_double_cat_hor_id.
-    - exact dual_strict_double_cat_hor_comp.
-    - exact dual_strict_double_cat_id_left.
-    - exact dual_strict_double_cat_id_right.
-    - exact dual_strict_double_cat_assoc.
-    - exact dual_strict_double_cat_id_left_square.
-    - exact dual_strict_double_cat_id_right_square.
-    - exact dual_strict_double_cat_assoc_square.
+    - exact transpose_strict_double_cat_hor_id.
+    - exact transpose_strict_double_cat_hor_comp.
+    - exact transpose_strict_double_cat_id_left.
+    - exact transpose_strict_double_cat_id_right.
+    - exact transpose_strict_double_cat_assoc.
+    - exact transpose_strict_double_cat_id_left_square.
+    - exact transpose_strict_double_cat_id_right_square.
+    - exact transpose_strict_double_cat_assoc_square.
   Defined.
-End Dual.
+End Transpose.

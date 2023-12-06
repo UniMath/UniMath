@@ -191,7 +191,7 @@ Proof.
   - intros x y ; cbn.
     apply homset_property.
   - cbn.
-    assert (dual_category (square_double_cat C) (λ x y, homset_property C x y) = C) as p.
+    assert (transpose_category (square_double_cat C) (λ x y, homset_property C x y) = C) as p.
     {
       use subtypePath.
       {
