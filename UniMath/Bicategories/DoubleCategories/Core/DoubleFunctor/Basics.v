@@ -27,13 +27,11 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 
 Local Open Scope cat.
 
-(**
- 1. Preservation of the identity
- *)
+(** * 1. Preservation of the identity *)
 Definition double_functor_hor_id_data
            {C₁ C₂ : category}
            {D₁ : twosided_disp_cat C₁ C₁}
@@ -142,9 +140,7 @@ Proof.
   exact (pr2 IFF x y f).
 Qed.
 
-(**
- 2. Preservation of composition
- *)
+(** * 2. Preservation of composition *)
 Definition double_functor_hor_comp_data
            {C₁ C₂ : category}
            {D₁ : twosided_disp_cat C₁ C₁}
@@ -344,9 +340,7 @@ Proof.
   apply idpath.
 Qed.
 
-(**
- 3. Preservation of the unitors and associators
- *)
+(** * 3. Preservation of the unitors and associators *)
 Definition double_functor_lunitor
            {C₁ C₂ : category}
            {F : C₁ ⟶ C₂}
@@ -487,9 +481,7 @@ Proof.
   apply isaset_disp_mor.
 Qed.
 
-(**
- 4. The identity double functor
- *)
+(** * 4. The identity double functor *)
 Definition identity_hor_id_data
            (C : category)
            (D : twosided_disp_cat C C)

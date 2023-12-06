@@ -47,8 +47,8 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TransportLaws.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.StrictDoubleCatBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.StrictDoubleCatBasics.
 
 Local Open Scope cat.
 

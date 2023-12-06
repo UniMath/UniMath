@@ -24,7 +24,7 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 
 Local Open Scope cat.
 Local Open Scope double_cat.

@@ -63,8 +63,8 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Comma.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleCatsLaws.
 Import DoubleCatsLaws.TransportSquare.
 

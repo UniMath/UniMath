@@ -25,14 +25,12 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Constant.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 
 Local Open Scope cat.
 
-(**
- 1. Horizontal operations of the unit double category
- *)
+(** * 1. Horizontal operations of the unit double category *)
 Definition unit_double_cat_hor_id_data
   : hor_id_data (constant_twosided_disp_cat unit_category unit_category unit_category).
 Proof.
@@ -124,9 +122,7 @@ Proof.
     apply isapropunit.
 Qed.
 
-(**
- 2. The unit double category
- *)
+(** * 2. The unit double category *)
 Definition unit_double_cat
   : double_cat.
 Proof.

@@ -23,8 +23,8 @@ Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.BicatOfDoubleCats.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCats.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCatsUnfolded.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.AlternativeDefinitions.DoubleCatsUnfolded.
 
 Local Open Scope cat.
 Local Open Scope double_cat.

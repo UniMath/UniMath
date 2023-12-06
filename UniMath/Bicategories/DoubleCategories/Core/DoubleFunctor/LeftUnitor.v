@@ -1,6 +1,6 @@
 (**********************************************************************************
 
- Preservation of the right unitor by the composition of double functors
+ Preservation of the left unitor by the composition of double functors
 
  This file is split due to high memory consumption
 
@@ -13,15 +13,15 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleFunctor.Basics.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.Basics.
 
 Local Open Scope cat.
 
 Unset Kernel Term Sharing.
 (* this is to reduce the memory consumption of this file *)
 
-Proposition comp_functor_runitor
+Proposition comp_functor_lunitor
             {C₁ C₂ C₃ : category}
             {D₁ : twosided_disp_cat C₁ C₁}
             {D₂ : twosided_disp_cat C₂ C₂}
@@ -32,9 +32,9 @@ Proposition comp_functor_runitor
             {Cm₁ : hor_comp D₁}
             {Cm₂ : hor_comp D₂}
             {Cm₃ : hor_comp D₃}
-            {r₁ : double_cat_runitor I₁ Cm₁}
-            {r₂ : double_cat_runitor I₂ Cm₂}
-            {r₃ : double_cat_runitor I₃ Cm₃}
+            {l₁ : double_cat_lunitor I₁ Cm₁}
+            {l₂ : double_cat_lunitor I₂ Cm₂}
+            {l₃ : double_cat_lunitor I₃ Cm₃}
             {F : C₁ ⟶ C₂}
             {FF : twosided_disp_functor F F D₁ D₂}
             {G : C₂ ⟶ C₃}
@@ -43,10 +43,10 @@ Proposition comp_functor_runitor
             {GI : double_functor_hor_id GG I₂ I₃}
             {FC : double_functor_hor_comp FF Cm₁ Cm₂}
             {GC : double_functor_hor_comp GG Cm₂ Cm₃}
-            (Fl : double_functor_runitor r₁ r₂ FI FC)
-            (Gl : double_functor_runitor r₂ r₃ GI GC)
-  : double_functor_runitor
-      r₁ r₃
+            (Fl : double_functor_lunitor l₁ l₂ FI FC)
+            (Gl : double_functor_lunitor l₂ l₃ GI GC)
+  : double_functor_lunitor
+      l₁ l₃
       (comp_hor_id FI GI)
       (comp_hor_comp FC GC).
 Proof.
@@ -123,14 +123,15 @@ Proof.
   {
     apply maponpaths.
     do 3 apply maponpaths_2.
-    apply (double_hor_comp_mor_transportf_disp_mor2_right
-             _
+    apply (double_hor_comp_mor_transportf_disp_mor2_left
+             _ _ _
              (!(id_left _ @ functor_id _ _))).
   }
   rewrite !two_disp_pre_whisker_f.
   rewrite transport_f_f_disp_mor2.
   use transportf_disp_mor2_eq.
-  do 4 apply maponpaths_2.
+  do 3 apply maponpaths_2.
+  apply maponpaths.
   use transportf_disp_mor2_eq.
   apply idpath.
 Qed.

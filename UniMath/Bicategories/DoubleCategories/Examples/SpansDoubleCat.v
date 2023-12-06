@@ -33,9 +33,8 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleFunctor.Basics.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 
 Local Open Scope cat.
 
@@ -43,9 +42,7 @@ Section SpansDoubleCat.
   Context {C : univalent_category}
           (PC : Pullbacks C).
 
-  (**
-   1. Horizontal identities
-   *)
+  (** * 1. Horizontal identities *)
   Definition spans_double_cat_hor_id_data
     : hor_id_data (twosided_disp_cat_of_spans C).
   Proof.
@@ -74,9 +71,7 @@ Section SpansDoubleCat.
     - exact spans_double_cat_hor_id_laws.
   Defined.
 
-  (**
-   2. Horizontal composition
-   *)
+  (** * 2. Horizontal composition *)
   Definition spans_double_cat_hor_comp_data
     : hor_comp_data (twosided_disp_cat_of_spans C).
   Proof.
@@ -127,9 +122,7 @@ Section SpansDoubleCat.
     - exact spans_double_cat_hor_comp_laws.
   Defined.
 
-  (**
-   3. The unitors and associators
-   *)
+  (** * 3. The unitors and associators *)
   Definition spans_double_cat_lunitor_data
     : double_lunitor_data
         spans_double_cat_hor_id
@@ -252,9 +245,7 @@ Section SpansDoubleCat.
     - exact spans_double_cat_associator_laws.
   Defined.
 
-  (**
-   4. The triangle and pentagon equations
-   *)
+  (** * 4. The triangle and pentagon equations *)
   Proposition spans_double_cat_triangle
     : triangle_law
         spans_double_cat_lunitor
@@ -369,9 +360,7 @@ Section SpansDoubleCat.
       apply idpath.
   Qed.
 
-  (**
-   5. The double category of spans
-   *)
+  (** * 5. The double category of spans *)
   Definition spans_double_cat
     : double_cat.
   Proof.

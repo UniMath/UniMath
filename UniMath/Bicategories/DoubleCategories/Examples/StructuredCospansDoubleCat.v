@@ -52,9 +52,8 @@ Require Import UniMath.CategoryTheory.limits.Preservation.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleFunctor.Basics.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 
 Local Open Scope cat.
 
@@ -63,9 +62,7 @@ Section StructuredCospansDoubleCat.
           (PX : Pushouts X)
           (L : A ⟶ X).
 
-  (**
-   1. Horizontal identities
-   *)
+  (** * 1. Horizontal identities *)
   Definition structured_cospans_double_cat_hor_id_data
     : hor_id_data (twosided_disp_cat_of_struct_cospans L).
   Proof.
@@ -94,9 +91,7 @@ Section StructuredCospansDoubleCat.
     - exact structured_cospans_double_cat_hor_id_laws.
   Defined.
 
-  (**
-   2. Horizontal composition
-   *)
+  (** * 2. Horizontal composition *)
   Definition structured_cospans_double_cat_hor_comp_data
     : hor_comp_data (twosided_disp_cat_of_struct_cospans L).
   Proof.
@@ -147,9 +142,7 @@ Section StructuredCospansDoubleCat.
     - exact structured_cospans_double_cat_hor_comp_laws.
   Defined.
 
-  (**
-   3. The unitors and associators
-   *)
+  (** * 3. The unitors and associators *)
   Definition structured_cospans_double_cat_lunitor_data
     : double_lunitor_data
         structured_cospans_double_cat_hor_id
@@ -298,9 +291,7 @@ Section StructuredCospansDoubleCat.
     - exact structured_cospans_double_cat_associator_laws.
   Defined.
 
-  (**
-   4. The triangle and pentagon equations
-   *)
+  (** * 4. The triangle and pentagon equations *)
   Proposition structured_cospans_double_cat_triangle
     : triangle_law
         structured_cospans_double_cat_lunitor
@@ -434,9 +425,7 @@ Section StructuredCospansDoubleCat.
           apply idpath.
   Qed.
 
-  (**
-   5. The double category of structured cospans
-   *)
+  (** * 5. The double category of structured cospans *)
   Definition structured_cospans_double_cat
     : double_cat.
   Proof.

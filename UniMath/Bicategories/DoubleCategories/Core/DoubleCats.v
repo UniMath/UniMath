@@ -52,10 +52,10 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleFunctor.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleTransformation.
-Require Import UniMath.Bicategories.DoubleCategories.BicatOfDoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleTransformation.
+Require Import UniMath.Bicategories.DoubleCategories.Core.BicatOfDoubleCats.
 
 Local Open Scope cat.
 

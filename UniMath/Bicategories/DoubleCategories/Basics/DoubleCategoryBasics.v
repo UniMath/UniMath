@@ -33,9 +33,7 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 
 Local Open Scope cat.
 
-(**
- 1. Horizontal identities
- *)
+(** * 1. Horizontal identities *)
 Definition hor_id_data
            {C : category}
            (D : twosided_disp_cat C C)
@@ -136,9 +134,7 @@ Definition make_hor_id
   : hor_id D
   := I ,, HI.
 
-(**
- 2. Horizontal composition
- *)
+(** * 2. Horizontal composition *)
 Definition hor_comp_data
            {C : category}
            (D : twosided_disp_cat C C)
@@ -464,9 +460,7 @@ Proof.
   apply idpath.
 Qed.
 
-(**
- 3. Left unitor
- *)
+(** * 3. Left unitor *)
 Definition double_lunitor_data
            {C : category}
            {D : twosided_disp_cat C C}
@@ -593,9 +587,7 @@ Proof.
   exact (pr2 l x₁ x₂ y₁ y₂ h₁ h₂ v₁ v₂ τ).
 Qed.
 
-(**
- 4. Right unitor
- *)
+(** * 4. Right unitor *)
 Definition double_runitor_data
            {C : category}
            {D : twosided_disp_cat C C}
@@ -722,9 +714,7 @@ Proof.
   exact (pr2 r x₁ x₂ y₁ y₂ h₁ h₂ v₁ v₂ τ).
 Qed.
 
-(**
- 5. Associator
- *)
+(** * 5. Associator *)
 Definition double_associator_data
            {C : category}
            {D : twosided_disp_cat C C}
@@ -888,9 +878,7 @@ Proof.
   apply (pr2 a).
 Qed.
 
-(**
- 6. Triangle and pentagon laws
- *)
+(** * 6. Triangle and pentagon laws *)
 Definition triangle_law
            {C : category}
            {D : twosided_disp_cat C C}
