@@ -173,6 +173,7 @@ DisplayedBicats/DispBiequivalence.v
 
 DoubleCategories/Basics/DoubleCategoryBasics.v
 DoubleCategories/Basics/StrictDoubleCatBasics.v
+DoubleCategories/Core/DoubleCats.v
 
 DoubleCategories/Core/DoubleFunctor/Basics.v
 DoubleCategories/Core/DoubleFunctor/LeftUnitor.v
@@ -181,7 +182,7 @@ DoubleCategories/Core/DoubleFunctor/Associator.v
 DoubleCategories/Core/DoubleFunctor.v
 DoubleCategories/Core/DoubleTransformation.v
 DoubleCategories/Core/BicatOfDoubleCats.v
-DoubleCategories/Core/DoubleCats.v
+DoubleCategories/Core/UnivalentDoubleCats.v
 
 DoubleCategories/DerivedLaws/TransportLaws.v
 DoubleCategories/DerivedLaws/Variations.v

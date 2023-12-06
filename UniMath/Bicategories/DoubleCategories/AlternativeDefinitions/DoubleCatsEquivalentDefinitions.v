@@ -24,6 +24,7 @@ Import Bicat.Notations.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.BicatOfDoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.AlternativeDefinitions.DoubleCatsUnfolded.
 
 Local Open Scope cat.
@@ -163,12 +164,15 @@ Section DoubleCatsUnfolded_to_DoubleCats.
       := is_univalent_doublecategory_to_twosided_disp_cat.
 
   Definition  doublecategory_to_double_cat : double_cat :=
-    make_double_cat (und_ob_hor_cat C) D I Cm l r a tr pe HC HD.
+    make_double_cat (und_ob_hor_cat C) D I Cm l r a tr pe.
+
+  Definition  doublecategory_to_univalent_double_cat : univalent_double_cat :=
+    make_univalent_double_cat doublecategory_to_double_cat HC HD.
 End DoubleCatsUnfolded_to_DoubleCats.
 
 (** * 2. The inverse *)
 Section DoubleCats_to_DoubleCatsUnfolded.
-  Context (C : double_cat).
+  Context (C : univalent_double_cat).
 
   Definition double_cat_to_predoublecategory_ob_mor_hor
     : predoublecategory_ob_mor_hor.
@@ -183,7 +187,7 @@ Section DoubleCats_to_DoubleCatsUnfolded.
   Proof.
     simple refine (_ ,, _).
     - exact double_cat_to_predoublecategory_ob_mor_hor.
-    - exact (λ x y, x -->h y).
+    - exact (λ (x y : C), x -->h y).
   Defined.
 
   Definition double_cat_to_predoublecategory_hor_id_comp
@@ -228,7 +232,7 @@ Section DoubleCats_to_DoubleCatsUnfolded.
     : predoublecategory_ver_id_comp double_cat_to_predoublecategory_hor.
   Proof.
     split.
-    - exact (λ x, identity_h x).
+    - exact (λ x, identity_h (C := C) x).
     - exact (λ x y z f g, f ·h g).
   Defined.
 
@@ -245,7 +249,7 @@ Section DoubleCats_to_DoubleCatsUnfolded.
   Proof.
     simple refine (_ ,, _).
     - exact double_cat_to_predoublecategory_hor_cat_ver_precat_data.
-    - exact (λ w x y z v₁ h₁ h₂ v₂, square v₁ v₂ h₁ h₂).
+    - exact (λ w x y z v₁ h₁ h₂ v₂, square (C := C) v₁ v₂ h₁ h₂).
   Defined.
 
   Definition double_cat_to_predoublecategory_sq_hor_id_comp
@@ -253,7 +257,7 @@ Section DoubleCats_to_DoubleCatsUnfolded.
   Proof.
     split.
     - exact (λ x y f, id_v_square f).
-    - exact (λ _ _ _ _ _ _ _ _ _ _ _ _ _ s₁ s₂, s₁ ⋆v s₂).
+    - exact (λ (_ _ : C) _ _ _ _ _ _ _ _ _ _ _ s₁ s₂, s₁ ⋆v s₂).
   Defined.
 
   Definition double_cat_to_predoublecategory_sq_hor_data
@@ -269,11 +273,11 @@ Section DoubleCats_to_DoubleCatsUnfolded.
   Proof.
     repeat split.
     - intro ; intros ; cbn.
-      apply square_id_left_v.
+      apply (square_id_left_v (C := C)).
     - intro ; intros ; cbn.
-      apply square_id_right_v.
+      apply (square_id_right_v (C := C)).
     - intro ; intros ; cbn.
-      apply square_assoc_v.
+      apply (square_assoc_v (C := C)).
   Defined.
 
   Definition double_cat_to_predoublecategory_hor_sq
@@ -288,8 +292,8 @@ Section DoubleCats_to_DoubleCatsUnfolded.
     : predoublecategory_sq_ver_id_comp double_cat_to_predoublecategory_hor_sq.
   Proof.
     split.
-    - exact (λ x y f, id_h_square f).
-    - exact (λ _ _ _ _ _ _ _ _ _ _ _ _ _ s₁ s₂, s₁ ⋆h s₂).
+    - exact (λ x y f, id_h_square (C := C) f).
+    - exact (λ (_ _ : C) _ _ _ _ _ _ _ _ _ _ _ s₁ s₂, s₁ ⋆h s₂).
   Defined.
 
   Definition double_cat_to_predoublecategory_sq_hor_ver_data
@@ -304,7 +308,7 @@ Section DoubleCats_to_DoubleCatsUnfolded.
     : has_predoublecategory_sq_hor_ver_unit_assoc
         double_cat_to_predoublecategory_sq_hor_ver_data.
   Proof.
-    repeat split ; cbn.
+    repeat split.
     - intros x y f.
       simple refine (_ ,, _ ,, _ ,, _) ; cbn.
       + exact (lunitor_h f).
@@ -338,7 +342,7 @@ Section DoubleCats_to_DoubleCatsUnfolded.
         double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
   Proof.
     intros w x y z v₁ h₁ h₂ v₂ α.
-    exact (lunitor_square α).
+    exact (lunitor_square (C := C) α).
   Defined.
 
   Proposition double_cat_to_predoublecategory_ver_right_unitor_naturality
@@ -346,15 +350,15 @@ Section DoubleCats_to_DoubleCatsUnfolded.
         double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
   Proof.
     intros w x y z v₁ h₁ h₂ v₂ α.
-    exact (runitor_square α).
+    exact (runitor_square (C := C) α).
   Defined.
 
   Proposition double_cat_to_predoublecategory_ver_assoc_naturality
     : predoublecategory_ver_assoc_naturality
         double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
   Proof.
-    intro ; intros ; cbn.
-    apply lassociator_square.
+    intro ; intros.
+    apply (lassociator_square (C := C)).
   Defined.
 
   Proposition double_cat_to_predoublecategory_ver_unitor_coherence
@@ -362,7 +366,7 @@ Section DoubleCats_to_DoubleCatsUnfolded.
         double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
   Proof.
     intro ; intros ; cbn.
-    apply double_triangle.
+    apply (double_triangle (C := C)).
   Defined.
 
   Proposition double_cat_to_predoublecategory_ver_assoc_coherence
@@ -370,7 +374,7 @@ Section DoubleCats_to_DoubleCatsUnfolded.
         double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
   Proof.
     intro ; intros ; cbn.
-    apply double_pentagon.
+    apply (double_pentagon (C := C)).
   Defined.
 
   Proposition double_cat_to_predoublecategory_interchange
@@ -378,10 +382,10 @@ Section DoubleCats_to_DoubleCatsUnfolded.
         double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
   Proof.
     repeat split ; intro ; intros ; cbn.
-    - apply id_h_square_id.
-    - apply id_h_square_comp.
-    - apply comp_h_square_id.
-    - apply comp_h_square_comp.
+    - apply (id_h_square_id (C := C)).
+    - apply (id_h_square_comp (C := C)).
+    - apply (comp_h_square_id (C := C)).
+    - apply (comp_h_square_comp (C := C)).
   Defined.
 
   Definition double_cat_to_predoublecategory
@@ -418,8 +422,8 @@ End DoubleCats_to_DoubleCatsUnfolded.
 
 (** * 3. It forms an equivalence *)
 Proposition double_cat_weq_univalent_doublecategory_inv₁
-            (C : double_cat)
-  : doublecategory_to_double_cat (double_cat_to_univalent_doublecategory C) = C.
+            (C : univalent_double_cat)
+  : doublecategory_to_univalent_double_cat (double_cat_to_univalent_doublecategory C) = C.
 Proof.
   induction C as [ C1 H ].
   use subtypePath.
@@ -452,7 +456,7 @@ Qed.
 
 Proposition double_cat_weq_univalent_doublecategory_inv₂
             (C : univalent_doublecategory)
-  : double_cat_to_univalent_doublecategory (doublecategory_to_double_cat C) = C.
+  : double_cat_to_univalent_doublecategory (doublecategory_to_univalent_double_cat C) = C.
 Proof.
   use subtypePath.
   {
@@ -474,12 +478,12 @@ Proof.
   apply get_has_sq_hor_homsets.
 Qed.
 
-Definition double_cat_weq_univalent_doublecategory
-  : double_cat ≃ univalent_doublecategory.
+Definition univalent_double_cat_weq_univalent_doublecategory
+  : univalent_double_cat ≃ univalent_doublecategory.
 Proof.
   use weq_iso.
   - exact double_cat_to_univalent_doublecategory.
-  - exact doublecategory_to_double_cat.
+  - exact doublecategory_to_univalent_double_cat.
   - exact double_cat_weq_univalent_doublecategory_inv₁.
   - exact double_cat_weq_univalent_doublecategory_inv₂.
 Defined.

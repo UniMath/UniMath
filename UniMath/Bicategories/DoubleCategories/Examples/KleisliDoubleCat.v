@@ -31,6 +31,7 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.StrictDoubleCatBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.StrictDoubleCats.
 
 Local Open Scope cat.
@@ -188,7 +189,7 @@ End Kleisli.
 
 (** * 2. The Kleisli double category *)
 Definition kleisli_double_cat
-           {C : univalent_category}
+           {C : category}
            (M : Monad C)
   : double_cat.
 Proof.
@@ -202,6 +203,15 @@ Proof.
   - exact (double_cat_associator_kleisli M).
   - abstract (intro ; intros ; apply homset_property).
   - abstract (intro ; intros ; apply homset_property).
+Defined.
+
+Definition kleisli_univalent_double_cat
+           {C : univalent_category}
+           (M : Monad C)
+  : univalent_double_cat.
+Proof.
+  use make_univalent_double_cat.
+  - exact (kleisli_double_cat M).
   - apply univalent_category_is_univalent.
   - apply is_univalent_comma_twosided_disp_cat.
 Defined.

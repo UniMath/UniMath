@@ -62,6 +62,7 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Examples.StructuredCospansDoubleCat.
 
 Local Open Scope cat.
@@ -455,8 +456,8 @@ Section StructuredCospansDoubleFunctor.
   (** * 4. The double functors between the double categories of structured cospans *)
   Definition structured_cospans_double_cat_functor
     : lax_double_functor
-        (structured_cospans_double_cat PX₁ L₁)
-        (structured_cospans_double_cat PX₂ L₂).
+        (structured_cospans_univalent_double_cat PX₁ L₁)
+        (structured_cospans_univalent_double_cat PX₂ L₂).
   Proof.
     use make_lax_double_functor.
     - exact FA.

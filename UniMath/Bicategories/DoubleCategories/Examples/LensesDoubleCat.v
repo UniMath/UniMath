@@ -54,6 +54,7 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.StrictDoubleCatBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.StrictDoubleCats.
 
 Local Open Scope cat.
@@ -190,7 +191,7 @@ End LensesDoubleCat.
 
 (** * 4. The double category *)
 Definition lenses_double_cat
-           (C : univalent_category)
+           (C : category)
            (PC : BinProducts C)
   : double_cat.
 Proof.
@@ -208,6 +209,15 @@ Proof.
   - abstract
       (intro ; intros ;
        apply discrete_lenses_twosided_disp_cat).
+Defined.
+
+Definition lenses_univalent_double_cat
+           (C : univalent_category)
+           (PC : BinProducts C)
+  : univalent_double_cat.
+Proof.
+  use make_univalent_double_cat.
+  - exact (lenses_double_cat C PC).
   - apply univalent_category_is_univalent.
   - apply is_univalent_lenses_twosided_disp_cat.
 Defined.

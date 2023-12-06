@@ -47,6 +47,7 @@ Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.DerivedLaws.
 Import TransportSquare.
 
@@ -336,23 +337,24 @@ Section HorizontalBicat.
     - apply isaprop_is_iso_twosided_disp.
     - apply isaprop_is_invertible_2cell.
   Qed.
-
-  Definition is_univalent_2_1_horizontal_bicat
-    : is_univalent_2_1 horizontal_bicat.
-  Proof.
-    intros x y h k.
-    use weqhomot.
-    - refine (weqfibtototal _ _ _ ∘ path_weq_globular_iso_square h k)%weq.
-      exact is_invertible_2cell_weq_is_iso_twosided_disp.
-    - intro p.
-      induction p.
-      use subtypePath.
-      {
-        intro.
-        apply isaprop_is_invertible_2cell.
-      }
-      cbn.
-      rewrite path_to_globular_iso_square_id.
-      apply idpath.
-  Qed.
 End HorizontalBicat.
+
+Definition is_univalent_2_1_horizontal_bicat
+           (C : univalent_double_cat)
+  : is_univalent_2_1 (horizontal_bicat C).
+Proof.
+  intros x y h k.
+  use weqhomot.
+  - refine (weqfibtototal _ _ _ ∘ path_weq_globular_iso_square h k)%weq.
+    exact (is_invertible_2cell_weq_is_iso_twosided_disp C).
+  - intro p.
+    induction p.
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_is_invertible_2cell.
+    }
+    cbn.
+    rewrite path_to_globular_iso_square_id.
+    apply idpath.
+Qed.

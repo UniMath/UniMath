@@ -33,6 +33,7 @@ Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 
 Local Open Scope cat.
 Local Open Scope double_cat.
@@ -251,7 +252,7 @@ Section ProdOfDoubleCat.
     : double_cat.
   Proof.
     use make_double_cat.
-    - exact (univalent_category_binproduct D₁ D₂).
+    - exact (category_binproduct D₁ D₂).
     - exact (twosided_disp_cat_product (hor_mor D₁) (hor_mor D₂)).
     - exact prod_double_cat_hor_id.
     - exact prod_double_cat_hor_comp.
@@ -260,9 +261,19 @@ Section ProdOfDoubleCat.
     - exact prod_double_cat_associator.
     - exact prod_double_cat_triangle.
     - exact prod_double_cat_pentagon.
-    - apply univalent_category_is_univalent.
-    - use is_univalent_twosided_disp_cat_product.
-      + apply is_univalent_twosided_disp_cat_hor_mor.
-      + apply is_univalent_twosided_disp_cat_hor_mor.
   Defined.
 End ProdOfDoubleCat.
+
+Definition prod_univalent_double_cat
+           (D₁ D₂ : univalent_double_cat)
+  : univalent_double_cat.
+Proof.
+  use make_univalent_double_cat.
+  - exact (prod_double_cat D₁ D₂).
+  - use is_univalent_category_binproduct.
+    + apply univalent_category_is_univalent.
+    + apply univalent_category_is_univalent.
+  - use is_univalent_twosided_disp_cat_product.
+    + apply is_univalent_twosided_disp_cat_hor_mor.
+    + apply is_univalent_twosided_disp_cat_hor_mor.
+Defined.

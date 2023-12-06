@@ -61,13 +61,14 @@ Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleTransformation.
 Require Import UniMath.Bicategories.DoubleCategories.Core.BicatOfDoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 
 Local Open Scope cat.
 Local Open Scope double_cat.
 
 (** * 1. Invertible 2-cells *)
 Section Invertibles.
-  Context {C₁ C₂ : double_cat}
+  Context {C₁ C₂ : univalent_double_cat}
           {F G : lax_double_functor C₁ C₂}
           (τ : double_transformation F G)
           (Hτ : is_invertible_2cell (pr111 τ)).
@@ -108,7 +109,7 @@ Section Invertibles.
 End Invertibles.
 
 Definition invertible_double_nat_trans_weq
-           {C₁ C₂ : double_cat}
+           {C₁ C₂ : univalent_double_cat}
            {F G : lax_double_functor C₁ C₂}
            (τ : double_transformation F G)
   : is_invertible_2cell τ ≃ is_invertible_2cell (pr111 τ).
@@ -128,7 +129,7 @@ Proof.
 Defined.
 
 Section InvertiblesUnfolded.
-  Context {C₁ C₂ : double_cat}
+  Context {C₁ C₂ : univalent_double_cat}
           {F G : lax_double_functor C₁ C₂}
           (τ : double_transformation F G)
           (Hτ : ∏ (x : C₁), is_z_isomorphism (τ x))
@@ -150,7 +151,7 @@ End InvertiblesUnfolded.
 
 (** * 2. Adjoint equivalences *)
 Section Equivalences.
-  Context {C₁ C₂ : double_cat}
+  Context {C₁ C₂ : univalent_double_cat}
           (F : lax_double_functor C₁ C₂)
           (HF : is_strong_double_functor F)
           (* `F` is an adjoint equivalence of 2-sided displayed categories *)
@@ -194,7 +195,7 @@ Section Equivalences.
 End Equivalences.
 
 Section EquivalencesUnfolded.
-  Context {C₁ C₂ : double_cat}
+  Context {C₁ C₂ : univalent_double_cat}
           (F : lax_double_functor C₁ C₂)
           (HF : is_strong_double_functor F)
           (R : C₂ ⟶ C₁)
@@ -245,7 +246,7 @@ Section EquivalencesUnfolded.
 End EquivalencesUnfolded.
 
 Definition left_adjoint_equivalence_to_strong_help
-           {C₁ C₂ : double_cat}
+           {C₁ C₂ : univalent_double_cat}
            (F : adjoint_equivalence C₁ C₂)
   : is_strong_double_functor (pr1 F).
 Proof.
@@ -257,7 +258,7 @@ Proof.
 Defined.
 
 Section FromEquivalence.
-  Context {C₁ C₂ : double_cat}
+  Context {C₁ C₂ : univalent_double_cat}
           (F : lax_double_functor C₁ C₂)
           (HF : left_adjoint_equivalence F).
 
@@ -279,7 +280,7 @@ Section FromEquivalence.
 End FromEquivalence.
 
 Definition left_adjoint_equivalence_lax_double_functor_weq
-           {C₁ C₂ : double_cat}
+           {C₁ C₂ : univalent_double_cat}
            (F : lax_double_functor C₁ C₂)
   : left_adjoint_equivalence F
     ≃
