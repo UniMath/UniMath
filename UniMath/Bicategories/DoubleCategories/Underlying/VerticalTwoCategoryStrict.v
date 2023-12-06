@@ -26,9 +26,9 @@ Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.Core.TwoCategories.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.StrictDoubleCatBasics.
-Require Import UniMath.Bicategories.DoubleCategories.StrictDoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.StrictDoubleCatBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Core.StrictDoubleCats.
 
 Local Open Scope cat.
 Local Open Scope strict_double_cat.

@@ -56,18 +56,16 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleFunctor.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleTransformation.
-Require Import UniMath.Bicategories.DoubleCategories.BicatOfDoubleCats.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleTransformation.
+Require Import UniMath.Bicategories.DoubleCategories.Core.BicatOfDoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 
 Local Open Scope cat.
 Local Open Scope double_cat.
 
-(**
- 1. Invertible 2-cells
- *)
+(** * 1. Invertible 2-cells *)
 Section Invertibles.
   Context {C₁ C₂ : double_cat}
           {F G : lax_double_functor C₁ C₂}
@@ -150,9 +148,7 @@ Section InvertiblesUnfolded.
   Qed.
 End InvertiblesUnfolded.
 
-(**
- 2. Adjoint equivalences
- *)
+(** * 2. Adjoint equivalences *)
 Section Equivalences.
   Context {C₁ C₂ : double_cat}
           (F : lax_double_functor C₁ C₂)

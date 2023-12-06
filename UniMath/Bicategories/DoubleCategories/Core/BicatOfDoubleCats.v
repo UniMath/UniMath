@@ -95,15 +95,13 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleFunctor.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleTransformation.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleTransformation.
 
 Local Open Scope cat.
 
-(**
- 1. Two-sided displayed categories with identities
- *)
+(** * 1. Two-sided displayed categories with identities *)
 Definition disp_cat_ob_mor_twosided_disp_cat_hor_id
   : disp_cat_ob_mor bicat_twosided_disp_cat.
 Proof.
@@ -716,9 +714,7 @@ Proof.
   - exact disp_univalent_2_1_disp_bicat_twosided_disp_cat_hor_id.
 Qed.
 
-(**
- 2. Two-sided displayed categories with horizontal composition
- *)
+(** * 2. Two-sided displayed categories with horizontal composition *)
 Definition disp_cat_ob_mor_twosided_disp_cat_hor_comp
   : disp_cat_ob_mor bicat_twosided_disp_cat.
 Proof.
@@ -1379,9 +1375,7 @@ Proof.
   - exact disp_univalent_2_1_disp_bicat_twosided_disp_cat_hor_comp.
 Qed.
 
-(**
- 3. Two-sided displayed categories with identities and horizontal composition
- *)
+(** * 3. Two-sided displayed categories with identities and horizontal composition *)
 Definition disp_bicat_twosided_disp_cat_id_hor_comp
   : disp_bicat bicat_twosided_disp_cat
   := disp_dirprod_bicat
@@ -1441,9 +1435,7 @@ Proof.
   - exact is_univalent_2_1_bicat_twosided_disp_cat_id_hor_comp.
 Qed.
 
-(**
- 4. Two-sided displayed categories with left unitors
- *)
+(** * 4. Two-sided displayed categories with left unitors *)
 Definition disp_cat_ob_mor_lunitor
   : disp_cat_ob_mor bicat_twosided_disp_cat_id_hor_comp.
 Proof.
@@ -1581,9 +1573,7 @@ Proof.
   exact (is_disp_left_adjoint_equivalence_disp_bicat_lunitor_help (F ,, HF) Fl).
 Qed.
 
-(**
- 5. Two-sided displayed categories with right unitors
- *)
+(** * 5. Two-sided displayed categories with right unitors *)
 Definition disp_cat_ob_mor_runitor
   : disp_cat_ob_mor bicat_twosided_disp_cat_id_hor_comp.
 Proof.
@@ -1721,9 +1711,7 @@ Proof.
   exact (is_disp_left_adjoint_equivalence_disp_bicat_runitor_help (F ,, HF) Fr).
 Qed.
 
-(**
- 6. Two-sided displayed categories with associators
- *)
+(** * 6. Two-sided displayed categories with associators *)
 Definition disp_cat_ob_mor_lassociator
   : disp_cat_ob_mor bicat_twosided_disp_cat_id_hor_comp.
 Proof.
@@ -1872,9 +1860,7 @@ Proof.
   exact (is_disp_left_adjoint_equivalence_disp_bicat_lassociator_help (F ,, HF) Fa).
 Qed.
 
-(**
- 7. Two-sided displayed categories with unitors and associators
- *)
+(** * 7. Two-sided displayed categories with unitors and associators *)
 Definition disp_bicat_unitors_and_associator
   : disp_bicat bicat_twosided_disp_cat_id_hor_comp
   := disp_dirprod_bicat
@@ -1919,9 +1905,7 @@ Proof.
   exact (pr1 is_univalent_2_bicat_unitors_and_associator).
 Qed.
 
-(**
- 8. Displayed bicategory of double categories
- *)
+(** * 8. Displayed bicategory of double categories *)
 Definition bicat_of_double_cats
   : bicat
   := fullsubbicat bicat_unitors_and_associator

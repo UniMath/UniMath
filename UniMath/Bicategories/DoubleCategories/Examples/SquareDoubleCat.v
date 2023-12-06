@@ -28,11 +28,11 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Arrow.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCats.
-Require Import UniMath.Bicategories.DoubleCategories.SymmetricUnivalent.
-Require Import UniMath.Bicategories.DoubleCategories.StrictDoubleCatBasics.
-Require Import UniMath.Bicategories.DoubleCategories.StrictDoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.StrictDoubleCatBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.SymmetricUnivalent.
+Require Import UniMath.Bicategories.DoubleCategories.Core.StrictDoubleCats.
 
 Local Open Scope cat.
 
@@ -191,7 +191,7 @@ Proof.
   - intros x y ; cbn.
     apply homset_property.
   - cbn.
-    assert (dual_category (square_double_cat C) (λ x y, homset_property C x y) = C) as p.
+    assert (transpose_category (square_double_cat C) (λ x y, homset_property C x y) = C) as p.
     {
       use subtypePath.
       {

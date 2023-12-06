@@ -6,16 +6,36 @@
  - The vertical category is required to be univalent
  - The 2-sided displayed category of horizontal morphisms and squares is required to
    be univalent
- This is not a symmetric notion: horizontal morphisms and vertical morphisms have
- different requirements. In this file, we consider a stronger notion of univalence
- that is symmetric. The added requirements are that the horizontal category is univalent
- and that the 2-sided displayed category of vertical morphisms and squares is univalent
- as well. We also require that the horizontal morphisms form a set.
+ This is not a symmetric notion: horizontal morphisms and vertical morphisms play a
+ different role in this definition. However, in some examples a stronger requirement
+ is satisfied.
 
- One application of this notion of univalence is that we can define the dual of a
- pseudo double category: we can switch the vertical and the horizontal morphisms.
- Symmetric univalent double categories are those for which this dual is actually a
- univalent double category.
+ Let us look at the double category of squares in aunivalent  category `C`. This
+ double category is defined as follows:
+ - Objects: objects in `C`
+ - Vertical morphisms: morphisms in `C`
+ - Horizontal morphisms: morphisms in `C`
+ - Squares: commutative squares in `C`
+ For this double category, we both have a univalent category of objects and vertical
+ morphisms and of objects and horizontal morphisms. In addition, both the categories of
+ vertical morphisms and squares and of horizontal morphisms and squares are univalent.
+ This gives a stronger notion of univalence for double categories, which we call
+ symmetric univalence.
+
+ In this file, we define this notion. To do so, we first define the transpose of a
+ pseudo double category ([transpose_double_cat]). To construct this transpose, we first
+ assume that the horizontal morphisms in `C` forms a set. In order to guarantee that the
+ transpose is a univalent pseudo double category, we need to add two requirements:
+ 1. The category of objects and horizontal morphisms is univalent
+ 2. The category of vertical morphisms and squares is univalent
+ Symmetric univalence is the conjunction of these requirements.
+
+ Note that we explicitly assume that the horizontal morphisms form a set in our definition
+ of symmetric univalence ([symmetric_univalent]) even though it follows from the univalence
+ conditions. The reason for that is that we want to reuse the notions of univalence that
+ we defined for categories and for 2-sided displayed categories. These two notions
+ already have the requirement that the morphisms for a set in them, so in order to use
+ them, we must have that the horizontal morphisms form a set.
 
  Contents
  1. The horizontal category
@@ -43,20 +63,20 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Comma.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCats.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCatsLaws.
-Import DoubleCatsLaws.TransportSquare.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.DerivedLaws.
+Import TransportSquare.
 
 Local Open Scope cat.
 Local Open Scope double_cat.
 
-Section DualPseudoDoubleCat.
+Section TransposePseudoDoubleCat.
   Context (C : double_cat)
           (HC : ∏ (x y : C), isaset (x -->h y)).
 
   (** * 1. The horizontal category *)
-  Definition dual_precategory_ob_mor
+  Definition transpose_precategory_ob_mor
     : precategory_ob_mor.
   Proof.
     use make_precategory_ob_mor.
@@ -64,18 +84,18 @@ Section DualPseudoDoubleCat.
     - exact (λ x y, x -->h y).
   Defined.
 
-  Definition dual_precategory_data
+  Definition transpose_precategory_data
     : precategory_data.
   Proof.
     use make_precategory_data.
-    - exact dual_precategory_ob_mor.
+    - exact transpose_precategory_ob_mor.
     - cbn.
       exact (λ x, identity_h x).
     - exact (λ x y z f g, f ·h g).
   Defined.
 
-  Proposition dual_precategory_laws
-    : is_precategory dual_precategory_data.
+  Proposition transpose_precategory_laws
+    : is_precategory transpose_precategory_data.
   Proof.
     use is_precategory_one_assoc_to_two.
     repeat split ; cbn.
@@ -90,25 +110,25 @@ Section DualPseudoDoubleCat.
       apply associator_globural_iso_square.
   Defined.
 
-  Definition dual_precategory
+  Definition transpose_precategory
     : precategory.
   Proof.
     use make_precategory.
-    - exact dual_precategory_data.
-    - exact dual_precategory_laws.
+    - exact transpose_precategory_data.
+    - exact transpose_precategory_laws.
   Defined.
 
-  Definition dual_category
+  Definition transpose_category
     : category.
   Proof.
     use make_category.
-    - exact dual_precategory.
+    - exact transpose_precategory.
     - exact HC.
   Defined.
 
   (** * 2. The 2-sided displayed category of vertical morphisms and squares *)
-  Definition dual_twosided_disp_cat_ob_mor
-    : twosided_disp_cat_ob_mor dual_category dual_category.
+  Definition transpose_twosided_disp_cat_ob_mor
+    : twosided_disp_cat_ob_mor transpose_category transpose_category.
   Proof.
     simple refine (_ ,, _).
     - cbn.
@@ -116,8 +136,8 @@ Section DualPseudoDoubleCat.
     - exact (λ x₁ x₂ y₁ y₂ v₁ v₂ h₁ h₂, square v₁ v₂ h₁ h₂).
   Defined.
 
-  Definition dual_twosided_disp_cat_id_comp
-    : twosided_disp_cat_id_comp dual_twosided_disp_cat_ob_mor.
+  Definition transpose_twosided_disp_cat_id_comp
+    : twosided_disp_cat_id_comp transpose_twosided_disp_cat_ob_mor.
   Proof.
     split.
     - exact (λ x y f, id_h_square f).
@@ -126,20 +146,20 @@ Section DualPseudoDoubleCat.
       exact (s₁ ⋆h s₂).
   Defined.
 
-  Definition dual_twosided_disp_cat_data
-    : twosided_disp_cat_data dual_category dual_category.
+  Definition transpose_twosided_disp_cat_data
+    : twosided_disp_cat_data transpose_category transpose_category.
   Proof.
     simple refine (_ ,, _).
-    - exact dual_twosided_disp_cat_ob_mor.
-    - exact dual_twosided_disp_cat_id_comp.
+    - exact transpose_twosided_disp_cat_ob_mor.
+    - exact transpose_twosided_disp_cat_id_comp.
   Defined.
 
-  Proposition transportb_disp_mor2_dual
-              {x₁ x₂ y₁ y₂ : dual_category}
+  Proposition transportb_disp_mor2_transpose
+              {x₁ x₂ y₁ y₂ : transpose_category}
               {h h' : x₁ --> x₂}
               {k k' : y₁ --> y₂}
-              {v₁ : dual_twosided_disp_cat_data x₁ y₁}
-              {v₂ : dual_twosided_disp_cat_data x₂ y₂}
+              {v₁ : transpose_twosided_disp_cat_data x₁ y₁}
+              {v₂ : transpose_twosided_disp_cat_data x₂ y₂}
               (p : h = h')
               (q : k = k')
               (s : v₁ -->[ h' ][ k' ] v₂)
@@ -160,8 +180,8 @@ Section DualPseudoDoubleCat.
     apply transportf_square_id.
   Qed.
 
-  Proposition dual_twosided_disp_cat_axioms
-    : twosided_disp_cat_axioms dual_twosided_disp_cat_data.
+  Proposition transpose_twosided_disp_cat_axioms
+    : twosided_disp_cat_axioms transpose_twosided_disp_cat_data.
   Proof.
     repeat split.
     - unfold id_two_disp_left_law ; cbn.
@@ -172,7 +192,7 @@ Section DualPseudoDoubleCat.
         apply square_id_right_v'.
       }
       rewrite <- lunitor_linvunitor_h'.
-      rewrite transportb_disp_mor2_dual.
+      rewrite transportb_disp_mor2_transpose.
       rewrite !globular_iso_to_path_to_iso.
       cbn.
       rewrite <- path_to_globular_iso_square_inv.
@@ -200,7 +220,7 @@ Section DualPseudoDoubleCat.
         apply square_id_right_v'.
       }
       rewrite <- runitor_rinvunitor_h'.
-      rewrite transportb_disp_mor2_dual.
+      rewrite transportb_disp_mor2_transpose.
       rewrite !globular_iso_to_path_to_iso.
       cbn.
       rewrite <- path_to_globular_iso_square_inv.
@@ -228,7 +248,7 @@ Section DualPseudoDoubleCat.
         apply square_id_right_v'.
       }
       rewrite <- lassociator_rassociator_h'.
-      rewrite transportb_disp_mor2_dual.
+      rewrite transportb_disp_mor2_transpose.
       rewrite !globular_iso_to_path_to_iso.
       cbn.
       rewrite <- path_to_globular_iso_square_inv.
@@ -252,20 +272,20 @@ Section DualPseudoDoubleCat.
       apply isaset_square.
   Qed.
 
-  Definition dual_twosided_disp_cat
-    : twosided_disp_cat dual_category dual_category.
+  Definition transpose_twosided_disp_cat
+    : twosided_disp_cat transpose_category transpose_category.
   Proof.
     simple refine (_ ,, _).
-    - exact dual_twosided_disp_cat_data.
-    - exact dual_twosided_disp_cat_axioms.
+    - exact transpose_twosided_disp_cat_data.
+    - exact transpose_twosided_disp_cat_axioms.
   Defined.
 
   (** * 3. A useful lemma for `idtoiso` *)
-  Proposition idtoiso_twosided_disp_dual
+  Proposition idtoiso_twosided_disp_transpose
               {x y : C}
               {v₁ v₂ : x -->v y}
               (p : v₁ = v₂)
-    : pr1 (idtoiso_twosided_disp (D := dual_twosided_disp_cat) (idpath _) (idpath _) p)
+    : pr1 (idtoiso_twosided_disp (D := transpose_twosided_disp_cat) (idpath _) (idpath _) p)
       =
       transportf_square
         (idpath _)
@@ -277,8 +297,8 @@ Section DualPseudoDoubleCat.
   Qed.
 
   (** * 4. Horizontal identities *)
-  Definition dual_hor_id_data
-    : hor_id_data dual_twosided_disp_cat.
+  Definition transpose_hor_id_data
+    : hor_id_data transpose_twosided_disp_cat.
   Proof.
     use make_hor_id_data.
     - cbn.
@@ -286,8 +306,8 @@ Section DualPseudoDoubleCat.
     - exact (λ x y h, id_v_square h).
   Defined.
 
-  Proposition dual_hor_id_laws
-    : hor_id_laws dual_hor_id_data.
+  Proposition transpose_hor_id_laws
+    : hor_id_laws transpose_hor_id_data.
   Proof.
     split ; cbn.
     - intro x.
@@ -298,17 +318,17 @@ Section DualPseudoDoubleCat.
       apply idpath.
   Qed.
 
-  Definition dual_hor_id
-    : hor_id dual_twosided_disp_cat.
+  Definition transpose_hor_id
+    : hor_id transpose_twosided_disp_cat.
   Proof.
     use make_hor_id.
-    - exact dual_hor_id_data.
-    - exact dual_hor_id_laws.
+    - exact transpose_hor_id_data.
+    - exact transpose_hor_id_laws.
   Defined.
 
   (** * 5. Horizontal composition *)
-  Definition dual_hor_comp_data
-    : hor_comp_data dual_twosided_disp_cat.
+  Definition transpose_hor_comp_data
+    : hor_comp_data transpose_twosided_disp_cat.
   Proof.
     use make_hor_comp_data.
     - cbn.
@@ -317,8 +337,8 @@ Section DualPseudoDoubleCat.
       exact (λ x₁ x₂ y₁ y₂ z₁ z₂ h₁ h₂ h₃ v₁ v₂ w₁ w₂ s₁ s₂, s₁ ⋆v s₂).
   Defined.
 
-  Proposition dual_hor_comp_laws
-    : hor_comp_laws dual_hor_comp_data.
+  Proposition transpose_hor_comp_laws
+    : hor_comp_laws transpose_hor_comp_data.
   Proof.
     split ; cbn.
     - intros x y z v w.
@@ -329,32 +349,32 @@ Section DualPseudoDoubleCat.
       apply idpath.
   Qed.
 
-  Definition dual_hor_comp
-    : hor_comp dual_twosided_disp_cat.
+  Definition transpose_hor_comp
+    : hor_comp transpose_twosided_disp_cat.
   Proof.
     use make_hor_comp.
-    - exact dual_hor_comp_data.
-    - exact dual_hor_comp_laws.
+    - exact transpose_hor_comp_data.
+    - exact transpose_hor_comp_laws.
   Defined.
 
   (** * 6. The left unitor *)
-  Definition dual_lunitor_data
-    : double_lunitor_data dual_hor_id dual_hor_comp.
+  Definition transpose_lunitor_data
+    : double_lunitor_data transpose_hor_id transpose_hor_comp.
   Proof.
     intros x y f ; cbn ; cbn in x, y, f.
     refine (idtoiso_twosided_disp (idpath _) (idpath _) _).
     apply id_left.
   Defined.
 
-  Arguments dual_lunitor_data /.
+  Arguments transpose_lunitor_data /.
 
-  Proposition dual_lunitor_laws
-    : double_lunitor_laws dual_lunitor_data.
+  Proposition transpose_lunitor_laws
+    : double_lunitor_laws transpose_lunitor_data.
   Proof.
     unfold double_lunitor_laws ; cbn -[idtoiso_twosided_disp].
     intros x₁ x₂ y₁ y₂ v₁ v₂ h₁ h₂ s.
     rewrite square_id_left_v.
-    rewrite transportb_disp_mor2_dual.
+    rewrite transportb_disp_mor2_transpose.
     rewrite pathscomp_inv.
     rewrite pathsinv0inv0.
     rewrite <- path_to_globular_iso_square_comp.
@@ -381,7 +401,7 @@ Section DualPseudoDoubleCat.
     {
       do 2 apply maponpaths.
       do 2 apply maponpaths_2.
-      apply idtoiso_twosided_disp_dual.
+      apply idtoiso_twosided_disp_transpose.
     }
     rewrite transportf_hcomp_l.
     rewrite transportf_square_prewhisker.
@@ -477,7 +497,7 @@ Section DualPseudoDoubleCat.
     etrans.
     {
       apply maponpaths.
-      apply idtoiso_twosided_disp_dual.
+      apply idtoiso_twosided_disp_transpose.
     }
     rewrite transportf_hcomp_l.
     rewrite transportf_f_square.
@@ -491,32 +511,32 @@ Section DualPseudoDoubleCat.
     apply transportf_square_id.
   Qed.
 
-  Definition dual_lunitor
-    : double_cat_lunitor dual_hor_id dual_hor_comp.
+  Definition transpose_lunitor
+    : double_cat_lunitor transpose_hor_id transpose_hor_comp.
   Proof.
     use make_double_lunitor.
-    - exact dual_lunitor_data.
-    - exact dual_lunitor_laws.
+    - exact transpose_lunitor_data.
+    - exact transpose_lunitor_laws.
   Defined.
 
   (** * 7. The right unitor *)
-  Definition dual_runitor_data
-    : double_runitor_data dual_hor_id dual_hor_comp.
+  Definition transpose_runitor_data
+    : double_runitor_data transpose_hor_id transpose_hor_comp.
   Proof.
     intros x y f ; cbn ; cbn in x, y, f.
     refine (idtoiso_twosided_disp (idpath _) (idpath _) _).
     apply id_right.
   Defined.
 
-  Arguments dual_runitor_data /.
+  Arguments transpose_runitor_data /.
 
-  Proposition dual_runitor_laws
-    : double_runitor_laws dual_runitor_data.
+  Proposition transpose_runitor_laws
+    : double_runitor_laws transpose_runitor_data.
   Proof.
     unfold double_runitor_laws ; cbn -[idtoiso_twosided_disp].
     intros x₁ x₂ y₁ y₂ v₁ v₂ h₁ h₂ s.
     rewrite square_id_right_v.
-    rewrite transportb_disp_mor2_dual.
+    rewrite transportb_disp_mor2_transpose.
     rewrite pathscomp_inv.
     rewrite pathsinv0inv0.
     rewrite <- path_to_globular_iso_square_comp.
@@ -543,7 +563,7 @@ Section DualPseudoDoubleCat.
     {
       do 2 apply maponpaths.
       do 2 apply maponpaths_2.
-      apply idtoiso_twosided_disp_dual.
+      apply idtoiso_twosided_disp_transpose.
     }
     rewrite transportf_hcomp_l.
     rewrite transportf_square_prewhisker.
@@ -639,7 +659,7 @@ Section DualPseudoDoubleCat.
     etrans.
     {
       apply maponpaths.
-      apply idtoiso_twosided_disp_dual.
+      apply idtoiso_twosided_disp_transpose.
     }
     rewrite transportf_hcomp_l.
     rewrite transportf_f_square.
@@ -653,32 +673,32 @@ Section DualPseudoDoubleCat.
     apply transportf_square_id.
   Qed.
 
-  Definition dual_runitor
-    : double_cat_runitor dual_hor_id dual_hor_comp.
+  Definition transpose_runitor
+    : double_cat_runitor transpose_hor_id transpose_hor_comp.
   Proof.
     use make_double_runitor.
-    - exact dual_runitor_data.
-    - exact dual_runitor_laws.
+    - exact transpose_runitor_data.
+    - exact transpose_runitor_laws.
   Defined.
 
   (** * 8. The associator *)
-  Definition dual_associator_data
-    : double_associator_data dual_hor_comp.
+  Definition transpose_associator_data
+    : double_associator_data transpose_hor_comp.
   Proof.
     intros w x y z v₁ v₂ v₃ ; cbn.
     refine (idtoiso_twosided_disp (idpath _) (idpath _) _).
     apply assoc.
   Defined.
 
-  Arguments dual_associator_data /.
+  Arguments transpose_associator_data /.
 
-  Proposition dual_associator_laws
-    : double_associator_laws dual_associator_data.
+  Proposition transpose_associator_laws
+    : double_associator_laws transpose_associator_data.
   Proof.
     unfold double_associator_laws ; cbn -[idtoiso_twosided_disp].
     intros w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ v₄ v₅ v₆ h₁ h₂ h₃ h₄ s₁ s₂ s₃.
     rewrite square_assoc_v.
-    rewrite transportb_disp_mor2_dual.
+    rewrite transportb_disp_mor2_transpose.
     rewrite pathscomp_inv.
     rewrite pathsinv0inv0.
     rewrite <- path_to_globular_iso_square_comp.
@@ -705,7 +725,7 @@ Section DualPseudoDoubleCat.
     {
       do 2 apply maponpaths.
       do 2 apply maponpaths_2.
-      apply idtoiso_twosided_disp_dual.
+      apply idtoiso_twosided_disp_transpose.
     }
     rewrite transportf_hcomp_l.
     rewrite transportf_square_prewhisker.
@@ -801,7 +821,7 @@ Section DualPseudoDoubleCat.
     etrans.
     {
       apply maponpaths.
-      apply idtoiso_twosided_disp_dual.
+      apply idtoiso_twosided_disp_transpose.
     }
     rewrite transportf_hcomp_l.
     rewrite transportf_f_square.
@@ -814,17 +834,17 @@ Section DualPseudoDoubleCat.
     apply transportf_square_id.
   Qed.
 
-  Definition dual_associator
-    : double_cat_associator dual_hor_comp.
+  Definition transpose_associator
+    : double_cat_associator transpose_hor_comp.
   Proof.
     use make_double_associator.
-    - exact dual_associator_data.
-    - exact dual_associator_laws.
+    - exact transpose_associator_data.
+    - exact transpose_associator_laws.
   Defined.
 
   (** * 9. The triangle and pentagon equations *)
-  Proposition dual_triangle_law
-    : triangle_law dual_lunitor dual_runitor dual_associator.
+  Proposition transpose_triangle_law
+    : triangle_law transpose_lunitor transpose_runitor transpose_associator.
   Proof.
     unfold triangle_law.
     unfold double_associator, double_lunitor, double_runitor.
@@ -833,21 +853,21 @@ Section DualPseudoDoubleCat.
     etrans.
     {
       apply maponpaths_2.
-      apply idtoiso_twosided_disp_dual.
+      apply idtoiso_twosided_disp_transpose.
     }
     etrans.
     {
       apply maponpaths.
       apply maponpaths_2.
-      apply idtoiso_twosided_disp_dual.
+      apply idtoiso_twosided_disp_transpose.
     }
     refine (!_).
     etrans.
     {
       do 2 apply maponpaths.
-      apply idtoiso_twosided_disp_dual.
+      apply idtoiso_twosided_disp_transpose.
     }
-    rewrite transportb_disp_mor2_dual.
+    rewrite transportb_disp_mor2_transpose.
     etrans.
     {
       do 2 apply maponpaths.
@@ -897,8 +917,8 @@ Section DualPseudoDoubleCat.
     apply idpath.
   Qed.
 
-  Proposition dual_pentagon_law
-    : pentagon_law dual_associator.
+  Proposition transpose_pentagon_law
+    : pentagon_law transpose_associator.
   Proof.
     unfold pentagon_law ; cbn.
     unfold double_associator.
@@ -910,10 +930,10 @@ Section DualPseudoDoubleCat.
       etrans.
       {
         apply maponpaths.
-        apply idtoiso_twosided_disp_dual.
+        apply idtoiso_twosided_disp_transpose.
       }
       apply maponpaths_2.
-      apply idtoiso_twosided_disp_dual.
+      apply idtoiso_twosided_disp_transpose.
     }
     refine (!_).
     etrans.
@@ -922,19 +942,19 @@ Section DualPseudoDoubleCat.
       {
         apply maponpaths.
         apply maponpaths_2.
-        apply idtoiso_twosided_disp_dual.
+        apply idtoiso_twosided_disp_transpose.
       }
       apply maponpaths_2.
       etrans.
       {
         apply maponpaths.
-        apply idtoiso_twosided_disp_dual.
+        apply idtoiso_twosided_disp_transpose.
       }
       apply maponpaths_2.
       apply maponpaths.
-      apply idtoiso_twosided_disp_dual.
+      apply idtoiso_twosided_disp_transpose.
     }
-    rewrite transportb_disp_mor2_dual.
+    rewrite transportb_disp_mor2_transpose.
     refine (!_).
     etrans.
     {
@@ -1008,39 +1028,39 @@ Section DualPseudoDoubleCat.
   Qed.
 
   (** * 10. The dual double category *)
-  Definition dual_double_cat
-             (HC' : is_univalent dual_category)
-             (HC'' : is_univalent_twosided_disp_cat dual_twosided_disp_cat)
+  Definition transpose_double_cat
+             (HC' : is_univalent transpose_category)
+             (HC'' : is_univalent_twosided_disp_cat transpose_twosided_disp_cat)
     : double_cat.
   Proof.
     use make_double_cat.
-    - exact dual_category.
-    - exact dual_twosided_disp_cat.
-    - exact dual_hor_id.
-    - exact dual_hor_comp.
-    - exact dual_lunitor.
-    - exact dual_runitor.
-    - exact dual_associator.
-    - exact dual_triangle_law.
-    - exact dual_pentagon_law.
+    - exact transpose_category.
+    - exact transpose_twosided_disp_cat.
+    - exact transpose_hor_id.
+    - exact transpose_hor_comp.
+    - exact transpose_lunitor.
+    - exact transpose_runitor.
+    - exact transpose_associator.
+    - exact transpose_triangle_law.
+    - exact transpose_pentagon_law.
     - exact HC'.
     - exact HC''.
   Defined.
-End DualPseudoDoubleCat.
+End TransposePseudoDoubleCat.
 
 (** * 11. Symmetric univalence for double categories *)
 Definition symmetric_univalent
            (C : double_cat)
   : UU
   := ∑ (HC : ∏ (x y : C), isaset (x -->h y)),
-     is_univalent (dual_category C HC)
+     is_univalent (transpose_category C HC)
      ×
-     is_univalent_twosided_disp_cat (dual_twosided_disp_cat C HC).
+     is_univalent_twosided_disp_cat (transpose_twosided_disp_cat C HC).
 
 Definition make_symmetric_univalent
            {C : double_cat}
            (H₁ : ∏ (x y : C), isaset (x -->h y))
-           (H₂ : is_univalent (dual_category C H₁))
-           (H₃ : is_univalent_twosided_disp_cat (dual_twosided_disp_cat C H₁))
+           (H₂ : is_univalent (transpose_category C H₁))
+           (H₃ : is_univalent_twosided_disp_cat (transpose_twosided_disp_cat C H₁))
   : symmetric_univalent C
   := H₁ ,, H₂ ,, H₃.

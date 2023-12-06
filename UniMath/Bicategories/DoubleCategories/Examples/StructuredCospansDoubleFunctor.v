@@ -59,9 +59,9 @@ Require Import UniMath.CategoryTheory.limits.Preservation.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleFunctor.Basics.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Examples.StructuredCospansDoubleCat.
 
 Local Open Scope cat.
@@ -77,9 +77,7 @@ Section StructuredCospansDoubleFunctor.
           {FX : X₁ ⟶ X₂}
           (α : FA ∙ L₂ ⟹ L₁ ∙ FX).
 
-  (**
-   1. Preservation of horizontal identities
-   *)
+  (** * 1. Preservation of horizontal identities *)
   Definition structured_cospans_double_cat_functor_id_data
     : double_functor_hor_id_data
         (twosided_disp_cat_of_struct_cospans_functor α)
@@ -116,9 +114,7 @@ Section StructuredCospansDoubleFunctor.
     - exact structured_cospans_double_cat_functor_id_laws.
   Defined.
 
-  (**
-   2. Preservation of horizontal composition
-   *)
+  (** * 2. Preservation of horizontal composition *)
   Definition structured_cospans_double_cat_functor_comp_data
     : double_functor_hor_comp_data
         (twosided_disp_cat_of_struct_cospans_functor α)
@@ -193,9 +189,7 @@ Section StructuredCospansDoubleFunctor.
     - exact structured_cospans_double_cat_functor_comp_laws.
   Defined.
 
-  (**
-   3. The coherences
-   *)
+  (** * 3. The coherences *)
   Proposition structured_cospans_double_cat_functor_lunitor
     : double_functor_lunitor
         (structured_cospans_double_cat_lunitor PX₁ L₁)
@@ -458,9 +452,7 @@ Section StructuredCospansDoubleFunctor.
         apply PushoutArrow_PushoutIn2.
   Qed.
 
-  (**
-   4. The double functors between the double categories of structured cospans
-   *)
+  (** * 4. The double functors between the double categories of structured cospans *)
   Definition structured_cospans_double_cat_functor
     : lax_double_functor
         (structured_cospans_double_cat PX₁ L₁)
@@ -476,9 +468,7 @@ Section StructuredCospansDoubleFunctor.
     - exact structured_cospans_double_cat_functor_associator.
   Defined.
 
-  (**
-   5. Conditions under which this double functor is strong
-   *)
+  (** * 5. Conditions under which this double functor is strong *)
   Context (Hα : is_nat_z_iso α)
           (HFX : preserves_pushout FX).
 

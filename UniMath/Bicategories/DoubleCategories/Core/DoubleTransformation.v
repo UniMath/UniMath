@@ -21,14 +21,12 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedNatTrans.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleFunctor.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.
 
 Local Open Scope cat.
 
-(**
- 1. Preservation of the identity
- *)
+(** * 1. Preservation of the identity *)
 Definition double_nat_trans_hor_id
            {C₁ C₂ : category}
            {D₁ : twosided_disp_cat C₁ C₁}
@@ -70,9 +68,7 @@ Proof.
   apply isaset_disp_mor.
 Qed.
 
-(**
- 2. Preservation of composition
- *)
+(** * 2. Preservation of composition *)
 Definition double_nat_trans_hor_comp
            {C₁ C₂ : category}
            {D₁ : twosided_disp_cat C₁ C₁}
@@ -120,9 +116,7 @@ Proof.
   apply isaset_disp_mor.
 Qed.
 
-(**
- 3. Examples of double transformations
- *)
+(** * 3. Examples of double transformations *)
 Proposition id_twosided_disp_nat_trans_hor_id
             {C₁ C₂ : category}
             {D₁ : twosided_disp_cat C₁ C₁}

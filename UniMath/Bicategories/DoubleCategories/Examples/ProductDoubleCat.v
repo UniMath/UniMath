@@ -31,8 +31,8 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCategoryBasics.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 
 Local Open Scope cat.
 Local Open Scope double_cat.
@@ -40,9 +40,7 @@ Local Open Scope double_cat.
 Section ProdOfDoubleCat.
   Context (D₁ D₂ : double_cat).
 
-  (**
-   1. Horizontal identity and composition
-   *)
+  (** * 1. Horizontal identity and composition *)
   Definition prod_double_cat_hor_id_data
     : hor_id_data (twosided_disp_cat_product (hor_mor D₁) (hor_mor D₂)).
   Proof.
@@ -106,9 +104,7 @@ Section ProdOfDoubleCat.
     - exact prod_double_cat_hor_comp_laws.
   Defined.
 
-  (**
-   2. Unitors and associator
-   *)
+  (** * 2. Unitors and associator *)
   Definition prod_double_cat_lunitor_data
     : double_lunitor_data prod_double_cat_hor_id prod_double_cat_hor_comp.
   Proof.
@@ -218,9 +214,7 @@ Section ProdOfDoubleCat.
     - exact prod_double_cat_associator_laws.
   Defined.
 
-  (**
-   3. The triangle and pentagon
-   *)
+  (** * 3. The triangle and pentagon *)
   Proposition prod_double_cat_triangle
     : triangle_law
         prod_double_cat_lunitor
@@ -252,9 +246,7 @@ Section ProdOfDoubleCat.
       apply idpath.
   Qed.
 
-  (**
-   4. The product of double categories
-   *)
+  (** * 4. The product of double categories *)
   Definition prod_double_cat
     : double_cat.
   Proof.

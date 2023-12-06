@@ -171,23 +171,29 @@ DisplayedBicats/DispTransformation.v
 DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
 
-DoubleCategories/DoubleCategoryBasics.v
-DoubleCategories/DoubleFunctor/Basics.v
-DoubleCategories/DoubleFunctor/LeftUnitor.v
-DoubleCategories/DoubleFunctor/RightUnitor.v
-DoubleCategories/DoubleFunctor/Associator.v
-DoubleCategories/DoubleFunctor.v
-DoubleCategories/DoubleTransformation.v
-DoubleCategories/BicatOfDoubleCats.v
-DoubleCategories/DoubleCats.v
-DoubleCategories/DoubleCatsLaws.v
-DoubleCategories/InvertiblesAndEquivalences.v
+DoubleCategories/Basics/DoubleCategoryBasics.v
+DoubleCategories/Basics/StrictDoubleCatBasics.v
 
-DoubleCategories/StrictDoubleCatBasics.v
-DoubleCategories/CatOfStrictDoubleCats.v
-DoubleCategories/StrictDoubleCats.v
+DoubleCategories/Core/DoubleFunctor/Basics.v
+DoubleCategories/Core/DoubleFunctor/LeftUnitor.v
+DoubleCategories/Core/DoubleFunctor/RightUnitor.v
+DoubleCategories/Core/DoubleFunctor/Associator.v
+DoubleCategories/Core/DoubleFunctor.v
+DoubleCategories/Core/DoubleTransformation.v
+DoubleCategories/Core/BicatOfDoubleCats.v
+DoubleCategories/Core/DoubleCats.v
 
-DoubleCategories/SymmetricUnivalent.v
+DoubleCategories/DerivedLaws/TransportLaws.v
+DoubleCategories/DerivedLaws/Variations.v
+DoubleCategories/DerivedLaws/Unitors.v
+DoubleCategories/DerivedLaws.v
+
+DoubleCategories/Core/InvertiblesAndEquivalences.v
+
+DoubleCategories/Core/CatOfStrictDoubleCats.v
+DoubleCategories/Core/StrictDoubleCats.v
+
+DoubleCategories/Core/SymmetricUnivalent.v
 
 DoubleCategories/Examples/UnitDoubleCat.v
 DoubleCategories/Examples/ProductDoubleCat.v
@@ -195,16 +201,16 @@ DoubleCategories/Examples/SquareDoubleCat.v
 DoubleCategories/Examples/LensesDoubleCat.v
 DoubleCategories/Examples/SpansDoubleCat.v
 DoubleCategories/Examples/KleisliDoubleCat.v
-DoubleCategories/Examples/Dual.v
+DoubleCategories/Examples/TransposeStrict.v
 DoubleCategories/Examples/StructuredCospansDoubleCat.v
 DoubleCategories/Examples/StructuredCospansDoubleFunctor.v
 
-DoubleCategories/HorizontalBicategory.v
-DoubleCategories/VerticalTwoCategory.v
-DoubleCategories/VerticalTwoCategoryStrict.v
+DoubleCategories/Underlying/HorizontalBicategory.v
+DoubleCategories/Underlying/VerticalTwoCategory.v
+DoubleCategories/Underlying/VerticalTwoCategoryStrict.v
 
-DoubleCategories/DoubleCatsUnfolded.v
-DoubleCategories/DoubleCatsEquivalentDefinitions.v
+DoubleCategories/AlternativeDefinitions/DoubleCatsUnfolded.v
+DoubleCategories/AlternativeDefinitions/DoubleCatsEquivalentDefinitions.v
 
 DisplayedBicats/Examples/MonadsLax.v
 DisplayedBicats/Examples/DispBicatOnCatToUniv.v
