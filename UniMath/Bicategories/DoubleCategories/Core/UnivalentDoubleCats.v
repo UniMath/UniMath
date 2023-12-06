@@ -1,6 +1,6 @@
 (**********************************************************************************
 
- Double categories
+ Univalent double categories
 
  In this file, we provide an interface for the bicategory of double categories.
  More specifically, we give definitions and notations for accessors of double
