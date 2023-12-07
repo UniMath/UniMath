@@ -35,11 +35,12 @@ Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 
 Local Open Scope cat.
 
 Section SpansDoubleCat.
-  Context {C : univalent_category}
+  Context {C : category}
           (PC : Pullbacks C).
 
   (** * 1. Horizontal identities *)
@@ -374,8 +375,17 @@ Section SpansDoubleCat.
     - exact spans_double_cat_associator.
     - exact spans_double_cat_triangle.
     - exact spans_double_cat_pentagon.
-    - apply univalent_category_is_univalent.
-    - use is_univalent_spans_twosided_disp_cat.
-      apply univalent_category_is_univalent.
   Defined.
 End SpansDoubleCat.
+
+Definition spans_univalent_double_cat
+           {C : univalent_category}
+           (PC : Pullbacks C)
+  : univalent_double_cat.
+Proof.
+  use make_univalent_double_cat.
+  - exact (spans_double_cat PC).
+  - apply univalent_category_is_univalent.
+  - use is_univalent_spans_twosided_disp_cat.
+    apply univalent_category_is_univalent.
+Defined.

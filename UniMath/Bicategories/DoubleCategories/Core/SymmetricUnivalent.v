@@ -65,6 +65,7 @@ Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.DerivedLaws.
 Import TransportSquare.
 
@@ -72,7 +73,7 @@ Local Open Scope cat.
 Local Open Scope double_cat.
 
 Section TransposePseudoDoubleCat.
-  Context (C : double_cat)
+  Context (C : univalent_double_cat)
           (HC : ∏ (x y : C), isaset (x -->h y)).
 
   (** * 1. The horizontal category *)
@@ -90,7 +91,7 @@ Section TransposePseudoDoubleCat.
     use make_precategory_data.
     - exact transpose_precategory_ob_mor.
     - cbn.
-      exact (λ x, identity_h x).
+      exact (λ x, identity_h (C := C) x).
     - exact (λ x y z f g, f ·h g).
   Defined.
 
@@ -131,8 +132,7 @@ Section TransposePseudoDoubleCat.
     : twosided_disp_cat_ob_mor transpose_category transpose_category.
   Proof.
     simple refine (_ ,, _).
-    - cbn.
-      exact (λ x y, x -->v y).
+    - exact (λ (x y : C), x -->v y).
     - exact (λ x₁ x₂ y₁ y₂ v₁ v₂ h₁ h₂, square v₁ v₂ h₁ h₂).
   Defined.
 
@@ -171,7 +171,8 @@ Section TransposePseudoDoubleCat.
         (path_to_globular_iso_square p ⋆v s ⋆v path_to_globular_iso_square (!q)).
   Proof.
     induction p, q ; cbn.
-    rewrite <- !path_to_globular_iso_square_id.
+    cbn in h, k.
+    rewrite <- !(path_to_globular_iso_square_id (C := C)).
     rewrite square_id_right_v.
     rewrite square_id_left_v.
     unfold transportb_square.
@@ -195,14 +196,14 @@ Section TransposePseudoDoubleCat.
       rewrite transportb_disp_mor2_transpose.
       rewrite !globular_iso_to_path_to_iso.
       cbn.
-      rewrite <- path_to_globular_iso_square_inv.
+      rewrite <- (path_to_globular_iso_square_inv (C := C)).
       rewrite globular_iso_to_path_to_iso.
       rewrite transportf_square_postwhisker.
       rewrite transportf_f_square.
       etrans.
       {
         apply maponpaths.
-        apply square_assoc_v.
+        apply (square_assoc_v (C := C)).
       }
       unfold transportb_square.
       rewrite transportf_f_square.
@@ -223,14 +224,14 @@ Section TransposePseudoDoubleCat.
       rewrite transportb_disp_mor2_transpose.
       rewrite !globular_iso_to_path_to_iso.
       cbn.
-      rewrite <- path_to_globular_iso_square_inv.
+      rewrite <- (path_to_globular_iso_square_inv (C := C)).
       rewrite globular_iso_to_path_to_iso.
       rewrite transportf_square_postwhisker.
       rewrite transportf_f_square.
       etrans.
       {
         apply maponpaths.
-        apply square_assoc_v.
+        apply (square_assoc_v (C := C)).
       }
       unfold transportb_square.
       rewrite transportf_f_square.
@@ -251,14 +252,14 @@ Section TransposePseudoDoubleCat.
       rewrite transportb_disp_mor2_transpose.
       rewrite !globular_iso_to_path_to_iso.
       cbn.
-      rewrite <- path_to_globular_iso_square_inv.
+      rewrite <- (path_to_globular_iso_square_inv (C := C)).
       rewrite globular_iso_to_path_to_iso.
       rewrite transportf_square_postwhisker.
       rewrite transportf_f_square.
       etrans.
       {
         apply maponpaths.
-        apply square_assoc_v.
+        apply (square_assoc_v (C := C)).
       }
       unfold transportb_square.
       rewrite transportf_f_square.
@@ -301,8 +302,7 @@ Section TransposePseudoDoubleCat.
     : hor_id_data transpose_twosided_disp_cat.
   Proof.
     use make_hor_id_data.
-    - cbn.
-      exact (λ x, identity_v x).
+    - exact (λ x, identity_v (C := C) x).
     - exact (λ x y h, id_v_square h).
   Defined.
 
@@ -377,14 +377,14 @@ Section TransposePseudoDoubleCat.
     rewrite transportb_disp_mor2_transpose.
     rewrite pathscomp_inv.
     rewrite pathsinv0inv0.
-    rewrite <- path_to_globular_iso_square_comp.
+    rewrite <- (path_to_globular_iso_square_comp (C := C)).
     etrans.
     {
       do 2 apply maponpaths.
       refine (!_).
       apply path_to_globular_iso_square_comp.
     }
-    rewrite <- !path_to_globular_iso_square_inv.
+    rewrite <- !(path_to_globular_iso_square_inv (C := C)).
     etrans.
     {
       do 4 apply maponpaths.
@@ -419,7 +419,7 @@ Section TransposePseudoDoubleCat.
     {
       do 2 apply maponpaths.
       apply maponpaths_2.
-      apply lunitor_square.
+      apply (lunitor_square (C := C)).
     }
     unfold transportb_square.
     rewrite transportf_square_postwhisker.
@@ -476,7 +476,7 @@ Section TransposePseudoDoubleCat.
       apply maponpaths.
       apply maponpaths_2.
       refine (!_).
-      apply runitor_square'.
+      apply (runitor_square' (C := C)).
     }
     rewrite transportf_square_prewhisker.
     rewrite transportf_f_square.
@@ -539,14 +539,14 @@ Section TransposePseudoDoubleCat.
     rewrite transportb_disp_mor2_transpose.
     rewrite pathscomp_inv.
     rewrite pathsinv0inv0.
-    rewrite <- path_to_globular_iso_square_comp.
+    rewrite <- (path_to_globular_iso_square_comp (C := C)).
     etrans.
     {
       do 2 apply maponpaths.
       refine (!_).
       apply path_to_globular_iso_square_comp.
     }
-    rewrite <- !path_to_globular_iso_square_inv.
+    rewrite <- !(path_to_globular_iso_square_inv (C := C)).
     etrans.
     {
       do 4 apply maponpaths.
@@ -581,7 +581,7 @@ Section TransposePseudoDoubleCat.
     {
       do 2 apply maponpaths.
       apply maponpaths_2.
-      apply lunitor_square.
+      apply (lunitor_square (C := C)).
     }
     unfold transportb_square.
     rewrite transportf_square_postwhisker.
@@ -638,7 +638,7 @@ Section TransposePseudoDoubleCat.
       apply maponpaths.
       apply maponpaths_2.
       refine (!_).
-      apply runitor_square'.
+      apply (runitor_square' (C := C)).
     }
     rewrite transportf_square_prewhisker.
     rewrite transportf_f_square.
@@ -701,14 +701,14 @@ Section TransposePseudoDoubleCat.
     rewrite transportb_disp_mor2_transpose.
     rewrite pathscomp_inv.
     rewrite pathsinv0inv0.
-    rewrite <- path_to_globular_iso_square_comp.
+    rewrite <- (path_to_globular_iso_square_comp (C := C)).
     etrans.
     {
       do 2 apply maponpaths.
       refine (!_).
       apply path_to_globular_iso_square_comp.
     }
-    rewrite <- !path_to_globular_iso_square_inv.
+    rewrite <- !(path_to_globular_iso_square_inv (C := C)).
     etrans.
     {
       do 4 apply maponpaths.
@@ -743,7 +743,7 @@ Section TransposePseudoDoubleCat.
     {
       do 2 apply maponpaths.
       apply maponpaths_2.
-      apply lunitor_square.
+      apply (lunitor_square (C := C)).
     }
     unfold transportb_square.
     rewrite transportf_square_postwhisker.
@@ -800,7 +800,7 @@ Section TransposePseudoDoubleCat.
       apply maponpaths.
       apply maponpaths_2.
       refine (!_).
-      apply runitor_square'.
+      apply (runitor_square' (C := C)).
     }
     rewrite transportf_square_prewhisker.
     rewrite transportf_f_square.
@@ -884,7 +884,7 @@ Section TransposePseudoDoubleCat.
       apply maponpaths.
       apply maponpaths_2.
       refine (!_).
-      apply lunitor_square'.
+      apply (lunitor_square' (C := C)).
     }
     rewrite !transportf_square_prewhisker.
     rewrite transportf_f_square.
@@ -970,7 +970,7 @@ Section TransposePseudoDoubleCat.
       apply maponpaths.
       apply maponpaths_2.
       refine (!_).
-      apply runitor_square'.
+      apply (runitor_square' (C := C)).
     }
     rewrite transportf_square_prewhisker.
     rewrite transportf_f_square.
@@ -1029,8 +1029,6 @@ Section TransposePseudoDoubleCat.
 
   (** * 10. The dual double category *)
   Definition transpose_double_cat
-             (HC' : is_univalent transpose_category)
-             (HC'' : is_univalent_twosided_disp_cat transpose_twosided_disp_cat)
     : double_cat.
   Proof.
     use make_double_cat.
@@ -1043,6 +1041,15 @@ Section TransposePseudoDoubleCat.
     - exact transpose_associator.
     - exact transpose_triangle_law.
     - exact transpose_pentagon_law.
+  Defined.
+
+  Definition transpose_univalentdouble_cat
+             (HC' : is_univalent transpose_category)
+             (HC'' : is_univalent_twosided_disp_cat transpose_twosided_disp_cat)
+    : univalent_double_cat.
+  Proof.
+    use make_univalent_double_cat.
+    - exact transpose_double_cat.
     - exact HC'.
     - exact HC''.
   Defined.
@@ -1050,7 +1057,7 @@ End TransposePseudoDoubleCat.
 
 (** * 11. Symmetric univalence for double categories *)
 Definition symmetric_univalent
-           (C : double_cat)
+           (C : univalent_double_cat)
   : UU
   := ∑ (HC : ∏ (x y : C), isaset (x -->h y)),
      is_univalent (transpose_category C HC)
@@ -1058,7 +1065,7 @@ Definition symmetric_univalent
      is_univalent_twosided_disp_cat (transpose_twosided_disp_cat C HC).
 
 Definition make_symmetric_univalent
-           {C : double_cat}
+           {C : univalent_double_cat}
            (H₁ : ∏ (x y : C), isaset (x -->h y))
            (H₂ : is_univalent (transpose_category C H₁))
            (H₃ : is_univalent_twosided_disp_cat (transpose_twosided_disp_cat C H₁))

@@ -19,6 +19,8 @@ Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.DerivedLaws.TransportLaws.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 
 Local Open Scope cat.
 Local Open Scope double_cat.
@@ -51,7 +53,7 @@ Proposition square_id_right_v'
             (s : square v₁ v₂ h₁ h₂)
   : transportf_square (id_right _) (id_right _) (s ⋆v id_v_square h₂)
     =
-    s.
+      s.
 Proof.
   rewrite square_id_right_v.
   rewrite transportfb_square.
@@ -361,7 +363,7 @@ Qed.
 
 (** * 2. Laws involving identities and globular iso squares *)
 Proposition path_to_globular_iso_square_id
-            {C : double_cat}
+            {C : univalent_double_cat}
             {x y : C}
             {h : x -->h y}
   : id_v_square h
@@ -372,7 +374,7 @@ Proof.
 Qed.
 
 Proposition path_to_globular_iso_square_inv
-            {C : double_cat}
+            {C : univalent_double_cat}
             {x y : C}
             {h₁ h₂ : x -->h y}
             (p : h₁ = h₂)
@@ -385,7 +387,7 @@ Proof.
 Qed.
 
 Proposition path_to_globular_iso_square_comp
-            {C : double_cat}
+            {C : univalent_double_cat}
             {x y : C}
             {h₁ h₂ h₃ : x -->h y}
             (p : h₁ = h₂)
@@ -405,7 +407,7 @@ Proof.
 Qed.
 
 Proposition path_to_globular_iso_to_path
-            {C : double_cat}
+            {C : univalent_double_cat}
             {x y : C}
             {h₁ h₂ : x -->h y}
             (p : h₁ = h₂)
@@ -418,7 +420,7 @@ Proof.
 Qed.
 
 Proposition globular_iso_to_path_to_iso
-            {C : double_cat}
+            {C : univalent_double_cat}
             {x y : C}
             {h₁ h₂ : x -->h y}
             (p : globular_iso_square h₁ h₂)
@@ -431,7 +433,7 @@ Proof.
 Qed.
 
 Definition path_weq_globular_iso_square
-           {C : double_cat}
+           {C : univalent_double_cat}
            {x y : C}
            (h₁ h₂ : x -->h y)
   : h₁ = h₂ ≃ globular_iso_square h₁ h₂.

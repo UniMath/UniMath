@@ -31,6 +31,7 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.StrictDoubleCatBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.SymmetricUnivalent.
 Require Import UniMath.Bicategories.DoubleCategories.Core.StrictDoubleCats.
 
@@ -166,7 +167,7 @@ End ArrowDoubleCategory.
 
 (** * 2. The square double category *)
 Definition square_double_cat
-           (C : univalent_category)
+           (C : category)
   : double_cat.
 Proof.
   use make_double_cat.
@@ -179,19 +180,31 @@ Proof.
   - exact (double_cat_associator_arrow_twosided_disp_cat C).
   - exact (triangle_law_arrow_twosided_disp_cat C).
   - exact (pentagon_law_arrow_twosided_disp_cat C).
+Defined.
+
+Definition square_univalent_double_cat
+           (C : univalent_category)
+  : univalent_double_cat.
+Proof.
+  use make_univalent_double_cat.
+  - exact (square_double_cat C).
   - apply univalent_category_is_univalent.
   - apply is_univalent_arrow_twosided_disp_cat.
 Defined.
 
 Proposition symmetric_univalent_square_double_cat
             (C : univalent_category)
-  : symmetric_univalent (square_double_cat C).
+  : symmetric_univalent (square_univalent_double_cat C).
 Proof.
   use make_symmetric_univalent.
   - intros x y ; cbn.
     apply homset_property.
   - cbn.
-    assert (transpose_category (square_double_cat C) (λ x y, homset_property C x y) = C) as p.
+    assert (transpose_category
+              (square_univalent_double_cat C)
+              (λ x y, homset_property C x y)
+            =
+            C) as p.
     {
       use subtypePath.
       {

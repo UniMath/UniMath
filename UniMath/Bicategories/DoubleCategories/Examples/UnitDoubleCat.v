@@ -27,6 +27,7 @@ Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 
 Local Open Scope cat.
 
@@ -136,6 +137,13 @@ Proof.
   - exact unit_double_associator.
   - abstract (intro ; intros ; apply isasetunit).
   - abstract (intro ; intros ; apply isasetunit).
+Defined.
+
+Definition unit_univalent_double_cat
+  : univalent_double_cat.
+Proof.
+  use make_univalent_double_cat.
+  - exact unit_double_cat.
   - apply univalent_category_is_univalent.
   - apply is_univalent_constant_twosided_disp_cat.
     apply univalent_category_is_univalent.

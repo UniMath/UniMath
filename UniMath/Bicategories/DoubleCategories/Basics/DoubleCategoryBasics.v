@@ -104,7 +104,7 @@ Proposition double_id_mor_id
   : double_id_mor I (identity x) = id_two_disp _.
 Proof.
   exact (pr12 I x).
-Qed.
+Defined.
 
 Definition double_id_mor_id_comp
            {C : category}
@@ -116,7 +116,7 @@ Definition double_id_mor_id_comp
   : double_id_mor I (f · g) = double_id_mor I f ;;2 double_id_mor I g.
 Proof.
   exact (pr22 I x y z f g).
-Qed.
+Defined.
 
 Definition make_hor_id_data
            {C : category}
@@ -243,7 +243,7 @@ Proposition double_hor_comp_mor_id
     id_two_disp (double_hor_comp Cm h₁ h₂).
 Proof.
   exact (pr12 Cm x y z h₁ h₂).
-Qed.
+Defined.
 
 Proposition double_hor_comp_mor_comp
             {C : category}
@@ -278,8 +278,7 @@ Proof.
            k₁ k₂
            l₁ l₂
            s₁ s₁' s₂ s₂').
-Qed.
-
+Defined.
 
 Definition make_hor_comp_data
            {C : category}
@@ -585,7 +584,7 @@ Proposition double_lunitor_nat
     double_hor_comp_mor Cm (double_id_mor I _) τ ;;2 double_lunitor l h₂.
 Proof.
   exact (pr2 l x₁ x₂ y₁ y₂ h₁ h₂ v₁ v₂ τ).
-Qed.
+Defined.
 
 (** * 4. Right unitor *)
 Definition double_runitor_data
@@ -712,7 +711,7 @@ Proposition double_runitor_nat
     double_hor_comp_mor Cm τ (double_id_mor I _) ;;2 double_runitor r h₂.
 Proof.
   exact (pr2 r x₁ x₂ y₁ y₂ h₁ h₂ v₁ v₂ τ).
-Qed.
+Defined.
 
 (** * 5. Associator *)
 Definition double_associator_data
@@ -876,7 +875,7 @@ Proposition double_associator_nat
     double_associator a h₂ j₂ k₂.
 Proof.
   apply (pr2 a).
-Qed.
+Defined.
 
 (** * 6. Triangle and pentagon laws *)
 Definition triangle_law

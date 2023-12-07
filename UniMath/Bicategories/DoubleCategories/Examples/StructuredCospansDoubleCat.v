@@ -54,11 +54,12 @@ Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 
 Local Open Scope cat.
 
 Section StructuredCospansDoubleCat.
-  Context {A X : univalent_category}
+  Context {A X : category}
           (PX : Pushouts X)
           (L : A ⟶ X).
 
@@ -439,8 +440,18 @@ Section StructuredCospansDoubleCat.
     - exact structured_cospans_double_cat_associator.
     - exact structured_cospans_double_cat_triangle.
     - exact structured_cospans_double_cat_pentagon.
-    - apply univalent_category_is_univalent.
-    - use is_univalent_struct_cospans_twosided_disp_cat.
-      apply univalent_category_is_univalent.
   Defined.
 End StructuredCospansDoubleCat.
+
+Definition structured_cospans_univalent_double_cat
+           {A X : univalent_category}
+           (PX : Pushouts X)
+           (L : A ⟶ X)
+  : univalent_double_cat.
+Proof.
+  use make_univalent_double_cat.
+  - exact (structured_cospans_double_cat PX L).
+  - apply univalent_category_is_univalent.
+  - use is_univalent_struct_cospans_twosided_disp_cat.
+    apply univalent_category_is_univalent.
+Defined.
