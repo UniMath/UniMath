@@ -5,7 +5,7 @@
  In this file, we provide an interface for double categories. Note that in this
  file, we do not assume they are univalent. The definition that we use in this file,
  is basically the same as an object in the bicategory of univalent double categories,
- but without the univalence conditions. The purpose of this, is that we get a
+ but without the univalence conditions. The purpose of this is that we get a
  definition which is usable for both univalent and strict pseudo double categories. As
  a result, the following constructions and proofs can be proven uniformly for univalent
  and for strict pseudo double categories:
