@@ -37,11 +37,8 @@
 
  **********************************************************************************)
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
@@ -55,6 +52,7 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.PseudoDoubleSetCats.
 
 Local Open Scope cat.
 
@@ -454,4 +452,17 @@ Proof.
   - apply univalent_category_is_univalent.
   - use is_univalent_struct_cospans_twosided_disp_cat.
     apply univalent_category_is_univalent.
+Defined.
+
+Definition structured_cospans_pseudo_double_setcat
+           {A X : setcategory}
+           (PX : Pushouts X)
+           (L : A ⟶ X)
+  : pseudo_double_setcat.
+Proof.
+  use make_pseudo_double_setcat.
+  - exact (structured_cospans_double_cat PX L).
+  - apply A.
+  - use is_strict_struct_cospans_twosided_disp_cat.
+    apply X.
 Defined.

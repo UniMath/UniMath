@@ -192,7 +192,9 @@ DoubleCategories/DerivedLaws.v
 DoubleCategories/Core/InvertiblesAndEquivalences.v
 
 DoubleCategories/Core/CatOfStrictDoubleCats.v
+DoubleCategories/Core/CatOfPseudoDoubleCats.v
 DoubleCategories/Core/StrictDoubleCats.v
+DoubleCategories/Core/PseudoDoubleSetCats.v
 
 DoubleCategories/Core/SymmetricUnivalent.v
 

@@ -45,9 +45,11 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Univalence.
+Require Import UniMath.Bicategories.Core.Strictness.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.PseudoDoubleSetCats.
 Require Import UniMath.Bicategories.DoubleCategories.DerivedLaws.
 Import TransportSquare.
 
@@ -358,3 +360,28 @@ Proof.
     rewrite path_to_globular_iso_square_id.
     apply idpath.
 Qed.
+
+Definition locally_strict_horizontal_bicat
+           (C : pseudo_double_setcat)
+  : locally_strict (horizontal_bicat C).
+Proof.
+  intros x y.
+  apply is_strict_twosided_disp_cat_hor_mor.
+Qed.
+
+Definition globally_strict_horizontal_bicat
+           (C : pseudo_double_setcat)
+  : globally_strict (horizontal_bicat C).
+Proof.
+  apply is_setcategory_vertical_cat.
+Qed.
+
+Definition horizontal_setbicat
+          (C : pseudo_double_setcat)
+  : setbicat.
+Proof.
+  refine (horizontal_bicat C ,, _).
+  split.
+  - apply locally_strict_horizontal_bicat.
+  - apply globally_strict_horizontal_bicat.
+Defined.
