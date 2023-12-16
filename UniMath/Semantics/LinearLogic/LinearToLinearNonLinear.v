@@ -129,7 +129,7 @@ Section TransportationFreeCoalgebraComonoid.
     rewrite assoc.
     etrans. {
       apply maponpaths_2.
-      apply linear_category_counit_comonoid_mor_comult.
+      apply linear_category_comult_comonoid_mor_comult.
     }
     rewrite assoc'.
     rewrite <- tensor_comp_mor.
