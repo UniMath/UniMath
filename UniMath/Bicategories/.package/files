@@ -192,7 +192,9 @@ DoubleCategories/DerivedLaws.v
 DoubleCategories/Core/InvertiblesAndEquivalences.v
 
 DoubleCategories/Core/CatOfStrictDoubleCats.v
+DoubleCategories/Core/CatOfPseudoDoubleCats.v
 DoubleCategories/Core/StrictDoubleCats.v
+DoubleCategories/Core/PseudoDoubleSetCats.v
 
 DoubleCategories/Core/SymmetricUnivalent.v
 
@@ -205,6 +207,7 @@ DoubleCategories/Examples/KleisliDoubleCat.v
 DoubleCategories/Examples/TransposeStrict.v
 DoubleCategories/Examples/StructuredCospansDoubleCat.v
 DoubleCategories/Examples/StructuredCospansDoubleFunctor.v
+DoubleCategories/Examples/SetBicatToDoubleCat.v
 
 DoubleCategories/Underlying/HorizontalBicategory.v
 DoubleCategories/Underlying/VerticalTwoCategory.v

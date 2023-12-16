@@ -19,15 +19,13 @@
 
  **********************************************************************************)
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Spans.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.Bicategories.Core.Bicat.
@@ -36,6 +34,7 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.PseudoDoubleSetCats.
 
 Local Open Scope cat.
 
@@ -388,4 +387,16 @@ Proof.
   - apply univalent_category_is_univalent.
   - use is_univalent_spans_twosided_disp_cat.
     apply univalent_category_is_univalent.
+Defined.
+
+Definition spans_pseudo_double_setcat
+           {C : setcategory}
+           (PC : Pullbacks C)
+  : pseudo_double_setcat.
+Proof.
+  use make_pseudo_double_setcat.
+  - exact (spans_double_cat PC).
+  - apply C.
+  - use is_strict_spans_twosided_disp_cat.
+    apply C.
 Defined.
