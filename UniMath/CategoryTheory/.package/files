@@ -1,7 +1,7 @@
 Core/Categories.v
-Core/TwoCategories.v
 Core/Isos.v
 Core/Univalence.v
+Core/TwoCategories.v
 Core/TransportMorphisms.v
 Core/Functors.v
 Core/NaturalTransformations.v

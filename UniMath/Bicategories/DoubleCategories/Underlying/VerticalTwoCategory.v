@@ -81,6 +81,8 @@ Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.PseudoDoubleSetCats.
 Require Import UniMath.Bicategories.DoubleCategories.DerivedLaws.
 Import TransportSquare.
 
@@ -923,3 +925,28 @@ Section VerticalCat.
       apply isaset_square.
   Defined.
 End VerticalCat.
+
+Proposition is_univalent_underlying_vert_two_cat
+            (C : univalent_double_cat)
+  : is_univalent (underlying_vert_two_cat C).
+Proof.
+  apply is_univalent_vertical_cat.
+Defined.
+
+Definition underlying_univalent_two_cat
+           (C : univalent_double_cat)
+  : univalent_two_cat.
+Proof.
+  use make_univalent_two_cat.
+  - exact (underlying_vert_two_cat C).
+  - exact (is_univalent_underlying_vert_two_cat C).
+Defined.
+
+Definition underlying_vert_two_setcat
+           (C : pseudo_double_setcat)
+  : two_setcat.
+Proof.
+  use make_two_setcat.
+  - exact (underlying_vert_two_cat C).
+  - apply (is_setcategory_vertical_cat C).
+Defined.

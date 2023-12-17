@@ -383,6 +383,166 @@ Proof.
   exact (pr2 FFI x y f).
 Qed.
 
+Proposition is_natural_preserves_hor_id'
+            {C₁ C₂ : category}
+            {D₁ : twosided_disp_cat C₁ C₁}
+            {D₂ : twosided_disp_cat C₂ C₂}
+            {I₁ : hor_id D₁}
+            {I₂ : hor_id D₂}
+            {F : C₁ ⟶ C₂}
+            {FF : twosided_disp_functor F F D₁ D₂}
+            (FFI : preserves_hor_id I₁ I₂ FF)
+            {x y : C₁}
+            (f : x --> y)
+  : transportb_disp_mor2
+      (id_left _ @ !(id_right _))
+      (id_left _ @ !(id_right _))
+      (#2 FF (double_id_mor I₁ f)
+       ;;2
+       idtoiso_twosided_disp (idpath _) (idpath _) (FFI y))
+    =
+    idtoiso_twosided_disp (idpath _) (idpath _) (FFI x)
+    ;;2
+    double_id_mor I₂ (#F f).
+Proof.
+  rewrite is_natural_preserves_hor_id.
+  rewrite transportbf_disp_mor2.
+  apply idpath.
+Qed.
+
+Proposition is_natural_preserves_hor_id_alt
+            {C₁ C₂ : category}
+            {D₁ : twosided_disp_cat C₁ C₁}
+            {D₂ : twosided_disp_cat C₂ C₂}
+            {I₁ : hor_id D₁}
+            {I₂ : hor_id D₂}
+            {F : C₁ ⟶ C₂}
+            {FF : twosided_disp_functor F F D₁ D₂}
+            (FFI : preserves_hor_id I₁ I₂ FF)
+            {x y : C₁}
+            (f : x --> y)
+  : double_id_mor I₂ (#F f)
+    ;;2
+    idtoiso_twosided_disp (idpath _) (idpath _) (!(FFI y))
+    =
+    transportf_disp_mor2
+      (id_left _ @ !(id_right _))
+      (id_left _ @ !(id_right _))
+      (idtoiso_twosided_disp (idpath _) (idpath _) (!(FFI x))
+       ;;2
+       #2 FF (double_id_mor I₁ f)).
+Proof.
+  refine (id_two_disp_right_alt _ @ _ @ !(id_two_disp_right_alt _)).
+  etrans.
+  {
+    do 2 apply maponpaths.
+    exact (inv_after_iso_twosided_disp_alt
+             (idtoiso_twosided_disp (idpath _) (idpath _) (FFI y))).
+  }
+  rewrite two_disp_post_whisker_f.
+  rewrite transport_f_f_disp_mor2.
+  refine (!_).
+  etrans.
+  {
+    do 2 apply maponpaths.
+    exact (inv_after_iso_twosided_disp_alt
+             (idtoiso_twosided_disp (idpath _) (idpath _) (FFI y))).
+  }
+  rewrite two_disp_post_whisker_f.
+  rewrite two_disp_pre_whisker_f.
+  rewrite !transport_f_f_disp_mor2.
+  rewrite !assoc_two_disp.
+  unfold transportb_disp_mor2.
+  rewrite !transport_f_f_disp_mor2.
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    rewrite assoc_two_disp_alt.
+    do 2 apply maponpaths.
+    apply is_natural_preserves_hor_id.
+  }
+  rewrite two_disp_post_whisker_f.
+  rewrite !two_disp_pre_whisker_f.
+  rewrite !transport_f_f_disp_mor2.
+  rewrite !assoc_two_disp.
+  unfold transportb_disp_mor2.
+  rewrite two_disp_pre_whisker_f.
+  rewrite !transport_f_f_disp_mor2.
+  etrans.
+  {
+    apply maponpaths.
+    do 2 apply maponpaths_2.
+    apply idtoiso_twosided_disp_concat.
+  }
+  rewrite pathsinv0l.
+  unfold transportb_disp_mor2.
+  rewrite !two_disp_pre_whisker_f.
+  rewrite !transport_f_f_disp_mor2.
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    apply id_two_disp_left.
+  }
+  unfold transportb_disp_mor2.
+  rewrite !two_disp_pre_whisker_f.
+  rewrite !transport_f_f_disp_mor2.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    rewrite assoc_two_disp_alt.
+    do 2 apply maponpaths.
+    apply idtoiso_twosided_disp_concat.
+  }
+  rewrite pathsinv0l.
+  unfold transportb_disp_mor2.
+  rewrite two_disp_pre_whisker_f.
+  rewrite two_disp_post_whisker_f.
+  rewrite two_disp_pre_whisker_f.
+  rewrite !transport_f_f_disp_mor2.
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    apply id_two_disp_right.
+  }
+  unfold transportb_disp_mor2.
+  rewrite two_disp_pre_whisker_f.
+  rewrite !transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
+Qed.
+
+Proposition is_natural_preserves_hor_id_alt'
+            {C₁ C₂ : category}
+            {D₁ : twosided_disp_cat C₁ C₁}
+            {D₂ : twosided_disp_cat C₂ C₂}
+            {I₁ : hor_id D₁}
+            {I₂ : hor_id D₂}
+            {F : C₁ ⟶ C₂}
+            {FF : twosided_disp_functor F F D₁ D₂}
+            (FFI : preserves_hor_id I₁ I₂ FF)
+            {x y : C₁}
+            (f : x --> y)
+  : transportb_disp_mor2
+      (id_left _ @ !(id_right _))
+      (id_left _ @ !(id_right _))
+      (double_id_mor I₂ (#F f)
+       ;;2
+       idtoiso_twosided_disp (idpath _) (idpath _) (!(FFI y)))
+    =
+    idtoiso_twosided_disp (idpath _) (idpath _) (!(FFI x))
+    ;;2
+    #2 FF (double_id_mor I₁ f).
+Proof.
+  rewrite is_natural_preserves_hor_id_alt.
+  rewrite transportbf_disp_mor2.
+  apply idpath.
+Qed.
+
 Proposition isaprop_preserves_hor_id
             {C₁ C₂ : category}
             {D₁ : twosided_disp_cat C₁ C₁}
@@ -533,6 +693,185 @@ Proposition is_natural_preserves_hor_comp
        double_hor_comp_mor Cm₂ (#2 FF s₁) (#2 FF s₂)).
 Proof.
   exact (pr2 FFc x₁ x₂ y₁ y₂ z₁ z₂ vx vy vz h₁ k₁ h₂ k₂ s₁ s₂).
+Qed.
+
+Proposition is_natural_preserves_hor_comp'
+            {C₁ C₂ : category}
+            {D₁ : twosided_disp_cat C₁ C₁}
+            {D₂ : twosided_disp_cat C₂ C₂}
+            {Cm₁ : hor_comp D₁}
+            {Cm₂ : hor_comp D₂}
+            {F : C₁ ⟶ C₂}
+            {FF : twosided_disp_functor F F D₁ D₂}
+            (FFc : preserves_hor_comp Cm₁ Cm₂ FF)
+            {x₁ x₂ y₁ y₂ z₁ z₂ : C₁}
+            {vx : x₁ --> x₂}
+            {vy : y₁ --> y₂}
+            {vz : z₁ --> z₂}
+            {h₁ : D₁ x₁ y₁} {k₁ : D₁ y₁ z₁}
+            {h₂ : D₁ x₂ y₂} {k₂ : D₁ y₂ z₂}
+            (s₁ : h₁ -->[ vx ][ vy ] h₂)
+            (s₂ : k₁ -->[ vy ][ vz ] k₂)
+  : transportb_disp_mor2
+      (id_left _ @ !(id_right _))
+      (id_left _ @ !(id_right _))
+      (#2 FF (double_hor_comp_mor Cm₁ s₁ s₂)
+       ;;2
+       idtoiso_twosided_disp (idpath _) (idpath _) (FFc x₂ y₂ z₂ h₂ k₂))
+    =
+    idtoiso_twosided_disp (idpath _) (idpath _) (FFc x₁ y₁ z₁ h₁ k₁)
+    ;;2
+    double_hor_comp_mor Cm₂ (#2 FF s₁) (#2 FF s₂).
+Proof.
+  rewrite is_natural_preserves_hor_comp.
+  rewrite transportbf_disp_mor2.
+  apply idpath.
+Qed.
+
+Proposition is_natural_preserves_hor_comp_alt
+            {C₁ C₂ : category}
+            {D₁ : twosided_disp_cat C₁ C₁}
+            {D₂ : twosided_disp_cat C₂ C₂}
+            {Cm₁ : hor_comp D₁}
+            {Cm₂ : hor_comp D₂}
+            {F : C₁ ⟶ C₂}
+            {FF : twosided_disp_functor F F D₁ D₂}
+            (FFc : preserves_hor_comp Cm₁ Cm₂ FF)
+            {x₁ x₂ y₁ y₂ z₁ z₂ : C₁}
+            {vx : x₁ --> x₂}
+            {vy : y₁ --> y₂}
+            {vz : z₁ --> z₂}
+            {h₁ : D₁ x₁ y₁} {k₁ : D₁ y₁ z₁}
+            {h₂ : D₁ x₂ y₂} {k₂ : D₁ y₂ z₂}
+            (s₁ : h₁ -->[ vx ][ vy ] h₂)
+            (s₂ : k₁ -->[ vy ][ vz ] k₂)
+  : idtoiso_twosided_disp (idpath _) (idpath _) (!(FFc x₁ y₁ z₁ h₁ k₁))
+    ;;2
+    #2 FF (double_hor_comp_mor Cm₁ s₁ s₂)
+    =
+    transportf_disp_mor2
+      (id_right _ @ !(id_left _))
+      (id_right _ @ !(id_left _))
+      (double_hor_comp_mor Cm₂ (#2 FF s₁) (#2 FF s₂)
+       ;;2
+       idtoiso_twosided_disp (idpath _) (idpath _) (!(FFc x₂ y₂ z₂ h₂ k₂))).
+Proof.
+  refine (id_two_disp_right_alt _ @ _ @ !(id_two_disp_right_alt _)).
+  etrans.
+  {
+    do 2 apply maponpaths.
+    exact (inv_after_iso_twosided_disp_alt
+             (idtoiso_twosided_disp (idpath _) (idpath _) (FFc x₂ y₂ z₂ h₂ k₂))).
+  }
+  rewrite two_disp_post_whisker_f.
+  rewrite transport_f_f_disp_mor2.
+  refine (!_).
+  etrans.
+  {
+    do 2 apply maponpaths.
+    exact (inv_after_iso_twosided_disp_alt
+             (idtoiso_twosided_disp (idpath _) (idpath _) (FFc x₂ y₂ z₂ h₂ k₂))).
+  }
+  rewrite two_disp_post_whisker_f.
+  rewrite two_disp_pre_whisker_f.
+  rewrite !transport_f_f_disp_mor2.
+  rewrite !assoc_two_disp.
+  unfold transportb_disp_mor2.
+  rewrite !transport_f_f_disp_mor2.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    rewrite assoc_two_disp_alt.
+    do 2 apply maponpaths.
+    apply is_natural_preserves_hor_comp.
+  }
+  rewrite two_disp_post_whisker_f.
+  rewrite !two_disp_pre_whisker_f.
+  rewrite !transport_f_f_disp_mor2.
+  rewrite !assoc_two_disp.
+  unfold transportb_disp_mor2.
+  rewrite two_disp_pre_whisker_f.
+  rewrite !transport_f_f_disp_mor2.
+  etrans.
+  {
+    apply maponpaths.
+    do 2 apply maponpaths_2.
+    apply idtoiso_twosided_disp_concat.
+  }
+  rewrite pathsinv0l.
+  unfold transportb_disp_mor2.
+  rewrite !two_disp_pre_whisker_f.
+  rewrite !transport_f_f_disp_mor2.
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    apply id_two_disp_left.
+  }
+  unfold transportb_disp_mor2.
+  rewrite !two_disp_pre_whisker_f.
+  rewrite !transport_f_f_disp_mor2.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    rewrite assoc_two_disp_alt.
+    do 2 apply maponpaths.
+    apply idtoiso_twosided_disp_concat.
+  }
+  rewrite pathsinv0l.
+  unfold transportb_disp_mor2.
+  rewrite two_disp_pre_whisker_f.
+  rewrite two_disp_post_whisker_f.
+  rewrite two_disp_pre_whisker_f.
+  rewrite !transport_f_f_disp_mor2.
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    apply id_two_disp_right.
+  }
+  unfold transportb_disp_mor2.
+  rewrite two_disp_pre_whisker_f.
+  rewrite !transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  apply idpath.
+Qed.
+
+Proposition is_natural_preserves_hor_comp_alt'
+            {C₁ C₂ : category}
+            {D₁ : twosided_disp_cat C₁ C₁}
+            {D₂ : twosided_disp_cat C₂ C₂}
+            {Cm₁ : hor_comp D₁}
+            {Cm₂ : hor_comp D₂}
+            {F : C₁ ⟶ C₂}
+            {FF : twosided_disp_functor F F D₁ D₂}
+            (FFc : preserves_hor_comp Cm₁ Cm₂ FF)
+            {x₁ x₂ y₁ y₂ z₁ z₂ : C₁}
+            {vx : x₁ --> x₂}
+            {vy : y₁ --> y₂}
+            {vz : z₁ --> z₂}
+            {h₁ : D₁ x₁ y₁} {k₁ : D₁ y₁ z₁}
+            {h₂ : D₁ x₂ y₂} {k₂ : D₁ y₂ z₂}
+            (s₁ : h₁ -->[ vx ][ vy ] h₂)
+            (s₂ : k₁ -->[ vy ][ vz ] k₂)
+  : transportb_disp_mor2
+      (id_right _ @ !(id_left _))
+      (id_right _ @ !(id_left _))
+      (idtoiso_twosided_disp (idpath _) (idpath _) (!(FFc x₁ y₁ z₁ h₁ k₁))
+       ;;2
+       #2 FF (double_hor_comp_mor Cm₁ s₁ s₂))
+    =
+    double_hor_comp_mor Cm₂ (#2 FF s₁) (#2 FF s₂)
+    ;;2
+    idtoiso_twosided_disp (idpath _) (idpath _) (!(FFc x₂ y₂ z₂ h₂ k₂)).
+Proof.
+  rewrite is_natural_preserves_hor_comp_alt.
+  rewrite transportbf_disp_mor2.
+  apply idpath.
 Qed.
 
 Proposition isaprop_preserves_hor_comp

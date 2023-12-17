@@ -5,6 +5,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 
 Local Open Scope cat.
 
@@ -361,6 +362,28 @@ Coercion two_setcat_to_two_cat
 Proposition is_two_setcat_two_setcat
             (C : two_setcat)
   : isaset C.
+Proof.
+  exact (pr2 C).
+Qed.
+
+Definition univalent_two_cat
+  : UU
+  := ∑ (C : two_cat), is_univalent (category_from_two_cat_data C).
+
+Definition make_univalent_two_cat
+           (C : two_cat)
+           (HC : is_univalent (category_from_two_cat_data C))
+  : univalent_two_cat
+  := C ,, HC.
+
+Coercion univalent_two_cat_to_two_cat
+         (C : univalent_two_cat)
+  : two_cat
+  := pr1 C.
+
+Proposition is_univalent_univalent_two_cat
+            (C : univalent_two_cat)
+  : is_univalent (category_from_two_cat_data C).
 Proof.
   exact (pr2 C).
 Qed.

@@ -20,10 +20,8 @@
  **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
@@ -33,6 +31,7 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Total.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Constant.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.DispCatOnTwoSidedDispCat.
 
@@ -226,6 +225,19 @@ Section Spans.
       + exact is_univalent_disp_spans_mor_left.
       + exact is_univalent_disp_spans_mor_right.
   Defined.
+
+  Definition is_strict_spans_twosided_disp_cat
+             (HC : is_setcategory C)
+    : is_strict_twosided_disp_cat twosided_disp_cat_of_spans.
+  Proof.
+    intros x y ; cbn.
+    use isaset_total2.
+    - apply HC.
+    - intro z.
+      use isasetdirprod.
+      + apply homset_property.
+      + apply homset_property.
+  Qed.
 
   (** * 3. Builders and accessors *)
   Definition span
