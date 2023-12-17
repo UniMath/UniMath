@@ -113,6 +113,7 @@ PseudoFunctors/Display/StrictIdentitor.v
 PseudoFunctors/Display/StrictCompositor.v
 PseudoFunctors/Display/StrictPseudoFunctorBicat.v
 PseudoFunctors/PseudoFunctor.v
+PseudoFunctors/Properties.v
 PseudoFunctors/StrictPseudoFunctor.v
 PseudoFunctors/Examples/Identity.v
 PseudoFunctors/Examples/Composition.v

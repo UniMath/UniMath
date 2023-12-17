@@ -22,6 +22,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Import PseudoFunctor.Notations.
+Require Import UniMath.Bicategories.PseudoFunctors.Properties.
 
 Local Open Scope cat.
 
