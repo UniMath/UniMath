@@ -66,7 +66,7 @@ Section CorestrictImage.
   Defined.
 
   Definition corestrict_full_image_essentially_surjective
-    : essentially_surjective corestrict_full_image.
+    : essentially_surjective_psfunctor corestrict_full_image.
   Proof.
     intros x.
     induction x as [x₁ x₂].
