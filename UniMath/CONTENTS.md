@@ -771,6 +771,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [PseudoFunctors/Display/StrictPseudoFunctorBicat.v](Bicategories/PseudoFunctors/Display/StrictPseudoFunctorBicat.v)
    - [PseudoFunctors/PseudoFunctor.v](Bicategories/PseudoFunctors/PseudoFunctor.v)
    - [PseudoFunctors/Properties.v](Bicategories/PseudoFunctors/Properties.v)
+   - [PseudoFunctors/LocalEquivalenceProperties.v](Bicategories/PseudoFunctors/LocalEquivalenceProperties.v)
    - [PseudoFunctors/StrictPseudoFunctor.v](Bicategories/PseudoFunctors/StrictPseudoFunctor.v)
    - [PseudoFunctors/Examples/Identity.v](Bicategories/PseudoFunctors/Examples/Identity.v)
    - [PseudoFunctors/Examples/Composition.v](Bicategories/PseudoFunctors/Examples/Composition.v)

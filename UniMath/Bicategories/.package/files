@@ -114,6 +114,7 @@ PseudoFunctors/Display/StrictCompositor.v
 PseudoFunctors/Display/StrictPseudoFunctorBicat.v
 PseudoFunctors/PseudoFunctor.v
 PseudoFunctors/Properties.v
+PseudoFunctors/LocalEquivalenceProperties.v
 PseudoFunctors/StrictPseudoFunctor.v
 PseudoFunctors/Examples/Identity.v
 PseudoFunctors/Examples/Composition.v

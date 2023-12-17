@@ -1,6 +1,6 @@
 (************************************************************************************
 
- Local Equivalences
+ Properties of pseudofunctors
 
  In this file, we define several properties on pseudofunctors.
 
