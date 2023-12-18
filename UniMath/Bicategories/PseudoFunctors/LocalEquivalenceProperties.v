@@ -6,8 +6,10 @@
 
  Every pseudofunctor `F` gives rise to a functor `x --> y ⟶ F x --> F y`. If `F` is
  a local equivalence, then we also have a functor in the converse direction. For this
- action we can prove analogous pseudofunctoriality actions (i.e., an identitor and a
- compositor) and laws.
+ action we also construct analogous pseudofunctoriality actions, namely an identitor
+ and a compositor that witness the preservation of the identity and composition of
+ 1-cells. We also prove the usual pseudofunctoriality laws together with several
+ variations of them.
 
  Contents
  1. Action on 1-cells and 2-cells
@@ -173,6 +175,31 @@ Section LocalEquivalencePseudoFunctoriality.
     cbn in p.
     rewrite !id2_left, !id2_right in p.
     exact p.
+  Qed.
+
+  Proposition local_equivalence_triangle1_inv
+              {x y : B₁}
+              (f : x --> y)
+    : (local_equivalence_counit_inv2cell (#F f))^-1
+      • ##F ((local_equivalence_unit_inv2cell f)^-1)
+      =
+      id2 (#F f).
+  Proof.
+    use vcomp_move_R_pM.
+    {
+      is_iso.
+    }
+    rewrite id2_right.
+    refine (!(id2_right _) @ _).
+    use vcomp_move_R_pM.
+    {
+      exact (psfunctor_is_iso
+               F
+               (inv_of_invertible_2cell (local_equivalence_unit_inv2cell f))).
+    }
+    cbn.
+    refine (!_).
+    apply local_equivalence_triangle1.
   Qed.
 
   Proposition local_equivalence_triangle2
@@ -529,6 +556,71 @@ Section LocalEquivalencePseudoFunctoriality.
     apply id2_left.
   Qed.
 
+  Proposition local_equivalence_twocell_F_lunitor
+              {x y : B₁}
+              (f : F x --> F y)
+    : local_equivalence_inv_onecell_comp _ _
+      • ((local_equivalence_inv_onecell_id x) ▹ _)
+      • lunitor (local_equivalence_inv_onecell f)
+      =
+      local_equivalence_inv_twocell (lunitor f).
+  Proof.
+    rewrite local_equivalence_twocell_lunitor.
+    rewrite !vassocl.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite rwhisker_vcomp.
+      rewrite vcomp_rinv.
+      rewrite id2_rwhisker.
+      rewrite id2_left.
+      apply idpath.
+    }
+    rewrite !vassocr.
+    rewrite vcomp_rinv.
+    apply id2_left.
+  Qed.
+
+  Proposition local_equivalence_twocell_linvunitor
+              {x y : B₁}
+              (f : F x --> F y)
+    : linvunitor (local_equivalence_inv_onecell f)
+      =
+      local_equivalence_inv_twocell (linvunitor f)
+      • local_equivalence_inv_onecell_comp _ _
+      • (local_equivalence_inv_onecell_id x ▹ _).
+  Proof.
+    refine (!(id2_left _) @ _ @ id2_right _).
+    rewrite <- lunitor_linvunitor.
+    rewrite !vassocr.
+    apply maponpaths_2.
+    rewrite local_equivalence_twocell_lunitor.
+    rewrite !vassocl.
+    refine (!_).
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite !vassocr.
+      rewrite rwhisker_vcomp.
+      rewrite vcomp_rinv.
+      rewrite id2_rwhisker.
+      rewrite id2_left.
+      apply idpath.
+    }
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite vcomp_rinv.
+      apply id2_left.
+    }
+    rewrite <- local_equivalence_inv_twocell_comp.
+    rewrite linvunitor_lunitor.
+    rewrite local_equivalence_inv_twocell_id.
+    apply idpath.
+  Qed.
+
   Proposition local_equivalence_twocell_runitor
               {x y : B₁}
               (f : F x --> F y)
@@ -597,5 +689,245 @@ Section LocalEquivalencePseudoFunctoriality.
     rewrite !vassocr.
     rewrite local_equivalence_triangle1.
     apply id2_left.
+  Qed.
+
+  Proposition local_equivalence_twocell_F_runitor
+              {x y : B₁}
+              (f : F x --> F y)
+    : local_equivalence_inv_onecell_comp _ _
+      • (_ ◃ local_equivalence_inv_onecell_id y)
+      • runitor (local_equivalence_inv_onecell f)
+      =
+      local_equivalence_inv_twocell (runitor f).
+  Proof.
+    rewrite local_equivalence_twocell_runitor.
+    rewrite !vassocl.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite lwhisker_vcomp.
+      rewrite vcomp_rinv.
+      rewrite lwhisker_id2.
+      rewrite id2_left.
+      apply idpath.
+    }
+    rewrite !vassocr.
+    rewrite vcomp_rinv.
+    apply id2_left.
+  Qed.
+
+  Proposition local_equivalence_twocell_rinvunitor
+              {x y : B₁}
+              (f : F x --> F y)
+    : rinvunitor (local_equivalence_inv_onecell f)
+      =
+      local_equivalence_inv_twocell (rinvunitor f)
+      • local_equivalence_inv_onecell_comp _ _
+      • (_ ◃ local_equivalence_inv_onecell_id y).
+  Proof.
+    refine (!(id2_left _) @ _ @ id2_right _).
+    rewrite <- runitor_rinvunitor.
+    rewrite !vassocr.
+    apply maponpaths_2.
+    rewrite local_equivalence_twocell_runitor.
+    rewrite !vassocl.
+    refine (!_).
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite !vassocr.
+      rewrite lwhisker_vcomp.
+      rewrite vcomp_rinv.
+      rewrite lwhisker_id2.
+      rewrite id2_left.
+      apply idpath.
+    }
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite vcomp_rinv.
+      apply id2_left.
+    }
+    rewrite <- local_equivalence_inv_twocell_comp.
+    rewrite rinvunitor_runitor.
+    rewrite local_equivalence_inv_twocell_id.
+    apply idpath.
+  Qed.
+
+  Proposition local_equivalence_twocell_lassociator
+              {w x y z : B₁}
+              (f : F w --> F x)
+              (g : F x --> F y)
+              (h : F y --> F z)
+    : local_equivalence_inv_twocell (lassociator _ _ _)
+      • local_equivalence_inv_onecell_comp (f · g) h
+      • (local_equivalence_inv_onecell_comp f g ▹ _)
+      =
+      local_equivalence_inv_onecell_comp f (g · h)
+      • (_ ◃ local_equivalence_inv_onecell_comp g h)
+      • lassociator _ _ _.
+  Proof.
+    cbn -[psfunctor_comp].
+    use local_equivalence_eq_two_cell.
+    rewrite <- !lwhisker_vcomp.
+    rewrite <- !rwhisker_vcomp.
+    rewrite !psfunctor_vcomp.
+    rewrite !psfunctor_local_equivalence_inv_twocell.
+    rewrite !vassocl.
+    apply maponpaths.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite vcomp_linv.
+      rewrite id2_left.
+      rewrite !vassocl.
+      apply idpath.
+    }
+    etrans.
+    {
+      do 4 apply maponpaths.
+      rewrite !vassocr.
+      rewrite local_equivalence_triangle1_inv.
+      rewrite id2_left.
+      rewrite !vassocl.
+      apply idpath.
+    }
+    etrans.
+    {
+      do 3 apply maponpaths.
+      rewrite !vassocr.
+      rewrite psfunctor_rwhisker.
+      rewrite !vassocl.
+      rewrite psfunctor_rwhisker.
+      apply idpath.
+    }
+    etrans.
+    {
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_whisker.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite <- lwhisker_lwhisker.
+      rewrite !vassocl.
+      apply maponpaths.
+      apply maponpaths.
+      rewrite !vassocr.
+      apply maponpaths_2.
+      rewrite !vassocl.
+      rewrite !rwhisker_vcomp.
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite local_equivalence_counit_natural_alt.
+      rewrite !vassocl.
+      rewrite local_equivalence_triangle1_inv.
+      rewrite id2_right.
+      apply idpath.
+    }
+    rewrite <- !rwhisker_vcomp.
+    rewrite !vassocl.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite rwhisker_rwhisker.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite <- rwhisker_lwhisker.
+      rewrite !vassocl.
+      apply maponpaths.
+      refine (!_).
+      rewrite !vassocr.
+      apply (psfunctor_lassociator F).
+    }
+    rewrite !vassocr.
+    apply maponpaths_2.
+    rewrite !vassocl.
+    refine (!_).
+    etrans.
+    {
+      do 3 apply maponpaths.
+      rewrite !vassocr.
+      rewrite local_equivalence_triangle1_inv.
+      rewrite id2_left.
+      rewrite !vassocl.
+      apply idpath.
+    }
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite !vassocr.
+      rewrite psfunctor_lwhisker.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite psfunctor_lwhisker.
+      apply idpath.
+    }
+    rewrite !vassocr.
+    apply maponpaths_2.
+    rewrite !vassocl.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !lwhisker_vcomp.
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite local_equivalence_counit_natural_alt.
+      rewrite !vassocl.
+      rewrite local_equivalence_triangle1_inv.
+      rewrite id2_right.
+      apply idpath.
+    }
+    rewrite <- !lwhisker_vcomp.
+    rewrite !vassocr.
+    apply maponpaths_2.
+    rewrite !vassocl.
+    refine (!_).
+    etrans.
+    {
+      rewrite !vassocr.
+      rewrite <- vcomp_whisker.
+      rewrite !vassocl.
+      apply idpath.
+    }
+    apply maponpaths.
+    rewrite !lwhisker_vcomp.
+    apply maponpaths.
+    rewrite vcomp_whisker.
+    apply idpath.
+  Qed.
+
+  Proposition local_equivalence_twocell_rassociator
+              {w x y z : B₁}
+              (f : F w --> F x)
+              (g : F x --> F y)
+              (h : F y --> F z)
+    : local_equivalence_inv_onecell_comp (f · g) h
+      • (local_equivalence_inv_onecell_comp f g ▹ _)
+      • rassociator _ _ _
+      =
+      local_equivalence_inv_twocell (rassociator _ _ _)
+      • local_equivalence_inv_onecell_comp f (g · h)
+      • (_ ◃ local_equivalence_inv_onecell_comp g h).
+  Proof.
+    refine (!(id2_left _) @ _).
+    rewrite <- local_equivalence_inv_twocell_id.
+    rewrite <- rassociator_lassociator.
+    rewrite local_equivalence_inv_twocell_comp.
+    rewrite !vassocl.
+    apply maponpaths.
+    rewrite !vassocr.
+    rewrite local_equivalence_twocell_lassociator.
+    rewrite !vassocl.
+    rewrite lassociator_rassociator.
+    rewrite id2_right.
+    apply idpath.
   Qed.
 End LocalEquivalencePseudoFunctoriality.
