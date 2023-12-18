@@ -179,6 +179,19 @@ Proof.
     + apply vcomp_linv.
 Defined.
 
+Definition psfunctor_inv2cell
+           {C D : bicat}
+           (F : psfunctor C D)
+           {a b : C}
+           {f g : a --> b}
+           (α : invertible_2cell f g)
+  : invertible_2cell (#F f) (#F g).
+Proof.
+  use make_invertible_2cell.
+  - exact (##F α).
+  - apply psfunctor_is_iso.
+Defined.
+
 Section PseudoFunctorDerivedLaws.
   Context {C D : bicat}.
   Variable (F : psfunctor C D).
