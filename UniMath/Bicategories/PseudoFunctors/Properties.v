@@ -18,7 +18,7 @@
  We also define local weak equivalences. These induce a weak equivalence on every
  hom-category rather than an adjoint equivalence.
 
- Next we define essentially surjective pseudofunctors. We use this notion to define
+ Next we define essentially surjective pseudofunctors. We use this notion 
  to define several classes of weak equivalences of bicategories.
 
  Contents
