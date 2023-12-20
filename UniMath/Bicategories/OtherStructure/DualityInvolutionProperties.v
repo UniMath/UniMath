@@ -671,4 +671,5 @@ Section DualityInvolutionAccessors.
       - intros x y f g τ.
         apply duality_involution_inv_of_2cell_psfunctor_eq.
     Defined.
+  End LocalEquivalence.
 End DualityInvolutionAccessors.
