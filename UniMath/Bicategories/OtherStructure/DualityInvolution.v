@@ -545,20 +545,6 @@ Section LawsDualityInvolution.
          (f : x --> y),
        duality_triangle_law_lhs f = duality_triangle_law_rhs f.
 
-  (*
-  Definition duality_triangle_law
-    : UU
-    := ∏ (x y : B)
-         (f : x --> y),
-       (t x ▹ #L (#L (#L f)))
-       • psfunctor_comp L (η x) (#L (#L f))
-       =
-       psnaturality_of η (# L f)
-       • (#L f ◃ t y)
-       • psfunctor_comp L f (η y)
-       • ##L (psnaturality_of η f).
-   *)
-
   Definition duality_involution_laws
     : UU
     := duality_coherency
