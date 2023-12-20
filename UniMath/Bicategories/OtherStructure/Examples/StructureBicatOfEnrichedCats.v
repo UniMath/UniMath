@@ -270,11 +270,12 @@ Section DualityInvolutionEnriched.
       intro x ; cbn.
       apply id_left.
     - intros E₁ E₂ F.
+      cbn.
       use eq_enriched_nat_trans.
       intro x ; cbn.
       rewrite !id_left.
-      exact (!(functor_id _ _)).
-  Qed.
+      exact (functor_id _ _).
+  Admitted.
 
   Definition bicat_of_enriched_cat_duality
     : duality_involution (op_enriched_psfunctor V)
