@@ -399,6 +399,7 @@ Logic/Examples/DisplayMapComprehensionBicat.v
 Logic/Examples/FunctorsIntoCatComprehensionBicat.v
 
 OtherStructure/DualityInvolution.v
+OtherStructure/DualityInvolutionProperties.v
 OtherStructure/ClassifyingDiscreteOpfib.v
 OtherStructure/Exponentials.v
 OtherStructure/Cores.v
