@@ -4,7 +4,7 @@
 
  In this file, we define several properties on pseudofunctors.
 
- The first one is the notion of local equivalences. A pseudofunctor is called a
+ The first one is the notion of local equivalence. A pseudofunctor is called a
  local equivalence if it induces an adjoint equivalence on every hom category. More
  specifically, every `F x y : B₁ ⟦ x , y ⟧ ⟶ B₂ ⟦ F x , F y ⟧` is an adjoint
  equivalence of categories.
