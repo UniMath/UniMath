@@ -202,6 +202,31 @@ Section LocalEquivalencePseudoFunctoriality.
     apply local_equivalence_triangle1.
   Qed.
 
+  Proposition local_equivalence_unit_triangle
+              {x y : B₁}
+              (f : x --> y)
+    : ##F (local_equivalence_unit_inv2cell f)
+      =
+      (local_equivalence_counit_inv2cell (#F f))^-1.
+  Proof.
+    refine (_ @ id2_left _).
+    use vcomp_move_L_Mp ; [ is_iso | ].
+    apply local_equivalence_triangle1.
+  Qed.
+
+  Proposition local_equivalence_unit_triangle_inv
+              {x y : B₁}
+              (f : x --> y)
+    : (psfunctor_inv2cell F (local_equivalence_unit_inv2cell f))^-1
+      =
+      (local_equivalence_counit_inv2cell (#F f)).
+  Proof.
+    refine (!_).
+    refine (_ @ id2_right _).
+    use vcomp_move_L_pM ; [ is_iso | ].
+    apply local_equivalence_triangle1.
+  Qed.
+
   Proposition local_equivalence_triangle2
               {x y : B₁}
               (f : F x --> F y)
@@ -214,6 +239,18 @@ Section LocalEquivalencePseudoFunctoriality.
     cbn in p.
     rewrite !id2_left, !id2_right in p.
     exact p.
+  Qed.
+
+  Proposition local_equivalence_counit_triangle
+              {x y : B₁}
+              (f : F x --> F y)
+    : local_equivalence_inv_twocell (local_equivalence_counit_inv2cell f)
+      =
+      (local_equivalence_unit_inv2cell (local_equivalence_inv_onecell f))^-1.
+  Proof.
+    refine (_ @ id2_right _).
+    use vcomp_move_L_pM ; [ is_iso | ].
+    apply local_equivalence_triangle2.
   Qed.
 
   (** * 3. Functoriality of the action on 2-cells *)
@@ -261,6 +298,19 @@ Section LocalEquivalencePseudoFunctoriality.
            rewrite vcomp_linv ;
            apply local_equivalence_inv_twocell_id).
   Defined.
+
+  Proposition local_equivalence_counit_triangle_inv
+              {x y : B₁}
+              (f : F x --> F y)
+    : local_equivalence_inv_inv2cell (local_equivalence_counit_inv2cell f)^-1
+      =
+      (local_equivalence_unit_inv2cell (local_equivalence_inv_onecell f)).
+  Proof.
+    refine (!_).
+    refine (_ @ id2_left _).
+    use vcomp_move_L_Mp ; [ is_iso | ].
+    apply local_equivalence_triangle2.
+  Qed.
 
   (** * 5. Identitor and compositor *)
   Definition local_equivalence_inv_onecell_id
