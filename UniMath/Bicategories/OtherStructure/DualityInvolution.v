@@ -6,7 +6,7 @@
  generalize the opposite category. More specifically, we have a pseudofunctor going
  from `Cat^co` to `Cat` sending every category `C` to its opposite category. Since
  taking the opposite twice gives the identity of categories, this pseudofunctor is
- actually a biequivalences. For categories enriched over a symmetric monoidal
+ actually a biequivalence. For categories enriched over a symmetric monoidal
  category, we also have an opposite category construction which satisfies similar
  properties.
 

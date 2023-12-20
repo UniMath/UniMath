@@ -4,12 +4,12 @@
 
  In this file, we define several properties on pseudofunctors.
 
- The first one is the notion of local equivalences. A pseudofunctor is called a
+ The first one is the notion of local equivalence. A pseudofunctor is called a
  local equivalence if it induces an adjoint equivalence on every hom category. More
  specifically, every `F x y : B₁ ⟦ x , y ⟧ ⟶ B₂ ⟦ F x , F y ⟧` is an adjoint
  equivalence of categories.
 
- This definition is a categorification is the notion of fully faithful functors
+ This definition is a categorification is the notion of fully faithful functor
  of categories. A functor `F : C₁ ⟶ C₂` is called fully faithful if every map
  `F x y : C₁ ⟦ x , y ⟧ → C₂ ⟦ F x , F y ⟧` is an equivalence of sets. The notion
  of local equivalence is similar: the only difference is that the dimension is
@@ -18,7 +18,7 @@
  We also define local weak equivalences. These induce a weak equivalence on every
  hom-category rather than an adjoint equivalence.
 
- Next we define essentially surjective pseudofunctors. We use this notion to define
+ Next we define essentially surjective pseudofunctors. We use this notion 
  to define several classes of weak equivalences of bicategories.
 
  Contents
