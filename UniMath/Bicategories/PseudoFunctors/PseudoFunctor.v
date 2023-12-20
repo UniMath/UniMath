@@ -179,6 +179,19 @@ Proof.
     + apply vcomp_linv.
 Defined.
 
+Definition psfunctor_inv2cell
+           {C D : bicat}
+           (F : psfunctor C D)
+           {a b : C}
+           {f g : a --> b}
+           (α : invertible_2cell f g)
+  : invertible_2cell (#F f) (#F g).
+Proof.
+  use make_invertible_2cell.
+  - exact (##F α).
+  - apply psfunctor_is_iso.
+Defined.
+
 Section PseudoFunctorDerivedLaws.
   Context {C D : bicat}.
   Variable (F : psfunctor C D).
@@ -476,66 +489,6 @@ Proof.
   exists (pr211 F _ _ (pr1 a)).
   use psfunctor_preserves_adjequiv'.
   exact (pr2 a).
-Defined.
-
-Definition local_equivalence
-           {B₁ B₂ : bicat}
-           (B₁_is_univalent_2_1 : is_univalent_2_1 B₁)
-           (B₂_is_univalent_2_1 : is_univalent_2_1 B₂)
-           (F : psfunctor B₁ B₂)
-  : UU
-  := ∏ (x y : B₁),
-     @left_adjoint_equivalence
-       bicat_of_univ_cats
-       _ _
-       (Fmor_univ
-          F x y
-          B₁_is_univalent_2_1
-          B₂_is_univalent_2_1).
-
-Definition local_weak_equivalence
-           {B1 B2 : bicat} (F : psfunctor B1 B2) : UU
-  := ∏ (x y : B1),
-    Functors.essentially_surjective (Fmor F x y)
-                                    × fully_faithful (Fmor F x y).
-
-Definition essentially_surjective
-           {B₁ B₂ : bicat}
-           (F : psfunctor B₁ B₂)
-  : hProp
-  := ∀ (y : B₂), ∃ (x : B₁), adjoint_equivalence (F x) y.
-
-Definition weak_equivalence
-           {B₁ B₂ : bicat}
-           (B₁_is_univalent_2_1 : is_univalent_2_1 B₁)
-           (B₂_is_univalent_2_1 : is_univalent_2_1 B₂)
-           (F : psfunctor B₁ B₂)
-  : UU
-  := local_equivalence
-       B₁_is_univalent_2_1
-       B₂_is_univalent_2_1
-       F
-       × essentially_surjective F.
-
-Definition weak_biequivalence
-           {B1 B2 : bicat} (F : psfunctor B1 B2) : UU
-  := essentially_surjective F × local_weak_equivalence F.
-
-Lemma weak_equivalence_to_is_weak_biequivalence
-      {B1 B2 : bicat}
-      {u1 : is_univalent_2_1 B1}
-      {u2 : is_univalent_2_1 B2}
-      (F : psfunctor B1 B2)
-  : weak_equivalence u1 u2 F -> weak_biequivalence F.
-Proof.
-  intro w.
-  exists (pr2 w).
-  intros x y.
-  set (a := pr1 w x y).
-  split ;
-    [apply functor_from_equivalence_is_essentially_surjective |
-      apply fully_faithful_from_equivalence
-    ] ; apply (adj_equiv_to_equiv_cat (Fmor_univ F x y u1 u2)) ; exact (pr1 w x y).
 Defined.
 
 (**

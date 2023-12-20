@@ -103,13 +103,9 @@ Proof.
   apply idpath.
 Defined.
 
-Section TwoSidedDispCat.
-  Context {C₁ C₂ : category}.
-
-  (**
-   1.1. Definition of two-sided displayed categories
-   *)
-  Definition twosided_disp_cat_ob_mor
+(** * 1.1. Definition of two-sided displayed categories *)
+Definition twosided_disp_cat_ob_mor
+           (C₁ C₂ : precategory_ob_mor)
     : UU
     := ∑ (D : C₁ → C₂ → UU),
        ∏ (x₁ x₂ : C₁)
@@ -124,98 +120,110 @@ Section TwoSidedDispCat.
        →
        UU.
 
-  Definition twosided_disp_cat_ob_mor_to_ob
-             {D : twosided_disp_cat_ob_mor}
-             (x : C₁)
-             (y : C₂)
-    : UU
-    := pr1 D x y.
+Definition twosided_disp_cat_ob_mor_to_ob
+           {C₁ C₂ : precategory_ob_mor}
+           {D : twosided_disp_cat_ob_mor C₁ C₂}
+           (x : C₁)
+           (y : C₂)
+  : UU
+  := pr1 D x y.
 
-  Coercion twosided_disp_cat_ob_mor_to_ob : twosided_disp_cat_ob_mor >-> Funclass.
+Coercion twosided_disp_cat_ob_mor_to_ob : twosided_disp_cat_ob_mor >-> Funclass.
 
-  Definition twosided_disp_cat_ob_mor_to_mor
-             {D : twosided_disp_cat_ob_mor}
-             {x₁ x₂ : C₁}
-             {y₁ y₂ : C₂}
-             (xy₁ : D x₁ y₁)
-             (xy₂ : D x₂ y₂)
-             (f : x₁ --> x₂)
-             (g : y₁ --> y₂)
-    : UU
-    := pr2 D x₁ x₂ y₁ y₂ xy₁ xy₂ f g.
+Definition twosided_disp_cat_ob_mor_to_mor
+           {C₁ C₂ : precategory_ob_mor}
+           {D : twosided_disp_cat_ob_mor C₁ C₂}
+           {x₁ x₂ : C₁}
+           {y₁ y₂ : C₂}
+           (xy₁ : D x₁ y₁)
+           (xy₂ : D x₂ y₂)
+           (f : x₁ --> x₂)
+           (g : y₁ --> y₂)
+  : UU
+  := pr2 D x₁ x₂ y₁ y₂ xy₁ xy₂ f g.
 
-  Local Notation "xy₁ -->[ f ][ g ] xy₂"
-    := (twosided_disp_cat_ob_mor_to_mor xy₁ xy₂ f g)
-         (at level 50, left associativity, xy₂ at next level).
+Notation "xy₁ -->[ f ][ g ] xy₂"
+  := (twosided_disp_cat_ob_mor_to_mor xy₁ xy₂ f g)
+       (at level 50, left associativity, xy₂ at next level).
 
-  Definition twosided_disp_cat_id
-             (D : twosided_disp_cat_ob_mor)
-    : UU
-    := ∏ (x : C₁)
-         (y : C₂)
-         (xy : D x y),
-       xy -->[ identity x ][ identity y ] xy.
+Definition twosided_disp_cat_id
+           {C₁ C₂ : precategory_data}
+           (D : twosided_disp_cat_ob_mor C₁ C₂)
+  : UU
+  := ∏ (x : C₁)
+       (y : C₂)
+       (xy : D x y),
+     xy -->[ identity x ][ identity y ] xy.
 
-  Definition twosided_disp_cat_comp
-             (D : twosided_disp_cat_ob_mor)
-    : UU
-    := ∏ (x₁ x₂ x₃ : C₁)
-         (y₁ y₂ y₃ : C₂)
-         (xy₁ : D x₁ y₁)
-         (xy₂ : D x₂ y₂)
-         (xy₃ : D x₃ y₃)
-         (f₁ : x₁ --> x₂)
-         (f₂ : x₂ --> x₃)
-         (g₁ : y₁ --> y₂)
-         (g₂ : y₂ --> y₃),
-       xy₁ -->[ f₁ ][ g₁ ] xy₂
-       →
-       xy₂ -->[ f₂ ][ g₂ ] xy₃
-       →
-       xy₁ -->[ f₁ · f₂ ][ g₁ · g₂ ] xy₃.
+Definition twosided_disp_cat_comp
+           {C₁ C₂ : precategory_data}
+           (D : twosided_disp_cat_ob_mor C₁ C₂)
+  : UU
+  := ∏ (x₁ x₂ x₃ : C₁)
+       (y₁ y₂ y₃ : C₂)
+       (xy₁ : D x₁ y₁)
+       (xy₂ : D x₂ y₂)
+       (xy₃ : D x₃ y₃)
+       (f₁ : x₁ --> x₂)
+       (f₂ : x₂ --> x₃)
+       (g₁ : y₁ --> y₂)
+       (g₂ : y₂ --> y₃),
+    xy₁ -->[ f₁ ][ g₁ ] xy₂
+    →
+    xy₂ -->[ f₂ ][ g₂ ] xy₃
+    →
+    xy₁ -->[ f₁ · f₂ ][ g₁ · g₂ ] xy₃.
 
-  Definition twosided_disp_cat_id_comp
-             (D : twosided_disp_cat_ob_mor)
-    : UU
-    := twosided_disp_cat_id D × twosided_disp_cat_comp D.
+Definition twosided_disp_cat_id_comp
+           {C₁ C₂ : precategory_data}
+           (D : twosided_disp_cat_ob_mor C₁ C₂)
+  : UU
+  := twosided_disp_cat_id D × twosided_disp_cat_comp D.
 
-  Definition twosided_disp_cat_data
-    : UU
-    := ∑ (D : twosided_disp_cat_ob_mor),
-       twosided_disp_cat_id_comp D.
+Definition twosided_disp_cat_data
+           {C₁ C₂ : precategory_data}
+  : UU
+  := ∑ (D : twosided_disp_cat_ob_mor C₁ C₂),
+     twosided_disp_cat_id_comp D.
 
-  Coercion twosided_disp_cat_data_to_twosided_disp_cat_ob_mor
-           (D : twosided_disp_cat_data)
-    : twosided_disp_cat_ob_mor
-    := pr1 D.
+Coercion twosided_disp_cat_data_to_twosided_disp_cat_ob_mor
+         {C₁ C₂ : precategory_data}
+         (D : twosided_disp_cat_data)
+  : twosided_disp_cat_ob_mor C₁ C₂
+  := pr1 D.
 
-  Definition id_two_disp
-             {D : twosided_disp_cat_data}
-             {x : C₁}
-             {y : C₂}
-             (xy : D x y)
-    : xy -->[ identity x ][ identity y ] xy
-    := pr12 D x y xy.
+Definition id_two_disp
+           {C₁ C₂ : precategory_data}
+           {D : twosided_disp_cat_data}
+           {x : C₁}
+           {y : C₂}
+           (xy : D x y)
+  : xy -->[ identity x ][ identity y ] xy
+  := pr12 D x y xy.
 
-  Definition comp_two_disp
-             {D : twosided_disp_cat_data}
-             {x₁ x₂ x₃ : C₁}
-             {y₁ y₂ y₃ : C₂}
-             {xy₁ : D x₁ y₁}
-             {xy₂ : D x₂ y₂}
-             {xy₃ : D x₃ y₃}
-             {f₁ : x₁ --> x₂}
-             {f₂ : x₂ --> x₃}
-             {g₁ : y₁ --> y₂}
-             {g₂ : y₂ --> y₃}
-             (fg₁ : xy₁ -->[ f₁ ][ g₁ ] xy₂)
-             (fg₂ : xy₂ -->[ f₂ ][ g₂ ] xy₃)
-    : xy₁ -->[ f₁ · f₂ ][ g₁ · g₂ ] xy₃
-    := pr22 D _ _ _ _ _ _ _ _ _ _ _ _ _ fg₁ fg₂.
+Definition comp_two_disp
+           {C₁ C₂ : precategory_data}
+           {D : twosided_disp_cat_data}
+           {x₁ x₂ x₃ : C₁}
+           {y₁ y₂ y₃ : C₂}
+           {xy₁ : D x₁ y₁}
+           {xy₂ : D x₂ y₂}
+           {xy₃ : D x₃ y₃}
+           {f₁ : x₁ --> x₂}
+           {f₂ : x₂ --> x₃}
+           {g₁ : y₁ --> y₂}
+           {g₂ : y₂ --> y₃}
+           (fg₁ : xy₁ -->[ f₁ ][ g₁ ] xy₂)
+           (fg₂ : xy₂ -->[ f₂ ][ g₂ ] xy₃)
+  : xy₁ -->[ f₁ · f₂ ][ g₁ · g₂ ] xy₃
+  := pr22 D _ _ _ _ _ _ _ _ _ _ _ _ _ fg₁ fg₂.
 
-  Local Notation "fg₁ ;;2 fg₂"
-    := (comp_two_disp fg₁ fg₂)
-         (at level 50, left associativity, format "fg₁  ;;2  fg₂").
+Notation "fg₁ ;;2 fg₂"
+  := (comp_two_disp fg₁ fg₂)
+       (at level 50, left associativity, format "fg₁  ;;2  fg₂").
+
+Section TwoSidedDispCat.
+  Context {C₁ C₂ : category}.
 
   Definition transportf_disp_mor2
              {D : twosided_disp_cat_data}
@@ -1039,14 +1047,6 @@ End TwoSidedDispCat.
 Arguments twosided_disp_cat_ob_mor _ _ : clear implicits.
 Arguments twosided_disp_cat_data _ _ : clear implicits.
 Arguments twosided_disp_cat _ _ : clear implicits.
-
-Notation "xy₁ -->[ f ][ g ] xy₂"
-  := (twosided_disp_cat_ob_mor_to_mor xy₁ xy₂ f g)
-       (at level 50, left associativity, xy₂ at next level) : cat.
-
-Notation "fg₁ ;;2 fg₂"
-  := (comp_two_disp fg₁ fg₂)
-       (at level 50, left associativity, format "fg₁  ;;2  fg₂") : cat.
 
 Notation "'trf₂' fg" := (transportf_disp_mor2 _ _ fg) (at level 50, only printing).
 Notation "'trb₂' fg" := (transportb_disp_mor2 _ _ fg) (at level 50, only printing).

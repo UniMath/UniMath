@@ -113,6 +113,8 @@ PseudoFunctors/Display/StrictIdentitor.v
 PseudoFunctors/Display/StrictCompositor.v
 PseudoFunctors/Display/StrictPseudoFunctorBicat.v
 PseudoFunctors/PseudoFunctor.v
+PseudoFunctors/Properties.v
+PseudoFunctors/LocalEquivalenceProperties.v
 PseudoFunctors/StrictPseudoFunctor.v
 PseudoFunctors/Examples/Identity.v
 PseudoFunctors/Examples/Composition.v
@@ -397,6 +399,7 @@ Logic/Examples/DisplayMapComprehensionBicat.v
 Logic/Examples/FunctorsIntoCatComprehensionBicat.v
 
 OtherStructure/DualityInvolution.v
+OtherStructure/DualityInvolutionProperties.v
 OtherStructure/ClassifyingDiscreteOpfib.v
 OtherStructure/Exponentials.v
 OtherStructure/Cores.v

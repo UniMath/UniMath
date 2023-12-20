@@ -236,10 +236,13 @@ Proof.
     intro x ; cbn.
     apply id_left.
   - intros C₁ C₂ F.
-    use nat_trans_eq ; [ apply homset_property | ].
+    use nat_trans_eq.
+    {
+      apply homset_property.
+    }
     intro  ; cbn.
     rewrite !id_left.
-    exact (!(functor_id _ _)).
+    exact (functor_id _ _).
 Qed.
 
 Definition bicat_of_univ_cat_duality

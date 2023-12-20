@@ -22,6 +22,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Import PseudoFunctor.Notations.
+Require Import UniMath.Bicategories.PseudoFunctors.Properties.
 
 Local Open Scope cat.
 
@@ -65,7 +66,7 @@ Section CorestrictImage.
   Defined.
 
   Definition corestrict_full_image_essentially_surjective
-    : essentially_surjective corestrict_full_image.
+    : essentially_surjective_psfunctor corestrict_full_image.
   Proof.
     intros x.
     induction x as [x₁ x₂].

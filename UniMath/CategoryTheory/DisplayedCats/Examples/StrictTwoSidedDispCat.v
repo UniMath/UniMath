@@ -205,7 +205,7 @@ Proof.
   rewrite !(id_two_disp_left (D := D₂)).
   rewrite !(id_two_disp_right (D := D₂)).
   unfold transportb_disp_mor2.
-  rewrite two_disp_pre_whisker_f.
+  rewrite (two_disp_pre_whisker_f (D := D₂)).
   rewrite !(id_two_disp_left (D := D₂)).
   unfold transportb_disp_mor2.
   rewrite !transport_f_f_disp_mor2.
@@ -290,7 +290,7 @@ Proof.
         apply transportb_disp_cat_of_strict_twosided_disp_cat_mor.
       }
       cbn -[idtoiso_twosided_disp].
-      rewrite two_disp_post_whisker_f.
+      rewrite (two_disp_post_whisker_f (D := D₂)).
       rewrite transport_f_f_disp_mor2.
       etrans.
       {
@@ -347,7 +347,7 @@ Proof.
                  (id_right (C := cat_of_setcategory) F)).
       }
       cbn -[idtoiso_twosided_disp].
-      rewrite two_disp_post_whisker_f.
+      rewrite (two_disp_post_whisker_f (D := D₂)).
       rewrite transport_f_f_disp_mor2.
       etrans.
       {
@@ -404,7 +404,7 @@ Proof.
                  (assoc (C := cat_of_setcategory) F G H)).
       }
       cbn -[idtoiso_twosided_disp].
-      rewrite two_disp_post_whisker_f.
+      rewrite (two_disp_post_whisker_f (D := D₄)).
       rewrite transport_f_f_disp_mor2.
       etrans.
       {
@@ -614,8 +614,8 @@ Section StrictTwosidedDispCatIso.
                  (id_left (C := cat_of_setcategory) (functor_identity C))).
       }
       cbn -[idtoiso_twosided_disp].
-      rewrite two_disp_post_whisker_f.
-      rewrite two_disp_pre_whisker_f.
+      rewrite (two_disp_post_whisker_f (D := D₁)).
+      rewrite (two_disp_pre_whisker_f (D := D₁)).
       rewrite transport_f_f_disp_mor2.
       rewrite !(assoc_two_disp_alt (D := D₁)).
       rewrite !two_disp_post_whisker_f.
@@ -691,8 +691,8 @@ Section StrictTwosidedDispCatIso.
                  (id_left (C := cat_of_setcategory) (functor_identity C))).
       }
       cbn -[idtoiso_twosided_disp].
-      rewrite two_disp_post_whisker_f.
-      rewrite two_disp_pre_whisker_f.
+      rewrite (two_disp_post_whisker_f (D := D₂)).
+      rewrite (two_disp_pre_whisker_f (D := D₂)).
       rewrite transport_f_f_disp_mor2.
       rewrite !(assoc_two_disp_alt (D := D₂)).
       rewrite !two_disp_post_whisker_f.
@@ -842,8 +842,8 @@ Section StrictTwosidedDispCatIso.
           apply maponpaths.
           exact (two_sided_disp_cat_iso_path_mor ff).
         }
-        rewrite two_disp_post_whisker_f.
-        rewrite two_disp_pre_whisker_f.
+        rewrite (two_disp_post_whisker_f (D := D₁)).
+        rewrite (two_disp_pre_whisker_f (D := D₁)).
         rewrite transport_f_f_disp_mor2.
         rewrite !assoc_two_disp_alt.
         rewrite !two_disp_post_whisker_f.
@@ -897,8 +897,8 @@ Section StrictTwosidedDispCatIso.
           apply two_sided_disp_cat_iso_path_mor_alt.
         }
         cbn -[idtoiso_twosided_disp].
-        rewrite two_disp_post_whisker_f.
-        rewrite two_disp_pre_whisker_f.
+        rewrite (two_disp_post_whisker_f (D := D₂)).
+        rewrite (two_disp_pre_whisker_f (D := D₂)).
         rewrite transport_f_f_disp_mor2.
         etrans.
         {
@@ -1023,7 +1023,7 @@ Section StrictTwosidedDispCatIso.
         cbn -[idtoiso_twosided_disp].
         rewrite (id_two_disp_right (D := D₂)).
         unfold transportb_disp_mor2.
-        rewrite two_disp_pre_whisker_f.
+        rewrite (two_disp_pre_whisker_f (D := D₂)).
         rewrite transport_f_f_disp_mor2.
         etrans.
         {
@@ -1134,7 +1134,7 @@ Section StrictTwosidedDispCatIso.
             apply maponpaths_2.
             apply (homotweqinvweq (φ₁ (invmap (φ₀ x₁ y₁) xy₁) (invmap (φ₀ x₂ y₂) xy₂) f g)).
           }
-          rewrite two_disp_pre_whisker_f.
+          rewrite (two_disp_pre_whisker_f (D := D₂)).
           rewrite !(assoc_two_disp_alt (D := D₂)).
           rewrite !transport_f_f_disp_mor2.
           etrans.
@@ -1153,7 +1153,7 @@ Section StrictTwosidedDispCatIso.
                      (functor_identity _)).
           }
           cbn -[idtoiso_twosided_disp].
-          rewrite two_disp_post_whisker_f.
+          rewrite (two_disp_post_whisker_f (D := D₂)).
           rewrite transport_f_f_disp_mor2.
           rewrite !(assoc_two_disp (D := D₂)).
           unfold transportb_disp_mor2.
@@ -1205,8 +1205,8 @@ Section StrictTwosidedDispCatIso.
           }
           cbn -[idtoiso_twosided_disp].
           rewrite disp_functor_transportf_disp_mor2.
-          rewrite two_disp_pre_whisker_f.
-          rewrite two_disp_post_whisker_f.
+          rewrite (two_disp_pre_whisker_f (D := D₂)).
+          rewrite (two_disp_post_whisker_f (D := D₂)).
           rewrite transport_f_f_disp_mor2.
           etrans.
           {

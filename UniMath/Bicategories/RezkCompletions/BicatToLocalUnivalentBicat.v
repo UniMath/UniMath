@@ -39,6 +39,7 @@ Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.YonedaLemma.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+Require Import UniMath.Bicategories.PseudoFunctors.Properties.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Composition.
 
 Local Open Scope cat.
@@ -64,12 +65,12 @@ Section FunctorCompositionWeakBiequivalences.
   Defined.
 
   Lemma comp_essentially_surjective
-  {B1 B2 B3 : bicat}
+        {B1 B2 B3 : bicat}
         {F : psfunctor B1 B2}
         {G : psfunctor B2 B3}
-        (Feso : essentially_surjective F)
-        (Geso : essentially_surjective G)
-    : essentially_surjective (comp_psfunctor G F).
+        (Feso : essentially_surjective_psfunctor F)
+        (Geso : essentially_surjective_psfunctor G)
+    : essentially_surjective_psfunctor (comp_psfunctor G F).
   Proof.
     intro z.
     use (factor_through_squash_hProp _ _ (Geso z)).

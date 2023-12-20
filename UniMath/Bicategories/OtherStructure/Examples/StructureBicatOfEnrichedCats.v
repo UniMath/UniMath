@@ -273,7 +273,7 @@ Section DualityInvolutionEnriched.
       use eq_enriched_nat_trans.
       intro x ; cbn.
       rewrite !id_left.
-      exact (!(functor_id _ _)).
+      exact (functor_id _ _).
   Qed.
 
   Definition bicat_of_enriched_cat_duality

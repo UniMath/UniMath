@@ -171,7 +171,7 @@ Proof.
         apply (idtoiso_twosided_disp_functor' (pr21 GG)).
       }
       unfold transportb_disp_mor2.
-      rewrite two_disp_post_whisker_f.
+      rewrite (two_disp_post_whisker_f (D := pr121 CD₃)).
       rewrite transport_f_f_disp_mor2.
       etrans.
       {
@@ -196,7 +196,7 @@ Proof.
         apply (idtoiso_twosided_disp_functor' (pr21 GG)).
       }
       unfold transportb_disp_mor2.
-      rewrite two_disp_post_whisker_f.
+      rewrite (two_disp_post_whisker_f (D := pr121 CD₃)).
       rewrite transport_f_f_disp_mor2.
       etrans.
       {
@@ -293,7 +293,7 @@ Proof.
       apply (idtoiso_twosided_disp_identity (D := D)).
     }
     unfold transportb_disp_mor2.
-    rewrite two_disp_pre_whisker_f.
+    rewrite (two_disp_pre_whisker_f (D := D)).
     rewrite transport_f_f_disp_mor2.
     rewrite (id_two_disp_left (D := D)).
     unfold transportb_disp_mor2.
@@ -371,7 +371,7 @@ Proof.
         apply (idtoiso_twosided_disp_functor' (pr21 GG)).
       }
       unfold transportb_disp_mor2.
-      rewrite two_disp_post_whisker_f.
+      rewrite (two_disp_post_whisker_f (D := pr121 CD₃)).
       rewrite transport_f_f_disp_mor2.
       etrans.
       {
@@ -396,7 +396,7 @@ Proof.
         apply (idtoiso_twosided_disp_functor' (pr21 GG)).
       }
       unfold transportb_disp_mor2.
-      rewrite two_disp_post_whisker_f.
+      rewrite (two_disp_post_whisker_f (D := pr121 CD₃)).
       rewrite transport_f_f_disp_mor2.
       etrans.
       {
@@ -493,7 +493,7 @@ Proof.
       apply (idtoiso_twosided_disp_identity (D := D)).
     }
     unfold transportb_disp_mor2.
-    rewrite two_disp_pre_whisker_f.
+    rewrite (two_disp_pre_whisker_f (D := D)).
     rewrite transport_f_f_disp_mor2.
     rewrite (id_two_disp_left (D := D)).
     unfold transportb_disp_mor2.
@@ -556,7 +556,7 @@ Proof.
       apply (idtoiso_twosided_disp_functor' (pr21 GG)).
     }
     unfold transportb_disp_mor2.
-    rewrite two_disp_post_whisker_f.
+    rewrite (two_disp_post_whisker_f (D := pr121 CD₃)).
     rewrite transport_f_f_disp_mor2.
     etrans.
     {
@@ -656,7 +656,7 @@ Proof.
         apply (id_two_disp_left (D := D)).
       }
       unfold transportb_disp_mor2.
-      rewrite two_disp_pre_whisker_f.
+      rewrite (two_disp_pre_whisker_f (D := D)).
       rewrite transport_f_f_disp_mor2.
       etrans.
       {
@@ -688,7 +688,7 @@ Proof.
         apply (id_two_disp_right (D := D)).
       }
       unfold transportb_disp_mor2.
-      rewrite two_disp_pre_whisker_f.
+      rewrite (two_disp_pre_whisker_f (D := D)).
       rewrite transport_f_f_disp_mor2.
       etrans.
       {
