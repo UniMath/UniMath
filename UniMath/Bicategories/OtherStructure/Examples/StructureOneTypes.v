@@ -402,30 +402,43 @@ Section DualityInvolutionLocallyGroupoidal.
     apply id2_left.
   Qed.
 
+  Proposition locally_groupoid_duality_involution_triangle_law
+              {x y : B}
+              (f : x --> y)
+    : (id₂ (id₁ x) ▹ f)
+      • id₂ (id₁ x · f)
+      =
+      (((lunitor f • rinvunitor f)
+      • (f ◃ id₂ (id₁ y)))
+      • id₂ (f · id₁ y))
+      • (inv_B x y (id₁ x · f) (f · id₁ y) (lunitor f • rinvunitor f))^-1.
+  Proof.
+    rewrite id2_rwhisker, lwhisker_id2.
+    rewrite !id2_left, !id2_right.
+    use vcomp_move_L_pM ; [ is_iso | ].
+    cbn.
+    rewrite id2_right.
+    refine (_ @ id2_right _).
+    use vcomp_move_L_pM ; [ is_iso | ].
+    cbn.
+    rewrite !vassocl.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite rinvunitor_runitor.
+      apply id2_left.
+    }
+    apply lunitor_linvunitor.
+  Qed.
+
   Definition locally_groupoid_duality_involution_laws
     : duality_involution_laws locally_groupoid_duality_involution_data.
   Proof.
     split.
     - exact locally_groupoid_duality_involution_laws_coh.
-    - intros x y f ; cbn.
-      rewrite id2_rwhisker, lwhisker_id2.
-      rewrite !id2_left, !id2_right.
-      use vcomp_move_L_pM ; [ is_iso | ].
-      cbn.
-      rewrite id2_right.
-      refine (_ @ id2_right _).
-      use vcomp_move_L_pM ; [ is_iso | ].
-      cbn.
-      rewrite !vassocl.
-      etrans.
-      {
-        apply maponpaths.
-        rewrite !vassocr.
-        rewrite rinvunitor_runitor.
-        apply id2_left.
-      }
-      apply lunitor_linvunitor.
-  Admitted.
+    - exact @locally_groupoid_duality_involution_triangle_law.
+  Qed.
 
   Definition locally_groupoid_duality_involution
     : duality_involution op_locally_groupoid

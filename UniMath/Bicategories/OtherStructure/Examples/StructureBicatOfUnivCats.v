@@ -236,15 +236,14 @@ Proof.
     intro x ; cbn.
     apply id_left.
   - intros C₁ C₂ F.
-    cbn.
     use nat_trans_eq.
     {
-      apply op_category.
+      apply homset_property.
     }
     intro  ; cbn.
     rewrite !id_left.
     exact (functor_id _ _).
-Admitted.
+Qed.
 
 Definition bicat_of_univ_cat_duality
   : duality_involution op_psfunctor

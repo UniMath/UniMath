@@ -523,6 +523,29 @@ Section LawsDualityInvolution.
        =
        duality_coherency_rhs x.
 
+  Definition duality_triangle_law_lhs
+             {x y : B}
+             (f : x --> y)
+    : η (L x) · #L(#L(#L f)) ==> #L(η x · #L(#L f))
+    := (t x ▹ #L (#L (#L f)))
+       • psfunctor_comp L (η x) (#L (#L f)).
+
+  Definition duality_triangle_law_rhs
+             {x y : B}
+             (f : x --> y)
+    : η (L x) · #L(#L(#L f)) ==> #L(η x · #L(#L f))
+    := psnaturality_of η (# L f)
+       • (#L f ◃ t y)
+       • psfunctor_comp L f (η y)
+       • ##L (psnaturality_of η f).
+
+  Definition duality_triangle_law
+    : UU
+    := ∏ (x y : B)
+         (f : x --> y),
+       duality_triangle_law_lhs f = duality_triangle_law_rhs f.
+
+  (*
   Definition duality_triangle_law
     : UU
     := ∏ (x y : B)
@@ -534,6 +557,7 @@ Section LawsDualityInvolution.
        • (#L f ◃ t y)
        • psfunctor_comp L f (η y)
        • ##L (psnaturality_of η f).
+   *)
 
   Definition duality_involution_laws
     : UU
