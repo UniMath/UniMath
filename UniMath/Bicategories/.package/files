@@ -236,6 +236,7 @@ Monads/MixedDistributiveLaws.v
 Monads/Examples/MonadsInMonads.v
 Monads/Examples/Composition.v
 Monads/Examples/PsfunctorOnMonad.v
+Monads/LocalEquivalenceMonad.v
 
 Core/Examples/Image.v
 PseudoFunctors/Examples/CorestrictImage.v

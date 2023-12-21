@@ -878,6 +878,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monads/Examples/MonadsInMonads.v](Bicategories/Monads/Examples/MonadsInMonads.v)
    - [Monads/Examples/Composition.v](Bicategories/Monads/Examples/Composition.v)
    - [Monads/Examples/PsfunctorOnMonad.v](Bicategories/Monads/Examples/PsfunctorOnMonad.v)
+   - [Monads/LocalEquivalenceMonad.v](Bicategories/Monads/LocalEquivalenceMonad.v)
    - [Core/Examples/Image.v](Bicategories/Core/Examples/Image.v)
    - [PseudoFunctors/Examples/CorestrictImage.v](Bicategories/PseudoFunctors/Examples/CorestrictImage.v)
    - [Core/YonedaLemma.v](Bicategories/Core/YonedaLemma.v)
