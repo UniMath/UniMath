@@ -861,6 +861,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [DoubleCategories/Underlying/VerticalTwoCategoryStrict.v](Bicategories/DoubleCategories/Underlying/VerticalTwoCategoryStrict.v)
    - [DoubleCategories/AlternativeDefinitions/DoubleCatsUnfolded.v](Bicategories/DoubleCategories/AlternativeDefinitions/DoubleCatsUnfolded.v)
    - [DoubleCategories/AlternativeDefinitions/DoubleCatsEquivalentDefinitions.v](Bicategories/DoubleCategories/AlternativeDefinitions/DoubleCatsEquivalentDefinitions.v)
+   - [DoubleCategories/DoubleBicat.v](Bicategories/DoubleCategories/DoubleBicat.v)
+   - [DoubleCategories/Examples/SquareDoubleBicat.v](Bicategories/DoubleCategories/Examples/SquareDoubleBicat.v)
    - [DisplayedBicats/Examples/MonadsLax.v](Bicategories/DisplayedBicats/Examples/MonadsLax.v)
    - [DisplayedBicats/Examples/DispBicatOnCatToUniv.v](Bicategories/DisplayedBicats/Examples/DispBicatOnCatToUniv.v)
    - [PseudoFunctors/Examples/MonadInclusion.v](Bicategories/PseudoFunctors/Examples/MonadInclusion.v)

@@ -221,6 +221,21 @@ Section PseudoFunctorDerivedLaws.
     reflexivity.
   Qed.
 
+  Definition psfunctor_F_linvunitor
+             {a b : C}
+             (f : a --> b)
+    : (linvunitor (#F f))
+      =
+      ##F (linvunitor f)
+      • (psfunctor_comp F _ _)^-1
+      • ((psfunctor_id F a)^-1 ▹ #F f).
+  Proof.
+    use vcomp_move_L_Mp ; [ is_iso | ].
+    use vcomp_move_L_Mp ; [ is_iso | ].
+    refine (!_).
+    apply psfunctor_linvunitor.
+  Qed.
+
   Definition psfunctor_rinvunitor
              {a b : C}
              (f : C⟦a, b⟧)

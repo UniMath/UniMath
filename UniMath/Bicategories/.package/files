@@ -218,6 +218,9 @@ DoubleCategories/Underlying/VerticalTwoCategoryStrict.v
 DoubleCategories/AlternativeDefinitions/DoubleCatsUnfolded.v
 DoubleCategories/AlternativeDefinitions/DoubleCatsEquivalentDefinitions.v
 
+DoubleCategories/DoubleBicat.v
+DoubleCategories/Examples/SquareDoubleBicat.v
+
 DisplayedBicats/Examples/MonadsLax.v
 DisplayedBicats/Examples/DispBicatOnCatToUniv.v
 PseudoFunctors/Examples/MonadInclusion.v
