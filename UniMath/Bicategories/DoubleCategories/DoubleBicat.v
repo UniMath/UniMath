@@ -73,7 +73,7 @@
  - The data of a bicategory ([prebicat_data]) consists of 15 fields.
  - There are 22 laws for bicategories ([prebicat_laws] and [isaset_cells]).
 
- As such, having two bicategories already give rise to 74 fields. Since the two bicategories
+ As such, having two bicategories already gives rise to 74 fields. Since the two bicategories
  in the definition of a double bicategory share their type of objects, this already gives
  a definition with 73 fields. But a double bicategory consists of more.
  - We have 4 whiskering operations. Each whiskering operation comes with 2 laws, and
