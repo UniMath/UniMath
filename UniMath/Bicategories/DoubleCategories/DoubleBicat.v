@@ -23,7 +23,7 @@
  for that purpose is that of a double bicategory as defined by Verity.
 
  Double bicategories are like pseudo double categories, but there is one crucial difference.
- In a pseudo double category, composition is weakly associative and unital ine one direction,
+ In a pseudo double category, composition is weakly associative and unital in one direction,
  but in the other direction, it is strictly associative and unital. For a double bicategory,
  composition is weakly associative and unital in both directions. There is yet another
  difference: due to the strictness in pseudo double categories, one needs to use transports
