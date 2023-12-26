@@ -20,7 +20,7 @@
  categories with functors and profunctors, and the quintet construction on a bicategory
  (i.e., the double category whose horizontal and vertical morphisms are given by 1-cells
  and whose squares are given by 2-cells of the apropriate type). The notion that we use
- for that purpose, is that of a double bicategory as defined by Verity.
+ for that purpose is that of a double bicategory as defined by Verity.
 
  Double bicategories are like pseudo double categories, but there is one crucial difference.
  In a pseudo double category, composition is weakly associative and unital ine one direction,
