@@ -31,7 +31,7 @@
  formulate any of the laws.
 
  The notion of double bicategory is rather complicated and it consists of many fields. For
- this reason, we use numerous intermediate definition in our definition of a double
+ this reason, we use numerous intermediate definitions in our definition of a double
  bicategory.
 
  To define double bicategories, we take several steps. We start with the following:
