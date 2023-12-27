@@ -7,6 +7,14 @@ Require Import UniMath.CategoryTheory.Profunctors.Core.
 
 Local Open Scope cat.
 
+Section ConstantProfunctor.
+  Context (C D : category)
+          (X : hSet).
+
+  Definition const_profunctor
+    : C ↛ D.
+  Proof.
+    use make_profunctor.
 
 Section IdentityProfunctor.
   Context (C : category).
@@ -221,8 +229,8 @@ Section PrecompProfunctor.
   Proof.
     cbn.
     rewrite functor_id.
-    apply maponpaths.
-    apply (eqtohomot (@functor_id _ _ P (_ ,, _))).
+    rewrite rmap_id.
+    apply idpath.
   Qed.
 
   Proposition rmap_precomp_profunctor
@@ -234,7 +242,8 @@ Section PrecompProfunctor.
   Proof.
     cbn.
     rewrite functor_id.
-    apply (eqtohomot (@functor_id _ _ P (_ ,, _))).
+    rewrite lmap_id.
+    apply idpath.
   Qed.
 End PrecompProfunctor.
 
@@ -264,40 +273,29 @@ Proposition profunctor_nat_trans_natural
             {y₁ y₂ : C₂} {x₁ x₂ : C₁}
             (g : y₂ --> y₁) (f : x₁ --> x₂)
             (h : P y₁ x₁)
+  : τ y₂ x₂ (P #[ g , f ] h)
+    =
+    Q #[ g , f ] (τ y₁ x₁ h).
+Proof.
+  exact (eqtohomot
+           (nat_trans_ax τ (y₁ ,, x₁) (y₂ ,, x₂) (g ,, f))
+           h).
+Qed.
+
+Proposition profunctor_nat_trans_lmap_rmap
+            {C₁ C₂ : category}
+            {P Q : profunctor C₁ C₂}
+            (τ : profunctor_nat_trans P Q)
+            {y₁ y₂ : C₂} {x₁ x₂ : C₁}
+            (g : y₂ --> y₁) (f : x₁ --> x₂)
+            (h : P y₁ x₁)
   : τ y₂ x₂ (lmap P g (rmap P f h))
     =
     lmap Q g (rmap Q f (τ y₁ x₁ h)).
 Proof.
-  refine (_
-          @ eqtohomot
-              (nat_trans_ax τ (y₁ ,, x₁) (y₂ ,, x₂) (g ,, f))
-              h
-          @ _) ; cbn.
-  - apply maponpaths ; cbn.
-    pose (eqtohomot
-            (@functor_comp
-               _ _
-               P
-               (y₁ ,, x₁) (y₁ ,, x₂) (y₂ ,, x₂)
-               (identity _ ,, f)
-               (g ,, identity _))
-            h)
-      as p.
-    cbn in p.
-    rewrite !id_right in p.
-    exact (!p).
-  - pose (eqtohomot
-            (@functor_comp
-               _ _
-               Q
-               (y₁ ,, x₁) (y₁ ,, x₂) (y₂ ,, x₂)
-               (identity _ ,, f)
-               (g ,, identity _))
-            )
-      as p.
-    cbn in p.
-    rewrite !id_right in p.
-    apply p.
+  rewrite !lmap_rmap_functor.
+  rewrite profunctor_nat_trans_natural.
+  apply idpath.
 Qed.
 
 Definition profunctor_nat_trans_data
@@ -343,31 +341,10 @@ Section MakeProfunctorNatTrans.
      pose (H _ _ _ _ g f h) as p.
      cbn in *.
      refine (_ @ p @ _) ; clear p.
-     - apply maponpaths ; cbn.
-       pose (eqtohomot
-               (@functor_comp
-                  _ _
-                  P
-                  (y₁ ,, x₁) (y₁ ,, x₂) (y₂ ,, x₂)
-                  (identity _ ,, f)
-                  (g ,, identity _))
-               h)
-         as p.
-       cbn in p.
-       rewrite !id_right in p.
-       exact p.
-     - pose (eqtohomot
-               (@functor_comp
-                  _ _
-                  Q
-                  (y₁ ,, x₁) (y₁ ,, x₂) (y₂ ,, x₂)
-                  (identity _ ,, f)
-                  (g ,, identity _))
-            )
-         as p.
-       cbn in p.
-       rewrite !id_right in p.
-       apply (!(p _)).
+     - rewrite lmap_rmap_functor.
+       apply idpath.
+     - rewrite lmap_rmap_functor.
+       apply idpath.
    Qed.
 
   Definition make_profunctor_nat_trans

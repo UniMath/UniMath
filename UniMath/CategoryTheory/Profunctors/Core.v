@@ -131,33 +131,54 @@ Definition profunctor_point
 
 Coercion profunctor_point : profunctor >-> Funclass.
 
+Definition profunctor_on_morphisms
+           {C₁ C₂ : category}
+           (P : C₁ ↛ C₂)
+           {y₁ y₂ : C₂}
+           (g : y₂ --> y₁)
+           {x₁ x₂ : C₁}
+           (f : x₁ --> x₂)
+           (h : P y₁ x₁)
+  : P y₂ x₂
+  := @functor_on_morphisms _ _ (P : _ ⟶ _) (_ ,, _) (_ ,, _) (g ,, f) h.
+
+Notation "P #[ g , f ] h" := (profunctor_on_morphisms P g f h) (at level 60) : cat.
+
+Proposition profunctor_id
+            {C₁ C₂ : category}
+            (P : C₁ ↛ C₂)
+            {y : C₂}
+            {x : C₁}
+            (h : P y x)
+  : P #[ identity _ , identity _ ] h = h.
+Proof.
+  exact (eqtohomot (functor_id P _) h).
+Qed.
+
+Proposition profunctor_comp
+            {C₁ C₂ : category}
+            (P : C₁ ↛ C₂)
+            {y₁ y₂ y₃: C₂}
+            (g₂ : y₃ --> y₂) (g₁ : y₂ --> y₁)
+            {x₁ x₂ x₃ : C₁}
+            (f₁ : x₁ --> x₂) (f₂ : x₂ --> x₃)
+            (h : P y₁ x₁)
+  : P #[ g₂ · g₁ , f₁ · f₂ ] h = P #[ g₂ , f₂ ] (P #[ g₁ , f₁ ] h).
+Proof.
+  exact (eqtohomot (@functor_comp _ _ P (_ ,, _) (_ ,, _) (_ ,, _) (_ ,, _) (_ ,, _)) h).
+Qed.
+
 (** Map over the first argument contravariantly.
     Inspired by Data.Profunctor in Haskell. *)
 Definition lmap {C D : category} (F : C ↛ D) {a : ob C} {b b' : ob D} (g : b' --> b)
-  : HSET ⟦ F b a , F b' a ⟧.
-Proof.
-  unfold profunctor in F.
-  refine (# F _ · _).
-  - use catbinprodmor.
-    + exact (op_ob b').
-    + exact a.
-    + exact g.
-    + apply identity.
-  - apply identity.
-Defined.
+  : HSET ⟦ F b a , F b' a ⟧
+  := λ h, F #[ g , identity _ ] h.
 
 (** Map over the second argument covariantly.
     Inspired by Data.Profunctor in Haskell. *)
 Definition rmap {C D : category} (F : C ↛ D) {a a' : ob C} {b : ob D} (f : a --> a')
-  : HSET ⟦ F b a , F b a' ⟧.
-Proof.
-  unfold profunctor in F.
-  refine (_ · # F _).
-  - apply identity.
-  - use catbinprodmor.
-    * apply identity.
-    * exact f.
-Defined.
+  : HSET ⟦ F b a , F b a' ⟧
+  := λ h, F #[ identity _ , f ] h.
 
 (** Laws for `rmap` and `lmap` *)
 Definition lmap_id
@@ -168,7 +189,9 @@ Definition lmap_id
            (z : P y x)
   : lmap P (identity y) z = z.
 Proof.
-  exact (eqtohomot (functor_id P (y ,, x)) z).
+  unfold lmap.
+  rewrite profunctor_id.
+  apply idpath.
 Qed.
 
 Definition rmap_id
@@ -179,7 +202,9 @@ Definition rmap_id
            (z : P y x)
   : rmap P (identity x) z = z.
 Proof.
-  exact (eqtohomot (functor_id P (y ,, x)) z).
+  unfold rmap.
+  rewrite profunctor_id.
+  apply idpath.
 Qed.
 
 Definition lmap_comp
@@ -194,23 +219,10 @@ Definition lmap_comp
     =
     lmap P g₁ (lmap P g₂ z).
 Proof.
-  unfold profunctor in P.
-  pose (eqtohomot
-          (@functor_comp
-             _ _
-             P
-             (y₃ ,, x) (y₂ ,, x) (y₁ ,, x)
-             (g₂ ,, identity _) (g₁ ,, identity _))
-          z)
-    as p.
-  cbn in p.
-  refine (_ @ p).
   unfold lmap.
-  cbn.
-  refine (maponpaths (λ w, #P (_ ,, w) z) _).
-  refine (!_).
-  cbn.
-  apply id_left.
+  rewrite <- profunctor_comp.
+  rewrite id_right.
+  apply idpath.
 Qed.
 
 Definition rmap_comp
@@ -225,23 +237,10 @@ Definition rmap_comp
     =
     rmap P f₂ (rmap P f₁ z).
 Proof.
-  unfold profunctor in P.
-  pose (eqtohomot
-          (@functor_comp
-             _ _
-             P
-             (y ,, x₁) (y ,, x₂) (y ,, x₃)
-             (identity _ ,, f₁) (identity _ ,, f₂))
-          z)
-    as p.
-  cbn in p.
-  refine (_ @ p).
   unfold rmap.
-  cbn.
-  refine (maponpaths (λ w, #P (w ,, _) z) _).
-  refine (!_).
-  cbn.
-  apply id_left.
+  rewrite <- profunctor_comp.
+  rewrite id_right.
+  apply idpath.
 Qed.
 
 Definition lmap_rmap
@@ -254,27 +253,9 @@ Definition lmap_rmap
            (z : P y₁ x₁)
   : lmap P g (rmap P f z) = rmap P f (lmap P g z).
 Proof.
-  unfold profunctor in P.
-  pose (eqtohomot
-          (@functor_comp
-             _ _
-             P
-             (y₁ ,, x₁) (y₂ ,, x₁) (y₂ ,, x₂)
-             (g ,, identity _) (identity _ ,, f))
-          z)
-    as p.
-  refine (_ @ p) ; clear p.
-  pose (eqtohomot
-          (@functor_comp
-             _ _
-             P
-             (y₁ ,, x₁) (y₁ ,, x₂) (y₂ ,, x₂)
-             (identity _ ,, f) (g ,, identity _))
-          z)
-    as p.
-  refine (!p @ _).
-  cbn.
-  rewrite !id_left, !id_right.
+  unfold lmap, rmap.
+  rewrite <- !profunctor_comp.
+  rewrite !id_right, !id_left.
   apply idpath.
 Qed.
 
@@ -302,20 +283,12 @@ Proposition lmap_rmap_functor
             (z : P y₁ x₁)
   : lmap P g (rmap P f z)
     =
-    @functor_on_morphisms _ _ (P : _ ⟶ _) (_ ,, _) (_ ,, _) (g ,, f) z.
+    P #[ g , f ] z.
 Proof.
   unfold lmap, rmap ; cbn.
-  pose (eqtohomot
-          (@functor_comp
-             _ _
-             P
-             (y₁ ,, x₁) (y₁ ,, x₂) (y₂ ,, x₂)
-             (identity _ ,, f) (g ,, identity _))
-          z)
-    as p.
-  cbn in p.
-  rewrite !id_right in p.
-  exact (!p).
+  rewrite <- profunctor_comp.
+  rewrite !id_right.
+  apply idpath.
 Qed.
 
 (** ** Dinatural transformations *)
@@ -371,48 +344,22 @@ Section Dinatural.
         (alpha : nat_trans (f : _ ⟶ _) (g : _ ⟶ _)) : f ⇏ g.
   Proof.
     use make_dinatural_transformation.
-    - intro; apply alpha.
-    - intros a b h.
-      (**
-       Have:
-<<
-                  F (i, j)
-         F(a, b) --------> F(c, d)
-            |                 |
-            | alpha a b       | alpha c d
-            V                 V
-         G(a, b) --------> G(c, d)
-                  G (i, j)
->>
-       Want:
-<<
-                  F(a, a) -- alpha --> G(a, a)
-          lmap /                        \ rmap
-          F(b, a)                    G(a, b)
-          rmap \                        / lmap
-                  F(b, b) -- alpha --> G(b, b)
->>
-       *)
-      unfold lmap, rmap.
-      do 2 rewrite id_left.
-      do 2 rewrite id_right.
-      refine (maponpaths (fun z => z · _) (pr2 alpha _ _ _) @ _).
-      refine (_ @ maponpaths (fun z => _ · z) (pr2 alpha _ _ _)).
-      refine (!assoc _ _ _ @ _).
-      refine (_ @ !assoc _ _ _).
-      refine (!maponpaths (fun z => _ · z) (functor_comp g _ _) @ _).
-      refine (_ @ maponpaths (fun z => z · _) (functor_comp f _ _)).
-      unfold compose at 2; simpl.
-      unfold compose at 5; simpl.
-      rewrite id_left.
-      rewrite id_right.
-
-      cbn.
-      rewrite id_right.
-      rewrite id_left.
-      symmetry.
-      apply (pr2 alpha).
-    Qed.
+    - exact (λ z, alpha (_ ,, _)).
+    - abstract
+        (intros a b h ;
+         use funextsec ; intro z ;
+         unfold lmap, rmap ;
+         pose (p := eqtohomot (nat_trans_ax alpha (_ ,, _) (_ ,, _) (h ,, identity _)) z) ;
+         cbn in p ; cbn ;
+         refine (maponpaths _ p @ _) ; clear p ;
+         refine (!(profunctor_comp g _ _ _ _ _) @ _) ;
+         rewrite !id_left ;
+         refine (!_) ;
+         refine (maponpaths _ (eqtohomot (nat_trans_ax alpha (_ ,, _) (_ ,, _) (_ ,, _)) _) @ _) ;
+         refine (!(profunctor_comp g _ _ _ _ _) @ _) ;
+         rewrite !id_right ;
+         apply idpath).
+  Defined.
 End Dinatural.
 
 Notation "F ⇏ G" := (dinatural_transformation F G) (at level 39) : cat.
