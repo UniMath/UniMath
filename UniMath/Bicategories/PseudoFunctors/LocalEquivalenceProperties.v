@@ -202,6 +202,31 @@ Section LocalEquivalencePseudoFunctoriality.
     apply local_equivalence_triangle1.
   Qed.
 
+  Proposition local_equivalence_unit_triangle
+              {x y : B₁}
+              (f : x --> y)
+    : ##F (local_equivalence_unit_inv2cell f)
+      =
+      (local_equivalence_counit_inv2cell (#F f))^-1.
+  Proof.
+    refine (_ @ id2_left _).
+    use vcomp_move_L_Mp ; [ is_iso | ].
+    apply local_equivalence_triangle1.
+  Qed.
+
+  Proposition local_equivalence_unit_triangle_inv
+              {x y : B₁}
+              (f : x --> y)
+    : (psfunctor_inv2cell F (local_equivalence_unit_inv2cell f))^-1
+      =
+      (local_equivalence_counit_inv2cell (#F f)).
+  Proof.
+    refine (!_).
+    refine (_ @ id2_right _).
+    use vcomp_move_L_pM ; [ is_iso | ].
+    apply local_equivalence_triangle1.
+  Qed.
+
   Proposition local_equivalence_triangle2
               {x y : B₁}
               (f : F x --> F y)
@@ -214,6 +239,18 @@ Section LocalEquivalencePseudoFunctoriality.
     cbn in p.
     rewrite !id2_left, !id2_right in p.
     exact p.
+  Qed.
+
+  Proposition local_equivalence_counit_triangle
+              {x y : B₁}
+              (f : F x --> F y)
+    : local_equivalence_inv_twocell (local_equivalence_counit_inv2cell f)
+      =
+      (local_equivalence_unit_inv2cell (local_equivalence_inv_onecell f))^-1.
+  Proof.
+    refine (_ @ id2_right _).
+    use vcomp_move_L_pM ; [ is_iso | ].
+    apply local_equivalence_triangle2.
   Qed.
 
   (** * 3. Functoriality of the action on 2-cells *)
@@ -261,6 +298,19 @@ Section LocalEquivalencePseudoFunctoriality.
            rewrite vcomp_linv ;
            apply local_equivalence_inv_twocell_id).
   Defined.
+
+  Proposition local_equivalence_counit_triangle_inv
+              {x y : B₁}
+              (f : F x --> F y)
+    : local_equivalence_inv_inv2cell (local_equivalence_counit_inv2cell f)^-1
+      =
+      (local_equivalence_unit_inv2cell (local_equivalence_inv_onecell f)).
+  Proof.
+    refine (!_).
+    refine (_ @ id2_left _).
+    use vcomp_move_L_Mp ; [ is_iso | ].
+    apply local_equivalence_triangle2.
+  Qed.
 
   (** * 5. Identitor and compositor *)
   Definition local_equivalence_inv_onecell_id
@@ -396,6 +446,22 @@ Section LocalEquivalencePseudoFunctoriality.
     apply idpath.
   Qed.
 
+  Proposition local_equivalence_twocell_lwhisker_inv
+              {x y z : B₁}
+              (f : F x --> F y)
+              {g₁ g₂ : F y --> F z}
+              (τ : g₁ ==> g₂)
+    : (local_equivalence_inv_onecell_comp f g₁)^-1
+      • local_equivalence_inv_twocell (f ◃ τ)
+      =
+      (_ ◃ local_equivalence_inv_twocell τ)
+      • (local_equivalence_inv_onecell_comp f g₂)^-1.
+  Proof.
+    use vcomp_move_R_pM ; [ is_iso | ].
+    rewrite !vassocr.
+    apply local_equivalence_twocell_lwhisker_alt.
+  Qed.
+
   Proposition local_equivalence_twocell_rwhisker
               {x y z : B₁}
               {f₁ f₂ : F x --> F y}
@@ -479,6 +545,22 @@ Section LocalEquivalencePseudoFunctoriality.
     rewrite vcomp_rinv.
     rewrite id2_right.
     apply idpath.
+  Qed.
+
+  Proposition local_equivalence_twocell_rwhisker_inv
+              {x y z : B₁}
+              {f₁ f₂ : F x --> F y}
+              (τ : f₁ ==> f₂)
+              (g : F y --> F z)
+    : (local_equivalence_inv_onecell_comp f₁ g)^-1
+      • local_equivalence_inv_twocell (τ ▹ g)
+      =
+      (local_equivalence_inv_twocell τ ▹ _)
+      • (local_equivalence_inv_onecell_comp f₂ g)^-1.
+  Proof.
+    use vcomp_move_R_pM ; [ is_iso | ].
+    rewrite !vassocr.
+    apply local_equivalence_twocell_rwhisker_alt.
   Qed.
 
   Proposition local_equivalence_twocell_lunitor
@@ -929,5 +1011,24 @@ Section LocalEquivalencePseudoFunctoriality.
     rewrite lassociator_rassociator.
     rewrite id2_right.
     apply idpath.
+  Qed.
+
+  Proposition local_equivalence_twocell_rassociator_inv
+              {w x y z : B₁}
+              (f : F w --> F x)
+              (g : F x --> F y)
+              (h : F y --> F z)
+    : rassociator _ _ _
+      • (_ ◃ (local_equivalence_inv_onecell_comp g h)^-1)
+      • (local_equivalence_inv_onecell_comp f (g · h))^-1
+      =
+      ((local_equivalence_inv_onecell_comp f g)^-1 ▹ _)
+      • (local_equivalence_inv_onecell_comp (f · g) h)^-1
+      • local_equivalence_inv_twocell (rassociator _ _ _).
+  Proof.
+    use vcomp_move_L_pM ; [ is_iso | ].
+    rewrite !vassocr.
+    do 2 (use vcomp_move_R_Mp ; [ is_iso | ]).
+    exact (local_equivalence_twocell_rassociator f g h).
   Qed.
 End LocalEquivalencePseudoFunctoriality.

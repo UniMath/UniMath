@@ -218,6 +218,9 @@ DoubleCategories/Underlying/VerticalTwoCategoryStrict.v
 DoubleCategories/AlternativeDefinitions/DoubleCatsUnfolded.v
 DoubleCategories/AlternativeDefinitions/DoubleCatsEquivalentDefinitions.v
 
+DoubleCategories/DoubleBicat.v
+DoubleCategories/Examples/SquareDoubleBicat.v
+
 DisplayedBicats/Examples/MonadsLax.v
 DisplayedBicats/Examples/DispBicatOnCatToUniv.v
 PseudoFunctors/Examples/MonadInclusion.v
@@ -236,6 +239,7 @@ Monads/MixedDistributiveLaws.v
 Monads/Examples/MonadsInMonads.v
 Monads/Examples/Composition.v
 Monads/Examples/PsfunctorOnMonad.v
+Monads/LocalEquivalenceMonad.v
 
 Core/Examples/Image.v
 PseudoFunctors/Examples/CorestrictImage.v
