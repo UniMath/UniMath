@@ -1,21 +1,78 @@
+(*****************************************************************************************
+
+ Examples of profunctors
+
+ In this file, we collect numerous examples of profunctors. We also give computation rules
+ for their left and right actions.
+
+ Contents
+ 1. The constant profunctor
+ 2. The identity profunctor
+ 3. Representable profunctors
+ 4. Precomposition of a profunctor with functors
+ 5. Product of profunctors
+
+ *****************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.Profunctors.Core.
 
 Local Open Scope cat.
 
+(** * 1. The constant profunctor *)
 Section ConstantProfunctor.
   Context (C D : category)
           (X : hSet).
+
+  Definition const_profunctor_data
+    : profunctor_data C D.
+  Proof.
+    use make_profunctor_data.
+    - exact (λ _ _, X).
+    - exact (λ _ _ _ _ _ _ x, x).
+  Defined.
+
+  Proposition const_profunctor_laws
+    : profunctor_laws const_profunctor_data.
+  Proof.
+    repeat split.
+    intros.
+    apply setproperty.
+  Qed.
 
   Definition const_profunctor
     : C ↛ D.
   Proof.
     use make_profunctor.
+    - exact const_profunctor_data.
+    - exact const_profunctor_laws.
+  Defined.
 
+  Proposition lmap_const_profunctor
+              {x : C}
+              {y₁ y₂ : D}
+              (f : y₂ --> y₁)
+              (h : X)
+    : lmap const_profunctor f (h : const_profunctor y₁ x) = h.
+  Proof.
+    cbn.
+    apply idpath.
+  Qed.
+
+  Proposition rmap_const_profunctor
+              {x₁ x₂: C}
+              {y : D}
+              (f : x₁ --> x₂)
+              (h : X)
+    : rmap const_profunctor f (h : const_profunctor y x₁) = h.
+  Proof.
+    cbn.
+    apply idpath.
+  Qed.
+End ConstantProfunctor.
+
+(** * 2. The identity profunctor *)
 Section IdentityProfunctor.
   Context (C : category).
 
@@ -69,6 +126,7 @@ Section IdentityProfunctor.
   Qed.
 End IdentityProfunctor.
 
+(** * 3. Representable profunctors *)
 Section RepresentableProfunctor.
   Context {C₁ C₂ : category}
           (F : C₁ ⟶ C₂).
@@ -182,6 +240,7 @@ Section RepresentableProfunctor.
   Qed.
 End RepresentableProfunctor.
 
+(** * 4. Precomposition of a profunctor with functors *)
 Section PrecompProfunctor.
   Context {C₁ C₂ D₁ D₂ : category}
           (F : C₁ ⟶ C₂)
@@ -247,334 +306,38 @@ Section PrecompProfunctor.
   Qed.
 End PrecompProfunctor.
 
-(** ** Transformations between profunctors *)
-Definition profunctor_nat_trans
-           {C₁ C₂ : category}
-           (P Q : profunctor C₁ C₂)
-  : UU
-  := nat_trans (P : _ ⟶ _) (Q : _ ⟶ _).
-
-Definition profunctor_nat_trans_point
-           {C₁ C₂ : category}
-           {P Q : profunctor C₁ C₂}
-           (τ : profunctor_nat_trans P Q)
-           {y : C₂} {x : C₁}
-           (h : P y x)
-  : Q y x
-  := pr1 τ (y ,, x) h.
-
-Coercion profunctor_nat_trans_point
-  : profunctor_nat_trans >-> Funclass.
-
-Proposition profunctor_nat_trans_natural
-            {C₁ C₂ : category}
-            {P Q : profunctor C₁ C₂}
-            (τ : profunctor_nat_trans P Q)
-            {y₁ y₂ : C₂} {x₁ x₂ : C₁}
-            (g : y₂ --> y₁) (f : x₁ --> x₂)
-            (h : P y₁ x₁)
-  : τ y₂ x₂ (P #[ g , f ] h)
-    =
-    Q #[ g , f ] (τ y₁ x₁ h).
-Proof.
-  exact (eqtohomot
-           (nat_trans_ax τ (y₁ ,, x₁) (y₂ ,, x₂) (g ,, f))
-           h).
-Qed.
-
-Proposition profunctor_nat_trans_lmap_rmap
-            {C₁ C₂ : category}
-            {P Q : profunctor C₁ C₂}
-            (τ : profunctor_nat_trans P Q)
-            {y₁ y₂ : C₂} {x₁ x₂ : C₁}
-            (g : y₂ --> y₁) (f : x₁ --> x₂)
-            (h : P y₁ x₁)
-  : τ y₂ x₂ (lmap P g (rmap P f h))
-    =
-    lmap Q g (rmap Q f (τ y₁ x₁ h)).
-Proof.
-  rewrite !lmap_rmap_functor.
-  rewrite profunctor_nat_trans_natural.
-  apply idpath.
-Qed.
-
-Definition profunctor_nat_trans_data
-           {C₁ C₂ : category}
-           (P Q : profunctor C₁ C₂)
-  : UU
-  := ∏ (y : C₂) (x : C₁),
-     P y x → Q y x.
-
-Definition profunctor_nat_trans_law
-           {C₁ C₂ : category}
-           {P Q : profunctor C₁ C₂}
-           (τ : profunctor_nat_trans_data P Q)
-  : UU
-  := ∏ (y₁ y₂ : C₂) (x₁ x₂ : C₁)
-       (g : y₂ --> y₁) (f : x₁ --> x₂)
-       (h : P y₁ x₁),
-     τ y₂ x₂ (lmap P g (rmap P f h))
-     =
-     lmap Q g (rmap Q f (τ y₁ x₁ h)).
-
-Section MakeProfunctorNatTrans.
+(** * 5. Product of profunctors *)
+Section ProdProfunctor.
   Context {C₁ C₂ : category}
-          {P Q : profunctor C₁ C₂}
-          (τ : profunctor_nat_trans_data P Q)
-          (H : profunctor_nat_trans_law τ).
+          (P Q : C₁ ↛ C₂).
 
-   Definition make_profunctor_nat_trans_data
-     : nat_trans_data (P : _ ⟶ _) (Q : _ ⟶ _)
-     := λ xy, τ (pr1 xy) (pr2 xy).
-
-   Arguments make_profunctor_nat_trans_data /.
-
-   Proposition make_profunctor_nat_trans_law
-     : is_nat_trans _ _ make_profunctor_nat_trans_data.
-   Proof.
-     intros xy₁ xy₂ fg.
-     induction xy₁ as [ y₁ x₁ ].
-     induction xy₂ as [ y₂ x₂ ].
-     induction fg as [ g f ].
-     use funextsec.
-     intro h.
-     pose (H _ _ _ _ g f h) as p.
-     cbn in *.
-     refine (_ @ p @ _) ; clear p.
-     - rewrite lmap_rmap_functor.
-       apply idpath.
-     - rewrite lmap_rmap_functor.
-       apply idpath.
-   Qed.
-
-  Definition make_profunctor_nat_trans
-    : profunctor_nat_trans P Q.
+  Definition prod_profunctor_data
+    : profunctor_data C₁ C₂.
   Proof.
-    use make_nat_trans.
-    - exact make_profunctor_nat_trans_data.
-    - exact make_profunctor_nat_trans_law.
+    use make_profunctor_data.
+    - exact (λ y x, P y x × Q y x).
+    - exact (λ y₁ y₂ g x₁ x₂ f h, P #[ g , f ] (pr1 h) ,, Q #[ g , f ] (pr2 h)).
   Defined.
-End MakeProfunctorNatTrans.
 
-
-(* separate file on profunctor squares *)
-Definition profunctor_square
-           {C₁ C₂ D₁ D₂ : category}
-           (F : C₁ ⟶ C₂)
-           (G : D₁ ⟶ D₂)
-           (P : D₁ ↛ C₁)
-           (Q : D₂ ↛ C₂)
-  : UU
-  := profunctor_nat_trans P (precomp_profunctor G F Q).
-
-Identity Coercion square_to_nat_trans : profunctor_square >-> profunctor_nat_trans.
-
-Definition profunctor_square_data
-           {C₁ C₂ D₁ D₂ : category}
-           (F : C₁ ⟶ C₂)
-           (G : D₁ ⟶ D₂)
-           (P : D₁ ↛ C₁)
-           (Q : D₂ ↛ C₂)
-  : UU
-  := ∏ (y : C₁) (x : D₁), P y x → Q (F y) (G x).
-
-Definition profunctor_square_laws
-           {C₁ C₂ D₁ D₂ : category}
-           {F : C₁ ⟶ C₂}
-           {G : D₁ ⟶ D₂}
-           {P : D₁ ↛ C₁}
-           {Q : D₂ ↛ C₂}
-           (τ : profunctor_square_data F G P Q)
-  : UU
-  := ∏ (y₁ y₂ : C₁)
-       (x₁ x₂ : D₁)
-       (g : y₂ --> y₁)
-       (f : x₁ --> x₂)
-       (h : P y₁ x₁),
-     τ y₂ x₂ (lmap P g (rmap P f h))
-     =
-     lmap Q (#F g) (rmap Q (#G f) (τ y₁ x₁ h)).
-
-Section ProfunctorSquareBuilder.
-  Context {C₁ C₂ D₁ D₂ : category}
-          {F : C₁ ⟶ C₂}
-          {G : D₁ ⟶ D₂}
-          {P : D₁ ↛ C₁}
-          {Q : D₂ ↛ C₂}
-          (τ : profunctor_square_data F G P Q)
-          (Hτ : profunctor_square_laws τ).
-
-  Definition make_profunctor_square_data
-    : profunctor_nat_trans_data P (precomp_profunctor G F Q)
-    := τ.
-
-  Arguments make_profunctor_square_data /.
-
-  Proposition make_profunctor_square_law
-    : profunctor_nat_trans_law make_profunctor_square_data.
+  Proposition prod_profunctor_laws
+    : profunctor_laws prod_profunctor_data.
   Proof.
-    intros y₁ y₂ x₁ x₂ g f h ; cbn -[lmap rmap].
-    rewrite lmap_precomp_profunctor, rmap_precomp_profunctor.
-    apply Hτ.
+    repeat split ; cbn.
+    - intros y x h.
+      rewrite !profunctor_id.
+      apply idpath.
+    - intros y₁ y₂ y₃ g₁ g₂ x₁ x₂ x₃ f₁ f₂ h.
+      rewrite !profunctor_comp.
+      apply idpath.
+    - intros y x.
+      apply isaset_dirprod ; apply setproperty.
   Qed.
 
-  Definition make_profunctor_square
-    : profunctor_square F G P Q.
+  Definition prod_profunctor
+    : C₁ ↛ C₂.
   Proof.
-    use make_profunctor_nat_trans.
-    - exact make_profunctor_square_data.
-    - exact make_profunctor_square_law.
+    use make_profunctor.
+    - exact prod_profunctor_data.
+    - exact prod_profunctor_laws.
   Defined.
-End ProfunctorSquareBuilder.
-
-Proposition profunctor_square_natural
-            {C₁ C₂ D₁ D₂ : category}
-            {F : C₁ ⟶ C₂}
-            {G : D₁ ⟶ D₂}
-            {P : D₁ ↛ C₁}
-            {Q : D₂ ↛ C₂}
-            (τ : profunctor_square F G P Q)
-            {y₁ y₂ : C₁}
-            {x₁ x₂ : D₁}
-            (g : y₂ --> y₁)
-            (f : x₁ --> x₂)
-            (h : P y₁ x₁)
-  : τ y₂ x₂ (lmap P g (rmap P f h))
-    =
-    lmap Q (#F g) (rmap Q (#G f) (τ y₁ x₁ h)).
-Proof.
-  pose (eqtohomot (pr2 τ (y₁ ,, x₁) (y₂ ,, x₂) (g ,, f)) h) as p.
-  cbn in p.
-  refine (_ @ p).
-  rewrite lmap_rmap_functor.
-  apply idpath.
-Qed.
-
-Definition id_h_profunctor_square
-           {C D : category}
-           (P : D ↛ C)
-  : profunctor_square (functor_identity C) (functor_identity D) P P.
-Proof.
-  use make_profunctor_square.
-  - exact (λ y x h, h).
-  - abstract
-      (intros y₁ y₂ x₁ x₂ g f h ; cbn -[lmap rmap] ;
-       apply idpath).
-Defined.
-
-Definition id_v_profunctor_square
-           {C D : category}
-           (F : C ⟶ D)
-  : profunctor_square F F (id_profunctor C) (id_profunctor D).
-Proof.
-  use make_profunctor_square.
-  - exact (λ y x h, #F h).
-  - abstract
-      (intros y₁ y₂ x₁ x₂ g f h ; cbn -[lmap rmap] ;
-       rewrite !lmap_id_profunctor, !rmap_id_profunctor ;
-       rewrite !functor_comp ;
-       apply idpath).
-Defined.
-
-Definition comp_h_profunctor_square
-           {C₁ C₂ C₃ D₁ D₂ D₃ : category}
-           {F₁ : C₁ ⟶ C₂}
-           {F₂ : C₂ ⟶ C₃}
-           {G₁ : D₁ ⟶ D₂}
-           {G₂ : D₂ ⟶ D₃}
-           {P₁ : D₁ ↛ C₁}
-           {P₂ : D₂ ↛ C₂}
-           {P₃ : D₃ ↛ C₃}
-           (τ : profunctor_square F₁ G₁ P₁ P₂)
-           (θ : profunctor_square F₂ G₂ P₂ P₃)
-  : profunctor_square (F₁ ∙ F₂) (G₁ ∙ G₂) P₁ P₃.
-Proof.
-  use make_profunctor_square.
-  - exact (λ y x h, θ (F₁ y) (G₁ x) (τ y x h)).
-  - abstract
-      (intros y₁ y₂ x₁ x₂ g f h ; cbn -[lmap rmap] ;
-       rewrite (profunctor_square_natural τ) ;
-       rewrite (profunctor_square_natural θ) ;
-       apply idpath).
-Defined.
-
-Definition uwhisker_profunctor_square
-           {C₁ C₂ D₁ D₂ : category}
-           {F F' : C₁ ⟶ C₂}
-           {G : D₁ ⟶ D₂}
-           {P : D₁ ↛ C₁}
-           {Q : D₂ ↛ C₂}
-           (τ : F ⟹ F')
-           (θ : profunctor_square F' G P Q)
-  : profunctor_square F G P Q.
-Proof.
-  use make_profunctor_square.
-  - exact (λ y x h, lmap Q (τ y) (θ y x h)).
-  - abstract
-      (intros y₁ y₂ x₁ x₂ g f h ; cbn -[lmap rmap] ;
-       rewrite (profunctor_square_natural θ) ;
-       rewrite <- lmap_rmap ;
-       rewrite <- !lmap_comp ;
-       rewrite (nat_trans_ax τ _ _ g) ;
-       apply idpath).
-Defined.
-
-Definition dwhisker_profunctor_square
-           {C₁ C₂ D₁ D₂ : category}
-           {F : C₁ ⟶ C₂}
-           {G G' : D₁ ⟶ D₂}
-           {P : D₁ ↛ C₁}
-           {Q : D₂ ↛ C₂}
-           (τ : G ⟹ G')
-           (θ : profunctor_square F G P Q)
-  : profunctor_square F G' P Q.
-Proof.
-  use make_profunctor_square.
-  - exact (λ y x h, rmap Q (τ x) (θ y x h)).
-  - abstract
-      (intros y₁ y₂ x₁ x₂ g f h ; cbn -[lmap rmap] ;
-       rewrite (profunctor_square_natural θ) ;
-       rewrite <- lmap_rmap ;
-       apply maponpaths ;
-       rewrite <- !rmap_comp ;
-       rewrite (nat_trans_ax τ _ _ f) ;
-       apply idpath).
-Defined.
-
-Definition lwhisker_profunctor_square
-           {C₁ C₂ D₁ D₂ : category}
-           {F : C₁ ⟶ C₂}
-           {G : D₁ ⟶ D₂}
-           {P P' : D₁ ↛ C₁}
-           {Q : D₂ ↛ C₂}
-           (τ : profunctor_nat_trans P P')
-           (θ : profunctor_square F G P' Q)
-  : profunctor_square F G P Q.
-Proof.
-  use make_profunctor_square.
-  - exact (λ y x h, θ y x (τ y x h)).
-  - abstract
-      (intros y₁ y₂ x₁ x₂ g f h ; cbn -[lmap rmap] ;
-       rewrite profunctor_nat_trans_natural ;
-       rewrite profunctor_square_natural ;
-       apply idpath).
-Defined.
-
-Definition rwhisker_profunctor_square
-           {C₁ C₂ D₁ D₂ : category}
-           {F : C₁ ⟶ C₂}
-           {G : D₁ ⟶ D₂}
-           {P : D₁ ↛ C₁}
-           {Q Q' : D₂ ↛ C₂}
-           (τ : profunctor_nat_trans Q Q')
-           (θ : profunctor_square F G P Q)
-  : profunctor_square F G P Q'.
-Proof.
-  use make_profunctor_square.
-  - exact (λ y x h, τ (F y) (G x) (θ y x h)).
-  - abstract
-      (intros y₁ y₂ x₁ x₂ g f h ; cbn -[lmap rmap] ;
-       rewrite profunctor_square_natural ;
-       rewrite profunctor_nat_trans_natural ;
-       apply idpath).
-Defined.
+End ProdProfunctor.

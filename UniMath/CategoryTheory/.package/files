@@ -46,7 +46,12 @@ Equivalences/FullyFaithful.v
 Subcategory/FullEquivalences.v
 categories/HSET/MonoEpiIso.v
 categories/HSET/Univalence.v
+
 Profunctors/Core.v
+Profunctors/Examples.v
+Profunctors/Transformation.v
+Profunctors/Squares.v
+
 CategoriesWithBinOps.v
 PrecategoriesWithAbgrops.v
 covyoneda.v
@@ -485,6 +490,7 @@ TwoSidedDisplayedCats/Examples/Reindex.v
 TwoSidedDisplayedCats/Examples/Relations.v
 TwoSidedDisplayedCats/Examples/Spans.v
 TwoSidedDisplayedCats/Examples/StructuredCospans.v
+TwoSidedDisplayedCats/Examples/ProfunctorTwosidedDispCat.v
 
 DisplayedCats/Examples/StrictTwoSidedDispCat.v
 
