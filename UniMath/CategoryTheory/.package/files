@@ -48,6 +48,7 @@ categories/HSET/MonoEpiIso.v
 categories/HSET/Univalence.v
 
 Profunctors/Core.v
+categories/HSET/SetCoends.v
 Profunctors/Examples.v
 Profunctors/Transformation.v
 Profunctors/Squares.v
@@ -69,6 +70,7 @@ limits/bincoproducts.v
 limits/binproducts.v
 
 limits/graphs/bincoproducts.v
+limits/graphs/coproducts.v
 limits/graphs/binproducts.v
 limits/pullbacks.v
 limits/graphs/initial.v
@@ -92,6 +94,7 @@ limits/FinOrdCoproducts.v
 limits/Opp.v
 limits/Preservation.v
 limits/Ends.v
+limits/Coends.v
 
 DisplayedCats/Binproducts.v
 

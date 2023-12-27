@@ -273,6 +273,28 @@ Proof.
   apply idpath.
 Qed.
 
+Proposition lmap_functor
+            {C D : category}
+            (F : C ↛ D)
+            {a : ob C} {b b' : ob D}
+            (g : b' --> b)
+            (h : F b a)
+  : lmap F g h = F #[ g , identity _ ] h.
+Proof.
+  apply idpath.
+Qed.
+
+Proposition rmap_functor
+            {C D : category}
+            (F : C ↛ D)
+            {a a' : ob C} {b : ob D}
+            (f : a --> a')
+            (h : F b a)
+  : rmap F f h = F #[ identity _ , f ] h.
+Proof.
+  apply idpath.
+Qed.
+
 Proposition lmap_rmap_functor
             {C₁ C₂ : category}
             (P : profunctor C₁ C₂)

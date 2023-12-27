@@ -11,11 +11,13 @@
  3. Representable profunctors
  4. Precomposition of a profunctor with functors
  5. Product of profunctors
+ 6. Composition of profunctors
 
  *****************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.categories.HSET.All.
+Require Import UniMath.CategoryTheory.categories.HSET.SetCoends.
 Require Import UniMath.CategoryTheory.Profunctors.Core.
 
 Local Open Scope cat.
@@ -341,3 +343,179 @@ Section ProdProfunctor.
     - exact prod_profunctor_laws.
   Defined.
 End ProdProfunctor.
+
+(** * 6. Composition of profunctors *)
+Section CompProfunctor.
+  Context {C₁ C₂ C₃ : category}
+          (P : C₁ ↛ C₂)
+          (Q : C₂ ↛ C₃).
+
+  Definition comp_profunctor_colim_profunctor_data
+             (x : C₁)
+             (z : C₃)
+    : profunctor_data C₂ C₂.
+  Proof.
+    use make_profunctor_data.
+    - exact (λ y₁ y₂, P y₁ x × Q z y₂).
+    - exact (λ y₁ y₂ g y₁' y₂ g' h,
+             P #[ g , identity _ ] (pr1 h)
+             ,,
+             Q #[ identity _ , g' ] (pr2 h)).
+  Defined.
+
+  Proposition comp_profunctor_colim_profunctor_data_laws
+              (x : C₁)
+              (z : C₃)
+    : profunctor_laws (comp_profunctor_colim_profunctor_data x z).
+  Proof.
+    repeat split ; intros ; cbn.
+    - rewrite !profunctor_id.
+      apply idpath.
+    - rewrite <- !profunctor_comp.
+      rewrite !id_right.
+      apply idpath.
+    - apply isasetdirprod ; apply setproperty.
+  Qed.
+
+  Definition comp_profunctor_colim_profunctor
+             (x : C₁)
+             (z : C₃)
+    : C₂ ↛ C₂.
+  Proof.
+    use make_profunctor.
+    - exact (comp_profunctor_colim_profunctor_data x z).
+    - exact (comp_profunctor_colim_profunctor_data_laws x z).
+  Defined.
+
+  Definition comp_profunctor_mor
+             {z₁ z₂ : C₃}
+             (k : z₂ --> z₁)
+             {x₁ x₂ : C₁}
+             (f : x₁ --> x₂)
+    : HSET_coend (comp_profunctor_colim_profunctor x₁ z₁)
+      →
+      HSET_coend (comp_profunctor_colim_profunctor x₂ z₂).
+  Proof.
+    use mor_to_HSET_coend.
+    - exact (λ y h,
+             HSET_coend_in
+               (comp_profunctor_colim_profunctor _ _)
+               y
+               (rmap P f (pr1 h) ,, lmap Q k (pr2 h))).
+    - abstract
+        (cbn ; intros y₁ y₂ g h ;
+         rewrite !profunctor_id ;
+         rewrite <- lmap_functor, <- rmap_functor ;
+         pose (HSET_coend_comm
+                 (comp_profunctor_colim_profunctor x₂ z₂)
+                 g
+                 (rmap P f (pr1 h) ,, lmap Q k (pr2 h)))
+           as p ;
+         cbn in p ;
+         rewrite !profunctor_id in p ;
+         rewrite <- lmap_functor, <- rmap_functor in p ;
+         rewrite !rmap_lmap ;
+         rewrite !rmap_lmap in p ;
+         exact p).
+  Defined.
+
+  Proposition comp_profunctor_mor_comm
+              {z₁ z₂ : C₃}
+              (k : z₂ --> z₁)
+              {x₁ x₂ : C₁}
+              (f : x₁ --> x₂)
+              {y : C₂}
+              (h : P y x₁) (h' : Q z₁ y)
+    : comp_profunctor_mor
+        k f
+        (HSET_coend_in (comp_profunctor_colim_profunctor x₁ z₁) y (h ,, h'))
+      =
+      HSET_coend_in
+        (comp_profunctor_colim_profunctor x₂ z₂)
+        y
+        (rmap P f h ,, lmap Q k h').
+  Proof.
+    unfold comp_profunctor_mor.
+    rewrite mor_to_HSET_coend_comm.
+    apply idpath.
+  Qed.
+
+  Definition comp_profunctor_data
+    : profunctor_data C₁ C₃.
+  Proof.
+    use make_profunctor_data.
+    - exact (λ z x, HSET_coend (comp_profunctor_colim_profunctor x z)).
+    - exact (λ _ _ k _ _ f h, comp_profunctor_mor k f h).
+  Defined.
+
+  Proposition comp_profunctor_laws
+    : profunctor_laws comp_profunctor_data.
+  Proof.
+    repeat split.
+    - intros z x h ; cbn.
+      use mor_to_HSET_coend_eq ; cbn.
+      intros y h'.
+      rewrite comp_profunctor_mor_comm.
+      rewrite rmap_id, lmap_id.
+      apply idpath.
+    - cbn ; intros z₁ z₂ z₃ k₁ k₂ x₁ x₂ x₃ f₁ f₂ h.
+      use (mor_to_HSET_coend_eq
+             (comp_profunctor_colim_profunctor x₁ z₁)
+             _
+             (comp_profunctor_mor (k₂ · k₁) (f₁ · f₂))
+             (λ h, comp_profunctor_mor k₂ f₂ (comp_profunctor_mor k₁ f₁ h))).
+      intros y h'.
+      rewrite !comp_profunctor_mor_comm.
+      cbn.
+      rewrite <- rmap_comp, <- lmap_comp.
+      apply idpath.
+    - intros.
+      apply setproperty.
+  Qed.
+
+  Definition comp_profunctor
+    : C₁ ↛ C₃.
+  Proof.
+    use make_profunctor.
+    - exact comp_profunctor_data.
+    - exact comp_profunctor_laws.
+  Defined.
+
+  Proposition lmap_comp_profunctor
+              {z₁ z₂ : C₃}
+              (k : z₂ --> z₁)
+              {x : C₁}
+              {y : C₂}
+              (h : P y x) (h' : Q z₁ y)
+    : lmap
+        comp_profunctor
+        k
+        (HSET_coend_in (comp_profunctor_colim_profunctor x z₁) y (h ,, h'))
+      =
+      HSET_coend_in (comp_profunctor_colim_profunctor x z₂) y (h ,, lmap Q k h').
+  Proof.
+    cbn.
+    rewrite comp_profunctor_mor_comm.
+    rewrite rmap_id.
+    apply idpath.
+  Qed.
+
+  Proposition rmap_comp_profunctor
+              {z : C₃}
+              {x₁ x₂ : C₁}
+              (f : x₁ --> x₂)
+              {y : C₂}
+              (h : P y x₁) (h' : Q z y)
+    : rmap
+        comp_profunctor
+        f
+        (HSET_coend_in (comp_profunctor_colim_profunctor x₁ z) y (h ,, h'))
+      =
+      HSET_coend_in (comp_profunctor_colim_profunctor x₂ z) y (rmap P f h ,, h').
+  Proof.
+    cbn.
+    rewrite comp_profunctor_mor_comm.
+    rewrite lmap_id.
+    apply idpath.
+  Qed.
+End CompProfunctor.
