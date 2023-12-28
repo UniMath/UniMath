@@ -30,7 +30,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.coproducts.
+Require Import UniMath.CategoryTheory.limits.graphs.Coproducts.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.pushouts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.

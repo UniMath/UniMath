@@ -261,7 +261,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [limits/bincoproducts.v](CategoryTheory/limits/bincoproducts.v)
    - [limits/binproducts.v](CategoryTheory/limits/binproducts.v)
    - [limits/graphs/bincoproducts.v](CategoryTheory/limits/graphs/bincoproducts.v)
-   - [limits/graphs/coproducts.v](CategoryTheory/limits/graphs/coproducts.v)
+   - [limits/graphs/Coproducts.v](CategoryTheory/limits/graphs/Coproducts.v)
    - [limits/graphs/binproducts.v](CategoryTheory/limits/graphs/binproducts.v)
    - [limits/pullbacks.v](CategoryTheory/limits/pullbacks.v)
    - [limits/graphs/initial.v](CategoryTheory/limits/graphs/initial.v)

@@ -70,7 +70,7 @@ limits/bincoproducts.v
 limits/binproducts.v
 
 limits/graphs/bincoproducts.v
-limits/graphs/coproducts.v
+limits/graphs/Coproducts.v
 limits/graphs/binproducts.v
 limits/pullbacks.v
 limits/graphs/initial.v
