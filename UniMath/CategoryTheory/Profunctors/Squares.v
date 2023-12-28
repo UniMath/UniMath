@@ -29,6 +29,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.categories.HSET.All.
+Require Import UniMath.CategoryTheory.categories.HSET.SetCoends.
 Require Import UniMath.CategoryTheory.Profunctors.Core.
 Require Import UniMath.CategoryTheory.Profunctors.Examples.
 Require Import UniMath.CategoryTheory.Profunctors.Transformation.
@@ -70,6 +71,50 @@ Proof.
   apply idpath.
 Qed.
 
+Proposition profunctor_square_lmap
+            {C₁ C₂ D₁ D₂ : category}
+            {F : C₁ ⟶ C₂}
+            {G : D₁ ⟶ D₂}
+            {P : D₁ ↛ C₁}
+            {Q : D₂ ↛ C₂}
+            (τ : profunctor_square F G P Q)
+            {y₁ y₂ : C₁}
+            {x : D₁}
+            (g : y₂ --> y₁)
+            (h : P y₁ x)
+  : τ y₂ x (lmap P g h)
+    =
+    lmap Q (#F g) (τ y₁ x h).
+Proof.
+  pose (eqtohomot (pr2 τ (y₁ ,, x) (y₂ ,, x) (g ,, identity _)) h) as p.
+  cbn in p.
+  rewrite functor_id in p.
+  rewrite rmap_id in p.
+  exact p.
+Qed.
+
+Proposition profunctor_square_rmap
+            {C₁ C₂ D₁ D₂ : category}
+            {F : C₁ ⟶ C₂}
+            {G : D₁ ⟶ D₂}
+            {P : D₁ ↛ C₁}
+            {Q : D₂ ↛ C₂}
+            (τ : profunctor_square F G P Q)
+            {y : C₁}
+            {x₁ x₂ : D₁}
+            (f : x₁ --> x₂)
+            (h : P y x₁)
+  : τ y x₂ (rmap P f h)
+    =
+    rmap Q (#G f) (τ y x₁ h).
+Proof.
+  pose (eqtohomot (pr2 τ (y ,, x₁) (y ,, x₂) (identity _ ,, f)) h) as p.
+  cbn in p.
+  rewrite functor_id in p.
+  rewrite lmap_id in p.
+  exact p.
+Qed.
+
 Proposition profunctor_square_lmap_rmap
             {C₁ C₂ D₁ D₂ : category}
             {F : C₁ ⟶ C₂}
@@ -86,11 +131,9 @@ Proposition profunctor_square_lmap_rmap
     =
     lmap Q (#F g) (rmap Q (#G f) (τ y₁ x₁ h)).
 Proof.
-  pose (eqtohomot (pr2 τ (y₁ ,, x₁) (y₂ ,, x₂) (g ,, f)) h) as p.
-  cbn in p.
-  refine (_ @ p).
-  rewrite lmap_rmap_functor.
-  apply idpath.
+  rewrite (profunctor_square_lmap τ g).
+  apply maponpaths.
+  apply profunctor_square_rmap.
 Qed.
 
 Definition profunctor_iso_square
@@ -347,6 +390,132 @@ Proof.
        apply idpath).
 Defined.
 
+Definition comp_v_profunctor_square_mor
+           {C₁ C₂ D₁ D₂ E₁ E₂ : category}
+           {F₁ : C₁ ⟶ C₂}
+           {F₂ : D₁ ⟶ D₂}
+           {F₃ : E₁ ⟶ E₂}
+           {P₁ : C₁ ↛ D₁}
+           {Q₁ : D₁ ↛ E₁}
+           {P₂ : C₂ ↛ D₂}
+           {Q₂ : D₂ ↛ E₂}
+           (τ : profunctor_square F₂ F₁ P₁ P₂)
+           (θ : profunctor_square F₃ F₂ Q₁ Q₂)
+           (z : E₁)
+           (x : C₁)
+  : comp_profunctor P₁ Q₁ z x → comp_profunctor P₂ Q₂ (F₃ z) (F₁ x).
+Proof.
+  use from_comp_profunctor_ob.
+  - exact (λ y h h', comp_profunctor_ob_in P₂ Q₂ (F₂ y) (τ y x h) (θ z y h')).
+  - abstract
+      (intros y₁ y₂ g h h' ; cbn ;
+       rewrite (profunctor_square_rmap θ) ;
+       rewrite (profunctor_square_lmap τ) ;
+       rewrite comp_profunctor_ob_in_comm ;
+       apply idpath).
+Defined.
+
+Proposition comp_v_profunctor_square_mor_comm
+            {C₁ C₂ D₁ D₂ E₁ E₂ : category}
+            {F₁ : C₁ ⟶ C₂}
+            {F₂ : D₁ ⟶ D₂}
+            {F₃ : E₁ ⟶ E₂}
+            {P₁ : C₁ ↛ D₁}
+            {Q₁ : D₁ ↛ E₁}
+            {P₂ : C₂ ↛ D₂}
+            {Q₂ : D₂ ↛ E₂}
+            (τ : profunctor_square F₂ F₁ P₁ P₂)
+            (θ : profunctor_square F₃ F₂ Q₁ Q₂)
+            (z : E₁)
+            (x : C₁)
+            (y : D₁)
+            (h₁ : P₁ y x)
+            (h₂ : Q₁ z y)
+  : comp_v_profunctor_square_mor
+      τ θ z x
+      (comp_profunctor_ob_in _ _ y h₁ h₂)
+    =
+    comp_profunctor_ob_in P₂ Q₂ (F₂ y) (τ y x h₁) (θ z y h₂).
+Proof.
+  unfold comp_v_profunctor_square_mor.
+  rewrite from_comp_profunctor_ob_comm.
+  apply idpath.
+Qed.
+
+Proposition comp_v_profunctor_square_laws
+            {C₁ C₂ D₁ D₂ E₁ E₂ : category}
+            {F₁ : C₁ ⟶ C₂}
+            {F₂ : D₁ ⟶ D₂}
+            {F₃ : E₁ ⟶ E₂}
+            {P₁ : C₁ ↛ D₁}
+            {Q₁ : D₁ ↛ E₁}
+            {P₂ : C₂ ↛ D₂}
+            {Q₂ : D₂ ↛ E₂}
+            (τ : profunctor_square F₂ F₁ P₁ P₂)
+            (θ : profunctor_square F₃ F₂ Q₁ Q₂)
+  : profunctor_square_laws (comp_v_profunctor_square_mor τ θ).
+Proof.
+  intros z₁ z₂ x₁ x₂ k f h.
+  cbn.
+  use (mor_from_comp_profunctor_ob_eq
+         P₁ Q₁
+         z₁ x₁
+         (λ h,
+          comp_v_profunctor_square_mor
+            τ θ z₂ x₂
+            (comp_profunctor_mor
+               P₁ Q₁ k (identity x₂)
+               (comp_profunctor_mor
+                  P₁ Q₁ (identity z₁) f
+                  h)))
+         (λ h,
+          comp_profunctor_mor
+            P₂ Q₂ (# F₃ k) (identity (F₁ x₂))
+            (comp_profunctor_mor
+               P₂ Q₂ (identity (F₃ z₁)) (# F₁ f)
+               (comp_v_profunctor_square_mor
+                  τ θ z₁ x₁
+                  h)))).
+  clear h.
+  intros y h h'.
+  cbn.
+  rewrite !comp_profunctor_mor_comm.
+  etrans.
+  {
+    exact (comp_v_profunctor_square_mor_comm τ θ z₂ x₂ y _ _).
+  }
+  refine (!_).
+  etrans.
+  {
+    do 2 apply maponpaths.
+    exact (comp_v_profunctor_square_mor_comm τ θ z₁ x₁ y _ _).
+  }
+  rewrite !comp_profunctor_mor_comm.
+  rewrite !lmap_id.
+  rewrite !rmap_id.
+  rewrite (profunctor_square_lmap θ).
+  rewrite (profunctor_square_rmap τ).
+  apply idpath.
+Qed.
+
+Definition comp_v_profunctor_square
+           {C₁ C₂ D₁ D₂ E₁ E₂ : category}
+           {F₁ : C₁ ⟶ C₂}
+           {F₂ : D₁ ⟶ D₂}
+           {F₃ : E₁ ⟶ E₂}
+           {P₁ : C₁ ↛ D₁}
+           {Q₁ : D₁ ↛ E₁}
+           {P₂ : C₂ ↛ D₂}
+           {Q₂ : D₂ ↛ E₂}
+           (τ : profunctor_square F₂ F₁ P₁ P₂)
+           (θ : profunctor_square F₃ F₂ Q₁ Q₂)
+  : profunctor_square F₃ F₁ (comp_profunctor P₁ Q₁) (comp_profunctor P₂ Q₂).
+Proof.
+  use make_profunctor_square.
+  - exact (λ z x, comp_v_profunctor_square_mor τ θ z x).
+  - exact (comp_v_profunctor_square_laws τ θ).
+Defined.
+
 (** ** 4.3. Whiskering operations *)
 Definition uwhisker_profunctor_square
            {C₁ C₂ D₁ D₂ : category}
@@ -427,4 +596,46 @@ Proof.
        rewrite profunctor_square_lmap_rmap ;
        rewrite profunctor_nat_trans_lmap_rmap ;
        apply idpath).
+Defined.
+
+(** * 4.4. Unitors and associators *)
+Definition lunitor_profunctor_square
+           {C₁ C₂ : category}
+           (P : C₁ ↛ C₂)
+  : profunctor_square
+      (functor_identity C₂)
+      (functor_identity C₁)
+      (comp_profunctor (id_profunctor C₁) P)
+      P.
+Proof.
+  use profunctor_nat_trans_to_square.
+  exact (lunitor_profunctor_nat_trans P).
+Defined.
+
+Definition runitor_profunctor_square
+           {C₁ C₂ : category}
+           (P : C₁ ↛ C₂)
+  : profunctor_square
+      (functor_identity C₂)
+      (functor_identity C₁)
+      (comp_profunctor P (id_profunctor C₂))
+      P.
+Proof.
+  use profunctor_nat_trans_to_square.
+  exact (runitor_profunctor_nat_trans P).
+Defined.
+
+Definition associator_profunctor_square
+           {C₁ C₂ C₃ C₄ : category}
+           (P₁ : C₁ ↛ C₂)
+           (P₂ : C₂ ↛ C₃)
+           (P₃ : C₃ ↛ C₄)
+  :  profunctor_square
+       (functor_identity C₄)
+       (functor_identity C₁)
+       (comp_profunctor P₁ (comp_profunctor P₂ P₃))
+       (comp_profunctor (comp_profunctor P₁ P₂) P₃).
+Proof.
+  use profunctor_nat_trans_to_square.
+  exact (associator_profunctor_nat_trans P₁ P₂ P₃).
 Defined.

@@ -69,7 +69,7 @@ Section CoendsHSET.
                   =
                   fs _ (lmap F f h)).
 
-    Definition mor_to_HSET_coend
+    Definition mor_from_HSET_coend
                (x : HSET_coend)
       : X.
     Proof.
@@ -80,10 +80,10 @@ Section CoendsHSET.
          apply ps).
     Defined.
 
-    Definition mor_to_HSET_coend_comm
+    Definition mor_from_HSET_coend_comm
                {x : C}
                (h : F x x)
-      : mor_to_HSET_coend (HSET_coend_in x h)
+      : mor_from_HSET_coend (HSET_coend_in x h)
         =
         fs x h.
     Proof.
@@ -95,7 +95,7 @@ Section CoendsHSET.
     Qed.
   End MorToCoend.
 
-  Proposition mor_to_HSET_coend_eq
+  Proposition mor_from_HSET_coend_eq
               (X : hSet)
               (f g : HSET_coend → X)
               (x : HSET_coend)
@@ -112,4 +112,4 @@ Section CoendsHSET.
   Qed.
 End CoendsHSET.
 
-#[global] Opaque HSET_coend HSET_coend_in mor_to_HSET_coend.
+#[global] Opaque HSET_coend HSET_coend_in mor_from_HSET_coend.

@@ -14,6 +14,10 @@
  3. Equality of natural transformations between profunctors
  4. Natural isomorphisms between profunctors
  5. Standard natural transformations between profunctors
+ 5.1. Identity and composition
+ 5.2. Left unitor
+ 5.3. Right unitor
+ 5.4. Associator
  6. Equality of profunctors
 
  *****************************************************************************************)
@@ -24,6 +28,7 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.categories.HSET.All.
+Require Import UniMath.CategoryTheory.categories.HSET.SetCoends.
 Require Import UniMath.CategoryTheory.Profunctors.Core.
 Require Import UniMath.CategoryTheory.Profunctors.Examples.
 
@@ -353,6 +358,8 @@ Proof.
 Defined.
 
 (** * 5. Standard natural transformations between profunctors *)
+
+(** * 5.1. Identity and composition *)
 Definition profunctor_nat_trans_id
            {C₁ C₂ : category}
            (P : profunctor C₁ C₂)
@@ -377,6 +384,665 @@ Definition profunctor_nat_trans_comp
            (τ₂ : profunctor_nat_trans P₂ P₃)
   : profunctor_nat_trans P₁ P₃
   := nat_trans_comp _ _ _ τ₁ τ₂.
+
+(** * 5.2. Left unitor *)
+Definition lunitor_profunctor_nat_trans_mor
+           {C₁ C₂ : category}
+           (P : profunctor C₁ C₂)
+           (y : C₂)
+           (x : C₁)
+  : comp_profunctor (id_profunctor C₁) P y x → P y x.
+Proof.
+  use from_comp_profunctor_ob.
+  - exact (λ z h h', rmap P h h').
+  - abstract
+      (intros z₁ z₂ f h h' ; cbn ;
+       rewrite id_right ;
+       rewrite rmap_comp ;
+       apply idpath).
+Defined.
+
+Proposition lunitor_profunctor_nat_trans_mor_comm
+            {C₁ C₂ : category}
+            (P : profunctor C₁ C₂)
+            {y : C₂}
+            {x x' : C₁}
+            (f : x' --> x)
+            (h : P y x')
+  : lunitor_profunctor_nat_trans_mor
+      P
+      y x
+      (comp_profunctor_ob_in (id_profunctor C₁) P x' f h)
+    =
+    rmap P f h.
+Proof.
+  unfold lunitor_profunctor_nat_trans_mor.
+  rewrite from_comp_profunctor_ob_comm.
+  apply idpath.
+Qed.
+
+Proposition lunitor_profunctor_nat_trans_law
+            {C₁ C₂ : category}
+            (P : profunctor C₁ C₂)
+  : profunctor_nat_trans_law (lunitor_profunctor_nat_trans_mor P).
+Proof.
+  intros y₁ y₂ x₁ x₂ g f h.
+  use (mor_from_comp_profunctor_ob_eq
+         (id_profunctor C₁) P
+         y₁ x₁
+         (λ h,
+          lunitor_profunctor_nat_trans_mor
+            P
+            y₂ x₂
+            (comp_profunctor_mor
+               (id_profunctor C₁) P
+               g (identity x₂)
+               (comp_profunctor_mor
+                  (id_profunctor C₁) P
+                  (identity y₁) f
+                  h)))
+         (λ h, lmap P g (rmap P f (lunitor_profunctor_nat_trans_mor P y₁ x₁ h)))).
+  clear h.
+  intros y h h' ; cbn.
+  rewrite !comp_profunctor_mor_comm.
+  rewrite !lunitor_profunctor_nat_trans_mor_comm ; cbn.
+  rewrite !id_left, !id_right.
+  rewrite lmap_id.
+  rewrite <- lmap_rmap.
+  rewrite rmap_comp.
+  apply idpath.
+Qed.
+
+Definition lunitor_profunctor_nat_trans
+           {C₁ C₂ : category}
+           (P : profunctor C₁ C₂)
+  : profunctor_nat_trans (comp_profunctor (id_profunctor C₁) P) P.
+Proof.
+  use make_profunctor_nat_trans.
+  - exact (lunitor_profunctor_nat_trans_mor P).
+  - exact (lunitor_profunctor_nat_trans_law P).
+Defined.
+
+Definition is_profunctor_nat_iso_lunitor_profunctor_nat_trans
+           {C₁ C₂ : category}
+           (P : profunctor C₁ C₂)
+  : is_profunctor_nat_iso (lunitor_profunctor_nat_trans P).
+Proof.
+  intros y x.
+  use isweq_iso.
+  - refine (comp_profunctor_ob_in _ _ _ _).
+    exact (identity x).
+  - abstract
+      (intro h ;
+       use (mor_from_comp_profunctor_ob_eq
+              (id_profunctor C₁) P
+              _ _
+              (λ h,
+               comp_profunctor_ob_in
+                 (id_profunctor C₁) P
+                 x (identity x)
+                 (lunitor_profunctor_nat_trans P y x h))
+              (idfun _)) ;
+       clear h ;
+       intros z h h' ; cbn ;
+       rewrite lunitor_profunctor_nat_trans_mor_comm ;
+       rewrite comp_profunctor_ob_in_comm ; cbn ;
+       rewrite !id_right ;
+       apply idpath).
+  - abstract
+      (intro h ; cbn ;
+       rewrite lunitor_profunctor_nat_trans_mor_comm ;
+       rewrite rmap_id;
+       apply idpath).
+Defined.
+
+(** *  5.3. Right unitor *)
+Definition runitor_profunctor_nat_trans_mor
+           {C₁ C₂ : category}
+           (P : profunctor C₁ C₂)
+           (y : C₂)
+           (x : C₁)
+  : comp_profunctor P (id_profunctor C₂) y x → P y x.
+Proof.
+  use from_comp_profunctor_ob.
+  - exact (λ z h h', lmap P h' h).
+  - abstract
+      (intros z₁ z₂ f h h' ; cbn ;
+       rewrite !id_left ;
+       rewrite lmap_comp ;
+       apply idpath).
+Defined.
+
+Proposition runitor_profunctor_nat_trans_mor_comm
+            {C₁ C₂ : category}
+            (P : profunctor C₁ C₂)
+            {x : C₁}
+            {y y' : C₂}
+            (g : y --> y')
+            (h : P y' x)
+  : runitor_profunctor_nat_trans_mor
+      P
+      y x
+      (comp_profunctor_ob_in P (id_profunctor C₂) y' h g)
+    =
+    lmap P g h.
+Proof.
+  unfold runitor_profunctor_nat_trans_mor.
+  rewrite from_comp_profunctor_ob_comm.
+  apply idpath.
+Qed.
+
+Proposition runitor_profunctor_nat_trans_law
+            {C₁ C₂ : category}
+            (P : profunctor C₁ C₂)
+  : profunctor_nat_trans_law (runitor_profunctor_nat_trans_mor P).
+Proof.
+  intros y₁ y₂ x₁ x₂ g f h.
+  cbn.
+  use (mor_from_comp_profunctor_ob_eq
+         P (id_profunctor C₂)
+         y₁ x₁
+         (λ h,
+          runitor_profunctor_nat_trans_mor
+            P
+            y₂ x₂
+            (comp_profunctor_mor
+               P (id_profunctor C₂)
+               g (identity x₂)
+               (comp_profunctor_mor
+                  P (id_profunctor C₂)
+                  (identity y₁) f
+                  h)))
+         (λ h, lmap P g (rmap P f (runitor_profunctor_nat_trans_mor P y₁ x₁ h)))).
+  clear h.
+  intros y h h' ; cbn.
+  rewrite !comp_profunctor_mor_comm.
+  rewrite !runitor_profunctor_nat_trans_mor_comm ; cbn.
+  rewrite !id_left, !id_right.
+  rewrite rmap_id.
+  rewrite <- lmap_rmap.
+  rewrite lmap_comp.
+  apply idpath.
+Qed.
+
+Definition runitor_profunctor_nat_trans
+           {C₁ C₂ : category}
+           (P : profunctor C₁ C₂)
+  : profunctor_nat_trans (comp_profunctor P (id_profunctor C₂)) P.
+Proof.
+  use make_profunctor_nat_trans.
+  - exact (runitor_profunctor_nat_trans_mor P).
+  - exact (runitor_profunctor_nat_trans_law P).
+Defined.
+
+Definition is_profunctor_nat_iso_runitor_profunctor_nat_trans
+           {C₁ C₂ : category}
+           (P : profunctor C₁ C₂)
+  : is_profunctor_nat_iso (runitor_profunctor_nat_trans P).
+Proof.
+  intros y x.
+  use isweq_iso.
+  - refine (λ h, comp_profunctor_ob_in _ _ _ h _).
+    exact (identity y).
+  - abstract
+      (intro h ;
+       use (mor_from_comp_profunctor_ob_eq
+              P (id_profunctor C₂)
+              _ _
+              (λ h,
+               comp_profunctor_ob_in
+                 P (id_profunctor C₂)
+                 _
+                 (runitor_profunctor_nat_trans P y x h)
+                 (identity y))
+              (idfun _)) ;
+       clear h ;
+       intros z h h' ; cbn ;
+       rewrite runitor_profunctor_nat_trans_mor_comm ;
+       rewrite <- comp_profunctor_ob_in_comm ; cbn ;
+       rewrite !id_left ;
+       apply idpath).
+  - abstract
+      (intro h ; cbn ;
+       rewrite runitor_profunctor_nat_trans_mor_comm ;
+       rewrite lmap_id;
+       apply idpath).
+Defined.
+
+(** * 5.4. Associator *)
+Definition associator_profunctor_nat_trans_mor_ob
+           {C₁ C₂ C₃ C₄ : category}
+           (P₁ : C₁ ↛ C₂)
+           (P₂ : C₂ ↛ C₃)
+           (P₃ : C₃ ↛ C₄)
+           (z : C₄)
+           (w : C₁)
+           (x : C₂)
+           (h : P₁ x w)
+  : comp_profunctor P₂ P₃ z x → comp_profunctor (comp_profunctor P₁ P₂) P₃ z w.
+Proof.
+  use from_comp_profunctor_ob.
+  - refine (λ y h' h'', comp_profunctor_ob_in _ _ y _ h'').
+    exact (comp_profunctor_ob_in P₁ P₂ x h h').
+  - abstract
+      (intros y₁ y₂ g k k' ; cbn ;
+       rewrite comp_profunctor_ob_in_comm ;
+       cbn ;
+       rewrite comp_profunctor_mor_comm ;
+       rewrite rmap_id ;
+       apply idpath).
+Defined.
+
+Proposition associator_profunctor_nat_trans_mor_ob_comm
+            {C₁ C₂ C₃ C₄ : category}
+            (P₁ : C₁ ↛ C₂)
+            (P₂ : C₂ ↛ C₃)
+            (P₃ : C₃ ↛ C₄)
+            {z : C₄}
+            {w : C₁}
+            {x : C₂}
+            {y : C₃}
+            (h : P₁ x w)
+            (k : P₂ y x)
+            (l : P₃ z y)
+  : associator_profunctor_nat_trans_mor_ob
+      P₁ P₂ P₃
+      z w x h
+      (comp_profunctor_ob_in P₂ P₃ y k l)
+    =
+    comp_profunctor_ob_in (comp_profunctor P₁ P₂) P₃ y (comp_profunctor_ob_in P₁ P₂ x h k) l.
+Proof.
+  unfold associator_profunctor_nat_trans_mor_ob.
+  rewrite from_comp_profunctor_ob_comm.
+  apply idpath.
+Qed.
+
+Definition associator_profunctor_nat_trans_mor
+           {C₁ C₂ C₃ C₄ : category}
+           (P₁ : C₁ ↛ C₂)
+           (P₂ : C₂ ↛ C₃)
+           (P₃ : C₃ ↛ C₄)
+           (z : C₄)
+           (w : C₁)
+  : comp_profunctor P₁ (comp_profunctor P₂ P₃) z w
+    →
+    comp_profunctor (comp_profunctor P₁ P₂) P₃ z w.
+Proof.
+  use from_comp_profunctor_ob.
+  - exact (λ x h, associator_profunctor_nat_trans_mor_ob P₁ P₂ P₃ z w x h).
+  - abstract
+      (intros x₁ x₂ f h h' ; cbn in * ;
+       use (mor_from_comp_profunctor_ob_eq
+              P₂ P₃
+              _ _
+              (λ k,
+               associator_profunctor_nat_trans_mor_ob
+                 P₁ P₂ P₃ z w x₂ h
+                 (comp_profunctor_mor P₂ P₃ (identity z) f k))
+              (associator_profunctor_nat_trans_mor_ob P₁ P₂ P₃ z w x₁ (lmap P₁ f h))) ;
+       clear h' ;
+       intros y k k' ; cbn ;
+       rewrite comp_profunctor_mor_comm ;
+       rewrite lmap_id ;
+       refine (associator_profunctor_nat_trans_mor_ob_comm P₁ P₂ P₃ h (rmap P₂ f k) k' @ _) ;
+       refine (!_) ;
+       etrans ; [ apply associator_profunctor_nat_trans_mor_ob_comm | ] ;
+       rewrite comp_profunctor_ob_in_comm ;
+       apply idpath).
+Defined.
+
+Proposition associator_profunctor_nat_trans_mor_comm
+            {C₁ C₂ C₃ C₄ : category}
+            (P₁ : C₁ ↛ C₂)
+            (P₂ : C₂ ↛ C₃)
+            (P₃ : C₃ ↛ C₄)
+            (z : C₄)
+            (w : C₁)
+            (x : C₂)
+            (h : P₁ x w)
+            (kl : comp_profunctor_ob P₂ P₃ z x)
+  : associator_profunctor_nat_trans_mor
+      P₁ P₂ P₃
+      z w
+      (comp_profunctor_ob_in
+         P₁ (comp_profunctor P₂ P₃)
+         x
+         h
+         kl)
+    =
+    associator_profunctor_nat_trans_mor_ob P₁ P₂ P₃ _ _ x h kl.
+Proof.
+  unfold associator_profunctor_nat_trans_mor.
+  rewrite from_comp_profunctor_ob_comm.
+  apply idpath.
+Qed.
+
+Proposition associator_profunctor_nat_trans_law
+            {C₁ C₂ C₃ C₄ : category}
+            (P₁ : C₁ ↛ C₂)
+            (P₂ : C₂ ↛ C₃)
+            (P₃ : C₃ ↛ C₄)
+  : profunctor_nat_trans_law (associator_profunctor_nat_trans_mor P₁ P₂ P₃).
+Proof.
+  intros z₁ z₂ w₁ w₂ f₄ f₁ h ; cbn.
+  use (mor_from_comp_profunctor_ob_eq
+         P₁ (comp_profunctor P₂ P₃)
+         _ _
+         (λ h,
+          associator_profunctor_nat_trans_mor
+            P₁ P₂ P₃ z₂ w₂
+            (comp_profunctor_mor
+               P₁ (comp_profunctor P₂ P₃)
+               f₄ (identity w₂)
+               (comp_profunctor_mor
+                  P₁ (comp_profunctor P₂ P₃)
+                  (identity z₁) f₁ h)))
+         (λ h,
+          comp_profunctor_mor
+            (comp_profunctor P₁ P₂) P₃
+            f₄ (identity w₂)
+            (comp_profunctor_mor
+               (comp_profunctor P₁ P₂) P₃ (identity z₁)
+               f₁
+               (associator_profunctor_nat_trans_mor P₁ P₂ P₃ z₁ w₁ h)))).
+  clear h.
+  intros x h kl ; cbn.
+  use (mor_from_comp_profunctor_ob_eq
+         P₂ P₃
+         z₁ x
+         (λ kl,
+          associator_profunctor_nat_trans_mor
+            P₁ P₂ P₃
+            z₂ w₂
+            (comp_profunctor_mor
+               P₁ (comp_profunctor P₂ P₃)
+               f₄ (identity w₂)
+               (comp_profunctor_mor
+                  P₁ (comp_profunctor P₂ P₃)
+                  (identity z₁) f₁
+                  (comp_profunctor_ob_in
+                     P₁ (comp_profunctor P₂ P₃)
+                     x h kl))))
+         (λ kl,
+          comp_profunctor_mor
+            (comp_profunctor P₁ P₂) P₃
+            f₄ (identity w₂)
+            (comp_profunctor_mor
+               (comp_profunctor P₁ P₂) P₃
+               (identity z₁) f₁
+               (associator_profunctor_nat_trans_mor
+                  P₁ P₂ P₃
+                  z₁ w₁
+                  (comp_profunctor_ob_in
+                     P₁ (comp_profunctor P₂ P₃)
+                     x h kl))))).
+  clear kl.
+  intros y k l ; cbn.
+  rewrite !comp_profunctor_mor_comm ; cbn.
+  rewrite !comp_profunctor_mor_comm.
+  rewrite !associator_profunctor_nat_trans_mor_comm.
+  rewrite !rmap_id, !lmap_id.
+  etrans.
+  {
+    exact (associator_profunctor_nat_trans_mor_ob_comm
+             P₁ P₂ P₃
+             (rmap P₁ f₁ h) k (lmap P₃ f₄ l)).
+  }
+  refine (!_).
+  etrans.
+  {
+    do 2 apply maponpaths.
+    exact (associator_profunctor_nat_trans_mor_ob_comm
+             P₁ P₂ P₃
+             h k l).
+  }
+  rewrite !comp_profunctor_mor_comm.
+  cbn.
+  rewrite lmap_id.
+  rewrite !comp_profunctor_mor_comm.
+  rewrite !lmap_id, !rmap_id.
+  apply idpath.
+Qed.
+
+Definition associator_profunctor_nat_trans
+           {C₁ C₂ C₃ C₄ : category}
+           (P₁ : C₁ ↛ C₂)
+           (P₂ : C₂ ↛ C₃)
+           (P₃ : C₃ ↛ C₄)
+  : profunctor_nat_trans
+      (comp_profunctor P₁ (comp_profunctor P₂ P₃))
+      (comp_profunctor (comp_profunctor P₁ P₂) P₃).
+Proof.
+  use make_profunctor_nat_trans.
+  - exact (associator_profunctor_nat_trans_mor P₁ P₂ P₃).
+  - exact (associator_profunctor_nat_trans_law P₁ P₂ P₃).
+Defined.
+
+Definition associator_profunctor_inv_mor_ob
+           {C₁ C₂ C₃ C₄ : category}
+           (P₁ : C₁ ↛ C₂)
+           (P₂ : C₂ ↛ C₃)
+           (P₃ : C₃ ↛ C₄)
+           (z : C₄)
+           (w : C₁)
+           (y : C₃)
+           (h : P₃ z y)
+  : comp_profunctor_ob P₁ P₂ y w → comp_profunctor_ob P₁ (comp_profunctor P₂ P₃) z w.
+Proof.
+  use from_comp_profunctor_ob.
+  - refine (λ x k l,
+            comp_profunctor_ob_in _ _ _ k _).
+    exact (comp_profunctor_ob_in _ _ y l h).
+  - abstract
+      (intros x₁ x₂ f k k' ; cbn ;
+       rewrite <- comp_profunctor_ob_in_comm ;
+       cbn ;
+       rewrite comp_profunctor_mor_comm ;
+       rewrite lmap_id ;
+       apply idpath).
+Defined.
+
+Proposition associator_profunctor_inv_mor_ob_comm
+            {C₁ C₂ C₃ C₄ : category}
+            (P₁ : C₁ ↛ C₂)
+            (P₂ : C₂ ↛ C₃)
+            (P₃ : C₃ ↛ C₄)
+            (z : C₄)
+            (w : C₁)
+            (y : C₃)
+            (x : C₂)
+            (h : P₃ z y)
+            (k : P₁ x w)
+            (l : P₂ y x)
+  : associator_profunctor_inv_mor_ob
+      P₁ P₂ P₃
+      z w y h
+      (comp_profunctor_ob_in P₁ P₂ x k l)
+    =
+    comp_profunctor_ob_in
+      P₁ (comp_profunctor P₂ P₃)
+      x
+      k
+      (comp_profunctor_ob_in P₂ P₃ y l h).
+Proof.
+  unfold associator_profunctor_inv_mor_ob.
+  rewrite from_comp_profunctor_ob_comm.
+  apply idpath.
+Qed.
+
+Definition associator_profunctor_inv_mor
+           {C₁ C₂ C₃ C₄ : category}
+           (P₁ : C₁ ↛ C₂)
+           (P₂ : C₂ ↛ C₃)
+           (P₃ : C₃ ↛ C₄)
+           (z : C₄)
+           (w : C₁)
+  : comp_profunctor (comp_profunctor P₁ P₂) P₃ z w
+    →
+    comp_profunctor P₁ (comp_profunctor P₂ P₃) z w.
+Proof.
+  use from_comp_profunctor_ob.
+  - exact (λ y kl h, associator_profunctor_inv_mor_ob P₁ P₂ P₃ z w y h kl).
+  - abstract
+      (intros y₁ y₂ f k l ; cbn in * ;
+       use (mor_from_comp_profunctor_ob_eq
+              P₁ P₂
+              y₂ w
+              (associator_profunctor_inv_mor_ob
+                 P₁ P₂ P₃
+                 z w y₂
+                 (rmap P₃ f l))
+              (λ k,
+               associator_profunctor_inv_mor_ob
+                 P₁ P₂ P₃
+                 z w y₁
+                 l (comp_profunctor_mor P₁ P₂ f (identity w) k))) ;
+       clear k ;
+       intros x h k ; cbn ;
+       rewrite comp_profunctor_mor_comm ;
+       rewrite !associator_profunctor_inv_mor_ob_comm ;
+       rewrite comp_profunctor_ob_in_comm ;
+       rewrite rmap_id ;
+       apply idpath).
+Defined.
+
+Proposition associator_profunctor_inv_mor_comm
+            {C₁ C₂ C₃ C₄ : category}
+            (P₁ : C₁ ↛ C₂)
+            (P₂ : C₂ ↛ C₃)
+            (P₃ : C₃ ↛ C₄)
+            (z : C₄)
+            (w : C₁)
+            (y : C₃)
+            (h : P₃ z y)
+            (kl : comp_profunctor_ob P₁ P₂ y w)
+  : associator_profunctor_inv_mor
+      P₁ P₂ P₃
+      z w
+      (comp_profunctor_ob_in (comp_profunctor P₁ P₂) P₃ y kl h)
+    =
+    associator_profunctor_inv_mor_ob P₁ P₂ P₃ z w y h kl.
+Proof.
+  unfold associator_profunctor_inv_mor.
+  rewrite from_comp_profunctor_ob_comm.
+  apply idpath.
+Qed.
+
+Lemma is_profunctor_nat_iso_associator_profunctor_nat_trans_left
+      {C₁ C₂ C₃ C₄ : category}
+      (P₁ : C₁ ↛ C₂)
+      (P₂ : C₂ ↛ C₃)
+      (P₃ : C₃ ↛ C₄)
+      (z : C₄)
+      (w : C₁)
+      (h : comp_profunctor P₁ (comp_profunctor P₂ P₃) z w)
+  : associator_profunctor_inv_mor
+      P₁ P₂ P₃ z w
+      (associator_profunctor_nat_trans
+         P₁ P₂ P₃ z w h)
+    =
+    h.
+Proof.
+  use (mor_from_comp_profunctor_ob_eq
+         P₁ (comp_profunctor P₂ P₃)
+         z w
+         (λ h,
+          associator_profunctor_inv_mor
+            P₁ P₂ P₃ z w
+            (associator_profunctor_nat_trans
+               P₁ P₂ P₃ z w h))
+         (idfun _)).
+  clear h.
+  intros x h kl ; cbn.
+  use (mor_from_comp_profunctor_ob_eq
+         P₂ P₃
+         z x
+         (λ kl,
+          associator_profunctor_inv_mor
+            P₁ P₂ P₃ z w
+            (associator_profunctor_nat_trans_mor
+               P₁ P₂ P₃ z w
+               (comp_profunctor_ob_in P₁ (comp_profunctor P₂ P₃) x h kl)))
+         (λ kl, comp_profunctor_ob_in P₁ (comp_profunctor P₂ P₃) x h kl)).
+  clear kl.
+  intros y k l ; cbn.
+  rewrite associator_profunctor_nat_trans_mor_comm.
+  etrans.
+  {
+    apply maponpaths.
+    apply associator_profunctor_nat_trans_mor_ob_comm.
+  }
+  etrans.
+  {
+    apply (associator_profunctor_inv_mor_comm P₁ P₂ P₃ z w y l).
+  }
+  rewrite associator_profunctor_inv_mor_ob_comm.
+  apply idpath.
+Qed.
+
+Lemma is_profunctor_nat_iso_associator_profunctor_nat_trans_right
+      {C₁ C₂ C₃ C₄ : category}
+      (P₁ : C₁ ↛ C₂)
+      (P₂ : C₂ ↛ C₃)
+      (P₃ : C₃ ↛ C₄)
+      (z : C₄)
+      (w : C₁)
+      (h : comp_profunctor (comp_profunctor P₁ P₂) P₃ z w)
+  : associator_profunctor_nat_trans
+      P₁ P₂ P₃ z w
+      (associator_profunctor_inv_mor
+         P₁ P₂ P₃ z w h)
+    =
+    h.
+Proof.
+  use (mor_from_comp_profunctor_ob_eq
+         (comp_profunctor P₁ P₂) P₃
+         z w
+         (λ h,
+          associator_profunctor_nat_trans
+            P₁ P₂ P₃ z w
+            (associator_profunctor_inv_mor
+               P₁ P₂ P₃ z w h))
+         (idfun _)).
+  clear h.
+  intros x h l ; cbn.
+  use (mor_from_comp_profunctor_ob_eq
+         P₁ P₂
+         x w
+         (λ h,
+          associator_profunctor_nat_trans_mor P₁ P₂ P₃ z w
+            (associator_profunctor_inv_mor P₁ P₂ P₃ z w
+               (comp_profunctor_ob_in (comp_profunctor P₁ P₂) P₃ x h l)))
+         (λ h, comp_profunctor_ob_in (comp_profunctor P₁ P₂) P₃ x h l)).
+  clear h.
+  intros y h k ; cbn.
+  etrans.
+  {
+    apply maponpaths.
+    apply associator_profunctor_inv_mor_comm.
+  }
+  etrans.
+  {
+    apply maponpaths.
+    exact (associator_profunctor_inv_mor_ob_comm P₁ P₂ P₃ z w x y l h k).
+  }
+  rewrite associator_profunctor_nat_trans_mor_comm.
+  exact (associator_profunctor_nat_trans_mor_ob_comm P₁ P₂ P₃ h k l).
+Qed.
+
+Definition is_profunctor_nat_iso_associator_profunctor_nat_trans
+           {C₁ C₂ C₃ C₄ : category}
+           (P₁ : C₁ ↛ C₂)
+           (P₂ : C₂ ↛ C₃)
+           (P₃ : C₃ ↛ C₄)
+  : is_profunctor_nat_iso (associator_profunctor_nat_trans P₁ P₂ P₃).
+Proof.
+  intros z w.
+  use isweq_iso.
+  - exact (associator_profunctor_inv_mor P₁ P₂ P₃ z w).
+  - exact (is_profunctor_nat_iso_associator_profunctor_nat_trans_left P₁ P₂ P₃ z w).
+  - exact (is_profunctor_nat_iso_associator_profunctor_nat_trans_right P₁ P₂ P₃ z w).
+Defined.
 
 (** * 6. Equality of profunctors *)
 Definition path_profunctor_to_profunctor_nat_iso

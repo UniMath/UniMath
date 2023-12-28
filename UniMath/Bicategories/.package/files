@@ -210,6 +210,7 @@ DoubleCategories/Examples/TransposeStrict.v
 DoubleCategories/Examples/StructuredCospansDoubleCat.v
 DoubleCategories/Examples/StructuredCospansDoubleFunctor.v
 DoubleCategories/Examples/SetBicatToDoubleCat.v
+DoubleCategories/Examples/ProfunctorDoubleCat.v
 
 DoubleCategories/Underlying/HorizontalBicategory.v
 DoubleCategories/Underlying/VerticalTwoCategory.v

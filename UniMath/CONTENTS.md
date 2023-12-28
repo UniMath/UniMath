@@ -863,6 +863,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DoubleCategories/Examples/StructuredCospansDoubleCat.v](Bicategories/DoubleCategories/Examples/StructuredCospansDoubleCat.v)
    - [DoubleCategories/Examples/StructuredCospansDoubleFunctor.v](Bicategories/DoubleCategories/Examples/StructuredCospansDoubleFunctor.v)
    - [DoubleCategories/Examples/SetBicatToDoubleCat.v](Bicategories/DoubleCategories/Examples/SetBicatToDoubleCat.v)
+   - [DoubleCategories/Examples/ProfunctorDoubleCat.v](Bicategories/DoubleCategories/Examples/ProfunctorDoubleCat.v)
    - [DoubleCategories/Underlying/HorizontalBicategory.v](Bicategories/DoubleCategories/Underlying/HorizontalBicategory.v)
    - [DoubleCategories/Underlying/VerticalTwoCategory.v](Bicategories/DoubleCategories/Underlying/VerticalTwoCategory.v)
    - [DoubleCategories/Underlying/VerticalTwoCategoryStrict.v](Bicategories/DoubleCategories/Underlying/VerticalTwoCategoryStrict.v)
