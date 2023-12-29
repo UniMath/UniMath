@@ -1144,7 +1144,7 @@ Definition univalent_profunctor_vertical_cells_are_squares
 Proof.
   intros C₁ C₂ P Q ; cbn in *.
   use isweq_iso.
-  - exact profunctor_square_to_nat_trans.
+  - exact profunctor_square_to_profunctor_nat_trans.
   - abstract
       (intros τ ;
        use eq_profunctor_nat_trans ;
