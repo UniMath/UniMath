@@ -5,7 +5,7 @@
  Coends are a special kind of colimit, namely a colimit over a
  bifunctor that is contravariant in its first argument and
  covariant in its second argument. In this file, we define
- the notion of coends, and show that ends can be constructed from
+ the notion of coends, and show that coends can be constructed from
  coproducts and coequalizers.
 
  Contents
