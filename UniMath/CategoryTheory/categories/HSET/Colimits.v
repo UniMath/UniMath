@@ -30,6 +30,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.Coproducts.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.pushouts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
@@ -261,6 +262,12 @@ Proof.
         [ intro; apply impred; intro; apply has_homsets_HSET
         | destruct h as [t ht]; simpl; apply funextfun;
           intro x; rewrite <- ht; destruct x; apply idpath]).
+Defined.
+
+Definition CoproductsHSET_type (I : UU) : Coproducts I HSET.
+Proof.
+  use Coproducts_from_Colims.
+  use ColimsHSET.
 Defined.
 
 (** *** Binary coproducts from colimits [BinCoproductsHSET_from_Colims] *)

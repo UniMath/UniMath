@@ -46,7 +46,7 @@ Equivalences/FullyFaithful.v
 Subcategory/FullEquivalences.v
 categories/HSET/MonoEpiIso.v
 categories/HSET/Univalence.v
-Profunctors/Core.v
+
 CategoriesWithBinOps.v
 PrecategoriesWithAbgrops.v
 covyoneda.v
@@ -64,6 +64,7 @@ limits/bincoproducts.v
 limits/binproducts.v
 
 limits/graphs/bincoproducts.v
+limits/graphs/Coproducts.v
 limits/graphs/binproducts.v
 limits/pullbacks.v
 limits/graphs/initial.v
@@ -87,6 +88,7 @@ limits/FinOrdCoproducts.v
 limits/Opp.v
 limits/Preservation.v
 limits/Ends.v
+limits/Coends.v
 
 DisplayedCats/Binproducts.v
 
@@ -180,6 +182,12 @@ categories/HSET/Slice.v
 categories/HSET/Structures.v
 categories/HSET/SliceFamEquiv.v
 categories/HSET/All.v
+
+Profunctors/Core.v
+categories/HSET/SetCoends.v
+Profunctors/Examples.v
+Profunctors/Transformation.v
+Profunctors/Squares.v
 
 SetValuedFunctors.v
 categories/FinSet.v
@@ -485,6 +493,7 @@ TwoSidedDisplayedCats/Examples/Reindex.v
 TwoSidedDisplayedCats/Examples/Relations.v
 TwoSidedDisplayedCats/Examples/Spans.v
 TwoSidedDisplayedCats/Examples/StructuredCospans.v
+TwoSidedDisplayedCats/Examples/ProfunctorTwosidedDispCat.v
 
 DisplayedCats/Examples/StrictTwoSidedDispCat.v
 

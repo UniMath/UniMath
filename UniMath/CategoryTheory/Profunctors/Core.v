@@ -31,7 +31,9 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
+Require Import UniMath.CategoryTheory.categories.HSET.All.
+
+Local Open Scope cat.
 
 (** ** Definition *)
 
@@ -39,39 +41,144 @@ Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 Definition profunctor (C D : category) : UU :=
   functor (category_binproduct (op_category D) C) HSET_univalent_category.
 
-Identity Coercion profunctor_coercion : profunctor >-> functor.
-
 Infix "↛" := profunctor (at level 99, only parsing) : cat. (* \nrightarrow *)
 
-Local Notation "A ⊗ B" := (make_catbinprod A B).
+(** A builder for profunctors *)
+Definition profunctor_data
+           (C₁ C₂ : category)
+  : UU
+  := ∑ (Fo : C₂ → C₁ → UU),
+     ∏ (y₁ y₂ : C₂)
+       (g : y₂ --> y₁)
+       (x₁ x₂ : C₁)
+       (f : x₁ --> x₂),
+     Fo y₁ x₁ → Fo y₂ x₂.
 
-Local Open Scope cat.
+Definition make_profunctor_data
+           {C₁ C₂ : category}
+           (Fo : C₂ → C₁ → UU)
+           (Fm : ∏ (y₁ y₂ : C₂)
+                   (g : y₂ --> y₁)
+                   (x₁ x₂ : C₁)
+                   (f : x₁ --> x₂),
+                 Fo y₁ x₁ → Fo y₂ x₂)
+  : profunctor_data C₁ C₂
+  := Fo ,, Fm.
+
+Definition profunctor_laws
+           {C₁ C₂ : category}
+           (F : profunctor_data C₁ C₂)
+  : UU
+  := (∏ (y : C₂)
+        (x : C₁)
+        (h : pr1 F y x),
+      pr2 F _ _ (identity y) _ _ (identity x) h = h)
+     ×
+     (∏ (y₁ y₂ y₃ : C₂)
+        (g₁ : y₂ --> y₁)
+        (g₂ : y₃ --> y₂)
+        (x₁ x₂ x₃ : C₁)
+        (f₁ : x₁ --> x₂)
+        (f₂ : x₂ --> x₃)
+        (h : pr1 F y₁ x₁),
+      pr2 F _ _ (g₂ · g₁) _ _ (f₁ · f₂) h
+      =
+      pr2 F _ _ g₂ _ _ f₂ (pr2 F _ _ g₁ _ _ f₁ h))
+     ×
+     (∏ (y : C₂)
+        (x : C₁),
+      isaset (pr1 F y x)).
+
+Section ProfunctorBuilder.
+  Context {C₁ C₂ : category}
+          (F : profunctor_data C₁ C₂)
+          (HF : profunctor_laws F).
+
+  Definition make_data_of_profunctor
+    : functor_data (category_binproduct C₂^op C₁) HSET.
+  Proof.
+    use make_functor_data.
+    - refine (λ xy, make_hSet (pr1 F (pr1 xy) (pr2 xy)) _).
+      apply HF.
+    - exact (λ xy₁ xy₂ fg h, pr2 F _ _ (pr1 fg) _ _ (pr2 fg) h).
+  Defined.
+
+  Proposition make_laws_profunctor
+    : is_functor make_data_of_profunctor.
+  Proof.
+    split ; intro ; intros ; use funextsec ; intro ; cbn.
+    - apply HF.
+    - apply HF.
+  Qed.
+
+  Definition make_profunctor
+    : C₁ ↛ C₂.
+  Proof.
+    use make_functor.
+    - exact make_data_of_profunctor.
+    - exact make_laws_profunctor.
+  Defined.
+End ProfunctorBuilder.
+
+(** Accessors for profunctors *)
+Definition profunctor_point
+           {C₁ C₂ : category}
+           (P : C₁ ↛ C₂)
+           (y : C₂)
+           (x : C₁)
+  : hSet
+  := pr1 P (y ,, x).
+
+Coercion profunctor_point : profunctor >-> Funclass.
+
+Definition profunctor_on_morphisms
+           {C₁ C₂ : category}
+           (P : C₁ ↛ C₂)
+           {y₁ y₂ : C₂}
+           (g : y₂ --> y₁)
+           {x₁ x₂ : C₁}
+           (f : x₁ --> x₂)
+           (h : P y₁ x₁)
+  : P y₂ x₂
+  := @functor_on_morphisms _ _ (P : _ ⟶ _) (_ ,, _) (_ ,, _) (g ,, f) h.
+
+Notation "P #[ g , f ] h" := (profunctor_on_morphisms P g f h) (at level 60) : cat.
+
+Proposition profunctor_id
+            {C₁ C₂ : category}
+            (P : C₁ ↛ C₂)
+            {y : C₂}
+            {x : C₁}
+            (h : P y x)
+  : P #[ identity _ , identity _ ] h = h.
+Proof.
+  exact (eqtohomot (functor_id P _) h).
+Qed.
+
+Proposition profunctor_comp
+            {C₁ C₂ : category}
+            (P : C₁ ↛ C₂)
+            {y₁ y₂ y₃: C₂}
+            (g₂ : y₃ --> y₂) (g₁ : y₂ --> y₁)
+            {x₁ x₂ x₃ : C₁}
+            (f₁ : x₁ --> x₂) (f₂ : x₂ --> x₃)
+            (h : P y₁ x₁)
+  : P #[ g₂ · g₁ , f₁ · f₂ ] h = P #[ g₂ , f₂ ] (P #[ g₁ , f₁ ] h).
+Proof.
+  exact (eqtohomot (@functor_comp _ _ P (_ ,, _) (_ ,, _) (_ ,, _) (_ ,, _) (_ ,, _)) h).
+Qed.
 
 (** Map over the first argument contravariantly.
     Inspired by Data.Profunctor in Haskell. *)
-Definition lmap {C D : category} (F : C ↛ D) {a : ob C} {b b' : ob D} (g : b' --> b) :
-  F (op_ob b ⊗ a)  --> F (op_ob b' ⊗ a).
-Proof.
-  refine (# F _ · _).
-  - use catbinprodmor.
-    + exact (op_ob b').
-    + exact a.
-    + exact g.
-    + apply identity.
-  - apply identity.
-Defined.
+Definition lmap {C D : category} (F : C ↛ D) {a : ob C} {b b' : ob D} (g : b' --> b)
+  : HSET ⟦ F b a , F b' a ⟧
+  := λ h, F #[ g , identity _ ] h.
 
 (** Map over the second argument covariantly.
     Inspired by Data.Profunctor in Haskell. *)
-Definition rmap {C D : category} (F : C ↛ D) {a a' : ob C} {b : ob D} (f : a --> a') :
-  F (op_ob b ⊗ a)  --> F (op_ob b ⊗ a').
-Proof.
-  refine (_ · # F _).
-  - apply identity.
-  - use catbinprodmor.
-    * apply identity.
-    * exact f.
-Defined.
+Definition rmap {C D : category} (F : C ↛ D) {a a' : ob C} {b : ob D} (f : a --> a')
+  : HSET ⟦ F b a , F b a' ⟧
+  := λ h, F #[ identity _ , f ] h.
 
 (** Laws for `rmap` and `lmap` *)
 Definition lmap_id
@@ -79,10 +186,12 @@ Definition lmap_id
            (P : profunctor C₁ C₂)
            {x : C₁}
            {y : C₂}
-           (z : P (y ,, x) : hSet)
+           (z : P y x)
   : lmap P (identity y) z = z.
 Proof.
-  exact (eqtohomot (functor_id P (y ,, x)) z).
+  unfold lmap.
+  rewrite profunctor_id.
+  apply idpath.
 Qed.
 
 Definition rmap_id
@@ -90,10 +199,12 @@ Definition rmap_id
            (P : profunctor C₁ C₂)
            {x : C₁}
            {y : C₂}
-           (z : P (y ,, x) : hSet)
+           (z : P y x)
   : rmap P (identity x) z = z.
 Proof.
-  exact (eqtohomot (functor_id P (y ,, x)) z).
+  unfold rmap.
+  rewrite profunctor_id.
+  apply idpath.
 Qed.
 
 Definition lmap_comp
@@ -103,27 +214,15 @@ Definition lmap_comp
            {y₁ y₂ y₃ : C₂}
            (g₁ : y₁ --> y₂)
            (g₂ : y₂ --> y₃)
-           (z : P (y₃ ,, x) : hSet)
+           (z : P y₃ x)
   : lmap P (g₁ · g₂) z
     =
     lmap P g₁ (lmap P g₂ z).
 Proof.
-  pose (eqtohomot
-          (@functor_comp
-             _ _
-             P
-             (y₃ ,, x) (y₂ ,, x) (y₁ ,, x)
-             (g₂ ,, identity _) (g₁ ,, identity _))
-          z)
-    as p.
-  cbn in p.
-  refine (_ @ p).
   unfold lmap.
-  cbn.
-  refine (maponpaths (λ w, #P (_ ,, w) z) _).
-  refine (!_).
-  cbn.
-  apply id_left.
+  rewrite <- profunctor_comp.
+  rewrite id_right.
+  apply idpath.
 Qed.
 
 Definition rmap_comp
@@ -133,27 +232,15 @@ Definition rmap_comp
            {y : C₂}
            (f₁ : x₁ --> x₂)
            (f₂ : x₂ --> x₃)
-           (z : P (y ,, x₁) : hSet)
+           (z : P y x₁)
   : rmap P (f₁ · f₂) z
     =
     rmap P f₂ (rmap P f₁ z).
 Proof.
-  pose (eqtohomot
-          (@functor_comp
-             _ _
-             P
-             (y ,, x₁) (y ,, x₂) (y ,, x₃)
-             (identity _ ,, f₁) (identity _ ,, f₂))
-          z)
-    as p.
-  cbn in p.
-  refine (_ @ p).
   unfold rmap.
-  cbn.
-  refine (maponpaths (λ w, #P (w ,, _) z) _).
-  refine (!_).
-  cbn.
-  apply id_left.
+  rewrite <- profunctor_comp.
+  rewrite id_right.
+  apply idpath.
 Qed.
 
 Definition lmap_rmap
@@ -163,29 +250,12 @@ Definition lmap_rmap
            {y₁ y₂ : C₂}
            (f : x₁ --> x₂)
            (g : y₂ --> y₁)
-           (z : P (y₁ ,, x₁) : hSet)
+           (z : P y₁ x₁)
   : lmap P g (rmap P f z) = rmap P f (lmap P g z).
 Proof.
-  pose (eqtohomot
-          (@functor_comp
-             _ _
-             P
-             (y₁ ,, x₁) (y₂ ,, x₁) (y₂ ,, x₂)
-             (g ,, identity _) (identity _ ,, f))
-          z)
-    as p.
-  refine (_ @ p) ; clear p.
-  pose (eqtohomot
-          (@functor_comp
-             _ _
-             P
-             (y₁ ,, x₁) (y₁ ,, x₂) (y₂ ,, x₂)
-             (identity _ ,, f) (g ,, identity _))
-          z)
-    as p.
-  refine (!p @ _).
-  cbn.
-  rewrite !id_left, !id_right.
+  unfold lmap, rmap.
+  rewrite <- !profunctor_comp.
+  rewrite !id_right, !id_left.
   apply idpath.
 Qed.
 
@@ -196,10 +266,50 @@ Definition rmap_lmap
            {y₁ y₂ : C₂}
            (f : x₁ --> x₂)
            (g : y₂ --> y₁)
-           (z : P (y₁ ,, x₁) : hSet)
+           (z : P y₁ x₁)
   : rmap P f (lmap P g z) = lmap P g (rmap P f z).
 Proof.
   rewrite lmap_rmap.
+  apply idpath.
+Qed.
+
+Proposition lmap_functor
+            {C D : category}
+            (F : C ↛ D)
+            {a : ob C} {b b' : ob D}
+            (g : b' --> b)
+            (h : F b a)
+  : lmap F g h = F #[ g , identity _ ] h.
+Proof.
+  apply idpath.
+Qed.
+
+Proposition rmap_functor
+            {C D : category}
+            (F : C ↛ D)
+            {a a' : ob C} {b : ob D}
+            (f : a --> a')
+            (h : F b a)
+  : rmap F f h = F #[ identity _ , f ] h.
+Proof.
+  apply idpath.
+Qed.
+
+Proposition lmap_rmap_functor
+            {C₁ C₂ : category}
+            (P : profunctor C₁ C₂)
+            {x₁ x₂ : C₁}
+            {y₁ y₂ : C₂}
+            (f : x₁ --> x₂)
+            (g : y₂ --> y₁)
+            (z : P y₁ x₁)
+  : lmap P g (rmap P f z)
+    =
+    P #[ g , f ] z.
+Proof.
+  unfold lmap, rmap ; cbn.
+  rewrite <- profunctor_comp.
+  rewrite !id_right.
   apply idpath.
 Qed.
 
@@ -210,7 +320,7 @@ Section Dinatural.
   Context {C : category}.
 
   Definition dinatural_transformation_data (f : C ↛ C) (g : C ↛ C) : UU :=
-    ∏ a : C, f (a ⊗ a) --> g (a ⊗ a).
+    ∏ a : C, f a a → g a a.
 
   Definition is_dinatural {F : C ↛ C} {G : C ↛ C}
              (data : dinatural_transformation_data F G) : hProp.
@@ -239,7 +349,7 @@ Section Dinatural.
     Context {f : C ↛ C} {g : C ↛ C} (d : dinatural_transformation f g).
 
     Definition dinatural_transformation_get_data :
-      ∏ a : C, f (a ⊗ a) --> g (a ⊗ a) := pr1 d.
+      ∏ a : C, HSET ⟦ f a a , g a a ⟧ := pr1 d.
 
     Definition dinatural_transformation_is_dinatural :
       is_dinatural dinatural_transformation_get_data := pr2 d.
@@ -253,51 +363,25 @@ Section Dinatural.
   (** *** Dinatural transformation from a natural transformation *)
 
   Lemma nat_trans_to_dinatural_transformation {f : C ↛ C} {g : C ↛ C}
-        (alpha : nat_trans f g) : f ⇏ g.
+        (alpha : nat_trans (f : _ ⟶ _) (g : _ ⟶ _)) : f ⇏ g.
   Proof.
     use make_dinatural_transformation.
-    - intro; apply alpha.
-    - intros a b h.
-      (**
-       Have:
-<<
-                  F (i, j)
-         F(a, b) --------> F(c, d)
-            |                 |
-            | alpha a b       | alpha c d
-            V                 V
-         G(a, b) --------> G(c, d)
-                  G (i, j)
->>
-       Want:
-<<
-                  F(a, a) -- alpha --> G(a, a)
-          lmap /                        \ rmap
-          F(b, a)                    G(a, b)
-          rmap \                        / lmap
-                  F(b, b) -- alpha --> G(b, b)
->>
-       *)
-      unfold lmap, rmap.
-      do 2 rewrite id_left.
-      do 2 rewrite id_right.
-      refine (maponpaths (fun z => z · _) (pr2 alpha _ _ _) @ _).
-      refine (_ @ maponpaths (fun z => _ · z) (pr2 alpha _ _ _)).
-      refine (!assoc _ _ _ @ _).
-      refine (_ @ !assoc _ _ _).
-      refine (!maponpaths (fun z => _ · z) (functor_comp g _ _) @ _).
-      refine (_ @ maponpaths (fun z => z · _) (functor_comp f _ _)).
-      unfold compose at 2; simpl.
-      unfold compose at 5; simpl.
-      rewrite id_left.
-      rewrite id_right.
-
-      cbn.
-      rewrite id_right.
-      rewrite id_left.
-      symmetry.
-      apply (pr2 alpha).
-    Qed.
+    - exact (λ z, alpha (_ ,, _)).
+    - abstract
+        (intros a b h ;
+         use funextsec ; intro z ;
+         unfold lmap, rmap ;
+         pose (p := eqtohomot (nat_trans_ax alpha (_ ,, _) (_ ,, _) (h ,, identity _)) z) ;
+         cbn in p ; cbn ;
+         refine (maponpaths _ p @ _) ; clear p ;
+         refine (!(profunctor_comp g _ _ _ _ _) @ _) ;
+         rewrite !id_left ;
+         refine (!_) ;
+         refine (maponpaths _ (eqtohomot (nat_trans_ax alpha (_ ,, _) (_ ,, _) (_ ,, _)) _) @ _) ;
+         refine (!(profunctor_comp g _ _ _ _ _) @ _) ;
+         rewrite !id_right ;
+         apply idpath).
+  Defined.
 End Dinatural.
 
 Notation "F ⇏ G" := (dinatural_transformation F G) (at level 39) : cat.
@@ -320,7 +404,7 @@ Section Ends.
 >>
   *)
 
-  Definition is_wedge (w : ob HSET_univalent_category) (pi : ∏ a : ob C, w --> F (a ⊗ a)) : hProp.
+  Definition is_wedge (w : ob HSET_univalent_category) (pi : ∏ a : C, w --> F a a) : hProp.
   Proof.
     use make_hProp.
     - exact (∏ (a b : ob C) (f : a --> b), pi a · rmap F f = pi b · lmap F f).
@@ -329,9 +413,9 @@ Section Ends.
 
   (** Following the convention for limits, the tip is explicit in the type. *)
   Definition wedge (w : ob HSET_univalent_category) : UU :=
-    ∑ pi : (∏ a : ob C, w --> F (a ⊗ a)), is_wedge w pi.
+    ∑ pi : (∏ a : ob C, w --> F a a), is_wedge w pi.
 
-  Definition make_wedge (w : hSet) (pi : (∏ a : ob C, (w : ob HSET_univalent_category) --> F (a ⊗ a))) :
+  Definition make_wedge (w : hSet) (pi : (∏ a : C, (w : HSET) --> F a a)) :
    (∏ (a b : ob C) (f : a --> b), pi a · rmap F f = pi b · lmap F f) -> wedge w.
   Proof.
     intro.
@@ -340,8 +424,8 @@ Section Ends.
     - abstract assumption.
   Qed.
 
-  Definition wedge_pr (w : ob HSET_univalent_category) (W : wedge w) :
-    ∏ a : ob C, w --> F (a ⊗ a) := (pr1 W).
+  Definition wedge_pr (w : HSET) (W : wedge w) :
+    ∏ a : C, w --> F a a := (pr1 W).
 
   Coercion wedge_pr : wedge >-> Funclass.
 

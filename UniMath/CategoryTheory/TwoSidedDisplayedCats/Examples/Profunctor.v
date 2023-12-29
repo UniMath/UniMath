@@ -38,7 +38,7 @@ Section ProfunctorToTwosidedDispCat.
     : twosided_disp_cat_ob_mor C₂ C₁.
   Proof.
     simple refine (_ ,, _).
-    - exact (λ x y, P (x ,, y) : hSet).
+    - exact (λ x y, P x y).
     - exact (λ x₁ x₂ y₁ y₂ z₁ z₂ f g, rmap P g z₁ = lmap P f z₂).
   Defined.
 
@@ -75,7 +75,7 @@ Section ProfunctorToTwosidedDispCat.
              (fg fg' : xy₁ -->[ g ][ f ] xy₂)
     : fg = fg'.
   Proof.
-    apply (P (y₁ ,, x₂)).
+    apply (P y₁ x₂).
   Qed.
 
   Definition profunctor_to_twosided_disp_cat_axioms
@@ -110,7 +110,7 @@ Section ProfunctorToTwosidedDispCat.
       pose (p := pr1 z) ; cbn -[lmap rmap] in p.
       rewrite lmap_id, rmap_id in p.
       exact p.
-    - apply (P (x₁ ,, y₁)).
+    - apply (P x₁ y₁).
     - use isaproptotal2.
       + intro.
         apply isaprop_is_iso_twosided_disp.
