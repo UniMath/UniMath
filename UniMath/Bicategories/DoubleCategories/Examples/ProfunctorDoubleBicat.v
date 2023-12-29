@@ -26,9 +26,6 @@ Local Open Scope cat.
 
 Local Notation "∁" := (op2_bicat bicat_of_univ_cats).
 
-Definition TODO { A : UU } : A.
-Admitted.
-
 Definition univalent_profunctor_twosided_disp_cat_ob_mor
   : twosided_disp_cat_ob_mor ∁ ∁.
 Proof.
@@ -113,8 +110,16 @@ Proof.
              (τ : profunctor_nat_trans P Q)
              (θ : profunctor_nat_trans Q R),
            profunctor_nat_trans_comp τ θ).
-  - apply TODO. (* whisker *)
-  - apply TODO. (* whisker *)
+  - exact (λ (C₁ C₂ C₃ : univalent_category)
+             (P : C₁ ↛ C₂)
+             (Q₁ Q₂ : C₂ ↛ C₃)
+             (τ : profunctor_nat_trans Q₁ Q₂),
+           lwhisker_profunctor_nat_trans P τ).
+  - exact (λ (C₁ C₂ C₃ : univalent_category)
+             (P₁ P₂ : C₁ ↛ C₂)
+             (Q : C₂ ↛ C₃)
+             (τ : profunctor_nat_trans P₁ P₂),
+           rwhisker_profunctor_nat_trans τ Q).
 Defined.
 
 Proposition univalent_profunctor_ver_sq_bicat_prebicat_laws
@@ -135,11 +140,17 @@ Proof.
     apply idpath.
   - intros C₁ C₂ C₃ P Q.
     use eq_profunctor_nat_trans.
-    intros y x h ; cbn.
-    admit.
+    intros z x h.
+    use mor_from_comp_profunctor_ob_eq.
+    clear h.
+    intros y h h' ; cbn.
+    exact (lwhisker_profunctor_nat_trans_mor_comm P (profunctor_nat_trans_id Q) h h').
   - intros C₁ C₂ C₃ P Q.
     use eq_profunctor_nat_trans.
-    intros y x h ; cbn.
+    intros z x h.
+    use mor_from_comp_profunctor_ob_eq.
+    clear h.
+    intros y h h' ; cbn.
     admit.
   - intros C₁ C₂ C₃ P Q₁ Q₂ Q₃ τ₁ τ₂.
     use eq_profunctor_nat_trans.
