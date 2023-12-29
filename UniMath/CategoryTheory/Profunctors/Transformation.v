@@ -18,6 +18,7 @@
  5.2. Left unitor
  5.3. Right unitor
  5.4. Associator
+ 5.5. Inverse laws
  6. Equality of profunctors
 
  *****************************************************************************************)
@@ -69,6 +70,38 @@ Proof.
            h).
 Qed.
 
+Proposition profunctor_nat_trans_lmap
+            {C₁ C₂ : category}
+            {P Q : profunctor C₁ C₂}
+            (τ : profunctor_nat_trans P Q)
+            {y₁ y₂ : C₂} {x : C₁}
+            (g : y₂ --> y₁)
+            (h : P y₁ x)
+  : τ y₂ x (lmap P g h)
+    =
+    lmap Q g (τ y₁ x h).
+Proof.
+  rewrite lmap_functor.
+  rewrite (profunctor_nat_trans_natural τ g (identity _) h).
+  apply idpath.
+Qed.
+
+Proposition profunctor_nat_trans_rmap
+            {C₁ C₂ : category}
+            {P Q : profunctor C₁ C₂}
+            (τ : profunctor_nat_trans P Q)
+            {y : C₂} {x₁ x₂ : C₁}
+            (f : x₁ --> x₂)
+            (h : P y x₁)
+  : τ y x₂ (rmap P f h)
+    =
+    rmap Q f (τ y x₁ h).
+Proof.
+  rewrite rmap_functor.
+  rewrite (profunctor_nat_trans_natural τ (identity _) f h).
+  apply idpath.
+Qed.
+
 Proposition profunctor_nat_trans_lmap_rmap
             {C₁ C₂ : category}
             {P Q : profunctor C₁ C₂}
@@ -80,8 +113,8 @@ Proposition profunctor_nat_trans_lmap_rmap
     =
     lmap Q g (rmap Q f (τ y₁ x₁ h)).
 Proof.
-  rewrite !lmap_rmap_functor.
-  rewrite profunctor_nat_trans_natural.
+  rewrite profunctor_nat_trans_lmap.
+  rewrite profunctor_nat_trans_rmap.
   apply idpath.
 Qed.
 
@@ -496,6 +529,12 @@ Proof.
        apply idpath).
 Defined.
 
+Definition linvunitor_profunctor_nat_trans
+           {C₁ C₂ : category}
+           (P : profunctor C₁ C₂)
+  : profunctor_nat_trans P (comp_profunctor (id_profunctor C₁) P)
+  := inv_profunctor_nat_trans (is_profunctor_nat_iso_lunitor_profunctor_nat_trans P).
+
 (** *  5.3. Right unitor *)
 Definition runitor_profunctor_nat_trans_mor
            {C₁ C₂ : category}
@@ -608,6 +647,12 @@ Proof.
        rewrite lmap_id;
        apply idpath).
 Defined.
+
+Definition rinvunitor_profunctor_nat_trans
+           {C₁ C₂ : category}
+           (P : profunctor C₁ C₂)
+  : profunctor_nat_trans P (comp_profunctor P (id_profunctor C₂))
+  := inv_profunctor_nat_trans (is_profunctor_nat_iso_runitor_profunctor_nat_trans P).
 
 (** * 5.4. Associator *)
 Definition associator_profunctor_nat_trans_mor_ob
@@ -1043,6 +1088,111 @@ Proof.
   - exact (is_profunctor_nat_iso_associator_profunctor_nat_trans_left P₁ P₂ P₃ z w).
   - exact (is_profunctor_nat_iso_associator_profunctor_nat_trans_right P₁ P₂ P₃ z w).
 Defined.
+
+Definition inv_associator_profunctor_nat_trans
+           {C₁ C₂ C₃ C₄ : category}
+           (P₁ : C₁ ↛ C₂)
+           (P₂ : C₂ ↛ C₃)
+           (P₃ : C₃ ↛ C₄)
+  : profunctor_nat_trans
+      (comp_profunctor (comp_profunctor P₁ P₂) P₃)
+      (comp_profunctor P₁ (comp_profunctor P₂ P₃))
+  := inv_profunctor_nat_trans
+       (is_profunctor_nat_iso_associator_profunctor_nat_trans P₁ P₂ P₃).
+
+(** * 5.5. Inverse laws *)
+Proposition inv_profunctor_nat_trans_left
+            {C₁ C₂ : category}
+            {P Q : profunctor C₁ C₂}
+            {τ : profunctor_nat_trans P Q}
+            (Hτ : is_profunctor_nat_iso τ)
+  : profunctor_nat_trans_comp (inv_profunctor_nat_trans Hτ) τ
+    =
+    profunctor_nat_trans_id _.
+Proof.
+  use eq_profunctor_nat_trans.
+  intros y x h ; cbn.
+  apply (homotweqinvweq (make_weq _ (Hτ y x))).
+Qed.
+
+Proposition inv_profunctor_nat_trans_right
+            {C₁ C₂ : category}
+            {P Q : profunctor C₁ C₂}
+            {τ : profunctor_nat_trans P Q}
+            (Hτ : is_profunctor_nat_iso τ)
+  : profunctor_nat_trans_comp τ (inv_profunctor_nat_trans Hτ)
+    =
+    profunctor_nat_trans_id _.
+Proof.
+  use eq_profunctor_nat_trans.
+  intros y x h ; cbn.
+  apply homotinvweqweq.
+Qed.
+
+(** * 5.6. Whiskering *)
+Definition lwhisker_profunctor_nat_trans_mor
+           {C₁ C₂ C₃ : category}
+           (P : C₁ ↛ C₂)
+           {Q₁ Q₂ : C₂ ↛ C₃}
+           (τ : profunctor_nat_trans Q₁ Q₂)
+           (z : C₃)
+           (x : C₁)
+  : comp_profunctor P Q₁ z x → comp_profunctor P Q₂ z x.
+Proof.
+  use from_comp_profunctor_ob.
+  - exact (λ y h h', comp_profunctor_ob_in _ _ y h (τ z y h')).
+  - abstract
+      (intros y₁ y₂ g h h' ; cbn ;
+       rewrite profunctor_nat_trans_rmap ;
+       rewrite comp_profunctor_ob_in_comm ;
+       apply idpath).
+Defined.
+
+Proposition lwhisker_profunctor_nat_trans_mor_comm
+            {C₁ C₂ C₃ : category}
+            (P : C₁ ↛ C₂)
+            {Q₁ Q₂ : C₂ ↛ C₃}
+            (τ : profunctor_nat_trans Q₁ Q₂)
+            {z : C₃}
+            {y : C₂}
+            {x : C₁}
+            (h : P y x)
+            (h' : Q₁ z y)
+  : lwhisker_profunctor_nat_trans_mor P τ z x (comp_profunctor_ob_in P Q₁ y h h')
+    =
+    comp_profunctor_ob_in P Q₂ y h (τ z y h').
+Proof.
+  unfold lwhisker_profunctor_nat_trans_mor.
+  rewrite from_comp_profunctor_ob_comm.
+  apply idpath.
+Qed.
+
+Proposition lwhisker_profunctor_nat_trans_law
+            {C₁ C₂ C₃ : category}
+            (P : C₁ ↛ C₂)
+            {Q₁ Q₂ : C₂ ↛ C₃}
+            (τ : profunctor_nat_trans Q₁ Q₂)
+  : profunctor_nat_trans_law (lwhisker_profunctor_nat_trans_mor P τ).
+Proof.
+
+
+Definition lwhisker_profunctor_nat_trans
+           {C₁ C₂ C₃ : category}
+           (P : C₁ ↛ C₂)
+           {Q₁ Q₂ : C₂ ↛ C₃}
+           (τ : profunctor_nat_trans Q₁ Q₂)
+  : profunctor_nat_trans
+      (comp_profunctor P Q₁)
+      (comp_profunctor P Q₂).
+Proof.
+  use make_profunctor_nat_trans.
+  - exact (lwhisker_profunctor_nat_trans_mor P τ).
+  -
+
+Admitted.
+
+                                                    ∏ (a b c : univalent_category) (f1 f2 : profunctor a b) (g : profunctor b c),
+  profunctor_nat_trans f1 f2 → profunctor_nat_trans (comp_profunctor f1 g) (comp_profunctor f2 g)
 
 (** * 6. Equality of profunctors *)
 Definition path_profunctor_to_profunctor_nat_iso
