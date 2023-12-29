@@ -1,5 +1,41 @@
 (*****************************************************************************************
 
+ The Verity double bicategory of profunctors
+
+ In this file, we define the following Verity double bicategory:
+ - Objects: univalent categories
+ - Horizontal morphisms: functors
+ - Vertical morphisms: profunctors
+ - Squares: suitably typed natural transformations
+ There are several interesting things to notice about this Verity double bicategory.
+
+ First of all, we need to use Verity double bicategories instead of pseudo double
+ categories. To get a pseudo double category of profunctors, one needs to use strict
+ categories: this is to guarantee that we have a set of functors. However, the type of
+ functors between two univalent categories does not form a set, and for that reason, we
+ cannot have a pseudo double category.
+
+ Second of all, the underlying horizontal bicategory is `Cat^co` rather than `Cat`. We
+ need to reverse the 2-cells to guarantee that the natural transformations are correctly
+ typed for the whiskering operations. Compare this to the Verity double bicategory of
+ squares where we also had to reverse some 2-cells.
+
+ Third of all, in this Verity double bicategory, the 2-cells coincide with certain squares.
+ This is due to the fact they are defined to be natural transformations, just like both the
+ horizontal and the vertical 2-cells.
+
+ The data of this bicategory is given in other files. This file collects all of this data
+ and puts it together in the shape of a Verity double bicategory. In addition, several
+ laws are proven. All of those proofs boil down to technical stuff related to coends.
+
+ Contents
+ 1. The 2-sided displayed category of the Verity bicategory of profunctors
+ 2. The vertical bicategory of profunctors
+ 3. The whiskering operations
+ 4. More laws
+ 5. The Verity double bicategory of univalent categories and profunctors
+ 6. 2-cells versus squares
+
  *****************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
@@ -26,6 +62,7 @@ Local Open Scope cat.
 
 Local Notation "∁" := (op2_bicat bicat_of_univ_cats).
 
+(** * 1. The 2-sided displayed category of the Verity bicategory of profunctors *)
 Definition univalent_profunctor_twosided_disp_cat_ob_mor
   : twosided_disp_cat_ob_mor ∁ ∁.
 Proof.
@@ -63,6 +100,7 @@ Proof.
   - exact univalent_profunctor_twosided_disp_cat_data.
 Defined.
 
+(** * 2. The vertical bicategory of profunctors *)
 Definition univalent_profunctor_ver_sq_bicat_ver_id_comp
   : ver_sq_bicat_ver_id_comp univalent_profunctor_ver_sq_bicat.
 Proof.
@@ -151,39 +189,275 @@ Proof.
     use mor_from_comp_profunctor_ob_eq.
     clear h.
     intros y h h' ; cbn.
-    admit.
+    exact (rwhisker_profunctor_nat_trans_mor_comm (profunctor_nat_trans_id P) Q h h').
   - intros C₁ C₂ C₃ P Q₁ Q₂ Q₃ τ₁ τ₂.
     use eq_profunctor_nat_trans.
-    intros y x h ; cbn.
-    admit.
+    intros z x h.
+    use mor_from_comp_profunctor_ob_eq.
+    clear h.
+    intros y h h' ; cbn in *.
+    etrans.
+    {
+      apply maponpaths.
+      exact (lwhisker_profunctor_nat_trans_mor_comm P τ₁ h h').
+    }
+    etrans.
+    {
+      exact (lwhisker_profunctor_nat_trans_mor_comm P τ₂ h (τ₁ z y h')).
+    }
+    refine (!_).
+    etrans.
+    {
+      exact (lwhisker_profunctor_nat_trans_mor_comm
+               P (profunctor_nat_trans_comp τ₁ τ₂)
+               h h').
+    }
+    cbn.
+    apply idpath.
   - intros C₁ C₂ C₃ P₁ P₂ P₃ Q τ₁ τ₂.
     use eq_profunctor_nat_trans.
-    intros y x h ; cbn.
-    admit.
+    intros z x h.
+    use mor_from_comp_profunctor_ob_eq.
+    clear h.
+    intros y h h' ; cbn in *.
+    etrans.
+    {
+      apply maponpaths.
+      exact (rwhisker_profunctor_nat_trans_mor_comm τ₁ Q h h').
+    }
+    etrans.
+    {
+      exact (rwhisker_profunctor_nat_trans_mor_comm τ₂ Q (τ₁ y x h) h').
+    }
+    refine (!_).
+    etrans.
+    {
+      exact (rwhisker_profunctor_nat_trans_mor_comm
+               (profunctor_nat_trans_comp τ₁ τ₂) Q
+               h h').
+    }
+    cbn.
+    apply idpath.
   - intros C₁ C₂ P Q τ.
     use eq_profunctor_nat_trans.
-    intros y x h ; cbn.
-    admit.
+    intros y x h.
+    use mor_from_comp_profunctor_ob_eq.
+    clear h.
+    intros w h h' ; cbn in *.
+    etrans.
+    {
+      apply maponpaths.
+      exact (lwhisker_profunctor_nat_trans_mor_comm (id_profunctor C₁) τ h h').
+    }
+    rewrite !lunitor_profunctor_nat_trans_mor_comm.
+    rewrite <- profunctor_nat_trans_rmap.
+    apply idpath.
   - intros C₁ C₂ P Q τ.
     use eq_profunctor_nat_trans.
-    intros y x h ; cbn.
-    admit.
+    intros y x h.
+    use mor_from_comp_profunctor_ob_eq.
+    clear h.
+    intros w h h' ; cbn in *.
+    etrans.
+    {
+      apply maponpaths.
+      exact (rwhisker_profunctor_nat_trans_mor_comm τ (id_profunctor C₂) h h').
+    }
+    rewrite !runitor_profunctor_nat_trans_mor_comm.
+    rewrite <- profunctor_nat_trans_lmap.
+    apply idpath.
   - intros C₁ C₂ C₃ C₄ P Q R₁ R₂ τ.
     use eq_profunctor_nat_trans.
-    intros z w h ; cbn.
-    admit.
+    intros z w h.
+    use mor_from_comp_profunctor_ob_eq.
+    clear h.
+    intros x h h' ; cbn in *.
+    use (mor_from_comp_profunctor_ob_eq
+           Q R₁
+           z x
+           (λ h',
+            associator_profunctor_nat_trans_mor
+              P Q R₂ z w
+              (lwhisker_profunctor_nat_trans_mor
+                 P (lwhisker_profunctor_nat_trans Q τ) z w
+                 (comp_profunctor_ob_in P (comp_profunctor Q R₁) x h h')))
+           (λ h',
+            lwhisker_profunctor_nat_trans_mor
+              (comp_profunctor P Q) τ z w
+              (associator_profunctor_nat_trans_mor
+                 P Q R₁ z w
+                 (comp_profunctor_ob_in P (comp_profunctor Q R₁) x h h')))).
+    clear h'.
+    intros y h' h'' ; cbn.
+    etrans.
+    {
+      apply maponpaths.
+      apply lwhisker_profunctor_nat_trans_mor_comm.
+    }
+    cbn.
+    rewrite associator_profunctor_nat_trans_mor_comm.
+    etrans.
+    {
+      apply maponpaths.
+      apply lwhisker_profunctor_nat_trans_mor_comm.
+    }
+    etrans.
+    {
+      exact (associator_profunctor_nat_trans_mor_ob_comm P Q R₂ h h' (τ z y h'')).
+    }
+    refine (!_).
+    rewrite associator_profunctor_nat_trans_mor_comm.
+    etrans.
+    {
+      apply maponpaths.
+      exact (associator_profunctor_nat_trans_mor_ob_comm P Q R₁ h h' h'').
+    }
+    etrans.
+    {
+      exact (lwhisker_profunctor_nat_trans_mor_comm
+               (comp_profunctor P Q) τ
+               (comp_profunctor_ob_in P Q x h h') h'').
+    }
+    apply idpath.
   - intros C₁ C₂ C₃ C₄ P Q₁ Q₂ R τ.
     use eq_profunctor_nat_trans.
-    intros z w h ; cbn.
-    admit.
+    intros z w h.
+    use mor_from_comp_profunctor_ob_eq.
+    clear h.
+    intros x h h' ; cbn in *.
+    use (mor_from_comp_profunctor_ob_eq
+           Q₁ R
+           z x
+           (λ h',
+            associator_profunctor_nat_trans_mor
+              P Q₂ R z w
+              (lwhisker_profunctor_nat_trans_mor
+                 P (rwhisker_profunctor_nat_trans τ R)
+                 z w
+                 (comp_profunctor_ob_in P (comp_profunctor Q₁ R) x h h')))
+           (λ h',
+            rwhisker_profunctor_nat_trans_mor
+              (lwhisker_profunctor_nat_trans P τ) R z w
+              (associator_profunctor_nat_trans_mor
+                 P Q₁ R z w
+                 (comp_profunctor_ob_in P (comp_profunctor Q₁ R) x h h')))).
+    clear h'.
+    intros y h' h'' ; cbn.
+    etrans.
+    {
+      apply maponpaths.
+      apply lwhisker_profunctor_nat_trans_mor_comm.
+    }
+    cbn.
+    rewrite associator_profunctor_nat_trans_mor_comm.
+    etrans.
+    {
+      apply maponpaths.
+      apply rwhisker_profunctor_nat_trans_mor_comm.
+    }
+    etrans.
+    {
+      exact (associator_profunctor_nat_trans_mor_ob_comm P Q₂ R h (τ y x h') h'').
+    }
+    refine (!_).
+    rewrite associator_profunctor_nat_trans_mor_comm.
+    etrans.
+    {
+      apply maponpaths.
+      exact (associator_profunctor_nat_trans_mor_ob_comm P Q₁ R h h' h'').
+    }
+    etrans.
+    {
+      exact (rwhisker_profunctor_nat_trans_mor_comm
+               (lwhisker_profunctor_nat_trans P τ) R
+               (comp_profunctor_ob_in P Q₁ x h h') h'').
+    }
+    etrans.
+    {
+      apply maponpaths_2.
+      exact (lwhisker_profunctor_nat_trans_mor_comm P τ h h').
+    }
+    apply idpath.
   - intros C₁ C₂ C₃ C₄ P₁ P₂ Q R τ.
     use eq_profunctor_nat_trans.
-    intros z w h ; cbn.
-    admit.
+    intros z w h.
+    use mor_from_comp_profunctor_ob_eq.
+    clear h ; cbn.
+    intros x h h'.
+    use (mor_from_comp_profunctor_ob_eq
+           Q R z x
+           (λ h',
+            rwhisker_profunctor_nat_trans_mor
+              (rwhisker_profunctor_nat_trans τ Q) R z w
+              (associator_profunctor_nat_trans_mor
+                 P₁ Q R z w
+                 (comp_profunctor_ob_in P₁ (comp_profunctor Q R) x h h')))
+           (λ h',
+            associator_profunctor_nat_trans_mor
+              P₂ Q R z w
+              (rwhisker_profunctor_nat_trans_mor
+                 τ (comp_profunctor Q R) z w
+                 (comp_profunctor_ob_in P₁ (comp_profunctor Q R) x h h')))).
+    clear h'.
+    intros y h' h'' ; cbn in *.
+    rewrite associator_profunctor_nat_trans_mor_comm.
+    etrans.
+    {
+      apply maponpaths.
+      exact (associator_profunctor_nat_trans_mor_ob_comm P₁ Q R h h' h'').
+    }
+    etrans.
+    {
+      exact (rwhisker_profunctor_nat_trans_mor_comm
+               (rwhisker_profunctor_nat_trans τ Q) R
+               (comp_profunctor_ob_in P₁ Q x h h') h'').
+    }
+    cbn.
+    etrans.
+    {
+      apply maponpaths_2.
+      exact (rwhisker_profunctor_nat_trans_mor_comm τ Q h h').
+    }
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      exact (rwhisker_profunctor_nat_trans_mor_comm
+               τ (comp_profunctor Q R)
+               h (comp_profunctor_ob_in Q R y h' h'')).
+    }
+    rewrite associator_profunctor_nat_trans_mor_comm.
+    etrans.
+    {
+      exact (associator_profunctor_nat_trans_mor_ob_comm P₂ Q R (τ x w h) h' h'').
+    }
+    apply idpath.
   - intros C₁ C₂ C₃ P₁ P₂ Q₁ Q₂ τ₁ τ₂.
     use eq_profunctor_nat_trans.
-    intros z x h ; cbn.
-    admit.
+    intros z x h.
+    use mor_from_comp_profunctor_ob_eq.
+    clear h.
+    intros y h h' ; cbn in *.
+    etrans.
+    {
+      apply maponpaths.
+      exact (rwhisker_profunctor_nat_trans_mor_comm τ₁ Q₁ h h').
+    }
+    etrans.
+    {
+      exact (lwhisker_profunctor_nat_trans_mor_comm P₂ τ₂ (τ₁ y x h) h').
+    }
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      exact (lwhisker_profunctor_nat_trans_mor_comm P₁ τ₂ h h').
+    }
+    etrans.
+    {
+      exact (rwhisker_profunctor_nat_trans_mor_comm τ₁ Q₂ h (τ₂ z y h')).
+    }
+    apply idpath.
   - intros C₁ C₂ P.
     exact (inv_profunctor_nat_trans_right
              (is_profunctor_nat_iso_lunitor_profunctor_nat_trans P)).
@@ -204,13 +478,166 @@ Proof.
              (is_profunctor_nat_iso_associator_profunctor_nat_trans P Q R)).
   - intros C₁ C₂ C₃ P Q.
     use eq_profunctor_nat_trans.
-    intros z x h ; cbn.
-    admit.
+    intros z x h.
+    use mor_from_comp_profunctor_ob_eq.
+    clear h.
+    intros y h h' ; cbn in *.
+    use (mor_from_comp_profunctor_ob_eq
+           (id_profunctor C₂) Q
+           z y
+           (λ h',
+            rwhisker_profunctor_nat_trans_mor
+              (runitor_profunctor_nat_trans P) Q z x
+              (associator_profunctor_nat_trans_mor
+                 P (id_profunctor C₂) Q z x
+                 (comp_profunctor_ob_in
+                    P (comp_profunctor (id_profunctor C₂) Q)
+                    y h h')))
+           (λ h',
+            lwhisker_profunctor_nat_trans_mor
+              P (lunitor_profunctor_nat_trans Q) z x
+              (comp_profunctor_ob_in
+                 P (comp_profunctor (id_profunctor C₂) Q) y h h'))).
+    clear h'.
+    intros y' h' h'' ; cbn in *.
+    rewrite associator_profunctor_nat_trans_mor_comm.
+    etrans.
+    {
+      apply maponpaths.
+      exact (associator_profunctor_nat_trans_mor_ob_comm
+               P (id_profunctor C₂) Q
+               h h' h'').
+    }
+    etrans.
+    {
+      exact (rwhisker_profunctor_nat_trans_mor_comm
+               (runitor_profunctor_nat_trans P) Q
+               (comp_profunctor_ob_in P (id_profunctor C₂) y h h') h'').
+    }
+    cbn.
+    rewrite runitor_profunctor_nat_trans_mor_comm.
+    refine (!_).
+    etrans.
+    {
+      exact (lwhisker_profunctor_nat_trans_mor_comm
+               P (lunitor_profunctor_nat_trans Q)
+               h (comp_profunctor_ob_in (id_profunctor C₂) Q y' h' h'')).
+    }
+    cbn.
+    rewrite lunitor_profunctor_nat_trans_mor_comm.
+    rewrite comp_profunctor_ob_in_comm.
+    apply idpath.
   - intros C₁ C₂ C₃ C₄ C₅ P₁ P₂ P₃ P₄.
     use eq_profunctor_nat_trans.
-    intros z v h ; cbn.
-    admit.
-Admitted.
+    intros z v h.
+    use mor_from_comp_profunctor_ob_eq.
+    clear h.
+    intros w h k ; cbn in *.
+    use (mor_from_comp_profunctor_ob_eq
+           P₂ (comp_profunctor P₃ P₄)
+           z w
+           (λ k,
+            rwhisker_profunctor_nat_trans_mor
+              (associator_profunctor_nat_trans P₁ P₂ P₃) P₄ z v
+              (associator_profunctor_nat_trans_mor
+                 P₁ (comp_profunctor P₂ P₃) P₄ z v
+                 (lwhisker_profunctor_nat_trans_mor
+                    P₁ (associator_profunctor_nat_trans P₂ P₃ P₄) z v
+                    (comp_profunctor_ob_in
+                       P₁ (comp_profunctor P₂ (comp_profunctor P₃ P₄))
+                       w h k))))
+           (λ k,
+            associator_profunctor_nat_trans_mor
+              (comp_profunctor P₁ P₂) P₃ P₄ z v
+              (associator_profunctor_nat_trans_mor
+                 P₁ P₂ (comp_profunctor P₃ P₄) z v
+                 (comp_profunctor_ob_in
+                    P₁ (comp_profunctor P₂ (comp_profunctor P₃ P₄))
+                    w h k)))).
+    clear k.
+    intros x k l ; cbn.
+    use (mor_from_comp_profunctor_ob_eq
+           P₃ P₄
+           z x
+           (λ l,
+            rwhisker_profunctor_nat_trans_mor
+              (associator_profunctor_nat_trans P₁ P₂ P₃) P₄ z v
+              (associator_profunctor_nat_trans_mor
+                 P₁ (comp_profunctor P₂ P₃) P₄ z v
+                 (lwhisker_profunctor_nat_trans_mor
+                    P₁ (associator_profunctor_nat_trans P₂ P₃ P₄) z v
+                    (comp_profunctor_ob_in
+                       P₁ (comp_profunctor P₂ (comp_profunctor P₃ P₄)) w h
+                       (comp_profunctor_ob_in
+                          P₂ (comp_profunctor P₃ P₄) x k l)))))
+           (λ l,
+            associator_profunctor_nat_trans_mor
+              (comp_profunctor P₁ P₂) P₃ P₄ z v
+              (associator_profunctor_nat_trans_mor
+                 P₁ P₂ (comp_profunctor P₃ P₄) z v
+                 (comp_profunctor_ob_in
+                    P₁ (comp_profunctor P₂ (comp_profunctor P₃ P₄)) w h
+                    (comp_profunctor_ob_in
+                       P₂ (comp_profunctor P₃ P₄) x k l))))).
+    clear l.
+    intros y l m ; cbn.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      exact (lwhisker_profunctor_nat_trans_mor_comm
+               P₁ (associator_profunctor_nat_trans P₂ P₃ P₄)
+               h
+               (comp_profunctor_ob_in
+                  P₂ (comp_profunctor P₃ P₄) x k
+                  (comp_profunctor_ob_in P₃ P₄ y l m))).
+    }
+    cbn.
+    rewrite !associator_profunctor_nat_trans_mor_comm.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      exact (associator_profunctor_nat_trans_mor_ob_comm P₂ P₃ P₄ k l m).
+    }
+    etrans.
+    {
+      apply maponpaths.
+      exact (associator_profunctor_nat_trans_mor_ob_comm
+               P₁ (comp_profunctor P₂ P₃) P₄
+               h
+               (comp_profunctor_ob_in P₂ P₃ x k l)
+               m).
+    }
+    etrans.
+    {
+      exact (rwhisker_profunctor_nat_trans_mor_comm
+               (associator_profunctor_nat_trans P₁ P₂ P₃) P₄
+               _
+               m).
+    }
+    cbn.
+    rewrite associator_profunctor_nat_trans_mor_comm.
+    etrans.
+    {
+      apply maponpaths_2.
+      exact (associator_profunctor_nat_trans_mor_ob_comm P₁ P₂ P₃ h k l).
+    }
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      exact (associator_profunctor_nat_trans_mor_ob_comm
+               P₁ P₂ (comp_profunctor P₃ P₄)
+               h k _).
+    }
+    rewrite associator_profunctor_nat_trans_mor_comm.
+    etrans.
+    {
+      exact (associator_profunctor_nat_trans_mor_ob_comm
+               (comp_profunctor P₁ P₂) P₃ P₄
+               _ l m).
+    }
+    apply idpath.
+Qed.
 
 Definition univalent_profunctor_ver_bicat_sq_bicat
   : ver_bicat_sq_bicat.
@@ -253,6 +680,7 @@ Proof.
   - exact univalent_profunctor_ver_bicat_sq_bicat_ver_id_comp_sq.
 Defined.
 
+(** * 3. The whiskering operations *)
 Definition univalent_profunctor_double_bicat_whiskering
   : double_bicat_whiskering univalent_profunctor_ver_bicat_sq_bicat_ver_id_comp.
 Proof.
@@ -299,6 +727,7 @@ Proof.
   - exact univalent_profunctor_double_bicat_whiskering.
 Defined.
 
+(** * 4. More laws *)
 Proposition univalent_profunctor_whisker_square_bicat_law
   : whisker_square_bicat_law univalent_profunctor_ver_bicat_sq_id_comp_whisker.
 Proof.
@@ -608,9 +1037,85 @@ Proof.
     rewrite runitor_profunctor_nat_trans_mor_comm.
     rewrite (profunctor_square_lmap τ).
     apply idpath.
-  - admit.
-  - admit.
-Admitted.
+  - intros C₁ C₂ C₃ C₄ C₅ C₆ F₁ F₂ F₃ P₁ P₂ P₁' P₂' Q₁ Q₂ Q₁' Q₂' τ₁ τ₂ θ₁ θ₂ s₁ s₁' s₂ s₂'.
+    intros p q.
+    use eq_profunctor_square.
+    intros x₁ x₂ h.
+    use mor_from_comp_profunctor_ob_eq.
+    clear h.
+    intros x₃ h h' ; cbn in *.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      exact (rwhisker_profunctor_nat_trans_mor_comm τ₁ P₁' h h').
+    }
+    etrans.
+    {
+      apply maponpaths.
+      exact (lwhisker_profunctor_nat_trans_mor_comm P₂ τ₂ (τ₁ x₃ x₂ h) h').
+    }
+    etrans.
+    {
+      exact (comp_v_profunctor_square_mor_comm
+               s₁' s₂'
+               x₁ x₂ x₃
+               (τ₁ x₃ x₂ h) (τ₂ x₁ x₃ h')).
+    }
+    refine (!_).
+    etrans.
+    {
+      do 2 apply maponpaths.
+      exact (comp_v_profunctor_square_mor_comm s₁ s₂ x₁ x₂ x₃ h h').
+    }
+    etrans.
+    {
+      apply maponpaths.
+      exact (rwhisker_profunctor_nat_trans_mor_comm
+               θ₁ Q₁'
+               (s₁ x₃ x₂ h) (s₂ x₁ x₃ h')).
+    }
+    cbn.
+    etrans.
+    {
+      exact (lwhisker_profunctor_nat_trans_mor_comm
+               Q₂ θ₂
+               (θ₁ (F₂ x₃) (F₁ x₂) (s₁ x₃ x₂ h)) (s₂ x₁ x₃ h')).
+    }
+    cbn.
+    pose (profunctor_square_eq_pointwise p h) as p'.
+    pose (profunctor_square_eq_pointwise q h') as q'.
+    cbn in p', q'.
+    rewrite q'.
+    rewrite p'.
+    apply idpath.
+  - intros C₁ C₂ C₃ C₄ C₅ C₆ F₁ F₂ F₃ P₁ P₂ P₁' P₂' Q₁ Q₂ Q₁' Q₂' τ₁ τ₂ θ₁ θ₂ s₁ s₁' s₂ s₂'.
+    intros p q.
+    use eq_profunctor_square.
+    intros x₁ x₂ h ; cbn in *.
+    rewrite lmap_comp.
+    etrans.
+    {
+      apply maponpaths.
+      refine (!_).
+      apply (profunctor_square_lmap s₂).
+    }
+    etrans.
+    {
+      apply (profunctor_square_eq_pointwise q).
+    }
+    cbn.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      exact (profunctor_square_eq_pointwise p h).
+    }
+    cbn.
+    rewrite (profunctor_square_rmap s₂').
+    rewrite <- rmap_comp.
+    apply maponpaths_2.
+    rewrite nat_trans_ax.
+    apply idpath.
+Qed.
 
 Proposition univalent_profunctor_double_bicat_laws
   : double_bicat_laws univalent_profunctor_ver_bicat_sq_id_comp_whisker.
@@ -623,10 +1128,57 @@ Proof.
     apply isaset_profunctor_square.
 Qed.
 
+(** * 5. The Verity double bicategory of univalent categories and profunctors *)
 Definition univalent_profunctor_verity_double_bicat
   : verity_double_bicat.
 Proof.
   use make_verity_double_bicat.
   - exact univalent_profunctor_ver_bicat_sq_id_comp_whisker.
   - exact univalent_profunctor_double_bicat_laws.
+Defined.
+
+(** * 6. 2-cells versus squares *)
+Definition univalent_profunctor_vertical_cells_are_squares
+  : vertical_cells_are_squares
+      univalent_profunctor_verity_double_bicat.
+Proof.
+  intros C₁ C₂ P Q ; cbn in *.
+  use isweq_iso.
+  - exact profunctor_square_to_nat_trans.
+  - abstract
+      (intros τ ;
+       use eq_profunctor_nat_trans ;
+       intros y x h ; cbn ;
+       apply idpath).
+  - abstract
+      (intros τ ;
+       use eq_profunctor_square ;
+       intros y x h ; cbn ;
+       apply idpath).
+Defined.
+
+Definition univalent_profunctor_horizontal_cells_are_squares
+  : horizontal_cells_are_squares
+      univalent_profunctor_verity_double_bicat.
+Proof.
+  intros C₁ C₂ F G ; cbn in *.
+  use isweq_iso.
+  - exact profunctor_square_to_nat_trans.
+  - abstract
+      (intro τ ;
+       use nat_trans_eq ; [ apply homset_property | ] ;
+       intro x ; cbn ;
+       rewrite functor_id ;
+       rewrite !id_left ;
+       apply idpath).
+  - abstract
+      (intros τ ;
+       use eq_profunctor_square ;
+       intros x y f ; cbn in * ;
+       rewrite !id_left ;
+       pose (profunctor_square_natural τ f (identity y) (identity y)) as p ;
+       cbn in p ;
+       rewrite functor_id in p ;
+       rewrite !id_right in p ;
+       exact (!p)).
 Defined.
