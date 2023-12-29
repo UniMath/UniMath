@@ -6,10 +6,10 @@
  follows:
  - The displayed objects over `C` and `D` are profunctors from `C` to `D`.
  - The displayed morphisms are profunctor squares.
- In fact, this 2-sided displayed category is univalent. The reason for that, is
+ In fact, this 2-sided displayed category is univalent. The reason for that is
  because profunctors are functors into the category of sets, which is univalent.
  For that reason, the category of profunctors from `C` to `D` is univalent
- irregardless of whether `C` and `D` are univalent. This is the first building
+ regardless of whether `C` and `D` are univalent. This is the first building
  block for constructing the univalent pseudo double category of strict categories,
  functors, and profunctors.
 

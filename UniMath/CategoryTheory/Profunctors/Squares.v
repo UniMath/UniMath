@@ -7,7 +7,7 @@
  (bi)category as natural transformations between profunctors. We also provide suitable
  accessors and a builder for these. Finally, we discuss some standard examples of squares
  of profunctors. These come up when one defines the double (bi)category of functors and
- profunctors. The examples that we need, are:
+ profunctors. The examples that we need are:
  - Vertical and horizontal identity squares
  - Vertical and horizontal composition of squares
  - Whiskering operations on every side
