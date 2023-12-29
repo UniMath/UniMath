@@ -871,6 +871,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DoubleCategories/AlternativeDefinitions/DoubleCatsEquivalentDefinitions.v](Bicategories/DoubleCategories/AlternativeDefinitions/DoubleCatsEquivalentDefinitions.v)
    - [DoubleCategories/DoubleBicat.v](Bicategories/DoubleCategories/DoubleBicat.v)
    - [DoubleCategories/Examples/SquareDoubleBicat.v](Bicategories/DoubleCategories/Examples/SquareDoubleBicat.v)
+   - [DoubleCategories/Examples/DoubleCatToDoubleBicat.v](Bicategories/DoubleCategories/Examples/DoubleCatToDoubleBicat.v)
    - [DoubleCategories/Examples/ProfunctorDoubleBicat.v](Bicategories/DoubleCategories/Examples/ProfunctorDoubleBicat.v)
    - [DisplayedBicats/Examples/MonadsLax.v](Bicategories/DisplayedBicats/Examples/MonadsLax.v)
    - [DisplayedBicats/Examples/DispBicatOnCatToUniv.v](Bicategories/DisplayedBicats/Examples/DispBicatOnCatToUniv.v)
