@@ -1,5 +1,23 @@
 (*****************************************************************************************
 
+ Cells and squares in a Verity double bicategory
+
+ In a Verity double bicategory, there are horizontal 2-cells, vertical 2-cells, and
+ squares. It is often the case that  the horizontal and the vertical 2-cells can be
+ expressed as certain squares. In this file, we define these conditions and we prove
+ properties about such Verity double bicategories.
+
+ Contents
+ 1. Maps from cells to squares
+ 2. The conditions that cells can be expressed as certain squares
+ 3. Verity double bicategories in which vertical cells are the same as squares
+ 3.1. Identity squares and vertical cells
+ 3.2. Composition of squares and vertical cells
+ 3.3. Invertible squares and vertical cells
+ 4. Verity double bicategories in which horizontal cells are the same as squares
+ 4.1. Identity squares and horizontal cells
+ 4.2. Composition of squares and horizontal cells
+ 4.3. Invertible squares and horizontal cells
 
  *****************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -17,6 +35,7 @@ Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.DerivedLaws.
 Local Open Scope cat.
 Local Open Scope double_bicat.
 
+(** * 1. Maps from cells to squares *)
 Definition vertical_cell_to_square
            {B : verity_double_bicat}
            {x y : B}
@@ -33,6 +52,7 @@ Definition horizontal_cell_to_square
   : square_double_bicat h₁ h₂ (id₁ _) (id₁ _)
   := τ ▵s id_v_square_bicat h₂.
 
+(** * 2. The conditions that cells can be expressed as certain squares *)
 Definition vertical_cells_are_squares
            (B : verity_double_bicat)
   : UU
@@ -47,6 +67,7 @@ Definition horizontal_cells_are_squares
        (h₁ h₂ : x --> y),
      isweq (@horizontal_cell_to_square B x y h₁ h₂).
 
+(** * 3. Verity double bicategories in which vertical cells are the same as squares *)
 Section VerticalCellsAreSquares.
   Context {B : verity_double_bicat}
           (HB : vertical_cells_are_squares B).
@@ -82,6 +103,7 @@ Section VerticalCellsAreSquares.
     apply (homotinvweqweq (vertical_cell_to_square_weq v₁ v₂)).
   Qed.
 
+  (** * 3.1. Identity squares and vertical cells *)
   Proposition vertical_cell_to_square_id
               {x y : B}
               (v : x -|-> y)
@@ -103,6 +125,7 @@ Section VerticalCellsAreSquares.
     apply idpath.
   Qed.
 
+  (** * 3.2. Composition of squares and vertical cells *)
   Definition comp_ver_globular_square
              {x y : B}
              {v₁ v₂ v₃ : x -|-> y}
@@ -154,6 +177,7 @@ Section VerticalCellsAreSquares.
     apply idpath.
   Qed.
 
+  (** * 3.3. Invertible squares and vertical cells *)
   Definition invertible_vertical_square_data
              {x y : B}
              (v₁ v₂ : x -|-> y)
@@ -274,6 +298,7 @@ Section VerticalCellsAreSquares.
   Defined.
 End VerticalCellsAreSquares.
 
+(** * 4. Verity double bicategories in which horizontal cells are the same as squares *)
 Section HorizontalCellsAreSquares.
   Context {B : verity_double_bicat}
           (HB : horizontal_cells_are_squares B).
@@ -309,6 +334,7 @@ Section HorizontalCellsAreSquares.
     apply (homotinvweqweq (horizontal_cell_to_square_weq h₁ h₂)).
   Qed.
 
+  (** * 4.1. Identity squares and horizontal cells *)
   Proposition horizontal_cell_to_square_id
               {x y : B}
               (h : x --> y)
@@ -330,6 +356,7 @@ Section HorizontalCellsAreSquares.
     apply idpath.
   Qed.
 
+  (** * 4.2. Composition of squares and horizontal cells *)
   Definition comp_hor_globular_square
              {x y : B}
              {h₁ h₂ h₃ : x --> y}
@@ -381,6 +408,7 @@ Section HorizontalCellsAreSquares.
     apply idpath.
   Qed.
 
+  (** * 4.3. Invertible squares and horizontal cells *)
   Definition invertible_horizontal_square_data
              {x y : B}
              (h₁ h₂ : x --> y)
