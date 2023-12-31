@@ -1,3 +1,15 @@
+(*****************************************************************************************
+
+ Derived laws in Verity double bicategories
+
+ This file collects laws that hold in Verity double bicategories. Some of these laws are
+ reformulations of the standard laws of a Verity double bicategory.
+
+ Contents
+ 1. Laws regarding the left unitor and composition
+ 2. Laws regarding the right unitor and composition
+
+ *****************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
@@ -12,6 +24,7 @@ Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.VerityDoubleBic
 Local Open Scope cat.
 Local Open Scope double_bicat.
 
+(** * 1. Laws regarding the left unitor and composition *)
 Proposition lunitor_v_comp_square'
             {B : verity_double_bicat}
             {w x y z : B}
@@ -72,6 +85,7 @@ Proof.
   apply idpath.
 Qed.
 
+(** * 2. Laws regarding the right unitor and composition *)
 Proposition runitor_v_comp_square'
             {B : verity_double_bicat}
             {w x y z : B}
