@@ -41,7 +41,7 @@ Definition vertical_cell_to_square
            {x y : B}
            {v₁ v₂ : x -|-> y}
            (τ : v₁ =|=> v₂)
-  : square_double_bicat (id₁ _) (id₁ _) v₁ v₂
+  : square_double_bicat (id_h x) (id_h y) v₁ v₂
   := τ ◃s id_h_square_bicat v₂.
 
 Definition horizontal_cell_to_square
@@ -49,7 +49,7 @@ Definition horizontal_cell_to_square
            {x y : B}
            {h₁ h₂ : x --> y}
            (τ : h₁ ==> h₂)
-  : square_double_bicat h₁ h₂ (id₁ _) (id₁ _)
+  : square_double_bicat h₁ h₂ (id_v x) (id_v y)
   := τ ▵s id_v_square_bicat h₂.
 
 (** * 2. The conditions that cells can be expressed as certain squares *)
@@ -75,20 +75,20 @@ Section VerticalCellsAreSquares.
   Definition vertical_cell_to_square_weq
              {x y : B}
              (v₁ v₂ : x -|-> y)
-    : v₁ =|=> v₂ ≃ square_double_bicat (id₁ _) (id₁ _) v₁ v₂
+    : v₁ =|=> v₂ ≃ square_double_bicat (id_h x) (id_h y) v₁ v₂
     := make_weq _ (HB x y v₁ v₂).
 
   Definition square_to_vertical_cell
              {x y : B}
              {v₁ v₂ : x -|-> y}
-             (s : square_double_bicat (id₁ _) (id₁ _) v₁ v₂)
+             (s : square_double_bicat (id_h x) (id_h y) v₁ v₂)
     : v₁ =|=> v₂
     := invmap (vertical_cell_to_square_weq v₁ v₂) s.
 
   Proposition square_to_vertical_cell_to_square
               {x y : B}
               {v₁ v₂ : x -|-> y}
-              (s : square_double_bicat (id₁ _) (id₁ _) v₁ v₂)
+              (s : square_double_bicat (id_h x) (id_h y) v₁ v₂)
     : vertical_cell_to_square (square_to_vertical_cell s) = s.
   Proof.
     apply (homotweqinvweq (vertical_cell_to_square_weq v₁ v₂)).
@@ -129,9 +129,9 @@ Section VerticalCellsAreSquares.
   Definition comp_ver_globular_square
              {x y : B}
              {v₁ v₂ v₃ : x -|-> y}
-             (s₁ : square_double_bicat (id₁ _) (id₁ _) v₁ v₂)
-             (s₂ : square_double_bicat (id₁ _) (id₁ _) v₂ v₃)
-    : square_double_bicat (id₁ _) (id₁ _) v₁ v₃
+             (s₁ : square_double_bicat (id_h x) (id_h y) v₁ v₂)
+             (s₂ : square_double_bicat (id_h x) (id_h y) v₂ v₃)
+    : square_double_bicat (id_h x) (id_h y) v₁ v₃
     := linvunitor _ ▵s (lunitor _ ▿s s₁ ⋆h s₂).
 
   Proposition vertical_cell_to_square_comp
@@ -165,8 +165,8 @@ Section VerticalCellsAreSquares.
   Proposition square_to_vertical_cell_comp
               {x y : B}
               {v₁ v₂ v₃ : x -|-> y}
-              (s₁ : square_double_bicat (id₁ _) (id₁ _) v₁ v₂)
-              (s₂ : square_double_bicat (id₁ _) (id₁ _) v₂ v₃)
+              (s₁ : square_double_bicat (id_h x) (id_h y) v₁ v₂)
+              (s₂ : square_double_bicat (id_h x) (id_h y) v₂ v₃)
     : square_to_vertical_cell (comp_ver_globular_square s₁ s₂)
       =
       square_to_vertical_cell s₁ • square_to_vertical_cell s₂.
@@ -182,15 +182,15 @@ Section VerticalCellsAreSquares.
              {x y : B}
              (v₁ v₂ : x -|-> y)
     : UU
-    := (square_double_bicat (id₁ _) (id₁ _) v₁ v₂)
+    := (square_double_bicat (id_h x) (id_h y) v₁ v₂)
        ×
-       (square_double_bicat (id₁ _) (id₁ _) v₂ v₁).
+       (square_double_bicat (id_h x) (id_h y) v₂ v₁).
 
   Definition make_invertible_vertical_square_data
              {x y : B}
              {v₁ v₂ : x -|-> y}
-             (s₁ : square_double_bicat (id₁ _) (id₁ _) v₁ v₂)
-             (s₂ : square_double_bicat (id₁ _) (id₁ _) v₂ v₁)
+             (s₁ : square_double_bicat (id_h x) (id_h y) v₁ v₂)
+             (s₂ : square_double_bicat (id_h x) (id_h y) v₂ v₁)
     : invertible_vertical_square_data v₁ v₂
     := s₁ ,, s₂.
 
@@ -198,14 +198,14 @@ Section VerticalCellsAreSquares.
            {x y : B}
            {v₁ v₂ : x -|-> y}
            (s : invertible_vertical_square_data v₁ v₂)
-    : square_double_bicat (id₁ _) (id₁ _) v₁ v₂
+    : square_double_bicat (id_h x) (id_h y) v₁ v₂
     := pr1 s.
 
   Definition inv_of_invertible_vertical_square
              {x y : B}
              {v₁ v₂ : x -|-> y}
              (s : invertible_vertical_square_data v₁ v₂)
-    : square_double_bicat (id₁ _) (id₁ _) v₂ v₁
+    : square_double_bicat (id_h x) (id_h y) v₂ v₁
     := pr2 s.
 
   Definition invertible_vertical_square_laws
@@ -306,20 +306,20 @@ Section HorizontalCellsAreSquares.
   Definition horizontal_cell_to_square_weq
              {x y : B}
              (h₁ h₂ : x --> y)
-    : h₁ ==> h₂ ≃ square_double_bicat h₁ h₂ (id₁ _) (id₁ _)
+    : h₁ ==> h₂ ≃ square_double_bicat h₁ h₂ (id_v x) (id_v y)
     := make_weq _ (HB x y h₁ h₂).
 
   Definition square_to_horizontal_cell
              {x y : B}
              {h₁ h₂ : x --> y}
-             (s : square_double_bicat h₁ h₂ (id₁ _) (id₁ _))
+             (s : square_double_bicat h₁ h₂ (id_v x) (id_v y))
     : h₁ ==> h₂
     := invmap (horizontal_cell_to_square_weq h₁ h₂) s.
 
   Proposition square_to_horizontal_cell_to_square
               {x y : B}
               {h₁ h₂ : x --> y}
-              (s : square_double_bicat h₁ h₂ (id₁ _) (id₁ _))
+              (s : square_double_bicat h₁ h₂ (id_v x) (id_v y))
     : horizontal_cell_to_square (square_to_horizontal_cell s) = s.
   Proof.
     apply (homotweqinvweq (horizontal_cell_to_square_weq h₁ h₂)).
@@ -360,9 +360,9 @@ Section HorizontalCellsAreSquares.
   Definition comp_hor_globular_square
              {x y : B}
              {h₁ h₂ h₃ : x --> y}
-             (s₁ : square_double_bicat h₁ h₂ (id₁ _) (id₁ _))
-             (s₂ : square_double_bicat h₂ h₃ (id₁ _) (id₁ _))
-    : square_double_bicat h₁ h₃ (id₁ _) (id₁ _)
+             (s₁ : square_double_bicat h₁ h₂ (id_v x) (id_v y))
+             (s₂ : square_double_bicat h₂ h₃ (id_v x) (id_v y))
+    : square_double_bicat h₁ h₃ (id_v x) (id_v y)
     := linvunitor _ ◃s (lunitor _ ▹s s₁ ⋆v s₂).
 
   Proposition horizontal_cell_to_square_comp
@@ -396,8 +396,8 @@ Section HorizontalCellsAreSquares.
   Proposition square_to_horizontal_cell_comp
               {x y : B}
               {h₁ h₂ h₃ : x --> y}
-              (s₁ : square_double_bicat h₁ h₂ (id₁ _) (id₁ _))
-              (s₂ : square_double_bicat h₂ h₃ (id₁ _) (id₁ _))
+              (s₁ : square_double_bicat h₁ h₂ (id_v x) (id_v y))
+              (s₂ : square_double_bicat h₂ h₃ (id_v x) (id_v y))
     : square_to_horizontal_cell (comp_hor_globular_square s₁ s₂)
       =
       square_to_horizontal_cell s₁ • square_to_horizontal_cell s₂.
@@ -413,15 +413,15 @@ Section HorizontalCellsAreSquares.
              {x y : B}
              (h₁ h₂ : x --> y)
     : UU
-    := (square_double_bicat h₁ h₂ (id₁ _) (id₁ _))
+    := (square_double_bicat h₁ h₂ (id_v x) (id_v y))
        ×
-       (square_double_bicat h₂ h₁ (id₁ _) (id₁ _)).
+       (square_double_bicat h₂ h₁ (id_v x) (id_v y)).
 
   Definition make_invertible_horizontal_square_data
              {x y : B}
              {h₁ h₂ : x --> y}
-             (s₁ : square_double_bicat h₁ h₂ (id₁ _) (id₁ _))
-             (s₂ : square_double_bicat h₂ h₁ (id₁ _) (id₁ _))
+             (s₁ : square_double_bicat h₁ h₂ (id_v x) (id_v y))
+             (s₂ : square_double_bicat h₂ h₁ (id_v x) (id_v y))
     : invertible_horizontal_square_data h₁ h₂
     := s₁ ,, s₂.
 
@@ -429,14 +429,14 @@ Section HorizontalCellsAreSquares.
            {x y : B}
            {h₁ h₂ : x --> y}
            (s : invertible_horizontal_square_data h₁ h₂)
-    : square_double_bicat h₁ h₂ (id₁ _) (id₁ _)
+    : square_double_bicat h₁ h₂ (id_v x) (id_v y)
     := pr1 s.
 
   Definition inv_of_invertible_horizontal_square
              {x y : B}
              {h₁ h₂ : x --> y}
              (s : invertible_horizontal_square_data h₁ h₂)
-    : square_double_bicat h₂ h₁ (id₁ _) (id₁ _)
+    : square_double_bicat h₂ h₁ (id_v x) (id_v y)
     := pr2 s.
 
   Definition invertible_horizontal_square_laws

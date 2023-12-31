@@ -55,6 +55,7 @@ Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.PseudoDoubleSetCats.
 
 Local Open Scope cat.
+Local Open Scope double_cat.
 
 Section StructuredCospansDoubleCat.
   Context {A X : category}
@@ -439,6 +440,38 @@ Section StructuredCospansDoubleCat.
     - exact structured_cospans_double_cat_triangle.
     - exact structured_cospans_double_cat_pentagon.
   Defined.
+
+  Definition structured_cospans_double_cat_ver_weq_square
+             (H : fully_faithful L)
+    : ver_weq_square structured_cospans_double_cat.
+  Proof.
+    intros x y f g.
+    use isweqimplimpl.
+    - cbn.
+      intros fg.
+      induction fg as [ h [ p q ]].
+      rewrite id_left, id_right in p.
+      rewrite id_left, id_right in q.
+      use (invmaponpathsweq (make_weq _ (H x y))) ; cbn.
+      rewrite <- p, q.
+      apply idpath.
+    - apply homset_property.
+    - use invproofirrelevance.
+      intros φ₁ φ₂.
+      use subtypePath.
+      {
+        intro.
+        apply isapropdirprod ; apply homset_property.
+      }
+      pose (p₁ := pr12 φ₁).
+      pose (p₂ := pr12 φ₂).
+      cbn in p₁, p₂.
+      rewrite id_left, id_right in p₁.
+      rewrite id_left, id_right in p₂.
+      rewrite p₁.
+      rewrite <- p₂.
+      apply idpath.
+  Qed.
 End StructuredCospansDoubleCat.
 
 Definition structured_cospans_univalent_double_cat

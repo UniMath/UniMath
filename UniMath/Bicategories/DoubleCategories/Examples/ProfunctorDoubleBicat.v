@@ -60,6 +60,7 @@ Require Import UniMath.Bicategories.Core.Examples.OpCellBicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.VerityDoubleBicat.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.CellsAndSquares.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairs.
 
 Local Open Scope cat.
 
@@ -1184,4 +1185,35 @@ Proof.
        rewrite functor_id in p ;
        rewrite !id_right in p ;
        exact (!p)).
+Defined.
+
+(** * 7. Companion pairs of profunctors *)
+Definition all_companions_univalent_profunctor_verity_double_bicat
+  : all_companions univalent_profunctor_verity_double_bicat.
+Proof.
+  refine (λ (C₁ C₂ : univalent_category)
+            (F : C₁ ⟶ C₂),
+          representable_profunctor_left F ,, _).
+  use make_are_companions ; cbn.
+  - apply representable_profunctor_left_unit.
+  - apply representable_profunctor_left_counit.
+  - abstract
+      (use eq_profunctor_square ;
+       intros y x h ; cbn in * ;
+       etrans ;
+       [ apply maponpaths ;
+         apply (comp_v_profunctor_square_mor_comm
+                  (representable_profunctor_left_counit F)
+                  (representable_profunctor_left_unit F))
+       | ] ;
+       rewrite runitor_profunctor_nat_trans_mor_comm ;
+       cbn ;
+       rewrite !functor_id ;
+       rewrite !id_right ;
+       apply idpath).
+  - abstract
+      (use eq_profunctor_square ;
+       intros y x h ; cbn in * ;
+       rewrite !id_left, !id_right ;
+       apply idpath).
 Defined.

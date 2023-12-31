@@ -26,6 +26,7 @@
  2.8. Associator
  2.9. Triangle and pentagon equations
  3. Builder for double categories
+ 4. Squares and equalities
 
  **********************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -817,3 +818,33 @@ Definition make_double_cat
            (pe : pentagon_law a)
   : double_cat
   := C ,, D ,, I ,, Cm ,, l ,, r ,, a ,, tr ,, pe.
+
+(** * 4. Squares and equalities *)
+Definition ver_eq_to_square
+           {C : double_cat}
+           {x y : C}
+           {v₁ v₂ : x -->v y}
+           (p : v₁ = v₂)
+  : square v₁ v₂ (identity_h x) (identity_h y).
+Proof.
+  induction p.
+  apply id_h_square.
+Defined.
+
+Definition ver_weq_square
+           (C : double_cat)
+  : UU
+  := ∏ (x y : C)
+       (v₁ v₂ : x -->v y),
+     isweq (@ver_eq_to_square C x y v₁ v₂).
+
+Definition isaprop_square_ver_weq_square
+           {C : double_cat}
+           (H : ver_weq_square C)
+           {x y : C}
+           (v₁ v₂ : x -->v y)
+  : isaprop (square v₁ v₂ (identity_h x) (identity_h y)).
+Proof.
+  use (isofhlevelweqf 1 (make_weq _ (H x y v₁ v₂))).
+  apply homset_property.
+Qed.

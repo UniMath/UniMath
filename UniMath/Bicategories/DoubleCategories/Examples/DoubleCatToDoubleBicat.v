@@ -558,4 +558,19 @@ Section DoubleCatToDoubleBicat.
          rewrite transportf_f_square ;
          apply transportf_square_id).
   Defined.
+
+  Definition double_cat_horizontal_cells_are_squares
+             (H : ver_weq_square C)
+    : horizontal_cells_are_squares
+        double_cat_to_verity_double_bicat.
+  Proof.
+    refine (λ (x y : C) (v₁ v₂ : x -->v y), _).
+    use isweqimplimpl.
+    - cbn.
+      intros s.
+      exact (invmap (make_weq _ (H x y v₁ v₂)) s).
+    - apply homset_property.
+    - apply isaprop_square_ver_weq_square.
+      exact H.
+  Defined.
 End DoubleCatToDoubleBicat.

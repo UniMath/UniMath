@@ -28,6 +28,7 @@
  2. The laws
  3. The double bicategory of squares
  4. 2-cells coincide with certain squares
+ 5. Companion pairs
 
  *****************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -40,6 +41,7 @@ Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.VerityDoubleBicat.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.CellsAndSquares.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairs.
 
 Local Open Scope cat.
 
@@ -886,5 +888,31 @@ Section SquareDoubleBicat.
          rewrite !vassocr ;
          rewrite runitor_rinvunitor ;
          apply id2_left).
+  Defined.
+
+  (** * 5. Companion pairs *)
+  Definition all_companions_square_verity_double_bicat
+    : all_companions square_verity_double_bicat.
+  Proof.
+    intros x y f.
+    refine (f ,, _).
+    use make_are_companions ; cbn.
+    - apply id2.
+    - apply id2.
+    - abstract
+        (rewrite id2_rwhisker, lwhisker_id2, !id2_right ;
+         rewrite lassociator_rassociator ;
+         rewrite id2_left ;
+         rewrite lunitor_triangle ;
+         rewrite vcomp_lunitor ;
+         apply idpath).
+    - abstract
+        (rewrite id2_rwhisker, lwhisker_id2, !id2_right ;
+         rewrite rassociator_lassociator ;
+         rewrite id2_left ;
+         rewrite !vassocl ;
+         rewrite runitor_triangle ;
+         rewrite vcomp_runitor ;
+         apply idpath).
   Defined.
 End SquareDoubleBicat.

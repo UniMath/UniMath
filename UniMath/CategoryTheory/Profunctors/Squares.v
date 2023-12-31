@@ -23,6 +23,8 @@
  4.1. Identity squares
  4.2. Composition of squares
  4.3. Whiskering operations
+ 4.4. Companion pairs
+ 4.5. Conjoints
 
  *****************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -661,4 +663,80 @@ Definition associator_profunctor_square
 Proof.
   use profunctor_nat_trans_to_square.
   exact (associator_profunctor_nat_trans P₁ P₂ P₃).
+Defined.
+
+(** * 4.4. Companion pairs *)
+Definition representable_profunctor_left_unit
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : profunctor_square
+      (functor_identity C₂)
+      F
+      (representable_profunctor_left F)
+      (id_profunctor C₂).
+Proof.
+  use make_profunctor_square.
+  - exact (λ y x f, f).
+  - abstract
+      (intros y₁ y₂ x₁ x₂ g f h ; cbn in * ;
+       rewrite functor_id ;
+       rewrite !id_left, !id_right ;
+       apply idpath).
+Defined.
+
+Definition representable_profunctor_left_counit
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : profunctor_square
+      F
+      (functor_identity C₁)
+      (id_profunctor C₁)
+      (representable_profunctor_left F).
+Proof.
+  use make_profunctor_square.
+  - exact (λ y x f, #F f).
+  - abstract
+      (intros y₁ y₂ x₁ x₂ g f h ; cbn in * ;
+       rewrite functor_id ;
+       rewrite !id_left, !id_right ;
+       rewrite !functor_comp ;
+       apply idpath).
+Defined.
+
+(** * 4.5. Conjoints *)
+Definition representable_profunctor_right_unit
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : profunctor_square
+      (functor_identity C₁)
+      F
+      (id_profunctor C₁)
+      (representable_profunctor_right F).
+Proof.
+  use make_profunctor_square.
+  - exact (λ y x f, #F f).
+  - abstract
+      (intros y₁ y₂ x₁ x₂ g f h ; cbn in * ;
+       rewrite functor_id ;
+       rewrite !id_left, !id_right ;
+       rewrite !functor_comp ;
+       apply idpath).
+Defined.
+
+Definition representable_profunctor_right_counit
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : profunctor_square
+      F
+      (functor_identity C₂)
+      (representable_profunctor_right F)
+      (id_profunctor C₂).
+Proof.
+  use make_profunctor_square.
+  - exact (λ y x f, f).
+  - abstract
+      (intros y₁ y₂ x₁ x₂ g f h ; cbn in * ;
+       rewrite functor_id ;
+       rewrite !id_left, !id_right ;
+       apply idpath).
 Defined.

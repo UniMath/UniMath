@@ -20,6 +20,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.Monads.Monads.
+Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
@@ -204,6 +205,22 @@ Proof.
   - abstract (intro ; intros ; apply homset_property).
   - abstract (intro ; intros ; apply homset_property).
 Defined.
+
+Definition kleisli_double_cat_ver_weq_square
+           {C : category}
+           (M : Monad C)
+           (H : ∏ (x : C), isMonic (η M x))
+  : ver_weq_square (kleisli_double_cat M).
+Proof.
+  intros x y f g.
+  use isweqimplimpl.
+  - intros p ; cbn in *.
+    use H.
+    refine (_ @ !(nat_trans_ax (η M) _ _ g)).
+    exact p.
+  - apply homset_property.
+  - apply homset_property.
+Qed.
 
 Definition kleisli_univalent_double_cat
            {C : univalent_category}

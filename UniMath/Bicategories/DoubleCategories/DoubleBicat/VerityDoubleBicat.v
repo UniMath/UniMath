@@ -269,6 +269,9 @@ Definition square_double_bicat
   : UU
   := v₁ -->[ h₁ ][ h₂ ] v₂.
 
+Notation "'id_h'" := identity.
+Notation "'id_v'" := (identity (C := ver_bicat_of_ver_bicat_sq_bicat _)).
+
 (** * 3. Horizontal identity squares and verizontal composition of squares *)
 Definition ver_bicat_sq_bicat_to_ver_twosided_disp_cat_ob_mor
            (B : ver_bicat_sq_bicat)
@@ -307,7 +310,7 @@ Definition id_h_square_bicat
            {B : ver_bicat_sq_bicat_ver_id_comp}
            {x y : B}
            (v : x -|-> y)
-  : square_double_bicat (id₁ x) (id₁ y) v v
+  : square_double_bicat (id_h x) (id_h y) v v
   := pr12 (pr211 B) x y v.
 
 Definition comp_h_square_bicat
@@ -332,7 +335,7 @@ Definition id_v_square_bicat
            {B : ver_bicat_sq_bicat_ver_id_comp}
            {x y : B}
            (h : x --> y)
-  : square_double_bicat h h (id₁ _) (id₁ _)
+  : square_double_bicat h h (id_v x) (id_v y)
   := pr12 B x y h.
 
 Definition comp_v_square_bicat
@@ -753,7 +756,7 @@ Arguments double_bicat_interchange_law B /.
 Definition double_bicat_id_square_laws
            (B : ver_bicat_sq_id_comp_whisker)
   : UU
-  := (∏ (x : B), id_h_square_bicat (id₁ _) = id_v_square_bicat (id₁ x))
+  := (∏ (x : B), id_h_square_bicat (id_v x) = id_v_square_bicat (id_h x))
      ×
      (∏ (x y z : B)
         (h : x -|-> y)
@@ -1333,7 +1336,7 @@ Section VerityBicatLawsAccessors.
 
   Proposition id_h_square_bicat_id
               (x : B)
-    : id_h_square_bicat (id₁ _) = id_v_square_bicat (id₁ x).
+    : id_h_square_bicat (id_v x) = id_v_square_bicat (id_h x).
   Proof.
     exact (pr1 (pr2 (pr122 B)) x).
   Defined.

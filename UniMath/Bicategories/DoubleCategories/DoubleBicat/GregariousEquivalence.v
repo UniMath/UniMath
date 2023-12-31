@@ -63,7 +63,7 @@ Section GregariousEquivalence.
 
   Definition id_is_gregarious_equivalence
              (x : B)
-    : is_gregarious_equivalence (id₁ x) (id₁ _).
+    : is_gregarious_equivalence (id_h x) (id_v x).
   Proof.
     repeat split.
     - apply id_are_companions.
@@ -76,8 +76,8 @@ Section GregariousEquivalence.
     : gregarious_equivalence x x.
   Proof.
     use make_gregarious_equivalence.
-    - apply id₁.
-    - apply id₁.
+    - apply id_h.
+    - apply id_v.
     - apply id_is_gregarious_equivalence.
   Defined.
 

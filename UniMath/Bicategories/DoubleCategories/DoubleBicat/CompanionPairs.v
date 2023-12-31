@@ -32,8 +32,8 @@ Section CompanionPairs.
              (h : x --> y)
              (v : x -|-> y)
     : UU
-    := ∑ (φ : square_double_bicat h (id₁ _) v (id₁ _))
-         (ψ : square_double_bicat (id₁ _) h (id₁ _) v),
+    := ∑ (φ : square_double_bicat h (id_h y) v (id_v y))
+         (ψ : square_double_bicat (id_h x) h (id_v x) v),
        (runitor _ ▹s (linvunitor _ ◃s ψ ⋆v φ) = id_h_square_bicat _)
        ×
        (runitor _ ▿s (linvunitor _ ▵s ψ ⋆h φ) = id_v_square_bicat _).
@@ -42,8 +42,8 @@ Section CompanionPairs.
              {x y : B}
              (h : x --> y)
              (v : x -|-> y)
-             (φ : square_double_bicat h (id₁ _) v (id₁ _))
-             (ψ : square_double_bicat (id₁ _) h (id₁ _) v)
+             (φ : square_double_bicat h (id_h y) v (id_v y))
+             (ψ : square_double_bicat (id_h x) h (id_v x) v)
              (p : runitor _ ▹s (linvunitor _ ◃s ψ ⋆v φ) = id_h_square_bicat _)
              (q : runitor _ ▿s (linvunitor _ ▵s ψ ⋆h φ) = id_v_square_bicat _)
     : are_companions h v
@@ -54,7 +54,7 @@ Section CompanionPairs.
              {h : x --> y}
              {v : x -|-> y}
              (c : are_companions h v)
-    : square_double_bicat h (id₁ _) v (id₁ _)
+    : square_double_bicat h (id_h y) v (id_v y)
     := pr1 c.
 
   Definition counit_are_companions
@@ -62,7 +62,7 @@ Section CompanionPairs.
              {h : x --> y}
              {v : x -|-> y}
              (c : are_companions h v)
-    : square_double_bicat (id₁ _) h (id₁ _) v
+    : square_double_bicat (id_h x) h (id_v x) v
     := pr12 c.
 
   Proposition are_companions_left
@@ -152,7 +152,7 @@ Section CompanionPairs.
 
   Definition id_are_companions
              (x : B)
-    : are_companions (id₁ x) (id₁ _).
+    : are_companions (id_h x) (id_v x).
   Proof.
     use make_are_companions.
     - apply id_v_square_bicat.
@@ -194,27 +194,27 @@ Section CompanionPairs.
             (c₁ : are_companions h₁ v₁)
             (c₂ : are_companions h₂ v₂).
 
-    Let φ₁ : square_double_bicat h₁ (id₁ y) v₁ (id₁ _) := unit_are_companions c₁.
-    Let ψ₁ : square_double_bicat (id₁ x) h₁ (id₁ _) v₁ := counit_are_companions c₁.
-    Let φ₂ : square_double_bicat h₂ (id₁ z) v₂ (id₁ _) := unit_are_companions c₂.
-    Let ψ₂ : square_double_bicat (id₁ y) h₂ (id₁ _) v₂ := counit_are_companions c₂.
+    Let φ₁ : square_double_bicat h₁ (id_h y) v₁ (id_v y) := unit_are_companions c₁.
+    Let ψ₁ : square_double_bicat (id_h x) h₁ (id_v x) v₁ := counit_are_companions c₁.
+    Let φ₂ : square_double_bicat h₂ (id_h z) v₂ (id_v z) := unit_are_companions c₂.
+    Let ψ₂ : square_double_bicat (id_h y) h₂ (id_v y) v₂ := counit_are_companions c₂.
 
     Definition comp_are_companions_unit
-      : square_double_bicat (h₁ · h₂) (id₁ z) (v₁ · v₂) (id₁ _)
+      : square_double_bicat (h₁ · h₂) (id_h z) (v₁ · v₂) (id_v z)
       := lunitor _ ▹s (lunitor _ ▿s ((φ₁ ⋆h id_v_square_bicat h₂)
                                      ⋆v
                                      (id_h_square_bicat v₂ ⋆h φ₂))).
 
-    Let φ : square_double_bicat (h₁ · h₂) (id₁ z) (v₁ · v₂) (id₁ _)
+    Let φ : square_double_bicat (h₁ · h₂) (id_h z) (v₁ · v₂) (id_v z)
       := comp_are_companions_unit.
 
     Definition comp_are_companions_counit
-      : square_double_bicat (id₁ x) (h₁ · h₂) (id₁ _) (v₁ · v₂)
+      : square_double_bicat (id_h x) (h₁ · h₂) (id_v x) (v₁ · v₂)
       := linvunitor _ ◃s (linvunitor _ ▵s ((ψ₁ ⋆h id_h_square_bicat _)
                                            ⋆v
                                            (id_v_square_bicat h₁ ⋆h ψ₂))).
 
-    Let ψ : square_double_bicat (id₁ x) (h₁ · h₂) (id₁ _) (v₁ · v₂)
+    Let ψ : square_double_bicat (id_h x) (h₁ · h₂) (id_v x) (v₁ · v₂)
       := comp_are_companions_counit.
 
     Proposition comp_are_companions_left
@@ -355,9 +355,9 @@ Section CompanionPairs.
             (c' : are_companions (left_adjoint_right_adjoint Hh) v').
 
     Let h' : y --> x := left_adjoint_right_adjoint Hh.
-    Let η : invertible_2cell (id₁ x) (h · h')
+    Let η : invertible_2cell (id_h x) (h · h')
       := left_equivalence_unit_iso Hh.
-    Let ε : invertible_2cell (h' · h) (id₁ y)
+    Let ε : invertible_2cell (h' · h) (id_h y)
       := left_equivalence_counit_iso Hh.
 
     Definition companion_of_adjequiv_equiv
@@ -392,7 +392,7 @@ Section CompanionPairs.
              {v₁ v₂ : x -|-> y}
              (c₁ : are_companions h v₁)
              (c₂ : are_companions h v₂)
-    : square_double_bicat (id₁ _) (id₁ _) v₁ v₂
+    : square_double_bicat (id_h x) (id_h y) v₁ v₂
     := linvunitor _ ◃s (runitor _ ▹s counit_are_companions c₂ ⋆v unit_are_companions c₁).
 
   (*
