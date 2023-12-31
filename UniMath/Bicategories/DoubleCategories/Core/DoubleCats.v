@@ -327,7 +327,7 @@ Proposition square_id_left_v
             (s : square v₁ v₂ h₁ h₂)
   : id_v_square h₁ ⋆v s
     =
-      transportb_square (id_left _) (id_left _) s.
+    transportb_square (id_left _) (id_left _) s.
 Proof.
   apply id_two_disp_left.
 Defined.
@@ -342,7 +342,7 @@ Proposition square_id_right_v
             (s : square v₁ v₂ h₁ h₂)
   : s ⋆v id_v_square h₂
     =
-      transportb_square (id_right _) (id_right _) s.
+    transportb_square (id_right _) (id_right _) s.
 Proof.
   apply id_two_disp_right.
 Defined.
