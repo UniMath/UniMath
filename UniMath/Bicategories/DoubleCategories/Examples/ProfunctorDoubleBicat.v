@@ -5,6 +5,7 @@
  In this file, we define the following Verity double bicategory:
  - Objects: univalent categories
  - Horizontal morphisms: functors
+ - Horizontal 2-cells: natural transformations
  - Vertical morphisms: profunctors
  - Squares: suitably typed natural transformations
  There are several interesting things to notice about this Verity double bicategory.
