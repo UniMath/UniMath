@@ -135,7 +135,6 @@
  7. Laws about cylinders (items (vi)-(vii) in Verity)
  8. Verity double bicategories
  9. Unfolded versions of the laws for Verity double bicategories
- 10. Cells versus squares
 
  *****************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -1508,34 +1507,3 @@ Section VerityBicatLawsAccessors.
     exact (pr2 (pr222 B) _ _ _ _ h₁ h₂ v₁ v₂).
   Defined.
 End VerityBicatLawsAccessors.
-
-(** * 10. Cells versus squares *)
-Definition vertical_cell_to_square
-           {B : verity_double_bicat}
-           {x y : B}
-           {v₁ v₂ : x -|-> y}
-           (τ : v₁ =|=> v₂)
-  : square_double_bicat (id₁ _) (id₁ _) v₁ v₂
-  := τ ◃s id_h_square_bicat v₂.
-
-Definition horizontal_cell_to_square
-           {B : verity_double_bicat}
-           {x y : B}
-           {h₁ h₂ : x --> y}
-           (τ : h₁ ==> h₂)
-  : square_double_bicat h₁ h₂ (id₁ _) (id₁ _)
-  := τ ▵s id_v_square_bicat h₂.
-
-Definition vertical_cells_are_squares
-           (B : verity_double_bicat)
-  : UU
-  := ∏ (x y : B)
-       (v₁ v₂ : x -|-> y),
-     isweq (@vertical_cell_to_square B x y v₁ v₂).
-
-Definition horizontal_cells_are_squares
-           (B : verity_double_bicat)
-  : UU
-  := ∏ (x y : B)
-       (h₁ h₂ : x --> y),
-     isweq (@horizontal_cell_to_square B x y h₁ h₂).

@@ -38,7 +38,8 @@ Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.VerityDoubleBicat.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.CellsAndSquares.
 
 Local Open Scope cat.
 

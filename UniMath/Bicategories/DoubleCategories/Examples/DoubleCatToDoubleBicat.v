@@ -48,7 +48,8 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.DiscreteBicat.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.VerityDoubleBicat.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.CellsAndSquares.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.DerivedLaws.TransportLaws.

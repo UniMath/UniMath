@@ -58,7 +58,8 @@ Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.OpCellBicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.VerityDoubleBicat.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.CellsAndSquares.
 
 Local Open Scope cat.
 
