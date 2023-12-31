@@ -409,7 +409,7 @@ Section CompanionPairs.
     Let γ₂ : square_double_bicat (id₁ _) (id₁ _) v₂ v₁
       := square_between_companions c₂ c₁.
 
-    Definition koe
+    Definition test
       : lunitor _ ▿s (rinvunitor _ ▵s γ₁ ⋆h γ₂) = id_h_square_bicat v₁.
     Proof.
       unfold γ₁, γ₂, square_between_companions.
