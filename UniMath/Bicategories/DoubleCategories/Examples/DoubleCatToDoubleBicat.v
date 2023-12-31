@@ -18,7 +18,7 @@
  the PhD thesis of Verity is followed, whereas for pseudo double categories, the book on
  2-dimensional categories by Johnson and Yau is followed.
 
- Another thing that is worth noticing, is that there is vertical 2-cells correspond to
+ Another thing that is worth noticing, is that vertical 2-cells correspond to
  squares in this Verity double bicategory. However, the same cannot be said for the
  horizontal 2-cells. For example, we could consider the pseudo double category whose
  objects are strict categories, vertical morphisms are categories, horizontal morphisms
