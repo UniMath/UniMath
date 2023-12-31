@@ -7,6 +7,7 @@
  - Horizontal morphisms: functors
  - Horizontal 2-cells: natural transformations
  - Vertical morphisms: profunctors
+ - Vertical 2-cells: natural transformations between profunctors
  - Squares: suitably typed natural transformations
  There are several interesting things to notice about this Verity double bicategory.
 
