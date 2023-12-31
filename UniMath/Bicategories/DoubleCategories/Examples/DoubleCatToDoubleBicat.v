@@ -23,7 +23,7 @@
  horizontal 2-cells. For example, we could consider the pseudo double category whose
  objects are strict categories, vertical morphisms are categories, horizontal morphisms
  are profunctors, and whose squares are given by natural transformations. Equalities of
- functors between strict categories does not correspond to squares whose horizontal sides
+ functors between strict categories do not correspond to squares whose horizontal sides
  are identity profunctors.
 
  Contents
