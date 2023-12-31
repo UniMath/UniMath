@@ -46,7 +46,7 @@ Section CoproductGraph.
       Let x : C := colim L.
       Let fs : ∏ (i : I), f i --> x := λ i, colimIn L i.
 
-      Proposition isCoprofuct_from_colims_unique
+      Proposition isCoproduct_from_colims_unique
                   {y : C}
                   (gs : ∏ (i : I), f i --> y)
         : isaprop (∑ g, ∏ (i : I), fs i · g = gs i).
@@ -64,12 +64,12 @@ Section CoproductGraph.
         exact (pr2 φ₁ i @ !(pr2 φ₂ i)).
       Qed.
 
-      Definition isCoprofuct_from_colims
+      Definition isCoproduct_from_colims
         : isCoproduct I C f x fs.
       Proof.
         intros y gs.
         use iscontraprop1.
-        - apply isCoprofuct_from_colims_unique.
+        - apply isCoproduct_from_colims_unique.
         - simple refine (_ ,, _).
           + use colimArrow.
             use make_cocone.
@@ -85,7 +85,7 @@ Section CoproductGraph.
       : Coproducts I C.
     Proof.
       intros f.
-      exact (make_Coproduct _ _ _ _ _ (isCoprofuct_from_colims f)).
+      exact (make_Coproduct _ _ _ _ _ (isCoproduct_from_colims f)).
     Defined.
   End CoproductsFromColims.
 End CoproductGraph.

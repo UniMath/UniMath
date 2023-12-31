@@ -284,7 +284,7 @@ Proof.
        apply idpath).
 Defined.
 
-Definition profunctor_square_to_nat_trans
+Definition profunctor_square_to_profunctor_nat_trans
            {C D : category}
            {P Q : D ↛ C}
            (τ : profunctor_square (functor_identity _) (functor_identity _) P Q)
@@ -307,7 +307,7 @@ Definition profunctor_nat_trans_weq_square
 Proof.
   use weq_iso.
   - exact profunctor_nat_trans_to_square.
-  - exact profunctor_square_to_nat_trans.
+  - exact profunctor_square_to_profunctor_nat_trans.
   - abstract
       (intros τ ;
        use eq_profunctor_nat_trans ;
@@ -336,6 +336,29 @@ Proof.
     exact (Hτ y x).
   - apply isaprop_is_profunctor_nat_iso.
   - apply isaprop_is_profunctor_nat_iso.
+Defined.
+
+Definition profunctor_square_to_nat_trans
+           {C₁ C₂ : category}
+           {F G : C₁ ⟶ C₂}
+           (τ : profunctor_square G F (id_profunctor C₁) (id_profunctor C₂))
+  : G ⟹ F.
+Proof.
+  use make_nat_trans.
+  - exact (λ x, τ x x (identity x)).
+  - abstract
+      (intros x y f ; cbn ;
+       pose (profunctor_square_natural τ (identity x) f (identity x)) as p ;
+       cbn in p ;
+       rewrite !functor_id in p ;
+       rewrite !id_left in p ;
+       rewrite <- p ;
+       pose (profunctor_square_natural τ f (identity y) (identity y)) as q ;
+       cbn in q ;
+       rewrite !functor_id in q ;
+       rewrite !id_right in q ;
+       rewrite <- q ;
+       apply idpath).
 Defined.
 
 (** * 4. Standard profunctor squares *)
