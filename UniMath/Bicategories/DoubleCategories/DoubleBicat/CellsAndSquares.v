@@ -69,38 +69,41 @@ Definition horizontal_cells_are_squares
 
 (** * 3. Verity double bicategories in which vertical cells are the same as squares *)
 Section VerticalCellsAreSquares.
-  Context {B : verity_double_bicat}
-          (HB : vertical_cells_are_squares B).
+  Context {B : verity_double_bicat}.
 
   Definition vertical_cell_to_square_weq
+             (HB : vertical_cells_are_squares B)
              {x y : B}
              (v₁ v₂ : x -|-> y)
     : v₁ =|=> v₂ ≃ square_double_bicat (id_h x) (id_h y) v₁ v₂
     := make_weq _ (HB x y v₁ v₂).
 
   Definition square_to_vertical_cell
+             (HB : vertical_cells_are_squares B)
              {x y : B}
              {v₁ v₂ : x -|-> y}
              (s : square_double_bicat (id_h x) (id_h y) v₁ v₂)
     : v₁ =|=> v₂
-    := invmap (vertical_cell_to_square_weq v₁ v₂) s.
+    := invmap (vertical_cell_to_square_weq HB v₁ v₂) s.
 
   Proposition square_to_vertical_cell_to_square
+              (HB : vertical_cells_are_squares B)
               {x y : B}
               {v₁ v₂ : x -|-> y}
               (s : square_double_bicat (id_h x) (id_h y) v₁ v₂)
-    : vertical_cell_to_square (square_to_vertical_cell s) = s.
+    : vertical_cell_to_square (square_to_vertical_cell HB s) = s.
   Proof.
-    apply (homotweqinvweq (vertical_cell_to_square_weq v₁ v₂)).
+    apply (homotweqinvweq (vertical_cell_to_square_weq HB v₁ v₂)).
   Qed.
 
   Proposition vertical_cell_to_square_to_vertical_cell
+              (HB : vertical_cells_are_squares B)
               {x y : B}
               {v₁ v₂ : x -|-> y}
               (τ : v₁ =|=> v₂)
-    : square_to_vertical_cell (vertical_cell_to_square τ) = τ.
+    : square_to_vertical_cell HB (vertical_cell_to_square τ) = τ.
   Proof.
-    apply (homotinvweqweq (vertical_cell_to_square_weq v₁ v₂)).
+    apply (homotinvweqweq (vertical_cell_to_square_weq HB v₁ v₂)).
   Qed.
 
   (** * 3.1. Identity squares and vertical cells *)
@@ -115,11 +118,12 @@ Section VerticalCellsAreSquares.
   Qed.
 
   Proposition square_to_vertical_cell_id
+              (HB : vertical_cells_are_squares B)
               {x y : B}
               (v : x -|-> y)
-    : square_to_vertical_cell (id_h_square_bicat v) = id2 v.
+    : square_to_vertical_cell HB (id_h_square_bicat v) = id2 v.
   Proof.
-    use (invmaponpathsweq (vertical_cell_to_square_weq v v)) ; cbn.
+    use (invmaponpathsweq (vertical_cell_to_square_weq HB v v)) ; cbn.
     rewrite square_to_vertical_cell_to_square.
     rewrite vertical_cell_to_square_id.
     apply idpath.
@@ -155,15 +159,16 @@ Section VerticalCellsAreSquares.
   Qed.
 
   Proposition square_to_vertical_cell_comp
+              (HB : vertical_cells_are_squares B)
               {x y : B}
               {v₁ v₂ v₃ : x -|-> y}
               (s₁ : square_double_bicat (id_h x) (id_h y) v₁ v₂)
               (s₂ : square_double_bicat (id_h x) (id_h y) v₂ v₃)
-    : square_to_vertical_cell (comp_ver_globular_square s₁ s₂)
+    : square_to_vertical_cell HB (comp_ver_globular_square s₁ s₂)
       =
-      square_to_vertical_cell s₁ • square_to_vertical_cell s₂.
+      square_to_vertical_cell HB s₁ • square_to_vertical_cell HB s₂.
   Proof.
-    use (invmaponpathsweq (vertical_cell_to_square_weq v₁ v₃)) ; cbn.
+    use (invmaponpathsweq (vertical_cell_to_square_weq HB v₁ v₃)) ; cbn.
     rewrite vertical_cell_to_square_comp.
     rewrite !square_to_vertical_cell_to_square.
     apply idpath.
@@ -275,25 +280,26 @@ Section VerticalCellsAreSquares.
   Qed.
 
   Definition vertical_square_to_invertible_2cell
+             (HB : vertical_cells_are_squares B)
              {x y : B}
              {v₁ v₂ : x -|-> y}
              (s : invertible_vertical_square v₁ v₂)
     : invertible_2cell v₁ v₂.
   Proof.
     use make_invertible_2cell.
-    - use square_to_vertical_cell.
+    - use (square_to_vertical_cell HB).
       exact s.
     - use make_is_invertible_2cell.
-      + use square_to_vertical_cell.
+      + use (square_to_vertical_cell HB).
         exact (inv_of_invertible_vertical_square s).
       + abstract
-          (rewrite <- square_to_vertical_cell_comp ;
-           rewrite <- square_to_vertical_cell_id ;
+          (rewrite <- (square_to_vertical_cell_comp HB) ;
+           rewrite <- (square_to_vertical_cell_id HB) ;
            apply maponpaths ;
            apply invertible_vertical_square_inv_right).
       + abstract
-          (rewrite <- square_to_vertical_cell_comp ;
-           rewrite <- square_to_vertical_cell_id ;
+          (rewrite <- (square_to_vertical_cell_comp HB) ;
+           rewrite <- (square_to_vertical_cell_id HB) ;
            apply maponpaths ;
            apply invertible_vertical_square_inv_left).
   Defined.
@@ -312,28 +318,25 @@ Section VerticalCellsAreSquares.
       + abstract
           (cbn -[comp_ver_globular_square] ;
            refine (_ @ vertical_cell_to_square_id _) ;
-           refine (!(square_to_vertical_cell_to_square _) @ _) ;
+           rewrite <- vertical_cell_to_square_comp ;
            apply maponpaths ;
-           rewrite square_to_vertical_cell_comp ;
-           rewrite !vertical_cell_to_square_to_vertical_cell ;
-           apply vcomp_rinv).
+           apply (vcomp_rinv τ)).
       + abstract
           (cbn -[comp_ver_globular_square] ;
            refine (_ @ vertical_cell_to_square_id _) ;
-           refine (!(square_to_vertical_cell_to_square _) @ _) ;
+           rewrite <- vertical_cell_to_square_comp ;
            apply maponpaths ;
-           rewrite square_to_vertical_cell_comp ;
-           rewrite !vertical_cell_to_square_to_vertical_cell ;
-           apply vcomp_linv).
+           apply (vcomp_linv τ)).
   Defined.
 
   Definition vertical_square_weq_invertible_2cell
+             (HB : vertical_cells_are_squares B)
              {x y : B}
              (v₁ v₂ : x -|-> y)
     : invertible_vertical_square v₁ v₂ ≃ invertible_2cell v₁ v₂.
   Proof.
     use weq_iso.
-    - exact vertical_square_to_invertible_2cell.
+    - exact (vertical_square_to_invertible_2cell HB).
     - exact invertible_2cell_to_vertical_square.
     - abstract
         (intro s ;
@@ -348,38 +351,41 @@ End VerticalCellsAreSquares.
 
 (** * 4. Verity double bicategories in which horizontal cells are the same as squares *)
 Section HorizontalCellsAreSquares.
-  Context {B : verity_double_bicat}
-          (HB : horizontal_cells_are_squares B).
+  Context {B : verity_double_bicat}.
 
   Definition horizontal_cell_to_square_weq
+             (HB : horizontal_cells_are_squares B)
              {x y : B}
              (h₁ h₂ : x --> y)
     : h₁ ==> h₂ ≃ square_double_bicat h₁ h₂ (id_v x) (id_v y)
     := make_weq _ (HB x y h₁ h₂).
 
   Definition square_to_horizontal_cell
+             (HB : horizontal_cells_are_squares B)
              {x y : B}
              {h₁ h₂ : x --> y}
              (s : square_double_bicat h₁ h₂ (id_v x) (id_v y))
     : h₁ ==> h₂
-    := invmap (horizontal_cell_to_square_weq h₁ h₂) s.
+    := invmap (horizontal_cell_to_square_weq HB h₁ h₂) s.
 
   Proposition square_to_horizontal_cell_to_square
+              (HB : horizontal_cells_are_squares B)
               {x y : B}
               {h₁ h₂ : x --> y}
               (s : square_double_bicat h₁ h₂ (id_v x) (id_v y))
-    : horizontal_cell_to_square (square_to_horizontal_cell s) = s.
+    : horizontal_cell_to_square (square_to_horizontal_cell HB s) = s.
   Proof.
-    apply (homotweqinvweq (horizontal_cell_to_square_weq h₁ h₂)).
+    apply (homotweqinvweq (horizontal_cell_to_square_weq HB h₁ h₂)).
   Qed.
 
   Proposition horizontal_cell_to_square_to_horizontal_cell
+              (HB : horizontal_cells_are_squares B)
               {x y : B}
               {h₁ h₂ : x --> y}
               (τ : h₁ ==> h₂)
-    : square_to_horizontal_cell (horizontal_cell_to_square τ) = τ.
+    : square_to_horizontal_cell HB (horizontal_cell_to_square τ) = τ.
   Proof.
-    apply (homotinvweqweq (horizontal_cell_to_square_weq h₁ h₂)).
+    apply (homotinvweqweq (horizontal_cell_to_square_weq HB h₁ h₂)).
   Qed.
 
   (** * 4.1. Identity squares and horizontal cells *)
@@ -394,11 +400,12 @@ Section HorizontalCellsAreSquares.
   Qed.
 
   Proposition square_to_horizontal_cell_id
+              (HB : horizontal_cells_are_squares B)
               {x y : B}
               (h : x --> y)
-    : square_to_horizontal_cell (id_v_square_bicat h) = id2 h.
+    : square_to_horizontal_cell HB (id_v_square_bicat h) = id2 h.
   Proof.
-    use (invmaponpathsweq (horizontal_cell_to_square_weq h h)) ; cbn.
+    use (invmaponpathsweq (horizontal_cell_to_square_weq HB h h)) ; cbn.
     rewrite square_to_horizontal_cell_to_square.
     rewrite horizontal_cell_to_square_id.
     apply idpath.
@@ -434,15 +441,16 @@ Section HorizontalCellsAreSquares.
   Qed.
 
   Proposition square_to_horizontal_cell_comp
+              (HB : horizontal_cells_are_squares B)
               {x y : B}
               {h₁ h₂ h₃ : x --> y}
               (s₁ : square_double_bicat h₁ h₂ (id_v x) (id_v y))
               (s₂ : square_double_bicat h₂ h₃ (id_v x) (id_v y))
-    : square_to_horizontal_cell (comp_hor_globular_square s₁ s₂)
+    : square_to_horizontal_cell HB (comp_hor_globular_square s₁ s₂)
       =
-      square_to_horizontal_cell s₁ • square_to_horizontal_cell s₂.
+      square_to_horizontal_cell HB s₁ • square_to_horizontal_cell HB s₂.
   Proof.
-    use (invmaponpathsweq (horizontal_cell_to_square_weq h₁ h₃)) ; cbn.
+    use (invmaponpathsweq (horizontal_cell_to_square_weq HB h₁ h₃)) ; cbn.
     rewrite horizontal_cell_to_square_comp.
     rewrite !square_to_horizontal_cell_to_square.
     apply idpath.
@@ -554,25 +562,26 @@ Section HorizontalCellsAreSquares.
   Qed.
 
   Definition horizontal_square_to_invertible_2cell
+             (HB : horizontal_cells_are_squares B)
              {x y : B}
              {h₁ h₂ : x --> y}
              (s : invertible_horizontal_square h₁ h₂)
     : invertible_2cell h₁ h₂.
   Proof.
     use make_invertible_2cell.
-    - use square_to_horizontal_cell.
+    - use (square_to_horizontal_cell HB).
       exact s.
     - use make_is_invertible_2cell.
-      + use square_to_horizontal_cell.
+      + use (square_to_horizontal_cell HB).
         exact (inv_of_invertible_horizontal_square s).
       + abstract
-          (rewrite <- square_to_horizontal_cell_comp ;
-           rewrite <- square_to_horizontal_cell_id ;
+          (rewrite <- (square_to_horizontal_cell_comp HB) ;
+           rewrite <- (square_to_horizontal_cell_id HB) ;
            apply maponpaths ;
            apply invertible_horizontal_square_inv_right).
       + abstract
-          (rewrite <- square_to_horizontal_cell_comp ;
-           rewrite <- square_to_horizontal_cell_id ;
+          (rewrite <- (square_to_horizontal_cell_comp HB) ;
+           rewrite <- (square_to_horizontal_cell_id HB) ;
            apply maponpaths ;
            apply invertible_horizontal_square_inv_left).
   Defined.
@@ -591,28 +600,25 @@ Section HorizontalCellsAreSquares.
       + abstract
           (cbn -[comp_hor_globular_square] ;
            refine (_ @ horizontal_cell_to_square_id _) ;
-           refine (!(square_to_horizontal_cell_to_square _) @ _) ;
+           rewrite <- horizontal_cell_to_square_comp ;
            apply maponpaths ;
-           rewrite square_to_horizontal_cell_comp ;
-           rewrite !horizontal_cell_to_square_to_horizontal_cell ;
-           apply vcomp_rinv).
+           exact (vcomp_rinv τ)).
       + abstract
           (cbn -[comp_hor_globular_square] ;
            refine (_ @ horizontal_cell_to_square_id _) ;
-           refine (!(square_to_horizontal_cell_to_square _) @ _) ;
+           rewrite <- horizontal_cell_to_square_comp ;
            apply maponpaths ;
-           rewrite square_to_horizontal_cell_comp ;
-           rewrite !horizontal_cell_to_square_to_horizontal_cell ;
-           apply vcomp_linv).
+           exact (vcomp_linv τ)).
   Defined.
 
   Definition horizontal_square_weq_invertible_2cell
+             (HB : horizontal_cells_are_squares B)
              {x y : B}
              (h₁ h₂ : x --> y)
     : invertible_horizontal_square h₁ h₂ ≃ invertible_2cell h₁ h₂.
   Proof.
     use weq_iso.
-    - exact horizontal_square_to_invertible_2cell.
+    - exact (horizontal_square_to_invertible_2cell HB).
     - exact invertible_2cell_to_horizontal_square.
     - abstract
         (intro s ;

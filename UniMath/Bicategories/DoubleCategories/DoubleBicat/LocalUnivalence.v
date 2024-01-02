@@ -177,12 +177,11 @@ Definition hor_sq_weq_hor_locally_univalent
 
 Definition h_sq_idtoiso_2_1
            {B : verity_double_bicat}
-           (H : horizontal_cells_are_squares B)
            {x y : B}
            {h₁ h₂ : x --> y}
            (p : h₁ = h₂)
   : invertible_horizontal_square h₁ h₂
-  := invertible_2cell_to_horizontal_square H (idtoiso_2_1 _ _ p).
+  := invertible_2cell_to_horizontal_square (idtoiso_2_1 _ _ p).
 
 Definition h_sq_isotoid_2_1
            {B : verity_double_bicat}
@@ -201,7 +200,7 @@ Proposition h_sq_idtoiso_isotoid_2_1
             {x y : B}
             {h₁ h₂ : x --> y}
             (τ : invertible_horizontal_square h₁ h₂)
-  : h_sq_idtoiso_2_1 H (h_sq_isotoid_2_1 H HB_2_1 τ) = τ.
+  : h_sq_idtoiso_2_1 (h_sq_isotoid_2_1 H HB_2_1 τ) = τ.
 Proof.
   unfold h_sq_idtoiso_2_1, h_sq_isotoid_2_1.
   rewrite idtoiso_2_1_isotoid_2_1.
@@ -215,7 +214,7 @@ Proposition h_sq_isotoid_idtoiso_2_1
             {x y : B}
             {h₁ h₂ : x --> y}
             (p : h₁ = h₂)
-  : h_sq_isotoid_2_1 H HB_2_1 (h_sq_idtoiso_2_1 H p) = p.
+  : h_sq_isotoid_2_1 H HB_2_1 (h_sq_idtoiso_2_1 p) = p.
 Proof.
   unfold h_sq_idtoiso_2_1, h_sq_isotoid_2_1.
   etrans.
@@ -363,12 +362,11 @@ Definition ver_sq_weq_ver_locally_univalent
 
 Definition v_sq_idtoiso_2_1
            {B : verity_double_bicat}
-           (H : vertical_cells_are_squares B)
            {x y : B}
            {v₁ v₂ : x -|-> y}
            (p : v₁ = v₂)
   : invertible_vertical_square v₁ v₂
-  := invertible_2cell_to_vertical_square H (idtoiso_2_1 _ _ p).
+  := invertible_2cell_to_vertical_square (idtoiso_2_1 _ _ p).
 
 Definition v_sq_isotoid_2_1
            {B : verity_double_bicat}
@@ -387,7 +385,7 @@ Proposition v_sq_idtoiso_isotoid_2_1
             {x y : B}
             {v₁ v₂ : x -|-> y}
             (τ : invertible_vertical_square v₁ v₂)
-  : v_sq_idtoiso_2_1 H (v_sq_isotoid_2_1 H HB_2_1 τ) = τ.
+  : v_sq_idtoiso_2_1 (v_sq_isotoid_2_1 H HB_2_1 τ) = τ.
 Proof.
   unfold v_sq_idtoiso_2_1, v_sq_isotoid_2_1.
   rewrite idtoiso_2_1_isotoid_2_1.
@@ -401,7 +399,7 @@ Proposition v_sq_isotoid_idtoiso_2_1
             {x y : B}
             {v₁ v₂ : x -|-> y}
             (p : v₁ = v₂)
-  : v_sq_isotoid_2_1 H HB_2_1 (v_sq_idtoiso_2_1 H p) = p.
+  : v_sq_isotoid_2_1 H HB_2_1 (v_sq_idtoiso_2_1 p) = p.
 Proof.
   unfold v_sq_idtoiso_2_1, v_sq_isotoid_2_1.
   etrans.

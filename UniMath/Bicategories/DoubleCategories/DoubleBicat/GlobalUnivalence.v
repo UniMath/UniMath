@@ -141,6 +141,9 @@ Section Univalence.
       use subtypePath.
       {
         intro.
+        use (isofhlevelweqf
+               1
+               (is_hor_gregarious_equivalence_weq_is_gregarious_equivalence _)).
         apply (isaprop_is_hor_gregarious_equivalence H) ; apply HB_2_1.
       }
       apply idpath.

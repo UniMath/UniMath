@@ -1,5 +1,16 @@
 (*****************************************************************************************
 
+ Companion pairs
+
+ Contents
+ 1. Definition of companion pairs
+ 2. Identity companion pairs
+ 3. Composition of companion pairs
+ 4. Cells between companion pairs
+ 5. Companions of adjoint equivalences
+ 6. Uniqueness of companion pairs
+ 7. Companions of horizontal morphisms
+ 8. Verity double bicategories with all companion pairs
 
  *****************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -20,6 +31,7 @@ Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.VerityDoubleBic
 Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.DerivedLaws.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.CellsAndSquares.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.UnderlyingCats.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.LocalUnivalence.
 
 Local Open Scope cat.
 Local Open Scope double_bicat.
@@ -27,6 +39,7 @@ Local Open Scope double_bicat.
 Section CompanionPairs.
   Context {B : verity_double_bicat}.
 
+  (** * 1. Definition of companion pairs *)
   Definition are_companions
              {x y : B}
              (h : x --> y)
@@ -150,6 +163,7 @@ Section CompanionPairs.
       exact q.
   Qed.
 
+  (** * 2. Identity companion pairs *)
   Definition id_are_companions
              (x : B)
     : are_companions (id_h x) (id_v x).
@@ -184,6 +198,8 @@ Section CompanionPairs.
          rewrite lunitor_V_id_is_left_unit_V_id ;
          apply idpath).
   Defined.
+
+  (** * 3. Composition of companion pairs *)
 
   Definition comp_diag₁
              {x y z : B}
@@ -225,6 +241,23 @@ Section CompanionPairs.
       =
       (linvunitor _ • (_ ◃ (_ ◃ linvunitor _)) • lassociator _ _ _) ◃s ((rassociator _ _ _ • (_ ◃ (lunitor _ • runitor _))) ▹s ((s₃ ⋆v s₁) ⋆v (s₄ ⋆v s₂))).
   Proof.
+    unfold comp_diag₁.
+    rewrite r_rwhisker_v_comp_square.
+    rewrite <- rwhisker_square_comp.
+    unfold comp_diag₂.
+    rewrite !vassocl.
+    rewrite lwhisker_square_comp.
+    apply maponpaths.
+    rewrite <- lwhisker_vcomp.
+    rewrite !vassocr.
+    rewrite lunitor_lwhisker.
+    rewrite l_lwhisker_v_comp_square.
+    rewrite rwhisker_lwhisker_square.
+    rewrite <- uwhisker_vcomp_square.
+    rewrite <- dwhisker_vcomp_square.
+    etrans.
+    {
+      do 4 apply maponpaths.
   Admitted.
 
   Section CompCompanions.
@@ -288,9 +321,65 @@ Section CompanionPairs.
         apply maponpaths_2.
         apply are_companions_left'.
       }
-      rewrite <- id_h_square_bicat_comp.
-      rewrite !lwhisker_id_h_square.
-    Admitted.
+      rewrite !l_rwhisker_v_comp_square.
+      rewrite !r_rwhisker_v_comp_square.
+      rewrite !l_lwhisker_v_comp_square.
+      rewrite !r_lwhisker_v_comp_square.
+      rewrite <- !rwhisker_square_comp.
+      rewrite <- !lwhisker_square_comp.
+      rewrite rwhisker_lwhisker_square.
+      rewrite <- !lwhisker_square_comp.
+      refine (_ @ lwhisker_square_id _ _).
+      use eq_lwhisker_square.
+      {
+        rewrite !vassocl.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          rewrite !vassocr.
+          rewrite lunitor_triangle.
+          apply idpath.
+        }
+        etrans.
+        {
+          apply maponpaths.
+          rewrite !vassocr.
+          rewrite vcomp_lunitor.
+          rewrite !vassocl.
+          rewrite lwhisker_vcomp.
+          rewrite linvunitor_lunitor.
+          rewrite lwhisker_id2.
+          apply id2_right.
+        }
+        apply linvunitor_lunitor.
+      }
+      refine (_ @ rwhisker_square_id _ _).
+      use eq_rwhisker_square.
+      {
+        etrans.
+        {
+          do 2 apply maponpaths.
+          rewrite <- lwhisker_vcomp.
+          rewrite !vassocr.
+          rewrite lunitor_lwhisker.
+          apply idpath.
+        }
+        etrans.
+        {
+          apply maponpaths.
+          rewrite !vassocr.
+          rewrite rwhisker_vcomp.
+          rewrite rinvunitor_runitor.
+          rewrite id2_rwhisker.
+          apply id2_left.
+        }
+        rewrite lwhisker_vcomp.
+        rewrite rinvunitor_runitor.
+        apply lwhisker_id2.
+      }
+      rewrite id_h_square_bicat_comp.
+      apply idpath.
+    Qed.
 
     Proposition comp_are_companions_right
       : runitor (h₁ · h₂) ▿s (linvunitor (h₁ · h₂) ▵s ψ ⋆h φ)
@@ -310,6 +399,7 @@ Section CompanionPairs.
     Defined.
   End CompCompanions.
 
+  (** * 4. Cells between companion pairs *)
   Definition cell_are_companions
              (H : vertical_cells_are_squares B)
              {x y : B}
@@ -413,6 +503,7 @@ Section CompanionPairs.
            apply cell_are_companions_id).
   Defined.
 
+  (** * 5. Companions of adjoint equivalences *)
   Section CompanionOfAdjequiv.
     Context (H : vertical_cells_are_squares B)
             {x y : B}
@@ -455,6 +546,7 @@ Section CompanionPairs.
     Defined.
   End CompanionOfAdjequiv.
 
+  (** * 6. Uniqueness of companion pairs *)
   Definition square_between_companions
              {x y : B}
              {h : x --> y}
@@ -541,14 +633,124 @@ Section CompanionPairs.
     Proof.
     Admitted.
   End ComparionPairUnique.
+
+  (** * 7. Companions of horizontal morphisms *)
+  Definition hor_companion
+             {x y : B}
+             (h : x --> y)
+    : UU
+    := ∑ (v : x -|-> y), are_companions h v.
+
+  Coercion mor_of_hor_companion
+           {x y : B}
+           {h : x --> y}
+           (c : hor_companion h)
+    : x -|-> y
+    := pr1 c.
+
+  Coercion are_companions_hor_companion
+           {x y : B}
+           {h : x --> y}
+           (c : hor_companion h)
+    : are_companions h c
+    := pr2 c.
+
+  Proposition eq_companion_of_hor
+              (H : vertical_cells_are_squares B)
+              (HB_2_1 : locally_univalent_verity_double_bicat B)
+              {x y : B}
+              {h : x --> y}
+              {φ₁ φ₂ : hor_companion h}
+              (p : pr1 φ₁ = pr1 φ₂)
+              (q₁ : lunitor _ ▿s
+                      (linvunitor _ ▵s
+                         (v_sq_idtoiso_2_1 p ⋆h unit_are_companions φ₂))
+                    =
+                    unit_are_companions φ₁)
+              (q₂ : runitor _ ▿s
+                      (linvunitor _ ▵s
+                         (counit_are_companions φ₁ ⋆h v_sq_idtoiso_2_1 p))
+                    =
+                    counit_are_companions φ₂)
+    : φ₁ = φ₂.
+  Proof.
+    induction φ₁ as [ v₁ [ c₁ [ Hh₁ Hv₁ ] ] ].
+    induction φ₂ as [ v₂ [ c₂ [ Hh₂ Hv₂ ] ] ].
+    cbn in p.
+    induction p.
+    cbn in *.
+    apply maponpaths.
+    use eq_are_companions.
+    - refine (!q₁ @ _).
+      unfold vertical_cell_to_square.
+      rewrite lwhisker_square_id.
+      rewrite lunitor_h_comp_square'.
+      rewrite !dwhisker_uwhisker_square.
+      rewrite <- uwhisker_square_comp.
+      rewrite <- dwhisker_square_comp.
+      rewrite !linvunitor_lunitor.
+      rewrite uwhisker_square_id, dwhisker_square_id.
+      apply idpath.
+    - refine (_ @ q₂).
+      unfold vertical_cell_to_square.
+      rewrite lwhisker_square_id.
+      rewrite runitor_h_comp_square'.
+      rewrite !dwhisker_uwhisker_square.
+      rewrite <- uwhisker_square_comp.
+      rewrite <- dwhisker_square_comp.
+      rewrite runitor_lunitor_identity.
+      rewrite linvunitor_lunitor.
+      rewrite rinvunitor_runitor.
+      rewrite uwhisker_square_id, dwhisker_square_id.
+      apply idpath.
+  Qed.
+
+  Proposition isaprop_companion_pair
+              (H : vertical_cells_are_squares B)
+              (HB_2_1 : locally_univalent_verity_double_bicat B)
+              {x y : B}
+              (h : x --> y)
+    : isaprop (∑ (v : x -|-> y), are_companions h v).
+  Proof.
+    use invproofirrelevance.
+    intros φ₁ φ₂.
+    use (eq_companion_of_hor H HB_2_1).
+    - use (v_sq_isotoid_2_1 H HB_2_1).
+      use make_invertible_vertical_square.
+      + use make_invertible_vertical_square_data.
+        * exact (square_between_companions (pr2 φ₁) (pr2 φ₂)).
+        * exact (square_between_companions (pr2 φ₂) (pr2 φ₁)).
+      + split.
+        * apply comp_square_between_companions.
+        * apply comp_square_between_companions.
+    - rewrite v_sq_idtoiso_isotoid_2_1 ; cbn.
+      apply square_between_companions_unit.
+    - rewrite v_sq_idtoiso_isotoid_2_1 ; cbn.
+      apply square_between_companions_counit.
+  Qed.
 End CompanionPairs.
 
+(** * 8. Verity double bicategories with all companion pairs *)
 Definition all_companions
            (B : verity_double_bicat)
   : UU
   := ∏ (x y : B)
        (h : x --> y),
      ∑ (v : x -|-> y), are_companions h v.
+
+Proposition isaprop_all_companions
+            (B : verity_double_bicat)
+            (H : vertical_cells_are_squares B)
+            (HB_2_1 : locally_univalent_verity_double_bicat B)
+  : isaprop (all_companions B).
+Proof.
+  use impred ; intro x.
+  use impred ; intro y.
+  use impred ; intro h.
+  apply isaprop_companion_pair.
+  - exact H.
+  - exact HB_2_1.
+Qed.
 
 Definition all_equivs_companions
            (B : verity_double_bicat)
@@ -557,6 +759,21 @@ Definition all_equivs_companions
        (h : x --> y)
        (Hh : left_adjoint_equivalence h),
      ∑ (v : x -|-> y), are_companions h v.
+
+Proposition isaprop_all_equivs_companions
+            (B : verity_double_bicat)
+            (H : vertical_cells_are_squares B)
+            (HB_2_1 : locally_univalent_verity_double_bicat B)
+  : isaprop (all_equivs_companions B).
+Proof.
+  use impred ; intro x.
+  use impred ; intro y.
+  use impred ; intro h.
+  use impred ; intro Hh.
+  apply isaprop_companion_pair.
+  - exact H.
+  - exact HB_2_1.
+Qed.
 
 Definition all_companions_to_all_equivs_companions
            (B : verity_double_bicat)

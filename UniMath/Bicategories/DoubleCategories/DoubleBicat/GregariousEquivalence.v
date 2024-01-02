@@ -134,21 +134,54 @@ Section GregariousEquivalence.
              {x y : B}
              (h : x --> y)
     : UU
-    := ∑ (v : x -|-> y), is_gregarious_equivalence h v.
+    := left_adjoint_equivalence h × ∑ (c : hor_companion h), left_adjoint_equivalence c.
+
+  Definition make_is_hor_gregarious_equivalence
+             {x y : B}
+             (h : x --> y)
+             (v : x -|-> y)
+             (c : are_companions h v)
+             (Hh : left_adjoint_equivalence h)
+             (Hv : left_adjoint_equivalence v)
+    : is_hor_gregarious_equivalence h
+    := Hh ,, (v ,, c) ,, Hv.
 
   Coercion is_hor_gregarious_equivalence_to_mor
            {x y : B}
            {h : x --> y}
            (v : is_hor_gregarious_equivalence h)
-    : x -|-> y
-    := pr1 v.
+    : hor_companion h
+    := pr12 v.
 
-  Coercion is_hor_gregarious_equivalence_to_is_gregarious_equivalence
+  Coercion is_hor_gregarious_equivalence_to_is_left_adjoint_equivalence
            {x y : B}
            {h : x --> y}
            (v : is_hor_gregarious_equivalence h)
-    : is_gregarious_equivalence h v
-    := pr2 v.
+    : left_adjoint_equivalence v
+    := pr22 v.
+
+  Definition is_hor_gregarious_equivalence_weq_is_gregarious_equivalence
+             {x y : B}
+             (h : x --> y)
+    : is_hor_gregarious_equivalence h
+      ≃
+      (∑ (v : x -|-> y), is_gregarious_equivalence h v).
+  Proof.
+    use weq_iso.
+    - exact (λ v, pr112 v ,, pr212 v ,, pr1 v ,, pr22 v).
+    - intros v.
+      use make_is_hor_gregarious_equivalence.
+      + exact (pr1 v).
+      + apply (pr2 v).
+      + apply (pr2 v).
+      + apply (pr2 v).
+    - abstract
+        (intro ; cbn ;
+         apply idpath).
+    - abstract
+        (intro ; cbn ;
+         apply idpath).
+  Defined.
 
   (** * 5. Being a horizontal gregarious equivalence is a proposition *)
   Lemma path_is_hor_gregarious_equivalence
@@ -157,50 +190,25 @@ Section GregariousEquivalence.
         {x y : B}
         {h : x --> y}
         (φ₁ φ₂ : is_hor_gregarious_equivalence h)
-        (p : pr1 φ₁ = pr1 φ₂)
-        (q₁ : lunitor _ ▿s (linvunitor _ ▵s v_sq_idtoiso_2_1 H p ⋆h unit_are_companions φ₂)
+        (p : (φ₁ : x -|-> y) = φ₂)
+        (q₁ : lunitor _ ▿s (linvunitor _ ▵s v_sq_idtoiso_2_1 p ⋆h unit_are_companions φ₂)
               =
               unit_are_companions φ₁)
-        (q₂ : runitor _ ▿s (linvunitor _ ▵s counit_are_companions φ₁ ⋆h v_sq_idtoiso_2_1 H p)
+        (q₂ : runitor _ ▿s (linvunitor _ ▵s counit_are_companions φ₁ ⋆h v_sq_idtoiso_2_1 p)
               =
               counit_are_companions φ₂)
     : φ₁ = φ₂.
   Proof.
-    induction φ₁ as [ v₁ [ c₁ [ Hh₁ Hv₁ ] ] ].
-    induction φ₂ as [ v₂ [ c₂ [ Hh₂ Hv₂ ] ] ].
-    cbn in p.
-    induction p.
-    cbn in *.
-    apply maponpaths.
-    repeat (use dirprodeq).
-    - cbn.
-      use eq_are_companions.
-      + refine (!q₁ @ _).
-        unfold vertical_cell_to_square.
-        rewrite lwhisker_square_id.
-        rewrite lunitor_h_comp_square'.
-        rewrite !dwhisker_uwhisker_square.
-        rewrite <- uwhisker_square_comp.
-        rewrite <- dwhisker_square_comp.
-        rewrite !linvunitor_lunitor.
-        rewrite uwhisker_square_id, dwhisker_square_id.
-        apply idpath.
-      + refine (_ @ q₂).
-        unfold vertical_cell_to_square.
-        rewrite lwhisker_square_id.
-        rewrite runitor_h_comp_square'.
-        rewrite !dwhisker_uwhisker_square.
-        rewrite <- uwhisker_square_comp.
-        rewrite <- dwhisker_square_comp.
-        rewrite runitor_lunitor_identity.
-        rewrite linvunitor_lunitor.
-        rewrite rinvunitor_runitor.
-        rewrite uwhisker_square_id, dwhisker_square_id.
-        apply idpath.
+    use pathsdirprod.
     - apply isaprop_left_adjoint_equivalence.
       apply HB_2_1.
-    - apply isaprop_left_adjoint_equivalence.
-      apply HB_2_1.
+    - use subtypePath.
+      {
+        intro.
+        apply isaprop_left_adjoint_equivalence.
+        apply HB_2_1.
+      }
+      exact (eq_companion_of_hor H p q₁ q₂).
   Qed.
 
   Proposition isaprop_is_hor_gregarious_equivalence
@@ -240,8 +248,8 @@ Section GregariousEquivalence.
   Proof.
     pose (c := H' _ _ h Hh).
     induction c as [ v c ].
-    refine (v ,, _).
-    repeat split.
+    use make_is_hor_gregarious_equivalence.
+    - exact v.
     - exact c.
     - exact Hh.
     - use all_equivs_companions_adjequiv.
@@ -261,7 +269,7 @@ Section GregariousEquivalence.
     apply Hh.
   Qed.
 
-  Definition hor_left_adjoint_equivalence_weq_gregarious_equivalence
+  Definition hor_left_adjoint_equivalence_weq_hor_gregarious_equivalence
              (HB_2_1 : locally_univalent_verity_double_bicat B)
              (H : all_equivs_companions B)
              (H' : vertical_cells_are_squares B)
@@ -276,4 +284,14 @@ Section GregariousEquivalence.
       apply HB_2_1.
     - apply (isaprop_is_hor_gregarious_equivalence H' HB_2_1).
   Qed.
+
+  Definition hor_left_adjoint_equivalence_weq_gregarious_equivalence
+             (HB_2_1 : locally_univalent_verity_double_bicat B)
+             (H : all_equivs_companions B)
+             (H' : vertical_cells_are_squares B)
+             {x y : B}
+             (h : x --> y)
+    : left_adjoint_equivalence h ≃ ∑ (v : x -|-> y), is_gregarious_equivalence h v
+    := (is_hor_gregarious_equivalence_weq_is_gregarious_equivalence h
+        ∘ hor_left_adjoint_equivalence_weq_hor_gregarious_equivalence HB_2_1 H H' h)%weq.
 End GregariousEquivalence.
