@@ -1,6 +1,7 @@
 Require Export UniMath.Bicategories.DoubleCategories.DoubleBicat.VerityDoubleBicat.
 Require Export UniMath.Bicategories.DoubleCategories.DoubleBicat.DerivedLaws.
 Require Export UniMath.Bicategories.DoubleCategories.DoubleBicat.UnderlyingCats.
+Require Export UniMath.Bicategories.DoubleCategories.Examples.TransposeDoubleBicat.
 Require Export UniMath.Bicategories.DoubleCategories.DoubleBicat.CellsAndSquares.
 Require Export UniMath.Bicategories.DoubleCategories.DoubleBicat.LocalUnivalence.
 Require Export UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairs.

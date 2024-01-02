@@ -208,7 +208,7 @@ Section GregariousEquivalence.
         apply isaprop_left_adjoint_equivalence.
         apply HB_2_1.
       }
-      exact (eq_companion_of_hor H p q₁ q₂).
+      exact (eq_companion_of_hor H HB_2_1 p q₁ q₂).
   Qed.
 
   Proposition isaprop_is_hor_gregarious_equivalence
