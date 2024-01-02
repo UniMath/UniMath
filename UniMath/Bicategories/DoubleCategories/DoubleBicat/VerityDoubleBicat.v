@@ -1456,14 +1456,14 @@ Section VerityBicatLawsAccessors.
               {v₂ v₂' : y₁ -|-> z₁}
               {w₁ w₁' : x₂ -|-> y₂}
               {w₂ w₂' : y₂ -|-> z₂}
-              {τ₁ : v₁ =|=> v₁'}
-              {τ₂ : v₂ =|=> v₂'}
-              {θ₁ : w₁ =|=> w₁'}
-              {θ₂ : w₂ =|=> w₂'}
-              {s₁ : square_double_bicat h₁ h₂ v₁ w₁}
-              {s₁' : square_double_bicat h₁ h₂ v₁' w₁'}
-              {s₂ : square_double_bicat h₂ h₃ v₂ w₂}
-              {s₂' : square_double_bicat h₂ h₃ v₂' w₂'}
+              (τ₁ : v₁ =|=> v₁')
+              (τ₂ : v₂ =|=> v₂')
+              (θ₁ : w₁ =|=> w₁')
+              (θ₂ : w₂ =|=> w₂')
+              (s₁ : square_double_bicat h₁ h₂ v₁ w₁)
+              (s₁' : square_double_bicat h₁ h₂ v₁' w₁')
+              (s₂ : square_double_bicat h₂ h₃ v₂ w₂)
+              (s₂' : square_double_bicat h₂ h₃ v₂' w₂')
               (p : τ₁ ◃s s₁' = θ₁ ▹s s₁)
               (q : τ₂ ◃s s₂' = θ₂ ▹s s₂)
     : (τ₂ ⋆⋆ τ₁) ◃s s₁' ⋆v s₂'
@@ -1482,14 +1482,14 @@ Section VerityBicatLawsAccessors.
               {v₁ : x₁ -|-> y₁}
               {v₂ : x₂ -|-> y₂}
               {v₃ : x₃ -|-> y₃}
-              {τ₁ : h₁ ==> h₁'}
-              {τ₂ : h₂ ==> h₂'}
-              {θ₁ : k₁ ==> k₁'}
-              {θ₂ : k₂ ==> k₂'}
-              {s₁ : square_double_bicat h₁ k₁ v₁ v₂}
-              {s₁' : square_double_bicat h₁' k₁' v₁ v₂}
-              {s₂ : square_double_bicat h₂ k₂ v₂ v₃}
-              {s₂' : square_double_bicat h₂' k₂' v₂ v₃}
+              (τ₁ : h₁ ==> h₁')
+              (τ₂ : h₂ ==> h₂')
+              (θ₁ : k₁ ==> k₁')
+              (θ₂ : k₂ ==> k₂')
+              (s₁ : square_double_bicat h₁ k₁ v₁ v₂)
+              (s₁' : square_double_bicat h₁' k₁' v₁ v₂)
+              (s₂ : square_double_bicat h₂ k₂ v₂ v₃)
+              (s₂' : square_double_bicat h₂' k₂' v₂ v₃)
               (p : θ₁ ▿s s₁ = τ₁ ▵s s₁')
               (q : θ₂ ▿s s₂ = τ₂ ▵s s₂')
     : (θ₂ ⋆⋆ θ₁) ▿s s₁ ⋆h s₂

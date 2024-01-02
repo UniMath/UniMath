@@ -185,6 +185,48 @@ Section CompanionPairs.
          apply idpath).
   Defined.
 
+  Definition comp_diag₁
+             {x y z : B}
+             {v₁ : x -|-> y}
+             {v₂ : y -|-> z}
+             {h₁ : x --> y}
+             {h₂ : y --> z}
+             (s₁ : square_double_bicat h₁ (id_h y) v₁ (id_v y))
+             (s₂ : square_double_bicat h₂ (id_h z) v₂ (id_v z))
+    : square_double_bicat (h₁ · h₂) (id_h z) (v₁ · v₂) (id_v z)
+    := lunitor _ ▹s (lunitor _ ▿s ((s₁ ⋆h id_v_square_bicat h₂)
+                                    ⋆v
+                                    (id_h_square_bicat v₂ ⋆h s₂))).
+
+  Definition comp_diag₂
+             {x y z : B}
+             {v₁ : x -|-> y}
+             {v₂ : y -|-> z}
+             {h₁ : x --> y}
+             {h₂ : y --> z}
+             (s₁ : square_double_bicat (id_h x) h₁ (id_v x) v₁)
+             (s₂ : square_double_bicat (id_h y) h₂ (id_v y) v₂)
+    : square_double_bicat (id_h x) (h₁ · h₂) (id_v x) (v₁ · v₂)
+    := linvunitor _ ◃s (linvunitor _ ▵s ((s₁ ⋆h id_h_square_bicat _)
+                                          ⋆v
+                                          (id_v_square_bicat h₁ ⋆h s₂))).
+
+  Proposition comp_diag_v
+              {x y z : B}
+              {v₁ : x -|-> y}
+              {v₂ : y -|-> z}
+              {h₁ : x --> y}
+              {h₂ : y --> z}
+              (s₁ : square_double_bicat h₁ (id_h y) v₁ (id_v y))
+              (s₂ : square_double_bicat h₂ (id_h z) v₂ (id_v z))
+              (s₃ : square_double_bicat (id_h x) h₁ (id_v x) v₁)
+              (s₄ : square_double_bicat (id_h y) h₂ (id_v y) v₂)
+    : linvunitor _ ◃s (runitor _ ▹s comp_diag₂ s₃ s₄ ⋆v comp_diag₁ s₁ s₂)
+      =
+      (linvunitor _ • (_ ◃ (_ ◃ linvunitor _)) • lassociator _ _ _) ◃s ((rassociator _ _ _ • (_ ◃ (lunitor _ • runitor _))) ▹s ((s₃ ⋆v s₁) ⋆v (s₄ ⋆v s₂))).
+  Proof.
+  Admitted.
+
   Section CompCompanions.
     Context {x y z : B}
             {h₁ : x --> y}
@@ -201,18 +243,24 @@ Section CompanionPairs.
 
     Definition comp_are_companions_unit
       : square_double_bicat (h₁ · h₂) (id_h z) (v₁ · v₂) (id_v z)
+                            (*
       := lunitor _ ▹s (lunitor _ ▿s ((φ₁ ⋆h id_v_square_bicat h₂)
                                      ⋆v
                                      (id_h_square_bicat v₂ ⋆h φ₂))).
+                             *)
+      := comp_diag₁ φ₁ φ₂.
 
     Let φ : square_double_bicat (h₁ · h₂) (id_h z) (v₁ · v₂) (id_v z)
       := comp_are_companions_unit.
 
     Definition comp_are_companions_counit
       : square_double_bicat (id_h x) (h₁ · h₂) (id_v x) (v₁ · v₂)
+                            (*
       := linvunitor _ ◃s (linvunitor _ ▵s ((ψ₁ ⋆h id_h_square_bicat _)
                                            ⋆v
                                            (id_v_square_bicat h₁ ⋆h ψ₂))).
+                             *)
+      := comp_diag₂ ψ₁ ψ₂.
 
     Let ψ : square_double_bicat (id_h x) (h₁ · h₂) (id_v x) (v₁ · v₂)
       := comp_are_companions_counit.
@@ -222,6 +270,26 @@ Section CompanionPairs.
         =
         id_h_square_bicat (v₁ · v₂).
     Proof.
+      rewrite rwhisker_lwhisker_square.
+      unfold φ, ψ.
+      etrans.
+      {
+        apply comp_diag_v.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          apply are_companions_left'.
+        }
+        apply maponpaths_2.
+        apply are_companions_left'.
+      }
+      rewrite <- id_h_square_bicat_comp.
+      rewrite !lwhisker_id_h_square.
     Admitted.
 
     Proposition comp_are_companions_right
@@ -294,6 +362,7 @@ Section CompanionPairs.
     unfold cell_are_companions.
     rewrite <- square_to_vertical_cell_comp.
     apply maponpaths.
+    Print comp_ver_globular_square.
     unfold comp_ver_globular_square.
     refine (!_).
     etrans.

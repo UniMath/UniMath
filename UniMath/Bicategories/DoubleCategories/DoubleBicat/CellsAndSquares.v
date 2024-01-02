@@ -126,14 +126,6 @@ Section VerticalCellsAreSquares.
   Qed.
 
   (** * 3.2. Composition of squares and vertical cells *)
-  Definition comp_ver_globular_square
-             {x y : B}
-             {v₁ v₂ v₃ : x -|-> y}
-             (s₁ : square_double_bicat (id_h x) (id_h y) v₁ v₂)
-             (s₂ : square_double_bicat (id_h x) (id_h y) v₂ v₃)
-    : square_double_bicat (id_h x) (id_h y) v₁ v₃
-    := linvunitor _ ▵s (lunitor _ ▿s s₁ ⋆h s₂).
-
   Proposition vertical_cell_to_square_comp
               {x y : B}
               {v₁ v₂ v₃ : x -|-> y}
@@ -357,14 +349,6 @@ Section HorizontalCellsAreSquares.
   Qed.
 
   (** * 4.2. Composition of squares and horizontal cells *)
-  Definition comp_hor_globular_square
-             {x y : B}
-             {h₁ h₂ h₃ : x --> y}
-             (s₁ : square_double_bicat h₁ h₂ (id_v x) (id_v y))
-             (s₂ : square_double_bicat h₂ h₃ (id_v x) (id_v y))
-    : square_double_bicat h₁ h₃ (id_v x) (id_v y)
-    := linvunitor _ ◃s (lunitor _ ▹s s₁ ⋆v s₂).
-
   Proposition horizontal_cell_to_square_comp
               {x y : B}
               {h₁ h₂ h₃ : x --> y}
