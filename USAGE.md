@@ -30,7 +30,7 @@ When opening a source file in the directory `UniMath/UniMath` in Emacs, the foll
    It allows you to insert Unicode symbols using a LaTeX-like syntax.
    See [Section on Unicode input below](USAGE.md/#unicode-input)
 3. Proof General is informed about the location of the Coq proof assistant installed during the installation of UniMath,
-   and of the options that need to passed to Coq.
+   and of the options that need to be passed to Coq.
 
 Items 2 and 3 are achieved through the Emacs configuration file [`.dir-locals.el`](./UniMath/.dir-locals.el) located in 
 the subdirectory `UniMath/UniMath`.

@@ -6,11 +6,11 @@ various authors, as recorded in the README (or README.md) file in it.
 
 ## Contributing code to UniMath
 
-Volunteers may look at unassigned issues at github and volunteer to be assigned
-one of them.  New proposals and ideas may be submitted as issues at github for
+Volunteers may look at unassigned issues at GitHub and volunteer to be assigned
+one of them.  New proposals and ideas may be submitted as issues at GitHub for
 discussion and feedback.
 
-Contributions are submitted in the form of pull requests at github and are
+Contributions are submitted in the form of pull requests at GitHub and are
 subject to approval by the UniMath Development Team.
 
 Changes to the package "Foundations" are normally not accepted, for we are
@@ -140,7 +140,7 @@ less fragile and to make the files have a more uniform and pleasing appearance.
   Consider also putting them into a submodule, for then they won't be activated even
   for printing.
 * When introducing a notation using Unicode characters, document in a comment how to input that character using the Agda input method.
-* Each line should be limited to at most 100 (unicode) characters.  The
+* Each line should be limited to at most 100 (Unicode) characters.  The
   makefile target `enforce-max-line-length` can be used to detect nonconforming
   files, and the target `show-long-lines` can be used to display the
   nonconforming lines.
