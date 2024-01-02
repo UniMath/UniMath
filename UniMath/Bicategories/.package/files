@@ -221,8 +221,8 @@ DoubleCategories/AlternativeDefinitions/DoubleCatsEquivalentDefinitions.v
 
 DoubleCategories/DoubleBicat/VerityDoubleBicat.v
 DoubleCategories/DoubleBicat/DerivedLaws.v
-DoubleCategories/Examples/TransposeDoubleBicat.v
 DoubleCategories/DoubleBicat/UnderlyingCats.v
+DoubleCategories/Examples/TransposeDoubleBicat.v
 DoubleCategories/DoubleBicat/CellsAndSquares.v
 DoubleCategories/DoubleBicat/LocalUnivalence.v
 DoubleCategories/DoubleBicat/CompanionPairs.v

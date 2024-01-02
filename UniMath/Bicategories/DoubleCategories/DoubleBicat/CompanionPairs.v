@@ -854,15 +854,113 @@ Section ComparionPairUnique.
     unfold γ₁, square_between_companions.
     etrans.
     {
-      do 2 apply maponpaths.
-  Admitted.
+      do 3 apply maponpaths.
+      refine (!_).
+      apply runitor_v_comp_square''.
+    }
+    rewrite <- lwhisker_hcomp_square.
+    rewrite <- rwhisker_hcomp_square.
+    etrans.
+    {
+      do 4 apply maponpaths.
+      rewrite lrwhisker_hcomp_square.
+      rewrite <- rwhisker_square_comp.
+      rewrite runitor_rinvunitor.
+      rewrite rwhisker_square_id.
+      rewrite double_bicat_interchange.
+      apply maponpaths_2.
+      apply are_companions_right'.
+    }
+    etrans.
+    {
+      apply maponpaths.
+      rewrite dwhisker_uwhisker_square.
+      rewrite <- uwhisker_vcomp_square.
+      rewrite rwhisker_uwhisker_square.
+      rewrite lwhisker_uwhisker_square.
+      rewrite <- uwhisker_square_comp.
+      rewrite linvunitor_lunitor.
+      rewrite uwhisker_square_id.
+      apply idpath.
+    }
+    rewrite <- ud_whisker_vcomp_square.
+    rewrite lunitor_v_comp_square'.
+    rewrite <- rwhisker_square_comp.
+    rewrite runitor_lunitor_identity.
+    rewrite linvunitor_lunitor.
+    rewrite rwhisker_square_id.
+    rewrite <- lwhisker_square_comp.
+    rewrite linvunitor_lunitor.
+    rewrite lwhisker_square_id.
+    rewrite <- id_h_square_bicat_id.
+    rewrite runitor_h_comp_square'.
+    rewrite !dwhisker_uwhisker_square.
+    rewrite <- dwhisker_square_comp.
+    rewrite <- uwhisker_square_comp.
+    rewrite lunitor_runitor_identity.
+    rewrite !rinvunitor_runitor.
+    rewrite dwhisker_square_id.
+    rewrite uwhisker_square_id.
+    apply idpath.
+  Qed.
 
   Proposition square_between_companions_counit
     : runitor h ▿s (linvunitor (id_h x) ▵s counit_are_companions c₁ ⋆h γ₁)
       =
       counit_are_companions c₂.
   Proof.
-  Admitted.
+    unfold γ₁, square_between_companions.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply maponpaths_2.
+      refine (!_).
+      apply lunitor_v_comp_square''.
+    }
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite rwhisker_lwhisker_square.
+      rewrite <- lwhisker_hcomp_square.
+      apply maponpaths.
+      rewrite <- rwhisker_lwhisker_square.
+      rewrite <- rwhisker_hcomp_square.
+      apply maponpaths.
+      rewrite lrwhisker_hcomp_square.
+      rewrite <- rwhisker_square_comp.
+      rewrite lunitor_linvunitor.
+      rewrite rwhisker_square_id.
+      rewrite double_bicat_interchange.
+      rewrite are_companions_right'.
+      rewrite <- id_h_square_bicat_id.
+      rewrite uwhisker_id_v_square.
+      rewrite <- dwhisker_square_comp.
+      rewrite <- dwhisker_vcomp_square.
+      apply maponpaths.
+      rewrite runitor_v_comp_square'.
+      rewrite lunitor_h_comp_square'.
+      apply idpath.
+    }
+    rewrite <- rwhisker_dwhisker_square.
+    rewrite <- rwhisker_square_comp.
+    rewrite rinvunitor_runitor.
+    rewrite rwhisker_square_id.
+    rewrite lwhisker_dwhisker_square.
+    rewrite <- lwhisker_square_comp.
+    rewrite runitor_lunitor_identity.
+    rewrite linvunitor_lunitor.
+    rewrite lwhisker_square_id.
+    rewrite !dwhisker_uwhisker_square.
+    rewrite <- !dwhisker_square_comp.
+    rewrite <- !uwhisker_square_comp.
+    rewrite linvunitor_lunitor.
+    rewrite uwhisker_square_id.
+    rewrite !vassocl.
+    rewrite rinvunitor_runitor.
+    rewrite id2_right.
+    rewrite linvunitor_lunitor.
+    apply dwhisker_square_id.
+  Qed.
 End ComparionPairUnique.
 
 (** * 7. Companions of horizontal morphisms *)
