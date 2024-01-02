@@ -68,7 +68,7 @@ Now proceed with [Installation of Proof General](#installation-of-proofgeneral-a
 
 ## Installation of Proof General (all operating systems)
 
-You may obtain Proof General from by using the quick installation instructions
+You may obtain Proof General by using the quick installation instructions
 at http://proofgeneral.inf.ed.ac.uk/ or at https://proofgeneral.github.io/.
 Your version of emacs determines which version of Proof General you need,
 roughly, so some experimentation may be required; you may even need the current
@@ -200,7 +200,7 @@ GNU `time` utility installed on your system in `/usr/bin`.  Alternatively,
 add `TIMECMD=time` to the `make` command line, where `time` is a
 time command that works on your system.
 
-On both Linux and Mac OS X systems, `time` is a built in bash shell command
+On both Linux and Mac OS X systems, `time` is a built-in bash shell command
 that differs from GNU time, available on Linux systems as `\time`.  Under
 Mac OS X, you can install GNU time as `gtime` by running `brew install
 gnu-time`.
@@ -230,7 +230,7 @@ $ make MOREFLAGS=-time TIMECMD='gtime -f "user time %U: $(basename $*)" util/slo
 ```
 
 To speed up execution on a machine with multiple cores or pseudo-cores, specify
-the use of multiple processes in paralle, e.g, 4, as follows.
+the use of multiple processes in parallel, e.g., 4, as follows.
 ```
 $ make -j4
 ```
@@ -244,7 +244,7 @@ then follow the instructions in the file build/Makefile-configuration-template.)
 The file `UniMath/.dir-locals.el` contains code that arranges for
 Proof General to use the Coq programs built by `make` when one of the proof
 files of UniMath is opened in emacs; in order to use them more generally, such
-as from the command line,, then add the full path for the directory
+as from the command line, then add the full path for the directory
 `./sub/coq/bin` to your `PATH` environment variable, or set the emacs
 variable `coq-prog-name` in your emacs initialization file, `.emacs`.
 
@@ -258,7 +258,7 @@ emacs variable `coq-prog-args` appropriately.  In particular, it will add the
 directory UniMath to the path, using the `-R` option, and it will arrange for
 files with names of the form `*.v` to be edited in "Coq mode".
 
-We are using some unicode characters in our Coq files.  One way to type such
+We are using some Unicode characters in our Coq files.  One way to type such
 characters easily is with the "Agda input method": to type σ, for example, one
 types \sigma, which is automatically replaced by σ.  We have arranged for the
 Agda input method to be automatically enabled in buffers containing one of the
@@ -345,9 +345,9 @@ This package is not among the build dependencies for older versions of Coq.
   change to the Foundations package, then you can add `-o
   check-for-change-to-Foundations` to the "make" command line.
 
-- Memory limits: pull requests are tested automatically by "travis" at github,
+- Memory limits: pull requests are tested automatically by GitHub CI,
   and at that point, a memory limit is imposed to ensure reproducibility of
-  results to and to prevent excessive memory usage.  To apply the same memory
+  results and to prevent excessive memory usage.  To apply the same memory
   limit on your own machine before submitting a pull request, add
   `LIMIT_MEMORY=yes` to the `make` command line.  Unfortunately, under Mac OS
   X, such memory limits are ineffective, so you may prefer to run the test
