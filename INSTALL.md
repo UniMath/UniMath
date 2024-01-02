@@ -345,7 +345,7 @@ This package is not among the build dependencies for older versions of Coq.
   change to the Foundations package, then you can add `-o
   check-for-change-to-Foundations` to the "make" command line.
 
-- Memory limits: pull requests are tested automatically by "travis" at GitHub,
+- Memory limits: pull requests are tested automatically by GitHub CI,
   and at that point, a memory limit is imposed to ensure reproducibility of
   results and to prevent excessive memory usage.  To apply the same memory
   limit on your own machine before submitting a pull request, add
