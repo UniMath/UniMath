@@ -131,9 +131,8 @@ Section Univalence.
     use weqhomot.
     - refine (weqfibtototal
                 _ _
-                (hor_left_adjoint_equivalence_weq_gregarious_equivalence _ _ _ H)
+                (hor_left_adjoint_equivalence_weq_gregarious_equivalence _ _ H)
               ∘ make_weq _ (HB_2_0 x y))%weq.
-      + apply HB_2_1.
       + apply HB_2_1.
       + use univalent_2_0_all_equivs_companions.
         apply HB_2_0.
@@ -161,10 +160,10 @@ Section Univalence.
                _ _
                (λ h, invweq
                        (hor_left_adjoint_equivalence_weq_gregarious_equivalence
-                          _ _ H' H h))
+                          _ _ H h))
              ∘ make_weq _ (HB_2_0 x y))%weq.
       + apply HB_2_1.
-      + apply HB_2_1.
+      + apply H'.
     - intro p.
       induction p.
       use subtypePath.

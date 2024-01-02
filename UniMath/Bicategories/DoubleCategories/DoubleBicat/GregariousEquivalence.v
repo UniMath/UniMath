@@ -1,5 +1,41 @@
 (*****************************************************************************************
 
+ Gregarious equivalence
+
+ In this file, we define gregarious equivalences and we establish basic facts about them.
+ A gregarious equivalence is a companion pair whose horizontal and vertical morphisms are
+ both adjoint equivalences.
+
+ One of the applications of gregarious equivalences is defining gregarious univalent
+ Verity double bicategories. For that purpose, we show that the identity is necessarily a
+ gregarious equivalence ([id_is_gregarious_equivalence]). In addition, one theorem that we
+ are interested in, relates gregarious univalence to the global univalence of the
+ horizontal bicategory. For that purpose, we define when a horizontal 1-cell is a gregarious
+ equivalence ([is_hor_gregarious_equivalence]) as follows: the 1-cell has a companion pair
+ with which it forms a gregarious equivalence. We use this notion to relate horizontal
+ adjoint equivalences and gregarious equivalences. More specifically, whenever a Verity
+ double bicategory `B` satisfies the following conditions:
+ - It is locally univalent.
+ - All horizontal equivalences have companion pairs.
+ - The vertical 2-cells correspond with squares that have horizontal identity sides.
+ Then the type of adjoint equivalences and the type of gregarious equivalences are actually
+ equivalent ([hor_left_adjoint_equivalence_weq_gregarious_equivalence]).
+
+ Note that the condition that every horizontal equivalence has a companion pair, is called
+ 'horizontal invariance' in "Higher Dimensional Categories, From Double to Multiple
+ Categories" by Grandis (Definition 4.1.7).
+
+ References:
+ - Higher Dimensional Categories, From Double to Multiple Categories
+   Marco Grandis
+
+ Contents
+ 1. Gregarious equivalences
+ 2. The identity is a gregarious equivalence
+ 3. Identities to gregarious equivalences
+ 4. Horizontal gregarious equivalences
+ 5. Being a horizontal gregarious equivalence is a proposition
+ 6. Adjoint equivalences and gregarious equivalences
 
  *****************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -27,6 +63,7 @@ Local Open Scope double_bicat.
 Section GregariousEquivalence.
   Context {B : verity_double_bicat}.
 
+  (** * 1. Gregarious equivalences *)
   Definition is_gregarious_equivalence
              {x y : B}
              (h : x --> y)
@@ -61,6 +98,7 @@ Section GregariousEquivalence.
     : gregarious_equivalence x y
     := h ,, v ,, H.
 
+  (** * 2. The identity is a gregarious equivalence *)
   Definition id_is_gregarious_equivalence
              (x : B)
     : is_gregarious_equivalence (id_h x) (id_v x).
@@ -81,6 +119,7 @@ Section GregariousEquivalence.
     - apply id_is_gregarious_equivalence.
   Defined.
 
+  (** * 3. Identities to gregarious equivalences *)
   Definition id_to_gregarious_equivalence
              {x y : B}
              (p : x = y)
@@ -90,6 +129,7 @@ Section GregariousEquivalence.
     exact (id_gregarious_equivalence x).
   Defined.
 
+  (** * 4. Horizontal gregarious equivalences *)
   Definition is_hor_gregarious_equivalence
              {x y : B}
              (h : x --> y)
@@ -110,17 +150,20 @@ Section GregariousEquivalence.
     : is_gregarious_equivalence h v
     := pr2 v.
 
+  (** * 5. Being a horizontal gregarious equivalence is a proposition *)
   Lemma path_is_hor_gregarious_equivalence
-        (HB_2_1 : is_univalent_2_1 B)
-        (HB_2_1' : is_univalent_2_1 (ver_bicat_of_verity_double_bicat B))
+        (H : vertical_cells_are_squares B)
+        (HB_2_1 : locally_univalent_verity_double_bicat B)
         {x y : B}
         {h : x --> y}
         (φ₁ φ₂ : is_hor_gregarious_equivalence h)
         (p : pr1 φ₁ = pr1 φ₂)
-        (q₁ : lunitor _ ▿s (linvunitor _ ▵s vertical_cell_to_square (idtoiso_2_1 (C := ver_bicat_of_verity_double_bicat B) _ _ p)
-             ⋆h
-             unit_are_companions φ₂) = unit_are_companions φ₁)
-        (q₂ : runitor _ ▿s (linvunitor _ ▵s counit_are_companions φ₁ ⋆h vertical_cell_to_square (idtoiso_2_1 (C := ver_bicat_of_verity_double_bicat B) _ _ p)) = counit_are_companions φ₂)
+        (q₁ : lunitor _ ▿s (linvunitor _ ▵s v_sq_idtoiso_2_1 H p ⋆h unit_are_companions φ₂)
+              =
+              unit_are_companions φ₁)
+        (q₂ : runitor _ ▿s (linvunitor _ ▵s counit_are_companions φ₁ ⋆h v_sq_idtoiso_2_1 H p)
+              =
+              counit_are_companions φ₂)
     : φ₁ = φ₂.
   Proof.
     induction φ₁ as [ v₁ [ c₁ [ Hh₁ Hv₁ ] ] ].
@@ -155,43 +198,38 @@ Section GregariousEquivalence.
         rewrite uwhisker_square_id, dwhisker_square_id.
         apply idpath.
     - apply isaprop_left_adjoint_equivalence.
-      exact HB_2_1.
+      apply HB_2_1.
     - apply isaprop_left_adjoint_equivalence.
-      exact HB_2_1'.
+      apply HB_2_1.
   Qed.
 
   Proposition isaprop_is_hor_gregarious_equivalence
               (H : vertical_cells_are_squares B)
-              (HB_2_1 : is_univalent_2_1 B)
-              (HB_2_1' : is_univalent_2_1 (ver_bicat_of_verity_double_bicat B))
+              (HB_2_1 : locally_univalent_verity_double_bicat B)
               {x y : B}
               (h : x --> y)
     : isaprop (is_hor_gregarious_equivalence h).
   Proof.
     use invproofirrelevance.
     intros φ₁ φ₂.
-    use (path_is_hor_gregarious_equivalence HB_2_1 HB_2_1').
-    - use (isotoid_2_1 HB_2_1').
-      use (vertical_square_to_invertible_2cell H).
+    use (path_is_hor_gregarious_equivalence H HB_2_1).
+    - use (v_sq_isotoid_2_1 H HB_2_1).
       use make_invertible_vertical_square.
       + use make_invertible_vertical_square_data.
         * use (square_between_companions φ₁).
           apply (pr12 φ₂).
         * use (square_between_companions φ₂).
           apply (pr12 φ₁).
-      + admit.
-    - rewrite idtoiso_2_1_isotoid_2_1.
-      cbn.
-      rewrite square_to_vertical_cell_to_square.
-      unfold square_between_companions.
-      admit.
-    - rewrite idtoiso_2_1_isotoid_2_1.
-      cbn.
-      rewrite square_to_vertical_cell_to_square.
-      unfold square_between_companions.
-      admit.
-  Admitted.
+      + split.
+        * apply comp_square_between_companions.
+        * apply comp_square_between_companions.
+    - rewrite v_sq_idtoiso_isotoid_2_1 ; cbn.
+      apply square_between_companions_unit.
+    - rewrite v_sq_idtoiso_isotoid_2_1 ; cbn.
+      apply square_between_companions_counit.
+  Qed.
 
+  (** * 6. Adjoint equivalences and gregarious equivalences *)
   Definition hor_left_adjoint_equivalence_to_gregarious_equivalence
              (H : vertical_cells_are_squares B)
              (H' : all_equivs_companions B)
@@ -224,8 +262,7 @@ Section GregariousEquivalence.
   Qed.
 
   Definition hor_left_adjoint_equivalence_weq_gregarious_equivalence
-             (HB_2_1 : is_univalent_2_1 B)
-             (HB_2_1' : is_univalent_2_1 (ver_bicat_of_verity_double_bicat B))
+             (HB_2_1 : locally_univalent_verity_double_bicat B)
              (H : all_equivs_companions B)
              (H' : vertical_cells_are_squares B)
              {x y : B}
@@ -236,7 +273,7 @@ Section GregariousEquivalence.
     - apply (hor_left_adjoint_equivalence_to_gregarious_equivalence H' H).
     - apply hor_gregarious_equivalence_to_left_adjoint_equivalence.
     - apply isaprop_left_adjoint_equivalence.
-      exact HB_2_1.
-    - apply (isaprop_is_hor_gregarious_equivalence H' HB_2_1 HB_2_1').
+      apply HB_2_1.
+    - apply (isaprop_is_hor_gregarious_equivalence H' HB_2_1).
   Qed.
 End GregariousEquivalence.

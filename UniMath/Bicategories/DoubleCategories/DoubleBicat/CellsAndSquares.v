@@ -217,6 +217,15 @@ Section VerticalCellsAreSquares.
         =
         id_h_square_bicat v₂).
 
+  Proposition isaprop_invertible_vertical_square_laws
+              {x y : B}
+              {v₁ v₂ : x -|-> y}
+              (s : invertible_vertical_square_data v₁ v₂)
+    : isaprop (invertible_vertical_square_laws s).
+  Proof.
+    apply isapropdirprod ; apply isaset_square_double_bicat.
+  Qed.
+
   Definition invertible_vertical_square
              {x y : B}
              (v₁ v₂ : x -|-> y)
@@ -287,6 +296,53 @@ Section VerticalCellsAreSquares.
            rewrite <- square_to_vertical_cell_id ;
            apply maponpaths ;
            apply invertible_vertical_square_inv_left).
+  Defined.
+
+  Definition invertible_2cell_to_vertical_square
+             {x y : B}
+             {v₁ v₂ : x -|-> y}
+             (τ : invertible_2cell v₁ v₂)
+    : invertible_vertical_square v₁ v₂.
+  Proof.
+    use make_invertible_vertical_square.
+    - use make_invertible_vertical_square_data.
+      + exact (vertical_cell_to_square τ).
+      + exact (vertical_cell_to_square (τ^-1)).
+    - split.
+      + abstract
+          (cbn -[comp_ver_globular_square] ;
+           refine (_ @ vertical_cell_to_square_id _) ;
+           refine (!(square_to_vertical_cell_to_square _) @ _) ;
+           apply maponpaths ;
+           rewrite square_to_vertical_cell_comp ;
+           rewrite !vertical_cell_to_square_to_vertical_cell ;
+           apply vcomp_rinv).
+      + abstract
+          (cbn -[comp_ver_globular_square] ;
+           refine (_ @ vertical_cell_to_square_id _) ;
+           refine (!(square_to_vertical_cell_to_square _) @ _) ;
+           apply maponpaths ;
+           rewrite square_to_vertical_cell_comp ;
+           rewrite !vertical_cell_to_square_to_vertical_cell ;
+           apply vcomp_linv).
+  Defined.
+
+  Definition vertical_square_weq_invertible_2cell
+             {x y : B}
+             (v₁ v₂ : x -|-> y)
+    : invertible_vertical_square v₁ v₂ ≃ invertible_2cell v₁ v₂.
+  Proof.
+    use weq_iso.
+    - exact vertical_square_to_invertible_2cell.
+    - exact invertible_2cell_to_vertical_square.
+    - abstract
+        (intro s ;
+         use subtypePath ; [ intro ; apply isaprop_invertible_vertical_square_laws | ] ;
+         use dirprodeq ; apply square_to_vertical_cell_to_square).
+    - abstract
+        (intro τ ;
+         use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
+         apply vertical_cell_to_square_to_vertical_cell).
   Defined.
 End VerticalCellsAreSquares.
 
@@ -440,6 +496,15 @@ Section HorizontalCellsAreSquares.
         =
         id_v_square_bicat h₂).
 
+  Proposition isaprop_invertible_horizontal_square_laws
+              {x y : B}
+              {h₁ h₂ : x --> y}
+              (s : invertible_horizontal_square_data h₁ h₂)
+    : isaprop (invertible_horizontal_square_laws s).
+  Proof.
+    apply isapropdirprod ; apply isaset_square_double_bicat.
+  Qed.
+
   Definition invertible_horizontal_square
              {x y : B}
              (h₁ h₂ : x --> y)
@@ -510,5 +575,52 @@ Section HorizontalCellsAreSquares.
            rewrite <- square_to_horizontal_cell_id ;
            apply maponpaths ;
            apply invertible_horizontal_square_inv_left).
+  Defined.
+
+  Definition invertible_2cell_to_horizontal_square
+             {x y : B}
+             {h₁ h₂ : x --> y}
+             (τ : invertible_2cell h₁ h₂)
+    : invertible_horizontal_square h₁ h₂.
+  Proof.
+    use make_invertible_horizontal_square.
+    - use make_invertible_horizontal_square_data.
+      + exact (horizontal_cell_to_square τ).
+      + exact (horizontal_cell_to_square (τ^-1)).
+    - split.
+      + abstract
+          (cbn -[comp_hor_globular_square] ;
+           refine (_ @ horizontal_cell_to_square_id _) ;
+           refine (!(square_to_horizontal_cell_to_square _) @ _) ;
+           apply maponpaths ;
+           rewrite square_to_horizontal_cell_comp ;
+           rewrite !horizontal_cell_to_square_to_horizontal_cell ;
+           apply vcomp_rinv).
+      + abstract
+          (cbn -[comp_hor_globular_square] ;
+           refine (_ @ horizontal_cell_to_square_id _) ;
+           refine (!(square_to_horizontal_cell_to_square _) @ _) ;
+           apply maponpaths ;
+           rewrite square_to_horizontal_cell_comp ;
+           rewrite !horizontal_cell_to_square_to_horizontal_cell ;
+           apply vcomp_linv).
+  Defined.
+
+  Definition horizontal_square_weq_invertible_2cell
+             {x y : B}
+             (h₁ h₂ : x --> y)
+    : invertible_horizontal_square h₁ h₂ ≃ invertible_2cell h₁ h₂.
+  Proof.
+    use weq_iso.
+    - exact horizontal_square_to_invertible_2cell.
+    - exact invertible_2cell_to_horizontal_square.
+    - abstract
+        (intro s ;
+         use subtypePath ; [ intro ; apply isaprop_invertible_horizontal_square_laws | ] ;
+         use dirprodeq ; apply square_to_horizontal_cell_to_square).
+    - abstract
+        (intro τ ;
+         use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
+         apply horizontal_cell_to_square_to_horizontal_cell).
   Defined.
 End HorizontalCellsAreSquares.

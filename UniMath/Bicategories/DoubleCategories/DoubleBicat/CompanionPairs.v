@@ -464,7 +464,6 @@ Section CompanionPairs.
     : square_double_bicat (id_h x) (id_h y) v₁ v₂
     := linvunitor _ ◃s (runitor _ ▹s counit_are_companions c₂ ⋆v unit_are_companions c₁).
 
-  (*
   Section ComparionPairUnique.
     Context {x y : B}
             {h : x --> y}
@@ -478,9 +477,10 @@ Section CompanionPairs.
     Let γ₂ : square_double_bicat (id₁ _) (id₁ _) v₂ v₁
       := square_between_companions c₂ c₁.
 
-    Definition test
-      : lunitor _ ▿s (rinvunitor _ ▵s γ₁ ⋆h γ₂) = id_h_square_bicat v₁.
+    Proposition comp_square_between_companions
+      : comp_ver_globular_square γ₁ γ₂ = id_h_square_bicat v₁.
     Proof.
+      (*
       unfold γ₁, γ₂, square_between_companions.
       pose (p₁ := are_companions_left c₁).
       refine (_ @ p₁).
@@ -524,8 +524,23 @@ Section CompanionPairs.
       refine ().
       Check γ₂ ⋆h γ₁.
       Check γ₁ ⋆h γ₂.
+       *)
+    Admitted.
+
+    Proposition square_between_companions_unit
+      : lunitor (id_h y) ▿s (linvunitor h ▵s γ₁ ⋆h unit_are_companions c₂)
+        =
+        unit_are_companions c₁.
+    Proof.
+    Admitted.
+
+    Proposition square_between_companions_counit
+      : runitor h ▿s (linvunitor (id_h x) ▵s counit_are_companions c₁ ⋆h γ₁)
+        =
+        counit_are_companions c₂.
+    Proof.
+    Admitted.
   End ComparionPairUnique.
-   *)
 End CompanionPairs.
 
 Definition all_companions
