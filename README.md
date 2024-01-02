@@ -51,7 +51,7 @@ Discussing UniMath & Getting Help
 - **Questions** about the UniMath library, compilation, and installation of UniMath, etc.,
 can be asked in the [UniMath Zulip](https://unimath.zulipchat.com) (click [here](https://unimath.zulipchat.com/register/) to register)
 or on the [UniMath mailing list](mailto:univalent-mathematics@googlegroups.com) (archived in a [Google Group](https://groups.google.com/forum/#!forum/univalent-mathematics)).
-- **Bugs** should be reported in our [UniMath bug tracker on Github](https://github.com/UniMath/UniMath/issues).
+- **Bugs** should be reported in our [UniMath bug tracker on GitHub](https://github.com/UniMath/UniMath/issues).
 
 
 Citing UniMath

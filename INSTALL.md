@@ -258,7 +258,7 @@ emacs variable `coq-prog-args` appropriately.  In particular, it will add the
 directory UniMath to the path, using the `-R` option, and it will arrange for
 files with names of the form `*.v` to be edited in "Coq mode".
 
-We are using some unicode characters in our Coq files.  One way to type such
+We are using some Unicode characters in our Coq files.  One way to type such
 characters easily is with the "Agda input method": to type σ, for example, one
 types \sigma, which is automatically replaced by σ.  We have arranged for the
 Agda input method to be automatically enabled in buffers containing one of the
@@ -345,7 +345,7 @@ This package is not among the build dependencies for older versions of Coq.
   change to the Foundations package, then you can add `-o
   check-for-change-to-Foundations` to the "make" command line.
 
-- Memory limits: pull requests are tested automatically by "travis" at github,
+- Memory limits: pull requests are tested automatically by "travis" at GitHub,
   and at that point, a memory limit is imposed to ensure reproducibility of
   results and to prevent excessive memory usage.  To apply the same memory
   limit on your own machine before submitting a pull request, add
