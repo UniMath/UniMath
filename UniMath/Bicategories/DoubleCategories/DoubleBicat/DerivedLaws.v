@@ -22,6 +22,9 @@
  horizontal composition of squares interact with the whiskering operations of Verity double
  bicategories.
 
+ We also give a composition for corners. This is needed to construct the composition of
+ companion pairs.
+
  Contents
  1. Laws regarding the left unitor and composition
  2. Laws regarding the right unitor and composition
@@ -29,6 +32,7 @@
  4. Laws regarding whiskering 2-cells
  5. Equality laws for whiskering
  6. Operations on globular squares
+ 7. Composing corners
 
  *****************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -713,3 +717,318 @@ Definition comp_hor_globular_square
   := linvunitor _ ◃s (lunitor _ ▹s s₁ ⋆v s₂).
 
 Arguments comp_hor_globular_square {B x y h₁ h₂ h₃} s₁ s₂ /.
+
+(** * 7. Composing corners *)
+Definition comp_diag_dr_corner
+           {B : verity_double_bicat}
+           {x y z : B}
+           {v₁ : x -|-> y}
+           {v₂ : y -|-> z}
+           {h₁ : x --> y}
+           {h₂ : y --> z}
+           (s₁ : square_double_bicat h₁ (id_h y) v₁ (id_v y))
+           (s₂ : square_double_bicat h₂ (id_h z) v₂ (id_v z))
+  : square_double_bicat (h₁ · h₂) (id_h z) (v₁ · v₂) (id_v z)
+  := lunitor _ ▹s
+       (lunitor _ ▿s ((s₁ ⋆h id_v_square_bicat h₂)
+                      ⋆v
+                      (id_h_square_bicat v₂ ⋆h s₂))).
+
+Arguments comp_diag_dr_corner {B x y z v₁ v₂ h₁ h₂} s₁ s₂ /.
+
+Definition comp_diag_ul_corner
+           {B : verity_double_bicat}
+           {x y z : B}
+           {v₁ : x -|-> y}
+           {v₂ : y -|-> z}
+           {h₁ : x --> y}
+           {h₂ : y --> z}
+           (s₁ : square_double_bicat (id_h x) h₁ (id_v x) v₁)
+           (s₂ : square_double_bicat (id_h y) h₂ (id_v y) v₂)
+  : square_double_bicat (id_h x) (h₁ · h₂) (id_v x) (v₁ · v₂)
+  := linvunitor _ ◃s
+       (linvunitor _
+          ▵s ((s₁ ⋆h id_h_square_bicat _)
+              ⋆v
+              (id_v_square_bicat h₁ ⋆h s₂))).
+
+Arguments comp_diag_ul_corner {B x y z v₁ v₂ h₁ h₂} s₁ s₂ /.
+
+Proposition comp_ul_dr_corner
+            {B : verity_double_bicat}
+            {x y z : B}
+            {v₁ : x -|-> y}
+            {v₂ : y -|-> z}
+            {h₁ : x --> y}
+            {h₂ : y --> z}
+            (s₁ : square_double_bicat h₁ (id_h y) v₁ (id_v y))
+            (s₂ : square_double_bicat h₂ (id_h z) v₂ (id_v z))
+            (s₃ : square_double_bicat (id_h x) h₁ (id_v x) v₁)
+            (s₄ : square_double_bicat (id_h y) h₂ (id_v y) v₂)
+  : linvunitor _ ◃s (runitor _ ▹s comp_diag_ul_corner s₃ s₄ ⋆v comp_diag_dr_corner s₁ s₂)
+    =
+    (linvunitor _ • (_ ◃ (_ ◃ linvunitor _)) • lassociator _ _ _) ◃s
+      ((rassociator _ _ _ • (_ ◃ (lunitor _ • runitor _))) ▹s
+         ((s₃ ⋆v s₁) ⋆v (s₄ ⋆v s₂))).
+Proof.
+  unfold comp_diag_ul_corner, comp_diag_dr_corner.
+  rewrite r_rwhisker_v_comp_square.
+  rewrite <- rwhisker_square_comp.
+  rewrite !vassocl.
+  rewrite lwhisker_square_comp.
+  apply maponpaths.
+  rewrite <- lwhisker_vcomp.
+  rewrite !vassocr.
+  rewrite lunitor_lwhisker.
+  rewrite l_lwhisker_v_comp_square.
+  rewrite rwhisker_lwhisker_square.
+  rewrite <- uwhisker_vcomp_square.
+  rewrite <- dwhisker_vcomp_square.
+  etrans.
+  {
+    rewrite runitor_h_comp_square'.
+    rewrite dwhisker_uwhisker_square.
+    rewrite <- !uwhisker_vcomp_square.
+    rewrite dwhisker_uwhisker_square.
+    rewrite <- uwhisker_square_comp.
+    rewrite lunitor_h_comp_square'.
+    rewrite <- !dwhisker_vcomp_square.
+    rewrite <- dwhisker_square_comp.
+    rewrite lassociator_v_comp_square'.
+    rewrite <- lwhisker_dwhisker_square.
+    rewrite <- lwhisker_uwhisker_square.
+    rewrite rwhisker_lwhisker_square.
+    rewrite <- lwhisker_square_comp.
+    rewrite <- rwhisker_dwhisker_square.
+    rewrite <- rwhisker_uwhisker_square.
+    rewrite <- rwhisker_square_comp.
+    etrans.
+    {
+      do 4 apply maponpaths.
+      apply maponpaths.
+      apply lassociator_v_comp_square''.
+    }
+    rewrite r_lwhisker_v_comp_square.
+    rewrite r_rwhisker_v_comp_square.
+    rewrite <- lwhisker_dwhisker_square.
+    rewrite <- lwhisker_uwhisker_square.
+    rewrite rwhisker_lwhisker_square.
+    rewrite <- lwhisker_square_comp.
+    rewrite <- rwhisker_dwhisker_square.
+    rewrite <- rwhisker_uwhisker_square.
+    rewrite <- rwhisker_square_comp.
+    rewrite <- double_bicat_interchange.
+    rewrite lunitor_v_comp_square'.
+    rewrite rwhisker_lwhisker_square.
+    rewrite <- lwhisker_hcomp_square.
+    rewrite l_lwhisker_v_comp_square.
+    rewrite r_lwhisker_v_comp_square.
+    rewrite <- lwhisker_dwhisker_square.
+    rewrite <- lwhisker_uwhisker_square.
+    rewrite rwhisker_lwhisker_square.
+    rewrite <- lwhisker_square_comp.
+    rewrite runitor_v_comp_square'.
+    rewrite <- rwhisker_hcomp_square.
+    rewrite l_rwhisker_v_comp_square.
+    rewrite r_rwhisker_v_comp_square.
+    rewrite <- rwhisker_dwhisker_square.
+    rewrite <- rwhisker_uwhisker_square.
+    rewrite <- rwhisker_square_comp.
+    rewrite <- ud_whisker_vcomp_square.
+    etrans.
+    {
+      do 4 apply maponpaths.
+      apply maponpaths_2.
+      refine (!_).
+      apply runitor_h_comp_square''.
+    }
+    etrans.
+    {
+      do 4 apply maponpaths.
+      rewrite ud_whisker_vcomp_square.
+      rewrite <- dwhisker_square_comp.
+      rewrite runitor_rinvunitor.
+      rewrite dwhisker_square_id.
+      rewrite <- uwhisker_vcomp_square.
+      apply maponpaths.
+      rewrite lassociator_v_comp_square''.
+      do 2 apply maponpaths.
+      rewrite <- double_bicat_interchange.
+      rewrite r_rwhisker_v_comp_square.
+      rewrite <- lrwhisker_hcomp_square.
+      apply maponpaths_2.
+      apply maponpaths.
+      rewrite r_lwhisker_v_comp_square.
+      rewrite <- lwhisker_square_comp.
+      rewrite runitor_lunitor_identity.
+      rewrite lwhisker_vcomp.
+      rewrite linvunitor_lunitor.
+      rewrite lwhisker_id2.
+      apply lwhisker_square_id.
+    }
+    rewrite dwhisker_uwhisker_square.
+    rewrite <- uwhisker_square_comp.
+    rewrite linvunitor_lunitor.
+    rewrite dwhisker_square_id.
+    rewrite !vassocl.
+    rewrite runitor_rinvunitor.
+    rewrite id2_right.
+    rewrite <- lwhisker_uwhisker_square.
+    rewrite rwhisker_lwhisker_square.
+    rewrite <- lwhisker_square_comp.
+    rewrite lwhisker_vcomp.
+    rewrite lunitor_triangle.
+    rewrite lunitor_lwhisker.
+    rewrite runitor_lunitor_identity.
+    rewrite rwhisker_vcomp.
+    rewrite linvunitor_lunitor.
+    rewrite id2_rwhisker.
+    rewrite id2_left.
+    etrans.
+    {
+      apply maponpaths.
+      apply maponpaths_2.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- lwhisker_lwhisker.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite lwhisker_vcomp.
+        rewrite lunitor_lwhisker.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite lwhisker_vcomp.
+      rewrite rwhisker_vcomp.
+      rewrite rinvunitor_runitor.
+      rewrite id2_rwhisker.
+      rewrite lwhisker_id2.
+      rewrite id2_left.
+      apply idpath.
+    }
+    apply idpath.
+  }
+  rewrite lwhisker_lwhisker.
+  rewrite lwhisker_square_comp.
+  apply maponpaths.
+  rewrite <- runitor_triangle.
+  rewrite !vassocr.
+  rewrite lassociator_rassociator.
+  rewrite id2_left.
+  rewrite <- rwhisker_lwhisker_square.
+  rewrite rwhisker_square_comp.
+  apply maponpaths.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    apply maponpaths_2.
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (!_).
+      apply runitor_v_comp_square''.
+    }
+    rewrite rwhisker_lwhisker_square.
+    rewrite <- lwhisker_hcomp_square.
+    apply maponpaths.
+    rewrite <- lrwhisker_hcomp_square.
+    rewrite <- id_h_square_bicat_id.
+    apply idpath.
+  }
+  pose (double_bicat_interchange
+          B
+          (s₃ ⋆v s₁)
+          (id_h_square_bicat (id_v y))
+          (id_h_square_bicat _)
+          s₄)
+    as p.
+  rewrite runitor_h_comp_square' in p.
+  rewrite lunitor_h_comp_square' in p.
+  rewrite <- dwhisker_vcomp_square in p.
+  rewrite dwhisker_uwhisker_square in p.
+  rewrite <- uwhisker_vcomp_square in p.
+  rewrite <- ud_whisker_vcomp_square in p.
+  rewrite lunitor_runitor_identity in p.
+  rewrite <- uwhisker_square_comp in p.
+  rewrite rinvunitor_runitor in p.
+  rewrite uwhisker_square_id in p.
+  rewrite lassociator_v_comp_square''.
+  rewrite !rwhisker_lwhisker_square.
+  rewrite <- lwhisker_square_comp.
+  rewrite <- rwhisker_square_comp.
+  pose (maponpaths
+          (λ z, rinvunitor _ ▵s (lunitor _ ▿s z))
+          p)
+    as p'.
+  cbn -[ver_bicat_of_ver_bicat_sq_bicat] in p'.
+  rewrite <- dwhisker_square_comp in p'.
+  rewrite linvunitor_lunitor in p'.
+  rewrite dwhisker_square_id in p'.
+  rewrite <- uwhisker_square_comp in p'.
+  rewrite rinvunitor_runitor in p'.
+  rewrite uwhisker_square_id in p'.
+  refine (!_).
+  etrans.
+  {
+    do 2 apply maponpaths.
+    apply maponpaths_2.
+    exact (!p').
+  }
+  rewrite <- uwhisker_vcomp_square.
+  rewrite rwhisker_uwhisker_square.
+  rewrite lwhisker_uwhisker_square.
+  rewrite lunitor_V_id_is_left_unit_V_id.
+  apply maponpaths.
+  rewrite <- ud_whisker_vcomp_square.
+  rewrite <- id_h_square_bicat_comp.
+  rewrite id_h_square_bicat_id.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    apply maponpaths_2.
+    apply maponpaths.
+    apply maponpaths_2.
+    apply runitor_v_comp_square'.
+  }
+  rewrite l_rwhisker_v_comp_square.
+  rewrite l_lwhisker_v_comp_square.
+  rewrite <- rwhisker_hcomp_square.
+  rewrite l_rwhisker_v_comp_square.
+  rewrite <- rwhisker_square_comp.
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    rewrite !vassocr.
+    rewrite rwhisker_rwhisker_alt.
+    rewrite !vassocl.
+    rewrite rwhisker_vcomp.
+    rewrite rinvunitor_runitor.
+    rewrite id2_rwhisker.
+    apply id2_right.
+  }
+  rewrite <- rwhisker_lwhisker_square.
+  apply maponpaths.
+  etrans.
+  {
+    apply maponpaths_2.
+    rewrite lwhisker_hcomp.
+    rewrite triangle_l_inv.
+    rewrite <- rwhisker_hcomp.
+    apply idpath.
+  }
+  rewrite <- l_lwhisker_v_comp_square.
+  rewrite !lwhisker_hcomp_square.
+  apply maponpaths_2.
+  rewrite <- lunitor_lwhisker.
+  rewrite <- runitor_triangle.
+  rewrite runitor_lunitor_identity.
+  apply idpath.
+Qed.

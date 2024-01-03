@@ -56,6 +56,8 @@ Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.UnderlyingCats.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.CellsAndSquares.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.LocalUnivalence.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairs.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairUnique.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairAdjequiv.
 
 Local Open Scope cat.
 Local Open Scope double_bicat.
