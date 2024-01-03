@@ -32,16 +32,12 @@
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
-Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.VerityDoubleBicat.
 Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.DerivedLaws.
