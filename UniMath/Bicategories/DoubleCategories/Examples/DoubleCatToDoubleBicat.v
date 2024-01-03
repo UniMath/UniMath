@@ -31,6 +31,7 @@
  2. The whiskering operations
  3. The laws of the Verity double bicategory
  4. The Verity double bicategory coming from a pseudo double category
+ 5. The univalence of this Verity double bicategory
 
  *****************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -48,7 +49,7 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.DiscreteBicat.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.Core.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.DerivedLaws.TransportLaws.
@@ -557,4 +558,50 @@ Section DoubleCatToDoubleBicat.
          rewrite transportf_f_square ;
          apply transportf_square_id).
   Defined.
+
+  Definition double_cat_horizontal_cells_are_squares
+             (H : ver_weq_square C)
+    : horizontal_cells_are_squares
+        double_cat_to_verity_double_bicat.
+  Proof.
+    refine (λ (x y : C) (v₁ v₂ : x -->v y), _).
+    use isweqimplimpl.
+    - cbn.
+      intros s.
+      exact (invmap (make_weq _ (H x y v₁ v₂)) s).
+    - apply homset_property.
+    - apply isaprop_square_ver_weq_square.
+      exact H.
+  Defined.
 End DoubleCatToDoubleBicat.
+
+(** * 5. The univalence of this Verity double bicategory *)
+Definition locally_univalent_double_cat_to_verity_double_bicat
+           (C : univalent_double_cat)
+  : locally_univalent_verity_double_bicat
+      (double_cat_to_verity_double_bicat C).
+Proof.
+  split.
+  - apply is_univalent_2_1_cat_to_bicat.
+  - exact (is_univalent_2_1_horizontal_bicat C).
+Defined.
+
+Definition hor_globally_univalent_double_cat_to_verity_double_bicat
+           (C : univalent_double_cat)
+  : hor_globally_univalent
+      (double_cat_to_verity_double_bicat C).
+Proof.
+  use is_univalent_2_0_cat_to_bicat.
+  exact (is_univalent_vertical_cat C).
+Defined.
+
+Definition gregarious_univalent_double_cat_to_verity_double_bicat
+           (C : univalent_double_cat)
+  : gregarious_univalent
+      (double_cat_to_verity_double_bicat C).
+Proof.
+  use hor_globally_univalent_to_gregarious_univalent.
+  - exact (locally_univalent_double_cat_to_verity_double_bicat C).
+  - exact (hor_globally_univalent_double_cat_to_verity_double_bicat C).
+  - exact (double_cat_vertical_cells_are_squares C).
+Defined.

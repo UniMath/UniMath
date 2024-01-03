@@ -37,6 +37,10 @@
  4. More laws
  5. The Verity double bicategory of univalent categories and profunctors
  6. 2-cells versus squares
+ 7. Companion pairs of profunctors
+ 8. Vertical invertible 2-cells of profunctors
+ 9. The local univalence of the Verity double bicategory of squares
+ 10. The global univalence of the Verity double bicategory of squares
 
  *****************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -56,11 +60,15 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.ProfunctorTwosidedDispCat.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
+Require Import UniMath.Bicategories.Core.Invertible_2cells.
+Require Import UniMath.Bicategories.Core.Univalence.
+Require Import UniMath.Bicategories.Core.UnivalenceOp.
 Require Import UniMath.Bicategories.Core.Examples.OpCellBicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.Core.
 
 Local Open Scope cat.
+Local Open Scope double_bicat.
 
 Local Notation "∁" := (op2_bicat bicat_of_univ_cats).
 
@@ -1183,4 +1191,108 @@ Proof.
        rewrite functor_id in p ;
        rewrite !id_right in p ;
        exact (!p)).
+Defined.
+
+(** * 7. Companion pairs of profunctors *)
+Definition all_companions_univalent_profunctor_verity_double_bicat
+  : all_companions univalent_profunctor_verity_double_bicat.
+Proof.
+  refine (λ (C₁ C₂ : univalent_category)
+            (F : C₁ ⟶ C₂),
+          representable_profunctor_left F ,, _).
+  use make_are_companions ; cbn.
+  - apply representable_profunctor_left_unit.
+  - apply representable_profunctor_left_counit.
+  - abstract
+      (use eq_profunctor_square ;
+       intros y x h ; cbn in * ;
+       etrans ;
+       [ apply maponpaths ;
+         apply (comp_v_profunctor_square_mor_comm
+                  (representable_profunctor_left_counit F)
+                  (representable_profunctor_left_unit F))
+       | ] ;
+       rewrite runitor_profunctor_nat_trans_mor_comm ;
+       cbn ;
+       rewrite !functor_id ;
+       rewrite !id_right ;
+       apply idpath).
+  - abstract
+      (use eq_profunctor_square ;
+       intros y x h ; cbn in * ;
+       rewrite !id_left, !id_right ;
+       apply idpath).
+Defined.
+
+(** * 8. Vertical invertible 2-cells of profunctors *)
+Definition profunctor_nat_iso_weq_vertible_invertible_2cell
+           {C₁ C₂ : univalent_profunctor_verity_double_bicat}
+           {P Q : C₁ -|-> C₂}
+           (τ : P =|=> Q)
+  : is_profunctor_nat_iso τ ≃ is_invertible_2cell τ.
+Proof.
+  use weqimplimpl.
+  - intros Hτ.
+    use make_is_invertible_2cell.
+    + exact (inv_profunctor_nat_trans Hτ).
+    + apply inv_profunctor_nat_trans_right.
+    + apply inv_profunctor_nat_trans_left.
+  - intros Hτ y x.
+    use isweq_iso.
+    + intros h.
+      exact ((Hτ^-1 : profunctor_nat_trans _ _) y x h).
+    + abstract
+        (intros h ; cbn ;
+         exact (profunctor_nat_trans_eq_pointwise (vcomp_rinv Hτ) h)).
+    + abstract
+        (intros h ; cbn ;
+         exact (profunctor_nat_trans_eq_pointwise (vcomp_linv Hτ) h)).
+  - apply isaprop_is_profunctor_nat_iso.
+  - apply isaprop_is_invertible_2cell.
+Defined.
+
+(** * 9. The local univalence of the Verity double bicategory of squares *)
+Definition ver_locally_univalent_profunctor_verity_double_bicat
+  : ver_locally_univalent univalent_profunctor_verity_double_bicat.
+Proof.
+  intros C₁ C₂ P Q.
+  use weqhomot.
+  - exact (weqfibtototal _ _ profunctor_nat_iso_weq_vertible_invertible_2cell
+           ∘ path_profunctor_weq_profunctor_nat_iso P Q)%weq.
+  - intro p.
+    induction p.
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_is_invertible_2cell.
+    }
+    cbn.
+    apply idpath.
+Qed.
+
+Definition locally_univalent_profunctor_verity_double_bicat
+  : locally_univalent_verity_double_bicat univalent_profunctor_verity_double_bicat.
+Proof.
+  split.
+  - use op2_bicat_is_univalent_2_1.
+    exact univalent_cat_is_univalent_2_1.
+  - exact ver_locally_univalent_profunctor_verity_double_bicat.
+Defined.
+
+(** * 10. The global univalence of the Verity double bicategory of squares *)
+Definition hor_globally_univalent_profunctor_verity_double_bicat
+  : hor_globally_univalent univalent_profunctor_verity_double_bicat.
+Proof.
+  use op2_bicat_is_univalent_2_0.
+  - exact univalent_cat_is_univalent_2_1.
+  - exact univalent_cat_is_univalent_2_0.
+Defined.
+
+Definition gregarious_univalent_profunctor_verity_double_bicat
+  : gregarious_univalent univalent_profunctor_verity_double_bicat.
+Proof.
+  use hor_globally_univalent_to_gregarious_univalent.
+  - exact locally_univalent_profunctor_verity_double_bicat.
+  - exact hor_globally_univalent_profunctor_verity_double_bicat.
+  - exact univalent_profunctor_vertical_cells_are_squares.
 Defined.

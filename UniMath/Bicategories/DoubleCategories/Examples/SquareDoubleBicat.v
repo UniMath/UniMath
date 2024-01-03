@@ -1,9 +1,9 @@
 (*****************************************************************************************
 
- The double bicategory of squares
+ The Verity double bicategory of squares
 
- In this file, we define the double bicategory of squares for a given bicategory `B`. This
- double bicategory is defined as follows:
+ In this file, we define the Verity double bicategory of squares for a given bicategory `B`.
+ This double bicategory is defined as follows:
  - Objects: objects in `B`
  - Vertical 1-cells: 1-cells in `B`
  - Horizontal 1-cells: 1-cells in `B`
@@ -28,6 +28,11 @@
  2. The laws
  3. The double bicategory of squares
  4. 2-cells coincide with certain squares
+ 5. Companion pairs
+ 6. Vertical invertible 2-cells
+ 7. The local univalence of the Verity double bicategory of squares
+ 8. Vertical adjoint equivalences
+ 9. The global univalence of the Verity double bicategory of squares
 
  *****************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -38,7 +43,11 @@ Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
-Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
+Require Import UniMath.Bicategories.Core.Univalence.
+Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
+Require Import UniMath.Bicategories.Core.AdjointUnique.
+Require Import UniMath.Bicategories.DoubleCategories.DoubleBicat.Core.
 
 Local Open Scope cat.
 
@@ -885,5 +894,221 @@ Section SquareDoubleBicat.
          rewrite !vassocr ;
          rewrite runitor_rinvunitor ;
          apply id2_left).
+  Defined.
+
+  (** * 5. Companion pairs *)
+  Definition all_companions_square_verity_double_bicat
+    : all_companions square_verity_double_bicat.
+  Proof.
+    intros x y f.
+    refine (f ,, _).
+    use make_are_companions ; cbn.
+    - apply id2.
+    - apply id2.
+    - abstract
+        (rewrite id2_rwhisker, lwhisker_id2, !id2_right ;
+         rewrite lassociator_rassociator ;
+         rewrite id2_left ;
+         rewrite lunitor_triangle ;
+         rewrite vcomp_lunitor ;
+         apply idpath).
+    - abstract
+        (rewrite id2_rwhisker, lwhisker_id2, !id2_right ;
+         rewrite rassociator_lassociator ;
+         rewrite id2_left ;
+         rewrite !vassocl ;
+         rewrite runitor_triangle ;
+         rewrite vcomp_runitor ;
+         apply idpath).
+  Defined.
+
+  (** * 6. Vertical invertible 2-cells *)
+  Definition square_verity_double_to_ver_inv2cell
+             {x y : B}
+             {f g : x --> y}
+             (τ : invertible_2cell (C := B) f g)
+    : invertible_2cell
+        (C := ver_bicat_of_verity_double_bicat square_verity_double_bicat)
+        f g.
+  Proof.
+    use make_invertible_2cell.
+    - exact (τ^-1).
+    - use make_is_invertible_2cell.
+      + exact τ.
+      + abstract
+          (exact (vcomp_rinv τ)).
+      + abstract
+          (exact (vcomp_linv τ)).
+  Defined.
+
+  Definition square_verity_double_from_ver_inv2cell
+             {x y : B}
+             {f g : x --> y}
+             (τ : invertible_2cell
+                    (C := ver_bicat_of_verity_double_bicat square_verity_double_bicat)
+                    f g)
+    : invertible_2cell (C := B) f g.
+  Proof.
+    use make_invertible_2cell.
+    - exact (τ^-1).
+    - use make_is_invertible_2cell.
+      + exact τ.
+      + abstract
+          (exact (vcomp_rinv τ)).
+      + abstract
+          (exact (vcomp_linv τ)).
+  Defined.
+
+  Definition square_verity_double_ver_inv2cell_weq
+             {x y : B}
+             (f g : x --> y)
+    : invertible_2cell (C := B) f g
+      ≃
+      invertible_2cell
+        (C := ver_bicat_of_verity_double_bicat square_verity_double_bicat)
+        f g.
+  Proof.
+    use weq_iso.
+    - exact square_verity_double_to_ver_inv2cell.
+    - exact square_verity_double_from_ver_inv2cell.
+    - abstract
+        (intro τ ;
+         use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
+         apply idpath).
+    - abstract
+        (intro τ ;
+         use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
+         apply idpath).
+  Defined.
+
+  (** * 7. The local univalence of the Verity double bicategory of squares *)
+  Definition ver_locally_univalent_square_verity_double_bicat
+             (HB_2_1 : is_univalent_2_1 B)
+    : ver_locally_univalent square_verity_double_bicat.
+  Proof.
+    intros x y f g.
+    use weqhomot.
+    - exact (square_verity_double_ver_inv2cell_weq f g ∘ make_weq _ (HB_2_1 x y f g))%weq.
+    - abstract
+        (intro p ;
+         induction p ;
+         use subtypePath ; [ intro ; apply isaprop_is_invertible_2cell | ] ;
+         apply idpath).
+  Defined.
+
+  Definition locally_univalent_square_verity_double_bicat
+             (HB_2_1 : is_univalent_2_1 B)
+    : locally_univalent_verity_double_bicat square_verity_double_bicat.
+  Proof.
+    split.
+    - exact HB_2_1.
+    - exact (ver_locally_univalent_square_verity_double_bicat HB_2_1).
+  Defined.
+
+  (** * 8. Vertical adjoint equivalences *)
+  Definition square_verity_double_to_ver_adjequiv
+             {x y : B}
+             (f : adjoint_equivalence (B := B) x y)
+    : adjoint_equivalence
+        (B := ver_bicat_of_verity_double_bicat square_verity_double_bicat)
+        x y.
+  Proof.
+    use equiv_to_adjequiv.
+    - exact f.
+    - pose (η := square_verity_double_to_ver_inv2cell (left_equivalence_unit_iso f)).
+      pose (ε := square_verity_double_to_ver_inv2cell (left_equivalence_counit_iso f)).
+      simple refine ((_ ,, (_ ,, _)) ,, (_ ,, _)).
+      + exact (left_adjoint_right_adjoint f).
+      + exact η.
+      + exact ε.
+      + apply property_from_invertible_2cell.
+      + apply property_from_invertible_2cell.
+  Defined.
+
+  Definition square_verity_double_from_ver_adjequiv
+             {x y : B}
+             (f : adjoint_equivalence
+                    (B := ver_bicat_of_verity_double_bicat square_verity_double_bicat)
+                    x y)
+    : adjoint_equivalence (B := B) x y.
+  Proof.
+    use equiv_to_adjequiv.
+    - exact f.
+    - pose (η := square_verity_double_from_ver_inv2cell (left_equivalence_unit_iso f)).
+      pose (ε := square_verity_double_from_ver_inv2cell (left_equivalence_counit_iso f)).
+      simple refine ((_ ,, (_ ,, _)) ,, (_ ,, _)).
+      + exact (left_adjoint_right_adjoint f).
+      + exact η.
+      + exact ε.
+      + apply property_from_invertible_2cell.
+      + apply property_from_invertible_2cell.
+  Defined.
+
+  Definition square_verity_double_ver_adjequiv_weq
+             (HB_2_1 : is_univalent_2_1 B)
+             (x y : B)
+    : adjoint_equivalence (B := B) x y
+      ≃
+      adjoint_equivalence
+        (B := ver_bicat_of_verity_double_bicat square_verity_double_bicat)
+        x y.
+  Proof.
+    use weq_iso.
+    - exact square_verity_double_to_ver_adjequiv.
+    - exact square_verity_double_from_ver_adjequiv.
+    - abstract
+        (intros f ;
+         use subtypePath ; [ intro ; apply (isaprop_left_adjoint_equivalence _ HB_2_1) | ] ;
+         apply idpath).
+    - abstract
+        (intros f ;
+         use subtypePath ;
+         [ intro ;
+           apply (isaprop_left_adjoint_equivalence
+                    _
+                    (ver_locally_univalent_square_verity_double_bicat HB_2_1))
+         | apply idpath ]).
+  Defined.
+
+  (** * 9. The global univalence of the Verity double bicategory of squares *)
+  Definition ver_globally_univalent_square_verity_double_bicat
+             (HB_2_0 : is_univalent_2_0 B)
+             (HB_2_1 : is_univalent_2_1 B)
+    : ver_globally_univalent square_verity_double_bicat.
+  Proof.
+    intros x y.
+    use weqhomot.
+    - exact (square_verity_double_ver_adjequiv_weq HB_2_1 x y ∘ make_weq _ (HB_2_0 x y))%weq.
+    - intro p.
+      induction p.
+      use subtypePath.
+      {
+        intro.
+        apply (isaprop_left_adjoint_equivalence
+                 _
+                 (ver_locally_univalent_square_verity_double_bicat HB_2_1)).
+      }
+      apply idpath.
+  Qed.
+
+  Definition globally_univalent_square_verity_double_bicat
+             (HB_2_0 : is_univalent_2_0 B)
+             (HB_2_1 : is_univalent_2_1 B)
+    : globally_univalent_verity_double_bicat square_verity_double_bicat.
+  Proof.
+    split.
+    - exact HB_2_0.
+    - exact (ver_globally_univalent_square_verity_double_bicat HB_2_0 HB_2_1).
+  Defined.
+
+  Definition gregarious_univalent_square_verity_double_bicat
+             (HB_2_0 : is_univalent_2_0 B)
+             (HB_2_1 : is_univalent_2_1 B)
+    : gregarious_univalent square_verity_double_bicat.
+  Proof.
+    use hor_globally_univalent_to_gregarious_univalent.
+    - exact (locally_univalent_square_verity_double_bicat HB_2_1).
+    - exact HB_2_0.
+    - apply square_vertical_cells_are_squares.
   Defined.
 End SquareDoubleBicat.

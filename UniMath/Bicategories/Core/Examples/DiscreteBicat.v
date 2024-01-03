@@ -11,15 +11,17 @@
  Contents
  1. The discrete bicategory
  2. The discrete bicategory is discrete
+ 3. Global univalence of the discrete bicategory
 
  *****************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Discreteness.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
+Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.Univalence.
 
 Local Open Scope cat.
@@ -27,9 +29,7 @@ Local Open Scope cat.
 Section CatToBicat.
   Context (C : category).
 
-  (**
-   1. The discrete bicategory
-   *)
+  (** * 1. The discrete bicategory *)
   Definition cat_to_prebicat_1_id_comp_cells
     : prebicat_1_id_comp_cells.
   Proof.
@@ -94,9 +94,7 @@ Section CatToBicat.
        apply homset_property).
   Defined.
 
-  (**
-   2. The discrete bicategory is discrete
-   *)
+  (** * 2. The discrete bicategory is discrete *)
   Proposition isaprop_2cells_cat_to_bicat
     : isaprop_2cells cat_to_bicat.
   Proof.
@@ -134,5 +132,17 @@ Section CatToBicat.
     - exact is_univalent_2_1_cat_to_bicat.
     - exact locally_groupoid_cat_to_bicat.
     - exact isaprop_2cells_cat_to_bicat.
+  Qed.
+
+  (** * 3. Global univalence of the discrete bicategory *)
+  Proposition is_univalent_2_0_cat_to_bicat
+              (HC : is_univalent C)
+    : is_univalent_2_0 cat_to_bicat.
+  Proof.
+    use discrete_bicat_univalent_2_0.
+    - exact is_discrete_cat_to_bicat.
+    - refine (transportf is_univalent _ HC).
+      use category_eq.
+      apply idpath.
   Qed.
 End CatToBicat.

@@ -211,6 +211,23 @@ Proof.
        apply discrete_lenses_twosided_disp_cat).
 Defined.
 
+Definition lenses_double_cat_ver_weq_square
+           (C : category)
+           (PC : BinProducts C)
+  : ver_weq_square (lenses_double_cat C PC).
+Proof.
+  intros x y f g.
+  use isweqimplimpl.
+  - intros p.
+    pose (q := pr11 p) ; cbn in q.
+    rewrite id_left, id_right in q.
+    exact (!q).
+  - apply homset_property.
+  - use invproofirrelevance.
+    intro ; intros.
+    apply discrete_lenses_twosided_disp_cat.
+Qed.
+
 Definition lenses_univalent_double_cat
            (C : univalent_category)
            (PC : BinProducts C)
