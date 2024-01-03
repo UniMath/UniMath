@@ -4,7 +4,7 @@
 
  The notion of Verity double bicategory is symmetric, because it is weak in both
  directions. For that reason, every Verity double bicategory has a transpose, which is
- the Verity double bicategory obtained by reversing the vertical and horizontal morphisms.
+ the Verity double bicategory obtained by swapping the vertical and horizontal morphisms.
 
  Contents
  1. The 2-sided displayed category of the transpose
