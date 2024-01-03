@@ -227,7 +227,7 @@ DoubleCategories/DoubleBicat/CellsAndSquares.v
 DoubleCategories/DoubleBicat/LocalUnivalence.v
 DoubleCategories/DoubleBicat/CompanionPairs.v
 DoubleCategories/DoubleBicat/CompanionPairUnique.v
-DoubleCategories/DoubleBicat/CompanionPairAdjequiv.v
+DoubleCategories/DoubleBicat/CompanionPairAdjEquiv.v
 DoubleCategories/DoubleBicat/GregariousEquivalence.v
 DoubleCategories/DoubleBicat/GlobalUnivalence.v
 DoubleCategories/DoubleBicat/Core.v

@@ -6,6 +6,6 @@ Require Export UniMath.Bicategories.DoubleCategories.DoubleBicat.CellsAndSquares
 Require Export UniMath.Bicategories.DoubleCategories.DoubleBicat.LocalUnivalence.
 Require Export UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairs.
 Require Export UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairUnique.
-Require Export UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairAdjequiv.
+Require Export UniMath.Bicategories.DoubleCategories.DoubleBicat.CompanionPairAdjEquiv.
 Require Export UniMath.Bicategories.DoubleCategories.DoubleBicat.GregariousEquivalence.
 Require Export UniMath.Bicategories.DoubleCategories.DoubleBicat.GlobalUnivalence.

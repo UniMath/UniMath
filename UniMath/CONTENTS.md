@@ -877,7 +877,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DoubleCategories/DoubleBicat/LocalUnivalence.v](Bicategories/DoubleCategories/DoubleBicat/LocalUnivalence.v)
    - [DoubleCategories/DoubleBicat/CompanionPairs.v](Bicategories/DoubleCategories/DoubleBicat/CompanionPairs.v)
    - [DoubleCategories/DoubleBicat/CompanionPairUnique.v](Bicategories/DoubleCategories/DoubleBicat/CompanionPairUnique.v)
-   - [DoubleCategories/DoubleBicat/CompanionPairAdjequiv.v](Bicategories/DoubleCategories/DoubleBicat/CompanionPairAdjequiv.v)
+   - [DoubleCategories/DoubleBicat/CompanionPairAdjEquiv.v](Bicategories/DoubleCategories/DoubleBicat/CompanionPairAdjEquiv.v)
    - [DoubleCategories/DoubleBicat/GregariousEquivalence.v](Bicategories/DoubleCategories/DoubleBicat/GregariousEquivalence.v)
    - [DoubleCategories/DoubleBicat/GlobalUnivalence.v](Bicategories/DoubleCategories/DoubleBicat/GlobalUnivalence.v)
    - [DoubleCategories/DoubleBicat/Core.v](Bicategories/DoubleCategories/DoubleBicat/Core.v)
