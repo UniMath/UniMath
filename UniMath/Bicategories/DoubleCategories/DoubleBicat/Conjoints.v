@@ -2,6 +2,12 @@
 
  Conjoints
 
+ In this file, we define conjoints in Verity double bicategories (see Definition 4.1.2 in
+ "Higher Dimensional Categories, From Double to Multiple Categories" by Grandis). The key
+ idea behind the formalization in this file is that this notion is dual to the notion of
+ companion pairs. For this reason, we can obtain results about conjoints by instantiating
+ results about companion pairs to the horizontal dual of a Verity double bicategory.
+
  References:
  - Higher Dimensional Categories, From Double to Multiple Categories
    Marco Grandis
