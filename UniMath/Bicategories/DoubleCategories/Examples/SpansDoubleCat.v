@@ -35,6 +35,7 @@ Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.PseudoDoubleSetCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.
 
 Local Open Scope cat.
 Local Open Scope double_cat.
@@ -406,6 +407,59 @@ Section SpansDoubleCat.
       rewrite p₂.
       apply idpath.
   Qed.
+
+  Definition all_companions_spans
+    : all_companions_double_cat spans_double_cat.
+  Proof.
+    intros x y f.
+    simple refine (_ ,, _).
+    - exact (span_companion C f).
+    - use make_double_cat_are_companions'.
+      + exact (span_companion_unit C f).
+      + exact (span_companion_counit C f).
+      + abstract
+          (use span_sqr_eq ;
+           refine (transportf_disp_mor2_span _ _ _ _ @ _) ;
+           cbn ;
+           unfold mor_of_comp_span_mor, span_runitor_mor, span_linvunitor ;
+           rewrite !assoc' ;
+           rewrite PullbackArrow_PullbackPr1 ;
+           rewrite !assoc ;
+           rewrite PullbackArrow_PullbackPr1 ;
+           cbn ;
+           apply id_left).
+      + abstract
+          (use span_sqr_eq ;
+           refine (transportf_disp_mor2_span _ _ _ _ @ _) ;
+           cbn ;
+           apply id_left).
+  Defined.
+
+  Definition all_conjoints_spans
+    : all_conjoints_double_cat spans_double_cat.
+  Proof.
+    intros x y f.
+    simple refine (_ ,, _).
+    - exact (span_conjoint C f).
+    - use make_double_cat_are_conjoints'.
+      + exact (span_conjoint_unit C f).
+      + exact (span_conjoint_counit C f).
+      + abstract
+          (use span_sqr_eq ;
+           refine (transportf_disp_mor2_span _ _ _ _ @ _) ;
+           cbn ;
+           unfold mor_of_comp_span_mor, span_lunitor_mor, span_rinvunitor ;
+           rewrite PullbackArrow_PullbackPr2 ;
+           rewrite !assoc ;
+           rewrite PullbackArrow_PullbackPr2 ;
+           cbn ;
+           apply id_left).
+      + abstract
+          (use span_sqr_eq ;
+           refine (transportf_disp_mor2_span _ _ _ _ @ _) ;
+           cbn ;
+           apply id_left).
+  Defined.
 End SpansDoubleCat.
 
 Definition spans_univalent_double_cat

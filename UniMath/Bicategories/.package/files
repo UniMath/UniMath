@@ -200,6 +200,12 @@ DoubleCategories/Core/PseudoDoubleSetCats.v
 
 DoubleCategories/Core/SymmetricUnivalent.v
 
+DoubleCategories/Underlying/HorizontalBicategory.v
+DoubleCategories/Underlying/VerticalTwoCategory.v
+DoubleCategories/Underlying/VerticalTwoCategoryStrict.v
+
+DoubleCategories/Core/CompanionsAndConjoints.v
+
 DoubleCategories/Examples/UnitDoubleCat.v
 DoubleCategories/Examples/ProductDoubleCat.v
 DoubleCategories/Examples/SquareDoubleCat.v
@@ -212,10 +218,6 @@ DoubleCategories/Examples/StructuredCospansDoubleFunctor.v
 DoubleCategories/Examples/SetBicatToDoubleCat.v
 DoubleCategories/Examples/ProfunctorDoubleCat.v
 
-DoubleCategories/Underlying/HorizontalBicategory.v
-DoubleCategories/Underlying/VerticalTwoCategory.v
-DoubleCategories/Underlying/VerticalTwoCategoryStrict.v
-
 DoubleCategories/AlternativeDefinitions/DoubleCatsUnfolded.v
 DoubleCategories/AlternativeDefinitions/DoubleCatsEquivalentDefinitions.v
 
@@ -225,9 +227,11 @@ DoubleCategories/DoubleBicat/UnderlyingCats.v
 DoubleCategories/Examples/TransposeDoubleBicat.v
 DoubleCategories/DoubleBicat/CellsAndSquares.v
 DoubleCategories/DoubleBicat/LocalUnivalence.v
+DoubleCategories/Examples/HorizontalDual.v
 DoubleCategories/DoubleBicat/CompanionPairs.v
 DoubleCategories/DoubleBicat/CompanionPairUnique.v
 DoubleCategories/DoubleBicat/CompanionPairAdjEquiv.v
+DoubleCategories/DoubleBicat/Conjoints.v
 DoubleCategories/DoubleBicat/GregariousEquivalence.v
 DoubleCategories/DoubleBicat/GlobalUnivalence.v
 DoubleCategories/DoubleBicat/Core.v

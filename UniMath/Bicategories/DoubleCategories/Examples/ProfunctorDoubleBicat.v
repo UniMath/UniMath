@@ -37,7 +37,7 @@
  4. More laws
  5. The Verity double bicategory of univalent categories and profunctors
  6. 2-cells versus squares
- 7. Companion pairs of profunctors
+ 7. Companion pairs and conjoints of profunctors
  8. Vertical invertible 2-cells of profunctors
  9. The local univalence of the Verity double bicategory of squares
  10. The global univalence of the Verity double bicategory of squares
@@ -1216,6 +1216,36 @@ Proof.
        cbn ;
        rewrite !functor_id ;
        rewrite !id_right ;
+       apply idpath).
+  - abstract
+      (use eq_profunctor_square ;
+       intros y x h ; cbn in * ;
+       rewrite !id_left, !id_right ;
+       apply idpath).
+Defined.
+
+Definition all_conjoints_univalent_profunctor_verity_double_bicat
+  : all_conjoints univalent_profunctor_verity_double_bicat.
+Proof.
+  refine (λ (C₁ C₂ : univalent_category)
+            (F : C₁ ⟶ C₂),
+          representable_profunctor_right F ,, _).
+  use make_are_conjoints ; cbn.
+  - apply representable_profunctor_right_unit.
+  - apply representable_profunctor_right_counit.
+  - abstract
+      (use eq_profunctor_square ;
+       intros y x h ; cbn in * ;
+       etrans ;
+       [ apply maponpaths ;
+         apply (comp_v_profunctor_square_mor_comm
+                  (representable_profunctor_right_counit F)
+                  (representable_profunctor_right_unit F))
+       | ] ;
+       rewrite lunitor_profunctor_nat_trans_mor_comm ;
+       cbn ;
+       rewrite !functor_id ;
+       rewrite !id_left ;
        apply idpath).
   - abstract
       (use eq_profunctor_square ;
