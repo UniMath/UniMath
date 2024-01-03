@@ -41,7 +41,8 @@
  7. The left unitor of structured cospans
  8. The right unitor of structured cospans
  9. The associator of structured cospans
- 10. Functors on structured cospans
+ 10. Companions and conjoints
+ 11. Functors on structured cospans
 
  **********************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -68,9 +69,7 @@ Section StructuredCospans.
   Context {A X : category}
           (L : A ⟶ X).
 
-  (**
-   1. The 2-sided displayed category of structured cospans
-   *)
+  (** * 1. The 2-sided displayed category of structured cospans *)
   Definition struct_cospans_ob
     : twosided_disp_cat A A
     := constant_twosided_disp_cat A A X.
@@ -207,9 +206,7 @@ Section StructuredCospans.
     : twosided_disp_cat A A
     := sigma_twosided_disp_cat _ struct_cospans_mors.
 
-  (**
-   2. Builders and accessors for structured cospans
-   *)
+  (** * 2. Builders and accessors for structured cospans *)
   Definition struct_cospan
              (a b : A)
     : UU
@@ -335,9 +332,7 @@ Section StructuredCospans.
     exact p.
   Qed.
 
-  (**
-   3. The univalence of the 2-sided displayed category of structured cospans
-   *)
+  (** * 3. The univalence of the 2-sided displayed category of structured cospans *)
   Definition is_univalent_disp_struct_cospans_mor_left
     : is_univalent_disp struct_cospans_mor_left.
   Proof.
@@ -399,9 +394,7 @@ Section StructuredCospans.
       + apply homset_property.
   Qed.
 
-  (**
-   4. Isos of structured cospans
-   *)
+  (** * 4. Isos of structured cospans *)
   Proposition transportf_disp_mor2_struct_cospan
               {a₁ a₂ b₁ b₂ : A}
               {f f' : a₁ --> a₂}
@@ -506,9 +499,7 @@ Section StandardCospans.
   Context {A X : category}
           (L : A ⟶ X).
 
-  (**
-   5. The identity structured cospans
-   *)
+  (** * 5. The identity structured cospans *)
   Definition id_struct_cospan
              (a : A)
     : struct_cospan L a a.
@@ -547,9 +538,7 @@ Section StandardCospans.
 
   Context (PX : Pushouts X).
 
-  (**
-   6. The composition of structured cospans
-   *)
+  (** * 6. The composition of structured cospans *)
   Section CompCospan.
     Context {x y z : A}
             (s : struct_cospan L x y)
@@ -628,9 +617,7 @@ Section StandardCospans.
     Defined.
   End CompCospanMor.
 
-  (**
-   7. The left unitor of structured cospans
-   *)
+  (** * 7. The left unitor of structured cospans *)
   Section CospanLunitor.
     Context {x y : A}
             (h : struct_cospan L x y).
@@ -710,9 +697,7 @@ Section StandardCospans.
     Defined.
   End CospanLunitor.
 
-  (**
-   8. The right unitor of structured cospans
-   *)
+  (** * 8. The right unitor of structured cospans *)
   Section CospanRunitor.
     Context {x y : A}
             (h : struct_cospan L x y).
@@ -792,9 +777,7 @@ Section StandardCospans.
     Defined.
   End CospanRunitor.
 
-  (**
-   9. The associator of structured cospans
-   *)
+  (** * 9. The associator of structured cospans *)
   Section CospanAssociator.
     Context {w x y z : A}
             (h₁ : struct_cospan L w x)
@@ -948,11 +931,89 @@ Section StandardCospans.
       - exact struct_cospan_associator_laws.
     Defined.
   End CospanAssociator.
+
+  (** * 10. Companions and conjoints *)
+  Section CompanionsAndConjoints.
+    Context {x y : A}
+            (f : x --> y).
+
+    Definition struct_cospan_companion
+      : struct_cospan L x y.
+    Proof.
+      use make_struct_cospan.
+      - exact (L y).
+      - exact (#L f).
+      - apply identity.
+    Defined.
+
+    Definition struct_cospan_companion_unit
+      : struct_cospan_sqr
+          L
+          f (identity y)
+          struct_cospan_companion (id_struct_cospan y).
+    Proof.
+      use make_struct_cospan_sqr.
+      - apply identity.
+      - abstract
+          (split ; cbn ; [ apply idpath | ] ;
+           rewrite (functor_id L) ;
+           apply idpath).
+    Defined.
+
+    Definition struct_cospan_companion_counit
+      : struct_cospan_sqr
+          L
+          (identity x) f
+          (id_struct_cospan x) struct_cospan_companion.
+    Proof.
+      use make_struct_cospan_sqr.
+      - exact (#L f).
+      - abstract
+          (split ; cbn ;
+           [ rewrite (functor_id L), !id_left ; apply idpath | ] ;
+           rewrite id_left, id_right ;
+           apply idpath).
+    Defined.
+
+    Definition struct_cospan_conjoint
+      : struct_cospan L y x.
+    Proof.
+      use make_struct_cospan.
+      - exact (L y).
+      - apply identity.
+      - exact (#L f).
+    Defined.
+
+    Definition struct_cospan_conjoint_unit
+      : struct_cospan_sqr
+          L
+          f (identity x)
+          (id_struct_cospan x) struct_cospan_conjoint.
+    Proof.
+      use make_struct_cospan_sqr.
+      - exact (#L f).
+      - abstract
+          (split ; cbn ; [ rewrite id_left, id_right ; apply idpath | ] ;
+           rewrite (functor_id L) ;
+           apply idpath).
+    Defined.
+
+    Definition struct_cospan_conjoint_counit
+      : struct_cospan_sqr
+          L
+          (identity y) f
+          struct_cospan_conjoint (id_struct_cospan y).
+    Proof.
+      use make_struct_cospan_sqr.
+      - apply identity.
+      - abstract
+          (split ; cbn ; [ rewrite (functor_id L) ; apply idpath | ] ;
+           apply idpath).
+    Defined.
+  End CompanionsAndConjoints.
 End StandardCospans.
 
-(**
- 10. Functors on structured cospans
- *)
+(** * 11. Functors on structured cospans *)
 Section FunctorOnCospans.
   Context {A₁ A₂ X₁ X₂ : category}
           {L₁ : A₁ ⟶ X₁}

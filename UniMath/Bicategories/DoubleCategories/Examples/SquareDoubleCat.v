@@ -34,6 +34,7 @@ Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.SymmetricUnivalent.
 Require Import UniMath.Bicategories.DoubleCategories.Core.StrictDoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.
 
 Local Open Scope cat.
 
@@ -180,6 +181,23 @@ Proof.
   - exact (double_cat_associator_arrow_twosided_disp_cat C).
   - exact (triangle_law_arrow_twosided_disp_cat C).
   - exact (pentagon_law_arrow_twosided_disp_cat C).
+Defined.
+
+Definition all_companions_square_double_cat
+           (C : category)
+  : all_companions_double_cat (square_double_cat C).
+Proof.
+  intros x y f.
+  refine (f ,, _).
+  use make_double_cat_are_companions'.
+  - abstract
+      (cbn ;
+       apply idpath).
+  - abstract
+      (cbn ;
+       apply idpath).
+  - apply homset_property.
+  - apply homset_property.
 Defined.
 
 Definition square_univalent_double_cat

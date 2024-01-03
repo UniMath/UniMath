@@ -32,20 +32,12 @@
  3. The laws of the Verity double bicategory
  4. The Verity double bicategory coming from a pseudo double category
  5. The univalence of this Verity double bicategory
+ 6. Companions and conjoints
 
  *****************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-Require Import UniMath.CategoryTheory.categories.HSET.All.
-Require Import UniMath.CategoryTheory.categories.HSET.SetCoends.
-Require Import UniMath.CategoryTheory.Profunctors.Core.
-Require Import UniMath.CategoryTheory.Profunctors.Examples.
-Require Import UniMath.CategoryTheory.Profunctors.Squares.
-Require Import UniMath.CategoryTheory.Profunctors.Transformation.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.DiscreteBicat.
@@ -54,6 +46,7 @@ Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.DerivedLaws.TransportLaws.
 Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.
 Require Import UniMath.Bicategories.DoubleCategories.Underlying.HorizontalBicategory.
 
 Local Open Scope cat.
@@ -604,4 +597,101 @@ Proof.
   - exact (locally_univalent_double_cat_to_verity_double_bicat C).
   - exact (hor_globally_univalent_double_cat_to_verity_double_bicat C).
   - exact (double_cat_vertical_cells_are_squares C).
+Defined.
+
+(** * 6. Companions and conjoints *)
+Definition double_cat_to_verity_double_bicat_are_companions
+           {C : double_cat}
+           {x y : C}
+           (h : x -->h y)
+           (v : x -->v y)
+  : double_cat_are_companions h v
+    ≃
+    are_companions
+      (B := double_cat_to_verity_double_bicat C)
+      v h.
+Proof.
+  use weqfibtototal.
+  intro φ.
+  use weqfibtototal.
+  intro ψ.
+  use weqimplimpl.
+  - abstract
+      (intros p ;
+       induction p as [ p₁ p₂ ] ;
+       refine (p₁ ,, _) ;
+       refine (_ @ p₂) ;
+       cbn -[transportf_square] ;
+       do 2 use transportf_square_eq ;
+       apply idpath).
+  - abstract
+      (cbn -[transportf_square] ;
+       intros p ;
+       induction p as [ p₁ p₂ ] ;
+       refine (p₁ ,, _) ;
+       refine (_ @ p₂) ;
+       do 2 use transportf_square_eq ;
+       apply idpath).
+  - abstract (apply isapropdirprod ; apply isaset_square).
+  - abstract (apply isapropdirprod ; apply isaset_square).
+Defined.
+
+Definition all_companions_double_cat_to_verity_double_bicat
+           {C : double_cat}
+           (H : all_companions_double_cat C)
+  : all_companions (double_cat_to_verity_double_bicat C).
+Proof.
+  intros x y v.
+  simple refine (_ ,, _).
+  - exact (pr1 (H x y v)).
+  - use double_cat_to_verity_double_bicat_are_companions.
+    exact (pr2 (H x y v)).
+Defined.
+
+Definition double_cat_to_verity_double_bicat_are_conjoints
+           {C : double_cat}
+           {x y : C}
+           (h : y -->h x)
+           (v : x -->v y)
+  : double_cat_are_conjoints h v
+    ≃
+    are_conjoints
+      (B := double_cat_to_verity_double_bicat C)
+      v h.
+Proof.
+  use weqfibtototal.
+  intro φ.
+  use weqfibtototal.
+  intro ψ.
+  use weqimplimpl.
+  - abstract
+      (intros p ;
+       induction p as [ p₁ p₂ ] ;
+       refine (p₁ ,, _) ;
+       refine (_ @ p₂) ;
+       cbn -[transportf_square] ;
+       do 2 use transportf_square_eq ;
+       apply idpath).
+  - abstract
+      (cbn -[transportf_square] ;
+       intros p ;
+       induction p as [ p₁ p₂ ] ;
+       refine (p₁ ,, _) ;
+       refine (_ @ p₂) ;
+       do 2 use transportf_square_eq ;
+       apply idpath).
+  - abstract (apply isapropdirprod ; apply isaset_square).
+  - abstract (apply isapropdirprod ; apply isaset_square).
+Defined.
+
+Definition all_conjoints_double_cat_to_verity_double_bicat
+           {C : double_cat}
+           (H : all_conjoints_double_cat C)
+  : all_conjoints (double_cat_to_verity_double_bicat C).
+Proof.
+  intros x y v.
+  simple refine (_ ,, _).
+  - exact (pr1 (H x y v)).
+  - use double_cat_to_verity_double_bicat_are_conjoints.
+    exact (pr2 (H x y v)).
 Defined.
