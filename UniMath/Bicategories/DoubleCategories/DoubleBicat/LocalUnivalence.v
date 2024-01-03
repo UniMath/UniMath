@@ -10,7 +10,7 @@
  we get two local univalence conditions, and these express that the underlying horizontal
  and the underlying vertical bicategory are locally univalent respectively. We also have
  the underlying categories whose objects are horizontal/vertical 1-cells and whose morphisms
- are squares. For these, we also have local univalence conditions.
+ are "vertical/horizontal squares" (squares with two sides being identities). For these, we also have local univalence conditions.
 
  If we assume that 2-cells are the same as squares with identity sides in the corresponding
  direction, then these two univalence conditions are equivalent.
