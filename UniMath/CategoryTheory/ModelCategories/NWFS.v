@@ -273,7 +273,7 @@ Definition R_monad_data {C : category} (F : functorial_factorization C)
 
 Definition R_monad {C : category} (F : functorial_factorization C)
     (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F))
-    (R : Monad_laws (R_monad_data F Π)) : Monad (arrow C) :=
+    (R : disp_Monad_laws (R_monad_data F Π)) : Monad (arrow C) :=
   (R_monad_data F Π,, R).
 
 Definition L_monad_data {C : category} (F : functorial_factorization C)
@@ -282,14 +282,14 @@ Definition L_monad_data {C : category} (F : functorial_factorization C)
 
 Definition L_monad {C : category} (F : functorial_factorization C)
     (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F))
-    (L : Monad_laws (L_monad_data F Σ)) : Monad (op_cat (arrow C)) :=
+    (L : disp_Monad_laws (L_monad_data F Σ)) : Monad (op_cat (arrow C)) :=
   (L_monad_data F Σ,, L).
 
 Definition lnwfs_over {C : category} (F : functorial_factorization C) :=
-    ∑ (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)), Monad_laws (L_monad_data F Σ).
+    ∑ (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)), disp_Monad_laws (L_monad_data F Σ).
 
 Definition rnwfs_over {C : category} (F : functorial_factorization C) :=
-    ∑ (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F)), Monad_laws (R_monad_data F Π).
+    ∑ (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F)), disp_Monad_laws (R_monad_data F Π).
 
 Definition nwfs_over {C : category} (F : functorial_factorization C) :=
     (lnwfs_over F) × (rnwfs_over F).
@@ -305,8 +305,8 @@ Definition nwfs_over_to_fact {C : category} {F : functorial_factorization C} (n 
 Coercion nwfs_over_to_fact : nwfs_over >-> functorial_factorization.
 
 Definition make_nwfs {C : category} (F : functorial_factorization C)
-    (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)) (L : Monad_laws (L_monad_data F Σ))
-    (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F)) (R : Monad_laws (R_monad_data F Π))
+    (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)) (L : disp_Monad_laws (L_monad_data F Σ))
+    (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F)) (R : disp_Monad_laws (R_monad_data F Π))
         : nwfs C.
 Proof.
   exists F.

@@ -564,7 +564,8 @@ Lemma wfs_closed_products {C : category} {I : hSet} (w : wfs C)
 Proof.
   (* again superpowers by Coq *)
   apply (wfs_closed_coproducts (opp_wfs w)).
-  exact hf.
+  - exact hf.
+  - exact aoc.
 Qed.
 
 Lemma wfs_closed_transfinite_composition 
