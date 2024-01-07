@@ -264,6 +264,9 @@ DisplayedCats/Examples/PointedPosetStructures.v
 DisplayedCats/Examples/PointedSetStructures.v
 DisplayedCats/Examples/PosetStructures.v
 DisplayedCats/Examples/SetStructures.v
+DisplayedCats/Examples/Arrow.v
+DisplayedCats/Examples/MonadAlgebras.v
+DisplayedCats/Examples/Three.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
@@ -549,3 +552,27 @@ DaggerCategories/Functors/Factorization.v
 DaggerCategories/Functors/Precomp.v
 
 DaggerCategories/CatIso.v
+
+ModelCategories/Examples.v
+ModelCategories/Lifting.v
+ModelCategories/ModelCategory.v
+ModelCategories/MorphismClass.v
+ModelCategories/NWFS.v
+ModelCategories/NWFSisWFS.v
+ModelCategories/Retract.v
+ModelCategories/WeakEquivalences.v
+ModelCategories/WFS.v
+ModelCategories/Generated/FFMonoidalStructure.v
+ModelCategories/Generated/GenericFreeMonoid.v
+ModelCategories/Generated/GenericFreeMonoidSequence.v
+ModelCategories/Generated/Helpers.v
+ModelCategories/Generated/LiftingWithClass.v
+ModelCategories/Generated/LNWFSClosed.v
+ModelCategories/Generated/LNWFSCocomplete.v
+ModelCategories/Generated/LNWFSHelpers.v
+ModelCategories/Generated/LNWFSMonoidalStructure.v
+ModelCategories/Generated/LNWFSSmallnessReduction.v
+ModelCategories/Generated/MonoidalHelpers.v
+ModelCategories/Generated/OneStepMonad.v
+ModelCategories/Generated/OneStepMonadSmall.v
+ModelCategories/Generated/SmallObjectArgument.v

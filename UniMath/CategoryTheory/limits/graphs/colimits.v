@@ -734,8 +734,6 @@ Qed.
 
 Section ConnectedGraphs.
 
-Local Open Scope stn.
-
 Definition graph_zig_zag_of_length
            {g : graph}
            (n : ℕ)
