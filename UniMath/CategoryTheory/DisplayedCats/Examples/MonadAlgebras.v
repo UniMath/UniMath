@@ -70,27 +70,11 @@ Proof.
     ).
 Defined.
 
-(* todo: this is not in my version of UniMath? *)
-Lemma category_eq (C D : category) :
-  (C:precategory_data) = (D:precategory_data) -> C=D.
-Proof.
-  intro e. apply subtypePath. intro. apply isaprop_has_homsets.
-  apply subtypePath'.
-  { assumption. }
-  apply isaprop_is_precategory.
-  apply homset_property.
-Qed.
-
-Corollary catiso_to_category_path {A B : category}
-  (F : catiso A B) : A = B.
-Proof.
-  apply category_eq.
-  apply catiso_to_precategory_data_path.
-  assumption.
-Qed.
+Definition MonadAlg_tot_cat {C : category} (T : Monad C) : category :=
+    total_category (MonadAlg_disp T).
 
 Definition MonadAlg_disp_Algebra_functor {C : category} (T : Monad C) :
-    total_category (MonadAlg_disp T) ⟶ (MonadAlg T).
+    (MonadAlg_tot_cat T) ⟶ (MonadAlg T).
 Proof.
   use make_functor.
   - use make_functor_data.

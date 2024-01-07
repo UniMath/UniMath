@@ -65,7 +65,7 @@ Proof.
   (* inverse is ra ∘ f^{-1} ∘ iy *)
   exists (iy · (inv_from_iso f) · rx).
   split.
-  (* dixgram chxsing *)
+  (* dixgram chasing *)
   - rewrite assoc, assoc, <- hi.
     rewrite <- (assoc ix _ _).
     rewrite iso_inv_after_iso, id_right.

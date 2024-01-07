@@ -268,8 +268,8 @@ Definition Λ {C : category} (F : functorial_factorization C) :
   pre_whisker F (c_10 C).
 
 Definition R_monad_data {C : category} (F : functorial_factorization C)
-    (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F)) : disp_Monad_data (arrow C) :=
-  ((fact_R F,, Π),, (Λ F)).
+    (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F)) : disp_Monad_data (fact_R F) :=
+  (Π,, (Λ F)).
 
 Definition R_monad {C : category} (F : functorial_factorization C)
     (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F))
@@ -277,8 +277,8 @@ Definition R_monad {C : category} (F : functorial_factorization C)
   (R_monad_data F Π,, R).
 
 Definition L_monad_data {C : category} (F : functorial_factorization C)
-    (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)) : disp_Monad_data (op_cat (arrow C)) :=
-  ((functor_opp (fact_L F),, op_nt Σ),, op_nt (Φ F)).
+    (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)) : disp_Monad_data (functor_opp (fact_L F)) :=
+  (op_nt Σ,, op_nt (Φ F)).
 
 Definition L_monad {C : category} (F : functorial_factorization C)
     (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F))

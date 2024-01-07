@@ -450,7 +450,8 @@ Qed.
 Lemma wfs_closed_coproducts {C : category} {I : hSet} (w : wfs C)
     {a b : I -> C} 
     {f : ∏ (i : I), a i --> b i} (hf : ∀ (i : I), (wfs_L w _ _) (f i))
-    (CCa : Coproduct _ _ a) (CCb : Coproduct _ _ b) : 
+    (CCa : Coproduct _ _ a) (CCb : Coproduct _ _ b) 
+    (aoc : AxiomOfChoice) : 
   (wfs_L w _ _) (CoproductOfArrows _ _ CCa CCb f).
 Proof.
   unfold wfs_L in *.
@@ -480,7 +481,6 @@ Proof.
 
   (* we need the axiom of choice here 
      it is basically exactly the definition of the axiom of choice *)
-  assert (aoc : AxiomOfChoice). admit.
   assert (∥∏ i, ∑ li, ((f i) · li = hi i) × (li · g = ki i)∥) as ilift_aoc.
   {
     set (aocI := aoc I).
@@ -552,13 +552,14 @@ Proof.
     change (CoproductIn _ _ _ _ · k) with (ki i).
     rewrite (hl i).
     exact klicomm.
-Admitted.
+Qed.
 
 (* Dual statement *)
 Lemma wfs_closed_products {C : category} {I : hSet} (w : wfs C)
     {a b : I -> C} {f : ∏ (i : I), b i --> a i} 
     (hf : ∀ (i : I), (wfs_R w _ _) (f i))
-    (CCa : Product _ _ a) (CCb : Product _ _ b) : 
+    (CCa : Product _ _ a) (CCb : Product _ _ b)
+    (aoc : AxiomOfChoice) : 
   (wfs_R w _ _) (ProductOfArrows _ _ CCa CCb f).
 Proof.
   (* again superpowers by Coq *)
@@ -571,7 +572,8 @@ Lemma wfs_closed_transfinite_composition
     {d : chain C}
     {w : wfs C}
     (CC : ColimCocone d)
-    (Hd : ∏ {u v : vertex nat_graph} (e : edge u v), wfs_L w _ _ (dmor d e)) :
+    (Hd : ∏ {u v : vertex nat_graph} (e : edge u v), wfs_L w _ _ (dmor d e)) 
+    (aoc : AxiomOfChoice) :
   wfs_L w _ _ (colimIn CC 0).
 Proof.
   unfold wfs_L in *.
@@ -616,7 +618,6 @@ Proof.
       exact (pr2 lpSv).
   }
 
-  assert (aoc : AxiomOfChoice). admit.
   assert (∥∏ v : vertex nat_graph, ∑ va : dob d v --> a, va · g = colimIn CC v · k∥) as Hind_aoc.
   {
     set (aocI := aoc natset).
@@ -647,7 +648,7 @@ Proof.
       etrans. apply cancel_postcomposition.
               apply colimArrowCommutes.
       exact (pr2 (Hind v)).
-Admitted.
+Qed.
 
 (*
 (i)   wfs_<X>_contains_isos

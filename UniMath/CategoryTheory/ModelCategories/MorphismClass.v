@@ -56,7 +56,7 @@ Proof.
   - exact (h' _ _ _).
 Qed.
 
-Definition morphism_class_intersection {C : category} (S T : morphism_class C) : morphism_class C:=
+Definition morphism_class_intersection {C : category} (S T : morphism_class C) : morphism_class C :=
     λ X Y f, (S _ _ f) ∧ (T _ _ f).
 
 Notation "S ∩ T" := (morphism_class_intersection S T) (at level 50) : morcls.
