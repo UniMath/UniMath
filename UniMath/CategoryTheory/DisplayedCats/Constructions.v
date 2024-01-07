@@ -413,6 +413,17 @@ Section Sections.
   Definition section_disp {C} (D : disp_cat C) : UU
     := total2 (@section_disp_axioms C D).
 
+  Lemma isaprop_section_disp_axioms {C : category} {D : disp_cat C} (F : section_disp_data D) 
+    (Hmor : ∏ (x y : C) (f : x --> y) (c : D x) (d : D y), isaset (c -->[f] d)) :
+    isaprop (section_disp_axioms F).
+  Proof.
+    apply isapropdirprod.
+    - apply impred; intro.
+      apply Hmor.
+    - do 5 (apply impred; intro).
+      apply Hmor.
+  Qed.
+
   Definition section_disp_data_from_section_disp {C} {D : disp_cat C}
              (F : section_disp D) := pr1 F.
 
