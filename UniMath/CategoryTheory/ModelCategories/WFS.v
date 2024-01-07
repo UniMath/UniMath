@@ -568,7 +568,8 @@ Proof.
   - exact aoc.
 Qed.
 
-Lemma wfs_closed_transfinite_composition 
+(* this cannot be shown without AOC *)
+(* Lemma wfs_closed_transfinite_composition 
     {C : category}
     {d : chain C}
     {w : wfs C}
@@ -649,7 +650,7 @@ Proof.
       etrans. apply cancel_postcomposition.
               apply colimArrowCommutes.
       exact (pr2 (Hind v)).
-Qed.
+Qed. *)
 
 (*
 (i)   wfs_<X>_contains_isos
