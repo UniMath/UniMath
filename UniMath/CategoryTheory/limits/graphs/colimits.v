@@ -736,7 +736,7 @@ Section ConnectedGraphs.
 
 Definition graph_zig_zag_of_length
            {g : graph}
-           (n : ℕ)
+           (n : nat)
   : ∏ (x y : vertex g), UU.
 Proof.
   induction n as [ | n IHn ].
@@ -748,13 +748,13 @@ Definition graph_zig_zag
           {g : graph}
           (x y : vertex g)
   : UU
-  := ∑ (n : ℕ), graph_zig_zag_of_length n x y.
+  := ∑ (n : nat), graph_zig_zag_of_length n x y.
 
 Definition length_of_graph_zig_zag
            {g : graph}
            {x y : vertex g}
            (gs : graph_zig_zag x y)
-  : ℕ
+  : nat
   := pr1 gs.
 
 Definition empty_graph_zig_zag
@@ -781,7 +781,7 @@ Definition right_cons_graph_zig_zag
 
 Definition append_graph_zig_zag_of_length
            {g : graph}
-           {n m : ℕ}
+           {n m : nat}
            {x y z : vertex g}
            (fs : graph_zig_zag_of_length n x y)
            (gs : graph_zig_zag_of_length m y z)
@@ -815,7 +815,7 @@ Definition append_graph_zig_zag
  *)
 Definition post_cons_left_graph_zig_zag_of_length
            {g : graph}
-           {n : ℕ}
+           {n : nat}
            {x y z : vertex g}
            (gs : graph_zig_zag_of_length n x y)
            (f : edge y z)
@@ -839,7 +839,7 @@ Defined.
 
 Definition post_cons_right_graph_zig_zag_of_length
            {g : graph}
-           {n : ℕ}
+           {n : nat}
            {x y z : vertex g}
            (gs : graph_zig_zag_of_length n x y)
            (f : edge z y)
@@ -863,7 +863,7 @@ Defined.
 
 Definition reverse_graph_zig_zag_of_length
            {g : graph}
-           {n : ℕ}
+           {n : nat}
            {x y : vertex g}
            (gs : graph_zig_zag_of_length n x y)
   : graph_zig_zag_of_length n y x.
