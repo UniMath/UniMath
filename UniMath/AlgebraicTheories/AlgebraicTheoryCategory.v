@@ -144,9 +144,9 @@ Definition assoc_ax (T : algebraic_theory_data_cat) : UU := ∏
     data_comp (data_comp f_l f_m) f_n = data_comp f_l (λ t_l, data_comp (f_m t_l) f_n).
 
 Definition pr_comp_ax (T : algebraic_theory_data_cat) : UU := ∏
-  (n : nat)
-  (i : stn n)
-  (f : stn n → data_set T n),
+  (m n : nat)
+  (i : stn m)
+  (f : stn m → data_set T n),
     data_comp (data_pr T i) f = f i.
 
 Definition comp_pr_ax (T : algebraic_theory_data_cat) : UU := ∏
@@ -191,11 +191,11 @@ Local Definition assoc
 
 Local Definition pr_comp
   (T : algebraic_theory_cat)
-  {n : nat}
-  (i : stn n)
-  (f : stn n → data_set (theory_data T) n)
+  {m n : nat}
+  (i : stn m)
+  (f : stn m → data_set (theory_data T) n)
   : data_comp (data_pr (theory_data T) i) f = f i
-  := pr122 T n i f.
+  := pr122 T m n i f.
 
 Local Definition comp_pr
   (T : algebraic_theory_cat)
