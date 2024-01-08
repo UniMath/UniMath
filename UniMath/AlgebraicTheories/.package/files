@@ -1,4 +1,5 @@
 FiniteSetSkeleton.v
+IndexedSetCategory.v
 
 AlgebraicTheories2.v
 AlgebraicTheories.v

@@ -1188,6 +1188,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [All.v](Induction/All.v)
 ## Package AlgebraicTheories
    - [FiniteSetSkeleton.v](AlgebraicTheories/FiniteSetSkeleton.v)
+   - [IndexedSetCategory.v](AlgebraicTheories/IndexedSetCategory.v)
    - [AlgebraicTheories2.v](AlgebraicTheories/AlgebraicTheories2.v)
    - [AlgebraicTheories.v](AlgebraicTheories/AlgebraicTheories.v)
    - [AlgebraicTheoryMorphisms2.v](AlgebraicTheories/AlgebraicTheoryMorphisms2.v)
