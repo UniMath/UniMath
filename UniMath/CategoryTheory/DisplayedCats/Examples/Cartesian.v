@@ -333,36 +333,69 @@ Section cartesian_product.
   Definition disp_cartesian_ob_mor : disp_cat_ob_mor C.
   Proof.
     use tpair.
-    - exact (λ c, C').
-    - cbn. intros x y x' y' f. exact (C'⟦x', y'⟧).
+    - exact (λ _, C').
+    - exact (λ _ _ c d _, C'⟦c, d⟧).
   Defined.
 
   Definition disp_cartesian_data : disp_cat_data C.
   Proof.
     exists disp_cartesian_ob_mor.
-    use tpair; cbn.
-    - intros; apply identity.
-    - intros ? ? ? ? ? ? ? ? f g. apply (f · g).
+    use tpair.
+    - exact (λ _, identity).
+    - exact (λ _ _ _ _ _ _ _ _, compose).
   Defined.
 
   Definition disp_cartesian_axioms : disp_cat_axioms _ disp_cartesian_data.
   Proof.
-    repeat split; intros; cbn.
-    - etrans. apply id_left.
-      apply pathsinv0.
-      etrans. unfold mor_disp. cbn. apply (eqtohomot (transportf_const _ _)).
-      apply idpath.
-    - etrans. apply id_right.
-      apply pathsinv0.
-      etrans. unfold mor_disp. cbn. apply (eqtohomot (transportf_const _ _)).
-      apply idpath.
-    - etrans. apply assoc.
-      apply pathsinv0.
-      etrans. unfold mor_disp. cbn. apply (eqtohomot (transportf_const _ _)).
-      apply idpath.
+    repeat split; intros.
+    - exact (id_left _ @ !eqtohomot (transportf_const _ _) _).
+    - exact (id_right _ @ !eqtohomot (transportf_const _ _) _).
+    - exact (assoc _ _ _ @ !eqtohomot (transportf_const _ _) _).
     - apply homset_property.
   Qed.
 
   Definition disp_cartesian' : disp_cat C := _ ,, disp_cartesian_axioms.
+
+  Definition is_univalent_disp_cartesian'
+    (H : is_univalent C')
+    : is_univalent_disp disp_cartesian'.
+  Proof.
+    apply is_univalent_disp_iff_fibers_are_univalent.
+    intros T A A'.
+    use isweq_iso.
+    - intro f.
+      apply (isotoid _ H).
+      use make_z_iso.
+      + exact f.
+      + exact (z_iso_inv f).
+      + split.
+        * refine (!_ @ z_iso_inv_after_z_iso f).
+          exact (eqtohomot (transportf_const _ _) _).
+        * refine (!_ @ z_iso_after_z_iso_inv f).
+          exact (eqtohomot (transportf_const _ _) _).
+    - intro e.
+      refine (_ @ isotoid_idtoiso _ H _ _ _).
+      apply maponpaths.
+      apply z_iso_eq.
+      now induction e.
+    - intro y.
+      apply z_iso_eq.
+      set (f := make_z_iso (C := C') _ _ _).
+      refine (_ @ maponpaths (λ x, z_iso_mor x) (idtoiso_isotoid _ H _ _ f)).
+      now induction (isotoid C' H f).
+  Qed.
+
+  Definition cartesian' : category := total_category disp_cartesian'.
+
+  Lemma is_univalent_cartesian'
+    (H : is_univalent C)
+    (H' : is_univalent C')
+    : is_univalent cartesian'.
+  Proof.
+    use is_univalent_total_category.
+    - exact H.
+    - apply is_univalent_disp_cartesian'.
+      exact H'.
+  Qed.
 
 End cartesian_product.

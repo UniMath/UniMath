@@ -9,6 +9,11 @@
 
   Contents
   1. The dependent product category of theories and algebras [algebra_full_cat]
+  1.1. The full category of algebra data [algebra_full_data_cat]
+  1.1.1. Temporary accessors
+  1.1.2. The property of the morphisms
+  1.2. The full category of algebras
+  1.2.1. A lemma about algebras [isaprop_is_algebra]
   2. The category of algebras [algebra_cat]
   3. Univalence [is_univalent_algebra_cat]
 
@@ -18,170 +23,210 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Cartesian.
-Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
-Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
-Require Import UniMath.AlgebraicTheories.AlgebraMorphisms.
-Require Import UniMath.AlgebraicTheories.Algebras.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
 
 Local Open Scope cat.
+Local Open Scope algebraic_theories.
+
+Section AlgebraCategory.
 
 (** * 1. The dependent product category of theories and algebras *)
+(** ** 1.1. The full category of algebra data *)
 
-Definition algebra_data_full_disp_cat
-  : disp_cat (cartesian algebraic_theory_cat HSET).
-Proof.
-  use disp_struct.
-  - intro X.
-    pose (T := pr1 X : algebraic_theory).
-    pose (A := pr2 X : hSet).
-    exact (∏ n, (T n : hSet) → (stn n → A) → A).
-  - intros X X' action action' Y.
-    pose (A := make_algebra_data (pr2 X) action).
-    pose (A' := make_algebra_data (pr2 X') action').
-    pose (F := pr1 Y : algebraic_theory_morphism _ _).
-    pose (G := pr2 Y : A → A').
-    exact (∏ n f a, G (action n f a) = action' n (F _ f) (λ i, G (a i))).
-  - abstract (
-      intros;
-      do 3 (apply impred_isaprop; intro);
-      apply setproperty
-    ).
-  - abstract (
-      intros X action n f a;
-      now rewrite ((eqtohomot (transportf_const _ ((pr2 X : hSet) → (pr2 X : hSet))) _)
-        : pr2 (identity X) = identity _)
-    ).
-  - abstract (
-      intros X X' X'' action action' action'' y y' Gcommutes G'commutes n f a;
-      rewrite ((eqtohomot (transportf_const _ ((pr2 X : hSet) → (pr2 X'' : hSet))) _)
-        : pr2 (y · y') = ((pr2 y) : HSET⟦_, _⟧) · (pr2 y'));
-      unfold compose;
-      simpl;
-      now rewrite Gcommutes, G'commutes
-    ).
-Defined.
+  Definition algebra_data_full_disp_cat
+    : disp_cat (cartesian' algebraic_theory_cat HSET).
+  Proof.
+    use disp_struct.
+    - intro X.
+      pose (T := pr1 X : algebraic_theory).
+      pose (A := pr2 X : hSet).
+      exact (∏ n, (T n : hSet) → (stn n → A) → A).
+    - intros X X' action action' Y.
+      pose (F := pr1 Y : algebraic_theory_morphism _ _).
+      pose (G := pr2 Y).
+      exact (∏ n f a, G (action n f a) = action' n (F _ f) (λ i, G (a i))).
+    - abstract (
+        intros;
+        do 3 (apply impred_isaprop; intro);
+        apply setproperty
+      ).
+    - abstract easy.
+    - abstract (
+        intros X X' X'' action action' action'' y y' Gcommutes G'commutes n f a;
+        exact (maponpaths _ (Gcommutes _ _ _) @ G'commutes _ _ _)
+      ).
+  Defined.
 
-Definition algebra_data_full_cat : category
-  := total_category algebra_data_full_disp_cat.
+  Definition algebra_data_full_cat : category
+    := total_category algebra_data_full_disp_cat.
 
-Definition algebra_full_disp_cat
-  : disp_cat algebra_data_full_cat
-  := disp_full_sub algebra_data_full_cat
-    (λ X, is_algebra (make_algebra_data (pr21 X) (pr2 X))).
+(** *** 1.1.1. Temporary accessors *)
 
-Definition algebra_full_cat : category
-  := total_category algebra_full_disp_cat.
+  Let data_theory
+    (A : algebra_data_full_cat)
+    : algebraic_theory
+    := pr11 A.
+
+  Let data_set
+    (A : algebra_data_full_cat)
+    : hSet
+    := pr21 A.
+
+  Let data_action
+    {A : algebra_data_full_cat}
+    {n : nat}
+    (f : data_theory A n)
+    (a : stn n → data_set A)
+    : data_set A
+    := pr2 A n f a.
+
+  Let data_mor_theory
+    {A A' : algebra_data_full_cat}
+    (F : algebra_data_full_cat⟦A, A'⟧)
+    : algebraic_theory_morphism (data_theory A) (data_theory A')
+    := pr11 F.
+
+  Let data_mor_set
+    {A A' : algebra_data_full_cat}
+    (F : algebra_data_full_cat⟦A, A'⟧)
+    : data_set A → data_set A'
+    := pr21 F.
+
+  Let data_mor_action
+    {A A' : algebra_data_full_cat}
+    (F : algebra_data_full_cat⟦A, A'⟧)
+    {n : nat}
+    (f : data_theory A n)
+    (a : stn n → data_set A)
+    : data_mor_set F (data_action f a) = data_action (data_mor_theory F n f) (λ i, data_mor_set F (a i))
+    := pr2 F n f a.
+
+(** ** 1.2. The full category of algebras *)
+
+  Definition full_assoc_ax
+    (A : algebra_data_full_cat)
+    : UU
+    := ∏ m n (f : data_theory A m) g (a : stn n → data_set A), data_action (f • g) a = data_action f (λ i, data_action (g i) a).
+
+  Definition full_pr_action_ax
+    (A : algebra_data_full_cat)
+    : UU
+    := ∏ (n : nat) (i : stn n) (a : stn n → data_set A), data_action (pr i) a = a i.
+
+  Definition full_is_algebra
+    (A : algebra_data_full_cat)
+    : UU
+    := full_assoc_ax A × full_pr_action_ax A.
+
+  Definition algebra_full_disp_cat
+    : disp_cat algebra_data_full_cat
+    := disp_full_sub algebra_data_full_cat full_is_algebra.
+
+  Definition algebra_full_cat : category
+    := total_category algebra_full_disp_cat.
+
+(** *** 1.2.1. A lemma about algebras *)
+
+  Lemma isaprop_full_is_algebra
+    (A : algebra_data_full_cat)
+    : isaprop (full_is_algebra A).
+  Proof.
+    repeat apply isapropdirprod;
+      repeat (apply impred_isaprop; intro);
+      apply setproperty.
+  Qed.
 
 (** * 2. The category of algebras *)
 
-Definition algebra_disp_cat
-  : disp_cat algebraic_theory_cat
-  := sigma_disp_cat (sigma_disp_cat algebra_full_disp_cat).
+  Definition algebra_disp_cat
+    : disp_cat algebraic_theory_cat
+    := sigma_disp_cat (sigma_disp_cat algebra_full_disp_cat).
 
-Definition algebra_cat
-  (T : algebraic_theory)
-  := fiber_category algebra_disp_cat T.
+  Definition algebra_cat
+    (T : algebraic_theory)
+    := fiber_category algebra_disp_cat T.
 
-Lemma displayed_algebra_morphism_eq
-  {T T' : algebraic_theory}
-  {F : algebraic_theory_morphism T T'}
-  {A : algebra T}
-  {A' : algebra T'}
-  (G G' : (A : algebra_disp_cat _) -->[F] A')
-  (H : pr1 G = pr1 G')
-  : G = G'.
-Proof.
-  refine (subtypePath _ H).
-  intro x.
-  use (isapropdirprod _ _ _ isapropunit).
-  repeat (apply impred_isaprop; intro).
-  apply setproperty.
-Qed.
+  Lemma displayed_algebra_morphism_eq
+    {T T' : algebraic_theory}
+    {F : algebraic_theory_morphism T T'}
+    {A : algebra_cat T}
+    {A' : algebra_cat T'}
+    (G G' : (A : algebra_disp_cat _) -->[F] A')
+    (H : pr1 G = pr1 G')
+    : G = G'.
+  Proof.
+    refine (subtypePath _ H).
+    intro x.
+    use (isapropdirprod _ _ _ isapropunit).
+    repeat (apply impred_isaprop; intro).
+    apply setproperty.
+  Qed.
 
 (** * 3. Univalence *)
 
-Lemma is_univalent_disp_algebra_data_full_disp_cat
-  : is_univalent_disp algebra_data_full_disp_cat.
-Proof.
-  apply is_univalent_disp_iff_fibers_are_univalent.
-  intros TA action action'.
-  use isweq_iso.
-  - intro f.
-    do 3 (apply funextsec; intro).
-    refine (!_ @ pr1 f _ _ _ @ maponpaths (action' _ _) _).
-    + refine (maponpaths (λ a, a _) (transportf_set _ _ _ _)).
-      exact (isasetaprop (isasetunit _ _)).
-    + apply funextfun.
-      intro.
-      refine (maponpaths (λ a, a _) (transportf_set _ _ _ _)).
-      exact (isasetaprop (isasetunit _ _)).
-  - intro.
-    do 3 (apply impred_isaset; intro).
-    apply setproperty.
-  - intro.
-    apply z_iso_eq.
-    do 3 (apply impred_isaprop; intro).
-    apply setproperty.
-Qed.
-
-Lemma is_univalent_algebra_data_full_cat
-  : is_univalent algebra_data_full_cat.
-Proof.
-  use is_univalent_total_category.
-  - rewrite cartesian_is_binproduct.
-    exact (is_univalent_category_binproduct is_univalent_algebraic_theory_cat is_univalent_HSET).
-  - exact is_univalent_disp_algebra_data_full_disp_cat.
-Qed.
-
-Lemma is_univalent_disp_algebra_full_disp_cat
-  : is_univalent_disp algebra_full_disp_cat.
-Proof.
-  apply disp_full_sub_univalent.
-  exact (λ _, isaprop_is_algebra _).
-Qed.
-
-Lemma is_univalent_algebra_full_cat
-  : is_univalent algebra_full_cat.
-Proof.
-  apply (is_univalent_total_category is_univalent_algebra_data_full_cat).
-  exact is_univalent_disp_algebra_full_disp_cat.
-Qed.
-
-Lemma is_univalent_algebra_cat (T : algebraic_theory)
-  : is_univalent (algebra_cat T).
-Proof.
-  refine (is_univalent_fiber_cat _ _ _).
-  unfold algebra_disp_cat.
-  repeat use is_univalent_sigma_disp.
-  - apply is_univalent_reindex_disp_cat.
-    apply is_univalent_disp_disp_over_unit.
-    exact is_univalent_HSET.
-  - exact is_univalent_disp_algebra_data_full_disp_cat.
-  - exact is_univalent_disp_algebra_full_disp_cat.
-Qed.
-
-Section Test.
-  Goal ∏ T, ob (algebra_cat T) = algebra T.
-    exact (λ _, idpath _).
+  Lemma is_univalent_disp_algebra_data_full_disp_cat
+    : is_univalent_disp algebra_data_full_disp_cat.
+  Proof.
+    apply is_univalent_disp_iff_fibers_are_univalent.
+    intros TA action action'.
+    use isweq_iso.
+    - intro f.
+      do 3 (apply funextsec; intro).
+      apply (z_iso_mor f _).
+    - intro.
+      do 3 (apply impred_isaset; intro).
+      apply setproperty.
+    - intro.
+      apply z_iso_eq.
+      do 3 (apply impred_isaprop; intro).
+      apply setproperty.
   Qed.
-  Goal ∏ (T : algebraic_theory) (A A' : algebra T),
-    (algebra_cat T)⟦A, A'⟧ = algebra_morphism A A'.
-    exact (λ _ _ _, idpath _).
+
+  Lemma is_univalent_algebra_data_full_cat
+    : is_univalent algebra_data_full_cat.
+  Proof.
+    use is_univalent_total_category.
+    - exact (is_univalent_cartesian' _ _ is_univalent_algebraic_theory_cat is_univalent_HSET).
+    - exact is_univalent_disp_algebra_data_full_disp_cat.
   Qed.
-End Test.
+
+  Lemma is_univalent_disp_algebra_full_disp_cat
+    : is_univalent_disp algebra_full_disp_cat.
+  Proof.
+    apply disp_full_sub_univalent.
+    exact (λ _, isaprop_full_is_algebra _).
+  Qed.
+
+  Lemma is_univalent_algebra_full_cat
+    : is_univalent algebra_full_cat.
+  Proof.
+    apply (is_univalent_total_category is_univalent_algebra_data_full_cat).
+    exact is_univalent_disp_algebra_full_disp_cat.
+  Qed.
+
+  Lemma is_univalent_algebra_cat (T : algebraic_theory)
+    : is_univalent (algebra_cat T).
+  Proof.
+    refine (is_univalent_fiber_cat _ _ _).
+    unfold algebra_disp_cat.
+    repeat use is_univalent_sigma_disp.
+    - apply is_univalent_disp_cartesian'.
+      apply is_univalent_HSET.
+    - exact is_univalent_disp_algebra_data_full_disp_cat.
+    - exact is_univalent_disp_algebra_full_disp_cat.
+  Qed.
+
+End AlgebraCategory.
