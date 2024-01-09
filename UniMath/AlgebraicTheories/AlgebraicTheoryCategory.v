@@ -134,6 +134,13 @@ Definition mor_comp_ax
   : UU
   := ∏ m n f g, F n (data_comp f g) = data_comp (F m f) (λ i, F n (g i)).
 
+Definition is_algebraic_theory_morphism
+  {T T' : algebraic_theory_data_cat}
+  (F : indexed_set_cat _ ⟦data_set T, data_set T'⟧)
+  : UU
+  := mor_pr_ax F ×
+    mor_comp_ax F.
+
 (** ** 1.2. The category of algebraic theories  *)
 
 Definition assoc_ax (T : algebraic_theory_data_cat) : UU := ∏
