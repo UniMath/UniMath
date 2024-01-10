@@ -46,18 +46,36 @@ Section AlgebraCategory.
 (** * 1. The dependent product category of theories and algebras *)
 (** ** 1.1. The full category of algebra data *)
 
+  Definition action_ax
+    (T : algebraic_theory)
+    (A : hSet)
+    (n : nat)
+    (f : T n)
+    (a : stn n → A)
+    : UU
+    := A.
+
+  Definition mor_action_ax
+    (T T' : algebraic_theory)
+    (A A' : hSet)
+    (F : algebraic_theory_morphism T T')
+    (G : A → A')
+    (action : ∏ n f a, action_ax T A n f a)
+    (action' : ∏ n f a, action_ax T' A' n f a)
+    (n : nat)
+    (f : T n)
+    (a : stn n → A)
+    : UU
+    := G (action n f a) = action' n (F _ f) (λ i, G (a i)).
+
   Definition algebra_data_full_disp_cat
     : disp_cat (cartesian' algebraic_theory_cat HSET).
   Proof.
     use disp_struct.
     - intro X.
-      pose (T := pr1 X : algebraic_theory).
-      pose (A := pr2 X : hSet).
-      exact (∏ n, (T n : hSet) → (stn n → A) → A).
+      exact (∏ n f a, action_ax (pr1 X) (pr2 X) n f a).
     - intros X X' action action' Y.
-      pose (F := pr1 Y : algebraic_theory_morphism _ _).
-      pose (G := pr2 Y).
-      exact (∏ n f a, G (action n f a) = action' n (F _ f) (λ i, G (a i))).
+      exact (∏ n f a, mor_action_ax _ _ _ _ (pr1 Y) (pr2 Y) action action' n f a).
     - abstract (
         intros;
         do 3 (apply impred_isaprop; intro);
@@ -90,7 +108,7 @@ Section AlgebraCategory.
     {n : nat}
     (f : data_theory A n)
     (a : stn n → data_set A)
-    : data_set A
+    : action_ax _ _ n f a
     := pr2 A n f a.
 
   Let data_mor_theory
@@ -111,25 +129,37 @@ Section AlgebraCategory.
     {n : nat}
     (f : data_theory A n)
     (a : stn n → data_set A)
-    : data_mor_set F (data_action f a) = data_action (data_mor_theory F n f) (λ i, data_mor_set F (a i))
+    : mor_action_ax _ _ _ _ (data_mor_theory F) (data_mor_set F) (@data_action A) (@data_action A') n f a
     := pr2 F n f a.
 
 (** ** 1.2. The full category of algebras *)
 
-  Definition full_assoc_ax
-    (A : algebra_data_full_cat)
+  Definition comp_action_ax
+    (T : algebraic_theory)
+    (A : hSet)
+    (action : ∏ n f a, action_ax T A n f a)
+    (m n : nat)
+    (f : T m)
+    (g : stn m → T n)
+    (a : stn n → A)
     : UU
-    := ∏ m n (f : data_theory A m) g (a : stn n → data_set A), data_action (f • g) a = data_action f (λ i, data_action (g i) a).
+    := action n (f • g) a = action m f (λ i, action n (g i) a).
 
-  Definition full_pr_action_ax
-    (A : algebra_data_full_cat)
+  Definition pr_action_ax
+    (T : algebraic_theory)
+    (A : hSet)
+    (action : ∏ n f a, action_ax T A n f a)
+    (n : nat)
+    (i : stn n)
+    (a : stn n → A)
     : UU
-    := ∏ (n : nat) (i : stn n) (a : stn n → data_set A), data_action (pr i) a = a i.
+    := action n (pr i) a = a i.
 
   Definition full_is_algebra
     (A : algebra_data_full_cat)
     : UU
-    := full_assoc_ax A × full_pr_action_ax A.
+    := (∏ m n f g a, comp_action_ax _ _ (pr2 A) m n f g a) ×
+      (∏ n i a, pr_action_ax _ _ (pr2 A) n i a).
 
   Definition algebra_full_disp_cat
     : disp_cat algebra_data_full_cat

@@ -145,7 +145,7 @@ Section AlgebraicTheoryCategory.
 
 (** ** 1.2. The category of algebraic theories  *)
 
-  Definition assoc_ax (T : algebraic_theory_data_cat) : UU := ∏
+  Definition comp_comp_ax (T : algebraic_theory_data_cat) : UU := ∏
     (l m n : nat)
     (f_l : data_set T l)
     (f_m : stn l → data_set T m)
@@ -164,7 +164,7 @@ Section AlgebraicTheoryCategory.
       data_comp f data_pr = f.
 
   Definition is_algebraic_theory (T : algebraic_theory_data_cat) : UU :=
-    assoc_ax T ×
+    comp_comp_ax T ×
     pr_comp_ax T ×
     comp_pr_ax T.
 
@@ -189,7 +189,7 @@ Section AlgebraicTheoryCategory.
     : algebraic_theory_data_cat⟦theory_data T, theory_data T'⟧
     := pr1 F.
 
-  Let assoc
+  Let comp_comp
     (T : algebraic_theory_cat)
     {l m n : nat}
     (f_l : data_set (theory_data T) l)
@@ -496,7 +496,7 @@ Section AlgebraicTheoryCategory.
             intro
           | do 3 (apply impred_isaprop; intro);
             apply setproperty ]);
-        [ apply assoc
+        [ apply comp_comp
         | apply pr_comp
         | apply comp_pr ]
       ).

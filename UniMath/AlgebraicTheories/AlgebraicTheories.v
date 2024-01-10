@@ -70,7 +70,7 @@ Definition make_algebraic_theory_data
 
 Definition make_is_algebraic_theory
   (T : algebraic_theory_data)
-  (H1 : assoc_ax T)
+  (H1 : comp_comp_ax T)
   (H2 : pr_comp_ax T)
   (H3 : comp_pr_ax T)
   : is_algebraic_theory T
@@ -82,7 +82,7 @@ Definition make_algebraic_theory
   : algebraic_theory
   := T ,, H.
 
-Definition assoc
+Definition comp_comp
   (T : algebraic_theory)
   {l m n : nat}
   (f_l : T l)

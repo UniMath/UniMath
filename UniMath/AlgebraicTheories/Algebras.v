@@ -25,63 +25,44 @@ Local Open Scope algebraic_theories.
 (** * 1. The definition of algebras *)
 
 Definition algebra_data
-  (T : algebraic_theory_data)
+  (T : algebraic_theory)
   : UU
-  := ∑ (A : hSet), ∏ (n : nat), T n → (stn n → A) → A.
+  := ∑ (A : hSet), ∏ n f a, action_ax T A n f a.
 
 Definition make_algebra_data
-  {T : algebraic_theory_data}
+  {T : algebraic_theory}
   (A : hSet)
-  (action : ∏ (n : nat), T n → (stn n → A) → A)
+  (action : ∏ n f a, action_ax T A n f a)
   : algebra_data T
   := A ,, action.
 
 Coercion algebra_data_to_hset
-  {T : algebraic_theory_data}
+  {T : algebraic_theory}
   (A : algebra_data T)
   : hSet
   := pr1 A.
 
 Definition action
-  {T : algebraic_theory_data}
+  {T : algebraic_theory}
   {A : algebra_data T}
   {n : nat}
-  : T n → (stn n → A) → A
-  := pr2 A n.
-
-Definition assoc_ax
-  {T : algebraic_theory_data}
-  (A : algebra_data T)
-  : UU
-  := ∏ m n (f : T m) g (a : stn n → A), action (f • g) a = action f (λ i, action (g i) a).
-
-Definition pr_action_ax
-  {T : algebraic_theory_data}
-  (A : algebra_data T)
-  : UU
-  := ∏ (n : nat) (i : stn n) (a : stn n → A), action (pr i) a = a i.
+  (f : T n)
+  (a : stn n → A)
+  : action_ax T A n f a
+  := pr2 A n f a.
 
 Definition is_algebra
-  {T : algebraic_theory_data}
+  {T : algebraic_theory}
   (A : algebra_data T)
   : UU
-  := assoc_ax A × pr_action_ax A.
-
-Lemma isaprop_is_algebra
-  {T : algebraic_theory_data}
-  (A : algebra_data T)
-  : isaprop (is_algebra A).
-Proof.
-  repeat apply isapropdirprod;
-    repeat (apply impred_isaprop; intro);
-    apply setproperty.
-Qed.
+  := (∏ m n f g a, comp_action_ax T A (@action T A) m n f g a)
+    × (∏ n i a, pr_action_ax T A (@action T A) n i a).
 
 Definition make_is_algebra
-  {T : algebraic_theory_data}
+  {T : algebraic_theory}
   (A : algebra_data T)
-  (H1 : assoc_ax A)
-  (H2 : pr_action_ax A)
+  (H1 : ∏ m n f g a, comp_action_ax T A (@action T A) m n f g a)
+  (H2 : ∏ n i a, pr_action_ax T A (@action T A) n i a)
   : is_algebra A
   := H1 ,, H2.
 
@@ -103,14 +84,14 @@ Coercion algebra_to_algebra_data
   : algebra_data T
   := make_algebra_data (pr1 A) (pr12 A).
 
-Definition assoc
+Definition comp_action
   {T : algebraic_theory}
   (A : algebra T)
   {m n : nat}
   (f : T m)
   (g : stn m → T n)
   (a : stn n → A)
-  : action (f • g) a = action f (λ i, action (g i) a)
+  : comp_action_ax T A (@action T A) m n f g a
   := pr122 A m n f g a.
 
 Definition pr_action
@@ -119,7 +100,7 @@ Definition pr_action
   {n : nat}
   (i : stn n)
   (a : stn n → A)
-  : action (pr i) a = a i
+  : pr_action_ax T A (@action T A) n i a
   := pr222 A n i a.
 
 (** * 2. An equality lemma *)
@@ -158,7 +139,7 @@ Lemma lift_constant_action
   (a : stn n → A)
   : action (lift_constant n f) a = action f (weqvecfun _ vnil).
 Proof.
-  refine (assoc _ _ _ _ @ _).
+  refine (comp_action _ _ _ a @ _).
   apply maponpaths, funextfun.
   intro i.
   exact (fromempty (negnatlthn0 _ (stnlt i))).

@@ -29,13 +29,6 @@ Definition algebra_morphism
   : UU
   := algebra_cat T⟦A, A'⟧.
 
-Definition mor_action_ax
-  {T : algebraic_theory}
-  {A A' : algebra T}
-  (F : A → A')
-  : UU
-  := ∏ n (f : T n) a, F (action f a) = action f (λ i, F (a i)).
-
 Definition algebra_morphism_to_function
   {T : algebraic_theory}
   {A A' : algebra T}
@@ -50,7 +43,7 @@ Definition make_algebra_morphism
   {T : algebraic_theory}
   {A A' : algebra T}
   (F : A → A')
-  (H : mor_action_ax F)
+  (H : ∏ n f a, mor_action_ax _ _ _ _ (identity T) F (@action T A) (@action T A') n f a)
   : algebra_morphism A A'
   := F ,, H ,, tt.
 
@@ -61,18 +54,8 @@ Definition mor_action
   {n : nat}
   (f : T n)
   (a : stn n → A)
-  : F (action f a) = action f (λ i, F (a i))
+  : mor_action_ax _ _ _ _ (identity T) F (@action T A) (@action T A') n f a
   := pr12 F n f a.
-
-Lemma isaprop_preserves_action
-  {T : algebraic_theory}
-  {A A' : algebra T}
-  (F : A → A')
-  : isaprop (mor_action_ax F).
-Proof.
-  repeat (apply impred_isaprop; intro).
-  apply setproperty.
-Qed.
 
 Lemma algebra_morphism_eq
   {T : algebraic_theory}
@@ -85,7 +68,8 @@ Proof.
   {
     intro.
     use isapropdirprod.
-    - apply isaprop_preserves_action.
+    - repeat (apply impred_isaprop; intro).
+      apply setproperty.
     - apply isapropunit.
   }
   exact H.
