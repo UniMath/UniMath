@@ -56,8 +56,8 @@ Section AlgebraCategory.
     := A.
 
   Definition mor_action_ax
-    (T T' : algebraic_theory)
-    (A A' : hSet)
+    {T T' : algebraic_theory}
+    {A A' : hSet}
     (F : algebraic_theory_morphism T T')
     (G : A → A')
     (action : ∏ n f a, action_ax T A n f a)
@@ -75,7 +75,7 @@ Section AlgebraCategory.
     - intro X.
       exact (∏ n f a, action_ax (pr1 X) (pr2 X) n f a).
     - intros X X' action action' Y.
-      exact (∏ n f a, mor_action_ax _ _ _ _ (pr1 Y) (pr2 Y) action action' n f a).
+      exact (∏ n f a, mor_action_ax (pr1 Y) (pr2 Y) action action' n f a).
     - abstract (
         intros;
         do 3 (apply impred_isaprop; intro);
@@ -129,7 +129,7 @@ Section AlgebraCategory.
     {n : nat}
     (f : data_theory A n)
     (a : stn n → data_set A)
-    : mor_action_ax _ _ _ _ (data_mor_theory F) (data_mor_set F) (@data_action A) (@data_action A') n f a
+    : mor_action_ax (data_mor_theory F) (data_mor_set F) (@data_action A) (@data_action A') n f a
     := pr2 F n f a.
 
 (** ** 1.2. The full category of algebras *)

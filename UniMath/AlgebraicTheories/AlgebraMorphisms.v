@@ -43,7 +43,7 @@ Definition make_algebra_morphism
   {T : algebraic_theory}
   {A A' : algebra T}
   (F : A → A')
-  (H : ∏ n f a, mor_action_ax _ _ _ _ (identity T) F (@action T A) (@action T A') n f a)
+  (H : ∏ n f a, mor_action_ax (identity T) F (@action T A) (@action T A') n f a)
   : algebra_morphism A A'
   := F ,, H ,, tt.
 
@@ -54,7 +54,7 @@ Definition mor_action
   {n : nat}
   (f : T n)
   (a : stn n → A)
-  : mor_action_ax _ _ _ _ (identity T) F (@action T A) (@action T A') n f a
+  : mor_action_ax (identity T) F (@action T A) (@action T A') n f a
   := pr12 F n f a.
 
 Lemma algebra_morphism_eq
