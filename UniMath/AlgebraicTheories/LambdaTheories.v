@@ -31,25 +31,25 @@ Definition lambda_theory_data : UU
 
 Definition make_lambda_theory_data
   (T : algebraic_theory)
-  (abs : ∏ n, T n → T (S n))
-  (app : ∏ n, T (S n) → T n)
+  (app : ∏ n f, app_ax T n f)
+  (abs : ∏ n f, abs_ax T n f)
   : lambda_theory_data
-  := T ,, abs ,, app.
+  := T ,, app ,, abs.
 
 Coercion lambda_theory_data_to_algebraic_theory (L : lambda_theory_data)
   : algebraic_theory
   := pr1 L.
 
-Definition app {L : lambda_theory_data} {n : nat} : L n → L (S n) := pr12 L n.
+Definition app {L : lambda_theory_data} {n : nat} (f : L n) : app_ax L n f := pr12 L n f.
 
-Definition abs {L : lambda_theory_data} {n : nat} : L (S n) → L n := pr22 L n.
+Definition abs {L : lambda_theory_data} {n : nat} (f : L (S n)) : abs_ax L n f := pr22 L n f.
 
 Definition lambda_theory : UU := lambda_theory_cat.
 
 Definition make_is_lambda_theory
   {L : lambda_theory_data}
-  (app_comp : app_comp_ax L)
-  (abs_comp : abs_comp_ax L)
+  (app_comp : ∏ m n f g, app_comp_ax L m n f g)
+  (abs_comp : ∏ m n f g, abs_comp_ax L m n f g)
   : is_lambda_theory L
   := app_comp ,, abs_comp.
 
@@ -66,7 +66,7 @@ Definition app_comp
   {m n : nat}
   (f : L m)
   (g : stn m → L n)
-  : app (f • g) = extended_composition (app f) g
+  : app_comp_ax (L : lambda_theory_data) m n f g
   := pr12 L m n f g.
 
 Definition abs_comp
@@ -74,7 +74,7 @@ Definition abs_comp
   {m n : nat}
   (f : L (S m))
   (g : stn m → L n)
-  : abs (extended_composition f g) = (abs f) • g
+  : abs_comp_ax (L : lambda_theory_data) m n f g
   := pr22 L m n f g.
 
 (** * 2. The definition of β-equality *)

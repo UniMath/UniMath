@@ -28,11 +28,18 @@ Definition lambda_theory_morphism
   : UU
   := lambda_theory_cat⟦L, L'⟧.
 
+Definition is_lambda_theory_morphism
+  {L L' : lambda_theory}
+  (F : algebraic_theory_morphism L L)
+  : UU
+  := (∏ n f, mor_app_ax F n f) ×
+    (∏ n f, mor_abs_ax F n f).
+
 Definition make_lambda_theory_morphism
   {L L' : lambda_theory}
   (F : algebraic_theory_morphism L L')
-  (Happ : mor_app_ax F)
-  (Habs : mor_abs_ax F)
+  (Happ : ∏ n f, mor_app_ax F n f)
+  (Habs : ∏ n f, mor_abs_ax F n f)
   : lambda_theory_morphism L L'
   := (F ,, Happ ,, Habs) ,, tt.
 
@@ -47,7 +54,7 @@ Definition mor_app
   (F : lambda_theory_morphism L L')
   {n : nat}
   (f : L n)
-  : F _ (app f) = app (F _ f)
+  : mor_app_ax F n f
   := pr121 F n f.
 
 Definition mor_abs
@@ -55,5 +62,5 @@ Definition mor_abs
   (F : lambda_theory_morphism L L')
   {n : nat}
   (f : L (S n))
-  : F _ (abs f) = abs (F _ f)
+  : mor_abs_ax F n f
   := pr221 F n f.

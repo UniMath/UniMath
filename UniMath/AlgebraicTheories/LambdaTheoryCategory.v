@@ -10,7 +10,6 @@
   1. The category of λ-theories [lambda_theory_cat]
   1.1. The category of λ-theory data [lambda_theory_data_cat]
   1.1.1. Temporary accessors
-  1.1.2. Properties of the morphisms
   1.2. The category of λtheories
   1.2.1. Temporary accessors
   1.2.2. Two lemmas about λ-theories [isaprop_is_lambda_theory]
@@ -49,16 +48,50 @@ Section LambdaTheoryCategory.
 (** * 1. The category of λ-theories *)
 (** ** 1.1. The category of λ-theory data *)
 
+  Definition app_ax
+    (T : algebraic_theory)
+    (n : nat)
+    (f : T n)
+    : UU
+    := T (S n).
+
+  Definition abs_ax
+    (T : algebraic_theory)
+    (n : nat)
+    (f : T (S n))
+    : UU
+    := T n.
+
+  Let mor_app_ax'
+    {T T' : algebraic_theory}
+    (F : algebraic_theory_morphism T T')
+    (app : ∏ n f, app_ax T n f)
+    (app' : ∏ n f, app_ax T' n f)
+    (n : nat)
+    (f : T n)
+    : UU
+    := F (S n) (app n f) = app' n (F n f).
+
+  Let mor_abs_ax'
+    {T T' : algebraic_theory}
+    (F : algebraic_theory_morphism T T')
+    (abs : ∏ n f, abs_ax T n f)
+    (abs' : ∏ n f, abs_ax T' n f)
+    (n : nat)
+    (f : T (S n))
+    : UU
+    := F n (abs n f) = abs' n (F (S n) f).
+
   Definition lambda_theory_data_disp_cat
     : disp_cat algebraic_theory_cat.
   Proof.
     use disp_struct.
-    - exact (λ (T : algebraic_theory),
-        (∏ n, (T n : hSet) → (T (S n) : hSet)) ×
-        (∏ n, (T (S n) : hSet) → (T n : hSet))).
-    - exact (λ _ _ appabs appabs' (F : algebraic_theory_morphism _ _),
-        (∏ n t, F _ ((pr1 appabs) n t) = (pr1 appabs') n (F _ t)) ×
-        (∏ n t, F _ ((pr2 appabs) n t) = (pr2 appabs') n (F _ t))).
+    - refine (λ T, _ × _).
+        + exact (∏ n f, app_ax T n f).
+        + exact (∏ n f, abs_ax T n f).
+    - refine (λ _ _ appabs appabs' F, _ × _).
+        + exact (∏ n t, mor_app_ax' F (pr1 appabs) (pr1 appabs') n t).
+        + exact (∏ n t, mor_abs_ax' F (pr2 appabs) (pr2 appabs') n t).
     - abstract (
         intros;
         apply isapropdirprod;
@@ -106,12 +139,28 @@ Section LambdaTheoryCategory.
     : algebraic_theory_morphism (data_theory L) (data_theory L')
     := pr1 F.
 
+  Definition mor_app_ax
+    {L L' : lambda_theory_data_cat}
+    (F : algebraic_theory_morphism (data_theory L) (data_theory L'))
+    (n : nat)
+    (f : data_theory L n)
+    : UU
+    := mor_app_ax' F (@data_app L) (@data_app L') n f.
+
+  Definition mor_abs_ax
+    {L L' : lambda_theory_data_cat}
+    (F : algebraic_theory_morphism (data_theory L) (data_theory L'))
+    (n : nat)
+    (f : data_theory L (S n))
+    : UU
+    := mor_abs_ax' F (@data_abs L) (@data_abs L') n f.
+
   Let data_mor_app
     {L L' : lambda_theory_data_cat}
     (F : lambda_theory_data_cat⟦L, L'⟧)
     {n : nat}
     (f : data_theory L n)
-    : data_mor F (S n) (data_app f) = data_app (data_mor F n f)
+    : mor_app_ax (data_mor F) n f
     := pr12 F n f.
 
   Let data_mor_abs
@@ -119,28 +168,8 @@ Section LambdaTheoryCategory.
     (F : lambda_theory_data_cat⟦L, L'⟧)
     {n : nat}
     (f : data_theory L (S n))
-    : data_mor F n (data_abs f) = data_abs (data_mor F (S n) f)
+    : mor_abs_ax (data_mor F) n f
     := pr22 F n f.
-
-(** *** 1.1.2. Properties of the morphisms *)
-
-  Definition mor_app_ax
-    {L L' : lambda_theory_data_cat}
-    (F : algebraic_theory_morphism (data_theory L) (data_theory L'))
-    : UU
-    := ∏ n f, F (S n) (data_app f) = data_app (F n f).
-
-  Definition mor_abs_ax
-    {L L' : lambda_theory_data_cat}
-    (F : algebraic_theory_morphism (data_theory L) (data_theory L'))
-    : UU
-    := ∏ n f, F n (data_abs f) = data_abs (F (S n) f).
-
-  Definition is_lambda_theory_morphism
-    {L L' : lambda_theory_data_cat}
-    (F : algebraic_theory_morphism (data_theory L) (data_theory L'))
-    : UU
-    := mor_app_ax F × mor_abs_ax F.
 
 (** ** 1.2. The category of λtheories *)
 
@@ -152,16 +181,25 @@ Section LambdaTheoryCategory.
     : T (S n)
     := f • (extend_tuple (λ i, (g i) • (λ i, pr (dni lastelement i))) (pr lastelement)).
 
-  Definition app_comp_ax (L : lambda_theory_data_cat)
+  Definition app_comp_ax
+    (L : lambda_theory_data_cat)
+    (m n : nat)
+    (f : data_theory L m)
+    (g : stn m → data_theory L n)
     : UU
-    := ∏ m n f (g : stn m → data_theory L n), data_app (f • g) = extended_composition (data_app f) g.
+    := data_app (f • g) = extended_composition (data_app f) g.
 
-  Definition abs_comp_ax (L : lambda_theory_data_cat)
+  Definition abs_comp_ax
+    (L : lambda_theory_data_cat)
+    (m n : nat)
+    (f : data_theory L (S m))
+    (g : stn m → data_theory L n)
     : UU
-    := ∏ m n f (g : stn m → data_theory L n), data_abs (extended_composition f g) = (data_abs f) • g.
+    := data_abs (extended_composition f g) = (data_abs f) • g.
 
-  Definition is_lambda_theory (L : lambda_theory_data_cat) : UU
-    := app_comp_ax L × abs_comp_ax L.
+  Definition is_lambda_theory (L : lambda_theory_data_cat) : UU :=
+    (∏ m n f g, app_comp_ax L m n f g) ×
+    (∏ m n f g, abs_comp_ax L m n f g).
 
   Definition lambda_theory_disp_cat
     : disp_cat lambda_theory_data_cat
@@ -189,7 +227,7 @@ Section LambdaTheoryCategory.
     {m n : nat}
     (f : data_theory (theory_data L) m)
     (g : stn m → data_theory (theory_data L) n)
-    : data_app (f • g) = extended_composition (data_app f) g
+    : app_comp_ax (theory_data L) m n f g
     := pr12 L m n f g.
 
   Let abs_comp
@@ -197,7 +235,7 @@ Section LambdaTheoryCategory.
     {m n : nat}
     (f : data_theory (theory_data L) (S m))
     (g : stn m → data_theory (theory_data L) n)
-    : data_abs (extended_composition f g) = (data_abs f) • g
+    : abs_comp_ax (theory_data L) m n f g
     := pr22 L m n f g.
 
 (** *** 1.2.2. Two lemmas about λ-theories *)
@@ -238,8 +276,8 @@ Section LambdaTheoryCategory.
 
     Context (a b : lambda_theory_cat).
     Context (F : z_iso (C := algebraic_theory_cat) (data_theory (theory_data a)) (data_theory (theory_data b))).
-    Context (Happ : mor_app_ax (z_iso_mor F)).
-    Context (Habs : mor_abs_ax (z_iso_mor F)).
+    Context (Happ : ∏ n f, mor_app_ax (z_iso_mor F) n f).
+    Context (Habs : ∏ n f, mor_abs_ax (z_iso_mor F) n f).
 
     Definition iso_mor
       : lambda_theory_cat⟦a, b⟧
@@ -250,7 +288,7 @@ Section LambdaTheoryCategory.
       := inv_from_z_iso F.
 
     Lemma iso_inv_app_ax
-      : mor_app_ax iso_inv_data.
+      : ∏ n f, mor_app_ax iso_inv_data n f.
     Proof.
       intros n f.
       refine (!_ @ maponpaths
@@ -264,7 +302,7 @@ Section LambdaTheoryCategory.
     Qed.
 
     Lemma iso_inv_abs_ax
-      : mor_abs_ax iso_inv_data.
+      : ∏ n f, mor_abs_ax iso_inv_data n f.
     Proof.
       intros n f.
       refine (!_ @ maponpaths
