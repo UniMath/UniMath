@@ -40,7 +40,7 @@ Definition pr
   {T : algebraic_theory_data}
   {n : nat}
   (i : stn n)
-  : T n
+  : pr_ax T n i
   := pr12 T n i.
 
 Definition comp
@@ -48,7 +48,7 @@ Definition comp
   {m n : nat}
   (f : T m)
   (g : stn m → T n)
-  : T n
+  : comp_ax T m n f g
   := pr22 T m n f g.
 
 Notation "f • g" :=
@@ -63,16 +63,16 @@ Coercion algebraic_theory_to_algebraic_theory_data (T : algebraic_theory)
 
 Definition make_algebraic_theory_data
   (T : nat → hSet)
-  (pr : ∏ n (i : stn n), T n)
-  (comp : ∏ m n, T m → (stn m → T n) → T n)
+  (pr : ∏ n i, pr_ax T n i)
+  (comp : ∏ m n f g, comp_ax T m n f g)
   : algebraic_theory_data
   := T ,, pr ,, comp.
 
 Definition make_is_algebraic_theory
   (T : algebraic_theory_data)
-  (H1 : comp_comp_ax T)
-  (H2 : pr_comp_ax T)
-  (H3 : comp_pr_ax T)
+  (H1 : ∏ l m n f_l f_m f_n, comp_comp_ax T l m n f_l f_m f_n)
+  (H2 : ∏ m n i f, pr_comp_ax T m n i f)
+  (H3 : ∏ n f, comp_pr_ax T n f)
   : is_algebraic_theory T
   := H1 ,, H2 ,, H3.
 
@@ -88,7 +88,7 @@ Definition comp_comp
   (f_l : T l)
   (f_m : stn l → T m)
   (f_n : stn m → T n)
-  : (f_l • f_m) • f_n = f_l • (λ t_l, (f_m t_l) • f_n)
+  : comp_comp_ax (T : algebraic_theory_data) l m n f_l f_m f_n
   := pr12 T l m n f_l f_m f_n.
 
 Definition pr_comp
@@ -96,14 +96,14 @@ Definition pr_comp
   {m n : nat}
   (i : stn m)
   (f : stn m → T n)
-  : (pr i) • f = f i
+  : pr_comp_ax (T : algebraic_theory_data) m n i f
   := pr122 T m n i f.
 
 Definition comp_pr
   (T : algebraic_theory)
   {n : nat}
   (f : T n)
-  : f • pr = f
+  : comp_pr_ax (T : algebraic_theory_data) n f
   := pr222 T n f.
 
 (** * 2. Some useful properties and definitions *)

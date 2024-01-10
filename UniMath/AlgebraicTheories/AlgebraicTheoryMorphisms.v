@@ -49,10 +49,17 @@ Coercion algebraic_theory_morphism_to_algebraic_theory_morphism_data
   : algebraic_theory_morphism_data T T'
   := pr11 F.
 
+Definition is_algebraic_theory_morphism
+  {T T' : algebraic_theory}
+  (F : algebraic_theory_morphism_data T T')
+  : UU
+  := (∏ n i, mor_pr_ax F n i) ×
+    (∏ m n f g, mor_comp_ax F m n f g).
+
 Definition make_is_algebraic_theory_morphism {T T' : algebraic_theory}
   {F : algebraic_theory_morphism_data T T'}
-  (H1 : mor_pr_ax F)
-  (H2 : mor_comp_ax F)
+  (H1 : ∏ n i, mor_pr_ax F n i)
+  (H2 : ∏ m n f g, mor_comp_ax F m n f g)
   : is_algebraic_theory_morphism F
   := H1 ,, H2.
 
@@ -79,7 +86,7 @@ Definition mor_pr
   (F : algebraic_theory_morphism T T')
   {n : nat}
   (i : stn n)
-  : F n (pr i) = pr i
+  : mor_pr_ax F n i
   := pr121 F n i.
 
 Definition mor_comp
@@ -88,7 +95,7 @@ Definition mor_comp
   {m n : nat}
   (f : T m)
   (g : stn m → T n)
-  : F n (f • g) = (F m f) • (λ i, F n (g i))
+  : mor_comp_ax F m n f g
   := pr221 F m n f g.
 
 (** * 2. An equality lemma *)
