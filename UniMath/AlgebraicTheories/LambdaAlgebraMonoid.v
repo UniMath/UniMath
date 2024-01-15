@@ -129,8 +129,8 @@ Section Monoid.
       set (v := weqvecfun 2 [(pr1 a ; pr1 b)]).
       unfold compose, is_functional, make_functional.
       cbn -[weqvecfun action].
-      rewrite move_action_through_vector_1.
-      rewrite <- algebra_is_assoc.
+      rewrite (move_action_through_vector_1 _ _).
+      rewrite <- comp_action.
       cbn -[weqvecfun].
       do 4 reduce_lambda.
       do 2 extend_tuple_2.
@@ -147,17 +147,17 @@ Section Monoid.
       unfold compose.
       pose (v := weqvecfun _ [(a ; b ; c)]).
       pose (Hv := λ i Hi,
-        !(algebra_projects_component _ _ (make_stn 3 i Hi) v)).
+        !(pr_action _ (make_stn 3 i Hi) v)).
       rewrite (Hv 0 (idpath true) : a = _),
         (Hv 1 (idpath true) : b = _),
         (Hv 2 (idpath true) : c = _).
-      do 2 rewrite move_action_through_vector_2.
-      do 2 rewrite <- algebra_is_assoc.
+      do 2 rewrite (move_action_through_vector_2 _ _ _).
+      do 2 rewrite <- comp_action.
       cbn -[weqvecfun action].
-      do 15 reduce_lambda.
+      do 12 reduce_lambda.
       do 6 extend_tuple_3.
-      do 2 rewrite move_action_through_vector_2.
-      do 2 rewrite <- algebra_is_assoc.
+      do 2 rewrite (move_action_through_vector_2 _ _ _).
+      do 2 rewrite <- comp_action.
       cbn -[weqvecfun v].
       do 12 reduce_lambda.
       do 6 extend_tuple_3.
@@ -176,8 +176,8 @@ Section Monoid.
     Proof.
       unfold unit_element, is_functional, make_functional.
       cbn -[weqvecfun action].
-      rewrite move_action_through_vector_1.
-      rewrite <- algebra_is_assoc.
+      rewrite (move_action_through_vector_1 _ _).
+      rewrite <- comp_action.
       cbn -[weqvecfun action].
       do 4 reduce_lambda.
       do 2 extend_tuple_2.
@@ -188,11 +188,35 @@ Section Monoid.
     Qed.
 
     (* Will make this more readable in future PR *)
-    Lemma is_unit_unit_element
+    (* Lemma is_unit_unit_element
       : isunit
         (λ a b, compose (pr1 a) (pr1 b) ,, is_functional_compose a b)
         (unit_element ,, is_functional_unit_element).
     Proof.
+      split.
+        intro a.
+        pose (v := weqvecfun 1 [(pr1 a)]).
+        use subtypePath.
+        {
+          intro.
+          apply isaprop_is_functional.
+        }
+        refine (!maponpaths _ (pr_action _ (make_stn 1 0 (idpath true)) v) @ _).
+        pose (H2 := invmaponpathsweq (invweq (weqvecfun _)) _ _ (idpath [()]) : (λ i, v (weqvecfun _ [()] i)) = (weqvecfun _ [()])).
+        unfold compose.
+        cbn -[action weqvecfun].
+        (* clear H1 H2; *)
+        unfold unit_element.
+        rewrite <- H2.
+        assert ((λ i, v (weqvecfun 0 [()] i)) = v).
+        refine (maponpaths  (move_action_through_vector_2 _ _ _) @ _).
+        rewrite <- algebra_is_assoc;
+        cbn -[weqvecfun action];
+        do 9 reduce_lambda;
+        do 3 extend_tuple_3;
+        cbn -[action v];
+        do 7 reduce_lambda;
+        exact (!pr2 a)).
       unfold unit_element, compose.
       split; (
       intro a;
@@ -200,7 +224,7 @@ Section Monoid.
       use subtypePairEquality; [intro; apply isaprop_is_functional | ];
       cbn -[weqvecfun action];
       etrans;
-      [now rewrite <- (algebra_projects_component _ _
+      [now rewrite <- (pr_action _ _ _
         (make_stn 1 0 (idpath true))
         v
       : _ = pr1 a) | ];
@@ -227,9 +251,9 @@ Section Monoid.
       cbn -[action v];
       do 7 reduce_lambda;
       exact (!pr2 a)).
-    Qed.
+    Qed. *)
 
-    Definition algebra_monoid : monoid.
+    (* Definition algebra_monoid : monoid.
     Proof.
       use tpair.
       - use tpair.
@@ -243,11 +267,11 @@ Section Monoid.
             apply is_assoc_compose
           ).
         + exact (_ ,, is_unit_unit_element).
-    Defined.
+    Defined. *)
 
   End Monoid.
 
-  Definition monoid_category (m : monoid) : category.
+  (* Definition monoid_category (m : monoid) : category.
   Proof.
     use make_category.
     - use make_precategory.
@@ -294,6 +318,6 @@ Section Monoid.
 
   Definition PA : category := monoid_presheaf_cat algebra_monoid.
 
-  Definition U : PA := monoid_presheaf algebra_monoid.
+  Definition U : PA := monoid_presheaf algebra_monoid. *)
 
 End Monoid.

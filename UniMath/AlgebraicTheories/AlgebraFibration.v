@@ -23,7 +23,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 Require Import UniMath.AlgebraicTheories.AlgebraCategory.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.Algebras.
 
@@ -52,19 +52,12 @@ Section Cleaving.
   Proof.
     repeat split.
     - do 5 intro.
-      simpl.
-      rewrite (algebraic_theory_morphism_preserves_composition F).
-      apply algebra_is_assoc.
-    - intro.
-      rewrite <- algebra_is_unital.
-      simpl.
-      apply (maponpaths (λ i, _ _ i _)).
-      apply algebraic_theory_morphism_preserves_id_pr.
-    - do 5 intro.
-      simpl.
-      rewrite (maponpaths (λ x, x _) (nat_trans_ax (F : algebraic_theory_morphism _ _) _ _ _
-        : (λ x, _ _ (# (T' : algebraic_theory) _ _)) = _)).
-      apply algebra_is_natural.
+      refine (maponpaths (λ x, _ x a) (mor_comp F _ _) @ _).
+      apply (comp_action A).
+    - intros n i a.
+      refine (_ @ pr_action A _ _).
+      apply (maponpaths (λ f, action (A := A) f _)).
+      apply mor_pr.
   Qed.
 
   Definition algebra_cleaving_algebra
@@ -74,7 +67,7 @@ Section Cleaving.
   Definition algebra_cleaving_morphism
     : (algebra_cleaving_algebra : algebra_disp_cat _) -->[F] A.
   Proof.
-    use (idfun _ ,, _ ,, tt).
+    refine (idfun _ ,, _ ,, tt).
     abstract now do 3 intro.
   Defined.
 
@@ -88,16 +81,15 @@ Section Cleaving.
     Definition algebra_cleaving_induced_morphism
       : (A'' : algebra_disp_cat _) -->[F'] algebra_cleaving_algebra.
     Proof.
-      use (pr1 G' ,, _ ,, tt).
-      abstract (do 3 intro; now rewrite (pr12 G')).
+      refine (pr1 G' ,, _ ,, tt).
+      abstract (do 3 intro; apply (pr12 G' _)).
     Defined.
 
     Definition algebra_lift
       : ∑ gg, (gg ;; algebra_cleaving_morphism) = G'.
     Proof.
       exists algebra_cleaving_induced_morphism.
-      apply displayed_algebra_morphism_eq.
-      exact (comp_disp_cartesian _ _ _ _).
+      now apply displayed_algebra_morphism_eq.
     Defined.
 
     Lemma algebra_lift_is_unique
@@ -110,7 +102,7 @@ Section Cleaving.
         apply homsets_disp.
       }
       apply displayed_algebra_morphism_eq.
-      exact (!comp_disp_cartesian _ _ (pr11 t) _ @ maponpaths _ (pr2 t)).
+      exact (maponpaths _ (pr2 t)).
     Qed.
 
   End Lift.

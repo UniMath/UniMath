@@ -15,7 +15,7 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
-Require Import UniMath.AlgebraicTheories.LambdaTheoryCategory.
+Require Import UniMath.AlgebraicTheories.LambdaTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
 
 Local Open Scope algebraic_theories.
@@ -64,3 +64,24 @@ Definition mor_abs
   (f : L (S n))
   : mor_abs_ax F n f
   := pr221 F n f.
+
+Lemma lambda_theory_morphism_eq
+  {L L' : lambda_theory}
+  (F F' : lambda_theory_morphism L L')
+  (H : (F : algebraic_theory_morphism L L') = F')
+  : F = F'.
+Proof.
+  apply subtypePath.
+  {
+    intro.
+    apply isapropunit.
+  }
+  apply subtypePath.
+  {
+    intro.
+    apply isapropdirprod;
+      do 2 (apply impred_isaprop; intro);
+      apply setproperty.
+  }
+  apply H.
+Qed.

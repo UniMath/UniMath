@@ -20,7 +20,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.LambdaTheoryCategory.
+Require Import UniMath.AlgebraicTheories.LambdaTheoryCategoryCore.
 
 Local Open Scope algebraic_theories.
 

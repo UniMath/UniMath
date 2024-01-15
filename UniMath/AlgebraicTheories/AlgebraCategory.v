@@ -9,11 +9,10 @@
 
   Contents
   1. The dependent product category of theories and algebras [algebra_full_cat]
-  1.1. The full category of algebra data [algebra_full_data_cat]
+  1.1. The full category of algebra data [algebra_data_full_cat]
   1.1.1. Temporary accessors
-  1.1.2. The property of the morphisms
   1.2. The full category of algebras
-  1.2.1. A lemma about algebras [isaprop_is_algebra]
+  1.2.1. A lemma about algebras [isaprop_full_is_algebra]
   2. The category of algebras [algebra_cat]
   3. Univalence [is_univalent_algebra_cat]
 
@@ -36,6 +35,7 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
 
 Local Open Scope cat.
@@ -205,58 +205,63 @@ Section AlgebraCategory.
     apply setproperty.
   Qed.
 
+End AlgebraCategory.
+
+Arguments action_ax /.
+Arguments mor_action_ax /.
+Arguments comp_action_ax /.
+Arguments pr_action_ax /.
+
 (** * 3. Univalence *)
 
-  Lemma is_univalent_disp_algebra_data_full_disp_cat
-    : is_univalent_disp algebra_data_full_disp_cat.
-  Proof.
-    apply is_univalent_disp_iff_fibers_are_univalent.
-    intros TA action action'.
-    use isweq_iso.
-    - intro f.
-      do 3 (apply funextsec; intro).
-      apply (z_iso_mor f _).
-    - intro.
-      do 3 (apply impred_isaset; intro).
-      apply setproperty.
-    - intro.
-      apply z_iso_eq.
-      do 3 (apply impred_isaprop; intro).
-      apply setproperty.
-  Qed.
+Lemma is_univalent_disp_algebra_data_full_disp_cat
+  : is_univalent_disp algebra_data_full_disp_cat.
+Proof.
+  apply is_univalent_disp_iff_fibers_are_univalent.
+  intros TA action action'.
+  use isweq_iso.
+  - intro f.
+    do 3 (apply funextsec; intro).
+    apply (z_iso_mor f _).
+  - intro.
+    do 3 (apply impred_isaset; intro).
+    apply setproperty.
+  - intro.
+    apply z_iso_eq.
+    do 3 (apply impred_isaprop; intro).
+    apply setproperty.
+Qed.
 
-  Lemma is_univalent_algebra_data_full_cat
-    : is_univalent algebra_data_full_cat.
-  Proof.
-    use is_univalent_total_category.
-    - exact (is_univalent_cartesian' _ _ is_univalent_algebraic_theory_cat is_univalent_HSET).
-    - exact is_univalent_disp_algebra_data_full_disp_cat.
-  Qed.
+Lemma is_univalent_algebra_data_full_cat
+  : is_univalent algebra_data_full_cat.
+Proof.
+  use is_univalent_total_category.
+  - exact (is_univalent_cartesian' _ _ is_univalent_algebraic_theory_cat is_univalent_HSET).
+  - exact is_univalent_disp_algebra_data_full_disp_cat.
+Qed.
 
-  Lemma is_univalent_disp_algebra_full_disp_cat
-    : is_univalent_disp algebra_full_disp_cat.
-  Proof.
-    apply disp_full_sub_univalent.
-    exact (λ _, isaprop_full_is_algebra _).
-  Qed.
+Lemma is_univalent_disp_algebra_full_disp_cat
+  : is_univalent_disp algebra_full_disp_cat.
+Proof.
+  apply disp_full_sub_univalent.
+  exact (λ _, isaprop_full_is_algebra _).
+Qed.
 
-  Lemma is_univalent_algebra_full_cat
-    : is_univalent algebra_full_cat.
-  Proof.
-    apply (is_univalent_total_category is_univalent_algebra_data_full_cat).
-    exact is_univalent_disp_algebra_full_disp_cat.
-  Qed.
+Lemma is_univalent_algebra_full_cat
+  : is_univalent algebra_full_cat.
+Proof.
+  apply (is_univalent_total_category is_univalent_algebra_data_full_cat).
+  exact is_univalent_disp_algebra_full_disp_cat.
+Qed.
 
-  Lemma is_univalent_algebra_cat (T : algebraic_theory)
-    : is_univalent (algebra_cat T).
-  Proof.
-    refine (is_univalent_fiber_cat _ _ _).
-    unfold algebra_disp_cat.
-    repeat use is_univalent_sigma_disp.
-    - apply is_univalent_disp_cartesian'.
-      apply is_univalent_HSET.
-    - exact is_univalent_disp_algebra_data_full_disp_cat.
-    - exact is_univalent_disp_algebra_full_disp_cat.
-  Qed.
-
-End AlgebraCategory.
+Lemma is_univalent_algebra_cat (T : algebraic_theory)
+  : is_univalent (algebra_cat T).
+Proof.
+  refine (is_univalent_fiber_cat _ _ _).
+  unfold algebra_disp_cat.
+  repeat use is_univalent_sigma_disp.
+  - apply is_univalent_disp_cartesian'.
+    apply is_univalent_HSET.
+  - exact is_univalent_disp_algebra_data_full_disp_cat.
+  - exact is_univalent_disp_algebra_full_disp_cat.
+Qed.

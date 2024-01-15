@@ -15,6 +15,7 @@
   2.1 The cartesian product creates limits [creates_limits_disp_cartesian]
   3. The arrow category [arrow]
   4. A direct definition of the product category as a displayed category [disp_cartesian']
+  4.1. This cartesian creates limits as well [creates_limits_disp_cartesian']
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -397,5 +398,108 @@ Section cartesian_product.
     - apply is_univalent_disp_cartesian'.
       exact H'.
   Qed.
+
+  Definition pr2_functor'
+    : cartesian' ⟶ C'.
+  Proof.
+    use make_functor.
+    - use make_functor_data.
+      + exact pr2.
+      + exact (λ _ _, pr2).
+    - abstract (
+        split;
+        now repeat intro
+      ).
+  Defined.
+
+(** * 4.1. This cartesian has limits as well *)
+
+  Section Limits.
+
+    Context {J : graph}.
+    Context {d : diagram J cartesian'}.
+    Context (L : LimCone (mapdiagram (pr1_category _) d)).
+    Context (L' : LimCone (mapdiagram pr2_functor' d)).
+
+    Definition cartesian'_limit_tip
+      : disp_cartesian' (lim L)
+      := lim L'.
+
+    Definition cartesian'_limit_cone
+      (j : vertex J)
+      : cartesian'_limit_tip -->[ limOut L j] pr2 (dob d j)
+      := limOut L' j.
+
+    Definition cartesian'_limit_forms_cone
+      : forms_cone d (λ j, (limOut L j,, cartesian'_limit_cone j) : cartesian' ⟦_ ,, _, _ ,, _⟧).
+    Proof.
+      intros u v e.
+      use total2_paths_f.
+      + apply (limOutCommutes L).
+      + refine (maponpaths (λ x, x _ ) (transportf_const _ _) @ _).
+        apply (limOutCommutes L').
+    Qed.
+
+    Section Arrow.
+      Context (tip': total_category disp_cartesian').
+      Context (cone': cone d tip').
+
+      Definition cartesian'_limit_arrow
+        : total_category disp_cartesian' ⟦ tip', pr11 L,, cartesian'_limit_tip ⟧.
+      Proof.
+        use tpair.
+        - apply (limArrow L _ (mapcone (pr1_category _) d cone')).
+        - apply (limArrow L' _ (mapcone (pr2_functor') d cone')).
+      Defined.
+
+      Lemma cartesian'_limit_arrow_commutes
+        : is_cone_mor cone' (make_cone _ cartesian'_limit_forms_cone) cartesian'_limit_arrow.
+      Proof.
+        intro u.
+        use total2_paths2.
+        - apply (limArrowCommutes L).
+        - exact (limArrowCommutes L' _ _ _ ).
+      Qed.
+
+      Lemma cartesian'_limit_arrow_unique
+        (arrow' : cartesian' ⟦ tip', lim L,, cartesian'_limit_tip ⟧)
+        (arrow'_commutes : is_cone_mor cone' (make_cone _ cartesian'_limit_forms_cone) arrow')
+        : (arrow' ,, arrow'_commutes) = (cartesian'_limit_arrow ,, cartesian'_limit_arrow_commutes).
+      Proof.
+        use total2_paths_f.
+        - use total2_paths2.
+          + apply (limArrowUnique L).
+            intro u.
+            exact (maponpaths pr1 (arrow'_commutes u)).
+          + apply (limArrowUnique L').
+            intro u.
+            refine (maponpaths (λ x, x _) (!transportf_const _ _) @ _).
+            exact (fiber_paths (arrow'_commutes u)).
+        - apply impred_isaprop;
+          intro;
+          apply (homset_property (total_category _)).
+      Qed.
+
+    End Arrow.
+
+    Definition creates_limits_disp_cartesian'
+      : creates_limit d L.
+    Proof.
+      use make_creates_limit.
+      - exact cartesian'_limit_tip.
+      - exact cartesian'_limit_cone.
+      - exact cartesian'_limit_forms_cone.
+      - intros tip' cone'.
+        use ((
+          cartesian'_limit_arrow _ cone' ,,
+          cartesian'_limit_arrow_commutes _ _) ,,
+          λ _, cartesian'_limit_arrow_unique _ cone' _ _).
+    Defined.
+
+    Definition limits_cartesian'
+      : LimCone d
+      := total_limit _ creates_limits_disp_cartesian'.
+
+  End Limits.
 
 End cartesian_product.
