@@ -28,7 +28,21 @@ Section PolynomialFunctors.
 
   Definition polynomial_functor_obj := fun (X : UU) => ∑ (a : A), B a → X.
 
-  (** The action on arrows is defined by composition in the second projection. *)
+  (** The action on arrows is defined by composition in the second projection.
+#+begin_src output
+
+**Composition in the second projection defines the behavior of arrows in a polynomial functor.**
+
+The definition of a polynomial functor for two types X and Y, denoted as `polynomial_functor_arr {X Y}`, takes a function `f : X → Y` as input and returns a new type that encodes the composition of `f` with a polynomial evaluation on an object of type Y. The resulting type is defined as follows:
+
+`(pr1 o, (f ∘ pr2 o)%functions)`, where `o` is a polynomial functor object for type X and `(f ∘ pr2 o)%functions` represents the function obtained by composing `f` with the polynomial evaluation on the second projection of `o`.
+
+The `pr1` and `pr2` functions are projections that extract the first and second elements from a tuple, respectively. The `%functions` operator represents a type that encodes functions that map elements in one type to elements in another type. In this case, it is used to specify the type of the output of `(f ∘ pr2 o)%functions`.
+
+In summary, this definition states that when given a polynomial functor object for type X and a function `f : X → Y`, we can define a new type that encodes the composition of `f` with a polynomial evaluation on an object of type Y by composing `f` with the polynomial evaluation on the second projection of the input object and applying the `%functions` operator to specify the output type.
+#+end_src
+
+   *)
   Definition polynomial_functor_arr {X Y : UU} (f : X → Y) :
     (polynomial_functor_obj X) → (polynomial_functor_obj Y) :=
     fun o => (pr1 o,, (f ∘ pr2 o)%functions).

@@ -1,0 +1,159 @@
+
+UniMath.Foundations.All.
+
+Init.
+Preamble.
+PartA.
+PartB.
+UnivalenceAxiom.
+PartC.
+PartD.
+UnivalenceAxiom2.
+Propositions.
+Sets.
+NaturalNumbers.
+HLevels.
+
+UniMath.MoreFoundations.All.
+Bool.
+WeakEquivalences.
+Tactics.
+PartA.
+PathsOver.
+Nat.
+Notations.
+AlternativeProofs.
+Subposets.
+DoubleNegation.
+DecidablePropositions.
+Propositions.
+NullHomotopies.
+Interval.
+NegativePropositions.
+Sets.
+Orders.
+Equivalences.
+MoreEquivalences.
+QuotientSet.
+Subtypes.
+AxiomOfChoice.
+StructureIdentity.
+Univalence.
+NoInjectivePairing.
+PartD.
+
+#+begin_src output
+Welcome to the world of UniMath Foundations and MoreFoundations libraries!
+In this repository, you will find a comprehensive collection of mathematical concepts and proofs that are essential for building rigorous mathematical models.
+The Foundations library covers the basics of mathematics, including propositions, sets, natural numbers, homotopy theory, and more. It also includes important axioms such as the Univalence Axiom and the Null Homotopies axiom.
+The MoreFoundations library extends the Foundations library by adding new concepts such as Boolean logic, weak equivalences, tactics, and more. It also includes advanced topics like subposets, alternative proofs, and quotient sets.
+Overall, this repository provides a rich and diverse collection of mathematical concepts and proofs that can be used to build complex mathematical models with confidence. So, let's dive in and explore the beauty of mathematics!
+#+end_src
+
+UniMath.Combinatorics.All.
+StandardFiniteSets.
+Vectors.
+VectorsTests.
+Lists.
+FiniteSets.
+KFiniteTypes.
+KFiniteSubtypes.
+Graph.
+CGraph.
+GraphPaths.
+Equivalence_Relations.
+OrderedSets.
+WellFoundedRelations.
+WellOrderedSets.
+ZFstructures.
+FiniteSequences.
+BoundedSearch.
+MetricTree.
+DecSet.
+Maybe.
+MoreLists.
+Tuples.
+
+UniMath.Algebra.All.
+(* This file has been auto-generated, do not edit it. *)
+BinaryOperations.
+Monoids.
+Groups.
+GroupAction.
+RigsAndRings.
+RigsAndRings.Ideals.
+Domains_and_Fields.
+DivisionRig.
+Apartness.
+ConstructiveStructures.
+Archimedean.
+IteratedBinaryOperations.
+Free_Monoids_and_Groups.
+Modules.Core.
+Modules.Submodule.
+Modules.Multimodules.
+Modules.Examples.
+Modules.Quotient.
+Modules.
+Matrix.
+Universal.HVectors.
+Universal.SortedTypes.
+Universal.Signatures.
+Universal.Algebras.
+Universal.Terms.
+Universal.TermAlgebras.
+Universal.VTerms.
+Universal.FreeAlgebras.
+Universal.Equations.
+Universal.EqAlgebras.
+Universal.Examples.Nat.
+Universal.Examples.Bool.
+Universal.Examples.Monoid.
+Universal.Examples.Group.
+Universal.Examples.ListDataType.
+Universal.
+GaussianElimination.Auxiliary.
+GaussianElimination.Vectors.
+GaussianElimination.Matrices.
+GaussianElimination.RowOps.
+GaussianElimination.Elimination.
+GaussianElimination.Corollaries.
+
+#+begin_src output
+"Welcome to UniMath's Combinatorics and Algebra libraries!
+
+Our Combinatorics library contains a wide range of tools for working
+with finite sets, vectors, lists, graphs, equivalence relations,
+ordered sets, and well-founded relations. Whether you need to perform
+basic operations like finding the union or intersection of sets, or
+more advanced ones like computing paths in graphs, UniMath has got you
+covered.
+
+Our Algebra library is just as diverse, offering everything from
+binary operations and monoids to groups, rings, and modules. We also
+include tools for constructing free monoids and groups, solving
+equations, and performing Gaussian elimination on matrices.
+
+So whether you're a student learning about combinatorics and algebra
+or an experienced researcher looking for efficient algorithms, UniMath
+is the perfect resource for you."
+#+end_src
+
+UniMath.Tactics.All.
+UniMath.NumberSystems.All.
+UniMath.SyntheticHomotopyTheory.All.
+UniMath.PAdics.All.
+UniMath.OrderTheory.All.
+UniMath.CategoryTheory.All.
+UniMath.Bicategories.All.
+UniMath.Ktheory.All.
+UniMath.Topology.All.
+UniMath.RealNumbers.All.
+UniMath.SubstitutionSystems.All.
+UniMath.Folds.All.
+UniMath.HomologicalAlgebra.All.
+UniMath.AlgebraicGeometry.All.
+UniMath.Paradoxes.All.
+UniMath.Induction.All.
+UniMath.AlgebraicTheories.All.
+UniMath.Semantics.All.

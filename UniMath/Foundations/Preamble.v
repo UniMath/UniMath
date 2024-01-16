@@ -54,7 +54,13 @@ Notation "X ⨿ Y" := (coprod X Y).
 
 (** The natural numbers *)
 
-(* Declare ML Module "nat_syntax_plugin". *)
+(* Declare ML Module "nat_syntax_plugin".
+
+
+In the context of Coq, we can represent the structure of the universe using a type UU. We use coercion to convert this type to Sortclass, which allows us to define different types such as the empty type, one-element type, and coproduct of two types. The negation function is also defined for the boolean type. The coproduct is represented by the inl and inr notations, which will eventually be replaced with a more concise syntax using the "X ⨿ Y" notation. Finally, we define the natural numbers using the ML module "nat\_syntax\_plugin".
+
+
+ *)
 
 Inductive nat : UU :=
   | O : nat
@@ -135,7 +141,19 @@ Notation "24" := (S 23) : nat_scope.
 Notation "100" := (10 * 10) : nat_scope.
 Notation "1000" := (10 * 100) : nat_scope.
 
-(** Identity Types *)
+(** Identity Types
+
+**"Identity Paths and Their Types"**
+
+Inductive types have been a subject of interest in the field of programming languages, specifically in Coq, a formal verification system. Within Coq, identity types refer to a type that indicates whether two values are equal or not. In this code snippet, we define two functions: `paths_refl` and `idpath`.
+
+`paths_refl` is an inductive function that takes an element `a` from the type `A` and returns a value of type `UU`, which stands for "universe of universes." This function is responsible for returning a reference loop, which can be used to create an identity path.
+
+The `idpath` notation is shorthand for `paths_refl`. It represents the creation of an identity path between two values, and we use it extensively throughout our code.
+
+By defining these functions and notations, we can work with identity types in a more concise and efficient manner within Coq. This makes it easier to reason about the properties of our programs and ensure that they are correct.
+
+ *)
 
 Inductive paths {A:UU} (a:A) : A -> UU := paths_refl : paths a a.
 #[global]
@@ -179,6 +197,20 @@ Set Primitive Projections.
 Set Nonrecursive Elimination Schemes.
 
 Record total2 { T: UU } ( P: T -> UU ) := tpair { pr1 : T; pr2 : P pr1 }.
+  (* total2 *)
+  (*      : (?T → UU) → Type *)
+  (* where *)
+(* ?T : [ |- UU]
+#+begin_src output
+
+We can represent the total2 function as a tuple of two functions: pr1 and pr2, with the type parameter T. The type of pr1 is T, while the type of pr2 is P(T). Both pr1 and pr2 are expected to be functions that take in an input of type T and output an object of type UU.
+
+To use this function, we can create a tuple with two parameters: pr1 and pr2. This tuple represents the total2 function, which takes in two functions (of types T and P(T)) and outputs a tuple containing both functions.
+
+This reinterpretation preserves the main ideas of the original code while using a more creative approach to represent the function.
+#+end_src
+
+ *)
 
 Arguments tpair {_} _ _ _.
 Arguments pr1 {_ _} _.
