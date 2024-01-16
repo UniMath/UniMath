@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (**
 - Definition of an effective epimorphism.
 - Proof that natural transformations that are pointwise effective epis are

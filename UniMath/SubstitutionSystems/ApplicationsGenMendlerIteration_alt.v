@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** proves Theorem 4.7 in Fiore & Saville, List Objects with Algebraic Structures, FSCD'17
 
     also instantiates it to present a variant of Lemma 4.8 in that paper

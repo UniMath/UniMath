@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (*
 In this file we conclude that any monoidal category has a "Monoidal Rezk-completion".  More precisely:
 Let (C,T,I,lu,ru,α) be a monoidal category.

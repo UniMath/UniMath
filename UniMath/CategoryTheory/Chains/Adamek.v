@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** * Adámek's theorem
 
 The main result is Adámek's theorem for constructing initial algebras of

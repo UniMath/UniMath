@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** links the homogeneous instance of lax lineators with the linears based on the self action
 
     this is w.r.t. the elementary notion of the monoidal category of endofunctors, not

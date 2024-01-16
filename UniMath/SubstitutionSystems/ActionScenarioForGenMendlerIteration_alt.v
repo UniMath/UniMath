@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** instantiates the scheme from [GenMendlerIteration_alt] for use in the analysis of recursion schemes involving
     actegories (hence, with actions of monoidal categories on categories)
 

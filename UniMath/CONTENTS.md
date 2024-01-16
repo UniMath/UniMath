@@ -171,6 +171,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DCPOs/Core/IntrinsicApartness.v](OrderTheory/DCPOs/Core/IntrinsicApartness.v)
    - [DCPOs/Core/ScottContinuous.v](OrderTheory/DCPOs/Core/ScottContinuous.v)
    - [DCPOs/Basis/Basis.v](OrderTheory/DCPOs/Basis/Basis.v)
+   - [DCPOs/Basis/Basis2.v](OrderTheory/DCPOs/Basis/Basis2.v)
    - [DCPOs/Basis/CompactBasis.v](OrderTheory/DCPOs/Basis/CompactBasis.v)
    - [DCPOs/Elements/Sharp.v](OrderTheory/DCPOs/Elements/Sharp.v)
    - [DCPOs/Elements/Maximal.v](OrderTheory/DCPOs/Elements/Maximal.v)

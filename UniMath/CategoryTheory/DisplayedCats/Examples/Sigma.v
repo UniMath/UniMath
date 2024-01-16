@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (* For displayed categories D over C and E over total_category D,
   the sigma category of E is a displayed category over C,
   with dependent pairs of objects and morphims of D and E as objects and morphisms.

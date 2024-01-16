@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** material that was previously located in [Signatures.v]
 
 the relation between (semantic) signatures and relative strength (considered in TYPES 2015 post-proceedings paper

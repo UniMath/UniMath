@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** * Double Categories
 
   Authors: Benedikt Ahrens, Paige North, Nima Rasekh, Niels van der Weide

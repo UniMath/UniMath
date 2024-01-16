@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (* - Proof that the functor obtained from a multisorted binding signature
   is omega-cocontinuous ([is_omega_cont_MultiSortedSigToFunctor]) *)
 

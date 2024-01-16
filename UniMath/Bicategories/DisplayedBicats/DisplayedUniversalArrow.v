@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (*
 In this file, we define displayed left universal arrows and show how they define a left universal arrow for the corresponding total pseudo-functor.
 Created by Kobe Wullaert at 06/12/2022.

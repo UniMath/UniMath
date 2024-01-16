@@ -1,4 +1,5 @@
 # -*- makefile-gmake -*-
+OCAMLRUNPARAM=b
 UMAKEFILES += Makefile
 ifneq "$(INCLUDE)" "no"
 ifeq ($(shell test -f build/Makefile-configuration && echo yes),yes)
@@ -34,8 +35,9 @@ PACKAGES += Semantics
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= no
 BUILD_COQIDE ?= no
-DEBUG_COQ ?= no
+DEBUG_COQ ?= yes
 COQBIN ?=
+VERBOSE =  yes
 MEMORY_LIMIT ?= 2500000
 LIMIT_MEMORY ?= no
 ############################################
@@ -215,7 +217,8 @@ ifdef COQBIN
 build/CoqMakefile.make .coq_makefile_output.conf: $(COQBIN)coq_makefile
 endif
 build/CoqMakefile.make .coq_makefile_output.conf: .coq_makefile_input
-	$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output
+	echo $(COQBIN)coq_makefile
+	#$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output
 	mv .coq_makefile_output build/CoqMakefile.make
 
 # "clean::" occurs also in build/CoqMakefile.make, hence both colons

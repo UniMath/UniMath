@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (* In this file, we construct the bicategory DAG of dagger categories as a displayed bicategory (over CAT) and we show that the displayed bicategory is univalent. *)
 
 Require Import UniMath.Foundations.All.

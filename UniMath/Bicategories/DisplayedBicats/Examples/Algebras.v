@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (**
 Lax algebras on a pseudofunctor.
 Morphisms are 2-cells which witness a certain diagram commutes. Since this 2-cell is not necessarily invertible, these are lax algebras.

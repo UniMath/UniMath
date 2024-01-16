@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 Require Export UniMath.MoreFoundations.Notations.
 
 Definition Subposet (X:Poset) := hsubtype X. (* this seems simpler than the next one *)

@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** Definitions of various kinds of Lemmas about _fibrations_, leading up to a theorem characterizing their composites. *)
 
 Require Import UniMath.Foundations.Sets.

@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** A direct definition of finite ordered coproducts by using coproducts *)
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.

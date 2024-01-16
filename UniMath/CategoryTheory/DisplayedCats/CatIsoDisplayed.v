@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (*
 In this file, it is shown that the projection functor (from a displayed category to its base) is an isomorphism of categories,
    if the corresponding displayed category is trivial in the sense that the fibers (both over objects and morphisms) are contractible [forgetful_is_iso].

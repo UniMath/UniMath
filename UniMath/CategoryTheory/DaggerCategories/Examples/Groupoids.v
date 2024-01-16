@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (* Any groupoid becomes a †-category by defining f^† := f^-1
 Furthermore, a groupoid is dagger univalent if and only if it is univalent.
 *)

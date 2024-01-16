@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** * ω-cocontinuous functors
 
 This file contains theory about (omega-) cocontinuous functors, i.e. functors

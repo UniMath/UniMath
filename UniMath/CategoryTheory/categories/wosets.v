@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** This file defines two category structures on well-ordered sets:
 
 1. This first where the morphisms are maps that preserve the ordering and initial segments

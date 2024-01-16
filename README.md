@@ -1,3 +1,5 @@
+make 
+OCAMLRUNPARAM=b
 [![DOI](https://zenodo.org/badge/17321421.svg)](https://zenodo.org/badge/latestdoi/17321421)
 
 Univalent Mathematics

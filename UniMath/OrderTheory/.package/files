@@ -28,6 +28,7 @@ DCPOs/Core/IntrinsicApartness.v
 DCPOs/Core/ScottContinuous.v
 
 DCPOs/Basis/Basis.v
+DCPOs/Basis/Basis2.v
 DCPOs/Basis/CompactBasis.v
 
 DCPOs/Elements/Sharp.v

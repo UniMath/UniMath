@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** the concept of left action of a monoidal category on a category
 
 written by Ralph Matthes in lockstep with the code in [UniMath.CategoryTheory.MonoidalOld.MonoidalCategoriesWhiskered]

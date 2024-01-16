@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** Constructs the actegory with the action of the endomorphisms on [C] by precomposition on a fixed functor category with source category [C]
 
    a general construction is available for bicategories and a fixed object therein

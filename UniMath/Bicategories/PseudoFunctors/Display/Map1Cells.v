@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** This is the first layer of the construction of the bicategory of pseudofunctors.
     To a function of objects, we add an action of 1-cells.
  *)

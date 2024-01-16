@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (*
 The second displayed layer we lay over the bicategory of univalent categories has the purppose of adding the unitors and the associator. In this file we construct the displayed bicategory which adds all the data of the unitors and the associator.
 

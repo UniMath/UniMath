@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (*
 In this file, we provide a builder to construct a symmetric displayed monoidal category on a locally propositional displayed category [make_symmetric_monoidal_disp_cat_locally_prop].
 

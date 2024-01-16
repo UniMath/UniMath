@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** This file provides a direct formalizatoin of Girard's paradox, as explained in Martin-Lof's 1972
 "An intuitionistic theory of types". It can serve as a test as to whether the version of Coq being
 used is (in the most obvious way) inconsistent. **)

@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** * A simple implementation of the maybe/option monad which does not require category theory. *)
 (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 

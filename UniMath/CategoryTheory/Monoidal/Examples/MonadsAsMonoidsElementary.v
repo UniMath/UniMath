@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** In this file, we show how any monoid in the monoidal category of endofunctors is a monad  - here w.r.t. the
     elementary definition of that monoidal category
 

@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** binary and I-indexed product of actegories w.r.t. the same acting monoidal category
 
 author: Ralph Matthes, 2023

@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** In this file, the category of monoids internal to a monoidal category is defined
 
 Note: after refactoring on March 10, 2023, the prior Git history of this development is found via

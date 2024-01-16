@@ -1,0 +1,110 @@
+1
+Error: Backtrace:
+
+Backtrace:
+
+Anomaly "Uncaught exception Not_found."
+Please report at http://coq.inria.fr/bugs/.
+
+Details
+Show. 
+Toplevel input, characters 15-20:
+> Show.
+> ^^^^^
+Error: Backtrace:
+
+Backtrace:
+
+This command requires an open proof.
+
+<prompt>Coq < 6302 || 0 < </prompt>Show. 
+Toplevel input, characters 7-12:
+> Show.
+> ^^^^^
+Error: Backtrace:
+
+Backtrace:
+
+This command requires an open proof.
+
+<prompt>Coq < 6302 || 0 < </prompt>BackTo 3176 . 
+
+<prompt>Coq < 3176 || 0 < </prompt>Unset Silent.
+
+<prompt>Coq < 6305 || 0 < </prompt>Set Diffs "off". 
+
+<prompt>Coq < 6306 || 0 < </prompt>Set Printing Width 82.
+
+<prompt>Coq < 6307 || 0 < </prompt>Set Ltac2 Debug.
+Toplevel input, characters 0-16:
+> Set Ltac2 Debug.
+> ^^^^^^^^^^^^^^^^
+<warning>
+Warning: There is no flag or option with this name: "Ltac2 Debug".
+[unknown-option,default]</warning>
+
+<prompt>Coq < 6308 || 0 < </prompt>Set Ltac Debug.
+
+<prompt>Coq < 6309 || 0 < </prompt>Set Ltac Batch Debug.
+
+<prompt>Coq < 6310 || 0 < </prompt>Require Export UniMath.Foundations.Preamble.
+
+<prompt>Coq < 6311 || 0 < </prompt>Definition fromempty  : ∏ X : UU , empty -> X.
+1 goal (ID 1)
+  
+  ============================
+  ∏ X : UU, ∅ → X
+
+<prompt>fromempty < 6312 |fromempty| 0 < </prompt>Proof.
+
+<prompt>fromempty < 6313 |fromempty| 0 < </prompt>Show Proof.
+?Goal
+
+<prompt>fromempty < 6314 |fromempty| 0 < </prompt>Ltac2 Eval Message.print (Message.of_ident @X).
+X
+- : unit = ()
+
+<prompt>fromempty < 6315 |fromempty| 0 < </prompt>Ltac2 Eval Message.print (Message.of_ident @H).
+H
+- : unit = ()
+
+<prompt>fromempty < 6316 |fromempty| 0 < </prompt>intro X.
+Goal:
+  
+  ============================
+   (∏ X : UU, ∅ → X)
+
+
+Going to execute:
+<coq-core.plugins.ltac::intro@1> $1
+Evaluated term: (pr1 hf)
+Toplevel input, characters 0-8:
+> intro X.
+> ^^^^^^^^
+Error: Backtrace:
+
+Backtrace:
+
+Anomaly "Uncaught exception Not_found."
+Please report at http://coq.inria.fr/bugs/.
+
+<prompt>fromempty < 6316 |fromempty| 0 < </prompt>intro X.
+Goal:
+  
+  ============================
+   (∏ X : UU, ∅ → X)
+
+
+Going to execute:
+<coq-core.plugins.ltac::intro@1> $1
+Toplevel input, characters 0-8:
+> intro X.
+> ^^^^^^^^
+Error: Backtrace:
+
+Backtrace:
+
+Anomaly "Uncaught exception Not_found."
+Please report at http://coq.inria.fr/bugs/.
+
+<prompt>fromempty < 6316 |fromempty| 0 < </prompt>

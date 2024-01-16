@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** Author: Michael A. Warren (maw@mawarren.net) in consultation with Vladimir Voevodsky.*)
 (** Date: Spring - Summer 2015.*)
 (** Description: Some tactics for natural numbers. *)

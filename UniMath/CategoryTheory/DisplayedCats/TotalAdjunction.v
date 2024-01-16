@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (*
 In this file, we show how any displayed adjunction (resp. equivalence) induces an adjunction (resp. equivalence) between the corresponding total categories.
 Created by Kobe Wullaert at 06/12/2022.

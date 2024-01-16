@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** *** Going into the opposite direction of [UniMath.Bicategories.Core.Examples.BicategoryFromWhiskeredMonoidal] *)
 (** We fix a bicategory and an object of it and construct the (whiskered) monoidal category of endomorphisms.
 

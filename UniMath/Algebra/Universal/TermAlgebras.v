@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** * The ground term algebra and the proof it is initial. *)
 (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 

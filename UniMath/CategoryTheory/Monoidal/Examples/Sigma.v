@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (*
 In this file, we construct a displayed monoidal structure on the sigma construction (of displayed categories), given both displayed categories have a displayed monoidal structure.
 For simplicity, we assume that the upper-most displayed category is locally propositional (this assumption is satisfied for the instantiations).

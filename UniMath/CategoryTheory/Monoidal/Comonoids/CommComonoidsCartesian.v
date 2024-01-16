@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (*
    In this file, we show how the (symmetric monoidal) category of commutative comonoids, over a symmetric monoidal category, is cartesian.
 *)

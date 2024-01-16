@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (* In this file we formalize the definition of a certain monoidal structure on a display category and show that the total category has the structure of a monoidal category if the base category is a monoidal category and the displayed category has this certain monoidal structure.
 
 The data of a displayed monoidal category consists of:

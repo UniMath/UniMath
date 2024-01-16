@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** Construction of actegory morphisms
 
 Part Generalization of pointed distributivity laws (a misnomer as it became clear in July 2023) to relative lax commutators in general monoidal categories

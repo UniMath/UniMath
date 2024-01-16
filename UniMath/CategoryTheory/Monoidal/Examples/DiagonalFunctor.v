@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (**
 Let V be a symmetric monoidal category,
 we show how the "diagonal functor" V → V : x ↦ x ⊗ x is part of a strong monoidal functor.

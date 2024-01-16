@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** the constituents of the bicategory of categories without using the package [Bicategories];
     all is expressed with reference to the functor categories
 

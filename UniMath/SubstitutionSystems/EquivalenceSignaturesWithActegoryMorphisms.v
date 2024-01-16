@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** Links signatures to lax morphisms in suitable actegories, by exploiting the already established link with action-based strength (in the non-whiskered setting)
 
 Author: Ralph Matthes 2022

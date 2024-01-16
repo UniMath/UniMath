@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** an elementary construction of the monoidal category of endofunctors of a given category
     a general construction is available for bicategories and a fixed object therein
 author: Ralph Matthes, 2023

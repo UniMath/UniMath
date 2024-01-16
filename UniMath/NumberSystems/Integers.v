@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** * Generalities on the type of integers and integer arithmetic. Vladimir Voevodsky . Aug. - Sep. 2011.
 
 In this file we introduce the type [ hz ] of integers defined as the quotient set of [ dirprod nat nat ] by the standard equivalence relation and develop the main notions of the integer arithmetic using this definition .

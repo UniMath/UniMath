@@ -1,3 +1,6 @@
+*.bak
+*~
+*\#
 /build/Makefile-coq.make.bak
 /TAGS*
 /html
@@ -29,3 +32,4 @@ _CoqProject
 /..coq_makefile_output.d
 /UniMath/.dir-locals.el
 /_build/
+*~

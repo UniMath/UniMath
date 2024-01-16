@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** * A library about decidable Dedekind Cuts *)
 (** Author: Catherine LELAY. Oct 2015 - *)
 (** Additional results about Dedekind cuts which cannot be proved *)

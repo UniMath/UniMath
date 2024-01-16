@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (** copies the final object and the inserters from the treatment of the bicategory of univalent categories *)
 
 Require Import UniMath.Foundations.All.

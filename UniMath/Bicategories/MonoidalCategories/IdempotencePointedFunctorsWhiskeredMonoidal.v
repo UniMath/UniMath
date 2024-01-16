@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac2 Backtrace.
+Set Ltac Batch Debug.
 (* In this file we show that for any category C,
    the monoidal category of pointed functors of C is equivalent to
    the monoidal category of monoidal-pointed objects in the monoidal category of pointed functors of C.
