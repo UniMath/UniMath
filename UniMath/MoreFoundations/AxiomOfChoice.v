@@ -11,7 +11,7 @@ Lemma pr1_issurjective {X : UU} {P : X -> UU} :
 Proof.
   intros ne x. simple refine (hinhuniv _ (ne x)).
   intros p. apply hinhpr.
-  exact ((x,,p),,idpath _).
+  exact ((x ,,u p) ,,u idpath _).
 Defined.
 
 (** ** Characterize equivalence relations on [bool] *)

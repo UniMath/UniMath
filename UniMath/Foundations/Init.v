@@ -1,5 +1,10 @@
 (** Initial setup unrelated to Univalent Foundations *)
 
+
+From MetaCoq.Utils Require Import utils.
+From MetaCoq.Template Require Import All.
+
+
 Require Export Coq.Init.Notations.
 (* get the standard Coq reserved notations *)
 
@@ -18,7 +23,7 @@ Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)
 
 Notation "A -> B" := (forall (_ : A), B) : type_scope.
 
-Notation "X <- Y" := (Y -> X) (at level 90, only parsing, left associativity) : type_scope.
+Notation "X <-- Y" := (Y -> X) (at level 91, only parsing, left associativity) : type_scope.
 
 Notation "x → y" := (x -> y)
   (at level 99, y at level 200, right associativity): type_scope.
@@ -54,7 +59,7 @@ Reserved Notation "x != y" (at level 70).
 Reserved Notation "'¬' X" (at level 35, right associativity).
 (* type this in emacs in agda-input method with \neg *)
 
-Reserved Notation "A × B" (at level 75, right associativity).
+Reserved Notation "A ×u B" (at level 75, right associativity).
 
 Reserved Notation "C ⟦ a , b ⟧" (at level 49, right associativity).
 (* ⟦   to input: type "\[[" or "\(" with Agda input method
@@ -85,7 +90,7 @@ Reserved Notation "C '^op'" (at level 3, format "C ^op").
 
 Reserved Notation "q '^-1'" (at level 10).
 
-Reserved Notation "a <-- b" (at level 55).
+(* Reserved Notation "a <-- b" (at level 50). *)
 
 Reserved Notation "[ C , D ]" .
 
@@ -145,7 +150,7 @@ Reserved Notation "x // r"  (at level 50, left associativity).
 Reserved Notation "X ⨿ Y" (at level 50, left associativity).
 (* type this in emacs with C-X 8 RET AMALGAMATION OR COPRODUCT *)
 
-Reserved Notation "x ,, y" (at level 60, right associativity).
+Reserved Notation "x ,,u y" (at level 60, right associativity).
 
 Reserved Notation "A ⊕ B" (at level 50, left associativity).
 (* to input: type "\o+" or "\oplus" with Agda input method *)

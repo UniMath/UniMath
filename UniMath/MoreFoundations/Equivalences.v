@@ -30,7 +30,7 @@ Definition Equivalence X Y := ∑ (f:X->Y), isEquivalence f.
 
 Notation "X ≅ Y" := (Equivalence X Y) (at level 60, no associativity) : type_scope.
 
-Definition makeEquivalence X Y f g p q h := (f,,g,,p,,q,,h) : X ≅ Y.
+Definition makeEquivalence X Y f g p q h := (f ,,u g ,,u p ,,u q ,,u h) : X ≅ Y.
 
 Definition Equivalence_toFunction {X Y} : X≅Y -> X->Y := pr1.
 
@@ -67,7 +67,7 @@ Proof.
   set (q := isEquivalence_toSourceHomotopy i).
   set (h := isEquivalence_toAdjointness i).
   intro y.
-  exists (g y,,p y).
+  exists (g y ,,u p y).
   intros xe.
   simple refine (hfibertriangle2 _ _ _ _ _).
   - exact (! (q (pr1 xe)) @ maponpaths g (pr2 xe)).

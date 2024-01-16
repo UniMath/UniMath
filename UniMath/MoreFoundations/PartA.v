@@ -210,10 +210,10 @@ Proof.
 Defined.
 
 
-Lemma transportf_pair {A B} (P : A × B -> UU) {a a' : A} {b b' : B}
-      (eA : a = a') (eB : b = b') (p : P (a,,b))
+Lemma transportf_pair {A B} (P : A ×u B -> UU) {a a' : A} {b b' : B}
+      (eA : a = a') (eB : b = b') (p : P (a ,,u b))
       : transportf P (pathsdirprod eA eB) p =
-        transportf (λ bb, P(a',,bb) ) eB (transportf (λ aa, P(aa,,b)) eA p).
+        transportf (λ bb, P(a' ,,u bb) ) eB (transportf (λ aa, P(aa ,,u b)) eA p).
 Proof.
   induction eA. induction eB. apply idpath.
 Defined.
@@ -241,8 +241,8 @@ Proof.
 Defined.
 
 Lemma pr2_transportf {A} {B1 B2 : A → UU}
-    {a a' : A} (e : a = a') (xs : B1 a × B2 a)
-  : pr2 (transportf (λ a, B1 a × B2 a) e xs) = transportf _ e (pr2 xs).
+    {a a' : A} (e : a = a') (xs : B1 a ×u B2 a)
+  : pr2 (transportf (λ a, B1 a ×u B2 a) e xs) = transportf _ e (pr2 xs).
 Proof.
   apply pathsinv0.
   apply (transport_map (λ a, pr2 (P := λ _, B2 a))).
@@ -316,14 +316,14 @@ Defined.
 Definition empty_HLevel
            (n : nat)
   : HLevel (n + 1)
-  := empty ,, empty_hlevel n.
+  := empty  ,,u  empty_hlevel n.
 
 Definition HLevel_fun
            {n : nat}
            (X Y : HLevel n)
   : HLevel n.
 Proof.
-  simple refine (_ ,, _).
+  simple refine (_  ,,u  _).
   - exact (pr1 X → pr1 Y).
   - apply impredfun.
     exact (pr2 Y).
@@ -350,7 +350,7 @@ Defined.
 Lemma weqtotal2 {X Y:Type} {P:X->Type} {Q:Y->Type} (f : X ≃ Y) :
   (∏ x, P x ≃ Q (f x)) -> (∑ x:X, P x) ≃ (∑ y:Y, Q y).
 Proof.
-  intros e. exists (λ xp, (f(pr1 xp),,e (pr1 xp) (pr2 xp))).
+  intros e. exists (λ xp, (f(pr1 xp) ,,u e (pr1 xp) (pr2 xp))).
   exact (twooutof3c _ _ (isweqfibtototal P (Q ∘ f) e) (pr2 (weqfp f Q))).
 Defined.
 
@@ -404,7 +404,7 @@ Defined.
 
 Section PointedTypes.
   Definition PointedType := ∑ X, X.
-  Definition pointedType X x := X,,x : PointedType.
+  Definition pointedType X x := X ,,u x : PointedType.
   Definition underlyingType (X:PointedType) := pr1 X.
   Coercion underlyingType : PointedType >-> UU.
   Definition basepoint (X:PointedType) := pr2 X.
@@ -419,28 +419,28 @@ End PointedTypes.
 
 (** associativity of ∑ *)
 
-Definition weq_total2_prod {X Y} (Z:Y->Type) : (∑ y, X × Z y) ≃ (X × ∑ y, Z y).
+Definition weq_total2_prod {X Y} (Z:Y->Type) : (∑ y, X ×u Z y) ≃ (X ×u ∑ y, Z y).
 Proof.
   (* move upstream *)
   intros. simple refine (make_weq _ (isweq_iso _ _ _ _)).
-  { intros [y [x z]]. exact (x,,y,,z). }
-  { intros [x [y z]]. exact (y,,x,,z). }
+  { intros [y [x z]]. exact (x ,,u y ,,u z). }
+  { intros [x [y z]]. exact (y ,,u x ,,u z). }
   { intros [y [x z]]. reflexivity. }
   { intros [x [y z]]. reflexivity. }
 Defined.
 
 Definition totalAssociativity {X:UU} {Y: ∏ (x:X), UU} (Z: ∏ (x:X) (y:Y x), UU) : (∑ (x:X) (y:Y x), Z x y) ≃ (∑ (p:∑ (x:X), Y x), Z (pr1 p) (pr2 p)).
 Proof.
-  intros. simple refine (_,,isweq_iso _ _ _ _).
-  { intros [x [y z]]. exact ((x,,y),,z). }
-  { intros [[x y] z]. exact (x,,(y,,z)). }
+  intros. simple refine (_ ,,u isweq_iso _ _ _ _).
+  { intros [x [y z]]. exact ((x ,,u y) ,,u z). }
+  { intros [[x y] z]. exact (x ,,u (y ,,u z)). }
   { intros [x [y z]]. reflexivity. }
   { intros [[x y] z]. reflexivity. }
 Defined.
 
 (* direct product of 3 paths; extends pathsdirprod *)
 Definition paths3 {X Y Z} {x x':X} {y y':Y} {z z':Z} :
-  x = x' -> y = y' -> z = z' -> @paths (_×_×_) (x,,y,,z) (x',,y',,z').
+  x = x' -> y = y' -> z = z' -> @paths (_×u_×u_) (x ,,u y ,,u z) (x' ,,u y' ,,u z').
 Proof.
   intros p q r. induction p, q, r. reflexivity.
 Defined.
@@ -554,7 +554,7 @@ Defined.
 
 (* replace all uses of this by uses of subtypePairEquality *)
 Definition pair_path_props {X} {P:X->Type} {x y:X} {p:P x} {q:P y} :
-  x = y -> (∏ z, isaprop (P z)) -> x,,p = y,,q.
+  x = y -> (∏ z, isaprop (P z)) -> x ,,u p = y ,,u q.
 Proof.
   intros e is. now apply subtypePairEquality.
 Abort.
@@ -562,7 +562,7 @@ Abort.
 Local Open Scope transport.
 
 Definition pair_path2 {A} {B:A->UU} {a a1 a2} {b1:B a1} {b2:B a2}
-           (p:a1 = a) (q:a2 = a) (e:p#b1 = q#b2) : a1,,b1 = a2,,b2.
+           (p:a1 = a) (q:a2 = a) (e:p#b1 = q#b2) : a1 ,,u b1 = a2 ,,u b2.
 Proof.
   intros. induction p,q; compute in e. induction e. reflexivity.
 Defined.
@@ -829,7 +829,7 @@ Defined.
 
 
 Lemma transportf_total2_const (A B : UU) (P : B -> A -> UU) (b : B) (a1 a2 : A) (e : a1 = a2) (p : P b a1) :
-  transportf (λ x, ∑ y, P y x) e (b,, p) = b,, transportf (P b) e p.
+  transportf (λ x, ∑ y, P y x) e (b ,,u  p) = b ,,u  transportf (P b) e p.
 Proof.
   induction e.
   apply idpath.
@@ -878,7 +878,7 @@ Defined.
 
 (* perhaps consider name *)
 Lemma total2_reassoc_paths {A} {B : A → UU} {C : (∑ a, B a) -> UU}
-    (BC : A -> UU := λ a, ∑ b, C (a,,b))
+    (BC : A -> UU := λ a, ∑ b, C (a ,,u b))
     {a1 a2 : A} (bc1 : BC a1) (bc2 : BC a2)
     (ea : a1 = a2)
     (eb : transportf _ ea (pr1 bc1) = pr1 bc2)
@@ -892,7 +892,7 @@ Defined.
 
 (* perhaps consider name *)
 Lemma total2_reassoc_paths' {A} {B : A → UU} {C : (∑ a, B a) -> UU}
-    (BC : A -> UU := λ a, ∑ b, C (a,,b))
+    (BC : A -> UU := λ a, ∑ b, C (a ,,u b))
     {a1 a2 : A} (bc1 : BC a1) (bc2 : BC a2)
     (ea : a1 = a2)
     (eb : pr1 bc1 = transportb _ ea (pr1 bc2))
@@ -982,8 +982,8 @@ Section Weqpaths.
   Lemma fillerEquation {X:Type} {x y z : X} {p : x = z} {q : y = z}
         (r : x = y) (k : r @ q = p) :
     @paths (∑ r, r@q=p)
-           (r ,, k)
-           ((p @ !q) ,, hornRotation_rr (idpath _)).
+           (r  ,,u  k)
+           ((p @ !q)  ,,u  hornRotation_rr (idpath _)).
   Proof.
     apply proofirrelevancecontr. apply uniqueFiller.
   Defined.
@@ -997,7 +997,7 @@ Section Weqpaths.
   Defined.
 
   Definition transportPathTotal {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x')
-             (r : (x,,y) = (x',,y'))
+             (r : (x ,,u y) = (x' ,,u y'))
              (T : ∏ (a:X) (b:Y a), Type) : T x y → T x' y'.
   Proof.
     induction (total2_paths_equiv _ _ _ r) as [p q].
@@ -1087,7 +1087,7 @@ Proof.
   etrans.
   {
     apply (maponpathscomp
-             (tpair (λ xx', g (pr2 xx') = f (pr1 xx')) (x₁,, x₂))
+             (tpair (λ xx', g (pr2 xx') = f (pr1 xx')) (x₁ ,,u  x₂))
              (hfpg f g)).
   }
   apply maponpaths_for_constant_function.
@@ -1118,7 +1118,7 @@ Proof.
   etrans.
   {
     apply (maponpathscomp
-             (tpair (λ xx', g (pr2 xx') = f (pr1 xx')) (x₁,, x₂))
+             (tpair (λ xx', g (pr2 xx') = f (pr1 xx')) (x₁ ,,u  x₂))
              (hfpg' f g)).
   }
   apply maponpaths_for_constant_function.
@@ -1236,7 +1236,7 @@ Definition hfp_HLevel
            (g : pr1 Y → pr1 Z)
   : HLevel n.
 Proof.
-  simple refine (hfp f g ,, _).
+  simple refine (hfp f g  ,,u  _).
   apply hfp_is_of_hlevel.
   - exact (pr2 X).
   - exact (pr2 Y).
@@ -1258,7 +1258,7 @@ Definition transportf_total2_paths_f
       (λ z, C (pr1 z))
       (@total2_paths_f
          A B
-         (a₁ ,, b₁) (a₂ ,, b₂)
+         (a₁  ,,u  b₁) (a₂  ,,u  b₂)
          p
          q)
       c₁
@@ -1301,7 +1301,7 @@ Defined.
 
 Definition pathsdirprod_eta
            {X Y : UU}
-           {x y : X × Y}
+           {x y : X ×u Y}
            (p : x = y)
   : p
     =
@@ -1330,22 +1330,22 @@ Defined.
 (** Paths on functions *)
 Definition app_fun
            {X Y : UU}
-  : (X → Y) × X → Y
+  : (X → Y) ×u X → Y
   := λ fx, pr1 fx (pr2 fx).
 
 Definition app_homot
            {X Y₁ Y₂ : UU}
            {f g : Y₁ → X → Y₂}
-           (p : ∏ (z : Y₁ × X), f (pr1 z) (pr2 z) = g (pr1 z) (pr2 z))
+           (p : ∏ (z : Y₁ ×u X), f (pr1 z) (pr2 z) = g (pr1 z) (pr2 z))
            (y : Y₁)
   : f y = g y
-  := funextsec _ _ _ (λ x, p (y ,, x)).
+  := funextsec _ _ _ (λ x, p (y  ,,u  x)).
 
 Definition maponpaths_app_fun
            {X Y : UU}
-           {fx gx : (X → Y) × X}
+           {fx gx : (X → Y) ×u X}
            (p : fx = gx)
-  : maponpaths (λ (fx : (X → Y) × X), app_fun fx) p
+  : maponpaths (λ (fx : (X → Y) ×u X), app_fun fx) p
     =
     maponpaths (λ z, z (pr2 fx)) (maponpaths dirprod_pr1 p)
     @
@@ -1358,21 +1358,21 @@ Defined.
 
 
 (** Product of a propositions with itself *)
-Definition dirprod_with_prop (A : UU) (isa : isaprop A) : A × A ≃ A.
+Definition dirprod_with_prop (A : UU) (isa : isaprop A) : A ×u A ≃ A.
 Proof.
   apply weqpr1, iscontraprop1; assumption.
 Defined.
 
 (** A variation on the above theme *)
-Definition dirprod_with_prop' (A B : UU) (isa : isaprop A) : A × B × A ≃ B × A.
+Definition dirprod_with_prop' (A B : UU) (isa : isaprop A) : A ×u B ×u A ≃ B ×u A.
 Proof.
-  intermediate_weq ((A × B) × A).
+  intermediate_weq ((A ×u B) ×u A).
   apply invweq, weqtotal2asstor.
-  intermediate_weq (A × (A × B)).
+  intermediate_weq (A ×u (A ×u B)).
   apply weqdirprodcomm.
-  intermediate_weq ((A × A) × B).
+  intermediate_weq ((A ×u A) ×u B).
   apply invweq, weqtotal2asstor.
-  intermediate_weq (A × B).
+  intermediate_weq (A ×u B).
   apply weqdirprodf.
   - apply dirprod_with_prop; assumption.
   - apply idweq.
@@ -1384,7 +1384,7 @@ Defined.
 Section surjectivity.
   Lemma issurjective_idfun (X : UU) : issurjective (idfun X).
   Proof.
-    exact(λ (x : X), hinhpr (x ,, idpath x)).
+    exact(λ (x : X), hinhpr (x  ,,u  idpath x)).
   Qed.
 
   Lemma issurjective_to_contr {X Y : UU}
@@ -1432,7 +1432,7 @@ Section surjectivity.
     intros ffiber gfiber.
     use make_hfiber.
     - exact(hfiberpr1 f u ffiber
-              ,, hfiberpr1 g w gfiber).
+               ,,u  hfiberpr1 g w gfiber).
     - apply dirprodeq
       ; apply hfiberpr2.
   Qed.
@@ -1449,7 +1449,7 @@ Section surjectivity.
 
     intros [px pathpx]. (* pathpx : f x px = qx, in (Q x) *)
     use make_hfiber.
-    - exact(x ,, px).
+    - exact(x  ,,u  px).
     - exact(pair_path_in2 Q pathpx).
   Qed.
 

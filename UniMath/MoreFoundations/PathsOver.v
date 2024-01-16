@@ -24,7 +24,7 @@ Defined.
 
 (** Paths-over versus path pairs *)
 Definition PathOverToPathPair {X:Type} {x x':X} (p:x=x') {Y : X -> Type} (y : Y x) (y' : Y x') :
-  PathOver p y y' → PathPair (x,,y) (x',,y').
+  PathOver p y y' → PathPair (x ,,u y) (x' ,,u y').
 Proof.
   intros q. induction p. exists (idpath x). cbn. exact q.
 Defined.
@@ -38,10 +38,10 @@ Defined.
 Definition PathOverToTotalPath {X:Type}
            {x x':X} (p:x=x')
            {Y : X -> Type} (y : Y x) (y' : Y x') :
-  PathOver p y y' → (x,,y) = (x',,y').
+  PathOver p y y' → (x ,,u y) = (x' ,,u y').
 Proof.
   intros q.
-  exact (invmap (total2_paths_equiv  Y (x,, y) (x',, y')) (PathOverToPathPair q)).
+  exact (invmap (total2_paths_equiv  Y (x ,,u  y) (x' ,,u  y')) (PathOverToPathPair q)).
 Defined.
 
 Lemma PathOverUniqueness  {X:Type} {x x':X} (p:x=x') {Y : X -> Type} (y : Y x) :

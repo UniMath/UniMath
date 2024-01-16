@@ -220,4 +220,4 @@ Notation "'∑'  x .. y , P" := (total2 (λ x, .. (total2 (λ y, P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.
   (* type this in emacs in agda-input method with \sum *)
 
-Notation "x ,, y" := (tpair _ x y).
+Notation "x ,,u y" := (tpair _ x y).

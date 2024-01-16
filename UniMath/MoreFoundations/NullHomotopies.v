@@ -53,7 +53,7 @@ Defined.
 Definition cone_squash_map {X Y} (f:X->Y) (y:Y) :
   nullHomotopyTo f y -> ∥ X ∥ -> Y.
 Proof.
-  intros e h. exact (point_from (h (paths_to_prop y) (λ x, f x,,e x))).
+  intros e h. exact (point_from (h (paths_to_prop y) (λ x, f x ,,u e x))).
 Defined.
 
 Goal ∏ X Y (y:Y) (f:X->Y) (e:∏ m:X, f m = y),

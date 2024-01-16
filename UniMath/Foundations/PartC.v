@@ -138,7 +138,7 @@ Definition maponcomplincl {X Y : UU} (f : X -> Y) (is : isincl f) (x : X) :
   compl X x -> compl Y (f x)
   := λ x0' : _,
        match x0' with
-         tpair _ x' neqx => tpair _ (f x')
+         tpair  x' neqx => tpair _ (f x')
                                  (negf (invmaponpathsincl  _ is x x') neqx)
        end.
 
@@ -1087,28 +1087,28 @@ Proof.
 Defined.
 
 Theorem isdecpropdirprod {X Y : UU} (isx : isdecprop X) (isy : isdecprop Y) :
-  isdecprop (X × Y).
+  isdecprop (X ×u Y).
 Proof.
   intros.
-  assert (isp : isaprop (X × Y))
+  assert (isp : isaprop (X ×u Y))
     by apply (isofhleveldirprod 1 _ _ (isdecproptoisaprop _ isx)
                                 (isdecproptoisaprop _ isy)).
   induction (pr1 isx) as [ x | nx ].
   - induction (pr1 isy) as [ y | ny ].
     + apply (isdecpropif _ isp (ii1 (make_dirprod x y))).
-    + assert (nxy : neg (X × Y)).
+    + assert (nxy : neg (X ×u Y)).
       {
         intro xy. induction xy as [ x0  y0 ]. apply (ny y0).
       }
       apply (isdecpropif _ isp (ii2 nxy)).
-  - assert (nxy : neg (X × Y)).
+  - assert (nxy : neg (X ×u Y)).
     {
       intro xy. induction xy as [ x0  y0 ]. apply (nx x0).
     }
     apply (isdecpropif _ isp (ii2 nxy)).
 Defined.
 
-Lemma fromneganddecx {X Y : UU} : isdecprop X -> ¬ (X × Y) -> ¬X ⨿ ¬Y.
+Lemma fromneganddecx {X Y : UU} : isdecprop X -> ¬ (X ×u Y) -> ¬X ⨿ ¬Y.
 Proof.
   intros isx nf.
   induction (pr1 isx) as [ x | nx ].
@@ -1117,7 +1117,7 @@ Proof.
   - exact (ii1 nx).
 Defined.
 
-Lemma fromneganddecy {X Y : UU} : isdecprop Y -> ¬ (X × Y) -> ¬X ⨿ ¬Y.
+Lemma fromneganddecy {X Y : UU} : isdecprop Y -> ¬ (X ×u Y) -> ¬X ⨿ ¬Y.
 Proof.
   intros isy nf. induction (pr1 isy) as [ y | ny ].
   - assert (nx := negf (λ x : X, make_dirprod x y) nf).

@@ -26,7 +26,7 @@ Definition subtype_notContainedIn {X:UU} (S T : hsubtype X) : hProp := ∃ x:X, 
 
 Definition subtype_inc {X:UU} {S T : hsubtype X} : S ⊆ T -> S -> T.
 Proof.
-  intros le s. exact (pr1 s,, le (pr1 s) (pr2 s)).
+  intros le s. exact (pr1 s ,,u  le (pr1 s) (pr2 s)).
 Defined.
 
 Notation " S ⊈ T " := (subtype_notContainedIn S T) (at level 70) : subtype.
@@ -64,7 +64,7 @@ Proof.
       ** intros [x [Tx nSx]] e. use nSx; clear nSx. exact (pr2 (e x) Tx).
 Defined.
 
-Lemma subtype_notEqual_from_negEqual {X:UU} (S T : hsubtype X) : LEM -> (S ≢ T <- ¬ (S ≡ T)).
+Lemma subtype_notEqual_from_negEqual {X:UU} (S T : hsubtype X) : LEM -> (S ≢ T <-- ¬ (S ≡ T)).
 Proof.
   intros lem ne. unfold subtype_equal in ne.
   assert (q := negforall_to_existsneg _ lem ne); clear ne.
@@ -120,7 +120,7 @@ Definition subtype_binaryunion_leq2 {X} (A B : hsubtype X) : B ⊆ (A ∪ B)
   := fun x => hdisj_in2.
 
 Definition subtype_union_containedIn {X:hSet} {I:UU} (S : I -> hsubtype X) i : S i ⊆ ⋃ S
-  := λ x s, hinhpr (i,,s).
+  := λ x s, hinhpr (i ,,u s).
 
 (** Given a family of subtypes of X indexed by a type I, an element x : X is in
     their intersection if it is an element of each subtype.
@@ -317,7 +317,7 @@ Proof.
 Qed.
 
 Definition image_hsubtype {X Y : UU} (U : hsubtype X) (f : X → Y)
-  : hsubtype Y := λ y : Y, (∃ x : X, f x = y × U x).
+  : hsubtype Y := λ y : Y, (∃ x : X, f x = y ×u U x).
 
 Lemma image_hsubtype_emptyhsubtype {X Y : UU} (f : X → Y)
   : image_hsubtype (emptysubtype X) f = emptysubtype Y.
@@ -352,7 +352,7 @@ Proof.
     apply (pr22 u0).
   - intro xinU.
     apply hinhpr.
-    exact (x,, idpath x,, xinU).
+    exact (x ,,u  idpath x ,,u  xinU).
 Qed.
 
 Definition image_hsubtype_comp {X Y Z : UU} (U : hsubtype X)
@@ -369,7 +369,7 @@ Proof.
     exists (f (pr1 x)).
     exists (pr12 x).
     apply hinhpr.
-    exact (pr1 x,, maponpaths f (idpath (pr1 x)),, pr22 x).
+    exact (pr1 x ,,u  maponpaths f (idpath (pr1 x)) ,,u  pr22 x).
   - intro zinCompU.
     use (factor_through_squash _ _ zinCompU).
     { apply ishinh. }
@@ -446,7 +446,7 @@ Section singletons.
 
   (* The canonical element of the singleton subtype. *)
   Definition singleton_point {X : UU} {x : X} : singleton x
-    := (x ,, hinhpr (idpath x)).
+    := (x  ,,u  hinhpr (idpath x)).
 
   Definition iscontr_singleton {X : hSet} (x : X) : iscontr (singleton x).
   Proof.
@@ -487,8 +487,8 @@ Proof.
   apply sumofmaps
   ; (intro y; use make_hfiber)
   ; try (apply subtypePath_prop).
-  - exact(inl (x ,, y)).
+  - exact(inl (x  ,,u  y)).
   - apply idpath.
-  - exact(inr (x ,, y)).
+  - exact(inr (x  ,,u  y)).
   - apply idpath.
 Qed.

@@ -27,7 +27,7 @@ End po_pty.
 The terminology is our own, and the definition is not very well-established.  Classically, this is nearly equivalent to the more established _strict total order_ (transitive, irreflexive, trichotomous).  Constructively/computationally, cotransitivity is generally better than trichotomy — in particular, it is constructively provable for the reals — so it is more used in such settings.   *)
 
 Definition isStrongOrder {X : UU} (R : hrel X) : UU :=
-  istrans R × iscotrans R × isirrefl R.
+  istrans R ×u iscotrans R ×u isirrefl R.
 
 Lemma isapropisStrongOrder {X : hSet} (R : hrel X) :
   isaprop (isStrongOrder R).
@@ -88,7 +88,7 @@ Qed.
 
 Definition StrongOrder (X : UU) := ∑ R : hrel X, isStrongOrder R.
 Definition make_StrongOrder {X : UU} (R : hrel X) (is : isStrongOrder R) : StrongOrder X :=
-  R,,is.
+  R ,,u is.
 Definition pr1StrongOrder {X : UU} : StrongOrder X → hrel X := pr1.
 Coercion  pr1StrongOrder : StrongOrder >-> hrel.
 Definition pr2StrongOrder {X : UU} {R : StrongOrder X} : isStrongOrder R := pr2 R.
@@ -96,7 +96,7 @@ Coercion pr2StrongOrder : StrongOrder >-> isStrongOrder.
 
 Definition StrongOrder_bck {X Y : UU} (f : Y → X)
            (gt : StrongOrder X) : StrongOrder Y :=
-  (fun_hrel_comp f gt) ,, isStrongOrder_bck f _ (pr2 gt).
+  (fun_hrel_comp f gt)  ,,u  isStrongOrder_bck f _ (pr2 gt).
 
 Lemma isStrongOrder_setquot {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L) :
   isStrongOrder L → isStrongOrder (quotrel is).
@@ -110,7 +110,7 @@ Qed.
 
 Definition StrongOrder_setquot {X : UU} {R : eqrel X} {L : StrongOrder X}
            (is : iscomprelrel R L) : StrongOrder (setquot R) :=
-  quotrel is,, isStrongOrder_setquot is (pr2 L).
+  quotrel is ,,u  isStrongOrder_setquot is (pr2 L).
 
 
 (** * Reverse orders *)

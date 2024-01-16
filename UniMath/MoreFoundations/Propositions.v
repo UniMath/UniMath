@@ -58,7 +58,7 @@ Defined.
 Lemma dneg_elim_to_LEM : (∏ P:hProp, ¬ ¬ P -> P) -> LEM.
 (* a converse for Lemma dneg_LEM *)
 Proof.
-  intros dne. intros P. simple refine (dne (_,,_) _).
+  intros dne. intros P. simple refine (dne (_ ,,u _) _).
   simpl. intros n.
   assert (q : ¬ (P ∨ ¬ P)).
   { now apply weqnegtonegishinh. }
@@ -77,7 +77,7 @@ Defined.
 Lemma negimpl_to_conj (P Q:hProp) : LEM -> ( ¬ (P ⇒ Q) -> P ∧ ¬ Q ).
 Proof.
   intros lem ni. assert (r := negforall_to_existsneg _ lem ni); clear lem ni.
-  apply (squash_to_hProp r); clear r; intros [p nq]. exact (p,,nq).
+  apply (squash_to_hProp r); clear r; intros [p nq]. exact (p ,,u nq).
 Defined.
 
 Definition hrel_set (X : hSet) : hSet := make_hSet (hrel X) (isaset_hrel X).
@@ -120,7 +120,7 @@ Abort.
 (* here's another version *)
 Goal ∏ (X:Type)
      (P := λ x':∥X∥, ∃ x, (x' = hinhpr x))
-     (h := λ x, (hinhpr (x,,idpath _) : P (hinhpr x)))
+     (h := λ x, (hinhpr (x ,,u idpath _) : P (hinhpr x)))
      (x:X),
   squash_rec _ h (hinhpr x) = h x.
 Proof.
@@ -168,18 +168,18 @@ Lemma islogeqassochconj {P Q R : hProp} : (P ∧ Q) ∧ R <-> P ∧ (Q ∧ R).
 Proof.
 split.
 - intros PQR.
-  exact (pr1 (pr1 PQR),,(pr2 (pr1 PQR),,pr2 PQR)).
+  exact (pr1 (pr1 PQR) ,,u (pr2 (pr1 PQR) ,,u pr2 PQR)).
 - intros PQR.
-  exact ((pr1 PQR,,pr1 (pr2 PQR)),,pr2 (pr2 PQR)).
+  exact ((pr1 PQR ,,u pr1 (pr2 PQR)) ,,u pr2 (pr2 PQR)).
 Defined.
 
 Lemma islogeqcommhconj {P Q : hProp} : P ∧ Q <-> Q ∧ P.
 Proof.
 split.
 - intros PQ.
-  exact (pr2 PQ,,pr1 PQ).
+  exact (pr2 PQ ,,u pr1 PQ).
 - intros QP.
-  exact (pr2 QP,,pr1 QP).
+  exact (pr2 QP ,,u pr1 QP).
 Defined.
 
 Lemma islogeqassochdisj {P Q R : hProp} : (P ∨ Q) ∨ R <-> P ∨ (Q ∨ R).
@@ -356,7 +356,7 @@ Proof.
 Defined.
 
 Definition BasePointComponent (X:PointedType) : PointedType :=
-  pointedType (∑ (y:X), ∥ basepoint X = y ∥) (basepoint X,, hinhpr (idpath (basepoint X))).
+  pointedType (∑ (y:X), ∥ basepoint X = y ∥) (basepoint X ,,u  hinhpr (idpath (basepoint X))).
 
 Definition basePointComponent_inclusion {X:PointedType} (x : BasePointComponent X) : X
   := pr1 x.

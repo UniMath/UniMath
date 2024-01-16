@@ -33,8 +33,8 @@ Definition weqtotal2comm {A B : UU} {C : A → B → UU} :
   (∑ (a : A) (b : B), C a b) ≃ (∑ (b : B) (a : A), C a b).
 Proof.
   use weq_iso.
-  - exact (λ pair, pr1 (pr2 pair),, pr1 pair,, pr2 (pr2 pair)).
-  - exact (λ pair, pr1 (pr2 pair),, pr1 pair,, pr2 (pr2 pair)).
+  - exact (λ pair, pr1 (pr2 pair) ,,u  pr1 pair ,,u  pr2 (pr2 pair)).
+  - exact (λ pair, pr1 (pr2 pair) ,,u  pr1 pair ,,u  pr2 (pr2 pair)).
   - reflexivity.
   - reflexivity.
 Defined.
@@ -44,7 +44,7 @@ Defined.
 (** A rewrite of [pathsdirprod] as an equivalence:
     Two pairs are equal if and only if both of their components are. *)
 Definition pathsdirprodweq {X Y : UU} {x1 x2 : X} {y1 y2 : Y} :
-  (make_dirprod x1 y1 = make_dirprod x2 y2) ≃ (x1 = x2) × (y1 = y2).
+  (make_dirprod x1 y1 = make_dirprod x2 y2) ≃ (x1 = x2) ×u (y1 = y2).
 Proof.
   intermediate_weq (make_dirprod x1 y1 ╝ make_dirprod x2 y2).
   - apply total2_paths_equiv.
@@ -54,20 +54,20 @@ Proof.
     apply (toforallpaths _ _ _ (transportf_const p Y) y1).
 Defined.
 
-(** Contractible types are neutral elements for ×, up to weak equivalence. *)
-Lemma dirprod_with_contr_r : ∏ X Y : UU, iscontr X -> (Y ≃ Y × X).
+(** Contractible types are neutral elements for ×u, up to weak equivalence. *)
+Lemma dirprod_with_contr_r : ∏ X Y : UU, iscontr X -> (Y ≃ Y ×u X).
 Proof.
   intros X Y iscontrX.
-  intermediate_weq (Y × unit); [apply weqtodirprodwithunit|].
+  intermediate_weq (Y ×u unit); [apply weqtodirprodwithunit|].
   - apply weqdirprodf.
     * apply idweq.
     * apply invweq, weqcontrtounit; assumption.
 Defined.
 
-Lemma dirprod_with_contr_l : ∏ X Y : UU, iscontr X -> (Y ≃ X × Y).
+Lemma dirprod_with_contr_l : ∏ X Y : UU, iscontr X -> (Y ≃ X ×u Y).
 Proof.
   intros X Y iscontrX.
-  intermediate_weq (Y × X).
+  intermediate_weq (Y ×u X).
   - apply dirprod_with_contr_r; assumption.
   - apply weqdirprodcomm.
 Defined.
@@ -76,7 +76,7 @@ Lemma total2_assoc_fun_left {A B : UU} (C : A -> B -> UU) (D : (∏ a : A, ∑ b
  (∑ (x : ∏ a : A, ∑ b : B, C a b), D x) ≃
  ∑ (x : ∏ _ : A, B),
    ∑ (y : ∏ a : A, C a (x a)),
-     D (fun a : A => (x a,, y a)).
+     D (fun a : A => (x a ,,u  y a)).
 Proof.
  use weq_iso.
  - intros p.

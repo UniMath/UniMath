@@ -10,26 +10,26 @@ endif
 # The packages, listed in order by dependency:
 PACKAGES += Foundations
 PACKAGES += MoreFoundations
-PACKAGES += Combinatorics
-PACKAGES += Algebra
-PACKAGES += Tactics
-PACKAGES += NumberSystems
-PACKAGES += SyntheticHomotopyTheory
-PACKAGES += PAdics
-PACKAGES += OrderTheory
-PACKAGES += CategoryTheory
-PACKAGES += Bicategories
-PACKAGES += Ktheory
-PACKAGES += Topology
-PACKAGES += RealNumbers
-PACKAGES += SubstitutionSystems
-PACKAGES += Folds
-PACKAGES += HomologicalAlgebra
-PACKAGES += AlgebraicGeometry
-PACKAGES += Paradoxes
-PACKAGES += Induction
-PACKAGES += AlgebraicTheories
-PACKAGES += Semantics
+# PACKAGES += Combinatorics
+# PACKAGES += Algebra
+# PACKAGES += Tactics
+# PACKAGES += NumberSystems
+# PACKAGES += SyntheticHomotopyTheory
+# PACKAGES += PAdics
+# PACKAGES += OrderTheory
+# PACKAGES += CategoryTheory
+# PACKAGES += Bicategories
+# PACKAGES += Ktheory
+# PACKAGES += Topology
+# PACKAGES += RealNumbers
+# PACKAGES += SubstitutionSystems
+# PACKAGES += Folds
+# PACKAGES += HomologicalAlgebra
+# PACKAGES += AlgebraicGeometry
+# PACKAGES += Paradoxes
+# PACKAGES += Induction
+# PACKAGES += AlgebraicTheories
+# PACKAGES += Semantics
 ############################################
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= no

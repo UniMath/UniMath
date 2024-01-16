@@ -21,7 +21,7 @@ Abort.
 Definition Equivalence_to_invweq X Y : Equivalence X Y -> Y ≃ X.
 Proof.
   intros [f [g [p [q h]]]]. exists g. unfold isweq. intro x.
-  exists (f x,,q x). intros [y []]. apply (two_arg_paths_f (!p y)).
+  exists (f x ,,u q x). intros [y []]. apply (two_arg_paths_f (!p y)).
   admit.
 Abort.
 
@@ -80,7 +80,7 @@ Proof.
 Defined.
 
 Definition iscontrcoconustot_comp {X} {x:X} :
-  iscontrpr1 (iscontrcoconustot X x) = x,,idpath x.
+  iscontrpr1 (iscontrcoconustot X x) = x ,,u idpath x.
 Proof.
   reflexivity.
 Defined.
@@ -88,7 +88,7 @@ Defined.
 Definition funfibtototal {X} (P Q:X->Type) (f:∏ x:X, P x -> Q x) :
   total2 P -> total2 Q.
 Proof.
-  intros [x p]. exact (x,,f x p).
+  intros [x p]. exact (x ,,u f x p).
 Defined.
 
 Definition weqfibtototal_comp {X} (P Q:X->Type) (f:∏ x:X, (P x) ≃ (Q x)) :
@@ -118,7 +118,7 @@ Proof.
   apply Equivalence_to_weq.
   simple refine (makeEquivalence _ _ _ _ _ _ _).
   { exact pr1. }
-  { intro x. exact (x,,sec x). }
+  { intro x. exact (x ,,u sec x). }
   { intro x. reflexivity. }
   { intros [x p]. simpl. apply maponpaths. apply irr. }
   { intros [x p]. simpl. apply pair_path_in2_comp1. }
@@ -132,7 +132,7 @@ Proof.
   set (isc := λ x, iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
   apply Equivalence_to_weq.
   simple refine (makeEquivalence _ _ _ _ _ _ _).
-  { intro x. exact (x,,sec x). }
+  { intro x. exact (x ,,u sec x). }
   { exact pr1. }
   { intros [x p]. simpl. apply maponpaths. apply irr. }
   { intro x. reflexivity. }
@@ -151,7 +151,7 @@ Definition homotinvweqweq'_comp {X} {P:X->Type}
            (irr:∏ x (p q:P x), p = q) (sec:∏ x, P x)
            (x:X) (p:P x) :
   let f := weqpr1_irr_sec irr sec in
-  let w := x,,p in
+  let w := x ,,u p in
   let w' := invweq f x in
   @paths (w' = w)
             (homotinvweqweq' irr sec w)
@@ -164,7 +164,7 @@ Definition homotinvweqweq_comp {X} {P:X->Type}
            (irr:∏ x (p q:P x), p = q) (sec:∏ x, P x)
            (x:X) (p:P x) :
   let f := weqpr1_irr_sec irr sec in
-  let w := x,,p in
+  let w := x ,,u p in
   let w' := invweq f x in
   @paths (w' = w)
             (homotinvweqweq f w)
@@ -178,7 +178,7 @@ Definition homotinvweqweq_comp_3 {X} {P:X->Type}
            (x:X) (p:P x) :
   let f := weqpr1_irr_sec irr sec in
   let g := invweqpr1_irr_sec irr sec in
-  let w := x,,p in
+  let w := x ,,u p in
   let w' := g x in
   @paths (w' = w)
             (homotweqinvweq g w)    (* !! *)

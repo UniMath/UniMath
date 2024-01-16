@@ -101,7 +101,7 @@ Definition to_ComplementaryPair {P : UU} (c : P ⨿ neg P) : ComplementaryPair
   (* Similarly, by using [isFalse _] instead, we're effectively replacing [¬P]
      by a propositional subtype of it.  *)
   (* Both are proved to be propositions without [funextemptyAxiom] *)
-  := (P,,neg P,,(λ p n, n p),,c).
+  := (P ,,u neg P ,,u (λ p n, n p) ,,u c).
 
 (* Relate isolated points to complementary pairs *)
 
@@ -122,13 +122,13 @@ Definition inequality_to_isolation {X : UU} (x : X) (i : isisolated X x)
 (* operations on complementary pairs *)
 
 Definition pairNegation (C : ComplementaryPair) : ComplementaryPair
-  := Part2 C,, Part1 C ,, (λ q p, pair_contradiction C p q),,
+  := Part2 C ,,u  Part1 C  ,,u  (λ q p, pair_contradiction C p q) ,,u
            coprodcomm _ _ (chooser C).
 
 Definition pairConjunction (C C' : ComplementaryPair) : ComplementaryPair.
 Proof.
   unpack_pair C P Q con c; unpack_pair C' P' Q' con' c'; simpl in *.
-  unfold ComplementaryPair. exists (P × P'); exists (Q ⨿ Q'). split.
+  unfold ComplementaryPair. exists (P ×u P'); exists (Q ⨿ Q'). split.
   - simpl. intros a b. induction a as [p p']. induction b as [b|b].
     + induction c' as [_|q'].
       * contradicts (con p) b.
@@ -136,7 +136,7 @@ Proof.
     + contradicts (con' p') b.
   - simpl. induction c as [p|q].
     + induction c' as [p'|q'].
-      * apply ii1. exact (p,,p').
+      * apply ii1. exact (p ,,u p').
       * apply ii2, ii2. exact q'.
     + induction c' as [p'|q'].
       * apply ii2, ii1. exact q.
@@ -172,7 +172,7 @@ Proof.
 Defined.
 
 Lemma dneg_LEM (P : hProp) : LEM -> ¬¬ P -> P.
-Proof. intros lem. exact (dnegelim ((λ p np, np p),,lem P)). Defined.
+Proof. intros lem. exact (dnegelim ((λ p np, np p) ,,u lem P)). Defined.
 
 Corollary reversal_LEM (P Q : hProp) : LEM -> (¬ P -> Q) -> (¬ Q -> P).
 Proof.
@@ -190,7 +190,7 @@ Defined.
 Definition DecidableProposition : UU := ∑ X : UU, isdecprop X.
 
 Definition isdecprop_to_DecidableProposition {X : UU} (i : isdecprop X) :
-  DecidableProposition := X,,i.
+  DecidableProposition := X ,,u i.
 
 Definition decidable_to_isdecprop {X : hProp} : decidable X -> isdecprop X.
 Proof.
@@ -218,7 +218,7 @@ Proof. apply pr2. Defined.
 Definition DecidableProposition_to_hProp : DecidableProposition -> hProp.
 Proof.
   intros X.
-  exact (pr1 X,, isdecproptoisaprop (pr1 X) (pr2 X)).
+  exact (pr1 X ,,u  isdecproptoisaprop (pr1 X) (pr2 X)).
 Defined.
 Coercion DecidableProposition_to_hProp : DecidableProposition >-> hProp.
 Definition decidabilityProperty (X : DecidableProposition) :
@@ -236,7 +236,7 @@ Defined.
 
 Definition decidableAnd (P Q : DecidableProposition) : DecidableProposition.
 Proof.
-  intros. exists (P × Q). apply isdecpropdirprod; apply decidabilityProperty.
+  intros. exists (P ×u Q). apply isdecpropdirprod; apply decidabilityProperty.
 Defined.
 
 Definition decidableOr (P Q : DecidableProposition) : DecidableProposition.

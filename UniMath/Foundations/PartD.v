@@ -127,16 +127,16 @@ Definition weqfuntototaltototal (X : UU) {Y : UU} (Q : Y -> UU)
 (** Note: we give direct proofs for this special case. *)
 
 
-Definition funtoprodtoprod {X Y Z : UU} (f : X -> Y × Z)
-  : (X -> Y) × (X -> Z)
+Definition funtoprodtoprod {X Y Z : UU} (f : X -> Y ×u Z)
+  : (X -> Y) ×u (X -> Z)
   := make_dirprod (λ x, pr1 (f x)) (λ x, (pr2 (f x))).
 
-Definition prodtofuntoprod {X Y Z : UU} (fg : (X -> Y) × (X -> Z))
-  : X -> Y × Z
-  := λ x, (pr1 fg x ,, pr2 fg x).
+Definition prodtofuntoprod {X Y Z : UU} (fg : (X -> Y) ×u (X -> Z))
+  : X -> Y ×u Z
+  := λ x, (pr1 fg x ,,u pr2 fg x).
 
 Theorem weqfuntoprodtoprod (X Y Z : UU) :
-  (X -> Y × Z) ≃ (X -> Y) × (X -> Z).
+  (X -> Y ×u Z) ≃ (X -> Y) ×u (X -> Z).
 Proof.
   intros.
   simple refine (make_weq _ (isweq_iso (@funtoprodtoprod X Y Z)
@@ -263,7 +263,7 @@ Proof.
                 maponsec1l0 P (pr1 ff) (pr2 ff) s x).
   assert (is1 : iscontr (∑ (f0 : X -> X), ∏ x, (f0 x) = x))
     by apply funextcontr.
-  assert (e: (f,,h) = tpair (λ g, ∏ x, g x = x) (λ x, x) idpath)
+  assert (e: (f ,,u h) = tpair (λ g, ∏ x, g x = x) (λ x, x) idpath)
     by (apply proofirrelevancecontr; assumption).
   apply (maponpaths map e).
 Defined.
@@ -346,11 +346,11 @@ Defined.
 
 Definition secovercoprodtoprod {X Y : UU} (P : X ⨿ Y -> UU)
            (a : ∏ xy : X ⨿ Y, P xy) :
-  (∏ x, P (ii1 x)) × (∏ y : Y, P (ii2 y))
+  (∏ x, P (ii1 x)) ×u (∏ y : Y, P (ii2 y))
   := make_dirprod (λ x, a (ii1 x)) (λ y : Y, a (ii2 y)).
 
 Definition prodtosecovercoprod {X Y : UU} (P : X ⨿ Y -> UU)
-           (a : (∏ x, P (ii1 x)) × (∏ y : Y, P (ii2 y))) :
+           (a : (∏ x, P (ii1 x)) ×u (∏ y : Y, P (ii2 y))) :
   ∏ xy : X ⨿ Y, P xy.
 Proof.
   intros. induction xy as [ x | y ].
@@ -361,7 +361,7 @@ Defined.
 Definition weqsecovercoprodtoprod {X Y : UU} (P : X ⨿ Y -> UU) :
   (∏ xy : X ⨿ Y, P xy)
   ≃
-  (∏ x, P (ii1 x)) × (∏ y : Y, P (ii2 y)).
+  (∏ x, P (ii1 x)) ×u (∏ y : Y, P (ii2 y)).
 Proof.
   intros.
   use (weq_iso (secovercoprodtoprod P) (prodtosecovercoprod P)).
@@ -389,14 +389,14 @@ Defined.
 (** *** Functions from a coproduct *)
 
 Definition funfromcoprodtoprod {X Y Z : UU} (f : X ⨿ Y -> Z) :
-  (X -> Z) × (Y -> Z)
+  (X -> Z) ×u (Y -> Z)
   := make_dirprod (λ x, f (ii1 x)) (λ y : Y, f (ii2 y)).
 
-Definition prodtofunfromcoprod {X Y Z : UU} (fg : (X -> Z) × (Y -> Z)) :
+Definition prodtofunfromcoprod {X Y Z : UU} (fg : (X -> Z) ×u (Y -> Z)) :
   X ⨿ Y -> Z := sumofmaps (pr1 fg) (pr2 fg).
 
 Theorem weqfunfromcoprodtoprod (X Y Z : UU) :
-  (X ⨿ Y -> Z) ≃ ((X -> Z) × (Y -> Z)).
+  (X ⨿ Y -> Z) ≃ ((X -> Z) ×u (Y -> Z)).
 Proof.
   intros.
   simple refine (
@@ -441,7 +441,7 @@ Proof.
 Defined.
 
 Definition tosecovertotal2 {X : UU} (P : X -> UU) (Q : (∑ x, P x) -> UU)
-           (a : ∏ x, ∏ p : P x, Q (x ,, p)) :
+           (a : ∏ x, ∏ p : P x, Q (x  ,,u  p)) :
   ∏ xp : (∑ x, P x), Q xp.
 Proof.
   intros. induction xp as [ x p ]. apply (a x p).
@@ -449,10 +449,10 @@ Defined.
 
 (** General equivalence between curried and uncurried function types *)
 Definition weqsecovertotal2 {X : UU} (P : X -> UU) (Q : (∑ x, P x) -> UU) :
-  (∏ xp : (∑ x, P x), Q xp) ≃ (∏ x, ∏ p : P x, Q (x,, p)).
+  (∏ xp : (∑ x, P x), Q xp) ≃ (∏ x, ∏ p : P x, Q (x ,,u  p)).
 Proof.
   intros.
-  set (f := λ a : ∏ xp : (∑ x, P x), Q xp, λ x, λ p : P x, a (x,, p)).
+  set (f := λ a : ∏ xp : (∑ x, P x), Q xp, λ x, λ p : P x, a (x ,,u  p)).
   set (g := tosecovertotal2 P Q). split with f.
   assert (egf : ∏ a, g (f a) = a).
   {
@@ -483,7 +483,7 @@ Definition weqfunfromtotal2 {X : UU} (P : X -> UU) (Y : UU) :
 (** *** Functions from direct product *)
 
 Definition weqfunfromdirprod (X X' Y : UU) :
-  (X × X' -> Y) ≃ (∏ x, X' -> Y) := weqsecovertotal2 _ _.
+  (X ×u X' -> Y) ≃ (∏ x, X' -> Y) := weqsecovertotal2 _ _.
 
 (** ** Theorem saying that if each member of a family is of h-level n then the space of sections of the family is of h-level n. *)
 
@@ -909,7 +909,7 @@ Defined.
 (** ** Weak auto-equivalences of a type with an isolated point *)
 
 Definition cutonweq {T : UU} t (is : isisolated T t) (w : T ≃ T) :
-  isolated T × (compl T t ≃ compl T t).
+  isolated T ×u (compl T t ≃ compl T t).
 Proof.
   intros. split.
   - exists (w t). apply isisolatedweqf. assumption.
@@ -922,13 +922,13 @@ Defined.
 
 Definition invcutonweq {T : UU} (t : T)
            (is : isisolated T t)
-           (t'w : isolated T × (compl T t ≃ compl T t)) : T ≃ T
+           (t'w : isolated T ×u (compl T t ≃ compl T t)) : T ≃ T
   := weqcomp (weqrecomplf t t is is (pr2 t'w))
              (weqtranspos t (pr1 (pr1 t'w)) is (pr2 (pr1 t'w))).
 
 Lemma pathsinvcuntonweqoft {T : UU} (t : T)
       (is : isisolated T t)
-      (t'w : isolated T × (compl T t ≃ compl T t)) :
+      (t'w : isolated T ×u (compl T t ≃ compl T t)) :
   invcutonweq t is t'w t = pr1 (pr1 t'w).
 Proof.
   intros. unfold invcutonweq. simpl. unfold recompl. unfold coprodf.
@@ -939,7 +939,7 @@ Proof.
 Defined.
 
 Definition weqcutonweq (T : UU) (t : T) (is : isisolated T t) :
-  (T ≃ T) ≃ isolated T × (compl T t ≃ compl T t).
+  (T ≃ T) ≃ isolated T ×u (compl T t ≃ compl T t).
 Proof.
   intros.
   set (f := cutonweq t is). set (g := invcutonweq t is).
@@ -976,7 +976,7 @@ Proof.
       intro x. induction x as [ x netx ].
       unfold g, invcutonweq; simpl.
       set (int := funtranspos
-                    (t,, is) (t',, is')
+                    (t ,,u  is) (t' ,,u  is')
                     (recompl T t (coprodf w (λ x0 :unit, x0)
                                           (invmap (weqrecompl T t is) t)))).
       assert (eee : int = t').
@@ -993,8 +993,8 @@ Proof.
       apply (ishomotinclrecomplf _ _ isint (funtranspos0 _ _ _) _ _).
       simpl.
       change (recomplf int t isint (funtranspos0 int t is))
-      with (funtranspos (int,, isint) (t,, is)).
-      assert (ee : (int,, isint) = (t',, is')).
+      with (funtranspos (int ,,u  isint) (t ,,u  is)).
+      assert (ee : (int ,,u  isint) = (t' ,,u  is')).
       {
         apply (invmaponpathsincl _ (isinclpr1isolated _) _ _).
         simpl. apply eee.

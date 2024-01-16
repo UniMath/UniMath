@@ -34,7 +34,7 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 
 Local Lemma weq1  (P : UU -> hProp) (X X' : UU)
       (p : P X) (p' : P X')
-  : (X,, p) = (X',, p' : ∑ (T : UU), P T )
+  : (X ,,u  p) = (X' ,,u  p' : ∑ (T : UU), P T )
     ≃
     (∑ w : X = X', transportf P w p = p').
 Proof.
@@ -77,7 +77,7 @@ Defined.
 
 Local Lemma Id_p_weq_Id (P : UU -> hProp) (X X' : UU)
       (p : P X) (p' : P X')
-  : (X ,, p) = (X',, p' : ∑ T , P T)
+  : (X  ,,u  p) = (X' ,,u  p' : ∑ T , P T)
     ≃
     X = X'.
 Proof.
@@ -116,7 +116,7 @@ Lemma isofhlevel0pathspace (X Y : UU)
   : iscontr X -> iscontr Y -> iscontr (X = Y).
 Proof.
   intros pX pY.
-  set (H := isofhlevelweqb 0 (eqweqmap ,, univalenceAxiom X Y)).
+  set (H := isofhlevelweqb 0 (eqweqmap  ,,u  univalenceAxiom X Y)).
   apply H. clear H.
   apply iscontr_weq;
     assumption.
@@ -129,7 +129,7 @@ Lemma isofhlevelSnpathspace : ∏ n : nat, ∏ X Y : UU,
       isofhlevel (S n) Y -> isofhlevel (S n) (X = Y).
 Proof.
   intros n X Y pY.
-  set (H:=isofhlevelweqb (S n) (eqweqmap ,, univalenceAxiom X Y)).
+  set (H:=isofhlevelweqb (S n) (eqweqmap  ,,u  univalenceAxiom X Y)).
   apply H.
   apply isofhlevelsnweqtohlevelsn.
   assumption.
@@ -167,7 +167,7 @@ Proof.
   induction X as [X p].
   induction X' as [X' p'].
   set (H := isofhlevelweqb n
-       (Id_p_weq_Id (λ X, (isofhlevel n X,, isapropisofhlevel _ _)) X X' p p')).
+       (Id_p_weq_Id (λ X, (isofhlevel n X ,,u  isapropisofhlevel _ _)) X X' p p')).
   cbn in H.
   apply H.
   apply isofhlevelpathspace;

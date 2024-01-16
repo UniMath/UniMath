@@ -4,7 +4,7 @@ Require Import UniMath.MoreFoundations.Univalence.
 (** We prove that the following lemma ("injective pairing") is inconsistent with univalence: *)
 Definition injective_pairing_statement :=
   ∏ A (B : A → UU) a (b b' : B a),
-  a ,, b = a ,, b' →
+  a  ,,u  b = a  ,,u  b' →
   b = b'.
 
 (** Proof sketch by Folkmar Frederik Ramcke. Formalisation by Jannis Limperg with help from Joj
@@ -49,10 +49,10 @@ Defined.
 
 (** Thus, we can construct two equal pairs whose second components are different: *)
 Definition negb_weq_pair
-  : @paths (∑ A : UU, A → bool) (bool ,, idfun bool) (bool ,, negb).
+  : @paths (∑ A : UU, A → bool) (bool  ,,u  idfun bool) (bool  ,,u  negb).
 Proof.
   refine (
-    total2_paths_f (B := λ A, A → bool) (s := bool ,, idfun bool) (s' := bool ,, negb)
+    total2_paths_f (B := λ A, A → bool) (s := bool  ,,u  idfun bool) (s' := bool  ,,u  negb)
       (weqtopaths negb_weq) _
   ).
   refine (transportf_fun (idfun UU) (weqtopaths negb_weq) (idfun (idfun UU bool)) @ _).
@@ -85,7 +85,7 @@ Theorem injective_pairing_uip :
   injective_pairing_statement → uip_statement.
 Proof.
   intros injpair A x y p q.
-  assert (eqpair : @paths (∑ x, x = y) (x ,, p) (x ,, q)).
+  assert (eqpair : @paths (∑ x, x = y) (x  ,,u  p) (x  ,,u  q)).
     { induction p. induction q. use total2_paths_f; apply idpath. }
   unfold injective_pairing_statement in injpair.
   exact (injpair _ (λ x, x = y) x p q eqpair).

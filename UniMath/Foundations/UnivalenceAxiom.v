@@ -43,7 +43,7 @@ Definition sectohfiber { X : UU } (P:X -> UU): (∏ x:X, P x) -> (hfiber (λ f, 
 
 Definition hfibertosec { X : UU } (P:X -> UU):
   (hfiber (λ f x, pr1 (f x)) (λ x:X, x)) -> (∏ x:X, P x)
-  := λ se , λ x:X, match se as se' return P x with tpair _ s e => (transportf P (toforallpaths _ (λ x:X, pr1 (s x)) (λ x:X, x) e x) (pr2  (s x))) end.
+  := λ se , λ x:X, match se as se' return P x with tpair s e => (transportf P (toforallpaths _ (λ x:X, pr1 (s x)) (λ x:X, x) e x) (pr2  (s x))) end.
 
 Definition sectohfibertosec { X : UU } (P:X -> UU):
   ∏ a : (∏ x:X, P x), hfibertosec _ (sectohfiber _ a) = a.
@@ -121,11 +121,11 @@ Theorem univfromtwoaxioms :
 Proof.
   split.
   { intros [weqtopaths weqpathsweq] T1 T2.
-    set ( P1 := λ XY : UU × UU, pr1 XY = pr2 XY ) .
-    set ( P2 := λ XY :  UU × UU, (pr1 XY) ≃ (pr2 XY) ) .
+    set ( P1 := λ XY : UU ×u UU, pr1 XY = pr2 XY ) .
+    set ( P2 := λ XY :  UU ×u UU, (pr1 XY) ≃ (pr2 XY) ) .
     set ( Z1 := total2 P1 ). set ( Z2 := total2 P2 ).
-    set ( f := totalfun _ _ ( λ XY : UU × UU,  @eqweqmap (pr1 XY) (pr2 XY)) : Z1 -> Z2 ) .
-    set ( g := totalfun _ _ ( λ XY : UU × UU,  weqtopaths (pr1 XY) (pr2 XY) ) : Z2 -> Z1 ) .
+    set ( f := totalfun _ _ ( λ XY : UU ×u UU,  @eqweqmap (pr1 XY) (pr2 XY)) : Z1 -> Z2 ) .
+    set ( g := totalfun _ _ ( λ XY : UU ×u UU,  weqtopaths (pr1 XY) (pr2 XY) ) : Z2 -> Z1 ) .
     assert (efg : funcomp g f ~ idfun _) .
     - intro z2 . induction z2 as [ XY e ] .
       unfold g . unfold f . unfold totalfun . simpl .
@@ -145,7 +145,7 @@ Proof.
           apply ( isweqtotaltofib _ _ ( λ _, eqweqmap) is2 ( make_dirprod T1 T2 ) ).
           }
   { intros ua.
-    simple refine (_,,_).
+    simple refine (_ ,,u _).
     - intros ? ?. exact (invmap (make_weq _ (ua _ _))).
     - intros ? ?. exact (homotweqinvweq (make_weq _ (ua _ _))). }
 Defined.

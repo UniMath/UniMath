@@ -2,7 +2,7 @@ Require Export UniMath.Foundations.All.
 
 (** *** Propositions equivalent to negations of propositions *)
 
-Definition negProp P := ∑ Q, isaprop Q × (¬P <-> Q).
+Definition negProp P := ∑ Q, isaprop Q ×u (¬P <-> Q).
 
 Definition negProp_to_isaprop {P} (nP : negProp P) : isaprop (pr1 nP)
   := pr1 (pr2 nP).
@@ -51,7 +51,7 @@ Proof.
         assumption.
 Defined.
 
-Lemma negProp_to_uniqueChoice P : ∏ (Q:negProp P), (isaprop P × (P ⨿ Q)) <-> iscontr (P ⨿ Q).
+Lemma negProp_to_uniqueChoice P : ∏ (Q:negProp P), (isaprop P ×u (P ⨿ Q)) <-> iscontr (P ⨿ Q).
 Proof.
   intros [Q [j [r s]]]; simpl in *. split.
   * intros [i v]. exists v. intro w.
@@ -97,7 +97,7 @@ Definition isolated_ne ( T : UU ) (neq:neqReln T) := ∑ t:T, isisolated_ne _ t 
 
 Definition make_isolated_ne (T : UU) (t:T) (neq:neqReln T) (i:isisolated_ne _ t (neq t)) :
   isolated_ne T neq
-  := (t,,i).
+  := (t ,,u i).
 
 Definition pr1isolated_ne ( T : UU ) (neq:neqReln T) (x:isolated_ne T neq) : T := pr1 x.
 
@@ -122,7 +122,7 @@ Definition compl_ne (X:UU) (x:X) (neq_x : neqPred x) := ∑ y, neq_x y.
 
 Definition make_compl_ne (X : UU) (x : X) (neq_x : neqPred x) (y : X)
            (ne :neq_x y) :
-  compl_ne X x neq_x := (y,,ne).
+  compl_ne X x neq_x := (y ,,u ne).
 
 Definition pr1compl_ne (X : UU) (x : X) (neq_x : neqPred x)
            (c : compl_ne X x neq_x) :
@@ -182,7 +182,7 @@ Proof.
   intros c.
   set (x' := pr1 c).
   set (neqx := pr2 c).
-  exact (f x',,neg_to_negProp (nP := neq_fx (f x'))
+  exact (f x' ,,u neg_to_negProp (nP := neq_fx (f x'))
            (negf (invmaponpathsincl _ is x x') (negProp_to_neg neqx))).
 Defined.
 
@@ -263,14 +263,14 @@ Proof.
   {induction eq. refine (iscontrweqf (weqii2withneg _ _) _).
    {intros z; induction z as [z e]; induction z as [z neq]; simpl in *.
     contradicts (!e) (negProp_to_neg neq). }
-   {change x with (f (ii2 tt)). simple refine ((_,,_),,_).
+   {change x with (f (ii2 tt)). simple refine ((_ ,,u _) ,,u _).
     {exact tt. }
     {apply idpath. }
     {intro w. induction w as [t e]. unfold f in *; simpl in *. induction t.
      apply maponpaths. apply isaproppathsfromisolated. exact is. }}}
   {refine (iscontrweqf (weqii1withneg _ _) _).
    {intros z; induction z as [z e]; simpl in *. contradicts ne e. }
-   {simple refine ((_,,_),,_).
+   {simple refine ((_ ,,u _) ,,u _).
     {exists y. apply neg_to_negProp. assumption. }
     {simpl. apply idpath. }
     intros z; induction z as [z e]; induction z as [z neq];

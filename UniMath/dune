@@ -4,6 +4,7 @@
 (coq.theory
  (name UniMath)
  (package coq-unimath)
+  (libraries coq-metacoq-common coq-metacoq coq-metacoq-utils coq-metacoq-template)
  (flags :standard
         -noinit
         -indices-matter

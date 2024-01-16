@@ -116,7 +116,7 @@ Proof.
         apply (pr2 (N m)). exact neq.
 Defined.
 
-Lemma nat_neq_to_nopath {n m : nat} : ¬ (n = m) <- n ≠ m.
+Lemma nat_neq_to_nopath {n m : nat} : ¬ (n = m) <-- n ≠ m.
 Proof.
   exact (pr2 (natneq_iff_neq n m)).
 Defined.
@@ -468,13 +468,13 @@ Proof.
     + change (S n > S m) with (n > m). intro r. exact (N m r).
 Defined.
 
-Lemma negnatlehtogth {n m : nat} : n > m <- ¬ (n ≤ m).
+Lemma negnatlehtogth {n m : nat} : n > m <-- ¬ (n ≤ m).
 Proof.
   intros r. apply (isdecreltoisnegrel isdecrelnatgth).
   intro s. exact (r (negnatgthtoleh s)).
 Defined.
 
-Definition neggth_logeq_leh (n m : nat) : ¬ (n > m) <-> n ≤ m := (negnatgthtoleh,,natlehneggth).
+Definition neggth_logeq_leh (n m : nat) : ¬ (n > m) <-> n ≤ m := (negnatgthtoleh ,,u natlehneggth).
 
 Definition natleh0tois0 {n : nat} (l : n ≤ 0) : n = 0 := natlth1tois0 n l.
 
@@ -1893,7 +1893,7 @@ Proof.
 Defined.
 
 Theorem natdivremunique (m i j i' j' : nat) (lj : j < m) (lj' : j' < m)
-        (e : j + i * m = j' + i' * m) :  i = i' × j = j'.
+        (e : j + i * m = j' + i' * m) :  i = i' ×u j = j'.
 Proof.
   revert j i' j' lj lj' e. induction i as [ | i IHi ].
   - intros j i' j' lj lj'.
@@ -1905,7 +1905,7 @@ Proof.
     induction i'.
     + simpl in e.
       rewrite natplusr0 in e.
-      exact (idpath _,,e).
+      exact (idpath _ ,,u e).
     + change (S i' * m) with (i' * m + m) in lj.
       rewrite <- natplusassoc in lj.
       induction (negnatgthmplusnm _ _ lj).

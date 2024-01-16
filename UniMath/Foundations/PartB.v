@@ -459,7 +459,7 @@ Proof.
 Defined.
 
 Corollary isofhleveldirprod (n : nat) (X Y : UU) (is1 : isofhlevel n X)
-          (is2 : isofhlevel n Y) : isofhlevel n (X × Y).
+          (is2 : isofhlevel n Y) : isofhlevel n (X ×u Y).
 Proof.
   intros. apply isofhleveltotal2. assumption. intro. assumption.
 Defined.
@@ -496,7 +496,7 @@ Definition isPredicate {X : UU} (Y : X -> UU) := ∏ x : X, isaprop (Y x).
 
 Definition isapropunit : isaprop unit := iscontrpathsinunit.
 
-Definition isapropdirprod (X Y : UU) : isaprop X -> isaprop Y -> isaprop (X × Y)
+Definition isapropdirprod (X Y : UU) : isaprop X -> isaprop Y -> isaprop (X ×u Y)
   := isofhleveldirprod 1 X Y.
 
 Lemma isapropifcontr {X : UU} (is : iscontr X) : isaprop X.
@@ -575,8 +575,8 @@ Definition weqhfiberunit {X Z : UU} (i : X -> Z) (z : Z) :
   (∑ x, hfiber (λ _ : unit, z) (i x)) ≃ hfiber i z.
 Proof.
   intros. use weq_iso.
-  + intros [x [t e]]. exact (x,,!e).
-  + intros [x e]. exact (x,,tt,,!e).
+  + intros [x [t e]]. exact (x  ,,u  !e).
+  + intros [x e]. exact (x ,,u tt ,,u !e).
   + intros [x [t e]]. apply maponpaths. simple refine (two_arg_paths_f _ _).
     * apply isapropunit.
     * simpl. induction e. rewrite pathsinv0inv0. induction t. apply idpath.
@@ -652,7 +652,7 @@ Definition weqiff {X Y : UU} : (X <-> Y) -> isaprop X -> isaprop Y -> X ≃ Y
   := λ f i j, make_weq _ (isweqimplimpl (pr1 f) (pr2 f) i j).
 
 Definition weq_to_iff {X Y : UU} : X ≃ Y -> (X <-> Y)
-  := λ f, (pr1weq f ,, invmap f).
+  := λ f, (pr1weq f  ,,u  invmap f).
 
 Theorem isapropempty: isaprop empty.
 Proof.
@@ -829,7 +829,7 @@ Corollary unique_exists {A : UU} {B : A -> UU} (x : A) (b : B x)
   iscontr (total2 (λ t : A, B t)).
 Proof.
   use make_iscontr.
-  - exact (x,,b).
+  - exact (x ,,u b).
   - intros t. apply subtypePath.
     + exact h.
     + apply (H (pr1 t)). exact (pr2 t).
@@ -837,14 +837,14 @@ Defined.
 
 Definition subtypePairEquality {X : UU} {P : X -> UU} (is : isPredicate P)
            {x y : X} {p : P x} {q : P y} :
-  x = y -> (x,,p) = (y,,q).
+  x = y -> (x ,,u p) = (y ,,u q).
 Proof.
   intros e. apply (two_arg_paths_f e). apply is.
 Defined.
 
 Definition subtypePairEquality' {X : UU} {P : X -> UU}
            {x y : X} {p : P x} {q : P y} :
-  x = y -> isaprop(P y) -> (x,,p) = (y,,q).
+  x = y -> isaprop(P y) -> (x ,,u p) = (y ,,u q).
 (* This variant of subtypePairEquality is never needed. *)
 Proof.
   intros e is. apply (two_arg_paths_f e). apply is.
@@ -895,7 +895,7 @@ Proof.
   intros. apply (isofhleveltotal2 2); assumption.
 Defined.
 
-Corollary isaset_dirprod {X Y : UU} : isaset X -> isaset Y -> isaset (X × Y).
+Corollary isaset_dirprod {X Y : UU} : isaset X -> isaset Y -> isaset (X ×u Y).
 Proof.
   intros. apply isaset_total2. assumption. intro. assumption.
 Defined.
@@ -1005,7 +1005,7 @@ Defined.
 
 (** Complementary types *)
 
-Definition complementary P Q := (P -> Q -> ∅) × (P ⨿ Q).
+Definition complementary P Q := (P -> Q -> ∅) ×u (P ⨿ Q).
 
 Definition complementary_to_neg_iff {P Q} : complementary P Q -> ¬P <-> Q.
 Proof.
@@ -1029,26 +1029,26 @@ Proof.
 Defined.
 
 Definition decidable_dirprod (X Y : UU) :
-  decidable X -> decidable Y -> decidable (X × Y).
+  decidable X -> decidable Y -> decidable (X ×u Y).
 Proof.
   intros b c.
   induction b as [b|b'].
   - induction c as [c|c'].
-    + apply ii1. exact (b,,c).
+    + apply ii1. exact (b ,,u c).
     + apply ii2. clear b. intro k. apply c'. exact (pr2 k).
   - clear c. apply ii2. intro k. apply b'. exact (pr1 k).
 Defined.
 
 (** *** Decidable propositions [ isdecprop ] *)
 
-Definition isdecprop (P:UU) := (P ⨿ ¬P) × isaprop P.
+Definition isdecprop (P:UU) := (P ⨿ ¬P) ×u isaprop P.
 
 Definition isdecproptoisaprop ( X : UU ) ( is : isdecprop X ) : isaprop X := pr2 is.
 Coercion isdecproptoisaprop : isdecprop >-> isaprop .
 
 Lemma isdecpropif ( X : UU ) : isaprop X -> X ⨿ ¬ X -> isdecprop X.
 Proof.
-  intros i c. exact (c,,i).
+  intros i c. exact (c ,,u i).
 Defined.
 
 Lemma isdecpropfromiscontr {P} : iscontr P -> isdecprop P.
@@ -1198,7 +1198,7 @@ Definition isisolated (X:UU) (x:X) := ∏ x':X, (x = x') ⨿ (x != x').
 Definition isolated ( T : UU ) := ∑ t:T, isisolated _ t.
 
 Definition make_isolated ( T : UU ) (t:T) (i:isisolated _ t) : isolated T
-  := (t,,i).
+  := (t ,,u i).
 
 Definition pr1isolated ( T : UU ) (x:isolated T) : T := pr1 x.
 

@@ -44,7 +44,7 @@ Proof.
       * simple refine (hinhuniv _); intro w.
         simpl in w. induction w as [s p]. induction s as [y q]; simpl in p.
         induction p. exact q.
-      * intro h. apply hinhpr. exists (z,,h). reflexivity.
+      * intro h. apply hinhpr. exists (z ,,u h). reflexivity.
     + intros S T p.
       (* first develop univalence for posets and Poset_rect *)
       admit.

@@ -139,12 +139,12 @@ Defined.
 Definition maponpaths_app_homot
            {X Y₁ Y₂ : UU}
            {f g : Y₁ → X → Y₂}
-           (p : ∏ (z : Y₁ × X), f (pr1 z) (pr2 z) = g (pr1 z) (pr2 z))
+           (p : ∏ (z : Y₁ ×u X), f (pr1 z) (pr2 z) = g (pr1 z) (pr2 z))
            (x : X)
            (y : Y₁)
   : maponpaths (λ f, f x) (app_homot p y)
     =
-    p (y ,, x).
+    p (y  ,,u  x).
 Proof.
   apply (maponpaths_funextsec (f y)).
 Defined.

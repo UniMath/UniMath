@@ -6,12 +6,12 @@ Require Import
 
 Definition iscomprelfun2' {X Y Z} (RX:hrel X) (RY:hrel Y)
            (f:X->Y->Z) : Type
-  := (∏ x x', RX x x' -> ∏ y, f x y = f x' y) ×
+  := (∏ x x', RX x x' -> ∏ y, f x y = f x' y) ×u
      (∏ y y', RY y y' -> ∏ x, f x y = f x y').
 
 Definition iscomprelrelfun2' {X Y Z} (RX:hrel X) (RY:hrel Y) (RZ:eqrel Z)
            (f:X->Y->Z) : Type
-  := (∏ x x' y, RX x x' -> RZ (f x y) (f x' y)) ×
+  := (∏ x x' y, RX x x' -> RZ (f x y) (f x' y)) ×u
      (∏ x y y', RY y y' -> RZ (f x y) (f x y')).
 
 Lemma setquotuniv_equal { X : UU } ( R : hrel X ) ( Y : hSet )
