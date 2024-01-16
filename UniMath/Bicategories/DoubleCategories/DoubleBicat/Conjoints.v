@@ -240,7 +240,7 @@ Definition all_conjoints
 
 Proposition isaprop_all_conjoints
             (B : verity_double_bicat)
-            (H : vertical_cells_are_squares B)
+            (H : vertically_saturated B)
             (HB_2_1 : locally_univalent_verity_double_bicat B)
   : isaprop (all_conjoints B).
 Proof.
@@ -248,7 +248,7 @@ Proof.
   use impred ; intro y.
   use impred ; intro h.
   apply (isaprop_companion_pair (B := horizontal_dual_verity_double_bicat B)).
-  - use horizontal_dual_vertical_cells_are_square.
+  - use horizontal_dual_vertically_saturated.
     exact H.
   - use locally_univalent_horizontal_dual.
     exact HB_2_1.
