@@ -21,6 +21,7 @@
  3. Unitors and associators
  4. Triangle and pentagon
  5. The univalent pseudo double category of profunctors
+ 6. Companions and conjoints
 
  *****************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -44,6 +45,7 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.
 
 Local Open Scope cat.
 
@@ -554,4 +556,69 @@ Proof.
   - exact strict_profunctor_double_cat.
   - exact is_univalent_cat_of_setcategory.
   - exact is_univalent_twosided_disp_cat_of_profunctors.
+Defined.
+
+(** * 6. Companions and conjoints *)
+Definition all_companions_strict_profunctor_double_cat
+  : all_companions_double_cat strict_profunctor_double_cat.
+Proof.
+  intros C₁ C₂ F.
+  refine (representable_profunctor_left F ,, _).
+  use make_double_cat_are_companions'.
+  - exact (representable_profunctor_left_unit F).
+  - exact (representable_profunctor_left_counit F).
+  - abstract
+      (use eq_profunctor_square ;
+       intros y x h ;
+       refine (transportf_disp_mor2_profunctors _ _ _ _ @ _) ;
+       cbn ;
+       etrans ;
+       [ apply maponpaths ;
+         apply (comp_v_profunctor_square_mor_comm
+                  (representable_profunctor_left_counit F)
+                  (representable_profunctor_left_unit F))
+       | ] ;
+       rewrite runitor_profunctor_nat_trans_mor_comm ;
+       cbn ;
+       rewrite !functor_id ;
+       rewrite !id_right ;
+       apply idpath).
+  - abstract
+      (use eq_profunctor_square ;
+       intros y x h ;
+       etrans ; [ apply transportf_disp_mor2_profunctors | ] ;
+       cbn ;
+       apply idpath).
+Defined.
+
+Definition all_conjoints_strict_profunctor_double_cat
+  : all_conjoints_double_cat strict_profunctor_double_cat.
+Proof.
+  intros C₁ C₂ F.
+  refine (representable_profunctor_right F ,, _).
+  use make_double_cat_are_conjoints'.
+  - exact (representable_profunctor_right_unit F).
+  - exact (representable_profunctor_right_counit F).
+  - abstract
+      (use eq_profunctor_square ;
+       intros y x h ;
+       refine (transportf_disp_mor2_profunctors _ _ _ _ @ _) ;
+       cbn ;
+       etrans ;
+       [ apply maponpaths ;
+         apply (comp_v_profunctor_square_mor_comm
+                  (representable_profunctor_right_counit F)
+                  (representable_profunctor_right_unit F))
+       | ] ;
+       rewrite lunitor_profunctor_nat_trans_mor_comm ;
+       cbn ;
+       rewrite !functor_id ;
+       rewrite !id_left ;
+       apply idpath).
+  - abstract
+      (use eq_profunctor_square ;
+       intros y x h ;
+       etrans ; [ apply transportf_disp_mor2_profunctors | ] ;
+       cbn ;
+       apply idpath).
 Defined.

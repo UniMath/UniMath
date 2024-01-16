@@ -53,6 +53,7 @@ Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.PseudoDoubleSetCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.
 
 Local Open Scope cat.
 Local Open Scope double_cat.
@@ -472,6 +473,59 @@ Section StructuredCospansDoubleCat.
       rewrite <- p₂.
       apply idpath.
   Qed.
+
+  Definition all_companions_structured_cospans_double_cat
+    : all_companions_double_cat structured_cospans_double_cat.
+  Proof.
+    intros x y f.
+    simple refine (_ ,, _).
+    - exact (struct_cospan_companion L f).
+    - use make_double_cat_are_companions'.
+      + exact (struct_cospan_companion_unit L f).
+      + exact (struct_cospan_companion_counit L f).
+      + abstract
+          (use struct_cospan_sqr_eq ;
+           refine (transportf_disp_mor2_struct_cospan _ _ _ _ @ _) ;
+           cbn ;
+           unfold mor_of_comp_struct_cospan_mor, struct_cospan_runitor_mor ;
+           cbn ;
+           rewrite PushoutArrow_PushoutIn2 ;
+           rewrite id_left ;
+           rewrite PushoutArrow_PushoutIn2 ;
+           apply idpath).
+      + abstract
+          (use struct_cospan_sqr_eq ;
+           refine (transportf_disp_mor2_struct_cospan _ _ _ _ @ _) ;
+           cbn ;
+           apply id_right).
+  Defined.
+
+  Definition all_conjoints_structured_cospans_double_cat
+    : all_conjoints_double_cat structured_cospans_double_cat.
+  Proof.
+    intros x y f.
+    simple refine (_ ,, _).
+    - exact (struct_cospan_conjoint L f).
+    - use make_double_cat_are_conjoints'.
+      + exact (struct_cospan_conjoint_unit L f).
+      + exact (struct_cospan_conjoint_counit L f).
+      + abstract
+          (use struct_cospan_sqr_eq ;
+           refine (transportf_disp_mor2_struct_cospan _ _ _ _ @ _) ;
+           cbn ;
+           unfold mor_of_comp_struct_cospan_mor, struct_cospan_lunitor_mor ;
+           cbn ;
+           rewrite !assoc ;
+           rewrite PushoutArrow_PushoutIn1 ;
+           rewrite id_left ;
+           rewrite PushoutArrow_PushoutIn1 ;
+           apply idpath).
+      + abstract
+          (use struct_cospan_sqr_eq ;
+           refine (transportf_disp_mor2_struct_cospan _ _ _ _ @ _) ;
+           cbn ;
+           apply id_right).
+  Defined.
 End StructuredCospansDoubleCat.
 
 Definition structured_cospans_univalent_double_cat

@@ -34,6 +34,7 @@ Require Import UniMath.Bicategories.DoubleCategories.Basics.StrictDoubleCatBasic
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.StrictDoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.
 
 Local Open Scope cat.
 
@@ -204,6 +205,31 @@ Proof.
   - exact (double_cat_associator_kleisli M).
   - abstract (intro ; intros ; apply homset_property).
   - abstract (intro ; intros ; apply homset_property).
+Defined.
+
+Definition all_companions_kleisli_double_cat
+           {C : category}
+           (M : Monad C)
+  : all_companions_double_cat (kleisli_double_cat M).
+Proof.
+  intros x y f ; cbn in x, y, f ; cbn.
+  refine (f · η M _ ,, _).
+  use make_double_cat_are_companions.
+  - abstract
+      (cbn ;
+       refine (!_) ;
+       etrans ;
+       [ apply maponpaths ;
+         apply functor_id
+       | ] ;
+       rewrite id_right ;
+       apply idpath).
+  - abstract
+      (cbn ;
+       rewrite id_left ;
+       exact (nat_trans_ax (η M) _ _ f)).
+  - apply homset_property.
+  - apply homset_property.
 Defined.
 
 Definition kleisli_double_cat_ver_weq_square

@@ -16,6 +16,7 @@
  7. The left unitor of spans
  8. The right unitor of spans
  9. The associator of spans
+ 10. Companions and conjoints
 
  **********************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -879,4 +880,68 @@ Section Spans.
       - exact span_associator_laws.
     Defined.
   End SpanAssociator.
+
+  (** * 10. Companions and conjoints *)
+  Section CompanionsAndConjoints.
+    Context {x y : C}
+            (f : x --> y).
+
+    Definition span_companion
+      : span x y.
+    Proof.
+      use make_span.
+      - exact x.
+      - exact (identity x).
+      - exact f.
+    Defined.
+
+    Definition span_companion_unit
+      : span_sqr f (identity y) span_companion (id_span y).
+    Proof.
+      use make_span_sqr.
+      - exact f.
+      - abstract
+          (split ; cbn ; [ | apply idpath ] ;
+           rewrite id_left, id_right ;
+           apply idpath).
+    Defined.
+
+    Definition span_companion_counit
+      : span_sqr (identity x) f (id_span x) span_companion.
+    Proof.
+      use make_span_sqr.
+      - exact (identity x).
+      - abstract
+          (split ; apply idpath).
+    Defined.
+
+    Definition span_conjoint
+      : span y x.
+    Proof.
+      use make_span.
+      - exact x.
+      - exact f.
+      - exact (identity x).
+    Defined.
+
+    Definition span_conjoint_unit
+      : span_sqr f (identity x) (id_span x) span_conjoint.
+    Proof.
+      use make_span_sqr.
+      - exact (identity x).
+      - abstract
+          (split ; apply idpath).
+    Defined.
+
+    Definition span_conjoint_counit
+      : span_sqr (identity y) f span_conjoint (id_span y).
+    Proof.
+      use make_span_sqr.
+      - exact f.
+      - abstract
+          (split ; cbn ; [ apply idpath | ] ;
+           rewrite id_left, id_right ;
+           apply idpath).
+    Defined.
+  End CompanionsAndConjoints.
 End Spans.
