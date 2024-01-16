@@ -126,7 +126,7 @@ Section Univalence.
   Definition hor_globally_univalent_to_gregarious_univalent
              (HB_2_1 : locally_univalent_verity_double_bicat B)
              (HB_2_0 : hor_globally_univalent)
-             (H : vertical_cells_are_squares B)
+             (H : vertically_saturated B)
     : gregarious_univalent.
   Proof.
     intros x y.
@@ -136,7 +136,7 @@ Section Univalence.
                 (hor_left_adjoint_equivalence_weq_gregarious_equivalence _ _ H)
               ∘ make_weq _ (HB_2_0 x y))%weq.
       + apply HB_2_1.
-      + use univalent_2_0_all_equivs_companions.
+      + use univalent_2_0_weakly_hor_invariant.
         apply HB_2_0.
     - intro p.
       induction p.
@@ -153,10 +153,10 @@ Section Univalence.
 
   (** * 6. Equivalence of horizontal global univalence and gregarious univalence *)
   Definition gregarious_univalent_to_hor_globally_univalent
-             (H' : all_equivs_companions B)
+             (H' : weakly_hor_invariant B)
              (HB_2_1 : locally_univalent_verity_double_bicat B)
              (HB_2_0 : gregarious_univalent)
-             (H : vertical_cells_are_squares B)
+             (H : vertically_saturated B)
     : hor_globally_univalent.
   Proof.
     intros x y.
@@ -181,9 +181,9 @@ Section Univalence.
   Qed.
 
   Definition hor_globally_univalent_weq_gregarious_univalent
-             (H' : all_equivs_companions B)
+             (H' : weakly_hor_invariant B)
              (HB_2_1 : locally_univalent_verity_double_bicat B)
-             (H : vertical_cells_are_squares B)
+             (H : vertically_saturated B)
     : hor_globally_univalent
       ≃
       gregarious_univalent.

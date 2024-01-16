@@ -840,8 +840,8 @@ Section SquareDoubleBicat.
   Defined.
 
   (** * 4. 2-cells coincide with certain squares *)
-  Definition square_vertical_cells_are_squares
-    : vertical_cells_are_squares square_verity_double_bicat.
+  Definition square_vertically_saturated
+    : vertically_saturated square_verity_double_bicat.
   Proof.
     intros x y v₁ v₂.
     use isweq_iso.
@@ -869,8 +869,8 @@ Section SquareDoubleBicat.
          apply id2_left).
   Defined.
 
-  Definition square_horizontal_cells_are_squares
-    : horizontal_cells_are_squares square_verity_double_bicat.
+  Definition square_horizontally_saturated
+    : horizontally_saturated square_verity_double_bicat.
   Proof.
     intros x y h₁ h₂.
     use isweq_iso.
@@ -894,6 +894,14 @@ Section SquareDoubleBicat.
          rewrite !vassocr ;
          rewrite runitor_rinvunitor ;
          apply id2_left).
+  Defined.
+
+  Definition square_is_weak_double_cat
+    : is_weak_double_cat square_verity_double_bicat.
+  Proof.
+    split.
+    - exact square_vertically_saturated.
+    - exact square_horizontally_saturated.
   Defined.
 
   (** * 5. Companion pairs *)
@@ -1109,6 +1117,6 @@ Section SquareDoubleBicat.
     use hor_globally_univalent_to_gregarious_univalent.
     - exact (locally_univalent_square_verity_double_bicat HB_2_1).
     - exact HB_2_0.
-    - apply square_vertical_cells_are_squares.
+    - apply square_vertically_saturated.
   Defined.
 End SquareDoubleBicat.

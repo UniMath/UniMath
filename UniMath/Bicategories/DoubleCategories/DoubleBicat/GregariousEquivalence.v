@@ -187,7 +187,7 @@ Section GregariousEquivalence.
 
   (** * 5. Being a horizontal gregarious equivalence is a proposition *)
   Lemma path_is_hor_gregarious_equivalence
-        (H : vertical_cells_are_squares B)
+        (H : vertically_saturated B)
         (HB_2_1 : locally_univalent_verity_double_bicat B)
         {x y : B}
         {h : x --> y}
@@ -214,7 +214,7 @@ Section GregariousEquivalence.
   Qed.
 
   Proposition isaprop_is_hor_gregarious_equivalence
-              (H : vertical_cells_are_squares B)
+              (H : vertically_saturated B)
               (HB_2_1 : locally_univalent_verity_double_bicat B)
               {x y : B}
               (h : x --> y)
@@ -241,8 +241,8 @@ Section GregariousEquivalence.
 
   (** * 6. Adjoint equivalences and gregarious equivalences *)
   Definition hor_left_adjoint_equivalence_to_gregarious_equivalence
-             (H : vertical_cells_are_squares B)
-             (H' : all_equivs_companions B)
+             (H : vertically_saturated B)
+             (H' : weakly_hor_invariant B)
              {x y : B}
              (h : x --> y)
              (Hh : left_adjoint_equivalence h)
@@ -273,8 +273,8 @@ Section GregariousEquivalence.
 
   Definition hor_left_adjoint_equivalence_weq_hor_gregarious_equivalence
              (HB_2_1 : locally_univalent_verity_double_bicat B)
-             (H : all_equivs_companions B)
-             (H' : vertical_cells_are_squares B)
+             (H : weakly_hor_invariant B)
+             (H' : vertically_saturated B)
              {x y : B}
              (h : x --> y)
     : left_adjoint_equivalence h ≃ is_hor_gregarious_equivalence h.
@@ -289,8 +289,8 @@ Section GregariousEquivalence.
 
   Definition hor_left_adjoint_equivalence_weq_gregarious_equivalence
              (HB_2_1 : locally_univalent_verity_double_bicat B)
-             (H : all_equivs_companions B)
-             (H' : vertical_cells_are_squares B)
+             (H : weakly_hor_invariant B)
+             (H' : vertically_saturated B)
              {x y : B}
              (h : x --> y)
     : left_adjoint_equivalence h ≃ ∑ (v : x -|-> y), is_gregarious_equivalence h v

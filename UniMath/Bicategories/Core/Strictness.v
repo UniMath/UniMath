@@ -204,24 +204,24 @@ Definition globally_strict
   := isaset B.
 
 (** Set bicategories *)
-Definition setbicat
+Definition bisetcat
   : UU
   := ∑ (B : bicat), locally_strict B × globally_strict B.
 
-Coercion setbicat_to_bicat
-         (B : setbicat)
+Coercion bisetcat_to_bicat
+         (B : bisetcat)
   : bicat
   := pr1 B.
 
-Proposition locally_strict_setbicat
-            (B : setbicat)
+Proposition locally_strict_bisetcat
+            (B : bisetcat)
   : locally_strict B.
 Proof.
   exact (pr12 B).
 Qed.
 
-Proposition globally_strict_setbicat
-            (B : setbicat)
+Proposition globally_strict_bisetcat
+            (B : bisetcat)
   : globally_strict B.
 Proof.
   exact (pr22 B).

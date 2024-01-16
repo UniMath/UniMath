@@ -72,7 +72,7 @@ Qed.
 (** * 3. Equivalence between the different local horizontal univalence conditions *)
 Section IsoWeqH.
   Context {B : verity_double_bicat}
-          (H : horizontal_cells_are_squares B)
+          (H : horizontally_saturated B)
           {x y : B}
           (h₁ h₂ : x --> y).
 
@@ -139,7 +139,7 @@ End IsoWeqH.
 
 Definition is_univalent_hom_h_weq_is_univalent_hom_h_sq
            {B : verity_double_bicat}
-           (H : horizontal_cells_are_squares B)
+           (H : horizontally_saturated B)
            (x y : B)
   : is_univalent (hom_h B x y) ≃ is_univalent (hom_h_sq B x y).
 Proof.
@@ -164,7 +164,7 @@ Qed.
 
 Definition hor_sq_weq_hor_locally_univalent
            {B : verity_double_bicat}
-           (H : horizontal_cells_are_squares B)
+           (H : horizontally_saturated B)
   : hor_locally_univalent B
     ≃
     hor_sq_locally_univalent B
@@ -185,7 +185,7 @@ Definition h_sq_idtoiso_2_1
 
 Definition h_sq_isotoid_2_1
            {B : verity_double_bicat}
-           (H : horizontal_cells_are_squares B)
+           (H : horizontally_saturated B)
            (HB_2_1 : hor_locally_univalent B)
            {x y : B}
            {h₁ h₂ : x --> y}
@@ -195,7 +195,7 @@ Definition h_sq_isotoid_2_1
 
 Proposition h_sq_idtoiso_isotoid_2_1
             {B : verity_double_bicat}
-            (H : horizontal_cells_are_squares B)
+            (H : horizontally_saturated B)
             (HB_2_1 : hor_locally_univalent B)
             {x y : B}
             {h₁ h₂ : x --> y}
@@ -209,7 +209,7 @@ Qed.
 
 Proposition h_sq_isotoid_idtoiso_2_1
             {B : verity_double_bicat}
-            (H : horizontal_cells_are_squares B)
+            (H : horizontally_saturated B)
             (HB_2_1 : hor_locally_univalent B)
             {x y : B}
             {h₁ h₂ : x --> y}
@@ -257,7 +257,7 @@ Qed.
 (** * 6. Equivalence between the different local vertical univalence conditions *)
 Section IsoWeqV.
   Context {B : verity_double_bicat}
-          (H : vertical_cells_are_squares B)
+          (H : vertically_saturated B)
           {x y : B}
           (v₁ v₂ : x -|-> y).
 
@@ -324,7 +324,7 @@ End IsoWeqV.
 
 Definition is_univalent_hom_v_weq_is_univalent_hom_v_sq
            {B : verity_double_bicat}
-           (H : vertical_cells_are_squares B)
+           (H : vertically_saturated B)
            (x y : B)
   : is_univalent (hom_v B x y) ≃ is_univalent (hom_v_sq B x y).
 Proof.
@@ -349,7 +349,7 @@ Qed.
 
 Definition ver_sq_weq_ver_locally_univalent
            {B : verity_double_bicat}
-           (H : vertical_cells_are_squares B)
+           (H : vertically_saturated B)
   : ver_locally_univalent B
     ≃
     ver_sq_locally_univalent B
@@ -370,7 +370,7 @@ Definition v_sq_idtoiso_2_1
 
 Definition v_sq_isotoid_2_1
            {B : verity_double_bicat}
-           (H : vertical_cells_are_squares B)
+           (H : vertically_saturated B)
            (HB_2_1 : ver_locally_univalent B)
            {x y : B}
            {v₁ v₂ : x -|-> y}
@@ -380,7 +380,7 @@ Definition v_sq_isotoid_2_1
 
 Proposition v_sq_idtoiso_isotoid_2_1
             {B : verity_double_bicat}
-            (H : vertical_cells_are_squares B)
+            (H : vertically_saturated B)
             (HB_2_1 : ver_locally_univalent B)
             {x y : B}
             {v₁ v₂ : x -|-> y}
@@ -394,7 +394,7 @@ Qed.
 
 Proposition v_sq_isotoid_idtoiso_2_1
             {B : verity_double_bicat}
-            (H : vertical_cells_are_squares B)
+            (H : vertically_saturated B)
             (HB_2_1 : ver_locally_univalent B)
             {x y : B}
             {v₁ v₂ : x -|-> y}
