@@ -43,7 +43,7 @@ Section kuratowski_structure.
     (f : ⟦ n ⟧ -> X)
     (fsurjective : issurjective f)
     : kfinstruct X
-    := (n ,, f ,, fsurjective).
+    := (n ,,u f ,,u fsurjective).
 
   (* Accessors. *)
   Definition kfinstruct_cardinality {X : UU} (f : kfinstruct X) : nat
@@ -116,7 +116,7 @@ Section kuratowski_structure.
   Defined.
 
   Definition kfinstruct_dirprod {X Y : UU}
-    : kfinstruct X -> kfinstruct Y -> kfinstruct (X × Y).
+    : kfinstruct X -> kfinstruct Y -> kfinstruct (X ×u Y).
   Proof.
     intros f g.
     set (k := kfinstruct_cardinality f).
@@ -231,7 +231,7 @@ Section kfinite_definition.
          kfinstruct_coprod.
 
   Definition iskfinite_dirprod {X Y : UU}
-    : iskfinite X → iskfinite Y → iskfinite (X × Y)
+    : iskfinite X → iskfinite Y → iskfinite (X ×u Y)
     := hinhfun2
          kfinstruct_dirprod.
 

@@ -72,10 +72,10 @@ Lemma extend_tuple_i
   (i : nat)
   (Hi1 : i < S n)
   (Hi2 : i < n)
-  : extend_tuple f last (i ,, Hi1) = f (make_stn _ i Hi2).
+  : extend_tuple f last (i ,,u Hi1) = f (make_stn _ i Hi2).
 Proof.
   unfold extend_tuple.
-  refine (maponpaths _ (_ : invmap stnweq (i ,, Hi1) = inl (make_stn _ i Hi2))).
+  refine (maponpaths _ (_ : invmap stnweq (i ,,u Hi1) = inl (make_stn _ i Hi2))).
   apply (invmaponpathsweq (weqdnicoprod n lastelement)).
   refine (homotweqinvweq _ _ @ _).
   apply stn_eq.

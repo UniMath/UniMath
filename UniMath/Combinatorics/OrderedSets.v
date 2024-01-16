@@ -9,7 +9,7 @@ Local Open Scope poset.
 (** partially ordered sets and ordered sets *)
 
 Definition isTotalOrder {X : hSet} (R : hrel X) : hProp
-  := make_hProp (isPartialOrder R × istotal R)
+  := make_hProp (isPartialOrder R ×u istotal R)
                (isapropdirprod _ _ (isaprop_isPartialOrder R) (isaprop_istotal R)).
 
 Local Open Scope logic.
@@ -46,7 +46,7 @@ Definition isMinimal {X : Poset} (x : X) : UU := ∏ y, y ≤ x -> x = y.
 Definition isMaximal {X : Poset} (x : X) : UU := ∏ y, x ≤ y -> x = y.
 (* the definition in Sets.v is wrong *)
 
-Definition consecutive {X : Poset} (x y : X) : UU := x < y × ∏ z, ¬ (x < z × z < y).
+Definition consecutive {X : Poset} (x y : X) : UU := x < y ×u ∏ z, ¬ (x < z ×u z < y).
 
 Lemma isaprop_isSmallest {X : Poset} (x : X) : isaprop (isSmallest x).
 Proof.
@@ -66,7 +66,7 @@ Local Arguments isPosetEquivalence : clear implicits.
 Local Arguments isaposetmorphism : clear implicits.
 
 Lemma posetStructureIdentity {X:hSet} (R S:PartialOrder X) :
-  @isPosetEquivalence (X,,R) (X,,S) (idweq X) <-> (R=S)%type.
+  @isPosetEquivalence (X  ,,u  R) (X ,,u S) (idweq X) <-> (R=S)%type.
 Proof.
   intros. split.
   { intros e.
@@ -182,7 +182,7 @@ Coercion underlyingPoset : OrderedSet >-> Poset.
 Declare Scope oset.
 Delimit Scope oset with oset.
 
-Definition Poset_lessthan {X:Poset} (x y:X) := ∥ x ≤ y  ×  x != y ∥.
+Definition Poset_lessthan {X:Poset} (x y:X) := ∥ x ≤ y  ×u  x != y ∥.
 
 Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 60, no associativity) : oset.
 Notation "m ≤ n" := (posetRelation _ m n) (no associativity, at level 70) : oset.
@@ -373,7 +373,7 @@ Abort.
 
 Definition standardFiniteOrderedSet (n:nat) : FiniteOrderedSet.
 Proof.
-  intros. simple refine (_,,_).
+  intros. simple refine (_ ,,u _).
   - exists (stnposet n). intros x y; apply istotalnatleh.
   - apply isfinitestn.
 Defined.
@@ -401,11 +401,11 @@ Definition transportFiniteOrdering {n} {X:UU} : X ≃ ⟦ n ⟧ -> FiniteOrdered
 (* The new finite ordered set has X as its underlying set. *)
 Proof.
   intros w.
-  simple refine (_,,_).
-  - simple refine (_,,_).
-    * simple refine (_,,_).
+  simple refine (_ ,,u _).
+  - simple refine (_ ,,u _).
+    * simple refine (_ ,,u _).
     + exists X. apply (isofhlevelweqb 2 w). apply setproperty.
-      + unfold PartialOrder; simpl. simple refine (_,,_).
+      + unfold PartialOrder; simpl. simple refine (_ ,,u _).
         { intros x y. exact (w x ≤ w y). }
         apply inducedPartialOrder_weq.
         exact (pr2 (pr2 (pr1 (pr1 (⟦ n ⟧))))).
@@ -423,7 +423,7 @@ Definition lexicographicOrder
            (R:hrel X) (S : ∏ x, hrel (Y x)) : hrel (∑ x, Y x)%set.
   intros u u'.
   set (x := pr1 u). set (y := pr2 u). set (x' := pr1 u'). set (y' := pr2 u').
-  exact ((x != x' × R x x') ∨ (∑ e : x = x', S x' (transportf Y e y) y')).
+  exact ((x != x' ×u R x x') ∨ (∑ e : x = x', S x' (transportf Y e y) y')).
 Defined.
 
 Lemma lex_isrefl (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∏ x, hrel (Y x)) :
@@ -453,14 +453,14 @@ Proof.
       apply hinhpr; simpl.
       apply ii1.
       induction e.
-      exact (pn,,pl).
+      exact (pn ,,u pl).
   - induction p as [e s].
     induction e; unfold transportf in s; simpl in s.
     refine (q _ _); clear q; intro q; simpl in q.
     induction q as [q|q].
     + induction q as [n r].
       apply hdisj_in1; simpl.
-      exact (n,,r).
+      exact (n ,,u r).
     + induction q as [e' s']. induction e'.
       unfold transportf in s'; simpl in s'.
       apply hdisj_in2; simpl.
@@ -495,12 +495,12 @@ Proof.
   intros Xdec Rtot Stot u u'. induction u as [x y]. induction u' as [x' y'].
   induction (Xdec x x') as [eq|ne].
   { refine (Stot x' (transportf Y eq y) y' _ _); intro P. induction P as [P|P].
-    { apply hdisj_in1. unfold lexicographicOrder; simpl. apply hdisj_in2. exact (eq,,P). }
+    { apply hdisj_in1. unfold lexicographicOrder; simpl. apply hdisj_in2. exact (eq ,,u P). }
     { apply hdisj_in2. unfold lexicographicOrder; simpl. apply hdisj_in2.
-      induction eq. exact (idpath _,,P). }}
+      induction eq. exact (idpath _ ,,u P). }}
   { refine (Rtot x x' _ _); intro P. induction P as [P|P].
-    { apply hdisj_in1. apply hdisj_in1. simpl. exact (ne,,P). }
-    { apply hdisj_in2. apply hdisj_in1. simpl. exact (ne ∘ pathsinv0,,P). }}
+    { apply hdisj_in1. apply hdisj_in1. simpl. exact (ne ,,u P). }
+    { apply hdisj_in2. apply hdisj_in1. simpl. exact (ne ∘ pathsinv0 ,,u P). }}
 Defined.
 
 Definition concatenateFiniteOrderedSets
@@ -508,12 +508,12 @@ Definition concatenateFiniteOrderedSets
 Proof.
   (* we use lexicographic order *)
   intros.
-  simple refine (_,,_).
+  simple refine (_ ,,u _).
   {
-    simple refine (_,,_).
-    { simple refine (_,,_).
+    simple refine (_ ,,u _).
+    { simple refine (_ ,,u _).
       { exact (∑ x, Y x)%set. }
-      simple refine (_,,_).
+      simple refine (_ ,,u _).
       { apply lexicographicOrder. apply posetRelation. intro. apply posetRelation. }
       split.
       { split.
@@ -578,7 +578,7 @@ Abort.
 Theorem enumeration_FiniteOrderedSet (X:FiniteOrderedSet) : iscontr (FiniteStructure X).
 Proof.
   intros.
-  simple refine (_,,_).
+  simple refine (_ ,,u _).
   { exists (fincard (finitenessProperty X)).
 
   (* proof in progress... *)

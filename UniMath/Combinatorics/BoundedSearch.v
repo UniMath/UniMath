@@ -27,7 +27,7 @@ Section constr_indef_descr.
     apply isasetbool.
   Defined.
 
-  Local Definition min_n_UU : UU := ∑ n : nat, P n × minimal n.
+  Local Definition min_n_UU : UU := ∑ n : nat, P n ×u minimal n.
 
   Local Definition isapropmin_n : isaprop min_n_UU.
   Proof.
@@ -44,14 +44,14 @@ Section constr_indef_descr.
 
   Local Definition min_n : hProp := make_hProp min_n_UU isapropmin_n.
 
-  Local Definition smaller (n : nat) := ∑ l : nat, P l × minimal l × (l ≤ n)%nat.
+  Local Definition smaller (n : nat) := ∑ l : nat, P l ×u minimal l ×u (l ≤ n)%nat.
 
   Local Definition smaller_S (n : nat) (k : smaller n) : smaller (S n).
   Proof.
     induction k as [l pmz].
     induction pmz as [p mz].
     induction mz as [m z].
-    refine (l,,p,,m,,_).
+    refine (l  ,,u  p ,,u m ,,u _).
     refine (istransnatgth _ _ _ _ _).
     apply natgthsnn.
     apply z.
@@ -64,7 +64,7 @@ Section constr_indef_descr.
       apply P_dec.
       induction X as [h|].
       + apply ii1.
-        refine (O,,h,,_,,_).
+        refine (O ,,u h ,,u _ ,,u _).
         * intros ? ?. apply natleh0n.
         * apply isreflnatleh.
       + apply ii2. intros l lleq0.
@@ -76,7 +76,7 @@ Section constr_indef_descr.
       + assert (P (S n) ⨿ ¬ P (S n)) as X.
         apply P_dec.
         induction X as [h|].
-        * refine (ii1 (S n,,h,,_,,_)).
+        * refine (ii1 (S n ,,u h ,,u _ ,,u _)).
           -- intros m q.
              assert (((S n) > m)%nat ⨿ (S n ≤ m)) as X.
              apply natgthorleh.
@@ -103,7 +103,7 @@ Section constr_indef_descr.
     - induction lqmz as [l qmz].
       induction qmz as [q mz].
       induction mz as [m z].
-      refine (l,,q,,m).
+      refine (l ,,u q ,,u m).
     - apply fromempty.
       refine (none n (isreflnatgeh _ ) p).
   Defined.
@@ -118,7 +118,7 @@ Section constr_indef_descr.
   Definition minimal_n : ∑ n : nat, P n.
   Proof.
     induction prop_n_to_min_n as [n pl]. induction pl as [p _].
-    exact (n,,p).
+    exact (n ,,u p).
   Defined.
 
 End constr_indef_descr.

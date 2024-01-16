@@ -36,13 +36,13 @@ Definition has_edgesets (G : pregraph) : UU
 (** ** Graphs. *)
 
 Definition graph : UU
-  := ∑ G : pregraph, has_vertexset G × has_edgesets G.
+  := ∑ G : pregraph, has_vertexset G ×u has_edgesets G.
 
 Definition make_graph (G : pregraph)
            (h : has_vertexset G)
            (k : has_edgesets G)
   : graph
-  := G,, make_dirprod h k.
+  := G,,u make_dirprod h k.
 
 Definition pregraph_of_graph : graph → pregraph := pr1.
 Coercion pregraph_of_graph : graph >-> pregraph.

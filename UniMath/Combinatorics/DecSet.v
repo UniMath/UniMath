@@ -9,7 +9,7 @@ Require Import UniMath.Foundations.PartB.
 
 Definition decSet: UU := ∑ (X: UU), isdeceq X.
 
-Definition make_decSet (X: UU) (i: isdeceq X): decSet := X,, i.
+Definition make_decSet (X: UU) (i: isdeceq X): decSet := X,,u i.
 
 Definition pr1decSet: decSet -> UU := pr1.
 

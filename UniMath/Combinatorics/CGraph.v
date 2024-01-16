@@ -29,11 +29,11 @@ Require Import UniMath.MoreFoundations.Propositions.
 (** ** Precgraphs. *)
 
 Definition precgraph : UU
-  := ∑ (N : UU) (E : UU), (E → N) × (E → N).
+  := ∑ (N : UU) (E : UU), (E → N) ×u (E → N).
 
 Definition make_precgraph {N : UU} {E : UU} (s t : E → N)
   : precgraph
-  := N,, E,, make_dirprod s t.
+  := N,,u E,,u make_dirprod s t.
 
 Definition node : precgraph → UU := pr1.
 
@@ -57,7 +57,7 @@ Definition has_arcset (G : precgraph) : UU
 (** Cgraphs. *)
 
 Definition cgraph : UU
-  := ∑ G : precgraph, isaset (node G) × isaset (arc G).
+  := ∑ G : precgraph, isaset (node G) ×u isaset (arc G).
 
 Definition make_cgraph
            (G : precgraph)
@@ -89,7 +89,7 @@ Definition is_cgraph_mor {G H : precgraph}
            (p₀ : node G → node H)
            (p₁ : arc G → arc H)
   : UU
-  := (∏ f : arc G, source (p₁ f) = p₀ (source f)) ×
+  := (∏ f : arc G, source (p₁ f) = p₀ (source f)) ×u
      (∏ f : arc G, target (p₁ f) = p₀ (target f)).
 
 Definition cgraph_mor (G H : precgraph) : UU
@@ -102,7 +102,7 @@ Definition make_cgraph_mor {G H : precgraph}
            (p₁ : arc G → arc H)
            (h : is_cgraph_mor p₀ p₁)
   : cgraph_mor G H
-  := p₀,, p₁,, h.
+  := p₀,,u p₁,,u h.
 
 Definition onnode {G H : precgraph}
   : cgraph_mor G H → node G → node H
@@ -277,11 +277,11 @@ Lemma precgraph_weq_pregraph : precgraph ≃ pregraph.
 Proof.
   unfold pregraph, precgraph.
   apply weqfibtototal. intro X.
-  apply (weqcomp (Y := ∑ E : UU, E → X × X)).
+  apply (weqcomp (Y := ∑ E : UU, E → X ×u X)).
   - apply weqfibtototal. intro Y.
     apply invweq, weqfuntoprodtoprod.
-  - apply (weqcomp (Y := X × X → UU)).
-    + set (A := X × X).
+  - apply (weqcomp (Y := X ×u X → UU)).
+    + set (A := X ×u X).
       apply display_weq.
     + apply weqfunfromdirprod.
 Defined.

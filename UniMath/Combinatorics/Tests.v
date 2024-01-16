@@ -62,7 +62,7 @@ Section Test_stn.
     Let Y := @stn_compl (S n) i.
     Let v := weqdnicompl i : X ≃ Y.
     Let j := ●4 : X.
-    Let jni := ●5,,tt : Y.
+    Let jni := ●5 ,,u tt : Y.
 
     Goal v j = jni. reflexivity. Defined.
     Goal invmap v jni = j. reflexivity. Defined.
@@ -175,42 +175,42 @@ Section Test_stn.
     Let W := ∑ x, Y x.
     Let f : W ≃ stn _ := weqstnsum1 _.
     Let f' : stn _ ≃ W := invweq f.
-    Goal f(●1,,●0) = ●0. reflexivity. Defined. (* fixed! (formerly, it failed quickly) *)
-    Goal f(●2,,●0) = ●1. reflexivity. Defined.
-    Goal f(●2,,●1) = ●2. reflexivity. Defined.
-    Goal f(●3,,●0) = ●3. reflexivity. Defined.
-    Goal f(●3,,●1) = ●4. reflexivity. Defined.
-    Goal f(●3,,●2) = ●5. reflexivity. Defined.
-    Goal f(●4,,●0) = ●6. reflexivity. Defined.
-    Goal f(●5,,●0) = ●10. reflexivity. Defined.
-    Goal f(●6,,●0) = ●15. reflexivity. Defined.
+    Goal f(●1 ,,u ●0) = ●0. reflexivity. Defined. (* fixed! (formerly, it failed quickly) *)
+    Goal f(●2 ,,u ●0) = ●1. reflexivity. Defined.
+    Goal f(●2 ,,u ●1) = ●2. reflexivity. Defined.
+    Goal f(●3 ,,u ●0) = ●3. reflexivity. Defined.
+    Goal f(●3 ,,u ●1) = ●4. reflexivity. Defined.
+    Goal f(●3 ,,u ●2) = ●5. reflexivity. Defined.
+    Goal f(●4 ,,u ●0) = ●6. reflexivity. Defined.
+    Goal f(●5 ,,u ●0) = ●10. reflexivity. Defined.
+    Goal f(●6 ,,u ●0) = ●15. reflexivity. Defined.
 
     Goal (pr2 (pr2 (f'(●0)))) = idpath true. reflexivity. Defined. (* fixed, Coq bug? *)
-    Goal f'(●0) = (●1,,●0). reflexivity. Defined. (* fixed, Coq bug? *)
-    Goal f'(●0) = (●1,,●0). reflexivity. Defined.
-    Goal f'(●1) = (●2,,●0). reflexivity. Defined.
-    Goal f'(●2) = (●2,,●1). reflexivity. Defined.
-    Goal f'(●3) = (●3,,●0). reflexivity. Defined.
-    Goal f'(●4) = (●3,,●1). reflexivity. Defined.
-    Goal f'(●5) = (●3,,●2). reflexivity. Defined.
-    Goal f'(●6) = (●4,,●0). reflexivity. Defined.
-    Goal f'(●10) = (●5,,●0). reflexivity. Defined.
-    Goal f'(●15) = (●6,,●0). reflexivity. Defined.
+    Goal f'(●0) = (●1 ,,u ●0). reflexivity. Defined. (* fixed, Coq bug? *)
+    Goal f'(●0) = (●1 ,,u ●0). reflexivity. Defined.
+    Goal f'(●1) = (●2 ,,u ●0). reflexivity. Defined.
+    Goal f'(●2) = (●2 ,,u ●1). reflexivity. Defined.
+    Goal f'(●3) = (●3 ,,u ●0). reflexivity. Defined.
+    Goal f'(●4) = (●3 ,,u ●1). reflexivity. Defined.
+    Goal f'(●5) = (●3 ,,u ●2). reflexivity. Defined.
+    Goal f'(●6) = (●4 ,,u ●0). reflexivity. Defined.
+    Goal f'(●10) = (●5 ,,u ●0). reflexivity. Defined.
+    Goal f'(●15) = (●6 ,,u ●0). reflexivity. Defined.
 
   End Test_weqstnsum.
 
   Section Test_weqfromprodofstn.
     (* verify computability in both directions *)
     (* this module exports nothing *)
-    Let f : stn 5 × stn 4 ≃ stn 20 := weqfromprodofstn 5 4.
-    Goal f(●0,,●0) = ●0. reflexivity. Defined.
-    Goal f(●0,,●1) = ●1. reflexivity. Defined.
-    Goal f(●2,,●0) = ●8. reflexivity. Defined.
-    Goal f(●4,,●3) = ●19. reflexivity. Defined.
+    Let f : stn 5 ×u stn 4 ≃ stn 20 := weqfromprodofstn 5 4.
+    Goal f(●0 ,,u ●0) = ●0. reflexivity. Defined.
+    Goal f(●0 ,,u ●1) = ●1. reflexivity. Defined.
+    Goal f(●2 ,,u ●0) = ●8. reflexivity. Defined.
+    Goal f(●4 ,,u ●3) = ●19. reflexivity. Defined.
     Let f' := invweq f.
-    Goal f'(●19) = (●4,,●3). reflexivity. Defined.
-    Goal f'(●18) = (●4,,●2). reflexivity. Defined.
-    Goal f'(●14) = (●3,,●2). reflexivity. Defined.
+    Goal f'(●19) = (●4 ,,u ●3). reflexivity. Defined.
+    Goal f'(●18) = (●4 ,,u ●2). reflexivity. Defined.
+    Goal f'(●14) = (●3 ,,u ●2). reflexivity. Defined.
   End Test_weqfromprodofstn.
 
   (* confirm that [stnprod] is associative in the same way as the parser *)
@@ -223,11 +223,11 @@ Section Test_stn.
       intros n.
       induction n as [n b].
       induction n as [|n].
-      - exact (2,,idpath _).
+      - exact (2 ,,u idpath _).
       - induction n as [|n].
-        + exact (3,,idpath _).
+        + exact (3 ,,u idpath _).
         + induction n as [|n].
-          * exact (4,,idpath _).
+          * exact (4 ,,u idpath _).
           * contradicts (negnatlthn0 n) b.
     Defined.
 
@@ -317,9 +317,9 @@ Section Test_fin.
     Let y := ●1 : Y.
     Let y' := ●2 : Y.
     Let finY : isfinite Y := isfinitestn _.
-    Let V := X × Y.
+    Let V := X ×u Y.
     Let eqV := isfinite_to_DecidableEquality (isfinitedirprod finX finY).
-    Goal decide (eqV (x,,y) (x',,y')) = false. reflexivity. Defined.
+    Goal decide (eqV (x ,,u y) (x' ,,u y')) = false. reflexivity. Defined.
 
     (* test isfinitetotal2 *)
 
@@ -327,7 +327,7 @@ Section Test_fin.
     Let W := ∑ x, Y' x.
     Let eqW : DecidableRelation W :=
       isfinite_to_DecidableEquality (isfinitetotal2 Y' finX (λ _, finY)).
-    Goal decide (eqW (x,,y) (x',,y')) = false.
+    Goal decide (eqW (x ,,u y) (x' ,,u y')) = false.
       reflexivity. (* fixed *)
     Defined.
 
@@ -393,8 +393,8 @@ Section Test_ord.
 
     Let y1 := ●1 : Y x2.
     Let y2 := ●2 : Y x3.
-    Let t  := (x2,,y1) : Z.
-    Let t' := (x3,,y2) : Z.
+    Let t  := (x2 ,,u y1) : Z.
+    Let t' := (x3 ,,u y2) : Z.
 
   End TestLex.
 
@@ -412,8 +412,8 @@ Section Test_ord.
     Goal choice (i ≐ j)%foset true false = false. reflexivity. Defined.
 
     Let X := (∑ i:⟦ 4 ⟧, ⟦ pr1 i ⟧)%foset.
-    Let x := ( ●2 ,, ●1 ):X.
-    Let y := ( ●3 ,, ●1 ):X.
+    Let x := ( ●2  ,,u  ●1 ):X.
+    Let y := ( ●3  ,,u  ●1 ):X.
 
     Local Lemma d : isdeceq X.
     Proof.
@@ -529,7 +529,7 @@ Section Test_search.
 
   Local Definition P_inhab : ∃ n, P n.
   Proof.
-    apply hinhpr. refine (2%nat,,_). apply idpath.
+    apply hinhpr. refine (2%nat ,,u _). apply idpath.
   Defined.
 
   Goal 1 = pr1 (minimal_n P P_dec P_inhab). reflexivity. Defined.

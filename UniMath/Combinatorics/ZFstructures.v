@@ -90,7 +90,7 @@ Proof.
 Qed.
 
 Definition isTRR (V : hSet) (E : hrel V) (r : V) : UU :=
-  isrefl E × istrans E × isaroot E r.
+  isrefl E ×u istrans E ×u isaroot E r.
 
 Lemma isaprop_isTRR (V : hSet) (E : hrel V) (r : V) : isaprop (isTRR V E r).
 Proof.
@@ -131,7 +131,7 @@ Definition selfedge (G : TRRGraph) (x : pr1 G) : pr1 (pr2 G) x x :=
     that isomorphisms are equivalent to identities [TRRGraph_univalence] **)
 
 Definition isTRRGhomo {G H : TRRGraph} (f : pr1 G → pr1 H) : UU :=
-  (∏ (x y : pr1 G), (x ≤ y) <-> (f x ≤ f y)) × (f (TRRG_root G) = TRRG_root H).
+  (∏ (x y : pr1 G), (x ≤ y) <-> (f x ≤ f y)) ×u (f (TRRG_root G) = TRRG_root H).
 
 Lemma isaprop_isTRRGhomo {G H : TRRGraph} (f : pr1 G → pr1 H) : isaprop (isTRRGhomo f).
 Proof.
@@ -144,7 +144,7 @@ Qed.
 
 Lemma TRRGhomo_frompath (X Y : hSet) (G : TRRGraphData X) (H : TRRGraphData Y) (p : X = Y) :
   transportf (λ x : hSet, TRRGraphData x) p G = H →
-  @isTRRGhomo (X ,, G) (Y ,, H) (pr1weq (hSet_univalence _ _ p)).
+  @isTRRGhomo (X ,,u G) (Y ,,u H) (pr1weq (hSet_univalence _ _ p)).
 Proof.
   simpl.
   induction p.
@@ -169,7 +169,7 @@ Qed.
 
 Local Lemma helper (X : hSet) (E E' : X → X → hProp) (r r' : X) (isE : isTRR X E r)
       (isE' : isTRR X E' r') (q : E = E') (σ : r = r') :
-  transportf (λ x : X → X → hProp, ∑ r : X, isTRR X x r) q (r ,, isE) = (r' ,, isE').
+  transportf (λ x : X → X → hProp, ∑ r : X, isTRR X x r) q (r ,,u isE) = (r' ,,u isE').
 Proof.
   induction q.
   rewrite idpath_transportf.
@@ -180,7 +180,7 @@ Proof.
 Qed.
 
 Lemma TRRGhomo_topath (X Y : hSet) (G : TRRGraphData X) (H : TRRGraphData Y) (p : X = Y) :
-  @isTRRGhomo (X ,, G) (Y ,, H) (pr1weq (hSet_univalence _ _ p)) →
+  @isTRRGhomo (X ,,u G) (Y ,,u H) (pr1weq (hSet_univalence _ _ p)) →
   transportf (λ x : hSet, TRRGraphData x) p G = H.
 Proof.
   induction p.
@@ -238,7 +238,7 @@ Proof.
 Defined.
 
 Lemma TRRGraph_univalence_weq2_idpath (G : TRRGraph) :
-  TRRGraph_univalence_weq2 G G (idpath (pr1 G) ,, idpath (((idpath (pr1 G)) # pr2 G)%transport)) =
+  TRRGraph_univalence_weq2 G G (idpath (pr1 G) ,,u idpath (((idpath (pr1 G)) # pr2 G)%transport)) =
   id_TRRGraphiso G.
 Proof.
   apply total2_paths_equiv.
@@ -248,7 +248,7 @@ Qed.
 
 Lemma TRRGraph_univalence_weq1_idpath (G : TRRGraph) :
   ((TRRGraph_univalence_weq1 G G) (idpath G)) =
-  (idpath (pr1 G) ,, idpath (((idpath (pr1 G)) # pr2 G)%transport)).
+  (idpath (pr1 G) ,,u idpath (((idpath (pr1 G)) # pr2 G)%transport)).
 Proof.
   apply total2_paths_equiv.
   exists (idpath (idpath (pr1 G))).
@@ -288,13 +288,13 @@ Definition DownwardClosure {G : TRRGraph} (x : pr1 G) : UU :=
   ∑ y : pr1 G, y ≤ x.
 
 Definition antisymmetric {G :TRRGraph} (y z : pr1 G) : UU :=
-  (y ≤ z) × (z ≤ y) → (z = y).
+  (y ≤ z) ×u (z ≤ y) → (z = y).
 
 Definition total {G : TRRGraph} (y z : pr1 G) : hProp :=
   (y ≤ z) ∨ (z ≤ y).
 
 Definition isatree (G : TRRGraph) : UU :=
-  ∏ (x : pr1 G) (y z : DownwardClosure x), antisymmetric (pr1 y) (pr1 z) × total (pr1 y) (pr1 z).
+  ∏ (x : pr1 G) (y z : DownwardClosure x), antisymmetric (pr1 y) (pr1 z) ×u total (pr1 y) (pr1 z).
 
 Lemma isaprop_isatree (G : TRRGraph) : isaprop (isatree G).
 Proof.
@@ -315,7 +315,7 @@ Definition Tree_iso (T1 T2 : Tree) : UU := pr1 T1 ≅ pr1 T2.
 Theorem Tree_univalence (T1 T2 : Tree) : (T1 = T2) ≃ (Tree_iso T1 T2).
 Proof.
   set (P := λ G, λ H, TRRGraph_univalence G H).
-  set (Q := λ G, (isatree G ,, isaprop_isatree G)).
+  set (Q := λ G, (isatree G ,,u isaprop_isatree G)).
   apply (substructure_univalence _ _ P Q T1 T2).
 Qed.
 
@@ -332,13 +332,13 @@ Proof.
 Qed.
 
 Definition Upw (T : Tree) (x : pr11 T) : hSet :=
-  (∑ (y : pr11 T), pr121 T x y) ,, (isaset_Upw_underlying T x).
+  (∑ (y : pr11 T), pr121 T x y) ,,u (isaset_Upw_underlying T x).
 
 Definition Upw_E (T : Tree) (x : pr11 T) (y z : Upw T x) : hProp :=
   pr121 T (pr1 y) (pr1 z).
 
 Definition Upw_to_PointedGraph (T : Tree) (x : pr11 T) : PointedGraph :=
-  Upw T x ,, Upw_E T x ,, (x ,, selfedge (pr1 T) x).
+  Upw T x ,,u Upw_E T x ,,u (x ,,u selfedge (pr1 T) x).
 
 Lemma Upw_reflexive (T : Tree) (x : pr11 T) :
   ∏ (y : pr1 (Upw_to_PointedGraph T x)), pr12 (Upw_to_PointedGraph T x) y y.
@@ -357,15 +357,15 @@ Proof.
   exact (TRRG_transitivity (pr1 T) (pr1 y) (pr1 z) (pr1 w) P Q).
 Qed.
 
-Lemma Upw_rooted (T : Tree) (x : pr11 T) : ∏ y, (Upw_E T x) (x ,, selfedge (pr1 T)  x) y.
+Lemma Upw_rooted (T : Tree) (x : pr11 T) : ∏ y, (Upw_E T x) (x ,,u selfedge (pr1 T)  x) y.
 Proof.
   intros y.
   exact (pr2 y).
 Qed.
 
 Definition Upw_to_TRRGraph (T : Tree) (x : pr11 T) : TRRGraph :=
-  pr1 (Upw_to_PointedGraph T x) ,, pr12 (Upw_to_PointedGraph T x) ,, pr22 (Upw_to_PointedGraph T x)
-                                ,, Upw_reflexive T x ,, Upw_transitive T x ,, Upw_rooted T x.
+  pr1 (Upw_to_PointedGraph T x) ,,u pr12 (Upw_to_PointedGraph T x) ,,u pr22 (Upw_to_PointedGraph T x)
+                                ,,u Upw_reflexive T x ,,u Upw_transitive T x ,,u Upw_rooted T x.
 
 Lemma isatree_Upw (T : Tree) (x : pr11 T) : isatree (Upw_to_TRRGraph T x).
 Proof.
@@ -388,7 +388,7 @@ Proof.
      assert (L1 : zzz = yyy).
      {
        simpl in a.
-       apply (pr1 (pr2 (T) (pr1 a) (yyy ,, Eya) (zzz ,, Eza)) (yz ,, zy)).
+       apply (pr1 (pr2 (T) (pr1 a) (yyy ,,u Eya) (zzz ,,u Eza)) (yz ,,u zy)).
      }
      assert (p : pr1 zz = pr1 yy).
      {
@@ -406,12 +406,12 @@ Proof.
      apply (total2_paths_b p q).
   -  assert (L : pr121 T yyy zzz ∨ pr121 T zzz yyy).
      {
-       apply (pr2 ((pr2 (T)) (pr1 a) (yyy ,, Eya) (zzz ,, Eza))).
+       apply (pr2 ((pr2 (T)) (pr1 a) (yyy ,,u Eya) (zzz ,,u Eza))).
      }
      apply L.
 Qed.
 
-Definition Up {T : Tree} (x : pr11 T) : Tree := (Upw_to_TRRGraph T x ,, isatree_Upw T x).
+Definition Up {T : Tree} (x : pr11 T) : Tree := (Upw_to_TRRGraph T x ,,u isatree_Upw T x).
 
 (** Definition of rigid [isrigid] and superrigid [issuperrigid] trees **)
 
@@ -425,7 +425,7 @@ Proof.
 Qed.
 
 Definition issuperrigid (T : Tree) : UU :=
-  isrigid T × (∏ (x : pr11 T), isrigid (Up x)).
+  isrigid T ×u (∏ (x : pr11 T), isrigid (Up x)).
 
 Lemma isaprop_issuperrigid (T : Tree) : isaprop (issuperrigid T).
 Proof.
@@ -447,7 +447,7 @@ Definition hasLargest {X : UU} (R : hrel X) : hProp :=
 
 Definition isWellFoundedDown (T : Tree) := hasLargest (pr121 T).
 
-Definition Tree_isWellFounded (T : Tree) := (isWellFoundedUp T) × (isWellFoundedDown T).
+Definition Tree_isWellFounded (T : Tree) := (isWellFoundedUp T) ×u (isWellFoundedDown T).
 
 Lemma isaprop_Tree_isWellFounded (T : Tree) : isaprop (Tree_isWellFounded T).
 Proof.
@@ -465,7 +465,7 @@ Qed.
 
 **)
 
-Definition ispreZFS (T : Tree) : UU := (Tree_isWellFounded T) × (issuperrigid T).
+Definition ispreZFS (T : Tree) : UU := (Tree_isWellFounded T) ×u (issuperrigid T).
 
 Lemma isaprop_ispreZFS (T : Tree) : isaprop (ispreZFS T).
 Proof.
@@ -485,7 +485,7 @@ Definition root (X : preZFS) : Ve X := pr1 (pr2 (pr2 (pr1 (pr1 X)))).
 
 Lemma preZFS_isrigid (X : preZFS) : iscontr (X = X).
 Proof.
-  apply (pr1contr_to_contr _ (λ x, (ispreZFS x ,, isaprop_ispreZFS x)) X).
+  apply (pr1contr_to_contr _ (λ x, (ispreZFS x ,,u isaprop_ispreZFS x)) X).
   exact (pr122 X).
 Qed.
 
@@ -506,7 +506,7 @@ Definition preZFS_iso (X Y : preZFS) : UU := Tree_iso (pr1 X) (pr1 Y).
 Theorem preZFS_univalence (X Y : preZFS) : (X = Y) ≃ (preZFS_iso X Y).
 Proof.
   set (P := λ x, λ y, Tree_univalence x y).
-  set (Q := λ x, (ispreZFS x ,, isaprop_ispreZFS x)).
+  set (Q := λ x, (ispreZFS x ,,u isaprop_ispreZFS x)).
   exact (substructure_univalence _ _ P Q X Y).
 Qed.
 
@@ -525,7 +525,7 @@ Definition preZFS_Branch (T : preZFS) (x : T) : Tree := Up x.
 
 Definition preZFS_Branch_hsubtype_tohsubtype (T : preZFS) (x : T)
            (S : hsubtype (pr11 (preZFS_Branch T x))) : hsubtype (pr111 T) :=
-  λ t, ∃ e, S (t ,, e).
+  λ t, ∃ e, S (t ,,u e).
 
 (**
 REMARK : The definition [preZFS_Branch_hsubtype_tohsubtype] probably does not need to be
@@ -545,7 +545,7 @@ Proof.
   unfold preZFS_Branch_hsubtype_tohsubtype.
   unfold hsubtype_to_preZFS_Branch_hsubtype.
   simpl.
-  assert (ES : ((∃ e : Ed T x (pr1 y), S (pr1 y,, e)) ∧ Ed T x (pr1 y)) -> S y).
+  assert (ES : ((∃ e : Ed T x (pr1 y), S (pr1 y,,u e)) ∧ Ed T x (pr1 y)) -> S y).
   {
     intros X.
     destruct X as [ε e].
@@ -560,7 +560,7 @@ Proof.
     rewrite <- p.
     apply z.
   }
-  assert (SE : ((∃ e : Ed T x (pr1 y), S (pr1 y,, e)) ∧ Ed T x (pr1 y)) <- S y).
+  assert (SE : ((∃ e : Ed T x (pr1 y), S (pr1 y,,u e)) ∧ Ed T x (pr1 y)) <-- S y).
   {
     intros X.
     simpl.
@@ -572,7 +572,7 @@ Proof.
       apply X.
     - apply (pr2 y).
   }
-  apply (hPropUnivalence ((∃ e : Ed T x (pr1 y), S (pr1 y,, e)) ∧ Ed T x (pr1 y)) (S y) ES SE).
+  apply (hPropUnivalence ((∃ e : Ed T x (pr1 y), S (pr1 y,,u e)) ∧ Ed T x (pr1 y)) (S y) ES SE).
 Qed.
 
 
@@ -589,7 +589,7 @@ Proof.
 Qed.
 
 Lemma toBranch_hsubtype {T : preZFS} {x : T} {S : hsubtype (pr111 T)} {t : pr111 T}
-      (e : Ed T x t) (s : S t) : hsubtype_to_preZFS_Branch_hsubtype T x S (t ,, e).
+      (e : Ed T x t) (s : S t) : hsubtype_to_preZFS_Branch_hsubtype T x S (t ,,u e).
 Proof.
   unfold hsubtype_to_preZFS_Branch_hsubtype.
   simpl.
@@ -646,7 +646,7 @@ Proof.
       destruct Y as [τ ξ].
       apply τ.
     }
-    assert (L4 : S (t ,, e)).
+    assert (L4 : S (t ,,u e)).
     {
       rewrite <- (Branch_to_subtype T x S).
       apply (toBranch_hsubtype e s).
@@ -655,7 +655,7 @@ Proof.
     unfold ishinh_UU.
     intros P Y.
     apply Y.
-    exists (t ,, e).
+    exists (t ,,u e).
     split.
     -- apply L4.
     -- intros xx Q.
@@ -708,7 +708,7 @@ Proof.
       destruct Y as [τ ξ].
       apply τ.
     }
-    assert (L4 : S (t ,, e)).
+    assert (L4 : S (t ,,u e)).
     {
       rewrite <- (Branch_to_subtype T x S).
       apply (toBranch_hsubtype e s).
@@ -717,7 +717,7 @@ Proof.
     unfold ishinh_UU.
     intros P Y.
     apply Y.
-    exists (t ,, e).
+    exists (t ,,u e).
     split.
     -- apply L4.
     -- intros xx Q.
@@ -735,7 +735,7 @@ Qed.
 
 Lemma iscontrauto_Tree_TRRGraph (T : Tree) : isrigid T → iscontr ((pr1 T) = (pr1 T)).
 Proof.
-  apply (@contr_to_pr1contr _ (λ x, (isatree x ,, isaprop_isatree x)) T).
+  apply (@contr_to_pr1contr _ (λ x, (isatree x ,,u isaprop_isatree x)) T).
 Qed.
 
 Definition Up_to_Up (T : Tree) (x : pr11 T) (y : pr11 (Up x)) :
@@ -745,7 +745,7 @@ Proof.
     intros X.
     induction X as [t π].
     induction y as [y σ].
-    exact ((t ,, ((pr122 (pr221 T)) x y t σ π)) ,, π).
+    exact ((t ,,u ((pr122 (pr221 T)) x y t σ π)) ,,u π).
 Defined.
 
 Definition Up_to_Up_inv (T : Tree) (x : pr11 T) (y : pr11 (Up x)) :
@@ -759,7 +759,7 @@ Proof.
     simpl.
     unfold Upw_E in π.
     simpl in π.
-    exact (tt ,, π).
+    exact (tt ,,u π).
 Defined.
 
 Lemma isweq_Up_to_Up  (T : Tree) (x : pr11 T) (y : pr11 (Up x)): isweq (Up_to_Up T x y).
@@ -773,7 +773,7 @@ Proof.
     unfold f ; unfold Up_to_Up.
     destruct z as [z π].
     apply total2_paths_equiv.
-    assert (H : (pr1 z,, pr122 (pr221 T) x (pr1 y) (pr1 z) (pr2 y) π) = z).
+    assert (H : (pr1 z,,u pr122 (pr221 T) x (pr1 y) (pr1 z) (pr2 y) π) = z).
     {
       apply total2_paths_equiv.
       exists (idpath (pr1 z)).
@@ -812,7 +812,7 @@ Proof.
       apply propproperty.
     }
     rewrite -> q.
-    exists (idpath (y ,, π)).
+    exists (idpath (y ,,u π)).
     apply propproperty.
 Qed.
 
@@ -829,10 +829,10 @@ Qed.
 Lemma preZFS_Branch_issuperrigid (T : preZFS) (x : T) : issuperrigid (preZFS_Branch T x).
  Proof.
   split.
-  - apply (pr1contr_to_contr _ (λ x, (isatree x ,, isaprop_isatree x)) (preZFS_Branch T x)).
+  - apply (pr1contr_to_contr _ (λ x, (isatree x ,,u isaprop_isatree x)) (preZFS_Branch T x)).
     apply (iscontrauto_Tree_TRRGraph (Up x) ((pr222 T) x)).
   - intros y.
-    apply (pr1contr_to_contr _ (λ x, (isatree x ,, isaprop_isatree x)) (Up y)).
+    apply (pr1contr_to_contr _ (λ x, (isatree x ,,u isaprop_isatree x)) (Up y)).
     simpl.
     unfold preZFS_Branch.
     unfold preZFS_Branch in y.
@@ -841,7 +841,7 @@ Lemma preZFS_Branch_issuperrigid (T : preZFS) (x : T) : issuperrigid (preZFS_Bra
 Qed.
 
 Definition Branch (T : preZFS) (x : T) : preZFS :=
-  preZFS_Branch T x ,, preZFS_Branch_isWellFounded T x ,, preZFS_Branch_issuperrigid T x.
+  preZFS_Branch T x ,,u preZFS_Branch_isWellFounded T x ,,u preZFS_Branch_issuperrigid T x.
 
 (** The definition of [ZFS] as a subtype of [preZFS] consisting of those pre-ZF structures each of
     whose branches have uniqe representatives [hasuniquerepbranch] **)
@@ -865,7 +865,7 @@ Definition ZFS_iso (x y : ZFS) := preZFS_iso x y.
 Theorem ZFS_univalence (x y : ZFS) : (x = y) ≃ (ZFS_iso x y).
 Proof.
   set (P := λ x, λ y, preZFS_univalence x y).
-  set (Q := λ x, (hasuniquerepbranch x ,, isaprop_hasuniquerepbranch x)).
+  set (Q := λ x, (hasuniquerepbranch x ,,u isaprop_hasuniquerepbranch x)).
   apply (substructure_univalence _ _ P Q x y).
 Qed.
 
@@ -898,12 +898,12 @@ Proof.
   simpl in π.
   unfold Upw_E in π.
   simpl in π.
-  exact (e ,, π).
+  exact (e ,,u π).
 Defined.
 
 Definition Branch_of_Branch_to_Branch_inv {T : preZFS} (x : T) (y : Branch T x) :
   pr1 (Upw_to_TRRGraph (pr1 T) (pr1 y)) → pr1 (Upw_to_TRRGraph (preZFS_Branch T x) y) :=
-  λ X, ((pr1 X ,, pr12 (pr222 (pr11 T)) x (pr1 y) (pr1 X) (pr2 y) (pr2 X)) ,, pr2 X).
+  λ X, ((pr1 X ,,u pr12 (pr222 (pr11 T)) x (pr1 y) (pr1 X) (pr2 y) (pr2 X)) ,,u pr2 X).
 
 
 Definition isweq_Branch_of_Branch_to_Branch {T : preZFS} (x : T) (y : Branch T x) :
@@ -928,7 +928,7 @@ Proof.
     simpl.
     induction z as [z π].
     apply total2_paths_equiv.
-    assert (H : (pr1 z,, pr122 (pr221 (pr1 T)) x (pr1 y) (pr1 z) (pr2 y) π) = z).
+    assert (H : (pr1 z,,u pr122 (pr221 (pr1 T)) x (pr1 y) (pr1 z) (pr2 y) π) = z).
     {
       apply total2_paths_equiv.
       exists (idpath (pr1 z)).
@@ -968,8 +968,8 @@ Proof.
   unfold preZFS_iso.
   unfold Tree_iso.
   simpl.
-  exact ((Branch_of_Branch_to_Branch x y ,, isweq_Branch_of_Branch_to_Branch x y)
-                                         ,, isTRRGhomo_Branch_of_Branch_to_Branch x y).
+  exact ((Branch_of_Branch_to_Branch x y ,,u isweq_Branch_of_Branch_to_Branch x y)
+                                         ,,u isTRRGhomo_Branch_of_Branch_to_Branch x y).
 Qed.
 
 Theorem ZFS_Branch_is_ZFS (X : ZFS) (x : X) : hasuniquerepbranch (Branch X x).
@@ -988,7 +988,7 @@ Proof.
 Qed.
 
 
-Definition ZFS_Branch (X : ZFS) (x : X) : ZFS := (Branch X x ,, ZFS_Branch_is_ZFS X x).
+Definition ZFS_Branch (X : ZFS) (x : X) : ZFS := (Branch X x ,,u ZFS_Branch_is_ZFS X x).
 
 Local Notation "T ↑ x" := (ZFS_Branch T x)(at level 40).
 
@@ -1005,7 +1005,7 @@ Proof.
   apply isapropempty.
 Qed.
 
-Definition ZFS_elementof (X Y : ZFS) := ∑ (a : Y), (isapoint a) × (X = Y ↑ a).
+Definition ZFS_elementof (X Y : ZFS) := ∑ (a : Y), (isapoint a) ×u (X = Y ↑ a).
 
 Lemma isaprop_ZFS_elementof (X Y : ZFS) : isaprop (ZFS_elementof X Y).
 Proof.
@@ -1022,8 +1022,8 @@ Proof.
   set (s := (pr2 Y w z r)).
   simpl in ρ.
   set (τ y := @isapropdirprod _ _ (isaprop_isapoint y) (isaset_ZFS X (Y ↑ y))).
-  set (P := λ y : Y, (isapoint y × X = Y ↑ y) ,, τ y).
-  apply (total2_paths_hProp_equiv P (z,, (ispp,, p)) (w,, (ispq,, q))).
+  set (P := λ y : Y, (isapoint y ×u X = Y ↑ y) ,,u τ y).
+  apply (total2_paths_hProp_equiv P (z,,u (ispp,,u p)) (w,,u (ispq,,u q))).
   simpl.
   apply (! s).
 Qed.

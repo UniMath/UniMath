@@ -64,7 +64,7 @@ Section Append.
   Proof.
     intros i.
     induction (natlehchoice4 (pr1 i) n (pr2 i)) as [c|d].
-    - exact (vec (pr1 i,,c)).
+    - exact (vec (pr1 i ,,u c)).
     - exact x.
   Defined.
 
@@ -144,7 +144,7 @@ Section Lemmas.
   Defined.
 
   Definition tail (vecsn : Vector X (S n)) : Vector X n :=
-    vecsn ∘ dni (0,, natgthsn0 n).
+    vecsn ∘ dni (0 ,,u  natgthsn0 n).
 
   (** It doesn't matter what the proofs are in the stn inputs. *)
   Definition vector_stn_proofirrelevance {vec : Vector X n}
@@ -159,7 +159,7 @@ End Lemmas.
 
 Local Open Scope stn.
 
-(** An m × n matrix is an m-length vector of n-length vectors (rows).
+(** An m ×u n matrix is an m-length vector of n-length vectors (rows).
 <<
         <--- n --->
       | [ * * * * ]
@@ -196,7 +196,7 @@ Defined.
 Definition const_matrix {X : UU} {n m : nat} (x : X) : Matrix X n m :=
   const_vec (const_vec x).
 
-(** Every type is equivalent to 1 × 1 matrices on that type. *)
+(** Every type is equivalent to 1 ×u 1 matrices on that type. *)
 Lemma weq_matrix_1_1 {X : UU} : X ≃ Matrix X 1 1.
   intermediate_weq (Vector X 1); apply weq_vector_1.
 Defined.
@@ -234,9 +234,9 @@ Coercion sequenceToUnorderedSequence : Sequence >-> UnorderedSequence.
 Definition length'{X} : NonemptySequence X -> nat := λ x, S(pr1 x).
 
 Definition functionToSequence {X n} (f:stn n -> X) : Sequence X
-  := (n,,f).
+  := (n ,,u f).
 
-Definition functionToUnorderedSequence {X} {I : FiniteSet} (f:I -> X) : UnorderedSequence X := (I,,f).
+Definition functionToUnorderedSequence {X} {I : FiniteSet} (f:I -> X) : UnorderedSequence X := (I ,,u f).
 
 Definition NonemptySequenceToFunction {X} (x:NonemptySequence X) := pr2 x : stn (length' x) -> X.
 
@@ -264,7 +264,7 @@ Proof.
 Defined.
 
 Definition transport_stn m n i (b:i<m) (p:m=n) :
-  transportf stn p (i,,b) = (i,,transportf (λ m,i<m) p b).
+  transportf stn p (i ,,u b) = (i ,,u transportf (λ m,i<m) p b).
 Proof. intros. induction p. reflexivity. Defined.
 
 Definition sequenceEquality2 {X} (f g:Sequence X) (p:length f=length g) :
@@ -281,11 +281,11 @@ axiom for the empty sequence. **)
 
 Definition seq_key_eq_lemma {X :UU}( g g' : Sequence X)(e_len : length g = length g')
            (e_el : forall ( i : nat )(ltg : i < length g )(ltg' : i < length g' ),
-               g (i ,, ltg) = g' (i ,, ltg')) : g=g'.
+               g (i  ,,u  ltg) = g' (i  ,,u  ltg')) : g=g'.
 Proof.
   intros.
   induction g as [m g]; induction g' as [m' g']. simpl in e_len, e_el.
-  intermediate_path (m' ,, transportf (λ i, stn i -> X) e_len g).
+  intermediate_path (m'  ,,u  transportf (λ i, stn i -> X) e_len g).
   - apply transportf_eq.
   - apply maponpaths.
     intermediate_path (g ∘ transportb stn e_len).
@@ -304,7 +304,7 @@ Defined.
 Definition seq_key_eq_lemma' {X :UU} (g g' : Sequence X) :
   length g = length g' ->
   (∏ i, ∑ ltg : i < length g, ∑ ltg' : i < length g',
-                                        g (i ,, ltg) = g' (i ,, ltg')) ->
+                                        g (i  ,,u  ltg) = g' (i  ,,u  ltg')) ->
   g=g'.
 Proof.
   intros k r.
@@ -320,21 +320,21 @@ Defined.
 Notation fromstn0 := empty_vec.
 
 Definition nil {X} : Sequence X.
-Proof. intros. exact (0,, empty_vec). Defined.
+Proof. intros. exact (0 ,,u  empty_vec). Defined.
 
 Definition append {X} : Sequence X -> X -> Sequence X.
-Proof. intros x y. exact (S (length x),, append_vec (pr2 x) y).
+Proof. intros x y. exact (S (length x) ,,u  append_vec (pr2 x) y).
 Defined.
 
 Definition drop_and_append {X n} (x : stn (S n) -> X) :
-  append (n,,x ∘ dni_lastelement) (x lastelement) = (S n,, x).
+  append (n ,,u x ∘ dni_lastelement) (x lastelement) = (S n ,,u  x).
 Proof.
   intros. apply pair_path_in2. apply drop_and_append_vec.
 Defined.
 
 Local Notation "s □ x" := (append s x) (at level 64, left associativity).
 
-Definition nil_unique {X} (x : stn 0 -> X) : nil = (0,,x).
+Definition nil_unique {X} (x : stn 0 -> X) : nil = (0 ,,u x).
 Proof.
   intros. unfold nil. apply maponpaths. apply isapropifcontr. apply iscontr_vector_0.
 Defined.
@@ -412,7 +412,7 @@ Proof.
   revert x. intros [n x] h.
   induction n as [|n].
   - simpl in h. contradicts h (idpath 0).
-  - exact (n,,x ∘ dni_lastelement).
+  - exact (n ,,u x ∘ dni_lastelement).
 Defined.
 
 Definition drop' {X} (x:Sequence X) : x != nil -> Sequence X.
@@ -436,21 +436,21 @@ Proof.
 Defined.
 
 Definition drop_and_append' {X n} (x : stn (S n) -> X) :
-  append (drop (S n,,x) (negpathssx0 _)) (x lastelement) = (S n,, x).
+  append (drop (S n ,,u x) (negpathssx0 _)) (x lastelement) = (S n ,,u  x).
 Proof.
   intros. simpl. apply pair_path_in2. apply drop_and_append_vec.
 Defined.
 
-Definition disassembleSequence {X} : Sequence X -> coprod unit (X × Sequence X).
+Definition disassembleSequence {X} : Sequence X -> coprod unit (X ×u Sequence X).
 Proof.
   intros x.
   induction x as [n x].
   induction n as [|n].
   - exact (ii1 tt).
-  - exact (ii2(x lastelement,,(n,,x ∘ dni_lastelement))).
+  - exact (ii2(x lastelement ,,u (n ,,u x ∘ dni_lastelement))).
 Defined.
 
-Definition assembleSequence {X} : coprod unit (X × Sequence X) -> Sequence X.
+Definition assembleSequence {X} : coprod unit (X ×u Sequence X) -> Sequence X.
 Proof.
   intros co.
   induction co as [t|p].
@@ -458,11 +458,11 @@ Proof.
   - exact (append (pr2 p) (pr1 p)).
 Defined.
 
-Lemma assembleSequence_ii2 {X} (p : X × Sequence X) :
+Lemma assembleSequence_ii2 {X} (p : X ×u Sequence X) :
   assembleSequence (ii2 p) = append (pr2 p) (pr1 p).
 Proof. reflexivity. Defined.
 
-Theorem SequenceAssembly {X} : Sequence X ≃ unit ⨿ (X × Sequence X).
+Theorem SequenceAssembly {X} : Sequence X ≃ unit ⨿ (X ×u Sequence X).
 Proof.
   intros. exists disassembleSequence. apply (isweq_iso _ assembleSequence).
   { intros. induction x as [n x]. induction n as [|n].
@@ -472,7 +472,7 @@ Proof.
   { unfold disassembleSequence; simpl. apply maponpaths.
     apply proofirrelevancecontr. apply iscontrunit. }
   induction p as [x y]. induction y as [n y].
-  apply (maponpaths (@inr unit (X × Sequence X))).
+  apply (maponpaths (@inr unit (X ×u Sequence X))).
   unfold append_vec, lastelement; simpl.
   unfold append_vec. simpl.
   induction (natlehchoice4 n n (natgthsnn n)) as [e|e].
@@ -493,7 +493,7 @@ Definition Sequence_rect {X} {P : Sequence X ->UU}
 Proof. intros. induction x as [n x]. induction n as [|n IH].
   - exact (transportf P (nil_unique x) p0).
   - exact (transportf P (drop_and_append x)
-                      (ind (n,,x ∘ dni_lastelement)
+                      (ind (n ,,u x ∘ dni_lastelement)
                            (x lastelement)
                            (IH (x ∘ dni_lastelement)))).
 Defined.
@@ -546,7 +546,7 @@ Proof.
 Defined.
 
 Definition concatenateStep {X : UU} (x : Sequence X) {n : nat} (y : stn (S n) -> X) :
-  concatenate x (S n,,y) = append (concatenate x (n,,y ∘ dni lastelement)) (y lastelement).
+  concatenate x (S n ,,u y) = append (concatenate x (n ,,u y ∘ dni lastelement)) (y lastelement).
 Proof.
   revert x n y. induction x as [m l]. intros n y.
   use seq_key_eq_lemma.
@@ -615,7 +615,7 @@ Defined.
 (* partitions *)
 
 Definition partition' {X n} (f:stn n -> nat) (x:stn (stnsum f) -> X) : stn n -> Sequence X.
-Proof. intros i. exists (f i). intro j. exact (x(inverse_lexicalEnumeration f (i,,j))).
+Proof. intros i. exists (f i). intro j. exact (x(inverse_lexicalEnumeration f (i ,,u j))).
 Defined.
 
 Definition partition {X n} (f:stn n -> nat) (x:stn (stnsum f) -> X) : Sequence (Sequence X).
@@ -626,7 +626,7 @@ Definition flatten_partition {X n} (f:stn n -> nat) (x:stn (stnsum f) -> X) :
   flatten (partition f x) ~ x.
 Proof.
   intros. intro i.
-  change (x (weqstnsum1 f (pr1 (invmap (weqstnsum1 f) i),, pr2 (invmap (weqstnsum1 f) i))) = x i).
+  change (x (weqstnsum1 f (pr1 (invmap (weqstnsum1 f) i) ,,u  pr2 (invmap (weqstnsum1 f) i))) = x i).
   apply maponpaths. apply subtypePath_prop. now rewrite homotweqinvweq.
 Defined.
 

@@ -94,7 +94,7 @@ Section nelstructure.
   Definition nelstructondirprod {X Y : UU} {n m : nat}
     (sx : nelstruct n X)
     (sy : nelstruct m Y)
-    : nelstruct (n * m) (X × Y)
+    : nelstruct (n * m) (X ×u Y)
     := (weqdirprodf sx sy ∘ invweq (weqfromprodofstn n m))%weq.
 
   (** For a generalization of [ weqfromdecsubsetofstn ] see below *)
@@ -181,7 +181,7 @@ Section nelproperty.
 
   Definition isofnelondirprod {X Y : UU} {n m : nat}
     (sx : isofnel n X) (sy : isofnel m Y)
-    : isofnel (n * m) (X × Y)
+    : isofnel (n * m) (X ×u Y)
     := hinhfun2 nelstructondirprod sx sy.
 
   Definition isofnelonfun {X Y : UU} {n m : nat}
@@ -217,7 +217,7 @@ Section finite_structure.
   Coercion finstructToFunction : finstruct >-> nelstruct.
 
   Definition make_finstruct (X : UU) {n : nat} (w : ⟦ n ⟧ ≃ X) : finstruct X
-    := (n ,, w).
+    := (n ,,u w).
 
   Definition finstructonstn (n : nat) : finstruct (⟦ n ⟧)
     := make_finstruct _ (nelstructonstn n).
@@ -281,8 +281,8 @@ Section finite_structure.
 
   Definition finstructondirprod {X Y : UU}
     (sx : finstruct X) (sy : finstruct Y)
-    : finstruct (X × Y)
-    := make_finstruct (X × Y) (nelstructondirprod sx sy).
+    : finstruct (X ×u Y)
+    := make_finstruct (X ×u Y) (nelstructondirprod sx sy).
 
   Definition finstructondecsubset {X : UU}
     (f : X -> bool) (sx : finstruct X)
@@ -415,7 +415,7 @@ Section finite_property.
 
   Definition isfinitedirprod {X Y : UU}
     (sx : isfinite X) (sy : isfinite Y)
-    : isfinite (X × Y)
+    : isfinite (X ×u Y)
     := hinhfun2 finstructondirprod sx sy.
 
   Definition isfinitedecsubset {X : UU}
@@ -551,7 +551,7 @@ Section finite_subsets.
 
   Definition make_finite_subset {X : hSet} (A : hsubtype X) (P : isfinite (carrier A))
     : finite_subset X
-    := (A ,, P).
+    := (A ,,u P).
 
   Definition subtype_from_finite_subset {X : hSet} (A : finite_subset X) : hsubtype X
     := pr1 A.
@@ -585,7 +585,7 @@ Section FiniteSets.
     := ∑ (X : UU), isfinite X.
 
   Definition isfinite_to_FiniteSet {X : UU} (f : isfinite X) : FiniteSet
-    := X ,, f.
+    := X ,,u f.
 
   Definition FiniteSet_to_hSet (X : FiniteSet) : hSet
     := make_hSet (pr1 X) (isfinite_isaset (pr1 X) (pr2 X)).

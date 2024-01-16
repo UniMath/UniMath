@@ -47,27 +47,27 @@ Section Attempts.
   Proof.
     induction n as [|n H].
     - intros x y. exact (x = y).
-    - intros x y. exact (∑ s t, H x s × s<t × t=y).
+    - intros x y. exact (∑ s t, H x s ×u s<t ×u t=y).
   Defined.
 
   Definition le (x y : X) : Type := ∑ n, chain n x y.
 
   Notation "x ≤ y" := (le x y) (at level 70).
 
-  Definition nil {x} : x≤x := (0,,idpath x).
+  Definition nil {x} : x≤x := (0 ,,u idpath x).
 
   Definition cons' {x x' y z} (p : z ≤ y) (l : y < x') (e : x' = x) : z ≤ x.
   Proof.
     induction p as [n c].
-    exact (S n,,y,,x',,c,,l,,e).
+    exact (S n ,,u y ,,u x' ,,u c ,,u l ,,u e).
   Defined.
 
   Definition cons1 {n y z z'} : ∏ (x : X) (e : z = z') (l : z' < y) (c : chain n y x), chain (S n) z x.
   Proof.
     induction n as [|n H].
-    - intros x e l c. exact (z',,y,,e,,l,,c).
+    - intros x e l c. exact (z' ,,u y ,,u e ,,u l ,,u c).
     - intros x e l c. induction c as [s [t [c' [l' e']]]].
-      exact (s,,t,,H s e l c',,l',,e').
+      exact (s ,,u t ,,u H s e l c' ,,u l' ,,u e').
   Defined.
 
   Definition cons {x y z z'} (e : z = z') (l : z' < y) (p : y ≤ x) : z ≤ x.
@@ -113,7 +113,7 @@ Section Attempts.
     intros fs. use tpair.
     - intros y [[|n] c].
       + apply H. intros z lzy. exact (fs z y lzy c z nil).
-      + induction c as [s [t [c' [l' e']]]]. exact (fs s t l' e' y (n,,c')).
+      + induction c as [s [t [c' [l' e']]]]. exact (fs s t l' e' y (n ,,u c')).
     - intros y [[|n] c].
       + reflexivity.
       + use attempt_comp.

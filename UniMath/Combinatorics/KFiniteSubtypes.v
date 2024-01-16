@@ -29,7 +29,7 @@ Section kfinite_subtypes.
   Proof.
     apply kfinstruct_iskfinite.
     use(make_kfinstruct 1).
-    - exact(λ (_ : ⟦ 1 ⟧), (x ,, hinhpr (idpath x))).
+    - exact(λ (_ : ⟦ 1 ⟧), (x ,,u hinhpr (idpath x))).
     - intros [z xz].
       use(hinhfun _ xz); intro.
       use(make_hfiber _ (stnpr 0)).
@@ -46,7 +46,7 @@ Section kfinite_subtypes.
     : (∑ (i : I), (carrier (index i))) → (carrier (⋃ index)).
   Proof.
     intro h.                   (* This is not very pretty. *)
-    exact(pr12 h ,, hinhpr (pr1 h ,, pr22 h)).
+    exact(pr12 h ,,u hinhpr (pr1 h ,,u pr22 h)).
   Defined.
 
   Lemma issurjective_indexed_carrier_to_union
@@ -58,7 +58,7 @@ Section kfinite_subtypes.
     use(hinhfun _ in_union).
     intros [i in_index]. (* ∑ (i : I), index i x *)
     use make_hfiber.
-    - exact(i ,, x ,, in_index). (* ∑ (i : I), (carrier (index i)) *)
+    - exact(i ,,u x ,,u in_index). (* ∑ (i : I), (carrier (index i)) *)
     - now apply subtypePath_prop.
   Qed.
 
@@ -183,7 +183,7 @@ Section kfinite_subtypes.
     (A : hsubtype X)
     (finite_carrier : iskfinite (carrier A))
     : kfinite_subtype X
-    := (A ,, finite_carrier).
+    := (A ,,u finite_carrier).
 
   Definition kfinite_subtype_union {X I : UU}
     (index : I -> kfinite_subtype X)

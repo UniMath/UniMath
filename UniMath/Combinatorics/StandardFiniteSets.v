@@ -17,7 +17,7 @@ Require Import UniMath.MoreFoundations.NegativePropositions.
 (** ** Standard finite sets [ stn ]. *)
 
 Definition stn ( n : nat ) := ∑ m, m < n.
-Definition make_stn n m (l:m<n) := (m,,l) : stn n.
+Definition make_stn n m (l:m<n) := (m ,,u l) : stn n.
 Definition stntonat ( n : nat ) : stn n -> nat := @pr1 _ _ .
 Coercion stntonat : stn >-> nat.
 Lemma stnlt {n : nat} (i:stn n) : i < n.
@@ -41,8 +41,8 @@ Qed.
    Notation " 'stnel' ( i , j ) " :=
       ( make_stn _ _  ( ctlong natlth isdecrelnatlth j i ( idpath true ) ) )
       ( at level 70 ). *)
-Notation " 'stnpr' j " := (j,,idpath _) ( at level 70 ).
-Notation " 'stnel' ( i , j ) " := ( (j,,idpath _) : stn i ) ( at level 70 ).
+Notation " 'stnpr' j " := (j  ,,u  idpath _) ( at level 70 ).
+Notation " 'stnel' ( i , j ) " := ( (j ,,u idpath _) : stn i ) ( at level 70 ).
 
 Declare Scope stn.
 Delimit Scope stn with stn.
@@ -50,7 +50,7 @@ Delimit Scope stn with stn.
 Notation "⟦ n ⟧" := (stn n) : stn.
 (* in agda-mode \[[ n \]] *)
 
-Notation "● i" := (i ,, (idpath _ : natgtb _ _ = _)) (at level 35) : stn.
+Notation "● i" := (i  ,,u  (idpath _ : natgtb _ _ = _)) (at level 35) : stn.
 
 Lemma isinclstntonat ( n : nat ) : isincl ( stntonat n ).
 Proof.
@@ -125,7 +125,7 @@ Proof.
   apply negProp_to_iff.
 Defined.
 
-Definition stnneq_to_nopath {n : nat} (i j: ⟦n⟧ ) : ¬ (i = j) <- i ≠ j
+Definition stnneq_to_nopath {n : nat} (i j: ⟦n⟧ ) : ¬ (i = j) <-- i ≠ j
   := pr2 (stn_ne_iff_neq i j).
 
 Corollary isdeceqstn ( n : nat ) : isdeceq (⟦n⟧).
@@ -165,7 +165,7 @@ Definition stn_to_nat n : stnset n -> natset := pr1.
 Definition stnposet ( n : nat ) : Poset.
 Proof.
   unfold Poset.
-  exists (_,,isasetstn n).
+  exists (_ ,,u isasetstn n).
   unfold PartialOrder.
   exists (λ i j: ⟦n⟧, i ≤ j)%dnat.
   unfold isPartialOrder.
@@ -232,7 +232,7 @@ Proof.
 Defined.
 
 Definition stnmtostnn ( m n : nat ) (isnatleh: natleh m n ) : ⟦m⟧ -> ⟦n⟧ :=
-  λ x : ⟦m⟧, match x with tpair _ i is
+  λ x : ⟦m⟧, match x with (tpair i is)
                  => make_stn _ i ( natlthlehtrans i m n is isnatleh ) end.
 
 Definition stn_left (m n : nat) : ⟦m⟧ -> ⟦m+n⟧.
@@ -334,7 +334,7 @@ Definition dni_firstelement {n : nat} : ⟦n⟧ -> ⟦S n⟧.
 (* this definition is simpler than that of [dni n (firstelement n)], since no choice is involved, so it's useful in special situations *)
 Proof.
   intros h.
-  exact (S (pr1 h),, pr2 h).
+  exact (S (pr1 h) ,,u  pr2 h).
 Defined.
 
 Definition replace_dni_first (n : nat) : dni (@firstelement n) = dni_firstelement.
@@ -466,7 +466,7 @@ Defined.
 
 (** ** The order-preserving functions [ sni n i : stn (S n) -> stn n ] that take the value [i] twice. *)
 
-Definition sni {n : nat} ( i : ⟦n⟧ ) : ⟦n⟧ <- ⟦S n⟧.
+Definition sni {n : nat} ( i : ⟦n⟧ ) : ⟦n⟧ <-- ⟦S n⟧.
 Proof.
   intros j. exists (si i j). unfold si. induction (natlthorgeh i j) as [lt|ge].
   - induction j as [j J]. induction i as [i I]. simpl.
@@ -578,7 +578,7 @@ Proof.
 Defined.
 
 Lemma weqoverdnicoprod_eq1 {n : nat} (P: ⟦S n⟧ → UU) j p :
-  invmap (weqoverdnicoprod P) (ii1 (j,,p)) = ( dni lastelement j ,, p ).
+  invmap (weqoverdnicoprod P) (ii1 (j ,,u p)) = ( dni lastelement j  ,,u  p ).
 Proof.
   intros.
   simpl in p.
@@ -594,13 +594,13 @@ Proof.
 Defined.
 
 Lemma weqoverdnicoprod_eq2 {n : nat} (P: ⟦S n⟧→UU) p :
-  invmap (weqoverdnicoprod P) (ii2 p) = (lastelement ,, p ).
+  invmap (weqoverdnicoprod P) (ii2 p) = (lastelement  ,,u  p ).
 Proof.
   intros.
   apply idpath.
 Defined.
 
-Definition weqdnicoprod_invmap {n : nat} (j : ⟦S n⟧ ) : ⟦n⟧ ⨿ unit <- ⟦S n⟧.
+Definition weqdnicoprod_invmap {n : nat} (j : ⟦S n⟧ ) : ⟦n⟧ ⨿ unit <-- ⟦S n⟧.
   (* perhaps use this to improve weqdnicoprod *)
 Proof.
   intros i.
@@ -1037,7 +1037,7 @@ Proof.
   clear s.
   induction n as [|n _].
   - induction (negnatlthn0 _ I).
-  - assert (t : stnsum m1 + j < stnsum m1 + m (i,,I)).
+  - assert (t : stnsum m1 + j < stnsum m1 + m (i ,,u I)).
     { apply natlthandplusl. exact J. }
     apply (natlthlehtrans _ _ _ t).
     assert (K : ∏ m n, m = n -> m ≤ n).
@@ -1074,7 +1074,7 @@ Proof.
   assert (ls := weqfromcoprodofstn_invmap _ _ l).
   induction ls as [j|k].
   - exact (total2_base_map (dni lastelement) (IH _ j)).
-  - exact (lastelement,,k).
+  - exact (lastelement ,,u k).
 Defined.
 
 Definition weqstnsum_invmap_step1 {n : nat} (f : ⟦S n⟧ -> nat)
@@ -1093,7 +1093,7 @@ Definition weqstnsum_invmap_step2 {n : nat} (f : ⟦S n⟧ -> nat)
   weqstnsum_invmap f
     (weqfromcoprodofstn_map (stnsum (λ x, f (dni lastelement x)))
                             (f lastelement) (ii2 k))
-  = (lastelement,,k).
+  = (lastelement ,,u k).
 Proof.
   intros. unfold weqstnsum_invmap at 1. unfold nat_rect at 1.
   rewrite weqfromcoprodofstn_eq1. apply idpath.
@@ -1287,7 +1287,7 @@ Proof.
       induction c as [jk|k].
       * unfold coprodf.
         induction jk as [j k].
-        change (invmap (weqoverdnicoprod P) (ii1 (j,,k))) with (tpair P (dni lastelement j) k).
+        change (invmap (weqoverdnicoprod P) (ii1 (j ,,u k))) with (tpair P (dni lastelement j) k).
         unfold weqfromcoprodofstn_map. unfold coprod_rect. unfold weqstnsum_map.
         apply subtypePath_prop.
         induction k as [k K]. simpl.
@@ -1427,7 +1427,7 @@ Defined.
 
 (** *** Weak equivalence between the direct product of [ stn n ] and [ stn m ] and [ stn n * m ] *)
 
-Theorem weqfromprodofstn ( n m : nat ) : ⟦n⟧ × ⟦m⟧ ≃ ⟦n*m⟧.
+Theorem weqfromprodofstn ( n m : nat ) : ⟦n⟧ ×u ⟦m⟧ ≃ ⟦n*m⟧.
 Proof.
   intros.
   induction ( natgthorleh m 0 ) as [ is | i ].
@@ -1438,9 +1438,9 @@ Proof.
         rewrite natpluscomm.
         exact (natgthandplusl m j ( i * m ) lj ).
       * exact ( natlehandmultr ( S i ) n m ( natgthtogehsn _ _ li ) ).
-    + set ( f := λ ij : ⟦n⟧ × ⟦m⟧,
+    + set ( f := λ ij : ⟦n⟧ ×u ⟦m⟧,
                    match ij
-                   with tpair _ i j =>
+                   with tpair i j =>
                         make_stn ( n * m ) ( j + i * m ) ( i1 i j ( pr2 i ) ( pr2 j ) )
                    end ).
       split with f.
@@ -1622,10 +1622,10 @@ Defined.
 
 (** *** Weak equivalence between [ ( stn n ) ≃ ( stn n ) ] and [ stn ( factorial n ) ] ( uses functional extensionality ) *)
 
-Theorem weqweqstnsn ( n : nat ) : (⟦S n⟧ ≃ ⟦S n⟧)  ≃  ⟦S n⟧ × ( ⟦n⟧ ≃ ⟦n⟧ ).
+Theorem weqweqstnsn ( n : nat ) : (⟦S n⟧ ≃ ⟦S n⟧)  ≃  ⟦S n⟧ ×u ( ⟦n⟧ ≃ ⟦n⟧ ).
 Proof.
   assert ( l := @lastelement n ).
-  intermediate_weq ( isolated (⟦S n⟧) × (compl _ l ≃ compl _ l) ).
+  intermediate_weq ( isolated (⟦S n⟧) ×u (compl _ l ≃ compl _ l) ).
   { apply weqcutonweq. intro i. apply isdeceqstn. }
   apply weqdirprodf.
   - apply weqisolatedstntostn.
@@ -1766,11 +1766,11 @@ Defined.
 
 Lemma weqforallnatlehnsn' ( n' : nat ) ( F : nat -> hProp ) :
   ( ∏ n : nat , natleh n ( S n' ) -> F n ) ≃
-  ( ∏ n : nat , natleh n n' -> F n ) × ( F ( S n' ) ).
+  ( ∏ n : nat , natleh n n' -> F n ) ×u ( F ( S n' ) ).
 Proof.
   intros.
   assert ( lg : ( ∏ n : nat , natleh n ( S n' ) -> F n ) <->
-                ( ∏ n : nat , natleh n n' -> F n ) × ( F ( S n' ) ) ).
+                ( ∏ n : nat , natleh n n' -> F n ) ×u ( F ( S n' ) ) ).
   { split.
     - intro f.
       apply ( make_dirprod ( λ n, λ l, ( f n ( natlehtolehs _ _ l ) ) )
@@ -1791,7 +1791,7 @@ Proof.
     intro l.
     apply ( pr2 ( F n ) ).
   }
-  assert ( is2 : isaprop ( ( ∏ n : nat , natleh n n' -> F n ) × ( F ( S n' ) ) ) ).
+  assert ( is2 : isaprop ( ( ∏ n : nat , natleh n n' -> F n ) ×u ( F ( S n' ) ) ) ).
   { apply isapropdirprod.
     - apply impred.
       intro n.
@@ -1804,9 +1804,9 @@ Proof.
 Defined.
 
 Lemma weqexistsnatlehn0 ( P : nat -> hProp  ) :
-  ( hexists ( λ n : nat, ( natleh n 0 ) × ( P n ) ) ) ≃ P 0.
+  ( hexists ( λ n : nat, ( natleh n 0 ) ×u ( P n ) ) ) ≃ P 0.
 Proof.
-  assert ( lg : hexists ( λ n : nat, ( natleh n 0 ) × ( P n ) ) <-> P 0  ).
+  assert ( lg : hexists ( λ n : nat, ( natleh n 0 ) ×u ( P n ) ) <-> P 0  ).
   { split.
     - simpl.
       apply ( @hinhuniv _ ( P 0 ) ).
@@ -1827,12 +1827,12 @@ Proof.
 Defined.
 
 Lemma weqexistsnatlehnsn' ( n' : nat ) ( P : nat -> hProp  ) :
-  ( hexists ( λ n : nat, ( natleh n ( S n' ) ) × ( P n ) ) ) ≃
-  hdisj ( hexists ( λ n : nat, ( natleh n n' ) × ( P n ) ) )  ( P ( S n' ) ).
+  ( hexists ( λ n : nat, ( natleh n ( S n' ) ) ×u ( P n ) ) ) ≃
+  hdisj ( hexists ( λ n : nat, ( natleh n n' ) ×u ( P n ) ) )  ( P ( S n' ) ).
 Proof.
   intros.
-  assert ( lg : hexists ( λ n : nat, ( natleh n ( S n' ) ) × ( P n ) ) <->
-                hdisj ( hexists ( λ n : nat, ( natleh n n' ) × ( P n ) ) )  ( P ( S n' ) ) ).
+  assert ( lg : hexists ( λ n : nat, ( natleh n ( S n' ) ) ×u ( P n ) ) <->
+                hdisj ( hexists ( λ n : nat, ( natleh n n' ) ×u ( P n ) ) )  ( P ( S n' ) ) ).
   { split.
     - apply hinhfun.
       intro t2.
@@ -1870,7 +1870,7 @@ Defined.
 
 
 Lemma isdecbexists ( n : nat ) ( P : nat -> UU ) ( is : ∏ n' , isdecprop ( P n' ) ) :
-  isdecprop ( hexists ( λ n', ( natleh n' n ) × ( P n' ) ) ).
+  isdecprop ( hexists ( λ n', ( natleh n' n ) ×u ( P n' ) ) ).
 Proof.
   intros.
   set ( P' := λ n' : nat, make_hProp _ ( is n' ) ).
@@ -1904,7 +1904,7 @@ Defined.
 Lemma negbforalldectototal2neg ( n : nat ) ( P : nat -> UU )
   ( is : ∏ n' : nat , isdecprop ( P n' ) ) :
   ¬ ( ∏ n' : nat , natleh n' n -> P n' ) ->
-  total2 ( λ n', ( natleh n' n ) × ¬ ( P n' ) ).
+  total2 ( λ n', ( natleh n' n ) ×u ¬ ( P n' ) ).
 Proof.
   set ( P' := λ n' : nat, make_hProp _ ( is n' ) ).
   induction n as [ | n IHn ].
@@ -1931,14 +1931,14 @@ Defined.
 (** ** Accessibility - the least element of an inhabited decidable subset of [nat] *)
 
 Definition natdecleast ( F : nat -> UU ) ( is : ∏ n , isdecprop ( F n ) ) :=
-  total2 ( λ  n : nat, ( F n ) × ( ∏ n' : nat , F n' -> natleh n n' ) ).
+  total2 ( λ  n : nat, ( F n ) ×u ( ∏ n' : nat , F n' -> natleh n n' ) ).
 
 Lemma isapropnatdecleast ( F : nat -> UU ) ( is : ∏ n , isdecprop ( F n ) ) :
   isaprop ( natdecleast F is ).
 Proof.
   intros.
   set ( P := λ n' : nat, make_hProp _ ( is n' ) ).
-  assert ( int1 : ∏ n : nat, isaprop ( ( F n ) × ( ∏ n' : nat , F n' -> natleh n n' ) ) ).
+  assert ( int1 : ∏ n : nat, isaprop ( ( F n ) ×u ( ∏ n' : nat , F n' -> natleh n n' ) ) ).
   { intro n.
     apply isapropdirprod.
     - apply ( pr2 ( P n ) ).
@@ -1969,7 +1969,7 @@ Proof.
   intro t2.
   destruct t2 as [ n l ].
   simpl.
-  set ( F' := λ n' : nat, hexists ( λ n'', ( natleh n'' n' ) × ( F n'' ) ) ).
+  set ( F' := λ n' : nat, hexists ( λ n'', ( natleh n'' n' ) ×u ( F n'' ) ) ).
   assert ( X : ∏ n' , F' n' -> natdecleast F is ).
   { intro n'.
     induction n' as [ | n' IHn' ].
@@ -2082,12 +2082,12 @@ Defined.
 
 Definition stn_predicate {n : nat} (P : ⟦n⟧ -> UU)
            (k : nat) (h h' : k < n) :
-           P (k,,h) -> P (k,,h').
+           P (k ,,u h) -> P (k ,,u h').
 Proof.
   intros H.
   transparent assert (X : (h = h')).
   - apply propproperty.
-  - exact (transportf (λ x, P (k,,x)) X H).
+  - exact (transportf (λ x, P (k ,,u x)) X H).
 Defined.
 
 Definition two := ⟦2⟧.

@@ -16,7 +16,7 @@ Definition Tree : Type :=
     (mt_anti:    ∏ x y, mt_dist x y = 0 -> x = y)
     (mt_symm:    ∏ x y, mt_dist x y = mt_dist y x)
     (mt_trans:   ∏ x y z, mt_dist x z <= mt_dist x y + mt_dist y z),
-  (* mt_step: *) ∏ x z, x != z -> ∑ y, (S (mt_dist x y) = mt_dist x z) × (mt_dist y z = 1).
+  (* mt_step: *) ∏ x z, x != z -> ∑ y, (S (mt_dist x y) = mt_dist x z) ×u (mt_dist y z = 1).
 Coercion mt_set (x:Tree) := pr1 x.
 Definition mt_dist (x:Tree) := pr12 x.
 Definition mt_refl (x:Tree) := pr122 x.
@@ -25,7 +25,7 @@ Definition mt_symm (x:Tree) := pr122 (pr22 x).
 Definition mt_trans (x:Tree) := pr122 (pr222 x).
 Definition mt_step (x:Tree) := pr222 (pr222 x).
 Local Definition make mt_set mt_dist mt_refl mt_anti mt_symm mt_trans mt_step : Tree
-  := mt_set,, mt_dist,, mt_refl,, mt_anti,, mt_symm,, mt_trans,, mt_step.
+  := mt_set,,u mt_dist,,u mt_refl,,u mt_anti,,u mt_symm,,u mt_trans,,u mt_step.
 
 Lemma mt_path_refl (T:Tree) (x y:T) : x = y -> mt_dist _ x y = 0.
 Proof.

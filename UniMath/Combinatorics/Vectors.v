@@ -22,7 +22,7 @@ Definition vec (A : UU) (n : nat) : UU.
 Proof.
 induction n as [|n IHn].
 - apply unit.
-- apply (A × IHn).
+- apply (A ×u IHn).
 Defined.
 
 (** *** Constructors. *)
@@ -30,7 +30,7 @@ Defined.
 Definition vnil {A: UU}: vec A 0 := tt.
 
 Definition vcons {A: UU} {n} (x : A) (v : vec A n) : vec A (S n)
-  := x,, v.
+  := x,,u v.
 
 (** *** Notations. *)
 
@@ -76,7 +76,7 @@ Proof.
     induction i as (j,jlt).
     induction j as [|k _].
     + exact (hd v).
-    + exact (f (tl v) (k,, jlt)).
+    + exact (f (tl v) (k,,u jlt)).
 Defined.
 
 (** *** Some identities for computing [el]. *)
@@ -333,11 +333,11 @@ Proof.
     exact HPind.
 Defined.
 
-Definition vec_zip {A B: UU} {n: nat} (v1: vec A n) (v2: vec B n): vec (A × B) n.
+Definition vec_zip {A B: UU} {n: nat} (v1: vec A n) (v2: vec B n): vec (A ×u B) n.
 Proof.
   induction n.
   - exact [()].
   - induction v1 as [x1 xs1].
     induction v2 as [x2 xs2].
-    exact ((x1 ,, x2) ::: IHn xs1 xs2).
+    exact ((x1 ,,u x2) ::: IHn xs1 xs2).
 Defined.

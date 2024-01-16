@@ -20,17 +20,17 @@ Definition gpaths_of_length {V : UU} (E : V → V → UU) (v w : V) (n : nat) : 
 Proof.
   revert v. induction n as [|n IH].
   - intro v. exact (v = w).
-  - intro v. exact (∑u, E v u × IH u).
+  - intro v. exact (∑u, E v u ×u IH u).
 Defined.
 
 Definition gpaths {V : UU} (E : V → V → UU) (v w : V) : UU :=
   ∑n, gpaths_of_length E v w n.
 
 Definition nil {V : UU} {E : V → V → UU} (v : V) : gpaths E v v :=
-  (0,, idpath v).
+  (0,,u idpath v).
 
 Definition cons {V : UU} {E : V → V → UU} {w u v : V} (e : E u v) (p : gpaths E v w) : gpaths E u w :=
-  (S (pr1 p),, (v,, (e,, pr2 p))).
+  (S (pr1 p),,u (v,,u (e,,u pr2 p))).
 
 Local Notation "[]" := (nil _) (at level 0, format "[]").
 Local Infix "::" := cons.
@@ -41,7 +41,7 @@ Lemma gpaths_ind {V : UU} {E : V → V → UU} {w : V} (P : ∏{u}, gpaths E u w
 Proof.
   induction p as [n p]. revert u p. induction n as [|n IH].
   - induction p. exact H1.
-  - induction p as [v x]. induction x as [e p]. apply (H2 _ _ _ (n,, p)).
+  - induction p as [v x]. induction x as [e p]. apply (H2 _ _ _ (n,,u p)).
     apply IH.
 Defined.
 
