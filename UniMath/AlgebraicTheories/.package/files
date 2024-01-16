@@ -6,10 +6,11 @@ AlgebraicTheories.v
 AlgebraicTheoryMorphisms.v
 AlgebraicTheoryCategory.v
 
-AlgebraCategory.v
+AlgebraCategoryCore.v
 Algebras.v
 AlgebraMorphisms.v
 AlgebraFibration.v
+AlgebraCategory.v
 
 LambdaCalculus.v
 LambdaTheoryCategoryCore.v

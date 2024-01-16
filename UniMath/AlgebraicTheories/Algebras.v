@@ -18,7 +18,7 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraCategory.
+Require Import UniMath.AlgebraicTheories.AlgebraCategoryCore.
 
 Local Open Scope algebraic_theories.
 

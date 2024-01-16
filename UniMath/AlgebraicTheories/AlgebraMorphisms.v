@@ -16,7 +16,7 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.Algebras.
-Require Import UniMath.AlgebraicTheories.AlgebraCategory.
+Require Import UniMath.AlgebraicTheories.AlgebraCategoryCore.
 
 Local Open Scope cat.
 
@@ -73,4 +73,15 @@ Proof.
     - apply isapropunit.
   }
   exact H.
+Qed.
+
+Lemma algebra_mor_comp
+  {T : algebraic_theory}
+  {A A' A'' : algebra T}
+  (F : algebra_morphism A A')
+  (F' : algebra_morphism A' A'')
+  : algebra_morphism_to_function (F · F') = funcomp F F'.
+Proof.
+  refine (pr1_transportf (B := λ _, A → A'') _ _ @ _).
+  exact (maponpaths (λ z, z _) (transportf_const _ _)).
 Qed.

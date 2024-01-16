@@ -21,7 +21,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Cartesian.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
-Require Import UniMath.AlgebraicTheories.AlgebraCategory.
+Require Import UniMath.AlgebraicTheories.AlgebraCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.

@@ -88,7 +88,7 @@ Lemma presheaf_mor_comp
   (F : presheaf_morphism P P')
   (F' : presheaf_morphism P' P'')
   (n : nat)
-  : pr1 (F · F') n = funcomp (pr1 F n) (pr1 F' n).
+  : (F · F' : presheaf_morphism _ _) n = funcomp (F n) (F' n).
 Proof.
   refine (maponpaths (λ z, z _) (pr1_transportf (B := λ _, ∏ n, P n → P'' n) _ _) @ _).
   exact (maponpaths (λ z, (z _) _) (transportf_const _ _)).
