@@ -31,9 +31,13 @@ Local Open Scope hvec_scope.
 
 Bind Scope hvec_scope with hvec.
 
+(** *** Constructors. *)
+
 Definition hnil : hvec vnil := tt.
 
 Definition hcons {A: UU} (x: A) {n: nat} {v: vec UU n} (hv: hvec v) : hvec (A ::: v) := x ,, hv.
+
+(** *** Notations. *)
 
 Notation "[( x ; .. ; y )]" := (hcons x .. (hcons y hnil) ..): hvec_scope.
 
@@ -41,12 +45,77 @@ Notation "[()]" := hnil (at level 0, format "[()]"): hvec_scope.
 
 Infix ":::" := hcons: hvec_scope.
 
+Definition hvec_ind (P : ∏ n (v: vec UU n), hvec v → UU) :
+  P 0 [()] [()]
+  → (∏ X x n (v: vec UU n) (hv : hvec v), P n v hv → P (S n) (vcons X v) (x ::: hv))
+  → (∏ n (v: vec UU n) (hv : hvec v), P n v hv).
+Proof.
+  intros H0 HI n v hv.
+  induction n as [|n IHn].
+  - induction v, hv.
+    exact H0.
+  - change v with (pr1 v ::: pr2 v)%vec.
+    change hv with (pr1 hv ::: pr2 hv).
+    apply HI, IHn.
+Defined.
+
+(*two variations on hvec_ind, with weaker hypothesis*)
+
+Definition hvec_ind_fixedv {v:∏ n:nat, vec UU n} (P : ∏ n , hvec (v n) → UU) :
+  (∏ hv0 , P 0 hv0)
+  → (∏ n , (∏ hv , P n hv) → (∏ hv, P (S n) hv) )
+  → (∏ n (hv : hvec (v n)), P n hv).
+Proof.
+  intros H0 HI n hv.
+  induction n as [|n IHn].
+  - use H0.
+  - change hv with (pr1 hv ::: pr2 hv).
+    apply HI, IHn.
+Defined.
+
+Definition hvec_ind' {n:nat} {v: vec UU n} (P : ∏ n' (v': vec UU n'), hvec v' → UU)
+  : P 0 [()] [()]
+  → (∏ X x m (w: vec UU m) (hw : hvec w), m<n → P m w hw → P (S m) (vcons X w) (x ::: hw))
+  → ∏ hv : hvec v, P n v hv.
+Proof.
+  intros H0 HI hv.
+  induction n as [| n IHn].
+  - induction v, hv.
+    exact H0.
+  - change v with (pr1 v ::: pr2 v)%vec.
+    change hv with (pr1 hv ::: pr2 hv).
+    apply HI.
+    * apply natlthnsn.
+    * apply IHn.
+      intros X x m w hw Hm HIm.
+      apply HI.
+      + apply (istransnatlth _ n).
+        ++ exact Hm.
+        ++ apply natlthnsn.
+      + exact HIm.
+Defined.
+
+
+Definition hdrop {n:nat} {P: ⟦ S n ⟧ → UU} (f: ∏ i: ⟦ S n ⟧, P i) : (∏ i: ⟦ n ⟧, P (dni_firstelement i)) := f ∘ dni_firstelement.
+
 Definition functionToHVec {n: nat} {P: ⟦ n ⟧ → UU} (f: ∏ i: ⟦ n ⟧, P i) : hvec (make_vec P).
 Proof.
   induction n.
   - exact [()].
   - exact ((f firstelement) ::: (IHn (P ∘ dni_firstelement) (f ∘ dni_firstelement))).
 Defined.
+
+Definition make_hvec {n: nat} {v: vec UU n} (f: ∏ i: ⟦ n ⟧, el v i) : hvec v.
+Proof.
+  revert n v f.
+  use vec_ind.
+  + intro. exact tt.
+  + intros X n v IH f.
+    exists (f firstelement).
+    exact (IH (hdrop f)).
+Defined.
+
+(** *** Projections. *)
 
 Definition hhd {A: UU} {n: nat} {v: vec UU n} (hv: hvec (A ::: v)): A := pr1 hv.
 
@@ -64,6 +133,104 @@ Proof.
     + exact (hhd hv).
     + exact (IHxs (htl hv) (make_stn _ i iproof)).
 Defined.
+
+(** *** Some identities for computing [hel]. *)
+
+Lemma hel_make_hvec {n} {v: vec UU n} (f : ∏ i: ⟦ n ⟧, el v i) : hel (make_hvec f) ~ f .
+Proof.
+  intro i.
+  induction n as [|m meq].
+  - exact (fromstn0 i).
+  - induction i as (j,jlt).
+    induction j as [|k _].
+    + (*This subgoal seems easy enough to not require a proof so cumbersome...
+      can we do better without make the goal family explicit?*)
+      use (stn_predicate (λ z , hel (make_hvec f) z = f z) 0 _ jlt).
+      { reflexivity. }
+      apply idpath.
+    + use meq.
+Defined.
+
+Lemma hel_make_hvec_fun {n} {v: vec UU n} (f : ∏ i: ⟦ n ⟧, el v i) : hel (make_hvec f) = f.
+Proof.
+  apply funextsec.
+  apply hel_make_hvec.
+Defined.
+
+Lemma hel_hcons_htl {n} {v: vec UU n} (hv : hvec v) {X:UU} (x : X) (i : ⟦ n ⟧) :
+  hel (x ::: hv) (dni_firstelement i) = hel hv i.
+Proof.
+  apply idpath.
+Defined.
+
+Lemma hel_hcons_hhd {n} {v: vec UU n} (hv : hvec v) {X:UU} (x : X) :
+  hel (x ::: hv) (firstelement) = x.
+Proof.
+  reflexivity.
+Defined.
+
+Lemma drop_hel {n} {v: vec UU (S n)} (hv : hvec v) (i: ⟦ n ⟧ ) : hdrop (hel hv) i = hel (htl hv) i.
+Proof.
+  apply idpath.
+Defined.
+
+Lemma hel_htl {n} {v: vec UU (S n)} (hv : hvec v) (i : ⟦ n ⟧)
+  : hel (htl hv) i = hdrop (hel hv) i.
+Proof.
+  apply idpath.
+Defined.
+
+Lemma hvec_extens {n} {v: vec UU n} {hu hv: hvec v} :
+  (∏ i : ⟦ n ⟧, hel hu i = hel hv i) → hu = hv.
+Proof.
+  intros H.
+  revert n v hu hv H.
+  use vec_ind.
+  - cbn beta.
+    intros.
+    use proofirrelevance.
+    use isapropunit.
+  - cbn beta.
+    intros X n v IH hv hu H.
+    induction hv as (xv,htv).
+    induction hu as (xu,htu).
+    use dirprod_paths.
+    * use (H firstelement).
+    * use IH.
+      intro i.
+      use (H (dni_firstelement i)).
+Defined.
+
+Lemma make_hvec_hel {n} {v: vec UU n} (hv : hvec v) : (make_hvec (hel hv)) = hv .
+Proof.
+  apply hvec_extens.
+  intros i.
+  rewrite hel_make_hvec.
+  reflexivity.
+Defined.
+
+(** *** Weak equivalence with functions. *)
+
+Definition helf_weq {n: nat} {v: vec UU n} : (hvec v) ≃ ∏ i: ⟦ n ⟧, el v i.
+Proof.
+  use weq_iso.
+  + use hel.
+  + use make_hvec.
+  + use make_hvec_hel.
+  + use hel_make_hvec_fun.
+Defined.
+
+Lemma inv_helf_weq {n:nat} {v:vec UU n} : invmap (helf_weq (n:=n) (v:=v)) = make_hvec.
+Proof.
+  use funextsec.
+  intro.
+  use (invmaponpathsweq helf_weq).
+  rewrite homotweqinvweq.
+  simpl.
+  rewrite hel_make_hvec_fun.
+  apply idpath.
+Defined.
+
 
 Lemma hcons_paths {A: UU} (x y: A) {n: nat} (v: vec UU n) (xs ys: hvec v) (p: x = y) (ps: xs = ys)
   : x ::: xs = y ::: ys.
@@ -86,8 +253,7 @@ Proof.
     + apply (IHxs (pr2 levels)).
 Defined.
 
-Lemma hvec_vec_fill {A: UU} {n: nat}
-  : hvec (vec_fill A n)  = vec A n.
+Lemma hvec_vec_fill {A: UU} {n: nat} : hvec (vec_fill A n) = vec A n.
 Proof.
   induction n.
   - apply idpath.
@@ -202,6 +368,53 @@ Definition h1map_vec {A: UU} {n: nat} {v: vec A n} {P: A → UU}
                         {B: UU} (f: ∏ (a: A), P a → B) (h1v: hvec (vec_map P v))
   : vec B n := h1lower (h1map f h1v).
 
+(*[[el]] of an [[h1map_vec]] is just the appropriate casting of function application*)
+Definition hel_h1map_vec {A: UU} {n: nat} {v: vec A n} {P: A → UU} {B: UU}
+  (f: ∏ (a: A), P a → B)
+  (hv: hvec (vec_map P v)) (i:⟦ n ⟧)
+  : el (h1map_vec f hv) i = f (el v i) (eqweqmap (el_vec_map P v i) (hel hv i)).
+Proof.
+  induction n as [|m IHn0].
+  + use fromstn0.
+    exact i.
+  + induction v as [vhead vtail].
+    induction hv as [hvhead hvtail].
+    induction i as [j  jlt].
+    induction j as [| k].
+    - apply idpath.
+    - use IHn0.
+Defined.
+
+Section hel_h1map_vec_vec_fill.
+(*This is just [[hel_h1map_vec]] for the special case in which
+  [[v]] is of the form [[(vec_fill a n)]].
+
+  In this case we can have [[a]] judgemntally in the right hand side*)
+
+Context {A: UU} {n: nat} {a:A} {P: A → UU} {B: UU} (f: ∏ (x: A), P x → B)
+  (hv: hvec (vec_map P (vec_fill a n))) (i:⟦ n ⟧).
+
+Definition hel_h1map_vec_vec_fill_lemma : f (el (vec_fill a n) i) (eqweqmap (el_vec_map P (vec_fill a n) i) (hel hv i)) = f a (eqweqmap (el_vec_map_vec_fill P a i) (hel hv i)).
+Proof.
+  induction n as [|m IHn0].
+  + use fromstn0.
+    exact i.
+  + induction hv as [hvhead hvtail].
+    induction i as [j  jlt].
+    induction j as [| k].
+    - apply idpath.
+    - use IHn0.
+Defined.
+
+Definition hel_h1map_vec_vec_fill : el (h1map_vec f hv) i = f a (eqweqmap (el_vec_map_vec_fill P a i) (hel hv i)).
+Proof.
+  etrans.
+  { apply hel_h1map_vec. }
+  use hel_h1map_vec_vec_fill_lemma.
+Defined.
+
+End hel_h1map_vec_vec_fill.
+
 (** ** Level-2 heterogeneous vectors.
 
 A level-2 hvec is a term of type [hvec (h1map_vec Q h1v)] for some [h1v: hvec (vec_map P v)],
@@ -227,6 +440,75 @@ Proof.
   - intros x n xs IHv f h1v h2v.
     exact (f x (pr1 h1v) (pr1 h2v) ::: IHv f (pr2 h1v) (pr2 h2v)).
 Defined.
+
+(*[[hel]] of an [[h2map]] is just the appropriate casting of function application*)
+Definition helh2map {A: UU} {n: nat} {v: vec A n} {P: A → UU} {h1v: hvec (vec_map P v)}
+                 {Q: ∏ (a: A) (p: P a), UU} {R: ∏ (a: A) (p: P a), UU}
+                 (f: ∏ (a: A) (p: P a), Q a p → R a p) (h2v: hvec (h1map_vec Q h1v))
+                 (i:⟦ n ⟧)
+  : hel (h2map f h2v) i = (invweq (eqweqmap (hel_h1map_vec R h1v i)) (f _ _ (eqweqmap (hel_h1map_vec Q h1v i) (hel h2v i)))).
+Proof.
+  revert n v f h1v h2v i.
+  refine (vec_ind _ _ _ ).
+  - intros f h1v h2v i.
+    use fromstn0.
+    exact i.
+  - intros x n v X f h1v h2v i.
+    induction i as [j  jlt].
+    induction j as [| k].
+    * apply idpath.
+    * use X.
+Defined.
+
+Definition h2map_makehvec {A: UU} {n: nat} {v: vec A n} {P: A → UU} {h1v: hvec (vec_map P v)}
+                 {Q: ∏ (a: A) (p: P a), UU} {R: ∏ (a: A) (p: P a), UU}
+                 (f: ∏ (a: A) (p: P a), Q a p → R a p) (h2v: hvec (h1map_vec Q h1v))
+  : h2map f h2v = make_hvec (λ i, (invweq (eqweqmap (hel_h1map_vec R h1v i)) (f _ _ (eqweqmap (hel_h1map_vec Q h1v i) (hel h2v i))))).
+Proof.
+  use (invmaponpathsweq helf_weq).
+  simpl.
+  use funextsec.
+  intro i.
+  etrans.
+  { apply helh2map. }
+  use pathsinv0.
+  use hel_make_hvec.
+Defined.
+
+(*[[helh2map_basevecfill]] and [[h2map_makehvec_basevecfill]] are just [[helh2map]] and [[h2map_makehvec]] in the case in which [[v]] is the form [[(vec_fill a n)]]*)
+Definition helh2map_basevecfill {A: UU} {n: nat} {a: A} {P: A → UU} {h1v: hvec (vec_map P (vec_fill a n))}
+                 {Q: ∏ (a: A) (p: P a), UU} {R: ∏ (a: A) (p: P a), UU}
+                 (f: ∏ (a: A) (p: P a), Q a p → R a p) (h2v: hvec (h1map_vec Q h1v))
+                 (i:⟦ n ⟧)
+  : hel (h2map f h2v) i = invweq (eqweqmap (hel_h1map_vec_vec_fill R h1v i)) (f _ _ (eqweqmap (hel_h1map_vec_vec_fill Q h1v i) (hel h2v i))).
+Proof.
+  revert n h1v h2v i.
+  use hvec_ind_fixedv.
+  - intros h1v h2v i.
+    use fromstn0.
+    exact i.
+  - intros n IH h1v h2v i.
+    induction i as [j  jlt].
+    induction j as [| k].
+    * apply idpath.
+    * use IH.
+Defined.
+
+Definition h2map_makehvec_basevecfill {A: UU} {n: nat} {a: A} {P: A → UU} {h1v: hvec (vec_map P (vec_fill a n))}
+                 {Q: ∏ (a: A) (p: P a), UU} {R: ∏ (a: A) (p: P a), UU}
+                 (f: ∏ (a: A) (p: P a), Q a p → R a p) (h2v: hvec (h1map_vec Q h1v))
+  : h2map f h2v = make_hvec (λ i, invweq (eqweqmap (hel_h1map_vec_vec_fill R h1v i)) (f _ _ (eqweqmap (hel_h1map_vec_vec_fill Q h1v i) (hel h2v i)))).
+Proof.
+  use (invmaponpathsweq helf_weq).
+  simpl.
+  use funextsec.
+  intro i.
+  etrans.
+  { apply helh2map_basevecfill. }
+  use pathsinv0.
+  use hel_make_hvec.
+Defined.
+
 
 (** [h1lift] transforms a level-1 hvec into a level-2 hvec. *)
 

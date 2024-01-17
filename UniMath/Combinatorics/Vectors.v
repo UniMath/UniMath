@@ -108,11 +108,7 @@ Defined.
 Lemma el_vcons_tl {n} (v : vec A n) (x : A) (i : ⟦ n ⟧) :
   el (x ::: v) (dni_firstelement i) = el v i.
 Proof.
-  induction n as [|m meq].
-  - apply fromstn0. exact i.
-  - cbn. apply maponpaths.
-    apply proofirrelevance;
-    exact (propproperty (pr1 i < S m)).
+  apply idpath.
 Defined.
 
 Lemma el_vcons_hd {n} (v : vec A n) (x : A) :
@@ -123,16 +119,13 @@ Defined.
 
 Lemma drop_el {n} (v : vec A (S n)) (i: ⟦ n ⟧ ) : drop (el v) i = el (tl v) i.
 Proof.
-  induction v as (x, u).
-  change (drop (el (x ::: u)) i = el u i).
-  apply el_vcons_tl.
+  apply idpath.
 Defined.
 
 Lemma el_tl {n} (v : vec A (S n)) (i : ⟦ n ⟧)
   : el (tl v) i = drop (el v) i.
 Proof.
-  rewrite drop_el.
-  reflexivity.
+  apply idpath.
 Defined.
 
 (** *** Extensionality. *)
@@ -198,6 +191,15 @@ Proof.
   - apply Hcons, H.
 Defined.
 
+Lemma vec_ind_compute (P : ∏ n, vec A n → UU)
+  {n:nat} {v:vec A n} {x:A}
+  (H0 : P 0 [()])
+  (HI : ∏ x n (v : vec A n), P n v → P (S n) (x ::: v))
+  : (vec_ind P H0 HI) (S n) (x:::v) = HI x n v (vec_ind P H0 HI n v).
+Proof.
+  apply idpath.
+Defined.
+
 End vecs.
 
 (** *** Map, fold and append. *)
@@ -233,13 +235,7 @@ Proof.
     + apply hd_vec_map.
     + change (el (tl (vec_map f v)) (make_stn _ k jlt) =
               f (el (tl v) (make_stn _ k jlt))).
-      etrans.
-      { apply el_tl. }
-      etrans.
-      { apply H. }
-      apply maponpaths.
-      apply maponpaths.
-      reflexivity.
+              use H.
 Defined.
 
 Lemma vec_map_as_make_vec {A B: UU} (f: A → B) {n} (v: vec A n)
@@ -321,6 +317,27 @@ Defined.
 
 Definition vec_fill {A: UU} (a: A): ∏ n: nat, vec A n
   := nat_rect (λ n: nat, vec A n) [()] (λ (n: nat) (v: vec A n), a ::: v).
+
+Lemma el_vec_fill {A: UU} (a: A) {n:nat} (i:⟦ n ⟧) : el (vec_fill a n) i = a.
+Proof.
+  induction n as [ | n IHn].
+  + use (fromstn0 i).
+  + induction i as [i ilt].
+    induction i as [| i IHi].
+    - apply idpath.
+    - use IHn.
+Defined.
+
+Print vec_map.
+
+Lemma el_vec_map_vec_fill {A B : UU} (f : A → B) {n} (a:A) (i : ⟦ n ⟧)
+  : el (vec_map f (vec_fill a n)) i = f a.
+  Proof.
+    etrans.
+    { apply el_vec_map. }
+    use maponpaths.
+    use el_vec_fill.
+  Defined.
 
 Lemma vec_map_const {A: UU} {n: nat} {v: vec A n} {B: UU} (b: B) : vec_map (λ _, b) v = vec_fill b n.
 Proof.
