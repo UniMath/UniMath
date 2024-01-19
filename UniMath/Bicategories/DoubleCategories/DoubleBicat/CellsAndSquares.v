@@ -53,33 +53,38 @@ Definition horizontal_cell_to_square
   := τ ▵s id_v_square_bicat h₂.
 
 (** * 2. The conditions that cells can be expressed as certain squares *)
-Definition vertical_cells_are_squares
+Definition vertically_saturated
            (B : verity_double_bicat)
   : UU
   := ∏ (x y : B)
        (v₁ v₂ : x -|-> y),
      isweq (@vertical_cell_to_square B x y v₁ v₂).
 
-Definition horizontal_cells_are_squares
+Definition horizontally_saturated
            (B : verity_double_bicat)
   : UU
   := ∏ (x y : B)
        (h₁ h₂ : x --> y),
      isweq (@horizontal_cell_to_square B x y h₁ h₂).
 
+Definition is_weak_double_cat
+           (B : verity_double_bicat)
+  : UU
+  := vertically_saturated B × horizontally_saturated B.
+
 (** * 3. Verity double bicategories in which vertical cells are the same as squares *)
 Section VerticalCellsAreSquares.
   Context {B : verity_double_bicat}.
 
   Definition vertical_cell_to_square_weq
-             (HB : vertical_cells_are_squares B)
+             (HB : vertically_saturated B)
              {x y : B}
              (v₁ v₂ : x -|-> y)
     : v₁ =|=> v₂ ≃ square_double_bicat (id_h x) (id_h y) v₁ v₂
     := make_weq _ (HB x y v₁ v₂).
 
   Definition square_to_vertical_cell
-             (HB : vertical_cells_are_squares B)
+             (HB : vertically_saturated B)
              {x y : B}
              {v₁ v₂ : x -|-> y}
              (s : square_double_bicat (id_h x) (id_h y) v₁ v₂)
@@ -87,7 +92,7 @@ Section VerticalCellsAreSquares.
     := invmap (vertical_cell_to_square_weq HB v₁ v₂) s.
 
   Proposition square_to_vertical_cell_to_square
-              (HB : vertical_cells_are_squares B)
+              (HB : vertically_saturated B)
               {x y : B}
               {v₁ v₂ : x -|-> y}
               (s : square_double_bicat (id_h x) (id_h y) v₁ v₂)
@@ -97,7 +102,7 @@ Section VerticalCellsAreSquares.
   Qed.
 
   Proposition vertical_cell_to_square_to_vertical_cell
-              (HB : vertical_cells_are_squares B)
+              (HB : vertically_saturated B)
               {x y : B}
               {v₁ v₂ : x -|-> y}
               (τ : v₁ =|=> v₂)
@@ -118,7 +123,7 @@ Section VerticalCellsAreSquares.
   Qed.
 
   Proposition square_to_vertical_cell_id
-              (HB : vertical_cells_are_squares B)
+              (HB : vertically_saturated B)
               {x y : B}
               (v : x -|-> y)
     : square_to_vertical_cell HB (id_h_square_bicat v) = id2 v.
@@ -159,7 +164,7 @@ Section VerticalCellsAreSquares.
   Qed.
 
   Proposition square_to_vertical_cell_comp
-              (HB : vertical_cells_are_squares B)
+              (HB : vertically_saturated B)
               {x y : B}
               {v₁ v₂ v₃ : x -|-> y}
               (s₁ : square_double_bicat (id_h x) (id_h y) v₁ v₂)
@@ -280,7 +285,7 @@ Section VerticalCellsAreSquares.
   Qed.
 
   Definition vertical_square_to_invertible_2cell
-             (HB : vertical_cells_are_squares B)
+             (HB : vertically_saturated B)
              {x y : B}
              {v₁ v₂ : x -|-> y}
              (s : invertible_vertical_square v₁ v₂)
@@ -330,7 +335,7 @@ Section VerticalCellsAreSquares.
   Defined.
 
   Definition vertical_square_weq_invertible_2cell
-             (HB : vertical_cells_are_squares B)
+             (HB : vertically_saturated B)
              {x y : B}
              (v₁ v₂ : x -|-> y)
     : invertible_vertical_square v₁ v₂ ≃ invertible_2cell v₁ v₂.
@@ -354,14 +359,14 @@ Section HorizontalCellsAreSquares.
   Context {B : verity_double_bicat}.
 
   Definition horizontal_cell_to_square_weq
-             (HB : horizontal_cells_are_squares B)
+             (HB : horizontally_saturated B)
              {x y : B}
              (h₁ h₂ : x --> y)
     : h₁ ==> h₂ ≃ square_double_bicat h₁ h₂ (id_v x) (id_v y)
     := make_weq _ (HB x y h₁ h₂).
 
   Definition square_to_horizontal_cell
-             (HB : horizontal_cells_are_squares B)
+             (HB : horizontally_saturated B)
              {x y : B}
              {h₁ h₂ : x --> y}
              (s : square_double_bicat h₁ h₂ (id_v x) (id_v y))
@@ -369,7 +374,7 @@ Section HorizontalCellsAreSquares.
     := invmap (horizontal_cell_to_square_weq HB h₁ h₂) s.
 
   Proposition square_to_horizontal_cell_to_square
-              (HB : horizontal_cells_are_squares B)
+              (HB : horizontally_saturated B)
               {x y : B}
               {h₁ h₂ : x --> y}
               (s : square_double_bicat h₁ h₂ (id_v x) (id_v y))
@@ -379,7 +384,7 @@ Section HorizontalCellsAreSquares.
   Qed.
 
   Proposition horizontal_cell_to_square_to_horizontal_cell
-              (HB : horizontal_cells_are_squares B)
+              (HB : horizontally_saturated B)
               {x y : B}
               {h₁ h₂ : x --> y}
               (τ : h₁ ==> h₂)
@@ -400,7 +405,7 @@ Section HorizontalCellsAreSquares.
   Qed.
 
   Proposition square_to_horizontal_cell_id
-              (HB : horizontal_cells_are_squares B)
+              (HB : horizontally_saturated B)
               {x y : B}
               (h : x --> y)
     : square_to_horizontal_cell HB (id_v_square_bicat h) = id2 h.
@@ -441,7 +446,7 @@ Section HorizontalCellsAreSquares.
   Qed.
 
   Proposition square_to_horizontal_cell_comp
-              (HB : horizontal_cells_are_squares B)
+              (HB : horizontally_saturated B)
               {x y : B}
               {h₁ h₂ h₃ : x --> y}
               (s₁ : square_double_bicat h₁ h₂ (id_v x) (id_v y))
@@ -562,7 +567,7 @@ Section HorizontalCellsAreSquares.
   Qed.
 
   Definition horizontal_square_to_invertible_2cell
-             (HB : horizontal_cells_are_squares B)
+             (HB : horizontally_saturated B)
              {x y : B}
              {h₁ h₂ : x --> y}
              (s : invertible_horizontal_square h₁ h₂)
@@ -612,7 +617,7 @@ Section HorizontalCellsAreSquares.
   Defined.
 
   Definition horizontal_square_weq_invertible_2cell
-             (HB : horizontal_cells_are_squares B)
+             (HB : horizontally_saturated B)
              {x y : B}
              (h₁ h₂ : x --> y)
     : invertible_horizontal_square h₁ h₂ ≃ invertible_2cell h₁ h₂.

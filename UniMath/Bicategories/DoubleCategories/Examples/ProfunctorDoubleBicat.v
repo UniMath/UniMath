@@ -1148,8 +1148,8 @@ Proof.
 Defined.
 
 (** * 6. 2-cells versus squares *)
-Definition univalent_profunctor_vertical_cells_are_squares
-  : vertical_cells_are_squares
+Definition univalent_profunctor_vertically_saturated
+  : vertically_saturated
       univalent_profunctor_verity_double_bicat.
 Proof.
   intros C₁ C₂ P Q ; cbn in *.
@@ -1167,8 +1167,8 @@ Proof.
        apply idpath).
 Defined.
 
-Definition univalent_profunctor_horizontal_cells_are_squares
-  : horizontal_cells_are_squares
+Definition univalent_profunctor_horizontally_saturated
+  : horizontally_saturated
       univalent_profunctor_verity_double_bicat.
 Proof.
   intros C₁ C₂ F G ; cbn in *.
@@ -1191,6 +1191,14 @@ Proof.
        rewrite functor_id in p ;
        rewrite !id_right in p ;
        exact (!p)).
+Defined.
+
+Definition univalent_profunctor_is_weak_double_cat
+  : is_weak_double_cat univalent_profunctor_verity_double_bicat.
+Proof.
+  split.
+  - exact univalent_profunctor_vertically_saturated.
+  - exact univalent_profunctor_horizontally_saturated.
 Defined.
 
 (** * 7. Companion pairs of profunctors *)
@@ -1324,5 +1332,5 @@ Proof.
   use hor_globally_univalent_to_gregarious_univalent.
   - exact locally_univalent_profunctor_verity_double_bicat.
   - exact hor_globally_univalent_profunctor_verity_double_bicat.
-  - exact univalent_profunctor_vertical_cells_are_squares.
+  - exact univalent_profunctor_vertically_saturated.
 Defined.

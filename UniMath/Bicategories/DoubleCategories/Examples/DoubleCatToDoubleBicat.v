@@ -531,8 +531,8 @@ Section DoubleCatToDoubleBicat.
     - exact double_cat_to_double_bicat_laws.
   Defined.
 
-  Definition double_cat_vertical_cells_are_squares
-    : vertical_cells_are_squares
+  Definition double_cat_vertically_saturated
+    : vertically_saturated
         double_cat_to_verity_double_bicat.
   Proof.
     refine (λ (x y : C) (h₁ h₂ : x -->h y), _).
@@ -554,7 +554,7 @@ Section DoubleCatToDoubleBicat.
 
   Definition double_cat_horizontal_cells_are_squares
              (H : ver_weq_square C)
-    : horizontal_cells_are_squares
+    : horizontally_saturated
         double_cat_to_verity_double_bicat.
   Proof.
     refine (λ (x y : C) (v₁ v₂ : x -->v y), _).
@@ -565,6 +565,16 @@ Section DoubleCatToDoubleBicat.
     - apply homset_property.
     - apply isaprop_square_ver_weq_square.
       exact H.
+  Defined.
+
+  Definition is_weak_double_cat_double_cat
+             (H : ver_weq_square C)
+    : is_weak_double_cat
+        double_cat_to_verity_double_bicat.
+  Proof.
+    split.
+    - exact double_cat_vertically_saturated.
+    - exact (double_cat_horizontal_cells_are_squares H).
   Defined.
 End DoubleCatToDoubleBicat.
 
@@ -596,7 +606,7 @@ Proof.
   use hor_globally_univalent_to_gregarious_univalent.
   - exact (locally_univalent_double_cat_to_verity_double_bicat C).
   - exact (hor_globally_univalent_double_cat_to_verity_double_bicat C).
-  - exact (double_cat_vertical_cells_are_squares C).
+  - exact (double_cat_vertically_saturated C).
 Defined.
 
 (** * 6. Companions and conjoints *)

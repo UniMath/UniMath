@@ -332,9 +332,9 @@ Section HorizontalDual.
   Defined.
 
   (** * 5. Vertical cells and squares *)
-  Definition horizontal_dual_vertical_cells_are_square
-             (H : vertical_cells_are_squares B)
-    : vertical_cells_are_squares horizontal_dual_verity_double_bicat.
+  Definition horizontal_dual_vertically_saturated
+             (H : vertically_saturated B)
+    : vertically_saturated horizontal_dual_verity_double_bicat.
   Proof.
     refine (λ (x y : B) (v₁ v₂ : x -|-> y), _).
     use isweq_iso.
