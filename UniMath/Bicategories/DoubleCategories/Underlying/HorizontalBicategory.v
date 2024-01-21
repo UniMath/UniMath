@@ -378,7 +378,7 @@ Qed.
 
 Definition horizontal_setbicat
           (C : pseudo_double_setcat)
-  : setbicat.
+  : bisetcat.
 Proof.
   refine (horizontal_bicat C ,, _).
   split.

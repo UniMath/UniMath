@@ -748,20 +748,20 @@ Section BicatToDoubleCat.
 End BicatToDoubleCat.
 
 (** * 8. The pseudo double setcategory corresponding to a bicategory *)
-Definition setbicat_to_pseudo_double_bicat
-           (B : setbicat)
+Definition bisetcat_to_pseudo_double_bicat
+           (B : bisetcat)
   : pseudo_double_setcat.
 Proof.
   use make_pseudo_double_setcat.
   - refine (bicat_to_double_bicat B _).
     use hlevelntosn.
-    exact (globally_strict_setbicat B).
+    exact (globally_strict_bisetcat B).
   - split.
     + intros x y.
-      apply globally_strict_setbicat.
+      apply globally_strict_bisetcat.
     + intros x y.
       apply isasetaprop.
-      apply globally_strict_setbicat.
+      apply globally_strict_bisetcat.
   - intros x y.
-    apply locally_strict_setbicat.
+    apply locally_strict_bisetcat.
 Defined.

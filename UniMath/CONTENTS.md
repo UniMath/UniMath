@@ -892,7 +892,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DoubleCategories/Examples/TransposeStrict.v](Bicategories/DoubleCategories/Examples/TransposeStrict.v)
    - [DoubleCategories/Examples/StructuredCospansDoubleCat.v](Bicategories/DoubleCategories/Examples/StructuredCospansDoubleCat.v)
    - [DoubleCategories/Examples/StructuredCospansDoubleFunctor.v](Bicategories/DoubleCategories/Examples/StructuredCospansDoubleFunctor.v)
-   - [DoubleCategories/Examples/SetBicatToDoubleCat.v](Bicategories/DoubleCategories/Examples/SetBicatToDoubleCat.v)
+   - [DoubleCategories/Examples/BiSetcatToDoubleCat.v](Bicategories/DoubleCategories/Examples/BiSetcatToDoubleCat.v)
    - [DoubleCategories/Examples/ProfunctorDoubleCat.v](Bicategories/DoubleCategories/Examples/ProfunctorDoubleCat.v)
    - [DoubleCategories/AlternativeDefinitions/DoubleCatsUnfolded.v](Bicategories/DoubleCategories/AlternativeDefinitions/DoubleCatsUnfolded.v)
    - [DoubleCategories/AlternativeDefinitions/DoubleCatsEquivalentDefinitions.v](Bicategories/DoubleCategories/AlternativeDefinitions/DoubleCatsEquivalentDefinitions.v)

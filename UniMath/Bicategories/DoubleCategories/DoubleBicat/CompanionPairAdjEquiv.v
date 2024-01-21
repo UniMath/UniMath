@@ -44,7 +44,7 @@ Local Open Scope double_bicat.
 (** * 1. Cells between companion pairs *)
 Definition cell_are_companions
            {B : verity_double_bicat}
-           (H : vertical_cells_are_squares B)
+           (H : vertically_saturated B)
            {x y : B}
            {h₁ h₂ : x --> y}
            (τ : h₂ ==> h₁)
@@ -58,7 +58,7 @@ Definition cell_are_companions
 
 Proposition cell_are_companions_id
             {B : verity_double_bicat}
-            (H : vertical_cells_are_squares B)
+            (H : vertically_saturated B)
             {x y : B}
             {h : x --> y}
             {v : x -|-> y}
@@ -81,7 +81,7 @@ Qed.
 
 Proposition cell_are_companions_comp
             {B : verity_double_bicat}
-            (H : vertical_cells_are_squares B)
+            (H : vertically_saturated B)
             {x y : B}
             {h₁ h₂ h₃ : x --> y}
             (τ₁ : h₂ ==> h₁)
@@ -262,7 +262,7 @@ Qed.
 (** * 2. Invertible 2-cells between companions *)
 Definition inv2cell_are_companions
            {B : verity_double_bicat}
-           (H : vertical_cells_are_squares B)
+           (H : vertically_saturated B)
            {x y : B}
            {h₁ h₂ : x --> y}
            (τ : invertible_2cell h₁ h₂)
@@ -288,7 +288,7 @@ Defined.
 (** * 3. Companions of adjoint equivalences *)
 Section CompanionOfAdjequiv.
   Context {B : verity_double_bicat}
-          (H : vertical_cells_are_squares B)
+          (H : vertically_saturated B)
           {x y : B}
           {h : x --> y}
           {v : x -|-> y}
@@ -332,8 +332,8 @@ End CompanionOfAdjequiv.
 (** * 4. Vertical equivalences in Verity double bicategories with all companions *)
 Definition all_equivs_companions_adjequiv
            {B : verity_double_bicat}
-           (H : vertical_cells_are_squares B)
-           (H' : all_equivs_companions B)
+           (H : vertically_saturated B)
+           (H' : weakly_hor_invariant B)
            {x y : B}
            {h : x --> y}
            {v : x -|-> y}
@@ -352,7 +352,7 @@ Defined.
 
 Definition all_companions_adjequiv
            {B : verity_double_bicat}
-           (H : vertical_cells_are_squares B)
+           (H : vertically_saturated B)
            (H' : all_companions B)
            {x y : B}
            {h : x --> y}
@@ -363,7 +363,7 @@ Definition all_companions_adjequiv
 Proof.
   use all_equivs_companions_adjequiv.
   - exact H.
-  - use all_companions_to_all_equivs_companions.
+  - use all_companions_to_weakly_hor_invariant.
     exact H'.
   - exact h.
   - exact c.

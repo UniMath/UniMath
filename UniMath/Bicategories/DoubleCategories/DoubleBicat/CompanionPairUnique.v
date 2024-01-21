@@ -318,7 +318,7 @@ End ComparionPairUnique.
 (** * 4. Consequences of the uniqueness *)
 Proposition isaprop_companion_pair
             {B : verity_double_bicat}
-            (H : vertical_cells_are_squares B)
+            (H : vertically_saturated B)
             (HB_2_1 : locally_univalent_verity_double_bicat B)
             {x y : B}
             (h : x --> y)
@@ -343,7 +343,7 @@ Qed.
 
 Proposition isaprop_all_companions
             (B : verity_double_bicat)
-            (H : vertical_cells_are_squares B)
+            (H : vertically_saturated B)
             (HB_2_1 : locally_univalent_verity_double_bicat B)
   : isaprop (all_companions B).
 Proof.
@@ -355,11 +355,11 @@ Proof.
   - exact HB_2_1.
 Qed.
 
-Proposition isaprop_all_equivs_companions
+Proposition isaprop_weakly_hor_invariant
             (B : verity_double_bicat)
-            (H : vertical_cells_are_squares B)
+            (H : vertically_saturated B)
             (HB_2_1 : locally_univalent_verity_double_bicat B)
-  : isaprop (all_equivs_companions B).
+  : isaprop (weakly_hor_invariant B).
 Proof.
   use impred ; intro x.
   use impred ; intro y.

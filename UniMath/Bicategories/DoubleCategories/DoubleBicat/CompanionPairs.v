@@ -390,7 +390,7 @@ Definition all_companions
        (h : x --> y),
      ∑ (v : x -|-> y), are_companions h v.
 
-Definition all_equivs_companions
+Definition weakly_hor_invariant
            (B : verity_double_bicat)
   : UU
   := ∏ (x y : B)
@@ -398,16 +398,16 @@ Definition all_equivs_companions
        (Hh : left_adjoint_equivalence h),
      ∑ (v : x -|-> y), are_companions h v.
 
-Definition all_companions_to_all_equivs_companions
+Definition all_companions_to_weakly_hor_invariant
            (B : verity_double_bicat)
            (H : all_companions B)
-  : all_equivs_companions B
+  : weakly_hor_invariant B
   := λ x y h _, H x y h.
 
-Definition univalent_2_0_all_equivs_companions
+Definition univalent_2_0_weakly_hor_invariant
            (B : verity_double_bicat)
            (H : is_univalent_2_0 (hor_bicat_of_verity_double_bicat B))
-  : all_equivs_companions B.
+  : weakly_hor_invariant B.
 Proof.
   assert (∏ (x y : B)
             (h : adjoint_equivalence x y),
@@ -448,7 +448,7 @@ Coercion are_companions_hor_companion
 
 Proposition eq_companion_of_hor
             {B : verity_double_bicat}
-            (H : vertical_cells_are_squares B)
+            (H : vertically_saturated B)
             (HB_2_1 : locally_univalent_verity_double_bicat B)
             {x y : B}
             {h : x --> y}
