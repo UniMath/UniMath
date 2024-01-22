@@ -542,9 +542,9 @@ Section groundTermAlgebraWtype.
   Section beta.
     Context
       (P:U → UU)
+      (e_s : ∏ (x: A) (f: B x → U) (IH: ∏ u: B x, P (f u)), P (sup x f) )
       (x: names σ)
-      (f : B x → U)
-      (e_s : ∏ (x: A) (f: B x → U) (IH: ∏ u: B x, P (f u)), P (sup x f) ).
+      (f : B x → U).
 
     Definition beta: ind P e_s (sup x f) = e_s x f (λ u, ind P e_s (f u)).
     Proof.
@@ -563,5 +563,14 @@ Section groundTermAlgebraWtype.
     Defined.
 
   End beta.
+
+  Definition groundTermAlgebraWtype : Wtype A B.
+  Proof.
+    use makeWtype.
+    + exact U.
+    + exact sup.
+    + exact ind.
+    + exact beta.
+  Defined.
 
 End groundTermAlgebraWtype.
