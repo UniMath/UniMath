@@ -328,14 +328,15 @@ DEPFILES := $(VDFILE)
 .check-prescribed-ordering.okay: Makefile $(DEPFILES) $(PACKAGE_FILES)
 	@echo "--- checking the ordering prescribed by the files UniMath/*/.packages/files ---"
 	@set -e;\
+	VOFILES="$(VOFILES)";\
 	echo "Hello";\
 	if declare -A seqnum 2>/dev/null; then\
 		n=0;\
-		for i in $(VOFILES); do\
+		for i in $files; do\
 			n=$$(( $$n + 1 ));\
 			seqnum[$$i]=$$n;\
 		done;\
-		for i in $(VOFILES); do\
+		for i in $files; do\
 			grep "^$$i" $(DEPFILES);\
 		done\
 		| sed -E -e 's/[^ ]*\.(glob|v|vos|vok|required_vo|required_vos|v\.beautified)([ :]|$$)/\2/g' -e 's/ *: */ /'\
