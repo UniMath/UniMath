@@ -115,7 +115,7 @@ ENHANCEDDOCSOURCE = util/enhanced-doc
 LATEXDIR = latex
 COQDOCLATEXOPTIONS := -latex -utf8 --body-only
 
-DEFINERS := 
+DEFINERS :=
 DEFINERS := $(DEFINERS)Axiom\|
 DEFINERS := $(DEFINERS)Class\|
 DEFINERS := $(DEFINERS)Coercion\|
@@ -145,7 +145,7 @@ DEFINERS := $(DEFINERS)Structure\|
 DEFINERS := $(DEFINERS)Theorem\|
 DEFINERS := $(DEFINERS)Universe
 
-MODIFIERS := 
+MODIFIERS :=
 MODIFIERS := $(MODIFIERS)Canonical\|
 MODIFIERS := $(MODIFIERS)Monomorphic\|
 MODIFIERS := $(MODIFIERS)Global\|
@@ -182,7 +182,7 @@ coqwc:; coqwc $(VFILES)
 lc:; wc -l $(VFILES)
 lcp:; for i in $(PACKAGES) ; do echo ; echo ==== $$i ==== ; for f in $(VFILES) ; do echo "$$f" ; done | grep "UniMath/$$i" | xargs wc -l ; done
 wc:; wc -w $(VFILES)
-admitted: 
+admitted:
 	grep --color=auto Admitted $(VFILES)
 axiom:
 	grep --color=auto "Axiom " $(VFILES)
@@ -327,40 +327,46 @@ ifeq ($(shell test -f build/CoqMakefile.make && grep -q ^VDFILE build/CoqMakefil
 DEPFILES := $(VDFILE)
 .check-prescribed-ordering.okay: Makefile $(DEPFILES) $(PACKAGE_FILES)
 	@echo "--- checking the ordering prescribed by the files UniMath/*/.packages/files ---"
-	@set -e ;														    \
-	if declare -A seqnum 2>/dev/null ;											    \
-	then n=0 ;														    \
-	     for i in $(VOFILES) ;												    \
-	     do n=$$(( $$n + 1 )) ;												    \
-		seqnum[$$i]=$$n ;												    \
-	     done ;														    \
-	     for i in $(VFILES:.v=.vo);												    \
-	     do grep "^$$i" $(DEPFILES) ;											    \
-	     done														    \
-	     | sed -E -e 's/[^ ]*\.(glob|v|vos|vok|required_vo|required_vos|v\.beautified)([ :]|$$)/\2/g' -e 's/ *: */ /'	    \
-	     | awk NF \
-	     | ( while read line ; \
-	 	do \
-		  for i in $$line ; do echo $$i ; done										    \
-		  | ( read target ; 								    \
-		      [ "$${seqnum[$$target]}" ] || (echo unknown target: $$target; false) >&2 ;				    \
-		      while read prereq ;											    \
-		      do \
-			[ "$${seqnum[$$prereq]}" ] || (echo "unknown prereq of $$target : $$prereq" ; false) >&2 ;		    \
-			(if [ "$${seqnum[$$prereq]}" -gt "$${seqnum[$$target]}" ] ; \
-			 then echo "error: *** $$target should not require $$prereq" ; \
-			 fi) ;\
-		      done ) ;													    \
-		done ) \
-	     | ( haderror= ;													    \
-		 while read line ;												    \
-		 do haderror=$$(($$haderror+1)) ;								    \
-		    echo "$$line" ;												    \
-		 done ;														    \
-		 [ ! "$$haderror" ] || (echo "$$haderror dependency order errors in package listings"; false))	;		\
-	     touch $@ ;														\
-	     echo "check succeeded: file dependency order follows package listings" ;						    \
-	else echo "make: *** skipping checking the linear ordering of packages, because 'bash' is too old" ;			    \
+	@set -e;\
+	echo "Hello";\
+	if declare -A seqnum 2>/dev/null; then\
+		n=0;\
+		for i in $(VOFILES); do\
+			n=$$(( $$n + 1 ));\
+			seqnum[$$i]=$$n;\
+		done;\
+		for i in $(VOFILES); do\
+			grep "^$$i" $(DEPFILES);\
+		done\
+		| sed -E -e 's/[^ ]*\.(glob|v|vos|vok|required_vo|required_vos|v\.beautified)([ :]|$$)/\2/g' -e 's/ *: */ /'\
+		| awk NF\
+		| (while read line; do\
+				for i in $$line; do\
+					echo $$i;\
+				done\
+				| (\
+						read target;\
+						[ "$${seqnum[$$target]}" ] || (echo unknown target: $$target; false) >&2;\
+						while read prereq; do\
+							[ "$${seqnum[$$prereq]}" ] || (echo "unknown prereq of $$target : $$prereq" ; false) >&2;\
+							(if [ "$${seqnum[$$prereq]}" -gt "$${seqnum[$$target]}" ]; then\
+								echo "error: *** $$target should not require $$prereq";\
+							fi);\
+						done\
+					);\
+			done)\
+		| (\
+				haderror=;\
+				while read line; do\
+					haderror=$$(($$haderror+1));\
+					echo "$$line";\
+				done;\
+				[ ! "$$haderror" ] || (echo "$$haderror dependency order errors in package listings"; false)\
+			);\
+		touch $@;\
+		echo "check succeeded: file dependency order follows package listings";\
+	else\
+		echo "make: *** skipping checking the linear ordering of packages, because 'bash' is too old";\
 	fi
 else
 DEPFILES := $(VFILES:.v=.v.d)
@@ -386,7 +392,7 @@ clean::; rm -f .check-travis.okay
 
 # here we ensure that every *.v file F in each package P is listed in the corresponding file UniMath/P/.package/files
 # except for those listed in $GRANDFATHER_UNLISTED (currently none)
-GRANDFATHER_UNLISTED = 
+GRANDFATHER_UNLISTED =
 check-listing-of-proof-files:
 	@ echo "--- checking every proof file is listed in one of the packages ---"
 	@ if declare -A islisted 2>/dev/null ;										\
@@ -501,7 +507,7 @@ distclean::; rm -f UniMath/.dir-locals.el
 # make *.vo files by calling the coq makefile
 %.vo : always; $(MAKE) -f build/CoqMakefile.make $@
 always:
-.PHONY: always 
+.PHONY: always
 
 #################################
 # targets best used with INCLUDE=no
