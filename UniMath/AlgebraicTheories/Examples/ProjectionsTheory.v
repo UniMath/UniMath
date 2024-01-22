@@ -19,27 +19,27 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheories2.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.Algebras.
 
 (** * 1. The definition of the projections theory *)
 
-Definition projections_theory'_data
-  : algebraic_theory'_data
-  := make_algebraic_theory'_data
+Definition projections_theory_data
+  : algebraic_theory_data
+  := make_algebraic_theory_data
       stnset
       (λ _ i, i)
       (λ _ _ f g, g f).
 
-Lemma projections_is_theory' : is_algebraic_theory' projections_theory'_data.
+Lemma projections_is_theory : is_algebraic_theory projections_theory_data.
 Proof.
-  now use make_is_algebraic_theory';
+  now use make_is_algebraic_theory;
     repeat intro.
 Qed.
 
 Definition projections_theory
   : algebraic_theory
-  := make_algebraic_theory' _ projections_is_theory'.
+  := make_algebraic_theory _ projections_is_theory.
 
 (** * 2. The definition of a T-algebra structure on every set *)
 

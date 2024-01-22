@@ -1,21 +1,24 @@
 FiniteSetSkeleton.v
+IndexedSetCategory.v
 
-AlgebraicTheories2.v
+AlgebraicTheoryCategoryCore.v
 AlgebraicTheories.v
-AlgebraicTheoryMorphisms2.v
 AlgebraicTheoryMorphisms.v
 AlgebraicTheoryCategory.v
 
+AlgebraCategoryCore.v
 Algebras.v
 AlgebraMorphisms.v
-AlgebraCategory.v
 AlgebraFibration.v
+AlgebraCategory.v
 
 LambdaCalculus.v
+LambdaTheoryCategoryCore.v
 LambdaTheories.v
 LambdaTheoryMorphisms.v
 LambdaTheoryCategory.v
 
+PresheafCategoryCore.v
 Presheaves.v
 PresheafMorphisms.v
 PresheafCategory.v

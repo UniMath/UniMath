@@ -10,66 +10,78 @@
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
-Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
+Require Import UniMath.AlgebraicTheories.LambdaTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
 
 Local Open Scope algebraic_theories.
+Local Open Scope cat.
 
 (** * 1. The definition of λ-theory morphisms [lambda_theory_morphism] *)
 
-Definition lambda_theory_data_morphism
-  (L L' : lambda_theory_data)
-  : UU
-  := ∑ (F : algebraic_theory_morphism L L'),
-      (∏ n t, F _ (app t) = app (F n t)) ×
-      (∏ n t, F _ (abs t) = abs (F (S n) t)).
-
-Definition make_lambda_theory_data_morphism
-  {L L' : lambda_theory_data}
-  (F : algebraic_theory_morphism L L')
-  (Happ : ∏ n t, F _ (app t) = app (F n t))
-  (Habs : ∏ n t, F _ (abs t) = abs (F (S n) t))
-  : lambda_theory_data_morphism L L'
-  := F ,, Happ ,, Habs.
-
-Coercion lambda_theory_data_morphism_to_algebraic_theory_morphism
-  {L L' : lambda_theory_data}
-  (F : lambda_theory_data_morphism L L')
-  : algebraic_theory_morphism L L'
-  := pr1 F.
-
-Definition lambda_theory_data_morphism_preserves_app
-  {L L' : lambda_theory_data}
-  (F : lambda_theory_data_morphism L L')
-  (n : nat) (t : (L n : hSet))
-  : F _ (app t) = app (F _ t)
-  := pr12 F n t.
-
-Definition lambda_theory_data_morphism_preserves_abs
-  {L L' : lambda_theory_data}
-  (F : lambda_theory_data_morphism L L')
-  (n : nat) (t : (L (S n) : hSet))
-  : F _ (abs t) = abs (F _ t)
-  := pr22 F n t.
 Definition lambda_theory_morphism
   (L L' : lambda_theory)
   : UU
-  := lambda_theory_data_morphism L L' × unit.
+  := lambda_theory_cat⟦L, L'⟧.
+
+Definition is_lambda_theory_morphism
+  {L L' : lambda_theory}
+  (F : algebraic_theory_morphism L L)
+  : UU
+  := (∏ n f, mor_app_ax F n f) ×
+    (∏ n f, mor_abs_ax F n f).
 
 Definition make_lambda_theory_morphism
   {L L' : lambda_theory}
-  (F : lambda_theory_data_morphism L L')
+  (F : algebraic_theory_morphism L L')
+  (Happ : ∏ n f, mor_app_ax F n f)
+  (Habs : ∏ n f, mor_abs_ax F n f)
   : lambda_theory_morphism L L'
-  := F ,, tt.
+  := (F ,, Happ ,, Habs) ,, tt.
 
 Coercion lambda_theory_morphism_to_algebraic_theory_morphism
   {L L' : lambda_theory}
   (F : lambda_theory_morphism L L')
   : algebraic_theory_morphism L L'
-  := pr1 F.
+  := pr11 F.
+
+Definition mor_app
+  {L L' : lambda_theory}
+  (F : lambda_theory_morphism L L')
+  {n : nat}
+  (f : L n)
+  : mor_app_ax F n f
+  := pr121 F n f.
+
+Definition mor_abs
+  {L L' : lambda_theory}
+  (F : lambda_theory_morphism L L')
+  {n : nat}
+  (f : L (S n))
+  : mor_abs_ax F n f
+  := pr221 F n f.
+
+Lemma lambda_theory_morphism_eq
+  {L L' : lambda_theory}
+  (F F' : lambda_theory_morphism L L')
+  (H : (F : algebraic_theory_morphism L L') = F')
+  : F = F'.
+Proof.
+  apply subtypePath.
+  {
+    intro.
+    apply isapropunit.
+  }
+  apply subtypePath.
+  {
+    intro.
+    apply isapropdirprod;
+      do 2 (apply impred_isaprop; intro);
+      apply setproperty.
+  }
+  apply H.
+Qed.

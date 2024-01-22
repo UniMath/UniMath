@@ -10,30 +10,28 @@
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.Algebras.
+Require Import UniMath.AlgebraicTheories.AlgebraCategoryCore.
+
+Local Open Scope cat.
 
 (** * 1. The definition of algebra morphisms *)
-
-Definition preserves_action
-  {T : algebraic_theory_data}
-  {A A' : algebra_data T}
-  (F : A → A')
-  : UU
-  := ∏ (n : nat) (f : (T n : hSet)) (a : stn n → A), F (action f a) = action f (λ i, F (a i)).
+(** *** 1.1.2. The property of the morphisms *)
 
 Definition algebra_morphism
-  {T : algebraic_theory_data}
-  (A A' : algebra_data T)
+  {T : algebraic_theory}
+  (A A' : algebra T)
   : UU
-  := ∑ (F : A → A') (H : preserves_action F), unit.
+  := algebra_cat T⟦A, A'⟧.
 
 Definition algebra_morphism_to_function
-  {T : algebraic_theory_data}
-  {A A' : algebra_data T}
+  {T : algebraic_theory}
+  {A A' : algebra T}
   (F : algebra_morphism A A')
   : A → A'
   := pr1 F.
@@ -41,19 +39,49 @@ Definition algebra_morphism_to_function
 Coercion algebra_morphism_to_function :
   algebra_morphism >-> Funclass.
 
-Definition algebra_morphism_preserves_action
-  {T : algebraic_theory_data}
-  {A A' : algebra_data T}
-  (F : algebra_morphism A A')
-  : preserves_action F
-  := pr12 F.
-
-Lemma isaprop_preserves_action
-  {T : algebraic_theory_data}
-  {A A' : algebra_data T}
+Definition make_algebra_morphism
+  {T : algebraic_theory}
+  {A A' : algebra T}
   (F : A → A')
-  : isaprop (preserves_action F).
+  (H : ∏ n f a, mor_action_ax (identity T) F (@action T A) (@action T A') n f a)
+  : algebra_morphism A A'
+  := F ,, H ,, tt.
+
+Definition mor_action
+  {T : algebraic_theory}
+  {A A' : algebra T}
+  (F : algebra_morphism A A')
+  {n : nat}
+  (f : T n)
+  (a : stn n → A)
+  : mor_action_ax (identity T) F (@action T A) (@action T A') n f a
+  := pr12 F n f a.
+
+Lemma algebra_morphism_eq
+  {T : algebraic_theory}
+  {A A' : algebra T}
+  (F F' : algebra_morphism A A')
+  (H : (F : A → A') = (F' : A → A'))
+  : F = F'.
 Proof.
-  repeat (apply impred_isaprop; intro).
-  apply setproperty.
+  use subtypePath.
+  {
+    intro.
+    use isapropdirprod.
+    - repeat (apply impred_isaprop; intro).
+      apply setproperty.
+    - apply isapropunit.
+  }
+  exact H.
+Qed.
+
+Lemma algebra_mor_comp
+  {T : algebraic_theory}
+  {A A' A'' : algebra T}
+  (F : algebra_morphism A A')
+  (F' : algebra_morphism A' A'')
+  : algebra_morphism_to_function (F · F') = funcomp F F'.
+Proof.
+  refine (pr1_transportf (B := λ _, A → A'') _ _ @ _).
+  exact (maponpaths (λ z, z _) (transportf_const _ _)).
 Qed.
