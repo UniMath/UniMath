@@ -329,7 +329,6 @@ DEPFILES := $(VDFILE)
 	@echo "--- checking the ordering prescribed by the files UniMath/*/.packages/files ---"
 	@set -e;\
 	VOFILES="$(VOFILES)";\
-	echo "Hello";\
 	if declare -A seqnum 2>/dev/null; then\
 		n=0;\
 		for i in $files; do\

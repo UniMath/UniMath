@@ -24,6 +24,7 @@ PresheafMorphisms.v
 PresheafCategory.v
 
 Examples/EndomorphismTheory.v
+Examples/FreeObjectTheory.v
 Examples/FreeMonoidTheory.v
 Examples/FreeTheory.v
 Examples/LambdaCalculus.v
