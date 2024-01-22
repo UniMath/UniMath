@@ -26,6 +26,19 @@ Coercion w_carrier {A: UU} {B: ∏ x: A, UU} (W: Wtype A B): UU := pr1 W.
 
 Section W.
 
+(** ** Constructor. *)
+
+Definition makeWtype {A: UU} {B: ∏ x: A, UU}
+  (U: UU)
+  (w_sup: ∏ (x : A) (f : B x → U), U)
+  (w_ind: ∏ (P : U → UU) (e_s : ∏ (x: A) (f: B x → U) (IH: ∏ u: B x, P (f u)), P (w_sup x f)) (w: U), P w)
+  (w_beta: ∏ (P : U → UU)
+    (e_s : ∏ (x: A) (f: B x → U) (IH: ∏ u: B x, P (f u)), P (w_sup x f))
+    (x : A) (f : B x → U)
+    , w_ind P e_s (w_sup x f) = e_s x f (λ u, w_ind P e_s (f u)))
+  : Wtype A B
+  := (U,,w_sup,,w_ind,,w_beta).
+
 Context {A: UU} {B: ∏ x: A, UU} {W: Wtype A B}.
 
 (** ** Accessors. *)
