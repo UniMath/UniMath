@@ -657,14 +657,14 @@ Section MonoidalNatTransToDialgebraLifting.
       use tpair.
       + cbn.
 
-        transparent assert (pfG_is_z_iso : (is_z_isomorphism ( (# G)%Cat (inv_from_z_iso (fmonoidal_preservestensordata Km x y,, fmonoidal_preservestensorstrongly (_,, pr2 Km) x y))))).
+        transparent assert (pfG_is_z_iso : (is_z_isomorphism ( (# G)%cat (inv_from_z_iso (fmonoidal_preservestensordata Km x y,, fmonoidal_preservestensorstrongly (_,, pr2 Km) x y))))).
         {
           use functor_on_is_z_isomorphism.
           apply is_z_iso_inv_from_z_iso.
         }
         use (z_iso_inv_to_right _ _ _ _ (_ ,, pfG_is_z_iso)).
 
-        transparent assert (pfF_is_z_iso : (is_z_isomorphism ((# F)%Cat
+        transparent assert (pfF_is_z_iso : (is_z_isomorphism ((# F)%cat
     (inv_from_z_iso
        (fmonoidal_preservestensordata Km x y,, fmonoidal_preservestensorstrongly (_,, pr2 Km) x y))))).
         {
@@ -681,7 +681,7 @@ Section MonoidalNatTransToDialgebraLifting.
       + cbn.
 
         transparent assert (pfL_is_z_iso :
-                             (is_z_isomorphism ( (# F)%Cat (inv_from_z_iso (fmonoidal_preservesunit Km,, fmonoidal_preservesunitstrongly (_ ,, pr2 Km)))))
+                             (is_z_isomorphism ( (# F)%cat (inv_from_z_iso (fmonoidal_preservesunit Km,, fmonoidal_preservesunitstrongly (_ ,, pr2 Km)))))
                            ).
         {
           use functor_on_is_z_isomorphism.
@@ -692,7 +692,7 @@ Section MonoidalNatTransToDialgebraLifting.
 
         transparent assert (pfR_is_z_iso
                              : (is_z_isomorphism
-                                  ((# G)%Cat (inv_from_z_iso (fmonoidal_preservesunit Km,, fmonoidal_preservesunitstrongly (_,, pr2 Km)))))).
+                                  ((# G)%cat (inv_from_z_iso (fmonoidal_preservesunit Km,, fmonoidal_preservesunitstrongly (_,, pr2 Km)))))).
         {
           use functor_on_is_z_isomorphism.
           apply is_z_iso_inv_from_z_iso.

@@ -405,7 +405,7 @@ Section Disp_Functor.
                 {f : x --> y}
                 {xx : D₁ x}
                 {yy : D₁ y}
-                (ff : FF x xx -->[ (#F f)%Cat ] FF y yy)
+                (ff : FF x xx -->[ (#F f) ] FF y yy)
       : ♯FF (disp_functor_ff_inv FF HFF ff) = ff.
     Proof.
       apply (homotweqinvweq ((disp_functor_ff_weq FF HFF xx yy f))).

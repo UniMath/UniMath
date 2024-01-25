@@ -16,7 +16,7 @@ Require Import UniMath.Induction.FunctorAlgebras_legacy.
 Require Import UniMath.Induction.PolynomialFunctors.
 Require Import UniMath.Induction.W.Core.
 
-Local Open Scope Cat.
+Local Open Scope cat.
 
 Section Fibered.
   Context {A : UU} {B : A -> UU}.
@@ -52,7 +52,7 @@ Section Fibered.
     pose (supe := pr2 E).
     split with (∑ x : pr1 X, pr1 E x).
     intro z; cbn in z; unfold polynomial_functor_obj in *.
-    pose (z' := ((pr1 z),, pr1 ∘ (pr2 z)) : (∑ a : A, B a → pr1 X)).
+    pose (z' := ((pr1 z),, (pr1 ∘ (pr2 z))%functions) : (∑ a : A, B a → pr1 X)).
     refine (supx z',, supe z' (λ b, (pr2 (pr2 z b)))).
   Defined.
 
@@ -66,7 +66,7 @@ Section Fibered.
     pose (supx := pr2 X).
     pose (supe := pr2 E).
     exact ((∑ (f : ∏ x : pr1 X, pr1 E x),
-            ∏ a, f (supx a) = supe a (f ∘ (pr2 a)))).
+            ∏ a, f (supx a) = supe a (f ∘ (pr2 a))%functions)).
   Defined.
 
   (** A P-algebra section homotopy.
@@ -111,7 +111,7 @@ Section Fibered.
     - do 2 (apply maponpaths).
       unfold funhomotsec; cbn.
       assert (H : (λ x0 : B (pr1 x), idpath (pr1 f (pr2 x x0))) =
-                  (toforallpaths _ (pr1 f ∘ pr2 x) (pr1 f ∘ pr2 x) (idpath _))).
+                  (toforallpaths _ (pr1 f ∘ pr2 x)%functions (pr1 f ∘ pr2 x)%functions (idpath _))).
       reflexivity.
       refine ((maponpaths _ H) @ _).
       apply funextsec_toforallpaths.
