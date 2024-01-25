@@ -19,7 +19,7 @@ Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Three.
 Require Import UniMath.CategoryTheory.ModelCategories.NWFS.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.Helpers.
+Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
 
 Local Open Scope cat.
 Local Open Scope Cat.
@@ -824,7 +824,7 @@ Qed.
 
 Lemma Ff_monoid_is_RNWFS_monad_laws 
     {F : Ff C} (R : monoid (Ff_monoidal) F) :
-  Monad_laws (R_monad_data F (Ff_monoid_is_RNWFS_mul R)).
+  disp_Monad_laws (R_monad_data F (Ff_monoid_is_RNWFS_mul R)).
 Proof.
   set (μ := monoid_data_multiplication _ R).
   

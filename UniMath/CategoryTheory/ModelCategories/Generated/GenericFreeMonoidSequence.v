@@ -24,7 +24,7 @@ Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
 
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.GenericFreeMonoid.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.MonoidalHelpers.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.Helpers.
+Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
 
 Local Open Scope Cat.
 Local Open Scope cat.

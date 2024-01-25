@@ -15,6 +15,7 @@ Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
 
 Require Import UniMath.CategoryTheory.Monads.Monads.
+Require Import UniMath.CategoryTheory.Monads.Comonads.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
@@ -28,7 +29,7 @@ Require Import UniMath.CategoryTheory.ModelCategories.MorphismClass.
 Require Import UniMath.CategoryTheory.ModelCategories.NWFS.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.LiftingWithClass.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.OneStepMonad.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.Helpers.
+Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
 
 
 Local Open Scope Cat.
@@ -541,7 +542,7 @@ Proof.
       intro S.
       exact (arrow_mor11 (presentable_lp_colimK_mor isclCC S (HJ _ (pr2 (morcls_lp_map S))))).
     * abstract (
-        use CoproductArrow_eq;
+        use CoproductArrow_eq';
         intro S;
         etrans; [apply assoc|];
         etrans; [apply cancel_postcomposition;
@@ -564,7 +565,7 @@ Proof.
       etrans. apply cancel_postcomposition.
               apply (colimArrowCommutes).
       use arrow_mor_eq.
-      + use CoproductArrow_eq.
+      + use CoproductArrow_eq'.
         intro S.
         etrans. apply assoc.
         etrans. apply cancel_postcomposition.
@@ -573,7 +574,7 @@ Proof.
         etrans. apply id_left.
         etrans. apply (CoproductInCommutes (morcls_lp_dom_coprod CC J cl) _ (pr1 S,, _)).
         exact (arrow_mor00_eq (presentable_lp_colimK_mor_coconeInCommutes isclCC S (HJ _ (pr2 (morcls_lp_map S))))).
-      + use CoproductArrow_eq.
+      + use CoproductArrow_eq'.
         intro S.
         etrans. apply assoc.
         etrans. apply cancel_postcomposition.
@@ -583,7 +584,7 @@ Proof.
         etrans. apply (CoproductInCommutes (morcls_lp_cod_coprod CC J cl) _ (pr1 S,, _)).
         exact (arrow_mor11_eq (presentable_lp_colimK_mor_coconeInCommutes isclCC S (HJ _ (pr2 (morcls_lp_map S))))).
     * use arrow_mor_eq.
-      + use CoproductArrow_eq.
+      + use CoproductArrow_eq'.
         intro S.
         etrans. apply assoc.
         etrans. apply cancel_postcomposition.
@@ -592,7 +593,7 @@ Proof.
         etrans. apply id_right.
         apply pathsinv0.
         exact (arrow_mor00_eq (presentable_lp_colimK_mor_colimArrowCommutes isclCC S (HJ _ (pr2 (morcls_lp_map S))))).
-      + use CoproductArrow_eq.
+      + use CoproductArrow_eq'.
         intro S.
         etrans. apply assoc.
         etrans. apply cancel_postcomposition.
@@ -635,7 +636,7 @@ Lemma colim_K_L1_mor_commutes
 Proof.
   use arrow_mor_eq.
   - etrans. apply (precompWithCoproductArrowInclusion).
-    use CoproductArrow_eq.
+    use CoproductArrow_eq'.
     intro S.
     etrans. apply (CoproductInCommutes (morcls_lp_dom_coprod CC J (dob d u))).
     etrans. apply id_left.
@@ -644,7 +645,7 @@ Proof.
     etrans. apply cancel_postcomposition.
             apply (CoproductInCommutes (morcls_lp_dom_coprod CC J (dob d u))).
     reflexivity.
-  - use CoproductArrow_eq.
+  - use CoproductArrow_eq'.
     intro S.
     etrans. apply assoc.
     etrans. apply cancel_postcomposition.
@@ -691,7 +692,7 @@ Defined.
 Definition L_colim_id_mor (f : arrow C) :
     fact_L F1 f --> f.
 Proof.
-  exact (η (lnwfs_L_monad (one_step_comonad J CC)) f).
+  exact (ε (lnwfs_L_monad (one_step_comonad J CC)) f).
 Defined.
 
 (* colim (L1 fi) --> colim fi *)
@@ -907,7 +908,7 @@ Proof.
   
   apply pathsinv0.
   etrans. apply (precompWithCoproductArrowInclusion _ _ (morcls_lp_dom_coprod CC J f)).
-  use CoproductArrow_eq.
+  use CoproductArrow_eq'.
   intro S.
   etrans. apply (CoproductInCommutes (morcls_lp_dom_coprod CC J (dob d v))).
   etrans. apply id_left.
@@ -927,7 +928,7 @@ Lemma L1_colim_L1_map_ispushoutOut_subproof
   · (L1_colim_L1_map00 isclCC)
   = arrow_mor00 (Kcolim_colimL1_mor HK isclCC).
 Proof. 
-  use CoproductArrow_eq.
+  use CoproductArrow_eq'.
   intro S.
   etrans. apply assoc.
   etrans. apply cancel_postcomposition.

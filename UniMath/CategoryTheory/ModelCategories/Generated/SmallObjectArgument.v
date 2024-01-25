@@ -36,7 +36,7 @@ Require Import UniMath.CategoryTheory.ModelCategories.Generated.OneStepMonad.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.GenericFreeMonoid.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.GenericFreeMonoidSequence.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.MonoidalHelpers.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.Helpers.
+Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.MonoidalHelpers.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.FFMonoidalStructure.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.LNWFSMonoidalStructure.

@@ -8,6 +8,8 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.Monads.MonadAlgebras.
+Require Import UniMath.CategoryTheory.Monads.Comonads.
+Require Import UniMath.CategoryTheory.Monads.ComonadCoalgebras.
 Require Import UniMath.CategoryTheory.catiso.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.coproducts.
@@ -916,17 +918,17 @@ Definition one_step_comonad_mul :
 (* Definition one_step_comonad_functor_with_μ : functor_with_μ (op_cat (arrow C)) :=
     (functor_opp one_step_comonad_functor,, op_nt one_step_comonad_mul). *)
 
-Definition one_step_comonad_data : Monad_data _ :=
+Definition one_step_comonad_data : disp_Comonad_data _ :=
     L_monad_data one_step_factorization one_step_comonad_mul.
 
 Local Lemma one_step_comonad_assoc_law11 (f : arrow C) :
   arrow_mor11 (
-    (# one_step_comonad_data)%Cat (μ one_step_comonad_data f)
-    · μ one_step_comonad_data f
+    disp_δ one_step_comonad_data f
+    · (# (fact_L one_step_factorization))%Cat (disp_δ one_step_comonad_data f)
   ) =
   arrow_mor11 (
-    μ one_step_comonad_data (one_step_comonad_data f)
-    · μ one_step_comonad_data f
+    disp_δ one_step_comonad_data f
+    · disp_δ one_step_comonad_data (fact_L one_step_factorization f)
   ).
 Proof.
   use (MorphismsOutofPushoutEqual (isPushout_Pushout (morcls_lp_coprod_diagram_pushout CC J f))).
@@ -949,14 +951,14 @@ Proof.
     apply cancel_postcomposition.
 
     (* show_id_type. *)
-    use CoproductArrow_eq.
+    use CoproductArrow_eq'.
     intro S.
     etrans. apply assoc.
     etrans. apply cancel_postcomposition.
             use (CoproductOfArrowsInclusionIn _ (morcls_lp_cod_coprod CC J f)).
     etrans. apply cancel_postcomposition.
             apply id_left.
-    etrans. use (CoproductOfArrowsInclusionIn _ (morcls_lp_cod_coprod CC J (one_step_comonad_data f)) _ _ (morcls_lp_coprod_L1_inclusion f S)).
+    etrans. use (CoproductOfArrowsInclusionIn _ (morcls_lp_cod_coprod CC J (fact_L one_step_factorization f)) _ _ (morcls_lp_coprod_L1_inclusion f S)).
     etrans. apply id_left.
     apply pathsinv0.
     etrans. apply assoc.
@@ -964,7 +966,7 @@ Proof.
             use (CoproductOfArrowsInclusionIn _ (morcls_lp_cod_coprod CC J f)).
     etrans. apply assoc'.
     etrans. apply id_left.
-    etrans. use (CoproductOfArrowsInclusionIn _ (morcls_lp_cod_coprod CC J (one_step_comonad_data f)) _ _ (morcls_lp_coprod_L1_inclusion f S)).
+    etrans. use (CoproductOfArrowsInclusionIn _ (morcls_lp_cod_coprod CC J (fact_L one_step_factorization f)) _ _ (morcls_lp_coprod_L1_inclusion f S)).
     etrans. apply id_left.
     morcls_lp_coproduct_in_eq.
     use arrow_mor_eq.
@@ -999,7 +1001,7 @@ Proof.
 Qed.
 
 Definition one_step_comonad_laws : 
-    Monad_laws one_step_comonad_data.
+    disp_Comonad_laws one_step_comonad_data.
 Proof.
   repeat split; intro f; use arrow_mor_eq.
   - apply id_left.

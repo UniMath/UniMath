@@ -4,6 +4,8 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.Monads.MonadAlgebras.
+Require Import UniMath.CategoryTheory.Monads.Comonads.
+Require Import UniMath.CategoryTheory.Monads.ComonadCoalgebras.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
@@ -19,7 +21,7 @@ Require Import UniMath.CategoryTheory.ModelCategories.Retract.
 Require Import UniMath.CategoryTheory.ModelCategories.Lifting.
 Require Import UniMath.CategoryTheory.ModelCategories.WFS.
 Require Import UniMath.CategoryTheory.ModelCategories.NWFS.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.Helpers.
+Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.

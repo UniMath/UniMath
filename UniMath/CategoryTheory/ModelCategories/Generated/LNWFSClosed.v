@@ -7,6 +7,8 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.Monads.MonadAlgebras.
+Require Import UniMath.CategoryTheory.Monads.Comonads.
+Require Import UniMath.CategoryTheory.Monads.ComonadCoalgebras.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
@@ -24,7 +26,7 @@ Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Three.
 Require Import UniMath.CategoryTheory.ModelCategories.NWFS.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.Helpers.
+Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.MonoidalHelpers.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.FFMonoidalStructure.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.LNWFSHelpers.

@@ -7,7 +7,9 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.Monads.
+Require Import UniMath.CategoryTheory.Monads.Comonads.
 Require Import UniMath.CategoryTheory.Monads.MonadAlgebras.
+Require Import UniMath.CategoryTheory.Monads.ComonadCoalgebras.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
@@ -18,10 +20,11 @@ Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Three.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.MonadAlgebras.
 Require Import UniMath.CategoryTheory.ModelCategories.MorphismClass.
 Require Import UniMath.CategoryTheory.ModelCategories.Retract.
 Require Import UniMath.CategoryTheory.ModelCategories.Lifting.
-Require Import UniMath.CategoryTheory.DisplayedCats.Examples.MonadAlgebras.
+Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.
@@ -269,24 +272,63 @@ Definition Λ {C : category} (F : functorial_factorization C) :
 
 Definition R_monad_data {C : category} (F : functorial_factorization C)
     (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F)) : disp_Monad_data (fact_R F) :=
-  (Π,, (Λ F)).
+  make_dirprod Π (Λ F).
 
 Definition R_monad {C : category} (F : functorial_factorization C)
     (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F))
     (R : disp_Monad_laws (R_monad_data F Π)) : Monad (arrow C) :=
-  (R_monad_data F Π,, R).
+  (_,, R_monad_data F Π,, R).
+  
+(* 
+Definition op_comul_data {D : category} {F : functor D D} (Σ : F ⟹ (functor_composite F F)) :
+    nat_trans_data 
+        (functor_composite (functor_opp F) (functor_opp F)) 
+        (functor_opp F).
+Proof.
+  intro f.
+  exact (opp_mor (Σ f)).
+Defined.
+
+Lemma op_comul_ax {D : category} {F : functor D D} (Σ : F ⟹ (functor_composite F F)) :
+    is_nat_trans _ _ (op_comul_data Σ).
+Proof.
+  intros f g γ.
+  exact (pathsinv0 (nat_trans_ax Σ _ _ γ)).
+Qed.
+
+Definition op_comul {D : category} {F : functor D D} (Σ : F ⟹ (functor_composite F F)) :
+    (functor_composite (functor_opp F) (functor_opp F)) ⟹ (functor_opp F) :=
+  (_,, op_comul_ax Σ).
+
+Definition op_counit_data {D : category} {F : functor D D} (Φ : F ⟹ functor_identity D) :
+    nat_trans_data (functor_identity (op_cat D)) (functor_opp F).
+Proof.
+  intro f.
+  exact (opp_mor (Φ f)).
+Defined.
+
+Lemma op_counit_ax {D : category} {F : functor D D} (Φ : F ⟹ functor_identity D) :
+    is_nat_trans _ _ (op_counit_data Φ).
+Proof.
+  intros f g γ.
+  exact (pathsinv0 (nat_trans_ax Φ _ _ γ)).
+Qed.
+
+Definition op_counit {D : category} {F : functor D D} (Φ : F ⟹ functor_identity D) :
+    (functor_identity (op_cat D)) ⟹ (functor_opp F) :=
+  (_,, op_counit_ax Φ). *)
 
 Definition L_monad_data {C : category} (F : functorial_factorization C)
-    (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)) : disp_Monad_data (functor_opp (fact_L F)) :=
-  (op_nt Σ,, op_nt (Φ F)).
+    (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)) : disp_Comonad_data (fact_L F) :=
+  make_dirprod Σ (Φ F).
 
 Definition L_monad {C : category} (F : functorial_factorization C)
     (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F))
-    (L : disp_Monad_laws (L_monad_data F Σ)) : Monad (op_cat (arrow C)) :=
-  (L_monad_data F Σ,, L).
+    (L : disp_Comonad_laws (L_monad_data F Σ)) : Comonad (arrow C) :=
+  (_,, L_monad_data F Σ,, L).
 
 Definition lnwfs_over {C : category} (F : functorial_factorization C) :=
-    ∑ (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)), disp_Monad_laws (L_monad_data F Σ).
+    ∑ (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)), disp_Comonad_laws (L_monad_data F Σ).
 
 Definition rnwfs_over {C : category} (F : functorial_factorization C) :=
     ∑ (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F)), disp_Monad_laws (R_monad_data F Π).
@@ -305,7 +347,7 @@ Definition nwfs_over_to_fact {C : category} {F : functorial_factorization C} (n 
 Coercion nwfs_over_to_fact : nwfs_over >-> functorial_factorization.
 
 Definition make_nwfs {C : category} (F : functorial_factorization C)
-    (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)) (L : disp_Monad_laws (L_monad_data F Σ))
+    (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)) (L : disp_Comonad_laws (L_monad_data F Σ))
     (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F)) (R : disp_Monad_laws (R_monad_data F Π))
         : nwfs C.
 Proof.
@@ -326,7 +368,9 @@ Definition nwfs_Π {C : category} (n : nwfs C) := pr1 (nwfs_rnwfs n).
 Definition nwfs_Σ_laws {C : category} (n : nwfs C) := pr2 (nwfs_lnwfs n).
 Definition nwfs_Π_laws {C : category} (n : nwfs C) := pr2 (nwfs_rnwfs n).
 Definition rnwfs_R_monad {C : category} {F : functorial_factorization C} (n : rnwfs_over F) := R_monad F (pr1 n) (pr2 n).
+Definition rnwfs_R_monad_data {C : category} {F : functorial_factorization C} (n : rnwfs_over F) := pr12 (R_monad F (pr1 n) (pr2 n)).
 Definition lnwfs_L_monad {C : category} {F : functorial_factorization C} (n : lnwfs_over F) := L_monad F (pr1 n) (pr2 n).
+Definition lnwfs_L_monad_data {C : category} {F : functorial_factorization C} (n : lnwfs_over F) := pr12 (L_monad F (pr1 n) (pr2 n)).
 Definition nwfs_R_monad {C : category} (n : nwfs C) := rnwfs_R_monad (nwfs_rnwfs n).
 Definition nwfs_L_monad {C : category} (n : nwfs C) := lnwfs_L_monad (nwfs_lnwfs n).
 
@@ -336,7 +380,7 @@ Definition nwfs_L_monad {C : category} (n : nwfs C) := lnwfs_L_monad (nwfs_lnwfs
 Lemma nwfs_Σ_top_map_id {C : category} (n : nwfs C) (f : arrow C) :
     arrow_mor00 (nwfs_Σ n f) = identity _.
 Proof.
-  set (law1 := Monad_law1 (T:=nwfs_L_monad n) f).
+  set (law1 := Comonad_law1 (T:=nwfs_L_monad n) f).
   set (top := arrow_mor00_eq law1).
   apply pathsinv0.
   etrans.
@@ -348,7 +392,7 @@ Qed.
 Lemma nwfs_Σ_bottom_map_inv {C : category} (n : nwfs C) (f : arrow C) :
     arrow_mor11 (nwfs_Σ n f) · arrow_mor (fact_R n (fact_L n f)) = identity _.
 Proof.
-  set (law1 := Monad_law1 (T:=nwfs_L_monad n) f).
+  set (law1 := Comonad_law1 (T:=nwfs_L_monad n) f).
   set (bottom := arrow_mor11_eq law1).
   exact bottom.
 Qed.
@@ -361,7 +405,7 @@ Lemma nwfs_Σ_bottom_map_L_is_middle_map_of_Σ {C : category} (n : nwfs C) (f : 
     (arrow_mor11 (nwfs_Σ n f)) · arrow_mor11 (nwfs_Σ n (fact_L n f)) =
     (arrow_mor11 (nwfs_Σ n f)) · three_mor11 (functor_on_morphisms n (nwfs_Σ n f)).
 Proof.
-  set (law3 := Monad_law3 (T:=nwfs_L_monad n) f).
+  set (law3 := Comonad_law3 (T:=nwfs_L_monad n) f).
   set (bottom := arrow_mor11_eq law3).
   apply pathsinv0.
   exact bottom.
@@ -410,7 +454,7 @@ Qed.
 Definition nwfs_R_maps {C : category} (n : nwfs C) :=
     MonadAlg_disp (nwfs_R_monad n).
 Definition nwfs_L_maps {C : category} (n : nwfs C) :=
-    MonadAlg_disp (nwfs_L_monad n).
+    ComonadCoalg_disp (nwfs_L_monad n).
     
 (*
 Shape of comonad morphism diagram (2.15, Garner)
@@ -669,8 +713,9 @@ Definition Ff (C : category) : category := (Ff_precategory C,, has_homsets_Ff C)
 
 Definition lnwfs_mor {C : category} {F F' : functorial_factorization C}
     (n : lnwfs_over F) (n' : lnwfs_over F')
-    (τ : fact_mor F F') : (lnwfs_L_monad n') ⟹ (lnwfs_L_monad n) :=
-  post_whisker (op_nt τ) (functor_opp face_map_2).
+    (τ : fact_mor F F') : (lnwfs_L_monad n) ⟹ (lnwfs_L_monad n') :=
+  post_whisker (τ) (face_map_2).
+
 Definition rnwfs_mor {C : category} {F F' : functorial_factorization C}
     (n : rnwfs_over F) (n' : rnwfs_over F')
     (τ : fact_mor F F') : (rnwfs_R_monad n) ⟹ (rnwfs_R_monad n') :=
@@ -679,27 +724,27 @@ Definition rnwfs_mor {C : category} {F F' : functorial_factorization C}
 Definition lnwfs_mor_axioms {C : category} {F F' : functorial_factorization C}
     (n : lnwfs_over F) (n' : lnwfs_over F')
     (τ : fact_mor F F') :=
-  Monad_Mor_laws (lnwfs_mor n n' τ).
+  disp_Comonad_Mor_laws (lnwfs_L_monad_data n) (lnwfs_L_monad_data n') (lnwfs_mor n n' τ).
 
 Lemma isaprop_lnwfs_mor_axioms {C : category} {F F' : functorial_factorization C}
     (n : lnwfs_over F) (n' : lnwfs_over F')
     (τ : fact_mor F F') : 
   isaprop (lnwfs_mor_axioms n n' τ).
 Proof.
-  apply isaprop_Monad_Mor_laws, homset_property.
+  apply isaprop_disp_Comonad_Mor_laws.
 Qed.
 
 Definition rnwfs_mor_axioms {C : category} {F F' : functorial_factorization C}
     (n : rnwfs_over F) (n' : rnwfs_over F')
     (τ : fact_mor F F') :=
-  Monad_Mor_laws (rnwfs_mor n n' τ).
+  disp_Monad_Mor_laws (rnwfs_R_monad_data n) (rnwfs_R_monad_data n') (rnwfs_mor n n' τ).
 
 Lemma isaprop_rnwfs_mor_axioms {C : category} {F F' : functorial_factorization C}
     (n : rnwfs_over F) (n' : rnwfs_over F')
     (τ : fact_mor F F') : 
   isaprop (rnwfs_mor_axioms n n' τ).
 Proof.
-  apply isaprop_Monad_Mor_laws, homset_property.
+  apply isaprop_disp_Monad_Mor_laws.
 Qed.
   
 Definition nwfs_mor_axioms {C : category} (n n' : nwfs C) (τ : fact_mor n n') :=
@@ -719,7 +764,7 @@ Definition lnwfs_L_monad_mor {C : category}
     {n' : lnwfs_over F'}
     (τ : fact_mor F F')
     (ax : lnwfs_mor_axioms n n' τ) : 
-      Monad_Mor (lnwfs_L_monad n') (lnwfs_L_monad n) :=
+      Comonad_Mor (lnwfs_L_monad n) (lnwfs_L_monad n') :=
   (lnwfs_mor n n' τ,, ax).
   
 Definition rnwfs_R_monad_mor {C : category}
@@ -742,11 +787,11 @@ Proof.
     use nat_trans_eq; [apply homset_property|].
     intro.
     apply subtypePath; [intro; apply homset_property|].
-    apply pathsdirprod; cbn; trivial.
+    apply pathsdirprod; reflexivity.
   }
   unfold lnwfs_mor_axioms.
   rewrite H.
-  exact (Monad_identity_laws _).
+  exact (comonads_category_id_subproof _ (pr2 n)).
 Qed.
 
 Lemma fact_id_is_rnwfs_mor {F : functorial_factorization C} (n : rnwfs_over F) : rnwfs_mor_axioms n n (Ff_precategory_id F).
@@ -760,7 +805,7 @@ Proof.
   }
   unfold rnwfs_mor_axioms.
   rewrite H.
-  exact (Monad_identity_laws _).
+  exact (monads_category_id_subproof _ (pr2 n)).
 Qed.
 
 (* Lemma fact_id_is_nwfs_mor (n : nwfs C) : nwfs_mor_axioms n n (Ff_precategory_id (nwfs_fact n)).
@@ -784,28 +829,32 @@ Proof.
      corresponds with the composition of the corresponding L and R monad
      morphisms. *)
   assert (lnwfs_mor n n'' (τ · τ') =
-          nat_trans_comp _ _ _ (lnwfs_L_monad_mor τ' ax') (lnwfs_L_monad_mor τ ax)) as H.
+          nat_trans_comp _ _ _ (lnwfs_L_monad_mor τ ax) (lnwfs_L_monad_mor τ' ax')) as H.
   {
     use nat_trans_eq.
     - (* for some reason this definition is completely unfolded *)
-      exact (homset_property (op_cat (arrow C))).
+      exact (homset_property (arrow C)).
     - intro x.
       use arrow_mor_eq.
       * apply pathsinv0. 
         apply id_left.
-      * cbn.
-        unfold three_mor11.
-        simpl.
-        unfold mor_disp; simpl.
-        (* todo: understand what I have done here *)
-        rewrite pr1_transportf.
-        (* transport along constant function -> just idfun *)
-        rewrite transportf_const.
-        trivial.
+      * etrans. use pr1_transportf_const.
+        reflexivity.
   }
   unfold lnwfs_mor_axioms.
   rewrite H.
-  exact (Monad_composition_laws (lnwfs_L_monad_mor τ' ax') (lnwfs_L_monad_mor τ ax)).
+  exact (
+    comonads_category_comp_subproof 
+      (lnwfs_L_monad_data n)
+      (pr22 (lnwfs_L_monad n))
+      (lnwfs_L_monad_data n')
+      (pr22 (lnwfs_L_monad n'))
+      (lnwfs_L_monad_data n'')
+      (pr22 (lnwfs_L_monad n''))
+      (lnwfs_L_monad_mor τ ax)
+      (lnwfs_L_monad_mor τ' ax')
+      ax ax'
+  ).
 Qed.
 
 Lemma rnwfs_mor_comp {F F' F'' : Ff C}
@@ -821,7 +870,6 @@ Proof.
   assert (rnwfs_mor n n'' (τ · τ') =
           nat_trans_comp _ _ _ (rnwfs_R_monad_mor τ ax) (rnwfs_R_monad_mor τ' ax')) as H.
   {
-    simpl.
     use nat_trans_eq.
     - (* for some reason this definition is completely unfolded *)
       exact (homset_property (arrow C)).
@@ -829,17 +877,25 @@ Proof.
       apply subtypePath; [intro; apply homset_property|].
       simpl.
       apply pathsdirprod; cbn.
-      * unfold three_mor11.
-        simpl.
-        unfold mor_disp; simpl.
-        rewrite pr1_transportf.
-        rewrite transportf_const.
-        trivial.
+      * etrans. use pr1_transportf_const.
+        reflexivity.
       * now rewrite id_left.
   }
   unfold rnwfs_mor_axioms.
   rewrite H.
-  exact (Monad_composition_laws (rnwfs_R_monad_mor τ ax) (rnwfs_R_monad_mor τ' ax')).
+  
+  exact (
+    monads_category_comp_subproof 
+      (rnwfs_R_monad_data n)
+      (pr22 (rnwfs_R_monad n))
+      (rnwfs_R_monad_data n')
+      (pr22 (rnwfs_R_monad n'))
+      (rnwfs_R_monad_data n'')
+      (pr22 (rnwfs_R_monad n''))
+      (rnwfs_R_monad_mor τ ax)
+      (rnwfs_R_monad_mor τ' ax')
+      ax ax'
+  ).
 Qed.
 
 Definition LNWFS : disp_cat (Ff C).
@@ -872,3 +928,49 @@ Definition NWFS : disp_cat (Ff C) :=
     dirprod_disp_cat LNWFS RNWFS.
 
 End NWFS_cat.
+
+Section Helpers.
+
+Lemma eq_section_nat_trans_component
+    {C : category}
+    {F F' : Ff C} 
+    {γ γ' : F --> F'}
+    (H : γ = γ') : 
+  ∏ f, section_nat_trans γ f = section_nat_trans γ' f.
+Proof.
+  now induction H.
+Qed.
+
+(* the above equality, but on the middle morphisms *)
+Lemma eq_section_nat_trans_component11
+    {C : category}
+    {F F' : Ff C} 
+    {γ γ' : F --> F'}
+    (H : γ = γ') : 
+  ∏ f, three_mor11 (section_nat_trans γ f) = three_mor11 (section_nat_trans γ' f).
+Proof.
+  now induction H.
+Qed.
+
+(* specific version of the above that we need
+   in a proof *)
+Lemma eq_section_nat_trans_comp_component11
+    {C : category}
+    {F F' F'' : Ff C} 
+    {γ : F --> F''}
+    {γ' : F --> F'}
+    {γ'' : F' --> F''}
+    (H : γ' · γ'' = γ) : 
+  ∏ f, 
+    three_mor11 (section_nat_trans γ' f) 
+    · three_mor11 (section_nat_trans γ'' f) 
+    = three_mor11 (section_nat_trans γ f).
+Proof.
+  induction H.
+  intro f.
+  apply pathsinv0.
+  etrans. apply pr1_transportf_const.
+  reflexivity.
+Qed.
+
+End Helpers.

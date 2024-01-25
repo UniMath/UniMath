@@ -1,18 +1,20 @@
 Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
+Require Import UniMath.CategoryTheory.SplitMonicsAndEpis.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Monads.Monads.
+Require Import UniMath.CategoryTheory.Monads.Comonads.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 Require Import UniMath.CategoryTheory.ModelCategories.MorphismClass.
 Require Import UniMath.CategoryTheory.ModelCategories.NWFS.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.Helpers.
+Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.LiftingWithClass.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Three.
@@ -169,7 +171,7 @@ Definition cop_ff_comul :
   (_,, cop_ff_comul_ax).
 
 Lemma cop_ff_comul_monad_laws :
-    Monad_laws (L_monad_data cop_functorial_factorization cop_ff_comul).
+    disp_Comonad_laws (L_monad_data cop_functorial_factorization cop_ff_comul).
 Proof.
   repeat split; intro f; use arrow_mor_eq.
   - apply id_left.
@@ -361,7 +363,7 @@ Definition cop_ff_mul :
   (_,, cop_ff_mul_ax).
 
 Lemma cop_ff_mul_monad_laws :
-    Monad_laws (R_monad_data cop_functorial_factorization cop_ff_mul).
+    disp_Monad_laws (R_monad_data cop_functorial_factorization cop_ff_mul).
 Proof.
   repeat split; intro f; use arrow_mor_eq.
   - use BinCoproductArrowsEq.
@@ -432,12 +434,12 @@ Proof.
            reflexivity.
       + etrans. apply assoc.
         etrans. apply cancel_postcomposition. 
-                apply (BinCoproductIn2Commutes _ _ _ (cop_ff_cop (R_monad_data cop_functorial_factorization cop_ff_mul f))).
-        etrans. apply (BinCoproductIn2Commutes _ _ _ (cop_ff_cop (R_monad_data cop_functorial_factorization cop_ff_mul f))).
+                apply (BinCoproductIn2Commutes _ _ _ (cop_ff_cop (fact_R cop_functorial_factorization f))).
+        etrans. apply (BinCoproductIn2Commutes _ _ _ (cop_ff_cop (fact_R cop_functorial_factorization f))).
         apply pathsinv0.
         etrans. apply assoc.
         etrans. apply cancel_postcomposition. 
-                apply (BinCoproductIn2Commutes _ _ _ (cop_ff_cop (R_monad_data cop_functorial_factorization cop_ff_mul f))).
+                apply (BinCoproductIn2Commutes _ _ _ (cop_ff_cop (fact_R cop_functorial_factorization f))).
         etrans. apply (BinCoproductIn2Commutes _ _ _ (cop_ff_cop f)).
         reflexivity.
     * etrans. apply assoc.
@@ -475,8 +477,7 @@ Definition cop_nwfs : nwfs C :=
 Lemma cop_nwfs_r_map_is_split_epi
     (g : arrow C) : 
   nwfs_R_maps cop_nwfs g
-  -> ∑ (g' : arrow_cod g --> arrow_dom g),
-       g' · g = identity _.
+  -> is_split_epi g.
 Proof.
   intro Rg.
   destruct Rg as [αg αgax].
@@ -493,8 +494,7 @@ Qed.
 
 Lemma cop_nwfs_split_epi_is_r_map
     (g : arrow C) : 
-  (∑ (g' : arrow_cod g --> arrow_dom g),
-    g' · g = identity _)
+  is_split_epi g
   -> nwfs_R_maps cop_nwfs g.
 Proof.
   intro Hg.
@@ -575,9 +575,7 @@ Qed.
 
 Lemma cop_nwfs_r_map_iff_split_epi
     (g : arrow C) : 
-  nwfs_R_maps cop_nwfs g
-  <-> ∑ (g' : arrow_cod g --> arrow_dom g),
-       g' · g = identity _.
+  nwfs_R_maps cop_nwfs g <-> is_split_epi g.
 Proof.
   split.
   - apply cop_nwfs_r_map_is_split_epi.

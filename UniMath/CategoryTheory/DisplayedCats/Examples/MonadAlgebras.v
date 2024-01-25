@@ -3,6 +3,8 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.Monads.MonadAlgebras.
+Require Import UniMath.CategoryTheory.Monads.Comonads.
+Require Import UniMath.CategoryTheory.Monads.ComonadCoalgebras.
 Require Import UniMath.CategoryTheory.catiso.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
@@ -70,11 +72,27 @@ Proof.
     ).
 Defined.
 
-Definition MonadAlg_tot_cat {C : category} (T : Monad C) : category :=
-    total_category (MonadAlg_disp T).
+(* todo: this is not in my version of UniMath? *)
+Lemma category_eq (C D : category) :
+  (C:precategory_data) = (D:precategory_data) -> C=D.
+Proof.
+  intro e. apply subtypePath. intro. apply isaprop_has_homsets.
+  apply subtypePath'.
+  { assumption. }
+  apply isaprop_is_precategory.
+  apply homset_property.
+Qed.
+
+Corollary catiso_to_category_path {A B : category}
+  (F : catiso A B) : A = B.
+Proof.
+  apply category_eq.
+  apply catiso_to_precategory_data_path.
+  assumption.
+Qed.
 
 Definition MonadAlg_disp_Algebra_functor {C : category} (T : Monad C) :
-    (MonadAlg_tot_cat T) ⟶ (MonadAlg T).
+    total_category (MonadAlg_disp T) ⟶ (MonadAlg T).
 Proof.
   use make_functor.
   - use make_functor_data.
@@ -108,3 +126,99 @@ Proof.
       + intro. apply idpath.
       + intro. apply idpath.
 Qed.
+
+
+Definition make_Coalgebra_data {C : category} (T : Comonad C) (X : C) (α : X --> T X) : Coalgebra_data T.
+Proof.
+  use tpair.
+  - exact X.
+  - exact α.
+Defined.
+
+Definition ComonadCoalg_disp_ob_mor {C : category} (T : Comonad C) : disp_cat_ob_mor C.
+Proof.
+  use make_disp_cat_ob_mor.
+  - intro X.
+    exact (∑ (α : X --> T X), Coalgebra_laws _ (make_Coalgebra_data T X α)).
+  - intros X Y αX αY f.
+    (* simpl in αX, αY. *)
+    set (X' := make_Coalgebra_data T X (pr1 αX),, pr2 αX : Coalgebra T).
+    set (Y' := make_Coalgebra_data T Y (pr1 αY),, pr2 αY : Coalgebra T).
+    exact (is_Coalgebra_mor T (X:=X') (Y:=Y') f).
+Defined.
+
+Coercion Coalgebra_from_ComonadCoalg_disp {C : category} {T : Comonad C} {x : C} 
+    (X : ComonadCoalg_disp_ob_mor T x) : Coalgebra T :=
+  (make_Coalgebra_data T x (pr1 X),, pr2 X).
+
+Coercion Coalgebra_mor_from_Coalgebra_mor_disp {C : category} {T : Comonad C} 
+    {x y : C} (X : ComonadCoalg_disp_ob_mor T x) (Y : ComonadCoalg_disp_ob_mor T y)
+    {f : x --> y} (F : X -->[f] Y) : Coalgebra_mor T X Y := (f,, F).
+
+Definition ComonadCoalg_disp_id_comp {C : category} (T : Comonad C) : disp_cat_id_comp C (ComonadCoalg_disp_ob_mor T).
+Proof.
+  split.
+  - intros x xx.
+    abstract (
+      exact (Coalgebra_mor_commutes T (Coalgebra_mor_id T xx))
+    ).
+  - intros x y z f g xx yy zz ff gg.
+    abstract (
+      exact (Coalgebra_mor_commutes T (Coalgebra_mor_comp T xx yy zz ff gg))
+    ).
+Qed.
+
+Definition ComonadCoalg_disp_data {C : category} (T : Comonad C) : disp_cat_data C.
+Proof.
+  use tpair.
+  - exact (ComonadCoalg_disp_ob_mor T).
+  - exact (ComonadCoalg_disp_id_comp T).
+Defined.
+
+Definition ComonadCoalg_disp {C : category} (T : Comonad C) : disp_cat C.
+Proof.
+  use tpair.
+  - exact (ComonadCoalg_disp_data T).
+  - abstract (
+      repeat split; intros; try (apply homset_property);
+      apply isasetaprop;
+      apply homset_property
+    ).
+Defined.
+
+Definition ComonadCoalg_disp_Coalgebra_functor {C : category} (T : Comonad C) :
+    total_category (ComonadCoalg_disp T) ⟶ (ComonadCoalg T).
+Proof.
+  use make_functor.
+  - use make_functor_data.
+    * intro X. 
+      exact (Coalgebra_from_ComonadCoalg_disp (pr2 X)).
+    * intros.
+      exact (Coalgebra_mor_from_Coalgebra_mor_disp (pr2 a) (pr2 b) (pr2 X)).
+  - abstract (
+      split; [intro|intros a b c f g]; 
+        (apply subtypePath; [intro; apply homset_property|]; reflexivity)
+    ).
+Defined.
+
+Lemma ComonadCoalg_disp_is_Coalgebra {C : category} (T : Comonad C) :
+    total_category (ComonadCoalg_disp T) = ComonadCoalg T.
+Proof.
+  apply catiso_to_category_path.
+  use tpair.
+  - exact (ComonadCoalg_disp_Coalgebra_functor T).
+  - split.
+    * intros a b.
+      use isweq_iso.
+      + exact (idfun _).
+      + intros. apply idpath.
+      + intros. apply idpath.
+    * use isweq_iso.
+      + intros [[x α] laws].
+        use tpair.
+        -- exact x.
+        -- exact (α,, laws).
+      + intro. apply idpath.
+      + intro. apply idpath.
+Qed.
+

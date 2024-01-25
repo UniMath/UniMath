@@ -35,7 +35,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Three.
 
 Require Import UniMath.CategoryTheory.ModelCategories.NWFS.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.MonoidalHelpers.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.Helpers.
+Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.LNWFSHelpers.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.MonoidalHelpers.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.FFMonoidalStructure.

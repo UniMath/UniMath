@@ -560,13 +560,13 @@ ModelCategories/Lifting.v
 ModelCategories/WeakEquivalences.v
 ModelCategories/WFS.v
 ModelCategories/ModelCategory.v
-ModelCategories/NWFS.v
 ModelCategories/Generated/Helpers.v
+ModelCategories/NWFS.v
 ModelCategories/NWFSisWFS.v
 ModelCategories/Generated/MonoidalHelpers.v
-ModelCategories/Generated/FFMonoidalStructure.v
 ModelCategories/Generated/LiftingWithClass.v
 ModelCategories/Examples.v
+ModelCategories/Generated/FFMonoidalStructure.v
 ModelCategories/Generated/LNWFSHelpers.v
 ModelCategories/Generated/LNWFSMonoidalStructure.v
 ModelCategories/Generated/LNWFSCocomplete.v
