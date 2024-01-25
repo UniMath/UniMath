@@ -32,7 +32,6 @@ Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Three.
-Require Import UniMath.CategoryTheory.DisplayedCats.natural_transformation.
 
 Require Import UniMath.CategoryTheory.ModelCategories.NWFS.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.MonoidalHelpers.
