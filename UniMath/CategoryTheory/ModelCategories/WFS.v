@@ -85,7 +85,7 @@ Qed.
 (* proposition 14.1.13 in More Concise AT *)
 (* https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/model/wfs.lean#L40 *)
 Lemma wfs_L_retract (w : wfs C)
-    {x y x' y'} {f : x --> y} {f' : x' --> y'}
+    {x y x' y' : C} {f : x --> y} {f' : x' --> y'}
     (r : retract f f') (hf : (wfs_L w _ _) f) : 
   (wfs_L w _ _) f'.
 Proof.
