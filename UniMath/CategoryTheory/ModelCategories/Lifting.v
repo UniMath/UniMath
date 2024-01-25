@@ -53,7 +53,7 @@ Definition rlp (L : morphism_class C) : (morphism_class C) :=
 End Lp.
 
 (* https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/model/wfs.lean#L24 *)
-(* MCAT: Lemma 14.1.9 *)
+(* More Concise Algebraic Topology (May) (MCAT): Lemma 14.1.9 *)
 Lemma llp_anti {R R' : morphism_class C} (h : R ⊆ R') : llp R' ⊆ llp R.
 Proof.
   unfold "⊆" in *.
