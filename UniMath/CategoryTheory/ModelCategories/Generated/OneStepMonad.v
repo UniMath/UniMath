@@ -951,7 +951,7 @@ Proof.
     apply cancel_postcomposition.
 
     (* show_id_type. *)
-    use CoproductArrow_eq'.
+    use CoproductArrow_eq.
     intro S.
     etrans. apply assoc.
     etrans. apply cancel_postcomposition.

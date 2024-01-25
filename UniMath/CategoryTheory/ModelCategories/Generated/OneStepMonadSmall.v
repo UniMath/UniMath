@@ -542,7 +542,7 @@ Proof.
       intro S.
       exact (arrow_mor11 (presentable_lp_colimK_mor isclCC S (HJ _ (pr2 (morcls_lp_map S))))).
     * abstract (
-        use CoproductArrow_eq';
+        use CoproductArrow_eq;
         intro S;
         etrans; [apply assoc|];
         etrans; [apply cancel_postcomposition;
@@ -565,7 +565,7 @@ Proof.
       etrans. apply cancel_postcomposition.
               apply (colimArrowCommutes).
       use arrow_mor_eq.
-      + use CoproductArrow_eq'.
+      + use CoproductArrow_eq.
         intro S.
         etrans. apply assoc.
         etrans. apply cancel_postcomposition.
@@ -574,7 +574,7 @@ Proof.
         etrans. apply id_left.
         etrans. apply (CoproductInCommutes (morcls_lp_dom_coprod CC J cl) _ (pr1 S,, _)).
         exact (arrow_mor00_eq (presentable_lp_colimK_mor_coconeInCommutes isclCC S (HJ _ (pr2 (morcls_lp_map S))))).
-      + use CoproductArrow_eq'.
+      + use CoproductArrow_eq.
         intro S.
         etrans. apply assoc.
         etrans. apply cancel_postcomposition.
@@ -584,7 +584,7 @@ Proof.
         etrans. apply (CoproductInCommutes (morcls_lp_cod_coprod CC J cl) _ (pr1 S,, _)).
         exact (arrow_mor11_eq (presentable_lp_colimK_mor_coconeInCommutes isclCC S (HJ _ (pr2 (morcls_lp_map S))))).
     * use arrow_mor_eq.
-      + use CoproductArrow_eq'.
+      + use CoproductArrow_eq.
         intro S.
         etrans. apply assoc.
         etrans. apply cancel_postcomposition.
@@ -593,7 +593,7 @@ Proof.
         etrans. apply id_right.
         apply pathsinv0.
         exact (arrow_mor00_eq (presentable_lp_colimK_mor_colimArrowCommutes isclCC S (HJ _ (pr2 (morcls_lp_map S))))).
-      + use CoproductArrow_eq'.
+      + use CoproductArrow_eq.
         intro S.
         etrans. apply assoc.
         etrans. apply cancel_postcomposition.
@@ -636,7 +636,7 @@ Lemma colim_K_L1_mor_commutes
 Proof.
   use arrow_mor_eq.
   - etrans. apply (precompWithCoproductArrowInclusion).
-    use CoproductArrow_eq'.
+    use CoproductArrow_eq.
     intro S.
     etrans. apply (CoproductInCommutes (morcls_lp_dom_coprod CC J (dob d u))).
     etrans. apply id_left.
@@ -645,7 +645,7 @@ Proof.
     etrans. apply cancel_postcomposition.
             apply (CoproductInCommutes (morcls_lp_dom_coprod CC J (dob d u))).
     reflexivity.
-  - use CoproductArrow_eq'.
+  - use CoproductArrow_eq.
     intro S.
     etrans. apply assoc.
     etrans. apply cancel_postcomposition.
@@ -908,7 +908,7 @@ Proof.
   
   apply pathsinv0.
   etrans. apply (precompWithCoproductArrowInclusion _ _ (morcls_lp_dom_coprod CC J f)).
-  use CoproductArrow_eq'.
+  use CoproductArrow_eq.
   intro S.
   etrans. apply (CoproductInCommutes (morcls_lp_dom_coprod CC J (dob d v))).
   etrans. apply id_left.
@@ -928,7 +928,7 @@ Lemma L1_colim_L1_map_ispushoutOut_subproof
   · (L1_colim_L1_map00 isclCC)
   = arrow_mor00 (Kcolim_colimL1_mor HK isclCC).
 Proof. 
-  use CoproductArrow_eq'.
+  use CoproductArrow_eq.
   intro S.
   etrans. apply assoc.
   etrans. apply cancel_postcomposition.
