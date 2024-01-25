@@ -1,6 +1,6 @@
 (** * Axiomatic definition of a W-type. *)
 (** 
-Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021. 
+Gianluca Amato, Matteo Calosci, Marco Maggesi, Cosimo Perini Brogi 2019-2024. 
 
 Derived from the code in the GitHub repository #<a href="https://github.com/HoTT/Archive/tree/master/LICS2012">#
 https://github.com/HoTT/Archive/tree/master/LICS2012 #</a>#, which accompanies the paper

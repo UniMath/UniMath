@@ -1,5 +1,5 @@
 (** * Vectors as iterated products. *)
-(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
+(** Gianluca Amato, Matteo Calosci, Marco Maggesi, Cosimo Perini Brogi 2019-2024. *)
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Foundations.NaturalNumbers.
