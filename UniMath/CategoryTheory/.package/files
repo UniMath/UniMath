@@ -245,6 +245,7 @@ Monads/LModules.v
 Monads/Derivative.v
 Monads/MonadAlgebras.v
 Monads/Comonads.v
+Monads/ComonadCoalgebras.v
 
 DisplayedCats/Limits.v
 DisplayedCats/Examples/Sigma.v
@@ -560,7 +561,7 @@ ModelCategories/Lifting.v
 ModelCategories/WeakEquivalences.v
 ModelCategories/WFS.v
 ModelCategories/ModelCategory.v
-ModelCategories/Generated/Helpers.v
+ModelCategories/Helpers.v
 ModelCategories/NWFS.v
 ModelCategories/NWFSisWFS.v
 ModelCategories/Generated/MonoidalHelpers.v
