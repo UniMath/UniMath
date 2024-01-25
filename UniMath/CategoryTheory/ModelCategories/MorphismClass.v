@@ -59,7 +59,7 @@ Qed.
 Definition morphism_class_intersection {C : category} (S T : morphism_class C) : morphism_class C :=
     λ X Y f, (S _ _ f) ∧ (T _ _ f).
 
-Notation "S ∩ T" := (morphism_class_intersection S T) (at level 50) : morcls.
+Notation "S ∩ T" := (morphism_class_intersection S T) (at level 40, left associativity) : morcls.
 
 (* Back to morphism_class.lean *)
 Definition morphism_class_univ (C : category) : (morphism_class C) :=
