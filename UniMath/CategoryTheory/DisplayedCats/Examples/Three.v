@@ -80,7 +80,6 @@ Proof.
     destruct ff as [ff H].
     apply pathsinv0.
     
-    (* todo: understand this *)
     etrans. 
     use (pr1_transportf (A := x --> y)).
     cbn; apply (eqtohomot (transportf_const _ _)).

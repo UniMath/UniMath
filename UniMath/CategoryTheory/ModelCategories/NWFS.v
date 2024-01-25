@@ -1,3 +1,42 @@
+(*
+Natural Weak Factorization Systems
+
+Natural Weak Factorization Systems (NWFSs) are an algebraic 
+refinement to WFSs. They consist of a functorial factorization,
+together with an extension of the left functor to a comonad
+and the right functor to a monad. These algebraic structures 
+(note: NOT properties), make it so they behave better than
+WFSs, satisfying even those properties that required the 
+axiom of choice for a WFS. In fact, one can construct a 
+WFS from a NWFS in a canonical way (see ./NWFSisWFS.v).
+
+The algebraic structure allows us to define categories out of
+functorial factorizations and NWFSs. It turns out to be useful to
+split this up into two halves: the left part of a NWFS (LNWFS)
+and the right part of a NWFS (RNWFS), consisting of the comonad
+and the monad extension respectively. 
+
+Important sources:
+- Cofibrantly generated natural weak factorisation systems by Richard Garner
+- Understanding the small object argument by Richard Garner
+- My thesis: https://studenttheses.uu.nl/handle/20.500.12932/45658
+- Natural weak factorization systems by Grandis and Tholen
+
+Contents:
+- Preliminary definitions
+- Functorial Factorizations
+- LNWFS / RNWFS / NWFS definitions
+- NWFS properties
+- Definition of L- and R-Maps
+- Functorial factorization category
+- LNWFS category
+- RNWFS category
+- NWFS category
+- Some helper functions used in the formalization of the 
+  Algebraic Small Object Argument
+
+*)
+
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -278,7 +317,7 @@ Definition R_monad {C : category} (F : functorial_factorization C)
     (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F))
     (R : disp_Monad_laws (R_monad_data F Π)) : Monad (arrow C) :=
   (_,, R_monad_data F Π,, R).
-  
+
 (* 
 Definition op_comul_data {D : category} {F : functor D D} (Σ : F ⟹ (functor_composite F F)) :
     nat_trans_data 

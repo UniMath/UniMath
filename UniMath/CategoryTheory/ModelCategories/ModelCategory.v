@@ -1,3 +1,30 @@
+(*
+
+Model Categories
+
+In this file, we define the notion of a model structure on a 
+category. We also define an alternative way of defining
+such a structure. A model structure consists of two interacting 
+Weak Factorization Systems (WFS), defined in ./WFS.v.
+Model structures form a big motivation for WFSs, which, as well
+as actual model structures, can be generated using Quillen's 
+Small Object Argument. This argument has been refined by 
+Richard Garner to be more algebraically sound: the 
+Algebraic Small Object Argument. The theory of this formalization
+started off by rewriting an effort by Reid Barton on this topic,
+which can be found here:
+
+https://github.com/rwbarton/lean-model-categories/tree/lean-3.4.1
+
+Important sources: 
+- More Concise Algebraic Topology (MCAT)
+- My thesis: https://studenttheses.uu.nl/handle/20.500.12932/45658
+
+Contents:
+- Definition of model categories
+- Alternative way of constructing a model structure
+*)
+
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 

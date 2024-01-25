@@ -1,3 +1,27 @@
+(*
+Weak Factorization Systems
+
+Weak Factorization Systems (WFSs) form the foundation of 
+model category theory. They describe interacting morphism classes,
+connected by a dual lifting property. We define the notion of WFS,
+as well as some basic properties that they have.
+
+We found that some properties that we would like a WFS to have
+(closedness under arbitrary coproducts or transfinite compotisition)
+relies on the Axiom of Choice.
+
+Important sources: 
+- More Concise Algebraic Topology (MCAT)
+- My thesis: https://studenttheses.uu.nl/handle/20.500.12932/45658
+- nlab: https://ncatlab.org/nlab/show/weak+factorization+system
+
+Contents:
+- Definition of lifting property
+- Definition of WFS
+- Properties of WFS (Left Saturatedness)
+
+*)
+
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.CategoryTheory.Core.Prelude.
