@@ -216,14 +216,18 @@ Proof.
   - use colimOfArrows.
     * intro v.
       exact (three_mor01 (dob d v)).
-    * intros u v e.
-      exact (pathsinv0 (pr1 (three_mor_comm (dmor d e)))).
+    * abstract (
+        intros u v e;
+        exact (pathsinv0 (pr1 (three_mor_comm (dmor d e))))
+      ).
   - use tpair.
     * use colimOfArrows.
       + intro v.
         exact (three_mor12 (dob d v)).
-      + intros u v e.
-        exact (pathsinv0 (pr2 (three_mor_comm (dmor d e)))).
+      + abstract (
+          intros u v e;
+          exact (pathsinv0 (pr2 (three_mor_comm (dmor d e))))
+        ).
     * abstract (
         use colimArrowUnique;
         intro v;
