@@ -26,19 +26,17 @@ Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheories2.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms2.
 
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
 
 (** * 1. The free functor *)
 
-Definition free_theory'_data (X : hSet) : algebraic_theory'_data.
+Definition free_theory_data (X : hSet) : algebraic_theory_data.
 Proof.
-  use make_algebraic_theory'_data.
+  use make_algebraic_theory_data.
   - intro n.
     exact (setcoprod (stnset n) X).
   - exact (λ _ i, inl i).
@@ -48,23 +46,23 @@ Proof.
     + exact (inr f').
 Defined.
 
-Definition free_is_theory' {X : hSet} : is_algebraic_theory' (free_theory'_data X).
+Definition free_is_theory {X : hSet} : is_algebraic_theory (free_theory_data X).
 Proof.
-  use make_is_algebraic_theory'.
+  use make_is_algebraic_theory.
+  - intros l m n f_l f_m f_n.
+    now induction f_l.
   - now do 4 intro.
   - do 2 intro.
     now induction f.
-  - intros l m n f_l f_m f_n.
-    now induction f_l.
 Qed.
 
 Definition free_theory (X : hSet) : algebraic_theory
-  := make_algebraic_theory' _ (free_is_theory' (X := X)).
+  := make_algebraic_theory _ (free_is_theory (X := X)).
 
 Definition free_functor_morphism_data
   {X X' : hSet}
   (f : X → X')
-  : algebraic_theory_morphism'_data (free_theory X) (free_theory X').
+  : algebraic_theory_morphism_data (free_theory X) (free_theory X').
 Proof.
   intros n x.
   induction x as [left | right].
@@ -75,20 +73,20 @@ Defined.
 Lemma free_functor_is_morphism
   {X X' : hSet}
   (f : X → X')
-  : is_algebraic_theory_morphism' (free_functor_morphism_data f).
+  : is_algebraic_theory_morphism (free_functor_morphism_data f).
 Proof.
-  use make_is_algebraic_theory_morphism'.
-  - intros m n s t.
-    now induction s.
+  use make_is_algebraic_theory_morphism.
   - intros n t.
     now induction t.
+  - intros m n s t.
+    now induction s.
 Qed.
 
 Definition free_functor_data
   : functor_data SET algebraic_theory_cat
   := make_functor_data (C := SET) (C' := algebraic_theory_cat)
     (λ X, free_theory X)
-    (λ X X' f, (make_algebraic_theory_morphism' _ (free_functor_is_morphism f))).
+    (λ X X' f, (make_algebraic_theory_morphism _ (free_functor_is_morphism f))).
 
 Lemma free_functor_is_functor
   : is_functor free_functor_data.
@@ -132,8 +130,8 @@ Definition forgetful_functor : algebraic_theory_cat ⟶ HSET
 Lemma lift_constant_eq
   (T : algebraic_theory)
   {n : nat}
-  (f f' : (T 0 : hSet))
-  (g : stn 0 → (T n : hSet))
+  (f f' : T 0)
+  (g : stn 0 → T n)
   (H : f = f')
   : lift_constant n f = f' • g.
 Proof.
@@ -155,33 +153,33 @@ Section Adjunction.
     : A → (forgetful_functor T : hSet)
     := λ a, F 0 (inr a).
 
-  Definition function_to_theory_morphism'_data
+  Definition function_to_theory_morphism_data
     (F : A → (forgetful_functor T : hSet))
-    : algebraic_theory_morphism'_data (free_theory A) T.
+    : algebraic_theory_morphism_data (free_theory A) T.
   Proof.
-    intros ? f.
+    intros n f.
     induction f as [i | a].
     - exact (pr i).
     - exact (lift_constant _ (F a)).
   Defined.
 
-  Lemma function_to_is_theory_morphism'
+  Lemma function_to_is_theory_morphism
     (F : A → (forgetful_functor T : hSet))
-    : is_algebraic_theory_morphism' (function_to_theory_morphism'_data F).
+    : is_algebraic_theory_morphism (function_to_theory_morphism_data F).
   Proof.
-    use make_is_algebraic_theory_morphism'.
+    use make_is_algebraic_theory_morphism.
+    - easy.
     - intros ? ? f ?.
       induction f.
-      + exact (!algebraic_theory_comp_projects_component _ _ _ _ _).
+      + exact (!pr_comp _ _ _).
       + refine (lift_constant_eq _ _ _ _ (idpath _) @ !_).
-        apply algebraic_theory_comp_is_assoc.
-    - easy.
+        apply comp_comp.
   Qed.
 
   Definition function_to_theory_morphism
     (F : A → (forgetful_functor T : hSet))
     : algebraic_theory_morphism (free_theory A) T
-    := make_algebraic_theory_morphism' _ (function_to_is_theory_morphism' F).
+    := make_algebraic_theory_morphism _ (function_to_is_theory_morphism F).
 
   Lemma invweqweq
     (F : algebraic_theory_morphism (free_theory A) T)
@@ -190,10 +188,9 @@ Section Adjunction.
     apply algebraic_theory_morphism_eq.
     intros ? f.
     induction f.
-    - exact (!algebraic_theory_morphism_preserves_projections _ _).
+    - exact (!mor_pr _ _).
     - refine (lift_constant_eq _ _ _ _ (idpath _) @ _).
-      exact (!algebraic_theory_morphism_preserves_composition F _ _ _ _
-        : _ = F _ (lift_constant _ _)).
+      exact (!mor_comp F _ _ : _ = F _ (lift_constant _ _)).
   Qed.
 
   Lemma weqinvweq
@@ -203,7 +200,7 @@ Section Adjunction.
     apply funextfun.
     intro.
     refine (lift_constant_eq _ _ _ _ (idpath _) @ _).
-    exact (algebraic_theory_comp_identity_projections _ _ _).
+    exact (comp_pr _ _).
   Qed.
 
 End Adjunction.

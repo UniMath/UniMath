@@ -34,7 +34,8 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheories2.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
+Require Import UniMath.AlgebraicTheories.LambdaTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
 Require Import UniMath.Combinatorics.Tuples.
@@ -56,9 +57,9 @@ Section EndomorphismAlgebraicTheory.
     : Product (stn n) C (λ _, X)
     := bin_product_power C X C_terminal C_bin_products n.
 
-  Definition endomorphism_theory'_data : algebraic_theory'_data.
+  Definition endomorphism_theory_data : algebraic_theory_data.
   Proof.
-    use make_algebraic_theory'_data.
+    use make_algebraic_theory_data.
     - intro n.
       exact (homset (power n) X).
     - intro.
@@ -67,21 +68,10 @@ Section EndomorphismAlgebraicTheory.
       exact (f ∘ (ProductArrow _ _ _ g)).
   Defined.
 
-  Definition endomorphism_is_theory' : is_algebraic_theory' endomorphism_theory'_data.
+  Definition endomorphism_is_theory : is_algebraic_theory endomorphism_theory_data.
   Proof.
-    use make_is_algebraic_theory'.
-    - do 4 intro.
-      exact (ProductPrCommutes _ _ _ _ _ _ _).
-    - do 2 intro.
-      rewrite <- id_left.
-      apply (maponpaths (λ x, x · _)).
-      rewrite (ProductArrowEta _ _ _ _ _ (identity _)).
-      apply maponpaths, funextfun.
-      intro.
-      symmetry.
-      apply id_left.
+    use make_is_algebraic_theory.
     - intros l m n f_l f_m f_n.
-      unfold comp'.
       simpl.
       rewrite assoc.
       apply (maponpaths (λ f, f · f_l)).
@@ -91,10 +81,20 @@ Section EndomorphismAlgebraicTheory.
       rewrite assoc'.
       apply maponpaths.
       exact (ProductPrCommutes _ _ _ _ _ _ _).
+    - do 4 intro.
+      exact (ProductPrCommutes _ _ _ _ _ _ _).
+    - do 2 intro.
+      simpl.
+      rewrite <- id_left.
+      apply (maponpaths (λ x, x · _)).
+      rewrite (ProductArrowEta _ _ _ _ _ (identity _)).
+      apply maponpaths, funextfun.
+      intro.
+      exact (!id_left _).
   Qed.
 
   Definition endomorphism_theory : algebraic_theory
-    := make_algebraic_theory' _ endomorphism_is_theory'.
+    := make_algebraic_theory _ endomorphism_is_theory.
 
   (** * 2. The definition of the endomorphism λ-theory *)
 
@@ -132,7 +132,7 @@ Section EndomorphismAlgebraicTheory.
   Lemma endomorphism_theory_is_lambda
     : is_lambda_theory endomorphism_lambda_theory_data.
   Proof.
-    use make_is_lambda_theory'.
+    use make_is_lambda_theory.
     - intros m n f g.
       refine (maponpaths _ (assoc' _ _ _) @ _).
       refine (φ_adj_inv_natural_precomp (pr2 E) _ _ _ _ _ @ _).
@@ -142,8 +142,7 @@ Section EndomorphismAlgebraicTheory.
         refine (id_right _ @ !_).
         refine (bp_commutes_1 _ _ _ _ @ _).
         refine (extend_tuple_inr _ _ @ _).
-        refine (bp_commutes_1 _ _ _ _ @ _).
-        refine (extend_tuple_inr _ _).
+        exact (maponpaths _ (homotinvweqweq _ (inr tt))).
       + do 2 refine (bp_commutes_2 _ _ _ _ @ !_).
         apply ProductArrow_eq.
         intro i.
@@ -155,7 +154,7 @@ Section EndomorphismAlgebraicTheory.
         apply ProductArrow_eq.
         intro j.
         refine (pow_commutes _ _ _ _ @ _).
-        refine (extend_tuple_inl _ _ _).
+        exact (maponpaths _ (homotinvweqweq _ (inl j))).
     - intros m n f g.
       refine (_ @ assoc' _ _ _).
       refine (_ @ maponpaths (λ x, x · _) (φ_adj_natural_precomp (pr2 E) _ _ _ _ _)).
@@ -175,12 +174,11 @@ Section EndomorphismAlgebraicTheory.
         apply ProductArrow_eq.
         intro j.
         refine (pow_commutes _ _ _ _ @ _).
-        refine (maponpaths _ (homotinvweqweq _ (inl j))).
+        exact (maponpaths _ (homotinvweqweq _ (inl j))).
       + refine (bp_commutes_1 _ _ _ _ @ _).
         refine (id_right _ @ !_).
         refine (extend_tuple_inr _ _ @ _).
-        refine (bp_commutes_1 _ _ _ _ @ _).
-        refine (extend_tuple_inr _ _).
+        exact (maponpaths _ (homotinvweqweq _ (inr tt))).
   Qed.
 
   Definition endomorphism_lambda_theory

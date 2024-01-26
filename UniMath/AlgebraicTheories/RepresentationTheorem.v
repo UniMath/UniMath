@@ -34,22 +34,22 @@ Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import UniMath.Combinatorics.Tuples.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheories2.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms2.
 Require Import UniMath.AlgebraicTheories.Examples.EndomorphismTheory.
 Require Import UniMath.AlgebraicTheories.Examples.Plus1Presheaf.
-Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryCategory.
+Require Import UniMath.AlgebraicTheories.LambdaTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.PresheafCategory.
+Require Import UniMath.AlgebraicTheories.PresheafCategoryCore.
 Require Import UniMath.AlgebraicTheories.PresheafMorphisms.
 Require Import UniMath.AlgebraicTheories.Presheaves.
-Require Import UniMath.Combinatorics.Tuples.
 
 Local Open Scope algebraic_theories.
 Local Open Scope cat.
@@ -109,7 +109,7 @@ Section RepresentationTheorem.
       (t : (BPO (theory_presheaf L) (plus_1_presheaf P) n : hSet))
       : (P n : hSet).
     Proof.
-      refine (action (P := P) (pr2 t) _).
+      refine (op (P := P) (pr2 t) _).
       intro i.
       induction (invmap stnweq i) as [i' | i'].
       - exact (pr i').
@@ -120,31 +120,32 @@ Section RepresentationTheorem.
       (P : presheaf L)
       (m n : nat)
       (a : (BPO (theory_presheaf L) (plus_1_presheaf P) m : hSet))
-      (f : stn m → pr1 L n : hSet)
-      : presheaf_exponent_morphism_data P n (action a f)
-      = action (presheaf_exponent_morphism_data P m a) f.
+      (f : stn m → L n)
+      : presheaf_exponent_morphism_data P n (op a f)
+      = op (presheaf_exponent_morphism_data P m a) f.
     Proof.
-      do 2 refine (presheaf_is_assoc _ _ _ _ _ _ _ @ !_).
-      apply (maponpaths (action (pr2 a : (P _ : hSet)))).
+      refine (op_op P (pr2 a) _ _ @ !_).
+      refine (op_op P (l := S m) (m := m) _ _ _ @ !_).
+      apply (maponpaths (op (pr2 a : (P _ : hSet)))).
       apply funextfun.
       intro i.
       induction (invmap stnweq i) as [i' | i'].
-      - refine (algebraic_theory_comp_is_assoc _ _ _ _ _ _ _ @ !_).
-        refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
-        refine (!algebraic_theory_comp_identity_projections _ _ _ @ !_).
+      - refine (comp_comp _ (f i') _ _ @ !_).
+        refine (pr_comp _ _ _ @ _).
+        refine (!comp_pr _ _ @ !_).
         apply maponpaths.
         apply funextfun.
         intro j.
-        refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
+        refine (pr_comp _ _ _ @ _).
         exact (maponpaths _ (homotinvweqweq stnweq _)).
-      - refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
+      - refine (pr_comp _ _ _ @ _).
         exact (maponpaths _ (homotinvweqweq stnweq _)).
     Qed.
 
     Definition presheaf_exponent_morphism
       (P : presheaf L)
       : presheaf_morphism (BPO (theory_presheaf L) (plus_1_presheaf P)) P
-      := make_presheaf_morphism' _ (presheaf_exponent_is_morphism P).
+      := make_presheaf_morphism _ (presheaf_exponent_is_morphism P).
 
     Definition presheaf_exponent_induced_morphism_data
       {P P' : presheaf L}
@@ -156,7 +157,7 @@ Section RepresentationTheorem.
       refine (F (1 + n) _).
       split.
       - exact (pr (stnweq (inr tt))).
-      - apply (action t).
+      - apply (op t).
         intro i.
         exact (pr (stnweq (inl i))).
     Defined.
@@ -164,30 +165,31 @@ Section RepresentationTheorem.
     Lemma presheaf_exponent_induced_is_morphism
       {P P' : presheaf L}
       (F : presheaf_morphism (BPO (theory_presheaf L) P') P)
-      (m n : finite_set_skeleton_category)
+      (m n : nat)
       (a : P' m : hSet)
       (f : (⟦ m ⟧)%stn → L n : hSet)
-      : presheaf_exponent_induced_morphism_data F n (action a f)
-      = action (presheaf_exponent_induced_morphism_data F m a) f.
+      : presheaf_exponent_induced_morphism_data F n (op a f)
+      = op (presheaf_exponent_induced_morphism_data F m a) f.
     Proof.
-      refine (!_ @ presheaf_morphism_commutes_with_action F _ _).
-      apply (maponpaths (F (1 + n))).
+      refine (!_ @ mor_op F _ _).
+      refine (maponpaths (F (1 + n)) _).
       apply pathsdirprod.
-      - refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
-        exact (maponpaths _ (homotinvweqweq stnweq _)).
-      - do 2 refine (presheaf_is_assoc _ _ _ _ _ _ _ @ !_).
+      - refine (pr_comp _ _ _ @ _).
+        exact (maponpaths _ (homotinvweqweq stnweq (inr tt))).
+      - refine (op_op P' a _ _ @ !_).
+        refine (op_op P' a f _ @ !_).
         apply maponpaths.
         apply funextfun.
         intro i.
-        refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
-        exact (maponpaths _ (homotinvweqweq stnweq _)).
+        refine (pr_comp _ _ _ @ _).
+        exact (maponpaths _ (homotinvweqweq stnweq (inl _))).
     Qed.
 
     Definition presheaf_exponent_induced_morphism
       {P P' : presheaf L}
       (F : presheaf_morphism (BPO (theory_presheaf L) P') P)
       : presheaf_morphism P' (plus_1_presheaf P)
-      := make_presheaf_morphism' _ (presheaf_exponent_induced_is_morphism F).
+      := make_presheaf_morphism _ (presheaf_exponent_induced_is_morphism F).
 
     Lemma presheaf_exponent_induced_morphism_commutes
       {P P' : presheaf L}
@@ -203,24 +205,24 @@ Section RepresentationTheorem.
       apply funextfun.
       intro t.
       refine (maponpaths
-        (λ x, action (P := P) (x t) _)
+        (λ x, op (P := P) (x t) _)
         (presheaf_mor_comp (P := BPO _ _) (P'' := plus_1_presheaf P) _ _ _)
       @ _).
-      refine (!presheaf_morphism_commutes_with_action F _ _ @ _).
+      refine (!mor_op F _ _ @ _).
       apply maponpaths.
       apply pathsdirprod.
-      - refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
+      - refine (pr_comp _ _ _ @ _).
         refine (maponpaths _ (homotinvweqweq stnweq _) @ _).
-        exact (maponpaths
-          (λ x, pr11 x n t)
-          (id_right (BinProductPr1 _ ((bin_products_presheaf_cat _) _ _)))
+        refine (maponpaths
+          (λ x, pr1 x n t)
+          (id_right (BinProductPr1 _ ((bin_products_presheaf_cat L) _ _)))
         ).
-      - refine (presheaf_is_assoc _ _ _ _ _ _ _ @ _).
-        refine (_ @ presheaf_identity_projections _ _ _).
+      - refine (op_op P' (pr2 t) _ _ @ _).
+        refine (_ @ op_pr _ _).
         apply maponpaths.
         apply funextfun.
         intro i.
-        refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
+        refine (pr_comp _ _ _ @ _).
         exact (maponpaths _ (homotinvweqweq stnweq _)).
     Qed.
 
@@ -245,31 +247,31 @@ Section RepresentationTheorem.
       intro n.
       apply funextfun.
       intro t.
-      refine (_ @ maponpaths (λ x, pr11 x _ _) (!pr2 F')).
+      refine (_ @ maponpaths (λ x, pr1 x _ _) (!pr2 F')).
       refine (!(maponpaths (λ x, x _) (presheaf_mor_comp (P := BPO _ _) _ _ _) @ _)).
       refine (maponpaths
-        (λ x, action (x _ : P _ : hSet) _)
+        (λ x, op (x _ : P _ : hSet) _)
         (presheaf_mor_comp _ (pr1 F' : presheaf_cat L ⟦P', plus_1_presheaf P⟧) _)
       @ _).
       refine (maponpaths
         (λ x, (pr12 P) _ _ (x : P _ : hSet) _)
-        (presheaf_morphism_commutes_with_action (pr1 F') _ _)
+        (mor_op (pr1 F') _ _)
       @ _).
-      refine (presheaf_is_assoc _ _ _ _ _ _ _ @ _).
-      refine (_ @ presheaf_identity_projections _ _ _).
+      refine (op_op P (pr1 F' n t) _ _ @ _).
+      refine (_ @ op_pr _ _).
       apply maponpaths.
       apply funextfun.
       intro i.
       refine (_ @ maponpaths pr (homotweqinvweq stnweq i)).
       induction (invmap stnweq i) as [i' | i'].
-      - refine (algebraic_theory_comp_is_assoc _ _ _ _ _ _ _ @ _).
-        refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
-        refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
+      - refine (comp_comp L (pr _) _ _ @ _).
+        refine (pr_comp _ _ _ @ _).
+        refine (pr_comp L (stnweq (inl (dni lastelement i'))) _ @ _).
         exact (maponpaths _ (homotinvweqweq stnweq _)).
-      - refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
+      - refine (pr_comp _ _ _ @ _).
         refine (maponpaths _ (homotinvweqweq stnweq _) @ _).
         refine (maponpaths
-          (λ x, pr1 (pr1 x) _ _)
+          (λ x, pr1 x _ _)
           (id_right (BinProductPr1 _ ((bin_products_presheaf_cat _) (theory_presheaf L) P')))
         @ _).
         apply (maponpaths (λ x, (pr (stnweq (inr x))))).
@@ -294,18 +296,18 @@ Section RepresentationTheorem.
       {m n : nat}
       (G : presheaf_cat L ⟦pow n, pr1 theory_presheaf_exponentiable (theory_presheaf L)⟧)
       (l : ((PO (S n)) m : hSet))
-      : pr11 (φ_adj_inv (pr2 theory_presheaf_exponentiable) G) m l
-      = pr11 G m (pr2 l) • (extend_tuple pr (pr1 l)).
+      : pr1 (φ_adj_inv (pr2 theory_presheaf_exponentiable) G) m l
+      = pr1 G m (pr2 l) • (extend_tuple pr (pr1 l)).
     Proof.
       refine (maponpaths (λ x, x _) (presheaf_mor_comp (P'' := theory_presheaf L) _ _ _) @ _).
-      refine (maponpaths (λ x, x • _) _ @ maponpaths (λ x, (pr11 G) m (pr2 l) • x) _).
+      refine (maponpaths (λ x, x • _) _ @ maponpaths (λ x, (pr1 G) m (pr2 l) • x) _).
       - exact (maponpaths (λ x, x _) (presheaf_mor_comp _ G _)).
       - refine (!extend_tuple_eq _ _).
         + intro i.
           exact (!maponpaths _ (homotinvweqweq _ (inl i))).
         + refine (!_ @ !maponpaths _ (homotinvweqweq _ (inr tt))).
           exact (maponpaths
-            (λ x, pr11 x _ _)
+            (λ x, pr1 x _ _)
             (id_right (BinProductPr1 _ (bin_products_presheaf_cat _ (theory_presheaf L) _)))
           ).
     Qed.
@@ -314,8 +316,8 @@ Section RepresentationTheorem.
       {m n : nat}
       (G : presheaf_cat L ⟦pow (S n), theory_presheaf L⟧)
       (l : ((PO n) m : hSet))
-      : pr11 (φ_adj (pr2 theory_presheaf_exponentiable) G) m l
-      = pr11 G (S m) (pr (stnweq (inr tt)) ,, action l (λ i, pr (stnweq (inl i)))).
+      : pr1 (φ_adj (pr2 theory_presheaf_exponentiable) G) m l
+      = pr1 G (S m) (pr (stnweq (inr tt)) ,, op l (λ i, pr (stnweq (inl i)))).
     Proof.
       refine (maponpaths
         (λ x, x _)
@@ -325,26 +327,22 @@ Section RepresentationTheorem.
         (λ x, x _)
         (presheaf_mor_comp (P := BPO _ _) (P'' := theory_presheaf L) _ G _)
       @ _).
-      refine (maponpaths (pr11 G (S m)) _).
+      refine (maponpaths (pr1 G (S m)) _).
       apply pathsdirprod.
-      - refine (algebraic_theory_comp_is_assoc _ _ _ _ _ _ _ @ _).
-        refine (maponpaths (λ x, pr1 x • _) (presheaf_identity_on_element (PO (S n)) _) @ _).
-        refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
+      - refine (comp_comp L (pr _) _ _ @ _).
+        refine (pr_comp _ _ _ @ _).
         refine (maponpaths (λ x, _ x • _) (homotinvweqweq stnweq _) @ _).
-        refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
+        refine (pr_comp _ _ _ @ _).
         exact (maponpaths (λ x, _ x) (homotinvweqweq stnweq _)).
-      - refine (maponpaths
-          (λ x, action (pr2 (action (P := (plus_1_presheaf (PO (S n)))) x _)) _)
-          (presheaf_identity_on_element (PO (S n)) _)
-        @ _).
-        do 2 refine (presheaf_is_assoc _ _ _ _ _ _ _ @ _).
+      - refine (op_op (l := S m) (m := S (S m)) _ _ _ _ @ _).
+        refine (op_op (l := m) (m := S m) _ _ _ _ @ _).
         apply maponpaths.
         apply funextfun.
         intro i.
-        refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
+        refine (pr_comp _ _ _ @ _).
         refine (maponpaths (λ x, _ x • _) (homotinvweqweq stnweq _) @ _).
-        refine (maponpaths (λ x, x • _) (algebraic_theory_comp_projects_component _ _ _ _ _) @ _).
-        refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
+        refine (maponpaths (λ x, x • _) (pr_comp _ _ _) @ _).
+        refine (pr_comp _ _ _ @ _).
         exact (maponpaths _ (homotinvweqweq stnweq _)).
     Qed.
 
@@ -355,7 +353,7 @@ Section RepresentationTheorem.
   Lemma presheaf_lambda_theory_aux
     {m n : nat}
     (f : stn m → (L _ : hSet))
-    : extend_tuple (λ i : stn m, # L (dni lastelement) (f i)) (pr lastelement)
+    : extend_tuple (λ i : stn m, f i • (λ j, pr (dni lastelement j))) (pr lastelement)
     = (λ i, let c := invmap (stnweq) i in
         coprod_rect (λ _, (L (1 + n) : hSet))
           (λ i', f i' • (λ j, pr (stnweq (inl j))))
@@ -363,7 +361,7 @@ Section RepresentationTheorem.
   Proof.
     apply extend_tuple_eq.
     - intro i.
-      refine (algebraic_theory_functor_uses_projections _ _ _ _ _ @ !_).
+      symmetry.
       exact (maponpaths _ (homotinvweqweq _ _)).
     - exact (!maponpaths (λ x, let c := x in _) (homotinvweqweq _ _)).
   Qed.
@@ -377,22 +375,22 @@ Section RepresentationTheorem.
     - exact (bin_products_presheaf_cat _).
     - exact (theory_presheaf L).
     - exact theory_presheaf_exponentiable.
-    - use (make_presheaf_morphism' (P := exponential_object) (P' := theory_presheaf L)).
+    - use (make_presheaf_morphism (P := exponential_object) (P' := theory_presheaf L)).
       + intro.
         apply abs.
       + abstract (
           intros m n a f;
-          refine (_ @ lambda_theory_abs_compatible_with_comp _ _);
+          refine (_ @ abs_comp _ _ _);
           apply (maponpaths (λ x, abs (a • x)));
           symmetry;
           apply presheaf_lambda_theory_aux
         ).
-    - use (make_presheaf_morphism' (P := theory_presheaf L) (P' := exponential_object)).
+    - use (make_presheaf_morphism (P := theory_presheaf L) (P' := exponential_object)).
       + intros n.
         apply app.
       + abstract (
           intros m n a f;
-          refine (lambda_theory_app_compatible_with_comp _ _ @ _);
+          refine (app_comp _ _ _ @ _);
           apply (maponpaths (λ x, app a • x));
           apply presheaf_lambda_theory_aux
         ).
@@ -403,7 +401,7 @@ Section RepresentationTheorem.
   Section Iso.
 
     Definition presheaf_to_L
-      : algebraic_theory_morphism'_data presheaf_lambda_theory L.
+      : algebraic_theory_morphism_data presheaf_lambda_theory L.
     Proof.
       intros n f.
       refine ((f : presheaf_morphism (PO n) (theory_presheaf L)) n _).
@@ -412,22 +410,22 @@ Section RepresentationTheorem.
     Defined.
 
     Definition L_to_presheaf
-      : algebraic_theory_morphism'_data L presheaf_lambda_theory.
+      : algebraic_theory_morphism_data L presheaf_lambda_theory.
     Proof.
       intros n s.
       unfold presheaf_lambda_theory.
-      use (make_presheaf_morphism' (P := PO n) (P' := (theory_presheaf L))).
+      use (make_presheaf_morphism (P := PO n) (P' := (theory_presheaf L))).
       - intros n' t.
         refine (s • _).
         intro i.
         exact (pow_f n n' t i).
       - abstract (
           intros;
-          refine (_ @ !algebraic_theory_comp_is_assoc _ _ _ _ _ _ _);
+          refine (_ @ !comp_comp _ s _ _);
           apply maponpaths;
           apply funextfun;
           intro;
-          now rewrite presheaf_morphism_commutes_with_action
+          now rewrite mor_op
         ).
     Defined.
 
@@ -436,7 +434,7 @@ Section RepresentationTheorem.
       (l : (L n : hSet))
       : presheaf_to_L n (L_to_presheaf n l) = l.
     Proof.
-      refine (_ @ algebraic_theory_comp_identity_projections _ _ _).
+      refine (_ @ comp_pr _ _).
       apply (maponpaths (comp l)).
       apply funextfun.
       intro i.
@@ -444,8 +442,7 @@ Section RepresentationTheorem.
         (λ x, x _ _)
         (!presheaf_mor_comp _ (pow_f n : presheaf_cat L⟦PO n, PO' n⟧) _)
       @ _).
-      refine (maponpaths (λ x, pr11 x _ _ _) (z_iso_after_z_iso_inv (pow_iso n)) @ _).
-      refine (maponpaths (λ x, x _) (presheaf_identity_on_element (PO' n) _)).
+      exact (maponpaths (λ x, pr1 x _ _ _) (z_iso_after_z_iso_inv (pow_iso n))).
     Qed.
 
     Lemma presheaf_to_L_to_presheaf
@@ -457,59 +454,54 @@ Section RepresentationTheorem.
       intro m.
       apply funextfun.
       intro x.
-      refine (!presheaf_morphism_commutes_with_action
-        (l : presheaf_morphism (PO n) (theory_presheaf L))
-      _ _ @ _).
+      refine (!mor_op _ _ _ @ _).
       apply maponpaths.
-      refine (!presheaf_morphism_commutes_with_action (pow_f_inv n) _ _ @ _).
-      refine (_ @ presheaf_identity_on_element _ _).
-      refine (!_ @ maponpaths (λ x, pr11 x _ _) (z_iso_inv_after_z_iso (pow_iso n))).
+      refine (!mor_op _ _ _ @ _).
+      refine (!_ @ maponpaths (λ x, pr1 x _ _) (z_iso_inv_after_z_iso (pow_iso n))).
       refine (maponpaths (λ x, x _) (presheaf_mor_comp _ _ _) @ _).
       apply (maponpaths (pow_f_inv n _)).
       apply funextsec.
       intro.
-      exact (!algebraic_theory_comp_projects_component _ _ _ _ _).
+      exact (!pr_comp _ _ _).
     Qed.
 
     Lemma L_to_presheaf_preserves_pr
       (n : nat)
       (i : stn n)
-      : L_to_presheaf n (pr i) = pr i.
+      : mor_pr_ax L_to_presheaf n i.
     Proof.
       apply (presheaf_morphism_eq (P := PO n) (P' := theory_presheaf L)).
       intro m.
-      refine (_ @ !presheaf_mor_comp (P'' := theory_presheaf L) _ _ _).
       apply funextfun.
       intro t.
-      apply algebraic_theory_comp_projects_component.
+      apply pr_comp.
     Qed.
 
     Lemma L_to_presheaf_preserves_comp
       (m n : nat)
       (f : (L m : hSet))
       (g : stn m → (L n : hSet))
-      : L_to_presheaf n (f • g) = (L_to_presheaf m f) • (λ i, L_to_presheaf n (g i)).
+      : mor_comp_ax L_to_presheaf m n f g.
     Proof.
       apply (presheaf_morphism_eq (P := PO n) (P' := theory_presheaf L)).
       intro l.
       refine (_ @ !presheaf_mor_comp (P'' := theory_presheaf L) _ _ _).
       apply funextfun.
       intro t.
-      refine (algebraic_theory_comp_is_assoc _ _ _ _ _ _ _ @ !_).
+      refine (comp_comp _ f g _ @ !_).
       apply (maponpaths (comp f)).
       apply funextfun.
       intro i.
       exact (maponpaths (λ x, x t) (!presheaf_mor_comp _ _ _) @
-          maponpaths (λ x, pr11 x l t) (ProductPrCommutes _ _ _ (pow m) _ _ i)).
+          maponpaths (λ x, pr1 x l t) (ProductPrCommutes _ _ _ (pow m) _ _ i)).
     Qed.
 
     Local Lemma aux2
       (n : nat)
       : pr2 (pow_f_inv (S n) (S n) pr)
-      = action (P := PO n) (pow_f_inv n n pr) (λ i, pr (stnweq (inl i))).
+      = op (P := PO n) (pow_f_inv n n pr) (λ i, pr (stnweq (inl i))).
     Proof.
-      do 2 refine (!presheaf_identity_on_element _ _ @ !_).
-      do 2 refine (maponpaths (λ x, pr11 x _ _) (!z_iso_inv_after_z_iso (pow_iso n)) @ !_).
+      do 2 refine (maponpaths (λ x, pr1 x _ _) (!z_iso_inv_after_z_iso (pow_iso n)) @ !_).
       do 2 refine (maponpaths (λ x, x _) (presheaf_mor_comp _ _ _) @ !_).
       apply (maponpaths (pr11 _ (S n))).
       apply funextsec.
@@ -517,22 +509,18 @@ Section RepresentationTheorem.
       refine (maponpaths
         (λ x, x pr)
         (!presheaf_mor_comp (P := PO' (S n)) (P'' := theory_presheaf L) _ _ _)
-      @ !_).
-      rewrite (ProductPrCommutes _ _ _ (pow n) _ _ i).
-      refine (eqtohomot (presheaf_morphism_commutes_with_action (pow_f n) _ _) i @ _).
+      @ _).
+      refine (maponpaths (λ x, pr1 x _ _) (ProductPrCommutes _ _ _ (pow n) (pow' (S n)) _ i) @ !_).
+      refine (eqtohomot (mor_op (pow_f n) _ _) i @ _).
       refine (maponpaths
-        (λ x, action (P := PO' n) (x pr) _ _)
+        (λ x, op (P := PO' n) (x pr) _ _)
         (!presheaf_mor_comp (P := PO' n) (P'' := PO' n) _ (pow_f _) _)
       @ _).
       refine (maponpaths
-        (λ x, action (P := PO' n) (pr11 x n pr) _ _)
+        (λ (x : presheaf_morphism (PO' n : presheaf L) (PO' n : presheaf L)), op (P := PO' n) (pr1 x n pr) _ _)
         (z_iso_after_z_iso_inv (pow_iso n))
       @ _).
-      refine (maponpaths
-        (λ x, action (P := PO' n) x _ _)
-        (presheaf_identity_on_element (PO' n) _)
-      @ _).
-      exact (algebraic_theory_comp_projects_component _ _ _ _ _).
+      exact (pr_comp _ _ _).
     Qed.
 
     Lemma presheaf_to_L_preserves_app
@@ -542,31 +530,31 @@ Section RepresentationTheorem.
     Proof.
       refine (invmap_hom_weq_eq _ _ @ _).
       match goal with
-      | [ |- pr11 ?x1 _ _ • _ = _ ] => pose (x1' := x1)
+      | [ |- pr1 ?x1 _ _ • _ = _ ] => pose (x1' := x1)
       end.
-      refine (maponpaths (λ x, pr11 x1' _ x • _) (aux2 n) @ _).
-      refine (maponpaths (λ x, x • _) (presheaf_morphism_commutes_with_action
+      refine (maponpaths (λ x, pr1 x1' _ x • _) (aux2 n) @ _).
+      refine (maponpaths (λ x, x • _) (mor_op
         (x1' : presheaf_morphism (PO n) (pr1 theory_presheaf_exponentiable _ : presheaf L))
       _ _) @ _).
-      refine (algebraic_theory_comp_is_assoc _ _ _ _ _ _ _ @ _).
+      refine (comp_comp L (l := S n) (m := S (S n)) _ _ _ @ _).
       refine (maponpaths
         (λ x, x _ • _)
         (presheaf_mor_comp (P'' := plus_1_presheaf (theory_presheaf L)) _ _ _)
       @ _).
-      refine (_ @ algebraic_theory_comp_identity_projections _ _ _).
+      refine (_ @ comp_pr _ _).
       apply maponpaths.
       apply funextfun.
       intro i.
       refine (_ @ maponpaths _ (homotweqinvweq stnweq i)).
       induction (invmap stnweq i) as [i' | i'].
-      - refine (maponpaths (λ x, x • _) (algebraic_theory_comp_projects_component _ _ _ _ _) @ _).
-        refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
+      - refine (maponpaths (λ x, x • _) (pr_comp _ _ _) @ _).
+        refine (pr_comp _ _ _ @ _).
         refine (extend_tuple_i _ _ _ _ (dni_last_lt _) @ _).
         apply maponpaths.
         apply stn_eq.
         apply di_eq1.
         exact (stnlt (dni lastelement i')).
-      - refine (algebraic_theory_comp_projects_component _ _ _ _ _ @ _).
+      - refine (pr_comp _ _ _ @ _).
         exact (maponpaths _ (homotinvweqweq _ _)).
     Qed.
 
@@ -578,26 +566,25 @@ Section RepresentationTheorem.
       refine (maponpaths (λ x, x _) (presheaf_mor_comp (P'' := theory_presheaf L) _ _ _) @ _).
       apply (maponpaths abs).
       refine (hom_weq_eq _ _ @ _).
-      apply (maponpaths (λ x, (pr11 s) _ x)).
-      refine (!presheaf_identity_on_element _ _ @ _).
-      refine (maponpaths (λ x, pr11 x _ _) (!z_iso_inv_after_z_iso (pow_iso _)) @ _).
-      refine (maponpaths (λ x, x _) (presheaf_mor_comp (P'' := pow _) _ _ _) @ _).
+      apply (maponpaths (λ x, pr1 s _ x)).
+      refine (maponpaths (λ x, pr1 x _ _) (!z_iso_inv_after_z_iso (pow_iso _)) @ _).
+      refine (maponpaths (λ x, x _) (presheaf_mor_comp (P'' := PO (S n)) _ _ _) @ _).
       apply (maponpaths (pow_f_inv (S n) _)).
       apply funextsec.
       intro i.
-      rewrite <- (homotweqinvweq stnweq i).
+      do 2 refine (!_ @ maponpaths _ (homotweqinvweq stnweq i)).
       induction (invmap stnweq i) as [i' | i'];
         refine (maponpaths (λ x, (_ x : presheaf_morphism _ _) _ _) (homotinvweqweq stnweq _) @ _).
       - refine (maponpaths (λ x, x _) (presheaf_mor_comp (P'' := theory_presheaf L) _ _ _) @ _).
-        refine (presheaf_morphism_commutes_with_action
+        refine (mor_op
           (ProductPr _ _ (pow n) _ : presheaf_morphism (PO _) (theory_presheaf L))
         _ _ @ _).
         refine (maponpaths
           (λ x, x _ • _)
           (!presheaf_mor_comp (P'' := theory_presheaf L) _ _ _)
         @ _).
-        refine (maponpaths (λ x, pr11 x _ _ • _) (ProductPrCommutes _ _ _ (pow _) _ _ _) @ _).
-        apply algebraic_theory_comp_projects_component.
+        refine (maponpaths (λ x, pr1 x _ _ • _) (ProductPrCommutes _ _ _ (pow _) _ _ _) @ _).
+        apply pr_comp.
       - apply idpath.
     Qed.
 
