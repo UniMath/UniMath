@@ -14,9 +14,9 @@
  `B` form a set.
 
  As an intermediate construction, we first show that every bicategory `B` for which
- the objects form a 1-type, gives rise to a double category ([bicat_to_double_bicat])
+ the objects form a 1-type, gives rise to a double category ([bicat_to_double_cat])
  without any requirement on univalence or the objects/horizontal morphisms forming
- a set. Afterwards we instantiate this to setbicategories ([setbicat_to_pseudo_double_bicat]).
+ a set. Afterwards we instantiate this to setbicategories ([setbicat_to_pseudo_double_cat]).
 
  Such a construction would have limited usability for univalent bicategories. If the
  objects in a univalent bicategory forms a 1-type, then there can be at most one
@@ -731,7 +731,7 @@ Section BicatToDoubleCat.
   Qed.
 
   (** * 7. The double category corresponding to a bicategory *)
-  Definition bicat_to_double_bicat
+  Definition bicat_to_double_cat
     : double_cat.
   Proof.
     use make_double_cat.
@@ -748,12 +748,12 @@ Section BicatToDoubleCat.
 End BicatToDoubleCat.
 
 (** * 8. The pseudo double setcategory corresponding to a bicategory *)
-Definition bisetcat_to_pseudo_double_bicat
+Definition bisetcat_to_pseudo_double_cat
            (B : bisetcat)
   : pseudo_double_setcat.
 Proof.
   use make_pseudo_double_setcat.
-  - refine (bicat_to_double_bicat B _).
+  - refine (bicat_to_double_cat B _).
     use hlevelntosn.
     exact (globally_strict_bisetcat B).
   - split.
