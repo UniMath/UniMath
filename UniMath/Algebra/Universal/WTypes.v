@@ -4,9 +4,6 @@
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-
 Require Import UniMath.Induction.PolynomialFunctors.
 Require Import UniMath.Induction.W.Core.
 Require Import UniMath.Induction.W.Wtypes.
@@ -16,7 +13,6 @@ Require Import UniMath.Algebra.Universal.Signatures.
 Require Import UniMath.Algebra.Universal.Algebras.
 Require Import UniMath.Algebra.Universal.HVectors.
 Require Import UniMath.Algebra.Universal.Terms.
-Require Import UniMath.Algebra.Universal.TermAlgebras.
 
 Local Open Scope stn.
 Local Open Scope vec.
@@ -574,3 +570,4 @@ Section groundTermAlgebraWtype.
   Defined.
 
 End groundTermAlgebraWtype.
+
