@@ -328,8 +328,6 @@ Proof.
     - use IHn.
 Defined.
 
-Print vec_map.
-
 Lemma el_vec_map_vec_fill {A B : UU} (f : A → B) {n} (a:A) (i : ⟦ n ⟧)
   : el (vec_map f (vec_fill a n)) i = f a.
   Proof.

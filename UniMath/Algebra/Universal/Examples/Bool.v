@@ -78,7 +78,8 @@ Definition z : T := varterm (2: bool_varspec).
 
 (** Example: evaluation of true & false *)
 
-Eval lazy in interp (λ n, false) (conj top bot).
+Goal interp (λ n, false) (conj top bot) = false.
+Proof. lazy. apply idpath. Qed.
 
 (** A simple evaluation function for variables:
     assign true to x and y (the 0th and 1st variable) and false otherwise.
@@ -93,13 +94,13 @@ Definition v n :=
 
 (** Example: evaluation of x ∧ (¬ y ∧ z) *)
 
-Eval lazy in
-    interp v (conj x (conj (neg  y) z)).
+Goal interp v (conj x (conj (neg  y) z)) = false.
+Proof. lazy. apply idpath. Qed.
 
 (** Example: evaluation of x ∧ (z → ¬ y) *)
 
-Eval lazy in
-    interp v (conj x (impl z (neg  y))).
+Goal interp v (conj x (impl z (neg  y))) = true.
+Proof. lazy. apply idpath. Qed.
 
 (** Dummett tautology *)
 
@@ -128,10 +129,17 @@ Proof.
   - exact false.
 Defined.
 
-Eval lazy in interp f (conj x top).
-Eval lazy in interp f (conj x y).
-Eval lazy in interp f (disj x y).
-Eval lazy in interp f (disj x (conj y bot)).
+Goal interp f (conj x top) = true.
+Proof. lazy. apply idpath. Qed.
+
+Goal interp f (conj x y) = false.
+Proof. lazy. apply idpath. Qed.
+
+Goal interp f (disj x y) = true.
+Proof. lazy. apply idpath. Qed.
+
+Goal interp f (disj x (conj y bot)) = true.
+Proof. lazy. apply idpath. Qed.
 
 End Tests.
 
