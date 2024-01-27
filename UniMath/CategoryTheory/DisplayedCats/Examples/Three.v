@@ -6,7 +6,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
+Require Import CategoryTheory.DisplayedCats.Examples.Arrow.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.
@@ -27,11 +27,15 @@ Proof.
   use make_disp_cat_ob_mor.
   - exact ((λ xy, ∑ z (xz : (arrow_dom xy) --> z) (zy : z --> (arrow_cod xy)), xz · zy = arrow_mor xy)).
   - (* double commutative square *)
-    simpl.
     intros xy ab H0 H1 fff.
-    destruct H0 as [z [xz [zy]]].
-    destruct H1 as [c [ac [cb]]].
-    destruct fff as [[f0 f1]].
+    set (z := pr1 H0).
+    set (xz := pr12 H0).
+    set (zy := pr122 H0).
+    set (c := pr1 H1).
+    set (ac := pr12 H1).
+    set (cb := pr122 H1).
+    set (f0 := pr11 fff).
+    set (f1 := pr21 fff).
     exact (∑ (f : z --> c), (xz · f = f0 · ac) × (zy · f1 = f · cb)).
 Defined.
 
@@ -42,20 +46,31 @@ Proof.
     (* middle morphism is also identity *)
     exists (identity _).
     abstract (split; now rewrite id_left, id_right).
-  - intros.
-    destruct X as [f0 [H0 H1]].
-    destruct X0 as [g0 [K0 K1]].
+  - intros x y z f g xx yy zz X Y.
+    (* destruct X as [f0 [H0 H1]]. *)
+    set (f0 := pr1 X).
+    set (H0 := pr12 X).
+    set (H1 := pr22 X).
+    (* destruct Y as [g0 [K0 K1]]. *)
+    set (g0 := pr1 Y).
+    set (K0 := pr12 Y).
+    set (K1 := pr22 Y).
 
     (* middle map of composite is composite of middle maps *)
     exists (f0 · g0).
     abstract (
-      simpl;
       split; [
-        rewrite assoc, H0, <- assoc;
+        etrans; [apply assoc|];
+        etrans; [apply cancel_postcomposition, H0|];
+        etrans; [apply assoc'|];
         etrans; [apply maponpaths; exact K0|];
-        now rewrite assoc
-      |
-        rewrite <- assoc, <- K1, assoc, assoc;
+        apply assoc
+      | apply pathsinv0;
+        etrans; [apply assoc'|];
+        etrans; [apply cancel_precomposition, (pathsinv0 K1)|];
+        etrans; [apply assoc|];
+        apply pathsinv0;
+        etrans; [apply assoc|];
         apply cancel_postcomposition;
         exact H1
       ]
@@ -80,6 +95,7 @@ Proof.
     destruct ff as [ff H].
     apply pathsinv0.
     
+    (* todo: understand this *)
     etrans. 
     use (pr1_transportf (A := x --> y)).
     cbn; apply (eqtohomot (transportf_const _ _)).
