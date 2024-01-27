@@ -271,10 +271,9 @@ Proof.
         etrans; [apply id_right|];
         apply pathsinv0;
         etrans; [apply postcompWithColimArrow|];
-        apply maponpaths;
-        use cocone_paths;
+        use colimArrowUnique;
         intro u;
-        (* cbn. *)
+        etrans; [apply colimArrowCommutes|];
         (* naturality of coconeIn cc at u *)
         etrans; [exact (pathsinv0 (pr22 (pr1 (coconeIn cc u) a)))|];
         apply id_right
