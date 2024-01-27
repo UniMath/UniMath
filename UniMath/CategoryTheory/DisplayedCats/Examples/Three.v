@@ -6,7 +6,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
-Require Import CategoryTheory.DisplayedCats.Examples.Arrow.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.
