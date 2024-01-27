@@ -1,184 +1,64 @@
 (**************************************************************************************************
 
-  The category of algebraic theory presheaves
+  Properties of the category of algebraic theory presheaves
 
-  Defines the category of presheaves for an algebraic theory. First, the category of dependent pairs
-  of theories and presheaves is formalized as a stack of displayed categories, then the category of
-  presheaves is a fiber of a (repeated) sigma category of this. It is shown that presheaves are
-  fibered over algebraic theories. The displayed category structure is then leveraged to show that
-  the category is univalent and has all limits. To facilitate computation, concrete definitions of
-  the terminal object, binary product and product are given.
+  Shows that presheaves are fibered over algebraic theories. The displayed category structure is
+  then leveraged to show that the category is univalent and has all limits. To facilitate
+  computation, concrete definitions of the terminal object, binary product and product are given.
 
   Contents
-  1. The dependent product category of theories and presheaves [presheaf_full_cat]
-  2. The category of presheaves [presheaf_cat]
-  3. Univalence [is_univalent_presheaf_cat]
-  4. Fibration [presheaf_fibration]
-  5. Limits [limits_presheaf_cat]
-  6. Terminal object [terminal_presheaf_cat]
-  7. Binary products [bin_products_presheaf_cat]
-  8. Products [products_presheaf_cat]
+  1. Univalence [is_univalent_presheaf_cat]
+  2. Fibration [presheaf_fibration]
+  3. Limits [limits_presheaf_cat]
+  4. Terminal object [terminal_presheaf_cat]
+  5. Binary products [bin_products_presheaf_cat]
+  6. Products [products_presheaf_cat]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Cartesian.
-Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Limits.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
-Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
-Require Import UniMath.AlgebraicTheories.FiniteSetSkeleton.
+Require Import UniMath.AlgebraicTheories.IndexedSetCategory.
+Require Import UniMath.AlgebraicTheories.PresheafCategoryCore.
 Require Import UniMath.AlgebraicTheories.PresheafMorphisms.
 Require Import UniMath.AlgebraicTheories.Presheaves.
 
-Local Open Scope algebraic_theories.
 Local Open Scope cat.
 Local Open Scope mor_disp.
 
-(** * 1. The dependent product category of theories and presheaves *)
-
-Definition presheaf_data_disp_cat
-  : disp_cat (cartesian algebraic_theory_cat base_functor_category).
-Proof.
-  use disp_struct.
-  - intro X.
-    pose (T := pr1 X : algebraic_theory).
-    pose (A := pr2 X : finite_set_skeleton_category ⟶ HSET).
-    exact (∏ m n, (A m : hSet) → (stn m → (T n : hSet)) → (A n : hSet)).
-  - intros X X' action action' Y.
-    pose (A := pr2 X : finite_set_skeleton_category ⟶ HSET).
-    pose (A' := pr2 X' : finite_set_skeleton_category ⟶ HSET).
-    pose (F := pr1 Y : algebraic_theory_morphism _ _).
-    pose (G := pr2 Y : nat_trans A A').
-    exact (∏ m n a f, G n (action m n a f) = action' m n (G m a) (λ i, F n (f i))).
-  - abstract (
-      intros;
-      do 4 (apply impred_isaprop; intro);
-      apply setproperty
-    ).
-  - abstract (
-      intros X action n m f a;
-      refine (maponpaths (λ x, _ (x _) _ _) (transportf_const _ _) @ !_);
-      exact (maponpaths (λ x, _ (_ (x _) _ _) _) (transportf_const _ _))
-    ).
-  - abstract (
-      intros X X' X'' action action' action'' y y' Gcommutes G'commutes m n a f;
-      refine (maponpaths (λ x, _ (x _) _ _) (transportf_const _ _) @ !_);
-      refine (maponpaths (λ x, _ (_ (x _) _ _) _) (transportf_const _ _) @ !_);
-      exact (maponpaths _ (Gcommutes _ _ _ _) @ (G'commutes _ _ _ _))
-    ).
-Defined.
-
-Definition presheaf_data_cat
-  : category
-  := total_category presheaf_data_disp_cat.
-
-Definition presheaf_full_disp_cat
-  : disp_cat presheaf_data_cat
-  := disp_full_sub presheaf_data_cat
-    (λ X, is_presheaf (make_presheaf_data (pr21 X) (pr2 X))).
-
-Definition presheaf_full_cat
-  : category
-  := total_category presheaf_full_disp_cat.
-
-(** * 2. The category of presheaves *)
-
-Definition presheaf_disp_cat
-  : disp_cat algebraic_theory_cat
-  := sigma_disp_cat (sigma_disp_cat presheaf_full_disp_cat).
-
-Lemma displayed_presheaf_morphism_eq
-  {T T' : algebraic_theory}
-  {F : algebraic_theory_morphism T T'}
-  {P : presheaf T}
-  {P' : presheaf T'}
-  (G G' : (P : presheaf_disp_cat _) -->[F] P')
-  (H : pr1 G = pr1 G')
-  : G = G'.
-Proof.
-  refine (subtypePath _ H).
-  intro.
-  use (isapropdirprod _ _ _ isapropunit).
-  do 4 (apply impred_isaprop; intro).
-  apply setproperty.
-Qed.
-
-Definition presheaf_cat
-  (T : algebraic_theory)
-  : category
-  := fiber_category presheaf_disp_cat T.
-
-Section Test.
-  Goal ∏ T, ob (presheaf_cat T) = presheaf T.
-    exact (λ _, idpath _).
-  Qed.
-  Goal ∏ (T : algebraic_theory) (P P' : presheaf T),
-    presheaf_cat T ⟦P, P'⟧ = presheaf_morphism P P'.
-    intros.
-    apply idpath.
-  Qed.
-End Test.
-
-Lemma presheaf_mor_comp
-  {T : algebraic_theory}
-  {P P' P'' : presheaf_cat T}
-  (F : presheaf_cat T⟦P, P'⟧)
-  (F' : presheaf_cat T⟦P', P''⟧)
-  (n : nat)
-  : pr11 (F · F') n = (pr11 F n) · (pr11 F' n).
-Proof.
-  refine (maponpaths (λ z, pr1 z _) (pr1_transportf (B := λ _, _ ⟹ _) _ _) @ _).
-  refine (maponpaths (λ z, pr1 (z _) _) (transportf_const _ _) @ _).
-  exact (maponpaths (λ z, pr1 (z _) _) (transportf_const _ _)).
-Qed.
-
-Lemma presheaf_identity_on_element
-  {T : algebraic_theory}
-  {n : nat}
-  (P : presheaf T)
-  (x : (P n : hSet))
-  : pr11 (identity (P : presheaf_cat T)) n x = x.
-Proof.
-  exact (maponpaths (λ x, pr1 (x _) _ _) (transportb_const _ (P ⟹ P))).
-Qed.
-
-(** * 3. Univalence *)
+(** * 1. Univalence *)
 
 Lemma is_univalent_disp_presheaf_data_disp_cat
   : is_univalent_disp presheaf_data_disp_cat.
 Proof.
   apply is_univalent_disp_iff_fibers_are_univalent.
-  intros TA action action'.
+  intros TA op op'.
   use isweq_iso.
   - intro F.
     do 4 (apply funextsec; intro).
-    refine (maponpaths (λ x, _ (x _) _ _) (!transportf_const _ _) @ pr1 F _ _ _ _ @ _).
-    exact (maponpaths (λ x, _ (_ (x _) _ _) _) (transportf_const _ _)).
+    apply (pr1 F _).
   - intro.
     do 4 (apply impred_isaset; intro).
     apply setproperty.
@@ -192,10 +72,9 @@ Lemma is_univalent_presheaf_data_cat
   : is_univalent presheaf_data_cat.
 Proof.
   apply is_univalent_total_category.
-  - rewrite cartesian_is_binproduct.
-    use is_univalent_category_binproduct.
+  - apply is_univalent_cartesian'.
     + exact is_univalent_algebraic_theory_cat.
-    + exact (is_univalent_functor_category _ _ is_univalent_HSET).
+    + apply is_univalent_indexed_set_cat.
   - exact is_univalent_disp_presheaf_data_disp_cat.
 Qed.
 
@@ -203,7 +82,8 @@ Lemma is_univalent_disp_presheaf_full_disp_cat
   : is_univalent_disp presheaf_full_disp_cat.
 Proof.
   apply disp_full_sub_univalent.
-  exact (λ _, isaprop_is_presheaf _).
+  intro.
+  apply isaprop_full_is_presheaf.
 Qed.
 
 Lemma is_univalent_presheaf_full_cat
@@ -218,10 +98,8 @@ Lemma is_univalent_disp_presheaf_disp_cat
   : is_univalent_disp presheaf_disp_cat.
 Proof.
   repeat use is_univalent_sigma_disp.
-  - apply is_univalent_reindex_disp_cat.
-    apply is_univalent_disp_disp_over_unit.
-    apply is_univalent_functor_category.
-    exact is_univalent_HSET.
+  - apply is_univalent_disp_cartesian'.
+    apply is_univalent_indexed_set_cat.
   - exact is_univalent_disp_presheaf_data_disp_cat.
   - exact is_univalent_disp_presheaf_full_disp_cat.
 Qed.
@@ -234,23 +112,23 @@ Proof.
   exact is_univalent_disp_presheaf_disp_cat.
 Qed.
 
-(** * 4. Fibration *)
+(** * 2. Fibration *)
 
 Section fibration.
 
   Section lift.
 
-    Context {c c' : algebraic_theory}.
-    Context (f : algebraic_theory_morphism c' c).
-    Context (d : presheaf c).
+    Context {T T' : algebraic_theory}.
+    Context (F : algebraic_theory_morphism T' T).
+    Context (P : presheaf T).
 
     Definition lifted_presheaf_data
-      : presheaf_data c'.
+      : presheaf_data T'.
     Proof.
       use make_presheaf_data.
-      - exact (pr1 d).
+      - exact (pr1 P).
       - intros m n s t.
-        exact (action (P := d) s (λ i, f _ (t i))).
+        exact (op (P := P) s (λ i, F _ (t i))).
     Defined.
 
     Definition lifted_is_presheaf
@@ -258,81 +136,60 @@ Section fibration.
     Proof.
       use make_is_presheaf.
       - do 6 intro.
-        refine (presheaf_is_assoc d _ _ _ _ _ _ @ _).
-        apply (maponpaths (pr12 d l n a)).
+        refine (op_op _ a _ _ @ _).
+        apply (maponpaths (op (P := P) a)).
         apply funextfun.
         intro.
         symmetry.
-        apply algebraic_theory_morphism_preserves_composition.
+        apply mor_comp.
       - do 2 intro.
-        refine (_ @ presheaf_identity_projections d _ _).
-        apply (maponpaths (pr12 d n n a)).
+        refine (_ @ op_pr P _).
+        apply (maponpaths (op (P := P) f)).
         apply funextfun.
         intro.
-        apply algebraic_theory_morphism_preserves_projections.
-      - do 6 intro.
-        apply presheaf_action_is_natural.
+        apply mor_pr.
     Qed.
 
     Definition lifted_presheaf
-      : presheaf c'
+      : presheaf T'
       := make_presheaf _ lifted_is_presheaf.
 
     Definition lifted_presheaf_morphism
-      : (lifted_presheaf : presheaf_disp_cat c') -->[f] d.
+      : (lifted_presheaf : presheaf_disp_cat T') -->[F] P.
     Proof.
       use tpair.
-      - apply nat_trans_id.
-      - refine (_ ,, tt).
-        now do 4 intro.
+      - exact (λ _, idfun _).
+      - abstract exact ((λ _ _ _ _, idpath _) ,, tt).
     Defined.
 
     Section cartesian.
 
-      Context {c'': algebraic_theory}.
-      Context {g: algebraic_theory_morphism c'' c'}.
-      Context {d'': presheaf c''}.
-      Context (hh: (d'' : presheaf_disp_cat c'') -->[(g : algebraic_theory_cat ⟦ _, _ ⟧) · f] d).
+      Context {T'': algebraic_theory}.
+      Context {F': algebraic_theory_morphism T'' T'}.
+      Context {P'': presheaf T''}.
+      Context (G: (P'' : presheaf_disp_cat T'') -->[(F' : algebraic_theory_cat ⟦ _, _ ⟧) · F] P).
 
       Definition induced_morphism
-        : (d'' : presheaf_disp_cat c'') -->[ g] lifted_presheaf.
+        : (P'' : presheaf_disp_cat T'') -->[F'] lifted_presheaf.
       Proof.
         use tpair.
-        - exact (pr1 hh).
-        - refine (_ ,, tt).
-          do 4 intro.
-          exact (pr12 hh _ _ _ _).
+        - exact (pr1 G).
+        - abstract exact ((λ _ _ _ _, pr12 G _ _ _ _) ,, tt).
       Defined.
 
       Lemma induced_morphism_commutes
-        : (induced_morphism ;; lifted_presheaf_morphism) = hh.
+        : (induced_morphism ;; lifted_presheaf_morphism) = G.
       Proof.
-        apply displayed_presheaf_morphism_eq.
-        refine (comp_disp_cartesian _ _ _ _ @ _).
-        apply (nat_trans_eq (homset_property HSET)).
-        intro.
-        apply funextfun.
-        now intro.
+        now apply displayed_presheaf_morphism_eq.
       Qed.
 
       Lemma induced_morphism_unique
-        (t : ∑ induced_morphism', (induced_morphism' ;; lifted_presheaf_morphism) = hh)
-        : t = induced_morphism ,, induced_morphism_commutes.
+        (induced_morphism' : (P'' : presheaf_disp_cat T'') -->[F'] lifted_presheaf)
+        (H : (induced_morphism' ;; lifted_presheaf_morphism) = G)
+        : induced_morphism' = induced_morphism.
       Proof.
-        apply subtypePairEquality.
-        {
-          intro.
-          apply homsets_disp.
-        }
         apply displayed_presheaf_morphism_eq.
-        refine (
-          nat_trans_eq (homset_property HSET) _ _ _ _ _ @
-          !comp_disp_cartesian _ _ (pr11 t) _ @
-          maponpaths _ (pr2 t)
-        ).
-        intro.
-        apply funextfun.
-        now intro.
+        exact (maponpaths _ H).
       Qed.
 
     End cartesian.
@@ -340,21 +197,22 @@ Section fibration.
     Definition lifted_presheaf_morphism_is_cartesian
       : is_cartesian lifted_presheaf_morphism.
     Proof.
-      intros c'' g d'' hh.
-      use ((_ ,, _) ,, _).
-      - exact (induced_morphism hh).
-      - exact (induced_morphism_commutes hh).
-      - exact (induced_morphism_unique hh).
+      intros T'' F' P'' G.
+      use unique_exists.
+      - exact (induced_morphism G).
+      - exact (induced_morphism_commutes G).
+      - abstract (intro; apply homsets_disp).
+      - exact (induced_morphism_unique G).
     Defined.
 
   End lift.
 
   Definition presheaf_cleaving
     : cleaving presheaf_disp_cat
-    := λ c c' f d,
-      (lifted_presheaf f d) ,,
-      (lifted_presheaf_morphism f d) ,,
-      (lifted_presheaf_morphism_is_cartesian f d).
+    := λ T T' F P,
+      (lifted_presheaf F P) ,,
+      (lifted_presheaf_morphism F P) ,,
+      (lifted_presheaf_morphism_is_cartesian F P).
 
   Definition presheaf_fibration
     : fibration algebraic_theory_cat
@@ -362,18 +220,18 @@ Section fibration.
 
 End fibration.
 
-(** * 5. Limits *)
+(** * 3. Limits *)
 
 Definition creates_limits_presheaf_base_disp
-  : creates_limits (disp_cartesian algebraic_theory_cat base_functor_category).
+  : creates_limits (disp_cartesian' algebraic_theory_cat (indexed_set_cat nat)).
 Proof.
   intros J d L.
-  use creates_limits_disp_cartesian.
-  apply limits_base_functor_category.
+  use creates_limits_disp_cartesian'.
+  apply limits_indexed_set_cat.
 Defined.
 
 Definition limits_presheaf_base
-  : Lims (cartesian algebraic_theory_cat base_functor_category).
+  : Lims (cartesian' algebraic_theory_cat (indexed_set_cat nat)).
 Proof.
   intros J d.
   use total_limit.
@@ -480,18 +338,17 @@ Definition creates_limits_presheaf_full_disp_cat
 Proof.
   apply creates_limit_disp_full_sub.
   - intro.
-    apply isaprop_is_presheaf.
+    apply isaprop_full_is_presheaf.
   - abstract (
-      use make_is_presheaf;
+      split;
         repeat intro;
         (use total2_paths_f;
         [ apply funextsec;
-          intro
+          intro u
         | do 3 (apply impred_isaprop; intro);
           apply setproperty ]);
       [ apply (pr1 (pr2 (dob d _)))
-      | apply (pr12 (pr2 (dob d _)))
-      | apply (pr22 (pr2 (dob d _))) ]
+      | apply (pr2 (pr2 (dob d _))) ]
     ).
 Defined.
 
@@ -500,7 +357,7 @@ Definition creates_limits_unique_presheaf_full_disp_cat
   (d : diagram J (total_category presheaf_full_disp_cat))
   : creates_limit_unique d (limits_presheaf_data_cat _ _)
   := creates_limit_unique_disp_full_sub
-    (λ _, isaprop_is_presheaf _)
+    (λ _, isaprop_full_is_presheaf _)
     _
     (creates_limits_presheaf_full_disp_cat _).
 
@@ -530,35 +387,34 @@ Proof.
   - apply presheaf_cleaving.
 Defined.
 
-(** * 6. Terminal object *)
+(** * 4. Terminal object *)
 
 Section Terminal.
 
   Context (T : algebraic_theory).
 
-  Definition terminal_presheaf'_data
-    : presheaf'_data T.
+  Definition terminal_presheaf_data
+    : presheaf_data T.
   Proof.
-    use make_presheaf'_data.
+    use make_presheaf_data.
     - exact (λ _, unitset).
     - exact (λ _ _ _ _, tt).
   Defined.
 
-  Lemma terminal_is_presheaf'
-    : is_presheaf' terminal_presheaf'_data.
+  Lemma terminal_is_presheaf
+    : is_presheaf terminal_presheaf_data.
   Proof.
-    use make_is_presheaf';
+    use make_is_presheaf;
       repeat intro.
     - apply idpath.
-    - symmetry.
-      apply iscontrunit.
+    - refine (!pr2 iscontrunit _).
   Qed.
 
   Definition terminal_presheaf
     : presheaf T
-    := make_presheaf'
-      terminal_presheaf'_data
-      terminal_is_presheaf'.
+    := make_presheaf
+      terminal_presheaf_data
+      terminal_is_presheaf.
 
   Section TerminalMorphism.
 
@@ -567,10 +423,9 @@ Section Terminal.
     Definition terminal_presheaf_morphism
       : presheaf_morphism P terminal_presheaf.
     Proof.
-      use make_presheaf_morphism'.
-      - intros.
-        exact tt.
-      - abstract trivial.
+      use make_presheaf_morphism.
+      - exact (λ _ _, tt).
+      - abstract easy.
     Defined.
 
     Lemma terminal_presheaf_morphism_unique
@@ -590,7 +445,7 @@ Definition terminal_presheaf_cat
   : Terminal (presheaf_cat T).
 Proof.
   use tpair.
-  - exact (make_presheaf' terminal_presheaf'_data terminal_is_presheaf').
+  - exact (make_presheaf terminal_presheaf_data terminal_is_presheaf).
   - intro P.
     use make_iscontr.
     + exact (terminal_presheaf_morphism P).
@@ -599,55 +454,55 @@ Defined.
 
 End Terminal.
 
-(** * 7. Binary products *)
+(** * 5. Binary products *)
 
 Section BinProduct.
 
   Context (T : algebraic_theory).
   Context (P P': presheaf T).
 
-  Definition binproduct_presheaf'_data
-    : presheaf'_data T.
+  Definition binproduct_presheaf_data
+    : presheaf_data T.
   Proof.
-    use make_presheaf'_data.
+    use make_presheaf_data.
     - exact (λ n, dirprod_hSet (P n) (P' n)).
-    - exact (λ m n t f, (action (pr1 t) f ,, action (pr2 t) f)).
+    - exact (λ m n t f, (op (pr1 t) f ,, op (pr2 t) f)).
   Defined.
 
-  Lemma binproduct_is_presheaf'
-    : is_presheaf' binproduct_presheaf'_data.
+  Lemma binproduct_is_presheaf
+    : is_presheaf binproduct_presheaf_data.
   Proof.
     split.
     - do 6 intro.
       apply pathsdirprod;
-      apply presheaf_is_assoc.
+      apply op_op.
     - do 2 intro.
       apply pathsdirprod;
-      apply presheaf_identity_projections.
+      apply op_pr.
   Qed.
 
   Definition binproduct_presheaf
     : presheaf T
-    := make_presheaf'
-      binproduct_presheaf'_data
-      binproduct_is_presheaf'.
+    := make_presheaf
+      binproduct_presheaf_data
+      binproduct_is_presheaf.
 
   Definition binproduct_presheaf_pr1
     : presheaf_morphism binproduct_presheaf P.
   Proof.
-    use make_presheaf_morphism'.
+    use make_presheaf_morphism.
     - intro n.
       exact pr1.
-    - abstract trivial.
+    - abstract easy.
   Defined.
 
   Definition binproduct_presheaf_pr2
     : presheaf_morphism binproduct_presheaf P'.
   Proof.
-    use make_presheaf_morphism'.
+    use make_presheaf_morphism.
     - intro n.
       exact pr2.
-    - abstract trivial.
+    - abstract easy.
   Defined.
 
   Section UniversalProperty.
@@ -656,30 +511,29 @@ Section BinProduct.
     Context (F: presheaf_morphism Q P).
     Context (F' : presheaf_morphism Q P').
 
-    Definition binproduct_presheaf_induced_morphism'_data
+    Definition binproduct_presheaf_induced_morphism_data
       (n : nat)
-      (q : (Q n : hSet))
-      : (binproduct_presheaf n : hSet).
+      (q : Q n)
+      : binproduct_presheaf n.
     Proof.
       exact (F _ q ,, F' _ q).
     Defined.
 
-    Lemma binproduct_presheaf_induced_is_morphism'
+    Lemma binproduct_presheaf_induced_is_morphism
       (m n : nat)
-      (a : Q m : hSet)
-      (f : (⟦ m ⟧)%stn → T n : hSet)
-      : binproduct_presheaf_induced_morphism'_data n (action a f) =
-        action (binproduct_presheaf_induced_morphism'_data m a) f.
+      (a : Q m)
+      (f : stn m → T n)
+      : mor_op_ax (identity T) binproduct_presheaf_induced_morphism_data (@op T Q) (@op T binproduct_presheaf) m n a f.
     Proof.
       apply pathsdirprod;
-        apply presheaf_morphism_commutes_with_action.
+        apply mor_op.
     Qed.
 
     Definition binproduct_presheaf_induced_morphism
       : presheaf_morphism Q binproduct_presheaf
-      := make_presheaf_morphism'
-        binproduct_presheaf_induced_morphism'_data
-        binproduct_presheaf_induced_is_morphism'.
+      := make_presheaf_morphism
+        binproduct_presheaf_induced_morphism_data
+        binproduct_presheaf_induced_is_morphism.
 
     Lemma binproduct_presheaf_induced_morphism_commutes
       : (binproduct_presheaf_induced_morphism : presheaf_cat T⟦Q, binproduct_presheaf⟧) ·
@@ -688,10 +542,10 @@ Section BinProduct.
           binproduct_presheaf_pr2 = F'.
     Proof.
       split;
-      apply displayed_presheaf_morphism_eq;
-      apply (nat_trans_eq (homset_property HSET));
-      intro n;
-      exact (presheaf_mor_comp _ _ _).
+        apply displayed_presheaf_morphism_eq;
+        apply funextsec;
+        intro n;
+        apply presheaf_mor_comp.
     Qed.
 
     Lemma binproduct_presheaf_induced_morphism_unique
@@ -706,14 +560,14 @@ Section BinProduct.
           apply homset_property.
       }
       apply displayed_presheaf_morphism_eq.
-      apply (nat_trans_eq (homset_property HSET)).
+      apply funextsec.
       intro n.
       apply funextfun.
       intro s.
       apply pathsdirprod.
-      - refine (!_ @ maponpaths (λ x, pr11 x _ _) (pr12 t)).
+      - refine (!_ @ maponpaths (λ x, pr1 x _ _) (pr12 t)).
         exact (maponpaths (λ x, x _) (presheaf_mor_comp _ _ _)).
-      - refine (!_ @ maponpaths (λ x, pr11 x _ _) (pr22 t)).
+      - refine (!_ @ maponpaths (λ x, pr1 x _ _) (pr22 t)).
         exact (maponpaths (λ x, x _) (presheaf_mor_comp _ _ _)).
     Qed.
 
@@ -742,7 +596,7 @@ Definition bin_products_presheaf_cat
   : BinProducts (presheaf_cat T)
   := bin_product_presheaf_cat T.
 
-(** * 8. Products *)
+(** * 6. Products *)
 
 Section Product.
 
@@ -750,42 +604,42 @@ Section Product.
   Context (I : UU).
   Context (P : I → presheaf T).
 
-  Definition product_presheaf'_data
-    : presheaf'_data T.
+  Definition product_presheaf_data
+    : presheaf_data T.
   Proof.
-    use make_presheaf'_data.
+    use make_presheaf_data.
     - intro n.
       exact (forall_hSet (λ i, P i n)).
-    - exact (λ m n t f i, action (t i) f).
+    - exact (λ m n t f i, op (t i) f).
   Defined.
 
-  Lemma product_is_presheaf'
-    : is_presheaf' product_presheaf'_data.
+  Lemma product_is_presheaf
+    : is_presheaf product_presheaf_data.
   Proof.
     split.
     - do 6 intro.
       apply funextsec.
       intro.
-      apply presheaf_is_assoc.
+      apply op_op.
     - do 2 intro.
       apply funextsec.
       intro.
-      apply presheaf_identity_projections.
+      apply op_pr.
   Qed.
 
   Definition product_presheaf
     : presheaf T
-    := make_presheaf'
-      product_presheaf'_data
-      product_is_presheaf'.
+    := make_presheaf
+      product_presheaf_data
+      product_is_presheaf.
 
   Definition product_presheaf_pr
     (i : I)
     : presheaf_morphism product_presheaf (P i).
   Proof.
-    use (make_presheaf_morphism' (P := make_presheaf' _ _)).
+    use (make_presheaf_morphism (P := make_presheaf _ _)).
     - exact (λ n t, t i).
-    - abstract trivial.
+    - abstract easy.
   Defined.
 
   Section UniversalProperty.
@@ -793,33 +647,32 @@ Section Product.
     Context (Q : presheaf T).
     Context (F : ∏ i, presheaf_morphism Q (P i)).
 
-    Definition product_presheaf_induced_morphism'_data
+    Definition product_presheaf_induced_morphism_data
       (n : nat)
-      (q : (Q n : hSet))
-      : (product_presheaf n : hSet).
+      (q : Q n)
+      : product_presheaf n.
     Proof.
       intro i.
       exact (F i n q).
     Defined.
 
-    Lemma product_presheaf_induced_is_morphism'
+    Lemma product_presheaf_induced_is_morphism
       (m n : nat)
-      (a : Q m : hSet)
-      (f : (⟦ m ⟧)%stn → T n : hSet)
-      : product_presheaf_induced_morphism'_data n (action a f) =
-        action (product_presheaf_induced_morphism'_data m a) f.
+      (a : Q m)
+      (f : stn m → T n)
+      : mor_op_ax (identity T) product_presheaf_induced_morphism_data (@op T Q) (@op T product_presheaf) m n a f.
     Proof.
       intros.
       apply funextsec.
       intro.
-      apply presheaf_morphism_commutes_with_action.
+      apply mor_op.
     Qed.
 
     Definition product_presheaf_induced_morphism
       : presheaf_morphism Q product_presheaf
-      := make_presheaf_morphism'
-        product_presheaf_induced_morphism'_data
-        product_presheaf_induced_is_morphism'.
+      := make_presheaf_morphism
+        product_presheaf_induced_morphism_data
+        product_presheaf_induced_is_morphism.
 
     Lemma product_presheaf_induced_morphism_commutes
       (i : I)
@@ -827,7 +680,7 @@ Section Product.
           product_presheaf_pr i = F i.
     Proof.
       apply displayed_presheaf_morphism_eq.
-      apply (nat_trans_eq (homset_property HSET)).
+      apply funextsec.
       intro n.
       apply presheaf_mor_comp.
     Qed.
@@ -845,13 +698,13 @@ Section Product.
         apply homset_property.
       }
       apply displayed_presheaf_morphism_eq.
-      apply (nat_trans_eq (homset_property HSET)).
+      apply funextsec.
       intro n.
       apply funextfun.
       intro s.
       apply funextsec.
       intro i.
-      refine (!_ @ maponpaths (λ x, pr11 x _ _) (pr2 t i)).
+      refine (!_ @ maponpaths (λ x, pr1 x _ _) (pr2 t i)).
       exact (maponpaths (λ x, x _) (presheaf_mor_comp _ _ _)).
     Qed.
 
