@@ -407,16 +407,16 @@ Proof.
   unfold three_mor11.
   cbn. *)
 
-  etrans. use pr1_section_disp_on_morphisms_comp.
+  etrans. use (pr1_section_disp_on_morphisms_comp F).
   apply pathsinv0.
-  etrans. use pr1_section_disp_on_morphisms_comp.
+  etrans. use (pr1_section_disp_on_morphisms_comp F).
 
   (* destruct τ as [τ τax]. *)
   (* unfold section_nat_trans_disp_axioms in τax. *)
   set (τcommf := base_paths _ _ 
                   ((section_nt_disp_axioms_from_section_nt_disp τ) _ _ γ)).
 
-  use section_disp_on_eq_morphisms.
+  use (section_disp_on_eq_morphisms F).
   - (* cbn makes it very slow *)
     (* cbn. *)
     etrans. exact (pathsinv0 τcommf).
@@ -534,7 +534,7 @@ Proof.
   
   (* unfold three_mor11.
   simpl. *)
-  use section_disp_on_eq_morphisms; reflexivity.
+  use (section_disp_on_eq_morphisms F); reflexivity.
 Qed.
 
 Definition Ff_l_assoc (F F' F'' : Ff C) :
@@ -586,7 +586,7 @@ Notation "τ ⊗post F" := (Ff_l_rightwhisker τ F) (at level 50).
 Notation "τ ⊗prod ρ" := (Ff_l_mor_comp τ ρ) (at level 50).
 
 
-Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import CategoryTheory.Monoidal.Categories.
 
 Section Ff_monoidal.
 
@@ -758,8 +758,8 @@ Definition Ff_monoidal : monoidal (Ff C) :=
 
 End Ff_monoidal.
 
-Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+Require Import CategoryTheory.Monads.Monads.
+Require Import CategoryTheory.Monoidal.CategoriesOfMonoids.
 
 Section Ff_monoid_is_RNWFS.
 
