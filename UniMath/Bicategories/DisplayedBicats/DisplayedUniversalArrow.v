@@ -197,14 +197,14 @@ Section MakeDisplayedLeftUniversalArrowIfPropositional.
                       (ff1 : xx -->[ f1] RR y yy) (ff2 : xx -->[ f2] RR y yy)
                       (α : f1 ==> f2),
               ff1 ==>[α] ff2
-              → (LL_mor x xx y yy f1 ff1) ==>[(# (right_adjoint ((pr22 LUR) x y)))%Cat α]
+              → (LL_mor x xx y yy f1 ff1) ==>[(# (right_adjoint ((pr22 LUR) x y)))%cat α]
                   (LL_mor x xx y yy f2 ff2)).
   Context (LL_unit : ∏ x xx y yy f ff,
               ff ==>[adjunit (adj x y) f]
-                (LL_mor x xx y yy (η x · (# R)%Cat f) (ηη x xx ;; disp_psfunctor_mor D1 D2 R RR ff))).
+                (LL_mor x xx y yy (η x · (# R)%cat f) (ηη x xx ;; disp_psfunctor_mor D1 D2 R RR ff))).
 
   Context (LL_unit_inv : ∏ x xx y yy f ff,
-        (LL_mor x xx y yy ((pr12 LUR) x · (# R)%Cat f) (ηη x xx ;; disp_psfunctor_mor D1 D2 R RR ff))
+        (LL_mor x xx y yy ((pr12 LUR) x · (# R)%cat f) (ηη x xx ;; disp_psfunctor_mor D1 D2 R RR ff))
           ==>[inv_from_z_iso (unit_pointwise_z_iso_from_adj_equivalence (adj x y) _)] ff).
 
   Context (LL_counit : ∏ x xx y yy f ff,
@@ -314,12 +314,12 @@ Section MakeDisplayedLeftUniversalArrowIfGroupoidalAndProp.
                       (ff1 : xx -->[ f1] RR y yy) (ff2 : xx -->[ f2] RR y yy)
                       (α : f1 ==> f2),
               ff1 ==>[α] ff2
-              → (LL_mor x xx y yy f1 ff1) ==>[(# (right_adjoint ((pr22 LUR) x y)))%Cat α]
+              → (LL_mor x xx y yy f1 ff1) ==>[(# (right_adjoint ((pr22 LUR) x y)))%cat α]
                   (LL_mor x xx y yy f2 ff2)
           ).
   Context (LL_unit : ∏ x xx y yy f ff,
         ff ==>[adjunit (adj x y) f]
-    (LL_mor x xx y yy (η x · (# R)%Cat f) (ηη x xx ;; disp_psfunctor_mor D1 D2 R RR ff))).
+    (LL_mor x xx y yy (η x · (# R)%cat f) (ηη x xx ;; disp_psfunctor_mor D1 D2 R RR ff))).
 
   Context (LL_counit : ∏ x xx y yy f ff,
         (ηη x xx ;; disp_psfunctor_mor D1 D2 R RR (LL_mor x xx y yy f ff))

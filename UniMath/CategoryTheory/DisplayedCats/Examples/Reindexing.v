@@ -483,7 +483,7 @@ Section IsCartesianFromReindexDispCat.
             (identity _)
             (transportb
                (λ z, xx -->[ z] yy)
-               (id_left ((# F)%Cat f))
+               (id_left ((# F)%cat f))
                ff)
           ;;
           cartesian_factorisation
@@ -491,7 +491,7 @@ Section IsCartesianFromReindexDispCat.
             (identity _)
             (transportb
                (mor_disp (pr1 ℓ) yy)
-               (maponpaths (λ z, (# F)%Cat z) (id_left f))
+               (maponpaths (λ z, (# F)%cat z) (id_left f))
                (pr12 ℓ)))%mor_disp
       as m'.
     pose (@cartesian_factorisation_unique
@@ -530,7 +530,7 @@ Section IsCartesianFromReindexDispCat.
                 (identity _)
                 (transportb
                    (mor_disp (pr1 ℓ) yy)
-                   (maponpaths (λ z : C₁ ⟦ x, y ⟧, (# F)%Cat z) (id_left f))
+                   (maponpaths (λ z : C₁ ⟦ x, y ⟧, (# F) z) (id_left f))
                    (pr12 ℓ)))
           as q.
         cbn in q.
@@ -1120,7 +1120,7 @@ Section ReindexIsPB.
                 _
                 (pr2 (HD₂ _ _ (nat_z_iso_pointwise_z_iso α x) (pr2 (G x)))
                  ;;
-                 (pr2 (#G f))%Cat
+                 (pr2 (#G f))%cat
                  ;;
                  inv_mor_disp_from_z_iso
                    (pr2 (HD₂ _ _ (nat_z_iso_pointwise_z_iso α y) (pr2 (G y)))))%mor_disp).
