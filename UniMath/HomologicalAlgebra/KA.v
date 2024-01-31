@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * K(A), the naive homotopy category of C(A) *)
 (** ** Contents
 - Definition of K(A)

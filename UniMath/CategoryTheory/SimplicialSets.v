@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Homotopy theory of simplicial sets.
 
 Vladimir Voevodsky

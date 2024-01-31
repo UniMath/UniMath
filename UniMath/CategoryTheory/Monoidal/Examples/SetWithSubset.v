@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (*
 In this file we construct the category whose objects are pairs, consisting of a set and a subset of that set, as a displayed category.
 Furthermore, we show that this displayed category is monoidal

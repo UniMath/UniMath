@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** this file is a follow-up of [MultisortedMonadConstruction_alt], where the semantic signatures [Signature] are replaced by functors with tensorial strength and HSS by MHSS
 
 based on the lax lineator constructed in [Multisorted_actegories] and transferred (through weak equivalence) to the strength notion of

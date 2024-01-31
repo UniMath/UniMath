@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (**
 Given a map between two functors, we get a pseudofunctor between their fundamental bigroupoids.
 

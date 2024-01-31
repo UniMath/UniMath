@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (**
 Dependent product of diplayed bicategories.
 If we have a type `J` and a family indexed by `J` of displayed bicategories on `J`,

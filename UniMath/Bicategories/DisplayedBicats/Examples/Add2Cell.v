@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (**
 Given is a displayed bicategory on C. Then we have a total category E of which the objects are objects in C with some additional structure.
 In this file, we give a method for adding 2-cells to the structure, which represents an equation on the structure in the total category.

@@ -1,0 +1,445 @@
+BEGIN_PROOF:funextcontrUAH
+- : unit = ()
+STEP1_PROOF:funextcontrUAH
+- : unit = ()
+STEP2_PROOF:funextcontrUAH
+- : unit = ()
+Goal:
+  
+  univalenceAxiom : univalenceStatement
+  T : UU
+  P : T → UU
+  g : ∏ t : T, P t
+  ============================
+   (∃! f : ∏ t : T, P t, ∏ t : T, f t = g t)
+
+
+Going to execute:
+simple_rapply p
+Evaluated term: (make_weq pr1 is1)
+Evaluated term: (iscontr T2)
+Evaluated term: (isweqrcompwithweqUAH w1 X (λ x : X, x))
+Evaluated term: (iscontrretract (hfibertosec P) (sectohfiber P)
+                   (sectohfibertosec P) X1)
+
+TcDebug (0) > 
+Goal:
+  
+  univalenceAxiom : univalenceStatement
+  T : UU
+  P : T → UU
+  g : ∏ t : T, P t
+  ============================
+   (∃! f : ∏ t : T, P t, ∏ t : T, f t = g t)
+
+
+Going to execute:
+fun p =>
+  simple refine p ||
+    simple refine (p _) ||
+      simple refine (p _ _) ||
+        simple refine (p _ _ _) ||
+          simple refine (p _ _ _ _) ||
+            simple refine (p _ _ _ _ _) ||
+              simple refine (p _ _ _ _ _ _) ||
+                simple refine (p _ _ _ _ _ _ _) ||
+                  simple refine (p _ _ _ _ _ _ _ _) ||
+                    simple refine (p _ _ _ _ _ _ _ _ _) ||
+                      simple refine (p _ _ _ _ _ _ _ _ _ _) ||
+                        simple refine (p _ _ _ _ _ _ _ _ _ _ _) ||
+                          simple refine (p _ _ _ _ _ _ _ _ _ _ _ _) ||
+                            simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+                              simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _)
+                               || simple refine
+                               (p _ _ _ _ _ _ _ _ _ _ _ _ _ _ _)
+
+TcDebug (1) > 
+Goal:
+  
+  univalenceAxiom : univalenceStatement
+  T : UU
+  P : T → UU
+  g : ∏ t : T, P t
+  ============================
+   (∃! f : ∏ t : T, P t, ∏ t : T, f t = g t)
+
+
+Going to execute:
+simple refine p ||
+  simple refine (p _) ||
+    simple refine (p _ _) ||
+      simple refine (p _ _ _) ||
+        simple refine (p _ _ _ _) ||
+          simple refine (p _ _ _ _ _) ||
+            simple refine (p _ _ _ _ _ _) ||
+              simple refine (p _ _ _ _ _ _ _) ||
+                simple refine (p _ _ _ _ _ _ _ _) ||
+                  simple refine (p _ _ _ _ _ _ _ _ _) ||
+                    simple refine (p _ _ _ _ _ _ _ _ _ _) ||
+                      simple refine (p _ _ _ _ _ _ _ _ _ _ _) ||
+                        simple refine (p _ _ _ _ _ _ _ _ _ _ _ _) ||
+                          simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+                            simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+                              simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _ _)
+
+TcDebug (1) > 
+Goal:
+  
+  univalenceAxiom : univalenceStatement
+  T : UU
+  P : T → UU
+  g : ∏ t : T, P t
+  ============================
+   (∃! f : ∏ t : T, P t, ∏ t : T, f t = g t)
+
+
+Going to execute:
+simple refine p
+Level 1: evaluation returns
+simple refine p ||
+  simple refine (p _) ||
+    simple refine (p _ _) ||
+      simple refine (p _ _ _) ||
+        simple refine (p _ _ _ _) ||
+          simple refine (p _ _ _ _ _) ||
+            simple refine (p _ _ _ _ _ _) ||
+              simple refine (p _ _ _ _ _ _ _) ||
+                simple refine (p _ _ _ _ _ _ _ _) ||
+                  simple refine (p _ _ _ _ _ _ _ _ _) ||
+                    simple refine (p _ _ _ _ _ _ _ _ _ _) ||
+                      simple refine (p _ _ _ _ _ _ _ _ _ _ _) ||
+                        simple refine (p _ _ _ _ _ _ _ _ _ _ _ _) ||
+                          simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+                            simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+                              simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _ _)
+where
+p := iscontrretract
+of type
+uconstr of type tacvalue
+
+
+TcDebug (0) > 
+Goal:
+  
+  univalenceAxiom : univalenceStatement
+  T : UU
+  P : T → UU
+  g : ∏ t : T, P t
+  ============================
+   (∃! f : ∏ t : T, P t, ∏ t : T, f t = g t)
+
+
+Going to execute:
+<coq-core.plugins.ltac::simple_refine@0> $1
+
+TcDebug (0) > 
+Goal:
+  
+  univalenceAxiom : univalenceStatement
+  T : UU
+  P : T → UU
+  g : ∏ t : T, P t
+  ============================
+   (∃! f : ∏ t : T, P t, ∏ t : T, f t = g t)
+
+
+Going to execute:
+simple refine (p _) ||
+  simple refine (p _ _) ||
+    simple refine (p _ _ _) ||
+      simple refine (p _ _ _ _) ||
+        simple refine (p _ _ _ _ _) ||
+          simple refine (p _ _ _ _ _ _) ||
+            simple refine (p _ _ _ _ _ _ _) ||
+              simple refine (p _ _ _ _ _ _ _ _) ||
+                simple refine (p _ _ _ _ _ _ _ _ _) ||
+                  simple refine (p _ _ _ _ _ _ _ _ _ _) ||
+                    simple refine (p _ _ _ _ _ _ _ _ _ _ _) ||
+                      simple refine (p _ _ _ _ _ _ _ _ _ _ _ _) ||
+                        simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+                          simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+                            simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _ _)
+Level 0: In environment
+univalenceAxiom : univalenceStatement
+T : UU
+P : T → UU
+g : ∏ t : T, P t
+The term "iscontrretract" has type
+ "∏ (p : (∏ t : T, ∑ p : P t, p = g t) → ?Y)
+  (s : ?Y → ∏ t : T, ∑ p0 : P t, p0 = g t),
+  (∏ y : ?Y, p (s y) = y)
+  → iscontr (∏ t : T, ∑ p0 : P t, p0 = g t) → iscontr ?Y"
+while it is expected to have type "∃! f : ∏ t : T, P t, ∏ t : T, f t = g t".
+Level 0: In environment
+univalenceAxiom : univalenceStatement
+T : UU
+P : T → UU
+g : ∏ t : T, P t
+The term "iscontrretract" has type
+ "∏ (p : (∏ t : T, ∑ p : P t, p = g t) → ?Y)
+  (s : ?Y → ∏ t : T, ∑ p0 : P t, p0 = g t),
+  (∏ y : ?Y, p (s y) = y)
+  → iscontr (∏ t : T, ∑ p0 : P t, p0 = g t) → iscontr ?Y"
+while it is expected to have type "∃! f : ∏ t : T, P t, ∏ t : T, f t = g t".
+
+TcDebug (0) > 
+Goal:
+  
+  univalenceAxiom : univalenceStatement
+  T : UU
+  P : T → UU
+  g : ∏ t : T, P t
+  ============================
+   (∃! f : ∏ t : T, P t, ∏ t : T, f t = g t)
+
+
+Going to execute:
+simple refine (p _)
+
+TcDebug (0) > 
+Goal:
+  
+  univalenceAxiom : univalenceStatement
+  T : UU
+  P : T → UU
+  g : ∏ t : T, P t
+  ============================
+   (∃! f : ∏ t : T, P t, ∏ t : T, f t = g t)
+
+
+Going to execute:
+<coq-core.plugins.ltac::simple_refine@0> $1
+
+TcDebug (0) > 
+Goal:
+  
+  univalenceAxiom : univalenceStatement
+  T : UU
+  P : T → UU
+  g : ∏ t : T, P t
+  ============================
+   (∃! f : ∏ t : T, P t, ∏ t : T, f t = g t)
+
+
+Going to execute:
+simple refine (p _ _) ||
+  simple refine (p _ _ _) ||
+    simple refine (p _ _ _ _) ||
+      simple refine (p _ _ _ _ _) ||
+        simple refine (p _ _ _ _ _ _) ||
+          simple refine (p _ _ _ _ _ _ _) ||
+            simple refine (p _ _ _ _ _ _ _ _) ||
+              simple refine (p _ _ _ _ _ _ _ _ _) ||
+                simple refine (p _ _ _ _ _ _ _ _ _ _) ||
+                  simple refine (p _ _ _ _ _ _ _ _ _ _ _) ||
+                    simple refine (p _ _ _ _ _ _ _ _ _ _ _ _) ||
+                      simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+                        simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+                          simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _ _)
+Level 0: In environment
+univalenceAxiom : univalenceStatement
+T : UU
+P : T → UU
+g : ∏ t : T, P t
+The term "iscontrretract ?p" has type
+ "∏ s : ?Y → ∏ t : T, ∑ p : P t, p = g t,
+  (∏ y : ?Y, ?p (s y) = y)
+  → iscontr (∏ t : T, ∑ p : P t, p = g t) → iscontr ?Y"
+while it is expected to have type "∃! f : ∏ t : T, P t, ∏ t : T, f t = g t".
+Level 0: In environment
+univalenceAxiom : univalenceStatement
+T : UU
+P : T → UU
+g : ∏ t : T, P t
+The term "iscontrretract ?p" has type
+ "∏ s : ?Y → ∏ t : T, ∑ p : P t, p = g t,
+  (∏ y : ?Y, ?p (s y) = y)
+  → iscontr (∏ t : T, ∑ p : P t, p = g t) → iscontr ?Y"
+while it is expected to have type "∃! f : ∏ t : T, P t, ∏ t : T, f t = g t".
+
+TcDebug (0) > 
+Goal:
+  
+  univalenceAxiom : univalenceStatement
+  T : UU
+  P : T → UU
+  g : ∏ t : T, P t
+  ============================
+   (∃! f : ∏ t : T, P t, ∏ t : T, f t = g t)
+
+
+Going to execute:
+simple refine (p _ _)
+
+TcDebug (0) > 
+Goal:
+  
+  univalenceAxiom : univalenceStatement
+  T : UU
+  P : T → UU
+  g : ∏ t : T, P t
+  ============================
+   (∃! f : ∏ t : T, P t, ∏ t : T, f t = g t)
+
+
+Going to execute:
+<coq-core.plugins.ltac::simple_refine@0> $1
+
+TcDebug (0) > 
+Goal:
+  
+  univalenceAxiom : univalenceStatement
+  T : UU
+  P : T → UU
+  g : ∏ t : T, P t
+  ============================
+   (∃! f : ∏ t : T, P t, ∏ t : T, f t = g t)
+
+
+Going to execute:
+simple refine (p _ _ _) ||
+  simple refine (p _ _ _ _) ||
+    simple refine (p _ _ _ _ _) ||
+      simple refine (p _ _ _ _ _ _) ||
+        simple refine (p _ _ _ _ _ _ _) ||
+          simple refine (p _ _ _ _ _ _ _ _) ||
+            simple refine (p _ _ _ _ _ _ _ _ _) ||
+              simple refine (p _ _ _ _ _ _ _ _ _ _) ||
+                simple refine (p _ _ _ _ _ _ _ _ _ _ _) ||
+                  simple refine (p _ _ _ _ _ _ _ _ _ _ _ _) ||
+                    simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+                      simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _) || simple
+                       refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _ _)
+Level 0: In environment
+univalenceAxiom : univalenceStatement
+T : UU
+P : T → UU
+g : ∏ t : T, P t
+The term "iscontrretract ?p ?s" has type
+ "(∏ y : ?Y, ?p (?s y) = y)
+  → iscontr (∏ t : T, ∑ p : P t, p = g t) → iscontr ?Y"
+while it is expected to have type "∃! f : ∏ t : T, P t, ∏ t : T, f t = g t".
+Level 0: In environment
+univalenceAxiom : univalenceStatement
+T : UU
+P : T → UU
+g : ∏ t : T, P t
+The term "iscontrretract ?p ?s" has type
+ "(∏ y : ?Y, ?p (?s y) = y)
+  → iscontr (∏ t : T, ∑ p : P t, p = g t) → iscontr ?Y"
+while it is expected to have type "∃! f : ∏ t : T, P t, ∏ t : T, f t = g t".
+
+TcDebug (0) > 
+Goal:
+  
+  univalenceAxiom : univalenceStatement
+  T : UU
+  P : T → UU
+  g : ∏ t : T, P t
+  ============================
+   (∃! f : ∏ t : T, P t, ∏ t : T, f t = g t)
+
+
+Going to execute:
+simple refine (p _ _ _)
+
+TcDebug (0) > 
+Goal:
+  
+  univalenceAxiom : univalenceStatement
+  T : UU
+  P : T → UU
+  g : ∏ t : T, P t
+  ============================
+   (∃! f : ∏ t : T, P t, ∏ t : T, f t = g t)
+
+
+Going to execute:
+<coq-core.plugins.ltac::simple_refine@0> $1
+
+TcDebug (0) > 
+Goal:
+  
+  univalenceAxiom : univalenceStatement
+  T : UU
+  P : T → UU
+  g : ∏ t : T, P t
+  ============================
+   (∃! f : ∏ t : T, P t, ∏ t : T, f t = g t)
+
+
+Going to execute:
+simple refine (p _ _ _ _) ||
+  simple refine (p _ _ _ _ _) ||
+    simple refine (p _ _ _ _ _ _) ||
+      simple refine (p _ _ _ _ _ _ _) ||
+        simple refine (p _ _ _ _ _ _ _ _) ||
+          simple refine (p _ _ _ _ _ _ _ _ _) ||
+            simple refine (p _ _ _ _ _ _ _ _ _ _) ||
+              simple refine (p _ _ _ _ _ _ _ _ _ _ _) ||
+                simple refine (p _ _ _ _ _ _ _ _ _ _ _ _) ||
+                  simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+                    simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _) || simple
+                     refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _ _)
+Level 0: In environment
+univalenceAxiom : univalenceStatement
+T : UU
+P : T → UU
+g : ∏ t : T, P t
+The term "iscontrretract ?p ?s ?eps" has type
+ "iscontr (∏ t : T, ∑ p : P t, p = g t) → iscontr ?Y"
+while it is expected to have type "∃! f : ∏ t : T, P t, ∏ t : T, f t = g t".
+Level 0: In environment
+univalenceAxiom : univalenceStatement
+T : UU
+P : T → UU
+g : ∏ t : T, P t
+The term "iscontrretract ?p ?s ?eps" has type
+ "iscontr (∏ t : T, ∑ p : P t, p = g t) → iscontr ?Y"
+while it is expected to have type "∃! f : ∏ t : T, P t, ∏ t : T, f t = g t".
+
+TcDebug (0) > 
+Goal:
+  
+  univalenceAxiom : univalenceStatement
+  T : UU
+  P : T → UU
+  g : ∏ t : T, P t
+  ============================
+   (∃! f : ∏ t : T, P t, ∏ t : T, f t = g t)
+
+
+Going to execute:
+simple refine (p _ _ _ _)
+
+TcDebug (0) > 
+Goal:
+  
+  univalenceAxiom : univalenceStatement
+  T : UU
+  P : T → UU
+  g : ∏ t : T, P t
+  ============================
+   (∃! f : ∏ t : T, P t, ∏ t : T, f t = g t)
+
+
+Going to execute:
+<coq-core.plugins.ltac::simple_refine@0> $1
+
+TcDebug (0) > 
+STEP3_PROOF:funextcontrUAH
+- : unit = ()
+STEP3_1_PROOF:funextcontrUAH
+- : unit = ()
+File "./UniMath/Foundations/UnivalenceAxiom.v", line 379, characters 8-18:
+Error: Anomaly "Uncaught exception Not_found."
+Please report at http://coq.inria.fr/bugs/.
+
+make[2]: *** [build/CoqMakefile.make:838: UniMath/Foundations/UnivalenceAxiom.vo] Error 129
+make[2]: *** [UniMath/Foundations/UnivalenceAxiom.vo] Deleting file 'UniMath/Foundations/UnivalenceAxiom.glob'
+make[2]: Target 'real-all' not remade because of errors.
+make[1]: *** [build/CoqMakefile.make:409: all] Error 2
+make[1]: Leaving directory '/mnt/data1/2024/01/05/UniMath'
+make: *** [Makefile:101: all] Error 2
+
+Compilation exited abnormally with code 2 at Wed Jan 31 17:49:53, duration 1.75 s

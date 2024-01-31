@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Category of [hSet]s
 
 Started by: Benedikt Ahrens, Chris Kapulkin, Mike Shulman

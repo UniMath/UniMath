@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (**
 This line is there to enforce that all tactics are used either on a single focused goal or with a local selector ("strict focusing mode").
 

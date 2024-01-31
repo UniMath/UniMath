@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** Studies the actegory stemming from the self action of the endofunctors on [C] by precomposition
 
 author: Ralph Matthes, 2023

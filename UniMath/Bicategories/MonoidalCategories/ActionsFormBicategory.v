@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** Constructs the bicategory of actions, strong action-based functors and their natural transformations
 
 The construction goes through a displayed bicategory over the bicategoy of (small) categories.

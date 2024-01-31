@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (**
 Restrict pseudofunctor to its full image.
 We also give conditions when it gives rise to a weak equivalence.

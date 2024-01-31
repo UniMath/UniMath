@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * The univalent category of algebras over a signature. *)
 (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 (**

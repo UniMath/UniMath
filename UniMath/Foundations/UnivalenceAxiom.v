@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** The univalence axiom and its consequences *)
 
 (**
@@ -363,10 +367,17 @@ Section UnivalenceImplications.
 
   Lemma funextcontrUAH : funextcontrStatement.
   Proof.
-    unfold funextcontrStatement.
-    intros.
-    use (iscontrretract (X := ∏ t, ∑ p, p = g t)).
-    - intros x. use tpair.
+      Ltac2 Eval Message.print (Message.of_string "BEGIN_PROOF:funextcontrUAH").
+      unfold funextcontrStatement.
+      Ltac2 Eval Message.print (Message.of_string "STEP1_PROOF:funextcontrUAH").
+      intros.
+      Ltac2 Eval Message.print (Message.of_string "STEP2_PROOF:funextcontrUAH").
+      use (iscontrretract (X := ∏ t, ∑ p, p = g t)).
+      Ltac2 Eval Message.print (Message.of_string "STEP3_PROOF:funextcontrUAH").
+      - intros x.
+        Ltac2 Eval Message.print (Message.of_string "STEP3_1_PROOF:funextcontrUAH").
+        use tpair.
+
       + intro t. exact (pr1 (x t)).
       + intro t; simpl. exact (pr2 (x t)).
     - intros y t. exists (pr1 y t). exact (pr2 y t).

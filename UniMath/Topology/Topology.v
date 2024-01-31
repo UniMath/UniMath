@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Results about Topology *)
 (** Author: Catherine LELAY. Jan 2016 - *)
 (** Based on Bourbaki *)

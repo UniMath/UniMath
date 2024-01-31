@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** ** Polynomial functors
 
     Using the formalism of a polynomial functor, one can build any functor

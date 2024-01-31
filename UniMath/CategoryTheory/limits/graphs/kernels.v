@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Kernels defined in terms of limits *)
 (** ** Contents
 - Definition coincides with the direct definition

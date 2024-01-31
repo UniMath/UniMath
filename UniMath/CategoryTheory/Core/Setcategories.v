@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Setcategories: Precategories whose objects and morphisms are sets *)
 
 (** ** Contents

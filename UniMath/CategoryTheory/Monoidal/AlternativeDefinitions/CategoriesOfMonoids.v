@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** Categories of monoids for monoidal categories
 
 Note: after refactoring on March 10, 2023, the prior Git history of this development is found via

@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** Author: Floris van Doorn, december 2017 *)
 Require Import UniMath.Combinatorics.GraphPaths.
 Require Import UniMath.MoreFoundations.Subtypes.

@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (* No special notion of 'dagger natural transformation' is required.
    However, some concepts are defined in terms of natural transformations.
    1. The category of dagger functors and natural transformations has the structure of dagger category.

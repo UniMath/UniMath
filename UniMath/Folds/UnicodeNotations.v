@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 Require Export UniMath.Tactics.EnsureStructuredProofs.
 Require Export UniMath.Foundations.PartD.
 Require Export UniMath.Foundations.Propositions.

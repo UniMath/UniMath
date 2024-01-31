@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (* This file is the second file with the purpose of showing that any monoidal category admits a 'Monoidal Rezk-completion'.
 More precisely: Assume that a category C is weakly equivalent to a univalent category D, by a functor H : C → D.
 In the first section, we show that a fixed object I of C,

@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Facts about the natural numbers that depend on definitions from algebra *)
 
 Require Export UniMath.Foundations.NaturalNumbers.

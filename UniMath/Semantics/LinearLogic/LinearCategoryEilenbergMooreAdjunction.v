@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (**
 In this file, the cofree adjunction between a linear category and its Eilenberg-Moore category is constructed.
 *)

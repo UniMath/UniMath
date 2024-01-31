@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** Terminal object defined as a limit *)
 
 Require Import UniMath.Foundations.PartD.

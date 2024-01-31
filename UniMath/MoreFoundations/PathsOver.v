@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** This file contains the definition of paths over a path, together with some
     facts about them developed by Marc Bezem and Ulrik Buchholtz. *)
 

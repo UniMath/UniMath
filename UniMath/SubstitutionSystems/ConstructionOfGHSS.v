@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** construction of monoidal heterogeneous substitution systems from arbitrary final coalgebras
    and from initial algebras arising from iteration in omega-cocontinuous functors
 

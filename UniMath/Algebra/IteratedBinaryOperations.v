@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 Require Export UniMath.Combinatorics.Lists.
 Require Export UniMath.Combinatorics.FiniteSequences.
 Require Export UniMath.Algebra.RigsAndRings.

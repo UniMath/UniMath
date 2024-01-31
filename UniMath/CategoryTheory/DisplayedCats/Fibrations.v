@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** Definitions of various kinds of _fibrations_, using displayed categories. *)
 
 Require Import UniMath.Foundations.Sets.

@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Near-univalence of [type_precat] *)
 
 (** The precategory of types is not quite univalent - it doesn't have

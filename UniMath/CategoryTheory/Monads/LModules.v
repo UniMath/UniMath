@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** **********************************************************
 Contents:
         - Definition of left modules ([LModule R]) over a monad [R] on [C]

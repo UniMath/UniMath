@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** *The Heyting field of fractions for an apartness domain *)
 
 (** By Alvaro Pelayo, Vladimir Voevodsky and Michael A. Warren *)

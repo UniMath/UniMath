@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** an elementary direct construction of the monoidal category
     one can also instantiate the construction of cartesian monoidal categories
     [UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiskered.SET_cartesian_monoidal] *)

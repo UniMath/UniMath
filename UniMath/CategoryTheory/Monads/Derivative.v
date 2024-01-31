@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** **********************************************************
 Contents:
         - "maybe" monad (binary coproduct with a fixed object) [maybe_monad]

@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** the embedding of generated inductive syntax into coinductive syntax is a morphism of Sigma-monoids
 
     this is only exemplified for [HSET] as base category

@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (* ******************************************************************************* *)
 (** * Modifications between pseudo transformations
     Niccolò Veltri, Niels van der Weide

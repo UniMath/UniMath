@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (* ******************************************************************************* *)
 (** * Fiber category of a displayed bicategory whose displayed 2-cells form a
       proposition. In addition, we ask the displayed bicategory to be locally

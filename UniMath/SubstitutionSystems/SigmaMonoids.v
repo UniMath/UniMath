@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** a generalization of Σ-monoids to monoidal categories in place of functor categories
 
 author: Kobe Wullaert 2023

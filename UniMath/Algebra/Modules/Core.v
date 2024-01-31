@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** Authors Anthony Bordg and Floris van Doorn, February-December 2017 *)
 
 Require Import UniMath.MoreFoundations.Tactics.

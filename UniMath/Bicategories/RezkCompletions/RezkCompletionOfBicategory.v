@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (* In this file, we combine the results that any bicategory is weak biequivalent to a locally univalent bicategory and
    that any locally univalent bicategory is weak biequivalent to a global univalent bicategory.
    This shows how any bicategory admits a Rezk completion.

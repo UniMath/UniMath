@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** **
   Following Saunders Mac Lane & Ieke Moerdijk
   Sheaves in Geometry and Logic - A First Introduction to Topos theory.

@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** This file is meant to provide an equivalence between the displayed categories on a base category and the functors into the base category.
 For now it only contains the construction of a displayed category from a functor. *)
 

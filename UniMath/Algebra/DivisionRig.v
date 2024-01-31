@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Division Rig *)
 (** Definition of an algebraic structure (F,0,1,+,*,/) where:
 - (F,0,+,* ) is a commutative

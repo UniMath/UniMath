@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** ** More results on types of ordering *)
 
 Require Import UniMath.MoreFoundations.Propositions.

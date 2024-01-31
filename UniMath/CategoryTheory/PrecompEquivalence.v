@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (****************************************************************
 
  In this file, we combine the facts from `precomp_ess_surj.v`

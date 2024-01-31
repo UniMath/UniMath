@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Usual constructive Dedekind cuts *)
 (** Catherine LELAY. July 2017 *)
 (** This file formalizes the usual definitions of constructive Dedekind cuts.

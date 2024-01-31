@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** exploring the isomorphism between [A × B --> C] and [[B, [A,C]]] for categories A, B, C
 
 Authors: Ralph Matthes 2021

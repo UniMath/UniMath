@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Lemmas on transport of morphisms *)
 
 Require Import UniMath.Foundations.PartA.

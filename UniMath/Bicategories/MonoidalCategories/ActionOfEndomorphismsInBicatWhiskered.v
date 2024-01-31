@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** Constructs the actegory with the action of the endomorphisms by precomposition on a fixed hom-category of a bicategory
 
 Author: Ralph Matthes 2022, extended in 2023

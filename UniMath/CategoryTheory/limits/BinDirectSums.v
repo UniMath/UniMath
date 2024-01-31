@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Direct definition of binary direct sum using preadditive categories. *)
 (** ** Contents
 - Definition of binary direct sums (also known as biproducts)

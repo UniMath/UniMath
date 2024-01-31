@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Generalities on [hSet].  Vladimir Voevodsky. Feb. - Sep. 2011
 
 In this file we introduce the type [hSet] of h-sets, i.e., of types of h-level 2

@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** Author: Michael A. Warren (maw@mawarren.net).*)
 (** Date: Spring 2015.*)
 (** Description: Some helper tactics.*)

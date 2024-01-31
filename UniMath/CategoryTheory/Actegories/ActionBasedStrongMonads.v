@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (**
 
 - the notion of strong monads w.r.t. monoidal actions (a generalization of the notion w.r.t. a monad)

@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** Pullbacks defined in terms of limits *)
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.

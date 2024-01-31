@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** a generalization of heterogeneous substitution systems to monoidal categories in place of endofunctor categories
 
 author: Ralph Matthes 2022

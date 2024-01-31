@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Binary product of (pre)categories
 
   Benedikt Ahrens, Ralph Matthes, Peter LeFanu Lumsdaine

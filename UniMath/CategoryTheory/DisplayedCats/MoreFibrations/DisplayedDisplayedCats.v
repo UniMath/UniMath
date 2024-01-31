@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Core.Categories.

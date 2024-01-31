@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Univalent Foundations. Vladimir Voevodsky. Feb. 2010 - Sep. 2011.
   Port to coq trunk (8.4-8.5) in March 2014. The second part of the original
   uu0 file, created on Dec. 3, 2014.

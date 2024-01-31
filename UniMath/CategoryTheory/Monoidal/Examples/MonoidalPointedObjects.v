@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** the coslice category I/V for a monoidal category is again monoidal
 
 The coslice objects have a morphism from the monoidal unit I to an object of V. Since I is often not a terminal object 1 of V,

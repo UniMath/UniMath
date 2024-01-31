@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** The second layer of the construction of the bicategory of pseudofunctors consists of three parts.
     Third part: we add a 2-cell witnessing preservation of composition.
  *)

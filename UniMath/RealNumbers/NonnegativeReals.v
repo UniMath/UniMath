@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Definition of Dedekind cuts for non-negative real numbers *)
 (** Catherine Lelay. Sep. 2015 *)
 

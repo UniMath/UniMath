@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 
 (* reindexing forward (reindexig_f) for displayed categories 
    and the universal property that it respects.*)

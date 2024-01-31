@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Prelude for category theory *)
 
 (** This re-exports modules that are very frequently needed when doing any kind of

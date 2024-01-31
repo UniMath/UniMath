@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** Monoidal functors *)
 
 (** behaviour w.r.t. to swapped tensor products added by Ralph Matthes in 2019, then iso changed to z_iso in 2021 *)

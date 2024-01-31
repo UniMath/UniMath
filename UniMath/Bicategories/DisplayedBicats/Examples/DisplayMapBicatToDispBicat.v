@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (*****************************************************************************
 
  Every display map bicategory gives rise to a displayed bicategory

@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** Braided monoidal precategories.
 
    Authors: Mario Román, based on a previous implementation by Anthony Bordg.

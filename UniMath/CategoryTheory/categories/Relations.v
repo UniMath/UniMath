@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (* The category REL of (homotopy) relations:
    1. The objects are sets
    2. The morphisms are relations of sets

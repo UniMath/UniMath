@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (*
 In this file, it is shown how any bicategory is weakly biequivalent to a locally univalent bicategory.
 From any bicategory B, we construct a locally univalent bicategory LRB "local Rezk completion of B", which is defined by the following data:

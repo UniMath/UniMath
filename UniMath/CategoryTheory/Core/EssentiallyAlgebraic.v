@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** ** Precategories in style of essentially algebraic cats *)
 
 (** Of course we later want SETS of objects, rather than types,

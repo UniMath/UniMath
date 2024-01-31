@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (**
 In this file, the monoidal category of comonoids internal to a symmetric monoidal category is defined.
 *)

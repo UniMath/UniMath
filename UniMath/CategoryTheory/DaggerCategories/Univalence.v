@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (* In this file, we have formalized the (correct) notion of isomorphisms and univalence of dagger categories.
 Notice that these definitions are different compared to (non-dagger) categories, therefore, we can not reuse it. *)
 

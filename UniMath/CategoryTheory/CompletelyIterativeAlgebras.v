@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** ****************************************************************
 
 Completely iterative algebras according to Stefan Milius, Completely iterative algebras and completely iterative monads, https://doi.org/10.1016/j.ic.2004.05.003

@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (* In LiftedTensor.v and LiftedTensor.v, we have shown that given a category C equipped with a binary operation T and an object I (called the tensor and unit resp.),
 then, this structures 'transport' to a weakly equivalent univalent category D, by a weak equivalence H:C->D, making this univalent category D with a tensor and unit,
 the free univalent category equipped with a tensor and a unit.

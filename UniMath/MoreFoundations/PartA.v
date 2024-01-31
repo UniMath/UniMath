@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** This file contain various results that could be upstreamed to Foundations/PartA.v *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Tactics.

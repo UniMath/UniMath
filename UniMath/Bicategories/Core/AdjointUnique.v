@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (**
 Right adjoints, units, counits are unique up to isomorphism.
 In addition, if the bicategory is locally univalent, then being an adjoint equivalence is a proposition.

@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * A construction of the interval using propositional truncation *)
 
 Require Import UniMath.Foundations.All.

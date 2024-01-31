@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** Definition of initial object as a colimit *)
 
 Require Import UniMath.Foundations.PartD.

@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Generalities on the type of rationals and rational arithmetic. Vladimir Voevodsky . Aug. - Sep. 2011.
 
 In this file we introduce the type [ hq ] of rationals defined as the quotient set of [ dirprod nat nat ] by the standard equivalence relation and develop the main notions of the rational arithmetic using this definition .

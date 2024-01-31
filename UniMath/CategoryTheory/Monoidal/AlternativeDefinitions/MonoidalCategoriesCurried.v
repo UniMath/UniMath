@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (* In this file we formalize the definition of a monoidal category in a curried format.
 The data of a monoidal category consist of:
 	- Category C.

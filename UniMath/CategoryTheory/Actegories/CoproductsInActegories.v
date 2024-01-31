@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** studies coproducts in the categories on which is being acted in actegories
 
 author: Ralph Matthes, 2023

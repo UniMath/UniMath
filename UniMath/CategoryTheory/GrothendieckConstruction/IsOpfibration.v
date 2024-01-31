@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (*******************************************************************************
 
  We show that the functor `∫ F ⟶ C` is a Street opfibration

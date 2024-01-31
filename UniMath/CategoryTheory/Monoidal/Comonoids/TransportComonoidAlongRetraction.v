@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (**
 Consider a morphism i : B --> a in a monoidal category.
 Given a comonoid structure on B, we show how the comonoid structure can be transported to a, provided i is part of a retraction pair (and a compatibility condition).

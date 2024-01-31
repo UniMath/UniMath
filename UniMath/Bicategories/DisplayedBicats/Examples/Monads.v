@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (**
 Monads as a bicategory. The construction has 3 layers.
 In the first layer: we take algebras on the identity functor.

@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (* The category of relations, i.e. the objects are sets and the morphisms are relations of sets,
    becomes a dagger category by taking the "opposite" relation.
    Furthermore, we show that it is dagger univalent. In order to do this,

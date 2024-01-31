@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Generalities on hProp.  Vladimir Voevodsky . May - Sep. 2011 .
 
 In this file we introduce the hProp - an analog of Prop defined based on the

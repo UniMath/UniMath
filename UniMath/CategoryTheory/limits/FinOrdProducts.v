@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** A direct definition of finite ordered products by using products *)
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.

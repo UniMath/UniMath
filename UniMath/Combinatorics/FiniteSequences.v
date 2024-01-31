@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Finite sequences
 
 Vectors and matrices defined in March 2018 by Langston Barrett (@siddharthist).

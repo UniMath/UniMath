@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** a follow-up of [BindingSigToMonad], where the semantic signatures [Signature] are replaced by functors with tensorial strength
 
     the concept of binding signatures is inherited, as well as the reasoning about omega-cocontinuity

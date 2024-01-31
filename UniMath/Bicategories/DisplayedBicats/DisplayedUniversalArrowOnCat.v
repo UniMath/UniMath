@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (*
 In this file, we construct displayed universal arrows over the inclusion UnivCat to Cat (with left biadjoint the Rezk completion).
 

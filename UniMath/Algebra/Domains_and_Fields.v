@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Algebra I. Part E. Integral domains and fields. Vladimir Voevodsky. Aug. 2011 - . *)
 Require Import UniMath.Algebra.Groups.
 (** ** Contents

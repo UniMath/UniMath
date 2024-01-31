@@ -1,3 +1,7 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (* Additional definitions and facts from topology. Maybe this should go in UniMath.Topology. *)
 
 Require Import UniMath.MoreFoundations.Subtypes.
