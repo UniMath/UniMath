@@ -34,9 +34,23 @@ Require Export UniMath.Foundations.PartB.
 
 (* everything related to eta correction is obsolete *)
 
+Ltac2 Type kind2 := [
+| Rel2 ].
+
 Definition eqweqmap { T1 T2 : UU } : T1 = T2 -> T1 ≃ T2.
 Proof.
-  intro e. induction e. apply idweq.
+  idtac "hello world".
+  Ltac2 Eval Message.print (Message.of_string "eqweqmap").
+  Ltac2 Eval Message.print (Message.of_ident @T1).
+  Ltac2 Eval Message.print (Message.of_constr constr:(T1)).
+  Ltac2 Eval Message.print (Message.of_constr constr:(T2)).
+  Ltac2 Eval Message.print (Message.of_ident @T2).
+  intro e.
+  Ltac2 Eval Message.print (Message.of_constr constr:(e)).
+  induction e.
+  Ltac2 Eval Message.print (Message.of_constr constr:(idweq)).
+  apply idweq.
+
 Defined.
 
 Definition sectohfiber { X : UU } (P:X -> UU): (∏ x:X, P x) -> (hfiber (λ f, λ x, pr1  (f x)) (λ x:X, x)) := (fun a : ∏ x:X, P x => tpair _ (λ x, tpair _ x (a x)) (idpath (λ x:X, x))).
@@ -48,21 +62,37 @@ Definition hfibertosec { X : UU } (P:X -> UU):
 Definition sectohfibertosec { X : UU } (P:X -> UU):
   ∏ a : (∏ x:X, P x), hfibertosec _ (sectohfiber _ a) = a.
 Proof.
+  Ltac2 Eval Message.print (Message.of_string "sectohfibertosec").
+  Ltac2 Eval Message.print (Message.of_ident @X).
+
   apply idpath.
 Defined.
 
 Lemma isweqtransportf10 { X : UU } ( P : X -> UU ) { x x' : X } ( e :  x = x' ) : isweq ( transportf P e ).
 Proof.
+  Ltac2 Eval Message.print (Message.of_string "isweqtransportf10").
+  Ltac2 Eval Message.print (Message.of_ident @X).
+
   intros. induction e.  apply idisweq.
 Defined.
 
 Lemma isweqtransportb10 { X : UU } ( P : X -> UU ) { x x' : X } ( e :  x = x' ) : isweq ( transportb P e ).
 Proof.
+    Ltac2 Eval Message.print (Message.of_string "isweqtransportb10").
+  Ltac2 Eval Message.print (Message.of_ident @X).
+
   intros. apply ( isweqtransportf10 _ ( pathsinv0 e ) ).
 Defined.
 
 Lemma l1  { X0 X0' : UU } ( ee : X0 = X0' ) ( P : UU -> UU ) ( pp' : P X0' ) ( R : ∏ X X' : UU , ∏ w : X ≃ X' , P X' -> P X ) ( r : ∏ X : UU , ∏ p : P X , paths ( R X X ( idweq X ) p ) p ) : paths ( R X0 X0' ( eqweqmap ee ) pp' ) (  transportb P ee pp' ).
 Proof.
+  Ltac2 Eval Message.print (Message.of_string "DEBUG lemma l1").
+  Ltac2 Eval Message.print (Message.of_ident @l1).
+  Ltac2 Eval Message.print (Message.of_ident @X0).
+  Ltac2 Eval Message.print (Message.of_ident @X0').
+  Ltac2 Eval Message.print (Message.of_ident @ee).
+  Ltac2 Eval Message.print (Message.of_ident @P).
+
   induction ee. simpl. apply r.
 Defined.
 
@@ -105,6 +135,7 @@ Definition weqtoforallpathsStatement :=
 
 Theorem funextsecImplication : isweqtoforallpathsStatement -> funextsecStatement.
 Proof.
+  Ltac2 Eval Message.print (Message.of_string "DEBUG funextsecImplication").
   intros fe ? ? ? ?. exact (invmap (make_weq _ (fe _ _ f g))).
 Defined.
 
@@ -119,6 +150,9 @@ Theorem univfromtwoaxioms :
   (∑ weqtopaths: weqtopathsStatement, weqpathsweqStatement weqtopaths)
   <-> univalenceStatement.
 Proof.
+  Ltac2 Eval Message.print (Message.of_string "univfromtwoaxioms").
+  Ltac2 Eval Message.print (Message.of_ident @weqtopaths).
+
   split.
   { intros [weqtopaths weqpathsweq] T1 T2.
     set ( P1 := λ XY : UU × UU, pr1 XY = pr2 XY ) .
@@ -165,11 +199,17 @@ Section UnivalenceImplications.
 
   Theorem univalenceUAH (X Y:UU) : (X=Y) ≃ (X≃Y).
   Proof.
+    Ltac2 Eval Message.print (Message.of_string "univalenceUAH").
+    Ltac2 Eval Message.print (Message.of_ident @X).
+    Ltac2 Eval Message.print (Message.of_ident @Y).
+
     exact (make_weq _ (univalenceAxiom X Y)).
   Defined.
 
   Definition weqtopathsUAH : weqtopathsStatement.
   Proof.
+    Ltac2 Eval Message.print (Message.of_string "weqtopathsUAH").
+    Ltac2 Eval Message.print (Message.of_ident @weqtopathsStatement).
     intros ? ?. exact (invmap (univalenceUAH _ _)).
   Defined.
   Arguments weqtopathsUAH {_ _} _.
@@ -206,6 +246,9 @@ Section UnivalenceImplications.
     ∏ ( X X' : UU ) ( w :  X ≃ X' ) ( p' : P X' ),
       R X X' w p' = transportb P ( weqtopathsUAH w ) p'.
   Proof.
+    Ltac2 Eval Message.print (Message.of_string "weqtransportbUAH").
+  Ltac2 Eval Message.print (Message.of_ident @P).
+
     intros.
     set ( uv := weqtopathsUAH w ).
     set ( v := eqweqmap uv ).

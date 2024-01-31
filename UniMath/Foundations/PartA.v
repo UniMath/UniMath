@@ -1,3 +1,6 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+
 (** * Univalent Foundations, Part A
 
 Vladimir Voevodsky.
@@ -141,6 +144,8 @@ Require Export UniMath.Foundations.Preamble.
 Definition fromempty  : ∏ X : UU , empty -> X. (* type this in emacs in agda-input method
 with \prod *)
 Proof.
+  Ltac2 Eval Message.print (Message.of_ident @X).
+  Ltac2 Eval Message.print (Message.of_ident @H).
   intro X.
   intro H.
   induction H.
@@ -192,6 +197,8 @@ Definition binop (X : UU) : UU := X -> X -> X.
 
 Definition iteration {T : UU} (f : T -> T) (n : nat) : T -> T.
 Proof.
+  Ltac2 Eval Message.print (Message.of_ident @T).
+  Ltac2 Eval Message.print (Message.of_ident @f).
   induction n as [ | n IHn ].
   + exact (idfun T).
   + exact (f ∘ IHn).
@@ -225,6 +232,9 @@ Definition dirprodf {X Y X' Y' : UU}
 Definition ddualand {X Y P : UU}
            (xp : (X -> P) -> P) (yp : (Y -> P) -> P) : (X × Y -> P) -> P.
 Proof.
+  Ltac2 Eval Message.print (Message.of_ident @X).
+  Ltac2 Eval Message.print (Message.of_ident @Y).
+  Ltac2 Eval Message.print (Message.of_ident @P).
   intros X0.
   apply xp. intro x.
   apply yp. intro y.
@@ -256,6 +266,8 @@ Definition dnegnegtoneg {X : UU} : ¬¬ ¬ X -> ¬ X := adjev2.
 
 Lemma dneganddnegl1 {X Y : UU} (dnx : ¬¬ X) (dny : ¬¬ Y) : ¬ (X -> ¬ Y).
 Proof.
+  Ltac2 Eval Message.print (Message.of_ident @X).
+  Ltac2 Eval Message.print (Message.of_ident @Y).
   intros.
   intros X2.
   apply (dnegf X2).
@@ -273,11 +285,13 @@ Notation " X <-> Y " := (logeq X Y) : type_scope.
 
 Lemma isrefl_logeq (X : UU) : X <-> X.
 Proof.
+  Ltac2 Eval Message.print (Message.of_ident @X).
   intros. split; apply idfun.
 Defined.
 
 Lemma issymm_logeq (X Y : UU) : (X <-> Y) -> (Y <-> X).
 Proof.
+  Ltac2 Eval Message.print (Message.of_ident @X).
   intros e.
   exact (pr2 e,,pr1 e).
 Defined.
@@ -287,6 +301,7 @@ Definition logeqnegs {X Y : UU} (l : X <-> Y) : (¬ X) <-> (¬ Y) :=
 
 Definition logeq_both_true {X Y : UU} : X -> Y -> (X <-> Y).
 Proof.
+  Ltac2 Eval Message.print (Message.of_ident @X).
   intros x y.
   split.
   - intros x'. exact y.
@@ -303,6 +318,7 @@ Defined.
 
 Definition logeq_trans {X Y Z : UU} : (X <-> Y) -> (Y <-> Z) -> (X <-> Z).
 Proof.
+    Ltac2 Eval Message.print (Message.of_ident @X).
   intros i j. exact (pr1 j ∘ pr1 i,, pr2 i ∘ pr2 j).
 Defined.
 
@@ -324,6 +340,7 @@ The same applies to other lemmas below whose proof is by immediate "reflexivity"
 Lemma funcomp_assoc {X Y Z W : UU} (f : X -> Y) (g : Y -> Z) (h : Z -> W)
 : h ∘ (g ∘ f) = (h ∘ g) ∘ f.
 Proof.
+  Ltac2 Eval Message.print (Message.of_ident @X).
   intros .
   apply idpath.
 Defined.
@@ -331,12 +348,14 @@ Defined.
 Lemma uncurry_curry {X Z : UU} {Y : X -> UU} (f : (∑ x : X, Y x) -> Z) :
   ∏ p, uncurry (curry f) p = f p.
 Proof.
+  Ltac2 Eval Message.print (Message.of_ident @X).
   intros. induction p as [x y]. apply idpath.
 Defined.
 
 Lemma curry_uncurry {X Z : UU} {Y : X -> UU} (g : ∏ x : X, Y x -> Z) :
   ∏ x y, curry (uncurry g) x y = g x y.
 Proof.
+  Ltac2 Eval Message.print (Message.of_ident @X).
   intros. apply idpath.
 Defined.
 
@@ -344,6 +363,7 @@ Defined.
 
 Definition pathscomp0 {X : UU} {a b c : X} (e1 : a = b) (e2 : b = c) : a = c.
 Proof.
+  Ltac2 Eval Message.print (Message.of_ident @X).
   intros. induction e1. apply e2.
 Defined.
 
@@ -357,6 +377,7 @@ Notation "p @ q" := (pathscomp0 p q).
 
 Definition pathscomp0rid {X : UU} {a b : X} (e1 : a = b) : e1 @ idpath b = e1.
 Proof.
+  Ltac2 Eval Message.print (Message.of_ident @X).
   intros. induction e1. simpl. apply idpath.
 Defined.
 
@@ -370,6 +391,7 @@ Defined.
 
 Definition pathsinv0 {X : UU} {a b : X} (e : a = b) : b = a.
 Proof.
+  Ltac2 Eval Message.print (Message.of_ident @X).
   intros. induction e. apply idpath.
 Defined.
 
@@ -387,6 +409,7 @@ Notation "! p " := (pathsinv0 p).
 
 Definition pathsinv0l {X : UU} {a b : X} (e : a = b) : !e @ e = idpath _.
 Proof.
+  Ltac2 Eval Message.print (Message.of_ident @X).
   intros. induction e. apply idpath.
 Defined.
 
@@ -397,18 +420,21 @@ Defined.
 
 Definition pathsinv0inv0 {X : UU} {x x' : X} (e : x = x') : !(!e) = e.
 Proof.
+  Ltac2 Eval Message.print (Message.of_ident @X).
   intros. induction e. apply idpath.
 Defined.
 
 Lemma pathscomp_cancel_left {X : UU} {x y z : X} (p : x = y) (r s : y = z) :
   p @ r= p @ s -> r = s.
 Proof.
+  Ltac2 Eval Message.print (Message.of_ident @X).
   intros e. induction p. exact e.
 Defined.
 
 Lemma pathscomp_cancel_right {X : UU} {x y z : X} (p q : x = y) (s : y = z) :
   p @ s = q @ s -> p = q.
 Proof.
+  Ltac2 Eval Message.print (Message.of_ident @X).
   intros e. induction s. refine (_ @ e @ _).
   - apply pathsinv0, pathscomp0rid.
   - apply pathscomp0rid.
