@@ -1,3 +1,8 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+(* Set Ltac2 Backtrace. *)
+Set Ltac Debug.
+Set Ltac Batch Debug.
 (** * Introduction. Vladimir Voevodsky . Feb. 2010 - Sep. 2011
 
 This is the first in the group of files which contain the (current state of) the mathematical

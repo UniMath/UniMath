@@ -1,7 +1,6 @@
 From Ltac2 Require Import Ltac2.
 From Ltac2 Require Option.
 (* Set Ltac2 Backtrace. *)
-Set Ltac2 Debug.
 Set Ltac Debug.
 Set Ltac Batch Debug.
 
@@ -153,7 +152,7 @@ Proof.
   Printing All.
   Printing Implicit Defensive.
 *)
-
+  Ltac2 Eval Message.print (Message.of_string "BEGIN_PROOF:fromempty").
   Show Proof.
 
   Ltac2 Eval Message.print (Message.of_ident @X).
@@ -219,6 +218,7 @@ Definition binop (X : UU) : UU := X -> X -> X.
 
 Definition iteration {T : UU} (f : T -> T) (n : nat) : T -> T.
 Proof.
+  Ltac2 Eval Message.print (Message.of_string "BEGIN_PROOF:iteration").
   Ltac2 Eval Message.print (Message.of_ident @T).
   Ltac2 Eval Message.print (Message.of_ident @f).
   Show Proof.
@@ -229,6 +229,188 @@ Proof.
     Show Proof.
 
 Defined.
+(*
+ BEGIN_PROOF:iteration
+- : unit = ()
+T
+- : unit = ()
+f
+- : unit = ()
+(λ (T : UU) (f : T → T) (n : nat), ?Goal)
+(λ (T : UU) (f : T → T) (n : nat),
+ nat_rect (λ _ : nat, T → T) ?Goal
+   (λ (n0 : nat) (IHn : T → T), ?Goal0@{n:=n0}) n)
+Goal:
+    T : UU  f : T → T
+  ============================
+   (T → T)
+
+
+Going to execute:
+<coq-core.plugins.ltac::exact@0> $1
+Evaluated term: H
+Evaluated term: n
+
+TcDebug (0) >
+Goal:
+    T : UU  f : T → T  n : nat  IHn : T → T
+  ============================
+   (T → T)
+
+
+Going to execute:
+<coq-core.plugins.ltac::exact@0> $1
+
+TcDebug (0) >
+(λ (T : UU) (f : T → T) (n : nat),
+ nat_rect (λ _ : nat, T → T) (idfun T) (λ (_ : nat) (IHn : T → T), f ∘ IHn) n)
+
+
+#+begin_src output
+
+This Coq code defines the iteration of an endomorphism. The endomorphism `f` and natural number `n` are inputs, and the output is a value of type `T`. The code uses recursion to define the iteration function.
+
+The `iteration` function takes three arguments: the endomorphism `f`, the natural number `n`, and the identity function `idfun T`. It then defines an auxiliary function called `nat_rect` that is used in the recursive step of the induction.
+
+The `nat_rect` function takes two arguments: a function from natural numbers to functions, and an initial value for the function call with input 0. It then calls the given function on each natural number up to n, concatenating the results into a single function call. This allows us to recursively define the iteration of the endomorphism `f`.
+
+The final goal is defined as a function that takes four arguments: the type `T`, the endomorphism `f`, a natural number `n`, and a function call `IHn`. The goal should equal the result of applying the endomorphism `f` n times to the function call `IHn`, which is equivalent to iterating the endomorphism `f` n times.
+#+end_src
+#+begin_src output
+
+It looks like you have provided a Coq definition for the `iteration` function, which takes an endomorphism `f`, a natural number `n`, and a type parameter `T`. The `iteration` function returns an endomorphism of `T`.
+
+The definition uses Coq's `induction` construct to define the function iteratively. The `nat_rect` predicate is used to ensure that the function satisfies certain properties, such as being defined for all natural numbers and being closed under composition with the identity function.
+
+It seems like there might be some missing information or context in this code snippet. For example, it's not clear what the `idfun T` function is or what its purpose is. Additionally, the type parameter `T` needs to be defined before it can be used in the function definition.
+
+Overall, this code seems like a valid Coq definition for an iterated endomorphism function. However, without more information about the context and specific requirements of the function, it's difficult to say whether it is complete or correct.
+#+end_src
+#+begin_src output
+
+This code appears to be a Coq library file for defining and proving the iteration of an endomorphism. The `iteration` function takes an endomorphism `f`, a natural number `n`, and a type `T`. It returns the composition of `f` with itself `n` times, applied to the identity function on `T`.
+
+The proof uses an induction on the natural number `n`, and first proves that the identity function is equal to its own composition with zero iterations. Then it proves that for any natural number `n0`, the function `f ∘ IHn` (where `IHn` is the identity function on `T`) is equal to `f ∘ IH0` (where `IH0` is again the identity function on `T`). This proves that the composition of `f` with itself `n` times is the same as `n` applications of `f`.
+
+Overall, this code defines a useful utility function for applying endomorphisms multiple times in Coq.
+#+end_src
+#+begin_src output
+
+The definition provided is for the iteration of an endomorphism, which takes a function f and a natural number n as input and returns the result of repeatedly applying f to itself n times. The proof uses induction to show that the defined function iterates correctly.
+
+The first line in the Ltac2 commands initializes the proof environment with the Coq language and prints a message saying "BEGIN\_PROOF:iteration". Then, it defines three identifiers: T, f, and n.
+
+The second line of Ltac2 commands uses the Show Proof command to start the proof. The induction is defined as an induction on the natural number n, using the Ltac2 command "induction n as [ | n IHn ]." The initial hypothesis (IH0) is then specified as idfun T, which means that the identity function is applied to T n times.
+
+The third line of Ltac2 commands defines a new goal called Goal, which states that the defined function iterates correctly for any given T, f, and n. This goal is used as the main hypothesis in the proof.
+
+The fourth line of Ltac2 commands uses the nat\_rect command to define a recursive function that applies the defined function iterated n times. The function takes three parameters: the natural number n, the initial value IHn, and the function f. It then calls itself with n - 1 as the parameter n and updates the initial value IHn to be the result of applying f to it.
+
+Finally, the fifth line of Ltac2 commands uses the exact command to prove that the defined function iterates correctly for any given T, f, and n. This is done by using the nat\_rect command to recursively apply the defined function to itself n times and comparing the result with the identity function idfun T. The goal Goal0 is used as the main hypothesis in this proof.
+#+end_src
+#+begin_src output
+
+This is an example of a Coq proof that defines an iterative function `iteration` for an endomorphism `f` on a type `U`. The proof uses an induction on the natural number `n` to show that the iteration of `f` for `n` steps is equal to the composition of `f` with itself `n-1` times.
+
+The function takes three arguments: the type `U`, the endomorphism `f`, and the natural number `n`. It returns the result of applying `f` to the input value `x` `n` times, which can be written as `(f ∘ ... ∘ f) x`.
+
+The proof uses Coq's built-in `nat_rect` function, which takes a predicate function that maps a natural number to a value of the same type and applies it to each element of a sequence. In this case, the predicate function is defined as `λ _ : nat, T → T`, where `T` is the input type. This function returns `idfun T`, which is the identity function on `T`.
+
+The proof also uses Coq's pattern matching syntax to define an induction step for the natural number `n`. The induction step shows that if `Goal0` holds for some natural number `n0` and a function `IHn : T → T`, then `Goal` holds for `n = n0 + 1` and the same `IHn`.
+
+Finally, the proof uses Coq's `exact` command to execute the function and check that it satisfies the expected equality.
+#+end_src
+#+begin_src output
+
+The code you provided defines an iterator function for an endomorphism of a given type T. The iterator function takes an endomorphism f and a natural number n as input, and returns the result of applying f n times to a value x in T.
+
+To use this function, you can define it at the top of your Coq file and then call it whenever you need to iterate over a set of values using a given endomorphism. Here's an example usage:
+```scss
+Definition X (T : UU) (x : T) : T := x.
+
+Definition f (T : UU) (x : T) : T := x * 2.
+
+Definition iterate (T : UU) (n : nat) (f : T -> T) (x : T) : T := f ^ n x.
+
+(* Define a function to check if an integer is prime *)
+Definition is_prime (T : UU) (n : nat) : bool := n > 1 && forall i from 2 to (n - 1), n % i /= 0.
+
+(* Use iterate to find the first n prime numbers *)
+Definition n (T : UU) (n : nat) : list T := take n (iterate T n is_prime 2).
+```
+In this example, we define a function X to return the identity function on type T, a function f to multiply x by 2, and an iterator function iterate that applies f n times to a value x. We also define an is\_prime function to check if an integer is prime, and use it along with iterate to find the first n prime numbers starting from 2.
+#+end_src
+#+begin_src output
+
+This is a Coq code file defining an endomorphism and its iteration, along with proofs for the iteration of an arbitrary endomorphism.
+
+The `iteration` function takes an endomorphism `f`, a natural number `n`, and returns the result of applying `f` `n` times to some arbitrary element `x` in the domain of `f`. The proof is done using induction on `n`.
+
+The `nat_rect` function is used to define the rectangular case for the induction step, where `n` is replaced with `n - 1`, and the result of applying `f` to `IHn` is returned as the next step in the iteration. The proof relies on the assumption that `IH0 = idfun T`, which means that the identity function is applied when `n = 0`.
+
+The code also defines some helper functions, such as `idfun T` and `Message.print`, which are used for printing debugging information during the execution of the proofs.
+#+end_src
+#+begin_src output
+
+This is a Coq program that defines an iterator function for endomorphisms. The iterator takes as input three arguments: a type T, an endomorphism f, and a natural number n, and returns the value of applying f iteratively n times to the identity function on T.
+
+The proof of the iterator function is done using an induction on n. The base case is when n = 0, in which case the iterator simply returns the identity function. For n > 0, the iterator is defined recursively as the composition of the identity function with the result of applying f iteratively to (n - 1) times on T.
+
+The program uses Coq's built-in `nat_rect` function to define a natural rectangular module that encapsulates a generic type and an operation. The `nat_rect` function takes as input three arguments: a predicate over the generic type, the identity function, and the recursive step function, and returns a module that contains these definitions along with the required proofs of the module's correctness.
+
+In this case, the predicate is the function `idfun T`, which is the identity function on T, the identity function is simply the identity function on T, and the recursive step function is `f ∘ IHn`. The resulting module is then used to prove the correctness of the iterator function.
+
+The program also uses Coq's built-in `exact` command to evaluate the terms returned by the program at runtime.
+#+end_src
+
+
+That sounds like an interesting challenge. I'll try to imagine a short video about the `nat_rect` function, inspired by the style of 3Blue1Brown¹, a YouTube channel that creates animated math videos². Here are some possible key shots and descriptions for the video:
+
+- The video starts with a question: How can we prove properties about natural numbers using the structure of natural numbers?
+- The narrator introduces the induction principle for natural numbers, which states that if a property `P` holds for zero, and if `P(n)` implies `P(n+1)` for any natural number `n`, then `P` holds for all natural numbers.
+- The narrator explains that the induction principle is a powerful tool for reasoning about natural numbers, but it is not very convenient to use in a programming language or a proof assistant, because it requires us to write a separate proof for each property `P` that we want to prove.
+- The narrator then introduces the `nat_rect` function, which is a way of implementing the induction principle in the simply typed lambda calculus, a typed interpretation of the lambda calculus. The narrator says that the `nat_rect` function takes four arguments: a type `P`, a base case `p0` of type `P`, a step case `pS` of type `nat → P → P`, and a natural number `n`. The narrator says that the `nat_rect` function returns a value of type `P` that corresponds to the result of applying the induction principle to `P`, `p0`, `pS`, and `n`.
+- The narrator shows the definition of the `nat_rect` function in the simply typed lambda calculus, using a code block:
+
+```lambda
+(λ (P : UU) (p0 : P) (pS : nat → P → P) (n : nat),
+  nat_rect
+    P  // type P
+    p0 // base case p0
+    pS // step case pS
+    n  // natural number n
+)
+```
+
+- The narrator explains how the `nat_rect` function works by using an animation. The animation shows a natural number `n` as a sequence of dots, where each dot represents a successor operation. The animation also shows the type `P` as a box, and the values `p0` and `pS` as functions that can be applied to the box. The animation then shows how the `nat_rect` function reduces the natural number `n` to a value of type `P`, by using the following steps:
+    - If `n` is zero, the `nat_rect` function returns the base case `p0`, which is already a value of type `P`.
+    - If `n` is not zero, the `nat_rect` function removes one dot from `n`, and calls itself recursively on the remaining dots, which is `n-1`. This recursive call returns a value of type `P`, which is then passed as an argument to the step case `pS`, along with the original `n`. The `pS` function then returns a new value of type `P`, which is the final result of the `nat_rect` function.
+- The narrator gives an example of how to use the `nat_rect` function to define a function that takes a type `T`, a function `f` of type `T → T`, and a natural number `n`, and returns a function of type `T → T` that applies `f` to its argument `n` times. The narrator shows the definition of this function in the simply typed lambda calculus, using a code block:
+
+```lambda
+(λ (T : UU) (f : T → T) (n : nat),
+  nat_rect
+    (λ _ : nat, T → T)  // type P
+    (idfun T)           // base case p0
+    (λ (_ : nat) (IHn : T → T), f ∘ IHn)  // step case pS
+    n
+)
+```
+
+- The narrator explains how this function works by using an animation. The animation shows a type `T` as a box, and a function `f` of type `T → T` as a function that can be applied to the box. The animation also shows a natural number `n` as a sequence of dots, and the `nat_rect` function as a function that can reduce the dots to a function of type `T → T`. The animation then shows how the function applies `f` to its argument `n` times, by using the following steps:
+    - If `n` is zero, the function returns the identity function `idfun T`, which does nothing to the box.
+    - If `n` is not zero, the function removes one dot from `n`, and calls the `nat_rect` function recursively on the remaining dots, which is `n-1`. This recursive call returns a function of type `T → T`, which is then composed with `f`, using the operator `∘`. The composed function then returns a new function of type `T → T`, which is the final result of the function.
+- The narrator concludes the video by saying that the `nat_rect` function is a powerful and elegant way of defining functions and proving properties about natural numbers, by using the structure of natural numbers. The narrator also says that the `nat_rect` function is one of the basic building blocks of the calculus of constructions, a general framework for programming and reasoning with dependent types. The narrator invites the viewers to learn more about the calculus of constructions and its applications, such as Coq, a popular proof assistant and programming language. The narrator also thanks the viewers for watching, and encourages them to subscribe to the channel and support it on Patreon..
+
+Source: Conversation with Bing, 1/31/2024
+(1) 3Blue1Brown - YouTube. https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw.
+(2) 3Blue1Brown. https://www.3blue1brown.com/.
+(3) 3Blue1Brown. https://www.3blue1brown.com/about.
+(4) 3Blue1Brown - 维基百科，自由的百科全书. https://zh.wikipedia.org/wiki/3Blue1Brown.
+(5) 3Blue1Brown - Wikipedia. https://en.wikipedia.org/wiki/3Blue1Brown.
+(6) en.wikipedia.org. https://en.wikipedia.org/wiki/3Blue1Brown.
+
+ *)
 
 (** *** Basic constructions related to the adjoint evaluation function [ X -> ((X -> Y) -> Y) ] *)
 
@@ -258,6 +440,7 @@ Definition dirprodf {X Y X' Y' : UU}
 Definition ddualand {X Y P : UU}
            (xp : (X -> P) -> P) (yp : (Y -> P) -> P) : (X × Y -> P) -> P.
 Proof.
+  Ltac2 Eval Message.print (Message.of_string "BEGIN_PROOF:ddualand").
   Ltac2 Eval Message.print (Message.of_ident @X).
   Ltac2 Eval Message.print (Message.of_ident @Y).
   Ltac2 Eval Message.print (Message.of_ident @P).
@@ -292,6 +475,7 @@ Definition dnegnegtoneg {X : UU} : ¬¬ ¬ X -> ¬ X := adjev2.
 
 Lemma dneganddnegl1 {X Y : UU} (dnx : ¬¬ X) (dny : ¬¬ Y) : ¬ (X -> ¬ Y).
 Proof.
+  Ltac2 Eval Message.print (Message.of_string "BEGIN_PROOF:dneganddnegl1").
   Ltac2 Eval Message.print (Message.of_ident @X).
   Ltac2 Eval Message.print (Message.of_ident @Y).
   intros.
@@ -311,12 +495,14 @@ Notation " X <-> Y " := (logeq X Y) : type_scope.
 
 Lemma isrefl_logeq (X : UU) : X <-> X.
 Proof.
+    Ltac2 Eval Message.print (Message.of_string "BEGIN_PROOF:isrefl_logeq").
   Ltac2 Eval Message.print (Message.of_ident @X).
   intros. split; apply idfun.
 Defined.
 
 Lemma issymm_logeq (X Y : UU) : (X <-> Y) -> (Y <-> X).
 Proof.
+  Ltac2 Eval Message.print (Message.of_string "BEGIN_PROOF:issymm_logeq").
   Ltac2 Eval Message.print (Message.of_ident @X).
   intros e.
   exact (pr2 e,,pr1 e).
@@ -327,6 +513,7 @@ Definition logeqnegs {X Y : UU} (l : X <-> Y) : (¬ X) <-> (¬ Y) :=
 
 Definition logeq_both_true {X Y : UU} : X -> Y -> (X <-> Y).
 Proof.
+
   Ltac2 Eval Message.print (Message.of_ident @X).
   intros x y.
   split.

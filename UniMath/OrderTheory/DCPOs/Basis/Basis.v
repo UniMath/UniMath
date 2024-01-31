@@ -1,5 +1,4 @@
 (******************************************************************************
-
  Bases in DCPOs
 
  We define the notion of a basis of a DCPO. There are two possible approaches:
@@ -401,7 +400,20 @@ Section BasisProperties.
         rewrite p.
         apply refl_dcpo.
   Qed.
-
+(*
+  File "./UniMath/OrderTheory/DCPOs/Basis/Basis.v", line 417, characters 2-6:
+Error: Illegal application:
+The term "@Prelude.reverse_coercion" of type
+ "∏ T' T : Type,
+  T' → Prelude.ReverseCoercionSource T → Prelude.ReverseCoercionTarget T'"
+cannot be applied to the terms
+ "dcpo_struct (pr1 X)" : "UU"
+ "dcpo" : "UU"
+ "pr2 X" : "dcpo_struct (pr1 X)"
+ "X" : "dcpo"
+The 1st term has type "UU" which should be a subtype of
+"Type".
+*)
   Proposition map_eq_on_basis_if_scott_continuous
               {Y : dcpo}
               {f g : X → Y}

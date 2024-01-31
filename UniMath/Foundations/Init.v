@@ -1,3 +1,9 @@
+From Ltac2 Require Import Ltac2.
+From Ltac2 Require Option.
+(* Set Ltac2 Backtrace. *)
+Set Ltac Debug.
+Set Ltac Batch Debug.
+
 (** Initial setup unrelated to Univalent Foundations *)
 
 Require Export Coq.Init.Notations.
