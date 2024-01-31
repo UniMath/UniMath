@@ -1,6 +1,10 @@
 From Ltac2 Require Import Ltac2.
 From Ltac2 Require Option.
 Set Ltac2 Backtrace.
+Set Ltac2 Debug.
+Set Ltac Debug.
+Set Ltac Batch Debug.
+
 (** * Univalent Foundations, Part A
 
 Vladimir Voevodsky.
@@ -144,10 +148,19 @@ Require Export UniMath.Foundations.Preamble.
 Definition fromempty  : ∏ X : UU , empty -> X. (* type this in emacs in agda-input method
 with \prod *)
 Proof.
+  (* Printing Width 1000000.
+     Printing Universes.
+  Printing All.
+  Printing Implicit Defensive.
+*)
+
   Show Proof.
+
   Ltac2 Eval Message.print (Message.of_ident @X).
+
   Ltac2 Eval Message.print (Message.of_ident @H).
   intro X.
+
   Show Proof.
   intro H.
   Show Proof.
