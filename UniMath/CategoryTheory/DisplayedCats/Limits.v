@@ -401,7 +401,7 @@ Section fiber.
 
 End fiber.
 
-Check fiber_limit.
+(* Check fiber_limit. *)
 
 Definition fiber_limits
   {C : category}
@@ -464,7 +464,7 @@ Proof.
       intro j.
       set (RRt := make_LimCone _ _ _ RT1).
       set (RRtt := limArrowCommutes RRt x CC j).
-      set (RH := maponpaths (#π)%Cat RRtt).
+      set (RH := maponpaths (#π) RRtt).
       cbn in RH.
       apply RH.
     }

@@ -167,7 +167,7 @@ Proof.
   - eapply pathscomp0.
     2: { apply pathsinv0. apply (transp_pres_comp' H_ob H'_ob H''_ob). }
     + eapply pathscomp0.
-      * exact (maponpaths (λ mor, mor · ((# F)%Cat g')) H_mor).
+      * exact (maponpaths (λ mor, mor · ((# F) g')) H_mor).
       * exact (maponpaths (λ mor, (transportf_mor H_ob H'_ob f) · mor) H'_mor).
 Defined.
 
