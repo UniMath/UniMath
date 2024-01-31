@@ -160,7 +160,12 @@ Proof.
 
   Ltac2 Eval Message.print (Message.of_ident @H).
   intro X.
+  (* CRASH HERE
 
+Anomaly "Uncaught exception Not_found."
+Please report at http://coq.inria.fr/bugs/.
+
+   *)
   Show Proof.
   intro H.
   Show Proof.
