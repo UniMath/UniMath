@@ -1,6 +1,6 @@
 From Ltac2 Require Import Ltac2.
 From Ltac2 Require Option.
-
+Set Ltac2 Backtrace.
 (** * Univalent Foundations, Part A
 
 Vladimir Voevodsky.
@@ -144,11 +144,15 @@ Require Export UniMath.Foundations.Preamble.
 Definition fromempty  : ∏ X : UU , empty -> X. (* type this in emacs in agda-input method
 with \prod *)
 Proof.
+  Show Proof.
   Ltac2 Eval Message.print (Message.of_ident @X).
   Ltac2 Eval Message.print (Message.of_ident @H).
   intro X.
+  Show Proof.
   intro H.
+  Show Proof.
   induction H.
+  Show Proof.
 Defined.
 
 Arguments fromempty { X } _.
@@ -199,9 +203,13 @@ Definition iteration {T : UU} (f : T -> T) (n : nat) : T -> T.
 Proof.
   Ltac2 Eval Message.print (Message.of_ident @T).
   Ltac2 Eval Message.print (Message.of_ident @f).
+  Show Proof.
   induction n as [ | n IHn ].
+  Show Proof.
   + exact (idfun T).
   + exact (f ∘ IHn).
+    Show Proof.
+
 Defined.
 
 (** *** Basic constructions related to the adjoint evaluation function [ X -> ((X -> Y) -> Y) ] *)
