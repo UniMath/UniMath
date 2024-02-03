@@ -36,7 +36,7 @@ PACKAGES += Semantics
 BUILD_COQ ?= no
 BUILD_COQIDE ?= no
 DEBUG_COQ ?= yes
-COQBIN ?=
+COQBIN = /home/mdupont/.opam/4.12.1/bin/
 VERBOSE =  yes
 MEMORY_LIMIT ?= 2500000
 LIMIT_MEMORY ?= no
@@ -60,16 +60,13 @@ everything: TAGS all html install
 # empty target prevents implicit rule search, saving time
 Makefile :;
 
-COQIDE_OPTION := no
+
 
 ifeq "$(BUILD_COQ)" "yes"
-COQBIN=sub/coq/bin/
+COQBIN=sub/coq/bin
 all: build-coq
 build-coq: sub/coq/bin/coqc
-ifeq "$(BUILD_COQIDE)" "yes"
-all: build-coqide
-COQIDE_OPTION := opt
-endif
+
 endif
 
 COQ_PATH := -Q UniMath UniMath
@@ -213,12 +210,12 @@ describe:; git describe --dirty --long --always --abbrev=40 --all
 	) >$@
 # the '' above prevents emacs from mistaking the lines above as providing local variables when visiting this file
 
-ifdef COQBIN
-build/CoqMakefile.make .coq_makefile_output.conf: $(COQBIN)coq_makefile
-endif
+# ifdef COQBIN
+# build/CoqMakefile.make .coq_makefile_output.conf: $(COQBIN)coq_makefile
+# endif
 build/CoqMakefile.make .coq_makefile_output.conf: .coq_makefile_input
 	echo $(COQBIN)coq_makefile
-	#$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output
+	$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output
 	mv .coq_makefile_output build/CoqMakefile.make
 
 # "clean::" occurs also in build/CoqMakefile.make, hence both colons
@@ -236,30 +233,24 @@ distclean::          ; rm -f build/Makefile-configuration
 #############################################################################
 # building coq:
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
-CONFIGURE_OPTIONS := -coqide "$(COQIDE_OPTION)" -with-doc no -prefix $(shell pwd)
-BUILD_TARGETS := coqbinaries tools states coq
+CONFIGURE_OPTIONS :=  -prefix $(shell pwd)
+BUILD_TARGETS :=   world
 ifeq ($(DEBUG_COQ),yes)
-CONFIGURE_OPTIONS += -annot
-BUILD_TARGETS += byte
 BUILD_OPTIONS += VERBOSE=true
+BUILD_OPTIONS += DEBUG=true
 BUILD_OPTIONS += READABLE_ML4=yes
 endif
-ifeq ($(BUILD_COQIDE),yes)
-BUILD_TARGETS += coqide-files bin/coqide
-endif
+
 sub/coq/configure.ml:
 	git submodule update --init sub/coq
 sub/coq/config/coq_config.ml: sub/coq/configure.ml
 	@echo --- making $@ because of $?
 	cd sub/coq && ./configure $(CONFIGURE_OPTIONS)
 sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
-.PHONY: rebuild-coq
-rebuild-coq sub/coq/bin/coq_makefile sub/coq/bin/coqc:
-	$(MAKE) -w -C sub/coq $(BUILD_OPTIONS) $(BUILD_TARGETS)
-	$(MAKE) -w -C sub/coq install
-ifeq ($(DEBUG_COQ),yes)
-	$(MAKE) -w -C sub/coq tags
-endif
+#.PHONY: rebuild-coq
+#rebuild-coq sub/coq/bin/coq_makefile sub/coq/bin/coqc:
+#	$(MAKE) -w -C sub/coq $(BUILD_OPTIONS) $(BUILD_TARGETS)
+
 #############################################################################
 
 git-describe:
@@ -449,24 +440,6 @@ check-for-changes-to-CONTENTS.md : UniMath/CONTENTS.md
 
 # Here we create a table of contents file, in markdown format, for browsing on github
 # When the file UniMath/CONTENTS.md changes, the new version should be committed to github.
-all: UniMath/CONTENTS.md
-UniMath/CONTENTS.md: Makefile UniMath/*/.package/files
-	$(SHOW)'--- making $@'
-	$(HIDE) exec >$@ ;													\
-	   echo "# Contents of the UniMath library" ;										\
-	   echo "The packages and files are listed here in logical order: each file depends only on files occurring earlier." ;	\
-	   for P in $(PACKAGES) ;												\
-	   do if [ -f UniMath/$$P/README.md ] ;											\
-	      then echo "## Package [$$P]($$P/README.md)" ;									\
-	      elif [ -f UniMath/$$P/README ] ;											\
-	      then echo "## Package [$$P]($$P/README)" ;									\
-	      else echo "## Package $$P" ;											\
-	      fi ;														\
-	      for F in `<UniMath/$$P/.package/files $(FILES_FILTER)` ;								\
-	      do echo "   - [$$F]($$P/$$F)" ;											\
-	      done ;														\
-	      echo "   - [All.v]($$P/All.v)" ;											\
-	   done
 
 # Here we call a shell script checking the Coq files for adherence to our style
 check-style :
