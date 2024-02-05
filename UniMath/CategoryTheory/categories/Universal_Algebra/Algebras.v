@@ -1,5 +1,5 @@
 (** * The univalent category of algebras over a signature. *)
-(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2023 *)
 (**
 We use display categories to define the category of algebras and prove its univalence.
 *)
@@ -68,6 +68,8 @@ Section Algebras.
     - simpl. intros A B asA asB f. exact (@ishom σ (make_algebra A asA) (make_algebra B asB) f).
     - simpl. intros A B asA asB f opA opB.
       apply isapropishom.
+      intro s.
+      apply setproperty.
     - cbn. intros A asA. apply ishomid.
     - cbn. intros A B C opA opB opC. intros f g ishomf ishomg.
       exact (ishomcomp (make_hom ishomf) (make_hom ishomg)).
@@ -173,7 +175,10 @@ Section Algebras.
 
   Lemma isinitial_termalgebra : Initial (category_algebras).
   Proof.
-    exact (term_algebra σ ,, iscontrhomsfromgterm).
+    exists (term_hSetalgebra σ).
+    intro a.
+    apply (iscontrhomsfromgterm (hSetalgebra_to_algebra a)).
+    apply (has_supportsets_hSetalgebra a).
   Defined.
 
 End Algebras.

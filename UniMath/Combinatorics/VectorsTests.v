@@ -31,8 +31,6 @@ Section Test_vec_foldr.
 
   Let v := vcons p (vcons q (vcons r vnil)).
 
-  Eval compute in vec_foldr f b v.
-
   Goal vec_foldr f b v = f p (f q (f r b)). reflexivity. Qed.
 
 End Test_vec_foldr.
@@ -42,8 +40,6 @@ Section Test_vec_foldr1.
   Context {A : UU} (f : A -> A -> A)  (p q r t : A).
 
   Let v := vcons p (vcons q (vcons r (vcons t vnil))).
-
-  Eval compute in vec_foldr1 f v.
 
   Goal vec_foldr1 f v = f p (f q (f r t)). reflexivity. Qed.
 
@@ -56,8 +52,6 @@ Section Test_vec_append.
   Let u := vcons a (vcons b (vcons c vnil)).
   Let v := vcons d (vcons e vnil).
   Let w := vcons a (vcons b (vcons c (vcons d (vcons e vnil)))).
-
-  Eval compute in vec_append u v.
 
   Goal vec_append u v = w. reflexivity. Qed.
 

@@ -1,5 +1,5 @@
 (** * The univalent category of equational algebras over an equational specification. *)
-(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2023 *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -20,7 +20,7 @@ Local Open Scope sorted_scope.
 Definition eqalg_disp : disp_cat (category_algebras σ).
 Proof.
   use disp_full_sub.
-  exact (λ A, is_eqalgebra A).
+  exact (λ A, is_eqalgebra (hSetalgebra_to_algebra A)).
 Defined.
 
 Lemma is_univalent_eqalg_disp : is_univalent_disp eqalg_disp.
@@ -85,5 +85,5 @@ Lemma is_univalent_category_eqalgebras : is_univalent category_eqalgebras.
 Proof.
   exact (@is_univalent_total_category (shSet_category σ) eqalg_disp
            (is_univalent_shSet_category σ) is_univalent_eqalg_disp).
-Qed. 
+Qed.
 *)

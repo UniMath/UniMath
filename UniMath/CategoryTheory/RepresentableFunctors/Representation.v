@@ -13,7 +13,6 @@ Require Import
         UniMath.CategoryTheory.RepresentableFunctors.Precategories.
 Require Import UniMath.MoreFoundations.Tactics.
 Local Open Scope cat.
-Local Open Scope Cat.
 
 Definition isUniversal {C:category} {X:[C^op,HSET]} {c:C} (x:c ⇒ X)
   := ∏ (c':C), isweq (λ f : c' --> c, x ⟲ f).
