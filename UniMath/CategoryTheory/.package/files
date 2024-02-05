@@ -28,7 +28,7 @@ Groupoids.v
 ZigZag.v
 ProductCategory.v
 PrecategoryBinProduct.v
-categories/HSET/Core.v
+Categories/HSET/Core.v
 CategorySum.v
 Subcategory/Core.v
 Subcategory/Full.v
@@ -44,8 +44,8 @@ Equivalences/Core.v
 Equivalences/CompositesAndInverses.v
 Equivalences/FullyFaithful.v
 Subcategory/FullEquivalences.v
-categories/HSET/MonoEpiIso.v
-categories/HSET/Univalence.v
+Categories/HSET/MonoEpiIso.v
+Categories/HSET/Univalence.v
 
 CategoriesWithBinOps.v
 PrecategoriesWithAbgrops.v
@@ -102,8 +102,8 @@ CommaCategories.v
 NNO.v
 Subcategory/Limits.v
 EpiFacts.v
-categories/Type/Core.v
-categories/Type/MonoEpiIso.v
+Categories/Type/Core.v
+Categories/Type/MonoEpiIso.v
 SimplicialSets.v
 yoneda.v
 FunctorCoalgebras.v
@@ -151,49 +151,49 @@ Adjunctions/Restriction.v
 Adjunctions/Examples.v
 Subcategory/Reflective.v
 
-categories/CategoryOfSetCategories.v
+Categories/CategoryOfSetCategories.v
 limits/Examples/CategoryOfSetcategoriesLimits.v
-categories/setwith2binops.v
-categories/monoids.v
-categories/abmonoids.v
-categories/grs.v
-categories/abgrs.v
-categories/rigs.v
-categories/commrigs.v
-categories/rings.v
-categories/commrings.v
-categories/intdoms.v
-categories/flds.v
-categories/modules.v
-categories/StandardCategories.v
-categories/preorder_categories.v
+Categories/Setwith2binop.v
+Categories/Monoid.v
+Categories/Abmonoid.v
+Categories/Gr.v
+Categories/Abgr.v
+Categories/Rig.v
+Categories/Commrig.v
+Categories/Ring.v
+Categories/Commring.v
+Categories/Intdom.v
+Categories/Fld.v
+Categories/Module.v
+Categories/StandardCategories.v
+Categories/PreorerCategories.v
 
 limits/Examples/UnitCategoryLimits.v
 
-categories/Type/Colimits.v
-categories/Type/Limits.v
-categories/Type/Structures.v
-categories/Type/Univalence.v
+Categories/Type/Colimits.v
+Categories/Type/Limits.v
+Categories/Type/Structures.v
+Categories/Type/Univalence.v
 
-categories/HSET/Limits.v
-categories/HSET/Colimits.v
-categories/HSET/FilteredColimits.v
-categories/HSET/Slice.v
-categories/HSET/Structures.v
-categories/HSET/SliceFamEquiv.v
-categories/HSET/All.v
+Categories/HSET/Limits.v
+Categories/HSET/Colimits.v
+Categories/HSET/FilteredColimits.v
+Categories/HSET/Slice.v
+Categories/HSET/Structures.v
+Categories/HSET/SliceFamEquiv.v
+Categories/HSET/All.v
 
 Profunctors/Core.v
-categories/HSET/SetCoends.v
+Categories/HSET/SetCoends.v
 Profunctors/Examples.v
 Profunctors/Transformation.v
 Profunctors/Squares.v
 
 SetValuedFunctors.v
-categories/FinSet.v
-categories/wosets.v
-categories/Graph.v
-categories/CGraph.v
+Categories/FinSet.v
+Categories/Woset.v
+Categories/Graph.v
+Categories/CGraph.v
 
 GrothendieckTopos.v
 Presheaf.v
@@ -205,7 +205,7 @@ ExponentiationLeftAdjoint.v
 Connected.v
 LeftKanExtension.v
 
-categories/CartesianCubicalSets.v
+Categories/CartesianCubicalSets.v
 
 OppositeCategory/OppositeAdjunction.v
 OppositeCategory/OppositeOfFunctorCategory.v
@@ -280,18 +280,18 @@ Monads/KTriplesEquiv.v
 
 limits/Examples/AlgebraStructuresColimits.v
 
-categories/Dialgebras.v
-categories/CatIsoInserter.v
-categories/EilenbergMoore.v
-categories/CoEilenbergMoore.v
-categories/KleisliCategory.v
+Categories/Dialgebras.v
+Categories/CatIsoInserter.v
+Categories/EilenbergMoore.v
+Categories/CoEilenbergMoore.v
+Categories/KleisliCategory.v
 limits/Examples/EilenbergMooreLimits.v
 Elements.v
 Core.v
 
-categories/Universal_Algebra/Algebras.v
-categories/Universal_Algebra/EqAlgebras.v
-categories/Relations.v
+Categories/Universal_Algebra/Algebras.v
+Categories/Universal_Algebra/EqAlgebras.v
+Categories/Relations.v
 
 Monoidal/WhiskeredBifunctors.v
 Monoidal/Categories.v
