@@ -40,9 +40,9 @@ Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Colimits.
 
 Local Open Scope cat.
 
@@ -73,7 +73,7 @@ Section products_set_slice.
 (* The following is an experiment which computes what the product in Set/X
    should be from the one in [X,Set] using the equivalence between Set/X
    and [X,Set] *)
-(* Require Import UniMath.CategoryTheory.categories.HSET.SliceFamEquiv. *)
+(* Require Import UniMath.CategoryTheory.Categories.HSET.SliceFamEquiv. *)
 
 (* Lemma Products_HSET_slice I X : Products I (HSET / X). *)
 (* Proof. *)

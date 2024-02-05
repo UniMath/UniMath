@@ -16,7 +16,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
-Require Import UniMath.CategoryTheory.categories.CategoryOfSetCategories.
+Require Import UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.DisplayedCats.StreetOpFibration.
 Require Import UniMath.CategoryTheory.GrothendieckConstruction.TotalCategory.

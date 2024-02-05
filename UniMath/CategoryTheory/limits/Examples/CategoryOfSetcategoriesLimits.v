@@ -11,7 +11,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.categories.CategoryOfSetCategories.
+Require Import UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 
 Local Open Scope cat.

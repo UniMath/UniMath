@@ -20,8 +20,8 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
-Require Import UniMath.CategoryTheory.categories.Type.Core.
-Require Import UniMath.CategoryTheory.categories.Type.Limits.
+Require Import UniMath.CategoryTheory.Categories.Type.Core.
+Require Import UniMath.CategoryTheory.Categories.Type.Limits.
 
 (** ** Exponentials *)
 

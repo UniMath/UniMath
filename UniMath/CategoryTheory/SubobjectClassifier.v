@@ -24,7 +24,7 @@ Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 
 Require Import UniMath.CategoryTheory.Subobjects.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Core.Isos.

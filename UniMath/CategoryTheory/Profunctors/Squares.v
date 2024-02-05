@@ -30,8 +30,8 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-Require Import UniMath.CategoryTheory.categories.HSET.All.
-Require Import UniMath.CategoryTheory.categories.HSET.SetCoends.
+Require Import UniMath.CategoryTheory.Categories.HSET.All.
+Require Import UniMath.CategoryTheory.Categories.HSET.SetCoends.
 Require Import UniMath.CategoryTheory.Profunctors.Core.
 Require Import UniMath.CategoryTheory.Profunctors.Examples.
 Require Import UniMath.CategoryTheory.Profunctors.Transformation.

@@ -18,7 +18,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 
-Require Import UniMath.CategoryTheory.categories.Type.Core.
+Require Import UniMath.CategoryTheory.Categories.Type.Core.
 
 (** ** Terminal object ([TerminalType]) *)
 

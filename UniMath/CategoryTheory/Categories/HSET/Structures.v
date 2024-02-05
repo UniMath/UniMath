@@ -37,8 +37,8 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.slicecat.
 Require Import UniMath.CategoryTheory.NNO.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.
-Require Import UniMath.CategoryTheory.categories.Type.Core.
-Require Import UniMath.CategoryTheory.categories.Type.MonoEpiIso.
+Require Import UniMath.CategoryTheory.Categories.Type.Core.
+Require Import UniMath.CategoryTheory.Categories.Type.MonoEpiIso.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
@@ -50,10 +50,10 @@ Require Import UniMath.CategoryTheory.SplitMonicsAndEpis.
 Require Import UniMath.CategoryTheory.ElementaryTopos.
 Require Import UniMath.CategoryTheory.PowerObject.
 
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
-Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
+Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 
 Local Open Scope cat.
 

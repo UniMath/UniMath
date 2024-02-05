@@ -21,7 +21,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifun
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.MonoidalSections.
 
-Require Import UniMath.CategoryTheory.categories.HSET.All.
+Require Import UniMath.CategoryTheory.Categories.HSET.All.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.SetCartesianMonoidal.
 

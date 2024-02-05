@@ -27,7 +27,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.
 Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
-Require Import UniMath.CategoryTheory.categories.Dialgebras.
+Require Import UniMath.CategoryTheory.Categories.Dialgebras.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.
 
 Import MonoidalNotations.

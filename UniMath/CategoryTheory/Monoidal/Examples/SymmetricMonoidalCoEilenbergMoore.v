@@ -9,7 +9,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.categories.Dialgebras.
+Require Import UniMath.CategoryTheory.Categories.Dialgebras.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
@@ -20,7 +20,7 @@ Require Import UniMath.CategoryTheory.Monoidal.FunctorCategories.
 Require Import UniMath.CategoryTheory.Monads.Comonads.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.
-Require Import UniMath.CategoryTheory.categories.CoEilenbergMoore.
+Require Import UniMath.CategoryTheory.Categories.CoEilenbergMoore.
 
 
 Local Open Scope cat.

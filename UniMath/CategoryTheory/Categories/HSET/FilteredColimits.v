@@ -10,7 +10,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.Filtered.
 Require Import UniMath.CategoryTheory.limits.StandardDiagrams.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 
 Require Import UniMath.Combinatorics.FiniteSets.
 Require Import UniMath.Combinatorics.KFiniteTypes.

@@ -36,7 +36,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.DisplayedCats.Binproducts.
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.categories.HSET.All.
+Require Import UniMath.CategoryTheory.Categories.HSET.All.
 
 Local Open Scope cat.
 

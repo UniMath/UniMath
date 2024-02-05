@@ -18,7 +18,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
-Require Import UniMath.CategoryTheory.categories.Type.Core.
+Require Import UniMath.CategoryTheory.Categories.Type.Core.
 
 (** ** Initial object ([InitialType]) *)
 
