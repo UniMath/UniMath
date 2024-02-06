@@ -173,8 +173,8 @@ Defined.
 (** Lemma 32: Examples of preservation of colimits *)
 (** (i): Identity functor *)
 Lemma preserves_colimit_identity :
-  ∏ (C : category) (g : colimits.graph) (d : colimits.diagram g C)
-      (L : C) (cc : colimits.cocone d L),
+  ∏ (C : category) (g : Colimits.graph) (d : Colimits.diagram g C)
+      (L : C) (cc : Colimits.cocone d L),
   preserves_colimit (functor_identity C) d L cc.
 Proof.
 exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.preserves_colimit_identity.

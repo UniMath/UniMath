@@ -580,7 +580,7 @@ Derivation on modules commutes with the pullback: if m is a monad morphism, then
 Section pullback_deriv.
   Context {C : category}
           (o : C) (* derivation X ↦ X + o *)
-          (bcpC : limits.bincoproducts.BinCoproducts C )
+          (bcpC : Limits.BinCoproducts.BinCoproducts C )
           {D : category}.
 
 

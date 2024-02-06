@@ -324,7 +324,7 @@ Defined.
 
 Let Colims_of_shape_nat_graph_EndC : Colims_of_shape nat_graph EndC.
 Proof.
-  apply colimits.ColimsFunctorCategory_of_shape, CC.
+  apply Colimits.ColimsFunctorCategory_of_shape, CC.
 Defined.
 
 

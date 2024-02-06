@@ -232,10 +232,10 @@ Section FixTheContext.
   Proof.
     intros coch L con isLimcon.
 
-    apply limits.pointwise_Lim_is_isLimFunctor ; intro F.
-    apply limits.pointwise_Lim_is_isLimFunctor ; intro G.
+    apply Limits.pointwise_Lim_is_isLimFunctor ; intro F.
+    apply Limits.pointwise_Lim_is_isLimFunctor ; intro G.
 
-    use limits.is_z_iso_isLim.
+    use Limits.is_z_iso_isLim.
     { apply LC. }
 
     transparent assert (x : (t = G → cochain C)).
@@ -257,8 +257,8 @@ Section FixTheContext.
       assert (bla' : (∏ a : path_pregroupoid sort Hsort, LimCone (diagram_pointwise (diagram_pointwise coch F) a))).
       { intro ; apply LC. }
 
-      set (LF_lim := limits.isLimFunctor_is_pointwise_Lim coch bla _ _ isLimcon F).
-      set (LFs_lim := limits.isLimFunctor_is_pointwise_Lim _ bla' _ _ LF_lim s).
+      set (LF_lim := Limits.isLimFunctor_is_pointwise_Lim coch bla _ _ isLimcon F).
+      set (LFs_lim := Limits.isLimFunctor_is_pointwise_Lim _ bla' _ _ LF_lim s).
       set (LFs_cone := make_LimCone _ _ _ LFs_lim).
 
       use CoproductOfArrows.
@@ -297,7 +297,7 @@ Section FixTheContext.
         apply funextsec ; intro p.
         rewrite ! assoc.
         apply maponpaths_2.
-        apply (graphs.limits.limArrowCommutes (LC (x p))).
+        apply (Graphs.Limits.limArrowCommutes (LC (x p))).
       + etrans.
         1: apply assoc'.
         apply pathsinv0.
@@ -340,7 +340,7 @@ Section FixTheContext.
         apply funextsec ; intro p.
         rewrite ! assoc.
         apply maponpaths_2.
-        apply (graphs.limits.limArrowCommutes (LC (x p))).
+        apply (Graphs.Limits.limArrowCommutes (LC (x p))).
   Defined.
 
   (* In case no constructors were given, i.e. just H := Id. *)

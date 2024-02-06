@@ -205,7 +205,7 @@ Proof.
       etrans.
       2: apply pathsinv0, id_right.
 
-      transparent assert (c' : (∑ x : B ⟦ b, F a ⟧, limits.is_cone_mor b'_con (limits.mapcone F coch a_con) x)).
+      transparent assert (c' : (∑ x : B ⟦ b, F a ⟧, Limits.is_cone_mor b'_con (Limits.mapcone F coch a_con) x)).
       {
         exists (pr1 f · pr1 (pr2 i a)).
         intro v.

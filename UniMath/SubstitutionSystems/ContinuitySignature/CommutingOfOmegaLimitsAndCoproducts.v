@@ -168,7 +168,7 @@ Section CoproductOfFunctorsContinuity.
     intro Fi_cont.
     intros coch l l_cone l_lim.
 
-    use limits.is_z_iso_isLim.
+    use Limits.is_z_iso_isLim.
     { apply ω_lim. }
 
     transparent assert (ind : (pr1 I -> cochain D)).
