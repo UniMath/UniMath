@@ -291,7 +291,7 @@ Core.v
 
 Categories/Universal_Algebra/Algebras.v
 Categories/Universal_Algebra/EqAlgebras.v
-Categories/Relations.v
+Categories/Rel.v
 
 Monoidal/WhiskeredBifunctors.v
 Monoidal/Categories.v
