@@ -166,7 +166,7 @@ Categories/Intdom.v
 Categories/Fld.v
 Categories/Module.v
 Categories/StandardCategories.v
-Categories/PreorerCategories.v
+Categories/PreorderCategories.v
 
 Limits/Examples/UnitCategoryLimits.v
 
