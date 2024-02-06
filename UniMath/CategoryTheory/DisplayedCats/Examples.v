@@ -323,8 +323,8 @@ Definition precat_of_elements {C : category} (P : functor C HSET)
 End Elements_Disp.
 
 
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 
 
 Section functor_algebras.

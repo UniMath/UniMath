@@ -16,7 +16,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.Limits.Products.
 Require Import UniMath.CategoryTheory.Monics.
 
 Local Open Scope cat.
@@ -199,8 +199,8 @@ End Terminal_and_EmptyProd.
 
 (* Section Terminal_from_Lims. *)
 
-(* Require Import UniMath.CategoryTheory.limits.graphs.colimits. *)
-(* Require Import UniMath.CategoryTheory.limits.graphs.limits. *)
+(* Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits. *)
+(* Require Import UniMath.CategoryTheory.Limits.Graphs.Limits. *)
 (* Require Import UniMath.CategoryTheory.opp_precat. *)
 
 (* Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op"). *)

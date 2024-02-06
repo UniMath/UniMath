@@ -21,14 +21,14 @@ Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.covyoneda.
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.FiniteSets.
 
-Require Import UniMath.CategoryTheory.limits.StandardDiagrams.
+Require Import UniMath.CategoryTheory.Limits.StandardDiagrams.
 
 Local Open Scope cat.
 Local Open Scope stn.

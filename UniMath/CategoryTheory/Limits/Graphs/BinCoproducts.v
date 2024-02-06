@@ -16,9 +16,9 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.EqDiag.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 
 Local Open Scope cat.
 
@@ -293,25 +293,25 @@ End coproduct_unique.
 
 Definition limits_isBinCoproductCocone_from_isBinCoproduct (C : category) {a b c}
            (u : C ⟦ a, c⟧)(v : C ⟦ b, c⟧) :
-  limits.bincoproducts.isBinCoproduct C a b c u v -> isBinCoproductCocone _ _ _ _ u v :=
+  Limits.BinCoproducts.isBinCoproduct C a b c u v -> isBinCoproductCocone _ _ _ _ u v :=
   make_isBinCoproductCocone _ C _ _ _ _ _.
 
 Lemma limits_isBinCoproduct_from_isBinCoproductCocone (C : category) {a b c}
       (u : C ⟦ a, c⟧)(v : C ⟦ b, c⟧) :
-  isBinCoproductCocone _ _ _ _ u v -> limits.bincoproducts.isBinCoproduct C a b c u v.
+  isBinCoproductCocone _ _ _ _ u v -> Limits.BinCoproducts.isBinCoproduct C a b c u v.
 Proof.
   intro h.
   set (CC := make_BinCoproductCocone _ _ _ _ _ _ h); simpl.
   intros x f g.
-  (* set (CCfg := (bincoproducts.BinCoproductArrow C CC f g)). *)
+  (* set (CCfg := (BinCoproducts.BinCoproductArrow C CC f g)). *)
   use unique_exists; simpl.
-  - apply (bincoproducts.BinCoproductArrow CC f g).
+  - apply (BinCoproducts.BinCoproductArrow CC f g).
   - abstract (split;
-              [ apply (bincoproducts.BinCoproductIn1Commutes  _ _ _ CC)
-              | apply (bincoproducts.BinCoproductIn2Commutes  _ _ _ CC)]).
+              [ apply (BinCoproducts.BinCoproductIn1Commutes  _ _ _ CC)
+              | apply (BinCoproducts.BinCoproductIn2Commutes  _ _ _ CC)]).
   - abstract (intros h'; apply isapropdirprod; apply C).
   - intros h' [H1 H2].
-    eapply (bincoproducts.BinCoproductArrowUnique _ _ _ CC).
+    eapply (BinCoproducts.BinCoproductArrowUnique _ _ _ CC).
     + exact H1.
     + exact H2.
 Defined.
@@ -327,8 +327,8 @@ Defined.
 Lemma mapdiagram_bincoproduct_eq_diag {C : category}{D : category}
       (F : functor C D)(a b : C)  :
   eq_diag (C := D)
-          (mapdiagram F (bincoproducts.bincoproduct_diagram a b))
-          (bincoproducts.bincoproduct_diagram (F a) (F b)).
+          (mapdiagram F (BinCoproducts.bincoproduct_diagram a b))
+          (BinCoproducts.bincoproduct_diagram (F a) (F b)).
 Proof.
   use tpair.
   - use bool_rect; apply idpath.

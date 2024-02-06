@@ -19,8 +19,8 @@ Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
 (* Require Import UniMath.CategoryTheory.coslicecat. *)
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.ProductCategory.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
 (* Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects. *)
 
 Local Open Scope cat.

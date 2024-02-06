@@ -29,14 +29,14 @@ Require Import UniMath.MoreFoundations.Sets.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.Coproducts.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.pushouts.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.coequalizers.
-Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Pushouts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Initial.
 
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 
@@ -272,16 +272,16 @@ Defined.
 
 (** *** Binary coproducts from colimits [BinCoproductsHSET_from_Colims] *)
 
-Require UniMath.CategoryTheory.limits.graphs.bincoproducts.
+Require UniMath.CategoryTheory.Limits.Graphs.BinCoproducts.
 
-Lemma BinCoproductsHSET_from_Colims : graphs.bincoproducts.BinCoproducts HSET.
+Lemma BinCoproductsHSET_from_Colims : Graphs.BinCoproducts.BinCoproducts HSET.
 Proof.
-  now apply bincoproducts.BinCoproducts_from_Colims, ColimsHSET_of_shape.
+  now apply BinCoproducts.BinCoproducts_from_Colims, ColimsHSET_of_shape.
 Defined.
 
 (** *** Pushouts from colimits [PushoutsHSET_from_Colims] *)
 
-Lemma PushoutsHSET_from_Colims : graphs.pushouts.Pushouts HSET.
+Lemma PushoutsHSET_from_Colims : Graphs.Pushouts.Pushouts HSET.
 Proof.
   red; intros; apply ColimsHSET_of_shape.
 Qed.
@@ -299,11 +299,11 @@ Defined.
 
 (** *** Initial object from colimits [InitialHSET_from_Colims] *)
 
-Require UniMath.CategoryTheory.limits.graphs.initial.
+Require UniMath.CategoryTheory.Limits.Graphs.Initial.
 
-Lemma InitialHSET_from_Colims : graphs.initial.Initial HSET.
+Lemma InitialHSET_from_Colims : Graphs.Initial.Initial HSET.
 Proof.
-  apply initial.Initial_from_Colims, ColimsHSET_of_shape.
+  apply Initial.Initial_from_Colims, ColimsHSET_of_shape.
 Defined.
 
 Section finite_subsets.

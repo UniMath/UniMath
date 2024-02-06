@@ -26,15 +26,15 @@ Require Export UniMath.CategoryTheory.Core.NaturalTransformations.
 
 Require Export UniMath.CategoryTheory.Monics.
 Require Export UniMath.CategoryTheory.Epis.
-Require Export UniMath.CategoryTheory.limits.zero.
-Require Export UniMath.CategoryTheory.limits.kernels.
-Require Export UniMath.CategoryTheory.limits.cokernels.
-Require Export UniMath.CategoryTheory.limits.binproducts.
-Require Export UniMath.CategoryTheory.limits.bincoproducts.
-Require Export UniMath.CategoryTheory.limits.pullbacks.
-Require Export UniMath.CategoryTheory.limits.pushouts.
-Require Export UniMath.CategoryTheory.limits.BinDirectSums.
-Require Export UniMath.CategoryTheory.limits.Opp.
+Require Export UniMath.CategoryTheory.Limits.Zero.
+Require Export UniMath.CategoryTheory.Limits.Kernels.
+Require Export UniMath.CategoryTheory.Limits.Cokernels.
+Require Export UniMath.CategoryTheory.Limits.BinProducts.
+Require Export UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Export UniMath.CategoryTheory.Limits.Pullbacks.
+Require Export UniMath.CategoryTheory.Limits.Pushouts.
+Require Export UniMath.CategoryTheory.Limits.BinDirectSums.
+Require Export UniMath.CategoryTheory.Limits.Opp.
 Require Export UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Export UniMath.CategoryTheory.opp_precat.
 Require Export UniMath.CategoryTheory.PrecategoriesWithAbgrops.

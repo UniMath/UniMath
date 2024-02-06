@@ -9,7 +9,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.Algebra.Modules.
 Require Import UniMath.Algebra.Modules.Examples.
-Require Import UniMath.CategoryTheory.limits.zero.
+Require Import UniMath.CategoryTheory.Limits.Zero.
 
 (** * Contents:
 

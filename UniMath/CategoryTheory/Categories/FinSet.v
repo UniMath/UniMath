@@ -36,8 +36,8 @@ Require Import UniMath.CategoryTheory.Subcategory.Full.
 
 (* Limits *)
 Require Import UniMath.CategoryTheory.Subcategory.Limits.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 
 Local Open Scope cat.
 Local Open Scope functions.

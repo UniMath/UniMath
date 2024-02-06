@@ -59,7 +59,7 @@ Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentMonad.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.UnivalentKleisliEnriched.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.UnivalentKleisliMapping.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.limits.equalizers.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.OpMorBicat.

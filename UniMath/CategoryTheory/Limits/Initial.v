@@ -19,7 +19,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Epis.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
 
 Local Open Scope cat.
 
@@ -124,7 +124,7 @@ End Initial_and_EmptyCoprod.
 
 (* Section Initial_from_Colims. *)
 
-(* Require Import UniMath.CategoryTheory.limits.graphs.colimits. *)
+(* Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits. *)
 
 (* Variable C : precategory. *)
 

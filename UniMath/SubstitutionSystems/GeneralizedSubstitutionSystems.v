@@ -20,7 +20,7 @@ Require Import UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
 Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
 Require Import UniMath.CategoryTheory.Actegories.CoproductsInActegories.
 Require Import UniMath.CategoryTheory.coslicecat.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 
 

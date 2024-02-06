@@ -26,7 +26,7 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Categories.HSET.All.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Export UniMath.CategoryTheory.yoneda.
-Require Export UniMath.CategoryTheory.limits.pullbacks.
+Require Export UniMath.CategoryTheory.Limits.Pullbacks.
 
 (* Displayed categories. *)
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.

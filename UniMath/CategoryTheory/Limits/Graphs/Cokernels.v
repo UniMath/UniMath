@@ -8,12 +8,12 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Local Open Scope cat.
-Require Import UniMath.CategoryTheory.limits.graphs.zero.
-Require Import UniMath.CategoryTheory.limits.graphs.coequalizers.
-Require Import UniMath.CategoryTheory.limits.cokernels.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Zero.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Cokernels.
 
 
 (** * Definition of cokernels in terms of colimits *)
@@ -27,14 +27,14 @@ Section def_cokernels.
 
   (** ** Coincides with the direct definiton *)
   Lemma equiv_Cokernel1_eq {a b : C} (f : C⟦a, b⟧)
-        (CK : limits.cokernels.Cokernel (equiv_Zero2 Z) f) :
+        (CK : Limits.Cokernels.Cokernel (equiv_Zero2 Z) f) :
     f · (CokernelArrow CK) = ZeroArrow Z a b · (CokernelArrow CK).
   Proof.
     rewrite CokernelCompZero. rewrite postcomp_with_ZeroArrow. apply equiv_ZeroArrow.
   Qed.
 
   Lemma equiv_Cokernel1_isCoequalizer {a b : C} (f : C⟦a, b⟧)
-        (CK : limits.cokernels.Cokernel (equiv_Zero2 Z) f) :
+        (CK : Limits.Cokernels.Cokernel (equiv_Zero2 Z) f) :
     isCoequalizer C f (ZeroArrow Z a b) CK (CokernelArrow CK) (equiv_Cokernel1_eq f CK).
   Proof.
     use (make_isCoequalizer _).
@@ -58,7 +58,7 @@ Section def_cokernels.
   Qed.
 
   Definition equiv_Cokernel1 {a b : C} (f : C⟦a, b⟧)
-             (CK : limits.cokernels.Cokernel (equiv_Zero2 Z) f) : Cokernel f.
+             (CK : Limits.Cokernels.Cokernel (equiv_Zero2 Z) f) : Cokernel f.
   Proof.
     use make_Coequalizer.
     - exact CK.
@@ -69,14 +69,14 @@ Section def_cokernels.
 
   (* Other direction *)
 
-  Lemma equiv_Cokernel2_eq {a b : C} (f : C⟦a, b⟧) (CK : limits.cokernels.Cokernel (equiv_Zero2 Z) f) :
+  Lemma equiv_Cokernel2_eq {a b : C} (f : C⟦a, b⟧) (CK : Limits.Cokernels.Cokernel (equiv_Zero2 Z) f) :
     f · CokernelArrow CK = ZeroArrow Z a b · CokernelArrow CK.
   Proof.
     rewrite CokernelCompZero. rewrite postcomp_with_ZeroArrow. apply equiv_ZeroArrow.
   Qed.
 
   Lemma equiv_Cokernel2_isCoequalizer {a b : C} (f : C⟦a, b⟧)
-        (CK : limits.cokernels.Cokernel (equiv_Zero2 Z) f) :
+        (CK : Limits.Cokernels.Cokernel (equiv_Zero2 Z) f) :
     isCoequalizer C f (ZeroArrow Z a b) CK (CokernelArrow CK) (equiv_Cokernel2_eq f CK).
   Proof.
     use (make_isCoequalizer _ ).
@@ -96,7 +96,7 @@ Section def_cokernels.
   Qed.
 
   Definition equiv_Cokernel2 {a b : C} (f : C⟦a, b⟧)
-             (CK : limits.cokernels.Cokernel (equiv_Zero2 Z) f) : Cokernel f.
+             (CK : Limits.Cokernels.Cokernel (equiv_Zero2 Z) f) : Cokernel f.
   Proof.
     use make_Coequalizer.
     - exact CK.

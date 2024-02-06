@@ -14,10 +14,10 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
-Require Import UniMath.CategoryTheory.limits.coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.EqDiag.
+Require Import UniMath.CategoryTheory.Limits.Coequalizers.
 
 Local Open Scope cat.
 
@@ -301,26 +301,26 @@ Section coequalizers_coincide.
   (** ** isCoequalizers *)
 
   Lemma equiv_isCoequalizer1 {a b : C} {f g : C⟦a, b⟧} (e : C) (h : C⟦b, e⟧) (H : f · h = g · h) :
-    limits.coequalizers.isCoequalizer f g h H -> isCoequalizer C f g e h H.
+    Limits.Coequalizers.isCoequalizer f g h H -> isCoequalizer C f g e h H.
   Proof.
     intros X.
-    set (E := limits.coequalizers.make_Coequalizer f g h H X).
+    set (E := Limits.Coequalizers.make_Coequalizer f g h H X).
     use (make_isCoequalizer C).
     intros e' h' H'.
-    use (unique_exists (limits.coequalizers.CoequalizerOut E e' h' H')).
+    use (unique_exists (Limits.Coequalizers.CoequalizerOut E e' h' H')).
     (* Commutativity *)
-    - exact (limits.coequalizers.CoequalizerCommutes E e' h' H').
+    - exact (Limits.Coequalizers.CoequalizerCommutes E e' h' H').
     (* Equality on equalities of morphisms *)
     - intros y. apply C.
     (* Uniqueness *)
     - intros y T. cbn in T.
-      use (limits.coequalizers.CoequalizerOutsEq E).
+      use (Limits.Coequalizers.CoequalizerOutsEq E).
       use (pathscomp0 T).
-      exact (!(limits.coequalizers.CoequalizerCommutes E e' h' H')).
+      exact (!(Limits.Coequalizers.CoequalizerCommutes E e' h' H')).
   Qed.
 
   Lemma equiv_isCoequalizer2 {a b : C} (f g : C⟦a, b⟧) (e : C) (h : C⟦b, e⟧) (H : f · h = g · h) :
-    limits.coequalizers.isCoequalizer f g h H <- isCoequalizer C f g e h H.
+    Limits.Coequalizers.isCoequalizer f g h H <- isCoequalizer C f g e h H.
   Proof.
     intros X.
     set (E := make_Coequalizer C f g e h H X).
@@ -339,23 +339,23 @@ Section coequalizers_coincide.
   (** ** Coequalizers *)
 
   Definition equiv_Coequalizer1 {a b : C} (f g : C⟦a, b⟧) :
-    limits.coequalizers.Coequalizer f g -> Coequalizer C f g.
+    Limits.Coequalizers.Coequalizer f g -> Coequalizer C f g.
   Proof.
     intros E.
     exact (make_Coequalizer
              C f g _ _ _
              (equiv_isCoequalizer1
-                (limits.coequalizers.CoequalizerObject E)
-                (limits.coequalizers.CoequalizerArrow E)
-                (limits.coequalizers.CoequalizerEqAr E)
-                (limits.coequalizers.isCoequalizer_Coequalizer E))).
+                (Limits.Coequalizers.CoequalizerObject E)
+                (Limits.Coequalizers.CoequalizerArrow E)
+                (Limits.Coequalizers.CoequalizerEqAr E)
+                (Limits.Coequalizers.isCoequalizer_Coequalizer E))).
   Defined.
 
   Definition equiv_Coequalizer2 {a b : C} (f g : C⟦a, b⟧) :
-    limits.coequalizers.Coequalizer f g <- Coequalizer C f g.
+    Limits.Coequalizers.Coequalizer f g <- Coequalizer C f g.
   Proof.
     intros E.
-    exact (@limits.coequalizers.make_Coequalizer
+    exact (@Limits.Coequalizers.make_Coequalizer
              C a b (CoequalizerObject C E) f g
              (CoequalizerArrow C E)
              (CoequalizerArrowEq C E)

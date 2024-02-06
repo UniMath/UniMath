@@ -8,9 +8,9 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 
 Local Open Scope cat.
 
@@ -133,7 +133,7 @@ Qed.
 
 (** ** Maps between terminal as a special limit and direct definition *)
 Lemma equiv_isTerminal1 (c : C) :
-  limits.terminal.isTerminal C c -> isTerminal c.
+  Limits.Terminal.isTerminal C c -> isTerminal c.
 Proof.
   intros X.
   use make_isTerminal.
@@ -142,7 +142,7 @@ Proof.
 Qed.
 
 Lemma equiv_isTerminal2 (c : C) :
-  limits.terminal.isTerminal C c <- isTerminal c.
+  Limits.Terminal.isTerminal C c <- isTerminal c.
 Proof.
   intros X.
   set (XT := make_Terminal c X).
@@ -153,17 +153,17 @@ Proof.
 Qed.
 
 Definition equiv_Terminal1 :
-  limits.terminal.Terminal C -> Terminal.
+  Limits.Terminal.Terminal C -> Terminal.
 Proof.
   intros T.
   exact (make_Terminal T (equiv_isTerminal1 _ (pr2 T))).
 Defined.
 
 Definition equiv_Terminal2 :
-  limits.terminal.Terminal C <- Terminal.
+  Limits.Terminal.Terminal C <- Terminal.
 Proof.
   intros T.
-  exact (limits.terminal.make_Terminal
+  exact (Limits.Terminal.make_Terminal
            (TerminalObject T)
            (equiv_isTerminal2 _ (isTerminal_Terminal T))).
 Defined.

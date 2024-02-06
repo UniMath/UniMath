@@ -30,15 +30,15 @@ Require Import UniMath.MoreFoundations.WeakEquivalences.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
-Require Import UniMath.CategoryTheory.limits.graphs.equalizers.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.equalizers.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 
@@ -97,7 +97,7 @@ Defined.
 
 (** *** Alternate definition using cats/limits  *)
 
-Require UniMath.CategoryTheory.limits.cats.limits.
+Require UniMath.CategoryTheory.Limits.Cats.Limits.
 
 Section cats_limits.
 
@@ -117,7 +117,7 @@ Proof.
               apply isasetaprop, setproperty ].
 Defined.
 
-Lemma cats_LimConeHSET : cats.limits.LimCone D.
+Lemma cats_LimConeHSET : Cats.Limits.LimCone D.
 Proof.
 use make_LimCone.
 - apply cats_limset.
@@ -138,12 +138,12 @@ Defined.
 
 End cats_limits.
 
-Lemma cats_LimsHSET : cats.limits.Lims HSET.
+Lemma cats_LimsHSET : Cats.Limits.Lims HSET.
 Proof.
 now intros g d; apply cats_LimConeHSET.
 Defined.
 
-Lemma cats_LimsHSET_of_shape (g : category) : cats.limits.Lims_of_shape g HSET.
+Lemma cats_LimsHSET_of_shape (g : category) : Cats.Limits.Lims_of_shape g HSET.
 Proof.
 now intros d; apply cats_LimConeHSET.
 Defined.
@@ -165,13 +165,13 @@ use make_BinProduct.
              | now apply funextfun; intro x; rewrite <- ht2, <- ht1 ]).
 Defined.
 
-Require UniMath.CategoryTheory.limits.graphs.binproducts.
+Require UniMath.CategoryTheory.Limits.Graphs.BinProducts.
 
 (** *** Binary products from limits ([BinProductsHSET_from_Lims]) *)
 
-Lemma BinProductsHSET_from_Lims : graphs.binproducts.BinProducts HSET.
+Lemma BinProductsHSET_from_Lims : Graphs.BinProducts.BinProducts HSET.
 Proof.
-  now apply binproducts.BinProducts_from_Lims, LimsHSET_of_shape.
+  now apply BinProducts.BinProducts_from_Lims, LimsHSET_of_shape.
 Defined.
 
 (** ** General indexed products ([ProductsHSET]) *)
@@ -204,11 +204,11 @@ Defined.
 
 (** *** Terminal object from general limits [TerminalHSET_from_Lims] *)
 
-Require UniMath.CategoryTheory.limits.graphs.terminal.
+Require UniMath.CategoryTheory.Limits.Graphs.Terminal.
 
-Lemma TerminalHSET_from_Lims : graphs.terminal.Terminal HSET.
+Lemma TerminalHSET_from_Lims : Graphs.Terminal.Terminal HSET.
 Proof.
-  now apply terminal.Terminal_from_Lims, LimsHSET_of_shape.
+  now apply Terminal.Terminal_from_Lims, LimsHSET_of_shape.
 Defined.
 
 (** ** Pullbacks [PullbacksHSET] *)
@@ -242,11 +242,11 @@ Defined.
 
 (** *** Pullbacks from general limits [PullbacksHSET_from_Lims] *)
 
-Require UniMath.CategoryTheory.limits.graphs.pullbacks.
+Require UniMath.CategoryTheory.Limits.Graphs.Pullbacks.
 
-Lemma PullbacksHSET_from_Lims : graphs.pullbacks.Pullbacks HSET.
+Lemma PullbacksHSET_from_Lims : Graphs.Pullbacks.Pullbacks HSET.
 Proof.
-  apply (graphs.pullbacks.Pullbacks_from_Lims HSET LimsHSET).
+  apply (Graphs.Pullbacks.Pullbacks_from_Lims HSET LimsHSET).
 Defined.
 
 (** *** Pullbacks of arrows from [unit] as inverse images *)
@@ -324,20 +324,20 @@ Defined.
 
 (** ** Equalizers from general limits [EqualizersHSET_from_Lims] *)
 
-Require UniMath.CategoryTheory.limits.graphs.equalizers.
+Require UniMath.CategoryTheory.Limits.Graphs.Equalizers.
 
-Lemma EqualizersHSET_from_Lims : graphs.equalizers.Equalizers HSET.
+Lemma EqualizersHSET_from_Lims : Graphs.Equalizers.Equalizers HSET.
 Proof.
-  apply (graphs.equalizers.Equalizers_from_Lims HSET LimsHSET).
+  apply (Graphs.Equalizers.Equalizers_from_Lims HSET LimsHSET).
 Defined.
 
 (** HSET Pullbacks and Equalizers from limits to direct definition *)
 Section HSET_Structures.
 
-  Definition HSET_Pullbacks : @limits.pullbacks.Pullbacks HSET :=
+  Definition HSET_Pullbacks : @Limits.Pullbacks.Pullbacks HSET :=
     equiv_Pullbacks_2 HSET PullbacksHSET_from_Lims.
 
-  Definition HSET_Equalizers: @limits.equalizers.Equalizers HSET :=
+  Definition HSET_Equalizers: @Limits.Equalizers.Equalizers HSET :=
     equiv_Equalizers2 HSET EqualizersHSET_from_Lims.
 
 End HSET_Structures.

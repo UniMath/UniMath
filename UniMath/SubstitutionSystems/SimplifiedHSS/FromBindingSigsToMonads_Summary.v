@@ -27,13 +27,13 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.Colimits.
 Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.initial.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.ProductCategory.
@@ -86,39 +86,39 @@ Definition BindingSigToSignature :
 (** Definition 10 and Lemma 11 and 12: see UniMath/SubstitutionSystems/SignatureExamples.v *)
 
 (** Definition 15: Graph *)
-Definition graph : UU := @UniMath.CategoryTheory.limits.graphs.colimits.graph.
+Definition graph : UU := @UniMath.CategoryTheory.Limits.Graphs.Colimits.graph.
 
 (** Definition 16: Diagram *)
 Definition diagram : graph → category → UU :=
-  @UniMath.CategoryTheory.limits.graphs.colimits.diagram.
+  @UniMath.CategoryTheory.Limits.Graphs.Colimits.diagram.
 
 (** Definition 17: Cocone *)
 Definition cocone : ∏ {C : category} {g : graph}, diagram g C → C → UU :=
-  @UniMath.CategoryTheory.limits.graphs.colimits.cocone.
+  @UniMath.CategoryTheory.Limits.Graphs.Colimits.cocone.
 
 (** Definition 18: Colimiting cocone *)
 Definition isColimCocone : ∏ {C : category} {g : graph} (d : diagram g C)
   (c0 : C), cocone d c0 → UU :=
-    @UniMath.CategoryTheory.limits.graphs.colimits.isColimCocone.
+    @UniMath.CategoryTheory.Limits.Graphs.Colimits.isColimCocone.
 
 (** Colimits of a specific shape *)
 Definition Colims_of_shape : graph → category → UU :=
-  @UniMath.CategoryTheory.limits.graphs.colimits.Colims_of_shape.
+  @UniMath.CategoryTheory.Limits.Graphs.Colimits.Colims_of_shape.
 
 (** Colimits of any shape *)
 Definition Colims : category → UU :=
-  @UniMath.CategoryTheory.limits.graphs.colimits.Colims.
+  @UniMath.CategoryTheory.Limits.Graphs.Colimits.Colims.
 
 (** Remark 19: Uniqueness of colimits *)
 Lemma isaprop_Colims : ∏ C : univalent_category, isaprop (Colims C).
 Proof.
-exact @UniMath.CategoryTheory.limits.graphs.colimits.isaprop_Colims.
+exact @UniMath.CategoryTheory.Limits.Graphs.Colimits.isaprop_Colims.
 Defined.
 
 (** Definition 20: Preservation of colimits *)
 Definition preserves_colimit : ∏ {C D : category}, functor C D
   → ∏ {g : graph} (d : diagram g C) (L : C), cocone d L → UU :=
-    @UniMath.CategoryTheory.limits.graphs.colimits.preserves_colimit.
+    @UniMath.CategoryTheory.Limits.Graphs.Colimits.preserves_colimit.
 
 Definition is_cocont : ∏ {C D : category}, functor C D → UU :=
   @UniMath.CategoryTheory.Chains.Chains.is_cocont.
@@ -140,7 +140,7 @@ Defined.
 Definition ColimsFunctorCategory_of_shape :
   ∏ (g : graph) (A C : category),
     Colims_of_shape g C → Colims_of_shape g [A, C] :=
-  @UniMath.CategoryTheory.limits.graphs.colimits.ColimsFunctorCategory_of_shape.
+  @UniMath.CategoryTheory.Limits.Graphs.Colimits.ColimsFunctorCategory_of_shape.
 
 (** Problem 24: Initial algebras of ω-cocontinuous functors *)
 Definition colimAlgInitial :

@@ -8,9 +8,9 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
-Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.EqDiag.
+Require Import UniMath.CategoryTheory.Limits.Initial.
 
 Local Open Scope cat.
 
@@ -140,7 +140,7 @@ Qed.
 
 (** ** Maps between initial as special colimit and direct definition *)
 Lemma equiv_isInitial1 (c : C) :
-  limits.initial.isInitial C c -> isInitial c.
+  Limits.Initial.isInitial C c -> isInitial c.
 Proof.
   intros X.
   use make_isInitial.
@@ -149,7 +149,7 @@ Proof.
 Qed.
 
 Lemma equiv_isInitial2 (c : C) :
-  limits.initial.isInitial C c <- isInitial c.
+  Limits.Initial.isInitial C c <- isInitial c.
 Proof.
   intros X.
   set (XI := make_Initial c X).
@@ -160,7 +160,7 @@ Proof.
 Qed.
 
 Definition equiv_Initial1 (c : C) :
-  limits.initial.Initial C -> Initial.
+  Limits.Initial.Initial C -> Initial.
 Proof.
   intros I.
   use make_Initial.
@@ -170,10 +170,10 @@ Proof.
 Defined.
 
 Definition equiv_Initial2 (c : C) :
-  limits.initial.Initial C <- Initial.
+  Limits.Initial.Initial C <- Initial.
 Proof.
   intros I.
-  use limits.initial.make_Initial.
+  use Limits.Initial.make_Initial.
   - exact (InitialObject I).
   - use equiv_isInitial2.
     use (isInitial_Initial I).
