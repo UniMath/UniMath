@@ -17,10 +17,7 @@
  ***********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
@@ -257,7 +254,7 @@ Definition disp_bicat_finlim
        disp_bicat_terminal_obj
        disp_bicat_pullback.
 
-Definition univ_cat_with_finlim
+Definition bicat_of_univ_cat_with_finlim
   : bicat
   := total_bicat disp_bicat_finlim.
 
@@ -286,29 +283,125 @@ Proof.
   - exact disp_univalent_2_1_disp_bicat_finlim.
 Defined.
 
-Definition is_univalent_2_1_univ_cat_with_finlim
-  : is_univalent_2_1 univ_cat_with_finlim.
+Definition is_univalent_2_1_bicat_of_univ_cat_with_finlim
+  : is_univalent_2_1 bicat_of_univ_cat_with_finlim.
 Proof.
   use total_is_univalent_2_1.
   - exact univalent_cat_is_univalent_2_1.
   - exact disp_univalent_2_1_disp_bicat_finlim.
 Defined.
 
-Definition is_univalent_2_0_univ_cat_with_finlim
-  : is_univalent_2_0 univ_cat_with_finlim.
+Definition is_univalent_2_0_bicat_of_univ_cat_with_finlim
+  : is_univalent_2_0 bicat_of_univ_cat_with_finlim.
 Proof.
   use total_is_univalent_2_0.
   - exact univalent_cat_is_univalent_2_0.
   - exact disp_univalent_2_0_disp_bicat_finlim.
 Defined.
 
-Definition is_univalent_2_univ_cat_with_finlim
-  : is_univalent_2 univ_cat_with_finlim.
+Definition is_univalent_2_bicat_of_univ_cat_with_finlim
+  : is_univalent_2 bicat_of_univ_cat_with_finlim.
 Proof.
   split.
-  - exact is_univalent_2_0_univ_cat_with_finlim.
-  - exact is_univalent_2_1_univ_cat_with_finlim.
+  - exact is_univalent_2_0_bicat_of_univ_cat_with_finlim.
+  - exact is_univalent_2_1_bicat_of_univ_cat_with_finlim.
 Defined.
+
+Definition univ_cat_with_finlim
+  : UU
+  := bicat_of_univ_cat_with_finlim.
+
+Definition make_univ_cat_with_finlim
+           (C : univalent_category)
+           (T : Terminal C)
+           (P : Pullbacks C)
+  : univ_cat_with_finlim
+  := C ,, (T ,, tt) ,, (P ,, tt).
+
+Coercion univ_cat_of_univ_cat_with_finlim
+         (C : univ_cat_with_finlim)
+  : univalent_category
+  := pr1 C.
+
+Definition terminal_univ_cat_with_finlim
+           (C : univ_cat_with_finlim)
+  : Terminal C
+  := pr112 C.
+
+Definition pullbacks_univ_cat_with_finlim
+           (C : univ_cat_with_finlim)
+  : Pullbacks C
+  := pr122 C.
+
+Definition functor_finlim
+           (C₁ C₂ : univ_cat_with_finlim)
+  : UU
+  := C₁ --> C₂.
+
+Definition make_functor_finlim
+           {C₁ C₂ : univ_cat_with_finlim}
+           (F : C₁ ⟶ C₂)
+           (FT : preserves_terminal F)
+           (FP : preserves_pullback F)
+  : functor_finlim C₁ C₂
+  := F ,, (tt ,, FT) ,, (tt ,, FP).
+
+Coercion functor_of_functor_finlim
+         {C₁ C₂ : univ_cat_with_finlim}
+         (F : functor_finlim C₁ C₂)
+  : C₁ ⟶ C₂
+  := pr1 F.
+
+Definition functor_finlim_preserves_terminal
+           {C₁ C₂ : univ_cat_with_finlim}
+           (F : functor_finlim C₁ C₂)
+  : preserves_terminal F
+  := pr212 F.
+
+Definition functor_finlim_preserves_pullback
+           {C₁ C₂ : univ_cat_with_finlim}
+           (F : functor_finlim C₁ C₂)
+  : preserves_pullback F
+  := pr222 F.
+
+Definition nat_trans_finlim
+           {C₁ C₂ : univ_cat_with_finlim}
+           (F G : functor_finlim C₁ C₂)
+  : UU
+  := F ==> G.
+
+Definition make_nat_trans_finlim
+           {C₁ C₂ : univ_cat_with_finlim}
+           {F G : functor_finlim C₁ C₂}
+           (τ : F ⟹ G)
+  : nat_trans_finlim F G
+  := τ ,, (tt ,, tt) ,, (tt ,, tt).
+
+Coercion nat_trans_of_nat_trans_finlim
+         {C₁ C₂ : univ_cat_with_finlim}
+         {F G : functor_finlim C₁ C₂}
+         (τ : nat_trans_finlim F G)
+  : F ⟹ G
+  := pr1 τ.
+
+Proposition nat_trans_finlim_eq
+            {C₁ C₂ : univ_cat_with_finlim}
+            {F G : functor_finlim C₁ C₂}
+            {τ₁ τ₂ : nat_trans_finlim F G}
+            (p : ∏ (x : C₁), τ₁ x = τ₂ x)
+  : τ₁ = τ₂.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    use isapropdirprod ; use isapropdirprod ; exact isapropunit.
+  }
+  use nat_trans_eq.
+  {
+    apply homset_property.
+  }
+  exact p.
+Qed.
 
 (**
  5. Categories with an initial object

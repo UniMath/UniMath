@@ -485,8 +485,8 @@ Proof.
   - exact disp_bifinal_obj_univ_cat_with_pb.
 Defined.
 
-Definition bifinal_obj_univ_cat_with_finlim
-  : bifinal_obj univ_cat_with_finlim.
+Definition bifinal_obj_bicat_of_univ_cat_with_finlim
+  : bifinal_obj bicat_of_univ_cat_with_finlim.
 Proof.
   use total_bicat_final.
   - use disp_2cells_isaprop_prod.
@@ -506,8 +506,8 @@ Proof.
   - exact disp_has_binprod_univ_cat_with_pb.
 Defined.
 
-Definition has_binprod_univ_cat_with_finlim
-  : has_binprod univ_cat_with_finlim.
+Definition has_binprod_bicat_of_univ_cat_with_finlim
+  : has_binprod bicat_of_univ_cat_with_finlim.
 Proof.
   use total_bicat_prod.
   - use disp_2cells_isaprop_prod.
@@ -532,8 +532,8 @@ Proof.
   - exact disp_has_pb_univ_cat_with_pb.
 Defined.
 
-Definition has_pb_univ_cat_with_finlim
-  : has_pb univ_cat_with_finlim.
+Definition has_pb_bicat_of_univ_cat_with_finlim
+  : has_pb bicat_of_univ_cat_with_finlim.
 Proof.
   use total_bicat_has_pb.
   - use disp_2cells_isaprop_prod.
