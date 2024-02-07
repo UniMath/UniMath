@@ -103,7 +103,7 @@ jobs:
   # Build UniMath on MacOS using latest stable release of Coq installed with
   # Homebrew (currently 8.16.1). Build files are cached.
   build-macos:
-    name: Build on macOS (Coq 8.16)
+    name: Build on macOS (latest Coq on Homebrew)
 
     runs-on: macos-latest
     steps:
