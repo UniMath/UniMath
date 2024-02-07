@@ -13,7 +13,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Local Open Scope cat.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 
 Require Import UniMath.CategoryTheory.RepresentableFunctors.Representation.
 Require        UniMath.CategoryTheory.RepresentableFunctors.Precategories.

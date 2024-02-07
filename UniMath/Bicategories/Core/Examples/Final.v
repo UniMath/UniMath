@@ -1,7 +1,7 @@
 (* ----------------------------------------------------------------------------------- *)
 (** ** Final bicategory and proof that it's univalent.
 
-   Note: UniMath.CategoryTheory.categories.StandardCategories has the definition of
+   Note: UniMath.CategoryTheory.Categories.StandardCategories has the definition of
    final 1-category ([unit_category]).                                                *)
 (* ----------------------------------------------------------------------------------- *)
 
@@ -10,7 +10,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.

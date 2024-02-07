@@ -21,7 +21,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.categories.Dialgebras.
+Require Import UniMath.CategoryTheory.Categories.Dialgebras.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Functors.
@@ -545,7 +545,7 @@ Section FixTwoMonoidalFunctors.
         use total2_paths_f.
         - cbn.
           unfold nattrans_from_ms.
-          apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip1_with_sections.
+          apply UniMath.CategoryTheory.Categories.Dialgebras.roundtrip1_with_sections.
         - cbn.
           match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
           assert (Hprop: isaprop goaltype).
@@ -563,7 +563,7 @@ Section FixTwoMonoidalFunctors.
         use total2_paths_f.
         - cbn.
           unfold nattrans_from_ms.
-          apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip2_with_sections.
+          apply UniMath.CategoryTheory.Categories.Dialgebras.roundtrip2_with_sections.
         - cbn.
           match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
           assert (Hprop: isaprop goaltype).
@@ -836,7 +836,7 @@ Section RoundtripForLiftingData.
     : target_to_source' (source_to_target' ass) = ass.
   Proof.
     use total2_paths_f.
-    - apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip1_with_liftings.
+    - apply UniMath.CategoryTheory.Categories.Dialgebras.roundtrip1_with_liftings.
     - apply isaprop_is_mon_nat_trans.
   Qed.
 
@@ -844,7 +844,7 @@ Section RoundtripForLiftingData.
     : target_to_source_s' (source_to_target_s' ass) = ass.
   Proof.
     use total2_paths_f.
-    - apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip1_with_liftings.
+    - apply UniMath.CategoryTheory.Categories.Dialgebras.roundtrip1_with_liftings.
     - apply isaprop_is_mon_nat_trans.
   Qed.
 
@@ -852,7 +852,7 @@ Section RoundtripForLiftingData.
     : source_to_target' (target_to_source' ass) = ass.
   Proof.
     use total2_paths_f.
-    - apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip2_with_liftings.
+    - apply UniMath.CategoryTheory.Categories.Dialgebras.roundtrip2_with_liftings.
     - use flmonoidal_equality ; intros ; apply homset_property.
   Qed.
 
@@ -860,7 +860,7 @@ Section RoundtripForLiftingData.
     : source_to_target_s' (target_to_source_s' ass) = ass.
   Proof.
     use total2_paths_f.
-    - apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip2_with_liftings.
+    - apply UniMath.CategoryTheory.Categories.Dialgebras.roundtrip2_with_liftings.
     - use flmonoidal_strong_equality ; intros ; apply homset_property.
   Qed.
 

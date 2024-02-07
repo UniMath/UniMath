@@ -17,9 +17,9 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
-Require Import UniMath.CategoryTheory.categories.EilenbergMoore.
-Require Import UniMath.CategoryTheory.categories.KleisliCategory.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.EilenbergMoore.
+Require Import UniMath.CategoryTheory.Categories.KleisliCategory.
 Require Import UniMath.CategoryTheory.CategorySum.
 Require Import UniMath.CategoryTheory.IsoCommaCategory.
 Require Import UniMath.CategoryTheory.Monads.Monads.

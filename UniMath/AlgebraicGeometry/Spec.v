@@ -15,7 +15,7 @@ Require Import UniMath.Topology.Topology.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Export UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.categories.commrings.
+Require Import UniMath.CategoryTheory.Categories.Commring.
 Require Import UniMath.AlgebraicGeometry.Topology.
 Require Import UniMath.AlgebraicGeometry.SheavesOfRings.
 
