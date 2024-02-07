@@ -27,7 +27,7 @@ jobs:
     name: Sanity Checks
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install build dependencies
         run: |
           sudo apt-get update
@@ -53,12 +53,12 @@ jobs:
     name: Build on Linux (Coq ${{ matrix.coq-version }})
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Grab the cache if available and extract it to dune-cache/. We tell dune
       # to use $(pwd)/dune-cache/ in the custom_script when initiating the
       # docker run.
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v4
         id: cache
         with:
           path: dune-cache
@@ -94,7 +94,7 @@ jobs:
         if: ${{ always() }}
         run: sudo chown -R 1001:116 .
 
-      - uses: actions/cache/save@v3
+      - uses: actions/cache/save@v4
         if: always()
         with:
           path: dune-cache
@@ -107,7 +107,7 @@ jobs:
 
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Coq
         run: |
           brew install coq ocaml-findlib dune
@@ -115,7 +115,7 @@ jobs:
           coqc --version
           dune --version
 
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v4
         id: cache
         with:
           path: dune-cache
@@ -129,7 +129,7 @@ jobs:
           export DUNE_CACHE_ROOT=$(pwd)/dune-cache/
           dune build --display=short --error-reporting=twice --cache=enabled UniMath/
 
-      - uses: actions/cache/save@v3
+      - uses: actions/cache/save@v4
         if: always ()
         with:
           path: dune-cache
@@ -153,18 +153,18 @@ jobs:
 
     steps:
       # Check out the current branch of UniMath in the current directory.
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Check out the satellite we want to build in Satellite/.
       - name: Clone ${{ matrix.satellite }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: UniMath/${{ matrix.satellite }}
           path: Satellite
 
       # Grab the cache if available. We tell dune to use $(pwd)/dune-cache/ in
       # the custom_script below.
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v4
         id: cache
         with:
           path: dune-cache
@@ -200,7 +200,7 @@ jobs:
         if: ${{ always() }}
         run: sudo chown -R 1001:116 .
 
-      - uses: actions/cache/save@v3
+      - uses: actions/cache/save@v4
         if: always ()
         with:
           path: dune-cache
