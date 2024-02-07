@@ -28,8 +28,8 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.SmashProductMonoidal.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.CategoryOfPosets.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 
 (**
  1. The cartesian monoidal category of posets

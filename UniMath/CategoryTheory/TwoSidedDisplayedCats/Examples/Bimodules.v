@@ -19,8 +19,8 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.categories.abgrs.
-Require Import UniMath.CategoryTheory.categories.commrings.
+Require Import UniMath.CategoryTheory.Categories.Abgr.
+Require Import UniMath.CategoryTheory.Categories.Commring.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.

@@ -29,11 +29,11 @@ Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
 
 (* for Section [ExponentialsCarriedThroughAdjointEquivalence] *)
 Require Import UniMath.CategoryTheory.Equivalences.Core.
-Require Import UniMath.CategoryTheory.limits.Preservation.
+Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.catiso.
 Require Import UniMath.CategoryTheory.CategoryEquality.
 Require Import UniMath.CategoryTheory.Core.Univalence.

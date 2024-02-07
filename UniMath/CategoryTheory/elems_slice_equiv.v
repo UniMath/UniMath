@@ -17,8 +17,8 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import
         UniMath.CategoryTheory.Equivalences.Core
-        UniMath.CategoryTheory.categories.HSET.Core
-        UniMath.CategoryTheory.categories.HSET.MonoEpiIso
+        UniMath.CategoryTheory.Categories.HSET.Core
+        UniMath.CategoryTheory.Categories.HSET.MonoEpiIso
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.opp_precat
         UniMath.CategoryTheory.Presheaf

@@ -28,8 +28,8 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.categories.HSET.All.
-Require Import UniMath.CategoryTheory.categories.HSET.SetCoends.
+Require Import UniMath.CategoryTheory.Categories.HSET.All.
+Require Import UniMath.CategoryTheory.Categories.HSET.SetCoends.
 Require Import UniMath.CategoryTheory.Profunctors.Core.
 Require Import UniMath.CategoryTheory.Profunctors.Examples.
 

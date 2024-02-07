@@ -6,8 +6,8 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import
         UniMath.CategoryTheory.opp_precat
         UniMath.CategoryTheory.yoneda
-        UniMath.CategoryTheory.categories.HSET.Core
-        UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
+        UniMath.CategoryTheory.Categories.HSET.Core
+        UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
 Require Import
         UniMath.CategoryTheory.RepresentableFunctors.Bifunctor
         UniMath.CategoryTheory.RepresentableFunctors.Precategories.

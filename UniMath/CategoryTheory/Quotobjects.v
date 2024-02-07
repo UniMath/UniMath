@@ -11,7 +11,7 @@ Require Import UniMath.CategoryTheory.UnderCategories.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
 
-Require Import UniMath.CategoryTheory.limits.pushouts.
+Require Import UniMath.CategoryTheory.Limits.Pushouts.
 
 
 (** * Definition of quotient objects *)
@@ -38,7 +38,7 @@ Section def_quotobjects.
     set (po := hpo _ _ _ h (pr1 (pr2 Q))).
     use Quotobjectscategory_ob.
     - exact po.
-    - exact (limits.pushouts.PushoutIn1 po).
+    - exact (Limits.Pushouts.PushoutIn1 po).
     - use EpiPushoutisEpi'.
   Defined.
 
