@@ -52,9 +52,7 @@ Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 
 Section Preparations.
 
-Variable C : category.
-Variable CP : BinProducts C.
-Variable CC : BinCoproducts C.
+Context (C : category) (CP : BinProducts C) (CC : BinCoproducts C).
 
 Definition square_functor := BinProduct_of_functors C C CP (functor_identity C) (functor_identity C).
 
@@ -62,15 +60,14 @@ End Preparations.
 
 Section Lambda.
 
-Variable C : category.
+Context (C : category).
 
 (** The category of endofunctors on [C] *)
 Local Notation "'EndC'":= ([C, C]) .
 
-Variable terminal : Terminal C.
-
-Variable CC : BinCoproducts C.
-Variable CP : BinProducts C.
+Context (terminal : Terminal C)
+        (CC : BinCoproducts C)
+        (CP : BinProducts C).
 
 Let one : C :=  @TerminalObject C terminal.
 

@@ -50,8 +50,8 @@ Local Coercion alg_carrier : algebra_ob >-> ob.
 
 Section category_Algebra.
 
-Variables (C : category) (CP : BinCoproducts C).
-Variables (IC : Initial C) (CC : Colims_of_shape nat_graph C).
+Context (C : category) (CP : BinCoproducts C)
+        (IC : Initial C) (CC : Colims_of_shape nat_graph C).
 
 Local Notation "'EndC'":= ([C, C]) .
 Local Notation "'Ptd'" := (category_Ptd C).

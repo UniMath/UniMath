@@ -83,7 +83,7 @@ Arguments Sum_of_Signatures _ {_ _ _} _ _.
 (** * Definition of multisorted binding signatures *)
 Section MBindingSig.
 
-Variables (sort : hSet).
+Context (sort : hSet).
 
 Local Definition HSET_over_sort : category.
 Proof.

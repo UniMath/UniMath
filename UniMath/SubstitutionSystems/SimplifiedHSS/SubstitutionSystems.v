@@ -704,8 +704,8 @@ Section hssMor_equality.
 
 (** Show that equality of hssMor is equality of underlying nat. transformations *)
 
-Variables T T' : hss.
-Variables β β' : hssMor T T'.
+Context (T T' : hss) (β β' : hssMor T T').
+
 Definition hssMor_eq1 : β = β' ≃ (pr1 β = pr1 β').
 Proof.
   apply subtypeInjectivity.

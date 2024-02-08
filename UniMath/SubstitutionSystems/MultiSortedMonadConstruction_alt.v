@@ -52,13 +52,13 @@ Local Open Scope cat.
 Section MBindingSig.
 
 (* Interestingly we only need that [sort] is a 1-type *)
-Variables (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
+Context (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
 
 (* Assumptions on [C] used to construct the functor *)
 (* Note that there is some redundancy in the assumptions *)
-Variables (TC : Terminal C) (IC : Initial C)
-          (BP : BinProducts C) (BC : BinCoproducts C)
-          (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
+Context (TC : Terminal C) (IC : Initial C)
+        (BP : BinProducts C) (BC : BinCoproducts C)
+        (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
 
 Local Notation "'1'" := (TerminalObject TC).
 Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
@@ -74,8 +74,8 @@ Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
 Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
-Variables (expSortToCC : Exponentials BPC)
-          (HC : Colims_of_shape nat_graph C).
+Context (expSortToCC : Exponentials BPC)
+        (HC : Colims_of_shape nat_graph C).
 (* The expSortToCC assumption says that [sortToC,C] has exponentials. It
    could be reduced to exponentials in C, but we only have the case
    for C = Set formalized in

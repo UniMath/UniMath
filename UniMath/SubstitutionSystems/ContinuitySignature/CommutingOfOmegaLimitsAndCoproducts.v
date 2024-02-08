@@ -48,7 +48,7 @@ Section OmegaLimitsCommutingWithCoproducts.
   Context {I : UU} (Iset : isaset I).
   Context (coproducts_given : Coproducts I C).
 
-  Variable (ind : I → cochain C).
+  Context (ind : I → cochain C).
 
   Let coproduct_n (n : nat) := coproducts_given (λ i, pr1 (ind i) n).
   Definition coproduct_n_cochain : cochain C.
