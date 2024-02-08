@@ -29,6 +29,9 @@
  1. Categories with a chosen terminal object
  2. Categories that have a terminal object
  3. Each type of 2-cells in the bicategory of categories with a terminal object (chosen/have) is contractible.
+ 4. Categories with chosen binary products
+ 5. Categories that have binary products
+ 6. Each type of 2-cells in the bicategory of categories with binary products (chosen/have) is contractible.
 
  ************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -100,6 +103,61 @@ Qed.
 
 Lemma disp_2cells_is_contr_chosen_terminal_obj
   : disp_2cells_iscontr disp_bicat_chosen_terminal_obj.
+Proof.
+  intro ; intros.
+  exists (tt,,tt).
+  intro.
+  use total2_paths_f ; apply iscontrunit.
+Qed.
+
+(** **)
+
+(**
+ 1. Categories with a chosen binary products
+ *)
+Definition disp_bicat_chosen_binproducts
+  : disp_bicat bicat_of_cats.
+Proof.
+  use disp_subbicat.
+  - exact (λ C, BinProducts C).
+  - exact (λ C₁ C₂ BP₁ BP₂ F, preserves_chosen_binproducts_eq F BP₁ BP₂).
+  - exact (λ C T, identity_preserves_chosen_binproducts_eq T).
+  - exact (λ _ _ _ _ _ _ _ _ PF PG, composition_preserves_chosen_binproducts_eq PF PG).
+Defined.
+
+Definition cat_with_chosen_binproducts
+  : bicat
+  := total_bicat disp_bicat_chosen_binproducts.
+
+(**
+ 2. Categories that have binary products
+ *)
+Definition disp_bicat_have_binproducts
+  : disp_bicat bicat_of_cats.
+Proof.
+  use disp_subbicat.
+  - exact (λ C, hasBinProducts C).
+  - exact (λ C₁ C₂ _ _ F, preserves_binproduct F).
+  - exact (λ C _, identity_preserves_binproduct _).
+  - exact (λ _ _ _ _ _ _ _ _ HF HG, composition_preserves_binproduct HF HG).
+Defined.
+
+Definition cat_with_binproducts
+  : bicat
+  := total_bicat disp_bicat_have_binproducts.
+
+(* Homotopy levels of each type of 2-cells *)
+Lemma disp_2cells_is_contr_have_binproducts
+  : disp_2cells_iscontr disp_bicat_have_binproducts.
+Proof.
+  intro ; intros.
+  exists (tt,,tt).
+  intro.
+  use total2_paths_f ; apply iscontrunit.
+Qed.
+
+Lemma disp_2cells_is_contr_chosen_binproducts
+  : disp_2cells_iscontr disp_bicat_chosen_binproducts.
 Proof.
   intro ; intros.
   exists (tt,,tt).

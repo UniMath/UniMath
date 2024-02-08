@@ -219,6 +219,51 @@ Proof.
        apply idpath).
 Defined.
 
+Definition preserves_chosen_binproducts_eq
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (BP₁ : BinProducts C₁)
+           (BP₂ : BinProducts C₂)
+  : UU
+  := ∏ x y : C₁,  ∥ F (BP₁ x y) = BP₂ (F x) (F y) ∥.
+
+Proposition identity_preserves_chosen_binproducts_eq
+            {C : category}
+            (BP : BinProducts C)
+  : preserves_chosen_binproducts_eq (functor_identity C) BP BP.
+Proof.
+  intro ; intros.
+  apply hinhpr.
+  apply idpath.
+Qed.
+
+Proposition composition_preserves_chosen_binproducts_eq
+            {C₁ C₂ C₃ : category}
+            {F : C₁ ⟶ C₂}
+            {G : C₂ ⟶ C₃}
+            {BP₁ : BinProducts C₁}
+            {BP₂ : BinProducts C₂}
+            {BP₃ : BinProducts C₃}
+            (HF : preserves_chosen_binproducts_eq F BP₁ BP₂)
+            (HG : preserves_chosen_binproducts_eq G BP₂ BP₃)
+  : preserves_chosen_binproducts_eq (F ∙ G) BP₁ BP₃.
+Proof.
+  intros x y.
+
+  use (factor_through_squash _ _ (HF x y)).
+  { apply propproperty. }
+  intros HFxy.
+
+  use (factor_through_squash _ _ (HG (F x) (F y))).
+  { apply propproperty. }
+  intros HGxy.
+
+  apply hinhpr.
+  cbn in *.
+  rewrite HFxy.
+  now rewrite HGxy.
+Qed.
+
 (**
  3. Preservation of pullbacks
  *)

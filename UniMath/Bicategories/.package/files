@@ -436,5 +436,6 @@ DisplayedBicats/DisplayedUniversalArrowOnCat.v
 RezkCompletions/BicatToLocalUnivalentBicat.v
 RezkCompletions/RezkCompletionOfBicategory.v
 RezkCompletions/StructuredCats/TerminalObject.v
+RezkCompletions/StructuredCats/BinProducts.v
 
 DaggerCategories/BicatOfDaggerCats.v
