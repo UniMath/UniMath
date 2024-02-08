@@ -53,7 +53,7 @@ Local Open Scope cat.
 (** * The simply typed lambda calculus from a multisorted binding signature *)
 Section Lam.
 
-  Variable (sort : hSet) (arr : sort → sort → sort).
+Context (sort : hSet) (arr : sort → sort → sort).
 
 Local Lemma hsort : isofhlevel 3 sort.
 Proof.

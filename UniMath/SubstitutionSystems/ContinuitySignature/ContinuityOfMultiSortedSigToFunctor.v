@@ -47,8 +47,8 @@ Local Open Scope cat.
 
 Section FixTheContext.
 
-  Variables (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
-  Variables (TC : Terminal C) (IC : Initial C)
+  Context (sort : UU) (Hsort : isofhlevel 3 sort) (C : category)
+          (TC : Terminal C) (IC : Initial C)
           (BP : BinProducts C) (BC : BinCoproducts C)
           (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
 
@@ -220,8 +220,8 @@ Section FixTheContext.
 
   Section OmegaContinuityOfMultiSortedSigToFunctorPrime.
 
-  Variable (LC : Lims_of_shape conat_graph C).
-  Variable (distr : ∏ I : HSET, ω_limits_distribute_over_I_coproducts C I LC (CC (pr1 I) (pr2 I))).
+  Context (LC : Lims_of_shape conat_graph C)
+          (distr : ∏ I : HSET, ω_limits_distribute_over_I_coproducts C I LC (CC (pr1 I) (pr2 I))).
 
   (* Should also be split up into multiple definitions/lemmas *)
   Lemma post_comp_with_pr_and_hat_is_omega_cont (s t : sort)
