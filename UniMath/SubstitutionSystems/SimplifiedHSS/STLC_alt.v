@@ -145,8 +145,7 @@ Let STLC_M_alg : algebra_ob STLC_Functor :=
   InitialObject STLC_Functor_Initial.
 
 (** The variables *)
-Definition var_map : sortToSet2⟦Id,STLC_M⟧ :=
-  BinCoproductIn1 (BinCoprodSortToSet2 _ _) · STLC_M_mor.
+Definition var_map : sortToSet2⟦Id,STLC_M⟧ := SubstitutionSystems.η STLC_M_alg.
 
 (** The source of the application constructor *)
 Definition app_source (s t : sort) : functor sortToSet2 sortToSet2 :=
@@ -194,7 +193,7 @@ Lemma foldr_var X (fvar : sortToSet2⟦Id,X⟧)
   (flam : ∏ s t, sortToSet2⟦lam_source s t X,X⟧) :
   var_map · foldr_map X fvar fapp flam = fvar.
 Proof.
-unfold var_map.
+unfold var_map. unfold η.
 rewrite <- assoc, (algebra_mor_commutes _ _ _ (foldr_map _ _ _ _)), assoc.
 etrans; [eapply cancel_postcomposition, BinCoproductOfArrowsIn1|].
 rewrite id_left.

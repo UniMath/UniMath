@@ -31,6 +31,7 @@ Require Import UniMath.CategoryTheory.slicecat.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.Notation.
+Require UniMath.SubstitutionSystems.SubstitutionSystems.
 Local Open Scope subsys.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted.
 Require Import UniMath.SubstitutionSystems.MultiSorted.
@@ -83,7 +84,7 @@ Defined.
 Definition STLC_Signature : Signature (HSET / sort) _ _:=
   MultiSortedSigToSignature sort STLC_Sig.
 
-Let Id_H := Id_H _ (BinCoproducts_HSET_slice sort).
+Let Id_H := SubstitutionSystems.Id_H _ (BinCoproducts_HSET_slice sort).
 
 Definition STLC_Functor : functor HSET_over_sort2 HSET_over_sort2 :=
   Id_H STLC_Signature.
@@ -120,8 +121,7 @@ Local Notation "x ⊗ y" := (BinProductObject _ (BP x y)).
 (** The variables *)
 
 
-Definition var_map : HSET_over_sort2⟦1,STLC⟧ :=
-  BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _) · STLC_mor.
+Definition var_map : HSET_over_sort2⟦1,STLC⟧ := SubstitutionSystems.η STLC_alg.
 
 (** The source of the application constructor *)
 Definition app_source (s t : sort) (X : HSET_over_sort2) : HSET_over_sort2 :=

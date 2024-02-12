@@ -62,20 +62,20 @@ Section prep_hss.
 
 Context (H : functor [C, C] [C, C]).
 
-Definition Id_H
-: functor EndC EndC
-  := BinCoproduct_of_functors _ _ CPEndC
-                       (constant_functor _ _ (functor_identity _ : EndC))
-                       H.
+Definition Const_plus_H (X : EndC) : functor EndC EndC
+  := BinCoproduct_of_functors _ _ CPEndC (constant_functor _ _ X) H.
 
-(* An Id_H algebra is a pointed functor *)
+Definition Id_H : functor EndC EndC
+  := Const_plus_H (functor_identity _ : EndC).
 
-Definition eta_from_alg (T : algebra_ob Id_H) : EndC ⟦ functor_identity _,  `T ⟧.
+Definition eta_from_alg {X : EndC} (T : algebra_ob (Const_plus_H X)) : EndC ⟦ X ,  `T ⟧.
 Proof.
   exact (BinCoproductIn1 (CPEndC _ _) · alg_map _ T).
 Defined.
 
 Local Notation η := eta_from_alg.
+
+(* An Id_H algebra is a pointed functor *)
 
 Definition ptd_from_alg (T : algebra_ob Id_H) : Ptd.
 Proof.
@@ -83,10 +83,11 @@ Proof.
   exact (η T).
 Defined.
 
-Definition tau_from_alg (T : algebra_ob Id_H) : EndC ⟦H `T, `T⟧.
+Definition tau_from_alg {X : EndC} (T : algebra_ob (Const_plus_H X)) : EndC ⟦H `T, `T⟧.
 Proof.
   exact (BinCoproductIn2 (CPEndC _ _) · alg_map _ T).
 Defined.
+
 Local Notation τ := tau_from_alg.
 
 (*
@@ -826,8 +827,8 @@ Arguments fbracket_unique {_ _ _ } _ {_} _ {_} _ .
 (* Arguments Alg {_ _} _. *)
 Arguments hss_precategory {_} _ _ .
 Arguments hss_category {_} _ _ .
-Arguments eta_from_alg {_ _ _} _.
-Arguments tau_from_alg {_ _ _} _.
+Arguments eta_from_alg {_ _ _ _} _.
+Arguments tau_from_alg {_ _ _ _} _.
 Arguments ptd_from_alg {_ _ _} _.
 Arguments ptd_from_alg_functor {_} _ _ .
 Arguments bracket_property {_ _ _ _ } _ _ _ _ .

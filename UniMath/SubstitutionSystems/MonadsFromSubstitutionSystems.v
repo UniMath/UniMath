@@ -66,13 +66,6 @@ Let θ := theta H.
 Let θ_strength1_int := Sig_strength_law1 H.
 Let θ_strength2_int := Sig_strength_law2 H.
 
-Let Id_H
-: functor EndC EndC
-  := BinCoproduct_of_functors _ _ CPEndC
-                       (constant_functor _ _ (functor_identity _ : EndC))
-                       H.
-
-
 (** The category of pointed endofunctors on [C] *)
 Local Notation "'Ptd'" := (category_Ptd C).
 (** The category of endofunctors on [C] *)

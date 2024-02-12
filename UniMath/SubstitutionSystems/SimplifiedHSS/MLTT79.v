@@ -29,6 +29,7 @@ Require Import UniMath.CategoryTheory.Monads.Monads.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.Notation.
+Require UniMath.SubstitutionSystems.SubstitutionSystems.
 Local Open Scope subsys.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.BindingSigToMonad.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.LiftingInitial_alt.
@@ -183,7 +184,7 @@ Definition MLTT79Sig := PiSig ++ SigmaSig ++ SumSig ++ IdSig ++
 
 Definition MLTT79Signature : SigHSET := BindingSigToSignatureHSET MLTT79Sig.
 
-Let Id_H := Id_H _ BinCoproductsHSET.
+Let Id_H := SubstitutionSystems.Id_H _ BinCoproductsHSET.
 
 Definition MLTT79Functor : functor HSET2 HSET2 := Id_H (Presignature_Signature MLTT79Signature).
 
