@@ -102,8 +102,7 @@ Let LC_mor : HSET2⟦LamFunctor LC,LC⟧ :=
 Let LC_alg : algebra_ob LamFunctor :=
   InitialObject lambdaFunctor_Initial.
 
-Definition var_map : HSET2⟦1,LC⟧ :=
-  BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _) · LC_mor.
+Definition var_map : HSET2⟦1,LC⟧ := η LC_alg.
 
 Definition app_map : HSET2⟦LC ⊗ LC,LC⟧ :=
   CoproductIn bool HSET2 (Coproducts_functor_precat _ _ _ _ _) true ·

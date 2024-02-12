@@ -232,10 +232,7 @@ Let θ := theta H.
 Local Notation θ_nat_2_pw := (θ_nat_2_pointwise _ _ _ H (theta H)).
 Local Notation θ_nat_1_pw := (θ_nat_1_pointwise _ _ _ H (theta H)).
 
-Let Id_H : functor EndC EndC
-  := BinCoproduct_of_functors _ _ CPEndC
-                              (constant_functor _ _ (functor_identity _ : EndC))
-                              H.
+Let Id_H : functor EndC EndC := Id_H C CP H.
 
 Let Alg : category := FunctorAlg Id_H.
 

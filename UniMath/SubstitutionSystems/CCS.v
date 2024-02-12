@@ -179,8 +179,7 @@ Local Notation "'Id'" := (functor_identity HSET_over_sort).
 Local Notation "x ⊗ y" := (BinProductObject _ (BP x y)).
 
 (** The variables *)
-Definition var_map : HSET_over_sort2⟦Id,CCS⟧ :=
-  BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _) · CCS_mor.
+Definition var_map : HSET_over_sort2⟦Id,CCS⟧ := η CCS_alg.
 
 Definition Pi_source (X : HSET_over_sort2) : HSET_over_sort2 :=
   ((X ∙ proj_functor sort ty) ⊗ (sorted_option_functor sort el ∙ X ∙ proj_functor sort ty)) ∙ hat_functor sort ty.

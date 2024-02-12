@@ -189,8 +189,7 @@ Let CCS_M_alg : algebra_ob CCS_Functor :=
   InitialObject CCS_Functor_Initial.
 
 (** The variables *)
-Definition var_map : sortToSet2⟦Id,CCS_M⟧ :=
-  BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _) · CCS_M_mor.
+Definition var_map : sortToSet2⟦Id,CCS_M⟧ := η CCS_M_alg.
 
 Definition Pi_source : functor sortToSet2 sortToSet2 :=
   ( post_comp_functor (projSortToSet sort hsort ty) ⊗ ( pre_comp_functor (sorted_option_functorSet sort hsort el)
