@@ -51,7 +51,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.FiberwiseEqualizers.
 
 Local Open Scope cat.
 
-(* MOVE TO THE PULLBACKS FILE *)
+(* TODO: MOVE TO THE PULLBACKS FILE *)
 Section EqualizersFromPullbackProducts.
   Context {C : category}
           (PB : Pullbacks C)
