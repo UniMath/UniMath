@@ -39,7 +39,7 @@ Local Open Scope cat.
 
 Section MonadInSortToC.
 
-Variables (sort : hSet) (Hsort : isofhlevel 3 sort) (C : category) (BC : BinCoproducts C) (TC : Terminal C).
+Context (sort : hSet) (Hsort : isofhlevel 3 sort) (C : category) (BC : BinCoproducts C) (TC : Terminal C).
 
 Let sortToC : category := [path_pregroupoid sort Hsort, C].
 

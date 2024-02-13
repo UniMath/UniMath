@@ -64,10 +64,7 @@ Context (C : category).
 (** The category of endofunctors on [C] *)
 Local Notation "'EndC'":= ([C, C]) .
 
-Variable terminal : Terminal C.
-
-Variable CC : BinCoproducts C.
-Variable CP : BinProducts C.
+Context (terminal : Terminal C) (CC : BinCoproducts C) (CP : BinProducts C).
 
 Local Notation "'Ptd'" := (category_Ptd C).
 
@@ -80,9 +77,9 @@ Let CPEndEndC:= BinCoproducts_functor_precat _ _ CPEndC: BinCoproducts EndEndC.
 
 Let one : C :=  @TerminalObject C terminal.
 
-Variable KanExt : ∏ Z : precategory_Ptd C,
+Context (KanExt : ∏ Z : precategory_Ptd C,
    RightKanExtension.GlobalRightKanExtensionExists C C
-     (U Z) C.
+     (U Z) C).
 
 
 Let Lam_S : Signature _ _ _ := Lam_Sig C terminal CC CP.
@@ -90,8 +87,8 @@ Let LamE_S : Signature _ _ _ := LamE_Sig C terminal CC CP.
 
 (* assume initial algebra for signature Lam *)
 
-Variable Lam_Initial : Initial
-     (@category_FunctorAlg [C, C] (Id_H C CC Lam_S)).
+Context (Lam_Initial : Initial
+     (@category_FunctorAlg [C, C] (Id_H C CC Lam_S))).
 
 Let Lam := InitialObject Lam_Initial.
 
@@ -522,9 +519,9 @@ Defined.
 
 (* assume initial algebra for signature LamE *)
 
-Variable  LamE_Initial : Initial
+Context (LamE_Initial : Initial
      (@category_FunctorAlg [C, C]
-        (Id_H C CC LamE_S)).
+        (Id_H C CC LamE_S))).
 
 
 Definition LamEHSS_Initial : Initial (hss_category CC LamE_S).
