@@ -137,6 +137,15 @@ Section Total_Category.
     apply isweqpr1, H.
   Defined.
 
+  Lemma mor_eq_total_category_when_locally_prop {C : category} {D : disp_cat C} (loc : locally_propositional D)
+    {xx yy : total_precategory D} {ff gg : xx --> yy} : pr1 ff = pr1 gg -> ff = gg.
+  Proof.
+    intro Hyp.
+    use subtypePath.
+    - red; intro; apply loc.
+    - exact Hyp.
+  Qed.
+
   (** ** Isomorphisms and saturation *)
 
   Definition is_z_iso_total {C : category} {D : disp_cat C}

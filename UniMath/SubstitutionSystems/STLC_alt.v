@@ -190,7 +190,7 @@ Lemma foldr_var X (fvar : sortToSet2⟦Id,X⟧)
   (flam : ∏ s t, sortToSet2⟦lam_source s t X,X⟧) :
   var_map · foldr_map X fvar fapp flam = fvar.
 Proof.
-unfold var_map. unfold η.
+unfold var_map. unfold η, tau1_from_alg.
 rewrite <- assoc, (algebra_mor_commutes _ _ _ (foldr_map _ _ _ _)), assoc.
 etrans; [eapply cancel_postcomposition, BinCoproductOfArrowsIn1|].
 rewrite id_left.

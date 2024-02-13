@@ -336,7 +336,6 @@ Proof.
         repeat rewrite assoc.
         apply cancel_postcomposition.
         assert (H1 := nat_trans_ax (τ T )).
-        unfold tau_from_alg in H1.
         etrans; [ | apply H1]; clear H1.
         apply assoc'.
 Qed.
@@ -446,7 +445,7 @@ Proof.
           assert (HT := prejoin_from_hetsubst_τ T).
           assert (H6 := nat_trans_eq_pointwise HT); clear HT.
           unfold coproduct_nat_trans_in2_data.
-          unfold tau_from_alg in H6.
+          unfold tau_from_alg, tau2_from_alg in H6.
           rewrite assoc in H6.
           apply H6.
       }

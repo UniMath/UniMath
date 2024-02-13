@@ -73,7 +73,7 @@ Definition Id_H :  functor EndC EndC
 
 Definition eta_from_alg {X : EndC} (T : algebra_ob (Const_plus_H X)) : EndC ⟦ X ,  `T ⟧.
 Proof.
-  exact (BinCoproductIn1 (CPEndC _ _) · alg_map _ T).
+  exact (tau1_from_alg CPEndC (constant_functor _ _ X) H T).
 Defined.
 
 Local Notation η := eta_from_alg.
@@ -88,7 +88,7 @@ Defined.
 
 Definition tau_from_alg {X : EndC} (T : algebra_ob (Const_plus_H X)) : EndC ⟦H `T, `T⟧.
 Proof.
-  exact (BinCoproductIn2 (CPEndC _ _) · alg_map _ T).
+  exact (tau2_from_alg CPEndC (constant_functor _ _ X) H T).
 Defined.
 
 Local Notation τ := tau_from_alg.
