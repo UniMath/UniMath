@@ -41,9 +41,8 @@ Section construction.
 
 Local Notation "'CCD'" := (Coproducts_functor_precat I C D CD : Coproducts I [C, D]).
 
-Variables H1 : I -> functor [C, D'] [C, D].
-
-Variable θ1 : ∏ i, θ_source (H1 i) ⟹ θ_target (H1 i).
+Context (H1 : I -> functor [C, D'] [C, D])
+        (θ1 : ∏ i, θ_source (H1 i) ⟹ θ_target (H1 i)).
 
 (** * Definition of the data of the sum of signatures *)
 
@@ -91,8 +90,8 @@ Local Definition θ : PrestrengthForSignature H := tpair _ _ is_nat_trans_θ_ob.
 
 (** * Proof of the strength laws of the sum of two signatures *)
 
-Variable S11' : ∏ i, θ_Strength1_int (θ1 i).
-Variable S12' : ∏ i, θ_Strength2_int (θ1 i).
+Context (S11' : ∏ i, θ_Strength1_int (θ1 i))
+        (S12' : ∏ i, θ_Strength2_int (θ1 i)).
 
 Lemma SumStrength1' : θ_Strength1_int θ.
 Proof.

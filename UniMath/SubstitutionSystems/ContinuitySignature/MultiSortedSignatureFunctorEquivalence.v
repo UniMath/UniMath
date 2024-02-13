@@ -335,8 +335,8 @@ End A.
 
 Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunctor.
 
-  Variables (sort : UU) (Hsort_set : isaset sort) (C : category).
-  Variables (TC : Terminal C) (IC : Initial C)
+  Context (sort : UU) (Hsort_set : isaset sort) (C : category)
+          (TC : Terminal C) (IC : Initial C)
           (BP : BinProducts C) (BC : BinCoproducts C)
           (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
 
