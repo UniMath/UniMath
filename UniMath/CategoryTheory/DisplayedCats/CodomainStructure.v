@@ -11,7 +11,7 @@
  or an equalizer in the fiber categories.
 
  We also give some useful operations on fiber categories of the codomain fibration. In
- addition, we should that the fiber of the terminal object is equivalent to the base
+ addition, we should use that the fiber of the terminal object is equivalent to the base
  category.
 
  Finally, we use the structure on the codomain fibrati
