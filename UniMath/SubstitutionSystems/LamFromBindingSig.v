@@ -105,13 +105,10 @@ Let LC_alg : algebra_ob LamFunctor :=
 Definition var_map : HSET2⟦1,LC⟧ := η LC_alg.
 
 Definition app_map : HSET2⟦LC ⊗ LC,LC⟧ :=
-  CoproductIn bool HSET2 (Coproducts_functor_precat _ _ _ _ _) true ·
-              BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _) ·
-              LC_mor.
+  CoproductIn bool HSET2 (Coproducts_functor_precat _ _ _ _ _) true · τ LC_alg.
 
 Definition lam_map : HSET2⟦LC + 1,LC⟧ :=
-  CoproductIn bool HSET2 (Coproducts_functor_precat _ _ _ _ _) false ·
-  BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _) · LC_mor.
+  CoproductIn bool HSET2 (Coproducts_functor_precat _ _ _ _ _) false · τ LC_alg.
 
 Definition make_lambdaAlgebra X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) :
   algebra_ob LamFunctor.
@@ -127,21 +124,21 @@ Defined.
 Definition foldr_map X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) :
   algebra_mor _ LC_alg (make_lambdaAlgebra X fvar fapp flam).
 Proof.
-apply (InitialArrow lambdaFunctor_Initial (make_lambdaAlgebra X fvar fapp flam)).
+  apply (InitialArrow lambdaFunctor_Initial (make_lambdaAlgebra X fvar fapp flam)).
 Defined.
 
 Lemma foldr_var X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) :
   var_map · foldr_map X fvar fapp flam = fvar.
 Proof.
-assert (F := maponpaths (λ x, BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _) · x)
-                        (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
-rewrite assoc in F.
-eapply pathscomp0; [apply F|].
-rewrite assoc.
-eapply pathscomp0; [eapply cancel_postcomposition, BinCoproductOfArrowsIn1|].
-rewrite <- assoc.
-eapply pathscomp0; [eapply maponpaths, BinCoproductIn1Commutes|].
-apply id_left.
+  assert (F := maponpaths (λ x, BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _) · x)
+                 (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
+  rewrite assoc in F.
+  eapply pathscomp0; [apply F|].
+  rewrite assoc.
+  eapply pathscomp0; [eapply cancel_postcomposition, BinCoproductOfArrowsIn1|].
+  rewrite <- assoc.
+  eapply pathscomp0; [eapply maponpaths, BinCoproductIn1Commutes|].
+  apply id_left.
 Defined.
 
 (* Lemma foldr_var_pt X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) (A : HSET) (x : pr1 A) : *)
@@ -163,26 +160,28 @@ Proof.
   assert (F := maponpaths (λ x, CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) true ·
                                                 BinCoproductIn2 (BinCoproducts_functor_precat
                                                                      _ _ _ _ _) · x)
-                        (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
-rewrite assoc in F.
-etrans; [apply F|].
-rewrite assoc.
-etrans.
-{ eapply cancel_postcomposition.
+                 (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
+  rewrite assoc in F.
+  unfold app_map, τ, tau2_from_alg.
+  rewrite assoc.
+  etrans; [apply F|].
+  rewrite assoc.
+  etrans.
+  { eapply cancel_postcomposition.
+    rewrite <- assoc.
+    eapply maponpaths, BinCoproductOfArrowsIn2. }
+  rewrite assoc.
+  etrans.
+  { eapply @cancel_postcomposition. eapply @cancel_postcomposition.
+    apply (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _
+               _ (λ i, pr1 (Arity_to_Signature BinProductsHSET
+      BinCoproductsHSET TerminalHSET (BindingSigMap LamSig i)) `LC_alg))). }
   rewrite <- assoc.
-  eapply maponpaths, BinCoproductOfArrowsIn2. }
-rewrite assoc.
-etrans.
-{ eapply @cancel_postcomposition. eapply @cancel_postcomposition.
-  apply (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _
-          _ (λ i, pr1 (Arity_to_Signature BinProductsHSET
-                         BinCoproductsHSET TerminalHSET (BindingSigMap LamSig i)) `LC_alg))). }
-rewrite <- assoc.
-etrans; [eapply maponpaths, BinCoproductIn2Commutes|].
-rewrite <- assoc.
-etrans; eapply maponpaths.
-- exact (CoproductInCommutes _ _ _ _ _ _ true).
-- apply idpath.
+  etrans; [eapply maponpaths, BinCoproductIn2Commutes|].
+  rewrite <- assoc.
+  etrans; eapply maponpaths.
+  - exact (CoproductInCommutes _ _ _ _ _ _ true).
+  - apply idpath.
 Defined.
 
 Lemma foldr_lam X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) :
@@ -193,26 +192,28 @@ Proof.
                                                 BinCoproductIn2 (BinCoproducts_functor_precat
                                                                      _ _ _ _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
-rewrite assoc in F.
-etrans; [apply F|].
-rewrite assoc.
-etrans.
-{ eapply cancel_postcomposition.
+  rewrite assoc in F.
+  unfold lam_map, τ, tau2_from_alg.
+  rewrite assoc.
+  etrans; [apply F|].
+  rewrite assoc.
+  etrans.
+  { eapply cancel_postcomposition.
+    rewrite <- assoc.
+    eapply maponpaths, BinCoproductOfArrowsIn2. }
+  rewrite assoc.
+  etrans.
+  { eapply @cancel_postcomposition, @cancel_postcomposition.
+    apply (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _
+            _ (λ i, pr1 (Arity_to_Signature BinProductsHSET
+                           BinCoproductsHSET TerminalHSET (BindingSigMap LamSig i)) `LC_alg))). }
   rewrite <- assoc.
-  eapply maponpaths, BinCoproductOfArrowsIn2. }
-rewrite assoc.
-etrans.
-{ eapply @cancel_postcomposition, @cancel_postcomposition.
-  apply (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _
-          _ (λ i, pr1 (Arity_to_Signature BinProductsHSET
-                         BinCoproductsHSET TerminalHSET (BindingSigMap LamSig i)) `LC_alg))). }
-rewrite <- assoc.
-etrans.
-{ eapply maponpaths, BinCoproductIn2Commutes. }
-rewrite <- assoc.
-etrans; eapply maponpaths.
-- exact (CoproductInCommutes _ _ _ _ _ _ false).
-- apply idpath.
+  etrans.
+  { eapply maponpaths, BinCoproductIn2Commutes. }
+  rewrite <- assoc.
+  etrans; eapply maponpaths.
+  - exact (CoproductInCommutes _ _ _ _ _ _ false).
+  - apply idpath.
 Defined.
 
 

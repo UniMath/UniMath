@@ -7,6 +7,8 @@ Extended by: Anders Mörtberg. October 2015
 
 Rewritten using displayed categories by: Kobe Wullaert. October 2022
 
+Extended by Ralph Matthes in February 2024 for the special case of functors that are binary or I-ary coproducts
+
 *******************************************************************)
 
 (** ***************************************************************
@@ -20,6 +22,8 @@ Contents :
 - Lambek's lemma: if (A,a) is an inital F-algebra then a is an iso
 
 - The natural numbers are initial for X ↦ 1 + X
+
+- the case of functors that are binary or I-ary coproducts
 
 ******************************************************************)
 
