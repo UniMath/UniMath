@@ -57,6 +57,8 @@ Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 
+Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
+
 Local Open Scope cat.
 
 (* These should be global *)
@@ -138,6 +140,42 @@ use tpair.
   + apply (arity s1 i).
   + apply (arity s2 i).
 Defined.
+
+Section MultiSortedSigFromBindingSig.
+
+  Context (s : BindingSig).
+
+  Let I : hSet := BindingSigIndex s,, BindingSigIsaset s.
+
+  Context (uni : sort). (** the unique sort being used *)
+
+  (** create liste with [n] identical elements *)
+  Definition n_list {A : UU} (n : nat) (a : A) : list A.
+  Proof.
+    induction n as [|n ].
+    - exact nil.
+    - exact (cons a IHn).
+  Defined.
+
+  Definition translateArity : nat -> list sort × sort.
+  Proof.
+    intro n.
+    refine (_,, uni).
+    exact (n_list n uni).
+  Defined.
+
+  Definition arFromBindingSig : I → list (list sort × sort) × sort.
+  Proof.
+    intro i.
+    refine (_,, uni).
+    set (nbbindersallargs := BindingSigMap s i).
+    exact (map translateArity  nbbindersallargs).
+  Defined.
+
+  Definition MultiSortedSigFromBindingSig : MultiSortedSig
+    := I ,, arFromBindingSig.
+
+End MultiSortedSigFromBindingSig.
 
 (** * Construction of an endofunctor on [C^sort,C^sort] from a multisorted signature *)
 Section functor.
