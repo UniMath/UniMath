@@ -33,4 +33,7 @@ Examples/ProjectionsTheory.v
 
 LambdaAlgebraMonoid.v
 
+FundamentalTheorem/SurjectivePrecomposition.v
+FundamentalTheorem/CommonUtilities/KaroubiEnvelope.v
+
 RepresentationTheorem.v

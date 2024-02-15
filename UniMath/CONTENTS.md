@@ -1225,6 +1225,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [Examples/Plus1Presheaf.v](AlgebraicTheories/Examples/Plus1Presheaf.v)
    - [Examples/ProjectionsTheory.v](AlgebraicTheories/Examples/ProjectionsTheory.v)
    - [LambdaAlgebraMonoid.v](AlgebraicTheories/LambdaAlgebraMonoid.v)
+   - [FundamentalTheorem/SurjectivePrecomposition.v](AlgebraicTheories/FundamentalTheorem/SurjectivePrecomposition.v)
+   - [FundamentalTheorem/CommonUtilities/KaroubiEnvelope.v](AlgebraicTheories/FundamentalTheorem/CommonUtilities/KaroubiEnvelope.v)
    - [RepresentationTheorem.v](AlgebraicTheories/RepresentationTheorem.v)
    - [All.v](AlgebraicTheories/All.v)
 ## Package Semantics
