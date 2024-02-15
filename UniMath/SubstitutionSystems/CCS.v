@@ -187,15 +187,14 @@ Definition Pi_source (X : HSET_over_sort2) : HSET_over_sort2 :=
 (** The Pi constructor *)
 Definition Pi_map : HSET_over_sort2⟦Pi_source CCS,CCS⟧ :=
   (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 0)%stn)
-    · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _))
-    · CCS_mor.
+    ·  τ CCS_alg.
 
 Definition Prop_source (X : HSET_over_sort2) : HSET_over_sort2 :=
   constant_functor (slice_cat HSET _) HSET 1%CS  ∙ hat_functor sort ty.
 
 Definition Prop_map : HSET_over_sort2⟦Prop_source CCS,CCS⟧.
 Proof.
-use ((CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 1)%stn) · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _)) · CCS_mor).
+use ((CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 1)%stn)  · τ CCS_alg).
 Defined.
 
 Definition Proof_source (X : HSET_over_sort2) : HSET_over_sort2 :=
@@ -204,8 +203,7 @@ Definition Proof_source (X : HSET_over_sort2) : HSET_over_sort2 :=
 (** The Proof constructor *)
 Definition Proof_map : HSET_over_sort2⟦Proof_source CCS,CCS⟧ :=
   (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 2)%stn)
-    · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _))
-    · CCS_mor.
+    · τ CCS_alg.
 
 Definition lam_source (X : HSET_over_sort2) : HSET_over_sort2 :=
   ((X ∙ proj_functor sort ty) ⊗ (sorted_option_functor sort el ∙ X ∙ proj_functor sort el)) ∙ hat_functor sort el.
@@ -213,8 +211,7 @@ Definition lam_source (X : HSET_over_sort2) : HSET_over_sort2 :=
 (** The lambda constructor *)
 Definition lam_map : HSET_over_sort2⟦lam_source CCS,CCS⟧ :=
   (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 3)%stn)
-    · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _))
-    · CCS_mor.
+    · τ CCS_alg.
 
 Definition app_source (X : HSET_over_sort2) : HSET_over_sort2 :=
   ((X ∙ proj_functor sort ty) ⊗
@@ -225,8 +222,7 @@ Definition app_source (X : HSET_over_sort2) : HSET_over_sort2 :=
 (** The app constructor *)
 Definition app_map : HSET_over_sort2⟦app_source CCS,CCS⟧ :=
   (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 4)%stn)
-    · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _))
-    · CCS_mor.
+    · τ CCS_alg.
 
 Definition forall_source (X : HSET_over_sort2) : HSET_over_sort2 :=
   ((X ∙ proj_functor sort ty) ⊗ (sorted_option_functor sort el ∙ X ∙ proj_functor sort el)) ∙ hat_functor sort el.
@@ -234,8 +230,7 @@ Definition forall_source (X : HSET_over_sort2) : HSET_over_sort2 :=
 (** The ∀ constructor *)
 Definition forall_map : HSET_over_sort2⟦forall_source CCS,CCS⟧ :=
   (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 5)%stn)
-    · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _))
-    · CCS_mor.
+    · τ CCS_alg.
 
 Definition make_CCS_Algebra X
   (fvar    : HSET_over_sort2⟦Id,X⟧)

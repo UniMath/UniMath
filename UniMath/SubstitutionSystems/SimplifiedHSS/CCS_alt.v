@@ -192,8 +192,7 @@ Let CCS_M_alg : algebra_ob CCS_Functor :=
   InitialObject CCS_Functor_Initial.
 
 (** The variables *)
-Definition var_map : sortToSet2⟦Id,CCS_M⟧ :=
-  BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _) · CCS_M_mor.
+Definition var_map : sortToSet2⟦Id,CCS_M⟧ := η CCS_M_alg.
 
 Definition Pi_source : functor sortToSet2 sortToSet2 :=
   ( post_comp_functor (projSortToSet sort hsort ty) ⊗ ( pre_comp_functor (sorted_option_functorSet sort hsort el)
@@ -203,8 +202,7 @@ Definition Pi_source : functor sortToSet2 sortToSet2 :=
 (** The Pi constructor *)
 Definition Pi_map : sortToSet2⟦Pi_source CCS_M,CCS_M⟧ :=
     (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 0)%stn)
-  · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _))
-  · CCS_M_mor.
+  · τ CCS_M_alg.
 
 Definition Prop_source : functor sortToSet2 sortToSet2.
 Proof.
@@ -215,8 +213,7 @@ Defined.
 
 Definition Prop_map : sortToSet2⟦Prop_source CCS_M,CCS_M⟧ :=
     (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 1%nat)%stn)
-  · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _))
-  · CCS_M_mor.
+  · τ CCS_M_alg.
 
 Definition Proof_source : functor sortToSet2 sortToSet2 :=
   post_comp_functor (projSortToSet sort hsort el) ∙ post_comp_functor (hat_functorSet sort hsort ty).
@@ -224,8 +221,7 @@ Definition Proof_source : functor sortToSet2 sortToSet2 :=
 (** The Proof constructor *)
 Definition Proof_map : sortToSet2⟦Proof_source CCS_M,CCS_M⟧ :=
     (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 2)%stn)
-  · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _))
-  · CCS_M_mor.
+  · τ CCS_M_alg.
 
 Definition lam_source : functor sortToSet2 sortToSet2 :=
   (post_comp_functor (projSortToSet sort hsort ty) ⊗ (pre_comp_functor (sorted_option_functorSet sort hsort el)
@@ -235,8 +231,7 @@ Definition lam_source : functor sortToSet2 sortToSet2 :=
 (** The lambda constructor *)
 Definition lam_map : sortToSet2⟦lam_source CCS_M,CCS_M⟧ :=
     (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 3)%stn)
-  · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _))
-  · CCS_M_mor.
+  · τ CCS_M_alg.
 
 Definition app_source : functor sortToSet2 sortToSet2 :=
   ((post_comp_functor (projSortToSet sort hsort ty)) ⊗
@@ -248,8 +243,7 @@ Definition app_source : functor sortToSet2 sortToSet2 :=
 (** The app constructor *)
 Definition app_map : sortToSet2⟦app_source CCS_M,CCS_M⟧ :=
   (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 4)%stn)
-    · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _))
-    · CCS_M_mor.
+    · τ CCS_M_alg.
 
 Definition forall_source : functor sortToSet2 sortToSet2 :=
   ((post_comp_functor (projSortToSet sort hsort ty)) ⊗
@@ -259,8 +253,7 @@ Definition forall_source : functor sortToSet2 sortToSet2 :=
 (** The ∀ constructor *)
 Definition forall_map : sortToSet2⟦forall_source CCS_M,CCS_M⟧ :=
     (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 5)%stn)
-  · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _))
-  · CCS_M_mor.
+  · τ CCS_M_alg.
 
 Definition make_CCS_Algebra X
   (fvar    : sortToSet2⟦Id,X⟧)

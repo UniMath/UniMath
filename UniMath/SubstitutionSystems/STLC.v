@@ -130,8 +130,7 @@ Definition app_source (s t : sort) (X : HSET_over_sort2) : HSET_over_sort2 :=
 (** The application constructor *)
 Definition app_map (s t : sort) : HSET_over_sort2⟦app_source s t STLC,STLC⟧ :=
   (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (ii1 (s,, t)))
-    · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _))
-    · STLC_mor.
+    · SubstitutionSystems.τ STLC_alg.
 
 (** The source of the lambda constructor *)
 Definition lam_source (s t : sort) (X : HSET_over_sort2) : HSET_over_sort2 :=
@@ -139,8 +138,7 @@ Definition lam_source (s t : sort) (X : HSET_over_sort2) : HSET_over_sort2 :=
 
 Definition lam_map (s t : sort) : HSET_over_sort2⟦lam_source s t STLC,STLC⟧ :=
   (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (ii2 (s,,t)))
-    · BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _)
-    · STLC_mor.
+    · SubstitutionSystems.τ STLC_alg.
 
 Definition make_STLC_Algebra X (fvar : HSET_over_sort2⟦1,X⟧)
   (fapp : ∏ s t, HSET_over_sort2⟦app_source s t X,X⟧)
