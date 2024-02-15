@@ -937,6 +937,22 @@ Proof.
   - apply (pr2 isoGe).
 Defined.
 
+(** If the composition of two functors is essentially surjective,
+  the second functor is essentially surjective as well. *)
+Lemma essentially_surjective_2_from_comp
+  {C C' C'' : category}
+  (F : C ⟶ C')
+  (F' : C' ⟶ C'')
+  (H : essentially_surjective (functor_composite F F'))
+  : essentially_surjective F'.
+Proof.
+  intro.
+  refine (hinhfun _ (H b)).
+  intro x.
+  exists (F (pr1 x)).
+  exact (pr2 x).
+Qed.
+
 (** ** Faithful functors *)
 
 Definition faithful {C D : precategory_data} (F : functor C D) :=
@@ -958,6 +974,32 @@ Lemma comp_faithful_is_faithful (C D E : precategory)
 Proof.
   unfold faithful in *.
   intros ? ?; apply (isinclcomp (_,, faithF _ _) (_,, faithG _ _)).
+Qed.
+
+(** If the composition of two functors is faithful, the first functor is faithful as well. *)
+Lemma faithful_1_from_comp
+  {C C' C'' : category}
+  (F : C ⟶ C')
+  (F' : C' ⟶ C'')
+  (H : faithful (functor_composite F F'))
+  : faithful F.
+Proof.
+  intros a b f g g'.
+  pose (H _ _ (#F' f)).
+  cbn in i.
+  use make_iscontr.
+  - apply subtypePath.
+    {
+      intro.
+      apply homset_property.
+    }
+    exact (base_paths _ _ (pr1 (H _ _ _
+      (make_hfiber _ (pr1 g) (maponpaths #F' (pr2 g)))
+      (make_hfiber _ (pr1 g') (maponpaths #F' (pr2 g')))))).
+  - intro.
+    refine (iscontrpr1 ((_ : isaset _) _ _ _ _)).
+    apply isaset_hfiber;
+      apply homset_property.
 Qed.
 
 (** Faithful functors reflect commutative triangles. If F f · F g = F h,
@@ -1335,3 +1377,23 @@ Notation "F ∙ G" := (functor_composite F G) : cat.
 
 (* Notation "G □ F" := (functor_composite F G) (at level 35, only parsing) : cat. *)
 (* to input: type "\Box" or "\square" or "\sqw" or "\sq" with Agda input method *)
+
+Lemma functor_preserves_is_retraction
+  {C D : category}
+  (F : C ⟶ D)
+  {a b : C}
+  (H : retraction b a)
+  : is_retraction (#F (pr1 H)) (#F (pr1 (pr2 H))).
+Proof.
+  refine (!functor_comp _ _ _ @ _).
+  refine (maponpaths _ (pr2 (pr2 H)) @ _).
+  apply functor_id.
+Qed.
+
+Definition functor_preserves_retraction
+  {C D : category}
+  (F : C ⟶ D)
+  {a b : C}
+  (H : retraction b a)
+  : retraction (F b) (F a)
+  := _ ,, _ ,, functor_preserves_is_retraction F H.

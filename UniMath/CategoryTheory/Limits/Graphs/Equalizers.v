@@ -155,6 +155,21 @@ Section def_equalizers.
       apply cancel_postcomposition, H'.
   Qed.
 
+  Lemma EqualizerInEq
+    {a b : C}
+    {f g : C⟦a, b⟧}
+    (E : Equalizer f g)
+    (e : C)
+    (h h' : C⟦e, EqualizerObject E⟧)
+    (H : h · EqualizerArrow E = h' · EqualizerArrow E)
+    : h = h'.
+  Proof.
+    refine (EqualizerInUnique E e (h' · EqualizerArrow E) _ h H @ !EqualizerInUnique E e (h' · EqualizerArrow E) _ h' (idpath _)).
+    do 2 refine (assoc' _ _ _ @ !_).
+    apply maponpaths.
+    apply EqualizerArrowEq.
+  Qed.
+
   Definition isEqualizer_Equalizer {a b : C} {f g : C⟦a, b⟧} (E : Equalizer f g) :
     isEqualizer f g (EqualizerObject E) (EqualizerArrow E) (EqualizerArrowEq E).
   Proof.
@@ -357,3 +372,38 @@ Section equalizers_coincide.
   Defined.
 
 End equalizers_coincide.
+
+(* For a section-retraction pair (g, f) between b and a, b is the equalizer of id_a and f · g *)
+Lemma retract_is_equalizer
+  {C : category}
+  {a b : C}
+  (H : retraction b a)
+  : Equalizer C (pr1 (pr2 H) · pr1 H) (identity a).
+Proof.
+  use make_Equalizer.
+  - exact b.
+  - exact (pr1 H).
+  - abstract (
+      refine (_ @ !id_right _);
+      refine (assoc _ _ _ @ _);
+      refine (maponpaths (λ x, x · _) (pr2 (pr2 H)) @ _);
+      apply id_left
+    ).
+  - apply make_isEqualizer.
+    intros d f' Hf'.
+    use unique_exists.
+    + exact (f' · pr1 (pr2 H)).
+    + abstract exact (assoc' _ _ _ @ Hf' @ id_right _).
+    + abstract (
+        intro y;
+        apply homset_property
+      ).
+    + abstract (
+        intros g' Hg';
+        refine (!id_right _ @ _);
+        refine (!maponpaths _ (pr2 (pr2 H)) @ _);
+        refine (assoc _ _ _ @ _);
+        apply (maponpaths (λ x, x · _));
+        exact Hg'
+      ).
+Defined.
