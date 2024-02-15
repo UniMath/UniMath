@@ -8,8 +8,8 @@
   Contents
   1. The algebraic theory of the λ-calculus [lambda_calculus_algebraic_theory]
   2. The λ-theory of the λ-calculus [lambda_calculus_lambda_theory]
-  3. The λ-theory has β-equality [lambda_calculus_has_beta]
-  4. The λ-theory has η-equality [lambda_calculus_has_eta]
+  3. The λ-theory has β-equality [lambda_calculus_has_β]
+  4. The λ-theory has η-equality [lambda_calculus_has_η]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -143,10 +143,10 @@ Definition lambda_calculus_lambda_theory
 
 (** * 3. The λ-theory has β-equality *)
 
-Lemma lambda_calculus_has_beta
-  : has_beta lambda_calculus_lambda_theory.
+Lemma lambda_calculus_has_β
+  : has_β lambda_calculus_lambda_theory.
 Proof.
-  unfold has_beta, LambdaTheories.app, LambdaTheories.abs.
+  unfold has_β, LambdaTheories.app, LambdaTheories.abs.
   simpl.
   intros n l.
   do 3 reduce_lambda.
@@ -159,15 +159,6 @@ Proof.
     refine (maponpaths (λ x, subst (_ x) _) (homotinvweqweq stnweq _) @ _);
     simpl;
     repeat reduce_lambda.
-Qed.
-
-(** * 4. The λ-theory has η-equality *)
-
-Lemma lambda_calculus_has_eta
-  : has_eta lambda_calculus_lambda_theory.
-Proof.
-  intros n l.
-  apply eta_equality.
 Qed.
 
 End LambdaCalculus.

@@ -47,9 +47,7 @@ Definition lambda_calculus_data : UU := ∑
   (subst_subst : ∏ l m n t (g : stn l → L m) (f : stn m → L n),
     subst _ _ (subst _ _ t g) f = subst _ _ t (λ i, subst _ _ (g i) f))
   (beta : ∏ n (f : L (S n)) g,
-    app _ (abs _ f) g = subst _ _ f (extend_tuple (var _) g))
-  (eta : ∏ n (f : L n),
-    abs _ (app _ (inflate _ f) (var _ lastelement)) = f),
+    app _ (abs _ f) g = subst _ _ f (extend_tuple (var _) g)),
   (∏
     (A : ∏ n l,
       hSet)
@@ -91,12 +89,6 @@ Definition lambda_calculus_data : UU := ∑
         (beta n f g)
         (f_app _ _ _ (f_abs _ _ af) ag)
         (f_subst _ _ _ _ af (extend_tuple_dep (A := A n) (f_var _) ag)))
-    (f_eta : ∏ n f af,
-      PathOver
-        (Y := A n)
-        (eta n f)
-        (f_abs _ _ (f_app _ _ _ (f_inflate _ _ af) (f_var _ lastelement)))
-        af)
     , (∏ n l, A n l)
   ).
 
@@ -109,6 +101,10 @@ Definition abs {L : lambda_calculus_data} {n : nat} (l : L (S n)) : L n := pr1 (
 Definition subst {L : lambda_calculus_data} {m n : nat} (l : L m) (f : stn m → L n)
   : L n
   := pr12 (pr222 L) m n l f.
+
+Notation "( a b )" := (app a b).
+Notation "(π m )" := (var (make_stn _ m (idpath true))).
+Notation "(λ' n , x )" := (@abs _ n x).
 
 Definition inflate {L : lambda_calculus_data} {n} (l : L n)
   : L (S n)
@@ -128,9 +124,6 @@ Definition subst_subst {L : lambda_calculus_data} {l m n} t (g : stn l → L m) 
 Definition beta_equality {L : lambda_calculus_data} {n} (f : L (S n)) g
   : app (abs f) g = subst f (extend_tuple var g)
   := pr1 (pr222 (pr222 (pr222 L))) n f g.
-Definition eta_equality {L : lambda_calculus_data} {n} (f : L n)
-  : abs (app (inflate f) (var lastelement)) = f
-  := pr12 (pr222 (pr222 (pr222 L))) n f.
 
 Definition lambda_calculus_ind
   {L : lambda_calculus_data}
@@ -174,16 +167,10 @@ Definition lambda_calculus_ind
         (Y := A n)
         (beta_equality f g)
         (f_app _ _ _ (f_abs _ _ af) ag)
-        (f_subst _ _ _ _ af (extend_tuple_dep (A := A n) (f_var _) ag))) ×
-    (∏ n f af,
-      PathOver
-        (Y := A n)
-        (eta_equality f)
-        (f_abs _ _ (f_app _ _ _ (f_inflate _ _ af) (f_var _ lastelement)))
-        af)
+        (f_subst _ _ _ _ af (extend_tuple_dep (A := A n) (f_var _) ag)))
   )
   : (∏ n l, A n l)
-  := pr22 (pr222 (pr222 (pr222 L)))
+  := pr2 (pr222 (pr222 (pr222 L)))
     A
     f_var
     f_app
@@ -193,8 +180,7 @@ Definition lambda_calculus_ind
     (pr12 f_paths)
     (pr122 f_paths)
     (pr1 (pr222 f_paths))
-    (pr12 (pr222 f_paths))
-    (pr22 (pr222 f_paths)).
+    (pr2 (pr222 f_paths)).
 
 (** * 2. Properties and operations derived from the data *)
 
@@ -217,9 +203,7 @@ Definition lambda_calculus_rect
     (∏ l m n a ag af,
       (f_subst m n (f_subst l m a ag) af) = (f_subst _ _ a (λ i, f_subst _ _ (ag i) af))) ×
     (∏ n af ag,
-      (f_app n (f_abs _ af) ag) = (f_subst _ _ af (extend_tuple (f_var _) ag))) ×
-    (∏ n af,
-      (f_abs _ (f_app _ (f_inflate n af) (f_var _ lastelement))) = af)
+      (f_app n (f_abs _ af) ag) = (f_subst _ _ af (extend_tuple (f_var _) ag)))
   )
   : (∏ n, L n → A n).
 Proof.
@@ -239,11 +223,10 @@ Proof.
       symmetry.
       apply extend_tuple_dep_const.
     + apply f_paths.
-    + refine ((pr12 (pr222 f_paths)) _ _ _ @ _).
+    + refine ((pr2 (pr222 f_paths)) _ _ _ @ _).
       apply maponpaths.
       symmetry.
       apply extend_tuple_dep_const.
-    + apply f_paths.
 Defined.
 
 Definition lambda_calculus_ind_prop
@@ -430,16 +413,28 @@ Qed.
 
 (** ** 4.3. A tactic for reducing λ-terms [reduce_lambda] *)
 
-Ltac reduce_lambda := (
-  rewrite subst_var +
-  rewrite subst_l_var +
-  rewrite subst_app +
-  rewrite subst_abs +
-  rewrite subst_subst +
-  rewrite inflate_var +
-  rewrite inflate_app +
-  rewrite inflate_abs +
-  rewrite beta_equality +
-  rewrite (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _) +
-  rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _)
+Ltac repeatc n t :=
+  (t; repeatc (S n) t) || (
+    match n with
+    | 0 => idtac
+    | 1 => idtac t "."
+    | S (S _) => idtac "do" n t "."
+    end
+  ).
+
+Tactic Notation "repeatc" tactic(t) :=
+  repeatc 0 t.
+
+Ltac reduce_lambda := repeat progress (
+  (repeatc rewrite subst_var);
+  (repeatc rewrite subst_l_var);
+  (repeatc rewrite subst_app);
+  (repeatc rewrite subst_abs);
+  (repeatc rewrite subst_subst);
+  (repeatc rewrite inflate_var);
+  (repeatc rewrite inflate_app);
+  (repeatc rewrite inflate_abs);
+  (repeatc rewrite beta_equality);
+  (repeatc rewrite (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _) );
+  (repeatc rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _))
 ).

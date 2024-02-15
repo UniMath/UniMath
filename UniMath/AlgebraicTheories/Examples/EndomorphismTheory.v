@@ -16,7 +16,7 @@
   Contents
   1. The definition of the endomorphism algebraic theory [endomorphism_theory]
   2. The definition of the endomorphism λ-theory [endomorphism_lambda_theory]
-  3. A characterization of the endomorphism theories with β-equality [endomorphism_theory_has_beta]
+  3. A characterization of the endomorphism theories with β-equality [endomorphism_theory_has_β]
   4. A characterization of the endomorphism theories with η-equality [endomorphism_theory_has_eta]
   5. The endomorphism theory of a set [set_endomorphism_theory]
 
@@ -187,9 +187,9 @@ Section EndomorphismAlgebraicTheory.
 
 (** * 3. A characterization of the endomorphism theories with β-equality *)
 
-  Lemma endomorphism_theory_has_beta
+  Lemma endomorphism_theory_has_β
     (app_after_abs : abs · app = identity _)
-    : has_beta endomorphism_lambda_theory.
+    : has_β endomorphism_lambda_theory.
   Proof.
     intros n l.
     refine (_ @ φ_adj_inv_after_φ_adj (pr2 E) _).
@@ -204,7 +204,7 @@ Section EndomorphismAlgebraicTheory.
 
   Lemma endomorphism_theory_has_eta
     (abs_after_app : app · abs = identity _)
-    : has_eta endomorphism_lambda_theory.
+    : has_η endomorphism_lambda_theory.
   Proof.
     intros n l.
     refine (maponpaths (λ x, x · _) (φ_adj_after_φ_adj_inv _ _) @ _).

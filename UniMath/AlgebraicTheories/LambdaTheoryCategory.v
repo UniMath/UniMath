@@ -159,6 +159,14 @@ Proof.
   - exact is_univalent_disp_lambda_theory_disp_cat.
 Qed.
 
+Lemma is_univalent_β_lambda_theory_cat
+  : is_univalent β_lambda_theory_cat.
+Proof.
+  apply is_univalent_full_subcat.
+  - exact is_univalent_lambda_theory_cat.
+  - exact isaprop_has_β.
+Qed.
+
 (** * 3. Limits *)
 
 Section Limits.
@@ -265,3 +273,23 @@ Defined.
 Definition limits_lambda_theory_cat
   : Lims lambda_theory_cat
   := λ _ _, total_limit _ (creates_limits_lambda_theory_disp_cat _).
+
+Lemma limits_β_lambda_theory_cat
+  : Lims β_lambda_theory_cat.
+Proof.
+  intros J d.
+  use total_limit.
+  - apply limits_lambda_theory_cat.
+  - apply creates_limit_disp_full_sub.
+    + exact isaprop_has_β.
+    + abstract (
+        intros n l;
+        use subtypePath;
+        [ intro;
+          do 3 (apply impred_isaprop; intro);
+          apply setproperty
+        | apply funextsec;
+          intro u;
+          apply (pr2 (dob d u) n) ]
+      ).
+Qed.
