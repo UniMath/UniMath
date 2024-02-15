@@ -123,13 +123,17 @@ Proof.
     do 4 intro;
     cbn;
     unfold inflate.
-  - do 5 reduce_lambda.
+  - rewrite subst_app.
+    do 2 rewrite subst_subst.
+    rewrite subst_var.
+    rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _).
     apply (maponpaths (λ x, _ x _)).
     apply maponpaths.
     apply funextfun.
     intro.
-    now do 2 reduce_lambda.
-  - reduce_lambda.
+    rewrite subst_var.
+    now rewrite (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _).
+  - rewrite subst_abs .
     do 2 apply maponpaths.
     apply extend_tuple_eq.
     + intro.
@@ -149,16 +153,22 @@ Proof.
   unfold has_β, LambdaTheories.app, LambdaTheories.abs.
   simpl.
   intros n l.
-  do 3 reduce_lambda.
+  rewrite inflate_abs.
+  rewrite beta_equality.
+  rewrite subst_subst.
   refine (_ @ subst_l_var _).
   apply maponpaths.
   apply funextfun.
   intro i.
   rewrite <- (homotweqinvweq stnweq i).
-  now induction (invmap stnweq i) as [i' | i'];
+  induction (invmap stnweq i) as [i' | i'];
     refine (maponpaths (λ x, subst (_ x) _) (homotinvweqweq stnweq _) @ _);
-    simpl;
-    repeat reduce_lambda.
+    simpl.
+  - do 2 rewrite inflate_var.
+    rewrite subst_var.
+    now rewrite (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _).
+  - rewrite subst_var.
+    now rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _).
 Qed.
 
 End LambdaCalculus.
