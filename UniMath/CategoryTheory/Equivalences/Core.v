@@ -789,8 +789,8 @@ End FullyFaithfulAndSplitEssentiallySurjectiveToEquivalence.
 
 Lemma rad_equivalence_of_cats
   (A B : category)
-  (F : functor A B)
   (HA : is_univalent A)
+  (F : functor A B)
   (HF : fully_faithful F)
   (HS : essentially_surjective F)
  : adj_equivalence_of_cats F.
