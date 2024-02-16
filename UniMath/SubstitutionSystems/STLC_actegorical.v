@@ -18,15 +18,24 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
+Require Import UniMath.CategoryTheory.FunctorCoalgebras.
 Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Chains.Chains.
+Require Import UniMath.CategoryTheory.Chains.Cochains.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.Colimits.
 Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
+Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 Require Import UniMath.SubstitutionSystems.SigmaMonoids.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.MultiSorted_actegorical.
+Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_actegorical.
+Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_coind_actegorical.
+Require Import UniMath.SubstitutionSystems.ContinuitySignature.InstantiateHSET.
 Require Import UniMath.SubstitutionSystems.MultiSortedEmbeddingIndCoindHSET.
 
 
@@ -69,7 +78,13 @@ Defined.
 (** the canonical functor associated with STLC_Sig *)
 Definition STLC_Functor_H : functor sortToSet2 sortToSet2 :=
   MultiSorted_actegorical.MultiSortedSigToFunctor' sort Hsort SET
-               TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET STLC_Sig.
+    TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET STLC_Sig.
+
+(** the functor of which the fixed points are considered *)
+Definition STLC_Functor_Id_H : functor sortToSet2 sortToSet2 :=
+  SubstitutionSystems.Id_H sortToHSET
+  (BinCoproducts.BinCoproducts_functor_precat (path_pregroupoid sort Hsort) SET BinCoproductsHSET)
+  STLC_Functor_H.
 
 (** the canonical strength associated with STLC_Sig *)
 Let θSTLC := MultiSortedMonadConstruction_actegorical.MultiSortedSigToStrength' sort Hsort SET
@@ -106,5 +121,20 @@ Definition STLC_eta_coind : sortToSet2⟦Id,STLC_coind⟧ := STLC_eta_gen σcoin
 
 Definition STLC_tau_ind : STLC_Functor_H STLC_ind --> STLC_ind  := SigmaMonoid_τ θSTLC σind.
 Definition STLC_tau_coind : STLC_Functor_H STLC_coind --> STLC_coind  := SigmaMonoid_τ θSTLC σcoind.
+
+(** get a handle on the recursion principles *)
+
+(** the initial algebra *)
+Definition STLC_ind_IA : Initial (FunctorAlg STLC_Functor_Id_H)
+  := DatatypeOfMultisortedBindingSig_CAT sort Hsort SET TerminalHSET InitialHSET BinProductsHSET
+       BinCoproductsHSET ProductsHSET CoproductsHSET (expSortToHSET1 sort Hsort)
+       (ColimsHSET_of_shape nat_graph) STLC_Sig.
+(** notice that this is only the initial algebra and not the initial sigma monoid *)
+
+(** the final coalgebra *)
+Definition STLC_coind_FC : Terminal (CoAlg_category STLC_Functor_Id_H)
+  := coindCodatatypeOfMultisortedBindingSig_CAT sort Hsort HSET TerminalHSET
+         BinProductsHSET BinCoproductsHSET CoproductsHSET (LimsHSET_of_shape conat_graph)
+         I_coproduct_distribute_over_omega_limits_HSET STLC_Sig is_univalent_HSET.
 
 End A.
