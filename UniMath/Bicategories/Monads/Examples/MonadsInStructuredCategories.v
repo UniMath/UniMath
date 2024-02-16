@@ -103,14 +103,14 @@ Defined.
 (**
  4. Monads in the bicategory of categories with finite limits
  *)
-Definition make_mnd_univ_cat_with_finlim
+Definition make_mnd_bicat_of_univ_cat_with_finlim
            (C : univalent_category)
            (M : Monad C)
            (TC : Terminal C)
            (PC : Pullbacks C)
            (MT : preserves_terminal M)
            (MP : preserves_pullback M)
-  : mnd univ_cat_with_finlim.
+  : mnd bicat_of_univ_cat_with_finlim.
 Proof.
   use make_mnd_total_bicat.
   - apply disp_2cells_isaprop_prod ; apply disp_2cells_isaprop_subbicat.
