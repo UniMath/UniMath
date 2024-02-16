@@ -1646,7 +1646,6 @@ Definition bin_product_power
   : Product (stn n) C (λ _, c).
 Proof.
   induction n as [ | n IHn].
-  - refine (transportf (λ x, Product x C (λ y: x, c)) _ (Terminal_is_empty_product T _)).
-    abstract exact (invmap (univalence _ _) (invweq weqstn0toempty)).
+  - exact (Terminal_is_empty_product T _ weqstn0toempty).
   - apply (n_power_to_sn_power BP IHn).
 Defined.

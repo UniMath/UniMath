@@ -538,3 +538,64 @@ Proof.
          rewrite <- q ;
          apply (ProductPrCommutes _ _ _ (make_Product _ _ _ _ _ H))).
 Defined.
+
+(** ** Construction of Product from an isomorphism to Product. *)
+Section Product_from_iso.
+
+  Context {C : category}.
+  Context {J : UU}.
+  Context {X : J → C}.
+  Context (P : Product J C X).
+  Context (Y : C).
+  Context (i : z_iso Y (ProductObject _ _ P)).
+
+  Local Lemma iso_to_isProduct_comm
+    (W : C)
+    (f : ∏ j, W --> X j)
+    : (∏ j, ProductArrow _ _ P f · inv_from_z_iso i · (i · ProductPr _ _ P j) = f j).
+  Proof.
+    intro j.
+    rewrite <- assoc.
+    rewrite (assoc _ i).
+    rewrite (z_iso_after_z_iso_inv i).
+    rewrite id_left.
+    apply ProductPrCommutes.
+  Qed.
+
+  Local Lemma iso_to_isProduct_unique
+    (W : C)
+    (f : ∏ j, C ⟦W, X j⟧)
+    (y0 : C ⟦W, Y⟧)
+    (T : ∏ j, y0 · (i · ProductPr _ _ P j) = f j)
+    : y0 = ProductArrow _ _ P f · z_iso_inv_from_z_iso i.
+  Proof.
+    apply (post_comp_with_z_iso_is_inj (pr2 i) _ _).
+    rewrite <- assoc.
+    refine (_ @ !maponpaths _ (z_iso_after_z_iso_inv i)).
+    rewrite id_right.
+    apply ProductArrowUnique.
+    intro j.
+    rewrite <- assoc.
+    apply T.
+  Qed.
+
+  Lemma iso_to_isProduct
+    : isProduct _ _ _ Y (λ j, i · ProductPr _ _ P j).
+  Proof.
+    intros W f.
+    use unique_exists.
+    (* Arrow *)
+    - exact ((ProductArrow _ _ P f) · (z_iso_inv_from_z_iso i)).
+    (* Commutativity *)
+    - abstract exact (iso_to_isProduct_comm W f).
+    (* Equality of equalities of morphisms. *)
+    - abstract (intro; apply impred_isaprop; intro; apply C).
+    (* Uniqueness *)
+    - abstract (intros y0 T; exact (iso_to_isProduct_unique W f y0 T)).
+  Defined.
+
+  Definition iso_to_Product
+    : Product J C X
+    := make_Product _ _ _ _ _ iso_to_isProduct.
+
+End Product_from_iso.

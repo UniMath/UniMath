@@ -44,10 +44,9 @@ Definition is_lambda_theory_morphism
 Definition make_lambda_theory_morphism
   {L L' : lambda_theory}
   (F : algebraic_theory_morphism L L')
-  (Happ : ∏ n f, mor_app_ax F n f)
-  (Habs : ∏ n f, mor_abs_ax F n f)
+  (H : is_lambda_theory_morphism F)
   : lambda_theory_morphism L L'
-  := (F ,, Happ ,, Habs) ,, tt.
+  := (F ,, H) ,, tt.
 
 Coercion lambda_theory_morphism_to_algebraic_theory_morphism
   {L L' : lambda_theory}
