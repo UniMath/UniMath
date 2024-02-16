@@ -132,7 +132,7 @@ Proof.
     apply funextfun.
     intro.
     rewrite subst_var.
-    now rewrite (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _).
+    now rewrite extend_tuple_inl.
   - rewrite subst_abs .
     do 2 apply maponpaths.
     apply extend_tuple_eq.
@@ -166,7 +166,7 @@ Proof.
     simpl.
   - do 2 rewrite inflate_var.
     rewrite subst_var.
-    now rewrite (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _).
+    now rewrite extend_tuple_inl.
   - rewrite subst_var.
     now rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _).
 Qed.

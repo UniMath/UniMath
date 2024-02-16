@@ -145,9 +145,9 @@ Section Monoid.
       do 3 extend_tuple_3.
       rewrite subst_var.
       do 4 rewrite inflate_var.
-      rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _).
+      rewrite extend_tuple_inr.
       do 2 rewrite subst_var.
-      now do 2 rewrite (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _).
+      now do 2 rewrite extend_tuple_inl.
     Qed.
 
     Lemma is_assoc_compose
@@ -182,13 +182,13 @@ Section Monoid.
       do 8 rewrite subst_app.
       do 6 rewrite subst_subst.
       do 6 rewrite subst_var.
-      do 3 rewrite (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _).
+      do 3 rewrite extend_tuple_inl.
       rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _).
       do 2 rewrite subst_var.
       do 6 rewrite inflate_var.
-      do 2 rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _).
+      do 2 rewrite extend_tuple_inr.
       do 4 rewrite subst_var.
-      now do 4 rewrite (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _).
+      now do 4 rewrite extend_tuple_inl.
     Qed.
 
     Definition unit_element
