@@ -16,6 +16,7 @@ Require Import UniMath.Combinatorics.Lists.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.FunctorCoalgebras.
@@ -23,6 +24,9 @@ Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
 Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.Chains.Cochains.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
@@ -37,6 +41,7 @@ Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_actegori
 Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_coind_actegorical.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.InstantiateHSET.
 Require Import UniMath.SubstitutionSystems.MultiSortedEmbeddingIndCoindHSET.
+Require UniMath.SubstitutionSystems.STLC_alt.
 
 
 Local Open Scope cat.
@@ -52,6 +57,13 @@ Section A.
 
   Let sortToHSET : category := [path_pregroupoid sort Hsort, HSET].
 
+  Let BPsortToHSET : BinProducts sortToHSET := BinProducts_functor_precat _ _ BinProductsHSET.
+  Let BCsortToHSET : BinCoproducts sortToHSET := BinCoproducts_functor_precat _ _ BinCoproductsHSET.
+
+  Local Lemma BinProd : BinProducts [sortToHSET,HSET].
+  Proof.
+    apply BinProducts_functor_precat, BinProductsHSET.
+  Defined.
 
 (** Some notations *)
 Local Infix "::" := (@cons _).
@@ -59,9 +71,9 @@ Local Notation "[]" := (@nil _) (at level 0, format "[]").
 Local Notation "a + b" := (setcoprod a b) : set.
 Local Notation "s ⇒ t" := (arr s t).
 Local Notation "'Id'" := (functor_identity _).
-(* Local Notation "a ⊕ b" := (BinCoproductObject (BinCoprodSortToSet a b)).
-Local Notation "'1'" := (TerminalObject TerminalSortToSet).
-Local Notation "F ⊗ G" := (BinProduct_of_functors BinProd F G).*)
+(*Local Notation "a ⊕ b" := (BinCoproductObject (BinCoprodSortToSet a b)). *)
+(* Local Notation "'1'" := (TerminalObject TerminalSortToSet). *)
+Local Notation "F ⊗ G" := (BinProduct_of_functors BinProd F G).
 
 Let sortToSet2 := [sortToHSET,sortToHSET].
 
@@ -82,9 +94,7 @@ Definition STLC_Functor_H : functor sortToSet2 sortToSet2 :=
 
 (** the functor of which the fixed points are considered *)
 Definition STLC_Functor_Id_H : functor sortToSet2 sortToSet2 :=
-  SubstitutionSystems.Id_H sortToHSET
-  (BinCoproducts.BinCoproducts_functor_precat (path_pregroupoid sort Hsort) SET BinCoproductsHSET)
-  STLC_Functor_H.
+  SubstitutionSystems.Id_H sortToHSET BCsortToHSET STLC_Functor_H.
 
 (** the canonical strength associated with STLC_Sig *)
 Let θSTLC := MultiSortedMonadConstruction_actegorical.MultiSortedSigToStrength' sort Hsort SET
@@ -109,7 +119,68 @@ Section IndAndCoind.
 
   (** the individual sorted constructors for application and lambda-abstraction *)
 
-  (* TODO *)
+  Definition app_source_gen_oldstyle_abstracted (s t : sort) : functor sortToSet2 sortToSet2 :=
+    (post_comp_functor (projSortToC sort Hsort HSET (s ⇒ t)) ⊗ post_comp_functor (projSortToC sort Hsort HSET s))
+      ∙ (post_comp_functor (hat_functor sort Hsort HSET CoproductsHSET t)).
+
+  (** this old-style definition coincides with [STLC_alt.v] *)
+  Lemma app_source_gen_oldstyle_abstracted_ok (s t : sort) :
+    app_source_gen_oldstyle_abstracted s t = SubstitutionSystems.STLC_alt.app_source sort arr s t.
+  Proof.
+    apply idpath.
+  Qed.
+
+  Definition app_source_gen_newstyle (s t : sort) : sortToSet2 :=
+    BinProduct_of_functors BPsortToHSET
+      (functor_compose (functor_compose Id STLC_gen)
+         (projSortToC sort Hsort SET (s ⇒ t) ∙ hat_functor sort Hsort SET CoproductsHSET t))
+      (functor_compose (functor_compose Id STLC_gen)
+         (projSortToC sort Hsort SET s ∙ hat_functor sort Hsort SET CoproductsHSET t)).
+
+  Definition app_source_gen (s t : sort) : sortToSet2 :=
+    ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort SET TerminalHSET
+      BinProductsHSET BinCoproductsHSET CoproductsHSET (arity sort STLC_Sig (inl (s,, t))) STLC_gen.
+
+  Lemma app_source_gen_ok (s t : sort) : app_source_gen s t  = app_source_gen_newstyle s t.
+  Proof.
+    apply idpath.
+  Qed.
+
+  (** The application constructor *)
+  Definition app_map_gen (s t : sort) : sortToSet2⟦app_source_gen s t,STLC_gen⟧ :=
+    CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ (λ _, _)) (ii1 (s,,t)) · STLC_tau_gen.
+
+  Definition lam_source_gen_oldstyle_abstracted (s t : sort) : functor sortToSet2 sortToSet2 :=
+    pre_comp_functor (sorted_option_functor sort Hsort HSET TerminalHSET BinCoproductsHSET CoproductsHSET s)
+      ∙ post_comp_functor (projSortToC sort Hsort SET t)
+      ∙ post_comp_functor (hat_functor sort Hsort SET CoproductsHSET (s ⇒ t)).
+
+  (** this old-style definition coincides with [STLC_alt.v] *)
+  Lemma lam_source_gen_oldstyle_abstracted_ok (s t : sort) :
+    lam_source_gen_oldstyle_abstracted s t = SubstitutionSystems.STLC_alt.lam_source sort arr s t.
+  Proof.
+    apply idpath.
+  Qed.
+
+  Definition lam_source_gen_newstyle (s t : sort) : sortToSet2 :=
+    functor_compose
+      (functor_compose
+         (sorted_option_functor sort Hsort SET TerminalHSET BinCoproductsHSET CoproductsHSET s)
+         STLC_gen)
+      (projSortToC sort Hsort SET t ∙ hat_functor sort Hsort SET CoproductsHSET (s ⇒ t)).
+
+  Definition lam_source_gen (s t : sort) : sortToSet2 :=
+    ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort SET TerminalHSET
+      BinProductsHSET BinCoproductsHSET CoproductsHSET (arity sort STLC_Sig (inr (s,, t))) STLC_gen.
+
+  Lemma lam_source_gen_ok (s t : sort) : lam_source_gen s t  = lam_source_gen_newstyle s t.
+  Proof.
+    apply idpath.
+  Qed.
+
+  (** The lambda-abstraction constructor *)
+  Definition lam_map_gen (s t : sort) : sortToSet2⟦lam_source_gen s t,STLC_gen⟧ :=
+    CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ (λ _, _)) (ii2 (s,,t)) · STLC_tau_gen.
 
 End IndAndCoind.
 
@@ -121,6 +192,17 @@ Definition STLC_eta_coind : sortToSet2⟦Id,STLC_coind⟧ := STLC_eta_gen σcoin
 
 Definition STLC_tau_ind : STLC_Functor_H STLC_ind --> STLC_ind  := SigmaMonoid_τ θSTLC σind.
 Definition STLC_tau_coind : STLC_Functor_H STLC_coind --> STLC_coind  := SigmaMonoid_τ θSTLC σcoind.
+
+Definition app_source_ind (s t : sort) : sortToSet2 := app_source_gen σind s t.
+Definition app_map_ind (s t : sort) : sortToSet2⟦app_source_ind s t,STLC_ind⟧ := app_map_gen σind s t.
+Definition lam_source_ind (s t : sort) : sortToSet2 := lam_source_gen σind s t.
+Definition lam_map_ind (s t : sort) : sortToSet2⟦lam_source_ind s t,STLC_ind⟧ := lam_map_gen σind s t.
+
+Definition app_source_coind (s t : sort) : sortToSet2 := app_source_gen σcoind s t.
+Definition app_map_coind (s t : sort) : sortToSet2⟦app_source_coind s t,STLC_coind⟧ := app_map_gen σcoind s t.
+Definition lam_source_coind (s t : sort) : sortToSet2 := lam_source_gen σcoind s t.
+Definition lam_map_coind (s t : sort) : sortToSet2⟦lam_source_coind s t,STLC_coind⟧ := lam_map_gen σcoind s t.
+
 
 (** get a handle on the recursion principles *)
 
