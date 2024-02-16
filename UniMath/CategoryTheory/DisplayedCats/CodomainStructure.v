@@ -14,8 +14,6 @@
  addition, we should that the fiber of the terminal object is equivalent to the base
  category.
 
- Finally, we use the structure on the codomain fibrati
-
  Contents
  1. Constructions on fiber of codomain
  2. Fiber of terminal objects
