@@ -92,6 +92,12 @@ Limits/Coends.v
 
 DisplayedCats/Binproducts.v
 
+DisplayedCats/FiberwiseTerminal.v
+DisplayedCats/FiberwiseProducts.v
+DisplayedCats/FiberwiseEqualizers.v
+
+DisplayedCats/CodomainStructure.v
+
 Limits/Examples/CategoryProductLimits.v
 Limits/StandardDiagrams.v
 Limits/Filtered.v
