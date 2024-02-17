@@ -35,3 +35,7 @@ Examples/ProjectionsTheory.v
 LambdaAlgebraMonoid.v
 
 RepresentationTheorem.v
+
+FundamentalTheorem/CommonUtilities/MonoidActions.v
+FundamentalTheorem/SpecificUtilities/LambdaTerms.v
+FundamentalTheorem/AlgebraToTheory.v
