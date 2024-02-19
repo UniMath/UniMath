@@ -759,7 +759,7 @@ Section PairNatTrans.
 End PairNatTrans.
 
 (** ** Construction of BinProduct from an isomorphism to BinProduct. *)
-Section BinProduct_from_iso.
+Section BinProductFromIso.
 
   Context (C : category).
 
@@ -812,7 +812,7 @@ Section BinProduct_from_iso.
                                               (i · (BinProductPr2 C BP))
                                               (iso_to_isBinProduct BP i).
 
-End BinProduct_from_iso.
+End BinProductFromIso.
 
 (** ** Equivalent universal property: [(C --> A) × (C --> B) ≃ (C --> A × B)]
 

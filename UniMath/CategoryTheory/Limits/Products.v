@@ -540,7 +540,7 @@ Proof.
 Defined.
 
 (** ** Construction of Product from an isomorphism to Product. *)
-Section Product_from_iso.
+Section ProductFromIso.
 
   Context {C : category}.
   Context {J : UU}.
@@ -598,4 +598,4 @@ Section Product_from_iso.
     : Product J C X
     := make_Product _ _ _ _ _ iso_to_isProduct.
 
-End Product_from_iso.
+End ProductFromIso.
