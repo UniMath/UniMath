@@ -36,6 +36,10 @@ Section PrecompositionEssentiallySurjective.
     : C⟦a, b⟧ ≃ C'⟦F a, F b⟧
     := weq_from_fully_faithful H a b.
 
+  Let η (P : C ⟶ D)
+    : P ⟹ (pre_comp_functor F (left_adjoint (is_right_adjoint_precomposition HD F) P) : _ ⟶ _)
+    := unit_from_right_adjoint (is_right_adjoint_precomposition HD F) P.
+
   Section Iso.
 
     Context (P : C ⟶ D).
@@ -60,7 +64,7 @@ Section PrecompositionEssentiallySurjective.
 
     Lemma pre_comp_z_iso_is_inverse
       : is_inverse_in_precat (C := D)
-        ((unit_from_right_adjoint (is_right_adjoint_precomposition HD F) P : _ ⟹ _) c)
+        (η P c)
         pre_comp_z_iso_inv.
     Proof.
       split.
@@ -83,7 +87,7 @@ Section PrecompositionEssentiallySurjective.
     Qed.
 
     Definition pre_comp_is_z_iso
-      : is_z_isomorphism ((unit_from_right_adjoint (is_right_adjoint_precomposition HD F) P : _ ⟹ _) c)
+      : is_z_isomorphism (η P c)
       := make_is_z_isomorphism _ _ pre_comp_z_iso_is_inverse.
 
   End Iso.
