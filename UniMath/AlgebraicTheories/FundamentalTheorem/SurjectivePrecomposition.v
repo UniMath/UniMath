@@ -32,7 +32,9 @@ Section PrecompositionEssentiallySurjective.
   Context (D : category).
   Context (HD : Colims D).
 
-  Let Fweq := weq_from_fully_faithful H.
+  Let Fweq (a b : C)
+    : C⟦a, b⟧ ≃ C'⟦F a, F b⟧
+    := weq_from_fully_faithful H a b.
 
   Section Iso.
 
