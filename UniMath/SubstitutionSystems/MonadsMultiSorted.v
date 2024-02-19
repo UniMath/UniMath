@@ -38,7 +38,7 @@ Local Notation "C / X ⟦ a , b ⟧" := (slicecat_mor C X a b) (at level 50, for
 Section MonadsInHSET_over_sort.
 
 
-Variables (sort : hSet).
+Context (sort : hSet).
 
 Definition HSET_over_sort : category.
 Proof.

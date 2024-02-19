@@ -412,6 +412,8 @@ Grothendieck/Counit.v
 Grothendieck/Biequivalence.v
 Grothendieck/FiberwiseEquiv.v
 
+ComprehensionCat/BicatOfCompCat.v
+
 Logic/ComprehensionBicat.v
 
 Logic/Examples/TrivialComprehensionBicat.v

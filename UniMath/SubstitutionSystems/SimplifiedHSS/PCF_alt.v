@@ -70,7 +70,7 @@ induction (nopathsfalsetotrue p).
 Defined.
 
 (** We assume a set of types with bool, nat and function types *)
-Variable (type : hSet) (Bool Nat : type) (arr : type → type → type).
+Context (type : hSet) (Bool Nat : type) (arr : type → type → type).
 
 Local Lemma htype : isofhlevel 3 type.
 Proof.
