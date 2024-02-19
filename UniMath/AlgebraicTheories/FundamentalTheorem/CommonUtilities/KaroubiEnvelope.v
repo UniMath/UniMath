@@ -65,21 +65,39 @@ Section KaroubiEnvelope.
 
 (** * 1. The Karoubi envelope and its embedding of C *)
 
+  Definition karoubi_envelope_ob_mor
+    : precategory_ob_mor.
+  Proof.
+    use make_precategory_ob_mor.
+    - exact (∑ (c : C), idempotent c).
+    - intros f f'.
+      exact (∑ (g : C⟦pr1 f, pr1 f'⟧), pr12 f · g = g × g · pr12 f' = g).
+  Defined.
+
+  Definition make_karoubi_ob
+    (c : C)
+    (f : C⟦c, c⟧)
+    (H : f · f = f)
+    : karoubi_envelope_ob_mor
+    := c ,, f ,, H.
+
+  Definition make_karoubi_mor
+    {c d : karoubi_envelope_ob_mor}
+    (f : C⟦pr1 c, pr1 d⟧)
+    (Hl : pr12 c · f = f)
+    (Hr : f · pr12 d = f)
+    : karoubi_envelope_ob_mor⟦c, d⟧
+    := f ,, Hl ,, Hr.
+
   Definition karoubi_envelope_data
     : precategory_data.
   Proof.
     use make_precategory_data.
-    - use make_precategory_ob_mor.
-      + exact (∑ (c : C), idempotent c).
-      + intros f f'.
-        exact (∑ (g : C⟦pr1 f, pr1 f'⟧), pr12 f · g = g × g · pr12 f' = g).
+    - exact karoubi_envelope_ob_mor.
     - intro f.
-      repeat use tpair.
-      + exact (pr12 f).
-      + exact (pr22 f).
-      + exact (pr22 f).
+      exact (make_karoubi_mor (pr12 f) (pr22 f) (pr22 f)).
     - intros f f' f'' g g'.
-      repeat use tpair.
+      use make_karoubi_mor.
       + exact (pr1 g · pr1 g').
       + abstract now rewrite assoc, (pr12 g).
       + abstract now rewrite assoc', (pr22 g').
@@ -141,12 +159,9 @@ Section KaroubiEnvelope.
     use make_functor.
     - use make_functor_data.
       + intro c.
-        repeat use tpair.
-        * exact c.
-        * apply identity.
-        * apply id_left.
+        exact (make_karoubi_ob c (identity _) (id_left _)).
       + intros a b f.
-        repeat use tpair.
+        use make_karoubi_mor.
         * exact f.
         * apply id_left.
         * apply id_right.
@@ -248,7 +263,10 @@ Section KaroubiEnvelope.
     Proof.
       refine (_ · colimIn _ (((pr1 c ,, tt) ,, pr12 c ,, id_left _ ,, pr22 c) : (vertex (lan_comma karoubi_envelope_inclusion c)))).
       apply (#P).
-      exact (pr12 c ,, pr22 c ,, id_right _).
+      use make_karoubi_mor.
+      - exact (pr12 c).
+      - exact (pr22 c).
+      - exact (id_right _).
     Defined.
 
     Lemma karoubi_functor_iso_is_inverse
@@ -269,7 +287,7 @@ Section KaroubiEnvelope.
           @ colimInCommutes
             (lan_colim HD karoubi_envelope_inclusion (pre_comp_functor karoubi_envelope_inclusion P) c)
             v
-            ((pr1 c ,, tt) ,, pr12 c ,, id_left _ ,, pr22 c)
+            ((pr1 c ,, tt) ,, (make_karoubi_mor (c := make_karoubi_ob _ (identity _) _) (pr12 c) (id_left _) (pr22 c)))
             ((pr12 v ,, (pr2 iscontrunit _)) ,, _));
         apply karoubi_mor_eq.
         + exact (pr222 v).
@@ -315,7 +333,11 @@ Section OppKaroubiEquiv.
   Proof.
     use make_functor_data.
     - exact (idfun _).
-    - exact (λ a b f, pr1 f ,, pr22 f ,, pr12 f).
+    - intros a b f.
+      use make_karoubi_mor.
+      + exact (pr1 f).
+      + exact (pr22 f).
+      + exact (pr12 f).
   Defined.
 
   Lemma opp_karoubi_functor_is_functor
@@ -338,7 +360,7 @@ Section OppKaroubiEquiv.
   Definition opp_karoubi_ob_lift_mor
     (c : karoubi_envelope (op_cat C))
     : karoubi_envelope (op_cat C) ⟦ opp_karoubi_functor (opp_karoubi_ob_lift c), c ⟧
-    := pr12 c ,, pr22 c ,, pr22 c.
+    := make_karoubi_mor _ (pr12 c) (pr22 c) (pr22 c).
 
   Section OppKaroubiOfLiftIsUniversalArrow.
 
@@ -347,8 +369,13 @@ Section OppKaroubiEquiv.
     Context (f: karoubi_envelope (op_cat C) ⟦ opp_karoubi_functor c', c ⟧).
 
     Definition opp_karoubi_universal_mor
-      : op_cat (karoubi_envelope C) ⟦ c', opp_karoubi_ob_lift c ⟧
-      := pr1 f ,, pr22 f ,, pr12 f.
+      : op_cat (karoubi_envelope C) ⟦ c', opp_karoubi_ob_lift c ⟧.
+    Proof.
+      use make_karoubi_mor.
+      - exact (pr1 f).
+      - exact (pr22 f).
+      - exact (pr12 f).
+    Defined.
 
     Lemma opp_karoubi_universal_eq
       : f = # opp_karoubi_functor opp_karoubi_universal_mor · opp_karoubi_ob_lift_mor c.
@@ -397,7 +424,7 @@ Section OppKaroubiEquiv.
 
     Definition opp_karoubi_unit_iso_inv
       : karoubi_envelope C ⟦ c, c ⟧
-      := pr12 c ,, pr22 c ,, pr22 c.
+      := make_karoubi_mor _ (pr12 c) (pr22 c) (pr22 c).
 
     Lemma opp_karoubi_unit_is_inverse
       : is_inverse_in_precat (adjunit opp_karoubi_is_adjoint c) opp_karoubi_unit_iso_inv.
@@ -421,7 +448,7 @@ Section OppKaroubiEquiv.
 
     Definition opp_karoubi_counit_iso_inv
       : karoubi_envelope (op_cat C) ⟦ c, opp_karoubi_ob_lift c ⟧
-      := pr12 c ,, pr22 c ,, pr22 c.
+      := make_karoubi_mor _ (pr12 c) (pr22 c) (pr22 c).
 
     Lemma opp_karoubi_counit_is_inverse
       : is_inverse_in_precat (adjcounit opp_karoubi_is_adjoint c) opp_karoubi_counit_iso_inv.
