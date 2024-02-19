@@ -33,6 +33,7 @@ Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.Limits.Graphs.Equalizers.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Presheaf.
+Require Import UniMath.CategoryTheory.Retracts.
 Require Import UniMath.CategoryTheory.whiskering.
 
 Require Import UniMath.AlgebraicTheories.FundamentalTheorem.SurjectivePrecomposition.

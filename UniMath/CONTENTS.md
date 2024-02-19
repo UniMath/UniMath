@@ -227,6 +227,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [CategorySum.v](CategoryTheory/CategorySum.v)
    - [Subcategory/Core.v](CategoryTheory/Subcategory/Core.v)
    - [Subcategory/Full.v](CategoryTheory/Subcategory/Full.v)
+   - [Retracts.v](CategoryTheory/Retracts.v)
    - [Monics.v](CategoryTheory/Monics.v)
    - [Epis.v](CategoryTheory/Epis.v)
    - [SplitMonicsAndEpis.v](CategoryTheory/SplitMonicsAndEpis.v)

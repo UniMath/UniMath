@@ -16,6 +16,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Retracts.
 
 Section def_coequalizers.
 
@@ -492,22 +493,22 @@ End CoequalizersFromReflexiveCoequalizers.
 Lemma retract_is_coequalizer
   {C : category}
   {a b : C}
-  (H : retraction b a)
-  : Coequalizer (pr1 (pr2 H) · pr1 H) (identity a).
+  (f : retraction b a)
+  : Coequalizer (f · retraction_section f) (identity a).
 Proof.
   use make_Coequalizer.
   - exact b.
-  - exact (pr1 (pr2 H)).
+  - exact f.
   - abstract (
       refine (_ @ !id_left _);
       refine (assoc' _ _ _ @ _);
-      refine (maponpaths _ (pr2 (pr2 H)) @ _);
+      refine (maponpaths _ (retraction_is_retraction f) @ _);
       apply id_right
     ).
   - apply make_isCoequalizer.
     intros d f' Hf'.
     use unique_exists.
-    + exact (pr1 H · f').
+    + exact (retraction_section f · f').
     + abstract exact (assoc _ _ _ @ Hf' @ id_left _).
     + abstract (
         intro y;
@@ -516,7 +517,7 @@ Proof.
     + abstract (
         intros g' Hg';
         refine (!id_left _ @ _);
-        refine (!maponpaths (λ x, x · _) (pr2 (pr2 H)) @ _);
+        refine (!maponpaths (λ x, x · _) (retraction_is_retraction f) @ _);
         refine (assoc' _ _ _ @ _);
         apply maponpaths;
         exact Hg'

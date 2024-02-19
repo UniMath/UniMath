@@ -32,6 +32,7 @@ Categories/HSET/Core.v
 CategorySum.v
 Subcategory/Core.v
 Subcategory/Full.v
+Retracts.v
 Monics.v
 Epis.v
 SplitMonicsAndEpis.v

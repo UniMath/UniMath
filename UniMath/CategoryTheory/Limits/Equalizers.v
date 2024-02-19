@@ -21,6 +21,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Monics.
+Require Import UniMath.CategoryTheory.Retracts.
 
 (** ** Definition *)
 Section def_equalizers.
@@ -455,22 +456,22 @@ Qed.
 Lemma retract_is_equalizer
   {C : category}
   {a b : C}
-  (H : retraction b a)
-  : Equalizer (pr1 (pr2 H) · pr1 H) (identity a).
+  (f : retraction b a)
+  : Equalizer (f · retraction_section f) (identity a).
 Proof.
   use make_Equalizer.
   - exact b.
-  - exact (pr1 H).
+  - exact (retraction_section f).
   - abstract (
       refine (_ @ !id_right _);
       refine (assoc _ _ _ @ _);
-      refine (maponpaths (λ x, x · _) (pr2 (pr2 H)) @ _);
+      refine (maponpaths (λ x, x · _) (retraction_is_retraction f) @ _);
       apply id_left
     ).
   - apply make_isEqualizer.
     intros d f' Hf'.
     use unique_exists.
-    + exact (f' · pr1 (pr2 H)).
+    + exact (f' · f).
     + abstract exact (assoc' _ _ _ @ Hf' @ id_right _).
     + abstract (
         intro y;
@@ -479,7 +480,7 @@ Proof.
     + abstract (
         intros g' Hg';
         refine (!id_right _ @ _);
-        refine (!maponpaths _ (pr2 (pr2 H)) @ _);
+        refine (!maponpaths _ (retraction_is_retraction f) @ _);
         refine (assoc _ _ _ @ _);
         apply (maponpaths (λ x, x · _));
         exact Hg'
