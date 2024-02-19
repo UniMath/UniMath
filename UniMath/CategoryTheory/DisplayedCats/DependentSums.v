@@ -1,3 +1,19 @@
+(*******************************************************************************************
+
+ Dependent sums in fibrations
+
+ In this file, we define when a fibration supports dependent sums. Concretely, this means
+ two things.
+ - For every morphism `f : x --> y`, substitution along `f` has a left adjoint.
+ - These left adjoints are preserved under substitution. This is formulated using the left
+   Beck-Chevalley condition.
+
+ Contents
+ 1. The natural transformation from the left Beck-Chevalley condition
+ 2. Fibrations with dependent sums
+ 3. Preservation of dependent sums by functors between fibrations
+
+ *******************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
@@ -11,6 +27,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 
 Local Open Scope cat.
 
+(** * 1. The natural transformation from the left Beck-Chevalley condition *)
 Definition left_beck_chevalley_nat_trans
            {C₁ C₂ C₃ C₄ : category}
            {F : C₁ ⟶ C₂}
@@ -37,6 +54,30 @@ Definition left_beck_chevalley_nat_trans
                 HL))
           (pre_whisker (FL ∙ G) ε₂)).
 
+Proposition left_beck_chevalley_nat_trans_ob
+            {C₁ C₂ C₃ C₄ : category}
+            {F : C₁ ⟶ C₂}
+            {G : C₁ ⟶ C₃}
+            {H : C₃ ⟶ C₄}
+            {K : C₂ ⟶ C₄}
+            (HF : is_right_adjoint F)
+            (FL := left_adjoint HF)
+            (η₁ := unit_from_right_adjoint HF)
+            (HH : is_right_adjoint H)
+            (HL := left_adjoint HH)
+            (ε₂ := counit_from_right_adjoint HH)
+            (τ : nat_z_iso (F ∙ K) (G ∙ H))
+            (x : C₂)
+  : left_beck_chevalley_nat_trans HF HH τ x
+    =
+    #HL (#K (η₁ x))
+    · #HL (τ (FL x))
+    · ε₂ (G (FL x)).
+Proof.
+  apply assoc.
+Qed.
+
+(** * 2. Fibrations with dependent sums *)
 Section DependentSum.
   Context {C : category}
           {D : disp_cat C}
@@ -109,6 +150,7 @@ Section DependentSum.
        left_beck_chevalley f g h k p (L _ _ f) (L _ _ h).
 End DependentSum.
 
+(** * 3. Preservation of dependent sums by functors between fibrations *)
 Definition preserves_dependent_sums
            {C₁ C₂ : category}
            {D₁ : disp_cat C₁}

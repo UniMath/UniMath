@@ -21,6 +21,7 @@ DisplayedCats/Univalence.v
 DisplayedCats/DisplayedFunctorEq.v
 DisplayedCats/Total.v
 DisplayedCats/Fiber.v
+DisplayedCats/FullyFaithfulDispFunctor.v
 
 opp_precat.v
 OppositeCategory/Core.v
@@ -95,6 +96,7 @@ DisplayedCats/Binproducts.v
 DisplayedCats/FiberwiseTerminal.v
 DisplayedCats/FiberwiseProducts.v
 DisplayedCats/FiberwiseEqualizers.v
+DisplayedCats/DependentSums.v
 
 DisplayedCats/CodomainStructure.v
 

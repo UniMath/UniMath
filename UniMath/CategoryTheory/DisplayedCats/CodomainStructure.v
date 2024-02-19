@@ -46,6 +46,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.FiberwiseTerminal.
 Require Import UniMath.CategoryTheory.DisplayedCats.FiberwiseProducts.
 Require Import UniMath.CategoryTheory.DisplayedCats.FiberwiseEqualizers.
+Require Import UniMath.CategoryTheory.DisplayedCats.DependentSums.
 
 Local Open Scope cat.
 
@@ -438,6 +439,7 @@ Section CodomainStructure.
   Qed.
 
   (** * 4. Left adjoint for substitution *)
+  (*
   Section LeftAdjoint.
     Context {x y : C}
             {f : x --> y}
@@ -538,16 +540,77 @@ Section CodomainStructure.
     - refine (cod_fiber_functor_adj_mor φp ,, _).
       exact (cod_fiber_functor_adj_comm φp).
   Defined.
+   *)
+
+  Definition TODO { A : UU } : A.
+  Admitted.
+
+  Section LeftAdjointSubst.
+    Context {x y : C}
+            (f : x --> y).
+
+    Definition comp_functor_data
+      : functor_data D[{x}] D[{y}].
+    Proof.
+      use make_functor_data.
+      - exact (λ g, pr1 g ,, pr2 g · f).
+      - refine (λ g₁ g₂ h, pr1 h ,, _).
+        abstract
+          (cbn ;
+           rewrite id_right ;
+           rewrite !assoc ;
+           rewrite (pr2 h) ;
+           rewrite id_right ;
+           apply idpath).
+    Defined.
+
+    Proposition comp_functor_laws
+      : is_functor comp_functor_data.
+    Proof.
+      split.
+      - intro g.
+        use eq_cod_mor ; cbn.
+        apply idpath.
+      - intros g₁ g₂ g₃ h₁ h₂.
+        use eq_cod_mor ; cbn.
+        rewrite !transportf_cod_disp.
+        cbn.
+        apply idpath.
+    Qed.
+
+    Definition comp_functor
+      : D[{x}] ⟶ D[{y}].
+    Proof.
+      use make_functor.
+      - exact comp_functor_data.
+      - exact comp_functor_laws.
+    Defined.
+
+    (*
+    Definition comp_functor_unit
+      : functor_identity _ ⟹ comp_functor ∙ fiber_functor_from_cleaving D HD f.
+    Proof.
+      use make_nat_trans.
+      - refine (λ g, _).
+        cbn.
+        intro g.
+        cbn.
+     *)
+  End LeftAdjointSubst.
 
   Definition is_right_adjoint_cod_fiber_functor
              {x y : C}
              (f : x --> y)
     : is_right_adjoint (fiber_functor_from_cleaving D HD f).
   Proof.
+    simple refine (comp_functor f ,, (_ ,, _) ,, (_ ,, _)).
+    all:apply TODO.
+    (*
     use right_adjoint_left_from_partial.
     - exact (λ zg, cod_fib_comp f zg).
     - exact (λ zg, cod_fib_pb_comp f zg).
     - exact (is_universal_arrow_to_cod_fiber_functor f).
+     *)
   Defined.
 
   Definition cod_fiber_sigma_adjunction
@@ -1160,4 +1223,48 @@ Section CodomainStructure.
     - exact HC.
     - exact T.
   Defined.
+
+  Definition paard
+             {w x y z : C}
+             (f : x --> w)
+             (g : y --> w)
+             (h : z --> y)
+             (k : z --> x)
+             (p : k · f = h · g)
+             (φ : D[{x}])
+    : UU.
+  Proof.
+    Check left_beck_chevalley_nat_trans_ob.
+    pose (left_beck_chevalley_nat_trans (is_right_adjoint_cod_fiber_functor f)
+            (is_right_adjoint_cod_fiber_functor h) (comm_nat_z_iso HD f g h k p) φ).
+    rewrite left_beck_chevalley_nat_trans_ob  in p0.
+    simpl in p0.
+
+    Print left_beck_chevalley.
+    refine (left_beck_chevalley
+              HD
+              f g h k p
+              (is_right_adjoint_cod_fiber_functor f)
+              (is_right_adjoint_cod_fiber_functor h)
+            =
+              _).
+    f g h k p (is_right_adjoint_cod_fiber_functor f)
+    (is_right_adjoint_cod_fiber_functor h).
+   *)
+
+  Definition koe
+    : has_dependent_sums HD.
+  Proof.
+    simple refine (_ ,, _).
+    - intros x y f.
+      apply is_right_adjoint_cod_fiber_functor.
+    - simpl.
+      intros w x y z f g h k p φ.
+      rewrite left_beck_chevalley_nat_trans_ob.
+      simpl.
+      use is_z_iso_fiber_from_is_z_iso_disp.
+      use is_z_iso_disp_codomain.
+      (* unclear how to approach *)
+  Admitted.
+
 End CodomainStructure.

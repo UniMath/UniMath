@@ -1,7 +1,45 @@
+(*******************************************************************************************
+
+ Democratic full comprehension categories
+
+ In this file, we define democratic comprehension categories. Our notion of democracy is
+ taken from the work by Clairambault and Dybjer. More specifically, a full comprehension
+ category is called democratic if for every context `Γ` there is a type `A` in the empty
+ context `[]` such `Γ` is isomorphic to the context extension `[] & A`. One could also
+ formulate this requirement using the comprehension functor. More specifically, a full
+ comprehension category is said to be democratic if the comprehension functor is split
+ essentially surjective on the fiber of the empty context (compare to Proposition 2.8 in
+ 'The biequivalence of locally cartesian closed categories and Martin-Löf type theories'
+ and the corresponding statement [is_democratic_weq_split_essentially_surjective]).
+
+ Note that we only define democracy for full comprehension categories. The reason to do so,
+ comes from the fact that for full comprehension categories, there is a unique proof of
+ democracy. We can understand this from the second and more concise formulation of democracy.
+ If a functor `F` between univalent categories is fully faithful, then the type that `F`
+ is split essentially surjective is a proposition. The reason for that is that due to the
+ fully faithfulness of `F` essential surjectivity is equivalent to split essential
+ surjectivity.
+
+ The fact that being democratic is a proposition for full comprehension categories, allows
+ us to define the bicategory of democratic full comprehension categories as a subbicategory
+ of the bicategory of comprehension categories. Univalence then follows directly from the
+ univalence of the subbicategory.
+
+ References
+ - 'The biequivalence of locally cartesian closed categories and Martin-Löf type theories'
+   by Clairambault and Dybjer.
+
+ Contents
+ 1. Democratic full comprehension categories
+ 2. Functors that preserve democracy
+ 3. The displayed bicategory of democratic full comprehension categories
+ 4. The univalence of this displayed bicategory
+
+ *******************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
@@ -10,6 +48,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.DisplayedCats.FullyFaithfulDispFunctor.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
@@ -17,170 +56,15 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+Require Import UniMath.Bicategories.ComprehensionCat.CompCatNotations.
 
 Local Open Scope cat.
+Local Open Scope comp_cat.
 
-Definition z_iso_disp_codomain
-           {C : category}
-           {x y : C}
-           {f : z_iso x y}
-           {h₁ : disp_codomain C x}
-           {h₂ : disp_codomain C y}
-           (g : z_iso (pr1 h₁) (pr1 h₂))
-           (p : g · pr2 h₂ = pr2 h₁ · f)
-  : z_iso_disp f h₁ h₂.
-Proof.
-  use make_z_iso_disp.
-  - exact (pr1 g ,, p).
-  - simple refine (_ ,, _ ,, _).
-    + refine (inv_from_z_iso g ,, _).
-      abstract
-        (use z_iso_inv_on_right ;
-         rewrite !assoc ;
-         use z_iso_inv_on_left ;
-         exact p).
-    + abstract
-        (use eq_cod_mor ;
-         rewrite transportb_cod_disp ;
-         cbn ;
-         apply z_iso_after_z_iso_inv).
-    + abstract
-        (use eq_cod_mor ;
-         rewrite transportb_cod_disp ;
-         cbn ;
-         apply z_iso_inv_after_z_iso).
-Defined.
-
-Section DispFunctorReflectIso.
-  Context {C₁ C₂ : category}
-          {F : C₁ ⟶ C₂}
-          {D₁ : disp_cat C₁}
-          {D₂ : disp_cat C₂}
-          (FF : disp_functor F D₁ D₂)
-          (HFF : disp_functor_ff FF)
-          {x y : C₁}
-          {f : z_iso x y}
-          {xx : D₁ x}
-          {yy : D₁ y}
-          (Fff : z_iso_disp
-                  (functor_on_z_iso F f)
-                  (FF x xx)
-                  (FF y yy)).
-
-  Local Open Scope mor_disp.
-
-  Let ff : xx -->[ f ] yy
-    := disp_functor_ff_inv FF HFF Fff.
-  Let gg : yy -->[ inv_from_z_iso f] xx
-    := disp_functor_ff_inv FF HFF (inv_mor_disp_from_z_iso Fff).
-
-  Lemma disp_functor_ff_reflect_disp_iso_left
-    : gg ;; ff
-      =
-      transportb (mor_disp yy yy) (z_iso_after_z_iso_inv f) (id_disp yy).
-  Proof.
-    unfold ff, gg.
-    rewrite <- disp_functor_ff_inv_compose.
-    etrans.
-    {
-      do 2 apply maponpaths.
-      exact (z_iso_disp_after_inv_mor Fff).
-    }
-    unfold transportb.
-    rewrite <- (disp_functor_ff_inv_identity FF HFF).
-    rewrite <- disp_functor_ff_inv_transportf.
-    unfold transportb.
-    rewrite !transport_f_f.
-    apply maponpaths.
-    apply maponpaths_2.
-    apply homset_property.
-  Qed.
-
-  Lemma disp_functor_ff_reflect_disp_iso_right
-    : ff ;; gg
-      =
-      transportb (mor_disp xx xx) (z_iso_inv_after_z_iso f) (id_disp xx).
-  Proof.
-    unfold ff, gg.
-    rewrite <- disp_functor_ff_inv_compose.
-    etrans.
-    {
-      do 2 apply maponpaths.
-      exact (inv_mor_after_z_iso_disp Fff).
-    }
-    unfold transportb.
-    rewrite <- (disp_functor_ff_inv_identity FF HFF).
-    rewrite <- disp_functor_ff_inv_transportf.
-    unfold transportb.
-    rewrite !transport_f_f.
-    apply maponpaths.
-    apply maponpaths_2.
-    apply homset_property.
-  Qed.
-
-  Definition disp_functor_ff_reflect_disp_iso
-    : z_iso_disp f xx yy.
-  Proof.
-    use make_z_iso_disp.
-    - exact ff.
-    - simple refine (_ ,, _ ,, _).
-      + exact gg.
-      + exact disp_functor_ff_reflect_disp_iso_left.
-      + exact disp_functor_ff_reflect_disp_iso_right.
-  Defined.
-End DispFunctorReflectIso.
-
-
-Notation "'[]'" := (empty_context _).
-
-Definition comp_cat_ty
-           {C : full_comp_cat}
-           (Γ : C)
-  : UU
-  := disp_cat_of_types C Γ.
-
-Notation "'ty'" := comp_cat_ty.
-
-Definition comp_cat_ext
-           {C : full_comp_cat}
-           (Γ : C)
-           (A : ty Γ)
-  : C
-  := comprehension_functor_ob (comp_cat_comprehension C) A.
-
-Notation "Γ '&' A" := (comp_cat_ext Γ A) (at level 20).
-
-Definition comp_cat_proj
-           {C : full_comp_cat}
-           (Γ : C)
-           (A : ty Γ)
-  : Γ & A --> Γ
-  := comprehension_functor_cod_mor (comp_cat_comprehension C) A.
-
-Notation "'π'" := (comp_cat_proj _).
-
-Definition comp_cat_comp_mor
-           {C : full_comp_cat}
-           {Γ : C}
-           {A B : ty Γ}
-           (s : A -->[ identity _ ] B)
-  : Γ & A --> Γ & B
-  := comprehension_functor_mor (comp_cat_comprehension C) s.
-
-Definition subst_ty
-           {C : full_comp_cat}
-           {Γ Δ : C}
-           (s : Γ --> Δ)
-           (A : ty Δ)
-  : ty Γ
-  := cleaving_ob (cleaving_of_types C) s A.
-
-Notation "A '[[' s ']]'" := (subst_ty s A) (at level 20).
-
-
-
+(** * 1. Democratic full comprehension categories *)
 Definition is_democratic
            (C : full_comp_cat)
   : UU
@@ -201,6 +85,13 @@ Definition is_democratic_iso
            (Γ : C)
   : z_iso Γ ([] & is_democratic_ty D Γ)
   := pr2 (D Γ).
+
+Definition is_democratic_mor
+           {C : full_comp_cat}
+           (D : is_democratic C)
+           (Γ : C)
+  : Γ --> [] & is_democratic_ty D Γ
+  := pr1 (is_democratic_iso D Γ).
 
 Proposition transportf_dem
             {C : full_comp_cat}
@@ -283,14 +174,93 @@ Proof.
     apply id_left.
 Qed.
 
+Definition is_democratic_weq_split_essentially_surjective
+           (C : full_comp_cat)
+  : is_democratic C
+    ≃
+    split_essentially_surjective (fiber_functor (comp_cat_comprehension C) []).
+Proof.
+  use weqimplimpl.
+  - intros D Γ.
+    refine (is_democratic_ty D (pr1 Γ) ,, _).
+    use make_z_iso.
+    + refine (inv_from_z_iso (is_democratic_iso D (pr1 Γ)) ,, _).
+      apply TerminalArrowEq.
+    + refine (pr1 (is_democratic_iso D (pr1 Γ)) ,, _).
+      apply TerminalArrowEq.
+    + split.
+      * use eq_cod_mor ; cbn.
+        rewrite transportf_cod_disp ; cbn.
+        apply z_iso_after_z_iso_inv.
+      * use eq_cod_mor ; cbn.
+        rewrite transportf_cod_disp ; cbn.
+        apply z_iso_inv_after_z_iso.
+  - intros H Γ.
+    pose ((Γ ,, TerminalArrow _ Γ) : (disp_codomain C)[{functor_identity C []}])
+      as Γ'.
+    pose (A := pr1 (H Γ')).
+    pose (i := pr2 (H Γ')).
+    refine (A ,, _).
+    use make_z_iso.
+    + exact (pr1 (inv_from_z_iso i)).
+    + exact (pr11 i).
+    + split.
+      * refine (_ @ maponpaths pr1 (z_iso_after_z_iso_inv i)).
+        cbn.
+        rewrite transportf_cod_disp.
+        apply idpath.
+      * refine (_ @ maponpaths pr1 (z_iso_inv_after_z_iso i)).
+        cbn.
+        rewrite transportf_cod_disp.
+        apply idpath.
+  - apply isaprop_is_democratic.
+  - use isaprop_split_essentially_surjective.
+    + use is_univalent_fiber.
+      use disp_univalent_category_is_univalent_disp.
+    + use fiber_functor_ff.
+      apply full_comp_cat_comprehension_fully_faithful.
+Qed.
+
+(** * 2. Functors that preserve democracy *)
+Definition democratic_functor_data
+           {C₁ C₂ : full_comp_cat}
+           (D₁ : is_democratic C₁)
+           (D₂ : is_democratic C₂)
+           (F : full_comp_cat_functor C₁ C₂)
+  : UU
+  := ∏ (Γ : C₁),
+     let A₁ := comp_cat_type_functor F [] (is_democratic_ty D₁ Γ) in
+     let A₂ := is_democratic_ty D₂ (F Γ) in
+     A₁ [[ comp_cat_functor_empty_context_arrow F [] ]] -->[ identity _ ] A₂.
+
+Definition democratic_functor_laws
+           {C₁ C₂ : full_comp_cat}
+           {D₁ : is_democratic C₁}
+           {D₂ : is_democratic C₂}
+           {F : full_comp_cat_functor C₁ C₂}
+           (d : democratic_functor_data D₁ D₂ F)
+  : UU.
+Proof.
+  refine (∏ (Γ : C₁),
+          is_democratic_mor D₂ (F Γ)
+          =
+          #F (is_democratic_mor D₁ Γ)
+          · comp_cat_functor_extension F [] (is_democratic_ty D₁ Γ)
+          · comp_cat_comp_mor _
+          · _
+         ).
+  - pose (d Γ).
+    cbn in m.
+Admitted.
+
 Definition is_democratic_functor
            {C₁ C₂ : full_comp_cat}
            (D₁ : is_democratic C₁)
            (D₂ : is_democratic C₂)
            (F : full_comp_cat_functor C₁ C₂)
-  : UU.
-Proof.
-Admitted.
+  : UU
+  := ∑ (d : democratic_functor_data D₁ D₂ F),
+     democratic_functor_laws d.
 
 Proposition isaprop_is_democratic_functor
             {C₁ C₂ : full_comp_cat}
@@ -321,6 +291,7 @@ Proposition comp_is_democratic
 Proof.
 Admitted.
 
+(** * 3. The displayed bicategory of democratic full comprehension categories *)
 Definition disp_bicat_of_democracy
   : disp_bicat bicat_full_comp_cat.
 Proof.
@@ -337,6 +308,7 @@ Proof.
       (exact @comp_is_democratic).
 Defined.
 
+(** * 4. The univalence of this displayed bicategory *)
 Definition univalent_2_1_disp_bicat_of_democracy
   : disp_univalent_2_1 disp_bicat_of_democracy.
 Proof.
