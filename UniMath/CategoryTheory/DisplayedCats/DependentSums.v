@@ -24,6 +24,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 
 Local Open Scope cat.
 
@@ -109,6 +110,27 @@ Section DependentSum.
             (nat_z_iso_inv
                (fiber_functor_from_cleaving_comp_nat_z_iso _ _ _))).
 
+  Proposition comm_nat_z_iso_ob
+              {w x y z : C}
+              (f : x --> w)
+              (g : y --> w)
+              (h : z --> y)
+              (k : z --> x)
+              (p : k · f = h · g)
+              (F := fiber_functor_from_cleaving D HD f : D[{w}] ⟶ D[{x}])
+              (G := fiber_functor_from_cleaving D HD g : D[{w}] ⟶ D[{y}])
+              (H := fiber_functor_from_cleaving D HD h : D[{y}] ⟶ D[{z}])
+              (K := fiber_functor_from_cleaving D HD k : D[{x}] ⟶ D[{z}])
+              (φ : D[{w}])
+    : comm_nat_z_iso f g h k p φ
+      =
+      fiber_functor_from_cleaving_comp _ _ _ φ
+      · fiber_functor_on_eq HD p φ
+      · fiber_functor_from_cleaving_comp_inv _ _ _ φ.
+  Proof.
+    apply assoc.
+  Qed.
+
   Definition left_beck_chevalley
              {w x y z : C}
              (f : x --> w)
@@ -146,7 +168,8 @@ Section DependentSum.
          (g : y --> w)
          (h : z --> y)
          (k : z --> x)
-         (p : k · f = h · g),
+         (p : k · f = h · g)
+         (H : isPullback p),
        left_beck_chevalley f g h k p (L _ _ f) (L _ _ h).
 End DependentSum.
 

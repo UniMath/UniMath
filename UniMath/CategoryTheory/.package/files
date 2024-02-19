@@ -91,6 +91,8 @@ Limits/Preservation.v
 Limits/Ends.v
 Limits/Coends.v
 
+Limits/PullbackConstructions.v
+
 DisplayedCats/Binproducts.v
 
 DisplayedCats/FiberwiseTerminal.v
@@ -98,7 +100,8 @@ DisplayedCats/FiberwiseProducts.v
 DisplayedCats/FiberwiseEqualizers.v
 DisplayedCats/DependentSums.v
 
-DisplayedCats/CodomainStructure.v
+DisplayedCats/Codomain/FiberCod.v
+DisplayedCats/Codomain/CodLeftAdjoint.v
 
 Limits/Examples/CategoryProductLimits.v
 Limits/StandardDiagrams.v
