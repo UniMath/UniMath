@@ -2,6 +2,14 @@
 
  Fiberwise limits of codomain fibration
 
+ In this file, we study limits of the fiber categories of the codomain fibration (more
+ concretely, we study limits in slice categories). We look at terminal objects, binary
+ products, and equalizers. For each of these:
+ - We characterize limiting cones.
+ - We give sufficient conditions for when the desired limits exist.
+ - We show that pullback preserves these limits (this follows from the fact that the
+   pullback functor is a right adjoint).
+
  Contents
  1. Preservation of limits by substitution
  2. Fiberwise terminal objects
