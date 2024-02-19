@@ -5,15 +5,16 @@
  Content
  1. Preservation of terminal objects
  2. Preservation of binary products
- 3. Preservation of pullbacks
- 4. Preservation of initial objects
- 5. Preservation of binary coproducts
- 6. Preservation of (reflexive) coequalizers
- 7. Preservation of coproducts
- 8. Preservation of pushouts
- 9. Adjunctions and preservation
- 9.1 Right adjoints preserve limits
- 9.2 Left adjoints preserve colimits
+ 3. Preservation of equalizers
+ 4. Preservation of pullbacks
+ 5. Preservation of initial objects
+ 6. Preservation of binary coproducts
+ 7. Preservation of (reflexive) coequalizers
+ 8. Preservation of coproducts
+ 9. Preservation of pushouts
+ 10. Adjunctions and preservation
+ 10.1 Right adjoints preserve limits
+ 10.2 Left adjoints preserve colimits
 
  *********************************************************)
 Require Import UniMath.Foundations.All.
@@ -24,6 +25,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
@@ -220,7 +222,72 @@ Proof.
 Defined.
 
 (**
- 3. Preservation of pullbacks
+ 3. Preservation of equalizers
+ *)
+Definition preserves_equalizer
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : UU
+  := ∏ (x y e : C₁)
+       (f g : x --> y)
+       (h : e --> x)
+       (p : h · f = h · g)
+       (Fp : #F h · #F f = #F h · #F g),
+     isEqualizer f g h p
+     →
+     isEqualizer (#F f) (#F g) (#F h) Fp.
+
+Definition identity_preserves_equalizer
+           (C : category)
+  : preserves_equalizer (functor_identity C)
+  := λ _ _ _ _ _ _ _ _ Hx, Hx.
+
+Definition composition_preserves_equalizer
+           {C₁ C₂ C₃ : category}
+           {F : C₁ ⟶ C₂}
+           {G : C₂ ⟶ C₃}
+           (HF : preserves_equalizer F)
+           (HG : preserves_equalizer G)
+  : preserves_equalizer (F ∙ G).
+Proof.
+  intros ? ? ? ? ? ? ? ? Hx.
+  use HG.
+  - abstract
+      (rewrite <- !functor_comp ;
+       rewrite p ;
+       apply idpath).
+  - use HF.
+    + exact p.
+    + exact Hx.
+Defined.
+
+Definition isaprop_preserves_equalizer
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : isaprop (preserves_equalizer F).
+Proof.
+  repeat (use impred ; intro).
+  use isapropiscontr.
+Qed.
+
+Definition preserves_chosen_equalizer
+           {C₁ C₂ : category}
+           (HC₁ : Equalizers C₁)
+           (F : C₁ ⟶ C₂)
+  : UU
+  := ∏ (x y : C₁)
+       (f g : x --> y)
+       (p : # F (EqualizerArrow (HC₁ x y f g)) · # F f
+            =
+            # F (EqualizerArrow (HC₁ x y f g)) · # F g),
+     isEqualizer
+       (#F f)
+       (#F g)
+       (#F (EqualizerArrow (HC₁ x y f g)))
+       p.
+
+(**
+ 4. Preservation of pullbacks
  *)
 Definition preserves_pullback
            {C₁ C₂ : category}
@@ -327,7 +394,7 @@ Proof.
 Defined.
 
 (**
- 4. Preservation of initial objects
+ 5. Preservation of initial objects
  *)
 Definition preserves_initial
            {C₁ C₂ : category}
@@ -382,7 +449,7 @@ Proof.
 Defined.
 
 (**
- 5. Preservation of binary coproducts
+ 6. Preservation of binary coproducts
  *)
 Definition preserves_bincoproduct
            {C₁ C₂ : category}
@@ -466,7 +533,7 @@ Proof.
 Defined.
 
 (**
- 6. Preservation of (reflexive) coequalizers
+ 7. Preservation of (reflexive) coequalizers
  *)
 Definition preserves_coequalizer
            {C₁ C₂ : category}
@@ -669,7 +736,7 @@ Proof.
 Defined.
 
 (**
- 7. Preservation of coproducts
+ 8. Preservation of coproducts
  *)
 Definition preserves_coproduct
            (J : UU)
@@ -783,7 +850,7 @@ Proof.
 Qed.
 
 (**
- 9. Adjunctions and preservation
+ 10. Adjunctions and preservation
  *)
 Section AdjunctionPreservation.
   Context {C₁ C₂ : category}
@@ -809,7 +876,7 @@ Section AdjunctionPreservation.
   Qed.
 
   (**
-   9.1 Right adjoints preserve limits
+   10.1 Right adjoints preserve limits
    *)
   Definition right_adjoint_preserves_terminal
     : preserves_terminal R.
@@ -1064,8 +1131,75 @@ Section AdjunctionPreservation.
         apply triangle_2_help.
   Qed.
 
+  Definition right_adjoint_preserves_equalizer
+    : preserves_equalizer R.
+  Proof.
+    intros x y c f g h p Fp Hc z k q.
+    pose (Eq := make_Equalizer _ _ _ _ Hc).
+    use iscontraprop1.
+    - use invproofirrelevance.
+      intros φ₁ φ₂.
+      use subtypePath.
+      {
+        intro ; apply homset_property.
+      }
+      refine (!(id_right _) @ _ @ id_right _).
+      rewrite <- !triangle_2_help.
+      rewrite !assoc.
+      refine (maponpaths (λ z, z · _) (nat_trans_ax η _ _ (pr1 φ₁)) @ _).
+      refine (_ @ maponpaths (λ z, z · _) (!(nat_trans_ax η _ _ (pr1 φ₂)))).
+      rewrite !assoc'.
+      apply maponpaths.
+      refine (!(functor_comp R _ _) @ _ @ functor_comp R _ _).
+      apply maponpaths.
+      use (isEqualizerInsEq (pr22 Eq)).
+      rewrite !assoc'.
+      refine (maponpaths (λ z, _ · z) (!(nat_trans_ax ε _ _ _)) @ _).
+      refine (_ @ maponpaths (λ z, _ · z) (nat_trans_ax ε _ _ _)).
+      rewrite !assoc.
+      apply maponpaths_2.
+      refine (!(functor_comp L _ _) @ _ @ functor_comp L _ _).
+      apply maponpaths.
+      exact (pr2 φ₁ @ !(pr2 φ₂)).
+    - simple refine (_ ,, _).
+      + refine (η z · #R _).
+        refine (EqualizerIn Eq _ (#L k · ε _) _).
+        abstract
+          (rewrite !assoc' ;
+           etrans ;
+           [ apply maponpaths ;
+             exact (!(nat_trans_ax ε _ _ f))
+           | ] ;
+           refine (!_) ;
+           etrans ;
+           [ apply maponpaths ;
+             exact (!(nat_trans_ax ε _ _ g))
+           | ] ;
+           cbn -[ε] ;
+           rewrite !assoc ;
+           rewrite <- !functor_comp ;
+           rewrite <- q ;
+           apply idpath).
+      + cbn -[ε].
+        rewrite !assoc'.
+        rewrite <- functor_comp.
+        rewrite (EqualizerCommutes Eq).
+        rewrite functor_comp.
+        rewrite !assoc.
+        etrans.
+        {
+          apply maponpaths_2.
+          apply (!(nat_trans_ax η _ _ k)).
+        }
+        cbn -[ε].
+        rewrite !assoc'.
+        refine (_ @ id_right _).
+        apply maponpaths.
+        exact (triangle_2_help x).
+  Qed.
+
   (**
-   9.2 Left adjoints preserve colimits
+   10.2 Left adjoints preserve colimits
    *)
   Definition left_adjoint_preserves_initial
     : preserves_initial L.
