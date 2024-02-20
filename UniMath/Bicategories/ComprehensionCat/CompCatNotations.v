@@ -86,18 +86,34 @@ Definition subst_ty
 
 Notation "A '[[' s ']]'" := (subst_ty s A) (at level 20) : comp_cat.
 
+Definition comp_cat_subst
+           {C : comp_cat}
+           {Γ₁ Γ₂ : C}
+           (A : ty Γ₁)
+           (s : Γ₂ --> Γ₁)
+  : A[[ s ]] -->[ s ] A
+  := mor_disp_of_cartesian_lift _ _ (cleaving_of_types C Γ₁ Γ₂ s A).
+
 Definition comp_cat_iso_subst
            {C : comp_cat}
            {Γ₁ Γ₂ : C}
            (A : ty Γ₁)
            (s : z_iso Γ₂ Γ₁)
-  : z_iso_disp s (cleaving_of_types C Γ₁ Γ₂ s A) A.
+  : z_iso_disp s (A[[ s ]]) A.
 Proof.
   use make_z_iso_disp.
   - exact (mor_disp_of_cartesian_lift _ _ (cleaving_of_types C Γ₁ Γ₂ s A)).
   - use is_z_iso_from_is_cartesian.
     apply cartesian_lift_is_cartesian.
 Defined.
+
+Definition comp_cat_extend_over
+           {C : comp_cat}
+           {Γ₁ Γ₂ : C}
+           (A : ty Γ₁)
+           (s : Γ₂ --> Γ₁)
+  : Γ₂ & (A [[ s ]]) --> Γ₁ & A
+  := comprehension_functor_mor (comp_cat_comprehension C) (comp_cat_subst A s).
 
 Definition comp_cat_extend_over_iso
            {C : comp_cat}

@@ -2,10 +2,13 @@
 
  Comprehension categories with equalizers types
 
- In this file, we define the displayed bicategory of equalizers types for comprehension
- categories, and we show that this displayed bicategory is univalent. Since we are using
- univalent comprehension categories, we define this displayed bicategory as a subbicategory
- of the bicategory of comprehension categories.
+ In this file, we define the displayed bicategory of equalizer types for comprehension
+ categories, and we show that this displayed bicategory is univalent. Note that equalizer types
+ can be phrased solely using the fibration of types, and for that reason, we define a displayed
+ bicategory of the bicategory of categories with a terminal object and a cleaving. Since we
+ are using univalent categories, we define this displayed bicategory as a subbicategory,
+ because equalizers are unique up to isomorphism. We then lift this displayed bicategory to
+ comprehension categories and to full comprehension categories.
 
  It is important to notice equalizer types are a bit different from extensional identity
  types. Whereas identity types are defined via a left adjoint of the diagonal substitution,
@@ -20,6 +23,8 @@
  Contents
  1. The displayed bicategory of equalizer types
  2. The univalence of this displayed bicategory
+ 3. Equalizer types for comprehension categories
+ 4. Equalizer types for full comprehension categories
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -36,6 +41,7 @@ Import Bicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
 
@@ -139,4 +145,92 @@ Definition disp_locally_groupoid_disp_bicat_of_equalizer_type
 Proof.
   apply disp_locally_groupoid_subbicat.
   apply is_univalent_2_bicat_cat_with_terminal_cleaving.
+Qed.
+
+(** * 3. Equalizer types for comprehension categories *)
+Definition disp_bicat_of_equalizer_type_comp_cat
+  : disp_bicat bicat_comp_cat
+  := lift_disp_bicat _ disp_bicat_of_equalizer_type.
+
+Definition univalent_2_1_disp_bicat_of_equalizer_type_comp_cat
+  : disp_univalent_2_1 disp_bicat_of_equalizer_type_comp_cat.
+Proof.
+  use disp_univalent_2_1_lift_disp_bicat.
+  exact univalent_2_1_disp_bicat_of_equalizer_type.
+Qed.
+
+Definition univalent_2_0_disp_bicat_of_equalizer_type_comp_cat
+  : disp_univalent_2_0 disp_bicat_of_equalizer_type_comp_cat.
+Proof.
+  use disp_univalent_2_0_lift_disp_bicat.
+  - exact univalent_2_0_disp_bicat_of_equalizer_type.
+  - exact univalent_2_1_disp_bicat_of_equalizer_type.
+  - exact is_univalent_2_1_bicat_cat_with_terminal_cleaving.
+  - exact disp_univalent_2_1_disp_bicat_comp_cat.
+Qed.
+
+Definition univalent_2_disp_bicat_of_equalizer_type_comp_cat
+  : disp_univalent_2 disp_bicat_of_equalizer_type_comp_cat.
+Proof.
+  split.
+  - exact univalent_2_0_disp_bicat_of_equalizer_type_comp_cat.
+  - exact univalent_2_1_disp_bicat_of_equalizer_type_comp_cat.
+Defined.
+
+Definition disp_2cells_isaprop_disp_bicat_of_equalizer_type_comp_cat
+  : disp_2cells_isaprop disp_bicat_of_equalizer_type_comp_cat.
+Proof.
+  use disp_2cells_isaprop_lift_disp_bicat.
+  exact disp_2cells_isaprop_disp_bicat_of_equalizer_type.
+Qed.
+
+Definition disp_locally_groupoid_disp_bicat_of_equalizer_type_comp_cat
+  : disp_locally_groupoid disp_bicat_of_equalizer_type_comp_cat.
+Proof.
+  use disp_locally_groupoid_lift_disp_bicat.
+  exact disp_locally_groupoid_disp_bicat_of_equalizer_type.
+Qed.
+
+(** * 4. Equalizer types for full comprehension categories *)
+Definition disp_bicat_of_equalizer_type_full_comp_cat
+  : disp_bicat bicat_full_comp_cat
+  := lift_disp_bicat _ disp_bicat_of_equalizer_type_comp_cat.
+
+Definition univalent_2_1_disp_bicat_of_equalizer_type_full_comp_cat
+  : disp_univalent_2_1 disp_bicat_of_equalizer_type_full_comp_cat.
+Proof.
+  use disp_univalent_2_1_lift_disp_bicat.
+  exact univalent_2_1_disp_bicat_of_equalizer_type_comp_cat.
+Qed.
+
+Definition univalent_2_0_disp_bicat_of_equalizer_type_full_comp_cat
+  : disp_univalent_2_0 disp_bicat_of_equalizer_type_full_comp_cat.
+Proof.
+  use disp_univalent_2_0_lift_disp_bicat.
+  - exact univalent_2_0_disp_bicat_of_equalizer_type_comp_cat.
+  - exact univalent_2_1_disp_bicat_of_equalizer_type_comp_cat.
+  - exact is_univalent_2_1_bicat_comp_cat.
+  - exact disp_univalent_2_1_disp_bicat_full_comp_cat.
+Qed.
+
+Definition univalent_2_disp_bicat_of_equalizer_type_full_comp_cat
+  : disp_univalent_2 disp_bicat_of_equalizer_type_full_comp_cat.
+Proof.
+  split.
+  - exact univalent_2_0_disp_bicat_of_equalizer_type_full_comp_cat.
+  - exact univalent_2_1_disp_bicat_of_equalizer_type_full_comp_cat.
+Defined.
+
+Definition disp_2cells_isaprop_disp_bicat_of_equalizer_type_full_comp_cat
+  : disp_2cells_isaprop disp_bicat_of_equalizer_type_full_comp_cat.
+Proof.
+  use disp_2cells_isaprop_lift_disp_bicat.
+  exact disp_2cells_isaprop_disp_bicat_of_equalizer_type_comp_cat.
+Qed.
+
+Definition disp_locally_groupoid_disp_bicat_of_equalizer_type_full_comp_cat
+  : disp_locally_groupoid disp_bicat_of_equalizer_type_full_comp_cat.
+Proof.
+  use disp_locally_groupoid_lift_disp_bicat.
+  exact disp_locally_groupoid_disp_bicat_of_equalizer_type_comp_cat.
 Qed.

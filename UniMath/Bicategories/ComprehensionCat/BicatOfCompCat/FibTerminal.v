@@ -156,6 +156,12 @@ Definition is_cartesian_comp_cat_type_functor
   : is_cartesian_disp_functor (comp_cat_type_functor F)
   := pr22 F.
 
+Definition cartesian_comp_cat_type_functor
+           {C₁ C₂ : cat_with_terminal_cleaving}
+           (F : functor_with_terminal_cleaving C₁ C₂)
+  : cartesian_disp_functor F (disp_cat_of_types C₁) (disp_cat_of_types C₂)
+  := comp_cat_type_functor F ,, is_cartesian_comp_cat_type_functor F.
+
 Definition nat_trans_with_terminal_cleaving
            {C₁ C₂ : cat_with_terminal_cleaving}
            (F G : functor_with_terminal_cleaving C₁ C₂)

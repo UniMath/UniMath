@@ -11,7 +11,8 @@
  Contents
  1. The natural transformation from the left Beck-Chevalley condition
  2. Fibrations with dependent sums
- 3. Preservation of dependent sums by functors between fibrations
+ 3. Accessors for dependent sums
+ 4. Preservation of dependent sums by functors between fibrations
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -173,7 +174,32 @@ Section DependentSum.
        left_beck_chevalley f g h k p (L _ _ f) (L _ _ h).
 End DependentSum.
 
-(** * 3. Preservation of dependent sums by functors between fibrations *)
+(** * 3. Accessors for dependent sums *)
+Section DependentSum.
+  Context {C : category}
+          {D : disp_cat C}
+          {HD : cleaving D}
+          (S : has_dependent_sums HD)
+          {x y : C}
+          (f : x --> y).
+
+  Definition dep_sum
+             (xx : D[{x}])
+    : D[{y}]
+    := left_adjoint (pr1 S x y f) xx.
+
+  Definition dep_sum_unit
+             (xx : D[{x}])
+    : xx -->[ identity x ] fiber_functor_from_cleaving D HD f (dep_sum xx)
+    := unit_from_right_adjoint (pr1 S x y f) xx.
+
+  Definition dep_sum_counit
+             (yy : D[{y}])
+    : dep_sum (fiber_functor_from_cleaving D HD f yy) -->[ identity y ] yy
+    := counit_from_right_adjoint (pr1 S x y f) yy.
+End DependentSum.
+
+(** * 4. Preservation of dependent sums by functors between fibrations *)
 Definition preserves_dependent_sums
            {C₁ C₂ : category}
            {D₁ : disp_cat C₁}

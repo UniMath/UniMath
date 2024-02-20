@@ -252,6 +252,16 @@ Coercion disp_functor_of_cartesian_disp_functor
   : disp_functor F D₁ D₂
   := pr1 FF.
 
+Definition make_cartesian_disp_functor
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {D₁ : disp_cat C₁}
+           {D₂ : disp_cat C₂}
+           (FF : disp_functor F D₁ D₂)
+           (HFF : is_cartesian_disp_functor FF)
+  : cartesian_disp_functor F D₁ D₂
+  := FF ,, HFF.
+
 Definition cartesian_disp_functor_is_cartesian
            {C₁ C₂ : category}
            {F : C₁ ⟶ C₂}
@@ -275,6 +285,34 @@ Definition cartesian_disp_functor_on_cartesian
            (Hff : is_cartesian ff)
   : is_cartesian (♯FF ff)
   := pr2 FF y x f yy xx ff Hff.
+
+Definition id_cartesian_disp_functor
+           {C : category}
+           (D : disp_cat C)
+  : cartesian_disp_functor (functor_identity C) D D.
+Proof.
+  use make_cartesian_disp_functor.
+  - exact (disp_functor_identity D).
+  - apply disp_functor_identity_is_cartesian_disp_functor.
+Defined.
+
+Definition comp_cartesian_disp_functor
+           {C₁ C₂ C₃ : category}
+           {F : C₁ ⟶ C₂}
+           {G : C₂ ⟶ C₃}
+           {D₁ : disp_cat C₁}
+           {D₂ : disp_cat C₂}
+           {D₃ : disp_cat C₃}
+           (FF : cartesian_disp_functor F D₁ D₂)
+           (GG : cartesian_disp_functor G D₂ D₃)
+  : cartesian_disp_functor (F ∙ G) D₁ D₃.
+Proof.
+  use make_cartesian_disp_functor.
+  - exact (disp_functor_composite FF GG).
+  - exact (disp_functor_composite_is_cartesian_disp_functor
+             (cartesian_disp_functor_is_cartesian FF)
+             (cartesian_disp_functor_is_cartesian GG)).
+Defined.
 
 Lemma isaprop_is_cartesian
     {C : category} {D : disp_cat C}

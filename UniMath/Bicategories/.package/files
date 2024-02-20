@@ -419,10 +419,12 @@ ComprehensionCat/BicatOfCompCat/CompCat.v
 ComprehensionCat/BicatOfCompCat/FullCompCat.v
 ComprehensionCat/BicatOfCompCat.v
 ComprehensionCat/CompCatNotations.v
-ComprehensionCat/Structure/UnitType.v
-ComprehensionCat/Structure/ProductType.v
-ComprehensionCat/Structure/EqualizerType.v
-ComprehensionCat/Structure/Democracy.v
+ComprehensionCat/TypeFormers/UnitTypes.v
+ComprehensionCat/TypeFormers/ProductTypes.v
+ComprehensionCat/TypeFormers/EqualizerTypes.v
+ComprehensionCat/TypeFormers/Democracy.v
+ComprehensionCat/TypeFormers/SigmaTypes.v
+ComprehensionCat/DFLCompCat.v
 
 Logic/ComprehensionBicat.v
 
