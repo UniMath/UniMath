@@ -28,9 +28,9 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.LeftKanExtension.
-Require Import UniMath.CategoryTheory.Limits.Graphs.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Coequalizers.
 Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
-Require Import UniMath.CategoryTheory.Limits.Graphs.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.CategoryTheory.Retracts.
@@ -45,7 +45,7 @@ Lemma retract_functor_is_equalizer
   (F : C ⟶ D)
   {a b : C}
   (H : retraction b a)
-  : Equalizer D (#F (retraction_retraction H) · #F (retraction_section H)) (identity (F a)).
+  : Equalizer (#F (retraction_retraction H) · #F (retraction_section H)) (identity (F a)).
 Proof.
   exact (retract_is_equalizer (functor_preserves_retraction F H)).
 Defined.
@@ -55,7 +55,7 @@ Lemma retract_functor_is_coequalizer
   (F : C ⟶ D)
   {a b : C}
   (H : retraction b a)
-  : Coequalizer D (#F (retraction_retraction H) · #F (retraction_section H)) (identity (F a)).
+  : Coequalizer (#F (retraction_retraction H) · #F (retraction_section H)) (identity (F a)).
 Proof.
   exact (retract_is_coequalizer (functor_preserves_retraction F H)).
 Defined.
