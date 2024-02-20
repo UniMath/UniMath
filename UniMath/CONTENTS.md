@@ -1055,6 +1055,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [RezkCompletions/BicatToLocalUnivalentBicat.v](Bicategories/RezkCompletions/BicatToLocalUnivalentBicat.v)
    - [RezkCompletions/RezkCompletionOfBicategory.v](Bicategories/RezkCompletions/RezkCompletionOfBicategory.v)
    - [RezkCompletions/StructuredCats/TerminalObject.v](Bicategories/RezkCompletions/StructuredCats/TerminalObject.v)
+   - [RezkCompletions/StructuredCats/BinProducts.v](Bicategories/RezkCompletions/StructuredCats/BinProducts.v)
    - [DaggerCategories/BicatOfDaggerCats.v](Bicategories/DaggerCategories/BicatOfDaggerCats.v)
    - [All.v](Bicategories/All.v)
 ## Package [Ktheory](Ktheory/README.md)
