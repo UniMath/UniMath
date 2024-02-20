@@ -422,6 +422,7 @@ ComprehensionCat/CompCatNotations.v
 ComprehensionCat/Structure/UnitType.v
 ComprehensionCat/Structure/ProductType.v
 ComprehensionCat/Structure/EqualizerType.v
+ComprehensionCat/Structure/Democracy.v
 
 Logic/ComprehensionBicat.v
 

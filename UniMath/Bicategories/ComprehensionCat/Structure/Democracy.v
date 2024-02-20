@@ -25,6 +25,22 @@
  of the bicategory of comprehension categories. Univalence then follows directly from the
  univalence of the subbicategory.
 
+ Another important thing to notice is what morphisms of democratic comprehension categories
+ are. In the paper by Clairambault and Dybjer morphisms are required to preserve democracy.
+ However, this requirement is automatic. If one stares at the diagram of Definition 3.6 in
+ that paper, then one can see (after some pondering) that all morphisms in that diagram are
+ isomorphisms. As such, there must be a unique `d_Γ` that makes this diagram commute. Note
+ that we need to use pseudo morphisms here, because otherwise, context extension is not
+ necessarily preserved up to isomorphism. Note that in the proof we make use of the fact
+ that our comprehension category is full. Since fully faithful displayed functors reflect
+ isomorphisms, we can construct the desired isomorphism (of types) by constructing an
+ isomorphism in the slice category (where it is fixed by the diagram). The corresponding
+ statement in the formalization is stated as 'the type that a functor is democratic, is
+ contractible' ([iscontr_is_democratic_functor]).
+
+ This allows us to define the bicategory of democratic comprehension categories as a full
+ subbicategory of the bicategory of full comprehension categories.
+
  References
  - 'The biequivalence of locally cartesian closed categories and Martin-Löf type theories'
    by Clairambault and Dybjer.
@@ -57,7 +73,6 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
-Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.CompCatNotations.
 
@@ -229,9 +244,29 @@ Definition democratic_functor_data
            (F : full_comp_cat_functor C₁ C₂)
   : UU
   := ∏ (Γ : C₁),
-     let A₁ := comp_cat_type_functor F [] (is_democratic_ty D₁ Γ) in
-     let A₂ := is_democratic_ty D₂ (F Γ) in
-     A₁ [[ comp_cat_functor_empty_context_arrow F [] ]] -->[ identity _ ] A₂.
+     z_iso_disp
+       (identity_z_iso _)
+       (comp_cat_type_functor F [] (is_democratic_ty D₁ Γ))
+       ((is_democratic_ty D₂ (F Γ)) [[ TerminalArrow _ _ ]]).
+
+Definition democratic_functor_laws_mor
+           {C₁ C₂ : full_comp_cat}
+           {D₁ : is_democratic C₁}
+           {D₂ : is_democratic C₂}
+           {F : full_comp_cat_functor C₁ C₂}
+           (d : democratic_functor_data D₁ D₂ F)
+           (Γ : C₁)
+  : z_iso (F Γ) ([] & is_democratic_ty D₂ (F Γ))
+  := z_iso_comp
+       (functor_on_z_iso F (is_democratic_iso D₁ Γ))
+       (z_iso_comp
+          (comp_cat_functor_extension F [] (is_democratic_ty D₁ Γ))
+          (z_iso_comp
+             (comp_cat_comp_z_iso (d Γ))
+             (comp_cat_extend_over_iso
+                _
+                _
+                (comp_cat_functor_empty_context_is_z_iso _)))).
 
 Definition democratic_functor_laws
            {C₁ C₂ : full_comp_cat}
@@ -239,19 +274,11 @@ Definition democratic_functor_laws
            {D₂ : is_democratic C₂}
            {F : full_comp_cat_functor C₁ C₂}
            (d : democratic_functor_data D₁ D₂ F)
-  : UU.
-Proof.
-  refine (∏ (Γ : C₁),
-          is_democratic_mor D₂ (F Γ)
-          =
-          #F (is_democratic_mor D₁ Γ)
-          · comp_cat_functor_extension F [] (is_democratic_ty D₁ Γ)
-          · comp_cat_comp_mor _
-          · _
-         ).
-  - pose (d Γ).
-    cbn in m.
-Admitted.
+  : UU
+  := ∏ (Γ : C₁),
+     (is_democratic_iso D₂ (F Γ) : _ --> _)
+     =
+     democratic_functor_laws_mor d Γ.
 
 Definition is_democratic_functor
            {C₁ C₂ : full_comp_cat}
@@ -269,63 +296,172 @@ Proposition isaprop_is_democratic_functor
             (F : full_comp_cat_functor C₁ C₂)
   : isaprop (is_democratic_functor D₁ D₂ F).
 Proof.
-Admitted.
+  use invproofirrelevance.
+  intros φ₁ φ₂.
+  use subtypePath.
+  {
 
-Proposition identity_is_democratic
-            {C : full_comp_cat}
-            (D : is_democratic C)
-  : is_democratic_functor D D (id₁ C).
-Proof.
-Admitted.
+    intro.
+    use impred ; intro.
+    apply homset_property.
+  }
+  use funextsec ; intro Γ.
+  use subtypePath.
+  {
+    intro.
+    apply isaprop_is_z_iso_disp.
+  }
+  use (invmaponpathsweq
+         (disp_functor_ff_weq _ (full_comp_cat_comprehension_fully_faithful C₂) _ _ _)).
+  use subtypePath.
+  {
+    intro.
+    apply homset_property.
+  }
+  pose (!(pr2 φ₁ Γ) @ pr2 φ₂ Γ) as p.
+  unfold democratic_functor_laws_mor in p.
+  use (cancel_z_iso
+         _ _
+         (comp_cat_extend_over_iso
+            (is_democratic_ty D₂ (F Γ))
+            (TerminalArrow [] (F []))
+            (comp_cat_functor_empty_context_is_z_iso F))).
+  use (cancel_z_iso'
+         (comp_cat_functor_extension F [] (is_democratic_ty D₁ Γ))).
+  use (cancel_z_iso'
+         (functor_on_z_iso F (is_democratic_iso D₁ Γ))).
+  exact p.
+Qed.
 
-Proposition comp_is_democratic
-            {C₁ C₂ C₃ : full_comp_cat}
-            {D₁ : is_democratic C₁}
-            {D₂ : is_democratic C₂}
-            {D₃ : is_democratic C₃}
-            {F : full_comp_cat_functor C₁ C₂}
-            {G : full_comp_cat_functor C₂ C₃}
-            (HF : is_democratic_functor D₁ D₂ F)
-            (HG : is_democratic_functor D₂ D₃ G)
-  : is_democratic_functor D₁ D₃ (F · G).
+Section AllAreDemocratic.
+  Context {C₁ C₂ : full_comp_cat}
+          (D₁ : is_democratic C₁)
+          (D₂ : is_democratic C₂)
+          (F : full_comp_cat_functor C₁ C₂).
+
+  Section TheIso.
+    Context (Γ : C₁).
+
+    Definition all_functor_democratic_iso
+      : z_iso
+          (F [] & comp_cat_type_functor F [] (is_democratic_ty D₁ Γ))
+          (F [] & (is_democratic_ty D₂ (F Γ) [[TerminalArrow [] (F [])]]))
+      := z_iso_comp
+           (z_iso_comp
+              (z_iso_inv
+                 (comp_cat_functor_extension F [] (is_democratic_ty D₁ Γ)))
+              (z_iso_comp
+                 (functor_on_z_iso
+                    F
+                    (z_iso_inv (is_democratic_iso D₁ Γ)))
+                 (is_democratic_iso D₂ (F Γ))))
+           (z_iso_inv
+              (comp_cat_extend_over_iso
+                 _
+                 _
+                 (comp_cat_functor_empty_context_is_z_iso F))).
+
+    Proposition all_functor_democratic_data_eq
+      : all_functor_democratic_iso · π _ = π _ · identity _.
+    Proof.
+      use comp_cat_functor_empty_context_arrow_eq.
+    Qed.
+
+    Definition all_functor_democratic_data
+      : z_iso_disp
+          (identity_z_iso (F []))
+          (comp_cat_type_functor F [] (is_democratic_ty D₁ Γ))
+          (is_democratic_ty D₂ (F Γ) [[TerminalArrow [] (F [])]]).
+    Proof.
+      use (disp_functor_ff_reflect_disp_iso
+             _
+             (full_comp_cat_comprehension_fully_faithful C₂)).
+      use z_iso_disp_codomain.
+      - exact all_functor_democratic_iso.
+      - exact all_functor_democratic_data_eq.
+    Defined.
+  End TheIso.
+
+  Proposition all_functor_democratic_laws
+    : democratic_functor_laws all_functor_democratic_data.
+  Proof.
+    intro Γ.
+    refine (!_).
+    unfold democratic_functor_laws_mor, all_functor_democratic_data.
+    cbn -[comp_cat_functor_extension comp_cat_comp_z_iso comp_cat_extend_over_iso].
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply maponpaths_2.
+      apply (maponpaths
+               pr1
+               (FF_disp_functor_ff_inv (full_comp_cat_comprehension_fully_faithful C₂) _)).
+    }
+    cbn -[comp_cat_extend_over_iso].
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      do 4 apply maponpaths_2.
+      exact (z_iso_inv_after_z_iso
+               (comp_cat_functor_extension F [] (is_democratic_ty D₁ Γ))).
+    }
+    rewrite id_left.
+    rewrite !assoc.
+    rewrite <- functor_comp.
+    rewrite z_iso_inv_after_z_iso.
+    rewrite functor_id.
+    rewrite id_left.
+    rewrite !assoc'.
+    refine (_ @ id_right _).
+    apply maponpaths.
+    apply z_iso_after_z_iso_inv.
+  Qed.
+End AllAreDemocratic.
+
+Proposition all_functors_democratic
+            {C₁ C₂ : full_comp_cat}
+            (D₁ : is_democratic C₁)
+            (D₂ : is_democratic C₂)
+            (F : full_comp_cat_functor C₁ C₂)
+  : is_democratic_functor D₁ D₂ F.
 Proof.
-Admitted.
+  simple refine (_ ,, _).
+  - exact (all_functor_democratic_data D₁ D₂ F).
+  - exact (all_functor_democratic_laws D₁ D₂ F).
+Defined.
+
+Proposition iscontr_is_democratic_functor
+            {C₁ C₂ : full_comp_cat}
+            (D₁ : is_democratic C₁)
+            (D₂ : is_democratic C₂)
+            (F : full_comp_cat_functor C₁ C₂)
+  : iscontr (is_democratic_functor D₁ D₂ F).
+Proof.
+  use iscontraprop1.
+  - exact (isaprop_is_democratic_functor D₁ D₂ F).
+  - exact (all_functors_democratic D₁ D₂ F).
+Defined.
 
 (** * 3. The displayed bicategory of democratic full comprehension categories *)
 Definition disp_bicat_of_democracy
-  : disp_bicat bicat_full_comp_cat.
-Proof.
-  use disp_subbicat.
-  - exact (λ (C : full_comp_cat), is_democratic C).
-  - exact (λ (C₁ C₂ : full_comp_cat)
-             (D₁ : is_democratic C₁)
-             (D₂ : is_democratic C₂)
-             (F : full_comp_cat_functor C₁ C₂),
-           is_democratic_functor D₁ D₂ F).
-  - abstract
-      (exact @identity_is_democratic).
-  - abstract
-      (exact @comp_is_democratic).
-Defined.
+  : disp_bicat bicat_full_comp_cat
+  := disp_fullsubbicat _ (λ (C : full_comp_cat), is_democratic C).
 
 (** * 4. The univalence of this displayed bicategory *)
 Definition univalent_2_1_disp_bicat_of_democracy
   : disp_univalent_2_1 disp_bicat_of_democracy.
 Proof.
-  use disp_subbicat_univalent_2_1.
-  intros C₁ C₂ D₁ D₂ F.
-  apply isaprop_is_democratic_functor.
+  apply disp_fullsubbicat_univalent_2_1.
 Qed.
 
 Definition univalent_2_0_disp_bicat_of_democracy
   : disp_univalent_2_0 disp_bicat_of_democracy.
 Proof.
-  use disp_subbicat_univalent_2_0.
+  use disp_univalent_2_0_fullsubbicat.
   - exact is_univalent_2_bicat_full_comp_cat.
   - intro C.
     apply isaprop_is_democratic.
-  - intros C₁ C₂ D₁ D₂ F.
-    apply isaprop_is_democratic_functor.
 Qed.
 
 Definition univalent_2_disp_bicat_of_democracy
@@ -335,3 +471,15 @@ Proof.
   - exact univalent_2_0_disp_bicat_of_democracy.
   - exact univalent_2_1_disp_bicat_of_democracy.
 Defined.
+
+Definition disp_2cells_isaprop_disp_bicat_of_democracy
+  : disp_2cells_isaprop disp_bicat_of_democracy.
+Proof.
+  apply disp_2cells_isaprop_fullsubbicat.
+Qed.
+
+Definition disp_locally_groupoid_disp_bicat_of_democracy
+  : disp_locally_groupoid disp_bicat_of_democracy.
+Proof.
+  apply disp_locally_groupoid_fullsubbicat.
+Qed.

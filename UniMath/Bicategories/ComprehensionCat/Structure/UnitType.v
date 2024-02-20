@@ -83,3 +83,16 @@ Proof.
   - exact univalent_2_0_disp_bicat_of_unit_type.
   - exact univalent_2_1_disp_bicat_of_unit_type.
 Defined.
+
+Definition disp_2cells_isaprop_disp_bicat_of_unit_type
+  : disp_2cells_isaprop disp_bicat_of_unit_type.
+Proof.
+  apply disp_2cells_isaprop_subbicat.
+Qed.
+
+Definition disp_locally_groupoid_disp_bicat_of_unit_type
+  : disp_locally_groupoid disp_bicat_of_unit_type.
+Proof.
+  apply disp_locally_groupoid_subbicat.
+  apply is_univalent_2_bicat_comp_cat.
+Qed.

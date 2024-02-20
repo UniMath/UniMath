@@ -493,6 +493,29 @@ Proof.
          apply z_iso_inv_after_z_iso).
 Defined.
 
+Definition from_z_iso_disp_codomain
+           {C : category}
+           {x y : C}
+           {f : z_iso x y}
+           {h₁ : disp_codomain C x}
+           {h₂ : disp_codomain C y}
+           (ff : z_iso_disp f h₁ h₂)
+  : z_iso (pr1 h₁) (pr1 h₂).
+Proof.
+  use make_z_iso.
+  - exact (pr11 ff).
+  - exact (pr112 ff).
+  - split.
+    + abstract
+        (refine (maponpaths pr1 (pr222 ff) @ _) ;
+         rewrite transportb_cod_disp ;
+         apply idpath).
+    + abstract
+        (refine (maponpaths pr1 (pr122 ff) @ _) ;
+         rewrite transportb_cod_disp ;
+         apply idpath).
+Defined.
+
 (** * The univalence *)
 Section UnivalenceCodomain.
   Context (C : univalent_category).

@@ -67,6 +67,15 @@ Definition comp_cat_comp_mor
   : Γ & A --> Γ & B
   := comprehension_functor_mor (comp_cat_comprehension C) s.
 
+Definition comp_cat_comp_z_iso
+           {C : comp_cat}
+           {Γ : C}
+           {A B : ty Γ}
+           (s : z_iso_disp (identity_z_iso _) A B)
+  : z_iso (Γ & A) (Γ & B)
+  := from_z_iso_disp_codomain
+       (disp_functor_on_z_iso_disp (comp_cat_comprehension C) s).
+
 Definition subst_ty
            {C : comp_cat}
            {Γ Δ : C}
@@ -76,6 +85,31 @@ Definition subst_ty
   := cleaving_ob (cleaving_of_types C) s A.
 
 Notation "A '[[' s ']]'" := (subst_ty s A) (at level 20) : comp_cat.
+
+Definition comp_cat_iso_subst
+           {C : comp_cat}
+           {Γ₁ Γ₂ : C}
+           (A : ty Γ₁)
+           (s : z_iso Γ₂ Γ₁)
+  : z_iso_disp s (cleaving_of_types C Γ₁ Γ₂ s A) A.
+Proof.
+  use make_z_iso_disp.
+  - exact (mor_disp_of_cartesian_lift _ _ (cleaving_of_types C Γ₁ Γ₂ s A)).
+  - use is_z_iso_from_is_cartesian.
+    apply cartesian_lift_is_cartesian.
+Defined.
+
+Definition comp_cat_extend_over_iso
+           {C : comp_cat}
+           {Γ₁ Γ₂ : C}
+           (A : ty Γ₁)
+           (s : Γ₂ --> Γ₁)
+           (Hs : is_z_isomorphism s)
+  : z_iso (Γ₂ & (A [[ s ]])) (Γ₁ & A)
+  := from_z_iso_disp_codomain
+       (disp_functor_on_z_iso_disp
+          (comp_cat_comprehension C)
+          (comp_cat_iso_subst A (s ,, Hs))).
 
 (** * 2. Notations and accessors for functors of comprehension categories *)
 Definition comp_cat_functor_empty_context_isTerminal
@@ -111,13 +145,28 @@ Proof.
   exact (TerminalArrowEq (T := comp_cat_functor_empty_context F) f g).
 Qed.
 
-Definition comp_cat_functor_extension
+Definition comp_cat_functor_empty_context_is_z_iso
            {C₁ C₂ : comp_cat}
            (F : comp_cat_functor C₁ C₂)
+  : is_z_isomorphism (TerminalArrow [] (F [])).
+Proof.
+  use make_is_z_isomorphism.
+  - exact (comp_cat_functor_empty_context_arrow F []).
+  - split.
+    + use comp_cat_functor_empty_context_arrow_eq.
+    + use TerminalArrowEq.
+Defined.
+
+Definition comp_cat_functor_extension
+           {C₁ C₂ : full_comp_cat}
+           (F : full_comp_cat_functor C₁ C₂)
            (Γ : C₁)
            (A : ty Γ)
-  : F(Γ & A) --> F Γ & comp_cat_type_functor F Γ A
-  := comprehension_nat_trans_mor (comp_cat_functor_comprehension F) A.
+  : z_iso (F(Γ & A)) (F Γ & comp_cat_type_functor F Γ A).
+Proof.
+  refine (comprehension_nat_trans_mor (comp_cat_functor_comprehension F) A ,, _).
+  apply (full_comp_cat_functor_is_z_iso F).
+Defined.
 
 Definition comp_cat_functor_extension_mor
            {C₁ C₂ : comp_cat}
