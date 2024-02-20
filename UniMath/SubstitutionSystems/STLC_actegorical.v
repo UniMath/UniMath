@@ -182,6 +182,85 @@ Section IndAndCoind.
   Definition lam_map_gen (s t : sort) : sortToSet2⟦lam_source_gen s t,STLC_gen⟧ :=
     CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ (λ _, _)) (ii2 (s,,t)) · STLC_tau_gen.
 
+  Section Church.
+
+    (** fix a sort, viewed as an atom *)
+    Context (s : sort).
+
+    Definition ChurchZero_gen (xi : sortToHSET) : pr1 (pr1 (pr1 STLC_gen xi) ((s ⇒ s) ⇒ (s ⇒ s))).
+    Proof.
+      (** abstract a first variable - forced to be of type [s ⇒ s] *)
+      refine (pr1 (pr1 (lam_map_gen _ _) _) _ _).
+      exists (idpath _).
+      (** abstract a second variable - forced to be of type [s] *)
+      refine (pr1 (pr1 (lam_map_gen _ _) _) _ _).
+      exists (idpath _).
+      (** take a variable *)
+      simple refine (pr1 (pr1 STLC_eta_gen _) _ _).
+      cbn.
+      (** the available variables are seen, pick the last added variable of type [s] *)
+      apply ii1.
+      exists (idpath _).
+      exact tt.
+    Defined.
+
+    Definition ChurchOne_gen (xi : sortToHSET) : pr1 (pr1 (pr1 STLC_gen xi) ((s ⇒ s) ⇒ (s ⇒ s))).
+    Proof.
+      refine (pr1 (pr1 (lam_map_gen _ _) _) _ _).
+      exists (idpath _).
+      refine (pr1 (pr1 (lam_map_gen _ _) _) _ _).
+      exists (idpath _).
+      (** do an application with argument type [s] - not giving this argument would slow down the further steps *)
+      refine (pr1 (pr1 (app_map_gen s _) _) _ _).
+      split; exists (idpath _).
+      - simple refine (pr1 (pr1 STLC_eta_gen _) _ _).
+        cbn.
+        (** the available variables are seen, pick the first added variable of type [s ⇒ s] *)
+        apply ii2.
+        apply ii1.
+        exists (idpath _).
+        exact tt.
+      - refine (pr1 (pr1 STLC_eta_gen _) _ _).
+        cbn.
+        (** pick the last added variable of type [s] *)
+        apply ii1.
+        exists (idpath _).
+        exact tt.
+    Defined.
+
+    Definition Church_gen (n : nat) (xi : sortToHSET) : pr1 (pr1 (pr1 STLC_gen xi) ((s ⇒ s) ⇒ (s ⇒ s))).
+    Proof.
+      refine (pr1 (pr1 (lam_map_gen _ _) _) _ _).
+      exists (idpath _).
+      refine (pr1 (pr1 (lam_map_gen _ _) _) _ _).
+      exists (idpath _).
+      (** the printed type needs two projections to read it back into Coq *)
+      change (pr1
+                (projSortToC sort Hsort SET (pr2 (pr1 (pr2 (pr1 (arity sort STLC_Sig (inr (s,, s)))))))
+                   (pr1 (pre_comp_functor
+                          (option_list sort Hsort SET TerminalHSET BinCoproductsHSET CoproductsHSET
+                             (pr1 (pr1 (pr2 (pr1 (arity sort STLC_Sig (inr (s,, s)))))))) STLC_gen)
+                      (pr1 (option_list sort Hsort SET TerminalHSET BinCoproductsHSET CoproductsHSET
+                              (pr1 (pr1 (pr2 (pr1 (arity sort STLC_Sig (inr ((s ⇒ s),, (s ⇒ s))))))))) xi)))).
+      induction n.
+      - simple refine (pr1 (pr1 STLC_eta_gen _) _ _).
+        cbn.
+        apply ii1.
+        exists (idpath _).
+        exact tt.
+      - refine (pr1 (pr1 (app_map_gen s _) _) _ _).
+        split; exists (idpath _).
+        + simple refine (pr1 (pr1 STLC_eta_gen _) _ _).
+          cbn.
+          apply ii2.
+          apply ii1.
+          exists (idpath _).
+          exact tt.
+        + exact IHn.
+    Defined.
+
+  End Church.
+
 End IndAndCoind.
 
 Definition STLC_ind : sortToSet2 := STLC_gen σind.
