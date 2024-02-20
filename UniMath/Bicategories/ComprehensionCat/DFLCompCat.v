@@ -44,7 +44,10 @@
  and type formers are described using universal properties. For example, product types are
  described using categorical binary products and unit types are described using terminal
  objects. This approach is more common in the literature on comprehension categories (see,
- for example, the book by Jacobs) and hyperdoctrines.
+ for example, the book by Jacobs) and hyperdoctrines. Note that we are more flexible regarding
+ sigma types. Usually, one can only take sigma types for projections, but we allow sigma types
+ over arbitrary substitutions. This is possible in the models of interest. The reason for that
+ all maps are display maps in those.
 
  - Extensional identity types versus equalizer types.
 
