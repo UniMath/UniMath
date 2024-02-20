@@ -1051,6 +1051,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [ComprehensionCat/Structure/UnitType.v](Bicategories/ComprehensionCat/Structure/UnitType.v)
    - [ComprehensionCat/Structure/ProductType.v](Bicategories/ComprehensionCat/Structure/ProductType.v)
    - [ComprehensionCat/Structure/EqualizerType.v](Bicategories/ComprehensionCat/Structure/EqualizerType.v)
+   - [ComprehensionCat/Structure/Democracy.v](Bicategories/ComprehensionCat/Structure/Democracy.v)
    - [Logic/ComprehensionBicat.v](Bicategories/Logic/ComprehensionBicat.v)
    - [Logic/Examples/TrivialComprehensionBicat.v](Bicategories/Logic/Examples/TrivialComprehensionBicat.v)
    - [Logic/Examples/PullbackComprehensionBicat.v](Bicategories/Logic/Examples/PullbackComprehensionBicat.v)
