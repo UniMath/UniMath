@@ -100,6 +100,9 @@ Definition STLC_Functor_Id_H : functor sortToSet2 sortToSet2 :=
 Let θSTLC := MultiSortedMonadConstruction_actegorical.MultiSortedSigToStrength' sort Hsort SET
                TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET STLC_Sig.
 
+Definition ctx_ext (xi : sortToHSET) (s : sort) : sortToHSET
+  := pr1 (option_list sort Hsort SET TerminalHSET BinCoproductsHSET CoproductsHSET (s :: [])) xi.
+
 (** the sigma-monoids for wellfounded and non-wellfounded syntax for STLC *)
 Let σind : SigmaMonoid θSTLC := MultiSortedEmbeddingIndCoindHSET.σind sort Hsort STLC_Sig.
 Let σcoind : SigmaMonoid θSTLC := MultiSortedEmbeddingIndCoindHSET.σcoind sort Hsort STLC_Sig.
@@ -110,6 +113,10 @@ Section IndAndCoind.
 
   (** the functor representing the syntax for STLC *)
   Definition STLC_gen : sortToSet2 := SigmaMonoid_carrier θSTLC σ.
+
+  (** the type of STLC terms in a context of a sort *)
+  Definition STLC_gen_ctx_sort (ξ : sortToHSET) (s : sort) : UU
+    := pr1 (pr1 (pr1 STLC_gen ξ) s).
 
   (** variable inclusion for syntax for STLC *)
   Definition STLC_eta_gen : sortToSet2⟦Id,STLC_gen⟧ := SigmaMonoid_η θSTLC σ.
@@ -187,14 +194,16 @@ Section IndAndCoind.
     (** fix a sort, viewed as an atom *)
     Context (s : sort).
 
-    Definition ChurchZero_gen (xi : sortToHSET) : pr1 (pr1 (pr1 STLC_gen xi) ((s ⇒ s) ⇒ (s ⇒ s))).
+    Definition ChurchZero_gen (ξ : sortToHSET) : STLC_gen_ctx_sort ξ ((s ⇒ s) ⇒ (s ⇒ s)).
     Proof.
       (** abstract a first variable - forced to be of type [s ⇒ s] *)
       refine (pr1 (pr1 (lam_map_gen _ _) _) _ _).
       exists (idpath _).
+      change (STLC_gen_ctx_sort (ctx_ext ξ (s ⇒ s)) (s ⇒ s)).
       (** abstract a second variable - forced to be of type [s] *)
       refine (pr1 (pr1 (lam_map_gen _ _) _) _ _).
       exists (idpath _).
+      change (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s).
       (** take a variable *)
       simple refine (pr1 (pr1 STLC_eta_gen _) _ _).
       cbn.
@@ -204,7 +213,7 @@ Section IndAndCoind.
       exact tt.
     Defined.
 
-    Definition ChurchOne_gen (xi : sortToHSET) : pr1 (pr1 (pr1 STLC_gen xi) ((s ⇒ s) ⇒ (s ⇒ s))).
+    Definition ChurchOne_gen (ξ : sortToHSET) : STLC_gen_ctx_sort ξ ((s ⇒ s) ⇒ (s ⇒ s)).
     Proof.
       refine (pr1 (pr1 (lam_map_gen _ _) _) _ _).
       exists (idpath _).
@@ -213,14 +222,16 @@ Section IndAndCoind.
       (** do an application with argument type [s] - not giving this argument would slow down the further steps *)
       refine (pr1 (pr1 (app_map_gen s _) _) _ _).
       split; exists (idpath _).
-      - simple refine (pr1 (pr1 STLC_eta_gen _) _ _).
+      - change (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) (s ⇒ s)).
+        simple refine (pr1 (pr1 STLC_eta_gen _) _ _).
         cbn.
         (** the available variables are seen, pick the first added variable of type [s ⇒ s] *)
         apply ii2.
         apply ii1.
         exists (idpath _).
         exact tt.
-      - refine (pr1 (pr1 STLC_eta_gen _) _ _).
+      - change (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s).
+        refine (pr1 (pr1 STLC_eta_gen _) _ _).
         cbn.
         (** pick the last added variable of type [s] *)
         apply ii1.
@@ -228,20 +239,13 @@ Section IndAndCoind.
         exact tt.
     Defined.
 
-    Definition Church_gen (n : nat) (xi : sortToHSET) : pr1 (pr1 (pr1 STLC_gen xi) ((s ⇒ s) ⇒ (s ⇒ s))).
+    Definition Church_gen (n : nat) (ξ : sortToHSET) : STLC_gen_ctx_sort ξ ((s ⇒ s) ⇒ (s ⇒ s)).
     Proof.
       refine (pr1 (pr1 (lam_map_gen _ _) _) _ _).
       exists (idpath _).
       refine (pr1 (pr1 (lam_map_gen _ _) _) _ _).
       exists (idpath _).
-      (** the printed type needs two projections to read it back into Coq *)
-      change (pr1
-                (projSortToC sort Hsort SET (pr2 (pr1 (pr2 (pr1 (arity sort STLC_Sig (inr (s,, s)))))))
-                   (pr1 (pre_comp_functor
-                          (option_list sort Hsort SET TerminalHSET BinCoproductsHSET CoproductsHSET
-                             (pr1 (pr1 (pr2 (pr1 (arity sort STLC_Sig (inr (s,, s)))))))) STLC_gen)
-                      (pr1 (option_list sort Hsort SET TerminalHSET BinCoproductsHSET CoproductsHSET
-                              (pr1 (pr1 (pr2 (pr1 (arity sort STLC_Sig (inr ((s ⇒ s),, (s ⇒ s))))))))) xi)))).
+      change (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s).
       induction n.
       - simple refine (pr1 (pr1 STLC_eta_gen _) _ _).
         cbn.
@@ -250,7 +254,8 @@ Section IndAndCoind.
         exact tt.
       - refine (pr1 (pr1 (app_map_gen s _) _) _ _).
         split; exists (idpath _).
-        + simple refine (pr1 (pr1 STLC_eta_gen _) _ _).
+        + change (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) (s ⇒ s)).
+          simple refine (pr1 (pr1 STLC_eta_gen _) _ _).
           cbn.
           apply ii2.
           apply ii1.
@@ -262,6 +267,11 @@ Section IndAndCoind.
   End Church.
 
 End IndAndCoind.
+
+Definition STLC_ctx_sort_ind (ξ : sortToHSET) (s : sort) : UU
+  := STLC_gen_ctx_sort σind ξ s.
+Definition STLC_ctx_sort_coind (ξ : sortToHSET) (s : sort) : UU
+  := STLC_gen_ctx_sort σcoind ξ s.
 
 Definition STLC_ind : sortToSet2 := STLC_gen σind.
 Definition STLC_coind : sortToSet2 := STLC_gen σcoind.
@@ -297,5 +307,22 @@ Definition STLC_coind_FC : Terminal (CoAlg_category STLC_Functor_Id_H)
   := coindCodatatypeOfMultisortedBindingSig_CAT sort Hsort HSET TerminalHSET
          BinProductsHSET BinCoproductsHSET CoproductsHSET (LimsHSET_of_shape conat_graph)
          I_coproduct_distribute_over_omega_limits_HSET STLC_Sig is_univalent_HSET.
+
+Section Church.
+
+  (** fix a sort, viewed as an atom *)
+  Context (s : sort).
+
+  Definition ChurchInfinity (ξ : sortToHSET) : STLC_ctx_sort_coind ξ ((s ⇒ s) ⇒ (s ⇒ s)).
+    Proof.
+      refine (pr1 (pr1 (lam_map_coind _ _) _) _ _).
+      exists (idpath _).
+      refine (pr1 (pr1 (lam_map_coind _ _) _) _ _).
+      exists (idpath _).
+      change (STLC_ctx_sort_coind (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s).
+      (* TODO: coinduction has to come into play *)
+    Abort.
+
+End Church.
 
 End A.
