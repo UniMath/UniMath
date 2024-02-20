@@ -110,7 +110,6 @@ Proof.
   use total2_paths_f ; apply iscontrunit.
 Qed.
 
-(** **)
 
 (**
  1. Categories with a chosen binary products
