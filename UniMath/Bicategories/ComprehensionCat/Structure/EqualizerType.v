@@ -43,14 +43,15 @@ Local Open Scope cat.
 
 (** * 1. The displayed bicategory of equalizer types *)
 Definition disp_bicat_of_equalizer_type
-  : disp_bicat bicat_comp_cat.
+  : disp_bicat bicat_cat_with_terminal_cleaving.
 Proof.
   use disp_subbicat.
-  - exact (λ (C : comp_cat), fiberwise_equalizers (cleaving_of_types C)).
-  - exact (λ (C₁ C₂ : comp_cat)
+  - exact (λ (C : cat_with_terminal_cleaving),
+           fiberwise_equalizers (cleaving_of_types C)).
+  - exact (λ (C₁ C₂ : cat_with_terminal_cleaving)
              (T₁ : fiberwise_equalizers (cleaving_of_types C₁))
              (T₂ : fiberwise_equalizers (cleaving_of_types C₂))
-             (F : comp_cat_functor C₁ C₂),
+             (F : functor_with_terminal_cleaving C₁ C₂),
            ∏ (x : C₁),
            preserves_equalizer
              (fiber_functor (comp_cat_type_functor F) x)).
@@ -111,7 +112,7 @@ Definition univalent_2_0_disp_bicat_of_equalizer_type
   : disp_univalent_2_0 disp_bicat_of_equalizer_type.
 Proof.
   use disp_subbicat_univalent_2_0.
-  - exact is_univalent_2_bicat_comp_cat.
+  - exact is_univalent_2_bicat_cat_with_terminal_cleaving.
   - intro C.
     apply isaprop_fiberwise_equalizers.
   - intros C₁ C₂ T₁ T₂ f.
@@ -137,5 +138,5 @@ Definition disp_locally_groupoid_disp_bicat_of_equalizer_type
   : disp_locally_groupoid disp_bicat_of_equalizer_type.
 Proof.
   apply disp_locally_groupoid_subbicat.
-  apply is_univalent_2_bicat_comp_cat.
+  apply is_univalent_2_bicat_cat_with_terminal_cleaving.
 Qed.
