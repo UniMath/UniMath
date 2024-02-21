@@ -200,10 +200,10 @@ Section mineqrel.
 
 End mineqrel.
 
-Definition mapeqrel_hrel
+Definition maphrel
   {X X' : UU}
   (f : X → X')
-  (R : eqrel X')
+  (R : hrel X')
   : hrel X
   := λ x x', R (f x) (f x').
 
@@ -211,7 +211,7 @@ Lemma mapeqrel_iseqrel
   {X X' : UU}
   (f : X → X')
   (R : eqrel X')
-  : iseqrel (mapeqrel_hrel f R).
+  : iseqrel (maphrel f R).
 Proof.
   repeat split.
   - intros x x' x''.
