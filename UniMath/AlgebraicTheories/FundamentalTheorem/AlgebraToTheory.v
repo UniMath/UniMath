@@ -271,9 +271,7 @@ Section AlgebraToTheory.
     Definition functional_2_set
       : hSet.
     Proof.
-      use (total2_hSet (X := A)).
-      intro a.
-      exists (is_functional_2 a).
+      use (∑ (a : A), make_hSet (is_functional_2 a) _)%set.
       abstract exact (isasetaprop (isaprop_is_functional_2 _)).
     Defined.
 
