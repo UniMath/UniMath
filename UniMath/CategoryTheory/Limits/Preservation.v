@@ -164,6 +164,7 @@ Qed.
 Section PreservesBinProduct.
 
   Context {C₁ C₂ : category}.
+  Context (HC₁ : BinProducts C₁).
   Context (F : C₁ ⟶ C₂).
 
   Definition preserves_binproduct
@@ -183,7 +184,6 @@ Section PreservesBinProduct.
   Qed.
 
   Definition preserves_chosen_binproduct
-    (HC₁ : BinProducts C₁)
     : UU
     := ∏ (x y : C₁),
       isBinProduct
@@ -194,8 +194,7 @@ Section PreservesBinProduct.
         (#F (BinProductPr2 C₁ (HC₁ x y))).
 
   Definition preserves_binproduct_if_preserves_chosen
-    (HC₁ : BinProducts C₁)
-    (HF : preserves_chosen_binproduct HC₁)
+    (HF : preserves_chosen_binproduct)
     : preserves_binproduct.
   Proof.
     intros x y z π₁ π₂ Hxy.
@@ -303,6 +302,7 @@ Section PreservesProduct.
 
   Context (J : UU).
   Context {C₁ C₂ : category}.
+  Context (HC₁ : Products J C₁).
   Context (F : C₁ ⟶ C₂).
 
   Definition preserves_product
@@ -322,7 +322,6 @@ Section PreservesProduct.
   Qed.
 
   Definition preserves_chosen_product
-    (HC₁ : Products J C₁)
     : UU
     := ∏ (D : J → C₁),
       isProduct
@@ -333,8 +332,7 @@ Section PreservesProduct.
         (λ j, #F (ProductPr _ _ (HC₁ D) j)).
 
   Definition preserves_product_if_preserves_chosen
-    (HC₁ : Products J C₁)
-    (HF : preserves_chosen_product HC₁)
+    (HF : preserves_chosen_product)
     : preserves_product.
   Proof.
     intros x z π Hxy.
