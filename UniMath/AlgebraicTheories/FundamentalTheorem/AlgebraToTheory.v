@@ -55,24 +55,30 @@ Section AlgebraToTheory.
   Let L := (lambda_calculus_lambda_theory lambda).
   Context (A : algebra L).
 
+  Let maction {M : monoid} {X : monoid_action M}
+    : (∏ x m, MonoidActions.action_ax M X x m)
+    := MonoidActions.action.
+  Let aaction {n : nat}
+    : (∏ f a, AlgebraCategoryCore.action_ax L A n f a)
+    := Algebras.action (n := n).
+
   Definition compose
     (a b : A)
     : A
-    := action (T := L) compose_λ (weqvecfun _ [(a ; b)]).
+    := aaction compose_λ (weqvecfun _ [(a ; b)]).
 
   Lemma compose_assoc
     (a b c : A)
     : compose (compose a b) c = compose a (compose b c).
   Proof.
-    unfold compose.
+    unfold compose, aaction.
     pose (v := weqvecfun _ [(a ; b ; c)]).
-    pose (Hv := λ i,
-      !(pr_action _ (i : stn 3) v)).
+    pose (Hv := λ i, !(pr_action _ (i : stn 3) v)).
     rewrite (Hv (● 0) : a = _).
     rewrite (Hv (● 1) : b = _).
     rewrite (Hv (● 2) : c = _).
     do 4 (rewrite (move_action_through_vector_2 A _ _ _), <- comp_action).
-    apply (maponpaths (λ x, action x v)).
+    apply (maponpaths (λ x, aaction x v)).
     apply compose_assoc_λ.
   Qed.
 
@@ -88,15 +94,15 @@ Section AlgebraToTheory.
 
   Definition I1
     : A
-    := action (T := L) I1_λ (weqvecfun _ vnil).
+    := aaction I1_λ (weqvecfun _ vnil).
 
   Lemma I1_idempotent
     : compose I1 I1 = I1.
   Proof.
-    unfold compose, I1.
+    unfold compose, I1, aaction.
     rewrite (move_action_through_vector_2 A _ _ _).
     rewrite <- comp_action.
-    apply (maponpaths (λ x, action x _)).
+    apply (maponpaths (λ x, aaction x _)).
     apply compose_I1_abs_0_λ.
   Qed.
 
@@ -117,13 +123,13 @@ Section AlgebraToTheory.
     {n : nat}
     (f : (L (S n) : hSet))
     (v : stn n → A)
-    : is_functional_1 (action (abs f : ((L n) : hSet)) v).
+    : is_functional_1 (aaction (abs f : ((L n) : hSet)) v).
   Proof.
-    unfold is_functional_1, make_functional_1, compose, I1.
+    unfold is_functional_1, make_functional_1, compose, I1, aaction.
     rewrite <- (lift_constant_action _ _ v).
     rewrite (move_action_through_vector_2 A _ _ v).
     rewrite <- comp_action.
-    apply (maponpaths (λ x, action x _)).
+    apply (maponpaths (λ x, aaction x _)).
     exact (!compose_I1_abs_λ _).
   Qed.
 
@@ -179,14 +185,14 @@ Section AlgebraToTheory.
       pose (Ha := (pr_action _ (● 0 : stn 1) (weqvecfun 1 [(a)]))).
       refine (!_ @ maponpaths _ Ha).
       refine (!_ @ maponpaths (λ x, _ x _) Ha).
-      unfold make_functional_1, compose, I1.
+      unfold make_functional_1, compose, I1, aaction.
       epose (Hlift := !lift_constant_action (A := A) 1 _ (weqvecfun 1 [(a)])).
       refine (maponpaths (λ x, _ (_ [(_ ; x)])) Hlift @ !_).
       refine (maponpaths (λ x, _ (_ [(x ; _)])) Hlift @ !_).
       rewrite (move_action_through_vector_2 A (pr _) _ _).
       rewrite (move_action_through_vector_2 A _ (pr _) _).
       do 2 rewrite <- comp_action.
-      apply (maponpaths (λ x, action (A := A) x _)).
+      apply (maponpaths (λ x, aaction x _)).
       rewrite <- (inflate_is_lift_constant I1_λ : _ = lift_constant (T := L) _ _).
       apply I1_runit_λ.
     Qed.
@@ -229,15 +235,15 @@ Section AlgebraToTheory.
     Definition I2
       : A
       :=
-      action (T := L) I2_λ (weqvecfun _ vnil).
+      aaction I2_λ (weqvecfun _ vnil).
 
     Lemma I2_idempotent
       : compose I2 I2 = I2.
     Proof.
-      unfold compose, I2.
+      unfold compose, I2, aaction.
       rewrite (move_action_through_vector_2 A _ _ _).
       rewrite <- comp_action.
-      apply (maponpaths (λ x, action x _)).
+      apply (maponpaths (λ x, aaction x _)).
       apply compose_I2_abs_0_λ.
     Qed.
 
@@ -253,13 +259,13 @@ Section AlgebraToTheory.
       {n : nat}
       (f : (L (S (S n)) : hSet))
       (v : stn n → A)
-      : is_functional_2 (action (abs (abs f) : ((L n) : hSet)) v).
+      : is_functional_2 (aaction (abs (abs f) : ((L n) : hSet)) v).
     Proof.
-      unfold is_functional_2, make_functional_2, compose, I2.
+      unfold is_functional_2, make_functional_2, compose, I2, aaction.
       rewrite <- (lift_constant_action _ _ v).
       rewrite (move_action_through_vector_2 A _ _ _).
       rewrite <- comp_action.
-      apply (maponpaths (λ x, action x _)).
+      apply (maponpaths (λ x, aaction x _)).
       exact (!compose_I2_abs_λ _).
     Qed.
 
@@ -291,10 +297,10 @@ Section AlgebraToTheory.
     Lemma compose_I1_I2
       : compose I1 I2 = I2.
     Proof.
-      unfold compose, I1, I2.
+      unfold compose, I1, I2, aaction.
       rewrite (move_action_through_vector_2 A _ _ _).
       rewrite <- comp_action.
-      apply (maponpaths (λ x, action x _)).
+      apply (maponpaths (λ x, aaction x _)).
       apply compose_I1_abs_0_λ.
     Qed.
 
@@ -326,7 +332,7 @@ Section AlgebraToTheory.
     Defined.
 
     Lemma functional_2_is_monoid_action
-      : is_monoid_action _ functional_2_monoid_action_data.
+      : is_monoid_action functional_2_monoid_action_data.
     Proof.
       split.
       - intro x.
@@ -342,7 +348,7 @@ Section AlgebraToTheory.
 
     Definition functional_2_monoid_action
       : monoid_action lambda_algebra_monoid
-      := make_monoid_action _ _ functional_2_is_monoid_action.
+      := make_monoid_action _ functional_2_is_monoid_action.
 
     Definition functional_2_to_monoid_action_morphism_data_term
       (d : functional_2_monoid_action)
@@ -350,18 +356,17 @@ Section AlgebraToTheory.
       : A.
     Proof.
       pose (v := (weqvecfun _ [(pr1 d ; a ; b)])).
-      exact (action (T := L) compose_2_λ v).
+      exact (aaction compose_2_λ v).
     Defined.
 
     Definition functional_2_to_monoid_action_morphism_data
       (d : functional_2_monoid_action)
-      : monoid_action_morphism_data
-        lambda_algebra_monoid
-        (BinProductObject _ (binproducts_monoid_action_category lambda_algebra_monoid
+      : (BinProductObject _ (binproducts_monoid_action_cat lambda_algebra_monoid
           (monoid_monoid_action _)
           (monoid_monoid_action _)
         ) : monoid_action _)
-        (monoid_monoid_action _)
+        →
+        (monoid_monoid_action lambda_algebra_monoid)
       := λ x, (
         functional_2_to_monoid_action_morphism_data_term d (pr11 x) (pr12 x) ,,
         is_functional_1_action_abs _ _
@@ -369,15 +374,15 @@ Section AlgebraToTheory.
 
     Lemma functional_2_to_monoid_action_is_morphism
       (d : functional_2_monoid_action)
-      : is_monoid_action_morphism _ (functional_2_to_monoid_action_morphism_data d).
+      : ∏ x m, mor_action_ax (functional_2_to_monoid_action_morphism_data d) x m.
     Proof.
       intros x m.
       apply functional_1_eq.
       unfold functional_2_to_monoid_action_morphism_data.
       unfold functional_2_to_monoid_action_morphism_data_term.
-      cbn -[weqvecfun action].
+      cbn -[weqvecfun aaction].
       pose (v := weqvecfun _ [(pr1 m ; pr1 d ; pr11 x ; pr12 x)]).
-      unfold compose.
+      unfold compose, aaction.
       rewrite <- (pr_action _ (make_stn 4 0 (idpath true)) v : _ = pr1 m).
       rewrite <- (pr_action _ (make_stn 4 1 (idpath true)) v : _ = pr1 d).
       rewrite <- (pr_action _ (make_stn 4 2 (idpath true)) v : _ = pr11 x).
@@ -388,39 +393,39 @@ Section AlgebraToTheory.
       do 2 rewrite <- comp_action.
       rewrite (move_action_through_vector_2 A _ _ _).
       rewrite <- comp_action.
-      apply (maponpaths (λ x, action x v)).
+      apply (maponpaths (λ x, aaction x v)).
       exact (!compose_compose_2_λ _ _ _ _).
     Qed.
 
     Definition functional_2_to_exponential_object_morphism_data
       : functional_2_monoid_action →
-        (exponential_object _ (monoid_monoid_action _) (monoid_monoid_action _))
-      := λ d, make_monoid_action_morphism _ _ (functional_2_to_monoid_action_is_morphism d).
+        (exponential_object (monoid_monoid_action _) (monoid_monoid_action _))
+      := λ d, make_monoid_action_morphism _ (functional_2_to_monoid_action_is_morphism d).
 
     Definition exponential_object_to_functional_2_term
       (f : (
-        exponential_object lambda_algebra_monoid
-          (monoid_monoid_action _)
-          (monoid_monoid_action _)
+        exponential_object
+          (monoid_monoid_action lambda_algebra_monoid)
+          (monoid_monoid_action lambda_algebra_monoid)
       ))
       : A.
     Proof.
-      refine (action (A := A) term_1_λ
+      refine (aaction term_1_λ
         (weqvecfun _ [(_)])).
-      apply (f : monoid_action_morphism _ _ _).
+      apply (f : monoid_action_morphism _ _).
       split.
-      - exact (action (A := A) T_λ (weqvecfun _ [()]) ,, is_functional_1_action_abs _ _).
-      - exact (action (A := A) F_λ (weqvecfun _ [()]) ,, is_functional_1_action_abs _ _).
+      - exact (aaction T_λ (weqvecfun _ [()]) ,, is_functional_1_action_abs _ _).
+      - exact (aaction F_λ (weqvecfun _ [()]) ,, is_functional_1_action_abs _ _).
     Defined.
 
     Definition exponential_object_to_functional_2_morphism_data
-      : monoid_action_morphism_data _
-        (exponential_object _ (monoid_monoid_action _) (monoid_monoid_action _))
+      : (exponential_object (monoid_monoid_action _) (monoid_monoid_action _))
+        →
         functional_2_monoid_action
       := λ x, (exponential_object_to_functional_2_term x ,, is_functional_2_action_abs _ _).
 
     Lemma functional_2_to_exponential_object_is_morphism
-      : is_monoid_action_morphism _ functional_2_to_exponential_object_morphism_data.
+      : ∏ x m, mor_action_ax functional_2_to_exponential_object_morphism_data x m.
     Proof.
       intros a m.
       apply monoid_action_morphism_eq.
@@ -429,40 +434,40 @@ Section AlgebraToTheory.
       unfold functional_2_to_exponential_object_morphism_data.
       unfold functional_2_to_monoid_action_morphism_data.
       unfold functional_2_to_monoid_action_morphism_data_term.
-      cbn -[weqvecfun action].
+      cbn -[weqvecfun aaction].
       set (v := weqvecfun _ [(pr1 a ; pr1 m ; pr11 x ; pr12 x)]).
       rewrite <- (pr_action _ (make_stn 4 0 (idpath true)) v : _ = pr1 a).
       rewrite <- (pr_action _ (make_stn 4 1 (idpath true)) v : _ = pr1 m).
       rewrite <- (pr_action _ (make_stn 4 2 (idpath true)) v : _ = pr11 x).
       rewrite <- (pr_action _ (make_stn 4 3 (idpath true)) v : _ = pr12 x).
-      unfold compose.
+      unfold compose, aaction.
       do 2 rewrite (move_action_through_vector_2 A _ _ _).
       do 2 rewrite <- comp_action.
       do 2 rewrite (move_action_through_vector_3 A _ _ _ _).
       do 2 rewrite <- comp_action.
-      apply (maponpaths (λ x, action x v)).
+      apply (maponpaths (λ x, aaction x v)).
       cbn -[weqvecfun].
       apply compose_2_compose_λ.
     Qed.
 
     Definition term_2
       (a a' : A)
-      := (action (A := A) term_2_λ (weqvecfun _ [(a ; a')]) ,, is_functional_1_action_abs _ _).
+      := (aaction term_2_λ (weqvecfun _ [(a ; a')]) ,, is_functional_1_action_abs _ _).
 
     Lemma compose_2_term_1
       (b : monoid_monoid_action lambda_algebra_monoid)
       (a a' : A)
-      : action (A := A) compose_2_λ
+      : aaction compose_2_λ
         (weqvecfun 3 [(
-          action (A := A) term_1_λ (weqvecfun 1 [(pr1 b)]);
+          aaction term_1_λ (weqvecfun 1 [(pr1 b)]);
           a;
           a'
         )])
-      = pr1 (op lambda_algebra_monoid b (term_2 a a')).
+      = pr1 (maction b (term_2 a a')).
     Proof.
-      cbn -[weqvecfun action].
+      cbn -[weqvecfun aaction].
       set (v := weqvecfun _ [(pr1 b; a; a')]).
-      unfold compose.
+      unfold compose, aaction.
       rewrite <- (pr_action _ (make_stn 3 0 (idpath true)) v : _ = pr1 b).
       rewrite <- (pr_action _ (make_stn 3 1 (idpath true)) v : _ = a).
       rewrite <- (pr_action _ (make_stn 3 2 (idpath true)) v : _ = a').
@@ -474,7 +479,7 @@ Section AlgebraToTheory.
       rewrite (move_action_through_vector_3 A _ _ _ _).
       rewrite <- comp_action.
       rewrite <- comp_action.
-      apply (maponpaths (λ x, action x v)).
+      apply (maponpaths (λ x, aaction x v)).
       cbn -[weqvecfun].
       apply compose_2_term_1_λ.
     Qed.
@@ -495,12 +500,10 @@ Section AlgebraToTheory.
         unfold functional_2_to_monoid_action_morphism_data.
         unfold exponential_object_to_functional_2_term.
         unfold functional_2_to_monoid_action_morphism_data_term.
-        cbn -[weqvecfun action].
+        cbn -[weqvecfun aaction].
         rewrite (pr2 a).
         rewrite <- (pr_action _ (make_stn 1 0 (idpath true)) v : _ = pr1 a).
-        unfold make_functional_2.
-        unfold compose.
-        unfold I2.
+        unfold make_functional_2, compose, I2, aaction.
         do 3 rewrite <- (lift_constant_action _ _ v).
         rewrite (move_action_through_vector_2 A _ _ _).
         rewrite <- comp_action.
@@ -508,7 +511,7 @@ Section AlgebraToTheory.
         rewrite <- comp_action.
         rewrite (move_action_through_vector_1 A _ _).
         rewrite <- comp_action.
-        apply (maponpaths (λ x, action x v)).
+        apply (maponpaths (λ x, aaction x v)).
         apply term_1_compose_2_λ.
       - apply funextfun.
         intro f.
@@ -516,7 +519,7 @@ Section AlgebraToTheory.
         intro a.
         apply functional_1_eq.
         refine (compose_2_term_1 _ _ _ @ _).
-        refine (!base_paths _ _ (monoid_action_morphism_commutes _ f _ _) @ _).
+        refine (!base_paths _ _ (mor_action f _ _) @ _).
         apply maponpaths.
         apply maponpaths.
         set (v := weqvecfun _ [(pr11 a ; pr12 a)]).
@@ -524,8 +527,8 @@ Section AlgebraToTheory.
           apply functional_1_eq;
           [ refine (_ @ !pr21 a)
           | refine (_ @ !pr22 a) ];
-          cbn -[weqvecfun action];
-          unfold make_functional_1, compose, I1;
+          cbn -[weqvecfun aaction];
+          unfold make_functional_1, compose, I1, aaction;
           rewrite <- (pr_action _ (make_stn 2 0 (idpath true)) v : _ = pr11 a);
           rewrite <- (pr_action _ (make_stn 2 1 (idpath true)) v : _ = pr12 a);
           rewrite <- (lift_constant_action _ _ v);
@@ -536,15 +539,15 @@ Section AlgebraToTheory.
           rewrite <- comp_action;
           rewrite (move_action_through_vector_2 A _ _ _);
           rewrite <- comp_action;
-          apply (maponpaths (λ x, action x v)).
+          apply (maponpaths (λ x, aaction x v)).
         + apply compose_T_λ.
         + apply compose_F_λ.
     Qed.
 
     Definition universal_monoid_exponential_iso
-      : z_iso (C := monoid_action_category lambda_algebra_monoid)
+      : z_iso (C := monoid_action_cat lambda_algebra_monoid)
         functional_2_monoid_action
-        (exponential_object _ (monoid_monoid_action _) (monoid_monoid_action _)).
+        (exponential_object (monoid_monoid_action _) (monoid_monoid_action _)).
     Proof.
       use make_monoid_action_z_iso.
       - use make_z_iso.
@@ -555,7 +558,7 @@ Section AlgebraToTheory.
     Defined.
 
     Definition functional_app
-      : monoid_action_morphism _ (monoid_monoid_action _) functional_2_monoid_action.
+      : monoid_action_morphism (monoid_monoid_action _) functional_2_monoid_action.
     Proof.
       use make_monoid_action_morphism.
       - intro a.
@@ -567,7 +570,7 @@ Section AlgebraToTheory.
     Defined.
 
     Definition functional_abs
-      : monoid_action_morphism _ functional_2_monoid_action (monoid_monoid_action _).
+      : monoid_action_morphism functional_2_monoid_action (monoid_monoid_action _).
     Proof.
       use make_monoid_action_morphism.
       - intro a.
@@ -581,20 +584,23 @@ Section AlgebraToTheory.
       : lambda_theory.
     Proof.
       use endomorphism_lambda_theory.
-      - exact (monoid_action_category lambda_algebra_monoid).
+      - exact (monoid_action_cat lambda_algebra_monoid).
       - apply terminal_monoid_action.
-      - apply binproducts_monoid_action_category.
+      - apply binproducts_monoid_action_cat.
       - apply monoid_monoid_action.
       - apply is_exponentiable_monoid_action.
       - exact (inv_from_z_iso universal_monoid_exponential_iso · functional_abs).
-      - exact ((functional_app : monoid_action_category _ ⟦_, _⟧) · morphism_from_z_iso _ _ universal_monoid_exponential_iso).
+      - exact (
+          (functional_app : monoid_action_cat _ ⟦_, _⟧) ·
+          morphism_from_z_iso _ _ universal_monoid_exponential_iso
+        ).
     Defined.
 
     Lemma lambda_algebra_theory_has_beta
       : has_beta lambda_algebra_theory.
     Proof.
       apply endomorphism_theory_has_beta.
-      assert ((functional_abs : monoid_action_category _⟦_, _⟧) · functional_app = identity _).
+      assert ((functional_abs : monoid_action_cat _⟦_, _⟧) · functional_app = identity _).
       {
         apply monoid_action_morphism_eq.
         intro a.
