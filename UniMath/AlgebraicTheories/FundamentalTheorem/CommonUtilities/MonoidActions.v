@@ -419,20 +419,20 @@ Section BinProducts.
       := make_monoid_action_morphism _ action_binproduct_arrow_is_morphism.
 
     Lemma action_binproduct_arrow_commutes1
-      : (action_binproduct_arrow : monoid_action_cat M⟦_, _⟧) · action_binproduct_pr1 = f1.
+      : action_binproduct_arrow · action_binproduct_pr1 = f1.
     Proof.
       now use monoid_action_morphism_eq.
     Qed.
 
     Lemma action_binproduct_arrow_commutes2
-      : (action_binproduct_arrow : monoid_action_cat M⟦_, _⟧) · action_binproduct_pr2 = f2.
+      : action_binproduct_arrow · action_binproduct_pr2 = f2.
     Proof.
       now use monoid_action_morphism_eq.
     Qed.
 
     Lemma action_binproduct_arrow_unique
-      (t : ∑ (f : monoid_action_cat M⟦_, _⟧), f · action_binproduct_pr1 = f1 × f · action_binproduct_pr2 = f2)
-      : t = (action_binproduct_arrow ,, (action_binproduct_arrow_commutes1 ,, action_binproduct_arrow_commutes2)).
+      (t : ∑ f, f · action_binproduct_pr1 = f1 × f · action_binproduct_pr2 = f2)
+      : t = (_ ,, (action_binproduct_arrow_commutes1 ,, action_binproduct_arrow_commutes2)).
     Proof.
       use subtypePairEquality.
       {
@@ -562,8 +562,8 @@ Section ExponentialObject.
 
   Section ArrowIsUniversal.
 
-    Context {X'': monoid_action M}.
-    Context (F: monoid_action_morphism (binproduct_monoid_action X X'') X').
+    Context {X'' : monoid_action M}.
+    Context (F : monoid_action_morphism (binproduct_monoid_action X X'') X').
 
     Section InducedMorphismData.
 
@@ -606,7 +606,9 @@ Section ExponentialObject.
       := make_monoid_action_morphism _ monoid_action_cat_induced_is_morphism.
 
     Lemma monoid_action_cat_induced_morphism_commutes
-      : F = # (constprod_functor1 (binproducts_monoid_action_cat M) X) monoid_action_cat_induced_morphism · exponential_object_morphism.
+      : F
+      = #(constprod_functor1 (binproducts_monoid_action_cat M) X) monoid_action_cat_induced_morphism
+        · exponential_object_morphism.
     Proof.
       apply monoid_action_morphism_eq.
       intro x.
@@ -616,7 +618,9 @@ Section ExponentialObject.
     Qed.
 
     Lemma monoid_action_cat_induced_morphism_unique
-      (t : ∑ (f' : monoid_action_morphism X'' exponential_object), F = # (constprod_functor1 (binproducts_monoid_action_cat M) X) f' · exponential_object_morphism)
+      (t : ∑ (f' : monoid_action_morphism X'' exponential_object),
+        F = # (constprod_functor1 (binproducts_monoid_action_cat M) X) f'
+          · exponential_object_morphism)
       : t = monoid_action_cat_induced_morphism ,, monoid_action_cat_induced_morphism_commutes.
     Proof.
       use subtypePath.
@@ -661,7 +665,7 @@ Definition make_monoid_action_z_iso
   (A A' : monoid_action M)
   (f : z_iso (C := HSET) (A : hSet) (A' : hSet))
   (Hf : ∏ x m, mor_action_ax (morphism_from_z_iso _ _ f : A → A') x m)
-  : z_iso (A : monoid_action_cat M) (A' : monoid_action_cat M).
+  : z_iso A A'.
 Proof.
   use make_z_iso.
   - use make_monoid_action_morphism.
@@ -821,7 +825,9 @@ Section ScalarRestriction.
     Qed.
 
     Definition restriction_functor_mor_monoid_action_morphism
-      : monoid_action_morphism (restriction_functor_ob_monoid_action X) (restriction_functor_ob_monoid_action X')
+      : monoid_action_morphism
+        (restriction_functor_ob_monoid_action X)
+        (restriction_functor_ob_monoid_action X')
       := make_monoid_action_morphism _ restriction_functor_mor_is_monoid_action_morphism.
 
   End Mor.
@@ -967,7 +973,9 @@ Section ScalarExtension.
     Qed.
 
     Definition extension_functor_mor_monoid_action_morphism
-      : monoid_action_morphism (extension_functor_ob_monoid_action X) (extension_functor_ob_monoid_action X')
+      : monoid_action_morphism
+        (extension_functor_ob_monoid_action X)
+        (extension_functor_ob_monoid_action X')
       := make_monoid_action_morphism _ extension_functor_mor_is_monoid_action_morphism.
 
   End Mor.
@@ -1038,7 +1046,9 @@ Section ScalarExtension.
       := λ m, setquotpr _ (1 ,, m).
 
     Lemma scalar_extension_preserves_monoid_monoid_action_is_inverse
-      : is_inverse_in_precat (C := HSET) scalar_extension_preserves_monoid_monoid_action_mor scalar_extension_preserves_monoid_monoid_action_inv.
+      : is_inverse_in_precat (C := HSET)
+        scalar_extension_preserves_monoid_monoid_action_mor
+        scalar_extension_preserves_monoid_monoid_action_inv.
     Proof.
       split.
       - apply funextfun.
@@ -1089,11 +1099,13 @@ Section ScalarExtension.
     Context (element_is_terminal : ∏ (m' : M'), ∑ (m : M), f(m) * m' = terminal_element).
 
     Definition scalar_extension_terminal_iso_mor
-      : (scalar_extension_functor (terminal_monoid_action M) : monoid_action _) → (TerminalObject (terminal_monoid_action M') : monoid_action _)
+      : (scalar_extension_functor (terminal_monoid_action M) : monoid_action _)
+        → (TerminalObject (terminal_monoid_action M') : monoid_action _)
       := λ x, tt.
 
     Definition scalar_extension_terminal_iso_inv
-      : (TerminalObject (terminal_monoid_action M') : monoid_action _) → (scalar_extension_functor (terminal_monoid_action M) : monoid_action _)
+      : (TerminalObject (terminal_monoid_action M') : monoid_action _)
+        → (scalar_extension_functor (terminal_monoid_action M) : monoid_action _)
       := λ x, setquotpr _ (tt ,, terminal_element).
 
     Lemma scalar_extension_terminal_iso_is_iso
@@ -1234,8 +1246,14 @@ Section ScalarExtension.
         apply hinhfun2.
         intros Hx1 Hx2.
         epose (t'' := element_is_terminal _ _ (_ ,, _ ,, _ ,,
-          (pr22 Hx1 @ maponpaths _ (pr1 (pr222 t')) @ !assocax _ _ _ _ @ !maponpaths (λ x, x * _) (monoidfunmul f _ _)) ,,
-          (pr22 Hx2 @ maponpaths _ (pr2 (pr222 t')) @ !assocax _ _ _ _ @ !maponpaths (λ x, x * _) (monoidfunmul f _ _))
+          (pr22 Hx1
+            @ maponpaths _ (pr1 (pr222 t'))
+            @ !assocax _ _ _ _
+            @ !maponpaths (λ x, x * _) (monoidfunmul f _ _)) ,,
+          (pr22 Hx2
+            @ maponpaths _ (pr2 (pr222 t'))
+            @ !assocax _ _ _ _
+            @ !maponpaths (λ x, x * _) (monoidfunmul f _ _))
         )).
         refine (pr1 t'' ,, _ ,, pr12 t'').
         apply pathsdirprod.
@@ -1303,7 +1321,10 @@ Section ScalarExtension.
           intro.
           refine (_ @ eqtohomot (z_iso_after_z_iso_inv prodiso) _).
           apply (maponpaths (morphism_from_z_iso _ _ prodiso)).
-          refine ((idpath _ : _ = (λ y, setquotfun _ _ _ _ (setquotfun _ _ _ _ y)) (inv_from_z_iso prodiso x)) @ _).
+          refine ((idpath _ : _ =
+              (λ y, setquotfun _ _ _ _ (setquotfun _ _ _ _ y))
+              (inv_from_z_iso prodiso x)
+            ) @ _).
           use (issurjsetquotpr _ (inv_from_z_iso prodiso x) (_ ,, isasetsetquot _ _ _) _).
           intro y.
           rewrite <- (pr2 y).
@@ -1323,8 +1344,11 @@ Section ScalarExtension.
 
       Lemma scalar_extension_binproduct_iso_is_morphism
         : ∏ x m, mor_action_ax
-          (X := (scalar_extension_functor (binproducts_monoid_action_cat M X X')) : monoid_action M')
-          (X' := BinProductObject _(binproducts_monoid_action_cat M' (scalar_extension_functor X) (scalar_extension_functor X')) : monoid_action M')
+          (X := (scalar_extension_functor (binproducts_monoid_action_cat M X X')))
+          (X' := BinProductObject _ (binproducts_monoid_action_cat
+            M'
+            (scalar_extension_functor X)
+            (scalar_extension_functor X')))
           scalar_extension_binproduct_iso_mor
           x m.
       Proof.
@@ -1337,10 +1361,16 @@ Section ScalarExtension.
       Definition scalar_extension_binproduct_iso
         : z_iso
           (scalar_extension_functor (binproducts_monoid_action_cat M X X'))
-          (binproducts_monoid_action_cat M' (scalar_extension_functor X) (scalar_extension_functor X'))
+          (binproducts_monoid_action_cat
+            M'
+            (scalar_extension_functor X)
+            (scalar_extension_functor X'))
         := make_monoid_action_z_iso
           (scalar_extension_functor (binproducts_monoid_action_cat M X X'))
-          (BinProductObject _ (binproducts_monoid_action_cat _ (scalar_extension_functor X) (scalar_extension_functor X')))
+          (BinProductObject _ (binproducts_monoid_action_cat
+            M'
+            (scalar_extension_functor X)
+            (scalar_extension_functor X')))
           (make_z_iso
             (C := HSET)
             (a := setquotinset _)
@@ -1358,7 +1388,8 @@ Section ScalarExtension.
       use preserves_binproduct_if_preserves_chosen.
       - apply binproducts_monoid_action_cat.
       - intros Y Y'.
-        use (isBinProduct_eq_arrow _ _ (iso_to_isBinProduct _ _ (z_iso_to_iso (scalar_extension_binproduct_iso Y Y'))));
+        use (isBinProduct_eq_arrow _ _
+          (iso_to_isBinProduct _ _ (z_iso_to_iso (scalar_extension_binproduct_iso Y Y'))));
         abstract now (
           apply monoid_action_morphism_eq;
           intro;
