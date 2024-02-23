@@ -1206,7 +1206,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [AlgebraCategoryCore.v](AlgebraicTheories/AlgebraCategoryCore.v)
    - [Algebras.v](AlgebraicTheories/Algebras.v)
    - [AlgebraMorphisms.v](AlgebraicTheories/AlgebraMorphisms.v)
-   - [AlgebraFibration.v](AlgebraicTheories/AlgebraFibration.v)
    - [AlgebraCategory.v](AlgebraicTheories/AlgebraCategory.v)
    - [LambdaCalculus.v](AlgebraicTheories/LambdaCalculus.v)
    - [LambdaTheoryCategoryCore.v](AlgebraicTheories/LambdaTheoryCategoryCore.v)
