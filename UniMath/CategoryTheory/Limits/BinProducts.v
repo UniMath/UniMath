@@ -759,7 +759,7 @@ Section PairNatTrans.
 End PairNatTrans.
 
 (** ** Construction of BinProduct from an isomorphism to BinProduct. *)
-Section BinProduct_from_iso.
+Section BinProductFromIso.
 
   Context (C : category).
 
@@ -812,7 +812,7 @@ Section BinProduct_from_iso.
                                               (i · (BinProductPr2 C BP))
                                               (iso_to_isBinProduct BP i).
 
-End BinProduct_from_iso.
+End BinProductFromIso.
 
 (** ** Equivalent universal property: [(C --> A) × (C --> B) ≃ (C --> A × B)]
 
@@ -1646,8 +1646,7 @@ Definition bin_product_power
   : Product (stn n) C (λ _, c).
 Proof.
   induction n as [ | n IHn].
-  - refine (transportf (λ x, Product x C (λ y: x, c)) _ (Terminal_is_empty_product T _)).
-    abstract exact (invmap (univalence _ _) (invweq weqstn0toempty)).
+  - exact (Terminal_is_empty_product T _ weqstn0toempty).
   - apply (n_power_to_sn_power BP IHn).
 Defined.
 

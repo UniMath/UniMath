@@ -5,16 +5,17 @@
  Content
  1. Preservation of terminal objects
  2. Preservation of binary products
- 3. Preservation of equalizers
- 4. Preservation of pullbacks
- 5. Preservation of initial objects
- 6. Preservation of binary coproducts
- 7. Preservation of (reflexive) coequalizers
- 8. Preservation of coproducts
- 9. Preservation of pushouts
- 10. Adjunctions and preservation
- 10.1 Right adjoints preserve limits
- 10.2 Left adjoints preserve colimits
+ 3. Preservation of products
+ 4. Preservation of equalizers
+ 5. Preservation of pullbacks
+ 6. Preservation of initial objects
+ 7. Preservation of binary coproducts
+ 8. Preservation of (reflexive) coequalizers
+ 9. Preservation of coproducts
+ 10. Preservation of pushouts
+ 11. Adjunctions and preservation
+ 11.1 Right adjoints preserve limits
+ 11.2 Left adjoints preserve colimits
 
  *********************************************************)
 Require Import UniMath.Foundations.All.
@@ -29,6 +30,7 @@ Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
 Require Import UniMath.CategoryTheory.Limits.Coequalizers.
 Require Import UniMath.CategoryTheory.Limits.Coproducts.
 Require Import UniMath.CategoryTheory.Limits.Pushouts.
@@ -39,11 +41,29 @@ Local Open Scope cat.
 (**
  1. Preservation of terminal objects
  *)
-Definition preserves_terminal
-           {C₁ C₂ : category}
-           (F : C₁ ⟶ C₂)
-  : UU
-  := ∏ (x : C₁), isTerminal C₁ x → isTerminal C₂ (F x).
+
+Section PreservesTerminal.
+
+  Context {C₁ C₂ : category}.
+  Context (F : C₁ ⟶ C₂).
+
+  Definition preserves_terminal
+    : UU
+    := ∏ (x : C₁), isTerminal C₁ x → isTerminal C₂ (F x).
+
+  Context (H : preserves_terminal).
+  Context (T : Terminal C₁).
+  Context (T' : Terminal C₂).
+
+  Definition preserves_terminal_to_terminal
+    : Terminal C₂
+    := make_Terminal _ (H _ (pr2 T)).
+
+  Definition preserves_terminal_to_z_iso
+    : z_iso preserves_terminal_to_terminal T'
+    := z_iso_Terminals _ _.
+
+End PreservesTerminal.
 
 Definition identity_preserves_terminal
            (C : category)
@@ -140,28 +160,133 @@ Qed.
 (**
  2. Preservation of binary products
  *)
-Definition preserves_binproduct
-           {C₁ C₂ : category}
-           (F : C₁ ⟶ C₂)
-  : UU
-  := ∏ (x y prod : C₁)
-       (π₁ : prod --> x)
-       (π₂ : prod --> y),
-    isBinProduct C₁ x y prod π₁ π₂
-    →
-    isBinProduct C₂ (F x) (F y) (F prod) (#F π₁) (#F π₂).
+
+Section PreservesBinProduct.
+
+  Context {C₁ C₂ : category}.
+  Context (HC₁ : BinProducts C₁).
+  Context (F : C₁ ⟶ C₂).
+
+  Definition preserves_binproduct
+    : UU
+    := ∏ (x y prod : C₁)
+        (π₁ : prod --> x)
+        (π₂ : prod --> y),
+      isBinProduct C₁ x y prod π₁ π₂
+      →
+      isBinProduct C₂ (F x) (F y) (F prod) (#F π₁) (#F π₂).
+
+  Definition isaprop_preserves_binproduct
+    : isaprop preserves_binproduct.
+  Proof.
+    repeat (use impred ; intro).
+    use isapropiscontr.
+  Qed.
+
+  Definition preserves_chosen_binproduct
+    : UU
+    := ∏ (x y : C₁),
+      isBinProduct
+        C₂
+        (F x) (F y)
+        (F (BinProductObject C₁ (HC₁ x y)))
+        (#F (BinProductPr1 C₁ (HC₁ x y)))
+        (#F (BinProductPr2 C₁ (HC₁ x y))).
+
+  Definition preserves_binproduct_if_preserves_chosen
+    (HF : preserves_chosen_binproduct)
+    : preserves_binproduct.
+  Proof.
+    intros x y z π₁ π₂ Hxy.
+    use (isBinProduct_eq_arrow
+          _ _
+          (pr2 (iso_to_BinProduct
+                  _
+                  (make_BinProduct _ _ _ _ _ _ (HF x y))
+                  (z_iso_to_iso
+                      (functor_on_z_iso
+                        F
+                        (iso_between_BinProduct
+                            (make_BinProduct _ _ _ _ _ _ Hxy)
+                            (HC₁ x y))))))) ; cbn.
+    - abstract
+        (rewrite <- functor_comp ;
+        rewrite BinProductPr1Commutes ;
+        apply idpath).
+    - abstract
+        (rewrite <- functor_comp ;
+        rewrite BinProductPr2Commutes ;
+        apply idpath).
+  Defined.
+
+  Section Accessors.
+
+    Context {X X' : C₁}.
+    Context (H : preserves_binproduct).
+    Context (BP : BinProduct _ X X').
+    Context (BP' : BinProduct _ (F X) (F X')).
+
+    Definition preserves_binproduct_to_binproduct
+      : BinProduct _ (F X) (F X')
+      := make_BinProduct _ _ _ _ _ _ (H _ _ _ _ _ (pr2 BP)).
+
+    Definition preserves_binproduct_to_z_iso
+      : z_iso preserves_binproduct_to_binproduct BP'
+      := iso_between_BinProduct _ _.
+
+    Lemma preserves_binproduct_to_preserves_pr1
+      : #F (BinProductPr1 _ BP) = preserves_binproduct_to_z_iso · BinProductPr1 _ BP'.
+    Proof.
+      exact (!BinProductPr1Commutes _ _ _ _ _ _ _).
+    Qed.
+
+    Lemma preserves_binproduct_to_preserves_pr2
+      : #F (BinProductPr2 _ BP) = preserves_binproduct_to_z_iso · BinProductPr2 _ BP'.
+    Proof.
+      exact (!BinProductPr2Commutes _ _ _ _ _ _ _).
+    Qed.
+
+    Lemma preserves_binproduct_to_preserves_arrow
+      {Y : C₁}
+      (f : C₁⟦Y, X⟧)
+      (f' : C₁⟦Y, X'⟧)
+      : #F (BinProductArrow _ BP f f') = BinProductArrow _ BP' (#F f) (#F f') · inv_from_z_iso preserves_binproduct_to_z_iso.
+    Proof.
+      apply z_iso_inv_on_left.
+      apply BinProductArrowsEq.
+      - refine (!_ @ maponpaths _ (z_iso_inv_on_right _ _ _ _ _ _ preserves_binproduct_to_preserves_pr1)).
+        refine (assoc _ _ _ @ _).
+        refine (maponpaths (λ x, x · _) (assoc' _ _ _) @ _).
+        refine (maponpaths (λ x, _ · x · _) (z_iso_inv_after_z_iso _) @ _).
+        refine (maponpaths (λ x, x · _) (id_right _) @ _).
+        refine (!functor_comp _ _ _ @ _).
+        refine (maponpaths (λ x, #F x) (BinProductPr1Commutes _ _ _ _ _ _ _) @ !_).
+        exact (BinProductPr1Commutes _ _ _ _ _ _ _).
+      - refine (!_ @ maponpaths _ (z_iso_inv_on_right _ _ _ _ _ _ preserves_binproduct_to_preserves_pr2)).
+        refine (assoc _ _ _ @ _).
+        refine (maponpaths (λ x, x · _) (assoc' _ _ _) @ _).
+        refine (maponpaths (λ x, _ · x · _) (z_iso_inv_after_z_iso _) @ _).
+        refine (maponpaths (λ x, x · _) (id_right _) @ _).
+        refine (!functor_comp _ _ _ @ _).
+        refine (maponpaths (λ x, #F x) (BinProductPr2Commutes _ _ _ _ _ _ _) @ !_).
+        exact (BinProductPr2Commutes _ _ _ _ _ _ _).
+    Qed.
+
+  End Accessors.
+
+End PreservesBinProduct.
 
 Definition identity_preserves_binproduct
-           (C : category)
+          (C : category)
   : preserves_binproduct (functor_identity C)
   := λ _ _ _ _ _ Hx, Hx.
 
 Definition composition_preserves_binproduct
-           {C₁ C₂ C₃ : category}
-           {F : C₁ ⟶ C₂}
-           {G : C₂ ⟶ C₃}
-           (HF : preserves_binproduct F)
-           (HG : preserves_binproduct G)
+          {C₁ C₂ C₃ : category}
+          {F : C₁ ⟶ C₂}
+          {G : C₂ ⟶ C₃}
+          (HF : preserves_binproduct F)
+          (HG : preserves_binproduct G)
   : preserves_binproduct (F ∙ G).
 Proof.
   intros ? ? ? ? ? Hx.
@@ -170,55 +295,102 @@ Proof.
   exact Hx.
 Defined.
 
-Definition isaprop_preserves_binproduct
-           {C₁ C₂ : category}
-           (F : C₁ ⟶ C₂)
-  : isaprop (preserves_binproduct F).
-Proof.
-  repeat (use impred ; intro).
-  use isapropiscontr.
-Qed.
+(**
+ 3. Preservation of products
+ *)
+Section PreservesProduct.
 
-Definition preserves_chosen_binproduct
-           {C₁ C₂ : category}
-           (HC₁ : BinProducts C₁)
-           (F : C₁ ⟶ C₂)
-  : UU
-  := ∏ (x y : C₁),
-     isBinProduct
-       C₂
-       (F x) (F y)
-       (F (BinProductObject C₁ (HC₁ x y)))
-       (#F (BinProductPr1 C₁ (HC₁ x y)))
-       (#F (BinProductPr2 C₁ (HC₁ x y))).
+  Context (J : UU).
+  Context {C₁ C₂ : category}.
+  Context (HC₁ : Products J C₁).
+  Context (F : C₁ ⟶ C₂).
 
-Definition preserves_binproduct_if_preserves_chosen
-           {C₁ C₂ : category}
-           (HC₁ : BinProducts C₁)
-           (F : C₁ ⟶ C₂)
-           (HF : preserves_chosen_binproduct HC₁ F)
-  : preserves_binproduct F.
+  Definition preserves_product
+    : UU
+    := ∏ (D : J → C₁)
+        (c : C₁)
+        (ι : ∏ (j : J), c --> D j),
+      isProduct J C₁ D c ι
+      →
+      isProduct J C₂ (λ j, F (D j)) (F c) (λ j, #F (ι j)).
+
+  Definition isaprop_preserves_product
+    : isaprop preserves_product.
+  Proof.
+    repeat (use impred ; intro).
+    use isapropiscontr.
+  Qed.
+
+  Definition preserves_chosen_product
+    : UU
+    := ∏ (D : J → C₁),
+      isProduct
+        J
+        C₂
+        (λ j, F(D j))
+        (F (HC₁ D))
+        (λ j, #F (ProductPr _ _ (HC₁ D) j)).
+
+  Definition preserves_product_if_preserves_chosen
+    (HF : preserves_chosen_product)
+    : preserves_product.
+  Proof.
+    intros x z π Hxy.
+    pose (p := make_Product _ _ _ _ _ Hxy).
+    pose (i := z_iso_between_Product p (HC₁ x)).
+    pose (i' := functor_on_z_iso F i).
+    pose (p' := make_Product _ _ _ _ _ (HF x)).
+    use (isProduct_eq_arrow _ (iso_to_isProduct p' _ i')).
+    intro j.
+    abstract exact (!functor_comp _ _ _ @ maponpaths _ (ProductPrCommutes _ _ _ _ _ _ _)).
+  Defined.
+
+  Section Accessors.
+
+    Context {X : J → C₁}.
+    Context (H : preserves_product).
+    Context (P : Product _ _ X).
+    Context (P' : Product J C₂ (λ j, F (X j))).
+
+    Definition preserves_product_to_product
+      : Product _ _ (λ j, F (X j))
+      := make_Product _ _ _ _ _ (H _ _ _ (pr2 P)).
+
+    Definition preserves_product_to_z_iso
+      : z_iso preserves_product_to_product P'
+      := z_iso_between_Product _ _.
+
+    Lemma preserves_product_to_preserves_pr
+      (j : J)
+      : inv_from_z_iso preserves_product_to_z_iso · #F (ProductPr _ _ P j) = ProductPr _ _ P' j.
+    Proof.
+      apply z_iso_inv_on_right.
+      exact (!ProductPrCommutes _ _ _ P' _ _ _).
+    Qed.
+
+  End Accessors.
+
+End PreservesProduct.
+
+Definition identity_preserves_product
+           (C : category)
+           (J : UU)
+  : preserves_product J (functor_identity C)
+  := λ _ _ _ Hx, Hx.
+
+Definition composition_preserves_product
+           (J : UU)
+           {C₁ C₂ C₃ : category}
+           {F : C₁ ⟶ C₂}
+           {G : C₂ ⟶ C₃}
+           (HF : preserves_product J F)
+           (HG : preserves_product J G)
+  : preserves_product J (F ∙ G).
 Proof.
-  intros x y z π₁ π₂ Hxy.
-  use (isBinProduct_eq_arrow
-         _ _
-         (pr2 (iso_to_BinProduct
-                 _
-                 (make_BinProduct _ _ _ _ _ _ (HF x y))
-                 (z_iso_to_iso
-                    (functor_on_z_iso
-                       F
-                       (iso_between_BinProduct
-                          (make_BinProduct _ _ _ _ _ _ Hxy)
-                          (HC₁ x y))))))) ; cbn.
-  - abstract
-      (rewrite <- functor_comp ;
-       rewrite BinProductPr1Commutes ;
-       apply idpath).
-  - abstract
-      (rewrite <- functor_comp ;
-       rewrite BinProductPr2Commutes ;
-       apply idpath).
+  intros ? ? ? Hx.
+  apply HG.
+  apply HF.
+  exact Hx.
 Defined.
 
 Definition preserves_chosen_binproducts_eq
@@ -267,7 +439,7 @@ Proof.
 Qed.
 
 (**
- 3. Preservation of equalizers
+ 4. Preservation of equalizers
  *)
 Definition preserves_equalizer
            {C₁ C₂ : category}
@@ -332,7 +504,7 @@ Definition preserves_chosen_equalizer
        p.
 
 (**
- 4. Preservation of pullbacks
+ 5. Preservation of pullbacks
  *)
 Definition preserves_pullback
            {C₁ C₂ : category}
@@ -439,7 +611,7 @@ Proof.
 Defined.
 
 (**
- 5. Preservation of initial objects
+ 6. Preservation of initial objects
  *)
 Definition preserves_initial
            {C₁ C₂ : category}
@@ -494,7 +666,7 @@ Proof.
 Defined.
 
 (**
- 6. Preservation of binary coproducts
+ 7. Preservation of binary coproducts
  *)
 Definition preserves_bincoproduct
            {C₁ C₂ : category}
@@ -578,7 +750,7 @@ Proof.
 Defined.
 
 (**
- 7. Preservation of (reflexive) coequalizers
+ 8. Preservation of (reflexive) coequalizers
  *)
 Definition preserves_coequalizer
            {C₁ C₂ : category}
@@ -781,7 +953,7 @@ Proof.
 Defined.
 
 (**
- 8. Preservation of coproducts
+ 9. Preservation of coproducts
  *)
 Definition preserves_coproduct
            (J : UU)
@@ -841,7 +1013,7 @@ Definition preserves_chosen_coproduct
        (λ j, #F (CoproductIn _ _ (HC₁ D) j)).
 
 (**
- 8. Preservation of pushouts
+ 10. Preservation of pushouts
  *)
 Definition preserves_pushout
            {C₁ C₂ : category}
@@ -895,7 +1067,7 @@ Proof.
 Qed.
 
 (**
- 10. Adjunctions and preservation
+ 11. Adjunctions and preservation
  *)
 Section AdjunctionPreservation.
   Context {C₁ C₂ : category}
@@ -921,7 +1093,7 @@ Section AdjunctionPreservation.
   Qed.
 
   (**
-   10.1 Right adjoints preserve limits
+   11.1 Right adjoints preserve limits
    *)
   Definition right_adjoint_preserves_terminal
     : preserves_terminal R.
@@ -1244,7 +1416,7 @@ Section AdjunctionPreservation.
   Qed.
 
   (**
-   10.2 Left adjoints preserve colimits
+   11.2 Left adjoints preserve colimits
    *)
   Definition left_adjoint_preserves_initial
     : preserves_initial L.

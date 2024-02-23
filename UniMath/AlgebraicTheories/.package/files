@@ -9,7 +9,6 @@ AlgebraicTheoryCategory.v
 AlgebraCategoryCore.v
 Algebras.v
 AlgebraMorphisms.v
-AlgebraFibration.v
 AlgebraCategory.v
 
 LambdaCalculus.v
