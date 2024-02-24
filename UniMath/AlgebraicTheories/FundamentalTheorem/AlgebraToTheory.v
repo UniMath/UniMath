@@ -597,9 +597,9 @@ Section AlgebraToTheory.
     Defined.
 
     Lemma lambda_algebra_theory_has_beta
-      : has_beta lambda_algebra_theory.
+      : has_β lambda_algebra_theory.
     Proof.
-      apply endomorphism_theory_has_beta.
+      apply endomorphism_theory_has_β.
       assert ((functional_abs : monoid_action_cat _⟦_, _⟧) · functional_app = identity _).
       {
         apply monoid_action_morphism_eq.
