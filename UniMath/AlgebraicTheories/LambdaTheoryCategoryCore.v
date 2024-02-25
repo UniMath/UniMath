@@ -203,6 +203,29 @@ Section LambdaTheoryCategory.
     : category
     := total_category lambda_theory_disp_cat.
 
+  Definition theory_data
+    (L : lambda_theory_cat)
+    : lambda_theory_data_cat
+    := pr1 L.
+
+  Definition β_ax
+    (L : lambda_theory_cat)
+    (n : nat)
+    (l : (data_theory (theory_data L)) (S n))
+    : UU
+    := data_app (data_abs l) = l.
+
+  Definition η_ax
+    (L : lambda_theory_cat)
+    (n : nat)
+    (l : (data_theory (theory_data L)) n)
+    : UU
+    := data_abs (data_app l) = l.
+
+  Definition β_lambda_theory_cat
+    : category
+    := full_subcat lambda_theory_cat (λ L, ∏ n l, β_ax L n l).
+
 (** *** 1.2.1. A lemma about λ-theories *)
 
   Lemma isaprop_is_lambda_theory
@@ -222,3 +245,5 @@ Arguments mor_app_ax /.
 Arguments mor_abs_ax /.
 Arguments app_comp_ax /.
 Arguments abs_comp_ax /.
+Arguments β_ax /.
+Arguments η_ax /.
