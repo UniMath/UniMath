@@ -144,7 +144,6 @@ Require Import UniMath.CategoryTheory.ModelCategories.Generated.LNWFSSmallnessRe
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.OneStepMonadSmall.
 
 
-Local Open Scope Cat.
 Local Open Scope cat.
 
 

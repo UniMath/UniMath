@@ -664,7 +664,6 @@ Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp
 Proof.
   set (Ffiso := (_,, base_mor) : z_iso _ _).
   set (LNWFSarr := colimArrow LNWFSCC _ (mapcocone (monoidal_left_tensor (L : LNWFS_mon)) _ (colimCocone CL))).
-  (*
   use (Ff_iso_inv_LNWFS_mor (colim LNWFSCC) (monoidal_left_tensor (L : LNWFS_mon) (colim CL)) Ffiso).
 
   (* commutativity of project_cocone for
@@ -683,8 +682,6 @@ Proof.
   rewrite X.
   exact (pr2 LNWFSarr).
 Qed.
-   *)
-Admitted.
 
 Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim
     (L : total_category (LNWFS C))
