@@ -17,7 +17,7 @@
     a cleaving. Note that since we are working with univalent (displayed) categories,
     cleavings are unique, and for this reason, we have a proposition of cleavings.
  2. The property that we require for the displayed 1-cells, is that the displayed functor
-    is cartesian. Being cartesian is always a proposition irregardless of whether we assume
+    is cartesian. Being cartesian is always a proposition regardless of whether we assume
     univalence or not.
  The univalence of this bicategory again follows from standard constructions. We only need to
  verify that cleavings are unique (which follows from univalence) and that being cartesian is
