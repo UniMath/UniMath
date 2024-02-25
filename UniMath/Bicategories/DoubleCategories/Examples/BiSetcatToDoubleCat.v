@@ -58,7 +58,7 @@ Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.

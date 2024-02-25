@@ -29,7 +29,7 @@ Definition arity {σ: signature} (nm: names σ) : list (sorts σ) := pr1 (ar σ 
 
 Definition sort {σ: signature} (nm: names σ) : sorts σ := pr2 (ar σ nm).
 
-(** Helper function for creating signatures. *)
+(** Helper functions for creating signatures. *)
 
 Definition make_signature (S: decSet) (O: hSet) (ar: O → list S × S) : signature
   := S ,, (O ,, ar).
@@ -45,7 +45,7 @@ the definition of a new signature is made simpler.
 We have decided to define new types for simple signatures instead of only defining helper
 functions, since this make it simpler to define simplified means of defining a new algebra,
 too.
- *)
+*)
 
 Definition signature_simple : UU := ∑ (ns: nat), list (list (⟦ ns ⟧) × ⟦ ns ⟧).
 

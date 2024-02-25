@@ -27,11 +27,11 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
 
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 
 Local Open Scope cat.
 

@@ -24,8 +24,8 @@ Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
 Require Import UniMath.CategoryTheory.Actegories.CoproductsInActegories.
 
 Import Bicat.Notations.

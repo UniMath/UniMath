@@ -39,7 +39,7 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
@@ -65,7 +65,7 @@ Context (CP : BinCoproducts C).
 Local Notation "'EndC'":= ([C, C]) .
 Let CPEndC : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CP.
 
-Variable H : Signature C C C.
+Context (H : Signature C C C).
 
 Let θ := theta H.
 
@@ -91,7 +91,7 @@ Section mu_from_fbracket.
 
 (** We assume given a hss [T] *)
 
-Variable T : hss CP H.
+Context (T : hss CP H).
 
 Local Notation "'p' T" := (ptd_from_alg T) (at level 3).
 Local Notation "f ⊕ g" := (BinCoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g).

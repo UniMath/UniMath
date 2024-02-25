@@ -15,8 +15,8 @@ Require Export UniMath.Combinatorics.FiniteSets.
 Require Export UniMath.CategoryTheory.Core.Categories.
 Require Export UniMath.CategoryTheory.Core.Functors.
 Require Export UniMath.CategoryTheory.FunctorCategory.
-Require Export UniMath.CategoryTheory.categories.HSET.Core.
-Require Export UniMath.CategoryTheory.categories.HSET.Univalence.
+Require Export UniMath.CategoryTheory.Categories.HSET.Core.
+Require Export UniMath.CategoryTheory.Categories.HSET.Univalence.
 Require Export UniMath.CategoryTheory.opp_precat.
 
 (* To upstream files *)

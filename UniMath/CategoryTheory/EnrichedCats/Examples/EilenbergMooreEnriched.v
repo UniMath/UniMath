@@ -23,8 +23,8 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
 Require Import UniMath.CategoryTheory.Subcategory.Full.
-Require Import UniMath.CategoryTheory.categories.Dialgebras.
-Require Import UniMath.CategoryTheory.categories.EilenbergMoore.
+Require Import UniMath.CategoryTheory.Categories.Dialgebras.
+Require Import UniMath.CategoryTheory.Categories.EilenbergMoore.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
@@ -33,8 +33,8 @@ Require Import UniMath.CategoryTheory.EnrichedCats.Examples.DialgebraEnriched.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.FullSubEnriched.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.limits.equalizers.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 
 Local Open Scope cat.
 Local Open Scope moncat.

@@ -8,7 +8,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Require Export UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
-               UniMath.CategoryTheory.categories.HSET.Core.
+               UniMath.CategoryTheory.Categories.HSET.Core.
 
 
 Local Open Scope cat.

@@ -12,24 +12,24 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
-Require Import UniMath.CategoryTheory.categories.HSET.Structures.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
@@ -47,8 +47,8 @@ Local Open Scope cat.
 
 Section FixTheContext.
 
-  Variables (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
-  Variables (TC : Terminal C) (IC : Initial C)
+  Context (sort : UU) (Hsort : isofhlevel 3 sort) (C : category)
+          (TC : Terminal C) (IC : Initial C)
           (BP : BinProducts C) (BC : BinCoproducts C)
           (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
 
@@ -220,8 +220,8 @@ Section FixTheContext.
 
   Section OmegaContinuityOfMultiSortedSigToFunctorPrime.
 
-  Variable (LC : Lims_of_shape conat_graph C).
-  Variable (distr : ∏ I : HSET, ω_limits_distribute_over_I_coproducts C I LC (CC (pr1 I) (pr2 I))).
+  Context (LC : Lims_of_shape conat_graph C)
+          (distr : ∏ I : HSET, ω_limits_distribute_over_I_coproducts C I LC (CC (pr1 I) (pr2 I))).
 
   (* Should also be split up into multiple definitions/lemmas *)
   Lemma post_comp_with_pr_and_hat_is_omega_cont (s t : sort)
@@ -232,10 +232,10 @@ Section FixTheContext.
   Proof.
     intros coch L con isLimcon.
 
-    apply limits.pointwise_Lim_is_isLimFunctor ; intro F.
-    apply limits.pointwise_Lim_is_isLimFunctor ; intro G.
+    apply Limits.pointwise_Lim_is_isLimFunctor ; intro F.
+    apply Limits.pointwise_Lim_is_isLimFunctor ; intro G.
 
-    use limits.is_z_iso_isLim.
+    use Limits.is_z_iso_isLim.
     { apply LC. }
 
     transparent assert (x : (t = G → cochain C)).
@@ -257,8 +257,8 @@ Section FixTheContext.
       assert (bla' : (∏ a : path_pregroupoid sort Hsort, LimCone (diagram_pointwise (diagram_pointwise coch F) a))).
       { intro ; apply LC. }
 
-      set (LF_lim := limits.isLimFunctor_is_pointwise_Lim coch bla _ _ isLimcon F).
-      set (LFs_lim := limits.isLimFunctor_is_pointwise_Lim _ bla' _ _ LF_lim s).
+      set (LF_lim := Limits.isLimFunctor_is_pointwise_Lim coch bla _ _ isLimcon F).
+      set (LFs_lim := Limits.isLimFunctor_is_pointwise_Lim _ bla' _ _ LF_lim s).
       set (LFs_cone := make_LimCone _ _ _ LFs_lim).
 
       use CoproductOfArrows.
@@ -297,7 +297,7 @@ Section FixTheContext.
         apply funextsec ; intro p.
         rewrite ! assoc.
         apply maponpaths_2.
-        apply (graphs.limits.limArrowCommutes (LC (x p))).
+        apply (Graphs.Limits.limArrowCommutes (LC (x p))).
       + etrans.
         1: apply assoc'.
         apply pathsinv0.
@@ -340,7 +340,7 @@ Section FixTheContext.
         apply funextsec ; intro p.
         rewrite ! assoc.
         apply maponpaths_2.
-        apply (graphs.limits.limArrowCommutes (LC (x p))).
+        apply (Graphs.Limits.limArrowCommutes (LC (x p))).
   Defined.
 
   (* In case no constructors were given, i.e. just H := Id. *)

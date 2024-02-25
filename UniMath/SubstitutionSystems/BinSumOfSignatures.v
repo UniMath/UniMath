@@ -26,7 +26,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
@@ -35,30 +35,26 @@ Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.Chains.OmegaCocontFunctors.
-Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
 
 Local Open Scope cat.
 
 Section binsum_of_signatures.
 
-Variable C : category.
-Variable D : category.
-Variable D' : category.
-Variable CD : BinCoproducts D.
+Context  (C D D' : category) (CD : BinCoproducts D).
 
 Section construction.
 
 Local Notation "'CCD'" := (BinCoproducts_functor_precat C D CD : BinCoproducts [C, D]).
 
-Variables H1 H2 : functor [C, D'] [C, D].
+Context (H1 H2 : functor [C, D'] [C, D])
+        (θ1 : θ_source H1 ⟹ θ_target H1)
+        (θ2 : θ_source H2 ⟹ θ_target H2).
 
-Variable θ1 : θ_source H1 ⟹ θ_target H1.
-Variable θ2 : θ_source H2 ⟹ θ_target H2.
-
-Variable S11 : θ_Strength1 θ1.
-Variable S12 : θ_Strength2 θ1.
-Variable S21 : θ_Strength1 θ2.
-Variable S22 : θ_Strength2 θ2.
+Context (S11 : θ_Strength1 θ1)
+        (S12 : θ_Strength2 θ1)
+        (S21 : θ_Strength1 θ2)
+        (S22 : θ_Strength2 θ2).
 
 (** * Definition of the data of the sum of two signatures *)
 
@@ -169,10 +165,11 @@ Proof.
     apply Ha_x.
 Qed.
 
-Variable S11' : θ_Strength1_int θ1.
-Variable S12' : θ_Strength2_int θ1.
-Variable S21' : θ_Strength1_int θ2.
-Variable S22' : θ_Strength2_int θ2.
+
+Context (S11' : θ_Strength1_int θ1)
+        (S12' : θ_Strength2_int θ1)
+        (S21' : θ_Strength1_int θ2)
+        (S22' : θ_Strength2_int θ2).
 
 Lemma SumStrength1' : θ_Strength1_int θ.
 Proof.

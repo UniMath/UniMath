@@ -21,11 +21,8 @@ Contents :
 ************************************************************)
 
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -1159,3 +1156,38 @@ Section AdjunctionLemmas.
   Qed.
 
 End AdjunctionLemmas.
+
+(** More builders for adjunctions *)
+Definition left_adjoint_to_adjunction
+           {C₁ C₂ : category}
+           {L : C₁ ⟶ C₂}
+           (HL : is_left_adjoint L)
+  : adjunction C₁ C₂.
+Proof.
+  use make_adjunction.
+  - use make_adjunction_data.
+    + exact L.
+    + exact (right_adjoint HL).
+    + exact (adjunit HL).
+    + exact (adjcounit HL).
+  - split.
+    + exact (pr122 HL).
+    + exact (pr222 HL).
+Defined.
+
+Definition right_adjoint_to_adjunction
+           {C₁ C₂ : category}
+           {R : C₁ ⟶ C₂}
+           (HR : is_right_adjoint R)
+  : adjunction C₂ C₁.
+Proof.
+  use make_adjunction.
+  - use make_adjunction_data.
+    + exact (left_adjoint HR).
+    + exact R.
+    + exact (adjunit (pr2 HR)).
+    + exact (adjcounit (pr2 HR)).
+  - split.
+    + exact (pr122 HR).
+    + exact (pr222 HR).
+Defined.

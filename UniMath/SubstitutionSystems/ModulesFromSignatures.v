@@ -38,13 +38,13 @@ Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration_alt.
-Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.Limits.Initial.
 
 (** A monad is a pointed endofunctor *)
 Definition ptd_from_mon {C:category} (T:Monad C) : category_Ptd C :=
@@ -77,7 +77,7 @@ Local Notation "'Ptd'" := (category_Ptd C).
 (** The category of endofunctors on [C] *)
 Local Notation "'EndC'":= ([C, C]) .
 
-Variables (T : Monad C) (M : LModule T C).
+Context (T : Monad C) (M : LModule T C).
 
 Local Notation Mf := (M : functor _ _).
 Local Notation "'p' T" := (ptd_from_mon T) (at level 3).
@@ -219,15 +219,14 @@ Section InitialRep.
 
 (** ** Some variables and assumptions *)
 
-Variable C : category.
-Variable CP : BinCoproducts C.
+Context (C : category) (CP : BinCoproducts C).
 
 Local Notation "'EndC'":= ([C, C]) .
 Let CPEndC : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CP.
 
 
 (** Assume having a signature on [C] *)
-Variable H : Signature C C C.
+Context (H : Signature C C C).
 Let θ := theta H.
 
 Local Notation θ_nat_2_pw := (θ_nat_2_pointwise _ _ _ H (theta H)).
@@ -252,7 +251,7 @@ Local Notation η := @eta_from_alg.
 
 Section TauModuleMorphism.
 
-Variable T : hss CP H.
+Context (T : hss CP H).
 Local Notation T_mon := (Monad_from_hss _ _ _ T).
 Local Notation T_mod := (tautological_LModule T_mon).
 Local Notation HT_mod := (lift_lmodule H _ T_mod).
@@ -284,9 +283,9 @@ In other words, T is the initial representation in the sense of H&M
 *)
 
 
-Variables (IC : Initial C)
-          (CC : Colims_of_shape nat_graph C)
-          (HH : is_omega_cocont H).
+Context (IC : Initial C)
+        (CC : Colims_of_shape nat_graph C)
+        (HH : is_omega_cocont H).
 
 Let T := InitHSS _ CP IC CC H HH.
 
@@ -299,11 +298,11 @@ Local Notation T_hss := (T:hss _ _).
 Section fix_a_representation.
 
 
-Variables (M : Monad C).
+Context (M : Monad C).
 Local Notation M_mod := (tautological_LModule M).
 Local Notation HM_mod := (lift_lmodule H _ M_mod).
 
-Variable (τ_M: LModule_Mor M HM_mod M_mod).
+Context (τ_M: LModule_Mor M HM_mod M_mod).
 
 Local Definition M_alg : Alg.
 Proof.
@@ -324,7 +323,7 @@ Defined.
 
 Let Colims_of_shape_nat_graph_EndC : Colims_of_shape nat_graph EndC.
 Proof.
-  apply colimits.ColimsFunctorCategory_of_shape, CC.
+  apply Colimits.ColimsFunctorCategory_of_shape, CC.
 Defined.
 
 

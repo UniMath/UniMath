@@ -9,14 +9,14 @@ Require Import UniMath.MoreFoundations.WeakEquivalences.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.categories.Type.Core.
-Require Import UniMath.CategoryTheory.categories.Type.Limits.
+Require Import UniMath.CategoryTheory.Categories.Type.Core.
+Require Import UniMath.CategoryTheory.Categories.Type.Limits.
 
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.Chains.Cochains.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.Induction.FunctorCoalgebras_legacy.
 
 Require Import UniMath.Induction.PolynomialFunctors.

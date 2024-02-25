@@ -27,7 +27,7 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Spans.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.

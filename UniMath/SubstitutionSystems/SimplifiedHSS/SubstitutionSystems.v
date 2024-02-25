@@ -36,7 +36,7 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
@@ -704,8 +704,8 @@ Section hssMor_equality.
 
 (** Show that equality of hssMor is equality of underlying nat. transformations *)
 
-Variables T T' : hss.
-Variables β β' : hssMor T T'.
+Context (T T' : hss) (β β' : hssMor T T').
+
 Definition hssMor_eq1 : β = β' ≃ (pr1 β = pr1 β').
 Proof.
   apply subtypeInjectivity.

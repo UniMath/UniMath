@@ -22,15 +22,15 @@ Definition nat_sort: sorts nat_signature := tt.
 Definition nat_zero_op: names nat_signature := ●0.
 Definition nat_succ_op: names nat_signature := ●1.
 
-Definition nat_algebra := make_algebra_simple_single_sorted nat_signature natset [( λ _, 0 ;  λ x, S (pr1 x) )].
+Definition nat_algebra := make_algebra_simple_single_sorted' nat_signature natset [( 0 ; S )].
 
-Goal ops nat_algebra nat_zero_op tt = 0.
+Goal ops' nat_algebra nat_zero_op = 0.
 Proof. apply idpath. Defined.
 
-Goal ops nat_algebra nat_succ_op (1 ,, tt) = 2.
+Goal ops' nat_algebra nat_succ_op 1 = 2.
 Proof. apply idpath. Defined.
 
-Definition z2_algebra := make_algebra_simple_single_sorted nat_signature boolset [( λ _, false ; λ x, negb (pr1 x) )].
+Definition z2_algebra := make_algebra_simple_single_sorted' nat_signature boolset [( false ; negb )].
 
 Definition nat_to_z2 : nat_algebra s→ z2_algebra
   := λ s: sorts nat_signature, nat_rect (λ _, bool) false (λ n HP, negb HP).
@@ -54,8 +54,8 @@ Defined.
 
 Definition natz2 : nat_algebra ↷ z2_algebra := make_hom ishom_nat_to_z2.
 
-Definition nat_zero := build_gterm_curried nat_zero_op.
-Definition nat_succ := build_gterm_curried nat_succ_op.
+Definition nat_zero := build_gterm' nat_zero_op.
+Definition nat_succ := build_gterm' nat_succ_op.
 
 Definition nat2term (n: nat): gterm nat_signature nat_sort
   := nat_rect

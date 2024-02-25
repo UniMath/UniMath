@@ -2,21 +2,24 @@
 
   Properties of the category of algebraic theory algebras
 
-  The displayed category structure is leveraged to show that the category univalent. Also, a
+  The displayed category structure is leveraged to show that the category univalent. The total
+  category of algebras forms a fibration over the category of algebraic theories. Also, a
   characterization of isomorphisms is given.
 
   Contents
   1. Univalence [is_univalent_algebra_cat]
-  2. A characterization of iso's of algebras [make_algebra_z_iso]
+  2. Algebras are fibered over theories [algebra_fibration]
+  3. A characterization of iso's of algebras [make_algebra_z_iso]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Cartesian.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
@@ -24,13 +27,19 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
+Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+
+
 Require Import UniMath.AlgebraicTheories.Algebras.
 Require Import UniMath.AlgebraicTheories.AlgebraMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
 
 Local Open Scope cat.
+Local Open Scope mor_disp.
 
 (** * 1. Univalence *)
 
@@ -86,7 +95,102 @@ Proof.
   - exact is_univalent_disp_algebra_full_disp_cat.
 Qed.
 
-(** * 2. A characterization of iso's of algebras *)
+(** * 2. Algebras are fibered over theories *)
+
+Section Cleaving.
+
+  Context {T T' : algebraic_theory}.
+  Context (F : algebraic_theory_morphism T' T).
+  Context (A : algebra T).
+
+  Definition algebra_cleaving_algebra_data
+    : algebra_data T'.
+  Proof.
+    use tpair.
+    - exact A.
+    - intros n f a.
+      exact (action (F _ f) a).
+  Defined.
+
+  Lemma algebra_cleaving_is_algebra
+    : is_algebra algebra_cleaving_algebra_data.
+  Proof.
+    repeat split.
+    - do 5 intro.
+      refine (maponpaths (λ x, _ x a) (mor_comp F _ _) @ _).
+      apply (comp_action A).
+    - intros n i a.
+      refine (_ @ pr_action A _ _).
+      apply (maponpaths (λ f, action (A := A) f _)).
+      apply mor_pr.
+  Qed.
+
+  Definition algebra_cleaving_algebra
+    : algebra T'
+    := make_algebra _ algebra_cleaving_is_algebra.
+
+  Definition algebra_cleaving_morphism
+    : (algebra_cleaving_algebra : algebra_disp_cat _) -->[F] A.
+  Proof.
+    refine (idfun _ ,, _ ,, tt).
+    abstract now do 3 intro.
+  Defined.
+
+  Section Lift.
+
+    Context {T'' : algebraic_theory}.
+    Context {A'' : algebra T''}.
+    Context (F' : algebraic_theory_morphism T'' T').
+    Context (G' : (A'' : algebra_disp_cat _) -->[(F' : algebraic_theory_cat⟦_, _⟧) · F] A).
+
+    Definition algebra_cleaving_induced_morphism
+      : (A'' : algebra_disp_cat _) -->[F'] algebra_cleaving_algebra.
+    Proof.
+      refine (pr1 G' ,, _ ,, tt).
+      abstract (do 3 intro; apply (pr12 G' _)).
+    Defined.
+
+    Definition algebra_lift
+      : ∑ gg, (gg ;; algebra_cleaving_morphism) = G'.
+    Proof.
+      exists algebra_cleaving_induced_morphism.
+      now apply displayed_algebra_morphism_eq.
+    Defined.
+
+    Lemma algebra_lift_is_unique
+      : ∏ t : (∑ gg, (gg ;; algebra_cleaving_morphism) = G'), t = algebra_lift.
+    Proof.
+      intro t.
+      apply subtypePath.
+      {
+        intro.
+        apply homsets_disp.
+      }
+      apply displayed_algebra_morphism_eq.
+      exact (maponpaths _ (pr2 t)).
+    Qed.
+
+  End Lift.
+
+  Definition algebra_cleaving_is_cartesian
+    : is_cartesian algebra_cleaving_morphism
+    := (λ _ F' _ G', algebra_lift F' G' ,, algebra_lift_is_unique F' G').
+
+End Cleaving.
+
+Definition algebra_cleaving
+  : cleaving algebra_disp_cat
+  := λ _ _ F A,
+    algebra_cleaving_algebra F A ,,
+    algebra_cleaving_morphism F A ,,
+    algebra_cleaving_is_cartesian F A.
+
+Definition algebra_fibration
+  : fibration algebraic_theory_cat
+  := _ ,, algebra_cleaving.
+
+
+(** * 3. A characterization of iso's of algebras *)
 
 Section Iso.
 

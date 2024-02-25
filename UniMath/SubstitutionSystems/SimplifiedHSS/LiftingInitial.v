@@ -39,13 +39,13 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
@@ -75,9 +75,9 @@ Let EndEndC := [EndC, EndC].
 Let CPEndEndC:= BinCoproducts_functor_precat _ _ CPEndC: BinCoproducts EndEndC.
 
 
-Variable KanExt : ∏ Z : Ptd, GlobalRightKanExtensionExists _ _ (U Z) C.
+Context (KanExt : ∏ Z : Ptd, GlobalRightKanExtensionExists _ _ (U Z) C).
 
-Variable H : Presignature C C C.
+Context (H : Presignature C C C).
 Let θ := theta H.
 
 Definition Const_plus_H (X : EndC) : functor EndC EndC
@@ -90,7 +90,8 @@ Definition Id_H :  functor [C, C] [C, C]
 Let Alg : category := FunctorAlg Id_H.
 
 
-Variable IA : Initial Alg.
+Context (IA : Initial Alg).
+
 Definition SpecializedGMIt (Z : Ptd) (X : EndC)
   :  ∏ (G : functor [C, C] [C, C])
        (ρ : [C, C] ⟦ G X, X ⟧)

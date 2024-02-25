@@ -68,7 +68,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Free_Monoids_and_Groups.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-Require Import UniMath.CategoryTheory.categories.Relations.
+Require Import UniMath.CategoryTheory.Categories.Rel.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.Comonads.

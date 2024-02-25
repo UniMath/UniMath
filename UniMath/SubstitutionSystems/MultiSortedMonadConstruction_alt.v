@@ -19,22 +19,22 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.categories.HSET.Structures.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
@@ -52,13 +52,13 @@ Local Open Scope cat.
 Section MBindingSig.
 
 (* Interestingly we only need that [sort] is a 1-type *)
-Variables (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
+Context (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
 
 (* Assumptions on [C] used to construct the functor *)
 (* Note that there is some redundancy in the assumptions *)
-Variables (TC : Terminal C) (IC : Initial C)
-          (BP : BinProducts C) (BC : BinCoproducts C)
-          (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
+Context (TC : Terminal C) (IC : Initial C)
+        (BP : BinProducts C) (BC : BinCoproducts C)
+        (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
 
 Local Notation "'1'" := (TerminalObject TC).
 Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
@@ -74,13 +74,13 @@ Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
 Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
-Variables (expSortToCC : Exponentials BPC)
-          (HC : Colims_of_shape nat_graph C).
+Context (expSortToCC : Exponentials BPC)
+        (HC : Colims_of_shape nat_graph C).
 (* The expSortToCC assumption says that [sortToC,C] has exponentials. It
    could be reduced to exponentials in C, but we only have the case
    for C = Set formalized in
 
-     CategoryTheory.categories.HSET.Structures.Exponentials_functor_HSET
+     CategoryTheory.Categories.HSET.Structures.Exponentials_functor_HSET
 
  *)
 

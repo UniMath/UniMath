@@ -31,8 +31,8 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.

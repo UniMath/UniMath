@@ -7,12 +7,12 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.limits.initial.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.Preservation.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
@@ -103,14 +103,14 @@ Defined.
 (**
  4. Monads in the bicategory of categories with finite limits
  *)
-Definition make_mnd_univ_cat_with_finlim
+Definition make_mnd_bicat_of_univ_cat_with_finlim
            (C : univalent_category)
            (M : Monad C)
            (TC : Terminal C)
            (PC : Pullbacks C)
            (MT : preserves_terminal M)
            (MP : preserves_pullback M)
-  : mnd univ_cat_with_finlim.
+  : mnd bicat_of_univ_cat_with_finlim.
 Proof.
   use make_mnd_total_bicat.
   - apply disp_2cells_isaprop_prod ; apply disp_2cells_isaprop_subbicat.

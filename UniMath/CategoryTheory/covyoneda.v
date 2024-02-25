@@ -26,7 +26,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Export UniMath.CategoryTheory.FunctorCategory.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.whiskering.
 

@@ -9,7 +9,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Groupoids.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.

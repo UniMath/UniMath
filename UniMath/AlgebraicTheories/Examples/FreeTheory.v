@@ -11,26 +11,36 @@
   1. The free functor [free_functor]
   2. The forgetful functor [forgetful_functor]
   3. The adjunction [free_functor_is_free]
+  4. The equivalence between algebras and coslices [algebra_coslice_equivalence]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.coslicecat.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import UniMath.Combinatorics.Vectors.
 
+Require Import UniMath.AlgebraicTheories.AlgebraCategory.
+Require Import UniMath.AlgebraicTheories.AlgebraCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+Require Import UniMath.AlgebraicTheories.AlgebraMorphisms.
+Require Import UniMath.AlgebraicTheories.Algebras.
 
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
+Local Open Scope vec.
 
 (** * 1. The free functor *)
 
@@ -221,3 +231,151 @@ Proof.
       easy
     ).
 Defined.
+
+(** * 4. The equivalence between algebras and coslices *)
+
+Section CosliceCatEquivalence.
+
+  Context (S : hSet).
+
+  Definition coslice_functor_data
+    : functor_data (algebra_cat (free_theory S)) (coslice_cat SET S).
+  Proof.
+    use make_functor_data.
+    - intro A.
+      exists ((A : algebra _) : hSet).
+      intro s.
+      exact (action (T := free_theory S) (n := 0) (inr s) (weqvecfun 0 [()])).
+    - intros A B F.
+      exists (F : algebra_morphism _ _).
+      abstract (
+        apply funextfun;
+        intro s;
+        refine (mor_action _ _ _ @ _);
+        apply (maponpaths (action _));
+        apply funextfun;
+        intro i;
+        apply (fromstn0 i)
+      ).
+  Defined.
+
+  Lemma coslice_is_functor
+    : is_functor coslice_functor_data.
+  Proof.
+    split.
+    - intro A.
+      apply subtypePath.
+      {
+        intro.
+        apply funspace_isaset.
+        apply setproperty.
+      }
+      easy.
+    - intros A B C F G.
+      apply subtypePath.
+      {
+        intro.
+        apply funspace_isaset.
+        apply setproperty.
+      }
+      apply algebra_mor_comp.
+  Qed.
+
+  Definition coslice_functor
+    : algebra_cat (free_theory S) ⟶ coslice_cat SET S
+    := make_functor _ coslice_is_functor.
+
+  Definition coslice_to_algebra_morphism_data
+    {A B : algebra (free_theory S)}
+    (F : coslice_cat SET S ⟦ coslice_functor A, coslice_functor B ⟧)
+    : A → B
+    := coslicecat_mor_morphism _ _ F.
+
+  Lemma coslice_to_is_algebra_morphism
+    {A B : algebra (free_theory S)}
+    (F : coslice_cat SET S ⟦ coslice_functor A, coslice_functor B ⟧)
+    : ∏ n f a, mor_action_ax (identity _) (coslice_to_algebra_morphism_data F) (@action _ A) (@action _ B) n f a.
+  Proof.
+    intros n f a.
+    induction f as [i | s].
+    - refine (maponpaths _ (pr_action _ _ _) @ !_).
+      exact (pr_action _ _ _).
+    - refine (maponpaths _ (comp_action A (inr s) (weqvecfun _ [()]) a) @ !_).
+      refine (comp_action B (inr s) (weqvecfun _ [()]) (λ i, coslicecat_mor_morphism _ _ F (a i)) @ !_).
+      refine (_ @ eqtohomot (coslicecat_mor_comm _ _ F) s @ _).
+      + apply (maponpaths (coslicecat_mor_morphism _ _ F)).
+        apply (maponpaths (action _)).
+        apply funextfun.
+        intro i.
+        apply (fromstn0 i).
+      + apply (maponpaths (action _)).
+        apply funextfun.
+        intro i.
+        apply (fromstn0 i).
+  Qed.
+
+  Definition coslice_to_algebra_morphism
+    {A B : algebra (free_theory S)}
+    (F : coslice_cat SET S ⟦ coslice_functor A, coslice_functor B ⟧)
+    : algebra_morphism A B
+    := make_algebra_morphism _ (coslice_to_is_algebra_morphism F).
+
+  Definition fully_faithful_coslice_functor
+    : fully_faithful coslice_functor.
+  Proof.
+    intros A B.
+    use isweq_iso.
+    - exact coslice_to_algebra_morphism.
+    - abstract now (
+        intro F;
+        apply algebra_morphism_eq
+      ).
+    - abstract now (
+        intro F;
+        apply subtypePath;
+        [ intro;
+          apply homset_property
+        | apply idpath ]
+      ).
+  Defined.
+
+  Definition coslice_to_algebra_data
+    (T : coslice_cat SET S)
+    : algebra_data (free_theory S).
+  Proof.
+    use make_algebra_data.
+    - exact (coslicecat_ob_object _ _ T).
+    - intros n f a.
+      induction f as [i | s].
+      + exact (a i).
+      + exact (coslicecat_ob_morphism _ _ T s).
+  Defined.
+
+  Lemma coslice_to_is_algebra
+    (T : coslice_cat SET S)
+    : is_algebra (coslice_to_algebra_data T).
+  Proof.
+    split.
+    - intros m n f g a.
+      now induction f.
+    - easy.
+  Qed.
+
+  Definition coslice_to_algebra
+    (T : coslice_cat SET S)
+    : algebra (free_theory S)
+    := make_algebra _ (coslice_to_is_algebra T).
+
+  Definition algebra_coslice_equivalence
+    : adj_equivalence_of_cats coslice_functor.
+  Proof.
+    use rad_equivalence_of_cats.
+    - apply is_univalent_algebra_cat.
+    - exact fully_faithful_coslice_functor.
+    - intro T.
+      apply hinhpr.
+      exists (coslice_to_algebra T).
+      apply identity_z_iso.
+  Defined.
+
+End CosliceCatEquivalence.

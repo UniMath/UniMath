@@ -21,7 +21,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.categories.Dialgebras.
+Require Import UniMath.CategoryTheory.Categories.Dialgebras.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Functors.
@@ -545,7 +545,7 @@ Section FixTwoMonoidalFunctors.
         use total2_paths_f.
         - cbn.
           unfold nattrans_from_ms.
-          apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip1_with_sections.
+          apply UniMath.CategoryTheory.Categories.Dialgebras.roundtrip1_with_sections.
         - cbn.
           match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
           assert (Hprop: isaprop goaltype).
@@ -563,7 +563,7 @@ Section FixTwoMonoidalFunctors.
         use total2_paths_f.
         - cbn.
           unfold nattrans_from_ms.
-          apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip2_with_sections.
+          apply UniMath.CategoryTheory.Categories.Dialgebras.roundtrip2_with_sections.
         - cbn.
           match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
           assert (Hprop: isaprop goaltype).
@@ -657,14 +657,14 @@ Section MonoidalNatTransToDialgebraLifting.
       use tpair.
       + cbn.
 
-        transparent assert (pfG_is_z_iso : (is_z_isomorphism ( (# G)%Cat (inv_from_z_iso (fmonoidal_preservestensordata Km x y,, fmonoidal_preservestensorstrongly (_,, pr2 Km) x y))))).
+        transparent assert (pfG_is_z_iso : (is_z_isomorphism ( (# G)%cat (inv_from_z_iso (fmonoidal_preservestensordata Km x y,, fmonoidal_preservestensorstrongly (_,, pr2 Km) x y))))).
         {
           use functor_on_is_z_isomorphism.
           apply is_z_iso_inv_from_z_iso.
         }
         use (z_iso_inv_to_right _ _ _ _ (_ ,, pfG_is_z_iso)).
 
-        transparent assert (pfF_is_z_iso : (is_z_isomorphism ((# F)%Cat
+        transparent assert (pfF_is_z_iso : (is_z_isomorphism ((# F)%cat
     (inv_from_z_iso
        (fmonoidal_preservestensordata Km x y,, fmonoidal_preservestensorstrongly (_,, pr2 Km) x y))))).
         {
@@ -681,7 +681,7 @@ Section MonoidalNatTransToDialgebraLifting.
       + cbn.
 
         transparent assert (pfL_is_z_iso :
-                             (is_z_isomorphism ( (# F)%Cat (inv_from_z_iso (fmonoidal_preservesunit Km,, fmonoidal_preservesunitstrongly (_ ,, pr2 Km)))))
+                             (is_z_isomorphism ( (# F)%cat (inv_from_z_iso (fmonoidal_preservesunit Km,, fmonoidal_preservesunitstrongly (_ ,, pr2 Km)))))
                            ).
         {
           use functor_on_is_z_isomorphism.
@@ -692,7 +692,7 @@ Section MonoidalNatTransToDialgebraLifting.
 
         transparent assert (pfR_is_z_iso
                              : (is_z_isomorphism
-                                  ((# G)%Cat (inv_from_z_iso (fmonoidal_preservesunit Km,, fmonoidal_preservesunitstrongly (_,, pr2 Km)))))).
+                                  ((# G)%cat (inv_from_z_iso (fmonoidal_preservesunit Km,, fmonoidal_preservesunitstrongly (_,, pr2 Km)))))).
         {
           use functor_on_is_z_isomorphism.
           apply is_z_iso_inv_from_z_iso.
@@ -836,7 +836,7 @@ Section RoundtripForLiftingData.
     : target_to_source' (source_to_target' ass) = ass.
   Proof.
     use total2_paths_f.
-    - apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip1_with_liftings.
+    - apply UniMath.CategoryTheory.Categories.Dialgebras.roundtrip1_with_liftings.
     - apply isaprop_is_mon_nat_trans.
   Qed.
 
@@ -844,7 +844,7 @@ Section RoundtripForLiftingData.
     : target_to_source_s' (source_to_target_s' ass) = ass.
   Proof.
     use total2_paths_f.
-    - apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip1_with_liftings.
+    - apply UniMath.CategoryTheory.Categories.Dialgebras.roundtrip1_with_liftings.
     - apply isaprop_is_mon_nat_trans.
   Qed.
 
@@ -852,7 +852,7 @@ Section RoundtripForLiftingData.
     : source_to_target' (target_to_source' ass) = ass.
   Proof.
     use total2_paths_f.
-    - apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip2_with_liftings.
+    - apply UniMath.CategoryTheory.Categories.Dialgebras.roundtrip2_with_liftings.
     - use flmonoidal_equality ; intros ; apply homset_property.
   Qed.
 
@@ -860,7 +860,7 @@ Section RoundtripForLiftingData.
     : source_to_target_s' (target_to_source_s' ass) = ass.
   Proof.
     use total2_paths_f.
-    - apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip2_with_liftings.
+    - apply UniMath.CategoryTheory.Categories.Dialgebras.roundtrip2_with_liftings.
     - use flmonoidal_strong_equality ; intros ; apply homset_property.
   Qed.
 

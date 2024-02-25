@@ -13,8 +13,8 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.
 Require Import UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
 Require Import UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 
 Definition monoidal_cat_of_hset_struct
            (P : hset_cartesian_struct)

@@ -31,16 +31,16 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.TransportMorphisms.
 Local Open Scope cat.
 
-Require Import UniMath.CategoryTheory.limits.zero.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.equalizers.
-Require Import UniMath.CategoryTheory.limits.coequalizers.
-Require Import UniMath.CategoryTheory.limits.kernels.
-Require Import UniMath.CategoryTheory.limits.cokernels.
-Require Import UniMath.CategoryTheory.limits.pushouts.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.limits.BinDirectSums.
+Require Import UniMath.CategoryTheory.Limits.Zero.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Kernels.
+Require Import UniMath.CategoryTheory.Limits.Cokernels.
+Require Import UniMath.CategoryTheory.Limits.Pushouts.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.BinDirectSums.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -331,9 +331,9 @@ Section def_cohomology'_complex.
   Qed.
 
   Local Lemma CohomologyComplexIso_KerCokerIso_eq1 {x y : A} {f : A⟦x, y⟧}
-        (CK1 CK2 : cokernels.Cokernel (to_Zero A) f)
-        (K1 : kernels.Kernel (to_Zero A) (CokernelArrow CK1))
-        (K2 : kernels.Kernel (to_Zero A) (CokernelArrow CK2)) :
+        (CK1 CK2 : Cokernels.Cokernel (to_Zero A) f)
+        (K1 : Kernels.Kernel (to_Zero A) (CokernelArrow CK1))
+        (K2 : Kernels.Kernel (to_Zero A) (CokernelArrow CK2)) :
     KernelArrow K1 · CokernelArrow CK2 = ZeroArrow (to_Zero A) K1 CK2.
   Proof.
     assert (e1 : CokernelArrow CK2 =
@@ -346,9 +346,9 @@ Section def_cohomology'_complex.
   Qed.
 
   Local Lemma CohomologyComplexIso_KerCokerIso_eq2 {x y : A} {f : A⟦x, y⟧}
-        (CK1 CK2 : cokernels.Cokernel (to_Zero A) f)
-        (K1 : kernels.Kernel (to_Zero A) (CokernelArrow CK1))
-        (K2 : kernels.Kernel (to_Zero A) (CokernelArrow CK2)) :
+        (CK1 CK2 : Cokernels.Cokernel (to_Zero A) f)
+        (K1 : Kernels.Kernel (to_Zero A) (CokernelArrow CK1))
+        (K2 : Kernels.Kernel (to_Zero A) (CokernelArrow CK2)) :
     KernelArrow K2 · CokernelArrow CK1 = ZeroArrow (to_Zero A) K2 CK1.
   Proof.
     assert (e1 : CokernelArrow CK1 =
@@ -361,9 +361,9 @@ Section def_cohomology'_complex.
   Qed.
 
   Definition CohomologyComplexIso_KerCokerIso {x y : A} {f : A⟦x, y⟧}
-        (CK1 CK2 : cokernels.Cokernel (to_Zero A) f)
-        (K1 : kernels.Kernel (to_Zero A) (CokernelArrow CK1))
-        (K2 : kernels.Kernel (to_Zero A) (CokernelArrow CK2)) : iso K1 K2.
+        (CK1 CK2 : Cokernels.Cokernel (to_Zero A) f)
+        (K1 : Kernels.Kernel (to_Zero A) (CokernelArrow CK1))
+        (K2 : Kernels.Kernel (to_Zero A) (CokernelArrow CK2)) : iso K1 K2.
   Proof.
     use make_iso.
     - use KernelIn.
@@ -383,9 +383,9 @@ Section def_cohomology'_complex.
   Qed.
 
   Local Lemma CohomologyComplexIso_CokerKerIso_eq1 {x y : A} {f : A⟦x, y⟧}
-        (K1 K2 : kernels.Kernel (to_Zero A) f)
-        (CK1 : cokernels.Cokernel (to_Zero A) (KernelArrow K1))
-        (CK2 : cokernels.Cokernel (to_Zero A) (KernelArrow K2)) :
+        (K1 K2 : Kernels.Kernel (to_Zero A) f)
+        (CK1 : Cokernels.Cokernel (to_Zero A) (KernelArrow K1))
+        (CK2 : Cokernels.Cokernel (to_Zero A) (KernelArrow K2)) :
     KernelArrow K1 · CokernelArrow CK2 = ZeroArrow (to_Zero A) K1 CK2.
   Proof.
     assert (e1 : KernelArrow K1 = (KernelIn (to_Zero A) K2 K1 (KernelArrow K1)
@@ -397,9 +397,9 @@ Section def_cohomology'_complex.
   Qed.
 
   Local Lemma CohomologyComplexIso_CokerKerIso_eq2 {x y : A} {f : A⟦x, y⟧}
-        (K1 K2 : kernels.Kernel (to_Zero A) f)
-        (CK1 : cokernels.Cokernel (to_Zero A) (KernelArrow K1))
-        (CK2 : cokernels.Cokernel (to_Zero A) (KernelArrow K2)) :
+        (K1 K2 : Kernels.Kernel (to_Zero A) f)
+        (CK1 : Cokernels.Cokernel (to_Zero A) (KernelArrow K1))
+        (CK2 : Cokernels.Cokernel (to_Zero A) (KernelArrow K2)) :
     KernelArrow K2 · CokernelArrow CK1 = ZeroArrow (to_Zero A) K2 CK1.
   Proof.
     assert (e2 : KernelArrow K2 = (KernelIn (to_Zero A) K1 K2 (KernelArrow K2)
@@ -411,9 +411,9 @@ Section def_cohomology'_complex.
   Qed.
 
   Definition CohomologyComplexIso_CokerKerIso {x y : A} {f : A⟦x, y⟧}
-        (K1 K2 : kernels.Kernel (to_Zero A) f)
-        (CK1 : cokernels.Cokernel (to_Zero A) (KernelArrow K1))
-        (CK2 : cokernels.Cokernel (to_Zero A) (KernelArrow K2)) : iso CK1 CK2.
+        (K1 K2 : Kernels.Kernel (to_Zero A) f)
+        (CK1 : Cokernels.Cokernel (to_Zero A) (KernelArrow K1))
+        (CK2 : Cokernels.Cokernel (to_Zero A) (KernelArrow K2)) : iso CK1 CK2.
   Proof.
     use make_iso.
     - use CokernelOut.

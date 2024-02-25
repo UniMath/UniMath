@@ -52,7 +52,7 @@ Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 
 (* For the symmetric group *)
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 
 Local Open Scope cat.
 

@@ -412,6 +412,8 @@ Grothendieck/Counit.v
 Grothendieck/Biequivalence.v
 Grothendieck/FiberwiseEquiv.v
 
+ComprehensionCat/BicatOfCompCat.v
+
 Logic/ComprehensionBicat.v
 
 Logic/Examples/TrivialComprehensionBicat.v
@@ -436,5 +438,6 @@ DisplayedBicats/DisplayedUniversalArrowOnCat.v
 RezkCompletions/BicatToLocalUnivalentBicat.v
 RezkCompletions/RezkCompletionOfBicategory.v
 RezkCompletions/StructuredCats/TerminalObject.v
+RezkCompletions/StructuredCats/BinProducts.v
 
 DaggerCategories/BicatOfDaggerCats.v

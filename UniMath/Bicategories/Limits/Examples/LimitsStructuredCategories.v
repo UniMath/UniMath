@@ -21,21 +21,21 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
-Require Import UniMath.CategoryTheory.categories.EilenbergMoore.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.EilenbergMoore.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.IsoCommaCategory.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.limits.initial.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.Preservation.
-Require Import UniMath.CategoryTheory.limits.Examples.UnitCategoryLimits.
-Require Import UniMath.CategoryTheory.limits.Examples.CategoryProductLimits.
-Require Import UniMath.CategoryTheory.limits.Examples.IsoCommaLimits.
-Require Import UniMath.CategoryTheory.limits.Examples.EilenbergMooreLimits.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Preservation.
+Require Import UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.
+Require Import UniMath.CategoryTheory.Limits.Examples.CategoryProductLimits.
+Require Import UniMath.CategoryTheory.Limits.Examples.IsoCommaLimits.
+Require Import UniMath.CategoryTheory.Limits.Examples.EilenbergMooreLimits.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Univalence.
@@ -485,8 +485,8 @@ Proof.
   - exact disp_bifinal_obj_univ_cat_with_pb.
 Defined.
 
-Definition bifinal_obj_univ_cat_with_finlim
-  : bifinal_obj univ_cat_with_finlim.
+Definition bifinal_obj_bicat_of_univ_cat_with_finlim
+  : bifinal_obj bicat_of_univ_cat_with_finlim.
 Proof.
   use total_bicat_final.
   - use disp_2cells_isaprop_prod.
@@ -506,8 +506,8 @@ Proof.
   - exact disp_has_binprod_univ_cat_with_pb.
 Defined.
 
-Definition has_binprod_univ_cat_with_finlim
-  : has_binprod univ_cat_with_finlim.
+Definition has_binprod_bicat_of_univ_cat_with_finlim
+  : has_binprod bicat_of_univ_cat_with_finlim.
 Proof.
   use total_bicat_prod.
   - use disp_2cells_isaprop_prod.
@@ -532,8 +532,8 @@ Proof.
   - exact disp_has_pb_univ_cat_with_pb.
 Defined.
 
-Definition has_pb_univ_cat_with_finlim
-  : has_pb univ_cat_with_finlim.
+Definition has_pb_bicat_of_univ_cat_with_finlim
+  : has_pb bicat_of_univ_cat_with_finlim.
 Proof.
   use total_bicat_has_pb.
   - use disp_2cells_isaprop_prod.

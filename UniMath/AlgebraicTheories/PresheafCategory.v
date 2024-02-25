@@ -29,11 +29,11 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Limits.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.

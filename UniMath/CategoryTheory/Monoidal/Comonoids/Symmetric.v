@@ -35,7 +35,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.
 
 Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
 
-Require Import UniMath.CategoryTheory.categories.Dialgebras.
+Require Import UniMath.CategoryTheory.Categories.Dialgebras.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalDialgebras.
 

@@ -46,9 +46,9 @@
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
-Require Import UniMath.CategoryTheory.categories.CategoryOfSetCategories.
-Require Import UniMath.CategoryTheory.categories.HSET.All.
-Require Import UniMath.CategoryTheory.categories.HSET.SetCoends.
+Require Import UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
+Require Import UniMath.CategoryTheory.Categories.HSET.All.
+Require Import UniMath.CategoryTheory.Categories.HSET.SetCoends.
 Require Import UniMath.CategoryTheory.Profunctors.Core.
 Require Import UniMath.CategoryTheory.Profunctors.Examples.
 Require Import UniMath.CategoryTheory.Profunctors.Squares.

@@ -18,13 +18,13 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.categories.HSET.Slice.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Slice.
 Require Import UniMath.CategoryTheory.slicecat.
 
 Local Open Scope cat.
@@ -38,7 +38,7 @@ Local Notation "C / X ⟦ a , b ⟧" := (slicecat_mor C X a b) (at level 50, for
 Section MonadsInHSET_over_sort.
 
 
-Variables (sort : hSet).
+Context (sort : hSet).
 
 Definition HSET_over_sort : category.
 Proof.

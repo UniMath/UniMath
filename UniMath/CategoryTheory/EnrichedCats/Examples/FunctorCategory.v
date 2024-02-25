@@ -63,8 +63,8 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
 Require Import UniMath.CategoryTheory.OppositeCategory.Core.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.limits.equalizers.
-Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Products.
 
 Import MonoidalNotations.
 

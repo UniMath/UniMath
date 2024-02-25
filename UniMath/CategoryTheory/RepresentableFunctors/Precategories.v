@@ -7,8 +7,8 @@ Require Export UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Export UniMath.CategoryTheory.Core.Univalence.
 Require Export UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
-               UniMath.CategoryTheory.categories.HSET.Core
-               UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
+               UniMath.CategoryTheory.Categories.HSET.Core
+               UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
 Require Export UniMath.Foundations.Preamble.
 Require Export UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.

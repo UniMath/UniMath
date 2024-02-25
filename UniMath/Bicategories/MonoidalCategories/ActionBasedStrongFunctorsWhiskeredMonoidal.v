@@ -3,7 +3,7 @@
 This means that the requirement on strength is that it behaves as a ``homomorphism'' w.r.t. the
 monoidal structures. More precisely, we construct transformations in both directions between parameterized distributivity (in a slightly massaged form to accommodate reasoning through bicategories) and displayed sections that are a formalization-friendly form of strong monoidal functors that are right inverses of the projection from the target displayed category. The result makes use of displayed monoidal categories.
 
-The non-monoidal basic situation is now presented in [UniMath.CategoryTheory.categories.Dialgebras].
+The non-monoidal basic situation is now presented in [UniMath.CategoryTheory.Categories.Dialgebras].
 
 Author: Ralph Matthes 2021, 2022
 
@@ -17,7 +17,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.categories.Dialgebras.
+Require Import UniMath.CategoryTheory.Categories.Dialgebras.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
@@ -1755,7 +1755,7 @@ Defined.
         use total2_paths_f.
         - cbn.
           unfold δ_from_ms.
-          apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip1_with_sections.
+          apply UniMath.CategoryTheory.Categories.Dialgebras.roundtrip1_with_sections.
         - cbn.
           match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
           assert (Hprop: isaprop goaltype).
@@ -1775,7 +1775,7 @@ Defined.
         use total2_paths_f.
         - cbn.
           unfold δ_from_ms.
-          apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip2_with_sections.
+          apply UniMath.CategoryTheory.Categories.Dialgebras.roundtrip2_with_sections.
         - cbn.
           match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
           assert (Hprop: isaprop goaltype).

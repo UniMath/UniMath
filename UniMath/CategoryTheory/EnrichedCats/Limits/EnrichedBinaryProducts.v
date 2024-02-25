@@ -36,7 +36,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
-Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
 
 Import MonoidalNotations.
 Local Open Scope cat.

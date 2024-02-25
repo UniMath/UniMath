@@ -43,8 +43,8 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.categories.EilenbergMoore.
-Require Import UniMath.CategoryTheory.categories.KleisliCategory.
+Require Import UniMath.CategoryTheory.Categories.EilenbergMoore.
+Require Import UniMath.CategoryTheory.Categories.KleisliCategory.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
@@ -56,7 +56,7 @@ Require Import UniMath.CategoryTheory.EnrichedCats.RezkCompletion.RezkUniversalP
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.Monads.KleisliCategory.
-Require Import UniMath.CategoryTheory.limits.equalizers.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
 
 Local Open Scope cat.
 Local Open Scope moncat.

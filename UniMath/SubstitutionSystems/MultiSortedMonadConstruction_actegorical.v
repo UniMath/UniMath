@@ -20,23 +20,23 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.categories.HSET.Structures.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
@@ -75,7 +75,7 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.Bicategories.PseudoFunctors.Biadjunction.
-Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
+Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 
 Local Open Scope cat.
 

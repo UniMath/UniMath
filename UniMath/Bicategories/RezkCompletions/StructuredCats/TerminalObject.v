@@ -36,8 +36,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
 Require Import UniMath.CategoryTheory.DisplayedCats.TotalAdjunction.
 
 Require Import UniMath.CategoryTheory.WeakEquivalences.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.Preservation.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Preservation.
 
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.

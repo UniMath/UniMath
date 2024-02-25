@@ -18,8 +18,8 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.SubstitutionSystems.Signatures.
@@ -56,7 +56,7 @@ Local Notation "'EndC'":= ([C, C]) .
 *)
 Section def_of_δ.
 
-Variable G : EndC.
+Context (G : EndC).
 
 Definition δ_source : functor Ptd EndC :=
   functor_compose (functor_ptd_forget C) (post_comp_functor G).
@@ -66,7 +66,7 @@ Definition δ_target : functor Ptd EndC :=
 
 Section δ_laws.
 
-Variable δ : δ_source ⟹ δ_target.
+Context (δ : δ_source ⟹ δ_target).
 
 (* Should be ρ_G^-1 ∘ λ_G ? *)
 Definition δ_law1 : UU := δ (id_Ptd C) = identity G.
@@ -148,8 +148,7 @@ End δ_for_id.
     distributive laws δ *)
 Section θ_from_δ.
 
-Variable G : functor C C.
-Variable DL : DistributiveLaw G.
+Context (G : functor C C) (DL : DistributiveLaw G).
 
 Let precompG := (pre_composition_functor _ C C G).
 
@@ -217,10 +216,8 @@ End θ_from_δ.
 (* Composition of δ's *)
 Section δ_mul.
 
-  Variable G1 : [C, C].
-  Variable DL1 : DistributiveLaw G1.
-  Variable G2 : [C, C].
-  Variable DL2 : DistributiveLaw G2.
+  Context (G1 : [C, C]) (DL1 : DistributiveLaw G1)
+          (G2 : [C, C]) (DL2 : DistributiveLaw G2).
 
   Definition δ_comp_mor (Ze : ptd_obj C) : [C, C] ⟦pr1 (δ_source (functor_compose G1 G2)) Ze,
                                                         pr1 (δ_target (functor_compose G1 G2)) Ze⟧.
@@ -303,7 +300,7 @@ End δ_mul.
 (** Construct the δ when G is generalized option *)
 Section genoption_sig.
 
-  Variables (A : C) (CC : BinCoproducts C).
+Context (A : C) (CC : BinCoproducts C).
 
   Let genopt := constcoprod_functor1 CC A.
 
@@ -423,7 +420,7 @@ End genoption_sig.
 (** trivially instantiate previous section to option functor *)
 Section option_sig.
 
-  Variables (TC : Terminal C) (CC : BinCoproducts C).
+Context (TC : Terminal C) (CC : BinCoproducts C).
 
   Let opt := option_functor CC TC.
 
@@ -438,8 +435,7 @@ End option_sig.
 (** Define δ for G = F^n *)
 Section iter1_dl.
 
-Variable G : functor C C.
-Variable DL : DistributiveLaw G.
+Context (G : functor C C) (DL : DistributiveLaw G).
 
 Definition DL_iter_functor1 (n: nat) : DistributiveLaw (iter_functor1 G n).
 Proof.
@@ -484,8 +480,7 @@ End id_signature.
 
 Section constantly_constant_signature.
 
-  Variable (C D D' : category).
-  Variable (d : D).
+  Context (C D D' : category) (d : D).
 
   Let H := constant_functor (functor_category C D') (functor_category C D) (constant_functor C D d).
 
@@ -523,13 +518,13 @@ Local Notation "'Ptd'" := (category_Ptd C).
 (** The category of endofunctors on [C] *)
 Local Notation "'EndC'":= ([C, C]) .
 
-Variable S: Signature C D D'.
+Context (S: Signature C D D').
 
 Let H : functor [C, D'] [C, D] := Signature_Functor S.
 Let θ : nat_trans (θ_source H) (θ_target H) := theta S.
 Let θ_strength1 := Sig_strength_law1 S.
 Let θ_strength2 := Sig_strength_law2 S.
-Variable G : [D, E].
+Context (G : [D, E]).
 
 Let GH : functor [C, D'] [C, E] := functor_composite H (post_comp_functor G).
 

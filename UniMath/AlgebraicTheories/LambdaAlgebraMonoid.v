@@ -13,7 +13,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Combinatorics.Tuples.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Presheaf.
@@ -132,12 +132,22 @@ Section Monoid.
       rewrite (move_action_through_vector_1 _ _).
       rewrite <- comp_action.
       cbn -[weqvecfun].
-      do 4 reduce_lambda.
+      rewrite subst_abs.
+      rewrite subst_app.
+      do 2 rewrite subst_var.
       do 2 extend_tuple_2.
       cbn -[v].
-      do 9 reduce_lambda.
+      rewrite inflate_abs.
+      rewrite beta_equality.
+      do 4 rewrite subst_app.
+      do 3 rewrite subst_subst.
+      do 3 rewrite subst_var.
       do 3 extend_tuple_3.
-      now do 7 reduce_lambda.
+      rewrite subst_var.
+      do 4 rewrite inflate_var.
+      rewrite extend_tuple_inr.
+      do 2 rewrite subst_var.
+      now do 2 rewrite extend_tuple_inl.
     Qed.
 
     Lemma is_assoc_compose
@@ -154,15 +164,31 @@ Section Monoid.
       do 2 rewrite (move_action_through_vector_2 _ _ _).
       do 2 rewrite <- comp_action.
       cbn -[weqvecfun action].
-      do 12 reduce_lambda.
+      do 2 rewrite subst_abs.
+      do 4 rewrite subst_app.
+      do 6 rewrite subst_var.
       do 6 extend_tuple_3.
       do 2 rewrite (move_action_through_vector_2 _ _ _).
       do 2 rewrite <- comp_action.
       cbn -[weqvecfun v].
-      do 12 reduce_lambda.
+      do 2 rewrite subst_abs.
+      do 4 rewrite subst_app.
+      do 6 rewrite subst_var.
       do 6 extend_tuple_3.
       cbn -[v].
-      now do 42 reduce_lambda.
+      do 3 rewrite inflate_var.
+      do 2 rewrite inflate_abs.
+      do 2 rewrite beta_equality.
+      do 8 rewrite subst_app.
+      do 6 rewrite subst_subst.
+      do 6 rewrite subst_var.
+      do 3 rewrite extend_tuple_inl.
+      rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _).
+      do 2 rewrite subst_var.
+      do 6 rewrite inflate_var.
+      do 2 rewrite extend_tuple_inr.
+      do 4 rewrite subst_var.
+      now do 4 rewrite extend_tuple_inl.
     Qed.
 
     Definition unit_element
@@ -179,12 +205,16 @@ Section Monoid.
       rewrite (move_action_through_vector_1 _ _).
       rewrite <- comp_action.
       cbn -[weqvecfun action].
-      do 4 reduce_lambda.
+      rewrite subst_abs.
+      rewrite subst_app.
+      do 2 rewrite subst_var.
       do 2 extend_tuple_2.
       cbn.
-      do 3 reduce_lambda.
+      rewrite inflate_abs.
+      rewrite beta_equality.
+      rewrite subst_var.
       cbn.
-      now reduce_lambda.
+      now rewrite subst_var.
     Qed.
 
     (* Will make this more readable in future PR *)

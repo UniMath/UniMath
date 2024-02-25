@@ -15,8 +15,8 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.

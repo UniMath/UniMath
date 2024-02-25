@@ -21,7 +21,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.categories.Dialgebras.
+Require Import UniMath.CategoryTheory.Categories.Dialgebras.
 
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
@@ -31,7 +31,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.MonoidalCartesianBuilder.
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.TransportComonoidAlongRetraction.
 
-Require Import UniMath.CategoryTheory.categories.CoEilenbergMoore.
+Require Import UniMath.CategoryTheory.Categories.CoEilenbergMoore.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras.
 Require Import UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalCoEilenbergMoore.
 

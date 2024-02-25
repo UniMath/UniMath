@@ -9,23 +9,23 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Chains.All.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
-Require Import UniMath.CategoryTheory.categories.HSET.Structures.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
@@ -48,7 +48,7 @@ Section OmegaLimitsCommutingWithCoproducts.
   Context {I : UU} (Iset : isaset I).
   Context (coproducts_given : Coproducts I C).
 
-  Variable (ind : I → cochain C).
+  Context (ind : I → cochain C).
 
   Let coproduct_n (n : nat) := coproducts_given (λ i, pr1 (ind i) n).
   Definition coproduct_n_cochain : cochain C.
@@ -168,7 +168,7 @@ Section CoproductOfFunctorsContinuity.
     intro Fi_cont.
     intros coch l l_cone l_lim.
 
-    use limits.is_z_iso_isLim.
+    use Limits.is_z_iso_isLim.
     { apply ω_lim. }
 
     transparent assert (ind : (pr1 I -> cochain D)).
