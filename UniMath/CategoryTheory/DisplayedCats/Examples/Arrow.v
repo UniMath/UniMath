@@ -8,7 +8,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 
 
 Local Open Scope cat.
@@ -53,16 +53,16 @@ Definition arrow_dom {C : category} (f : arrow C) : C := pr11 f.
 Definition arrow_cod {C : category} (f : arrow C) : C := pr21 f.
 Coercion arrow_mor {C : category} (f : arrow C) := pr2 f.
 
-Definition arrow_mor00 {C : category} {f g : arrow C} (F : f --> g) := pr11 F. 
-Definition arrow_mor11 {C : category} {f g : arrow C} (F : f --> g) := pr21 F. 
-Definition arrow_mor_comm {C : category} {f g : arrow C} (F : f --> g) := pr2 F. 
+Definition arrow_mor00 {C : category} {f g : arrow C} (F : f --> g) := pr11 F.
+Definition arrow_mor11 {C : category} {f g : arrow C} (F : f --> g) := pr21 F.
+Definition arrow_mor_comm {C : category} {f g : arrow C} (F : f --> g) := pr2 F.
 
-Lemma arrow_mor_eq {C : category} {f g : arrow C} 
-    (γ γ' : f --> g) 
+Lemma arrow_mor_eq {C : category} {f g : arrow C}
+    (γ γ' : f --> g)
     (H00 : arrow_mor00 γ = arrow_mor00 γ')
     (H11 : arrow_mor11 γ = arrow_mor11 γ') :
   γ = γ'.
-Proof.  
+Proof.
   apply subtypePath; [intro; apply homset_property|].
   apply pathsdirprod; assumption.
 Qed.
@@ -70,7 +70,7 @@ Qed.
 Coercion mor_to_arrow_ob {C : category} {x y : C} (f : x --> y) : arrow C :=
     (make_dirprod x y,, f).
 
-Definition mors_to_arrow_mor {C : category} {a b x y : C} (f : a --> b) (g : x --> y) 
+Definition mors_to_arrow_mor {C : category} {a b x y : C} (f : a --> b) (g : x --> y)
     (h : a --> x) (k : b --> y) (H : h · g = f · k) : (mor_to_arrow_ob f) --> (mor_to_arrow_ob g).
 Proof.
   use tpair.
@@ -95,7 +95,7 @@ Qed. *)
 Definition arrow_mor00_eq {C : category}
     {f f' : arrow C} {mor mor' : f --> f'} (H : mor = mor') :
   arrow_mor00 mor = arrow_mor00 mor'.
-Proof. 
+Proof.
   exact (dirprod_pr1 (pathsdirprodweq (base_paths _ _ H))).
 Qed.
 
@@ -120,7 +120,7 @@ Proof.
 
   set (cc1 := CC _ d1).
   set (cc2 := CC _ d2).
-  
+
   use tpair.
   - exists (make_dirprod (colim cc1) (colim cc2)).
     use tpair.
@@ -153,7 +153,7 @@ Proof.
         ).
     * abstract (
         intro; apply pathsdirprod; [
-          apply (colimArrowCommutes cc1)|apply (colimArrowCommutes cc2) 
+          apply (colimArrowCommutes cc1)|apply (colimArrowCommutes cc2)
         ]
       ).
     * abstract (
@@ -190,7 +190,7 @@ Definition arrow_colims (CC : Colims C) :
     Colims (arrow C).
 Proof.
   intros g d.
-  
+
   set (dbase := mapdiagram (pr1_category _) d).
   set (clbase := arrow_base_colims CC _ dbase).
 
@@ -225,7 +225,7 @@ Proof.
         etrans; [use postcompWithColimArrow|];
         apply pathsinv0;
         etrans; [use precompWithColimOfArrows|];
-  
+
         apply maponpaths;
         (apply subtypePath; [intro; do 3 (apply impred; intro); apply homset_property|]);
         apply funextsec;
@@ -249,13 +249,13 @@ Proof.
       ).
 Defined.
 
-Definition project_diagram00 {g : graph} (d : diagram g (arrow C)) := 
+Definition project_diagram00 {g : graph} (d : diagram g (arrow C)) :=
   mapdiagram (pr1_functor _ _) (mapdiagram (pr1_category _) d).
 
-Definition project_diagram11 {g : graph} (d : diagram g (arrow C)) := 
+Definition project_diagram11 {g : graph} (d : diagram g (arrow C)) :=
   mapdiagram (pr2_functor _ _) (mapdiagram (pr1_category _) d).
 
-Definition project_cocone00 
+Definition project_cocone00
     {g : graph} {d : diagram g (arrow C)}
     {f : arrow C}
     (cc : cocone d f) :
@@ -298,7 +298,7 @@ Proof.
   ).
 Defined.
 
-Definition project_colimcocone11 
+Definition project_colimcocone11
     (CC : Colims C)
     {g : graph} {d : diagram g (arrow C)}
     {f : arrow C} {ccf : cocone d f}

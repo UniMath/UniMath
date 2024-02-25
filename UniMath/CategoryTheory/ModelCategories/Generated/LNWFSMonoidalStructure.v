@@ -21,14 +21,13 @@ Require Import UniMath.CategoryTheory.ModelCategories.Generated.LNWFSHelpers.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.FFMonoidalStructure.
 
 Local Open Scope cat.
-Local Open Scope Cat.
 Local Open Scope morcls.
 
 
 Section LNWFS_composition.
 
-(*  
-All the displayed morphisms can be finished with Qed, since the 
+(*
+All the displayed morphisms can be finished with Qed, since the
 data is always propositional. For the total category morphisms,
 defining it in terms of the displayed morphisms (which are propositional)
 is optimal, since then we know the morphism it lies over, which is sufficient.
@@ -39,7 +38,7 @@ Context {C : category}.
 (* F ⊗ F' (compose left factors)
    we flip the terms in Garner to be closer to · notation *)
 
-Local Definition left_reduced_lp 
+Local Definition left_reduced_lp
     (F : Ff C) {f g : arrow C}
     (γ : f --> g) : (f --> fact_R F g).
 Proof.
@@ -66,11 +65,11 @@ Proof.
       etrans; [apply assoc|];
       etrans; [apply cancel_postcomposition;
               exact (pathsinv0 (arrow_mor_comm (pr1 L f)))|];
-      
+
       etrans; [apply assoc'|];
       etrans; [apply cancel_precomposition;
               exact (pr1 (three_mor_comm (#(fact_functor F) γ)))|];
-      
+
       etrans; [apply cancel_postcomposition;
               exact (lnwfs_Σ_top_map_id L f)|];
       apply id_left
@@ -78,7 +77,7 @@ Proof.
       etrans; [apply assoc'|];
       etrans; [apply cancel_precomposition;
               exact (pathsinv0 (pr2 (three_mor_comm (#(fact_functor F) γ))))|];
-      
+
       etrans; [apply assoc|];
       etrans; [apply cancel_postcomposition;
               exact (lnwfs_Σ_bottom_map_inv L f)|];
@@ -91,11 +90,11 @@ Local Definition LNWFS_lcomp_comp_helper
     (F F' : Ff C) (f : arrow C) :=
   fact_L F f · fact_L F' (fact_R F f).
 
-Definition LNWFS_lcomp_comul_L_lp 
-    {F : Ff C} 
+Definition LNWFS_lcomp_comul_L_lp
+    {F : Ff C}
     (L : lnwfs_over F)
     (F' : Ff C)
-    (f : arrow C) : 
+    (f : arrow C) :
   fact_L F f --> LNWFS_lcomp_comp_helper F F' f.
 Proof.
   use mors_to_arrow_mor.
@@ -105,7 +104,7 @@ Proof.
 Defined.
 
 Definition LNWFS_lcomp_comul_L'_lp
-    {F' F : Ff C} 
+    {F' F : Ff C}
     (L' : lnwfs_over F')
     (L : lnwfs_over F)
     (f : arrow C) :
@@ -151,7 +150,7 @@ Proof.
   - abstract (
       etrans; [apply id_left|];
       apply pathsinv0;
-      etrans; 
+      etrans;
       [
         etrans; [apply assoc'|];
         apply cancel_precomposition;
@@ -180,13 +179,13 @@ Proof.
       [etrans; [apply id_right|]; apply pathsinv0; apply id_left|].
   (* work away left side (final step of comul_data was
      to use L' to get a lift in a specific diagram) *)
-  etrans. 
+  etrans.
   {
     (* rewrite naturality of L' at #ρ γ *)
     etrans. apply assoc.
     set (L'natργ := nat_trans_ax (pr1 L') _ _ (#(fact_R F) γ)).
     set (L'natργ11 := pr2 (pathsdirprodweq (base_paths _ _ L'natργ))).
-    
+
     etrans. apply cancel_postcomposition.
             exact L'natργ11.
     etrans. apply assoc'.
@@ -198,7 +197,7 @@ Proof.
   apply pathsinv0.
   etrans. apply assoc'.
   apply cancel_precomposition.
-  
+
   etrans. use (pr1_section_disp_on_morphisms_comp F').
   use (section_disp_on_eq_morphisms F'); [|etrans; [apply id_left|]; apply pathsinv0; apply id_right].
 
@@ -220,10 +219,10 @@ Proof.
   apply cancel_precomposition.
 
   etrans. use (pr1_section_disp_on_morphisms_comp F).
-  apply pathsinv0. 
+  apply pathsinv0.
   etrans. use (pr1_section_disp_on_morphisms_comp F).
   use (section_disp_on_eq_morphisms F); [etrans; [apply id_right|]; apply pathsinv0; apply id_left|].
-  
+
   (* cbn.
   unfold three_mor11, three_mor01.
   cbn. *)
@@ -244,7 +243,7 @@ Opaque LNWFS_lcomp_comul_L'_lp.
 
 (* This is perhaps the most interesting proof, proving that
    the comultiplication is associative on the middle morphisms. *)
-Lemma LNWFS_lcomp_comul_mul_law11 {F' F : Ff C} 
+Lemma LNWFS_lcomp_comul_mul_law11 {F' F : Ff C}
     (L' : lnwfs_over F') (L : lnwfs_over F) (a : arrow C) :
     arrow_mor11 (
       (disp_δ (L_monad_data (F' ⊗ F) (LNWFS_lcomp_comul L' L)) a)
@@ -260,7 +259,7 @@ Lemma LNWFS_lcomp_comul_mul_law11 {F' F : Ff C}
 Proof.
   set (law3 := @Comonad_law3 _ (L_monad _ _ (pr2 L))).
   set (law3' := @Comonad_law3 _ (L_monad _ _ (pr2 L'))).
-  
+
   (* First we want to rewrite the associativity law for F' *)
   apply pathsinv0.
   etrans. apply assoc'.
@@ -296,7 +295,7 @@ Proof.
             exact (lnwfs_Σ_top_map_id L' (fact_R F a)).
     etrans. apply cancel_postcomposition, id_left.
     etrans. apply assoc'.
-    
+
     set (natLL_lp := nat_trans_ax (pr1 L) _ _ (LNWFS_lcomp_comul_L_lp L F' a)).
     etrans. apply cancel_precomposition.
             apply assoc.
@@ -351,7 +350,7 @@ Proof.
     etrans. exact (pathsinv0 (lnwfs_Σ_bottom_map_inv L' (fact_R F a))).
     apply cancel_precomposition.
     apply pathsinv0.
-    
+
     set (F'L'_lp := #(fact_functor F') (LNWFS_lcomp_comul_L'_lp L' L a)).
     etrans. apply (pathsinv0 (pr2 (three_mor_comm F'L'_lp))).
     apply id_right.
@@ -383,7 +382,7 @@ Definition LNWFS_lcomp {F' F : Ff C} (L' : LNWFS C F') (L : LNWFS C F) :
     LNWFS C (F' ⊗ F) :=
   (LNWFS_lcomp_comul L' L,, LNWFS_lcomp_comul_monad_laws L' L).
 
-Definition LNWFS_tot_lcomp (L' L : total_category (LNWFS C)) : 
+Definition LNWFS_tot_lcomp (L' L : total_category (LNWFS C)) :
     total_category (LNWFS C) :=
   (_,, LNWFS_lcomp (pr2 L') (pr2 L)).
 
@@ -399,7 +398,7 @@ Proof.
   reflexivity.
 Defined.
 
-Definition LNWFS_lcomp_unit_comul_axioms : 
+Definition LNWFS_lcomp_unit_comul_axioms :
     is_nat_trans _ _ LNWFS_lcomp_unit_comul_data.
 Proof.
   intros f g γ.
@@ -412,15 +411,15 @@ Proof.
     apply id_left.
 Qed.
 
-Definition LNWFS_lcomp_unit_comul : 
+Definition LNWFS_lcomp_unit_comul :
     (fact_L (@Ff_lcomp_unit C)) ⟹ ((fact_L Ff_lcomp_unit) ∙ (fact_L Ff_lcomp_unit)) :=
   (_,, LNWFS_lcomp_unit_comul_axioms).
 
 Definition LNWFS_lcomp_unit_comul_monad_laws :
   disp_Comonad_laws (L_monad_data (@Ff_lcomp_unit C) (LNWFS_lcomp_unit_comul)).
 Proof.
-  repeat split; 
-    (intro f; 
+  repeat split;
+    (intro f;
      apply subtypePath; [intro; apply homset_property|]);
       apply pathsdirprod; try now rewrite id_left.
   - reflexivity.
@@ -431,11 +430,11 @@ Definition LNWFS_lcomp_unit :
     LNWFS C (@Ff_lcomp_unit C) :=
   (LNWFS_lcomp_unit_comul,, LNWFS_lcomp_unit_comul_monad_laws).
 
-Definition LNWFS_tot_lcomp_unit : 
+Definition LNWFS_tot_lcomp_unit :
     total_category (LNWFS C) :=
   (_,, LNWFS_lcomp_unit).
 
-Definition LNWFS_l_id_left {F : Ff C} (L : LNWFS _ F) : 
+Definition LNWFS_l_id_left {F : Ff C} (L : LNWFS _ F) :
     (LNWFS_lcomp_unit L⊗ L) -->[Ff_l_id_left F] L.
 Proof.
   split; (intro; use arrow_mor_eq).
@@ -470,8 +469,8 @@ Qed.
 Definition LNWFS_tot_l_id_left (L : total_category (LNWFS C)) :
     (LNWFS_tot_lcomp_unit Ltot⊗ L) --> L :=
   (_,, LNWFS_l_id_left (pr2 L)).
-  
-Definition LNWFS_l_id_left_rev {F : Ff C} (L : LNWFS _ F) : 
+
+Definition LNWFS_l_id_left_rev {F : Ff C} (L : LNWFS _ F) :
     L -->[Ff_l_id_left_rev F] (LNWFS_lcomp_unit L⊗ L).
 Proof.
   split; (intro; use arrow_mor_eq).
@@ -498,8 +497,8 @@ Definition LNWFS_tot_l_id_left_rev (L : total_category (LNWFS C)) :
     L --> (LNWFS_tot_lcomp_unit Ltot⊗ L) :=
   (_,, LNWFS_l_id_left_rev (pr2 L)).
 
-  
-Definition LNWFS_l_id_right {F : Ff C} (L : LNWFS _ F) : 
+
+Definition LNWFS_l_id_right {F : Ff C} (L : LNWFS _ F) :
     (L L⊗ LNWFS_lcomp_unit) -->[Ff_l_id_right F] L.
 Proof.
   split; (intro; use arrow_mor_eq).
@@ -534,8 +533,8 @@ Qed.
 Definition LNWFS_tot_l_id_right (L : total_category (LNWFS C)) :
     (L Ltot⊗ LNWFS_tot_lcomp_unit) --> L :=
   (_,, LNWFS_l_id_right (pr2 L)).
-  
-Definition LNWFS_l_id_right_rev {F : Ff C} (L : LNWFS _ F) : 
+
+Definition LNWFS_l_id_right_rev {F : Ff C} (L : LNWFS _ F) :
     L -->[Ff_l_id_right_rev F] (L L⊗ LNWFS_lcomp_unit).
 Proof.
   split; (intro; use arrow_mor_eq).
@@ -562,7 +561,7 @@ Definition LNWFS_tot_l_id_right_rev (L : total_category (LNWFS C)) :
   (_,, LNWFS_l_id_right_rev (pr2 L)).
 
 
-Definition LNWFS_l_assoc_rev {F F' F'' : Ff C} 
+Definition LNWFS_l_assoc_rev {F F' F'' : Ff C}
     (L : LNWFS _ F) (L' : LNWFS _ F') (L'' : LNWFS _ F'') :
   (L L⊗ (L' L⊗ L'')) -->[Ff_l_assoc_rev F F' F''] ((L L⊗ L') L⊗ L'').
 Proof.
@@ -574,7 +573,7 @@ Proof.
   - etrans. apply id_left.
     apply pathsinv0.
     etrans. apply id_right.
-    
+
     etrans. apply assoc'.
     etrans. apply cancel_precomposition.
             apply (pr1_section_disp_on_morphisms_comp F).
@@ -622,7 +621,7 @@ Definition LNWFS_tot_l_assoc_rev (L L' L'' : total_category (LNWFS C)) :
     (L Ltot⊗ (L' Ltot⊗ L'')) --> ((L Ltot⊗ L') Ltot⊗ L'') :=
   (_,, LNWFS_l_assoc_rev (pr2 L) (pr2 L') (pr2 L'')).
 
-Definition LNWFS_l_assoc {F F' F'' : Ff C} 
+Definition LNWFS_l_assoc {F F' F'' : Ff C}
     (L : LNWFS _ F) (L' : LNWFS _ F') (L'' : LNWFS _ F'') :
   ((L L⊗ L') L⊗ L'') -->[Ff_l_assoc F F' F''] (L L⊗ (L' L⊗ L'')).
 Proof.
@@ -634,7 +633,7 @@ Proof.
   - etrans. apply id_left.
     apply pathsinv0.
     etrans. apply id_right.
-    
+
     etrans. apply assoc'.
     etrans. apply cancel_precomposition.
             apply (pr1_section_disp_on_morphisms_comp F).
@@ -682,10 +681,10 @@ Qed.
 
 Definition LNWFS_tot_l_assoc (L L' L'' : total_category (LNWFS C)) :
     ((L Ltot⊗ L') Ltot⊗ L'' ) --> (L Ltot⊗ (L' Ltot⊗ L'')) :=
-  (_,, LNWFS_l_assoc (pr2 L) (pr2 L') (pr2 L'')). 
+  (_,, LNWFS_l_assoc (pr2 L) (pr2 L') (pr2 L'')).
 
 Definition LNWFS_l_rightwhisker {F G G': Ff C}
-    {Λ : LNWFS _ G} {Λ' : LNWFS _ G'} {τG : G --> G'} 
+    {Λ : LNWFS _ G} {Λ' : LNWFS _ G'} {τG : G --> G'}
     (τ : Λ -->[τG] Λ') (L : LNWFS _ F) :
   (Λ L⊗ L) -->[τG ⊗post F] (Λ' L⊗ L).
 Proof.
@@ -694,7 +693,7 @@ Proof.
     apply pathsinv0.
     etrans. apply id_right.
     apply id_right.
-  - etrans. 
+  - etrans.
     {
       (* lnwfs_mor_axioms of τ at fact_R F a *)
       etrans. apply assoc.
@@ -708,13 +707,13 @@ Proof.
     etrans. apply assoc'.
     apply cancel_precomposition.
 
-    (* naturality of τG at 
+    (* naturality of τG at
         (LNWFS_lcomp_comul_L'_lp L Λ' a)
     *)
     etrans. apply assoc.
     etrans. apply cancel_postcomposition.
             apply (pr1_section_disp_on_morphisms_comp G).
-  
+
     apply pathsinv0.
     etrans. apply cancel_precomposition.
     {
@@ -750,7 +749,7 @@ Proof.
 Qed.
 
 Definition LNWFS_tot_l_rightwhisker
-    {Λ Λ' : total_category (LNWFS C)} 
+    {Λ Λ' : total_category (LNWFS C)}
     (τ : Λ --> Λ') (L : total_category (LNWFS C)) :
   (Λ Ltot⊗ L) --> (Λ' Ltot⊗ L) :=
     (_,, LNWFS_l_rightwhisker (pr2 τ) (pr2 L)).
@@ -772,8 +771,8 @@ Proof.
 Qed.
 
 Lemma LNWFS_tot_l_rightwhisker_comp
-    {Λ Λ' Λ'': total_category (LNWFS C)} 
-    (τ : Λ --> Λ') (τ' : Λ' --> Λ'') 
+    {Λ Λ' Λ'': total_category (LNWFS C)}
+    (τ : Λ --> Λ') (τ' : Λ' --> Λ'')
     (L : total_category (LNWFS C)) :
   ((τ · τ') Ltot⊗post L) = (τ Ltot⊗post L) · (τ' Ltot⊗post L).
 Proof.
@@ -784,7 +783,7 @@ Proof.
 Qed.
 
 Definition LNWFS_l_leftwhisker {F G G': Ff C}
-    {Λ : LNWFS _ G} {Λ' : LNWFS _ G'} {τG : G --> G'} 
+    {Λ : LNWFS _ G} {Λ' : LNWFS _ G'} {τG : G --> G'}
     (L : LNWFS _ F) (τ : Λ -->[τG] Λ') :
   (L L⊗ Λ) -->[F ⊗pre τG] (L L⊗ Λ').
 Proof.
@@ -814,14 +813,14 @@ Proof.
     etrans. apply assoc'.
     apply cancel_precomposition.
     clear Lnatmor Lnatmor11.
-    
+
     etrans. apply (pr1_section_disp_on_morphisms_comp F).
     use section_disp_on_eq_morphisms.
     * (* rewrite lnwfs_mor_axioms of τ *)
       etrans. apply assoc.
       etrans. apply cancel_postcomposition.
               exact (pr2 (pathsdirprodweq (base_paths _ _ (pr1 τ a)))).
-      
+
       etrans. apply assoc'.
       etrans. apply assoc'.
       apply pathsinv0.
@@ -841,12 +840,12 @@ Proof.
       etrans. apply assoc.
       etrans. apply cancel_postcomposition.
               apply (pr1_section_disp_on_morphisms_comp G).
-      
+
       apply pathsinv0.
       etrans. apply assoc.
       etrans. apply cancel_postcomposition.
               apply (pr1_section_disp_on_morphisms_comp G).
-      
+
       apply cancel_postcomposition.
       use (section_disp_on_eq_morphisms G).
       + reflexivity.
@@ -863,7 +862,7 @@ Proof.
     apply id_right.
 Qed.
 
-Definition LNWFS_tot_l_leftwhisker {Λ Λ' : total_category (LNWFS C)} 
+Definition LNWFS_tot_l_leftwhisker {Λ Λ' : total_category (LNWFS C)}
   (L : total_category (LNWFS C)) (τ : Λ --> Λ') :
   (L Ltot⊗ Λ) --> (L Ltot⊗ Λ'):=
     (_,, LNWFS_l_leftwhisker (pr2 L) (pr2 τ)).
@@ -882,7 +881,7 @@ Proof.
 Qed.
 
 Lemma LNWFS_tot_l_leftwhisker_comp
-    {Λ Λ' Λ'': total_category (LNWFS C)} 
+    {Λ Λ' Λ'': total_category (LNWFS C)}
     (L : total_category (LNWFS C))
     (τ : Λ --> Λ') (τ' : Λ' --> Λ'') :
   (L Ltot⊗pre (τ · τ')) = (L Ltot⊗pre τ) · (L Ltot⊗pre τ').
@@ -893,7 +892,7 @@ Proof.
   reflexivity.
 Qed.
 
-Definition LNWFS_l_mor_comp {F F' G G' : Ff C} 
+Definition LNWFS_l_mor_comp {F F' G G' : Ff C}
     {τF : F --> F'} {ρG : G --> G'}
     {L : LNWFS _ F} {L' : LNWFS _ F'}
     {Λ : LNWFS _ G} {Λ' : LNWFS _ G'}
@@ -933,9 +932,9 @@ Definition LNWFS_tot_l_point (L : total_category (LNWFS C)) :
     LNWFS_tot_lcomp_unit --> L :=
   (_,, LNWFS_l_point (pr2 L)).
 
-Lemma LNWFS_tot_mor_eq {L L' : total_category (LNWFS C)} 
+Lemma LNWFS_tot_mor_eq {L L' : total_category (LNWFS C)}
     (τ τ' : L --> L') :
-  (∏ (f : arrow C), pr1 (pr11 τ f) = pr1 (pr11 τ' f)) -> 
+  (∏ (f : arrow C), pr1 (pr11 τ f) = pr1 (pr11 τ' f)) ->
       τ = τ'.
 Proof.
   intro H.
@@ -1023,7 +1022,7 @@ Context {C : category}.
 Local Definition LNWFSC := total_category (LNWFS C).
 
 
-Definition LNWFS_tot_monoid_is_NWFS_monoid_data 
+Definition LNWFS_tot_monoid_is_NWFS_monoid_data
     {L : LNWFSC} (R : monoid (LNWFS_tot_monoidal) L) :
   monoid_data Ff_monoidal (pr1 L).
 Proof.
@@ -1051,12 +1050,12 @@ Proof.
     exact (base_paths _ _ (base_paths _ _ law)).
 Qed.
 
-Definition LNWFS_tot_monoid_projection 
+Definition LNWFS_tot_monoid_projection
       {L : LNWFSC} (R : monoid (LNWFS_tot_monoidal) L) :
   monoid Ff_monoidal (pr1 L) :=
     (_,, LNWFS_tot_monoid_is_NWFS_monoid_axioms R).
 
-Definition LNWFS_tot_monoid_is_NWFS 
+Definition LNWFS_tot_monoid_is_NWFS
     {L : LNWFSC} (R : monoid (LNWFS_tot_monoidal) L) :
   NWFS C (pr1 L).
 Proof.

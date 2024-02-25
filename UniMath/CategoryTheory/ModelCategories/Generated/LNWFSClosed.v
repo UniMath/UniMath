@@ -15,8 +15,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Coequalizers.
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
@@ -34,14 +34,13 @@ Require Import UniMath.CategoryTheory.ModelCategories.Generated.LNWFSMonoidalStr
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.LNWFSCocomplete.
 
 Local Open Scope cat.
-Local Open Scope Cat.
 
 Section Ff_closed.
 
 Import BifunctorNotations.
 Import MonoidalNotations.
 
-Lemma monoidal_right_tensor_cocone 
+Lemma monoidal_right_tensor_cocone
     {C : category}
     (V : monoidal C)
     (A : C)
@@ -49,8 +48,8 @@ Lemma monoidal_right_tensor_cocone
     (d : diagram g _)
     (CC : ColimCocone d)
     (CMon := (C,, V) : monoidal_cat) :
-  cocone 
-      (mapdiagram (monoidal_right_tensor (A : CMon)) d) 
+  cocone
+      (mapdiagram (monoidal_right_tensor (A : CMon)) d)
       (monoidal_right_tensor (A : CMon) (colim CC)).
 Proof.
   use tpair.
@@ -74,7 +73,7 @@ Context {C : category}.
 Context (CC : Colims C).
 Local Definition Ff_mon : monoidal_cat :=
     (_,, @Ff_monoidal C).
-    
+
 Context {g : graph}.
 Context (H : is_connected g).
 Context (v0 : vertex g).
@@ -95,7 +94,7 @@ Proof.
   - abstract (
       intros u v e;
       (* cbn. *)
-      etrans; [| 
+      etrans; [|
         exact (colimInCommutes ((CCFf_pt_ob1 CC (mapdiagram (monoidal_right_tensor A) d) f)) _ _ e)
       ];
       apply cancel_postcomposition;
@@ -204,8 +203,8 @@ Qed.
 (* Ff_right_closed: *)
 Lemma Ff_right_tensor_preserves_colimit_mor_iso
     (A : Ff_mon)
-    (d : diagram g _) : 
-  z_iso 
+    (d : diagram g _) :
+  z_iso
     ((monoidal_right_tensor A) (colim (FfCC d)))
     (colim (FfCC (mapdiagram (monoidal_right_tensor A) d))).
 Proof.
@@ -248,9 +247,9 @@ Proof.
   - intro; apply impred; intro; apply homset_property.
   - abstract (
       intros y Hy;
-      
+
       (* unfold is_cocone_mor in Hy. *)
-      apply (pre_comp_with_z_iso_is_inj 
+      apply (pre_comp_with_z_iso_is_inj
         (z_iso_inv (Ff_right_tensor_preserves_colimit_mor_iso A d)));
       apply pathsinv0;
       etrans; [apply assoc|];
@@ -261,7 +260,7 @@ Proof.
       etrans; [|
         use (base_paths _ _ (uniqueness (z_iso_inv (Ff_right_tensor_preserves_colimit_mor_iso A d) · y,, _)))
       ]; [reflexivity|];
-      
+
       intro v;
       etrans; [apply assoc|];
       etrans; [|exact (Hy v)];
@@ -275,7 +274,7 @@ Proof.
     ).
 Defined.
 
-Lemma Ff_rt_all_colimits 
+Lemma Ff_rt_all_colimits
     (A : Ff_mon) :
   preserves_colimits_of_shape (monoidal_right_tensor (A : Ff_mon)) g.
 Proof.
@@ -327,13 +326,13 @@ Defined.
 
 End Ff_closed.
 
-Lemma Ff_rt_chain {C : category} (CC : Colims C): 
+Lemma Ff_rt_chain {C : category} (CC : Colims C):
     rt_preserves_chains (@Ff_monoidal C).
 Proof.
   exact (Ff_rt_all_colimits CC is_connected_nat_graph 0).
 Defined.
 
-Lemma Ff_rt_coeq {C : category} (CC : Colims C): 
+Lemma Ff_rt_coeq {C : category} (CC : Colims C):
     rt_preserves_coequalizers (@Ff_monoidal C).
 Proof.
   exact (Ff_rt_all_colimits CC is_connected_coequalizer_graph (● 0)%stn).
@@ -348,7 +347,7 @@ Context {C : category}.
 Context (CC : Colims C).
 Local Definition LNWFS_mon : monoidal_cat :=
     (_,, @LNWFS_tot_monoidal C).
-    
+
 Context {g : graph}.
 Context (H : is_connected g).
 Context (v0 : vertex g).
@@ -357,7 +356,7 @@ Context (LNWFSCC := λ d, ColimLNWFSCocone CC d H v0).
 
 Lemma LNWFS_right_tensor_preserves_colimit_mor_inv_disp
     (A : LNWFS_mon)
-    (d : diagram g _) 
+    (d : diagram g _)
     (dbase := mapdiagram (pr1_category _) d) :
   pr2 (colim (LNWFSCC (mapdiagram (monoidal_right_tensor A) d)) )
   -->[Ff_right_tensor_preserves_colimit_mor_inv CC H v0 (pr1 A) dbase]
@@ -396,7 +395,7 @@ Qed.
 
 Local Lemma LNWFS_right_tensor_preserves_colimit_mor_disp
     (A : LNWFS_mon)
-    (d : diagram g _) 
+    (d : diagram g _)
     (dbase := mapdiagram (pr1_category _) d) :
   pr2 ((monoidal_right_tensor A) (colim (LNWFSCC d)))
   -->[Ff_right_tensor_preserves_colimit_mor CC H v0 (pr1 A) dbase]
@@ -418,29 +417,44 @@ Proof.
   set (colimAL := colim (LNWFSCC (mapdiagram (monoidal_right_tensor A) d))).
   set (AcolimL := monoidal_right_tensor A (colim (LNWFSCC d))).
   set (Ffiso := z_iso_inv (Ff_right_tensor_preserves_colimit_mor_iso CC H v0 (pr1 A) dbase)).
-  
+
   use (is_z_iso_isColim _ (LNWFSCC (mapdiagram (monoidal_right_tensor A) d))).
   use tpair.
   - exists (z_iso_inv Ffiso).
     exact (LNWFS_right_tensor_preserves_colimit_mor_disp A d).
-  - abstract (
-      set (adbase := (mapdiagram (pr1_category (LNWFS C)) (mapdiagram (monoidal_right_tensor A) d)));
-      split; (apply subtypePath; [intro; apply isaprop_lnwfs_mor_axioms|]); [
-        etrans; [|exact (pr122 Ffiso)];
-        apply cancel_postcomposition
-      |
-        etrans; [|exact (pr222 Ffiso)];
-        apply cancel_precomposition
-      ]; (use colimArrowUnique';
-        intro v;
-        etrans; [apply (colimArrowCommutes (ColimFfCocone CC adbase H v0))|];
-        apply pathsinv0;
-        etrans; [apply (colimArrowCommutes)|];
-        reflexivity)
-    ).
-Defined.
+  - set (adbase := (mapdiagram (pr1_category (LNWFS C)) (mapdiagram (monoidal_right_tensor A) d))).
+    split.
+    + apply subtypePath.
+      {
+        intro.
+        apply isaprop_lnwfs_mor_axioms.
+      }
+      etrans; [|exact (pr122 Ffiso)].
+      use colimArrowUnique'.
+      intro v.
+      refine (assoc _ _ _ @ _).
+      refine (_ @ assoc' _ (pr1 Ffiso) (pr12 Ffiso)).
+      refine (maponpaths (λ z, z · pr12 Ffiso) _).
+      etrans; [apply (colimArrowCommutes (ColimFfCocone CC adbase H v0))|].
+      apply pathsinv0.
+      etrans; [apply (colimArrowCommutes)|].
+      reflexivity.
+    + apply subtypePath.
+      {
+        intro.
+        apply isaprop_lnwfs_mor_axioms.
+      }
+      etrans; [|exact (pr222 Ffiso)].
+      apply cancel_precomposition.
+      use colimArrowUnique'.
+      intro v.
+      etrans; [apply (colimArrowCommutes (ColimFfCocone CC adbase H v0))|].
+      apply pathsinv0.
+      etrans; [apply (colimArrowCommutes)|].
+      reflexivity.
+Qed.
 
-Lemma LNWFS_rt_all_colimits 
+Lemma LNWFS_rt_all_colimits
     (A : LNWFS_mon) :
   preserves_colimits_of_shape (monoidal_right_tensor (A : LNWFS_mon)) g.
 Proof.
@@ -490,13 +504,13 @@ Defined.
 
 End LNWFS_closed.
 
-Lemma LNWFS_rt_chain {C : category} (CC : Colims C): 
+Lemma LNWFS_rt_chain {C : category} (CC : Colims C):
     rt_preserves_chains (@LNWFS_tot_monoidal C).
 Proof.
   exact (LNWFS_rt_all_colimits CC is_connected_nat_graph 0).
 Defined.
 
-Lemma LNWFS_rt_coeq {C : category} (CC : Colims C): 
+Lemma LNWFS_rt_coeq {C : category} (CC : Colims C):
     rt_preserves_coequalizers (@LNWFS_tot_monoidal C).
 Proof.
   exact (LNWFS_rt_all_colimits CC is_connected_coequalizer_graph (● 0)%stn).

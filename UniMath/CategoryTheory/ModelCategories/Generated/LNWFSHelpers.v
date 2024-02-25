@@ -6,12 +6,12 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.pushouts.
-Require Import UniMath.CategoryTheory.limits.graphs.coequalizers.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Pushouts.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.EqDiag.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.slicecat.
@@ -40,10 +40,7 @@ Require Import UniMath.CategoryTheory.ModelCategories.Generated.MonoidalHelpers.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.FFMonoidalStructure.
 
 
-Local Open Scope Cat.
 Local Open Scope cat.
-
-
 
 Section Helpers.
 
@@ -74,13 +71,13 @@ Qed.
    (L L' L'' : total_category (LNWFS C))
    (α : fact_mor (pr1 L) (pr1 L'))
    (α' : fact_mor (pr1 L') (pr1 L''))
-   (f : arrow C) : 
+   (f : arrow C) :
  arrow_mor11 (#(lnwfs_L_monad (pr2 L')) (lnwfs_mor (pr2 L) (pr2 L') α f)) · arrow_mor11 (lnwfs_mor (pr2 L') (pr2 L'') α' ((lnwfs_L_monad (pr2 L')) f))
  = arrow_mor11 (lnwfs_mor (pr2 L') (pr2 L'') α' (lnwfs_L_monad (pr2 L) f)) · arrow_mor11 (#(lnwfs_L_monad (pr2 L'')) (lnwfs_mor (pr2 L) (pr2 L') α f)).
 Proof.
  set (α'nat := nat_trans_ax α' _ _ (lnwfs_mor (pr2 L) (pr2 L') α f)).
  set (α'nat11 := base_paths _ _ (fiber_paths α'nat)).
- 
+
  apply pathsinv0.
  etrans. exact (pathsinv0 α'nat11).
  etrans. apply pr1_transportf_const.
@@ -93,13 +90,13 @@ Lemma LNWFS_comon_structure_whiskercommutes
    (L L' Λ Λ' : total_category (LNWFS C))
    (α : fact_mor (pr1 L) (pr1 L'))
    (β : fact_mor (pr1 Λ) (pr1 Λ'))
-   (f : arrow C) : 
+   (f : arrow C) :
   arrow_mor11 (lnwfs_mor (pr2 Λ) (pr2 Λ') β (lnwfs_L_monad (pr2 L) f)) · arrow_mor11 (#(lnwfs_L_monad (pr2 Λ')) (lnwfs_mor (pr2 L) (pr2 L') α f))
   = arrow_mor11 (#(lnwfs_L_monad (pr2 Λ)) (lnwfs_mor (pr2 L) (pr2 L') α f)) · arrow_mor11 (lnwfs_mor (pr2 Λ) (pr2 Λ') β ((lnwfs_L_monad (pr2 L')) f)).
 Proof.
  set (βnat := nat_trans_ax β _ _ (lnwfs_mor (pr2 L) (pr2 L') α f)).
  set (βnat11 := base_paths _ _ (fiber_paths βnat)).
- 
+
  etrans. exact (pathsinv0 βnat11).
  etrans. apply pr1_transportf_const.
  reflexivity.

@@ -12,7 +12,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.
-Local Open Scope Cat.
 
 Definition make_Algebra_data {C : category} (T : Monad C) (X : C) (α : T X --> X) : Algebra_data T.
 Proof.
@@ -33,11 +32,11 @@ Proof.
     exact (is_Algebra_mor T (X:=X') (Y:=Y') f).
 Defined.
 
-Coercion Algebra_from_MonadAlg_disp {C : category} {T : Monad C} {x : C} 
+Coercion Algebra_from_MonadAlg_disp {C : category} {T : Monad C} {x : C}
     (X : MonadAlg_disp_ob_mor T x) : Algebra T :=
   (make_Algebra_data T x (pr1 X),, pr2 X).
 
-Coercion Algebra_mor_from_Algebra_mor_disp {C : category} {T : Monad C} 
+Coercion Algebra_mor_from_Algebra_mor_disp {C : category} {T : Monad C}
     {x y : C} (X : MonadAlg_disp_ob_mor T x) (Y : MonadAlg_disp_ob_mor T y)
     {f : x --> y} (F : X -->[f] Y) : Algebra_mor T X Y := (f,, F).
 
@@ -80,12 +79,12 @@ Definition MonadAlg_disp_Algebra_functor {C : category} (T : Monad C) :
 Proof.
   use make_functor.
   - use make_functor_data.
-    * intro X. 
+    * intro X.
       exact (Algebra_from_MonadAlg_disp (pr2 X)).
     * intros.
       exact (Algebra_mor_from_Algebra_mor_disp (pr2 a) (pr2 b) (pr2 X)).
   - abstract (
-      split; [intro|intros a b c f g]; 
+      split; [intro|intros a b c f g];
         (apply subtypePath; [intro; apply homset_property|]; reflexivity)
     ).
 Defined.
@@ -131,11 +130,11 @@ Proof.
     exact (is_Coalgebra_mor T (X:=X') (Y:=Y') f).
 Defined.
 
-Coercion Coalgebra_from_ComonadCoalg_disp {C : category} {T : Comonad C} {x : C} 
+Coercion Coalgebra_from_ComonadCoalg_disp {C : category} {T : Comonad C} {x : C}
     (X : ComonadCoalg_disp_ob_mor T x) : Coalgebra T :=
   (make_Coalgebra_data T x (pr1 X),, pr2 X).
 
-Coercion Coalgebra_mor_from_Coalgebra_mor_disp {C : category} {T : Comonad C} 
+Coercion Coalgebra_mor_from_Coalgebra_mor_disp {C : category} {T : Comonad C}
     {x y : C} (X : ComonadCoalg_disp_ob_mor T x) (Y : ComonadCoalg_disp_ob_mor T y)
     {f : x --> y} (F : X -->[f] Y) : Coalgebra_mor T X Y := (f,, F).
 
@@ -178,12 +177,12 @@ Definition ComonadCoalg_disp_Coalgebra_functor {C : category} (T : Comonad C) :
 Proof.
   use make_functor.
   - use make_functor_data.
-    * intro X. 
+    * intro X.
       exact (Coalgebra_from_ComonadCoalg_disp (pr2 X)).
     * intros.
       exact (Coalgebra_mor_from_Coalgebra_mor_disp (pr2 a) (pr2 b) (pr2 X)).
   - abstract (
-      split; [intro|intros a b c f g]; 
+      split; [intro|intros a b c f g];
         (apply subtypePath; [intro; apply homset_property|]; reflexivity)
     ).
 Defined.

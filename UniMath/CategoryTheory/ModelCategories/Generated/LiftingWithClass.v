@@ -8,11 +8,11 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.Monads.MonadAlgebras.
 Require Import UniMath.CategoryTheory.catiso.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.coequalizers.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.pushouts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Pushouts.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
@@ -34,7 +34,6 @@ Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.
-Local Open Scope Cat.
 Local Open Scope morcls.
 
 Arguments CoproductArrow {_} {_} {_} _ {_}.
@@ -57,7 +56,7 @@ Definition right_lifting_data (J : morphism_class C) (f : arrow C) : UU :=
     ∏ (g : arrow C), (J _ _ g) -> elp g f.
 
 Lemma right_lifting_data_retract (J : morphism_class C) {f f' : arrow C}
-    (Rff' : retract f f') : 
+    (Rff' : retract f f') :
   right_lifting_data J f -> right_lifting_data J f'.
 Proof.
   intros rldJf g Jg.
@@ -70,10 +69,10 @@ Defined.
 Definition right_lifting_data_comp {J : morphism_class C} {f f' : arrow C}
     (δ : right_lifting_data J f) (δ' : right_lifting_data J f') (mn : f --> f') : UU :=
   ∏ (g : arrow C) (H : J _ _ g) (S : g --> f),
-  (filler_map (δ g H _ _ (arrow_mor_comm S))) · (arrow_mor00 mn) = 
+  (filler_map (δ g H _ _ (arrow_mor_comm S))) · (arrow_mor00 mn) =
     filler_map (δ' g H _ _ (arrow_mor_comm (S · mn))).
 
-Lemma isaprop_lifting_data_comp {J : morphism_class C} {f f'} 
+Lemma isaprop_lifting_data_comp {J : morphism_class C} {f f'}
     (δ : right_lifting_data J f) (δ' : right_lifting_data J f') (mn : f --> f') :
   isaprop (right_lifting_data_comp δ δ' mn).
 Proof.
@@ -85,7 +84,7 @@ Definition rlp_morcls_disp (J : morphism_class C) : disp_cat (arrow C).
 Proof.
   use disp_cat_from_SIP_data.
   - exact (λ f, right_lifting_data J f).
-  - intros f f' δ δ' mn. 
+  - intros f f' δ δ' mn.
     (* simpl in *. *)
 
     (* commutativity of lifting data:
@@ -113,7 +112,7 @@ Proof.
     ).
   - (* associativity *)
     intros f f' f'' δ δ' δ'' S0 S1 mn mn' g2 g2' S2.
-    
+
     abstract (
       etrans; [apply assoc|];
       etrans; [apply cancel_postcomposition; apply mn|];
@@ -123,7 +122,7 @@ Proof.
     ).
 Defined.
 
-Definition rlp_morcls (J : morphism_class C) : category := 
+Definition rlp_morcls (J : morphism_class C) : category :=
     total_category (rlp_morcls_disp J).
 
 (* needed later *)
@@ -135,12 +134,12 @@ Coercion morcls_lp_diagram {J : morphism_class C} {f : arrow C} (lp : morcls_lp 
 Definition morcls_lp_map {J : morphism_class C} {f : arrow C} (lp : morcls_lp J f) := pr1 lp.
 
 Context (n : nwfs C).
-Definition morcls_L_map_structure (J : morphism_class C) : UU := 
+Definition morcls_L_map_structure (J : morphism_class C) : UU :=
   disp_functor (functor_identity _) (morcls_disp J) (nwfs_L_maps n).
 
 Context {J : morphism_class C}.
 
-Definition R_map_rlp_morcls_structure_on_objects (η : morcls_L_map_structure J) : 
+Definition R_map_rlp_morcls_structure_on_objects (η : morcls_L_map_structure J) :
     ∏ x, (nwfs_R_maps n) x -> (rlp_morcls_disp J) ((functor_identity _) x).
 Proof.
   (* map on displayed objects (send arrow to itself, with lifting data) *)
@@ -150,16 +149,16 @@ Proof.
   (* add structure to f through η *)
   unfold morcls_L_map_structure in η.
   set (Lg := η g hg).
-  
+
   intros.
-  (* since η lies over (identity _), 
+  (* since η lies over (identity _),
      Lg is actually just g (with structure), and it is an L-Map
      the filler follows from the fact that NWFS L-Maps and R-Maps
      form a WFS *)
   apply (L_map_R_map_elp Lg Rf).
 Defined.
 
-Definition R_map_rlp_morcls_structure_on_displayed_mors (η : morcls_L_map_structure J) : 
+Definition R_map_rlp_morcls_structure_on_displayed_mors (η : morcls_L_map_structure J) :
     ∏ x y (xx : (nwfs_R_maps n) x) (yy : (nwfs_R_maps n) y) (f : x --> y),
       (xx -->[f] yy) -> (R_map_rlp_morcls_structure_on_objects η _ xx -->[ f ] R_map_rlp_morcls_structure_on_objects η _ yy).
 Proof.
@@ -169,7 +168,7 @@ Proof.
   (* simpl.
   unfold three_mor11.
   simpl. *)
-  (* cancel precomposition with  
+  (* cancel precomposition with
     pr211 η g Jg := Lift of g vs ρg (map from cod g --> three_ob1 (n g)) *)
   etrans. apply assoc'.
   etrans. apply assoc'.
@@ -178,9 +177,9 @@ Proof.
   apply cancel_precomposition.
   apply pathsinv0.
 
-  (* cancel precomposition with 
+  (* cancel precomposition with
     three_mor11 (#n Sgf)*)
-  (* first "fix" the morphisms, since the (propositional) 
+  (* first "fix" the morphisms, since the (propositional)
      commutativity is not equal *)
   etrans. apply cancel_postcomposition.
           use (section_disp_on_eq_morphisms' (nwfs_fact n) (γ := Sgf)).
@@ -197,7 +196,7 @@ Proof.
 
   destruct ff as [αf αflaws].
   destruct ff' as [αf' αf'laws].
-  set (S11 := three_mor11 ((# n)%Cat S)).
+  set (S11 := three_mor11 ((# n)%cat S)).
   change (S11 · arrow_mor00 αf' = arrow_mor00 αf · arrow_mor00 S).
 
   (*         S00
@@ -224,7 +223,7 @@ Qed.
 
 
 (* "this assignation extends to a functor θ: R-Map ⟶ J□", Garner 2007, p18 *)
-Definition R_map_rlp_morcls_structure_data (η : morcls_L_map_structure J) : 
+Definition R_map_rlp_morcls_structure_data (η : morcls_L_map_structure J) :
     disp_functor_data (functor_identity _) (nwfs_R_maps n) (rlp_morcls_disp J) :=
   (R_map_rlp_morcls_structure_on_objects η,, R_map_rlp_morcls_structure_on_displayed_mors η).
 
@@ -235,7 +234,7 @@ Proof.
   split; intros; apply isaprop_lifting_data_comp.
 Qed.
 
-Definition R_map_rlp_morcls_structure (η : morcls_L_map_structure J) : 
+Definition R_map_rlp_morcls_structure (η : morcls_L_map_structure J) :
     disp_functor (functor_identity _) (nwfs_R_maps n) (rlp_morcls_disp J) :=
   (_,, R_map_rlp_morcls_structure_axioms η).
 
@@ -251,7 +250,7 @@ Definition algebraically_free : UU :=
 
 (* Garner 2008, Proposition 3.12 / Garner 2007, p18 *)
 Lemma algebraically_free_nwfs_gives_cofibrantly_generated_wfs :
-  algebraically_free -> 
+  algebraically_free ->
     (nwfs_R_maps_class n)^cl = λ x y f, ∥rlp_morcls_disp J f∥.
 Proof.
   intro H.
@@ -276,7 +275,7 @@ Proof.
     - exact Jf.
   }
 
-  apply morphism_class_subset_antisymm; 
+  apply morphism_class_subset_antisymm;
     intros x y f Hf;
     use (hinhuniv _ Hf);
     clear Hf; intro Hf;
@@ -342,7 +341,7 @@ Definition morcls_lp_cod_coprod :=
   CC (λ (g : morcls_lp J f), arrow_cod (pr1 (morcls_lp_map g))).
 
 Definition morcls_lp_coprod :=
- (CoproductOfArrows' _ _ 
+ (CoproductOfArrows' _ _
    morcls_lp_dom_coprod morcls_lp_cod_coprod
    (λ (S : morcls_lp J f), arrow_mor (pr1 (morcls_lp_map S)))).
 
@@ -367,11 +366,11 @@ Defined.
 (* It is possible to show this more generally for _any_
    coproduct of maps in J, but this is not really necessary or useful
    for us.
-   
-   The proof of this lemma is practically the same as that of 
+
+   The proof of this lemma is practically the same as that of
    wfs_closed_coproducts, but we do _not_ need the axiom of choice here,
    since we know the actual lifting data. *)
-Lemma lifting_data_impl_lifting_coprod_lp : 
+Lemma lifting_data_impl_lifting_coprod_lp :
   right_lifting_data J f -> elp (morcls_lp_coprod) f.
 Proof.
   intro rldJf.
@@ -382,7 +381,7 @@ Proof.
 
   (* fill-in for each square *)
   assert (∏ (j : morcls_lp J f), ∑ lj, ((pr1 (morcls_lp_map j)) · lj = hj j) × (lj · f = kj j)) as jlift.
-  { 
+  {
     intro j.
     (* use lifting data of j with respect to g *)
     use (rldJf (pr1 (morcls_lp_map j)) (pr2 (morcls_lp_map j))).
@@ -403,7 +402,7 @@ Proof.
   destruct jlifts as [lj hlj].
   set (hl := isCoproduct_Coproduct _ _ (morcls_lp_cod_coprod) _ lj).
   destruct hl as [[l hl] uniqueness].
-  
+
   exists l.
   split; rewrite CoproductArrowEta, (CoproductArrowEta _ _ _ _ _ l).
   - (* factor g as well *)
@@ -431,7 +430,7 @@ Proof.
     (* reason about separate diagrams again *)
     intro j.
     etrans. apply assoc.
-    etrans. apply cancel_postcomposition. 
+    etrans. apply cancel_postcomposition.
             apply (CoproductInCommutes (morcls_lp_cod_coprod)).
 
     (* the relation we want to prove *)
@@ -444,9 +443,9 @@ Proof.
     reflexivity.
 Qed.
 
-(* we need the actual diagram for the other direction 
+(* we need the actual diagram for the other direction
    (this does not hold for just any coproduct) *)
-Lemma lifting_coprod_lp_impl_lifting_data : 
+Lemma lifting_coprod_lp_impl_lifting_data :
   filler (arrow_mor_comm (morcls_lp_coprod_diagram)) ->
       right_lifting_data J f.
 Proof.
@@ -457,7 +456,7 @@ Proof.
   destruct l as [ltot [Hl1 Hl2]].
   simpl in Hl1, Hl2, ltot.
 
-  (* The lift we are looking for is formed using the  
+  (* The lift we are looking for is formed using the
      inclusion of arrow_cod f into the coproduct of all domains *)
   set (Jtot := total_category (morcls_disp J)).
 
@@ -476,7 +475,7 @@ Proof.
     {
       (* unfold domf_in. *)
       apply pathsinv0.
-      
+
       exact (CoproductInCommutes (morcls_lp_dom_coprod) _ Hlp).
     }
     apply pathsinv0.
@@ -508,7 +507,7 @@ Proof.
     exact (CoproductInCommutes (morcls_lp_cod_coprod) _ Hlp).
 Qed.
 
-Lemma lifting_data_Jg_iff_lifting_coprod_lp : 
+Lemma lifting_data_Jg_iff_lifting_coprod_lp :
   right_lifting_data J f <->
     filler (arrow_mor_comm (morcls_lp_coprod_diagram)).
 Proof.
@@ -531,7 +530,7 @@ We turn the diagram
 
 into the pushout diagram
          h_x
-    ∑A_x ----> C--\ 
+    ∑A_x ----> C--\
      |         |  |
 ∑f_x |     λ1g |  \
      v         v   |
@@ -559,7 +558,7 @@ Definition E1 : C :=
 Definition λ1 : (arrow_dom f) --> E1 :=
   PushoutIn2 morcls_lp_coprod_diagram_pushout.
 Definition ρ1 : E1 --> (arrow_cod f) :=
-  PushoutArrow 
+  PushoutArrow
     morcls_lp_coprod_diagram_pushout
     _ (arrow_mor11 morcls_lp_coprod_diagram)
     f (pathsinv0 (arrow_mor_comm morcls_lp_coprod_diagram)).
@@ -624,7 +623,7 @@ Proof.
     etrans. apply assoc.
     etrans. apply cancel_postcomposition.
             apply (PushoutSqrCommutes (morcls_lp_coprod_diagram_pushout)).
-    
+
     (* ∑hx · λ1f · l = ∑hx *)
     etrans. apply assoc'.
     etrans. apply maponpaths. exact Hl1.
@@ -632,7 +631,7 @@ Proof.
   - (* (PushoutIn1 · l) · f = ∑kx *)
     etrans. apply assoc'.
     etrans. apply maponpaths. exact Hl2.
-    
+
     (* PushoutIn1 · ρ1f = ∑kx *)
     use PushoutArrow_PushoutIn1.
 Qed.
@@ -644,9 +643,9 @@ Proof.
   intro H.
   destruct H as [l [Hl1 Hl2]].
   (* simpl in Hl1, Hl2. *)
-  
+
   (* commutativity of f · l = ∑hx · id *)
-  assert (H : morcls_lp_coprod · l = 
+  assert (H : morcls_lp_coprod · l =
             arrow_mor00 morcls_lp_coprod_diagram · identity _).
   {
     apply pathsinv0.
@@ -655,7 +654,7 @@ Proof.
   }
 
   (* obtain lift using pushout property on lift *)
-  set (lred := PushoutArrow 
+  set (lred := PushoutArrow
                   morcls_lp_coprod_diagram_pushout
                   _ l (identity _) H).
   exists lred.

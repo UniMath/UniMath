@@ -1,20 +1,20 @@
 (*
 Natural Weak Factorization Systems
 
-Natural Weak Factorization Systems (NWFSs) are an algebraic 
+Natural Weak Factorization Systems (NWFSs) are an algebraic
 refinement to WFSs. They consist of a functorial factorization,
 together with an extension of the left functor to a comonad
-and the right functor to a monad. These algebraic structures 
+and the right functor to a monad. These algebraic structures
 (note: NOT properties), make it so they behave better than
-WFSs, satisfying even those properties that required the 
-axiom of choice for a WFS. In fact, one can construct a 
+WFSs, satisfying even those properties that required the
+axiom of choice for a WFS. In fact, one can construct a
 WFS from a NWFS in a canonical way (see ./NWFSisWFS.v).
 
 The algebraic structure allows us to define categories out of
 functorial factorizations and NWFSs. It turns out to be useful to
 split this up into two halves: the left part of a NWFS (LNWFS)
 and the right part of a NWFS (RNWFS), consisting of the comonad
-and the monad extension respectively. 
+and the monad extension respectively.
 
 Important sources:
 - Cofibrantly generated natural weak factorisation systems by Richard Garner
@@ -32,7 +32,7 @@ Contents:
 - LNWFS category
 - RNWFS category
 - NWFS category
-- Some helper functions used in the formalization of the 
+- Some helper functions used in the formalization of the
   Algebraic Small Object Argument
 
 *)
@@ -67,7 +67,6 @@ Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.
-Local Open Scope Cat.
 
 Section Face_maps.
 
@@ -149,8 +148,8 @@ Definition face_map_2 : three C ⟶ arrow C :=
     (_,, face_map_2_axioms).
 
 (* verify that they are indeed compatible *)
-Lemma face_compatibility (fg : three C) : 
-    arrow_mor (face_map_2 fg) · arrow_mor (face_map_0 fg) 
+Lemma face_compatibility (fg : three C) :
+    arrow_mor (face_map_2 fg) · arrow_mor (face_map_0 fg)
     = arrow_mor (face_map_1 fg).
 Proof.
   exact (three_comp fg).
@@ -289,7 +288,7 @@ Qed.
 Definition fact_L {C : category} (F : functorial_factorization C) :
     arrow C ⟶ arrow C :=
   F ∙ face_map_2.
-Definition fact_R {C : category} (F : functorial_factorization C) : 
+Definition fact_R {C : category} (F : functorial_factorization C) :
     arrow C ⟶ arrow C :=
   F ∙ face_map_0.
 
@@ -318,10 +317,10 @@ Definition R_monad {C : category} (F : functorial_factorization C)
     (R : disp_Monad_laws (R_monad_data F Π)) : Monad (arrow C) :=
   (_,, R_monad_data F Π,, R).
 
-(* 
+(*
 Definition op_comul_data {D : category} {F : functor D D} (Σ : F ⟹ (functor_composite F F)) :
-    nat_trans_data 
-        (functor_composite (functor_opp F) (functor_opp F)) 
+    nat_trans_data
+        (functor_composite (functor_opp F) (functor_opp F))
         (functor_opp F).
 Proof.
   intro f.
@@ -494,7 +493,7 @@ Definition nwfs_R_maps {C : category} (n : nwfs C) :=
     MonadAlg_disp (nwfs_R_monad n).
 Definition nwfs_L_maps {C : category} (n : nwfs C) :=
     ComonadCoalg_disp (nwfs_L_monad n).
-    
+
 (*
 Shape of comonad morphism diagram (2.15, Garner)
   A ===== A ===== A  ~~> id_A
@@ -504,15 +503,15 @@ f |   α   |λf  η  | f
   B ---> Kf ----> B  ~~> id_B
      s       ρ_f
 *)
-Lemma R_map_section_comm {C : category} {n : nwfs C} {a b : C} {f : a --> b} 
+Lemma R_map_section_comm {C : category} {n : nwfs C} {a b : C} {f : a --> b}
     (hf : nwfs_L_maps n f) (s := pr211 hf) :
-  f · s = arrow_mor (fact_L n f) × 
+  f · s = arrow_mor (fact_L n f) ×
      s · arrow_mor (fact_R n f) = identity _.
 Proof.
   set (ida := pr111 hf).
   set (αfcomm := pr21 hf).
   set (hαfη := pr12 hf).
-  
+
   cbn in ida, s, αfcomm.
   simpl in hαfη.
 
@@ -530,7 +529,7 @@ Proof.
   split.
   - (* f ⋅ s = λ_f *)
     (* commutativity and ida = identity a *)
-    specialize (αfcomm) as αfcomm'. 
+    specialize (αfcomm) as αfcomm'.
     unfold ida in Hida.
     rewrite Hida, id_left in αfcomm'.
     apply pathsinv0.
@@ -541,9 +540,9 @@ Proof.
     exact bottom_line.
 Qed.
 
-Lemma R_map_section {C : category} {n : nwfs C} {a b : C} {f : a --> b} 
+Lemma R_map_section {C : category} {n : nwfs C} {a b : C} {f : a --> b}
     (hf : nwfs_L_maps n f) :
-  ∑ s, f · s = arrow_mor (fact_L n f) × 
+  ∑ s, f · s = arrow_mor (fact_L n f) ×
       s · arrow_mor (fact_R n f) = identity _.
 Proof.
   exists (pr211 hf).
@@ -559,15 +558,15 @@ g |   η   |ρg  α  | g
   v       v       v
   D ===== D ===== D  ~~> id_D
 *)
-Lemma L_map_retraction_comm {C : category} {n : nwfs C} {c d : C} {g : c --> d} 
+Lemma L_map_retraction_comm {C : category} {n : nwfs C} {c d : C} {g : c --> d}
     (hg : nwfs_R_maps n g) (p := pr111 hg) :
-  p · g = arrow_mor (fact_R n g) × 
+  p · g = arrow_mor (fact_R n g) ×
       arrow_mor (fact_L n g) · p = identity _.
 Proof.
   set (idd := pr211 hg).
   set (αgcomm := pr21 hg).
   set (hαgη := pr12 hg).
-  
+
   cbn in p, idd, αgcomm.
   simpl in hαgη.
 
@@ -585,7 +584,7 @@ Proof.
   split.
   - (* p ⋅ g = ρ_g *)
     (* commutativity and ida = identity a *)
-    specialize (αgcomm) as αgcomm'. 
+    specialize (αgcomm) as αgcomm'.
     unfold idd in Hidd.
     rewrite Hidd, id_right in αgcomm'.
     exact αgcomm'.
@@ -595,9 +594,9 @@ Proof.
     exact top_line.
 Qed.
 
-Lemma L_map_retraction {C : category} {n : nwfs C} {c d : C} {g : c --> d} 
+Lemma L_map_retraction {C : category} {n : nwfs C} {c d : C} {g : c --> d}
     (hg : nwfs_R_maps n g) :
-  ∑ p, p · g = arrow_mor (fact_R n g) × 
+  ∑ p, p · g = arrow_mor (fact_R n g) ×
       arrow_mor (fact_L n g) · p = identity _.
 Proof.
   exists (pr111 hg).
@@ -618,14 +617,14 @@ Proof.
   set (hk := mors_to_arrow_mor f g h k H).
   set (Fhk := functor_on_morphisms (fact_functor n) hk).
   (* Kf --> Kg *)
-  set (Khk := three_mor11 Fhk). 
+  set (Khk := three_mor11 Fhk).
 
   (* commutativity in diagrams *)
   set (Hhk := three_mor_comm Fhk).
   simpl in Hhk.
   destruct Hhk as [Hhk0 Hhk1].
 
-  (*    
+  (*
               h
     A ==== A ----> C
     |      |       |
@@ -640,7 +639,7 @@ Proof.
   *)
 
   exists (s · Khk · p).
-  
+
   abstract (
     split; [
       (* f · (s · Khk · p) = h *)
@@ -767,7 +766,7 @@ Definition lnwfs_mor_axioms {C : category} {F F' : functorial_factorization C}
 
 Lemma isaprop_lnwfs_mor_axioms {C : category} {F F' : functorial_factorization C}
     (n : lnwfs_over F) (n' : lnwfs_over F')
-    (τ : fact_mor F F') : 
+    (τ : fact_mor F F') :
   isaprop (lnwfs_mor_axioms n n' τ).
 Proof.
   apply isaprop_disp_Comonad_Mor_laws.
@@ -780,12 +779,12 @@ Definition rnwfs_mor_axioms {C : category} {F F' : functorial_factorization C}
 
 Lemma isaprop_rnwfs_mor_axioms {C : category} {F F' : functorial_factorization C}
     (n : rnwfs_over F) (n' : rnwfs_over F')
-    (τ : fact_mor F F') : 
+    (τ : fact_mor F F') :
   isaprop (rnwfs_mor_axioms n n' τ).
 Proof.
   apply isaprop_disp_Monad_Mor_laws.
 Qed.
-  
+
 Definition nwfs_mor_axioms {C : category} (n n' : nwfs C) (τ : fact_mor n n') :=
     lnwfs_mor_axioms n n' τ × rnwfs_mor_axioms n n' τ.
 
@@ -802,10 +801,10 @@ Definition lnwfs_L_monad_mor {C : category}
     {n : lnwfs_over F}
     {n' : lnwfs_over F'}
     (τ : fact_mor F F')
-    (ax : lnwfs_mor_axioms n n' τ) : 
+    (ax : lnwfs_mor_axioms n n' τ) :
       Comonad_Mor (lnwfs_L_monad n) (lnwfs_L_monad n') :=
   (lnwfs_mor n n' τ,, ax).
-  
+
 Definition rnwfs_R_monad_mor {C : category}
     {F F' : functorial_factorization C}
     {n : rnwfs_over F}
@@ -875,7 +874,7 @@ Proof.
       exact (homset_property (arrow C)).
     - intro x.
       use arrow_mor_eq.
-      * apply pathsinv0. 
+      * apply pathsinv0.
         apply id_left.
       * etrans. use pr1_transportf_const.
         reflexivity.
@@ -883,7 +882,7 @@ Proof.
   unfold lnwfs_mor_axioms.
   rewrite H.
   exact (
-    comonads_category_comp_subproof 
+    comonads_category_comp_subproof
       (lnwfs_L_monad_data n)
       (pr22 (lnwfs_L_monad n))
       (lnwfs_L_monad_data n')
@@ -922,9 +921,9 @@ Proof.
   }
   unfold rnwfs_mor_axioms.
   rewrite H.
-  
+
   exact (
-    monads_category_comp_subproof 
+    monads_category_comp_subproof
       (rnwfs_R_monad_data n)
       (pr22 (rnwfs_R_monad n))
       (rnwfs_R_monad_data n')
@@ -972,9 +971,9 @@ Section Helpers.
 
 Lemma eq_section_nat_trans_component
     {C : category}
-    {F F' : Ff C} 
+    {F F' : Ff C}
     {γ γ' : F --> F'}
-    (H : γ = γ') : 
+    (H : γ = γ') :
   ∏ f, section_nat_trans γ f = section_nat_trans γ' f.
 Proof.
   now induction H.
@@ -983,9 +982,9 @@ Qed.
 (* the above equality, but on the middle morphisms *)
 Lemma eq_section_nat_trans_component11
     {C : category}
-    {F F' : Ff C} 
+    {F F' : Ff C}
     {γ γ' : F --> F'}
-    (H : γ = γ') : 
+    (H : γ = γ') :
   ∏ f, three_mor11 (section_nat_trans γ f) = three_mor11 (section_nat_trans γ' f).
 Proof.
   now induction H.
@@ -995,14 +994,14 @@ Qed.
    in a proof *)
 Lemma eq_section_nat_trans_comp_component11
     {C : category}
-    {F F' F'' : Ff C} 
+    {F F' F'' : Ff C}
     {γ : F --> F''}
     {γ' : F --> F'}
     {γ'' : F' --> F''}
-    (H : γ' · γ'' = γ) : 
-  ∏ f, 
-    three_mor11 (section_nat_trans γ' f) 
-    · three_mor11 (section_nat_trans γ'' f) 
+    (H : γ' · γ'' = γ) :
+  ∏ f,
+    three_mor11 (section_nat_trans γ' f)
+    · three_mor11 (section_nat_trans γ'' f)
     = three_mor11 (section_nat_trans γ f).
 Proof.
   induction H.

@@ -4,15 +4,15 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.pushouts.
-Require Import UniMath.CategoryTheory.limits.graphs.coequalizers.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Pushouts.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Chains.Chains.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Colimits.
 
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.Monads.Comonads.
@@ -31,13 +31,11 @@ Require Import UniMath.CategoryTheory.ModelCategories.Generated.LiftingWithClass
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.OneStepMonad.
 Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
 
-
-Local Open Scope Cat.
 Local Open Scope cat.
 
 Definition presentable {C : category} (x : C) :=
-    preserves_colimits_of_shape 
-      (cov_homSet_functor x) 
+    preserves_colimits_of_shape
+      (cov_homSet_functor x)
       nat_graph.
 
 Definition class_presentable {C : category} (J : morphism_class C) :=
@@ -61,7 +59,7 @@ Definition morcls_lp_colim_lp_to_morcls_base_colim_lp
     (isclCC : isColimCocone d cl cc)
     (S : morcls_lp J cl) :
   morcls_lp J (colim (arrow_colims CC _ d)).
-Proof. 
+Proof.
   exists (morcls_lp_map S).
   apply (compose S).
   set (clCC := make_ColimCocone _ _ _ isclCC).
@@ -93,7 +91,7 @@ Definition arrow_colimK_lp_hSet
   homSet f (colim (arrow_colims CC _ (mapdiagram K d))).
 
 
-(* induced isomorphism on 
+(* induced isomorphism on
     lifting problems f --> cl
        ===>
     colim (homSet_diagram_colim)
@@ -149,8 +147,8 @@ Defined.
 Local Definition HSETcobase (f : arrow C) (d : chain (arrow C)) :=
     Colimits.cobase _ (homSet_diagram f d).
 
-(* given a lp (f, S) : morcls_lp J cl, 
-   a map from HSET colimit base (i.e. pairs of (v, f --> dob d v)) 
+(* given a lp (f, S) : morcls_lp J cl,
+   a map from HSET colimit base (i.e. pairs of (v, f --> dob d v))
    to lifting problems f --> (colim (K d)) *)
 (* we will use this to define a map from the colimit *)
 Definition presentable_lp_homSet_colim_colimK_fun
@@ -177,7 +175,7 @@ Local Definition presentable_lp_homSet_colim_colimK_fun_rel
 Proof.
   intros uS vT.
   exists (
-    presentable_lp_homSet_colim_colimK_fun d S uS 
+    presentable_lp_homSet_colim_colimK_fun d S uS
     = presentable_lp_homSet_colim_colimK_fun d S vT
   ).
   apply homset_property.
@@ -209,7 +207,7 @@ Defined.
    such that the composite with dob d u is equal to dob d v.
    This is the exact relation that we want to find back in
    our proofs later "if it holds for all (u,, f --> dob d u),
-   then our proof holds"   
+   then our proof holds"
 *)
 Lemma presentable_lp_homSet_colim_colimK_fun_rel0_impl
     (d : chain (arrow C))
@@ -224,7 +222,7 @@ Proof.
   destruct H as [f Hf].
   destruct uS as [u Su].
   destruct vT as [v Tv].
-  
+
   unfold presentable_lp_homSet_colim_colimK_fun.
   cbn in f.
   induction f.
@@ -271,7 +269,7 @@ Lemma presentable_lp_homSet_colim_colimK_fun_rel_impl
 Proof.
   set (meqrel := @minimal_eqrel_from_hrel _ (Colimits.rel0 _ (homSet_diagram (pr1 (morcls_lp_map S)) d))).
   set (presfun := presentable_lp_homSet_colim_colimK_fun_eqrel d S).
-  
+
   apply (meqrel presfun).
   - apply (presentable_lp_homSet_colim_colimK_fun_rel0_impl d S).
   - trivial.
@@ -284,7 +282,7 @@ Definition presentable_lp_homSet_colim_colimK_fun_iscomprel
     {cl : arrow C}
     (S : morcls_lp J cl)
     (HS : presentable (pr1 (morcls_lp_map S))) :
-  iscomprelfun 
+  iscomprelfun
       (Colimits.rel _ (homSet_diagram (pr1 (morcls_lp_map S)) _))
       (presentable_lp_homSet_colim_colimK_fun d S).
 Proof.
@@ -311,7 +309,7 @@ Proof.
 Defined.
 
 (* ABSOLUTELY disgusting *)
-(* we want to show that the arrow f --> colim (K d) we get 
+(* we want to show that the arrow f --> colim (K d) we get
    for any lifting problem of the form Sv · coconeIn cc v
    is the same as the canonical projection of (v,, Sv)
    down to the set quotient. *)
@@ -321,7 +319,7 @@ Lemma presentable_lp_homSet_colim_arrow_of_factored_arrow
     {cc : cocone d cl}
     (isclCC : isColimCocone d cl cc)
     {v : vertex nat_graph}
-    (S : morcls_lp J (dob d v)) 
+    (S : morcls_lp J (dob d v))
     (HS : presentable (pr1 (morcls_lp_map S))) :
   let Sin := (pr1 S,, pr2 S · coconeIn cc v) : morcls_lp J cl in
   presentable_lp_homSet_colim_arrow isclCC Sin HS
@@ -388,7 +386,7 @@ Proof.
   set (X := presentable_lp_homSet_colim_arrow_of_factored_arrow isclCC S HS : Sinarr = setquotpr rel (v,, pr2 S)).
   rewrite X.
   etrans. exact (
-    setquotunivcomm 
+    setquotunivcomm
       rel
       _
       (presentable_lp_homSet_colim_colimK_fun d Sin)
@@ -409,18 +407,18 @@ Local Definition predicate_type
 
 (* disgusting, but very useful *)
 (* we show that a predicate on a lifting problem f --> cl
-   holds whenever it holds for any (Sv · colimIn cc v) for 
+   holds whenever it holds for any (Sv · colimIn cc v) for
    a pair (v,, Sv : f --> dob d v) *)
-Definition presentable_lp_colimK_mor_univ 
+Definition presentable_lp_colimK_mor_univ
     {d : chain (arrow C)}
     {cl : arrow C}
     {cc : cocone d cl}
     (isclCC : isColimCocone d cl cc)
     (S : morcls_lp J cl)
     (HS : presentable (pr1 (morcls_lp_map S)))
-    (P : predicate_type d cl (pr1 (morcls_lp_map S))) 
-    (PS : ∏ (v : vertex nat_graph) 
-      (Sv : pr1hSet (dob (homSet_diagram (pr1 (morcls_lp_map S)) d) v)), 
+    (P : predicate_type d cl (pr1 (morcls_lp_map S)))
+    (PS : ∏ (v : vertex nat_graph)
+      (Sv : pr1hSet (dob (homSet_diagram (pr1 (morcls_lp_map S)) d) v)),
         P (Sv · (colimIn (make_ColimCocone _ _ _ isclCC) v))) :
   P (pr2 S).
 Proof.
@@ -446,8 +444,8 @@ Proof.
         _
         (Colimits.from_cobase _ _ _
             (mapcocone (cov_homSet_functor (pr1 (morcls_lp_map S))) d cc))
-        (iscomprel_from_base _ _ _ 
-            (mapcocone (cov_homSet_functor (pr1 (morcls_lp_map S))) d cc)) 
+        (iscomprel_from_base _ _ _
+            (mapcocone (cov_homSet_functor (pr1 (morcls_lp_map S))) d cc))
         S'
       )
     ).
@@ -461,8 +459,8 @@ Proof.
     _
     (Colimits.from_cobase _ _ _
         (mapcocone (cov_homSet_functor (pr1 (morcls_lp_map S))) d cc))
-    (iscomprel_from_base _ _ _ 
-        (mapcocone (cov_homSet_functor (pr1 (morcls_lp_map S))) d cc)) 
+    (iscomprel_from_base _ _ _
+        (mapcocone (cov_homSet_functor (pr1 (morcls_lp_map S))) d cc))
     uSu
   ).
   rewrite predcomm.
@@ -492,13 +490,13 @@ Proof.
     intro S'.
     use make_hProp.
     - exact (
-        presentable_lp_colimK_mor isclCC (g,, S') HS 
+        presentable_lp_colimK_mor isclCC (g,, S') HS
         · colimArrow (arrow_colims CC _ (mapdiagram K d)) _ (mapcocone K d cc)
         = morcls_lp_coprod_in (g,, S')
       ).
     - apply homset_property.
   }
-  
+
   use (presentable_lp_colimK_mor_univ isclCC S HS pred).
   intros u Su.
   set (Su' := (pr1 S,, Su) : morcls_lp J (dob d u)).
@@ -620,16 +618,16 @@ Defined.
 
 (* this is just the pushout square again *)
 Definition colim_K_L1_mor_pointwise
-  {g : graph} 
+  {g : graph}
   (d : diagram g (arrow C))
   (v : vertex g) :
-    dob (mapdiagram K d) v 
+    dob (mapdiagram K d) v
     --> dob (mapdiagram (fact_L F1) d) v :=
   K_L1_colim_mor (dob d v).
 
 (* pushouts and coproducts commute *)
 Lemma colim_K_L1_mor_commutes
-    {g : graph} (d : diagram g (arrow C)) 
+    {g : graph} (d : diagram g (arrow C))
     {u v : vertex g} (e : edge u v) :
   dmor (mapdiagram K d) e · colim_K_L1_mor_pointwise d v
   = colim_K_L1_mor_pointwise d u · dmor (mapdiagram (fact_L F1) d) e.
@@ -660,9 +658,9 @@ Proof.
 Qed.
 
 (* colim (K fi) --> colim (L1 fi) *)
-Definition colim_K_L1_mor 
+Definition colim_K_L1_mor
     {g : graph} (d : diagram g (arrow C)) :
-  colim (arrow_colims CC g (mapdiagram K d)) 
+  colim (arrow_colims CC g (mapdiagram K d))
   --> colim (arrow_colims CC g (mapdiagram (fact_L F1) d)).
 Proof.
   use colimOfArrows.
@@ -679,7 +677,7 @@ Definition can_K_mor
     {f : arrow C} {ccf : cocone d f}
     (HK : preserves_colimit K _ _ ccf)
     (isclCC : isColimCocone d f ccf) :
-  z_iso 
+  z_iso
     (colim (arrow_colims CC g (mapdiagram K d)))
     (K f).
 Proof.
@@ -696,7 +694,7 @@ Proof.
 Defined.
 
 (* colim (L1 fi) --> colim fi *)
-Definition colim_L_id_mor 
+Definition colim_L_id_mor
     {g : graph} (d : diagram g (arrow C))
     {f : arrow C} {ccf : cocone d f}
     (isclCC : isColimCocone d f ccf)  :
@@ -732,7 +730,7 @@ Proof.
     ).
 Defined.
 
-(* we need to know that arrow_dom f is 
+(* we need to know that arrow_dom f is
    a colimit for (L1 d)00, after all, all morphisms
    are identity. We need an isomorphism *)
 Definition dom_colim_dom_L1_cocone
@@ -770,7 +768,7 @@ Proof.
 Defined.
 
 (* the isomorphism dom f --> colim (L1 d)00 *)
-Definition colim_dom_L1_dom_iso 
+Definition colim_dom_L1_dom_iso
     {g : graph} {d : diagram g (arrow C)}
     {f : arrow C} {ccf : cocone d f}
     (isclCC : isColimCocone d f ccf) :
@@ -790,15 +788,15 @@ Definition L1_colim_L1_map00
     {f : arrow C} {ccf : cocone d f}
     (isclCC : isColimCocone d f ccf) :
   arrow_dom (fact_L F1 f)
-  --> arrow_dom (colim (arrow_colims CC g (mapdiagram (fact_L F1) d))). 
-Proof. 
+  --> arrow_dom (colim (arrow_colims CC g (mapdiagram (fact_L F1) d))).
+Proof.
   apply (compose (arrow_mor00 (L_colim_id_mor f))).
   exact (colim_dom_L1_dom_iso isclCC).
 Defined.
 
 (* K (colim fi) --> colim (L1 fi) *)
 (* arrow_mor11 is the bottom pushout map *)
-Definition Kcolim_colimL1_mor 
+Definition Kcolim_colimL1_mor
     {g : graph} {d : diagram g (arrow C)}
     {f : arrow C} {ccf : cocone d f}
     (HK : preserves_colimit K _ _ ccf)
@@ -818,7 +816,7 @@ Definition L1_colim_L1_map_pushoutOut2
   arrow_dom (fact_L F1 f)
   --> arrow_cod (colim (arrow_colims CC g (mapdiagram (fact_L F1) d))).
 Proof.
-  apply (compose (L1_colim_L1_map00 isclCC)). 
+  apply (compose (L1_colim_L1_map00 isclCC)).
   exact (colim (arrow_colims CC g (mapdiagram (fact_L F1) d))).
 Defined.
 
@@ -850,17 +848,17 @@ Definition L1_colim_L1_map_cod_Kf_is_colimCocone
   isColimCocone _ _ HKCC11 :=
     project_colimcocone11 CC isHKCC.
 
-(* we show that the canonical iso from 
+(* we show that the canonical iso from
    K (colim fi) --> colim (K fi)
    projects to the one on the domains *)
-Local Lemma colim_iso_inv_projects 
+Local Lemma colim_iso_inv_projects
     {g : graph} {d : diagram g (arrow C)}
     {f : arrow C} {ccf : cocone d f}
     (HK : preserves_colimit K _ _ ccf)
     (isclCC : isColimCocone d f ccf)
     (dbase := project_diagram00 (mapdiagram K d))
     (isKfCC := L1_colim_L1_map_dom_Kf_is_colimCocone HK isclCC)
-    (KfCC := make_ColimCocone _ _ _ isKfCC) 
+    (KfCC := make_ColimCocone _ _ _ isKfCC)
     (Kf_mor := isColim_is_z_iso _ (CC _ dbase) _ _ isKfCC) :
   arrow_mor00 (z_iso_inv (can_K_mor d HK isclCC))
   = pr1 Kf_mor.
@@ -869,7 +867,7 @@ Proof.
   apply (post_comp_with_z_iso_is_inj iso).
   apply pathsinv0.
   etrans. exact (pr22 Kf_mor).
-  
+
   set (can_K_is_iso := pr222 (can_K_mor d HK isclCC)).
   etrans. exact (pathsinv0 (arrow_mor00_eq can_K_is_iso)).
   apply cancel_precomposition.
@@ -887,7 +885,7 @@ Local Lemma L1_colim_L1_map_ispushoutOut_subproof0
   arrow_mor00 (Kcolim_colimL1_mor HK isclCC)
   · z_iso_inv (colim_dom_L1_dom_iso isclCC)
   = arrow_mor00 (morcls_lp_coprod_diagram CC J f).
-Proof. 
+Proof.
   set (isKfCC := L1_colim_L1_map_dom_Kf_is_colimCocone HK isclCC).
   set (KfCC := make_ColimCocone _ _ _ isKfCC).
 
@@ -905,7 +903,7 @@ Proof.
   etrans. apply assoc'.
   etrans. apply cancel_precomposition.
           apply (colimArrowCommutes (CC _ (project_diagram00 (mapdiagram (fact_L F1) d)))).
-  
+
   apply pathsinv0.
   etrans. apply (precompWithCoproductArrowInclusion _ _ (morcls_lp_dom_coprod CC J f)).
   use CoproductArrow_eq.
@@ -924,10 +922,10 @@ Lemma L1_colim_L1_map_ispushoutOut_subproof
     {f : arrow C} {ccf : cocone d f}
     (HK : preserves_colimit K _ _ ccf)
     (isclCC : isColimCocone d f ccf) :
-  arrow_mor00 (K_L1_colim_mor f) 
+  arrow_mor00 (K_L1_colim_mor f)
   · (L1_colim_L1_map00 isclCC)
   = arrow_mor00 (Kcolim_colimL1_mor HK isclCC).
-Proof. 
+Proof.
   use CoproductArrow_eq.
   intro S.
   etrans. apply assoc.
@@ -935,13 +933,13 @@ Proof.
           apply (CoproductInCommutes (morcls_lp_dom_coprod CC J f)).
   etrans. apply cancel_precomposition.
           apply id_left.
-  
+
   apply (post_comp_with_z_iso_is_inj (z_iso_inv (colim_dom_L1_dom_iso isclCC))).
   etrans. apply assoc'.
   etrans. apply cancel_precomposition.
           exact (pr122 (colim_dom_L1_dom_iso isclCC)).
   etrans. apply id_right.
-  
+
   apply pathsinv0.
   etrans. apply assoc'.
   etrans. apply cancel_precomposition.
@@ -956,14 +954,14 @@ Lemma L1_colim_L1_map_ispushoutOut
     (HK : preserves_colimit K _ _ ccf)
     (isclCC : isColimCocone d f ccf) :
   K f · arrow_mor11 (Kcolim_colimL1_mor HK isclCC)
-  = arrow_mor00 (K_L1_colim_mor f) 
+  = arrow_mor00 (K_L1_colim_mor f)
   · L1_colim_L1_map_pushoutOut2 isclCC.
 Proof.
   apply pathsinv0.
   etrans. apply assoc.
   etrans. apply cancel_postcomposition.
           exact (L1_colim_L1_map_ispushoutOut_subproof HK isclCC).
-  
+
   exact (arrow_mor_comm (Kcolim_colimL1_mor HK isclCC)).
 Qed.
 
@@ -1014,7 +1012,7 @@ Local Lemma colimIn00_L1_colim_L1_commutes
     {g : graph} {d : diagram g (arrow C)}
     {f : arrow C} {ccf : cocone d f}
     (HK : preserves_colimit K _ _ ccf)
-    (isclCC : isColimCocone d f ccf) 
+    (isclCC : isColimCocone d f ccf)
     (v : vertex g) :
     arrow_mor00 (coconeIn (mapcocone (fact_L F1) d ccf) v · L1_colim_L1_map HK isclCC) =
     arrow_mor00 (colimIn (arrow_colims CC g (mapdiagram (fact_L F1) d)) v).
@@ -1031,9 +1029,9 @@ Proof.
   etrans. apply (colimArrowCommutes (CC _ (project_diagram00 d))).
   reflexivity.
 Qed.
-(* 
-Local Lemma arrow_mor11_comp 
-    {f g h : arrow C} 
+(*
+Local Lemma arrow_mor11_comp
+    {f g h : arrow C}
     (γ : f --> g)
     (γ' : g --> h) :
   arrow_mor11 γ · arrow_mor11 γ' = arrow_mor11 (γ · γ').
@@ -1045,7 +1043,7 @@ Local Lemma colimIn11_Kcolim_colimL1_commutes
     {g : graph} {d : diagram g (arrow C)}
     {f : arrow C} {ccf : cocone d f}
     (HK : preserves_colimit K _ _ ccf)
-    (isclCC : isColimCocone d f ccf) 
+    (isclCC : isColimCocone d f ccf)
     (v : vertex g)
     (iscodKfCC := L1_colim_L1_map_cod_Kf_is_colimCocone HK isclCC)
     (codKfCC := make_ColimCocone _ _ _ iscodKfCC) :
@@ -1063,8 +1061,8 @@ Proof.
 Qed.
 
 Lemma L1_colim_L1_map_is_inverse_in_precat
-    {g : graph} {d : diagram g (arrow C)} 
-    {f : arrow C} {ccf : cocone d f} 
+    {g : graph} {d : diagram g (arrow C)}
+    {f : arrow C} {ccf : cocone d f}
     (HK : preserves_colimit K _ _ ccf)
     (isclCC : isColimCocone d f ccf) :
   is_inverse_in_precat
@@ -1073,7 +1071,7 @@ Lemma L1_colim_L1_map_is_inverse_in_precat
 Proof.
   set (isHKCC := HK isclCC).
   set (HKCC := make_ColimCocone _ _ _ isHKCC).
-  
+
   set (isKfCC := L1_colim_L1_map_dom_Kf_is_colimCocone HK isclCC).
   set (KfCC := make_ColimCocone _ _ _ isKfCC).
   set (domfiscc := dom_colim_dom_L1_isColimCocone isclCC).
@@ -1096,7 +1094,7 @@ Proof.
         etrans. apply assoc'.
         etrans. apply cancel_precomposition.
                 apply PushoutArrow_PushoutIn1.
-        
+
         exact (colimIn11_Kcolim_colimL1_commutes HK isclCC v).
       + etrans. apply assoc.
         etrans. apply cancel_postcomposition.
@@ -1125,7 +1123,7 @@ Proof.
         apply pathsinv0.
         etrans. apply id_right.
         apply pathsinv0.
-        
+
         use (colimArrowUnique' codKfCC).
         intro v.
         etrans. apply assoc.
@@ -1159,17 +1157,17 @@ Proof.
 Qed.
 
 (* Main result *)
-Lemma L1_preserves_colim_if_K_preserves_colim 
-    {g : graph} {d : diagram g (arrow C)} 
+Lemma L1_preserves_colim_if_K_preserves_colim
+    {g : graph} {d : diagram g (arrow C)}
     {f : arrow C} (ccf : cocone d f) :
   preserves_colimit K _ _ ccf
   -> preserves_colimit (fact_L F1) _ _ ccf.
 Proof.
   intros HK isclCC.
-  
+
   set (isHKCC := HK isclCC).
   set (HKCC := make_ColimCocone _ _ _ isHKCC).
-  
+
   use (is_z_iso_isColim _ (arrow_colims CC _ (mapdiagram (fact_L F1) d))).
   exists (L1_colim_L1_map HK isclCC).
   exact (L1_colim_L1_map_is_inverse_in_precat HK isclCC).

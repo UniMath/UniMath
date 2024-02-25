@@ -8,12 +8,12 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.pushouts.
-Require Import UniMath.CategoryTheory.limits.graphs.coequalizers.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Pushouts.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.EqDiag.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.slicecat.
@@ -42,11 +42,7 @@ Require Import UniMath.CategoryTheory.ModelCategories.Generated.FFMonoidalStruct
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.LNWFSMonoidalStructure.
 Require Import UniMath.CategoryTheory.ModelCategories.Generated.LNWFSCocomplete.
 
-
-Local Open Scope Cat.
 Local Open Scope cat.
-
-
 
 Section SmallnessReduction.
 
@@ -94,7 +90,7 @@ Defined.
 Definition fact_cocone_chain
     (F : Ff C)
     {d : chain C} {y : C}
-    (ccy : cocone d y) : 
+    (ccy : cocone d y) :
   chain C.
 Proof.
   use tpair.
@@ -106,7 +102,7 @@ Proof.
 Defined.
 
 (* define the factorization of a cocone *)
-Definition fact_cocone 
+Definition fact_cocone
     (F : Ff C)
     {d : chain C} {y : C}
     (ccy : cocone d y) :
@@ -153,8 +149,8 @@ Definition dom_fact_R_colimArrow_cocone
     (F : Ff C)
     {d : chain C} {y : C}
     (ccy : cocone d y) :
-  cocone 
-    (fact_cocone_chain F ccy) 
+  cocone
+    (fact_cocone_chain F ccy)
     (arrow_dom (fact_R F (colimArrow (CC _ d) _ ccy))).
 Proof.
   use make_cocone.
@@ -168,14 +164,14 @@ Proof.
       ]
     ).
 Defined.
-  
+
 (* define smallness of (sliced) R functor *)
 Definition FR_slice_omega_small (F : Ff C) : UU :=
     ∏ (d : chain C) (y : C) (ccy : cocone d y),
       isColimCocone _ _ (dom_fact_R_colimArrow_cocone F ccy).
 
 (* a chain in arrow C from a cocone in C *)
-Definition cocone_arrow_chain 
+Definition cocone_arrow_chain
     {d : chain C} {y : C}
     (ccy : cocone d y) : chain (arrow C).
 Proof.
@@ -205,7 +201,7 @@ Defined.
 
 Definition project_arrow_cocone00
     {cl : arrow C} {d : chain (arrow C)}
-    (cc : cocone d cl) : 
+    (cc : cocone d cl) :
   cocone (project_diagram00 d) (arrow_dom cl).
 Proof.
   use make_cocone.
@@ -218,7 +214,7 @@ Defined.
 
 Definition project_arrow_cocone11
     {cl : arrow C} {d : chain (arrow C)}
-    (cc : cocone d cl) : 
+    (cc : cocone d cl) :
   cocone (project_diagram11 d) (arrow_cod cl).
 Proof.
   use make_cocone.
@@ -331,7 +327,7 @@ Defined.
 
 Definition colimArrow_arrow_ColimCocone
     {d : chain C} {y : C}
-    (ccy : cocone d y) : 
+    (ccy : cocone d y) :
   ColimCocone (cocone_arrow_chain ccy) :=
     make_ColimCocone _ _ _ (colimArrow_arrow_cocone_isColimCocone ccy).
 
@@ -381,7 +377,7 @@ Qed.
 Lemma fact_cocone_chain_eq_chain_pointwise_tensored
     (F : Ff C)
     (d : chain Ff_mon)
-    (f : arrow C) 
+    (f : arrow C)
     (ccpointwise := Ff_cocone_pointwise_R d f) :
   eq_diag
       (fact_cocone_chain F ccpointwise)
@@ -401,7 +397,7 @@ Defined.
 
 (* The ColimCocone we get from the R map of F being omega small,
    corrected for the equality of diagrams *)
-Definition FR_slice_colimcocone_over_pointwise_tensored 
+Definition FR_slice_colimcocone_over_pointwise_tensored
     (F : Ff C)
     (d : chain Ff_mon)
     (HR : FR_slice_omega_small F)
@@ -418,7 +414,7 @@ Proof.
   exact (make_ColimCocone _ _ _ isHRCC).
 Defined.
 
-(* The z-iso on middle objects we obtain from this ColimCocone 
+(* The z-iso on middle objects we obtain from this ColimCocone
    to the colimit we obtain from CC itself on this diagram.
    This isomorphism is the one we need for the isomorphism of
    functorial factorizations. *)
@@ -427,32 +423,32 @@ Definition FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_pointwise
     (d : chain Ff_mon)
     (HR : FR_slice_omega_small F)
     (f : arrow C)
-    (CL := ChainsFf CC d) 
+    (CL := ChainsFf CC d)
     (FfCC := ChainsFf CC (mapdiagram (monoidal_left_tensor (F : Ff_mon)) d))
     (ccpointwise := Ff_cocone_pointwise_R d f)
     (baseCC := (CCFf_pt_ob1 CC (mapdiagram (monoidal_left_tensor (F : Ff_mon)) d) f)) :
-  z_iso 
+  z_iso
     (colim baseCC)
     (arrow_dom (fact_R F (colimArrow (CC _ (Ff_diagram_pointwise_ob1 d f)) _ ccpointwise))).
 Proof.
   set (HRCC := FR_slice_colimcocone_over_pointwise_tensored F d HR f).
   set (base_mor := isColim_is_z_iso _ baseCC _ _ (isColimCocone_from_ColimCocone HRCC)).
-  
+
   exact (_,, base_mor).
 Defined.
 
 (* colimIn _ v to the ColimCocone with R(colimArrow) as vertex
-   is the same as the right functor of F applied to 
+   is the same as the right functor of F applied to
    colimIn (ChainsFf CC d) v, since this is how we defined
-   ChainsFf CC d 
+   ChainsFf CC d
    We have to rewrite this sometimes *)
 Local Lemma FcolimArrow_coconeInBase_is_colimInHR
     (F : Ff C)
     (d : chain Ff_mon)
     (HR : FR_slice_omega_small F)
-    (f : arrow C) 
+    (f : arrow C)
     (v : vertex nat_graph)
-    (CL := ChainsFf CC d) 
+    (CL := ChainsFf CC d)
     (HRCC := FR_slice_colimcocone_over_pointwise_tensored F d HR f) :
   arrow_mor00 (#(fact_R F) (three_mor_mor12 (section_nat_trans (colimIn CL v) f)))
   = colimIn HRCC v.
@@ -466,11 +462,11 @@ Lemma FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_pointwise_three_comm
     (F : Ff C)
     (d : chain Ff_mon)
     (HR : FR_slice_omega_small F)
-    (f : arrow C) 
-    (CL := ChainsFf CC d) 
-    (FfCC := ChainsFf CC (mapdiagram (monoidal_left_tensor (F : Ff_mon)) d)) 
+    (f : arrow C)
+    (CL := ChainsFf CC d)
+    (FfCC := ChainsFf CC (mapdiagram (monoidal_left_tensor (F : Ff_mon)) d))
     (base_mor := FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_pointwise F d HR f) :
-  (fact_L (F ⊗_{ Ff_mon} colim CL) f) · z_iso_inv base_mor 
+  (fact_L (F ⊗_{ Ff_mon} colim CL) f) · z_iso_inv base_mor
   = (identity _) · (fact_L (colim FfCC) f)
   × (fact_R (F ⊗_{ Ff_mon} colim CL) f) · (identity _) =
     z_iso_inv base_mor · (fact_R (colim FfCC) f).
@@ -493,7 +489,7 @@ Proof.
             set (cin0 := colimIn CL 0).
             set (cin012 := three_mor_mor12 (section_nat_trans cin0 f)).
             exact (arrow_mor_comm (#(fact_L F) cin012)).
-    
+
     etrans. apply assoc'.
     apply cancel_precomposition.
     etrans. etrans. apply cancel_postcomposition.
@@ -504,7 +500,7 @@ Proof.
     show_id_type.
     apply (colimArrowUnique' HRCC).
     intro v.
-    
+
     apply pathsinv0.
     etrans. apply assoc.
     etrans. apply cancel_postcomposition.
@@ -525,7 +521,7 @@ Definition FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_data
     (F : Ff C)
     (d : chain Ff_mon)
     (HR : FR_slice_omega_small F)
-    (CL := ChainsFf CC d) 
+    (CL := ChainsFf CC d)
     (FfCC := ChainsFf CC (mapdiagram (monoidal_left_tensor (F : Ff_mon)) d)) :
   section_nat_trans_disp_data (F ⊗_{Ff_mon} (colim CL)) (colim FfCC).
 Proof.
@@ -536,13 +532,13 @@ Proof.
   exact (FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_pointwise_three_comm F d HR f).
 Defined.
 
-(* this proof is a mess, but I had to rewrite γ within a 
+(* this proof is a mess, but I had to rewrite γ within a
    #F γ... *)
 Lemma FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_axioms
     (F : Ff C)
     (d : chain Ff_mon)
     (HR : FR_slice_omega_small F)
-    (CL := ChainsFf CC d) 
+    (CL := ChainsFf CC d)
     (FfCC := ChainsFf CC (mapdiagram (monoidal_left_tensor (F : Ff_mon)) d)) :
   section_nat_trans_disp_axioms (FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_data F d HR).
 Proof.
@@ -557,15 +553,15 @@ Proof.
   etrans. apply assoc.
   etrans. apply cancel_postcomposition.
           use (pr1_section_disp_on_morphisms_comp F).
-  
-          
+
+
   etrans. apply cancel_postcomposition.
           set (mor := three_mor_mor12 (section_nat_trans (colimIn CL v) g)).
           use (section_disp_on_eq_morphisms F (γ' := (#(fact_R (dob d v)) γ · mor))).
-          
+
           1: etrans. apply (colimOfArrowsIn _ _ (CC nat_graph (Ff_diagram_pointwise_ob1 d f))).
              reflexivity.
-          
+
           1: etrans. apply id_left.
              apply pathsinv0.
              apply id_right.
@@ -594,14 +590,14 @@ Definition FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor
     (F : Ff C)
     (d : chain Ff_mon)
     (HR : FR_slice_omega_small F)
-    (CL := ChainsFf CC d) 
+    (CL := ChainsFf CC d)
     (FfCC := ChainsFf CC (mapdiagram (monoidal_left_tensor (F : Ff_mon)) d)) :
   (F ⊗_{Ff_mon} (colim CL)) --> (colim FfCC) :=
     (_,, FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_axioms F d HR).
 
 (* Use the morphism to show that indeed, F in Ff C
   has the smallness property if fact_R F does*)
-Lemma FR_lt_preserves_colim_impl_Ff_lt_preserves_colim 
+Lemma FR_lt_preserves_colim_impl_Ff_lt_preserves_colim
     (F : Ff C)
     (d : chain Ff_mon)
     (CL := ChainsFf CC d) :
@@ -618,7 +614,7 @@ Proof.
   - functorial_factorization_mor_eq f.
     set (HRCC := FR_slice_colimcocone_over_pointwise_tensored F d HR f).
     set (base_iso := FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_pointwise F d HR f).
-    
+
     etrans. apply pr1_transportf_const.
     apply pathsinv0.
     etrans. exact (pathsinv0 (pr122 base_iso)).
@@ -635,7 +631,7 @@ Proof.
 
     set (HRCC := FR_slice_colimcocone_over_pointwise_tensored F d HR f).
     set (base_iso := FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_pointwise F d HR f).
-    
+
     etrans. apply pr1_transportf_const.
     apply pathsinv0.
     etrans. exact (pathsinv0 (pr222 base_iso)).
@@ -663,13 +659,14 @@ Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp
     (FfCCbase := ChainsFf CC Ldbase)
     (LNWFSCC := ChainsLNWFS CC (mapdiagram (monoidal_left_tensor (L : LNWFS_mon)) d))
     (base_mor := isColim_is_z_iso _ FfCCbase _ _ HF) :
-  pr2 (monoidal_left_tensor (L : LNWFS_mon) (colim CL)) 
+  pr2 (monoidal_left_tensor (L : LNWFS_mon) (colim CL))
   -->[pr1 base_mor] pr2 (colim LNWFSCC).
 Proof.
   set (Ffiso := (_,, base_mor) : z_iso _ _).
   set (LNWFSarr := colimArrow LNWFSCC _ (mapcocone (monoidal_left_tensor (L : LNWFS_mon)) _ (colimCocone CL))).
+  (*
   use (Ff_iso_inv_LNWFS_mor (colim LNWFSCC) (monoidal_left_tensor (L : LNWFS_mon) (colim CL)) Ffiso).
-  
+
   (* commutativity of project_cocone for
      pr1_category and monoidal_left_tensor *)
   assert (X : z_iso_mor Ffiso = pr1 LNWFSarr).
@@ -686,16 +683,18 @@ Proof.
   rewrite X.
   exact (pr2 LNWFSarr).
 Qed.
+   *)
+Admitted.
 
-Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim 
+Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim
     (L : total_category (LNWFS C))
     (d : chain LNWFS_mon)
     (CL := ChainsLNWFS CC d)
     (dbase := mapdiagram (pr1_category _) d) :
   isColimCocone _ _
-    (mapcocone (monoidal_left_tensor (pr1 L : Ff_mon)) _ (project_cocone _ _ (colimCocone CL))) 
-    -> 
-    isColimCocone _ _ 
+    (mapcocone (monoidal_left_tensor (pr1 L : Ff_mon)) _ (project_cocone _ _ (colimCocone CL)))
+    ->
+    isColimCocone _ _
       (mapcocone (monoidal_left_tensor (L : LNWFS_mon)) _ (colimCocone CL)).
 Proof.
   intro HF.

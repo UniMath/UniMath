@@ -10,8 +10,8 @@ Require Import UniMath.CategoryTheory.Monads.ComonadCoalgebras.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.Chains.Chains.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
@@ -67,7 +67,7 @@ Lemma nwfs_L_maps_cl_subs_llp_R_maps_cl {C : category} (n : nwfs C) :
 Proof.
   intros a b f Hf.
   intros c d g Hg.
-  
+
   use (Hf).
   intro H.
   destruct H as [x [y [f' [Lf' Retff']]]].
@@ -85,7 +85,7 @@ Lemma nwfs_R_maps_cl_subs_rlp_L_maps_cl {C : category} (n : nwfs C) :
 Proof.
   intros c d g Hg.
   intros a b f Hf.
-  
+
   use (Hf).
   intro H.
   destruct H as [x [y [f' [Lf' Retff']]]].
@@ -174,7 +174,7 @@ Proof.
     exists _, _, Lf.
     split.
     * exact (nwfs_Lf_is_L_map n f).
-    (* 
+    (*
       A ===== A ===== A
       |       |       |
     f |       | λf    | f
@@ -200,7 +200,7 @@ Qed.
 Lemma nwfs_rlp_L_maps_cl_subs_R_maps_cl {C : category} (n : nwfs C) :
     rlp ((nwfs_L_maps_class n)^cl) ⊆ ((nwfs_R_maps_class n)^cl).
 Proof.
-  (* Want to construct R-map with retract from f using lift. 
+  (* Want to construct R-map with retract from f using lift.
      The map will be Rf *)
   intros a b f hf.
 
@@ -227,7 +227,7 @@ Proof.
     exists _, _, Rf.
     split.
     * exact (nwfs_Rf_is_R_map n f).
-    (* 
+    (*
          λf       l
       A ---> Kf ----> A
       |       |       |
@@ -280,9 +280,9 @@ Proof.
 Defined.
 
 Lemma nwfs_closed_coproducts {C : category} {I : hSet} (n : nwfs C)
-    {a b : I -> C} 
+    {a b : I -> C}
     {f : ∏ (i : I), a i --> b i} (hf : ∏ (i : I), (nwfs_L_maps n (f i)))
-    (CCa : Coproduct _ _ a) (CCb : Coproduct _ _ b) : 
+    (CCa : Coproduct _ _ a) (CCb : Coproduct _ _ b) :
   nwfs_L_maps n (CoproductOfArrows _ _ CCa CCb f).
 Proof.
   transparent assert (ini : (∏ i, f i --> CoproductOfArrows I C CCa CCb f)).
@@ -312,7 +312,7 @@ Proof.
         etrans; [apply assoc'|];
         etrans; [apply cancel_precomposition;
                 apply CoproductInCommutes|];
-        etrans; [apply assoc|]; 
+        etrans; [apply assoc|];
         apply cancel_postcomposition;
         etrans; [exact (pathsinv0 (arrow_mor_comm (pr1 (hf i))))|];
         etrans; [apply cancel_postcomposition;
@@ -411,7 +411,7 @@ Proof.
       + apply (compose (arrow_mor11 (pr1 (Hd _ _ (idpath (S v)))))).
         apply (compose (three_mor11 (#(fact_functor n) (pr1 Hv)))).
         exact (arrow_mor00 (nwfs_Π n (colimIn CC 0))).
-      + exact (colimIn CC (S (S v))). 
+      + exact (colimIn CC (S (S v))).
       + abstract (
           etrans; [apply cancel_postcomposition, assoc|];
           etrans; [apply assoc'|];
@@ -475,13 +475,13 @@ Proof.
     ).
 Defined.
 
-Local Lemma nwfs_tfcomp_lp_unit_compat 
+Local Lemma nwfs_tfcomp_lp_unit_compat
     {C : category}
     {d : chain C}
     {n : nwfs C}
     (CC : ColimCocone d)
     (Hd : chain_L_map d n)
-    (v : vertex nat_graph) 
+    (v : vertex nat_graph)
     (Hv := nwfs_tfcomp_lp CC Hd v) :
   arrow_mor00 (pr1 Hv)
   · fact_R n (colimIn CC 0)
@@ -506,7 +506,7 @@ Proof.
   - abstract (apply id_left).
 Defined.
 
-Lemma nwfs_wfs_closed_transfinite_composition 
+Lemma nwfs_wfs_closed_transfinite_composition
     {C : category}
     {d : chain C}
     {n : nwfs C}

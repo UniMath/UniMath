@@ -1,7 +1,7 @@
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.limits.Opp.
+Require Import UniMath.CategoryTheory.Limits.Opp.
 
 Require Import UniMath.CategoryTheory.ModelCategories.Retract.
 Require Import UniMath.CategoryTheory.ModelCategories.MorphismClass.
@@ -19,7 +19,7 @@ Context {C : category}.
 (* Lean: lp @ https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/model/wfs.lean#L14 *)
 (* Normal ∑-type is not a proposition, we need it to be to use it to create morphism classes *)
 Definition filler {x y a b : C} {f : x --> y} {g : a --> b}
-    {h : x --> a} {k : y --> b} (H : h · g = f · k) := 
+    {h : x --> a} {k : y --> b} (H : h · g = f · k) :=
   ∑ l : y --> a, (f · l = h) × (l · g = k).
 
 Definition filler_map {x y a b : C} {f : x --> y} {g : a --> b}
@@ -27,22 +27,22 @@ Definition filler_map {x y a b : C} {f : x --> y} {g : a --> b}
 Definition filler_comm {x y a b : C} {f : x --> y} {g : a --> b}
     {h : x --> a} {k : y --> b} {H : h · g = f · k} (l : filler H) := pr2 l.
 
-Definition lp {x y a b : C} (f : x --> y) (g : a --> b) : hProp := 
+Definition lp {x y a b : C} (f : x --> y) (g : a --> b) : hProp :=
   ∀ (h : x --> a) (k : y --> b) (H : h · g = f · k), ∥filler H∥.
 
 (* "existential" lifting property *)
-Definition elp {x y a b : C} (f : x --> y) (g : a --> b) : UU := 
+Definition elp {x y a b : C} (f : x --> y) (g : a --> b) : UU :=
   ∏ (h : x --> a) (k : y --> b) (H : h · g = f · k), filler H.
 
 (* Lean: llp @ https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/model/wfs.lean#L18 *)
-(* 
+(*
        g
     A ---> E
     |     /|
   i |  λ/  | p
     v /    v
     X ---> B
-       f 
+       f
 *)
 Section Lp.
 Local Open Scope logic.
@@ -70,7 +70,7 @@ Qed.
 End Lifting.
 
 (* not in Lean file *)
-Lemma opp_rlp_is_llp_opp {C : category} (L : morphism_class C) : 
+Lemma opp_rlp_is_llp_opp {C : category} (L : morphism_class C) :
     morphism_class_opp (rlp L) = (llp (morphism_class_opp L)).
 Proof.
   apply morphism_class_subset_antisymm; intros x y f.
@@ -113,7 +113,7 @@ Proof.
 Qed.
 
 (* dual statement *)
-Lemma opp_llp_is_rlp_opp {C : category} (L : morphism_class C) : 
+Lemma opp_llp_is_rlp_opp {C : category} (L : morphism_class C) :
     morphism_class_opp (llp L) = rlp (morphism_class_opp L).
 Proof.
   rewrite <- (morphism_class_opp_opp (rlp _)).
@@ -121,8 +121,8 @@ Proof.
   trivial.
 Qed.
 
-Lemma elp_of_retracts {C : category} 
-    {a b x y a' b' x' y' : C} 
+Lemma elp_of_retracts {C : category}
+    {a b x y a' b' x' y' : C}
     {f : x --> y} {f' : x' --> y'}
     {g : a --> b} {g' : a' --> b'}
     (rf : retract f' f) (rg : retract g' g) :
@@ -147,8 +147,8 @@ Proof.
 Qed.
 
 (* todo: use elp_of_retracts for this?  *)
-Lemma lp_of_retracts {C : category} 
-    {a b x y a' b' x' y' : C} 
+Lemma lp_of_retracts {C : category}
+    {a b x y a' b' x' y' : C}
     {f : x --> y} {f' : x' --> y'}
     {g : a --> b} {g' : a' --> b'}
     (rf : retract f' f) (rg : retract g' g) :
@@ -165,7 +165,7 @@ Proof.
     reflexivity.
   - intro Hl.
     destruct Hl as [l [H1 H2]].
-    
+
     apply hinhpr.
     exists (ib · l · rx).
     split.

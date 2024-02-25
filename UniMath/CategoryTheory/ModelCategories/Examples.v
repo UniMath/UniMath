@@ -1,11 +1,11 @@
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-Require Import UniMath.CategoryTheory.categories.HSET.All.
+Require Import UniMath.CategoryTheory.Categories.HSET.All.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.SplitMonicsAndEpis.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.Monads.Comonads.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
@@ -59,7 +59,7 @@ Proof.
           etrans; [apply cancel_precomposition;
                   apply BinCoproductIn1Commutes|];
           exact (arrow_mor_comm γ)
-        | 
+        |
           etrans; [apply assoc|];
           etrans; [apply cancel_postcomposition;
                   apply BinCoproductIn2Commutes|];
@@ -76,7 +76,7 @@ Proof.
       ).
 Defined.
 
-Definition cop_functorial_factorization_axioms : 
+Definition cop_functorial_factorization_axioms :
     section_disp_axioms cop_functorial_factorization_data.
 Proof.
   split; intros; apply pathsinv0;
@@ -106,8 +106,8 @@ Qed.
 Definition cop_functorial_factorization : functorial_factorization C :=
     (_,, cop_functorial_factorization_axioms).
 
-Definition cop_ff_comul_data : 
-    nat_trans_data 
+Definition cop_ff_comul_data :
+    nat_trans_data
         (fact_L cop_functorial_factorization)
         (functor_composite (fact_L cop_functorial_factorization) (fact_L cop_functorial_factorization)).
 Proof.
@@ -125,7 +125,7 @@ Proof.
     ).
 Defined.
 
-Lemma cop_ff_comul_ax : 
+Lemma cop_ff_comul_ax :
     is_nat_trans _ _ cop_ff_comul_data.
 Proof.
   intros f g γ.
@@ -165,7 +165,7 @@ Proof.
       apply assoc'.
 Qed.
 
-Definition cop_ff_comul : 
+Definition cop_ff_comul :
     nat_trans _ _ :=
   (_,, cop_ff_comul_ax).
 
@@ -247,8 +247,8 @@ Proof.
   exact cop_ff_comul_monad_laws.
 Defined.
 
-Definition cop_ff_mul_data : 
-    nat_trans_data 
+Definition cop_ff_mul_data :
+    nat_trans_data
         (functor_composite (fact_R cop_functorial_factorization) (fact_R cop_functorial_factorization))
         (fact_R cop_functorial_factorization).
 Proof.
@@ -277,7 +277,7 @@ Proof.
                       apply BinCoproductIn1Commutes|];
             etrans; [apply BinCoproductIn1Commutes|];
             reflexivity
-        |   
+        |
             etrans; [apply BinCoproductIn2Commutes|];
             apply pathsinv0;
             etrans; [apply assoc|];
@@ -299,7 +299,7 @@ Proof.
     ).
 Defined.
 
-Lemma cop_ff_mul_ax : 
+Lemma cop_ff_mul_ax :
     is_nat_trans _ _ cop_ff_mul_data.
 Proof.
   intros f g γ.
@@ -357,7 +357,7 @@ Proof.
     apply id_left.
 Qed.
 
-Definition cop_ff_mul : 
+Definition cop_ff_mul :
     nat_trans _ _ :=
   (_,, cop_ff_mul_ax).
 
@@ -432,12 +432,12 @@ Proof.
            etrans. apply BinCoproductIn2Commutes.
            reflexivity.
       + etrans. apply assoc.
-        etrans. apply cancel_postcomposition. 
+        etrans. apply cancel_postcomposition.
                 apply (BinCoproductIn2Commutes _ _ _ (cop_ff_cop (fact_R cop_functorial_factorization f))).
         etrans. apply (BinCoproductIn2Commutes _ _ _ (cop_ff_cop (fact_R cop_functorial_factorization f))).
         apply pathsinv0.
         etrans. apply assoc.
-        etrans. apply cancel_postcomposition. 
+        etrans. apply cancel_postcomposition.
                 apply (BinCoproductIn2Commutes _ _ _ (cop_ff_cop (fact_R cop_functorial_factorization f))).
         etrans. apply (BinCoproductIn2Commutes _ _ _ (cop_ff_cop f)).
         reflexivity.
@@ -474,7 +474,7 @@ Definition cop_nwfs : nwfs C :=
     (_,, cop_nwfs_over).
 
 Lemma cop_nwfs_r_map_is_split_epi
-    (g : arrow C) : 
+    (g : arrow C) :
   nwfs_R_maps cop_nwfs g
   -> is_split_epi g.
 Proof.
@@ -492,7 +492,7 @@ Proof.
 Qed.
 
 Lemma cop_nwfs_split_epi_is_r_map
-    (g : arrow C) : 
+    (g : arrow C) :
   is_split_epi g
   -> nwfs_R_maps cop_nwfs g.
 Proof.
@@ -573,7 +573,7 @@ Proof.
 Qed.
 
 Lemma cop_nwfs_r_map_iff_split_epi
-    (g : arrow C) : 
+    (g : arrow C) :
   nwfs_R_maps cop_nwfs g <-> is_split_epi g.
 Proof.
   split.

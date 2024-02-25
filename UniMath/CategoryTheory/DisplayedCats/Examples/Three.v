@@ -4,7 +4,7 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
 
@@ -19,8 +19,8 @@ Context (C : category).
    For example in SET, we could have a map in
    the arrow category sending everything to one element, factorize
    it through (self, id), we may have multiple morphisms in the middle,
-   so long as the one element maps properly... 
-   
+   so long as the one element maps properly...
+
    So we have to do things the long way: *)
 Definition three_disp_ob_mor : disp_cat_ob_mor (arrow C).
 Proof.
@@ -94,9 +94,9 @@ Proof.
 
     destruct ff as [ff H].
     apply pathsinv0.
-    
+
     (* todo: understand this *)
-    etrans. 
+    etrans.
     use (pr1_transportf (A := x --> y)).
     cbn; apply (eqtohomot (transportf_const _ _)).
   - apply subtypePath.
@@ -118,7 +118,7 @@ Proof.
   - apply isaset_total2.
     * apply homset_property.
     * intro.
-      apply isasetdirprod; apply isasetaprop; apply homset_property.    
+      apply isasetdirprod; apply isasetaprop; apply homset_property.
 Qed.
 
 Definition three_disp : disp_cat (arrow C) :=
@@ -141,7 +141,7 @@ Definition three_mor22 {C : category} {xxx yyy : three C} (fff : xxx --> yyy) :=
 Definition three_mor_comm {C : category} {xxx yyy : three C} (fff : xxx --> yyy) := pr22 fff.
 
 Definition three_mor_mor01 {C : category} {xxx yyy : three C} (fff : xxx --> yyy) :
-    (three_mor01 xxx) --> (three_mor01 yyy). 
+    (three_mor01 xxx) --> (three_mor01 yyy).
 Proof.
   use mors_to_arrow_mor.
   - exact (three_mor00 fff).
@@ -152,7 +152,7 @@ Proof.
 Defined.
 
 Definition three_mor_mor12 {C : category} {xxx yyy : three C} (fff : xxx --> yyy) :
-    (three_mor12 xxx) --> (three_mor12 yyy). 
+    (three_mor12 xxx) --> (three_mor12 yyy).
 Proof.
   use mors_to_arrow_mor.
   - exact (three_mor11 fff).
@@ -165,7 +165,7 @@ Defined.
 Definition three_mor_eq {C : category} {x y : three C} {f g : x --> y}
     (H00: three_mor00 f = three_mor00 g)
     (H11: three_mor11 f = three_mor11 g)
-    (H22: three_mor22 f = three_mor22 g) : 
+    (H22: three_mor22 f = three_mor22 g) :
   f = g.
 Proof.
   use pair_path2.
@@ -182,7 +182,7 @@ Qed.
 
 Definition three_mor_eq' {C : category} {x y : three C} {f g : x --> y}
     (Hb: pr11 f = pr11 g)
-    (H11: three_mor11 f = three_mor11 g) : 
+    (H11: three_mor11 f = three_mor11 g) :
   f = g.
 Proof.
   use three_mor_eq.
@@ -193,7 +193,7 @@ Qed.
 
 Definition three_mor_eq'' {C : category} {x y : three C} {f g : x --> y}
     (Hb: pr1 f = pr1 g)
-    (H11: three_mor11 f = three_mor11 g) : 
+    (H11: three_mor11 f = three_mor11 g) :
   f = g.
 Proof.
   use three_mor_eq'.
@@ -256,7 +256,7 @@ Proof.
         etrans; [apply assoc'|];
         etrans; [apply cancel_precomposition;
                 use (colimOfArrowsIn)|];
-                
+
         etrans; [apply assoc|];
         apply cancel_postcomposition;
         apply three_comp
@@ -291,7 +291,7 @@ Defined.
 Definition three_isColimCocone : isColimCocone d three_colimit three_cocone.
 Proof.
   intros c cc.
-  
+
   transparent assert (ccbase : (cocone dbase (three_mor02 c))).
   {
     exists (λ v, pr1 (coconeIn cc v)).
@@ -300,14 +300,14 @@ Proof.
       exact (base_paths _ _ (coconeInCommutes cc _ _ e))
     ).
   }
-  
+
   transparent assert (cc11 : (cocone d11 (three_ob1 c))).
   {
     exists (λ v, three_mor11 (coconeIn cc v)).
     intros u v e.
 
     set (ob1_path := base_paths _ _ (fiber_paths (coconeInCommutes cc _ _ e))).
-    
+
     abstract (
       apply pathsinv0;
       etrans; [exact (pathsinv0 ob1_path)|];

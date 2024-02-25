@@ -2,7 +2,7 @@
 The Algebraic Small Object Argument
 
 The Algebraic Small Object Argument by Richard Garner
-is a refinement of the (Classical) Small Object Argument 
+is a refinement of the (Classical) Small Object Argument
 by Quillen. The ASOA can be used to construct a NWFS
 starting from a sufficiently well-behaved morphism class J.
 The construction uses a convergent transfinite sequence,
@@ -19,17 +19,17 @@ only used to prove the Algebraic Small Object Argument:
 
 - LiftingWithClass.v and OneStepMonad.v:
   One can define a functorial factorization from the morphism
-  class J: the "one step factorization" F1. In fact, this 
+  class J: the "one step factorization" F1. In fact, this
   factorization always admits an LNWFS structure, so we denote
-  it with L1 instead. 
-  
-  This will be the starting point, from which we apply the 
+  it with L1 instead.
+
+  This will be the starting point, from which we apply the
   transfinite construction.
 
 - FFMonoidalStructure.v:
   Defines a monoidal structure on the category of Functorial
-  Factorizations (FF). This monoidal structure can be lifted 
-  to one in LNWFS, and is defined in such a way that a monoid 
+  Factorizations (FF). This monoidal structure can be lifted
+  to one in LNWFS, and is defined in such a way that a monoid
   in this structure corresponds with a NWFS. Also a proof
   that a monoid in this monoidal structure corresponds
   with an object of RNWFS.
@@ -51,7 +51,7 @@ only used to prove the Algebraic Small Object Argument:
 
 - LNWFSClosed.v:
   We show that the monoidal structure on LNWFS is closed under
-  (connected) colimits. 
+  (connected) colimits.
   Again the main use cases are that it is closed under chains and
   coequalizers, needed for the ASOA.
 
@@ -64,7 +64,7 @@ only used to prove the Algebraic Small Object Argument:
 
 - GenericFreeMonoidSequence.v:
   A file containing the definition of the free monoid sequence,
-  in a monoidal category "V", as well as a proof that it 
+  in a monoidal category "V", as well as a proof that it
   converges, given a smallness requirement
   on the object "T", defining the sequence. Also contains
   the construction of the monoid one obtains from the sequence
@@ -89,8 +89,8 @@ Important sources:
 - Cofibrantly generated natural weak factorisation systems by Richard Garner
 - Understanding the small object argument by Richard Garner
 - My thesis: https://studenttheses.uu.nl/handle/20.500.12932/45658
-- A unified treatment of transfinite constructions for free 
-    algebras, free monoids, colimits, associated sheaves, 
+- A unified treatment of transfinite constructions for free
+    algebras, free monoids, colimits, associated sheaves,
     and so on
   by Kelly.
 
@@ -102,11 +102,11 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.pushouts.
-Require Import UniMath.CategoryTheory.limits.graphs.coequalizers.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Pushouts.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.whiskering.
 
 Require Import UniMath.CategoryTheory.Monads.Monads.
@@ -172,11 +172,11 @@ Local Definition LNWFS_mon : monoidal_cat :=
 Import BifunctorNotations.
 Import MonoidalNotations.
 
-Lemma osc_preserves_diagram_on 
+Lemma osc_preserves_diagram_on
     (HJ : class_presentable J) :
-  ∏ B, T_preserves_diagram_on 
+  ∏ B, T_preserves_diagram_on
         LNWFS_tot_monoidal
-        (LNWFS_pointed one_step_comonad_as_LNWFS) 
+        (LNWFS_pointed one_step_comonad_as_LNWFS)
         (ChainsLNWFS CC)
         (CoequalizersLNWFS CC)
         B.
@@ -185,9 +185,9 @@ Proof.
   intros CC' cl' cc'.
 
   set (L1 := LNWFS_pointed one_step_comonad_as_LNWFS).
-  set (d := (free_monoid_coeq_sequence_diagram_on 
-    LNWFS_tot_monoidal 
-    L1 
+  set (d := (free_monoid_coeq_sequence_diagram_on
+    LNWFS_tot_monoidal
+    L1
     (CoequalizersLNWFS CC)
     B
   )).
@@ -202,10 +202,10 @@ Proof.
   exact HJ.
 Qed.
 
-Lemma free_monoid_coeq_sequence_converges_for_osc 
+Lemma free_monoid_coeq_sequence_converges_for_osc
     (HJ : class_presentable J) :
   free_monoid_coeq_sequence_converges_on _
-    (LNWFS_pointed one_step_comonad_as_LNWFS) 
+    (LNWFS_pointed one_step_comonad_as_LNWFS)
     (ChainsLNWFS CC)
     (CoequalizersLNWFS CC)
     (monoidal_unit LNWFS_tot_monoidal).
@@ -214,12 +214,12 @@ Proof.
   exact (osc_preserves_diagram_on HJ).
 Qed.
 
-Theorem small_object_argument 
+Theorem small_object_argument
     (HJ : class_presentable J) :
   total_category (NWFS C).
 Proof.
-  set (lnwfs_monoid := 
-    Tinf_monoid 
+  set (lnwfs_monoid :=
+    Tinf_monoid
       (@LNWFS_tot_monoidal C)
       (LNWFS_pointed one_step_comonad_as_LNWFS)
       (ChainsLNWFS CC)
