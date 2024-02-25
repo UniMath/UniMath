@@ -36,9 +36,9 @@ Require Import UniMath.CategoryTheory.Limits.Opp.
 Require Import UniMath.CategoryTheory.Chains.Chains.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
-Require Import UniMath.CategoryTheory.ModelCategories.Retract.
-Require Import UniMath.CategoryTheory.ModelCategories.MorphismClass.
-Require Import UniMath.CategoryTheory.ModelCategories.Lifting.
+Require Import UniMath.ModelCategories.Retract.
+Require Import UniMath.ModelCategories.MorphismClass.
+Require Import UniMath.ModelCategories.Lifting.
 
 
 Local Open Scope cat.

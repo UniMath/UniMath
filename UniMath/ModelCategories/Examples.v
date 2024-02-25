@@ -11,10 +11,10 @@ Require Import UniMath.CategoryTheory.Monads.Comonads.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
-Require Import UniMath.CategoryTheory.ModelCategories.MorphismClass.
-Require Import UniMath.CategoryTheory.ModelCategories.NWFS.
-Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.LiftingWithClass.
+Require Import UniMath.ModelCategories.MorphismClass.
+Require Import UniMath.ModelCategories.NWFS.
+Require Import UniMath.ModelCategories.Helpers.
+Require Import UniMath.ModelCategories.Generated.LiftingWithClass.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Three.
 

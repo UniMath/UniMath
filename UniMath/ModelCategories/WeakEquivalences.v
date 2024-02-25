@@ -1,7 +1,7 @@
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 
-Require Import UniMath.CategoryTheory.ModelCategories.MorphismClass.
+Require Import UniMath.ModelCategories.MorphismClass.
 
 Section weakeqv.
 

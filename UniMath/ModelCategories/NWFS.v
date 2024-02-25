@@ -60,10 +60,10 @@ Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Three.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.MonadAlgebras.
-Require Import UniMath.CategoryTheory.ModelCategories.MorphismClass.
-Require Import UniMath.CategoryTheory.ModelCategories.Retract.
-Require Import UniMath.CategoryTheory.ModelCategories.Lifting.
-Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
+Require Import UniMath.ModelCategories.MorphismClass.
+Require Import UniMath.ModelCategories.Retract.
+Require Import UniMath.ModelCategories.Lifting.
+Require Import UniMath.ModelCategories.Helpers.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.

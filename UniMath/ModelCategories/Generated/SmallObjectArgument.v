@@ -127,21 +127,21 @@ Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Three.
 
-Require Import UniMath.CategoryTheory.ModelCategories.MorphismClass.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.LiftingWithClass.
-Require Import UniMath.CategoryTheory.ModelCategories.NWFS.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.OneStepMonad.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.GenericFreeMonoid.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.GenericFreeMonoidSequence.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.MonoidalHelpers.
-Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.MonoidalHelpers.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.FFMonoidalStructure.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.LNWFSMonoidalStructure.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.LNWFSCocomplete.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.LNWFSClosed.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.LNWFSSmallnessReduction.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.OneStepMonadSmall.
+Require Import UniMath.ModelCategories.MorphismClass.
+Require Import UniMath.ModelCategories.Generated.LiftingWithClass.
+Require Import UniMath.ModelCategories.NWFS.
+Require Import UniMath.ModelCategories.Generated.OneStepMonad.
+Require Import UniMath.ModelCategories.Generated.GenericFreeMonoid.
+Require Import UniMath.ModelCategories.Generated.GenericFreeMonoidSequence.
+Require Import UniMath.ModelCategories.Generated.MonoidalHelpers.
+Require Import UniMath.ModelCategories.Helpers.
+Require Import UniMath.ModelCategories.Generated.MonoidalHelpers.
+Require Import UniMath.ModelCategories.Generated.FFMonoidalStructure.
+Require Import UniMath.ModelCategories.Generated.LNWFSMonoidalStructure.
+Require Import UniMath.ModelCategories.Generated.LNWFSCocomplete.
+Require Import UniMath.ModelCategories.Generated.LNWFSClosed.
+Require Import UniMath.ModelCategories.Generated.LNWFSSmallnessReduction.
+Require Import UniMath.ModelCategories.Generated.OneStepMonadSmall.
 
 
 Local Open Scope cat.

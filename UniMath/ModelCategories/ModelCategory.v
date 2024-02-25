@@ -28,11 +28,11 @@ Contents:
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 
-Require Import UniMath.CategoryTheory.ModelCategories.Lifting.
-Require Import UniMath.CategoryTheory.ModelCategories.Retract.
-Require Import UniMath.CategoryTheory.ModelCategories.MorphismClass.
-Require Import UniMath.CategoryTheory.ModelCategories.WFS.
-Require Import UniMath.CategoryTheory.ModelCategories.WeakEquivalences.
+Require Import UniMath.ModelCategories.Lifting.
+Require Import UniMath.ModelCategories.Retract.
+Require Import UniMath.ModelCategories.MorphismClass.
+Require Import UniMath.ModelCategories.WFS.
+Require Import UniMath.ModelCategories.WeakEquivalences.
 
 Section modelcat.
 

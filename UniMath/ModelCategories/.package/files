@@ -1,0 +1,24 @@
+# ModelCategories and the Algebraic Small Object Argument
+Retract.v
+MorphismClass.v
+Lifting.v
+WeakEquivalences.v
+WFS.v
+ModelCategory.v
+Helpers.v
+NWFS.v
+NWFSisWFS.v
+Generated/MonoidalHelpers.v
+Generated/LiftingWithClass.v
+Examples.v
+Generated/FFMonoidalStructure.v
+Generated/LNWFSHelpers.v
+Generated/LNWFSMonoidalStructure.v
+Generated/LNWFSCocomplete.v
+Generated/LNWFSClosed.v
+Generated/GenericFreeMonoid.v
+Generated/GenericFreeMonoidSequence.v
+Generated/LNWFSSmallnessReduction.v
+Generated/OneStepMonad.v
+Generated/OneStepMonadSmall.v
+Generated/SmallObjectArgument.v

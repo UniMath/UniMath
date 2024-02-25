@@ -25,11 +25,11 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Three.
 
-Require Import UniMath.CategoryTheory.ModelCategories.MorphismClass.
-Require Import UniMath.CategoryTheory.ModelCategories.NWFS.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.LiftingWithClass.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.OneStepMonad.
-Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
+Require Import UniMath.ModelCategories.MorphismClass.
+Require Import UniMath.ModelCategories.NWFS.
+Require Import UniMath.ModelCategories.Generated.LiftingWithClass.
+Require Import UniMath.ModelCategories.Generated.OneStepMonad.
+Require Import UniMath.ModelCategories.Helpers.
 
 Local Open Scope cat.
 

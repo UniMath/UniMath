@@ -18,8 +18,8 @@ Require Import UniMath.CategoryTheory.Chains.Chains.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Three.
-Require Import UniMath.CategoryTheory.ModelCategories.NWFS.
-Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
+Require Import UniMath.ModelCategories.NWFS.
+Require Import UniMath.ModelCategories.Helpers.
 
 Local Open Scope cat.
 Local Open Scope morcls.

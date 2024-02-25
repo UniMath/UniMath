@@ -14,11 +14,11 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Three.
-Require Import UniMath.CategoryTheory.ModelCategories.Lifting.
-Require Import UniMath.CategoryTheory.ModelCategories.NWFS.
-Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.LNWFSHelpers.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.FFMonoidalStructure.
+Require Import UniMath.ModelCategories.Lifting.
+Require Import UniMath.ModelCategories.NWFS.
+Require Import UniMath.ModelCategories.Helpers.
+Require Import UniMath.ModelCategories.Generated.LNWFSHelpers.
+Require Import UniMath.ModelCategories.Generated.FFMonoidalStructure.
 
 Local Open Scope cat.
 Local Open Scope morcls.

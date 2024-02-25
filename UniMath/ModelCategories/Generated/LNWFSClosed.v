@@ -25,13 +25,13 @@ Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Three.
-Require Import UniMath.CategoryTheory.ModelCategories.NWFS.
-Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.MonoidalHelpers.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.FFMonoidalStructure.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.LNWFSHelpers.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.LNWFSMonoidalStructure.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.LNWFSCocomplete.
+Require Import UniMath.ModelCategories.NWFS.
+Require Import UniMath.ModelCategories.Helpers.
+Require Import UniMath.ModelCategories.Generated.MonoidalHelpers.
+Require Import UniMath.ModelCategories.Generated.FFMonoidalStructure.
+Require Import UniMath.ModelCategories.Generated.LNWFSHelpers.
+Require Import UniMath.ModelCategories.Generated.LNWFSMonoidalStructure.
+Require Import UniMath.ModelCategories.Generated.LNWFSCocomplete.
 
 Local Open Scope cat.
 

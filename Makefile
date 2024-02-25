@@ -18,6 +18,7 @@ PACKAGES += SyntheticHomotopyTheory
 PACKAGES += PAdics
 PACKAGES += OrderTheory
 PACKAGES += CategoryTheory
+PACKAGES += ModelCategories
 PACKAGES += Bicategories
 PACKAGES += Ktheory
 PACKAGES += Topology

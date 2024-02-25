@@ -559,28 +559,3 @@ DaggerCategories/Functors/Factorization.v
 DaggerCategories/Functors/Precomp.v
 
 DaggerCategories/CatIso.v
-
-# ModelCategories and the Algebraic Small Object Argument
-ModelCategories/Retract.v
-ModelCategories/MorphismClass.v
-ModelCategories/Lifting.v
-ModelCategories/WeakEquivalences.v
-ModelCategories/WFS.v
-ModelCategories/ModelCategory.v
-ModelCategories/Helpers.v
-ModelCategories/NWFS.v
-ModelCategories/NWFSisWFS.v
-ModelCategories/Generated/MonoidalHelpers.v
-ModelCategories/Generated/LiftingWithClass.v
-ModelCategories/Examples.v
-ModelCategories/Generated/FFMonoidalStructure.v
-ModelCategories/Generated/LNWFSHelpers.v
-ModelCategories/Generated/LNWFSMonoidalStructure.v
-ModelCategories/Generated/LNWFSCocomplete.v
-ModelCategories/Generated/LNWFSClosed.v
-ModelCategories/Generated/GenericFreeMonoid.v
-ModelCategories/Generated/GenericFreeMonoidSequence.v
-ModelCategories/Generated/LNWFSSmallnessReduction.v
-ModelCategories/Generated/OneStepMonad.v
-ModelCategories/Generated/OneStepMonadSmall.v
-ModelCategories/Generated/SmallObjectArgument.v

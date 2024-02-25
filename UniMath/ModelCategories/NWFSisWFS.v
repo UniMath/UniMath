@@ -16,12 +16,12 @@ Require Import UniMath.CategoryTheory.Chains.Chains.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Three.
-Require Import UniMath.CategoryTheory.ModelCategories.MorphismClass.
-Require Import UniMath.CategoryTheory.ModelCategories.Retract.
-Require Import UniMath.CategoryTheory.ModelCategories.Lifting.
-Require Import UniMath.CategoryTheory.ModelCategories.WFS.
-Require Import UniMath.CategoryTheory.ModelCategories.NWFS.
-Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
+Require Import UniMath.ModelCategories.MorphismClass.
+Require Import UniMath.ModelCategories.Retract.
+Require Import UniMath.ModelCategories.Lifting.
+Require Import UniMath.ModelCategories.WFS.
+Require Import UniMath.ModelCategories.NWFS.
+Require Import UniMath.ModelCategories.Helpers.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.

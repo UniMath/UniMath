@@ -3,8 +3,8 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Limits.Opp.
 
-Require Import UniMath.CategoryTheory.ModelCategories.Retract.
-Require Import UniMath.CategoryTheory.ModelCategories.MorphismClass.
+Require Import UniMath.ModelCategories.Retract.
+Require Import UniMath.ModelCategories.MorphismClass.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
 
 Local Open Scope cat.

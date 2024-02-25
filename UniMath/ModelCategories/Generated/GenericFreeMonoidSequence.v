@@ -22,9 +22,9 @@ Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
 
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.GenericFreeMonoid.
-Require Import UniMath.CategoryTheory.ModelCategories.Generated.MonoidalHelpers.
-Require Import UniMath.CategoryTheory.ModelCategories.Helpers.
+Require Import UniMath.ModelCategories.Generated.GenericFreeMonoid.
+Require Import UniMath.ModelCategories.Generated.MonoidalHelpers.
+Require Import UniMath.ModelCategories.Helpers.
 
 Local Open Scope cat.
 
