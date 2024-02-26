@@ -150,6 +150,13 @@ Section eqv_comp.
   Defined.
 End eqv_comp.
 
+Definition comp_adj_equiv
+  {A B C : category}
+  (F : adj_equiv A B)
+  (G : adj_equiv B C)
+  : adj_equiv A C
+  := (F ∙ G) ,, comp_adj_equivalence_of_cats F G.
+
 (** ** Inverses *)
 
 Section eqv_inv.
@@ -257,6 +264,12 @@ Section eqv_inv.
   Defined.
 
 End eqv_inv.
+
+Definition adj_equiv_inv
+  {A B : category}
+  (F : adj_equiv A B)
+  : adj_equiv B A
+  := adj_equivalence_inv F ,, adj_equivalence_of_cats_inv F.
 
 (** Closure under natural isomorphisms *)
 Definition nat_z_iso_equivalence_of_cats
