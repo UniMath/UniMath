@@ -8,8 +8,8 @@
   Contents
   1. The algebraic theory of the λ-calculus [lambda_calculus_algebraic_theory]
   2. The λ-theory of the λ-calculus [lambda_calculus_lambda_theory]
-  3. The λ-theory has β-equality [lambda_calculus_has_beta]
-  4. The λ-theory has η-equality [lambda_calculus_has_eta]
+  3. The λ-theory has β-equality [lambda_calculus_has_β]
+  4. The λ-theory has η-equality [lambda_calculus_has_η]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -123,13 +123,17 @@ Proof.
     do 4 intro;
     cbn;
     unfold inflate.
-  - do 5 reduce_lambda.
+  - rewrite subst_app.
+    do 2 rewrite subst_subst.
+    rewrite subst_var.
+    rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _).
     apply (maponpaths (λ x, _ x _)).
     apply maponpaths.
     apply funextfun.
     intro.
-    now do 2 reduce_lambda.
-  - reduce_lambda.
+    rewrite subst_var.
+    now rewrite extend_tuple_inl.
+  - rewrite subst_abs .
     do 2 apply maponpaths.
     apply extend_tuple_eq.
     + intro.
@@ -143,31 +147,28 @@ Definition lambda_calculus_lambda_theory
 
 (** * 3. The λ-theory has β-equality *)
 
-Lemma lambda_calculus_has_beta
-  : has_beta lambda_calculus_lambda_theory.
+Lemma lambda_calculus_has_β
+  : has_β lambda_calculus_lambda_theory.
 Proof.
-  unfold has_beta, LambdaTheories.app, LambdaTheories.abs.
+  unfold has_β, LambdaTheories.app, LambdaTheories.abs.
   simpl.
   intros n l.
-  do 3 reduce_lambda.
+  rewrite inflate_abs.
+  rewrite beta_equality.
+  rewrite subst_subst.
   refine (_ @ subst_l_var _).
   apply maponpaths.
   apply funextfun.
   intro i.
   rewrite <- (homotweqinvweq stnweq i).
-  now induction (invmap stnweq i) as [i' | i'];
+  induction (invmap stnweq i) as [i' | i'];
     refine (maponpaths (λ x, subst (_ x) _) (homotinvweqweq stnweq _) @ _);
-    simpl;
-    repeat reduce_lambda.
-Qed.
-
-(** * 4. The λ-theory has η-equality *)
-
-Lemma lambda_calculus_has_eta
-  : has_eta lambda_calculus_lambda_theory.
-Proof.
-  intros n l.
-  apply eta_equality.
+    simpl.
+  - do 2 rewrite inflate_var.
+    rewrite subst_var.
+    now rewrite extend_tuple_inl.
+  - rewrite subst_var.
+    now rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _).
 Qed.
 
 End LambdaCalculus.
