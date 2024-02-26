@@ -98,7 +98,7 @@ Section Monoid.
     do 6 rewrite subst_var.
     apply maponpaths.
     extend_tuple_3.
-    cbn -[stnweq weqvecfun v extend_tuple].
+    cbn -[stnweq weqvecfun extend_tuple].
     rewrite subst_var.
     rewrite extend_tuple_inr.
     do 2 extend_tuple_3.
