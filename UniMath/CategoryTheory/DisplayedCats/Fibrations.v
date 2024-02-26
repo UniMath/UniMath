@@ -252,6 +252,16 @@ Coercion disp_functor_of_cartesian_disp_functor
   : disp_functor F D₁ D₂
   := pr1 FF.
 
+Definition make_cartesian_disp_functor
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {D₁ : disp_cat C₁}
+           {D₂ : disp_cat C₂}
+           (FF : disp_functor F D₁ D₂)
+           (HFF : is_cartesian_disp_functor FF)
+  : cartesian_disp_functor F D₁ D₂
+  := FF ,, HFF.
+
 Definition cartesian_disp_functor_is_cartesian
            {C₁ C₂ : category}
            {F : C₁ ⟶ C₂}
@@ -262,17 +272,47 @@ Definition cartesian_disp_functor_is_cartesian
   := pr2 FF.
 
 Definition cartesian_disp_functor_on_cartesian
-           {C : category}
-           {D₁ D₂ : disp_cat C}
-           (F : cartesian_disp_functor (functor_identity C) D₁ D₂)
-           {x y : C}
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {D₁ : disp_cat C₁}
+           {D₂ : disp_cat C₂}
+           (FF : cartesian_disp_functor F D₁ D₂)
+           {x y : C₁}
            {f : x --> y}
            {xx : D₁ x}
            {yy : D₁ y}
            {ff : xx -->[ f ] yy}
            (Hff : is_cartesian ff)
-  : is_cartesian (♯ F ff)
-  := pr2 F y x f yy xx ff Hff.
+  : is_cartesian (♯FF ff)
+  := pr2 FF y x f yy xx ff Hff.
+
+Definition id_cartesian_disp_functor
+           {C : category}
+           (D : disp_cat C)
+  : cartesian_disp_functor (functor_identity C) D D.
+Proof.
+  use make_cartesian_disp_functor.
+  - exact (disp_functor_identity D).
+  - apply disp_functor_identity_is_cartesian_disp_functor.
+Defined.
+
+Definition comp_cartesian_disp_functor
+           {C₁ C₂ C₃ : category}
+           {F : C₁ ⟶ C₂}
+           {G : C₂ ⟶ C₃}
+           {D₁ : disp_cat C₁}
+           {D₂ : disp_cat C₂}
+           {D₃ : disp_cat C₃}
+           (FF : cartesian_disp_functor F D₁ D₂)
+           (GG : cartesian_disp_functor G D₂ D₃)
+  : cartesian_disp_functor (F ∙ G) D₁ D₃.
+Proof.
+  use make_cartesian_disp_functor.
+  - exact (disp_functor_composite FF GG).
+  - exact (disp_functor_composite_is_cartesian_disp_functor
+             (cartesian_disp_functor_is_cartesian FF)
+             (cartesian_disp_functor_is_cartesian GG)).
+Defined.
 
 Lemma isaprop_is_cartesian
     {C : category} {D : disp_cat C}
@@ -2632,6 +2672,16 @@ Section FiberFunctorCleavingComp.
       + exact (fiber_functor_from_cleaving_comp_inv_left xx).
       + exact (fiber_functor_from_cleaving_comp_inv_right xx).
   Defined.
+
+  Definition fiber_functor_from_cleaving_comp_nat_z_iso
+    : nat_z_iso
+        (fiber_functor_from_cleaving D HD f ∙ fiber_functor_from_cleaving D HD g)
+        (fiber_functor_from_cleaving D HD (g · f)).
+  Proof.
+    use make_nat_z_iso.
+    - exact fiber_functor_from_cleaving_comp.
+    - apply is_nat_z_iso_fiber_functor_from_cleaving_comp.
+  Defined.
 End FiberFunctorCleavingComp.
 
 Arguments fiber_functor_from_cleaving_comp_data {C D} HD {x y z} f g /.
@@ -2639,32 +2689,34 @@ Arguments fiber_functor_from_cleaving_comp_data {C D} HD {x y z} f g /.
 (**
  The fiber functor of a cartesian functor is natural
  *)
-Locate cartesian_disp_functor_on_cartesian.
 Section FiberFunctorNatural.
-  Context {C : category}
-          {D₁ D₂ : disp_cat C}
+  Context {C₁ C₂ : category}
+          {F : C₁ ⟶ C₂}
+          {D₁ : disp_cat C₁}
+          {D₂ : disp_cat C₂}
           (HD₁ : cleaving D₁)
           (HD₂ : cleaving D₂)
-          (F : cartesian_disp_functor (functor_identity C) D₁ D₂)
-          {x y : C}
+          (FF : cartesian_disp_functor F D₁ D₂)
+          {x y : C₁}
           (f : y --> x).
 
   Definition fiber_functor_natural_data
     : nat_trans_data
-        (fiber_functor F x ∙ fiber_functor_from_cleaving D₂ HD₂ f)
-        (fiber_functor_from_cleaving D₁ HD₁ f ∙ fiber_functor F y).
+        (fiber_functor FF x ∙ fiber_functor_from_cleaving D₂ HD₂ (#F f)%cat)
+        (fiber_functor_from_cleaving D₁ HD₁ f ∙ fiber_functor FF y).
   Proof.
     intro xx.
     refine (cartesian_factorisation
-              (cartesian_disp_functor_on_cartesian F (HD₁ x y f xx))
+              (cartesian_disp_functor_on_cartesian FF (HD₁ x y f xx))
               _
               (transportf
                  (λ z, _ -->[ z ] _)
                  _
-                 (HD₂ x y f (F x xx)))).
+                 (HD₂ _ _ _ (FF x xx)))).
     abstract
       (exact (!(id_left _))).
   Defined.
+
   Proposition fiber_functor_natural_laws
     : is_nat_trans
         _ _
@@ -2673,7 +2725,7 @@ Section FiberFunctorNatural.
     intros xx yy ff.
     unfold fiber_functor_natural_data ; cbn.
     use (cartesian_factorisation_unique
-           (cartesian_disp_functor_on_cartesian F (HD₁ _ _ _ _))).
+           (cartesian_disp_functor_on_cartesian FF (HD₁ _ _ _ _))).
     rewrite !mor_disp_transportf_postwhisker.
     rewrite assoc_disp_var.
     rewrite !transport_f_f.
@@ -2684,12 +2736,14 @@ Section FiberFunctorNatural.
     rewrite transport_f_f.
     refine (!_).
     rewrite assoc_disp_var.
-    rewrite transport_f_f.
+    rewrite !mor_disp_transportf_prewhisker.
+    rewrite !mor_disp_transportf_postwhisker.
+    rewrite !transport_f_f.
     etrans.
     {
-      do 2 apply maponpaths.
+      do 3 apply maponpaths.
       refine (!_).
-      apply (disp_functor_comp_var F).
+      apply (disp_functor_comp_var FF).
     }
     rewrite mor_disp_transportf_prewhisker.
     rewrite transport_f_f.
@@ -2699,22 +2753,22 @@ Section FiberFunctorNatural.
     rewrite transport_f_f.
     rewrite disp_functor_comp.
     unfold transportb.
-    rewrite mor_disp_transportf_prewhisker.
+    rewrite !mor_disp_transportf_prewhisker.
     rewrite transport_f_f.
     rewrite assoc_disp.
     unfold transportb.
     rewrite transport_f_f.
     rewrite cartesian_factorisation_commutes.
     rewrite mor_disp_transportf_postwhisker.
-    rewrite transport_f_f.
+    rewrite !transport_f_f.
     apply maponpaths_2.
     apply homset_property.
   Qed.
 
   Definition fiber_functor_natural
-    : fiber_functor F x ∙ fiber_functor_from_cleaving D₂ HD₂ f
+    : fiber_functor FF x ∙ fiber_functor_from_cleaving D₂ HD₂ (#F f)%cat
       ⟹
-      fiber_functor_from_cleaving D₁ HD₁ f ∙ fiber_functor F y.
+      fiber_functor_from_cleaving D₁ HD₁ f ∙ fiber_functor FF y.
   Proof.
     use make_nat_trans.
     - exact fiber_functor_natural_data.
@@ -2723,7 +2777,7 @@ Section FiberFunctorNatural.
 
   Definition fiber_functor_natural_inv
              (xx : D₁ x)
-    : F y (HD₁ x y f xx) -->[ identity y] pr1 (HD₂ x y f (F x xx)).
+    : FF y (HD₁ x y f xx) -->[ identity _ ] pr1 (HD₂ _ _ (#F f)%cat (FF x xx)).
   Proof.
     refine (cartesian_factorisation
               (HD₂ _ _ _ _)
@@ -2731,7 +2785,7 @@ Section FiberFunctorNatural.
               (transportf
                  (λ z, _ -->[ z ] _)
                  _
-                 (♯ F (pr12 (HD₁ x y f xx)))))%mor_disp.
+                 (♯FF (pr12 (HD₁ x y f xx)))))%mor_disp.
     abstract
       (exact (!(id_left _))).
   Defined.
@@ -2763,7 +2817,7 @@ Section FiberFunctorNatural.
               (xx : D₁ x)
     : transportf
         (λ z, _ -->[ z ] _)
-        (id_right (identity y))
+        (id_right _)
         (fiber_functor_natural_inv xx ;; fiber_functor_natural_data xx)%mor_disp
       =
       id_disp _.
@@ -2771,7 +2825,7 @@ Section FiberFunctorNatural.
     cbn.
     unfold fiber_functor_natural_data, fiber_functor_natural_inv ; cbn.
     use (cartesian_factorisation_unique
-           (cartesian_disp_functor_on_cartesian F (HD₁ _ _ _ _))).
+           (cartesian_disp_functor_on_cartesian FF (HD₁ _ _ _ _))).
     rewrite id_left_disp.
     rewrite mor_disp_transportf_postwhisker.
     rewrite assoc_disp_var.
@@ -2799,8 +2853,8 @@ Section FiberFunctorNatural.
 
   Definition fiber_functor_natural_nat_z_iso
     : nat_z_iso
-        (fiber_functor F x ∙ fiber_functor_from_cleaving D₂ HD₂ f)
-        (fiber_functor_from_cleaving D₁ HD₁ f ∙ fiber_functor F y).
+        (fiber_functor FF x ∙ fiber_functor_from_cleaving D₂ HD₂ (#F f)%cat)
+        (fiber_functor_from_cleaving D₁ HD₁ f ∙ fiber_functor FF y).
   Proof.
     use make_nat_z_iso.
     - exact fiber_functor_natural.
@@ -2808,7 +2862,45 @@ Section FiberFunctorNatural.
   Defined.
 End FiberFunctorNatural.
 
-Arguments fiber_functor_natural_data {C D₁ D₂} HD₁ HD₂ F {x y} f /.
+Arguments fiber_functor_natural_data {C₁ C₂ F D₁ D₂} HD₁ HD₂ FF {x y} f /.
+
+(**
+ Transformations between fiber functors from equalities
+ *)
+Definition fiber_functor_on_eq
+           {C : category}
+           {D : disp_cat C}
+           (HD : cleaving D)
+           {x y : C}
+           {f g : x --> y}
+           (p : f = g)
+  : fiber_functor_from_cleaving D HD f ⟹ fiber_functor_from_cleaving D HD g.
+Proof.
+  use make_nat_trans.
+  - refine (λ _, idtoiso _).
+    exact (maponpaths (λ z, fiber_functor_from_cleaving D HD z _) p).
+  - abstract
+      (intros z₁ z₂ h ;
+       induction p ;
+       exact (id_right _ @ !(id_left _))).
+Defined.
+
+Definition fiber_functor_on_eq_nat_z_iso
+           {C : category}
+           {D : disp_cat C}
+           (HD : cleaving D)
+           {x y : C}
+           {f g : x --> y}
+           (p : f = g)
+  : nat_z_iso
+      (fiber_functor_from_cleaving D HD f)
+      (fiber_functor_from_cleaving D HD g).
+Proof.
+  use make_nat_z_iso.
+  - exact (fiber_functor_on_eq HD p).
+  - intro.
+    apply z_iso_is_z_isomorphism.
+Defined.
 
 (**
  Lemma for composing `idtoiso` with a cartesian lift

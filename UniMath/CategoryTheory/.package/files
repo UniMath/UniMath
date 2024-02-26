@@ -21,6 +21,7 @@ DisplayedCats/Univalence.v
 DisplayedCats/DisplayedFunctorEq.v
 DisplayedCats/Total.v
 DisplayedCats/Fiber.v
+DisplayedCats/FullyFaithfulDispFunctor.v
 
 opp_precat.v
 OppositeCategory/Core.v
@@ -86,17 +87,24 @@ Limits/BinDirectSums.v
 Limits/FinOrdProducts.v
 Limits/FinOrdCoproducts.v
 Limits/Opp.v
+Limits/LimitIso.v
 Limits/Preservation.v
+Limits/EquivalencePreservation.v
 Limits/Ends.v
 Limits/Coends.v
+
+Limits/PullbackConstructions.v
 
 DisplayedCats/Binproducts.v
 
 DisplayedCats/FiberwiseTerminal.v
 DisplayedCats/FiberwiseProducts.v
 DisplayedCats/FiberwiseEqualizers.v
+DisplayedCats/DependentSums.v
 
-DisplayedCats/CodomainStructure.v
+DisplayedCats/Codomain/FiberCod.v
+DisplayedCats/Codomain/CodLeftAdjoint.v
+DisplayedCats/Codomain/CodLimits.v
 
 Limits/Examples/CategoryProductLimits.v
 Limits/StandardDiagrams.v
