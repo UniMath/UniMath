@@ -43,6 +43,7 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
@@ -175,6 +176,15 @@ Definition full_comp_cat_comprehension_fully_faithful
            (C : full_comp_cat)
   : disp_functor_ff (comp_cat_comprehension C)
   := pr12 C.
+
+Definition full_comp_cat_comprehension_fiber_fully_faithful
+           {C : full_comp_cat}
+           (x : C)
+  : fully_faithful (fiber_functor (comp_cat_comprehension C) x).
+Proof.
+  use fiber_functor_ff.
+  exact (full_comp_cat_comprehension_fully_faithful C).
+Qed.
 
 Definition full_comp_cat_functor
            (C₁ C₂ : full_comp_cat)

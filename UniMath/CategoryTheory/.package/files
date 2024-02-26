@@ -90,6 +90,7 @@ Limits/Opp.v
 Limits/LimitIso.v
 Limits/Preservation.v
 Limits/EquivalencePreservation.v
+Limits/PreservationProperties.v
 Limits/Ends.v
 Limits/Coends.v
 
@@ -105,6 +106,7 @@ DisplayedCats/DependentSums.v
 DisplayedCats/Codomain/FiberCod.v
 DisplayedCats/Codomain/CodLeftAdjoint.v
 DisplayedCats/Codomain/CodLimits.v
+DisplayedCats/Codomain/CodFunctor.v
 
 Limits/Examples/CategoryProductLimits.v
 Limits/StandardDiagrams.v

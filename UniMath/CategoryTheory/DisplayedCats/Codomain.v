@@ -17,7 +17,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
-Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 
 Local Open Scope cat.
 
@@ -305,52 +304,6 @@ Proof.
     apply P.
 Defined.
 
-(** * Displayed functor between codomain displayed categories *)
-Definition disp_codomain_functor_data
-           {C₁ C₂ : category}
-           (F : C₁ ⟶ C₂)
-  : disp_functor_data F (disp_codomain C₁) (disp_codomain C₂).
-Proof.
-  simple refine (_ ,, _).
-  - exact (λ x yf, F (pr1 yf) ,, #F (pr2 yf)).
-  - refine (λ x₁ x₂ yf₁ yf₂ g hp, #F (pr1 hp) ,, _).
-    abstract
-      (cbn ;
-       rewrite <- !functor_comp ;
-       apply maponpaths ;
-       exact (pr2 hp)).
-Defined.
-
-Proposition disp_codomain_functor_axioms
-            {C₁ C₂ : category}
-            (F : C₁ ⟶ C₂)
-  : disp_functor_axioms (disp_codomain_functor_data F).
-Proof.
-  split.
-  - intros x yf.
-    use eq_cod_mor.
-    rewrite transportb_cod_disp.
-    cbn.
-    rewrite functor_id.
-    apply idpath.
-  - intros x₁ x₂ y₃ yf₁ yf₂ yf₃ f₁ f₂ gp₁ gp₂.
-    use eq_cod_mor.
-    rewrite transportb_cod_disp.
-    cbn.
-    rewrite functor_comp.
-    apply idpath.
-Qed.
-
-Definition disp_codomain_functor
-           {C₁ C₂ : category}
-           (F : C₁ ⟶ C₂)
-  : disp_functor F (disp_codomain C₁) (disp_codomain C₂).
-Proof.
-  simple refine (_ ,, _).
-  - exact (disp_codomain_functor_data F).
-  - exact (disp_codomain_functor_axioms F).
-Defined.
-
 (** * Isos in the codomain *)
 Section IsosCodomain.
   Context {C : category}
@@ -460,6 +413,38 @@ Proof.
       (use eq_cod_mor ;
        rewrite transportb_cod_disp ;
        apply (z_iso_inv_after_z_iso h)).
+Defined.
+
+Definition is_z_iso_disp_codomain'
+           {C : category}
+           {x y : C}
+           (h : z_iso x y)
+           {fz : disp_codomain C x}
+           {fz' : disp_codomain C y}
+           (φp : fz -->[ h ] fz')
+           (H : is_z_isomorphism (pr1 φp))
+  : is_z_iso_disp h φp.
+Proof.
+  pose (l := (_ ,, H) : z_iso _ _).
+  simple refine (_ ,, _ ,, _).
+  - refine (inv_from_z_iso l ,, _).
+    abstract
+      (cbn ;
+       use z_iso_inv_on_right ;
+       rewrite !assoc ;
+       refine (_ @ maponpaths (λ z, z · _) (!(pr2 φp))) ;
+       rewrite !assoc' ;
+       rewrite z_iso_inv_after_z_iso ;
+       rewrite id_right ;
+       apply idpath).
+  - abstract
+      (use eq_cod_mor ;
+       rewrite transportb_cod_disp ;
+       apply z_iso_after_z_iso_inv).
+  - abstract
+      (use eq_cod_mor ;
+       rewrite transportb_cod_disp ;
+       apply (z_iso_inv_after_z_iso l)).
 Defined.
 
 Definition z_iso_disp_codomain
