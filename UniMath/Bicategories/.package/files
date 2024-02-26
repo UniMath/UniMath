@@ -64,6 +64,7 @@ DisplayedBicats/Examples/Sub1Cell.v
 DisplayedBicats/Examples/DispBicatOfDispCats.v
 DisplayedBicats/Examples/Prod.v
 DisplayedBicats/Examples/DispDepProd.v
+DisplayedBicats/Examples/LiftDispBicat.v
 DisplayedBicats/Examples/Trivial.v
 DisplayedBicats/Examples/BicatOfInvertibles.v
 DisplayedBicats/Examples/EndoMap.v
@@ -412,7 +413,18 @@ Grothendieck/Counit.v
 Grothendieck/Biequivalence.v
 Grothendieck/FiberwiseEquiv.v
 
+ComprehensionCat/BicatOfCompCat/DispCatTerminal.v
+ComprehensionCat/BicatOfCompCat/FibTerminal.v
+ComprehensionCat/BicatOfCompCat/CompCat.v
+ComprehensionCat/BicatOfCompCat/FullCompCat.v
 ComprehensionCat/BicatOfCompCat.v
+ComprehensionCat/CompCatNotations.v
+ComprehensionCat/TypeFormers/UnitTypes.v
+ComprehensionCat/TypeFormers/ProductTypes.v
+ComprehensionCat/TypeFormers/EqualizerTypes.v
+ComprehensionCat/TypeFormers/Democracy.v
+ComprehensionCat/TypeFormers/SigmaTypes.v
+ComprehensionCat/DFLCompCat.v
 
 Logic/ComprehensionBicat.v
 
