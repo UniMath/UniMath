@@ -155,6 +155,21 @@ Section def_equalizers.
       apply cancel_postcomposition, H'.
   Qed.
 
+  Lemma EqualizerInEq
+    {a b : C}
+    {f g : C⟦a, b⟧}
+    (E : Equalizer f g)
+    (e : C)
+    (h h' : C⟦e, EqualizerObject E⟧)
+    (H : h · EqualizerArrow E = h' · EqualizerArrow E)
+    : h = h'.
+  Proof.
+    refine (EqualizerInUnique E e (h' · EqualizerArrow E) _ h H @ !EqualizerInUnique E e (h' · EqualizerArrow E) _ h' (idpath _)).
+    do 2 refine (assoc' _ _ _ @ !_).
+    apply maponpaths.
+    apply EqualizerArrowEq.
+  Qed.
+
   Definition isEqualizer_Equalizer {a b : C} {f g : C⟦a, b⟧} (E : Equalizer f g) :
     isEqualizer f g (EqualizerObject E) (EqualizerArrow E) (EqualizerArrowEq E).
   Proof.
