@@ -131,3 +131,21 @@ End cocont.
 
 Definition omega_cocont_functor (C D : category) : UU :=
   ∑ (F : functor C D), is_omega_cocont F.
+
+Definition Chains (C : category) : UU := 
+    ∏ (d : chain C), ColimCocone d.
+
+Lemma is_connected_nat_graph :
+    is_connected nat_graph.
+Proof.
+  use (is_connected_pointed nat_graph 0).
+  intro v.
+  induction v as [|v Hv].
+  - now exists 0.
+  - use (append_graph_zig_zag Hv).
+    exists 1.
+    exists (S v).
+    split.
+    * now apply inl.
+    * reflexivity.
+Qed.
