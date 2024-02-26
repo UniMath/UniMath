@@ -127,17 +127,19 @@ Section Terminal_and_EmptyProd.
 
     Context {C : category}.
     Context (T : Terminal C).
-    Context (c : ∅ → C).
+    Context {I : UU}.
+    Context (c : I → C).
+    Context (φ : I → ∅).
 
     Definition terminal_product_object
       : C
       := T.
 
     Definition terminal_product_projection
-      (i : ∅)
+      (i : I)
       : C⟦terminal_product_object, c i⟧.
     Proof.
-      induction i.
+      induction (φ i).
     Defined.
 
     Section Arrow.
@@ -150,14 +152,14 @@ Section Terminal_and_EmptyProd.
         := TerminalArrow T c'.
 
       Lemma terminal_product_arrow_commutes
-        (i : ∅)
+        (i : I)
         : terminal_product_arrow · terminal_product_projection i = cone' i.
       Proof.
-        induction i.
+        induction (φ i).
       Qed.
 
       Lemma terminal_product_arrow_unique
-        (t : ∑ k, ∏ i : ∅, k · terminal_product_projection i = cone' i)
+        (t : ∑ k, ∏ i : I, k · terminal_product_projection i = cone' i)
         : t = terminal_product_arrow ,, terminal_product_arrow_commutes.
       Proof.
         use subtypePairEquality.
@@ -185,7 +187,7 @@ Section Terminal_and_EmptyProd.
     Defined.
 
     Definition Terminal_is_empty_product
-      : Product ∅ C c.
+      : Product I C c.
     Proof.
       use make_Product.
       - exact terminal_product_object.

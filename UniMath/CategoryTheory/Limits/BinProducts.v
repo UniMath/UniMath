@@ -759,7 +759,7 @@ Section PairNatTrans.
 End PairNatTrans.
 
 (** ** Construction of BinProduct from an isomorphism to BinProduct. *)
-Section BinProduct_from_iso.
+Section BinProductFromIso.
 
   Context (C : category).
 
@@ -812,7 +812,7 @@ Section BinProduct_from_iso.
                                               (i · (BinProductPr2 C BP))
                                               (iso_to_isBinProduct BP i).
 
-End BinProduct_from_iso.
+End BinProductFromIso.
 
 (** ** Equivalent universal property: [(C --> A) × (C --> B) ≃ (C --> A × B)]
 
@@ -1646,7 +1646,70 @@ Definition bin_product_power
   : Product (stn n) C (λ _, c).
 Proof.
   induction n as [ | n IHn].
-  - refine (transportf (λ x, Product x C (λ y: x, c)) _ (Terminal_is_empty_product T _)).
-    abstract exact (invmap (univalence _ _) (invweq weqstn0toempty)).
+  - exact (Terminal_is_empty_product T _ weqstn0toempty).
   - apply (n_power_to_sn_power BP IHn).
 Defined.
+
+Section BinProductOfIso.
+
+  Lemma isbinproduct_of_isos
+        {C : category} {x1 x2 y1 y2 py : C}
+        (px : BinProduct _ x1 x2)
+        (i1 : z_iso y1 x1) (i2 : z_iso y2 x2)
+        (i : z_iso py px)
+        (f1 : C ⟦py, y1 ⟧) (f2 : C ⟦py, y2 ⟧)
+        (pf1 : i · BinProductPr1 C px = f1 · i1)
+        (pf2 : i · BinProductPr2 C px = f2 · i2)
+    : isBinProduct _ y1 y2 py f1 f2.
+  Proof.
+    use make_isBinProduct.
+    intros c g1 g2.
+    use iscontraprop1.
+    - use invproofirrelevance.
+      intros φ₁ φ₂.
+      use subtypePath.
+      { intro. apply isapropdirprod ; apply homset_property. }
+
+      use (cancel_z_iso _ _ _ (BinProductArrowsEq _ _ _ px _ (pr1 φ₁ · _) (pr1 φ₂ · _) _ _)).
+      + exact i.
+      + rewrite ! assoc'.
+        rewrite pf1.
+        rewrite ! assoc.
+        apply maponpaths_2.
+        exact (pr12 φ₁ @ ! pr12 φ₂).
+      + rewrite ! assoc'.
+        rewrite pf2.
+        rewrite ! assoc.
+        apply maponpaths_2.
+        exact (pr22 φ₁ @ ! pr22 φ₂).
+    - set (t := pr1 (iso_to_isBinProduct _ px (z_iso_to_iso i) c (g1 · i1) (g2 · i2))).
+      exists (pr1 t).
+      split.
+      + refine (_ @ ! z_iso_inv_on_left _ _ _ _ _ _ (pr12 t)).
+        rewrite assoc'.
+        apply maponpaths.
+        use z_iso_inv_on_left.
+        exact pf1.
+      + refine (_ @ ! z_iso_inv_on_left _ _ _ _ _ _ (pr22 t)).
+        rewrite assoc'.
+        apply maponpaths.
+        use z_iso_inv_on_left.
+        exact pf2.
+  Defined.
+
+  Lemma binproduct_of_isos {C : category} {x1 x2 y1 y2 : C}
+    (p : BinProduct _ x1 x2) (i1 : z_iso x1 y1) (i2 : z_iso x2 y2)
+    : BinProduct _ y1 y2.
+  Proof.
+    use make_BinProduct.
+    - exact p.
+    - exact (BinProductPr1 _ p · i1).
+    - exact (BinProductPr2 _ p · i2).
+    - use (isbinproduct_of_isos p (z_iso_inv i1) (z_iso_inv i2) (identity_z_iso p))
+      ; rewrite id_left;
+        rewrite assoc';
+        rewrite z_iso_inv_after_z_iso;
+        now rewrite id_right.
+  Defined.
+
+End BinProductOfIso.

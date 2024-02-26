@@ -9,6 +9,7 @@
   1. The definition of algebras [algebra]
   2. An equality lemma [algebra_eq]
   3. Some properties of algebras
+  4. A lemma about the interplay between the algebra action and vectors [move_action_through_vector]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -21,6 +22,7 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraCategoryCore.
 
 Local Open Scope algebraic_theories.
+Local Open Scope vec.
 
 (** * 1. The definition of algebras *)
 
@@ -144,3 +146,37 @@ Proof.
   intro i.
   exact (fromempty (negnatlthn0 _ (stnlt i))).
 Qed.
+
+(** * 4. A lemma about the interplay between the algebra action and vectors *)
+
+Section ActionVector.
+
+  Context {T : algebraic_theory}.
+  Context (A : algebra T).
+
+  Lemma move_action_through_vector {n m : nat} (f : vec (T m : hSet) n) (a : stn m → A):
+    weqvecfun _ (vec_map (λ fi, action fi a) f)
+     = λ i, action (weqvecfun _ f i) a.
+  Proof.
+    apply funextfun.
+    intro.
+    simpl.
+    now rewrite el_vec_map.
+  Qed.
+
+  Definition move_action_through_vector_1 {n : nat} (f : (T n : hSet)) (a : stn n → A)
+    : weqvecfun 1 [(action f a)]
+      = λ i, action (weqvecfun 1 [(f)] i) a
+    := move_action_through_vector [(f)] _.
+
+  Definition move_action_through_vector_2 {n : nat} (f g : (T n : hSet)) (a : stn n → A)
+    : weqvecfun _ [(action f a ; action g a )]
+      = λ i, action (weqvecfun _ [(f ; g)] i) a
+    := move_action_through_vector [(f ; g)] _.
+
+  Definition move_action_through_vector_3 {n : nat} (f g h : (T n : hSet)) (a : stn n → A)
+    : weqvecfun _ [(action f a ; action g a ; action h a )]
+      = λ i, action (weqvecfun _ [(f ; g ; h)] i) a
+    := move_action_through_vector [(f ; g ; h)] _.
+
+End ActionVector.

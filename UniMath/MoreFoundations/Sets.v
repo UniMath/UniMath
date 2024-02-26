@@ -200,13 +200,132 @@ Section mineqrel.
 
 End mineqrel.
 
+Definition maphrel
+  {X X' : UU}
+  (f : X → X')
+  (R : hrel X')
+  : hrel X
+  := λ x x', R (f x) (f x').
+
+Lemma mapeqrel_iseqrel
+  {X X' : UU}
+  (f : X → X')
+  (R : eqrel X')
+  : iseqrel (maphrel f R).
+Proof.
+  repeat split.
+  - intros x x' x''.
+    apply eqreltrans.
+  - intro x.
+    apply eqrelrefl.
+  - intros x y.
+    apply eqrelsymm.
+Qed.
+
+Definition mapeqrel
+  {X X' : UU}
+  (f : X → X')
+  (R : eqrel X')
+  : eqrel X
+  := make_eqrel _ (mapeqrel_iseqrel f R).
+
+Lemma iscomprelrelfun_eqrel_from_hrel
+  (X X' : UU)
+  (R : hrel X)
+  (R' : hrel X')
+  (f : X → X')
+  (Hf : iscomprelrelfun R R' f)
+  : iscomprelrelfun (eqrel_from_hrel R) (eqrel_from_hrel R') f.
+Proof.
+  intros x x' Hx.
+  intros R0 HR0.
+  apply (Hx (mapeqrel f R0)).
+  intros y y' Hy.
+  apply HR0.
+  apply Hf.
+  apply Hy.
+Qed.
+
+Definition prod_eqrel_pr1
+  {X X' : UU}
+  (R : eqrel (X × X'))
+  (x' : X')
+  : eqrel X.
+Proof.
+  use ((λ x y, R (x ,, x') (y ,, x')) ,, _).
+  abstract (
+    repeat split;
+    [ intros z z' z'';
+      apply eqreltrans
+    | intros z;
+      apply eqrelrefl
+    | intros z z';
+      apply eqrelsymm ]
+  ).
+Defined.
+
+Definition prod_eqrel_pr2
+  {X X' : UU}
+  (R : eqrel (X × X'))
+  (x : X)
+  : eqrel X'.
+Proof.
+  use ((λ x' y', R (x ,, x') (x ,, y')) ,, _).
+  abstract (
+    repeat split;
+    [ intros z z' z'';
+      apply eqreltrans
+    | intros z;
+      apply eqrelrefl
+    | intros z z';
+      apply eqrelsymm ]
+  ).
+Defined.
+
+(* The conditions are sufficient and necessary. Consider, for example, the zero relation. *)
+Lemma eqrel_from_hreldirprod
+  {X X' : UU}
+  (R : hrel X)
+  (R' : hrel X')
+  (HR : isrefl R)
+  (HR' : isrefl R')
+  : eqrel_from_hrel (hreldirprod R R') = hreldirprod (eqrel_from_hrel R) (eqrel_from_hrel R').
+Proof.
+  apply funextfun.
+  intro x.
+  apply funextfun.
+  intro x'.
+  apply weqtopathshProp.
+  apply logeqweq.
+  - refine (minimal_eqrel_from_hrel _ (eqreldirprod (make_eqrel _ (iseqrel_eqrel_from_hrel _)) (make_eqrel _ (iseqrel_eqrel_from_hrel _))) _ _ _).
+    intros y y' Hy.
+    induction Hy as [Hy1 Hy2].
+    split;
+      apply eqrel_impl;
+      easy.
+  - intros Hx R0 H.
+    induction Hx as [Hx1 Hx2].
+    refine (eqreltrans R0 _ _ _
+      (Hx1 (prod_eqrel_pr1 R0 (pr2 x)) _)
+      (Hx2 (prod_eqrel_pr2 R0 (pr1 x')) _)).
+    + intros y y' Hy.
+      apply H.
+      split.
+      * exact Hy.
+      * apply HR'.
+    + intros y y' Hy.
+      apply H.
+      split.
+      * apply HR.
+      * exact Hy.
+Qed.
+
 Lemma eqreleq {A : UU} (R : eqrel A) (x y : A) : x = y → R x y.
 Proof.
   intros e.
   induction e.
   apply eqrelrefl.
 Defined.
-
 
 (** * Additional lemmas on binary relations *)
 
