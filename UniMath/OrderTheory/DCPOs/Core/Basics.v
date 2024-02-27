@@ -78,7 +78,7 @@ Section Upperbounds.
     : lub
     := x ,, Hx.
 
-  Coercion lub_to_el
+  #[reversible] Coercion lub_to_el
            (x : lub)
     : X
     := pr1 x.
@@ -178,7 +178,7 @@ Proof.
     apply isaprop_directed_complete_poset.
 Qed.
 
-Coercion dcpo_struct_to_PartialOrder
+#[reversible] Coercion dcpo_struct_to_PartialOrder
          {X : hSet}
          (DX : dcpo_struct X)
   : PartialOrder X
@@ -200,9 +200,9 @@ Definition dcpo
   : UU
   := ∑ (X : hSet), dcpo_struct X.
 
-Coercion dcpo_to_hSet (X : dcpo) : hSet := pr1 X.
+#[reversible] Coercion dcpo_to_hSet (X : dcpo) : hSet := pr1 X.
 
-Coercion dcpo_to_PartialOrder (X : dcpo) : PartialOrder X := pr12 X.
+#[reversible] Coercion dcpo_to_PartialOrder (X : dcpo) : PartialOrder X := pr12 X.
 
 Definition dcpo_order {X : dcpo} (x y : X) : hProp := pr12 X x y.
 
@@ -364,13 +364,13 @@ Definition dcppo_struct
   : UU
   := ∑ (DX : dcpo_struct X), bottom_element DX.
 
-Coercion dcppo_struct_to_dcpo_struct
+#[reversible] Coercion dcppo_struct_to_dcpo_struct
          {X : hSet}
          (DX : dcppo_struct X)
   : dcpo_struct X
   := pr1 DX.
 
-Coercion dcppo_to_pointed_PartialOrder
+#[reversible] Coercion dcppo_to_pointed_PartialOrder
          {X : hSet}
          (DX : dcppo_struct X)
   : pointed_PartialOrder X
@@ -391,7 +391,7 @@ Definition dcppo
   : UU
   := ∑ (X : hSet), dcppo_struct X.
 
-Coercion dcppo_to_dcpo
+#[reversible] Coercion dcppo_to_dcpo
          (X : dcppo)
   : dcpo
   := pr1 X ,, pr12 X.

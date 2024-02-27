@@ -61,7 +61,7 @@ Section MonadToStruct.
     : monad_algebra X
     := f ,, p.
 
-  Coercion monad_algebra_struct_to_mor
+  #[reversible] Coercion monad_algebra_struct_to_mor
            {X : hSet}
            (f : monad_algebra X)
     : M X --> X

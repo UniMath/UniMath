@@ -58,7 +58,7 @@ Local Definition pair_diagram_lob (X : pair_diagram) : C :=
     pr1 X.
 Local Definition pair_diagram_rob (X : pair_diagram) : C :=
     pr12 X.
-Coercion pair_diagram_arr (X : pair_diagram) :=
+#[reversible] Coercion pair_diagram_arr (X : pair_diagram) :=
     pr22 X.
 
 Local Definition pair_diagram_horizontal_arrow (X : pair_diagram) : (pair_diagram_lob X) --> (pair_diagram_rob X).

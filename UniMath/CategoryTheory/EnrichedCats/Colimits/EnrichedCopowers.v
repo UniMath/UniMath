@@ -64,7 +64,7 @@ Section EnrichedCopowers.
     : UU
     := ∑ (a : C), v --> E ⦃ x , a ⦄.
 
-  Coercion ob_copower_cocone
+  #[reversible] Coercion ob_copower_cocone
            (a : copower_cocone)
     : C
     := pr1 a.
@@ -311,7 +311,7 @@ Definition cat_with_enrichment_copower
   : UU
   := ∑ (C : cat_with_enrichment V), enrichment_copower C.
 
-Coercion cat_with_enrichment_copower_to_cat_with_enrichment
+#[reversible] Coercion cat_with_enrichment_copower_to_cat_with_enrichment
          {V : sym_mon_closed_cat}
          (C : cat_with_enrichment_copower V)
   : cat_with_enrichment V
