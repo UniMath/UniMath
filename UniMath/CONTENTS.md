@@ -1057,6 +1057,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [ComprehensionCat/TypeFormers/SigmaTypes.v](Bicategories/ComprehensionCat/TypeFormers/SigmaTypes.v)
    - [ComprehensionCat/DFLCompCat.v](Bicategories/ComprehensionCat/DFLCompCat.v)
    - [ComprehensionCat/DFLCompCatToFinLim.v](Bicategories/ComprehensionCat/DFLCompCatToFinLim.v)
+   - [ComprehensionCat/FinLimToDFLCompCat.v](Bicategories/ComprehensionCat/FinLimToDFLCompCat.v)
    - [Logic/ComprehensionBicat.v](Bicategories/Logic/ComprehensionBicat.v)
    - [Logic/Examples/TrivialComprehensionBicat.v](Bicategories/Logic/Examples/TrivialComprehensionBicat.v)
    - [Logic/Examples/PullbackComprehensionBicat.v](Bicategories/Logic/Examples/PullbackComprehensionBicat.v)

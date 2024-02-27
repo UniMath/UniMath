@@ -1,14 +1,25 @@
 (*******************************************************************************************
 
+ The pseudofunctor from finite limit categories to DFL comprehension categories
+
+ Every category with finite limits gives rise to a full DFL comprehension category. Here the
+ fibration is given by the codomain fibration and the comprehension functor is given by the
+ identity. Since the category has finite limits, the resulting comprehension category has a
+ unit type, product types, and sigma types. It is also democratic by construction. Intuitively,
+ this pseudofunctor sends a category with finite limits to its internal language.
+
+ This construction is pseudofunctorial, which is what we show in this file. The main challenge
+ of the construction lies in the fact that we are working with rather large and complicated
+ objects.
 
  Contents
  1. The action on objects
- 2. The action on morphisms
+ 2. THe action on morphisms
  3. The action on 2-cells
  4. The identitor and compositor
- 5. The data of the pseudofunctor
- 6. The laws of the pseudofunctor
- 7. The pseudofunctor from DFL comprehension categories to categories with finite limits
+ 5. The data
+ 6. The laws
+ 7. The pseudofunctor from categories with finite limits to DFL comprehension categories
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -38,6 +49,7 @@ Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.Limits.EquivalencePreservation.
+Require Import UniMath.CategoryTheory.Limits.PreservationProperties.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
@@ -51,24 +63,7 @@ Require Import UniMath.Bicategories.ComprehensionCat.DFLCompCat.
 
 Local Open Scope cat.
 
-(*
- TODO:
- - if preserves pullback, then preserves equalizer
- - if preserves equalizers and binary products then preserves pullbacks
- *)
-
-Definition TODO { A : UU } : A.
-Admitted.
-
-Definition univalent_disp_codomain
-           (C : univalent_category)
-  : disp_univalent_category C.
-Proof.
-  use make_disp_univalent_category.
-  - exact (disp_codomain C).
-  - apply disp_univalent_disp_codomain.
-Defined.
-
+(** * 1. The action on objects *)
 Section FinLimToDFLCompCat.
   Context (C : univ_cat_with_finlim).
 
@@ -146,6 +141,7 @@ Section FinLimToDFLCompCat.
   Defined.
 End FinLimToDFLCompCat.
 
+(** * 2. THe action on morphisms *)
 Section FinLimToDFLCompCatFunctor.
   Context {C₁ C₂ : univ_cat_with_finlim}
           (F : functor_finlim C₁ C₂).
@@ -227,10 +223,13 @@ Section FinLimToDFLCompCatFunctor.
       exact (functor_finlim_preserves_pullback F).
     - intro x ; cbn.
       apply preserves_equalizer_fiber_disp_codomain_functor.
-      apply TODO.
+      use preserves_equalizer_from_pullback_terminal.
+      + exact (functor_finlim_preserves_pullback F).
+      + exact (functor_finlim_preserves_terminal F).
   Defined.
 End FinLimToDFLCompCatFunctor.
 
+(** * 3. The action on 2-cells *)
 Section FinLimToDFLCompCatNatTrans.
   Context {C₁ C₂ : univ_cat_with_finlim}
           {F G : functor_finlim C₁ C₂}
@@ -264,6 +263,7 @@ Section FinLimToDFLCompCatNatTrans.
   Defined.
 End FinLimToDFLCompCatNatTrans.
 
+(** * 4. The identitor and compositor *)
 Section FinLimToDFLCompCatIdentitor.
   Context (C : univ_cat_with_finlim).
 
@@ -378,6 +378,7 @@ Section FinLimToDFLCompCatCompositor.
   Defined.
 End FinLimToDFLCompCatCompositor.
 
+(** * 5. The data *)
 Definition finlim_to_dfl_comp_cat_psfunctor_data
   : psfunctor_data
       bicat_of_univ_cat_with_finlim
@@ -391,6 +392,7 @@ Proof.
   - exact (λ _ _ _ F G, finlim_to_dfl_comp_cat_compositor F G).
 Defined.
 
+(** * 6. The laws *)
 Proposition finlim_to_dfl_comp_cat_psfunctor_laws
   : psfunctor_laws finlim_to_dfl_comp_cat_psfunctor_data.
 Proof.
@@ -489,6 +491,7 @@ Proof.
       apply is_z_isomorphism_identity.
 Defined.
 
+(** * 7. The pseudofunctor from categories with finite limits to DFL comprehension categories *)
 Definition finlim_to_dfl_comp_cat_psfunctor
   : psfunctor
       bicat_of_univ_cat_with_finlim

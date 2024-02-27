@@ -426,6 +426,7 @@ ComprehensionCat/TypeFormers/Democracy.v
 ComprehensionCat/TypeFormers/SigmaTypes.v
 ComprehensionCat/DFLCompCat.v
 ComprehensionCat/DFLCompCatToFinLim.v
+ComprehensionCat/FinLimToDFLCompCat.v
 
 Logic/ComprehensionBicat.v
 

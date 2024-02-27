@@ -534,3 +534,12 @@ Section UnivalenceCodomain.
       apply idpath.
   Qed.
 End UnivalenceCodomain.
+
+Definition univalent_disp_codomain
+           (C : univalent_category)
+  : disp_univalent_category C.
+Proof.
+  use make_disp_univalent_category.
+  - exact (disp_codomain C).
+  - apply disp_univalent_disp_codomain.
+Defined.

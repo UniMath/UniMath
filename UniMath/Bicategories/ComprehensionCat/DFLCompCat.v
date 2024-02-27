@@ -118,6 +118,7 @@ Require Export UniMath.Bicategories.ComprehensionCat.TypeFormers.Democracy.
 Require Export UniMath.Bicategories.ComprehensionCat.TypeFormers.SigmaTypes.
 
 Local Open Scope cat.
+Local Open Scope comp_cat.
 
 (** * 1. The bicategory of DFL comprehension categories *)
 Definition disp_bicat_of_dfl_full_comp_cat
@@ -462,23 +463,31 @@ Section Invertible.
 End Invertible.
 
 (** * 5. The adjoint equivalence coming from democracy *)
+Definition dfl_full_comp_cat_adjequiv_empty
+           (C : dfl_full_comp_cat)
+  : adj_equivalence_of_cats
+      (fiber_functor (comp_cat_comprehension C) []).
+Proof.
+  use rad_equivalence_of_cats.
+  - use is_univalent_fiber.
+    apply disp_univalent_category_is_univalent_disp.
+  - use full_comp_cat_comprehension_fiber_fully_faithful.
+  - abstract
+      (intro y ;
+       use hinhpr ;
+       exact (is_democratic_weq_split_essentially_surjective
+                C
+                (is_democratic_dfl_full_comp_cat C)
+                y)).
+Defined.
+
 Definition dfl_full_comp_cat_adjequiv_base
            (C : dfl_full_comp_cat)
   : adj_equivalence_of_cats
-      (fiber_functor (comp_cat_comprehension C) (empty_context C)
+      (fiber_functor (comp_cat_comprehension C) []
        ∙ cod_fib_terminal_to_base _).
 Proof.
   use comp_adj_equivalence_of_cats.
-  - use rad_equivalence_of_cats.
-    + use is_univalent_fiber.
-      apply disp_univalent_category_is_univalent_disp.
-    + use full_comp_cat_comprehension_fiber_fully_faithful.
-    + abstract
-        (intro y ;
-         use hinhpr ;
-         exact (is_democratic_weq_split_essentially_surjective
-                  C
-                  (is_democratic_dfl_full_comp_cat C)
-                  y)).
+  - exact (dfl_full_comp_cat_adjequiv_empty C).
   - exact (cod_fib_terminal _).
 Defined.
