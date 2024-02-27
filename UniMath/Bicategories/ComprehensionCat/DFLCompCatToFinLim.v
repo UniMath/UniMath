@@ -104,6 +104,17 @@ Section DFLFullCompCatLimitPreservation.
   Context {C₁ C₂ : dfl_full_comp_cat}
           (F : dfl_full_comp_cat_functor C₁ C₂).
 
+  (**
+   To construct the action on morphisms, one needs to show that the underlying
+   functor of a functor between comprehension categories preserves both equalizers
+   and binary products. The idea is that we have a diagram of functors commutes up
+   to natural isomorphism. This diagram consists of two squares: one is given by `τ`
+   and the other is given by `θ` below. The horizontal sides, which are `χ₁ ∙ E₁` and
+   `χ₂ ∙ E₂`, of this square are adjoint equivalences, and for that reason, the functor
+   `F` preserves products and equalizers whenever the fiber functor does. Since we
+   assume product types and equalizer types to be stable under substitution, the fiber
+   functor indeed preserves them, and thus `F` does so as well.
+   *)
   Let T₂ : Terminal C₂
     := make_Terminal _ (comp_cat_functor_terminal F [] (pr2 [])).
 
