@@ -425,8 +425,8 @@ ComprehensionCat/TypeFormers/EqualizerTypes.v
 ComprehensionCat/TypeFormers/Democracy.v
 ComprehensionCat/TypeFormers/SigmaTypes.v
 ComprehensionCat/DFLCompCat.v
-ComprehensionCat/DFLCompCatToFinLim.v
-ComprehensionCat/FinLimToDFLCompCat.v
+ComprehensionCat/Biequivalence/DFLCompCatToFinLim.v
+ComprehensionCat/Biequivalence/FinLimToDFLCompCat.v
 
 Logic/ComprehensionBicat.v
 

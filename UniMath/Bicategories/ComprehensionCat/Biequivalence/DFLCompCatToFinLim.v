@@ -127,7 +127,7 @@ Section DFLFullCompCatLimitPreservation.
   Let Farr : (disp_codomain C₁)[{[]}] ⟶ (disp_codomain C₂)[{F []}]
     := fiber_functor (disp_codomain_functor F) [].
   Let τ : nat_z_iso (FF ∙ χ₂) (χ₁ ∙ Farr)
-    := full_comp_cat_fiber_nat_z_iso F [].
+    := full_comp_cat_fiber_nat_z_iso_inv F [].
 
   Let E₁ : (C₁ / []) ⟶ C₁
     := cod_fib_terminal_to_base [].

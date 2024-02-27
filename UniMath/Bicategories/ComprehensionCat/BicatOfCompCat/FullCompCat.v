@@ -49,6 +49,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.CategoryTheory.DisplayedCats.DisplayedFunctorEq.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
@@ -217,7 +218,75 @@ Definition full_comp_cat_functor_is_z_iso
       (comprehension_nat_trans_mor (comp_cat_functor_comprehension F) xx)
   := pr22 F x xx.
 
+Proposition full_comp_cat_fiber_nat_trans_ax
+            {C₁ C₂ : full_comp_cat}
+            (F : full_comp_cat_functor C₁ C₂)
+            (x : C₁)
+  : is_nat_trans
+      (fiber_functor (comp_cat_comprehension C₁) x
+       ∙ fiber_functor (disp_codomain_functor F) x)
+      (fiber_functor (comp_cat_type_functor F) x
+       ∙ fiber_functor (comp_cat_comprehension C₂) (F x))
+      (comp_cat_functor_comprehension F x).
+Proof.
+  intros xx xx' f.
+  use eq_mor_cod_fib.
+  refine (comp_in_cod_fib _ _ @ _ @ !(comp_in_cod_fib _ _)).
+  cbn -[fiber_functor].
+  etrans.
+  {
+    apply maponpaths_2.
+    apply disp_codomain_fiber_functor_mor.
+  }
+  pose (disp_nat_trans_ax
+          (comp_cat_functor_comprehension F)
+          (f := identity x)
+          (xx := xx')
+          (xx' := xx)
+          f)
+    as p.
+  refine (maponpaths (λ z, pr1 z) p @ _).
+  refine (transportb_cod_disp _ _ _ @ _).
+  cbn.
+  apply maponpaths.
+  refine (!_).
+  apply comprehension_functor_mor_transportf.
+Qed.
+
+Definition full_comp_cat_fiber_nat_trans
+           {C₁ C₂ : full_comp_cat}
+           (F : full_comp_cat_functor C₁ C₂)
+           (x : C₁)
+  : fiber_functor (comp_cat_comprehension C₁) x
+    ∙ fiber_functor (disp_codomain_functor F) x
+    ⟹
+    fiber_functor (comp_cat_type_functor F) x
+    ∙ fiber_functor (comp_cat_comprehension C₂) (F x).
+Proof.
+  use make_nat_trans.
+  - exact (comp_cat_functor_comprehension F x).
+  - exact (full_comp_cat_fiber_nat_trans_ax F x).
+Defined.
+
 Definition full_comp_cat_fiber_nat_z_iso
+           {C₁ C₂ : full_comp_cat}
+           (F : full_comp_cat_functor C₁ C₂)
+           (x : C₁)
+  : nat_z_iso
+      (fiber_functor (comp_cat_comprehension C₁) x
+       ∙ fiber_functor (disp_codomain_functor F) x)
+      (fiber_functor (comp_cat_type_functor F) x
+       ∙ fiber_functor (comp_cat_comprehension C₂) (F x)).
+Proof.
+  use make_nat_z_iso.
+  - exact (full_comp_cat_fiber_nat_trans F x).
+  - intro xx.
+    use is_z_iso_fiber_from_is_z_iso_disp.
+    use is_z_iso_disp_codomain.
+    apply full_comp_cat_functor_is_z_iso.
+Defined.
+
+Definition full_comp_cat_fiber_nat_z_iso_inv
            {C₁ C₂ : full_comp_cat}
            (F : full_comp_cat_functor C₁ C₂)
            (x : C₁)
@@ -225,9 +294,8 @@ Definition full_comp_cat_fiber_nat_z_iso
       (fiber_functor (comp_cat_type_functor F) x
        ∙ fiber_functor (comp_cat_comprehension C₂) (F x))
       (fiber_functor (comp_cat_comprehension C₁) x
-       ∙ fiber_functor (disp_codomain_functor F) x).
-Proof.
-Admitted.
+       ∙ fiber_functor (disp_codomain_functor F) x)
+  := nat_z_iso_inv (full_comp_cat_fiber_nat_z_iso F x).
 
 Definition full_comp_cat_nat_trans
            {C₁ C₂ : full_comp_cat}
