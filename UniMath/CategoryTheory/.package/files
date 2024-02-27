@@ -33,6 +33,7 @@ Categories/HSET/Core.v
 CategorySum.v
 Subcategory/Core.v
 Subcategory/Full.v
+Retracts.v
 Monics.v
 Epis.v
 SplitMonicsAndEpis.v
@@ -261,6 +262,7 @@ Monads/LModules.v
 Monads/Derivative.v
 Monads/MonadAlgebras.v
 Monads/Comonads.v
+Monads/ComonadCoalgebras.v
 
 DisplayedCats/Limits.v
 DisplayedCats/Examples/Sigma.v
@@ -280,6 +282,9 @@ DisplayedCats/Examples/PointedPosetStructures.v
 DisplayedCats/Examples/PointedSetStructures.v
 DisplayedCats/Examples/PosetStructures.v
 DisplayedCats/Examples/SetStructures.v
+DisplayedCats/Examples/Arrow.v
+DisplayedCats/Examples/MonadAlgebras.v
+DisplayedCats/Examples/Three.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v

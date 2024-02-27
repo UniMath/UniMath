@@ -63,7 +63,7 @@ Proof.
     use (fully_faithful_invertible τ _ Hf).
     apply property_from_invertible_2cell.
   - intros b₁ b₂ c₁ c₂ e m He Hm.
-    apply He.
+    use He.
     exact Hm.
 Defined.
 
