@@ -10,6 +10,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
+Require Import UniMath.CategoryTheory.Retracts.
 
 Local Open Scope cat.
 Local Open Scope moncat.
