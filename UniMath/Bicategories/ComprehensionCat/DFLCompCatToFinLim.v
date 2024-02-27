@@ -51,6 +51,7 @@ Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.Limits.EquivalencePreservation.
 Require Import UniMath.CategoryTheory.Limits.PreservationProperties.
+Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
@@ -103,99 +104,60 @@ Section DFLFullCompCatLimitPreservation.
   Context {C₁ C₂ : dfl_full_comp_cat}
           (F : dfl_full_comp_cat_functor C₁ C₂).
 
-  (*
-    This is the picture.
-    We should glue 2 squares together.
-    The first one should commute up to natural iso due to pseudo morphisms in compcats
-    The second one: by construction.
+  Let T₂ : Terminal C₂
+    := make_Terminal _ (comp_cat_functor_terminal F [] (pr2 [])).
 
-    Strategy:
-    - Make the first natural iso on the level of full comprehension categories
-    - Use it
-    - Then find the desired iso
-    - Note: we must work with arbitrary objects
-
-% https://q.uiver.app/#q=WzAsNixbMCwwLCJEXzEvMSJdLFswLDEsIkRfMi9GMSJdLFsxLDAsIkNfMV57XFxyaWdodGFycm93fS8xIl0sWzEsMSwiQ18yXntcXHJpZ2h0YXJyb3d9L0YxIl0sWzIsMCwiQ18xIl0sWzIsMSwiQ18yIl0sWzAsMSwiRiIsMl0sWzAsMiwiXFxjaGlfMSJdLFsxLDMsIlxcY2hpXzIiLDJdLFsyLDMsIkZee1xccmlnaHRhcnJvd30iXSxbMiw0XSxbMyw1XSxbNCw1LCJGIl0sWzcsOCwiXFxjb25nIiwwLHsic2hvcnRlbiI6eyJzb3VyY2UiOjIwLCJ0YXJnZXQiOjIwfX1dLFsxMCwxMSwiXFxjb25nIiwwLHsic2hvcnRlbiI6eyJzb3VyY2UiOjIwLCJ0YXJnZXQiOjIwfX1dXQ==
-\[\begin{tikzcd}
-	{D_1/1} & {C_1^{\rightarrow}/1} & {C_1} \\
-	{D_2/F1} & {C_2^{\rightarrow}/F1} & {C_2}
-	\arrow["F"', from=1-1, to=2-1]
-	\arrow[""{name=0, anchor=center, inner sep=0}, "{\chi_1}", from=1-1, to=1-2]
-	\arrow[""{name=1, anchor=center, inner sep=0}, "{\chi_2}"', from=2-1, to=2-2]
-	\arrow["{F^{\rightarrow}}", from=1-2, to=2-2]
-	\arrow[""{name=2, anchor=center, inner sep=0}, from=1-2, to=1-3]
-	\arrow[""{name=3, anchor=center, inner sep=0}, from=2-2, to=2-3]
-	\arrow["F", from=1-3, to=2-3]
-	\arrow["\cong", shorten <=4pt, shorten >=4pt, Rightarrow, from=0, to=1]
-	\arrow["\cong", shorten <=4pt, shorten >=4pt, Rightarrow, from=2, to=3]
-\end{tikzcd}\]
-   *)
-  Let T : Terminal C₂.
-  Proof.
-    use make_Terminal.
-    - exact (F []).
-    - exact (comp_cat_functor_terminal F [] (pr2 [])).
-  Defined.
-
-  Let CC₁ : category := (disp_cat_of_types C₁)[{[]}].
-  Let CC₂ : category := (disp_cat_of_types C₂)[{F []}].
-
-  Let FF : CC₁ ⟶ CC₂
+  Let χ₁ : (disp_cat_of_types C₁)[{[]}] ⟶ (disp_codomain C₁)[{[]}]
+    := fiber_functor (comp_cat_comprehension C₁) [].
+  Let χ₂ : (disp_cat_of_types C₂)[{F []}] ⟶ (disp_codomain C₂)[{F []}]
+    := fiber_functor (comp_cat_comprehension C₂) (F []).
+  Let FF : (disp_cat_of_types C₁)[{[]}] ⟶ (disp_cat_of_types C₂)[{F []}]
     := fiber_functor (comp_cat_type_functor F) [].
+  Let Farr : (disp_codomain C₁)[{[]}] ⟶ (disp_codomain C₂)[{F []}]
+    := fiber_functor (disp_codomain_functor F) [].
+  Let τ : nat_z_iso (FF ∙ χ₂) (χ₁ ∙ Farr)
+    := full_comp_cat_fiber_nat_z_iso F [].
 
-  Let E₁ : (disp_cat_of_types C₁)[{[]}] ⟶ C₁
-    := fiber_functor (comp_cat_comprehension C₁) [] ∙ cod_fib_terminal_to_base [].
-  Let HE₁ : adj_equivalence_of_cats E₁
-    := dfl_full_comp_cat_adjequiv_base C₁.
+  Let E₁ : (C₁ / []) ⟶ C₁
+    := cod_fib_terminal_to_base [].
+  Let E₂ : (C₂ / T₂) ⟶ C₂
+    := cod_fib_terminal_to_base T₂.
 
-  Let E₂ : (disp_cat_of_types C₂)[{F []}] ⟶ C₂
-    := fiber_functor_from_cleaving _ (cleaving_of_types C₂) (TerminalArrow T _)
-       ∙ fiber_functor (comp_cat_comprehension C₂) []
-       ∙ cod_fib_terminal_to_base [].
-  Let HE₂ : adj_equivalence_of_cats E₂.
-  Proof.
-  Admitted.
+  Let θ : nat_z_iso (Farr ∙ E₂) (E₁ ∙ F)
+    := cod_fib_terminal_to_base_nat_z_iso
+         F
+         (comp_cat_functor_terminal F)
+         [].
 
-  Definition preservation_dfl_functor
-    : nat_z_iso (FF ∙ E₂) (E₁ ∙ F).
-  Proof.
-    unfold FF.
-    unfold E₁.
-    unfold E₂.
-    pose ( (comp_cat_functor_comprehension F)).
-    unfold comprehension_nat_trans in c.
-    Print comp_cat_type_functor.
-
-    Check fiber_functor (disp_codomain_functor F).
-
-    Check (@fiber_nat_trans
-             _ _
-             (functor_identity C₁ ∙ F)
-             (disp_cat_of_types C₁) (disp_codomain C₂)
-             (disp_functor_composite (comp_cat_comprehension C₁) (disp_codomain_functor F))).
-             (disp_functor_composite (comp_cat_type_functor F) (comp_cat_comprehension C₂))
-             ).
-
-    use make_nat_z_iso.
-    -
-      Print dfl_full_comp_cat_adjequiv_base.
-  Admitted.
-
-  Let τ : nat_z_iso (FF ∙ E₂) (E₁ ∙ F)
-    := preservation_dfl_functor.
+  Let τθ : nat_z_iso (FF ∙ (χ₂ ∙ E₂)) ((χ₁ ∙ E₁) ∙ F)
+    := nat_z_iso_comp
+         (post_whisker_nat_z_iso τ E₂)
+         (pre_whisker_nat_z_iso χ₁ θ).
 
   Definition preserves_binproduct_binproducts_dfl_functor
     : preserves_binproduct F.
   Proof.
-    use (preserves_binproduct_equivalence_f _ _ E₁ E₂ _ _ τ).
-    exact (preserves_binproducts_dfl_full_comp_cat_functor F []).
+    use (preserves_binproduct_equivalence_f _ _ _ _ _ _ τθ).
+    - use comp_adj_equivalence_of_cats.
+      + apply dfl_full_comp_cat_adjequiv_empty.
+      + apply cod_fib_terminal.
+    - use comp_adj_equivalence_of_cats.
+      + exact (dfl_full_comp_cat_adjequiv_terminal C₂ T₂).
+      + exact (cod_fib_terminal T₂).
+    - apply preserves_binproducts_dfl_full_comp_cat_functor.
   Defined.
 
   Definition preserves_equalizer_binproducts_dfl_functor
     : preserves_equalizer F.
   Proof.
-    use (preserves_equalizer_equivalence_f _ _ E₁ E₂ _ _ τ).
-    exact (preserves_equalizers_dfl_full_comp_cat_functor F []).
+     use (preserves_equalizer_equivalence_f _ _ _ _ _ _ τθ).
+    - use comp_adj_equivalence_of_cats.
+      + apply dfl_full_comp_cat_adjequiv_empty.
+      + apply cod_fib_terminal.
+    - use comp_adj_equivalence_of_cats.
+      + exact (dfl_full_comp_cat_adjequiv_terminal C₂ T₂).
+      + exact (cod_fib_terminal T₂).
+    - apply preserves_equalizers_dfl_full_comp_cat_functor.
   Defined.
 End DFLFullCompCatLimitPreservation.
 
@@ -210,6 +172,8 @@ Proof.
   - exact F.
   - exact (comp_cat_functor_terminal F).
   - use preserves_pullback_from_binproduct_equalizer.
+    + exact (binproducts_dfl_full_comp_cat C₁).
+    + exact (equalizers_dfl_full_comp_cat C₁).
     + exact (preserves_binproduct_binproducts_dfl_functor F).
     + exact (preserves_equalizer_binproducts_dfl_functor F).
 Defined.

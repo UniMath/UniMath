@@ -48,6 +48,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
 Require Import UniMath.CategoryTheory.DisplayedCats.DisplayedFunctorEq.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
@@ -215,6 +216,18 @@ Definition full_comp_cat_functor_is_z_iso
   : is_z_isomorphism
       (comprehension_nat_trans_mor (comp_cat_functor_comprehension F) xx)
   := pr22 F x xx.
+
+Definition full_comp_cat_fiber_nat_z_iso
+           {C₁ C₂ : full_comp_cat}
+           (F : full_comp_cat_functor C₁ C₂)
+           (x : C₁)
+  : nat_z_iso
+      (fiber_functor (comp_cat_type_functor F) x
+       ∙ fiber_functor (comp_cat_comprehension C₂) (F x))
+      (fiber_functor (comp_cat_comprehension C₁) x
+       ∙ fiber_functor (disp_codomain_functor F) x).
+Proof.
+Admitted.
 
 Definition full_comp_cat_nat_trans
            {C₁ C₂ : full_comp_cat}

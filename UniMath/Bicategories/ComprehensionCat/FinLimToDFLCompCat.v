@@ -14,7 +14,7 @@
 
  Contents
  1. The action on objects
- 2. THe action on morphisms
+ 2. The action on morphisms
  3. The action on 2-cells
  4. The identitor and compositor
  5. The data
@@ -141,7 +141,7 @@ Section FinLimToDFLCompCat.
   Defined.
 End FinLimToDFLCompCat.
 
-(** * 2. THe action on morphisms *)
+(** * 2. The action on morphisms *)
 Section FinLimToDFLCompCatFunctor.
   Context {C₁ C₂ : univ_cat_with_finlim}
           (F : functor_finlim C₁ C₂).
@@ -224,6 +224,8 @@ Section FinLimToDFLCompCatFunctor.
     - intro x ; cbn.
       apply preserves_equalizer_fiber_disp_codomain_functor.
       use preserves_equalizer_from_pullback_terminal.
+      + exact (terminal_univ_cat_with_finlim C₁).
+      + exact (pullbacks_univ_cat_with_finlim C₁).
       + exact (functor_finlim_preserves_pullback F).
       + exact (functor_finlim_preserves_terminal F).
   Defined.

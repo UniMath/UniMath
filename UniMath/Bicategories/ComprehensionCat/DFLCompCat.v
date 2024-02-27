@@ -481,6 +481,26 @@ Proof.
                 y)).
 Defined.
 
+Definition dfl_full_comp_cat_adjequiv_terminal
+           (C : dfl_full_comp_cat)
+           (T : Terminal C)
+  : adj_equivalence_of_cats
+      (fiber_functor (comp_cat_comprehension C) T).
+Proof.
+  enough ([] = T) as p.
+  {
+    induction p.
+    exact (dfl_full_comp_cat_adjequiv_empty C).
+  }
+  use subtypePath.
+  {
+    intro.
+    apply isaprop_isTerminal.
+  }
+  use (isotoid _ (univalent_category_is_univalent C)).
+  apply z_iso_Terminals.
+Qed.
+
 Definition dfl_full_comp_cat_adjequiv_base
            (C : dfl_full_comp_cat)
   : adj_equivalence_of_cats

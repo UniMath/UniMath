@@ -16,6 +16,7 @@
  2. Displayed natural transformation between codomain displayed categories
  3. Cartesianness of the displayed functor
  4. Preservation of limits
+ 5. Naturality for the slice of terminal objects
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -197,3 +198,40 @@ Proof.
     + unfold dom_mor.
       exact (!(comp_in_cod_fib _ _) @ maponpaths dom_mor p @ comp_in_cod_fib _ _).
 Qed.
+
+(** * 5. Naturality for the slice of terminal objects *)
+Definition cod_fib_terminal_to_base_nat_trans
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (HF : preserves_terminal F)
+           (T₁ : Terminal C₁)
+           (T₂ := make_Terminal _ (HF _ (pr2 T₁)))
+  : fiber_functor (disp_codomain_functor F) T₁ ∙ cod_fib_terminal_to_base T₂
+    ⟹
+    cod_fib_terminal_to_base T₁ ∙ F.
+Proof.
+  use make_nat_trans.
+  - exact (λ _, identity _).
+  - abstract
+      (intros x y f ;
+       rewrite id_right, id_left ;
+       cbn ; unfold dom_mor ;
+       rewrite transportf_cod_disp ;
+       apply idpath).
+Defined.
+
+Definition cod_fib_terminal_to_base_nat_z_iso
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (HF : preserves_terminal F)
+           (T₁ : Terminal C₁)
+           (T₂ := make_Terminal _ (HF _ (pr2 T₁)))
+  : nat_z_iso
+      (fiber_functor (disp_codomain_functor F) T₁ ∙ cod_fib_terminal_to_base T₂)
+      (cod_fib_terminal_to_base T₁ ∙ F).
+Proof.
+  use make_nat_z_iso.
+  - exact (cod_fib_terminal_to_base_nat_trans F HF T₁).
+  - intro.
+    apply is_z_isomorphism_identity.
+Defined.

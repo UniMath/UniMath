@@ -11,6 +11,7 @@
  3. Standard objects and morphisms in the codomain
  4. Calculations for codomain fiber
  5. The fiber of terminal objects
+ 6. The fiber of isomorphic objects
 
  **************************************************************************************)
 Require Import UniMath.Foundations.All.
