@@ -210,7 +210,7 @@ Proof.
   - exact is_univalent_2_0_disp_bicat_of_dfl_full_comp_cat.
 Qed.
 
-Proposition is_univalent_2_bicat_cat_with_terminal_disp_cat
+Proposition is_univalent_2_bicat_of_dfl_full_comp_cat
   : is_univalent_2 bicat_of_dfl_full_comp_cat.
 Proof.
   split.
@@ -517,7 +517,7 @@ Proof.
 Defined.
 
 (** * 6. Adjoint equivalences of DFL comprehension categories *)
-Definition full_comp_cat_left_adjoint_equivalence_from_full_comp_cat
+Definition dfl_full_comp_cat_left_adjoint_equivalence_from_full_comp_cat
            {C₁ C₂ : dfl_full_comp_cat}
            (F : dfl_full_comp_cat_functor C₁ C₂)
            (HF : left_adjoint_equivalence (pr1 F))
@@ -540,14 +540,14 @@ Proof.
         ** apply disp_adjoint_equiv_disp_bicat_of_sigma_type_full_comp_cat.
 Defined.
 
-Definition full_comp_cat_left_adjoint_equivalence
+Definition dfl_full_comp_cat_left_adjoint_equivalence
            {C₁ C₂ : dfl_full_comp_cat}
            (F : dfl_full_comp_cat_functor C₁ C₂)
            (HF : adj_equivalence_of_cats F)
            (HF' : is_equiv_over (_ ,, HF) (comp_cat_type_functor F))
   : left_adjoint_equivalence F.
 Proof.
-  use full_comp_cat_left_adjoint_equivalence_from_full_comp_cat.
+  use dfl_full_comp_cat_left_adjoint_equivalence_from_full_comp_cat.
   use full_comp_cat_left_adjoint_equivalence.
   use comp_cat_left_adjoint_equivalence.
   - use cat_with_terminal_cleaving_left_adjoint_equivalence.

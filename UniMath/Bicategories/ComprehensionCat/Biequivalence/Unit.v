@@ -27,6 +27,7 @@ Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
+Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
@@ -155,4 +156,12 @@ Definition finlim_dfl_comp_cat_unit_pointwise_equiv
 Proof.
   use left_adjoint_equivalence_univ_cat_with_finlim.
   apply identity_functor_is_adj_equivalence.
+Defined.
+
+Definition finlim_dfl_comp_cat_unit_left_adjoint_equivalence
+  : left_adjoint_equivalence finlim_dfl_comp_cat_unit.
+Proof.
+  use pointwise_adjequiv_to_adjequiv.
+  - exact is_univalent_2_bicat_of_univ_cat_with_finlim.
+  - exact finlim_dfl_comp_cat_unit_pointwise_equiv.
 Defined.

@@ -1,23 +1,34 @@
 (*******************************************************************************************
 
- The unit of the biequivalence between comprehension categories and finite limit categories
+ The counit of the biequivalence between comprehension categories and finite limit categories
 
- In this file, we construct the unit of the biequivalence between comprehension categories
- and finite limit categories. We also show that the unit is a pointwise adjoint equivalence.
+ In this file, we construct the counit of the biequivalence between comprehension categories
+ and finite limit categories. We also show that the counit is an adjoint equivalence.
 
- Note that the construction of the unit is rather direct. If we have a category `C` with
- finite limits, it gets sent to the comprehension category whose category of contexts is
- given by `C` and whose cleaving of types is given by the codomain. This means that the
- underlying category of contexts is always definitionally equal to `C`, and the only
- difference would how the limits are constructed exactly. However, for the construction,
- this does not really matter: we can still use the identity functor.
+ Suppose that we have a full DFL comprehension category `C`. The counit of the biequivalence
+ is given by a family of functors going from the category of types in `C` to the codomain
+ fibration on the category of contexts of `C`. This is given by the comprehension functor
+ in `C`.
+
+ The crucial observation behind this construction is that the comprehension functor is an
+ equivalence. Since we assume the comprehension categories are full, the comprehension
+ functor is always faithful. It thus suffices to show that the comprehension functor is
+ essentially surjective. This is the essence behind the proof of Proposition 2.9 in the
+ paper "The biequivalence of locally cartesian closed categories and Martin-Löf type theories"
+ by Clairambault and Dybjer, and it is where sigma types, identity types, and democracy are
+ used.
+
+ References
+ - "The biequivalence of locally cartesian closed categories and Martin-Löf type theories" by
+   Clairambault and Dybjer
 
  Contents
- 1. The morphism of the unit
- 2. The naturality of the unit
- 3. The laws of the unit
- 4. The unit
- 5. The unit is a pointwise adjoint equivalence
+ 1. The morphism of the counit
+ 2. The naturality of the counit
+ 3. The data of the counit
+ 4. The laws of the counit
+ 5. The counit
+ 6. The counit is an adjoint equivalence
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -30,6 +41,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
+Require Import UniMath.CategoryTheory.DisplayedCats.EquivalenceOverId.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.FiberwiseTerminal.
@@ -41,6 +54,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.FullyFaithfulDispFunctor.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
+Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
@@ -51,14 +65,13 @@ Require Import UniMath.Bicategories.PseudoFunctors.Examples.Composition.
 Require Import UniMath.Bicategories.Transformations.PseudoTransformation.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+Require Import UniMath.Bicategories.ComprehensionCat.ComprehensionEso.
 Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.FinLimToDFLCompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
 
 Local Open Scope cat.
 
-Definition TODO { A : UU } : A.
-Admitted.
-
+(** * 1. The morphism of the counit *)
 Section FinLimDFLCompCatCounit.
   Context (C : dfl_full_comp_cat).
 
@@ -136,12 +149,13 @@ Section FinLimDFLCompCatCounit.
   Proof.
     use make_dfl_full_comp_cat_functor.
     - exact finlim_dfl_comp_cat_counit_mor_full_comp_cat.
-    - apply TODO.
-    - apply TODO.
-    - apply TODO.
+    - exact (preserves_terminal_fiber_functor_comprehension C).
+    - exact (preserves_binproduct_fiber_functor_comprehension C).
+    - exact (preserves_equalizer_fiber_functor_comprehension C).
   Defined.
 End FinLimDFLCompCatCounit.
 
+(** * 2. The naturality of the counit *)
 Section FinLimDFLCompCatCounitNatural.
   Context {C₁ C₂ : dfl_full_comp_cat}
           (F : dfl_full_comp_cat_functor C₁ C₂).
@@ -223,6 +237,7 @@ Section FinLimDFLCompCatCounitNatural.
   Defined.
 End FinLimDFLCompCatCounitNatural.
 
+(** * 3. The data of the counit *)
 Definition finlim_dfl_comp_cat_counit_data
   : pstrans_data
       (id_psfunctor bicat_of_dfl_full_comp_cat)
@@ -235,6 +250,7 @@ Proof.
   - exact (λ _ _ F, finlim_dfl_comp_cat_counit_natural_inv2cell F).
 Defined.
 
+(** * 4. The laws of the counit *)
 Proposition finlim_dfl_comp_cat_counit_laws
   : is_pstrans finlim_dfl_comp_cat_counit_data.
 Proof.
@@ -287,6 +303,7 @@ Proof.
       apply id_right.
 Qed.
 
+(** * 5. The counit *)
 Definition finlim_dfl_comp_cat_counit
   : pstrans
       (id_psfunctor bicat_of_dfl_full_comp_cat)
@@ -299,43 +316,30 @@ Proof.
   - exact finlim_dfl_comp_cat_counit_laws.
 Defined.
 
-
-fadsfadsfdas
-
-Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
-Require Import UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOfDispCats.
-Require Import UniMath.Bicategories.DisplayedBicats.Examples.Prod.
-Require Import UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
-
+(** * 6. The counit is an adjoint equivalence *)
 Definition finlim_dfl_comp_cat_counit_pointwise_equiv
            (C : dfl_full_comp_cat)
   : left_adjoint_equivalence (finlim_dfl_comp_cat_counit C).
 Proof.
-Admitted.
+  use dfl_full_comp_cat_left_adjoint_equivalence.
+  - exact identity_functor_is_adj_equivalence.
+  - use is_equiv_over_id_to_is_equiv_over.
+    exact (is_equiv_over_id_comprehension C).
+Defined.
 
-
-Require Import UniMath.Bicategories.PseudoFunctors.Biequivalence.
-
-Definition finlim_dfl_comp_cat_biequivalence_unit_counit
-  : is_biequivalence_unit_counit
-      finlim_to_dfl_comp_cat_psfunctor
-      dfl_comp_cat_to_finlim_psfunctor
-  := finlim_dfl_comp_cat_unit
-     ,,
-     finlim_dfl_comp_cat_counit.
-
-Definition is_biequivalence_finlim_to_dfl_comp_cat_psfunctor
-  : is_biequivalence finlim_to_dfl_comp_cat_psfunctor.
+Definition finlim_dfl_comp_cat_counit_left_adjoint_equivalence
+  : left_adjoint_equivalence finlim_dfl_comp_cat_counit.
 Proof.
+  use pointwise_adjequiv_to_adjequiv.
+  - exact is_univalent_2_bicat_of_dfl_full_comp_cat.
+  - exact finlim_dfl_comp_cat_counit_pointwise_equiv.
+Defined.
 
-
-Definition finlim_biequiv_dfl_comp_cat_psfunctor
-  : biequivalence
-      bicat_of_univ_cat_with_finlim
-      bicat_of_dfl_full_comp_cat.
-Proof.
-  refine (finlim_to_dfl_comp_cat_psfunctor
-            ,,
-            _).
-  is_biequivalence finlim_to_dfl_comp_cat_psfunctor.
-Proof.
+Definition finlim_dfl_comp_cat_counit_inv
+  : pstrans
+      (comp_psfunctor
+         finlim_to_dfl_comp_cat_psfunctor
+         dfl_comp_cat_to_finlim_psfunctor)
+      (id_psfunctor bicat_of_dfl_full_comp_cat)
+  := left_adjoint_right_adjoint
+       finlim_dfl_comp_cat_counit_left_adjoint_equivalence.
