@@ -403,6 +403,27 @@ Proof.
   exact p.
 Qed.
 
+Definition is_invertible_2cell_cat_with_finlim
+           {C₁ C₂ : univ_cat_with_finlim}
+           {F G : functor_finlim C₁ C₂}
+           (τ : nat_trans_finlim F G)
+           (Hτ : is_nat_z_iso τ)
+  : is_invertible_2cell τ.
+Proof.
+  pose (τiso := (pr1 τ ,, Hτ) : nat_z_iso F G).
+  use make_is_invertible_2cell.
+  - use make_nat_trans_finlim.
+    exact (nat_z_iso_inv τiso).
+  - abstract
+      (use nat_trans_finlim_eq ;
+       intro x ;
+       apply (z_iso_inv_after_z_iso (_ ,, Hτ x))).
+  - abstract
+      (use nat_trans_finlim_eq ;
+       intro x ;
+       apply (z_iso_after_z_iso_inv (_ ,, Hτ x))).
+Defined.
+
 (**
  5. Categories with an initial object
  *)
