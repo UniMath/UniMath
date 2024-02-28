@@ -56,12 +56,12 @@ Section EnrichedInitial.
     : UU
     := ∑ (x : C), is_initial_enriched x.
 
-  Coercion initial_enriched_to_ob
+  #[reversible] Coercion initial_enriched_to_ob
            (x : initial_enriched)
     : C
     := pr1 x.
 
-  Coercion initial_enriched_to_is_initial
+  #[reversible] Coercion initial_enriched_to_is_initial
            (x : initial_enriched)
     : is_initial_enriched x
     := pr2 x.
@@ -229,7 +229,7 @@ Definition cat_with_enrichment_initial
   : UU
   := ∑ (C : cat_with_enrichment V), initial_enriched C.
 
-Coercion cat_with_enrichment_initial_to_cat_with_enrichment
+#[reversible] Coercion cat_with_enrichment_initial_to_cat_with_enrichment
          {V : monoidal_cat}
          (C : cat_with_enrichment_initial V)
   : cat_with_enrichment V

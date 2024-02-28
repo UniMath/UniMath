@@ -102,7 +102,7 @@ Section Idempotents.
     : UU
     := ∑ (e : c --> c), is_idempotent e.
 
-  Coercion idempotent_morphism
+  #[reversible] Coercion idempotent_morphism
     {c : C}
     (e : idempotent c)
     : c --> c
@@ -125,7 +125,7 @@ Section Idempotents.
     : UU
     := ∑ (e : c --> c), is_split_idempotent e.
 
-  Coercion split_idempotent_morphism
+  #[reversible] Coercion split_idempotent_morphism
     {c : C}
     (e : split_idempotent c)
     : c --> c

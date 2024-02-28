@@ -116,7 +116,7 @@ Definition enriched_adjunction
   : UU
   := ∑ (L : adjunction C₁ C₂), adjunction_enrichment L E₁ E₂.
 
-Coercion enriched_adjunction_to_adjunction
+#[reversible] Coercion enriched_adjunction_to_adjunction
          {V : monoidal_cat}
          {C₁ C₂ : category}
          {E₁ : enrichment C₁ V}
@@ -125,7 +125,7 @@ Coercion enriched_adjunction_to_adjunction
   : adjunction C₁ C₂
   := pr1 L.
 
-Coercion enriched_adjunction_to_enrichment
+#[reversible] Coercion enriched_adjunction_to_enrichment
          {V : monoidal_cat}
          {C₁ C₂ : category}
          {E₁ : enrichment C₁ V}

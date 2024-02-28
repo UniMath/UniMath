@@ -320,7 +320,7 @@ Definition is_lambda_calculus (L : lambda_calculus_data) : UU :=
 
 Definition lambda_calculus : UU := ∑ L, is_lambda_calculus L.
 
-Coercion lambda_calculus_to_lambda_calculus_data (L : lambda_calculus)
+#[reversible] Coercion lambda_calculus_to_lambda_calculus_data (L : lambda_calculus)
   : lambda_calculus_data
   := pr1 L.
 
