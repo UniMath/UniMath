@@ -75,6 +75,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
 Require Import UniMath.CategoryTheory.DisplayedCats.DisplayedFunctorEq.
 Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
@@ -185,6 +186,40 @@ Definition comprehension_functor_mor_comp
     comprehension_functor_mor χ ff · comprehension_functor_mor χ gg.
 Proof.
   refine (maponpaths pr1 (disp_functor_comp χ ff gg) @ _) ; cbn.
+  apply idpath.
+Qed.
+
+Proposition comprehension_functor_mor_transportf
+            {C : cat_with_terminal_cleaving}
+            (χ : comprehension_functor C)
+            {x y : C}
+            {f g : x --> y}
+            (p : f = g)
+            {xx : disp_cat_of_types C x}
+            {yy : disp_cat_of_types C y}
+            (ff : xx -->[ f ] yy)
+  : comprehension_functor_mor χ (transportf _ p ff)
+    =
+    comprehension_functor_mor χ ff.
+Proof.
+  induction p ; cbn.
+  apply idpath.
+Qed.
+
+Proposition comprehension_functor_mor_transportb
+            {C : cat_with_terminal_cleaving}
+            (χ : comprehension_functor C)
+            {x y : C}
+            {f g : x --> y}
+            (p : f = g)
+            {xx : disp_cat_of_types C x}
+            {yy : disp_cat_of_types C y}
+            (gg : xx -->[ g ] yy)
+  : comprehension_functor_mor χ (transportb _ p gg)
+    =
+    comprehension_functor_mor χ gg.
+Proof.
+  induction p ; cbn.
   apply idpath.
 Qed.
 
