@@ -19,19 +19,25 @@
  Contents
  1. The bicategory of categories with a terminal object and a displayed category
  2. Builders and accessors
+ 3. Adjoint equivalences
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
+Require Import UniMath.CategoryTheory.DisplayedCats.EquivalenceOverId.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
+Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
@@ -184,3 +190,74 @@ Definition comp_cat_type_nat_trans
            (τ : nat_trans_with_terminal_disp_cat F G)
   : disp_nat_trans τ (comp_cat_type_functor F) (comp_cat_type_functor G)
   := pr22 τ.
+
+(** * 3. Adjoint equivalences *)
+Definition cat_with_terminal_disp_cat_left_adjoint_equivalence_help
+           {C₁ C₂ : bicat_of_univ_cats}
+           (F : adjoint_equivalence C₁ C₂)
+           {CC₁ : disp_bicat_cat_with_terminal_disp_cat C₁}
+           {CC₂ : disp_bicat_cat_with_terminal_disp_cat C₂}
+           (FF : CC₁ -->[ pr1 F ] CC₂)
+           (HF₁ := adj_equiv_to_equiv_cat _ F : adj_equivalence_of_cats (pr1 F))
+           (A := (_ ,, HF₁) : adj_equiv (pr1 C₁) (pr1 C₂))
+           (HF₂ : is_equiv_over A (pr2 FF))
+  : left_adjoint_equivalence
+      (B := bicat_cat_with_terminal_disp_cat)
+      (a := (C₁ ,, CC₁))
+      (b := (C₂ ,, CC₂))
+      (_ ,, FF).
+Proof.
+  revert HF₁ A HF₂ ; cbn.
+  revert C₁ C₂ F CC₁ CC₂ FF.
+  use J_2_0.
+  - exact univalent_cat_is_univalent_2_0.
+  - intros C₁ CC₁ CC₂ FF HF.
+    use (invmap (left_adjoint_equivalence_total_disp_weq _ _)).
+    simple refine (_ ,, _).
+    + apply internal_adjoint_equivalence_identity.
+    + use (pair_left_adjoint_equivalence _ _ (internal_adjoint_equivalence_identity C₁)).
+      split.
+      * apply disp_left_adjoint_equivalence_subbicat.
+      * use disp_left_adjoint_equivalence_disp_bicat_of_univ_cats.
+        use is_equiv_over_to_is_equiv_over_id.
+        assert (adj_equiv_to_equiv_cat _ (internal_adjoint_equivalence_identity C₁)
+                =
+                identity_functor_is_adj_equivalence) as p.
+        {
+          use (proofirrelevance
+                 _
+                 (isofhlevelweqf
+                    1
+                    (adj_equiv_is_equiv_cat _)
+                    (isaprop_left_adjoint_equivalence _ _))).
+          exact univalent_cat_is_univalent_2_1.
+        }
+        rewrite <- p.
+        exact HF.
+Qed.
+
+Definition cat_with_terminal_disp_cat_left_adjoint_equivalence
+           {C₁ C₂ : cat_with_terminal_disp_cat}
+           (F : functor_with_terminal_disp_cat C₁ C₂)
+           (HF₁ : adj_equivalence_of_cats F)
+           (A := (_ ,, HF₁) : adj_equiv C₁ C₂)
+           (HF₂ : is_equiv_over A (comp_cat_type_functor F))
+  : left_adjoint_equivalence F.
+Proof.
+  use (cat_with_terminal_disp_cat_left_adjoint_equivalence_help
+         (_ ,, equiv_cat_to_adj_equiv _ HF₁)
+         (pr2 F)).
+  cbn.
+  assert (adj_equiv_to_equiv_cat _ (equiv_cat_to_adj_equiv _ HF₁) = HF₁) as p.
+  {
+    use (proofirrelevance
+           _
+           (isofhlevelweqf
+              1
+              (adj_equiv_is_equiv_cat _)
+              (isaprop_left_adjoint_equivalence _ _))).
+    exact univalent_cat_is_univalent_2_1.
+  }
+  rewrite p.
+  exact HF₂.
+Qed.

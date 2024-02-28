@@ -80,6 +80,7 @@
  3. Builders and accessors
  4. Invertible 2-cells
  5. The adjoint equivalence coming from democracy
+ 6. Adjoint equivalences of DFL comprehension categories
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -92,6 +93,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.FiberwiseTerminal.
@@ -109,6 +111,8 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.CompCatNotations.
 Require Export UniMath.Bicategories.ComprehensionCat.TypeFormers.UnitTypes.
@@ -510,4 +514,46 @@ Proof.
   use comp_adj_equivalence_of_cats.
   - exact (dfl_full_comp_cat_adjequiv_empty C).
   - exact (cod_fib_terminal _).
+Defined.
+
+(** * 6. Adjoint equivalences of DFL comprehension categories *)
+Definition full_comp_cat_left_adjoint_equivalence_from_full_comp_cat
+           {C₁ C₂ : dfl_full_comp_cat}
+           (F : dfl_full_comp_cat_functor C₁ C₂)
+           (HF : left_adjoint_equivalence (pr1 F))
+  : left_adjoint_equivalence F.
+Proof.
+  use (invmap (left_adjoint_equivalence_total_disp_weq _ _)).
+  refine (HF ,, _).
+  use (pair_left_adjoint_equivalence _ _ (_ ,, HF)).
+  split.
+  - apply disp_left_adjoint_equivalence_fullsubbicat.
+  - use (pair_left_adjoint_equivalence _ _ (_ ,, HF)).
+    split.
+    + apply disp_adjoint_equiv_disp_bicat_of_unit_type_full_comp_cat.
+    + use (pair_left_adjoint_equivalence _ _ (_ ,, HF)).
+      split.
+      * apply disp_adjoint_equiv_disp_bicat_of_prod_type_full_comp_cat.
+      * use (pair_left_adjoint_equivalence _ _ (_ ,, HF)).
+        split.
+        ** apply disp_adjoint_equiv_disp_bicat_of_equalizer_type_full_comp_cat.
+        ** apply disp_adjoint_equiv_disp_bicat_of_sigma_type_full_comp_cat.
+Defined.
+
+Definition full_comp_cat_left_adjoint_equivalence
+           {C₁ C₂ : dfl_full_comp_cat}
+           (F : dfl_full_comp_cat_functor C₁ C₂)
+           (HF : adj_equivalence_of_cats F)
+           (HF' : is_equiv_over (_ ,, HF) (comp_cat_type_functor F))
+  : left_adjoint_equivalence F.
+Proof.
+  use full_comp_cat_left_adjoint_equivalence_from_full_comp_cat.
+  use full_comp_cat_left_adjoint_equivalence.
+  use comp_cat_left_adjoint_equivalence.
+  - use cat_with_terminal_cleaving_left_adjoint_equivalence.
+    + exact HF.
+    + exact HF'.
+  - intros x xx.
+    use is_z_iso_disp_codomain.
+    exact (full_comp_cat_functor_is_z_iso F xx).
 Defined.
