@@ -119,7 +119,7 @@ Definition hset_struct
   : UU
   := ∑ (P : hset_struct_data), hset_struct_laws P.
 
-Coercion hset_struct_to_data
+#[reversible] Coercion hset_struct_to_data
          (P : hset_struct)
   : hset_struct_data
   := pr1 P.
@@ -366,7 +366,7 @@ Definition hset_cartesian_struct_data
         (PY : P Y),
      P (X × Y)%set).
 
-Coercion hset_cartesian_struct_datat_to_struct
+#[reversible] Coercion hset_cartesian_struct_datat_to_struct
          (P : hset_cartesian_struct_data)
   : hset_struct
   := pr1 P.
@@ -426,7 +426,7 @@ Definition hset_cartesian_struct
   : UU
   := ∑ (P : hset_cartesian_struct_data), hset_cartesian_struct_laws P.
 
-Coercion hset_cartesian_struct_to_data
+#[reversible] Coercion hset_cartesian_struct_to_data
          (P : hset_cartesian_struct)
   : hset_cartesian_struct_data
   := pr1 P.
@@ -737,7 +737,7 @@ Definition discrete_hset_struct
   := ∑ (PX : discrete_hset_struct_data P),
      discrete_hset_struct_laws PX.
 
-Coercion discrete_hset_struct_to_data
+#[reversible] Coercion discrete_hset_struct_to_data
          {P : hset_struct}
          (PX : discrete_hset_struct P)
   : discrete_hset_struct_data P

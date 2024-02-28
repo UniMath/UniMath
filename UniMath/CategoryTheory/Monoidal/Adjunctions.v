@@ -1087,7 +1087,7 @@ Section SymMonoidalAdjunctionAccessors.
     := pr2 HAA.
 End SymMonoidalAdjunctionAccessors.
 
-Coercion sym_monoidal_adjunction_to_monoidal_adjunction
+#[reversible] Coercion sym_monoidal_adjunction_to_monoidal_adjunction
          {C₁ C₂ : category}
          {M₁ : monoidal C₁}
          {M₂ : monoidal C₂}
@@ -1098,7 +1098,7 @@ Coercion sym_monoidal_adjunction_to_monoidal_adjunction
   : monoidal_adjunction M₁ M₂ A
   := pr1 HA.
 
-Coercion sym_monoidal_adjunction_to_is_symmetric
+#[reversible] Coercion sym_monoidal_adjunction_to_is_symmetric
          {C₁ C₂ : category}
          {M₁ : monoidal C₁}
          {M₂ : monoidal C₂}

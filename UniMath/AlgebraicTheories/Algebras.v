@@ -38,7 +38,7 @@ Definition make_algebra_data
   : algebra_data T
   := A ,, action.
 
-Coercion algebra_data_to_hset
+#[reversible] Coercion algebra_data_to_hset
   {T : algebraic_theory}
   (A : algebra_data T)
   : hSet
@@ -80,7 +80,7 @@ Definition make_algebra
   : algebra T
   := pr1 A ,, pr2 A ,, H.
 
-Coercion algebra_to_algebra_data
+#[reversible] Coercion algebra_to_algebra_data
   {T : algebraic_theory}
   (A : algebra T)
   : algebra_data T

@@ -235,7 +235,7 @@ Definition strongly_maximal
   : hSet
   := (∑ (x : X), hProp_to_hSet (is_strongly_maximal x))%set.
 
-Coercion element_of_strongly_maximal
+#[reversible] Coercion element_of_strongly_maximal
          {X : dcpo}
          (x : strongly_maximal X)
   : X

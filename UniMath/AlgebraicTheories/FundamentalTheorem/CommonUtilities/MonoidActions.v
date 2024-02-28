@@ -104,7 +104,7 @@ End DataCat.
 
 Arguments action_ax /.
 
-Coercion monoid_action_data_to_hset {M : monoid} (x : monoid_action_data M) : hSet := pr1 x.
+#[reversible] Coercion monoid_action_data_to_hset {M : monoid} (x : monoid_action_data M) : hSet := pr1 x.
 
 Definition action
   {M : monoid}
@@ -169,7 +169,7 @@ Definition make_monoid_action
   : monoid_action M
   := X ,, H.
 
-Coercion monoid_action_to_monoid_action_data
+#[reversible] Coercion monoid_action_to_monoid_action_data
   (M : monoid)
   (f : monoid_action M)
   : monoid_action_data M
