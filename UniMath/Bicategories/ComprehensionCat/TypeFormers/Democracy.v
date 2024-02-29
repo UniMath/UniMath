@@ -222,7 +222,9 @@ Proof.
     + split.
       * refine (_ @ maponpaths pr1 (z_iso_after_z_iso_inv i)).
         cbn.
-        rewrite transportf_cod_disp.
+        etrans.
+        2: { apply pathsinv0.
+             apply (transportf_cod_disp(x:=[])(y:=[])(xx:=Γ')(yy:=Γ') C). }
         apply idpath.
       * refine (_ @ maponpaths pr1 (z_iso_inv_after_z_iso i)).
         cbn.
