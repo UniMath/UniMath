@@ -231,7 +231,7 @@ Section IndAndCoind.
         exists (idpath _).
         exact tt.
       - change (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s).
-        refine (pr1 (pr1 STLC_eta_gen _) _ _).
+        simple refine (pr1 (pr1 STLC_eta_gen _) _ _).
         cbn.
         (** pick the last added variable of type [s] *)
         apply ii1.

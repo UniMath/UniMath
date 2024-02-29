@@ -183,8 +183,8 @@ Section functor.
 (** Given a sort s this applies the sortToC to s and returns C *)
 Definition projSortToC (s : sort) : functor sortToC C.
 Proof.
-use tpair.
-+ use tpair.
+use make_functor.
++ use make_functor_data.
   - intro f; apply (pr1 f s).
   - simpl; intros a b f; apply (f s).
 + abstract (split; intros f *; apply idpath).
@@ -193,8 +193,8 @@ Defined.
 (* The left adjoint to projSortToC *)
 Definition hat_functor (t : sort) : functor C sortToC.
 Proof.
-use tpair.
-+ use tpair.
+use make_functor.
++ use make_functor_data.
   - intros A.
     use make_sortToC; intros s.
     use (CoproductObject (t = s) C (CC _ (Hsort t s) (λ _, A))).
@@ -398,8 +398,8 @@ Section omega_cocont.
 (* Direct definition of the right adjoint to projSortToC *)
 Local Definition projSortToC_rad (t : sort) : functor C sortToC.
 Proof.
-use tpair.
-+ use tpair.
+use make_functor.
++ use make_functor_data.
   - intros A.
     use make_sortToC; intros s.
     exact (ProductObject (t = s) C (PC _ (λ _, A))).
