@@ -339,21 +339,30 @@ Section CodomainCleaving.
              do 3 apply maponpaths ;
              rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)) ;
              rewrite rwhisker_vcomp ;
-             pose (maponpaths pr1 (disp_vcomp_rinv (pr2 Hg))) as q ;
-             unfold transportb in q ;
-             cbn in q ;
-             rewrite pr1_transportf, transportf_const in q ;
-             cbn in q ;
-             refine (!_) ;
-             etrans ;
-             [ do 2 apply maponpaths ;
-               apply maponpaths_2 ;
-               apply maponpaths ;
-               exact q
-             | ] ;
-             rewrite id2_rwhisker, id2_left ;
-             rewrite lassociator_rassociator ;
-             apply id2_right).
+             pose (maponpaths pr1 (disp_vcomp_rinv (pr2 Hg))) as q0 ;
+             assert (q : pr1 (pr2 Hg •• disp_inv_cell (pr2 Hg)) = id₂ (pr11 Hg · π)) ;
+             [
+              etrans; [exact q0 |] ;
+              unfold transportb ;
+              cbn ;
+              etrans ;
+              [ refine (pr1_transportf (! id2_left (id₂ (g · f))) (id₂ (pr11 Hg · π),,
+                                                                      disp_id2 _)) |] ;
+              cbn ;
+              rewrite transportf_const ;
+              apply idpath
+             |
+              refine (!_) ;
+              etrans ;
+              [ do 2 apply maponpaths ;
+                apply maponpaths_2 ;
+                apply maponpaths ;
+                exact q
+              | ] ;
+              rewrite id2_rwhisker, id2_left ;
+              rewrite lassociator_rassociator ;
+              apply id2_right ]
+            ).
       Defined.
 
       Definition pb_1cell_to_lift_1cell
@@ -742,11 +751,16 @@ Section CodomainCleaving.
                 (cartesian_1cell_lift_2cell_commutes
                    _ _
                    Hp σσ
-                   φ_lift ψ_lift))
-          as d.
-        cbn in d.
-        rewrite pr1_transportf, transportf_const in d.
-        cbn in d.
+                   φ_lift ψ_lift)) as d'.
+        assert (d : (pr1 (cartesian_1cell_lift_2cell (cod_disp_bicat B)
+                            (π,, p) Hp σσ φ_lift ψ_lift) ▹ π) • id₂ (ψ · π) = id₂ (φ · π) • β).
+        { etrans; [| exact d'].
+          refine (!_).
+          etrans; [refine (pr1_transportf (id2_right (id₂ (pr2 hx) ▹ f) @ ! id2_left (id₂ (pr2 hx) ▹ f)) _) |].
+          cbn.
+          rewrite transportf_const.
+          apply idpath.
+        }
         rewrite id2_right, id2_left in d.
         exact d.
       Qed.

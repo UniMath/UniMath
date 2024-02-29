@@ -937,6 +937,22 @@ Proof.
   - apply (pr2 isoGe).
 Defined.
 
+(** If the composition of two functors is essentially surjective,
+  the second functor is essentially surjective as well. *)
+Lemma essentially_surjective_2_from_comp
+  {C C' C'' : category}
+  (F : C ⟶ C')
+  (F' : C' ⟶ C'')
+  (H : essentially_surjective (functor_composite F F'))
+  : essentially_surjective F'.
+Proof.
+  intro.
+  refine (hinhfun _ (H b)).
+  intro x.
+  exists (F (pr1 x)).
+  exact (pr2 x).
+Qed.
+
 (** ** Faithful functors *)
 
 Definition faithful {C D : precategory_data} (F : functor C D) :=
@@ -958,6 +974,32 @@ Lemma comp_faithful_is_faithful (C D E : precategory)
 Proof.
   unfold faithful in *.
   intros ? ?; apply (isinclcomp (_,, faithF _ _) (_,, faithG _ _)).
+Qed.
+
+(** If the composition of two functors is faithful, the first functor is faithful as well. *)
+Lemma faithful_1_from_comp
+  {C C' C'' : category}
+  (F : C ⟶ C')
+  (F' : C' ⟶ C'')
+  (H : faithful (functor_composite F F'))
+  : faithful F.
+Proof.
+  intros a b f g g'.
+  pose (H _ _ (#F' f)).
+  cbn in i.
+  use make_iscontr.
+  - apply subtypePath.
+    {
+      intro.
+      apply homset_property.
+    }
+    exact (base_paths _ _ (pr1 (H _ _ _
+      (make_hfiber _ (pr1 g) (maponpaths #F' (pr2 g)))
+      (make_hfiber _ (pr1 g') (maponpaths #F' (pr2 g')))))).
+  - intro.
+    refine (iscontrpr1 ((_ : isaset _) _ _ _ _)).
+    apply isaset_hfiber;
+      apply homset_property.
 Qed.
 
 (** Faithful functors reflect commutative triangles. If F f · F g = F h,

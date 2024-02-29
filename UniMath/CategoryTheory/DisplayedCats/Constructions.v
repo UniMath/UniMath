@@ -413,6 +413,17 @@ Section Sections.
   Definition section_disp {C} (D : disp_cat C) : UU
     := total2 (@section_disp_axioms C D).
 
+  Lemma isaprop_section_disp_axioms {C : category} {D : disp_cat C} (F : section_disp_data D) 
+    (Hmor : ∏ (x y : C) (f : x --> y) (c : D x) (d : D y), isaset (c -->[f] d)) :
+    isaprop (section_disp_axioms F).
+  Proof.
+    apply isapropdirprod.
+    - apply impred; intro.
+      apply Hmor.
+    - do 5 (apply impred; intro).
+      apply Hmor.
+  Qed.
+
   Definition section_disp_data_from_section_disp {C} {D : disp_cat C}
              (F : section_disp D) := pr1 F.
 
@@ -546,6 +557,17 @@ Definition section_nat_trans_disp
     {D : disp_cat C}
     (F F': section_disp D) : UU :=
   ∑ (nt : section_nat_trans_disp_data F F'), section_nat_trans_disp_axioms nt.
+
+Lemma isaset_section_nat_trans_disp
+    {C : category}
+    {D : disp_cat C} 
+    (F F': section_disp D) : 
+  isaset (section_nat_trans_disp F F').
+Proof.
+  apply (isofhleveltotal2 2).
+  - apply impred. intro t. apply homsets_disp.
+  - intro x. apply isasetaprop. apply isaprop_section_nat_trans_disp_axioms.
+Qed.
 
 Definition section_nt_disp_data_from_section_nt_disp
     {C : category}

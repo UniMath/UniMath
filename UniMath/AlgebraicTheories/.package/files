@@ -9,7 +9,6 @@ AlgebraicTheoryCategory.v
 AlgebraCategoryCore.v
 Algebras.v
 AlgebraMorphisms.v
-AlgebraFibration.v
 AlgebraCategory.v
 
 LambdaCalculus.v
@@ -34,4 +33,11 @@ Examples/ProjectionsTheory.v
 
 LambdaAlgebraMonoid.v
 
+FundamentalTheorem/SurjectivePrecomposition.v
+FundamentalTheorem/CommonUtilities/KaroubiEnvelope.v
+
 RepresentationTheorem.v
+
+FundamentalTheorem/CommonUtilities/MonoidActions.v
+FundamentalTheorem/SpecificUtilities/LambdaTerms.v
+FundamentalTheorem/AlgebraToTheory.v
