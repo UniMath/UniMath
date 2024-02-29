@@ -54,7 +54,7 @@ Section EnrichedCoequalizer.
          (p : I_{V} --> E ⦃ y , a ⦄),
        f · enriched_to_arr E p = g · enriched_to_arr E p.
 
-  Coercion ob_enriched_coequalizer_cocone
+  #[reversible] Coercion ob_enriched_coequalizer_cocone
            (a : enriched_coequalizer_cocone)
     : C
     := pr1 a.
@@ -123,12 +123,12 @@ Section EnrichedCoequalizer.
     := ∑ (a : enriched_coequalizer_cocone),
        is_coequalizer_enriched a.
 
-  Coercion cocone_of_coequalizer_enriched
+  #[reversible] Coercion cocone_of_coequalizer_enriched
            (a : coequalizer_enriched)
     : enriched_coequalizer_cocone
     := pr1 a.
 
-  Coercion coequalizer_enriched_is_coequalizer
+  #[reversible] Coercion coequalizer_enriched_is_coequalizer
            (a : coequalizer_enriched)
     : is_coequalizer_enriched a
     := pr2 a.
@@ -555,7 +555,7 @@ Definition cat_with_enrichment_coequalizers
   : UU
   := ∑ (C : cat_with_enrichment V), enrichment_coequalizers C.
 
-Coercion cat_with_enrichment_coequalizers_to_cat_with_enrichment
+#[reversible] Coercion cat_with_enrichment_coequalizers_to_cat_with_enrichment
          {V : monoidal_cat}
          (C : cat_with_enrichment_coequalizers V)
   : cat_with_enrichment V

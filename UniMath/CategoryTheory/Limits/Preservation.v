@@ -160,7 +160,6 @@ Qed.
 (**
  2. Preservation of binary products
  *)
-
 Section PreservesBinProduct.
 
   Context {C₁ C₂ : category}.
@@ -194,7 +193,7 @@ Section PreservesBinProduct.
         (#F (BinProductPr2 C₁ (HC₁ x y))).
 
   Definition preserves_binproduct_if_preserves_chosen
-    (HF : preserves_chosen_binproduct)
+             (HF : preserves_chosen_binproduct)
     : preserves_binproduct.
   Proof.
     intros x y z π₁ π₂ Hxy.
@@ -247,14 +246,20 @@ Section PreservesBinProduct.
     Qed.
 
     Lemma preserves_binproduct_to_preserves_arrow
-      {Y : C₁}
-      (f : C₁⟦Y, X⟧)
-      (f' : C₁⟦Y, X'⟧)
-      : #F (BinProductArrow _ BP f f') = BinProductArrow _ BP' (#F f) (#F f') · inv_from_z_iso preserves_binproduct_to_z_iso.
+          {Y : C₁}
+          (f : C₁⟦Y, X⟧)
+          (f' : C₁⟦Y, X'⟧)
+      : #F (BinProductArrow _ BP f f')
+        =
+        BinProductArrow _ BP' (#F f) (#F f') · inv_from_z_iso preserves_binproduct_to_z_iso.
     Proof.
       apply z_iso_inv_on_left.
       apply BinProductArrowsEq.
-      - refine (!_ @ maponpaths _ (z_iso_inv_on_right _ _ _ _ _ _ preserves_binproduct_to_preserves_pr1)).
+      - refine (!_ @ maponpaths
+                       _
+                       (z_iso_inv_on_right
+                          _ _ _ _ _ _
+                          preserves_binproduct_to_preserves_pr1)).
         refine (assoc _ _ _ @ _).
         refine (maponpaths (λ x, x · _) (assoc' _ _ _) @ _).
         refine (maponpaths (λ x, _ · x · _) (z_iso_inv_after_z_iso _) @ _).
@@ -262,7 +267,11 @@ Section PreservesBinProduct.
         refine (!functor_comp _ _ _ @ _).
         refine (maponpaths (λ x, #F x) (BinProductPr1Commutes _ _ _ _ _ _ _) @ !_).
         exact (BinProductPr1Commutes _ _ _ _ _ _ _).
-      - refine (!_ @ maponpaths _ (z_iso_inv_on_right _ _ _ _ _ _ preserves_binproduct_to_preserves_pr2)).
+      - refine (!_ @ maponpaths
+                       _
+                       (z_iso_inv_on_right
+                          _ _ _ _ _ _
+                          preserves_binproduct_to_preserves_pr2)).
         refine (assoc _ _ _ @ _).
         refine (maponpaths (λ x, x · _) (assoc' _ _ _) @ _).
         refine (maponpaths (λ x, _ · x · _) (z_iso_inv_after_z_iso _) @ _).
@@ -332,7 +341,7 @@ Section PreservesProduct.
         (λ j, #F (ProductPr _ _ (HC₁ D) j)).
 
   Definition preserves_product_if_preserves_chosen
-    (HF : preserves_chosen_product)
+             (HF : preserves_chosen_product)
     : preserves_product.
   Proof.
     intros x z π Hxy.
@@ -502,6 +511,34 @@ Definition preserves_chosen_equalizer
        (#F g)
        (#F (EqualizerArrow (HC₁ x y f g)))
        p.
+
+Definition preserves_equalizer_if_preserves_chosen
+           {C₁ C₂ : category}
+           (HC₁ : Equalizers C₁)
+           (F : C₁ ⟶ C₂)
+           (HF : preserves_chosen_equalizer HC₁ F)
+  : preserves_equalizer F.
+Proof.
+  intros x y e f g h p Fp H.
+  use (isEqualizer_z_iso
+         (HF x y f g _)
+         (functor_on_z_iso
+            F
+            (z_iso_from_Equalizer_to_Equalizer
+               (make_Equalizer _ _ _ _ H)
+               (HC₁ x y f g)))).
+  - abstract
+      (rewrite <- !functor_comp ;
+       apply maponpaths ;
+       apply EqualizerEqAr).
+  - abstract
+      (cbn ;
+       rewrite <- functor_comp ;
+       apply maponpaths ;
+       refine (!_) ;
+       unfold from_Equalizer_to_Equalizer ;
+       apply EqualizerCommutes).
+Defined.
 
 (**
  5. Preservation of pullbacks

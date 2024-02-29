@@ -6,6 +6,7 @@
 
  Contents
  1. Fully faithful displayed functors reflect isomorphisms
+ 2. The identity is fully faithful
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -95,3 +96,13 @@ Section DispFunctorReflectIso.
       + exact disp_functor_ff_reflect_disp_iso_right.
   Defined.
 End DispFunctorReflectIso.
+
+(** * 2. The identity is fully faithful *)
+Definition disp_functor_ff_disp_functor_id
+           {C : category}
+           (D : disp_cat C)
+  : disp_functor_ff (disp_functor_identity D).
+Proof.
+  intros x y xx yy f.
+  apply idisweq.
+Defined.

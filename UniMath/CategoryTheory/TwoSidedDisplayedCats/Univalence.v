@@ -118,7 +118,7 @@ Definition univalent_twosided_disp_cat
   : UU
   := ∑ (D : twosided_disp_cat C₁ C₂), is_univalent_twosided_disp_cat D.
 
-Coercion univalent_twosided_disp_cat_to_twosided_disp_cat
+#[reversible] Coercion univalent_twosided_disp_cat_to_twosided_disp_cat
          {C₁ C₂ : category}
          (D : univalent_twosided_disp_cat C₁ C₂)
   : twosided_disp_cat C₁ C₂

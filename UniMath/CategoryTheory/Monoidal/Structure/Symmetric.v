@@ -312,12 +312,12 @@ Definition sym_monoidal_cat
   : UU
   := ∑ (V : monoidal_cat), symmetric V.
 
-Coercion sym_monoidal_cat_to_monoidal_cat
+#[reversible] Coercion sym_monoidal_cat_to_monoidal_cat
          (V : sym_monoidal_cat)
   : monoidal_cat
   := pr1 V.
 
-Coercion sym_monoidal_cat_to_symmetric
+#[reversible] Coercion sym_monoidal_cat_to_symmetric
          (V : sym_monoidal_cat)
   : symmetric V
   := pr2 V.

@@ -39,7 +39,7 @@ Definition monad_enrichment
      ×
      nat_trans_enrichment (μ M) (functor_comp_enrichment EM EM) EM.
 
-Coercion endo_of_monad_enrichment
+#[reversible] Coercion endo_of_monad_enrichment
          {V : monoidal_cat}
          {C : category}
          {E : enrichment C V}
@@ -76,7 +76,7 @@ Definition enriched_monad
   : UU
   := ∑ (M : Monad C), monad_enrichment E M.
 
-Coercion enriched_monad_to_monad
+#[reversible] Coercion enriched_monad_to_monad
          {V : monoidal_cat}
          {C : category}
          {E : enrichment C V}

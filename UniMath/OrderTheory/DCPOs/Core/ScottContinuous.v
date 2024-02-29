@@ -58,7 +58,7 @@ Definition is_strict_scott_continuous
      ×
      f (pointed_PartialOrder_to_point DX) = pointed_PartialOrder_to_point DY.
 
-Coercion is_strict_scott_continuous_to_scott_continuous
+#[reversible] Coercion is_strict_scott_continuous_to_scott_continuous
          {X Y : hSet}
          {DX : dcppo_struct X}
          {DY : dcppo_struct Y}
@@ -366,7 +366,7 @@ Definition strict_scott_continuous_map
   : UU
   := ∑ (f : X → Y), is_strict_scott_continuous X Y f.
 
-Coercion strict_scott_continuous_map_to_scott_continuous_map
+#[reversible] Coercion strict_scott_continuous_map_to_scott_continuous_map
          {X Y : dcppo}
          (f : strict_scott_continuous_map X Y)
   : scott_continuous_map X Y
@@ -409,7 +409,7 @@ Proof.
   exact p.
 Qed.
 
-Coercion scott_continuous_map_to_monotone
+#[reversible] Coercion scott_continuous_map_to_monotone
          {X Y : dcpo}
          (f : scott_continuous_map X Y)
   : monotone_function X Y.

@@ -132,7 +132,7 @@ Definition make_indexed_functor
   : indexed_functor Φ Ψ
   := τ ,, Hτ.
 
-Coercion indexed_functor_to_data
+#[reversible] Coercion indexed_functor_to_data
          {C : category}
          {Φ Ψ : indexed_cat C}
          (τ : indexed_functor Φ Ψ)
