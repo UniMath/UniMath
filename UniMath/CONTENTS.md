@@ -1204,6 +1204,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [MultiSortedMonadConstruction_actegorical.v](SubstitutionSystems/MultiSortedMonadConstruction_actegorical.v)
    - [MultiSortedMonadConstruction_coind_actegorical.v](SubstitutionSystems/MultiSortedMonadConstruction_coind_actegorical.v)
    - [MultiSortedEmbeddingIndCoindHSET.v](SubstitutionSystems/MultiSortedEmbeddingIndCoindHSET.v)
+   - [STLC_actegorical.v](SubstitutionSystems/STLC_actegorical.v)
    - [All.v](SubstitutionSystems/All.v)
 ## Package [Folds](Folds/README.md)
    - [UnicodeNotations.v](Folds/UnicodeNotations.v)

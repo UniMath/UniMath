@@ -54,6 +54,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElem
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.
 Require Import UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.
 Require UniMath.SubstitutionSystems.LiftingInitial_alt.
+Require UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.MultiSorted_actegorical.
 Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_alt.
@@ -325,7 +326,7 @@ End ToBeMoved.
 Section Upstream.
 
   Context (C : category) (BC : BinCoproducts C).
-  Local Definition Id_H := LiftingInitial_alt.Id_H C BC.
+  Local Definition Id_H := SubstitutionSystems.Id_H C BC.
 
   Context (L : ∏ coch : cochain [C, C], LimCone coch).
   Context (distr :  ω_limits_distribute_over_I_coproducts [C, C] (bool,, isasetbool) L

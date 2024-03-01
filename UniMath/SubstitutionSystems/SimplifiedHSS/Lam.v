@@ -110,27 +110,27 @@ Let LamHSS := InitialObject LamHSS_Initial.
 
 Definition Lam_Var : EndC ⟦functor_identity C, `Lam ⟧.
 Proof.
-  exact (BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _)  · alg_map _ Lam).
+  exact (η (pr1 LamHSS)).
 Defined.
 
 (* we later prefer leaving App and Abs bundled in the definition of LamE_algebra_on_Lam *)
 
+Definition Lam_App_Abs :  [C, C]
+   ⟦ (H C C C CC (App_H C CP) (Abs_H C terminal CC)) `Lam , `Lam ⟧.
+Proof.
+  exact (τ (pr1 LamHSS)).
+Defined.
+
 Definition Lam_App : [C, C] ⟦ (App_H C CP) `Lam , `Lam ⟧.
 Proof.
-  exact (BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _) · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _) · alg_map _ Lam)).
+  exact (BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _) · Lam_App_Abs).
 Defined.
 
 Definition Lam_Abs : [C, C] ⟦ (Abs_H C terminal CC) `Lam, `Lam ⟧.
 Proof.
-  exact (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _) · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _) · alg_map _ Lam)).
+  exact (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _) · Lam_App_Abs).
 Defined.
 
-
-Definition Lam_App_Abs :  [C, C]
-   ⟦ (H C C C CC (App_H C CP) (Abs_H C terminal CC)) `Lam , `Lam ⟧.
-Proof.
-  exact (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _) · alg_map _ Lam).
-Defined.
 
 (** * Definition of a "model" of the flattening arity in pure lambda calculus *)
 
@@ -165,7 +165,7 @@ Defined.
 (** now define bracket operation for a given [Z] and [f] *)
 
 (** preparations for typedness *)
-Local Definition helper_to: (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) --> (ptd_from_alg_functor CC _ Lam).
+Local Definition helper_to: (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) --> (ptd_from_alg_functor CC Lam_S Lam).
 Proof.
   use tpair.
     + apply (nat_trans_id _ ).
@@ -175,7 +175,7 @@ Proof.
          apply idpath).
 Defined.
 
-Local Definition helper_from: (ptd_from_alg_functor CC _ Lam) --> (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam).
+Local Definition helper_from: (ptd_from_alg_functor CC Lam_S Lam) --> (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam).
 Proof.
   use tpair.
     + apply (nat_trans_id _ ).
@@ -188,7 +188,7 @@ Defined.
 (** this iso does nothing, but is needed to make the argument to [fbracket] below well-typed *)
 (* maybe a better definition somewhere above could make this iso superfluous *)
 (* maybe don't need iso, but only morphism *)
-Local Definition bracket_property_for_LamE_algebra_on_Lam_helper : iso (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) (ptd_from_alg_functor CC _ Lam).
+Local Definition bracket_property_for_LamE_algebra_on_Lam_helper : iso (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) (ptd_from_alg_functor CC Lam_S Lam).
 Proof.
   unfold iso.
   exists helper_to.

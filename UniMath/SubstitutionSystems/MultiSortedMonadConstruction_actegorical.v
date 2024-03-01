@@ -60,6 +60,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElem
 Require Import UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementary.
 Require Import UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.
 Require UniMath.SubstitutionSystems.LiftingInitial_alt.
+Require UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.MultiSorted_actegorical.
 Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_alt.
@@ -140,7 +141,7 @@ Section monad.
         MultiSorted_actegorical.pointedstrengthfromselfaction_CAT sort Hsort C (MultiSortedSigToFunctor' M)
     := MultiSortedSigToStrength' sort Hsort C TC BP BC CC.
 
-  Let Id_H : sortToC2 → sortToC2 := LiftingInitial_alt.Id_H sortToC BCsortToC.
+  Let Id_H : sortToC2 → sortToC2 := SubstitutionSystems.Id_H sortToC BCsortToC.
 
  (** Construction of initial algebra for the omega-cocontinuous signature functor with lax lineator *)
   Definition DatatypeOfMultisortedBindingSig_CAT (sig : MultiSortedSig sort) :

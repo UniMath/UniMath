@@ -74,11 +74,9 @@ Section fix_an_H.
 
   Context (H : functor [C, C] [C, C]) (HH : is_omega_cocont H).
 
-  Definition Const_plus_H (X : EndC) : functor EndC EndC
-    := BinCoproduct_of_functors _ _ CPEndC (constant_functor _ _ X) H.
+  Let Const_plus_H (X : EndC) : functor EndC EndC := Const_plus_H C CP H X.
 
-  Definition Id_H :  functor [C, C] [C, C]
-    := Const_plus_H (functor_identity _ : EndC).
+  Let Id_H : functor [C, C] [C, C] := Id_H C CP H.
 
   Let Alg : precategory := FunctorAlg Id_H.
 
@@ -370,7 +368,7 @@ End fix_a_Z.
 End fix_an_H.
 
 Context (H :  @Presignature C C C) (HH : is_omega_cocont H).
-Let Id_H := Id_H H.
+Let Id_H := Id_H C CP H.
 Let θ := theta H.
 Let InitAlg := InitAlg H HH.
 Let ptdInitAlg := ptdInitAlg H HH.
@@ -398,7 +396,7 @@ exists InitAlg.
 exact bracket_for_InitAlg.
 Defined.
 
-Local Definition Ghat : EndEndC := Const_plus_H H (pr1 InitAlg).
+Local Definition Ghat : EndEndC := Const_plus_H C CP H (pr1 InitAlg).
 
 Definition constant_nat_trans (C' D : category) (d d' : D) (m : D⟦d,d'⟧)
     : [C', D] ⟦constant_functor C' D d, constant_functor C' D d'⟧.
@@ -509,7 +507,7 @@ set (X:= SpecializedGMIt H HH Z _ Ghat rhohat (thetahat Z f)).
 intermediate_path (pr1 (pr1 X)).
 - set (TT := @fusion_law EndC InitialEndC Colims_of_shape_nat_graph_EndC
                          Id_H (is_omega_cocont_Id_H H HH) _ (pr1 (InitAlg)) T').
-  set (Psi := ψ_from_comps (Id_H) _ (ℓ (U Z)) (Const_plus_H H (U Z)) (ρ_Thm15 H HH Z f)
+  set (Psi := ψ_from_comps (Id_H) _ (ℓ (U Z)) (Const_plus_H C CP H (U Z)) (ρ_Thm15 H HH Z f)
                              (aux_iso_1 H Z · θ'_Thm15 H Z (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) · aux_iso_2_inv H Z) ).
   set (T2 := TT _ (HU Z) (isInitial_pre_comp Z) Psi).
   set (T3 := T2 (ℓ (U Z)) (HU Z)).
