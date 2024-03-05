@@ -34,6 +34,7 @@ Require Import UniMath.ModelCategories.Generated.LNWFSMonoidalStructure.
 Require Import UniMath.ModelCategories.Generated.LNWFSCocomplete.
 
 Local Open Scope cat.
+
 Section Ff_closed.
 
 Import BifunctorNotations.
@@ -78,6 +79,11 @@ Context (H : is_connected g).
 Context (v0 : vertex g).
 Context (FfCC := λ d, ColimFfCocone CC d H v0).
 Context (A : Ff_mon).
+
+Opaque LNWFS_tot_lcomp.
+Opaque Ff_lcomp.
+Opaque Ff_precategory_data.
+Opaque LNWFS.
 
 Section Helpers.
 
@@ -196,6 +202,8 @@ Proof.
     reflexivity.
 Qed.
 
+Opaque ColimFfCocone.
+
 (* Ff_right_closed: *)
 Lemma Ff_right_tensor_preserves_colimit_mor_iso : 
   z_iso 
@@ -224,19 +232,18 @@ Proof.
   use unique_exists.
   - apply (compose (Ff_right_tensor_preserves_colimit_mor)).
     exact (pr1 mor).
-  - intro v.
-    etrans; [|exact (pr2 mor v)].
-    etrans. apply assoc.
-    apply cancel_postcomposition.
-    apply subtypePath; [intro; apply isaprop_section_nat_trans_disp_axioms|].
-    apply funextsec.
-    intro f.
-    apply subtypePath; [intro; apply isapropdirprod; apply homset_property|].
-    etrans. apply pr1_transportf_const.
-    (* cbn. *)
-    (* unfold Ff_right_tensor_preserves_colimit_mor11. *)
-    apply (colimArrowCommutes (CCFf_pt_ob1 CC d (fact_R A f))).
-  - intro; apply impred; intro; apply homset_property.
+  - abstract (
+      intro v;
+      etrans; [|exact (pr2 mor v)];
+      etrans; [apply assoc|];
+      apply cancel_postcomposition;
+      functorial_factorization_mor_eq f;
+      etrans; [apply pr1_transportf_const|];
+      (* cbn. *)
+      (* unfold Ff_right_tensor_preserves_colimit_mor11. *)
+      apply (colimArrowCommutes (CCFf_pt_ob1 CC d (fact_R A f)))
+    ).
+  - abstract (intro; apply impred; intro; apply homset_property).
   - abstract (
       intros y Hy;
       
@@ -348,6 +355,11 @@ Context (LNWFSCC := λ d, ColimLNWFSCocone CC d H v0).
 
 Context (A : LNWFS_mon).
 
+Opaque LNWFS_tot_lcomp.
+Opaque Ff_lcomp.
+Opaque Ff_precategory_data.
+Opaque LNWFS.
+
 Section Helpers.
 
 Context (d : diagram g LNWFS_mon)
@@ -435,6 +447,8 @@ Proof.
 Defined.
 
 End Helpers.
+
+Opaque ColimFfCocone.
 
 Lemma LNWFS_rt_all_colimits :
   preserves_colimits_of_shape (monoidal_right_tensor (A : LNWFS_mon)) g.
