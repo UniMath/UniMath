@@ -670,16 +670,24 @@ Opaque ColimFfCocone.
 Opaque ColimLNWFSCocone.
 Opaque CL.
 
+Local Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp_subproof (v : vertex nat_graph) :
+  coconeIn (mapcocone (monoidal_left_tensor (pr1 L : Ff_mon))
+    _ (project_cocone d (colim CL) (colimCocone CL))) v =
+  colimIn FfCCbase v · pr1 LNWFSarr.
+Proof.
+  apply pathsinv0.
+  functorial_factorization_mor_eq f.
+  etrans. use pr1_transportf_const.
+  exact (colimArrowCommutes (CCFf_pt_ob1 CC Ldbase f) _ _ v).
+Qed.
+
 Local Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp_pr1_category_tensor_commutes :
   z_iso_mor Ffiso = pr1 LNWFSarr.
 Proof.
   apply (colimArrowUnique' FfCCbase Ffiso (pr1 LNWFSarr)).
   intro v.
   etrans. apply (colimArrowCommutes FfCCbase).
-  apply pathsinv0.
-  functorial_factorization_mor_eq f.
-  etrans. use pr1_transportf_const.
-  exact (colimArrowCommutes (CCFf_pt_ob1 CC Ldbase f) _ _ v).
+  exact (Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp_subproof v).
 Qed.
 
 End ProjectCoconeComm.
