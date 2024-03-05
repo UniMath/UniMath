@@ -353,44 +353,51 @@ Context (H : is_connected g).
 Context (v0 : vertex g).
 Context (LNWFSCC := λ d, ColimLNWFSCocone CC d H v0).
 
+Opaque ColimFfCocone.
+
+Local Lemma Ff_right_tensor_preserves_colimit_mor_inv_is_LNWFS_colim_mor
+    (A : LNWFS_mon)
+    (d : diagram g _) 
+    (dbase := mapdiagram (pr1_category _) d) 
+    (Ff_rt_cc_inv := Ff_right_tensor_preserves_colimit_mor_inv CC H v0 (pr1 A) dbase)
+    (LNWFSmor := colimArrow (LNWFSCC (mapdiagram (monoidal_right_tensor A) d)) _ (mapcocone (monoidal_right_tensor A) _ (colimCocone (LNWFSCC d)))) :
+    pr1 LNWFSmor = Ff_rt_cc_inv.
+Proof.
+  apply pathsinv0.
+  functorial_factorization_mor_eq f.
+
+  set (CCFf1 := (CCFf_pt_ob1 CC (mapdiagram (monoidal_right_tensor (pr1 A : Ff_mon)) dbase) f)).
+  use (colimArrowUnique' CCFf1).
+  intro v.
+  etrans. apply (colimArrowCommutes CCFf1).
+  apply pathsinv0.
+  etrans. apply (colimArrowCommutes CCFf1 _ _ v).
+  etrans. apply pr1_transportf_const.
+  etrans. apply (colimOfArrowsIn _ _ (CCFf_pt_ob1 CC (mapdiagram (pr1_category (LNWFS C)) d) (fact_R (pr1 A) f))).
+  etrans. apply cancel_postcomposition.
+  {
+    etrans. use (section_disp_on_eq_morphisms (pr1 (dob d v)) (γ' := identity _)); reflexivity.
+    apply maponpaths.
+    exact (section_disp_id (pr1 (dob d v)) _).
+  }
+  apply id_left.
+Qed.
 
 Lemma LNWFS_right_tensor_preserves_colimit_mor_inv_disp
     (A : LNWFS_mon)
-    (d : diagram g _)
-    (dbase := mapdiagram (pr1_category _) d) :
+    (d : diagram g _) 
+    (dbase := mapdiagram (pr1_category _) d)
+    (Ff_rt_cc_inv := Ff_right_tensor_preserves_colimit_mor_inv CC H v0 (pr1 A) dbase) :
   pr2 (colim (LNWFSCC (mapdiagram (monoidal_right_tensor A) d)) )
-  -->[Ff_right_tensor_preserves_colimit_mor_inv CC H v0 (pr1 A) dbase]
+  -->[Ff_rt_cc_inv]
     pr2 ((monoidal_right_tensor A) (colim (LNWFSCC d))).
 Proof.
   set (colimAL := colim (LNWFSCC (mapdiagram (monoidal_right_tensor A) d))).
   set (AcolimL := monoidal_right_tensor A (colim (LNWFSCC d))).
-  set (Ffiso := z_iso_inv (Ff_right_tensor_preserves_colimit_mor_iso CC H v0 (pr1 A) dbase)).
   set (LNWFSmor := colimArrow (LNWFSCC (mapdiagram (monoidal_right_tensor A) d)) _ (mapcocone (monoidal_right_tensor A) _ (colimCocone (LNWFSCC d)))).
-
-  (* rewrite commutativity of leftwhiskering functor and projection *)
-  assert (
-    Ff_right_tensor_preserves_colimit_mor_inv CC H v0 (pr1 A) dbase
-    = pr1 LNWFSmor
-  ) as X.
-  {
-    functorial_factorization_mor_eq f.
-    use colimArrowUnique'.
-    intro v.
-    etrans. apply (colimArrowCommutes).
-    apply pathsinv0.
-    etrans. apply (colimArrowCommutes).
-    etrans. apply pr1_transportf_const.
-    etrans. apply (colimOfArrowsIn _ _ (CCFf_pt_ob1 CC (mapdiagram (pr1_category (LNWFS C)) d) (fact_R (pr1 A) f))).
-    etrans. apply cancel_postcomposition.
-    {
-      etrans. use (section_disp_on_eq_morphisms (pr1 (dob d v)) (γ' := identity _)); reflexivity.
-      apply maponpaths.
-      exact (section_disp_id (pr1 (dob d v)) _).
-    }
-    apply id_left.
-  }
-  rewrite X.
-  exact (pr2 LNWFSmor).
+  
+  apply (@Ff_mor_eq_LNWFS_mor C colimAL AcolimL Ff_rt_cc_inv LNWFSmor).
+  exact (Ff_right_tensor_preserves_colimit_mor_inv_is_LNWFS_colim_mor A d).
 Qed.
 
 Local Lemma LNWFS_right_tensor_preserves_colimit_mor_disp
