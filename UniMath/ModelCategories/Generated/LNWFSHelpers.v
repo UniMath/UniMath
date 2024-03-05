@@ -102,6 +102,29 @@ Proof.
  reflexivity.
 Qed.
 
+Lemma Ff_mor_eq_LNWFS_mor
+    {L L' : total_category (LNWFS C)}
+    (τ : pr1 L --> pr1 L')
+    (τL : L --> L') :
+  pr1 τL = τ -> pr2 L -->[τ] pr2 L'.
+Proof.
+  intro H.
+  rewrite <- H.
+  exact (pr2 τL).
+Qed.
+
+Lemma LNWFS_inv_in_precat_if_Ff_inv_in_precat
+    {L L' : total_category (LNWFS C)}
+    (τ : L --> L')
+    (τ' : L' --> L)
+    (HFf : is_inverse_in_precat (pr1 τ) (pr1 τ')) :
+  is_inverse_in_precat τ τ'.
+Proof.
+  split; (apply subtypePath; [intro; apply isaprop_lnwfs_mor_axioms|]).
+  - exact (pr1 HFf).
+  - exact (pr2 HFf).
+Qed.
+
 Lemma Ff_iso_inv_LNWFS_mor
     (L L' : total_category (LNWFS C))
     (iso : z_iso (pr1 L) (pr1 L'))
