@@ -355,7 +355,7 @@ Lemma ChainsFf {C : category} (HC : Colims C) :
 Proof.
   intros d.
   use (ColimFfCocone HC d).
-  - exact is_connected_nat_graph.
+  - abstract (exact is_connected_nat_graph).
   - exact 0.
 Defined.
 
@@ -364,7 +364,7 @@ Lemma CoequalizersFf {C : category} (HC : Colims C) :
 Proof.
   intros F G f g.
   use (ColimFfCocone HC).
-  - exact is_connected_coequalizer_graph.
+  - abstract (exact is_connected_coequalizer_graph).
   - exact (● 0)%stn.
 Defined.
 
@@ -781,8 +781,7 @@ Lemma LNWFS_colim_comul_monad_ax :
     disp_Comonad_laws (L_monad_data (colim Finf) LNWFS_colim_comul).
 Proof.
   repeat split; intro f.
-  - apply subtypePath; [intro; apply homset_property|].
-    apply pathsdirprod; [etrans; [apply assoc'|]; etrans; [apply id_left|]; apply id_left|].
+  - apply arrow_mor_eq; [etrans; [apply assoc'|]; etrans; [apply id_left|]; apply id_left|].
     apply pathsinv0.
     apply colim_endo_is_identity.
     intro v.
@@ -800,7 +799,7 @@ Proof.
             apply (colimArrowCommutes).
 
     set (law1v := @Comonad_law1 _ (L_monad _ _ (pr22 (dob d v))) f).
-
+    
     etrans. apply assoc'.
     etrans. apply cancel_precomposition.
             exact (LNWFS_colim_comul_data_subproof1 f v).
@@ -809,8 +808,7 @@ Proof.
     etrans. apply cancel_postcomposition.
             exact (pr2 (pathsdirprodweq (base_paths _ _ law1v))).
     apply id_left.
-  - apply subtypePath; [intro; apply homset_property|].
-    apply pathsdirprod; [etrans; [apply assoc'|]; etrans; [apply id_left|]; apply id_left|].
+  - apply arrow_mor_eq; [etrans; [apply assoc'|]; etrans; [apply id_left|]; apply id_left|].
     apply pathsinv0.
     apply colim_endo_is_identity.
     intro v.
@@ -828,7 +826,7 @@ Proof.
               (mapdiagram (pr1_category (arrow_disp C))
                   (LNWFS_diagram_pointwise_comul_mor f))))).
       apply (colimOfArrowsIn _ _ ccmor).
-    }
+    }        
     (* cbn.  *)
     etrans. apply cancel_postcomposition, assoc.
     etrans. apply assoc'.
@@ -852,8 +850,7 @@ Proof.
     etrans. apply pr1_section_disp_on_morphisms_comp.
     apply section_disp_on_eq_morphisms; [apply id_left|].
     apply (colimArrowCommutes (CCFf_pt_ob1 CC dbase f)).
-  - apply subtypePath; [intro; apply homset_property|].
-    apply pathsdirprod; [reflexivity|].
+  - apply arrow_mor_eq; [reflexivity|].
     use colimArrowUnique'.
     intro v.
     etrans. apply assoc.
@@ -1085,7 +1082,7 @@ Lemma ChainsLNWFS {C : category} (HC : Colims C) :
 Proof.
   intros d.
   use (ColimLNWFSCocone HC).
-  - exact is_connected_nat_graph.
+  - abstract (exact is_connected_nat_graph).
   - exact 0.
 Defined.
 
@@ -1094,6 +1091,6 @@ Lemma CoequalizersLNWFS {C : category} (HC : Colims C) :
 Proof.
   intros F G f g.
   use (ColimLNWFSCocone HC).
-  - exact is_connected_coequalizer_graph.
+  - abstract (exact is_connected_coequalizer_graph).
   - exact (● 0)%stn.
 Defined.
