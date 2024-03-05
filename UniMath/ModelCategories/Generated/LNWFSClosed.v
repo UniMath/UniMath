@@ -34,7 +34,6 @@ Require Import UniMath.ModelCategories.Generated.LNWFSMonoidalStructure.
 Require Import UniMath.ModelCategories.Generated.LNWFSCocomplete.
 
 Local Open Scope cat.
-Local Open Scope Cat.
 
 Section Ff_closed.
 
