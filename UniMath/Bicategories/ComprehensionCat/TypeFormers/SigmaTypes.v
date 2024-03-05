@@ -97,6 +97,33 @@ Definition dependent_sum_map
   := comp_cat_comp_mor (dep_sum_unit D (π A) B)
      · comp_cat_extend_over (dep_sum D (π A) B) (π A).
 
+Proposition dependent_sum_map_eq
+            {C : comp_cat}
+            (D : has_dependent_sums (cleaving_of_types C))
+            {Γ : C}
+            (A : ty Γ)
+            (B : ty (Γ & A))
+  : dependent_sum_map D A B · π (dep_sum D (π A) B)
+    =
+    π B · π A.
+Proof.
+  unfold dependent_sum_map, comp_cat_extend_over.
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    apply comprehension_functor_mor_comm.
+  }
+  rewrite !assoc.
+  etrans.
+  {
+    apply maponpaths_2.
+    apply comprehension_functor_mor_comm.
+  }
+  rewrite id_right.
+  apply idpath.
+Qed.
+
 Definition strong_dependent_sums
            (C : comp_cat)
   : UU
@@ -105,6 +132,23 @@ Definition strong_dependent_sums
        (A : ty Γ)
        (B : ty (Γ & A)),
      is_z_isomorphism (dependent_sum_map D A B).
+
+Coercion strong_dependent_sum_to_dependent_sums
+         {C : comp_cat}
+         (D : strong_dependent_sums C)
+  : has_dependent_sums (cleaving_of_types C).
+Proof.
+  exact (pr1 D).
+Defined.
+
+Definition strong_dependent_sums_iso
+           {C : comp_cat}
+           (D : strong_dependent_sums C)
+           {Γ : C}
+           (A : ty Γ)
+           (B : ty (Γ & A))
+  : is_z_isomorphism (dependent_sum_map D A B)
+  := pr2 D Γ A B.
 
 Proposition isaprop_strong_dependent_sums
             (C : comp_cat)

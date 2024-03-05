@@ -67,6 +67,19 @@
  types using democracy, while verifying the existence of these types is not difficult in
  practice.
 
+ - 'Strength' of the type formers.
+
+ Several type formers (unit, sigma and product) come in multiple variants. For the unit type
+ `𝟙`, we can require that the projection `Γ & 𝟙 --> Γ` is an isomorphisms. For sigma types, we
+ can require that we have an isomorphism between `Γ & ∑ A B` and `Γ & A & B` (a similar
+ requirement can be given for product types). We call the versions of these type formers where
+ we have these isomorphisms, the strong variants. In full DFL comprehension categories, we
+ require the sigma and unit type to be strong, but not the product. This is because we do not
+ need the strength for the product in our development. In addition, since product types can be
+ constructed from sigma types, we can also regain strong product types if desired. Note that
+ in Clairambault and Dybjer, CwFs are used and there, they can derive these isomorphisms.
+ For sigma types, this is used in the proof of Proposition 3.5.
+
  References
  - 'The biequivalence of locally cartesian closed categories and Martin-Löf type theories'
    by Clairambault and Dybjer.
@@ -130,7 +143,7 @@ Definition disp_bicat_of_dfl_full_comp_cat
   := disp_dirprod_bicat
        disp_bicat_of_democracy
        (disp_dirprod_bicat
-          disp_bicat_of_unit_type_full_comp_cat
+          disp_bicat_of_strong_unit_type
           (disp_dirprod_bicat
              disp_bicat_of_prod_type_full_comp_cat
              (disp_dirprod_bicat
@@ -151,7 +164,7 @@ Proof.
   }
   use is_univalent_2_1_dirprod_bicat.
   {
-    exact univalent_2_1_disp_bicat_of_unit_type_full_comp_cat.
+    exact univalent_2_1_disp_bicat_of_strong_unit_type.
   }
   use is_univalent_2_1_dirprod_bicat.
   {
@@ -173,7 +186,7 @@ Proof.
   }
   use (is_univalent_2_dirprod_bicat _ _ is_univalent_2_1_bicat_full_comp_cat).
   {
-    exact univalent_2_disp_bicat_of_unit_type_full_comp_cat.
+    exact univalent_2_disp_bicat_of_strong_unit_type.
   }
   use (is_univalent_2_dirprod_bicat _ _ is_univalent_2_1_bicat_full_comp_cat).
   {
@@ -227,11 +240,12 @@ Definition make_dfl_full_comp_cat
            (C : full_comp_cat)
            (DC : is_democratic C)
            (T : fiberwise_terminal (cleaving_of_types C))
+           (HT : ∏ (Γ : C), is_z_isomorphism (π (pr1 (pr1 T Γ))))
            (P : fiberwise_binproducts (cleaving_of_types C))
            (E : fiberwise_equalizers (cleaving_of_types C))
            (S : strong_dependent_sums C)
   : dfl_full_comp_cat
-  := C ,, (DC ,, (T ,, tt) ,, (P ,, tt) ,, (E ,, tt) ,, S).
+  := C ,, (DC ,, ((T ,, HT) ,, tt) ,, (P ,, tt) ,, (E ,, tt) ,, S).
 
 Coercion dfl_full_comp_cat_to_full_comp_cat
          (C : dfl_full_comp_cat)
@@ -246,7 +260,31 @@ Definition is_democratic_dfl_full_comp_cat
 Definition fiberwise_terminal_dfl_full_comp_cat
            (C : dfl_full_comp_cat)
   : fiberwise_terminal (cleaving_of_types C)
-  := pr1 (pr122 C).
+  := pr11 (pr122 C).
+
+Definition dfl_full_comp_cat_terminal
+           {C : dfl_full_comp_cat}
+           (Γ : C)
+  : Terminal (disp_cat_of_types C)[{Γ}]
+  := pr1 (fiberwise_terminal_dfl_full_comp_cat C) Γ.
+
+Definition dfl_full_comp_cat_unit
+           {C : dfl_full_comp_cat}
+           (Γ : C)
+  : ty Γ
+  := pr1 (dfl_full_comp_cat_terminal Γ).
+
+Definition dfl_full_comp_cat_extend_unit
+           {C : dfl_full_comp_cat}
+           (Γ : C)
+  : is_z_isomorphism (π (dfl_full_comp_cat_unit Γ))
+  := pr21 (pr122 C) Γ.
+
+Definition dfl_full_comp_cat_extend_unit_z_iso
+           {C : dfl_full_comp_cat}
+           (Γ : C)
+  : z_iso (Γ & dfl_full_comp_cat_unit Γ) Γ
+  := _ ,, dfl_full_comp_cat_extend_unit Γ.
 
 Definition fiberwise_binproducts_dfl_full_comp_cat
            (C : dfl_full_comp_cat)
@@ -530,7 +568,7 @@ Proof.
   - apply disp_left_adjoint_equivalence_fullsubbicat.
   - use (pair_left_adjoint_equivalence _ _ (_ ,, HF)).
     split.
-    + apply disp_adjoint_equiv_disp_bicat_of_unit_type_full_comp_cat.
+    + apply disp_adjoint_equiv_disp_bicat_of_strong_unit_type.
     + use (pair_left_adjoint_equivalence _ _ (_ ,, HF)).
       split.
       * apply disp_adjoint_equiv_disp_bicat_of_prod_type_full_comp_cat.

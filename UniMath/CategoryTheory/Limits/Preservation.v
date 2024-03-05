@@ -540,6 +540,22 @@ Proof.
        apply EqualizerCommutes).
 Defined.
 
+Definition preserves_equalizer_equalizer
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           (HF : preserves_equalizer F)
+           {x y : C₁}
+           {f g : x --> y}
+           (e : Equalizer f g)
+  : Equalizer (#F f) (#F g).
+Proof.
+  use (make_Equalizer _ _ _ _ (HF _ _ _ _ _ _ _ _ (isEqualizer_Equalizer e))).
+  abstract
+    (rewrite <- !functor_comp ;
+     apply maponpaths ;
+     apply EqualizerEqAr).
+Defined.
+
 (**
  5. Preservation of pullbacks
  *)
