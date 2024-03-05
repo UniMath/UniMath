@@ -148,7 +148,6 @@ Section ComprehensionEso.
       exact (PullbackArrow_PullbackPr2 HΓ _ _ _ _).
     Qed.
 
-
     Local Definition comprehension_eso_ty_help
       : ty (Γ & DΔ')
       := EqualizerObject (dfl_ext_identity left_tm right_tm).
