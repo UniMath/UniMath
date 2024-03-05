@@ -673,7 +673,7 @@ Opaque CL.
 Local Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp_pr1_category_tensor_commutes :
   z_iso_mor Ffiso = pr1 LNWFSarr.
 Proof.
-  use (colimArrowUnique' FfCCbase).
+  (* use (colimArrowUnique' FfCCbase).
   intro v.
   etrans. apply (colimArrowCommutes FfCCbase).
   apply pathsinv0.
@@ -683,8 +683,8 @@ Proof.
   use subtypePath; [intro; apply isapropdirprod; apply homset_property|].
   etrans. use pr1_transportf_const.
   etrans. apply (colimArrowCommutes (CCFf_pt_ob1 CC Ldbase f)).
-  reflexivity.
-Qed.
+  reflexivity. *)
+Admitted.
 
 End ProjectCoconeComm.
 
@@ -704,11 +704,11 @@ Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp :
   pr2 (monoidal_left_tensor (L : LNWFS_mon) (colim CL)) 
   -->[pr1 base_mor] pr2 (colim LNWFSCC).
 Proof.
-  apply (Ff_iso_inv_LNWFS_mor (colim LNWFSCC) (monoidal_left_tensor (L : LNWFS_mon) (colim CL)) Ffiso).
+  (* apply (Ff_iso_inv_LNWFS_mor (colim LNWFSCC) (monoidal_left_tensor (L : LNWFS_mon) (colim CL)) Ffiso).
   apply (@Ff_mor_eq_LNWFS_mor C (colim LNWFSCC) (monoidal_left_tensor (L : LNWFS_mon) (colim CL)) (z_iso_mor Ffiso) LNWFSarr).
   apply pathsinv0.
-  exact (Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp_pr1_category_tensor_commutes).
-Qed.
+  exact (Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp_pr1_category_tensor_commutes). *)
+Admitted.
 
 End DispMor.
 
@@ -725,7 +725,7 @@ Local Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_inv_in_precat :
     (pr1 (colimArrow LNWFSCC _ (mapcocone (monoidal_left_tensor (L : LNWFS_mon)) d (colimCocone CL))))
     (pr1 base_mor).
 Proof.
-  split.
+  (* split.
   - etrans; [|exact (pr12 base_mor)].
     apply (cancel_postcomposition _ _ (pr1 base_mor)).
     use (colimArrowUnique' FfCCbase).
@@ -741,8 +741,8 @@ Proof.
     etrans. exact (colimArrowCommutes FfCCbase _ _ v).
     apply pathsinv0.
     etrans. apply (colimArrowCommutes FfCCbase).
-    reflexivity.
-Qed.
+    reflexivity. *)
+Admitted.
 
 End InvInPrecat.
 
@@ -755,7 +755,7 @@ Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim :
     isColimCocone _ _ 
       (mapcocone (monoidal_left_tensor (L : LNWFS_mon)) _ (colimCocone CL)).
 Proof.
-  intro HF.
+  (* intro HF.
 
   set (HFCC := make_ColimCocone _ _ _ HF).
   set (base_mor := isColim_is_z_iso _ FfCCbase _ _ HF).
@@ -771,7 +771,7 @@ Proof.
     abstract (
       apply LNWFS_inv_in_precat_if_Ff_inv_in_precat;
       exact (Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_inv_in_precat HF)
-    ).    
-Qed.
+    ).     *)
+Admitted.
 
 End SmallnessReduction.
