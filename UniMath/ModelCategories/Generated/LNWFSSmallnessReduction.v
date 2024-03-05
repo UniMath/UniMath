@@ -653,6 +653,11 @@ Context (L : total_category (LNWFS C))
         (FfCCbase := ChainsFf CC Ldbase)
         (LNWFSCC := ChainsLNWFS CC (mapdiagram (monoidal_left_tensor (L : LNWFS_mon)) d)).
 
+Opaque LNWFS_tot_lcomp.
+Opaque Ff_lcomp.
+Opaque Ff_precategory_data.
+Opaque LNWFS.
+
 Section Helpers.
 
 Context (HF : isColimCocone _ _
@@ -701,7 +706,7 @@ Opaque base_mor.
 Opaque ColimFfCocone.
 Opaque ColimLNWFSCocone.
 Opaque CL.
-Opaque LNWFSCC LNWFS_tot_lcomp.
+Opaque LNWFSCC.
 Opaque Ffiso LNWFSarr.
 
 Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp :
@@ -721,10 +726,6 @@ Section InvInPrecat.
 Opaque base_mor.
 Opaque ColimFfCocone.
 Opaque CL.
-Opaque LNWFS_tot_lcomp.
-Opaque Ff_lcomp.
-Opaque Ff_precategory_data.
-Opaque LNWFS.
 Opaque FfCCbase.
 
 Local Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_inv_in_precat_subproof :
