@@ -213,8 +213,7 @@ Let PCF_M_alg : algebra_ob PCF_Functor :=
   InitialObject PCF_Functor_Initial.
 
 (** The variables *)
-Definition var_map : typeToSet2⟦Id,PCF_M⟧ :=
-  BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _) · PCF_M_mor.
+Definition var_map : typeToSet2⟦Id,PCF_M⟧ := η PCF_M_alg.
 
 (* We can also extract the other constructors *)
 

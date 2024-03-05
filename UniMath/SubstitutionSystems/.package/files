@@ -73,3 +73,5 @@ MultiSorted_actegorical.v
 MultiSortedMonadConstruction_actegorical.v
 MultiSortedMonadConstruction_coind_actegorical.v
 MultiSortedEmbeddingIndCoindHSET.v
+
+STLC_actegorical.v

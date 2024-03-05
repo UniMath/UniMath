@@ -142,8 +142,7 @@ Let STLC_M_alg : algebra_ob STLC_Functor :=
   InitialObject STLC_Functor_Initial.
 
 (** The variables *)
-Definition var_map : sortToSet2⟦Id,STLC_M⟧ :=
-  BinCoproductIn1 (BinCoprodSortToSet2 _ _) · STLC_M_mor.
+Definition var_map : sortToSet2⟦Id,STLC_M⟧ := SubstitutionSystems.η STLC_M_alg.
 
 (** The source of the application constructor *)
 Definition app_source (s t : sort) : functor sortToSet2 sortToSet2 :=
@@ -153,8 +152,7 @@ Definition app_source (s t : sort) : functor sortToSet2 sortToSet2 :=
 (** The application constructor *)
 Definition app_map (s t : sort) : sortToSet2⟦app_source s t STLC_M,STLC_M⟧ :=
     CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ (λ _, _)) (ii1 (s,,t))
-  · BinCoproductIn2 (BinCoprodSortToSet2 _ _)
-  · STLC_M_mor.
+  · SubstitutionSystems.τ STLC_M_alg.
 
 (** The source of the lambda constructor *)
 Definition lam_source (s t : sort) : functor sortToSet2 sortToSet2 :=
@@ -164,8 +162,7 @@ Definition lam_source (s t : sort) : functor sortToSet2 sortToSet2 :=
 
 Definition lam_map (s t : sort) : sortToSet2⟦lam_source s t STLC_M,STLC_M⟧ :=
     CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ (λ _, _)) (ii2 (s,,t))
-  · BinCoproductIn2 (BinCoprodSortToSet2 _ _)
-  · STLC_M_mor.
+  · SubstitutionSystems.τ STLC_M_alg.
 
 Definition make_STLC_M_Algebra X (fvar : sortToSet2⟦Id,X⟧)
   (fapp : ∏ s t, sortToSet2⟦app_source s t X,X⟧)
@@ -191,7 +188,7 @@ Lemma foldr_var X (fvar : sortToSet2⟦Id,X⟧)
   (flam : ∏ s t, sortToSet2⟦lam_source s t X,X⟧) :
   var_map · foldr_map X fvar fapp flam = fvar.
 Proof.
-unfold var_map.
+unfold var_map. unfold η, tau1_from_alg.
 rewrite <- assoc, (algebra_mor_commutes _ _ _ (foldr_map _ _ _ _)), assoc.
 etrans; [eapply cancel_postcomposition, BinCoproductOfArrowsIn1|].
 rewrite id_left.
@@ -205,7 +202,7 @@ Lemma foldr_app X (fvar : sortToSet2⟦Id,X⟧)
   app_map s t · foldr_map X fvar fapp flam =
   # (pr1 (app_source s t)) (foldr_map X fvar fapp flam) · fapp s t.
 Proof.
-unfold app_map.
+etrans; [ apply cancel_postcomposition; unfold app_map; apply assoc |].
 rewrite <- assoc.
 etrans; [apply maponpaths, (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))|].
 rewrite assoc.
@@ -227,7 +224,7 @@ Lemma foldr_lam X (fvar : sortToSet2⟦Id,X⟧)
   lam_map s t · foldr_map X fvar fapp flam =
   # (pr1 (lam_source s t)) (foldr_map X fvar fapp flam) · flam s t.
 Proof.
-unfold lam_map.
+etrans; [ apply cancel_postcomposition; unfold lam_map; apply assoc |].
 rewrite <- assoc.
 etrans; [apply maponpaths, (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))|].
 rewrite assoc.

@@ -7,6 +7,8 @@ Extended by: Anders Mörtberg. October 2015
 
 Rewritten using displayed categories by: Kobe Wullaert. October 2022
 
+Extended by Ralph Matthes in February 2024 for the special case of functors that are binary or I-ary coproducts
+
 *******************************************************************)
 
 (** ***************************************************************
@@ -20,6 +22,8 @@ Contents :
 - Lambek's lemma: if (A,a) is an inital F-algebra then a is an iso
 
 - The natural numbers are initial for X ↦ 1 + X
+
+- the case of functors that are binary or I-ary coproducts
 
 ******************************************************************)
 
@@ -45,6 +49,12 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.NNO.
+
+
+(* used for analysis of algebras for coproduct functor *)
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.ProductCategory.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
 
 Local Open Scope cat.
 
@@ -81,16 +91,14 @@ Section Algebra_Definition.
   Definition algebra_disp_cat_data : disp_cat_data C
     := algebra_disp_cat_ob_mor ,, algebra_disp_cat_id_comp.
 
-  Definition algebra_disp_cat_axioms
-    : disp_cat_axioms C algebra_disp_cat_data.
+  Lemma is_locally_propositional_algebra_disp_cat :
+    locally_propositional algebra_disp_cat_data.
   Proof.
-    repeat split ; intros ; try (apply homset_property).
-    apply isasetaprop.
-    apply homset_property.
+    red; intros ; apply homset_property.
   Qed.
 
   Definition algebra_disp_cat : disp_cat C
-    := algebra_disp_cat_data ,, algebra_disp_cat_axioms.
+    := make_disp_cat_locally_prop is_locally_propositional_algebra_disp_cat.
 
   Definition category_FunctorAlg : category
     := total_category algebra_disp_cat.
@@ -106,6 +114,7 @@ Section Algebra_Definition.
   Local Coercion alg_carrier : algebra_ob >-> ob.
 
   Definition alg_map (X : algebra_ob) : F X --> X := pr2 X.
+
 
 (** A morphism of F-algebras (F X, g : F X --> X) and (F Y, h : F Y --> Y)
     is a morphism f : X --> Y such that the following diagram commutes:
@@ -669,3 +678,136 @@ use make_NNO.
     }
     exact (maponpaths pr1 (InitialArrowUnique N (make_F_alg C BC TC z s) xalg)).
 Defined.
+
+
+Section AlgebrasForBinaryCoproducts.
+
+  Context {C : category}  (BC : BinCoproducts C) (F1 F2 : functor C C).
+
+  Let F : functor C C := BinCoproduct_of_functors _ _ BC F1 F2.
+
+  Local Coercion alg_carrier : algebra_ob >-> ob.
+
+  Definition tau1_from_alg (X : algebra_ob F) : F1 X --> X.
+  Proof.
+    exact (BinCoproductIn1 (BC _ _) · alg_map _ X).
+  Defined.
+
+  Local Notation τ1 := tau1_from_alg.
+
+  Definition tau2_from_alg (X : algebra_ob F) : F2 X --> X.
+  Proof.
+    exact (BinCoproductIn2 (BC _ _) · alg_map _ X).
+  Defined.
+
+  Local Notation τ2 := tau2_from_alg.
+
+  Definition AlgebrasForBincoproductIntoProductcategory_data :
+  functor_data (FunctorAlg F) (category_binproduct (FunctorAlg F1) (FunctorAlg F2)).
+  Proof.
+    use make_functor_data.
+    - intro X.
+      split.
+      + exists (pr1 X). exact (τ1 X).
+      + exists (pr1 X). exact (τ2 X).
+    - intros X X' f.
+      split; cbn.
+      + exists (pr1 f).
+        abstract (unfold τ1;
+        rewrite assoc';
+        etrans; [apply maponpaths; apply (pr2 f) |];
+        rewrite assoc;
+        etrans;
+        [apply cancel_postcomposition; apply BinCoproductIn1Commutes |];
+        apply assoc').
+      + exists (pr1 f).
+        abstract (unfold τ2;
+        rewrite assoc';
+        etrans; [apply maponpaths; apply (pr2 f) |];
+        rewrite assoc;
+        etrans;
+        [apply cancel_postcomposition; apply BinCoproductIn2Commutes |];
+        apply assoc').
+  Defined.
+
+  Lemma AlgebrasForBincoproductIntoProductcategory_is_functor :
+    is_functor AlgebrasForBincoproductIntoProductcategory_data.
+  Proof.
+    split; red.
+    - intro X.
+      use dirprodeq;
+        (use mor_eq_total_category_when_locally_prop; [ apply is_locally_propositional_algebra_disp_cat | apply idpath]).
+    - intros X Y Z f g.
+      use dirprodeq;
+        (use mor_eq_total_category_when_locally_prop; [ apply is_locally_propositional_algebra_disp_cat | apply idpath]).
+  Qed.
+
+  Definition AlgebrasForBincoproductIntoProductcategory :
+    functor (FunctorAlg F) (category_binproduct (FunctorAlg F1 ) (FunctorAlg F2))
+    := _ ,, AlgebrasForBincoproductIntoProductcategory_is_functor.
+
+
+End AlgebrasForBinaryCoproducts.
+
+Section AlgebrasForCoproducts.
+
+  Context (I : UU) {C : category} (HC : Coproducts I C) (F : I -> functor C C).
+
+  Let sF : functor C C := coproduct_of_functors _ _ _ HC F.
+
+  Local Coercion alg_carrier : algebra_ob >-> ob.
+
+  Definition taui_from_alg (X : algebra_ob sF) (i : I) : F i X --> X.
+  Proof.
+    exact (CoproductIn _ _ (HC _) i · alg_map _ X).
+  Defined.
+
+  Definition AlgebrasForCoproductIntoProductcategory_data :
+  functor_data (FunctorAlg sF) (product_category (fun i => FunctorAlg (F i))).
+  Proof.
+    use make_functor_data.
+    - intro X.
+      intro i.
+      exists (pr1 X). exact (taui_from_alg X i).
+    - intros X X' f.
+      intro i.
+      exists (pr1 f).
+      abstract (unfold taui_from_alg;
+      cbn;
+      rewrite assoc';
+      etrans; [apply maponpaths; apply (pr2 f) |];
+      rewrite assoc;
+      etrans;
+      [ apply cancel_postcomposition;
+        apply (CoproductInCommutes I C (λ i0 : I, F i0 (pr1 X)) (HC (λ i0 : I, F i0 (pr1 X)))) |];
+      apply assoc').
+  Defined.
+
+  Lemma AlgebrasForCoproductIntoProductcategory_is_functor :
+    is_functor AlgebrasForCoproductIntoProductcategory_data.
+  Proof.
+    split; red.
+    - intro X.
+      apply funextsec.
+      intro i.
+      transparent assert (xx : (ob (total_precategory (algebra_disp_cat (F i))))).
+      { exists (pr1 X). exact (taui_from_alg X i). }
+      apply (mor_eq_total_category_when_locally_prop(D:=algebra_disp_cat (F i)) (is_locally_propositional_algebra_disp_cat (F i)) (xx:=xx)(yy:=xx)).
+      apply idpath.
+    - intros X Y Z f g.
+      apply funextsec.
+      intro i.
+      transparent assert (xx : (ob (total_precategory (algebra_disp_cat (F i))))).
+      { exists (pr1 X). exact (taui_from_alg X i). }
+      transparent assert (zz : (ob (total_precategory (algebra_disp_cat (F i))))).
+      { exists (pr1 Z). exact (taui_from_alg Z i). }
+      apply (mor_eq_total_category_when_locally_prop(D:=algebra_disp_cat (F i)) (is_locally_propositional_algebra_disp_cat (F i)) (xx:=xx)(yy:=zz)).
+      apply idpath.
+  Qed.
+
+  Definition AlgebrasForCoproductIntoProductcategory :
+    functor (FunctorAlg sF) (product_category (fun i => FunctorAlg (F i)))
+    := _ ,, AlgebrasForCoproductIntoProductcategory_is_functor.
+
+
+End AlgebrasForCoproducts.
