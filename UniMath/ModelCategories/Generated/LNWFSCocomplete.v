@@ -74,7 +74,7 @@ Proof.
 Defined.
 
 (* this construction only works for non-empty graphs, since
-   we need an arrow arrow_dom a --> colim (CCFf_pt_ob1 a),
+   we need an arrow arrow_dom a --> colim (CCFf_pt_ob1 a), 
    but we can only find this for a non-empty graph *)
 Definition ColimFf_ob (v0 : vertex g) (a : arrow C) : three_disp C a.
 Proof.
@@ -122,7 +122,7 @@ Proof.
         etrans; [apply assoc'|];
         etrans; [apply cancel_precomposition;
                  use (colimArrowCommutes (CCFf_pt_ob1 a))|];
-
+        
         etrans; [apply assoc|];
         apply pathsinv0;
         etrans; [apply assoc|];
@@ -141,7 +141,7 @@ Proof.
         (* cbn. *)
         set (Dvf := ((section_disp_on_morphisms (section_disp_data_from_section_disp (dob d v))) f));
         set (Dvfax := pr2 Dvf);
-
+  
         exact (pathsinv0 (pr2 Dvfax))
       ).
 Defined.
@@ -179,14 +179,14 @@ Proof.
     reflexivity.
 Qed.
 
-Definition ColimFf (v0 : vertex g) : Ff C :=
+Definition ColimFf (v0 : vertex g) : Ff C := 
     (_,, ColimFf_axioms v0).
 
 
 (* we need an edge from v0 to v for this to work,
    regarding equality of (arrow_dom v/v0 · colimIn v/v0) *)
-Local Definition colim_nat_trans_in_data
-      {v0 : vertex g} {v : vertex g} :
+Local Definition colim_nat_trans_in_data 
+      {v0 : vertex g} {v : vertex g} : 
     dob d v --> ColimFf v0.
 Proof.
   use tpair.
@@ -288,7 +288,7 @@ Proof.
       intro u;
       etrans; [apply (colimArrowCommutes (CCFf_pt_ob1 a))|];
       (* cbn. *)
-
+  
       set (ccuf := (section_nt_disp_axioms_from_section_nt_disp (coconeIn cc u)) _ _ f);
       etrans; [exact (pathsinv0 (base_paths _ _ ccuf))|];
       etrans; [use pr1_transportf_const|];
@@ -350,12 +350,12 @@ End Ff_cocomplete_diagram.
 
 End Ff_cocomplete.
 
-Lemma ChainsFf {C : category} (HC : Colims C) :
+Lemma ChainsFf {C : category} (HC : Colims C) : 
     Chains (Ff C).
 Proof.
   intros d.
   use (ColimFfCocone HC d).
-  - abstract (exact is_connected_nat_graph).
+  - exact is_connected_nat_graph.
   - exact 0.
 Defined.
 
@@ -364,7 +364,7 @@ Lemma CoequalizersFf {C : category} (HC : Colims C) :
 Proof.
   intros F G f g.
   use (ColimFfCocone HC).
-  - abstract (exact is_connected_coequalizer_graph).
+  - exact is_connected_coequalizer_graph.
   - exact (● 0)%stn.
 Defined.
 
@@ -392,12 +392,12 @@ Proof.
     set (Lu := dob d u).
     set (Lv := dob d v).
     set (mor := dmor d e : Lu --> Lv).
-
+    
     set (α := lnwfs_mor (pr2 Lu) (pr2 Lv) (pr1 mor)).
     set (Mu := fact_L (pr1 Lu)).
     set (Mv := fact_L (pr1 Lv)).
     set (mulmor := #Mu (α a) · α (Mv a)).
-
+    
     use mors_to_arrow_mor.
     * exact (arrow_mor11 (α a)).
     * exact (arrow_mor11 mulmor).
@@ -457,7 +457,7 @@ Defined.
 Local Lemma LNWFS_colim_comul_data_subproof
     (v : vertex g)
     (f : arrow C)
-  :
+  : 
     fact_L (pr1 (dob d v)) f ·
     arrow_mor11 (lnwfs_Σ (pr2 (dob d v)) f) ·
     three_mor11 (#(fact_functor (pr1 (dob d v))) (three_mor_mor01 (section_nat_trans (colimIn Finf v) f)))
@@ -465,7 +465,7 @@ Local Lemma LNWFS_colim_comul_data_subproof
     fact_L (pr1 (dob d v)) (fact_L (colim Finf) f).
 Proof.
   set (Lv := (dob d v)).
-  (* λf · σf · m11 = λ_{λ∞f}
+  (* λf · σf · m11 = λ_{λ∞f} 
     where λf · σf = λλf (component of comul)
     and λλf · m11 = λ_{λ∞f} (commutativity of fact_L (pr1 Lv) (fact_L (colim Finf)) f)
   *)
@@ -478,7 +478,7 @@ Proof.
             exact (lnwfs_Σ_top_map_id _ f).
     apply id_left.
   }
-  etrans.
+  etrans. 
   {
     set (LcolimIn := (# (fact_functor (pr1 Lv)) (three_mor_mor01 (section_nat_trans (colimIn Finf v) f)))).
     set (LcolimIncomm01 := pr1 (three_mor_comm LcolimIn)).
@@ -631,20 +631,20 @@ Local Lemma LNWFS_colim_comul_monad_ax_subproof1
   fact_L (pr1 (dob d v)) (fact_L (pr1 (dob d v)) f)
   · arrow_mor11 (colimIn (ccμ f) v).
 Proof.
-  set (predicate := λ v,
+  set (predicate := λ v, 
       fact_L (pr1 (dob d v0)) (fact_L (pr1 (dob d v0)) f)
       · arrow_mor11 (colimIn (ccμ f) v0) =
       fact_L (pr1 (dob d v)) (fact_L (pr1 (dob d v)) f)
       · arrow_mor11 (colimIn (ccμ f) v)).
-
-  enough (He : ∏ (u u' : vertex g) (e : edge u u'),
+  
+  enough (He : ∏ (u u' : vertex g) (e : edge u u'), 
             fact_L (pr1 (dob d u)) (fact_L (pr1 (dob d u)) f)
             · arrow_mor11 (colimIn (ccμ f) u) =
             fact_L (pr1 (dob d u')) (fact_L (pr1 (dob d u')) f)
             · arrow_mor11 (colimIn (ccμ f) u')).
   {
     use (connected_graph_zig_zag_strong_induction v0 H predicate); [reflexivity|].
-
+    
     intros u u' Hu e.
     destruct e.
     - etrans. exact Hu.
@@ -659,7 +659,7 @@ Proof.
           exact (pathsinv0 (pr2 (pathsdirprodweq (base_paths _ _ cinc)))).
   etrans. apply assoc.
   apply cancel_postcomposition.
-
+  
   etrans. apply assoc.
   etrans. apply cancel_postcomposition.
   {
@@ -675,19 +675,19 @@ Proof.
   apply id_left.
 Qed.
 
-Local Lemma LNWFS_colim_comul_monad_ax_subproof
-    (f : arrow C)
+Local Lemma LNWFS_colim_comul_monad_ax_subproof 
+    (f : arrow C) 
     (v : vertex g) :
   arrow_mor11 (lnwfs_Σ (pr2 (dob d v)) f)
   · three_mor11 (
-      #(fact_functor (pr1 (dob d v)))
+      #(fact_functor (pr1 (dob d v))) 
       (three_mor_mor01 ((section_nat_trans_data (colim_nat_trans_in_data CC dbase H) f)))
     )
   · three_mor11 (#(fact_functor (pr1 (dob d v))) (LNWFS_colim_comul_data f))
   =
   arrow_mor11 (lnwfs_Σ (pr2 (dob d v)) f)
   · three_mor11 (
-      #(fact_functor (pr1 (dob d v)))
+      #(fact_functor (pr1 (dob d v))) 
       (three_mor_mor01 ((section_nat_trans_data (colim_nat_trans_in_data CC dbase H) f)))
     )
   · arrow_mor11 (lnwfs_Σ (pr2 (dob d v)) (fact_L (colim Finf) f))
@@ -734,13 +734,13 @@ Proof.
   etrans. apply assoc'.
   etrans. apply cancel_postcomposition.
           exact (pr2 (pathsdirprodweq (base_paths _ _ (law3 f)))).
-
+  
   etrans. apply assoc'.
   apply pathsinv0.
   etrans. apply assoc'.
   etrans. apply assoc'.
   apply cancel_precomposition.
-
+  
   set (mor := (three_mor_mor01
                 (section_nat_trans_data (colim_nat_trans_in_data CC dbase H) f))).
   set (LΣnatFinff := nat_trans_ax (pr12 Lv) _ _ mor).
@@ -762,7 +762,7 @@ Proof.
 Qed.
 
 Local Lemma LNWFS_colim_comul_data_subproof1
-    (f : arrow C)
+    (f : arrow C) 
     (v : vertex g) :
   three_mor11
       (# (fact_functor (pr1 (dob d v))) (three_mor_mor01 (section_nat_trans (colimIn Finf v) f)))
@@ -941,7 +941,7 @@ Definition ColimLNWFS_in (v : vertex g) :
 
 Local Open Scope mor_disp.
 
-Lemma project_cocone
+Lemma project_cocone 
     (L : total_category (LNWFS C))
     (cc : cocone d L) :
   cocone dbase (pr1 L).
@@ -957,8 +957,8 @@ Defined.
 
 Lemma ColimLNWFS_disp_cc_mor
     {L: total_category (LNWFS C)} (cc : cocone d L) :
-  ColimLNWFS_disp
-    -->[ColimFf_unique_mor CC dbase v0 (pr1 L) (project_cocone _ cc)]
+  ColimLNWFS_disp 
+    -->[ColimFf_unique_mor CC dbase v0 (pr1 L) (project_cocone _ cc)] 
     (pr2 L).
 Proof.
   split; intro f.
@@ -1002,7 +1002,7 @@ Proof.
         apply cancel_precomposition.
         apply colimArrowCommutes.
       }
-
+      
       apply pathsinv0.
       etrans. exact (pr2 (pathsdirprodweq (base_paths _ _ (pr12 (coconeIn cc v) f)))).
       etrans. apply assoc'.
@@ -1012,7 +1012,7 @@ Proof.
 
       etrans. apply assoc.
       apply cancel_postcomposition.
-
+      
       etrans. apply (pr1_section_disp_on_morphisms_comp).
       apply section_disp_on_eq_morphisms.
       + apply id_left.
@@ -1024,7 +1024,7 @@ Proof.
     etrans. apply assoc.
     etrans. apply cancel_postcomposition.
             apply colimArrowCommutes.
-
+            
     exact (pr2 (pathsdirprodweq (base_paths _ _ (pr22 (coconeIn cc v) f)))).
 Qed.
 
@@ -1064,7 +1064,7 @@ Proof.
   - exists (colim Finf).
     exact (ColimLNWFS_disp).
   - use make_cocone.
-    * intro v.
+    * intro v. 
       exists (colimIn Finf v).
       exact (ColimLNWFS_disp_in v).
     * abstract (
@@ -1077,12 +1077,12 @@ Defined.
 
 End LNWFS_cocomplete.
 
-Lemma ChainsLNWFS {C : category} (HC : Colims C) :
+Lemma ChainsLNWFS {C : category} (HC : Colims C) : 
     Chains (total_category (LNWFS C)).
 Proof.
   intros d.
   use (ColimLNWFSCocone HC).
-  - abstract (exact is_connected_nat_graph).
+  - exact is_connected_nat_graph.
   - exact 0.
 Defined.
 
@@ -1091,6 +1091,6 @@ Lemma CoequalizersLNWFS {C : category} (HC : Colims C) :
 Proof.
   intros F G f g.
   use (ColimLNWFSCocone HC).
-  - abstract (exact is_connected_coequalizer_graph).
+  - exact is_connected_coequalizer_graph.
   - exact (● 0)%stn.
 Defined.
