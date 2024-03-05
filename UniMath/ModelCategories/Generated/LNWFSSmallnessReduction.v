@@ -645,24 +645,35 @@ Proof.
     apply (section_disp_on_eq_morphisms F); reflexivity.
 Qed.
 
+Context (L : total_category (LNWFS C))
+        (d : chain LNWFS_mon)
+        (CL := ChainsLNWFS CC d)
+        (dbase := mapdiagram (pr1_category _) d)
+        (Ldbase := mapdiagram (monoidal_left_tensor (pr1 L : Ff_mon)) dbase)
+        (FfCCbase := ChainsFf CC Ldbase)
+        (LNWFSCC := ChainsLNWFS CC (mapdiagram (monoidal_left_tensor (L : LNWFS_mon)) d)).
+
+Section Helpers.
+
+Context (HF : isColimCocone _ _
+          (mapcocone (monoidal_left_tensor (pr1 L : Ff_mon)) _ (project_cocone _ _ (colimCocone CL))))
+        (LNWFSarr := colimArrow LNWFSCC _ (mapcocone (monoidal_left_tensor (L : LNWFS_mon)) _ (colimCocone CL)))
+        (base_mor := isColim_is_z_iso _ FfCCbase _ _ HF)
+        (Ffiso := (_,, base_mor) : z_iso _ _).
+
 (* commutativity of project_cocone for
     pr1_category and monoidal_left_tensor *)
-    Local Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp_pr1_category_tensor_commutes
-    (L : total_category (LNWFS C))
-    (d : chain LNWFS_mon)
-    (CL := ChainsLNWFS CC d)
-    (HF : isColimCocone _ _
-      (mapcocone (monoidal_left_tensor (pr1 L : Ff_mon)) _ (project_cocone _ _ (colimCocone CL))))
-    (dbase := mapdiagram (pr1_category _) d)
-    (Ldbase := mapdiagram (monoidal_left_tensor (pr1 L : Ff_mon)) dbase)
-    (FfCCbase := ChainsFf CC Ldbase)
-    (LNWFSCC := ChainsLNWFS CC (mapdiagram (monoidal_left_tensor (L : LNWFS_mon)) d))
-    (base_mor := isColim_is_z_iso _ FfCCbase _ _ HF)
-    (Ffiso := (_,, base_mor) : z_iso _ _)
-    (LNWFSarr := colimArrow LNWFSCC _ (mapcocone (monoidal_left_tensor (L : LNWFS_mon)) _ (colimCocone CL))) :
+Section ProjectCoconeComm.
+
+Opaque base_mor.
+Opaque ColimFfCocone.
+Opaque ColimLNWFSCocone.
+Opaque CL.
+
+Local Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp_pr1_category_tensor_commutes :
   z_iso_mor Ffiso = pr1 LNWFSarr.
 Proof.
-  use colimArrowUnique'.
+  use (colimArrowUnique' FfCCbase).
   intro v.
   etrans. apply (colimArrowCommutes FfCCbase).
   apply pathsinv0.
@@ -675,46 +686,41 @@ Proof.
   reflexivity.
 Qed.
 
+End ProjectCoconeComm.
+
 (* showing that the morphism induced the the universal
 property of the colimit in Ff C is indeed an LNWFS morphism.
 we do this by reducing it to the pointwise case. *)
-Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp
-    (L : total_category (LNWFS C))
-    (d : chain LNWFS_mon)
-    (CL := ChainsLNWFS CC d)
-    (HF : isColimCocone _ _
-      (mapcocone (monoidal_left_tensor (pr1 L : Ff_mon)) _ (project_cocone _ _ (colimCocone CL))))
-    (dbase := mapdiagram (pr1_category _) d)
-    (Ldbase := mapdiagram (monoidal_left_tensor (pr1 L : Ff_mon)) dbase)
-    (FfCCbase := ChainsFf CC Ldbase)
-    (LNWFSCC := ChainsLNWFS CC (mapdiagram (monoidal_left_tensor (L : LNWFS_mon)) d))
-    (base_mor := isColim_is_z_iso _ FfCCbase _ _ HF) :
+Section DispMor.
+
+Opaque base_mor.
+Opaque ColimFfCocone.
+Opaque ColimLNWFSCocone.
+Opaque CL.
+Opaque LNWFSCC LNWFS_tot_lcomp.
+Opaque Ffiso LNWFSarr.
+
+Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp :
   pr2 (monoidal_left_tensor (L : LNWFS_mon) (colim CL)) 
   -->[pr1 base_mor] pr2 (colim LNWFSCC).
 Proof.
-  set (Ffiso := (_,, base_mor) : z_iso _ _).
-  set (LNWFSarr := colimArrow LNWFSCC _ (mapcocone (monoidal_left_tensor (L : LNWFS_mon)) _ (colimCocone CL))).
   apply (Ff_iso_inv_LNWFS_mor (colim LNWFSCC) (monoidal_left_tensor (L : LNWFS_mon) (colim CL)) Ffiso).
   apply (@Ff_mor_eq_LNWFS_mor C (colim LNWFSCC) (monoidal_left_tensor (L : LNWFS_mon) (colim CL)) (z_iso_mor Ffiso) LNWFSarr).
   apply pathsinv0.
-  exact (Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp_pr1_category_tensor_commutes L d HF).
+  exact (Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp_pr1_category_tensor_commutes).
 Qed.
 
-Opaque ColimFfCocone.
+End DispMor.
 
-Local Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_inv_in_precat
-    (L : total_category (LNWFS C))
-    (d : chain LNWFS_mon)
-    (CL := ChainsLNWFS CC d)
-    (dbase := mapdiagram (pr1_category _) d)
-    (HF : isColimCocone _ _
-        (mapcocone (monoidal_left_tensor (pr1 L : Ff_mon)) _ (project_cocone _ _ (colimCocone CL))))
-    (HFCC := make_ColimCocone _ _ _ HF)
-    (Ldbase := (mapdiagram (monoidal_left_tensor (pr1 L : Ff_mon)) dbase))
-    (FfCCbase := ChainsFf CC Ldbase)
-    (base_mor := isColim_is_z_iso _ FfCCbase _ _ HF)
-    (base_inv := colimArrow FfCCbase _ (colimCocone HFCC))
-    (LNWFSCC := ChainsLNWFS CC (mapdiagram (monoidal_left_tensor (L : LNWFS_mon)) d)) :
+Section InvInPrecat.
+
+Opaque base_mor.
+Opaque ColimFfCocone.
+Opaque ColimLNWFSCocone.
+Opaque CL.
+Opaque LNWFSCC LNWFS_tot_lcomp.
+
+Local Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_inv_in_precat :
   is_inverse_in_precat
     (pr1 (colimArrow LNWFSCC _ (mapcocone (monoidal_left_tensor (L : LNWFS_mon)) d (colimCocone CL))))
     (pr1 base_mor).
@@ -738,11 +744,11 @@ Proof.
     reflexivity.
 Qed.
 
-Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim 
-    (L : total_category (LNWFS C))
-    (d : chain LNWFS_mon)
-    (CL := ChainsLNWFS CC d)
-    (dbase := mapdiagram (pr1_category _) d) :
+End InvInPrecat.
+
+End Helpers.
+
+Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim :
   isColimCocone _ _
     (mapcocone (monoidal_left_tensor (pr1 L : Ff_mon)) _ (project_cocone _ _ (colimCocone CL))) 
     -> 
@@ -752,22 +758,19 @@ Proof.
   intro HF.
 
   set (HFCC := make_ColimCocone _ _ _ HF).
-  set (Ldbase := (mapdiagram (monoidal_left_tensor (pr1 L : Ff_mon)) dbase)).
-  set (FfCCbase := ChainsFf CC Ldbase).
   set (base_mor := isColim_is_z_iso _ FfCCbase _ _ HF).
   set (base_inv := colimArrow FfCCbase _ (colimCocone HFCC)).
-  set (LNWFSCC := ChainsLNWFS CC (mapdiagram (monoidal_left_tensor (L : LNWFS_mon)) d)).
-
+  
   use (is_z_iso_isColim _ LNWFSCC).
   use tpair.
   - exists (pr1 base_mor).
     abstract (
-      exact (Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp L d HF)
+      exact (Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp HF)
     ).
   - (* showing isomorphism is easy, since we know that the base morphism is an isomorphism *)
     abstract (
       apply LNWFS_inv_in_precat_if_Ff_inv_in_precat;
-      exact (Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_inv_in_precat L d HF)
+      exact (Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_inv_in_precat HF)
     ).    
 Qed.
 
