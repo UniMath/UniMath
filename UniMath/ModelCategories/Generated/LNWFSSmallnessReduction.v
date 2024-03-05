@@ -720,33 +720,43 @@ Section InvInPrecat.
 
 Opaque base_mor.
 Opaque ColimFfCocone.
-Opaque ColimLNWFSCocone.
 Opaque CL.
-Opaque LNWFSCC LNWFS_tot_lcomp.
+Opaque LNWFS_tot_lcomp.
+Opaque Ff_lcomp.
+Opaque Ff_precategory_data.
+Opaque LNWFS.
+Opaque FfCCbase.
+
+Local Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_inv_in_precat_subproof :
+  colimArrow FfCCbase _
+    (mapcocone (monoidal_left_tensor (pr1 L : Ff_mon))
+      _ (project_cocone d (colim CL) (colimCocone CL)))
+  = (pr1 (colimArrow LNWFSCC _ (mapcocone (monoidal_left_tensor (L : LNWFS_mon)) d (colimCocone CL)))).
+Proof.
+  use (colimArrowUnique' FfCCbase).
+  intro v.
+  etrans. exact (colimArrowCommutes FfCCbase _ _ v).
+  apply pathsinv0.
+  exact (colimArrowCommutes FfCCbase _ _ v).
+Qed.
+
+Opaque ColimLNWFSCocone.
+Opaque LNWFSCC.
+Opaque Ffiso LNWFSarr.
 
 Local Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_inv_in_precat :
   is_inverse_in_precat
     (pr1 (colimArrow LNWFSCC _ (mapcocone (monoidal_left_tensor (L : LNWFS_mon)) d (colimCocone CL))))
     (pr1 base_mor).
 Proof.
-  (* split.
-  - etrans; [|exact (pr12 base_mor)].
-    apply (cancel_postcomposition _ _ (pr1 base_mor)).
-    use (colimArrowUnique' FfCCbase).
-    intro v.
-    etrans. exact (colimArrowCommutes FfCCbase _ _ v).
-    apply pathsinv0.
-    etrans. apply (colimArrowCommutes FfCCbase _ _ v).
-    reflexivity.
-  - etrans; [|exact (pr22 base_mor)].
-    apply cancel_precomposition.
-    use colimArrowUnique'.
-    intro v.
-    etrans. exact (colimArrowCommutes FfCCbase _ _ v).
-    apply pathsinv0.
-    etrans. apply (colimArrowCommutes FfCCbase).
-    reflexivity. *)
-Admitted.
+  split.
+  - use (pathscomp1 (pr12 base_mor) _); [|reflexivity];
+    apply (cancel_postcomposition _ _ (pr1 base_mor));
+    exact Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_inv_in_precat_subproof.
+  - use (pathscomp1 (pr22 base_mor)); [|reflexivity];
+    apply (cancel_precomposition _ _ _ _ _ _ (pr1 base_mor));
+    exact Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_inv_in_precat_subproof.
+Qed.
 
 End InvInPrecat.
 
