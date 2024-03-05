@@ -770,7 +770,7 @@ Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim :
     isColimCocone _ _ 
       (mapcocone (monoidal_left_tensor (L : LNWFS_mon)) _ (colimCocone CL)).
 Proof.
-  (* intro HF.
+  intro HF.
 
   set (HFCC := make_ColimCocone _ _ _ HF).
   set (base_mor := isColim_is_z_iso _ FfCCbase _ _ HF).
@@ -786,7 +786,7 @@ Proof.
     abstract (
       apply LNWFS_inv_in_precat_if_Ff_inv_in_precat;
       exact (Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_inv_in_precat HF)
-    ).     *)
-Admitted.
+    ).    
+Qed.
 
 End SmallnessReduction.
