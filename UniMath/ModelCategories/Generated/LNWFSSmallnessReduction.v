@@ -673,17 +673,13 @@ Opaque CL.
 Local Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp_pr1_category_tensor_commutes :
   z_iso_mor Ffiso = pr1 LNWFSarr.
 Proof.
-  use (colimArrowUnique' FfCCbase).
+  apply (colimArrowUnique' FfCCbase Ffiso (pr1 LNWFSarr)).
   intro v.
   etrans. apply (colimArrowCommutes FfCCbase).
   apply pathsinv0.
-  apply subtypePath; [intro; apply isaprop_section_nat_trans_disp_axioms|].
-  use funextsec.
-  intro f.
-  use subtypePath; [intro; apply isapropdirprod; apply homset_property|].
+  functorial_factorization_mor_eq f.
   etrans. use pr1_transportf_const.
-  etrans. apply (colimArrowCommutes (CCFf_pt_ob1 CC Ldbase f)).
-  reflexivity.
+  exact (colimArrowCommutes (CCFf_pt_ob1 CC Ldbase f) _ _ v).
 Qed.
 
 End ProjectCoconeComm.
