@@ -122,7 +122,7 @@ Proof.
         etrans; [apply assoc'|];
         etrans; [apply cancel_precomposition;
                  use (colimArrowCommutes (CCFf_pt_ob1 a))|];
-        
+
         etrans; [apply assoc|];
         apply pathsinv0;
         etrans; [apply assoc|];
@@ -288,7 +288,7 @@ Proof.
       intro u;
       etrans; [apply (colimArrowCommutes (CCFf_pt_ob1 a))|];
       (* cbn. *)
-  
+
       set (ccuf := (section_nt_disp_axioms_from_section_nt_disp (coconeIn cc u)) _ _ f);
       etrans; [exact (pathsinv0 (base_paths _ _ ccuf))|];
       etrans; [use pr1_transportf_const|];
@@ -392,12 +392,12 @@ Proof.
     set (Lu := dob d u).
     set (Lv := dob d v).
     set (mor := dmor d e : Lu --> Lv).
-    
+
     set (α := lnwfs_mor (pr2 Lu) (pr2 Lv) (pr1 mor)).
     set (Mu := fact_L (pr1 Lu)).
     set (Mv := fact_L (pr1 Lv)).
     set (mulmor := #Mu (α a) · α (Mv a)).
-    
+
     use mors_to_arrow_mor.
     * exact (arrow_mor11 (α a)).
     * exact (arrow_mor11 mulmor).
@@ -636,7 +636,7 @@ Proof.
       · arrow_mor11 (colimIn (ccμ f) v0) =
       fact_L (pr1 (dob d v)) (fact_L (pr1 (dob d v)) f)
       · arrow_mor11 (colimIn (ccμ f) v)).
-  
+
   enough (He : ∏ (u u' : vertex g) (e : edge u u'),
             fact_L (pr1 (dob d u)) (fact_L (pr1 (dob d u)) f)
             · arrow_mor11 (colimIn (ccμ f) u) =
@@ -644,7 +644,7 @@ Proof.
             · arrow_mor11 (colimIn (ccμ f) u')).
   {
     use (connected_graph_zig_zag_strong_induction v0 H predicate); [reflexivity|].
-    
+
     intros u u' Hu e.
     destruct e.
     - etrans. exact Hu.
@@ -659,7 +659,7 @@ Proof.
           exact (pathsinv0 (pr2 (pathsdirprodweq (base_paths _ _ cinc)))).
   etrans. apply assoc.
   apply cancel_postcomposition.
-  
+
   etrans. apply assoc.
   etrans. apply cancel_postcomposition.
   {
@@ -734,13 +734,13 @@ Proof.
   etrans. apply assoc'.
   etrans. apply cancel_postcomposition.
           exact (pr2 (pathsdirprodweq (base_paths _ _ (law3 f)))).
-  
+
   etrans. apply assoc'.
   apply pathsinv0.
   etrans. apply assoc'.
   etrans. apply assoc'.
   apply cancel_precomposition.
-  
+
   set (mor := (three_mor_mor01
                 (section_nat_trans_data (colim_nat_trans_in_data CC dbase H) f))).
   set (LΣnatFinff := nat_trans_ax (pr12 Lv) _ _ mor).
@@ -799,7 +799,7 @@ Proof.
             apply (colimArrowCommutes).
 
     set (law1v := @Comonad_law1 _ (L_monad _ _ (pr22 (dob d v))) f).
-    
+
     etrans. apply assoc'.
     etrans. apply cancel_precomposition.
             exact (LNWFS_colim_comul_data_subproof1 f v).
@@ -1002,7 +1002,7 @@ Proof.
         apply cancel_precomposition.
         apply colimArrowCommutes.
       }
-      
+
       apply pathsinv0.
       etrans. exact (pr2 (pathsdirprodweq (base_paths _ _ (pr12 (coconeIn cc v) f)))).
       etrans. apply assoc'.
@@ -1012,7 +1012,7 @@ Proof.
 
       etrans. apply assoc.
       apply cancel_postcomposition.
-      
+
       etrans. apply (pr1_section_disp_on_morphisms_comp).
       apply section_disp_on_eq_morphisms.
       + apply id_left.
@@ -1024,7 +1024,7 @@ Proof.
     etrans. apply assoc.
     etrans. apply cancel_postcomposition.
             apply colimArrowCommutes.
-            
+
     exact (pr2 (pathsdirprodweq (base_paths _ _ (pr22 (coconeIn cc v) f)))).
 Qed.
 

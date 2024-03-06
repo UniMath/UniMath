@@ -73,7 +73,7 @@ Context {C : category}.
 Context (CC : Colims C).
 Local Definition Ff_mon : monoidal_cat :=
     (_,, @Ff_monoidal C).
-    
+
 Context {g : graph}.
 Context (H : is_connected g).
 Context (v0 : vertex g).
@@ -246,7 +246,7 @@ Proof.
   - abstract (intro; apply impred; intro; apply homset_property).
   - abstract (
       intros y Hy;
-      
+
       (* unfold is_cocone_mor in Hy. *)
       apply (pre_comp_with_z_iso_is_inj
         (z_iso_inv (Ff_right_tensor_preserves_colimit_mor_iso)));
@@ -259,7 +259,7 @@ Proof.
       etrans; [|
         use (base_paths _ _ (uniqueness (z_iso_inv (Ff_right_tensor_preserves_colimit_mor_iso) · y,, _)))
       ]; [reflexivity|];
-      
+
       intro v;
       etrans; [apply assoc|];
       etrans; [|exact (Hy v)];
@@ -401,7 +401,7 @@ Proof.
   set (colimAL := colim (LNWFSCC (mapdiagram (monoidal_right_tensor A) d))).
   set (AcolimL := monoidal_right_tensor A (colim (LNWFSCC d))).
   set (LNWFSmor := colimArrow (LNWFSCC (mapdiagram (monoidal_right_tensor A) d)) _ (mapcocone (monoidal_right_tensor A) _ (colimCocone (LNWFSCC d)))).
-  
+
   apply (@Ff_mor_eq_LNWFS_mor C colimAL AcolimL Ff_rt_cc_inv LNWFSmor).
   exact (Ff_right_tensor_preserves_colimit_mor_inv_is_LNWFS_colim_mor).
 Qed.
@@ -424,7 +424,7 @@ Proof.
   set (colimAL := colim (LNWFSCC (mapdiagram (monoidal_right_tensor A) d))).
   set (AcolimL := monoidal_right_tensor A (colim (LNWFSCC d))).
   set (Ffiso := z_iso_inv (Ff_right_tensor_preserves_colimit_mor_iso CC H v0 (pr1 A) dbase)).
-  
+
   use (is_z_iso_isColim _ (LNWFSCC (mapdiagram (monoidal_right_tensor A) d))).
   use tpair.
   - exists (z_iso_inv Ffiso).

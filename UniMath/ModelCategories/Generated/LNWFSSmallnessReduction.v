@@ -775,7 +775,7 @@ Proof.
   set (HFCC := make_ColimCocone _ _ _ HF).
   set (base_mor := isColim_is_z_iso _ FfCCbase _ _ HF).
   set (base_inv := colimArrow FfCCbase _ (colimCocone HFCC)).
-  
+
   use (is_z_iso_isColim _ LNWFSCC).
   use tpair.
   - exists (pr1 base_mor).

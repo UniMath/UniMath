@@ -118,7 +118,7 @@ Proof.
         rewrite gh.
         exact f_w.
       }
-      
+
       (* h ∈ AF because AF = F ∩ W and h ∈ F by definition *)
       assert (h_af : (AF _ _) h).
       {
@@ -127,7 +127,7 @@ Proof.
         - exact h_f.
         - exact h_w.
       }
-      
+
       (* extract lift l from
             g
         a ----> c
