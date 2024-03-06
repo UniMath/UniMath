@@ -18,6 +18,8 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
@@ -26,9 +28,13 @@ Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
-Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
+Require Import UniMath.Bicategories.Core.Bicat.
+Import Bicat.Notations.
+Require Import UniMath.Bicategories.Morphisms.Adjunctions.
+Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
-Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
+Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
+Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Prod.
@@ -102,6 +108,24 @@ Proof.
   split.
   - exact is_univalent_2_0_univ_cat_with_terminal_obj.
   - exact is_univalent_2_1_univ_cat_with_terminal_obj.
+Defined.
+
+Proposition disp_left_adjoint_equivalence_subbicat
+            {C₁ C₂ : bicat_of_univ_cats}
+            {F : C₁ --> C₂}
+            (HF : left_adjoint_equivalence F)
+            (T₁ : disp_bicat_terminal_obj C₁)
+            (T₂ : disp_bicat_terminal_obj C₂)
+            (FT : T₁ -->[ F ] T₂)
+  : disp_left_adjoint_equivalence HF FT.
+Proof.
+  use disp_left_adjoint_equivalence_subbicat.
+  - clear C₁ C₂ F HF T₁ T₂ FT ; cbn.
+    intros C₁ C₂ T₁ T₂ F HF.
+    exact (right_adjoint_preserves_terminal
+             _
+             (adj_equivalence_of_cats_inv _ (adj_equiv_to_equiv_cat _ HF))).
+  - exact univalent_cat_is_univalent_2.
 Defined.
 
 (**
@@ -422,6 +446,28 @@ Proof.
       (use nat_trans_finlim_eq ;
        intro x ;
        apply (z_iso_after_z_iso_inv (_ ,, Hτ x))).
+Defined.
+
+Definition left_adjoint_equivalence_univ_cat_with_finlim
+           {C₁ C₂ : univ_cat_with_finlim}
+           (F : functor_finlim C₁ C₂)
+           (HF : adj_equivalence_of_cats F)
+  : left_adjoint_equivalence F.
+Proof.
+  use equiv_to_adjequiv.
+  simple refine ((_ ,, (_ ,, _)) ,, _ ,, _).
+  - use make_functor_finlim.
+    + exact (right_adjoint HF).
+    + exact (right_adjoint_preserves_terminal _ HF).
+    + exact (right_adjoint_preserves_pullback _ HF).
+  - use make_nat_trans_finlim.
+    exact (unit_nat_z_iso_from_adj_equivalence_of_cats HF).
+  - use make_nat_trans_finlim.
+    exact (counit_nat_z_iso_from_adj_equivalence_of_cats HF).
+  - use is_invertible_2cell_cat_with_finlim.
+    apply (unit_nat_z_iso_from_adj_equivalence_of_cats HF).
+  - use is_invertible_2cell_cat_with_finlim.
+    apply (counit_nat_z_iso_from_adj_equivalence_of_cats HF).
 Defined.
 
 (**

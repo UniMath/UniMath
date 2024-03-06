@@ -26,16 +26,20 @@
  Contents
  1. The bicategory of categories with a terminal object and a fibration
  2. Builders and accessors
+ 3. Adjoint equivalences
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.DispCatTerminal.
@@ -181,3 +185,32 @@ Coercion nat_trans_with_terminal_disp_cat_of_nat_trans_with_terminal_cleaving
          (τ : nat_trans_with_terminal_cleaving F G)
   : nat_trans_with_terminal_disp_cat F G
   := pr1 τ.
+
+(** * 3. Adjoint equivalences *)
+Proposition cat_with_terminal_cleaving_left_adjoint_equivalence_help
+  : ∏ (C₁ C₂ : bicat_cat_with_terminal_disp_cat)
+      (F : adjoint_equivalence C₁ C₂),
+    is_cartesian_disp_functor (comp_cat_type_functor (pr1 F)).
+Proof.
+  use J_2_0.
+  - exact is_univalent_2_0_bicat_cat_with_terminal_disp_cat.
+  - intros C HC₁ HC₂ ; cbn.
+    apply disp_functor_identity_is_cartesian_disp_functor.
+Defined.
+
+Definition cat_with_terminal_cleaving_left_adjoint_equivalence
+           {C₁ C₂ : cat_with_terminal_cleaving}
+           (F : functor_with_terminal_cleaving C₁ C₂)
+           (HF₁ : adj_equivalence_of_cats F)
+           (A := (_ ,, HF₁) : adj_equiv C₁ C₂)
+           (HF₂ : is_equiv_over A (comp_cat_type_functor F))
+  : left_adjoint_equivalence F.
+Proof.
+  use left_adjoint_equivalence_subbicat.
+  - clear C₁ C₂ F HF₁ A HF₂.
+    intros C₁ C₂ HC₁ HC₂ F HF.
+    exact (cat_with_terminal_cleaving_left_adjoint_equivalence_help C₁ C₂ (F ,, HF)).
+  - use cat_with_terminal_disp_cat_left_adjoint_equivalence.
+    + exact HF₁.
+    + exact HF₂.
+Defined.

@@ -35,14 +35,18 @@
  1. The bicategory of full comprehension categories
  2. The univalence of the bicategory of full comprehension categories
  3. Builders and accessors
+ 4. Adjoint equivalences
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
@@ -371,3 +375,33 @@ Proof.
       }
       apply pp.
 Qed.
+
+(** * 4. Adjoint equivalences *)
+Definition full_comp_cat_left_adjoint_equivalence_help
+           {C₁ C₂ : comp_cat}
+           (F : adjoint_equivalence C₁ C₂)
+           (x : C₁)
+           (xx : disp_cat_of_types C₁ x)
+  : is_z_isomorphism
+      (comprehension_nat_trans_mor
+         (comp_cat_functor_comprehension (pr1 F))
+         xx).
+Proof.
+  revert C₁ C₂ F x xx.
+  use J_2_0.
+  - exact is_univalent_2_0_bicat_comp_cat.
+  - intros C x xx ; cbn.
+    apply is_z_isomorphism_identity.
+Defined.
+
+Definition full_comp_cat_left_adjoint_equivalence
+           {C₁ C₂ : full_comp_cat}
+           (F : full_comp_cat_functor C₁ C₂)
+           (HF : left_adjoint_equivalence (pr1 F))
+  : left_adjoint_equivalence F.
+Proof.
+  refine (left_adjoint_equivalence_subbicat _ _ _ _ _ _ HF).
+  clear C₁ C₂ F HF.
+  intros C₁ C₂ HC₁ HC₂ F HF x xx.
+  exact (full_comp_cat_left_adjoint_equivalence_help (F ,, HF) x xx).
+Defined.
