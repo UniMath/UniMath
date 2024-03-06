@@ -12,6 +12,7 @@
  5. Equivalences are fully faithful
  6. Equivalences are cartesian
  7. Equivalences are opcartesian
+ 8. Equivalences over the identity and equivalences
 
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -945,3 +946,86 @@ Section EquivIsOpcartesian.
       + exact (is_opcartesian_equiv_over_id_comm Hff ww hh).
   Defined.
 End EquivIsOpcartesian.
+
+(** * 8. Equivalences over the identity and equivalences *)
+Section EquivalencesOverId.
+  Context {C : category}
+          {D₁ D₂ : disp_cat C}.
+
+  Let F : adj_equiv C C
+    := _ ,, identity_functor_is_adj_equivalence.
+
+  Section ToEquiv.
+    Context (L : disp_functor (functor_identity C) D₁ D₂)
+            (FF : is_equiv_over_id L).
+
+    Let R : disp_functor (functor_identity C) D₂ D₁ := pr1 FF.
+    Let η : disp_nat_trans
+              (adjunit F)
+              (disp_functor_identity D₁)
+              (disp_functor_composite L R)
+      := pr1 (pr211 FF).
+    Let ε : disp_nat_trans
+              (adjcounit F)
+              (disp_functor_composite R L)
+              (disp_functor_identity D₂)
+      := pr2 (pr211 FF).
+
+    Definition is_equiv_over_id_to_is_equiv_over
+      : is_equiv_over F L.
+    Proof.
+      simple refine (((R ,, (η ,, ε)) ,, _ ,, _) ,, _ ,, _).
+      - abstract
+          (intros x xx ; cbn ;
+           refine (pr121 FF x xx @ _) ;
+           apply maponpaths_2 ;
+           apply homset_property).
+      - abstract
+          (intros x xx ; cbn ;
+           refine (pr221 FF x xx @ _) ;
+           apply maponpaths_2 ;
+           apply homset_property).
+      - intros x xx.
+        apply FF.
+      - intros x xx.
+        apply FF.
+    Defined.
+  End ToEquiv.
+
+  Section ToEquivId.
+    Context (L : disp_functor (functor_identity C) D₁ D₂)
+            (FF : is_equiv_over F L).
+
+    Let R : disp_functor (functor_identity C) D₂ D₁ := pr1 FF.
+    Let η : disp_nat_trans
+              (adjunit F)
+              (disp_functor_identity D₁)
+              (disp_functor_composite L R)
+      := pr1 (pr211 FF).
+    Let ε : disp_nat_trans
+              (adjcounit F)
+              (disp_functor_composite R L)
+              (disp_functor_identity D₂)
+      := pr2 (pr211 FF).
+
+    Definition is_equiv_over_to_is_equiv_over_id
+      : is_equiv_over_id L.
+    Proof.
+      simple refine (((R ,, (η ,, ε)) ,, _ ,, _) ,, _ ,, _).
+      - abstract
+          (intros x xx ; cbn ;
+           refine (pr121 FF x xx @ _) ;
+           apply maponpaths_2 ;
+           apply homset_property).
+      - abstract
+          (intros x xx ; cbn ;
+           refine (pr221 FF x xx @ _) ;
+           apply maponpaths_2 ;
+           apply homset_property).
+      - intros x xx.
+        apply FF.
+      - intros x xx.
+        apply FF.
+    Defined.
+  End ToEquivId.
+End EquivalencesOverId.

@@ -22,6 +22,8 @@
  Contents
  1. The displayed bicategory of sigma types
  2. The univalence of this displayed bicategory
+ 3. Sigma types for comprehension categories
+ 4. Adjoint equivalences
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -95,6 +97,33 @@ Definition dependent_sum_map
   := comp_cat_comp_mor (dep_sum_unit D (π A) B)
      · comp_cat_extend_over (dep_sum D (π A) B) (π A).
 
+Proposition dependent_sum_map_eq
+            {C : comp_cat}
+            (D : has_dependent_sums (cleaving_of_types C))
+            {Γ : C}
+            (A : ty Γ)
+            (B : ty (Γ & A))
+  : dependent_sum_map D A B · π (dep_sum D (π A) B)
+    =
+    π B · π A.
+Proof.
+  unfold dependent_sum_map, comp_cat_extend_over.
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    apply comprehension_functor_mor_comm.
+  }
+  rewrite !assoc.
+  etrans.
+  {
+    apply maponpaths_2.
+    apply comprehension_functor_mor_comm.
+  }
+  rewrite id_right.
+  apply idpath.
+Qed.
+
 Definition strong_dependent_sums
            (C : comp_cat)
   : UU
@@ -103,6 +132,23 @@ Definition strong_dependent_sums
        (A : ty Γ)
        (B : ty (Γ & A)),
      is_z_isomorphism (dependent_sum_map D A B).
+
+Coercion strong_dependent_sum_to_dependent_sums
+         {C : comp_cat}
+         (D : strong_dependent_sums C)
+  : has_dependent_sums (cleaving_of_types C).
+Proof.
+  exact (pr1 D).
+Defined.
+
+Definition strong_dependent_sums_iso
+           {C : comp_cat}
+           (D : strong_dependent_sums C)
+           {Γ : C}
+           (A : ty Γ)
+           (B : ty (Γ & A))
+  : is_z_isomorphism (dependent_sum_map D A B)
+  := pr2 D Γ A B.
 
 Proposition isaprop_strong_dependent_sums
             (C : comp_cat)
@@ -199,3 +245,32 @@ Proof.
   use disp_locally_groupoid_lift_disp_bicat.
   exact disp_locally_groupoid_disp_bicat_of_sigma_type.
 Qed.
+
+(** * 4. Adjoint equivalences *)
+Definition disp_adjoint_equiv_disp_bicat_of_sigma_type_full_comp_cat_help
+           {C₁ C₂ : full_comp_cat}
+           (F : adjoint_equivalence C₁ C₂)
+           {T₁ : disp_bicat_of_sigma_type_full_comp_cat C₁}
+           {T₂ : disp_bicat_of_sigma_type_full_comp_cat C₂}
+           (FF : T₁ -->[ F ] T₂)
+  : disp_left_adjoint_equivalence F FF.
+Proof.
+  revert C₁ C₂ F T₁ T₂ FF.
+  use J_2_0.
+  - exact is_univalent_2_0_bicat_full_comp_cat.
+  - intros C T₁ T₂ FF.
+    use to_disp_left_adjoint_equivalence_over_id_lift.
+    apply disp_left_adjoint_equivalence_fullsubbicat.
+Qed.
+
+Definition disp_adjoint_equiv_disp_bicat_of_sigma_type_full_comp_cat
+           {C₁ C₂ : full_comp_cat}
+           (F : full_comp_cat_functor C₁ C₂)
+           (HF : left_adjoint_equivalence F)
+           {T₁ : disp_bicat_of_sigma_type_full_comp_cat C₁}
+           {T₂ : disp_bicat_of_sigma_type_full_comp_cat C₂}
+           (FF : T₁ -->[ F ] T₂)
+  : disp_left_adjoint_equivalence HF FF.
+Proof.
+  exact (disp_adjoint_equiv_disp_bicat_of_sigma_type_full_comp_cat_help (F ,, HF) FF).
+Defined.

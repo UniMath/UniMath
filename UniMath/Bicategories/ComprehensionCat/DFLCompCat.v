@@ -67,6 +67,19 @@
  types using democracy, while verifying the existence of these types is not difficult in
  practice.
 
+ - 'Strength' of the type formers.
+
+ Several type formers (unit, sigma and product) come in multiple variants. For the unit type
+ `𝟙`, we can require that the projection `Γ & 𝟙 --> Γ` is an isomorphisms. For sigma types, we
+ can require that we have an isomorphism between `Γ & ∑ A B` and `Γ & A & B` (a similar
+ requirement can be given for product types). We call the versions of these type formers where
+ we have these isomorphisms, the strong variants. In full DFL comprehension categories, we
+ require the sigma and unit type to be strong, but not the product. This is because we do not
+ need the strength for the product in our development. In addition, since product types can be
+ constructed from sigma types, we can also regain strong product types if desired. Note that
+ in Clairambault and Dybjer, CwFs are used and there, they can derive these isomorphisms.
+ For sigma types, this is used in the proof of Proposition 3.5.
+
  References
  - 'The biequivalence of locally cartesian closed categories and Martin-Löf type theories'
    by Clairambault and Dybjer.
@@ -80,6 +93,7 @@
  3. Builders and accessors
  4. Invertible 2-cells
  5. The adjoint equivalence coming from democracy
+ 6. Adjoint equivalences of DFL comprehension categories
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -92,6 +106,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.FiberwiseTerminal.
@@ -109,6 +124,8 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.CompCatNotations.
 Require Export UniMath.Bicategories.ComprehensionCat.TypeFormers.UnitTypes.
@@ -126,7 +143,7 @@ Definition disp_bicat_of_dfl_full_comp_cat
   := disp_dirprod_bicat
        disp_bicat_of_democracy
        (disp_dirprod_bicat
-          disp_bicat_of_unit_type_full_comp_cat
+          disp_bicat_of_strong_unit_type
           (disp_dirprod_bicat
              disp_bicat_of_prod_type_full_comp_cat
              (disp_dirprod_bicat
@@ -147,7 +164,7 @@ Proof.
   }
   use is_univalent_2_1_dirprod_bicat.
   {
-    exact univalent_2_1_disp_bicat_of_unit_type_full_comp_cat.
+    exact univalent_2_1_disp_bicat_of_strong_unit_type.
   }
   use is_univalent_2_1_dirprod_bicat.
   {
@@ -169,7 +186,7 @@ Proof.
   }
   use (is_univalent_2_dirprod_bicat _ _ is_univalent_2_1_bicat_full_comp_cat).
   {
-    exact univalent_2_disp_bicat_of_unit_type_full_comp_cat.
+    exact univalent_2_disp_bicat_of_strong_unit_type.
   }
   use (is_univalent_2_dirprod_bicat _ _ is_univalent_2_1_bicat_full_comp_cat).
   {
@@ -206,7 +223,7 @@ Proof.
   - exact is_univalent_2_0_disp_bicat_of_dfl_full_comp_cat.
 Qed.
 
-Proposition is_univalent_2_bicat_cat_with_terminal_disp_cat
+Proposition is_univalent_2_bicat_of_dfl_full_comp_cat
   : is_univalent_2 bicat_of_dfl_full_comp_cat.
 Proof.
   split.
@@ -223,11 +240,12 @@ Definition make_dfl_full_comp_cat
            (C : full_comp_cat)
            (DC : is_democratic C)
            (T : fiberwise_terminal (cleaving_of_types C))
+           (HT : ∏ (Γ : C), is_z_isomorphism (π (pr1 (pr1 T Γ))))
            (P : fiberwise_binproducts (cleaving_of_types C))
            (E : fiberwise_equalizers (cleaving_of_types C))
            (S : strong_dependent_sums C)
   : dfl_full_comp_cat
-  := C ,, (DC ,, (T ,, tt) ,, (P ,, tt) ,, (E ,, tt) ,, S).
+  := C ,, (DC ,, ((T ,, HT) ,, tt) ,, (P ,, tt) ,, (E ,, tt) ,, S).
 
 Coercion dfl_full_comp_cat_to_full_comp_cat
          (C : dfl_full_comp_cat)
@@ -242,7 +260,31 @@ Definition is_democratic_dfl_full_comp_cat
 Definition fiberwise_terminal_dfl_full_comp_cat
            (C : dfl_full_comp_cat)
   : fiberwise_terminal (cleaving_of_types C)
-  := pr1 (pr122 C).
+  := pr11 (pr122 C).
+
+Definition dfl_full_comp_cat_terminal
+           {C : dfl_full_comp_cat}
+           (Γ : C)
+  : Terminal (disp_cat_of_types C)[{Γ}]
+  := pr1 (fiberwise_terminal_dfl_full_comp_cat C) Γ.
+
+Definition dfl_full_comp_cat_unit
+           {C : dfl_full_comp_cat}
+           (Γ : C)
+  : ty Γ
+  := pr1 (dfl_full_comp_cat_terminal Γ).
+
+Definition dfl_full_comp_cat_extend_unit
+           {C : dfl_full_comp_cat}
+           (Γ : C)
+  : is_z_isomorphism (π (dfl_full_comp_cat_unit Γ))
+  := pr21 (pr122 C) Γ.
+
+Definition dfl_full_comp_cat_extend_unit_z_iso
+           {C : dfl_full_comp_cat}
+           (Γ : C)
+  : z_iso (Γ & dfl_full_comp_cat_unit Γ) Γ
+  := _ ,, dfl_full_comp_cat_extend_unit Γ.
 
 Definition fiberwise_binproducts_dfl_full_comp_cat
            (C : dfl_full_comp_cat)
@@ -510,4 +552,46 @@ Proof.
   use comp_adj_equivalence_of_cats.
   - exact (dfl_full_comp_cat_adjequiv_empty C).
   - exact (cod_fib_terminal _).
+Defined.
+
+(** * 6. Adjoint equivalences of DFL comprehension categories *)
+Definition dfl_full_comp_cat_left_adjoint_equivalence_from_full_comp_cat
+           {C₁ C₂ : dfl_full_comp_cat}
+           (F : dfl_full_comp_cat_functor C₁ C₂)
+           (HF : left_adjoint_equivalence (pr1 F))
+  : left_adjoint_equivalence F.
+Proof.
+  use (invmap (left_adjoint_equivalence_total_disp_weq _ _)).
+  refine (HF ,, _).
+  use (pair_left_adjoint_equivalence _ _ (_ ,, HF)).
+  split.
+  - apply disp_left_adjoint_equivalence_fullsubbicat.
+  - use (pair_left_adjoint_equivalence _ _ (_ ,, HF)).
+    split.
+    + apply disp_adjoint_equiv_disp_bicat_of_strong_unit_type.
+    + use (pair_left_adjoint_equivalence _ _ (_ ,, HF)).
+      split.
+      * apply disp_adjoint_equiv_disp_bicat_of_prod_type_full_comp_cat.
+      * use (pair_left_adjoint_equivalence _ _ (_ ,, HF)).
+        split.
+        ** apply disp_adjoint_equiv_disp_bicat_of_equalizer_type_full_comp_cat.
+        ** apply disp_adjoint_equiv_disp_bicat_of_sigma_type_full_comp_cat.
+Defined.
+
+Definition dfl_full_comp_cat_left_adjoint_equivalence
+           {C₁ C₂ : dfl_full_comp_cat}
+           (F : dfl_full_comp_cat_functor C₁ C₂)
+           (HF : adj_equivalence_of_cats F)
+           (HF' : is_equiv_over (_ ,, HF) (comp_cat_type_functor F))
+  : left_adjoint_equivalence F.
+Proof.
+  use dfl_full_comp_cat_left_adjoint_equivalence_from_full_comp_cat.
+  use full_comp_cat_left_adjoint_equivalence.
+  use comp_cat_left_adjoint_equivalence.
+  - use cat_with_terminal_cleaving_left_adjoint_equivalence.
+    + exact HF.
+    + exact HF'.
+  - intros x xx.
+    use is_z_iso_disp_codomain.
+    exact (full_comp_cat_functor_is_z_iso F xx).
 Defined.

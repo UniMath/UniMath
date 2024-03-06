@@ -134,6 +134,8 @@ Section FinLimToDFLCompCat.
     - exact finlim_to_full_comp_cat.
     - exact is_democratic_finlim.
     - apply codomain_fiberwise_terminal.
+    - intro Γ ; cbn.
+      apply is_z_isomorphism_identity.
     - apply codomain_fiberwise_binproducts.
     - apply codomain_fiberwise_equalizers.
       exact (terminal_univ_cat_with_finlim C).

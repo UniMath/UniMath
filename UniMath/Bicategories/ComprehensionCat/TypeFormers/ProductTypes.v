@@ -15,6 +15,7 @@
  2. The univalence of this displayed bicategory
  3. Product types for comprehension categories
  4. Product types for full comprehension categories
+ 5. Adjoint equivalences
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -195,3 +196,34 @@ Proof.
   use disp_locally_groupoid_lift_disp_bicat.
   exact disp_locally_groupoid_disp_bicat_of_prod_type_comp_cat.
 Qed.
+
+(** * 5. Adjoint equivalences *)
+Definition disp_adjoint_equiv_disp_bicat_of_prod_type_full_comp_cat_help
+           {C₁ C₂ : full_comp_cat}
+           (F : adjoint_equivalence C₁ C₂)
+           {T₁ : disp_bicat_of_prod_type_full_comp_cat C₁}
+           {T₂ : disp_bicat_of_prod_type_full_comp_cat C₂}
+           (FF : T₁ -->[ F ] T₂)
+  : disp_left_adjoint_equivalence F FF.
+Proof.
+  revert C₁ C₂ F T₁ T₂ FF.
+  use J_2_0.
+  - exact is_univalent_2_0_bicat_full_comp_cat.
+  - intros C T₁ T₂ FF.
+    use to_disp_left_adjoint_equivalence_over_id_lift.
+    use to_disp_left_adjoint_equivalence_over_id_lift.
+    use disp_left_adjoint_equivalence_subbicat_alt.
+    exact is_univalent_2_bicat_cat_with_terminal_cleaving.
+Qed.
+
+Definition disp_adjoint_equiv_disp_bicat_of_prod_type_full_comp_cat
+           {C₁ C₂ : full_comp_cat}
+           (F : full_comp_cat_functor C₁ C₂)
+           (HF : left_adjoint_equivalence F)
+           {T₁ : disp_bicat_of_prod_type_full_comp_cat C₁}
+           {T₂ : disp_bicat_of_prod_type_full_comp_cat C₂}
+           (FF : T₁ -->[ F ] T₂)
+  : disp_left_adjoint_equivalence HF FF.
+Proof.
+  exact (disp_adjoint_equiv_disp_bicat_of_prod_type_full_comp_cat_help (F ,, HF) FF).
+Defined.
