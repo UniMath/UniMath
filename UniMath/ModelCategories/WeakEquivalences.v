@@ -10,13 +10,13 @@ Local Open Scope morcls.
 Local Open Scope logic.
 
 Definition weq_comp_ax {C : category} (W : morphism_class C) : UU :=
-    ∀ x y z (f : x --> y) (g : y --> z), 
+    ∀ x y z (f : x --> y) (g : y --> z),
       (W _ _) f ⇒ (W _ _) g ⇒ (W _ _) (f · g).
 Definition weq_cancel_left_ax {C : category} (W : morphism_class C) : UU :=
-    ∀ (x y z : C) (f : x --> y) (g : y --> z), 
+    ∀ (x y z : C) (f : x --> y) (g : y --> z),
       (W _ _) f ⇒ (W _ _) (f · g) ⇒ (W _ _) g.
 Definition weq_cancel_right_ax {C : category} (W : morphism_class C) : UU :=
-    ∀ (x y z : C) (f : x --> y) (g : y --> z), 
+    ∀ (x y z : C) (f : x --> y) (g : y --> z),
       (W _ _) g ⇒ (W _ _) (f · g) ⇒ (W _ _) f.
 
 Definition is_weak_equivalences {C : category} (W : morphism_class C) : UU :=
@@ -37,8 +37,8 @@ Definition weq_cancel_right {C : category} (W : weak_equivalences C) := is_weq_c
 
 Lemma isaprop_is_weak_equivalences {C : category} (W : morphism_class C) : isaprop (is_weak_equivalences W).
 Proof.
-  idtac; 
-    repeat apply isapropdirprod; 
+  idtac;
+    repeat apply isapropdirprod;
     do 3 (apply impred_isaprop; intro);
     apply propproperty.
 Qed.

@@ -40,7 +40,7 @@ Section Ff_closed.
 Import BifunctorNotations.
 Import MonoidalNotations.
 
-Lemma monoidal_right_tensor_cocone 
+Lemma monoidal_right_tensor_cocone
     {C : category}
     (V : monoidal C)
     (A : C)
@@ -48,8 +48,8 @@ Lemma monoidal_right_tensor_cocone
     (d : diagram g _)
     (CC : ColimCocone d)
     (CMon := (C,, V) : monoidal_cat) :
-  cocone 
-      (mapdiagram (monoidal_right_tensor (A : CMon)) d) 
+  cocone
+      (mapdiagram (monoidal_right_tensor (A : CMon)) d)
       (monoidal_right_tensor (A : CMon) (colim CC)).
 Proof.
   use tpair.
@@ -102,7 +102,7 @@ Proof.
   - abstract (
       intros u v e;
       (* cbn. *)
-      etrans; [| 
+      etrans; [|
         exact (colimInCommutes ((CCFf_pt_ob1 CC (mapdiagram (monoidal_right_tensor A) d) f)) _ _ e)
       ];
       apply cancel_postcomposition;
@@ -205,8 +205,8 @@ Qed.
 Opaque ColimFfCocone.
 
 (* Ff_right_closed: *)
-Lemma Ff_right_tensor_preserves_colimit_mor_iso : 
-  z_iso 
+Lemma Ff_right_tensor_preserves_colimit_mor_iso :
+  z_iso
     ((monoidal_right_tensor A) (colim (FfCC d)))
     (colim (FfCC (mapdiagram (monoidal_right_tensor A) d))).
 Proof.
@@ -248,7 +248,7 @@ Proof.
       intros y Hy;
       
       (* unfold is_cocone_mor in Hy. *)
-      apply (pre_comp_with_z_iso_is_inj 
+      apply (pre_comp_with_z_iso_is_inj
         (z_iso_inv (Ff_right_tensor_preserves_colimit_mor_iso)));
       apply pathsinv0;
       etrans; [apply assoc|];
@@ -326,13 +326,13 @@ Defined.
 
 End Ff_closed.
 
-Lemma Ff_rt_chain {C : category} (CC : Colims C): 
+Lemma Ff_rt_chain {C : category} (CC : Colims C):
     rt_preserves_chains (@Ff_monoidal C).
 Proof.
   exact (Ff_rt_all_colimits CC is_connected_nat_graph 0).
 Defined.
 
-Lemma Ff_rt_coeq {C : category} (CC : Colims C): 
+Lemma Ff_rt_coeq {C : category} (CC : Colims C):
     rt_preserves_coequalizers (@Ff_monoidal C).
 Proof.
   exact (Ff_rt_all_colimits CC is_connected_coequalizer_graph (● 0)%stn).
@@ -347,7 +347,7 @@ Context {C : category}.
 Context (CC : Colims C).
 Local Definition LNWFS_mon : monoidal_cat :=
     (_,, @LNWFS_tot_monoidal C).
-    
+
 Context {g : graph}.
 Context (H : is_connected g).
 Context (v0 : vertex g).
@@ -499,13 +499,13 @@ Defined.
 
 End LNWFS_closed.
 
-Lemma LNWFS_rt_chain {C : category} (CC : Colims C): 
+Lemma LNWFS_rt_chain {C : category} (CC : Colims C):
     rt_preserves_chains (@LNWFS_tot_monoidal C).
 Proof.
   exact (LNWFS_rt_all_colimits CC is_connected_nat_graph 0).
 Defined.
 
-Lemma LNWFS_rt_coeq {C : category} (CC : Colims C): 
+Lemma LNWFS_rt_coeq {C : category} (CC : Colims C):
     rt_preserves_coequalizers (@LNWFS_tot_monoidal C).
 Proof.
   exact (LNWFS_rt_all_colimits CC is_connected_coequalizer_graph (● 0)%stn).

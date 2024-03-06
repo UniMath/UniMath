@@ -710,7 +710,7 @@ Opaque LNWFSCC.
 Opaque Ffiso LNWFSarr.
 
 Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp :
-  pr2 (monoidal_left_tensor (L : LNWFS_mon) (colim CL)) 
+  pr2 (monoidal_left_tensor (L : LNWFS_mon) (colim CL))
   -->[pr1 base_mor] pr2 (colim LNWFSCC).
 Proof.
   apply (Ff_iso_inv_LNWFS_mor (colim LNWFSCC) (monoidal_left_tensor (L : LNWFS_mon) (colim CL)) Ffiso).
@@ -765,9 +765,9 @@ End Helpers.
 
 Lemma Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim :
   isColimCocone _ _
-    (mapcocone (monoidal_left_tensor (pr1 L : Ff_mon)) _ (project_cocone _ _ (colimCocone CL))) 
-    -> 
-    isColimCocone _ _ 
+    (mapcocone (monoidal_left_tensor (pr1 L : Ff_mon)) _ (project_cocone _ _ (colimCocone CL)))
+    ->
+    isColimCocone _ _
       (mapcocone (monoidal_left_tensor (L : LNWFS_mon)) _ (colimCocone CL)).
 Proof.
   intro HF.
@@ -786,7 +786,7 @@ Proof.
     abstract (
       apply LNWFS_inv_in_precat_if_Ff_inv_in_precat;
       exact (Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_inv_in_precat HF)
-    ).    
+    ).
 Qed.
 
 End SmallnessReduction.
