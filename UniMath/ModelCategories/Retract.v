@@ -32,12 +32,12 @@ Context {C : category}.
 (* https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/retract.lean#L15 *)
 Definition is_retract {x y x' y' : C} (f : x --> y) (f' : x' --> y')
     (ix : x' --> x) (rx : x --> x') (iy : y' --> y) (ry : y --> y') : UU :=
-  (ix · rx = identity x') × (iy · ry = identity y') 
+  (ix · rx = identity x') × (iy · ry = identity y')
   × (ix · f = f' · iy) × (rx · f' = f · ry).
 
 Definition make_is_retract {x y x' y' : C} {f : x --> y} {f' : x' --> y'}
     {ix : x' --> x} {rx : x --> x'} {iy : y' --> y} {ry : y --> y'}
-    (hx : rx ∘ ix = identity x') (hy : ry ∘ iy = identity y')  
+    (hx : rx ∘ ix = identity x') (hy : ry ∘ iy = identity y')
     (hi : f  ∘ ix = iy ∘ f') (hr : f' ∘ rx = ry ∘ f): is_retract f f' ix rx iy ry :=
   make_dirprod hx (make_dirprod hy (make_dirprod hi hr)).
 
@@ -59,7 +59,7 @@ Lemma retract_is_iso {x y x' y' : C} {f : iso x y} {f' : x' --> y'}
 Proof.
   destruct r as [ix [rx [iy [ry [hx [hy [hi hr]]]]]]].
 
-  (* we construct an explicit inverse from the retract dixgram *)  
+  (* we construct an explicit inverse from the retract dixgram *)
   apply is_iso_from_is_z_iso.
 
   (* inverse is ra ∘ f^{-1} ∘ iy *)
@@ -79,9 +79,9 @@ Defined.
 End Retract.
 
 (* https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/retract.lean#L36 *)
-Lemma functor_on_retract {C D : category} 
-    (F : functor C D) 
-    {x y x' y' : C} {f : x --> y} {f' : x' --> y'} 
+Lemma functor_on_retract {C D : category}
+    (F : functor C D)
+    {x y x' y' : C} {f : x --> y} {f' : x' --> y'}
     (r : retract f f') :
   retract (#F f) (#F f').
 Proof.
@@ -95,8 +95,8 @@ Proof.
 Defined.
 
 Definition opp_retract {C : category}
-    {x y x' y' : C} {f : x --> y} {f' : x' --> y'} 
-    (r : retract f f') : 
+    {x y x' y' : C} {f : x --> y} {f' : x' --> y'}
+    (r : retract f f') :
   retract (C:=op_cat C) (opp_mor f) (opp_mor f').
 Proof.
   destruct r as [ix [rx [iy [ry [hx [hy [hi hr]]]]]]].

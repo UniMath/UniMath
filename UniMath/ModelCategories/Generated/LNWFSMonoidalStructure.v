@@ -112,13 +112,12 @@ Definition LNWFS_lcomp_comul_L'_lp
 Proof.
   set (L_lp := LNWFS_lcomp_comul_L_lp L F' f : (fact_L F f --> (LNWFS_lcomp_comp_helper F F' f))).
   set (L_lift := left_reduced_lp_lift L L_lp).
-  destruct L_lift as [L_lift [L_comm1 L_comm2]].
 
   use mors_to_arrow_mor.
-  - exact (L_lift).
+  - exact (pr1 L_lift).
   - exact (identity _).
   - abstract (
-      etrans; [exact L_comm2|];
+      etrans; [exact (pr22 L_lift)|];
       apply pathsinv0;
       apply id_right
     ).
@@ -138,15 +137,13 @@ Proof.
 
   set (L_lp := LNWFS_lcomp_comul_L_lp L F' f : (fact_L F f --> comp)).
   set (L_lift := left_reduced_lp_lift L L_lp).
-  (* destruct L_lift as [L_lift [L_comm1 L_comm2]]. *)
 
   set (L'_lp := LNWFS_lcomp_comul_L'_lp L' L f : (λ'ρf --> ρcomp)).
   set (L'_lift := left_reduced_lp_lift L' L'_lp).
-  destruct L'_lift as [L'_lift [L'_comm1 L'_comm2]].
 
   use mors_to_arrow_mor.
   - exact (identity _).
-  - exact (L'_lift).
+  - exact (pr1 L'_lift).
   - abstract (
       etrans; [apply id_left|];
       apply pathsinv0;
@@ -154,7 +151,7 @@ Proof.
       [
         etrans; [apply assoc'|];
         apply cancel_precomposition;
-        exact L'_comm1
+        exact (pr12 L'_lift)
       |];
       etrans;
       [
@@ -236,10 +233,10 @@ Definition LNWFS_lcomp_comul {F' F : Ff C} (L' : lnwfs_over F') (L : lnwfs_over 
     (fact_L (F' ⊗ F)) ⟹ ((fact_L (F' ⊗ F)) ∙ (fact_L (F' ⊗ F))) :=
   (_,, LNWFS_lcomp_comul_axioms L' L).
 
-Opaque left_reduced_lp.
-Opaque left_reduced_lp_lift.
-Opaque LNWFS_lcomp_comul_L_lp.
-Opaque LNWFS_lcomp_comul_L'_lp.
+Global Opaque left_reduced_lp.
+Global Opaque left_reduced_lp_lift.
+Global Opaque LNWFS_lcomp_comul_L_lp.
+Global Opaque LNWFS_lcomp_comul_L'_lp.
 
 (* This is perhaps the most interesting proof, proving that
    the comultiplication is associative on the middle morphisms. *)

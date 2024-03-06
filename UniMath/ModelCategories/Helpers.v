@@ -20,9 +20,9 @@ Proof.
 Qed.
 
 (* helper for showing section_disp_axioms *)
-Lemma section_disp_on_eq_morphisms {C : category} 
+Lemma section_disp_on_eq_morphisms {C : category}
     (F : section_disp (three_disp C))
-    {f f' : arrow C} {γ γ': f --> f'} 
+    {f f' : arrow C} {γ γ': f --> f'}
     (H00 : arrow_mor00 γ = arrow_mor00 γ')
     (H11 : arrow_mor11 γ = arrow_mor11 γ') :
   pr1 (section_disp_on_morphisms F γ) =
@@ -36,8 +36,8 @@ Proof.
   reflexivity.
 Qed.
 
-Lemma section_disp_on_eq_morphisms' {C : category} 
-    (F : section_disp (three_disp C)) {f f' : arrow C} {γ : f --> f'} 
+Lemma section_disp_on_eq_morphisms' {C : category}
+    (F : section_disp (three_disp C)) {f f' : arrow C} {γ : f --> f'}
     (H : arrow_mor00 γ · f' = f · arrow_mor11 γ) :
   let alternate := ((arrow_mor00 γ,, arrow_mor11 γ),, H) : f --> f' in
   pr1 (section_disp_on_morphisms F alternate) =
@@ -70,7 +70,7 @@ Qed.
 Lemma eq_section_nat_trans_disp_on_morphism {C : category}
     {F F' : section_disp (three_disp C)}
     {γ γ' : section_nat_trans_disp F F'} :
-  γ = γ' -> ∏ f, γ f = γ' f. 
+  γ = γ' -> ∏ f, γ f = γ' f.
 Proof.
   intro H.
   now induction H.
@@ -83,7 +83,7 @@ Proof.
 Qed.
 
 (* composition of morphisms equality *)
-Lemma compeq {C : category} {x y z : C} 
+Lemma compeq {C : category} {x y z : C}
     {f f' : x --> y} {g g' : y --> z} :
   f = f' -> g = g' -> f · g = f' · g'.
 Proof.
