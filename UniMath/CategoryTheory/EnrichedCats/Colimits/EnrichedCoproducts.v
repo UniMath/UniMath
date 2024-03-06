@@ -96,12 +96,12 @@ Section EnrichedCoproducts.
     := ∑ (a : enriched_coprod_cocone),
        is_coprod_enriched a.
 
-  #[reversible] Coercion cocone_of_coprod_enriched
+  #[reversible=no] Coercion cocone_of_coprod_enriched
            (a : coprod_enriched)
     : enriched_coprod_cocone
     := pr1 a.
 
-  #[reversible] Coercion coprod_enriched_is_coprod
+  #[reversible=no] Coercion coprod_enriched_is_coprod
            (a : coprod_enriched)
     : is_coprod_enriched a
     := pr2 a.
@@ -509,7 +509,7 @@ Definition cat_with_enrichment_coproduct
   : UU
   := ∑ (C : cat_with_enrichment V), enrichment_coprod C J.
 
-#[reversible] Coercion cat_with_enrichment_coproduct_to_cat_with_enrichment
+#[reversible=no] Coercion cat_with_enrichment_coproduct_to_cat_with_enrichment
          {V : monoidal_cat}
          {J : UU}
          (C : cat_with_enrichment_coproduct V J)

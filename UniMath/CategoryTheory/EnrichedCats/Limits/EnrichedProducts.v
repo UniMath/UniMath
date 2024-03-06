@@ -95,12 +95,12 @@ Section EnrichedProducts.
     := ∑ (a : enriched_prod_cone),
        is_prod_enriched a.
 
-  #[reversible] Coercion cone_of_prod_enriched
+  #[reversible=no] Coercion cone_of_prod_enriched
            (a : prod_enriched)
     : enriched_prod_cone
     := pr1 a.
 
-  #[reversible] Coercion prod_enriched_is_prod
+  #[reversible=no] Coercion prod_enriched_is_prod
            (a : prod_enriched)
     : is_prod_enriched a
     := pr2 a.
@@ -501,7 +501,7 @@ Definition cat_with_enrichment_product
   : UU
   := ∑ (C : cat_with_enrichment V), enrichment_prod C J.
 
-#[reversible] Coercion cat_with_enrichment_product_to_cat_with_enrichment
+#[reversible=no] Coercion cat_with_enrichment_product_to_cat_with_enrichment
          {V : monoidal_cat}
          {J : UU}
          (C : cat_with_enrichment_product V J)

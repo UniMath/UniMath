@@ -423,7 +423,7 @@ Definition monoidal_tensor_is_bifunctor
   : is_bifunctor M
   := pr12 M.
 
-#[reversible] Coercion monoidal_tensor
+#[reversible=no] Coercion monoidal_tensor
          {C : category}
          (M : monoidal C)
   : bifunctor C C C
@@ -1308,8 +1308,8 @@ Local Open Scope moncat.
 
 Definition monoidal_cat : UU := ∑ (C : category), monoidal C.
 
-#[reversible] Coercion monoidal_cat_to_cat (V : monoidal_cat) : category := pr1 V.
-#[reversible] Coercion monoidal_cat_to_monoidal (V : monoidal_cat) : monoidal V := pr2 V.
+#[reversible=no] Coercion monoidal_cat_to_cat (V : monoidal_cat) : category := pr1 V.
+#[reversible=no] Coercion monoidal_cat_to_monoidal (V : monoidal_cat) : monoidal V := pr2 V.
 
 Definition monoidal_cat_tensor_pt
            {V : monoidal_cat}

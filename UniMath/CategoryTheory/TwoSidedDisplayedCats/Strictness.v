@@ -54,7 +54,7 @@ Definition strict_twosided_disp_cat
   : UU
   := ∑ (D : twosided_disp_cat C₁ C₂), is_strict_twosided_disp_cat D.
 
-#[reversible] Coercion strict_twosided_disp_cat_to_twosided_disp_cat
+#[reversible=no] Coercion strict_twosided_disp_cat_to_twosided_disp_cat
          {C₁ C₂ : category}
          (D : strict_twosided_disp_cat C₁ C₂)
   : twosided_disp_cat C₁ C₂

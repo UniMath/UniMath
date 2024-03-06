@@ -58,7 +58,7 @@ Section EnrichedColimit.
        =
        #W f · fs j.
 
-  #[reversible] Coercion ob_enriched_colim_cocone
+  #[reversible=no] Coercion ob_enriched_colim_cocone
            (a : enriched_colim_cocone)
     : C
     := pr1 a.
@@ -209,7 +209,7 @@ Section EnrichedColimit.
     := ∑ (a : enriched_colim_cocone),
        is_colim_enriched a.
 
-  #[reversible] Coercion cocone_of_colim_enriched
+  #[reversible=no] Coercion cocone_of_colim_enriched
            (a : colim_enriched)
     : enriched_colim_cocone
     := pr1 a.
