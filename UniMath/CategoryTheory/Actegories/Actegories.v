@@ -159,7 +159,7 @@ Definition actegory_actlaws {C : category} (Act : actegory C) : actegory_laws Ac
 Definition actegory_action_is_bifunctor {C : category} (Act : actegory C) : is_bifunctor Act
   := pr12 Act.
 
-#[reversible] Coercion actegory_action
+#[reversible=no] Coercion actegory_action
          {C : category}
          (Act : actegory C)
   : bifunctor V C C
