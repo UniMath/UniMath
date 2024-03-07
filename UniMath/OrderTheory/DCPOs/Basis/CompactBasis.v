@@ -79,12 +79,12 @@ Section CompactBasisInDCPO.
     : compact_basis
     := B ,, HB.
 
-  #[reversible] Coercion compact_basis_to_data
+  #[reversible=no] Coercion compact_basis_to_data
            (B : compact_basis)
     : dcpo_basis_data X
     := pr1 B.
 
-  #[reversible] Coercion compact_basis_to_laws
+  #[reversible=no] Coercion compact_basis_to_laws
            (B : compact_basis)
     : compact_basis_laws B
     := pr2 B.

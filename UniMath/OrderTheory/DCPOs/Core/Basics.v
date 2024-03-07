@@ -78,7 +78,7 @@ Section Upperbounds.
     : lub
     := x ,, Hx.
 
-  #[reversible] Coercion lub_to_el
+  #[reversible=no] Coercion lub_to_el
            (x : lub)
     : X
     := pr1 x.
@@ -200,9 +200,9 @@ Definition dcpo
   : UU
   := ∑ (X : hSet), dcpo_struct X.
 
-#[reversible] Coercion dcpo_to_hSet (X : dcpo) : hSet := pr1 X.
+#[reversible=no] Coercion dcpo_to_hSet (X : dcpo) : hSet := pr1 X.
 
-#[reversible] Coercion dcpo_to_PartialOrder (X : dcpo) : PartialOrder X := pr12 X.
+#[reversible=no] Coercion dcpo_to_PartialOrder (X : dcpo) : PartialOrder X := pr12 X.
 
 Definition dcpo_order {X : dcpo} (x y : X) : hProp := pr12 X x y.
 
@@ -370,7 +370,7 @@ Definition dcppo_struct
   : dcpo_struct X
   := pr1 DX.
 
-#[reversible] Coercion dcppo_to_pointed_PartialOrder
+#[reversible=no] Coercion dcppo_to_pointed_PartialOrder
          {X : hSet}
          (DX : dcppo_struct X)
   : pointed_PartialOrder X
@@ -391,7 +391,7 @@ Definition dcppo
   : UU
   := ∑ (X : hSet), dcppo_struct X.
 
-#[reversible] Coercion dcppo_to_dcpo
+#[reversible=no] Coercion dcppo_to_dcpo
          (X : dcppo)
   : dcpo
   := pr1 X ,, pr12 X.
