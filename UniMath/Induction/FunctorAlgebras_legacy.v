@@ -75,7 +75,7 @@ Definition is_algebra_mor (X Y : algebra_ob) (f : alg_carrier X --> alg_carrier 
 Definition algebra_mor (X Y : algebra_ob) : UU :=
   ∑ f : X --> Y, is_algebra_mor X Y f.
 
-#[reversible] Coercion mor_from_algebra_mor (X Y : algebra_ob) (f : algebra_mor X Y) : X --> Y := pr1 f.
+#[reversible=no] Coercion mor_from_algebra_mor (X Y : algebra_ob) (f : algebra_mor X Y) : X --> Y := pr1 f.
 
 
 Lemma algebra_mor_commutes (X Y : algebra_ob) (f : algebra_mor X Y)

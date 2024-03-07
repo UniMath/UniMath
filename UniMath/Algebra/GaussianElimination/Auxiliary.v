@@ -501,13 +501,13 @@ End Dual.
 
 Section Rings_and_Fields.
 
-  #[reversible] Coercion multlinvpair_of_multinvpair {R : rig} (x : R)
+  #[reversible=no] Coercion multlinvpair_of_multinvpair {R : rig} (x : R)
     : @multinvpair R x -> @multlinvpair R x.
   Proof.
     intros [y [xy yx]]. esplit; eauto.
   Defined.
 
-  #[reversible] Coercion multrinvpair_of_multinvpair {R : rig} (x : R)
+  #[reversible=no] Coercion multrinvpair_of_multinvpair {R : rig} (x : R)
     : @multinvpair R x -> @multrinvpair R x.
   Proof.
     intros [y [xy yx]]. esplit; eauto.

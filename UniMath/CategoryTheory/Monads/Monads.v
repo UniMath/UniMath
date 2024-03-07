@@ -134,7 +134,7 @@ Section Monad_disp_def.
 
   Definition Monad : UU := ob category_Monad.
 
-  #[reversible] Coercion functor_from_Monad (T : Monad) : functor C C := pr1 T.
+  #[reversible=no] Coercion functor_from_Monad (T : Monad) : functor C C := pr1 T.
 
   Definition μ (T : Monad) : T ∙ T ⟹ T := pr112 T.
   Definition η (T : Monad) : functor_identity C ⟹ T := pr212 T.
@@ -279,7 +279,7 @@ End pointfree.
 Definition Monad_Mor {C : category} (T T' : Monad C) : UU
   := category_Monad C ⟦T, T'⟧.
 
-#[reversible] Coercion nat_trans_from_monad_mor {C : category} (T T' : Monad C) (s : Monad_Mor T T')
+#[reversible=no] Coercion nat_trans_from_monad_mor {C : category} (T T' : Monad C) (s : Monad_Mor T T')
   : T ⟹ T' := pr1 s.
 
 Definition Monad_Mor_laws {C : category} {T T' : Monad C} (α : T ⟹ T')
@@ -483,7 +483,7 @@ Section Monad_eq_helper.
                       (∏ a : ob C, F (F a) --> F a)) ×
                      (∏ a : ob C, a --> F a)).
 
-    #[reversible] Coercion functor_data_from_raw_Monad_data {C : category} (T : raw_Monad_data C) :
+    #[reversible=no] Coercion functor_data_from_raw_Monad_data {C : category} (T : raw_Monad_data C) :
       functor_data C C := make_functor_data (pr1 T) (pr1 (pr1 (pr2 T))).
 
     Definition Monad'_data_laws {C : category} (T : raw_Monad_data C) :=

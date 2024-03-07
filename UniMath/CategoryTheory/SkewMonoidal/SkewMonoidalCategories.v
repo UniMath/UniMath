@@ -39,7 +39,7 @@ Definition skewmonoidal_data : UU :=
                              (precategory_binproduct_unassoc _ _ _)
                              ∙ (functor_identity V × tensor)%F ∙ tensor .
 
-#[reversible] Coercion cat_from_skewmonoidal (V : skewmonoidal_data) : category := pr1 V.
+#[reversible=no] Coercion cat_from_skewmonoidal (V : skewmonoidal_data) : category := pr1 V.
 
 Definition skewmonoidal_tensor (V : skewmonoidal_data) :
    V ⊠ V ⟶ V := pr1 (pr2 V).
@@ -113,7 +113,7 @@ Definition skewmonoidal_category : UU :=
                      α' a b c #⊗ id d · α' a (b ⊗ c)  d ·
                          id a #⊗ α' b c d).
 
-#[reversible] Coercion data_from_skewmonoidal (V : skewmonoidal_category) : skewmonoidal_data := pr1 V.
+#[reversible=no] Coercion data_from_skewmonoidal (V : skewmonoidal_category) : skewmonoidal_data := pr1 V.
 
 Local Notation eq := (pr2 (_ : skewmonoidal_category)).
 

@@ -40,7 +40,7 @@ Section Algebra_def.
 
 Definition Algebra_data : UU := ∑ X : C, T X --> X.
 
-#[reversible] Coercion Alg_carrier (X : Algebra_data) : C := pr1 X.
+#[reversible=no] Coercion Alg_carrier (X : Algebra_data) : C := pr1 X.
 
 Definition Alg_map (X : Algebra_data) : T X --> X := pr2 X.
 
@@ -50,7 +50,7 @@ Definition Algebra_laws (X : Algebra_data) : UU
 
 Definition Algebra : UU := ∑ X : Algebra_data, Algebra_laws X.
 
-#[reversible] Coercion Algebra_data_from_Algebra (X : Algebra) : Algebra_data := pr1 X.
+#[reversible=no] Coercion Algebra_data_from_Algebra (X : Algebra) : Algebra_data := pr1 X.
 
 Definition Algebra_idlaw (X : Algebra) : η T X · Alg_map X = identity X
   := pr1 (pr2 X).
@@ -82,7 +82,7 @@ Definition is_Algebra_mor {X Y : Algebra} (f : X --> Y) : UU
 Definition Algebra_mor (X Y : Algebra) : UU
   := ∑ f : X --> Y, is_Algebra_mor f.
 
-#[reversible] Coercion mor_from_Algebra_mor {X Y : Algebra} (f : Algebra_mor X Y)
+#[reversible=no] Coercion mor_from_Algebra_mor {X Y : Algebra} (f : Algebra_mor X Y)
   : X --> Y := pr1 f.
 
 Definition Algebra_mor_commutes {X Y : Algebra} (f : Algebra_mor X Y)

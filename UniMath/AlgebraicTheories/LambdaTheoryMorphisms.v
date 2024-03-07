@@ -48,7 +48,7 @@ Definition make_lambda_theory_morphism
   : lambda_theory_morphism L L'
   := (F ,, H) ,, tt.
 
-#[reversible] Coercion lambda_theory_morphism_to_algebraic_theory_morphism
+#[reversible=no] Coercion lambda_theory_morphism_to_algebraic_theory_morphism
   {L L' : lambda_theory}
   (F : lambda_theory_morphism L L')
   : algebraic_theory_morphism L L'

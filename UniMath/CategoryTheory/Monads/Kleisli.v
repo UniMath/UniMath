@@ -25,7 +25,7 @@ Proof.
   apply idpath.
 Qed.
 
-#[reversible] Coercion RelMonad_from_Kleisli {C : category} (T : KleisliMonad C) := (T : RelMonad (functor_identity C)).
+#[reversible=no] Coercion RelMonad_from_Kleisli {C : category} (T : KleisliMonad C) := (T : RelMonad (functor_identity C)).
 
 (** * Equivalence of the types of KleisliMonad and "monoidal" monads *)
 Section monad_types_equiv.

@@ -78,8 +78,8 @@ Definition η_bind {T : Kleisli_Data} (H : Kleisli_Laws T) :
 Definition KleisliMonad : UU :=
   ∑ (T : Kleisli_Data), Kleisli_Laws T.
 (* argument [C] will be set as not implicit after the end of the section *)
-#[reversible] Coercion Kleisli_Data_from_Kleisli (T : KleisliMonad) : Kleisli_Data := pr1 T.
-#[reversible] Coercion kleisli_laws (T : KleisliMonad) : Kleisli_Laws (pr1 T) := pr2 T.
+#[reversible=no] Coercion Kleisli_Data_from_Kleisli (T : KleisliMonad) : Kleisli_Data := pr1 T.
+#[reversible=no] Coercion kleisli_laws (T : KleisliMonad) : Kleisli_Laws (pr1 T) := pr2 T.
 
 End Kleisli_defn.
 

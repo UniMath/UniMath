@@ -54,7 +54,7 @@ Section LModule_def.
 Definition LModule_data (D : category) : UU
   := ∑ F : functor B D, M ∙ F ⟹ F.
 
-#[reversible] Coercion functor_from_LModule_data (C : category) (F : LModule_data C)
+#[reversible=no] Coercion functor_from_LModule_data (C : category) (F : LModule_data C)
   : functor B C := pr1 F.
 
 Definition lm_mult {C : category} (F : LModule_data C) : M ∙ F ⟹ F := pr2 F.
@@ -73,7 +73,7 @@ Qed.
 
 Definition LModule (C : category) : UU := ∑ T : LModule_data C, LModule_laws T.
 
-#[reversible] Coercion LModule_data_from_LModule (C : category) (T : LModule C) : LModule_data C := pr1 T.
+#[reversible=no] Coercion LModule_data_from_LModule (C : category) (T : LModule C) : LModule_data C := pr1 T.
 
 
 Lemma LModule_law1 {C : category} {T : LModule C} : ∏ c : B, #T (η M c) · σ T c = identity (T c).
@@ -109,7 +109,7 @@ Definition LModule_Mor {C : category} (T T' : LModule C) : UU
   := ∑ α : T ⟹ T', LModule_Mor_laws α.
 
 
-#[reversible] Coercion nat_trans_from_module_mor (C : category) (T T' : LModule C) (s : LModule_Mor T T')
+#[reversible=no] Coercion nat_trans_from_module_mor (C : category) (T T' : LModule C) (s : LModule_Mor T T')
    : T ⟹ T' := pr1 s.
 
 Definition LModule_Mor_σ {C : category} {T T' : LModule C} (α : LModule_Mor T T')

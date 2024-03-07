@@ -34,7 +34,7 @@ Notation ρ' := (skewmonoidal_unitr (data_from_skewmonoidal V)).
 Definition skewMonoid_data : UU :=
   ∑ X : V, (X ⊗ X --> X) × (I --> X).
 
-#[reversible] Coercion sm_ob (X : skewMonoid_data) : V := pr1 X.
+#[reversible=no] Coercion sm_ob (X : skewMonoid_data) : V := pr1 X.
 
 Definition sm_unit (X : skewMonoid_data) : I --> X := pr2 (pr2 X).
 Definition sm_mult (X : skewMonoid_data) : X ⊗ X --> X := pr1 (pr2 X).
@@ -48,7 +48,7 @@ Definition skewMonoid_laws (X : skewMonoid_data) : UU :=
 
 Definition skewMonoid : UU := ∑ (X : skewMonoid_data), skewMonoid_laws X.
 
-#[reversible] Coercion skewMonoid_to_data (X : skewMonoid) : skewMonoid_data := pr1 X.
+#[reversible=no] Coercion skewMonoid_to_data (X : skewMonoid) : skewMonoid_data := pr1 X.
 
 Definition skewMonoid_pentagon (X : skewMonoid) :
   μ X #⊗ identity X · μ X =  α' X X X · identity X #⊗ μ X · μ X
@@ -76,7 +76,7 @@ Qed.
 Definition skewMonoid_Mor  (T T' : skewMonoid_data) : UU
   := ∑ α , @skewMonoid_Mor_laws T T' α.
 
-#[reversible] Coercion mor_from_monoid_mor (T T' : skewMonoid_data) (s : skewMonoid_Mor T T')
+#[reversible=no] Coercion mor_from_monoid_mor (T T' : skewMonoid_data) (s : skewMonoid_Mor T T')
   : V ⟦ T , T' ⟧ := pr1 s.
 
 Definition skewMonoid_Mor_η  {T T' : skewMonoid_data } (α : skewMonoid_Mor T T')
