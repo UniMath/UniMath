@@ -33,7 +33,7 @@ Section Coalgebra_def.
 
 Definition Coalgebra_data : UU := ∑ X : C, X --> T X.
 
-#[reversible] Coercion Coalg_carrier (X : Coalgebra_data) : C := pr1 X.
+#[reversible=no] Coercion Coalg_carrier (X : Coalgebra_data) : C := pr1 X.
 
 Definition Coalg_map (X : Coalgebra_data) : X --> T X := pr2 X.
 
@@ -43,7 +43,7 @@ Definition Coalgebra_laws (X : Coalgebra_data) : UU
 
 Definition Coalgebra : UU := ∑ X : Coalgebra_data, Coalgebra_laws X.
 
-#[reversible] Coercion Coalgebra_data_from_Coalgebra (X : Coalgebra) : Coalgebra_data := pr1 X.
+#[reversible=no] Coercion Coalgebra_data_from_Coalgebra (X : Coalgebra) : Coalgebra_data := pr1 X.
 
 Definition Coalgebra_idlaw (X : Coalgebra) : Coalg_map X · ε T X = identity X
   := pr1 (pr2 X).
@@ -75,7 +75,7 @@ Definition is_Coalgebra_mor {X Y : Coalgebra} (f : X --> Y) : UU
 Definition Coalgebra_mor (X Y : Coalgebra) : UU
   := ∑ f : X --> Y, is_Coalgebra_mor f.
 
-#[reversible] Coercion mor_from_Coalgebra_mor {X Y : Coalgebra} (f : Coalgebra_mor X Y)
+#[reversible=no] Coercion mor_from_Coalgebra_mor {X Y : Coalgebra} (f : Coalgebra_mor X Y)
   : X --> Y := pr1 f.
 
 Definition Coalgebra_mor_commutes {X Y : Coalgebra} (f : Coalgebra_mor X Y)

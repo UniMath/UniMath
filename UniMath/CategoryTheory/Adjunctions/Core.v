@@ -119,7 +119,7 @@ Definition make_form_adjunction {A B : category} {F : functor A B} {G : functor 
   Definition adjunction (A B : category) : UU
     := ∑ X : adjunction_data A B, form_adjunction' X.
 
-  #[reversible] Coercion data_from_adjunction {A B} (X : adjunction A B)
+  #[reversible=no] Coercion data_from_adjunction {A B} (X : adjunction A B)
     : adjunction_data _ _ := pr1 X.
 
   Definition make_adjunction {A B : category}
@@ -139,7 +139,7 @@ Definition make_form_adjunction {A B : category} {F : functor A B} {G : functor 
              (adj : adjunction A B) : triangle_2_statement adj
     := pr2 (pr2 adj).
 
-  #[reversible] Coercion are_adjoints_from_adjunction {A B} (X : adjunction A B)
+  #[reversible=no] Coercion are_adjoints_from_adjunction {A B} (X : adjunction A B)
     : are_adjoints (left_functor X) (right_functor X).
   Proof.
     use make_are_adjoints.
@@ -159,7 +159,7 @@ Definition make_form_adjunction {A B : category} {F : functor A B} {G : functor 
   Definition is_left_adjoint {A B : category} (F : functor A B) : UU :=
     ∑ (G : functor B A), are_adjoints F G.
 
-  #[reversible] Coercion adjunction_data_from_is_left_adjoint {A B : category}
+  #[reversible=no] Coercion adjunction_data_from_is_left_adjoint {A B : category}
          {F : functor A B} (HF : is_left_adjoint F)
   : adjunction_data A B
   := (F,, _ ,,unit_from_are_adjoints (pr2 HF) ,,counit_from_are_adjoints (pr2 HF) ).

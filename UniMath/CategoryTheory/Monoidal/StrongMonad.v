@@ -130,7 +130,7 @@ Section LeftStrength.
     : UU
     := ∑ (tM : left_strength M), left_strong_monad_laws tM.
 
-  #[reversible] Coercion left_strong_monad_strength
+  #[reversible=no] Coercion left_strong_monad_strength
            {M : Monad V}
            (tM : left_strong_monad M)
     : left_strength M

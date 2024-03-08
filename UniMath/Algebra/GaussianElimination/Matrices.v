@@ -356,14 +356,14 @@ Section Inverses.
       ((A ** B) = identity_matrix)
     × ((B ** A) = identity_matrix).
 
-  #[reversible] Coercion matrix_left_inverse_of_inverse {n : nat}
+  #[reversible=no] Coercion matrix_left_inverse_of_inverse {n : nat}
     (A : Matrix R n n)
     : @matrix_inverse n A -> @matrix_left_inverse n n A.
   Proof.
     intros [y [xy yx]]. esplit; eauto.
   Defined.
 
-  #[reversible] Coercion matrix_right_inverse_of_inverse {n : nat}
+  #[reversible=no] Coercion matrix_right_inverse_of_inverse {n : nat}
     (A : Matrix R n n)
     : @matrix_inverse n A -> @matrix_right_inverse n n A.
   Proof.

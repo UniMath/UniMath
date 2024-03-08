@@ -53,7 +53,7 @@ Definition make_forms_equivalence {A B : category}
 Definition equivalence_of_cats (A B : category) : UU
   := ∑ (X : adjunction_data A B), forms_equivalence X.
 
-#[reversible] Coercion adjunction_data_from_equivalence_of_cats {A B}
+#[reversible=no] Coercion adjunction_data_from_equivalence_of_cats {A B}
          (X : equivalence_of_cats A B) : adjunction_data A B := pr1 X.
 
 Definition make_equivalence_of_cats {A B : category}
@@ -299,14 +299,14 @@ Section AdjEquiv.
     := ∑ F : functor A B,
         adj_equivalence_of_cats F.
 
-  #[reversible] Coercion left_adjequiv (A B : category)
+  #[reversible=no] Coercion left_adjequiv (A B : category)
            (F : adj_equiv A B) : functor A B := pr1 F.
 
-  #[reversible] Coercion adj_equiv_of_cats_from_adj {A B : category}
+  #[reversible=no] Coercion adj_equiv_of_cats_from_adj {A B : category}
            (E : adj_equiv A B) : adj_equivalence_of_cats E
     := pr2 E.
 
-  #[reversible] Coercion adj_from_adj_equiv {A B} (F : adj_equiv A B) : adjunction A B.
+  #[reversible=no] Coercion adj_from_adj_equiv {A B} (F : adj_equiv A B) : adjunction A B.
   Proof.
     use make_adjunction.
     use(make_adjunction_data F).
@@ -318,7 +318,7 @@ Section AdjEquiv.
       + apply triangle_id_right_ad.
   Defined.
 
-  #[reversible] Coercion equiv_from_adj_equiv {A B} (F : adj_equiv A B) : equivalence_of_cats A B.
+  #[reversible=no] Coercion equiv_from_adj_equiv {A B} (F : adj_equiv A B) : equivalence_of_cats A B.
   Proof.
     use make_equivalence_of_cats.
     use(make_adjunction_data F).

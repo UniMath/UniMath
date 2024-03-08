@@ -120,12 +120,12 @@ Section EnrichedEqualizer.
     := ∑ (a : enriched_equalizer_cone),
        is_equalizer_enriched a.
 
-  #[reversible] Coercion cone_of_equalizer_enriched
+  #[reversible=no] Coercion cone_of_equalizer_enriched
            (a : equalizer_enriched)
     : enriched_equalizer_cone
     := pr1 a.
 
-  #[reversible] Coercion equalizer_enriched_is_equalizer
+  #[reversible=no] Coercion equalizer_enriched_is_equalizer
            (a : equalizer_enriched)
     : is_equalizer_enriched a
     := pr2 a.
@@ -546,7 +546,7 @@ Definition cat_with_enrichment_equalizers
   : UU
   := ∑ (C : cat_with_enrichment V), enrichment_equalizers C.
 
-#[reversible] Coercion cat_with_enrichment_equalizers_to_cat_with_enrichment
+#[reversible=no] Coercion cat_with_enrichment_equalizers_to_cat_with_enrichment
          {V : monoidal_cat}
          (C : cat_with_enrichment_equalizers V)
   : cat_with_enrichment V

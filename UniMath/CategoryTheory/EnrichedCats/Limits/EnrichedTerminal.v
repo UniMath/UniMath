@@ -72,12 +72,12 @@ Section EnrichedTerminal.
     : UU
     := ∑ (x : C), is_terminal_enriched x.
 
-  #[reversible] Coercion terminal_enriched_to_ob
+  #[reversible=no] Coercion terminal_enriched_to_ob
            (x : terminal_enriched)
     : C
     := pr1 x.
 
-  #[reversible] Coercion terminal_enriched_to_is_terminal
+  #[reversible=no] Coercion terminal_enriched_to_is_terminal
            (x : terminal_enriched)
     : is_terminal_enriched x
     := pr2 x.
@@ -245,7 +245,7 @@ Definition cat_with_enrichment_terminal
   : UU
   := ∑ (C : cat_with_enrichment V), terminal_enriched C.
 
-#[reversible] Coercion cat_with_enrichment_terminal_to_cat_with_enrichment
+#[reversible=no] Coercion cat_with_enrichment_terminal_to_cat_with_enrichment
          {V : monoidal_cat}
          (C : cat_with_enrichment_terminal V)
   : cat_with_enrichment V

@@ -61,7 +61,7 @@ Section EnrichedConicalColimit.
        ∏ (i j : I) (f : i --> j),
        #D f · ps j = ps i.
 
-  #[reversible] Coercion ob_enriched_conical_colim_cocone
+  #[reversible=no] Coercion ob_enriched_conical_colim_cocone
            (a : enriched_conical_colim_cocone)
     : C
     := pr1 a.
@@ -145,12 +145,12 @@ Section EnrichedConicalColimit.
     := ∑ (a : enriched_conical_colim_cocone),
        is_conical_colim_enriched a.
 
-  #[reversible] Coercion cocone_of_enriched_conical_colim_cocone
+  #[reversible=no] Coercion cocone_of_enriched_conical_colim_cocone
            (a : conical_colim_enriched)
     : enriched_conical_colim_cocone
     := pr1 a.
 
-  #[reversible] Coercion conical_colim_enriched_is_conical_colim
+  #[reversible=no] Coercion conical_colim_enriched_is_conical_colim
            (a : conical_colim_enriched)
     : is_conical_colim_enriched a
     := pr2 a.

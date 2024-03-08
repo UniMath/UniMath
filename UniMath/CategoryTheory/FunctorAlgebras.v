@@ -133,7 +133,7 @@ Definition is_algebra_mor (X Y : algebra_ob) (f : alg_carrier X --> alg_carrier 
   := alg_map X · f = #F f · alg_map Y.
 
   Definition algebra_mor (X Y : algebra_ob) : UU := FunctorAlg⟦X,Y⟧.
-  #[reversible] Coercion mor_from_algebra_mor {X Y : algebra_ob} (f : algebra_mor X Y) : C⟦X, Y⟧ := pr1 f.
+  #[reversible=no] Coercion mor_from_algebra_mor {X Y : algebra_ob} (f : algebra_mor X Y) : C⟦X, Y⟧ := pr1 f.
 
   Lemma algebra_mor_commutes (X Y : algebra_ob) (f : algebra_mor X Y)
     : alg_map X · f = #F f · alg_map Y.

@@ -120,7 +120,9 @@ Section LocallyContrWeakEquivalences.
 
   Let RR := (disp_psfunctor_on_cat_to_univ_cat D (disp_2cells_isaprop_from_disp_2cells_iscontr _ HD)).
 
-  Let LL0 := λ C,  (pr1 (pr1 LUR C)).
+  Let LL0 : bicat_of_cats → category := λ C,  (pr1 (pr1 LUR C)).
+  Let LL0' : bicat_of_cats → univalent_category := λ C,  pr1 LUR C.
+
   Let η := (pr12 LUR).
 
   Context (η_weak_equiv : ∏ C : category, is_weak_equiv (η C)).
@@ -149,7 +151,7 @@ Section LocallyContrWeakEquivalences.
       + exact CC.
     - exact η_preserves_structs.
     - intros C1 CC1 C2 CC2 F FF.
-      use (extension_preserves_struct C1 (LL0 C1) C2 F (η C1) _ _ CC1).
+      use (extension_preserves_struct C1 (LL0' C1) C2 F (η C1) _ _ CC1).
       + set (t := counit_nat_z_iso_from_adj_equivalence_of_cats (pr22 LUR C1 C2)).
         set (tg := nat_z_iso_pointwise_z_iso t F).
         exact (nat_z_iso_from_z_iso (homset_property _) tg).

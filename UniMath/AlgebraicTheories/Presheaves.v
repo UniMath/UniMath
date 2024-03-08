@@ -68,7 +68,7 @@ Definition make_is_presheaf
 
 Definition presheaf (T : algebraic_theory) : UU := presheaf_cat T.
 
-#[reversible] Coercion presheaf_to_presheaf_data {T : algebraic_theory} (P : presheaf T)
+#[reversible=no] Coercion presheaf_to_presheaf_data {T : algebraic_theory} (P : presheaf T)
   : presheaf_data T
   := make_presheaf_data (pr1 P) (pr12 P).
 

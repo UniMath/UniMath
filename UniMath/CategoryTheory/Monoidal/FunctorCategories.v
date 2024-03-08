@@ -193,7 +193,7 @@ Definition category_symmetric_monoidal_comonad : category
 
 Definition symmetric_monoidal_comonad : UU := ob category_symmetric_monoidal_comonad.
 
-#[reversible] Coercion comonad_from_symmetric_monoidal_comonad (T : symmetric_monoidal_comonad)
+#[reversible=no] Coercion comonad_from_symmetric_monoidal_comonad (T : symmetric_monoidal_comonad)
   : Comonad C
   := pr11 T ,, pr12 T.
 

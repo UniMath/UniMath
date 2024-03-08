@@ -48,7 +48,7 @@ Definition linear_non_linear_model
 (**
  2. Accessors and builders
  *)
-#[reversible] Coercion linear_non_linear_model_to_linear
+#[reversible=no] Coercion linear_non_linear_model_to_linear
          (𝕃 : linear_non_linear_model)
   : sym_mon_closed_cat
   := pr1 𝕃.

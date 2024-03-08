@@ -243,7 +243,7 @@ Definition cartesian_disp_functor
   : UU
   := ∑ (FF : disp_functor F D₁ D₂), is_cartesian_disp_functor FF.
 
-#[reversible] Coercion disp_functor_of_cartesian_disp_functor
+#[reversible=no] Coercion disp_functor_of_cartesian_disp_functor
          {C₁ C₂ : category}
          {F : C₁ ⟶ C₂}
          {D₁ : disp_cat C₁}
@@ -502,7 +502,7 @@ Definition is_discrete_fibration {C : category} (D : disp_cat C) : UU
 Definition discrete_fibration C : UU
   := ∑ D : disp_cat C, is_discrete_fibration D.
 
-#[reversible] Coercion disp_cat_from_discrete_fibration C (D : discrete_fibration C)
+#[reversible=no] Coercion disp_cat_from_discrete_fibration C (D : discrete_fibration C)
   : disp_cat C := pr1 D.
 Definition unique_lift {C} {D : discrete_fibration C} {c c'}
            (f : c' --> c) (d : D c)
@@ -1229,7 +1229,7 @@ Definition opcartesian_disp_functor
   : UU
   := ∑ (FF : disp_functor F D₁ D₂), is_opcartesian_disp_functor FF.
 
-#[reversible] Coercion disp_functor_of_opcartesian_disp_functor
+#[reversible=no] Coercion disp_functor_of_opcartesian_disp_functor
          {C₁ C₂ : category}
          {F : C₁ ⟶ C₂}
          {D₁ : disp_cat C₁}

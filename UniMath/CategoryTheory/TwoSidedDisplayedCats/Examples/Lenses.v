@@ -364,7 +364,7 @@ Section Lenses.
     : lens_data s v
     := get ,, put.
 
-  #[reversible] Coercion lens_to_data
+  #[reversible=no] Coercion lens_to_data
            {s v : C}
            (l : lens s v)
     : lens_data s v

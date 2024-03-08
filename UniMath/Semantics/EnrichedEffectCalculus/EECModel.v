@@ -103,7 +103,7 @@ Definition eec_plus_model
      ×
      BinCoproducts (pr1 M).
 
-#[reversible] Coercion eec_plus_model_to_eec_model
+#[reversible=no] Coercion eec_plus_model_to_eec_model
          (E : eec_plus_model)
   : eec_model
   := pr1 E.

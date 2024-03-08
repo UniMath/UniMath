@@ -56,7 +56,7 @@ Definition progressive_map
   : UU
   := ∑ (f : monotone_function X X), is_progressive f.
 
-#[reversible] Coercion monotone_function_of_progressive_map
+#[reversible=no] Coercion monotone_function_of_progressive_map
          {X : dcpo}
          (f : progressive_map X)
   : monotone_function X X

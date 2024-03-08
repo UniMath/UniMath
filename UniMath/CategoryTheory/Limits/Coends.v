@@ -36,7 +36,7 @@ Section Coends.
     := ∑ (w : D),
        ∏ (x : C), F (x ,, x) --> w.
 
-  #[reversible] Coercion ob_of_cowedge
+  #[reversible=no] Coercion ob_of_cowedge
            (w : cowedge_data)
     : D
     := pr1 w.
@@ -66,7 +66,7 @@ Section Coends.
     : UU
     := ∑ (w : cowedge_data), is_cowedge w.
 
-  #[reversible] Coercion cowedge_data_of_cowedge
+  #[reversible=no] Coercion cowedge_data_of_cowedge
            (w : cowedge)
     : cowedge_data
     := pr1 w.
@@ -136,7 +136,7 @@ Section Coends.
     : UU
     := ∑ (f : w₁ --> w₂), is_cowedge_map f.
 
-  #[reversible] Coercion mor_of_cowedge_map
+  #[reversible=no] Coercion mor_of_cowedge_map
            {w₁ w₂ : cowedge}
            (f : cowedge_map w₁ w₂)
     : w₁ --> w₂
@@ -194,7 +194,7 @@ Section Coends.
     : UU
     := ∑ (w : cowedge), is_coend w.
 
-  #[reversible] Coercion coend_colimit_to_cowedge
+  #[reversible=no] Coercion coend_colimit_to_cowedge
            (e : coend_colimit)
     : cowedge
     := pr1 e.

@@ -84,7 +84,7 @@ Definition is_cartesian
   : UU
   := ∑ (HM : is_semicartesian M), tensor_isBinProduct HM.
 
-#[reversible] Coercion is_cartesian_to_semicartesian
+#[reversible=no] Coercion is_cartesian_to_semicartesian
          {M : monoidal_cat}
          (M_cart : is_cartesian M)
   : is_semicartesian M
@@ -486,7 +486,7 @@ Definition is_cocartesian
   : UU
   := ∑ (HM : is_semicocartesian M), tensor_isBinCoproduct HM.
 
-#[reversible] Coercion is_cocartesian_to_semicocartesian
+#[reversible=no] Coercion is_cocartesian_to_semicocartesian
          {M : monoidal_cat}
          (M_cocart : is_cocartesian M)
   : is_semicocartesian M

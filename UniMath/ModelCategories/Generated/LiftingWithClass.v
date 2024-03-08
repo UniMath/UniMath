@@ -48,7 +48,7 @@ Context {C : category}.
 Definition morcls_disp (J : morphism_class C) : disp_cat (arrow C) :=
     disp_full_sub (arrow C) (λ g, J _ _ g).
 
-#[reversible] Coercion total_morcls_disp_arrow
+#[reversible=no] Coercion total_morcls_disp_arrow
     {J : morphism_class C} (g : total_category (morcls_disp J)) :=
   pr1 g.
 
@@ -130,7 +130,7 @@ Definition rlp_morcls (J : morphism_class C) : category :=
 Definition morcls_lp (J : morphism_class C) (f : arrow C) : UU :=
     ∑ (g : total_category (morcls_disp J)), (pr1 g) --> f.
 
-#[reversible] Coercion morcls_lp_diagram {J : morphism_class C} {f : arrow C} (lp : morcls_lp J f) := pr2 lp.
+#[reversible=no] Coercion morcls_lp_diagram {J : morphism_class C} {f : arrow C} (lp : morcls_lp J f) := pr2 lp.
 Definition morcls_lp_map {J : morphism_class C} {f : arrow C} (lp : morcls_lp J f) := pr1 lp.
 
 Context (n : nwfs C).

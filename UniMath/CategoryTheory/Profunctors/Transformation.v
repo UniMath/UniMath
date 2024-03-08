@@ -311,14 +311,14 @@ Definition make_profunctor_nat_iso
   : profunctor_nat_iso P Q
   := τ ,, Hτ.
 
-#[reversible] Coercion profunctor_nat_iso_to_profunctor_nat_trans
+#[reversible=no] Coercion profunctor_nat_iso_to_profunctor_nat_trans
          {C₁ C₂ : category}
          {P Q : profunctor C₁ C₂}
          (τ : profunctor_nat_iso P Q)
   : profunctor_nat_trans P Q
   := pr1 τ.
 
-#[reversible] Coercion profunctor_nat_iso_to_is_profunctor_nat_iso
+#[reversible=no] Coercion profunctor_nat_iso_to_is_profunctor_nat_iso
          {C₁ C₂ : category}
          {P Q : profunctor C₁ C₂}
          (τ : profunctor_nat_iso P Q)

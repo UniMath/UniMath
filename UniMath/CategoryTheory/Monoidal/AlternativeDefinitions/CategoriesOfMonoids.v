@@ -51,7 +51,7 @@ Definition is_monoid_mor (X Y : monoid_ob) (f : monoid_carrier X --> monoid_carr
 
 Definition monoid_mor (X Y : monoid_ob) : UU :=
   ∑ f : X --> Y, is_monoid_mor X Y f.
-#[reversible] Coercion mor_from_monoid_mor (X Y : monoid_ob) (f : monoid_mor X Y) : X --> Y := pr1 f.
+#[reversible=no] Coercion mor_from_monoid_mor (X Y : monoid_ob) (f : monoid_mor X Y) : X --> Y := pr1 f.
 
 Definition isaprop_is_monoid_mor (X Y : monoid_ob) (f : monoid_carrier X --> monoid_carrier Y):
   isaprop (is_monoid_mor X Y f).

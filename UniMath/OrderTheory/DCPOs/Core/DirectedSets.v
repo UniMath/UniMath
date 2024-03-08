@@ -62,7 +62,7 @@ Definition directed_set
 (**
  2. Accessors and builders
  *)
-#[reversible] Coercion directed_set_dom
+#[reversible=no] Coercion directed_set_dom
          {X : hSet}
          {PX : PartialOrder X}
          (D : directed_set PX)

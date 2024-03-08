@@ -38,7 +38,7 @@ Section Ends.
     := ∑ (w : D),
        ∏ (x : C), w --> F (x ,, x).
 
-  #[reversible] Coercion ob_of_wedge
+  #[reversible=no] Coercion ob_of_wedge
            (w : wedge_data)
     : D
     := pr1 w.
@@ -68,7 +68,7 @@ Section Ends.
     : UU
     := ∑ (w : wedge_data), is_wedge w.
 
-  #[reversible] Coercion wedge_data_of_wedge
+  #[reversible=no] Coercion wedge_data_of_wedge
            (w : wedge)
     : wedge_data
     := pr1 w.
@@ -138,7 +138,7 @@ Section Ends.
     : UU
     := ∑ (f : w₁ --> w₂), is_wedge_map f.
 
-  #[reversible] Coercion mor_of_wedge_map
+  #[reversible=no] Coercion mor_of_wedge_map
            {w₁ w₂ : wedge}
            (f : wedge_map w₁ w₂)
     : w₁ --> w₂
@@ -198,7 +198,7 @@ Section Ends.
     : UU
     := ∑ (w : wedge), is_end w.
 
-  #[reversible] Coercion end_limit_to_wedge
+  #[reversible=no] Coercion end_limit_to_wedge
            (e : end_limit)
     : wedge
     := pr1 e.

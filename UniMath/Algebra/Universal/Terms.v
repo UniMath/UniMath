@@ -445,7 +445,7 @@ Section Term.
   Definition make_term {σ: signature} {s: sorts σ} {l: oplist σ} (lstack: isaterm s l)
     : term σ s := l ,, lstack.
 
-  #[reversible] Coercion term2oplist {σ: signature} {s: sorts σ}: term σ s → oplist σ := pr1.
+  #[reversible=no] Coercion term2oplist {σ: signature} {s: sorts σ}: term σ s → oplist σ := pr1.
 
   Definition term2proof {σ: signature} {s: sorts σ}: ∏ t: term σ s, isaterm s t := pr2.
 

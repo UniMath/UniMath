@@ -106,7 +106,7 @@ Definition hset_cartesian_closed_struct_data
        (constP : struct_contains_constant P),
      closed_under_fun_data P.
 
-#[reversible] Coercion hset_cartesian_closed_struct_data_to_struct
+#[reversible=no] Coercion hset_cartesian_closed_struct_data_to_struct
          (P : hset_cartesian_closed_struct_data)
   : hset_cartesian_struct
   := pr1 P.
@@ -177,7 +177,7 @@ Definition hset_cartesian_closed_struct
   : UU
   := ∑ (P : hset_cartesian_closed_struct_data), closed_under_fun_laws P.
 
-#[reversible] Coercion hset_cartesian_closed_struct_to_data
+#[reversible=no] Coercion hset_cartesian_closed_struct_to_data
          (P : hset_cartesian_closed_struct)
   : hset_cartesian_closed_struct_data
   := pr1 P.
@@ -312,7 +312,7 @@ Definition hset_equalizer_struct
   : UU
   := ∑ (EP : hset_equalizer_struct_data P), hset_equalizer_struct_laws EP.
 
-#[reversible] Coercion hset_equalizer_struct_to_data
+#[reversible=no] Coercion hset_equalizer_struct_to_data
          {P : hset_struct}
          (EP : hset_equalizer_struct P)
   : hset_equalizer_struct_data P
@@ -450,7 +450,7 @@ Definition hset_coequalizer_struct
   : UU
   := ∑ (EP : hset_coequalizer_struct_data P), hset_coequalizer_struct_laws EP.
 
-#[reversible] Coercion hset_coequalizer_struct_to_data
+#[reversible=no] Coercion hset_coequalizer_struct_to_data
          {P : hset_struct}
          (EP : hset_coequalizer_struct P)
   : hset_coequalizer_struct_data P
@@ -688,7 +688,7 @@ Definition pointed_hset_struct
   : UU
   := ∑ (Pt : pointed_hset_struct_data P), pointed_hset_struct_laws Pt.
 
-#[reversible] Coercion pointed_hset_struct_to_data
+#[reversible=no] Coercion pointed_hset_struct_to_data
          {P : hset_struct}
          (Pt : pointed_hset_struct P)
   : pointed_hset_struct_data P
@@ -787,7 +787,7 @@ Definition hset_binary_coprod_struct
   : UU
   := ∑ (EP : hset_binary_coprod_struct_data P), hset_binary_coprod_struct_laws EP.
 
-#[reversible] Coercion hset_binary_coprod_struct_to_data
+#[reversible=no] Coercion hset_binary_coprod_struct_to_data
          {P : hset_struct}
          (EP : hset_binary_coprod_struct P)
   : hset_binary_coprod_struct_data P

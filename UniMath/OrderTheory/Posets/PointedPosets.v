@@ -70,7 +70,7 @@ Definition make_pointed_PartialOrder
   : pointed_PartialOrder X
   := RX ,, x ,, p.
 
-#[reversible] Coercion pointed_PartialOrder_to_Partial_order
+#[reversible=no] Coercion pointed_PartialOrder_to_Partial_order
          {X : hSet}
          (RX : pointed_PartialOrder X)
   : PartialOrder X
@@ -147,7 +147,7 @@ Definition is_strict_and_monotone
   : UU
   := is_monotone RX RY f × f ⊥_{RX} = ⊥_{RY}.
 
-#[reversible] Coercion is_strict_and_monotone_function_to_is_monotone
+#[reversible=no] Coercion is_strict_and_monotone_function_to_is_monotone
          {X Y : hSet}
          {RX : pointed_PartialOrder X}
          {RY : pointed_PartialOrder Y}

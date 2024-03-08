@@ -55,7 +55,7 @@ Definition abstract_basis_data
   : UU
   := ∑ (X : UU), X → X → hProp.
 
-#[reversible] Coercion type_of_abstract_basis_data
+#[reversible=no] Coercion type_of_abstract_basis_data
          (B : abstract_basis_data)
   : UU
   := pr1 B.
@@ -94,7 +94,7 @@ Definition make_abstract_basis
   : abstract_basis
   := B ,, HB.
 
-#[reversible] Coercion abstract_basis_to_data
+#[reversible=no] Coercion abstract_basis_to_data
          (B : abstract_basis)
   : abstract_basis_data
   := pr1 B.

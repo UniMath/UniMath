@@ -142,7 +142,7 @@ Proof.
   apply setproperty.
 Defined.
 
-#[reversible] Coercion underlyingIso {G:gr} {X Y:Action G} (e:ActionIso X Y) : X ≃ Y := pr1 e.
+#[reversible=no] Coercion underlyingIso {G:gr} {X Y:Action G} (e:ActionIso X Y) : X ≃ Y := pr1 e.
 
 Lemma underlyingIso_incl {G:gr} {X Y:Action G} :
   isincl (underlyingIso : ActionIso X Y -> X ≃ Y).
@@ -282,7 +282,7 @@ Qed.
 
 Definition Torsor (G:gr) := total2 (@is_torsor G).
 
-#[reversible] Coercion underlyingAction {G} (X:Torsor G) := pr1 X : Action G.
+#[reversible=no] Coercion underlyingAction {G} (X:Torsor G) := pr1 X : Action G.
 
 Definition is_torsor_prop {G} (X:Torsor G) := pr2 X.
 
