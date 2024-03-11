@@ -29,26 +29,26 @@ Local Notation "'HSET'" := hset_category.
 
 (** See https://ncatlab.org/nlab/show/global+element *)
 
-Local Definition global_element_HSET {A : hSet} (a : A) : HSET⟦unitset, A⟧ :=
+Definition make_global_element_HSET {A : hSet} (a : A) : HSET⟦unitset, A⟧ :=
   invweq (weqfunfromunit A) a.
 
 (** TODO: I think there is a name in UniMath for the constant function at [a],
     what is it? *)
 
 Local Definition global_element_HSET_paths_weq {A : hSet} (x y : A) :
-  (x = y) ≃ (global_element_HSET x = global_element_HSET y).
+  (x = y) ≃ (make_global_element_HSET x = make_global_element_HSET y).
 Proof.
   apply weqonpaths.
 Qed.
 
 Local Definition global_element_HSET_comp {A B : hSet} (f : HSET⟦A, B⟧) (x : A) :
-  global_element_HSET x · f = global_element_HSET (f x).
+  make_global_element_HSET x · f = make_global_element_HSET (f x).
 Proof.
   abstract (apply funextfun; intro z; induction z; reflexivity).
 Qed.
 
 Local Definition global_element_HSET_fun_weq {A B : hSet} (f : HSET⟦A, B⟧) (x y : A) :
-  (f x = f y) ≃ (global_element_HSET x · f = global_element_HSET y · f).
+  (f x = f y) ≃ (make_global_element_HSET x · f = make_global_element_HSET y · f).
 Proof.
   abstract (do 2 rewrite global_element_HSET_comp;
             apply global_element_HSET_paths_weq).

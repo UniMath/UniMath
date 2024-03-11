@@ -295,7 +295,7 @@ Proof.
   { use Subobjectscategory_ob.
     - exact T.
     - exact (name_true b).
-    - use from_terminal_isMonic.
+    - use global_element_isMonic.
   }
   - use u.
 Defined.
@@ -426,11 +426,11 @@ Local Lemma g_aux (c b a : C) (f: C ⟦ constprod_functor1 BinProd b a, c ⟧) :
   TerminalArrow T a
   · Subobject_mor
       (Subobjectscategory_ob (name_true b)
-         (from_terminal_isMonic T (PowerObject_on_ob P b) (name_true b))).
+         (global_element_isMonic T (PowerObject_on_ob P b) (name_true b))).
 Proof.
   assert (p : name_true b = Subobject_mor
     (Subobjectscategory_ob (name_true b)
-        (from_terminal_isMonic T (PowerObject_on_ob P b) (name_true b)))). { apply idpath. }
+        (global_element_isMonic T (PowerObject_on_ob P b) (name_true b)))). { apply idpath. }
     induction p.
     use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  (nat_z_iso_inv (PowerObject_nat_z_iso P)) (a,,b)))).
     simpl.

@@ -698,7 +698,7 @@ Section GlobalElements.
 
   Definition global_element
     : hSet
-    := homset (TerminalObject (terminal_monoid_action M)) X.
+    := global_element (terminal_monoid_action M) X.
 
   Definition fixpoint : UU
     := ∑ x : X, ∏ m, action x m = x.
