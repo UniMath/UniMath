@@ -696,7 +696,7 @@ Section GlobalElements.
   Context {M : monoid}.
   Context (X : monoid_action M).
 
-  Definition global_element
+  Local Definition global_element
     : hSet
     := global_element (terminal_monoid_action M) X.
 
