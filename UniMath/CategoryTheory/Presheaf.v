@@ -299,7 +299,7 @@ Defined.
 
 Lemma isMonic_Ω_mor : isMonic Ω_mor.
 Proof.
-now apply from_terminal_isMonic.
+now apply global_element_isMonic.
 Qed.
 
 Local Notation "c ⊗ d" := (BinProductObject _ (BinProducts_PreShv c d)) : cat.

@@ -67,7 +67,7 @@ Section Accessors.
 
   Local Lemma true_is_monic : isMonic true'.
   Proof.
-    apply from_terminal_isMonic.
+    apply global_element_isMonic.
   Qed.
 
   Definition true : Monic _ T subobject_classifier_object :=
@@ -285,7 +285,7 @@ Proof.
     use setquotpr.
     use (PullbackSubobject PB _ phi).
     use (Subobjectscategory_ob (true O)).
-    apply from_terminal_isMonic.
+    apply global_element_isMonic.
   + use make_is_inverse_in_precat.
     - use funextfun.
       intro S.
