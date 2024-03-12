@@ -8,7 +8,7 @@
  In this file, we construct this equivalence. In addition, if `C` has pullbacks, then
  we characterize the fiber functor of the iterated slice category via the fiber functor
  of the ordinary slice category. This allows us to conclude that preservation of colimits
- for the pullback functor of the iterated slice category follows from presrvation of
+ for the pullback functor of the iterated slice category follows from preservation of
  colimits for the pullback functor of ordinary slice categories
 
  Contents
