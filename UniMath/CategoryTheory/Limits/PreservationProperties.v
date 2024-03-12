@@ -32,6 +32,8 @@ Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.Limits.PullbackConstructions.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.Limits.EquivalencePreservation.
@@ -127,6 +129,45 @@ Section PreservationNatIso.
          apply maponpaths_2 ;
          apply z_iso_after_z_iso_inv).
   Defined.
+
+  Definition preserves_initial_nat_z_iso_f
+             (HF : preserves_initial F)
+    : preserves_initial G.
+  Proof.
+    intros x Hx.
+    use (iso_to_Initial (make_Initial _ (HF _ Hx))).
+    cbn.
+    exact (nat_z_iso_pointwise_z_iso τ x).
+  Defined.
+
+  Definition preserves_bincoproduct_nat_z_iso_f
+             (HF : preserves_bincoproduct F)
+    : preserves_bincoproduct G.
+  Proof.
+    intros x y p π₁ π₂ H.
+    pose (coprod := make_BinCoproduct _ _ _ _ _ _ (HF _ _ _ _ _ H)).
+    use (isBinCoproduct_z_iso
+           (isBinCoproduct_BinCoproduct _ (BinCoproduct_z_iso_lr coprod _ _))).
+    - exact (nat_z_iso_pointwise_z_iso τ x).
+    - exact (nat_z_iso_pointwise_z_iso τ y).
+    - exact (nat_z_iso_pointwise_z_iso τ p).
+    - abstract
+        (cbn ;
+         rewrite !assoc' ;
+         rewrite nat_trans_ax ;
+         refine (!(id_left _) @ !_) ;
+         rewrite !assoc ;
+         apply maponpaths_2 ;
+         apply z_iso_after_z_iso_inv).
+    - abstract
+        (cbn ;
+         rewrite !assoc' ;
+         rewrite nat_trans_ax ;
+         refine (!(id_left _) @ !_) ;
+         rewrite !assoc ;
+         apply maponpaths_2 ;
+         apply z_iso_after_z_iso_inv).
+  Defined.
 End PreservationNatIso.
 
 Definition preserves_terminal_nat_z_iso_b
@@ -157,6 +198,26 @@ Definition preserves_equalizer_nat_z_iso_b
   : preserves_equalizer F.
 Proof.
   exact (preserves_equalizer_nat_z_iso_f (nat_z_iso_inv τ) HF).
+Defined.
+
+Definition preserves_initial_nat_z_iso_b
+           {C D : category}
+           {F G : C ⟶ D}
+           (τ : nat_z_iso F G)
+           (HF : preserves_initial G)
+  : preserves_initial F.
+Proof.
+  exact (preserves_initial_nat_z_iso_f (nat_z_iso_inv τ) HF).
+Defined.
+
+Definition preserves_bincoproduct_nat_z_iso_b
+           {C D : category}
+           {F G : C ⟶ D}
+           (τ : nat_z_iso F G)
+           (HF : preserves_bincoproduct G)
+  : preserves_bincoproduct F.
+Proof.
+  exact (preserves_bincoproduct_nat_z_iso_f (nat_z_iso_inv τ) HF).
 Defined.
 
 (** *  2. Preservation and equivalences in the arrow bicategory *)
@@ -211,6 +272,30 @@ Section EquivalencePreservation.
       + exact (right_adjoint_preserves_equalizer _ HEC).
       + exact HF.
     - exact (right_adjoint_preserves_equalizer _ (adj_equivalence_of_cats_inv HED)).
+  Defined.
+
+  Definition preserves_initial_equivalence_f
+             (HF : preserves_initial F)
+    : preserves_initial G.
+  Proof.
+    use (preserves_initial_nat_z_iso_f θ).
+    use composition_preserves_initial.
+    - use composition_preserves_initial.
+      + exact (left_adjoint_preserves_initial _ (adj_equivalence_of_cats_inv HEC)).
+      + exact HF.
+    - exact (left_adjoint_preserves_initial _ HED).
+  Defined.
+
+  Definition preserves_bincoproduct_equivalence_f
+             (HF : preserves_bincoproduct F)
+    : preserves_bincoproduct G.
+  Proof.
+    use (preserves_bincoproduct_nat_z_iso_f θ).
+    use composition_preserves_bincoproduct.
+    - use composition_preserves_bincoproduct.
+      + exact (left_adjoint_preserves_bincoproduct _ (adj_equivalence_of_cats_inv HEC)).
+      + exact HF.
+    - exact (left_adjoint_preserves_bincoproduct _ HED).
   Defined.
 End EquivalencePreservation.
 
@@ -269,6 +354,28 @@ Section EquivalencePreservation.
              (HG : preserves_equalizer G)
     : preserves_equalizer F
     := preserves_equalizer_equivalence_f
+         _ _
+         (adj_equivalence_of_cats_inv HEC)
+         (adj_equivalence_of_cats_inv HED)
+         _ _
+         θ
+         HG.
+
+  Definition preserves_initial_equivalence_b
+             (HG : preserves_initial G)
+    : preserves_initial F
+    := preserves_initial_equivalence_f
+         _ _
+         (adj_equivalence_of_cats_inv HEC)
+         (adj_equivalence_of_cats_inv HED)
+         _ _
+         θ
+         HG.
+
+  Definition preserves_bincoproduct_equivalence_b
+             (HG : preserves_bincoproduct G)
+    : preserves_bincoproduct F
+    := preserves_bincoproduct_equivalence_f
          _ _
          (adj_equivalence_of_cats_inv HEC)
          (adj_equivalence_of_cats_inv HED)

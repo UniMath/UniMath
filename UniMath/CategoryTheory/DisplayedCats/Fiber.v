@@ -400,3 +400,53 @@ Proof.
   - intros xx.
     apply (@is_z_isomorphism_identity (fiber_category _ x)).
 Defined.
+
+(**
+   Note: the previous lemma only considers displayed functor over the identity
+   whereas the next one is the more general case.
+   Note that the previous lemma also uses a more specialized composition operation.
+ *)
+Definition fiber_functor_comp_nat_trans
+           {C₁ C₂ C₃ : category}
+           {F : C₁ ⟶ C₂}
+           {G : C₂ ⟶ C₃}
+           {D₁ : disp_cat C₁}
+           {D₂ : disp_cat C₂}
+           {D₃ : disp_cat C₃}
+           (FF : disp_functor F D₁ D₂)
+           (GG : disp_functor G D₂ D₃)
+           (x : C₁)
+  : fiber_functor FF x ∙ fiber_functor GG (F x)
+    ⟹
+    fiber_functor (disp_functor_composite FF GG) x.
+Proof.
+  use make_nat_trans.
+  - exact (λ _, identity _).
+  - abstract
+      (intros xx yy ff ;
+       refine (id_right _ @ _ @ !(id_left _)) ;
+       cbn ;
+       rewrite disp_functor_transportf ;
+       rewrite transport_f_f ;
+       apply idpath).
+Defined.
+
+Definition fiber_functor_comp_nat_z_iso
+           {C₁ C₂ C₃ : category}
+           {F : C₁ ⟶ C₂}
+           {G : C₂ ⟶ C₃}
+           {D₁ : disp_cat C₁}
+           {D₂ : disp_cat C₂}
+           {D₃ : disp_cat C₃}
+           (FF : disp_functor F D₁ D₂)
+           (GG : disp_functor G D₂ D₃)
+           (x : C₁)
+  : nat_z_iso
+      (fiber_functor FF x ∙ fiber_functor GG (F x))
+      (fiber_functor (disp_functor_composite FF GG) x).
+Proof.
+  use make_nat_z_iso.
+  - exact (fiber_functor_comp_nat_trans FF GG x).
+  - intro xx.
+    apply is_z_isomorphism_identity.
+Defined.

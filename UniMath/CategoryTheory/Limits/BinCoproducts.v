@@ -309,6 +309,16 @@ Qed.
 
 End coproduct_unique.
 
+Definition isaprop_BinCoproducts
+           (C : univalent_category)
+  : isaprop (BinCoproducts C).
+Proof.
+  use impred ; intro x.
+  use impred ; intro y.
+  use isaprop_BinCoproduct.
+  exact (univalent_category_is_univalent C).
+Qed.
+
 Section BinCoproducts.
 
 Context (C : category) (CC : BinCoproducts C) (a b c d x y : C).
@@ -1492,3 +1502,49 @@ Section DistributionForPrecompositionFunctor.
 
 
 End DistributionForPrecompositionFunctor.
+
+Definition isBinCoproduct_z_iso
+           {C : category}
+           {x y a₁ a₂ : C}
+           {p₁ : x --> a₁}
+           {q₁ : y --> a₁}
+           {p₂ : x --> a₂}
+           {q₂ : y --> a₂}
+           (H : isBinCoproduct C x y a₁ p₁ q₁)
+           (f : z_iso a₁ a₂)
+           (r₁ : p₂ = p₁ · f)
+           (r₂ : q₂ = q₁ · f)
+  : isBinCoproduct C x y a₂ p₂ q₂.
+Proof.
+  pose (coprod := make_BinCoproduct _ _ _ _ _ _ H).
+  intros w h₁ h₂.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; apply isapropdirprod ; apply homset_property | ] ;
+       use (cancel_z_iso' f) ;
+       use (BinCoproductArrowsEq _ _ _ coprod) ; cbn ;
+       [ rewrite !assoc ;
+         rewrite <- !r₁ ;
+         exact (pr12 φ₁ @ !(pr12 φ₂))
+       | rewrite !assoc ;
+         rewrite <- !r₂ ;
+         exact (pr22 φ₁ @ !(pr22 φ₂)) ]).
+  - simple refine (_ ,, _ ,, _).
+    + exact (inv_from_z_iso f · BinCoproductArrow coprod h₁ h₂).
+    + abstract
+        (rewrite r₁ ;
+         rewrite !assoc' ;
+         rewrite (maponpaths (λ z, _ · z) (assoc _ _ _)) ;
+         rewrite z_iso_inv_after_z_iso ;
+         rewrite id_left ;
+         apply (BinCoproductIn1Commutes _ _ _ coprod)).
+    + abstract
+        (rewrite r₂ ;
+         rewrite !assoc' ;
+         rewrite (maponpaths (λ z, _ · z) (assoc _ _ _)) ;
+         rewrite z_iso_inv_after_z_iso ;
+         rewrite id_left ;
+         apply (BinCoproductIn2Commutes _ _ _ coprod)).
+Defined.
