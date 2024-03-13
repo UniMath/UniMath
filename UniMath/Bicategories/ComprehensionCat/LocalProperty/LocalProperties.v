@@ -26,7 +26,7 @@
  For that purpose, we look at local properties of categories following Maietti (Proposition
  2.13 in "Modular correspondence between dependent type theories and categories including
  pretopoi and topoi"). A local property ([local_property]) is given by:
- - A predicate `P₀` on categories
+ - A type-valued predicate `P₀` on categories that is a proposition for univalent categories
  - A predicate `P₁` on functors
  - The predicate `P₁` is satisfied by the identity functor
  - The predicate `P₁` is preserved under composition
@@ -41,7 +41,13 @@
  and exactness) give rise to a predicate on univalent categories, but not to a predicate on
  categories that are not necessarily univalent. These examples are actually instance of
  'property-like structure' since they are unique up to isomorphism. This means that in
- univalent categories they actually are unique, and they thus form a proposition.
+ univalent categories they actually are unique, and they thus form a proposition. It is also
+ good to note that the notion of `cat_property` is quite similar to a notion of structure as
+ defined in Definition 9.8.1 of the HoTT book. The main difference is that we require
+ uniqueness of structures for univalent categories, while in Definition 9.8.1, there is no
+ such requirement. In addition, our local properties are automatically standard if we restrict
+ our attention to univalent categories: this follows directly from the fact they form a
+ proposition in that case.
 
  Note that if we look at univalent categories, `P₀` and `P₁` are automatically closed under
  adjoint equivalence and natural isomorphism respectively.
@@ -59,6 +65,7 @@
  References
  - "Modular correspondence between dependent type theories and categories including pretopoi
    and topoi" by Maietti
+ - The HoTT book
 
  Contents
  1. Properties of categories
