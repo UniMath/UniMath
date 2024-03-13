@@ -232,15 +232,12 @@ Section LocalPropertyBiequiv.
            dfl_comp_cat_to_finlim_disp_psfunctor_local_property)
         finlim_dfl_comp_cat_unit_inv.
   Proof.
-    use make_disp_pstrans_contr.
+    use make_disp_pstrans_inv_contr.
     - apply disp_2cells_iscontr_disp_bicat_of_univ_cat_with_cat_property.
     - apply disp_locally_groupoid_disp_bicat_of_univ_cat_with_cat_property.
-    - refine (λ C H,
-              transportf
-                (λ z, _ -->[ z ] _)
-                (!(finlim_dfl_comp_cat_unit_inv_pointwise C))
-                _).
-      exact (pr11 (finlim_dfl_comp_cat_unit_local_property_pointwise_adjequiv H)).
+    - apply finlim_dfl_comp_cat_unit_local_property.
+    - intros.
+      apply finlim_dfl_comp_cat_unit_local_property_pointwise_adjequiv.
   Qed.
 
   (** * 4. The counit *)
@@ -287,15 +284,12 @@ Section LocalPropertyBiequiv.
         (disp_pseudo_id _)
         finlim_dfl_comp_cat_counit_inv.
   Proof.
-    use make_disp_pstrans_contr.
+    use make_disp_pstrans_inv_contr.
     - apply disp_2cells_iscontr_disp_bicat_of_cat_property_dfl_full_comp_cat.
     - apply disp_locally_groupoid_disp_bicat_of_cat_property_dfl_full_comp_cat.
-    - refine (λ C H,
-              transportf
-                (λ z, _ -->[ z ] _)
-                (!(finlim_dfl_comp_cat_counit_inv_pointwise C))
-                _).
-      exact (pr11 (finlim_dfl_comp_cat_counit_local_property_pointwise_adjequiv H)).
+    - apply finlim_dfl_comp_cat_counit_local_property.
+    - intros.
+      apply finlim_dfl_comp_cat_counit_local_property_pointwise_adjequiv.
   Qed.
 
   (** * 5. The displayed biequivalence *)

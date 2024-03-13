@@ -163,7 +163,7 @@ Section NiceBuildersContr.
              {FF₁ : disp_psfunctor D₁ D₂ F₁}
              {FF₂ : disp_psfunctor D₁ D₂ F₂}
              {α : pstrans F₁ F₂}
-             (αα₁ : ∏ (x : B₁) (xx : D₁ x), FF₁ x xx -->[ α x] FF₂ x xx)
+             (αα₁ : ∏ (x : B₁) (xx : D₁ x), FF₁ x xx -->[ α x ] FF₂ x xx)
     : disp_pstrans FF₁ FF₂ α.
   Proof.
     use make_disp_pstrans.
@@ -175,6 +175,30 @@ Section NiceBuildersContr.
     - intros.
       apply HD₁.
   Defined.
+
+  Definition make_disp_pstrans_inv_contr
+             (HB₂ : is_univalent_2 B₂)
+             {F₁ F₂ : psfunctor B₁ B₂}
+             {FF₁ : disp_psfunctor D₁ D₂ F₁}
+             {FF₂ : disp_psfunctor D₁ D₂ F₂}
+             {α : pstrans F₁ F₂}
+             (Hα : ∏ (x : B₁), left_adjoint_equivalence (α x))
+             (αα₁ : ∏ (x : B₁) (xx : D₁ x), FF₁ x xx -->[ α x ] FF₂ x xx)
+             (Hαα₁ : ∏ (x : B₁) (xx : D₁ x),
+                     disp_left_adjoint_equivalence (Hα x) (αα₁ x xx))
+    : disp_pstrans
+        FF₂
+        FF₁
+        (left_adjoint_right_adjoint (pointwise_adjequiv_to_adjequiv HB₂ α Hα)).
+  Proof.
+    use make_disp_pstrans_contr.
+    intros x xx.
+    refine (transportf
+              (λ z, _ -->[ z ] _)
+              (!(right_adjoint_pointwise_adjequiv _ _ _ _))
+              _).
+    exact (pr11 (Hαα₁ x xx)).
+  Qed.
 
   Definition make_disp_invmodification_contr
              {F₁ F₂ : psfunctor B₁ B₂}
