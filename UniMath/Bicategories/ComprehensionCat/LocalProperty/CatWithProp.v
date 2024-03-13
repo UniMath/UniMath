@@ -131,6 +131,13 @@ Proof.
   apply is_univalent_2_bicat_of_univ_cat_with_finlim.
 Qed.
 
+Definition disp_2cells_iscontr_disp_bicat_of_univ_cat_with_cat_property
+           (P : cat_property)
+  : disp_2cells_iscontr (disp_bicat_of_univ_cat_with_cat_property P).
+Proof.
+  apply disp_2cells_iscontr_subbicat.
+Qed.
+
 (** * 3. Displayed adjoint equivalences in this bicategory *)
 Definition disp_adjoint_equiv_disp_bicat_of_univ_cat_with_cat_property
            {P : cat_property}

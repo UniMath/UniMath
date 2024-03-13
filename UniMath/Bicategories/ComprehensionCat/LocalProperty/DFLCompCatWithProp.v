@@ -120,6 +120,13 @@ Proof.
   apply is_univalent_2_bicat_cat_with_terminal_cleaving.
 Qed.
 
+Definition disp_2cells_iscontr_disp_bicat_of_fiberwise_cat_property
+           (P : cat_property)
+  : disp_2cells_iscontr (disp_bicat_of_fiberwise_cat_property P).
+Proof.
+  apply disp_2cells_iscontr_subbicat.
+Qed.
+
 Definition fiberwise_cat_property_functor_adjequiv
            {P : cat_property}
            {C₁ C₂ : bicat_cat_with_terminal_cleaving}
@@ -233,6 +240,14 @@ Proof.
   exact (disp_locally_groupoid_disp_bicat_of_fiberwise_cat_property P).
 Qed.
 
+Definition disp_2cells_iscontr_disp_bicat_of_cat_property_comp_cat
+           (P : cat_property)
+  : disp_2cells_iscontr (disp_bicat_of_cat_property_comp_cat P).
+Proof.
+  use disp_2cells_iscontr_lift_disp_bicat.
+  apply disp_2cells_iscontr_disp_bicat_of_fiberwise_cat_property.
+Qed.
+
 Definition disp_adjoint_equiv_disp_bicat_of_cat_property_comp_cat_help
            {P : cat_property}
            {C₁ C₂ : bicat_comp_cat}
@@ -315,6 +330,14 @@ Proof.
   exact (disp_locally_groupoid_disp_bicat_of_cat_property_comp_cat P).
 Qed.
 
+Definition disp_2cells_iscontr_disp_bicat_of_cat_property_full_comp_cat
+           (P : cat_property)
+  : disp_2cells_iscontr (disp_bicat_of_cat_property_full_comp_cat P).
+Proof.
+  use disp_2cells_iscontr_lift_disp_bicat.
+  apply disp_2cells_iscontr_disp_bicat_of_cat_property_comp_cat.
+Qed.
+
 Definition disp_adjoint_equiv_disp_bicat_of_cat_property_full_comp_cat_help
            {P : cat_property}
            {C₁ C₂ : bicat_full_comp_cat}
@@ -395,6 +418,14 @@ Definition disp_locally_groupoid_disp_bicat_of_cat_property_dfl_full_comp_cat
 Proof.
   use disp_locally_groupoid_lift_disp_bicat.
   exact (disp_locally_groupoid_disp_bicat_of_cat_property_full_comp_cat P).
+Qed.
+
+Definition disp_2cells_iscontr_disp_bicat_of_cat_property_dfl_full_comp_cat
+           (P : cat_property)
+  : disp_2cells_iscontr (disp_bicat_of_cat_property_dfl_full_comp_cat P).
+Proof.
+  use disp_2cells_iscontr_lift_disp_bicat.
+  apply disp_2cells_iscontr_disp_bicat_of_cat_property_full_comp_cat.
 Qed.
 
 Definition disp_adjoint_equiv_disp_bicat_of_cat_property_dfl_full_comp_cat_help
