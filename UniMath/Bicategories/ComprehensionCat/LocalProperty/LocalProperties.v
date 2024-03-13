@@ -34,6 +34,15 @@
  - The substitution functors `C/y ⟶ C/x` satisfy `P₁`
  - If we have a functor `F : C₁ ⟶ C₂` satisfying `P₁`, then the fiber functors
    `C₁/x ⟶ C₂/(F x)` satisfy `P₁`
+ Note that in the formalization, we give `P₀` as a type family on categories. This is purely
+ for convenience, because we do not have to carry proofs of categories being univalent around.
+ In addition, we think of a local property as a property on univalent categories rather than
+ as structure on categories. The main examples (initial objects, coproducts, extensiveness,
+ and exactness) give rise to a predicate on univalent categories, but not to a predicate on
+ categories that are not necessarily univalent. These examples are actually instance of
+ 'property-like structure' since they are unique up to isomorphism. This means that in
+ univalent categories they actually are unique, and they thus form a proposition.
+
  Note that if we look at univalent categories, `P₀` and `P₁` are automatically closed under
  adjoint equivalence and natural isomorphism respectively.
 
