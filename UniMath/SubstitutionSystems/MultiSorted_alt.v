@@ -190,6 +190,23 @@ use make_functor.
 + abstract (split; intros f *; apply idpath).
 Defined.
 
+(** not needed here - illustration that also the sort can vary *)
+Definition projSortToCvariable (f: sort -> sort) : functor sortToC sortToC.
+Proof.
+  use make_functor.
+  - use make_functor_data.
+    + intro ξ.
+      apply (functor_path_pregroupoid Hsort).
+      intro s.
+      exact (pr1 ξ (f s)).
+    + intros ξ ξ' h.
+      apply nat_trans_functor_path_pregroupoid.
+      intro s.
+      exact (pr1 h (f s)).
+  - abstract (split; red; intros; apply nat_trans_eq; try (apply C);
+      intro t; apply idpath).
+Defined.
+
 (* The left adjoint to projSortToC *)
 Definition hat_functor (t : sort) : functor C sortToC.
 Proof.
