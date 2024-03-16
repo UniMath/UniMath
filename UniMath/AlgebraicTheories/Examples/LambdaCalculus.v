@@ -48,7 +48,7 @@ Proof.
     + do 4 (apply impred; intro).
       apply setproperty.
     + intros.
-      now do 2 rewrite subst_var.
+      now do 2 rewrite var_subst.
     + intros ? ? ? Hl Hl' ? ? ? ?.
       do 3 rewrite subst_app.
       now rewrite Hl, Hl'.
@@ -65,9 +65,9 @@ Proof.
         apply maponpaths.
         apply funextfun.
         intro.
-        rewrite subst_var.
+        rewrite var_subst.
         exact (!extend_tuple_inl _ _ _).
-      * rewrite extend_tuple_inr, subst_var.
+      * rewrite extend_tuple_inr, var_subst.
         exact (!extend_tuple_inr _ _).
     + intros m n l f Hl Hf m' f_m' n' f_n'.
       rewrite Hl.
@@ -77,7 +77,7 @@ Proof.
       intro.
       apply Hf.
   - do 4 intro.
-    apply (subst_var i f).
+    apply (var_subst i f).
   - use (lambda_calculus_ind_prop (λ _ _, _ ,, _));
       simpl.
     + apply setproperty.
@@ -125,13 +125,13 @@ Proof.
     unfold inflate.
   - rewrite subst_app.
     do 2 rewrite subst_subst.
-    rewrite subst_var.
+    rewrite var_subst.
     rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _).
     apply (maponpaths (λ x, _ x _)).
     apply maponpaths.
     apply funextfun.
     intro.
-    rewrite subst_var.
+    rewrite var_subst.
     now rewrite extend_tuple_inl.
   - rewrite subst_abs .
     do 2 apply maponpaths.
@@ -156,7 +156,7 @@ Proof.
   rewrite inflate_abs.
   rewrite beta_equality.
   rewrite subst_subst.
-  refine (_ @ subst_l_var _).
+  refine (_ @ subst_var _).
   apply maponpaths.
   apply funextfun.
   intro i.
@@ -165,9 +165,9 @@ Proof.
     refine (maponpaths (λ x, subst (_ x) _) (homotinvweqweq stnweq _) @ _);
     simpl.
   - do 2 rewrite inflate_var.
-    rewrite subst_var.
+    rewrite var_subst.
     now rewrite extend_tuple_inl.
-  - rewrite subst_var.
+  - rewrite var_subst.
     now rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _).
 Qed.
 

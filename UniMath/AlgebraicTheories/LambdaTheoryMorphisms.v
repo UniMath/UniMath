@@ -117,49 +117,49 @@ Section MakeIsLambdaTheoryMorphism'.
     - intros n t.
       refine (maponpaths _ (app_from_app' _ _) @ !_).
       refine (app_from_app' _ _ @ !_).
-      refine (mor_comp _ _ _ @ _).
+      refine (mor_subst _ _ _ @ _).
       refine (maponpaths (λ x, x • _) H1 @ _).
-      apply (maponpaths (comp _)).
+      apply (maponpaths (subst _)).
       refine (!extend_tuple_eq _ _).
       + intro i.
         refine (!_ @ !maponpaths (λ x, _ (_ x)) (homotinvweqweq stnweq _)).
-        refine (mor_comp _ _ _ @ _).
+        refine (mor_subst _ _ _ @ _).
         apply maponpaths.
         apply funextfun.
         intro i'.
-        apply mor_pr.
-      + exact (!mor_pr _ _).
+        apply mor_var.
+      + exact (!mor_var _ _).
     - intros n t.
       induction (abs_from_one _ H t (abs t) (idpath _)) as [H3 H4].
       refine (!invmap (abs_from_one _ H' _ _) _).
       split.
       + refine (!_ @ maponpaths _ H3).
-        refine (mor_comp _ _ _ @ _).
+        refine (mor_subst _ _ _ @ _).
         refine (maponpaths (λ x, x • _) H1 @ !_).
         apply maponpaths.
         apply extend_tuple_eq.
         * intro i.
           refine (!_ @ !maponpaths (λ x, _ (_ x)) (homotinvweqweq stnweq _)).
-          refine (mor_comp _ _ _ @ _).
+          refine (mor_subst _ _ _ @ _).
           refine (maponpaths (λ x, x • _) H2 @ _).
-          apply (maponpaths (comp _)).
+          apply (maponpaths (subst _)).
           apply funextfun.
           intro j.
           induction (negnatlthn0 _ (stnlt j)).
         * now refine (!_ @ !maponpaths (λ x, _ (_ x)) (homotinvweqweq stnweq _)).
       + refine (!_ @ maponpaths _ H4).
-        refine (mor_comp _ _ _ @ _).
+        refine (mor_subst _ _ _ @ _).
         refine (maponpaths (λ x, x • _) H1 @ !_).
-        apply (maponpaths (comp _)).
+        apply (maponpaths (subst _)).
         apply extend_tuple_eq.
         * intro i.
           refine (!_ @ !maponpaths (λ x, _ (_ x)) (homotinvweqweq stnweq _)).
-          refine (mor_comp _ _ _ @ _).
+          refine (mor_subst _ _ _ @ _).
           apply maponpaths.
           apply funextfun.
           intro i'.
-          apply mor_pr.
-        * exact (!mor_pr _ _).
+          apply mor_var.
+        * exact (!mor_var _ _).
   Qed.
 
 End MakeIsLambdaTheoryMorphism'.

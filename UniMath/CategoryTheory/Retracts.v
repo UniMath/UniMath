@@ -19,6 +19,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.OppositeCategory.Core.
 
 Local Open Scope cat.
 
@@ -232,3 +233,15 @@ Section Functors.
     := _ ,, (functor_preserves_is_split_idempotent f).
 
 End Functors.
+
+Section Opp.
+
+  Context (C : category).
+  Context (A B : C).
+  Context (r : retraction A B).
+
+  Definition opp_retraction
+    : retraction (A : C^opp) (B : C^opp)
+    := retraction_retraction r ,, retraction_section r ,, retraction_is_retraction r.
+
+End Opp.

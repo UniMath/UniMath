@@ -53,13 +53,13 @@ Definition is_algebraic_theory_morphism
   {T T' : algebraic_theory}
   (F : algebraic_theory_morphism_data T T')
   : UU
-  := (∏ n i, mor_pr_ax F n i) ×
-    (∏ m n f g, mor_comp_ax F m n f g).
+  := (∏ n i, mor_var_ax F n i) ×
+    (∏ m n f g, mor_subst_ax F m n f g).
 
 Definition make_is_algebraic_theory_morphism {T T' : algebraic_theory}
   {F : algebraic_theory_morphism_data T T'}
-  (H1 : ∏ n i, mor_pr_ax F n i)
-  (H2 : ∏ m n f g, mor_comp_ax F m n f g)
+  (H1 : ∏ n i, mor_var_ax F n i)
+  (H2 : ∏ m n f g, mor_subst_ax F m n f g)
   : is_algebraic_theory_morphism F
   := H1 ,, H2.
 
@@ -81,21 +81,21 @@ Definition make_algebraic_theory_morphism
   : algebraic_theory_morphism T T'
   := (F ,, pr1 H ,, pr2 H) ,, tt.
 
-Definition mor_pr
+Definition mor_var
   {T T' : algebraic_theory}
   (F : algebraic_theory_morphism T T')
   {n : nat}
   (i : stn n)
-  : mor_pr_ax F n i
+  : mor_var_ax F n i
   := pr121 F n i.
 
-Definition mor_comp
+Definition mor_subst
   {T T' : algebraic_theory}
   (F : algebraic_theory_morphism T T')
   {m n : nat}
   (f : T m)
   (g : stn m → T n)
-  : mor_comp_ax F m n f g
+  : mor_subst_ax F m n f g
   := pr221 F m n f g.
 
 (** * 2. An equality lemma *)

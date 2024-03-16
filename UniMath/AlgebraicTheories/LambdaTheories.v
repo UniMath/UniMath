@@ -43,7 +43,7 @@ Definition make_lambda_theory_data
   : algebraic_theory
   := pr1 L.
 
-Definition app {L : lambda_theory_data} {n : nat} (f : L n) : app_ax L n f := pr12 L n f.
+Definition appx {L : lambda_theory_data} {n : nat} (f : L n) : app_ax L n f := pr12 L n f.
 
 Definition abs {L : lambda_theory_data} {n : nat} (f : L (S n)) : abs_ax L n f := pr22 L n f.
 
@@ -51,10 +51,10 @@ Definition lambda_theory : UU := lambda_theory_cat.
 
 Definition make_is_lambda_theory
   {L : lambda_theory_data}
-  (app_comp : ∏ m n f g, app_comp_ax L m n f g)
-  (abs_comp : ∏ m n f g, abs_comp_ax L m n f g)
+  (app_subst : ∏ m n f g, app_subst_ax L m n f g)
+  (abs_subst : ∏ m n f g, abs_subst_ax L m n f g)
   : is_lambda_theory L
-  := app_comp ,, abs_comp.
+  := app_subst ,, abs_subst.
 
 Definition make_lambda_theory
   (L : lambda_theory_data)
@@ -64,20 +64,20 @@ Definition make_lambda_theory
 
 #[reversible] Coercion lambda_theory_to_lambda_theory_data (L : lambda_theory) : lambda_theory_data := pr1 L.
 
-Definition app_comp
+Definition app_subst
   (L : lambda_theory)
   {m n : nat}
   (f : L m)
   (g : stn m → L n)
-  : app_comp_ax (L : lambda_theory_data) m n f g
+  : app_subst_ax (L : lambda_theory_data) m n f g
   := pr12 L m n f g.
 
-Definition abs_comp
+Definition abs_subst
   (L : lambda_theory)
   {m n : nat}
   (f : L (S m))
   (g : stn m → L n)
-  : abs_comp_ax (L : lambda_theory_data) m n f g
+  : abs_subst_ax (L : lambda_theory_data) m n f g
   := pr22 L m n f g.
 
 (** * 2. The definition of β-equality *)
@@ -108,15 +108,102 @@ Qed.
 
 (** * 4. A characterization of app and abs in terms of app' and one *)
 
+Section Primitives.
+
+  Definition app {L : lambda_theory} {n : nat} (f g : L n) : L n
+    := appx f • extend_tuple var g.
+
+  Definition inflate {L : lambda_theory} {n : nat} (f : L n) : L (S n)
+    := subst f (λ i, var (stnweq (inl i))).
+
+  Lemma subst_app (L : lambda_theory) {m n : nat} (f g : L m) (h : stn m → L n)
+    : subst (app f g) h = app (subst f h) (subst g h).
+  Proof.
+    unfold subst, app.
+    rewrite (app_subst L).
+    unfold extended_composition.
+    do 2 rewrite (subst_subst _ (appx f)).
+    apply (maponpaths (λ x, _ • x)).
+    apply funextfun.
+    intro i.
+    rewrite <- (homotweqinvweq stnweq i).
+    induction (invmap stnweq i) as [i' | i'].
+    - do 2 rewrite extend_tuple_inl.
+      rewrite var_subst.
+      rewrite (subst_subst _ (h i')).
+      refine (!subst_var _ _ @ _).
+      apply maponpaths.
+      apply funextfun.
+      intro j.
+      rewrite var_subst.
+      apply (!extend_tuple_inl _ _ _).
+    - induction i'.
+      do 2 rewrite extend_tuple_inr.
+      rewrite var_subst.
+      apply (!extend_tuple_inr _ _ _).
+  Qed.
+
+  Definition subst_abs (L : lambda_theory) {m n : nat} (f : L (S m)) (g : stn m → L n)
+    : subst (abs f) g = abs (subst f (extend_tuple (λ i, inflate (g i)) (var (stnweq (inr tt)))))
+    := !abs_subst _ _ _.
+
+  Lemma subst_inflate (L : lambda_theory) {m n : nat} (f : L m) (g : stn (S m) → L n)
+    : subst (inflate f) g = subst f (λ i, g (stnweq (inl i))).
+  Proof.
+    unfold inflate.
+    rewrite (subst_subst L).
+    apply maponpaths.
+    apply funextfun.
+    intro i.
+    apply var_subst.
+  Qed.
+
+  Definition inflate_var (L : lambda_theory) {n : nat} (i : stn n)
+    : inflate (var i) = var (stnweq (inl i))
+    := var_subst L _ _.
+
+  Definition inflate_app (L : lambda_theory) {n : nat} (f g : L n)
+    : inflate (app f g) = app (inflate f) (inflate g)
+    := subst_app L _ _ _.
+
+  Definition inflate_abs (L : lambda_theory) {n : nat} (f : L (S n))
+    : inflate (abs f) = abs (subst f (extend_tuple (λ i, var (stnweq (inl (stnweq (inl i))))) (var (stnweq (inr tt))))).
+  Proof.
+    unfold inflate, subst, abs.
+    refine (subst_abs L _ _ @ _).
+    apply (maponpaths (λ x, abs (f • extend_tuple x _))).
+    apply funextfun.
+    intro i.
+    now rewrite inflate_var.
+  Qed.
+
+  Definition inflate_subst (L : lambda_theory) {m n : nat} (f : L m) (g : stn m → L n)
+    : inflate (subst f g) = subst f (λ i, inflate (g i))
+    := subst_subst _ _ _ _.
+
+  Definition beta_equality (L : lambda_theory) (H : has_β L) {n : nat} (f : L (S n)) (g : L n)
+    : app (abs f) g = subst f (extend_tuple var g).
+  Proof.
+    unfold app, abs.
+    now rewrite H.
+  Qed.
+
+End Primitives.
+
+Notation "( a b )" := (app a b).
+Notation "(π m )" := (var (make_stn _ m (idpath true))).
+Notation "(λ' n , x )" := (@abs _ n x).
+Notation "f • g" := (subst f g).
+
 Definition app'
   (L : lambda_theory_data)
   : (L 2 : hSet)
-  := app (pr (n := 1) (● 0)%stn).
+  := appx (var (n := 1) (● 0)%stn).
 
 Definition one
   (L : lambda_theory_data)
   : (L 0 : hSet)
-  := abs (abs (app (pr (n := 1) (● 0)%stn))).
+  := abs (abs (appx (var (n := 1) (● 0)%stn))).
 
 Section AppAbs.
 
@@ -126,9 +213,9 @@ Section AppAbs.
   Lemma app_from_app'
     {n : nat}
     (s : (L n : hSet))
-    : app s = extended_composition (app' L) (λ _, s).
+    : appx s = extended_composition (app' L) (λ _, s).
   Proof.
-    exact (!maponpaths _ (pr_comp _ _ _) @ app_comp _ _ _).
+    exact (!maponpaths _ (var_subst _ _ _) @ app_subst _ _ _).
   Qed.
 
   Local Lemma aux1
@@ -139,21 +226,21 @@ Section AppAbs.
     : abs s = app' L • extend_tuple (λ _ : (⟦ 1 ⟧)%stn, lift_constant n (one L)) t.
   Proof.
     refine (!maponpaths _ H2 @ _).
-    refine (abs_comp _ _ _ @ _).
+    refine (abs_subst _ _ _ @ _).
     refine (!maponpaths (λ x, x • _) (H _ _) @ _).
     refine (maponpaths (λ x, x • _) (app_from_app' (one L)) @ _).
-    refine (comp_comp L (app' L) _ _ @ _).
+    refine (subst_subst _ (app' L) _ _ @ _).
     apply maponpaths.
     refine (!extend_tuple_eq _ _).
     - intro i'.
       refine (!_ @ !maponpaths (λ x, (_ x) • _) (homotinvweqweq stnweq _)).
-      refine (comp_comp L (one L) _ _ @ _).
-      apply (maponpaths (comp _)).
+      refine (subst_subst _ (one L) _ _ @ _).
+      apply (maponpaths (subst _)).
       apply funextfun.
       intro i.
       induction (negnatlthn0 _ (stnlt i)).
     - refine (!_ @ !maponpaths (λ x, (_ x) • _) (homotinvweqweq stnweq _)).
-      apply pr_comp.
+      apply var_subst.
   Qed.
 
   Lemma abs_from_one

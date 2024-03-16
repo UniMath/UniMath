@@ -117,12 +117,12 @@ Section Cleaving.
   Proof.
     repeat split.
     - do 5 intro.
-      refine (maponpaths (λ x, _ x a) (mor_comp F _ _) @ _).
-      apply (comp_action A).
+      refine (maponpaths (λ x, _ x a) (mor_subst F _ _) @ _).
+      apply (subst_action A).
     - intros n i a.
-      refine (_ @ pr_action A _ _).
+      refine (_ @ var_action A _ _).
       apply (maponpaths (λ f, action (A := A) f _)).
-      apply mor_pr.
+      apply mor_var.
   Qed.
 
   Definition algebra_cleaving_algebra

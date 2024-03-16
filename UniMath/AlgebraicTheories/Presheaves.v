@@ -56,15 +56,15 @@ Definition make_presheaf_data
 
 Definition is_presheaf {T : algebraic_theory} (P : presheaf_data T) : UU :=
   (∏ l m n a f g, op_op_ax T P (@op T P) l m n a f g) ×
-  (∏ n f, op_pr_ax T P (@op T P) n f).
+  (∏ n f, op_var_ax T P (@op T P) n f).
 
 Definition make_is_presheaf
   {T : algebraic_theory}
   (P : presheaf_data T)
   (op_op : ∏ l m n a f g, op_op_ax T P (@op T P) l m n a f g)
-  (op_pr : ∏ n f, op_pr_ax T P (@op T P) n f)
+  (op_var : ∏ n f, op_var_ax T P (@op T P) n f)
   : is_presheaf P
-  := op_op ,, op_pr.
+  := op_op ,, op_var.
 
 Definition presheaf (T : algebraic_theory) : UU := presheaf_cat T.
 
@@ -89,12 +89,12 @@ Definition op_op
   : op_op_ax T P (@op T P) l m n a f g
   := pr122 P l m n a f g.
 
-Definition op_pr
+Definition op_var
   {T : algebraic_theory}
   (P : presheaf T)
   {n : nat}
   (f : P n)
-  : op_pr_ax T P (@op T P) n f
+  : op_var_ax T P (@op T P) n f
   := pr222 P n f.
 
 (** * 2. The presheaf given by the algebraic theory itself *)
@@ -114,8 +114,8 @@ Lemma theory_is_presheaf
   : is_presheaf (theory_presheaf_data T).
 Proof.
   use make_is_presheaf.
-  - apply comp_comp.
-  - apply comp_pr.
+  - apply subst_subst.
+  - apply subst_var.
 Qed.
 
 Definition theory_presheaf

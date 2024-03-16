@@ -36,23 +36,23 @@ Definition algebraic_theory_data_to_function
 
 Coercion algebraic_theory_data_to_function : algebraic_theory_data >-> Funclass.
 
-Definition pr
+Definition var
   {T : algebraic_theory_data}
   {n : nat}
   (i : stn n)
-  : pr_ax T n i
+  : var_ax T n i
   := pr12 T n i.
 
-Definition comp
+Definition subst
   {T : algebraic_theory_data}
   {m n : nat}
   (f : T m)
   (g : stn m → T n)
-  : comp_ax T m n f g
+  : subst_ax T m n f g
   := pr22 T m n f g.
 
 Notation "f • g" :=
-  (comp f g)
+  (subst f g)
   (at level 35) : algebraic_theories.
 
 Definition algebraic_theory : UU := algebraic_theory_cat.
@@ -63,16 +63,16 @@ Definition algebraic_theory : UU := algebraic_theory_cat.
 
 Definition make_algebraic_theory_data
   (T : nat → hSet)
-  (pr : ∏ n i, pr_ax T n i)
-  (comp : ∏ m n f g, comp_ax T m n f g)
+  (var : ∏ n i, var_ax T n i)
+  (subst : ∏ m n f g, subst_ax T m n f g)
   : algebraic_theory_data
-  := T ,, pr ,, comp.
+  := T ,, var ,, subst.
 
 Definition make_is_algebraic_theory
   (T : algebraic_theory_data)
-  (H1 : ∏ l m n f_l f_m f_n, comp_comp_ax T l m n f_l f_m f_n)
-  (H2 : ∏ m n i f, pr_comp_ax T m n i f)
-  (H3 : ∏ n f, comp_pr_ax T n f)
+  (H1 : ∏ l m n f_l f_m f_n, subst_subst_ax T l m n f_l f_m f_n)
+  (H2 : ∏ m n i f, var_subst_ax T m n i f)
+  (H3 : ∏ n f, subst_var_ax T n f)
   : is_algebraic_theory T
   := H1 ,, H2 ,, H3.
 
@@ -82,28 +82,28 @@ Definition make_algebraic_theory
   : algebraic_theory
   := T ,, H.
 
-Definition comp_comp
+Definition subst_subst
   (T : algebraic_theory)
   {l m n : nat}
   (f_l : T l)
   (f_m : stn l → T m)
   (f_n : stn m → T n)
-  : comp_comp_ax (T : algebraic_theory_data) l m n f_l f_m f_n
+  : subst_subst_ax (T : algebraic_theory_data) l m n f_l f_m f_n
   := pr12 T l m n f_l f_m f_n.
 
-Definition pr_comp
+Definition var_subst
   (T : algebraic_theory)
   {m n : nat}
   (i : stn m)
   (f : stn m → T n)
-  : pr_comp_ax (T : algebraic_theory_data) m n i f
+  : var_subst_ax (T : algebraic_theory_data) m n i f
   := pr122 T m n i f.
 
-Definition comp_pr
+Definition subst_var
   (T : algebraic_theory)
   {n : nat}
   (f : T n)
-  : comp_pr_ax (T : algebraic_theory_data) n f
+  : subst_var_ax (T : algebraic_theory_data) n f
   := pr222 T n f.
 
 (** * 2. Some useful properties and definitions *)
