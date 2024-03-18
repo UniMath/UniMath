@@ -343,3 +343,12 @@ Definition finlim_dfl_comp_cat_counit_inv
       (id_psfunctor bicat_of_dfl_full_comp_cat)
   := left_adjoint_right_adjoint
        finlim_dfl_comp_cat_counit_left_adjoint_equivalence.
+
+Proposition finlim_dfl_comp_cat_counit_inv_pointwise
+            (C : bicat_of_dfl_full_comp_cat)
+  : finlim_dfl_comp_cat_counit_inv C
+    =
+    left_adjoint_right_adjoint (finlim_dfl_comp_cat_counit_pointwise_equiv C).
+Proof.
+  apply right_adjoint_pointwise_adjequiv.
+Qed.

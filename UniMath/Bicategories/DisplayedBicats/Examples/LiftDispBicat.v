@@ -668,4 +668,12 @@ Section LiftDispBicat.
     use to_is_disp_invertible_2cell_lift.
     use (HD _ _ _ _ (_ ,, _)).
   Defined.
+
+  Definition disp_2cells_iscontr_lift_disp_bicat
+             (HD : disp_2cells_iscontr D₂)
+    : disp_2cells_iscontr lift_disp_bicat.
+  Proof.
+    intros x y f g τ xx yy ff gg.
+    apply HD.
+  Qed.
 End LiftDispBicat.

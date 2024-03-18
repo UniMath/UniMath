@@ -88,7 +88,8 @@ Section Sub1CellBicategory.
   Definition disp_sub1cell_bicat : disp_bicat B
     := disp_cell_unit_bicat disp_sub1cell_disp_cat_data.
 
-  Definition disp_2cells_isaprop_sub1cell_bicat    : disp_2cells_isaprop disp_sub1cell_bicat.
+  Definition disp_2cells_isaprop_sub1cell_bicat
+    : disp_2cells_isaprop disp_sub1cell_bicat.
   Proof.
     apply disp_2cells_isaprop_cell_unit_bicat.
   Defined.
@@ -97,6 +98,12 @@ Section Sub1CellBicategory.
     : disp_locally_groupoid disp_sub1cell_bicat.
   Proof.
     apply disp_locally_groupoid_cell_unit_bicat.
+  Defined.
+
+  Definition disp_2cells_iscontr_sub1cell_bicat
+    : disp_2cells_iscontr disp_sub1cell_bicat.
+  Proof.
+    apply disp_2cells_iscontr_disp_bicat_cells_unit.
   Defined.
 
   Definition disp_sub1cell_univalent_2_1
@@ -223,6 +230,15 @@ Section SubBicategory.
     - apply disp_2cells_isaprop_sub1cell_bicat.
     - apply disp_locally_groupoid_fullsubbicat.
     - apply disp_locally_groupoid_sub1cell_bicat.
+  Defined.
+
+  Definition disp_2cells_iscontr_subbicat
+    : disp_2cells_iscontr disp_subbicat.
+  Proof.
+    intros x y f g τ xx yy ff gg.
+    use iscontraprop1.
+    - apply disp_2cells_isaprop_subbicat.
+    - exact (tt ,, tt).
   Defined.
 
   Definition disp_subbicat_univalent_2_1

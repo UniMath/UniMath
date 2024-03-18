@@ -16,20 +16,25 @@
  2. Displayed natural transformation between codomain displayed categories
  3. Cartesianness of the displayed functor
  4. Preservation of limits
- 5. Naturality for the slice of terminal objects
+ 5. Preservation of colimits
+ 6. Naturality for the slice of terminal objects
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
-Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodColimits.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
@@ -199,7 +204,53 @@ Proof.
       exact (!(comp_in_cod_fib _ _) @ maponpaths dom_mor p @ comp_in_cod_fib _ _).
 Qed.
 
-(** * 5. Naturality for the slice of terminal objects *)
+(** * 5. Preservation of colimits *)
+Proposition preserves_initial_fiber_disp_codomain_functor
+            {C₁ C₂ : category}
+            (I : Initial C₁)
+            (F : C₁ ⟶ C₂)
+            (HF : preserves_initial F)
+            (x : C₁)
+  : preserves_initial (fiber_functor (disp_codomain_functor F) x).
+Proof.
+  use preserves_initial_if_preserves_chosen.
+  - exact (initial_cod_fib x I).
+  - use (iso_to_Initial (initial_cod_fib _ (make_Initial _ (HF _ (pr2 I))))).
+    use z_iso_fiber_from_z_iso_disp.
+    use make_z_iso_disp.
+    + use make_cod_fib_mor.
+      * apply identity.
+      * abstract
+          (use InitialArrowEq).
+    + use is_z_iso_disp_codomain.
+      apply is_z_isomorphism_identity.
+Defined.
+
+Proposition preserves_bincoproduct_fiber_disp_codomain_functor
+            {C₁ C₂ : category}
+            (HC₁ : BinCoproducts C₁)
+            (F : C₁ ⟶ C₂)
+            (HF : preserves_bincoproduct F)
+            (x : C₁)
+  : preserves_bincoproduct (fiber_functor (disp_codomain_functor F) x).
+Proof.
+  use preserves_bincoproduct_if_preserves_chosen.
+  - exact (bincoproducts_cod_fib x HC₁).
+  - intros y₁ y₂.
+    use to_bincoproduct_slice.
+    pose (HC₁ (cod_dom y₁) (cod_dom y₂)) as coprod.
+    pose (HF _ _ _ _ _ (isBinCoproduct_BinCoproduct _ coprod))
+      as Fcoprod.
+    use (isBinCoproduct_eq_arrow _ _ Fcoprod).
+    + abstract
+        (rewrite disp_codomain_fiber_functor_mor ;
+         apply idpath).
+    + abstract
+        (rewrite disp_codomain_fiber_functor_mor ;
+         apply idpath).
+Defined.
+
+(** * 6. Naturality for the slice of terminal objects *)
 Definition cod_fib_terminal_to_base_nat_trans
            {C₁ C₂ : category}
            (F : C₁ ⟶ C₂)

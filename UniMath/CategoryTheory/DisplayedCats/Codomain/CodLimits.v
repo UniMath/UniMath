@@ -15,6 +15,7 @@
  2. Fiberwise terminal objects
  3. Fiberwise binary products
  4. Fiberwise equalizers
+ 5. Fiberwise pullbacks
 
  ***************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -627,5 +628,273 @@ Section CodomainStructure.
     use equalizers_from_pullbacks_terminal.
     - exact HC.
     - exact T.
+  Defined.
+
+  (** 5. Fiberwise pullbacks *)
+  Section PullbackSlice.
+    Context {y : C}
+            {xf₁ xf₂ xf₃ : C / y}
+            (hp₁ : xf₁ --> xf₃)
+            (hp₂ : xf₂ --> xf₃)
+            {pbs : C/y}
+            (πs₁ : pbs --> xf₁)
+            (πs₂ : pbs --> xf₂).
+
+    Let x₁ : C := cod_dom xf₁.
+    Let x₂ : C := cod_dom xf₂.
+    Let x₃ : C := cod_dom xf₃.
+
+    Let f₁ : x₁ --> y := cod_mor xf₁.
+    Let f₂ : x₂ --> y := cod_mor xf₂.
+    Let f₃ : x₃ --> y := cod_mor xf₃.
+
+    Let h₁ : x₁ --> x₃ := dom_mor hp₁.
+    Let h₂ : x₂ --> x₃ := dom_mor hp₂.
+
+    Let pb : C := cod_dom pbs.
+    Let k : pb --> y := cod_mor pbs.
+
+    Let π₁ : pb --> x₁ := dom_mor πs₁.
+    Let π₂ : pb --> x₂ := dom_mor πs₂.
+
+    Context (p : π₁ · h₁ = π₂ · h₂)
+            (ps : πs₁ · hp₁ = πs₂ · hp₂).
+
+    Section ToUMP.
+      Context (H : isPullback p)
+              {wφ : C/y}
+              (ζr₁ : wφ --> xf₁)
+              (ζr₂ : wφ --> xf₂)
+              (q : ζr₁ · hp₁ = ζr₂ · hp₂).
+
+      Let P : Pullback h₁ h₂ := make_Pullback _ H.
+      Let w : C := cod_dom wφ.
+      Let φ : w --> y := cod_mor wφ.
+
+      Let ζ₁ : w --> x₁ := dom_mor ζr₁.
+      Let ζ₂ : w --> x₂ := dom_mor ζr₂.
+
+      Proposition to_is_pullback_slice_mor_unique
+        : isaprop (∑ hk, hk · πs₁ = ζr₁ × hk · πs₂ = ζr₂).
+      Proof.
+        use invproofirrelevance.
+        intros φ₁ φ₂.
+        use subtypePath.
+        {
+          intro.
+          apply isapropdirprod ; apply homset_property.
+        }
+        use eq_cod_mor.
+        use (MorphismsIntoPullbackEqual H).
+        - refine (_ @ maponpaths pr1 (pr12 φ₁ @ !pr12 φ₂) @ _).
+          + exact (!(comp_in_cod_fib _ _)).
+          + exact (comp_in_cod_fib _ _).
+        - refine (_ @ maponpaths pr1 (pr22 φ₁ @ !pr22 φ₂) @ _).
+          + exact (!(comp_in_cod_fib _ _)).
+          + exact (comp_in_cod_fib _ _).
+      Qed.
+
+      Definition to_is_pullback_slice_mor
+        : wφ --> pbs.
+      Proof.
+        use make_cod_fib_mor.
+        - use (PullbackArrow P).
+          + exact ζ₁.
+          + exact ζ₂.
+          + abstract
+              (refine (_ @ maponpaths dom_mor q @ _) ;
+               rewrite comp_in_cod_fib ;
+               apply idpath).
+        - abstract
+            (rewrite <- (mor_eq πs₁) ;
+             rewrite !assoc ;
+             rewrite (PullbackArrow_PullbackPr1 P) ;
+             exact (mor_eq ζr₁)).
+      Defined.
+
+      Proposition to_is_pullback_slice_mor_pr1
+        : to_is_pullback_slice_mor · πs₁ = ζr₁.
+      Proof.
+        use eq_cod_mor.
+        refine (comp_in_cod_fib _ _ @ _) ; cbn.
+        apply (PullbackArrow_PullbackPr1 P).
+      Qed.
+
+      Proposition to_is_pullback_slice_mor_pr2
+        : to_is_pullback_slice_mor · πs₂ = ζr₂.
+      Proof.
+        use eq_cod_mor.
+        refine (comp_in_cod_fib _ _ @ _) ; cbn.
+        apply (PullbackArrow_PullbackPr2 P).
+      Qed.
+    End ToUMP.
+
+    Definition to_is_pullback_slice
+               (H : isPullback p)
+      : isPullback ps.
+    Proof.
+      intros wφ ζr₁ ζr₂ q.
+      use iscontraprop1.
+      - apply (to_is_pullback_slice_mor_unique H).
+      - simple refine (_ ,, _ ,, _).
+        + exact (to_is_pullback_slice_mor H ζr₁ ζr₂ q).
+        + apply to_is_pullback_slice_mor_pr1.
+        + apply to_is_pullback_slice_mor_pr2.
+    Defined.
+
+    Section FromUMP.
+      Context (H : isPullback ps)
+              {w : C}
+              (ζ₁ : w --> x₁)
+              (ζ₂ : w --> x₂)
+              (q : ζ₁ · h₁ = ζ₂ · h₂).
+
+      Let P : Pullback hp₁ hp₂ := make_Pullback _ H.
+      Let wφ : C/y := make_cod_fib_ob (ζ₁ · f₁).
+
+      Local Definition from_is_pullback_slice_mor_help₁
+        : wφ --> xf₁.
+      Proof.
+        use make_cod_fib_mor.
+        - exact ζ₁.
+        - abstract
+            (apply idpath).
+      Defined.
+
+      Let ψ : wφ --> xf₁ := from_is_pullback_slice_mor_help₁.
+
+      Local Definition from_is_pullback_slice_mor_help₂
+        : wφ --> xf₂.
+      Proof.
+        use make_cod_fib_mor.
+        - exact ζ₂.
+        - abstract
+            (cbn ;
+             refine (_ @ maponpaths (λ z, _ · z) (mor_eq hp₁)) ;
+             refine (maponpaths (λ z, _ · z) (!(mor_eq hp₂)) @ _) ;
+             rewrite !assoc ;
+             apply maponpaths_2 ;
+             exact (!q)).
+      Defined.
+
+      Let ψ' : wφ --> xf₂ := from_is_pullback_slice_mor_help₂.
+
+      Local Lemma from_is_pullback_slice_mor_help_eq
+        : ψ · hp₁ = ψ' · hp₂.
+      Proof.
+        use eq_mor_cod_fib.
+        rewrite !comp_in_cod_fib.
+        cbn.
+        exact q.
+      Qed.
+
+      Let r : ψ · hp₁ = ψ' · hp₂ := from_is_pullback_slice_mor_help_eq.
+
+      Proposition from_is_pullback_slice_mor_unique
+        : isaprop (∑ hk, hk · π₁ = ζ₁ × hk · π₂ = ζ₂).
+      Proof.
+        use invproofirrelevance.
+        intros φ₁ φ₂.
+        use subtypePath.
+        {
+          intro.
+          apply isapropdirprod ; apply homset_property.
+        }
+        simple refine (maponpaths
+                         dom_mor
+                         (MorphismsIntoPullbackEqual
+                            H wφ
+                            (make_cod_fib_mor _ _)
+                            (make_cod_fib_mor _ _)
+                            _ _)).
+        - cbn.
+          rewrite <- (mor_eq πs₁).
+          rewrite !assoc.
+          refine (maponpaths (λ z, z · _) (pr12 φ₁) @ _).
+          apply idpath.
+        - cbn.
+          rewrite <- (mor_eq πs₁).
+          rewrite !assoc.
+          refine (maponpaths (λ z, z · _) (pr12 φ₂) @ _).
+          apply idpath.
+        - use eq_mor_cod_fib.
+          rewrite !comp_in_cod_fib ; cbn.
+          exact (pr12 φ₁ @ !pr12 φ₂).
+        - use eq_mor_cod_fib.
+          rewrite !comp_in_cod_fib ; cbn.
+          exact (pr22 φ₁ @ !pr22 φ₂).
+      Qed.
+
+      Definition from_is_pullback_slice_mor_help
+        : wφ --> pbs
+        := PullbackArrow P _ ψ ψ' r.
+
+      Definition from_is_pullback_slice_mor
+        : w --> pb
+        := dom_mor from_is_pullback_slice_mor_help.
+
+      Proposition from_is_pullback_slice_mor_pr1
+        : from_is_pullback_slice_mor · π₁ = ζ₁.
+      Proof.
+        refine (_ @ maponpaths dom_mor (PullbackArrow_PullbackPr1 P _ ψ ψ' r)).
+        rewrite comp_in_cod_fib.
+        apply idpath.
+      Qed.
+
+      Proposition from_is_pullback_slice_mor_pr2
+        : from_is_pullback_slice_mor · π₂ = ζ₂.
+      Proof.
+        refine (_ @ maponpaths dom_mor (PullbackArrow_PullbackPr2 P _ ψ ψ' r)).
+        rewrite comp_in_cod_fib.
+        apply idpath.
+      Qed.
+    End FromUMP.
+
+    Definition from_is_pullback_slice
+               (H : isPullback ps)
+      : isPullback p.
+    Proof.
+      intros w ζ₁ ζ₂ q.
+      use iscontraprop1.
+      - exact (from_is_pullback_slice_mor_unique H ζ₁ ζ₂).
+      - simple refine (_ ,, _ ,, _).
+        + exact (from_is_pullback_slice_mor H ζ₁ ζ₂ q).
+        + apply from_is_pullback_slice_mor_pr1.
+        + apply from_is_pullback_slice_mor_pr2.
+    Defined.
+  End PullbackSlice.
+
+  Definition codomain_fiberwise_pullbacks
+             (PB : Pullbacks C)
+             (y : C)
+    : Pullbacks (C/y).
+  Proof.
+    intros f₁ f₂ f₃ h₁ h₂.
+    pose (pb := PB _ _ _ (dom_mor h₁) (dom_mor h₂)).
+    use make_Pullback.
+    - use make_cod_fib_ob.
+      + exact pb.
+      + exact (PullbackPr1 pb · cod_mor f₂).
+    - use make_cod_fib_mor.
+      + apply PullbackPr1.
+      + abstract
+          (apply idpath).
+    - use make_cod_fib_mor.
+      + apply PullbackPr2.
+      + abstract
+          (cbn ;
+           rewrite <- (mor_eq h₁) ;
+           rewrite <- (mor_eq h₂) ;
+           rewrite !assoc ;
+           apply maponpaths_2 ;
+           exact (!(PullbackSqrCommutes pb))).
+    - abstract
+        (use eq_mor_cod_fib ;
+         rewrite !comp_in_cod_fib ;
+         cbn ;
+         exact (PullbackSqrCommutes pb)).
+    - use to_is_pullback_slice.
+      + exact (PullbackSqrCommutes pb).
+      + exact (isPullback_Pullback pb).
   Defined.
 End CodomainStructure.
