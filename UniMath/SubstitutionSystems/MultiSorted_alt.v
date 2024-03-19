@@ -185,9 +185,9 @@ Definition projSortToC (s : sort) : functor sortToC C.
 Proof.
 use make_functor.
 + use make_functor_data.
-  - intro f; apply (pr1 f s).
-  - simpl; intros a b f; apply (f s).
-+ abstract (split; intros f *; apply idpath).
+  - intro ξ; apply (pr1 ξ s).
+  - simpl; intros a b ξ; apply (ξ s).
++ abstract (split; intros ξ *; apply idpath).
 Defined.
 
 (** not needed here - illustration that also the sort can vary *)
