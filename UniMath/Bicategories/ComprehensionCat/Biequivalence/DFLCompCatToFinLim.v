@@ -140,10 +140,14 @@ Section DFLFullCompCatLimitPreservation.
          (comp_cat_functor_terminal F)
          [].
 
-  Let τθ : nat_z_iso (FF ∙ (χ₂ ∙ E₂)) ((χ₁ ∙ E₁) ∙ F)
+  Definition dfl_functor_nat_z_iso
+    : nat_z_iso (FF ∙ (χ₂ ∙ E₂)) ((χ₁ ∙ E₁) ∙ F)
     := nat_z_iso_comp
          (post_whisker_nat_z_iso τ E₂)
          (pre_whisker_nat_z_iso χ₁ θ).
+
+  Let τθ : nat_z_iso (FF ∙ (χ₂ ∙ E₂)) ((χ₁ ∙ E₁) ∙ F)
+    := dfl_functor_nat_z_iso.
 
   Definition preserves_binproduct_binproducts_dfl_functor
     : preserves_binproduct F.

@@ -105,9 +105,17 @@ DisplayedCats/FiberwiseEqualizers.v
 DisplayedCats/DependentSums.v
 
 DisplayedCats/Codomain/FiberCod.v
+DisplayedCats/Codomain/CodMorphisms.v
 DisplayedCats/Codomain/CodLeftAdjoint.v
 DisplayedCats/Codomain/CodLimits.v
+DisplayedCats/Codomain/CodColimits.v
+DisplayedCats/Codomain/IteratedSlice.v
 DisplayedCats/Codomain/CodFunctor.v
+
+Limits/StrictInitial.v
+Limits/DisjointBinCoproducts.v
+
+DisplayedCats/Codomain/ColimitProperties.v
 
 Limits/Examples/CategoryProductLimits.v
 Limits/StandardDiagrams.v

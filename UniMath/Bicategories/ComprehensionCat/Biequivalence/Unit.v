@@ -165,3 +165,21 @@ Proof.
   - exact is_univalent_2_bicat_of_univ_cat_with_finlim.
   - exact finlim_dfl_comp_cat_unit_pointwise_equiv.
 Defined.
+
+Definition finlim_dfl_comp_cat_unit_inv
+  : pstrans
+      (id_psfunctor bicat_of_univ_cat_with_finlim)
+      (comp_psfunctor
+         dfl_comp_cat_to_finlim_psfunctor
+         finlim_to_dfl_comp_cat_psfunctor)
+  := left_adjoint_right_adjoint
+       finlim_dfl_comp_cat_unit_left_adjoint_equivalence.
+
+Proposition finlim_dfl_comp_cat_unit_inv_pointwise
+            (C : univ_cat_with_finlim)
+  : finlim_dfl_comp_cat_unit_inv C
+    =
+    left_adjoint_right_adjoint (finlim_dfl_comp_cat_unit_pointwise_equiv C).
+Proof.
+  apply right_adjoint_pointwise_adjequiv.
+Qed.
