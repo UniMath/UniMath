@@ -35,11 +35,31 @@ Require Import UniMath.CategoryTheory.Subcategory.Core.
 Local Open Scope cat.
 
 (** ** Definition *)
+Definition is_subobject_classifier
+           {C : category}
+           (T : Terminal C)
+           (Ω : C)
+           (true : T --> Ω)
+  : UU
+  := ∏ (x y : C)
+       (m : Monic _ x y),
+    ∃! (χ : y --> Ω),
+    ∑ (H : m · χ = TerminalArrow _ _ · true),
+    isPullback H.
+
+Proposition isaprop_is_subobject_classifier
+            {C : category}
+            (T : Terminal C)
+            (Ω : C)
+            (true : T --> Ω)
+  : isaprop (is_subobject_classifier T Ω true).
+Proof.
+  do 3 (use impred ; intro).
+  apply isapropiscontr.
+Qed.
 
 Definition subobject_classifier {C : category} (T : Terminal C) : UU :=
-  ∑ (O : ob C) (true : C⟦T, O⟧), ∏ (X Y : ob C) (m : Monic _ X Y),
-    ∃! chi : C⟦Y, O⟧,
-      ∑ (H : m · chi = TerminalArrow _ _ · true), isPullback H.
+  ∑ (O : ob C) (true : C⟦T, O⟧), is_subobject_classifier T O true.
 
 Definition make_subobject_classifier {C : category} {T : Terminal C}
            (O : ob C) (true : C⟦T, O⟧) :

@@ -539,7 +539,7 @@ Definition subobject_classifier_HSET : subobject_classifier TerminalHSET.
 Proof.
   exists hProp_set.
   exists const_htrue.
-  intros ? ? m.
+  intros X Y m.
 
   use make_iscontr.
 
