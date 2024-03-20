@@ -20,16 +20,28 @@ Ltac2 Type state := {
 }.
 
 Ltac2 print_refine (s : state) (t : string) :=
-  let (beginning, ending) := match s.(side) with
-    | 0 => ("refine '(maponpaths (λ x, ", ") @ _).")
-    | _ => ("refine '(_ @ !maponpaths (λ x, ", ")).")
+  let (short: bool) := match s.(left), s.(right) with
+    | [], [] => true
+    | _, _ => false
+  end in
+  let (beginning, ending) := match (s.(side)), short with
+    | 0, true => ("refine '(", " @ _).")
+    | 0, false => ("refine '(maponpaths (λ x, ", ") @ _).")
+    | _, true => ("refine '(_ @ !", ").")
+    | _, false => ("refine '(_ @ !maponpaths (λ x, ", ")).")
+  end in
+  let navigation := match short with
+    | true => []
+    | false => [
+        String.concat "" (List.rev (s.(left))) ;
+        "x" ;
+        String.concat "" (s.(right)) ;
+        ") ("
+      ]
   end in
   Message.print (Message.of_string (String.concat "" [
     beginning ;
-    String.concat "" (List.rev (s.(left))) ;
-    "x" ;
-    String.concat "" (s.(right)) ;
-    ") (" ;
+    String.concat "" navigation ;
     t ;
     ending
   ])).
