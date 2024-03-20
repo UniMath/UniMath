@@ -20,7 +20,6 @@
   4. Properties derived from the full λ-calculus
   4.1. Properties of rect
   4.2. Properties of subst [subst_var]
-  4.3. A tactic for reducing λ-terms [reduce_lambda]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -421,35 +420,3 @@ Proof.
     intro.
     apply H.
 Qed.
-
-(** ** 4.3. A tactic for reducing λ-terms [reduce_lambda] *)
-
-Ltac repeatc n t :=
-  (t; repeatc (S n) t) || (
-    match n with
-    | 0 => idtac
-    | 1 => idtac t "."
-    | S (S _) => idtac "do" n t "."
-    end
-  ).
-
-Tactic Notation "repeatc" tactic(t) :=
-  repeatc 0 t.
-
-Ltac reduce_lambda := repeat progress (
-  (repeatc rewrite var_subst);
-  (repeatc rewrite subst_var);
-  (repeatc rewrite subst_app);
-  (repeatc rewrite subst_abs);
-  (repeatc rewrite subst_subst);
-  (repeatc rewrite subst_inflate);
-  (repeatc rewrite inflate_var);
-  (repeatc rewrite inflate_app);
-  (repeatc rewrite inflate_abs);
-  (repeatc rewrite inflate_subst);
-  (repeatc rewrite beta_equality);
-  (repeatc rewrite extend_tuple_inl);
-  (repeatc rewrite (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _) );
-  (repeatc rewrite extend_tuple_inr);
-  (repeatc rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _))
-).

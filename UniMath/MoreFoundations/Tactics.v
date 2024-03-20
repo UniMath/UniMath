@@ -83,3 +83,16 @@ Ltac split19 := split; [| split18].
 Ltac split20 := split; [| split19].
 Ltac split21 := split; [| split20].
 (** this allows to decompose a goal for [prebicat_laws] *)
+
+(** Repeats `t` times and afterwards prints an equivalent `do` statement  *)
+Ltac repeatc n t :=
+  (t; repeatc (S n) t) || (
+    match n with
+    | 0 => idtac
+    | 1 => idtac t "."
+    | S (S _) => idtac "do" n t "."
+    end
+  ).
+
+Tactic Notation "repeatc" tactic(t) :=
+  repeatc 0 t.
