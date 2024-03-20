@@ -1,3 +1,44 @@
+(***********************************************************************************************
+
+ Subobject classifieres in slice categories
+
+ If `C` is a category with a subobject classifier `Ω`, then the slice categories `C/x` have a
+ subobject classifier for every object `x`. This subobject classifier is given by `x × Ω --> x`.
+
+ To understand why `x × Ω --> x` is a subobject classifier, we need to realize a couple of
+ things. The first is that morphisms `y₁ --> y₂` in `C/x` are monomorphisms if and only if the
+ underlying morphism from `y₁` to `y₂` is a monomorphism. This allows us to use the universal
+ property of `Ω` to say something about the universal property of `x × Ω`. The second thing is a
+ difficulty that arises from the fact that the terminal object of `C/x` is given by `x --> x`,
+ and that it does not use the terminal object in `C`. As such, if we have a monomorphism
+ `y₁ --> y₂` in the slice category, then we get the following pullback square in `C`:
+
+<<
+   y₁ ---> 𝟙
+   |       |
+   |       |
+   V       V
+   y₂ ---> Ω
+>>
+
+ whereas we would like to have a pullback square like this
+
+<<
+   y₁ -----> x
+   |         |
+   |         |
+   V         V
+   y₂ ---> x × Ω
+>>
+
+ where each of the objects in this diagram lives in the slice category. Proving that we have
+ the desired pullback squares, is a matter of doing it.
+
+ Contents
+ 1. The universal property
+ 2. The subobject classifier
+
+ ***********************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
@@ -16,56 +57,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.
 
 Local Open Scope cat.
 
-Definition pr_cod_fib
-           {C : category}
-           (P : BinProducts C)
-           (x : C)
-           (y : C)
-  : C/x.
-Proof.
-  use make_cod_fib_ob.
-  - exact (P x y).
-  - apply BinProductPr1.
-Defined.
-
-Definition mor_to_pr_cod_fib
-           {C : category}
-           (P : BinProducts C)
-           {x : C}
-           {y : C}
-           (f : C/x)
-           (g : cod_dom f --> y)
-  : f --> pr_cod_fib P x y.
-Proof.
-  use make_cod_fib_mor.
-  - use BinProductArrow.
-    + exact (cod_mor f).
-    + exact g.
-  - apply BinProductPr1Commutes.
-Defined.
-
-Definition subobject_classifier_map_eq
-           {C : category}
-           {T : Terminal C}
-           (Ω : subobject_classifier T)
-           {x y : C}
-           (m : Monic C x y)
-           {χ₁ χ₂ : y --> Ω}
-           (p₁ : m · χ₁ = const_true x Ω)
-           (p₂ : m · χ₂ = const_true x Ω)
-           (H₁ : isPullback p₁)
-           (H₂ : isPullback p₂)
-  : χ₁ = χ₂.
-Proof.
-  exact (maponpaths
-           (λ z, pr1 z)
-           (proofirrelevance
-              _
-              (isapropifcontr (subobject_classifier_universal_property Ω m))
-              (χ₁ ,, p₁ ,, H₁)
-              (χ₂ ,, p₂ ,, H₂))).
-Qed.
-
 Section SubobjectClassifier.
   Context {C : category}
           (T : Terminal C)
@@ -73,6 +64,7 @@ Section SubobjectClassifier.
           (Ω : subobject_classifier T)
           (x : C).
 
+  (** * 1. The universal property *)
   Section UMP.
     Context {zg₁ zg₂ : C/x}
             (mp : Monic _ zg₁ zg₂).
@@ -396,6 +388,7 @@ Section SubobjectClassifier.
     Qed.
   End UMP.
 
+  (** * 2. The subobject classifier *)
   Definition cod_fib_subobject_classifier
     : subobject_classifier (codomain_fib_terminal x).
   Proof.

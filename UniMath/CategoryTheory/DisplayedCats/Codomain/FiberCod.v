@@ -19,6 +19,7 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
@@ -129,6 +130,32 @@ Section CodomainFiber.
              (g : C/x)
     : C/y
     := make_cod_fib_ob (cod_mor g · f).
+
+  Definition pr_cod_fib
+             (P : BinProducts C)
+             (x : C)
+             (y : C)
+    : C/x.
+  Proof.
+    use make_cod_fib_ob.
+    - exact (P x y).
+    - apply BinProductPr1.
+  Defined.
+
+  Definition mor_to_pr_cod_fib
+             (P : BinProducts C)
+             {x : C}
+             {y : C}
+             (f : C/x)
+             (g : cod_dom f --> y)
+    : f --> pr_cod_fib P x y.
+  Proof.
+    use make_cod_fib_mor.
+    - use BinProductArrow.
+      + exact (cod_mor f).
+      + exact g.
+    - apply BinProductPr1Commutes.
+  Defined.
 
   (** * 4. Calculations for codomain fiber *)
   Proposition comp_in_cod_fib

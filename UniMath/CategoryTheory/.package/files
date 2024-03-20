@@ -69,6 +69,7 @@ Limits/Graphs/BinCoproducts.v
 Limits/Graphs/Coproducts.v
 Limits/Graphs/BinProducts.v
 Limits/Pullbacks.v
+Limits/PullbackConstructions.v
 Limits/Graphs/Initial.v
 Limits/Graphs/Terminal.v
 Limits/Graphs/Zero.v
@@ -111,6 +112,7 @@ DisplayedCats/Codomain/CodLimits.v
 DisplayedCats/Codomain/CodColimits.v
 DisplayedCats/Codomain/IteratedSlice.v
 DisplayedCats/Codomain/CodFunctor.v
+DisplayedCats/Codomain/CodSubobjectClassifier.v
 
 Limits/StrictInitial.v
 Limits/DisjointBinCoproducts.v

@@ -133,6 +133,28 @@ Definition const_true {C : category} {T : Terminal C} (X : ob C)
            (O : subobject_classifier T) : X --> subobject_classifier_object O :=
   TerminalArrow T X · true O.
 
+Definition subobject_classifier_map_eq
+           {C : category}
+           {T : Terminal C}
+           (Ω : subobject_classifier T)
+           {x y : C}
+           (m : Monic C x y)
+           {χ₁ χ₂ : y --> Ω}
+           (p₁ : m · χ₁ = const_true x Ω)
+           (p₂ : m · χ₂ = const_true x Ω)
+           (H₁ : isPullback p₁)
+           (H₂ : isPullback p₂)
+  : χ₁ = χ₂.
+Proof.
+  exact (maponpaths
+           (λ z, pr1 z)
+           (proofirrelevance
+              _
+              (isapropifcontr (subobject_classifier_universal_property Ω m))
+              (χ₁ ,, p₁ ,, H₁)
+              (χ₂ ,, p₂ ,, H₂))).
+Qed.
+
 (*A category with subobjectclassifier is balanced: if a morphism is mono and epi then it is iso*)
 Section balanced.
   Context {C : category} {T : Terminal C} (O : subobject_classifier T)
