@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # This workflow contains four jobs:
+  # This workflow contains four kinds of jobs:
   #   - sanity-checks
   #   - build-Unimath-ubuntu: (Linux, docker-coq, latest Coq >= 8.16, manual cache)
   #   - build-macos: (MacOS, Opam, Coq 8.16.0, cache using actions/setup-ocaml)
@@ -47,7 +47,7 @@ jobs:
         os: [ubuntu-22.04]
         # https://github.com/coq-community/docker-coq/wiki#ocaml-versions-policy
         coq-version: [latest, dev]
-        # coq-version: [8.16] or [latest, 8.16] (when 8.17 is released)
+        # (the following is obsolete:) coq-version: [8.16] or [latest, 8.16] (when 8.17 is released)
         ocaml-version: [default]
 
     name: Build on Linux (Coq ${{ matrix.coq-version }})
@@ -101,7 +101,7 @@ jobs:
           key: UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
 
   # Build UniMath on MacOS using latest stable release of Coq installed with
-  # Homebrew (currently 8.16.1). Build files are cached.
+  # Homebrew (8.18.0 still on March 18, 2024). Build files are cached.
   build-macos:
     name: Build on macOS (latest Coq on Homebrew)
 
@@ -136,7 +136,8 @@ jobs:
           key: UniMath-MacOS-${{ github.run_id }}-${{ github.run_number }}
 
   # Build the satellites in parallel using docker-coq images with the latest
-  # stable patch-release of Coq 8.16, except for TypeTheory, which is built
+  # stable patch-release of Coq 8.19 as of March 20, 2024
+  # (outdated comment:) except for TypeTheory, which is built
   # using the latest stable 8.15 release.
   build-satellites:
     strategy:
@@ -145,9 +146,9 @@ jobs:
         satellite: [SetHITs, largecatmodules, GrpdHITs, TypeTheory]
         coq-version: [latest, dev]
         ocaml-version: [4.14-flambda]
-        exclude:
-          - satellite: GrpdHITs
-            coq-version: dev
+        # (outdated exception:) exclude:
+        # - satellite: GrpdHITs
+        #   coq-version: dev
     name: Build ${{ matrix.satellite }} (Coq ${{ matrix.coq-version }})
     runs-on: ubuntu-22.04
 
