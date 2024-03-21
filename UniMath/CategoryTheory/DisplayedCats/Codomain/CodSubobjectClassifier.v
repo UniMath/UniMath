@@ -32,7 +32,7 @@
 >>
 
  where each of the objects in this diagram lives in the slice category. Proving that we have
- the desired pullback squares, is a matter of doing it.
+ the desired pullback square, is a matter of doing it.
 
  Contents
  1. The universal property
@@ -46,7 +46,7 @@ Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Monics.
-Require Import UniMath.CategoryTheory.SubobjectClassifier.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.

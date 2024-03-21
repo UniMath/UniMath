@@ -69,7 +69,6 @@ Limits/Graphs/BinCoproducts.v
 Limits/Graphs/Coproducts.v
 Limits/Graphs/BinProducts.v
 Limits/Pullbacks.v
-Limits/PullbackConstructions.v
 Limits/Graphs/Initial.v
 Limits/Graphs/Terminal.v
 Limits/Graphs/Zero.v
@@ -97,6 +96,8 @@ Limits/Ends.v
 Limits/Coends.v
 
 Limits/PullbackConstructions.v
+
+SubobjectClassifier/PreservesSubobjectClassifier.v
 
 DisplayedCats/Binproducts.v
 
@@ -165,7 +166,8 @@ AdditiveFunctors.v
 LocalizingClass.v
 UnderCategories.v
 Subobjects.v
-SubobjectClassifier.v
+SubobjectClassifier/SubobjectClassifier.v
+SubobjectClassifier/SubobjectClassifierIso.v
 Quotobjects.v
 AbelianPushoutPullback.v
 PseudoElements.v
