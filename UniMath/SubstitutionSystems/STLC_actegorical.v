@@ -3,7 +3,7 @@
 Syntax of the simply typed lambda calculus as a
 multisorted signature.
 
-Written by: Ralph Matthes, 2024 (adapted from STLC_alt.v)
+Written by: Ralph Matthes, 2024 (reusing beginnings from STLC_alt.v)
 
  *)
 Require Import UniMath.Foundations.PartD.
@@ -464,7 +464,6 @@ Section IndAndCoind.
       - apply nat_trans_eq; try apply HSET.
         intros s. apply funextfun.
         intros one. cbn in one. induction one.
-        unfold nat_trans_functor_path_pregroupoid.
         etrans.
         2: { apply pathsinv0, (STLC_eta_gen_natural'_ppointwise _ _
                                  (# (sorted_option_functor sort Hsort SET TerminalHSET BinCoproductsHSET CoproductsHSET s)
@@ -485,7 +484,7 @@ Section IndAndCoind.
         clear aux therhs.
         assert (IHnpointwise : pr1 (# (pr1 Church_gen_body_target) f) s (Church_gen_body s n ξ) =
                                  Church_gen_body s n ξ').
-        apply (toforallpaths _ _ _ (toforallpaths _ _ _ (maponpaths pr1 IHn) s) tt).
+        { apply (toforallpaths _ _ _ (toforallpaths _ _ _ (maponpaths pr1 IHn) s) tt). }
         rewrite <- IHnpointwise.
         clear IHnpointwise.
         unfold Church_gen_body_target.
