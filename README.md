@@ -64,8 +64,8 @@ To cite UniMath in your article, you can use the following bibtex item:
     title = {UniMath --- a computer-checked library of univalent mathematics},
     url = {https://github.com/UniMath/UniMath},
     howpublished = {available at \url{http://unimath.org}},
-    doi          = {10.5281/zenodo.8427604},
-    url          = {https://doi.org/10.5281/zenodo.8427604}
+    doi          = {10.5281/zenodo.10849216},
+    url          = {https://doi.org/10.5281/zenodo.10849216}
  }
 ```
 Note that this requires ```\usepackage{url}``` or ```\usepackage{hyperref}```.
