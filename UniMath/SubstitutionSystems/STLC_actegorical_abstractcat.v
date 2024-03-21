@@ -173,13 +173,6 @@ Section IndAndCoind.
     apply (nat_trans_eq_weq C _ _ (STLC_eta_gen_natural' ξ ξ' f)).
   Qed.
 
-  (*
-  Lemma STLC_eta_gen_natural'_ppointwise (ξ ξ' : sortToC) (f : sortToC ⟦ ξ, ξ' ⟧) (u : sort) (elem : pr1 (pr1 (pr1 ξ) u)) :
-    pr1 (pr1 STLC_eta_gen ξ') u (pr1 f u elem) =  pr1 (# (pr1 STLC_gen) f) u (pr1 (pr1 STLC_eta_gen ξ) u elem).
-  Proof.
-    apply (toforallpaths _ _ _ (STLC_eta_gen_natural'_pointwise ξ ξ' f u)).
-  Qed.
-*)
 
   (** the algebra maps (the "domain-specific constructors") for STLC *)
   Definition STLC_tau_gen : STLC_Functor_H STLC_gen --> STLC_gen  := SigmaMonoid_τ θSTLC σ.
@@ -222,26 +215,6 @@ Section IndAndCoind.
     apply idpath.
   Qed.
 
-  (*
-  Lemma app_source_gen_mor_pr1 (s t : sort) (ξ ξ' : sortToC) (f : sortToC ⟦ ξ, ξ' ⟧)
-    (u : sort) (arg : pr1 (pr1 (pr1 (app_source_gen s t) ξ) u)) :
-    pr1 (pr1 (# (pr1 (app_source_gen s t)) f) u arg) =
-      pr1 (# (pr1 (functor_compose STLC_gen
-                     (projSortToC sort Hsort C (s ⇒ t) ∙ hat_functor sort Hsort C CoproductsC t))) f) u (pr1 arg).
-  Proof.
-    apply idpath.
-  Qed.
-
-  Lemma app_source_gen_mor_pr2 (s t : sort) (ξ ξ' : sortToC) (f : sortToC ⟦ ξ, ξ' ⟧)
-    (u : sort) (arg : pr1 (pr1 (pr1 (app_source_gen s t) ξ) u)) :
-    pr2 (pr1 (# (pr1 (app_source_gen s t)) f) u arg) =
-      pr1 (# (pr1 (functor_compose STLC_gen
-                     (projSortToC sort Hsort C s ∙ hat_functor sort Hsort C CoproductsC t))) f) u (pr2 arg).
-  Proof.
-    apply idpath.
-  Qed.
-*)
-
   (** The application constructor *)
   Definition app_map_gen (s t : sort) : sortToC2⟦app_source_gen s t,STLC_gen⟧ :=
     CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ (λ _, _)) (ii1 (s,,t)) · STLC_tau_gen.
@@ -257,15 +230,6 @@ Section IndAndCoind.
     apply (nat_trans_eq_weq C _ _ (app_map_gen_natural s t ξ ξ' f)).
   Qed.
 
-  (*
-  Lemma app_map_gen_natural_ppointwise (s t : sort) (ξ ξ' : sortToC) (f : sortToC ⟦ ξ, ξ' ⟧)
-    (u : sort) (elem : pr1 (pr1 (pr1 (app_source_gen s t) ξ) u)) :
-    pr1 (pr1 (app_map_gen s t) ξ') u (pr1 (# (pr1 (app_source_gen s t)) f) u elem) =
-      pr1 (# (pr1 STLC_gen) f) u (pr1 (pr1 (app_map_gen s t) ξ) u elem).
-  Proof.
-    apply (toforallpaths _ _ _ (app_map_gen_natural_pointwise s t ξ ξ' f u)).
-  Qed.
-*)
 
   Definition lam_source_gen_oldstyle_abstracted (s t : sort) : functor sortToC2 sortToC2 :=
     pre_comp_functor (sorted_option_functor sort Hsort C TerminalC BinCoproductsC CoproductsC s)
@@ -288,20 +252,16 @@ Section IndAndCoind.
     apply idpath.
   Qed.
 
-  (*
-  (** the outcome of the second component of the hat functor in this construction: *)
-  Lemma lam_source_gen_mor_pr2 (s t : sort) (ξ ξ' : sortToC) (f : sortToC ⟦ ξ, ξ' ⟧)
-    (u : sort) (pr : pr1 (pr1 (pr1 (lam_source_gen s t) ξ) u))
-    : pr2 (pr1 (# (pr1 (lam_source_gen s t)) f) u pr) =
-        # (pr1 (functor_compose
+  Lemma lam_source_gen_mor_eq (s t : sort) {ξ ξ' : sortToC} (f : sortToC ⟦ ξ, ξ' ⟧) (u : sort)
+    : pr1 (# (pr1 (lam_source_gen s t)) f) u =
+        pr1 (# (pr1 (functor_compose
       (functor_compose
          (sorted_option_functor sort Hsort C TerminalC BinCoproductsC CoproductsC s)
          STLC_gen)
-      (projSortToC sort Hsort C t))) f (pr2 pr).
+      (projSortToC sort Hsort C t ∙ hat_functor sort Hsort C CoproductsC (s ⇒ t)))) f) u.
   Proof.
     apply idpath.
   Qed.
-   *)
 
   (** The lambda-abstraction constructor *)
   Definition lam_map_gen (s t : sort) : sortToC2⟦lam_source_gen s t,STLC_gen⟧ :=
@@ -317,16 +277,6 @@ Section IndAndCoind.
   Proof.
     apply (nat_trans_eq_weq C _ _ (lam_map_gen_natural s t ξ ξ' f)).
   Qed.
-
-  (*
-  Lemma lam_map_gen_natural_ppointwise (s t : sort) (ξ ξ' : sortToC) (f : sortToC ⟦ ξ, ξ' ⟧)
-    (u : sort) (elem : pr1 (pr1 (pr1 (lam_source_gen s t) ξ) u)) :
-    pr1 (pr1 (lam_map_gen s t) ξ') u (pr1 (# (pr1 (lam_source_gen s t)) f) u elem) =
-      pr1 (# (pr1 STLC_gen) f) u (pr1 (pr1 (lam_map_gen s t) ξ) u elem).
-  Proof.
-    apply (toforallpaths _ _ _ (lam_map_gen_natural_pointwise s t ξ ξ' f u)).
-  Qed.
-*)
 
   Section Church.
 
@@ -608,16 +558,10 @@ Section IndAndCoind.
           }
           repeat rewrite assoc'.
           do 4 apply maponpaths.
-          simpl.
-          etrans.
-          { refine (CoproductOfArrowsIn (s=s) _ _ _ _ _). }
-          apply idpath.
+          simple refine (CoproductOfArrowsIn (s=s) _ _ _ _ _).
         + repeat rewrite assoc'.
           apply maponpaths.
-          simpl.
-          etrans.
-          { refine (CoproductOfArrowsIn (s=s) _ _ _ _ _). }
-          apply idpath.
+          simple refine (CoproductOfArrowsIn (s=s) _ _ _ _ _).
     Qed.
 
     Transparent Church_gen_body Church_gen_body_target.
@@ -655,8 +599,8 @@ Section IndAndCoind.
       2: { repeat rewrite assoc'.
            do 2 apply maponpaths.
            apply pathsinv0.
-           simpl.
-           refine (CoproductOfArrowsIn (((s ⇒ s) ⇒ s ⇒ s) = ((s ⇒ s) ⇒ s ⇒ s)) _ _ _ _ _). }
+           rewrite lam_source_gen_mor_eq.
+           simple refine (CoproductOfArrowsIn (((s ⇒ s) ⇒ s ⇒ s) = ((s ⇒ s) ⇒ s ⇒ s)) _ _ _ _ _). }
       etrans.
       2: { apply maponpaths.
            rewrite assoc.
@@ -664,10 +608,10 @@ Section IndAndCoind.
            apply lam_map_gen_natural_pointwise. }
       repeat rewrite assoc.
       do 2 apply cancel_postcomposition.
+      rewrite lam_source_gen_mor_eq.
       etrans.
       2: { apply pathsinv0.
-           simpl.
-           refine (CoproductOfArrowsIn ((s ⇒ s) = (s ⇒ s)) _ _ _ _ _). }
+           simple refine (CoproductOfArrowsIn ((s ⇒ s) = (s ⇒ s)) _ _ _ _ _). }
       apply idpath.
     Qed.
 
