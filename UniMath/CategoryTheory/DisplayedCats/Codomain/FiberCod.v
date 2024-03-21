@@ -25,6 +25,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
 Local Open Scope cat.
 
@@ -35,6 +36,15 @@ Definition cod_slice
   := (disp_codomain C)[{x}].
 
 Notation "C / x" := (@cod_slice C x) : cat.
+
+Proposition is_univalent_cod_slice
+            {C : univalent_category}
+            (x : C)
+  : is_univalent (C/x).
+Proof.
+  use is_univalent_fiber.
+  apply disp_univalent_disp_codomain.
+Qed.
 
 Definition cod_pb
            {C : category}

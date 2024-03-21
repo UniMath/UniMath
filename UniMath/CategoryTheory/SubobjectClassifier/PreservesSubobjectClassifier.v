@@ -1,3 +1,31 @@
+(*******************************************************************************************
+
+ Preservation of subobject classifiers
+
+ In this file, we define when functors `F : C₁ ⟶ C₂` preserve subobject classifiers. We
+ give three formulations.
+
+ The first formulation [preserves_subobject_classifier] does not assume that any of the
+ involved categories have a subobject classifier. This statement says that every subobject
+ classifier is mapped to a subobject classifier.
+
+ The second formulation [preserves_chosen_subobject_classifier] assumes that `C₁` has a
+ subobject classifier. For this one, we only say that the chosen subobject classifier is
+ mapped to a subobject classifier.
+
+ The final formulation [preserves_chosen_to_chosen_subobject_classifier] assumes that both
+ `C₁` and `C₂` have a subobject classifier. This statement is phrased by saying that these
+ subobject classifiers are isomorphic such that a certain diagram commutes.
+
+ Note that some statements in this file assumes that the involved categories are univalent.
+ This assumption is only used to simplify the involved proofs.
+
+ Contents
+ 1. Preserving subobject classifiers
+ 2. Preservation of chosen subobject classifiers
+ 3. Preservation of subobject classifiers via isomorphisms
+
+ *******************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
@@ -6,160 +34,11 @@ Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso.
 
 Local Open Scope cat.
 
-Definition mor_subobject_classifier
-           {C : category}
-           {T : Terminal C}
-           (Ω Ω' : subobject_classifier T)
-  : Ω --> Ω'.
-Proof.
-  use characteristic_morphism.
-  - exact T.
-  - exact (true Ω).
-Defined.
-
-Proposition mor_subobject_classifier_inv
-            {C : category}
-            {T : Terminal C}
-            (Ω Ω' : subobject_classifier T)
-  : mor_subobject_classifier Ω Ω' · mor_subobject_classifier Ω' Ω = identity Ω.
-Proof.
-  use subobject_classifier_map_eq.
-  - exact T.
-  - exact (true Ω).
-  - abstract
-      (cbn ;
-       unfold mor_subobject_classifier ;
-       rewrite !assoc ;
-       refine (maponpaths
-                 (λ z, z · _)
-                 (subobject_classifier_square_commutes Ω' (true Ω))
-               @ _) ;
-       rewrite assoc' ;
-       refine (maponpaths
-                 (λ z, _ · z)
-                 (subobject_classifier_square_commutes Ω (true Ω'))
-               @ _) ;
-       unfold const_true ; cbn ;
-       rewrite !assoc ;
-       apply maponpaths_2 ;
-       apply TerminalArrowEq).
-  - abstract
-      (unfold const_true ;
-       rewrite id_right ;
-       refine (!(id_left _) @ _) ;
-       apply maponpaths_2 ;
-       apply TerminalArrowEq).
-  - use (isPullback_mor_paths
-           _ _ _ _ _ _
-           (isPullback_Pullback
-              (pullback_glue_pullback
-                 _
-                 (subobject_classifier_pullback Ω (true Ω'))
-                 (subobject_classifier_pullback Ω' (true Ω))))).
-    + apply idpath.
-    + apply idpath.
-    + apply idpath.
-    + apply TerminalArrowEq.
-  - use (isPullback_mor_paths
-           _ _ _ _ _ _
-           (isPullback_Pullback (subobject_classifier_pullback Ω (true Ω)))).
-    + apply characteristic_morphism_true.
-    + apply idpath.
-    + apply idpath.
-    + apply idpath.
-Qed.
-
-Proposition z_iso_subobject_classifier_inverse
-            {C : category}
-            {T : Terminal C}
-            (Ω Ω' : subobject_classifier T)
-  : is_inverse_in_precat
-      (mor_subobject_classifier Ω Ω')
-      (mor_subobject_classifier Ω' Ω).
-Proof.
-  split.
-  - exact (mor_subobject_classifier_inv Ω Ω').
-  - exact (mor_subobject_classifier_inv Ω' Ω).
-Qed.
-
-Definition z_iso_subobject_classifier
-           {C : category}
-           {T : Terminal C}
-           (Ω Ω' : subobject_classifier T)
-  : z_iso Ω Ω'.
-Proof.
-  use make_z_iso.
-  - exact (mor_subobject_classifier Ω Ω').
-  - exact (mor_subobject_classifier Ω' Ω).
-  - exact (z_iso_subobject_classifier_inverse Ω Ω').
-Defined.
-
-Definition isaprop_subobject_classifier'
-           {C : category}
-           (HC : is_univalent C)
-           (T : Terminal C)
-  : isaprop (subobject_classifier T).
-Proof.
-  use invproofirrelevance.
-  intros Ω Ω'.
-  use total2_paths_f.
-  - exact (isotoid _ HC (z_iso_subobject_classifier Ω Ω')).
-  - use subtypePath.
-    {
-      intro.
-      apply isaprop_is_subobject_classifier.
-    }
-    rewrite pr1_transportf.
-    rewrite transportf_isotoid'.
-    cbn.
-    unfold mor_subobject_classifier.
-    etrans.
-    {
-      apply (subobject_classifier_square_commutes Ω' (true Ω)).
-    }
-    refine (_ @ id_left _) ; cbn.
-    apply maponpaths_2.
-    apply TerminalArrowEq.
-Qed.
-
-Definition eq_to_is_subobject_classifier
-           {C : category}
-           {T : Terminal C}
-           (Ω : subobject_classifier T)
-           (Ω' : C)
-           (t : T --> Ω')
-           (p : (Ω : C) = Ω')
-           (q : true Ω · idtoiso p = t)
-  : is_subobject_classifier T Ω' t.
-Proof.
-  induction p.
-  cbn in q.
-  rewrite id_right in q.
-  induction q.
-  apply (pr2 Ω).
-Qed.
-
-Proposition z_iso_to_is_subobject_classifier
-           {C : univalent_category}
-           {T : Terminal C}
-           (Ω : subobject_classifier T)
-           (Ω' : C)
-           (t : T --> Ω')
-           (f : z_iso Ω Ω')
-           (q : true Ω · f = t)
-  : is_subobject_classifier T Ω' t.
-Proof.
-  use eq_to_is_subobject_classifier.
-  - exact Ω.
-  - exact (isotoid C (univalent_category_is_univalent C) f).
-  - rewrite idtoiso_isotoid.
-    exact q.
-Qed.
-
-
+(** * 1. Preserving subobject classifiers *)
 Definition preserves_subobject_classifier
            {C₁ C₂ : category}
            (F : C₁ ⟶ C₂)
@@ -223,6 +102,7 @@ Proof.
                       (composition_preserves_terminal HF HG) T₁))).
 Defined.
 
+(** * 2. Preservation of chosen subobject classifiers *)
 Definition preserves_chosen_subobject_classifier
            {C₁ C₂ : category}
            (F : C₁ ⟶ C₂)
@@ -271,6 +151,25 @@ Proof.
     apply (TerminalArrowEq (T := preserves_terminal_to_terminal F HF T₁)).
 Qed.
 
+Proposition preserves_chosen_to_preserves_subobject_classifier'
+            {C₁ C₂ : category}
+            (HC₁ : is_univalent C₁)
+            (HC₂ : is_univalent C₂)
+            {F : C₁ ⟶ C₂}
+            {T₁ : Terminal C₁}
+            {T₂ : Terminal C₂}
+            {HF : preserves_terminal F}
+            {Ω : subobject_classifier T₁}
+            (HF' : preserves_chosen_subobject_classifier F T₁ T₂ HF Ω)
+  : preserves_subobject_classifier F T₁ T₂ HF.
+Proof.
+  exact (preserves_chosen_to_preserves_subobject_classifier
+           (C₁ := make_univalent_category C₁ HC₁)
+           (C₂ := make_univalent_category C₂ HC₂)
+           HF').
+Qed.
+
+(** * 3. Preservation of subobject classifiers via isomorphisms *)
 Definition preserves_chosen_to_chosen_subobject_classifier
            {C₁ C₂ : category}
            {F : C₁ ⟶ C₂}
@@ -314,4 +213,23 @@ Proof.
     refine (_ @ id_left _).
     apply maponpaths_2.
     apply TerminalArrowEq.
+Qed.
+
+Proposition preserves_chosen_to_preserves_chosen_subobject_classifier'
+            {C₁ C₂ : category}
+            (HC₁ : is_univalent C₁)
+            (HC₂ : is_univalent C₂)
+            {F : C₁ ⟶ C₂}
+            {T₁ : Terminal C₁}
+            {T₂ : Terminal C₂}
+            {HF : preserves_terminal F}
+            {Ω₁ : subobject_classifier T₁}
+            {Ω₂ : subobject_classifier T₂}
+            (HF' : preserves_chosen_to_chosen_subobject_classifier HF Ω₁ Ω₂)
+  : preserves_chosen_subobject_classifier F T₁ T₂ HF Ω₁.
+Proof.
+  exact (preserves_chosen_to_preserves_chosen_subobject_classifier
+           (C₁ := make_univalent_category C₁ HC₁)
+           (C₂ := make_univalent_category C₂ HC₂)
+           HF').
 Qed.

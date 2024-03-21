@@ -183,26 +183,26 @@ Section PullbackProduct.
   Let ρ₁ : xy₂ --> x₂ := BinProductPr1 _ _.
   Let ρ₂ : xy₂ --> y := BinProductPr2 _ _.
 
-  Let pb : Pullback f ρ₁ := PB _ _ _ f ρ₁.
+  Let pb : Pullback ρ₁ f := PB _ _ _ ρ₁ f.
 
   Definition map_from_pb_prod
     : pb --> xy₁.
   Proof.
     use BinProductArrow.
-    - exact (PullbackPr1 pb).
-    - exact (PullbackPr2 pb · ρ₂).
+    - exact (PullbackPr2 pb).
+    - exact (PullbackPr1 pb · ρ₂).
   Defined.
 
   Definition map_to_pb_prod
     : xy₁ --> pb.
   Proof.
     use PullbackArrow.
-    - exact π₁.
     - use BinProductArrow.
       + exact (π₁ · f).
       + exact π₂.
+    - exact π₁.
     - abstract
-        (exact (!(BinProductPr1Commutes _ _ _ _ _ _ _))).
+        (exact (BinProductPr1Commutes _ _ _ _ _ _ _)).
   Defined.
 
   Proposition pb_prod_is_inverse
@@ -216,10 +216,6 @@ Section PullbackProduct.
       + rewrite !assoc'.
         rewrite PullbackArrow_PullbackPr1.
         rewrite id_left.
-        apply BinProductPr1Commutes.
-      + rewrite !assoc'.
-        rewrite PullbackArrow_PullbackPr2.
-        rewrite id_left.
         use BinProductArrowsEq.
         * rewrite !assoc'.
           rewrite BinProductPr1Commutes.
@@ -229,20 +225,25 @@ Section PullbackProduct.
             apply maponpaths_2.
             apply BinProductPr1Commutes.
           }
+          refine (!_).
           apply PullbackSqrCommutes.
         * rewrite !assoc'.
           rewrite BinProductPr2Commutes.
           apply BinProductPr2Commutes.
+      + rewrite !assoc'.
+        rewrite PullbackArrow_PullbackPr2.
+        rewrite id_left.
+        apply BinProductPr1Commutes.
     - use BinProductArrowsEq.
       + rewrite !assoc'.
         rewrite BinProductPr1Commutes.
-        rewrite PullbackArrow_PullbackPr1.
+        rewrite PullbackArrow_PullbackPr2.
         rewrite id_left.
         apply idpath.
       + rewrite !assoc'.
         rewrite BinProductPr2Commutes.
         rewrite !assoc.
-        rewrite PullbackArrow_PullbackPr2.
+        rewrite PullbackArrow_PullbackPr1.
         rewrite id_left.
         apply BinProductPr2Commutes.
   Qed.

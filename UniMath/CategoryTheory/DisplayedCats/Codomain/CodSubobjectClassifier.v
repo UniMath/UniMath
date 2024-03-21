@@ -34,9 +34,12 @@
  where each of the objects in this diagram lives in the slice category. Proving that we have
  the desired pullback square, is a matter of doing it.
 
+ We also show that the pullback functor preserves subobject classifiers.
+
  Contents
  1. The universal property
  2. The subobject classifier
+ 3. Preservation of subobject classifiers by the pullback functor
 
  ***********************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -45,11 +48,15 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.PullbackConstructions.
+Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
@@ -392,7 +399,7 @@ Section SubobjectClassifier.
   Definition cod_fib_subobject_classifier
     : subobject_classifier (codomain_fib_terminal x).
   Proof.
-    use make_subobject_classifier.
+    use make_subobject_classifier_cat.
     - exact (pr_cod_fib P x Ω).
     - use mor_to_pr_cod_fib.
       exact (const_true x Ω).
@@ -405,3 +412,115 @@ Section SubobjectClassifier.
         * exact (cod_fib_subobject_classifier_pb mp).
   Defined.
 End SubobjectClassifier.
+
+(** * 3. Preservation of subobject classifiers by the pullback functor *)
+Section PreservesChosen.
+  Context {C : category}
+          (T : Terminal C)
+          (BP : BinProducts C)
+          (P : Pullbacks C)
+          (Ω : subobject_classifier T)
+          {x y : C}
+          (f : x --> y).
+
+  Let φ : P y (BP y Ω) x (BinProductPr1 C (BP y Ω)) f --> BP x Ω
+    := pb_prod_z_iso BP P f Ω.
+
+  Definition cod_pb_preserves_chosen_subobject_classifier_mor
+    : cod_pb P f (cod_fib_subobject_classifier T BP Ω y)
+      -->
+      cod_fib_subobject_classifier T BP Ω x.
+  Proof.
+    use make_cod_fib_mor.
+    - exact φ.
+    - abstract
+        (cbn ;
+         unfold map_from_pb_prod ;
+         rewrite BinProductPr1Commutes ;
+         apply idpath).
+  Defined.
+
+  Definition cod_pb_preserves_chosen_subobject_classifier_z_iso
+    : z_iso
+        (cod_pb P f (cod_fib_subobject_classifier T BP Ω y))
+        (cod_fib_subobject_classifier T BP Ω x).
+  Proof.
+    simple refine (_ ,, _).
+    - exact cod_pb_preserves_chosen_subobject_classifier_mor.
+    - use is_z_iso_fiber_from_is_z_iso_disp.
+      use is_z_iso_disp_codomain.
+      apply pb_prod_z_iso.
+  Defined.
+
+  Proposition cod_pb_preserves_chosen_subobject_classifier_eq
+    : # (cod_pb P f) (cod_fib_subobject_classifier T BP Ω y)
+      · cod_pb_preserves_chosen_subobject_classifier_z_iso
+      =
+      TerminalArrow (codomain_fib_terminal x) (cod_pb P f (codomain_fib_terminal y))
+      · cod_fib_subobject_classifier T BP Ω x.
+  Proof.
+    use eq_cod_mor.
+    cbn -[cod_pb].
+    rewrite !transportf_cod_disp.
+    cbn -[cod_pb].
+    etrans.
+    {
+      apply maponpaths_2.
+      apply maponpaths.
+      apply cod_fiber_functor_on_mor.
+    }
+    cbn.
+    unfold map_from_pb_prod.
+    use BinProductArrowsEq.
+    - rewrite !assoc'.
+      rewrite !BinProductPr1Commutes.
+      rewrite PullbackArrow_PullbackPr2.
+      rewrite !id_right.
+      apply idpath.
+    - rewrite !assoc'.
+      rewrite BinProductPr2Commutes.
+      rewrite !assoc.
+      rewrite PullbackArrow_PullbackPr1.
+      rewrite !assoc'.
+      rewrite !BinProductPr2Commutes.
+      rewrite id_left.
+      unfold const_true.
+      rewrite !assoc.
+      apply maponpaths_2.
+      apply TerminalArrowEq.
+  Qed.
+
+  Definition cod_pb_preserves_chosen_subobject_classifier
+    : preserves_chosen_to_chosen_subobject_classifier
+        (codomain_fib_preserves_terminal P f)
+        (cod_fib_subobject_classifier T BP Ω y)
+        (cod_fib_subobject_classifier T BP Ω x)
+    := cod_pb_preserves_chosen_subobject_classifier_z_iso
+       ,,
+       cod_pb_preserves_chosen_subobject_classifier_eq.
+End PreservesChosen.
+
+Definition preserves_subobject_classifier_cod_pb
+           {C : univalent_category}
+           (T : Terminal C)
+           (P : Pullbacks C)
+           (Ω : subobject_classifier T)
+           {x y : C}
+           (f : x --> y)
+  : preserves_subobject_classifier
+      (cod_pb P f)
+      (codomain_fib_terminal y)
+      (codomain_fib_terminal x)
+      (codomain_fib_preserves_terminal P f).
+Proof.
+  pose (BP := BinProductsFromPullbacks P T).
+  use preserves_chosen_to_preserves_subobject_classifier'.
+  - apply is_univalent_cod_slice.
+  - apply is_univalent_cod_slice.
+  - exact (cod_fib_subobject_classifier T BP Ω y).
+  - use preserves_chosen_to_preserves_chosen_subobject_classifier'.
+    + apply is_univalent_cod_slice.
+    + apply is_univalent_cod_slice.
+    + exact (cod_fib_subobject_classifier T BP Ω x).
+    + apply cod_pb_preserves_chosen_subobject_classifier.
+Defined.

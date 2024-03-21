@@ -79,6 +79,15 @@ Qed.
 Definition subobject_classifier {C : category} (T : Terminal C) : UU :=
   ∑ (O : ob C) (true : C⟦T, O⟧), is_subobject_classifier T O true.
 
+Definition make_subobject_classifier_cat
+          {C : category}
+          (T : Terminal C)
+          (Ω : C)
+          (t : T --> Ω)
+          (H : is_subobject_classifier T Ω t)
+  : subobject_classifier T
+  := Ω ,, t ,, H.
+
 Definition make_subobject_classifier {C : category} {T : Terminal C}
            (O : ob C) (true : C⟦T, O⟧) :
   (∏ (X Y : ob C) (m : Monic _ X Y),
