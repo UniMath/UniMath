@@ -65,6 +65,19 @@ Section PreservesTerminal.
 
 End PreservesTerminal.
 
+Proposition functor_on_terminal_arrow
+            {C₁ C₂ : category}
+            (T : Terminal C₁)
+            {F : C₁ ⟶ C₂}
+            (HF : preserves_terminal F)
+            (x : C₁)
+  : #F (TerminalArrow T x)
+    =
+    TerminalArrow (preserves_terminal_to_terminal F HF T) _.
+Proof.
+  apply (TerminalArrowEq (T := preserves_terminal_to_terminal F HF T)).
+Qed.
+
 Definition identity_preserves_terminal
            (C : category)
   : preserves_terminal (functor_identity C)

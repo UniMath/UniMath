@@ -34,12 +34,14 @@
  where each of the objects in this diagram lives in the slice category. Proving that we have
  the desired pullback square, is a matter of doing it.
 
- We also show that the pullback functor preserves subobject classifiers.
+ We also show that the pullback functor preserves subobject classifiers, and we show that the
+ functor on the arrow category preserves subobject classifiers.
 
  Contents
  1. The universal property
  2. The subobject classifier
  3. Preservation of subobject classifiers by the pullback functor
+ 4. The functor on the arrow category preserves subobject classifiers
 
  ***********************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -52,6 +54,7 @@ Require Import UniMath.CategoryTheory.Limits.PullbackConstructions.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
@@ -61,6 +64,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
 
 Local Open Scope cat.
 
@@ -459,10 +463,8 @@ Section PreservesChosen.
       TerminalArrow (codomain_fib_terminal x) (cod_pb P f (codomain_fib_terminal y))
       · cod_fib_subobject_classifier T BP Ω x.
   Proof.
-    use eq_cod_mor.
-    cbn -[cod_pb].
-    rewrite !transportf_cod_disp.
-    cbn -[cod_pb].
+    use eq_mor_cod_fib.
+    rewrite !comp_in_cod_fib.
     etrans.
     {
       apply maponpaths_2.
@@ -523,4 +525,182 @@ Proof.
     + apply is_univalent_cod_slice.
     + exact (cod_fib_subobject_classifier T BP Ω x).
     + apply cod_pb_preserves_chosen_subobject_classifier.
+Defined.
+
+(** * 4. The functor on the arrow category preserves subobject classifiers *)
+Section FiberPreservesSubobject.
+  Context {C₁ C₂ : category}
+          {T₁ : Terminal C₁}
+          {T₂ : Terminal C₂}
+          (P₁ : BinProducts C₁)
+          (P₂ : BinProducts C₂)
+          (Ω₁ : subobject_classifier T₁)
+          (Ω₂ : subobject_classifier T₂)
+          (F : C₁ ⟶ C₂)
+          (HFT : preserves_terminal F)
+          (HFP : preserves_binproduct F)
+          (HFΩ : preserves_subobject_classifier F T₁ T₂ HFT)
+          (x : C₁).
+
+  Definition preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_iso_mor
+    : z_iso
+        (F (P₁ x Ω₁))
+        (P₂ (F x) Ω₂)
+    := z_iso_comp
+         (preserves_binproduct_to_z_iso F HFP (P₁ x Ω₁) (P₂ (F x) (F Ω₁)))
+         (binproduct_of_z_iso
+            _
+            _
+            (identity_z_iso (F x))
+            (preserves_subobject_classifier_z_iso HFΩ Ω₁ Ω₂)).
+
+  Let φ := preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_iso_mor.
+
+  Proposition preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_mor_eq
+    : φ · BinProductPr1 C₂ (P₂ (F x) Ω₂)
+      =
+      # F (BinProductPr1 C₁ (P₁ x Ω₁)) · identity (F x).
+  Proof.
+    cbn.
+    rewrite !assoc'.
+    rewrite BinProductOfArrowsPr1.
+    rewrite !id_right.
+    rewrite BinProductPr1Commutes.
+    apply idpath.
+  Qed.
+
+  Definition preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_mor
+    : fiber_functor
+        (disp_codomain_functor F)
+        x
+        (cod_fib_subobject_classifier T₁ P₁ Ω₁ x)
+      -->
+      cod_fib_subobject_classifier T₂ P₂ Ω₂ (F x).
+  Proof.
+    refine (pr1 φ ,, _).
+    exact preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_mor_eq.
+  Defined.
+
+  Definition preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_iso
+    : z_iso
+        (fiber_functor
+           (disp_codomain_functor F)
+           x
+           (cod_fib_subobject_classifier T₁ P₁ Ω₁ x))
+        (cod_fib_subobject_classifier T₂ P₂ Ω₂ (F x)).
+  Proof.
+    refine (preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_mor ,, _).
+    use is_z_iso_fiber_from_is_z_iso_disp.
+    use is_z_iso_disp_codomain.
+    apply preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_iso_mor.
+  Defined.
+
+  Proposition preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_eq
+    : # (fiber_functor (disp_codomain_functor F) x) (cod_fib_subobject_classifier T₁ P₁ Ω₁ x)
+      · preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_iso
+      =
+      TerminalArrow (codomain_fib_terminal (F x)) _
+      · cod_fib_subobject_classifier T₂ P₂ Ω₂ (F x).
+  Proof.
+    use eq_mor_cod_fib.
+    refine (comp_in_cod_fib _ _ @ _ @ !(comp_in_cod_fib _ _)).
+    rewrite disp_codomain_fiber_functor_mor.
+    cbn.
+    rewrite functor_id.
+    rewrite !id_left.
+    use BinProductArrowsEq.
+    - rewrite !assoc'.
+      rewrite BinProductPr1Commutes.
+      rewrite BinProductOfArrowsPr1.
+      rewrite id_right.
+      rewrite BinProductPr1Commutes.
+      rewrite <- functor_comp, <- functor_id.
+      apply maponpaths.
+      apply BinProductPr1Commutes.
+    - rewrite !assoc'.
+      rewrite BinProductPr2Commutes.
+      rewrite BinProductOfArrowsPr2.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite BinProductPr2Commutes.
+        apply idpath.
+      }
+      rewrite !assoc.
+      rewrite <- functor_comp.
+      etrans.
+      {
+        apply maponpaths_2.
+        apply maponpaths.
+        apply BinProductPr2Commutes.
+      }
+      unfold mor_subobject_classifier, const_true.
+      rewrite functor_comp.
+      rewrite (functor_on_terminal_arrow T₁ HFT x).
+      assert (TerminalArrow (preserves_terminal_to_terminal F HFT T₁) (F x)
+              =
+              TerminalArrow T₂ _
+              · TerminalArrow (preserves_terminal_to_terminal F HFT T₁) T₂)
+        as q.
+      {
+        apply TerminalArrowEq.
+      }
+      rewrite q.
+      rewrite !assoc'.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        exact (subobject_classifier_square_commutes
+                 Ω₂
+                 (preserves_subobject_classifier_on_ob HFΩ Ω₁)).
+      }
+      rewrite !assoc.
+      apply maponpaths_2.
+      apply TerminalArrowEq.
+  Qed.
+
+  Definition preserves_chosen_subobject_classifier_disp_codomain_fiber_functor
+    : preserves_chosen_to_chosen_subobject_classifier
+        (preserves_terminal_fiber_disp_codomain_functor F x)
+        (cod_fib_subobject_classifier T₁ P₁ Ω₁ x)
+        (cod_fib_subobject_classifier T₂ P₂ Ω₂ (F x)).
+  Proof.
+    refine (preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_iso ,, _).
+    exact preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_eq.
+  Defined.
+End FiberPreservesSubobject.
+
+Definition preserves_subobject_classifier_disp_codomain_fiber_functor
+           {C₁ C₂ : univalent_category}
+           {T₁ : Terminal C₁}
+           {T₂ : Terminal C₂}
+           (P₁ : BinProducts C₁)
+           (P₂ : BinProducts C₂)
+           (Ω₁ : subobject_classifier T₁)
+           (Ω₂ : subobject_classifier T₂)
+           (F : C₁ ⟶ C₂)
+           (HFT : preserves_terminal F)
+           (HFP : preserves_binproduct F)
+           (HFΩ : preserves_subobject_classifier F T₁ T₂ HFT)
+           (x : C₁)
+  : preserves_subobject_classifier
+      (fiber_functor (disp_codomain_functor F) x)
+      (codomain_fib_terminal x)
+      (codomain_fib_terminal (F x))
+      (preserves_terminal_fiber_disp_codomain_functor F x).
+Proof.
+  use preserves_chosen_to_preserves_subobject_classifier'.
+  - apply is_univalent_cod_slice.
+  - apply is_univalent_cod_slice.
+  - exact (cod_fib_subobject_classifier T₁ P₁ Ω₁ x).
+  - use preserves_chosen_to_preserves_chosen_subobject_classifier'.
+    + apply is_univalent_cod_slice.
+    + apply is_univalent_cod_slice.
+    + exact (cod_fib_subobject_classifier T₂ P₂ Ω₂ (F x)).
+    + use preserves_chosen_subobject_classifier_disp_codomain_fiber_functor.
+      * exact HFT.
+      * exact HFP.
+      * exact HFΩ.
 Defined.

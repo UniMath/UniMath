@@ -54,6 +54,29 @@ Definition preserves_subobject_classifier
        T₂ (F Ω)
        (TerminalArrow (preserves_terminal_to_terminal F HF T₁) _ · #F t).
 
+Definition preserves_subobject_classifier_on_ob
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {T₁ : Terminal C₁}
+           {T₂ : Terminal C₂}
+           {HF : preserves_terminal F}
+           (HF' : preserves_subobject_classifier F T₁ T₂ HF)
+           (Ω : subobject_classifier T₁)
+  : subobject_classifier T₂
+  := F Ω ,, _ ,, HF' _ _ (pr22 Ω).
+
+Definition preserves_subobject_classifier_z_iso
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {T₁ : Terminal C₁}
+           {T₂ : Terminal C₂}
+           {HF : preserves_terminal F}
+           (HF' : preserves_subobject_classifier F T₁ T₂ HF)
+           (Ω₁ : subobject_classifier T₁)
+           (Ω₂ : subobject_classifier T₂)
+  : z_iso (F Ω₁) Ω₂
+  := z_iso_subobject_classifier (preserves_subobject_classifier_on_ob HF' Ω₁) Ω₂.
+
 Definition identity_preserves_subobject_classifier
            {C : category}
            (T : Terminal C)
