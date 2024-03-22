@@ -27,6 +27,7 @@ Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
+Require Import UniMath.CategoryTheory.Limits.PreservationProperties.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
@@ -114,7 +115,7 @@ Proof.
   - exact is_univalent_2_1_univ_cat_with_terminal_obj.
 Defined.
 
-Proposition disp_left_adjoint_equivalence_subbicat
+Proposition disp_left_adjoint_equivalence_subbicat_terminal
             {C₁ C₂ : bicat_of_univ_cats}
             {F : C₁ --> C₂}
             (HF : left_adjoint_equivalence F)
@@ -361,6 +362,13 @@ Definition pullbacks_univ_cat_with_finlim
   : Pullbacks C
   := pr122 C.
 
+Definition binproducts_univ_cat_with_finlim
+           (C : univ_cat_with_finlim)
+  : BinProducts C
+  := BinProductsFromPullbacks
+       (pullbacks_univ_cat_with_finlim C)
+       (terminal_univ_cat_with_finlim C).
+
 Definition functor_finlim
            (C₁ C₂ : univ_cat_with_finlim)
   : UU
@@ -391,6 +399,17 @@ Definition functor_finlim_preserves_pullback
            (F : functor_finlim C₁ C₂)
   : preserves_pullback F
   := pr222 F.
+
+Definition functor_finlim_preserves_binproduct
+           {C₁ C₂ : univ_cat_with_finlim}
+           (F : functor_finlim C₁ C₂)
+  : preserves_binproduct F
+  := preserves_binproduct_from_pullback_terminal
+       F
+       (terminal_univ_cat_with_finlim C₁)
+       (pullbacks_univ_cat_with_finlim C₁)
+       (functor_finlim_preserves_pullback F)
+       (functor_finlim_preserves_terminal F).
 
 Definition nat_trans_finlim
            {C₁ C₂ : univ_cat_with_finlim}
@@ -670,6 +689,25 @@ Proof.
   - exact disp_univalent_2_1_disp_bicat_finlim_subobject_classifier.
 Defined.
 
+Definition disp_2cells_isaprop_finlim_subobject_classifier
+  : disp_2cells_isaprop disp_bicat_finlim_subobject_classifier.
+Proof.
+  apply disp_2cells_isaprop_subbicat.
+Defined.
+
+Definition disp_locally_groupoid_finlim_subobject_classifier
+  : disp_locally_groupoid disp_bicat_finlim_subobject_classifier.
+Proof.
+  apply disp_locally_groupoid_subbicat.
+  exact is_univalent_2_bicat_of_univ_cat_with_finlim.
+Defined.
+
+Definition disp_2cells_iscontr_finlim_subobject_classifier
+  : disp_2cells_iscontr disp_bicat_finlim_subobject_classifier.
+Proof.
+  apply disp_2cells_iscontr_subbicat.
+Defined.
+
 Definition is_univalent_2_1_bicat_of_univ_cat_with_finlim_subobject_classifier
   : is_univalent_2_1 bicat_of_univ_cat_with_finlim_subobject_classifier.
 Proof.
@@ -822,6 +860,19 @@ Proof.
   }
   intros C Ω₁ Ω₂.
   apply identity_preserves_subobject_classifier.
+Qed.
+
+Definition disp_adjoint_equiv_disp_bicat_of_univ_cat_subobject_classifier
+           {C₁ C₂ : bicat_of_univ_cat_with_finlim}
+           (F : C₁ --> C₂)
+           (HF : left_adjoint_equivalence F)
+           {T₁ : disp_bicat_finlim_subobject_classifier C₁}
+           {T₂ : disp_bicat_finlim_subobject_classifier C₂}
+           (FF : T₁ -->[ F ] T₂)
+  : disp_left_adjoint_equivalence HF FF.
+Proof.
+  use disp_left_adjoint_equivalence_subbicat_alt.
+  exact is_univalent_2_bicat_of_univ_cat_with_finlim.
 Qed.
 
 Definition left_adjoint_equivalence_univ_cat_with_finlim_subobject_classifier

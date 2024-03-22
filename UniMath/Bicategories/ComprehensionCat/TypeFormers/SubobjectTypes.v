@@ -154,6 +154,12 @@ Proof.
   apply is_univalent_2_bicat_of_dfl_full_comp_cat.
 Qed.
 
+Definition disp_2cells_iscontr_disp_bicat_of_subobject_classifier_type
+  : disp_2cells_iscontr disp_bicat_of_subobject_classifier_type.
+Proof.
+  apply disp_2cells_iscontr_subbicat.
+Defined.
+
 (** * 3. Adjoint equivalences *)
 Definition disp_adjoint_equiv_disp_bicat_of_subobject_classifier_type_help
            {C₁ C₂ : dfl_full_comp_cat}

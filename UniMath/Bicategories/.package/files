@@ -440,6 +440,7 @@ ComprehensionCat/LocalProperty/DFLCompCatWithProp.v
 ComprehensionCat/Biequivalence/LocalProperty.v
 
 ComprehensionCat/TypeFormers/SubobjectTypes.v
+ComprehensionCat/Biequivalence/SubobjectClassifier.v
 
 Logic/ComprehensionBicat.v
 

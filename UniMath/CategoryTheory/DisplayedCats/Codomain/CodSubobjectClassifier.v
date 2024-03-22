@@ -60,6 +60,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseSubobjectClassifier.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
@@ -525,6 +527,21 @@ Proof.
     + apply is_univalent_cod_slice.
     + exact (cod_fib_subobject_classifier T BP Ω x).
     + apply cod_pb_preserves_chosen_subobject_classifier.
+Defined.
+
+Definition codomain_fiberwise_subobject_classifier
+           {C : univalent_category}
+           (T : Terminal C)
+           (P : Pullbacks C)
+           (Ω : subobject_classifier T)
+  : fiberwise_subobject_classifier
+      (codomain_fiberwise_terminal P).
+Proof.
+  pose (BP := BinProductsFromPullbacks P T).
+  simple refine (_ ,, _).
+  - exact (cod_fib_subobject_classifier T BP Ω).
+  - intros x y f.
+    exact (preserves_subobject_classifier_cod_pb T P Ω f).
 Defined.
 
 (** * 4. The functor on the arrow category preserves subobject classifiers *)

@@ -1109,6 +1109,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [ComprehensionCat/LocalProperty/DFLCompCatWithProp.v](Bicategories/ComprehensionCat/LocalProperty/DFLCompCatWithProp.v)
    - [ComprehensionCat/Biequivalence/LocalProperty.v](Bicategories/ComprehensionCat/Biequivalence/LocalProperty.v)
    - [ComprehensionCat/TypeFormers/SubobjectTypes.v](Bicategories/ComprehensionCat/TypeFormers/SubobjectTypes.v)
+   - [ComprehensionCat/Biequivalence/SubobjectClassifier.v](Bicategories/ComprehensionCat/Biequivalence/SubobjectClassifier.v)
    - [Logic/ComprehensionBicat.v](Bicategories/Logic/ComprehensionBicat.v)
    - [Logic/Examples/TrivialComprehensionBicat.v](Bicategories/Logic/Examples/TrivialComprehensionBicat.v)
    - [Logic/Examples/PullbackComprehensionBicat.v](Bicategories/Logic/Examples/PullbackComprehensionBicat.v)
