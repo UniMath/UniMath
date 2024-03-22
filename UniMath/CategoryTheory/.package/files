@@ -101,10 +101,11 @@ SubobjectClassifier/PreservesSubobjectClassifier.v
 
 DisplayedCats/Binproducts.v
 
-DisplayedCats/FiberwiseTerminal.v
-DisplayedCats/FiberwiseProducts.v
-DisplayedCats/FiberwiseEqualizers.v
-DisplayedCats/DependentSums.v
+DisplayedCats/Fiberwise/FiberwiseTerminal.v
+DisplayedCats/Fiberwise/FiberwiseProducts.v
+DisplayedCats/Fiberwise/FiberwiseEqualizers.v
+DisplayedCats/Fiberwise/DependentSums.v
+DisplayedCats/Fiberwise/FiberwiseSubobjectClassifier.v
 
 DisplayedCats/Codomain/FiberCod.v
 DisplayedCats/Codomain/CodMorphisms.v

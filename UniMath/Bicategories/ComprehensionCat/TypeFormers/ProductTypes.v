@@ -24,7 +24,7 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
-Require Import UniMath.CategoryTheory.DisplayedCats.FiberwiseProducts.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.Bicategories.Core.Bicat.

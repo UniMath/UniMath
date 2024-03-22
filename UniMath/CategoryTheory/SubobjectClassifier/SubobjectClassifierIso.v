@@ -142,6 +142,15 @@ Proof.
     apply TerminalArrowEq.
 Qed.
 
+Definition isaprop_subobject_classifier
+           {C : univalent_category}
+           (T : Terminal C)
+  : isaprop (subobject_classifier T).
+Proof.
+  use isaprop_subobject_classifier'.
+  exact (univalent_category_is_univalent C).
+Qed.
+
 (** * 2. Being isomorphic to subobject classifiers *)
 Definition eq_to_is_subobject_classifier
            {C : category}

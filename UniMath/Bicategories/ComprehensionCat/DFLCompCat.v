@@ -109,10 +109,10 @@ Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
-Require Import UniMath.CategoryTheory.DisplayedCats.FiberwiseTerminal.
-Require Import UniMath.CategoryTheory.DisplayedCats.FiberwiseProducts.
-Require Import UniMath.CategoryTheory.DisplayedCats.FiberwiseEqualizers.
-Require Import UniMath.CategoryTheory.DisplayedCats.DependentSums.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.CategoryTheory.Limits.Terminal.

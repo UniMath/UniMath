@@ -54,6 +54,18 @@ Definition preserves_subobject_classifier
        T₂ (F Ω)
        (TerminalArrow (preserves_terminal_to_terminal F HF T₁) _ · #F t).
 
+Proposition isaprop_preserves_subobject_classifier
+            {C₁ C₂ : category}
+            (F : C₁ ⟶ C₂)
+            (T₁ : Terminal C₁)
+            (T₂ : Terminal C₂)
+            (HF : preserves_terminal F)
+  : isaprop (preserves_subobject_classifier F T₁ T₂ HF).
+Proof.
+  do 3 (use impred ; intro).
+  apply isaprop_is_subobject_classifier.
+Qed.
+
 Definition preserves_subobject_classifier_on_ob
            {C₁ C₂ : category}
            {F : C₁ ⟶ C₂}
