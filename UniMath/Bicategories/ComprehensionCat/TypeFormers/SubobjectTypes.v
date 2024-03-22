@@ -2,6 +2,28 @@
 
  DFL Comprehension categories with subobject classifier types
 
+ In this file, we define when a DFL comprehension category supports subobject classifier types.
+ Such types are expressed by having fiberwise subobject classifiers.
+
+ One observation in "Modular correspondence between dependent type theories and categories
+ including pretopoi and topoi" by Maietti is that mono types (i.e., types `A` in context `Γ`
+ such that the projection `π : Γ & A --> Γ` is a monomorphism) correspond to types for which
+ we have `Γ & x : A & y : A ⊢ x = y`, which are also known as homotopy propositions. If we
+ have a comprehension category with fiberwise subobject classifiers meaning that we have types
+ `Γ ⊢ Ω`, then terms `Γ ⊢ A : Ω` correspond to monomorphisms and thus to homotopy propositions.
+ As such, a subobject classifier functions as a universe of propositions (see the figure
+ named "Alternative formulation of the Omega type" in the paper by Maietti).
+
+ One important thing to realize here, is that we do not implement this as a local property.
+ The reason for this is not conceptual, but technical. We implemented local properties via
+ the displayed bicategory of fibrations, and we could instantiate that with suitable properties
+ on categories. However, subobject classifier are only defined in categories equipped with
+ a terminal object so that `true` can be expressed as a global element. For this reason, the
+ formulation of subobject classifier types require more structure than just being a fibration.
+
+ References
+ - "Modular correspondence between dependent type theories and categories including pretopoi
+   and topoi" by Maietti
 
  Contents
  1. The displayed bicategory of subobject_classifier types
