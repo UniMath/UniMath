@@ -786,18 +786,36 @@ Definition STLC_coind_FC : Terminal (CoAlg_category STLC_Functor_Id_H)
 
 Section Church.
 
-  (** fix a sort, viewed as an atom *)
-  Context (s : sort).
+  Definition ChurchInfinity_body_sortToHSET : global_element terminal_sortToSet2 (Church_gen_body_target σcoind).
+  Proof.
+    (** has to use [STLC_coind_FC] in the right way *)
+  Admitted.
 
-  Definition ChurchInfinity (ξ : sortToHSET) : STLC_ctx_sort_coind ξ ((s ⇒ s) ⇒ (s ⇒ s)).
-    Proof.
-      refine (pr1 (pr1 (lam_map_coind _ _) _) _ _).
-      exists (idpath _).
-      refine (pr1 (pr1 (lam_map_coind _ _) _) _ _).
-      exists (idpath _).
-      change (STLC_ctx_sort_coind (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s).
-      (* TODO: coinduction has to come into play *)
-    Abort.
+  Definition ChurchInfinity_body (ξ : sortToHSET) (s: sort) : STLC_gen_ctx_sort σcoind (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s.
+  Proof.
+    exact (pr1 ((pr1 ChurchInfinity_body_sortToHSET) ξ) s tt).
+  Defined.
+
+  Definition ChurchInfinity_body_sortToHSET_rec_eq_statement (ξ : sortToHSET) (s : sort) : UU :=
+    ChurchInfinity_body ξ s =
+      pr1 (pr1 (app_map_coind s s) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s
+        ((idpath s,,
+            pr1 (pr1 STLC_eta_coind (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s)
+            (inr (inl (idpath (s ⇒ s),, tt)) : pr1 (pr1 (Id (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s)))),,
+           idpath s,, ChurchInfinity_body ξ s).
+
+  Lemma ChurchInfinity_body_sortToHSET_rec_eq (ξ : sortToHSET) (s : sort) : ChurchInfinity_body_sortToHSET_rec_eq_statement ξ s.
+  Proof.
+  Admitted.
+
+  Definition ChurchInfinity_sortToHSET : global_element terminal_sortToSet2
+           (functor_compose STLC_coind (projSortToCvariable sort Hsort HSET (fun s => (s ⇒ s) ⇒ (s ⇒ s))))
+      := ChurchInfinity_body_sortToHSET · (Church_gen_header_sortToHSET σcoind).
+
+  Definition ChurchInfinity (s : sort) (ξ : sortToHSET) : STLC_ctx_sort_coind ξ ((s ⇒ s) ⇒ (s ⇒ s)).
+  Proof.
+    exact (pr1 ((pr1 ChurchInfinity_sortToHSET) ξ) s tt).
+  Defined.
 
 End Church.
 
