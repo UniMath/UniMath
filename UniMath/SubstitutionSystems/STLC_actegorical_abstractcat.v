@@ -10,6 +10,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.Combinatorics.Lists.
@@ -88,6 +89,11 @@ Let terminal_sortToC2 : Terminal sortToC2 := Terminal_functor_precat sortToC sor
 Local Lemma BinProducts_sortToC2 : BinProducts sortToC2.
 Proof.
   apply BinProducts_functor_precat, BPsortToC.
+Defined.
+
+Local Lemma BinCoproducts_sortToC2 : BinCoproducts sortToC2.
+Proof.
+  apply BinCoproducts_functor_precat, BCsortToC.
 Defined.
 
 Lemma postcomp_with_projSortToC_on_mor (F : sortToC2) (s: sort) (ξ ξ' : sortToC) (f : sortToC ⟦ ξ, ξ' ⟧)
@@ -670,18 +676,95 @@ Definition STLC_coind_FC : Terminal (CoAlg_category STLC_Functor_Id_H)
 
 Section Church.
 
-  (** fix a sort, viewed as an atom *)
-  Context (s : sort).
+  (** we are defining the Church numeral for infinity *)
 
-  Definition ChurchInfinity (ξ : sortToC) : global_element TerminalC (STLC_ctx_sort_coind ξ ((s ⇒ s) ⇒ (s ⇒ s))).
+  Let corecsource : sortToC2 := functor_compose STLC_coind (projSortToCvariable sort Hsort C (fun s => (s ⇒ s))).
+
+  Definition IterateInfinite_rec_coalg_data : nat_trans_data (pr1 corecsource) (pr1 (STLC_Functor_Id_H (BinCoproducts_sortToC2 corecsource STLC_coind))).
   Proof.
-    refine (_ · pr1 (pr1 (lam_map_coind _ _) _) _).
-    refine (_ · CoproductIn _ _ _ (idpath _)).
-    refine (_ · pr1 (pr1 (lam_map_coind _ _) _) _).
-    refine (_ · CoproductIn _ _ _ (idpath _)).
-    change (global_element TerminalC (STLC_ctx_sort_coind (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s)).
-    (* TODO: coinduction has to come into play *)
-    Abort.
+    intro ξ.
+    use nat_trans_functor_path_pregroupoid.
+    intro s.
+    refine (_ · BinCoproductIn2 _).
+    refine (_ · CoproductIn _ _ _ (ii1 (s,,s))).
+    use BinProductArrow.
+    - (** the term to be applied is the original argument *)
+      refine (_ · CoproductIn _ _ _ (idpath _)).
+      change (C ⟦ pr1 (pr1 corecsource ξ) s, pr1 (pr111 (BinCoproducts_sortToC2 corecsource STLC_coind) ξ) (s ⇒ s)⟧).
+      apply BinCoproductIn2.
+    - (** the argument of the application is the result of the corecursive call *)
+      refine (_ · CoproductIn _ _ _ (idpath _)).
+      change (C ⟦ pr1 (pr1 corecsource ξ) s, pr1 (pr111 (BinCoproducts_sortToC2 corecsource STLC_coind) ξ) s⟧).
+      apply BinCoproductIn1.
+  Defined.
+
+  Lemma IterateInfinite_rec_coalg_data_ok : is_nat_trans _ _ IterateInfinite_rec_coalg_data.
+  Proof.
+  Admitted.
+
+  Definition IterateInfinite_rec_coalg : sortToC2⟦corecsource, STLC_Functor_Id_H (BinCoproducts_sortToC2 corecsource STLC_coind)⟧
+    := _,, IterateInfinite_rec_coalg_data_ok.
+
+  Definition IterateInfinite : sortToC2⟦corecsource, STLC_coind⟧ := pr11 (primitive_corecursion _ (pr2 STLC_coind_FC) IterateInfinite_rec_coalg).
+
+  Definition ChurchInfinity_body_sortToC_data (ξ : sortToC) : global_element terminal_sortToC (pr1 (Church_gen_body_target σcoind) ξ).
+  Proof.
+    use nat_trans_functor_path_pregroupoid.
+    intro s.
+    change (C ⟦TerminalC, pr1 (pr1 STLC_coind (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s⟧).
+    refine (_ · pr1 (pr1 IterateInfinite (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s).
+    refine (_ · pr1 (pr1 (STLC_eta_gen σcoind) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s)).
+    refine (_ · BinCoproductIn2 _).
+    refine (_ · BinCoproductIn1 _).
+    exact (CoproductIn _ _ _ (idpath _)).
+  Defined.
+
+  Lemma ChurchInfinity_body_sortToC_data_ok (ξ ξ' : sortToC) (f : sortToC ⟦ξ,ξ'⟧) :
+    ChurchInfinity_body_sortToC_data ξ · # (pr1 (Church_gen_body_target σcoind)) f = ChurchInfinity_body_sortToC_data ξ'.
+  Proof.
+  Admitted.
+
+  Definition ChurchInfinity_body_sortToC : global_element terminal_sortToC2 (Church_gen_body_target σcoind).
+  Proof.
+    use make_global_element_functor_precat.
+    - exact ChurchInfinity_body_sortToC_data.
+    - exact ChurchInfinity_body_sortToC_data_ok.
+  Defined.
+
+  Definition ChurchInfinity_body (ξ : sortToC) (s: sort)
+    : global_element TerminalC (STLC_gen_ctx_sort σcoind (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s).
+  Proof.
+    exact (pr1 ((pr1 ChurchInfinity_body_sortToC) ξ) s).
+  Defined.
+
+  Arguments BinProductArrow {_ _ _} _ {_}.
+  Arguments BinProductsC {_ _}.
+  Arguments CoproductIn {_ _ _ _}.
+  Arguments BinCoproductIn1 {_ _ _ _}.
+  Arguments BinCoproductIn2 {_ _ _ _}.
+
+  Definition ChurchInfinity_body_sortToC_rec_eq_statement (ξ : sortToC) (s : sort) : UU :=
+    ChurchInfinity_body ξ s =
+        BinProductArrow BinProductsC
+          ((((CoproductIn (idpath _) · BinCoproductIn1) · BinCoproductIn2)
+              · pr1 (pr1 (STLC_eta_gen σcoind) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) _)
+             · CoproductIn (idpath _))
+          (ChurchInfinity_body ξ s · CoproductIn (idpath _))
+          · pr1 (pr1 (app_map_coind s _) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s.
+
+  Lemma ChurchInfinity_body_sortToC_rec_eq (ξ : sortToC) (s : sort)
+    : ChurchInfinity_body_sortToC_rec_eq_statement ξ s.
+  Proof.
+  Admitted.
+
+  Definition ChurchInfinity_sortToC : global_element terminal_sortToC2
+           (functor_compose STLC_coind (projSortToCvariable sort Hsort C (fun s => (s ⇒ s) ⇒ (s ⇒ s))))
+      := ChurchInfinity_body_sortToC · (Church_gen_header_sortToC σcoind).
+
+  Definition ChurchInfinity (ξ : sortToC) (s : sort) : global_element TerminalC (STLC_ctx_sort_coind ξ ((s ⇒ s) ⇒ (s ⇒ s))).
+  Proof.
+    exact (pr1 ((pr1 ChurchInfinity_sortToC) ξ) s).
+  Defined.
 
 End Church.
 
