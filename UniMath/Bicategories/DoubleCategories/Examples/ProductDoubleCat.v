@@ -270,10 +270,11 @@ Definition prod_univalent_double_cat
 Proof.
   use make_univalent_double_cat.
   - exact (prod_double_cat D₁ D₂).
-  - use is_univalent_category_binproduct.
-    + apply univalent_category_is_univalent.
-    + apply univalent_category_is_univalent.
-  - use is_univalent_twosided_disp_cat_product.
-    + apply is_univalent_twosided_disp_cat_hor_mor.
-    + apply is_univalent_twosided_disp_cat_hor_mor.
+  - split.
+    + use is_univalent_category_binproduct.
+      * apply univalent_category_is_univalent.
+      * apply univalent_category_is_univalent.
+    + use is_univalent_twosided_disp_cat_product.
+      * apply is_univalent_twosided_disp_cat_hor_mor.
+      * apply is_univalent_twosided_disp_cat_hor_mor.
 Defined.

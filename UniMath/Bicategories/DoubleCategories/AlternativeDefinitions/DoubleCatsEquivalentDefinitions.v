@@ -167,7 +167,7 @@ Section DoubleCatsUnfolded_to_DoubleCats.
     make_double_cat (und_ob_hor_cat C) D I Cm l r a tr pe.
 
   Definition  doublecategory_to_univalent_double_cat : univalent_double_cat :=
-    make_univalent_double_cat doublecategory_to_double_cat HC HD.
+    make_univalent_double_cat doublecategory_to_double_cat (HC ,, HD).
 End DoubleCatsUnfolded_to_DoubleCats.
 
 (** * 2. The inverse *)

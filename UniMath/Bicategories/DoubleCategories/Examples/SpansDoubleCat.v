@@ -469,9 +469,10 @@ Definition spans_univalent_double_cat
 Proof.
   use make_univalent_double_cat.
   - exact (spans_double_cat PC).
-  - apply univalent_category_is_univalent.
-  - use is_univalent_spans_twosided_disp_cat.
-    apply univalent_category_is_univalent.
+  - split.
+    + apply univalent_category_is_univalent.
+    + use is_univalent_spans_twosided_disp_cat.
+      apply univalent_category_is_univalent.
 Defined.
 
 Definition spans_pseudo_double_setcat

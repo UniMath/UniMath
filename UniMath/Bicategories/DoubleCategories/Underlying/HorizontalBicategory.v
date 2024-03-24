@@ -376,7 +376,7 @@ Proof.
   apply is_setcategory_vertical_cat.
 Qed.
 
-Definition horizontal_setbicat
+Definition horizontal_bisetcat
           (C : pseudo_double_setcat)
   : bisetcat.
 Proof.
