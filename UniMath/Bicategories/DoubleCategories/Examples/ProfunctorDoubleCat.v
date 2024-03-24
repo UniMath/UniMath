@@ -534,7 +534,7 @@ Proof.
 Qed.
 
 (** * 5. The univalent pseudo double category of profunctors *)
-Definition strict_profunctor_double_cat
+Definition setcat_profunctor_double_cat
   : double_cat.
 Proof.
   use make_double_cat.
@@ -549,18 +549,19 @@ Proof.
   - exact profunctor_pentagon_law.
 Defined.
 
-Definition strict_profunctor_univalent_double_cat
+Definition setcat_profunctor_univalent_double_cat
   : univalent_double_cat.
 Proof.
   use make_univalent_double_cat.
-  - exact strict_profunctor_double_cat.
-  - exact is_univalent_cat_of_setcategory.
-  - exact is_univalent_twosided_disp_cat_of_profunctors.
+  - exact setcat_profunctor_double_cat.
+  - split.
+    + exact is_univalent_cat_of_setcategory.
+    + exact is_univalent_twosided_disp_cat_of_profunctors.
 Defined.
 
 (** * 6. Companions and conjoints *)
-Definition all_companions_strict_profunctor_double_cat
-  : all_companions_double_cat strict_profunctor_double_cat.
+Definition all_companions_setcat_profunctor_double_cat
+  : all_companions_double_cat setcat_profunctor_double_cat.
 Proof.
   intros C₁ C₂ F.
   refine (representable_profunctor_left F ,, _).
@@ -591,8 +592,8 @@ Proof.
        apply idpath).
 Defined.
 
-Definition all_conjoints_strict_profunctor_double_cat
-  : all_conjoints_double_cat strict_profunctor_double_cat.
+Definition all_conjoints_setcat_profunctor_double_cat
+  : all_conjoints_double_cat setcat_profunctor_double_cat.
 Proof.
   intros C₁ C₂ F.
   refine (representable_profunctor_right F ,, _).

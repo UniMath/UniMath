@@ -235,8 +235,9 @@ Definition lenses_univalent_double_cat
 Proof.
   use make_univalent_double_cat.
   - exact (lenses_double_cat C PC).
-  - apply univalent_category_is_univalent.
-  - apply is_univalent_lenses_twosided_disp_cat.
+  - split.
+    + apply univalent_category_is_univalent.
+    + apply is_univalent_lenses_twosided_disp_cat.
 Defined.
 
 (** * 5. The strict double category *)
