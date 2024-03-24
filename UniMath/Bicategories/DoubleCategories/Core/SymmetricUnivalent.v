@@ -1050,8 +1050,9 @@ Section TransposePseudoDoubleCat.
   Proof.
     use make_univalent_double_cat.
     - exact transpose_double_cat.
-    - exact HC'.
-    - exact HC''.
+    - split.
+      + exact HC'.
+      + exact HC''.
   Defined.
 End TransposePseudoDoubleCat.
 

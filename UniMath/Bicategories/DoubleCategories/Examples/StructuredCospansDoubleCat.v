@@ -536,9 +536,10 @@ Definition structured_cospans_univalent_double_cat
 Proof.
   use make_univalent_double_cat.
   - exact (structured_cospans_double_cat PX L).
-  - apply univalent_category_is_univalent.
-  - use is_univalent_struct_cospans_twosided_disp_cat.
-    apply univalent_category_is_univalent.
+  - split.
+    + apply univalent_category_is_univalent.
+    + use is_univalent_struct_cospans_twosided_disp_cat.
+      apply univalent_category_is_univalent.
 Defined.
 
 Definition structured_cospans_pseudo_double_setcat

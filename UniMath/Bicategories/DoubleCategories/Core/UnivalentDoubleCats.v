@@ -103,15 +103,21 @@ Proof.
 Defined.
 
 (** * 3. Builder for double categories *)
+Definition is_univalent_double_cat
+           (C : double_cat)
+  : UU
+  := is_univalent C
+     ×
+     is_univalent_twosided_disp_cat (hor_mor C).
+
 Definition make_univalent_double_cat
            (C : double_cat)
-           (HC : is_univalent C)
-           (HD : is_univalent_twosided_disp_cat (hor_mor C))
+           (HC : is_univalent_double_cat C)
   : univalent_double_cat.
 Proof.
   simple refine ((((_ ,, _) ,, _) ,, _) ,, _).
-  - exact (_ ,, HC).
-  - exact (_ ,, HD).
+  - exact (_ ,, pr1 HC).
+  - exact (hor_mor C ,, pr2 HC).
   - exact (hor_id_double_cat C ,, hor_comp_double_cat C).
   - exact (double_cat_double_lunitor C
            ,,

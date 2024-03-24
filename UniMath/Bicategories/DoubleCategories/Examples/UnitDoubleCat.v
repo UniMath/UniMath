@@ -144,7 +144,8 @@ Definition unit_univalent_double_cat
 Proof.
   use make_univalent_double_cat.
   - exact unit_double_cat.
-  - apply univalent_category_is_univalent.
-  - apply is_univalent_constant_twosided_disp_cat.
-    apply univalent_category_is_univalent.
+  - split.
+    + apply univalent_category_is_univalent.
+    + apply is_univalent_constant_twosided_disp_cat.
+      apply univalent_category_is_univalent.
 Defined.
