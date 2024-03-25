@@ -67,21 +67,6 @@ Local Notation "[]" := (@nil _) (at level 0, format "[]"). *)
 Local Notation "C / X" := (slice_cat C X).
 (* Local Notation "a + b" := (setcoprod a b) : set. *)
 
-(*
-(* Was there a general version of this somewhere? *)
-Definition six_rec {A : UU} (a b c d e f : A) : stn 6 -> A.
-Proof.
-induction 1 as [n p].
-induction n as [|n _]; [apply a|].
-induction n as [|n _]; [apply b|].
-induction n as [|n _]; [apply c|].
-induction n as [|n _]; [apply d|].
-induction n as [|n _]; [apply e|].
-induction n as [|n _]; [apply f|].
-induction (nopathsfalsetotrue p).
-Defined.
-*)
-
 Let sort := CCSsort.
 Let ty := CCSty.
 Let el := CCSel.

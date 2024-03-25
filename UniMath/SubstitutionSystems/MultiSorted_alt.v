@@ -59,8 +59,6 @@ Require Import UniMath.SubstitutionSystems.SignatureExamples.
 
 Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 
-(* Require Import UniMath.SubstitutionSystems.BindingSigToMonad. *)
-
 Local Open Scope cat.
 
 (* These should be global *)
