@@ -1,5 +1,19 @@
 (**********************************************************************************
 
+ Pseudo double set categories
+
+ In this file, we define pseudo double setcategories. These are double categories
+ that are weak in 1 direction (here that is horizontal) and strict in the other
+ direction (here that is vertical), and such that the type of objects forms a set.
+ We define these categories as objects of the univalent category of pseudo double
+ setcategories, which we constructed using various displayed categories, and here,
+ we provide accessors and builders for them. Pseudo double setcategories are
+ invariant under isomorphism.
+
+ Contents
+ 1. Pseudo double setcategories
+ 2. Accessors for pseudo double setcategories
+ 3. Builder for pseudo double setcategories
 
  **********************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -30,12 +44,12 @@ Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 
 Local Open Scope cat.
 
-(** * 1. Univalent double categories *)
+(** * 1. Pseudo double setcategories *)
 Definition pseudo_double_setcat
   : UU
   := ob univalent_cat_of_pseudo_double_setcategory.
 
-(** * 2. Accessors for univalent double categories *)
+(** * 2. Accessors for pseudo double setcategories *)
 Coercion pseudo_double_setcat_to_double_cat
          (C : pseudo_double_setcat)
   : double_cat
@@ -64,7 +78,7 @@ Proof.
   exact (pr22 (pr111 C)).
 Qed.
 
-(** * 3. Builder for double categories *)
+(** * 3. Builder for pseudo double setcategories *)
 Definition make_pseudo_double_setcat
            (C : double_cat)
            (HC : is_setcategory C)
