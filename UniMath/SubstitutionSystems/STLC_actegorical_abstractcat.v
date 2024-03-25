@@ -1,9 +1,16 @@
 (**
 
-Syntax of the simply typed lambda calculus as a
-multisorted signature.
+Syntax of the simply-typed lambda calculus as a multisorted signature based on the actegorical development,
+with an abstract base category [C] instead of [HSET] (the objects of [C] serve to represent collections of terms of a given sort in a given context, but also collections of names of variables of a given sort).
 
-Written by: Ralph Matthes, 2024 (adapted from STLC_actegorical.v)
+The development is "point-free" in the sense that no assumption of well-pointedness of [C] is made (that would allow to replay the point-wise reasoning that is possible in [HSET], as it is done in STLC_actegorical.v).
+
+Thanks to that actegorical development, the inductive and the coinductive calculus are exposed in parallel.
+The Church numerals are developed independently from the choice for inductive or coinductive syntax.
+
+There is also the construction (by primitive corecursion) of the Church numeral for infinity in the coinductive calculus, with a proof that it satisfied a proper recursive equation.
+
+Written by: Ralph Matthes, 2024 (generalized and expanded from STLC_actegorical.v)
 
  *)
 Require Import UniMath.Foundations.PartD.

@@ -542,12 +542,6 @@ Defined.
 Definition functor_composite {C C' C'' : precategory_data} (F : functor C C') (F' : functor C' C'') :
   functor C C'' := tpair _ _ (is_functor_composite F F').
 
-Lemma functor_composite_on_morphisms {C C' C'' : precategory_data} (F : functor C C') (F' : functor C' C'')
-  (a b : C) (f : a --> b) : # (functor_composite F F') f = # F' (# F f).
-Proof.
-  apply idpath.
-Qed.
-
 (** *** Identity functor *)
 
 Definition functor_identity_data ( C  : precategory_data ) : functor_data C C :=
