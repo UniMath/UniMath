@@ -63,6 +63,7 @@ Require Import UniMath.CategoryTheory.Actegories.Examples.ActionOfEndomorphismsI
 Require Import UniMath.CategoryTheory.Actegories.Examples.SelfActionInCATElementary.
 (* Require Import UniMath.SubstitutionSystems.EquivalenceSignaturesWithActegoryMorphisms. *)
 Require Import UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require UniMath.SubstitutionSystems.BindingSigToMonad_actegorical.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.ContinuityOfMultiSortedSigToFunctor.
@@ -118,7 +119,7 @@ Local Definition sortToCC := [sortToC, C].
 Local Definition sortToC1C := [sortToC1, sortToCC].
 
 Let ops : MultiSortedSig sort → hSet := ops sort.
-Let arity : ∏ M : MultiSortedSig sort, MultiSorted_alt.ops sort M → list (list sort × sort) × sort
+Let arity : ∏ M : MultiSortedSig sort, ops M → list (list sort × sort) × sort
     := arity sort.
 
 

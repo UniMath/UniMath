@@ -48,6 +48,7 @@ Require Import UniMath.SubstitutionSystems.SimplifiedHSS.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.BindingSigToMonad.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 
 Local Open Scope cat.

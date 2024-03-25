@@ -22,6 +22,7 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 Require Import UniMath.SubstitutionSystems.SigmaMonoids.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.InstantiateHSET.
 Require UniMath.SubstitutionSystems.MultiSortedMonadConstruction_actegorical.

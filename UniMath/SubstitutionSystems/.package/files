@@ -38,6 +38,7 @@ FromBindingSigsToMonads_Summary.v
 SimplifiedHSS/FromBindingSigsToMonads_Summary.v
 MonadsMultiSorted.v
 MonadsMultiSorted_alt.v
+MultiSortedBindingSig.v
 MultiSorted.v
 MultiSortedMonadConstruction.v
 SimplifiedHSS/MultiSortedMonadConstruction.v

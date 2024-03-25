@@ -55,6 +55,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementar
 Require Import UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.
 Require UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require UniMath.SubstitutionSystems.SubstitutionSystems.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.MultiSorted_actegorical.
 Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_alt.

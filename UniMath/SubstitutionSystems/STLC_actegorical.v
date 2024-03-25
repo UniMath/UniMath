@@ -43,6 +43,7 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 Require Import UniMath.SubstitutionSystems.SigmaMonoids.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.MultiSorted_actegorical.
 Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_actegorical.
@@ -75,9 +76,9 @@ Section A.
   Defined.
 
 (** Some notations *)
-Local Infix "::" := (@cons _).
+(* Local Infix "::" := (@cons _).
 Local Notation "[]" := (@nil _) (at level 0, format "[]").
-Local Notation "a + b" := (setcoprod a b) : set.
+Local Notation "a + b" := (setcoprod a b) : set. *)
 Local Notation "s ⇒ t" := (arr s t).
 Local Notation "'Id'" := (functor_identity _).
 (*Local Notation "a ⊕ b" := (BinCoproductObject (BinCoprodSortToSet a b)). *)
@@ -101,15 +102,7 @@ Proof.
   apply idpath.
 Qed.
 
-(** The signature of the simply typed lambda calculus *)
-Definition STLC_Sig : MultiSortedSig sort.
-Proof.
-use make_MultiSortedSig.
-- apply ((sort × sort) + (sort × sort))%set.
-- intros H; induction H as [st|st]; induction st as [s t].
-  + exact ((([],,(s ⇒ t)) :: ([],,s) :: nil),,t).
-  + exact (((cons s [],,t) :: []),,(s ⇒ t)).
-Defined.
+Local Definition STLC_Sig : MultiSortedSig sort := STLC_Sig sort arr.
 
 (** the canonical functor associated with STLC_Sig *)
 Definition STLC_Functor_H : functor sortToSet2 sortToSet2 :=

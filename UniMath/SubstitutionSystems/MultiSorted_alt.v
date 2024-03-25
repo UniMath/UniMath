@@ -57,7 +57,9 @@ Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 
-Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
+
+(* Require Import UniMath.SubstitutionSystems.BindingSigToMonad. *)
 
 Local Open Scope cat.
 
@@ -107,75 +109,16 @@ Context (expSortToCC : Exponentials BPC)
 
 *)
 
-
-(** Definition of multisorted signatures *)
-Definition MultiSortedSig : UU :=
-  ∑ (I : hSet), I → list (list sort × sort) × sort.
-
-Definition ops (M : MultiSortedSig) : hSet := pr1 M.
-
-Definition CoproductsMultiSortedSig_base (M : MultiSortedSig) : Coproducts (ops M) sortToC.
+Definition CoproductsMultiSortedSig_base (M : MultiSortedSig sort) : Coproducts (ops _ M) sortToC.
 Proof.
   apply Coproducts_functor_precat, CC, setproperty.
 Defined.
 
-Definition CoproductsMultiSortedSig (M : MultiSortedSig) : Coproducts (ops M) [sortToC, sortToC].
+Definition CoproductsMultiSortedSig (M : MultiSortedSig sort) : Coproducts (ops _ M) [sortToC, sortToC].
 Proof.
   apply Coproducts_functor_precat, CoproductsMultiSortedSig_base.
 Defined.
 
-Definition arity (M : MultiSortedSig) : ops M → list (list sort × sort) × sort :=
-  λ x, pr2 M x.
-
-Definition make_MultiSortedSig {I : hSet}
-  (ar : I → list (list sort × sort) × sort) : MultiSortedSig := (I,,ar).
-
-(** Sum of multisorted binding signatures *)
-Definition SumMultiSortedSig : MultiSortedSig → MultiSortedSig → MultiSortedSig.
-Proof.
-intros s1 s2.
-use tpair.
-- apply (setcoprod (ops s1) (ops s2)).
-- induction 1 as [i|i].
-  + apply (arity s1 i).
-  + apply (arity s2 i).
-Defined.
-
-Section MultiSortedSigFromBindingSig.
-
-  Context (s : BindingSig).
-
-  Let I : hSet := BindingSigIndex s,, BindingSigIsaset s.
-
-  Context (uni : sort). (** the unique sort being used *)
-
-  (** create liste with [n] identical elements *)
-  Definition n_list {A : UU} (n : nat) (a : A) : list A.
-  Proof.
-    induction n as [|n ].
-    - exact nil.
-    - exact (cons a IHn).
-  Defined.
-
-  Definition translateArity : nat -> list sort × sort.
-  Proof.
-    intro n.
-    refine (_,, uni).
-    exact (n_list n uni).
-  Defined.
-
-  Definition arFromBindingSig : I → list (list sort × sort) × sort.
-  Proof.
-    intro i.
-    refine (_,, uni).
-    set (nbbindersallargs := BindingSigMap s i).
-    exact (map translateArity  nbbindersallargs).
-  Defined.
-
-  Definition MultiSortedSigFromBindingSig : MultiSortedSig
-    := I ,, arFromBindingSig.
-
-End MultiSortedSigFromBindingSig.
 
 (** * Construction of an endofunctor on [C^sort,C^sort] from a multisorted signature *)
 Section functor.
@@ -308,12 +251,12 @@ Definition hat_exp_functor_list (xst : list (list sort × sort) × sort) :
     exp_functor_list (pr1 xst) ∙ post_comp_functor (hat_functor (pr2 xst)).
 
 (** The function from multisorted signatures to functors *)
-Definition MultiSortedSigToFunctor (M : MultiSortedSig) :
+Definition MultiSortedSigToFunctor (M : MultiSortedSig sort) :
   functor [sortToC,sortToC] [sortToC,sortToC].
 Proof.
-  use (coproduct_of_functors (ops M) _ _ (CoproductsMultiSortedSig M)).
+  use (coproduct_of_functors (ops _ M) _ _ (CoproductsMultiSortedSig M)).
   intros op.
-  exact (hat_exp_functor_list (arity M op)).
+  exact (hat_exp_functor_list (arity _ M op)).
 Defined.
 
 End functor.
@@ -394,13 +337,13 @@ apply idpath.
 Qed.
 
 (* The signature for MultiSortedSigToFunctor *)
-Definition MultiSortedSigToSignature (M : MultiSortedSig) : Signature sortToC sortToC sortToC.
+Definition MultiSortedSigToSignature (M : MultiSortedSig sort) : Signature sortToC sortToC sortToC.
 Proof.
-set (Hyps := λ (op : ops M), Sig_hat_exp_functor_list (arity M op)).
-apply (Sum_of_Signatures (ops M) (CoproductsMultiSortedSig_base M) Hyps).
+set (Hyps := λ (op : ops _ M), Sig_hat_exp_functor_list (arity _ M op)).
+apply (Sum_of_Signatures (ops _ M) (CoproductsMultiSortedSig_base M) Hyps).
 Defined.
 
-Local Lemma functor_in_MultiSortedSigToSignature_ok (M : MultiSortedSig) :
+Local Lemma functor_in_MultiSortedSigToSignature_ok (M : MultiSortedSig sort) :
   Signature_Functor (MultiSortedSigToSignature M) = MultiSortedSigToFunctor M.
 Proof.
 apply idpath.
@@ -539,14 +482,14 @@ Proof.
 Defined.
 
 (** The functor obtained from a multisorted binding signature is omega-cocontinuous *)
-Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig) :
+Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig sort) :
   is_omega_cocont (MultiSortedSigToFunctor M).
 Proof.
   apply is_omega_cocont_coproduct_of_functors.
   intros op; apply is_omega_cocont_hat_exp_functor_list.
 Defined.
 
-Lemma is_omega_cocont_MultiSortedSigToSignature (M : MultiSortedSig) :
+Lemma is_omega_cocont_MultiSortedSigToSignature (M : MultiSortedSig sort) :
   is_omega_cocont (MultiSortedSigToSignature M).
 Proof.
   apply is_omega_cocont_MultiSortedSigToFunctor.

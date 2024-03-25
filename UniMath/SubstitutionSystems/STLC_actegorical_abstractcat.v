@@ -46,6 +46,7 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 Require Import UniMath.SubstitutionSystems.SigmaMonoids.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.MultiSorted_actegorical.
 Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_actegorical.
@@ -61,10 +62,9 @@ Section A.
 
   Context (sort : hSet) (arr : sort → sort → sort).
 
-  Local Lemma Hsort : isofhlevel 3 sort.
-  Proof.
-    exact (isofhlevelssnset 1 sort (setproperty sort)).
-  Defined.
+  Let Hsort : isofhlevel 3 sort := STLC_Hsort sort.
+
+  Local Definition STLC_Sig := STLC_Sig sort arr.
 
   Context (C : category) (BinProductsC : BinProducts C) (BinCoproductsC : BinCoproducts C)
                          (TerminalC : Terminal C) (CoproductsC : ∏ I : UU, isaset I → Coproducts I C).
@@ -92,9 +92,9 @@ Section A.
   Defined.
 
 (** Some notations *)
-Local Infix "::" := (@cons _).
+(* Local Infix "::" := (@cons _).
 Local Notation "[]" := (@nil _) (at level 0, format "[]").
-Local Notation "a + b" := (setcoprod a b) : set.
+Local Notation "a + b" := (setcoprod a b) : set. *)
 Local Notation "s ⇒ t" := (arr s t).
 Local Notation "'Id'" := (functor_identity _).
 (*Local Notation "a ⊕ b" := (BinCoproductObject (BinCoprodSortToSet a b)). *)
@@ -150,15 +150,6 @@ Proof.
   apply idpath.
 Qed.
 
-(** The signature of the simply typed lambda calculus *)
-Definition STLC_Sig : MultiSortedSig sort.
-Proof.
-use make_MultiSortedSig.
-- apply ((sort × sort) + (sort × sort))%set.
-- intros H; induction H as [st|st]; induction st as [s t].
-  + exact ((([],,(s ⇒ t)) :: ([],,s) :: nil),,t).
-  + exact (((cons s [],,t) :: []),,(s ⇒ t)).
-Defined.
 
 (** the canonical functor associated with STLC_Sig *)
 Definition STLC_Functor_H : functor sortToC2 sortToC2 :=
