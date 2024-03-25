@@ -498,9 +498,9 @@ Section InstanceHSET.
 
   (* Let Hsort := hlevelntosn 2 _ Hsort_set.*)
 
-  Let sortToHSET : category := [path_pregroupoid sort Hsort, HSET].
+  Let sortToSet : category := [path_pregroupoid sort Hsort, HSET].
 
-  Definition coindMultiSortedSigToMonadHSET_viaCAT : MultiSortedSig sort → Monad (sortToHSET).
+  Definition coindMultiSortedSigToMonadHSET_viaCAT : MultiSortedSig sort → Monad (sortToSet).
   Proof.
     intros sig; simple refine (coindMonadOfMultiSortedSig_CAT sort Hsort HSET _ _ _ _ _ _ sig _).
     - apply TerminalHSET.

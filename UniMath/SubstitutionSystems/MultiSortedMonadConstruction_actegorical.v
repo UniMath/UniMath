@@ -247,18 +247,18 @@ Section InstanceHSET.
 
   Context (sort : UU) (Hsort : isofhlevel 3 sort).
 
-  Let sortToHSET : category := [path_pregroupoid sort Hsort, HSET].
+  Let sortToSet : category := [path_pregroupoid sort Hsort, HSET].
 
-  Let BPCsortToHSET : BinProducts sortToHSET := BinProducts_functor_precat _ HSET BinProductsHSET.
-  Let BPC1 : BinProducts [sortToHSET,sortToHSET] := BinProducts_functor_precat sortToHSET sortToHSET BPCsortToHSET.
+  Let BPCsortToSet : BinProducts sortToSet := BinProducts_functor_precat _ HSET BinProductsHSET.
+  Let BPC1 : BinProducts [sortToSet,sortToSet] := BinProducts_functor_precat sortToSet sortToSet BPCsortToSet.
 
   Definition expSortToHSET1 : Exponentials BPC1.
   Proof.
-    set (aux := category_binproduct sortToHSET (path_pregroupoid sort Hsort)).
+    set (aux := category_binproduct sortToSet (path_pregroupoid sort Hsort)).
     set (BPaux' := BinProducts_functor_precat aux _ BinProductsHSET).
     assert (Hyp : Exponentials BPaux').
     { apply Exponentials_functor_HSET. }
-    transparent assert (HypAdj : (equivalence_of_cats [sortToHSET, sortToHSET] [aux, SET])).
+    transparent assert (HypAdj : (equivalence_of_cats [sortToSet, sortToSet] [aux, SET])).
     { apply currying_hom_equivalence. }
     use (exponentials_through_adj_equivalence_univalent_cats _ _ Hyp).
     2: { apply is_univalent_functor_category.
@@ -271,7 +271,7 @@ Section InstanceHSET.
     2: { apply (adj_equivalence_of_cats_inv HypAdj'). }
   Defined.
 
-  Definition MultiSortedSigToMonadHSET_viaCAT : MultiSortedSig sort → Monad (sortToHSET).
+  Definition MultiSortedSigToMonadHSET_viaCAT : MultiSortedSig sort → Monad (sortToSet).
   Proof.
     intros sig; simple refine (MonadOfMultiSortedSig_CAT sort Hsort HSET _ _ _ _ _ _ _ _ sig).
     - apply TerminalHSET.
