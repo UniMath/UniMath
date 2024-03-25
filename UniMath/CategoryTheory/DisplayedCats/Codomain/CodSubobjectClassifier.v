@@ -1,6 +1,6 @@
 (***********************************************************************************************
 
- Subobject classifieres in slice categories
+ Subobject classifiers in slice categories
 
  If `C` is a category with a subobject classifier `Ω`, then the slice categories `C/x` have a
  subobject classifier for every object `x`. This subobject classifier is given by `x × Ω --> x`.
