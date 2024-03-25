@@ -15,7 +15,7 @@
  this construction is suitably pseudofunctorial.
 
  Note that we do not instantiate the machinery of local properties to subobject classifier
- types. The reason for that, is that the development of local properties is targetted at
+ types. The reason for that is that the development of local properties is targeted at
  categories without the assumption of finite limits, because several local properties (such as
  extensiveness) does not assume the presence of finite limits. However, to formulate subobject
  classifiers, we need a terminal object, which is a special case of finite limits.
