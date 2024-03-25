@@ -206,8 +206,9 @@ Definition square_univalent_double_cat
 Proof.
   use make_univalent_double_cat.
   - exact (square_double_cat C).
-  - apply univalent_category_is_univalent.
-  - apply is_univalent_arrow_twosided_disp_cat.
+  - split.
+    + apply univalent_category_is_univalent.
+    + apply is_univalent_arrow_twosided_disp_cat.
 Defined.
 
 Proposition symmetric_univalent_square_double_cat

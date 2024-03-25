@@ -73,7 +73,7 @@ Local Open Scope double_bicat.
 Local Notation "∁" := (op2_bicat bicat_of_univ_cats).
 
 (** * 1. The 2-sided displayed category of the Verity bicategory of profunctors *)
-Definition univalent_profunctor_twosided_disp_cat_ob_mor
+Definition univcat_profunctor_twosided_disp_cat_ob_mor
   : twosided_disp_cat_ob_mor ∁ ∁.
 Proof.
   simple refine (_ ,, _).
@@ -86,33 +86,33 @@ Proof.
            profunctor_square G F P Q).
 Defined.
 
-Proposition univalent_twosided_disp_cat_id_comp
-  : twosided_disp_cat_id_comp univalent_profunctor_twosided_disp_cat_ob_mor.
+Proposition univcat_profunctor_twosided_disp_cat_id_comp
+  : twosided_disp_cat_id_comp univcat_profunctor_twosided_disp_cat_ob_mor.
 Proof.
   simple refine (_ ,, _).
   - exact (λ C D P, id_h_profunctor_square P).
   - exact (λ C₁ C₂ C₃ D₁ D₂ D₃ P₁ P₂ P₃ F₁ F₂ G₁ G₂ τ₁ τ₂, comp_h_profunctor_square τ₁ τ₂).
 Defined.
 
-Definition univalent_profunctor_twosided_disp_cat_data
+Definition univcat_profunctor_twosided_disp_cat_data
   : twosided_disp_cat_data ∁ ∁.
 Proof.
   simple refine (_ ,, _).
-  - exact univalent_profunctor_twosided_disp_cat_ob_mor.
-  - exact univalent_twosided_disp_cat_id_comp.
+  - exact univcat_profunctor_twosided_disp_cat_ob_mor.
+  - exact univcat_profunctor_twosided_disp_cat_id_comp.
 Defined.
 
-Definition univalent_profunctor_ver_sq_bicat
+Definition univcat_profunctor_ver_sq_bicat
   : ver_sq_bicat.
 Proof.
   use make_ver_sq_bicat.
   - exact ∁.
-  - exact univalent_profunctor_twosided_disp_cat_data.
+  - exact univcat_profunctor_twosided_disp_cat_data.
 Defined.
 
 (** * 2. The vertical bicategory of profunctors *)
-Definition univalent_profunctor_ver_sq_bicat_ver_id_comp
-  : ver_sq_bicat_ver_id_comp univalent_profunctor_ver_sq_bicat.
+Definition univcat_profunctor_ver_sq_bicat_ver_id_comp
+  : ver_sq_bicat_ver_id_comp univcat_profunctor_ver_sq_bicat.
 Proof.
   split.
   - split.
@@ -124,8 +124,8 @@ Proof.
   - exact (λ (C₁ C₂ : univalent_category) (P Q : C₁ ↛ C₂), profunctor_nat_trans P Q).
 Defined.
 
-Definition univalent_profunctor_ver_sq_bicat_id_comp_cells
-  : ver_sq_bicat_id_comp_cells univalent_profunctor_ver_sq_bicat_ver_id_comp.
+Definition univcat_profunctor_ver_sq_bicat_id_comp_cells
+  : ver_sq_bicat_id_comp_cells univcat_profunctor_ver_sq_bicat_ver_id_comp.
 Proof.
   repeat split.
   - exact (λ (C₁ C₂ : univalent_category)
@@ -170,8 +170,8 @@ Proof.
            rwhisker_profunctor_nat_trans τ Q).
 Defined.
 
-Proposition univalent_profunctor_ver_sq_bicat_prebicat_laws
-  : ver_sq_bicat_prebicat_laws univalent_profunctor_ver_sq_bicat_id_comp_cells.
+Proposition univcat_profunctor_ver_sq_bicat_prebicat_laws
+  : ver_sq_bicat_prebicat_laws univcat_profunctor_ver_sq_bicat_id_comp_cells.
 Proof.
   repeat split.
   - intros C₁ C₂ P Q τ.
@@ -649,21 +649,21 @@ Proof.
     apply idpath.
 Qed.
 
-Definition univalent_profunctor_ver_bicat_sq_bicat
+Definition univcat_profunctor_ver_bicat_sq_bicat
   : ver_bicat_sq_bicat.
 Proof.
   use make_ver_bicat_sq_bicat.
-  - exact univalent_profunctor_ver_sq_bicat.
-  - exact univalent_profunctor_ver_sq_bicat_ver_id_comp.
-  - exact univalent_profunctor_ver_sq_bicat_id_comp_cells.
-  - exact univalent_profunctor_ver_sq_bicat_prebicat_laws.
+  - exact univcat_profunctor_ver_sq_bicat.
+  - exact univcat_profunctor_ver_sq_bicat_ver_id_comp.
+  - exact univcat_profunctor_ver_sq_bicat_id_comp_cells.
+  - exact univcat_profunctor_ver_sq_bicat_prebicat_laws.
   - abstract
       (intros C₁ C₂ P Q ;
        apply isaset_profunctor_nat_trans).
 Defined.
 
-Definition univalent_profunctor_ver_bicat_sq_bicat_ver_id_comp_sq
-  : ver_bicat_sq_bicat_ver_id_comp_sq univalent_profunctor_ver_bicat_sq_bicat.
+Definition univcat_profunctor_ver_bicat_sq_bicat_ver_id_comp_sq
+  : ver_bicat_sq_bicat_ver_id_comp_sq univcat_profunctor_ver_bicat_sq_bicat.
 Proof.
   split.
   - exact (λ (C₁ C₂ : univalent_category)
@@ -682,17 +682,17 @@ Proof.
            comp_v_profunctor_square τ θ).
 Defined.
 
-Definition univalent_profunctor_ver_bicat_sq_bicat_ver_id_comp
+Definition univcat_profunctor_ver_bicat_sq_bicat_ver_id_comp
   : ver_bicat_sq_bicat_ver_id_comp.
 Proof.
   use make_ver_bicat_sq_bicat_ver_id_comp.
-  - exact univalent_profunctor_ver_bicat_sq_bicat.
-  - exact univalent_profunctor_ver_bicat_sq_bicat_ver_id_comp_sq.
+  - exact univcat_profunctor_ver_bicat_sq_bicat.
+  - exact univcat_profunctor_ver_bicat_sq_bicat_ver_id_comp_sq.
 Defined.
 
 (** * 3. The whiskering operations *)
-Definition univalent_profunctor_double_bicat_whiskering
-  : double_bicat_whiskering univalent_profunctor_ver_bicat_sq_bicat_ver_id_comp.
+Definition univcat_profunctor_double_bicat_whiskering
+  : double_bicat_whiskering univcat_profunctor_ver_bicat_sq_bicat_ver_id_comp.
 Proof.
   repeat split.
   - exact (λ (C₁ C₂ C₃ C₄ : univalent_category)
@@ -729,17 +729,17 @@ Proof.
            uwhisker_profunctor_square τ s).
 Defined.
 
-Definition univalent_profunctor_ver_bicat_sq_id_comp_whisker
+Definition univcat_profunctor_ver_bicat_sq_id_comp_whisker
   : ver_bicat_sq_id_comp_whisker.
 Proof.
   use make_ver_bicat_sq_id_comp_whisker.
-  - exact univalent_profunctor_ver_bicat_sq_bicat_ver_id_comp.
-  - exact univalent_profunctor_double_bicat_whiskering.
+  - exact univcat_profunctor_ver_bicat_sq_bicat_ver_id_comp.
+  - exact univcat_profunctor_double_bicat_whiskering.
 Defined.
 
 (** * 4. More laws *)
-Proposition univalent_profunctor_whisker_square_bicat_law
-  : whisker_square_bicat_law univalent_profunctor_ver_bicat_sq_id_comp_whisker.
+Proposition univcat_profunctor_whisker_square_bicat_law
+  : whisker_square_bicat_law univcat_profunctor_ver_bicat_sq_id_comp_whisker.
 Proof.
   repeat split.
   - intros C₁ C₂ C₃ C₄ F G P Q τ ; cbn in *.
@@ -875,8 +875,8 @@ Proof.
     apply idpath.
 Qed.
 
-Proposition univalent_profunctor_double_bicat_id_comp_square_laws
-  : double_bicat_id_comp_square_laws univalent_profunctor_ver_bicat_sq_id_comp_whisker.
+Proposition univcat_profunctor_double_bicat_id_comp_square_laws
+  : double_bicat_id_comp_square_laws univcat_profunctor_ver_bicat_sq_id_comp_whisker.
 Proof.
   repeat split.
   - intros C₁ C₂ C₃ C₄ C₅ C₆ C₇ C₈ C₀ P₁ P₂ Q₁ Q₂ R₁ R₂ F₁ F₂ G₁ G₂ H₁ H₂ τ₁ τ₂ θ₁ θ₂.
@@ -928,8 +928,8 @@ Proof.
     apply idpath.
 Qed.
 
-Proposition univalent_profunctor_double_bicat_cylinder_laws
-  : double_bicat_cylinder_laws univalent_profunctor_ver_bicat_sq_id_comp_whisker.
+Proposition univcat_profunctor_double_bicat_cylinder_laws
+  : double_bicat_cylinder_laws univcat_profunctor_ver_bicat_sq_id_comp_whisker.
 Proof.
   repeat split.
   - intros C₁ C₂ C₃ C₄ D₁ D₂ D₃ D₄ F₁ F₂ F₃ G₁ G₂ G₃ P₁ P₂ P₃ P₄ τ₁ τ₂ τ₃.
@@ -1127,30 +1127,30 @@ Proof.
     apply idpath.
 Qed.
 
-Proposition univalent_profunctor_double_bicat_laws
-  : double_bicat_laws univalent_profunctor_ver_bicat_sq_id_comp_whisker.
+Proposition univcat_profunctor_double_bicat_laws
+  : double_bicat_laws univcat_profunctor_ver_bicat_sq_id_comp_whisker.
 Proof.
   use make_double_bicat_laws.
-  - exact univalent_profunctor_whisker_square_bicat_law.
-  - exact univalent_profunctor_double_bicat_id_comp_square_laws.
-  - exact univalent_profunctor_double_bicat_cylinder_laws.
+  - exact univcat_profunctor_whisker_square_bicat_law.
+  - exact univcat_profunctor_double_bicat_id_comp_square_laws.
+  - exact univcat_profunctor_double_bicat_cylinder_laws.
   - intro ; intros.
     apply isaset_profunctor_square.
 Qed.
 
 (** * 5. The Verity double bicategory of univalent categories and profunctors *)
-Definition univalent_profunctor_verity_double_bicat
+Definition univcat_profunctor_verity_double_bicat
   : verity_double_bicat.
 Proof.
   use make_verity_double_bicat.
-  - exact univalent_profunctor_ver_bicat_sq_id_comp_whisker.
-  - exact univalent_profunctor_double_bicat_laws.
+  - exact univcat_profunctor_ver_bicat_sq_id_comp_whisker.
+  - exact univcat_profunctor_double_bicat_laws.
 Defined.
 
 (** * 6. 2-cells versus squares *)
-Definition univalent_profunctor_vertically_saturated
+Definition univcat_profunctor_vertically_saturated
   : vertically_saturated
-      univalent_profunctor_verity_double_bicat.
+      univcat_profunctor_verity_double_bicat.
 Proof.
   intros C₁ C₂ P Q ; cbn in *.
   use isweq_iso.
@@ -1167,9 +1167,9 @@ Proof.
        apply idpath).
 Defined.
 
-Definition univalent_profunctor_horizontally_saturated
+Definition univcat_profunctor_horizontally_saturated
   : horizontally_saturated
-      univalent_profunctor_verity_double_bicat.
+      univcat_profunctor_verity_double_bicat.
 Proof.
   intros C₁ C₂ F G ; cbn in *.
   use isweq_iso.
@@ -1193,17 +1193,17 @@ Proof.
        exact (!p)).
 Defined.
 
-Definition univalent_profunctor_is_weak_double_cat
-  : is_weak_double_cat univalent_profunctor_verity_double_bicat.
+Definition univcat_profunctor_is_weak_double_cat
+  : is_weak_double_cat univcat_profunctor_verity_double_bicat.
 Proof.
   split.
-  - exact univalent_profunctor_vertically_saturated.
-  - exact univalent_profunctor_horizontally_saturated.
+  - exact univcat_profunctor_vertically_saturated.
+  - exact univcat_profunctor_horizontally_saturated.
 Defined.
 
 (** * 7. Companion pairs of profunctors *)
-Definition all_companions_univalent_profunctor_verity_double_bicat
-  : all_companions univalent_profunctor_verity_double_bicat.
+Definition all_companions_univcat_profunctor_verity_double_bicat
+  : all_companions univcat_profunctor_verity_double_bicat.
 Proof.
   refine (λ (C₁ C₂ : univalent_category)
             (F : C₁ ⟶ C₂),
@@ -1232,8 +1232,8 @@ Proof.
        apply idpath).
 Defined.
 
-Definition all_conjoints_univalent_profunctor_verity_double_bicat
-  : all_conjoints univalent_profunctor_verity_double_bicat.
+Definition all_conjoints_univcat_profunctor_verity_double_bicat
+  : all_conjoints univcat_profunctor_verity_double_bicat.
 Proof.
   refine (λ (C₁ C₂ : univalent_category)
             (F : C₁ ⟶ C₂),
@@ -1264,7 +1264,7 @@ Defined.
 
 (** * 8. Vertical invertible 2-cells of profunctors *)
 Definition profunctor_nat_iso_weq_vertible_invertible_2cell
-           {C₁ C₂ : univalent_profunctor_verity_double_bicat}
+           {C₁ C₂ : univcat_profunctor_verity_double_bicat}
            {P Q : C₁ -|-> C₂}
            (τ : P =|=> Q)
   : is_profunctor_nat_iso τ ≃ is_invertible_2cell τ.
@@ -1290,8 +1290,8 @@ Proof.
 Defined.
 
 (** * 9. The local univalence of the Verity double bicategory of squares *)
-Definition ver_locally_univalent_profunctor_verity_double_bicat
-  : ver_locally_univalent univalent_profunctor_verity_double_bicat.
+Definition ver_locally_univcat_profunctor_verity_double_bicat
+  : ver_locally_univalent univcat_profunctor_verity_double_bicat.
 Proof.
   intros C₁ C₂ P Q.
   use weqhomot.
@@ -1308,29 +1308,29 @@ Proof.
     apply idpath.
 Qed.
 
-Definition locally_univalent_profunctor_verity_double_bicat
-  : locally_univalent_verity_double_bicat univalent_profunctor_verity_double_bicat.
+Definition locally_univcat_profunctor_verity_double_bicat
+  : locally_univalent_verity_double_bicat univcat_profunctor_verity_double_bicat.
 Proof.
   split.
   - use op2_bicat_is_univalent_2_1.
     exact univalent_cat_is_univalent_2_1.
-  - exact ver_locally_univalent_profunctor_verity_double_bicat.
+  - exact ver_locally_univcat_profunctor_verity_double_bicat.
 Defined.
 
 (** * 10. The global univalence of the Verity double bicategory of squares *)
-Definition hor_globally_univalent_profunctor_verity_double_bicat
-  : hor_globally_univalent univalent_profunctor_verity_double_bicat.
+Definition hor_globally_univcat_profunctor_verity_double_bicat
+  : hor_globally_univalent univcat_profunctor_verity_double_bicat.
 Proof.
   use op2_bicat_is_univalent_2_0.
   - exact univalent_cat_is_univalent_2_1.
   - exact univalent_cat_is_univalent_2_0.
 Defined.
 
-Definition gregarious_univalent_profunctor_verity_double_bicat
-  : gregarious_univalent univalent_profunctor_verity_double_bicat.
+Definition gregarious_univcat_profunctor_verity_double_bicat
+  : gregarious_univalent univcat_profunctor_verity_double_bicat.
 Proof.
   use hor_globally_univalent_to_gregarious_univalent.
-  - exact locally_univalent_profunctor_verity_double_bicat.
-  - exact hor_globally_univalent_profunctor_verity_double_bicat.
-  - exact univalent_profunctor_vertically_saturated.
+  - exact locally_univcat_profunctor_verity_double_bicat.
+  - exact hor_globally_univcat_profunctor_verity_double_bicat.
+  - exact univcat_profunctor_vertically_saturated.
 Defined.
