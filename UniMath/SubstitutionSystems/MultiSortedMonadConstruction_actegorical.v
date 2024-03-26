@@ -38,6 +38,7 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
+Require UniMath.SubstitutionSystems.SortIndexing.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
@@ -103,14 +104,27 @@ Let sort_cat : category := path_pregroupoid sort Hsort.
 
 (** This represents "sort → C" *)
 Let sortToC : category := [sort_cat,C].
-Let make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid Hsort f.
+
+Goal sortToC = SortIndexing.sortToC sort Hsort C.
+Proof.
+  apply idpath.
+Qed.
 
 Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
 
-Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
+Goal BCsortToC = SortIndexing.BCsortToC sort Hsort _ BC.
+Proof.
+  apply idpath.
+Qed. (* slow *)
 
-Let BPCsortToC : BinProducts sortToC := BinProducts_functor_precat _ C BP.
-Let BPC1 : BinProducts [sortToC,sortToC] := BinProducts_functor_precat sortToC sortToC BPCsortToC.
+Let BPsortToC : BinProducts sortToC := BinProducts_functor_precat _ C BP.
+
+Goal BPsortToC = SortIndexing.BPsortToC sort Hsort _ BP.
+Proof.
+  apply idpath.
+Qed. (* slow *)
+
+Let BPC1 : BinProducts [sortToC,sortToC] := BinProducts_functor_precat sortToC sortToC BPsortToC.
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
 Context (expSortToC1 : Exponentials BPC1) (** this requires exponentials in a higher space than before for [MultiSortedSigToFunctor] *)

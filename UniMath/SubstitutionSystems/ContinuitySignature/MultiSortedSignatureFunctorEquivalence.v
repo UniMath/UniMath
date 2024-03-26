@@ -32,6 +32,7 @@ Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
+Require UniMath.SubstitutionSystems.SortIndexing.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 
 Require Import UniMath.CategoryTheory.Chains.OmegaContFunctors.
@@ -347,10 +348,18 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
 
   (** This represents "sort → C" *)
   Let sortToC : category := [sort_cat,C].
-  Let make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid Hsort f.
 
-  Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
-  Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
+  Goal sortToC = SortIndexing.sortToC sort Hsort C.
+  Proof.
+    apply idpath.
+  Qed.
+
+  Let BPsortToCC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
+
+  Goal BPsortToCC = SortIndexing.BPsortToCC sort Hsort _ BP.
+  Proof.
+    apply idpath.
+  Qed. (* slow *)
 
   Let TsortToCC : Terminal [sortToC,C] := Terminal_functor_precat _ _ TC.
 
@@ -697,18 +706,18 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
       }
       clear IHn.
 
-      transparent assert (q : (nat_z_iso (exp_functor_list sort Hsort C TC BP BC CC (cons x xs)) (BinProduct_of_functors BPC (exp_functor_list sort Hsort C TC BP BC CC xs) (exp_functor sort Hsort C TC BC CC x)))).
+      transparent assert (q : (nat_z_iso (exp_functor_list sort Hsort C TC BP BC CC (cons x xs)) (BinProduct_of_functors BPsortToCC (exp_functor_list sort Hsort C TC BP BC CC xs) (exp_functor sort Hsort C TC BC CC x)))).
       {
         induction xs as [[|n] xs].
         - induction xs. unfold exp_functor_list at 1. change (cons x (0,, tt)) with (cons x nil). rewrite foldr1_map_cons_nil.
           unfold exp_functor_list at 1. change (0,, tt) with (nil(A:=list sort × sort)). rewrite foldr1_map_nil.
           apply nat_z_iso_inv.
-          exact (terminal_BinProduct_of_functors_unit_l _ _ BPC TsortToCC (exp_functor sort Hsort C TC BC CC x)).
+          exact (terminal_BinProduct_of_functors_unit_l _ _ BPsortToCC TsortToCC (exp_functor sort Hsort C TC BC CC x)).
         - induction xs.
           change (cons x (S n,, pr1,, pr2)) with  (cons x (cons pr1 (n,,pr2))).
           unfold exp_functor_list at 1.
           rewrite foldr1_map_cons.
-          change (nat_z_iso (BinProduct_of_functors BPC (exp_functor sort Hsort C TC BC CC x) (exp_functor_list sort Hsort C TC BP BC CC (S n,, pr1,, pr2)) ) (BinProduct_of_functors BPC (exp_functor_list sort Hsort C TC BP BC CC (S n,, pr1,, pr2)) (exp_functor sort Hsort C TC BC CC x))).
+          change (nat_z_iso (BinProduct_of_functors BPsortToCC (exp_functor sort Hsort C TC BC CC x) (exp_functor_list sort Hsort C TC BP BC CC (S n,, pr1,, pr2)) ) (BinProduct_of_functors BPsortToCC (exp_functor_list sort Hsort C TC BP BC CC (S n,, pr1,, pr2)) (exp_functor sort Hsort C TC BC CC x))).
           apply BinProduct_of_functors_commutes.
       }
 

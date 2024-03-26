@@ -36,6 +36,7 @@ Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
+Require UniMath.SubstitutionSystems.SortIndexing.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 
 Require Import UniMath.CategoryTheory.Chains.OmegaContFunctors.
@@ -58,10 +59,11 @@ Section FixTheContext.
 
   (** This represents "sort → C" *)
   Let sortToC : category := [sort_cat,C].
-  Let make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid Hsort f.
 
-  Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
-  Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
+  Goal sortToC = SortIndexing.sortToC sort Hsort C.
+  Proof.
+    apply idpath.
+  Qed.
 
   Lemma sortToC1_binproducts
     : BinProducts [sortToC, sortToC].

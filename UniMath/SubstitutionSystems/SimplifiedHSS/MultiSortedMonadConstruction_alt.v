@@ -39,6 +39,7 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
+Require UniMath.SubstitutionSystems.SortIndexing.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
@@ -67,18 +68,30 @@ Context (TC : Terminal C) (IC : Initial C)
 Local Notation "'1'" := (TerminalObject TC).
 Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
 
-(** Define the discrete category of sorts *)
-Let sort_cat : category := path_pregroupoid sort Hsort.
-
 (** This represents "sort → C" *)
-Let sortToC : category := [sort_cat,C].
-Let make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid Hsort f.
+Let sortToC : category := [path_pregroupoid sort Hsort,C].
+
+Goal sortToC = SortIndexing.sortToC sort Hsort C.
+Proof.
+  apply idpath.
+Qed.
 
 Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
-Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
+
+Goal BCsortToC = SortIndexing.BCsortToC sort Hsort _ BC.
+Proof.
+  apply idpath.
+Qed. (* slow *)
+
+Let BPsortToCC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
+
+Goal BPsortToCC = SortIndexing.BPsortToCC sort Hsort _ BP.
+Proof.
+  apply idpath.
+Qed. (* slow *)
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
-Context (expSortToCC : Exponentials BPC)
+Context (expSortToCC : Exponentials BPsortToCC)
         (HC : Colims_of_shape nat_graph C).
 (* The expSortToCC assumption says that [sortToC,C] has exponentials. It
    could be reduced to exponentials in C, but we only have the case

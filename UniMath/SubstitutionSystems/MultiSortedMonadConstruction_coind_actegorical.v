@@ -33,6 +33,7 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
+Require UniMath.SubstitutionSystems.SortIndexing.
 
 (** for the additions in 2023 *)
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -384,11 +385,18 @@ Let sort_cat : category := path_pregroupoid sort Hsort.
 
 (** This represents "sort → C" *)
 Let sortToC : category := [sort_cat,C].
-Let make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid Hsort f.
+
+Goal sortToC = SortIndexing.sortToC sort Hsort C.
+Proof.
+  apply idpath.
+Qed.
 
 Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
 
-Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
+Goal BCsortToC = SortIndexing.BCsortToC sort Hsort _ BC.
+Proof.
+  apply idpath.
+Qed. (* slow *)
 
 (* Assumptions needed to prove ω-continuity of the functor *)
 Context (HcoC : Lims_of_shape conat_graph C)

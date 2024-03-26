@@ -58,6 +58,7 @@ Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 
 Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
+Require UniMath.SubstitutionSystems.SortIndexing.
 
 Local Open Scope cat.
 
@@ -89,15 +90,42 @@ Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
 (** Define the category of sorts *)
 Let sort_cat : category := path_pregroupoid sort Hsort.
 
+Goal sort_cat = SortIndexing.sort_cat sort Hsort.
+Proof.
+  apply idpath.
+Qed.
+
 (** This represents "sort → C" *)
 Let sortToC : category := [sort_cat,C].
+
+Goal sortToC = SortIndexing.sortToC sort Hsort C.
+Proof.
+  apply idpath.
+Qed.
+
 Let make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid Hsort f.
 
+Goal make_sortToC = SortIndexing.make_sortToC sort Hsort C.
+Proof.
+  apply idpath.
+Qed.
+
 Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
-Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
+
+Goal BCsortToC = SortIndexing.BCsortToC sort Hsort _ BC.
+Proof.
+  apply idpath.
+Qed. (* slow *)
+
+Let BPsortToCC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
+
+Goal BPsortToCC = SortIndexing.BPsortToCC sort Hsort _ BP.
+Proof.
+  apply idpath.
+Qed. (* slow *)
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
-Context (expSortToCC : Exponentials BPC)
+Context (expSortToCC : Exponentials BPsortToCC)
         (HC : Colims_of_shape nat_graph C).
 (* The expSortToCC assumption says that [sortToC,C] has exponentials. It
    could be reduced to exponentials in C, but we only have the case
@@ -241,7 +269,7 @@ set (T := constant_functor [sortToC,sortToC] [sortToC,C]
                            (constant_functor sortToC C TC)).
 (* This should be [foldr1] or [foldr1_map] in order to avoid composing with the
    constant functor in the base case *)
-exact (foldr1_map (λ F G, BinProduct_of_functors BPC F G) T exp_functor xs).
+exact (foldr1_map (λ F G, BinProduct_of_functors BPsortToCC F G) T exp_functor xs).
 Defined.
 
 Definition hat_exp_functor_list (xst : list (list sort × sort) × sort) :

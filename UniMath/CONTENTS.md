@@ -1191,6 +1191,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [SimplifiedHSS/MLTT79.v](SubstitutionSystems/SimplifiedHSS/MLTT79.v)
    - [FromBindingSigsToMonads_Summary.v](SubstitutionSystems/FromBindingSigsToMonads_Summary.v)
    - [SimplifiedHSS/FromBindingSigsToMonads_Summary.v](SubstitutionSystems/SimplifiedHSS/FromBindingSigsToMonads_Summary.v)
+   - [SortIndexing.v](SubstitutionSystems/SortIndexing.v)
    - [MonadsMultiSorted.v](SubstitutionSystems/MonadsMultiSorted.v)
    - [MonadsMultiSorted_alt.v](SubstitutionSystems/MonadsMultiSorted_alt.v)
    - [MultiSortedBindingSig.v](SubstitutionSystems/MultiSortedBindingSig.v)
