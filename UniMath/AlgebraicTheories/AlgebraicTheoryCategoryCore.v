@@ -130,7 +130,7 @@ Section AlgebraicTheoryCategory.
     : data_set T n → data_set T' n
     := pr1 F n.
 
-  Definition mor_var_ax
+  Local Definition mor_var_ax
     {T T' : algebraic_theory_data_cat}
     (F : indexed_set_cat nat⟦data_set T, data_set T'⟧)
     (n : nat)
@@ -138,7 +138,7 @@ Section AlgebraicTheoryCategory.
     : UU
     := mor_var_ax' F (@data_var T) (@data_var T') n i.
 
-  Definition mor_subst_ax
+  Local Definition mor_subst_ax
     {T T' : algebraic_theory_data_cat}
     (F : indexed_set_cat nat⟦data_set T, data_set T'⟧)
     (m n : nat)

@@ -38,16 +38,13 @@ Require Import UniMath.Combinatorics.Tuples.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
-(* Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore. *)
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.Examples.EndomorphismTheory.
 Require Import UniMath.AlgebraicTheories.Examples.Plus1Presheaf.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryCategory.
-Require Import UniMath.AlgebraicTheories.LambdaTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.PresheafCategory.
-Require Import UniMath.AlgebraicTheories.PresheafCategoryCore.
 Require Import UniMath.AlgebraicTheories.PresheafMorphisms.
 Require Import UniMath.AlgebraicTheories.Presheaves.
 
@@ -171,7 +168,7 @@ Section RepresentationTheorem.
       : presheaf_exponent_induced_morphism_data F n (op a f)
       = op (presheaf_exponent_induced_morphism_data F m a) f.
     Proof.
-      cbn.
+      cbn -[extend_tuple stnweq].
       refine (!_ @ mor_op F _ _).
       refine (maponpaths (F (1 + n)) _).
       apply pathsdirprod.

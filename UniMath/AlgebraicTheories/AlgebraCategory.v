@@ -12,6 +12,8 @@
   3. A characterization of iso's of algebras [make_algebra_z_iso]
 
  **************************************************************************************************)
+Require Export UniMath.AlgebraicTheories.AlgebraCategoryCore.
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
@@ -19,24 +21,20 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Cartesian.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
-
-
-Require Import UniMath.AlgebraicTheories.Algebras.
-Require Import UniMath.AlgebraicTheories.AlgebraMorphisms.
-Require Import UniMath.AlgebraicTheories.AlgebraCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+Require Import UniMath.AlgebraicTheories.AlgebraMorphisms.
+Require Import UniMath.AlgebraicTheories.Algebras.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.

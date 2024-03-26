@@ -49,6 +49,23 @@ Definition algebraic_theory_morphism
   : algebraic_theory_morphism_data T T'
   := pr11 F.
 
+Definition mor_var_ax
+  {T T' : algebraic_theory_data}
+  (F : algebraic_theory_morphism_data T T')
+  (n : nat)
+  (i : stn n)
+  : UU
+  := F n (var i) = var i.
+
+Definition mor_subst_ax
+  {T T' : algebraic_theory_data}
+  (F : algebraic_theory_morphism_data T T')
+  (m n : nat)
+  (f : T m)
+  (g : stn m → T n)
+  : UU
+  := F n (f • g) = (F m f) • (λ i, F n (g i)).
+
 Definition is_algebraic_theory_morphism
   {T T' : algebraic_theory}
   (F : algebraic_theory_morphism_data T T')

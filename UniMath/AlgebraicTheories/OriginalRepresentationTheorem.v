@@ -17,7 +17,6 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
 Require Import UniMath.AlgebraicTheories.Examples.EndomorphismTheory.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryCategory.
-Require Import UniMath.AlgebraicTheories.LambdaTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.Combinators.
 
 Require Import Ltac2.Ltac2.

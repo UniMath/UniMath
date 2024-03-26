@@ -8,7 +8,7 @@
 
   Contents
   1. The definition of algebraic theories [algebraic_theory]
-  2. Some useful properties and definitions
+  2. Some useful definitions and their properties [lift_constant] [inflate]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -141,8 +141,30 @@ Definition subst_var
   : subst_var_ax (T : algebraic_theory_data) n f
   := pr222 T n f.
 
-(** * 2. Some useful properties and definitions *)
+(** * 2. Some useful definitions and their properties *)
 
 Definition lift_constant {T : algebraic_theory_data} (n : nat) (f : (T 0 : hSet))
   : (T n : hSet)
-  := f • (weqvecfun _ vnil).
+  := f • weqvecfun _ vnil.
+
+Definition inflate {T : algebraic_theory_data} {n : nat} (f : T n) : T (S n)
+  := f • (λ i, var (stnweq (inl i))).
+
+Definition inflate_var (T : algebraic_theory) {n : nat} (i : stn n)
+  : inflate (var i) = var (stnweq (inl i))
+  := var_subst T _ _.
+
+Definition inflate_subst (T : algebraic_theory) {m n : nat} (f : T m) (g : stn m → T n)
+  : inflate (subst f g) = subst f (λ i, inflate (g i))
+  := subst_subst _ _ _ _.
+
+Lemma subst_inflate (T : algebraic_theory) {m n : nat} (f : T m) (g : stn (S m) → T n)
+  : subst (inflate f) g = subst f (λ i, g (stnweq (inl i))).
+Proof.
+  unfold inflate.
+  rewrite subst_subst.
+  apply maponpaths.
+  apply funextfun.
+  intro i.
+  apply var_subst.
+Qed.

@@ -15,6 +15,8 @@
   6. Products [products_presheaf_cat]
 
  **************************************************************************************************)
+Require Export UniMath.AlgebraicTheories.PresheafCategoryCore.
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -37,11 +39,9 @@ Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.IndexedSetCategory.
-Require Import UniMath.AlgebraicTheories.PresheafCategoryCore.
 Require Import UniMath.AlgebraicTheories.PresheafMorphisms.
 Require Import UniMath.AlgebraicTheories.Presheaves.
 

@@ -33,7 +33,6 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
 
 Local Open Scope cat.

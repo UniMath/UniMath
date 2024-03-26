@@ -43,7 +43,6 @@ Require Import UniMath.Combinatorics.Tuples.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
-Require Import UniMath.AlgebraicTheories.LambdaTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
 Require Import UniMath.Combinatorics.Tuples.
 

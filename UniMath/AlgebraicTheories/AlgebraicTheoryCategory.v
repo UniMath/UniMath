@@ -11,6 +11,8 @@
   3. Limits [limits_algebraic_theory_cat]
 
  **************************************************************************************************)
+Require Export UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
@@ -27,7 +29,6 @@ Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 
 Require Import UniMath.AlgebraicTheories.IndexedSetCategory.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 
