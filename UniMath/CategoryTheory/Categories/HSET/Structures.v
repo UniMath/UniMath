@@ -36,7 +36,7 @@ Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.slicecat.
 Require Import UniMath.CategoryTheory.NNO.
-Require Import UniMath.CategoryTheory.SubobjectClassifier.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.Categories.Type.Core.
 Require Import UniMath.CategoryTheory.Categories.Type.MonoEpiIso.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
@@ -539,7 +539,7 @@ Definition subobject_classifier_HSET : subobject_classifier TerminalHSET.
 Proof.
   exists hProp_set.
   exists const_htrue.
-  intros ? ? m.
+  intros X Y m.
 
   use make_iscontr.
 

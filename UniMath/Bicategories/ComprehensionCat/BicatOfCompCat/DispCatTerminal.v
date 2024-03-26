@@ -217,7 +217,7 @@ Proof.
     + apply internal_adjoint_equivalence_identity.
     + use (pair_left_adjoint_equivalence _ _ (internal_adjoint_equivalence_identity C₁)).
       split.
-      * apply disp_left_adjoint_equivalence_subbicat.
+      * apply disp_left_adjoint_equivalence_subbicat_terminal.
       * use disp_left_adjoint_equivalence_disp_bicat_of_univ_cats.
         use is_equiv_over_to_is_equiv_over_id.
         assert (adj_equiv_to_equiv_cat _ (internal_adjoint_equivalence_identity C₁)

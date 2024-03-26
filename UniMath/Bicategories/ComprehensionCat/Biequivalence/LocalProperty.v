@@ -254,7 +254,7 @@ Section LocalPropertyBiequiv.
     - apply disp_2cells_iscontr_disp_bicat_of_cat_property_dfl_full_comp_cat.
     - apply disp_locally_groupoid_disp_bicat_of_cat_property_dfl_full_comp_cat.
     - refine (λ C H, tt ,, _).
-      intro ; cbn.
+      intro x ; cbn.
       use (cat_property_adj_equivalence_of_cats'
              P
              _ _ _
