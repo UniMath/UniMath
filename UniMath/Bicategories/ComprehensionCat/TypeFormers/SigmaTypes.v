@@ -35,7 +35,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
-Require Import UniMath.CategoryTheory.DisplayedCats.DependentSums.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.

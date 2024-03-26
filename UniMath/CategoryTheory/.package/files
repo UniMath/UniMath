@@ -97,12 +97,15 @@ Limits/Coends.v
 
 Limits/PullbackConstructions.v
 
+SubobjectClassifier/PreservesSubobjectClassifier.v
+
 DisplayedCats/Binproducts.v
 
-DisplayedCats/FiberwiseTerminal.v
-DisplayedCats/FiberwiseProducts.v
-DisplayedCats/FiberwiseEqualizers.v
-DisplayedCats/DependentSums.v
+DisplayedCats/Fiberwise/FiberwiseTerminal.v
+DisplayedCats/Fiberwise/FiberwiseProducts.v
+DisplayedCats/Fiberwise/FiberwiseEqualizers.v
+DisplayedCats/Fiberwise/DependentSums.v
+DisplayedCats/Fiberwise/FiberwiseSubobjectClassifier.v
 
 DisplayedCats/Codomain/FiberCod.v
 DisplayedCats/Codomain/CodMorphisms.v
@@ -111,6 +114,7 @@ DisplayedCats/Codomain/CodLimits.v
 DisplayedCats/Codomain/CodColimits.v
 DisplayedCats/Codomain/IteratedSlice.v
 DisplayedCats/Codomain/CodFunctor.v
+DisplayedCats/Codomain/CodSubobjectClassifier.v
 
 Limits/StrictInitial.v
 Limits/DisjointBinCoproducts.v
@@ -163,7 +167,8 @@ AdditiveFunctors.v
 LocalizingClass.v
 UnderCategories.v
 Subobjects.v
-SubobjectClassifier.v
+SubobjectClassifier/SubobjectClassifier.v
+SubobjectClassifier/SubobjectClassifierIso.v
 Quotobjects.v
 AbelianPushoutPullback.v
 PseudoElements.v

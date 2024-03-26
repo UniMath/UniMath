@@ -432,11 +432,15 @@ ComprehensionCat/Biequivalence/FinLimToDFLCompCat.v
 ComprehensionCat/Biequivalence/Unit.v
 ComprehensionCat/Biequivalence/Counit.v
 ComprehensionCat/Biequivalence/Biequiv.v
+
 ComprehensionCat/LocalProperty/LocalProperties.v
 ComprehensionCat/LocalProperty/Examples.v
 ComprehensionCat/LocalProperty/CatWithProp.v
 ComprehensionCat/LocalProperty/DFLCompCatWithProp.v
 ComprehensionCat/Biequivalence/LocalProperty.v
+
+ComprehensionCat/TypeFormers/SubobjectTypes.v
+ComprehensionCat/Biequivalence/SubobjectClassifier.v
 
 Logic/ComprehensionBicat.v
 

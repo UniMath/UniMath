@@ -11,16 +11,10 @@
 Ambroise LAFONT January 2017
 *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.MoreFoundations.Tactics.
-
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Limits.Graphs.Pullbacks.
@@ -50,6 +44,31 @@ Section EffectiveEpi.
          (isCoequalizer (PullbackPr1 g)
                         (PullbackPr2 g) f (PullbackSqrCommutes g)).
 End EffectiveEpi.
+
+Proposition isaprop_isEffective
+            {C : category}
+            (H : is_univalent C)
+            {x y : C}
+            (f : x --> y)
+  : isaprop (isEffective f).
+Proof.
+  use isaproptotal2.
+  - intro.
+    apply isaprop_isCoequalizer.
+  - intros.
+    apply isaprop_Pullback.
+    exact H.
+Qed.
+
+Proposition isaprop_isEffective'
+            {C : univalent_category}
+            {x y : C}
+            (f : x --> y)
+  : isaprop (isEffective f).
+Proof.
+  use isaprop_isEffective.
+  apply univalent_category_is_univalent.
+Qed.
 
 Definition EpisAreEffective (C:category) :=
   ∏ (A B:C) (f:C⟦A,B⟧), isEpi f -> isEffective f.

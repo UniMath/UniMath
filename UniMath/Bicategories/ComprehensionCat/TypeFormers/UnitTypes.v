@@ -25,7 +25,7 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
-Require Import UniMath.CategoryTheory.DisplayedCats.FiberwiseTerminal.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.Bicategories.Core.Bicat.

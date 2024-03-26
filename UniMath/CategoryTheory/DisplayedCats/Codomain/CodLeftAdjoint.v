@@ -36,7 +36,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
-Require Import UniMath.CategoryTheory.DisplayedCats.DependentSums.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
 
 Local Open Scope cat.
 

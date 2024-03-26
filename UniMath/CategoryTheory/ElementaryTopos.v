@@ -24,7 +24,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
-Require Import UniMath.CategoryTheory.SubobjectClassifier.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.PowerObject.
 Require Import UniMath.CategoryTheory.Monics.

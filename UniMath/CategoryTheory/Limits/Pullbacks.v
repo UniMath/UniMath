@@ -758,6 +758,43 @@ End pullback_iso.
 
 End lemmas_on_pullbacks.
 
+
+(** * Pullback of identities *)
+Definition identity_isPullback
+           {C : category}
+           {x y : C}
+           {f g : x --> y}
+           {ix : x --> x}
+           {iy : y --> y}
+           (p : f · iy = ix · g)
+           (q₁ : f = g)
+           (q₂ : ix = identity _)
+           (q₃ : iy = identity _)
+  : isPullback p.
+Proof.
+  intros w h k r.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; apply isapropdirprod ; apply homset_property | ] ;
+       refine (!(id_right _) @ _) ;
+       rewrite <- q₂ ;
+       refine (pr22 φ₁ @ !(pr22 φ₂) @ _) ;
+       rewrite q₂ ;
+       apply id_right).
+  - simple refine (k ,, _ ,, _).
+    + abstract
+        (rewrite q₁ ;
+         rewrite <- r ;
+         rewrite q₃ ;
+         apply id_right).
+    + abstract
+        (cbn ;
+         rewrite q₂ ;
+         apply id_right).
+Defined.
+
 Definition switchPullback {C:category} {A B D:C} {f : A --> D} {g : B --> D} (pb : Pullback f g) : Pullback g f.
 Proof.
   induction pb as [[P [r s]] [e ip]]; simpl in e.

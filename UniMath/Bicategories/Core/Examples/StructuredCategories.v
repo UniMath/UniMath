@@ -13,6 +13,7 @@
  4. Categories with finite limits
  5. Categories with an initial object
  6. Categories with binary coproducts
+ 7. Categories with finite limits and a subobject classifier
 
  ***********************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -26,8 +27,12 @@ Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
+Require Import UniMath.CategoryTheory.Limits.PreservationProperties.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
@@ -110,7 +115,7 @@ Proof.
   - exact is_univalent_2_1_univ_cat_with_terminal_obj.
 Defined.
 
-Proposition disp_left_adjoint_equivalence_subbicat
+Proposition disp_left_adjoint_equivalence_subbicat_terminal
             {C₁ C₂ : bicat_of_univ_cats}
             {F : C₁ --> C₂}
             (HF : left_adjoint_equivalence F)
@@ -357,6 +362,13 @@ Definition pullbacks_univ_cat_with_finlim
   : Pullbacks C
   := pr122 C.
 
+Definition binproducts_univ_cat_with_finlim
+           (C : univ_cat_with_finlim)
+  : BinProducts C
+  := BinProductsFromPullbacks
+       (pullbacks_univ_cat_with_finlim C)
+       (terminal_univ_cat_with_finlim C).
+
 Definition functor_finlim
            (C₁ C₂ : univ_cat_with_finlim)
   : UU
@@ -387,6 +399,17 @@ Definition functor_finlim_preserves_pullback
            (F : functor_finlim C₁ C₂)
   : preserves_pullback F
   := pr222 F.
+
+Definition functor_finlim_preserves_binproduct
+           {C₁ C₂ : univ_cat_with_finlim}
+           (F : functor_finlim C₁ C₂)
+  : preserves_binproduct F
+  := preserves_binproduct_from_pullback_terminal
+       F
+       (terminal_univ_cat_with_finlim C₁)
+       (pullbacks_univ_cat_with_finlim C₁)
+       (functor_finlim_preserves_pullback F)
+       (functor_finlim_preserves_terminal F).
 
 Definition nat_trans_finlim
            {C₁ C₂ : univ_cat_with_finlim}
@@ -607,4 +630,261 @@ Proof.
   split.
   - exact is_univalent_2_0_univ_cat_with_bincoprod.
   - exact is_univalent_2_1_univ_cat_with_bincoprod.
+Defined.
+
+(**
+ 7. Categories with finite limits and a subobject classifier
+ *)
+Definition disp_bicat_finlim_subobject_classifier
+  : disp_bicat bicat_of_univ_cat_with_finlim.
+Proof.
+  use disp_subbicat.
+  - exact (λ (C : univ_cat_with_finlim),
+           subobject_classifier (terminal_univ_cat_with_finlim C)).
+  - exact (λ (C₁ C₂ : univ_cat_with_finlim)
+             (Ω₁ : subobject_classifier
+                     (terminal_univ_cat_with_finlim C₁))
+             (Ω₂ : subobject_classifier
+                     (terminal_univ_cat_with_finlim C₂))
+             (F : functor_finlim C₁ C₂),
+           preserves_subobject_classifier
+             F
+             (terminal_univ_cat_with_finlim C₁)
+             (terminal_univ_cat_with_finlim C₂)
+             (functor_finlim_preserves_terminal F)).
+  - intros.
+    apply identity_preserves_subobject_classifier.
+  - intros C₁ C₂ C₃ Ω₁ Ω₂ Ω₃ F G HF HG.
+    exact (comp_preserves_subobject_classifier HF HG).
+Defined.
+
+Definition bicat_of_univ_cat_with_finlim_subobject_classifier
+  : bicat
+  := total_bicat disp_bicat_finlim_subobject_classifier.
+
+Definition disp_univalent_2_1_disp_bicat_finlim_subobject_classifier
+  : disp_univalent_2_1 disp_bicat_finlim_subobject_classifier.
+Proof.
+  use disp_subbicat_univalent_2_1.
+  intros.
+  apply isaprop_preserves_subobject_classifier.
+Qed.
+
+Definition disp_univalent_2_0_disp_bicat_finlim_subobject_classifier
+  : disp_univalent_2_0 disp_bicat_finlim_subobject_classifier.
+Proof.
+  use disp_subbicat_univalent_2_0.
+  - exact is_univalent_2_bicat_of_univ_cat_with_finlim.
+  - intro C.
+    apply isaprop_subobject_classifier.
+  - intros.
+    apply isaprop_preserves_subobject_classifier.
+Qed.
+
+Definition disp_univalent_2_disp_bicat_finlim_subobject_classifier
+  : disp_univalent_2 disp_bicat_finlim_subobject_classifier.
+Proof.
+  split.
+  - exact disp_univalent_2_0_disp_bicat_finlim_subobject_classifier.
+  - exact disp_univalent_2_1_disp_bicat_finlim_subobject_classifier.
+Defined.
+
+Definition disp_2cells_isaprop_finlim_subobject_classifier
+  : disp_2cells_isaprop disp_bicat_finlim_subobject_classifier.
+Proof.
+  apply disp_2cells_isaprop_subbicat.
+Defined.
+
+Definition disp_locally_groupoid_finlim_subobject_classifier
+  : disp_locally_groupoid disp_bicat_finlim_subobject_classifier.
+Proof.
+  apply disp_locally_groupoid_subbicat.
+  exact is_univalent_2_bicat_of_univ_cat_with_finlim.
+Defined.
+
+Definition disp_2cells_iscontr_finlim_subobject_classifier
+  : disp_2cells_iscontr disp_bicat_finlim_subobject_classifier.
+Proof.
+  apply disp_2cells_iscontr_subbicat.
+Defined.
+
+Definition is_univalent_2_1_bicat_of_univ_cat_with_finlim_subobject_classifier
+  : is_univalent_2_1 bicat_of_univ_cat_with_finlim_subobject_classifier.
+Proof.
+  use total_is_univalent_2_1.
+  - exact is_univalent_2_1_bicat_of_univ_cat_with_finlim.
+  - exact disp_univalent_2_1_disp_bicat_finlim_subobject_classifier.
+Defined.
+
+Definition is_univalent_2_0_bicat_of_univ_cat_with_finlim_subobject_classifier
+  : is_univalent_2_0 bicat_of_univ_cat_with_finlim_subobject_classifier.
+Proof.
+  use total_is_univalent_2_0.
+  - exact is_univalent_2_0_bicat_of_univ_cat_with_finlim.
+  - exact disp_univalent_2_0_disp_bicat_finlim_subobject_classifier.
+Defined.
+
+Definition is_univalent_2_bicat_of_univ_cat_with_finlim_subobject_classifier
+  : is_univalent_2 bicat_of_univ_cat_with_finlim_subobject_classifier.
+Proof.
+  split.
+  - exact is_univalent_2_0_bicat_of_univ_cat_with_finlim_subobject_classifier.
+  - exact is_univalent_2_1_bicat_of_univ_cat_with_finlim_subobject_classifier.
+Defined.
+
+Definition univ_cat_with_finlim_subobject_classifier
+  : UU
+  := bicat_of_univ_cat_with_finlim_subobject_classifier.
+
+Definition make_univ_cat_with_finlim_subobject_classifier
+           (C : univ_cat_with_finlim)
+           (Ω : subobject_classifier (terminal_univ_cat_with_finlim C))
+  : univ_cat_with_finlim_subobject_classifier
+  := C ,, (Ω ,, tt).
+
+Coercion univ_cat_with_finlim_subobject_classifier_to_finlim
+         (C : univ_cat_with_finlim_subobject_classifier)
+  : univ_cat_with_finlim
+  := pr1 C.
+
+Definition subobject_classifier_of_cat
+           (C : univ_cat_with_finlim_subobject_classifier)
+  : subobject_classifier (terminal_univ_cat_with_finlim C)
+  := pr12 C.
+
+Definition functor_finlim_subobject_classifier
+           (C₁ C₂ : univ_cat_with_finlim_subobject_classifier)
+  : UU
+  := C₁ --> C₂.
+
+Definition make_functor_finlim_subobject_classifier
+           {C₁ C₂ : univ_cat_with_finlim_subobject_classifier}
+           (F : functor_finlim C₁ C₂)
+           (HF : preserves_subobject_classifier
+                   F
+                   (terminal_univ_cat_with_finlim C₁)
+                   (terminal_univ_cat_with_finlim C₂)
+                   (functor_finlim_preserves_terminal F))
+  : functor_finlim_subobject_classifier C₁ C₂
+  := F ,, (tt ,, HF).
+
+Coercion functor_finlim_of_functor_finlim_subobject_classifier
+         {C₁ C₂ : univ_cat_with_finlim_subobject_classifier}
+         (F : functor_finlim_subobject_classifier C₁ C₂)
+  : functor_finlim C₁ C₂
+  := pr1 F.
+
+Definition functor_finlim_preserves_subobject_classifier
+           {C₁ C₂ : univ_cat_with_finlim_subobject_classifier}
+           (F : functor_finlim_subobject_classifier C₁ C₂)
+  : preserves_subobject_classifier
+      F
+      (terminal_univ_cat_with_finlim C₁)
+      (terminal_univ_cat_with_finlim C₂)
+      (functor_finlim_preserves_terminal F)
+  := pr22 F.
+
+Definition nat_trans_finlim_subobject_classifier
+           {C₁ C₂ : univ_cat_with_finlim_subobject_classifier}
+           (F G : functor_finlim_subobject_classifier C₁ C₂)
+  : UU
+  := F ==> G.
+
+Definition make_nat_trans_finlim_subobject_classifier
+           {C₁ C₂ : univ_cat_with_finlim_subobject_classifier}
+           {F G : functor_finlim_subobject_classifier C₁ C₂}
+           (τ : nat_trans_finlim F G)
+  : nat_trans_finlim_subobject_classifier F G
+  := τ ,, (tt ,, tt).
+
+Coercion nat_trans_finlim_of_subobject_classifier
+         {C₁ C₂ : univ_cat_with_finlim_subobject_classifier}
+         {F G : functor_finlim_subobject_classifier C₁ C₂}
+         (τ : nat_trans_finlim_subobject_classifier F G)
+  : nat_trans_finlim F G
+  := pr1 τ.
+
+Proposition nat_trans_finlim_subobject_classifier_eq
+            {C₁ C₂ : univ_cat_with_finlim_subobject_classifier}
+            {F G : functor_finlim_subobject_classifier C₁ C₂}
+            {τ₁ τ₂ : nat_trans_finlim_subobject_classifier F G}
+            (p : ∏ (x : C₁), τ₁ x = τ₂ x)
+  : τ₁ = τ₂.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    use isapropdirprod ; exact isapropunit.
+  }
+  use nat_trans_finlim_eq.
+  exact p.
+Qed.
+
+Definition is_invertible_2cell_cat_with_finlim_subobject_classifier
+           {C₁ C₂ : univ_cat_with_finlim_subobject_classifier}
+           {F G : functor_finlim_subobject_classifier C₁ C₂}
+           (τ : nat_trans_finlim_subobject_classifier F G)
+           (Hτ : is_nat_z_iso τ)
+  : is_invertible_2cell τ.
+Proof.
+  pose (τiso := (pr11 τ ,, Hτ) : nat_z_iso F G).
+  use make_is_invertible_2cell.
+  - use make_nat_trans_finlim_subobject_classifier.
+    use make_nat_trans_finlim.
+    exact (nat_z_iso_inv τiso).
+  - abstract
+      (use nat_trans_finlim_subobject_classifier_eq ;
+       intro x ;
+       apply (z_iso_inv_after_z_iso (_ ,, Hτ x))).
+  - abstract
+      (use nat_trans_finlim_subobject_classifier_eq ;
+       intro x ;
+       apply (z_iso_after_z_iso_inv (_ ,, Hτ x))).
+Defined.
+
+Definition adj_equiv_preserves_subobject_classifier
+           {C₁ C₂ : univ_cat_with_finlim}
+           (Ω₁ : subobject_classifier (terminal_univ_cat_with_finlim C₁))
+           (Ω₂ : subobject_classifier (terminal_univ_cat_with_finlim C₂))
+           (F : adjoint_equivalence C₁ C₂)
+  : preserves_subobject_classifier
+      (pr1 F : functor_finlim C₁ C₂)
+      (terminal_univ_cat_with_finlim C₁)
+      (terminal_univ_cat_with_finlim C₂)
+      (functor_finlim_preserves_terminal (pr1 F)).
+Proof.
+  revert C₁ C₂ F Ω₁ Ω₂.
+  use J_2_0.
+  {
+    exact is_univalent_2_0_bicat_of_univ_cat_with_finlim.
+  }
+  intros C Ω₁ Ω₂.
+  apply identity_preserves_subobject_classifier.
+Qed.
+
+Definition disp_adjoint_equiv_disp_bicat_of_univ_cat_subobject_classifier
+           {C₁ C₂ : bicat_of_univ_cat_with_finlim}
+           (F : C₁ --> C₂)
+           (HF : left_adjoint_equivalence F)
+           {T₁ : disp_bicat_finlim_subobject_classifier C₁}
+           {T₂ : disp_bicat_finlim_subobject_classifier C₂}
+           (FF : T₁ -->[ F ] T₂)
+  : disp_left_adjoint_equivalence HF FF.
+Proof.
+  use disp_left_adjoint_equivalence_subbicat_alt.
+  exact is_univalent_2_bicat_of_univ_cat_with_finlim.
+Qed.
+
+Definition left_adjoint_equivalence_univ_cat_with_finlim_subobject_classifier
+           {C₁ C₂ : univ_cat_with_finlim_subobject_classifier}
+           (F : functor_finlim_subobject_classifier C₁ C₂)
+           (HF : adj_equivalence_of_cats F)
+  : left_adjoint_equivalence F.
+Proof.
+  use left_adjoint_equivalence_subbicat.
+  - clear C₁ C₂ F HF.
+    intros C₁ C₂ Ω₁ Ω₂ F HF.
+    exact (adj_equiv_preserves_subobject_classifier Ω₁ Ω₂ (F ,, HF)).
+  - use left_adjoint_equivalence_univ_cat_with_finlim.
+    exact HF.
 Defined.

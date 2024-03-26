@@ -11,9 +11,8 @@
         induced by a subobject classifier
 *)
 
-Require Import UniMath.Foundations.PartA.
-Require Import UniMath.Foundations.PartB.
-Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
@@ -35,11 +34,59 @@ Require Import UniMath.CategoryTheory.Subcategory.Core.
 Local Open Scope cat.
 
 (** ** Definition *)
+Definition is_subobject_classifier
+           {C : category}
+           (T : Terminal C)
+           (Ω : C)
+           (true : T --> Ω)
+  : UU
+  := ∏ (x y : C)
+       (m : Monic _ x y),
+     ∃! (χ : y --> Ω),
+     ∑ (H : m · χ = TerminalArrow _ _ · true),
+     isPullback H.
+
+Proposition isaprop_is_subobject_classifier_arr
+            {C : category}
+            (T : Terminal C)
+            (Ω : C)
+            (true : T --> Ω)
+            (x y : C)
+            (m : Monic _ x y)
+            (χ : y --> Ω)
+  : isaprop
+      (∑ (H : m · χ = TerminalArrow _ _ · true),
+       isPullback H).
+Proof.
+  use isaproptotal2.
+  - intro.
+    apply isaprop_isPullback.
+  - intros.
+    apply homset_property.
+Qed.
+
+Proposition isaprop_is_subobject_classifier
+            {C : category}
+            (T : Terminal C)
+            (Ω : C)
+            (true : T --> Ω)
+  : isaprop (is_subobject_classifier T Ω true).
+Proof.
+  do 3 (use impred ; intro).
+  apply isapropiscontr.
+Qed.
 
 Definition subobject_classifier {C : category} (T : Terminal C) : UU :=
-  ∑ (O : ob C) (true : C⟦T, O⟧), ∏ (X Y : ob C) (m : Monic _ X Y),
-    ∃! chi : C⟦Y, O⟧,
-      ∑ (H : m · chi = TerminalArrow _ _ · true), isPullback H.
+  ∑ (O : ob C) (true : C⟦T, O⟧), is_subobject_classifier T O true.
+
+Definition make_subobject_classifier_cat
+          {C : category}
+          (T : Terminal C)
+          (Ω : C)
+          (t : T --> Ω)
+          (H : is_subobject_classifier T Ω t)
+  : subobject_classifier T
+  := Ω ,, t ,, H.
 
 Definition make_subobject_classifier {C : category} {T : Terminal C}
            (O : ob C) (true : C⟦T, O⟧) :
@@ -108,10 +155,86 @@ End Accessors.
 Coercion subobject_classifier_object : subobject_classifier >-> ob.
 Coercion true : subobject_classifier >-> Monic.
 
+Proposition characteristic_morphism_true
+            {C : category}
+            {T : Terminal C}
+            (Ω : subobject_classifier T)
+  : characteristic_morphism Ω (true Ω) = identity _.
+Proof.
+  refine (!_).
+  use (maponpaths
+         pr1
+         (pr2 (subobject_classifier_universal_property Ω (true Ω)) (_ ,, _ ,, _))).
+  - abstract
+      (refine (id_right _ @ !(id_left _) @ _) ;
+       unfold true' ; cbn ;
+       apply maponpaths_2 ;
+       apply TerminalArrowEq).
+  - use identity_isPullback.
+    + apply idpath.
+    + apply TerminalArrowEq.
+    + apply idpath.
+Qed.
+
 (** The arrow Goldblatt calls [true! := (! : X -> T) · true] *)
 Definition const_true {C : category} {T : Terminal C} (X : ob C)
            (O : subobject_classifier T) : X --> subobject_classifier_object O :=
   TerminalArrow T X · true O.
+
+Definition subobject_classifier_map_eq
+           {C : category}
+           {T : Terminal C}
+           (Ω : subobject_classifier T)
+           {x y : C}
+           (m : Monic C x y)
+           {χ₁ χ₂ : y --> Ω}
+           (p₁ : m · χ₁ = const_true x Ω)
+           (p₂ : m · χ₂ = const_true x Ω)
+           (H₁ : isPullback p₁)
+           (H₂ : isPullback p₂)
+  : χ₁ = χ₂.
+Proof.
+  exact (maponpaths
+           (λ z, pr1 z)
+           (proofirrelevance
+              _
+              (isapropifcontr (subobject_classifier_universal_property Ω m))
+              (χ₁ ,, p₁ ,, H₁)
+              (χ₂ ,, p₂ ,, H₂))).
+Qed.
+
+Proposition is_subobject_classifier_eq_ar
+            {C : category}
+            {T : Terminal C}
+            {O : C}
+            {t t' : T --> O}
+            (p : t = t')
+            (H : is_subobject_classifier T O t)
+  : is_subobject_classifier T O t'.
+Proof.
+  pose (Ω := (O ,, t ,, H) : subobject_classifier T).
+  intros x y m.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros χ₁ χ₂ ;
+       use subtypePath ; [ intro ; apply isaprop_is_subobject_classifier_arr | ] ;
+       induction p ;
+       exact (subobject_classifier_map_eq Ω m (pr12 χ₁) (pr12 χ₂) (pr22 χ₁) (pr22 χ₂))).
+  - simple refine (_ ,, _ ,, _).
+    + exact (characteristic_morphism Ω m).
+    + abstract
+        (rewrite <- p ;
+         exact (subobject_classifier_square_commutes Ω m)).
+    + cbn.
+      use (isPullback_mor_paths
+             _ _ _ _ _ _
+             (isPullback_Pullback (subobject_classifier_pullback Ω m))).
+      * apply idpath.
+      * exact p.
+      * apply idpath.
+      * apply idpath.
+Defined.
 
 (*A category with subobjectclassifier is balanced: if a morphism is mono and epi then it is iso*)
 Section balanced.
