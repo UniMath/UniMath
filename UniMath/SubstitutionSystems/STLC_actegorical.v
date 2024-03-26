@@ -780,7 +780,7 @@ Definition lam_map_coind (s t : sort) : sortToSet2⟦lam_source_coind s t,STLC_c
 (** the initial algebra *)
 Definition STLC_ind_IA : Initial (FunctorAlg STLC_Functor_Id_H)
   := DatatypeOfMultisortedBindingSig_CAT sort Hsort SET TerminalHSET InitialHSET BinProductsHSET
-       BinCoproductsHSET ProductsHSET CoproductsHSET (expSortToHSET1 sort Hsort)
+       BinCoproductsHSET (fun s s' => ProductsHSET (s=s')) CoproductsHSET (EsortToSet2 sort Hsort)
        (ColimsHSET_of_shape nat_graph) STLC_Sig.
 (** notice that this is only the initial algebra and not the initial sigma monoid *)
 

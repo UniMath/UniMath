@@ -63,7 +63,8 @@ Context (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
 (* Note that there is some redundancy in the assumptions *)
 Context (TC : Terminal C) (IC : Initial C)
         (BP : BinProducts C) (BC : BinCoproducts C)
-        (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
+        (* (PC : forall (I : UU), Products I C) *) (eqsetPC : forall (s s' : sort), Products (s=s') C)
+        (CC : forall (I : UU), isaset I → Coproducts I C).
 
 Local Notation "'1'" := (TerminalObject TC).
 Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
@@ -91,9 +92,9 @@ Proof.
 Qed. (* slow *)
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
-Context (expSortToCC : Exponentials BPsortToCC)
+Context (EsortToCC : Exponentials BPsortToCC)
         (HC : Colims_of_shape nat_graph C).
-(* The expSortToCC assumption says that [sortToC,C] has exponentials. It
+(* The EsortToCC assumption says that [sortToC,C] has exponentials. It
    could be reduced to exponentials in C, but we only have the case
    for C = Set formalized in
 
@@ -126,7 +127,10 @@ Proof.
 apply SignatureToHSS.
 + apply Initial_functor_precat, IC.
 + apply ColimsFunctorCategory_of_shape, HC.
-+ apply is_omega_cocont_MultiSortedSigToSignature; try assumption.
++ apply is_omega_cocont_MultiSortedSigToSignature.
+  - exact eqsetPC.
+  - exact EsortToCC.
+  - exact HC.
 Defined.
 
 (* The above HSS is initial *)
@@ -183,7 +187,7 @@ use MultiSortedSigToMonad.
 - apply InitialHSET.
 - apply BinProductsHSET.
 - apply BinCoproductsHSET.
-- apply ProductsHSET.
+- intros. apply ProductsHSET.
 - apply CoproductsHSET.
 - apply Exponentials_functor_HSET.
 - apply ColimsHSET_of_shape.

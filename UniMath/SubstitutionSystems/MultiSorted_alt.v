@@ -82,7 +82,8 @@ Context (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
 (* Note that there is some redundancy in the assumptions *)
 Context (TC : Terminal C) (IC : Initial C)
         (BP : BinProducts C) (BC : BinCoproducts C)
-        (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
+        (* (PC : forall (I : UU), Products I C) *) (eqsetPC : forall (s s' : sort), Products (s=s') C)
+        (CC : forall (I : UU), isaset I → Coproducts I C).
 
 Local Notation "'1'" := (TerminalObject TC).
 Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
@@ -110,6 +111,14 @@ Proof.
   apply idpath.
 Qed.
 
+Let make_sortToC_mor (ξ ξ' : sortToC) (fam : ∏ s: sort, pr1 ξ s --> pr1 ξ' s) : sortToC⟦ξ,ξ'⟧
+    := nat_trans_functor_path_pregroupoid fam.
+
+Goal make_sortToC_mor = SortIndexing.make_sortToC_mor sort Hsort C.
+Proof.
+  apply idpath.
+Qed.
+
 Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
 
 Goal BCsortToC = SortIndexing.BCsortToC sort Hsort _ BC.
@@ -125,9 +134,9 @@ Proof.
 Qed. (* slow *)
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
-Context (expSortToCC : Exponentials BPsortToCC)
+Context (EsortToCC : Exponentials BPsortToCC)
         (HC : Colims_of_shape nat_graph C).
-(* The expSortToCC assumption says that [sortToC,C] has exponentials. It
+(* The EsortToCC assumption says that [sortToC,C] has exponentials. It
    could be reduced to exponentials in C, but we only have the case
    for C = Set formalized in
 
@@ -140,10 +149,20 @@ Proof.
   apply Coproducts_functor_precat, CC, setproperty.
 Defined.
 
+Goal CoproductsMultiSortedSig_base = fun M => SortIndexing.CCsortToC sort Hsort C CC _ (setproperty (ops sort M)).
+Proof.
+  apply idpath.
+Qed. (* slow *)
+
 Definition CoproductsMultiSortedSig (M : MultiSortedSig sort) : Coproducts (ops _ M) [sortToC, sortToC].
 Proof.
   apply Coproducts_functor_precat, CoproductsMultiSortedSig_base.
 Defined.
+
+Goal CoproductsMultiSortedSig = fun M => SortIndexing.CCsortToC2 sort Hsort C CC _ (setproperty (ops sort M)).
+Proof.
+  apply idpath.
+Qed. (* slow *)
 
 
 (** * Construction of an endofunctor on [C^sort,C^sort] from a multisorted signature *)
@@ -165,11 +184,11 @@ Proof.
   use make_functor.
   - use make_functor_data.
     + intro ξ.
-      apply (functor_path_pregroupoid Hsort).
+      apply make_sortToC.
       intro s.
       exact (pr1 ξ (f s)).
     + intros ξ ξ' h.
-      apply nat_trans_functor_path_pregroupoid.
+      apply make_sortToC_mor.
       intro s.
       exact (pr1 h (f s)).
   - abstract (split; red; intros; apply nat_trans_eq; try (apply C);
@@ -388,7 +407,7 @@ use make_functor.
 + use make_functor_data.
   - intros A.
     use make_sortToC; intros s.
-    exact (ProductObject (t = s) C (PC _ (λ _, A))).
+    exact (ProductObject (t = s) C (eqsetPC _ _ (λ _, A))).
   - intros a b f.
     apply (nat_trans_functor_path_pregroupoid); intros s.
     apply ProductOfArrows; intros p; apply f.
@@ -412,14 +431,14 @@ use make_are_adjoints.
   + abstract (intros A B F; apply nat_trans_eq_alt; intros t; cbn;
     rewrite precompWithProductArrow, postcompWithProductArrow;
     apply ProductArrowUnique; intros []; cbn;
-    now rewrite (ProductPrCommutes _ _ _ (PC _ (λ _, pr1 B s))), id_left, id_right).
+    now rewrite (ProductPrCommutes _ _ _ (eqsetPC _ _ (λ _, pr1 B s))), id_left, id_right).
 - use make_nat_trans.
   + intros A.
-    exact (ProductPr _ _ (PC _ (λ _, A)) (idpath _)).
-  + abstract (now intros a b f; cbn; rewrite (ProductOfArrowsPr _ _ (PC _ (λ _, b)))).
+    exact (ProductPr _ _ (eqsetPC _  _ (λ _, A)) (idpath _)).
+  + abstract (now intros a b f; cbn; rewrite (ProductOfArrowsPr _ _ (eqsetPC _  _ (λ _, b)))).
 - use make_form_adjunction.
   + intros A; cbn.
-    now rewrite (ProductPrCommutes _ _ _ (PC _ (λ _, pr1 A s))).
+    now rewrite (ProductPrCommutes _ _ _ (eqsetPC _  _ (λ _, pr1 A s))).
   + intros c; apply nat_trans_eq_alt; intros t; cbn.
     rewrite postcompWithProductArrow.
     apply pathsinv0, ProductArrowUnique; intros [].
@@ -459,7 +478,7 @@ induction xs as [[|n] xs].
     apply is_omega_cocont_BinProduct_of_functors.
     * apply BinProducts_functor_precat, BinProducts_functor_precat, BP.
     * apply is_omega_cocont_constprod_functor1.
-      apply expSortToCC.
+      apply EsortToCC.
     * apply is_omega_cocont_exp_functor.
     * apply (IHn (k,,xs)).
 Defined.

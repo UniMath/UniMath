@@ -66,7 +66,7 @@ Section A.
   Local Definition STLC_Sig := STLC_Sig sort arr.
 
   Context (C : category) (BP : BinProducts C) (BC : BinCoproducts C)
-                         (TerminalC : Terminal C) (CoproductsC : ∏ I : UU, isaset I → Coproducts I C).
+                         (TC : Terminal C) (CC : ∏ I : UU, isaset I → Coproducts I C).
 
   Let sortToC : category := [path_pregroupoid sort Hsort, C].
 
@@ -110,7 +110,7 @@ Section A.
     apply idpath.
   Qed. (* slow *)
 
-  Let terminal_sortToC : Terminal sortToC := Terminal_functor_precat _ _  TerminalC.
+  Let TsortToC : Terminal sortToC := Terminal_functor_precat _ _  TC.
 
   Local Definition BPsortToCC : BinProducts [sortToC,C].
   Proof.
@@ -122,10 +122,15 @@ Section A.
     apply idpath.
   Qed. (* slow *)
 
-  Local Definition CoproductsSortToC : ∏ I : UU, isaset I → Coproducts I sortToC.
+  Local Definition CCsortToC : ∏ I : UU, isaset I → Coproducts I sortToC.
   Proof.
-    intros I isaset. apply Coproducts_functor_precat. exact (CoproductsC _ isaset).
+    intros I isaset. apply Coproducts_functor_precat. exact (CC _ isaset).
   Defined.
+
+  Goal CCsortToC = SortIndexing.CCsortToC sort Hsort _ CC.
+  Proof.
+    apply idpath.
+  Qed. (* slow *)
 
 (** Some notations *)
 (* Local Infix "::" := (@cons _).
@@ -139,6 +144,11 @@ Local Notation "F ⊗ G" := (BinProduct_of_functors BPsortToCC F G).
 
 Let sortToC2 : category := [sortToC,sortToC].
 
+Goal sortToC2 = SortIndexing.sortToC2 sort Hsort C.
+Proof.
+  apply idpath.
+Qed.
+
 (*
 Local Lemma sortToC2_comp {F1 F2 F3 : sortToC2} (f : sortToC2⟦F1, F2⟧) (g : sortToC2⟦F2, F3⟧) (ξ : sortToC) :
   pr1 (f · g) ξ = pr1 f ξ · pr1 g ξ.
@@ -149,38 +159,68 @@ Qed.
 
 (*
 Local Lemma coproduct_of_functors_sortToC2_mor (I : UU) (isaset : isaset I) (F : I → sortToC2) (ξ ξ' : sortToC) (f : sortToC ⟦ ξ, ξ' ⟧) (s : sort) :
-  pr1 (# (coproduct_of_functors I sortToC sortToC (CoproductsSortToC _ isaset) F) f) s = CoproductOfArrows _ _ _ _ (λ i, pr1 (# (pr1 (F i)) f) s).
+  pr1 (# (coproduct_of_functors I sortToC sortToC (CCsortToC _ isaset) F) f) s = CoproductOfArrows _ _ _ _ (λ i, pr1 (# (pr1 (F i)) f) s).
 Proof.
   apply idpath.
 Qed.
 *)
 
-Let terminal_sortToC2 : Terminal sortToC2 := Terminal_functor_precat sortToC sortToC terminal_sortToC.
+Let TsortToC2 : Terminal sortToC2 := Terminal_functor_precat sortToC sortToC TsortToC.
 
-Local Definition BinProducts_sortToC2 : BinProducts sortToC2.
+Goal TsortToC2 = SortIndexing.TsortToC2 sort Hsort _ TC.
+Proof.
+  apply idpath.
+Qed. (* slow *)
+
+Local Definition BPsortToC2 : BinProducts sortToC2.
 Proof.
   apply BinProducts_functor_precat, BPsortToC.
 Defined.
 
-Local Definition BinCoproducts_sortToC2 : BinCoproducts sortToC2.
+Goal BPsortToC2 = SortIndexing.BPsortToC2 sort Hsort _ BP.
+Proof.
+  apply idpath.
+Qed. (* slow *)
+
+Local Definition BCsortToC2 : BinCoproducts sortToC2.
 Proof.
   apply BinCoproducts_functor_precat, BCsortToC.
 Defined.
 
-Local Definition CoproductsSortToC2 : ∏ I : UU, isaset I → Coproducts I sortToC2.
+Goal BCsortToC2 = SortIndexing.BCsortToC2 sort Hsort _ BC.
 Proof.
-  intros I isaset. apply Coproducts_functor_precat. exact (CoproductsSortToC _ isaset).
+  apply idpath.
+Qed. (* slow *)
+
+Local Definition CCsortToC2 : ∏ I : UU, isaset I → Coproducts I sortToC2.
+Proof.
+  intros I isaset. apply Coproducts_functor_precat. exact (CCsortToC _ isaset).
 Defined.
 
+Goal CCsortToC2 = SortIndexing.CCsortToC2 sort Hsort _ CC.
+Proof.
+  apply idpath.
+Qed. (* slow *)
+
 Let sortToC3 : category := [sortToC2,sortToC2].
-Local Lemma coproduct_of_functors_sortToC3_mor (I : UU) (isaset : isaset I) (F : I → sortToC3) (G G' : sortToC2) (α : sortToC2 ⟦ G, G' ⟧) (ξ : sortToC) (s : sort) :
-  pr1 (pr1 (# (coproduct_of_functors I sortToC2 sortToC2 (CoproductsSortToC2 _ isaset) F) α) ξ) s = CoproductOfArrows _ _ _ _ (λ i, pr1 (pr1 (# (pr1 (F i)) α) ξ) s).
+
+Goal sortToC3 = SortIndexing.sortToC3 sort Hsort C.
+Proof.
+  apply idpath.
+Qed. (* slow *)
+
+Local Lemma coproduct_of_functors_sortToC3_mor (I : UU) (isa : isaset I) (F : I → sortToC3) (G G' : sortToC2) (α : sortToC2 ⟦ G, G' ⟧) (ξ : sortToC) (s : sort) :
+  pr1 (pr1 (# (coproduct_of_functors I sortToC2 sortToC2 (CCsortToC2 _ isa) F) α) ξ) s = CoproductOfArrows _ _ _ _ (λ i, pr1 (pr1 (# (pr1 (F i)) α) ξ) s).
 Proof.
   apply idpath.
 Qed.
 
+Goal coproduct_of_functors_sortToC3_mor = SortIndexing.coproduct_of_functors_sortToC3_mor sort Hsort C CC.
+Proof.
+Abort. (* no proof is possible since the proofs are opaque - but we checked the statements *)
+
 Lemma postcomp_with_projSortToC_on_mor (F : sortToC2) (s: sort) (ξ ξ' : sortToC) (f : sortToC ⟦ ξ, ξ' ⟧)
-(* (arg : global_element TerminalC (pr1 (functor_compose F (projSortToC sort Hsort C s)) ξ)) *)
+(* (arg : global_element TC (pr1 (functor_compose F (projSortToC sort Hsort C s)) ξ)) *)
   : # (pr1 (functor_compose F (projSortToC sort Hsort C s))) f  = pr1 (# (pr1 F) f) s.
 Proof.
   apply idpath.
@@ -190,7 +230,7 @@ Qed.
 (** the canonical functor associated with STLC_Sig *)
 Definition STLC_Functor_H : functor sortToC2 sortToC2 :=
   MultiSorted_actegorical.MultiSortedSigToFunctor' sort Hsort C
-    TerminalC BP BC CoproductsC STLC_Sig.
+    TC BP BC CC STLC_Sig.
 
 (** the functor of which the fixed points are considered *)
 Definition STLC_Functor_Id_H : functor sortToC2 sortToC2 :=
@@ -198,27 +238,28 @@ Definition STLC_Functor_Id_H : functor sortToC2 sortToC2 :=
 
 (** the canonical strength associated with STLC_Sig *)
 Let θSTLC := MultiSortedMonadConstruction_actegorical.MultiSortedSigToStrength' sort Hsort C
-               TerminalC BP BC CoproductsC STLC_Sig.
+               TC BP BC CC STLC_Sig.
 
 Definition ctx_ext (ξ : sortToC) (s : sort) : sortToC
-  := pr1 (sorted_option_functor sort Hsort C TerminalC BC CoproductsC s) ξ.
-(*  := pr1 (option_list sort Hsort C TerminalC BC CoproductsC (s :: [])) ξ. *)
+  := pr1 (sorted_option_functor sort Hsort C TC BC CC s) ξ.
+(*  := pr1 (option_list sort Hsort C TC BC CC (s :: [])) ξ. *)
 
 (** the sigma-monoids for wellfounded and non-wellfounded syntax for STLC *)
-Context (InitialC : Initial C) (ProductsC : ∏ I : UU, Products.Products I C)
-  (expSortToC1 : exponentials.Exponentials BinProducts_sortToC2)
+Context (IC : Initial C)
+  (* (ProductsC : ∏ I : UU, Products.Products I C) *) (eqsetPC : forall (s s' : sort), Products.Products (s=s') C)
+  (EsortToC2 : exponentials.Exponentials BPsortToC2)
   (ColimsC_of_shape_nat_graph : Colimits.Colims_of_shape nat_graph C).
 
-Let σind : SigmaMonoid θSTLC := pr1 (InitialSigmaMonoidOfMultiSortedSig_CAT sort Hsort C TerminalC InitialC BP BC ProductsC CoproductsC expSortToC1 ColimsC_of_shape_nat_graph STLC_Sig).
+Let σind : SigmaMonoid θSTLC := pr1 (InitialSigmaMonoidOfMultiSortedSig_CAT sort Hsort C TC IC BP BC eqsetPC CC EsortToC2 ColimsC_of_shape_nat_graph STLC_Sig).
 
 Context (LimsC_of_shape_conat_graph : Graphs.Limits.Lims_of_shape conat_graph C)
     (I_coproduct_distribute_over_omega_limits_C : ∏ I : SET,
           CommutingOfOmegaLimitsAndCoproducts.ω_limits_distribute_over_I_coproducts C I
-            LimsC_of_shape_conat_graph (CoproductsC (pr1 I) (pr2 I)))
+            LimsC_of_shape_conat_graph (CC (pr1 I) (pr2 I)))
     (is_univalent_C : is_univalent C). (** univalence is there to shorten one argument in the construction of the following *)
 
-Let σcoind : SigmaMonoid θSTLC := coindSigmaMonoidOfMultiSortedSig_CAT sort Hsort C TerminalC
-         BP BC CoproductsC LimsC_of_shape_conat_graph
+Let σcoind : SigmaMonoid θSTLC := coindSigmaMonoidOfMultiSortedSig_CAT sort Hsort C TC
+         BP BC CC LimsC_of_shape_conat_graph
          I_coproduct_distribute_over_omega_limits_C STLC_Sig is_univalent_C.
 
 Section IndAndCoind.
@@ -261,18 +302,18 @@ Section IndAndCoind.
 
   Definition app_source_gen_oldstyle_abstracted (s t : sort) : functor sortToC2 sortToC2 :=
     (post_comp_functor (projSortToC sort Hsort C (s ⇒ t)) ⊗ post_comp_functor (projSortToC sort Hsort C s))
-      ∙ (post_comp_functor (hat_functor sort Hsort C CoproductsC t)).
+      ∙ (post_comp_functor (hat_functor sort Hsort C CC t)).
 
   Definition app_source_gen_newstyle (s t : sort) : sortToC2 :=
     BinProduct_of_functors BPsortToC
       (functor_compose STLC_gen
-         (projSortToC sort Hsort C (s ⇒ t) ∙ hat_functor sort Hsort C CoproductsC t))
+         (projSortToC sort Hsort C (s ⇒ t) ∙ hat_functor sort Hsort C CC t))
       (functor_compose STLC_gen
-         (projSortToC sort Hsort C s ∙ hat_functor sort Hsort C CoproductsC t)).
+         (projSortToC sort Hsort C s ∙ hat_functor sort Hsort C CC t)).
 
   Definition app_source_gen (s t : sort) : sortToC2 :=
-    ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort C TerminalC
-      BP BC CoproductsC (arity sort STLC_Sig (inl (s,, t))) STLC_gen.
+    ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort C TC
+      BP BC CC (arity sort STLC_Sig (inl (s,, t))) STLC_gen.
 
   Lemma app_source_gen_ok (s t : sort) : app_source_gen s t  = app_source_gen_newstyle s t.
   Proof.
@@ -284,9 +325,9 @@ Section IndAndCoind.
   Proof.
     refine (pr1 (# (pr1 (app_source_gen s t)) f) u =  BinProductOfArrows C (BP _ _) (BP _ _)  _ _).
     - exact (pr1 (# (pr1 (functor_compose STLC_gen
-                            (projSortToC sort Hsort C (s ⇒ t) ∙ hat_functor sort Hsort C CoproductsC t))) f) u).
+                            (projSortToC sort Hsort C (s ⇒ t) ∙ hat_functor sort Hsort C CC t))) f) u).
     - exact (pr1 (# (pr1 (functor_compose STLC_gen
-                            (projSortToC sort Hsort C s ∙ hat_functor sort Hsort C CoproductsC t))) f) u).
+                            (projSortToC sort Hsort C s ∙ hat_functor sort Hsort C CC t))) f) u).
   Defined.
 
   Lemma app_source_gen_mor_eq (s t : sort) {ξ ξ' : sortToC} (f : sortToC ⟦ ξ, ξ' ⟧) (u : sort)
@@ -312,20 +353,20 @@ Section IndAndCoind.
 
 
   Definition lam_source_gen_oldstyle_abstracted (s t : sort) : functor sortToC2 sortToC2 :=
-    pre_comp_functor (sorted_option_functor sort Hsort C TerminalC BC CoproductsC s)
+    pre_comp_functor (sorted_option_functor sort Hsort C TC BC CC s)
       ∙ post_comp_functor (projSortToC sort Hsort C t)
-      ∙ post_comp_functor (hat_functor sort Hsort C CoproductsC (s ⇒ t)).
+      ∙ post_comp_functor (hat_functor sort Hsort C CC (s ⇒ t)).
 
   Definition lam_source_gen_newstyle (s t : sort) : sortToC2 :=
     functor_compose
       (functor_compose
-         (sorted_option_functor sort Hsort C TerminalC BC CoproductsC s)
+         (sorted_option_functor sort Hsort C TC BC CC s)
          STLC_gen)
-      (projSortToC sort Hsort C t ∙ hat_functor sort Hsort C CoproductsC (s ⇒ t)).
+      (projSortToC sort Hsort C t ∙ hat_functor sort Hsort C CC (s ⇒ t)).
 
   Definition lam_source_gen (s t : sort) : sortToC2 :=
-    ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort C TerminalC
-      BP BC CoproductsC (arity sort STLC_Sig (inr (s,, t))) STLC_gen.
+    ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort C TC
+      BP BC CC (arity sort STLC_Sig (inr (s,, t))) STLC_gen.
 
   Lemma lam_source_gen_ok (s t : sort) : lam_source_gen s t  = lam_source_gen_newstyle s t.
   Proof.
@@ -336,9 +377,9 @@ Section IndAndCoind.
     : pr1 (# (pr1 (lam_source_gen s t)) f) u =
         pr1 (# (pr1 (functor_compose
       (functor_compose
-         (sorted_option_functor sort Hsort C TerminalC BC CoproductsC s)
+         (sorted_option_functor sort Hsort C TC BC CC s)
          STLC_gen)
-      (projSortToC sort Hsort C t ∙ hat_functor sort Hsort C CoproductsC (s ⇒ t)))) f) u.
+      (projSortToC sort Hsort C t ∙ hat_functor sort Hsort C CC (s ⇒ t)))) f) u.
   Proof.
     apply idpath.
   Qed.
@@ -363,16 +404,16 @@ Section IndAndCoind.
     (** fix a sort, viewed as an atom *)
     Context (s : sort).
 
-    Definition ChurchZero_gen (ξ : sortToC) : global_element TerminalC (STLC_gen_ctx_sort ξ ((s ⇒ s) ⇒ (s ⇒ s))).
+    Definition ChurchZero_gen (ξ : sortToC) : global_element TC (STLC_gen_ctx_sort ξ ((s ⇒ s) ⇒ (s ⇒ s))).
     Proof.
       (** abstract a first variable - forced to be of type [s ⇒ s] *)
       refine (_ · pr1 (pr1 (lam_map_gen _ _) _) _).
       refine (_ · CoproductIn _ _ _ (idpath _)).
-      change (global_element TerminalC (STLC_gen_ctx_sort (ctx_ext ξ (s ⇒ s)) (s ⇒ s))).
+      change (global_element TC (STLC_gen_ctx_sort (ctx_ext ξ (s ⇒ s)) (s ⇒ s))).
       (** abstract a second variable - forced to be of type [s] *)
       refine (_ · pr1 (pr1 (lam_map_gen _ _) _) _).
       refine (_ · CoproductIn _ _ _ (idpath _)).
-      change (global_element TerminalC (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s)).
+      change (global_element TC (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s)).
       (** take a variable *)
       simple refine (_ · pr1 (pr1 STLC_eta_gen _) _).
       (* unfold functor_identity, functor_identity_data, functor_data_constr, functor_data_from_functor, functor_on_objects, pr1. *)
@@ -382,7 +423,7 @@ Section IndAndCoind.
       exact (CoproductIn _ _ _ (idpath _)).
     Defined.
 
-    Definition ChurchOne_gen (ξ : sortToC) : global_element TerminalC (STLC_gen_ctx_sort ξ ((s ⇒ s) ⇒ (s ⇒ s))).
+    Definition ChurchOne_gen (ξ : sortToC) : global_element TC (STLC_gen_ctx_sort ξ ((s ⇒ s) ⇒ (s ⇒ s))).
     Proof.
       refine (_ · pr1 (pr1 (lam_map_gen _ _) _) _).
       refine (_ · CoproductIn _ _ _ (idpath _)).
@@ -391,14 +432,14 @@ Section IndAndCoind.
       refine (_ · pr1 (pr1 (app_map_gen s _) _) _).
       (** do an application with argument type [s] - not giving this argument would potentially slow down the further steps *)
       apply BinProductArrow; refine (_ · CoproductIn _ _ _ (idpath _)).
-      - change (global_element TerminalC (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) (s ⇒ s))).
+      - change (global_element TC (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) (s ⇒ s))).
         simple refine (_ · pr1 (pr1 STLC_eta_gen _) _).
         (** the available variables are seen, pick the first added variable of type [s ⇒ s] *)
         refine (_ · BinCoproductIn2 _).
         refine (_ · BinCoproductIn1 _).
         cbn.
         exact (CoproductIn _ _ _ (idpath _)).
-      - change (global_element TerminalC (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s)).
+      - change (global_element TC (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s)).
         simple refine (_ · pr1 (pr1 STLC_eta_gen _) _).
         (** pick the last added variable of type [s] *)
         refine (_ · BinCoproductIn1 _).
@@ -407,7 +448,7 @@ Section IndAndCoind.
     Defined.
 
 
-    Definition Church_gen_body (n : nat) (ξ : sortToC) : global_element TerminalC (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s).
+    Definition Church_gen_body (n : nat) (ξ : sortToC) : global_element TC (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s).
     Proof.
       induction n.
       - simple refine (_ · pr1 (pr1 STLC_eta_gen _) _).
@@ -416,7 +457,7 @@ Section IndAndCoind.
         exact (CoproductIn _ _ _ (idpath _)).
       - refine (_ · pr1 (pr1 (app_map_gen s _) _) _).
         apply BinProductArrow; refine (_ · CoproductIn _ _ _ (idpath _)).
-        + change (global_element TerminalC (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) (s ⇒ s))).
+        + change (global_element TC (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) (s ⇒ s))).
           simple refine (_ · pr1 (pr1 STLC_eta_gen _) _).
           refine (_ · BinCoproductIn2 _).
           refine (_ · BinCoproductIn1 _).
@@ -465,7 +506,7 @@ Section IndAndCoind.
     Defined.
 
     Definition Church_gen (n : nat) (ξ : sortToC)
-      : global_element TerminalC (STLC_gen_ctx_sort ξ ((s ⇒ s) ⇒ (s ⇒ s)))
+      : global_element TC (STLC_gen_ctx_sort ξ ((s ⇒ s) ⇒ (s ⇒ s)))
       := (Church_gen_body n ξ) · Church_gen_header ξ.
 
   End Church.
@@ -491,8 +532,8 @@ Section IndAndCoind.
         intro s.
         simpl.
         exact (pr1 (# (pr1 STLC_gen)
-                      (# (sorted_option_functor sort Hsort C TerminalC BC CoproductsC s)
-                         (# (sorted_option_functor sort Hsort C TerminalC BC CoproductsC (s ⇒ s)) f))) s).
+                      (# (sorted_option_functor sort Hsort C TC BC CC s)
+                         (# (sorted_option_functor sort Hsort C TC BC CC (s ⇒ s)) f))) s).
     Defined.
 
     Lemma Church_gen_body_target_data_ok : is_functor Church_gen_body_target_data.
@@ -504,8 +545,8 @@ Section IndAndCoind.
         unfold Church_gen_body_target_data.
         Opaque STLC_gen sorted_option_functor.
         simpl.
-        rewrite (functor_id (sorted_option_functor sort Hsort C TerminalC BC CoproductsC (s ⇒ s))).
-        rewrite (functor_id (sorted_option_functor sort Hsort C TerminalC BC CoproductsC s)).
+        rewrite (functor_id (sorted_option_functor sort Hsort C TC BC CC (s ⇒ s))).
+        rewrite (functor_id (sorted_option_functor sort Hsort C TC BC CC s)).
         rewrite (functor_id STLC_gen).
         apply idpath.
       - intros ξ1 ξ2 ξ3 f g.
@@ -514,8 +555,8 @@ Section IndAndCoind.
         unfold Church_gen_body_target_data.
         Opaque STLC_gen sorted_option_functor.
         simpl.
-        rewrite (functor_comp (sorted_option_functor sort Hsort C TerminalC BC CoproductsC (s ⇒ s))).
-        rewrite (functor_comp (sorted_option_functor sort Hsort C TerminalC BC CoproductsC s)).
+        rewrite (functor_comp (sorted_option_functor sort Hsort C TC BC CC (s ⇒ s))).
+        rewrite (functor_comp (sorted_option_functor sort Hsort C TC BC CC s)).
         rewrite (functor_comp STLC_gen).
         apply idpath.
     Qed.
@@ -524,7 +565,7 @@ Section IndAndCoind.
 
     Definition Church_gen_body_target : sortToC2 := _,, Church_gen_body_target_data_ok.
 
-    Definition Church_gen_body_sortToC_data (n : nat) (ξ : sortToC) : global_element terminal_sortToC (pr1 Church_gen_body_target ξ).
+    Definition Church_gen_body_sortToC_data (n : nat) (ξ : sortToC) : global_element TsortToC (pr1 Church_gen_body_target ξ).
     Proof.
       use make_sortToC_mor.
       intro s.
@@ -546,8 +587,8 @@ Section IndAndCoind.
              apply maponpaths.
              apply pathsinv0.
              assert (aux := STLC_eta_gen_natural'_pointwise _ _
-                                 (# (sorted_option_functor sort Hsort C TerminalC BC CoproductsC s)
-                                    (# (sorted_option_functor sort Hsort C TerminalC BC CoproductsC (s ⇒ s)) f))
+                                 (# (sorted_option_functor sort Hsort C TC BC CC s)
+                                    (# (sorted_option_functor sort Hsort C TC BC CC (s ⇒ s)) f))
                                  s).
              apply (maponpaths (fun x => BinCoproductIn1 · x)) in aux.
              rewrite assoc in aux.
@@ -597,8 +638,8 @@ Section IndAndCoind.
         }
         apply maponpaths_12.
         + assert (aux := STLC_eta_gen_natural'_pointwise _ _
-                                 (# (sorted_option_functor sort Hsort C TerminalC BC CoproductsC s)
-                                    (# (sorted_option_functor sort Hsort C TerminalC BC CoproductsC (s ⇒ s)) f))
+                                 (# (sorted_option_functor sort Hsort C TC BC CC s)
+                                    (# (sorted_option_functor sort Hsort C TC BC CC (s ⇒ s)) f))
                                  (s ⇒ s)).
           apply (maponpaths (fun x => BinCoproductIn1 · BinCoproductIn2 · x)) in aux.
           rewrite assoc in aux.
@@ -642,7 +683,7 @@ Section IndAndCoind.
 
     Transparent Church_gen_body Church_gen_body_target.
 
-    Definition Church_gen_body_sortToC (n : nat) : global_element terminal_sortToC2 Church_gen_body_target.
+    Definition Church_gen_body_sortToC (n : nat) : global_element TsortToC2 Church_gen_body_target.
     Proof.
       use make_global_element_functor_precat.
       - exact (Church_gen_body_sortToC_data n).
@@ -695,7 +736,7 @@ Section IndAndCoind.
          functor_compose STLC_gen (projSortToCvariable sort Hsort C (fun s => (s ⇒ s) ⇒ (s ⇒ s)))⟧
       := _,, Church_gen_header_sortToC_data_ok.
 
-     Definition Church_gen_sortToC (n : nat) : global_element terminal_sortToC2
+     Definition Church_gen_sortToC (n : nat) : global_element TsortToC2
            (functor_compose STLC_gen (projSortToCvariable sort Hsort C (fun s => (s ⇒ s) ⇒ (s ⇒ s))))
       := Church_gen_body_sortToC n · Church_gen_header_sortToC.
 
@@ -733,15 +774,15 @@ Definition lam_map_coind (s t : sort) : sortToC2⟦lam_source_coind s t,STLC_coi
 
 (** the initial algebra *)
 Definition STLC_ind_IA : Initial (FunctorAlg STLC_Functor_Id_H)
-  := DatatypeOfMultisortedBindingSig_CAT sort Hsort C TerminalC InitialC BP
-       BC ProductsC CoproductsC expSortToC1
+  := DatatypeOfMultisortedBindingSig_CAT sort Hsort C TC IC BP
+       BC eqsetPC CC EsortToC2
        ColimsC_of_shape_nat_graph STLC_Sig.
 (** notice that this is only the initial algebra and not the initial sigma monoid *)
 
 (** the final coalgebra *)
 Definition STLC_coind_FC : Terminal (CoAlg_category STLC_Functor_Id_H)
-  := coindCodatatypeOfMultisortedBindingSig_CAT sort Hsort C TerminalC
-         BP BC CoproductsC LimsC_of_shape_conat_graph
+  := coindCodatatypeOfMultisortedBindingSig_CAT sort Hsort C TC
+         BP BC CC LimsC_of_shape_conat_graph
          I_coproduct_distribute_over_omega_limits_C STLC_Sig is_univalent_C.
 
 Section Church.
@@ -752,23 +793,23 @@ Section Church.
 
 
   Definition IterateInfinite_rec_coalg_data_data (ξ : sortToC) (s : sort)
-    : C⟦pr1 (pr1 corecsource ξ) s, pr1 (pr1 (STLC_Functor_Id_H (BinCoproducts_sortToC2 corecsource STLC_coind)) ξ) s⟧.
+    : C⟦pr1 (pr1 corecsource ξ) s, pr1 (pr1 (STLC_Functor_Id_H (BCsortToC2 corecsource STLC_coind)) ξ) s⟧.
   Proof.
     refine (_ · BinCoproductIn2 _).
     refine (_ · CoproductIn _ _ _ (ii1 (s,,s))).
     use BinProductArrow.
     - (** the term to be applied is the original argument *)
       refine (_ · CoproductIn _ _ _ (idpath _)).
-      change (C ⟦ pr1 (pr1 corecsource ξ) s, pr1 (pr111 (BinCoproducts_sortToC2 corecsource STLC_coind) ξ) (s ⇒ s)⟧).
+      change (C ⟦ pr1 (pr1 corecsource ξ) s, pr1 (pr111 (BCsortToC2 corecsource STLC_coind) ξ) (s ⇒ s)⟧).
       apply BinCoproductIn2.
     - (** the argument of the application is the result of the corecursive call *)
       refine (_ · CoproductIn _ _ _ (idpath _)).
-      change (C ⟦ pr1 (pr1 corecsource ξ) s, pr1 (pr111 (BinCoproducts_sortToC2 corecsource STLC_coind) ξ) s⟧).
+      change (C ⟦ pr1 (pr1 corecsource ξ) s, pr1 (pr111 (BCsortToC2 corecsource STLC_coind) ξ) s⟧).
       apply BinCoproductIn1.
   Defined.
 
   Definition IterateInfinite_rec_coalg_data
-    : nat_trans_data (pr1 corecsource) (pr1 (STLC_Functor_Id_H (BinCoproducts_sortToC2 corecsource STLC_coind))).
+    : nat_trans_data (pr1 corecsource) (pr1 (STLC_Functor_Id_H (BCsortToC2 corecsource STLC_coind))).
   Proof.
     intro ξ.
     use make_sortToC_mor.
@@ -789,9 +830,9 @@ Section Church.
     apply nat_trans_eq; try apply C.
     intro s.
     change (pr1 (# (pr1 corecsource) f · IterateInfinite_rec_coalg_data ξ') s =
-              pr1 (IterateInfinite_rec_coalg_data ξ · # (pr1 (STLC_Functor_Id_H (BinCoproducts_sortToC2 corecsource STLC_coind))) f) s).
+              pr1 (IterateInfinite_rec_coalg_data ξ · # (pr1 (STLC_Functor_Id_H (BCsortToC2 corecsource STLC_coind))) f) s).
     change (pr1 (# (pr1 STLC_coind) f) (s ⇒ s) · IterateInfinite_rec_coalg_data_data ξ' s =
-              IterateInfinite_rec_coalg_data_data ξ s · pr1 (# (pr1 (STLC_Functor_Id_H ((BinCoproducts_sortToC2 corecsource STLC_coind) : sortToC2))) f) s).
+              IterateInfinite_rec_coalg_data_data ξ s · pr1 (# (pr1 (STLC_Functor_Id_H ((BCsortToC2 corecsource STLC_coind) : sortToC2))) f) s).
     unfold IterateInfinite_rec_coalg_data_data.
     etrans.
     2: { repeat rewrite assoc'.
@@ -809,8 +850,8 @@ Section Church.
     apply cancel_postcomposition.
     match goal with |[   |- _ =_ · ?sndmor] => set (thesndmor := sndmor) end.
     change thesndmor with (BinProductOfArrows _ (BP) (BP)
-                             (pr1 (# (hat_functor _ Hsort C CoproductsC s) (pr1 (# (pr1 ((BinCoproducts_sortToC2 corecsource STLC_coind) : sortToC2)) f) (s ⇒ s))) s)
-                             (pr1 (# (hat_functor _ Hsort C CoproductsC s) (pr1 (# (pr1 ((BinCoproducts_sortToC2 corecsource STLC_coind) : sortToC2)) f) s)) s)).
+                             (pr1 (# (hat_functor _ Hsort C CC s) (pr1 (# (pr1 ((BCsortToC2 corecsource STLC_coind) : sortToC2)) f) (s ⇒ s))) s)
+                             (pr1 (# (hat_functor _ Hsort C CC s) (pr1 (# (pr1 ((BCsortToC2 corecsource STLC_coind) : sortToC2)) f) s)) s)).
     etrans.
     2: { apply pathsinv0, postcompWithBinProductArrow. }
     etrans.
@@ -832,12 +873,12 @@ Section Church.
       apply pathsinv0, BinCoproductOfArrowsIn1.
   Qed.
 
-  Definition IterateInfinite_rec_coalg : sortToC2⟦corecsource, STLC_Functor_Id_H (BinCoproducts_sortToC2 corecsource STLC_coind)⟧
+  Definition IterateInfinite_rec_coalg : sortToC2⟦corecsource, STLC_Functor_Id_H (BCsortToC2 corecsource STLC_coind)⟧
     := _,, IterateInfinite_rec_coalg_data_ok.
 
   Definition IterateInfinite : sortToC2⟦corecsource, STLC_coind⟧ := pr11 (primitive_corecursion _ (pr2 STLC_coind_FC) IterateInfinite_rec_coalg).
 
-  Definition ChurchInfinity_body_sortToC_data_data (ξ : sortToC) (s : sort) : C ⟦TerminalC, pr1 (pr1 STLC_coind (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s⟧.
+  Definition ChurchInfinity_body_sortToC_data_data (ξ : sortToC) (s : sort) : C ⟦TC, pr1 (pr1 STLC_coind (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s⟧.
   Proof.
     refine (_ · pr1 (pr1 IterateInfinite (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s).
     refine (_ · pr1 (pr1 (STLC_eta_gen σcoind) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s)).
@@ -846,11 +887,11 @@ Section Church.
     exact (CoproductIn (idpath _)).
   Defined.
 
-  Definition ChurchInfinity_body_sortToC_data (ξ : sortToC) : global_element terminal_sortToC (pr1 (Church_gen_body_target σcoind) ξ).
+  Definition ChurchInfinity_body_sortToC_data (ξ : sortToC) : global_element TsortToC (pr1 (Church_gen_body_target σcoind) ξ).
   Proof.
     use make_sortToC_mor.
     intro s.
-    change (C ⟦TerminalC, pr1 (pr1 STLC_coind (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s⟧).
+    change (C ⟦TC, pr1 (pr1 STLC_coind (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s⟧).
     exact (ChurchInfinity_body_sortToC_data_data ξ s).
   Defined.
 
@@ -867,17 +908,17 @@ Section Church.
     apply maponpaths.
     etrans.
     { do 3 apply maponpaths.
-      assert (aux := nat_trans_ax IterateInfinite _ _ (# (sorted_option_functor sort Hsort C TerminalC BC CoproductsC s)
-                                                         (# (sorted_option_functor sort Hsort C TerminalC BC CoproductsC (s ⇒ s)) f))).
+      assert (aux := nat_trans_ax IterateInfinite _ _ (# (sorted_option_functor sort Hsort C TC BC CC s)
+                                                         (# (sorted_option_functor sort Hsort C TC BC CC (s ⇒ s)) f))).
       apply pathsinv0, (nat_trans_eq_weq C _ _ aux).
     }
     etrans.
     { do 3 apply maponpaths.
       exact (sortToC_comp (# (pr1 corecsource)
-     (# (sorted_option_functor sort Hsort C TerminalC BC CoproductsC s)
-        (# (sorted_option_functor sort Hsort C TerminalC BC CoproductsC (s ⇒ s)) f))) (pr1 IterateInfinite
-       (sorted_option_functor sort Hsort C TerminalC BC CoproductsC s
-          (sorted_option_functor sort Hsort C TerminalC BC CoproductsC (s ⇒ s) ξ'))) s).
+     (# (sorted_option_functor sort Hsort C TC BC CC s)
+        (# (sorted_option_functor sort Hsort C TC BC CC (s ⇒ s)) f))) (pr1 IterateInfinite
+       (sorted_option_functor sort Hsort C TC BC CC s
+          (sorted_option_functor sort Hsort C TC BC CC (s ⇒ s) ξ'))) s).
     }
     repeat rewrite assoc.
     apply cancel_postcomposition.
@@ -885,8 +926,8 @@ Section Church.
     { repeat rewrite assoc'.
       do 2 apply maponpaths.
       apply pathsinv0.
-      exact (STLC_eta_gen_natural'_pointwise σcoind _ _ (# (sorted_option_functor sort Hsort C TerminalC BC CoproductsC s)
-                                                         (# (sorted_option_functor sort Hsort C TerminalC BC CoproductsC (s ⇒ s)) f)) (s ⇒ s)).
+      exact (STLC_eta_gen_natural'_pointwise σcoind _ _ (# (sorted_option_functor sort Hsort C TC BC CC s)
+                                                         (# (sorted_option_functor sort Hsort C TC BC CC (s ⇒ s)) f)) (s ⇒ s)).
     }
     repeat rewrite assoc.
     apply cancel_postcomposition.
@@ -903,7 +944,7 @@ Section Church.
     apply idpath.
   Qed.
 
-  Definition ChurchInfinity_body_sortToC : global_element terminal_sortToC2 (Church_gen_body_target σcoind).
+  Definition ChurchInfinity_body_sortToC : global_element TsortToC2 (Church_gen_body_target σcoind).
   Proof.
     use make_global_element_functor_precat.
     - exact ChurchInfinity_body_sortToC_data.
@@ -911,7 +952,7 @@ Section Church.
   Defined.
 
   Definition ChurchInfinity_body (ξ : sortToC) (s: sort)
-    : global_element TerminalC (STLC_gen_ctx_sort σcoind (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s).
+    : global_element TC (STLC_gen_ctx_sort σcoind (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s).
   Proof.
     exact (pr1 ((pr1 ChurchInfinity_body_sortToC) ξ) s).
   Defined.
@@ -921,7 +962,7 @@ Section Church.
 
   Definition IterateInfinite_rec_eq : IterateInfinite = IterateInfinite_rec_coalg
        · # STLC_Functor_Id_H
-       (BinCoproductArrow (BinCoproducts_sortToC2 corecsource STLC_coind) IterateInfinite (identity STLC_coind))
+       (BinCoproductArrow (BCsortToC2 corecsource STLC_coind) IterateInfinite (identity STLC_coind))
        · out_STLC_coind.
   Proof.
     exact (primitive_corecursion_formula_with_inverse _ (pr2 STLC_coind_FC) IterateInfinite_rec_coalg).
@@ -948,13 +989,13 @@ Section Church.
       exact aux. }
     clear aux.
     unfold app_map_coind, app_map_gen, STLC_tau_gen.
-    change (SigmaMonoid_τ θSTLC σcoind) with (@BinCoproductIn2 _ _ _ (BinCoproducts_sortToC2 _ _) · out_STLC_coind).
+    change (SigmaMonoid_τ θSTLC σcoind) with (@BinCoproductIn2 _ _ _ (BCsortToC2 _ _) · out_STLC_coind).
     match goal with |[   |- _ =  _ · ?sndmor ] => set (thesndmor := sndmor) end.
     change thesndmor with (CoproductIn (inl (s,, s)) · (BinCoproductIn2 · pr1 (pr1 out_STLC_coind (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s)).
     clear thesndmor.
     match goal with |[   |- _ · ?sndmor = _ ] => set (thesndmor := sndmor) end.
     change thesndmor with (pr1 (pr1 IterateInfinite_rec_coalg (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s ·
-                             pr1 (pr1 (# STLC_Functor_Id_H (BinCoproductArrow (BinCoproducts_sortToC2 corecsource STLC_coind)
+                             pr1 (pr1 (# STLC_Functor_Id_H (BinCoproductArrow (BCsortToC2 corecsource STLC_coind)
                                                               IterateInfinite (identity STLC_coind))) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s ·
                              pr1 (pr1 out_STLC_coind (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s).
     clear thesndmor.
@@ -971,7 +1012,7 @@ Section Church.
       { apply maponpaths.
         apply BinCoproductIn2Commutes. }
       match goal with |[   |- _ · ?sndmor = _] => set (thesndmor := sndmor) end.
-      change thesndmor with (pr1 (pr1 (# STLC_Functor_H (BinCoproductArrow (BinCoproducts_sortToC2 corecsource STLC_coind)
+      change thesndmor with (pr1 (pr1 (# STLC_Functor_H (BinCoproductArrow (BCsortToC2 corecsource STLC_coind)
                                                               IterateInfinite (identity STLC_coind))) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s
                                · BinCoproductIn2(CC:=BC (pr1 (Id (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s)
                                                        (pr1 (pr1 (pr1 STLC_Functor_H STLC_coind) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s))).
@@ -988,38 +1029,38 @@ Section Church.
     do 2 apply cancel_postcomposition.
     match goal with |[   |- _ · ?sndmor = _] => set (thesndmor := sndmor) end.
     (* assert (bla : ∏ X,
-               pr1 (pr1 (pr1 (ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort C TerminalC (@BP) BC
-                                CoproductsC (arity sort STLC_Sig (inl (s,, s)))) X)
+               pr1 (pr1 (pr1 (ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort C TC (@BP) BC
+                                CC (arity sort STLC_Sig (inl (s,, s)))) X)
                       (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s =
                  @BP
                    ((@functor_path_pregroupoid sort C Hsort
-                       (λ s0 : sort, CoproductsC (s = s0) (Hsort s s0) (λ _ : s = s0, (@pr1 _ _ (pr1 X (ctx_ext (ctx_ext ξ (s ⇒ s)) s))) (s ⇒ s)))) s)
+                       (λ s0 : sort, CC (s = s0) (Hsort s s0) (λ _ : s = s0, (@pr1 _ _ (pr1 X (ctx_ext (ctx_ext ξ (s ⇒ s)) s))) (s ⇒ s)))) s)
                    ((@functor_path_pregroupoid sort C Hsort
-                       (λ s0 : sort, CoproductsC (s = s0) (Hsort s s0) (λ _ : s = s0, (@pr1 _ _ (pr1 X (ctx_ext (ctx_ext ξ (s ⇒ s)) s))) s))) s)).
+                       (λ s0 : sort, CC (s = s0) (Hsort s s0) (λ _ : s = s0, (@pr1 _ _ (pr1 X (ctx_ext (ctx_ext ξ (s ⇒ s)) s))) s))) s)).
     { intro X. apply idpath. }
     assert (bla1 : ∏ X,
-               pr1 (pr1 (pr1 (ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort C TerminalC (@BP) BC
-                                CoproductsC (arity sort STLC_Sig (inl (s,, s)))) X)
+               pr1 (pr1 (pr1 (ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort C TC (@BP) BC
+                                CC (arity sort STLC_Sig (inl (s,, s)))) X)
                       (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s =
-                 BP(c:=pr1 (hat_functor _ Hsort C CoproductsC s ((pr1 (pr1 X (ctx_ext (ctx_ext ξ (s ⇒ s)) s))) (s ⇒ s))) s)
-                   (d:=pr1 (hat_functor _ Hsort C CoproductsC s ((pr1 (pr1 X (ctx_ext (ctx_ext ξ (s ⇒ s)) s))) s)) s)).
+                 BP(c:=pr1 (hat_functor _ Hsort C CC s ((pr1 (pr1 X (ctx_ext (ctx_ext ξ (s ⇒ s)) s))) (s ⇒ s))) s)
+                   (d:=pr1 (hat_functor _ Hsort C CC s ((pr1 (pr1 X (ctx_ext (ctx_ext ξ (s ⇒ s)) s))) s)) s)).
     { intro X. apply idpath. }
     assert (bla2 : ∏ (X Y : sortToC2) (G : sortToC2 ⟦ X, Y ⟧),
-               pr1 (pr1 (# (pr1 (ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort C TerminalC (@BP) BC
-                                   CoproductsC (arity sort STLC_Sig (inl (s,, s))))) G)
+               pr1 (pr1 (# (pr1 (ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort C TC (@BP) BC
+                                   CC (arity sort STLC_Sig (inl (s,, s))))) G)
                       (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s =
-                 BinProductOfArrows _ (BP) (BP) ((pr1 (# (hat_functor _ Hsort C CoproductsC s) (pr1 (pr1 G (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s))) s))
-                   ((pr1 (# (hat_functor _ Hsort C CoproductsC s) (pr1 (pr1 G (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s)) s))).
+                 BinProductOfArrows _ (BP) (BP) ((pr1 (# (hat_functor _ Hsort C CC s) (pr1 (pr1 G (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s))) s))
+                   ((pr1 (# (hat_functor _ Hsort C CC s) (pr1 (pr1 G (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s)) s))).
     { intros X Y G. apply idpath. }
     clear bla bla1 bla2.
     set (aux := BinProductOfArrows _ (BP) (BP)
-                  (pr1 (# (hat_functor _ Hsort C CoproductsC s) (pr1 (pr1 (BinCoproductArrow (BinCoproducts_sortToC2 corecsource STLC_coind) IterateInfinite (identity STLC_coind)) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s))) s)
-                  (pr1 (# (hat_functor _ Hsort C CoproductsC s) (pr1 (pr1 (BinCoproductArrow (BinCoproducts_sortToC2 corecsource STLC_coind) IterateInfinite (identity STLC_coind)) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s)) s)).
+                  (pr1 (# (hat_functor _ Hsort C CC s) (pr1 (pr1 (BinCoproductArrow (BCsortToC2 corecsource STLC_coind) IterateInfinite (identity STLC_coind)) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s))) s)
+                  (pr1 (# (hat_functor _ Hsort C CC s) (pr1 (pr1 (BinCoproductArrow (BCsortToC2 corecsource STLC_coind) IterateInfinite (identity STLC_coind)) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s)) s)).
     change thesndmor with aux.
-    clear thesndmor.*)
+    clear thesndmor. *)
     set (aux2 := BinProductOfArrows _ (BP) (BP)
-                   (CoproductOfArrows (s=s) C (CoproductsC (s=s) (Hsort s s) _) (CoproductsC (s=s) (Hsort s s) _) (fun _ => pr1 (pr1 (BinCoproductArrow (BinCoproducts_sortToC2 corecsource STLC_coind) IterateInfinite (identity STLC_coind)) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s)))
-                   (CoproductOfArrows (s=s) C (CoproductsC (s=s) (Hsort s s) _) (CoproductsC (s=s) (Hsort s s) _) (fun _ => pr1 (pr1 (BinCoproductArrow (BinCoproducts_sortToC2 corecsource STLC_coind) IterateInfinite (identity STLC_coind)) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s))).
+                   (CoproductOfArrows (s=s) C (CC (s=s) (Hsort s s) _) (CC (s=s) (Hsort s s) _) (fun _ => pr1 (pr1 (BinCoproductArrow (BCsortToC2 corecsource STLC_coind) IterateInfinite (identity STLC_coind)) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s)))
+                   (CoproductOfArrows (s=s) C (CC (s=s) (Hsort s s) _) (CC (s=s) (Hsort s s) _) (fun _ => pr1 (pr1 (BinCoproductArrow (BCsortToC2 corecsource STLC_coind) IterateInfinite (identity STLC_coind)) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s))).
     change thesndmor with aux2.
     clear thesndmor.
     (* clear aux. *)
@@ -1063,11 +1104,11 @@ Section Church.
 
   Transparent IterateInfinite.
 
-  Definition ChurchInfinity_sortToC : global_element terminal_sortToC2
+  Definition ChurchInfinity_sortToC : global_element TsortToC2
            (functor_compose STLC_coind (projSortToCvariable sort Hsort C (fun s => (s ⇒ s) ⇒ (s ⇒ s))))
       := ChurchInfinity_body_sortToC · (Church_gen_header_sortToC σcoind).
 
-  Definition ChurchInfinity (ξ : sortToC) (s : sort) : global_element TerminalC (STLC_ctx_sort_coind ξ ((s ⇒ s) ⇒ (s ⇒ s))).
+  Definition ChurchInfinity (ξ : sortToC) (s : sort) : global_element TC (STLC_ctx_sort_coind ξ ((s ⇒ s) ⇒ (s ⇒ s))).
   Proof.
     exact (pr1 ((pr1 ChurchInfinity_sortToC) ξ) s).
   Defined.

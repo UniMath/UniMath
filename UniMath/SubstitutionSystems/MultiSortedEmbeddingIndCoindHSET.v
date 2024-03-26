@@ -37,16 +37,16 @@ Section A.
 
   (* Let Hsort := hlevelntosn 2 _ Hsort_set. *)
 
-  Let sortToSet : category := [path_pregroupoid sort Hsort, HSET].
-
   Let θHSET := MultiSortedMonadConstruction_actegorical.MultiSortedSigToStrength' sort Hsort SET
                  TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET sig.
 
   Local Definition Initialσind := InitialSigmaMonoidOfMultiSortedSig_CAT sort Hsort HSET TerminalHSET InitialHSET
-                                    BinProductsHSET BinCoproductsHSET ProductsHSET CoproductsHSET
-                                    (expSortToHSET1 sort Hsort) (ColimsHSET_of_shape nat_graph) sig.
+                                    BinProductsHSET BinCoproductsHSET (fun s s' => ProductsHSET (s=s')) CoproductsHSET
+                                    (EsortToSet2 sort Hsort) (ColimsHSET_of_shape nat_graph) sig.
 
   Local Definition σind : SigmaMonoid θHSET := pr1 Initialσind.
+
+  Let sortToSet : category := [path_pregroupoid sort Hsort, HSET].
 
   Local Definition Tind : [sortToSet, sortToSet] := SigmaMonoid_carrier θHSET σind.
 

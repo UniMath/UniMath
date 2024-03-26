@@ -363,19 +363,17 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
 
   Let TsortToCC : Terminal [sortToC,C] := Terminal_functor_precat _ _ TC.
 
-
-  Lemma sortToC_hasbinproducts
-    : BinProducts [sortToC, sortToC].
+  Goal TsortToCC = SortIndexing.TsortToCC sort Hsort _ TC.
   Proof.
-    repeat (apply BinProducts_functor_precat) ; exact BP.
-  Defined.
+    apply idpath.
+  Qed. (* slow *)
 
-  Lemma sortToC_hascoproducts
-    : ∏ I : UU, isaset I -> Coproducts I [sortToC, sortToC].
+  Let sortToC2 : category := [sortToC,sortToC].
+
+  Goal sortToC2 = SortIndexing.sortToC2 sort Hsort C.
   Proof.
-    intros I Iset.
-    repeat (apply Coproducts_functor_precat) ; exact (CC I Iset).
-  Defined.
+    apply idpath.
+  Qed.
 
   Let hat_exp_functor_list'_piece0
       := hat_exp_functor_list'_piece sort Hsort C TC BC CC.
@@ -694,8 +692,8 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
     induction xst as [a t] ; revert a.
     use list_ind.
     - use tpair.
-      + apply (nat_trans_id (C := [sortToC,sortToC]) (C' := [sortToC,sortToC])).
-      + intro ; apply (identity_is_z_iso (C := [sortToC,sortToC])).
+      + apply (nat_trans_id (C := sortToC2) (C' := sortToC2)).
+      + intro ; apply (identity_is_z_iso (C := sortToC2)).
     - intros x xs IHn.
 
       use nat_z_iso_comp.
@@ -743,8 +741,8 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
     - induction xs.
       intro t.
       use tpair.
-      + apply (nat_trans_id (C := [sortToC,sortToC]) (C' := [sortToC,sortToC])).
-      + intro ; apply (identity_is_z_iso (C := [sortToC,sortToC])).
+      + apply (nat_trans_id (C := sortToC2) (C' := sortToC2)).
+      + intro ; apply (identity_is_z_iso (C := sortToC2)).
     - induction n as [|n IH].
       + induction xs as [m []].
         change (1,, m,, tt) with (cons m nil).

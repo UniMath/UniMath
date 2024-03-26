@@ -60,13 +60,18 @@ Proof.
   apply idpath.
 Qed. (* slow *)
 
-Local Lemma TerminalSortToC : Terminal sortToC.
+Local Lemma TsortToC : Terminal sortToC.
 Proof.
 apply Terminal_functor_precat, TC.
 Defined.
 
+Goal TsortToC = SortIndexing.TsortToC sort Hsort _ TC.
+Proof.
+  apply idpath.
+Qed. (* slow *)
+
 Local Notation "a ⊕ b" := (BinCoproductObject (BCsortToC a b)).
-Local Notation "1" := (TerminalObject TerminalSortToC).
+Local Notation "1" := (TerminalObject TsortToC).
 
 Context {M : Monad sortToC}.
 
@@ -119,7 +124,7 @@ Definition monadSubstGen_fun {X Y : sortToC} (f : ∏ s, C⟦pr1 X s,pr1 (M Y) s
     λ t, pr1 (monadSubstGen_instantiated (sortToC_fun f)) t.
 
 Definition monadSubst_instantiated {X : sortToC} (f : sortToC⟦1,M X⟧) :
-  sortToC⟦M (1 ⊕ X),M X⟧ := monadSubst M BCsortToC TerminalSortToC X f.
+  sortToC⟦M (1 ⊕ X),M X⟧ := monadSubst M BCsortToC TsortToC X f.
 
 Definition mweak_instantiated {X Y : sortToC} :
   sortToC⟦M Y,M (X ⊕ Y)⟧ := mweak M BCsortToC _ _.

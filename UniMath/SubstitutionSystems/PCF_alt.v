@@ -106,7 +106,7 @@ apply SignatureInitialAlgebra.
 - apply InitialHSET.
 - apply ColimsHSET_of_shape.
 - apply is_omega_cocont_MultiSortedSigToSignature.
-  + apply ProductsHSET.
+  + intros; apply ProductsHSET.
   + apply Exponentials_functor_HSET.
   + apply ColimsHSET_of_shape.
 Defined.
