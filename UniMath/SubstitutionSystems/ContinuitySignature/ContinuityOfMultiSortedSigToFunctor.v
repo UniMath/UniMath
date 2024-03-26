@@ -139,7 +139,7 @@ Section FixTheContext.
   (** * the following is a deviation from the main topic of this file *)
   Section OmegaCocontinuityOfMultiSortedSigToFunctorPrime.
 
-    Context (expSortToC1 : Exponentials BPsortToC2) (** this requires exponentials in a higher space than before *)
+    Context (EsortToC2 : Exponentials BPsortToC2) (** this requires exponentials in a higher space than before *)
       (HC : Colims_of_shape nat_graph C).
 
     Local Lemma is_omega_cocont_hat_exp_functor_list'_piece  (xt : (list sort × sort) × sort) :
@@ -168,7 +168,7 @@ Section FixTheContext.
         apply is_omega_cocont_BinProduct_of_functors.
         * apply BinProducts_functor_precat, BinProducts_functor_precat, BP.
         * apply is_omega_cocont_constprod_functor1.
-          apply expSortToC1.
+          apply EsortToC2.
         * apply (ap_func t).
         * apply is_omega_cocont_hat_exp_functor_list'_piece.
     Defined.
@@ -202,7 +202,7 @@ Section FixTheContext.
           apply is_omega_cocont_BinProduct_of_functors.
           * apply BPsortToC2.
           * apply is_omega_cocont_constprod_functor1.
-            apply expSortToC1.
+            apply EsortToC2.
           * apply is_omega_cocont_hat_exp_functor_list'_piece.
           * exact IHinst.
     Defined.

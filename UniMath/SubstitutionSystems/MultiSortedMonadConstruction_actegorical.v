@@ -134,10 +134,10 @@ Qed. (* slow *)
 
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
-Context (HEsortToC2 : Exponentials BPsortToC2) (** this requires exponentials in a higher space than before for [MultiSortedSigToFunctor] *)
+Context (EsortToC2 : Exponentials BPsortToC2) (** this requires exponentials in a higher space than before for [MultiSortedSigToFunctor] *)
   (HC : Colims_of_shape nat_graph C).
 
-(* The [HEsortToC2] assumption is fulfilled for C = Set, to be seen in the instantiation. *)
+(* The [EsortToC2] assumption is fulfilled for C = Set, to be seen in the instantiation. *)
 
 (** * Construction of a monad from a multisorted signature *)
 Section monad.
@@ -182,7 +182,7 @@ Section monad.
   Local Definition MultiSortedSigToFunctor' : MultiSortedSig sort -> sortToC3 := MultiSortedSigToFunctor' sort Hsort C TC BP BC CC.
 
   Local Definition is_omega_cocont_MultiSortedSigToFunctor' : ∏ M : MultiSortedSig sort, is_omega_cocont (MultiSortedSigToFunctor' M)
-    := is_omega_cocont_MultiSortedSigToFunctor' sort Hsort C TC BP BC eqsetPC CC HEsortToC2 HC.
+    := is_omega_cocont_MultiSortedSigToFunctor' sort Hsort C TC BP BC eqsetPC CC EsortToC2 HC.
 
   Local Definition MultiSortedSigToStrength' : ∏ M : MultiSortedSig sort,
         MultiSorted_actegorical.pointedstrengthfromselfaction_CAT sort Hsort C (MultiSortedSigToFunctor' M)
