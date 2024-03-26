@@ -136,7 +136,7 @@ Ltac2 Set rewrites as rewrites0 := fun () =>
 
 Ltac2 Set rewrites as rewrites0 := fun () =>
   ((fun () => match! goal with
-  | [ |- (?a • ?b) • ?c = _] => refine '(subst_subst _ $a $b $c : ($a • $b) • $c = $a • (λ _, _ • $c))
+  | [ |- (?a • ?b) • ?c = _] => refine '(subst_subst _ $a $b $c)
   end), "subst_subst _ _ _ _") :: rewrites0 ().
 
 Ltac2 Set rewrites as rewrites0 := fun () =>

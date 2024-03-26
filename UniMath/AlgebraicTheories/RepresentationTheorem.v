@@ -38,7 +38,7 @@ Require Import UniMath.Combinatorics.Tuples.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
+(* Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore. *)
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.Examples.EndomorphismTheory.
 Require Import UniMath.AlgebraicTheories.Examples.Plus1Presheaf.
@@ -161,9 +161,6 @@ Section RepresentationTheorem.
         intro i.
         exact (var (stnweq (inl i))).
     Defined.
-
-    Lemma TODO {A : UU} : A.
-  Admitted.
 
     Lemma presheaf_exponent_induced_is_morphism
       {P P' : presheaf L}

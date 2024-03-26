@@ -14,7 +14,6 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Functors.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.Presheaves.
 Require Import UniMath.AlgebraicTheories.PresheafCategoryCore.
 Require Import UniMath.Combinatorics.Tuples.

@@ -68,6 +68,41 @@ Definition make_algebraic_theory_data
   : algebraic_theory_data
   := T ,, var ,, subst.
 
+Definition subst_subst_ax
+  (T : algebraic_theory_data)
+  (l m n : nat)
+  (f_l : T l)
+  (f_m : stn l → T m)
+  (f_n : stn m → T n)
+  : UU
+  := f_l • f_m • f_n = f_l • (λ t_l, f_m t_l • f_n).
+
+Arguments subst_subst_ax /.
+
+Definition var_subst_ax
+  (T : algebraic_theory_data)
+  (m n : nat)
+  (i : stn m)
+  (f : stn m → T n)
+  : UU
+  := var i • f = f i.
+
+Arguments var_subst_ax /.
+
+Definition subst_var_ax
+  (T : algebraic_theory_data)
+  (n : nat)
+  (f : T n)
+  : UU
+  := f • var = f.
+
+Arguments subst_var_ax /.
+
+Definition is_algebraic_theory (T : algebraic_theory_data) : UU :=
+  (∏ l m n f_l f_m f_n, subst_subst_ax T l m n f_l f_m f_n) ×
+  (∏ m n i f, var_subst_ax T m n i f) ×
+  (∏ n f, subst_var_ax T n f).
+
 Definition make_is_algebraic_theory
   (T : algebraic_theory_data)
   (H1 : ∏ l m n f_l f_m f_n, subst_subst_ax T l m n f_l f_m f_n)

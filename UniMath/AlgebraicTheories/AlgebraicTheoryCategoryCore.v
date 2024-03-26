@@ -166,7 +166,7 @@ Section AlgebraicTheoryCategory.
 
 (** ** 1.2. The category of algebraic theories  *)
 
-  Definition subst_subst_ax
+  Local Definition subst_subst_ax
     (T : algebraic_theory_data_cat)
     (l m n : nat)
     (f_l : data_set T l)
@@ -175,7 +175,7 @@ Section AlgebraicTheoryCategory.
     : UU
     := data_subst (data_subst f_l f_m) f_n = data_subst f_l (λ t_l, data_subst (f_m t_l) f_n).
 
-  Definition var_subst_ax
+  Local Definition var_subst_ax
     (T : algebraic_theory_data_cat)
     (m n : nat)
     (i : stn m)
@@ -183,14 +183,14 @@ Section AlgebraicTheoryCategory.
     : UU
     := data_subst (data_var i) f = f i.
 
-  Definition subst_var_ax
+  Local Definition subst_var_ax
     (T : algebraic_theory_data_cat)
     (n : nat)
     (f : data_set T n)
     : UU
     := data_subst f data_var = f.
 
-  Definition is_algebraic_theory (T : algebraic_theory_data_cat) : UU :=
+  Local Definition is_algebraic_theory (T : algebraic_theory_data_cat) : UU :=
     (∏ l m n f_l f_m f_n, subst_subst_ax T l m n f_l f_m f_n) ×
     (∏ m n i f, var_subst_ax T m n i f) ×
     (∏ n f, subst_var_ax T n f).

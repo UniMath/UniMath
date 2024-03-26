@@ -41,7 +41,6 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Tuples.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryCategoryCore.
@@ -81,13 +80,13 @@ Section EndomorphismAlgebraicTheory.
     use make_is_algebraic_theory.
     - intros l m n f_l f_m f_n.
       simpl.
-      rewrite assoc.
+      refine (assoc _ _ _ @ _).
       apply (maponpaths (λ f, f · f_l)).
       rewrite (ProductArrowEta _ _ _ _ _ (_ · _)).
       apply maponpaths, funextfun.
       intro.
       rewrite assoc'.
-      apply maponpaths.
+      refine (maponpaths _ _).
       exact (ProductPrCommutes _ _ _ _ _ _ _).
     - do 4 intro.
       exact (ProductPrCommutes _ _ _ _ _ _ _).
