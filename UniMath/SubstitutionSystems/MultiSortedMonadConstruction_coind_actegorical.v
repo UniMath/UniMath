@@ -396,7 +396,7 @@ Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
 Goal BCsortToC = SortIndexing.BCsortToC sort Hsort _ BC.
 Proof.
   apply idpath.
-Qed. (* slow *)
+Qed.
 
 (* Assumptions needed to prove ω-continuity of the functor *)
 Context (HcoC : Lims_of_shape conat_graph C)
@@ -420,21 +420,21 @@ Section monad.
   Goal sortToC3 = SortIndexing.sortToC3 sort Hsort C.
   Proof.
     apply idpath.
-  Qed. (* slow *)
+  Qed.
 
   Let BCsortToC2 : BinCoproducts sortToC2 := BinCoproducts_functor_precat _ _ BCsortToC.
 
   Goal BCsortToC2 = SortIndexing.BCsortToC2 sort Hsort _ BC.
   Proof.
     apply idpath.
-  Qed. (* very slow *)
+  Qed.
 
   Let TsortToC2 : Terminal sortToC2 := Terminal_functor_precat _ _ (Terminal_functor_precat _ _ TC).
 
   Goal TsortToC2 = SortIndexing.TsortToC2 sort Hsort _ TC.
   Proof.
     apply idpath.
-  Qed. (* slow *)
+  Qed.
 
   Local Definition HcoCsortToC : Lims_of_shape conat_graph sortToC.
   Proof.
@@ -444,7 +444,7 @@ Section monad.
   Goal HcoCsortToC = SortIndexing.LLsortToC sort Hsort C conat_graph HcoC.
   Proof.
     apply idpath.
-  Qed. (* slow *)
+  Qed.
 
   Local Definition HcoCsortToC2 : Lims_of_shape conat_graph sortToC2.
   Proof.
@@ -454,7 +454,7 @@ Section monad.
   Goal HcoCsortToC2 = SortIndexing.LLsortToC2 sort Hsort C conat_graph HcoC.
   Proof.
     apply idpath.
-  Qed. (* slow *)
+  Qed.
 
   Local Definition MultiSortedSigToFunctor' : MultiSortedSig sort -> sortToC3 := MultiSortedSigToFunctor' sort Hsort C TC BP BC CC.
 

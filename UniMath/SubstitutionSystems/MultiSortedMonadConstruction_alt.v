@@ -82,14 +82,14 @@ Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
 Goal BCsortToC = SortIndexing.BCsortToC sort Hsort _ BC.
 Proof.
   apply idpath.
-Qed. (* slow *)
+Qed.
 
 Let BPsortToCC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
 
 Goal BPsortToCC = SortIndexing.BPsortToCC sort Hsort _ BP.
 Proof.
   apply idpath.
-Qed. (* slow *)
+Qed.
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
 Context (EsortToCC : Exponentials BPsortToCC)

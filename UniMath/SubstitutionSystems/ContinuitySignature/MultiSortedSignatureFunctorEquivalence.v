@@ -359,14 +359,14 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
   Goal BPsortToCC = SortIndexing.BPsortToCC sort Hsort _ BP.
   Proof.
     apply idpath.
-  Qed. (* slow *)
+  Qed.
 
   Let TsortToCC : Terminal [sortToC,C] := Terminal_functor_precat _ _ TC.
 
   Goal TsortToCC = SortIndexing.TsortToCC sort Hsort _ TC.
   Proof.
     apply idpath.
-  Qed. (* slow *)
+  Qed.
 
   Let sortToC2 : category := [sortToC,sortToC].
 

@@ -75,7 +75,7 @@ Section FixTheContext.
   Goal BPsortToC2 = SortIndexing.BPsortToC2 sort Hsort _ BP.
   Proof.
     apply idpath.
-  Qed. (* slow *)
+  Qed.
 
   Section DefinitionOfMultiSortedSigToFunctorPrime.
 

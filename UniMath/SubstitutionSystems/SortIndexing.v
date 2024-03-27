@@ -1,5 +1,8 @@
 (** collects the disparate definitions that had been spread over the package SubstitutionSystems
 
+The notations that are used here speed up verification in the downstream files a lot.
+TODO: Make all those downstream verifications quick so that the present definitions can be directly used in those downstream files.
+
 author: Ralph Matthes, March 2024
  *)
 
@@ -46,7 +49,12 @@ Section AbstractCat.
 Definition sort_cat : category := path_pregroupoid sort Hsort.
 
 (** This represents "sort → C" *)
+(*
 Definition sortToC : category := [sort_cat,C].
+*)
+
+Notation sortToC := ([path_pregroupoid sort Hsort,C]).
+
 Definition make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid Hsort f.
 
 Definition make_sortToC_mor (ξ ξ' : sortToC) (fam : ∏ s: sort, pr1 ξ s --> pr1 ξ' s) : sortToC⟦ξ,ξ'⟧
@@ -61,19 +69,22 @@ Definition IsortToC (IC : Initial C) : Initial sortToC := Initial_functor_precat
 Definition CCsortToC (CC : forall (I : UU), isaset I → Coproducts I C)
   : forall (I : UU), isaset I → Coproducts I sortToC
   := fun I isa => Coproducts_functor_precat I sort_cat C (CC I isa).
+(* has slow downstream verification *)
 
 Definition CLsortToC (g : graph) (CL : Colims_of_shape g C) : Colims_of_shape g sortToC
   := ColimsFunctorCategory_of_shape g _ _ CL.
 Definition LLsortToC (g : graph) (LL : Lims_of_shape g C) : Lims_of_shape g sortToC
   := LimsFunctorCategory_of_shape g _ _ LL.
 
-Definition sortToCC : category := [sortToC, C].
+(* Definition sortToCC : category := [sortToC, C]. *)
+Notation sortToCC := ([[path_pregroupoid sort Hsort,C],C]).
 
 Definition BPsortToCC (BP: BinProducts C) : BinProducts sortToCC := BinProducts_functor_precat _ _ BP.
 
 Definition TsortToCC (TC : Terminal C) : Terminal sortToCC := Terminal_functor_precat _ _ TC.
 
-Definition sortToC2 : category := [sortToC, sortToC].
+(* Definition sortToC2 : category := [sortToC, sortToC]. *)
+Notation sortToC2 := ([[path_pregroupoid sort Hsort,C],[path_pregroupoid sort Hsort,C]]).
 
 Definition BCsortToC2 (BC: BinCoproducts C) : BinCoproducts sortToC2 := BinCoproducts_functor_precat _ _ (BCsortToC BC).
 
@@ -85,13 +96,15 @@ Definition IsortToC2 (IC : Initial C): Initial sortToC2 := Initial_functor_preca
 Definition CCsortToC2 (CC : forall (I : UU), isaset I → Coproducts I C)
   : forall (I : UU), isaset I → Coproducts I sortToC2
   := fun I isa => Coproducts_functor_precat I _ _ (CCsortToC CC I isa).
+(* has slow downstream verification *)
 
 Definition CLsortToC2 (g : graph) (CL : Colims_of_shape g C) : Colims_of_shape g sortToC2
   := ColimsFunctorCategory_of_shape g _ _ (CLsortToC g CL).
 Definition LLsortToC2 (g : graph) (LL : Lims_of_shape g C) : Lims_of_shape g sortToC2
   := LimsFunctorCategory_of_shape g _ _ (LLsortToC g LL).
 
-Definition sortToC3 : category := [sortToC2, sortToC2].
+(* Definition sortToC3 : category := [sortToC2, sortToC2]. *)
+Notation sortToC3 := ([[[path_pregroupoid sort Hsort,C],[path_pregroupoid sort Hsort,C]],[[path_pregroupoid sort Hsort,C],[path_pregroupoid sort Hsort,C]]]).
 
 Lemma coproduct_of_functors_sortToC3_mor (CC : forall (I : UU), isaset I → Coproducts I C) (I : UU) (isa : isaset I)
   (F : I → sortToC3) (G G' : sortToC2) (α : sortToC2 ⟦ G, G' ⟧) (ξ : sortToC) (s : sort) :
@@ -100,8 +113,14 @@ Lemma coproduct_of_functors_sortToC3_mor (CC : forall (I : UU), isaset I → Cop
 Proof.
   apply idpath.
 Qed.
+(* has slow downstream verification of its type *)
 
 End AbstractCat.
+
+Notation sortToC C := ([path_pregroupoid sort Hsort,C]).
+Notation sortToCC C := ([[path_pregroupoid sort Hsort,C],C]).
+Notation sortToC2 C := ([[path_pregroupoid sort Hsort,C],[path_pregroupoid sort Hsort,C]]).
+Notation sortToC3 C := ([[[path_pregroupoid sort Hsort,C],[path_pregroupoid sort Hsort,C]],[[path_pregroupoid sort Hsort,C],[path_pregroupoid sort Hsort,C]]]).
 
 Section HSET.
 
@@ -122,3 +141,8 @@ Section HSET.
 End HSET.
 
 End SortIndexing.
+
+Notation sortToC sort Hsort C := ([path_pregroupoid sort Hsort,C]).
+Notation sortToCC sort Hsort C := ([[path_pregroupoid sort Hsort,C],C]).
+Notation sortToC2 sort Hsort C := ([[path_pregroupoid sort Hsort,C],[path_pregroupoid sort Hsort,C]]).
+Notation sortToC3 sort Hsort C := ([[[path_pregroupoid sort Hsort,C],[path_pregroupoid sort Hsort,C]],[[path_pregroupoid sort Hsort,C],[path_pregroupoid sort Hsort,C]]]).

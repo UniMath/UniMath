@@ -58,7 +58,7 @@ Defined.
 Goal BCsortToC = SortIndexing.BCsortToC sort Hsort _ BC.
 Proof.
   apply idpath.
-Qed. (* slow *)
+Qed.
 
 Local Lemma TsortToC : Terminal sortToC.
 Proof.
@@ -68,7 +68,7 @@ Defined.
 Goal TsortToC = SortIndexing.TsortToC sort Hsort _ TC.
 Proof.
   apply idpath.
-Qed. (* slow *)
+Qed.
 
 Local Notation "a ⊕ b" := (BinCoproductObject (BCsortToC a b)).
 Local Notation "1" := (TerminalObject TsortToC).

@@ -116,21 +116,21 @@ Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
 Goal BCsortToC = SortIndexing.BCsortToC sort Hsort _ BC.
 Proof.
   apply idpath.
-Qed. (* slow *)
+Qed.
 
 Let BPsortToC : BinProducts sortToC := BinProducts_functor_precat _ C BP.
 
 Goal BPsortToC = SortIndexing.BPsortToC sort Hsort _ BP.
 Proof.
   apply idpath.
-Qed. (* slow *)
+Qed.
 
 Let BPsortToC2 : BinProducts [sortToC,sortToC] := BinProducts_functor_precat sortToC sortToC BPsortToC.
 
 Goal BPsortToC2 = SortIndexing.BPsortToC2 sort Hsort _ BP.
 Proof.
   apply idpath.
-Qed. (* slow *)
+Qed.
 
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
@@ -150,14 +150,14 @@ Section monad.
   Goal BCsortToC2 = SortIndexing.BCsortToC2 sort Hsort _ BC.
   Proof.
     apply idpath.
-  Qed. (* slow *)
+  Qed.
 
   Let IsortToC2 : Initial sortToC2 := Initial_functor_precat _ _ (Initial_functor_precat _ _ IC).
 
   Goal IsortToC2 = SortIndexing.IsortToC2 sort Hsort _ IC.
   Proof.
     apply idpath.
-  Qed. (* slow *)
+  Qed.
 
   Local Definition HCsortToC : Colims_of_shape nat_graph sortToC.
   Proof.
@@ -167,7 +167,7 @@ Section monad.
   Goal HCsortToC = SortIndexing.CLsortToC sort Hsort C nat_graph HC.
   Proof.
     apply idpath.
-  Qed. (* slow *)
+  Qed.
 
   Local Definition HCsortToC2 : Colims_of_shape nat_graph sortToC2.
   Proof.
@@ -177,7 +177,7 @@ Section monad.
   Goal HCsortToC2 = SortIndexing.CLsortToC2 sort Hsort C nat_graph HC.
   Proof.
     apply idpath.
-  Qed. (* slow *)
+  Qed.
 
   Local Definition MultiSortedSigToFunctor' : MultiSortedSig sort -> sortToC3 := MultiSortedSigToFunctor' sort Hsort C TC BP BC CC.
 

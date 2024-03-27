@@ -124,14 +124,14 @@ Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
 Goal BCsortToC = SortIndexing.BCsortToC sort Hsort _ BC.
 Proof.
   apply idpath.
-Qed. (* slow *)
+Qed.
 
 Let BPsortToCC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
 
 Goal BPsortToCC = SortIndexing.BPsortToCC sort Hsort _ BP.
 Proof.
   apply idpath.
-Qed. (* slow *)
+Qed.
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
 Context (EsortToCC : Exponentials BPsortToCC)
@@ -152,7 +152,7 @@ Defined.
 Goal CoproductsMultiSortedSig_base = fun M => SortIndexing.CCsortToC sort Hsort C CC _ (setproperty (ops sort M)).
 Proof.
   apply idpath.
-Qed. (* slow *)
+Qed. (* slow - unexpected *)
 
 Definition CoproductsMultiSortedSig (M : MultiSortedSig sort) : Coproducts (ops _ M) [sortToC, sortToC].
 Proof.
@@ -162,7 +162,7 @@ Defined.
 Goal CoproductsMultiSortedSig = fun M => SortIndexing.CCsortToC2 sort Hsort C CC _ (setproperty (ops sort M)).
 Proof.
   apply idpath.
-Qed. (* slow *)
+Qed. (* slow - unexpected *)
 
 
 (** * Construction of an endofunctor on [C^sort,C^sort] from a multisorted signature *)

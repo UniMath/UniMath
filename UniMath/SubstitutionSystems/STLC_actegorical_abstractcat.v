@@ -101,14 +101,14 @@ Section A.
   Goal BPsortToC = SortIndexing.BPsortToC sort Hsort _ BP.
   Proof.
     apply idpath.
-  Qed. (* slow *)
+  Qed.
 
   Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
 
   Goal BCsortToC = SortIndexing.BCsortToC sort Hsort _ BC.
   Proof.
     apply idpath.
-  Qed. (* slow *)
+  Qed.
 
   Let TsortToC : Terminal sortToC := Terminal_functor_precat _ _  TC.
 
@@ -120,7 +120,7 @@ Section A.
   Goal BPsortToCC = SortIndexing.BPsortToCC sort Hsort _ BP.
   Proof.
     apply idpath.
-  Qed. (* slow *)
+  Qed.
 
   Local Definition CCsortToC : ∏ I : UU, isaset I → Coproducts I sortToC.
   Proof.
@@ -130,7 +130,7 @@ Section A.
   Goal CCsortToC = SortIndexing.CCsortToC sort Hsort _ CC.
   Proof.
     apply idpath.
-  Qed. (* slow *)
+  Qed. (* slow - unexpected *)
 
 (** Some notations *)
 (* Local Infix "::" := (@cons _).
@@ -170,7 +170,7 @@ Let TsortToC2 : Terminal sortToC2 := Terminal_functor_precat sortToC sortToC Tso
 Goal TsortToC2 = SortIndexing.TsortToC2 sort Hsort _ TC.
 Proof.
   apply idpath.
-Qed. (* slow *)
+Qed.
 
 Local Definition BPsortToC2 : BinProducts sortToC2.
 Proof.
@@ -180,7 +180,7 @@ Defined.
 Goal BPsortToC2 = SortIndexing.BPsortToC2 sort Hsort _ BP.
 Proof.
   apply idpath.
-Qed. (* slow *)
+Qed.
 
 Local Definition BCsortToC2 : BinCoproducts sortToC2.
 Proof.
@@ -190,7 +190,7 @@ Defined.
 Goal BCsortToC2 = SortIndexing.BCsortToC2 sort Hsort _ BC.
 Proof.
   apply idpath.
-Qed. (* slow *)
+Qed.
 
 Local Definition CCsortToC2 : ∏ I : UU, isaset I → Coproducts I sortToC2.
 Proof.
@@ -200,14 +200,14 @@ Defined.
 Goal CCsortToC2 = SortIndexing.CCsortToC2 sort Hsort _ CC.
 Proof.
   apply idpath.
-Qed. (* slow *)
+Qed. (* slow - unexpected *)
 
 Let sortToC3 : category := [sortToC2,sortToC2].
 
 Goal sortToC3 = SortIndexing.sortToC3 sort Hsort C.
 Proof.
   apply idpath.
-Qed. (* slow *)
+Qed.
 
 Local Lemma coproduct_of_functors_sortToC3_mor (I : UU) (isa : isaset I) (F : I → sortToC3) (G G' : sortToC2) (α : sortToC2 ⟦ G, G' ⟧) (ξ : sortToC) (s : sort) :
   pr1 (pr1 (# (coproduct_of_functors I sortToC2 sortToC2 (CCsortToC2 _ isa) F) α) ξ) s = CoproductOfArrows _ _ _ _ (λ i, pr1 (pr1 (# (pr1 (F i)) α) ξ) s).
@@ -216,6 +216,7 @@ Proof.
 Qed.
 
 Goal coproduct_of_functors_sortToC3_mor = SortIndexing.coproduct_of_functors_sortToC3_mor sort Hsort C CC.
+(* slow - unexpected *)
 Proof.
 Abort. (* no proof is possible since the proofs are opaque - but we checked the statements *)
 
