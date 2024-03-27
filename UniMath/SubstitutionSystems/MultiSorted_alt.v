@@ -152,7 +152,7 @@ Defined.
 Goal CoproductsMultiSortedSig_base = fun M => SortIndexing.CCsortToC sort Hsort C CC _ (setproperty (ops sort M)).
 Proof.
   apply idpath.
-Qed. (* slow - unexpected *)
+Qed.
 
 Definition CoproductsMultiSortedSig (M : MultiSortedSig sort) : Coproducts (ops _ M) [sortToC, sortToC].
 Proof.
@@ -162,7 +162,7 @@ Defined.
 Goal CoproductsMultiSortedSig = fun M => SortIndexing.CCsortToC2 sort Hsort C CC _ (setproperty (ops sort M)).
 Proof.
   apply idpath.
-Qed. (* slow - unexpected *)
+Qed.
 
 
 (** * Construction of an endofunctor on [C^sort,C^sort] from a multisorted signature *)

@@ -130,7 +130,7 @@ Section A.
   Goal CCsortToC = SortIndexing.CCsortToC sort Hsort _ CC.
   Proof.
     apply idpath.
-  Qed. (* slow - unexpected *)
+  Qed.
 
 (** Some notations *)
 (* Local Infix "::" := (@cons _).
@@ -200,7 +200,7 @@ Defined.
 Goal CCsortToC2 = SortIndexing.CCsortToC2 sort Hsort _ CC.
 Proof.
   apply idpath.
-Qed. (* slow - unexpected *)
+Qed.
 
 Let sortToC3 : category := [sortToC2,sortToC2].
 
@@ -216,7 +216,6 @@ Proof.
 Qed.
 
 Goal coproduct_of_functors_sortToC3_mor = SortIndexing.coproduct_of_functors_sortToC3_mor sort Hsort C CC.
-(* slow - unexpected *)
 Proof.
 Abort. (* no proof is possible since the proofs are opaque - but we checked the statements *)
 
