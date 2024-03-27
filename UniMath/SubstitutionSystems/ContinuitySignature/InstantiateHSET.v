@@ -31,6 +31,7 @@ Require Import UniMath.CategoryTheory.Groupoids.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 
 Require Import UniMath.CategoryTheory.Chains.OmegaContFunctors.

@@ -344,4 +344,15 @@ Section PrimitiveCorecursion.
     apply primitive_corecursion_aux.
   Defined.
 
+  Lemma primitive_corecursion_formula_with_inverse :
+    h  = ϕ · #F (BinCoproductArrow (CP _ _) h (identity _)) · (α' _ _ _ isTerminalνF).
+  Proof.
+    etrans.
+    2: { exact (maponpaths (fun x => x · α' C F νF isTerminalνF) primitive_corecursion_existence). }
+    rewrite assoc'.
+    etrans.
+    2: { apply maponpaths, pathsinv0, αα'_idA. }
+    apply pathsinv0, id_right.
+  Qed.
+
 End PrimitiveCorecursion.

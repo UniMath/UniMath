@@ -47,6 +47,7 @@ Require Import UniMath.SubstitutionSystems.SimplifiedHSS.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.MultiSortedMonadConstruction_alt.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted_alt.
@@ -58,10 +59,7 @@ Section Lam.
 
 Context (sort : hSet) (arr : sort → sort → sort).
 
-Local Lemma hsort : isofhlevel 3 sort.
-Proof.
-exact (isofhlevelssnset 1 sort (setproperty sort)).
-Defined.
+Let hsort : isofhlevel 3 sort := STLC_Hsort sort.
 
 Let sortToSet : category := [path_pregroupoid sort hsort,HSET].
 
@@ -81,9 +79,9 @@ apply BinProducts_functor_precat, BinProductsHSET.
 Defined.
 
 (** Some notations *)
-Local Infix "::" := (@cons _).
+(* Local Infix "::" := (@cons _).
 Local Notation "[]" := (@nil _) (at level 0, format "[]").
-Local Notation "a + b" := (setcoprod a b) : set.
+Local Notation "a + b" := (setcoprod a b) : set. *)
 Local Notation "s ⇒ t" := (arr s t).
 Local Notation "'Id'" := (functor_identity _).
 Local Notation "a ⊕ b" := (BinCoproductObject (BinCoprodSortToSet a b)).
@@ -97,15 +95,7 @@ Proof.
 apply BinCoproducts_functor_precat, BinCoprodSortToSet.
 Defined.
 
-(** The signature of the simply typed lambda calculus *)
-Definition STLC_Sig : MultiSortedSig sort.
-Proof.
-use make_MultiSortedSig.
-- apply ((sort × sort) + (sort × sort))%set.
-- intros H; induction H as [st|st]; induction st as [s t].
-  + exact ((([],,(s ⇒ t)) :: ([],,s) :: nil),,t).
-  + exact (((cons s [],,t) :: []),,(s ⇒ t)).
-Defined.
+Local Definition STLC_Sig : MultiSortedSig sort := STLC_Sig sort arr.
 
 (** The signature with strength for the simply typed lambda calculus *)
 Definition STLC_Signature : Signature sortToSet _ _ :=
@@ -120,7 +110,7 @@ apply SignatureInitialAlgebra.
 - apply InitialHSET.
 - apply ColimsHSET_of_shape.
 - apply is_omega_cocont_MultiSortedSigToSignature.
-  + apply ProductsHSET.
+  + intros; apply ProductsHSET.
   + apply Exponentials_functor_HSET.
   + apply ColimsHSET_of_shape.
 Defined.

@@ -34,6 +34,7 @@ Require Import UniMath.SubstitutionSystems.Notation.
 Require UniMath.SubstitutionSystems.SubstitutionSystems.
 Local Open Scope subsys.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted.
 Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction.
 
@@ -45,8 +46,8 @@ Section Lam.
 Context (sort : hSet) (arr : sort → sort → sort).
 
 (** A lot of notations, upstream? *)
-Local Infix "::" := (@cons _).
-Local Notation "[]" := (@nil _) (at level 0, format "[]").
+(* Local Infix "::" := (@cons _).
+Local Notation "[]" := (@nil _) (at level 0, format "[]"). *)
 Local Notation "C / X" := (slice_cat C X).
 Local Notation "a + b" := (setcoprod a b) : set.
 
@@ -69,16 +70,7 @@ apply Coproducts_functor_precat, Coproducts_slice_precat, CoproductsHSET.
 apply setproperty.
 Defined.
 
-
-(** The signature of the simply typed lambda calculus *)
-Definition STLC_Sig : MultiSortedSig sort.
-Proof.
-use make_MultiSortedSig.
-- apply ((sort × sort) + (sort × sort))%set. (* todo: fix this once level of × is fixed *)
-- intros H; induction H as [st|st]; induction st as [s t].
-  + exact ((([],,arr s t) :: ([],,s) :: nil),,t).
-  + exact (((cons s [],,t) :: []),,arr s t).
-Defined.
+Local Definition STLC_Sig : MultiSortedSig sort := STLC_Sig sort arr.
 
 (** The signature with strength for the simply typed lambda calculus *)
 Definition STLC_Signature : Signature (HSET / sort) _ _:=
