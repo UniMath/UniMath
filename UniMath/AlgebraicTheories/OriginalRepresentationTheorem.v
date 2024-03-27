@@ -24,6 +24,145 @@ Require Import Ltac2.Ltac2.
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
 
+
+Definition curry'
+  {L : lambda_theory}
+  {m : nat}
+  (a : L m)
+  : L m
+  := abs
+    (abs
+      (app
+        (inflate (inflate a))
+        (⟨
+          var (stnweq (inr tt)),
+          var (stnweq (inl (stnweq (inr tt))))
+        ⟩))).
+
+Ltac2 Set traversals as traversals0 := fun _ => (
+    (fun () => match! goal with | [ |- curry' _ = _ ] => refine '(maponpaths (λ x, curry' x) _ @ _) end),
+    "curry' ",
+    ""
+  ) :: traversals0 ().
+
+Lemma subst_curry'
+  (L : lambda_theory)
+  {m m' : nat}
+  (a : L m)
+  (b : stn m → L m')
+  : curry' a • b = curry' (a • b).
+Proof.
+  refine '(subst_abs _ _ _ @ _).
+  refine '(maponpaths (λ x, (abs x)) (subst_abs _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs x))) (subst_app _ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app x _)))) (subst_inflate _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ x)))) (subst_pair _ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app x _)))) (subst_inflate _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨x, _⟩))))) (var_subst _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (var_subst _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨x, _⟩))))) (extend_tuple_inr _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (extend_tuple_inl _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, (inflate x)⟩))))) (extend_tuple_inr _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (inflate_var _ _) @ _).
+  refine '(_ @ !maponpaths (λ x, (abs (abs (app (inflate x) _)))) (inflate_subst _ _ _)).
+  refine '(_ @ !maponpaths (λ x, (abs (abs (app x _)))) (inflate_subst _ _ _)).
+  apply (maponpaths (λ x, abs (abs (app (a • x) _)))).
+  apply funextfun.
+  intro i.
+  refine '(extend_tuple_inl _ _ _ @ _).
+  exact (maponpaths (λ x, (inflate x)) (extend_tuple_inl _ _ _)).
+Qed.
+
+Ltac2 Set rewrites as rewrites0 := fun () =>
+  ((fun () => match! goal with
+  | [ |- (curry' ?a) • ?b = _] => refine '(subst_curry' _ $a $b)
+  end), "subst_curry' _ _ _") :: rewrites0 ().
+
+Definition inflate_curry'
+  (L : lambda_theory)
+  {n : nat}
+  (a : L n)
+  : inflate (curry' a) = curry' (inflate a)
+  := subst_curry' _ _ _.
+
+Ltac2 Set rewrites as rewrites0 := fun () =>
+  ((fun () => match! goal with
+  | [ |- inflate (curry' ?a) = _] => refine '(inflate_curry' _ $a)
+  end), "inflate_curry' _ _") :: rewrites0 ().
+
+Lemma app_curry'
+  (L : lambda_theory)
+  (Lβ : has_β L)
+  {m : nat}
+  (a b : L m)
+  : app (curry' a) b
+  = abs
+    (app
+      (inflate a)
+      (⟨
+        var (stnweq (inr tt)),
+        inflate b
+      ⟩)).
+Proof.
+  refine '(beta_equality _ Lβ _ _ @ _).
+  refine '(subst_abs _ _ _ @ _).
+  refine '(maponpaths (λ x, (abs x)) (subst_app _ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app x _))) (subst_inflate _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ x))) (subst_pair _ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app x _))) (subst_inflate _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨x, _⟩)))) (var_subst _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨_, x⟩)))) (var_subst _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨x, _⟩)))) (extend_tuple_inr _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨_, x⟩)))) (extend_tuple_inl _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨_, (inflate x)⟩)))) (extend_tuple_inr _ _ _) @ _).
+  apply (maponpaths (λ x, abs (app (a • x) _))).
+  apply funextfun.
+  intro i.
+  refine '(extend_tuple_inl _ _ _ @ _).
+  refine '(maponpaths (λ x, (inflate x)) (extend_tuple_inl _ _ _) @ _).
+  exact (inflate_var _ _).
+Qed.
+
+Lemma curry'_compose
+  (L : lambda_theory)
+  (Lβ : has_β L)
+  {m : nat}
+  (a : L (S m))
+  (b : L m)
+  : curry' b ∘ abs a
+  = abs (abs
+    (app
+      (inflate (inflate b))
+      (⟨
+        var (stnweq (inr tt)),
+        inflate a
+      ⟩))).
+Proof.
+  refine '(maponpaths (λ x, (abs (app x _))) (inflate_curry' _ _) @ _).
+  refine '(maponpaths abs (app_curry' _ Lβ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (inflate_app _ _ _ : app (inflate _) _ • _ = _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, (app (inflate x) _)⟩))))) (inflate_abs _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, (app _ x)⟩))))) (inflate_var _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, (app x _)⟩))))) (inflate_abs _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (beta_equality _ Lβ _ _) @ _).
+  do 2 (refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (subst_subst _ _ _ _) @ _)).
+  apply (maponpaths (λ x, abs (abs (app _ (⟨_, a • x⟩))))).
+  apply funextfun.
+  intro i.
+  rewrite <- (homotweqinvweq stnweq i).
+  induction (invmap stnweq i) as [i' | i'].
+  - refine '(maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _) @ _).
+    refine '(var_subst _ _ _ @ _).
+    refine '(maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _) @ _).
+    refine '(var_subst _ _ _ @ _).
+    exact (extend_tuple_inl _ _ _).
+  - refine '(maponpaths (λ x, (x • _)) (extend_tuple_inr _ _ _) @ _).
+    refine '(var_subst _ _ _ @ _).
+    refine '(maponpaths (λ x, (x • _)) (extend_tuple_inr _ _ _) @ _).
+    refine '(var_subst _ _ _ @ _).
+    exact (extend_tuple_inr _ _ _).
+Qed.
+
 Section Category.
 
   Context (L : lambda_theory).
@@ -354,16 +493,61 @@ Section Category.
 
     Section Object.
 
+      Definition exponential_term
+        {m : nat}
+        (B C : L m)
+        : L m
+        := curry' (ev C B).
+
+      Lemma subst_exponential_term
+        {m m' : nat}
+        (B C : L m)
+        (f : stn m → L m')
+        : exponential_term B C • f = exponential_term (B • f) (C • f).
+      Proof.
+        refine '(subst_curry' _ _ _ @ _).
+        exact (maponpaths (λ x, (curry' x)) (subst_ev _ _ _ _)).
+      Qed.
+
+      Lemma exponential_term_is_compose
+        (B C : L n)
+        : exponential_term B C = abs (inflate C ∘ var (stnweq (inr tt)) ∘ inflate B).
+      Proof.
+        refine '(maponpaths (λ x, (abs (abs (app (inflate x) _)))) (inflate_ev _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (abs (app x _)))) (inflate_ev _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (abs x))) (app_ev_pair _ Lβ _ _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (abs (app x _)))) (subst_subst _ _ _ _) @ _).
+        refine '(_ @ !maponpaths (λ x, (abs (abs (app x _)))) (inflate_abs _ _)).
+        refine '(_ @ !maponpaths (λ x, (abs (abs x))) (beta_equality _ Lβ _ _)).
+        refine '(_ @ !maponpaths (λ x, (abs (abs x))) (subst_subst _ _ _ _)).
+        refine '(_ @ !maponpaths (λ x, (abs (abs x))) (subst_app _ _ _ _)).
+        refine '(_ @ !maponpaths (λ x, (abs (abs (app x _)))) (subst_inflate _ _ _)).
+        refine '(_ @ !maponpaths (λ x, (abs (abs (app _ x)))) (subst_app _ _ _ _)).
+        refine '(_ @ !maponpaths (λ x, (abs (abs (app x _)))) (subst_inflate _ _ _)).
+        refine '(_ @ !maponpaths (λ x, (abs (abs (app _ (app x _))))) (subst_inflate _ _ _)).
+        refine '(_ @ !maponpaths (λ x, (abs (abs (app _ (app _ x))))) (var_subst _ _ _)).
+        refine '(_ @ !maponpaths (λ x, (abs (abs (app _ (app x _))))) (var_subst _ _ _)).
+        refine '(_ @ !maponpaths (λ x, (abs (abs (app _ (app _ (x • _)))))) (extend_tuple_inr _ _ _)).
+        refine '(_ @ !maponpaths (λ x, (abs (abs (app _ (app (x • _) _))))) (extend_tuple_inl _ _ _)).
+        refine '(_ @ !maponpaths (λ x, (abs (abs (app _ (app _ x))))) (var_subst _ _ _)).
+        refine '(_ @ !maponpaths (λ x, (abs (abs (app _ (app x _))))) (var_subst _ _ _)).
+        refine '(_ @ !maponpaths (λ x, (abs (abs (app _ (app _ x))))) (extend_tuple_inr _ _ _)).
+        refine '(_ @ !maponpaths (λ x, (abs (abs (app _ (app x _))))) (extend_tuple_inl _ _ _)).
+        refine '(maponpaths (λ x, (abs (abs (app (_ • x) _)))) _).
+        apply funextfun.
+        intro i.
+        refine '(var_subst _ _ _ @ _).
+        refine '(_ @ !maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _)).
+        refine '(_ @ !var_subst _ _ _).
+        exact (!extend_tuple_inl _ _ _).
+      Qed.
+
       Context (B C : R_ob).
 
-      Definition exponential_term
-        : L n
-        := curry (ev C B).
-
       Lemma exponential_idempotent
-        : exponential_term ∘ exponential_term = exponential_term.
+        : exponential_term B C ∘ exponential_term B C = exponential_term B C.
       Proof.
-        refine '(curry_compose _ Lβ _ _ @ _).
+        refine '(curry'_compose _ Lβ _ _ @ _).
         refine '(maponpaths (λ x, (abs (abs (app (inflate x) _)))) (inflate_ev _ _ _) @ _).
         refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, (inflate (abs (app (inflate x) _)))⟩))))) (inflate_ev _ _ _) @ _).
         refine '(maponpaths (λ x, (abs (abs (app x _)))) (inflate_ev _ _ _) @ _).
@@ -427,7 +611,7 @@ Section Category.
 
       Definition exponential_ob
         : R_ob
-        := exponential_term ,, exponential_idempotent.
+        := exponential_term B C ,, exponential_idempotent.
 
       Definition eval_term
         : L n
@@ -441,11 +625,11 @@ Section Category.
         refine '(compose_abs _ Lβ _ _ @ _).
         refine '(maponpaths (λ x, (abs (app _ (app _ (app (app x _) _))))) (inflate_compose _ _ _) @ _).
         refine '(maponpaths (λ x, (abs (app _ (app _ (app _ (app _ (app x _))))))) (inflate_compose _ _ _) @ _).
-        refine '(maponpaths (λ x, (abs (app _ (app _ (app (app (x ∘ _) _) _))))) (inflate_curry _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app _ (app _ (app (app (x ∘ _) _) _))))) (inflate_curry' _ _) @ _).
         refine '(maponpaths (λ x, (abs (app _ (app _ (app (app (_ ∘ x) _) _))))) (inflate_π2 _) @ _).
         refine '(maponpaths (λ x, (abs (app _ (app _ (app _ (app _ (app (_ ∘ x) _))))))) (inflate_π1 _) @ _).
-        refine '(maponpaths (λ x, (abs (app _ (app _ (app (app ((curry x) ∘ _) _) _))))) (inflate_ev _ _ _) @ _).
-        refine '(maponpaths (λ x, (abs (app _ (app _ (app (app x _) _))))) (curry_compose _ Lβ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app _ (app _ (app (app ((curry' x) ∘ _) _) _))))) (inflate_ev _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app _ (app _ (app (app x _) _))))) (curry'_compose _ Lβ _ _) @ _).
         refine '(maponpaths (λ x, (abs (app _ (app _ (app x _))))) (beta_equality _ Lβ _ _) @ _).
         refine '(maponpaths (λ x, (abs (app _ (app _ (app x _))))) (subst_abs _ _ _) @ _).
         refine '(maponpaths (λ x, (abs (app _ (app _ x)))) (beta_equality _ Lβ _ _) @ _).
@@ -519,12 +703,12 @@ Section Category.
 
         Definition lifted_term
           : L n
-          := curry h.
+          := curry' h.
 
         Lemma lifted_is_mor
           : exponential_ob ∘ lifted_term ∘ A = lifted_term.
         Proof.
-          refine '(maponpaths (λ x, (x ∘ _)) (curry_compose _ Lβ _ _) @ _).
+          refine '(maponpaths (λ x, (x ∘ _)) (curry'_compose _ Lβ _ _) @ _).
           refine '(abs_compose _ Lβ _ _ @ _).
           refine '(maponpaths (λ x, (abs x)) (subst_abs _ _ _) @ _).
           refine '(maponpaths (λ x, (abs (abs x))) (subst_app _ _ _ _) @ _).
@@ -635,7 +819,7 @@ Section Category.
           do 3 (refine '(maponpaths (λ x, (abs (app _ (app _ (⟨x, _⟩))))) (app_compose _ Lβ _ _ _) @ _)).
           refine '(maponpaths (λ x, (abs (app _ (app _ (⟨_, x⟩))))) (app_compose _ Lβ _ _ _) @ _).
           refine '(_ @ !ev_compose_pair_arrow _ Lβ _ _ _ _).
-          refine '(_ @ !maponpaths (λ x, (abs (app _ (app (app (inflate x) _) _)))) (curry_compose _ Lβ _ _)).
+          refine '(_ @ !maponpaths (λ x, (abs (app _ (app (app (inflate x) _) _)))) (curry'_compose _ Lβ _ _)).
           refine '(_ @ !maponpaths (λ x, (abs (app _ (app (app x _) _)))) (inflate_abs _ _)).
           refine '(_ @ !maponpaths (λ x, (abs (app _ (app _ (app _ (app x _)))))) (inflate_compose _ _ _)).
           refine '(_ @ !maponpaths (λ x, (abs (app _ (app x _)))) (beta_equality _ Lβ _ _)).
@@ -694,7 +878,7 @@ Section Category.
           apply R_mor_eq.
           refine '(!R_mor_is_mor _ @ _).
           refine '(!compose_assoc _ Lβ _ _ _ @ _).
-          refine '(curry_compose _ Lβ _ _ @ _).
+          refine '(curry'_compose _ Lβ _ _ @ _).
           refine '(maponpaths (λ x, (abs (abs (app (inflate x) _)))) (inflate_ev _ _ _) @ _).
           refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (inflate_app _ _ _) @ _).
           refine '(maponpaths (λ x, (abs (abs (app x _)))) (inflate_ev _ _ _) @ _).
@@ -709,8 +893,8 @@ Section Category.
           refine '(maponpaths (λ x, (abs (abs (app _ (app _ (app (x ∘ _) _)))))) (inflate_compose _ _ _) @ _).
           refine '(maponpaths (λ x, (abs (abs (app _ (app _ x))))) (app_compose _ Lβ _ _ _) @ _).
           refine '(maponpaths (λ x, (abs (abs (app _ (app _ x))))) (app_compose _ Lβ _ _ _) @ _).
-          refine '(_ @ !maponpaths (λ x, curry (R_mor_to_L x)) H).
-          refine '(_ @ !maponpaths (λ x, (curry x)) (ev_compose_pair_arrow _ Lβ _ _ _ _)).
+          refine '(_ @ !maponpaths (λ x, curry' (R_mor_to_L x)) H).
+          refine '(_ @ !maponpaths (λ x, (curry' x)) (ev_compose_pair_arrow _ Lβ _ _ _ _)).
           refine '(_ @ !maponpaths (λ x, (abs (abs (app (inflate x) _)))) (inflate_abs _ _)).
           refine '(_ @ !maponpaths (λ x, (abs (abs (app x _)))) (inflate_abs _ _)).
           refine '(_ @ !maponpaths (λ x, (abs (abs x))) (beta_equality _ Lβ _ _)).
@@ -794,8 +978,19 @@ Section Category.
   Section Endomorphism.
 
     Definition U_term
-      : L n
+      {m : nat}
+      : L m
       := abs (var (stnweq (inr tt))).
+
+    Lemma subst_U_term
+      {m m' : nat}
+      (f : stn m → L m')
+      : U_term • f = U_term.
+    Proof.
+      refine '(subst_abs _ _ _ @ _).
+      refine '(maponpaths (λ x, (abs x)) (var_subst _ _ _) @ _).
+      exact (maponpaths (λ x, (abs x)) (extend_tuple_inr _ _ _)).
+    Qed.
 
     Lemma U_compose
       (t : L (S n))

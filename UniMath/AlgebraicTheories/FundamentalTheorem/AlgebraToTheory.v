@@ -32,15 +32,14 @@ Require Import UniMath.Combinatorics.Tuples.
 Require Import UniMath.Combinatorics.Vectors.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.Algebras.
 Require Import UniMath.AlgebraicTheories.AlgebraMorphisms.
-Require Import UniMath.AlgebraicTheories.Examples.LambdaCalculus.
+Require Import UniMath.AlgebraicTheories.Algebras.
+Require Import UniMath.AlgebraicTheories.Combinators.
 Require Import UniMath.AlgebraicTheories.Examples.EndomorphismTheory.
-(* Require Import UniMath.AlgebraicTheories.FundamentalTheorem.SpecificUtilities.LambdaTerms. *)
+Require Import UniMath.AlgebraicTheories.Examples.LambdaCalculus.
 Require Import UniMath.AlgebraicTheories.FundamentalTheorem.CommonUtilities.MonoidActions.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryCategory.
-
 Require Import UniMath.AlgebraicTheories.OriginalRepresentationTheorem.
 
 Local Open Scope cat.
@@ -66,7 +65,7 @@ Section AlgebraToTheory.
   Definition compose
     (a b : A)
     : A
-    := aaction (compose L (var (● 0 : stn 2)) (var (● 1 : stn 2))) (weqvecfun _ [(a ; b)]).
+    := aaction (compose (var (● 0 : stn 2)) (var (● 1 : stn 2))) (weqvecfun _ [(a ; b)]).
 
   Lemma compose_assoc
     (a b c : A)
@@ -84,26 +83,6 @@ Section AlgebraToTheory.
     do 8 rewrite (var_subst L).
     apply compose_assoc.
     exact Lβ.
-  Qed.
-(*
-  Lemma compose_compose_eq
-    {a b c d : A}
-    (H : a = compose c d)
-    : compose a b = compose c (compose d b).
-  Proof.
-    refine (_ @ compose_assoc _ _ _).
-    apply (maponpaths (λ x, compose x _)).
-    exact H.
-  Qed. *)
-
-  Lemma lift_constant_U
-    {n : nat}
-    : lift_constant n (U_term L) = (U_term L).
-  Proof.
-    unfold lift_constant, U_term.
-    rewrite subst_abs.
-    rewrite (var_subst L).
-    now rewrite extend_tuple_inr.
   Qed.
 
   Definition I1
@@ -148,7 +127,7 @@ Section AlgebraToTheory.
     apply (maponpaths (λ x, aaction x _)).
     rewrite subst_compose.
     do 2 rewrite (var_subst L).
-    rewrite lift_constant_U.
+    refine (_ @ !maponpaths (λ x, x ∘ _) (subst_U_term _ _)).
     apply (!U_compose L Lβ _).
   Qed.
 
@@ -191,23 +170,13 @@ Section AlgebraToTheory.
       apply (maponpaths (λ x, aaction x _)).
       rewrite subst_compose.
       do 2 rewrite (var_subst L).
-      rewrite lift_constant_U.
+      refine (_ @ !maponpaths (λ x, x ∘ _) (subst_U_term _ _)).
       exact (!U_compose _ Lβ _).
     Qed.
 
-    Lemma is_functional_1_I1
-      : is_functional_1 I1.
-    Proof.
-      exact (!I1_idempotent).
-    Qed.
-
-    Lemma inflate_is_lift_constant
-      (x : L 0)
-      : inflate x = lift_constant 1 x.
-    Proof.
-      apply (maponpaths (subst _)).
-      apply (iscontr_uniqueness (iscontr_empty_tuple _)).
-    Qed.
+    Definition is_functional_1_I1
+      : is_functional_1 I1
+      := !I1_idempotent.
 
     Lemma is_runit_I1
       (a : A)
@@ -222,9 +191,14 @@ Section AlgebraToTheory.
       rewrite (move_action_through_vector_2 A _ (var _) _).
       do 2 rewrite <- subst_action.
       apply (maponpaths (λ x, aaction x _)).
-      rewrite lift_constant_U.
-      do 2 rewrite subst_compose.
-      do 4 rewrite (var_subst L).
+      refine (subst_compose _ _ _ _ @ _).
+      refine (maponpaths (λ x, x ∘ _) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, _ ∘ x) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, _ ∘ x) (subst_U_term _ _) @ _).
+      refine (_ @ !subst_compose _ _ _ (weqvecfun _ [(_ ; var _)])).
+      refine (_ @ !maponpaths (λ x, x ∘ _) (var_subst _ _ _)).
+      refine (_ @ !maponpaths (λ x, _ ∘ x) (var_subst _ _ _)).
+      refine (_ @ !maponpaths (λ x, x ∘ _) (subst_U_term _ _)).
       cbn.
       unfold U_term.
       rewrite (compose_abs _ Lβ).
@@ -270,7 +244,7 @@ Section AlgebraToTheory.
 
     Definition UU_term
       : L 0
-      := exponential_term L (U L Lβ) (U L Lβ).
+      := exponential_term L (U_term L) (U_term L).
 
     Definition I2
       : A
@@ -286,7 +260,7 @@ Section AlgebraToTheory.
       apply (maponpaths (λ x, aaction x _)).
       rewrite subst_compose.
       do 2 rewrite (var_subst L).
-      apply (exponential_idempotent L Lβ).
+      exact (exponential_idempotent L Lβ (U L Lβ) (U L Lβ)).
     Qed.
 
     Definition make_functional_2 (a : A)
@@ -300,34 +274,35 @@ Section AlgebraToTheory.
     Lemma is_functional_2_action_abs
       {n : nat}
       (f : (L (S (S n)) : hSet))
-      (v : stn n → A)
-      : is_functional_2 (aaction (abs (abs f) : ((L n) : hSet)) v).
+      (p : stn n → A)
+      : is_functional_2 (aaction (abs (abs f) : ((L n) : hSet)) p).
     Proof.
       unfold is_functional_2, make_functional_2, compose, I2, aaction.
-      rewrite <- (lift_constant_action _ _ v).
+      rewrite <- (lift_constant_action _ _ p).
       rewrite (move_action_through_vector_2 A _ _ _).
       rewrite <- subst_action.
       apply (maponpaths (λ x, aaction x _)).
-      rewrite subst_compose.
-      do 2 rewrite (var_subst L).
-      cbn.
-      rewrite (compose_abs L Lβ).
-      unfold lift_constant, UU_term, exponential_term.
-      rewrite inflate_subst.
-      rewrite subst_abs.
-      rewrite (beta_equality L Lβ).
-      rewrite (subst_subst L).
-      do 2 rewrite (subst_compose L).
-      rewrite (subst_inflate).
-      rewrite (pr2 (iscontr_empty_tuple (L (S n))) (λ i, _ • _)).
-      cbn -[weqvecfun stnweq].
-      rewrite (lift_constant_U : U_term _ • _ = _).
-      rewrite (var_subst L).
-      rewrite extend_tuple_inr.
-      rewrite (var_subst L).
-      rewrite extend_tuple_inr.
-      rewrite (U_compose _ Lβ).
-      now rewrite (compose_U _ Lβ).
+      refine (_ @ !subst_compose _ _ _ _).
+      refine (_ @ !maponpaths (λ x, (x ∘ _)) (var_subst _ _ _)).
+      refine (_ @ !maponpaths (λ x, (_ ∘ x)) (var_subst _ _ _)).
+      refine (_ @ !maponpaths (λ x, x ∘ _) (subst_exponential_term _ _ _ _)).
+      refine (_ @ !maponpaths (λ x, (exponential_term _ x x ∘ _)) (subst_U_term _ _)).
+      refine (_ @ !maponpaths (λ x, x ∘ _) (exponential_term_is_compose L Lβ _ _)).
+      refine (_ @ !compose_abs L Lβ _ _ ).
+      refine (_ @ !maponpaths (λ x, (abs (app x _))) (inflate_abs _ _)).
+      refine (_ @ !maponpaths (λ x, (abs x)) (beta_equality _ Lβ _ _)).
+      refine (_ @ !maponpaths (λ x, (abs x)) (subst_subst _ _ _ _)).
+      refine (_ @ !maponpaths (λ x, (abs x)) (subst_compose _ _ _ _)).
+      refine (_ @ !maponpaths (λ x, (abs (x ∘ _))) (subst_compose _ _ _ _)).
+      refine (_ @ !maponpaths (λ x, (abs (_ ∘ x))) (subst_inflate _ _ _)).
+      refine (_ @ !maponpaths (λ x, (abs ((x ∘ _) ∘ _))) (subst_inflate _ _ _)).
+      refine (_ @ !maponpaths (λ x, (abs ((_ ∘ x) ∘ _))) (var_subst _ _ _)).
+      refine (_ @ !maponpaths (λ x, (abs ((_ ∘ (x • _)) ∘ _))) (extend_tuple_inr _ _ _)).
+      refine (_ @ !maponpaths (λ x, (abs ((_ ∘ x) ∘ _))) (var_subst _ _ _)).
+      refine (_ @ !maponpaths (λ x, (abs ((_ ∘ x) ∘ _))) (extend_tuple_inr _ _ _)).
+      refine (_ @ !maponpaths (λ x, (abs (x ∘ _ ∘ x))) (subst_U_term _ _)).
+      refine (_ @ !maponpaths (λ x, (abs (x ∘ _))) (U_compose L Lβ _)).
+      exact (!maponpaths (λ x, (abs x)) (compose_U L Lβ _)).
     Qed.
 
     Lemma isaprop_is_functional_2 (a : A) : isaprop (is_functional_2 a).
@@ -338,7 +313,7 @@ Section AlgebraToTheory.
     Definition functional_2_set
       : hSet.
     Proof.
-      use (∑ (a : A), make_hSet (is_functional_2 a) _)%set.
+      refine (∑ (a : A), make_hSet (is_functional_2 a) _)%set.
       abstract exact (isasetaprop (isaprop_is_functional_2 _)).
     Defined.
 
@@ -355,17 +330,9 @@ Section AlgebraToTheory.
       exact H.
     Qed.
 
-    Lemma compose_I1_I2
-      : compose I1 I2 = I2.
-    Proof.
-      unfold compose, I1, I2, aaction.
-      rewrite (move_action_through_vector_2 A _ _ _).
-      rewrite <- subst_action.
-      apply (maponpaths (λ x, aaction x _)).
-      rewrite subst_compose.
-      do 2 rewrite (var_subst L).
-      apply (U_compose L Lβ).
-    Qed.
+    Definition compose_I1_I2
+      : compose I1 I2 = I2
+      := !is_functional_1_action_abs _ _.
 
     Lemma is_functional_2_to_is_functional_1
       (a : A)
@@ -417,29 +384,14 @@ Section AlgebraToTheory.
       : monoid_action lambda_algebra_monoid
       := make_monoid_action _ functional_2_is_monoid_action.
 
-    Let R : category := R L Lβ.
-    Let U : R := U L Lβ.
-
     Definition functional_2_to_monoid_action_morphism_data_term
       (d : functional_2_monoid_action)
       (a b : A)
       : A.
     Proof.
-      pose (v := (weqvecfun _ [(pr1 d ; a ; b)])).
-      refine (aaction _ v).
-      pose (R_exponentials L Lβ U).
-
-      Require Import UniMath.CategoryTheory.Adjunctions.Core.
-      Require Import UniMath.CategoryTheory.exponentials.
-
-      pose (abs (app (var (T := L) (● 0 : stn 2)) (var (● 1 : stn 2)))).
-      assert (R ⟦U, U⟧).
-
-      epose (BinProductArrow R (R_binproducts L Lβ U U)).
-      epose (binproduct_arrow ).
-      epose (φ_adj_inv (pr2 i) ∘ ).
-      cbn in p.
-      exact (aaction compose_2_λ v).
+      pose (p := (weqvecfun _ [(pr1 d ; a ; b)])).
+      refine (aaction _ p).
+      refine (uncurry (var (● 0 : stn 3)) ∘ pair_arrow (var (● 1 : stn 3)) (var (● 2 : stn 3))).
     Defined.
 
     Definition functional_2_to_monoid_action_morphism_data
@@ -464,20 +416,42 @@ Section AlgebraToTheory.
       unfold functional_2_to_monoid_action_morphism_data.
       unfold functional_2_to_monoid_action_morphism_data_term.
       cbn -[weqvecfun aaction].
-      pose (v := weqvecfun _ [(pr1 m ; pr1 d ; pr11 x ; pr12 x)]).
+      pose (p := weqvecfun _ [(pr1 m ; pr1 d ; pr11 x ; pr12 x)]).
       unfold compose, aaction.
-      rewrite <- (var_action _ (make_stn 4 0 (idpath true)) v : _ = pr1 m).
-      rewrite <- (var_action _ (make_stn 4 1 (idpath true)) v : _ = pr1 d).
-      rewrite <- (var_action _ (make_stn 4 2 (idpath true)) v : _ = pr11 x).
-      rewrite <- (var_action _ (make_stn 4 3 (idpath true)) v : _ = pr12 x).
-      do 2 rewrite (move_action_through_vector_2 A _ _ _).
-      do 2 rewrite <- subst_action.
-      do 2 rewrite (move_action_through_vector_3 A _ _ _ _).
-      do 2 rewrite <- subst_action.
+      rewrite <- (var_action _ (● 0 : stn 4) p : _ = pr1 m).
+      rewrite <- (var_action _ (● 1 : stn 4) p : _ = pr1 d).
+      rewrite <- (var_action _ (● 2 : stn 4) p : _ = pr11 x).
+      rewrite <- (var_action _ (● 3 : stn 4) p : _ = pr12 x).
+      do 2 (rewrite (move_action_through_vector_2 A _ _ _)).
+      do 2 (rewrite <- subst_action).
+      do 2 (rewrite (move_action_through_vector_3 A _ _ _ _)).
+      do 2 (rewrite <- subst_action).
       rewrite (move_action_through_vector_2 A _ _ _).
       rewrite <- subst_action.
-      apply (maponpaths (λ x, aaction x v)).
-      exact (!compose_compose_2_λ _ _ _ _).
+      apply (maponpaths (λ x, aaction x p)).
+      refine (subst_compose _ _ _ _ @ _).
+      refine (maponpaths (λ x, (x ∘ _)) (subst_uncurry _ _ _) @ _).
+      refine (maponpaths (λ x, (_ ∘ x)) (subst_pair_arrow _ _ _ _) @ _).
+      refine (maponpaths (λ x, uncurry x ∘ _) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, _ ∘ pair_arrow x _) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, _ ∘ pair_arrow x _) (subst_compose _ _ _ _) @ _).
+      refine (maponpaths (λ x, _ ∘ pair_arrow (x ∘ _) _) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, _ ∘ pair_arrow (_ ∘ x) _) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, _ ∘ pair_arrow _ x) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, _ ∘ pair_arrow _ x) (subst_compose _ _ _ _) @ _).
+      refine (maponpaths (λ x, _ ∘ pair_arrow _ (x ∘ _)) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, _ ∘ pair_arrow _ (_ ∘ x)) (var_subst _ _ _) @ _).
+      refine (_ @ !subst_compose _ (var _) _ _).
+      refine (_ @ !maponpaths (λ x, (x ∘ _)) (var_subst _ _ _)).
+      refine (_ @ !maponpaths (λ x, (_ ∘ x)) (var_subst _ _ _)).
+      refine (_ @ !maponpaths (λ x, (x ∘ _)) (subst_compose _ _ _ _)).
+      refine (_ @ !maponpaths (λ x, ((x ∘ _) ∘ _)) (subst_uncurry _ _ _)).
+      refine (_ @ !maponpaths (λ x, ((_ ∘ x) ∘ _)) (subst_pair_arrow _ _ _ _)).
+      refine (_ @ !maponpaths (λ x, uncurry x ∘ _ ∘ _) (var_subst _ _ _)).
+      refine (_ @ !maponpaths (λ x, _ ∘ pair_arrow x _ ∘ _) (var_subst _ _ _)).
+      refine (_ @ !maponpaths (λ x, _ ∘ pair_arrow _ x ∘ _) (var_subst _ _ _)).
+      refine (_ @ Combinators.compose_assoc _ Lβ _ _ _).
+      exact (!maponpaths (λ x, _ ∘ x) (pair_arrow_compose _ Lβ _ _ _)).
     Qed.
 
     Definition functional_2_to_exponential_object_morphism_data
@@ -493,12 +467,11 @@ Section AlgebraToTheory.
       ))
       : A.
     Proof.
-      refine (aaction term_1_λ
-        (weqvecfun _ [(_)])).
+      refine (aaction (curry (var (stnweq (inr tt)))) (weqvecfun _ [(_)])).
       apply (f : monoid_action_morphism _ _).
       split.
-      - exact (aaction T_λ (weqvecfun _ [()]) ,, is_functional_1_action_abs _ _).
-      - exact (aaction F_λ (weqvecfun _ [()]) ,, is_functional_1_action_abs _ _).
+      - exact (aaction π1 (weqvecfun _ [()]) ,, is_functional_1_action_abs _ _).
+      - exact (aaction π2 (weqvecfun _ [()]) ,, is_functional_1_action_abs _ _).
     Defined.
 
     Definition exponential_object_to_functional_2_morphism_data
@@ -518,42 +491,63 @@ Section AlgebraToTheory.
       unfold functional_2_to_monoid_action_morphism_data.
       unfold functional_2_to_monoid_action_morphism_data_term.
       cbn -[weqvecfun aaction].
-      set (v := weqvecfun _ [(pr1 a ; pr1 m ; pr11 x ; pr12 x)]).
-      rewrite <- (var_action _ (make_stn 4 0 (idpath true)) v : _ = pr1 a).
-      rewrite <- (var_action _ (make_stn 4 1 (idpath true)) v : _ = pr1 m).
-      rewrite <- (var_action _ (make_stn 4 2 (idpath true)) v : _ = pr11 x).
-      rewrite <- (var_action _ (make_stn 4 3 (idpath true)) v : _ = pr12 x).
+      set (p := weqvecfun _ [(pr1 a ; pr1 m ; pr11 x ; pr12 x)]).
+      rewrite <- (var_action _ (● 0 : stn 4) p : _ = pr1 a).
+      rewrite <- (var_action _ (● 1 : stn 4) p : _ = pr1 m).
+      rewrite <- (var_action _ (● 2 : stn 4) p : _ = pr11 x).
+      rewrite <- (var_action _ (● 3 : stn 4) p : _ = pr12 x).
       unfold compose, aaction.
-      do 2 rewrite (move_action_through_vector_2 A _ _ _).
-      do 2 rewrite <- subst_action.
-      do 2 rewrite (move_action_through_vector_3 A _ _ _ _).
-      do 2 rewrite <- subst_action.
-      apply (maponpaths (λ x, aaction x v)).
-      cbn -[weqvecfun].
-      apply compose_2_compose_λ.
+      do 2 (rewrite (move_action_through_vector_2 A _ _ _)).
+      do 2 (rewrite <- subst_action).
+      do 2 (rewrite (move_action_through_vector_3 A _ _ _ _)).
+      do 2 (rewrite <- subst_action).
+      apply (maponpaths (λ x, aaction x p)).
+      refine (subst_compose _ _ _ _ @ _).
+      refine (maponpaths (λ x, (x ∘ _)) (subst_uncurry _ _ _) @ _).
+      refine (maponpaths (λ x, (_ ∘ x)) (subst_pair_arrow _ _ _ _) @ _).
+      refine (maponpaths (λ x, ((uncurry x) ∘ _)) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, (_ ∘ (pair_arrow x _))) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, (_ ∘ (pair_arrow _ x))) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, ((uncurry x) ∘ _)) (subst_compose _ _ _ _) @ _).
+      refine (maponpaths (λ x, ((uncurry (x ∘ _)) ∘ _)) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, ((uncurry (_ ∘ x)) ∘ _)) (var_subst _ _ _) @ _).
+      refine (uncurry_compose_pair_arrow _ Lβ _ _ _ @ _).
+      refine (maponpaths (λ x, (abs (app (app x _) _))) (inflate_compose _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (app x _))) (app_compose _ Lβ _ _ _) @ _).
+      refine (_ @ !subst_compose L _ _ (weqvecfun 3 [( _ ; (_ ∘ _) • _ ; _)])).
+      refine (_ @ !maponpaths (λ x, (x ∘ _)) (subst_uncurry _ _ _)).
+      refine (_ @ !maponpaths (λ x, (_ ∘ x)) (subst_pair_arrow _ _ _ _)).
+      refine (_ @ !maponpaths (λ x, ((uncurry x) ∘ _)) (var_subst _ _ _)).
+      refine (_ @ !maponpaths (λ x, (_ ∘ (pair_arrow x _))) (var_subst _ _ _)).
+      refine (_ @ !maponpaths (λ x, (_ ∘ (pair_arrow _ x))) (var_subst _ _ _)).
+      refine (_ @ !maponpaths (λ x, (_ ∘ (pair_arrow x _))) (subst_compose _ _ _ _)).
+      refine (_ @ !maponpaths (λ x, (_ ∘ (pair_arrow (x ∘ _) _))) (var_subst _ _ _)).
+      refine (_ @ !maponpaths (λ x, (_ ∘ (pair_arrow (_ ∘ x) _))) (var_subst _ _ _)).
+      refine (_ @ !uncurry_compose_pair_arrow _ Lβ _ _ _).
+      refine (_ @ !maponpaths (λ x, (abs (app (app _ (app x _)) _))) (inflate_compose _ _ _)).
+      exact (!maponpaths (λ x, (abs (app (app _ x) _))) (app_compose _ Lβ _ _ _)).
     Qed.
 
     Definition term_2
       (a a' : A)
-      := (aaction term_2_λ (weqvecfun _ [(a ; a')]) ,, is_functional_1_action_abs _ _).
+      := (aaction (pair_arrow (var (● 0 : stn 2)) (var (● 1 : stn 2))) (weqvecfun _ [(a ; a')]) ,, is_functional_1_action_abs _ _).
 
     Lemma compose_2_term_1
       (b : monoid_monoid_action lambda_algebra_monoid)
       (a a' : A)
-      : aaction compose_2_λ
-        (weqvecfun 3 [(
-          aaction term_1_λ (weqvecfun 1 [(pr1 b)]);
-          a;
-          a'
-        )])
+      : functional_2_to_monoid_action_morphism_data_term
+        (aaction (curry (var (● 0 : stn 1))) (weqvecfun 1 [(pr1 b)]) ,, is_functional_2_action_abs _ _)
+        a
+        a'
       = pr1 (maction b (term_2 a a')).
     Proof.
+      unfold functional_2_to_monoid_action_morphism_data_term.
       cbn -[weqvecfun aaction].
-      set (v := weqvecfun _ [(pr1 b; a; a')]).
-      unfold compose, aaction.
-      rewrite <- (var_action _ (make_stn 3 0 (idpath true)) v : _ = pr1 b).
-      rewrite <- (var_action _ (make_stn 3 1 (idpath true)) v : _ = a).
-      rewrite <- (var_action _ (make_stn 3 2 (idpath true)) v : _ = a').
+      set (p := weqvecfun _ [(pr1 b; a; a')]).
+      unfold functional_2_to_monoid_action_morphism_data_term, compose, aaction.
+      rewrite <- (var_action _ (● 0 : stn 3) p : _ = pr1 b).
+      rewrite <- (var_action _ (● 1 : stn 3) p : _ = a).
+      rewrite <- (var_action _ (● 2 : stn 3) p : _ = a').
       rewrite (move_action_through_vector_1 A _ _).
       rewrite (move_action_through_vector_2 A _ _ _).
       rewrite <- subst_action.
@@ -562,9 +556,55 @@ Section AlgebraToTheory.
       rewrite (move_action_through_vector_3 A _ _ _ _).
       rewrite <- subst_action.
       rewrite <- subst_action.
-      apply (maponpaths (λ x, aaction x v)).
-      cbn -[weqvecfun].
-      apply compose_2_term_1_λ.
+      apply (maponpaths (λ x, aaction x p)).
+      refine (subst_compose _ _ _ _ @ _).
+      refine (maponpaths (λ x, (x ∘ _)) (subst_uncurry _ _ _) @ _).
+      refine (maponpaths (λ x, (_ ∘ x)) (subst_pair_arrow _ _ _ _) @ _).
+      refine (maponpaths (λ x, ((uncurry x) ∘ _)) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, (_ ∘ (pair_arrow x _))) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, (_ ∘ (pair_arrow _ x))) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, ((uncurry x) ∘ _)) (subst_curry _ _ _) @ _).
+      refine (maponpaths (λ x, ((uncurry (curry x)) ∘ _)) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, (x ∘ _)) (uncurry_curry _ Lβ _) @ _).
+      refine (!Combinators.compose_assoc _ Lβ _ _ _ @ _).
+      refine (maponpaths (λ x, (_ ∘ x)) (pair_arrow_compose _ Lβ _ _ _) @ _).
+      refine (_ @ !subst_compose _ (var _) _ _).
+      refine (_ @ !maponpaths (λ x, (x ∘ _)) (var_subst _ _ _)).
+      apply maponpaths.
+      refine (maponpaths (λ x, (pair_arrow x _)) (π1_pair_arrow' _ Lβ _ _) @ _).
+      refine (maponpaths (λ x, (pair_arrow _ x)) (π2_pair_arrow' _ Lβ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨(app x _), _⟩))) (inflate_abs _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨_, (app x _)⟩))) (inflate_abs _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨x, _⟩))) (beta_equality _ Lβ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨_, x⟩))) (beta_equality _ Lβ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨x, _⟩))) (subst_subst _ _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨_, x⟩))) (subst_subst _ _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨x, _⟩))) (subst_app _ _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨_, x⟩))) (subst_app _ _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨(app x _), _⟩))) (subst_inflate _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨(app _ x), _⟩))) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨_, (app x _)⟩))) (subst_inflate _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨_, (app _ x)⟩))) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨(app x _), _⟩))) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨(app _ (x • _)), _⟩))) (extend_tuple_inr _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨_, (app x _)⟩))) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨_, (app _ (x • _))⟩))) (extend_tuple_inr _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨(app (x • _) _), _⟩))) (extend_tuple_inl _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨(app _ x), _⟩))) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨_, (app (x • _) _)⟩))) (extend_tuple_inl _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨_, (app _ x)⟩))) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨(app x _), _⟩))) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨(app _ x), _⟩))) (extend_tuple_inr _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨_, (app x _)⟩))) (var_subst _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨_, (app _ x)⟩))) (extend_tuple_inr _ _ _) @ _).
+      refine (maponpaths (λ x, (abs (⟨(app x _), _⟩))) (extend_tuple_inl _ _ _) @ _).
+      refine (_ @ !var_subst _ _ _).
+      refine (_ @ !subst_pair_arrow _ _ _ _).
+      refine (_ @ !maponpaths (λ x, (pair_arrow x _)) (var_subst _ _ _)).
+      refine (_ @ !maponpaths (λ x, (pair_arrow _ x)) (var_subst _ _ _)).
+      refine (_ @ !maponpaths (λ x, (abs (⟨(app x _), _⟩))) (inflate_var _ _)).
+      refine (_ @ !maponpaths (λ x, (abs (⟨_, (app x _)⟩))) (inflate_var _ _)).
+      exact (maponpaths (λ x, (abs (⟨_, (app x _)⟩))) (extend_tuple_inl _ _ _)).
     Qed.
 
     Lemma is_z_iso_functional_2_exponential_object
@@ -577,7 +617,7 @@ Section AlgebraToTheory.
       - apply funextfun.
         intro a.
         apply functional_2_eq.
-        set (v := weqvecfun _ [(pr1 a)]).
+        set (p := weqvecfun _ [(pr1 a)]).
         unfold exponential_object_to_functional_2_morphism_data.
         unfold functional_2_to_exponential_object_morphism_data.
         unfold functional_2_to_monoid_action_morphism_data.
@@ -585,17 +625,57 @@ Section AlgebraToTheory.
         unfold functional_2_to_monoid_action_morphism_data_term.
         cbn -[weqvecfun aaction].
         rewrite (pr2 a).
-        rewrite <- (var_action _ (make_stn 1 0 (idpath true)) v : _ = pr1 a).
+        rewrite <- (var_action _ (make_stn 1 0 (idpath true)) p : _ = pr1 a).
         unfold make_functional_2, compose, I2, aaction.
-        do 3 rewrite <- (lift_constant_action _ _ v).
+        do 3 (rewrite <- (lift_constant_action _ _ p)).
         rewrite (move_action_through_vector_2 A _ _ _).
         rewrite <- subst_action.
         rewrite (move_action_through_vector_3 A _ _ _ _).
         rewrite <- subst_action.
         rewrite (move_action_through_vector_1 A _ _).
         rewrite <- subst_action.
-        apply (maponpaths (λ x, aaction x v)).
-        apply term_1_compose_2_λ.
+        apply (maponpaths (λ x, aaction x p)).
+        refine (subst_curry _ _ _ @ _).
+        refine (maponpaths (λ x, (curry x)) (var_subst _ _ _) @ _).
+        refine (maponpaths (λ x, (curry x)) (subst_compose _ _ _ _) @ _).
+        refine (maponpaths (λ x, (curry (x ∘ _))) (subst_uncurry _ _ _) @ _).
+        refine (maponpaths (λ x, (curry (_ ∘ x))) (subst_pair_arrow _ _ _ _) @ _).
+        refine (maponpaths (λ x, (curry ((uncurry x) ∘ _))) (var_subst _ _ _) @ _).
+        refine (maponpaths (λ x, (curry ((uncurry x) ∘ _))) (subst_compose _ _ _ _) @ _).
+        refine (maponpaths (λ x, (curry ((uncurry (x ∘ _)) ∘ _))) (var_subst _ _ _) @ _).
+        refine (maponpaths (λ x, (curry ((uncurry (_ ∘ x)) ∘ _))) (var_subst _ _ _) @ _).
+        refine (maponpaths (λ x, (curry (_ ∘ (pair_arrow x _)))) (var_subst _ _ _) @ _).
+        refine (maponpaths (λ x, (curry (_ ∘ (pair_arrow x _)))) (subst_π1 _ _) @ _).
+        refine (maponpaths (λ x, (curry (_ ∘ (pair_arrow _ x)))) (var_subst _ _ _) @ _).
+        refine (maponpaths (λ x, (curry (_ ∘ (pair_arrow _ x)))) (subst_π2 _ _) @ _).
+        refine (!maponpaths (λ x, (curry x)) (uncurry_curry _ Lβ _) @ _).
+        refine (maponpaths (λ x, (curry (uncurry (curry (uncurry (x ∘ _)))))) (subst_exponential_term _ _ _ _) @ _).
+        refine (maponpaths (λ x, (curry (uncurry (curry (uncurry ((exponential_term _ x x) ∘ _)))))) (subst_U_term _ _) @ _).
+        refine (maponpaths (λ x, (curry (uncurry (curry (uncurry (x ∘ _)))))) (exponential_term_is_compose _ Lβ _ _) @ _).
+        refine (maponpaths (λ x, (curry (uncurry (curry (uncurry ((abs (x ∘ _ ∘ x)) ∘ _)))))) (subst_U_term _ _) @ _).
+        refine (maponpaths (λ x, (curry (uncurry (curry (uncurry x))))) (abs_compose _ Lβ _ _) @ _).
+        refine (maponpaths (λ x, (curry (uncurry (curry (uncurry (abs x)))))) (subst_compose _ _ _ _) @ _).
+        refine (maponpaths (λ x, (curry (uncurry (curry (uncurry (abs (x ∘ _))))))) (subst_compose _ _ _ _) @ _).
+        refine (maponpaths (λ x, (curry (uncurry (curry (uncurry (abs ((_ ∘ x) ∘ _))))))) (var_subst _ _ _) @ _).
+        refine (maponpaths (λ x, (curry (uncurry (curry (uncurry (abs ((_ ∘ x) ∘ _))))))) (extend_tuple_inr _ _ _) @ _).
+        refine (maponpaths (λ x, (curry (uncurry (curry (uncurry (abs ((_ ∘ (app x _)) ∘ _))))))) (inflate_var _ _) @ _).
+        refine (maponpaths (λ x, (curry (uncurry (curry (uncurry (abs (x ∘ _ ∘ x))))))) (subst_U_term _ _) @ _).
+        refine (maponpaths (λ x, (curry (uncurry x))) (curry_uncurry _ Lβ _) @ _).
+        refine (_ @ !subst_compose _ _ _ _).
+        refine (_ @ !maponpaths (λ x, (x ∘ _)) (var_subst _ _ _)).
+        refine (_ @ !maponpaths (λ x, (_ ∘ x)) (var_subst _ _ _)).
+        refine (_ @ !maponpaths (λ x, (x ∘ _)) (subst_exponential_term _ _ _ _)).
+        refine (_ @ !maponpaths (λ x, ((exponential_term _ x x) ∘ _)) (subst_U_term _ _)).
+        refine (_ @ !maponpaths (λ x, (x ∘ _)) (exponential_term_is_compose _ Lβ _ _)).
+        refine (_ @ !maponpaths (λ x, ((abs (x ∘ _ ∘ x)) ∘ _)) (subst_U_term _ _)).
+        refine (_ @ !abs_compose _ Lβ _ _).
+        refine (_ @ !maponpaths (λ x, (abs x)) (subst_compose _ _ _ _)).
+        refine (_ @ !maponpaths (λ x, (abs (x ∘ _))) (subst_compose _ _ _ _)).
+        refine (_ @ !maponpaths (λ x, (abs ((_ ∘ x) ∘ _))) (var_subst _ _ _)).
+        refine (_ @ !maponpaths (λ x, (abs ((_ ∘ x) ∘ _))) (extend_tuple_inr _ _ _)).
+        refine (_ @ !maponpaths (λ x, (abs ((_ ∘ (app x _)) ∘ _))) (inflate_var _ _)).
+        refine (_ @ !maponpaths (λ x, (abs (x ∘ _ ∘ x))) (subst_U_term _ _)).
+        apply (curry_uncurry _ Lβ).
       - apply funextfun.
         intro f.
         apply monoid_action_morphism_eq.
@@ -603,28 +683,39 @@ Section AlgebraToTheory.
         apply functional_1_eq.
         refine (compose_2_term_1 _ _ _ @ _).
         refine (!base_paths _ _ (mor_action f _ _) @ _).
-        apply maponpaths.
-        apply maponpaths.
-        set (v := weqvecfun _ [(pr11 a ; pr12 a)]).
+        do 2 (apply maponpaths).
+        set (p := weqvecfun _ [(pr11 a ; pr12 a)]).
         apply pathsdirprod;
           apply functional_1_eq;
           [ refine (_ @ !pr21 a)
           | refine (_ @ !pr22 a) ];
           cbn -[weqvecfun aaction];
           unfold make_functional_1, compose, I1, aaction;
-          rewrite <- (var_action _ (make_stn 2 0 (idpath true)) v : _ = pr11 a);
-          rewrite <- (var_action _ (make_stn 2 1 (idpath true)) v : _ = pr12 a);
-          rewrite <- (lift_constant_action _ _ v);
-          rewrite <- (lift_constant_action _ _ v);
-          rewrite (move_action_through_vector_2 A _ _ _);
-          rewrite (move_action_through_vector_2 A _ _ _);
-          rewrite <- subst_action;
-          rewrite <- subst_action;
+          rewrite <- (var_action _ (● 0 : stn 2) p : _ = pr11 a);
+          rewrite <- (var_action _ (● 1 : stn 2) p : _ = pr12 a);
+          do 2 (rewrite <- (lift_constant_action _ _ p));
+          do 2 (rewrite (move_action_through_vector_2 A _ _ _));
+          do 2 (rewrite <- subst_action);
           rewrite (move_action_through_vector_2 A _ _ _);
           rewrite <- subst_action;
-          apply (maponpaths (λ x, aaction x v)).
-        + apply compose_T_λ.
-        + apply compose_F_λ.
+          apply (maponpaths (λ x, aaction x p));
+          refine (subst_compose _ _ _ _ @ _);
+          refine (maponpaths (λ x, (x ∘ _)) (var_subst _ _ _) @ _);
+          refine (maponpaths (λ x, (_ ∘ x)) (var_subst _ _ _) @ _);
+          refine (maponpaths (λ x, (_ ∘ x)) (subst_pair_arrow _ _ _ _) @ _);
+          refine (maponpaths (λ x, (_ ∘ (pair_arrow x _))) (var_subst _ _ _) @ _);
+          refine (maponpaths (λ x, (_ ∘ (pair_arrow _ x))) (var_subst _ _ _) @ _);
+          refine (_ @ !subst_compose _ _ _ (weqvecfun _ [(_ ; var _)]));
+          refine (_ @ !maponpaths (λ x, (x ∘ _)) (var_subst _ _ _));
+          refine (_ @ !maponpaths (λ x, (_ ∘ x)) (var_subst _ _ _));
+          refine (_ @ !maponpaths (λ x, (x ∘ _)) (subst_U_term _ _));
+          refine (_ @ !abs_compose _ Lβ _ _);
+          refine (_ @ !maponpaths (λ x, (abs x)) (var_subst _ _ _));
+          refine (_ @ !maponpaths (λ x, (abs x)) (extend_tuple_inr _ _ _)).
+        + refine (maponpaths (λ x, (x ∘ _)) (subst_π1 _ _) @ _).
+          apply (π1_pair_arrow' _ Lβ).
+        + refine (maponpaths (λ x, (x ∘ _)) (subst_π2 _ _) @ _).
+          apply (π2_pair_arrow' _ Lβ).
     Qed.
 
     Definition universal_monoid_exponential_iso
@@ -646,10 +737,15 @@ Section AlgebraToTheory.
       use make_monoid_action_morphism.
       - intro a.
         exists (compose I2 (pr1 a)).
-        exact (compose_compose_eq (!I2_idempotent)).
-      - intros a m.
-        apply functional_2_eq.
-        exact (!compose_assoc _ _ _).
+        abstract exact (
+          !maponpaths (λ x, compose x _) (I2_idempotent) @
+          !compose_assoc _ _ _
+        ).
+      - abstract (
+          intros a m;
+          apply functional_2_eq;
+          exact (compose_assoc _ _ _)
+        ).
     Defined.
 
     Definition functional_abs

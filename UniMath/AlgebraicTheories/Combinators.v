@@ -695,8 +695,8 @@ Qed.
 
 Ltac2 Set rewrites as rewrites0 := fun () =>
   ((fun () => match! goal with
-  | [ |- app π1 (⟨?a , ?b⟩) = _] => refine '( π1_pair _ _ $a $b); assumption
-  end), " π1_pair _ Lβ _ _") :: rewrites0 ().
+  | [ |- app π1 (⟨?a , ?b⟩) = _] => refine '(π1_pair _ _ $a $b); assumption
+  end), "π1_pair _ Lβ _ _") :: rewrites0 ().
 
 Lemma π1_pair_arrow
   (L : lambda_theory)
@@ -726,10 +726,36 @@ Proof.
     exact (extend_tuple_inr _ _ _).
 Qed.
 
+Lemma π1_pair_arrow'
+  (L : lambda_theory)
+  (Lβ : has_β L)
+  {n : nat}
+  (a b : L n)
+  : π1 ∘ pair_arrow a b = abs (app (inflate a) (var (stnweq (inr tt)))).
+Proof.
+  refine '(_ @ π1_pair_arrow _ Lβ _ b).
+  apply maponpaths.
+  refine '(_ @ !maponpaths (λ x, (abs (⟨(app x _), _⟩))) (inflate_abs _ _)).
+  refine '(_ @ !maponpaths (λ x, (abs (⟨x, _⟩))) (beta_equality _ Lβ _ _)).
+  refine '(_ @ !maponpaths (λ x, (abs (⟨x, _⟩))) (subst_subst _ _ _ _)).
+  refine '(_ @ !maponpaths (λ x, (abs (⟨x, _⟩))) (subst_app _ _ _ _)).
+  refine '(_ @ !maponpaths (λ x, (abs (⟨(app x _), _⟩))) (subst_inflate _ _ _)).
+  refine '(_ @ !maponpaths (λ x, (abs (⟨(app _ x), _⟩))) (var_subst _ _ _)).
+  refine '(_ @ !maponpaths (λ x, (abs (⟨(app _ (x • _)), _⟩))) (extend_tuple_inr _ _ _)).
+  refine '(_ @ !maponpaths (λ x, (abs (⟨(app _ x), _⟩))) (var_subst _ _ _)).
+  refine '(_ @ !maponpaths (λ x, (abs (⟨(app _ x), _⟩))) (extend_tuple_inr _ _ _)).
+  apply (maponpaths (λ x, (abs (⟨(app (a • x) _), _⟩)))).
+  apply funextfun.
+  intro i.
+  refine '(_ @ !maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _)).
+  refine '(_ @ !var_subst _ _ _).
+  exact (!extend_tuple_inl _ _ _).
+Qed.
+
 Ltac2 Set rewrites as rewrites0 := fun () =>
   ((fun () => match! goal with
-  | [ |- π1 ∘ (pair_arrow ?a ?b) = _] => refine '( π1_pair_arrow _ _ _ $b); assumption
-  end), " π1_pair_arrow _ Lβ _ _") :: rewrites0 ().
+  | [ |- π1 ∘ (pair_arrow ?a ?b) = _] => refine '(π1_pair_arrow _ _ _ $b); assumption
+  end), "π1_pair_arrow _ Lβ _ _") :: rewrites0 ().
 
 Definition π2
   {L : lambda_theory}
@@ -814,8 +840,8 @@ Qed.
 
 Ltac2 Set rewrites as rewrites0 := fun () =>
   ((fun () => match! goal with
-  | [ |- app π2 (⟨?a , ?b⟩) = _] => refine '( π2_pair _ _ $a $b); assumption
-  end), " π2_pair _ Lβ _ _") :: rewrites0 ().
+  | [ |- app π2 (⟨?a , ?b⟩) = _] => refine '(π2_pair _ _ $a $b); assumption
+  end), "π2_pair _ Lβ _ _") :: rewrites0 ().
 
 Lemma π2_pair_arrow
   (L : lambda_theory)
@@ -845,10 +871,36 @@ Proof.
     exact (extend_tuple_inr _ _ _).
 Qed.
 
+Lemma π2_pair_arrow'
+  (L : lambda_theory)
+  (Lβ : has_β L)
+  {n : nat}
+  (a b : L n)
+  : π2 ∘ pair_arrow a b = abs (app (inflate b) (var (stnweq (inr tt)))).
+Proof.
+  refine '(_ @ π2_pair_arrow _ Lβ a _).
+  apply maponpaths.
+  refine '(_ @ !maponpaths (λ x, (abs (⟨_, (app x _)⟩))) (inflate_abs _ _)).
+  refine '(_ @ !maponpaths (λ x, (abs (⟨_, x⟩))) (beta_equality _ Lβ _ _)).
+  refine '(_ @ !maponpaths (λ x, (abs (⟨_, x⟩))) (subst_subst _ _ _ _)).
+  refine '(_ @ !maponpaths (λ x, (abs (⟨_, x⟩))) (subst_app _ _ _ _)).
+  refine '(_ @ !maponpaths (λ x, (abs (⟨_, (app x _)⟩))) (subst_inflate _ _ _)).
+  refine '(_ @ !maponpaths (λ x, (abs (⟨_, (app _ x)⟩))) (var_subst _ _ _)).
+  refine '(_ @ !maponpaths (λ x, (abs (⟨_, (app _ (x • _))⟩))) (extend_tuple_inr _ _ _)).
+  refine '(_ @ !maponpaths (λ x, (abs (⟨_, (app _ x)⟩))) (var_subst _ _ _)).
+  refine '(_ @ !maponpaths (λ x, (abs (⟨_, (app _ x)⟩))) (extend_tuple_inr _ _ _)).
+  apply (maponpaths (λ x, (abs (⟨_, (app (b • x) _)⟩)))).
+  apply funextfun.
+  intro i.
+  refine '(_ @ !maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _)).
+  refine '(_ @ !var_subst _ _ _).
+  exact (!extend_tuple_inl _ _ _).
+Qed.
+
 Ltac2 Set rewrites as rewrites0 := fun () =>
   ((fun () => match! goal with
-  | [ |- π2 ∘ (pair_arrow ?a ?b) = _] => refine '( π2_pair_arrow _ _ $a _); assumption
-  end), " π2_pair_arrow _ Lβ _ _") :: rewrites0 ().
+  | [ |- π2 ∘ (pair_arrow ?a ?b) = _] => refine '(π2_pair_arrow _ _ $a _); assumption
+  end), "π2_pair_arrow _ Lβ _ _") :: rewrites0 ().
 
 Definition ev
   {L : lambda_theory}
@@ -986,8 +1038,8 @@ Lemma app_ev_pair
           c)).
 Proof.
   refine '(app_ev _ Lβ _ _ _ @ _).
-  refine '(maponpaths (λ x, (app _ (app _ (app _ x)))) ( π1_pair _ Lβ _ _) @ _).
-  exact (maponpaths (λ x, (app _ (app x _))) ( π2_pair _ Lβ _ _)).
+  refine '(maponpaths (λ x, (app _ (app _ (app _ x)))) (π1_pair _ Lβ _ _) @ _).
+  exact (maponpaths (λ x, (app _ (app x _))) (π2_pair _ Lβ _ _)).
 Qed.
 
 Lemma ev_compose_pair_arrow
@@ -1025,8 +1077,8 @@ Definition curry
       (app
         (inflate (inflate a))
         (⟨
-          var (stnweq (inr tt)),
-          var (stnweq (inl (stnweq (inr tt))))
+          var (stnweq (inl (stnweq (inr tt)))),
+          var (stnweq (inr tt))
         ⟩))).
 
 Ltac2 Set traversals as traversals0 := fun _ => (
@@ -1050,10 +1102,10 @@ Proof.
   refine '(maponpaths (λ x, (abs (abs (app x _)))) (subst_inflate _ _ _) @ _).
   refine '(maponpaths (λ x, (abs (abs (app _ (⟨x, _⟩))))) (var_subst _ _ _) @ _).
   refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (var_subst _ _ _) @ _).
-  refine '(maponpaths (λ x, (abs (abs (app _ (⟨x, _⟩))))) (extend_tuple_inr _ _ _) @ _).
-  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (extend_tuple_inl _ _ _) @ _).
-  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, (inflate x)⟩))))) (extend_tuple_inr _ _ _) @ _).
-  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (inflate_var _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨x, _⟩))))) (extend_tuple_inl _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (extend_tuple_inr _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨(inflate x), _⟩))))) (extend_tuple_inr _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨x, _⟩))))) (inflate_var _ _) @ _).
   refine '(_ @ !maponpaths (λ x, (abs (abs (app (inflate x) _)))) (inflate_subst _ _ _)).
   refine '(_ @ !maponpaths (λ x, (abs (abs (app x _)))) (inflate_subst _ _ _)).
   apply (maponpaths (λ x, abs (abs (app (a • x) _)))).
@@ -1089,8 +1141,8 @@ Lemma app_curry
   = abs
     (app
       (inflate a)
-      (⟨ var (stnweq (inr tt)),
-      inflate b⟩)).
+      (⟨ inflate b,
+      var (stnweq (inr tt))⟩)).
 Proof.
   refine '(beta_equality _ Lβ _ _ @ _).
   refine '(subst_abs _ _ _ @ _).
@@ -1100,9 +1152,9 @@ Proof.
   refine '(maponpaths (λ x, (abs (app x _))) (subst_inflate _ _ _) @ _).
   refine '(maponpaths (λ x, (abs (app _ (⟨x, _⟩)))) (var_subst _ _ _) @ _).
   refine '(maponpaths (λ x, (abs (app _ (⟨_, x⟩)))) (var_subst _ _ _) @ _).
-  refine '(maponpaths (λ x, (abs (app _ (⟨x, _⟩)))) (extend_tuple_inr _ _ _) @ _).
-  refine '(maponpaths (λ x, (abs (app _ (⟨_, x⟩)))) (extend_tuple_inl _ _ _) @ _).
-  refine '(maponpaths (λ x, (abs (app _ (⟨_, (inflate x)⟩)))) (extend_tuple_inr _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨x, _⟩)))) (extend_tuple_inl _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨_, x⟩)))) (extend_tuple_inr _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨(inflate x), _⟩)))) (extend_tuple_inr _ _ _) @ _).
   apply (maponpaths (λ x, abs (app (a • x) _))).
   apply funextfun.
   intro i.
@@ -1122,19 +1174,19 @@ Lemma curry_compose
     (app
       (inflate (inflate b))
       (⟨
-        var (stnweq (inr tt)),
-        inflate a
+        inflate a,
+        var (stnweq (inr tt))
       ⟩))).
 Proof.
   refine '(maponpaths (λ x, (abs (app x _))) (inflate_curry _ _) @ _).
   refine '(maponpaths abs (app_curry _ Lβ _ _) @ _).
-  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (inflate_app _ _ _ : app (inflate _) _ • _ = _) @ _).
-  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, (app (inflate x) _)⟩))))) (inflate_abs _ _) @ _).
-  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, (app _ x)⟩))))) (inflate_var _ _) @ _).
-  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, (app x _)⟩))))) (inflate_abs _ _) @ _).
-  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (beta_equality _ Lβ _ _) @ _).
-  do 2 (refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (subst_subst _ _ _ _) @ _)).
-  apply (maponpaths (λ x, abs (abs (app _ (⟨_, a • x⟩))))).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨x, _⟩))))) (inflate_app _ _ _ : app (inflate _) _ • _ = _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨(app (inflate x) _), _⟩))))) (inflate_abs _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨(app _ x), _⟩))))) (inflate_var _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨(app x _), _⟩))))) (inflate_abs _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨x, _⟩))))) (beta_equality _ Lβ _ _) @ _).
+  do 2 (refine '(maponpaths (λ x, (abs (abs (app _ (⟨x, _⟩))))) (subst_subst _ _ _ _) @ _)).
+  apply (maponpaths (λ x, abs (abs (app _ (⟨a • x, _⟩))))).
   apply funextfun.
   intro i.
   rewrite <- (homotweqinvweq stnweq i).
@@ -1223,10 +1275,10 @@ Lemma app_uncurry
   (a b : L n)
   : app (uncurry a) b
   = app
-    (app
-      a
-      (app π1 b))
-    (app π2 b).
+      (app
+        a
+        (app π1 b))
+      (app π2 b).
 Proof.
   refine '(beta_equality _ Lβ _ _ @ _).
   refine '(subst_app _ _ _ _ @ _).
@@ -1245,4 +1297,181 @@ Proof.
   apply funextfun.
   intro i.
   exact (extend_tuple_inl _ _ _).
+Qed.
+
+Lemma app_uncurry_pair
+  (L : lambda_theory)
+  (Lβ : has_β L)
+  {n : nat}
+  (a b c : L n)
+  : app (uncurry a) (⟨b, c⟩)
+  = app
+      (app
+        a
+        b)
+      c.
+Proof.
+  refine '(app_uncurry _ Lβ _ _ @ _).
+  refine '(maponpaths (λ x, (app (app _ x) _)) (π1_pair _ Lβ _ _) @ _).
+  exact (maponpaths (λ x, (app _ x)) (π2_pair _ Lβ _ _)).
+Qed.
+
+Lemma uncurry_compose
+  (L : lambda_theory)
+  (Lβ : has_β L)
+  {n : nat}
+  (a b : L n)
+  : uncurry a ∘ b
+  = abs
+    (app
+      (app
+        (inflate a)
+        (app
+          π1
+          (app
+            (inflate b)
+            (var (stnweq (inr tt))))))
+      (app
+        π2
+        (app
+          (inflate b)
+          (var (stnweq (inr tt)))))).
+Proof.
+  refine '(maponpaths (λ x, (abs (app x _))) (inflate_uncurry _ _) @ _).
+  exact (maponpaths (λ x, (abs x)) (app_uncurry _ Lβ _ _)).
+Qed.
+
+Lemma uncurry_compose_pair_arrow
+  (L : lambda_theory)
+  (Lβ : has_β L)
+  {n : nat}
+  (a b c : L n)
+  : uncurry a ∘ (pair_arrow b c)
+  = abs
+    (app
+      (app
+        (inflate a)
+        (app
+          (inflate b)
+          (var (stnweq (inr tt)))))
+      (app
+        (inflate c)
+        (var (stnweq (inr tt))))).
+Proof.
+  refine '(uncurry_compose _ Lβ _ _ @ _).
+  refine '(maponpaths (λ x, (abs (app (app _ (app _ (app x _))) _))) (inflate_pair_arrow _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (app _ (app x _))))) (inflate_pair_arrow _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app (app _ (app _ x)) _))) (app_pair_arrow _ Lβ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (app _ x)))) (app_pair_arrow _ Lβ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app (app _ x) _))) (π1_pair _ Lβ _ _) @ _).
+  exact (maponpaths (λ x, (abs (app _ x))) (π2_pair _ Lβ _ _)).
+Qed.
+
+Lemma curry_uncurry
+  (L : lambda_theory)
+  (Lβ : has_β L)
+  {n : nat}
+  (a : L (S (S n)))
+  : curry (uncurry (abs (abs a))) = abs (abs a).
+Proof.
+  refine '(maponpaths (λ x, (abs (abs (app (inflate x) _)))) (inflate_abs _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app x _)))) (inflate_abs _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs x))) (beta_equality _ Lβ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs x))) (subst_subst _ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs x))) (subst_subst _ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs x))) (subst_app _ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app x _)))) (subst_app _ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ x)))) (subst_app _ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app (app x _) _)))) (subst_inflate _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app (app _ x) _)))) (subst_app _ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (app x _))))) (subst_π2 _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (app _ x))))) (var_subst _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app (app x _) _)))) (subst_abs _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app (app _ (app x _)) _)))) (subst_π1 _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app (app _ (app _ x)) _)))) (var_subst _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (app _ (x • _)))))) (extend_tuple_inr _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app x _)))) (beta_equality _ Lβ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (app _ x))))) (var_subst _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app x _)))) (subst_subst _ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (app _ (x • _)))))) (extend_tuple_inr _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app x _)))) (subst_abs _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (app _ x))))) (var_subst _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs x))) (beta_equality _ Lβ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs x))) (subst_subst _ _ _ _) @ _).
+  refine '(_ @ maponpaths (λ x, abs (abs x)) (subst_var _ _)).
+  apply (maponpaths (λ x, abs (abs (a • x)))).
+  apply funextfun.
+  intro i.
+  rewrite <- (homotweqinvweq stnweq i).
+  induction (invmap stnweq i) as [i' | i'].
+  - refine '(maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _) @ _).
+    refine '(subst_inflate _ _ _ @ _).
+    refine '(subst_subst _ (extend_tuple _ _ i') _ _ @ _).
+    rewrite <- (homotweqinvweq stnweq i').
+    induction (invmap stnweq i') as [i'' | i''].
+    + refine '(maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _) @ _).
+      refine '(subst_inflate _ _ _ @ _).
+      refine '(subst_subst _ (extend_tuple _ _ _) _ _ @ _).
+      refine '(maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _) @ _).
+      refine '(var_subst _ _ _ @ _).
+      refine '(maponpaths (λ x, ((x • _) • _)) (extend_tuple_inl _ _ _) @ _).
+      refine '(subst_subst _ (var _) _ _ @ _).
+      refine '(var_subst _ _ _ @ _).
+      refine '(maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _) @ _).
+      refine '(var_subst _ _ _ @ _).
+      refine '(maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _) @ _).
+      refine '(var_subst _ _ _ @ _).
+      exact (extend_tuple_inl _ _ _).
+    + refine '(maponpaths (λ x, (x • _)) (extend_tuple_inr _ _ _) @ _).
+      refine '(var_subst _ _ _ @ _).
+      refine '(maponpaths (λ x, (x • _)) (extend_tuple_inr _ _ _) @ _).
+      refine '(subst_app _ _ _ _ @ _).
+      refine '(maponpaths (λ x, (app x _)) (subst_π1 _ _) @ _).
+      refine '(maponpaths (λ x, (app _ x)) (subst_subst _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (app _ (x • _))) (extend_tuple_inr _ _ _) @ _).
+      refine '(maponpaths (λ x, (app _ x)) (var_subst _ _ _) @ _).
+      refine '(maponpaths (λ x, (app _ ((x • _) • _))) (extend_tuple_inr _ _ _) @ _).
+      refine '(maponpaths (λ x, (app _ x)) (subst_subst _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (app _ x)) (var_subst _ _ _) @ _).
+      refine '(maponpaths (λ x, (app _ (x • _))) (extend_tuple_inr _ _ _) @ _).
+      refine '(maponpaths (λ x, (app _ x)) (subst_pair _ _ _ _) @ _).
+      refine '(π1_pair _ Lβ _ _ @ _).
+      refine '(var_subst _ _ _ @ _).
+      refine '(extend_tuple_inl _ _ _ @ _).
+      now induction i''.
+  - refine '(maponpaths (λ x, (x • _)) (extend_tuple_inr _ _ _) @ _).
+    refine '(var_subst _ _ _ @ _).
+    refine '(extend_tuple_inr _ _ _ @ _).
+    refine '(maponpaths (λ x, (app _ x)) (extend_tuple_inr _ _ _) @ _).
+    exact (π2_pair _ Lβ _ _).
+Qed.
+
+Lemma uncurry_curry
+  (L : lambda_theory)
+  (Lβ : has_β L)
+  {n : nat}
+  (a : L n)
+  : uncurry (curry a) = a ∘ (pair_arrow π1 π2).
+Proof.
+  refine '(maponpaths (λ x, (abs (app (app x _) _))) (inflate_curry _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app x _))) (app_curry _ Lβ _ _) @ _).
+  refine '(maponpaths (λ x, (abs x)) (beta_equality _ Lβ _ _) @ _).
+  refine '(maponpaths (λ x, (abs x)) (subst_app _ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app x _))) (subst_inflate _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ x))) (subst_pair _ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app x _))) (subst_inflate _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨x, _⟩)))) (subst_inflate _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨_, x⟩)))) (var_subst _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨x, _⟩)))) (subst_app _ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨_, x⟩)))) (extend_tuple_inr _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨(app x _), _⟩)))) (subst_π1 _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨(app _ x), _⟩)))) (var_subst _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨(app _ x), _⟩)))) (extend_tuple_inl _ _ _) @ _).
+  refine '(_ @ !compose_abs _ Lβ _ _).
+  refine '(_ @ !maponpaths (λ x, (abs (app _ (⟨(app x _), _⟩)))) (inflate_π1 _)).
+  refine '(_ @ !maponpaths (λ x, (abs (app _ (⟨_, (app x _)⟩)))) (inflate_π2 _)).
+  apply   (maponpaths (λ x, (abs (app (a • x) _)))).
+  apply funextfun.
+  intro i.
+  apply extend_tuple_inl.
 Qed.
