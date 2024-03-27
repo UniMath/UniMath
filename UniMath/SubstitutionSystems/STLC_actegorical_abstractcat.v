@@ -68,27 +68,11 @@ Section A.
   Context (C : category) (BP : BinProducts C) (BC : BinCoproducts C)
                          (TC : Terminal C) (CC : ∏ I : UU, isaset I → Coproducts I C).
 
-  Let sortToC : category := [path_pregroupoid sort Hsort, C].
+  Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
-  Goal sortToC = SortIndexing.sortToC sort Hsort C.
-  Proof.
-    apply idpath.
-  Qed.
+  Let make_sortToC (f : sort → C) : sortToC := SortIndexing.make_sortToC sort Hsort C f.
 
-  Let make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid Hsort f.
-
-  Goal make_sortToC = SortIndexing.make_sortToC sort Hsort C.
-  Proof.
-    apply idpath.
-  Qed.
-
-  Let make_sortToC_mor (ξ ξ' : sortToC) (fam : ∏ s: sort, pr1 ξ s --> pr1 ξ' s) : sortToC⟦ξ,ξ'⟧
-      := nat_trans_functor_path_pregroupoid fam.
-
-  Goal make_sortToC_mor = SortIndexing.make_sortToC_mor sort Hsort C.
-  Proof.
-    apply idpath.
-  Qed.
+  Let make_sortToC_mor := SortIndexing.make_sortToC_mor sort Hsort C.
 
   Local Lemma sortToC_comp {ξ1 ξ2 ξ3 : sortToC} (f : sortToC⟦ ξ1, ξ2 ⟧) (g : sortToC⟦ ξ2, ξ3 ⟧) (s : sort) :
     pr1 (f · g) s = pr1 f s · pr1 g s.
@@ -96,41 +80,15 @@ Section A.
     apply idpath.
   Qed.
 
-  Let BPsortToC : BinProducts sortToC := BinProducts_functor_precat _ _ BP.
+  Let BPsortToC : BinProducts sortToC := SortIndexing.BPsortToC sort Hsort _ BP.
 
-  Goal BPsortToC = SortIndexing.BPsortToC sort Hsort _ BP.
-  Proof.
-    apply idpath.
-  Qed.
+  Let BCsortToC : BinCoproducts sortToC := SortIndexing.BCsortToC sort Hsort _ BC.
 
-  Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
+  Let TsortToC : Terminal sortToC := SortIndexing.TsortToC sort Hsort _ TC.
 
-  Goal BCsortToC = SortIndexing.BCsortToC sort Hsort _ BC.
-  Proof.
-    apply idpath.
-  Qed.
+  Local Definition BPsortToCC : BinProducts [sortToC,C] := SortIndexing.BPsortToCC sort Hsort _ BP.
 
-  Let TsortToC : Terminal sortToC := Terminal_functor_precat _ _  TC.
-
-  Local Definition BPsortToCC : BinProducts [sortToC,C].
-  Proof.
-    apply BinProducts_functor_precat, BP.
-  Defined.
-
-  Goal BPsortToCC = SortIndexing.BPsortToCC sort Hsort _ BP.
-  Proof.
-    apply idpath.
-  Qed.
-
-  Local Definition CCsortToC : ∏ I : UU, isaset I → Coproducts I sortToC.
-  Proof.
-    intros I isaset. apply Coproducts_functor_precat. exact (CC _ isaset).
-  Defined.
-
-  Goal CCsortToC = SortIndexing.CCsortToC sort Hsort _ CC.
-  Proof.
-    apply idpath.
-  Qed.
+  Local Definition CCsortToC : ∏ I : UU, isaset I → Coproducts I sortToC := SortIndexing.CCsortToC sort Hsort _ CC.
 
 (** Some notations *)
 (* Local Infix "::" := (@cons _).
@@ -142,12 +100,7 @@ Local Notation "'Id'" := (functor_identity _).
 (* Local Notation "'1'" := (TerminalObject TerminalSortToSet). *)
 Local Notation "F ⊗ G" := (BinProduct_of_functors BPsortToCC F G).
 
-Let sortToC2 : category := [sortToC,sortToC].
-
-Goal sortToC2 = SortIndexing.sortToC2 sort Hsort C.
-Proof.
-  apply idpath.
-Qed.
+Let sortToC2 : category := SortIndexing.sortToC2 sort Hsort C.
 
 (*
 Local Lemma sortToC2_comp {F1 F2 F3 : sortToC2} (f : sortToC2⟦F1, F2⟧) (g : sortToC2⟦F2, F3⟧) (ξ : sortToC) :
@@ -165,59 +118,19 @@ Proof.
 Qed.
 *)
 
-Let TsortToC2 : Terminal sortToC2 := Terminal_functor_precat sortToC sortToC TsortToC.
+Let TsortToC2 : Terminal sortToC2 := SortIndexing.TsortToC2 sort Hsort _ TC.
 
-Goal TsortToC2 = SortIndexing.TsortToC2 sort Hsort _ TC.
-Proof.
-  apply idpath.
-Qed.
+Local Definition BPsortToC2 : BinProducts sortToC2 := SortIndexing.BPsortToC2 sort Hsort _ BP.
 
-Local Definition BPsortToC2 : BinProducts sortToC2.
-Proof.
-  apply BinProducts_functor_precat, BPsortToC.
-Defined.
+Local Definition BCsortToC2 : BinCoproducts sortToC2 := SortIndexing.BCsortToC2 sort Hsort _ BC.
 
-Goal BPsortToC2 = SortIndexing.BPsortToC2 sort Hsort _ BP.
-Proof.
-  apply idpath.
-Qed.
+Local Definition CCsortToC2 : ∏ I : UU, isaset I → Coproducts I sortToC2 := SortIndexing.CCsortToC2 sort Hsort _ CC.
 
-Local Definition BCsortToC2 : BinCoproducts sortToC2.
-Proof.
-  apply BinCoproducts_functor_precat, BCsortToC.
-Defined.
+Let sortToC3 : category := SortIndexing.sortToC3 sort Hsort C.
 
-Goal BCsortToC2 = SortIndexing.BCsortToC2 sort Hsort _ BC.
-Proof.
-  apply idpath.
-Qed.
-
-Local Definition CCsortToC2 : ∏ I : UU, isaset I → Coproducts I sortToC2.
-Proof.
-  intros I isaset. apply Coproducts_functor_precat. exact (CCsortToC _ isaset).
-Defined.
-
-Goal CCsortToC2 = SortIndexing.CCsortToC2 sort Hsort _ CC.
-Proof.
-  apply idpath.
-Qed.
-
-Let sortToC3 : category := [sortToC2,sortToC2].
-
-Goal sortToC3 = SortIndexing.sortToC3 sort Hsort C.
-Proof.
-  apply idpath.
-Qed.
-
-Local Lemma coproduct_of_functors_sortToC3_mor (I : UU) (isa : isaset I) (F : I → sortToC3) (G G' : sortToC2) (α : sortToC2 ⟦ G, G' ⟧) (ξ : sortToC) (s : sort) :
-  pr1 (pr1 (# (coproduct_of_functors I sortToC2 sortToC2 (CCsortToC2 _ isa) F) α) ξ) s = CoproductOfArrows _ _ _ _ (λ i, pr1 (pr1 (# (pr1 (F i)) α) ξ) s).
-Proof.
-  apply idpath.
-Qed.
-
-Goal coproduct_of_functors_sortToC3_mor = SortIndexing.coproduct_of_functors_sortToC3_mor sort Hsort C CC.
-Proof.
-Abort. (* no proof is possible since the proofs are opaque - but we checked the statements *)
+Local Definition coproduct_of_functors_sortToC3_mor (I : UU) (isa : isaset I) (F : I → sortToC3) (G G' : sortToC2) (α : sortToC2 ⟦ G, G' ⟧) (ξ : sortToC) (s : sort) :
+  pr1 (pr1 (# (coproduct_of_functors I sortToC2 sortToC2 (CCsortToC2 _ isa) F) α) ξ) s = CoproductOfArrows _ _ _ _ (λ i, pr1 (pr1 (# (pr1 (F i)) α) ξ) s)
+  := SortIndexing.coproduct_of_functors_sortToC3_mor sort Hsort C CC I isa F G G' α ξ s.
 
 Lemma postcomp_with_projSortToC_on_mor (F : sortToC2) (s: sort) (ξ ξ' : sortToC) (f : sortToC ⟦ ξ, ξ' ⟧)
 (* (arg : global_element TC (pr1 (functor_compose F (projSortToC sort Hsort C s)) ξ)) *)

@@ -92,19 +92,9 @@ Local Notation "'1'" := (TerminalObject TC).
 Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
 
 (** This represents "sort → C" *)
-Let sortToC : category := [path_pregroupoid sort Hsort,C].
+Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
-Goal sortToC = SortIndexing.sortToC sort Hsort C.
-Proof.
-  apply idpath.
-Qed.
-
-Let BPsortToCC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
-
-Goal BPsortToCC = SortIndexing.BPsortToCC sort Hsort _ BP.
-Proof.
-  apply idpath.
-Qed.
+Let BPsortToCC : BinProducts [sortToC,C] := SortIndexing.BPsortToCC sort Hsort _ BP.
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
 Context (EsortToCC : Exponentials BPsortToCC)
@@ -119,9 +109,9 @@ Context (EsortToCC : Exponentials BPsortToCC)
 
 (** end of Preamble copied from [Multisorted_alt] *)
 
-Local Definition sortToC2 := [sortToC, sortToC].
-Local Definition sortToC3 := [sortToC2, sortToC2].
-Local Definition sortToCC := [sortToC, C].
+Local Definition sortToC2 := SortIndexing.sortToC2 sort Hsort C.
+Local Definition sortToC3 := SortIndexing.sortToC3 sort Hsort C.
+Local Definition sortToCC := SortIndexing.sortToCC sort Hsort C.
 Local Definition sortToC21C := [sortToC2, sortToCC].
 
 Let ops : MultiSortedSig sort → hSet := ops sort.

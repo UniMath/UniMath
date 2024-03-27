@@ -59,23 +59,9 @@ Section FixTheContext.
   Let sort_cat : category := path_pregroupoid sort Hsort.
 
   (** This represents "sort → C" *)
-  Let sortToC : category := [sort_cat,C].
+  Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
-  Goal sortToC = SortIndexing.sortToC sort Hsort C.
-  Proof.
-    apply idpath.
-  Qed.
-
-  Lemma BPsortToC2
-    : BinProducts [sortToC, sortToC].
-  Proof.
-    do 2 (apply BinProducts_functor_precat) ; exact BP.
-  Defined.
-
-  Goal BPsortToC2 = SortIndexing.BPsortToC2 sort Hsort _ BP.
-  Proof.
-    apply idpath.
-  Qed.
+  Local Definition BPsortToC2 : BinProducts [sortToC, sortToC] := SortIndexing.BPsortToC2 sort Hsort _ BP.
 
   Section DefinitionOfMultiSortedSigToFunctorPrime.
 

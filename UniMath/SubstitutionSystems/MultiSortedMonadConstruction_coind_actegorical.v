@@ -384,19 +384,9 @@ Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
 Let sort_cat : category := path_pregroupoid sort Hsort.
 
 (** This represents "sort → C" *)
-Let sortToC : category := [sort_cat,C].
+Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
-Goal sortToC = SortIndexing.sortToC sort Hsort C.
-Proof.
-  apply idpath.
-Qed.
-
-Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
-
-Goal BCsortToC = SortIndexing.BCsortToC sort Hsort _ BC.
-Proof.
-  apply idpath.
-Qed.
+Let BCsortToC : BinCoproducts sortToC := SortIndexing.BCsortToC sort Hsort _ BC.
 
 (* Assumptions needed to prove ω-continuity of the functor *)
 Context (HcoC : Lims_of_shape conat_graph C)
@@ -408,53 +398,17 @@ Context (HcoC : Lims_of_shape conat_graph C)
 (** * Construction of a monad from a multisorted signature *)
 Section monad.
 
-  Local Definition sortToC2 := [sortToC, sortToC].
+  Local Definition sortToC2 := SortIndexing.sortToC2 sort Hsort C.
 
-  Goal sortToC2 = SortIndexing.sortToC2 sort Hsort C.
-  Proof.
-    apply idpath.
-  Qed.
+  Local Definition sortToC3 := SortIndexing.sortToC3 sort Hsort C.
 
-  Local Definition sortToC3 := [sortToC2, sortToC2].
+  Let BCsortToC2 : BinCoproducts sortToC2 := SortIndexing.BCsortToC2 sort Hsort _ BC.
 
-  Goal sortToC3 = SortIndexing.sortToC3 sort Hsort C.
-  Proof.
-    apply idpath.
-  Qed.
+  Let TsortToC2 : Terminal sortToC2 := SortIndexing.TsortToC2 sort Hsort _ TC.
 
-  Let BCsortToC2 : BinCoproducts sortToC2 := BinCoproducts_functor_precat _ _ BCsortToC.
+  Local Definition HcoCsortToC : Lims_of_shape conat_graph sortToC := SortIndexing.LLsortToC sort Hsort C conat_graph HcoC.
 
-  Goal BCsortToC2 = SortIndexing.BCsortToC2 sort Hsort _ BC.
-  Proof.
-    apply idpath.
-  Qed.
-
-  Let TsortToC2 : Terminal sortToC2 := Terminal_functor_precat _ _ (Terminal_functor_precat _ _ TC).
-
-  Goal TsortToC2 = SortIndexing.TsortToC2 sort Hsort _ TC.
-  Proof.
-    apply idpath.
-  Qed.
-
-  Local Definition HcoCsortToC : Lims_of_shape conat_graph sortToC.
-  Proof.
-    apply LimsFunctorCategory_of_shape, HcoC.
-  Defined.
-
-  Goal HcoCsortToC = SortIndexing.LLsortToC sort Hsort C conat_graph HcoC.
-  Proof.
-    apply idpath.
-  Qed.
-
-  Local Definition HcoCsortToC2 : Lims_of_shape conat_graph sortToC2.
-  Proof.
-    apply LimsFunctorCategory_of_shape, HcoCsortToC.
-  Defined.
-
-  Goal HcoCsortToC2 = SortIndexing.LLsortToC2 sort Hsort C conat_graph HcoC.
-  Proof.
-    apply idpath.
-  Qed.
+  Local Definition HcoCsortToC2 : Lims_of_shape conat_graph sortToC2 := SortIndexing.LLsortToC2 sort Hsort C conat_graph HcoC.
 
   Local Definition MultiSortedSigToFunctor' : MultiSortedSig sort -> sortToC3 := MultiSortedSigToFunctor' sort Hsort C TC BP BC CC.
 

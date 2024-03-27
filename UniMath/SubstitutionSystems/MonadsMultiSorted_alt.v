@@ -43,32 +43,11 @@ Section MonadInSortToC.
 
 Context (sort : hSet) (Hsort : isofhlevel 3 sort) (C : category) (BC : BinCoproducts C) (TC : Terminal C).
 
-Let sortToC : category := [path_pregroupoid sort Hsort, C].
+Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
-Goal sortToC = SortIndexing.sortToC sort Hsort C.
-Proof.
-  apply idpath.
-Qed.
+Local Definition BCsortToC : BinCoproducts sortToC := SortIndexing.BCsortToC sort Hsort _ BC.
 
-Local Lemma BCsortToC : BinCoproducts sortToC.
-Proof.
-apply BinCoproducts_functor_precat, BC.
-Defined.
-
-Goal BCsortToC = SortIndexing.BCsortToC sort Hsort _ BC.
-Proof.
-  apply idpath.
-Qed.
-
-Local Lemma TsortToC : Terminal sortToC.
-Proof.
-apply Terminal_functor_precat, TC.
-Defined.
-
-Goal TsortToC = SortIndexing.TsortToC sort Hsort _ TC.
-Proof.
-  apply idpath.
-Qed.
+Local Definition TsortToC : Terminal sortToC := SortIndexing.TsortToC sort Hsort _ TC.
 
 Local Notation "a ⊕ b" := (BinCoproductObject (BCsortToC a b)).
 Local Notation "1" := (TerminalObject TsortToC).

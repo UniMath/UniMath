@@ -104,34 +104,13 @@ Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
 Let sort_cat : category := path_pregroupoid sort Hsort.
 
 (** This represents "sort → C" *)
-Let sortToC : category := [sort_cat,C].
+Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
-Goal sortToC = SortIndexing.sortToC sort Hsort C.
-Proof.
-  apply idpath.
-Qed.
+Let BCsortToC : BinCoproducts sortToC := SortIndexing.BCsortToC sort Hsort _ BC.
 
-Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
+Let BPsortToC : BinProducts sortToC := SortIndexing.BPsortToC sort Hsort _ BP.
 
-Goal BCsortToC = SortIndexing.BCsortToC sort Hsort _ BC.
-Proof.
-  apply idpath.
-Qed.
-
-Let BPsortToC : BinProducts sortToC := BinProducts_functor_precat _ C BP.
-
-Goal BPsortToC = SortIndexing.BPsortToC sort Hsort _ BP.
-Proof.
-  apply idpath.
-Qed.
-
-Let BPsortToC2 : BinProducts [sortToC,sortToC] := BinProducts_functor_precat sortToC sortToC BPsortToC.
-
-Goal BPsortToC2 = SortIndexing.BPsortToC2 sort Hsort _ BP.
-Proof.
-  apply idpath.
-Qed.
-
+Let BPsortToC2 : BinProducts [sortToC,sortToC] := SortIndexing.BPsortToC2 sort Hsort _ BP.
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
 Context (EsortToC2 : Exponentials BPsortToC2) (** this requires exponentials in a higher space than before for [MultiSortedSigToFunctor] *)
@@ -142,42 +121,16 @@ Context (EsortToC2 : Exponentials BPsortToC2) (** this requires exponentials in 
 (** * Construction of a monad from a multisorted signature *)
 Section monad.
 
-  Local Definition sortToC2 := [sortToC, sortToC].
-  Local Definition sortToC3 := [sortToC2, sortToC2].
+  Local Definition sortToC2 := SortIndexing.sortToC2 sort Hsort C.
+  Local Definition sortToC3 := SortIndexing.sortToC3 sort Hsort C.
 
-  Let BCsortToC2 : BinCoproducts sortToC2 := BinCoproducts_functor_precat _ _ BCsortToC.
+  Let BCsortToC2 : BinCoproducts sortToC2 := SortIndexing.BCsortToC2 sort Hsort _ BC.
 
-  Goal BCsortToC2 = SortIndexing.BCsortToC2 sort Hsort _ BC.
-  Proof.
-    apply idpath.
-  Qed.
+  Let IsortToC2 : Initial sortToC2 := SortIndexing.IsortToC2 sort Hsort _ IC.
 
-  Let IsortToC2 : Initial sortToC2 := Initial_functor_precat _ _ (Initial_functor_precat _ _ IC).
+  Local Definition HCsortToC : Colims_of_shape nat_graph sortToC := SortIndexing.CLsortToC sort Hsort C nat_graph HC.
 
-  Goal IsortToC2 = SortIndexing.IsortToC2 sort Hsort _ IC.
-  Proof.
-    apply idpath.
-  Qed.
-
-  Local Definition HCsortToC : Colims_of_shape nat_graph sortToC.
-  Proof.
-    apply ColimsFunctorCategory_of_shape, HC.
-  Defined.
-
-  Goal HCsortToC = SortIndexing.CLsortToC sort Hsort C nat_graph HC.
-  Proof.
-    apply idpath.
-  Qed.
-
-  Local Definition HCsortToC2 : Colims_of_shape nat_graph sortToC2.
-  Proof.
-    apply ColimsFunctorCategory_of_shape, HCsortToC.
-  Defined.
-
-  Goal HCsortToC2 = SortIndexing.CLsortToC2 sort Hsort C nat_graph HC.
-  Proof.
-    apply idpath.
-  Qed.
+  Local Definition HCsortToC2 : Colims_of_shape nat_graph sortToC2 := SortIndexing.CLsortToC2 sort Hsort C nat_graph HC.
 
   Local Definition MultiSortedSigToFunctor' : MultiSortedSig sort -> sortToC3 := MultiSortedSigToFunctor' sort Hsort C TC BP BC CC.
 

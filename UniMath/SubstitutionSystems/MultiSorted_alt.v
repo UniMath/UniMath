@@ -89,49 +89,19 @@ Local Notation "'1'" := (TerminalObject TC).
 Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
 
 (** Define the category of sorts *)
-Let sort_cat : category := path_pregroupoid sort Hsort.
-
-Goal sort_cat = SortIndexing.sort_cat sort Hsort.
-Proof.
-  apply idpath.
-Qed.
+Let sort_cat : category := SortIndexing.sort_cat sort Hsort.
 
 (** This represents "sort → C" *)
-Let sortToC : category := [sort_cat,C].
+Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
-Goal sortToC = SortIndexing.sortToC sort Hsort C.
-Proof.
-  apply idpath.
-Qed.
-
-Let make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid Hsort f.
-
-Goal make_sortToC = SortIndexing.make_sortToC sort Hsort C.
-Proof.
-  apply idpath.
-Qed.
+Let make_sortToC (f : sort → C) : sortToC := SortIndexing.make_sortToC sort Hsort C f.
 
 Let make_sortToC_mor (ξ ξ' : sortToC) (fam : ∏ s: sort, pr1 ξ s --> pr1 ξ' s) : sortToC⟦ξ,ξ'⟧
-    := nat_trans_functor_path_pregroupoid fam.
+    := SortIndexing.make_sortToC_mor sort Hsort C ξ ξ' fam.
 
-Goal make_sortToC_mor = SortIndexing.make_sortToC_mor sort Hsort C.
-Proof.
-  apply idpath.
-Qed.
+Let BCsortToC : BinCoproducts sortToC := SortIndexing.BCsortToC sort Hsort _ BC.
 
-Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
-
-Goal BCsortToC = SortIndexing.BCsortToC sort Hsort _ BC.
-Proof.
-  apply idpath.
-Qed.
-
-Let BPsortToCC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
-
-Goal BPsortToCC = SortIndexing.BPsortToCC sort Hsort _ BP.
-Proof.
-  apply idpath.
-Qed.
+Let BPsortToCC : BinProducts [sortToC,C] := SortIndexing.BPsortToCC sort Hsort _ BP.
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
 Context (EsortToCC : Exponentials BPsortToCC)
@@ -144,25 +114,11 @@ Context (EsortToCC : Exponentials BPsortToCC)
 
 *)
 
-Definition CoproductsMultiSortedSig_base (M : MultiSortedSig sort) : Coproducts (ops _ M) sortToC.
-Proof.
-  apply Coproducts_functor_precat, CC, setproperty.
-Defined.
+Definition CoproductsMultiSortedSig_base (M : MultiSortedSig sort) : Coproducts (ops _ M) sortToC
+  := SortIndexing.CCsortToC sort Hsort C CC _ (setproperty (ops sort M)).
 
-Goal CoproductsMultiSortedSig_base = fun M => SortIndexing.CCsortToC sort Hsort C CC _ (setproperty (ops sort M)).
-Proof.
-  apply idpath.
-Qed.
-
-Definition CoproductsMultiSortedSig (M : MultiSortedSig sort) : Coproducts (ops _ M) [sortToC, sortToC].
-Proof.
-  apply Coproducts_functor_precat, CoproductsMultiSortedSig_base.
-Defined.
-
-Goal CoproductsMultiSortedSig = fun M => SortIndexing.CCsortToC2 sort Hsort C CC _ (setproperty (ops sort M)).
-Proof.
-  apply idpath.
-Qed.
+Definition CoproductsMultiSortedSig (M : MultiSortedSig sort) : Coproducts (ops _ M) [sortToC,sortToC]
+  := SortIndexing.CCsortToC2 sort Hsort C CC _ (setproperty (ops sort M)).
 
 
 (** * Construction of an endofunctor on [C^sort,C^sort] from a multisorted signature *)

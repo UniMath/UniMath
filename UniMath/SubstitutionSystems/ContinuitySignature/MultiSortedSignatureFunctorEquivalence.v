@@ -347,33 +347,13 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
   Let sort_cat : category := path_pregroupoid sort Hsort.
 
   (** This represents "sort → C" *)
-  Let sortToC : category := [sort_cat,C].
+  Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
-  Goal sortToC = SortIndexing.sortToC sort Hsort C.
-  Proof.
-    apply idpath.
-  Qed.
+  Let BPsortToCC : BinProducts [sortToC,C] := SortIndexing.BPsortToCC sort Hsort _ BP.
 
-  Let BPsortToCC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
+  Let TsortToCC : Terminal [sortToC,C] := SortIndexing.TsortToCC sort Hsort _ TC.
 
-  Goal BPsortToCC = SortIndexing.BPsortToCC sort Hsort _ BP.
-  Proof.
-    apply idpath.
-  Qed.
-
-  Let TsortToCC : Terminal [sortToC,C] := Terminal_functor_precat _ _ TC.
-
-  Goal TsortToCC = SortIndexing.TsortToCC sort Hsort _ TC.
-  Proof.
-    apply idpath.
-  Qed.
-
-  Let sortToC2 : category := [sortToC,sortToC].
-
-  Goal sortToC2 = SortIndexing.sortToC2 sort Hsort C.
-  Proof.
-    apply idpath.
-  Qed.
+  Let sortToC2 : category := SortIndexing.sortToC2 sort Hsort C.
 
   Let hat_exp_functor_list'_piece0
       := hat_exp_functor_list'_piece sort Hsort C TC BC CC.

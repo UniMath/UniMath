@@ -70,26 +70,11 @@ Local Notation "'1'" := (TerminalObject TC).
 Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
 
 (** This represents "sort → C" *)
-Let sortToC : category := [path_pregroupoid sort Hsort,C].
+Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
-Goal sortToC = SortIndexing.sortToC sort Hsort C.
-Proof.
-  apply idpath.
-Qed.
+Let BCsortToC : BinCoproducts sortToC := SortIndexing.BCsortToC sort Hsort _ BC.
 
-Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
-
-Goal BCsortToC = SortIndexing.BCsortToC sort Hsort _ BC.
-Proof.
-  apply idpath.
-Qed.
-
-Let BPsortToCC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
-
-Goal BPsortToCC = SortIndexing.BPsortToCC sort Hsort _ BP.
-Proof.
-  apply idpath.
-Qed.
+Let BPsortToCC : BinProducts [sortToC,C] := SortIndexing.BPsortToCC sort Hsort _ BP.
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
 Context (EsortToCC : Exponentials BPsortToCC)
