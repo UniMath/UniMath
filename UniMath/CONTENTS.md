@@ -892,6 +892,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedBicats/DispTransformation.v](Bicategories/DisplayedBicats/DispTransformation.v)
    - [DisplayedBicats/DispModification.v](Bicategories/DisplayedBicats/DispModification.v)
    - [DisplayedBicats/DispBiequivalence.v](Bicategories/DisplayedBicats/DispBiequivalence.v)
+   - [DisplayedBicats/ProductDispBiequiv.v](Bicategories/DisplayedBicats/ProductDispBiequiv.v)
    - [DoubleCategories/Basics/DoubleCategoryBasics.v](Bicategories/DoubleCategories/Basics/DoubleCategoryBasics.v)
    - [DoubleCategories/Basics/StrictDoubleCatBasics.v](Bicategories/DoubleCategories/Basics/StrictDoubleCatBasics.v)
    - [DoubleCategories/Core/DoubleCats.v](Bicategories/DoubleCategories/Core/DoubleCats.v)
