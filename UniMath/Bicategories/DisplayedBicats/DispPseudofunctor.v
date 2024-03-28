@@ -660,3 +660,6 @@ Definition disp_psfunctor_id_on_disp_adjequiv
             (psfunctor_preserves_adjequiv'
                (total_psfunctor _ _ _ FF)
                (invmap (left_adjoint_equivalence_total_disp_weq f ff) (pr2 f ,, Hff)))).
+
+Notation "♯ FF" := (disp_psfunctor_mor _ _ _ FF) (at level 3) : bicategory_scope.
+Notation "♯♯ FF" := (disp_psfunctor_cell _ _ _ FF) (at level 3) : bicategory_scope.

@@ -53,6 +53,9 @@
  3. Strict initial objects
  4. Stable binary coproducts
  5. Disjoint binary coproducts
+ 6. Regularity
+ 7. Exactness
+ 8. Pretoposes
 
  **************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -60,6 +63,10 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.RegularAndExact.RegularEpi.
+Require Import UniMath.CategoryTheory.RegularAndExact.RegularEpiFacts.
+Require Import UniMath.CategoryTheory.RegularAndExact.RegularCategory.
+Require Import UniMath.CategoryTheory.RegularAndExact.ExactCategory.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
@@ -68,6 +75,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodColimits.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.ColimitProperties.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodRegular.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.Limits.StrictInitial.
@@ -441,3 +449,129 @@ Definition lextensive_local_property
   := sub_local_property
        _
        disjoint_bincoprod_subproperty.
+
+(** * 6. Regularity *)
+Definition regular_cat_property_data
+  : cat_property_data.
+Proof.
+  use make_cat_property_data.
+  - exact (λ C, coeqs_of_kernel_pair C × regular_epi_pb_stable C).
+  - exact (λ C₁ C₂ H₁ H₂ F, preserves_regular_epi F).
+Defined.
+
+Proposition regular_cat_property_laws
+  : cat_property_laws regular_cat_property_data.
+Proof.
+  repeat split.
+  - intro.
+    use isapropdirprod.
+    + apply isaprop_coeqs_of_kernel_pair.
+    + apply isaprop_regular_epi_pb_stable.
+  - intros.
+    apply isaprop_preserves_regular_epi.
+  - intros C H.
+    apply id_preserves_regular_epi.
+  - intros C₁ C₂ C₃ H₁ H₂ H₃ F G HF HG.
+    exact (comp_preserves_regular_epi HF HG).
+Qed.
+
+Definition regular_cat_property
+  : cat_property.
+Proof.
+  use make_cat_property.
+  - exact regular_cat_property_data.
+  - exact regular_cat_property_laws.
+Defined.
+
+Proposition regular_is_local_property
+  : is_local_property regular_cat_property.
+Proof.
+  use make_is_local_property.
+  - intros C x H.
+    split.
+    + use cod_fib_coeqs_of_kernel_pair.
+      exact (pr1 H).
+    + use cod_fib_regular_epi_pb_stable.
+      * exact (pullbacks_univ_cat_with_finlim C).
+      * exact (pr1 H).
+      * exact (pr2 H).
+  - intros C H x y f ; simpl.
+    use regular_epi_pb_stable_to_pb_preserves.
+    + exact (pr1 H).
+    + exact (pr2 H).
+  - intros C₁ C₂ H₁ H₂ F HF x ; simpl.
+    use preserves_regular_epi_fiber_disp_cod.
+    + exact (pullbacks_univ_cat_with_finlim C₁).
+    + exact (pr1 H₁).
+    + exact (pr2 H₁).
+    + exact HF.
+Qed.
+
+Definition regular_local_property
+  : local_property.
+Proof.
+  use make_local_property.
+  - exact regular_cat_property.
+  - exact regular_is_local_property.
+Defined.
+
+(** * 7. Exactness *)
+Definition all_eqrel_effective_cat_property_data
+  : cat_property_data.
+Proof.
+  use make_cat_property_data.
+  - exact all_internal_eqrel_effective.
+  - exact (λ _ _ _ _ _, unit).
+Defined.
+
+Proposition all_eqrel_effective_cat_property_laws
+  : cat_property_laws all_eqrel_effective_cat_property_data.
+Proof.
+  repeat split.
+  - intro C.
+    apply isaprop_all_internal_eqrel_effective.
+  - intros.
+    apply isapropunit.
+Qed.
+
+Definition all_eqrel_effective_cat_property
+  : cat_property.
+Proof.
+  use make_cat_property.
+  - exact all_eqrel_effective_cat_property_data.
+  - exact all_eqrel_effective_cat_property_laws.
+Defined.
+
+Proposition all_eqrel_effective_is_local_property
+  : is_local_property all_eqrel_effective_cat_property.
+Proof.
+  use make_is_local_property.
+  - intros C x H.
+    apply all_internal_eqrel_effective_fiber_disp_cod.
+    exact H.
+  - intros.
+    apply tt.
+  - intros.
+    apply tt.
+Qed.
+
+Definition all_eqrel_effective_local_property
+  : local_property.
+Proof.
+  use make_local_property.
+  - exact all_eqrel_effective_cat_property.
+  - exact all_eqrel_effective_is_local_property.
+Defined.
+
+Definition exact_local_property
+  : local_property
+  := local_property_conj
+       regular_local_property
+       all_eqrel_effective_local_property.
+
+(** * 8. Pretoposes *)
+Definition pretoposes_local_property
+  : local_property
+  := local_property_conj
+       lextensive_local_property
+       exact_local_property.
