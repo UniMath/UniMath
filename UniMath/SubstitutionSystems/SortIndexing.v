@@ -144,6 +144,8 @@ Section HSET.
   Definition LLsortToSet (g : graph) : Lims_of_shape g sortToSet := LLsortToC _ g (LimsHSET_of_shape g).
 
   Definition sortToSetSet : category := sortToCC HSET.
+  Definition BPsortToSetSet : BinProducts sortToSetSet := BPsortToCC _ BinProductsHSET.
+
   Definition sortToSet2 : category := sortToC2 HSET.
   Definition sortToSet3 : category := sortToC3 HSET.
 
