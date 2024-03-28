@@ -50,7 +50,7 @@ Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_actegori
 Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_coind_actegorical.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.InstantiateHSET.
 Require Import UniMath.SubstitutionSystems.MultiSortedEmbeddingIndCoindHSET.
-Require UniMath.SubstitutionSystems.STLC_alt.
+(* Require UniMath.SubstitutionSystems.STLC_alt. *)
 
 
 Local Open Scope cat.
@@ -171,14 +171,14 @@ Section IndAndCoind.
   Definition app_source_gen_oldstyle_abstracted (s t : sort) : functor sortToSet2 sortToSet2 :=
     (post_comp_functor (projSortToC sort Hsort HSET (s ⇒ t)) ⊗ post_comp_functor (projSortToC sort Hsort HSET s))
       ∙ (post_comp_functor (hat_functor sort Hsort HSET CoproductsHSET t)).
-
+(*
   (** this old-style definition coincides with [STLC_alt.v] *)
   Lemma app_source_gen_oldstyle_abstracted_ok (s t : sort) :
     app_source_gen_oldstyle_abstracted s t = SubstitutionSystems.STLC_alt.app_source sort arr s t.
   Proof.
     apply idpath.
   Qed.
-
+*)
   Definition app_source_gen_newstyle (s t : sort) : sortToSet2 :=
     BinProduct_of_functors BPsortToSet
       (functor_compose STLC_gen
@@ -242,13 +242,13 @@ Section IndAndCoind.
       ∙ post_comp_functor (projSortToC sort Hsort SET t)
       ∙ post_comp_functor (hat_functor sort Hsort SET CoproductsHSET (s ⇒ t)).
 
-  (** this old-style definition coincides with [STLC_alt.v] *)
+(*  (** this old-style definition coincides with [STLC_alt.v] *)
   Lemma lam_source_gen_oldstyle_abstracted_ok (s t : sort) :
     lam_source_gen_oldstyle_abstracted s t = SubstitutionSystems.STLC_alt.lam_source sort arr s t.
   Proof.
     apply idpath.
   Qed.
-
+*)
   Definition lam_source_gen_newstyle (s t : sort) : sortToSet2 :=
     functor_compose
       (functor_compose
