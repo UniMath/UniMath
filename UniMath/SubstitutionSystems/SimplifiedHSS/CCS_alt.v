@@ -51,6 +51,7 @@ Require Import UniMath.SubstitutionSystems.SimplifiedHSS.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
+Require UniMath.SubstitutionSystems.SortIndexing.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.MultiSortedMonadConstruction_alt.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted_alt.
@@ -69,8 +70,8 @@ Let sortToSet : category := SortIndexing.sortToSet sort Hsort.
 Let sortToSetSet : category := SortIndexing.sortToSetSet sort Hsort.
 Let sortToSet2 : category := SortIndexing.sortToSet2 sort Hsort.
 
-Let projSortToSet : sort -> sortToSetSet := projSortToSet sort Hsort.
-Let hat_functorSet : sort -> HSET ⟶ sortToSet := hat_functorSet sort Hsort.
+Let projSortToSet : sort -> sortToSetSet := projSortToSet sort.
+Let hat_functorSet : sort -> HSET ⟶ sortToSet := hat_functorSet sort.
 
 Local Definition BCsortToSet : BinCoproducts sortToSet := SortIndexing.BCsortToSet sort Hsort.
 
@@ -80,7 +81,7 @@ Local Definition BPsortToSetSet : BinProducts sortToSetSet := SortIndexing.BPsor
   Local Notation "F ⊗ G" := (BinProduct_of_functors BPsortToSetSet F G).
 
 Definition CCS_Signature : Signature sortToSet _ _ :=
-  MultiSortedSigToSignatureSet sort Hsort CCS_Sig.
+  MultiSortedSigToSignatureSet sort CCS_Sig.
 
 Definition CCS_Functor : functor sortToSet2 sortToSet2 :=
   Id_H _ BCsortToSet CCS_Signature.
@@ -97,7 +98,7 @@ apply SignatureInitialAlgebra.
 Defined.
 
 Definition CCS_Monad : Monad sortToSet :=
-  MultiSortedSigToMonadSet sort Hsort CCS_Sig.
+  MultiSortedSigToMonadSet sort CCS_Sig.
 
 (** Extract the constructors from the initial algebra *)
 Definition CCS_M : sortToSet2 :=
@@ -113,7 +114,7 @@ Let CCS_M_alg : algebra_ob CCS_Functor :=
 Definition var_map : sortToSet2⟦Id,CCS_M⟧ := η CCS_M_alg.
 
 Definition Pi_source : functor sortToSet2 sortToSet2 :=
-  ( post_comp_functor (projSortToSet ty)  ⊗ ( pre_comp_functor (sorted_option_functorSet sort Hsort el)
+  ( post_comp_functor (projSortToSet ty)  ⊗ ( pre_comp_functor (sorted_option_functorSet sort el)
                                                  ∙ post_comp_functor (projSortToSet ty)))
   ∙ (post_comp_functor (hat_functorSet ty)).
 
@@ -142,7 +143,7 @@ Definition Proof_map : sortToSet2⟦Proof_source CCS_M,CCS_M⟧ :=
   · τ CCS_M_alg.
 
 Definition lam_source : functor sortToSet2 sortToSet2 :=
-  (post_comp_functor (projSortToSet ty) ⊗ (pre_comp_functor (sorted_option_functorSet sort Hsort el)
+  (post_comp_functor (projSortToSet ty) ⊗ (pre_comp_functor (sorted_option_functorSet sort el)
    ∙ post_comp_functor (projSortToSet el)))
   ∙ (post_comp_functor (hat_functorSet el)).
 
@@ -153,7 +154,7 @@ Definition lam_map : sortToSet2⟦lam_source CCS_M,CCS_M⟧ :=
 
 Definition app_source : functor sortToSet2 sortToSet2 :=
   ((post_comp_functor (projSortToSet ty)) ⊗
-  ((pre_comp_functor (sorted_option_functorSet sort Hsort el) ∙ post_comp_functor (projSortToSet ty)) ⊗
+  ((pre_comp_functor (sorted_option_functorSet sort el) ∙ post_comp_functor (projSortToSet ty)) ⊗
   ((post_comp_functor (projSortToSet el)) ⊗
    (post_comp_functor (projSortToSet el)))))
  ∙ (post_comp_functor (hat_functorSet el)).
@@ -165,7 +166,7 @@ Definition app_map : sortToSet2⟦app_source CCS_M,CCS_M⟧ :=
 
 Definition forall_source : functor sortToSet2 sortToSet2 :=
   ((post_comp_functor (projSortToSet ty)) ⊗
-   (pre_comp_functor (sorted_option_functorSet sort Hsort el) ∙ post_comp_functor (projSortToSet el)))
+   (pre_comp_functor (sorted_option_functorSet sort el) ∙ post_comp_functor (projSortToSet el)))
   ∙ post_comp_functor (hat_functorSet el).
 
 (** The ∀ constructor *)

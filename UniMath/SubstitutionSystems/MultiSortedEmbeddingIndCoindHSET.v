@@ -22,6 +22,7 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 Require Import UniMath.SubstitutionSystems.SigmaMonoids.
+Require UniMath.SubstitutionSystems.SortIndexing.
 Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.InstantiateHSET.
@@ -46,16 +47,17 @@ Section A.
 
   Local Definition σind : SigmaMonoid θHSET := pr1 Initialσind.
 
-  Let sortToSet : category := [path_pregroupoid sort Hsort, HSET].
+  Let sortToSet : category := SortIndexing.sortToSet sort Hsort.
+  Let sortToSet2 : category := SortIndexing.sortToSet2 sort Hsort.
 
-  Local Definition Tind : [sortToSet, sortToSet] := SigmaMonoid_carrier θHSET σind.
+  Local Definition Tind : sortToSet2 := SigmaMonoid_carrier θHSET σind.
 
   Local Definition σcoind : SigmaMonoid θHSET
     := coindSigmaMonoidOfMultiSortedSig_CAT sort Hsort HSET TerminalHSET
          BinProductsHSET BinCoproductsHSET CoproductsHSET (LimsHSET_of_shape conat_graph)
          I_coproduct_distribute_over_omega_limits_HSET sig is_univalent_HSET.
 
-  Local Definition Tcoind : [sortToSet, sortToSet] := pr1 σcoind.
+  Local Definition Tcoind : sortToSet2 := pr1 σcoind.
 
   Local Definition ind_into_coind : SigmaMonoid θHSET ⟦σind, σcoind⟧ := InitialArrow Initialσind σcoind.
 

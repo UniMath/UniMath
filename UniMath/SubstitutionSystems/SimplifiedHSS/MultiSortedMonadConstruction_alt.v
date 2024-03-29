@@ -39,7 +39,6 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
-Require UniMath.SubstitutionSystems.SortIndexing.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
@@ -48,6 +47,7 @@ Require Import UniMath.SubstitutionSystems.SimplifiedHSS.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
+Require UniMath.SubstitutionSystems.SortIndexing.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.BindingSigToMonad.
 Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
@@ -141,18 +141,20 @@ End MBindingSig.
 Section MBindingSigMonadHSET.
 
 (* Assume a set of sorts *)
-Context (sort : hSet) (Hsort : isofhlevel 3 sort).
+Context (sort : hSet) (*(Hsort : isofhlevel 3 sort)*).
 
-Let sortToSet : category := [path_pregroupoid sort Hsort, HSET].
+Let Hsort : isofhlevel 3 sort := SortIndexing.Hsort_from_hSet sort.
+
+Let sortToSet : category := SortIndexing.sortToSet sort Hsort.
 
 Definition projSortToSet : sort → functor sortToSet HSET :=
   projSortToC sort Hsort HSET.
 
 Definition hat_functorSet : sort → HSET ⟶ sortToSet :=
-  hat_functor sort (isofhlevelssnset 1 _ (setproperty sort)) HSET CoproductsHSET.
+  hat_functor sort Hsort HSET CoproductsHSET.
 
 Definition sorted_option_functorSet : sort → sortToSet ⟶ sortToSet :=
-  sorted_option_functor _ (isofhlevelssnset 1 _ (setproperty sort)) HSET
+  sorted_option_functor _ Hsort HSET
                         TerminalHSET BinCoproductsHSET CoproductsHSET.
 
 Definition MultiSortedSigToSignatureSet : MultiSortedSig sort → Signature sortToSet sortToSet sortToSet.
