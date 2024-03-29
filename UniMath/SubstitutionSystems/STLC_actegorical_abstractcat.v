@@ -61,7 +61,7 @@ Section A.
 
   Context (sort : hSet) (arr : sort → sort → sort).
 
-  Let Hsort : isofhlevel 3 sort := STLC_Hsort sort.
+  Let Hsort : isofhlevel 3 sort := MultiSortedBindingSig.STLC_Hsort sort.
 
   Local Definition STLC_Sig := STLC_Sig sort arr.
 
