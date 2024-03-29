@@ -23,6 +23,7 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Groupoids. *)
 
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
+Require UniMath.SubstitutionSystems.SortIndexing.
 
 
 Local Open Scope cat.
@@ -104,10 +105,7 @@ Section STLC.
 
   Local Notation "s ⇒ t" := (arr s t).
 
-  Lemma STLC_Hsort : isofhlevel 3 sort.
-  Proof.
-    exact (isofhlevelssnset 1 sort (setproperty sort)).
-  Defined.
+  Local Definition STLC_Hsort : isofhlevel 3 sort := SortIndexing.Hsort_from_hSet sort.
 
   Definition STLC_Sig : MultiSortedSig sort.
   Proof.
@@ -139,10 +137,7 @@ Defined.
 (** We assume a set of types with bool, nat and function types *)
 Context (type : hSet) (Bool Nat : type) (arr : type → type → type).
 
-Local Lemma PCF_Hsort : isofhlevel 3 type.
-Proof.
-exact (isofhlevelssnset 1 type (setproperty type)).
-Defined.
+Local Definition PCF_Hsort : isofhlevel 3 type := SortIndexing.Hsort_from_hSet type.
 
 Infix "++" := (SumMultiSortedSig _).
 
