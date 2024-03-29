@@ -44,6 +44,7 @@ Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
+Require UniMath.SubstitutionSystems.SortIndexing.
 Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_alt.
@@ -57,48 +58,21 @@ Section pcf.
 (** We assume a set of types with bool, nat and function types *)
 Context (type : hSet) (Bool Nat : type) (arr : type → type → type).
 
-Let htype : isofhlevel 3 type := MultiSortedBindingSig.PCF_Hsort type.
-Let typeToSet : category := [path_pregroupoid type htype,HSET].
-Let typeToSet2 := [typeToSet,typeToSet].
+Let Htype : isofhlevel 3 type := MultiSortedBindingSig.PCF_Hsort type.
+Let typeToSet : category := SortIndexing.sortToSet type Htype.
+Let typeToSet2 : category := SortIndexing.sortToSet2 type Htype.
 
-Local Lemma BinCoprodTypeToSet : BinCoproducts typeToSet.
-Proof.
-apply BinCoproducts_functor_precat, BinCoproductsHSET.
-Defined.
+Local Definition BCtypeToSet : BinCoproducts typeToSet := SortIndexing.BCsortToSet type Htype.
 
-Local Lemma TerminalTypeToSet : Terminal typeToSet.
-Proof.
-apply Terminal_functor_precat, TerminalHSET.
-Defined.
-
-Local Lemma BinProd : BinProducts [typeToSet,HSET].
-Proof.
-apply BinProducts_functor_precat, BinProductsHSET.
-Defined.
-
-Local Lemma BinCoprodTypeToSet2 : BinCoproducts typeToSet2.
-Proof.
-apply BinCoproducts_functor_precat, BinCoprodTypeToSet.
-Defined.
-
-
-(** Some notations *)
-(* Local Infix "::" := (@cons _).
-Local Notation "[]" := (@nil _) (at level 0, format "[]").
-Local Notation "a + b" := (setcoprod a b) : set. *)
 Local Notation "'Id'" := (functor_identity _).
-(* Local Notation "a ⊕ b" := (BinCoproductObject (BinCoprodTypeToSet a b)).
-Local Notation "'1'" := (TerminalObject TerminalTypeToSet).
-Local Notation "F ⊗ G" := (BinProduct_of_functors BinProd F G).
-Infix "++" := (SumMultiSortedSig _). *)
 
 Let PCF_Sig : MultiSortedSig type := PCF_Sig type Bool Nat arr.
 
 Definition PCF_Signature : Signature typeToSet _ _ :=
-  MultiSortedSigToSignatureSet type htype PCF_Sig.
+  MultiSortedSigToSignatureSet type Htype PCF_Sig.
 
 Definition PCF_Functor : functor typeToSet2 typeToSet2 :=
-  Id_H _ BinCoprodTypeToSet PCF_Signature.
+  Id_H _ BCtypeToSet PCF_Signature.
 
 Lemma PCF_Functor_Initial : Initial (FunctorAlg PCF_Functor).
 Proof.
@@ -112,7 +86,7 @@ apply SignatureInitialAlgebra.
 Defined.
 
 Definition PCF_Monad : Monad typeToSet :=
-  MultiSortedSigToMonadSet type htype PCF_Sig.
+  MultiSortedSigToMonadSet type Htype PCF_Sig.
 
 (** Extract the constructors from the initial algebra *)
 Definition PCF_M : typeToSet2 :=
