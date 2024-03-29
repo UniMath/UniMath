@@ -140,10 +140,7 @@ End MBindingSig.
 
 Section MBindingSigMonadHSET.
 
-(* Assume a set of sorts *)
-Context (sort : hSet) (*(Hsort : isofhlevel 3 sort)*).
-
-Let Hsort : isofhlevel 3 sort := SortIndexing.Hsort_from_hSet sort.
+Context (sort : UU) (Hsort : isofhlevel 3 sort).
 
 Let sortToSet : category := SortIndexing.sortToSet sort Hsort.
 

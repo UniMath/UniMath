@@ -63,12 +63,18 @@ Context (sort : hSet) (arr : sort → sort → sort).
 Local Definition Hsort : isofhlevel 3 sort := MultiSortedBindingSig.STLC_Hsort sort.
 
 Let sortToSet : category := SortIndexing.sortToSet sort Hsort.
+Let sortToSetSet : category := SortIndexing.sortToSetSet sort Hsort.
+Let sortToSet2 : category := SortIndexing.sortToSet2 sort Hsort.
+
+Let projSortToSet : sort -> sortToSetSet := projSortToSet sort Hsort.
+Let hat_functorSet : sort -> HSET ⟶ sortToSet := hat_functorSet sort Hsort.
+Let sorted_option_functorSet : sort → sortToSet2 := sorted_option_functorSet sort Hsort.
 
 Local Definition BCsortToSet : BinCoproducts sortToSet := SortIndexing.BCsortToSet sort Hsort.
 
 Local Definition TsortToSet : Terminal sortToSet := SortIndexing.TsortToSet sort Hsort.
 
-Local Definition BPsortToSetSet : BinProducts [sortToSet,HSET] := SortIndexing.BPsortToSetSet sort Hsort.
+Local Definition BPsortToSetSet : BinProducts sortToSetSet := SortIndexing.BPsortToSetSet sort Hsort.
 
 
 (** Some notations *)
@@ -81,13 +87,11 @@ Local Notation "a ⊕ b" := (BinCoproductObject (BCsortToSet a b)).
 Local Notation "'1'" := (TerminalObject TsortToSet).
 Local Notation "F ⊗ G" := (BinProduct_of_functors BPsortToSetSet F G).
 
-Let sortToSet2 : category := SortIndexing.sortToSet2 sort Hsort.
-
 Local Definition STLC_Sig : MultiSortedSig sort := STLC_Sig sort arr.
 
 (** The signature with strength for the simply typed lambda calculus *)
 Definition STLC_Signature : Signature sortToSet _ _ :=
-  MultiSortedSigToSignatureSet sort STLC_Sig.
+  MultiSortedSigToSignatureSet sort Hsort STLC_Sig.
 
 Definition STLC_Functor : functor sortToSet2 sortToSet2 :=
   Id_H _ BCsortToSet STLC_Signature.
@@ -104,7 +108,7 @@ apply SignatureInitialAlgebra.
 Defined.
 
 Definition STLC_Monad : Monad sortToSet :=
-  MultiSortedSigToMonadSet sort STLC_Sig.
+  MultiSortedSigToMonadSet sort Hsort STLC_Sig.
 
 (** Extract the constructors of the STLC from the initial algebra *)
 Definition STLC_M : sortToSet2 :=
@@ -127,8 +131,8 @@ Definition var_map : sortToSet2⟦Id,STLC_M⟧ := SubstitutionSystems.η STLC_M_
 
 (** The source of the application constructor *)
 Definition app_source (s t : sort) : functor sortToSet2 sortToSet2 :=
-    (post_comp_functor (projSortToSet sort (s ⇒ t)) ⊗ post_comp_functor (projSortToSet sort s))
-  ∙ (post_comp_functor (hat_functorSet sort t)).
+    (post_comp_functor (projSortToSet (s ⇒ t)) ⊗ post_comp_functor (projSortToSet s))
+  ∙ (post_comp_functor (hat_functorSet t)).
 
 (** The application constructor *)
 Definition app_map (s t : sort) : sortToSet2⟦app_source s t STLC_M,STLC_M⟧ :=
@@ -137,9 +141,9 @@ Definition app_map (s t : sort) : sortToSet2⟦app_source s t STLC_M,STLC_M⟧ :
 
 (** The source of the lambda constructor *)
 Definition lam_source (s t : sort) : functor sortToSet2 sortToSet2 :=
-    pre_comp_functor (sorted_option_functorSet sort s)
-  ∙ post_comp_functor (projSortToC sort Hsort _ t)
-  ∙ post_comp_functor (hat_functorSet sort (s ⇒ t)).
+    pre_comp_functor (sorted_option_functorSet s)
+  ∙ post_comp_functor (projSortToSet t)
+  ∙ post_comp_functor (hat_functorSet (s ⇒ t)).
 
 Definition lam_map (s t : sort) : sortToSet2⟦lam_source s t STLC_M,STLC_M⟧ :=
     CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ (λ _, _)) (ii2 (s,,t))

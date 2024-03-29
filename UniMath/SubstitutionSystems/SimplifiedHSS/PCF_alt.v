@@ -72,7 +72,7 @@ Local Notation "'Id'" := (functor_identity _).
 Let PCF_Sig : MultiSortedSig type := PCF_Sig type Bool Nat arr.
 
 Definition PCF_Signature : Signature typeToSet _ _ :=
-  MultiSortedSigToSignatureSet type PCF_Sig.
+  MultiSortedSigToSignatureSet type Htype PCF_Sig.
 
 Definition PCF_Functor : functor typeToSet2 typeToSet2 :=
   Id_H _ BCtypeToSet PCF_Signature.
@@ -89,7 +89,7 @@ apply SignatureInitialAlgebra.
 Defined.
 
 Definition PCF_Monad : Monad typeToSet :=
-  MultiSortedSigToMonadSet type PCF_Sig.
+  MultiSortedSigToMonadSet type Htype PCF_Sig.
 
 (** Extract the constructors from the initial algebra *)
 Definition PCF_M : typeToSet2 :=
