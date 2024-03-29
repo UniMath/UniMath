@@ -44,6 +44,7 @@ Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
+Require UniMath.SubstitutionSystems.SortIndexing.
 Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_alt.
@@ -58,22 +59,13 @@ Context (sort : hSet) (arr : sort → sort → sort).
 
 Local Definition Hsort : isofhlevel 3 sort := MultiSortedBindingSig.STLC_Hsort sort.
 
-Let sortToSet : category := [path_pregroupoid sort Hsort,HSET].
+Let sortToSet : category := SortIndexing.sortToSet sort Hsort.
 
-Local Lemma TsortToSet : Terminal sortToSet.
-Proof.
-apply Terminal_functor_precat, TerminalHSET.
-Defined.
+Local Definition BCsortToSet : BinCoproducts sortToSet := SortIndexing.BCsortToSet sort Hsort.
 
-Local Lemma BCsortToSet : BinCoproducts sortToSet.
-Proof.
-apply BinCoproducts_functor_precat, BinCoproductsHSET.
-Defined.
+Local Definition TsortToSet : Terminal sortToSet := SortIndexing.TsortToSet sort Hsort.
 
-Local Lemma BPsortToSetSet : BinProducts [sortToSet,HSET].
-Proof.
-apply BinProducts_functor_precat, BinProductsHSET.
-Defined.
+Local Definition BPsortToSetSet : BinProducts [sortToSet,HSET] := SortIndexing.BPsortToSetSet sort Hsort.
 
 
 (** Some notations *)
@@ -86,7 +78,7 @@ Local Notation "a ⊕ b" := (BinCoproductObject (BCsortToSet a b)).
 Local Notation "'1'" := (TerminalObject TsortToSet).
 Local Notation "F ⊗ G" := (BinProduct_of_functors BPsortToSetSet F G).
 
-Let sortToSet2 := [sortToSet,sortToSet].
+Let sortToSet2 : category := SortIndexing.sortToSet2 sort Hsort.
 
 Local Definition STLC_Sig : MultiSortedSig sort := STLC_Sig sort arr.
 
