@@ -147,7 +147,8 @@ Section HSET.
   Definition BPsortToSetSet : BinProducts sortToSetSet := BPsortToCC _ BinProductsHSET.
 
   Definition sortToSet2 : category := sortToC2 HSET.
-(* Definition CCsortToSet2 : forall (I : UU), isaset I → Coproducts I sortToSet2 := CCsortToC2 HSET CoproductsHSET. *)
+  (* Definition CCsortToSet2 : forall (I : UU), isaset I → Coproducts I sortToSet2 := CCsortToC2 HSET CoproductsHSET. *)
+  Definition TsortToSet2 : Terminal sortToSet2 := TsortToC2 _ TerminalHSET.
 
   Definition sortToSet3 : category := sortToC3 HSET.
 
