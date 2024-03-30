@@ -797,7 +797,7 @@ Section Church.
 
   Definition IterateInfinite : sortToC2⟦corecsource, STLC_coind⟧ := pr11 (primitive_corecursion _ (pr2 STLC_coind_FC) IterateInfinite_rec_coalg).
 
-  Definition ChurchInfinity_body_sortToC_data_data (ξ : sortToC) (s : sort) : C ⟦TC, pr1 (pr1 STLC_coind (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s⟧.
+  Definition ChurchInfinity_body_sortToC_data_data (ξ : sortToC) (s : sort) : global_element TC (pr1 (pr1 STLC_coind (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s).
   Proof.
     refine (_ · pr1 (pr1 IterateInfinite (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s).
     refine (_ · pr1 (pr1 (STLC_eta_gen σcoind) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s)).
@@ -810,7 +810,7 @@ Section Church.
   Proof.
     use make_sortToC_mor.
     intro s.
-    change (C ⟦TC, pr1 (pr1 STLC_coind (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s⟧).
+    change (global_element TC (pr1 (pr1 STLC_coind (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s)).
     exact (ChurchInfinity_body_sortToC_data_data ξ s).
   Defined.
 
