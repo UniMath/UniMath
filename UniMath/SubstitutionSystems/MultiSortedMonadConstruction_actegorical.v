@@ -246,10 +246,11 @@ Section InstanceHSET.
 
   Context (sort : UU) (Hsort : isofhlevel 3 sort).
 
-  Let sortToSet : category := [path_pregroupoid sort Hsort, HSET].
+  Let sortToSet : category := SortIndexing.sortToSet sort Hsort.
+  Let sortToSet2 : category := SortIndexing.sortToSet2 sort Hsort.
 
-  Let BPCsortToSet : BinProducts sortToSet := BinProducts_functor_precat _ HSET BinProductsHSET.
-  Let BPsortToSet2 : BinProducts [sortToSet,sortToSet] := BinProducts_functor_precat sortToSet sortToSet BPCsortToSet.
+  Let BPsortToSet : BinProducts sortToSet := SortIndexing.BPsortToSet sort Hsort.
+  Let BPsortToSet2 : BinProducts sortToSet2 := SortIndexing.BPsortToSet2 sort Hsort.
 
   Definition EsortToSet2 : Exponentials BPsortToSet2.
   Proof.
@@ -257,7 +258,7 @@ Section InstanceHSET.
     set (BPaux' := BinProducts_functor_precat aux _ BinProductsHSET).
     assert (Hyp : Exponentials BPaux').
     { apply Exponentials_functor_HSET. }
-    transparent assert (HypAdj : (equivalence_of_cats [sortToSet, sortToSet] [aux, SET])).
+    transparent assert (HypAdj : (equivalence_of_cats sortToSet2 [aux, SET])).
     { apply currying_hom_equivalence. }
     use (exponentials_through_adj_equivalence_univalent_cats _ _ Hyp).
     2: { apply is_univalent_functor_category.
