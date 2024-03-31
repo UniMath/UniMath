@@ -577,7 +577,7 @@ Definition CoproductOfArrowsInclusion {I J : UU} {C : category}
           CoproductObject _ _ CCab --> CoproductObject _ _ CCcd :=
   CoproductArrow _ _ CCab (λ i, f i · CoproductIn _ _ CCcd (incl i)).
 
-  
+
 (* non-implicit I/C for backwards compatibility *)
 Definition CoproductOfArrows' (I : UU) (C : category)
     {a : I -> C} (CCab : Coproduct _ _ a) {c : I -> C}
@@ -585,7 +585,7 @@ Definition CoproductOfArrows' (I : UU) (C : category)
         CoproductObject _ _ CCab --> CoproductObject _ _ CCcd :=
   CoproductOfArrowsInclusion (idfun I) CCab CCcd f.
 
-Lemma CoproductOfArrowsInclusionIn {I J : UU} {C : category} 
+Lemma CoproductOfArrowsInclusionIn {I J : UU} {C : category}
     (incl : I -> J) {a : I -> C} (CCab : Coproduct _ _ a) {c : J -> C}
     (CCcd : Coproduct _ _ c) (f : ∏ i, a i --> c (incl i)) :
   ∏ i, CoproductIn _ _ CCab i · CoproductOfArrowsInclusion incl CCab CCcd f = f i · CoproductIn _ _ CCcd (incl i).
@@ -630,7 +630,7 @@ Definition CoproductOfArrowsInclusion_comp {I J K: UU} {C : category}
     (CCI : Coproducts I C) (CCJ : Coproducts J C) (CCK : Coproducts K C)
     {inclI : I -> J} {inclJ : J -> K}
     (f : ∏ i, a i --> b (inclI i)) (g : ∏ j, b j --> c (inclJ j)) :
-    CoproductOfArrowsInclusion inclI (CCI _) (CCJ _) f · 
+    CoproductOfArrowsInclusion inclI (CCI _) (CCJ _) f ·
         CoproductOfArrowsInclusion inclJ (CCJ _) (CCK _) g
     = CoproductOfArrowsInclusion (λ i, inclJ (inclI i)) (CCI _) (CCK _) (λ i, f i · g (inclI i)).
 Proof.

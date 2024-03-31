@@ -53,6 +53,7 @@ Local Open Scope subsys.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.BindingSigToMonad.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.MultiSortedMonadConstruction.
 
@@ -61,29 +62,14 @@ Local Open Scope cat.
 Section ccs.
 
 (* Preliminary stuff, upstream? *)
-Local Infix "::" := (@cons _).
-Local Notation "[]" := (@nil _) (at level 0, format "[]").
+(* Local Infix "::" := (@cons _).
+Local Notation "[]" := (@nil _) (at level 0, format "[]"). *)
 Local Notation "C / X" := (slice_cat C X).
-Local Notation "a + b" := (setcoprod a b) : set.
+(* Local Notation "a + b" := (setcoprod a b) : set. *)
 
-(* Was there a general version of this somewhere? *)
-Definition six_rec {A : UU} (a b c d e f : A) : stn 6 -> A.
-Proof.
-induction 1 as [n p].
-induction n as [|n _]; [apply a|].
-induction n as [|n _]; [apply b|].
-induction n as [|n _]; [apply c|].
-induction n as [|n _]; [apply d|].
-induction n as [|n _]; [apply e|].
-induction n as [|n _]; [apply f|].
-induction (nopathsfalsetotrue p).
-Defined.
-
-(** We assume a two element set of sorts *)
-Definition sort : hSet := @tpair _ (λ X, isaset X) bool isasetbool.
-
-Definition ty : sort := true.
-Definition el : sort := false.
+Let sort := CCSsort.
+Let ty := CCSty.
+Let el := CCSel.
 
 Local Definition HSET_over_sort : category.
 Proof.
@@ -93,56 +79,8 @@ Defined.
 
 Let HSET_over_sort2 := [HSET/sort,HSET_over_sort].
 
-(** The grammar of expressions and objects from page 157:
-<<
-E ::= (Πx:E) E                product of types
-    | Prop                    type of propositions
-    | Proof(t)                type of proofs of proposition t
 
-t ::= x                       variable
-    | (λx:E) t                function abstraction
-    | App([x:E] E, t, t)      function application
-    | (∀x:E) t                universal quantification
->>
-
-We refer to the first syntactic class as ty and the second as el. We first reformulate the rules as
-follows:
-<<
-A,B ::= Π(A,x.B)              product of types
-      | Prop                  type of propositions
-      | Proof(t)              type of proofs of proposition t
-
-t,u ::= x                     variable
-      | λ(A,x.t)              function abstraction
-      | App(A,x.B,t,u)        function application
-      | ∀(A,x.t)              universal quantification
->>
-
-This grammar then gives 6 operations, to the left as Vladimir's restricted 2-sorted signature (where
-el is 0 and ty is 1) and to the right as a multisorted signature:
-
-((0, 1), (1, 1), 1)                 = (([],ty), ([el], ty), ty)
-(1)                                 = ([],ty)
-((0, 0), 1)                         = (([], el), ty)
-((0, 1), (1, 0), 0)                 = (([], ty), ([el], el), el)
-((0, 1), (1, 1), (0, 0), (0, 0), 0) = (([], ty), ([el], ty), ([], el), ([], el), el)
-((0, 1), (1, 0), 0)                 = (([], ty), ([el], el), el)
-
-*)
-
-(** The multisorted signature of CC-S *)
-Definition CCS_Sig : MultiSortedSig sort.
-Proof.
-use make_MultiSortedSig.
-- exact (stn 6,,isasetstn 6).
-- apply six_rec.
-  + exact ((([],,ty) :: (cons el [],,ty) :: nil),,ty).
-  + exact ([],,ty).
-  + exact ((([],,el) :: nil),,ty).
-  + exact ((([],,ty) :: (cons el [],,el) :: nil),,el).
-  + exact ((([],,ty) :: (cons el [],,ty) :: ([],,el) :: ([],,el) :: nil),,el).
-  + exact ((([],,ty) :: (cons el [],,el) :: nil),,el).
-Defined.
+Local Notation "'Id'" := (functor_identity _).
 
 Definition CCS_Signature : Signature (HSET / sort) _ _ :=
   MultiSortedSigToSignature sort CCS_Sig.

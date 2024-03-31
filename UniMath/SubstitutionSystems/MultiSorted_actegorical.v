@@ -43,6 +43,7 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
+Require UniMath.SubstitutionSystems.SortIndexing.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
@@ -63,6 +64,7 @@ Require Import UniMath.CategoryTheory.Actegories.Examples.ActionOfEndomorphismsI
 Require Import UniMath.CategoryTheory.Actegories.Examples.SelfActionInCATElementary.
 (* Require Import UniMath.SubstitutionSystems.EquivalenceSignaturesWithActegoryMorphisms. *)
 Require Import UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require UniMath.SubstitutionSystems.BindingSigToMonad_actegorical.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.ContinuityOfMultiSortedSigToFunctor.
@@ -89,20 +91,15 @@ Context (TC : Terminal C) (IC : Initial C)
 Local Notation "'1'" := (TerminalObject TC).
 Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
 
-(** Define the discrete category of sorts *)
-Let sort_cat : category := path_pregroupoid sort Hsort.
-
 (** This represents "sort → C" *)
-Let sortToC : category := [sort_cat,C].
-Let make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid Hsort f.
+Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
-Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
-Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
+Let BPsortToCC : BinProducts [sortToC,C] := SortIndexing.BPsortToCC sort Hsort _ BP.
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
-Context (expSortToCC : Exponentials BPC)
+Context (EsortToCC : Exponentials BPsortToCC)
           (HC : Colims_of_shape nat_graph C).
-(* The expSortToCC assumption says that [sortToC,C] has exponentials. It
+(* The EsortToCC assumption says that [sortToC,C] has exponentials. It
    could be reduced to exponentials in C, but we only have the case
    for C = Set formalized in
 
@@ -112,28 +109,28 @@ Context (expSortToCC : Exponentials BPC)
 
 (** end of Preamble copied from [Multisorted_alt] *)
 
-Local Definition sortToC1 := [sortToC, sortToC].
-Local Definition sortToC2 := [sortToC1, sortToC1].
-Local Definition sortToCC := [sortToC, C].
-Local Definition sortToC1C := [sortToC1, sortToCC].
+Local Definition sortToC2 := SortIndexing.sortToC2 sort Hsort C.
+Local Definition sortToC3 := SortIndexing.sortToC3 sort Hsort C.
+Local Definition sortToCC := SortIndexing.sortToCC sort Hsort C.
+Local Definition sortToC21C := [sortToC2, sortToCC].
 
 Let ops : MultiSortedSig sort → hSet := ops sort.
-Let arity : ∏ M : MultiSortedSig sort, MultiSorted_alt.ops sort M → list (list sort × sort) × sort
+Let arity : ∏ M : MultiSortedSig sort, ops M → list (list sort × sort) × sort
     := arity sort.
 
 
 Local Definition sorted_option_functor := sorted_option_functor sort Hsort C TC BC CC.
 Local Definition projSortToC : sort -> sortToCC := projSortToC sort Hsort C.
-Local Definition option_list : list sort → sortToC1 := option_list sort Hsort C TC BC CC.
-Local Definition exp_functor : list sort × sort -> sortToC1C
+Local Definition option_list : list sort → sortToC2 := option_list sort Hsort C TC BC CC.
+Local Definition exp_functor : list sort × sort -> sortToC21C
   := exp_functor sort Hsort C TC BC CC.
-Local Definition exp_functor_list : list (list sort × sort) -> sortToC1C
+Local Definition exp_functor_list : list (list sort × sort) -> sortToC21C
   := exp_functor_list sort Hsort C TC BP BC CC.
-Local Definition hat_exp_functor_list : list (list sort × sort) × sort -> sortToC2
+Local Definition hat_exp_functor_list : list (list sort × sort) × sort -> sortToC3
   := hat_exp_functor_list sort Hsort C TC BP BC CC.
-Local Definition MultiSortedSigToFunctor : MultiSortedSig sort -> sortToC2 := MultiSortedSigToFunctor sort Hsort C TC BP BC CC.
+Local Definition MultiSortedSigToFunctor : MultiSortedSig sort -> sortToC3 := MultiSortedSigToFunctor sort Hsort C TC BP BC CC.
 Local Definition CoproductsMultiSortedSig : ∏ M : MultiSortedSig sort,
-       Coproducts (ops M) sortToC1 := CoproductsMultiSortedSig sort Hsort C CC.
+       Coproducts (ops M) sortToC2 := CoproductsMultiSortedSig sort Hsort C CC.
 
 
 (** * Construction of the lineator for the endofunctor on [C^sort,C^sort]
@@ -148,7 +145,7 @@ Section strength_through_actegories.
   Local Definition ActPtd_CAT (E : category) : actegory Mon_ptdendo_CAT [sortToC,E] :=
     EquivalenceLaxLineatorsHomogeneousCase.actegoryPtdEndosOnFunctors_CAT sortToC E.
   Local Definition ActPtd_CAT_Endo := ActPtd_CAT sortToC.
-  Local Definition ActPtd_CAT_FromSelf : actegory Mon_ptdendo_CAT sortToC1
+  Local Definition ActPtd_CAT_FromSelf : actegory Mon_ptdendo_CAT sortToC2
     := actegory_with_canonical_pointed_action Mon_endo_CAT.
 
   Local Definition pointedstrengthfromprecomp_CAT (E : category) :=
@@ -158,7 +155,7 @@ Section strength_through_actegories.
   Local Definition pointedstrengthfromselfaction_CAT :=
     lineator_lax Mon_ptdendo_CAT ActPtd_CAT_FromSelf ActPtd_CAT_FromSelf.
 
-  Let pointedlaxcommutator_CAT (G : sortToC1) : UU :=
+  Let pointedlaxcommutator_CAT (G : sortToC2) : UU :=
         BindingSigToMonad_actegorical.pointedlaxcommutator_CAT G.
 
   Local Definition δCCCATEndo (M : MultiSortedSig sort) :
@@ -281,10 +278,10 @@ Section strength_through_actegories.
 
 
   (** *** we now adapt the definitions to [MultiSortedSigToFunctor'] *)
-  Local Definition MultiSortedSigToFunctor' : MultiSortedSig sort -> sortToC2 := MultiSortedSigToFunctor' sort Hsort C TC BP BC CC.
-  Local Definition hat_exp_functor_list'_optimized : list (list sort × sort) × sort -> sortToC2
+  Local Definition MultiSortedSigToFunctor' : MultiSortedSig sort -> sortToC3 := MultiSortedSigToFunctor' sort Hsort C TC BP BC CC.
+  Local Definition hat_exp_functor_list'_optimized : list (list sort × sort) × sort -> sortToC3
     := hat_exp_functor_list'_optimized sort Hsort C TC BP BC CC.
-  Local Definition hat_exp_functor_list'_piece : (list sort × sort) × sort -> sortToC2
+  Local Definition hat_exp_functor_list'_piece : (list sort × sort) × sort -> sortToC3
     := hat_exp_functor_list'_piece sort Hsort C TC BC CC.
 
   Definition StrengthCAT_hat_exp_functor_list'_piece (xt : (list sort × sort) × sort) :

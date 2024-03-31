@@ -38,6 +38,7 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
+Require UniMath.SubstitutionSystems.SortIndexing.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
@@ -61,6 +62,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementar
 Require Import UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.
 Require UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require UniMath.SubstitutionSystems.SubstitutionSystems.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.MultiSorted_actegorical.
 Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_alt.
@@ -92,7 +94,8 @@ Context (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
 (* Note that there is some redundancy in the assumptions *)
 Context (TC : Terminal C) (IC : Initial C)
           (BP : BinProducts C) (BC : BinCoproducts C)
-          (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
+          (*(PC : forall (I : UU), Products I C)*) (eqsetPC : forall (s s' : sort), Products (s=s') C)
+          (CC : forall (I : UU), isaset I → Coproducts I C).
 
 Local Notation "'1'" := (TerminalObject TC).
 Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
@@ -101,66 +104,63 @@ Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
 Let sort_cat : category := path_pregroupoid sort Hsort.
 
 (** This represents "sort → C" *)
-Let sortToC : category := [sort_cat,C].
-Let make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid Hsort f.
+Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
-Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
+Let BCsortToC : BinCoproducts sortToC := SortIndexing.BCsortToC sort Hsort _ BC.
 
-Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
+Let BPsortToC : BinProducts sortToC := SortIndexing.BPsortToC sort Hsort _ BP.
 
-Let BPCsortToC : BinProducts sortToC := BinProducts_functor_precat _ C BP.
-Let BPC1 : BinProducts [sortToC,sortToC] := BinProducts_functor_precat sortToC sortToC BPCsortToC.
+Let BPsortToC2 : BinProducts [sortToC,sortToC] := SortIndexing.BPsortToC2 sort Hsort _ BP.
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
-Context (expSortToC1 : Exponentials BPC1) (** this requires exponentials in a higher space than before for [MultiSortedSigToFunctor] *)
+Context (EsortToC2 : Exponentials BPsortToC2) (** this requires exponentials in a higher space than before for [MultiSortedSigToFunctor] *)
   (HC : Colims_of_shape nat_graph C).
 
-(* The [expSortToC1] assumption is fulfilled for C = Set, to be seen in the instantiation. *)
+(* The [EsortToC2] assumption is fulfilled for C = Set, to be seen in the instantiation. *)
 
 (** * Construction of a monad from a multisorted signature *)
 Section monad.
 
-  Local Definition sortToC1 := [sortToC, sortToC].
-  Local Definition sortToC2 := [sortToC1, sortToC1].
+  Local Definition sortToC2 := SortIndexing.sortToC2 sort Hsort C.
+  Local Definition sortToC3 := SortIndexing.sortToC3 sort Hsort C.
 
-  Let BCsortToC1 : BinCoproducts sortToC1 := BinCoproducts_functor_precat _ _ BCsortToC.
-  Let ICsortToC1 : Initial sortToC1 := Initial_functor_precat _ _ (Initial_functor_precat _ _ IC).
-  Local Definition HCsortToC : Colims_of_shape nat_graph sortToC.
-  Proof.
-    apply ColimsFunctorCategory_of_shape, HC.
-  Defined.
-  Local Definition HCsortToC1 : Colims_of_shape nat_graph sortToC1.
-  Proof.
-    apply ColimsFunctorCategory_of_shape, HCsortToC.
-  Defined.
+  Let BCsortToC2 : BinCoproducts sortToC2 := SortIndexing.BCsortToC2 sort Hsort _ BC.
 
-  Local Definition MultiSortedSigToFunctor' : MultiSortedSig sort -> sortToC2 := MultiSortedSigToFunctor' sort Hsort C TC BP BC CC.
+  Let IsortToC2 : Initial sortToC2 := SortIndexing.IsortToC2 sort Hsort _ IC.
+
+  Local Definition HCsortToC : Colims_of_shape nat_graph sortToC := SortIndexing.CLsortToC sort Hsort C nat_graph HC.
+
+  Local Definition HCsortToC2 : Colims_of_shape nat_graph sortToC2 := SortIndexing.CLsortToC2 sort Hsort C nat_graph HC.
+
+  Local Definition MultiSortedSigToFunctor' : MultiSortedSig sort -> sortToC3 := MultiSortedSigToFunctor' sort Hsort C TC BP BC CC.
+
   Local Definition is_omega_cocont_MultiSortedSigToFunctor' : ∏ M : MultiSortedSig sort, is_omega_cocont (MultiSortedSigToFunctor' M)
-    := is_omega_cocont_MultiSortedSigToFunctor' sort Hsort C TC BP BC PC CC expSortToC1 HC.
+    := is_omega_cocont_MultiSortedSigToFunctor' sort Hsort C TC BP BC eqsetPC CC EsortToC2 HC.
+
   Local Definition MultiSortedSigToStrength' : ∏ M : MultiSortedSig sort,
         MultiSorted_actegorical.pointedstrengthfromselfaction_CAT sort Hsort C (MultiSortedSigToFunctor' M)
     := MultiSortedSigToStrength' sort Hsort C TC BP BC CC.
 
-  Let Id_H : sortToC2 → sortToC2 := SubstitutionSystems.Id_H sortToC BCsortToC.
+  Let Id_H : sortToC3 → sortToC3 := SubstitutionSystems.Id_H sortToC BCsortToC.
 
  (** Construction of initial algebra for the omega-cocontinuous signature functor with lax lineator *)
   Definition DatatypeOfMultisortedBindingSig_CAT (sig : MultiSortedSig sort) :
     Initial (FunctorAlg (Id_H (MultiSortedSigToFunctor' sig))).
   Proof.
     use colimAlgInitial.
-    - exact ICsortToC1.
+    - exact IsortToC2.
     - apply (LiftingInitial_alt.is_omega_cocont_Id_H _ _ _ (is_omega_cocont_MultiSortedSigToFunctor' sig)).
-    - apply HCsortToC1.
+    - apply HCsortToC2.
   Defined.
 
   (** the associated MHSS *)
   Definition MHSSOfMultiSortedSig_CAT (sig : MultiSortedSig sort) :
     mhss (monendocat_monoidal sortToC) (MultiSortedSigToFunctor' sig) (MultiSortedSigToStrength' sig).
   Proof.
-    use (initial_alg_to_mhss (MultiSortedSigToStrength' sig) BCsortToC1).
+    use (initial_alg_to_mhss (MultiSortedSigToStrength' sig) BCsortToC2).
     - apply BindingSigToMonad_actegorical.bincoprod_distributor_pointed_CAT.
-    - exact ICsortToC1.
-    - apply HCsortToC1.
+    - exact IsortToC2.
+    - apply HCsortToC2.
     - apply (is_omega_cocont_MultiSortedSigToFunctor' sig).
     - intro F. apply Initial_functor_precat.
     - intro F. apply (is_omega_cocont_pre_composition_functor F HCsortToC).
@@ -169,10 +169,10 @@ Section monad.
   (** the associated initial Sigma-monoid *)
   Definition InitialSigmaMonoidOfMultiSortedSig_CAT (sig : MultiSortedSig sort) : Initial (SigmaMonoid (MultiSortedSigToStrength' sig)).
   Proof.
-    use (SigmaMonoidFromInitialAlgebraInitial (MultiSortedSigToStrength' sig) BCsortToC1).
+    use (SigmaMonoidFromInitialAlgebraInitial (MultiSortedSigToStrength' sig) BCsortToC2).
     - apply BindingSigToMonad_actegorical.bincoprod_distributor_pointed_CAT.
-    - exact ICsortToC1.
-    - apply HCsortToC1.
+    - exact IsortToC2.
+    - apply HCsortToC2.
     - apply (is_omega_cocont_MultiSortedSigToFunctor' sig).
     - intro F. apply Initial_functor_precat.
     - intro F. apply (is_omega_cocont_pre_composition_functor F HCsortToC).
@@ -193,7 +193,7 @@ Section CharEq.
 
   Context (sig : MultiSortedSig sort).
   Let σ := SigmaMonoidOfMultiSortedSig_CAT sig.
-  Let st' : sortToC1 ⟦ (SigmaMonoid_carrier _ σ) ⊗_{monendocat_monoidal sortToC : bifunctor _ _ _}
+  Let st' : sortToC2 ⟦ (SigmaMonoid_carrier _ σ) ⊗_{monendocat_monoidal sortToC : bifunctor _ _ _}
                          (pr1 (MultiSortedSigToFunctor sig) (SigmaMonoid_carrier _ σ)),
                 pr1 (MultiSortedSigToFunctor sig) ((SigmaMonoid_carrier _ σ) ⊗_{monendocat_monoidal sortToC}
                                                      (SigmaMonoid_carrier _ σ)) ⟧
@@ -246,18 +246,19 @@ Section InstanceHSET.
 
   Context (sort : UU) (Hsort : isofhlevel 3 sort).
 
-  Let sortToHSET : category := [path_pregroupoid sort Hsort, HSET].
+  Let sortToSet : category := SortIndexing.sortToSet sort Hsort.
+  Let sortToSet2 : category := SortIndexing.sortToSet2 sort Hsort.
 
-  Let BPCsortToHSET : BinProducts sortToHSET := BinProducts_functor_precat _ HSET BinProductsHSET.
-  Let BPC1 : BinProducts [sortToHSET,sortToHSET] := BinProducts_functor_precat sortToHSET sortToHSET BPCsortToHSET.
+  Let BPsortToSet : BinProducts sortToSet := SortIndexing.BPsortToSet sort Hsort.
+  Let BPsortToSet2 : BinProducts sortToSet2 := SortIndexing.BPsortToSet2 sort Hsort.
 
-  Definition expSortToHSET1 : Exponentials BPC1.
+  Definition EsortToSet2 : Exponentials BPsortToSet2.
   Proof.
-    set (aux := category_binproduct sortToHSET (path_pregroupoid sort Hsort)).
+    set (aux := category_binproduct sortToSet (path_pregroupoid sort Hsort)).
     set (BPaux' := BinProducts_functor_precat aux _ BinProductsHSET).
     assert (Hyp : Exponentials BPaux').
     { apply Exponentials_functor_HSET. }
-    transparent assert (HypAdj : (equivalence_of_cats [sortToHSET, sortToHSET] [aux, SET])).
+    transparent assert (HypAdj : (equivalence_of_cats sortToSet2 [aux, SET])).
     { apply currying_hom_equivalence. }
     use (exponentials_through_adj_equivalence_univalent_cats _ _ Hyp).
     2: { apply is_univalent_functor_category.
@@ -270,16 +271,16 @@ Section InstanceHSET.
     2: { apply (adj_equivalence_of_cats_inv HypAdj'). }
   Defined.
 
-  Definition MultiSortedSigToMonadHSET_viaCAT : MultiSortedSig sort → Monad (sortToHSET).
+  Definition MultiSortedSigToMonadHSET_viaCAT : MultiSortedSig sort → Monad (sortToSet).
   Proof.
     intros sig; simple refine (MonadOfMultiSortedSig_CAT sort Hsort HSET _ _ _ _ _ _ _ _ sig).
     - apply TerminalHSET.
     - apply InitialHSET.
     - apply BinProductsHSET.
     - apply BinCoproductsHSET.
-    - apply ProductsHSET.
+    - intros; apply ProductsHSET.
     - apply CoproductsHSET.
-    - change (Exponentials BPC1). apply expSortToHSET1.
+    - change (Exponentials BPsortToSet2). apply EsortToSet2.
     - apply ColimsHSET_of_shape.
   Defined.
 
