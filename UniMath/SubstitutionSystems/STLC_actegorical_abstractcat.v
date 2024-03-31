@@ -8,7 +8,7 @@ The development is "point-free" in the sense that no assumption of well-pointedn
 Thanks to that actegorical development, the inductive and the coinductive calculus are exposed in parallel.
 The Church numerals are developed independently from the choice for inductive or coinductive syntax.
 
-There is also the construction (by primitive corecursion) of the Church numeral for infinity in the coinductive calculus, with a proof that it satisfied a proper recursive equation.
+There is also the construction (by primitive corecursion) of the Church numeral for infinity in the coinductive calculus, with a proof that it satisfies a proper recursive equation.
 
 Written by: Ralph Matthes, 2024 (generalized and expanded from STLC_actegorical.v)
 
