@@ -1704,3 +1704,60 @@ Section IsoOfPullbacks.
   Defined.
 
 End IsoOfPullbacks.
+
+(** * Swapping pullbacks *)
+Definition swap_pullback_mor
+           {C : category}
+           {x y z : C}
+           (f : x --> z)
+           (g : y --> z)
+           (Pfg : Pullback f g)
+           (Pgf : Pullback g f)
+  : Pfg --> Pgf.
+Proof.
+  use PullbackArrow.
+  - apply PullbackPr2.
+  - apply PullbackPr1.
+  - abstract
+      (refine (!_) ;
+       apply PullbackSqrCommutes).
+Defined.
+
+Proposition swap_pullback_mor_eq
+            {C : category}
+            {x y z : C}
+            (f : x --> z)
+            (g : y --> z)
+            (Pfg : Pullback f g)
+            (Pgf : Pullback g f)
+  : swap_pullback_mor f g Pfg Pgf · swap_pullback_mor g f Pgf Pfg = identity Pfg.
+Proof.
+  unfold swap_pullback_mor.
+  use (MorphismsIntoPullbackEqual (isPullback_Pullback Pfg)).
+  - rewrite !assoc'.
+    rewrite PullbackArrow_PullbackPr1.
+    rewrite PullbackArrow_PullbackPr2.
+    rewrite id_left.
+    apply idpath.
+  - rewrite !assoc'.
+    rewrite PullbackArrow_PullbackPr2.
+    rewrite PullbackArrow_PullbackPr1.
+    rewrite id_left.
+    apply idpath.
+Qed.
+
+Definition swap_pullback_z_iso
+           {C : category}
+           {x y z : C}
+           (f : x --> z)
+           (g : y --> z)
+           (Pfg : Pullback f g)
+           (Pgf : Pullback g f)
+  : z_iso Pfg Pgf.
+Proof.
+  use make_z_iso.
+  - apply swap_pullback_mor.
+  - apply swap_pullback_mor.
+  - abstract
+      (split ; apply swap_pullback_mor_eq).
+Defined.

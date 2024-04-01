@@ -12,26 +12,26 @@
 
 - Swapping of arguments in functor categories
 
+- Adjunctions are closed under natural isomorphism
+
+- Composition of adjunctions
+
 Written by: Anders Mörtberg, 2016
 
 *)
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.MoreFoundations.Tactics.
-
-Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.ProductCategory.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Products.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.Limits.Coproducts.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.whiskering.
 
 Local Open Scope cat.
 
@@ -277,3 +277,173 @@ use tpair.
 Defined.
 
 End functor_swap.
+
+(** * Adjunctions are closed under natural isomorphism *)
+Section LeftAdjointIso.
+  Context {C D : category}
+          {L₁ L₂ : C ⟶ D}
+          (HL₁ : is_left_adjoint L₁)
+          (τ : nat_z_iso L₁ L₂).
+
+  Let R : D ⟶ C := right_adjoint HL₁.
+  Let η : functor_identity C ⟹ L₁ ∙ R := unit_from_left_adjoint HL₁.
+  Let ε : R ∙ L₁ ⟹ functor_identity _ := counit_from_left_adjoint HL₁.
+
+  Let η' : functor_identity C ⟹ L₂ ∙ R
+    := nat_trans_comp
+         _ _ _
+         η
+         (post_whisker τ R).
+
+  Let ε' : R ∙ L₂ ⟹ functor_identity D
+    := nat_trans_comp
+         _ _ _
+         (pre_whisker R (nat_z_iso_inv τ))
+         ε.
+
+  Proposition is_left_adjoint_nat_z_iso_triangle_1
+    : triangle_1_statement (L₂ ,, R ,, η' ,, ε').
+  Proof.
+    intros x ; cbn -[η ε].
+    etrans.
+    {
+      rewrite !assoc.
+      apply maponpaths_2.
+      exact (nat_trans_ax (nat_z_iso_inv τ) _ _ (η x · #R(τ x))).
+    }
+    rewrite functor_comp.
+    rewrite !assoc'.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply (nat_trans_ax ε).
+    }
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      apply maponpaths_2.
+      apply (pr122 HL₁).
+    }
+    rewrite id_left.
+    exact (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso τ x)).
+  Qed.
+
+  Proposition is_left_adjoint_nat_z_iso_triangle_2
+    : triangle_2_statement (L₂ ,, R ,, η' ,, ε').
+  Proof.
+    intros x ; cbn.
+    rewrite !assoc'.
+    rewrite <- functor_comp.
+    rewrite assoc.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply maponpaths_2.
+      exact (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso τ (R x))).
+    }
+    rewrite id_left.
+    apply (pr222 HL₁).
+  Qed.
+
+  Definition is_left_adjoint_nat_z_iso
+    : is_left_adjoint L₂.
+  Proof.
+    simple refine (R ,, (η' ,, ε') ,, (_ ,, _)).
+    - exact is_left_adjoint_nat_z_iso_triangle_1.
+    - exact is_left_adjoint_nat_z_iso_triangle_2.
+  Defined.
+End LeftAdjointIso.
+
+(** * Composition of adjunctions *)
+Section CompAdjoint.
+  Context {C D E : category}
+          {L₁ : C ⟶ D}
+          {L₂ : D ⟶ E}
+          (HL₁ : is_left_adjoint L₁)
+          (HL₂ : is_left_adjoint L₂).
+
+  Let R₁ : D ⟶ C := right_adjoint HL₁.
+  Let η₁ : functor_identity C ⟹ L₁ ∙ R₁ := unit_from_left_adjoint HL₁.
+  Let ε₁ : R₁ ∙ L₁ ⟹ functor_identity _ := counit_from_left_adjoint HL₁.
+
+  Let R₂ : E ⟶ D := right_adjoint HL₂.
+  Let η₂ : functor_identity _ ⟹ L₂ ∙ R₂ := unit_from_left_adjoint HL₂.
+  Let ε₂ : R₂ ∙ L₂ ⟹ functor_identity _ := counit_from_left_adjoint HL₂.
+
+  Let R' : E ⟶ C := R₂ ∙ R₁.
+  Let η' : functor_identity _ ⟹ L₁ ∙ L₂ ∙ R'
+    := nat_trans_comp
+         _ _ _
+         η₁
+         (pre_whisker L₁ (post_whisker η₂ R₁)).
+  Let ε' : R' ∙ L₁ ∙ L₂ ⟹ functor_identity _
+    := nat_trans_comp
+         _ _ _
+         (pre_whisker R₂ (post_whisker ε₁ L₂))
+         ε₂.
+
+  Proposition comp_is_left_adjoint_triangle_1
+    : triangle_1_statement (L₁ ∙ L₂ ,, R' ,, η' ,, ε').
+  Proof.
+    intro x.
+    cbn -[η₁ η₂ ε₁ ε₂].
+    rewrite !assoc.
+    rewrite <- functor_comp.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply maponpaths.
+      rewrite functor_comp.
+      rewrite !assoc'.
+      apply maponpaths.
+      apply (nat_trans_ax ε₁).
+    }
+    cbn -[η₁ η₂ ε₁ ε₂].
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply maponpaths.
+      apply maponpaths_2.
+      apply (pr122 HL₁).
+    }
+    rewrite id_left.
+    apply (pr122 HL₂).
+  Qed.
+
+  Proposition comp_is_left_adjoint_triangle_2
+    : triangle_2_statement (L₁ ∙ L₂ ,, R' ,, η' ,, ε').
+  Proof.
+    intro x.
+    cbn -[η₁ η₂ ε₁ ε₂].
+    rewrite !assoc'.
+    rewrite <- functor_comp.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite functor_comp.
+      rewrite !assoc.
+      apply maponpaths_2.
+      refine (!_).
+      apply (nat_trans_ax η₂).
+    }
+    cbn -[η₁ η₂ ε₁ ε₂].
+    rewrite !assoc'.
+    etrans.
+    {
+      do 3 apply maponpaths.
+      apply (pr222 HL₂).
+    }
+    rewrite id_right.
+    apply (pr222 HL₁).
+  Qed.
+
+  Definition comp_is_left_adjoint
+    : is_left_adjoint (L₁ ∙ L₂).
+  Proof.
+    simple refine (R' ,, (η' ,, ε') ,, (_ ,, _)).
+    - exact comp_is_left_adjoint_triangle_1.
+    - exact comp_is_left_adjoint_triangle_2.
+  Defined.
+End CompAdjoint.
