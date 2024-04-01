@@ -9,6 +9,8 @@ Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.DivisionRig.
 Require Import UniMath.Algebra.ConstructiveStructures.
 
+Local Open Scope subtype.
+
 Section Open.
 
 Context {X : UU}.
@@ -16,7 +18,7 @@ Context (O : hsubtype (hsubtype X)).
 
 Definition isSetOfOpen_union :=
   ∏ P : hsubtype (hsubtype X),
-    (∏ A : hsubtype X, P A → O A) → O (union P).
+    (P ⊆ O) → O (union P).
 Lemma isaprop_isSetOfOpen_union :
   isaprop isSetOfOpen_union.
 Proof.
@@ -52,7 +54,7 @@ Proof.
   rewrite <- union_hfalse.
   apply H0.
   intro.
-  apply fromempty.
+  exact fromempty.
 Qed.
 
 Lemma isSetOfOpen_finite_intersection_htrue :
@@ -180,7 +182,7 @@ Section Neighborhood.
 Context {T : TopologicalSpace}.
 
 Definition neighborhood (x : T) : hsubtype (hsubtype T) :=
-  λ P : hsubtype T, ∃ O : Open, O x × (∏ y : T, O y → P y).
+  λ P : hsubtype T, ∃ O : Open, O x × (O ⊆ P).
 
 Lemma neighborhood_isOpen (P : hsubtype T) :
   (∏ x, P x → neighborhood x P) <-> isOpen P.
@@ -226,7 +228,7 @@ Qed.
 
 Lemma neighborhood_imply :
   ∏ (x : T) (P Q : hsubtype T),
-    (∏ y : T, P y → Q y) → neighborhood x P → neighborhood x Q.
+    (P ⊆ Q) → neighborhood x P → neighborhood x Q.
 Proof.
   intros x P Q H.
   apply hinhfun.
@@ -235,8 +237,8 @@ Proof.
   split.
   - apply (pr1 (pr2 O)).
   - intros y Hy.
-    apply H.
-    apply (pr2 (pr2 O)).
+    apply (H y).
+    apply (pr2 (pr2 O) y).
     exact Hy.
 Qed.
 Lemma neighborhood_forall :
@@ -266,9 +268,9 @@ Proof.
     + apply (pr1 (pr2 Ob)).
   - intros y Hy.
     split.
-    + apply (pr2 (pr2 Oa)).
+    + apply (pr2 (pr2 Oa) y).
       apply (pr1 Hy).
-    + apply (pr2 (pr2 Ob)).
+    + apply (pr2 (pr2 Ob) y).
       apply (pr2 Hy).
 Qed.
 Lemma neighborhood_point :
@@ -278,7 +280,7 @@ Proof.
   intros x P.
   apply hinhuniv.
   intros O.
-  apply (pr2 (pr2 O)).
+  apply (pr2 (pr2 O) x).
   apply (pr1 (pr2 O)).
 Qed.
 
@@ -327,7 +329,7 @@ Defined.
 
 Definition is_base_of_neighborhood {T : TopologicalSpace} (x : T) (B : hsubtype (hsubtype T)) :=
   (∏ P : hsubtype T, B P → neighborhood x P)
-    × (∏ P : hsubtype T, neighborhood x P → ∃ Q : hsubtype T, B Q × (∏ t : T, Q t → P t)).
+    × (∏ P : hsubtype T, neighborhood x P → ∃ Q : hsubtype T, B Q × (Q ⊆ P)).
 
 Definition base_of_neighborhood {T : TopologicalSpace} (x : T) :=
   ∑ (B : hsubtype (hsubtype T)), is_base_of_neighborhood x B.
@@ -349,10 +351,11 @@ Proof.
   apply hinhpr.
   exists (P,,(pr1 Hp)) ; split.
   - exact (pr2 Hp).
-  - intros. assumption.
+  - intros y Hy.
+    assumption.
 Qed.
 Lemma base_default_2 :
-  ∏ P : hsubtype T, neighborhood x P → ∃ Q : hsubtype T, base_default Q × (∏ t : T, Q t → P t).
+  ∏ P : hsubtype T, neighborhood x P → ∃ Q : hsubtype T, base_default Q × (Q ⊆ P).
 Proof.
   intros P.
   apply hinhfun.
@@ -375,7 +378,7 @@ Proof.
 Defined.
 
 Definition neighborhood' {T : TopologicalSpace} (x : T) (B : base_of_neighborhood x) : hsubtype (hsubtype T) :=
-  λ P : hsubtype T, ∃ O : hsubtype T, B O × (∏ t : T, O t → P t).
+  λ P : hsubtype T, ∃ O : hsubtype T, B O × (O ⊆ P).
 
 Lemma neighborhood_equiv {T : TopologicalSpace} (x : T) (B : base_of_neighborhood x) :
   ∏ P, neighborhood' x B P <-> neighborhood x P.
@@ -456,7 +459,7 @@ Proof.
   - intros y Hy.
     apply hinhpr.
     now exists (pr1 A), (pr1 (pr2 A)).
-  - apply Hl.
+  - apply (Hl (pr1 A)).
     + exact (pr1 (pr2 A)).
     + exact (pr2 (pr2 A)).
 Qed.
@@ -545,7 +548,7 @@ Context {X : hSet} (O : hsubtype (hsubtype X)).
 
 Definition topologygenerated :=
   λ (x : X) (A : hsubtype X),
-  (∃ L : Sequence (hsubtype X), (∏ n, O (L n)) × (finite_intersection L x) × (∏ y, finite_intersection L y → A y)).
+  (∃ L : Sequence (hsubtype X), (∏ n, O (L n)) × (finite_intersection L x) × (finite_intersection L ⊆ A)).
 
 Lemma topologygenerated_imply :
   ∏ x : X, isfilter_imply (topologygenerated x).
@@ -558,7 +561,7 @@ Proof.
   - exact (pr1 (pr2 L)).
   - exact (pr1 (pr2 (pr2 L))).
   - intros y Hy.
-    apply H, (pr2 (pr2 (pr2 L))), Hy.
+    apply H, (pr2 (pr2 (pr2 L)) y), Hy.
 Qed.
 
 Lemma topologygenerated_htrue :
@@ -591,13 +594,13 @@ Proof.
       exact (pr1 (pr2 (pr2 La)) _).
     + rewrite coprod_rect_compute_2.
       exact (pr1 (pr2 (pr2 Lb)) _).
-  - apply (pr2 (pr2 (pr2 La))).
+  - apply (pr2 (pr2 (pr2 La)) x0).
     intros n.
     simpl in X0.
     unfold concatenate' in X0.
     specialize (X0 (weqfromcoprodofstn_map (length (pr1 La)) (length (pr1 Lb)) (ii1 n))).
     now rewrite (weqfromcoprodofstn_eq1 _ _) , coprod_rect_compute_1 in X0.
-  - apply (pr2 (pr2 (pr2 Lb))).
+  - apply (pr2 (pr2 (pr2 Lb)) x0).
     intros n.
     simpl in X0.
     unfold concatenate' in X0.
@@ -611,7 +614,7 @@ Proof.
   intros x P.
   apply hinhuniv.
   intros L.
-  apply (pr2 (pr2 (pr2 L))).
+  apply (pr2 (pr2 (pr2 L)) x).
   exact (pr1 (pr2 (pr2 L))).
 Qed.
 
@@ -631,7 +634,7 @@ Proof.
     repeat split.
     + exact (pr1 (pr2 L)).
     + exact (pr1 (pr2 (pr2 L))).
-    + intros. assumption.
+    + intros y Hy. assumption.
   - intros y Hy.
     apply hinhpr.
     exists (pr1 L).
