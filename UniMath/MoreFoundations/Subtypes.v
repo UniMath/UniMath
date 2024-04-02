@@ -273,31 +273,36 @@ Definition binary_intersection' {X : UU} (U V : hsubtype X) : hsubtype X
 Definition binary_intersection {X : UU} (U V : hsubtype X) : hsubtype X
   := λ x, U x ∧ V x.
 
+Notation "A ∩ B" :=
+  (binary_intersection A B)
+  (at level 40, left associativity)
+  : subtype.
+
 Lemma binary_intersection_commutative {X : UU} (U V : hsubtype X)
-  : ∏ x : X, (binary_intersection U V) x -> (binary_intersection V U) x.
+  : U ∩ V ⊆ V ∩ U.
 Proof.
   intros ? p.
   exact (transportf _ (iscomm_hconj (U x) (V x)) p).
 Qed.
 
 Definition intersection_contained_l {X : UU} (U V : hsubtype X)
-  : subtype_containedIn (binary_intersection U V) U.
+  : U ∩ V ⊆ U.
 Proof.
   intros ? xinUV.
   apply xinUV.
 Qed.
 
 Definition intersection_contained_r {X : UU} (U V : hsubtype X)
-  : subtype_containedIn (binary_intersection U V) V.
+  : U ∩ V ⊆ V.
 Proof.
   intros ? xinUV.
   apply xinUV.
 Qed.
 
 Definition intersection_contained {X : UU} {U U' V V' : hsubtype X}
-           (uu : subtype_containedIn U U')
-           (vv : subtype_containedIn V V')
-  : subtype_containedIn (binary_intersection U V) (binary_intersection U' V').
+           (uu : U ⊆ U')
+           (vv : V ⊆ V')
+  : U ∩ V ⊆ U' ∩ V'.
 Proof.
   intros x p.
   cbn.
@@ -309,7 +314,7 @@ Proof.
 Qed.
 
 Lemma isaprop_subtype_containedIn {X : UU} (U V : hsubtype X)
-  : isaprop (subtype_containedIn U V).
+  : isaprop (U ⊆ V).
 Proof.
   apply impred_isaprop ; intro.
   apply isapropimpl.
@@ -389,7 +394,7 @@ Proof.
 Qed.
 
 Definition hsubtype_preserving {X Y : UU} (U : hsubtype X) (V : hsubtype Y) (f : X → Y)
-  : UU := subtype_containedIn (image_hsubtype U f) V.
+  : UU := (image_hsubtype U f) ⊆ V.
 
 Lemma isaprop_hsubtype_preserving {X Y : UU} (U : hsubtype X) (V : hsubtype Y) (f : X → Y)
   : isaprop (hsubtype_preserving U V f).

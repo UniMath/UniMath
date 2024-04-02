@@ -4,18 +4,21 @@
 
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Subtypes.
 Require Export UniMath.Topology.Prelim.
 Require Import UniMath.MoreFoundations.PartA.
 
 (** ** Definition of a Filter *)
 
+Local Open Scope subtype.
+
 Section Filter_def.
 
 Context {X : UU}.
-Context (F : (hsubtype X) → hProp).
+Context (F : hsubtype (hsubtype X)).
 
 Definition isfilter_imply :=
-  ∏ A B : hsubtype X, (∏ x : X, A x → B x) → F A → F B.
+  ∏ A B : hsubtype X, (A ⊆ B) → F A → F B.
 Lemma isaprop_isfilter_imply : isaprop isfilter_imply.
 Proof.
   apply impred_isaprop ; intro A.
@@ -98,11 +101,11 @@ Qed.
 
 End Filter_def.
 
-Definition isPreFilter {X : UU} (F : (hsubtype X) → hProp) :=
+Definition isPreFilter {X : UU} (F : hsubtype (hsubtype X)) :=
   isfilter_imply F × isfilter_finite_intersection F.
 Definition PreFilter (X : UU) :=
-  ∑ (F : (hsubtype X) → hProp), isPreFilter F.
-Definition make_PreFilter {X : UU} (F : (hsubtype X) → hProp)
+  ∑ (F : hsubtype (hsubtype X)), isPreFilter F.
+Definition make_PreFilter {X : UU} (F : hsubtype (hsubtype X))
            (Himpl : isfilter_imply F)
            (Htrue : isfilter_htrue F)
            (Hand : isfilter_and F) : PreFilter X :=
@@ -111,13 +114,13 @@ Definition make_PreFilter {X : UU} (F : (hsubtype X) → hProp)
 Definition pr1PreFilter (X : UU) (F : PreFilter X) : (hsubtype X) → hProp := pr1 F.
 Coercion pr1PreFilter : PreFilter >-> Funclass.
 
-Definition isFilter {X : UU} (F : (hsubtype X) → hProp) :=
+Definition isFilter {X : UU} (F : hsubtype (hsubtype X)) :=
   isPreFilter F × isfilter_notempty F.
-Definition Filter (X : UU) := ∑ F : (hsubtype X) → hProp, isFilter F.
+Definition Filter (X : UU) := ∑ F : hsubtype (hsubtype X), isFilter F.
 Definition pr1Filter (X : UU) (F : Filter X) : PreFilter X :=
   pr1 F,, pr1 (pr2 F).
 Coercion pr1Filter : Filter >-> PreFilter.
-Definition make_Filter {X : UU} (F : (hsubtype X) → hProp)
+Definition make_Filter {X : UU} (F : hsubtype (hsubtype X))
            (Himp : isfilter_imply F)
            (Htrue : isfilter_htrue F)
            (Hand : isfilter_and F)
@@ -125,7 +128,7 @@ Definition make_Filter {X : UU} (F : (hsubtype X) → hProp)
   F ,, (Himp ,, (isfilter_finite_intersection_carac F Htrue Hand)) ,, Hempty.
 
 Lemma emptynofilter :
-  ∏ F : (empty → hProp) → hProp,
+  ∏ F : hsubtype (hsubtype empty),
     ¬ isFilter F.
 Proof.
   intros F Hf.
@@ -278,14 +281,14 @@ Defined.
 Section filterim.
 
 Context {X Y : UU}.
-Context (f : X → Y) (F : (hsubtype X) → hProp).
+Context (f : X → Y) (F : hsubtype (hsubtype X)).
 Context (Himp : isfilter_imply F)
         (Htrue : isfilter_htrue F)
         (Hand : isfilter_and F)
         (Hempty : isfilter_notempty F).
 
 Definition filterim :=
-  λ A : (Y → hProp), F (λ x : X, A (f x)).
+  λ A : (hsubtype Y), F (λ x : X, A (f x)).
 
 Lemma filterim_imply :
   isfilter_imply filterim.
@@ -293,7 +296,7 @@ Proof.
   intros A B H.
   apply Himp.
   intros x.
-  apply H.
+  apply (H (f x)).
 Qed.
 Lemma filterim_htrue :
   isfilter_htrue filterim.
@@ -394,7 +397,7 @@ Qed.
 Section filterdom.
 
 Context {X : UU}.
-Context (F : (hsubtype X) → hProp)
+Context (F : hsubtype (hsubtype X))
         (Himp : isfilter_imply F)
         (Htrue : isfilter_htrue F)
         (Hand : isfilter_and F)
@@ -402,7 +405,7 @@ Context (F : (hsubtype X) → hProp)
 Context (dom : hsubtype X)
         (Hdom : ∏ P, F P → ∃ x, dom x ∧ P x).
 
-Definition filterdom : (hsubtype X) → hProp
+Definition filterdom : hsubtype (hsubtype X)
   := λ A : hsubtype X, F (λ x : X, make_hProp (dom x → A x) (isapropimpl _ _ (propproperty _))).
 
 Lemma filterdom_imply :
@@ -411,7 +414,7 @@ Proof.
   intros A B Himpl.
   apply Himp.
   intros x Ax Hx.
-  apply Himpl, Ax, Hx.
+  apply (Himpl x), Ax, Hx.
 Qed.
 Lemma filterdom_htrue :
   isfilter_htrue filterdom.
@@ -473,7 +476,7 @@ Defined.
 Section filtersubtype.
 
 Context {X : UU}.
-Context (F : (hsubtype X) → hProp)
+Context (F : hsubtype (hsubtype X))
         (Himp : isfilter_imply F)
         (Htrue : isfilter_htrue F)
         (Hand : isfilter_and F)
@@ -481,8 +484,8 @@ Context (F : (hsubtype X) → hProp)
 Context (dom : hsubtype X)
         (Hdom : ∏ P, F P → ∃ x, dom x ∧ P x).
 
-Definition filtersubtype : ((∑ x : X, dom x) → hProp) → hProp :=
-  λ A : (∑ x : X, dom x) → hProp,
+Definition filtersubtype : hsubtype (hsubtype (∑ x : X, dom x)) :=
+  λ A : hsubtype (∑ x : X, dom x),
         F (λ x : X, make_hProp (∏ Hx : dom x, A (x,, Hx)) (impred_isaprop _ (λ _, propproperty _))).
 
 Lemma filtersubtype_imply :
@@ -491,7 +494,7 @@ Proof.
   intros A B Himpl.
   apply Himp.
   intros x Ax Hx.
-  apply Himpl, Ax.
+  apply (Himpl (_ ,, _)), Ax.
 Qed.
 Lemma filtersubtype_htrue :
   isfilter_htrue filtersubtype.
@@ -552,20 +555,20 @@ Defined.
 Section filterdirprod.
 
 Context {X Y : UU}.
-Context (Fx : (hsubtype X) → hProp)
+Context (Fx : hsubtype (hsubtype X))
         (Himp_x : isfilter_imply Fx)
         (Htrue_x : isfilter_htrue Fx)
         (Hand_x : isfilter_and Fx)
         (Hempty_x : isfilter_notempty Fx).
-Context (Fy : (Y → hProp) → hProp)
+Context (Fy : hsubtype (hsubtype Y))
         (Himp_y : isfilter_imply Fy)
         (Htrue_y : isfilter_htrue Fy)
         (Hand_y : isfilter_and Fy)
         (Hempty_y : isfilter_notempty Fy).
 
-Definition filterdirprod : (X × Y → hProp) → hProp :=
-  λ A : (X × Y) → hProp,
-        ∃ (Ax : hsubtype X) (Ay : Y → hProp),
+Definition filterdirprod : hsubtype (hsubtype (X × Y)) :=
+  λ A : hsubtype (X × Y),
+        ∃ (Ax : hsubtype X) (Ay : hsubtype Y),
           Fx Ax × Fy Ay × (∏ (x : X) (y : Y), Ax x → Ay y → A (x,,y)).
 
 Lemma filterdirprod_imply :
@@ -581,7 +584,7 @@ Proof.
   + exact Fax.
   + exact Fay.
   + intros x y Hx Hy.
-    now apply Himpl, Ha.
+    now apply (Himpl _), Ha.
 Qed.
 Lemma filterdirprod_htrue :
   isfilter_htrue filterdirprod.
@@ -713,8 +716,8 @@ Qed.
 
 Section filternat.
 
-Definition filternat : (nat → hProp) → hProp :=
-  λ P : nat → hProp, ∃ N : nat, ∏ n : nat, N ≤ n → P n.
+Definition filternat : hsubtype (hsubtype nat) :=
+  λ P : hsubtype nat, ∃ N : nat, ∏ n : nat, N ≤ n → P n.
 
 Lemma filternat_imply :
   isfilter_imply filternat.
@@ -724,7 +727,7 @@ Proof.
   intros N.
   exists (pr1 N).
   intros n Hn.
-  now apply H, (pr2 N).
+  now apply (H _), (pr2 N).
 Qed.
 Lemma filternat_htrue :
   isfilter_htrue filternat.
@@ -777,14 +780,14 @@ Section filtertop.
 
 Context  {X : UU} (x0 : ∥ X ∥).
 
-Definition filtertop : (hsubtype X) → hProp :=
+Definition filtertop : hsubtype (hsubtype X) :=
   λ A : hsubtype X, make_hProp (∏ x : X, A x) (impred_isaprop _ (λ _, propproperty _)).
 
 Lemma filtertop_imply :
   isfilter_imply filtertop.
 Proof.
   intros A B H Ha x.
-  apply H.
+  apply (H _).
   simple refine (Ha _).
 Qed.
 Lemma filtertop_htrue :
@@ -849,15 +852,15 @@ Qed.
 Section filterintersection.
 
 Context {X : UU}.
-Context (is : ((hsubtype X) → hProp) → UU).
-Context (FF : (∑ F : ((hsubtype X) → hProp), is F) → hProp)
+Context (is : (hsubtype (hsubtype X)) → UU).
+Context (FF : hsubtype (∑ F : (hsubtype (hsubtype X)), is F))
         (Himp : ∏ F, FF F → isfilter_imply (pr1 F))
         (Htrue : ∏ F, FF F → isfilter_htrue (pr1 F))
         (Hand : ∏ F, FF F → isfilter_and (pr1 F))
         (Hempty : ∏ F, FF F → isfilter_notempty (pr1 F)).
 Context (His : ∃ F, FF F).
 
-Definition filterintersection : (hsubtype X) → hProp :=
+Definition filterintersection : hsubtype (hsubtype X) :=
   λ A : hsubtype X, make_hProp (∏ F, FF F → (pr1 F) A)
                              (impred_isaprop _ (λ _, isapropimpl _ _ (propproperty _))).
 
@@ -965,12 +968,12 @@ Qed.
 Section filtergenerated.
 
 Context {X : UU}.
-Context (L : (hsubtype X) → hProp).
+Context (L : hsubtype (hsubtype X)).
 Context (Hl : ∏ (L' : Sequence (hsubtype X)), (∏ m, L (L' m)) → ∃ x : X, ∏ m, L' m x).
 
-Definition filtergenerated : (hsubtype X) → hProp :=
+Definition filtergenerated : hsubtype (hsubtype X) :=
   λ A : hsubtype X,
-        ∃ (L' : Sequence (hsubtype X)), (∏ m, L (L' m)) × (∏ x : X, finite_intersection L' x → A x).
+        ∃ (L' : Sequence (hsubtype X)), (∏ m, L (L' m)) × (finite_intersection L' ⊆ A).
 
 Lemma filtergenerated_imply :
   isfilter_imply filtergenerated.
@@ -979,8 +982,8 @@ Proof.
   apply hinhfun ; intro Ha.
   exists (pr1 Ha), (pr1 (pr2 Ha)).
   intros x Hx.
-  apply H.
-  apply (pr2 (pr2 Ha)), Hx.
+  apply (H _).
+  apply (pr2 (pr2 Ha) _), Hx.
 Qed.
 Lemma filtergenerated_htrue :
   isfilter_htrue filtergenerated.
@@ -1014,12 +1017,12 @@ Proof.
     simpl in Hx.
     unfold concatenate' in Hx.
     split.
-    * apply (pr2 (pr2 Ha)).
+    * apply (pr2 (pr2 Ha) _).
       intros m.
       specialize (Hx (weqfromcoprodofstn_map _ _ (ii1 m))).
       rewrite (weqfromcoprodofstn_eq1 _ _), coprod_rect_compute_1 in Hx.
       exact Hx.
-    * apply (pr2 (pr2 Hb)).
+    * apply (pr2 (pr2 Hb) _).
       intros m.
       specialize (Hx (weqfromcoprodofstn_map _ _ (ii2 m))).
       rewrite (weqfromcoprodofstn_eq1 _ _), coprod_rect_compute_2 in Hx.
@@ -1035,13 +1038,13 @@ Proof.
   apply hinhfun.
   intros x.
   exists (pr1 x).
-  apply (pr2 (pr2 L')).
+  apply (pr2 (pr2 L') _).
   exact (pr2 x).
 Qed.
 
 End filtergenerated.
 
-Definition PreFilterGenerated {X : UU} (L : (hsubtype X) → hProp) : PreFilter X.
+Definition PreFilterGenerated {X : UU} (L : hsubtype (hsubtype X)) : PreFilter X.
 Proof.
   simple refine (make_PreFilter _ _ _ _).
   - apply (filtergenerated L).
@@ -1050,7 +1053,7 @@ Proof.
   - apply filtergenerated_and.
 Defined.
 
-Definition FilterGenerated {X : UU} (L : (hsubtype X) → hProp)
+Definition FilterGenerated {X : UU} (L : hsubtype (hsubtype X))
            (Hl : ∏ L' : Sequence (hsubtype X),
   (∏ m : stn (length L'), L (L' m)) → ∃ x : X, finite_intersection L' x) : Filter X.
 Proof.
@@ -1062,7 +1065,7 @@ Proof.
 Defined.
 
 Lemma PreFilterGenerated_correct {X : UU} :
-   ∏ (L : (hsubtype X) → hProp),
+   ∏ (L : hsubtype (hsubtype X)),
    (∏ A : hsubtype X, L A → (PreFilterGenerated L) A)
    × (∏ F : PreFilter X,
       (∏ A : hsubtype X, L A → F A) → filter_le F (PreFilterGenerated L)).
@@ -1087,7 +1090,7 @@ Proof.
       apply (pr1 (pr2 Ha)).
 Qed.
 Lemma FilterGenerated_correct {X : UU} :
-   ∏ (L : (hsubtype X) → hProp)
+   ∏ (L : hsubtype (hsubtype X))
    (Hl : ∏ L' : Sequence (hsubtype X),
          (∏ m, L (L' m)) →
          (∃ x : X, finite_intersection L' x)),
@@ -1116,7 +1119,7 @@ Proof.
 Qed.
 
 Lemma FilterGenerated_inv {X : UU} :
-   ∏ (L : (hsubtype X) → hProp) (F : Filter X),
+   ∏ (L : hsubtype (hsubtype X)) (F : Filter X),
    (∏ A : hsubtype X, L A → F A) →
    ∏ (L' : Sequence (hsubtype X)),
    (∏ m, L (L' m)) →
@@ -1147,24 +1150,24 @@ Proof.
       * intros B.
         apply (F B ∨ B = A).
       * intros L Hl.
-        assert (B : ∃ B : hsubtype X, F B × (∏ x, (A x ∧ B x → A x ∧ finite_intersection L x))).
+        assert (B : ∃ B : hsubtype X, F B × ((A ∩ B) ⊆ A ∩ finite_intersection L)).
         { revert L Hl.
           apply (Sequence_rect (P := λ L : Sequence (hsubtype X),
                                     (∏ m : stn (length L), (λ B : hsubtype X, F B ∨ B = A) (L m)) →
                                     ∃ B : hsubtype X,
-                                      F B × (∏ x : X, A x ∧ B x → A x ∧ finite_intersection L x))).
+                                      F B × (A ∩ B ⊆ A ∩ finite_intersection L))).
         - intros Hl.
           apply hinhpr.
           exists (λ _, htrue).
           split.
           + exact (filter_htrue F).
-          + intros.
+          + intros x Hx.
             refine (transportf (λ y, _ ∧ y x) (!finite_intersection_htrue) _).
             assumption.
         - intros L B IHl Hl.
           simple refine (hinhuniv _ (IHl _)).
           + intros C.
-            refine (transportf (λ y, ∃ B, F B × (∏ x, _ → hProptoType (_ ∧ y x))) (!finite_intersection_append _ _) _).
+            refine (transportf (λ y, ∃ B, F B × (∏ x, _ → _ ∧ y x)) (!finite_intersection_append _ _) _).
             generalize (Hl lastelement) ; simpl.
             rewrite append_vec_compute_2.
             apply hinhfun.
@@ -1226,10 +1229,10 @@ Qed.
 Section base.
 
 Context {X : UU}.
-Context (base : (hsubtype X) → hProp).
+Context (base : hsubtype (hsubtype X)).
 
 Definition isbase_and :=
-  ∏ A B : hsubtype X, base A → base B → ∃ C : hsubtype X, base C × (∏ x, C x → A x ∧ B x).
+  ∏ A B : hsubtype X, base A → base B → ∃ C : hsubtype X, base C × (C ⊆ A ∩ B).
 Definition isbase_notempty :=
   ∃ A : hsubtype X, base A.
 Definition isbase_notfalse :=
@@ -1243,12 +1246,12 @@ Definition isBaseOfFilter :=
 End base.
 
 Definition BaseOfPreFilter (X : UU) :=
-  ∑ (base : (hsubtype X) → hProp), isBaseOfPreFilter base.
-Definition pr1BaseOfPreFilter {X : UU} : BaseOfPreFilter X → ((hsubtype X) → hProp) := pr1.
+  ∑ (base : hsubtype (hsubtype X)), isBaseOfPreFilter base.
+Definition pr1BaseOfPreFilter {X : UU} : BaseOfPreFilter X → (hsubtype X) → hProp := pr1.
 Coercion pr1BaseOfPreFilter : BaseOfPreFilter >-> Funclass.
 
 Definition BaseOfFilter (X : UU) :=
-  ∑ (base : (hsubtype X) → hProp), isBaseOfFilter base.
+  ∑ (base : hsubtype (hsubtype X)), isBaseOfFilter base.
 Definition pr1BaseOfFilter {X : UU} : BaseOfFilter X → BaseOfPreFilter X.
 Proof.
   intros base.
@@ -1260,7 +1263,7 @@ Defined.
 Coercion pr1BaseOfFilter : BaseOfFilter >-> BaseOfPreFilter.
 
   Lemma BaseOfPreFilter_and {X : UU} (base : BaseOfPreFilter X) :
-  ∏ A B : hsubtype X, base A → base B → ∃ C : hsubtype X, base C × (∏ x, C x → A x ∧ B x).
+  ∏ A B : hsubtype X, base A → base B → ∃ C : hsubtype X, base C × (C ⊆ A ∩ B).
 Proof.
   apply (pr1 (pr2 base)).
 Qed.
@@ -1271,7 +1274,7 @@ Proof.
 Qed.
 
 Lemma BaseOfFilter_and {X : UU} (base : BaseOfFilter X) :
-  ∏ A B : hsubtype X, base A → base B → ∃ C : hsubtype X, base C × (∏ x, C x → A x ∧ B x).
+  ∏ A B : hsubtype X, base A → base B → ∃ C : hsubtype X, base C × (C ⊆ A ∩ B).
 Proof.
   apply (pr1 (pr2 base)).
 Qed.
@@ -1289,13 +1292,13 @@ Qed.
 Section filterbase.
 
 Context {X : UU}.
-Context (base : (hsubtype X) → hProp)
+Context (base : hsubtype (hsubtype X))
         (Hand : isbase_and base)
         (Hempty : isbase_notempty base)
         (Hfalse : isbase_notfalse base).
 
-Definition filterbase : (hsubtype X) → hProp :=
-  λ A : hsubtype X, (∃ B : hsubtype X, base B × ∏ x, B x → A x).
+Definition filterbase : hsubtype (hsubtype X) :=
+  λ A : hsubtype X, (∃ B : hsubtype X, base B × B ⊆ A).
 
 Lemma filterbase_imply :
   isfilter_imply filterbase.
@@ -1307,8 +1310,8 @@ Proof.
   split.
   - apply (pr1 (pr2 A')).
   - intros x Hx.
-    apply H.
-    now apply (pr2 (pr2 A')).
+    apply (H _).
+    now apply (pr2 (pr2 A') _).
 Qed.
 
 Lemma filterbase_htrue :
@@ -1320,7 +1323,7 @@ Proof.
   exists (pr1 A).
   split.
   - apply (pr2 A).
-  - intros. exact tt.
+  - intros x Hx. exact tt.
 Qed.
 Lemma filterbase_and :
   isfilter_and filterbase.
@@ -1337,9 +1340,9 @@ Proof.
   split.
   - apply (pr1 (pr2 C')).
   - intros x Cx ; split.
-    + apply (pr2 (pr2 A')).
+    + apply (pr2 (pr2 A') _).
       now refine (pr1 (pr2 (pr2 C') _ _)).
-    + apply (pr2 (pr2 B')).
+    + apply (pr2 (pr2 B') _).
       now refine (pr2 (pr2 (pr2 C') _ _)).
 Qed.
 Lemma filterbase_notempty :
@@ -1352,15 +1355,15 @@ Proof.
   apply hinhfun.
   intros x.
   exists (pr1 x).
-  apply (pr2 (pr2 B)), (pr2 x).
+  apply (pr2 (pr2 B) _), (pr2 x).
 Qed.
 
 Lemma base_finite_intersection :
   ∏ L : Sequence (hsubtype X),
-    (∏ n, base (L n)) → ∃ A, base A × (∏ x, A x → finite_intersection L x).
+    (∏ n, base (L n)) → ∃ A, base A × (A ⊆ finite_intersection L).
 Proof.
   intros L Hbase.
-  apply (pr2 (finite_intersection_hProp (λ B, ∃ A : hsubtype X, base A × (∏ x : X, A x → B x)))).
+  apply (pr2 (finite_intersection_hProp (λ B, ∃ A : hsubtype X, base A × (A ⊆ B)))).
   - split.
     + revert Hempty.
       apply hinhfun.
@@ -1377,14 +1380,14 @@ Proof.
       * exact (pr1 (pr2 C)).
       * intros x Cx.
         split.
-        ** apply (pr2 (pr2 A')), (pr1 (pr2 (pr2 C) _ Cx)).
-        ** apply (pr2 (pr2 B')), (pr2 (pr2 (pr2 C) _ Cx)).
+        ** apply (pr2 (pr2 A') _), (pr1 (pr2 (pr2 C) _ Cx)).
+        ** apply (pr2 (pr2 B') _), (pr2 (pr2 (pr2 C) _ Cx)).
   - intros n.
     apply hinhpr.
     exists (L n).
     split.
     + now apply Hbase.
-    + intros; assumption.
+    + intros x Hx; assumption.
 Qed.
 
 Lemma filterbase_genetated :
@@ -1399,7 +1402,7 @@ Proof.
     + intros m ; simpl.
       exact (pr1 (pr2 A)).
     + intros x Ax.
-      apply (pr2 (pr2 A)).
+      apply (pr2 (pr2 A) _).
       simple refine (Ax _).
       now exists 0%nat.
   - apply hinhuniv.
@@ -1410,7 +1413,7 @@ Proof.
     exists (pr1 A) ; split.
     + exact (pr1 (pr2 A)).
     + intros x Ax.
-      now apply (pr2 (pr2 L)), (pr2 (pr2 A)).
+      now apply (pr2 (pr2 L) _), (pr2 (pr2 A) _).
 Qed.
 
 Lemma filterbase_generated_hypothesis :
@@ -1426,7 +1429,7 @@ Proof.
   apply hinhfun.
   intros x.
   exists (pr1 x).
-  apply (pr2 (pr2 A)).
+  apply (pr2 (pr2 A) _).
   exact (pr2 x).
 Qed.
 
@@ -1498,12 +1501,13 @@ Proof.
     now apply (BaseOfFilter_notfalse base).
 Qed.
 
-Lemma filterbase_le {X : UU} (base base' : (hsubtype X) → hProp) :
-  (∏ P : hsubtype X, base P → ∃ Q : hsubtype X, base' Q × (∏ x, Q x → P x))
-  <-> (∏ P : hsubtype X, filterbase base P → filterbase base' P).
+Lemma filterbase_le {X : UU} (base base' : hsubtype (hsubtype X)) :
+  (∏ P : hsubtype X, base P → ∃ Q : hsubtype X, base' Q × (Q ⊆ P))
+  <-> (filterbase base ⊆ filterbase base').
 Proof.
   split.
   - intros Hbase P.
+    cbn -[filterbase].
     apply hinhuniv.
     intros A.
     generalize (Hbase _ (pr1 (pr2 A))).
@@ -1513,28 +1517,32 @@ Proof.
     split.
     + apply (pr1 (pr2 B)).
     + intros x Bx.
-      apply (pr2 (pr2 A)), (pr2 (pr2 B)), Bx.
+      apply (pr2 (pr2 A) _), (pr2 (pr2 B) _), Bx.
   - intros Hbase P Hp.
-    apply Hbase.
+    apply (Hbase _).
     apply hinhpr.
-    now exists P.
+    exists P.
+    split.
+    + exact Hp.
+    + intro x.
+      exact (idfun _).
 Qed.
 
 Lemma PreFilterBase_le {X : UU} (base base' : BaseOfPreFilter X) :
-  (∏ P : hsubtype X, base P → ∃ Q : hsubtype X, base' Q × (∏ x, Q x → P x))
+  (∏ P : hsubtype X, base P → ∃ Q : hsubtype X, base' Q × (Q ⊆ P))
   <-> filter_le (PreFilterBase base') (PreFilterBase base).
 Proof.
   split.
   - intros Hbase P.
-    apply (pr1 (filterbase_le base base')), Hbase.
+    exact (pr1 (filterbase_le base base') Hbase _).
   - apply (pr2 (filterbase_le base base')).
 Qed.
 Lemma FilterBase_le {X : UU} (base base' : BaseOfFilter X) :
-  (∏ P : hsubtype X, base P → ∃ Q : hsubtype X, base' Q × (∏ x, Q x → P x))
+  (∏ P : hsubtype X, base P → ∃ Q : hsubtype X, base' Q × (Q ⊆ P))
   <-> filter_le (FilterBase base') (FilterBase base).
 Proof.
   split.
   - intros Hbase P.
-    apply (pr1 (filterbase_le base base')), Hbase.
+    apply (pr1 (filterbase_le base base') Hbase _).
   - apply (pr2 (filterbase_le base base')).
 Qed.

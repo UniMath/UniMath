@@ -111,8 +111,7 @@ Definition pr1TopologicatSpace : TopologicalSpace → hSet := pr1.
 Coercion pr1TopologicatSpace : TopologicalSpace >-> hSet.
 
 Definition isOpen {T : TopologicalSpace} : hsubtype (hsubtype T) := pr1 (pr2 T).
-Definition Open {T : TopologicalSpace} :=
-  ∑ O : hsubtype T, isOpen O.
+Definition Open {T : TopologicalSpace} : UU := isOpen (T := T).
 Definition pr1Open {T : TopologicalSpace} : Open → (T → hProp) := pr1.
 Coercion pr1Open : Open >-> Funclass.
 
@@ -561,7 +560,7 @@ Proof.
   - exact (pr1 (pr2 L)).
   - exact (pr1 (pr2 (pr2 L))).
   - intros y Hy.
-    apply H, (pr2 (pr2 (pr2 L)) y), Hy.
+    apply (H _), (pr2 (pr2 (pr2 L)) y), Hy.
 Qed.
 
 Lemma topologygenerated_htrue :
@@ -725,7 +724,7 @@ Proof.
   - exact (pr1 (pr2 (pr2 AB))).
   - exact (pr1 (pr2 (pr2 (pr2 AB)))).
   - intros x' y' Hx' Hy'.
-    now apply H, (pr2 (pr2 (pr2 (pr2 AB)))).
+    now apply (H _), (pr2 (pr2 (pr2 (pr2 AB)))).
 Qed.
 
 Lemma topologydirprod_htrue :
@@ -843,8 +842,8 @@ Proof.
     + exact (pr2 (pr1 Oy)).
     + intros x' y' Hx' Hy'.
       apply (pr2 (pr2 (pr2 (pr2 A)))).
-      * now apply (pr2 (pr2 Ox)).
-      * now apply (pr2 (pr2 Oy)).
+      * now apply (pr2 (pr2 Ox) x').
+      * now apply (pr2 (pr2 Oy) y').
   - intros O.
     generalize (pr2 (pr1 O) _ (pr1 (pr2 O))).
     apply hinhfun.
@@ -858,7 +857,7 @@ Proof.
       * exact (pr2 (pr1 (pr2 (pr2 (pr2 A))))).
       * exact (pr1 (pr1 (pr2 (pr2 (pr2 A))))).
     + intros x' y' Ax' Ay'.
-      apply (pr2 (pr2 O)).
+      apply (pr2 (pr2 O) (_ ,, _)).
       now apply (pr2 (pr2 (pr2 (pr2 A)))).
 Qed.
 
@@ -883,7 +882,7 @@ Proof.
   split.
   - exact (pr1 (pr2 A')).
   - intros y Hy.
-    now apply H, (pr2 (pr2 A')).
+    now apply (H _), (pr2 (pr2 A')).
 Qed.
 
 Lemma topologysubtype_htrue :
@@ -1221,7 +1220,7 @@ Proof.
            assumption.
     + repeat split.
       * exact (pr1 (pr2 O)).
-      * intros. assumption.
+      * intros x Hx. assumption.
 Qed.
 Lemma continuous_pr2 {U V : TopologicalSpace} :
   continuous (U := TopologyDirprod U V) (λ (xy : U × V), pr2 xy).
@@ -1246,7 +1245,7 @@ Proof.
         ** intros. assumption.
     + repeat split.
       * exact (pr1 (pr2 O)).
-      * intros. assumption.
+      * intros x Hx. assumption.
 Qed.
 
 (** ** Topology in algebraic structures *)
