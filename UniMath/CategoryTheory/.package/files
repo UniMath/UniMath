@@ -97,6 +97,11 @@ Limits/Coends.v
 
 Limits/PullbackConstructions.v
 
+RegularAndExact/RegularEpi.v
+RegularAndExact/RegularCategory.v
+RegularAndExact/RegularEpiFacts.v
+RegularAndExact/ExactCategory.v
+
 SubobjectClassifier/PreservesSubobjectClassifier.v
 
 DisplayedCats/Binproducts.v
@@ -117,6 +122,7 @@ DisplayedCats/Codomain/CodColimits.v
 DisplayedCats/Codomain/IteratedSlice.v
 DisplayedCats/Codomain/CodFunctor.v
 DisplayedCats/Codomain/CodSubobjectClassifier.v
+DisplayedCats/Codomain/CodRegular.v
 
 LocallyCartesianClosed/LocallyCartesianClosed.v
 DisplayedCats/Fiberwise/DualBeckChevalley.v

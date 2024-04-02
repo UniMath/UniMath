@@ -288,6 +288,10 @@ The packages and files are listed here in logical order: each file depends only 
    - [Limits/Ends.v](CategoryTheory/Limits/Ends.v)
    - [Limits/Coends.v](CategoryTheory/Limits/Coends.v)
    - [Limits/PullbackConstructions.v](CategoryTheory/Limits/PullbackConstructions.v)
+   - [RegularAndExact/RegularEpi.v](CategoryTheory/RegularAndExact/RegularEpi.v)
+   - [RegularAndExact/RegularCategory.v](CategoryTheory/RegularAndExact/RegularCategory.v)
+   - [RegularAndExact/RegularEpiFacts.v](CategoryTheory/RegularAndExact/RegularEpiFacts.v)
+   - [RegularAndExact/ExactCategory.v](CategoryTheory/RegularAndExact/ExactCategory.v)
    - [SubobjectClassifier/PreservesSubobjectClassifier.v](CategoryTheory/SubobjectClassifier/PreservesSubobjectClassifier.v)
    - [DisplayedCats/Binproducts.v](CategoryTheory/DisplayedCats/Binproducts.v)
    - [DisplayedCats/Fiberwise/FiberwiseTerminal.v](CategoryTheory/DisplayedCats/Fiberwise/FiberwiseTerminal.v)
@@ -305,10 +309,14 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Codomain/IteratedSlice.v](CategoryTheory/DisplayedCats/Codomain/IteratedSlice.v)
    - [DisplayedCats/Codomain/CodFunctor.v](CategoryTheory/DisplayedCats/Codomain/CodFunctor.v)
    - [DisplayedCats/Codomain/CodSubobjectClassifier.v](CategoryTheory/DisplayedCats/Codomain/CodSubobjectClassifier.v)
+<<<<<<< HEAD
    - [LocallyCartesianClosed/LocallyCartesianClosed.v](CategoryTheory/LocallyCartesianClosed/LocallyCartesianClosed.v)
    - [DisplayedCats/Fiberwise/DualBeckChevalley.v](CategoryTheory/DisplayedCats/Fiberwise/DualBeckChevalley.v)
    - [DisplayedCats/Codomain/CodRightAdjoint.v](CategoryTheory/DisplayedCats/Codomain/CodRightAdjoint.v)
    - [LocallyCartesianClosed/Preservation.v](CategoryTheory/LocallyCartesianClosed/Preservation.v)
+=======
+   - [DisplayedCats/Codomain/CodRegular.v](CategoryTheory/DisplayedCats/Codomain/CodRegular.v)
+>>>>>>> 6c7356ddd124f06e149446f5e7d0cb720c99a047
    - [Limits/StrictInitial.v](CategoryTheory/Limits/StrictInitial.v)
    - [Limits/DisjointBinCoproducts.v](CategoryTheory/Limits/DisjointBinCoproducts.v)
    - [DisplayedCats/Codomain/ColimitProperties.v](CategoryTheory/DisplayedCats/Codomain/ColimitProperties.v)
@@ -893,6 +901,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedBicats/DispTransformation.v](Bicategories/DisplayedBicats/DispTransformation.v)
    - [DisplayedBicats/DispModification.v](Bicategories/DisplayedBicats/DispModification.v)
    - [DisplayedBicats/DispBiequivalence.v](Bicategories/DisplayedBicats/DispBiequivalence.v)
+   - [DisplayedBicats/ProductDispBiequiv.v](Bicategories/DisplayedBicats/ProductDispBiequiv.v)
    - [DoubleCategories/Basics/DoubleCategoryBasics.v](Bicategories/DoubleCategories/Basics/DoubleCategoryBasics.v)
    - [DoubleCategories/Basics/StrictDoubleCatBasics.v](Bicategories/DoubleCategories/Basics/StrictDoubleCatBasics.v)
    - [DoubleCategories/Core/DoubleCats.v](Bicategories/DoubleCategories/Core/DoubleCats.v)

@@ -173,6 +173,7 @@ DisplayedBicats/Examples/DispBicatOfTwoSidedDispCat.v
 DisplayedBicats/DispTransformation.v
 DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
+DisplayedBicats/ProductDispBiequiv.v
 
 DoubleCategories/Basics/DoubleCategoryBasics.v
 DoubleCategories/Basics/StrictDoubleCatBasics.v
