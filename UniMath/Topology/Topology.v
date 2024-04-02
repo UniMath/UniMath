@@ -1039,11 +1039,11 @@ Proof.
   split.
   - intros Hx P HP.
     apply (pr2 (neighborhood_equiv _ base _)) in HP.
-    apply Hx.
+    apply (Hx _).
     exact HP.
   - intros Hx P HP.
     apply neighborhood_equiv in HP.
-    apply Hx.
+    apply (Hx _).
     exact HP.
 Qed.
 Lemma ex_filter_lim_base_correct {T : TopologicalSpace} (F : Filter T) :
@@ -1080,10 +1080,10 @@ Lemma is_lim_base_correct {X : UU} {T : TopologicalSpace} (f : X → T) (F : Fil
 Proof.
   split.
   - intros Hx P HP.
-    apply Hx, (pr2 (neighborhood_equiv _ _ _)).
+    apply (Hx _), (pr2 (neighborhood_equiv _ _ _)).
     exact HP.
   - intros Hx P HP.
-    eapply Hx, neighborhood_equiv.
+    eapply (Hx _), neighborhood_equiv.
     exact HP.
 Qed.
 Lemma ex_lim_base_correct {X : UU} {T : TopologicalSpace} (f : X → T) (F : Filter X) :
@@ -1120,6 +1120,31 @@ Lemma isaprop_continuous (x y : TopologicalSpace)
 Proof.
   do 3 (apply impred_isaprop; intro).
   apply propproperty.
+Qed.
+
+Lemma continuous_iff_preserves_open
+  {T T' : TopologicalSpace}
+  (F : T → T')
+  : continuous F <-> ∏ (U : Open), isOpen (U ∘ F)%functions.
+Proof.
+  split.
+  - intros H U.
+    apply neighborhood_isOpen.
+    intros x Hx.
+    apply (H x U).
+    apply hinhpr.
+    exists U.
+    exists Hx.
+    exact (λ _ x, x).
+  - intros H x A.
+    cbn -[PreFilterIm locally].
+    apply hinhfun.
+    intro O.
+    exists ((pr1 O ∘ F)%functions ,, H _).
+    split.
+    + exact (pr12 O).
+    + intro x'.
+      exact (pr22 O _).
 Qed.
 
 Definition continuous_base_at {U V : TopologicalSpace} (f : U → V) (x : U) base_x base_fx :=
@@ -1169,6 +1194,7 @@ Proof.
   intros Hf Hg.
   apply (filterlim_comp (λ x, (f x ,, g x))).
   intros P.
+  cbn -[FilterDirprod locally PreFilterIm].
   apply hinhuniv.
   intros Hp.
   generalize (filter_and F _ _ (Hf _ (pr1 (pr2 (pr2 Hp)))) (Hg _ (pr1 (pr2 (pr2 (pr2 Hp)))))).
@@ -1183,6 +1209,7 @@ Lemma continuous_tpair {U V : TopologicalSpace} :
   continuous2d (W := TopologyDirprod U V) (λ (x : U) (y : V), (x,,y)).
 Proof.
   intros x y P.
+  cbn -[locally PreFilterIm].
   apply hinhuniv.
   intros O.
   simple refine (filter_imply _ _ _ _ _).
@@ -1205,6 +1232,7 @@ Lemma continuous_pr1 {U V : TopologicalSpace} :
   continuous (U := TopologyDirprod U V) (λ (xy : U × V), pr1 xy).
 Proof.
   intros xy P.
+  cbn -[locally PreFilterIm].
   apply hinhuniv.
   intros O.
   simple refine (filter_imply _ _ _ _ _).
@@ -1231,6 +1259,7 @@ Lemma continuous_pr2 {U V : TopologicalSpace} :
   continuous (U := TopologyDirprod U V) (λ (xy : U × V), pr2 xy).
 Proof.
   intros xy P.
+  cbn -[locally PreFilterIm].
   apply hinhuniv.
   intros O.
   simple refine (filter_imply _ _ _ _ _).
