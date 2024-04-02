@@ -306,6 +306,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Codomain/CodFunctor.v](CategoryTheory/DisplayedCats/Codomain/CodFunctor.v)
    - [DisplayedCats/Codomain/CodSubobjectClassifier.v](CategoryTheory/DisplayedCats/Codomain/CodSubobjectClassifier.v)
    - [LocallyCartesianClosed.v](CategoryTheory/LocallyCartesianClosed.v)
+   - [DisplayedCats/Fiberwise/DualBeckChevalley.v](CategoryTheory/DisplayedCats/Fiberwise/DualBeckChevalley.v)
+   - [DisplayedCats/Codomain/CodRightAdjoint.v](CategoryTheory/DisplayedCats/Codomain/CodRightAdjoint.v)
    - [Limits/StrictInitial.v](CategoryTheory/Limits/StrictInitial.v)
    - [Limits/DisjointBinCoproducts.v](CategoryTheory/Limits/DisjointBinCoproducts.v)
    - [DisplayedCats/Codomain/ColimitProperties.v](CategoryTheory/DisplayedCats/Codomain/ColimitProperties.v)

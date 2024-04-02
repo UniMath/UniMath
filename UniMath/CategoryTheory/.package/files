@@ -119,6 +119,9 @@ DisplayedCats/Codomain/CodFunctor.v
 DisplayedCats/Codomain/CodSubobjectClassifier.v
 
 LocallyCartesianClosed.v
+DisplayedCats/Fiberwise/DualBeckChevalley.v
+
+DisplayedCats/Codomain/CodRightAdjoint.v
 
 Limits/StrictInitial.v
 Limits/DisjointBinCoproducts.v
