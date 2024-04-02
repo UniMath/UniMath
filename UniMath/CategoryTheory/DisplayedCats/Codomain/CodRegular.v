@@ -2,7 +2,7 @@
 
  The slice category is regular and exact
 
- One key theorem about regular categories, is that they are closed under slicing.
+ One key theorem about regular categories is that they are closed under slicing.
 
  To prove this theorem, we characterize regular epimorphisms in the slice category `C/x` as
  regular epimorphisms in  `C`. Note that for this characterization we use that `C` is regular,
