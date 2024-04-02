@@ -1122,7 +1122,7 @@ Proof.
   apply propproperty.
 Qed.
 
-Lemma continuous_iff_preserves_open
+Lemma continuous_iff_reflects_open
   {T T' : TopologicalSpace}
   (F : T → T')
   : continuous F <-> ∏ (U : Open), isOpen (U ∘ F)%functions.
@@ -1147,13 +1147,32 @@ Proof.
       exact (pr22 O _).
 Qed.
 
+Definition continuous_function
+  (T T' : TopologicalSpace)
+  : UU
+  := ∑ (F : T → T'), continuous F.
+
+Definition continuous_function_to_function
+  {T T' : TopologicalSpace}
+  (F : continuous_function T T')
+  : T → T'
+  := pr1 F.
+
+Coercion continuous_function_to_function : continuous_function >-> Funclass.
+
+Definition continuous_function_is_continuous
+  {T T' : TopologicalSpace}
+  (F : continuous_function T T')
+  : continuous F
+  := pr2 F.
+
 Definition continuous_open_preimage
   {T T' : TopologicalSpace}
-  (F : T → T')
-  (H : continuous F)
+  (F : continuous_function T T')
   (U : Open (T := T'))
   : Open (T := T)
-  := (U ∘ F)%functions ,, (pr1 (continuous_iff_preserves_open F) H U).
+  := (U ∘ F)%functions ,,
+    (pr1 (continuous_iff_reflects_open F) (continuous_function_is_continuous F) U).
 
 Definition continuous_base_at {U V : TopologicalSpace} (f : U → V) (x : U) base_x base_fx :=
   is_lim_base f (locally_base x base_x) (f x) base_fx.
