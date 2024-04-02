@@ -2,7 +2,7 @@
 
  Regular epimorphisms
 
- There are several variations on the notion of epimorphism. One of them, is the notion of
+ There are several variations on the notion of epimorphism. One of them is the notion of
  regular epimorphism, which are epimorphisms that are the coequalizer of some parallel pair
  of morphisms. We also establish some basic facts of regular epimorphisms, and we define
  when functors preserve regular epimorphisms.
