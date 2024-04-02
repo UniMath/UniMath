@@ -1100,6 +1100,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [ComprehensionCat/TypeFormers/EqualizerTypes.v](Bicategories/ComprehensionCat/TypeFormers/EqualizerTypes.v)
    - [ComprehensionCat/TypeFormers/Democracy.v](Bicategories/ComprehensionCat/TypeFormers/Democracy.v)
    - [ComprehensionCat/TypeFormers/SigmaTypes.v](Bicategories/ComprehensionCat/TypeFormers/SigmaTypes.v)
+   - [ComprehensionCat/TypeFormers/PiTypes.v](Bicategories/ComprehensionCat/TypeFormers/PiTypes.v)
    - [ComprehensionCat/DFLCompCat.v](Bicategories/ComprehensionCat/DFLCompCat.v)
    - [ComprehensionCat/DFLCompCatNotations.v](Bicategories/ComprehensionCat/DFLCompCatNotations.v)
    - [ComprehensionCat/ComprehensionEso.v](Bicategories/ComprehensionCat/ComprehensionEso.v)

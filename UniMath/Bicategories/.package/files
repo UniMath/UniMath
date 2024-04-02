@@ -424,6 +424,7 @@ ComprehensionCat/TypeFormers/ProductTypes.v
 ComprehensionCat/TypeFormers/EqualizerTypes.v
 ComprehensionCat/TypeFormers/Democracy.v
 ComprehensionCat/TypeFormers/SigmaTypes.v
+ComprehensionCat/TypeFormers/PiTypes.v
 ComprehensionCat/DFLCompCat.v
 ComprehensionCat/DFLCompCatNotations.v
 ComprehensionCat/ComprehensionEso.v
