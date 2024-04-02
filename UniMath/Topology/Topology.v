@@ -1147,6 +1147,14 @@ Proof.
       exact (pr22 O _).
 Qed.
 
+Definition continuous_open_preimage
+  {T T' : TopologicalSpace}
+  (F : T → T')
+  (H : continuous F)
+  (U : Open (T := T'))
+  : Open (T := T)
+  := (U ∘ F)%functions ,, (pr1 (continuous_iff_preserves_open F) H U).
+
 Definition continuous_base_at {U V : TopologicalSpace} (f : U → V) (x : U) base_x base_fx :=
   is_lim_base f (locally_base x base_x) (f x) base_fx.
 
