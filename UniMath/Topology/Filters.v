@@ -118,7 +118,7 @@ Definition isFilter {X : UU} (F : hsubtype (hsubtype X)) :=
   isPreFilter F × isfilter_notempty F.
 Definition Filter (X : UU) := ∑ F : hsubtype (hsubtype X), isFilter F.
 Definition pr1Filter (X : UU) (F : Filter X) : PreFilter X :=
-  pr1 F,, pr1 (pr2 F).
+  pr1 F,, pr12 F.
 Coercion pr1Filter : Filter >-> PreFilter.
 Definition make_Filter {X : UU} (F : hsubtype (hsubtype X))
            (Himp : isfilter_imply F)
@@ -132,7 +132,7 @@ Lemma emptynofilter :
     ¬ isFilter F.
 Proof.
   intros F Hf.
-  generalize (isfilter_finite_intersection_htrue _ (pr2 (pr1 Hf))) ; intros Htrue.
+  generalize (isfilter_finite_intersection_htrue _ (pr21 Hf)) ; intros Htrue.
   generalize (pr2 Hf _ Htrue).
   apply factor_through_squash.
   - apply isapropempty.
@@ -148,12 +148,12 @@ Context (F : PreFilter X).
 Lemma filter_imply :
   isfilter_imply F.
 Proof.
-  exact (pr1 (pr2 F)).
+  exact (pr12 F).
 Qed.
 Lemma filter_finite_intersection :
   isfilter_finite_intersection F.
 Proof.
-  exact (pr2 (pr2 F)).
+  exact (pr22 F).
 Qed.
 Lemma filter_htrue :
   isfilter_htrue F.
@@ -188,7 +188,7 @@ Context (F : Filter X).
 Lemma filter_notempty :
   isfilter_notempty F.
 Proof.
-  exact (pr2 (pr2 F)).
+  exact (pr22 F).
 Qed.
 
 Lemma filter_const :
@@ -229,14 +229,14 @@ Qed.
 (** *** Order on filters *)
 
 Definition filter_le {X : UU} (F G : PreFilter X) :=
-  ∏ A : hsubtype X, G A → F A.
+  G ⊆ F.
 
 Lemma istrans_filter_le {X : UU} :
   ∏ F G H : PreFilter X,
     filter_le F G → filter_le G H → filter_le F H.
 Proof.
   intros F G H Hfg Hgh A Fa.
-  apply Hfg, Hgh, Fa.
+  apply (Hfg _), (Hgh _), Fa.
 Qed.
 Lemma isrefl_filter_le {X : UU} :
   ∏ F : PreFilter X, filter_le F F.
@@ -254,8 +254,8 @@ Proof.
     + apply isaprop_isfilter_finite_intersection.
   - apply funextfun ; intros A.
     apply hPropUnivalence.
-    + now apply Hge.
-    + now apply Hle.
+    + now apply (Hge _).
+    + now apply (Hle _).
 Qed.
 
 Definition PartialOrder_filter_le (X : UU) : PartialOrder (make_hSet (PreFilter _) (isasetPreFilter X)).
@@ -269,7 +269,7 @@ Proof.
       apply propproperty.
   - repeat split.
     + intros F G H ; simpl.
-      apply istrans_filter_le.
+      exact (istrans_filter_le _ _ _).
     + intros A ; simpl.
       apply isrefl_filter_le.
     + intros F G ; simpl.
@@ -344,14 +344,14 @@ Lemma PreFilterIm_incr {X Y : UU} :
     filter_le F G → filter_le (PreFilterIm f F) (PreFilterIm f G).
 Proof.
   intros f F G Hle A ; simpl.
-  apply Hle.
+  apply (Hle _).
 Qed.
 Lemma FilterIm_incr {X Y : UU} :
   ∏ (f : X → Y) (F G : Filter X),
     filter_le F G → filter_le (FilterIm f F) (FilterIm f G).
 Proof.
   intros f F G Hle A ; simpl.
-  apply Hle.
+  apply (Hle _).
 Qed.
 
 (** *** Limit: filter version *)
@@ -443,7 +443,7 @@ Proof.
   apply hinhfun.
   intros x.
   exists (pr1 x).
-  apply (pr2 (pr2 x)), (pr1 (pr2 x)).
+  apply (pr22 x), (pr12 x).
 Qed.
 
 End filterdom.
@@ -521,8 +521,8 @@ Proof.
   generalize (Hdom _ Fa).
   apply hinhfun.
   intros x.
-  exists (pr1 x,,pr1 (pr2 x)).
-  exact (pr2 (pr2 x) (pr1 (pr2 x))).
+  exists (pr1 x,,pr12 x).
+  exact (pr22 x (pr12 x)).
 Qed.
 
 End filtersubtype.
@@ -577,7 +577,7 @@ Proof.
   intros A B Himpl.
   apply hinhfun.
   intros C.
-  generalize (pr1 C) (pr1 (pr2 C)) (pr1 (pr2 (pr2 C))) (pr1 (pr2 (pr2 (pr2 C)))) (pr2 (pr2 (pr2 (pr2 C)))) ;
+  generalize (pr1 C) (pr12 C) (pr122 C) (pr1 (pr222 C)) (pr2 (pr222 C)) ;
   clear C ; intros Ax Ay Fax Fay Ha.
   exists Ax, Ay.
   repeat split.
@@ -601,9 +601,9 @@ Proof.
   intros A B.
   apply hinhfun2.
   intros C D.
-  generalize (pr1 C) (pr1 (pr2 C)) (pr1 (pr2 (pr2 C))) (pr1 (pr2 (pr2 (pr2 C)))) (pr2 (pr2 (pr2 (pr2 C)))) ;
+  generalize (pr1 C) (pr12 C) (pr122 C) (pr1 (pr222 C)) (pr2 (pr222 C)) ;
   clear C ; intros Ax Ay Fax Fay Ha.
-  generalize (pr1 D) (pr1 (pr2 D)) (pr1 (pr2 (pr2 D))) (pr1 (pr2 (pr2 (pr2 D)))) (pr2 (pr2 (pr2 (pr2 D)))) ;
+  generalize (pr1 D) (pr12 D) (pr122 D) (pr1 (pr222 D)) (pr2 (pr222 D)) ;
   clear D ; intros Bx By Fbx Fby Hb.
   exists (λ x : X, Ax x ∧ Bx x), (λ y : Y, Ay y ∧ By y).
   repeat split.
@@ -622,7 +622,7 @@ Proof.
   intros A.
   apply hinhuniv.
   intros C.
-  generalize (pr1 C) (pr1 (pr2 C)) (pr1 (pr2 (pr2 C))) (pr1 (pr2 (pr2 (pr2 C)))) (pr2 (pr2 (pr2 (pr2 C)))) ;
+  generalize (pr1 C) (pr12 C) (pr122 C) (pr1 (pr222 C)) (pr2 (pr222 C)) ;
   clear C ; intros Ax Ay Fax Fay Ha.
   generalize (Hempty_x _ Fax) (Hempty_y _ Fay).
   apply hinhfun2.
@@ -672,9 +672,10 @@ Goal ∏ {X Y : UU} (F : PreFilter (X × Y)),
 Proof.
   intros X Y F.
   intros A.
+  cbn -[PreFilterDirprod].
   apply hinhuniv.
   intros C ;
-    generalize (pr1 C) (pr1 (pr2 C)) (pr1 (pr2 (pr2 C))) (pr1 (pr2 (pr2 (pr2 C)))) (pr2 (pr2 (pr2 (pr2 C)))) ;
+    generalize (pr1 C) (pr12 C) (pr122 C) (pr1 (pr222 C)) (pr2 (pr222 C)) ;
     clear C ; intros Ax Ay Fax Fay Ha.
   simpl in *.
   generalize (filter_and _ _ _ Fax Fay).
@@ -844,7 +845,7 @@ Lemma FilterTop_correct {X : UU} :
   ∏ (x0 : ∥ X ∥) (F : Filter X), filter_le F (FilterTop x0).
 Proof.
   intros x0 F A Ha.
-  apply PreFilterTop_correct, Ha.
+  apply (PreFilterTop_correct _ _), Ha.
 Qed.
 
 (** *** Intersection of filters *)
@@ -947,7 +948,7 @@ Proof.
   - intros F Hf A Ha.
     now simple refine (Ha _ _).
   - intros F H A Fa G Hg.
-    apply (H G Hg).
+    apply (H G Hg _).
     apply Fa.
 Qed.
 Lemma FilterIntersection_glb {X : UU} (FF : hsubtype (Filter X)) Hff :
@@ -959,7 +960,7 @@ Proof.
   - intros F Hf A Ha.
     now simple refine (Ha _ _).
   - intros F H A Fa G Hg.
-    apply (H G Hg).
+    apply (H G Hg _).
     apply Fa.
 Qed.
 
@@ -980,10 +981,10 @@ Lemma filtergenerated_imply :
 Proof.
   intros A B H.
   apply hinhfun ; intro Ha.
-  exists (pr1 Ha), (pr1 (pr2 Ha)).
+  exists (pr1 Ha), (pr12 Ha).
   intros x Hx.
   apply (H _).
-  apply (pr2 (pr2 Ha) _), Hx.
+  apply (pr22 Ha _), Hx.
 Qed.
 Lemma filtergenerated_htrue :
   isfilter_htrue filtergenerated.
@@ -1010,19 +1011,19 @@ Proof.
     change ((weqfromcoprodofstn_invmap (length (pr1 Ha)) (length (pr1 Hb))) m) with Hm.
     induction Hm as [Hm | Hm].
     * rewrite coprod_rect_compute_1.
-      apply (pr1 (pr2 Ha)).
+      apply (pr12 Ha).
     * rewrite coprod_rect_compute_2.
-      apply (pr1 (pr2 Hb)).
+      apply (pr12 Hb).
   + intros x Hx.
     simpl in Hx.
     unfold concatenate' in Hx.
     split.
-    * apply (pr2 (pr2 Ha) _).
+    * apply (pr22 Ha _).
       intros m.
       specialize (Hx (weqfromcoprodofstn_map _ _ (ii1 m))).
       rewrite (weqfromcoprodofstn_eq1 _ _), coprod_rect_compute_1 in Hx.
       exact Hx.
-    * apply (pr2 (pr2 Hb) _).
+    * apply (pr22 Hb _).
       intros m.
       specialize (Hx (weqfromcoprodofstn_map _ _ (ii2 m))).
       rewrite (weqfromcoprodofstn_eq1 _ _), coprod_rect_compute_2 in Hx.
@@ -1034,11 +1035,11 @@ Proof.
   intros A.
   apply hinhuniv.
   intros L'.
-  generalize (Hl _ (pr1 (pr2 L'))).
+  generalize (Hl _ (pr12 L')).
   apply hinhfun.
   intros x.
   exists (pr1 x).
-  apply (pr2 (pr2 L') _).
+  apply (pr22 L' _).
   exact (pr2 x).
 Qed.
 
@@ -1068,7 +1069,7 @@ Lemma PreFilterGenerated_correct {X : UU} :
    ∏ (L : hsubtype (hsubtype X)),
    (∏ A : hsubtype X, L A → (PreFilterGenerated L) A)
    × (∏ F : PreFilter X,
-      (∏ A : hsubtype X, L A → F A) → filter_le F (PreFilterGenerated L)).
+      (L ⊆ F) → filter_le F (PreFilterGenerated L)).
 Proof.
   intros L.
   split.
@@ -1080,23 +1081,24 @@ Proof.
     + intros x Hx.
       apply (Hx (O,,paths_refl _)).
   - intros F Hf A.
+    cbn -[PreFilterGenerated].
     apply hinhuniv.
     intros Ha.
     refine (filter_imply _ _ _ _ _).
-    + apply (pr2 (pr2 Ha)).
+    + apply (pr22 Ha).
     + apply filter_finite_intersection.
       intros m.
-      apply Hf.
-      apply (pr1 (pr2 Ha)).
+      apply (Hf _).
+      apply (pr12 Ha).
 Qed.
 Lemma FilterGenerated_correct {X : UU} :
    ∏ (L : hsubtype (hsubtype X))
    (Hl : ∏ L' : Sequence (hsubtype X),
          (∏ m, L (L' m)) →
          (∃ x : X, finite_intersection L' x)),
-   (∏ A : hsubtype X, L A → (FilterGenerated L Hl) A)
+   (L ⊆ (FilterGenerated L Hl))
    × (∏ F : Filter X,
-      (∏ A : hsubtype X, L A → F A) → filter_le F (FilterGenerated L Hl)).
+      (L ⊆ F) → filter_le F (FilterGenerated L Hl)).
 Proof.
   intros L Hl.
   split.
@@ -1108,19 +1110,19 @@ Proof.
     + intros x Hx.
       apply (Hx (O,,paths_refl _)).
   - intros F Hf A.
+    cbn -[FilterGenerated].
     apply hinhuniv.
     intros Ha.
-    refine (filter_imply _ _ _ _ _).
-    + apply (pr2 (pr2 Ha)).
-    + apply filter_finite_intersection.
-      intros m.
-      apply Hf.
-      apply (pr1 (pr2 Ha)).
+    refine (filter_imply F _ _ (pr22 Ha) _).
+    apply filter_finite_intersection.
+    intros m.
+    apply (Hf _).
+    apply (pr12 Ha).
 Qed.
 
 Lemma FilterGenerated_inv {X : UU} :
    ∏ (L : hsubtype (hsubtype X)) (F : Filter X),
-   (∏ A : hsubtype X, L A → F A) →
+   (L ⊆ F) →
    ∏ (L' : Sequence (hsubtype X)),
    (∏ m, L (L' m)) →
    (∃ x : X, finite_intersection L' x).
@@ -1129,7 +1131,7 @@ Proof.
   apply (filter_notempty F).
   apply filter_finite_intersection.
   intros m.
-  apply Hf, Hl'.
+  apply (Hf _), Hl'.
 Qed.
 
 Lemma ex_filter_le {X : UU} :
@@ -1142,8 +1144,8 @@ Proof.
   - intros G B Fb.
     apply (filter_notempty (pr1 G)).
     apply filter_and.
-    + apply (pr2 (pr2 G)).
-    + now apply (pr1 (pr2 G)).
+    + apply (pr22 G).
+    + now apply (pr12 G _).
   - intros H.
     simple refine (tpair _ _ _).
     + simple refine (FilterGenerated _ _).
@@ -1161,13 +1163,12 @@ Proof.
           exists (λ _, htrue).
           split.
           + exact (filter_htrue F).
-          + intros x Hx.
-            refine (transportf (λ y, _ ∧ y x) (!finite_intersection_htrue) _).
-            assumption.
+          + refine (transportf (λ y, _ ⊆ _ ∩ y) (!finite_intersection_htrue) _).
+            now intros x Hx.
         - intros L B IHl Hl.
           simple refine (hinhuniv _ (IHl _)).
           + intros C.
-            refine (transportf (λ y, ∃ B, F B × (∏ x, _ → _ ∧ y x)) (!finite_intersection_append _ _) _).
+            rewrite (finite_intersection_append B).
             generalize (Hl lastelement) ; simpl.
             rewrite append_vec_compute_2.
             apply hinhfun.
@@ -1175,21 +1176,21 @@ Proof.
             * refine (tpair _ _ _).
               split.
               ** apply (filter_and F).
-                 *** apply (pr1 (pr2 C)).
+                 *** apply (pr12 C).
                  *** apply Fl.
               ** intros x H0 ; repeat split.
                  *** exact (pr1 H0).
-                 *** exact (pr2 (pr2 H0)).
-                 *** simple refine (pr2 (pr2 (pr2 C) x _)).
+                 *** exact (pr22 H0).
+                 *** simple refine (pr2 (pr22 C x _)).
                      split.
                      **** exact (pr1 H0).
-                     **** exact (pr1 (pr2 H0)).
+                     **** exact (pr12 H0).
             * exists (pr1 C) ; split.
-              ** exact (pr1 (pr2 C)).
+              ** exact (pr12 C).
               ** intros x H0 ; repeat split.
                  *** exact (pr1 H0).
                  *** exact (pr1 H0).
-                 *** simple refine (pr2 (pr2 (pr2 C) x _)).
+                 *** simple refine (pr2 (pr22 C x _)).
                      exact H0.
           + intros.
             generalize (Hl (dni_lastelement m)) ; simpl.
@@ -1198,11 +1199,11 @@ Proof.
       revert B.
       apply hinhuniv.
       intros B.
-      generalize (H (pr1 B) (pr1 (pr2 B))).
+      generalize (H (pr1 B) (pr12 B)).
       apply hinhfun.
       intros x.
       exists (pr1 x).
-      simple refine (pr2 (pr2 (pr2 B) (pr1 x) _)).
+      simple refine (pr2 (pr22 B (pr1 x) _)).
       exact (pr2 x).
     + split.
       * intros B Fb.
@@ -1257,36 +1258,36 @@ Proof.
   intros base.
   exists (pr1 base).
   split.
-  - apply (pr1 (pr2 base)).
-  - apply (pr1 (pr2 (pr2 base))).
+  - apply (pr12 base).
+  - apply (pr122 base).
 Defined.
 Coercion pr1BaseOfFilter : BaseOfFilter >-> BaseOfPreFilter.
 
   Lemma BaseOfPreFilter_and {X : UU} (base : BaseOfPreFilter X) :
   ∏ A B : hsubtype X, base A → base B → ∃ C : hsubtype X, base C × (C ⊆ A ∩ B).
 Proof.
-  apply (pr1 (pr2 base)).
+  apply (pr12 base).
 Qed.
 Lemma BaseOfPreFilter_notempty {X : UU} (base : BaseOfPreFilter X) :
   ∃ A : hsubtype X, base A.
 Proof.
-  apply (pr2 (pr2 base)).
+  apply (pr22 base).
 Qed.
 
 Lemma BaseOfFilter_and {X : UU} (base : BaseOfFilter X) :
   ∏ A B : hsubtype X, base A → base B → ∃ C : hsubtype X, base C × (C ⊆ A ∩ B).
 Proof.
-  apply (pr1 (pr2 base)).
+  apply (pr12 base).
 Qed.
 Lemma BaseOfFilter_notempty {X : UU} (base : BaseOfFilter X) :
   ∃ A : hsubtype X, base A.
 Proof.
-  apply (pr1 (pr2 (pr2 base))).
+  apply (pr122 base).
 Qed.
 Lemma BaseOfFilter_notfalse {X : UU} (base : BaseOfFilter X) :
   ∏ A, base A → ∃ x, A x.
 Proof.
-  apply (pr2 (pr2 (pr2 base))).
+  apply (pr222 base).
 Qed.
 
 Section filterbase.
@@ -1308,10 +1309,10 @@ Proof.
   intros A'.
   exists (pr1 A').
   split.
-  - apply (pr1 (pr2 A')).
+  - apply (pr12 A').
   - intros x Hx.
     apply (H _).
-    now apply (pr2 (pr2 A') _).
+    now apply (pr22 A' _).
 Qed.
 
 Lemma filterbase_htrue :
@@ -1333,17 +1334,17 @@ Proof.
   intros A' B'.
   refine (hinhfun _ _).
   2: apply Hand.
-  2: (apply (pr1 (pr2 A'))).
-  2: (apply (pr1 (pr2 B'))).
+  2: (apply (pr12 A')).
+  2: (apply (pr12 B')).
   intros C'.
   exists (pr1 C').
   split.
-  - apply (pr1 (pr2 C')).
+  - apply (pr12 C').
   - intros x Cx ; split.
-    + apply (pr2 (pr2 A') _).
-      now refine (pr1 (pr2 (pr2 C') _ _)).
-    + apply (pr2 (pr2 B') _).
-      now refine (pr2 (pr2 (pr2 C') _ _)).
+    + apply (pr22 A' _).
+      now refine (pr1 (pr22 C' _ _)).
+    + apply (pr22 B' _).
+      now refine (pr2 (pr22 C' _ _)).
 Qed.
 Lemma filterbase_notempty :
   isfilter_notempty filterbase.
@@ -1351,11 +1352,11 @@ Proof.
   intros A.
   apply hinhuniv.
   intros B.
-  generalize (Hfalse _ (pr1 (pr2 B))).
+  generalize (Hfalse _ (pr12 B)).
   apply hinhfun.
   intros x.
   exists (pr1 x).
-  apply (pr2 (pr2 B) _), (pr2 x).
+  apply (pr22 B _), (pr2 x).
 Qed.
 
 Lemma base_finite_intersection :
@@ -1372,16 +1373,16 @@ Proof.
     + intros A B.
       apply hinhuniv2.
       intros A' B'.
-      generalize (Hand _ _ (pr1 (pr2 A')) (pr1 (pr2 B'))).
+      generalize (Hand _ _ (pr12 A') (pr12 B')).
       apply hinhfun.
       intros C.
       exists (pr1 C).
       split.
-      * exact (pr1 (pr2 C)).
+      * exact (pr12 C).
       * intros x Cx.
         split.
-        ** apply (pr2 (pr2 A') _), (pr1 (pr2 (pr2 C) _ Cx)).
-        ** apply (pr2 (pr2 B') _), (pr2 (pr2 (pr2 C) _ Cx)).
+        ** apply (pr22 A' _), (pr1 (pr22 C _ Cx)).
+        ** apply (pr22 B' _), (pr2 (pr22 C _ Cx)).
   - intros n.
     apply hinhpr.
     exists (L n).
@@ -1400,20 +1401,20 @@ Proof.
     exists (singletonSequence (pr1 A)).
     split.
     + intros m ; simpl.
-      exact (pr1 (pr2 A)).
+      exact (pr12 A).
     + intros x Ax.
-      apply (pr2 (pr2 A) _).
+      apply (pr22 A _).
       simple refine (Ax _).
       now exists 0%nat.
   - apply hinhuniv.
     intros L.
-    generalize (base_finite_intersection (pr1 L) (pr1 (pr2 L))).
+    generalize (base_finite_intersection (pr1 L) (pr12 L)).
     apply hinhfun.
     intros A.
     exists (pr1 A) ; split.
-    + exact (pr1 (pr2 A)).
+    + exact (pr12 A).
     + intros x Ax.
-      now apply (pr2 (pr2 L) _), (pr2 (pr2 A) _).
+      now apply (pr22 L _), (pr22 A _).
 Qed.
 
 Lemma filterbase_generated_hypothesis :
@@ -1425,11 +1426,11 @@ Proof.
   generalize (base_finite_intersection L Hbase).
   apply hinhuniv.
   intros A.
-  generalize (Hfalse _ (pr1 (pr2 A))).
+  generalize (Hfalse _ (pr12 A)).
   apply hinhfun.
   intros x.
   exists (pr1 x).
-  apply (pr2 (pr2 A) _).
+  apply (pr22 A _).
   exact (pr2 x).
 Qed.
 
@@ -1510,14 +1511,14 @@ Proof.
     cbn -[filterbase].
     apply hinhuniv.
     intros A.
-    generalize (Hbase _ (pr1 (pr2 A))).
+    generalize (Hbase _ (pr12 A)).
     apply hinhfun.
     intros B.
     exists (pr1 B).
     split.
-    + apply (pr1 (pr2 B)).
+    + apply (pr12 B).
     + intros x Bx.
-      apply (pr2 (pr2 A) _), (pr2 (pr2 B) _), Bx.
+      apply (pr22 A _), (pr22 B _), Bx.
   - intros Hbase P Hp.
     apply (Hbase _).
     apply hinhpr.

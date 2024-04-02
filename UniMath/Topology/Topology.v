@@ -115,6 +115,19 @@ Definition Open {T : TopologicalSpace} : UU := isOpen (T := T).
 Definition pr1Open {T : TopologicalSpace} : Open → (T → hProp) := pr1.
 Coercion pr1Open : Open >-> Funclass.
 
+Lemma subtype_equal_isOpen
+  {T : TopologicalSpace}
+  (U V : hsubtype T)
+  (HU : isOpen U)
+  (Heq : U ≡ V)
+  : isOpen V.
+Proof.
+  refine (transportf isOpen _ HU).
+  apply funextfun.
+  intro t.
+  apply hPropUnivalence; apply Heq.
+Qed.
+
 Section Topology_pty.
 
 Context {T : TopologicalSpace}.
@@ -188,34 +201,26 @@ Lemma neighborhood_isOpen (P : hsubtype T) :
 Proof.
   split.
   - intros Hp.
-    assert (H : ∏ A : hsubtype T, isaprop (∏ y : T, A y → P y)).
-    { intros A.
-      apply impred_isaprop.
-      intro y.
-      apply isapropimpl.
-      apply propproperty. }
-    set (Q := λ A : hsubtype T, isOpen A ∧ (make_hProp (∏ y : T, A y → P y) (H A))).
-    assert (X : P = (union Q)).
-    { apply funextfun.
-      intros x.
-      apply hPropUnivalence.
-      - intros Px.
+    set (Q := λ A : hsubtype T, isOpen A ∧ (make_hProp (A ⊆ P) (isaprop_subtype_containedIn A P))).
+    apply (subtype_equal_isOpen (union Q)).
+    + apply isOpen_union.
+      intros A Ha.
+      apply (pr1 Ha).
+    + split.
+      * cbn -[union].
+        apply hinhuniv.
+        intros A.
+        apply (pr2 (pr1 (pr2 A)) _).
+        exact (pr2 (pr2 A)).
+      * intros Px.
         generalize (Hp _ Px).
         apply hinhfun.
         intros A.
         exists (pr1 A) ; split.
-        + split.
-          * apply (pr2 (pr1 A)).
-          * exact (pr2 (pr2 A)).
-        + exact (pr1 (pr2 A)).
-      - apply hinhuniv.
-        intros A.
-        apply (pr2 (pr1 (pr2 A))).
-        exact (pr2 (pr2 A)). }
-    rewrite X.
-    apply isOpen_union.
-    intros A Ha.
-    apply (pr1 Ha).
+        -- split.
+          ++ apply (pr2 (pr1 A)).
+          ++ exact (pr2 (pr2 A)).
+        -- exact (pr1 (pr2 A)).
   - intros Hp x Px.
     apply hinhpr.
     exists (P,,Hp).
