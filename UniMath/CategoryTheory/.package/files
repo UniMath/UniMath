@@ -118,10 +118,10 @@ DisplayedCats/Codomain/IteratedSlice.v
 DisplayedCats/Codomain/CodFunctor.v
 DisplayedCats/Codomain/CodSubobjectClassifier.v
 
-LocallyCartesianClosed.v
+LocallyCartesianClosed/LocallyCartesianClosed.v
 DisplayedCats/Fiberwise/DualBeckChevalley.v
-
 DisplayedCats/Codomain/CodRightAdjoint.v
+LocallyCartesianClosed/Preservation.v
 
 Limits/StrictInitial.v
 Limits/DisjointBinCoproducts.v

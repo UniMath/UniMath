@@ -136,6 +136,17 @@ Proof.
   exact (HF _ _ _ _ _ _ _ _ _ _ (cartesian_isPullback_in_cod_disp _ H)).
 Defined.
 
+Definition cartesian_disp_codomain_functor
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (HF : preserves_pullback F)
+  : cartesian_disp_functor F (disp_codomain C₁) (disp_codomain C₂).
+Proof.
+  use make_cartesian_disp_functor.
+  - exact (disp_codomain_functor F).
+  - exact (is_cartesian_disp_codomain_functor F HF).
+Defined.
+
 (** * 4. Preservation of limits *)
 Proposition preserves_terminal_fiber_disp_codomain_functor
             {C₁ C₂ : category}
