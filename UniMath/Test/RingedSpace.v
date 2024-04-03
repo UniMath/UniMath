@@ -116,18 +116,15 @@ Defined.
 Section Sheaves.
 
   Context (D : category).
+  Context (HD : is_univalent D).
 
   Definition D_presheaf
     (T : TopologicalSpace)
     : UU
-    := (topological_space_category T)^op ⟶ D.
-
-  Definition D_presheaf_pullback
-    {T T' : TopologicalSpace}
-    (F : continuous_function T T')
-    (P : D_presheaf T)
-    : D_presheaf T'
-    := functor_opp (continuous_to_functor F) ∙ P.
+    := ∑ (P : Open (T := T) → D)
+      (res : ∏ (U V : Open), U ⊆ V → D⟦P V, P U⟧),
+      (∏ U, res U U (λ x, idfun _) = identity (P U)) ×
+      (∏ U V W HUV HVW, res V W HVW · res U V HUV = res U W (λ x t, HVW x (HUV x t))).
 
   Definition space_with_local_data_disp_cat
     : disp_cat (total_category disp_top).
@@ -136,21 +133,85 @@ Section Sheaves.
     - use tpair.
       + exists D_presheaf.
         intros T T' P P' F.
-        exact ((P' : _ ⟶ _) ⟹ (D_presheaf_pullback F P : _ ⟶ _)).
+        exact (
+          ∑ (Fh : ∏ (U : Open), D⟦pr1 P' U, pr1 P (continuous_open_preimage F U)⟧),
+          ∏ (U V : Open) (HUV : U ⊆ V),
+            Fh V · pr12 P (continuous_open_preimage F U) (continuous_open_preimage F V) (λ x t, HUV _ t) = pr12 P' U V HUV · Fh U
+        ).
       + split.
         * intros T P.
-          exact (post_whisker (nat_trans_id (functor_identity _) : functor_opp (functor_identity _) ⟹ functor_opp (continuous_to_functor (identity T))) P).
-        * intros X Y Z F F' P P' P'' H H'.
-          apply (nat_trans_comp _ _ _ H').
-          apply (nat_trans_comp _ _ _ (pre_whisker _ H)).
-          refine (post_whisker (G := functor_opp (continuous_to_functor F') ∙ functor_opp (continuous_to_functor F)) (nat_trans_id (functor_opp (continuous_to_functor (F · F')))) P).
-    - repeat split.
+          use tpair.
+          -- intros U.
+            apply (pr12 P).
+            exact (λ x, idfun _).
+          -- abstract (
+              intros U V HUV;
+              now do 2 refine (pr222 P _ _ _ _ _ @ !_)
+            ).
+        * intros T T' T'' F F' P P' P'' H H'.
+          use tpair.
+          -- intro U.
+            refine (pr1 H' U · _).
+            refine (pr1 H _ · _).
+            apply (pr12 P).
+            exact (λ x, idfun _).
+          -- abstract (
+              intros U V HUV;
+              refine (_ @ !assoc _ _ _);
+              refine (_ @ maponpaths (λ x, x · _) (pr2 H' _ _ _));
+              do 2 refine (!_ @ assoc _ _ _);
+              refine (maponpaths _ _);
+              refine (_ @ !assoc _ _ _);
+              refine (_ @ maponpaths (λ x, x · _) (pr2 H _ _ _));
+              do 2 refine (!_ @ assoc _ _ _);
+              refine (maponpaths _ _);
+              now do 2 refine (pr222 P _ _ _ _ _ @ !_)
+            ).
+    - repeat split; cbn.
       + intros T T' F P P' H.
-        apply nat_trans_eq_alt.
-        intro t.
+        apply subtypePath.
+        {
+          intro.
+          do 3 (apply impred; intro).
+          apply homset_property.
+        }
+        apply funextsec.
+        intro.
+        unfold mor_disp.
+        unfold transportb.
         cbn.
-      simpl.
-      use tpair.
+        rewrite pr1_transportf.
+        rewrite (pr222 P).
+        cbn.
+        rewrite transportf_sec_constant.
+        rewrite (functtransportf (λ x0, pr1 P (continuous_open_preimage x0 x))).
+        rewrite <- idtoiso_postcompose.
+        apply maponpaths.
+        clear H.
+        clear P'.
+        match goal with
+        | [ |- ?a = _ ] => pose a
+        end.
+        assert (is_z_isomorphism p).
+        {
+          use make_is_z_isomorphism.
+          - apply (pr12 P).
+            exact (λ x t, t).
+          - split;
+              refine (pr222 P _ _ _ _ _ @ _);
+              apply (pr122 P).
+        }
+        refine (maponpaths (λ x, z_iso_mor x) (!pathsweq1' (make_weq _ (HD _ _)) _ (p ,, X) _)).
+        match goal with
+        | [ |- ?a = _ ] => pose a
+        end.
+        Search (maponpaths _ _ = _).
+        cbn.
+        cbn in p0.
+        Search (_ = invmap _ _).
+        Locate invmap_eq.
+        epose (invmap_eq ).
+        Search (_ = idtoiso _).
   Defined.
 
 End Sheaves.
