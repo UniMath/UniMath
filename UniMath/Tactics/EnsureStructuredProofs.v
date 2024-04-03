@@ -8,4 +8,4 @@ Do not copy this line into the files but put
 into the header part.
  *)
 
-Export Set Default Goal Selector "!".
+#[export] Set Default Goal Selector "!".

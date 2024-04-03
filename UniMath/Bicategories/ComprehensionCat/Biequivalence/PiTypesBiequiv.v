@@ -94,6 +94,9 @@ Proof.
   apply id_preserves_locally_cartesian_closed.
 Qed.
 
+(*
+this part needs to be done for preserves_dependent products and equivalences of displayed categories
+
 Proposition preserves_locally_cartesian_closed_adj_equiv
             {C₁ C₂ : bicat_of_univ_cats}
             (F : adjoint_equivalence C₁ C₂)
@@ -164,6 +167,8 @@ Proof.
            FPB
            P₁ P₂).
 Qed.
+
+====
 
 Proposition locally_cartesian_closed_adj_equiv_f_help
             {C₁ C₂ : bicat_of_univ_cats}
@@ -406,6 +411,7 @@ Proof.
            τ
            HF).
 Qed.
+ *)
 
 (** * 1. The extended pseudofunctor from categories to comprehension categories *)
 Definition finlim_biequiv_dfl_comp_cat_disp_psfunctor_pi_types
