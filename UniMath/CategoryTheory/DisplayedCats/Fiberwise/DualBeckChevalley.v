@@ -16,7 +16,8 @@
  existential quantifier. However, it suffices to verify only one of those. More specifically,
  if the existential quantifier is stable under substitution, then so is the universal
  quantifier. For this reason, only one Beck-Chevalley condition is usually required in
- the definition of hyperdoctrines (see, e.g., Seely).
+ the definition of hyperdoctrines (see, e.g., "Hyperdoctrines, natural deduction and the
+ Beck condition" by Seely).
 
  In this file, we prove this statement. More specifically, suppose that we have a fibration
  `D` over `C` and a commuting square `k · f = h · g` where `f : x --> w`, `g : y --> w`,
@@ -26,6 +27,7 @@
  condition also holds for the right adjoints of `f` and `g`.
 
  References
+ - "Hyperdoctrines, natural deduction and the Beck condition" by Seely
 
  ***************************************************************************************)
 Require Import UniMath.Foundations.All.

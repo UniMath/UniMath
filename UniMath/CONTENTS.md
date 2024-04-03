@@ -1123,6 +1123,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [ComprehensionCat/Biequivalence/LocalProperty.v](Bicategories/ComprehensionCat/Biequivalence/LocalProperty.v)
    - [ComprehensionCat/TypeFormers/SubobjectTypes.v](Bicategories/ComprehensionCat/TypeFormers/SubobjectTypes.v)
    - [ComprehensionCat/Biequivalence/SubobjectClassifier.v](Bicategories/ComprehensionCat/Biequivalence/SubobjectClassifier.v)
+   - [ComprehensionCat/Biequivalence/PiTypesBiequiv.v](Bicategories/ComprehensionCat/Biequivalence/PiTypesBiequiv.v)
+   - [ComprehensionCat/Biequivalence/InternalLanguageTopos.v](Bicategories/ComprehensionCat/Biequivalence/InternalLanguageTopos.v)
    - [Logic/ComprehensionBicat.v](Bicategories/Logic/ComprehensionBicat.v)
    - [Logic/Examples/TrivialComprehensionBicat.v](Bicategories/Logic/Examples/TrivialComprehensionBicat.v)
    - [Logic/Examples/PullbackComprehensionBicat.v](Bicategories/Logic/Examples/PullbackComprehensionBicat.v)

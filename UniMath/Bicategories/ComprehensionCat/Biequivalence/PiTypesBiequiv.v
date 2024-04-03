@@ -1,12 +1,38 @@
 (******************************************************************************************
 
+ The biequivalence for pi-types
+
+ In this file, we extend the biequivalence between categories with finite limits and full
+ DFL comprehension to locally Cartesian closed categories and full DFL comprehension
+ categories that support pi-types. This was one of the results by Clairambault and Dybjer.
+
+ Other files in this directory contain extensions of this biequivalence to local properties
+ (e.g., exactness, extensiveness, and being a pretopos) and to subobject classifiers. All of
+ these constructions are very similar and they follow the same steps and ideas: one extends
+ the pseudofunctors, unit, and counit using displayed machinery.
+
+ For each of these constructions, univalence plays a very important role. The reason for that,
+ is because in various steps in the construction one needs to transport structure/property
+ along an equivalence. Let us see why this is so crucial in the proof. Whenever we have a
+ full DFL comprehension category `C`, then, using democracy, we can show this comprehension
+ category is actually equivalent to the arrow category of the category of contexts of `C`.
+ If we assume that `C` has some additional structure or satisfies some properties, then we
+ transport this along the equivalence to acquire the same structure/properties for the
+ arrow category on `C`, and this is what gives us the desired structure/properties on `C`.
+ For this reason, each of these constructions frequently uses induction on equivalence to
+ transport structures and properties.
+
+ References
+ - "The biequivalence of locally cartesian closed categories and Martin-Löf type theories" by
+   Clairambault and Dybjer
 
  Contents
- 1. The extended pseudofunctor from categories to comprehension categories
- 2. The extended pseudofunctor from comprehension categories to categories
- 3. The unit
- 4. The counit
- 5. The displayed biequivalence
+ 1. Lemmas on equivalences and locally cartesian closed categories
+ 2. The extended pseudofunctor from categories to comprehension categories
+ 3. The extended pseudofunctor from comprehension categories to categories
+ 4. The unit
+ 5. The counit
+ 6. The displayed biequivalence
 
  ******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -34,6 +60,7 @@ Require Import UniMath.CategoryTheory.LocallyCartesianClosed.Preservation.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Univalence.
+Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
@@ -94,326 +121,161 @@ Proof.
   apply id_preserves_locally_cartesian_closed.
 Qed.
 
-(*
-this part needs to be done for preserves_dependent products and equivalences of displayed categories
-
-Proposition preserves_locally_cartesian_closed_adj_equiv
-            {C₁ C₂ : bicat_of_univ_cats}
-            (F : adjoint_equivalence C₁ C₂)
-            {PB₁ : Pullbacks (C₁ : univalent_category)}
-            {PB₂ : Pullbacks (C₂ : univalent_category)}
-            (FPB : preserves_pullback (pr1 F))
-            (P₁ : is_locally_cartesian_closed PB₁)
-            (P₂ : is_locally_cartesian_closed PB₂)
-  : preserves_locally_cartesian_closed FPB P₁ P₂.
+Definition has_dependent_products_adj_equiv_f_help
+           {C₁ C₂ : dfl_full_comp_cat}
+           (F : adjoint_equivalence C₁ C₂)
+           (P : has_dependent_products (cleaving_of_types C₁))
+  : has_dependent_products (cleaving_of_types C₂).
 Proof.
-  revert C₁ C₂ F PB₁ PB₂ FPB P₁ P₂.
+  revert C₁ C₂ F P.
   use J_2_0.
   {
-    exact univalent_cat_is_univalent_2_0.
+    exact is_univalent_2_0_bicat_of_dfl_full_comp_cat.
   }
-  intros C PB₁ PB₂ FPB P₁ P₂.
-  apply id_preserves_locally_cartesian_closed'.
+  intros C P.
+  exact P.
 Qed.
 
-Proposition preserves_locally_cartesian_closed_left_adjoint_equivalence
-            {C₁ C₂ : univalent_category}
-            (F : C₁ ⟶ C₂)
-            (HF : left_adjoint_equivalence (B := bicat_of_univ_cats) F)
-            {PB₁ : Pullbacks C₁}
-            {PB₂ : Pullbacks C₂}
-            (FPB : preserves_pullback F)
-            (P₁ : is_locally_cartesian_closed PB₁)
-            (P₂ : is_locally_cartesian_closed PB₂)
-  : preserves_locally_cartesian_closed FPB P₁ P₂.
+Definition has_dependent_products_adj_equiv_f
+           {C₁ C₂ : dfl_full_comp_cat}
+           {F : dfl_full_comp_cat_functor C₁ C₂}
+           (HF : left_adjoint_equivalence F)
+           (P : has_dependent_products (cleaving_of_types C₁))
+  : has_dependent_products (cleaving_of_types C₂).
 Proof.
-  exact (preserves_locally_cartesian_closed_adj_equiv (F ,, HF) FPB P₁ P₂).
+  exact (has_dependent_products_adj_equiv_f_help (F ,, HF) P).
 Qed.
 
-Proposition preserves_locally_cartesian_closed_adj_equivalence_of_cats
-            {C₁ C₂ : univalent_category}
-            (F : C₁ ⟶ C₂)
-            (HF : adj_equivalence_of_cats F)
-            {PB₁ : Pullbacks C₁}
-            {PB₂ : Pullbacks C₂}
-            (FPB : preserves_pullback F)
-            (P₁ : is_locally_cartesian_closed PB₁)
-            (P₂ : is_locally_cartesian_closed PB₂)
-  : preserves_locally_cartesian_closed FPB P₁ P₂.
+Definition preserves_dependent_products_adj_equiv_help
+           {C₁ C₂ : dfl_full_comp_cat}
+           (F : adjoint_equivalence C₁ C₂)
+           (F' := pr1 F : dfl_full_comp_cat_functor C₁ C₂)
+           (P₁ : has_dependent_products (cleaving_of_types C₁))
+           (P₂ : has_dependent_products (cleaving_of_types C₂))
+  : preserves_dependent_products (cartesian_comp_cat_type_functor F') P₁ P₂.
 Proof.
-  refine (preserves_locally_cartesian_closed_left_adjoint_equivalence F _ FPB P₁ P₂).
-  use equiv_cat_to_adj_equiv.
-  exact HF.
-Qed.
-
-Proposition preserves_locally_cartesian_closed_adj_equivalence_of_cats'
-            {C₁ C₂ : category}
-            (HC₁ : is_univalent C₁)
-            (HC₂ : is_univalent C₂)
-            (F : C₁ ⟶ C₂)
-            (HF : adj_equivalence_of_cats F)
-            {PB₁ : Pullbacks C₁}
-            {PB₂ : Pullbacks C₂}
-            (FPB : preserves_pullback F)
-            (P₁ : is_locally_cartesian_closed PB₁)
-            (P₂ : is_locally_cartesian_closed PB₂)
-  : preserves_locally_cartesian_closed FPB P₁ P₂.
-Proof.
-  exact (preserves_locally_cartesian_closed_adj_equivalence_of_cats
-           (C₁ := make_univalent_category C₁ HC₁)
-           (C₂ := make_univalent_category C₂ HC₂)
-           F
-           HF
-           FPB
-           P₁ P₂).
-Qed.
-
-====
-
-Proposition locally_cartesian_closed_adj_equiv_f_help
-            {C₁ C₂ : bicat_of_univ_cats}
-            (F : adjoint_equivalence C₁ C₂)
-            {PB₁ : Pullbacks (C₁ : univalent_category)}
-            {PB₂ : Pullbacks (C₂ : univalent_category)}
-            (FPB : preserves_pullback (pr1 F))
-            (P₁ : is_locally_cartesian_closed PB₁)
-  : is_locally_cartesian_closed PB₂.
-Proof.
-  revert C₁ C₂ F PB₁ PB₂ FPB P₁.
+  unfold F' ; clear F'.
+  revert C₁ C₂ F P₁ P₂.
   use J_2_0.
   {
-    exact univalent_cat_is_univalent_2_0.
+    exact is_univalent_2_0_bicat_of_dfl_full_comp_cat.
   }
-  intros C PB₁ PB₂ FPB P₁.
-  assert (PB₁ = PB₂) as p.
+  intros C P₁ P₂.
+  assert (P₁ = P₂) as q.
   {
-    apply isaprop_Pullbacks.
-    apply univalent_category_is_univalent.
-  }
-  rewrite <- p.
-  exact P₁.
-Qed.
-
-Proposition locally_cartesian_closed_left_adjoint_equivalence_f
-            {C₁ C₂ : bicat_of_univ_cats}
-            (F : bicat_of_univ_cats ⟦ C₁ , C₂ ⟧)
-            (HF : left_adjoint_equivalence F)
-            {PB₁ : Pullbacks (C₁ : univalent_category)}
-            {PB₂ : Pullbacks (C₂ : univalent_category)}
-            (FPB : preserves_pullback F)
-            (P₁ : is_locally_cartesian_closed PB₁)
-  : is_locally_cartesian_closed PB₂.
-Proof.
-  exact (locally_cartesian_closed_adj_equiv_f_help (F ,, HF) FPB P₁).
-Qed.
-
-Proposition locally_cartesian_closed_adj_equiv_f
-            {C₁ C₂ : univalent_category}
-            (F : C₁ ⟶ C₂)
-            (HF : adj_equivalence_of_cats F)
-            {PB₁ : Pullbacks C₁}
-            {PB₂ : Pullbacks C₂}
-            (FPB : preserves_pullback F)
-            (P₁ : is_locally_cartesian_closed PB₁)
-  : is_locally_cartesian_closed PB₂.
-Proof.
-  refine (locally_cartesian_closed_left_adjoint_equivalence_f F _ FPB P₁).
-  use equiv_cat_to_adj_equiv.
-  exact HF.
-Qed.
-
-Proposition locally_cartesian_closed_adj_equiv_f'
-            {C₁ C₂ : category}
-            (HC₁ : is_univalent C₁)
-            (HC₂ : is_univalent C₂)
-            (F : C₁ ⟶ C₂)
-            (HF : adj_equivalence_of_cats F)
-            {PB₁ : Pullbacks C₁}
-            {PB₂ : Pullbacks C₂}
-            (FPB : preserves_pullback F)
-            (P₁ : is_locally_cartesian_closed PB₁)
-  : is_locally_cartesian_closed PB₂.
-Proof.
-  exact (@locally_cartesian_closed_adj_equiv_f
-           (make_univalent_category C₁ HC₁)
-           (make_univalent_category C₂ HC₂)
-           F HF
-           _ _
-           FPB
-           P₁).
-Qed.
-
-Proposition preserves_locally_cartesian_closed_nat_z_iso_f_help
-            {C₁ C₂ : bicat_of_univ_cats}
-            {PB₁ : Pullbacks (C₁ : univalent_category)}
-            {PB₂ : Pullbacks (C₂ : univalent_category)}
-            (P₁ : is_locally_cartesian_closed PB₁)
-            (P₂ : is_locally_cartesian_closed PB₂)
-            {F G : C₁ --> C₂}
-            {FPB : preserves_pullback F}
-            (GPB : preserves_pullback G)
-            (HF : preserves_locally_cartesian_closed FPB P₁ P₂)
-            (τ : invertible_2cell F G)
-  : preserves_locally_cartesian_closed GPB P₁ P₂.
-Proof.
-  revert C₁ C₂ F G τ PB₁ PB₂ P₁ P₂ FPB GPB HF.
-  use J_2_1.
-  {
-    exact univalent_cat_is_univalent_2_1.
-  }
-  intros C₁ C₂ F PB₁ PB₂ P₁ P₂ FPB GPB HF.
-  assert (FPB = GPB) as q.
-  {
-    apply isaprop_preserves_pullback.
+    apply isaprop_has_dependent_products.
   }
   induction q.
+  refine (transportf
+            (λ z, preserves_dependent_products z _ _)
+            _
+            (id_preserves_dependent_products _)).
+  use subtypePath.
+  {
+    intro.
+    apply isaprop_is_cartesian_disp_functor.
+  }
+  apply idpath.
+Qed.
+
+Definition preserves_dependent_products_adj_equiv
+           {C₁ C₂ : dfl_full_comp_cat}
+           {F : dfl_full_comp_cat_functor C₁ C₂}
+           (HF : left_adjoint_equivalence F)
+           (P₁ : has_dependent_products (cleaving_of_types C₁))
+           (P₂ : has_dependent_products (cleaving_of_types C₂))
+  : preserves_dependent_products (cartesian_comp_cat_type_functor F) P₁ P₂.
+Proof.
+  exact (preserves_dependent_products_adj_equiv_help (F ,, HF) P₁ P₂).
+Qed.
+
+Definition preserves_dependent_products_inv2cell
+           {C D : dfl_full_comp_cat}
+           {PC : has_dependent_products (cleaving_of_types C)}
+           {PD : has_dependent_products (cleaving_of_types D)}
+           (F G : dfl_full_comp_cat_functor C D)
+           (τ : invertible_2cell G F)
+           (HF : preserves_dependent_products (cartesian_comp_cat_type_functor F) PC PD)
+  : preserves_dependent_products (cartesian_comp_cat_type_functor G) PC PD.
+Proof.
+  revert C D G F τ PC PD HF.
+  use J_2_1.
+  {
+    exact is_univalent_2_1_bicat_of_dfl_full_comp_cat.
+  }
+  intros C D F PC PD HF.
   exact HF.
 Qed.
 
-Proposition preserves_locally_cartesian_closed_nat_z_iso_f
-            {C₁ C₂ : univalent_category}
-            {PB₁ : Pullbacks C₁}
-            {PB₂ : Pullbacks C₂}
-            (P₁ : is_locally_cartesian_closed PB₁)
-            (P₂ : is_locally_cartesian_closed PB₂)
-            {F G : C₁ ⟶ C₂}
-            {FPB : preserves_pullback F}
-            (GPB : preserves_pullback G)
-            (HF : preserves_locally_cartesian_closed FPB P₁ P₂)
-            (τ : nat_z_iso F G)
-  : preserves_locally_cartesian_closed GPB P₁ P₂.
+Definition preserves_dependent_products_adj_equiv_inv2cell_help
+           {C₁ C₂ D₁ D₂ : dfl_full_comp_cat}
+           {PC₁ : has_dependent_products (cleaving_of_types C₁)}
+           {PC₂ : has_dependent_products (cleaving_of_types C₂)}
+           {PD₁ : has_dependent_products (cleaving_of_types D₁)}
+           {PD₂ : has_dependent_products (cleaving_of_types D₂)}
+           (F : dfl_full_comp_cat_functor C₁ D₁)
+           (G : dfl_full_comp_cat_functor C₂ D₂)
+           (EC : adjoint_equivalence C₁ C₂)
+           (ED : adjoint_equivalence D₁ D₂)
+           (τ : invertible_2cell (pr1 EC · G) (F · pr1 ED))
+           (HF : preserves_dependent_products (cartesian_comp_cat_type_functor F) PC₁ PD₁)
+  : preserves_dependent_products (cartesian_comp_cat_type_functor G) PC₂ PD₂.
 Proof.
-  refine (preserves_locally_cartesian_closed_nat_z_iso_f_help P₁ P₂ GPB HF _).
-  use nat_z_iso_to_invertible_2cell.
-  exact τ.
-Qed.
-
-Proposition preserves_locally_cartesian_closed_nat_z_iso_adj_equiv_f_help
-            {C₁ C₂ D₁ D₂ : bicat_of_univ_cats}
-            {PBC₁ : Pullbacks (C₁ : univalent_category)}
-            {PBC₂ : Pullbacks (C₂ : univalent_category)}
-            {PBD₁ : Pullbacks (D₁ : univalent_category)}
-            {PBD₂ : Pullbacks (D₂ : univalent_category)}
-            (PC₁ : is_locally_cartesian_closed PBC₁)
-            (PC₂ : is_locally_cartesian_closed PBC₂)
-            (PD₁ : is_locally_cartesian_closed PBD₁)
-            (PD₂ : is_locally_cartesian_closed PBD₂)
-            (EC : adjoint_equivalence C₁ C₂)
-            (ED : adjoint_equivalence D₁ D₂)
-            {F : C₁ --> D₁}
-            {FPB : preserves_pullback F}
-            {G : C₂ --> D₂}
-            {GPB : preserves_pullback G}
-            (τ : nat_z_iso (F ∙ pr1 ED) (pr1 EC ∙ G))
-            (HF : preserves_locally_cartesian_closed FPB PC₁ PD₁)
-  : preserves_locally_cartesian_closed GPB PC₂ PD₂.
-Proof.
-  revert C₁ C₂ EC D₁ D₂ ED PBC₁ PBC₂ PBD₁ PBD₂ PC₁ PC₂ PD₁ PD₂ F FPB G GPB τ HF.
+  revert C₁ C₂ EC D₁ D₂ ED F G τ PC₁ PC₂ PD₁ PD₂ HF.
   use J_2_0.
   {
-    exact univalent_cat_is_univalent_2_0.
+    exact is_univalent_2_0_bicat_of_dfl_full_comp_cat.
   }
   intros C.
   use J_2_0.
   {
-    exact univalent_cat_is_univalent_2_0.
+    exact is_univalent_2_0_bicat_of_dfl_full_comp_cat.
   }
-  intros D PBC₁ PBC₂ PBD₁ PBD₂ PC₁ PC₂ PD₁ PD₂ F FPB G GPB τ HF.
-  assert (PBC₁ = PBC₂) as q.
-  {
-    apply isaprop_Pullbacks.
-    apply univalent_category_is_univalent.
-  }
-  induction q.
-  assert (PBD₁ = PBD₂) as q.
-  {
-    apply isaprop_Pullbacks.
-    apply univalent_category_is_univalent.
-  }
-  induction q.
+  intros D F G τ PC₁ PC₂ PD₁ PD₂ HF.
   assert (PC₁ = PC₂) as q.
   {
-    apply isaprop_is_locally_cartesian_closed.
+    apply isaprop_has_dependent_products.
   }
   induction q.
   assert (PD₁ = PD₂) as q.
   {
-    apply isaprop_is_locally_cartesian_closed.
+    apply isaprop_has_dependent_products.
   }
   induction q.
-  exact (preserves_locally_cartesian_closed_nat_z_iso_f PC₁ PD₁ GPB HF τ).
+  use preserves_dependent_products_inv2cell.
+  - exact F.
+  - exact (comp_of_invertible_2cell
+             (linvunitor_invertible_2cell _)
+             (comp_of_invertible_2cell
+                τ
+                (runitor_invertible_2cell _))).
+  - exact HF.
 Qed.
 
-Proposition preserves_locally_cartesian_closed_nat_z_iso_adj_equiv_f
-            {C₁ C₂ D₁ D₂ : univalent_category}
-            {PBC₁ : Pullbacks C₁}
-            {PBC₂ : Pullbacks C₂}
-            {PBD₁ : Pullbacks D₁}
-            {PBD₂ : Pullbacks D₂}
-            (PC₁ : is_locally_cartesian_closed PBC₁)
-            (PC₂ : is_locally_cartesian_closed PBC₂)
-            (PD₁ : is_locally_cartesian_closed PBD₁)
-            (PD₂ : is_locally_cartesian_closed PBD₂)
-            {EC : C₁ ⟶ C₂} {ED : D₁ ⟶ D₂}
-            (HEC : adj_equivalence_of_cats EC)
-            (HED : adj_equivalence_of_cats ED)
-            {F : C₁ ⟶ D₁}
-            {FPB : preserves_pullback F}
-            {G : C₂ ⟶ D₂}
-            {GPB : preserves_pullback G}
-            (τ : nat_z_iso (F ∙ ED) (EC ∙ G))
-            (HF : preserves_locally_cartesian_closed FPB PC₁ PD₁)
-  : preserves_locally_cartesian_closed GPB PC₂ PD₂.
+Definition preserves_dependent_products_adj_equiv_inv2cell
+           {C₁ C₂ D₁ D₂ : dfl_full_comp_cat}
+           {PC₁ : has_dependent_products (cleaving_of_types C₁)}
+           {PC₂ : has_dependent_products (cleaving_of_types C₂)}
+           {PD₁ : has_dependent_products (cleaving_of_types D₁)}
+           {PD₂ : has_dependent_products (cleaving_of_types D₂)}
+           (F : dfl_full_comp_cat_functor C₁ D₁)
+           (G : dfl_full_comp_cat_functor C₂ D₂)
+           {EC : C₁ --> C₂}
+           (HEC : left_adjoint_equivalence EC)
+           {ED : D₁ --> D₂}
+           (HED : left_adjoint_equivalence ED)
+           (τ : invertible_2cell (EC · G) (F · ED))
+           (HF : preserves_dependent_products (cartesian_comp_cat_type_functor F) PC₁ PD₁)
+  : preserves_dependent_products (cartesian_comp_cat_type_functor G) PC₂ PD₂.
 Proof.
-  refine (preserves_locally_cartesian_closed_nat_z_iso_adj_equiv_f_help
-            PC₁ PC₂ PD₁ PD₂
-            (EC ,, _) (ED ,, _)
-            τ
-            HF).
-  - use equiv_cat_to_adj_equiv.
-    exact HEC.
-  - use equiv_cat_to_adj_equiv.
-    exact HED.
-Qed.
-
-Proposition preserves_locally_cartesian_closed_nat_z_iso_adj_equiv_f'
-            {C₁ C₂ D₁ D₂ : category}
-            (HC₁' : is_univalent C₁)
-            (HC₂' : is_univalent C₂)
-            (HD₁' : is_univalent D₁)
-            (HD₂' : is_univalent D₂)
-            {PBC₁ : Pullbacks C₁}
-            {PBC₂ : Pullbacks C₂}
-            {PBD₁ : Pullbacks D₁}
-            {PBD₂ : Pullbacks D₂}
-            (PC₁ : is_locally_cartesian_closed PBC₁)
-            (PC₂ : is_locally_cartesian_closed PBC₂)
-            (PD₁ : is_locally_cartesian_closed PBD₁)
-            (PD₂ : is_locally_cartesian_closed PBD₂)
-            {EC : C₁ ⟶ C₂} {ED : D₁ ⟶ D₂}
-            (HEC : adj_equivalence_of_cats EC)
-            (HED : adj_equivalence_of_cats ED)
-            {F : C₁ ⟶ D₁}
-            {FPB : preserves_pullback F}
-            {G : C₂ ⟶ D₂}
-            {GPB : preserves_pullback G}
-            (τ : nat_z_iso (F ∙ ED) (EC ∙ G))
-            (HF : preserves_locally_cartesian_closed FPB PC₁ PD₁)
-  : preserves_locally_cartesian_closed GPB PC₂ PD₂.
-Proof.
-  exact (preserves_locally_cartesian_closed_nat_z_iso_adj_equiv_f
-           (C₁ := make_univalent_category C₁ HC₁')
-           (C₂ := make_univalent_category C₂ HC₂')
-           (D₁ := make_univalent_category D₁ HD₁')
-           (D₂ := make_univalent_category D₂ HD₂')
-           PC₁ PC₂ PD₁ PD₂
-           HEC HED
+  exact (preserves_dependent_products_adj_equiv_inv2cell_help
+           F G
+           (EC ,, HEC) (ED ,, HED)
            τ
            HF).
 Qed.
- *)
 
-(** * 1. The extended pseudofunctor from categories to comprehension categories *)
+(** * 2. The extended pseudofunctor from categories to comprehension categories *)
 Definition finlim_biequiv_dfl_comp_cat_disp_psfunctor_pi_types
   : disp_psfunctor
       disp_bicat_univ_lccc
@@ -430,7 +292,7 @@ Proof.
     exact HF.
 Defined.
 
-(** * 2. The extended pseudofunctor from comprehension categories to categories *)
+(** * 3. The extended pseudofunctor from comprehension categories to categories *)
 Definition dfl_comp_cat_to_finlim_disp_psfunctor_pi_types
   : disp_psfunctor
       disp_bicat_of_pi_type_dfl_full_comp_cat
@@ -441,26 +303,24 @@ Proof.
   - exact disp_2cells_iscontr_univ_lccc.
   - exact disp_locally_groupoid_univ_lccc.
   - refine (λ C P, _ ,, tt).
-    (*
-    cbn.
-    unfold is_locally_cartesian_closed.
-    intros x y f.
-    pose (pr11 P x y f) as q.
-    unfold dependent_product in q.
-     *)
-    cbn.
-    unfold is_locally_cartesian_closed.
-    (* *)
-    admit.
+    exact (pr1 (has_dependent_products_adj_equiv_f
+                  (finlim_dfl_comp_cat_counit_pointwise_equiv C)
+                  (pr1 P))).
   - intros C₁ C₂ F P₁ P₂ HF.
     refine (tt ,, _).
-    cbn.
-    unfold preserves_locally_cartesian_closed.
-    pose (pr2 HF) as q.
-    cbn in q.
-Admitted.
+    simpl.
+    use (preserves_dependent_products_adj_equiv_inv2cell
+           F
+           (finlim_to_dfl_comp_cat_functor (dfl_functor_comp_cat_to_finlim_functor F))
+           (finlim_dfl_comp_cat_counit_pointwise_equiv C₁)
+           (finlim_dfl_comp_cat_counit_pointwise_equiv C₂)).
+    + exact (pr1 P₁).
+    + exact (pr1 P₂).
+    + exact (psnaturality_of finlim_dfl_comp_cat_counit F).
+    + exact (pr2 HF).
+Defined.
 
-(** * 3. The unit *)
+(** * 4. The unit *)
 Definition finlim_dfl_comp_cat_unit_pi_types
   : disp_pstrans
       (disp_pseudo_comp
@@ -505,7 +365,7 @@ Proof.
     apply finlim_dfl_comp_cat_unit_pi_types_pointwise_adjequiv.
 Qed.
 
-(** * 4. The counit *)
+(** * 5. The counit *)
 Definition finlim_dfl_comp_cat_counit_pi_types
   : disp_pstrans
       (disp_pseudo_id _)
@@ -519,24 +379,9 @@ Proof.
   - apply disp_2cells_iscontr_disp_bicat_of_pi_type_dfl_full_comp_cat.
   - apply disp_locally_groupoid_disp_bicat_of_pi_type_dfl_full_comp_cat.
   - refine (λ C H, tt ,, _).
-    cbn.
-    Check preserves_locally_cartesian_closed_adj_equivalence_of_cats'.
-    use (preserves_locally_cartesian_closed_adj_equivalence_of_cats'
-              _ _
-              _
-              (fiber_functor_comprehension_adj_equiv C x)).
-    (*intro x ; cbn.
-    use (cat_property_adj_equivalence_of_cats'
-           P
-           _ _ _
-           (fiber_functor_comprehension_adj_equiv C x)).
-    + apply is_univalent_fiber.
-      apply disp_univalent_category_is_univalent_disp.
-    + apply is_univalent_fiber.
-      apply disp_univalent_disp_codomain.
+    apply (preserves_dependent_products_adj_equiv
+             (finlim_dfl_comp_cat_counit_pointwise_equiv C)).
 Qed.
-     *)
-Admitted.
 
 Definition finlim_dfl_comp_cat_counit_pi_types_pointwise_adjequiv
            {C : dfl_full_comp_cat}
@@ -565,7 +410,7 @@ Proof.
     apply finlim_dfl_comp_cat_counit_pi_types_pointwise_adjequiv.
 Qed.
 
-(** * 5. The displayed biequivalence *)
+(** * 6. The displayed biequivalence *)
 Definition finlim_dfl_comp_cat_biequivalence_unit_counit_pi_types
   : is_disp_biequivalence_unit_counit
       _ _
@@ -578,7 +423,7 @@ Proof.
   - exact finlim_dfl_comp_cat_counit_inv_pi_types.
 Defined.
 
-Definition finlim_biequiv_dfl_comp_cat_psfunctor_local_property
+Definition finlim_biequiv_dfl_comp_cat_psfunctor_pi_types
   : disp_is_biequivalence_data
       _
       _
