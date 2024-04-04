@@ -116,18 +116,52 @@ Defined.
 Section Sheaves.
 
   Context (D : category).
+  Context (HD : is_univalent D).
 
   Definition D_presheaf
     (T : TopologicalSpace)
     : UU
     := (topological_space_category T)^op ⟶ D.
 
-  Definition D_presheaf_pullback
+  Definition D_presheaf_pushforward
     {T T' : TopologicalSpace}
     (F : continuous_function T T')
     (P : D_presheaf T)
     : D_presheaf T'
     := functor_opp (continuous_to_functor F) ∙ P.
+
+  Lemma D_presheaf_pushforward_id
+    (T : TopologicalSpace)
+    (P : D_presheaf T)
+    : D_presheaf_pushforward (identity (C := total_category disp_top) _) P = P.
+  Proof.
+    refine (maponpaths (λ x, x ∙ P) (_ : _ = functor_identity _)).
+    refine (_ @ functor_opp_identity (homset_property _)).
+    apply maponpaths.
+    refine (isotoid _ (is_univalent_functor_category _ _ (is_univalent_topological_space_category _)) _).
+    use make_z_iso.
+    - exact (nat_trans_id (functor_identity (topological_space_category T))).
+    - exact (nat_trans_id (functor_identity (topological_space_category T))).
+    - split; now apply nat_trans_eq_alt.
+  Qed.
+
+  Lemma D_presheaf_pushforward_comp
+    {T T' T'' : TopologicalSpace}
+    (F : (total_category disp_top)⟦T, T'⟧)
+    (F' : (total_category disp_top)⟦T', T''⟧)
+    (P : D_presheaf T)
+    : D_presheaf_pushforward (F · F') P = D_presheaf_pushforward F' (D_presheaf_pushforward F P).
+  Proof.
+    refine (_ @ functor_assoc _ _ _ _ _ _ _).
+    refine (maponpaths (λ x, x ∙ P) _).
+    refine (_ @ functor_opp_composite _ _ (homset_property _)).
+    apply maponpaths.
+    refine (isotoid _ (is_univalent_functor_category _ _ (is_univalent_topological_space_category T)) _).
+    use make_z_iso.
+    - exact (nat_trans_id (continuous_to_functor (F · F'))).
+    - exact (nat_trans_id (continuous_to_functor (F · F'))).
+    - split; now apply nat_trans_eq_alt.
+  Qed.
 
   Definition space_with_local_data_disp_cat
     : disp_cat (total_category disp_top).
@@ -136,12 +170,14 @@ Section Sheaves.
     - use tpair.
       + exists D_presheaf.
         intros T T' P P' F.
-        exact ((P' : _ ⟶ _) ⟹ (D_presheaf_pullback F P : _ ⟶ _)).
+        exact ((P' : _ ⟶ _) ⟹ (D_presheaf_pushforward F P : _ ⟶ _)).
       + split.
         * intros T P.
-          exact (post_whisker (nat_trans_id (functor_identity _) : functor_opp (functor_identity _) ⟹ functor_opp (continuous_to_functor (identity T))) P).
+          exact (z_iso_mor (idtoiso (C := [_, _]) (!D_presheaf_pushforward_id T P))).
         * intros X Y Z F F' P P' P'' H H'.
           apply (nat_trans_comp _ _ _ H').
+          epose (#(D_presheaf_pushforward F') _).
+          pose (# ).
           apply (nat_trans_comp _ _ _ (pre_whisker _ H)).
           refine (post_whisker (G := functor_opp (continuous_to_functor F') ∙ functor_opp (continuous_to_functor F)) (nat_trans_id (functor_opp (continuous_to_functor (F · F')))) P).
     - repeat split.
