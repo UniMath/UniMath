@@ -422,8 +422,6 @@ Section Category.
         : R_mor C prod
         := prod_arrow_term ,, prod_arrow_is_mor.
 
-      From Ltac2 Require Import Pattern.
-
       Definition p1_commutes
         : (prod_arrow : R⟦_, _⟧) · p1 = f.
       Proof.
@@ -488,6 +486,477 @@ Section Category.
     intros A B.
     apply R_binproduct.
   Defined.
+
+  Section BinCoproducts.
+
+    Definition coprod_term
+      {m : nat}
+      (A B : L m)
+      : L m
+      := abs (abs (abs
+        (app
+          (union_arrow
+            ((var (stnweq (inl (stnweq (inr tt))))) ∘
+              (inflate (inflate (inflate A))))
+            ((var (stnweq (inr tt))) ∘
+              (inflate (inflate (inflate B)))))
+          (var (stnweq (inl (stnweq (inl (stnweq (inr tt)))))))))).
+
+    Lemma subst_coprod_term
+      {m m' : nat}
+      (A B : L m)
+      (C : stn m → L m')
+      : coprod_term A B • C = coprod_term (A • C) (B • C).
+    Proof.
+      refine '(subst_abs _ _ _ @ _).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app (union_arrow (_ ∘ (inflate (inflate x))) _) _))))) (inflate_subst _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (_ ∘ (inflate (inflate x)))) _))))) (inflate_subst _ _ _)).
+      refine '(maponpaths (λ x, (abs x)) (subst_abs _ _ _) @ _).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app (union_arrow (_ ∘ (inflate x)) _) _))))) (inflate_subst _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (_ ∘ (inflate x))) _))))) (inflate_subst _ _ _)).
+      refine '(maponpaths (λ x, (abs (abs x))) (subst_abs _ _ _) @ _).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app (union_arrow (_ ∘ x) _) _))))) (inflate_subst _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (_ ∘ x)) _))))) (inflate_subst _ _ _)).
+      refine '(maponpaths (λ x, (abs (abs (abs x)))) (subst_app _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app x _))))) (subst_union_arrow _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ x))))) (var_subst _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow x _) _))))) (subst_compose _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow _ x) _))))) (subst_compose _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ x))))) (extend_tuple_inl _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow (x ∘ _) _) _))))) (var_subst _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow (_ ∘ x) _) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (x ∘ _)) _))))) (var_subst _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (_ ∘ x)) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ (inflate x)))))) (extend_tuple_inl _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow (x ∘ _) _) _))))) (extend_tuple_inl _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow (_ ∘ x) _) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (x ∘ _)) _))))) (extend_tuple_inr _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (_ ∘ x)) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ (inflate (inflate x))))))) (extend_tuple_inr _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow ((inflate x) ∘ _) _) _))))) (extend_tuple_inr _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow (_ ∘ x) _) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (_ ∘ x)) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ (inflate x)))))) (inflate_var _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow (x ∘ _) _) _))))) (inflate_var _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ x))))) (inflate_var _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow (_ ∘ (_ • x)) _) _))))) _ @ maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (_ ∘ (_ • x))) _))))) _);
+        apply funextfun;
+        intro i;
+        refine '(extend_tuple_inl _ _ _ @ _);
+        refine '(maponpaths (λ x, (inflate x)) (extend_tuple_inl _ _ _) @ _);
+        exact (maponpaths (λ x, (inflate (inflate x))) (extend_tuple_inl _ _ _)).
+    Qed.
+
+    Definition inflate_coprod_term
+      {m : nat}
+      (A B : L m)
+      : inflate (coprod_term A B) = coprod_term (inflate A) (inflate B)
+      := subst_coprod_term _ _ _.
+
+    Lemma app_coprod_term
+      {m : nat}
+      (A B C : L m)
+      : app (coprod_term A B) C = abs (abs
+        (app
+          (union_arrow
+            ((var (stnweq (inl (stnweq (inr tt))))) ∘
+              (inflate (inflate A)))
+            ((var (stnweq (inr tt))) ∘
+              (inflate (inflate B))))
+          (inflate (inflate C)))).
+    Proof.
+      refine '(beta_equality _ Lβ _ _ @ _).
+      refine '(subst_abs _ _ _ @ _).
+      refine '(maponpaths (λ x, (abs x)) (subst_abs _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs x))) (subst_app _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app x _)))) (subst_union_arrow _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app _ x)))) (var_subst _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app (union_arrow x _) _)))) (subst_compose _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app (union_arrow _ x) _)))) (subst_compose _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app _ x)))) (extend_tuple_inl _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app (union_arrow (x ∘ _) _) _)))) (var_subst _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app (union_arrow (_ ∘ x) _) _)))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app (union_arrow _ (x ∘ _)) _)))) (var_subst _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app (union_arrow _ (_ ∘ x)) _)))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app _ (inflate x))))) (extend_tuple_inl _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app (union_arrow (x ∘ _) _) _)))) (extend_tuple_inl _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app (union_arrow (_ ∘ x) _) _)))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app (union_arrow _ (x ∘ _)) _)))) (extend_tuple_inr _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app (union_arrow _ (_ ∘ x)) _)))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app _ (inflate (inflate x)))))) (extend_tuple_inr _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app (union_arrow ((inflate x) ∘ _) _) _)))) (extend_tuple_inr _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app (union_arrow (_ ∘ x) _) _)))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app (union_arrow _ (_ ∘ x)) _)))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (app (union_arrow (x ∘ _) _) _)))) (inflate_var _ _) @ _).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (app (union_arrow (_ ∘ x) _) _)))) (subst_subst _ _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (app (union_arrow _ (_ ∘ x)) _)))) (subst_subst _ _ _ _)).
+      refine '(maponpaths (λ x, (abs (abs (app (union_arrow (_ ∘ (_ • x)) _) _)))) _ @ maponpaths (λ x, (abs (abs (app (union_arrow _ (_ ∘ (_ • x))) _)))) _);
+        apply funextfun;
+        intro x;
+        refine '(extend_tuple_inl _ _ _ @ _);
+        refine '(_ @ !var_subst _ _ _);
+        refine '(maponpaths (λ x, (inflate x)) (extend_tuple_inl _ _ _) @ _);
+        refine '(maponpaths (λ x, (inflate (inflate x))) (extend_tuple_inl _ _ _) @ _);
+        refine '(maponpaths (λ x, (inflate x)) (inflate_var _ _) @ _);
+        apply inflate_var.
+    Qed.
+
+    Context (A B : R_ob).
+
+    Notation "'some_subst' a" := (a • _) (at level 100).
+
+    Lemma coprod_idempotent
+      : coprod_term A B ∘ coprod_term A B = coprod_term A B.
+    Proof.
+      refine '(maponpaths (λ x, (abs (app x _))) (inflate_coprod_term _ _) @ _).
+      refine '(maponpaths (λ x, (abs x)) (app_coprod_term _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs x)))) (app_union_arrow _ Lβ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app (inflate x) _) _))))) (inflate_app _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app x _) _))))) (inflate_app _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app (app _ (inflate x)) _) _))))) (inflate_var _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app (app _ x) _) _))))) (inflate_var _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app (app (inflate (inflate x)) _) _) _))))) (inflate_coprod_term _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app (app (inflate x) _) _) _))))) (inflate_coprod_term _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app (app x _) _) _))))) (inflate_coprod_term _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app x _) _))))) (app_coprod_term _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app x _))))) (beta_equality _ Lβ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app x _))))) (subst_abs _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs x)))) (beta_equality _ Lβ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs x)))) (subst_subst _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs x)))) (subst_app _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app x _))))) (subst_union_arrow _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ x))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow x _) _))))) (subst_compose _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow _ x) _))))) (subst_compose _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ x))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow (x ∘ _) _) _))))) (var_subst _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow (_ ∘ x) _) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (x ∘ _)) _))))) (var_subst _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (_ ∘ x)) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ x))))) (var_subst _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow ((x • _) ∘ _) _) _))))) (extend_tuple_inl _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow (_ ∘ x) _) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow _ ((x • _) ∘ _)) _))))) (extend_tuple_inr _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (_ ∘ x)) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ (x • _)))))) (extend_tuple_inl _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow (x ∘ _) _) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow (_ ∘ x) _) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (x ∘ _)) _))))) (var_subst _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (_ ∘ x)) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ x))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow ((x • _) ∘ _) _) _))))) (extend_tuple_inr _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow (_ ∘ x) _) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (x ∘ _)) _))))) (extend_tuple_inr _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (_ ∘ x)) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ (x • _)))))) (extend_tuple_inl _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow (x ∘ _) _) _))))) (subst_compose _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow (_ ∘ x) _) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (_ ∘ x)) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ x))))) (var_subst _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow ((x ∘ _) ∘ _) _) _))))) (var_subst _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow ((_ ∘ x) ∘ _) _) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ x))))) (extend_tuple_inl _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow ((x ∘ _) ∘ _) _) _))))) (extend_tuple_inl _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow ((_ ∘ x) ∘ _) _) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow ((_ ∘ x) ∘ _) _) _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow _ ((_ ∘ (inflate x)) ∘ _)) _))))) (subst_subst _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (union_arrow _ ((_ ∘ x) ∘ _)) _))))) (inflate_subst _ _ _) @ _).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app (union_arrow (_ ∘ (inflate x)) _) _))))) (subst_subst _ _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (_ ∘ (inflate x))) _))))) (subst_subst _ _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app (union_arrow (_ ∘ x) _) _))))) (inflate_subst _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (_ ∘ x)) _))))) (inflate_subst _ _ _)).
+      refine '(_ @ maponpaths (λ x, (abs (abs (abs (app (union_arrow (_ ∘ (x • _)) _) _))))) (R_ob_idempotent _)).
+      refine '(_ @ maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (_ ∘ (x • _))) _))))) (R_ob_idempotent _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app (union_arrow (_ ∘ x) _) _))))) (subst_compose _ _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (_ ∘ x)) _))))) (subst_compose _ _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app (union_arrow x _) _))))) (compose_assoc _ Lβ _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app (union_arrow _ x) _))))) (compose_assoc _ Lβ _ _ _)).
+      refine '(
+        maponpaths (λ x, (abs (abs (abs (app (union_arrow ((_ ∘ (_ • x)) ∘ _) _) _))))) _ @
+        maponpaths (λ x, (abs (abs (abs (app (union_arrow (_ ∘ (_ • x)) _) _))))) _ @
+        maponpaths (λ x, (abs (abs (abs (app (union_arrow _ (_ ∘ (_ • x))) _))))) _
+      );
+      apply funextfun;
+      intro i.
+      - refine '(extend_tuple_inl _ _ _ @ _).
+        refine '(_ @ !inflate_subst _ _ _).
+        refine '(_ @ !var_subst _ _ _).
+        exact (!inflate_var _ _).
+      - refine '(maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _) @ _).
+        refine '(subst_inflate _ _ _ @ _).
+        refine '(maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _) @ _).
+        refine '(var_subst _ _ _ @ _).
+        refine '(_ @ !inflate_subst _ _ _).
+        refine '(_ @ !var_subst _ _ _).
+        refine '(_ @ !inflate_var _ _).
+        apply extend_tuple_inl.
+      - refine '(maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _) @ _).
+        refine '(subst_inflate _ _ _ @ _).
+        refine '(maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _) @ _).
+        refine '(var_subst _ _ _ @ _).
+        refine '(_ @ !inflate_subst _ _ _).
+        refine '(_ @ !var_subst _ _ _).
+        refine '(_ @ !inflate_var _ _).
+        apply extend_tuple_inl.
+    Qed.
+
+    Definition coprod
+      : R_ob
+      := _ ,, coprod_idempotent.
+
+    Definition i1_term
+      : L n
+      := ι1 ∘ A.
+
+    Lemma i1_is_mor
+      : coprod ∘ i1_term ∘ A = i1_term.
+    Proof.
+      unfold i1_term.
+      refine '(maponpaths (λ x, x ∘ _) (compose_assoc _ Lβ _ _ _) @ _).
+      refine '(!compose_assoc _ Lβ _ _ _ @ _).
+      refine '(maponpaths (λ x, _ ∘ _ ∘ x) (R_ob_idempotent _) @ _).
+      refine '(_ @ maponpaths (λ x, _ ∘ x) (R_ob_idempotent _)).
+      refine '(_ @ !maponpaths (λ x, x) (compose_assoc _ Lβ _ _ _)).
+      apply (maponpaths (λ x, x ∘ A)).
+      refine '(maponpaths (λ x, (abs (app x _))) (inflate_coprod_term _ _) @ _).
+      refine '(maponpaths (λ x, (abs x)) (app_coprod_term _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs x)))) (app_union_arrow _ Lβ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app (inflate x) _) _))))) (inflate_app _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app x _) _))))) (inflate_app _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app (app (inflate (inflate x)) _) _) _))))) (inflate_ι1 _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app (app _ (inflate x)) _) _))))) (inflate_var _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app (app (inflate x) _) _) _))))) (inflate_ι1 _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app (app _ x) _) _))))) (inflate_var _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app (app x _) _) _))))) (inflate_ι1 _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs x)))) (app_ι1 _ Lβ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs x)))) (beta_equality _ Lβ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs x)))) (subst_app _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app x _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ x))))) (subst_app _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app x _))))) (var_subst _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ (app x _)))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ (app _ x)))))) (var_subst _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app x _))))) (extend_tuple_inl _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ (app x _)))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ (app _ x)))))) (extend_tuple_inr _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ (app x _)))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ (app x _)))))) (subst_inflate _ _ _) @ _).
+      refine '(_ @ !maponpaths (λ x, (abs (app x _))) (inflate_ι1 _)).
+      refine '(_ @ !maponpaths (λ x, (abs x)) (beta_equality _ Lβ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs x)) (subst_abs _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs x))) (subst_abs _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs x)))) (subst_app _ _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app x _))))) (var_subst _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app _ x))))) (var_subst _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app x _))))) (extend_tuple_inl _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app _ x))))) (extend_tuple_inl _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app (inflate x) _))))) (extend_tuple_inr _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app _ (inflate x)))))) (extend_tuple_inl _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app x _))))) (inflate_var _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app _ (inflate (inflate x))))))) (extend_tuple_inr _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app _ (inflate x)))))) (inflate_app _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app _ x))))) (inflate_app _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app _ (app _ (inflate x))))))) (inflate_var _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app _ (app _ x)))))) (inflate_var _ _)).
+      apply (maponpaths (λ x, (abs (abs (abs (app _ (app x _))))))).
+      refine '(_ @ !maponpaths (λ x, inflate x) (subst_subst _ _ _ _)).
+      refine '(_ @ !subst_subst _ A _ _).
+      apply maponpaths.
+      apply funextfun.
+      intro i.
+      refine '(extend_tuple_inl _ _ _ @ _).
+      refine '(_ @ !subst_subst _ (var _) _ _).
+      refine '(_ @ !var_subst _ _ _).
+      exact (!var_subst _ (stnweq (inl (stnweq (inl i)))) _).
+    Qed.
+
+    Definition i1
+      : R_mor A coprod
+      := i1_term ,, i1_is_mor.
+
+    Definition i2_term
+      : L n
+      := ι2 ∘ B.
+
+    Lemma i2_is_mor
+      : coprod ∘ i2_term ∘ B = i2_term.
+    Proof.
+      unfold i2_term.
+      refine '(maponpaths (λ x, x ∘ _) (compose_assoc _ Lβ _ _ _) @ _).
+      refine '(!compose_assoc _ Lβ _ _ _ @ _).
+      refine '(maponpaths (λ x, _ ∘ _ ∘ x) (R_ob_idempotent _) @ _).
+      refine '(_ @ maponpaths (λ x, _ ∘ x) (R_ob_idempotent _)).
+      refine '(_ @ !maponpaths (λ x, x) (compose_assoc _ Lβ _ _ _)).
+      apply (maponpaths (λ x, x ∘ B)).
+      refine '(maponpaths (λ x, (abs (app x _))) (inflate_coprod_term _ _) @ _).
+      refine '(maponpaths (λ x, (abs x)) (app_coprod_term _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs x)))) (app_union_arrow _ Lβ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app (inflate x) _) _))))) (inflate_app _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app x _) _))))) (inflate_app _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app (app (inflate (inflate x)) _) _) _))))) (inflate_ι2 _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app (app _ (inflate x)) _) _))))) (inflate_var _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app (app (inflate x) _) _) _))))) (inflate_ι2 _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app (app _ x) _) _))))) (inflate_var _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app (app (app x _) _) _))))) (inflate_ι2 _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs x)))) (app_ι2 _ Lβ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs x)))) (beta_equality _ Lβ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs x)))) (subst_app _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app x _))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ x))))) (subst_app _ _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app x _))))) (var_subst _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ (app x _)))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ (app _ x)))))) (var_subst _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app x _))))) (extend_tuple_inl _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ (app x _)))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ (app _ x)))))) (extend_tuple_inr _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ (app x _)))))) (subst_inflate _ _ _) @ _).
+      refine '(maponpaths (λ x, (abs (abs (abs (app _ (app x _)))))) (subst_inflate _ _ _) @ _).
+      refine '(_ @ !maponpaths (λ x, (abs (app x _))) (inflate_ι2 _)).
+      refine '(_ @ !maponpaths (λ x, (abs x)) (beta_equality _ Lβ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs x)) (subst_abs _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs x))) (subst_abs _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs x)))) (subst_app _ _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app x _))))) (var_subst _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app _ x))))) (var_subst _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app x _))))) (extend_tuple_inr _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app _ x))))) (extend_tuple_inl _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app _ (inflate x)))))) (extend_tuple_inl _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app _ (inflate (inflate x))))))) (extend_tuple_inr _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app _ (inflate x)))))) (inflate_app _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app _ x))))) (inflate_app _ _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app _ (app _ (inflate x))))))) (inflate_var _ _)).
+      refine '(_ @ !maponpaths (λ x, (abs (abs (abs (app _ (app _ x)))))) (inflate_var _ _)).
+      apply (maponpaths (λ x, (abs (abs (abs (app _ (app x _))))))).
+      refine '(_ @ !maponpaths (λ x, inflate x) (subst_subst _ _ _ _)).
+      refine '(_ @ !subst_subst _ B _ _).
+      apply maponpaths.
+      apply funextfun.
+      intro i.
+      refine '(extend_tuple_inl _ _ _ @ _).
+      refine '(_ @ !subst_subst _ (var _) _ _).
+      refine '(_ @ !var_subst _ _ _).
+      exact (!var_subst _ (stnweq (inl (stnweq (inl i)))) _).
+    Qed.
+
+    Definition i2
+      : R_mor B coprod
+      := i2_term ,, i2_is_mor.
+
+    Section Arrow.
+
+      Context (C : R_ob).
+      Context (f : R_mor A C).
+      Context (g : R_mor B C).
+
+      Definition coprod_arrow_term
+        : L n
+        := C ∘ union_arrow f g.
+
+      Lemma coprod_arrow_is_mor
+        : C ∘ coprod_arrow_term ∘ coprod = coprod_arrow_term.
+      Proof.
+        refine '(maponpaths (λ x, x ∘ _) (compose_assoc _ Lβ _ _ _) @ _).
+        refine '(maponpaths (λ x, x ∘ _ ∘ _) (R_ob_idempotent _) @ _).
+        refine '(!compose_assoc _ Lβ _ _ _ @ _).
+        apply maponpaths.
+        refine '(maponpaths (λ x, (abs (app x _))) (inflate_union_arrow _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs x)) (app_union_arrow _ Lβ _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app (app x _) _) _))) (inflate_coprod_term _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app x _) _))) (app_coprod_term _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app (abs (abs x)) _) _))) (app_union_arrow _ Lβ _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app x _))) (beta_equality _ Lβ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app x _))) (subst_abs _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs x)) (beta_equality _ Lβ _ _) @ _).
+        refine '(maponpaths (λ x, (abs x)) (subst_subst _ _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs x)) (subst_app _ _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app x _))) (subst_app _ _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app _ x))) (subst_compose _ _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app x _) _))) (subst_inflate _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app _ x) _))) (subst_compose _ _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app _ (x ∘ _)))) (var_subst _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app _ (_ ∘ x)))) (subst_inflate _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app x _) _))) (subst_inflate _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app _ (x ∘ _)) _))) (var_subst _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app _ (_ ∘ x)) _))) (subst_inflate _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app _ ((x • _) ∘ _)))) (extend_tuple_inr _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app _ (_ ∘ x)))) (subst_inflate _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app x _) _))) (var_subst _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app _ ((x • _) ∘ _)) _))) (extend_tuple_inl _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app _ (_ ∘ x)) _))) (subst_inflate _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app _ (x ∘ _)))) (var_subst _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app _ (_ ∘ x)))) (subst_inflate _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app (x • _) _) _))) (extend_tuple_inl _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app _ (x ∘ _)) _))) (subst_inflate _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app _ (_ ∘ x)) _))) (subst_inflate _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app _ (x ∘ _)))) (extend_tuple_inr _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app x _) _))) (subst_inflate _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app _ ((x • _) ∘ _)) _))) (extend_tuple_inr _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app (x • _) _) _))) (extend_tuple_inl _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app _ (x ∘ _)) _))) (subst_inflate _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app x _) _))) (var_subst _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (app (app x _) _))) (extend_tuple_inl _ _ _) @ _).
+        refine '(_ @ maponpaths (λ x, (abs (app (app _ (inflate x)) _))) (R_mor_is_mor_right _)).
+        refine '(_ @ maponpaths (λ x, (abs (app _ (inflate x)))) (R_mor_is_mor_right _)).
+        refine '(_ @ !maponpaths (λ x, (abs (app (app _ x) _))) (inflate_compose _ _ _)).
+        refine '(_ @ !maponpaths (λ x, (abs (app _ x))) (inflate_compose _ _ _)).
+        refine '(
+          maponpaths (λ x, (abs (app (app _ ((_ • x) ∘ _)) _))) _ @
+          maponpaths (λ x, (abs (app (app _ (_ ∘ (_ • x))) _))) _ @
+          maponpaths (λ x, (abs (app _ (_ ∘ (_ • x))))) _
+        );
+          apply funextfun;
+          intro i.
+        - apply extend_tuple_inl.
+        - refine '(maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _) @ _).
+          refine '(subst_inflate _ _ _ @ _).
+          refine '(maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _) @ _).
+          refine '(var_subst _ _ _ @ _).
+          exact (extend_tuple_inl _ _ _).
+        - refine '(maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _) @ _).
+          refine '(subst_inflate _ _ _ @ _).
+          refine '(maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _) @ _).
+          refine '(var_subst _ _ _ @ _).
+          exact (extend_tuple_inl _ _ _).
+      Qed.
+
+      Definition coprod_arrow
+        : R_mor coprod C
+        := coprod_arrow_term ,, coprod_arrow_is_mor.
+
+      Definition i1_commutes
+        : (i1 : R⟦_, _⟧) · coprod_arrow = f.
+      Proof.
+        apply R_mor_eq.
+        refine '(compose_assoc _ Lβ _ _ _ @ _).
+        refine '(!maponpaths (λ x, x ∘ _) (compose_assoc _ Lβ _ _ _) @ _).
+        refine '(!maponpaths (λ x, _ ∘ (union_arrow x _ ∘ _) ∘ _) (R_mor_is_mor_right _) @ _).
+        refine '(maponpaths (λ x, _ ∘ x ∘ _) (union_arrow_ι1 _ Lβ _ _ : _ = _ ∘ _) @ _).
+        refine '(maponpaths (λ x, x ∘ _) (compose_assoc _ Lβ _ _ _) @ _).
+        refine '(!compose_assoc _ Lβ _ _ _ @ _).
+        refine '(maponpaths _ (R_ob_idempotent _) @ _).
+        apply R_mor_is_mor.
+      Qed.
+
+      Definition i2_commutes
+        : (i2 : R⟦_, _⟧) · coprod_arrow = g.
+      Proof.
+        apply R_mor_eq.
+        cbn.
+        unfold coprod_arrow_term.
+        unfold i1_term.
+        refine '(compose_assoc _ Lβ _ _ _ @ _).
+        refine '(!maponpaths (λ x, x ∘ _) (compose_assoc _ Lβ _ _ _) @ _).
+        refine '(!maponpaths (λ x, _ ∘ (union_arrow _ x ∘ _) ∘ _) (R_mor_is_mor_right _) @ _).
+        refine '(maponpaths (λ x, _ ∘ x ∘ _) (union_arrow_ι2 _ Lβ _ _ : _ = _ ∘ _) @ _).
+        refine '(maponpaths (λ x, x ∘ _) (compose_assoc _ Lβ _ _ _) @ _).
+        refine '(!compose_assoc _ Lβ _ _ _ @ _).
+        refine '(maponpaths _ (R_ob_idempotent _) @ _).
+        apply R_mor_is_mor.
+      Qed.
+
+    End Arrow.
+
+  End BinCoproducts.
 
   Section Exponentials.
 
