@@ -11,7 +11,7 @@
  these constructions are very similar and they follow the same steps and ideas: one extends
  the pseudofunctors, unit, and counit using displayed machinery.
 
- For each of these constructions, univalence plays a very important role. The reason for that,
+ For each of these constructions, univalence plays a very important role. The reason for that
  is because in various steps in the construction one needs to transport structure/property
  along an equivalence. Let us see why this is so crucial in the proof. Whenever we have a
  full DFL comprehension category `C`, then, using democracy, we can show this comprehension
