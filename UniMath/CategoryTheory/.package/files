@@ -533,6 +533,7 @@ TwoSidedDisplayedCats/Examples/Profunctor.v
 TwoSidedDisplayedCats/Examples/Reindex.v
 TwoSidedDisplayedCats/Examples/Relations.v
 TwoSidedDisplayedCats/Examples/Spans.v
+TwoSidedDisplayedCats/Examples/ParaTwoSidedDispCat.v
 TwoSidedDisplayedCats/Examples/StructuredCospans.v
 TwoSidedDisplayedCats/Examples/ProfunctorTwosidedDispCat.v
 

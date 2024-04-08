@@ -214,6 +214,7 @@ DoubleCategories/Examples/DoubleCatOnDispCat.v
 DoubleCategories/Examples/FullSubDoubleCat.v
 DoubleCategories/Examples/RelationsDoubleCat.v
 DoubleCategories/Examples/SquareDoubleCat.v
+DoubleCategories/Examples/ParaDoubleCat.v
 DoubleCategories/Examples/LensesDoubleCat.v
 DoubleCategories/Examples/SpansDoubleCat.v
 DoubleCategories/Examples/KleisliDoubleCat.v
