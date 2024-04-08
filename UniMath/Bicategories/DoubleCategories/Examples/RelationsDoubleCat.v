@@ -42,12 +42,14 @@ Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Relations.
 Require Import UniMath.CategoryTheory.Categories.HSET.All.
+Require Import UniMath.CategoryTheory.Categories.Rel.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.SymmetricUnivalent.
 Require Import UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.
 
 Local Open Scope cat.
@@ -275,6 +277,40 @@ Proof.
     + exact is_univalent_HSET.
     + exact is_univalent_rel_twosided_disp_cat.
 Defined.
+
+Definition symmetric_univalent_rel_univalent_double_cat
+  : symmetric_univalent rel_univalent_double_cat.
+Proof.
+  use make_symmetric_univalent.
+  - intros X Y.
+    use funspace_isaset.
+    use funspace_isaset.
+    apply isasethProp.
+  - intros X Y.
+    use weqhomot.
+    + exact (bin_hrel_z_iso_equiv_hset_z_iso X Y ∘ make_weq _ (is_univalent_HSET X Y))%weq.
+    + intro p ; induction p.
+      use (z_iso_eq (C := REL)).
+      do 2 (apply funextsec ; intro).
+      apply idpath.
+  - intros X X' Y Y' p q f g.
+    induction p, q.
+    cbn in X, Y, f, g.
+    use isweqimplimpl.
+    + intro p.
+      use funextsec.
+      intro x ; cbn.
+      apply (pr1 p x).
+      apply idpath.
+    + use funspace_isaset.
+      apply setproperty.
+    + use isaproptotal2.
+      * intro.
+        apply isaprop_is_iso_twosided_disp.
+      * intros.
+        do 3 (use funextsec ; intro).
+        apply setproperty.
+Qed.
 
 Definition rel_double_cat_ver_weq_square
   : ver_weq_square rel_double_cat.
