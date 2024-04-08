@@ -566,6 +566,52 @@ Proof.
   exact (pr2 (pr211 τ) x y z h k).
 Qed.
 
+Proposition double_transformation_eq
+            {C₁ C₂ : univalent_double_cat}
+            {F G : lax_double_functor C₁ C₂}
+            {τ θ : double_transformation F G}
+            (p : ∏ (x : C₁), τ x = θ x)
+            (pp : ∏ (x y : C₁)
+                    (f : x -->h y),
+                double_transformation_hor_mor τ f
+                =
+                transportb_square (p x) (p y) (double_transformation_hor_mor θ f))
+  : τ = θ.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    apply isapropunit.
+  }
+  use subtypePath.
+  {
+    intro.
+    repeat (use isapropdirprod) ; apply isapropunit.
+  }
+  use subtypePath.
+  {
+    intro.
+    use isapropdirprod ; [ apply isaprop_double_nat_trans_hor_id | ].
+    apply isaprop_double_nat_trans_hor_comp.
+  }
+  use total2_paths_b.
+  - use nat_trans_eq.
+    {
+      apply homset_property.
+    }
+    exact p.
+  - use eq_twosided_disp_nat_trans.
+    intros x y f.
+    refine (!_).
+    etrans.
+    {
+      apply transportb_prebicat_twosided_disp_cat.
+    }
+    refine (_ @ !(pp x y f)).
+    use transportb_disp_mor2_eq.
+    apply idpath.
+Qed.
+
 (** * 10. Builder for double transformations *)
 Definition make_double_transformation
            {C₁ C₂ : univalent_double_cat}
