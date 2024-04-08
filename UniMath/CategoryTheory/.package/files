@@ -110,9 +110,11 @@ DisplayedCats/Fiberwise/FiberwiseTerminal.v
 DisplayedCats/Fiberwise/FiberwiseProducts.v
 DisplayedCats/Fiberwise/FiberwiseEqualizers.v
 DisplayedCats/Fiberwise/DependentSums.v
+DisplayedCats/Fiberwise/DependentProducts.v
 DisplayedCats/Fiberwise/FiberwiseSubobjectClassifier.v
 
 DisplayedCats/Codomain/FiberCod.v
+DisplayedCats/Codomain/CodDomain.v
 DisplayedCats/Codomain/CodMorphisms.v
 DisplayedCats/Codomain/CodLeftAdjoint.v
 DisplayedCats/Codomain/CodLimits.v
@@ -121,6 +123,11 @@ DisplayedCats/Codomain/IteratedSlice.v
 DisplayedCats/Codomain/CodFunctor.v
 DisplayedCats/Codomain/CodSubobjectClassifier.v
 DisplayedCats/Codomain/CodRegular.v
+
+LocallyCartesianClosed/LocallyCartesianClosed.v
+DisplayedCats/Fiberwise/DualBeckChevalley.v
+DisplayedCats/Codomain/CodRightAdjoint.v
+LocallyCartesianClosed/Preservation.v
 
 Limits/StrictInitial.v
 Limits/DisjointBinCoproducts.v

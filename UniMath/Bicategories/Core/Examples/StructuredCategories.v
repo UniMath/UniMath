@@ -14,6 +14,7 @@
  5. Categories with an initial object
  6. Categories with binary coproducts
  7. Categories with finite limits and a subobject classifier
+ 8. Locally Cartesian closed categories
 
  ***********************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -30,12 +31,19 @@ Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.Limits.PreservationProperties.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+Require Import UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed.
+Require Import UniMath.CategoryTheory.LocallyCartesianClosed.Preservation.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
+Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
@@ -885,6 +893,285 @@ Proof.
   - clear C₁ C₂ F HF.
     intros C₁ C₂ Ω₁ Ω₂ F HF.
     exact (adj_equiv_preserves_subobject_classifier Ω₁ Ω₂ (F ,, HF)).
+  - use left_adjoint_equivalence_univ_cat_with_finlim.
+    exact HF.
+Defined.
+
+(** * 8. Locally Cartesian closed categories *)
+Definition disp_bicat_univ_lccc
+  : disp_bicat bicat_of_univ_cat_with_finlim.
+Proof.
+  use disp_subbicat.
+  - exact (λ (C : univ_cat_with_finlim),
+           is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C)).
+  - exact (λ (C₁ C₂ : univ_cat_with_finlim)
+             (H₁ : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C₁))
+             (H₂ : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C₂))
+             (F : functor_finlim C₁ C₂),
+            preserves_locally_cartesian_closed
+              (functor_finlim_preserves_pullback F)
+              H₁
+              H₂).
+  - intros.
+    apply id_preserves_locally_cartesian_closed.
+  - intros C₁ C₂ C₃ Ω₁ Ω₂ Ω₃ F G HF HG.
+    exact (comp_preserves_locally_cartesian_closed HF HG).
+Defined.
+
+Definition bicat_of_univ_lccc
+  : bicat
+  := total_bicat disp_bicat_univ_lccc.
+
+Definition disp_univalent_2_1_disp_bicat_univ_lccc
+  : disp_univalent_2_1 disp_bicat_univ_lccc.
+Proof.
+  use disp_subbicat_univalent_2_1.
+  intros.
+  apply isaprop_preserves_locally_cartesian_closed.
+Qed.
+
+Proposition isaprop_is_locally_cartesian_closed
+            {C : univalent_category}
+            (PB : Pullbacks C)
+  : isaprop (is_locally_cartesian_closed PB).
+Proof.
+  use impred ; intro x.
+  use impred ; intro y.
+  use impred ; intro f.
+  pose (D₁ := univalent_fiber_category (univalent_disp_codomain C) y : bicat_of_univ_cats).
+  pose (D₂ := univalent_fiber_category (univalent_disp_codomain C) x : bicat_of_univ_cats).
+  pose (F := cod_pb PB f : D₁ --> D₂).
+  use (isofhlevelweqf _ (left_adjoint_weq_is_left_adjoint F)).
+  apply isaprop_left_adjoint.
+  exact univalent_cat_is_univalent_2_1.
+Qed.
+
+Definition disp_univalent_2_0_disp_bicat_univ_lccc
+  : disp_univalent_2_0 disp_bicat_univ_lccc.
+Proof.
+  use disp_subbicat_univalent_2_0.
+  - exact is_univalent_2_bicat_of_univ_cat_with_finlim.
+  - intro C.
+    apply isaprop_is_locally_cartesian_closed.
+  - intros.
+    apply isaprop_preserves_locally_cartesian_closed.
+Qed.
+
+Definition disp_univalent_2_disp_bicat_univ_lccc
+  : disp_univalent_2 disp_bicat_univ_lccc.
+Proof.
+  split.
+  - exact disp_univalent_2_0_disp_bicat_univ_lccc.
+  - exact disp_univalent_2_1_disp_bicat_univ_lccc.
+Defined.
+
+Definition disp_2cells_isaprop_univ_lccc
+  : disp_2cells_isaprop disp_bicat_univ_lccc.
+Proof.
+  apply disp_2cells_isaprop_subbicat.
+Defined.
+
+Definition disp_locally_groupoid_univ_lccc
+  : disp_locally_groupoid disp_bicat_univ_lccc.
+Proof.
+  apply disp_locally_groupoid_subbicat.
+  exact is_univalent_2_bicat_of_univ_cat_with_finlim.
+Defined.
+
+Definition disp_2cells_iscontr_univ_lccc
+  : disp_2cells_iscontr disp_bicat_univ_lccc.
+Proof.
+  apply disp_2cells_iscontr_subbicat.
+Defined.
+
+Definition is_univalent_2_1_bicat_of_univ_lccc
+  : is_univalent_2_1 bicat_of_univ_lccc.
+Proof.
+  use total_is_univalent_2_1.
+  - exact is_univalent_2_1_bicat_of_univ_cat_with_finlim.
+  - exact disp_univalent_2_1_disp_bicat_univ_lccc.
+Defined.
+
+Definition is_univalent_2_0_bicat_of_univ_lccc
+  : is_univalent_2_0 bicat_of_univ_lccc.
+Proof.
+  use total_is_univalent_2_0.
+  - exact is_univalent_2_0_bicat_of_univ_cat_with_finlim.
+  - exact disp_univalent_2_0_disp_bicat_univ_lccc.
+Defined.
+
+Definition is_univalent_2_bicat_of_univ_lccc
+  : is_univalent_2 bicat_of_univ_lccc.
+Proof.
+  split.
+  - exact is_univalent_2_0_bicat_of_univ_lccc.
+  - exact is_univalent_2_1_bicat_of_univ_lccc.
+Defined.
+
+Definition univ_lccc
+  : UU
+  := bicat_of_univ_lccc.
+
+Definition make_univ_lccc
+           (C : univ_cat_with_finlim)
+           (P : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C))
+  : univ_lccc
+  := C ,, (P ,, tt).
+
+Coercion univ_lccc_to_finlim
+         (C : univ_lccc)
+  : univ_cat_with_finlim
+  := pr1 C.
+
+Definition is_locally_cartesian_closed_lccc
+           (C : univ_lccc)
+  : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C)
+  := pr12 C.
+
+Definition lccc_functor
+           (C₁ C₂ : univ_lccc)
+  : UU
+  := C₁ --> C₂.
+
+Definition make_lccc_functor
+           {C₁ C₂ : univ_lccc}
+           (F : functor_finlim C₁ C₂)
+           (HF : preserves_locally_cartesian_closed
+                   (functor_finlim_preserves_pullback F)
+                   (is_locally_cartesian_closed_lccc C₁)
+                   (is_locally_cartesian_closed_lccc C₂))
+  : lccc_functor C₁ C₂
+  := F ,, (tt ,, HF).
+
+Coercion lccc_functor_to_finlim
+         {C₁ C₂ : univ_lccc}
+         (F : lccc_functor C₁ C₂)
+  : functor_finlim C₁ C₂
+  := pr1 F.
+
+Definition functor_finlim_preserves_locally_cartesian_closed
+           {C₁ C₂ : univ_lccc}
+           (F : lccc_functor C₁ C₂)
+  : preserves_locally_cartesian_closed
+      (functor_finlim_preserves_pullback F)
+      (is_locally_cartesian_closed_lccc C₁)
+      (is_locally_cartesian_closed_lccc C₂)
+  := pr22 F.
+
+Definition lccc_nat_trans
+           {C₁ C₂ : univ_lccc}
+           (F G : lccc_functor C₁ C₂)
+  : UU
+  := F ==> G.
+
+Definition make_lccc_nat_trans
+           {C₁ C₂ : univ_lccc}
+           {F G : lccc_functor C₁ C₂}
+           (τ : nat_trans_finlim F G)
+  : lccc_nat_trans F G
+  := τ ,, (tt ,, tt).
+
+Coercion lccc_nat_trans_to_finlim
+         {C₁ C₂ : univ_lccc}
+         {F G : lccc_functor C₁ C₂}
+         (τ : lccc_nat_trans F G)
+  : nat_trans_finlim F G
+  := pr1 τ.
+
+Proposition lccc_nat_trans_eq
+            {C₁ C₂ : univ_lccc}
+            {F G : lccc_functor C₁ C₂}
+            {τ₁ τ₂ : lccc_nat_trans F G}
+            (p : ∏ (x : C₁), τ₁ x = τ₂ x)
+  : τ₁ = τ₂.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    use isapropdirprod ; exact isapropunit.
+  }
+  use nat_trans_finlim_eq.
+  exact p.
+Qed.
+
+Definition is_invertible_2cell_lccc_nat_trans
+           {C₁ C₂ : univ_lccc}
+           {F G : lccc_functor C₁ C₂}
+           (τ : lccc_nat_trans F G)
+           (Hτ : is_nat_z_iso τ)
+  : is_invertible_2cell τ.
+Proof.
+  pose (τiso := (pr11 τ ,, Hτ) : nat_z_iso F G).
+  use make_is_invertible_2cell.
+  - use make_lccc_nat_trans.
+    use make_nat_trans_finlim.
+    exact (nat_z_iso_inv τiso).
+  - abstract
+      (use lccc_nat_trans_eq ;
+       intro x ;
+       apply (z_iso_inv_after_z_iso (_ ,, Hτ x))).
+  - abstract
+      (use lccc_nat_trans_eq ;
+       intro x ;
+       apply (z_iso_after_z_iso_inv (_ ,, Hτ x))).
+Defined.
+
+Definition adj_equiv_preserves_locally_cartesian_closed
+           {C₁ C₂ : univ_cat_with_finlim}
+           (P₁ : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C₁))
+           (P₂ : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C₂))
+           (F : adjoint_equivalence C₁ C₂)
+           (HF : preserves_pullback (pr11 F))
+  : preserves_locally_cartesian_closed
+      HF
+      P₁
+      P₂.
+Proof.
+  revert C₁ C₂ F P₁ P₂ HF.
+  use J_2_0.
+  {
+    exact is_univalent_2_0_bicat_of_univ_cat_with_finlim.
+  }
+  intros C P₁ P₂ HF.
+  assert (P₁ = P₂) as q.
+  {
+    apply isaprop_is_locally_cartesian_closed.
+  }
+  induction q.
+  assert (identity_preserves_pullback _ = HF) as q.
+  {
+    apply isaprop_preserves_pullback.
+  }
+  induction q.
+  apply id_preserves_locally_cartesian_closed.
+Qed.
+
+Definition disp_adjoint_equiv_disp_bicat_univ_lccc
+           {C₁ C₂ : bicat_of_univ_cat_with_finlim}
+           (F : C₁ --> C₂)
+           (HF : left_adjoint_equivalence F)
+           {P₁ : disp_bicat_univ_lccc C₁}
+           {P₂ : disp_bicat_univ_lccc C₂}
+           (FF : P₁ -->[ F ] P₂)
+  : disp_left_adjoint_equivalence HF FF.
+Proof.
+  use disp_left_adjoint_equivalence_subbicat.
+  - clear C₁ C₂ F HF P₁ P₂ FF.
+    intros C₁ C₂ H₁ H₂ F HF.
+    apply (adj_equiv_preserves_locally_cartesian_closed H₁ H₂ (F ,, HF)).
+  - exact is_univalent_2_bicat_of_univ_cat_with_finlim.
+Qed.
+
+Definition left_adjoint_equivalence_univ_lccc
+           {C₁ C₂ : univ_lccc}
+           (F : lccc_functor C₁ C₂)
+           (HF : adj_equivalence_of_cats F)
+  : left_adjoint_equivalence F.
+Proof.
+  use left_adjoint_equivalence_subbicat.
+  - clear C₁ C₂ F HF.
+    intros C₁ C₂ P₁ P₂ F HF.
+    apply (adj_equiv_preserves_locally_cartesian_closed P₁ P₂ (F ,, HF)).
   - use left_adjoint_equivalence_univ_cat_with_finlim.
     exact HF.
 Defined.

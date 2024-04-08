@@ -425,6 +425,7 @@ ComprehensionCat/TypeFormers/ProductTypes.v
 ComprehensionCat/TypeFormers/EqualizerTypes.v
 ComprehensionCat/TypeFormers/Democracy.v
 ComprehensionCat/TypeFormers/SigmaTypes.v
+ComprehensionCat/TypeFormers/PiTypes.v
 ComprehensionCat/DFLCompCat.v
 ComprehensionCat/DFLCompCatNotations.v
 ComprehensionCat/ComprehensionEso.v
@@ -442,6 +443,8 @@ ComprehensionCat/Biequivalence/LocalProperty.v
 
 ComprehensionCat/TypeFormers/SubobjectTypes.v
 ComprehensionCat/Biequivalence/SubobjectClassifier.v
+ComprehensionCat/Biequivalence/PiTypesBiequiv.v
+ComprehensionCat/Biequivalence/InternalLanguageTopos.v
 
 Logic/ComprehensionBicat.v
 
