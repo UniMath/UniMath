@@ -102,13 +102,8 @@ Section CatsBinprodUMP.
   Definition binprod_ump_2_cell_univ_cat
     : has_binprod_ump_2_cell (univ_cat_binprod_cone C₁ C₂).
   Proof.
-    intros q F₁ F₂ α β ; cbn -[functor_composite] in *.
-    use make_nat_trans.
-    - exact (λ x, α x ,, β x).
-    - intros x y f.
-      use pathsdirprod.
-      + apply (nat_trans_ax α).
-      + apply (nat_trans_ax β).
+    intros q F₁ F₂ α β.
+    exact (prod_nat_trans α β).
   Defined.
 
   Definition binprod_ump_2_cell_pr1_univ_cat
