@@ -208,9 +208,11 @@ Section Total_Category.
     set (ffi := ff ,, i).
     exists (pr1 (inv_from_z_iso ffi)).
     split.
-    - exact (maponpaths pr1 (z_iso_inv_after_z_iso ffi)).
-    - exact (maponpaths pr1 (z_iso_after_z_iso_inv ffi)).
-  Qed.
+    - abstract
+        (exact (maponpaths pr1 (z_iso_inv_after_z_iso ffi))).
+    - abstract
+        (exact (maponpaths pr1 (z_iso_after_z_iso_inv ffi))).
+  Defined.
 
   Definition z_iso_base_from_total {C : category} {D : disp_cat C}
              {xx yy : total_category D} (ffi : z_iso xx yy) : z_iso (pr1 xx) (pr1 yy) :=
@@ -220,8 +222,7 @@ Section Total_Category.
              {xx yy : total_precategory D} (ffi : z_iso xx yy) :
     inv_from_z_iso (z_iso_base_from_total ffi) = pr1 (inv_from_z_iso ffi).
   Proof.
-    apply pathsinv0, inv_z_iso_unique'. unfold precomp_with.
-    exact (maponpaths pr1 (z_iso_inv_after_z_iso ffi)).
+    apply idpath.
   Qed.
 
   Definition is_z_iso_disp_from_total {C : category} {D : disp_cat C}

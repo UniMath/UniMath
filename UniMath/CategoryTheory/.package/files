@@ -519,6 +519,7 @@ TwoSidedDisplayedCats/TransportLaws.v
 
 TwoSidedDisplayedCats/Examples/Constant.v
 TwoSidedDisplayedCats/Examples/DispCatOnTwoSidedDispCat.v
+TwoSidedDisplayedCats/Examples/TwoSidedDispCatOnDispCat.v
 TwoSidedDisplayedCats/Examples/FiberwiseProduct.v
 
 TwoSidedDisplayedCats/Examples/Arrow.v
