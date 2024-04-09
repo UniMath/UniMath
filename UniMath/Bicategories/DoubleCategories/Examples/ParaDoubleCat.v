@@ -12,9 +12,21 @@
  - Squares are given by morphisms making a certain diagram commute
  We also construct companion pairs in the double category.
 
+ However, this double category fails to be an equipment. While every morphism in `M` has a
+ companion, not every morphism has a conjoint. Since every isomorphism has a conjoint, we also
+ give another version of this double category where the vertical morphisms are restricted to be
+ the isomorphisms in `M`. We also show that this double category has all companions and
+ conjoints. Note that these two double categories have the same horizontal bicategory.
+
+ The advantage of using the second version is that if we have an equipment (also known as a
+ fibrant double category), then a monoidal structure on the horizontal bicategory can be
+ constructed from a monoidal structure on the double category (see "Constructing symmetric
+ monoidal bicategories functorially" by Hansen and Shulman).
+
  Reference
  - "Effectful semantics in bicategories: strong, commutative, and concurrent pseudomonads" by
    Paquet and Saville
+ - "Constructing symmetric monoidal bicategories functorially" by Hansen and Shulman
 
  Contents
  1. Horizontal identities
@@ -22,11 +34,17 @@
  3. The unitors and associators
  4. The triangle and pentagon equations
  5. The double category of parametrized morphisms
+ 6. Parametrized morphisms and isomorphisms
 
  *************************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
+Require Import UniMath.CategoryTheory.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
@@ -42,6 +60,7 @@ Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.PseudoDoubleSetCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.
+Require Import UniMath.Bicategories.DoubleCategories.Examples.DoubleCatOnDispCat.
 
 Import MonoidalNotations.
 
@@ -291,4 +310,95 @@ Proof.
   - exact HM.
   - use is_strict_para_twosided_disp_cat.
     exact HM.
+Defined.
+
+(** * 6. Parametrized morphisms and isomorphisms *)
+Definition iso_para_univalent_double_cat
+           (M : monoidal_cat)
+           (HM : is_univalent M)
+  : univalent_double_cat
+  := univalent_double_cat_on_disp_cat
+       (para_univalent_double_cat M HM)
+       (core_univalent_disp_cat M).
+
+Definition transportf_square_iso_para
+           {M : monoidal_cat}
+           {HM : is_univalent M}
+           {x₁ x₂ y₁ y₂ : iso_para_univalent_double_cat M HM}
+           {v₁ v₁' : x₁ -->v y₁}
+           (p : v₁ = v₁')
+           {v₂ v₂' : x₂ -->v y₂}
+           (q : v₂ = v₂')
+           {h₁ : x₁ -->h x₂}
+           {h₂ : y₁ -->h y₂}
+           (s : square v₁ v₂ h₁ h₂)
+  : mor_of_para_sqr M (transportf_square p q s) = mor_of_para_sqr M s.
+Proof.
+  induction p, q ; cbn.
+  apply idpath.
+Qed.
+
+Definition transportb_square_iso_para
+           {M : monoidal_cat}
+           {HM : is_univalent M}
+           {x₁ x₂ y₁ y₂ : iso_para_univalent_double_cat M HM}
+           {v₁ v₁' : x₁ -->v y₁}
+           (p : v₁' = v₁)
+           {v₂ v₂' : x₂ -->v y₂}
+           (q : v₂' = v₂)
+           {h₁ : x₁ -->h x₂}
+           {h₂ : y₁ -->h y₂}
+           (s : square v₁ v₂ h₁ h₂)
+  : mor_of_para_sqr M (transportb_square p q s) = mor_of_para_sqr M s.
+Proof.
+  induction p, q ; cbn.
+  apply idpath.
+Qed.
+
+Definition all_companions_iso_para_univalent_double_cat
+           (M : monoidal_cat)
+           (HM : is_univalent M)
+  : all_companions_double_cat (iso_para_univalent_double_cat M HM).
+Proof.
+  intros x y f.
+  simple refine (_ ,, _).
+  - exact (para_companion M (pr1 f)).
+  - use make_double_cat_are_companions'.
+    + exact (para_companion_unit M (pr1 f)).
+    + exact (para_companion_counit M (pr1 f)).
+    + abstract
+        (use path_para_sqr ;
+         refine (transportf_square_iso_para _ _ _ @ _) ; cbn ;
+         rewrite tensor_id_id ;
+         rewrite id_right ;
+         rewrite mon_lunitor_I_mon_runitor_I ;
+         apply mon_rinvunitor_runitor).
+    + abstract
+        (use path_para_sqr ;
+         refine (transportf_square_iso_para _ _ _ @ _) ; cbn ;
+         apply id_right).
+Defined.
+
+Definition all_conjoints_iso_para_univalent_double_cat
+           (M : monoidal_cat)
+           (HM : is_univalent M)
+  : all_conjoints_double_cat (iso_para_univalent_double_cat M HM).
+Proof.
+  intros x y f.
+  simple refine (_ ,, _).
+  - exact (para_conjoint M f).
+  - use make_double_cat_are_conjoints'.
+    + exact (para_conjoint_unit M f).
+    + exact (para_conjoint_counit M f).
+    + abstract
+        (use path_para_sqr ;
+         refine (transportf_square_iso_para _ _ _ @ _) ; cbn ;
+         rewrite tensor_id_id ;
+         rewrite id_left ;
+         rewrite mon_runitor_I_mon_lunitor_I ;
+         apply mon_linvunitor_lunitor).
+    + abstract
+        (use path_para_sqr ;
+         refine (transportf_square_iso_para _ _ _ @ _) ; cbn ;
+         apply id_right).
 Defined.

@@ -661,6 +661,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [TwoSidedDisplayedCats/Examples/DispCatOnTwoSidedDispCat.v](CategoryTheory/TwoSidedDisplayedCats/Examples/DispCatOnTwoSidedDispCat.v)
    - [TwoSidedDisplayedCats/Examples/TwoSidedDispCatOnDispCat.v](CategoryTheory/TwoSidedDisplayedCats/Examples/TwoSidedDispCatOnDispCat.v)
    - [TwoSidedDisplayedCats/Examples/FiberwiseProduct.v](CategoryTheory/TwoSidedDisplayedCats/Examples/FiberwiseProduct.v)
+   - [TwoSidedDisplayedCats/Examples/Opposites.v](CategoryTheory/TwoSidedDisplayedCats/Examples/Opposites.v)
    - [TwoSidedDisplayedCats/Examples/Arrow.v](CategoryTheory/TwoSidedDisplayedCats/Examples/Arrow.v)
    - [TwoSidedDisplayedCats/Examples/Bimodules.v](CategoryTheory/TwoSidedDisplayedCats/Examples/Bimodules.v)
    - [TwoSidedDisplayedCats/Examples/Comma.v](CategoryTheory/TwoSidedDisplayedCats/Examples/Comma.v)

@@ -528,6 +528,7 @@ TwoSidedDisplayedCats/Examples/Constant.v
 TwoSidedDisplayedCats/Examples/DispCatOnTwoSidedDispCat.v
 TwoSidedDisplayedCats/Examples/TwoSidedDispCatOnDispCat.v
 TwoSidedDisplayedCats/Examples/FiberwiseProduct.v
+TwoSidedDisplayedCats/Examples/Opposites.v
 
 TwoSidedDisplayedCats/Examples/Arrow.v
 TwoSidedDisplayedCats/Examples/Bimodules.v

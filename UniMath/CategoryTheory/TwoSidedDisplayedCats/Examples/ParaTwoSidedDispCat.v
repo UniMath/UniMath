@@ -21,7 +21,7 @@
  7. The left unitor of parametrized morphisms
  8. The right unitor of parametrized morphisms
  9. The associator of parametrized morphisms
- 10. Companions
+ 10. Companions and conjoints
 
  *************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -506,7 +506,7 @@ Section Para.
         (split ; [ apply mon_lassociator_rassociator | apply mon_rassociator_lassociator ]).
   Defined.
 
-  (** * 10. Companions *)
+  (** * 10. Companions and conjoints *)
   Section Companions.
     Context {x y : M}
             (f : x --> y).
@@ -542,4 +542,45 @@ Section Para.
            apply id_left).
     Defined.
   End Companions.
+
+  Section Conjoints.
+    Context {x y : M}
+            (f : z_iso y x).
+
+    Definition para_conjoint
+      : para_mor x y.
+    Proof.
+      use make_para_mor.
+      - exact (I_{M}).
+      - exact (mon_lunitor _ · inv_from_z_iso f).
+    Defined.
+
+    Definition para_conjoint_unit
+      : para_sqr f (identity _) (id_para_mor _) para_conjoint.
+    Proof.
+      use make_para_sqr.
+      - apply identity.
+      - abstract
+          (unfold para_sqr_laws ; cbn ;
+           rewrite id_right ;
+           rewrite !assoc ;
+           rewrite tensor_lunitor ;
+           rewrite !assoc' ;
+           rewrite z_iso_inv_after_z_iso ;
+           apply id_right).
+    Defined.
+
+    Definition para_conjoint_counit
+      : para_sqr (identity _) f para_conjoint (id_para_mor _).
+    Proof.
+      use make_para_sqr.
+      - apply identity.
+      - abstract
+          (unfold para_sqr_laws ; cbn ;
+           rewrite tensor_lunitor ;
+           rewrite !assoc' ;
+           rewrite z_iso_after_z_iso_inv ;
+           apply idpath).
+    Defined.
+  End Conjoints.
 End Para.
