@@ -15,6 +15,11 @@
  The double category of relations valued in sets is defined similarly, but the only
  difference is that the horizontal morphisms are relations valued in `hSet`.
 
+ Note that if you use relations valued in `hProp`, then you obtain a symmetric univalent
+ pseudo double category. This is not the case for relations valued in `hSet`, which is
+ caused by the fact that `hSet` is not an `hSet` while `hProp` is. In addition, relations
+ valued in `hSet` are equivalent to spans of sets.
+
  Contents
  1. Relations valued in propositions
  1.1. Horizontal identities
