@@ -36,7 +36,7 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
-Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
 
 Local Open Scope cat.
 
@@ -199,6 +199,14 @@ Section VerOpposite.
       induction p.
       cbn.
       apply idpath.
+  Qed.
+
+  Proposition is_strict_ver_op_twosided_disp_cat
+              (H : is_strict_twosided_disp_cat D)
+    : is_strict_twosided_disp_cat ver_op_twosided_disp_cat.
+  Proof.
+    intros x y.
+    apply H.
   Qed.
 End VerOpposite.
 
@@ -407,5 +415,13 @@ Section HorOpposite.
       induction p.
       cbn.
       apply idpath.
+  Qed.
+
+  Proposition is_strict_hor_op_twosided_disp_cat
+              (H : is_strict_twosided_disp_cat D)
+    : is_strict_twosided_disp_cat hor_op_twosided_disp_cat.
+  Proof.
+    intros x y.
+    apply H.
   Qed.
 End HorOpposite.

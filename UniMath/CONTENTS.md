@@ -931,6 +931,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DoubleCategories/Examples/ProductDoubleCat.v](Bicategories/DoubleCategories/Examples/ProductDoubleCat.v)
    - [DoubleCategories/Examples/DoubleCatOnDispCat.v](Bicategories/DoubleCategories/Examples/DoubleCatOnDispCat.v)
    - [DoubleCategories/Examples/FullSubDoubleCat.v](Bicategories/DoubleCategories/Examples/FullSubDoubleCat.v)
+   - [DoubleCategories/Examples/OpDoubleCat.v](Bicategories/DoubleCategories/Examples/OpDoubleCat.v)
    - [DoubleCategories/Examples/RelationsDoubleCat.v](Bicategories/DoubleCategories/Examples/RelationsDoubleCat.v)
    - [DoubleCategories/Examples/SquareDoubleCat.v](Bicategories/DoubleCategories/Examples/SquareDoubleCat.v)
    - [DoubleCategories/Examples/ParaDoubleCat.v](Bicategories/DoubleCategories/Examples/ParaDoubleCat.v)
