@@ -6,7 +6,7 @@
  specifically, suppose that we have a pseudo double category `C` and a displayed category `D`
  on the vertical category of `C`. Then we have a double category whose vertical category is
  given by the total category of `D`. This construction is useful for several reasons and one
- of them, is that it allows us to construct full subdouble categories.
+ of them is that it allows us to construct full subdouble categories.
 
  If we look at this construction from a broader perspective, then this construction would be
  a special case of 'displayed double categories'. Intuitively, we can add structure/properties
