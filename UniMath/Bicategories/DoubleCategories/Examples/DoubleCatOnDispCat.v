@@ -17,7 +17,7 @@
  The corresponding construction on 2-sided displayed categories is described in the file
  `DispCatOnTwoSidedDispCat.v` and it is used to construct several 2-sided displayed categories
  (such as spans and bimodules). However, in order to guarantee that the resulting 2-sided
- displayed indeed is a double category, several requirements would need to be added to
+ displayed category indeed is a double category, several requirements would need to be added to
  guarantee that the resulting 2-sided displayed category has horizontal identities, composition,
  and so on.
 
