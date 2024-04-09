@@ -215,6 +215,7 @@ DoubleCategories/Examples/FullSubDoubleCat.v
 DoubleCategories/Examples/OpDoubleCat.v
 DoubleCategories/Examples/RelationsDoubleCat.v
 DoubleCategories/Examples/SquareDoubleCat.v
+DoubleCategories/Examples/SquareDoubleCatTwo.v
 DoubleCategories/Examples/ParaDoubleCat.v
 DoubleCategories/Examples/LensesDoubleCat.v
 DoubleCategories/Examples/SpansDoubleCat.v
