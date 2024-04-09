@@ -61,35 +61,41 @@ Section FixTheContext.
   (** This represents "sort → C" *)
   Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
-  Local Definition BPsortToC2 : BinProducts [sortToC, sortToC] := SortIndexing.BPsortToC2 sort Hsort _ BP.
+  Let sortToCC : category := SortIndexing.sortToCC sort Hsort C.
+  Let sortToC2 : category := SortIndexing.sortToC2 sort Hsort C.
+
+  Local Definition BPsortToC2 : BinProducts sortToC2 := SortIndexing.BPsortToC2 sort Hsort _ BP.
+
+  Let projSortToC : sort -> sortToCC := projSortToC sort Hsort C.
+  Let hat_functorC : sort -> C ⟶ sortToC := hat_functor sort Hsort C CC.
 
   Section DefinitionOfMultiSortedSigToFunctorPrime.
 
   Definition hat_exp_functor_list'_piece
              (xt : (list sort × sort) × sort)
-    : functor [sortToC,sortToC] [sortToC,sortToC].
+    : functor sortToC2 sortToC2.
   Proof.
     induction xt as [[si s] t].
     set (op_f := option_list sort Hsort C TC BC CC si).
     refine (functor_composite (pre_comp_functor op_f) _).
-    set (prs := projSortToC sort Hsort C s).
-    set (hatt := hat_functor sort Hsort C CC t).
+    set (prs := projSortToC s).
+    set (hatt := hat_functorC t).
     set (prshatt := functor_composite prs hatt).
     exact (post_comp_functor prshatt).
   Defined.
 
   Definition hat_exp_functor_list'
              (xst : list (list sort × sort) × sort)
-    : functor [sortToC,sortToC] [sortToC,sortToC].
+    : functor sortToC2 sortToC2.
   Proof.
     induction xst as [a t].
     (* a := [a1,...,am]
        Each ai := ([si_1, ... si_n],si)
      *)
 
-    set (T := constant_functor [sortToC,sortToC] [sortToC,C]
+    set (T := constant_functor sortToC2 sortToCC
                                (constant_functor sortToC C TC)).
-    set (TT := (functor_composite T (post_comp_functor (hat_functor sort Hsort C CC t)))).
+    set (TT := (functor_composite T (post_comp_functor (hat_functorC t)))).
 
     use (list_ind _ _ _ a).
     - exact TT.
@@ -101,18 +107,18 @@ Section FixTheContext.
 (** optimized version that does not introduce the terminal element in the singleton case: *)
   Definition hat_exp_functor_list'_optimized
              (xst : list (list sort × sort) × sort)
-    : functor [sortToC,sortToC] [sortToC,sortToC].
+    : functor sortToC2 sortToC2.
   Proof.
     induction xst as [xs t].
-    set (T := constant_functor [sortToC,sortToC] [sortToC,C]
+    set (T := constant_functor sortToC2 sortToCC
                                (constant_functor sortToC C TC)).
-    set (TT := (functor_composite T (post_comp_functor (hat_functor sort Hsort C CC t)))).
+    set (TT := (functor_composite T (post_comp_functor (hat_functorC t)))).
     set (HH := fun ap => (hat_exp_functor_list'_piece (ap,,t))).
     exact (foldr1_map (λ F G, BinProduct_of_functors BPsortToC2 F G) TT HH xs).
   Defined.
 
   Definition MultiSortedSigToFunctor' (M : MultiSortedSig sort) :
-    functor [sortToC,sortToC] [sortToC,sortToC].
+    functor sortToC2 sortToC2.
   Proof.
     use (coproduct_of_functors (ops sort M)).
     + apply Coproducts_functor_precat, Coproducts_functor_precat, CC, setproperty.
@@ -211,7 +217,7 @@ Section FixTheContext.
   Lemma post_comp_with_pr_and_hat_is_omega_cont (s t : sort)
     :  is_omega_cont (post_comp_functor
                         (A := sortToC)
-                        (projSortToC sort Hsort C s ∙ hat_functor sort Hsort C CC t)
+                        (projSortToC s ∙ hat_functorC t)
                      ).
   Proof.
     intros coch L con isLimcon.
@@ -312,7 +318,7 @@ Section FixTheContext.
          (diagram_pointwise
             (diagram_pointwise
                (mapdiagram
-                  (post_comp_functor (projSortToC sort Hsort C s ∙ hat_functor sort Hsort C CC t))
+                  (post_comp_functor (projSortToC s ∙ hat_functorC t))
                   coch) F) G))).
         }
         etrans.
