@@ -14,6 +14,7 @@
  5. A diagonal functor on cores
  6. The functor from the core to the opposite
  7. Idtoiso in the core
+ 8. A displayed category for the core
 
  *********************************************************************)
 Require Import UniMath.Foundations.All.
@@ -26,6 +27,9 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Groupoids.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
 Local Open Scope cat.
 
@@ -395,3 +399,80 @@ Proof.
   induction p ; cbn.
   apply idpath.
 Qed.
+
+(** * 8. A displayed category for the core *)
+Definition core_disp_cat_ob_mor
+           (C : category)
+  : disp_cat_ob_mor C.
+Proof.
+  simple refine (_ ,, _).
+  - exact (λ x, unit).
+  - exact (λ _ _ _ _ f, is_z_isomorphism f).
+Defined.
+
+Definition core_disp_cat_id_comp
+           (C : category)
+  : disp_cat_id_comp C (core_disp_cat_ob_mor C).
+Proof.
+  simple refine (_ ,, _).
+  - intros x t.
+    apply identity_is_z_iso.
+  - intros x y z f g xx yy zz Hf Hg.
+    exact (is_z_isomorphism_comp Hf Hg).
+Defined.
+
+Definition core_disp_cat_data
+           (C : category)
+  : disp_cat_data C.
+Proof.
+  simple refine (_ ,, _).
+  - exact (core_disp_cat_ob_mor C).
+  - exact (core_disp_cat_id_comp C).
+Defined.
+
+Proposition core_disp_cat_axioms
+            (C : category)
+  : disp_cat_axioms C (core_disp_cat_data C).
+Proof.
+  repeat split ; intro ; intros.
+  - apply isaprop_is_z_isomorphism.
+  - apply isaprop_is_z_isomorphism.
+  - apply isaprop_is_z_isomorphism.
+  - apply isasetaprop.
+    apply isaprop_is_z_isomorphism.
+Qed.
+
+Definition core_disp_cat
+           (C : category)
+  : disp_cat C.
+Proof.
+  simple refine (_ ,, _).
+  - exact (core_disp_cat_data C).
+  - exact (core_disp_cat_axioms C).
+Defined.
+
+Definition is_univalent_core_disp_cat
+           (C : category)
+  : is_univalent_disp (core_disp_cat C).
+Proof.
+  use is_univalent_disp_from_fibers.
+  intros x xx yy.
+  use isweqimplimpl.
+  - intro.
+    apply isapropunit.
+  - apply isasetunit.
+  - use isaproptotal2.
+    + intro.
+      apply isaprop_is_z_iso_disp.
+    + intros.
+      apply isaprop_is_z_isomorphism.
+Qed.
+
+Definition core_univalent_disp_cat
+           (C : category)
+  : disp_univalent_category C.
+Proof.
+  simple refine (_ ,, _).
+  - exact (core_disp_cat C).
+  - exact (is_univalent_core_disp_cat C).
+Defined.

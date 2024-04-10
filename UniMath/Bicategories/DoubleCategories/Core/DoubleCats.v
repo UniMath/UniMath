@@ -508,7 +508,7 @@ Definition lunitor_h
   : square (identity_v x) (identity_v y) (identity_h x ·h f) f
   := double_lunitor (double_cat_double_lunitor C) f.
 
-Definition lunitor_globural_iso_square
+Definition lunitor_globular_iso_square
            {C : double_cat}
            {x y : C}
            (f : x -->h y)
@@ -520,7 +520,7 @@ Definition linvunitor_h
            {x y : C}
            (f : x -->h y)
   : square (identity_v x) (identity_v y) f (identity_h x ·h f)
-  := globular_iso_square_inv (lunitor_globural_iso_square f).
+  := globular_iso_square_inv (lunitor_globular_iso_square f).
 
 Proposition lunitor_linvunitor_h
             {C : double_cat}
@@ -575,7 +575,7 @@ Definition runitor_h
   : square (identity_v x) (identity_v y) (f ·h identity_h y) f
   := double_runitor (double_cat_double_runitor C) f.
 
-Definition runitor_globural_iso_square
+Definition runitor_globular_iso_square
            {C : double_cat}
            {x y : C}
            (f : x -->h y)
@@ -587,7 +587,7 @@ Definition rinvunitor_h
            {x y : C}
            (f : x -->h y)
   : square (identity_v x) (identity_v y) f (f ·h identity_h y)
-  := globular_iso_square_inv (runitor_globural_iso_square f).
+  := globular_iso_square_inv (runitor_globular_iso_square f).
 
 Proposition runitor_rinvunitor_h
             {C : double_cat}
@@ -644,7 +644,7 @@ Definition lassociator_h
   : square (identity_v w) (identity_v z) (f ·h (g ·h h)) ((f ·h g) ·h h)
   := double_associator (double_cat_double_associator C) f g h.
 
-Definition associator_globural_iso_square
+Definition associator_globular_iso_square
            {C : double_cat}
            {w x y z : C}
            (f : w -->h x)
@@ -660,7 +660,7 @@ Definition rassociator_h
            (g : x -->h y)
            (h : y -->h z)
   : square (identity_v w) (identity_v z) ((f ·h g) ·h h) (f ·h (g ·h h))
-  := globular_iso_square_inv (associator_globural_iso_square f g h).
+  := globular_iso_square_inv (associator_globular_iso_square f g h).
 
 Proposition lassociator_rassociator_h
             {C : double_cat}
