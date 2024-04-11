@@ -13,7 +13,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.Algebra.Universal.EqAlgebras.
 Require Import UniMath.CategoryTheory.Categories.Universal_Algebra.Algebras.
 
-Context (σ : eqspec).
+Parameter (σ : eqspec).
 
 Local Open Scope sorted_scope.
 
