@@ -187,7 +187,7 @@ Section ToBeMoved.
     exact distr.
   Qed.
 
-  Definition BinProduct_of_functors_BinProducts_of_shape
+  Definition BinCoproduct_of_functors_Coproduct_of_booleanshape_of_functors
              {C D : category}
              (BC :  Colims_of_shape two_graph D)
              (F G : functor C D)
@@ -352,7 +352,7 @@ Section Upstream.
         exact BC.
       }
 
-      exact (BinProduct_of_functors_BinProducts_of_shape BC0 (constant_functor [C, C] [C, C] X) H).
+      exact (BinCoproduct_of_functors_Coproduct_of_booleanshape_of_functors BC0 (constant_functor [C, C] [C, C] X) H).
     }
 
     use (coproduct_of_functors_omega_cont [C,C] (bool,,isasetbool)).
