@@ -700,7 +700,7 @@ Proof.
 Defined.
 
 (** * 3. The square pseudo double setcategory of a 2-setcategory *)
-Definition strict_square_double_cat
+Definition strict_two_cat_square_double_cat
            (C : two_setcat)
   : pseudo_double_setcat.
 Proof.
