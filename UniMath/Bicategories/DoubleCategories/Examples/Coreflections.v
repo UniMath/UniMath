@@ -15,12 +15,16 @@
  to guarantee that being a left adjoint is a property, which we use to prove the laws for
  the vertical morphisms. Such 2-categories are given by categories enriched over posets.
 
+ We also show that this double category is an equipment (i.e., it has all companion pairs
+ and all conjoints. To do so, we provide several lemmas useful for calculations.
+
  Contents
  1. Coreflections in a 2-category
  2. The displayed category of adjunctions
  3. The displayed category of coreflections
  4. The double category of coreflections
- 5. Companions and conjoints
+ 5. Lemmas for calculation
+ 6. Companions and conjoints
 
  ******************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -343,6 +347,32 @@ Section AdjunctionsAndCoreflections.
   Defined.
 End AdjunctionsAndCoreflections.
 
+Definition coreflections_univalent_double_cat
+           (C : univalent_two_cat)
+           (HC : locally_univalent_two_cat C)
+  : univalent_double_cat.
+Proof.
+  use univalent_double_cat_on_disp_cat.
+  - exact (two_cat_square_univalent_double_cat _ HC).
+  - simple refine (_ ,, _).
+    + exact (disp_cat_of_coreflections C HC).
+    + apply is_univalent_disp_cat_of_coreflections.
+Defined.
+
+Definition coreflections_pseudo_double_setcat
+           (C : two_setcat)
+           (HC : locally_univalent_two_cat C)
+  : pseudo_double_setcat.
+Proof.
+  use pseudo_double_set_cat_on_disp_cat.
+  - exact (strict_two_cat_square_double_cat C).
+  - exact (disp_cat_of_coreflections C HC).
+  - abstract
+      (intros x ;
+       use isaset_total2 ; intros ; apply isasetunit).
+Defined.
+
+(** * 5. Lemmas for calculation *)
 Definition transportf_square_coreflections_double_cat
            {C : two_cat}
            {HC : locally_univalent_two_cat C}
@@ -397,32 +427,293 @@ Proof.
   apply idpath.
 Qed.
 
-Definition coreflections_univalent_double_cat
-           (C : univalent_two_cat)
-           (HC : locally_univalent_two_cat C)
-  : univalent_double_cat.
+Proposition lunitor_h_coreflections_path
+            {C : two_cat}
+            {HC : locally_univalent_two_cat C}
+            {x y : coreflections_double_cat C HC}
+            (h : x -->h y)
+  : (identity_h x ·h h) · pr1 (identity_v y) = pr1 (identity_v x) · h.
 Proof.
-  use univalent_double_cat_on_disp_cat.
-  - exact (two_cat_square_univalent_double_cat _ HC).
-  - simple refine (_ ,, _).
-    + exact (disp_cat_of_coreflections C HC).
-    + apply is_univalent_disp_cat_of_coreflections.
-Defined.
+  cbn.
+  rewrite (id_right (C := C)).
+  apply idpath.
+Qed.
 
-Definition coreflections_pseudo_double_setcat
-           (C : two_setcat)
-           (HC : locally_univalent_two_cat C)
-  : pseudo_double_setcat.
+Proposition lunitor_h_coreflections
+            {C : two_cat}
+            {HC : locally_univalent_two_cat C}
+            {x y : coreflections_double_cat C HC}
+            (h : x -->h y)
+  : lunitor_h h
+    =
+    idto2mor (lunitor_h_coreflections_path h).
 Proof.
-  use pseudo_double_set_cat_on_disp_cat.
-  - exact (strict_two_cat_square_double_cat C).
-  - exact (disp_cat_of_coreflections C HC).
-  - abstract
-      (intros x ;
-       use isaset_total2 ; intros ; apply isasetunit).
-Defined.
+  cbn.
+  unfold two_cat_runitor, two_cat_lunitor, two_cat_linvunitor.
+  rewrite !idto2mor_comp.
+  apply maponpaths.
+  apply (homset_property C).
+Qed.
 
-(** * 5. Companions and conjoints *)
+Proposition linvunitor_h_coreflections_path
+            {C : two_cat}
+            {HC : locally_univalent_two_cat C}
+            {x y : coreflections_double_cat C HC}
+            (h : x -->h y)
+  : h · pr1 (identity_v y) = pr1 (identity_v x) · (identity_h x ·h h).
+Proof.
+  cbn.
+  rewrite (id_right (C := C)).
+  rewrite !(id_left (C := C)).
+  apply idpath.
+Qed.
+
+Proposition linvunitor_h_coreflections
+            {C : two_cat}
+            {HC : locally_univalent_two_cat C}
+            {x y : coreflections_double_cat C HC}
+            (h : x -->h y)
+  : linvunitor_h h
+    =
+    idto2mor (linvunitor_h_coreflections_path h).
+Proof.
+  cbn.
+  unfold two_cat_runitor, two_cat_linvunitor.
+  rewrite !idto2mor_comp.
+  apply maponpaths.
+  apply (homset_property C).
+Qed.
+
+Proposition runitor_h_coreflections_path
+            {C : two_cat}
+            {HC : locally_univalent_two_cat C}
+            {x y : coreflections_double_cat C HC}
+            (h : x -->h y)
+  : (h ·h identity_h y) · pr1 (identity_v y) = pr1 (identity_v x) · h.
+Proof.
+  cbn.
+  rewrite !(id_right (C := C)).
+  rewrite (id_left (C := C)).
+  apply idpath.
+Qed.
+
+Proposition runitor_h_coreflections
+            {C : two_cat}
+            {HC : locally_univalent_two_cat C}
+            {x y : coreflections_double_cat C HC}
+            (h : x -->h y)
+  : runitor_h h
+    =
+    idto2mor (runitor_h_coreflections_path h).
+Proof.
+  cbn.
+  unfold two_cat_runitor, two_cat_linvunitor.
+  rewrite !idto2mor_comp.
+  apply maponpaths.
+  apply (homset_property C).
+Qed.
+
+Proposition rinvunitor_h_coreflections_path
+            {C : two_cat}
+            {HC : locally_univalent_two_cat C}
+            {x y : coreflections_double_cat C HC}
+            (h : x -->h y)
+  : h · pr1 (identity_v y) = pr1 (identity_v x) · (h ·h identity_h y).
+Proof.
+  cbn.
+  rewrite (id_left (C := C)).
+  apply idpath.
+Qed.
+
+Proposition rinvunitor_h_coreflections
+            {C : two_cat}
+            {HC : locally_univalent_two_cat C}
+            {x y : coreflections_double_cat C HC}
+            (h : x -->h y)
+  : rinvunitor_h h
+    =
+    idto2mor (rinvunitor_h_coreflections_path h).
+Proof.
+  cbn.
+  unfold two_cat_runitor, two_cat_linvunitor, two_cat_rinvunitor.
+  rewrite !idto2mor_comp.
+  apply maponpaths.
+  apply (homset_property C).
+Qed.
+
+Proposition lassociator_h_coreflections_path
+            {C : two_cat}
+            {HC : locally_univalent_two_cat C}
+            {w x y z : coreflections_double_cat C HC}
+            (h₁ : w -->h x)
+            (h₂ : x -->h y)
+            (h₃ : y -->h z)
+  : (h₁ ·h (h₂ ·h h₃)) · pr1 (identity_v z)
+    =
+    pr1 (identity_v w) · ((h₁ ·h h₂) ·h h₃).
+Proof.
+  cbn.
+  rewrite (id_right (C := C)).
+  rewrite (id_left (C := C)).
+  apply (assoc (C := C)).
+Qed.
+
+Proposition lassociator_h_coreflections
+            {C : two_cat}
+            {HC : locally_univalent_two_cat C}
+            {w x y z : coreflections_double_cat C HC}
+            (h₁ : w -->h x)
+            (h₂ : x -->h y)
+            (h₃ : y -->h z)
+  : lassociator_h h₁ h₂ h₃
+    =
+    idto2mor (lassociator_h_coreflections_path h₁ h₂ h₃).
+Proof.
+  cbn.
+  unfold two_cat_runitor, two_cat_linvunitor, two_cat_lassociator.
+  rewrite !idto2mor_comp.
+  apply maponpaths.
+  apply (homset_property C).
+Qed.
+
+Proposition rassociator_h_coreflections_path
+            {C : two_cat}
+            {HC : locally_univalent_two_cat C}
+            {w x y z : coreflections_double_cat C HC}
+            (h₁ : w -->h x)
+            (h₂ : x -->h y)
+            (h₃ : y -->h z)
+  : ((h₁ ·h h₂) ·h h₃) · pr1 (identity_v z)
+    =
+    pr1 (identity_v w) · (h₁ ·h (h₂ ·h h₃)).
+Proof.
+  cbn.
+  rewrite (id_right (C := C)).
+  rewrite (id_left (C := C)).
+  apply (assoc' (C := C)).
+Qed.
+
+Proposition rassociator_h_coreflections
+            {C : two_cat}
+            {HC : locally_univalent_two_cat C}
+            {w x y z : coreflections_double_cat C HC}
+            (h₁ : w -->h x)
+            (h₂ : x -->h y)
+            (h₃ : y -->h z)
+  : rassociator_h h₁ h₂ h₃
+    =
+    idto2mor (rassociator_h_coreflections_path h₁ h₂ h₃).
+Proof.
+  cbn.
+  unfold two_cat_runitor, two_cat_linvunitor, two_cat_rassociator.
+  rewrite !idto2mor_comp.
+  apply maponpaths.
+  apply (homset_property C).
+Qed.
+
+Proposition id_v_square_coreflections_path
+            {C : two_cat}
+            {HC : locally_univalent_two_cat C}
+            {x y : coreflections_double_cat C HC}
+            (h : x -->h y)
+  : h · pr1 (identity_v y) = pr1 (identity_v x) · h.
+Proof.
+  cbn.
+  rewrite (id_right (C := C)).
+  rewrite (id_left (C := C)).
+  apply idpath.
+Qed.
+
+Proposition id_v_square_coreflections
+            {C : two_cat}
+            {HC : locally_univalent_two_cat C}
+            {x y : coreflections_double_cat C HC}
+            (h : x -->h y)
+  : id_v_square h
+    =
+    idto2mor (id_v_square_coreflections_path h).
+Proof.
+  cbn.
+  unfold two_cat_runitor, two_cat_linvunitor.
+  rewrite !idto2mor_comp.
+  apply maponpaths.
+  apply (homset_property C).
+Qed.
+
+Proposition id_h_square_coreflections_path
+            {C : two_cat}
+            {HC : locally_univalent_two_cat C}
+            {x y : coreflections_double_cat C HC}
+            (v : x -->v y)
+  : identity_h x · pr1 v = pr1 v · identity_h y.
+Proof.
+  cbn.
+  rewrite (id_right (C := C)).
+  rewrite (id_left (C := C)).
+  apply idpath.
+Qed.
+
+Proposition id_h_square_coreflections
+            {C : two_cat}
+            {HC : locally_univalent_two_cat C}
+            {x y : coreflections_double_cat C HC}
+            (v : x -->v y)
+  : id_h_square v
+    =
+    idto2mor (id_h_square_coreflections_path v).
+Proof.
+  cbn.
+  unfold two_cat_lunitor, two_cat_rinvunitor.
+  rewrite !idto2mor_comp.
+  apply maponpaths.
+  apply (homset_property C).
+Qed.
+
+Proposition comp_v_square_coreflections
+            {C : two_cat}
+            {HC : locally_univalent_two_cat C}
+            {x₁ x₂ y₁ y₂ z₁ z₂ : coreflections_double_cat C HC}
+            {v₁ : x₁ -->v y₁} {v₁' : y₁ -->v z₁}
+            {v₂ : x₂ -->v y₂} {v₂' : y₂ -->v z₂}
+            {h₁ : x₁ -->h x₂}
+            {h₂ : y₁ -->h y₂}
+            {h₃ : z₁ -->h z₂}
+            (s₁ : square v₁ v₂ h₁ h₂)
+            (s₂ : square v₁' v₂' h₂ h₃)
+  : s₁ ⋆v s₂
+    =
+    idto2mor (assoc (C := C) _ _ _)
+    • (s₁ ▹ _)
+    • idto2mor (!(assoc (C := C) _ _ _))
+    • (_ ◃ s₂)
+    • idto2mor (assoc (C := C) _ _ _).
+Proof.
+  apply idpath.
+Qed.
+
+Proposition comp_h_square_coreflections
+            {C : two_cat}
+            {HC : locally_univalent_two_cat C}
+            {x₁ x₂ y₁ y₂ z₁ z₂ : coreflections_double_cat C HC}
+            {v₁ : x₁ -->v x₂}
+            {v₂ : y₁ -->v y₂}
+            {v₃ : z₁ -->v z₂}
+            {h₁ : x₁ -->h y₁} {h₂ : y₁ -->h z₁}
+            {k₁ : x₂ -->h y₂} {k₂ : y₂ -->h z₂}
+            (s₁ : square v₁ v₂ h₁ k₁)
+            (s₂ : square v₂ v₃ h₂ k₂)
+  : s₁ ⋆h s₂
+    =
+    idto2mor (!(assoc (C := C) _ _ _))
+    • (_ ◃ s₂)
+    • idto2mor (assoc (C := C) _ _ _)
+    • (s₁ ▹ _)
+    • idto2mor (!(assoc (C := C) _ _ _)).
+Proof.
+  apply idpath.
+Qed.
+
+(** * 6. Companions and conjoints *)
 Definition all_companions_coreflections_double_cat
            (C : two_cat)
            (HC : locally_univalent_two_cat C)
@@ -438,6 +729,8 @@ Section Conjoints.
           {xx yy : coreflections_double_cat C HC}
           (fHf : xx -->v yy).
 
+  Local Notation "'idto2mor'" := (idto2mor _) (only printing).
+
   Let x : C := pr1 xx.
   Let y : C := pr1 yy.
   Let f : x --> y := pr1 fHf.
@@ -450,6 +743,134 @@ Section Conjoints.
   Let ηη : square fHf (identity_v xx) (identity_h xx) r := two_cat_runitor _ • η.
   Let εε : square (identity_v yy) fHf r (identity_h yy) := ε • two_cat_rinvunitor _.
 
+  Proposition left_triangle
+              (p : f · r · f = f · (r · f))
+    : (η ▹ f) • idto2mor p • (f ◃ ε)
+      =
+      idto2mor (id_left (C := C) _ @ !(id_right (C := C) _)).
+  Proof.
+    assert (identity _ · f = f) as q₁.
+    {
+      apply (id_left (C := C)).
+    }
+    assert (f = f · identity _) as q₂.
+    {
+      refine (!_).
+      apply (id_right (C := C)).
+    }
+    refine (_ @ maponpaths (λ z, idto2mor q₁ • z • idto2mor q₂) (pr12 Hf) @ _).
+    - cbn.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths_2.
+        refine (TwoCategories.vassocr _ _ _ @ _).
+        apply maponpaths_2.
+        refine (TwoCategories.vassocr _ _ _ @ _).
+        apply maponpaths_2.
+        refine (TwoCategories.vassocr _ _ _ @ _).
+        apply maponpaths_2.
+        refine (TwoCategories.vassocr _ _ _ @ _).
+        etrans.
+        {
+          apply maponpaths_2.
+          refine (idto2mor_comp _ _ @ _).
+          apply idto2mor_id.
+        }
+        apply TwoCategories.id2_left.
+      }
+      refine (_ @ TwoCategories.vassocr _ _ _).
+      do 3 refine (TwoCategories.vassocl _ _ _ @ _).
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          refine (idto2mor_comp _ _ @ _).
+          apply idto2mor_id.
+        }
+        apply TwoCategories.id2_right.
+      }
+      apply maponpaths_2.
+      apply maponpaths.
+      apply (homset_property C).
+    - cbn.
+      etrans.
+      {
+        apply maponpaths_2.
+        apply TwoCategories.id2_right.
+      }
+      rewrite idto2mor_comp.
+      apply maponpaths.
+      apply (homset_property C).
+  Qed.
+
+  Proposition right_triangle
+              (p : r · (f · r) = r · f · r)
+    : (r ◃ η) • idto2mor p • (ε ▹ r)
+      =
+      idto2mor (id_right (C := C) _ @ !(id_left (C := C) _)).
+  Proof.
+    assert (r · identity x = r) as q₁.
+    {
+      apply (id_right (C := C)).
+    }
+    assert (r = identity y · r) as q₂.
+    {
+      refine (!_).
+      apply (id_left (C := C)).
+    }
+    refine (_ @ maponpaths (λ z, idto2mor q₁ • z • idto2mor q₂) (pr22 Hf) @ _).
+    - cbn.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths_2.
+        refine (TwoCategories.vassocr _ _ _ @ _).
+        apply maponpaths_2.
+        refine (TwoCategories.vassocr _ _ _ @ _).
+        apply maponpaths_2.
+        refine (TwoCategories.vassocr _ _ _ @ _).
+        apply maponpaths_2.
+        refine (TwoCategories.vassocr _ _ _ @ _).
+        etrans.
+        {
+          apply maponpaths_2.
+          refine (idto2mor_comp _ _ @ _).
+          apply idto2mor_id.
+        }
+        apply TwoCategories.id2_left.
+      }
+      refine (_ @ TwoCategories.vassocr _ _ _).
+      do 3 refine (TwoCategories.vassocl _ _ _ @ _).
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          refine (idto2mor_comp _ _ @ _).
+          apply idto2mor_id.
+        }
+        apply TwoCategories.id2_right.
+      }
+      apply maponpaths_2.
+      apply maponpaths.
+      apply (homset_property C).
+    - cbn.
+      etrans.
+      {
+        apply maponpaths_2.
+        apply TwoCategories.id2_right.
+      }
+      rewrite idto2mor_comp.
+      apply maponpaths.
+      apply (homset_property C).
+  Qed.
+
   Proposition are_conjoints_coreflections_double_cat_left
     : transportf_square
         (id_v_left (identity_v yy · identity_v yy) @ id_v_left (identity_v yy))
@@ -461,9 +882,76 @@ Section Conjoints.
     rewrite transportf_square_coreflections_double_cat.
     rewrite idto2mor_lwhisker.
     rewrite idto2mor_rwhisker.
-    (* we need calculational lemmas for the unitors, associators, and compositions *)
-    (* we also need to have triangle lemmas for 2-categories *)
-  Admitted.
+    rewrite rinvunitor_h_coreflections.
+    rewrite lunitor_h_coreflections.
+    rewrite comp_h_square_coreflections.
+    rewrite !comp_v_square_coreflections.
+    rewrite <- !TwoCategories.rwhisker_vcomp.
+    rewrite <- !TwoCategories.lwhisker_vcomp.
+    rewrite !idto2mor_lwhisker.
+    rewrite !idto2mor_rwhisker.
+    rewrite !idto2mor_lwhisker.
+    rewrite !TwoCategories.vassocr.
+    rewrite !idto2mor_comp.
+    rewrite !TwoCategories.vassocl.
+    rewrite !idto2mor_comp.
+    etrans.
+    {
+      apply maponpaths.
+      apply maponpaths_2.
+      refine (id1_lwhisker _ @ _).
+      apply maponpaths_2.
+      apply maponpaths.
+      apply rwhisker_id1.
+    }
+    unfold two_cat_lunitor, two_cat_runitor, two_cat_rinvunitor, two_cat_linvunitor.
+    rewrite !TwoCategories.vassocr.
+    rewrite !idto2mor_comp.
+    rewrite !TwoCategories.vassocl.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite !TwoCategories.vassocr.
+      rewrite !idto2mor_comp.
+      apply maponpaths_2.
+      apply maponpaths.
+      refine (id1_lwhisker _ @ _).
+      apply maponpaths_2.
+      apply maponpaths.
+      apply rwhisker_id1.
+    }
+    unfold two_cat_lunitor, two_cat_runitor, two_cat_rinvunitor, two_cat_linvunitor.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite !TwoCategories.vassocr.
+      rewrite !idto2mor_comp.
+      rewrite !TwoCategories.vassocl.
+      rewrite !idto2mor_comp.
+      apply idpath.
+    }
+    rewrite id_v_square_coreflections.
+    unfold ηη, εε.
+    rewrite <- !TwoCategories.rwhisker_vcomp.
+    rewrite <- !TwoCategories.lwhisker_vcomp.
+    unfold two_cat_runitor, two_cat_rinvunitor.
+    rewrite !idto2mor_lwhisker.
+    rewrite !idto2mor_rwhisker.
+    rewrite !TwoCategories.vassocr.
+    rewrite !idto2mor_comp.
+    rewrite !TwoCategories.vassocl.
+    rewrite !idto2mor_comp.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !TwoCategories.vassocr.
+      apply maponpaths_2.
+      apply right_triangle.
+    }
+    rewrite !idto2mor_comp.
+    apply maponpaths.
+    apply (homset_property C).
+  Qed.
 
   Proposition are_conjoints_coreflections_double_cat_right
     : transportf_square
@@ -476,8 +964,33 @@ Section Conjoints.
     rewrite transportf_square_coreflections_double_cat.
     rewrite idto2mor_lwhisker.
     rewrite idto2mor_rwhisker.
-    cbn.
-  Admitted.
+    rewrite comp_v_square_coreflections.
+    rewrite !TwoCategories.vassocr.
+    rewrite !idto2mor_comp.
+    rewrite !TwoCategories.vassocl.
+    rewrite !idto2mor_comp.
+    unfold ηη, εε.
+    rewrite <- !TwoCategories.rwhisker_vcomp.
+    rewrite <- !TwoCategories.lwhisker_vcomp.
+    unfold two_cat_runitor, two_cat_rinvunitor.
+    rewrite !idto2mor_lwhisker.
+    rewrite !idto2mor_rwhisker.
+    rewrite !TwoCategories.vassocr.
+    rewrite !idto2mor_comp.
+    rewrite !TwoCategories.vassocl.
+    rewrite !idto2mor_comp.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !TwoCategories.vassocr.
+      apply maponpaths_2.
+      apply left_triangle.
+    }
+    rewrite id_h_square_coreflections.
+    rewrite !idto2mor_comp.
+    apply maponpaths.
+    apply (homset_property C).
+  Qed.
 
   Definition are_conjoints_coreflections_double_cat
     : double_cat_are_conjoints r fHf.
