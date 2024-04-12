@@ -216,6 +216,7 @@ DoubleCategories/Examples/OpDoubleCat.v
 DoubleCategories/Examples/RelationsDoubleCat.v
 DoubleCategories/Examples/SquareDoubleCat.v
 DoubleCategories/Examples/SquareDoubleCatTwo.v
+DoubleCategories/Examples/Coreflections.v
 DoubleCategories/Examples/ParaDoubleCat.v
 DoubleCategories/Examples/LensesDoubleCat.v
 DoubleCategories/Examples/SpansDoubleCat.v
@@ -245,6 +246,7 @@ DoubleCategories/DoubleBicat/GlobalUnivalence.v
 DoubleCategories/DoubleBicat/Core.v
 
 DoubleCategories/Examples/SquareDoubleBicat.v
+DoubleCategories/Examples/MateDoubleBicat.v
 DoubleCategories/Examples/DoubleCatToDoubleBicat.v
 DoubleCategories/Examples/ProfunctorDoubleBicat.v
 
