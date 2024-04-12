@@ -3,11 +3,15 @@
  The unit double category
 
  In this file, we define the unit double category. Its objects, vertical morphisms,
- horizontal morphisms, and squares are all inhabitants of the unit type.
+ horizontal morphisms, and squares are all inhabitants of the unit type. We also
+ verify that it is a terminal object.
 
  Contents
  1. Horizontal operations of the unit double category
  2. The unit double category
+ 3. Functors to the unit double category
+ 4. Transformations to the unit double category
+ 5. The unit double category is a terminal object
 
  **********************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -21,13 +25,18 @@ Require Import UniMath.CategoryTheory.Groupoids.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
+Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedNatTrans.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Constant.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+Require Import UniMath.Bicategories.Limits.Final.
 Require Import UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
 Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
 Require Import UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.Basics.
+Require Import UniMath.Bicategories.DoubleCategories.Core.DoubleTransformation.
 
 Local Open Scope cat.
 
@@ -148,4 +157,142 @@ Proof.
     + apply univalent_category_is_univalent.
     + apply is_univalent_constant_twosided_disp_cat.
       apply univalent_category_is_univalent.
+Defined.
+
+(** * 3. Functors to the unit double category *)
+Section FunctorToUnitDoubleCat.
+  Context (C : univalent_double_cat).
+
+  Definition twosided_disp_functor_to_unit_double_cat_data
+    : twosided_disp_functor_data
+        (functor_to_unit C) (functor_to_unit C)
+        (hor_mor C)
+        (hor_mor unit_univalent_double_cat).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ _ _ _, tt).
+    - exact (λ _ _ _ _ _ _ _ _ _, idpath _).
+  Defined.
+
+  Proposition twosided_disp_functor_to_unit_double_cat_laws
+    : twosided_disp_functor_laws
+        _ _ _ _
+        twosided_disp_functor_to_unit_double_cat_data.
+  Proof.
+    split ; intro ; intros ; apply isasetunit.
+  Qed.
+
+  Definition twosided_disp_functor_to_unit_double_cat
+    : twosided_disp_functor
+        (functor_to_unit C) (functor_to_unit C)
+        (hor_mor C)
+        (hor_mor unit_univalent_double_cat).
+  Proof.
+    simple refine (_ ,, _).
+    - exact twosided_disp_functor_to_unit_double_cat_data.
+    - exact twosided_disp_functor_to_unit_double_cat_laws.
+  Defined.
+
+  Definition lax_double_functor_to_unit_double_cat_hor_id
+    : double_functor_hor_id
+        twosided_disp_functor_to_unit_double_cat
+        (hor_id_double_cat C)
+        (hor_id_double_cat unit_univalent_double_cat).
+  Proof.
+    use make_double_functor_hor_id.
+    - intro x ; cbn.
+      apply idpath.
+    - abstract
+        (intro ; intros ; cbn ;
+         apply isasetunit).
+  Defined.
+
+  Definition lax_double_functor_to_unit_double_cat_hor_comp
+    : double_functor_hor_comp
+        twosided_disp_functor_to_unit_double_cat
+        (hor_comp_double_cat C)
+        (hor_comp_double_cat unit_univalent_double_cat).
+  Proof.
+    use make_double_functor_hor_comp.
+    - intro ; intros ; cbn.
+      apply idpath.
+    - abstract
+        (intro ; intros ; cbn ;
+         apply isasetunit).
+  Defined.
+
+  Definition lax_double_functor_to_unit_double_cat
+    : lax_double_functor C unit_univalent_double_cat.
+  Proof.
+    use make_lax_double_functor.
+    - apply functor_to_unit.
+    - exact twosided_disp_functor_to_unit_double_cat.
+    - exact lax_double_functor_to_unit_double_cat_hor_id.
+    - exact lax_double_functor_to_unit_double_cat_hor_comp.
+    - abstract
+        (intro ; intros ;
+         apply isasetunit).
+    - abstract
+        (intro ; intros ;
+         apply isasetunit).
+    - abstract
+        (intro ; intros ;
+         apply isasetunit).
+  Defined.
+End FunctorToUnitDoubleCat.
+
+(** * 4. Transformations to the unit double category *)
+Section NatTransToUnitDoubleCat.
+  Context {C : univalent_double_cat}
+          (F G : lax_double_functor C unit_univalent_double_cat).
+
+  Definition twosided_disp_nat_trans_to_unit_double_cat
+    : twosided_disp_nat_trans
+        (unit_category_nat_trans F G) (unit_category_nat_trans F G)
+        (lax_double_functor_hor_mor F)
+        (lax_double_functor_hor_mor G).
+  Proof.
+    simple refine (_ ,, _).
+    - intro ; intros.
+      apply isapropunit.
+    - intro ; intros.
+      apply isasetunit.
+  Qed.
+
+  Definition double_transformation_to_unit_double_cat
+    : double_transformation F G.
+  Proof.
+    use make_double_transformation.
+    - apply unit_category_nat_trans.
+    - exact twosided_disp_nat_trans_to_unit_double_cat.
+    - abstract
+        (intro ; intros ;
+         apply isasetunit).
+    - abstract
+        (intro ; intros ;
+         apply isasetunit).
+  Defined.
+End NatTransToUnitDoubleCat.
+
+Definition double_transformation_to_unit_double_cat_eq
+           {C : univalent_double_cat}
+           {F G : lax_double_functor C unit_univalent_double_cat}
+           (τ θ : double_transformation F G)
+  : τ = θ.
+Proof.
+  use double_transformation_eq.
+  - intro.
+    apply isasetunit.
+  - intros x y f.
+    apply isasetunit.
+Qed.
+
+(** * 5. The unit double category is a terminal object *)
+Definition is_bifinal_unit_univalent_double_cat
+  : is_bifinal unit_univalent_double_cat.
+Proof.
+  use make_is_bifinal.
+  - exact (λ C, lax_double_functor_to_unit_double_cat C).
+  - exact (λ C F G, double_transformation_to_unit_double_cat F G).
+  - exact (λ C F G τ θ, double_transformation_to_unit_double_cat_eq τ θ).
 Defined.

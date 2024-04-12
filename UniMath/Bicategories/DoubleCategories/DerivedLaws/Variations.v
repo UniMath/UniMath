@@ -284,6 +284,87 @@ Proof.
   apply idpath.
 Qed.
 
+Proposition rinvunitor_square
+            {C : double_cat}
+            {x₁ x₂ y₁ y₂ : C}
+            {v₁ : x₁ -->v x₂}
+            {v₂ : y₁ -->v y₂}
+            {h₁ : x₁ -->h y₁}
+            {h₂ : x₂ -->h y₂}
+            (s : square v₁ v₂ h₁ h₂)
+  : rinvunitor_h h₁ ⋆v  (s ⋆h id_h_square _)
+    =
+    transportf_square
+      (id_v_right _ @ !(id_v_left _))
+      (id_v_right _ @ !(id_v_left _))
+      (s ⋆v rinvunitor_h h₂).
+Proof.
+  refine (!(square_id_right_v' _) @ _).
+  rewrite <- runitor_rinvunitor_h'.
+  rewrite transportf_square_postwhisker.
+  rewrite transportf_f_square.
+  etrans.
+  {
+    apply maponpaths.
+    apply square_assoc_v.
+  }
+  unfold transportb_square.
+  rewrite transportf_f_square.
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    refine (!_).
+    apply square_assoc_v'.
+  }
+  rewrite transportf_square_prewhisker.
+  rewrite transportf_f_square.
+  rewrite runitor_square.
+  unfold transportb_square.
+  rewrite transportf_square_postwhisker.
+  rewrite transportf_square_prewhisker.
+  rewrite transportf_f_square.
+  etrans.
+  {
+    apply maponpaths.
+    apply maponpaths_2.
+    apply square_assoc_v.
+  }
+  unfold transportb_square.
+  rewrite transportf_square_prewhisker.
+  rewrite transportf_f_square.
+  rewrite rinvunitor_runitor_h.
+  unfold transportb_square.
+  rewrite !transportf_square_prewhisker.
+  rewrite transportf_f_square.
+  rewrite square_id_left_v.
+  unfold transportb_square.
+  rewrite transportf_square_prewhisker.
+  rewrite transportf_f_square.
+  use transportf_square_eq.
+  apply idpath.
+Qed.
+
+Proposition rinvunitor_square'
+            {C : double_cat}
+            {x₁ x₂ y₁ y₂ : C}
+            {v₁ : x₁ -->v x₂}
+            {v₂ : y₁ -->v y₂}
+            {h₁ : x₁ -->h y₁}
+            {h₂ : x₂ -->h y₂}
+            (s : square v₁ v₂ h₁ h₂)
+  : transportb_square
+      (id_v_right _ @ !(id_v_left _))
+      (id_v_right _ @ !(id_v_left _))
+      (rinvunitor_h h₁ ⋆v  (s ⋆h id_h_square _))
+    =
+    s ⋆v rinvunitor_h h₂.
+Proof.
+  rewrite rinvunitor_square.
+  rewrite transportbf_square.
+  apply idpath.
+Qed.
+
 Proposition rassociator_square
             {C : double_cat}
             {w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ : C}

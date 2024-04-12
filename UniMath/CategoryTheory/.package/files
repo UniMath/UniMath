@@ -526,9 +526,12 @@ TwoSidedDisplayedCats/TransportLaws.v
 
 TwoSidedDisplayedCats/Examples/Constant.v
 TwoSidedDisplayedCats/Examples/DispCatOnTwoSidedDispCat.v
+TwoSidedDisplayedCats/Examples/TwoSidedDispCatOnDispCat.v
 TwoSidedDisplayedCats/Examples/FiberwiseProduct.v
+TwoSidedDisplayedCats/Examples/Opposites.v
 
 TwoSidedDisplayedCats/Examples/Arrow.v
+TwoSidedDisplayedCats/Examples/SquaresTwoCat.v
 TwoSidedDisplayedCats/Examples/Bimodules.v
 TwoSidedDisplayedCats/Examples/Comma.v
 TwoSidedDisplayedCats/Examples/IsoComma.v
@@ -539,6 +542,7 @@ TwoSidedDisplayedCats/Examples/Profunctor.v
 TwoSidedDisplayedCats/Examples/Reindex.v
 TwoSidedDisplayedCats/Examples/Relations.v
 TwoSidedDisplayedCats/Examples/Spans.v
+TwoSidedDisplayedCats/Examples/ParaTwoSidedDispCat.v
 TwoSidedDisplayedCats/Examples/StructuredCospans.v
 TwoSidedDisplayedCats/Examples/ProfunctorTwosidedDispCat.v
 
