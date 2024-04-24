@@ -95,6 +95,14 @@ Qed.
 Definition isSetOfOpen :=
   isSetOfOpen_union × isSetOfOpen_finite_intersection.
 
+Lemma isaprop_isSetOfOpen
+  : isaprop isSetOfOpen.
+Proof.
+  apply isapropdirprod.
+  - apply isaprop_isSetOfOpen_union.
+  - apply isaprop_isSetOfOpen_finite_intersection.
+Qed.
+
 End Open.
 
 Definition isTopologicalSpace (X : hSet) :=

@@ -3,15 +3,17 @@
 (** Based on Bourbaky *)
 
 Require Import UniMath.Foundations.Preamble.
-Require Import UniMath.MoreFoundations.Tactics.
-Require Export UniMath.Topology.Filters.
-Require Import UniMath.Algebra.DivisionRig.
-Require Import UniMath.Algebra.ConstructiveStructures.
 
 Require Import UniMath.Topology.Topology.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 
 (** * Displayed category of topological spaces *)
 
@@ -38,3 +40,36 @@ Proof.
 Defined.
 
 Definition disp_top : disp_cat hset_category := _ ,, top_disp_cat_axioms.
+
+Definition top_cat
+  : category
+  := total_category disp_top.
+
+Lemma is_univalent_top_cat
+  : is_univalent top_cat.
+Proof.
+  apply is_univalent_total_category.
+  - apply is_univalent_HSET.
+  - apply is_univalent_disp_iff_fibers_are_univalent.
+    intros X Xdata Xdata'.
+    use isweq_iso.
+    + intro f.
+      apply (subtypePath (λ _, isaprop_isSetOfOpen _)).
+      apply funextfun.
+      intro U.
+      apply hPropUnivalence.
+      * intro H.
+        exact (pr1 (continuous_iff_reflects_open _) (pr1 (pr2 f)) (make_carrier _ _ H)).
+      * intro H.
+        exact (pr1 (continuous_iff_reflects_open _) (pr1 f) (make_carrier _ _ H)).
+    + intro H.
+      apply uip.
+      apply isaset_total2.
+      * apply isasethsubtype.
+      * intro.
+        apply isasetaprop.
+        apply isaprop_isSetOfOpen.
+    + intro H.
+      apply (subtypePath (λ _, isaprop_is_z_isomorphism _)).
+      apply isaprop_continuous.
+Qed.
