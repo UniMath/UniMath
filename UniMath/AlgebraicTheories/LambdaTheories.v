@@ -162,6 +162,30 @@ Qed.
 Definition app {L : lambda_theory_data} {n : nat} (f g : L n) : L n
   := appx f • extend_tuple var g.
 
+Lemma appx_to_app
+  {L : lambda_theory}
+  {n : nat}
+  (f : L n)
+  : appx f = app (inflate f) (var (stnweq (inr tt))).
+Proof.
+  symmetry.
+  refine (maponpaths (λ x, x • _) (app_subst _ _ _) @ _).
+  refine (subst_subst _ (appx _) _ _ @ _).
+  refine (_ @ subst_var _ _).
+  apply maponpaths.
+  apply funextfun.
+  intro i.
+  rewrite <- (homotweqinvweq stnweq i).
+  induction (invmap stnweq i) as [i' | i'].
+  - refine (maponpaths (λ x, x • _) (extend_tuple_inl _ _ _) @ _).
+    refine (subst_inflate _ _ _ @ _).
+    refine (var_subst _ _ _ @ _).
+    apply extend_tuple_inl.
+  - refine (maponpaths (λ x, x • _) (extend_tuple_inr _ _ _) @ _).
+    refine (var_subst _ _ _ @ _).
+    apply extend_tuple_inr.
+Qed.
+
 Lemma subst_app (L : lambda_theory) {m n : nat} (f g : L m) (h : stn m → L n)
   : subst (app f g) h = app (subst f h) (subst g h).
 Proof.
