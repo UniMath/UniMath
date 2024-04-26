@@ -101,7 +101,12 @@ Let make_sortToC_mor (ξ ξ' : sortToC) (fam : ∏ s: sort, pr1 ξ s --> pr1 ξ'
 
 Let BCsortToC : BinCoproducts sortToC := SortIndexing.BCsortToC sort Hsort _ BC.
 
-Let BPsortToCC : BinProducts [sortToC,C] := SortIndexing.BPsortToCC sort Hsort _ BP.
+Let sortToCC : category := SortIndexing.sortToCC sort Hsort C.
+Let TsortToCC : Terminal sortToCC := SortIndexing.TsortToCC sort Hsort C TC.
+
+Let BPsortToCC : BinProducts sortToCC := SortIndexing.BPsortToCC sort Hsort _ BP.
+
+Let sortToC2 : category := SortIndexing.sortToC2 sort Hsort C.
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
 Context (EsortToCC : Exponentials BPsortToCC)
@@ -206,7 +211,7 @@ End Sorted_Option_Functor.
 
 
 (** Sorted option functor for lists *)
-Definition option_list (xs : list sort) : [sortToC,sortToC].
+Definition option_list (xs : list sort) : sortToC2.
 Proof.
 (* This should be [foldr1] or [foldr1_map] in order to avoid composing with the
    identity functor on the right in the base case *)
@@ -224,7 +229,7 @@ F^(l,t)(X) := projSortToC(t) ∘ X
 
 otherwise
  *)
-Definition exp_functor (lt : list sort × sort) : functor [sortToC,sortToC] [sortToC,C].
+Definition exp_functor (lt : list sort × sort) : functor sortToC2 sortToCC.
 Proof.
 induction lt as [l t].
 (* use list_ind to do a case on whether l is empty or not *)
@@ -237,23 +242,22 @@ Defined.
 (** This defines F^lts where lts is a list of (l,t). Outputs a product of
     functors if the list is nonempty and otherwise the constant functor. *)
 Definition exp_functor_list (xs : list (list sort × sort)) :
-  functor [sortToC,sortToC] [sortToC,C].
+  functor sortToC2 sortToCC.
 Proof.
-(* If the list is empty we output the constant functor *)
-set (T := constant_functor [sortToC,sortToC] [sortToC,C]
-                           (constant_functor sortToC C TC)).
+  (* If the list is empty we output the constant functor *)
+set (T := constant_functor sortToC2 _ TsortToCC).
 (* This should be [foldr1] or [foldr1_map] in order to avoid composing with the
    constant functor in the base case *)
 exact (foldr1_map (λ F G, BinProduct_of_functors BPsortToCC F G) T exp_functor xs).
 Defined.
 
 Definition hat_exp_functor_list (xst : list (list sort × sort) × sort) :
-  functor [sortToC,sortToC] [sortToC,sortToC] :=
+  functor sortToC2 sortToC2 :=
     exp_functor_list (pr1 xst) ∙ post_comp_functor (hat_functor (pr2 xst)).
 
 (** The function from multisorted signatures to functors *)
 Definition MultiSortedSigToFunctor (M : MultiSortedSig sort) :
-  functor [sortToC,sortToC] [sortToC,sortToC].
+  functor sortToC2 sortToC2.
 Proof.
   use (coproduct_of_functors (ops _ M) _ _ (CoproductsMultiSortedSig M)).
   intros op.

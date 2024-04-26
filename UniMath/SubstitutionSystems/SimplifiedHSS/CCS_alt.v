@@ -70,6 +70,8 @@ Let sortToSet : category := SortIndexing.sortToSet sort Hsort.
 Let sortToSetSet : category := SortIndexing.sortToSetSet sort Hsort.
 Let sortToSet2 : category := SortIndexing.sortToSet2 sort Hsort.
 
+Let TsortToSetSet : Terminal sortToSetSet := SortIndexing.TsortToSetSet sort Hsort.
+
 Let projSortToSet : sort -> sortToSetSet := projSortToSet sort Hsort.
 Let hat_functorSet : sort -> HSET ⟶ sortToSet := hat_functorSet sort Hsort.
 Let sorted_option_functorSet : sort → sortToSet2 := sorted_option_functorSet sort Hsort.
@@ -126,8 +128,7 @@ Definition Pi_map : sortToSet2⟦Pi_source CCS_M,CCS_M⟧ :=
 
 Definition Prop_source : functor sortToSet2 sortToSet2.
 Proof.
-set (T := constant_functor [sortToSet,sortToSet] [sortToSet,HSET]
-                           (constant_functor sortToSet HSET (TerminalObject TerminalHSET))).
+set (T := constant_functor sortToSet2 _ TsortToSetSet).
 exact (T ∙ post_comp_functor (hat_functorSet ty)).
 Defined.
 

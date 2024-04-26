@@ -62,6 +62,8 @@ Section FixTheContext.
   Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
   Let sortToCC : category := SortIndexing.sortToCC sort Hsort C.
+  Let TsortToCC : Terminal sortToCC := SortIndexing.TsortToCC sort Hsort C TC.
+
   Let sortToC2 : category := SortIndexing.sortToC2 sort Hsort C.
 
   Local Definition BPsortToC2 : BinProducts sortToC2 := SortIndexing.BPsortToC2 sort Hsort _ BP.
@@ -93,8 +95,7 @@ Section FixTheContext.
        Each ai := ([si_1, ... si_n],si)
      *)
 
-    set (T := constant_functor sortToC2 sortToCC
-                               (constant_functor sortToC C TC)).
+    set (T := constant_functor sortToC2 sortToCC TsortToCC).
     set (TT := (functor_composite T (post_comp_functor (hat_functorC t)))).
 
     use (list_ind _ _ _ a).
@@ -110,8 +111,7 @@ Section FixTheContext.
     : functor sortToC2 sortToC2.
   Proof.
     induction xst as [xs t].
-    set (T := constant_functor sortToC2 sortToCC
-                               (constant_functor sortToC C TC)).
+    set (T := constant_functor sortToC2 sortToCC TsortToCC).
     set (TT := (functor_composite T (post_comp_functor (hat_functorC t)))).
     set (HH := fun ap => (hat_exp_functor_list'_piece (ap,,t))).
     exact (foldr1_map (λ F G, BinProduct_of_functors BPsortToC2 F G) TT HH xs).
