@@ -769,8 +769,8 @@ Section Church.
     apply cancel_postcomposition.
     match goal with |[   |- _ =_ · ?sndmor] => set (thesndmor := sndmor) end.
     change thesndmor with (BinProductOfArrows _ (BP) (BP)
-                             (pr1 (# (hat_functor _ Hsort C CC s) (pr1 (# (pr1 ((BCsortToC2 corecsource STLC_coind) : sortToC2)) f) (s ⇒ s))) s)
-                             (pr1 (# (hat_functor _ Hsort C CC s) (pr1 (# (pr1 ((BCsortToC2 corecsource STLC_coind) : sortToC2)) f) s)) s)).
+                             (pr1 (# (hat_functorC s) (pr1 (# (pr1 ((BCsortToC2 corecsource STLC_coind) : sortToC2)) f) (s ⇒ s))) s)
+                             (pr1 (# (hat_functorC s) (pr1 (# (pr1 ((BCsortToC2 corecsource STLC_coind) : sortToC2)) f) s)) s)).
     etrans.
     2: { apply pathsinv0, postcompWithBinProductArrow. }
     etrans.
@@ -961,20 +961,20 @@ Section Church.
                pr1 (pr1 (pr1 (ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort C TC (@BP) BC
                                 CC (arity sort STLC_Sig (inl (s,, s)))) X)
                       (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s =
-                 BP(c:=pr1 (hat_functor _ Hsort C CC s ((pr1 (pr1 X (ctx_ext (ctx_ext ξ (s ⇒ s)) s))) (s ⇒ s))) s)
-                   (d:=pr1 (hat_functor _ Hsort C CC s ((pr1 (pr1 X (ctx_ext (ctx_ext ξ (s ⇒ s)) s))) s)) s)).
+                 BP(c:=pr1 (hat_functorC s ((pr1 (pr1 X (ctx_ext (ctx_ext ξ (s ⇒ s)) s))) (s ⇒ s))) s)
+                   (d:=pr1 (hat_functorC s ((pr1 (pr1 X (ctx_ext (ctx_ext ξ (s ⇒ s)) s))) s)) s)).
     { intro X. apply idpath. }
     assert (bla2 : ∏ (X Y : sortToC2) (G : sortToC2 ⟦ X, Y ⟧),
                pr1 (pr1 (# (pr1 (ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort C TC (@BP) BC
                                    CC (arity sort STLC_Sig (inl (s,, s))))) G)
                       (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s =
-                 BinProductOfArrows _ (BP) (BP) ((pr1 (# (hat_functor _ Hsort C CC s) (pr1 (pr1 G (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s))) s))
-                   ((pr1 (# (hat_functor _ Hsort C CC s) (pr1 (pr1 G (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s)) s))).
+                 BinProductOfArrows _ (BP) (BP) ((pr1 (# (hat_functorC s) (pr1 (pr1 G (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s))) s))
+                   ((pr1 (# (hat_functorC s) (pr1 (pr1 G (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s)) s))).
     { intros X Y G. apply idpath. }
     clear bla bla1 bla2.
     set (aux := BinProductOfArrows _ (BP) (BP)
-                  (pr1 (# (hat_functor _ Hsort C CC s) (pr1 (pr1 (BinCoproductArrow (BCsortToC2 corecsource STLC_coind) IterateInfinite (identity STLC_coind)) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s))) s)
-                  (pr1 (# (hat_functor _ Hsort C CC s) (pr1 (pr1 (BinCoproductArrow (BCsortToC2 corecsource STLC_coind) IterateInfinite (identity STLC_coind)) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s)) s)).
+                  (pr1 (# (hat_functorC s) (pr1 (pr1 (BinCoproductArrow (BCsortToC2 corecsource STLC_coind) IterateInfinite (identity STLC_coind)) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s))) s)
+                  (pr1 (# (hat_functorC s) (pr1 (pr1 (BinCoproductArrow (BCsortToC2 corecsource STLC_coind) IterateInfinite (identity STLC_coind)) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s)) s)).
     change thesndmor with aux.
     clear thesndmor. *)
     set (aux2 := BinProductOfArrows _ (BP) (BP)

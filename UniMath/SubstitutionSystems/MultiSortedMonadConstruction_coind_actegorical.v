@@ -187,7 +187,7 @@ Section ToBeMoved.
     exact distr.
   Qed.
 
-  Definition BinProduct_of_functors_BinProducts_of_shape
+  Definition BinCoproduct_of_functors_Coproduct_of_booleanshape_of_functors
              {C D : category}
              (BC :  Colims_of_shape two_graph D)
              (F G : functor C D)
@@ -329,14 +329,15 @@ Section Upstream.
 
   Context (C : category) (BC : BinCoproducts C).
   Local Definition Id_H := SubstitutionSystems.Id_H C BC.
+  Local Definition Const_plus_H := SubstitutionSystems.Const_plus_H C BC.
 
   Context (L : ∏ coch : cochain [C, C], LimCone coch).
   Context (distr :  ω_limits_distribute_over_I_coproducts [C, C] (bool,, isasetbool) L
     (Coproducts_from_Colims bool [C, C]
        (Colims_from_BinCoproducts (BinCoproducts_functor_precat C C BC)))).
 
-  Definition is_omega_cont_Id_H (H: [C, C] ⟶ [C, C]) :
-    is_omega_cont H -> is_omega_cont (Id_H H).
+  Definition is_omega_cont_Const_plus_H (X : [C,C]) (H: [C, C] ⟶ [C, C]) :
+    is_omega_cont H -> is_omega_cont (Const_plus_H H X).
   Proof.
     intro Hc.
     use is_omega_cont_z_iso.
@@ -351,7 +352,7 @@ Section Upstream.
         exact BC.
       }
 
-      exact (BinProduct_of_functors_BinProducts_of_shape BC0 (constant_functor [C, C] [C, C] (functor_identity C)) H).
+      exact (BinCoproduct_of_functors_Coproduct_of_booleanshape_of_functors BC0 (constant_functor [C, C] [C, C] X) H).
     }
 
     use (coproduct_of_functors_omega_cont [C,C] (bool,,isasetbool)).
@@ -362,6 +363,11 @@ Section Upstream.
       + apply is_omega_cont_constant_functor.
       + exact Hc.
   Defined.
+
+  Definition is_omega_cont_Id_H (H: [C, C] ⟶ [C, C]) :
+    is_omega_cont H -> is_omega_cont (Id_H H)
+    := is_omega_cont_Const_plus_H (functor_identity C) H.
+
 
 End Upstream.
 

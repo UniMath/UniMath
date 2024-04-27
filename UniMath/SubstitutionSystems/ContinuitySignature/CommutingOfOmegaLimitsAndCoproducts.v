@@ -50,28 +50,29 @@ Section OmegaLimitsCommutingWithCoproducts.
 
   Context (ind : I → cochain C).
 
-  Let coproduct_n (n : nat) := coproducts_given (λ i, pr1 (ind i) n).
+  Let coproduct_n (n : nat) : Coproduct I C (λ i, dob (ind i) n) := coproducts_given (λ i, dob (ind i) n).
+
   Definition coproduct_n_cochain : cochain C.
   Proof.
-    exists (λ n, pr11 (coproduct_n n)).
+    exists (λ n, coproduct_n n).
     intros n m f.
     use CoproductArrow.
-    exact (λ j, pr2 (ind j) n m f · CoproductIn I C (coproducts_given (λ i0 : I, pr1 (ind i0) m)) j).
+    exact (λ j, dmor (ind j) f · CoproductIn I C (coproducts_given (λ i0 : I, dob (ind i0) m)) j).
   Defined.
 
-  Definition limit_of_coproduct
+  Definition limit_of_coproduct : LimCone coproduct_n_cochain
     := ω_lim_given coproduct_n_cochain.
 
-  Definition coproduct_of_limit
-    := coproducts_given (λ i, pr11 (ω_lim_given (ind i))).
+  Definition coproduct_of_limit : Coproduct I C (λ i : I, lim (ω_lim_given (ind i)))
+    := coproducts_given (λ i, lim (ω_lim_given (ind i))).
 
   Definition limit_of_coproduct_as_cone_of_coproduct_to_limit
-    : cone coproduct_n_cochain (pr11 coproduct_of_limit).
+    : cone coproduct_n_cochain coproduct_of_limit.
   Proof.
     use tpair.
     - intro n.
       use CoproductOfArrows.
-      exact (λ i, pr1 (pr21 (ω_lim_given (ind i))) n).
+      exact (λ i, coneOut (limCone (ω_lim_given (ind i))) n).
     - intros n m p.
       cbn.
       etrans.
@@ -79,18 +80,18 @@ Section OmegaLimitsCommutingWithCoproducts.
       use CoproductArrowUnique.
       intro i.
       etrans.
-      1: apply (CoproductInCommutes _ _ _ coproduct_of_limit _ ( (λ i0 : I, (pr121 (ω_lim_given (ind i0))) n · (pr2 (ind i0) n m p · CoproductIn I C (coproducts_given (λ i1 : I, pr1 (ind i1) m)) i0)))).
+      1: apply (CoproductInCommutes _ _ _ coproduct_of_limit _ (λ i0 : I, coneOut (limCone (ω_lim_given (ind i0))) n · (dmor (ind i0) p · CoproductIn I C (coproducts_given (λ i1 : I, dob (ind i1) m)) i0))).
       etrans.
       1: apply assoc.
       apply maponpaths_2.
-      exact (pr221 (ω_lim_given (ind i)) n m p).
+      exact (coneOutCommutes (limCone (ω_lim_given (ind i))) n m p).
   Defined.
 
   Definition coproduct_of_limit_to_limit_of_coproduct
-    : pr11 coproduct_of_limit --> pr11 limit_of_coproduct
-    := pr11 (pr2 limit_of_coproduct _ limit_of_coproduct_as_cone_of_coproduct_to_limit).
+    : coproduct_of_limit --> lim limit_of_coproduct
+    := pr11 (isLimCone_LimCone limit_of_coproduct _ limit_of_coproduct_as_cone_of_coproduct_to_limit).
 
-  Definition coproduct_distribute_over_omega_limits
+  Definition coproduct_distribute_over_omega_limits : UU
     := is_z_isomorphism coproduct_of_limit_to_limit_of_coproduct.
 
 End OmegaLimitsCommutingWithCoproducts.
@@ -109,15 +110,13 @@ Section CoproductOfFunctorsContinuity.
 
   Context (D : category) (I : HSET) (ω_lim : Lims_of_shape conat_graph D) (CP : Coproducts (pr1 I) D).
 
-  Definition ω_complete_functor_cat
-    : ∏ C : category, Lims_of_shape conat_graph [C, D].
+  Definition ω_complete_functor_cat (C : category) : Lims_of_shape conat_graph [C, D].
   Proof.
-    intro C; apply LimsFunctorCategory_of_shape, ω_lim.
+    apply LimsFunctorCategory_of_shape, ω_lim.
   Defined.
 
-  Let coproduct_functor_cat
-    : ∏ C : category, Coproducts (pr1 I) [C,D]
-    := λ C, Coproducts_functor_precat (pr1 I) C D CP.
+  Let coproduct_functor_cat (C : category) : Coproducts (pr1 I) [C,D]
+    := Coproducts_functor_precat (pr1 I) C D CP.
 
   Definition functor_category_ω_limits_distribute_over_I_coproducts
     : ω_limits_distribute_over_I_coproducts D I ω_lim CP
@@ -130,8 +129,8 @@ Section CoproductOfFunctorsContinuity.
     transparent assert (ind_c : (pr1 I -> cochain D)).
     {
       intro i.
-      exists (λ n, pr1 (pr1 (ind i) n) c).
-      exact (λ n m p, pr1 (pr2 (ind i) n m p) c).
+      exists (λ n, pr1 (dob (ind i) n) c).
+      exact (λ n m p, pr1 (dmor (ind i) p) c).
     }
 
     exists (pr1 (distr ind_c)).
@@ -174,8 +173,8 @@ Section CoproductOfFunctorsContinuity.
     transparent assert (ind : (pr1 I -> cochain D)).
     {
       intro i.
-      exists (λ n, F i (pr1 coch n)).
-      exact (λ n m p, #(F i) (pr2 coch n m p)).
+      exists (λ n, F i (dob coch n)).
+      exact (λ n m p, #(F i) (dmor coch p)).
     }
 
     set (distr := ω_distr ind).
@@ -193,7 +192,7 @@ Section CoproductOfFunctorsContinuity.
     - split.
       + cbn.
 
-        transparent assert (i_iso : (is_z_isomorphism (CoproductOfArrows (pr1 I) D (CP (λ i : pr1 I, pr11 (ω_lim (ind i)))) (CP (λ i : pr1 I, F i l)) (λ i : pr1 I, limArrow (make_LimCone (mapdiagram (F i) coch) (F i l) (mapcone (F i) coch l_cone) (Fi_cont i coch l l_cone l_lim)) (lim (ω_lim (ind i))) (limCone (ω_lim (ind i))))))).
+        transparent assert (i_iso : (is_z_isomorphism (CoproductOfArrows (pr1 I) D (CP (λ i : pr1 I, lim (ω_lim (ind i)))) (CP (λ i : pr1 I, F i l)) (λ i : pr1 I, limArrow (make_LimCone (mapdiagram (F i) coch) (F i l) (mapcone (F i) coch l_cone) (Fi_cont i coch l l_cone l_lim)) (lim (ω_lim (ind i))) (limCone (ω_lim (ind i))))))).
         {
           use CoproductOfArrowsIsos.
           intro i.
@@ -229,7 +228,7 @@ Section CoproductOfFunctorsContinuity.
         1: {
           apply maponpaths.
           set (t := limArrowCommutes (ω_lim (mapdiagram (coproduct_of_functors (pr1 I) C D CP F) coch))).
-          exact (t (pr11 (CP (λ i0 : pr1 I, pr11 (ω_lim (ind i0))))) (limit_of_coproduct_as_cone_of_coproduct_to_limit D ω_lim CP ind) n).
+          exact (t (pr11 (CP (λ i0 : pr1 I, lim (ω_lim (ind i0))))) (limit_of_coproduct_as_cone_of_coproduct_to_limit D ω_lim CP ind) n).
         }
 
         cbn.
@@ -239,7 +238,7 @@ Section CoproductOfFunctorsContinuity.
         etrans.
         1: {
           apply maponpaths.
-          apply (CoproductInCommutes _ _ _  (CP (λ i0 : pr1 I, pr11 (ω_lim (ind i0))))).
+          apply (CoproductInCommutes _ _ _  (CP (λ i0 : pr1 I, lim (ω_lim (ind i0))))).
         }
 
         etrans.
@@ -279,10 +278,10 @@ Section CoproductOfFunctorsContinuity.
         intro i.
 
         etrans.
-        1: apply (CoproductInCommutes _ _ _  (CP (λ i0 : pr1 I, pr11 (ω_lim (ind i0))))).
+        1: apply (CoproductInCommutes _ _ _  (CP (λ i0 : pr1 I, lim (ω_lim (ind i0))))).
         apply maponpaths_2.
 
-        exact (limArrowCommutes ( (make_LimCone (mapdiagram (F i) coch) (F i l) (mapcone (F i) coch l_cone) (Fi_cont i coch l l_cone l_lim))) _ (pr21 (ω_lim (ind i))) n).
+        exact (limArrowCommutes ( (make_LimCone (mapdiagram (F i) coch) (F i l) (mapcone (F i) coch l_cone) (Fi_cont i coch l l_cone l_lim))) _ (limCone (ω_lim (ind i))) n).
   Defined.
 
 

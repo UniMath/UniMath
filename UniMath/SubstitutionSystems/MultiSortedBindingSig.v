@@ -63,19 +63,11 @@ Section MultiSortedSigFromBindingSig.
 
   Context (uni : sort). (** the unique sort being used *)
 
-  (** create liste with [n] identical elements *)
-  Definition n_list {A : UU} (n : nat) (a : A) : list A.
-  Proof.
-    induction n as [|n ].
-    - exact nil.
-    - exact (cons a IHn).
-  Defined.
-
   Definition translateArity : nat -> list sort × sort.
   Proof.
     intro n.
     refine (_,, uni).
-    exact (n_list n uni).
+    exact (functionToList n (fun _ => uni)).
   Defined.
 
   Definition arFromBindingSig : I → list (list sort × sort) × sort.
