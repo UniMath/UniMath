@@ -471,6 +471,10 @@ EnrichedCats/Examples/FunctorCategory.v
 EnrichedCats/Examples/Precomposition.v
 EnrichedCats/Examples/Presheaves.v
 EnrichedCats/Examples/Yoneda.v
+EnrichedCats/Examples/Tensor.v
+
+EnrichedCats/Bifunctors/CurriedBifunctors.v
+EnrichedCats/Bifunctors/WhiskeredBifunctors.v
 
 EnrichedCats/YonedaLemma.v
 

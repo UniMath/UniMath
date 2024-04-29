@@ -1991,3 +1991,23 @@ Proof.
   - exact (monoidal_cat_tensor_data V).
   - exact (is_functor_monoidal_cat_tensor V).
 Defined.
+
+Proposition tensor_is_z_iso
+            {C : monoidal_cat}
+            {x₁ x₂ y₁ y₂ : C}
+            {f : x₁ --> x₂}
+            {g : y₁ --> y₂}
+            (Hf : is_z_isomorphism f)
+            (Hg : is_z_isomorphism g)
+  : is_z_isomorphism (f #⊗ g).
+Proof.
+  pose (fiso := (f ,, Hf) : z_iso _ _).
+  pose (giso := (g ,, Hg) : z_iso _ _).
+  use make_is_z_isomorphism.
+  - exact (inv_from_z_iso fiso #⊗ inv_from_z_iso giso).
+  - abstract
+      (split ; rewrite <- tensor_comp_mor ; rewrite <- tensor_id_id ;
+       [ rewrite <- (z_iso_inv_after_z_iso fiso), <- (z_iso_inv_after_z_iso giso)
+       | rewrite <- (z_iso_after_z_iso_inv fiso), <- (z_iso_after_z_iso_inv giso) ] ;
+       apply idpath).
+Defined.
