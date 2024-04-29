@@ -78,14 +78,63 @@ Section Sheaves.
     - apply nat_trans_eq_alt.
       intro U.
       refine (maponpaths (λ x, _ · (_ · x) · _) (id_left _) @ _).
-      simpl.
-      rewrite assoc.
-      refine (maponpaths (λ x, _ · x · _) (functor_comp _ _ _) @ _).
-      rewrite assoc.
-      refine (maponpaths (λ x, _ · x · _) _ @ _).
-      + match goal with
-        | [ |- # _ (identity ?a') = _ ] => pose (a := a')
+      refine (maponpaths (λ x, x · _) (assoc _ _ _) @ _).
+      refine (maponpaths (λ x, _ · x · _) (functor_comp (pr2 X) _ _) @ _).
+      refine (maponpaths (λ x, x · _) (assoc _ _ _) @ _).
+      refine (maponpaths (λ x, _ · x · _ · _) (functor_id (pr2 X) _) @ _).
+      refine (maponpaths (λ x, x · _ · _) (id_right _) @ _).
+      refine (maponpaths (λ x, _ x · _ · _ · _) (idpath _ : _ = identity (C := (topological_space_category (pr1 X'))^op) U) @ _).
+      refine (maponpaths (λ x, x · _ · _ · _) (functor_id (C := (topological_space_category (pr1 X'))^op) (C' := C) (pr2 X') U) @ _).
+      rewrite (functor_id (pr2 X')).
+      + exact .
+        match goal with
+        | [ |- # ?a ?b = _ ] => pose a; pose b
         end.
+        rewrite (functor_id (pr2 X')).
+        refine (functor_id (C := (topological_space_category (pr1 X'))^op) (pr2 X') (U) @ _).
+        Set Printing Implicit.
+        exact p.
+        simpl.
+      }
+      simpl.
+      refine (maponpaths (λ x, _ · x · _) _ @ _).
+      {
+        simpl.
+      }
+      refine (maponpaths (λ x, _ · (# (pr2 X : _ ⟶ _) x) · _) (idpath _ : a = identity (C := x) (continuous_open_preimage ((pr1 F : top_cat⟦_, _⟧) · identity (pr1 X' : top_cat)) U : x)) @ _).
+      rewrite (functor_id (pr2 X) _).
+      +
+      rewrite (functor_id (pr2 X)).
+      pose .
+      rewrite p.
+      rewrite functor_id.
+
+
+      refine (maponpaths (λ x, _ · x · _) _ @ _).
+      +         refine (functor_id (pr2 X) _).
+        apply functor_id.
+        exact (functor_id (C := y) (pr2 X) a).
+        unfold topological_space_category, opp_precat in c.
+        epose (functor_data_from_functor p _ (pr2 X : _ ⟶ _)).
+        cbn in p, c.
+        unfold opp_precat_data in c.
+        cbn in c.
+        unfold opp_precat_ob_mor in c.
+        cbn in c.
+        unfold make_precategory_data in p.
+        unfold make_precategory_ob_mor in p.
+        cbn in p.
+        unfold make_dirprod in p.
+        cbn in p.
+
+        match b with
+        | p ⟶ _ => idtac
+        end.
+        match goal with
+        | [ |- # (?b' : p ⟶ _) _ = _ ] => pose b'
+        end.
+        Set Printing Implicit.
+
         epose (H := functor_id (pr2 X) a).
         exact H.
   Qed.
