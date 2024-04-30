@@ -478,6 +478,9 @@ EnrichedCats/Bifunctors/WhiskeredBifunctors.v
 
 EnrichedCats/YonedaLemma.v
 
+EnrichedCats/Profunctors/Profunctor.v
+EnrichedCats/Profunctors/StandardProfunctors.v
+
 EnrichedCats/Examples/EmptyEnriched.v
 EnrichedCats/Examples/UnitEnriched.v
 EnrichedCats/Examples/FullSubEnriched.v

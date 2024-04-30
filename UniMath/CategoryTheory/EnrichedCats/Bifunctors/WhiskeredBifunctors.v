@@ -20,7 +20,7 @@
  objects are swapped. This `inner_swap` morphism has a rather complicated definition. By
  using the whiskered style, the laws become much simpler. In the definition of the laws
  ([enriched_whiskered_bifunctor_laws]), one can see that none uses `inner_swap`, and that
- no associators/unitors are present (only one braiding).m
+ no associators/unitors are present (only one braiding).
 
  Contents
  1. Definition of whiskered bifunctors
@@ -927,4 +927,4 @@ Definition enriched_bifunctor_whiskered_bifunctor_weq
     ≃
     enriched_whiskered_bifunctor E₁ E₂ E₃
   := (enriched_curried_whiskered_bifunctor_weq E₁ E₂ E₃
-      ∘ enriched_bifunctor_curried_bifunctor_weq E₁ E₂ E₃)%weq.
+        ∘ enriched_bifunctor_curried_bifunctor_weq E₁ E₂ E₃)%weq.
