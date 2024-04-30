@@ -556,8 +556,192 @@ Proposition dwhisker_enriched_profunctor_square_laws
 Proof.
   split.
   - intros x₁ x₂ y ; cbn.
+    rewrite !assoc'.
+    rewrite tensor_comp_id_l.
     rewrite !assoc.
-Admitted.
+    rewrite <- (enriched_profunctor_square_lmap_e θ).
+    rewrite (tensor_split (EG x₂ x₁) (θ x₁ y)).
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    etrans.
+    {
+      rewrite <- tensor_split.
+      rewrite tensor_split'.
+      apply idpath.
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    refine (!_).
+    etrans.
+    {
+      rewrite !assoc.
+      rewrite tensor_linvunitor ; cbn.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_split.
+      rewrite tensor_split'.
+      rewrite !assoc'.
+      apply idpath.
+    }
+    rewrite lmap_e_rmap_e'.
+    rewrite !assoc.
+    rewrite tensor_comp_id_l.
+    do 2 apply maponpaths_2.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite <- tensor_id_id.
+      rewrite !assoc.
+      rewrite tensor_rassociator.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_comp_id_r.
+      rewrite tensor_sym_mon_braiding.
+      rewrite tensor_comp_id_r.
+      rewrite !assoc'.
+      rewrite tensor_lassociator.
+      apply idpath.
+    }
+    rewrite tensor_comp_id_l.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite <- mon_linvunitor_triangle.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite mon_lassociator_rassociator.
+      rewrite id_left.
+      apply idpath.
+    }
+    rewrite !assoc.
+    rewrite <- tensor_comp_id_r.
+    rewrite sym_mon_braiding_linvunitor.
+    rewrite mon_inv_triangle.
+    apply idpath.
+  - intros x y₁ y₂ ; cbn.
+    etrans.
+    {
+      rewrite tensor_comp_id_l.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_split.
+      rewrite tensor_split'.
+      rewrite !assoc'.
+      rewrite rmap_e_rmap_e.
+      apply idpath.
+    }
+    etrans.
+    {
+      rewrite !assoc.
+      rewrite tensor_comp_id_l.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_split.
+      rewrite tensor_split'.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite tensor_rassociator.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_comp_id_r.
+      apply idpath.
+    }
+    etrans.
+    {
+      apply maponpaths.
+      rewrite <- tensor_id_id.
+      rewrite !assoc.
+      rewrite tensor_rassociator.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_comp_id_r.
+      rewrite !assoc.
+      rewrite <- tensor_split'.
+      apply idpath.
+    }
+    rewrite tensor_comp_id_l.
+    etrans.
+    {
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite mon_inv_triangle.
+      rewrite !assoc'.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite mon_lassociator_rassociator.
+        rewrite id_left.
+        apply idpath.
+      }
+      rewrite !assoc.
+      rewrite <- tensor_comp_id_r.
+      do 2 apply maponpaths_2.
+      rewrite !assoc.
+      exact (Eτ y₁ y₂).
+    }
+    rewrite !assoc.
+    rewrite <- (enriched_profunctor_square_rmap_e θ).
+    etrans.
+    {
+      rewrite tensor_comp_id_r.
+      rewrite !assoc.
+      do 2 apply maponpaths_2.
+      rewrite <- tensor_split.
+      etrans.
+      {
+        apply maponpaths_2.
+        rewrite tensor_split.
+        rewrite !assoc.
+        rewrite <- tensor_linvunitor.
+        apply idpath.
+      }
+      rewrite !assoc'.
+      rewrite tensor_comp_r_id_r.
+      apply idpath.
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite tensor_linvunitor.
+    rewrite !assoc'.
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_split.
+      rewrite tensor_split'.
+      rewrite !assoc'.
+      apply maponpaths.
+      apply (rmap_e_rmap_e Q).
+    }
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite tensor_comp_id_r.
+    apply maponpaths_2.
+    rewrite <- tensor_id_id.
+    rewrite !assoc'.
+    rewrite tensor_rassociator.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite <- mon_linvunitor_triangle.
+    rewrite !assoc'.
+    rewrite mon_lassociator_rassociator.
+    apply id_right.
+Qed.
 
 Definition dwhisker_enriched_profunctor_square
            {V : sym_mon_closed_cat}
@@ -643,8 +827,219 @@ Proposition uwhisker_enriched_profunctor_square_laws
 Proof.
   split.
   - intros x₁ x₂ y ; cbn.
+    etrans.
+    {
+      rewrite tensor_comp_id_l.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_split.
+      rewrite tensor_split'.
+      rewrite !assoc'.
+      rewrite lmap_e_lmap_e.
+      apply idpath.
+    }
+    etrans.
+    {
+      rewrite !assoc.
+      rewrite tensor_comp_id_l.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_split.
+      rewrite tensor_split'.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite tensor_rassociator.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- !tensor_comp_id_r.
+      rewrite tensor_sym_mon_braiding.
+      apply idpath.
+    }
+    etrans.
+    {
+      apply maponpaths.
+      rewrite <- tensor_id_id.
+      rewrite !assoc.
+      rewrite tensor_rassociator.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_comp_id_r.
+      rewrite !assoc.
+      rewrite tensor_sym_mon_braiding.
+      rewrite !assoc'.
+      do 2 apply maponpaths_2.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_split.
+      apply idpath.
+    }
+    rewrite tensor_comp_id_l.
+    etrans.
+    {
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite mon_inv_triangle.
+      rewrite !assoc'.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite mon_lassociator_rassociator.
+        rewrite id_left.
+        apply idpath.
+      }
+      rewrite !assoc.
+      rewrite <- tensor_comp_id_r.
+      do 2 apply maponpaths_2.
+      rewrite !assoc.
+      rewrite sym_mon_braiding_rinvunitor.
+      exact (!(Eτ x₂ x₁)).
+    }
     rewrite !assoc.
-Admitted.
+    rewrite <- (enriched_profunctor_square_lmap_e θ).
+    etrans.
+    {
+      rewrite tensor_comp_id_r.
+      rewrite !assoc.
+      do 2 apply maponpaths_2.
+      rewrite <- tensor_split.
+      etrans.
+      {
+        apply maponpaths_2.
+        rewrite tensor_split'.
+        rewrite !assoc.
+        rewrite <- tensor_rinvunitor.
+        apply idpath.
+      }
+      rewrite !assoc'.
+      rewrite tensor_comp_r_id_r.
+      apply idpath.
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite tensor_linvunitor.
+    rewrite !assoc'.
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_split.
+      rewrite tensor_split'.
+      rewrite !assoc'.
+      apply maponpaths.
+      apply (lmap_e_lmap_e Q).
+    }
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite tensor_comp_id_r.
+    apply maponpaths_2.
+    rewrite <- tensor_id_id.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite tensor_rassociator.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite <- tensor_comp_id_r.
+      rewrite tensor_sym_mon_braiding.
+      rewrite tensor_comp_id_r.
+      apply idpath.
+    }
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite <- mon_linvunitor_triangle.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite mon_lassociator_rassociator.
+      rewrite id_left.
+      apply idpath.
+    }
+    rewrite <- tensor_comp_id_r.
+    rewrite sym_mon_braiding_linvunitor.
+    apply idpath.
+  - intros x y₁ y₂ ; cbn.
+    rewrite !assoc'.
+    rewrite tensor_comp_id_l.
+    rewrite !assoc.
+    rewrite <- (enriched_profunctor_square_rmap_e θ).
+    rewrite (tensor_split (EF y₁ y₂) (θ x y₁)).
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    etrans.
+    {
+      rewrite <- tensor_split.
+      rewrite tensor_split'.
+      apply idpath.
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    refine (!_).
+    etrans.
+    {
+      rewrite !assoc.
+      rewrite tensor_linvunitor ; cbn.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_split.
+      rewrite tensor_split'.
+      rewrite !assoc'.
+      apply idpath.
+    }
+    rewrite rmap_e_lmap_e.
+    rewrite !assoc.
+    rewrite tensor_comp_id_l.
+    do 2 apply maponpaths_2.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite <- tensor_id_id.
+      rewrite !assoc.
+      rewrite tensor_rassociator.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_comp_id_r.
+      rewrite tensor_sym_mon_braiding.
+      rewrite tensor_comp_id_r.
+      rewrite !assoc'.
+      rewrite tensor_lassociator.
+      apply idpath.
+    }
+    rewrite tensor_comp_id_l.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite <- mon_linvunitor_triangle.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite mon_lassociator_rassociator.
+      rewrite id_left.
+      apply idpath.
+    }
+    rewrite !assoc.
+    rewrite <- tensor_comp_id_r.
+    rewrite sym_mon_braiding_linvunitor.
+    rewrite mon_inv_triangle.
+    apply idpath.
+Qed.
 
 Definition uwhisker_enriched_profunctor_square
            {V : sym_mon_closed_cat}

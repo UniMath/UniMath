@@ -289,6 +289,36 @@ Section Accessors.
     apply idpath.
   Qed.
 
+  Proposition lmap_e_lmap_e
+              (x₁ x₂ x₃ : C₂)
+              (y : C₁)
+    : identity _ #⊗ lmap_e P x₁ x₂ y
+      · lmap_e P x₂ x₃ y
+      =
+      mon_rassociator _ _ _
+      · (sym_mon_braiding V _ _ #⊗ identity _)
+      · enriched_comp E₂ x₃ x₂ x₁ #⊗ identity _
+      · lmap_e P x₁ x₃ y.
+  Proof.
+    rewrite !assoc'.
+    rewrite lmap_e_comp'.
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_comp_id_r.
+      rewrite sym_mon_braiding_inv.
+      rewrite tensor_id_id.
+      rewrite id_left.
+      apply idpath.
+    }
+    rewrite !assoc.
+    rewrite mon_rassociator_lassociator.
+    rewrite id_left.
+    apply idpath.
+  Qed.
+
   Proposition rmap_e_comp
               (x : C₂)
               (y₁ y₂ y₃ : C₁)
@@ -301,6 +331,24 @@ Section Accessors.
   Proof.
     exact (pr12 (pr222 P) x y₁ y₂ y₃).
   Defined.
+
+  Proposition rmap_e_rmap_e
+              (x : C₂)
+              (y₁ y₂ y₃ : C₁)
+    : identity _ #⊗ rmap_e P x y₁ y₂
+      · rmap_e P x y₂ y₃
+      =
+      mon_rassociator _ _ _
+      · enriched_comp E₁ y₁ y₂ y₃ #⊗ identity (P x y₁)
+      · rmap_e P x y₁ y₃.
+  Proof.
+    rewrite !assoc'.
+    rewrite rmap_e_comp.
+    rewrite !assoc.
+    rewrite mon_rassociator_lassociator.
+    rewrite id_left.
+    apply idpath.
+  Qed.
 
   Proposition lmap_e_rmap_e
               (x₁ x₂ : C₂)
