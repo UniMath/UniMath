@@ -483,6 +483,7 @@ EnrichedCats/YonedaLemma.v
 EnrichedCats/Profunctors/Profunctor.v
 EnrichedCats/Profunctors/StandardProfunctors.v
 EnrichedCats/Profunctors/ProfunctorTransformations.v
+EnrichedCats/Profunctors/ProfunctorSquares.v
 
 EnrichedCats/Examples/EmptyEnriched.v
 EnrichedCats/Examples/UnitEnriched.v

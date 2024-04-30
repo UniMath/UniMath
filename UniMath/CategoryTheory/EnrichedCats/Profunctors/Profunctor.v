@@ -196,7 +196,8 @@ Definition enriched_profunctor
   := ∑ (P : enriched_profunctor_data E₁ E₂),
      enriched_profunctor_laws P.
 
-Infix "↛e" := enriched_profunctor (at level 99, only parsing) : cat. (* \nrightarrow *)
+Notation "E₁ ↛e E₂" := (enriched_profunctor E₂ E₁)
+                         (at level 99, only parsing) : cat. (* \nrightarrow *)
 
 Definition make_enriched_profunctor
            {V : sym_mon_closed_cat}
@@ -205,7 +206,7 @@ Definition make_enriched_profunctor
            {E₂ : enrichment C₂ V}
            (P : enriched_profunctor_data E₁ E₂)
            (HP : enriched_profunctor_laws P)
-  : E₁ ↛e E₂
+  : E₂ ↛e E₁
   := P ,, HP.
 
 Coercion enriched_profunctor_to_data
@@ -213,7 +214,7 @@ Coercion enriched_profunctor_to_data
          {C₁ C₂ : category}
          {E₁ : enrichment C₁ V}
          {E₂ : enrichment C₂ V}
-         (P : E₁ ↛e E₂)
+         (P : E₂ ↛e E₁)
   : enriched_profunctor_data E₁ E₂.
 Proof.
   exact (pr1 P).
@@ -225,7 +226,7 @@ Section Accessors.
           {C₁ C₂ : category}
           {E₁ : enrichment C₁ V}
           {E₂ : enrichment C₂ V}
-          (P : E₁ ↛e E₂).
+          (P : E₂ ↛e E₁).
 
   Proposition lmap_e_id
               (x : C₂)
@@ -400,7 +401,7 @@ Section FromEnrichedProfunctor.
           {C₁ C₂ : category}
           {E₁ : enrichment C₁ V}
           {E₂ : enrichment C₂ V}
-          (P : E₁ ↛e E₂).
+          (P : E₂ ↛e E₁).
 
   Definition enriched_profunctor_to_whiskered_data
     : enriched_whiskered_bifunctor_data
@@ -766,7 +767,7 @@ Section ToEnrichedProfunctor.
   Qed.
 
   Definition enriched_whiskered_bifunctor_to_profunctor
-    : E₁ ↛e E₂.
+    : E₂ ↛e E₁.
   Proof.
     use make_enriched_profunctor.
     - exact enriched_whiskered_bifunctor_to_profunctor_data.
@@ -854,7 +855,7 @@ Definition enriched_profunctor_whiskered_bifunctor_weq
       (op_enrichment V E₂) E₁
       (self_enrichment V)
     ≃
-    (E₁ ↛e E₂).
+    (E₂ ↛e E₁).
 Proof.
   use weq_iso.
   - exact enriched_whiskered_bifunctor_to_profunctor.
@@ -872,6 +873,6 @@ Definition enriched_profunctor_bifunctor_weq
       (tensor_enriched_precat (op_enrichment V E₂) E₁)
       (make_enriched_cat (pr111 V ,, self_enrichment V))
     ≃
-    (E₁ ↛e E₂)
+    (E₂ ↛e E₁)
   := (enriched_profunctor_whiskered_bifunctor_weq _ _
       ∘ enriched_bifunctor_whiskered_bifunctor_weq _ _ _)%weq.
