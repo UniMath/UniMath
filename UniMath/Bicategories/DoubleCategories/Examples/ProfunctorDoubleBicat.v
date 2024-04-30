@@ -718,7 +718,7 @@ Proof.
              (Q : C₂ ↛ C₄)
              (τ : F₂ ⟹ F₁)
              (s : profunctor_square G F₂ P Q),
-           dwhisker_profunctor_square τ s).
+           uwhisker_profunctor_square τ s).
   - exact (λ (C₁ C₂ C₃ C₄ : univalent_category)
              (F : C₁ ⟶ C₂)
              (G₁ G₂ : C₃ ⟶ C₄)
@@ -726,7 +726,7 @@ Proof.
              (Q : C₂ ↛ C₄)
              (τ : G₂ ⟹ G₁)
              (s : profunctor_square G₁ F P Q),
-           uwhisker_profunctor_square τ s).
+           dwhisker_profunctor_square τ s).
 Defined.
 
 Definition univcat_profunctor_ver_bicat_sq_id_comp_whisker
@@ -814,7 +814,7 @@ Proof.
     etrans.
     {
       exact (comp_v_profunctor_square_mor_comm
-               (dwhisker_profunctor_square τ θ₁) θ₂
+               (uwhisker_profunctor_square τ θ₁) θ₂
                z x y
                h h').
     }
@@ -836,7 +836,7 @@ Proof.
     etrans.
     {
       exact (comp_v_profunctor_square_mor_comm
-               θ₁ (uwhisker_profunctor_square τ θ₂)
+               θ₁ (dwhisker_profunctor_square τ θ₂)
                z x y
                h h').
     }
@@ -850,7 +850,7 @@ Proof.
     etrans.
     {
       exact (comp_v_profunctor_square_mor_comm
-               θ₁ (dwhisker_profunctor_square τ θ₂)
+               θ₁ (uwhisker_profunctor_square τ θ₂)
                z x y
                h h').
     }
@@ -858,7 +858,7 @@ Proof.
     etrans.
     {
       exact (comp_v_profunctor_square_mor_comm
-               (uwhisker_profunctor_square τ θ₁) θ₂
+               (dwhisker_profunctor_square τ θ₁) θ₂
                z x y h h').
     }
     cbn.
