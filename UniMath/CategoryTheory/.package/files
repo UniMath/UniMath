@@ -475,11 +475,14 @@ EnrichedCats/Examples/Tensor.v
 
 EnrichedCats/Bifunctors/CurriedBifunctors.v
 EnrichedCats/Bifunctors/WhiskeredBifunctors.v
+EnrichedCats/Bifunctors/CurriedTransformations.v
+EnrichedCats/Bifunctors/WhiskeredTransformations.v
 
 EnrichedCats/YonedaLemma.v
 
 EnrichedCats/Profunctors/Profunctor.v
 EnrichedCats/Profunctors/StandardProfunctors.v
+EnrichedCats/Profunctors/ProfunctorTransformations.v
 
 EnrichedCats/Examples/EmptyEnriched.v
 EnrichedCats/Examples/UnitEnriched.v
