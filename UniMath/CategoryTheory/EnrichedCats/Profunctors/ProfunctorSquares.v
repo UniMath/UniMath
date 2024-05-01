@@ -4,7 +4,7 @@
 
  Squares of profunctors are one of the ingredients needed to define the double (bi)category
  of (univalent) enriched categories, functors, and profunctors, and in this file, we define
- squares of enriched profunctors. We define squares using transformations betweene enriched
+ squares of enriched profunctors. We define squares using transformations between enriched
  profunctors, and we also give several standard operations for squares on profunctors.
 
  Contents
