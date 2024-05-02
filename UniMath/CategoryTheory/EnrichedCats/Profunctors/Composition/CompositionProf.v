@@ -42,6 +42,7 @@
  5. The data
  6. The laws
  7. Composition of enriched profunctors
+ 8. Additional laws for action on morphisms
 
  ******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -828,6 +829,7 @@ Section Composition.
       rewrite !assoc.
       apply maponpaths_2.
       rewrite tensor_id_id.
+      (** This makes the goal more readable *)
       generalize (P y x ⊗ Q z₁ y) (E₃ ⦃ z₃, z₂ ⦄) (E₃ ⦃ z₂, z₁ ⦄).
       intros v₁ v₂ v₃.
       rewrite (sym_mon_tensor_lassociator V v₁ v₂ v₃).
@@ -1219,4 +1221,124 @@ Section Composition.
     - exact comp_enriched_profunctor_data.
     - exact comp_enriched_profunctor_laws.
   Defined.
+
+  (** * 8. Additional laws for action on morphisms *)
+  Proposition comp_enriched_profunctor_lmap_e_arr
+              (x : C₁)
+              (y : C₂)
+              {z₁ z₂ : C₃}
+              (g : z₁ --> z₂)
+    : comp_enriched_profunctor_in _ x y · lmap_e_arr comp_enriched_profunctor x g
+      =
+      (identity _ #⊗ lmap_e_arr Q y g) · comp_enriched_profunctor_in z₁ x y.
+  Proof.
+    etrans.
+    {
+      unfold lmap_e_arr ; cbn.
+      rewrite !assoc.
+      rewrite tensor_linvunitor.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_split.
+      rewrite tensor_split'.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_comp_id_l.
+      rewrite tensor_sym_mon_braiding.
+      rewrite !assoc'.
+      rewrite comp_enriched_profunctor_lmap_comm.
+      rewrite !assoc.
+      rewrite sym_mon_braiding_inv.
+      apply id_left.
+    }
+    unfold comp_enriched_profunctor_lmap_mor.
+    rewrite !assoc.
+    apply maponpaths_2.
+    unfold lmap_e_arr.
+    rewrite !tensor_comp_id_l.
+    rewrite !assoc.
+    apply maponpaths_2.
+    etrans.
+    {
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite tensor_sym_mon_braiding.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_id_id.
+      rewrite tensor_lassociator.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite <- tensor_comp_id_l.
+      rewrite tensor_sym_mon_braiding.
+      rewrite tensor_comp_id_l.
+      apply idpath.
+    }
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite sym_mon_braiding_linvunitor.
+    rewrite <- mon_rinvunitor_triangle.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite mon_rassociator_lassociator.
+      apply id_left.
+    }
+    rewrite <- tensor_comp_id_l.
+    rewrite sym_mon_braiding_rinvunitor.
+    apply idpath.
+  Qed.
+
+  Proposition comp_enriched_profunctor_rmap_e_arr
+              {x₁ x₂ : C₁}
+              (f : x₁ --> x₂)
+              (y : C₂)
+              (z : C₃)
+    : comp_enriched_profunctor_in z x₁ y · rmap_e_arr comp_enriched_profunctor f z
+      =
+      (rmap_e_arr P f y #⊗ identity _) · comp_enriched_profunctor_in z x₂ y.
+  Proof.
+    etrans.
+    {
+      unfold rmap_e_arr ; cbn.
+      rewrite !assoc.
+      rewrite tensor_linvunitor.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_split.
+      rewrite tensor_split'.
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_comp_id_l.
+      rewrite tensor_sym_mon_braiding.
+      rewrite !assoc'.
+      rewrite comp_enriched_profunctor_rmap_comm.
+      rewrite !assoc.
+      rewrite sym_mon_braiding_inv.
+      apply id_left.
+    }
+    unfold comp_enriched_profunctor_rmap_mor.
+    rewrite !assoc.
+    apply maponpaths_2.
+    unfold rmap_e_arr.
+    rewrite !tensor_comp_id_r.
+    apply maponpaths_2.
+    rewrite <- tensor_id_id.
+    rewrite !assoc'.
+    rewrite tensor_rassociator.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite <- mon_linvunitor_triangle.
+    rewrite !assoc'.
+    rewrite mon_lassociator_rassociator.
+    apply id_right.
+  Qed.
 End Composition.

@@ -486,6 +486,9 @@ EnrichedCats/Profunctors/StandardProfunctors.v
 EnrichedCats/Profunctors/ProfunctorTransformations.v
 EnrichedCats/Profunctors/ProfunctorSquares.v
 EnrichedCats/Profunctors/Composition/CompositionProf.v
+EnrichedCats/Profunctors/Composition/Unitors.v
+EnrichedCats/Profunctors/Composition/Associators.v
+EnrichedCats/Profunctors/Composition.v
 
 EnrichedCats/Examples/EmptyEnriched.v
 EnrichedCats/Examples/UnitEnriched.v

@@ -1127,4 +1127,14 @@ Section StandardFunctions.
     rewrite !id_left in q.
     exact q.
   Qed.
+
+  Proposition is_inj_internal_lam
+              {x y z : V}
+              {f g : x ⊗ y --> z}
+              (p : internal_lam f = internal_lam g)
+    : f = g.
+  Proof.
+    use (invmaponpathsweq (invweq (internal_hom_equiv x y z))).
+    exact p.
+  Qed.
 End StandardFunctions.
