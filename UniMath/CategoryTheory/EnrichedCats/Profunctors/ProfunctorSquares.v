@@ -66,8 +66,8 @@ Definition enriched_profunctor_square
            {E₂' : enrichment C₂' V}
            (EF : functor_enrichment F E₁ E₂)
            (EG : functor_enrichment G E₁' E₂')
-           (P : E₁' ↛e E₁)
-           (Q : E₂' ↛e E₂)
+           (P : E₁ ↛e E₁')
+           (Q : E₂ ↛e E₂')
   : UU
   := enriched_profunctor_transformation
        P
@@ -88,8 +88,8 @@ Proposition enriched_profunctor_square_lmap_e
             {E₂' : enrichment C₂' V}
             {EF : functor_enrichment F E₁ E₁'}
             {EG : functor_enrichment G E₂ E₂'}
-            {P : E₂ ↛e E₁}
-            {Q : E₂' ↛e E₁'}
+            {P : E₁ ↛e E₂}
+            {Q : E₁' ↛e E₂'}
             (τ : enriched_profunctor_square EF EG P Q)
             (x₁ x₂ : C₂)
             (y : C₁)
@@ -113,8 +113,8 @@ Proposition enriched_profunctor_square_rmap_e
             {E₂' : enrichment C₂' V}
             {EF : functor_enrichment F E₁ E₁'}
             {EG : functor_enrichment G E₂ E₂'}
-            {P : E₂ ↛e E₁}
-            {Q : E₂' ↛e E₁'}
+            {P : E₁ ↛e E₂}
+            {Q : E₁' ↛e E₂'}
             (τ : enriched_profunctor_square EF EG P Q)
             (x : C₂)
             (y₁ y₂ : C₁)
@@ -135,8 +135,8 @@ Definition enriched_profunctor_square_to_transformation_data
            {E₂ : enrichment C₂ V}
            {P Q : E₁ ↛e E₂}
            (τ : enriched_profunctor_square
-                  (functor_id_enrichment E₂)
                   (functor_id_enrichment E₁)
+                  (functor_id_enrichment E₂)
                   P Q)
   : enriched_profunctor_transformation_data P Q
   := λ x y, τ x y.
@@ -150,8 +150,8 @@ Proposition enriched_profunctor_square_to_transformation_laws
             {E₂ : enrichment C₂ V}
             {P Q : E₁ ↛e E₂}
             (τ : enriched_profunctor_square
-                   (functor_id_enrichment E₂)
                    (functor_id_enrichment E₁)
+                   (functor_id_enrichment E₂)
                    P Q)
   : enriched_profunctor_transformation_laws
       (enriched_profunctor_square_to_transformation_data τ).
@@ -170,8 +170,8 @@ Definition enriched_profunctor_square_to_transformation
            {E₂ : enrichment C₂ V}
            {P Q : E₁ ↛e E₂}
            (τ : enriched_profunctor_square
-                  (functor_id_enrichment E₂)
                   (functor_id_enrichment E₁)
+                  (functor_id_enrichment E₂)
                   P Q)
   : enriched_profunctor_transformation P Q.
 Proof.
@@ -190,7 +190,8 @@ Definition enriched_profunctor_transformation_to_square_data
   : enriched_profunctor_transformation_data
       P
       (precomp_enriched_profunctor
-         (functor_id_enrichment E₂) (functor_id_enrichment E₁)
+         (functor_id_enrichment E₁)
+         (functor_id_enrichment E₂)
          Q)
   := λ x y, τ x y.
 
@@ -225,8 +226,8 @@ Definition enriched_profunctor_transformation_to_square
            {P Q : E₁ ↛e E₂}
            (τ : enriched_profunctor_transformation P Q)
   : enriched_profunctor_square
-      (functor_id_enrichment E₂)
       (functor_id_enrichment E₁)
+      (functor_id_enrichment E₂)
       P Q.
 Proof.
   use make_enriched_profunctor_transformation.
@@ -243,8 +244,8 @@ Definition enriched_profunctor_transformation_square_weq
   : enriched_profunctor_transformation P Q
     ≃
     enriched_profunctor_square
-      (functor_id_enrichment E₂)
       (functor_id_enrichment E₁)
+      (functor_id_enrichment E₂)
       P Q.
 Proof.
   use weq_iso.
@@ -270,7 +271,7 @@ Definition id_h_enriched_profunctor_square_data
            {C₁ C₂ : category}
            {E₁ : enrichment C₁ V}
            {E₂ : enrichment C₂ V}
-           (P : E₂ ↛e E₁)
+           (P : E₁ ↛e E₂)
   : enriched_profunctor_transformation_data
       P
       (precomp_enriched_profunctor
@@ -286,7 +287,7 @@ Proposition id_h_enriched_profunctor_square_laws
             {C₁ C₂ : category}
             {E₁ : enrichment C₁ V}
             {E₂ : enrichment C₂ V}
-            (P : E₂ ↛e E₁)
+            (P : E₁ ↛e E₂)
   : enriched_profunctor_transformation_laws
       (id_h_enriched_profunctor_square_data P).
 Proof.
@@ -306,7 +307,7 @@ Definition id_h_enriched_profunctor_square
            {C₁ C₂ : category}
            {E₁ : enrichment C₁ V}
            {E₂ : enrichment C₂ V}
-           (P : E₂ ↛e E₁)
+           (P : E₁ ↛e E₂)
   : enriched_profunctor_square
       (functor_id_enrichment E₁)
       (functor_id_enrichment E₂)
@@ -396,9 +397,9 @@ Definition comp_h_enriched_profunctor_square_data
            {EF₂ : functor_enrichment F₂ EC₂ EC₃}
            {EG₁ : functor_enrichment G₁ EC₁' EC₂'}
            {EG₂ : functor_enrichment G₂ EC₂' EC₃'}
-           {P₁ : EC₁' ↛e EC₁}
-           {P₂ : EC₂' ↛e EC₂}
-           {P₃ : EC₃' ↛e EC₃}
+           {P₁ : EC₁ ↛e EC₁'}
+           {P₂ : EC₂ ↛e EC₂'}
+           {P₃ : EC₃ ↛e EC₃'}
            (τ : enriched_profunctor_square EF₁ EG₁ P₁ P₂)
            (θ : enriched_profunctor_square EF₂ EG₂ P₂ P₃)
   : enriched_profunctor_transformation_data
@@ -434,9 +435,9 @@ Proposition comp_h_enriched_profunctor_square_laws
             {EF₂ : functor_enrichment F₂ EC₂ EC₃}
             {EG₁ : functor_enrichment G₁ EC₁' EC₂'}
             {EG₂ : functor_enrichment G₂ EC₂' EC₃'}
-            {P₁ : EC₁' ↛e EC₁}
-            {P₂ : EC₂' ↛e EC₂}
-            {P₃ : EC₃' ↛e EC₃}
+            {P₁ : EC₁ ↛e EC₁'}
+            {P₂ : EC₂ ↛e EC₂'}
+            {P₃ : EC₃ ↛e EC₃'}
             (τ : enriched_profunctor_square EF₁ EG₁ P₁ P₂)
             (θ : enriched_profunctor_square EF₂ EG₂ P₂ P₃)
   : enriched_profunctor_transformation_laws
@@ -480,9 +481,9 @@ Definition comp_h_enriched_profunctor_square
            {EF₂ : functor_enrichment F₂ EC₂ EC₃}
            {EG₁ : functor_enrichment G₁ EC₁' EC₂'}
            {EG₂ : functor_enrichment G₂ EC₂' EC₃'}
-           {P₁ : EC₁' ↛e EC₁}
-           {P₂ : EC₂' ↛e EC₂}
-           {P₃ : EC₃' ↛e EC₃}
+           {P₁ : EC₁ ↛e EC₁'}
+           {P₂ : EC₂ ↛e EC₂'}
+           {P₃ : EC₃ ↛e EC₃'}
            (τ : enriched_profunctor_square EF₁ EG₁ P₁ P₂)
            (θ : enriched_profunctor_square EF₂ EG₂ P₂ P₃)
   : enriched_profunctor_square
@@ -510,8 +511,8 @@ Definition dwhisker_enriched_profunctor_square_data
            {EF' : functor_enrichment F' EC₁ EC₂}
            {G : C₁' ⟶ C₂'}
            {EG : functor_enrichment G EC₁' EC₂'}
-           {P : EC₁' ↛e EC₁}
-           {Q : EC₂' ↛e EC₂}
+           {P : EC₁ ↛e EC₁'}
+           {Q : EC₂ ↛e EC₂'}
            (Eτ : nat_trans_enrichment τ EF EF')
            (θ : enriched_profunctor_square EF EG P Q)
   : enriched_profunctor_transformation_data
@@ -547,8 +548,8 @@ Proposition dwhisker_enriched_profunctor_square_laws
             {EF' : functor_enrichment F' EC₁ EC₂}
             {G : C₁' ⟶ C₂'}
             {EG : functor_enrichment G EC₁' EC₂'}
-            {P : EC₁' ↛e EC₁}
-            {Q : EC₂' ↛e EC₂}
+            {P : EC₁ ↛e EC₁'}
+            {Q : EC₂ ↛e EC₂'}
             (Eτ : nat_trans_enrichment τ EF EF')
             (θ : enriched_profunctor_square EF EG P Q)
   : enriched_profunctor_transformation_laws
@@ -756,8 +757,8 @@ Definition dwhisker_enriched_profunctor_square
            {EF' : functor_enrichment F' EC₁ EC₂}
            {G : C₁' ⟶ C₂'}
            {EG : functor_enrichment G EC₁' EC₂'}
-           {P : EC₁' ↛e EC₁}
-           {Q : EC₂' ↛e EC₂}
+           {P : EC₁ ↛e EC₁'}
+           {Q : EC₂ ↛e EC₂'}
            (Eτ : nat_trans_enrichment τ EF EF')
            (θ : enriched_profunctor_square EF EG P Q)
   : enriched_profunctor_square EF' EG P Q.
@@ -781,8 +782,8 @@ Definition uwhisker_enriched_profunctor_square_data
            {τ : G ⟹ G'}
            {EG : functor_enrichment G EC₁' EC₂'}
            {EG' : functor_enrichment G' EC₁' EC₂'}
-           {P : EC₁' ↛e EC₁}
-           {Q : EC₂' ↛e EC₂}
+           {P : EC₁ ↛e EC₁'}
+           {Q : EC₂ ↛e EC₂'}
            (Eτ : nat_trans_enrichment τ EG EG')
            (θ : enriched_profunctor_square EF EG' P Q)
   : enriched_profunctor_transformation_data
@@ -818,8 +819,8 @@ Proposition uwhisker_enriched_profunctor_square_laws
             {τ : G ⟹ G'}
             {EG : functor_enrichment G EC₁' EC₂'}
             {EG' : functor_enrichment G' EC₁' EC₂'}
-            {P : EC₁' ↛e EC₁}
-            {Q : EC₂' ↛e EC₂}
+            {P : EC₁ ↛e EC₁'}
+            {Q : EC₂ ↛e EC₂'}
             (Eτ : nat_trans_enrichment τ EG EG')
             (θ : enriched_profunctor_square EF EG' P Q)
   : enriched_profunctor_transformation_laws
@@ -1054,8 +1055,8 @@ Definition uwhisker_enriched_profunctor_square
            {τ : G ⟹ G'}
            {EG : functor_enrichment G EC₁' EC₂'}
            {EG' : functor_enrichment G' EC₁' EC₂'}
-           {P : EC₁' ↛e EC₁}
-           {Q : EC₂' ↛e EC₂}
+           {P : EC₁ ↛e EC₁'}
+           {Q : EC₂ ↛e EC₂'}
            (Eτ : nat_trans_enrichment τ EG EG')
            (θ : enriched_profunctor_square EF EG' P Q)
   : enriched_profunctor_square EF EG P Q.
@@ -1077,9 +1078,9 @@ Definition lwhisker_enriched_profunctor_square_data
            {EF : functor_enrichment F EC₁ EC₂}
            {G : C₁' ⟶ C₂'}
            {EG : functor_enrichment G EC₁' EC₂'}
-           {P P' : EC₁' ↛e EC₁}
+           {P P' : EC₁ ↛e EC₁'}
            (τ : enriched_profunctor_transformation P P')
-           {Q : EC₂' ↛e EC₂}
+           {Q : EC₂ ↛e EC₂'}
            (θ : enriched_profunctor_square EF EG P' Q)
   : enriched_profunctor_transformation_data
       P
@@ -1108,9 +1109,9 @@ Proposition lwhisker_enriched_profunctor_square_laws
             {EF : functor_enrichment F EC₁ EC₂}
             {G : C₁' ⟶ C₂'}
             {EG : functor_enrichment G EC₁' EC₂'}
-            {P P' : EC₁' ↛e EC₁}
+            {P P' : EC₁ ↛e EC₁'}
             (τ : enriched_profunctor_transformation P P')
-            {Q : EC₂' ↛e EC₂}
+            {Q : EC₂ ↛e EC₂'}
             (θ : enriched_profunctor_square EF EG P' Q)
   : enriched_profunctor_transformation_laws
       (lwhisker_enriched_profunctor_square_data τ θ).
@@ -1157,9 +1158,9 @@ Definition lwhisker_enriched_profunctor_square
            {EF : functor_enrichment F EC₁ EC₂}
            {G : C₁' ⟶ C₂'}
            {EG : functor_enrichment G EC₁' EC₂'}
-           {P P' : EC₁' ↛e EC₁}
+           {P P' : EC₁ ↛e EC₁'}
            (τ : enriched_profunctor_transformation P P')
-           {Q : EC₂' ↛e EC₂}
+           {Q : EC₂ ↛e EC₂'}
            (θ : enriched_profunctor_square EF EG P' Q)
   : enriched_profunctor_square EF EG P Q.
 Proof.
@@ -1180,8 +1181,8 @@ Definition rwhisker_enriched_profunctor_square_data
            {EF : functor_enrichment F EC₁ EC₂}
            {G : C₁' ⟶ C₂'}
            {EG : functor_enrichment G EC₁' EC₂'}
-           {P : EC₁' ↛e EC₁}
-           {Q Q' : EC₂' ↛e EC₂}
+           {P : EC₁ ↛e EC₁'}
+           {Q Q' : EC₂ ↛e EC₂'}
            (τ : enriched_profunctor_transformation Q Q')
            (θ : enriched_profunctor_square EF EG P Q)
   : enriched_profunctor_transformation_data
@@ -1210,8 +1211,8 @@ Proposition rwhisker_enriched_profunctor_square_laws
             {EF : functor_enrichment F EC₁ EC₂}
             {G : C₁' ⟶ C₂'}
             {EG : functor_enrichment G EC₁' EC₂'}
-            {P : EC₁' ↛e EC₁}
-            {Q Q' : EC₂' ↛e EC₂}
+            {P : EC₁ ↛e EC₁'}
+            {Q Q' : EC₂ ↛e EC₂'}
             (τ : enriched_profunctor_transformation Q Q')
             (θ : enriched_profunctor_square EF EG P Q)
   : enriched_profunctor_transformation_laws
@@ -1249,8 +1250,8 @@ Definition rwhisker_enriched_profunctor_square
            {EF : functor_enrichment F EC₁ EC₂}
            {G : C₁' ⟶ C₂'}
            {EG : functor_enrichment G EC₁' EC₂'}
-           {P : EC₁' ↛e EC₁}
-           {Q Q' : EC₂' ↛e EC₂}
+           {P : EC₁ ↛e EC₁'}
+           {Q Q' : EC₂ ↛e EC₂'}
            (τ : enriched_profunctor_transformation Q Q')
            (θ : enriched_profunctor_square EF EG P Q)
   : enriched_profunctor_square EF EG P Q'.

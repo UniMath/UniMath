@@ -1101,4 +1101,30 @@ Section StandardFunctions.
     rewrite <- internal_pre_post_comp_as_post_pre_comp.
     apply idpath.
   Qed.
+
+  Definition internal_transpose
+             {x y z : V}
+             (f : x ⊗ y --> z)
+    : y --> x ⊸ z
+    := internal_lam (sym_mon_braiding _ _ _ · f).
+
+  Proposition is_inj_internal_transpose
+              {x y z : V}
+              {f g : x ⊗ y --> z}
+              (p : internal_transpose f = internal_transpose g)
+    : f = g.
+  Proof.
+    unfold internal_transpose in p.
+    pose (maponpaths
+            (λ z, sym_mon_braiding _ _ _ · z #⊗ identity _ · internal_eval _ _)
+            p)
+      as q.
+    cbn in q.
+    rewrite !assoc' in q.
+    rewrite !internal_beta in q.
+    rewrite !assoc in q.
+    rewrite !sym_mon_braiding_inv in q.
+    rewrite !id_left in q.
+    exact q.
+  Qed.
 End StandardFunctions.

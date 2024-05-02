@@ -236,7 +236,7 @@ Section Representable.
   Qed.
 
   Definition representable_enriched_profunctor_left
-    : E₂ ↛e E₁.
+    : E₁ ↛e E₂.
   Proof.
     use make_enriched_profunctor.
     - exact representable_enriched_profunctor_left_data.
@@ -374,7 +374,7 @@ Section Representable.
   Qed.
 
   Definition representable_enriched_profunctor_right
-    : E₁ ↛e E₂.
+    : E₂ ↛e E₁.
   Proof.
     use make_enriched_profunctor.
     - exact representable_enriched_profunctor_right_data.
@@ -394,7 +394,7 @@ Section Precomposition.
           {E₂' : enrichment C₂' V}
           (EF : functor_enrichment F E₁ E₁')
           (EG : functor_enrichment G E₂ E₂')
-          (P : E₂' ↛e E₁').
+          (P : E₁' ↛e E₂').
 
   Definition precomp_enriched_profunctor_data
     : enriched_profunctor_data E₁ E₂.
@@ -552,7 +552,7 @@ Section Precomposition.
   Qed.
 
   Definition precomp_enriched_profunctor
-    : E₂ ↛e E₁.
+    : E₁ ↛e E₂.
   Proof.
     use make_enriched_profunctor.
     - exact precomp_enriched_profunctor_data.

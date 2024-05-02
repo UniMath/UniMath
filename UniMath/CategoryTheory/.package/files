@@ -429,6 +429,7 @@ DisplayedCats/MoreFibrations/DisplayedDisplayedCats.v
 SkewMonoidal/SkewMonoidalCategories.v
 SkewMonoidal/CategoriesOfMonoids.v
 
+EnrichedCats/BenabouCosmos.v
 EnrichedCats/Enrichment.v
 EnrichedCats/EnrichmentFunctor.v
 EnrichedCats/EnrichmentTransformation.v
@@ -484,6 +485,7 @@ EnrichedCats/Profunctors/Profunctor.v
 EnrichedCats/Profunctors/StandardProfunctors.v
 EnrichedCats/Profunctors/ProfunctorTransformations.v
 EnrichedCats/Profunctors/ProfunctorSquares.v
+EnrichedCats/Profunctors/Composition/CompositionProf.v
 
 EnrichedCats/Examples/EmptyEnriched.v
 EnrichedCats/Examples/UnitEnriched.v
