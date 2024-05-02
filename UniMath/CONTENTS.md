@@ -630,6 +630,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [EnrichedCats/Profunctors/Composition/CompositionProf.v](CategoryTheory/EnrichedCats/Profunctors/Composition/CompositionProf.v)
    - [EnrichedCats/Profunctors/Composition/Unitors.v](CategoryTheory/EnrichedCats/Profunctors/Composition/Unitors.v)
    - [EnrichedCats/Profunctors/Composition/Associators.v](CategoryTheory/EnrichedCats/Profunctors/Composition/Associators.v)
+   - [EnrichedCats/Profunctors/Composition/Whiskering.v](CategoryTheory/EnrichedCats/Profunctors/Composition/Whiskering.v)
    - [EnrichedCats/Profunctors/Composition.v](CategoryTheory/EnrichedCats/Profunctors/Composition.v)
    - [EnrichedCats/Examples/EmptyEnriched.v](CategoryTheory/EnrichedCats/Examples/EmptyEnriched.v)
    - [EnrichedCats/Examples/UnitEnriched.v](CategoryTheory/EnrichedCats/Examples/UnitEnriched.v)
