@@ -119,6 +119,39 @@ Section IdentityProfunctor.
     - exact identity_enriched_profunctor_data.
     - exact identity_enriched_profunctor_laws.
   Defined.
+
+  Proposition identity_enriched_profunctor_lmap_e_arr
+              (y : C)
+              {x₁ x₂ : C}
+              (g : x₁ --> x₂)
+    : lmap_e_arr identity_enriched_profunctor y g
+      =
+      precomp_arr E y g.
+  Proof.
+    unfold lmap_e_arr ; cbn.
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      rewrite !assoc'.
+      rewrite tensor_sym_mon_braiding.
+      rewrite !assoc.
+      rewrite sym_mon_braiding_linvunitor.
+      apply idpath.
+    }
+    apply idpath.
+  Qed.
+
+  Proposition identity_enriched_profunctor_rmap_e_arr
+              {y₁ y₂ : C}
+              (f : y₁ --> y₂)
+              (x : C)
+    : rmap_e_arr identity_enriched_profunctor f x
+      =
+      postcomp_arr E x f.
+  Proof.
+    apply idpath.
+  Qed.
 End IdentityProfunctor.
 
 (** * 2. Representable profunctors *)

@@ -32,6 +32,8 @@ Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.Profunctors.Profunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.Profunctors.StandardProfunctors.
 Require Import UniMath.CategoryTheory.EnrichedCats.Profunctors.ProfunctorTransformations.
+Require Import UniMath.CategoryTheory.EnrichedCats.Profunctors.ProfunctorSquares.
+Require Import UniMath.CategoryTheory.EnrichedCats.Profunctors.Invertible.
 Require Import UniMath.CategoryTheory.EnrichedCats.Profunctors.Composition.CompositionProf.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
@@ -54,6 +56,25 @@ Section Unitors.
   (** * 1. The left unitor *)
 
   (** ** 1.1. The morphism of the left unitor *)
+  Proposition lunitor_enriched_profunctor_mor_eq
+              (y : C₂)
+              (x x' x'' : C₁)
+    : (sym_mon_braiding _ _ _ · enriched_comp E₁ x' x'' x) #⊗ identity _
+      · rmap_e P y x' x
+      =
+      sym_mon_braiding _ _ _ #⊗ identity _
+      · mon_lassociator _ _ _
+      · identity _ #⊗ rmap_e P y x' x''
+      · rmap_e P y x'' x.
+  Proof.
+    rewrite tensor_comp_id_r.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite rmap_e_comp.
+    rewrite !assoc.
+    apply idpath.
+  Qed.
+
   Definition lunitor_enriched_profunctor_mor
     : enriched_profunctor_transformation_data
         (comp_enriched_profunctor (identity_enriched_profunctor E₁) P) P.
@@ -61,19 +82,8 @@ Section Unitors.
     intros y x.
     use from_comp_enriched_profunctor_ob.
     - exact (λ x', rmap_e P _ _ _).
-    - abstract
-        (intros x' x'' g ; cbn ;
-         rewrite rmap_e_arr_rmap_e ;
-         do 2 apply maponpaths_2 ;
-         unfold precomp_arr, lmap_e_arr ;
-         cbn ;
-         rewrite !assoc ;
-         apply maponpaths_2 ;
-         rewrite !assoc' ;
-         rewrite tensor_sym_mon_braiding ;
-         rewrite !assoc ;
-         rewrite sym_mon_braiding_linvunitor ;
-         apply idpath).
+    - intros x' x'' ; cbn.
+      exact (lunitor_enriched_profunctor_mor_eq y x x' x'').
   Defined.
 
   Proposition lunitor_enriched_profunctor_mor_comm
@@ -203,6 +213,17 @@ Section Unitors.
     - exact lunitor_enriched_profunctor_laws.
   Defined.
 
+  Definition lunitor_enriched_profunctor_square
+    : enriched_profunctor_square
+        (functor_id_enrichment E₁)
+        (functor_id_enrichment E₂)
+        (comp_enriched_profunctor (identity_enriched_profunctor E₁) P)
+        P.
+  Proof.
+    use enriched_profunctor_transformation_to_square.
+    exact lunitor_enriched_profunctor.
+  Defined.
+
   (** ** 1.4. The inverse of the left unitor *)
   Definition linvunitor_enriched_profunctor_mor
              (y : C₂)
@@ -214,9 +235,205 @@ Section Unitors.
        · (enriched_id E₁ x #⊗ identity _)
        · comp_enriched_profunctor_in (identity_enriched_profunctor E₁) P y x x.
 
+  Proposition is_inverse_linvunitor_enriched_profunctor_mor
+              (y : C₂)
+              (x : C₁)
+    : is_inverse_in_precat
+        (lunitor_enriched_profunctor y x)
+        (linvunitor_enriched_profunctor_mor y x).
+  Proof.
+    split.
+    - cbn.
+      use from_comp_enriched_profunctor_eq.
+      intros x'.
+      rewrite !assoc.
+      rewrite lunitor_enriched_profunctor_mor_comm.
+      rewrite id_right.
+      unfold linvunitor_enriched_profunctor_mor.
+      etrans.
+      {
+        rewrite !assoc.
+        rewrite tensor_linvunitor.
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite <- tensor_split.
+        rewrite tensor_split'.
+        apply idpath.
+      }
+      rewrite !assoc'.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        apply (comp_enriched_profunctor_comm' (identity_enriched_profunctor E₁) P).
+      }
+      cbn.
+      rewrite !assoc.
+      refine (_ @ id_left _).
+      apply maponpaths_2.
+      etrans.
+      {
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite <- tensor_split'.
+        rewrite tensor_split.
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite <- tensor_id_id.
+        rewrite tensor_rassociator.
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite tensor_sym_mon_braiding.
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite tensor_rassociator.
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite <- tensor_comp_id_r.
+        rewrite !assoc.
+        rewrite tensor_sym_mon_braiding.
+        rewrite !assoc'.
+        rewrite <- enrichment_id_left.
+        apply idpath.
+      }
+      rewrite !assoc.
+      rewrite <- tensor_linvunitor.
+      rewrite !assoc'.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite <- mon_linvunitor_triangle.
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite mon_lassociator_rassociator.
+        rewrite id_left.
+        apply idpath.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite tensor_sym_mon_braiding.
+        apply idpath.
+      }
+      rewrite !assoc.
+      rewrite sym_mon_braiding_inv.
+      rewrite id_left.
+      rewrite mon_inv_triangle.
+      etrans.
+      {
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite mon_lassociator_rassociator.
+        rewrite id_left.
+        apply idpath.
+      }
+      rewrite <- tensor_comp_id_r.
+      rewrite !assoc.
+      rewrite sym_mon_braiding_rinvunitor.
+      rewrite mon_linvunitor_lunitor.
+      apply tensor_id_id.
+    - cbn.
+      unfold linvunitor_enriched_profunctor_mor.
+      rewrite !assoc'.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        apply lunitor_enriched_profunctor_mor_comm.
+      }
+      rewrite rmap_e_id.
+      apply mon_linvunitor_lunitor.
+  Qed.
+
+  Definition is_iso_lunitor_enriched_profunctor
+    : is_iso_enriched_profunctor_transformation
+        lunitor_enriched_profunctor.
+  Proof.
+    intros y x.
+    use make_is_z_isomorphism.
+    - exact (linvunitor_enriched_profunctor_mor y x).
+    - exact (is_inverse_linvunitor_enriched_profunctor_mor y x).
+  Defined.
+
+  Definition linvunitor_enriched_profunctor
+    : enriched_profunctor_transformation
+        P
+        (comp_enriched_profunctor (identity_enriched_profunctor E₁) P)
+    := inv_enriched_profunctor_transformation
+         _
+         is_iso_lunitor_enriched_profunctor.
+
+  Definition linvunitor_enriched_profunctor_square
+    : enriched_profunctor_square
+        (functor_id_enrichment E₁)
+        (functor_id_enrichment E₂)
+        P
+        (comp_enriched_profunctor (identity_enriched_profunctor E₁) P).
+  Proof.
+    use enriched_profunctor_transformation_to_square.
+    exact linvunitor_enriched_profunctor.
+  Defined.
+
   (** * 2. The right unitor *)
 
   (** ** 2.1. The morphism of the right unitor *)
+  Proposition runitor_enriched_profunctor_mor_eq
+              (y y' y'' : C₂)
+              (x : C₁)
+    : lmap_e P y'' y' x #⊗ identity _
+      · (sym_mon_braiding _ _ _
+      · lmap_e P y' y x)
+      =
+      sym_mon_braiding _ _ _ #⊗ identity _
+      · mon_lassociator _ _ _
+      · identity _ #⊗ enriched_comp E₂ y y' y''
+      · (sym_mon_braiding _ _ _
+      · lmap_e P y'' y x).
+  Proof.
+    rewrite !assoc.
+    rewrite tensor_sym_mon_braiding.
+    rewrite !assoc'.
+    refine (!_).
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite !assoc.
+      rewrite tensor_sym_mon_braiding.
+      rewrite !assoc'.
+      rewrite lmap_e_comp'.
+      apply idpath.
+    }
+    rewrite !assoc.
+    do 2 apply maponpaths_2.
+
+    rewrite sym_mon_tensor_rassociator.
+    do 2 apply maponpaths_2.
+    refine (!(id_right _) @ _).
+    rewrite <- mon_lassociator_rassociator.
+    rewrite !assoc.
+    apply maponpaths_2.
+    etrans.
+    {
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      apply sym_mon_hexagon_lassociator.
+    }
+    rewrite !assoc.
+    rewrite <- tensor_comp_id_r.
+    rewrite sym_mon_braiding_inv.
+    rewrite tensor_id_id.
+    rewrite id_left.
+    apply idpath.
+  Qed.
+
   Definition runitor_enriched_profunctor_mor
     : enriched_profunctor_transformation_data
         (comp_enriched_profunctor P (identity_enriched_profunctor E₂))
@@ -225,15 +442,8 @@ Section Unitors.
     intros y x.
     use from_comp_enriched_profunctor_ob.
     - refine (λ y', sym_mon_braiding _ _ _ · lmap_e P _ _ _).
-    - abstract
-        (intros y' y'' g ; cbn ;
-         rewrite !assoc ;
-         rewrite !tensor_sym_mon_braiding ;
-         rewrite !assoc' ;
-         apply maponpaths ;
-         rewrite lmap_e_arr_lmap_e ;
-         apply maponpaths_2 ;
-         apply idpath).
+    - intros y' y'' ; cbn.
+      exact (runitor_enriched_profunctor_mor_eq y y' y'' x).
   Defined.
 
   Proposition runitor_enriched_profunctor_mor_comm
@@ -455,6 +665,17 @@ Section Unitors.
     - exact runitor_enriched_profunctor_laws.
   Defined.
 
+  Definition runitor_enriched_profunctor_square
+    : enriched_profunctor_square
+        (functor_id_enrichment E₁)
+        (functor_id_enrichment E₂)
+        (comp_enriched_profunctor P (identity_enriched_profunctor E₂))
+        P.
+  Proof.
+    use enriched_profunctor_transformation_to_square.
+    exact runitor_enriched_profunctor.
+  Defined.
+
   (** ** 2.4. The inverse of the right unitor *)
   Definition rinvunitor_enriched_profunctor_mor
              (y : C₂)
@@ -463,4 +684,142 @@ Section Unitors.
     := mon_rinvunitor _
        · (identity _ #⊗ enriched_id E₂ y)
        · comp_enriched_profunctor_in P (identity_enriched_profunctor E₂) y x y.
+
+  Proposition is_inverse_rinvunitor_enriched_profunctor_mor
+              (y : C₂)
+              (x : C₁)
+    : is_inverse_in_precat
+        (runitor_enriched_profunctor y x)
+        (rinvunitor_enriched_profunctor_mor y x).
+  Proof.
+    split.
+    - cbn.
+      use from_comp_enriched_profunctor_eq.
+      intros x'.
+      rewrite !assoc.
+      rewrite runitor_enriched_profunctor_mor_comm.
+      rewrite id_right.
+      unfold rinvunitor_enriched_profunctor_mor.
+      etrans.
+      {
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite tensor_rinvunitor.
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite <- tensor_split'.
+        rewrite tensor_split.
+        apply idpath.
+      }
+      rewrite !assoc'.
+      etrans.
+      {
+        do 3 apply maponpaths.
+        apply (comp_enriched_profunctor_comm P (identity_enriched_profunctor E₂)).
+      }
+      cbn.
+      rewrite !assoc.
+      refine (_ @ id_left _).
+      apply maponpaths_2.
+      etrans.
+      {
+        rewrite !assoc'.
+        do 2 apply maponpaths.
+        rewrite !assoc.
+        rewrite <- tensor_id_id.
+        rewrite tensor_lassociator.
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite tensor_sym_mon_braiding.
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite tensor_lassociator.
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite <- tensor_comp_id_l.
+        rewrite !assoc.
+        rewrite tensor_sym_mon_braiding.
+        rewrite !assoc'.
+        rewrite <- enrichment_id_right.
+        apply idpath.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite <- mon_rinvunitor_triangle.
+        etrans.
+        {
+          do 3 apply maponpaths_2.
+          rewrite !assoc'.
+          rewrite mon_rassociator_lassociator.
+          apply id_right.
+        }
+        rewrite tensor_sym_mon_braiding.
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite <- mon_inv_triangle.
+        rewrite <- tensor_comp_id_l.
+        rewrite !assoc.
+        rewrite sym_mon_braiding_linvunitor.
+        rewrite mon_rinvunitor_runitor.
+        apply tensor_id_id.
+      }
+      rewrite id_right.
+      apply sym_mon_braiding_inv.
+    - cbn.
+      unfold rinvunitor_enriched_profunctor_mor.
+      rewrite !assoc'.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        apply runitor_enriched_profunctor_mor_comm.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite tensor_sym_mon_braiding.
+        rewrite !assoc'.
+        rewrite lmap_e_id.
+        apply idpath.
+      }
+      rewrite !assoc.
+      rewrite sym_mon_braiding_rinvunitor.
+      apply mon_linvunitor_lunitor.
+  Qed.
+
+  Definition is_iso_runitor_enriched_profunctor
+    : is_iso_enriched_profunctor_transformation
+        runitor_enriched_profunctor.
+  Proof.
+    intros y x.
+    use make_is_z_isomorphism.
+    - exact (rinvunitor_enriched_profunctor_mor y x).
+    - exact (is_inverse_rinvunitor_enriched_profunctor_mor y x).
+  Defined.
+
+  Definition rinvunitor_enriched_profunctor
+    : enriched_profunctor_transformation
+        P
+        (comp_enriched_profunctor P (identity_enriched_profunctor E₂))
+    := inv_enriched_profunctor_transformation
+         _
+         is_iso_runitor_enriched_profunctor.
+
+  Definition rinvunitor_enriched_profunctor_square
+    : enriched_profunctor_square
+        (functor_id_enrichment E₁)
+        (functor_id_enrichment E₂)
+        P
+        (comp_enriched_profunctor P (identity_enriched_profunctor E₂)).
+  Proof.
+    use enriched_profunctor_transformation_to_square.
+    exact rinvunitor_enriched_profunctor.
+  Defined.
 End Unitors.

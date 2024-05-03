@@ -627,6 +627,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [EnrichedCats/Profunctors/StandardProfunctors.v](CategoryTheory/EnrichedCats/Profunctors/StandardProfunctors.v)
    - [EnrichedCats/Profunctors/ProfunctorTransformations.v](CategoryTheory/EnrichedCats/Profunctors/ProfunctorTransformations.v)
    - [EnrichedCats/Profunctors/ProfunctorSquares.v](CategoryTheory/EnrichedCats/Profunctors/ProfunctorSquares.v)
+   - [EnrichedCats/Profunctors/Invertible.v](CategoryTheory/EnrichedCats/Profunctors/Invertible.v)
+   - [EnrichedCats/Profunctors/Coend.v](CategoryTheory/EnrichedCats/Profunctors/Coend.v)
    - [EnrichedCats/Profunctors/Composition/CompositionProf.v](CategoryTheory/EnrichedCats/Profunctors/Composition/CompositionProf.v)
    - [EnrichedCats/Profunctors/Composition/Unitors.v](CategoryTheory/EnrichedCats/Profunctors/Composition/Unitors.v)
    - [EnrichedCats/Profunctors/Composition/Associators.v](CategoryTheory/EnrichedCats/Profunctors/Composition/Associators.v)

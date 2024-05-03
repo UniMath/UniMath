@@ -47,6 +47,59 @@ Section LeftWhiskering.
           (τ : enriched_profunctor_transformation P₁ P₂)
           (Q : E₂ ↛e E₃).
 
+  Proposition lwhisker_enriched_profunctor_mor_eq
+              (z : C₃)
+              (y₁ y₂ : C₂)
+              (x : C₁)
+    : lmap_e P₁ y₂ y₁ x #⊗ identity _
+      · (τ y₁ x #⊗ identity _ · comp_enriched_profunctor_in P₂ Q z x y₁)
+      =
+      sym_mon_braiding _ _ _ #⊗ identity _
+      · mon_lassociator _ _ _
+      · identity _ #⊗ rmap_e Q z y₁ y₂
+      · (τ y₂ x #⊗ identity _
+       · comp_enriched_profunctor_in P₂ Q z x y₂).
+  Proof.
+    rewrite !assoc.
+    rewrite <- tensor_comp_id_r.
+    rewrite <- enriched_profunctor_transformation_lmap_e.
+    rewrite tensor_comp_id_r.
+    rewrite !assoc'.
+    rewrite comp_enriched_profunctor_comm.
+    rewrite !assoc.
+    apply maponpaths_2.
+    refine (!_).
+    etrans.
+    {
+      rewrite !assoc'.
+      do 2 apply maponpaths.
+      rewrite <- tensor_split.
+      apply tensor_split'.
+    }
+    rewrite tensor_comp_id_l.
+    rewrite !assoc.
+    apply maponpaths_2.
+    etrans.
+    {
+      rewrite !assoc'.
+      rewrite <- tensor_id_id.
+      rewrite <- tensor_lassociator.
+      rewrite !assoc.
+      rewrite <- tensor_comp_id_r.
+      rewrite <- tensor_sym_mon_braiding.
+      rewrite tensor_comp_id_r.
+      apply idpath.
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite sym_mon_tensor_lassociator'.
+    rewrite !assoc'.
+    do 2 apply maponpaths.
+    rewrite mon_rassociator_lassociator.
+    rewrite id_right.
+    apply idpath.
+  Qed.
+
   Definition lwhisker_enriched_profunctor_mor
     : enriched_profunctor_transformation_data
         (comp_enriched_profunctor P₁ Q)
@@ -55,17 +108,8 @@ Section LeftWhiskering.
     intros z x.
     use from_comp_enriched_profunctor_ob.
     - exact (λ y, (τ y x #⊗ identity _) · comp_enriched_profunctor_in _ _ z x y).
-    - abstract
-        (intros y₁ y₂ g ; cbn ;
-         rewrite !assoc ;
-         rewrite <- tensor_split ;
-         rewrite (tensor_split' (τ _ _) (rmap_e_arr _ _ _)) ;
-         rewrite !assoc' ;
-         rewrite comp_enriched_profunctor_comm ;
-         rewrite !assoc ;
-         rewrite <- !tensor_comp_id_r ;
-         do 2 apply maponpaths_2 ;
-         apply enriched_profunctor_transformation_lmap_e_arr).
+    - intros y₁ y₂ ; cbn.
+      exact (lwhisker_enriched_profunctor_mor_eq z y₁ y₂ x).
   Defined.
 
   Proposition lwhisker_enriched_profunctor_mor_comm
@@ -241,6 +285,78 @@ Section RightWhiskering.
           {Q₁ Q₂ : E₂ ↛e E₃}
           (τ : enriched_profunctor_transformation Q₁ Q₂).
 
+  Proposition rwhisker_enriched_profunctor_mor_eq
+              (z : C₃)
+              (y₁ y₂ : C₂)
+              (x : C₁)
+    : lmap_e P y₂ y₁ x #⊗ identity _
+      · (identity _ #⊗ τ z y₁
+      · comp_enriched_profunctor_in P Q₂ z x y₁)
+      =
+      sym_mon_braiding _ _ _ #⊗ identity _
+      · mon_lassociator _ _ _
+      · identity _ #⊗ rmap_e Q₁ z y₁ y₂
+      · (identity _ #⊗ τ z y₂
+      · comp_enriched_profunctor_in P Q₂ z x y₂).
+  Proof.
+    refine (!_).
+    etrans.
+    {
+      rewrite !assoc'.
+      do 2 apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_comp_id_l.
+      rewrite <- enriched_profunctor_transformation_rmap_e.
+      rewrite tensor_comp_id_l.
+      rewrite !assoc'.
+      rewrite comp_enriched_profunctor_comm'.
+      apply idpath.
+    }
+    rewrite !assoc.
+    apply maponpaths_2.
+    refine (!_).
+    etrans.
+    {
+      rewrite <- tensor_split'.
+      apply tensor_split.
+    }
+    apply maponpaths_2.
+    refine (!_).
+    etrans.
+    {
+      do 4 apply maponpaths_2.
+      rewrite !assoc'.
+      rewrite <- tensor_lassociator.
+      rewrite !assoc.
+      apply maponpaths_2.
+      rewrite tensor_id_id.
+      rewrite <- tensor_split'.
+      apply tensor_split.
+    }
+    refine (_ @ id_right _).
+    rewrite !assoc'.
+    apply maponpaths.
+    etrans.
+    {
+      rewrite !assoc.
+      rewrite <- sym_mon_hexagon_lassociator.
+      rewrite !assoc'.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite !assoc.
+        rewrite mon_lassociator_rassociator.
+        rewrite id_left.
+        apply idpath.
+      }
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite sym_mon_braiding_inv.
+      apply id_left.
+    }
+    apply mon_lassociator_rassociator.
+  Qed.
+
   Definition rwhisker_enriched_profunctor_mor
     : enriched_profunctor_transformation_data
         (comp_enriched_profunctor P Q₁)
@@ -249,19 +365,8 @@ Section RightWhiskering.
     intros z x.
     use from_comp_enriched_profunctor_ob.
     - exact (λ y, (identity _ #⊗ τ z y) · comp_enriched_profunctor_in _ _ z x y).
-    - abstract
-        (intros y₁ y₂ g ; cbn ;
-         rewrite !assoc ;
-         rewrite <- tensor_split' ;
-         rewrite (tensor_split (lmap_e_arr _ _ _) (τ _ _)) ;
-         rewrite !assoc' ;
-         rewrite <- comp_enriched_profunctor_comm ;
-         rewrite !assoc ;
-         rewrite <- !tensor_comp_id_l ;
-         apply maponpaths_2 ;
-         apply maponpaths ;
-         refine (!_) ;
-         apply enriched_profunctor_transformation_rmap_e_arr).
+    - intros y₁ y₂ ; cbn.
+      exact (rwhisker_enriched_profunctor_mor_eq z y₁ y₂ x).
   Defined.
 
   Proposition rwhisker_enriched_profunctor_mor_comm
