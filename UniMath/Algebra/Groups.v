@@ -47,7 +47,7 @@ Definition make_gr :
   ∏ (t : setwithbinop), (λ X : setwithbinop, isgrop op) t → ∑ X : setwithbinop, isgrop op :=
   tpair (λ X : setwithbinop, isgrop (@op X)).
 
-Definition grtomonoid : gr  → monoid := λ X : _, make_monoid (pr1 X) (pr1 (pr2 X)).
+Definition grtomonoid : gr  → monoid := λ X, make_monoid (pr1 X) (pr1 (pr2 X)).
 Coercion grtomonoid : gr >-> monoid.
 
 Definition grinv (X : gr) : X  → X := pr1 (pr2 (pr2 X)).
@@ -343,7 +343,7 @@ Definition subgrconstr {X : gr} :
   @make_subgr X.
 
 Definition subgrtosubmonoid (X : gr) : subgr X  → submonoid X :=
-  λ A : _, make_submonoid (pr1 A) (pr1 (pr2 A)).
+  λ A, make_submonoid (pr1 A) (pr1 (pr2 A)).
 Coercion subgrtosubmonoid : subgr >-> submonoid.
 
 Definition totalsubgr (X : gr) : subgr X.
@@ -722,7 +722,7 @@ End NormalSubGroups.
 Lemma isgrdirprod (X Y : gr) : isgrop (@op (setwithbinopdirprod X Y)).
 Proof.
   split with (ismonoiddirprod X Y).
-  split with (λ xy : _, make_dirprod (grinv X (pr1 xy)) (grinv Y (pr2 xy))).
+  split with (λ xy, make_dirprod (grinv X (pr1 xy)) (grinv Y (pr2 xy))).
   split.
   - intro xy. destruct xy as [ x y ].
     unfold unel_is. simpl. apply pathsdirprod.
@@ -781,11 +781,11 @@ Definition make_abgr (X : setwithbinop) (is : isabgrop (@op X)) : abgr :=
 Definition abgrconstr (X : abmonoid) (inv0 : X  → X) (is : isinv (@op X) (unel X) inv0) : abgr :=
   make_abgr X (make_dirprod (make_isgrop (pr2 X) (tpair _ inv0 is)) (commax X)).
 
-Definition abgrtogr : abgr  → gr := λ X : _, make_gr (pr1 X) (pr1 (pr2 X)).
+Definition abgrtogr : abgr  → gr := λ X, make_gr (pr1 X) (pr1 (pr2 X)).
 Coercion abgrtogr : abgr >-> gr.
 
 Definition abgrtoabmonoid : abgr  → abmonoid :=
-  λ X : _, make_abmonoid (pr1 X) (make_dirprod (pr1 (pr1 (pr2 X))) (pr2 (pr2 X))).
+  λ X, make_abmonoid (pr1 X) (make_dirprod (pr1 (pr1 (pr2 X))) (pr2 (pr2 X))).
 Coercion abgrtoabmonoid : abgr >-> abmonoid.
 
 Definition abgr_of_gr (X : gr) (H : iscomm (@op X)) : abgr :=
@@ -1125,7 +1125,7 @@ Definition abgrdiffcarrier (X : abmonoid) : abmonoid := @abmonoidquot (abmonoidd
                                                                       (binopeqrelabgrdiff X).
 
 Definition abgrdiffinvint (X : abmonoid) :  dirprod X X  → dirprod X X :=
-  λ xs : _, make_dirprod (pr2 xs) (pr1 xs).
+  λ xs, make_dirprod (pr2 xs) (pr1 xs).
 
 Lemma abgrdiffinvcomp (X : abmonoid) :
   iscomprelrelfun (hrelabgrdiff X) (eqrelabgrdiff X) (abgrdiffinvint X).

@@ -150,7 +150,7 @@ Definition make_isunital {X : UU} {opp : binop X} (un0 : X) (is : isunit opp un0
 
 Lemma isapropisunital {X : hSet} (opp : binop X) : isaprop (isunital opp).
 Proof.
-  apply (@isapropsubtype X (λ un0 : _, hconj (make_hProp _ (isapropislunit opp un0))
+  apply (@isapropsubtype X (λ un0, hconj (make_hProp _ (isapropislunit opp un0))
                                               (make_hProp _ (isapropisrunit opp un0)))).
   intros u1 u2. intros ua1 ua2.
   apply (!(pr2 ua2 u1) @ (pr1 ua1 u2)).
@@ -443,14 +443,14 @@ Proof.
   destruct istr as [ inv0 axs ].
   destruct isun0 as [ un0 unaxs ].
   simpl in * |-.
-  assert (egf : ∏ x : _, g (f x) = x).
+  assert (egf : ∏ x, g (f x) = x).
   {
     intro x. unfold f. unfold g.
     destruct (!assoc x x0 (inv0 x0)).
     set (e := pr2 axs x0). simpl in e. rewrite e.
     apply (pr2 unaxs x).
   }
-  assert (efg : ∏ x : _, f (g x) = x).
+  assert (efg : ∏ x, f (g x) = x).
   {
     intro x. unfold f. unfold g.
     destruct (!assoc x (inv0 x0) x0).
@@ -470,14 +470,14 @@ Proof.
   destruct istr as [ inv0 axs ].
   destruct isun0 as [ un0 unaxs ].
   simpl in * |-.
-  assert (egf : ∏ x : _, g (f x) = x).
+  assert (egf : ∏ x, g (f x) = x).
   {
     intro x. unfold f. unfold g.
     destruct (assoc (inv0 x0) x0 x).
     set (e := pr1 axs x0). simpl in e. rewrite e.
     apply (pr1 unaxs x).
   }
-  assert (efg : ∏ x : _, f (g x) = x).
+  assert (efg : ∏ x, f (g x) = x).
   {
     intro x. unfold f. unfold g.
     destruct (assoc x0 (inv0 x0) x).
@@ -500,7 +500,7 @@ Proof.
     - apply impred. intro x. simpl. apply (setproperty X).
     - apply impred. intro x. simpl. apply (setproperty X).
   }
-  apply (isapropsubtype (λ i : _, make_hProp _ (int i))).
+  apply (isapropsubtype (λ i, make_hProp _ (int i))).
   intros inv1 inv2. simpl. intro ax1. intro ax2. apply funextfun. intro x0.
   apply (invmaponpathsweq (make_weq _ (isweqrmultingr_is (is ,, is0) x0))).
   simpl. rewrite (pr1 ax1 x0). rewrite (pr1 ax2 x0). apply idpath.
@@ -549,9 +549,9 @@ Proof.
         rewrite e. apply idpath.
     -  apply (is x').
   }
-  assert (is' : ∏ x : X, hexists (λ x0 : X, opp x0 x = un0)).
+  assert (is' : ∏ x : X, ∃ (x0 : X), opp x0 x = un0).
   {
-    intro x. apply (λ f : _ , hinhuniv f (is x)). intro s1.
+    intro x. apply (λ f , hinhuniv f (is x)). intro s1.
     destruct s1 as [ x' eq ]. apply hinhpr. split with x'. simpl.
     apply (invmaponpathsincl _ (l1 x')).
     rewrite (assoc x' x x'). rewrite eq. rewrite (pr1 unaxs0 x').
@@ -585,7 +585,7 @@ Proof.
   set (linv0 := λ x : X, hinhunivcor1 (make_hProp _ (int x)) (is' x)).
   simpl in linv0.
   set (inv0 := λ x : X, pr1 (linv0 x)). split with inv0. simpl.
-  split with (λ x : _, pr2 (linv0 x)). intro x.
+  split with (λ x, pr2 (linv0 x)). intro x.
   apply (invmaponpathsincl _ (l1 x)).
   rewrite (assoc x (inv0 x) x). change (inv0 x) with (pr1 (linv0 x)).
   rewrite (pr2 (linv0 x)). unfold unel_is. simpl.
@@ -641,13 +641,13 @@ Proof.
   assert (f : (islcancelable opp x) → (isrcancelable opp x)).
   {
     unfold islcancelable. unfold isrcancelable.
-    intro isl. apply (λ h : _, isinclhomot _ _ h isl).
+    intro isl. apply (λ h, isinclhomot _ _ h isl).
     intro x0. apply is.
   }
   assert (g : (isrcancelable opp x) → (islcancelable opp x)).
   {
     unfold islcancelable. unfold isrcancelable. intro isr.
-    apply (λ h : _, isinclhomot _ _ h isr). intro x0. apply is.
+    apply (λ h, isinclhomot _ _ h isr). intro x0. apply is.
   }
   split with f.
   apply (isweqimplimpl f g (isapropisincl (λ x0 : X, opp x x0))
@@ -667,7 +667,7 @@ Proof.
   assert (g : (isrinvertible opp x) → (islinvertible opp x)).
   {
     unfold islinvertible. unfold isrinvertible. intro isr.
-    apply (λ h : _, isweqhomot _ _ h isr).
+    apply (λ h, isweqhomot _ _ h isr).
     intro x0. apply is.
   }
   split with f.
@@ -724,7 +724,7 @@ Definition pr1isabgrop (X : UU) (opp : binop X) : isabgrop opp → isgrop opp :=
 Coercion pr1isabgrop : isabgrop >-> isgrop.
 
 Definition isabgroptoisabmonoidop (X : UU) (opp : binop X) : isabgrop opp → isabmonoidop opp :=
-  λ is : _, pr1 (pr1 is) ,, pr2 is.
+  λ is, pr1 (pr1 is) ,, pr2 is.
 Coercion isabgroptoisabmonoidop : isabgrop >-> isabmonoidop.
 
 Lemma isapropisabgrop {X : hSet} (opp : binop X) : isaprop (isabgrop opp).
@@ -817,19 +817,19 @@ Definition make_isrigops {X : UU} {opp1 opp2 : binop X} (H1 : isabmonoidop opp1)
   ((H1 ,, H2) ,, H3 ,, H4) ,, H5.
 
 Definition rigop1axs_is {X : UU} {opp1 opp2 : binop X} :
-  isrigops opp1 opp2 → isabmonoidop opp1 := λ is : _, pr1 (pr1 (pr1 is)).
+  isrigops opp1 opp2 → isabmonoidop opp1 := λ is, pr1 (pr1 (pr1 is)).
 
 Definition rigop2axs_is {X : UU} {opp1 opp2 : binop X} : isrigops opp1 opp2 → ismonoidop opp2 :=
-  λ is : _, pr2 (pr1 (pr1 is)).
+  λ is, pr2 (pr1 (pr1 is)).
 
 Definition rigdistraxs_is {X : UU} {opp1 opp2 : binop X} :
-  isrigops opp1 opp2 → isdistr opp1 opp2 := λ is : _,  pr2 is.
+  isrigops opp1 opp2 → isdistr opp1 opp2 := λ is,  pr2 is.
 
 Definition rigldistrax_is {X : UU} {opp1 opp2 : binop X} :
-  isrigops opp1 opp2 → isldistr opp1 opp2 := λ is : _, pr1 (pr2 is).
+  isrigops opp1 opp2 → isldistr opp1 opp2 := λ is, pr1 (pr2 is).
 
 Definition rigrdistrax_is {X : UU} {opp1 opp2 : binop X} :
-  isrigops opp1 opp2 → isrdistr opp1 opp2 := λ is : _, pr2 (pr2 is).
+  isrigops opp1 opp2 → isrdistr opp1 opp2 := λ is, pr2 (pr2 is).
 
 Definition rigunel1_is {X : UU} {opp1 opp2 : binop X} (is : isrigops opp1 opp2) : X :=
   pr1 (pr2 (pr1 (rigop1axs_is is))).
@@ -868,19 +868,19 @@ Definition make_isringops {X : UU} {opp1 opp2 : binop X} (H1 : isabgrop opp1) (H
   (H1 ,, H2) ,, H3.
 
 Definition ringop1axs_is {X : UU} {opp1 opp2 : binop X} : isringops opp1 opp2 → isabgrop opp1 :=
-  λ is : _, pr1 (pr1 is).
+  λ is, pr1 (pr1 is).
 
 Definition ringop2axs_is {X : UU} {opp1 opp2 : binop X} : isringops opp1 opp2 → ismonoidop opp2 :=
-  λ is : _, pr2 (pr1 is).
+  λ is, pr2 (pr1 is).
 
 Definition ringdistraxs_is {X : UU} {opp1 opp2 : binop X} :
-  isringops opp1 opp2 → isdistr opp1 opp2 := λ is : _, pr2 is.
+  isringops opp1 opp2 → isdistr opp1 opp2 := λ is, pr2 is.
 
 Definition ringldistrax_is {X : UU} {opp1 opp2 : binop X} :
-  isringops opp1 opp2 → isldistr opp1 opp2 := λ is : _, pr1 (pr2 is).
+  isringops opp1 opp2 → isldistr opp1 opp2 := λ is, pr1 (pr2 is).
 
 Definition ringrdistrax_is {X : UU} {opp1 opp2 : binop X} :
-  isringops opp1 opp2 → isrdistr opp1 opp2 := λ is : _, pr2 (pr2 is).
+  isringops opp1 opp2 → isrdistr opp1 opp2 := λ is, pr2 (pr2 is).
 
 Definition ringunel1_is {X : UU} {opp1 opp2 : binop X} (is : isringops opp1 opp2) : X :=
   unel_is (pr1 (pr1 is)).

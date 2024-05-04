@@ -768,7 +768,7 @@ Definition isringfuntofldfrac (X : intdom) (is : isdeceq X) :
 
 Definition isincltofldfrac (X : intdom) (is : isdeceq X) : isincl (tofldfrac X is) :=
   isincltocommringfrac X (intdomnonzerosubmonoid X)
-                      (λ x : _, pr2 (intdomiscancelable X (pr1 x) (pr2 x))).
+                      (λ x, pr2 (intdomiscancelable X (pr1 x) (pr2 x))).
 
 
 (** *** Relations similar to "greater" on fields of fractions

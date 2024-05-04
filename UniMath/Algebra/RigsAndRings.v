@@ -389,14 +389,14 @@ Definition pr1subrig (X : rig) : @subrig X  → hsubtype X :=
   @pr1 _ (λ  A : hsubtype X, issubrig A).
 
 Definition subrigtosubsetswith2binop (X : rig) : subrig X  → @subsetswith2binop X :=
-  λ A : _, make_subsetswith2binop (pr1 A) (make_dirprod (pr1 (pr1 (pr2 A))) (pr1 (pr2 (pr2 A)))).
+  λ A, make_subsetswith2binop (pr1 A) (make_dirprod (pr1 (pr1 (pr2 A))) (pr1 (pr2 (pr2 A)))).
 Coercion subrigtosubsetswith2binop : subrig >-> subsetswith2binop.
 
 Definition rigaddsubmonoid {X : rig} : subrig X  → @subabmonoid (rigaddabmonoid X) :=
-  λ A : _, @make_submonoid (rigaddabmonoid X) (pr1 A) (pr1 (pr2 A)).
+  λ A, @make_submonoid (rigaddabmonoid X) (pr1 A) (pr1 (pr2 A)).
 
 Definition rigmultsubmonoid {X : rig} : subrig X  → @submonoid (rigmultmonoid X) :=
-  λ A : _, @make_submonoid (rigmultmonoid X) (pr1 A) (pr2 (pr2 A)).
+  λ A, @make_submonoid (rigmultmonoid X) (pr1 A) (pr2 (pr2 A)).
 
 Lemma isrigcarrier {X : rig} (A : subrig X) : isrigops (@op1 A) (@op2 A).
 Proof.
@@ -563,7 +563,7 @@ Proof.
   - apply ax22.
 Defined.
 
-Definition commrigtorig : commrig  → rig := λ X : _, @make_rig (pr1 X) (pr1 (pr2 X)).
+Definition commrigtorig : commrig  → rig := λ X, @make_rig (pr1 X) (pr1 (pr2 X)).
 Coercion commrigtorig : commrig >-> rig.
 
 Definition rigcomm2 (X : commrig) : iscomm (@op2 X) := pr2 (pr2 X).
@@ -1374,15 +1374,15 @@ Definition pr1subring (X : ring) : @subring X  → hsubtype X :=
   @pr1 _ (λ A : hsubtype X, issubring A).
 
 Definition subringtosubsetswith2binop (X : ring) : subring X  → @subsetswith2binop X :=
-  λ A : _, make_subsetswith2binop
+  λ A, make_subsetswith2binop
               (pr1 A) (make_dirprod (pr1 (pr1 (pr1 (pr2 A)))) (pr1 (pr2 (pr2 A)))).
 Coercion subringtosubsetswith2binop : subring >-> subsetswith2binop.
 
 Definition addsubgr {X : ring} : subring X  → @subgr X :=
-  λ A : _, @make_subgr X (pr1 A) (pr1 (pr2 A)).
+  λ A, @make_subgr X (pr1 A) (pr1 (pr2 A)).
 
 Definition multsubmonoid {X : ring} : subring X  → @submonoid (ringmultmonoid X) :=
-  λ A : _, @make_submonoid (ringmultmonoid X) (pr1 A) (pr2 (pr2 A)).
+  λ A, @make_submonoid (ringmultmonoid X) (pr1 A) (pr2 (pr2 A)).
 
 Lemma isringcarrier {X : ring} (A : subring X) : isringops (@op1 A) (@op2 A).
 Proof.
@@ -1909,7 +1909,7 @@ Definition commringconstr {X : hSet} (opp1 opp2 : binop X)
   @make_commring (make_setwith2binop X (make_dirprod opp1 opp2))
                (make_dirprod (make_dirprod (make_dirprod (make_dirprod ax11 ax12) ax21) dax) ax22).
 
-Definition commringtoring : commring  → ring := λ X : _, @make_ring (pr1 X) (pr1 (pr2 X)).
+Definition commringtoring : commring  → ring := λ X, @make_ring (pr1 X) (pr1 (pr2 X)).
 Coercion commringtoring : commring >-> ring.
 
 Definition ringcomm2 (X : commring) : iscomm (@op2 X) := pr2 (pr2 X).
@@ -2103,7 +2103,7 @@ Definition commringfracunel2int (X : commring) (S : @subabmonoid (ringmultabmono
   dirprod X S := make_dirprod 1 (unel S).
 
 Definition commringfracinv1int (X : commring) (S : @subabmonoid (ringmultabmonoid X)) :
-  dirprod X S  → dirprod X S := λ xs : _, make_dirprod ((-1) * (pr1 xs)) (pr2 xs).
+  dirprod X S  → dirprod X S := λ xs, make_dirprod ((-1) * (pr1 xs)) (pr2 xs).
 
 Definition eqrelcommringfrac (X : commring) (S : @subabmonoid (ringmultabmonoid X)) :
   eqrel (X × S) := eqrelabmonoidfrac (ringmultabmonoid X) S.
