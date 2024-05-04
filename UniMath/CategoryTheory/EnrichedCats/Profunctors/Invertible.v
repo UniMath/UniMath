@@ -1,5 +1,14 @@
 (******************************************************************************************
 
+ Invertible transformations of profunctors
+
+ In this file, we define invertible transformations of profunctors. These are transformations
+ that are pointwise an isomorphism. We also show that their inverse is again a transformation
+ of profunctors and we prove the inverse laws.
+
+ Content
+ 1. Invertible profunctor transformations
+ 2. The inverse transformation
 
  ******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -34,6 +43,7 @@ Section InvertibleTransformation.
           {P Q : E₁ ↛e E₂}
           (τ : enriched_profunctor_transformation P Q).
 
+  (** * 1. Invertible profunctor transformations *)
   Definition is_iso_enriched_profunctor_transformation
     : UU
     := ∏ (y : C₂) (x : C₁), is_z_isomorphism (τ y x).
@@ -45,6 +55,7 @@ Section InvertibleTransformation.
     : z_iso (P y x) (Q y x)
     := _ ,, Hτ y x.
 
+  (** * 2. The inverse transformation *)
   Definition pointwise_inv_enriched_profunctor_transformation
              (Hτ : is_iso_enriched_profunctor_transformation)
              (y : C₂)
@@ -92,6 +103,35 @@ Section InvertibleTransformation.
       - exact inv_enriched_profunctor_transformation_laws.
     Defined.
   End Inverse.
+
+  Proposition inv_enriched_profunctor_transformation_left
+              (Hτ : is_iso_enriched_profunctor_transformation)
+    : enriched_profunctor_comp_transformation
+        (inv_enriched_profunctor_transformation Hτ)
+        τ
+      =
+      enriched_profunctor_id_transformation _.
+  Proof.
+    use eq_enriched_profunctor_transformation.
+    intros y x ; cbn.
+    unfold pointwise_inv_enriched_profunctor_transformation.
+    apply z_iso_after_z_iso_inv.
+  Qed.
+
+  Proposition inv_enriched_profunctor_transformation_right
+              (Hτ : is_iso_enriched_profunctor_transformation)
+    : enriched_profunctor_comp_transformation
+        τ
+        (inv_enriched_profunctor_transformation Hτ)
+      =
+      enriched_profunctor_id_transformation _.
+  Proof.
+    use eq_enriched_profunctor_transformation.
+    intros y x ; cbn.
+    unfold pointwise_inv_enriched_profunctor_transformation.
+    exact (z_iso_inv_after_z_iso
+             (pointwise_iso_enriched_profunctor_transformation Hτ y x)).
+  Qed.
 End InvertibleTransformation.
 
 Arguments pointwise_inv_enriched_profunctor_transformation {V C₁ C₂ E₁ E₂ P Q τ} Hτ y x /.
