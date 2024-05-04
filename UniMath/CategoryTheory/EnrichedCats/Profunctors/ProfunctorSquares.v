@@ -15,8 +15,8 @@
  4.1. Horizontal identity square
  4.2. Vertical identity square
  4.3. Horizontal composition of squares
- 4.4. Up whiskering
- 4.5. Down whiskering
+ 4.4. Down whiskering
+ 4.5. Up whiskering
  4.6. Left whiskering
  4.7. Right whiskering
  4.8. Companion pairs
