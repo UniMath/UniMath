@@ -20,7 +20,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 Definition isnonzerorig (X : rig) : UU := (1%rig : X) != 0%rig.
 
 Definition isDivRig (X : rig) : UU :=
-  isnonzerorig X × (∏ x : X, x != 0%rig -> multinvpair X x).
+  isnonzerorig X × (∏ x : X, x != 0%rig  → multinvpair X x).
 
 Lemma isaprop_isDivRig (X : rig) : isaprop (isDivRig X).
 Proof.
@@ -35,7 +35,7 @@ Definition isDivRig_zero {X : rig} (is : isDivRig X) : X := 0%rig.
 Definition isDivRig_one {X : rig} (is : isDivRig X) : X := 1%rig.
 Definition isDivRig_plus {X : rig} (is : isDivRig X) : binop X := λ x y : X, (x + y)%rig.
 Definition isDivRig_mult {X : rig} (is : isDivRig X) : binop X := λ x y : X, (x * y)%rig.
-Definition isDivRig_inv {X : rig} (is : isDivRig X) : (∑  x : X, x != isDivRig_zero is) -> X :=
+Definition isDivRig_inv {X : rig} (is : isDivRig X) : (∑  x : X, x != isDivRig_zero is)  → X :=
   λ x, pr1 ((pr2 is) (pr1 x) (pr2 x)).
 
 Definition isDivRig_isassoc_plus {X : rig} (is : isDivRig X) : isassoc (isDivRig_plus is)
@@ -75,13 +75,13 @@ Definition zeroDivRig {F : DivRig} : F := isDivRig_zero (pr2 F).
 Definition oneDivRig {F : DivRig} : F := isDivRig_one (pr2 F).
 Definition plusDivRig {F : DivRig} : binop F := isDivRig_plus (pr2 F).
 Definition multDivRig {F : DivRig} : binop F := isDivRig_mult (pr2 F).
-Definition invDivRig {F : DivRig} : (∑ x : F, x != zeroDivRig) -> F := isDivRig_inv (pr2 F).
-Definition divDivRig {F : DivRig} : F -> (∑ x : F, x != zeroDivRig) -> F := λ x y, multDivRig x (invDivRig y).
+Definition invDivRig {F : DivRig} : (∑ x : F, x != zeroDivRig)  → F := isDivRig_inv (pr2 F).
+Definition divDivRig {F : DivRig} : F  → (∑ x : F, x != zeroDivRig)  → F := λ x y, multDivRig x (invDivRig y).
 
 Definition DivRig_isDivRig (F : DivRig) :
   isDivRig (pr1 F) := (pr2 F).
 
-Definition isDivRig_DivRig {X : rig} : isDivRig X -> DivRig :=
+Definition isDivRig_DivRig {X : rig} : isDivRig X  → DivRig :=
 λ is : isDivRig X, X ,, is.
 
 Declare Scope dr_scope.

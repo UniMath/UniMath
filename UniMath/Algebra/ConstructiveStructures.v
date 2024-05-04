@@ -13,7 +13,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Definition isnonzeroCR (X : rig) (R : tightap X) := R 1%rig 0%rig.
 Definition isConstrDivRig (X : rig) (R : tightap X) :=
-  isnonzeroCR X R × (∏ x : X, R x 0%rig -> multinvpair X x).
+  isnonzeroCR X R × (∏ x : X, R x 0%rig  → multinvpair X x).
 
 (** ** Constructive rig with division *)
 
@@ -23,9 +23,9 @@ Definition ConstructiveDivisionRig :=
         isapbinop (X := (pr1 (pr1 X)) ,, R) BinaryOperations.op1
       × isapbinop (X := (pr1 (pr1 X)) ,, R) BinaryOperations.op2
       × isConstrDivRig X R.
-Definition ConstructiveDivisionRig_rig : ConstructiveDivisionRig -> rig := pr1.
+Definition ConstructiveDivisionRig_rig : ConstructiveDivisionRig  → rig := pr1.
 Coercion ConstructiveDivisionRig_rig : ConstructiveDivisionRig >-> rig.
-Definition ConstructiveDivisionRig_apsetwith2binop : ConstructiveDivisionRig -> apsetwith2binop.
+Definition ConstructiveDivisionRig_apsetwith2binop : ConstructiveDivisionRig  → apsetwith2binop.
 Proof.
   intros X.
   exists (pr1 (pr1 (pr1 X)),,(pr1 (pr2 X))).
@@ -67,17 +67,17 @@ Proof.
   exact (pr1 (pr1 (pr2 (pr1 (pr2 X))))).
 Qed.
 Lemma issymm_CDRap :
-  ∏ x y : X, x ≠ y -> y ≠ x.
+  ∏ x y : X, x ≠ y  → y ≠ x.
 Proof.
   exact (pr1 (pr2 (pr1 (pr2 (pr1 (pr2 X)))))).
 Qed.
 Lemma iscotrans_CDRap :
-  ∏ x y z : X, x ≠ z -> x ≠ y ∨ y ≠ z.
+  ∏ x y z : X, x ≠ z  → x ≠ y ∨ y ≠ z.
 Proof.
   exact (pr2 (pr2 (pr1 (pr2 (pr1 (pr2 X)))))).
 Qed.
 Lemma istight_CDRap :
-  ∏ x y : X, ¬ (x ≠ y) -> x = y.
+  ∏ x y : X, ¬ (x ≠ y)  → x = y.
 Proof.
   exact (pr2 (pr2 (pr1 (pr2 X)))).
 Qed.
@@ -154,36 +154,36 @@ Qed.
 
 Lemma apCDRplus :
   ∏ x x' y y' : X,
-    x + y ≠ x' + y' -> x ≠ x' ∨ y ≠ y'.
+    x + y ≠ x' + y'  → x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (isapbinop_op1 (X := ConstructiveDivisionRig_apsetwith2binop X)).
 Qed.
 Lemma CDRplus_apcompat_l :
-  ∏ x y z : X, y + x ≠ z + x -> y ≠ z.
+  ∏ x y z : X, y + x ≠ z + x  → y ≠ z.
 Proof.
   intros x y z.
   exact (islapbinop_op1 (X := ConstructiveDivisionRig_apsetwith2binop X) _ _ _).
 Qed.
 Lemma CDRplus_apcompat_r :
-  ∏ x y z : X, x + y ≠ x + z -> y ≠ z.
+  ∏ x y z : X, x + y ≠ x + z  → y ≠ z.
 Proof.
   exact (israpbinop_op1 (X := ConstructiveDivisionRig_apsetwith2binop X)).
 Qed.
 
 Lemma apCDRmult :
   ∏ x x' y y' : X,
-    x * y ≠ x' * y' -> x ≠ x' ∨ y ≠ y'.
+    x * y ≠ x' * y'  → x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (isapbinop_op2 (X := ConstructiveDivisionRig_apsetwith2binop X)).
 Qed.
 Lemma CDRmult_apcompat_l :
-  ∏ x y z : X, y * x ≠ z * x -> y ≠ z.
+  ∏ x y z : X, y * x ≠ z * x  → y ≠ z.
 Proof.
   intros x y z.
   exact (islapbinop_op2 (X := ConstructiveDivisionRig_apsetwith2binop X) _ _ _).
 Qed.
 Lemma CDRmult_apcompat_l' :
-  ∏ x y z : X, x ≠ 0 -> y ≠ z -> y * x ≠ z * x.
+  ∏ x y z : X, x ≠ 0  → y ≠ z  → y * x ≠ z * x.
 Proof.
   intros x y z Hx Hap.
   refine (CDRmult_apcompat_l (CDRinv x Hx) _ _ _).
@@ -191,12 +191,12 @@ Proof.
   exact Hap.
 Qed.
 Lemma CDRmult_apcompat_r :
-  ∏ x y z : X, x * y ≠ x * z -> y ≠ z.
+  ∏ x y z : X, x * y ≠ x * z  → y ≠ z.
 Proof.
   exact (israpbinop_op2 (X := ConstructiveDivisionRig_apsetwith2binop X)).
 Qed.
 Lemma CDRmult_apcompat_r' :
-  ∏ x y z : X, x ≠ 0 -> y ≠ z -> x * y ≠ x * z.
+  ∏ x y z : X, x ≠ 0  → y ≠ z  → x * y ≠ x * z.
 Proof.
   intros x y z Hx Hap.
   refine (CDRmult_apcompat_r (CDRinv x Hx) _ _ _).
@@ -205,7 +205,7 @@ Proof.
 Qed.
 
 Lemma CDRmultapCDRzero :
-  ∏ x y : X, x * y ≠ 0 -> x ≠ 0 ∧ y ≠ 0.
+  ∏ x y : X, x * y ≠ 0  → x ≠ 0 ∧ y ≠ 0.
 Proof.
   intros x y Hmult.
   split.
@@ -230,12 +230,12 @@ Definition ConstructiveCommutativeDivisionRig :=
       × isapbinop (X := (pr1 (pr1 X)) ,, R) BinaryOperations.op2
       × isConstrDivRig X R.
 Definition ConstructiveCommutativeDivisionRig_commrig :
-  ConstructiveCommutativeDivisionRig -> commrig := pr1.
+  ConstructiveCommutativeDivisionRig  → commrig := pr1.
 Coercion ConstructiveCommutativeDivisionRig_commrig :
   ConstructiveCommutativeDivisionRig >-> commrig.
 
 Definition ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig :
-  ConstructiveCommutativeDivisionRig -> ConstructiveDivisionRig :=
+  ConstructiveCommutativeDivisionRig  → ConstructiveDivisionRig :=
   λ X, (pr1 (pr1 X),,pr1 (pr2 (pr1 X))) ,, (pr2 X).
 Coercion ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig :
   ConstructiveCommutativeDivisionRig >-> ConstructiveDivisionRig.
@@ -273,17 +273,17 @@ Proof.
   exact (isirrefl_CDRap (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma issymm_CCDRap :
-  ∏ x y : X, x ≠ y -> y ≠ x.
+  ∏ x y : X, x ≠ y  → y ≠ x.
 Proof.
   exact (issymm_CDRap (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma iscotrans_CCDRap :
-  ∏ x y z : X, x ≠ z -> x ≠ y ∨ y ≠ z.
+  ∏ x y z : X, x ≠ z  → x ≠ y ∨ y ≠ z.
 Proof.
   exact (iscotrans_CDRap (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma istight_CCDRap :
-  ∏ x y : X, ¬ (x ≠ y) -> x = y.
+  ∏ x y : X, ¬ (x ≠ y)  → x = y.
 Proof.
   exact (istight_CDRap (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
@@ -370,50 +370,50 @@ Qed.
 
 Lemma apCCDRplus :
   ∏ x x' y y' : X,
-    x + y ≠ x' + y' -> x ≠ x' ∨ y ≠ y'.
+    x + y ≠ x' + y'  → x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (apCDRplus (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma CCDRplus_apcompat_l :
-  ∏ x y z : X, y + x ≠ z + x -> y ≠ z.
+  ∏ x y z : X, y + x ≠ z + x  → y ≠ z.
 Proof.
   exact (CDRplus_apcompat_l (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma CCDRplus_apcompat_r :
-  ∏ x y z : X, x + y ≠ x + z -> y ≠ z.
+  ∏ x y z : X, x + y ≠ x + z  → y ≠ z.
 Proof.
   exact (CDRplus_apcompat_r (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 
 Lemma apCCDRmult :
   ∏ x x' y y' : X,
-    x * y ≠ x' * y' -> x ≠ x' ∨ y ≠ y'.
+    x * y ≠ x' * y'  → x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (apCDRmult (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma CCDRmult_apcompat_l :
-  ∏ x y z : X, y * x ≠ z * x -> y ≠ z.
+  ∏ x y z : X, y * x ≠ z * x  → y ≠ z.
 Proof.
   exact (CDRmult_apcompat_l (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma CCDRmult_apcompat_l' :
-  ∏ x y z : X, x ≠ 0 -> y ≠ z -> y * x ≠ z * x.
+  ∏ x y z : X, x ≠ 0  → y ≠ z  → y * x ≠ z * x.
 Proof.
   exact (CDRmult_apcompat_l' (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma CCDRmult_apcompat_r :
-  ∏ x y z : X, x * y ≠ x * z -> y ≠ z.
+  ∏ x y z : X, x * y ≠ x * z  → y ≠ z.
 Proof.
   exact (CDRmult_apcompat_r (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma CCDRmult_apcompat_r' :
-  ∏ x y z : X, x ≠ 0 -> y ≠ z -> x * y ≠ x * z.
+  ∏ x y z : X, x ≠ 0  → y ≠ z  → x * y ≠ x * z.
 Proof.
   exact (CDRmult_apcompat_r' (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 
 Lemma CCDRmultapCCDRzero :
-  ∏ x y : X, x * y ≠ 0 -> x ≠ 0 ∧ y ≠ 0.
+  ∏ x y : X, x * y ≠ 0  → x ≠ 0 ∧ y ≠ 0.
 Proof.
   exact (CDRmultapCDRzero (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
@@ -431,11 +431,11 @@ Definition ConstructiveField :=
       × isapbinop (X := (pr1 (pr1 X)) ,, R) BinaryOperations.op2
       × isConstrDivRig X R.
 Definition ConstructiveField_commring :
-  ConstructiveField -> commring := pr1.
+  ConstructiveField  → commring := pr1.
 Coercion ConstructiveField_commring :
   ConstructiveField >-> commring.
 Definition ConstructiveField_ConstructiveCommutativeDivisionRig :
-  ConstructiveField -> ConstructiveCommutativeDivisionRig :=
+  ConstructiveField  → ConstructiveCommutativeDivisionRig :=
   λ X, (commringtocommrig (pr1 X)) ,, (pr2 X).
 Coercion ConstructiveField_ConstructiveCommutativeDivisionRig :
   ConstructiveField >-> ConstructiveCommutativeDivisionRig.
@@ -477,17 +477,17 @@ Proof.
   exact (isirrefl_CCDRap (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma issymm_CFap :
-  ∏ x y : X, x ≠ y -> y ≠ x.
+  ∏ x y : X, x ≠ y  → y ≠ x.
 Proof.
   exact (issymm_CCDRap (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma iscotrans_CFap :
-  ∏ x y z : X, x ≠ z -> x ≠ y ∨ y ≠ z.
+  ∏ x y z : X, x ≠ z  → x ≠ y ∨ y ≠ z.
 Proof.
   exact (iscotrans_CCDRap (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma istight_CFap :
-  ∏ x y : X, ¬ (x ≠ y) -> x = y.
+  ∏ x y : X, ¬ (x ≠ y)  → x = y.
 Proof.
   exact (istight_CCDRap (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
@@ -585,7 +585,7 @@ Qed.
 
 Lemma apCFplus :
   ∏ x x' y y' : X,
-    x + y ≠ x' + y' -> x ≠ x' ∨ y ≠ y'.
+    x + y ≠ x' + y'  → x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (apCCDRplus (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
@@ -611,33 +611,33 @@ Qed.
 
 Lemma apCFmult :
   ∏ x x' y y' : X,
-    x * y ≠ x' * y' -> x ≠ x' ∨ y ≠ y'.
+    x * y ≠ x' * y'  → x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (apCCDRmult (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma CFmult_apcompat_l :
-  ∏ x y z : X, y * x ≠ z * x -> y ≠ z.
+  ∏ x y z : X, y * x ≠ z * x  → y ≠ z.
 Proof.
   exact (CCDRmult_apcompat_l (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma CFmult_apcompat_l' :
-  ∏ x y z : X, x ≠ 0 -> y ≠ z -> y * x ≠ z * x.
+  ∏ x y z : X, x ≠ 0  → y ≠ z  → y * x ≠ z * x.
 Proof.
   exact (CCDRmult_apcompat_l' (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma CFmult_apcompat_r :
-  ∏ x y z : X, x * y ≠ x * z -> y ≠ z.
+  ∏ x y z : X, x * y ≠ x * z  → y ≠ z.
 Proof.
   exact (CCDRmult_apcompat_r (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma CFmult_apcompat_r' :
-  ∏ x y z : X, x ≠ 0 -> y ≠ z -> x * y ≠ x * z.
+  ∏ x y z : X, x ≠ 0  → y ≠ z  → x * y ≠ x * z.
 Proof.
   exact (CCDRmult_apcompat_r' (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 
 Lemma CFmultapCFzero :
-  ∏ x y : X, x * y ≠ 0 -> x ≠ 0 ∧ y ≠ 0.
+  ∏ x y : X, x * y ≠ 0  → x ≠ 0 ∧ y ≠ 0.
 Proof.
   exact (CCDRmultapCCDRzero (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.

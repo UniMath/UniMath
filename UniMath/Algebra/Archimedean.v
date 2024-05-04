@@ -105,7 +105,7 @@ Qed.
 Lemma natmult_op {X : monoid} :
   ∏ (n : nat) (x y : X),
     (x + y = y + x)%addmonoid
-    -> natmult n (x + y)%addmonoid = (natmult n x + natmult n y)%addmonoid.
+     → natmult n (x + y)%addmonoid = (natmult n x + natmult n y)%addmonoid.
 Proof.
   intros.
   induction n as [|n IHn].
@@ -124,8 +124,8 @@ Proof.
 Qed.
 
 Lemma natmult_binophrel {X : monoid} (R : hrel X) :
-  istrans R -> isbinophrel R ->
-  ∏ (n : nat) (x y : X), R x y -> R (natmult (S n) x) (natmult (S n) y).
+  istrans R  → isbinophrel R  →
+  ∏ (n : nat) (x y : X), R x y  → R (natmult (S n) x) (natmult (S n) y).
 Proof.
   intros Hr Hop n x y H.
   induction n as [|n IHn].
@@ -144,7 +144,7 @@ Definition setquot_aux {X : monoid} (R : hrel X) : hrel X :=
   λ x y : X, ∃ c : X, R (x + c)%addmonoid (y + c)%addmonoid.
 
 Lemma istrans_setquot_aux {X : abmonoid} (R : hrel X) :
-  istrans R -> isbinophrel R -> istrans (setquot_aux R).
+  istrans R  → isbinophrel R  → istrans (setquot_aux R).
 Proof.
   intros Hr Hop.
   intros x y z.
@@ -161,7 +161,7 @@ Proof.
 Qed.
 
 Lemma isbinophrel_setquot_aux {X : abmonoid} (R : hrel X) :
-  isbinophrel R -> isbinophrel (setquot_aux R).
+  isbinophrel R  → isbinophrel (setquot_aux R).
 Proof.
   intros Hop.
   split.
@@ -182,7 +182,7 @@ Proof.
 Qed.
 
 Lemma isequiv_setquot_aux {X : abmonoid} (R : hrel X) :
-  isinvbinophrel R ->
+  isinvbinophrel R  →
   ∏ x y : X, (setquot_aux R) x y <-> R x y.
 Proof.
   intros H x y.
@@ -202,20 +202,20 @@ Qed.
 
 Definition isarchmonoid {X : abmonoid} (R : hrel X) :=
   ∏ x y1 y2 : X,
-    R y1 y2 ->
+    R y1 y2  →
     (∃ n : nat, R (natmult n y1 + x)%addmonoid (natmult n y2))
       × (∃ n : nat, R (natmult n y1) (natmult n y2 + x)%addmonoid).
 
 Definition isarchmonoid_1 {X : abmonoid} (R : hrel X) :
-  isarchmonoid R ->
+  isarchmonoid R  →
   ∏ x y1 y2 : X,
-    R y1 y2 ->
+    R y1 y2  →
     ∃ n : nat, R (natmult n y1 + x)%addmonoid (natmult n y2) :=
   λ H x y1 y2 Hy, (pr1 (H x y1 y2 Hy)).
 Definition isarchmonoid_2 {X : abmonoid} (R : hrel X) :
-  isarchmonoid R ->
+  isarchmonoid R  →
   ∏ x y1 y2 : X,
-    R y1 y2 ->
+    R y1 y2  →
     ∃ n : nat, R (natmult n y1) (natmult n y2 + x)%addmonoid :=
   λ H x y1 y2 Hy, (pr2 (H x y1 y2 Hy)).
 
@@ -223,13 +223,13 @@ Definition isarchmonoid_2 {X : abmonoid} (R : hrel X) :
 
 Definition isarchgr {X : abgr} (R : hrel X) :=
   ∏ x y1 y2 : X,
-    R y1 y2 ->
+    R y1 y2  →
     ∃ n : nat, R (natmult n y1 + x)%addmonoid (natmult n y2).
 
 Local Lemma isarchgr_isarchmonoid_aux {X : abgr} (R : hrel X) :
-  isbinophrel R ->
+  isbinophrel R  →
   ∏ (n : nat) (x y1 y2 : X),
-    R (natmult n y1 * grinv X x)%multmonoid (natmult n y2) -> R (natmult n y1) (natmult n y2 * x)%multmonoid.
+    R (natmult n y1 * grinv X x)%multmonoid (natmult n y2)  → R (natmult n y1) (natmult n y2 * x)%multmonoid.
 Proof.
   intros Hop.
   intros n x y1 y2 Hy.
@@ -238,8 +238,8 @@ Proof.
   exact Hy.
 Qed.
 Lemma isarchgr_isarchmonoid {X : abgr} (R : hrel X) :
-  isbinophrel R ->
-  isarchgr R ->
+  isbinophrel R  →
+  isarchgr R  →
   isarchmonoid (X := abgrtoabmonoid X) R.
 Proof.
   intros Hop H x y1 y2 Hy.
@@ -255,7 +255,7 @@ Proof.
 Defined.
 
 Lemma isarchmonoid_isarchgr {X : abgr} (R : hrel X) :
-  isarchmonoid (X := abgrtoabmonoid X) R ->
+  isarchmonoid (X := abgrtoabmonoid X) R  →
   isarchgr R.
 Proof.
   intros H x y1 y2 Hy.
@@ -330,12 +330,12 @@ Proof.
   apply Hc2.
 Qed.
 Lemma isarchabgrdiff {X : abmonoid} (R : hrel X)  (Hr : isbinophrel R) :
-  istrans R ->
-  isarchmonoid (setquot_aux R) ->
+  istrans R  →
+  isarchmonoid (setquot_aux R)  →
   isarchgr (X := abgrdiff X) (abgrdiffrel X (L := R) Hr).
 Proof.
   intros Hr' H.
-  simple refine (setquotuniv3prop _ (λ x y1 y2, (abgrdiffrel X Hr y1 y2 ->
+  simple refine (setquotuniv3prop _ (λ x y1 y2, (abgrdiffrel X Hr y1 y2  →
     ∃ n : nat, abgrdiffrel X Hr (natmult (X := abgrdiff X) n y1 * x)%multmonoid (natmult (X := abgrdiff X) n y2)) ,, _) _).
   abstract apply isapropimpl, propproperty.
   intros x y1 y2 Hy.
@@ -353,20 +353,20 @@ Defined.
 (** ** Archimedean property in a rig *)
 
 Definition isarchrig {X : rig} (R : hrel X) :=
-  (∏ y1 y2 : X, R y1 y2 -> ∃ n : nat, R (nattorig n * y1)%rig (1 + nattorig n * y2)%rig)
+  (∏ y1 y2 : X, R y1 y2  → ∃ n : nat, R (nattorig n * y1)%rig (1 + nattorig n * y2)%rig)
     × (∏ x : X, ∃ n : nat, R (nattorig n) x)
     × (∏ x : X, ∃ n : nat, R (nattorig n + x)%rig 0%rig).
 
 Definition isarchrig_diff {X : rig} (R : hrel X) :
-  isarchrig R ->
-  ∏ y1 y2 : X, R y1 y2 -> ∃ n : nat, R (nattorig n * y1)%rig (1 + nattorig n * y2)%rig :=
+  isarchrig R  →
+  ∏ y1 y2 : X, R y1 y2  → ∃ n : nat, R (nattorig n * y1)%rig (1 + nattorig n * y2)%rig :=
   pr1.
 Definition isarchrig_gt {X : rig} (R : hrel X) :
-  isarchrig R ->
+  isarchrig R  →
   ∏ x : X, ∃ n : nat, R (nattorig n) x :=
   λ H, (pr1 (pr2 H)).
 Definition isarchrig_pos {X : rig} (R : hrel X) :
-  isarchrig R ->
+  isarchrig R  →
   ∏ x : X, ∃ n : nat, R (nattorig n + x)%rig 0%rig :=
 
   λ H, (pr2 (pr2 H)).
@@ -488,9 +488,9 @@ Proof.
     apply rigcomm1.
 Qed.
 Lemma isarchrig_isarchmonoid {X : rig} (R : hrel X) :
-  R 1%rig 0%rig ->
-  istrans R -> isbinophrel (X := rigaddabmonoid X) R ->
-  isarchrig R -> isarchmonoid (X := rigaddabmonoid X) R.
+  R 1%rig 0%rig  →
+  istrans R  → isbinophrel (X := rigaddabmonoid X) R  →
+  isarchrig R  → isarchmonoid (X := rigaddabmonoid X) R.
 Proof.
   intros Hr1 Hr Hop1 H x y1 y2 Hy.
   split.
@@ -518,8 +518,8 @@ Defined.
 
 Lemma isarchmonoid_isarchrig {X : rig} (R : hrel X) :
   (R 1%rig 0%rig)
-  -> isarchmonoid (X := rigaddabmonoid X) R
-  -> isarchrig R.
+   → isarchmonoid (X := rigaddabmonoid X) R
+   → isarchrig R.
 Proof.
   intros H01 H.
   repeat split.
@@ -556,19 +556,19 @@ Defined.
 (** ** Archimedean property in a ring *)
 
 Definition isarchring {X : ring} (R : hrel X) :=
-  (∏ x : X, R x 0%ring -> ∃ n : nat, R (nattoring n * x)%ring 1%ring)
+  (∏ x : X, R x 0%ring  → ∃ n : nat, R (nattoring n * x)%ring 1%ring)
     × (∏ x : X, ∃ n : nat, R (nattoring n) x).
 
 Definition isarchring_1 {X : ring} (R : hrel X) :
-  isarchring R ->
-  ∏ x : X, R x 0%ring -> ∃ n : nat, R (nattoring n * x)%ring 1%ring := pr1.
+  isarchring R  →
+  ∏ x : X, R x 0%ring  → ∃ n : nat, R (nattoring n * x)%ring 1%ring := pr1.
 Definition isarchring_2 {X : ring} (R : hrel X) :
-  isarchring R ->
+  isarchring R  →
   ∏ x : X, ∃ n : nat, R (nattoring n) x := pr2.
 
 Lemma isarchring_isarchrig {X : ring} (R : hrel X) :
-  isbinophrel (X := rigaddabmonoid X) R ->
-  isarchring R -> isarchrig (X := ringtorig X) R.
+  isbinophrel (X := rigaddabmonoid X) R  →
+  isarchring R  → isarchrig (X := ringtorig X) R.
 Proof.
   intros Hop1 H.
   repeat split.
@@ -601,8 +601,8 @@ Proof.
 Defined.
 
 Lemma isarchrig_isarchring {X : ring} (R : hrel X) :
-  isbinophrel (X := rigaddabmonoid X) R ->
-  isarchrig (X := ringtorig X) R -> isarchring R.
+  isbinophrel (X := rigaddabmonoid X) R  →
+  isarchrig (X := ringtorig X) R  → isarchring R.
 Proof.
   intros Hr H.
   split.
@@ -618,10 +618,10 @@ Proof.
 Defined.
 
 Lemma isarchring_isarchgr {X : ring} (R : hrel X) :
-  R 1%ring 0%ring ->
-  istrans R ->
-  isbinophrel (X := X) R ->
-  isarchring R -> isarchgr (X := X) R.
+  R 1%ring 0%ring  →
+  istrans R  →
+  isbinophrel (X := X) R  →
+  isarchring R  → isarchgr (X := X) R.
 Proof.
   intros Hr0 Hr Hop1 H.
   apply isarchmonoid_isarchgr.
@@ -633,10 +633,10 @@ Proof.
 Defined.
 
 Lemma isarchgr_isarchring {X : ring} (R : hrel X) :
-  R 1%ring 0%ring ->
-  istrans R ->
-  isbinophrel (X := X) R ->
-  isarchgr (X := X) R -> isarchring R.
+  R 1%ring 0%ring  →
+  istrans R  →
+  isbinophrel (X := X) R  →
+  isarchgr (X := X) R  → isarchring R.
 Proof.
   intros Hr0 Hr Hop1 H.
   apply isarchrig_isarchring.
@@ -771,9 +771,9 @@ Proof.
 Qed.
 
 Lemma isarchcommringfrac {X : commring} {S : subabmonoid _} (R : hrel X) Hop1 Hop2 Hs:
-  R 1%ring 0%ring ->
-  istrans R ->
-  isarchring R -> isarchring (X := commringfrac X S) (commringfracgt X S (R := R) Hop1 Hop2 Hs).
+  R 1%ring 0%ring  →
+  istrans R  →
+  isarchring R  → isarchring (X := commringfrac X S) (commringfracgt X S (R := R) Hop1 Hop2 Hs).
 Proof.
   intros H0 Htra Hr.
   split.
@@ -875,7 +875,7 @@ Definition isarchfld {X : fld} (R : hrel X) :=
 Lemma isarchfld_isarchring {X : fld} (R : hrel X) :
   ∏ (Hadd : isbinophrel (X := rigaddabmonoid X) R) ( Hmult : isringmultgt X R)
     (Hirr : isirrefl R),
-    isarchfld R -> isarchring R.
+    isarchfld R  → isarchring R.
 Proof.
   intros Hadd Hmult Hirr H.
   split.
@@ -897,7 +897,7 @@ Proof.
   - exact H.
 Defined.
 Lemma isarchring_isarchfld {X : fld} (R : hrel X) :
-    isarchring R -> isarchfld R.
+    isarchring R  → isarchfld R.
 Proof.
   intros H.
   intros x.
@@ -905,7 +905,7 @@ Proof.
 Defined.
 
 Theorem isarchfldfrac ( X : intdom ) ( is : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel X R ) ( is1 : isringmultgt X R ) ( is2 : R 1%ring 0%ring ) ( nc : neqchoice R ) ( irr : isirrefl R ) ( tra : istrans R ) :
-  isarchring R -> isarchfld (X := fldfrac X is ) (fldfracgt _  is is0 is1 is2 nc).
+  isarchring R  → isarchfld (X := fldfrac X is ) (fldfracgt _  is is0 is1 is2 nc).
 Proof.
   intros.
   apply isarchring_isarchfld.
@@ -956,8 +956,8 @@ Definition isarchCF {X : ConstructiveField} (R : hrel X) :=
 Lemma isarchCF_isarchring {X : ConstructiveField} (R : hrel X) :
   ∏ (Hadd : isbinophrel (X := rigaddabmonoid X) R) ( Hmult : isringmultgt X R)
     (Hirr : isirrefl R),
-    (∏ x : X, R x 0%CF -> (x ≠ 0)%CF) ->
-    isarchCF R -> isarchring R.
+    (∏ x : X, R x 0%CF  → (x ≠ 0)%CF)  →
+    isarchCF R  → isarchring R.
 Proof.
   intros Hadd Hmult Hirr H0 H.
   split.
@@ -976,7 +976,7 @@ Proof.
   - exact H.
 Defined.
 Lemma isarchring_isarchCF {X : ConstructiveField} (R : hrel X) :
-    isarchring R -> isarchCF R.
+    isarchring R  → isarchCF R.
 Proof.
   intros H.
   intros x.
