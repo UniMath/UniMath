@@ -139,14 +139,6 @@ Proof.
   exact (foldr arr (atotype p) l).
 Qed.
 
-Definition wrap_sig_sum (n : nat) (p : atom) : list(list sort × sort).
-Proof.
-    use tpair.
-    - exact n.
-    - apply weqvecfun.
-      intro i. apply ( [] ,, (atotype p ,, se) ).
-Defined.
-
 Definition Forest_Sig : MultiSortedSig sort.
 Proof.
   use (make_MultiSortedSig sort ).
@@ -156,7 +148,7 @@ Proof.
         * induction abs as [a b].
           exact ((((cons (a ,, sv)  []) ,, (b ,, st)) :: []) ,,  ((a ⇒ b),, st) ).
         * induction sum as [p n].
-          exact ( (wrap_sig_sum  n  p) ,, ((atotype p)  ,, st)).
+          exact ( (functionToList n (fun _ => ([] ,, (atotype p ,, se))))  ,, ((atotype p)  ,, st)).
       + induction elim_construct as [B p].
         exact (( ([],, ( sig_app_var_otype p B,, sv)) :: (map wrap_sig_app B))  ,, ((atotype p) ,, se)).
 Defined.
@@ -224,6 +216,11 @@ Definition Forest_tau_gen : Forest_Functor_H Forest_gen --> Forest_gen := SigmaM
 Definition app_source_gen (l : list otype) (p : atom) : sortToSet2 :=
   ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort SET TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET (arity sort Forest_Sig (inr (l ,,  p))) Forest_gen.
 
+Definition app_map_gen (l : list otype) (p : atom) : sortToSet2⟦app_source_gen l p, Forest_gen⟧.
+Proof.
+  exact (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ (λ _ , _ )) (inr (l ,, p)) · Forest_tau_gen).
+Defined.
+
 Definition lam_source_gen (a b : otype) : sortToSet2 :=
   ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort SET TerminalHSET
       BinProductsHSET BinCoproductsHSET CoproductsHSET (arity sort Forest_Sig (inl (inl (a ,, b) ))) Forest_gen.
@@ -238,20 +235,25 @@ Definition lam_map_gen_natural (a b : otype) (ξ ξ' : sortToSet) (f :  sortToSe
 Lemma lam_map_gen_natural_pointwise (a b : otype) (ξ ξ' : sortToSet) (f : sortToSet ⟦ ξ, ξ' ⟧) (u : sort)
     : pr1 (# (pr1 (lam_source_gen a b)) f) u · pr1 (pr1 (lam_map_gen a b) ξ') u =
         pr1 (pr1 (lam_map_gen a b) ξ) u · pr1 (# (pr1 Forest_gen) f) u.
-  Proof.
+Proof.
     apply (nat_trans_eq_weq HSET _ _ ((lam_map_gen_natural a b) ξ ξ' f)).
-  Qed.
+Qed.
 
 Lemma lam_map_gen_natural_ppointwise (a b : otype) (ξ ξ' : sortToSet) (f : sortToSet ⟦ ξ, ξ' ⟧)
     (u : sort) (elem : pr1 (pr1 (pr1 (lam_source_gen a b) ξ) u)) :
     pr1 (pr1 (lam_map_gen a b) ξ') u (pr1 (# (pr1 (lam_source_gen a b)) f) u elem) =
       pr1 (# (pr1 Forest_gen) f) u (pr1 (pr1 (lam_map_gen a b) ξ) u elem).
-  Proof.
+Proof.
     apply (toforallpaths _ _ _ ((lam_map_gen_natural_pointwise a b )ξ ξ' f u)).
 Qed.
 
 Definition sum_source_gen (p : atom) (n : nat) : sortToSet2 :=
     ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort SET TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET (arity sort Forest_Sig (inl (inr (p ,, n)))) Forest_gen.
+
+Definition sum_map_gen (p : atom) (n : nat) : sortToSet2⟦sum_source_gen p n, Forest_gen⟧.
+Proof.
+  exact (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ (λ _ , _ )) (inl (inr (p ,, n))) · Forest_tau_gen).
+Defined.
 
 End IndAndCoind.
 
