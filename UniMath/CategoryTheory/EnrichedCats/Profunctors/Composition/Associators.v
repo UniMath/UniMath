@@ -58,7 +58,7 @@ Section Associator.
   (** * 1. The right associator *)
 
   (** ** 1.1. Action on objects *)
-  Definition rassociator_enriched_profunctor_mor_ob
+  Definition lassociator_enriched_profunctor_mor_ob
              (z : C₄)
              (y : C₃)
              (x : C₂)
@@ -71,18 +71,18 @@ Section Associator.
        · (comp_enriched_profunctor_in P₁ P₂ y w x #⊗ identity _)
        · comp_enriched_profunctor_in (comp_enriched_profunctor P₁ P₂) P₃ z w y.
 
-  Proposition rassociator_enriched_profunctor_mor_eq
+  Proposition lassociator_enriched_profunctor_mor_eq
               (z : C₄)
               (y₁ y₂ : C₃)
               (x : C₂)
               (w : C₁)
     : lmap_e P₂ y₂ y₁ x #⊗ identity _
-      · internal_lam (rassociator_enriched_profunctor_mor_ob z y₁ x w)
+      · internal_lam (lassociator_enriched_profunctor_mor_ob z y₁ x w)
       =
       sym_mon_braiding V _ _ #⊗ identity _
       · mon_lassociator _ _ _
       · identity _ #⊗ rmap_e P₃ z y₁ y₂
-      · internal_lam (rassociator_enriched_profunctor_mor_ob z y₂ x w).
+      · internal_lam (lassociator_enriched_profunctor_mor_ob z y₂ x w).
   Proof.
     use internal_funext.
     intros a h.
@@ -92,7 +92,7 @@ Section Associator.
     rewrite !(tensor_split (_ #⊗ _) h).
     rewrite !assoc'.
     apply maponpaths.
-    unfold rassociator_enriched_profunctor_mor_ob.
+    unfold lassociator_enriched_profunctor_mor_ob.
     rewrite !assoc.
     rewrite !tensor_sym_mon_braiding.
     rewrite !assoc'.
@@ -245,7 +245,7 @@ Section Associator.
   Qed.
 
   (** ** 1.2. The data *)
-  Definition rassociator_enriched_profunctor_mor
+  Definition lassociator_enriched_profunctor_mor
              (z : C₄)
              (x : C₂)
              (w : C₁)
@@ -254,35 +254,35 @@ Section Associator.
       P₁ x w ⊸ comp_enriched_profunctor (comp_enriched_profunctor P₁ P₂) P₃ z w.
   Proof.
     use from_comp_enriched_profunctor_ob.
-    - exact (λ y, internal_lam (rassociator_enriched_profunctor_mor_ob z y x w)).
+    - exact (λ y, internal_lam (lassociator_enriched_profunctor_mor_ob z y x w)).
     - intros y₁ y₂ ; cbn.
-      exact (rassociator_enriched_profunctor_mor_eq z y₁ y₂ x w).
+      exact (lassociator_enriched_profunctor_mor_eq z y₁ y₂ x w).
   Defined.
 
-  Proposition rassociator_enriched_profunctor_mor_comm
+  Proposition lassociator_enriched_profunctor_mor_comm
               (z : C₄)
               (y : C₃)
               (x : C₂)
               (w : C₁)
     : (comp_enriched_profunctor_in _ _ z x y
-       · rassociator_enriched_profunctor_mor z x w) #⊗ identity _
+       · lassociator_enriched_profunctor_mor z x w) #⊗ identity _
        · internal_eval _ _
       =
-      rassociator_enriched_profunctor_mor_ob z y x w.
+      lassociator_enriched_profunctor_mor_ob z y x w.
   Proof.
-    unfold rassociator_enriched_profunctor_mor.
+    unfold lassociator_enriched_profunctor_mor.
     rewrite from_comp_enriched_profunctor_ob_comm.
     rewrite internal_beta.
     apply idpath.
   Qed.
 
-  Proposition rassociator_enriched_profunctor_data_eq
+  Proposition lassociator_enriched_profunctor_data_eq
               (z : C₄)
               (x₁ x₂ : C₂)
               (w : C₁)
     : lmap_e P₁ x₂ x₁ w #⊗ identity _
       · (sym_mon_braiding V _ _
-      · rassociator_enriched_profunctor_mor z x₁ w #⊗ identity _
+      · lassociator_enriched_profunctor_mor z x₁ w #⊗ identity _
       · internal_eval _ _)
       =
       sym_mon_braiding _ _ _ #⊗ identity _
@@ -291,7 +291,7 @@ Section Associator.
                        · sym_mon_braiding _ _ _
                        · internal_eval _ _)
       · (sym_mon_braiding _ _ _
-      · rassociator_enriched_profunctor_mor z x₂ w #⊗ identity _
+      · lassociator_enriched_profunctor_mor z x₂ w #⊗ identity _
       · internal_eval _ _).
   Proof.
     use is_inj_internal_transpose.
@@ -321,7 +321,7 @@ Section Associator.
       apply maponpaths.
       rewrite !assoc.
       rewrite <- tensor_comp_id_r.
-      apply rassociator_enriched_profunctor_mor_comm.
+      apply lassociator_enriched_profunctor_mor_comm.
     }
     refine (!_).
     etrans.
@@ -363,10 +363,10 @@ Section Associator.
       do 3 apply maponpaths.
       rewrite !assoc.
       rewrite <- tensor_comp_id_r.
-      rewrite rassociator_enriched_profunctor_mor_comm.
+      rewrite lassociator_enriched_profunctor_mor_comm.
       apply idpath.
     }
-    unfold rassociator_enriched_profunctor_mor_ob.
+    unfold lassociator_enriched_profunctor_mor_ob.
     rewrite !assoc.
     apply maponpaths_2.
     etrans.
@@ -496,7 +496,7 @@ Section Associator.
     apply tensor_id_id.
   Qed.
 
-  Definition rassociator_enriched_profunctor_data
+  Definition lassociator_enriched_profunctor_data
     : enriched_profunctor_transformation_data
         (comp_enriched_profunctor P₁ (comp_enriched_profunctor P₂ P₃))
         (comp_enriched_profunctor (comp_enriched_profunctor P₁ P₂) P₃).
@@ -505,32 +505,32 @@ Section Associator.
     use from_comp_enriched_profunctor_ob.
     - exact (λ x,
              sym_mon_braiding _ _ _
-             · (rassociator_enriched_profunctor_mor z x w #⊗ identity _)
+             · (lassociator_enriched_profunctor_mor z x w #⊗ identity _)
              · internal_eval _ _).
     - intros x₁ x₂ ; cbn.
-      exact (rassociator_enriched_profunctor_data_eq z x₁ x₂ w).
+      exact (lassociator_enriched_profunctor_data_eq z x₁ x₂ w).
   Defined.
 
-  Proposition rassociator_enriched_profunctor_data_comm
+  Proposition lassociator_enriched_profunctor_data_comm
               (z : C₄)
               (x : C₂)
               (w : C₁)
     : comp_enriched_profunctor_in _ _ z w x
-      · rassociator_enriched_profunctor_data z w
+      · lassociator_enriched_profunctor_data z w
       =
       sym_mon_braiding _ _ _
-      · (rassociator_enriched_profunctor_mor z x w #⊗ identity _)
+      · (lassociator_enriched_profunctor_mor z x w #⊗ identity _)
       · internal_eval _ _.
   Proof.
-    unfold rassociator_enriched_profunctor_data.
+    unfold lassociator_enriched_profunctor_data.
     rewrite from_comp_enriched_profunctor_ob_comm.
     apply idpath.
   Qed.
 
   (** ** 1.3. The laws *)
-  Proposition rassociator_enriched_profunctor_laws
+  Proposition lassociator_enriched_profunctor_laws
     : enriched_profunctor_transformation_laws
-        rassociator_enriched_profunctor_data.
+        lassociator_enriched_profunctor_data.
   Proof.
     split.
     - intros z₁ z₂ w ; cbn.
@@ -554,7 +554,7 @@ Section Associator.
       {
         rewrite !assoc.
         rewrite <- !tensor_comp_id_l.
-        rewrite rassociator_enriched_profunctor_data_comm.
+        rewrite lassociator_enriched_profunctor_data_comm.
         rewrite tensor_sym_mon_braiding.
         apply idpath.
       }
@@ -614,7 +614,7 @@ Section Associator.
       {
         unfold comp_enriched_profunctor_lmap_mor.
         rewrite !assoc'.
-        rewrite rassociator_enriched_profunctor_data_comm.
+        rewrite lassociator_enriched_profunctor_data_comm.
         apply maponpaths.
         rewrite !assoc.
         rewrite tensor_sym_mon_braiding.
@@ -662,7 +662,7 @@ Section Associator.
         apply maponpaths.
         rewrite !assoc.
         rewrite <- tensor_comp_id_r.
-        apply rassociator_enriched_profunctor_mor_comm.
+        apply lassociator_enriched_profunctor_mor_comm.
       }
       etrans.
       {
@@ -684,7 +684,7 @@ Section Associator.
       }
       etrans.
       {
-        unfold rassociator_enriched_profunctor_mor_ob.
+        unfold lassociator_enriched_profunctor_mor_ob.
         apply maponpaths.
         rewrite !assoc.
         do 3 apply maponpaths_2.
@@ -713,8 +713,8 @@ Section Associator.
         apply maponpaths.
         rewrite !assoc.
         rewrite <- !tensor_comp_id_r.
-        rewrite rassociator_enriched_profunctor_mor_comm.
-        unfold rassociator_enriched_profunctor_mor_ob.
+        rewrite lassociator_enriched_profunctor_mor_comm.
+        unfold lassociator_enriched_profunctor_mor_ob.
         rewrite !assoc'.
         do 2 rewrite tensor_comp_id_r.
         rewrite !assoc'.
@@ -806,7 +806,7 @@ Section Associator.
       {
         rewrite !assoc.
         rewrite <- !tensor_comp_id_l.
-        rewrite rassociator_enriched_profunctor_data_comm.
+        rewrite lassociator_enriched_profunctor_data_comm.
         rewrite tensor_sym_mon_braiding.
         apply idpath.
       }
@@ -866,7 +866,7 @@ Section Associator.
       {
         unfold comp_enriched_profunctor_rmap_mor.
         rewrite !assoc'.
-        rewrite rassociator_enriched_profunctor_data_comm.
+        rewrite lassociator_enriched_profunctor_data_comm.
         apply maponpaths.
         rewrite !assoc.
         rewrite tensor_rassociator.
@@ -883,9 +883,9 @@ Section Associator.
         apply maponpaths.
         rewrite !assoc.
         rewrite <- tensor_comp_id_r.
-        apply rassociator_enriched_profunctor_mor_comm.
+        apply lassociator_enriched_profunctor_mor_comm.
       }
-      unfold rassociator_enriched_profunctor_mor_ob.
+      unfold lassociator_enriched_profunctor_mor_ob.
       etrans.
       {
         do 3 apply maponpaths.
@@ -909,8 +909,8 @@ Section Associator.
         apply maponpaths.
         rewrite !assoc.
         rewrite <- !tensor_comp_id_r.
-        rewrite rassociator_enriched_profunctor_mor_comm.
-        unfold rassociator_enriched_profunctor_mor_ob.
+        rewrite lassociator_enriched_profunctor_mor_comm.
+        unfold lassociator_enriched_profunctor_mor_ob.
         rewrite !assoc'.
         do 2 rewrite tensor_comp_id_r.
         rewrite !assoc'.
@@ -987,7 +987,7 @@ Section Associator.
   Qed.
 
   (** ** 1.4. The right associator as a transformation *)
-  Definition rassociator_enriched_profunctor
+  Definition lassociator_enriched_profunctor
     : enriched_profunctor_transformation
         (comp_enriched_profunctor
            P₁
@@ -997,11 +997,11 @@ Section Associator.
            P₃).
   Proof.
     use make_enriched_profunctor_transformation.
-    - exact rassociator_enriched_profunctor_data.
-    - exact rassociator_enriched_profunctor_laws.
+    - exact lassociator_enriched_profunctor_data.
+    - exact lassociator_enriched_profunctor_laws.
   Defined.
 
-  Definition rassociator_enriched_profunctor_square
+  Definition lassociator_enriched_profunctor_square
     : enriched_profunctor_square
         (functor_id_enrichment E₁)
         (functor_id_enrichment E₄)
@@ -1013,13 +1013,13 @@ Section Associator.
            P₃).
   Proof.
     use enriched_profunctor_transformation_to_square.
-    exact rassociator_enriched_profunctor.
+    exact lassociator_enriched_profunctor.
   Defined.
 
   (** * 2. The right associator *)
 
   (** ** 2.1. Action on objects *)
-  Definition lassociator_enriched_profunctor_mor_ob
+  Definition rassociator_enriched_profunctor_mor_ob
              (z : C₄)
              (y : C₃)
              (x : C₂)
@@ -1031,18 +1031,18 @@ Section Associator.
        · (identity _ #⊗ comp_enriched_profunctor_in P₂ P₃ z x y)
        · comp_enriched_profunctor_in P₁ (comp_enriched_profunctor P₂ P₃) z w x.
 
-  Proposition lassociator_enriched_profunctor_mor_eq
+  Proposition rassociator_enriched_profunctor_mor_eq
               (z : C₄)
               (y : C₃)
               (x₁ x₂ : C₂)
               (w : C₁)
     : lmap_e P₁ x₂ x₁ w #⊗ identity _
-      · internal_lam (lassociator_enriched_profunctor_mor_ob z y x₁ w)
+      · internal_lam (rassociator_enriched_profunctor_mor_ob z y x₁ w)
       =
       sym_mon_braiding _ _ _ #⊗ identity _
       · mon_lassociator _ _ _
       · identity _ #⊗ rmap_e P₂ y x₁ x₂
-      · internal_lam (lassociator_enriched_profunctor_mor_ob z y x₂ w).
+      · internal_lam (rassociator_enriched_profunctor_mor_ob z y x₂ w).
   Proof.
     use internal_funext.
     intros a h.
@@ -1052,7 +1052,7 @@ Section Associator.
     rewrite !(tensor_split (_ #⊗ _) h).
     rewrite !assoc'.
     apply maponpaths.
-    unfold lassociator_enriched_profunctor_mor_ob.
+    unfold rassociator_enriched_profunctor_mor_ob.
     rewrite !assoc.
     etrans.
     {
@@ -1148,7 +1148,7 @@ Section Associator.
   Qed.
 
   (** ** 2.2. The data *)
-  Definition lassociator_enriched_profunctor_mor
+  Definition rassociator_enriched_profunctor_mor
              (z : C₄)
              (y : C₃)
              (w : C₁)
@@ -1157,42 +1157,42 @@ Section Associator.
       P₃ z y ⊸ comp_enriched_profunctor P₁ (comp_enriched_profunctor P₂ P₃) z w.
   Proof.
     use from_comp_enriched_profunctor_ob.
-    - exact (λ x, internal_lam (lassociator_enriched_profunctor_mor_ob z y x w)).
+    - exact (λ x, internal_lam (rassociator_enriched_profunctor_mor_ob z y x w)).
     - intros x₁ x₂ ; cbn.
-      exact (lassociator_enriched_profunctor_mor_eq z y x₁ x₂ w).
+      exact (rassociator_enriched_profunctor_mor_eq z y x₁ x₂ w).
   Defined.
 
-  Proposition lassociator_enriched_profunctor_mor_comm
+  Proposition rassociator_enriched_profunctor_mor_comm
               (z : C₄)
               (y : C₃)
               (x : C₂)
               (w : C₁)
     : (comp_enriched_profunctor_in _ _ y w x
-       · lassociator_enriched_profunctor_mor z y w) #⊗ identity _
+       · rassociator_enriched_profunctor_mor z y w) #⊗ identity _
        · internal_eval _ _
       =
-      lassociator_enriched_profunctor_mor_ob z y x w.
+      rassociator_enriched_profunctor_mor_ob z y x w.
   Proof.
-    unfold lassociator_enriched_profunctor_mor.
+    unfold rassociator_enriched_profunctor_mor.
     rewrite from_comp_enriched_profunctor_ob_comm.
     rewrite internal_beta.
     apply idpath.
   Qed.
 
-  Proposition lassociator_enriched_profunctor_data_eq
+  Proposition rassociator_enriched_profunctor_data_eq
               (z : C₄)
               (y₁ y₂ : C₃)
               (w : C₁)
     : (identity _ #⊗ comp_enriched_profunctor_lmap P₁ P₂ y₂ y₁ w
        · sym_mon_braiding _ _ _
        · internal_eval _ _) #⊗ identity _
-      · (lassociator_enriched_profunctor_mor z y₁ w #⊗ identity _
+      · (rassociator_enriched_profunctor_mor z y₁ w #⊗ identity _
       · internal_eval _ _)
       =
       sym_mon_braiding _ _ _ #⊗ identity _
       · mon_lassociator _ _ _
       · identity _ #⊗ rmap_e P₃ z y₁ y₂
-      · (lassociator_enriched_profunctor_mor z y₂ w #⊗ identity _
+      · (rassociator_enriched_profunctor_mor z y₂ w #⊗ identity _
       · internal_eval _ _).
   Proof.
     use is_inj_internal_lam.
@@ -1239,8 +1239,8 @@ Section Associator.
       rewrite !assoc'.
       do 3 rewrite tensor_comp_id_r.
       rewrite !assoc'.
-      rewrite lassociator_enriched_profunctor_mor_comm.
-      unfold lassociator_enriched_profunctor_mor_ob.
+      rewrite rassociator_enriched_profunctor_mor_comm.
+      unfold rassociator_enriched_profunctor_mor_ob.
       rewrite !assoc.
       apply idpath.
     }
@@ -1263,10 +1263,10 @@ Section Associator.
       apply maponpaths.
       rewrite !assoc.
       rewrite <- tensor_comp_id_r.
-      rewrite lassociator_enriched_profunctor_mor_comm.
+      rewrite rassociator_enriched_profunctor_mor_comm.
       apply idpath.
     }
-    unfold lassociator_enriched_profunctor_mor_ob.
+    unfold rassociator_enriched_profunctor_mor_ob.
     rewrite !assoc.
     apply maponpaths_2.
     etrans.
@@ -1329,7 +1329,7 @@ Section Associator.
     apply id_left.
   Qed.
 
-  Definition lassociator_enriched_profunctor_data
+  Definition rassociator_enriched_profunctor_data
              (z : C₄)
              (w : C₁)
     : comp_enriched_profunctor (comp_enriched_profunctor P₁ P₂) P₃ z w
@@ -1338,23 +1338,23 @@ Section Associator.
   Proof.
     use from_comp_enriched_profunctor_ob.
     - exact (λ y,
-             (lassociator_enriched_profunctor_mor z y w #⊗ identity _)
+             (rassociator_enriched_profunctor_mor z y w #⊗ identity _)
              · internal_eval _ _).
     - intros y₁ y₂ ; cbn.
-      exact (lassociator_enriched_profunctor_data_eq z y₁ y₂ w).
+      exact (rassociator_enriched_profunctor_data_eq z y₁ y₂ w).
   Defined.
 
-  Proposition lassociator_enriched_profunctor_data_comm
+  Proposition rassociator_enriched_profunctor_data_comm
               (z : C₄)
               (y : C₃)
               (w : C₁)
     : comp_enriched_profunctor_in _ _ z w y
-      · lassociator_enriched_profunctor_data z w
+      · rassociator_enriched_profunctor_data z w
       =
-      (lassociator_enriched_profunctor_mor z y w #⊗ identity _)
+      (rassociator_enriched_profunctor_mor z y w #⊗ identity _)
       · internal_eval _ _.
   Proof.
-    unfold lassociator_enriched_profunctor_data.
+    unfold rassociator_enriched_profunctor_data.
     rewrite from_comp_enriched_profunctor_ob_comm.
     apply idpath.
   Qed.
@@ -1363,15 +1363,15 @@ Section Associator.
               (z : C₄)
               (w : C₁)
     : is_inverse_in_precat
-        (rassociator_enriched_profunctor z w)
-        (lassociator_enriched_profunctor_data z w).
+        (lassociator_enriched_profunctor z w)
+        (rassociator_enriched_profunctor_data z w).
   Proof.
     split ; cbn.
     - use from_comp_enriched_profunctor_eq.
       intros x.
       rewrite id_right.
       rewrite !assoc.
-      rewrite rassociator_enriched_profunctor_data_comm.
+      rewrite lassociator_enriched_profunctor_data_comm.
       use is_inj_internal_transpose.
       use from_comp_enriched_profunctor_eq.
       intros y.
@@ -1392,25 +1392,25 @@ Section Associator.
         apply id_right.
       }
       rewrite <- tensor_comp_id_r.
-      rewrite rassociator_enriched_profunctor_mor_comm.
+      rewrite lassociator_enriched_profunctor_mor_comm.
       rewrite tensor_sym_mon_braiding.
-      unfold rassociator_enriched_profunctor_mor_ob.
+      unfold lassociator_enriched_profunctor_mor_ob.
       rewrite !assoc'.
       apply maponpaths.
       etrans.
       {
         do 2 apply maponpaths.
-        apply lassociator_enriched_profunctor_data_comm.
+        apply rassociator_enriched_profunctor_data_comm.
       }
       etrans.
       {
         apply maponpaths.
         rewrite !assoc.
         rewrite <- tensor_comp_id_r.
-        rewrite lassociator_enriched_profunctor_mor_comm.
+        rewrite rassociator_enriched_profunctor_mor_comm.
         apply idpath.
       }
-      unfold lassociator_enriched_profunctor_mor_ob.
+      unfold rassociator_enriched_profunctor_mor_ob.
       rewrite !assoc.
       rewrite mon_rassociator_lassociator.
       rewrite id_left.
@@ -1419,7 +1419,7 @@ Section Associator.
       intros x.
       rewrite id_right.
       rewrite !assoc.
-      rewrite lassociator_enriched_profunctor_data_comm.
+      rewrite rassociator_enriched_profunctor_data_comm.
       use is_inj_internal_lam.
       use from_comp_enriched_profunctor_eq.
       intros y.
@@ -1432,13 +1432,13 @@ Section Associator.
       rewrite !internal_beta.
       rewrite !assoc.
       rewrite <- tensor_comp_id_r.
-      rewrite lassociator_enriched_profunctor_mor_comm.
-      unfold lassociator_enriched_profunctor_mor_ob.
+      rewrite rassociator_enriched_profunctor_mor_comm.
+      unfold rassociator_enriched_profunctor_mor_ob.
       rewrite !assoc'.
       etrans.
       {
         do 2 apply maponpaths.
-        apply rassociator_enriched_profunctor_data_comm.
+        apply lassociator_enriched_profunctor_data_comm.
       }
       etrans.
       {
@@ -1449,10 +1449,10 @@ Section Associator.
         apply maponpaths.
         rewrite !assoc.
         rewrite <- tensor_comp_id_r.
-        rewrite rassociator_enriched_profunctor_mor_comm.
+        rewrite lassociator_enriched_profunctor_mor_comm.
         apply idpath.
       }
-      unfold rassociator_enriched_profunctor_mor_ob.
+      unfold lassociator_enriched_profunctor_mor_ob.
       etrans.
       {
         apply maponpaths.
@@ -1467,17 +1467,17 @@ Section Associator.
       apply idpath.
   Qed.
 
-  Definition is_iso_rassociator_enriched_profunctor
+  Definition is_iso_lassociator_enriched_profunctor
     : is_iso_enriched_profunctor_transformation
-        rassociator_enriched_profunctor.
+        lassociator_enriched_profunctor.
   Proof.
     intros z w.
     use make_is_z_isomorphism.
-    - exact (lassociator_enriched_profunctor_data z w).
+    - exact (rassociator_enriched_profunctor_data z w).
     - exact (is_inverse_lassociator_enriched_profunctor_mor z w).
   Defined.
 
-  Definition lassociator_enriched_profunctor
+  Definition rassociator_enriched_profunctor
     : enriched_profunctor_transformation
         (comp_enriched_profunctor
            (comp_enriched_profunctor P₁ P₂)
@@ -1487,9 +1487,9 @@ Section Associator.
            (comp_enriched_profunctor P₂ P₃))
     := inv_enriched_profunctor_transformation
          _
-         is_iso_rassociator_enriched_profunctor.
+         is_iso_lassociator_enriched_profunctor.
 
-  Definition lassociator_enriched_profunctor_square
+  Definition rassociator_enriched_profunctor_square
     : enriched_profunctor_square
         (functor_id_enrichment E₁)
         (functor_id_enrichment E₄)
@@ -1501,6 +1501,6 @@ Section Associator.
            (comp_enriched_profunctor P₂ P₃)).
   Proof.
     use enriched_profunctor_transformation_to_square.
-    exact lassociator_enriched_profunctor.
+    exact rassociator_enriched_profunctor.
   Defined.
 End Associator.
