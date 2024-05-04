@@ -711,8 +711,7 @@ Proof.
   }
   split with f.
   apply (isweqimplimpl f g (isapropislinv opp un0 inv0) (isapropisrinv opp un0 inv0)).
-Defined.
-Opaque abmonoidoprer.
+Qed.
 
 (** *)
 
@@ -1541,8 +1540,7 @@ Proof.
   use impred_isaset. intros t1.
   use impred_isaset. intros t2.
   use setproperty.
-Defined.
-Opaque isasetbinoponhSet.
+Qed.
 
 Declare Scope addoperation_scope.
 Delimit Scope addoperation_scope with addoperation.
@@ -1611,8 +1609,7 @@ Proof.
   intros a b. simpl.
   rewrite (axf a b). rewrite (axg (pr1 f a) (pr1 f b)).
   apply idpath.
-Defined.
-Opaque isbinopfuncomp.
+Qed.
 
 Definition binopfuncomp {X Y Z : setwithbinop} (f : binopfun X Y) (g : binopfun Y Z) :
   binopfun X Z := make_binopfun (funcomp (pr1 f) (pr1 g)) (isbinopfuncomp f g).
@@ -1647,8 +1644,7 @@ Proof.
     + use impred_isaset. intros t. use setproperty.
     + intros x. use isasetaprop. use isapropisweq.
   - intros w. use isasetaprop. use isapropisbinopfun.
-Defined.
-Opaque isasetbinopiso.
+Qed.
 
 Definition binopisotobinopmono (X Y : setwithbinop) :
   binopiso X Y -> binopmono X Y := λ f, make_binopmono (weqtoincl (pr1 f)) (pr2 f).
@@ -1666,8 +1662,7 @@ Proof.
   rewrite (homotweqinvweq (pr1 f) a).
   rewrite (homotweqinvweq (pr1 f) b).
   apply idpath.
-Defined.
-Opaque isbinopfuninvmap.
+Qed.
 
 Definition invbinopiso {X Y : setwithbinop} (f : binopiso X Y) :
   binopiso Y X := make_binopiso (invweq (pr1 f)) (isbinopfuninvmap f).
@@ -1717,13 +1712,10 @@ Proof.
 Defined.
 Opaque setwithbinop_univalence_isweq.
 
-Definition setwithbinop_univalence (X Y : setwithbinop) : (X = Y) ≃ (binopiso X Y).
-Proof.
-  use make_weq.
-  - exact (setwithbinop_univalence_map X Y).
-  - exact (setwithbinop_univalence_isweq X Y).
-Defined.
-Opaque setwithbinop_univalence.
+Definition setwithbinop_univalence (X Y : setwithbinop) : (X = Y) ≃ (binopiso X Y)
+  := make_weq
+    (setwithbinop_univalence_map X Y)
+    (setwithbinop_univalence_isweq X Y).
 
 
 (** **** hfiber and binop*)
@@ -1845,16 +1837,14 @@ Proof.
   apply (invmaponpathsincl _ (pr2 (pr1 f))).
   rewrite (axf (op a b) c). rewrite (axf a b).
   rewrite (axf a (op b c)). rewrite (axf b c). apply is.
-Defined.
-Opaque isassocmonob.
+Qed.
 
 Lemma iscommmonob {X Y : setwithbinop} (f : binopmono X Y) (is : iscomm (@op Y)) : iscomm (@op X).
 Proof.
   set (axf := pr2 f). simpl in axf. intros a b.
   apply (invmaponpathsincl _ (pr2 (pr1 f))).
   rewrite (axf a b). rewrite (axf b a). apply is.
-Defined.
-Opaque iscommmonob.
+Qed.
 
 Notation isassocisob := isassocmonob.
 Notation iscommisob := iscommmonob.
@@ -1862,14 +1852,12 @@ Notation iscommisob := iscommmonob.
 Lemma isassocisof {X Y : setwithbinop} (f : binopiso X Y) (is : isassoc (@op X)) : isassoc (@op Y).
 Proof.
   apply (isassocmonob (invbinopiso f) is).
-Defined.
-Opaque isassocisof.
+Qed.
 
 Lemma iscommisof {X Y : setwithbinop} (f : binopiso X Y) (is : iscomm (@op X)) : iscomm (@op Y).
 Proof.
   apply (iscommmonob (invbinopiso f) is).
-Defined.
-Opaque iscommisof.
+Qed.
 
 Lemma isunitisof {X Y : setwithbinop} (f : binopiso X Y) (unx : X) (is : isunit (@op X) unx) :
   isunit (@op Y) (f unx).
@@ -1883,8 +1871,7 @@ Proof.
     apply (invmaponpathsweq (pr1 (invbinopiso f))).
     rewrite (pr2 (invbinopiso f) a (pr1 f unx)). simpl.
     rewrite (homotinvweqweq (pr1 f) unx). apply (pr2 is).
-Defined.
-Opaque isunitisof.
+Qed.
 
 Definition isunitalisof {X Y : setwithbinop} (f : binopiso X Y) (is : isunital (@op X)) :
   isunital (@op Y) := make_isunital (f (pr1 is)) (isunitisof f (pr1 is) (pr2 is)).
@@ -1894,8 +1881,7 @@ Lemma isunitisob {X Y : setwithbinop} (f : binopiso X Y) (uny : Y) (is : isunit 
 Proof.
   set (int := isunitisof (invbinopiso f)). simpl. simpl in int.
   apply int. apply is.
-Defined.
-Opaque isunitisob.
+Qed.
 
 Definition isunitalisob {X Y : setwithbinop} (f : binopiso X Y) (is : isunital (@op Y)) :
   isunital (@op X) := make_isunital ((invmap f) (pr1 is)) (isunitisob f (pr1 is) (pr2 is)).
@@ -1922,8 +1908,7 @@ Proof.
     rewrite (homotinvweqweq (pr1 f) unx).
     rewrite (homotinvweqweq (pr1 f) (invx (invmap (pr1 f) a))).
     apply (pr2 is).
-Defined.
-Opaque isinvisof.
+Qed.
 
 Definition isgropisof {X Y : setwithbinop} (f : binopiso X Y) (is : isgrop (@op X)) :
   isgrop (@op Y) := tpair _ (ismonoidopisof f is)
@@ -1935,8 +1920,7 @@ Lemma isinvisob {X Y : setwithbinop} (f : binopiso X Y) (uny : Y) (invy : Y -> Y
                                             (funcomp (pr1 f) (funcomp invy (invmap (pr1 f)))).
 Proof.
   apply (isinvisof (invbinopiso f) uny invy is).
-Defined.
-Opaque isinvisob.
+Qed.
 
 Definition isgropisob {X Y : setwithbinop} (f : binopiso X Y) (is : isgrop (@op Y)) :
   isgrop (@op X) := tpair _ (ismonoidopisob f is)
@@ -2458,8 +2442,7 @@ Proof.
   use isasetdirprod.
   - use isasetbinoponhSet.
   - use isasetbinoponhSet.
-Defined.
-Opaque isasettwobinoponhSet.
+Qed.
 
 
 (** **** Functions compatible with a pair of binary operation (homomorphisms) and their properties *)
@@ -2506,8 +2489,7 @@ Proof.
   use total2_paths_f.
   - exact e.
   - use proofirrelevance. use isapropistwobinopfun.
-Defined.
-Opaque twobinopfun_paths.
+Qed.
 
 Lemma isasettwobinopfun  (X Y : setwith2binop) : isaset (twobinopfun X Y).
 Proof.
@@ -2515,8 +2497,7 @@ Proof.
   - change (isofhlevel 2 (X -> Y)).
     apply impred. intro. apply (setproperty Y).
   - refine (isinclpr1 _ _). intro. apply isapropistwobinopfun.
-Defined.
-Opaque isasettwobinopfun.
+Qed.
 
 Lemma istwobinopfuncomp {X Y Z : setwith2binop} (f : twobinopfun X Y) (g : twobinopfun Y Z) :
   istwobinopfun (funcomp (pr1 f) (pr1 g)).
@@ -2530,8 +2511,7 @@ Proof.
   - intros a b. simpl.
     rewrite (ax2f a b). rewrite (ax2g (pr1 f a) (pr1 f b)).
     apply idpath.
-Defined.
-Opaque istwobinopfuncomp.
+Qed.
 
 Definition twobinopfuncomp {X Y Z : setwith2binop} (f : twobinopfun X Y) (g : twobinopfun Y Z) :
   twobinopfun X Z := make_twobinopfun (funcomp (pr1 f) (pr1 g)) (istwobinopfuncomp f g).
@@ -2579,8 +2559,7 @@ Proof.
   use total2_paths_f.
   - exact e.
   - use proofirrelevance. use isapropistwobinopfun.
-Defined.
-Opaque twobinopiso_paths.
+Qed.
 
 Definition binop1iso {X Y : setwith2binop} (f : twobinopiso X Y) :
   binopiso (setwithbinop1 X) (setwithbinop1 Y) :=
@@ -2610,8 +2589,7 @@ Proof.
     rewrite (homotweqinvweq (pr1 f) a).
     rewrite (homotweqinvweq (pr1 f) b).
     apply idpath.
-Defined.
-Opaque istwobinopfuninvmap.
+Qed.
 
 Definition invtwobinopiso {X Y : setwith2binop} (f : twobinopiso X Y) :
   twobinopiso Y X := make_twobinopiso (invweq (pr1 f)) (istwobinopfuninvmap f).
@@ -2671,13 +2649,10 @@ Proof.
 Defined.
 Opaque setwith2binop_univalence_isweq.
 
-Definition setwith2binop_univalence (X Y : setwith2binop) : (X = Y) ≃ (twobinopiso X Y).
-Proof.
-  use make_weq.
-  - exact (setwith2binop_univalence_map X Y).
-  - exact (setwith2binop_univalence_isweq X Y).
-Defined.
-Opaque setwith2binop_univalence.
+Definition setwith2binop_univalence (X Y : setwith2binop) : (X = Y) ≃ (twobinopiso X Y)
+  := make_weq
+    (setwith2binop_univalence_map X Y)
+    (setwith2binop_univalence_isweq X Y).
 
 
 (** **** Transport of properties of a pair of binary operations *)
@@ -2694,8 +2669,7 @@ Proof.
   rewrite (ax2f c a).
   rewrite (ax2f c b).
   apply is.
-Defined.
-Opaque isldistrmonob.
+Qed.
 
 Lemma isrdistrmonob {X Y : setwith2binop} (f : twobinopmono X Y)
       (is : isrdistr (@op1 Y) (@op2 Y)) : isrdistr (@op1 X) (@op2 X).
@@ -2710,8 +2684,7 @@ Proof.
   rewrite (ax2f a c).
   rewrite (ax2f b c).
   apply is.
-Defined.
-Opaque isrdistrmonob.
+Qed.
 
 Definition isdistrmonob {X Y : setwith2binop} (f : twobinopmono X Y)
            (is : isdistr (@op1 Y) (@op2 Y)) :
