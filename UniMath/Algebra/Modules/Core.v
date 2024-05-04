@@ -15,7 +15,7 @@ Require Import UniMath.Algebra.Monoids.
   - Isomorphisms ([moduleiso])
 *)
 
-Local Open Scope addmonoid_scope.
+Local Open Scope addmonoid.
 Import UniMath.Algebra.Monoids.AddNotation.
 
 (** ** The ring of endomorphisms of an abelian group *)

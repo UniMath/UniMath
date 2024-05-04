@@ -18,7 +18,7 @@ Require Import UniMath.Combinatorics.Lists.
 - Abelian group presented by a set of generators and relations
 *)
 
-Local Open Scope multmonoid_scope.
+Local Open Scope multmonoid.
 Local Notation "[]" := nil (at level 0, format "[]").
 Local Infix "::" := cons.
 

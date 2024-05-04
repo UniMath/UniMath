@@ -29,7 +29,6 @@ Require Export UniMath.MoreFoundations.Propositions.
 Require Export UniMath.Algebra.BinaryOperations.
 Require Export UniMath.Algebra.Monoids.
 Require Export UniMath.Algebra.Groups.
-Import AddNotation.
 Local Open Scope addmonoid.
 Local Open Scope abgr.
 Local Open Scope logic.

@@ -65,7 +65,7 @@ Definition isrcancelable {X : UU} (opp : binop X) (x : X) : UU := isincl (λ x0 
 Definition rcancel {X : UU} {opp : binop X} {x : X} (H_x : isrcancelable opp x) (y z : X) :
   opp y x = opp z x → y = z.
 Proof.
-  apply (invmaponpathsincl (fun y => opp y x)), H_x.
+  apply (invmaponpathsincl (λ y, opp y x)), H_x.
 Defined.
 
 Definition iscancelable {X : UU} (opp : binop X) (x : X) : UU :=
@@ -192,9 +192,9 @@ Section ElementsWithInverses.
 
   (** Is this element x0 the left/right inverse of x? *)
 
-  Definition islinvel (x : X) : X → UU := fun x0 => x0 * x = u.
-  Definition isrinvel (x : X) : X → UU := fun x0 => x * x0 = u.
-  Definition isinvel (x : X) : X → UU := fun x0 => (islinvel x x0) × (isrinvel x x0).
+  Definition islinvel (x : X) : X → UU := λ x0, x0 * x = u.
+  Definition isrinvel (x : X) : X → UU := λ x0, x * x0 = u.
+  Definition isinvel (x : X) : X → UU := λ x0, (islinvel x x0) × (isrinvel x x0).
 
   (** Is there some element x0 that is the left/right inverse of x? *)
 
@@ -215,7 +215,7 @@ Section ElementsWithInverses.
 
   (** The inverse of an element's two-sided inverse is just that element *)
   Definition is_inv_inv : ∏ (x x0 : X), (isinvel x x0 → isinvel x0 x) :=
-    fun x x0 isinv => pr2 isinv ,, pr1 isinv.
+    λ x x0 isinv, pr2 isinv ,, pr1 isinv.
 
   (** If two elements have left inverses, so does their product. *)
   Lemma invop_l :
@@ -2900,7 +2900,7 @@ Defined.
 
 Lemma infinitary_op_to_binop {X : hSet} (op : ∏ I : UU, (I → X) → X) : binop X.
 Proof.
-  intros x y; exact (op _ (bool_rect (fun _ => X) x y)).
+  intros x y; exact (op _ (bool_rect (λ _, X) x y)).
 Defined.
 
 (* End of file *)

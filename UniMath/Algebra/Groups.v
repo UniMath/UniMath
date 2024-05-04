@@ -35,7 +35,7 @@ Require Import UniMath.MoreFoundations.Subtypes.
 Require Export UniMath.Algebra.BinaryOperations.
 Require Export UniMath.Algebra.Monoids.
 
-Local Open Scope logic.
+Local Open Scope multmonoid.
 
 (** ** Groups *)
 
@@ -43,18 +43,18 @@ Local Open Scope logic.
 
 Definition gr : UU := ∑ (X : setwithbinop), isgrop (@op X).
 
-Definition make_gr :
-  ∏ (t : setwithbinop), (λ X : setwithbinop, isgrop op) t → ∑ X : setwithbinop, isgrop op :=
-  tpair (λ X : setwithbinop, isgrop (@op X)).
+Definition make_gr (t : setwithbinop) (H : isgrop (@op t))
+  : gr
+  := t ,, H.
 
 Definition grtomonoid : gr  → monoid := λ X, make_monoid (pr1 X) (pr1 (pr2 X)).
 Coercion grtomonoid : gr >-> monoid.
 
 Definition grinv (X : gr) : X  → X := pr1 (pr2 (pr2 X)).
 
-Definition grlinvax (X : gr) : islinv (@op X) (unel X) (grinv X) := pr1 (pr2 (pr2 (pr2 X))).
+Definition grlinvax (X : gr) : islinv (@op X) 1 (grinv X) := pr1 (pr2 (pr2 (pr2 X))).
 
-Definition grrinvax (X : gr) : isrinv (@op X) (unel X) (grinv X) := pr2 (pr2 (pr2 (pr2 X))).
+Definition grrinvax (X : gr) : isrinv (@op X) 1 (grinv X) := pr2 (pr2 (pr2 (pr2 X))).
 
 Definition gr_of_monoid (X : monoid) (H : invstruct (@op X) (pr2 X)) : gr :=
   make_gr X (make_isgrop (pr2 X) H).
@@ -65,14 +65,14 @@ Proof.
   intros.
   apply (invmaponpathsweq (make_weq _ (isweqrmultingr_is (pr2 Y) (f x)))).
   simpl.
-  change (paths (op (pr1 f (grinv X x)) (pr1 f x)) (op (grinv Y (pr1 f x)) (pr1 f x))).
+  change (pr1 f (grinv X x) * pr1 f x = grinv Y (pr1 f x) * pr1 f x).
   rewrite (grlinvax Y (pr1 f x)).
   destruct (pr1 (pr2 f) (grinv X x) x).
   rewrite (grlinvax X x).
   apply (pr2 (pr2 f)).
 Defined.
 
-Lemma grinv_path_from_op_path {X : gr} {x y : X} (p : (x * y)%multmonoid = unel X) :
+Lemma grinv_path_from_op_path {X : gr} {x y : X} (p : x * y = 1) :
   grinv X x = y.
 Proof.
   now rewrite <- (lunax X y), <- (grlinvax X x), assocax, p, runax.
@@ -93,7 +93,7 @@ Qed.
 
 Definition unitgr : gr := make_gr unitmonoid unitgr_isgrop.
 
-Lemma grfuntounit_ismonoidfun (X : gr) : ismonoidfun (λ x : X, (unel unitgr)).
+Lemma grfuntounit_ismonoidfun (X : gr) : ismonoidfun (Y := unitgr) (λ x : X, 1).
 Proof.
   use make_ismonoidfun.
   - use make_isbinopfun. intros x x'. use isProofIrrelevantUnit.
@@ -102,20 +102,20 @@ Qed.
 
 Definition grfuntounit (X : gr) : monoidfun X unitgr := monoidfunconstr (grfuntounit_ismonoidfun X).
 
-Lemma grfunfromunit_ismonoidfun (X : gr) : ismonoidfun (λ x : unitgr, (unel X)).
+Lemma grfunfromunit_ismonoidfun (X : gr) : ismonoidfun (Y := X) (λ x : unitgr, 1).
 Proof.
   use make_ismonoidfun.
-  - use make_isbinopfun. intros x x'. use pathsinv0. use (runax X).
+  - use make_isbinopfun. intros x x'. exact (!runax X _).
   - use idpath.
 Qed.
 
 Definition grfunfromunit (X : gr) : monoidfun unitmonoid X :=
   monoidfunconstr (monoidfunfromunit_ismonoidfun X).
 
-Lemma unelgrfun_ismonoidfun (X Y : gr) : ismonoidfun (λ x : X, (unel Y)).
+Lemma unelgrfun_ismonoidfun (X Y : gr) : ismonoidfun (Y := Y) (λ x : X, 1).
 Proof.
   use make_ismonoidfun.
-  - use make_isbinopfun. intros x x'. use pathsinv0. use lunax.
+  - use make_isbinopfun. intros x x'. exact (!lunax _ _).
   - use idpath.
 Qed.
 
@@ -137,14 +137,14 @@ Definition unelgrfun (X Y : gr) : monoidfun X Y :=
 Local Definition gr' : UU :=
   ∑ g : (∑ X : setwithbinop, ismonoidop (@op X)), invstruct (@op (pr1 g)) (pr2 g).
 
-Local Definition make_gr' (X : gr) : gr' := tpair _ (tpair _ (pr1 X) (pr1 (pr2 X))) (pr2 (pr2 X)).
+Local Definition make_gr' (X : gr) : gr' := (pr1 X ,, pr1 (pr2 X)) ,, pr2 (pr2 X).
 
 Local Definition gr'_to_monoid (X : gr') : monoid := pr1 X.
 
 Definition gr_univalence_weq1 : gr ≃ gr' :=
   weqtotal2asstol
     (λ Z : setwithbinop, ismonoidop (@op Z))
-    (fun y : (∑ (x : setwithbinop), ismonoidop (@op x)) => invstruct (@op (pr1 y)) (pr2 y)).
+    (λ y : (∑ (x : setwithbinop), ismonoidop (@op x)), invstruct (@op (pr1 y)) (pr2 y)).
 
 Definition gr_univalence_weq1' (X Y : gr) : (X = Y) ≃ (make_gr' X = make_gr' Y) :=
   make_weq _ (@isweqmaponpaths gr gr' gr_univalence_weq1 X Y).
@@ -172,7 +172,7 @@ Proof.
   - exact (weqcomp (gr_univalence_weq1' X Y)
                    (weqcomp (gr_univalence_weq2 X Y) (gr_univalence_weq3 X Y))).
   - intros e. induction e.
-    use (pathscomp0 weqcomp_to_funcomp_app).
+    refine (weqcomp_to_funcomp_app @ _).
     use weqcomp_to_funcomp_app.
   - use weqproperty.
 Defined.
@@ -192,27 +192,27 @@ Definition weqlmultingr (X : gr) (x0 : X) : pr1 X ≃ pr1 X :=
 Definition weqrmultingr (X : gr) (x0 : X) : pr1 X ≃ pr1 X :=
   make_weq _ (isweqrmultingr_is (pr2 X) x0).
 
-Lemma grlcan (X : gr) {a b : X} (c : X) (e : paths (op c a) (op c b)) : a = b.
+Lemma grlcan (X : gr) {a b : X} (c : X) (e : c * a = c * b) : a = b.
 Proof. apply (invmaponpathsweq (weqlmultingr X c) _ _ e). Defined.
 
-Lemma grrcan (X : gr) {a b : X} (c : X) (e : paths (op a c) (op b c)) : a = b.
+Lemma grrcan (X : gr) {a b : X} (c : X) (e : a * c = b * c) : a = b.
 Proof. apply (invmaponpathsweq (weqrmultingr X c) _ _ e). Defined.
 
-Lemma grinvunel (X : gr) : paths (grinv X (unel X)) (unel X).
+Lemma grinvunel (X : gr) : grinv X 1 = 1.
 Proof.
-  apply (grrcan X (unel X)).
+  apply (grrcan X 1).
   rewrite (grlinvax X). rewrite (runax X).
   apply idpath.
 Defined.
 
-Lemma grinvinv (X : gr) (a : X) : paths (grinv X (grinv X a)) a.
+Lemma grinvinv (X : gr) (a : X) : grinv X (grinv X a) = a.
 Proof.
   apply (grlcan X (grinv X a)).
   rewrite (grlinvax X a). rewrite (grrinvax X _).
   apply idpath.
 Defined.
 
-Lemma grinvmaponpathsinv (X : gr) {a b : X} (e : paths (grinv X a) (grinv X b)) : a = b.
+Lemma grinvmaponpathsinv (X : gr) {a b : X} (e : grinv X a = grinv X b) : a = b.
 Proof.
   assert (e' := maponpaths (λ x, grinv X x) e).
   simpl in e'. rewrite (grinvinv X _) in e'.
@@ -220,16 +220,16 @@ Proof.
 Defined.
 
 Lemma grinvandmonoidfun (X Y : gr) {f : X  → Y} (is : ismonoidfun f) (x : X) :
-  paths (f (grinv X x)) (grinv Y (f x)).
+  f (grinv X x) = grinv Y (f x).
 Proof.
   apply (grrcan Y (f x)).
-  rewrite (pathsinv0 (pr1 is _ _)). rewrite (grlinvax X).
+  rewrite <- (pr1 is _ _). rewrite (grlinvax X).
   rewrite (grlinvax Y).
   apply (pr2 is).
 Defined.
 
 Lemma grinvop (Y : gr) :
-  ∏ y1 y2 : Y, grinv Y (@op Y y1 y2) = @op Y (grinv Y y2) (grinv Y y1).
+  ∏ y1 y2 : Y, grinv Y (y1 * y2) = (grinv Y y2) * (grinv Y y1).
 Proof.
   intros y1 y2.
   apply (grrcan Y y1).
@@ -246,8 +246,8 @@ Lemma isinvbinophrelgr (X : gr) {R : hrel X} (is : isbinophrel R) : isinvbinophr
 Proof.
   set (is1 := pr1 is). set (is2 := pr2 is). split.
   - intros a b c r. set (r' := is1 _ _ (grinv X c) r).
-    clearbody r'. rewrite (pathsinv0 (assocax X _ _ a)) in r'.
-    rewrite (pathsinv0 (assocax X _ _ b)) in r'.
+    clearbody r'. rewrite <- (assocax X _ _ a) in r'.
+    rewrite <- (assocax X _ _ b) in r'.
     rewrite (grlinvax X c) in r'.
     rewrite (lunax X a) in r'.
     rewrite (lunax X b) in r'.
@@ -264,22 +264,22 @@ Qed.
 Lemma isbinophrelgr (X : gr) {R : hrel X} (is : isinvbinophrel R) : isbinophrel R.
 Proof.
   set (is1 := pr1 is). set (is2 := pr2 is). split.
-  - intros a b c r. rewrite (pathsinv0 (lunax X a)) in r.
-    rewrite (pathsinv0 (lunax X b)) in r.
-    rewrite (pathsinv0 (grlinvax X c)) in r.
+  - intros a b c r. rewrite <- (lunax X a) in r.
+    rewrite <- (lunax X b) in r.
+    rewrite <- (grlinvax X c) in r.
     rewrite (assocax X _ _ a) in r.
     rewrite (assocax X _ _ b) in r.
     apply (is1 _ _ (grinv X c) r).
-  - intros a b c r. rewrite (pathsinv0 (runax X a)) in r.
-    rewrite (pathsinv0 (runax X b)) in r.
-    rewrite (pathsinv0 (grrinvax X c)) in r.
-    rewrite (pathsinv0 (assocax X a _ _)) in r.
-    rewrite (pathsinv0 (assocax X b _ _)) in r.
+  - intros a b c r. rewrite <- (runax X a) in r.
+    rewrite <- (runax X b) in r.
+    rewrite <- (grrinvax X c) in r.
+    rewrite <- (assocax X a _ _) in r.
+    rewrite <- (assocax X b _ _) in r.
     apply (is2 _ _ (grinv X c) r).
 Qed.
 
-Lemma grfromgtunel (X : gr) {R : hrel X} (is : isbinophrel R) {x : X} (isg : R x (unel X)) :
-  R (unel X) (grinv X x).
+Lemma grfromgtunel (X : gr) {R : hrel X} (is : isbinophrel R) {x : X} (isg : R x 1) :
+  R 1 (grinv X x).
 Proof.
   intros.
   set (r := (pr2 is) _ _ (grinv X x) isg).
@@ -288,8 +288,8 @@ Proof.
   apply r.
 Defined.
 
-Lemma grtogtunel (X : gr) {R : hrel X} (is : isbinophrel R) {x : X} (isg : R (unel X) (grinv X x)) :
-  R x (unel X).
+Lemma grtogtunel (X : gr) {R : hrel X} (is : isbinophrel R) {x : X} (isg : R 1 (grinv X x)) :
+  R x 1.
 Proof.
   assert (r := (pr2 is) _ _ x isg).
   rewrite (grlinvax X x) in r.
@@ -297,8 +297,8 @@ Proof.
   apply r.
 Defined.
 
-Lemma grfromltunel (X : gr) {R : hrel X} (is : isbinophrel R) {x : X} (isg : R (unel X) x) :
-  R (grinv X x) (unel X).
+Lemma grfromltunel (X : gr) {R : hrel X} (is : isbinophrel R) {x : X} (isg : R 1 x) :
+  R (grinv X x) 1.
 Proof.
   assert (r := (pr1 is) _ _ (grinv X x) isg).
   rewrite (grlinvax X x) in r.
@@ -306,8 +306,8 @@ Proof.
   apply r.
 Defined.
 
-Lemma grtoltunel (X : gr) {R : hrel X} (is : isbinophrel R) {x : X} (isg : R (grinv X x) (unel X)) :
-  R (unel X) x.
+Lemma grtoltunel (X : gr) {R : hrel X} (is : isbinophrel R) {x : X} (isg : R (grinv X x) 1) :
+  R 1 x.
 Proof.
   assert (r := (pr1 is) _ _ x isg).
   rewrite (grrinvax X x) in r. rewrite (runax X _) in r.
@@ -318,10 +318,10 @@ Defined.
 (** *** Subobjects *)
 
 Definition issubgr {X : gr} (A : hsubtype X) : UU :=
-  dirprod (issubmonoid A) (∏ x : X, A x  → A (grinv X x)).
+  (issubmonoid A) × (∏ x : X, A x  → A (grinv X x)).
 
 Definition make_issubgr {X : gr} {A : hsubtype X} (H1 : issubmonoid A)
-           (H2 : ∏ x : X, A x  → A (grinv X x)) : issubgr A := make_dirprod H1 H2.
+           (H2 : ∏ x : X, A x  → A (grinv X x)) : issubgr A := H1 ,, H2.
 
 Lemma isapropissubgr {X : gr} (A : hsubtype X) : isaprop (issubgr A).
 Proof.
@@ -334,9 +334,9 @@ Defined.
 
 Definition subgr (X : gr) : UU := ∑ (A : hsubtype X), issubgr A.
 
-Definition make_subgr {X : gr} :
-  ∏ (t : hsubtype X), (λ A : hsubtype X, issubgr A) t → ∑ A : hsubtype X, issubgr A :=
-  tpair (λ A : hsubtype X, issubgr A).
+Definition make_subgr {X : gr} (t : hsubtype X) (H : issubgr t)
+    : subgr X
+    := t ,, H.
 
 Definition subgrconstr {X : gr} :
   ∏ (t : hsubtype X), (λ A : hsubtype X, issubgr A) t → ∑ A : hsubtype X, issubgr A :=
@@ -351,12 +351,12 @@ Proof.
   split with (@totalsubtype X).
   split.
   - exact (pr2 (totalsubmonoid X)).
-  - exact (fun _ _ => tt).
+  - exact (λ _ _, tt).
 Defined.
 
 Definition trivialsubgr (X : gr) : subgr X.
 Proof.
-  exists (λ x, x = @unel X)%logic.
+  exists (λ x, x = 1)%logic.
   split.
   - exact (pr2 (@trivialsubmonoid X)).
   - intro.
@@ -376,9 +376,9 @@ Proof.
 Defined.
 
 Definition isgrcarrier {X : gr} (A : subgr X) : isgrop (@op A) :=
-  tpair _ (ismonoidcarrier A)
-        (tpair _ (λ a : A, make_carrier _ (grinv X (pr1 a)) (pr2 (pr2 A) (pr1 a) (pr2 a)))
-               (isinvoncarrier A)).
+  ismonoidcarrier A ,,
+  (λ a : A, make_carrier _ (grinv X (pr1 a)) (pr2 (pr2 A) (pr1 a) (pr2 a))) ,,
+  isinvoncarrier A.
 
 Definition carrierofasubgr {X : gr} (A : subgr X) : gr.
 Proof. split with A. apply (isgrcarrier A). Defined.
@@ -418,23 +418,23 @@ Definition invongrquot {X : gr} (R : binopeqrel X) : setquot R  → setquot R :=
   setquotfun R R (grinv X) (grquotinvcomp R).
 
 Lemma isinvongrquot {X : gr} (R : binopeqrel X) :
-  isinv (@op (setwithbinopquot R)) (setquotpr R (unel X)) (invongrquot R).
+  isinv (@op (setwithbinopquot R)) (setquotpr R 1) (invongrquot R).
 Proof.
   split.
   - unfold islinv.
-    apply (setquotunivprop R (λ x, _ = _)).
+    apply (setquotunivprop R (λ x, _ = _)%logic).
     intro x.
-    apply (@maponpaths _ _ (setquotpr R) (@op X (grinv X x) x) (unel X)).
+    apply (@maponpaths _ _ (setquotpr R) ((grinv X x) * x) 1).
     apply (grlinvax X).
   - unfold isrinv.
-    apply (setquotunivprop R (λ x, _ = _)).
+    apply (setquotunivprop R (λ x, _ = _)%logic).
     intro x.
-    apply (@maponpaths _ _ (setquotpr R) (@op X x (grinv X x)) (unel X)).
+    apply (@maponpaths _ _ (setquotpr R) (x * (grinv X x)) 1).
     apply (grrinvax X).
 Qed.
 
 Definition isgrquot {X : gr} (R : binopeqrel X) : isgrop (@op (setwithbinopquot R)) :=
-  tpair _ (ismonoidquot R) (tpair _ (invongrquot R) (isinvongrquot R)).
+  ismonoidquot R ,, invongrquot R ,, isinvongrquot R.
 
 Definition grquot {X : gr} (R : binopeqrel X) : gr.
 Proof. split with (setwithbinopquot R). apply isgrquot. Defined.
@@ -443,8 +443,6 @@ Proof. split with (setwithbinopquot R). apply isgrquot. Defined.
 
 Section GrCosets.
   Context {X : gr}.
-
-  Local Open Scope multmonoid.
 
   Local Lemma isaprop_mult_eq_r (x y : X) : isaprop (∑ z : X, x * z = y).
   Proof.
@@ -531,7 +529,7 @@ Section GrCosets.
         * cbn.
           refine (_ @ pr2 inyz).
           refine (_ @ maponpaths (λ z, z * _) (pr2 inxy)).
-          apply pathsinv0, assocax.
+          exact (!assocax _ _ _ _).
       + (** Reflexivity *)
         intro; cbn.
         use tpair.
@@ -568,7 +566,7 @@ Section GrCosets.
       + refine (_ @ maponpaths _ (pr2 y)).
         refine (_ @ assocax _ _ _ _).
         refine (_ @ !maponpaths (λ z, z * _) (grlinvax X _)).
-        apply pathsinv0, lunax.
+        exact (!lunax _ _).
       + exact (pr2 (pr1 y)).
     - apply propproperty.
     - apply isaprop_in_same_left_coset.
@@ -579,7 +577,6 @@ End GrCosets.
 (** *** Normal Subgroups *)
 
 Section NormalSubGroups.
-  Local Open Scope multmonoid.
 
   Definition isnormalsubgr {X : gr} (N : subgr X) : hProp :=
     ∀ g : X, ∀ n1 : N, N ((g * (pr1 n1)) * (grinv X g)).
@@ -594,7 +591,7 @@ Section NormalSubGroups.
   Definition lcoset_in_rcoset {X : gr} (N : subgr X) : UU :=
     ∏ g : X, ∏ n1 : N, ∑ n2 : N, g * (pr1 n1) = (pr1 n2) * g.
   Definition lcoset_in_rcoset_witness {X : gr} {N : subgr X} :
-    lcoset_in_rcoset N  → (X  → N  → N) := fun H g n1 => pr1 (H g n1).
+    lcoset_in_rcoset N  → (X  → N  → N) := λ H g n1, pr1 (H g n1).
   Definition lcoset_in_rcoset_property {X : gr} {N : subgr X}
       (H : lcoset_in_rcoset N) (g : X) (n1 : N) :
     N (pr1 (lcoset_in_rcoset_witness H g n1)) := pr2 (lcoset_in_rcoset_witness H g n1).
@@ -605,7 +602,7 @@ Section NormalSubGroups.
   Definition rcoset_in_lcoset {X : gr} (N : subgr X) : UU :=
     ∏ g : X, ∏ n1 : N, ∑ n2 : N, (pr1 n1) * g = g * (pr1 n2).
   Definition rcoset_in_lcoset_witness {X : gr} {N : subgr X} :
-    rcoset_in_lcoset N  → (X  → N  → N) := fun H g n1 => pr1 (H g n1).
+    rcoset_in_lcoset N  → (X  → N  → N) := λ H g n1, pr1 (H g n1).
   Definition rcoset_in_lcoset_property {X : gr} {N : subgr X}
       (H : rcoset_in_lcoset N) (g : X) (n1 : N) :
     N (pr1 (rcoset_in_lcoset_witness H g n1)) := pr2 (rcoset_in_lcoset_witness H g n1).
@@ -622,7 +619,7 @@ Section NormalSubGroups.
     intros lcinrc.
     unfold isnormalsubgr.
     intros g n1.
-    refine (@transportb _ (fun x => N x) _ _ _ _).
+    refine (@transportb _ (λ x, N x) _ _ _ _).
     { etrans. { apply maponpaths_2, (lcoset_in_rcoset_equation lcinrc). }
       etrans. { apply assocax. }
       etrans. { apply maponpaths, grrinvax. }
@@ -645,7 +642,7 @@ Section NormalSubGroups.
     unfold lcoset_in_rcoset.
     intros g n1.
     use tpair.
-    - exact (tpair _ (g * (pr1 n1) * (grinv X g)) (normalprop g n1)).
+    - exact (g * pr1 n1 * grinv X g ,, normalprop g n1).
     - simpl.
       rewrite (assocax _ _ _ g).
       rewrite (grlinvax X _).
@@ -663,7 +660,7 @@ Section NormalSubGroups.
     - exists ((grinv X g) * (pr1 n1) * (grinv X (grinv X g))). use normalprop.
     - simpl.
       rewrite (assocax _ (grinv X g) _ _).
-      rewrite (!assocax _ g _ _).
+      rewrite <- (assocax _ g _ _).
       rewrite (grrinvax X).
       rewrite (lunax X).
       rewrite (grinvinv X).
@@ -701,16 +698,16 @@ Section NormalSubGroups.
         rewrite (grinvinv _).
         rewrite (assocax _ a _ _).
         rewrite (assocax _ (grinv X c) _ _).
-        rewrite (!assocax _ c _ _).
+        rewrite <- (assocax _ c _ _).
         rewrite (grrinvax _).
         rewrite (lunax _).
-        rewrite (!assocax _ a _ _).
+        rewrite <- (assocax _ a _ _).
         apply maponpaths_2.
         exact (pr2 ab_same_lcoset).
   Defined.
 
   Definition in_same_coset_binopeqrel {X : gr} (N : normalsubgr X) : binopeqrel X :=
-    tpair _ (in_same_left_coset_eqrel N) (in_same_coset_isbinophrel N).
+    in_same_left_coset_eqrel N ,, in_same_coset_isbinophrel N.
 
   Definition grquot_by_normal_subgr (X : gr) (N : normalsubgr X) : gr :=
     grquot (in_same_coset_binopeqrel N).
@@ -722,7 +719,7 @@ End NormalSubGroups.
 Lemma isgrdirprod (X Y : gr) : isgrop (@op (setwithbinopdirprod X Y)).
 Proof.
   split with (ismonoiddirprod X Y).
-  split with (λ xy, make_dirprod (grinv X (pr1 xy)) (grinv Y (pr2 xy))).
+  split with (λ xy, grinv X (pr1 xy) ,, grinv Y (pr2 xy)).
   split.
   - intro xy. destruct xy as [ x y ].
     unfold unel_is. simpl. apply pathsdirprod.
@@ -737,8 +734,6 @@ Proof. split with (setwithbinopdirprod X Y). apply isgrdirprod. Defined.
 
 (** *** Group of invertible elements in a monoid *)
 
-Local Open Scope multmonoid.
-
 Definition invertible_submonoid_grop X : isgrop (@op (invertible_submonoid X)).
 Proof.
   pose (submon := invertible_submonoid X).
@@ -749,7 +744,7 @@ Proof.
 
   intros xpair.
   pose (x := pr1 xpair).
-  pose (unel := (unel_is submon_carrier)).
+  pose (unel := unel_is submon_carrier).
 
   (** We can use other hProps when proving an hProp (assume it has an inverse) *)
   apply (squash_to_prop (pr2 xpair) (propproperty _)).
@@ -762,30 +757,32 @@ Proof.
   exact (pr2 (pr2 xinv)).
 Defined.
 
-Local Close Scope multmonoid.
-
 Definition gr_merely_invertible_elements : monoid  → gr :=
-  fun X => (carrierofasubsetwithbinop
-             (submonoidtosubsetswithbinop
-                _ (invertible_submonoid X)),, invertible_submonoid_grop X).
+  λ X, carrierofasubsetwithbinop (submonoidtosubsetswithbinop _ (invertible_submonoid X)) ,,
+       invertible_submonoid_grop X.
+
+Local Close Scope multmonoid.
 
 (** ** Abelian groups *)
 
 (** *** Basic definitions *)
 
+Import UniMath.Algebra.Monoids.AddNotation.
+Local Open Scope addmonoid.
+
 Definition abgr : UU := ∑ (X : setwithbinop), isabgrop (@op X).
 
 Definition make_abgr (X : setwithbinop) (is : isabgrop (@op X)) : abgr :=
-  tpair (λ X : setwithbinop,  isabgrop (@op X)) X is.
+  X ,, is.
 
-Definition abgrconstr (X : abmonoid) (inv0 : X  → X) (is : isinv (@op X) (unel X) inv0) : abgr :=
-  make_abgr X (make_dirprod (make_isgrop (pr2 X) (tpair _ inv0 is)) (commax X)).
+Definition abgrconstr (X : abmonoid) (inv0 : X  → X) (is : isinv (@op X) 0 inv0) : abgr :=
+  make_abgr X (make_isgrop (pr2 X) (inv0 ,, is) ,, commax X).
 
 Definition abgrtogr : abgr  → gr := λ X, make_gr (pr1 X) (pr1 (pr2 X)).
 Coercion abgrtogr : abgr >-> gr.
 
 Definition abgrtoabmonoid : abgr  → abmonoid :=
-  λ X, make_abmonoid (pr1 X) (make_dirprod (pr1 (pr1 (pr2 X))) (pr2 (pr2 X))).
+  λ X, make_abmonoid (pr1 X) (pr1 (pr1 (pr2 X)) ,, pr2 (pr2 X)).
 Coercion abgrtoabmonoid : abgr >-> abmonoid.
 
 Definition abgr_of_gr (X : gr) (H : iscomm (@op X)) : abgr :=
@@ -807,7 +804,7 @@ Qed.
 
 Definition unitabgr : abgr := make_abgr unitabmonoid unitabgr_isabgrop.
 
-Lemma abgrfuntounit_ismonoidfun (X : abgr) : ismonoidfun (λ x : X, (unel unitabgr)).
+Lemma abgrfuntounit_ismonoidfun (X : abgr) : ismonoidfun (Y := unitabgr) (λ x : X, 0).
 Proof.
   use make_ismonoidfun.
   - use make_isbinopfun. intros x x'. use isProofIrrelevantUnit.
@@ -817,20 +814,20 @@ Qed.
 Definition abgrfuntounit (X : abgr) : monoidfun X unitabgr :=
   monoidfunconstr (abgrfuntounit_ismonoidfun X).
 
-Lemma abgrfunfromunit_ismonoidfun (X : abgr) : ismonoidfun (λ x : unitabgr, (unel X)).
+Lemma abgrfunfromunit_ismonoidfun (X : abgr) : ismonoidfun (Y := X) (λ x : unitabgr, 0).
 Proof.
   use make_ismonoidfun.
-  - use make_isbinopfun. intros x x'. use pathsinv0. use (runax X).
+  - use make_isbinopfun. intros x x'. exact (!runax X _).
   - use idpath.
 Qed.
 
 Definition abgrfunfromunit (X : abgr) : monoidfun unitabgr X :=
   monoidfunconstr (abgrfunfromunit_ismonoidfun X).
 
-Lemma unelabgrfun_ismonoidfun (X Y : abgr) : ismonoidfun (λ x : X, (unel Y)).
+Lemma unelabgrfun_ismonoidfun (X Y : abgr) : ismonoidfun (Y := Y) (λ x : X, 0).
 Proof.
   use make_ismonoidfun.
-  - use make_isbinopfun. intros x x'. use pathsinv0. use lunax.
+  - use make_isbinopfun. intros x x'. exact (!lunax _ _).
   - use idpath.
 Qed.
 
@@ -846,7 +843,7 @@ Proof.
   use make_ismonoidfun.
   - use make_isbinopfun. intros x x'. cbn.
     rewrite (pr1 (pr2 f)). rewrite (pr2 (pr2 Y)). use (grinvop Y).
-  - use (pathscomp0 (maponpaths (λ y : Y, grinv Y y) (monoidfununel f))).
+  - refine (maponpaths (grinv Y) (monoidfununel f) @ _).
     use grinvunel.
 Qed.
 
@@ -902,11 +899,11 @@ Local Definition abgr' : UU :=
   ∑ g : (∑ X : setwithbinop, isgrop (@op X)), iscomm (pr2 (pr1 g)).
 
 Local Definition make_abgr' (X : abgr) : abgr' :=
-  tpair _ (tpair _ (pr1 X) (dirprod_pr1 (pr2 X))) (dirprod_pr2 (pr2 X)).
+  (pr1 X ,, dirprod_pr1 (pr2 X)) ,, dirprod_pr2 (pr2 X).
 
 Local Definition abgr_univalence_weq1 : abgr ≃ abgr' :=
   weqtotal2asstol (λ Z : setwithbinop, isgrop (@op Z))
-                  (fun y : (∑ x : setwithbinop, isgrop (@op x)) => iscomm (@op (pr1 y))).
+                  (λ y : (∑ x : setwithbinop, isgrop (@op x)), iscomm (@op (pr1 y))).
 
 Definition abgr_univalence_weq1' (X Y : abgr) : (X = Y) ≃ (make_abgr' X = make_abgr' Y) :=
   make_weq _ (@isweqmaponpaths abgr abgr' abgr_univalence_weq1 X Y).
@@ -934,7 +931,7 @@ Proof.
   - exact (weqcomp (abgr_univalence_weq1' X Y)
                    (weqcomp (abgr_univalence_weq2 X Y) (abgr_univalence_weq3 X Y))).
   - intros e. induction e.
-    use (pathscomp0 weqcomp_to_funcomp_app).
+    refine (weqcomp_to_funcomp_app @ _).
     use weqcomp_to_funcomp_app.
   - use weqproperty.
 Defined.
@@ -972,7 +969,7 @@ Definition abgr_image_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtype B :=
 
 (** * Kernels
     Let f : X  → Y be a morphism of abelian groups. A kernel of f is given by the subgroup of X
-    consisting of elements x such that [f x = unel Y].
+    consisting of elements x such that [f x = 0].
  *)
 
 (** ** Kernel as abelian group *)
@@ -984,11 +981,10 @@ Proof.
   - apply kernel_issubmonoid.
   - intros x a.
     apply (grrcan B (f x)).
-    apply (pathscomp0 (! (binopfunisbinopfun f (grinv A x) x))).
-    apply (pathscomp0 (maponpaths (λ a : A, f a) (grlinvax A x))).
-    apply (pathscomp0 (monoidfununel f)).
-    apply pathsinv0.
-    apply (pathscomp0 (lunax B (f x))).
+    refine (! (binopfunisbinopfun f (grinv A x) x) @ _).
+    refine (maponpaths (λ a : A, f a) (grlinvax A x) @ _).
+    refine (monoidfununel f @ !_).
+    refine (lunax B (f x) @ _).
     exact a.
 Defined.
 
@@ -1019,7 +1015,7 @@ Proof.
       use hinhpr.
       use tpair.
       * exact (@op A (pr1 ae) (pr1 a'e)).
-      * use (pathscomp0 (binopfunisbinopfun f (pr1 ae) (pr1 a'e))).
+      * refine (binopfunisbinopfun f (pr1 ae) (pr1 a'e) @ _).
         use two_arg_paths.
           exact (pr2 ae).
           exact (pr2 a'e).
@@ -1031,7 +1027,7 @@ Proof.
     use hinhpr.
     use tpair.
     + exact (grinv A (pr1 eb)).
-    + use (pathscomp0 _ (maponpaths (λ bb : B, (grinv B bb)) (pr2 eb))).
+    + refine (_ @ maponpaths (λ bb : B, (grinv B bb)) (pr2 eb)).
       use monoidfuninvtoinv.
 Qed.
 
@@ -1070,14 +1066,12 @@ Defined.
 
 Section Fractions.
 Import UniMath.Algebra.Monoids.AddNotation.
-Local Open Scope addmonoid.
 
 Definition hrelabgrdiff (X : abmonoid) : hrel (X × X) :=
-  λ xa1 xa2,
-    hexists (λ x0 : X, paths (((pr1 xa1) + (pr2 xa2)) + x0) (((pr1 xa2) + (pr2 xa1)) + x0)).
+  λ xa1 xa2, ∃ (x0 : X), (pr1 xa1 + pr2 xa2) + x0 = (pr1 xa2 + pr2 xa1) + x0.
 
-Definition abgrdiffphi (X : abmonoid) (xa : dirprod X X) :
-  dirprod X (totalsubtype X) := make_dirprod (pr1 xa) (make_carrier (λ x : X, htrue) (pr2 xa) tt).
+Definition abgrdiffphi (X : abmonoid) (xa : X × X) :
+  X × (totalsubtype X) := pr1 xa ,, make_carrier (λ x : X, htrue) (pr2 xa) tt.
 
 Definition hrelabgrdiff' (X : abmonoid) : hrel (X × X) :=
   λ xa1 xa2, eqrelabmonoidfrac X (totalsubmonoid X) (abgrdiffphi X xa1) (abgrdiffphi X xa2).
@@ -1086,7 +1080,7 @@ Lemma logeqhrelsabgrdiff (X : abmonoid) : hrellogeq (hrelabgrdiff' X) (hrelabgrd
 Proof.
   split. simpl. apply hinhfun. intro t2.
   set (a0 := pr1 (pr1 t2)). split with a0. apply (pr2 t2). simpl.
-  apply hinhfun. intro t2. set (x0 := pr1 t2). split with (tpair _ x0 tt).
+  apply hinhfun. intro t2. set (x0 := pr1 t2). split with (x0 ,, tt).
   apply (pr2 t2).
 Defined.
 
@@ -1110,11 +1104,11 @@ Proof.
   apply (@isbinophrellogeqf (abmonoiddirprod X X) _ _ (logeqhrelsabgrdiff X)).
   split. intros a b c r.
   apply (pr1 (isbinophrelabmonoidfrac X (totalsubmonoid X)) _ _
-             (make_dirprod (pr1 c) (make_carrier (λ x : X, htrue) (pr2 c) tt))
+             (pr1 c ,, make_carrier (λ x : X, htrue) (pr2 c) tt)
              r).
   intros a b c r.
   apply (pr2 (isbinophrelabmonoidfrac X (totalsubmonoid X)) _ _
-             (make_dirprod (pr1 c) (make_carrier (λ x : X, htrue) (pr2 c) tt))
+             (pr1 c ,, make_carrier (λ x : X, htrue) (pr2 c) tt)
              r).
 Qed.
 
@@ -1124,8 +1118,8 @@ Definition binopeqrelabgrdiff (X : abmonoid) : binopeqrel (abmonoiddirprod X X) 
 Definition abgrdiffcarrier (X : abmonoid) : abmonoid := @abmonoidquot (abmonoiddirprod X X)
                                                                       (binopeqrelabgrdiff X).
 
-Definition abgrdiffinvint (X : abmonoid) :  dirprod X X  → dirprod X X :=
-  λ xs, make_dirprod (pr2 xs) (pr1 xs).
+Definition abgrdiffinvint (X : abmonoid) : X × X  → X × X :=
+  λ xs, pr2 xs ,, pr1 xs.
 
 Lemma abgrdiffinvcomp (X : abmonoid) :
   iscomprelrelfun (hrelabgrdiff X) (eqrelabgrdiff X) (abgrdiffinvint X).
@@ -1136,46 +1130,45 @@ Proof.
   set (x := pr1 xs). set (s := pr2 xs).
   set (x' := pr1 xs'). set (s' := pr2 xs').
   split with (pr1 tt0).
-  destruct tt0 as [ a eq ]. change (paths (s + x' + a) (s' + x + a)).
-  apply pathsinv0. simpl.
+  destruct tt0 as [ a eq ]. change (s + x' + a = s' + x + a).
   set(e := commax X s' x). simpl in e. rewrite e. clear e.
   set (e := commax X s x'). simpl in e. rewrite e. clear e.
-  apply eq.
+  exact (!eq).
 Qed.
 
 Definition abgrdiffinv (X : abmonoid) : abgrdiffcarrier X  → abgrdiffcarrier X :=
   setquotfun (hrelabgrdiff X) (eqrelabgrdiff X) (abgrdiffinvint X) (abgrdiffinvcomp X).
 
 Lemma abgrdiffisinv (X : abmonoid) :
-  isinv (@op (abgrdiffcarrier X)) (unel (abgrdiffcarrier X)) (abgrdiffinv X).
+  isinv (@op (abgrdiffcarrier X)) 0 (abgrdiffinv X).
 Proof.
   set (R := eqrelabgrdiff X).
-  assert (isl : islinv (@op (abgrdiffcarrier X)) (unel (abgrdiffcarrier X)) (abgrdiffinv X)).
+  assert (isl : islinv (@op (abgrdiffcarrier X)) 0 (abgrdiffinv X)).
   {
     unfold islinv.
-    apply (setquotunivprop R (λ x, _ = _)).
+    apply (setquotunivprop R (λ x, _ = _)%logic).
     intro xs.
     set (x := pr1 xs). set (s := pr2 xs).
-    apply (iscompsetquotpr R (@op (abmonoiddirprod X X) (abgrdiffinvint X xs) xs) (unel _)).
+    apply (iscompsetquotpr R (@op (abmonoiddirprod X X) (abgrdiffinvint X xs) xs) 0).
     simpl. apply hinhpr. split with (unel X).
-    change (paths (s + x + (unel X) + (unel X)) ((unel X) + (x + s) + (unel X))).
-    destruct (commax X x s). destruct (commax X (unel X) (x + s)).
+    change (s + x + 0 + 0 = 0 + (x + s) + 0).
+    destruct (commax X x s). destruct (commax X 0 (x + s)).
     apply idpath.
   }
-  apply (make_dirprod isl (weqlinvrinv (@op (abgrdiffcarrier X)) (commax (abgrdiffcarrier X))
-                                      (unel (abgrdiffcarrier X)) (abgrdiffinv X) isl)).
+  exact (isl ,, weqlinvrinv (@op (abgrdiffcarrier X)) (commax (abgrdiffcarrier X))
+                                      0 (abgrdiffinv X) isl).
 Qed.
 
-Definition abgrdiff (X : abmonoid) : abgr := abgrconstr (abgrdiffcarrier X) (abgrdiffinv X)
-                                                        (abgrdiffisinv X).
+Definition abgrdiff (X : abmonoid) : abgr
+  := abgrconstr (abgrdiffcarrier X) (abgrdiffinv X) (abgrdiffisinv X).
 
 Definition prabgrdiff (X : abmonoid) : X  → X  → abgrdiff X :=
-  λ x x' : X, setquotpr (eqrelabgrdiff X) (make_dirprod x x').
+  λ x x' : X, setquotpr (eqrelabgrdiff X) (x ,, x').
 
 
 (** *** Abelian group of fractions and abelian monoid of fractions *)
 
-Definition weqabgrdiffint (X : abmonoid) : weq (X × X) (dirprod X (totalsubtype X)) :=
+Definition weqabgrdiffint (X : abmonoid) : weq (X × X) (X × totalsubtype X) :=
   weqdirprodf (idweq X) (invweq (weqtotalsubtype X)).
 
 Definition weqabgrdiff (X : abmonoid) : weq (abgrdiff X) (abmonoidfrac X (totalsubmonoid X)).
@@ -1194,24 +1187,24 @@ Defined.
 
 (** *** Canonical homomorphism to the abelian group of fractions *)
 
-Definition toabgrdiff (X : abmonoid) (x : X) : abgrdiff X := setquotpr _ (make_dirprod x (unel X)).
+Definition toabgrdiff (X : abmonoid) (x : X) : abgrdiff X := setquotpr _ (x ,, 0).
 
 Lemma isbinopfuntoabgrdiff (X : abmonoid) : isbinopfun (toabgrdiff X).
 Proof.
   unfold isbinopfun. intros x1 x2.
-  change (paths (setquotpr _ (make_dirprod (x1 + x2) (unel X)))
-                (setquotpr (eqrelabgrdiff X) (make_dirprod (x1 + x2) ((unel X) + (unel X))))).
+  change (setquotpr _ (x1 + x2 ,, 0) =
+          setquotpr (eqrelabgrdiff X) (x1 + x2 ,, 0 + 0)).
   apply (maponpaths (setquotpr _)).
   apply (@pathsdirprod X X).
-  apply idpath.
-  apply (pathsinv0 (lunax X 0)).
+  - apply idpath.
+  - exact (!lunax X 0).
 Defined.
 
-Lemma isunitalfuntoabgrdiff (X : abmonoid) : paths (toabgrdiff X (unel X)) (unel (abgrdiff X)).
+Lemma isunitalfuntoabgrdiff (X : abmonoid) : toabgrdiff X 0 = 0.
 Proof. apply idpath. Defined.
 
 Definition ismonoidfuntoabgrdiff (X : abmonoid) : ismonoidfun (toabgrdiff X) :=
-  make_dirprod (isbinopfuntoabgrdiff X) (isunitalfuntoabgrdiff X).
+  isbinopfuntoabgrdiff X ,, isunitalfuntoabgrdiff X.
 
 
 (** *** Abelian group of fractions in the case when all elements are cancelable *)
@@ -1227,7 +1220,7 @@ Proof.
 Defined.
 
 Definition isincltoabgrdiff (X : abmonoid) (iscanc : ∏ x : X, isrcancelable (@op X) x) :
-  isincl (toabgrdiff X) := isinclprabgrdiff X iscanc (unel X).
+  isincl (toabgrdiff X) := isinclprabgrdiff X iscanc 0.
 
 Lemma isdeceqabgrdiff (X : abmonoid) (iscanc : ∏ x : X, isrcancelable (@op X) x) (is : isdeceq X) :
   isdeceq (abgrdiff X).
@@ -1241,7 +1234,7 @@ Defined.
 (** *** Relations on the abelian group of fractions *)
 
 Definition abgrdiffrelint (X : abmonoid) (L : hrel X) : hrel (setwithbinopdirprod X X) :=
-  λ xa yb, hexists (λ c0 : X, L (((pr1 xa) + (pr2 yb)) + c0) (((pr1 yb) + (pr2 xa)) + c0)).
+  λ xa yb, ∃ (c0 : X), L ((pr1 xa + pr2 yb) + c0) ((pr1 yb + pr2 xa) + c0).
 
 Definition abgrdiffrelint' (X : abmonoid) (L : hrel X) : hrel (setwithbinopdirprod X X) :=
   λ xa1 xa2, abmonoidfracrelint _ (totalsubmonoid X) L (abgrdiffphi X xa1) (abgrdiffphi X xa2).
@@ -1252,7 +1245,7 @@ Proof.
   split. unfold abgrdiffrelint. unfold abgrdiffrelint'.
   simpl. apply hinhfun. intro t2. set (a0 := pr1 (pr1 t2)).
   split with a0. apply (pr2 t2). simpl. apply hinhfun.
-  intro t2. set (x0 := pr1 t2). split with (tpair _ x0 tt). apply (pr2 t2).
+  intro t2. set (x0 := pr1 t2). split with (x0 ,, tt). apply (pr2 t2).
 Defined.
 
 Lemma iscomprelabgrdiffrelint (X : abmonoid) {L : hrel X} (is : isbinophrel L) :
@@ -1504,7 +1497,7 @@ Proof.
   set (x2 := pr1 xa2). set (a2 := pr2 xa2).
   assert (int : coprod (L (x1 + a2) (x2 + a1)) (neg (L (x1 + a2) (x2 + a1)))) by apply (isl _ _).
   destruct int as [ l | nl ].
-  - apply ii1. unfold abgrdiffrelint. apply hinhpr. split with (unel X).
+  - apply ii1. unfold abgrdiffrelint. apply hinhpr. split with 0.
     rewrite (runax X _). rewrite (runax X _). apply l.
   - apply ii2. generalize nl. clear nl. apply negf. unfold abgrdiffrelint.
     simpl. apply (@hinhuniv _ (make_hProp _ (pr2 (L _ _)))).
@@ -1527,11 +1520,12 @@ Lemma iscomptoabgrdiff (X : abmonoid) {L : hrel X} (is : isbinophrel L) :
 Proof.
   unfold iscomprelrelfun.
   intros x x' l.
-  change (abgrdiffrelint X L (make_dirprod x (unel X)) (make_dirprod x' (unel X))).
+  change (abgrdiffrelint X L (x ,, 0) (x' ,, 0)).
   simpl. apply (hinhpr). split with (unel X).
   apply ((pr2 is) _ _ 0). apply ((pr2 is) _ _ 0).
   apply l.
 Qed.
 
-Close Scope addmonoid_scope.
 End Fractions.
+
+Local Close Scope multmonoid.

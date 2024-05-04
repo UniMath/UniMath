@@ -71,20 +71,18 @@ Definition unax (X : monoid) : isunit (@op X) (unel X) := lunax X ,, runax X.
 
 Definition isasetmonoid (X : monoid) : isaset X := pr2 (pr1 (pr1 X)).
 
-Declare Scope addmonoid_scope.
-Delimit Scope addmonoid_scope with addmonoid.
-Declare Scope multmonoid_scope.
-Delimit Scope multmonoid_scope with multmonoid.
+Declare Scope addmonoid.
+Delimit Scope addmonoid with addmonoid.
+Declare Scope multmonoid.
+Delimit Scope multmonoid with multmonoid.
 
 Local Open Scope multmonoid.
 
-Notation "x * y" := (op x y) : multmonoid_scope.
-Notation "1" := (unel _) : multmonoid_scope.
+Notation "x * y" := (op x y) : multmonoid.
+Notation "1" := (unel _) : multmonoid.
 
-Module AddNotation.
-  Notation "x + y" := (op x y) : addmonoid_scope.
-  Notation "0" := (unel _) : addmonoid_scope.
-End AddNotation.
+Notation "x + y" := (op x y) : addmonoid.
+Notation "0" := (unel _) : addmonoid.
 
 (* To get additive notation in a file that uses this one, insert the following command:
    Import UniMath.Algebra.Monoids.AddNotation.
@@ -645,7 +643,6 @@ Local Close Scope multmonoid.
 
 (** **** Basic definitions *)
 
-Import AddNotation.
 Local Open Scope addmonoid.
 
 Definition abmonoid : UU := ∑ (X : setwithbinop), isabmonoidop (@op X).
@@ -715,16 +712,16 @@ Definition unelabmonoidfun (X Y : abmonoid) : monoidfun X Y :=
  *)
 
 Lemma abmonoidshombinop_ismonoidfun {X Y : abmonoid} (f g : monoidfun X Y) :
-  @ismonoidfun X Y (λ x : pr1 X, (pr1 f x * pr1 g x)%multmonoid).
+  @ismonoidfun X Y (λ x : pr1 X, pr1 f x + pr1 g x).
 Proof.
   use make_ismonoidfun.
   - use make_isbinopfun.
     intros x x'. cbn. rewrite (pr1 (pr2 f)). rewrite (pr1 (pr2 g)).
     rewrite (assocax Y). rewrite (assocax Y). use maponpaths.
     rewrite <- (assocax Y). rewrite <- (assocax Y).
-    use (maponpaths (λ y : Y, (y * (pr1 g x'))%multmonoid)).
+    use (maponpaths (λ y : Y, y + pr1 g x')).
     use (commax Y).
-  - refine (maponpaths (λ h : Y, (pr1 f 1 * h)%multmonoid)
+  - refine (maponpaths (λ h : Y, pr1 f 0 + h)
                                 (monoidfununel g) @ _).
     rewrite runax. exact (monoidfununel f).
 Qed.
@@ -807,7 +804,7 @@ Local Definition make_abmonoid' (X : abmonoid) : abmonoid' :=
 
 Definition abmonoid_univalence_weq1 : abmonoid ≃ abmonoid' :=
   weqtotal2asstol (λ X : setwithbinop, ismonoidop (@op X))
-                  (fun y : (∑ X : setwithbinop, ismonoidop op) => iscomm (@op (pr1 y))).
+                  (λ y : (∑ X : setwithbinop, ismonoidop op), iscomm (@op (pr1 y))).
 
 Definition abmonoid_univalence_weq1' (X Y : abmonoid) :
   (X = Y) ≃ ((make_abmonoid' X) = (make_abmonoid' Y)) :=
@@ -914,8 +911,6 @@ Proof. split with (setwithbinopdirprod X Y). apply isabmonoiddirprod. Defined.
 Note : the following construction uses onbly associativity and commutativity
 of the [abmonoid] operations but does not use the unit element. *)
 
-Import AddNotation.
-
 Definition abmonoidfracopint (X : abmonoid) (A : submonoid X) :
   binop (X × A) := @op (setwithbinopdirprod X A).
 
@@ -994,7 +989,7 @@ Definition abmonoidfrac (X : abmonoid) (A : submonoid X) : abmonoid :=
   abmonoidquot (binopeqrelabmonoidfrac X A).
 
 Definition prabmonoidfrac (X : abmonoid) (A : submonoid X) : X  → A  → abmonoidfrac X A :=
-  fun (x : X) (a : A) => setquotpr (eqrelabmonoidfrac X A) (x ,, a).
+  λ (x : X) (a : A), setquotpr (eqrelabmonoidfrac X A) (x ,, a).
 
 (* ??? could the use of [issubabmonoid] in [binopeqrelabmonoidfrac] and
  [submonoid] in [abmonoidfrac] lead to complications for the unification
@@ -1157,7 +1152,7 @@ Proof.
     set (c0 := pr1 c0a). set (c1 := pr1 c1a).
     split with ((pr2 xa) + c1a + c0a).
     change (L ((x' + b) + ((a + c1) + c0)) ((y + a') + ((a + c1) + c0))).
-    change (paths (x + a' + c1) (x' + a + c1)) in e.
+    change (x + a' + c1 = x' + a + c1) in e.
     rewrite (rer x' _ _ c0).
     destruct (assoc x' a c1). destruct e.
     rewrite (assoc x a' c1). rewrite (rer x _ _ c0). rewrite (assoc a c1 c0).
