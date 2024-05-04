@@ -8,8 +8,8 @@
  uniqueness of such morphisms.
 
  Content
- 1. Left whiskering
- 2. Right whiskering
+ 1. Right whiskering
+ 2. Left whiskering
 
  ******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -36,8 +36,8 @@ Import MonoidalNotations.
 
 Opaque sym_mon_braiding.
 
-(** * 1. Left whiskering *)
-Section LeftWhiskering.
+(** * 1. Right whiskering *)
+Section RightWhiskering.
   Context {V : benabou_cosmos}
           {C₁ C₂ C₃ : category}
           {E₁ : enrichment C₁ V}
@@ -47,7 +47,7 @@ Section LeftWhiskering.
           (τ : enriched_profunctor_transformation P₁ P₂)
           (Q : E₂ ↛e E₃).
 
-  Proposition lwhisker_enriched_profunctor_mor_eq
+  Proposition rwhisker_enriched_profunctor_mor_eq
               (z : C₃)
               (y₁ y₂ : C₂)
               (x : C₁)
@@ -100,7 +100,7 @@ Section LeftWhiskering.
     apply idpath.
   Qed.
 
-  Definition lwhisker_enriched_profunctor_mor
+  Definition rwhisker_enriched_profunctor_mor
     : enriched_profunctor_transformation_data
         (comp_enriched_profunctor P₁ Q)
         (comp_enriched_profunctor P₂ Q).
@@ -109,25 +109,25 @@ Section LeftWhiskering.
     use from_comp_enriched_profunctor_ob.
     - exact (λ y, (τ y x #⊗ identity _) · comp_enriched_profunctor_in _ _ z x y).
     - intros y₁ y₂ ; cbn.
-      exact (lwhisker_enriched_profunctor_mor_eq z y₁ y₂ x).
+      exact (rwhisker_enriched_profunctor_mor_eq z y₁ y₂ x).
   Defined.
 
-  Proposition lwhisker_enriched_profunctor_mor_comm
+  Proposition rwhisker_enriched_profunctor_mor_comm
               (z : C₃)
               (y : C₂)
               (x : C₁)
-    : comp_enriched_profunctor_in _ _ z x y · lwhisker_enriched_profunctor_mor z x
+    : comp_enriched_profunctor_in _ _ z x y · rwhisker_enriched_profunctor_mor z x
       =
       (τ y x #⊗ identity _) · comp_enriched_profunctor_in _ _ z x y.
   Proof.
-    unfold lwhisker_enriched_profunctor_mor.
+    unfold rwhisker_enriched_profunctor_mor.
     rewrite from_comp_enriched_profunctor_ob_comm.
     apply idpath.
   Qed.
 
-  Proposition lwhisker_enriched_profunctor_laws
+  Proposition rwhisker_enriched_profunctor_laws
     : enriched_profunctor_transformation_laws
-        lwhisker_enriched_profunctor_mor.
+        rwhisker_enriched_profunctor_mor.
   Proof.
     split.
     - intros z₁ z₂ x ; cbn.
@@ -153,7 +153,7 @@ Section LeftWhiskering.
       rewrite !assoc'.
       apply maponpaths.
       rewrite !assoc.
-      rewrite lwhisker_enriched_profunctor_mor_comm.
+      rewrite rwhisker_enriched_profunctor_mor_comm.
       etrans.
       {
         rewrite !assoc'.
@@ -193,7 +193,7 @@ Section LeftWhiskering.
         rewrite sym_mon_braiding_inv.
         rewrite id_left.
         rewrite !assoc'.
-        rewrite lwhisker_enriched_profunctor_mor_comm.
+        rewrite rwhisker_enriched_profunctor_mor_comm.
         rewrite tensor_comp_id_l.
         rewrite !assoc'.
         do 2 apply maponpaths.
@@ -225,7 +225,7 @@ Section LeftWhiskering.
       rewrite !assoc'.
       apply maponpaths.
       rewrite !assoc.
-      rewrite lwhisker_enriched_profunctor_mor_comm.
+      rewrite rwhisker_enriched_profunctor_mor_comm.
       etrans.
       {
         rewrite !assoc'.
@@ -254,7 +254,7 @@ Section LeftWhiskering.
       unfold comp_enriched_profunctor_rmap_mor.
       rewrite !assoc'.
       do 2 apply maponpaths.
-      rewrite lwhisker_enriched_profunctor_mor_comm.
+      rewrite rwhisker_enriched_profunctor_mor_comm.
       rewrite !assoc.
       apply maponpaths_2.
       rewrite <- tensor_comp_id_r.
@@ -263,19 +263,19 @@ Section LeftWhiskering.
       apply idpath.
   Qed.
 
-  Definition lwhisker_enriched_profunctor
+  Definition rwhisker_enriched_profunctor
     : enriched_profunctor_transformation
         (comp_enriched_profunctor P₁ Q)
         (comp_enriched_profunctor P₂ Q).
   Proof.
     use make_enriched_profunctor_transformation.
-    - exact lwhisker_enriched_profunctor_mor.
-    - exact lwhisker_enriched_profunctor_laws.
+    - exact rwhisker_enriched_profunctor_mor.
+    - exact rwhisker_enriched_profunctor_laws.
   Defined.
-End LeftWhiskering.
+End RightWhiskering.
 
-(** * 2. Right whiskering *)
-Section RightWhiskering.
+(** * 2. Left whiskering *)
+Section LeftWhiskering.
   Context {V : benabou_cosmos}
           {C₁ C₂ C₃ : category}
           {E₁ : enrichment C₁ V}
@@ -285,7 +285,7 @@ Section RightWhiskering.
           {Q₁ Q₂ : E₂ ↛e E₃}
           (τ : enriched_profunctor_transformation Q₁ Q₂).
 
-  Proposition rwhisker_enriched_profunctor_mor_eq
+  Proposition lwhisker_enriched_profunctor_mor_eq
               (z : C₃)
               (y₁ y₂ : C₂)
               (x : C₁)
@@ -357,7 +357,7 @@ Section RightWhiskering.
     apply mon_lassociator_rassociator.
   Qed.
 
-  Definition rwhisker_enriched_profunctor_mor
+  Definition lwhisker_enriched_profunctor_mor
     : enriched_profunctor_transformation_data
         (comp_enriched_profunctor P Q₁)
         (comp_enriched_profunctor P Q₂).
@@ -366,25 +366,25 @@ Section RightWhiskering.
     use from_comp_enriched_profunctor_ob.
     - exact (λ y, (identity _ #⊗ τ z y) · comp_enriched_profunctor_in _ _ z x y).
     - intros y₁ y₂ ; cbn.
-      exact (rwhisker_enriched_profunctor_mor_eq z y₁ y₂ x).
+      exact (lwhisker_enriched_profunctor_mor_eq z y₁ y₂ x).
   Defined.
 
-  Proposition rwhisker_enriched_profunctor_mor_comm
+  Proposition lwhisker_enriched_profunctor_mor_comm
               (z : C₃)
               (y : C₂)
               (x : C₁)
-    : comp_enriched_profunctor_in _ _ z x y · rwhisker_enriched_profunctor_mor z x
+    : comp_enriched_profunctor_in _ _ z x y · lwhisker_enriched_profunctor_mor z x
       =
       (identity _ #⊗ τ z y) · comp_enriched_profunctor_in _ _ z x y.
   Proof.
-    unfold rwhisker_enriched_profunctor_mor.
+    unfold lwhisker_enriched_profunctor_mor.
     rewrite from_comp_enriched_profunctor_ob_comm.
     apply idpath.
   Qed.
 
-  Proposition rwhisker_enriched_profunctor_laws
+  Proposition lwhisker_enriched_profunctor_laws
     : enriched_profunctor_transformation_laws
-        rwhisker_enriched_profunctor_mor.
+        lwhisker_enriched_profunctor_mor.
   Proof.
     split.
     - intros z₁ z₂ x ; cbn.
@@ -410,7 +410,7 @@ Section RightWhiskering.
       rewrite !assoc'.
       apply maponpaths.
       rewrite !assoc.
-      rewrite rwhisker_enriched_profunctor_mor_comm.
+      rewrite lwhisker_enriched_profunctor_mor_comm.
       etrans.
       {
         rewrite !assoc'.
@@ -452,7 +452,7 @@ Section RightWhiskering.
         rewrite sym_mon_braiding_inv.
         rewrite id_left.
         rewrite !assoc'.
-        rewrite rwhisker_enriched_profunctor_mor_comm.
+        rewrite lwhisker_enriched_profunctor_mor_comm.
         rewrite tensor_comp_id_l.
         rewrite !assoc'.
         do 2 apply maponpaths.
@@ -488,7 +488,7 @@ Section RightWhiskering.
       rewrite !assoc'.
       apply maponpaths.
       rewrite !assoc.
-      rewrite rwhisker_enriched_profunctor_mor_comm.
+      rewrite lwhisker_enriched_profunctor_mor_comm.
       etrans.
       {
         rewrite !assoc'.
@@ -518,20 +518,20 @@ Section RightWhiskering.
       unfold comp_enriched_profunctor_rmap_mor.
       rewrite !assoc'.
       do 2 apply maponpaths.
-      rewrite rwhisker_enriched_profunctor_mor_comm.
+      rewrite lwhisker_enriched_profunctor_mor_comm.
       rewrite !assoc.
       apply maponpaths_2.
       rewrite <- tensor_split'.
       apply idpath.
   Qed.
 
-  Definition rwhisker_enriched_profunctor
+  Definition lwhisker_enriched_profunctor
     : enriched_profunctor_transformation
         (comp_enriched_profunctor P Q₁)
         (comp_enriched_profunctor P Q₂).
   Proof.
     use make_enriched_profunctor_transformation.
-    - exact rwhisker_enriched_profunctor_mor.
-    - exact rwhisker_enriched_profunctor_laws.
+    - exact lwhisker_enriched_profunctor_mor.
+    - exact lwhisker_enriched_profunctor_laws.
   Defined.
-End RightWhiskering.
+End LeftWhiskering.
