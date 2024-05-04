@@ -96,6 +96,24 @@ Definition enriched_profunctor_transformation
   := ∑ (τ : enriched_profunctor_transformation_data P Q),
      enriched_profunctor_transformation_laws τ.
 
+Proposition isaset_enriched_profunctor_transformation
+            {V : sym_mon_closed_cat}
+            {C₁ C₂ : category}
+            {E₁ : enrichment C₁ V}
+            {E₂ : enrichment C₂ V}
+            (P Q : E₁ ↛e E₂)
+  : isaset (enriched_profunctor_transformation P Q).
+Proof.
+  use isaset_total2.
+  - unfold enriched_profunctor_transformation_data.
+    use impred_isaset ; intro x.
+    use impred_isaset ; intro y.
+    apply homset_property.
+  - intro.
+    apply isasetaprop.
+    apply isaprop_enriched_profunctor_transformation_laws.
+Qed.
+
 Definition make_enriched_profunctor_transformation
            {V : sym_mon_closed_cat}
            {C₁ C₂ : category}
