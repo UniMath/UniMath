@@ -1,7 +1,7 @@
 (**
 
 Syntax of the forest calculus (see https://arxiv.org/abs/1602.04382 by José Espírito Santo, Ralph Matthes, Luís Pinto)
-)  in fully typed format as a multisorted signature based on the actegorical development.
+in fully typed format as a multisorted signature based on the actegorical development.
 Thanks to that development, the inductive and the coinductive calculus are exposed in parallel.
 The entire development is only done for the base category [HSET] and thus profits from having inhabitants of the objects
 and having functions as morphisms.
