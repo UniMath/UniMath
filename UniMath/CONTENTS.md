@@ -1272,6 +1272,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [MultiSortedMonadConstruction_actegorical.v](SubstitutionSystems/MultiSortedMonadConstruction_actegorical.v)
    - [MultiSortedMonadConstruction_coind_actegorical.v](SubstitutionSystems/MultiSortedMonadConstruction_coind_actegorical.v)
    - [MultiSortedEmbeddingIndCoindHSET.v](SubstitutionSystems/MultiSortedEmbeddingIndCoindHSET.v)
+   - [UntypedForests.v](SubstitutionSystems/UntypedForests.v)
+   - [Forests.v](SubstitutionSystems/Forests.v)
    - [STLC_actegorical.v](SubstitutionSystems/STLC_actegorical.v)
    - [STLC_actegorical_abstractcat.v](SubstitutionSystems/STLC_actegorical_abstractcat.v)
    - [All.v](SubstitutionSystems/All.v)
