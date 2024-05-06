@@ -23,8 +23,9 @@
  4.1. Identity squares
  4.2. Composition of squares
  4.3. Whiskering operations
- 4.4. Companion pairs
- 4.5. Conjoints
+ 4.4. Unitors and associators
+ 4.5. Companion pairs
+ 4.6. Conjoints
 
  *****************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -542,7 +543,7 @@ Proof.
 Defined.
 
 (** ** 4.3. Whiskering operations *)
-Definition uwhisker_profunctor_square
+Definition dwhisker_profunctor_square
            {C₁ C₂ D₁ D₂ : category}
            {F F' : C₁ ⟶ C₂}
            {G : D₁ ⟶ D₂}
@@ -563,7 +564,7 @@ Proof.
        apply idpath).
 Defined.
 
-Definition dwhisker_profunctor_square
+Definition uwhisker_profunctor_square
            {C₁ C₂ D₁ D₂ : category}
            {F : C₁ ⟶ C₂}
            {G G' : D₁ ⟶ D₂}
@@ -665,7 +666,7 @@ Proof.
   exact (associator_profunctor_nat_trans P₁ P₂ P₃).
 Defined.
 
-(** * 4.4. Companion pairs *)
+(** * 4.5. Companion pairs *)
 Definition representable_profunctor_left_unit
            {C₁ C₂ : category}
            (F : C₁ ⟶ C₂)
@@ -703,7 +704,7 @@ Proof.
        apply idpath).
 Defined.
 
-(** * 4.5. Conjoints *)
+(** * 4.6. Conjoints *)
 Definition representable_profunctor_right_unit
            {C₁ C₂ : category}
            (F : C₁ ⟶ C₂)
