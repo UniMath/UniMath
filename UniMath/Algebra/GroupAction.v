@@ -145,7 +145,7 @@ Defined.
 #[reversible=no] Coercion underlyingIso {G:gr} {X Y:Action G} (e:ActionIso X Y) : X ≃ Y := pr1 e.
 
 Lemma underlyingIso_incl {G:gr} {X Y:Action G} :
-  isincl (underlyingIso : ActionIso X Y  → X ≃ Y).
+  isincl (underlyingIso : ActionIso X Y → X ≃ Y).
 Proof.
   intros. apply isinclpr1; intro f. apply propproperty.
 Defined.
@@ -201,7 +201,7 @@ Proof.
   intros. destruct e. exact (idActionIso X).
 Defined.
 
-Definition castAction {G:gr} {X Y:Action G} (e:X = Y) : X  → Y.
+Definition castAction {G:gr} {X Y:Action G} (e:X = Y) : X → Y.
 Proof.
   intros x. exact (path_to_ActionIso e x).
 Defined.
@@ -325,7 +325,7 @@ Proof.
   exact (underlyingAction X,,(x,,pr2(is_torsor_prop X))).
 Defined.
 
-Definition castTorsor {G} {T T':Torsor G} (q:T = T') : T  → T'.
+Definition castTorsor {G} {T T':Torsor G} (q:T = T') : T → T'.
 Proof.
   exact (castAction (maponpaths underlyingAction q)).
 Defined.
@@ -337,7 +337,7 @@ Proof.
 Defined.
 
 Lemma underlyingAction_incl {G:gr} :
-  isincl (underlyingAction : Torsor G  → Action G).
+  isincl (underlyingAction : Torsor G → Action G).
 Proof.
   intros. refine (isinclpr1 _ _); intro X. apply is_torsor_isaprop.
 Defined.
@@ -386,7 +386,7 @@ Proof.
   intros. exact (pr2 (iscontrpr1 (is_quotient _ y x))).
 Defined.
 
-Lemma quotient_uniqueness {G} {X:Torsor G} (y x:X) (g:G) : g*x = y  → g = y/x.
+Lemma quotient_uniqueness {G} {X:Torsor G} (y x:X) (g:G) : g*x = y → g = y/x.
 Proof.
   intros e.
   exact (maponpaths pr1 (uniqueness (is_quotient _ y x) (g,,e))).
@@ -469,7 +469,7 @@ Proof.
   intros. exists (trivialTorsor G). exact (unel G).
 Defined.
 
-Definition univ_function {G:gr} (X:Torsor G) (x:X) : trivialTorsor G  → X.
+Definition univ_function {G:gr} (X:Torsor G) (x:X) : trivialTorsor G → X.
 Proof.
   apply right_mult. assumption.
 Defined.
@@ -605,12 +605,12 @@ Proof.
   apply Action_univalence_inv_comp_eval.
 Defined.
 
-Definition torsor_eqweq_to_path {G:gr} {X Y:Torsor G} : ActionIso X Y  → X = Y.
+Definition torsor_eqweq_to_path {G:gr} {X Y:Torsor G} : ActionIso X Y → X = Y.
 Proof.
   intros f. exact (invweq torsor_univalence f).
 Defined.
 
-Definition torsorMap_to_path {G:gr} {X Y:Torsor G} : ActionMap X Y  → X = Y.
+Definition torsorMap_to_path {G:gr} {X Y:Torsor G} : ActionMap X Y → X = Y.
 Proof.
   intros f.
   apply (invweq torsor_univalence).
@@ -618,8 +618,8 @@ Proof.
   exact f.
 Defined.
 
-Theorem TorsorIso_rect {G:gr} {X Y : Torsor G} (P : ActionIso X Y  → UU) :
-  (∏ e : X = Y, P (torsor_univalence e))  → ∏ f, P f.
+Theorem TorsorIso_rect {G:gr} {X Y : Torsor G} (P : ActionIso X Y → UU) :
+  (∏ e : X = Y, P (torsor_univalence e)) → ∏ f, P f.
 Proof.
   intros ih ?.
   set (p := ih (invmap torsor_univalence f)).
@@ -630,8 +630,8 @@ Defined.
 Ltac torsor_induction f e :=
   generalize f; apply TorsorIso_rect; intro e; clear f.
 
-Theorem TorsorIso_rect' {G:gr} {X : Torsor G} (P : ∏ Y : Torsor G, ActionIso X Y  → Type) :
-  P X (idActionIso X)  → ∏ (Y : Torsor G) (f:ActionIso X Y), P Y f.
+Theorem TorsorIso_rect' {G:gr} {X : Torsor G} (P : ∏ Y : Torsor G, ActionIso X Y → Type) :
+  P X (idActionIso X) → ∏ (Y : Torsor G) (f:ActionIso X Y), P Y f.
 Proof.
   intros p ? ?. torsor_induction f q. induction q. exact p.
 Defined.
@@ -678,7 +678,7 @@ Defined.
 Definition ClassifyingSpace G := pointedType (Torsor G) (trivialTorsor G).
 Definition E := PointedTorsor.
 Definition B := ClassifyingSpace.
-Definition π {G:gr} := underlyingTorsor : E G  → B G.
+Definition π {G:gr} := underlyingTorsor : E G → B G.
 
 Lemma isBaseConnected_BG (G:gr) : isBaseConnected (B G).
 Proof.
@@ -740,13 +740,13 @@ Defined.
 
 (** Theorem [loopsBG] also follows from the Rezk Completion theorem of the CategoryTheory
     package.  To see that, regard G as a category with one object.  Consider a
-    merely representable functor F : G^op  → Set.  Let X be F of the object *.
+    merely representable functor F : G^op → Set.  Let X be F of the object *.
     Apply F to the arrows to get an action of G on X.  Try to prove that X is a
     torsor.  Since being a torsor is a mere property, we may assume F is
     actually representable.  There is only one object *, so F is isomorphic to
     h_*.  Apply h_* to * and we get Hom(*,*), which is G, regarded as a G-set.
     That's a torsor.  So the Rezk completion RCG is equivalent to BG, the type
-    of G-torsors.  Now the theorem also says there is an equivalence G  → RCG.
+    of G-torsors.  Now the theorem also says there is an equivalence G → RCG.
     So RCG is connected and its loop space is G.
 
     A formalization of that argument should be added eventually. *)

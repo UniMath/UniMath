@@ -35,7 +35,7 @@ Require Export UniMath.Algebra.RigsAndRings.
 (** To one binary operation *)
 
 Lemma islcancelableif {X : hSet} (opp : binop X) (x : X)
-      (is : ∏ a b : X, paths (opp x a) (opp x b)  → a = b) : islcancelable opp x.
+      (is : ∏ a b : X, paths (opp x a) (opp x b) → a = b) : islcancelable opp x.
 Proof.
   intros. apply isinclbetweensets.
   - apply (setproperty X).
@@ -44,7 +44,7 @@ Proof.
 Defined.
 
 Lemma isrcancelableif {X : hSet} (opp : binop X) (x : X)
-      (is : ∏ a b : X, paths (opp a x) (opp b x)  → a = b) : isrcancelable opp x.
+      (is : ∏ a b : X, paths (opp a x) (opp b x) → a = b) : isrcancelable opp x.
 Proof.
   intros. apply isinclbetweensets.
   - apply (setproperty X).
@@ -53,8 +53,8 @@ Proof.
 Defined.
 
 Definition iscancelableif {X : hSet} (opp : binop X) (x : X)
-           (isl : ∏ a b : X, paths (opp x a) (opp x b)  → a = b)
-           (isr : ∏ a b : X, paths (opp a x) (opp b x)  → a = b) :
+           (isl : ∏ a b : X, paths (opp x a) (opp x b) → a = b)
+           (isr : ∏ a b : X, paths (opp a x) (opp b x) → a = b) :
   iscancelable opp x := make_dirprod (islcancelableif opp x isl) (isrcancelableif opp x isr).
 
 (** To monoids *)
@@ -66,7 +66,7 @@ Local Open Scope multmonoid.
 
 Definition linvpair (X : monoid) (x : X) : UU := ∑ (x' : X), paths (x' * x) 1.
 
-Definition pr1linvpair (X : monoid) (x : X) : linvpair X x  → X := @pr1 _ _.
+Definition pr1linvpair (X : monoid) (x : X) : linvpair X x → X := @pr1 _ _.
 
 Definition linvpairxy (X : monoid) (x y : X) (x' : linvpair X x) (y' : linvpair X y) :
   linvpair X (x * y).
@@ -95,7 +95,7 @@ Defined.
 
 Definition rinvpair (X : monoid) (x : X) : UU := ∑ (x' : X), paths (x * x') 1.
 
-Definition pr1rinvpair (X : monoid) (x : X) : rinvpair X x  → X := @pr1 _ _.
+Definition pr1rinvpair (X : monoid) (x : X) : rinvpair X x → X := @pr1 _ _.
 
 Definition rinvpairxy (X : monoid) (x y : X) (x' : rinvpair X x) (y' : rinvpair X y) :
   rinvpair X (x * y).
@@ -137,7 +137,7 @@ Defined.
 Definition invpair (X : monoid) (x : X) : UU :=
   ∑ (x' : X), dirprod (paths (x' * x) 1) (paths (x * x') 1).
 
-Definition pr1invpair (X : monoid) (x : X) : invpair X x  → X := @pr1 _ _.
+Definition pr1invpair (X : monoid) (x : X) : invpair X x → X := @pr1 _ _.
 
 Definition invtolinv (X : monoid) (x : X) (x' : invpair X x) : linvpair X x :=
   tpair _ (pr1 x') (pr1 (pr2 x')).
@@ -310,7 +310,7 @@ Proof.
 Defined.
 
 Definition isintdom (X : commring) : UU :=
-  dirprod (isnonzerorig X) (∏ (a1 a2 : X), (a1 * a2 = 0)  → (a1 = 0) ∨ (a2 = 0)).
+  dirprod (isnonzerorig X) (∏ (a1 a2 : X), (a1 * a2 = 0) → (a1 = 0) ∨ (a2 = 0)).
 
 Lemma isapropisintdom (X : commring) : isaprop (isintdom X).
 Proof.
@@ -322,13 +322,13 @@ Qed.
 
 Definition intdom : UU := ∑ (X : commring), isintdom X.
 
-Definition pr1intdom : intdom  → commring := @pr1 _ _.
+Definition pr1intdom : intdom → commring := @pr1 _ _.
 Coercion pr1intdom : intdom >-> commring.
 
 Definition nonzeroax (X : intdom) : neg (@paths X 1 0) := pr1 (pr2 X).
 
 Definition intdomax (X : intdom) :
-  ∏ (a1 a2 : X), (a1 * a2) = 0  → (a1 = 0) ∨ (a2 = 0) := pr2 (pr2 X).
+  ∏ (a1 a2 : X), (a1 * a2) = 0 → (a1 = 0) ∨ (a2 = 0) := pr2 (pr2 X).
 
 
 (** **** (X = Y) ≃ (ringiso X Y)
@@ -350,7 +350,7 @@ Opaque intdom_univalence_weq1.
 Definition intdom_univalence_weq2 (X Y : intdom) : (pr1 X = pr1 Y) ≃ (ringiso X Y) :=
   commring_univalence (pr1 X) (pr1 Y).
 
-Definition intdom_univalence_map (X Y : intdom) : (X = Y)  → (ringiso X Y).
+Definition intdom_univalence_map (X Y : intdom) : (X = Y) → (ringiso X Y).
 Proof.
   intros e. induction e. exact (idrigiso X).
 Defined.
@@ -376,7 +376,7 @@ Lemma intdomax2l (X : intdom) (x y : X) (is : paths (x * y) 0) (ne : x != 0) : y
 Proof.
   intros.
   set (int := intdomax X _ _ is). generalize ne.
-  assert (int' : isaprop (x != 0  → y = 0)).
+  assert (int' : isaprop (x != 0 → y = 0)).
   {
     apply impred. intro.
     apply (setproperty X _ _).
@@ -392,7 +392,7 @@ Lemma intdomax2r (X : intdom) (x y : X) (is : paths (x * y) 0) (ne : y != 0) : x
 Proof.
   intros.
   set (int := intdomax X _ _ is). generalize ne.
-  assert (int' : isaprop (y != 0  → x = 0)).
+  assert (int' : isaprop (y != 0 → x = 0)).
   {
     apply impred. intro.
     apply (setproperty X _ _).
@@ -409,7 +409,7 @@ Proof.
   intros. intro e. destruct (ism (intdomax2l X n m e isn )).
 Defined.
 
-Lemma intdomlcan (X : intdom) : ∏ (a b c : X), c != 0  → paths (c * a) (c * b)  → a = b.
+Lemma intdomlcan (X : intdom) : ∏ (a b c : X), c != 0 → paths (c * a) (c * b) → a = b.
 Proof.
   intros a b c ne e.
   apply (@grtopathsxy X a b). change (paths (a - b) 0).
@@ -417,7 +417,7 @@ Proof.
   rewrite (pathsinv0 (ringrmultminus X _ _)) in e'.
   rewrite (pathsinv0 (ringldistr X _ _ c)) in e'.
   set (int := intdomax X _ _ e'). generalize ne.
-  assert (int' : isaprop (c != 0  → paths (a - b) 0)).
+  assert (int' : isaprop (c != 0 → paths (a - b) 0)).
   {
     apply impred. intro.
     apply (setproperty X _ _).
@@ -428,14 +428,14 @@ Proof.
   - intro. apply ne'.
 Qed.
 
-Lemma intdomrcan (X : intdom) : ∏ (a b c : X), c != 0  → paths (a * c) (b * c)  → a = b.
+Lemma intdomrcan (X : intdom) : ∏ (a b c : X), c != 0 → paths (a * c) (b * c) → a = b.
 Proof.
   intros a b c ne e. apply (@grtopathsxy X a b). change (paths (a - b) 0).
   assert (e' := grfrompathsxy X e). change (paths ((a * c) - (b * c)) 0) in e'.
   rewrite (pathsinv0 (ringlmultminus X _ _)) in e'.
   rewrite (pathsinv0 (ringrdistr X _ _ c)) in e'.
   set (int := intdomax X _ _ e'). generalize ne.
-  assert (int' : isaprop (c != 0  → paths (a - b) 0)).
+  assert (int' : isaprop (c != 0 → paths (a - b) 0)).
   {
     apply impred. intro.
     apply (setproperty X _ _).
@@ -512,7 +512,7 @@ Definition fld : UU := ∑ (X : commring), isafield X.
 
 Definition make_fld (X : commring) (is : isafield X) : fld := tpair _ X is.
 
-Definition pr1fld : fld  → commring := @pr1 _ _.
+Definition pr1fld : fld → commring := @pr1 _ _.
 
 Definition fldtointdom (X : fld) : intdom.
 Proof.
@@ -556,7 +556,7 @@ Opaque fld_univalence_weq1.
 Definition fld_univalence_weq2 (X Y : fld) : (pr1 X = pr1 Y) ≃ (ringiso X Y) :=
   commring_univalence (pr1 X) (pr1 Y).
 
-Definition fld_univalence_map (X Y : fld) : (X = Y)  → (ringiso X Y).
+Definition fld_univalence_map (X Y : fld) : (X = Y) → (ringiso X Y).
 Proof.
   intros e. induction e. exact (idrigiso X).
 Defined.
@@ -677,7 +677,7 @@ Lemma islinvinfldfrac (X : intdom) (is : isdeceq X) (x : commringfrac X (intdomn
       (ne : x != 0) : paths ((fldfracmultinv0 X is x) * x) 1.
 Proof.
   revert x ne.
-  assert (int : ∏ x0, isaprop (x0 != 0  → paths ((fldfracmultinv0 X is x0) * x0) 1)).
+  assert (int : ∏ x0, isaprop (x0 != 0 → paths ((fldfracmultinv0 X is x0) * x0) 1)).
   {
     intro x0.
     apply impred. intro.
@@ -831,7 +831,7 @@ Qed.
 
 Definition weqfldfracgt_f (X : intdom) (is : isdeceq X) {R : hrel X} (is0 : @isbinophrel X R)
            (is1 : isringmultgt X R) (is2 : R 1 0) (nc : neqchoice R) :
-  fldfrac X is  → commringfrac X (ringpossubmonoid X is1 is2) :=
+  fldfrac X is → commringfrac X (ringpossubmonoid X is1 is2) :=
   setquotfun _ _ _ (weqfldfracgtintcomp_f X is0 is1 is2 nc).
 
 Definition weqfldfracgtint_b (X : intdom) {R : hrel X} (is1 : isringmultgt X R) (is2 : R 1 0)
@@ -851,7 +851,7 @@ Defined.
 
 Definition weqfldfracgt_b (X : intdom) (is : isdeceq X) {R : hrel X} (is1 : isringmultgt X R)
            (is2 : R 1 0) (ir : isirrefl R) :
-  commringfrac X (ringpossubmonoid X is1 is2)  → fldfrac X is :=
+  commringfrac X (ringpossubmonoid X is1 is2) → fldfrac X is :=
   setquotfun _ _ _ (weqfldfracgtintcomp_b X is1 is2 ir).
 
 Definition weqfldfracgt (X : intdom) (is : isdeceq X) {R : hrel X} (is0 : @isbinophrel X R)
@@ -930,7 +930,7 @@ Proof.
         apply (invmaponpathsincl
                  (@pr1 _ _) (isinclpr1 _ (λ a, (isapropneg (a = 0))))
                  (tpair _ (a1 * a2) (rtoneq ir (is1 a1 a2 ia1 ia2)))
-                 (make_carrier (λ x : pr1 X, make_hProp (x = 0  → empty) (isapropneg (x = 0)))
+                 (make_carrier (λ x : pr1 X, make_hProp (x = 0 → empty) (isapropneg (x = 0)))
                               (a1 * a2) (fun e : paths (a1 * a2) 0 =>
                                            toneghdisj (make_dirprod (rtoneq ir ia1) (rtoneq ir ia2))
                                                       (intdomax X a1 a2 e))) (idpath _)).
@@ -967,7 +967,7 @@ Proof.
                  (@pr1 _ _)
                  (isinclpr1 _ (λ a, (isapropneg (a = 0))))
                  (tpair _ (a1 * a2) (rtoneq ir (is1 a1 a2 ia1 ia2)))
-                 (make_carrier (λ x : pr1 X, make_hProp (x = 0  → empty) (isapropneg (x = 0)))
+                 (make_carrier (λ x : pr1 X, make_hProp (x = 0 → empty) (isapropneg (x = 0)))
                               (a1 * a2) (fun e : paths (a1 * a2) 0 =>
                                            toneghdisj (make_dirprod (rtoneq ir ia1) (rtoneq ir ia2))
                                                       (intdomax X a1 a2 e))) (idpath _)).

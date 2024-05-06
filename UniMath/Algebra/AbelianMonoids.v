@@ -35,7 +35,7 @@ Definition make_abmonoid (t : setwithbinop) (H : isabmonoidop (@op t))
   : abmonoid
   := t ,, H.
 
-Definition abmonoidtomonoid : abmonoid  → monoid :=
+Definition abmonoidtomonoid : abmonoid → monoid :=
   λ X, make_monoid (pr1 X) (pr1 (pr2 X)).
 Coercion abmonoidtomonoid : abmonoid >-> monoid.
 
@@ -91,7 +91,7 @@ Definition unelabmonoidfun (X Y : abmonoid) : monoidfun X Y :=
 
 
 (** **** Abelian monoid structure on homsets
-    If f g : X  → Y are morphisms of abelian monoids, then we define f + g to be the morphism
+    If f g : X → Y are morphisms of abelian monoids, then we define f + g to be the morphism
     (f + g)(x) = f(x) + g(x).
  *)
 
@@ -206,7 +206,7 @@ Definition abmonoid_univalence_weq3 (X Y : abmonoid) :
   ((pr1 (make_abmonoid' X)) = (pr1 (make_abmonoid' Y))) ≃ (monoidiso X Y) :=
   monoid_univalence (pr1 (make_abmonoid' X)) (pr1 (make_abmonoid' Y)).
 
-Definition abmonoid_univalence_map (X Y : abmonoid) : (X = Y)  → (monoidiso X Y).
+Definition abmonoid_univalence_map (X Y : abmonoid) : (X = Y) → (monoidiso X Y).
 Proof.
   intro e. induction e. exact (idmonoidiso X).
 Defined.
@@ -372,7 +372,7 @@ Definition binopeqrelabmonoidfrac (X : abmonoid) (A : subabmonoid X) :
 Definition abmonoidfrac (X : abmonoid) (A : submonoid X) : abmonoid :=
   abmonoidquot (binopeqrelabmonoidfrac X A).
 
-Definition prabmonoidfrac (X : abmonoid) (A : submonoid X) : X  → A  → abmonoidfrac X A :=
+Definition prabmonoidfrac (X : abmonoid) (A : submonoid X) : X → A → abmonoidfrac X A :=
   λ (x : X) (a : A), setquotpr (eqrelabmonoidfrac X A) (x ,, a).
 
 (* ??? could the use of [issubabmonoid] in [binopeqrelabmonoidfrac] and
@@ -846,8 +846,8 @@ Lemma isantisymmnegabmonoidfracrel (X : abmonoid) (A : subabmonoid X) {L : hrel 
       (is : ispartbinophrel A L) (isl : isantisymmneg L) : isantisymmneg (abmonoidfracrel X A is).
 Proof.
   intros.
-  assert (int : ∏ x1 x2, isaprop (neg (abmonoidfracrel X A is x1 x2)  →
-                                  neg (abmonoidfracrel X A is x2 x1)  →
+  assert (int : ∏ x1 x2, isaprop (neg (abmonoidfracrel X A is x1 x2) →
+                                  neg (abmonoidfracrel X A is x2 x1) →
                                   x1 = x2)).
   {
     intros x1 x2.
@@ -859,8 +859,8 @@ Proof.
   apply (setquotuniv2prop _ (λ x1 x2, make_hProp _ (int x1 x2))).
   intros xa1 xa2. intros r r'. apply (weqpathsinsetquot _).
   generalize r r'. clear r r'.
-  change (neg (abmonoidfracrelint X A L xa1 xa2)  →
-          neg (abmonoidfracrelint X A L xa2 xa1)  →
+  change (neg (abmonoidfracrelint X A L xa1 xa2) →
+          neg (abmonoidfracrelint X A L xa2 xa1) →
           (eqrelabmonoidfrac X A xa1 xa2)).
   intros nr12 nr21.
   set (nr12' := neghexisttoforallneg _ nr12 (unel A)).
@@ -875,8 +875,8 @@ Proof.
   intros.
   set (assoc := (assocax X) : isassoc (@op X)). unfold isassoc in assoc.
   set (comm := commax X). unfold iscomm in comm. unfold isantisymm.
-  assert (int : ∏ x1 x2, isaprop ((abmonoidfracrel X A is x1 x2)  →
-                                  (abmonoidfracrel X A is x2 x1)  →
+  assert (int : ∏ x1 x2, isaprop ((abmonoidfracrel X A is x1 x2) →
+                                  (abmonoidfracrel X A is x2 x1) →
                                   x1 = x2)).
   {
     intros x1 x2.
@@ -887,8 +887,8 @@ Proof.
   apply (setquotuniv2prop _ (λ x1 x2, make_hProp _ (int x1 x2))).
   intros xa1 xa2. intros r r'. apply (weqpathsinsetquot _).
   generalize r r'. clear r r'.
-  change ((abmonoidfracrelint X A L xa1 xa2)  →
-          (abmonoidfracrelint X A L xa2 xa1)  →
+  change ((abmonoidfracrelint X A L xa1 xa2) →
+          (abmonoidfracrelint X A L xa2 xa1) →
           (eqrelabmonoidfrac X A xa1 xa2)).
   unfold abmonoidfracrelint. unfold eqrelabmonoidfrac. simpl.
   apply hinhfun2. intros t2l1 t2l2.
@@ -952,7 +952,7 @@ Proof.
   set (assoc := (assocax X) : isassoc (@op X)). unfold isassoc in assoc.
   set (comm := commax X). unfold iscomm in comm.
   set (rer := abmonoidrer X).
-  assert (int : ∏ z z', isaprop (abmonoidfracrel X A is z z'  →
+  assert (int : ∏ z z', isaprop (abmonoidfracrel X A is z z' →
                                  abmonoidfracrel
                                    X A is (prabmonoidfrac X A (pr1 aa) aa' + z)
                                    (prabmonoidfrac X A (pr1 aa) aa' + z'))).
@@ -963,7 +963,7 @@ Proof.
   }
   apply (setquotuniv2prop _ (λ z z', make_hProp _ (int z z'))).
   intros xa1 xa2.
-  change (abmonoidfracrelint X A L xa1 xa2  →
+  change (abmonoidfracrelint X A L xa1 xa2 →
           abmonoidfracrelint X A L
                              (@op (abmonoiddirprod X A) (pr1 aa ,, aa') xa1)
                              (@op (abmonoiddirprod X A) (pr1 aa ,, aa') xa2)).
@@ -991,7 +991,7 @@ Proof.
   set (comm := commax X). unfold iscomm in comm.
   set (rer := abmonoidrer X).
   assert (int : ∏ (z z' : abmonoidfrac X A),
-                isaprop (abmonoidfracrel X A is z z'  →
+                isaprop (abmonoidfracrel X A is z z' →
                          abmonoidfracrel X A is
                                          (z + (prabmonoidfrac X A (pr1 aa) aa'))
                                          (z' + prabmonoidfrac X A (pr1 aa) aa'))).
@@ -1002,7 +1002,7 @@ Proof.
   }
   apply (setquotuniv2prop _ (λ z z', make_hProp _ (int z z'))).
   intros xa1 xa2.
-  change (abmonoidfracrelint X A L xa1 xa2  →
+  change (abmonoidfracrelint X A L xa1 xa2 →
           abmonoidfracrelint X A L
                              (@op (abmonoiddirprod X A) xa1 (pr1 aa ,, aa'))
                              (@op (abmonoiddirprod X A) xa2 (pr1 aa ,, aa'))).
@@ -1025,7 +1025,7 @@ Qed.
 
 Lemma abmonoidfracrelimpl (X : abmonoid) (A : subabmonoid X) {L L' : hrel X}
       (is : ispartbinophrel A L) (is' : ispartbinophrel A L')
-      (impl : ∏ x x', L x x'  → L' x x') (x x' : abmonoidfrac X A)
+      (impl : ∏ x x', L x x' → L' x x') (x x' : abmonoidfrac X A)
       (ql : abmonoidfracrel X A is x x') : abmonoidfracrel X A is' x x'.
 Proof.
   generalize ql. apply quotrelimpl. intros x0 x0'.

@@ -33,13 +33,13 @@ Definition abgr : UU := ∑ (X : setwithbinop), isabgrop (@op X).
 Definition make_abgr (X : setwithbinop) (is : isabgrop (@op X)) : abgr :=
   X ,, is.
 
-Definition abgrconstr (X : abmonoid) (inv0 : X  → X) (is : isinv (@op X) 0 inv0) : abgr :=
+Definition abgrconstr (X : abmonoid) (inv0 : X → X) (is : isinv (@op X) 0 inv0) : abgr :=
   make_abgr X (make_isgrop (pr2 X) (inv0 ,, is) ,, commax X).
 
-Definition abgrtogr : abgr  → gr := λ X, make_gr (pr1 X) (pr1 (pr2 X)).
+Definition abgrtogr : abgr → gr := λ X, make_gr (pr1 X) (pr1 (pr2 X)).
 Coercion abgrtogr : abgr >-> gr.
 
-Definition abgrtoabmonoid : abgr  → abmonoid :=
+Definition abgrtoabmonoid : abgr → abmonoid :=
   λ X, make_abmonoid (pr1 X) (pr1 (pr1 (pr2 X)) ,, pr2 (pr2 X)).
 Coercion abgrtoabmonoid : abgr >-> abmonoid.
 
@@ -178,7 +178,7 @@ Definition abgr_univalence_weq3 (X Y : abgr) :
   (pr1 (make_abgr' X) = pr1 (make_abgr' Y)) ≃ (monoidiso X Y) :=
   gr_univalence (pr1 (make_abgr' X)) (pr1 (make_abgr' Y)).
 
-Definition abgr_univalence_map (X Y : abgr) : (X = Y)  → (monoidiso X Y).
+Definition abgr_univalence_map (X Y : abgr) : (X = Y) → (monoidiso X Y).
 Proof.
   intro e. induction e. exact (idmonoidiso X).
 Defined.
@@ -226,7 +226,7 @@ Definition abgr_image_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtype B :=
   (λ y : B, ∃ x : A, (f x) = y).
 
 (** * Kernels
-    Let f : X  → Y be a morphism of abelian groups. A kernel of f is given by the subgroup of X
+    Let f : X → Y be a morphism of abelian groups. A kernel of f is given by the subgroup of X
     consisting of elements x such that [f x = 0].
  *)
 
@@ -372,7 +372,7 @@ Definition binopeqrelabgrdiff (X : abmonoid) : binopeqrel (abmonoiddirprod X X) 
 Definition abgrdiffcarrier (X : abmonoid) : abmonoid := @abmonoidquot (abmonoiddirprod X X)
                                                                       (binopeqrelabgrdiff X).
 
-Definition abgrdiffinvint (X : abmonoid) : X × X  → X × X :=
+Definition abgrdiffinvint (X : abmonoid) : X × X → X × X :=
   λ xs, pr2 xs ,, pr1 xs.
 
 Lemma abgrdiffinvcomp (X : abmonoid) :
@@ -390,7 +390,7 @@ Proof.
   exact (!eq).
 Qed.
 
-Definition abgrdiffinv (X : abmonoid) : abgrdiffcarrier X  → abgrdiffcarrier X :=
+Definition abgrdiffinv (X : abmonoid) : abgrdiffcarrier X → abgrdiffcarrier X :=
   setquotfun (hrelabgrdiff X) (eqrelabgrdiff X) (abgrdiffinvint X) (abgrdiffinvcomp X).
 
 Lemma abgrdiffisinv (X : abmonoid) :
@@ -416,7 +416,7 @@ Qed.
 Definition abgrdiff (X : abmonoid) : abgr
   := abgrconstr (abgrdiffcarrier X) (abgrdiffinv X) (abgrdiffisinv X).
 
-Definition prabgrdiff (X : abmonoid) : X  → X  → abgrdiff X :=
+Definition prabgrdiff (X : abmonoid) : X → X → abgrdiff X :=
   λ x x' : X, setquotpr (eqrelabgrdiff X) (x ,, x').
 
 
@@ -523,7 +523,7 @@ Definition logeqabgrdiffrels (X : abmonoid) {L : hrel X} (is : isbinophrel L) :
   hrellogeq (abgrdiffrel' X is) (abgrdiffrel X is).
 Proof.
   intros x1 x2. split.
-  - assert (int : ∏ x x', isaprop (abgrdiffrel' X is x x'  → abgrdiffrel X is x x')).
+  - assert (int : ∏ x x', isaprop (abgrdiffrel' X is x x' → abgrdiffrel X is x x')).
     {
       intros x x'.
       apply impred. intro.
@@ -532,16 +532,16 @@ Proof.
     generalize x1 x2. clear x1 x2.
     apply (setquotuniv2prop _ (λ x x', make_hProp _ (int x x'))).
     intros x x'.
-    change ((abgrdiffrelint' X L x x')   → (abgrdiffrelint _ L x x')).
+    change ((abgrdiffrelint' X L x x') → (abgrdiffrelint _ L x x')).
     apply (pr1 (logeqabgrdiffrelints X L x x')).
-  - assert (int : ∏ x x', isaprop (abgrdiffrel X is x x'  → abgrdiffrel' X is x x')).
+  - assert (int : ∏ x x', isaprop (abgrdiffrel X is x x' → abgrdiffrel' X is x x')).
     intros x x'.
     apply impred. intro.
     apply (pr2 _).
     generalize x1 x2. clear x1 x2.
     apply (setquotuniv2prop _ (λ x x', make_hProp _ (int x x'))).
     intros x x'.
-    change ((abgrdiffrelint X L x x')  → (abgrdiffrelint' _ L x x')).
+    change ((abgrdiffrelint X L x x') → (abgrdiffrelint' _ L x x')).
     apply (pr2 (logeqabgrdiffrelints X L x x')).
 Defined.
 
@@ -704,7 +704,7 @@ Definition StrongOrder_abgrdiff {X : abmonoid} (gt : StrongOrder X)
   abgrdiffrel X Hgt,, isStrongOrder_abgrdiff gt Hgt (pr2 gt).
 
 Lemma abgrdiffrelimpl (X : abmonoid) {L L' : hrel X} (is : isbinophrel L) (is' : isbinophrel L')
-      (impl : ∏ x x', L x x'  → L' x x') (x x' : abgrdiff X) (ql : abgrdiffrel X is x x') :
+      (impl : ∏ x x', L x x' → L' x x') (x x' : abgrdiff X) (ql : abgrdiffrel X is x x') :
   abgrdiffrel X is' x x'.
 Proof.
   generalize ql. refine (quotrelimpl _ _ _ _ _).

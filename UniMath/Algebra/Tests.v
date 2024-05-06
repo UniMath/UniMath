@@ -25,11 +25,11 @@ Module Test_assoc.
 
   Open Scope multmonoid.
 
-  Goal ∏ (M:monoid) (f:stn 3  → M),
+  Goal ∏ (M:monoid) (f:stn 3 → M),
          iterop_seq_mon(3,,f) = f(●O) * f(●1%nat) * f(●2).
   Proof. reflexivity. Defined.
 
-  Goal ∏ (M:monoid) (f:stn 3  → Sequence M),
+  Goal ∏ (M:monoid) (f:stn 3 → Sequence M),
          iterop_seq_seq_mon(3,,f) =
                 iterop_seq_mon (f(●0))
               * iterop_seq_mon (f(●1%nat))

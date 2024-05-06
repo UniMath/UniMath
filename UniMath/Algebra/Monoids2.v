@@ -33,7 +33,7 @@ Definition make_monoid (t : setwithbinop) (H : ismonoidop (@op t))
   : monoid
   := t ,, H.
 
-Definition pr1monoid : monoid  → setwithbinop := @pr1 _ _.
+Definition pr1monoid : monoid → setwithbinop := @pr1 _ _.
 Coercion pr1monoid : monoid >-> setwithbinop.
 
 Definition assocax (X : monoid) : isassoc (@op X) := pr1 (pr2 X).
@@ -71,31 +71,31 @@ Definition unitmonoid : monoid :=
 
 (** **** Functions between monoids compatible with structure (homomorphisms) and their properties *)
 
-Definition ismonoidfun {X Y : monoid} (f : X  → Y) : UU :=
+Definition ismonoidfun {X Y : monoid} (f : X → Y) : UU :=
   isbinopfun f × (f 1 = 1).
 
-Definition make_ismonoidfun {X Y : monoid} {f : X  → Y} (H1 : isbinopfun f)
+Definition make_ismonoidfun {X Y : monoid} {f : X → Y} (H1 : isbinopfun f)
            (H2 : f 1 = 1) : ismonoidfun f := H1 ,, H2.
 
-Definition ismonoidfunisbinopfun {X Y : monoid} {f : X  → Y} (H : ismonoidfun f) : isbinopfun f :=
+Definition ismonoidfunisbinopfun {X Y : monoid} {f : X → Y} (H : ismonoidfun f) : isbinopfun f :=
   dirprod_pr1 H.
 
-Definition ismonoidfununel {X Y : monoid} {f : X  → Y} (H : ismonoidfun f) : f 1 = 1 :=
+Definition ismonoidfununel {X Y : monoid} {f : X → Y} (H : ismonoidfun f) : f 1 = 1 :=
   dirprod_pr2 H.
 
-Lemma isapropismonoidfun {X Y : monoid} (f : X  → Y) : isaprop (ismonoidfun f).
+Lemma isapropismonoidfun {X Y : monoid} (f : X → Y) : isaprop (ismonoidfun f).
 Proof.
   apply isofhleveldirprod.
   - apply isapropisbinopfun.
   - apply (setproperty Y).
 Defined.
 
-Definition monoidfun (X Y : monoid) : UU := ∑ (f : X  → Y), ismonoidfun f.
+Definition monoidfun (X Y : monoid) : UU := ∑ (f : X → Y), ismonoidfun f.
 
-Definition monoidfunconstr {X Y : monoid} {f : X  → Y} (is : ismonoidfun f) : monoidfun X Y :=
+Definition monoidfunconstr {X Y : monoid} {f : X → Y} (is : ismonoidfun f) : monoidfun X Y :=
   f ,, is.
 
-Definition pr1monoidfun (X Y : monoid) : monoidfun X Y  → (X  → Y) := @pr1 _ _.
+Definition pr1monoidfun (X Y : monoid) : monoidfun X Y → (X → Y) := @pr1 _ _.
 
 Definition monoidfuntobinopfun (X Y : monoid) : monoidfun X Y -> binopfun X Y :=
   λ f, make_binopfun (pr1 f) (pr1 (pr2 f)).
@@ -116,7 +116,7 @@ Qed.
 Lemma isasetmonoidfun (X Y : monoid) : isaset (monoidfun X Y).
 Proof.
   apply (isasetsubset (pr1monoidfun X Y)).
-  - change (isofhlevel 2 (X  → Y)).
+  - change (isofhlevel 2 (X → Y)).
     apply impred. intro.
     apply (setproperty Y).
   - refine (isinclpr1 _ _). intro.
@@ -176,14 +176,14 @@ Definition monoidmono (X Y : monoid) : UU := ∑ (f : incl X Y), ismonoidfun f.
 Definition make_monoidmono {X Y : monoid} (f : incl X Y) (is : ismonoidfun f) :
   monoidmono X Y := f ,, is.
 
-Definition pr1monoidmono (X Y : monoid) : monoidmono X Y  → incl X Y := @pr1 _ _.
+Definition pr1monoidmono (X Y : monoid) : monoidmono X Y → incl X Y := @pr1 _ _.
 Coercion pr1monoidmono : monoidmono >-> incl.
 
 Definition monoidincltomonoidfun (X Y : monoid) :
-  monoidmono X Y  → monoidfun X Y := λ f, monoidfunconstr (pr2 f).
+  monoidmono X Y → monoidfun X Y := λ f, monoidfunconstr (pr2 f).
 Coercion monoidincltomonoidfun : monoidmono >-> monoidfun.
 
-Definition monoidmonotobinopmono (X Y : monoid) : monoidmono X Y  → binopmono X Y :=
+Definition monoidmonotobinopmono (X Y : monoid) : monoidmono X Y → binopmono X Y :=
   λ f, make_binopmono (pr1 f) (pr1 (pr2 f)).
 Coercion monoidmonotobinopmono : monoidmono >-> binopmono.
 
@@ -196,14 +196,14 @@ Definition monoidiso (X Y : monoid) : UU := ∑ (f : X ≃ Y), ismonoidfun f.
 Definition make_monoidiso {X Y : monoid} (f : X ≃ Y) (is : ismonoidfun f) :
   monoidiso X Y := f ,, is.
 
-Definition pr1monoidiso (X Y : monoid) : monoidiso X Y  → X ≃ Y := @pr1 _ _.
+Definition pr1monoidiso (X Y : monoid) : monoidiso X Y → X ≃ Y := @pr1 _ _.
 Coercion pr1monoidiso : monoidiso >-> weq.
 
-Definition monoidisotomonoidmono (X Y : monoid) : monoidiso X Y  → monoidmono X Y :=
+Definition monoidisotomonoidmono (X Y : monoid) : monoidiso X Y → monoidmono X Y :=
   λ f, make_monoidmono (weqtoincl (pr1 f)) (pr2 f).
 Coercion monoidisotomonoidmono : monoidiso >-> monoidmono.
 
-Definition monoidisotobinopiso (X Y : monoid) : monoidiso X Y  → binopiso X Y :=
+Definition monoidisotobinopiso (X Y : monoid) : monoidiso X Y → binopiso X Y :=
   λ f, make_binopiso (pr1 f) (pr1 (pr2 f)).
 Coercion monoidisotobinopiso : monoidiso >-> binopiso.
 
@@ -280,7 +280,7 @@ Definition monoid_univalence_weq3 (X Y : monoid) : (monoidiso' X Y) ≃ (monoidi
   weqtotal2asstor (λ w : X ≃ Y, isbinopfun w)
                   (λ y : (∑ w : weq X Y, isbinopfun w), (pr1 y) 1 = 1).
 
-Definition monoid_univalence_map (X Y : monoid) : X = Y  → monoidiso X Y.
+Definition monoid_univalence_map (X Y : monoid) : X = Y → monoidiso X Y.
 Proof.
   intro e. induction e. exact (idmonoidiso X).
 Defined.
@@ -326,7 +326,7 @@ Definition make_submonoid {X : monoid} (t : hsubtype X) (H : issubmonoid t)
   : submonoid X
   := t ,, H.
 
-Definition pr1submonoid (X : monoid) : submonoid X  → hsubtype X := @pr1 _ _.
+Definition pr1submonoid (X : monoid) : submonoid X → hsubtype X := @pr1 _ _.
 
 Lemma isaset_submonoid (A : monoid) : isaset (submonoid A).
 Proof.
@@ -356,7 +356,7 @@ Proof.
   - apply idpath.
 Defined.
 
-Definition submonoidtosubsetswithbinop (X : monoid) : submonoid X  → @subsetswithbinop X :=
+Definition submonoidtosubsetswithbinop (X : monoid) : submonoid X → @subsetswithbinop X :=
   λ A, make_subsetswithbinop (pr1 A) (pr1 (pr2 A)).
 Coercion submonoidtosubsetswithbinop : submonoid >-> subsetswithbinop.
 
@@ -378,7 +378,7 @@ Proof. split with A. apply ismonoidcarrier. Defined.
 Coercion carrierofsubmonoid : submonoid >-> monoid.
 
 Lemma intersection_submonoid :
-  forall {X : monoid} {I : UU} (S : I  → hsubtype X)
+  forall {X : monoid} {I : UU} (S : I → hsubtype X)
          (each_is_submonoid : ∏ i : I, issubmonoid (S i)),
     issubmonoid (subtype_intersection S).
 Proof.
@@ -421,8 +421,8 @@ Defined.
 
 (** This submonoid is closed under inversion *)
 Lemma inverse_in_submonoid (X : monoid) :
-  ∏ (x x0 : X), merely_invertible_elements (@op X) (pr2 X) x  →
-                isinvel (@op X) (pr2 X) x x0  →
+  ∏ (x x0 : X), merely_invertible_elements (@op X) (pr2 X) x →
+                isinvel (@op X) (pr2 X) x x0 →
                 merely_invertible_elements (@op X) (pr2 X) x0.
 Proof.
   intros x x0 _ x0isxinv.

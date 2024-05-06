@@ -109,7 +109,7 @@ Proof.
 Qed.
 
 (** Functoriality of the [free_monoidfun] *)
-Lemma free_monoidfun_comp_homot {X Y Z : hSet} (f : X  → Y) (g : Y  → Z) :
+Lemma free_monoidfun_comp_homot {X Y Z : hSet} (f : X → Y) (g : Y → Z) :
   (free_monoidfun (g ∘ f)) ~ free_monoidfun g ∘ free_monoidfun f.
 Proof.
   intro; apply map_compose.
