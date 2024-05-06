@@ -573,14 +573,12 @@ Proof.
         rewrite e. apply idpath.
     - apply (is' x').
   }
-  Local Open Scope logic.
-  assert (int : ∏ x : X, isaprop (∑ (x0 : X), opp x0 x = un0)).
+  assert (int : ∏ x : X, isaprop (∑ (x0 : X), opp x0 x = un0)%logic).
   {
     intro x. apply isapropsubtype. intros x1 x2. intros eq1 eq2.
     apply (invmaponpathsincl _ (l1 x)).
     rewrite eq1. rewrite eq2. apply idpath.
   }
-  Local Close Scope logic.
   simpl.
   set (linv0 := λ x : X, hinhunivcor1 (make_hProp _ (int x)) (is' x)).
   simpl in linv0.

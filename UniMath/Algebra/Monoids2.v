@@ -599,5 +599,3 @@ Proof.
   split with (setwithbinopdirprod X Y).
   apply ismonoiddirprod.
 Defined.
-
-Local Close Scope multmonoid.

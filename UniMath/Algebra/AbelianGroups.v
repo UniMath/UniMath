@@ -781,5 +781,3 @@ Proof.
 Qed.
 
 End Fractions.
-
-Local Close Scope multmonoid.

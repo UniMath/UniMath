@@ -1086,5 +1086,3 @@ Proof.
   apply (pr2 (unel A)). apply ((pr2 is) _ _ 0). apply (pr2 (unel A)).
   apply l.
 Qed.
-
-Close Scope addmonoid.

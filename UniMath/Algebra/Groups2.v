@@ -741,5 +741,3 @@ Defined.
 Definition gr_merely_invertible_elements : monoid  → gr :=
   λ X, carrierofasubsetwithbinop (submonoidtosubsetswithbinop _ (invertible_submonoid X)) ,,
        invertible_submonoid_grop X.
-
-Local Close Scope multmonoid.
