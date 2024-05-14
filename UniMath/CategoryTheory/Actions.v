@@ -196,7 +196,7 @@ End ContrCatLemmas.
 
 (** *** Monoids *)
 
-Local Open Scope multmonoid_scope.
+Local Open Scope multmonoid.
 
 (** **** Monoids as categories ([monoid_weq_contr_category]) *)
 

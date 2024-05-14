@@ -1,6 +1,10 @@
 
 BinaryOperations.v
+Monoids2.v
+AbelianMonoids.v
 Monoids.v
+Groups2.v
+AbelianGroups.v
 Groups.v
 GroupAction.v
 RigsAndRings.v
