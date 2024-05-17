@@ -436,24 +436,24 @@ Definition grrinvax_is {X : UU} {opp : binop X} (is : isgrop opp) :
 Lemma isweqrmultingr_is {X : UU} {opp : binop X} (is : isgrop opp) (x0 : X) :
   isrinvertible opp x0.
 Proof.
-  destruct is as [ is istr ].
+  induction is as [ is istr ].
   set (f := λ x : X, opp x x0).
   set (g := λ x : X, opp x ((pr1 istr) x0)).
-  destruct is as [ assoc isun0 ].
-  destruct istr as [ inv0 axs ].
-  destruct isun0 as [ un0 unaxs ].
+  induction is as [ assoc isun0 ].
+  induction istr as [ inv0 axs ].
+  induction isun0 as [ un0 unaxs ].
   simpl in * |-.
   assert (egf : ∏ x, g (f x) = x).
   {
     intro x. unfold f. unfold g.
-    destruct (!assoc x x0 (inv0 x0)).
+    induction (!assoc x x0 (inv0 x0)).
     set (e := pr2 axs x0). simpl in e. rewrite e.
     apply (pr2 unaxs x).
   }
   assert (efg : ∏ x, f (g x) = x).
   {
     intro x. unfold f. unfold g.
-    destruct (!assoc x (inv0 x0) x0).
+    induction (!assoc x (inv0 x0) x0).
     set (e := pr1 axs x0). simpl in e. rewrite e.
     apply (pr2 unaxs x).
   }
@@ -463,24 +463,24 @@ Defined.
 Lemma isweqlmultingr_is {X : UU} {opp : binop X} (is : isgrop opp) (x0 : X) :
   islinvertible opp x0.
 Proof.
-  destruct is as [ is istr ].
+  induction is as [ is istr ].
   set (f := λ x : X, opp x0 x).
   set (g := λ x : X, opp ((pr1 istr) x0) x).
-  destruct is as [ assoc isun0 ].
-  destruct istr as [ inv0 axs ].
-  destruct isun0 as [ un0 unaxs ].
+  induction is as [ assoc isun0 ].
+  induction istr as [ inv0 axs ].
+  induction isun0 as [ un0 unaxs ].
   simpl in * |-.
   assert (egf : ∏ x, g (f x) = x).
   {
     intro x. unfold f. unfold g.
-    destruct (assoc (inv0 x0) x0 x).
+    induction (assoc (inv0 x0) x0 x).
     set (e := pr1 axs x0). simpl in e. rewrite e.
     apply (pr1 unaxs x).
   }
   assert (efg : ∏ x, f (g x) = x).
   {
     intro x. unfold f. unfold g.
-    destruct (assoc x0 (inv0 x0) x).
+    induction (assoc x0 (inv0 x0) x).
     set (e := pr2 axs x0). simpl in e. rewrite e.
     apply (pr1 unaxs x).
   }
@@ -526,9 +526,9 @@ Definition allinvvertibleinv {X : hSet} {opp : binop X} (is : ismonoidop opp)
 Lemma isgropif {X : hSet} {opp : binop X} (is0 : ismonoidop opp)
       (is : ∏ x : X, merely_hasrinv opp is0 x) : isgrop opp.
 Proof.
-  split with is0.
-  destruct is0 as [ assoc isun0 ].
-  destruct isun0 as [ un0 unaxs0 ].
+  exists is0.
+  induction is0 as [ assoc isun0 ].
+  induction isun0 as [ un0 unaxs0 ].
   simpl in is.
   simpl in unaxs0. simpl in un0.
   simpl in assoc. simpl in unaxs0.
@@ -542,17 +542,17 @@ Proof.
       + apply (pr2 X).
       + intros a b. intro e.
         rewrite <- (pr2 unaxs0 a). rewrite <- (pr2 unaxs0 b).
-        destruct int1 as [ invx' eq ].
+        induction int1 as [ invx' eq ].
         rewrite <- eq.
-        destruct (assoc a x' invx').
-        destruct (assoc b x' invx').
+        induction (assoc a x' invx').
+        induction (assoc b x' invx').
         rewrite e. apply idpath.
     -  apply (is x').
   }
   assert (is' : ∏ x : X, ∃ (x0 : X), opp x0 x = un0).
   {
     intro x. apply (λ f , hinhuniv f (is x)). intro s1.
-    destruct s1 as [ x' eq ]. apply hinhpr. split with x'. simpl.
+    induction s1 as [ x' eq ]. apply hinhpr. exists x'. simpl.
     apply (invmaponpathsincl _ (l1 x')).
     rewrite (assoc x' x x'). rewrite eq. rewrite (pr1 unaxs0 x').
     unfold unel_is. simpl. rewrite (pr2 unaxs0 x'). apply idpath.
@@ -567,9 +567,9 @@ Proof.
       + apply (pr2 X).
       + intros a b. intro e.
         rewrite <- (pr1 unaxs0 a). rewrite <- (pr1 unaxs0 b).
-        destruct int1 as [ invx' eq ]. rewrite <- eq.
-        destruct (!assoc invx' x' a).
-        destruct (!assoc invx' x' b).
+        induction int1 as [ invx' eq ]. rewrite <- eq.
+        induction (!assoc invx' x' a).
+        induction (!assoc invx' x' b).
         rewrite e. apply idpath.
     - apply (is' x').
   }
@@ -582,8 +582,8 @@ Proof.
   simpl.
   set (linv0 := λ x : X, hinhunivcor1 (make_hProp _ (int x)) (is' x)).
   simpl in linv0.
-  set (inv0 := λ x : X, pr1 (linv0 x)). split with inv0. simpl.
-  split with (λ x, pr2 (linv0 x)). intro x.
+  set (inv0 := λ x : X, pr1 (linv0 x)). exists inv0. simpl.
+  exists (λ x, pr2 (linv0 x)). intro x.
   apply (invmaponpathsincl _ (l1 x)).
   rewrite (assoc x (inv0 x) x). change (inv0 x) with (pr1 (linv0 x)).
   rewrite (pr2 (linv0 x)). unfold unel_is. simpl.
@@ -624,11 +624,11 @@ Defined.
 Lemma abmonoidoprer {X : UU} {opp : binop X} (is : isabmonoidop opp) (a b c d : X) :
  opp (opp a b) (opp c d) = opp (opp a c) (opp b d).
 Proof.
-  destruct is as [ is comm ]. destruct is as [ assoc unital0 ].
+  induction is as [ is comm ]. induction is as [ assoc unital0 ].
   simpl in *.
-  destruct (assoc (opp a b) c d). destruct (assoc (opp a c) b d).
-  destruct (!assoc a b c). destruct (!assoc a c b).
-  destruct (comm b c). apply idpath.
+  induction (assoc (opp a b) c d). induction (assoc (opp a c) b d).
+  induction (!assoc a b c). induction (!assoc a c b).
+  induction (comm b c). apply idpath.
 Defined.
 
 (** *)
@@ -647,7 +647,7 @@ Proof.
     unfold islcancelable. unfold isrcancelable. intro isr.
     apply (λ h, isinclhomot _ _ h isr). intro x0. apply is.
   }
-  split with f.
+  exists f.
   apply (isweqimplimpl f g (isapropisincl (λ x0 : X, opp x x0))
                        (isapropisincl (λ x0 : X, opp x0 x))).
 Defined.
@@ -668,7 +668,7 @@ Proof.
     apply (λ h, isweqhomot _ _ h isr).
     intro x0. apply is.
   }
-  split with f.
+  exists f.
   apply (isweqimplimpl f g (isapropisweq (λ x0 : X, opp x x0))
                        (isapropisweq (λ x0 : X, opp x0 x))).
 Defined.
@@ -681,14 +681,14 @@ Proof.
   assert (f : (islunit opp un0) → (isrunit opp un0)).
   {
     unfold islunit. unfold isrunit. intro isl. intro x.
-    destruct (is un0 x). apply (isl x).
+    induction (is un0 x). apply (isl x).
   }
   assert (g : (isrunit opp un0) → (islunit opp un0)).
   {
     unfold islunit. unfold isrunit. intro isr. intro x.
-    destruct (is x un0). apply (isr x).
+    induction (is x un0). apply (isr x).
   }
-  split with f.
+  exists f.
   apply (isweqimplimpl f g (isapropislunit opp un0) (isapropisrunit opp un0)).
 Defined.
 
@@ -700,14 +700,14 @@ Proof.
   assert (f : (islinv opp un0 inv0) → (isrinv opp un0 inv0)).
   {
     unfold islinv. unfold isrinv. intro isl. intro x.
-    destruct (is (inv0 x) x). apply (isl x).
+    induction (is (inv0 x) x). apply (isl x).
   }
   assert (g : (isrinv opp un0 inv0) → (islinv opp un0 inv0)).
   {
     unfold islinv. unfold isrinv. intro isr. intro x.
-    destruct (is x (inv0 x)). apply (isr x).
+    induction (is x (inv0 x)). apply (isr x).
   }
-  split with f.
+  exists f.
   apply (isweqimplimpl f g (isapropislinv opp un0 inv0) (isapropisrinv opp un0 inv0)).
 Qed.
 
@@ -774,16 +774,16 @@ Proof.
   assert (f : (isldistr opp1 opp2) → (isrdistr opp1 opp2)).
   {
     unfold isldistr. unfold isrdistr. intro isl. intros x x' x''.
-    destruct (is x'' (opp1 x x')). destruct (is x'' x). destruct (is x'' x').
+    induction (is x'' (opp1 x x')). induction (is x'' x). induction (is x'' x').
     apply (isl x x' x'').
   }
   assert (g : (isrdistr opp1 opp2) → (isldistr opp1 opp2)).
   {
     unfold isldistr. unfold isrdistr. intro isr. intros x x' x''.
-    destruct (is (opp1 x x') x''). destruct (is x x''). destruct (is x' x'').
+    induction (is (opp1 x x') x''). induction (is x x''). induction (is x' x'').
     apply (isr x x' x'').
   }
-  split with f.
+  exists f.
   apply (isweqimplimpl f g (isapropisldistr opp1 opp2) (isapropisrdistr opp1 opp2)).
 Defined.
 
@@ -898,14 +898,14 @@ Defined.
 Lemma multx0_is_l {X : UU} {opp1 opp2 : binop X} (is1 : isgrop opp1) (is2 : ismonoidop opp2)
       (is12 : isdistr opp1 opp2) (x : X) : opp2 x (unel_is (pr1 is1)) = unel_is (pr1 is1).
 Proof.
-  destruct is12 as [ ldistr0 rdistr0 ].
-  destruct is2 as [ assoc2 [ un2 [ lun2 run2 ] ] ].
+  induction is12 as [ ldistr0 rdistr0 ].
+  induction is2 as [ assoc2 [ un2 [ lun2 run2 ] ] ].
   simpl in *.
   apply (invmaponpathsweq (make_weq _ (isweqrmultingr_is is1 (opp2 x un2)))).
   simpl.
-  destruct is1 as [ [ assoc1 [ un1 [ lun1 run1 ] ] ] [ inv0 [ linv0 rinv0 ] ] ].
+  induction is1 as [ [ assoc1 [ un1 [ lun1 run1 ] ] ] [ inv0 [ linv0 rinv0 ] ] ].
   unfold unel_is. simpl in *.
-  rewrite (lun1 (opp2 x un2)). destruct (ldistr0 un1 un2 x).
+  rewrite (lun1 (opp2 x un2)). induction (ldistr0 un1 un2 x).
   rewrite (run2 x). rewrite (lun1 un2). rewrite (run2 x). apply idpath.
 Defined.
 Opaque multx0_is_l.
@@ -913,13 +913,13 @@ Opaque multx0_is_l.
 Lemma mult0x_is_l {X : UU} {opp1 opp2 : binop X} (is1 : isgrop opp1) (is2 : ismonoidop opp2)
       (is12 : isdistr opp1 opp2) (x : X) : opp2 (unel_is (pr1 is1)) x = unel_is (pr1 is1).
 Proof.
-  destruct is12 as [ ldistr0 rdistr0 ].
-  destruct is2 as [ assoc2 [ un2 [ lun2 run2 ] ] ]. simpl in *.
+  induction is12 as [ ldistr0 rdistr0 ].
+  induction is2 as [ assoc2 [ un2 [ lun2 run2 ] ] ]. simpl in *.
   apply (invmaponpathsweq (make_weq _ (isweqrmultingr_is is1 (opp2 un2 x)))).
   simpl.
-  destruct is1 as [ [ assoc1 [ un1 [ lun1 run1 ] ] ] [ inv0 [ linv0 rinv0 ] ] ].
+  induction is1 as [ [ assoc1 [ un1 [ lun1 run1 ] ] ] [ inv0 [ linv0 rinv0 ] ] ].
   unfold unel_is. simpl in *.
-  rewrite (lun1 (opp2 un2 x)). destruct (rdistr0 un1 un2 x).
+  rewrite (lun1 (opp2 un2 x)). induction (rdistr0 un1 un2 x).
   rewrite (lun2 x). rewrite (lun1 un2). rewrite (lun2 x). apply idpath.
 Defined.
 Opaque mult0x_is_l.
@@ -970,15 +970,15 @@ Proof.
   set (assoc1 := pr1 (pr1 is1)).
   split.
   - split.
-    + split with is1.
+    + exists is1.
       intros x y.
       apply (invmaponpathsweq
                (make_weq _ (isweqrmultingr_is is1 (opp2 (minus1_is_l is1 is2) (opp1 x y))))).
       simpl. rewrite (isrinvmultwithminus1_is_l is1 is2 is12 (opp1 x y)).
       rewrite (pr1 is12 x y _).
-      destruct (assoc1 (opp1 y x) (opp2 (minus1_is_l is1 is2) x) (opp2 (minus1_is_l is1 is2) y)).
+      induction (assoc1 (opp1 y x) (opp2 (minus1_is_l is1 is2) x) (opp2 (minus1_is_l is1 is2) y)).
       rewrite (assoc1 y x _).
-      destruct (!isrinvmultwithminus1_is_l is1 is2 is12 x).
+      induction (!isrinvmultwithminus1_is_l is1 is2 is12 x).
       unfold unel_is. rewrite (runax_is (pr1 is1) y).
       rewrite (isrinvmultwithminus1_is_l is1 is2 is12 y).
       apply idpath.
@@ -1006,7 +1006,7 @@ Definition isringopstoisrigops (X : UU) (opp1 opp2 : binop X) (is : isringops op
   isrigops opp1 opp2.
 Proof.
   split.
-  - split with (isabgroptoisabmonoidop _ _ (ringop1axs_is is) ,, ringop2axs_is is).
+  - exists (isabgroptoisabmonoidop _ _ (ringop1axs_is is) ,, ringop2axs_is is).
     split.
     + simpl. apply (ringmult0x_is).
     + simpl. apply (ringmultx0_is).
@@ -1973,14 +1973,14 @@ Definition pr2subsetswithbinop {X : setwithbinop} (Y : subsetswithbinop X) :
 
 Definition totalsubsetwithbinop (X : setwithbinop) : subsetswithbinop X.
 Proof.
-  split with (λ x : X, htrue). intros x x'. apply tt.
+  exists (λ x : X, htrue). intros x x'. apply tt.
 Defined.
 
 Definition carrierofasubsetwithbinop {X : setwithbinop} (A : subsetswithbinop X) : setwithbinop.
 Proof.
   set (aset := (make_hSet (carrier A) (isasetsubset (pr1carrier A) (setproperty X)
                                                    (isinclpr1carrier A))) : hSet).
-  split with aset.
+  exists aset.
   set (subopp := (λ a a' : A, make_carrier A (op (pr1carrier _ a) (pr1carrier _ a')) (pr2 A a a')) :
                    (A → A → A)).
   simpl. unfold binop. apply subopp.
@@ -2026,8 +2026,8 @@ Defined.
 Lemma isbinophrelif {X : setwithbinop} (R : hrel X) (is : iscomm (@op X))
       (isl : ∏ a b c : X, R a b → R (op c a) (op c b)) : isbinophrel R.
 Proof.
-  split with isl. intros a b c rab.
-  destruct (is c a). destruct (is c b). apply (isl _ _ _ rab).
+  exists isl. intros a b c rab.
+  induction (is c a). induction (is c b). apply (isl _ _ _ rab).
 Defined.
 
 Lemma iscompbinoptransrel {X : setwithbinop} (R : hrel X) (ist : istrans R) (isb : isbinophrel R) :
@@ -2093,7 +2093,7 @@ Definition binopeqrel_resp_right {X : setwithbinop} (R : binopeqrel X)
 
 Definition setwithbinopquot {X : setwithbinop} (R : binopeqrel X) : setwithbinop.
 Proof.
-  split with (setquotinset R).
+  exists (setquotinset R).
   set (qt  := setquot R). set (qtset := setquotinset R).
   assert (iscomp : iscomprelrelfun2 R R op) by apply (iscompbinoptransrel R (eqreltrans R) (pr2 R)).
   set (qtmlt := setquotfun2 R R op iscomp).
@@ -2135,8 +2135,8 @@ Defined.
 Lemma ispartbinophrelif {X : setwithbinop} (S : hsubtype X) (R : hrel X) (is : iscomm (@op X))
       (isl : ∏ a b c : X, S c → R a b → R (op c a) (op c b)) : ispartbinophrel S R.
 Proof.
-  split with isl.
-  intros a b c s rab. destruct (is c a). destruct (is c b).
+  exists isl.
+  intros a b c s rab. induction (is c a). induction (is c b).
   apply (isl _ _ _ s rab).
 Defined.
 
@@ -2290,8 +2290,8 @@ Defined.
 Lemma isinvbinophrelif {X : setwithbinop} (R : hrel X) (is : iscomm (@op X))
       (isl : ∏ a b c : X,  R (op c a) (op c b) → R a b) : isinvbinophrel R.
 Proof.
-  split with isl. intros a b c rab.
-  destruct (is c a). destruct (is c b).
+  exists isl. intros a b c rab.
+  induction (is c a). induction (is c b).
   apply (isl _ _ _ rab).
 Defined.
 
@@ -2321,8 +2321,8 @@ Defined.
 Lemma ispartinvbinophrelif {X : setwithbinop} (S : hsubtype X) (R : hrel X) (is : iscomm (@op X))
       (isl : ∏ a b c : X, S c → R (op c a) (op c b) → R a b) : ispartinvbinophrel S R.
 Proof.
-  split with isl. intros a b c s rab.
-  destruct (is c a). destruct (is c b).
+  exists isl. intros a b c s rab.
+  induction (is c a). induction (is c b).
   apply (isl _ _ _ s rab).
 Defined.
 
@@ -2403,7 +2403,7 @@ Defined.
 
 Definition setwithbinopdirprod (X Y : setwithbinop) : setwithbinop.
 Proof.
-  split with (setdirprod X Y). unfold binop. simpl.
+  exists (setdirprod X Y). unfold binop. simpl.
   (* ??? in 8.4-8.5-trunk the following apply generates an error message if the
      type of xy and xy' is left as _ despite the fact that the type of goal is
      X × Y → X × Y →.. *)
@@ -2715,7 +2715,7 @@ Definition isrigopsisof {X Y : setwith2binop} (f : twobinopiso X Y)
            (is : isrigops (@op1 X) (@op2 X)) : isrigops (@op1 Y) (@op2 Y).
 Proof.
   split.
-  - split with (isabmonoidopisof (binop1iso f) (rigop1axs_is is) ,,
+  - exists (isabmonoidopisof (binop1iso f) (rigop1axs_is is) ,,
                             ismonoidopisof (binop2iso f) (rigop2axs_is is)).
     simpl.
     change (unel_is (ismonoidopisof (binop1iso f) (rigop1axs_is is)))
@@ -2795,7 +2795,7 @@ Coercion pr1subsetswith2binop : subsetswith2binop >-> hsubtype.
 
 Definition totalsubsetwith2binop (X : setwith2binop) : subsetswith2binop X.
 Proof.
-  split with (λ x : X, htrue). split.
+  exists (λ x : X, htrue). split.
   - intros x x'. apply tt.
   - intros. apply tt.
 Defined.
@@ -2804,7 +2804,7 @@ Definition carrierofsubsetwith2binop {X : setwith2binop} (A : subsetswith2binop 
 Proof.
   set (aset := (make_hSet (carrier A) (isasetsubset (pr1carrier A) (setproperty X)
                                                    (isinclpr1carrier A))) : hSet).
-  split with aset.
+  exists aset.
   set (subopp1 := (λ a a' : A, make_carrier A (op1 (pr1carrier _ a) (pr1carrier _ a'))
                                             (pr1 (pr2 A) a a')) : (A → A → A)).
   set (subopp2 := (λ a a' : A, make_carrier A (op2 (pr1carrier _ a) (pr1carrier _ a'))
@@ -2867,7 +2867,7 @@ Coercion pr1twobinopeqrel : twobinopeqrel >-> eqrel.
 
 Definition setwith2binopquot {X : setwith2binop} (R : twobinopeqrel X) : setwith2binop.
 Proof.
-  split with (setquotinset R).
+  exists (setquotinset R).
   set (qt := setquot R). set (qtset := setquotinset R).
   assert (iscomp1 : iscomprelrelfun2 R R (@op1 X))
     by apply (pr1 (iscomp2binoptransrel (pr1 R) (eqreltrans _) (pr2 R))).
@@ -2883,7 +2883,7 @@ Defined.
 
 Definition setwith2binopdirprod (X Y : setwith2binop) : setwith2binop.
 Proof.
-  split with (setdirprod X Y). simpl.
+  exists (setdirprod X Y). simpl.
   (* ??? same issue as with setwithbinopdirpro above *)
   exact (
     (λ xy xy', (op1 (pr1 xy) (pr1 xy')) ,, (op1 (pr2 xy) (pr2 xy'))) ,,
