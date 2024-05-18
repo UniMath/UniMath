@@ -73,7 +73,7 @@ Definition linvpairxy (X : monoid) (x y : X) (x' : linvpair X x) (y' : linvpair 
 Proof.
   intros. exists (pr1 y' * pr1 x').
   rewrite (assocax _ _ _ (x * y)).
-  rewrite (!assocax _ _ x y).
+  rewrite <- (assocax _ _ x y).
   rewrite (pr2 x').
   rewrite (lunax _ y).
   rewrite (pr2 y').
@@ -85,8 +85,8 @@ Definition lcanfromlinv (X : monoid) (a b c : X) (c' : linvpair X c) (e : c * a 
 Proof.
   intros.
   set (e' := maponpaths (λ x : X, (pr1 c') * x) e). simpl in e'.
-  rewrite (!assocax X _ _ _) in e'.
-  rewrite (!assocax X _ _ _) in e'.
+  rewrite <- (assocax X _ _ _) in e'.
+  rewrite <- (assocax X _ _ _) in e'.
   rewrite (pr2 c') in e'.
   rewrite (lunax X a) in e'.
   rewrite (lunax X b) in e'.
@@ -102,7 +102,7 @@ Definition rinvpairxy (X : monoid) (x y : X) (x' : rinvpair X x) (y' : rinvpair 
 Proof.
   intros. exists (pr1 y' * pr1 x').
   rewrite (assocax _ x y _).
-  rewrite (!assocax _ y _ _).
+  rewrite <- (assocax _ y _ _).
   rewrite (pr2 y').
   rewrite (lunax _ _).
   rewrite (pr2 x').
@@ -413,8 +413,8 @@ Proof.
   intros a b c ne e.
   apply (@grtopathsxy X a b). change (a - b = 0).
   assert (e' := grfrompathsxy X e). change (c * a - c * b = 0) in e'.
-  rewrite (!ringrmultminus X _ _) in e'.
-  rewrite (!ringldistr X _ _ c) in e'.
+  rewrite <- (ringrmultminus X _ _) in e'.
+  rewrite <- (ringldistr X _ _ c) in e'.
   set (int := intdomax X _ _ e'). generalize ne.
   assert (int' : isaprop (c != 0 → a - b = 0)).
   {
@@ -431,8 +431,8 @@ Lemma intdomrcan (X : intdom) : ∏ (a b c : X), c != 0 → a * c = b * c → a 
 Proof.
   intros a b c ne e. apply (@grtopathsxy X a b). change (a - b = 0).
   assert (e' := grfrompathsxy X e). change (a * c - b * c = 0) in e'.
-  rewrite (!ringlmultminus X _ _) in e'.
-  rewrite (!ringrdistr X _ _ c) in e'.
+  rewrite <- (ringlmultminus X _ _) in e'.
+  rewrite <- (ringrdistr X _ _ c) in e'.
   set (int := intdomax X _ _ e'). generalize ne.
   assert (int' : isaprop (c != 0 → a - b = 0)).
   {
@@ -515,7 +515,7 @@ Definition fldtointdom (X : fld) : intdom.
 Proof.
   exists (pr1 X). exists (pr1 (pr2 X)).
   intros a1 a2. induction (pr2 (pr2 X) a1) as [ a1' | e0 ].
-  - intro e12. rewrite (!ringmultx0 (pr1 X) a1) in e12.
+  - intro e12. rewrite <- (ringmultx0 (pr1 X) a1) in e12.
     set (e2 := lcanfromlinv _ _ _ _ (invtolinv _ _ a1') e12).
     apply (hinhpr (ii2 e2)).
   - intro e12. apply (hinhpr (ii1 e0)).
