@@ -30,12 +30,13 @@
 
  We also show that our definition is equivalent to the definition of enriched profunctors
  via whiskered bifunctors, and thus it is equivalent to the usual definition of enriched
- profunctors.
+ profunctors. Finally, we give an action on morphisms of profunctors
 
  Contents
  1. Enriched profunctors
  2. Accessors
  3. Equivalence with whiskered bifunctors
+ 4. Action on morphisms in the underlying category
 
  ******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -196,7 +197,7 @@ Definition enriched_profunctor
   := ∑ (P : enriched_profunctor_data E₁ E₂),
      enriched_profunctor_laws P.
 
-Notation "E₁ ↛e E₂" := (enriched_profunctor E₂ E₁)
+Notation "E₁ ↛e E₂" := (enriched_profunctor E₁ E₂)
                          (at level 99, only parsing) : cat. (* \nrightarrow *)
 
 Definition make_enriched_profunctor
@@ -206,7 +207,7 @@ Definition make_enriched_profunctor
            {E₂ : enrichment C₂ V}
            (P : enriched_profunctor_data E₁ E₂)
            (HP : enriched_profunctor_laws P)
-  : E₂ ↛e E₁
+  : E₁ ↛e E₂
   := P ,, HP.
 
 Coercion enriched_profunctor_to_data
@@ -214,7 +215,7 @@ Coercion enriched_profunctor_to_data
          {C₁ C₂ : category}
          {E₁ : enrichment C₁ V}
          {E₂ : enrichment C₂ V}
-         (P : E₂ ↛e E₁)
+         (P : E₁ ↛e E₂)
   : enriched_profunctor_data E₁ E₂.
 Proof.
   exact (pr1 P).
@@ -226,7 +227,7 @@ Section Accessors.
           {C₁ C₂ : category}
           {E₁ : enrichment C₁ V}
           {E₂ : enrichment C₂ V}
-          (P : E₂ ↛e E₁).
+          (P : E₁ ↛e E₂).
 
   Proposition lmap_e_id
               (x : C₂)
@@ -449,7 +450,7 @@ Section FromEnrichedProfunctor.
           {C₁ C₂ : category}
           {E₁ : enrichment C₁ V}
           {E₂ : enrichment C₂ V}
-          (P : E₂ ↛e E₁).
+          (P : E₁ ↛e E₂).
 
   Definition enriched_profunctor_to_whiskered_data
     : enriched_whiskered_bifunctor_data
@@ -815,7 +816,7 @@ Section ToEnrichedProfunctor.
   Qed.
 
   Definition enriched_whiskered_bifunctor_to_profunctor
-    : E₂ ↛e E₁.
+    : E₁ ↛e E₂.
   Proof.
     use make_enriched_profunctor.
     - exact enriched_whiskered_bifunctor_to_profunctor_data.
@@ -903,7 +904,7 @@ Definition enriched_profunctor_whiskered_bifunctor_weq
       (op_enrichment V E₂) E₁
       (self_enrichment V)
     ≃
-    (E₂ ↛e E₁).
+    (E₁ ↛e E₂).
 Proof.
   use weq_iso.
   - exact enriched_whiskered_bifunctor_to_profunctor.
@@ -921,6 +922,413 @@ Definition enriched_profunctor_bifunctor_weq
       (tensor_enriched_precat (op_enrichment V E₂) E₁)
       (make_enriched_cat (pr111 V ,, self_enrichment V))
     ≃
-    (E₂ ↛e E₁)
+    (E₁ ↛e E₂)
   := (enriched_profunctor_whiskered_bifunctor_weq _ _
       ∘ enriched_bifunctor_whiskered_bifunctor_weq _ _ _)%weq.
+
+(** * 4. Action on morphisms in the underlying category *)
+Definition lmap_e_arr
+           {V : sym_mon_closed_cat}
+           {C₁ C₂ : category}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           (P : E₁ ↛e E₂)
+           (x : C₁)
+           {y₁ y₂ : C₂}
+           (g : y₂ --> y₁)
+  : P y₁ x --> P y₂ x
+  := mon_linvunitor _
+     · (enriched_from_arr _ g #⊗ identity _)
+     · lmap_e P y₁ y₂ x.
+
+Definition rmap_e_arr
+           {V : sym_mon_closed_cat}
+           {C₁ C₂ : category}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           (P : E₁ ↛e E₂)
+           {x₁ x₂ : C₁}
+           (f : x₁ --> x₂)
+           (y : C₂)
+  : P y x₁ --> P y x₂
+  := mon_linvunitor _
+     · (enriched_from_arr _ f #⊗ identity _)
+     · rmap_e P y x₁ x₂.
+
+Proposition lmap_e_arr_id
+            {V : sym_mon_closed_cat}
+            {C₁ C₂ : category}
+            {E₁ : enrichment C₁ V}
+            {E₂ : enrichment C₂ V}
+            (P : E₁ ↛e E₂)
+            (x : C₁)
+            (y : C₂)
+  : lmap_e_arr P x (identity y) = identity _.
+Proof.
+  unfold lmap_e_arr.
+  rewrite enriched_from_arr_id.
+  rewrite !assoc'.
+  rewrite lmap_e_id.
+  apply mon_linvunitor_lunitor.
+Qed.
+
+Proposition lmap_e_arr_comp
+            {V : sym_mon_closed_cat}
+            {C₁ C₂ : category}
+            {E₁ : enrichment C₁ V}
+            {E₂ : enrichment C₂ V}
+            (P : E₁ ↛e E₂)
+            (x : C₁)
+            {y₁ y₂ y₃ : C₂}
+            (g₁ : y₂ --> y₁)
+            (g₂ : y₃ --> y₂)
+  : lmap_e_arr P x (g₂ · g₁)
+    =
+    lmap_e_arr P x g₁ · lmap_e_arr P x g₂.
+Proof.
+  unfold lmap_e_arr.
+  rewrite enriched_from_arr_comp.
+  rewrite !assoc.
+  rewrite tensor_comp_id_r.
+  rewrite !assoc'.
+  rewrite lmap_e_comp'.
+  rewrite !assoc.
+  apply maponpaths_2.
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite <- tensor_comp_id_r.
+    rewrite !assoc'.
+    rewrite tensor_sym_mon_braiding.
+    rewrite !assoc.
+    rewrite tensor_comp_id_r.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite tensor_lassociator.
+    rewrite !assoc'.
+    rewrite <- tensor_comp_mor.
+    rewrite id_right.
+    apply idpath.
+  }
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite tensor_linvunitor.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite <- tensor_comp_mor.
+    rewrite id_left.
+    rewrite id_right.
+    apply idpath.
+  }
+  rewrite !assoc.
+  apply maponpaths_2.
+  rewrite !assoc'.
+  apply maponpaths.
+  rewrite <- mon_linvunitor_triangle.
+  do 2 apply maponpaths_2.
+  rewrite sym_mon_braiding_linvunitor.
+  rewrite mon_linvunitor_I_mon_rinvunitor_I.
+  apply idpath.
+Qed.
+
+Proposition rmap_e_arr_id
+            {V : sym_mon_closed_cat}
+            {C₁ C₂ : category}
+            {E₁ : enrichment C₁ V}
+            {E₂ : enrichment C₂ V}
+            (P : E₁ ↛e E₂)
+            (x : C₁)
+            (y : C₂)
+  : rmap_e_arr P (identity x) y = identity _.
+Proof.
+  unfold rmap_e_arr.
+  rewrite enriched_from_arr_id.
+  rewrite !assoc'.
+  rewrite rmap_e_id.
+  apply mon_linvunitor_lunitor.
+Qed.
+
+Proposition rmap_e_arr_comp
+            {V : sym_mon_closed_cat}
+            {C₁ C₂ : category}
+            {E₁ : enrichment C₁ V}
+            {E₂ : enrichment C₂ V}
+            (P : E₁ ↛e E₂)
+            {x₁ x₂ x₃ : C₁}
+            (f₁ : x₁ --> x₂)
+            (f₂ : x₂ --> x₃)
+            (y : C₂)
+  : rmap_e_arr P (f₁ · f₂) y
+    =
+    rmap_e_arr P f₁ y · rmap_e_arr P f₂ y.
+Proof.
+  unfold rmap_e_arr.
+  rewrite enriched_from_arr_comp.
+  rewrite !assoc.
+  rewrite tensor_comp_id_r.
+  rewrite !assoc'.
+  rewrite rmap_e_comp.
+  rewrite !assoc.
+  apply maponpaths_2.
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite tensor_comp_id_r.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite tensor_lassociator.
+    rewrite !assoc'.
+    rewrite <- tensor_comp_mor.
+    rewrite id_right.
+    apply idpath.
+  }
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite tensor_linvunitor.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite <- tensor_comp_mor.
+    rewrite id_left.
+    rewrite id_right.
+    apply idpath.
+  }
+  rewrite !assoc.
+  apply maponpaths_2.
+  rewrite !assoc'.
+  apply maponpaths.
+  rewrite <- mon_linvunitor_triangle.
+  apply idpath.
+Qed.
+
+Proposition lmap_e_arr_lmap_e
+            {V : sym_mon_closed_cat}
+            {C₁ C₂ : category}
+            {E₁ : enrichment C₁ V}
+            {E₂ : enrichment C₂ V}
+            (P : E₁ ↛e E₂)
+            (x : C₁)
+            {y₁ y₂ : C₂}
+            (g : y₂ --> y₁)
+            (y₃ : C₂)
+  : (identity _ #⊗ lmap_e_arr P x g) · lmap_e P y₂ y₃ x
+    =
+    (postcomp_arr E₂ y₃ g #⊗ identity _) · lmap_e P y₁ y₃ x.
+Proof.
+  unfold lmap_e_arr.
+  rewrite tensor_comp_id_l.
+  rewrite !assoc'.
+  rewrite lmap_e_lmap_e.
+  rewrite !assoc.
+  apply maponpaths_2.
+  unfold postcomp_arr.
+  rewrite !tensor_comp_id_r.
+  apply maponpaths_2.
+  rewrite tensor_comp_id_l.
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite tensor_rassociator.
+    rewrite !assoc'.
+    rewrite <- tensor_comp_id_r.
+    rewrite tensor_sym_mon_braiding.
+    rewrite tensor_comp_id_r.
+    apply idpath.
+  }
+  rewrite !assoc.
+  apply maponpaths_2.
+  rewrite mon_inv_triangle.
+  etrans.
+  {
+    apply maponpaths_2.
+    rewrite !assoc'.
+    rewrite mon_lassociator_rassociator.
+    apply id_right.
+  }
+  rewrite <- tensor_comp_id_r.
+  rewrite sym_mon_braiding_rinvunitor.
+  apply idpath.
+Qed.
+
+Proposition rmap_e_arr_lmap_e
+            {V : sym_mon_closed_cat}
+            {C₁ C₂ : category}
+            {E₁ : enrichment C₁ V}
+            {E₂ : enrichment C₂ V}
+            (P : E₁ ↛e E₂)
+            {x₁ x₂ : C₁}
+            (f : x₁ --> x₂)
+            (y₁ y₂ : C₂)
+  : (identity _ #⊗ rmap_e_arr P f y₁) · lmap_e P y₁ y₂ x₂
+    =
+    lmap_e P y₁ y₂ x₁ · rmap_e_arr P f y₂.
+Proof.
+  unfold rmap_e_arr.
+  rewrite tensor_comp_id_l.
+  rewrite !assoc'.
+  rewrite rmap_e_lmap_e.
+  rewrite !assoc.
+  apply maponpaths_2.
+  rewrite tensor_linvunitor.
+  rewrite !assoc'.
+  refine (!_).
+  etrans.
+  {
+    rewrite <- tensor_split.
+    rewrite tensor_split'.
+    apply idpath.
+  }
+  rewrite !assoc.
+  apply maponpaths_2.
+  refine (!_).
+  rewrite tensor_comp_id_l.
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite tensor_rassociator.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite <- tensor_comp_id_r.
+    rewrite tensor_sym_mon_braiding.
+    rewrite tensor_comp_id_r.
+    rewrite !assoc'.
+    rewrite tensor_lassociator.
+    apply idpath.
+  }
+  rewrite !assoc.
+  rewrite tensor_id_id.
+  apply maponpaths_2.
+  rewrite mon_inv_triangle.
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite mon_lassociator_rassociator.
+    rewrite id_left.
+    apply idpath.
+  }
+  rewrite !assoc.
+  rewrite <- tensor_comp_id_r.
+  rewrite sym_mon_braiding_rinvunitor.
+  rewrite mon_linvunitor_triangle.
+  apply idpath.
+Qed.
+
+Proposition rmap_e_arr_rmap_e
+            {V : sym_mon_closed_cat}
+            {C₁ C₂ : category}
+            {E₁ : enrichment C₁ V}
+            {E₂ : enrichment C₂ V}
+            (P : E₁ ↛e E₂)
+            {x₁ x₂ : C₁}
+            (f : x₁ --> x₂)
+            (x₃ : C₁)
+            (y : C₂)
+  : (identity _ #⊗ rmap_e_arr P f y) · rmap_e P y x₂ x₃
+    =
+    (precomp_arr E₁ x₃ f #⊗ identity _) · rmap_e P y x₁ x₃.
+Proof.
+  unfold rmap_e_arr.
+  rewrite tensor_comp_id_l.
+  rewrite !assoc'.
+  rewrite rmap_e_rmap_e.
+  rewrite !assoc.
+  apply maponpaths_2.
+  unfold precomp_arr.
+  rewrite !tensor_comp_id_r.
+  apply maponpaths_2.
+  rewrite tensor_comp_id_l.
+  rewrite !assoc'.
+  rewrite tensor_rassociator.
+  rewrite !assoc.
+  apply maponpaths_2.
+  rewrite mon_inv_triangle.
+  rewrite !assoc'.
+  rewrite mon_lassociator_rassociator.
+  apply id_right.
+Qed.
+
+Proposition lmap_e_arr_rmap_e
+            {V : sym_mon_closed_cat}
+            {C₁ C₂ : category}
+            {E₁ : enrichment C₁ V}
+            {E₂ : enrichment C₂ V}
+            (P : E₁ ↛e E₂)
+            (x₁ x₂ : C₁)
+            {y₁ y₂ : C₂}
+            (f : y₁ --> y₂)
+  : (identity _ #⊗ lmap_e_arr P x₁ f) · rmap_e P y₁ x₁ x₂
+    =
+    rmap_e P y₂ x₁ x₂ · lmap_e_arr P x₂ f.
+Proof.
+  unfold lmap_e_arr.
+  rewrite tensor_comp_id_l.
+  rewrite !assoc'.
+  rewrite lmap_e_rmap_e'.
+  rewrite !assoc.
+  apply maponpaths_2.
+  rewrite tensor_linvunitor.
+  rewrite !assoc'.
+  refine (!_).
+  etrans.
+  {
+    rewrite <- tensor_split.
+    rewrite tensor_split'.
+    apply idpath.
+  }
+  rewrite !assoc.
+  apply maponpaths_2.
+  refine (!_).
+  rewrite tensor_comp_id_l.
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite tensor_rassociator.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite <- tensor_comp_id_r.
+    rewrite tensor_sym_mon_braiding.
+    rewrite tensor_comp_id_r.
+    rewrite !assoc'.
+    rewrite tensor_lassociator.
+    apply idpath.
+  }
+  rewrite !assoc.
+  rewrite tensor_id_id.
+  apply maponpaths_2.
+  rewrite mon_inv_triangle.
+  rewrite !assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite mon_lassociator_rassociator.
+    rewrite id_left.
+    apply idpath.
+  }
+  rewrite !assoc.
+  rewrite <- tensor_comp_id_r.
+  rewrite sym_mon_braiding_rinvunitor.
+  rewrite mon_linvunitor_triangle.
+  apply idpath.
+Qed.

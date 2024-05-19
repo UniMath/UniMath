@@ -13,6 +13,7 @@
  3. Standard transformations of profunctors
  3.1. The identity
  3.2. Composition
+ 4. Extra laws
 
  ******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -49,7 +50,7 @@ Definition enriched_profunctor_transformation_data
            {C₁ C₂ : category}
            {E₁ : enrichment C₁ V}
            {E₂ : enrichment C₂ V}
-           (P Q : E₂ ↛e E₁)
+           (P Q : E₁ ↛e E₂)
   : UU
   := ∏ (x : C₂) (y : C₁), P x y --> Q x y.
 
@@ -58,7 +59,7 @@ Definition enriched_profunctor_transformation_laws
            {C₁ C₂ : category}
            {E₁ : enrichment C₁ V}
            {E₂ : enrichment C₂ V}
-           {P Q : E₂ ↛e E₁}
+           {P Q : E₁ ↛e E₂}
            (τ : enriched_profunctor_transformation_data P Q)
   : UU
   := (∏ (x₁ x₂ : C₂)
@@ -95,6 +96,24 @@ Definition enriched_profunctor_transformation
   := ∑ (τ : enriched_profunctor_transformation_data P Q),
      enriched_profunctor_transformation_laws τ.
 
+Proposition isaset_enriched_profunctor_transformation
+            {V : sym_mon_closed_cat}
+            {C₁ C₂ : category}
+            {E₁ : enrichment C₁ V}
+            {E₂ : enrichment C₂ V}
+            (P Q : E₁ ↛e E₂)
+  : isaset (enriched_profunctor_transformation P Q).
+Proof.
+  use isaset_total2.
+  - unfold enriched_profunctor_transformation_data.
+    use impred_isaset ; intro x.
+    use impred_isaset ; intro y.
+    apply homset_property.
+  - intro.
+    apply isasetaprop.
+    apply isaprop_enriched_profunctor_transformation_laws.
+Qed.
+
 Definition make_enriched_profunctor_transformation
            {V : sym_mon_closed_cat}
            {C₁ C₂ : category}
@@ -111,7 +130,7 @@ Definition enriched_profunctor_transformation_ob
            {C₁ C₂ : category}
            {E₁ : enrichment C₁ V}
            {E₂ : enrichment C₂ V}
-           {P Q : E₂ ↛e E₁}
+           {P Q : E₁ ↛e E₂}
            (τ : enriched_profunctor_transformation P Q)
            (x : C₂)
            (y : C₁)
@@ -126,7 +145,7 @@ Proposition enriched_profunctor_transformation_lmap_e
             {C₁ C₂ : category}
             {E₁ : enrichment C₁ V}
             {E₂ : enrichment C₂ V}
-            {P Q : E₂ ↛e E₁}
+            {P Q : E₁ ↛e E₂}
             (τ : enriched_profunctor_transformation P Q)
             (x₁ x₂ : C₂)
             (y : C₁)
@@ -142,7 +161,7 @@ Proposition enriched_profunctor_transformation_rmap_e
             {C₁ C₂ : category}
             {E₁ : enrichment C₁ V}
             {E₂ : enrichment C₂ V}
-            {P Q : E₂ ↛e E₁}
+            {P Q : E₁ ↛e E₂}
             (τ : enriched_profunctor_transformation P Q)
             (x : C₂)
             (y₁ y₂ : C₁)
@@ -158,7 +177,7 @@ Proposition eq_enriched_profunctor_transformation
             {C₁ C₂ : category}
             {E₁ : enrichment C₁ V}
             {E₂ : enrichment C₂ V}
-            {P Q : E₂ ↛e E₁}
+            {P Q : E₁ ↛e E₂}
             {τ θ : enriched_profunctor_transformation P Q}
             (p : ∏ (x : C₂) (y : C₁), τ x y = θ x y)
   : τ = θ.
@@ -179,7 +198,7 @@ Definition enriched_profunctor_transformation_to_whiskered_data
            {C₁ C₂ : category}
            {E₁ : enrichment C₁ V}
            {E₂ : enrichment C₂ V}
-           {P Q : E₂ ↛e E₁}
+           {P Q : E₁ ↛e E₂}
            (τ : enriched_profunctor_transformation P Q)
   : whiskered_enriched_transformation_data
       (enriched_profunctor_to_whiskered P)
@@ -193,7 +212,7 @@ Proposition enriched_profunctor_transformation_to_whiskered_laws
             {C₁ C₂ : category}
             {E₁ : enrichment C₁ V}
             {E₂ : enrichment C₂ V}
-            {P Q : E₂ ↛e E₁}
+            {P Q : E₁ ↛e E₂}
             (τ : enriched_profunctor_transformation P Q)
   : whiskered_enriched_transformation_laws
       (enriched_profunctor_transformation_to_whiskered_data τ).
@@ -270,7 +289,7 @@ Definition enriched_profunctor_transformation_to_whiskered
            {C₁ C₂ : category}
            {E₁ : enrichment C₁ V}
            {E₂ : enrichment C₂ V}
-           {P Q : E₂ ↛e E₁}
+           {P Q : E₁ ↛e E₂}
            (τ : enriched_profunctor_transformation P Q)
   : whiskered_enriched_transformation
       (enriched_profunctor_to_whiskered P)
@@ -286,7 +305,7 @@ Definition whiskered_to_enriched_profunctor_transformation_data
            {C₁ C₂ : category}
            {E₁ : enrichment C₁ V}
            {E₂ : enrichment C₂ V}
-           {P Q : E₂ ↛e E₁}
+           {P Q : E₁ ↛e E₂}
            (τ : whiskered_enriched_transformation
                   (enriched_profunctor_to_whiskered P)
                   (enriched_profunctor_to_whiskered Q))
@@ -300,7 +319,7 @@ Proposition whiskered_to_enriched_profunctor_transformation_laws
             {C₁ C₂ : category}
             {E₁ : enrichment C₁ V}
             {E₂ : enrichment C₂ V}
-            {P Q : E₂ ↛e E₁}
+            {P Q : E₁ ↛e E₂}
             (τ : whiskered_enriched_transformation
                    (enriched_profunctor_to_whiskered P)
                    (enriched_profunctor_to_whiskered Q))
@@ -359,7 +378,7 @@ Definition whiskered_to_enriched_profunctor_transformation
            {C₁ C₂ : category}
            {E₁ : enrichment C₁ V}
            {E₂ : enrichment C₂ V}
-           {P Q : E₂ ↛e E₁}
+           {P Q : E₁ ↛e E₂}
            (τ : whiskered_enriched_transformation
                   (enriched_profunctor_to_whiskered P)
                   (enriched_profunctor_to_whiskered Q))
@@ -375,7 +394,7 @@ Definition whiskered_enriched_profunctor_transformation_weq
            {C₁ C₂ : category}
            {E₁ : enrichment C₁ V}
            {E₂ : enrichment C₂ V}
-           (P Q : E₂ ↛e E₁)
+           (P Q : E₁ ↛e E₂)
   : whiskered_enriched_transformation
       (enriched_profunctor_to_whiskered P)
       (enriched_profunctor_to_whiskered Q)
@@ -402,7 +421,7 @@ Definition enriched_profunctor_transformation_nat_trans_weq
            {C₁ C₂ : category}
            {E₁ : enrichment C₁ V}
            {E₂ : enrichment C₂ V}
-           (P Q : E₂ ↛e E₁)
+           (P Q : E₁ ↛e E₂)
   : enriched_nat_trans
       (enriched_curried_bifunctor_to_bifunctor
          (enriched_whiskered_bifunctor_to_curried
@@ -423,7 +442,7 @@ Definition enriched_profunctor_id_transformation_data
            {C₁ C₂ : category}
            {E₁ : enrichment C₁ V}
            {E₂ : enrichment C₂ V}
-           (P : E₂ ↛e E₁)
+           (P : E₁ ↛e E₂)
   : enriched_profunctor_transformation_data P P
   := λ _ _, identity _.
 
@@ -434,7 +453,7 @@ Proposition enriched_profunctor_id_transformation_laws
             {C₁ C₂ : category}
             {E₁ : enrichment C₁ V}
             {E₂ : enrichment C₂ V}
-            (P : E₂ ↛e E₁)
+            (P : E₁ ↛e E₂)
   : enriched_profunctor_transformation_laws
       (enriched_profunctor_id_transformation_data P).
 Proof.
@@ -454,7 +473,7 @@ Definition enriched_profunctor_id_transformation
            {C₁ C₂ : category}
            {E₁ : enrichment C₁ V}
            {E₂ : enrichment C₂ V}
-           (P : E₂ ↛e E₁)
+           (P : E₁ ↛e E₂)
   : enriched_profunctor_transformation P P.
 Proof.
   use make_enriched_profunctor_transformation.
@@ -468,7 +487,7 @@ Definition enriched_profunctor_comp_transformation_data
            {C₁ C₂ : category}
            {E₁ : enrichment C₁ V}
            {E₂ : enrichment C₂ V}
-           {P₁ P₂ P₃ : E₂ ↛e E₁}
+           {P₁ P₂ P₃ : E₁ ↛e E₂}
            (τ : enriched_profunctor_transformation P₁ P₂)
            (θ : enriched_profunctor_transformation P₂ P₃)
   : enriched_profunctor_transformation_data P₁ P₃
@@ -481,7 +500,7 @@ Proposition enriched_profunctor_comp_transformation_laws
             {C₁ C₂ : category}
             {E₁ : enrichment C₁ V}
             {E₂ : enrichment C₂ V}
-            {P₁ P₂ P₃ : E₂ ↛e E₁}
+            {P₁ P₂ P₃ : E₁ ↛e E₂}
             (τ : enriched_profunctor_transformation P₁ P₂)
             (θ : enriched_profunctor_transformation P₂ P₃)
   : enriched_profunctor_transformation_laws
@@ -511,7 +530,7 @@ Definition enriched_profunctor_comp_transformation
            {C₁ C₂ : category}
            {E₁ : enrichment C₁ V}
            {E₂ : enrichment C₂ V}
-           {P₁ P₂ P₃ : E₂ ↛e E₁}
+           {P₁ P₂ P₃ : E₁ ↛e E₂}
            (τ : enriched_profunctor_transformation P₁ P₂)
            (θ : enriched_profunctor_transformation P₂ P₃)
   : enriched_profunctor_transformation P₁ P₃.
@@ -520,3 +539,68 @@ Proof.
   - exact (enriched_profunctor_comp_transformation_data τ θ).
   - exact (enriched_profunctor_comp_transformation_laws τ θ).
 Defined.
+
+(** * 4. Extra laws *)
+Definition enriched_profunctor_transformation_lmap_e_arr
+           {V : sym_mon_closed_cat}
+           {C₁ C₂ : category}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           {P Q : E₁ ↛e E₂}
+           (τ : enriched_profunctor_transformation P Q)
+           {y₁ y₂ : C₂}
+           (g : y₁ --> y₂)
+           (x : C₁)
+  : τ y₂ x · lmap_e_arr Q x g
+    =
+    lmap_e_arr P x g · τ y₁ x.
+Proof.
+  unfold lmap_e_arr.
+  etrans.
+  {
+    rewrite !assoc.
+    rewrite tensor_linvunitor.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite <- tensor_split.
+    rewrite tensor_split'.
+    rewrite !assoc'.
+    rewrite enriched_profunctor_transformation_lmap_e.
+    apply idpath.
+  }
+  rewrite !assoc.
+  apply idpath.
+Qed.
+
+Definition enriched_profunctor_transformation_rmap_e_arr
+           {V : sym_mon_closed_cat}
+           {C₁ C₂ : category}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           {P Q : E₁ ↛e E₂}
+           (τ : enriched_profunctor_transformation P Q)
+           (y : C₂)
+           {x₁ x₂ : C₁}
+           (f : x₁ --> x₂)
+  : τ y x₁ · rmap_e_arr Q f y
+    =
+    rmap_e_arr P f y · τ y x₂.
+Proof.
+  unfold rmap_e_arr.
+  etrans.
+  {
+    rewrite !assoc.
+    rewrite tensor_linvunitor.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite !assoc.
+    rewrite <- tensor_split.
+    rewrite tensor_split'.
+    rewrite !assoc'.
+    rewrite enriched_profunctor_transformation_rmap_e.
+    apply idpath.
+  }
+  rewrite !assoc.
+  apply idpath.
+Qed.
