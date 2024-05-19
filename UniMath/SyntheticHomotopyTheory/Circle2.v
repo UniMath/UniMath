@@ -17,7 +17,6 @@ Require Import UniMath.MoreFoundations.Equivalences.
 Require Import UniMath.MoreFoundations.PathsOver.
   Import PathsOverNotations.
 Require Import UniMath.Algebra.Monoids.
-  Import AddNotation.
 Require Import UniMath.SyntheticHomotopyTheory.AffineLine.
 Require Import UniMath.NumberSystems.Integers.
 Require Import UniMath.Algebra.BinaryOperations.
