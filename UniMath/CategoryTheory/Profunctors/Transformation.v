@@ -19,6 +19,7 @@
  5.3. Right unitor
  5.4. Associator
  5.5. Inverse laws
+ 5.6. Whiskering
  6. Equality of profunctors
 
  *****************************************************************************************)

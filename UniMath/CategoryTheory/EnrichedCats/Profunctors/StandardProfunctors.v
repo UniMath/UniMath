@@ -119,6 +119,39 @@ Section IdentityProfunctor.
     - exact identity_enriched_profunctor_data.
     - exact identity_enriched_profunctor_laws.
   Defined.
+
+  Proposition identity_enriched_profunctor_lmap_e_arr
+              (y : C)
+              {x₁ x₂ : C}
+              (g : x₁ --> x₂)
+    : lmap_e_arr identity_enriched_profunctor y g
+      =
+      precomp_arr E y g.
+  Proof.
+    unfold lmap_e_arr ; cbn.
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      rewrite !assoc'.
+      rewrite tensor_sym_mon_braiding.
+      rewrite !assoc.
+      rewrite sym_mon_braiding_linvunitor.
+      apply idpath.
+    }
+    apply idpath.
+  Qed.
+
+  Proposition identity_enriched_profunctor_rmap_e_arr
+              {y₁ y₂ : C}
+              (f : y₁ --> y₂)
+              (x : C)
+    : rmap_e_arr identity_enriched_profunctor f x
+      =
+      postcomp_arr E x f.
+  Proof.
+    apply idpath.
+  Qed.
 End IdentityProfunctor.
 
 (** * 2. Representable profunctors *)
@@ -236,7 +269,7 @@ Section Representable.
   Qed.
 
   Definition representable_enriched_profunctor_left
-    : E₂ ↛e E₁.
+    : E₁ ↛e E₂.
   Proof.
     use make_enriched_profunctor.
     - exact representable_enriched_profunctor_left_data.
@@ -374,7 +407,7 @@ Section Representable.
   Qed.
 
   Definition representable_enriched_profunctor_right
-    : E₁ ↛e E₂.
+    : E₂ ↛e E₁.
   Proof.
     use make_enriched_profunctor.
     - exact representable_enriched_profunctor_right_data.
@@ -394,7 +427,7 @@ Section Precomposition.
           {E₂' : enrichment C₂' V}
           (EF : functor_enrichment F E₁ E₁')
           (EG : functor_enrichment G E₂ E₂')
-          (P : E₂' ↛e E₁').
+          (P : E₁' ↛e E₂').
 
   Definition precomp_enriched_profunctor_data
     : enriched_profunctor_data E₁ E₂.
@@ -552,7 +585,7 @@ Section Precomposition.
   Qed.
 
   Definition precomp_enriched_profunctor
-    : E₂ ↛e E₁.
+    : E₁ ↛e E₂.
   Proof.
     use make_enriched_profunctor.
     - exact precomp_enriched_profunctor_data.
