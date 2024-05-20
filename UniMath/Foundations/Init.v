@@ -6,6 +6,8 @@ Require Export Coq.Init.Notations.
 From Coq Require Export Ltac.
 (* get the tactics *)
 
+#[export] Unset Universe Checking.
+
 (** Notations *)
 
 Notation "'∏'  x .. y , P" := (forall x, .. (forall y, P) ..)
