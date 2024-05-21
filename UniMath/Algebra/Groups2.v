@@ -330,7 +330,7 @@ Coercion subgrtosubmonoid : subgr >-> submonoid.
 
 Definition totalsubgr (X : gr) : subgr X.
 Proof.
-  split with (@totalsubtype X).
+  exists (@totalsubtype X).
   split.
   - exact (pr2 (totalsubmonoid X)).
   - exact (λ _ _, tt).
@@ -363,7 +363,7 @@ Definition isgrcarrier {X : gr} (A : subgr X) : isgrop (@op A) :=
   isinvoncarrier A.
 
 Definition carrierofasubgr {X : gr} (A : subgr X) : gr.
-Proof. split with A. apply (isgrcarrier A). Defined.
+Proof. exists A. apply (isgrcarrier A). Defined.
 Coercion carrierofasubgr : subgr >-> gr.
 
 Lemma intersection_subgr : forall {X : gr} {I : UU} (S : I → hsubtype X)
@@ -383,11 +383,11 @@ submonoid_incl A.
 
 Lemma grquotinvcomp {X : gr} (R : binopeqrel X) : iscomprelrelfun R R (λ x, x^-1).
 Proof.
-  destruct R as [ R isb ].
+  induction R as [ R isb ].
   set (isc := iscompbinoptransrel _ (eqreltrans _) isb).
   unfold iscomprelrelfun. intros x x' r.
-  destruct R as [ R iseq ]. destruct iseq as [ ispo0 symm0 ].
-  destruct ispo0 as [ trans0 refl0 ]. unfold isbinophrel in isb.
+  induction R as [ R iseq ]. induction iseq as [ ispo0 symm0 ].
+  induction ispo0 as [ trans0 refl0 ]. unfold isbinophrel in isb.
   set (r0 := isc _ _ _ _ (isc _ _ _ _ (refl0 (x'^-1)) r) (refl0 (x^-1))).
   rewrite (grlinvax X x') in r0.
   rewrite (assocax X (x'^-1) x (x^-1)) in r0.
@@ -419,7 +419,7 @@ Definition isgrquot {X : gr} (R : binopeqrel X) : isgrop (@op (setwithbinopquot 
   ismonoidquot R ,, invongrquot R ,, isinvongrquot R.
 
 Definition grquot {X : gr} (R : binopeqrel X) : gr.
-Proof. split with (setwithbinopquot R). apply isgrquot. Defined.
+Proof. exists (setwithbinopquot R). apply isgrquot. Defined.
 
 (** *** Cosets *)
 
@@ -700,19 +700,19 @@ End NormalSubGroups.
 
 Lemma isgrdirprod (X Y : gr) : isgrop (@op (setwithbinopdirprod X Y)).
 Proof.
-  split with (ismonoiddirprod X Y).
-  split with (λ xy, (pr1 xy)^-1 ,, (pr2 xy)^-1).
+  exists (ismonoiddirprod X Y).
+  exists (λ xy, (pr1 xy)^-1 ,, (pr2 xy)^-1).
   split.
-  - intro xy. destruct xy as [ x y ].
+  - intro xy. induction xy as [ x y ].
     unfold unel_is. simpl. apply pathsdirprod.
     apply (grlinvax X x). apply (grlinvax Y y).
-  - intro xy. destruct xy as [ x y ].
+  - intro xy. induction xy as [ x y ].
     unfold unel_is. simpl. apply pathsdirprod.
     apply (grrinvax X x). apply (grrinvax Y y).
 Defined.
 
 Definition grdirprod (X Y : gr) : gr.
-Proof. split with (setwithbinopdirprod X Y). apply isgrdirprod. Defined.
+Proof. exists (setwithbinopdirprod X Y). apply isgrdirprod. Defined.
 
 (** *** Group of invertible elements in a monoid *)
 

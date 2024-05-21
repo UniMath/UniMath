@@ -246,7 +246,7 @@ Definition isabmonoidcarrier {X : abmonoid} (A : submonoid X) :
 
 Definition carrierofsubabmonoid {X : abmonoid} (A : subabmonoid X) : abmonoid.
 Proof.
-  unfold subabmonoid in A. split with A. apply isabmonoidcarrier.
+  unfold subabmonoid in A. exists A. apply isabmonoidcarrier.
 Defined.
 Coercion carrierofsubabmonoid : subabmonoid >-> abmonoid.
 
@@ -269,7 +269,7 @@ Definition isabmonoidquot {X : abmonoid} (R : binopeqrel X) :
   isabmonoidop (@op (setwithbinopquot R)) := ismonoidquot R ,, iscommquot R.
 
 Definition abmonoidquot {X : abmonoid} (R : binopeqrel X) : abmonoid.
-Proof. split with (setwithbinopquot R). apply isabmonoidquot. Defined.
+Proof. exists (setwithbinopquot R). apply isabmonoidquot. Defined.
 
 
 (** **** Direct products *)
@@ -277,7 +277,7 @@ Proof. split with (setwithbinopquot R). apply isabmonoidquot. Defined.
 Lemma iscommdirprod (X Y : abmonoid) : iscomm (@op (setwithbinopdirprod X Y)).
 Proof.
   intros xy xy'.
-  destruct xy as [ x y ]. destruct xy' as [ x' y' ]. simpl.
+  induction xy as [ x y ]. induction xy' as [ x' y' ]. simpl.
   apply pathsdirprod.
   - apply (commax X).
   - apply (commax Y).
@@ -287,7 +287,7 @@ Definition isabmonoiddirprod (X Y : abmonoid) : isabmonoidop (@op (setwithbinopd
   ismonoiddirprod X Y ,, iscommdirprod X Y.
 
 Definition abmonoiddirprod (X Y : abmonoid) : abmonoid.
-Proof. split with (setwithbinopdirprod X Y). apply isabmonoiddirprod. Defined.
+Proof. exists (setwithbinopdirprod X Y). apply isabmonoiddirprod. Defined.
 
 
 (** **** Monoid of fractions of an abelian monoid
@@ -308,29 +308,29 @@ Proof.
   set (R := hrelabmonoidfrac X A).
   apply iseqrelconstr.
   - unfold istrans. intros ab cd ef. simpl. apply hinhfun2.
-    destruct ab as [ a b ]. destruct cd as [ c d ]. destruct ef as [ e f ].
-    destruct b as [ b isb ]. destruct d as [ d isd ].  destruct f as [ f isf ].
-    intros eq1 eq2. destruct eq1 as [ x1 eq1 ]. destruct eq2 as [ x2 eq2 ].
-    simpl in *. split with (@op A (d ,, isd) (@op A x1 x2)).
-    destruct x1 as [ x1 isx1 ]. destruct x2 as [ x2 isx2 ].
-    destruct A as [ A ax ].
+    induction ab as [ a b ]. induction cd as [ c d ]. induction ef as [ e f ].
+    induction b as [ b isb ]. induction d as [ d isd ].  induction f as [ f isf ].
+    intros eq1 eq2. induction eq1 as [ x1 eq1 ]. induction eq2 as [ x2 eq2 ].
+    simpl in *. exists (@op A (d ,, isd) (@op A x1 x2)).
+    induction x1 as [ x1 isx1 ]. induction x2 as [ x2 isx2 ].
+    induction A as [ A ax ].
     simpl in *.
     rewrite (assoc a f (d + (x1 + x2))). rewrite (comm f (d + (x1 + x2))).
-    destruct (assoc a (d + (x1 + x2)) f). destruct (assoc a d (x1 + x2)).
-    destruct (assoc (a + d) x1 x2).
+    induction (assoc a (d + (x1 + x2)) f). induction (assoc a d (x1 + x2)).
+    induction (assoc (a + d) x1 x2).
     rewrite eq1. rewrite (comm x1 x2). rewrite (assoc e b (d + (x2 + x1))).
     rewrite (comm b (d + (x2 + x1))).
-    destruct (assoc e (d + (x2 + x1)) b). destruct (assoc e d (x2 + x1)).
-    destruct (assoc (e + d) x2 x1). destruct eq2. rewrite (assoc (c + b) x1 x2).
+    induction (assoc e (d + (x2 + x1)) b). induction (assoc e d (x2 + x1)).
+    induction (assoc (e + d) x2 x1). induction eq2. rewrite (assoc (c + b) x1 x2).
     rewrite (assoc (c + f) x2 x1). rewrite (comm x1 x2).
     rewrite (assoc (c + b) (x2 + x1) f). rewrite (assoc (c + f) (x2 + x1) b).
     rewrite (comm (x2 + x1) f). rewrite (comm (x2 + x1) b).
-    destruct (assoc (c + b) f (x2 + x1)). destruct (assoc (c + f) b (x2 + x1)).
+    induction (assoc (c + b) f (x2 + x1)). induction (assoc (c + f) b (x2 + x1)).
     rewrite (assoc c b f). rewrite (assoc c f b). rewrite (comm b f).
     apply idpath.
-  - intro xa. simpl. apply hinhpr. split with (pr2 xa). apply idpath.
+  - intro xa. simpl. apply hinhpr. exists (pr2 xa). apply idpath.
   - intros xa yb. unfold R. simpl. apply hinhfun. intro eq1.
-    destruct eq1 as [ x1 eq1 ]. split with x1. destruct x1 as [ x1 isx1 ].
+    induction eq1 as [ x1 eq1 ]. exists x1. induction x1 as [ x1 isx1 ].
     simpl. apply (!eq1).
 Qed.
 
@@ -344,19 +344,19 @@ Proof.
   apply (isbinopreflrel (eqrelabmonoidfrac X A) (eqrelrefl (eqrelabmonoidfrac X A))).
   set (rer := abmonoidoprer (pr2 X)). intros a b c d. simpl.
   apply hinhfun2.
-  destruct a as [ a a' ]. destruct a' as [ a' isa' ].
-  destruct b as [ b b' ]. destruct b' as [ b' isb' ].
-  destruct c as [ c c' ]. destruct c' as [ c' isc' ].
-  destruct d as [ d d' ]. destruct d' as [ d' isd' ].
+  induction a as [ a a' ]. induction a' as [ a' isa' ].
+  induction b as [ b b' ]. induction b' as [ b' isb' ].
+  induction c as [ c c' ]. induction c' as [ c' isc' ].
+  induction d as [ d d' ]. induction d' as [ d' isd' ].
   intros ax ay.
-  destruct ax as [ a1 eq1 ]. destruct ay as [ a2 eq2 ].
-  split with (@op A  a1 a2).
-  destruct a1 as [ a1 aa1 ]. destruct a2 as [ a2 aa2 ].
+  induction ax as [ a1 eq1 ]. induction ay as [ a2 eq2 ].
+  exists (@op A  a1 a2).
+  induction a1 as [ a1 aa1 ]. induction a2 as [ a2 aa2 ].
   simpl in *.
   rewrite (rer a c b' d'). rewrite (rer b d a' c').
   rewrite (rer (a + b') (c + d') a1 a2).
   rewrite (rer (b + a') (d + c') a1 a2).
-  destruct eq1. destruct eq2.
+  induction eq1. induction eq2.
   apply idpath.
 Qed.
 
@@ -396,17 +396,17 @@ Proof.
       intro xb. simpl.
       apply (iscompsetquotpr
                R (pr1 a' + (pr1 a + pr1 xb) ,, (@op A) a ((@op A) a' (pr2 xb)))).
-      simpl. apply hinhpr. split with (unel A). unfold pr1carrier. simpl.
+      simpl. apply hinhpr. exists (unel A). unfold pr1carrier. simpl.
       set (e := assocax X (pr1 a) (pr1 a') (pr1 (pr2 xb))).
-      simpl in e. destruct e.
+      simpl in e. induction e.
       set (e := assocax X (pr1 xb) (pr1 a + pr1 a') (pr1 (pr2 xb))).
-      simpl in e. destruct e.
+      simpl in e. induction e.
       set (e := assocax X (pr1 a') (pr1 a) (pr1 xb)).
-      simpl in e. destruct e.
+      simpl in e. induction e.
       set (e := commax X (pr1 a) (pr1 a')).
-      simpl in e. destruct e.
+      simpl in e. induction e.
       set (e := commax X (pr1 a + pr1 a') (pr1 xb)).
-      simpl in e. destruct e.
+      simpl in e. induction e.
       apply idpath.
     }
     assert (efg : ∏ x0, f (g x0) = x0).
@@ -415,17 +415,17 @@ Proof.
       intro xb. simpl.
       apply (iscompsetquotpr
                R (pr1 a + (pr1 a' + pr1 xb) ,, (@op A) a' ((@op A) a (pr2 xb)))).
-      simpl. apply hinhpr. split with (unel A). unfold pr1carrier. simpl.
+      simpl. apply hinhpr. exists (unel A). unfold pr1carrier. simpl.
       set (e := assocax X (pr1 a') (pr1 a) (pr1 (pr2 xb))).
-      simpl in e. destruct e.
+      simpl in e. induction e.
       set (e := assocax X (pr1 xb) (pr1 a' + pr1 a) (pr1 (pr2 xb))).
-      simpl in e. destruct e.
+      simpl in e. induction e.
       set (e := assocax X (pr1 a) (pr1 a') (pr1 xb)).
-      simpl in e. destruct e.
+      simpl in e. induction e.
       set (e := commax X (pr1 a') (pr1 a)).
-      simpl in e. destruct e.
+      simpl in e. induction e.
       set (e := commax X (pr1 a' + pr1 a) (pr1 xb)).
-      simpl in e. destruct e.
+      simpl in e. induction e.
       apply idpath.
     }
     apply (isweq_iso _ _ egf efg).
@@ -473,9 +473,9 @@ Proof.
   unfold eqrelabmonoidfrac. unfold hrelabmonoidfrac. simpl.
   apply weqimplimpl.
   apply (@hinhuniv _ (pr1 xa + pr1 (pr2 xa') = pr1 xa' + pr1 (pr2 xa))%logic).
-  intro ae. destruct ae as [ a eq ].
+  intro ae. induction ae as [ a eq ].
   apply (invmaponpathsincl _ (iscanc a) _ _ eq).
-  intro eq. apply hinhpr. split with (unel A). rewrite (runax X).
+  intro eq. apply hinhpr. exists (unel A). rewrite (runax X).
   rewrite (runax X). apply eq. apply (isapropishinh _).
   apply (setproperty X).
 Defined.
@@ -529,40 +529,40 @@ Proof.
   apply (eqrelsymm (eqrelabmonoidfrac X A)).
   - intros xa xa' yb. unfold hrelabmonoidfrac. simpl. apply (@hinhfun2).
     intros t2e t2l.
-    destruct t2e as [ c1a e ]. destruct t2l as [ c0a l ].
+    induction t2e as [ c1a e ]. induction t2l as [ c0a l ].
     set (x := pr1 xa). set (a := pr1 (pr2 xa)).
     set (x' := pr1 xa'). set (a' := pr1 (pr2 xa')).
     set (y := pr1 yb). set (b := pr1 (pr2 yb)).
     set (c0 := pr1 c0a). set (c1 := pr1 c1a).
-    split with ((pr2 xa) + c1a + c0a).
+    exists ((pr2 xa) + c1a + c0a).
     change (L ((x' + b) + ((a + c1) + c0)) ((y + a') + ((a + c1) + c0))).
     change (x + a' + c1 = x' + a + c1) in e.
     rewrite (rer x' _ _ c0).
-    destruct (assoc x' a c1). destruct e.
+    induction (assoc x' a c1). induction e.
     rewrite (assoc x a' c1). rewrite (rer x _ _ c0). rewrite (assoc a c1 c0).
     rewrite (rer _ a' a _). rewrite (assoc a' c1 c0). rewrite (comm a' _).
     rewrite (comm c1 _). rewrite (assoc  c0 c1 a').
-    destruct (assoc (x + b) c0 (@op X c1 a')).
-    destruct (assoc (y + a) c0 (@op X c1 a')).
+    induction (assoc (x + b) c0 (@op X c1 a')).
+    induction (assoc (y + a) c0 (@op X c1 a')).
     apply ((pr2 is) _ _ _ (pr2 (@op A c1a (pr2 xa'))) l).
   - intros xa yb yb'. unfold hrelabmonoidfrac. simpl. apply (@hinhfun2).
     intros t2e t2l.
-    destruct t2e as [ c1a e ]. destruct t2l as [ c0a l ].
+    induction t2e as [ c1a e ]. induction t2l as [ c0a l ].
     set (x := pr1 xa). set (a := pr1 (pr2 xa)).
     set (y' := pr1 yb'). set (b' := pr1 (pr2 yb')).
     set (y := pr1 yb). set (b := pr1 (pr2 yb)).
     set (c0 := pr1 c0a). set (c1 := pr1 c1a).
-    split with ((pr2 yb) + c1a + c0a).
+    exists ((pr2 yb) + c1a + c0a).
     change (L ((x + b') + ((b + c1) + c0)) ((y' + a) + ((b + c1) + c0))).
     change (y + b' + c1 = y' + b + c1) in e.
     rewrite (rer y' _ _ c0).
-    destruct (assoc y' b c1). destruct e.
+    induction (assoc y' b c1). induction e.
     rewrite (assoc y b' c1).  rewrite (rer y _ _ c0).
     rewrite (assoc b c1 c0). rewrite (rer _ b' b _).
     rewrite (assoc b' c1 c0). rewrite (comm b' _).
     rewrite (comm c1 _). rewrite (assoc  c0 c1 b').
-    destruct (assoc (x + b) c0 (@op X c1 b')).
-    destruct (assoc (y + a) c0 (@op X c1 b')).
+    induction (assoc (x + b) c0 (@op X c1 b')).
+    induction (assoc (y + a) c0 (@op X c1 b')).
     apply ((pr2 is) _ _ _ (pr2 (@op A c1a (pr2 yb'))) l).
 Qed.
 
@@ -583,22 +583,22 @@ Proof.
   set (x2 := pr1 xa2). set (a2 := pr1 (pr2 xa2)).
   set (x3 := pr1 xa3). set (a3 := pr1 (pr2 xa3)).
   set (c1 := pr1 c1a). set (c2 := pr1 c2a).
-  split with ((pr2 xa2) + (@op A c1a c2a)).
+  exists ((pr2 xa2) + (@op A c1a c2a)).
   change (L ((x1 + a3) + (a2 + (c1 + c2))) ((x3 + a1) + (a2 + (c1 + c2)))).
   assert (ll1 : L ((x1 + a3) + (a2 + (@op X c1 c2)))
                   (((x2 + a1) + c1) + (c2 + a3))).
   {
     rewrite (rer _ a3 a2 _). rewrite (comm a3 (@op X c1 c2)).
     rewrite (assoc c1 c2 a3).
-    destruct (assoc (x1 + a2) c1 (@op X c2 a3)).
+    induction (assoc (x1 + a2) c1 (@op X c2 a3)).
     apply ((pr2 is) _ _ _ (pr2 (@op A c2a (pr2 xa3))) l1).
   }
   assert (ll2 : L (((x2 + a3) + c2) + (@op X a1 c1))
                   ((x3 + a1) + (a2 + (@op X c1 c2)))).
   {
-    rewrite (rer _ a1 a2 _). destruct (assoc a1 c1 c2).
+    rewrite (rer _ a1 a2 _). induction (assoc a1 c1 c2).
     rewrite (comm (a1 + c1) c2).
-    destruct (assoc (x3 + a2) c2 (@op X a1 c1)).
+    induction (assoc (x3 + a2) c2 (@op X a1 c1)).
     apply ((pr2 is) _ _ _ (pr2 (@op A (pr2 xa1) c1a)) l2).
   }
   assert (e : x2 + a1 + c1 + (c2 + a3) =
@@ -606,11 +606,11 @@ Proof.
   {
     rewrite (assoc (x2 + a1) c1 _). rewrite (assoc (x2 + a3) c2 _).
     rewrite (assoc x2 a1 _). rewrite (assoc x2 a3 _).
-    destruct (assoc a1 c1 (c2 + a3)). destruct (assoc a3 c2 (a1 + c1)).
-    destruct (comm (c2 + a3) (a1 + c1)).
+    induction (assoc a1 c1 (c2 + a3)). induction (assoc a3 c2 (a1 + c1)).
+    induction (comm (c2 + a3) (a1 + c1)).
     rewrite (comm a3 c2). apply idpath.
   }
-  destruct e. apply (isl _ _ _ ll1 ll2).
+  induction e. apply (isl _ _ _ ll1 ll2).
 Qed.
 
 Lemma istransabmonoidfracrel (X : abmonoid) (A : subabmonoid X) {L : hrel X}
@@ -627,7 +627,7 @@ Proof.
   intros xa1 xa2. unfold abmonoidfracrelint. simpl.
   apply hinhfun. intros t2l1.
   set (c1a := pr1 t2l1). set (l1 := pr2 t2l1).
-  split with (c1a). apply (isl _ _ l1).
+  exists (c1a). apply (isl _ _ l1).
 Qed.
 
 Lemma issymmabmonoidfracrel (X : abmonoid) (A : subabmonoid X) {L : hrel X}
@@ -642,7 +642,7 @@ Lemma isreflabmonoidfracrelint (X : abmonoid) (A : subabmonoid X) {L : hrel X}
       (is : ispartbinophrel A L) (isl : isrefl L) : isrefl (abmonoidfracrelint X A L).
 Proof.
   intro xa. unfold abmonoidfracrelint. simpl. apply hinhpr.
-  split with (unel A). apply (isl _).
+  exists (unel A). apply (isl _).
 Defined.
 
 Lemma isreflabmonoidfracrel (X : abmonoid) (A : subabmonoid X) {L : hrel X}
@@ -656,7 +656,7 @@ Defined.
 Lemma ispoabmonoidfracrelint (X : abmonoid) (A : subabmonoid X) {L : hrel X}
       (is : ispartbinophrel A L) (isl : ispreorder L) : ispreorder (abmonoidfracrelint X A L).
 Proof.
-  split with (istransabmonoidfracrelint X A is (pr1 isl)).
+  exists (istransabmonoidfracrelint X A is (pr1 isl)).
   apply (isreflabmonoidfracrelint X A is (pr2 isl)).
 Defined.
 
@@ -670,7 +670,7 @@ Defined.
 Lemma iseqrelabmonoidfracrelint (X : abmonoid) (A : subabmonoid X) {L : hrel X}
       (is : ispartbinophrel A L) (isl : iseqrel L) : iseqrel (abmonoidfracrelint X A L).
 Proof.
-  split with (ispoabmonoidfracrelint X A is (pr1 isl)).
+  exists (ispoabmonoidfracrelint X A is (pr1 isl)).
   apply (issymmabmonoidfracrelint X A is (pr2 isl)).
 Defined.
 
@@ -715,13 +715,13 @@ Proof.
   set (x2 := pr1 xa2). set (a2 := pr1 (pr2 xa2)).
   assert (ll1 : L ((x1 + a2) + (@op X c1 c2)) ((x2 + a1) + (@op X c1 c2))).
   {
-    destruct (assoc (x1 + a2) c1 c2). destruct (assoc (x2 + a1) c1 c2).
+    induction (assoc (x1 + a2) c1 c2). induction (assoc (x2 + a1) c1 c2).
     apply ((pr2 is) _ _ _ (pr2 c2a)). apply l1.
   }
   assert (ll2 : L ((x2 + a1) + (@op X c1 c2)) ((x1 + a2) + (@op X c1 c2))).
   {
-    destruct (comm c2 c1). destruct (assoc (x1 + a2) c2 c1).
-    destruct (assoc (x2 + a1) c2 c1).
+    induction (comm c2 c1). induction (assoc (x1 + a2) c2 c1).
+    induction (assoc (x2 + a1) c2 c1).
     apply ((pr2 is) _ _ _ (pr2 c1a)).
     apply l2.
   }
@@ -747,7 +747,7 @@ Proof.
   simpl in nl.
   set (l := isl _ _ nl).
   apply hinhpr.
-  split with (unel A).
+  exists (unel A).
   apply l.
 Qed.
 
@@ -767,9 +767,9 @@ Proof.
   generalize int. clear int. simpl.
   apply hinhfun. apply coprodf. intro l.
   apply hinhpr.
-  split with (unel A).  rewrite (runax X _).
+  exists (unel A).  rewrite (runax X _).
   rewrite (runax X _). apply l.  intro l.
-  apply hinhpr. split with (unel A).
+  apply hinhpr. exists (unel A).
   rewrite (runax X _). rewrite (runax X _).
   apply l.
 Defined.
@@ -809,11 +809,11 @@ Proof.
   }
   set (int' := isl z1 z2 z3 int). generalize int'. clear int'.
   simpl. apply hinhfun. intro cc.
-  destruct cc as [ l12 | l23 ].
-  - apply ii1. apply hinhpr. split with ((pr2 xa3) + c0a).
+  induction cc as [ l12 | l23 ].
+  - apply ii1. apply hinhpr. exists ((pr2 xa3) + c0a).
     change (L (x1 + a2 + (a3 + c0)) (x2 + a1 + (a3 + c0))).
     rewrite (rer _ a2 a3 _). apply l12.
-  - apply ii2. apply hinhpr. split with ((pr2 xa1) + c0a).
+  - apply ii2. apply hinhpr. exists ((pr2 xa1) + c0a).
     change (L (x2 + a3 + (a1 + c0)) (x3 + a2 + (a1 + c0))).
     rewrite (rer _ a3 a1 _). rewrite (rer _ a2 a1 _).
     apply l23.
@@ -866,7 +866,7 @@ Proof.
   set (nr12' := neghexisttoforallneg _ nr12 (unel A)).
   set (nr21' := neghexisttoforallneg _ nr21 (unel A)).
   set (int' := isl _ _ nr12' nr21').
-  simpl. apply hinhpr. split with (unel A). apply int'.
+  simpl. apply hinhpr. exists (unel A). apply int'.
 Qed.
 
 Lemma isantisymmabmonoidfracrel (X : abmonoid) (A : subabmonoid X) {L : hrel X}
@@ -895,22 +895,22 @@ Proof.
   set (c1a := pr1 t2l1). set (l1 := pr2 t2l1).
   set (c2a := pr1 t2l2). set (l2 := pr2 t2l2).
   set (c1 := pr1 c1a). set (c2 := pr1 c2a).
-  split with (@op A c1a c2a).
+  exists (@op A c1a c2a).
   set (x1 := pr1 xa1). set (a1 := pr1 (pr2 xa1)).
   set (x2 := pr1 xa2). set (a2 := pr1 (pr2 xa2)).
   change (x1 + a2 + (c1 + c2) = x2 + a1 + (@op X c1 c2)).
   assert (ll1 : L ((x1 + a2) + (@op X c1 c2)) ((x2 + a1) + (@op X c1 c2))).
   {
-    destruct (assoc (x1 + a2) c1 c2).
-    destruct (assoc (x2 + a1) c1 c2).
+    induction (assoc (x1 + a2) c1 c2).
+    induction (assoc (x2 + a1) c1 c2).
     apply ((pr2 is) _ _ _ (pr2 c2a)).
     apply l1.
   }
   assert (ll2 : L ((x2 + a1) + (@op X c1 c2)) ((x1 + a2) + (@op X c1 c2))).
   {
-    destruct (comm c2 c1).
-    destruct (assoc (x1 + a2) c2 c1).
-    destruct (assoc (x2 + a1) c2 c1).
+    induction (comm c2 c1).
+    induction (assoc (x1 + a2) c2 c1).
+    induction (assoc (x2 + a1) c2 c1).
     apply ((pr2 is) _ _ _ (pr2 c1a)).
     apply l2.
   }
@@ -927,12 +927,12 @@ Proof.
   set (rer := abmonoidrer X).
   apply ispartbinophrelif. apply (commax (abmonoiddirprod X A)).
   intros xa yb zc s. unfold abmonoidfracrelint. simpl.
-  apply (@hinhfun). intro t2l. destruct t2l as [ c0a l ].
+  apply (@hinhfun). intro t2l. induction t2l as [ c0a l ].
   set (x := pr1 xa). set (a := pr1 (pr2 xa)).
   set (y := pr1 yb). set (b := pr1 (pr2 yb)).
   set (z := pr1 zc). set (c := pr1 (pr2 zc)).
   set (c0 := pr1 c0a).
-  split with c0a.
+  exists c0a.
   change (L (((z + x) + (c + b)) + c0) (((z + y) + (c + a)) + c0)).
   change (pr1 (L ((x + b) + c0) ((y + a) + c0))) in l.
   rewrite (rer z _ _ b). rewrite (assoc (z + c) _ _).
@@ -972,7 +972,7 @@ Proof.
   set (c0a := pr1 t2l). set (l := pr2 t2l).
   set (c0 := pr1 c0a). set (x1 := pr1 xa1).
   set (a1 := pr1 (pr2 xa1)). set (x2 := pr1 xa2).
-  set (a2 := pr1 (pr2 xa2)). split with c0a.
+  set (a2 := pr1 (pr2 xa2)). exists c0a.
 
   change (L (a + x1 + (a' + a2) + c0) (a + x2 + (a' + a1) + c0)).
   rewrite (rer _ x1 a' _). rewrite (rer _ x2 a' _).
@@ -1011,14 +1011,14 @@ Proof.
   set (c0a := pr1 t2l). set (l := pr2 t2l).
   set (c0 := pr1 c0a). set (x1 := pr1 xa1).
   set (a1 := pr1 (pr2 xa1)). set (x2 := pr1 xa2).
-  set (a2 := pr1 (pr2 xa2)). split with c0a.
+  set (a2 := pr1 (pr2 xa2)). exists c0a.
 
   change (L (x1 + a + (a2 + a') + c0) (x2 + a + (a1 + a') + c0)).
   rewrite (rer _ a a2 _). rewrite (rer _ a a1 _).
   rewrite (assoc (x1 + a2) _ c0). rewrite (assoc (x2 + a1) _ c0).
   rewrite (comm _ c0).
-  destruct (assoc (x1 + a2) c0 (a + a')).
-  destruct (assoc (x2 + a1) c0 (a + a')).
+  induction (assoc (x1 + a2) c0 (a + a')).
+  induction (assoc (x2 + a1) c0 (a + a')).
   apply ((pr2 is) _ _ _ (pr2 (@op A aa aa'))).
   apply l.
 Qed.
@@ -1030,7 +1030,7 @@ Lemma abmonoidfracrelimpl (X : abmonoid) (A : subabmonoid X) {L L' : hrel X}
 Proof.
   generalize ql. apply quotrelimpl. intros x0 x0'.
   unfold abmonoidfracrelint. simpl. apply hinhfun.
-  intro t2. split with (pr1 t2). apply (impl _ _ (pr2 t2)).
+  intro t2. exists (pr1 t2). apply (impl _ _ (pr2 t2)).
 Qed.
 
 Lemma abmonoidfracrellogeq (X : abmonoid) (A : subabmonoid X) {L L' : hrel X}
@@ -1040,9 +1040,9 @@ Lemma abmonoidfracrellogeq (X : abmonoid) (A : subabmonoid X) {L L' : hrel X}
 Proof.
   apply quotrellogeq. intros x0 x0'. split.
   - unfold abmonoidfracrelint. simpl. apply hinhfun. intro t2.
-    split with (pr1 t2). apply (pr1 (lg _ _) (pr2 t2)).
+    exists (pr1 t2). apply (pr1 (lg _ _) (pr2 t2)).
   - unfold abmonoidfracrelint. simpl. apply hinhfun. intro t2.
-    split with (pr1 t2). apply (pr2 (lg _ _) (pr2 t2)).
+    exists (pr1 t2). apply (pr2 (lg _ _) (pr2 t2)).
 Qed.
 
 Definition isdecabmonoidfracrelint (X : abmonoid) (A : subabmonoid X) {L : hrel X}
@@ -1052,15 +1052,15 @@ Proof.
   set (x1 := pr1 xa1). set (a1 := pr1 (pr2 xa1)).
   set (x2 := pr1 xa2). set (a2 := pr1 (pr2 xa2)).
   assert (int : coprod (L (x1 + a2) (x2 + a1)) (neg (L (x1 + a2) (x2 + a1)))) by apply (isl _ _).
-  destruct int as [ l | nl ].
+  induction int as [ l | nl ].
   - apply ii1. unfold abmonoidfracrelint.
-    apply hinhpr. split with (unel A).
+    apply hinhpr. exists (unel A).
     rewrite (runax X _). rewrite (runax X _).
     apply l.
   - apply ii2. generalize nl. clear nl. apply negf.
     unfold abmonoidfracrelint. simpl.
     apply (@hinhuniv _ (make_hProp _ (pr2 (L _ _)))).
-    intro t2l. destruct t2l as [ c0a l ].
+    intro t2l. induction t2l as [ c0a l ].
     simpl.
     apply ((pr2 is) _ _ _ (pr2 c0a) l).
 Defined.
@@ -1082,7 +1082,7 @@ Lemma iscomptoabmonoidfrac (X : abmonoid) (A : submonoid X) {L : hrel X}
 Proof.
   unfold iscomprelrelfun. intros x x' l.
   change (abmonoidfracrelint X A L (x ,, unel A) (x' ,, unel A)).
-  simpl. apply (hinhpr). split with (unel A). apply ((pr2 is) _ _ 0).
+  simpl. apply (hinhpr). exists (unel A). apply ((pr2 is) _ _ 0).
   apply (pr2 (unel A)). apply ((pr2 is) _ _ 0). apply (pr2 (unel A)).
   apply l.
 Qed.

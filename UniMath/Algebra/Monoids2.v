@@ -126,7 +126,7 @@ Defined.
 Lemma ismonoidfuncomp {X Y Z : monoid} (f : monoidfun X Y) (g : monoidfun Y Z) :
   ismonoidfun (g ∘ f).
 Proof.
-  split with (isbinopfuncomp f g).
+  exists (isbinopfuncomp f g).
   simpl. rewrite (pr2 (pr2 f)).
   apply (pr2 (pr2 g)).
 Qed.
@@ -217,7 +217,7 @@ Qed.
 Lemma ismonoidfuninvmap {X Y : monoid} (f : monoidiso X Y) :
   ismonoidfun (invmap (pr1 f)).
 Proof.
-  split with (isbinopfuninvmap f).
+  exists (isbinopfuninvmap f).
   apply (invmaponpathsweq (pr1 f)).
   rewrite (homotweqinvweq (pr1 f)).
   apply (!pr2 (pr2 f)).
@@ -337,7 +337,7 @@ Defined.
 
 Definition totalsubmonoid (X : monoid) : submonoid X.
 Proof.
-  split with (totalsubtype X). split.
+  exists (totalsubtype X). split.
   - intros x x'. apply tt.
   - apply tt.
 Defined.
@@ -365,7 +365,7 @@ Proof.
   split.
   - intros a a' a''. apply (invmaponpathsincl _ (isinclpr1carrier A)).
     simpl. apply (assocax X).
-  - split with (make_carrier _ 1 (pr2 (pr2 A))).
+  - exists (make_carrier _ 1 (pr2 (pr2 A))).
     split.
     + simpl. intro a. apply (invmaponpathsincl _ (isinclpr1carrier A)).
       simpl. apply (lunax X).
@@ -374,7 +374,7 @@ Proof.
 Defined.
 
 Definition carrierofsubmonoid {X : monoid} (A : submonoid X) : monoid.
-Proof. split with A. apply ismonoidcarrier. Defined.
+Proof. exists A. apply ismonoidcarrier. Defined.
 Coercion carrierofsubmonoid : submonoid >-> monoid.
 
 Lemma intersection_submonoid :
@@ -496,7 +496,7 @@ Definition ismonoidquot {X : monoid} (R : binopeqrel X) : ismonoidop (@op (setwi
   isassocquot R ,, setquotpr R (pr1 (pr2 (pr2 X))) ,, isunitquot R.
 
 Definition monoidquot {X : monoid} (R : binopeqrel X) : monoid.
-Proof. split with (setwithbinopquot R). apply ismonoidquot. Defined.
+Proof. exists (setwithbinopquot R). apply ismonoidquot. Defined.
 
 Lemma ismonoidfun_setquotpr {X : monoid} (R : binopeqrel X) : @ismonoidfun X (monoidquot R) (setquotpr R).
 Proof.
@@ -585,9 +585,9 @@ Lemma isunitindirprod (X Y : monoid) :
   isunit (@op (setwithbinopdirprod X Y)) (1 ,, 1).
 Proof.
   split.
-  - intro xy. destruct xy as [ x y ]. simpl. apply pathsdirprod.
+  - intro xy. induction xy as [ x y ]. simpl. apply pathsdirprod.
     apply (lunax X). apply (lunax Y).
-  - intro xy. destruct xy as [ x y ]. simpl. apply pathsdirprod.
+  - intro xy. induction xy as [ x y ]. simpl. apply pathsdirprod.
     apply (runax X). apply (runax Y).
 Qed.
 
@@ -596,6 +596,6 @@ Definition ismonoiddirprod (X Y : monoid) : ismonoidop (@op (setwithbinopdirprod
 
 Definition monoiddirprod (X Y : monoid) : monoid.
 Proof.
-  split with (setwithbinopdirprod X Y).
+  exists (setwithbinopdirprod X Y).
   apply ismonoiddirprod.
 Defined.

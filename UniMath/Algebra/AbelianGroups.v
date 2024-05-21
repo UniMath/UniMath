@@ -208,12 +208,12 @@ Identity Coercion id_subabgr : subabgr >-> subgr.
 
 Lemma isabgrcarrier {X : abgr} (A : subgr X) : isabgrop (@op A).
 Proof.
-  split with (isgrcarrier A).
+  exists (isgrcarrier A).
   apply (pr2 (@isabmonoidcarrier X A)).
 Defined.
 
 Definition carrierofasubabgr {X : abgr} (A : subabgr X) : abgr.
-Proof. split with A. apply isabgrcarrier. Defined.
+Proof. exists A. apply isabgrcarrier. Defined.
 Coercion carrierofasubabgr : subabgr >-> abgr.
 
 Definition subabgr_incl {X : abgr} (A : subabgr X) : monoidfun A X :=
@@ -297,25 +297,25 @@ Definition abgr_image {A B : abgr} (f : monoidfun A B) : @subabgr B :=
 
 Lemma isabgrquot {X : abgr} (R : binopeqrel X) : isabgrop (@op (setwithbinopquot R)).
 Proof.
-  split with (isgrquot R).
+  exists (isgrquot R).
   apply (pr2 (@isabmonoidquot X R)).
 Defined.
 
 Definition abgrquot {X : abgr} (R : binopeqrel X) : abgr.
-Proof. split with (setwithbinopquot R). apply isabgrquot. Defined.
+Proof. exists (setwithbinopquot R). apply isabgrquot. Defined.
 
 
 (** *** Direct products *)
 
 Lemma isabgrdirprod (X Y : abgr) : isabgrop (@op (setwithbinopdirprod X Y)).
 Proof.
-  split with (isgrdirprod X Y).
+  exists (isgrdirprod X Y).
   apply (pr2 (isabmonoiddirprod X Y)).
 Defined.
 
 Definition abgrdirprod (X Y : abgr) : abgr.
 Proof.
-  split with (setwithbinopdirprod X Y).
+  exists (setwithbinopdirprod X Y).
   apply isabgrdirprod.
 Defined.
 
@@ -333,8 +333,8 @@ Definition hrelabgrdiff' (X : abmonoid) : hrel (X × X) :=
 Lemma logeqhrelsabgrdiff (X : abmonoid) : hrellogeq (hrelabgrdiff' X) (hrelabgrdiff X).
 Proof.
   split. simpl. apply hinhfun. intro t2.
-  set (a0 := pr1 (pr1 t2)). split with a0. apply (pr2 t2). simpl.
-  apply hinhfun. intro t2. set (x0 := pr1 t2). split with (x0 ,, tt).
+  set (a0 := pr1 (pr1 t2)). exists a0. apply (pr2 t2). simpl.
+  apply hinhfun. intro t2. set (x0 := pr1 t2). exists (x0 ,, tt).
   apply (pr2 t2).
 Defined.
 
@@ -383,8 +383,8 @@ Proof.
   apply (hinhfun). intro tt0.
   set (x := pr1 xs). set (s := pr2 xs).
   set (x' := pr1 xs'). set (s' := pr2 xs').
-  split with (pr1 tt0).
-  destruct tt0 as [ a eq ]. change (s + x' + a = s' + x + a).
+  exists (pr1 tt0).
+  induction tt0 as [ a eq ]. change (s + x' + a = s' + x + a).
   set(e := commax X s' x). simpl in e. rewrite e. clear e.
   set (e := commax X s x'). simpl in e. rewrite e. clear e.
   exact (!eq).
@@ -404,9 +404,9 @@ Proof.
     intro xs.
     set (x := pr1 xs). set (s := pr2 xs).
     apply (iscompsetquotpr R (@op (abmonoiddirprod X X) (abgrdiffinvint X xs) xs) 0).
-    simpl. apply hinhpr. split with (unel X).
+    simpl. apply hinhpr. exists (unel X).
     change (s + x + 0 + 0 = 0 + (x + s) + 0).
-    destruct (commax X x s). destruct (commax X 0 (x + s)).
+    induction (commax X x s). induction (commax X 0 (x + s)).
     apply idpath.
   }
   exact (isl ,, weqlinvrinv (@op (abgrdiffcarrier X)) (commax (abgrdiffcarrier X))
@@ -430,12 +430,12 @@ Proof.
   intros.
   apply (weqsetquotweq (eqrelabgrdiff X)
                        (eqrelabmonoidfrac X (totalsubmonoid X)) (weqabgrdiffint X)).
-  - simpl. intros x x'. destruct x as [ x1 x2 ]. destruct x' as [ x1' x2' ].
-    simpl in *. apply hinhfun. intro tt0. destruct tt0 as [ xx0 is0 ].
-    split with (make_carrier (λ x : X, htrue) xx0 tt). apply is0.
-  - simpl. intros x x'. destruct x as [ x1 x2 ]. destruct x' as [ x1' x2' ].
-    simpl in *. apply hinhfun. intro tt0. destruct tt0 as [ xx0 is0 ].
-    split with (pr1 xx0). apply is0.
+  - simpl. intros x x'. induction x as [ x1 x2 ]. induction x' as [ x1' x2' ].
+    simpl in *. apply hinhfun. intro tt0. induction tt0 as [ xx0 is0 ].
+    exists (make_carrier (λ x : X, htrue) xx0 tt). apply is0.
+  - simpl. intros x x'. induction x as [ x1 x2 ]. induction x' as [ x1' x2' ].
+    simpl in *. apply hinhfun. intro tt0. induction tt0 as [ xx0 is0 ].
+    exists (pr1 xx0). apply is0.
 Defined.
 
 
@@ -498,8 +498,8 @@ Lemma logeqabgrdiffrelints (X : abmonoid) (L : hrel X) :
 Proof.
   split. unfold abgrdiffrelint. unfold abgrdiffrelint'.
   simpl. apply hinhfun. intro t2. set (a0 := pr1 (pr1 t2)).
-  split with a0. apply (pr2 t2). simpl. apply hinhfun.
-  intro t2. set (x0 := pr1 t2). split with (x0 ,, tt). apply (pr2 t2).
+  exists a0. apply (pr2 t2). simpl. apply hinhfun.
+  intro t2. set (x0 := pr1 t2). exists (x0 ,, tt). apply (pr2 t2).
 Defined.
 
 Lemma iscomprelabgrdiffrelint (X : abmonoid) {L : hrel X} (is : isbinophrel L) :
@@ -582,7 +582,7 @@ Lemma isreflabgrdiffrelint (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl
   isrefl (abgrdiffrelint X L).
 Proof.
   intro xa. unfold abgrdiffrelint. simpl.
-  apply hinhpr. split with (unel X). apply (isl _).
+  apply hinhpr. exists (unel X). apply (isl _).
 Defined.
 
 Lemma isreflabgrdiffrel (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : isrefl L) :
@@ -596,7 +596,7 @@ Defined.
 Lemma ispoabgrdiffrelint (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : ispreorder L) :
   ispreorder (abgrdiffrelint X L).
 Proof.
-  split with (istransabgrdiffrelint X is (pr1 isl)).
+  exists (istransabgrdiffrelint X is (pr1 isl)).
   apply (isreflabgrdiffrelint X is (pr2 isl)).
 Defined.
 
@@ -611,7 +611,7 @@ Defined.
 Lemma iseqrelabgrdiffrelint (X : abmonoid) {L : hrel X} (is : isbinophrel L) (isl : iseqrel L) :
   iseqrel (abgrdiffrelint X L).
 Proof.
-  split with (ispoabgrdiffrelint X is (pr1 isl)).
+  exists (ispoabgrdiffrelint X is (pr1 isl)).
   apply (issymmabgrdiffrelint X is (pr2 isl)).
 Defined.
 
@@ -708,7 +708,7 @@ Lemma abgrdiffrelimpl (X : abmonoid) {L L' : hrel X} (is : isbinophrel L) (is' :
   abgrdiffrel X is' x x'.
 Proof.
   generalize ql. refine (quotrelimpl _ _ _ _ _).
-  intros x0 x0'. simpl. apply hinhfun. intro t2. split with (pr1 t2).
+  intros x0 x0'. simpl. apply hinhfun. intro t2. exists (pr1 t2).
   apply (impl _ _ (pr2 t2)).
 Qed.
 
@@ -717,9 +717,9 @@ Lemma abgrdiffrellogeq (X : abmonoid) {L L' : hrel X} (is : isbinophrel L) (is' 
   (abgrdiffrel X is x x') <-> (abgrdiffrel X is' x x').
 Proof.
   refine (quotrellogeq _ _ _ _ _). intros x0 x0'. split.
-  - simpl. apply hinhfun. intro t2. split with (pr1 t2).
+  - simpl. apply hinhfun. intro t2. exists (pr1 t2).
     apply (pr1 (lg _ _) (pr2 t2)).
-  - simpl. apply hinhfun. intro t2. split with (pr1 t2).
+  - simpl. apply hinhfun. intro t2. exists (pr1 t2).
     apply (pr2 (lg _ _) (pr2 t2)).
 Qed.
 
@@ -750,12 +750,12 @@ Proof.
   set (x1 := pr1 xa1). set (a1 := pr2 xa1).
   set (x2 := pr1 xa2). set (a2 := pr2 xa2).
   assert (int : coprod (L (x1 + a2) (x2 + a1)) (neg (L (x1 + a2) (x2 + a1)))) by apply (isl _ _).
-  destruct int as [ l | nl ].
-  - apply ii1. unfold abgrdiffrelint. apply hinhpr. split with 0.
+  induction int as [ l | nl ].
+  - apply ii1. unfold abgrdiffrelint. apply hinhpr. exists 0.
     rewrite (runax X _). rewrite (runax X _). apply l.
   - apply ii2. generalize nl. clear nl. apply negf. unfold abgrdiffrelint.
     simpl. apply (@hinhuniv _ (make_hProp _ (pr2 (L _ _)))).
-    intro t2l. destruct t2l as [ c0a l ]. simpl. apply ((pr2 is) _ _ c0a l).
+    intro t2l. induction t2l as [ c0a l ]. simpl. apply ((pr2 is) _ _ c0a l).
 Defined.
 
 Definition isdecabgrdiffrel (X : abmonoid) {L : hrel X} (is : isbinophrel L)
@@ -775,7 +775,7 @@ Proof.
   unfold iscomprelrelfun.
   intros x x' l.
   change (abgrdiffrelint X L (x ,, 0) (x' ,, 0)).
-  simpl. apply (hinhpr). split with (unel X).
+  simpl. apply (hinhpr). exists (unel X).
   apply ((pr2 is) _ _ 0). apply ((pr2 is) _ _ 0).
   apply l.
 Qed.
