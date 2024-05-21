@@ -60,7 +60,7 @@ Section DualityInvolutionEnriched.
     use make_pstrans_data.
     - refine (λ (E : enriched_cat V), _).
       use make_enriched_functor.
-      + exact (functor_identity _).
+      + exact (functor_identity E).
       + exact (op_enriched_unit V E).
     - refine (λ (E₁ E₂ : enriched_cat V) (F : enriched_functor _ _), _).
       use make_invertible_2cell.
@@ -115,7 +115,7 @@ Section DualityInvolutionEnriched.
     use make_pstrans_data.
     - refine (λ (E : enriched_cat V), _).
       use make_enriched_functor.
-      + exact (functor_identity _).
+      + exact (functor_identity E).
       + exact (op_enriched_unit_inv V E).
     - refine (λ (E₁ E₂ : enriched_cat V) (F : enriched_functor _ _), _).
       use make_invertible_2cell.
@@ -240,7 +240,7 @@ Section DualityInvolutionEnriched.
              (E : enriched_cat V)
     : invertible_2cell
         (bicat_of_enriched_cat_duality_unit (op_enriched_psfunctor V E))
-        (# (op_enriched_psfunctor V) (bicat_of_enriched_cat_duality_unit E)).
+        (# (op_enriched_psfunctor V) (bicat_of_enriched_cat_duality_unit E : E --> _)).
   Proof.
     use make_invertible_2cell.
     - use make_enriched_nat_trans.
@@ -268,7 +268,7 @@ Section DualityInvolutionEnriched.
     - intro E.
       use eq_enriched_nat_trans.
       intro x ; cbn.
-      apply id_left.
+      exact (id_left (identity x)).
     - intros E₁ E₂ F.
       use eq_enriched_nat_trans.
       intro x ; cbn.

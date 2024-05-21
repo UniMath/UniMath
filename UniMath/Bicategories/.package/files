@@ -249,6 +249,7 @@ DoubleCategories/Examples/SquareDoubleBicat.v
 DoubleCategories/Examples/MateDoubleBicat.v
 DoubleCategories/Examples/DoubleCatToDoubleBicat.v
 DoubleCategories/Examples/ProfunctorDoubleBicat.v
+DoubleCategories/Examples/EnrichedProfunctorDoubleBicat.v
 
 DisplayedBicats/Examples/MonadsLax.v
 DisplayedBicats/Examples/DispBicatOnCatToUniv.v

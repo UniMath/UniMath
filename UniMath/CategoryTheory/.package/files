@@ -489,10 +489,16 @@ EnrichedCats/Profunctors/Invertible.v
 EnrichedCats/Profunctors/Coend.v
 
 EnrichedCats/Profunctors/Composition/CompositionProf.v
+EnrichedCats/Profunctors/Composition/SquareComp.v
 EnrichedCats/Profunctors/Composition/Unitors.v
 EnrichedCats/Profunctors/Composition/Associators.v
 EnrichedCats/Profunctors/Composition/Whiskering.v
+EnrichedCats/Profunctors/Composition/BicatLaws.v
+EnrichedCats/Profunctors/Composition/WhiskerLaws.v
+EnrichedCats/Profunctors/Composition/OtherLaws.v
 EnrichedCats/Profunctors/Composition.v
+
+EnrichedCats/Profunctors/RepresentableLaws.v
 
 EnrichedCats/Examples/EmptyEnriched.v
 EnrichedCats/Examples/UnitEnriched.v

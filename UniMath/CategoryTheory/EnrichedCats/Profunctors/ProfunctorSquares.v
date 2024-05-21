@@ -15,8 +15,8 @@
  4.1. Horizontal identity square
  4.2. Vertical identity square
  4.3. Horizontal composition of squares
- 4.4. Down whiskering
- 4.5. Up whiskering
+ 4.4. Up whiskering
+ 4.5. Down whiskering
  4.6. Left whiskering
  4.7. Right whiskering
  4.8. Companion pairs
@@ -263,6 +263,90 @@ Proof.
        apply idpath).
 Defined.
 
+Section SquareToTransformation.
+  Context {V : sym_mon_closed_cat}
+          {C₁ C₂ : category}
+          {F G : C₁ ⟶ C₂}
+          {E₁ : enrichment C₁ V}
+          {E₂ : enrichment C₂ V}
+          {EF : functor_enrichment F E₁ E₂}
+          {EG : functor_enrichment G E₁ E₂}
+          (τ : enriched_profunctor_square
+                 EF EG
+                 (identity_enriched_profunctor E₁)
+                 (identity_enriched_profunctor E₂)).
+
+  Definition square_to_enriched_nat_trans_data
+    : nat_trans_data G F
+    := λ x, enriched_to_arr E₂ (enriched_id E₁ x · τ x x).
+
+  Proposition square_to_enriched_nat_trans_enrichment
+    : nat_trans_enrichment
+        square_to_enriched_nat_trans_data
+        EG
+        EF.
+  Proof.
+    use nat_trans_enrichment_via_comp.
+    intros x y.
+    unfold square_to_enriched_nat_trans_data.
+    unfold precomp_arr, postcomp_arr.
+    rewrite !enriched_from_to_arr.
+    rewrite !assoc.
+    rewrite tensor_rinvunitor.
+    rewrite tensor_linvunitor.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_split'.
+      rewrite tensor_comp_l_id_l.
+      rewrite !assoc'.
+      apply maponpaths.
+      exact (enriched_profunctor_square_rmap_e τ x x y).
+    }
+    cbn.
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_split.
+      rewrite tensor_comp_r_id_l.
+      rewrite !assoc'.
+      apply maponpaths.
+      pose (enriched_profunctor_square_lmap_e τ y x y) as p.
+      cbn in p.
+      rewrite !assoc in p.
+      rewrite tensor_sym_mon_braiding in p.
+      pose (maponpaths (λ z, sym_mon_braiding _ _ _ · z) p) as q.
+      cbn in q.
+      rewrite !assoc in q.
+      rewrite !sym_mon_braiding_inv in q.
+      rewrite !id_left in q.
+      exact q.
+    }
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite !assoc'.
+    rewrite <- enrichment_id_left.
+    rewrite <- enrichment_id_right.
+    rewrite mon_linvunitor_lunitor.
+    rewrite mon_rinvunitor_runitor.
+    apply idpath.
+  Qed.
+
+  Definition square_to_enriched_nat_trans
+    : G ⟹ F.
+  Proof.
+    use make_nat_trans.
+    - exact square_to_enriched_nat_trans_data.
+    - exact (is_nat_trans_from_enrichment square_to_enriched_nat_trans_enrichment).
+  Defined.
+End SquareToTransformation.
+
+Arguments square_to_enriched_nat_trans_data {V C₁ C₂ F G E₁ E₂ EF EG} τ /.
+
 (** * 4. Examples of squares of enriched profunctors *)
 
 (** ** 4.1. Horizontal identity square *)
@@ -497,8 +581,8 @@ Proof.
   - exact (comp_h_enriched_profunctor_square_laws τ θ).
 Defined.
 
-(** * 4.4. Down whiskering *)
-Definition dwhisker_enriched_profunctor_square_data
+(** * 4.4. Up whiskering *)
+Definition uwhisker_enriched_profunctor_square_data
            {V : sym_mon_closed_cat}
            {C₁ C₂ C₁' C₂' : category}
            {EC₁ : enrichment C₁ V}
@@ -524,7 +608,7 @@ Definition dwhisker_enriched_profunctor_square_data
      · (enriched_from_arr EC₂ (τ y) #⊗ identity _)
      · rmap_e Q (G x) (F y) (F' y).
 
-Arguments dwhisker_enriched_profunctor_square_data
+Arguments uwhisker_enriched_profunctor_square_data
   {V
    C₁ C₂ C₁' C₂'
    EC₁ EC₂ EC₁' EC₂'
@@ -535,7 +619,7 @@ Arguments dwhisker_enriched_profunctor_square_data
    P Q}
   Eτ θ /.
 
-Proposition dwhisker_enriched_profunctor_square_laws
+Proposition uwhisker_enriched_profunctor_square_laws
             {V : sym_mon_closed_cat}
             {C₁ C₂ C₁' C₂' : category}
             {EC₁ : enrichment C₁ V}
@@ -553,7 +637,7 @@ Proposition dwhisker_enriched_profunctor_square_laws
             (Eτ : nat_trans_enrichment τ EF EF')
             (θ : enriched_profunctor_square EF EG P Q)
   : enriched_profunctor_transformation_laws
-      (dwhisker_enriched_profunctor_square_data Eτ θ).
+      (uwhisker_enriched_profunctor_square_data Eτ θ).
 Proof.
   split.
   - intros x₁ x₂ y ; cbn.
@@ -744,7 +828,7 @@ Proof.
     apply id_right.
 Qed.
 
-Definition dwhisker_enriched_profunctor_square
+Definition uwhisker_enriched_profunctor_square
            {V : sym_mon_closed_cat}
            {C₁ C₂ C₁' C₂' : category}
            {EC₁ : enrichment C₁ V}
@@ -764,12 +848,12 @@ Definition dwhisker_enriched_profunctor_square
   : enriched_profunctor_square EF' EG P Q.
 Proof.
   use make_enriched_profunctor_transformation.
-  - exact (dwhisker_enriched_profunctor_square_data Eτ θ).
-  - exact (dwhisker_enriched_profunctor_square_laws Eτ θ).
+  - exact (uwhisker_enriched_profunctor_square_data Eτ θ).
+  - exact (uwhisker_enriched_profunctor_square_laws Eτ θ).
 Defined.
 
-(** * 4.5. Up whiskering *)
-Definition uwhisker_enriched_profunctor_square_data
+(** * 4.5. Down whiskering *)
+Definition dwhisker_enriched_profunctor_square_data
            {V : sym_mon_closed_cat}
            {C₁ C₂ C₁' C₂' : category}
            {EC₁ : enrichment C₁ V}
@@ -795,7 +879,7 @@ Definition uwhisker_enriched_profunctor_square_data
      · (enriched_from_arr EC₂' (τ x) #⊗ identity _)
      · lmap_e Q (G' x) (G x) (F y).
 
-Arguments uwhisker_enriched_profunctor_square_data
+Arguments dwhisker_enriched_profunctor_square_data
   {V
    C₁ C₂ C₁' C₂'
    EC₁ EC₂ EC₁' EC₂'
@@ -806,7 +890,7 @@ Arguments uwhisker_enriched_profunctor_square_data
    P Q}
   Eτ θ /.
 
-Proposition uwhisker_enriched_profunctor_square_laws
+Proposition dwhisker_enriched_profunctor_square_laws
             {V : sym_mon_closed_cat}
             {C₁ C₂ C₁' C₂' : category}
             {EC₁ : enrichment C₁ V}
@@ -824,7 +908,7 @@ Proposition uwhisker_enriched_profunctor_square_laws
             (Eτ : nat_trans_enrichment τ EG EG')
             (θ : enriched_profunctor_square EF EG' P Q)
   : enriched_profunctor_transformation_laws
-      (uwhisker_enriched_profunctor_square_data Eτ θ).
+      (dwhisker_enriched_profunctor_square_data Eτ θ).
 Proof.
   split.
   - intros x₁ x₂ y ; cbn.
@@ -1042,7 +1126,7 @@ Proof.
     apply idpath.
 Qed.
 
-Definition uwhisker_enriched_profunctor_square
+Definition dwhisker_enriched_profunctor_square
            {V : sym_mon_closed_cat}
            {C₁ C₂ C₁' C₂' : category}
            {EC₁ : enrichment C₁ V}
@@ -1062,8 +1146,8 @@ Definition uwhisker_enriched_profunctor_square
   : enriched_profunctor_square EF EG P Q.
 Proof.
   use make_enriched_profunctor_transformation.
-  - exact (uwhisker_enriched_profunctor_square_data Eτ θ).
-  - exact (uwhisker_enriched_profunctor_square_laws Eτ θ).
+  - exact (dwhisker_enriched_profunctor_square_data Eτ θ).
+  - exact (dwhisker_enriched_profunctor_square_laws Eτ θ).
 Defined.
 
 (** * 4.6. Left whiskering *)
