@@ -214,6 +214,7 @@ DoubleCategories/Examples/DoubleCatOnDispCat.v
 DoubleCategories/Examples/FullSubDoubleCat.v
 DoubleCategories/Examples/OpDoubleCat.v
 DoubleCategories/Examples/RelationsDoubleCat.v
+DoubleCategories/Examples/EnrichedRelDoubleCat.v
 DoubleCategories/Examples/SquareDoubleCat.v
 DoubleCategories/Examples/SquareDoubleCatTwo.v
 DoubleCategories/Examples/Coreflections.v
