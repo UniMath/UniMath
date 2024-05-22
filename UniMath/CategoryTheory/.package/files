@@ -162,6 +162,7 @@ coslicecat.v
 catiso.v
 DisplayedCats/CatIsoDisplayed.v
 CategoryEquality.v
+Core/PosetCat.v
 WeakEquivalences.v
 rezk_completion.v
 RezkCompletion.v
@@ -463,6 +464,7 @@ EnrichedCats/Colimits/EnrichedColimits.v
 EnrichedCats/Colimits/CopowerFunctor.v
 
 EnrichedCats/Examples/SetEnriched.v
+EnrichedCats/Examples/QuantaleEnriched.v
 EnrichedCats/Examples/PosetEnriched.v
 EnrichedCats/Examples/StructureEnriched.v
 EnrichedCats/Examples/SmashStructureEnriched.v
@@ -489,10 +491,16 @@ EnrichedCats/Profunctors/Invertible.v
 EnrichedCats/Profunctors/Coend.v
 
 EnrichedCats/Profunctors/Composition/CompositionProf.v
+EnrichedCats/Profunctors/Composition/SquareComp.v
 EnrichedCats/Profunctors/Composition/Unitors.v
 EnrichedCats/Profunctors/Composition/Associators.v
 EnrichedCats/Profunctors/Composition/Whiskering.v
+EnrichedCats/Profunctors/Composition/BicatLaws.v
+EnrichedCats/Profunctors/Composition/WhiskerLaws.v
+EnrichedCats/Profunctors/Composition/OtherLaws.v
 EnrichedCats/Profunctors/Composition.v
+
+EnrichedCats/Profunctors/RepresentableLaws.v
 
 EnrichedCats/Examples/EmptyEnriched.v
 EnrichedCats/Examples/UnitEnriched.v

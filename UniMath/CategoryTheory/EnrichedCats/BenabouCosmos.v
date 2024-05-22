@@ -25,17 +25,25 @@
 
  A Benabou cosmos collects each of these assumptions and combines it all into one notion.
 
+ We also define the notion of quantales. Essentially, a quantale is given by a Benabou cosmos
+ that is also a posetal category (see, e.g., Section 2.1 in "A point-free perspective on lax
+ extensions and predicate liftings"). Note that in this file, we define commutative quantales.
+
  References
  - "Elementary Cosmos I" by Street
+ - "A point-free perspective on lax extensions and predicate liftings" by Goncharov, Hofmann,
+   Nora, Schröder and Wild
 
  Contents
  1. Benabou cosmos
  2. Accessors
+ 3. Quantales
 
  ******************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Core.PosetCat.
 Require Import UniMath.CategoryTheory.Limits.Coends.
 Require Import UniMath.CategoryTheory.Limits.Coproducts.
 Require Import UniMath.CategoryTheory.Limits.Coequalizers.
@@ -105,3 +113,40 @@ Proof.
 Defined.
 
 #[global] Opaque benabou_cosmos_coends.
+
+(** * 3. Quantales *)
+Definition quantale_cosmos
+  : UU
+  := ∑ (V : benabou_cosmos)
+       (HV : is_univalent V),
+     is_poset_category (_ ,, HV).
+
+Coercion quantale_cosmos_to_benabou_cosmos
+         (V : quantale_cosmos)
+  : benabou_cosmos.
+Proof.
+  exact (pr1 V).
+Defined.
+
+Proposition is_univalent_quantale_cosmos
+            (V : quantale_cosmos)
+  : is_univalent V.
+Proof.
+  exact (pr12 V).
+Defined.
+
+Definition univalent_category_of_quantale_cosmos
+           (V : quantale_cosmos)
+  : univalent_category.
+Proof.
+  use make_univalent_category.
+  - exact V.
+  - exact (is_univalent_quantale_cosmos V).
+Defined.
+
+Proposition is_poset_category_quantale_cosmos
+            (V : quantale_cosmos)
+  : is_poset_category (_ ,, is_univalent_quantale_cosmos V).
+Proof.
+  exact (pr22 V).
+Defined.

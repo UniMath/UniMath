@@ -192,6 +192,21 @@ Proof.
   exact (p x y).
 Qed.
 
+Proposition from_eq_enriched_profunctor_transformation
+            {V : sym_mon_closed_cat}
+            {C₁ C₂ : category}
+            {E₁ : enrichment C₁ V}
+            {E₂ : enrichment C₂ V}
+            {P Q : E₁ ↛e E₂}
+            {τ θ : enriched_profunctor_transformation P Q}
+            (p : τ = θ)
+            (x : C₂)
+            (y : C₁)
+  : τ x y = θ x y.
+Proof.
+  exact (maponpaths (λ z, pr1 z x y) p).
+Qed.
+
 (** * 2. Equivalence with the usual definition *)
 Definition enriched_profunctor_transformation_to_whiskered_data
            {V : sym_mon_closed_cat}
