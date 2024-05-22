@@ -23,11 +23,14 @@
  enrichment given in `Enrichment.v` represents the fibers of the
  underlying category pseudofunctor.
 
+ We also define the category of quantale enriched categories.
+
  Contents
  1. The displayed bicategory
  2. Local univalence
  3. Global univalence
  4. Accessors for the bicategory of enriched categories
+ 5. The category of quantale enriched categories
 
  *****************************************************************)
 Require Import UniMath.Foundations.All.
@@ -39,15 +42,20 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
+Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
+Require Import UniMath.CategoryTheory.EnrichedCats.BenabouCosmos.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
+Require Import UniMath.CategoryTheory.EnrichedCats.Examples.QuantaleEnriched.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
+Require Import UniMath.Bicategories.Core.Discreteness.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
@@ -1114,3 +1122,47 @@ Arguments make_enriched_functor {V E₁ E₂} F EF.
 Arguments enriched_nat_trans {V E₁ E₂} F G.
 Arguments make_enriched_nat_trans {V E₁ E₂ F G} τ Eτ.
 Arguments from_eq_enriched_nat_trans {V E₁ E₂ F G τ₁ τ₂} p x.
+
+(** * 5. The category of quantale enriched categories *)
+Section CatQuantaleEnrichedCat.
+  Context (V : quantale_cosmos).
+
+  Definition is_locally_posetal_bicat_quantale_enriched_cat
+    : is_locally_posetal_bicat (bicat_of_enriched_cats V).
+  Proof.
+    split.
+    - exact (is_univalent_2_1_bicat_of_enriched_cats V).
+    - intros E₁ E₂ F G τ θ.
+      use subtypePath.
+      {
+        intro.
+        apply isaprop_nat_trans_enrichment.
+      }
+      use (nat_trans_eq_quantale_enrichment V).
+      apply E₂.
+  Qed.
+
+  Definition cat_of_quantale_enriched_cat
+    : category.
+  Proof.
+    use locally_posetal_bicat_to_category.
+    - exact (bicat_of_enriched_cats V).
+    - exact is_locally_posetal_bicat_quantale_enriched_cat.
+  Defined.
+
+  Proposition is_univalent_cat_of_quantale_enriched_cat
+    : is_univalent cat_of_quantale_enriched_cat.
+  Proof.
+    use locally_posetal_bicat_to_category_is_univalent.
+    use is_univalent_2_0_bicat_of_enriched_cats.
+    apply is_univalent_quantale_cosmos.
+  Qed.
+
+  Definition univalent_cat_of_quantale_enriched_cat
+    : univalent_category.
+  Proof.
+    use make_univalent_category.
+    - exact cat_of_quantale_enriched_cat.
+    - exact is_univalent_cat_of_quantale_enriched_cat.
+  Defined.
+End CatQuantaleEnrichedCat.

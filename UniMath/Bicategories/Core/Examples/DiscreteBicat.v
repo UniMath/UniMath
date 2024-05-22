@@ -139,7 +139,7 @@ Section CatToBicat.
               (HC : is_univalent C)
     : is_univalent_2_0 cat_to_bicat.
   Proof.
-    use discrete_bicat_univalent_2_0.
+    use locally_posetal_bicat_univalent_2_0.
     - exact is_discrete_cat_to_bicat.
     - refine (transportf is_univalent _ HC).
       use category_eq.

@@ -36,12 +36,27 @@ Definition is_discrete_bicat
      ×
      isaprop_2cells B.
 
+Definition is_locally_posetal_bicat
+           (B : bicat)
+  : UU
+  := is_univalent_2_1 B
+     ×
+     isaprop_2cells B.
+
+Coercion discrete_to_locally_posetal
+         {B : bicat}
+         (HB : is_discrete_bicat B)
+  : is_locally_posetal_bicat B.
+Proof.
+  exact (pr1 HB ,, pr22 HB).
+Defined.
+
 (**
  Category from a discrete bicategory
  *)
-Definition discrete_bicat_to_precategory_data
+Definition locally_posetal_bicat_to_precategory_data
            {B : bicat}
-           (HB : is_discrete_bicat B)
+           (HB : is_locally_posetal_bicat B)
   : precategory_data.
 Proof.
   use make_precategory_data.
@@ -52,10 +67,10 @@ Proof.
   - exact (λ x y z f g, f · g).
 Defined.
 
-Definition discrete_bicat_is_precategory
+Definition locally_posetal_bicat_is_precategory
            {B : bicat}
-           (HB : is_discrete_bicat B)
-  : is_precategory (discrete_bicat_to_precategory_data HB).
+           (HB : is_locally_posetal_bicat B)
+  : is_precategory (locally_posetal_bicat_to_precategory_data HB).
 Proof.
   use make_is_precategory.
   - intros x y f.
@@ -72,19 +87,19 @@ Proof.
     apply rassociator_invertible_2cell.
 Qed.
 
-Definition discrete_bicat_to_precategory
+Definition locally_posetal_bicat_to_precategory
            {B : bicat}
-           (HB : is_discrete_bicat B)
+           (HB : is_locally_posetal_bicat B)
   : precategory.
 Proof.
   use make_precategory.
-  - exact (discrete_bicat_to_precategory_data HB).
-  - exact (discrete_bicat_is_precategory HB).
+  - exact (locally_posetal_bicat_to_precategory_data HB).
+  - exact (locally_posetal_bicat_is_precategory HB).
 Defined.
 
-Definition discrete_bicat_locally_set
+Definition locally_posetal_bicat_locally_set
            {B : bicat}
-           (HB : is_discrete_bicat B)
+           (HB : is_locally_posetal_bicat B)
            (x y : B)
   : isaset (x --> y).
 Proof.
@@ -100,26 +115,26 @@ Proof.
   apply HB.
 Qed.
 
-Definition discrete_bicat_to_category
+Definition locally_posetal_bicat_to_category
            {B : bicat}
-           (HB : is_discrete_bicat B)
+           (HB : is_locally_posetal_bicat B)
   : category.
 Proof.
   use make_category.
-  - exact (discrete_bicat_to_precategory HB).
-  - exact (discrete_bicat_locally_set HB).
+  - exact (locally_posetal_bicat_to_precategory HB).
+  - exact (locally_posetal_bicat_locally_set HB).
 Defined.
 
 (**
  Adjoint equivalences in discrete bicategories
  *)
-Definition discrete_left_adj_equiv_to_z_iso
+Definition locally_posetal_left_adj_equiv_to_z_iso
            {B : bicat}
-           (HB : is_discrete_bicat B)
+           (HB : is_locally_posetal_bicat B)
            {x y : B}
            {f : x --> y}
            (Hf : left_adjoint_equivalence f)
-  : @is_z_isomorphism (discrete_bicat_to_category HB) x y f.
+  : @is_z_isomorphism (locally_posetal_bicat_to_category HB) x y f.
 Proof.
   exists (left_adjoint_right_adjoint Hf).
   split.
@@ -131,12 +146,12 @@ Proof.
        exact (left_equivalence_counit_iso Hf)).
 Defined.
 
-Definition z_iso_to_discrete_left_adj_equiv
+Definition z_iso_to_locally_posetal_left_adj_equiv
            {B : bicat}
-           (HB : is_discrete_bicat B)
+           (HB : is_locally_posetal_bicat B)
            {x y : B}
            {f : x --> y}
-           (Hf : @is_z_isomorphism (discrete_bicat_to_category HB) x y f)
+           (Hf : @is_z_isomorphism (locally_posetal_bicat_to_category HB) x y f)
   : left_adjoint_equivalence f.
 Proof.
   simple refine ((_ ,, (_ ,, _)) ,, ((_ ,, _) ,, (_ ,, _))).
@@ -150,20 +165,31 @@ Proof.
        exact (z_iso_after_z_iso_inv (make_z_iso' _ Hf))).
   - apply HB.
   - apply HB.
-  - apply HB.
-  - apply HB.
+  - use make_is_invertible_2cell.
+    + abstract
+        (apply idtoiso_2_1 ;
+         exact (z_iso_inv_after_z_iso (make_z_iso' _ Hf))).
+    + apply HB.
+    + apply HB.
+  - use make_is_invertible_2cell.
+    + abstract
+        (apply idtoiso_2_1 ;
+         refine (!_) ;
+         exact (z_iso_after_z_iso_inv (make_z_iso' _ Hf))).
+    + apply HB.
+    + apply HB.
 Defined.
 
-Definition discrete_left_adj_equiv_weq_z_iso
+Definition locally_posetal_left_adj_equiv_weq_z_iso
            {B : bicat}
-           (HB : is_discrete_bicat B)
+           (HB : is_locally_posetal_bicat B)
            (x y : B)
-  : @z_iso (discrete_bicat_to_category HB) x y ≃ adjoint_equivalence x y.
+  : @z_iso (locally_posetal_bicat_to_category HB) x y ≃ adjoint_equivalence x y.
 Proof.
   use make_weq.
-  - exact (λ f, _ ,, z_iso_to_discrete_left_adj_equiv HB (pr2 f)).
+  - exact (λ f, _ ,, z_iso_to_locally_posetal_left_adj_equiv HB (pr2 f)).
   - use isweq_iso.
-    + exact (λ f, make_z_iso' _ (discrete_left_adj_equiv_to_z_iso HB f)).
+    + exact (λ f, make_z_iso' _ (locally_posetal_left_adj_equiv_to_z_iso HB f)).
     + abstract
         (intro Hf ;
          use subtypePath ; [ intro ; apply isaprop_is_z_isomorphism | ] ;
@@ -178,15 +204,15 @@ Proof.
          apply idpath).
 Defined.
 
-Definition discrete_bicat_univalent_2_0
+Definition locally_posetal_bicat_univalent_2_0
            {B : bicat}
-           (HB : is_discrete_bicat B)
-           (H : is_univalent (discrete_bicat_to_category HB))
+           (HB : is_locally_posetal_bicat B)
+           (H : is_univalent (locally_posetal_bicat_to_category HB))
   : is_univalent_2_0 B.
 Proof.
   intros x y.
   use weqhomot.
-  - exact (discrete_left_adj_equiv_weq_z_iso HB x y ∘ make_weq _ (H x y))%weq.
+  - exact (locally_posetal_left_adj_equiv_weq_z_iso HB x y ∘ make_weq _ (H x y))%weq.
   - abstract
       (intro p ;
        induction p ;
@@ -198,15 +224,15 @@ Proof.
        apply idpath).
 Defined.
 
-Definition discrete_bicat_to_category_is_univalent
+Definition locally_posetal_bicat_to_category_is_univalent
            {B : bicat}
-           (HB : is_discrete_bicat B)
+           (HB : is_locally_posetal_bicat B)
            (H : is_univalent_2_0 B)
-  : is_univalent (discrete_bicat_to_category HB).
+  : is_univalent (locally_posetal_bicat_to_category HB).
 Proof.
   intros x y.
   use weqhomot.
-  - exact (invweq (discrete_left_adj_equiv_weq_z_iso HB x y) ∘ make_weq _ (H x y))%weq.
+  - exact (invweq (locally_posetal_left_adj_equiv_weq_z_iso HB x y) ∘ make_weq _ (H x y))%weq.
   - abstract
       (intro p ;
        induction p ;
@@ -217,14 +243,14 @@ Proof.
        apply idpath).
 Defined.
 
-Definition discrete_bicat_weq_univalence
+Definition locally_posetal_bicat_weq_univalence
            {B : bicat}
-           (HB : is_discrete_bicat B)
-  : is_univalent_2_0 B ≃ is_univalent (discrete_bicat_to_category HB).
+           (HB : is_locally_posetal_bicat B)
+  : is_univalent_2_0 B ≃ is_univalent (locally_posetal_bicat_to_category HB).
 Proof.
   use weqimplimpl.
-  - exact (discrete_bicat_to_category_is_univalent HB).
-  - exact (discrete_bicat_univalent_2_0 HB).
+  - exact (locally_posetal_bicat_to_category_is_univalent HB).
+  - exact (locally_posetal_bicat_univalent_2_0 HB).
   - apply isaprop_is_univalent_2_0.
   - apply isaprop_is_univalent.
 Defined.

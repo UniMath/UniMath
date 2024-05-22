@@ -789,7 +789,7 @@ Section Enriched.
         (refine (_ @ representable_enriched_profunctor_left_right_eq _) ;
          use eq_enriched_profunctor_transformation ; intros z x ;
          apply idpath).
-  Qed.
+  Defined.
 
   Definition all_conjoints_enriched_cat_profunctor_verity_double_bicat
     : all_conjoints enriched_profunctor_verity_double_bicat.
@@ -806,7 +806,7 @@ Section Enriched.
         (refine (_ @ representable_enriched_profunctor_right_right_eq _) ;
          use eq_enriched_profunctor_transformation ; intros z x ;
          apply idpath).
-  Qed.
+  Defined.
 
   (** * 8. Vertical invertible 2-cells of enriched profunctors *)
   Definition enriched_profunctor_nat_iso_weq_vertible_invertible_2cell

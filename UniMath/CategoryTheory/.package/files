@@ -162,6 +162,7 @@ coslicecat.v
 catiso.v
 DisplayedCats/CatIsoDisplayed.v
 CategoryEquality.v
+Core/PosetCat.v
 WeakEquivalences.v
 rezk_completion.v
 RezkCompletion.v
@@ -463,6 +464,7 @@ EnrichedCats/Colimits/EnrichedColimits.v
 EnrichedCats/Colimits/CopowerFunctor.v
 
 EnrichedCats/Examples/SetEnriched.v
+EnrichedCats/Examples/QuantaleEnriched.v
 EnrichedCats/Examples/PosetEnriched.v
 EnrichedCats/Examples/StructureEnriched.v
 EnrichedCats/Examples/SmashStructureEnriched.v
