@@ -978,6 +978,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DoubleCategories/Examples/BiSetcatToDoubleCat.v](Bicategories/DoubleCategories/Examples/BiSetcatToDoubleCat.v)
    - [DoubleCategories/Examples/ProfunctorDoubleCat.v](Bicategories/DoubleCategories/Examples/ProfunctorDoubleCat.v)
    - [DoubleCategories/Examples/EnrichedProfunctorDoubleCat.v](Bicategories/DoubleCategories/Examples/EnrichedProfunctorDoubleCat.v)
+   - [DoubleCategories/Examples/Coalgebras.v](Bicategories/DoubleCategories/Examples/Coalgebras.v)
    - [DoubleCategories/AlternativeDefinitions/DoubleCatsUnfolded.v](Bicategories/DoubleCategories/AlternativeDefinitions/DoubleCatsUnfolded.v)
    - [DoubleCategories/AlternativeDefinitions/DoubleCatsEquivalentDefinitions.v](Bicategories/DoubleCategories/AlternativeDefinitions/DoubleCatsEquivalentDefinitions.v)
    - [DoubleCategories/DoubleBicat/VerityDoubleBicat.v](Bicategories/DoubleCategories/DoubleBicat/VerityDoubleBicat.v)

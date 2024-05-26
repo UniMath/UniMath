@@ -228,6 +228,7 @@ DoubleCategories/Examples/StructuredCospansDoubleFunctor.v
 DoubleCategories/Examples/BiSetcatToDoubleCat.v
 DoubleCategories/Examples/ProfunctorDoubleCat.v
 DoubleCategories/Examples/EnrichedProfunctorDoubleCat.v
+DoubleCategories/Examples/Coalgebras.v
 
 DoubleCategories/AlternativeDefinitions/DoubleCatsUnfolded.v
 DoubleCategories/AlternativeDefinitions/DoubleCatsEquivalentDefinitions.v

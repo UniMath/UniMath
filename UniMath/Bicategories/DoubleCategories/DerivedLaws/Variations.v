@@ -9,6 +9,7 @@
  Content
  1. Variations of the double category laws
  2. Laws involving identities and globular iso squares
+ 3. Variations of the laws of lax double functors
 
  ********************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -442,6 +443,86 @@ Proof.
   apply idpath.
 Qed.
 
+Proposition hcomp_vcomp_r_id_r
+            {C : double_cat}
+            {x₁ x₂ y₁ y₂ z₁ z₂ z₃ : C}
+            {u : x₁ -->v x₂}
+            {v : y₁ -->v y₂}
+            {w₁ : z₁ -->v z₂} {w₂ : z₂ -->v z₃}
+            {h₁ : x₁ -->h y₁}
+            {k₁ : y₁ -->h z₁}
+            {h₂ : x₂ -->h y₂}
+            {k₂ : y₂ -->h z₃}
+            {l : y₂ -->h z₂}
+            (s₁ : square u (v ·v identity_v _) h₁ h₂)
+            (s₂ : square v w₁ k₁ l)
+            (s₃ : square (identity_v _) w₂ l k₂)
+  : s₁ ⋆h (s₂ ⋆v s₃)
+    =
+    transportf_square
+      (id_right _)
+      (idpath _)
+      ((s₁ ⋆h transportf_square (!(id_right _)) (idpath _) s₂)
+       ⋆v
+       (id_v_square _ ⋆h s₃)).
+Proof.
+  etrans.
+  {
+    apply maponpaths_2.
+    refine (!_).
+    apply square_id_right_v'.
+  }
+  rewrite transportf_hcomp_l.
+  apply maponpaths.
+  rewrite <- comp_h_square_comp.
+  apply maponpaths.
+  rewrite transportf_square_prewhisker.
+  apply transportf_square_eq.
+  apply idpath.
+Qed.
+
+Proposition hcomp_vcomp_l_id_r
+            {C : double_cat}
+            {x₁ x₂ x₃ y₁ y₂ z₁ z₂ : C}
+            {u : x₁ -->v x₂} {u' : x₂ -->v x₃} {u'' : x₁ -->v x₃}
+            (p : u · u' = u'')
+            {v : y₁ -->v y₂}
+            (q' : v · identity_v y₂ = v)
+            {w : z₁ -->v z₂}
+            {h₁ : x₁ -->h y₁}
+            {h₂ : x₂ -->h y₂}
+            {h₃ : x₃ -->h y₂}
+            {k₁ : y₁ -->h z₁}
+            {k₂ : y₂ -->h z₂}
+            (s₁ : square u v h₁ h₂)
+            (s₂ : square u' (identity_v _) h₂ h₃)
+            (s₃ : square v w k₁ k₂)
+  : (transportf_square p q' (s₁ ⋆v s₂)) ⋆h s₃
+    =
+    transportf_square
+      p
+      (id_right _)
+      ((s₁ ⋆h s₃)
+       ⋆v
+       (s₂ ⋆h id_v_square _)).
+Proof.
+  induction p.
+  assert (id_right _ = q') as r.
+  {
+    apply homset_property.
+  }
+  induction r.
+  rewrite <- comp_h_square_comp.
+  rewrite square_id_right_v.
+  unfold transportb_square.
+  rewrite transportf_hcomp_r.
+  rewrite transportf_f_square.
+  rewrite transportf_square_id.
+  apply maponpaths_2.
+  apply transportf_square_eq.
+  apply idpath.
+Qed.
+
 (** * 2. Laws involving identities and globular iso squares *)
 Proposition path_to_globular_iso_square_id
             {C : univalent_double_cat}
@@ -525,3 +606,88 @@ Proof.
   - apply path_to_globular_iso_to_path.
   - apply globular_iso_to_path_to_iso.
 Defined.
+
+(** * 3. Variations of the laws of lax double functors *)
+Proposition lax_double_functor_id_h_mor'
+            {C₁ C₂ : univalent_double_cat}
+            (F : lax_double_functor C₁ C₂)
+            {x y : C₁}
+            (f : x -->v y)
+  : lax_double_functor_id_h F x ⋆v #s F (id_h_square f)
+    =
+    transportf_square
+      (id_v_right _ @ !(id_v_left _))
+      (id_v_right _ @ !(id_v_left _))
+      (id_h_square (#v F f) ⋆v lax_double_functor_id_h F y).
+Proof.
+  refine (!(transportfb_square _ _ _) @ maponpaths _ _).
+  exact (!(lax_double_functor_id_h_mor F f)).
+Qed.
+
+Proposition lax_double_functor_comp_h_mor'
+            {C₁ C₂ : univalent_double_cat}
+            (F : lax_double_functor C₁ C₂)
+            {x₁ x₂ y₁ y₂ z₁ z₂ : C₁}
+            {vx : x₁ -->v x₂}
+            {vy : y₁ -->v y₂}
+            {vz : z₁ -->v z₂}
+            {h₁ : x₁ -->h y₁} {h₂ : x₂ -->h y₂}
+            {k₁ : y₁ -->h z₁} {k₂ : y₂ -->h z₂}
+            (sh : square vx vy h₁ h₂)
+            (sk : square vy vz k₁ k₂)
+  : lax_double_functor_comp_h F h₁ k₁ ⋆v #s F (sh ⋆h sk)
+    =
+    transportf_square
+      (id_v_right _ @ !(id_v_left _))
+      (id_v_right _ @ !(id_v_left _))
+      ((#s F sh ⋆h #s F sk) ⋆v lax_double_functor_comp_h F h₂ k₂).
+Proof.
+  refine (!(transportfb_square _ _ _) @ maponpaths _ _).
+  exact (!(lax_double_functor_comp_h_mor F sh sk)).
+Qed.
+
+Proposition lax_double_functor_comp_v_square'
+            {C₁ C₂ : univalent_double_cat}
+            (F : lax_double_functor C₁ C₂)
+            {x₁ x₂ y₁ y₂ z₁ z₂ : C₁}
+            {v₁ : x₁ -->v y₁} {v₁' : y₁ --> z₁}
+            {v₂ : x₂ -->v y₂} {v₂' : y₂ --> z₂}
+            {h₁ : x₁ -->h x₂}
+            {h₂ : y₁ -->h y₂}
+            {h₃ : z₁ -->h z₂}
+            (s₁ : square v₁ v₂ h₁ h₂)
+            (s₂ : square v₁' v₂' h₂ h₃)
+  : #s F s₁ ⋆v #s F s₂
+    =
+    transportf_square
+      (lax_double_functor_comp_v _ _ _)
+      (lax_double_functor_comp_v _ _ _)
+      (#s F (s₁ ⋆v s₂)).
+Proof.
+  rewrite lax_double_functor_comp_v_square.
+  rewrite transportfb_square.
+  apply idpath.
+Qed.
+
+Proposition lax_double_functor_lassociator_h'
+            {C₁ C₂ : univalent_double_cat}
+            (F : lax_double_functor C₁ C₂)
+            {w x y z : C₁}
+            (f : w -->h x)
+            (g : x -->h y)
+            (h : y -->h z)
+  : (id_v_square _ ⋆h lax_double_functor_comp_h F g h)
+    ⋆v lax_double_functor_comp_h F f (g ·h h)
+    ⋆v #s F (lassociator_h f g h)
+    =
+    transportb_square
+      (maponpaths _ (lax_double_functor_id_v _ _))
+      (maponpaths _ (lax_double_functor_id_v _ _))
+      (lassociator_h (#h F f) (#h F g) (#h F h)
+       ⋆v (lax_double_functor_comp_h F f g ⋆h id_v_square _)
+       ⋆v lax_double_functor_comp_h F (f ·h g) h).
+Proof.
+  rewrite lax_double_functor_lassociator_h.
+  rewrite transportbf_square.
+  apply idpath.
+Qed.

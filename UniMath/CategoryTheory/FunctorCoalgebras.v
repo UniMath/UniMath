@@ -4,19 +4,23 @@ Contents:
  - Category of coalgebras over an endofunctor.
  - Dual of Lambek's lemma: if (A,α) is final coalgebra, α is an isomorphism.
  - Primitive corecursion.
+ - The category of coalgebras is univalent
 
 ******************************************************************)
 
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 
 Local Open Scope cat.
 
@@ -356,3 +360,35 @@ Section PrimitiveCorecursion.
   Qed.
 
 End PrimitiveCorecursion.
+
+(** * The category of coalgebras is univalent *)
+Proposition is_disp_univalent_coalg_category
+            {C : category}
+            (F : C ⟶ C)
+  : is_univalent_disp (coalgebra_disp_cat F).
+Proof.
+  use is_univalent_disp_from_fibers.
+  intros x f g.
+  use isweqimplimpl.
+  - intro p.
+    pose (pr1 p) as q ; cbn in q.
+    rewrite functor_id in q.
+    rewrite id_left, id_right in q.
+    exact q.
+  - apply homset_property.
+  - use isaproptotal2.
+    + intro.
+      apply isaprop_is_z_iso_disp.
+    + intros.
+      apply homset_property.
+Qed.
+
+Proposition is_univalent_coalg_category
+            {C : univalent_category}
+            (F : C ⟶ C)
+  : is_univalent (CoAlg_category F).
+Proof.
+  use is_univalent_total_category.
+  - apply univalent_category_is_univalent.
+  - exact (is_disp_univalent_coalg_category F).
+Defined.
