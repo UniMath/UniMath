@@ -431,6 +431,7 @@ SkewMonoidal/SkewMonoidalCategories.v
 SkewMonoidal/CategoriesOfMonoids.v
 
 EnrichedCats/BenabouCosmos.v
+EnrichedCats/EnrichedRelation.v
 EnrichedCats/Enrichment.v
 EnrichedCats/EnrichmentFunctor.v
 EnrichedCats/EnrichmentTransformation.v
@@ -569,6 +570,7 @@ TwoSidedDisplayedCats/Examples/ProdOfTwosidedDispCat.v
 TwoSidedDisplayedCats/Examples/Profunctor.v
 TwoSidedDisplayedCats/Examples/Reindex.v
 TwoSidedDisplayedCats/Examples/Relations.v
+TwoSidedDisplayedCats/Examples/EnrichedRels.v
 TwoSidedDisplayedCats/Examples/Spans.v
 TwoSidedDisplayedCats/Examples/ParaTwoSidedDispCat.v
 TwoSidedDisplayedCats/Examples/StructuredCospans.v

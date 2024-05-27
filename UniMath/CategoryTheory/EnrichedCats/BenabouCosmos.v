@@ -49,6 +49,7 @@ Require Import UniMath.CategoryTheory.Limits.Coproducts.
 Require Import UniMath.CategoryTheory.Limits.Coequalizers.
 Require Import UniMath.CategoryTheory.Limits.Products.
 Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.OppositeCategory.Core.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
@@ -113,6 +114,27 @@ Proof.
 Defined.
 
 #[global] Opaque benabou_cosmos_coends.
+
+Definition arrow_from_tensor_coproduct_benabou_cosmos
+           {V : benabou_cosmos}
+           {v w : V}
+           {I : UU}
+           {D : I → V}
+           (fs : ∏ (i : I), v ⊗ D i --> w)
+  : v ⊗ benabou_cosmos_coproducts V I D --> w.
+Proof.
+  use (CoproductArrow
+         _ _
+         (make_Coproduct
+            _ _ _ _ _
+            (left_adjoint_preserves_coproduct
+               _
+               (sym_mon_closed_left_tensor_left_adjoint V v)
+               I
+               _ _ _
+               (isCoproduct_Coproduct _ _ (benabou_cosmos_coproducts V I D))))).
+  exact fs.
+Qed.
 
 (** * 3. Quantales *)
 Definition quantale_cosmos

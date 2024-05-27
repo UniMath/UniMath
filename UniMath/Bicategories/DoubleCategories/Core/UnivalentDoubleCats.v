@@ -191,9 +191,30 @@ Definition lax_double_functor_hor_mor
   : twosided_disp_functor F F (hor_mor C₁) (hor_mor C₂)
   := pr2 (pr111 F).
 
-Notation "'#h' F f" := (lax_double_functor_hor_mor F _ _ f)
+Definition lax_double_functor_on_hor_mor
+           {C₁ C₂ : univalent_double_cat}
+           (F : lax_double_functor C₁ C₂)
+           {x₁ x₂ : C₁}
+           (h : x₁ -->h x₂)
+  : F x₁ -->h F x₂
+  := lax_double_functor_hor_mor F x₁ x₂ h.
+
+Notation "'#h' F f" := (lax_double_functor_on_hor_mor F f)
                          (at level 10, F at next level, f at next level) : double_cat.
-Notation "'#s' F s" := (#2 (lax_double_functor_hor_mor F) s)
+
+Definition lax_double_functor_on_sqr
+           {C₁ C₂ : univalent_double_cat}
+           (F : lax_double_functor C₁ C₂)
+           {x₁ x₂ y₁ y₂ : C₁}
+           {h : x₁ -->h x₂}
+           {k : y₁ -->h y₂}
+           {v : x₁ -->v y₁}
+           {w : x₂ -->v y₂}
+           (s : square v w h k)
+  : square (#v F v) (#v F w) (#h F h) (#h F k)
+  := #2 (lax_double_functor_hor_mor F) s.
+
+Notation "'#s' F s" := (lax_double_functor_on_sqr F s)
                          (at level 10, F at next level, s at next level) : double_cat.
 
 Proposition lax_double_functor_id_square
