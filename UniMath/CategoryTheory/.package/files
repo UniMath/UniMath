@@ -432,6 +432,7 @@ SkewMonoidal/CategoriesOfMonoids.v
 
 EnrichedCats/BenabouCosmos.v
 EnrichedCats/EnrichedRelation.v
+EnrichedCats/LaxExtension.v
 EnrichedCats/Enrichment.v
 EnrichedCats/EnrichmentFunctor.v
 EnrichedCats/EnrichmentTransformation.v
