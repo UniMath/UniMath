@@ -21,6 +21,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Three.
 
 Local Open Scope cat.
 
+Section Examples.
 Context {C : category}.
 Context (CC : BinCoproducts C).
 
@@ -582,3 +583,4 @@ Proof.
 Qed.
 
 Transparent cop_ff_cop.
+End Examples.
