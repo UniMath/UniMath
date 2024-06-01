@@ -413,6 +413,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Profunctors/Examples.v](CategoryTheory/Profunctors/Examples.v)
    - [Profunctors/Transformation.v](CategoryTheory/Profunctors/Transformation.v)
    - [Profunctors/Squares.v](CategoryTheory/Profunctors/Squares.v)
+   - [Profunctors/Collage.v](CategoryTheory/Profunctors/Collage.v)
    - [SetValuedFunctors.v](CategoryTheory/SetValuedFunctors.v)
    - [Categories/FinSet.v](CategoryTheory/Categories/FinSet.v)
    - [Categories/Woset.v](CategoryTheory/Categories/Woset.v)

@@ -232,6 +232,7 @@ Categories/HSET/SetCoends.v
 Profunctors/Examples.v
 Profunctors/Transformation.v
 Profunctors/Squares.v
+Profunctors/Collage.v
 
 SetValuedFunctors.v
 Categories/FinSet.v
