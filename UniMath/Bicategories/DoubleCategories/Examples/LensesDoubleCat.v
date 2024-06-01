@@ -211,6 +211,15 @@ Proof.
        apply discrete_lenses_twosided_disp_cat).
 Defined.
 
+Proposition is_flat_lenses_double_cat
+            (C : category)
+            (PC : BinProducts C)
+  : is_flat_double_cat (lenses_double_cat C PC).
+Proof.
+  intro ; intros.
+  apply discrete_lenses_twosided_disp_cat.
+Qed.
+
 Definition lenses_double_cat_ver_weq_square
            (C : category)
            (PC : BinProducts C)

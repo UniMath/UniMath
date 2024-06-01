@@ -148,6 +148,13 @@ Proof.
   - abstract (intro ; intros ; apply isasetunit).
 Defined.
 
+Proposition is_flat_unit_double_cat
+  : is_flat_double_cat unit_double_cat.
+Proof.
+  intro ; intros.
+  apply isasetunit.
+Qed.
+
 Definition unit_univalent_double_cat
   : univalent_double_cat.
 Proof.

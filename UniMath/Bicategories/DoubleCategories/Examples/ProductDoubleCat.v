@@ -279,6 +279,17 @@ Section ProdOfDoubleCat.
     - exact prod_double_cat_pentagon.
   Defined.
 
+  Proposition is_flat_prod_double_cat
+              (H₁ : is_flat_double_cat D₁)
+              (H₂ : is_flat_double_cat D₂)
+    : is_flat_double_cat prod_double_cat.
+  Proof.
+    intro ; intros.
+    use pathsdirprod.
+    - apply H₁.
+    - apply H₂.
+  Qed.
+
   Proposition transportf_prod_double_cat
               {x₁ x₂ y₁ y₂ : prod_double_cat}
               {v₁ v₁' : x₁ -->v y₁}
