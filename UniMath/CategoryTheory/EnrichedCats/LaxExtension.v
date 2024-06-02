@@ -3,9 +3,9 @@
  Lax extensions of endofunctors on sets
 
  Suppose that we have an endofunctor `F` on sets. Our goal is to define a suitable notion of
- bisimilarity for coalgebras for `F`. To do so, we need a suitable of `F` on relations. There
- are various notions that describe that, and in this file, we look at lax extensions. In
- essence, a lax extension of `F` extends `F` to a lax double functor on the double category
+ bisimilarity for coalgebras for `F`. To do so, we need a suitable action of `F` on relations.
+ There are various notions that describe that, and in this file, we look at lax extensions.
+ In essence, a lax extension of `F` extends `F` to a lax double functor on the double category
  of enriched relations, and in another file, we prove that these notions are actually
  equivalent. In this file, we set up the basic notions and properties that are needed for
  the theory of lax extensions.
