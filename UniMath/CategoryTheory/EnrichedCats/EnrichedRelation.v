@@ -28,6 +28,9 @@
  7. Composition of squares
  8. Converses of enriched relations
  9. Companion pairs of enriched relations
+ 10. Conjoints of enriched relations
+ 11. Calculational lemmas
+ 12. Basic properties of the order of enriched relations
 
  ******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -64,6 +67,26 @@ Proof.
   exact (isaset_ob_poset (_ ,, is_poset_category_quantale_cosmos V)).
 Qed.
 
+Proposition eq_enriched_relation
+            {V : quantale_cosmos}
+            {X Y : hSet}
+            {R R' : enriched_relation V X Y}
+            (p : ∏ (x : X) (y : Y), R x y --> R' x y)
+            (q : ∏ (x : X) (y : Y), R' x y --> R x y)
+  : R = R'.
+Proof.
+  use funextsec ; intro x.
+  use funextsec ; intro y.
+  use isotoid.
+  {
+    apply is_univalent_quantale_cosmos.
+  }
+  use make_z_iso.
+  - exact (p x y).
+  - exact (q x y).
+  - split ; apply is_poset_category_quantale_cosmos.
+Qed.
+
 Section EnrichedRelation.
   Context {V : quantale_cosmos}.
 
@@ -89,12 +112,17 @@ Section EnrichedRelation.
          Y
          (λ (y : Y), R x y ⊗ S y z).
 
+
+  Notation "R ·e S" := (comp_enriched_relation R S) (at level 40) : cat.
+
   (** * 3. Order on enriched relations *)
   Definition enriched_relation_le
              {X Y : hSet}
              (R S : enriched_relation V X Y)
     : UU
     := ∏ (x : X) (y : Y), R x y --> S x y.
+
+  Notation "R ≤e S" := (enriched_relation_le R S) (at level 70) : cat.
 
   Proposition isaprop_enriched_relation_le
               {X Y : hSet}
@@ -105,7 +133,27 @@ Section EnrichedRelation.
     apply is_poset_category_quantale_cosmos.
   Qed.
 
+  Proposition eq_enriched_relation_le
+              {X Y : hSet}
+              {R R' : enriched_relation V X Y}
+              (p : R ≤e R')
+              (q : R' ≤e R)
+    : R = R'.
+  Proof.
+    use eq_enriched_relation.
+    - exact p.
+    - exact q.
+  Qed.
+
   (** * 4. Squares of enriched relations *)
+  Definition fun_comp_enriched_relation
+              {W X Y Z : hSet}
+              (R : enriched_relation V X Y)
+              (f : W → X)
+              (g : Z → Y)
+    : enriched_relation V W Z
+    := λ (w : W) (z : Z), R (f w) (g z).
+
   Definition enriched_relation_square
              {X₁ X₂ Y₁ Y₂ : hSet}
              (f : X₁ → X₂)
@@ -113,9 +161,7 @@ Section EnrichedRelation.
              (R₁ : enriched_relation V X₁ Y₁)
              (R₂ : enriched_relation V X₂ Y₂)
     : UU
-    := ∏ (x : X₁)
-         (y : Y₁),
-       R₁ x y --> R₂ (f x) (g y).
+    := R₁ ≤e fun_comp_enriched_relation R₂ f g.
 
   Proposition isaprop_enriched_relation_square
               {X₁ X₂ Y₁ Y₂ : hSet}
@@ -129,6 +175,26 @@ Section EnrichedRelation.
     apply is_poset_category_quantale_cosmos.
   Qed.
 
+  Proposition enriched_relation_square_to_le
+              {X Y : hSet}
+              {R₁ : enriched_relation V X Y}
+              {R₂ : enriched_relation V X Y}
+              (p : enriched_relation_square (idfun _) (idfun _) R₁ R₂)
+    : R₁ ≤e R₂.
+  Proof.
+    exact p.
+  Qed.
+
+  Proposition enriched_relation_le_to_square
+              {X Y : hSet}
+              {R₁ : enriched_relation V X Y}
+              {R₂ : enriched_relation V X Y}
+              (p : R₁ ≤e R₂)
+    : enriched_relation_square (idfun _) (idfun _) R₁ R₂.
+  Proof.
+    exact p.
+  Qed.
+
   (** * 5. Associators and unitors *)
   Proposition enriched_relation_lunitor
               {X Y : hSet}
@@ -136,7 +202,7 @@ Section EnrichedRelation.
     : enriched_relation_square
         (idfun _)
         (idfun _)
-        (comp_enriched_relation (id_enriched_relation _) R)
+        (id_enriched_relation _ ·e R)
         R.
   Proof.
     intros x y ; cbn.
@@ -156,7 +222,7 @@ Section EnrichedRelation.
         (idfun _)
         (idfun _)
         R
-        (comp_enriched_relation (id_enriched_relation _) R).
+        (id_enriched_relation _ ·e R).
   Proof.
     intros x y ; cbn.
     refine (_ · CoproductIn _ _ _ x).
@@ -171,7 +237,7 @@ Section EnrichedRelation.
     : enriched_relation_square
         (idfun _)
         (idfun _)
-        (comp_enriched_relation R (id_enriched_relation _))
+        (R ·e id_enriched_relation _)
         R.
   Proof.
     intros x y ; cbn.
@@ -190,7 +256,7 @@ Section EnrichedRelation.
         (idfun _)
         (idfun _)
         R
-        (comp_enriched_relation R (id_enriched_relation _)).
+        (R ·e id_enriched_relation _).
   Proof.
     intros x y ; cbn.
     refine (_ · CoproductIn _ _ _ y).
@@ -207,8 +273,8 @@ Section EnrichedRelation.
     : enriched_relation_square
         (idfun _)
         (idfun _)
-        (comp_enriched_relation (comp_enriched_relation R₁ R₂) R₃)
-        (comp_enriched_relation R₁ (comp_enriched_relation R₂ R₃)).
+        ((R₁ ·e R₂) ·e R₃)
+        (R₁ ·e (R₂ ·e R₃)).
   Proof.
     intros w z ; cbn.
     use CoproductArrow.
@@ -230,8 +296,8 @@ Section EnrichedRelation.
     : enriched_relation_square
         (idfun _)
         (idfun _)
-        (comp_enriched_relation R₁ (comp_enriched_relation R₂ R₃))
-        (comp_enriched_relation (comp_enriched_relation R₁ R₂) R₃).
+        (R₁ ·e (R₂ ·e R₃))
+        ((R₁ ·e R₂) ·e R₃).
   Proof.
     intros w z ; cbn.
     use CoproductArrow.
@@ -296,8 +362,8 @@ Section EnrichedRelation.
              (θ : enriched_relation_square g h S₁ S₂)
     : enriched_relation_square
         f h
-        (comp_enriched_relation R₁ S₁)
-        (comp_enriched_relation R₂ S₂).
+        (R₁ ·e S₁)
+        (R₂ ·e S₂).
   Proof.
     intros x z.
     use CoproductArrow.
@@ -324,12 +390,35 @@ Section EnrichedRelation.
          (f x = y)
          (λ _, I_{V}).
 
+  Notation "f ^*" := (companion_enriched_relation f) (at level 20) : cat.
+
+  Proposition companion_enriched_relation_id
+              (X : hSet)
+    : (idfun X)^* = id_enriched_relation X.
+  Proof.
+    apply idpath.
+  Qed.
+
+  Proposition companion_enriched_relation_comp
+              {X Y Z : hSet}
+              (f : X → Y)
+              (g : Y → Z)
+    : (λ x, g(f x))^* ≤e f^* ·e g^*.
+  Proof.
+    intros x z.
+    use CoproductArrow ; cbn.
+    intro p.
+    refine (_ · CoproductIn _ _ _ (f x)).
+    refine (_ · (CoproductIn _ _ _ (idpath _) #⊗ CoproductIn _ _ _ p)).
+    apply mon_linvunitor.
+  Qed.
+
   Proposition companion_enriched_relation_left
               {X Y : hSet}
               (f : X → Y)
     : enriched_relation_square
         f (idfun _)
-        (companion_enriched_relation f) (id_enriched_relation Y).
+        (f^*) (id_enriched_relation Y).
   Proof.
     intros x y.
     use CoproductArrow.
@@ -342,12 +431,264 @@ Section EnrichedRelation.
               (f : X → Y)
     : enriched_relation_square
         (idfun _) f
-        (id_enriched_relation X) (companion_enriched_relation f).
-  Proof.
+        (id_enriched_relation X) (f^*).
   Proof.
     intros x y.
     use CoproductArrow.
     intro p.
     exact (CoproductIn _ _ _ (maponpaths f p)).
   Qed.
+
+  (** * 10. Conjoints of enriched relations *)
+  Definition conjoint_enriched_relation
+             {X Y : hSet}
+             (f : X → Y)
+    : enriched_relation V Y X
+    := enriched_relation_converse (companion_enriched_relation f).
+
+  Notation "f ^o" := (conjoint_enriched_relation f) (at level 20) : cat.
+
+  Proposition conjoint_enriched_relation_id
+              (X : hSet)
+    : (idfun X)^o = id_enriched_relation X.
+  Proof.
+    use eq_enriched_relation.
+    - intros x y.
+      use CoproductArrow ; cbn.
+      intro p.
+      exact (CoproductIn _ _ _ (!p)).
+    - intros x y.
+      use CoproductArrow ; cbn.
+      intro p.
+      exact (CoproductIn _ _ _ (!p)).
+  Qed.
+
+  Proposition conjoint_enriched_relation_comp
+              {X Y Z : hSet}
+              (f : X → Y)
+              (g : Y → Z)
+    : (λ x, g(f x))^o ≤e g^o ·e f^o.
+  Proof.
+    intros z x.
+    use CoproductArrow ; cbn.
+    intro p.
+    refine (_ · CoproductIn _ _ _ (f x)).
+    refine (_ · (CoproductIn _ _ _ p #⊗ CoproductIn _ _ _ (idpath _))).
+    apply mon_linvunitor.
+  Qed.
+
+  Proposition conjoint_enriched_relation_left
+              {X Y : hSet}
+              (f : X → Y)
+    : enriched_relation_square
+        f (idfun _)
+        (id_enriched_relation X) (f^o).
+  Proof.
+    intros x y.
+    use CoproductArrow.
+    intro p.
+    exact (CoproductIn _ _ _ (maponpaths f (!p))).
+  Qed.
+
+  Proposition conjoint_enriched_relation_right
+              {X Y : hSet}
+              (f : X → Y)
+    : enriched_relation_square
+        (idfun _) f
+        (f^o) (id_enriched_relation Y).
+  Proof.
+    intros x y.
+    use CoproductArrow.
+    intro p.
+    exact (CoproductIn _ _ _ (!p)).
+  Qed.
+
+  Proposition comp_companion_conjoint_enriched_relation
+              {X Y : hSet}
+              (f : X → Y)
+    : enriched_relation_le
+        (id_enriched_relation _)
+        (f^* ·e f^o).
+  Proof.
+    intros x x'.
+    use CoproductArrow.
+    intro p ; induction p ; cbn.
+    refine (_ · CoproductIn _ _ _ (f x)).
+    refine (_ · (CoproductIn _ _ _ (idpath _) #⊗ CoproductIn _ _ _ (idpath _))).
+    apply mon_linvunitor.
+  Qed.
+
+  Proposition comp_conjoint_companion_enriched_relation
+              {X Y : hSet}
+              (f : X → Y)
+    : enriched_relation_le
+        (f^o ·e f^*)
+        (id_enriched_relation _).
+  Proof.
+    intros y y'.
+    use CoproductArrow ; cbn.
+    intro x.
+    use arrow_from_tensor_coproduct_benabou_cosmos.
+    intro p.
+    refine (sym_mon_braiding _ _ _ · _).
+    use arrow_from_tensor_coproduct_benabou_cosmos.
+    intro q.
+    cbn.
+    refine (_ · CoproductIn _ _ _ _).
+    - apply mon_lunitor.
+    - exact (!q @ p).
+  Qed.
+
+  (** * 11. Calculational lemmas *)
+  Proposition enriched_relation_comp_fun_left
+              {X Y Z : hSet}
+              (f : X → Y)
+              (R : enriched_relation V Y Z)
+    : f^* ·e R
+      =
+      fun_comp_enriched_relation R f (idfun _).
+  Proof.
+    use eq_enriched_relation.
+    - intros x z.
+      use CoproductArrow.
+      intro y.
+      refine (sym_mon_braiding _ _ _ · _).
+      use arrow_from_tensor_coproduct_benabou_cosmos.
+      intro p ; cbn.
+      induction p.
+      apply mon_runitor.
+    - intros x z.
+      exact (mon_linvunitor _
+             · (CoproductIn _ _ _ (idpath _) #⊗ identity _)
+             · CoproductIn _ _ _ (f x)).
+  Qed.
+
+  Proposition enriched_relation_conj_fun_right
+              {X Y Z : hSet}
+              (R : enriched_relation V X Y)
+              (f : Z → Y)
+    : R ·e f^o
+      =
+      fun_comp_enriched_relation R (idfun _) f.
+  Proof.
+    use eq_enriched_relation.
+    - intros x z.
+      use CoproductArrow.
+      intro y.
+      use arrow_from_tensor_coproduct_benabou_cosmos.
+      intro p ; cbn.
+      induction p.
+      apply mon_runitor.
+    - intros x z.
+      exact (mon_rinvunitor _
+             · (identity _ #⊗ CoproductIn _ _ _ (idpath _))
+             · CoproductIn _ _ _ (f z)).
+  Qed.
+
+  Proposition enriched_relation_comp_conj
+              {W X Y Z : hSet}
+              (R : enriched_relation V X Y)
+              (f : W → X)
+              (g : Z → Y)
+    : f^* ·e (R ·e g^o)
+      =
+      fun_comp_enriched_relation R f g.
+  Proof.
+    use eq_enriched_relation.
+    - intros w z.
+      use CoproductArrow.
+      intro x.
+      use arrow_from_tensor_coproduct_benabou_cosmos.
+      intro y.
+      refine (sym_mon_braiding _ _ _ · _).
+      use arrow_from_tensor_coproduct_benabou_cosmos.
+      intro p ; cbn.
+      induction p.
+      refine (mon_runitor _ · _).
+      use arrow_from_tensor_coproduct_benabou_cosmos.
+      intro q ; cbn.
+      induction q.
+      apply mon_runitor.
+    - intros w z.
+      refine (_ · CoproductIn _ _ _ (f w)) ; cbn.
+      refine (_ · (CoproductIn _ _ _ (idpath _) #⊗ identity _)).
+      refine (mon_linvunitor _ · (identity _ #⊗ _)).
+      refine (_ · CoproductIn _ _ _ (g z)).
+      refine (mon_rinvunitor _ · (identity _ #⊗ _)).
+      exact (CoproductIn _ _ _ (idpath _)).
+  Qed.
+
+  (** * 12. Basic properties of the order of enriched relations *)
+  Proposition enriched_relation_le_refl
+              {X Y : hSet}
+              (R : enriched_relation V X Y)
+    : enriched_relation_le R R.
+  Proof.
+    intros x y.
+    apply identity.
+  Qed.
+
+  Proposition enriched_relation_eq_to_le
+              {X Y : hSet}
+              {R S : enriched_relation V X Y}
+              (p : R = S)
+    : enriched_relation_le R S.
+  Proof.
+    induction p.
+    apply enriched_relation_le_refl.
+  Qed.
+
+  Proposition enriched_relation_le_trans
+              {X Y : hSet}
+              {R₁ R₂ R₃ : enriched_relation V X Y}
+              (p : enriched_relation_le R₁ R₂)
+              (q : enriched_relation_le R₂ R₃)
+    : enriched_relation_le R₁ R₃.
+  Proof.
+    intros x y.
+    exact (p _ _ · q _ _).
+  Qed.
+
+  Proposition enriched_relation_le_comp
+              {X Y Z : hSet}
+              {R₁ R₂ : enriched_relation V X Y}
+              {S₁ S₂ : enriched_relation V Y Z}
+              (p : enriched_relation_le R₁ R₂)
+              (q : enriched_relation_le S₁ S₂)
+    : enriched_relation_le
+        (R₁ ·e S₁)
+        (R₂ ·e S₂).
+  Proof.
+    intros x z.
+    use CoproductArrow.
+    intros y ; cbn.
+    exact ((p _ _ #⊗ q _ _) · CoproductIn _ _ _ y).
+  Qed.
+
+  Proposition enriched_relation_companion_le
+              {X Y : hSet}
+              {f g : X → Y}
+              (p : f = g)
+    : enriched_relation_le (f^*) (g^*).
+  Proof.
+    use enriched_relation_eq_to_le.
+    induction p.
+    apply idpath.
+  Qed.
+
+  Proposition enriched_relation_conjoint_le
+              {X Y : hSet}
+              {f g : X → Y}
+              (p : f = g)
+    : enriched_relation_le (f^o) (g^o).
+  Proof.
+    use enriched_relation_eq_to_le.
+    induction p.
+    apply idpath.
+  Qed.
 End EnrichedRelation.
+
+Notation "R ·e S" := (comp_enriched_relation R S) (at level 40) : cat.
+Notation "R ≤e S" := (enriched_relation_le R S) (at level 70) : cat.
+Notation "f ^*" := (companion_enriched_relation f) (at level 20) : cat.
+Notation "f ^o" := (conjoint_enriched_relation f) (at level 20) : cat.
