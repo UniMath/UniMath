@@ -6,13 +6,13 @@
   as the theory T_A with (T_A)_n = A + T_n as a coproduct of T-algebras. The category of algebras of
   this theory is equivalent to the coslice category (A / T-alg). For example, if T encodes the
   theory of rings and A is a T-algebra (equivalent to a ring R), then T_A is the theory of
-  R-algebras. Lastly, for any algebraic theory morphism F : T -> T', if we take A = F_*(T'_0), the
+  R-algebras. Lastly, for any algebraic theory morphism F : T -> T', if we take A = F^*(T'_0), the
   pullback of the T'-algebra T'_0 along F, then F factors through T_A.
 
   Contents
   1. The theory of extensions [extensions_theory]
   2. The category of T_A-algebras is equivalent to A / T-alg [algebra_coslice_equivalence]
-  3. Every morphism F: T -> T' factors through T_(F_*(T'_0)) [factorization]
+  3. Every morphism F: T -> T' factors through T_(F^*(T'_0)) [factorization]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -458,7 +458,7 @@ Section TheoryOfExtensions.
 
 End TheoryOfExtensions.
 
-(** * 3. Every morphism F: T -> T' factors through T_(F_*(T'_0)) *)
+(** * 3. Every morphism F: T -> T' factors through T_(F^*(T'_0)) *)
 
 Section Factorization.
 
