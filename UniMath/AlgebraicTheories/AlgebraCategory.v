@@ -10,6 +10,7 @@
   1. Univalence [is_univalent_algebra_cat]
   2. Algebras are fibered over theories [algebra_fibration]
   3. A characterization of iso's of algebras [make_algebra_z_iso]
+  4. Algebra pullback functor along an algebraic theory morphism [algebra_pullback]
 
  **************************************************************************************************)
 Require Export UniMath.AlgebraicTheories.AlgebraCategoryCore.
@@ -20,6 +21,7 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
@@ -242,3 +244,87 @@ Section Iso.
       make_algebra_z_iso_is_iso.
 
 End Iso.
+
+(** * 4. Algebra pullback functor along an algebraic theory morphism *)
+
+Section Pullback.
+
+  Context {T T' : algebraic_theory}.
+  Context (F : algebraic_theory_morphism T T').
+
+  Section Ob.
+
+    Context (A : algebra T').
+
+    Definition algebra_pullback_ob_data
+      : algebra_data T
+      := make_algebra_data
+        A
+        (λ n f a, action (F _ f) a).
+
+    Lemma algebra_pullback_ob_is_algebra
+      : is_algebra algebra_pullback_ob_data.
+    Proof.
+      use make_is_algebra.
+      - intros m n f g a.
+        refine (maponpaths (λ x, action (A := A) x a) (mor_subst _ _ _) @ _).
+        apply subst_action.
+      - intros n i a.
+        refine (maponpaths (λ x, action (A := A) x a) (mor_var _ _) @ _).
+        apply var_action.
+    Qed.
+
+    Definition algebra_pullback_ob
+      : algebra T
+      := make_algebra _ algebra_pullback_ob_is_algebra.
+
+  End Ob.
+
+  Section Mor.
+
+    Context {A A' : algebra T'}.
+    Context (G : algebra_morphism A A').
+
+    Definition algebra_pullback_mor_data
+      : algebra_pullback_ob A → algebra_pullback_ob A'
+      := G.
+
+    Lemma algebra_pullback_mor_is_morphism
+      : is_algebra_morphism algebra_pullback_mor_data.
+    Proof.
+      do 3 intro.
+      apply (mor_action G).
+    Qed.
+
+    Definition algebra_pullback_mor
+      : algebra_morphism (algebra_pullback_ob A) (algebra_pullback_ob A')
+      := make_algebra_morphism _ algebra_pullback_mor_is_morphism.
+
+  End Mor.
+
+  Definition algebra_pullback_data
+    : functor_data (algebra_cat T') (algebra_cat T)
+    := make_functor_data
+      algebra_pullback_ob
+      (λ _ _, algebra_pullback_mor).
+
+  Lemma algebra_pullback_is_functor
+    : is_functor algebra_pullback_data.
+  Proof.
+    split.
+    - intro A.
+      now apply algebra_morphism_eq.
+    - intros A A' A'' f g.
+      apply algebra_morphism_eq.
+      refine (_ @ !algebra_mor_comp _ _).
+      refine (pr1_transportf (B := λ _, _ → _) _ _ @ _).
+      exact (maponpaths (λ z, z _) (transportf_const _ _)).
+  Qed.
+
+  Definition algebra_pullback
+    : algebra_cat T' ⟶ algebra_cat T
+    := make_functor
+      algebra_pullback_data
+      algebra_pullback_is_functor.
+
+End Pullback.
