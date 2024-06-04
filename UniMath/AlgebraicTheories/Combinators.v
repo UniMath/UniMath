@@ -1,3 +1,26 @@
+(**************************************************************************************************
+
+  λ-calculus combinators
+
+  There is a lot of `basic' terms that are often used when working with the λ-calculus. This
+  file contains definitions for some of these, as well as some lemmas about their interaction with
+  substitution and with each other. The file also contains two tactics that assist in proving
+  equalities of terms.
+
+  Contents
+  1. The tactics [propagate_subst] [generate_refine]
+  2. Compose
+  3. Pair
+  4. Pair arrow
+  5. Pair projections [π1] [π2]
+  6. Union arrow ('match')
+  7. Union injections [ι1] [ι2]
+  8. Evaluation of a curried function [ev]
+  9. Curry
+  10. Uncurry
+  11. An alternative form of curry, swapping the arguments
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.Tuples.
@@ -13,7 +36,7 @@ Local Open Scope vec.
 Local Open Scope stn.
 Local Open Scope algebraic_theories.
 
-(** 1. The tactics *)
+(** * 1. The tactics *)
 
 Ltac2 Type state := {
   left : string list;
@@ -181,7 +204,7 @@ Ltac2 Set rewrites as rewrites0 := fun () =>
   | [ |- extend_tuple ?a ?b (_ (inr ?c)) = _] => refine '(extend_tuple_inr $a $b $c)
   end), "extend_tuple_inr _ _ _") :: rewrites0 ().
 
-(* Compose *)
+(** * 2. Compose *)
 
 Definition compose
   {L : lambda_theory}
@@ -410,7 +433,7 @@ Proof.
     exact (maponpaths (λ x, ((_ ∘ x) ∘ _)) (var_subst _ _ _)).
 Qed.
 
-(* Pair *)
+(** * 3. Pair *)
 
 Definition pair
   {L : lambda_theory}
@@ -483,7 +506,7 @@ Ltac2 Set rewrites as rewrites0 := fun () =>
   | [ |- inflate (⟨?a , ?b⟩) = _] => refine '(inflate_pair _ $a $b)
   end), "inflate_pair _ _ _") :: rewrites0 ().
 
-(* PairArrow *)
+(** * 4. Pair arrow *)
 
 Definition pair_arrow
   {L : lambda_theory}
@@ -605,7 +628,7 @@ Proof.
     exact (extend_tuple_inl _ _ _).
 Qed.
 
-(* π1 *)
+(** * 5. Pair projections *)
 
 Definition π1
   {L : lambda_theory}
@@ -759,7 +782,6 @@ Ltac2 Set rewrites as rewrites0 := fun () =>
   | [ |- π1 ∘ (pair_arrow ?a ?b) = _] => refine '(π1_pair_arrow _ _ _ $b); assumption
   end), "π1_pair_arrow _ Lβ _ _") :: rewrites0 ().
 
-(* π2 *)
 
 Definition π2
   {L : lambda_theory}
@@ -906,7 +928,7 @@ Ltac2 Set rewrites as rewrites0 := fun () =>
   | [ |- π2 ∘ (pair_arrow ?a ?b) = _] => refine '(π2_pair_arrow _ _ $a _); assumption
   end), "π2_pair_arrow _ Lβ _ _") :: rewrites0 ().
 
-(* Union *)
+(** * 6. Union arrow ('match') *)
 
 Definition union_arrow
   {L : lambda_theory}
@@ -993,7 +1015,7 @@ Proof.
     apply extend_tuple_inl.
 Qed.
 
-(* ι1 *)
+(** * 7. Union injections *)
 
 Definition ι1
   {L : lambda_theory}
@@ -1112,7 +1134,6 @@ Proof.
     apply extend_tuple_inr.
 Qed.
 
-(* ι2 *)
 
 Definition ι2
   {L : lambda_theory}
@@ -1224,7 +1245,7 @@ Proof.
     apply extend_tuple_inr.
 Qed.
 
-(* ev *)
+(** * 8. Evaluation of a curried function *)
 
 Definition ev
   {L : lambda_theory}
@@ -1391,7 +1412,7 @@ Proof.
   exact (maponpaths (λ x, (abs x)) (app_ev_pair _ Lβ _ _ _ _)).
 Qed.
 
-(* Curry *)
+(** * 9. Curry *)
 
 Definition curry
   {L : lambda_theory}
@@ -1529,7 +1550,7 @@ Proof.
     exact (extend_tuple_inr _ _ _).
 Qed.
 
-(* Uncurry *)
+(** * 10. Uncurry *)
 
 Definition uncurry
   {L : lambda_theory}
@@ -1802,4 +1823,144 @@ Proof.
   apply funextfun.
   intro i.
   apply extend_tuple_inl.
+Qed.
+
+(** * 11. An alternative form of curry, swapping the arguments *)
+
+Definition curry'
+  {L : lambda_theory}
+  {m : nat}
+  (a : L m)
+  : L m
+  := abs
+    (abs
+      (app
+        (inflate (inflate a))
+        (⟨
+          var (stnweq (inr tt)),
+          var (stnweq (inl (stnweq (inr tt))))
+        ⟩))).
+
+Ltac2 Set traversals as traversals0 := fun _ => (
+    (fun () => match! goal with | [ |- curry' _ = _ ] => refine '(maponpaths (λ x, curry' x) _ @ _) end),
+    "curry' ",
+    ""
+  ) :: traversals0 ().
+
+Lemma subst_curry'
+  (L : lambda_theory)
+  {m m' : nat}
+  (a : L m)
+  (b : stn m → L m')
+  : curry' a • b = curry' (a • b).
+Proof.
+  refine '(subst_abs _ _ _ @ _).
+  refine '(maponpaths (λ x, (abs x)) (subst_abs _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs x))) (subst_app _ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app x _)))) (subst_inflate _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ x)))) (subst_pair _ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app x _)))) (subst_inflate _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨x, _⟩))))) (var_subst _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (var_subst _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨x, _⟩))))) (extend_tuple_inr _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (extend_tuple_inl _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, (inflate x)⟩))))) (extend_tuple_inr _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (inflate_var _ _) @ _).
+  refine '(_ @ !maponpaths (λ x, (abs (abs (app (inflate x) _)))) (inflate_subst _ _ _)).
+  refine '(_ @ !maponpaths (λ x, (abs (abs (app x _)))) (inflate_subst _ _ _)).
+  apply (maponpaths (λ x, abs (abs (app (a • x) _)))).
+  apply funextfun.
+  intro i.
+  refine '(extend_tuple_inl _ _ _ @ _).
+  exact (maponpaths (λ x, (inflate x)) (extend_tuple_inl _ _ _)).
+Qed.
+
+Ltac2 Set rewrites as rewrites0 := fun () =>
+  ((fun () => match! goal with
+  | [ |- (curry' ?a) • ?b = _] => refine '(subst_curry' _ $a $b)
+  end), "subst_curry' _ _ _") :: rewrites0 ().
+
+Definition inflate_curry'
+  (L : lambda_theory)
+  {n : nat}
+  (a : L n)
+  : inflate (curry' a) = curry' (inflate a)
+  := subst_curry' _ _ _.
+
+Ltac2 Set rewrites as rewrites0 := fun () =>
+  ((fun () => match! goal with
+  | [ |- inflate (curry' ?a) = _] => refine '(inflate_curry' _ $a)
+  end), "inflate_curry' _ _") :: rewrites0 ().
+
+Lemma app_curry'
+  (L : lambda_theory)
+  (Lβ : has_β L)
+  {m : nat}
+  (a b : L m)
+  : app (curry' a) b
+  = abs
+    (app
+      (inflate a)
+      (⟨
+        var (stnweq (inr tt)),
+        inflate b
+      ⟩)).
+Proof.
+  refine '(beta_equality _ Lβ _ _ @ _).
+  refine '(subst_abs _ _ _ @ _).
+  refine '(maponpaths (λ x, (abs x)) (subst_app _ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app x _))) (subst_inflate _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ x))) (subst_pair _ _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app x _))) (subst_inflate _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨x, _⟩)))) (var_subst _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨_, x⟩)))) (var_subst _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨x, _⟩)))) (extend_tuple_inr _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨_, x⟩)))) (extend_tuple_inl _ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (app _ (⟨_, (inflate x)⟩)))) (extend_tuple_inr _ _ _) @ _).
+  apply (maponpaths (λ x, abs (app (a • x) _))).
+  apply funextfun.
+  intro i.
+  refine '(extend_tuple_inl _ _ _ @ _).
+  refine '(maponpaths (λ x, (inflate x)) (extend_tuple_inl _ _ _) @ _).
+  exact (inflate_var _ _).
+Qed.
+
+Lemma curry'_compose
+  (L : lambda_theory)
+  (Lβ : has_β L)
+  {m : nat}
+  (a : L (S m))
+  (b : L m)
+  : curry' b ∘ abs a
+  = abs (abs
+    (app
+      (inflate (inflate b))
+      (⟨
+        var (stnweq (inr tt)),
+        inflate a
+      ⟩))).
+Proof.
+  refine '(maponpaths (λ x, (abs (app x _))) (inflate_curry' _ _) @ _).
+  refine '(maponpaths abs (app_curry' _ Lβ _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (inflate_app _ _ _ : app (inflate _) _ • _ = _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, (app (inflate x) _)⟩))))) (inflate_abs _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, (app _ x)⟩))))) (inflate_var _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, (app x _)⟩))))) (inflate_abs _ _) @ _).
+  refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (beta_equality _ Lβ _ _) @ _).
+  do 2 (refine '(maponpaths (λ x, (abs (abs (app _ (⟨_, x⟩))))) (subst_subst _ _ _ _) @ _)).
+  apply (maponpaths (λ x, abs (abs (app _ (⟨_, a • x⟩))))).
+  apply funextfun.
+  intro i.
+  rewrite <- (homotweqinvweq stnweq i).
+  induction (invmap stnweq i) as [i' | i'].
+  - refine '(maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _) @ _).
+    refine '(var_subst _ _ _ @ _).
+    refine '(maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _) @ _).
+    refine '(var_subst _ _ _ @ _).
+    exact (extend_tuple_inl _ _ _).
+  - refine '(maponpaths (λ x, (x • _)) (extend_tuple_inr _ _ _) @ _).
+    refine '(var_subst _ _ _ @ _).
+    refine '(maponpaths (λ x, (x • _)) (extend_tuple_inr _ _ _) @ _).
+    refine '(var_subst _ _ _ @ _).
+    exact (extend_tuple_inr _ _ _).
 Qed.

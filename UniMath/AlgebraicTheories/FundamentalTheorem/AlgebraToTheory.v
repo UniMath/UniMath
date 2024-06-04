@@ -40,7 +40,7 @@ Require Import UniMath.AlgebraicTheories.Examples.LambdaCalculus.
 Require Import UniMath.AlgebraicTheories.FundamentalTheorem.CommonUtilities.MonoidActions.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryCategory.
-Require Import UniMath.AlgebraicTheories.OriginalRepresentationTheorem.
+Require Import UniMath.AlgebraicTheories.CategoryOfRetracts.
 
 Local Open Scope cat.
 Local Open Scope vec.
