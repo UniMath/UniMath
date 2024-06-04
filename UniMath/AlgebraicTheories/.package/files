@@ -31,8 +31,6 @@ Examples/OnePointTheory.v
 Examples/Plus1Presheaf.v
 Examples/ProjectionsTheory.v
 
-LambdaAlgebraMonoid.v
-
 Combinators.v
 CategoryOfRetracts.v
 OriginalRepresentationTheorem.v
