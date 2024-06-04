@@ -102,13 +102,13 @@ Section TransposePseudoDoubleCat.
     repeat split ; cbn.
     - intros x y h.
       use globular_iso_square_to_path.
-      apply lunitor_globural_iso_square.
+      apply lunitor_globular_iso_square.
     - intros x y h.
       use globular_iso_square_to_path.
-      apply runitor_globural_iso_square.
+      apply runitor_globular_iso_square.
     - intros w x y z h₁ h₂ h₃.
       use globular_iso_square_to_path.
-      apply associator_globural_iso_square.
+      apply associator_globular_iso_square.
   Defined.
 
   Definition transpose_precategory
@@ -1050,8 +1050,9 @@ Section TransposePseudoDoubleCat.
   Proof.
     use make_univalent_double_cat.
     - exact transpose_double_cat.
-    - exact HC'.
-    - exact HC''.
+    - split.
+      + exact HC'.
+      + exact HC''.
   Defined.
 End TransposePseudoDoubleCat.
 

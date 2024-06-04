@@ -43,7 +43,7 @@ Proof.
   apply (z_iso_is_z_isomorphism (functor_on_z_iso F (make_z_iso' f fH))).
 Defined.
 
-#[reversible] Coercion left_adj_from_adj_equiv (X Y : category) (K : functor X Y)
+#[reversible=no] Coercion left_adj_from_adj_equiv (X Y : category) (K : functor X Y)
          (HK : adj_equivalence_of_cats K) : is_left_adjoint K := pr1 HK.
 
 (** ** Equivalences *)

@@ -173,6 +173,7 @@ DisplayedBicats/Examples/DispBicatOfTwoSidedDispCat.v
 DisplayedBicats/DispTransformation.v
 DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
+DisplayedBicats/ProductDispBiequiv.v
 
 DoubleCategories/Basics/DoubleCategoryBasics.v
 DoubleCategories/Basics/StrictDoubleCatBasics.v
@@ -209,7 +210,16 @@ DoubleCategories/Core/CompanionsAndConjoints.v
 
 DoubleCategories/Examples/UnitDoubleCat.v
 DoubleCategories/Examples/ProductDoubleCat.v
+DoubleCategories/Examples/DoubleCatOnDispCat.v
+DoubleCategories/Examples/FullSubDoubleCat.v
+DoubleCategories/Examples/OpDoubleCat.v
+DoubleCategories/Examples/RelationsDoubleCat.v
+DoubleCategories/Examples/EnrichedRelDoubleCat.v
+DoubleCategories/Examples/LaxExtensionToFunctor.v
 DoubleCategories/Examples/SquareDoubleCat.v
+DoubleCategories/Examples/SquareDoubleCatTwo.v
+DoubleCategories/Examples/Coreflections.v
+DoubleCategories/Examples/ParaDoubleCat.v
 DoubleCategories/Examples/LensesDoubleCat.v
 DoubleCategories/Examples/SpansDoubleCat.v
 DoubleCategories/Examples/KleisliDoubleCat.v
@@ -218,6 +228,8 @@ DoubleCategories/Examples/StructuredCospansDoubleCat.v
 DoubleCategories/Examples/StructuredCospansDoubleFunctor.v
 DoubleCategories/Examples/BiSetcatToDoubleCat.v
 DoubleCategories/Examples/ProfunctorDoubleCat.v
+DoubleCategories/Examples/EnrichedProfunctorDoubleCat.v
+DoubleCategories/Examples/Coalgebras.v
 
 DoubleCategories/AlternativeDefinitions/DoubleCatsUnfolded.v
 DoubleCategories/AlternativeDefinitions/DoubleCatsEquivalentDefinitions.v
@@ -238,8 +250,10 @@ DoubleCategories/DoubleBicat/GlobalUnivalence.v
 DoubleCategories/DoubleBicat/Core.v
 
 DoubleCategories/Examples/SquareDoubleBicat.v
+DoubleCategories/Examples/MateDoubleBicat.v
 DoubleCategories/Examples/DoubleCatToDoubleBicat.v
 DoubleCategories/Examples/ProfunctorDoubleBicat.v
+DoubleCategories/Examples/EnrichedProfunctorDoubleBicat.v
 
 DisplayedBicats/Examples/MonadsLax.v
 DisplayedBicats/Examples/DispBicatOnCatToUniv.v
@@ -424,9 +438,26 @@ ComprehensionCat/TypeFormers/ProductTypes.v
 ComprehensionCat/TypeFormers/EqualizerTypes.v
 ComprehensionCat/TypeFormers/Democracy.v
 ComprehensionCat/TypeFormers/SigmaTypes.v
+ComprehensionCat/TypeFormers/PiTypes.v
 ComprehensionCat/DFLCompCat.v
+ComprehensionCat/DFLCompCatNotations.v
+ComprehensionCat/ComprehensionEso.v
 ComprehensionCat/Biequivalence/DFLCompCatToFinLim.v
 ComprehensionCat/Biequivalence/FinLimToDFLCompCat.v
+ComprehensionCat/Biequivalence/Unit.v
+ComprehensionCat/Biequivalence/Counit.v
+ComprehensionCat/Biequivalence/Biequiv.v
+
+ComprehensionCat/LocalProperty/LocalProperties.v
+ComprehensionCat/LocalProperty/Examples.v
+ComprehensionCat/LocalProperty/CatWithProp.v
+ComprehensionCat/LocalProperty/DFLCompCatWithProp.v
+ComprehensionCat/Biequivalence/LocalProperty.v
+
+ComprehensionCat/TypeFormers/SubobjectTypes.v
+ComprehensionCat/Biequivalence/SubobjectClassifier.v
+ComprehensionCat/Biequivalence/PiTypesBiequiv.v
+ComprehensionCat/Biequivalence/InternalLanguageTopos.v
 
 Logic/ComprehensionBicat.v
 

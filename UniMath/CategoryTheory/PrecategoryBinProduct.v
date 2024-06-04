@@ -675,6 +675,20 @@ Proof.
     apply identity_is_z_iso.
 Defined.
 
+Definition prod_nat_trans
+           {C D₁ D₂ : category}
+           {F G : C ⟶ category_binproduct D₁ D₂}
+           (τ : F ∙ pr1_functor _ _ ⟹ G ∙ pr1_functor _ _)
+           (θ : F ∙ pr2_functor _ _ ⟹ G ∙ pr2_functor _ _)
+  : F ⟹ G.
+Proof.
+  use make_nat_trans.
+  - exact (λ x, τ x ,, θ x).
+  - abstract
+      (intros x y f ;
+       use pathsdirprod ;
+       [ apply (nat_trans_ax τ) | apply (nat_trans_ax θ) ]).
+Defined.
 
 (* A swapping functor σ : C × D → D × C. *)
 Definition binswap_pair_functor {C D : category} : (C × D) ⟶ (D × C) :=

@@ -37,7 +37,7 @@ Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted.
-
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted.
 
 Local Open Scope cat.

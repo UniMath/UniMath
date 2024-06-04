@@ -6,7 +6,6 @@ Require Import UniMath.MoreFoundations.All.
 Require Export UniMath.CategoryTheory.ExactCategories.ExactCategories.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.Free_Monoids_and_Groups.
-Import AddNotation.
 Local Open Scope addmonoid.
 
 Section setquot.

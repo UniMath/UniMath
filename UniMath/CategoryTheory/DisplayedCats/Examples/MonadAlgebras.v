@@ -32,11 +32,11 @@ Proof.
     exact (is_Algebra_mor T (X:=X') (Y:=Y') f).
 Defined.
 
-#[reversible] Coercion Algebra_from_MonadAlg_disp {C : category} {T : Monad C} {x : C}
+#[reversible=no] Coercion Algebra_from_MonadAlg_disp {C : category} {T : Monad C} {x : C}
     (X : MonadAlg_disp_ob_mor T x) : Algebra T :=
   (make_Algebra_data T x (pr1 X),, pr2 X).
 
-#[reversible] Coercion Algebra_mor_from_Algebra_mor_disp {C : category} {T : Monad C}
+#[reversible=no] Coercion Algebra_mor_from_Algebra_mor_disp {C : category} {T : Monad C}
     {x y : C} (X : MonadAlg_disp_ob_mor T x) (Y : MonadAlg_disp_ob_mor T y)
     {f : x --> y} (F : X -->[f] Y) : Algebra_mor T X Y := (f,, F).
 
@@ -130,11 +130,11 @@ Proof.
     exact (is_Coalgebra_mor T (X:=X') (Y:=Y') f).
 Defined.
 
-#[reversible] Coercion Coalgebra_from_ComonadCoalg_disp {C : category} {T : Comonad C} {x : C}
+#[reversible=no] Coercion Coalgebra_from_ComonadCoalg_disp {C : category} {T : Comonad C} {x : C}
     (X : ComonadCoalg_disp_ob_mor T x) : Coalgebra T :=
   (make_Coalgebra_data T x (pr1 X),, pr2 X).
 
-#[reversible] Coercion Coalgebra_mor_from_Coalgebra_mor_disp {C : category} {T : Comonad C}
+#[reversible=no] Coercion Coalgebra_mor_from_Coalgebra_mor_disp {C : category} {T : Comonad C}
     {x y : C} (X : ComonadCoalg_disp_ob_mor T x) (Y : ComonadCoalg_disp_ob_mor T y)
     {f : x --> y} (F : X -->[f] Y) : Coalgebra_mor T X Y := (f,, F).
 

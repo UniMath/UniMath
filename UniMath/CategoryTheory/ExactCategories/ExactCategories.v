@@ -155,10 +155,10 @@ Section Pullbacks.              (* move upstream *)
   Local Open Scope type.
 
   Definition IsoArrowTo {M : category}     {A A' B:M} (g : A --> B) (g' : A' --> B) := ∑ i : z_iso A A', i · g' = g.
-  #[reversible] Coercion IsoArrowTo_pr1 {M : category}   {A A' B:M} (g : A --> B) (g' : A' --> B) : IsoArrowTo g g' -> z_iso A A' := pr1.
+  #[reversible=no] Coercion IsoArrowTo_pr1 {M : category}   {A A' B:M} (g : A --> B) (g' : A' --> B) : IsoArrowTo g g' -> z_iso A A' := pr1.
 
   Definition IsoArrowFrom {M : category}   {A B B':M} (g : A --> B) (g' : A --> B') := ∑ i : z_iso B B', g · i  = g'.
-  #[reversible] Coercion IsoArrowFrom_pr1 {M : category} {A B B':M} (g : A --> B) (g' : A --> B') : IsoArrowFrom g g' -> z_iso B B' := pr1.
+  #[reversible=no] Coercion IsoArrowFrom_pr1 {M : category} {A B B':M} (g : A --> B) (g' : A --> B') : IsoArrowFrom g g' -> z_iso B B' := pr1.
   (* this definition of IsoArrow is asymmetric *)
 
   Definition IsoArrow {M : category}       {A A' B B':M} (g : A --> B) (g' : A' --> B') := ∑ (i : z_iso A A') (j : z_iso B B'), i · g' = g · j.
@@ -514,7 +514,7 @@ Section PreAdditive.
   Definition ismonoidfun_prop {G H:abgr} (f:G->H) : hProp := make_hProp (ismonoidfun f) (isapropismonoidfun f).
   Definition PreAdditive_functor (M N:PreAdditive) :=
     ∑ F : M ⟶ N, ∀ A B:M, ismonoidfun_prop (@functor_on_morphisms M N F A B : A --> B -> F A --> F B).
-  #[reversible] Coercion PreAdditive_functor_to_functor {M N:PreAdditive} : PreAdditive_functor M N -> functor M N := pr1.
+  #[reversible=no] Coercion PreAdditive_functor_to_functor {M N:PreAdditive} : PreAdditive_functor M N -> functor M N := pr1.
   Definition functor_on_morphisms_add {C C' : PreAdditive} (F : PreAdditive_functor C C') { a b : C}
     : monoidfun (a --> b) (F a --> F b)
     := monoidfunconstr (pr2 F a b).
@@ -882,21 +882,21 @@ End KernelCokernelPairs.
 
 Section theDefinition.
   Definition ExactCategoryData := ∑ M:AdditiveCategory, MorphismPair M -> hProp. (* properties added below *)
-  #[reversible] Coercion ExactCategoryDataToAdditiveCategory (ME : ExactCategoryData) : AdditiveCategory := pr1 ME.
+  #[reversible=no] Coercion ExactCategoryDataToAdditiveCategory (ME : ExactCategoryData) : AdditiveCategory := pr1 ME.
   Definition isExact {M : ExactCategoryData} (E : MorphismPair M) : hProp := pr2 M E.
   Definition isExact2 {M : ExactCategoryData} {A B C:M} (f:A-->B) (g:B-->C) := isExact (make_MorphismPair f g).
   Definition isAdmissibleMonomorphism {M : ExactCategoryData} {A B:M} (i : A --> B) : hProp :=
     ∃ C (p : B --> C), isExact2 i p.
   Definition AdmissibleMonomorphism {M : ExactCategoryData} (A B:M) : Type :=
     ∑ (i : A --> B), isAdmissibleMonomorphism i.
-  #[reversible] Coercion AdmMonoToMap  {M : ExactCategoryData} {A B:M} : AdmissibleMonomorphism A B ->  A --> B := pr1.
-  #[reversible] Coercion AdmMonoToMap' {M : ExactCategoryData} {A B:M} : AdmissibleMonomorphism A B -> (A --> B)%cat := pr1.
+  #[reversible=no] Coercion AdmMonoToMap  {M : ExactCategoryData} {A B:M} : AdmissibleMonomorphism A B ->  A --> B := pr1.
+  #[reversible=no] Coercion AdmMonoToMap' {M : ExactCategoryData} {A B:M} : AdmissibleMonomorphism A B -> (A --> B)%cat := pr1.
   Definition isAdmissibleEpimorphism {M : ExactCategoryData} {B C:M} (p : B --> C) : hProp :=
     ∃ A (i : A --> B), isExact2 i p.
   Definition AdmissibleEpimorphism {M : ExactCategoryData} (B C:M) : Type :=
     ∑ (p : B --> C), isAdmissibleEpimorphism p.
-  #[reversible] Coercion AdmEpiToMap  {M : ExactCategoryData} {B C:M} : AdmissibleEpimorphism B C ->  B --> C := pr1.
-  #[reversible] Coercion AdmEpiToMap' {M : ExactCategoryData} {B C:M} : AdmissibleEpimorphism B C -> (B --> C)%cat := pr1.
+  #[reversible=no] Coercion AdmEpiToMap  {M : ExactCategoryData} {B C:M} : AdmissibleEpimorphism B C ->  B --> C := pr1.
+  #[reversible=no] Coercion AdmEpiToMap' {M : ExactCategoryData} {B C:M} : AdmissibleEpimorphism B C -> (B --> C)%cat := pr1.
   Lemma ExactToAdmMono {M : ExactCategoryData} {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isAdmissibleMonomorphism i.
   Proof.
     intros e. exact (hinhpr(C,,p,,e)).
@@ -947,7 +947,7 @@ Section theDefinition.
         (∀ (A B C:M) (i:A-->B) (j:B-->C),
           hasKernel j ⇒ isAdmissibleEpimorphism (i·j) ⇒ isAdmissibleEpimorphism j)).
   Definition ExactCategory := ∑ (ME:ExactCategoryData), ExactCategoryProperties ME.
-  #[reversible] Coercion ExactCategoryToData (M:ExactCategory) : ExactCategoryData := pr1 M.
+  #[reversible=no] Coercion ExactCategoryToData (M:ExactCategory) : ExactCategoryData := pr1 M.
   Definition make_ExactCategory (ME:ExactCategoryData) (p : ExactCategoryProperties ME) : ExactCategory := ME,,p.
   Definition isExactFunctor {M N:ExactCategory} (F : M ⟶ N) : hProp
     := ∀ (P : MorphismPair M), isExact P ⇒ isExact (applyFunctorToPair F P).
@@ -956,11 +956,11 @@ Section theDefinition.
   (* TO DO : show an exact functor is additive, or else include that as a condition.
      That includes showing it induces monoid functions on Hom groups.
      Start by defining preadditive functors and additive functors. *)
-  #[reversible] Coercion ExactFunctorToFunctor {M N:ExactCategory}
+  #[reversible=no] Coercion ExactFunctorToFunctor {M N:ExactCategory}
     : ExactFunctor M N -> (M ⟶ N)
     := pr1.
   Definition ShortExactSequence (M:ExactCategory) := ∑ (P : MorphismPair M), isExact P.
-  #[reversible] Coercion ShortExactSequenceToMorphismPair {M:ExactCategory} (P : ShortExactSequence M)
+  #[reversible=no] Coercion ShortExactSequenceToMorphismPair {M:ExactCategory} (P : ShortExactSequence M)
     : MorphismPair M
     := pr1 P.
   Definition ShortExactSequenceMap {M:ExactCategory} (P Q:ShortExactSequence M) := MorphismPairMap P Q.

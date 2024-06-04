@@ -1487,13 +1487,13 @@ Definition lax_monoidal_functor
   : UU
   := ∑ (F : V₁ ⟶ V₂), fmonoidal_lax V₁ V₂ F.
 
-#[reversible] Coercion lax_monoidal_functor_to_functor
+#[reversible=no] Coercion lax_monoidal_functor_to_functor
          {V₁ V₂ : monoidal_cat}
          (F : lax_monoidal_functor V₁ V₂)
   : V₁ ⟶ V₂
   := pr1 F.
 
-#[reversible] Coercion lax_monoidal_functor_to_fmonoidal_lax
+#[reversible=no] Coercion lax_monoidal_functor_to_fmonoidal_lax
          {V₁ V₂ : monoidal_cat}
          (F : lax_monoidal_functor V₁ V₂)
   : fmonoidal_lax V₁ V₂ F
@@ -1505,7 +1505,7 @@ Definition symmetric_lax_monoidal_functor
   := ∑ (F : lax_monoidal_functor V₁ V₂),
      is_symmetric_monoidal_functor (pr2 V₁) (pr2 V₂) (pr2 F).
 
-#[reversible] Coercion symmetric_lax_monoidal_functor_to_lax_monoidal
+#[reversible=no] Coercion symmetric_lax_monoidal_functor_to_lax_monoidal
          {V₁ V₂ : sym_monoidal_cat}
          (F : symmetric_lax_monoidal_functor V₁ V₂)
   : lax_monoidal_functor V₁ V₂
@@ -1516,7 +1516,7 @@ Definition strong_monoidal_functor
   : UU
   := ∑ (F : V₁ ⟶ V₂), fmonoidal V₁ V₂ F.
 
-#[reversible] Coercion strong_monoidal_functor_to_lax_monoidal_functor
+#[reversible=no] Coercion strong_monoidal_functor_to_lax_monoidal_functor
          {V₁ V₂ : monoidal_cat}
          (F : strong_monoidal_functor V₁ V₂)
   : lax_monoidal_functor V₁ V₂
@@ -1528,13 +1528,13 @@ Definition symmetric_strong_monoidal_functor
   := ∑ (F : strong_monoidal_functor V₁ V₂),
      is_symmetric_monoidal_functor (pr2 V₁) (pr2 V₂) (pr2 F).
 
-#[reversible] Coercion symmetric_strong_monoidal_functor_to_strong_monoidal
+#[reversible=no] Coercion symmetric_strong_monoidal_functor_to_strong_monoidal
          {V₁ V₂ : sym_monoidal_cat}
          (F : symmetric_strong_monoidal_functor V₁ V₂)
   : strong_monoidal_functor V₁ V₂
   := pr1 F.
 
-#[reversible] Coercion symmetric_strong_monoidal_functor_to_lax_symmetric
+#[reversible=no] Coercion symmetric_strong_monoidal_functor_to_lax_symmetric
          {V₁ V₂ : sym_monoidal_cat}
          (F : symmetric_strong_monoidal_functor V₁ V₂)
   : symmetric_lax_monoidal_functor V₁ V₂

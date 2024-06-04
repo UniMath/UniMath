@@ -43,7 +43,7 @@ Definition lafont_category
   := ∑ (V : sym_mon_closed_cat),
      is_left_adjoint (underlying_commutative_comonoid V).
 
-#[reversible] Coercion lafont_category_to_sym_mon_closed_cat
+#[reversible=no] Coercion lafont_category_to_sym_mon_closed_cat
          (V : lafont_category)
   : sym_mon_closed_cat
   := pr1 V.

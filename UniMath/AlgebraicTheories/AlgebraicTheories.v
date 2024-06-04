@@ -57,7 +57,7 @@ Notation "f • g" :=
 
 Definition algebraic_theory : UU := algebraic_theory_cat.
 
-#[reversible] Coercion algebraic_theory_to_algebraic_theory_data (T : algebraic_theory)
+#[reversible=no] Coercion algebraic_theory_to_algebraic_theory_data (T : algebraic_theory)
   : algebraic_theory_data
   := pr1 T.
 

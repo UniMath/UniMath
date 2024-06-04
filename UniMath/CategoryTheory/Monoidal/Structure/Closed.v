@@ -99,7 +99,7 @@ Definition sym_mon_closed_cat
   : UU
   := ∑ (V : sym_monoidal_cat), monoidal_leftclosed V.
 
-#[reversible] Coercion sym_monoidal_closed_cat_to_sym_monoidal_cat
+#[reversible=no] Coercion sym_monoidal_closed_cat_to_sym_monoidal_cat
          (V : sym_mon_closed_cat)
   : sym_monoidal_cat
   := pr1 V.
@@ -1100,5 +1100,41 @@ Section StandardFunctions.
     rewrite <- internal_pre_post_comp_as_pre_post_comp.
     rewrite <- internal_pre_post_comp_as_post_pre_comp.
     apply idpath.
+  Qed.
+
+  Definition internal_transpose
+             {x y z : V}
+             (f : x ⊗ y --> z)
+    : y --> x ⊸ z
+    := internal_lam (sym_mon_braiding _ _ _ · f).
+
+  Proposition is_inj_internal_transpose
+              {x y z : V}
+              {f g : x ⊗ y --> z}
+              (p : internal_transpose f = internal_transpose g)
+    : f = g.
+  Proof.
+    unfold internal_transpose in p.
+    pose (maponpaths
+            (λ z, sym_mon_braiding _ _ _ · z #⊗ identity _ · internal_eval _ _)
+            p)
+      as q.
+    cbn in q.
+    rewrite !assoc' in q.
+    rewrite !internal_beta in q.
+    rewrite !assoc in q.
+    rewrite !sym_mon_braiding_inv in q.
+    rewrite !id_left in q.
+    exact q.
+  Qed.
+
+  Proposition is_inj_internal_lam
+              {x y z : V}
+              {f g : x ⊗ y --> z}
+              (p : internal_lam f = internal_lam g)
+    : f = g.
+  Proof.
+    use (invmaponpathsweq (invweq (internal_hom_equiv x y z))).
+    exact p.
   Qed.
 End StandardFunctions.

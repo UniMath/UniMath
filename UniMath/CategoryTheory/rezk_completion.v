@@ -82,7 +82,7 @@ End rezk.
 Definition functor_from (C : precategory) : UU
   := ∑ D : univalent_category, functor C D.
 
-#[reversible] Coercion target_category (C : precategory) (X : functor_from C) : univalent_category := pr1 X.
+#[reversible=no] Coercion target_category (C : precategory) (X : functor_from C) : univalent_category := pr1 X.
 Definition func_functor_from {C : precategory} (X : functor_from C) : functor C X := pr2 X.
 
 Definition is_initial_functor_from (C : precategory) (X : functor_from C) : UU

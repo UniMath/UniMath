@@ -681,7 +681,6 @@ Proof.
   apply idpath.
 Qed.
 
-
 Proposition runitor_h_triangle
             {C : double_cat}
             {x y z : C}

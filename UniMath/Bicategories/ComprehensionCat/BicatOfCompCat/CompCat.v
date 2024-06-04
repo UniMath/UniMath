@@ -63,6 +63,7 @@
  4. The univalence of this displayed bicategory
  5. Builders and accessors
  6. Comparison
+ 7. Adjoint equivalences
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -1034,4 +1035,86 @@ Proof.
   - abstract
       (intro C ;
        apply idpath).
+Defined.
+
+(** * 7. Adjoint equivalences *)
+Section AdjequivIso.
+  Context {C : cat_with_terminal_cleaving}
+          {χ₁ χ₂ : comprehension_functor C}
+          (τ : comprehension_nat_trans χ₁ χ₂ (id₁ _))
+          (Hτ : ∏ (x : C)
+                  (xx : disp_cat_of_types C x),
+                is_z_iso_disp
+                  (identity_z_iso _)
+                  (τ x xx)).
+
+  Definition to_adjequiv_disp_nat_trans
+    : disp_nat_trans (nat_z_iso_id (functor_identity C)) χ₁ χ₂.
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ (x : C) (xx : disp_cat_of_types C x), τ x xx).
+    - abstract
+        (intros x y f xx yy ff ;
+         use eq_cod_mor ;
+         refine (maponpaths pr1 (disp_nat_trans_ax τ ff) @ _) ;
+         refine (transportb_cod_disp _ _ _ @ _ @ !(transportb_cod_disp _ _ _)) ;
+         apply idpath).
+  Defined.
+
+  Definition to_adjequiv_disp_nat_z_iso
+    : disp_nat_z_iso χ₁ χ₂ (nat_z_iso_id (functor_identity _)).
+  Proof.
+    simple refine (_ ,, _).
+    - exact to_adjequiv_disp_nat_trans.
+    - intros x xx.
+      apply Hτ.
+  Defined.
+End AdjequivIso.
+
+Definition full_comp_cat_left_adjoint_equivalence_help
+           {C₁ C₂ : cat_with_terminal_cleaving}
+           (F : adjoint_equivalence C₁ C₂)
+           (CC₁ : disp_bicat_comp_cat C₁)
+           (CC₂ : disp_bicat_comp_cat C₂)
+           (FF : CC₁ -->[ pr1 F ] CC₂)
+           (HFF : ∏ (x : C₁)
+                    (xx : disp_cat_of_types C₁ x),
+                  is_z_iso_disp
+                    (identity_z_iso _)
+                    (pr1 FF x xx))
+  : left_adjoint_equivalence
+      (B := bicat_comp_cat)
+      (a := C₁ ,, CC₁)
+      (b := C₂ ,, CC₂)
+      (pr1 F ,, FF).
+Proof.
+  revert C₁ C₂ F CC₁ CC₂ FF HFF.
+  use J_2_0.
+  - exact is_univalent_2_0_bicat_cat_with_terminal_cleaving.
+  - intros C CC₁ CC₂ FF HFF.
+    use (invmap (left_adjoint_equivalence_total_disp_weq _ _)).
+    simple refine (_ ,, _).
+    + apply internal_adjoint_equivalence_identity.
+    + refine (transportf
+                (λ z, disp_left_adjoint_equivalence _ z)
+                _
+                (pr2 (disp_nat_z_iso_to_adjequiv _ _ (to_adjequiv_disp_nat_z_iso FF HFF)))).
+      use disp_nat_trans_eq.
+      intros x xx ; cbn.
+      apply idpath.
+Qed.
+
+Definition comp_cat_left_adjoint_equivalence
+           {C₁ C₂ : comp_cat}
+           (F : comp_cat_functor C₁ C₂)
+           (HF : left_adjoint_equivalence (pr1 F))
+           (HFF : ∏ (x : C₁)
+                    (xx : disp_cat_of_types C₁ x),
+                  is_z_iso_disp
+                    (identity_z_iso _)
+                    (comp_cat_functor_comprehension F x xx))
+  : left_adjoint_equivalence F.
+Proof.
+  use (full_comp_cat_left_adjoint_equivalence_help (pr1 F ,, HF)).
+  exact HFF.
 Defined.

@@ -172,7 +172,7 @@ Definition functor_with_enrichment
   : UU
   := ∑ (F : E₁ ⟶ E₂), functor_enrichment F E₁ E₂.
 
-#[reversible] Coercion functor_with_enrichment_to_functor
+#[reversible=no] Coercion functor_with_enrichment_to_functor
          {V : monoidal_cat}
          {E₁ : cat_with_enrichment V}
          {E₂ : cat_with_enrichment V}

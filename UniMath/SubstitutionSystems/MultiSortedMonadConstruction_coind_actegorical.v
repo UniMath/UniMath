@@ -33,6 +33,7 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
+Require UniMath.SubstitutionSystems.SortIndexing.
 
 (** for the additions in 2023 *)
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -55,6 +56,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Examples.MonadsAsMonoidsElementar
 Require Import UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.
 Require UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require UniMath.SubstitutionSystems.SubstitutionSystems.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.MultiSorted_actegorical.
 Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction_alt.
@@ -185,7 +187,7 @@ Section ToBeMoved.
     exact distr.
   Qed.
 
-  Definition BinProduct_of_functors_BinProducts_of_shape
+  Definition BinCoproduct_of_functors_Coproduct_of_booleanshape_of_functors
              {C D : category}
              (BC :  Colims_of_shape two_graph D)
              (F G : functor C D)
@@ -327,14 +329,15 @@ Section Upstream.
 
   Context (C : category) (BC : BinCoproducts C).
   Local Definition Id_H := SubstitutionSystems.Id_H C BC.
+  Local Definition Const_plus_H := SubstitutionSystems.Const_plus_H C BC.
 
   Context (L : ∏ coch : cochain [C, C], LimCone coch).
   Context (distr :  ω_limits_distribute_over_I_coproducts [C, C] (bool,, isasetbool) L
     (Coproducts_from_Colims bool [C, C]
        (Colims_from_BinCoproducts (BinCoproducts_functor_precat C C BC)))).
 
-  Definition is_omega_cont_Id_H (H: [C, C] ⟶ [C, C]) :
-    is_omega_cont H -> is_omega_cont (Id_H H).
+  Definition is_omega_cont_Const_plus_H (X : [C,C]) (H: [C, C] ⟶ [C, C]) :
+    is_omega_cont H -> is_omega_cont (Const_plus_H H X).
   Proof.
     intro Hc.
     use is_omega_cont_z_iso.
@@ -349,7 +352,7 @@ Section Upstream.
         exact BC.
       }
 
-      exact (BinProduct_of_functors_BinProducts_of_shape BC0 (constant_functor [C, C] [C, C] (functor_identity C)) H).
+      exact (BinCoproduct_of_functors_Coproduct_of_booleanshape_of_functors BC0 (constant_functor [C, C] [C, C] X) H).
     }
 
     use (coproduct_of_functors_omega_cont [C,C] (bool,,isasetbool)).
@@ -360,6 +363,11 @@ Section Upstream.
       + apply is_omega_cont_constant_functor.
       + exact Hc.
   Defined.
+
+  Definition is_omega_cont_Id_H (H: [C, C] ⟶ [C, C]) :
+    is_omega_cont H -> is_omega_cont (Id_H H)
+    := is_omega_cont_Const_plus_H (functor_identity C) H.
+
 
 End Upstream.
 
@@ -382,12 +390,9 @@ Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
 Let sort_cat : category := path_pregroupoid sort Hsort.
 
 (** This represents "sort → C" *)
-Let sortToC : category := [sort_cat,C].
-Let make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid Hsort f.
+Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
-Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
-
-Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
+Let BCsortToC : BinCoproducts sortToC := SortIndexing.BCsortToC sort Hsort _ BC.
 
 (* Assumptions needed to prove ω-continuity of the functor *)
 Context (HcoC : Lims_of_shape conat_graph C)
@@ -399,45 +404,39 @@ Context (HcoC : Lims_of_shape conat_graph C)
 (** * Construction of a monad from a multisorted signature *)
 Section monad.
 
-  Local Definition sortToC1 := [sortToC, sortToC].
-  Local Definition sortToC2 := [sortToC1, sortToC1].
+  Local Definition sortToC2 := SortIndexing.sortToC2 sort Hsort C.
 
-  Let BCsortToC1 : BinCoproducts sortToC1 := BinCoproducts_functor_precat _ _ BCsortToC.
-  (* Let ICsortToC1 : Initial sortToC1 := Initial_functor_precat _ _ (Initial_functor_precat _ _ IC).*)
-  Let TCsortToC1 : Terminal sortToC1 := Terminal_functor_precat _ _ (Terminal_functor_precat _ _ TC).
+  Local Definition sortToC3 := SortIndexing.sortToC3 sort Hsort C.
 
-  Local Definition HcoCsortToC : Lims_of_shape conat_graph sortToC.
-  Proof.
-    apply LimsFunctorCategory_of_shape, HcoC.
-  Defined.
-  Local Definition HcoCsortToC1 : Lims_of_shape conat_graph sortToC1.
-  Proof.
-    apply LimsFunctorCategory_of_shape, HcoCsortToC.
-  Defined.
+  Let BCsortToC2 : BinCoproducts sortToC2 := SortIndexing.BCsortToC2 sort Hsort _ BC.
 
-  Local Definition MultiSortedSigToFunctor' : MultiSortedSig sort -> sortToC2 := MultiSortedSigToFunctor' sort Hsort C TC BP BC CC.
+  Let TsortToC2 : Terminal sortToC2 := SortIndexing.TsortToC2 sort Hsort _ TC.
+
+  Local Definition HcoCsortToC : Lims_of_shape conat_graph sortToC := SortIndexing.LLsortToC sort Hsort C conat_graph HcoC.
+
+  Local Definition HcoCsortToC2 : Lims_of_shape conat_graph sortToC2 := SortIndexing.LLsortToC2 sort Hsort C conat_graph HcoC.
+
+  Local Definition MultiSortedSigToFunctor' : MultiSortedSig sort -> sortToC3 := MultiSortedSigToFunctor' sort Hsort C TC BP BC CC.
 
   Local Definition is_omega_cont_MultiSortedSigToFunctor' (M : MultiSortedSig sort) :
     is_omega_cont (MultiSortedSigToFunctor' M) :=
     is_omega_cont_MultiSortedSigToFunctor' sort Hsort C TC
                                           BP BC CC HcoC HCcommuteCC M.
 
-  Context (sortToC_exp : Exponentials (BinProducts_functor_precat [path_pregroupoid sort Hsort, C] C BP)).
-
   Local Definition MultiSortedSigToStrength' : ∏ M : MultiSortedSig sort,
         MultiSorted_actegorical.pointedstrengthfromselfaction_CAT sort Hsort C (MultiSortedSigToFunctor' M)
     := MultiSortedSigToStrength' sort Hsort C TC BP BC CC.
 
-  Let Id_H : sortToC2 → sortToC2 := Id_H sortToC BCsortToC.
+  Let Id_H : sortToC3 → sortToC3 := Id_H sortToC BCsortToC.
 
   (** Construction of terminal coalgebra for the omega-continuous signature functor with lax lineator *)
   Definition coindCodatatypeOfMultisortedBindingSig_CAT (sig : MultiSortedSig sort) (Cuniv : is_univalent C) :
     Terminal (CoAlg_category (Id_H (MultiSortedSigToFunctor' sig))).
   Proof.
     use limCoAlgTerminal.
-    - exact TCsortToC1.
+    - exact TsortToC2.
     - use is_omega_cont_Id_H.
-      + apply HcoCsortToC1.
+      + apply HcoCsortToC2.
       + set (CP' := CoproductsBool BCsortToC).
 
         transparent assert (CP'' : (Coproducts bool sortToC)).
@@ -458,13 +457,13 @@ Section monad.
         do 2 apply is_univalent_functor_category.
         apply Cuniv.
       + exact (is_omega_cont_MultiSortedSigToFunctor' sig).
-    - apply HcoCsortToC1.
+    - apply HcoCsortToC2.
   Defined.
 
   Definition coindMHSSOfMultiSortedSig_CAT (sig : MultiSortedSig sort) (Cuniv : is_univalent C) :
     mhss (monendocat_monoidal sortToC) (MultiSortedSigToFunctor' sig) (MultiSortedSigToStrength' sig).
   Proof.
-    use (final_coalg_to_mhss (MultiSortedSigToStrength' sig) BCsortToC1).
+    use (final_coalg_to_mhss (MultiSortedSigToStrength' sig) BCsortToC2).
     - apply BindingSigToMonad_actegorical.bincoprod_distributor_pointed_CAT.
     - exact (pr1 (coindCodatatypeOfMultisortedBindingSig_CAT sig Cuniv)).
     - exact (pr2 (coindCodatatypeOfMultisortedBindingSig_CAT sig Cuniv)).
@@ -497,9 +496,9 @@ Section InstanceHSET.
 
   (* Let Hsort := hlevelntosn 2 _ Hsort_set.*)
 
-  Let sortToHSET : category := [path_pregroupoid sort Hsort, HSET].
+  Let sortToSet : category := [path_pregroupoid sort Hsort, HSET].
 
-  Definition coindMultiSortedSigToMonadHSET_viaCAT : MultiSortedSig sort → Monad (sortToHSET).
+  Definition coindMultiSortedSigToMonadHSET_viaCAT : MultiSortedSig sort → Monad (sortToSet).
   Proof.
     intros sig; simple refine (coindMonadOfMultiSortedSig_CAT sort Hsort HSET _ _ _ _ _ _ sig _).
     - apply TerminalHSET.

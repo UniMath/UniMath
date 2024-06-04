@@ -423,7 +423,7 @@ Definition monoidal_tensor_is_bifunctor
   : is_bifunctor M
   := pr12 M.
 
-#[reversible] Coercion monoidal_tensor
+#[reversible=no] Coercion monoidal_tensor
          {C : category}
          (M : monoidal C)
   : bifunctor C C C
@@ -1308,8 +1308,8 @@ Local Open Scope moncat.
 
 Definition monoidal_cat : UU := ∑ (C : category), monoidal C.
 
-#[reversible] Coercion monoidal_cat_to_cat (V : monoidal_cat) : category := pr1 V.
-#[reversible] Coercion monoidal_cat_to_monoidal (V : monoidal_cat) : monoidal V := pr2 V.
+#[reversible=no] Coercion monoidal_cat_to_cat (V : monoidal_cat) : category := pr1 V.
+#[reversible=no] Coercion monoidal_cat_to_monoidal (V : monoidal_cat) : monoidal V := pr2 V.
 
 Definition monoidal_cat_tensor_pt
            {V : monoidal_cat}
@@ -1990,4 +1990,24 @@ Proof.
   use make_functor.
   - exact (monoidal_cat_tensor_data V).
   - exact (is_functor_monoidal_cat_tensor V).
+Defined.
+
+Proposition tensor_is_z_iso
+            {C : monoidal_cat}
+            {x₁ x₂ y₁ y₂ : C}
+            {f : x₁ --> x₂}
+            {g : y₁ --> y₂}
+            (Hf : is_z_isomorphism f)
+            (Hg : is_z_isomorphism g)
+  : is_z_isomorphism (f #⊗ g).
+Proof.
+  pose (fiso := (f ,, Hf) : z_iso _ _).
+  pose (giso := (g ,, Hg) : z_iso _ _).
+  use make_is_z_isomorphism.
+  - exact (inv_from_z_iso fiso #⊗ inv_from_z_iso giso).
+  - abstract
+      (split ; rewrite <- tensor_comp_mor ; rewrite <- tensor_id_id ;
+       [ rewrite <- (z_iso_inv_after_z_iso fiso), <- (z_iso_inv_after_z_iso giso)
+       | rewrite <- (z_iso_after_z_iso_inv fiso), <- (z_iso_after_z_iso_inv giso) ] ;
+       apply idpath).
 Defined.

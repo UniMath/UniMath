@@ -126,7 +126,7 @@ Section DisplayedFunctor.
     : UU
     := ∑ (FG : twosided_disp_functor_data), twosided_disp_functor_laws FG.
 
-  #[reversible] Coercion twosided_disp_functor_to_data
+  #[reversible=no] Coercion twosided_disp_functor_to_data
            (FG : twosided_disp_functor)
     : twosided_disp_functor_data
     := pr1 FG.

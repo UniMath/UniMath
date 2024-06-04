@@ -54,7 +54,7 @@ Definition make_linear_category_data
   : linear_category_data
   := 𝕃 ,, bang ,, δ ,, ε.
 
-#[reversible] Coercion linear_category_data_to_sym_mon_closed_cat
+#[reversible=no] Coercion linear_category_data_to_sym_mon_closed_cat
          (𝕃 : linear_category_data)
   : sym_mon_closed_cat
   := pr1 𝕃.
@@ -203,7 +203,7 @@ Definition make_linear_category
   : linear_category
   := 𝕃 ,, H.
 
-#[reversible] Coercion linear_category_to_data
+#[reversible=no] Coercion linear_category_to_data
          (𝕃 : linear_category)
   : linear_category_data
   := pr1 𝕃.

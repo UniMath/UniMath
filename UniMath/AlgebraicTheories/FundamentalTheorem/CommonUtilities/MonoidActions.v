@@ -104,7 +104,7 @@ End DataCat.
 
 Arguments action_ax /.
 
-#[reversible] Coercion monoid_action_data_to_hset {M : monoid} (x : monoid_action_data M) : hSet := pr1 x.
+#[reversible=no] Coercion monoid_action_data_to_hset {M : monoid} (x : monoid_action_data M) : hSet := pr1 x.
 
 Definition action
   {M : monoid}
@@ -169,7 +169,7 @@ Definition make_monoid_action
   : monoid_action M
   := X ,, H.
 
-#[reversible] Coercion monoid_action_to_monoid_action_data
+#[reversible=no] Coercion monoid_action_to_monoid_action_data
   (M : monoid)
   (f : monoid_action M)
   : monoid_action_data M
@@ -696,9 +696,9 @@ Section GlobalElements.
   Context {M : monoid}.
   Context (X : monoid_action M).
 
-  Definition global_element
+  Local Definition global_element
     : hSet
-    := homset (TerminalObject (terminal_monoid_action M)) X.
+    := global_element (terminal_monoid_action M) X.
 
   Definition fixpoint : UU
     := ∑ x : X, ∏ m, action x m = x.

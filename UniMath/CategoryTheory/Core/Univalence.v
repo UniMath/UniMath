@@ -68,9 +68,9 @@ Definition univalent_category : UU := ∑ C : category, is_univalent C.
 Definition make_univalent_category (C : category) (H : is_univalent C) : univalent_category
   := tpair _ C H.
 
-#[reversible] Coercion univalent_category_to_category (C : univalent_category) : category := pr1 C.
+#[reversible=no] Coercion univalent_category_to_category (C : univalent_category) : category := pr1 C.
 
-#[reversible] Coercion univalent_category_has_homsets (C : univalent_category)
+#[reversible=no] Coercion univalent_category_has_homsets (C : univalent_category)
   : has_homsets C
   := pr2 (pr1 C).
 

@@ -115,7 +115,7 @@ Section Comonad_disp_def.
 
   Definition Comonad : UU := ob category_Comonad.
 
-  #[reversible] Coercion functor_from_Comonad (T : Comonad) : functor C C := pr1 T.
+  #[reversible=no] Coercion functor_from_Comonad (T : Comonad) : functor C C := pr1 T.
 
   Definition δ (T : Comonad) : T ⟹ T ∙ T := pr112 T.
   Definition ε (T : Comonad) : T ⟹ functor_identity C := pr212 T.
@@ -259,7 +259,7 @@ End pointfree.
 Definition Comonad_Mor {C : category} (T T' : Comonad C) : UU
   := category_Comonad C ⟦T, T'⟧.
 
-#[reversible] Coercion nat_trans_from_monad_mor {C : category} (T T' : Comonad C) (s : Comonad_Mor T T')
+#[reversible=no] Coercion nat_trans_from_monad_mor {C : category} (T T' : Comonad C) (s : Comonad_Mor T T')
   : T ⟹ T' := pr1 s.
 
 Definition Comonad_Mor_laws {C : category} {T T' : Comonad C} (α : T ⟹ T')
@@ -359,7 +359,7 @@ Section Comonad_eq_helper.
                       (∏ a : ob C, F a --> F (F a))) ×
                      (∏ a : ob C, F a --> a)).
 
-    #[reversible] Coercion functor_data_from_raw_Comonad_data {C : category} (T : raw_Comonad_data C) :
+    #[reversible=no] Coercion functor_data_from_raw_Comonad_data {C : category} (T : raw_Comonad_data C) :
       functor_data C C := make_functor_data (pr1 T) (pr1 (pr1 (pr2 T))).
 
     Definition Comonad'_data_laws {C : category} (T : raw_Comonad_data C) :=

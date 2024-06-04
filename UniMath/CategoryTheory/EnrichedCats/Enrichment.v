@@ -174,7 +174,7 @@ Definition enrichment
   : UU
   := ∑ (E : enrichment_data C V), enrichment_laws E.
 
-#[reversible] Coercion enrichment_to_data
+#[reversible=no] Coercion enrichment_to_data
          {C : category}
          {V : monoidal_cat}
          (E : enrichment C V)
@@ -336,15 +336,32 @@ Definition cat_with_enrichment
   : UU
   := ∑ (C : category), enrichment C V.
 
-#[reversible] Coercion cat_with_enrichment_to_cat
+#[reversible=no] Coercion cat_with_enrichment_to_cat
          {V : monoidal_cat}
          (E : cat_with_enrichment V)
   : category
   := pr1 E.
 
-#[reversible] Coercion cat_with_enrichment_to_enrichment
+#[reversible=no] Coercion cat_with_enrichment_to_enrichment
          {V : monoidal_cat}
          (E : cat_with_enrichment V)
+  : enrichment E V
+  := pr2 E.
+
+Definition univ_cat_with_enrichment
+           (V : monoidal_cat)
+  : UU
+  := ∑ (C : univalent_category), enrichment C V.
+
+#[reversible=no] Coercion univ_cat_with_enrichment_to_univ_cat
+         {V : monoidal_cat}
+         (E : univ_cat_with_enrichment V)
+  : univalent_category
+  := pr1 E.
+
+#[reversible=no] Coercion univ_cat_with_enrichment_to_enrichment
+         {V : monoidal_cat}
+         (E : univ_cat_with_enrichment V)
   : enrichment E V
   := pr2 E.
 

@@ -43,7 +43,7 @@ Definition algebraic_theory_morphism
   : UU
   := algebraic_theory_cat⟦T, T'⟧.
 
-#[reversible] Coercion algebraic_theory_morphism_to_algebraic_theory_morphism_data
+#[reversible=no] Coercion algebraic_theory_morphism_to_algebraic_theory_morphism_data
   {T T' : algebraic_theory}
   (F : algebraic_theory_morphism T T')
   : algebraic_theory_morphism_data T T'

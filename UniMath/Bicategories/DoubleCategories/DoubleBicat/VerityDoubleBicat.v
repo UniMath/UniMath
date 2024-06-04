@@ -620,6 +620,65 @@ Definition whisker_square_compatible
         (s : square_double_bicat h₁ h₂ v₁' v₂),
       θ ▹s (τ ◃s s) = τ ◃s (θ ▹s s)).
 
+Definition make_whisker_square_compatible
+           {B : ver_bicat_sq_id_comp_whisker}
+           (H₁ : ∏ (w x y z : B)
+                   (h₁ h₁' : w --> x)
+                   (h₂ h₂' : y --> z)
+                   (v₁ : w -|-> y)
+                   (v₂ : x -|-> z)
+                   (τ : h₁ ==> h₁')
+                   (θ : h₂ ==> h₂')
+                   (s : square_double_bicat h₁' h₂ v₁ v₂),
+                 θ ▿s (τ ▵s s) = τ ▵s (θ ▿s s))
+           (H₂ : ∏ (w x y z : B)
+                   (h₁ h₁' : w --> x)
+                   (h₂ : y --> z)
+                   (v₁ v₁' : w -|-> y)
+                   (v₂ : x -|-> z)
+                   (τ : h₁ ==> h₁')
+                   (θ : v₁ ==> v₁')
+                   (s : square_double_bicat h₁' h₂ v₁' v₂),
+                 θ ◃s (τ ▵s s) = τ ▵s (θ ◃s s))
+           (H₃ : ∏ (w x y z : B)
+                   (h₁ h₁' : w --> x)
+                   (h₂ : y --> z)
+                   (v₁ : w -|-> y)
+                   (v₂ v₂' : x -|-> z)
+                   (τ : h₁ ==> h₁')
+                   (θ : v₂ ==> v₂')
+                   (s : square_double_bicat h₁' h₂ v₁ v₂),
+                 θ ▹s (τ ▵s s) = τ ▵s (θ ▹s s))
+           (H₄ : ∏ (w x y z : B)
+                   (h₁ : w --> x)
+                   (h₂ h₂' : y --> z)
+                   (v₁ v₁' : w -|-> y)
+                   (v₂ : x -|-> z)
+                   (τ : h₂ ==> h₂')
+                   (θ : v₁ =|=> v₁')
+                   (s : square_double_bicat h₁ h₂ v₁' v₂),
+                 θ ◃s (τ ▿s s) = τ ▿s (θ ◃s s))
+           (H₅ : ∏ (w x y z : B)
+                   (h₁ : w --> x)
+                   (h₂ h₂' : y --> z)
+                   (v₁ : w -|-> y)
+                   (v₂ v₂' : x -|-> z)
+                   (τ : h₂ ==> h₂')
+                   (θ : v₂ =|=> v₂')
+                   (s : square_double_bicat h₁ h₂ v₁ v₂),
+                 θ ▹s (τ ▿s s) = τ ▿s (θ ▹s s))
+           (H₆ : ∏ (w x y z : B)
+                   (h₁ : w --> x)
+                   (h₂ : y --> z)
+                   (v₁ v₁' : w -|-> y)
+                   (v₂ v₂' : x -|-> z)
+                   (τ : v₁ =|=> v₁')
+                   (θ : v₂ =|=> v₂')
+                   (s : square_double_bicat h₁ h₂ v₁' v₂),
+                 θ ▹s (τ ◃s s) = τ ◃s (θ ▹s s))
+  : whisker_square_compatible B
+  := H₁ ,, H₂ ,, H₃ ,, H₄ ,, H₅ ,, H₆.
+
 Definition whisker_square_id_square
            (B : ver_bicat_sq_id_comp_whisker)
   : UU
@@ -713,6 +772,83 @@ Definition whisker_square_comp_square
         (s₁ : square_double_bicat h₁ k₁ v₁ v₂)
         (s₂ : square_double_bicat h₂ k₂ v₂' v₃),
       s₁ ⋆h (τ ◃s s₂) = (τ ▹s s₁) ⋆h s₂).
+
+Definition make_whisker_square_comp_square
+           {B : ver_bicat_sq_id_comp_whisker}
+           (H₁ : ∏ (x₁ x₂ y₁ y₂ z₁ z₂ : B)
+                   (h₁ h₁' : x₁ --> x₂)
+                   (h₂ : y₁ --> y₂)
+                   (h₃ : z₁ --> z₂)
+                   (v₁ : x₁ -|-> y₁)
+                   (v₂ : y₁ -|-> z₁)
+                   (w₁ : x₂ -|-> y₂)
+                   (w₂ : y₂ -|-> z₂)
+                   (τ : h₁ ==> h₁')
+                   (s₁ : square_double_bicat h₁' h₂ v₁ w₁)
+                   (s₂ : square_double_bicat h₂ h₃ v₂ w₂),
+                 τ ▵s (s₁ ⋆v s₂) = (τ ▵s s₁) ⋆v s₂)
+           (H₂ : ∏ (x₁ x₂ y₁ y₂ z₁ z₂ : B)
+                   (h₁ : x₁ --> x₂)
+                   (h₂ : y₁ --> y₂)
+                   (h₃ h₃' : z₁ --> z₂)
+                   (v₁ : x₁ -|-> y₁)
+                   (v₂ : y₁ -|-> z₁)
+                   (w₁ : x₂ -|-> y₂)
+                   (w₂ : y₂ -|-> z₂)
+                   (τ : h₃ ==> h₃')
+                   (s₁ : square_double_bicat h₁ h₂ v₁ w₁)
+                   (s₂ : square_double_bicat h₂ h₃ v₂ w₂),
+                 τ ▿s (s₁ ⋆v s₂) = s₁ ⋆v (τ ▿s s₂))
+           (H₃ : ∏ (x₁ x₂ y₁ y₂ z₁ z₂ : B)
+                   (h₁ : x₁ --> x₂)
+                   (h₂ h₂' : y₁ --> y₂)
+                   (h₃ : z₁ --> z₂)
+                   (v₁ : x₁ -|-> y₁)
+                   (v₂ : y₁ -|-> z₁)
+                   (w₁ : x₂ -|-> y₂)
+                   (w₂ : y₂ -|-> z₂)
+                   (τ : h₂ ==> h₂')
+                   (s₁ : square_double_bicat h₁ h₂ v₁ w₁)
+                   (s₂ : square_double_bicat h₂' h₃ v₂ w₂),
+                 s₁ ⋆v (τ ▵s s₂) = (τ ▿s s₁) ⋆v s₂)
+           (H₄ : ∏ (x₁ x₂ x₃ y₁ y₂ y₃ : B)
+                   (h₁ : x₁ --> x₂)
+                   (h₂ : x₂ --> x₃)
+                   (k₁ : y₁ --> y₂)
+                   (k₂ : y₂ --> y₃)
+                   (v₁ v₁' : x₁ -|-> y₁)
+                   (v₂ : x₂ -|-> y₂)
+                   (v₃ : x₃ -|-> y₃)
+                   (τ : v₁ =|=> v₁')
+                   (s₁ : square_double_bicat h₁ k₁ v₁' v₂)
+                   (s₂ : square_double_bicat h₂ k₂ v₂ v₃),
+                 τ ◃s (s₁ ⋆h s₂) = (τ ◃s s₁) ⋆h s₂)
+           (H₅ : ∏ (x₁ x₂ x₃ y₁ y₂ y₃ : B)
+                   (h₁ : x₁ --> x₂)
+                   (h₂ : x₂ --> x₃)
+                   (k₁ : y₁ --> y₂)
+                   (k₂ : y₂ --> y₃)
+                   (v₁ : x₁ -|-> y₁)
+                   (v₂ : x₂ -|-> y₂)
+                   (v₃ v₃' : x₃ -|-> y₃)
+                   (τ : v₃ =|=> v₃')
+                   (s₁ : square_double_bicat h₁ k₁ v₁ v₂)
+                   (s₂ : square_double_bicat h₂ k₂ v₂ v₃),
+                 τ ▹s (s₁ ⋆h s₂) = s₁ ⋆h (τ ▹s s₂))
+           (H₆ : ∏ (x₁ x₂ x₃ y₁ y₂ y₃ : B)
+                   (h₁ : x₁ --> x₂)
+                   (h₂ : x₂ --> x₃)
+                   (k₁ : y₁ --> y₂)
+                   (k₂ : y₂ --> y₃)
+                   (v₁ : x₁ -|-> y₁)
+                   (v₂ v₂' : x₂ -|-> y₂)
+                   (v₃ : x₃ -|-> y₃)
+                   (τ : v₂ =|=> v₂')
+                   (s₁ : square_double_bicat h₁ k₁ v₁ v₂)
+                   (s₂ : square_double_bicat h₂ k₂ v₂' v₃),
+                 s₁ ⋆h (τ ◃s s₂) = (τ ▹s s₁) ⋆h s₂)
+  : whisker_square_comp_square B
+  := H₁ ,, H₂ ,, H₃ ,, H₄ ,, H₅ ,, H₆.
 
 Definition whisker_square_bicat_law
            (B : ver_bicat_sq_id_comp_whisker)

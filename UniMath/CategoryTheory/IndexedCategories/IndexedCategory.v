@@ -168,7 +168,7 @@ Definition make_indexed_cat
   : indexed_cat C
   := F ,, HF₁ ,, HF₂.
 
-#[reversible] Coercion indexed_cat_to_data
+#[reversible=no] Coercion indexed_cat_to_data
          {C : category}
          (F : indexed_cat C)
   : indexed_cat_data C

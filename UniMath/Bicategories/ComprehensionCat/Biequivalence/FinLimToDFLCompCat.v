@@ -33,10 +33,10 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
-Require Import UniMath.CategoryTheory.DisplayedCats.FiberwiseTerminal.
-Require Import UniMath.CategoryTheory.DisplayedCats.FiberwiseProducts.
-Require Import UniMath.CategoryTheory.DisplayedCats.FiberwiseEqualizers.
-Require Import UniMath.CategoryTheory.DisplayedCats.DependentSums.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodLeftAdjoint.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
@@ -134,6 +134,8 @@ Section FinLimToDFLCompCat.
     - exact finlim_to_full_comp_cat.
     - exact is_democratic_finlim.
     - apply codomain_fiberwise_terminal.
+    - intro Γ ; cbn.
+      apply is_z_isomorphism_identity.
     - apply codomain_fiberwise_binproducts.
     - apply codomain_fiberwise_equalizers.
       exact (terminal_univ_cat_with_finlim C).

@@ -36,8 +36,10 @@ MLTT79.v
 SimplifiedHSS/MLTT79.v
 FromBindingSigsToMonads_Summary.v
 SimplifiedHSS/FromBindingSigsToMonads_Summary.v
+SortIndexing.v
 MonadsMultiSorted.v
 MonadsMultiSorted_alt.v
+MultiSortedBindingSig.v
 MultiSorted.v
 MultiSortedMonadConstruction.v
 SimplifiedHSS/MultiSortedMonadConstruction.v
@@ -74,4 +76,8 @@ MultiSortedMonadConstruction_actegorical.v
 MultiSortedMonadConstruction_coind_actegorical.v
 MultiSortedEmbeddingIndCoindHSET.v
 
+UntypedForests.v
+Forests.v
+
 STLC_actegorical.v
+STLC_actegorical_abstractcat.v

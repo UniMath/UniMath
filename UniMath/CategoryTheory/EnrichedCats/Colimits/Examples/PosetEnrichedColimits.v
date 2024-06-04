@@ -17,8 +17,8 @@
 
  Contents
  1. Initial object
- 2. Binary coroducts
- 3. Coqualizers
+ 2. Binary coproducts
+ 3. Coequalizers
  4. Copowers
  5. Type indexed coproducts
 

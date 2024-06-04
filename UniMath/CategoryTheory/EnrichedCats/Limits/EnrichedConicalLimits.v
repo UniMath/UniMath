@@ -60,7 +60,7 @@ Section EnrichedConicalLimit.
        ∏ (i j : I) (f : i --> j),
        ps i · #D f = ps j.
 
-  #[reversible] Coercion ob_enriched_conical_lim_cone
+  #[reversible=no] Coercion ob_enriched_conical_lim_cone
            (a : enriched_conical_lim_cone)
     : C
     := pr1 a.
@@ -144,12 +144,12 @@ Section EnrichedConicalLimit.
     := ∑ (a : enriched_conical_lim_cone),
        is_conical_lim_enriched a.
 
-  #[reversible] Coercion cone_of_conical_lim_enriched
+  #[reversible=no] Coercion cone_of_conical_lim_enriched
            (a : conical_lim_enriched)
     : enriched_conical_lim_cone
     := pr1 a.
 
-  #[reversible] Coercion enriched_conical_lim_cone_is_conical_lim
+  #[reversible=no] Coercion enriched_conical_lim_cone_is_conical_lim
            (a : conical_lim_enriched)
     : is_conical_lim_enriched a
     := pr2 a.

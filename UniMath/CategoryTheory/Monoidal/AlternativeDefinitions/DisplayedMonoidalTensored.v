@@ -764,7 +764,7 @@ Section section_tensor.
   Definition monoidal_tensor_section : UU
     := ∑ (α : monoidal_tensor_section_data), monoidal_tensor_section_natural α.
 
-  #[reversible] Coercion monoidal_tensor_section_data_from_monoidal_tensor_section (α : monoidal_tensor_section)
+  #[reversible=no] Coercion monoidal_tensor_section_data_from_monoidal_tensor_section (α : monoidal_tensor_section)
     : monoidal_tensor_section_data
     := pr1 α.
 

@@ -255,8 +255,9 @@ Definition kleisli_univalent_double_cat
 Proof.
   use make_univalent_double_cat.
   - exact (kleisli_double_cat M).
-  - apply univalent_category_is_univalent.
-  - apply is_univalent_comma_twosided_disp_cat.
+  - split.
+    + apply univalent_category_is_univalent.
+    + apply is_univalent_comma_twosided_disp_cat.
 Defined.
 
 (** * 3. The strict Kleisli double category *)

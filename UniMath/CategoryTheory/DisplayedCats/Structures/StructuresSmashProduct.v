@@ -712,7 +712,7 @@ Definition hset_struct_with_smash_closed_adj
 (**
  7. Accessores for structures with an pointed hom-adjunction
  *)
-#[reversible] Coercion hset_struct_with_smash_closed_to_point
+#[reversible=no] Coercion hset_struct_with_smash_closed_to_point
          {P : hset_cartesian_struct}
          {Pt : pointed_hset_struct P}
          {SP : hset_struct_with_smash P Pt}
@@ -811,12 +811,12 @@ Definition hset_struct_with_smash_closed
        (PC : hset_struct_with_smash_closed_adj SP),
      hset_struct_with_smash_closed_laws_enrich PC.
 
-#[reversible] Coercion hset_struct_with_smash_closed_to_struct
+#[reversible=no] Coercion hset_struct_with_smash_closed_to_struct
          (PC : hset_struct_with_smash_closed)
   : hset_cartesian_struct
   := pr1 PC.
 
-#[reversible] Coercion hset_struct_with_smash_closed_point
+#[reversible=no] Coercion hset_struct_with_smash_closed_point
          (PC : hset_struct_with_smash_closed)
   : pointed_hset_struct PC
   := pr12 PC.

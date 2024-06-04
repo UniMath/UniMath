@@ -37,10 +37,10 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
-Require Import UniMath.CategoryTheory.DisplayedCats.FiberwiseTerminal.
-Require Import UniMath.CategoryTheory.DisplayedCats.FiberwiseProducts.
-Require Import UniMath.CategoryTheory.DisplayedCats.FiberwiseEqualizers.
-Require Import UniMath.CategoryTheory.DisplayedCats.DependentSums.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
@@ -140,10 +140,14 @@ Section DFLFullCompCatLimitPreservation.
          (comp_cat_functor_terminal F)
          [].
 
-  Let τθ : nat_z_iso (FF ∙ (χ₂ ∙ E₂)) ((χ₁ ∙ E₁) ∙ F)
+  Definition dfl_functor_nat_z_iso
+    : nat_z_iso (FF ∙ (χ₂ ∙ E₂)) ((χ₁ ∙ E₁) ∙ F)
     := nat_z_iso_comp
          (post_whisker_nat_z_iso τ E₂)
          (pre_whisker_nat_z_iso χ₁ θ).
+
+  Let τθ : nat_z_iso (FF ∙ (χ₂ ∙ E₂)) ((χ₁ ∙ E₁) ∙ F)
+    := dfl_functor_nat_z_iso.
 
   Definition preserves_binproduct_binproducts_dfl_functor
     : preserves_binproduct F.

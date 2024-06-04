@@ -95,7 +95,7 @@ Section DisplayedAdjunction.
     := ∑ AA : disp_adjunction_data A D D',
         triangle_1_statement_over AA × triangle_2_statement_over AA.
 
-  #[reversible] Coercion data_of_disp_adjunction (C C' : category) (A : adjunction C C')
+  #[reversible=no] Coercion data_of_disp_adjunction (C C' : category) (A : adjunction C C')
            D D' (AA : disp_adjunction A D D') : disp_adjunction_data _ _ _ := pr1 AA.
 
   Definition triangle_1_over {C C' : category}
@@ -208,12 +208,12 @@ Section DisplayedEquivalences.
     := ∑ AA : disp_adjunction E D D', @form_equiv_over _ _ E _  _ (pr1 AA).
   (* argument A is not inferred *)
 
-  #[reversible] Coercion adjunction_of_equiv_over {C C' : category} (E : adj_equiv C C')
+  #[reversible=no] Coercion adjunction_of_equiv_over {C C' : category} (E : adj_equiv C C')
            {D : disp_cat C} {D': disp_cat C'} (EE : equiv_over E D D')
     : disp_adjunction _ _ _ := pr1 EE.
 
 
-  #[reversible] Coercion axioms_of_equiv_over {C C' : category} (E : adj_equiv C C')
+  #[reversible=no] Coercion axioms_of_equiv_over {C C' : category} (E : adj_equiv C C')
            {D : disp_cat C} {D': disp_cat C'}
            (EE : equiv_over E D D') : form_equiv_over _
     := pr2 EE.

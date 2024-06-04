@@ -186,7 +186,7 @@ Definition twosided_disp_cat_data
   := ∑ (D : twosided_disp_cat_ob_mor C₁ C₂),
      twosided_disp_cat_id_comp D.
 
-#[reversible] Coercion twosided_disp_cat_data_to_twosided_disp_cat_ob_mor
+#[reversible=no] Coercion twosided_disp_cat_data_to_twosided_disp_cat_ob_mor
          {C₁ C₂ : precategory_data}
          (D : twosided_disp_cat_data)
   : twosided_disp_cat_ob_mor C₁ C₂

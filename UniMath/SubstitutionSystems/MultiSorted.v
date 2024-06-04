@@ -186,9 +186,9 @@ Defined.
 Local Definition exp_functor_list (xs : list (list sort × sort)) :
   functor [HSET_over_sort,HSET_over_sort] [HSET_over_sort,HSET].
 Proof.
-(* If the list is empty we output the constant functor *)
-set (T := constant_functor [HSET_over_sort,HSET_over_sort] [HSET_over_sort,HSET]
-                           (constant_functor HSET_over_sort HSET TerminalHSET)).
+  (* If the list is empty we output the constant functor *)
+set (T0 := (Terminal_functor_precat _ _ TerminalHSET) : Terminal [HSET_over_sort, HSET]).
+set (T := constant_functor [HSET_over_sort,HSET_over_sort] _ T0).
 (* TODO: Maybe use indexed finite products instead of a fold? *)
 set (XS := map exp_functor xs).
 (* This should be foldr1 in order to avoid composing with the

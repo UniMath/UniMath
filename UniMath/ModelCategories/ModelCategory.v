@@ -2,21 +2,21 @@
 
 Model Categories
 
-In this file, we define the notion of a model structure on a 
+In this file, we define the notion of a model structure on a
 category. We also define an alternative way of defining
-such a structure. A model structure consists of two interacting 
+such a structure. A model structure consists of two interacting
 Weak Factorization Systems (WFS), defined in ./WFS.v.
 Model structures form a big motivation for WFSs, which, as well
-as actual model structures, can be generated using Quillen's 
-Small Object Argument. This argument has been refined by 
-Richard Garner to be more algebraically sound: the 
+as actual model structures, can be generated using Quillen's
+Small Object Argument. This argument has been refined by
+Richard Garner to be more algebraically sound: the
 Algebraic Small Object Argument. The theory of this formalization
 started off by rewriting an effort by Reid Barton on this topic,
 which can be found here:
 
 https://github.com/rwbarton/lean-model-categories/tree/lean-3.4.1
 
-Important sources: 
+Important sources:
 - More Concise Algebraic Topology (MCAT)
 - My thesis: https://studenttheses.uu.nl/handle/20.500.12932/45658
 
@@ -43,7 +43,7 @@ Local Open Scope retract.
 Definition is_model_category {C : category} (W K F : morphism_class C) :=
     is_weak_equivalences W × is_wfs K (F ∩ W) × is_wfs (K ∩ W) F.
 
-Definition make_is_model_category {C : category} (W K F : morphism_class C) 
+Definition make_is_model_category {C : category} (W K F : morphism_class C)
     (weq : is_weak_equivalences W) (cfw_wfs : is_wfs K (F ∩ W)) (cwf_wfs : is_wfs (K ∩ W) F) : is_model_category W K F :=
   make_dirprod weq (make_dirprod cfw_wfs cwf_wfs).
 
@@ -118,7 +118,7 @@ Proof.
         rewrite gh.
         exact f_w.
       }
-      
+
       (* h ∈ AF because AF = F ∩ W and h ∈ F by definition *)
       assert (h_af : (AF _ _) h).
       {
@@ -127,7 +127,7 @@ Proof.
         - exact h_f.
         - exact h_w.
       }
-      
+
       (* extract lift l from
             g
         a ----> c

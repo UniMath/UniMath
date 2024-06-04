@@ -81,8 +81,8 @@ Definition grp_inv_l {X : hSet} {G : grp_structure_data X}
 
 Definition grp_structure (X : hSet) : UU
   := ∑ G : grp_structure_data X, grp_structure_axioms G.
-#[reversible] Coercion grp_data {X} (G : grp_structure X) : grp_structure_data X := pr1 G.
-#[reversible] Coercion grp_axioms {X} (G : grp_structure X) : grp_structure_axioms _ := pr2 G.
+#[reversible=no] Coercion grp_data {X} (G : grp_structure X) : grp_structure_data X := pr1 G.
+#[reversible=no] Coercion grp_axioms {X} (G : grp_structure X) : grp_structure_axioms _ := pr2 G.
 
 Definition is_grp_hom {X Y : hSet} (f : X -> Y)
            (GX : grp_structure X) (GY : grp_structure Y) : UU

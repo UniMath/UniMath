@@ -271,7 +271,7 @@ Defined. *)
 (* We can't really do this with the "naive definition" of three C, since then we need
 the middle object for the section. We would have to define our own theory.  *)
 Definition functorial_factorization (C : category) := section_disp (three_disp C).
-#[reversible] Coercion fact_section {C : category} (F : functorial_factorization C)
+#[reversible=no] Coercion fact_section {C : category} (F : functorial_factorization C)
     := section_disp_data_from_section_disp F.
 Definition fact_functor {C : category} (F : functorial_factorization C) : arrow C ⟶ three C :=
     section_functor F.

@@ -758,6 +758,43 @@ End pullback_iso.
 
 End lemmas_on_pullbacks.
 
+
+(** * Pullback of identities *)
+Definition identity_isPullback
+           {C : category}
+           {x y : C}
+           {f g : x --> y}
+           {ix : x --> x}
+           {iy : y --> y}
+           (p : f · iy = ix · g)
+           (q₁ : f = g)
+           (q₂ : ix = identity _)
+           (q₃ : iy = identity _)
+  : isPullback p.
+Proof.
+  intros w h k r.
+  use iscontraprop1.
+  - abstract
+      (use invproofirrelevance ;
+       intros φ₁ φ₂ ;
+       use subtypePath ; [ intro ; apply isapropdirprod ; apply homset_property | ] ;
+       refine (!(id_right _) @ _) ;
+       rewrite <- q₂ ;
+       refine (pr22 φ₁ @ !(pr22 φ₂) @ _) ;
+       rewrite q₂ ;
+       apply id_right).
+  - simple refine (k ,, _ ,, _).
+    + abstract
+        (rewrite q₁ ;
+         rewrite <- r ;
+         rewrite q₃ ;
+         apply id_right).
+    + abstract
+        (cbn ;
+         rewrite q₂ ;
+         apply id_right).
+Defined.
+
 Definition switchPullback {C:category} {A B D:C} {f : A --> D} {g : B --> D} (pb : Pullback f g) : Pullback g f.
 Proof.
   induction pb as [[P [r s]] [e ip]]; simpl in e.
@@ -1667,3 +1704,60 @@ Section IsoOfPullbacks.
   Defined.
 
 End IsoOfPullbacks.
+
+(** * Swapping pullbacks *)
+Definition swap_pullback_mor
+           {C : category}
+           {x y z : C}
+           (f : x --> z)
+           (g : y --> z)
+           (Pfg : Pullback f g)
+           (Pgf : Pullback g f)
+  : Pfg --> Pgf.
+Proof.
+  use PullbackArrow.
+  - apply PullbackPr2.
+  - apply PullbackPr1.
+  - abstract
+      (refine (!_) ;
+       apply PullbackSqrCommutes).
+Defined.
+
+Proposition swap_pullback_mor_eq
+            {C : category}
+            {x y z : C}
+            (f : x --> z)
+            (g : y --> z)
+            (Pfg : Pullback f g)
+            (Pgf : Pullback g f)
+  : swap_pullback_mor f g Pfg Pgf · swap_pullback_mor g f Pgf Pfg = identity Pfg.
+Proof.
+  unfold swap_pullback_mor.
+  use (MorphismsIntoPullbackEqual (isPullback_Pullback Pfg)).
+  - rewrite !assoc'.
+    rewrite PullbackArrow_PullbackPr1.
+    rewrite PullbackArrow_PullbackPr2.
+    rewrite id_left.
+    apply idpath.
+  - rewrite !assoc'.
+    rewrite PullbackArrow_PullbackPr2.
+    rewrite PullbackArrow_PullbackPr1.
+    rewrite id_left.
+    apply idpath.
+Qed.
+
+Definition swap_pullback_z_iso
+           {C : category}
+           {x y z : C}
+           (f : x --> z)
+           (g : y --> z)
+           (Pfg : Pullback f g)
+           (Pgf : Pullback g f)
+  : z_iso Pfg Pgf.
+Proof.
+  use make_z_iso.
+  - apply swap_pullback_mor.
+  - apply swap_pullback_mor.
+  - abstract
+      (split ; apply swap_pullback_mor_eq).
+Defined.

@@ -35,6 +35,8 @@ Require Import UniMath.CategoryTheory.Groupoids.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
+Require UniMath.SubstitutionSystems.SortIndexing.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 
 Require Import UniMath.CategoryTheory.Chains.OmegaContFunctors.
@@ -50,60 +52,51 @@ Section FixTheContext.
   Context (sort : UU) (Hsort : isofhlevel 3 sort) (C : category)
           (TC : Terminal C) (IC : Initial C)
           (BP : BinProducts C) (BC : BinCoproducts C)
-          (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
+          (* (PC : forall (I : UU), Products I C) *) (eqsetPC : forall (s s' : sort), Products (s=s') C)
+          (CC : forall (I : UU), isaset I → Coproducts I C).
 
   (** Define the discrete category of sorts *)
   Let sort_cat : category := path_pregroupoid sort Hsort.
 
   (** This represents "sort → C" *)
-  Let sortToC : category := [sort_cat,C].
-  Let make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid Hsort f.
+  Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
-  Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
-  Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
+  Let sortToCC : category := SortIndexing.sortToCC sort Hsort C.
+  Let TsortToCC : Terminal sortToCC := SortIndexing.TsortToCC sort Hsort C TC.
 
-  Lemma sortToC1_binproducts
-    : BinProducts [sortToC, sortToC].
-  Proof.
-    repeat (apply BinProducts_functor_precat) ; exact BP.
-  Defined.
+  Let sortToC2 : category := SortIndexing.sortToC2 sort Hsort C.
 
-  (* not used in the present file *)
-  Lemma sortToC1_coproducts
-    : ∏ I : UU, isaset I -> Coproducts I [sortToC, sortToC].
-  Proof.
-    intros I Iset.
-    repeat (apply Coproducts_functor_precat) ; exact (CC I Iset).
-  Defined.
+  Local Definition BPsortToC2 : BinProducts sortToC2 := SortIndexing.BPsortToC2 sort Hsort _ BP.
 
+  Let projSortToC : sort -> sortToCC := projSortToC sort Hsort C.
+  Let hat_functorC : sort -> C ⟶ sortToC := hat_functor sort Hsort C CC.
 
   Section DefinitionOfMultiSortedSigToFunctorPrime.
 
   Definition hat_exp_functor_list'_piece
              (xt : (list sort × sort) × sort)
-    : functor [sortToC,sortToC] [sortToC,sortToC].
+    : functor sortToC2 sortToC2.
   Proof.
     induction xt as [[si s] t].
     set (op_f := option_list sort Hsort C TC BC CC si).
     refine (functor_composite (pre_comp_functor op_f) _).
-    set (prs := projSortToC sort Hsort C s).
-    set (hatt := hat_functor sort Hsort C CC t).
+    set (prs := projSortToC s).
+    set (hatt := hat_functorC t).
     set (prshatt := functor_composite prs hatt).
     exact (post_comp_functor prshatt).
   Defined.
 
   Definition hat_exp_functor_list'
              (xst : list (list sort × sort) × sort)
-    : functor [sortToC,sortToC] [sortToC,sortToC].
+    : functor sortToC2 sortToC2.
   Proof.
     induction xst as [a t].
     (* a := [a1,...,am]
        Each ai := ([si_1, ... si_n],si)
      *)
 
-    set (T := constant_functor [sortToC,sortToC] [sortToC,C]
-                               (constant_functor sortToC C TC)).
-    set (TT := (functor_composite T (post_comp_functor (hat_functor sort Hsort C CC t)))).
+    set (T := constant_functor sortToC2 sortToCC TsortToCC).
+    set (TT := (functor_composite T (post_comp_functor (hat_functorC t)))).
 
     use (list_ind _ _ _ a).
     - exact TT.
@@ -115,18 +108,17 @@ Section FixTheContext.
 (** optimized version that does not introduce the terminal element in the singleton case: *)
   Definition hat_exp_functor_list'_optimized
              (xst : list (list sort × sort) × sort)
-    : functor [sortToC,sortToC] [sortToC,sortToC].
+    : functor sortToC2 sortToC2.
   Proof.
     induction xst as [xs t].
-    set (T := constant_functor [sortToC,sortToC] [sortToC,C]
-                               (constant_functor sortToC C TC)).
-    set (TT := (functor_composite T (post_comp_functor (hat_functor sort Hsort C CC t)))).
+    set (T := constant_functor sortToC2 sortToCC TsortToCC).
+    set (TT := (functor_composite T (post_comp_functor (hat_functorC t)))).
     set (HH := fun ap => (hat_exp_functor_list'_piece (ap,,t))).
-    exact (foldr1_map (λ F G, BinProduct_of_functors sortToC1_binproducts F G) TT HH xs).
+    exact (foldr1_map (λ F G, BinProduct_of_functors BPsortToC2 F G) TT HH xs).
   Defined.
 
   Definition MultiSortedSigToFunctor' (M : MultiSortedSig sort) :
-    functor [sortToC,sortToC] [sortToC,sortToC].
+    functor sortToC2 sortToC2.
   Proof.
     use (coproduct_of_functors (ops sort M)).
     + apply Coproducts_functor_precat, Coproducts_functor_precat, CC, setproperty.
@@ -139,9 +131,7 @@ Section FixTheContext.
   (** * the following is a deviation from the main topic of this file *)
   Section OmegaCocontinuityOfMultiSortedSigToFunctorPrime.
 
-    Let BPCsortToC : BinProducts sortToC := BinProducts_functor_precat _ C BP.
-    Let BPC1 : BinProducts [sortToC,sortToC] := BinProducts_functor_precat sortToC sortToC BPCsortToC.
-    Context (expSortToC1 : Exponentials BPC1) (** this requires exponentials in a higher space than before *)
+    Context (EsortToC2 : Exponentials BPsortToC2) (** this requires exponentials in a higher space than before *)
       (HC : Colims_of_shape nat_graph C).
 
     Local Lemma is_omega_cocont_hat_exp_functor_list'_piece  (xt : (list sort × sort) × sort) :
@@ -152,7 +142,7 @@ Section FixTheContext.
         apply (ColimsFunctorCategory_of_shape nat_graph sort_cat _ HC).
       - use is_omega_cocont_post_composition_functor.
         apply is_left_adjoint_functor_composite.
-        + apply MultiSorted_alt.is_left_adjoint_projSortToC, PC.
+        + apply MultiSorted_alt.is_left_adjoint_projSortToC, eqsetPC.
         + apply MultiSorted_alt.is_left_adjoint_hat.
     Defined.
 
@@ -170,7 +160,7 @@ Section FixTheContext.
         apply is_omega_cocont_BinProduct_of_functors.
         * apply BinProducts_functor_precat, BinProducts_functor_precat, BP.
         * apply is_omega_cocont_constprod_functor1.
-          apply expSortToC1.
+          apply EsortToC2.
         * apply (ap_func t).
         * apply is_omega_cocont_hat_exp_functor_list'_piece.
     Defined.
@@ -202,9 +192,9 @@ Section FixTheContext.
           change (S n,, k,, xs) with (cons k (n,,xs)) in IHinst.
           unfold hat_exp_functor_list'_optimized in IHinst.
           apply is_omega_cocont_BinProduct_of_functors.
-          * apply sortToC1_binproducts.
+          * apply BPsortToC2.
           * apply is_omega_cocont_constprod_functor1.
-            apply expSortToC1.
+            apply EsortToC2.
           * apply is_omega_cocont_hat_exp_functor_list'_piece.
           * exact IHinst.
     Defined.
@@ -227,7 +217,7 @@ Section FixTheContext.
   Lemma post_comp_with_pr_and_hat_is_omega_cont (s t : sort)
     :  is_omega_cont (post_comp_functor
                         (A := sortToC)
-                        (projSortToC sort Hsort C s ∙ hat_functor sort Hsort C CC t)
+                        (projSortToC s ∙ hat_functorC t)
                      ).
   Proof.
     intros coch L con isLimcon.
@@ -328,7 +318,7 @@ Section FixTheContext.
          (diagram_pointwise
             (diagram_pointwise
                (mapdiagram
-                  (post_comp_functor (projSortToC sort Hsort C s ∙ hat_functor sort Hsort C CC t))
+                  (post_comp_functor (projSortToC s ∙ hat_functorC t))
                   coch) F) G))).
         }
         etrans.

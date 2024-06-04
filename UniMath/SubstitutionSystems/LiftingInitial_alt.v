@@ -80,12 +80,14 @@ Section fix_an_H.
 
   Let Alg : precategory := FunctorAlg Id_H.
 
-Lemma is_omega_cocont_Id_H : is_omega_cocont Id_H.
+Lemma is_omega_cocont_Const_plus_H (X : EndC) : is_omega_cocont (Const_plus_H X).
 Proof.
   apply is_omega_cocont_BinCoproduct_of_functors; try apply functor_category_has_homsets.
   - apply is_omega_cocont_constant_functor.
   - apply HH.
 Defined.
+
+Definition is_omega_cocont_Id_H : is_omega_cocont Id_H := is_omega_cocont_Const_plus_H (functor_identity C).
 
 Definition InitAlg : Alg :=
   InitialObject (colimAlgInitial InitialEndC is_omega_cocont_Id_H (Colims_of_shape_nat_graph_EndC _)).

@@ -13,6 +13,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.Algebra.Universal.EqAlgebras.
 Require Import UniMath.CategoryTheory.Categories.Universal_Algebra.Algebras.
 
+Section FixAnEqSpec.
+
 Context (σ : eqspec).
 
 Local Open Scope sorted_scope.
@@ -87,3 +89,5 @@ Proof.
            (is_univalent_shSet_category σ) is_univalent_eqalg_disp).
 Qed.
 *)
+
+End FixAnEqSpec.

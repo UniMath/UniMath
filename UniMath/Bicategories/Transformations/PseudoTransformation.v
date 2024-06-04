@@ -8,6 +8,7 @@ Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
+Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Prod.
@@ -377,6 +378,32 @@ Section PointwiseAdjequivIsAdjequiv.
     - apply disp_left_adjoint_equivalence_fullsubbicat.
   Qed.
 End PointwiseAdjequivIsAdjequiv.
+
+Definition right_adjoint_pointwise_adjequiv
+           {B₁ B₂ : bicat}
+           (HB₂ : is_univalent_2 B₂)
+           {F₁ F₂ : psfunctor B₁ B₂}
+           (σ : pstrans F₁ F₂)
+           (H : ∏ (x : B₁), left_adjoint_equivalence (σ x))
+           (x : B₁)
+  : (left_adjoint_right_adjoint (pointwise_adjequiv_to_adjequiv HB₂ σ H) : pstrans F₂ F₁) x
+    =
+    left_adjoint_right_adjoint (H x).
+Proof.
+  assert (H x
+          =
+          pointwise_adjequiv
+            _
+            (pointwise_adjequiv_to_adjequiv HB₂ σ H)
+            x)
+    as p.
+  {
+    apply isaprop_left_adjoint_equivalence.
+    apply HB₂.
+  }
+  rewrite p.
+  apply idpath.
+Qed.
 
 (** Pseudotansformations between psfunctor data *)
 Definition pstrans_data_on_data

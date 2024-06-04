@@ -17,7 +17,7 @@ Definition Tree : Type :=
     (mt_symm:    ∏ x y, mt_dist x y = mt_dist y x)
     (mt_trans:   ∏ x y z, mt_dist x z <= mt_dist x y + mt_dist y z),
   (* mt_step: *) ∏ x z, x != z -> ∑ y, (S (mt_dist x y) = mt_dist x z) × (mt_dist y z = 1).
-#[reversible] Coercion mt_set (x:Tree) := pr1 x.
+#[reversible=no] Coercion mt_set (x:Tree) := pr1 x.
 Definition mt_dist (x:Tree) := pr12 x.
 Definition mt_refl (x:Tree) := pr122 x.
 Definition mt_anti (x:Tree) := pr122 (pr2 x).

@@ -781,8 +781,7 @@ Lemma LNWFS_colim_comul_monad_ax :
     disp_Comonad_laws (L_monad_data (colim Finf) LNWFS_colim_comul).
 Proof.
   repeat split; intro f.
-  - apply subtypePath; [intro; apply homset_property|].
-    apply pathsdirprod; [etrans; [apply assoc'|]; etrans; [apply id_left|]; apply id_left|].
+  - apply arrow_mor_eq; [etrans; [apply assoc'|]; etrans; [apply id_left|]; apply id_left|].
     apply pathsinv0.
     apply colim_endo_is_identity.
     intro v.
@@ -809,8 +808,7 @@ Proof.
     etrans. apply cancel_postcomposition.
             exact (pr2 (pathsdirprodweq (base_paths _ _ law1v))).
     apply id_left.
-  - apply subtypePath; [intro; apply homset_property|].
-    apply pathsdirprod; [etrans; [apply assoc'|]; etrans; [apply id_left|]; apply id_left|].
+  - apply arrow_mor_eq; [etrans; [apply assoc'|]; etrans; [apply id_left|]; apply id_left|].
     apply pathsinv0.
     apply colim_endo_is_identity.
     intro v.
@@ -852,8 +850,7 @@ Proof.
     etrans. apply pr1_section_disp_on_morphisms_comp.
     apply section_disp_on_eq_morphisms; [apply id_left|].
     apply (colimArrowCommutes (CCFf_pt_ob1 CC dbase f)).
-  - apply subtypePath; [intro; apply homset_property|].
-    apply pathsdirprod; [reflexivity|].
+  - apply arrow_mor_eq; [reflexivity|].
     use colimArrowUnique'.
     intro v.
     etrans. apply assoc.

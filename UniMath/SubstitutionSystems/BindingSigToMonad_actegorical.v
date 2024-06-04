@@ -257,12 +257,13 @@ Section FixACategory.
 
   Let BPC2 : BinProducts [C, C] := BinProducts_functor_precat C C BPC.
   Let BCC2 : BinCoproducts [C, C] := BinCoproducts_functor_precat C C BCC.
+  Let TCC (TC : Terminal C) : Terminal [C, C] := Terminal_functor_precat _ _ TC.
 
   (** [nat] to a Signature *)
   Definition Arity_to_functor (TC : Terminal C) (xs : list nat) : functor [C, C] [C, C].
   Proof.
     exact (foldr1 (BinProduct_of_functors _ _ BPC2)
-             (constant_functor [C, C] [C, C] (constant_functor C C (TerminalObject TC)))
+             (constant_functor [C, C] [C, C] (TCC TC))
              (map (precomp_option_iter BCC TC) xs)).
   Defined.
 

@@ -106,6 +106,22 @@ Qed.
 
 End Terminal_Unique.
 
+Section GlobalElements.
+
+  Context {C : category} (T : Terminal C).
+
+  (** the set of global elements *)
+  Definition global_element (c : C) : hSet
+    := homset (TerminalObject T) c.
+
+  (** global elements are monic *)
+  Lemma global_element_isMonic (c : C) (f : global_element c) : isMonic f.
+  Proof.
+    apply make_isMonic; intros b g h H.
+    now apply TerminalArrowEq.
+  Qed.
+
+End GlobalElements.
 
 Section Terminal_and_EmptyProd.
 
@@ -244,12 +260,12 @@ End Terminal_and_EmptyProd.
 (** * Construction of terminal object in a functor category *)
 Section TerminalFunctorCat.
 
-Context (C D : category) (ID : Terminal D).
+Context (C D : category) (TD : Terminal D).
 
 Definition Terminal_functor_precat : Terminal [C,D].
 Proof.
 use make_Terminal.
-- exact (constant_functor _ _ ID).
+- exact (constant_functor _ _ TD).
 - intros F.
   use tpair.
   + use make_nat_trans.
@@ -258,20 +274,20 @@ use make_Terminal.
   + abstract (intros α; apply (nat_trans_eq D); intro a; apply TerminalArrowUnique).
 Defined.
 
-End TerminalFunctorCat.
-
-(** Morphisms from the terminal object are monic *)
-Section monics_terminal.
-
-Context {C : category} (TC : Terminal C).
-
-Lemma from_terminal_isMonic (a : C) (f : TC --> a) : isMonic f.
+(** global elements in functor cat *)
+Definition make_global_element_functor_precat (F : functor C D) (ge : ∏ c : C, global_element TD (F c))
+  (ge_compat : ∏ (c c' : C) (f: c --> c'), ge c · #F f = ge c')
+  : global_element Terminal_functor_precat F.
 Proof.
-apply make_isMonic; intros b g h H.
-now apply TerminalArrowEq.
-Qed.
+  use make_nat_trans.
+  - exact ge.
+  - abstract (intros c c' f;
+    cbn;
+    rewrite ge_compat;
+    apply id_left).
+Defined.
 
-End monics_terminal.
+End TerminalFunctorCat.
 
 Definition iso_to_Terminal
            {C : category}

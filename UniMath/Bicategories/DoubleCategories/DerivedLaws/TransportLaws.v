@@ -341,6 +341,67 @@ Proof.
   apply idpath.
 Qed.
 
+Proposition id_h_square_eq
+            {C : double_cat}
+            {x y : C}
+            {v v' : x -->v y}
+            (p : v = v')
+  : id_h_square v
+    =
+    transportf_square
+      (!p) (!p)
+      (id_h_square v').
+Proof.
+  induction p ; cbn.
+  apply idpath.
+Qed.
+
+Proposition lax_double_functor_transportf_square
+            {C₁ C₂ : univalent_double_cat}
+            (F : lax_double_functor C₁ C₂)
+            {x₁ x₂ y₁ y₂ : C₁}
+            {v₁ v₂ : x₁ -->v y₁}
+            (p : v₁ = v₂)
+            {w₁ w₂ : x₂ -->v y₂}
+            (q : w₁ = w₂)
+            {h : x₁ -->h x₂}
+            {k : y₁ -->h y₂}
+            (s : square v₁ w₁ h k)
+  : #s F (transportf_square p q s)
+    =
+    transportf_square
+      (maponpaths (λ z, #v F z) p)
+      (maponpaths (λ z, #v F z) q)
+      (#s F s).
+Proof.
+  induction p, q.
+  cbn.
+  apply idpath.
+Qed.
+
+Proposition lax_double_functor_transportb_square
+            {C₁ C₂ : univalent_double_cat}
+            (F : lax_double_functor C₁ C₂)
+            {x₁ x₂ y₁ y₂ : C₁}
+            {v₁ v₂ : x₁ -->v y₁}
+            (p : v₂ = v₁)
+            {w₁ w₂ : x₂ -->v y₂}
+            (q : w₂ = w₁)
+            {h : x₁ -->h x₂}
+            {k : y₁ -->h y₂}
+            (s : square v₁ w₁ h k)
+  : #s F (transportb_square p q s)
+    =
+    transportb_square
+      (maponpaths (λ z, #v F z) p)
+      (maponpaths (λ z, #v F z) q)
+      (#s F s).
+Proof.
+  induction p, q.
+  cbn.
+  apply idpath.
+Qed.
+
 Module TransportSquare.
   Notation "'trfs' fg" := (transportf_square _ _ fg) (at level 50, only printing).
   Notation "'trbs' fg" := (transportb_square _ _ fg) (at level 50, only printing).
