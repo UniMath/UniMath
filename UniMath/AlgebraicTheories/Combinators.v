@@ -449,7 +449,6 @@ Definition pair
 
 Notation "⟨ a , b ⟩" :=
   (pair a b)
-  (at level 40)
   : algebraic_theories.
 
 Ltac2 Set traversals as traversals0 := fun _ => (
