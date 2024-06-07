@@ -1368,7 +1368,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [Examples/OnePointTheory.v](AlgebraicTheories/Examples/OnePointTheory.v)
    - [Examples/Plus1Presheaf.v](AlgebraicTheories/Examples/Plus1Presheaf.v)
    - [Examples/ProjectionsTheory.v](AlgebraicTheories/Examples/ProjectionsTheory.v)
-   - [LambdaAlgebraMonoid.v](AlgebraicTheories/LambdaAlgebraMonoid.v)
    - [Combinators.v](AlgebraicTheories/Combinators.v)
    - [CategoryOfRetracts.v](AlgebraicTheories/CategoryOfRetracts.v)
    - [OriginalRepresentationTheorem.v](AlgebraicTheories/OriginalRepresentationTheorem.v)
@@ -1376,7 +1375,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [FundamentalTheorem/SurjectivePrecomposition.v](AlgebraicTheories/FundamentalTheorem/SurjectivePrecomposition.v)
    - [FundamentalTheorem/CommonUtilities/KaroubiEnvelope.v](AlgebraicTheories/FundamentalTheorem/CommonUtilities/KaroubiEnvelope.v)
    - [FundamentalTheorem/CommonUtilities/MonoidActions.v](AlgebraicTheories/FundamentalTheorem/CommonUtilities/MonoidActions.v)
-   - [FundamentalTheorem/SpecificUtilities/LambdaTerms.v](AlgebraicTheories/FundamentalTheorem/SpecificUtilities/LambdaTerms.v)
    - [FundamentalTheorem/AlgebraToTheory.v](AlgebraicTheories/FundamentalTheorem/AlgebraToTheory.v)
    - [All.v](AlgebraicTheories/All.v)
 ## Package Semantics
