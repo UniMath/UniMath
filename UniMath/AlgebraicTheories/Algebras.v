@@ -57,14 +57,14 @@ Definition is_algebra
   {T : algebraic_theory}
   (A : algebra_data T)
   : UU
-  := (∏ m n f g a, comp_action_ax T A (@action T A) m n f g a)
-    × (∏ n i a, pr_action_ax T A (@action T A) n i a).
+  := (∏ m n f g a, subst_action_ax T A (@action T A) m n f g a)
+    × (∏ n i a, var_action_ax T A (@action T A) n i a).
 
 Definition make_is_algebra
   {T : algebraic_theory}
   (A : algebra_data T)
-  (H1 : ∏ m n f g a, comp_action_ax T A (@action T A) m n f g a)
-  (H2 : ∏ n i a, pr_action_ax T A (@action T A) n i a)
+  (H1 : ∏ m n f g a, subst_action_ax T A (@action T A) m n f g a)
+  (H2 : ∏ n i a, var_action_ax T A (@action T A) n i a)
   : is_algebra A
   := H1 ,, H2.
 
@@ -86,23 +86,23 @@ Definition make_algebra
   : algebra_data T
   := make_algebra_data (pr1 A) (pr12 A).
 
-Definition comp_action
+Definition subst_action
   {T : algebraic_theory}
   (A : algebra T)
   {m n : nat}
   (f : T m)
   (g : stn m → T n)
   (a : stn n → A)
-  : comp_action_ax T A (@action T A) m n f g a
+  : subst_action_ax T A (@action T A) m n f g a
   := pr122 A m n f g a.
 
-Definition pr_action
+Definition var_action
   {T : algebraic_theory}
   (A : algebra T)
   {n : nat}
   (i : stn n)
   (a : stn n → A)
-  : pr_action_ax T A (@action T A) n i a
+  : var_action_ax T A (@action T A) n i a
   := pr222 A n i a.
 
 (** * 2. An equality lemma *)
@@ -141,7 +141,7 @@ Lemma lift_constant_action
   (a : stn n → A)
   : action (lift_constant n f) a = action f (weqvecfun _ vnil).
 Proof.
-  refine (comp_action _ _ _ a @ _).
+  refine (subst_action _ _ _ a @ _).
   apply maponpaths, funextfun.
   intro i.
   exact (fromempty (negnatlthn0 _ (stnlt i))).

@@ -8,7 +8,7 @@
 
   Contents
   1. The definition of algebraic theories [algebraic_theory]
-  2. Some useful properties and definitions
+  2. Some useful definitions and their properties [lift_constant] [inflate]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -36,23 +36,23 @@ Definition algebraic_theory_data_to_function
 
 Coercion algebraic_theory_data_to_function : algebraic_theory_data >-> Funclass.
 
-Definition pr
+Definition var
   {T : algebraic_theory_data}
   {n : nat}
   (i : stn n)
-  : pr_ax T n i
+  : var_ax T n i
   := pr12 T n i.
 
-Definition comp
+Definition subst
   {T : algebraic_theory_data}
   {m n : nat}
   (f : T m)
   (g : stn m → T n)
-  : comp_ax T m n f g
+  : subst_ax T m n f g
   := pr22 T m n f g.
 
 Notation "f • g" :=
-  (comp f g)
+  (subst f g)
   (at level 35) : algebraic_theories.
 
 Definition algebraic_theory : UU := algebraic_theory_cat.
@@ -63,16 +63,51 @@ Definition algebraic_theory : UU := algebraic_theory_cat.
 
 Definition make_algebraic_theory_data
   (T : nat → hSet)
-  (pr : ∏ n i, pr_ax T n i)
-  (comp : ∏ m n f g, comp_ax T m n f g)
+  (var : ∏ n i, var_ax T n i)
+  (subst : ∏ m n f g, subst_ax T m n f g)
   : algebraic_theory_data
-  := T ,, pr ,, comp.
+  := T ,, var ,, subst.
+
+Definition subst_subst_ax
+  (T : algebraic_theory_data)
+  (l m n : nat)
+  (f_l : T l)
+  (f_m : stn l → T m)
+  (f_n : stn m → T n)
+  : UU
+  := f_l • f_m • f_n = f_l • (λ t_l, f_m t_l • f_n).
+
+Arguments subst_subst_ax /.
+
+Definition var_subst_ax
+  (T : algebraic_theory_data)
+  (m n : nat)
+  (i : stn m)
+  (f : stn m → T n)
+  : UU
+  := var i • f = f i.
+
+Arguments var_subst_ax /.
+
+Definition subst_var_ax
+  (T : algebraic_theory_data)
+  (n : nat)
+  (f : T n)
+  : UU
+  := f • var = f.
+
+Arguments subst_var_ax /.
+
+Definition is_algebraic_theory (T : algebraic_theory_data) : UU :=
+  (∏ l m n f_l f_m f_n, subst_subst_ax T l m n f_l f_m f_n) ×
+  (∏ m n i f, var_subst_ax T m n i f) ×
+  (∏ n f, subst_var_ax T n f).
 
 Definition make_is_algebraic_theory
   (T : algebraic_theory_data)
-  (H1 : ∏ l m n f_l f_m f_n, comp_comp_ax T l m n f_l f_m f_n)
-  (H2 : ∏ m n i f, pr_comp_ax T m n i f)
-  (H3 : ∏ n f, comp_pr_ax T n f)
+  (H1 : ∏ l m n f_l f_m f_n, subst_subst_ax T l m n f_l f_m f_n)
+  (H2 : ∏ m n i f, var_subst_ax T m n i f)
+  (H3 : ∏ n f, subst_var_ax T n f)
   : is_algebraic_theory T
   := H1 ,, H2 ,, H3.
 
@@ -82,32 +117,54 @@ Definition make_algebraic_theory
   : algebraic_theory
   := T ,, H.
 
-Definition comp_comp
+Definition subst_subst
   (T : algebraic_theory)
   {l m n : nat}
   (f_l : T l)
   (f_m : stn l → T m)
   (f_n : stn m → T n)
-  : comp_comp_ax (T : algebraic_theory_data) l m n f_l f_m f_n
+  : subst_subst_ax (T : algebraic_theory_data) l m n f_l f_m f_n
   := pr12 T l m n f_l f_m f_n.
 
-Definition pr_comp
+Definition var_subst
   (T : algebraic_theory)
   {m n : nat}
   (i : stn m)
   (f : stn m → T n)
-  : pr_comp_ax (T : algebraic_theory_data) m n i f
+  : var_subst_ax (T : algebraic_theory_data) m n i f
   := pr122 T m n i f.
 
-Definition comp_pr
+Definition subst_var
   (T : algebraic_theory)
   {n : nat}
   (f : T n)
-  : comp_pr_ax (T : algebraic_theory_data) n f
+  : subst_var_ax (T : algebraic_theory_data) n f
   := pr222 T n f.
 
-(** * 2. Some useful properties and definitions *)
+(** * 2. Some useful definitions and their properties *)
 
 Definition lift_constant {T : algebraic_theory_data} (n : nat) (f : (T 0 : hSet))
   : (T n : hSet)
-  := f • (weqvecfun _ vnil).
+  := f • weqvecfun _ vnil.
+
+Definition inflate {T : algebraic_theory_data} {n : nat} (f : T n) : T (S n)
+  := f • (λ i, var (stnweq (inl i))).
+
+Definition inflate_var (T : algebraic_theory) {n : nat} (i : stn n)
+  : inflate (var i) = var (stnweq (inl i))
+  := var_subst T _ _.
+
+Definition inflate_subst (T : algebraic_theory) {m n : nat} (f : T m) (g : stn m → T n)
+  : inflate (subst f g) = subst f (λ i, inflate (g i))
+  := subst_subst _ _ _ _.
+
+Lemma subst_inflate (T : algebraic_theory) {m n : nat} (f : T m) (g : stn (S m) → T n)
+  : subst (inflate f) g = subst f (λ i, g (stnweq (inl i))).
+Proof.
+  unfold inflate.
+  rewrite subst_subst.
+  apply maponpaths.
+  apply funextfun.
+  intro i.
+  apply var_subst.
+Qed.

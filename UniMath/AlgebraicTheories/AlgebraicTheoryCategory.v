@@ -11,6 +11,8 @@
   3. Limits [limits_algebraic_theory_cat]
 
  **************************************************************************************************)
+Require Export UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
@@ -27,7 +29,6 @@ Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 
 Require Import UniMath.AlgebraicTheories.IndexedSetCategory.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 
@@ -40,32 +41,32 @@ Section Iso.
 
   Context (a b : algebraic_theory).
   Context (F : ∏ (n : nat), z_iso (C := HSET) (a n) (b n)).
-  Context (Hpr : ∏ n i, mor_pr_ax (λ n, z_iso_mor (F n)) n i).
-  Context (Hcomp : ∏ m n f g, mor_comp_ax (λ n, z_iso_mor (F n)) m n f g).
+  Context (Hvar : ∏ n i, mor_var_ax (λ n, z_iso_mor (F n)) n i).
+  Context (Hsubst : ∏ m n f g, mor_subst_ax (λ n, z_iso_mor (F n)) m n f g).
 
   Definition make_algebraic_theory_z_iso_mor
     : algebraic_theory_morphism a b
-    := (_ ,, Hpr ,, Hcomp) ,, tt.
+    := (_ ,, Hvar ,, Hsubst) ,, tt.
 
   Definition make_algebraic_theory_z_iso_inv_data
     : indexed_set_cat _ ⟦b, a⟧
     := λ n, inv_from_z_iso (F n).
 
-  Lemma make_algebraic_theory_z_iso_inv_pr_ax
-    : ∏ n i, mor_pr_ax make_algebraic_theory_z_iso_inv_data n i.
+  Lemma make_algebraic_theory_z_iso_inv_var_ax
+    : ∏ n i, mor_var_ax make_algebraic_theory_z_iso_inv_data n i.
   Proof.
     intros n i.
     refine (!_ @ maponpaths (λ x, x _) (z_iso_inv_after_z_iso (F n))).
     apply (maponpaths (inv_from_z_iso (F n))).
-    apply Hpr.
+    apply Hvar.
   Qed.
 
-  Lemma make_algebraic_theory_z_iso_inv_comp_ax
-    : ∏ m n f g, mor_comp_ax make_algebraic_theory_z_iso_inv_data m n f g.
+  Lemma make_algebraic_theory_z_iso_inv_subst_ax
+    : ∏ m n f g, mor_subst_ax make_algebraic_theory_z_iso_inv_data m n f g.
   Proof.
     intros m n f g.
     refine (!_ @ maponpaths (λ x, x _) (z_iso_inv_after_z_iso (F n))).
-    refine (maponpaths (λ x, inv_from_z_iso (F n) x) (Hcomp _ _ _ _) @ _).
+    refine (maponpaths (λ x, inv_from_z_iso (F n) x) (Hsubst _ _ _ _) @ _).
     apply maponpaths.
     refine (maponpaths (λ x, (x f) • _) (z_iso_after_z_iso_inv (F m)) @ _).
     apply maponpaths.
@@ -76,7 +77,7 @@ Section Iso.
 
   Definition make_algebraic_theory_z_iso_inv
     : algebraic_theory_morphism b a
-    := (_ ,, make_algebraic_theory_z_iso_inv_pr_ax ,, make_algebraic_theory_z_iso_inv_comp_ax) ,, tt.
+    := (_ ,, make_algebraic_theory_z_iso_inv_var_ax ,, make_algebraic_theory_z_iso_inv_subst_ax) ,, tt.
 
   Lemma make_algebraic_theory_z_iso_is_iso
     : is_inverse_in_precat (C := algebraic_theory_cat)
@@ -166,7 +167,7 @@ Section AlgebraicTheoryLimits.
     split.
     - intros n i.
       use tpair.
-      + exact (λ u, pr i).
+      + exact (λ u, var i).
       + exact (λ u v e, pr12 (dmor d e) _ i).
     - intros m n f g.
       use tpair.
@@ -286,9 +287,9 @@ Proof.
           intro
         | do 3 (apply impred_isaprop; intro);
           apply setproperty ]);
-      [ apply comp_comp
-      | apply pr_comp
-      | apply comp_pr ]
+      [ apply subst_subst
+      | apply var_subst
+      | apply subst_var ]
     ).
 Defined.
 

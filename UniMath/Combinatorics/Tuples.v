@@ -28,7 +28,6 @@ Definition stnweq {n : nat}
 Lemma iscontr_empty_tuple
   (A : UU)
   : iscontr (stn 0 → A).
-  (* v = (weqvecfun 0 vnil). *)
 Proof.
   exists (weqvecfun 0 vnil).
   abstract (
@@ -141,8 +140,10 @@ Lemma extend_tuple_inr
   {n : nat}
   (f : stn n → T)
   (last : T)
-  : extend_tuple f last (stnweq (inr tt)) = last.
+  (t : unit)
+  : extend_tuple f last (stnweq (inr t)) = last.
 Proof.
+  rewrite (pr2 iscontrunit t).
   exact (maponpaths _ (homotinvweqweq _ _)).
 Qed.
 

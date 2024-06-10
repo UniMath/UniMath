@@ -17,7 +17,6 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.Algebras.
 
 Local Open Scope vec_scope.
@@ -56,7 +55,7 @@ Proof.
   use tpair.
   - use (action (tt : (one_point_theory 0 : hSet)) (weqvecfun 0 vnil)).
   - intro a.
-    rewrite <- (pr_action _ (make_stn 1 0 (idpath _)) (λ _, a)
+    rewrite <- (var_action _ (make_stn 1 0 (idpath _)) (λ _, a)
       : _ = a).
     exact (lift_constant_action _ _ _).
 Qed.

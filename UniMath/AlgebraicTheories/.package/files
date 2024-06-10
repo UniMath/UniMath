@@ -31,13 +31,13 @@ Examples/OnePointTheory.v
 Examples/Plus1Presheaf.v
 Examples/ProjectionsTheory.v
 
-LambdaAlgebraMonoid.v
-
-FundamentalTheorem/SurjectivePrecomposition.v
-FundamentalTheorem/CommonUtilities/KaroubiEnvelope.v
+Combinators.v
+CategoryOfRetracts.v
+OriginalRepresentationTheorem.v
 
 RepresentationTheorem.v
 
+FundamentalTheorem/SurjectivePrecomposition.v
+FundamentalTheorem/CommonUtilities/KaroubiEnvelope.v
 FundamentalTheorem/CommonUtilities/MonoidActions.v
-FundamentalTheorem/SpecificUtilities/LambdaTerms.v
 FundamentalTheorem/AlgebraToTheory.v
