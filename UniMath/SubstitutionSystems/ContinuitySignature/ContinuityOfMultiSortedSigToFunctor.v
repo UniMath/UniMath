@@ -169,12 +169,12 @@ Section FixTheContext.
       is_omega_cocont (hat_exp_functor_list'_optimized xst).
     Proof.
       induction xst as [xs t].
-      refine (foldr1_map_ind_nodep _ _ _ (fun F => is_omega_cocont F) _ _ _ xs).
+      refine (foldr1_map_ind_nodep _ _ _ is_omega_cocont _ _ _ xs).
       - apply is_omega_cocont_functor_composite.
         + apply is_omega_cocont_constant_functor.
         + apply is_omega_cocont_post_composition_functor, MultiSorted_alt.is_left_adjoint_hat.
-      - intro xst. apply is_omega_cocont_hat_exp_functor_list'_piece.
-      - intros xst F Hyp.
+      - intro lt. apply is_omega_cocont_hat_exp_functor_list'_piece.
+      - intros lt F Hyp.
         apply is_omega_cocont_BinProduct_of_functors.
         + apply BPsortToC2.
         + apply is_omega_cocont_constprod_functor1.
@@ -356,13 +356,13 @@ Section FixTheContext.
     is_omega_cont (hat_exp_functor_list'_optimized xst).
   Proof.
     induction xst as [xs t].
-    refine (foldr1_map_ind_nodep _ _ _ (fun F => is_omega_cont F) _ _ _ xs).
+    refine (foldr1_map_ind_nodep _ _ _ is_omega_cont _ _ _ xs).
     - use nat_z_iso_preserve_ωlimits.
       3: apply nat_z_iso_inv, constant_functor_composition_nat_z_iso.
       apply is_omega_cont_constant_functor.
-    - intro xst.
+    - intro lt.
       apply is_omega_cont_hat_exp_functor_list'_piece.
-    - intros xst F Hyp.
+    - intros lt F Hyp.
       apply is_omega_cont_BinProduct_of_functors.
       + apply is_omega_cont_hat_exp_functor_list'_piece.
       + exact Hyp.

@@ -676,9 +676,7 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
       exact (terminal_BinProduct_of_functors_unit_l _ _ BPsortToCC TsortToCC (exp_functor sort Hsort C TC BC CC x)).
     - induction xs.
       change (cons x (S n,, pr1,, pr2)) with  (cons x (cons pr1 (n,,pr2))).
-      unfold exp_functor_list at 1.
-      rewrite foldr1_map_cons.
-      change (nat_z_iso (BinProduct_of_functors BPsortToCC (exp_functor sort Hsort C TC BC CC x) (exp_functor_list sort Hsort C TC BP BC CC (S n,, pr1,, pr2)) ) (BinProduct_of_functors BPsortToCC (exp_functor_list sort Hsort C TC BP BC CC (S n,, pr1,, pr2)) (exp_functor sort Hsort C TC BC CC x))).
+      rewrite MultiSorted_alt.exp_functor_list_cons.
       apply BinProduct_of_functors_commutes.
   Defined.
 
@@ -723,7 +721,7 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
     - use tpair.
       + apply (nat_trans_id (C := sortToC2) (C' := sortToC2)).
       + intro ; apply (identity_is_z_iso (C := sortToC2)).
-    - intro xst. exact (hat_exp_functor_list'_piece_test (xst,,t)).
+    - intro lt. exact (hat_exp_functor_list'_piece_test (lt,,t)).
     - intros k xs' m F Hyp.
       red.
       use nat_z_iso_comp.
