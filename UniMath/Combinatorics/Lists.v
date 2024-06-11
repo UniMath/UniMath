@@ -253,9 +253,7 @@ Defined.
 Lemma foldr1_foldr1_map {A B : UU} (f : B -> B -> B) (b : B) (h : A -> B) (xs : list A) :
   foldr1_map f b h xs = foldr1 f b (map h xs).
 Proof.
-  revert xs.
   set (P := fun xs b' => b' = foldr1 f b (map h xs)).
-  intro xs.
   apply (foldr1_map_ind f b h P).
   - apply idpath.
   - intro a. apply idpath.
@@ -313,17 +311,25 @@ Proof.
   revert l. apply list_ind.
   - apply idpath.
   - intros x l IH. now rewrite !map_cons, foldr_cons, IH.
-Defined.
+Qed.
+
+Lemma foldr1_map_concatenate {X Y : UU} (f : X → Y) (l : list X) :
+  map f l = foldr1_map concatenate [] (λ x, f x::[]) l.
+Proof.
+  set (P := fun xs b' => map f xs = b' ).
+  refine (foldr1_map_ind _ _ _ P _ _ _ l).
+  - apply idpath.
+  - intro; apply idpath.
+  - intros x' l' x'' b Hyp.
+    exact (maponpaths (cons (f x'')) Hyp).
+Qed.
 
 Lemma foldr1_concatenate {X Y : UU} (f : X → Y) (l : list X) :
   map f l = foldr1 concatenate [] (map (λ x, f x::[]) l).
 Proof.
-  revert l. apply list_ind.
-  - apply idpath.
-  - intros x. refine (list_ind _ _ _).
-    + intro. apply idpath.
-    + intros x' l _ IH. exact (maponpaths (cons (f x)) IH).
-Defined.
+  simple refine (foldr1_map_concatenate _ _ @ _).
+  apply foldr1_foldr1_map.
+Qed.
 
 (** Append a single element to a list *)
 
