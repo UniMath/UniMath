@@ -1368,6 +1368,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [Examples/OnePointTheory.v](AlgebraicTheories/Examples/OnePointTheory.v)
    - [Examples/Plus1Presheaf.v](AlgebraicTheories/Examples/Plus1Presheaf.v)
    - [Examples/ProjectionsTheory.v](AlgebraicTheories/Examples/ProjectionsTheory.v)
+   - [Examples/TheoryAlgebra.v](AlgebraicTheories/Examples/TheoryAlgebra.v)
+   - [Examples/ExtensionsTheory.v](AlgebraicTheories/Examples/ExtensionsTheory.v)
    - [Combinators.v](AlgebraicTheories/Combinators.v)
    - [CategoryOfRetracts.v](AlgebraicTheories/CategoryOfRetracts.v)
    - [OriginalRepresentationTheorem.v](AlgebraicTheories/OriginalRepresentationTheorem.v)
