@@ -709,53 +709,38 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
         exact c.
   Defined.  (* the result will not be needed in the sequel *)
 
-
   Definition hat_exp_functor_list'_optimized_test
              (xst : list (list sort × sort) × sort)
              (c : propcoproducts_commute_binproducts C BP (λ p, CC p (isasetaprop (pr2 p))))
     : nat_z_iso (hat_exp_functor_list0 xst)
                 (hat_exp_functor_list'_optimized0 xst).
   Proof.
-    induction xst as [xs t]; revert t.
-    induction xs as [[|n] xs].
-    - induction xs.
-      intro t.
-      use tpair.
+    induction xst as [xs t].
+    set (P := fun xs b' => nat_z_iso (hat_exp_functor_list0 (xs,, t)) b').
+    refine (foldr1_map_ind _ _ _ P _ _ _ xs).
+    - use tpair.
       + apply (nat_trans_id (C := sortToC2) (C' := sortToC2)).
       + intro ; apply (identity_is_z_iso (C := sortToC2)).
-    - induction n as [|n IH].
-      + induction xs as [m []].
-        change (1,, m,, tt) with (cons m nil).
-        intro t.
-        unfold hat_exp_functor_list'_optimized0, hat_exp_functor_list'_optimized.
-        rewrite foldr1_map_cons_nil.
-        (* unfold hat_exp_functor_list0, hat_exp_functor_list. *)
-        exact (hat_exp_functor_list'_piece_test (m,,t)).
-      + induction xs as [m [k xs]].
-        intro t.
-        assert (IHinst := IH (k,,xs) t).
-        change (S (S n),, m,, k,, xs) with (cons m (cons k (n,,xs))).
-        unfold hat_exp_functor_list'_optimized0, hat_exp_functor_list'_optimized.
-        rewrite foldr1_map_cons.
-        change (S n,, k,, xs) with (cons k (n,,xs)) in IHinst.
-        unfold hat_exp_functor_list'_optimized0, hat_exp_functor_list'_optimized in IHinst.
-        use nat_z_iso_comp.
-        3: {
-          use nat_z_iso_BinProduct_of_functors.
-          4: exact IHinst.
-          2: exact (hat_exp_functor_list'_piece_test (m ,, t)).
-        }
-        clear IH IHinst.
-        unfold hat_exp_functor_list0, hat_exp_functor_list.
-        unfold exp_functor_list.
-        change (pr1 (cons m (cons k (n,, xs)),, t)) with (cons m (cons k (n,, xs))).
-        rewrite foldr1_map_cons.
-        apply BinProduct_of_functors_distr.
-        apply post_comp_functor_preserves_binproduct.
-        * apply BP.
-        * apply (BinProducts_functor_precat _ C BP).
-        * apply hat_functor_preserves_binproducts.
-          exact c.
+    - intro xst. exact (hat_exp_functor_list'_piece_test (xst,,t)).
+    - intros k xs' m F Hyp.
+      red.
+      use nat_z_iso_comp.
+      3: {
+        use nat_z_iso_BinProduct_of_functors.
+        4: exact Hyp.
+        2: exact (hat_exp_functor_list'_piece_test (m ,, t)).
+      }
+      clear F Hyp.
+      unfold hat_exp_functor_list0, hat_exp_functor_list.
+      unfold exp_functor_list.
+      change (pr1 (cons m (cons k xs'),, t)) with (cons m (cons k xs')).
+      rewrite foldr1_map_cons.
+      apply BinProduct_of_functors_distr.
+      apply post_comp_functor_preserves_binproduct.
+      + apply BP.
+      + apply (BinProducts_functor_precat _ C BP).
+      + apply hat_functor_preserves_binproducts.
+        exact c.
   Defined.
 
   Definition MultiSortedSigToFunctor_test
