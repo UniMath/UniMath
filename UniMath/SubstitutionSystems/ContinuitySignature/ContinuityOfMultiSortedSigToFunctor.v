@@ -169,34 +169,18 @@ Section FixTheContext.
       is_omega_cocont (hat_exp_functor_list'_optimized xst).
     Proof.
       induction xst as [xs t].
-      revert t.
-      induction xs as [[|n] xs].
-      - induction xs.
-        intro t.
-        apply is_omega_cocont_functor_composite.
+      refine (foldr1_map_ind_nodep _ _ _ (fun F => is_omega_cocont F) _ _ _ xs).
+      - apply is_omega_cocont_functor_composite.
         + apply is_omega_cocont_constant_functor.
         + apply is_omega_cocont_post_composition_functor, MultiSorted_alt.is_left_adjoint_hat.
-      - induction n as [|n IH].
-        + induction xs as [m []].
-          change (1,, m,, tt) with (cons m nil).
-          intro t.
-          unfold hat_exp_functor_list'_optimized.
-          rewrite foldr1_map_cons_nil.
-          apply is_omega_cocont_hat_exp_functor_list'_piece.
-        + induction xs as [m [k xs]].
-          intro t.
-          assert (IHinst := IH (k,,xs) t).
-          change (S (S n),, m,, k,, xs) with (cons m (cons k (n,,xs))).
-          unfold hat_exp_functor_list'_optimized.
-          rewrite foldr1_map_cons.
-          change (S n,, k,, xs) with (cons k (n,,xs)) in IHinst.
-          unfold hat_exp_functor_list'_optimized in IHinst.
-          apply is_omega_cocont_BinProduct_of_functors.
-          * apply BPsortToC2.
-          * apply is_omega_cocont_constprod_functor1.
-            apply EsortToC2.
-          * apply is_omega_cocont_hat_exp_functor_list'_piece.
-          * exact IHinst.
+      - intro xst. apply is_omega_cocont_hat_exp_functor_list'_piece.
+      - intros xst F Hyp.
+        apply is_omega_cocont_BinProduct_of_functors.
+        + apply BPsortToC2.
+        + apply is_omega_cocont_constprod_functor1.
+          apply EsortToC2.
+        + apply is_omega_cocont_hat_exp_functor_list'_piece.
+        + exact Hyp.
     Defined.
 
     Lemma is_omega_cocont_MultiSortedSigToFunctor' (M : MultiSortedSig sort) :

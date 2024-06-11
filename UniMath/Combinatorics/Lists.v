@@ -219,25 +219,54 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma foldr1_foldr1_map {A B : UU} (f : B -> B -> B) (b : B) (h : A -> B) (xs : list A) :
-  foldr1_map f b h xs = foldr1 f b (map h xs).
+Definition foldr1_map_ind {A B : UU} (f : B -> B -> B) (b : B) (h : A -> B) (P : list A -> B -> UU)
+  (P0 : P nil b)
+  (P1 : ∏ a, P (cons a nil) (h a))
+  (P2 : ∏ a1 xs a2 b, P (cons a1 xs) b -> P (cons a2 (cons a1 xs)) (f (h a2) b))
+  (xs : list A) : P xs (foldr1_map f b h xs).
 Proof.
   revert xs.
   induction xs as [[|n] xs].
   - induction xs.
-    apply idpath.
+    apply P0.
   - induction n as [|n IH].
     + induction xs as [m []].
-      apply idpath.
+      apply P1.
     + induction xs as [m [k xs]].
       assert (IHinst := IH (k,,xs)).
-      change (S (S n),, m,, k,, xs) with (cons m (cons k (n,,xs))).
-      do 2 rewrite map_cons.
-      rewrite foldr1_cons.
-      change (S n,, k,, xs) with (cons k (n,,xs)) in IHinst.
-      rewrite map_cons in IHinst.
-      rewrite <- IHinst.
-      apply foldr1_map_cons. (* this steps could be done by cbn and reflexivity *)
+      exact (P2 k (n,,xs) m (foldr1_map f b h (S n,, k,, xs)) IHinst).
+Defined.
+
+Definition foldr1_map_ind_nodep {A B : UU} (f : B -> B -> B) (b : B) (h : A -> B) (P : B -> UU)
+  (P0 : P b)
+  (P1 : ∏ a, P (h a))
+  (P2 : ∏ a b, P b -> P (f (h a) b))
+  (xs : list A) : P (foldr1_map f b h xs).
+Proof.
+  set (Pdep := fun (_ : list A) (b : B) => P b).
+  apply (foldr1_map_ind f b h Pdep).
+  - exact P0.
+  - exact P1.
+  - intros a1 xs' a2 b' H. apply P2. exact H.
+Defined.
+
+Lemma foldr1_foldr1_map {A B : UU} (f : B -> B -> B) (b : B) (h : A -> B) (xs : list A) :
+  foldr1_map f b h xs = foldr1 f b (map h xs).
+Proof.
+  revert xs.
+  set (P := fun xs b' => b' = foldr1 f b (map h xs)).
+  intro xs.
+  apply (foldr1_map_ind f b h P).
+  - apply idpath.
+  - intro a. apply idpath.
+  - intros a1 xs' a2 b' H.
+    red.
+    do 2 rewrite map_cons.
+    rewrite foldr1_cons.
+    apply maponpaths.
+    red in H.
+    rewrite map_cons in H.
+    exact H.
 Qed.
 
 End more_lists.
