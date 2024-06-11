@@ -663,6 +663,25 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
         apply assoc.
   Defined.
 
+  Definition hat_exp_functor_list'_test_aux (x : list sort × sort) (xs : list (list sort × sort)) :
+    nat_z_iso (exp_functor_list sort Hsort C TC BP BC CC (cons x xs))
+      (BinProduct_of_functors BPsortToCC
+         (exp_functor_list sort Hsort C TC BP BC CC xs)
+         (exp_functor sort Hsort C TC BC CC x)).
+  Proof.
+    induction xs as [[|n] xs].
+    - induction xs. unfold exp_functor_list at 1. change (cons x (0,, tt)) with (cons x nil). rewrite foldr1_map_cons_nil.
+      unfold exp_functor_list at 1. change (0,, tt) with (nil(A:=list sort × sort)). rewrite foldr1_map_nil.
+      apply nat_z_iso_inv.
+      exact (terminal_BinProduct_of_functors_unit_l _ _ BPsortToCC TsortToCC (exp_functor sort Hsort C TC BC CC x)).
+    - induction xs.
+      change (cons x (S n,, pr1,, pr2)) with  (cons x (cons pr1 (n,,pr2))).
+      unfold exp_functor_list at 1.
+      rewrite foldr1_map_cons.
+      change (nat_z_iso (BinProduct_of_functors BPsortToCC (exp_functor sort Hsort C TC BC CC x) (exp_functor_list sort Hsort C TC BP BC CC (S n,, pr1,, pr2)) ) (BinProduct_of_functors BPsortToCC (exp_functor_list sort Hsort C TC BP BC CC (S n,, pr1,, pr2)) (exp_functor sort Hsort C TC BC CC x))).
+      apply BinProduct_of_functors_commutes.
+  Defined.
+
   Definition hat_exp_functor_list'_test
              (xst : list (list sort × sort) × sort)
              (c : propcoproducts_commute_binproducts C BP (λ p, CC p (isasetaprop (pr2 p))))
@@ -683,24 +702,7 @@ Section EquivalenceBetweenDifferentCharacterizationsOfMultiSortedSignatureToFunc
         2: exact (hat_exp_functor_list'_piece_test (x ,, t)).
       }
       clear IHn.
-
-      transparent assert (q : (nat_z_iso (exp_functor_list sort Hsort C TC BP BC CC (cons x xs)) (BinProduct_of_functors BPsortToCC (exp_functor_list sort Hsort C TC BP BC CC xs) (exp_functor sort Hsort C TC BC CC x)))).
-      {
-        induction xs as [[|n] xs].
-        - induction xs. unfold exp_functor_list at 1. change (cons x (0,, tt)) with (cons x nil). rewrite foldr1_map_cons_nil.
-          unfold exp_functor_list at 1. change (0,, tt) with (nil(A:=list sort × sort)). rewrite foldr1_map_nil.
-          apply nat_z_iso_inv.
-          exact (terminal_BinProduct_of_functors_unit_l _ _ BPsortToCC TsortToCC (exp_functor sort Hsort C TC BC CC x)).
-        - induction xs.
-          change (cons x (S n,, pr1,, pr2)) with  (cons x (cons pr1 (n,,pr2))).
-          unfold exp_functor_list at 1.
-          rewrite foldr1_map_cons.
-          change (nat_z_iso (BinProduct_of_functors BPsortToCC (exp_functor sort Hsort C TC BC CC x) (exp_functor_list sort Hsort C TC BP BC CC (S n,, pr1,, pr2)) ) (BinProduct_of_functors BPsortToCC (exp_functor_list sort Hsort C TC BP BC CC (S n,, pr1,, pr2)) (exp_functor sort Hsort C TC BC CC x))).
-          apply BinProduct_of_functors_commutes.
-      }
-
-      use (nat_z_iso_comp (post_whisker_nat_z_iso q _)).
-
+      use (nat_z_iso_comp (post_whisker_nat_z_iso (hat_exp_functor_list'_test_aux x xs) _)).
       apply BinProduct_of_functors_distr.
       apply post_comp_functor_preserves_binproduct.
       + apply BP.
