@@ -219,25 +219,59 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma foldr1_foldr1_map {A B : UU} (f : B -> B -> B) (b : B) (h : A -> B) (xs : list A) :
-  foldr1_map f b h xs = foldr1 f b (map h xs).
+(** an induction principle for [foldr1_map]
+
+    [P] takes the list argument [xs] of [foldr1_map] and the purported value of [foldr1_map f b h xs]
+    [P0] and [P1] ask that [P] is correct for lists of length <=1
+    [P2] deals with longer lists and reflects the effect of adding a subsequent element [a2] to the list, where [res] keeps the
+    result of [foldr1_map f b h (cons a1 xs)] abstract
+*)
+Definition foldr1_map_ind {A B : UU} (f : B -> B -> B) (b : B) (h : A -> B) (P : list A -> B -> UU)
+  (P0 : P nil b)
+  (P1 : ∏ a, P (cons a nil) (h a))
+  (P2 : ∏ a1 xs a2 res, P (cons a1 xs) res -> P (cons a2 (cons a1 xs)) (f (h a2) res))
+  (xs : list A) : P xs (foldr1_map f b h xs).
 Proof.
   revert xs.
   induction xs as [[|n] xs].
   - induction xs.
-    apply idpath.
+    apply P0.
   - induction n as [|n IH].
     + induction xs as [m []].
-      apply idpath.
+      apply P1.
     + induction xs as [m [k xs]].
       assert (IHinst := IH (k,,xs)).
-      change (S (S n),, m,, k,, xs) with (cons m (cons k (n,,xs))).
-      do 2 rewrite map_cons.
-      rewrite foldr1_cons.
-      change (S n,, k,, xs) with (cons k (n,,xs)) in IHinst.
-      rewrite map_cons in IHinst.
-      rewrite <- IHinst.
-      apply foldr1_map_cons. (* this steps could be done by cbn and reflexivity *)
+      exact (P2 k (n,,xs) m (foldr1_map f b h (S n,, k,, xs)) IHinst).
+Defined.
+
+Definition foldr1_map_ind_nodep {A B : UU} (f : B -> B -> B) (b : B) (h : A -> B) (P : B -> UU)
+  (P0 : P b)
+  (P1 : ∏ a, P (h a))
+  (P2 : ∏ a res, P res -> P (f (h a) res))
+  (xs : list A) : P (foldr1_map f b h xs).
+Proof.
+  set (Pdep := fun (_ : list A) (res : B) => P res).
+  apply (foldr1_map_ind f b h Pdep).
+  - exact P0.
+  - exact P1.
+  - intros a1 xs' a2 res H. apply P2. exact H.
+Defined.
+
+Lemma foldr1_foldr1_map {A B : UU} (f : B -> B -> B) (b : B) (h : A -> B) (xs : list A) :
+  foldr1_map f b h xs = foldr1 f b (map h xs).
+Proof.
+  set (P := fun xs res => res = foldr1 f b (map h xs)).
+  apply (foldr1_map_ind f b h P).
+  - apply idpath.
+  - intro a. apply idpath.
+  - intros a1 xs' a2 res H.
+    red.
+    do 2 rewrite map_cons.
+    rewrite foldr1_cons.
+    apply maponpaths.
+    red in H.
+    rewrite map_cons in H.
+    exact H.
 Qed.
 
 End more_lists.
@@ -284,17 +318,25 @@ Proof.
   revert l. apply list_ind.
   - apply idpath.
   - intros x l IH. now rewrite !map_cons, foldr_cons, IH.
-Defined.
+Qed.
+
+Lemma foldr1_map_concatenate {X Y : UU} (f : X → Y) (l : list X) :
+  map f l = foldr1_map concatenate [] (λ x, f x::[]) l.
+Proof.
+  set (P := fun xs res => map f xs = res).
+  refine (foldr1_map_ind _ _ _ P _ _ _ l).
+  - apply idpath.
+  - intro; apply idpath.
+  - intros x' l' x'' res Hyp.
+    exact (maponpaths (cons (f x'')) Hyp).
+Qed.
 
 Lemma foldr1_concatenate {X Y : UU} (f : X → Y) (l : list X) :
   map f l = foldr1 concatenate [] (map (λ x, f x::[]) l).
 Proof.
-  revert l. apply list_ind.
-  - apply idpath.
-  - intros x. refine (list_ind _ _ _).
-    + intro. apply idpath.
-    + intros x' l _ IH. exact (maponpaths (cons (f x)) IH).
-Defined.
+  simple refine (foldr1_map_concatenate _ _ @ _).
+  apply foldr1_foldr1_map.
+Qed.
 
 (** Append a single element to a list *)
 
