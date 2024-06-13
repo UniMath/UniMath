@@ -135,10 +135,10 @@ Qed.
 Context (BPC : BinProducts C) (BCC : BinCoproducts C).
 
 (** [nat] to a Signature *)
-Definition Arity_to_Signature (TC : Terminal C) (xs : list nat) : Signature C C C:=
-  foldr1 (BinProduct_of_Signatures _ _ _ BPC)
+Definition Arity_to_Signature (TC : Terminal C) (xs : list nat) : Signature C C C :=
+  foldr1_map (BinProduct_of_Signatures _ _ _ BPC)
          (ConstConstSignature C C C (TerminalObject TC))
-        (map (precomp_option_iter_Signature BCC TC) xs).
+         (precomp_option_iter_Signature BCC TC) xs.
 
 Let BPC2 BPC := BinProducts_functor_precat C C BPC.
 Let constprod_functor1 := constprod_functor1 (BPC2 BPC).
@@ -150,18 +150,15 @@ Lemma is_omega_cocont_Arity_to_Signature
   (xs : list nat) :
   is_omega_cocont (Arity_to_Signature TC xs).
 Proof.
-destruct xs as [[|n] xs].
-- destruct xs; apply is_omega_cocont_constant_functor.
-- induction n as [|n IHn].
-  + destruct xs as [m []]; simpl.
-    unfold Arity_to_Signature.
-    apply is_omega_cocont_precomp_option_iter, CLC.
-  + destruct xs as [m [k xs]].
+  refine (foldr1_map_ind_nodep (BinProduct_of_Signatures _ _ _ BPC) _ _ is_omega_cocont _ _ _ xs).
+  - apply is_omega_cocont_constant_functor.
+  - intro n. apply is_omega_cocont_precomp_option_iter, CLC.
+  - intros m sig Hyp.
     apply is_omega_cocont_BinProduct_of_Signatures.
-    * apply is_omega_cocont_precomp_option_iter, CLC.
-    * apply (IHn (k,,xs)).
-    * assumption.
-    * intro x; apply (H x).
+    + apply is_omega_cocont_precomp_option_iter, CLC.
+    + exact Hyp.
+    + exact BPC.
+    + exact H.
 Defined.
 
 (** ** Binding signature to a signature with strength *)

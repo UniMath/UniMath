@@ -14,7 +14,6 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Functors.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.Presheaves.
 Require Import UniMath.AlgebraicTheories.PresheafCategoryCore.
 Require Import UniMath.Combinatorics.Tuples.
@@ -34,8 +33,8 @@ Proof.
     refine (op (T := T) (P := P) s _).
     intro i.
     induction (invmap stnweq i) as [i' | i'].
-    + refine (t i' • (λ j, pr (stnweq (inl j)))).
-    + exact (pr (stnweq (inr i'))).
+    + refine (t i' • (λ j, var (stnweq (inl j)))).
+    + exact (var (stnweq (inr i'))).
 Defined.
 
 Lemma plus_1_is_presheaf
@@ -50,23 +49,23 @@ Proof.
     apply funextfun.
     intro i.
     induction (invmap stnweq i) as [i' | i'].
-    + refine (comp_comp T (f i') _ _ @ !_).
-      refine (comp_comp T (f i') g _ @ !_).
+    + refine (subst_subst T (f i') _ _ @ !_).
+      refine (subst_subst T (f i') g _ @ !_).
       apply maponpaths.
       apply funextfun.
       intro.
-      refine (pr_comp _ _ _ @ _).
+      refine (var_subst _ _ _ @ _).
       exact (maponpaths _ (homotinvweqweq stnweq _)).
-    + refine (pr_comp _ _ _ @ _).
+    + refine (var_subst _ _ _ @ _).
       exact (maponpaths _ (homotinvweqweq stnweq _)).
   - intros n x.
-    refine (_ @ op_pr _ _).
+    refine (_ @ op_var _ _).
     apply (maponpaths (op (x : P _))).
     apply funextfun.
     intro i.
     refine (_ @ maponpaths _ (homotweqinvweq stnweq i)).
     induction (invmap stnweq i) as [i' | i'].
-    + apply pr_comp.
+    + apply var_subst.
     + apply idpath.
 Qed.
 

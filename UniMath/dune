@@ -4,6 +4,7 @@
 (coq.theory
  (name UniMath)
  (package coq-unimath)
+ (theories Ltac2)
  (flags :standard
         -noinit
         -indices-matter

@@ -33,7 +33,6 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
 
 Local Open Scope cat.
@@ -132,7 +131,7 @@ Section AlgebraCategory.
 
 (** ** 1.2. The full category of algebras *)
 
-  Definition comp_action_ax
+  Definition subst_action_ax
     (T : algebraic_theory)
     (A : hSet)
     (action : ∏ n f a, action_ax T A n f a)
@@ -143,7 +142,7 @@ Section AlgebraCategory.
     : UU
     := action n (f • g) a = action m f (λ i, action n (g i) a).
 
-  Definition pr_action_ax
+  Definition var_action_ax
     (T : algebraic_theory)
     (A : hSet)
     (action : ∏ n f a, action_ax T A n f a)
@@ -151,13 +150,13 @@ Section AlgebraCategory.
     (i : stn n)
     (a : stn n → A)
     : UU
-    := action n (pr i) a = a i.
+    := action n (var i) a = a i.
 
   Definition full_is_algebra
     (A : algebra_data_full_cat)
     : UU
-    := (∏ m n f g a, comp_action_ax _ _ (pr2 A) m n f g a) ×
-      (∏ n i a, pr_action_ax _ _ (pr2 A) n i a).
+    := (∏ m n f g a, subst_action_ax _ _ (pr2 A) m n f g a) ×
+      (∏ n i a, var_action_ax _ _ (pr2 A) n i a).
 
   Definition algebra_full_disp_cat
     : disp_cat algebra_data_full_cat
@@ -207,5 +206,5 @@ End AlgebraCategory.
 
 Arguments action_ax /.
 Arguments mor_action_ax /.
-Arguments comp_action_ax /.
-Arguments pr_action_ax /.
+Arguments subst_action_ax /.
+Arguments var_action_ax /.

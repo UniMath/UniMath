@@ -251,6 +251,13 @@ set (T := constant_functor sortToC2 _ TsortToCC).
 exact (foldr1_map (λ F G, BinProduct_of_functors BPsortToCC F G) T exp_functor xs).
 Defined.
 
+Local Lemma exp_functor_list_cons (lt1 lt2 : list sort × sort) (xs : list (list sort × sort)) :
+  exp_functor_list (cons lt2 (cons lt1 xs)) =
+    BinProduct_of_functors BPsortToCC (exp_functor lt2) (exp_functor_list (cons lt1 xs)).
+Proof.
+  apply idpath.
+Qed.
+
 Definition hat_exp_functor_list (xst : list (list sort × sort) × sort) :
   functor sortToC2 sortToC2 :=
     exp_functor_list (pr1 xst) ∙ post_comp_functor (hat_functor (pr2 xst)).
@@ -428,19 +435,16 @@ Defined.
 Local Lemma is_omega_cocont_exp_functor_list (xs : list (list sort × sort)) :
   is_omega_cocont (exp_functor_list xs).
 Proof.
-induction xs as [[|n] xs].
-- induction xs.
-  apply is_omega_cocont_constant_functor.
-- induction n as [|n IHn].
-  + induction xs as [m []].
-    apply is_omega_cocont_exp_functor.
-  + induction xs as [m [k xs]].
+  refine (foldr1_map_ind_nodep _ _ _ is_omega_cocont _ _ _ xs).
+  - apply is_omega_cocont_constant_functor.
+  - intro lt. apply is_omega_cocont_exp_functor.
+  - intros lt F Hyp.
     apply is_omega_cocont_BinProduct_of_functors.
-    * apply BinProducts_functor_precat, BinProducts_functor_precat, BP.
-    * apply is_omega_cocont_constprod_functor1.
+    + apply BinProducts_functor_precat, BinProducts_functor_precat, BP.
+    + apply is_omega_cocont_constprod_functor1.
       apply EsortToCC.
-    * apply is_omega_cocont_exp_functor.
-    * apply (IHn (k,,xs)).
+    + apply is_omega_cocont_exp_functor.
+    + exact Hyp.
 Defined.
 
 (* The hat_functor is left adjoint to projSortToC *)

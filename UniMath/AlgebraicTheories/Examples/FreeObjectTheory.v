@@ -26,7 +26,6 @@ Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraCategoryCore.
 Require Import UniMath.AlgebraicTheories.Algebras.
 Require Import UniMath.AlgebraicTheories.AlgebraMorphisms.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 
 Local Open Scope cat.
 

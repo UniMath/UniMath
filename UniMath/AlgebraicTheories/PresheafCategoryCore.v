@@ -140,18 +140,18 @@ Section PresheafCategory.
     : UU
     := op m n (op l m a f) g = op l n a (λ i, (f i) • g).
 
-  Definition op_pr_ax
+  Definition op_var_ax
     (T : algebraic_theory)
     (P : indexed_set_cat nat)
     (op : ∏ m n f g, op_ax T P m n f g)
     (n : nat)
     (a : P n)
     : UU
-    := op n n a pr = a.
+    := op n n a var = a.
 
   Definition full_is_presheaf (P : presheaf_data_cat) : UU :=
     (∏ l m n a f g, op_op_ax (data_theory P) (data_set P) (@data_op P) l m n a f g) ×
-    (∏ n a, op_pr_ax (data_theory P) (data_set P) (@data_op P) n a).
+    (∏ n a, op_var_ax (data_theory P) (data_set P) (@data_op P) n a).
 
   Definition presheaf_full_disp_cat
     : disp_cat presheaf_data_cat

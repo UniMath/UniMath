@@ -146,7 +146,7 @@ Lemma lift_constant_eq
   : lift_constant n f = f' • g.
 Proof.
   induction H.
-  refine (maponpaths (comp f) _).
+  refine (maponpaths (subst f) _).
   apply funextfun.
   intro x.
   apply fromempty.
@@ -169,7 +169,7 @@ Section Adjunction.
   Proof.
     intros n f.
     induction f as [i | a].
-    - exact (pr i).
+    - exact (var i).
     - exact (lift_constant _ (F a)).
   Defined.
 
@@ -181,9 +181,9 @@ Section Adjunction.
     - easy.
     - intros ? ? f ?.
       induction f.
-      + exact (!pr_comp _ _ _).
+      + exact (!var_subst _ _ _).
       + refine (lift_constant_eq _ _ _ _ (idpath _) @ !_).
-        apply comp_comp.
+        apply subst_subst.
   Qed.
 
   Definition function_to_theory_morphism
@@ -198,9 +198,9 @@ Section Adjunction.
     apply algebraic_theory_morphism_eq.
     intros ? f.
     induction f.
-    - exact (!mor_pr _ _).
+    - exact (!mor_var _ _).
     - refine (lift_constant_eq _ _ _ _ (idpath _) @ _).
-      exact (!mor_comp F _ _ : _ = F _ (lift_constant _ _)).
+      exact (!mor_subst F _ _ : _ = F _ (lift_constant _ _)).
   Qed.
 
   Lemma weqinvweq
@@ -210,7 +210,7 @@ Section Adjunction.
     apply funextfun.
     intro.
     refine (lift_constant_eq _ _ _ _ (idpath _) @ _).
-    exact (comp_pr _ _).
+    exact (subst_var _ _).
   Qed.
 
 End Adjunction.
@@ -298,10 +298,10 @@ Section CosliceCatEquivalence.
   Proof.
     intros n f a.
     induction f as [i | s].
-    - refine (maponpaths _ (pr_action _ _ _) @ !_).
-      exact (pr_action _ _ _).
-    - refine (maponpaths _ (comp_action A (inr s) (weqvecfun _ [()]) a) @ !_).
-      refine (comp_action B (inr s) (weqvecfun _ [()]) (λ i, coslicecat_mor_morphism _ _ F (a i)) @ !_).
+    - refine (maponpaths _ (var_action _ _ _) @ !_).
+      exact (var_action _ _ _).
+    - refine (maponpaths _ (subst_action A (inr s) (weqvecfun _ [()]) a) @ !_).
+      refine (subst_action B (inr s) (weqvecfun _ [()]) (λ i, coslicecat_mor_morphism _ _ F (a i)) @ !_).
       refine (_ @ eqtohomot (coslicecat_mor_comm _ _ F) s @ _).
       + apply (maponpaths (coslicecat_mor_morphism _ _ F)).
         apply (maponpaths (action _)).

@@ -133,7 +133,7 @@ Section LambdaTheoryCategory.
     : algebraic_theory_morphism (data_theory L) (data_theory L')
     := pr1 F.
 
-  Definition mor_app_ax
+  Local Definition mor_app_ax
     {L L' : lambda_theory_data_cat}
     (F : algebraic_theory_morphism (data_theory L) (data_theory L'))
     (n : nat)
@@ -141,7 +141,7 @@ Section LambdaTheoryCategory.
     : UU
     := mor_app_ax' F (@data_app L) (@data_app L') n f.
 
-  Definition mor_abs_ax
+  Local Definition mor_abs_ax
     {L L' : lambda_theory_data_cat}
     (F : algebraic_theory_morphism (data_theory L) (data_theory L'))
     (n : nat)
@@ -167,15 +167,15 @@ Section LambdaTheoryCategory.
 
 (** ** 1.2. The category of λtheories *)
 
-  Definition extended_composition
+  Local Definition extended_composition
     {T : algebraic_theory_data}
     {m n : nat}
     (f : T (S m))
     (g : stn m → T n)
     : T (S n)
-    := f • (extend_tuple (λ i, (g i) • (λ i, pr (dni lastelement i))) (pr lastelement)).
+    := f • (extend_tuple (λ i, (g i) • (λ i, var (stnweq (inl i)))) (var (stnweq (inr tt)))).
 
-  Definition app_comp_ax
+  Local Definition app_subst_ax
     (L : lambda_theory_data_cat)
     (m n : nat)
     (f : data_theory L m)
@@ -183,7 +183,7 @@ Section LambdaTheoryCategory.
     : UU
     := data_app (f • g) = extended_composition (data_app f) g.
 
-  Definition abs_comp_ax
+  Local Definition abs_subst_ax
     (L : lambda_theory_data_cat)
     (m n : nat)
     (f : data_theory L (S m))
@@ -191,9 +191,9 @@ Section LambdaTheoryCategory.
     : UU
     := data_abs (extended_composition f g) = (data_abs f) • g.
 
-  Definition is_lambda_theory (L : lambda_theory_data_cat) : UU :=
-    (∏ m n f g, app_comp_ax L m n f g) ×
-    (∏ m n f g, abs_comp_ax L m n f g).
+  Local Definition is_lambda_theory (L : lambda_theory_data_cat) : UU :=
+    (∏ m n f g, app_subst_ax L m n f g) ×
+    (∏ m n f g, abs_subst_ax L m n f g).
 
   Definition lambda_theory_disp_cat
     : disp_cat lambda_theory_data_cat
@@ -243,7 +243,7 @@ Arguments app_ax /.
 Arguments abs_ax /.
 Arguments mor_app_ax /.
 Arguments mor_abs_ax /.
-Arguments app_comp_ax /.
-Arguments abs_comp_ax /.
+Arguments app_subst_ax /.
+Arguments abs_subst_ax /.
 Arguments β_ax /.
 Arguments η_ax /.
