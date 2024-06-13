@@ -1111,7 +1111,6 @@ Section CoalegbraDoubleCat.
     rewrite transportf_hcomp_r.
     rewrite !transportf_square_prewhisker.
     rewrite transportf_f_square.
-    Check lax_double_functor_lassociator_h.
     etrans.
     {
       apply maponpaths.
