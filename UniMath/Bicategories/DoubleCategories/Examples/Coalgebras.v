@@ -41,6 +41,7 @@
  12. The double category of coalgebras of a lax double functor
  13. The univalence of the double category of coalgebra
  14. The univalent double category of coalgebras of a lax double functor
+ 15. Flatness of the double category of coalgebras
 
  *********************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -1476,6 +1477,17 @@ Section CoalegbraDoubleCat.
       + apply is_univalent_coalg_category.
       + exact is_univalent_double_coalg_twosided_disp_cat.
   Defined.
+
+  (** * 15. Flatness of the double category of coalgebras *)
+  Proposition is_flat_double_cat_of_double_coalg
+              (H : is_flat_double_cat C)
+    : is_flat_double_cat
+        double_cat_of_double_coalg.
+  Proof.
+    intro ; intros.
+    use eq_double_coalg_sqr.
+    apply H.
+  Qed.
 End CoalegbraDoubleCat.
 
 Arguments double_coalg_id_hor_struct {C F} X /.

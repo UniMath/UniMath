@@ -302,6 +302,14 @@ Section VerOpposite.
     - exact ver_opposite_double_cat_triangle.
     - exact ver_opposite_double_cat_pentagon.
   Defined.
+
+  Proposition is_flat_ver_opposite_double_cat
+              (H : is_flat_double_cat C)
+    : is_flat_double_cat ver_opposite_double_cat.
+  Proof.
+    intro ; intros.
+    apply H.
+  Qed.
 End VerOpposite.
 
 Definition ver_opposite_univalent_double_cat
@@ -572,6 +580,14 @@ Section HorOpposite.
     - exact hor_opposite_double_cat_triangle.
     - exact hor_opposite_double_cat_pentagon.
   Defined.
+
+  Proposition is_flat_hor_opposite_double_cat
+              (H : is_flat_double_cat C)
+    : is_flat_double_cat hor_opposite_double_cat.
+  Proof.
+    intro ; intros.
+    apply H.
+  Qed.
 End HorOpposite.
 
 Definition hor_opposite_univalent_double_cat

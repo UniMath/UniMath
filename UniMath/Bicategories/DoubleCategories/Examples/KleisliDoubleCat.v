@@ -207,6 +207,15 @@ Proof.
   - abstract (intro ; intros ; apply homset_property).
 Defined.
 
+Proposition is_flat_kleisli_double_cat
+            {C : category}
+            (M : Monad C)
+  : is_flat_double_cat (kleisli_double_cat M).
+Proof.
+  intro ; intros.
+  apply homset_property.
+Qed.
+
 Definition all_companions_kleisli_double_cat
            {C : category}
            (M : Monad C)
