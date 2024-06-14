@@ -183,6 +183,14 @@ Proof.
   - exact (pentagon_law_arrow_twosided_disp_cat C).
 Defined.
 
+Proposition is_flat_square_double_cat
+            (C : category)
+  : is_flat_double_cat (square_double_cat C).
+Proof.
+  intro ; intros.
+  apply homset_property.
+Qed.
+
 Definition all_companions_square_double_cat
            (C : category)
   : all_companions_double_cat (square_double_cat C).

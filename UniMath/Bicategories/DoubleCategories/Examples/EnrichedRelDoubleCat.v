@@ -207,6 +207,13 @@ Section EnrichedRelationDoubleCat.
       + exact (is_univalent_enriched_relation_twosided_disp_cat V).
   Defined.
 
+  Proposition is_flat_enriched_rel_double_cat
+    : is_flat_double_cat enriched_rel_double_cat.
+  Proof.
+    intro ; intros.
+    apply isaprop_enriched_relation_square.
+  Qed.
+
   (** * 5. Companion pairs and conjoints *)
   Definition all_companions_enriched_rel
     : all_companions_double_cat enriched_rel_double_cat.

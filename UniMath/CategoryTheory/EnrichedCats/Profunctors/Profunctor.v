@@ -1332,3 +1332,30 @@ Proof.
   rewrite mon_linvunitor_triangle.
   apply idpath.
 Qed.
+
+Proposition lmap_e_arr_rmap_e_arr
+            {V : sym_mon_closed_cat}
+            {C₁ C₂ : category}
+            {E₁ : enrichment C₁ V}
+            {E₂ : enrichment C₂ V}
+            (P : E₁ ↛e E₂)
+            {x₁ x₂ : C₁}
+            (f : x₂ --> x₁)
+            {y₁ y₂ : C₂}
+            (g : y₁ --> y₂)
+  : lmap_e_arr P _ g · rmap_e_arr P f _
+    =
+    rmap_e_arr P f _ · lmap_e_arr P _ g.
+Proof.
+  unfold lmap_e_arr.
+  rewrite !assoc'.
+  rewrite <- rmap_e_arr_lmap_e.
+  rewrite !assoc.
+  apply maponpaths_2.
+  rewrite !assoc'.
+  rewrite <- tensor_split'.
+  rewrite tensor_split.
+  rewrite !assoc.
+  rewrite tensor_linvunitor.
+  apply idpath.
+Qed.

@@ -27,6 +27,7 @@
  2.9. Triangle and pentagon equations
  3. Builder for double categories
  4. Squares and equalities
+ 5. Flat double categories
 
  **********************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -848,3 +849,15 @@ Proof.
   use (isofhlevelweqf 1 (make_weq _ (H x y v₁ v₂))).
   apply homset_property.
 Qed.
+
+(** * 5. Flat double categories *)
+Definition is_flat_double_cat
+           (C : double_cat)
+  : UU
+  := ∏ (x₁ x₂ y₁ y₂ : C)
+       (v₁ : x₁ -->v y₁)
+       (v₂ : x₂ -->v y₂)
+       (h₁ : x₁ -->h x₂)
+       (h₂ : y₁ -->h y₂)
+       (s₁ s₂ : square v₁ v₂ h₁ h₂),
+     s₁ = s₂.
