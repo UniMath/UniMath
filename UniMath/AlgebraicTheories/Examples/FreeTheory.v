@@ -239,7 +239,7 @@ Section CosliceCatEquivalence.
   Context (S : hSet).
 
   Definition coslice_functor_data
-    : functor_data (algebra_cat (free_theory S)) (coslice_cat SET S).
+    : functor_data (algebra_cat (free_theory S)) (coslice_cat_total SET S).
   Proof.
     use make_functor_data.
     - intro A.
@@ -282,18 +282,18 @@ Section CosliceCatEquivalence.
   Qed.
 
   Definition coslice_functor
-    : algebra_cat (free_theory S) ⟶ coslice_cat SET S
+    : algebra_cat (free_theory S) ⟶ coslice_cat_total SET S
     := make_functor _ coslice_is_functor.
 
   Definition coslice_to_algebra_morphism_data
     {A B : algebra (free_theory S)}
-    (F : coslice_cat SET S ⟦ coslice_functor A, coslice_functor B ⟧)
+    (F : coslice_cat_total SET S ⟦ coslice_functor A, coslice_functor B ⟧)
     : A → B
     := coslicecat_mor_morphism _ _ F.
 
   Lemma coslice_to_is_algebra_morphism
     {A B : algebra (free_theory S)}
-    (F : coslice_cat SET S ⟦ coslice_functor A, coslice_functor B ⟧)
+    (F : coslice_cat_total SET S ⟦ coslice_functor A, coslice_functor B ⟧)
     : ∏ n f a, mor_action_ax (identity _) (coslice_to_algebra_morphism_data F) (@action _ A) (@action _ B) n f a.
   Proof.
     intros n f a.
@@ -316,7 +316,7 @@ Section CosliceCatEquivalence.
 
   Definition coslice_to_algebra_morphism
     {A B : algebra (free_theory S)}
-    (F : coslice_cat SET S ⟦ coslice_functor A, coslice_functor B ⟧)
+    (F : coslice_cat_total SET S ⟦ coslice_functor A, coslice_functor B ⟧)
     : algebra_morphism A B
     := make_algebra_morphism _ (coslice_to_is_algebra_morphism F).
 
@@ -340,7 +340,7 @@ Section CosliceCatEquivalence.
   Defined.
 
   Definition coslice_to_algebra_data
-    (T : coslice_cat SET S)
+    (T : coslice_cat_total SET S)
     : algebra_data (free_theory S).
   Proof.
     use make_algebra_data.
@@ -352,7 +352,7 @@ Section CosliceCatEquivalence.
   Defined.
 
   Lemma coslice_to_is_algebra
-    (T : coslice_cat SET S)
+    (T : coslice_cat_total SET S)
     : is_algebra (coslice_to_algebra_data T).
   Proof.
     split.
@@ -362,7 +362,7 @@ Section CosliceCatEquivalence.
   Qed.
 
   Definition coslice_to_algebra
-    (T : coslice_cat SET S)
+    (T : coslice_cat_total SET S)
     : algebra (free_theory S)
     := make_algebra _ (coslice_to_is_algebra T).
 
