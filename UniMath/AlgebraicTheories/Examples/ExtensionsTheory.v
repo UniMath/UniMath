@@ -3,14 +3,14 @@
   The theory of extensions of an algebra
 
   Given an algebraic theory T and a T-algebra A, we can construct the "theory of extensions" of A
-  as the theory T_A with (T_A)_n = A + T_n as a coproduct of T-algebras. The category of algebras of
-  this theory is equivalent to the coslice category (A / T-alg). For example, if T encodes the
-  theory of rings and A is a T-algebra (equivalent to a ring R), then T_A is the theory of
-  R-algebras. Lastly, for any algebraic theory morphism F : T -> T', if we take A = F^*(T'_0), the
-  pullback of the T'-algebra T'_0 along F, then F factors through T_A.
+  as the theory T_A with (T_A)_n = A + T_n as a coproduct of T-algebras. This is functorial in A.
+  The category of algebras of this theory is equivalent to the coslice category (A / T-alg). For
+  example, if T encodes the theory of rings and A is a T-algebra (equivalent to a ring R), then T_A
+  is the theory of R-algebras. Lastly, for any algebraic theory morphism F : T -> T', if we take
+  A = F^*(T'_0), the pullback of the T'-algebra T'_0 along F, then F factors through T_A.
 
   Contents
-  1. The theory of extensions [extensions_theory]
+  1. The theory of extensions functor [extensions_theory]
   2. The category of T_A-algebras is equivalent to A / T-alg [algebra_coslice_equivalence]
   3. Every morphism F: T -> T' factors through T_(F^*(T'_0)) [factorization]
 
@@ -26,6 +26,7 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Tuples.
 
 Require Import UniMath.AlgebraicTheories.AlgebraCategory.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraMorphisms.
@@ -41,69 +42,172 @@ Section TheoryOfExtensions.
 
   Context (T : algebraic_theory).
   Context (H : BinCoproducts (algebra_cat T)).
+
+  Section Ob.
+
+    Context (A : algebra T).
+
+    Definition extensions_theory_ob_data
+      : algebraic_theory_data.
+    Proof.
+      use make_algebraic_theory_data.
+      - intro n.
+        exact (BinCoproductObject (H A (theory_algebra T n)) : algebra _).
+      - intros n i.
+        refine ((BinCoproductIn2 _ : algebra_morphism _ _) _).
+        exact (var i).
+      - intros m n f g.
+        revert f.
+        refine (BinCoproductArrow _ _ _ : algebra_morphism _ _).
+        + exact (BinCoproductIn1 _).
+        + apply theory_algebra_free.
+          exact g.
+    Defined.
+
+    Lemma extensions_theory_ob_is_theory
+      : is_algebraic_theory extensions_theory_ob_data.
+    Proof.
+      use make_is_algebraic_theory.
+      - intros l m n f_l f_m f_n.
+        refine (!maponpaths (λ x, x _) (algebra_mor_comp _ _) @ _).
+        revert f_l.
+        apply eqtohomot.
+        apply (maponpaths algebra_morphism_to_function).
+        apply BinCoproductArrowUnique.
+        + refine (assoc _ _ _ @ _).
+          refine (maponpaths (λ x, x · _) (BinCoproductIn1Commutes _ _ _ _ _ _ _) @ _).
+          apply BinCoproductIn1Commutes.
+        + refine (assoc _ _ _ @ _).
+          refine (maponpaths (λ x, x · _) (BinCoproductIn2Commutes _ _ _ _ _ _ _) @ _).
+          apply algebra_morphism_eq.
+          refine (algebra_mor_comp _ _ @ _).
+          apply funextfun.
+          intro f_l.
+          apply mor_action.
+      - intros m n i f.
+        refine (!maponpaths (λ x, x _) (algebra_mor_comp _ _) @ _).
+        refine (maponpaths (λ x, _ x _) (BinCoproductIn2Commutes _ _ _ _ _ _ _) @ _).
+        apply var_action.
+      - intros n f.
+        refine (maponpaths (λ x, algebra_morphism_to_function x f) (_ : _ = identity _)).
+        symmetry.
+        apply BinCoproductArrowUnique.
+        + apply id_right.
+        + refine (id_right _ @ _).
+          apply algebra_morphism_eq.
+          apply funextfun.
+          intro f'.
+          refine (_ @ mor_action _ _ _).
+          apply maponpaths.
+          apply (!subst_var _ _).
+    Qed.
+
+    Definition extensions_theory_ob
+      : algebraic_theory
+      := make_algebraic_theory _ extensions_theory_ob_is_theory.
+
+  End Ob.
+
+  Section Mor.
+
+    Context {A B : algebra T}.
+    Context (f : algebra_morphism A B).
+
+    Definition extensions_theory_mor_data
+      (n : nat)
+      : extensions_theory_ob A n → extensions_theory_ob B n.
+    Proof.
+      apply algebra_morphism_to_function.
+      apply BinCoproductOfArrows.
+      - exact f.
+      - exact (identity _).
+    Defined.
+
+    Lemma extensions_theory_mor_is_morphism
+      : is_algebraic_theory_morphism extensions_theory_mor_data.
+    Proof.
+      use make_is_algebraic_theory_morphism.
+      - intros n i.
+        refine (!maponpaths (λ x, x _) (algebra_mor_comp _ _) @ _).
+        refine (maponpaths (λ x, algebra_morphism_to_function x _) (BinCoproductOfArrowsIn2 _ _ _ _ _) @ _).
+        exact (maponpaths (λ x, algebra_morphism_to_function x _) (id_left _)).
+      - intros m n g h.
+        do 2 refine (!_ @ maponpaths (λ x, x _) (algebra_mor_comp _ _)).
+        revert g.
+        apply eqtohomot.
+        apply maponpaths.
+        do 2 refine (postcompWithBinCoproductArrow _ _ _ _ _ @ !_).
+        refine (maponpaths (λ x, _ x _) _ @ maponpaths (λ x, _ x) _).
+        + refine (BinCoproductOfArrowsIn1 _ _ _ _ _ @ !_).
+          refine (assoc' _ _ _ @ _).
+          exact (maponpaths (λ x, _ · x) (BinCoproductIn1Commutes _ _ _ _ _ _ _)).
+        + refine (!_ @ !maponpaths (λ x, x · _) (id_left _)).
+          refine (BinCoproductIn2Commutes _ _ _ _ _ _ _ @ !_).
+          apply algebra_morphism_eq.
+          refine (algebra_mor_comp _ _ @ _).
+          apply funextfun.
+          intro g.
+          apply mor_action.
+    Qed.
+
+    Definition extensions_theory_mor
+      : algebraic_theory_morphism (extensions_theory_ob A) (extensions_theory_ob B)
+      := make_algebraic_theory_morphism _ extensions_theory_mor_is_morphism.
+
+  End Mor.
+
+  Section Functor.
+
+    Definition extensions_theory_data
+      : functor_data (algebra_cat T) algebraic_theory_cat
+      := make_functor_data
+        extensions_theory_ob
+        (λ _ _, extensions_theory_mor).
+
+    Lemma extensions_theory_is_functor
+      : is_functor extensions_theory_data.
+    Proof.
+      split.
+      - intro A.
+        apply algebraic_theory_morphism_eq.
+        intro n.
+        apply eqtohomot.
+        change ((identity _ : algebraic_theory_morphism _ _) n)
+          with (algebra_morphism_to_function (identity (H A (theory_algebra T n)))).
+        apply (maponpaths algebra_morphism_to_function).
+        apply BinCoproductArrowsEq.
+        + refine (BinCoproductOfArrowsIn1 _ _ _ _ _ @ _).
+          refine (id_left _ @ !_).
+          exact (id_right _).
+        + refine (BinCoproductOfArrowsIn2 _ _ _ _ _ @ _).
+          refine (id_left _ @ !_).
+          exact (id_right _).
+      - intros A B C f g.
+        apply algebraic_theory_morphism_eq.
+        intros n.
+        apply eqtohomot.
+        refine (_ @ algebra_mor_comp _ _).
+        apply (maponpaths algebra_morphism_to_function).
+        refine (_ @ !postcompWithBinCoproductArrow _ _ _ _ _).
+        refine (maponpaths (λ x, BinCoproductArrow _ x _) _ @ maponpaths (λ x, BinCoproductArrow _ _ x) _).
+        + refine (_ @ assoc _ _ _).
+          refine (_ @ !maponpaths (λ x, _ · x) (BinCoproductOfArrowsIn1 _ _ _ _ _)).
+          apply assoc'.
+        + refine (_ @ assoc _ _ _).
+          refine (_ @ !maponpaths (λ x, _ · x) (BinCoproductOfArrowsIn2 _ _ _ _ _)).
+          apply (!id_left _).
+    Qed.
+
+    Definition extensions_theory
+      : functor (algebra_cat T) algebraic_theory_cat
+      := make_functor _ extensions_theory_is_functor.
+
+  End Functor.
+
   Context (A : algebra T).
 
-  Definition extensions_theory_data
-    : algebraic_theory_data.
-  Proof.
-    use make_algebraic_theory_data.
-    - intro n.
-      exact (BinCoproductObject (H A (theory_algebra T n)) : algebra _).
-    - intros n i.
-      refine ((BinCoproductIn2 _ : algebra_morphism _ _) _).
-      exact (var i).
-    - intros m n f g.
-      revert f.
-      refine (BinCoproductArrow _ _ _ : algebra_morphism _ _).
-      + exact (BinCoproductIn1 _).
-      + apply theory_algebra_free.
-        exact g.
-  Defined.
-
-  Lemma extensions_theory_is_theory
-    : is_algebraic_theory extensions_theory_data.
-  Proof.
-    use make_is_algebraic_theory.
-    - intros l m n f_l f_m f_n.
-      refine (!maponpaths (λ x, x _) (algebra_mor_comp _ _) @ _).
-      revert f_l.
-      apply eqtohomot.
-      apply (maponpaths algebra_morphism_to_function).
-      apply BinCoproductArrowUnique.
-      + refine (assoc _ _ _ @ _).
-        refine (maponpaths (λ x, x · _) (BinCoproductIn1Commutes _ _ _ _ _ _ _) @ _).
-        apply BinCoproductIn1Commutes.
-      + refine (assoc _ _ _ @ _).
-        refine (maponpaths (λ x, x · _) (BinCoproductIn2Commutes _ _ _ _ _ _ _) @ _).
-        apply algebra_morphism_eq.
-        refine (algebra_mor_comp _ _ @ _).
-        apply funextfun.
-        intro f_l.
-        apply mor_action.
-    - intros m n i f.
-      refine (!maponpaths (λ x, x _) (algebra_mor_comp _ _) @ _).
-      refine (maponpaths (λ x, _ x _) (BinCoproductIn2Commutes _ _ _ _ _ _ _) @ _).
-      apply var_action.
-    - intros n f.
-      refine (maponpaths (λ x, algebra_morphism_to_function x f) (_ : _ = identity _)).
-      symmetry.
-      apply BinCoproductArrowUnique.
-      + apply id_right.
-      + refine (id_right _ @ _).
-        apply algebra_morphism_eq.
-        apply funextfun.
-        intro f'.
-        refine (_ @ mor_action _ _ _).
-        apply maponpaths.
-        apply (!subst_var _ _).
-  Qed.
-
-  Definition extensions_theory
-    : algebraic_theory
-    := make_algebraic_theory _ extensions_theory_is_theory.
-
   Definition extensions_theory_embedding_data
-    : algebraic_theory_morphism_data T extensions_theory
+    : algebraic_theory_morphism_data T (extensions_theory A : algebraic_theory)
     := λ n, (BinCoproductIn2 (H A (theory_algebra T n)) : algebra_morphism _ _).
 
   Lemma extensions_theory_embedding_is_morphism
@@ -119,7 +223,7 @@ Section TheoryOfExtensions.
   Qed.
 
   Definition extensions_theory_embedding
-    : algebraic_theory_morphism T extensions_theory
+    : algebraic_theory_morphism T (extensions_theory A)
     := make_algebraic_theory_morphism _ extensions_theory_embedding_is_morphism.
 
 (** * 2. The category of T_A-algebras is equivalent to A / T-alg *)
@@ -130,7 +234,7 @@ Section TheoryOfExtensions.
 
       Section Ob.
 
-        Context (B : algebra extensions_theory).
+        Context (B : algebra (extensions_theory A)).
 
         Definition algebra_to_coslice_morphism_data
           : A → (algebra_pullback extensions_theory_embedding B : algebra _).
@@ -160,7 +264,7 @@ Section TheoryOfExtensions.
 
       Section Mor.
 
-        Context {B B' : algebra extensions_theory}.
+        Context {B B' : algebra (extensions_theory A)}.
         Context (F : algebra_morphism B B').
 
         Lemma algebra_to_coslice_commutes
@@ -178,7 +282,7 @@ Section TheoryOfExtensions.
       End Mor.
 
       Definition algebra_to_coslice_data
-        : functor_data (algebra_cat extensions_theory) (coslice_cat _ A)
+        : functor_data (algebra_cat (extensions_theory A)) (coslice_cat _ A)
         := make_functor_data (C' := coslice_cat _ A)
           (λ B, _ ,, algebra_to_coslice_morphism B)
           (λ _ _ F, _ ,, algebra_to_coslice_commutes F).
@@ -207,7 +311,7 @@ Section TheoryOfExtensions.
       Qed.
 
       Definition algebra_to_coslice
-        : algebra_cat extensions_theory ⟶ coslice_cat _ A
+        : algebra_cat (extensions_theory A) ⟶ coslice_cat _ A
         := make_functor
           algebra_to_coslice_data
           algebra_to_coslice_is_functor.
@@ -222,7 +326,7 @@ Section TheoryOfExtensions.
         Context (F : algebra_morphism A B).
 
         Definition coslice_to_algebra_ob_data
-          : algebra_data extensions_theory.
+          : algebra_data (extensions_theory A).
         Proof.
           use make_algebra_data.
           - exact B.
@@ -261,7 +365,7 @@ Section TheoryOfExtensions.
         Qed.
 
         Definition coslice_to_algebra_ob
-          : algebra extensions_theory
+          : algebra (extensions_theory A)
           := make_algebra _ coslice_to_ob_is_algebra.
 
       End Ob.
@@ -316,7 +420,7 @@ Section TheoryOfExtensions.
       End Mor.
 
       Definition coslice_to_algebra_data
-        : functor_data (coslice_cat _ A) (algebra_cat extensions_theory)
+        : functor_data (coslice_cat _ A) (algebra_cat (extensions_theory A))
         := make_functor_data (C := coslice_cat _ A)
           (λ F, coslice_to_algebra_ob (pr2 F))
           (λ _ _ G, coslice_to_algebra_mor (pr2 G)).
@@ -335,7 +439,7 @@ Section TheoryOfExtensions.
       Qed.
 
       Definition coslice_to_algebra
-        : coslice_cat _ A ⟶ algebra_cat extensions_theory
+        : coslice_cat _ A ⟶ algebra_cat (extensions_theory A)
         := make_functor
           coslice_to_algebra_data
           coslice_to_algebra_is_functor.
@@ -370,7 +474,7 @@ Section TheoryOfExtensions.
     Qed.
 
     Lemma algebra_to_coslice_to_algebra_is_morphism
-      (B : algebra extensions_theory)
+      (B : algebra (extensions_theory A))
       : is_algebra_morphism (A := (coslice_to_algebra (_ ,, algebra_to_coslice_morphism B) : algebra _)) (A' := B) (z_iso_mor (identity_z_iso (C := HSET) (B : hSet))).
     Proof.
       intros n f b.
@@ -379,7 +483,7 @@ Section TheoryOfExtensions.
       use (maponpaths algebra_morphism_to_function (_ : _ = make_algebra_morphism _ (_ : is_algebra_morphism (A' := (algebra_pullback _ B : algebra _)) _))).
       {
         intros n' f' a'.
-        refine (_ @ subst_action (T := extensions_theory) B _ a' b).
+        refine (_ @ subst_action (T := (extensions_theory A)) B _ a' b).
         apply (maponpaths (λ x, action x _)).
         refine (_ @ maponpaths (λ x, x _) (algebra_mor_comp (BinCoproductIn2 _) (BinCoproductArrow _ _ _))).
         symmetry.
@@ -402,7 +506,7 @@ Section TheoryOfExtensions.
     Qed.
 
     Definition algebra_to_coslice_to_algebra
-      (B : algebra extensions_theory)
+      (B : algebra (extensions_theory A))
       : z_iso (coslice_to_algebra (_ ,, algebra_to_coslice_morphism B)) B
       := make_algebra_z_iso _ _ _ _ (algebra_to_coslice_to_algebra_is_morphism B).
 
@@ -439,8 +543,8 @@ Section TheoryOfExtensions.
           [ intro;
             apply homset_property
           | apply algebra_morphism_eq;
-            refine (algebra_mor_comp (T := extensions_theory) _ _ @ _);
-            exact (maponpaths (λ x, _ x _) (algebra_mor_comp (T := extensions_theory) _ _)) ]
+            refine (algebra_mor_comp (T := (extensions_theory A)) _ _ @ _);
+            exact (maponpaths (λ x, _ x _) (algebra_mor_comp (T := (extensions_theory A)) _ _)) ]
         ).
     Defined.
 
@@ -451,7 +555,7 @@ Section TheoryOfExtensions.
         algebra_to_coslice_surjective.
 
     Definition algebra_coslice_equivalence
-      : adj_equiv (algebra_cat extensions_theory) (coslice_cat _ A)
+      : adj_equiv (algebra_cat (extensions_theory A)) (coslice_cat _ A)
       := algebra_to_coslice ,, algebra_to_coslice_is_equivalence.
 
   End Algebras.
@@ -472,7 +576,7 @@ Section Factorization.
     := extensions_theory_embedding _ _ _.
 
   Definition factorization_second_factor_data
-    : algebraic_theory_morphism_data (extensions_theory T H A) T'.
+    : algebraic_theory_morphism_data (extensions_theory T H A : algebraic_theory) T'.
   Proof.
     intros n.
     refine (algebra_morphism_to_function (BinCoproductArrow _ (c := (algebra_pullback F (theory_algebra T' n))) _ _)).
