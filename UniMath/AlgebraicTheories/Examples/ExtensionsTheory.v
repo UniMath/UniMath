@@ -282,8 +282,8 @@ Section TheoryOfExtensions.
       End Mor.
 
       Definition algebra_to_coslice_data
-        : functor_data (algebra_cat (extensions_theory A)) (coslice_cat _ A)
-        := make_functor_data (C' := coslice_cat _ A)
+        : functor_data (algebra_cat (extensions_theory A)) (coslice_cat_total _ A)
+        := make_functor_data (C' := coslice_cat_total _ A)
           (λ B, _ ,, algebra_to_coslice_morphism B)
           (λ _ _ F, _ ,, algebra_to_coslice_commutes F).
 
@@ -311,7 +311,7 @@ Section TheoryOfExtensions.
       Qed.
 
       Definition algebra_to_coslice
-        : algebra_cat (extensions_theory A) ⟶ coslice_cat _ A
+        : algebra_cat (extensions_theory A) ⟶ coslice_cat_total _ A
         := make_functor
           algebra_to_coslice_data
           algebra_to_coslice_is_functor.
@@ -420,8 +420,8 @@ Section TheoryOfExtensions.
       End Mor.
 
       Definition coslice_to_algebra_data
-        : functor_data (coslice_cat _ A) (algebra_cat (extensions_theory A))
-        := make_functor_data (C := coslice_cat _ A)
+        : functor_data (coslice_cat_total _ A) (algebra_cat (extensions_theory A))
+        := make_functor_data (C := coslice_cat_total _ A)
           (λ F, coslice_to_algebra_ob (pr2 F))
           (λ _ _ G, coslice_to_algebra_mor (pr2 G)).
 
@@ -439,7 +439,7 @@ Section TheoryOfExtensions.
       Qed.
 
       Definition coslice_to_algebra
-        : coslice_cat _ A ⟶ algebra_cat (extensions_theory A)
+        : coslice_cat_total _ A ⟶ algebra_cat (extensions_theory A)
         := make_functor
           coslice_to_algebra_data
           coslice_to_algebra_is_functor.
@@ -555,7 +555,7 @@ Section TheoryOfExtensions.
         algebra_to_coslice_surjective.
 
     Definition algebra_coslice_equivalence
-      : adj_equiv (algebra_cat (extensions_theory A)) (coslice_cat _ A)
+      : adj_equiv (algebra_cat (extensions_theory A)) (coslice_cat_total _ A)
       := algebra_to_coslice ,, algebra_to_coslice_is_equivalence.
 
   End Algebras.

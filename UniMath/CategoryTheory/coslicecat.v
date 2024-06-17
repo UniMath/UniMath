@@ -154,16 +154,16 @@ Definition coslice_cat_total : category := total_category coslice_cat_disp.
 
 End coslice_cat_displayed.
 
-(** ** Isos in slice categories *)
+(** ** Isos in coslice categories *)
 
 Section Isos.
 
-  Local Notation "x / C" := (coslice_cat C x).
+  Local Notation "x / C" := (coslice_cat_total C x).
 
   Context (C : category).
   Context (x : C).
 
-  Lemma eq_z_iso_slicecat (af bg : x / C) (f g : z_iso af bg) : pr1 f = pr1 g -> f = g.
+  Lemma eq_z_iso_coslicecat (af bg : x / C) (f g : z_iso af bg) : pr1 f = pr1 g -> f = g.
   Proof.
     induction f as [f fP]; induction g as [g gP]; intro eq.
     use (subtypePairEquality _ eq).
@@ -171,8 +171,8 @@ Section Isos.
   Qed.
 
   (** It suffices that the underlying morphism is an iso to get an iso in
-      the slice category *)
-  Lemma z_iso_to_slice_precat_z_iso (af bg : x / C) (h : af --> bg)
+      the coslice category *)
+  Lemma z_iso_to_coslice_precat_z_iso (af bg : x / C) (h : af --> bg)
     (isoh : is_z_isomorphism (pr1 h)) : is_z_isomorphism h.
   Proof.
     induction isoh as [hinv [h1 h2]].
@@ -196,8 +196,8 @@ Section Isos.
       apply h2.
   Defined.
 
-  (** An iso in the slice category gives an iso in the base category *)
-  Lemma slice_precat_z_iso_to_z_iso  (af bg : x / C) (h : af --> bg)
+  (** An iso in the coslice category gives an iso in the base category *)
+  Lemma coslice_precat_z_iso_to_z_iso  (af bg : x / C) (h : af --> bg)
     (p : is_z_isomorphism h) : is_z_isomorphism (pr1 h).
   Proof.
     induction p as [hinv [h1 h2]].
@@ -216,8 +216,8 @@ Section Isos.
     apply (weqcomp (weqdirprodcomm _ _)).
     apply weqfibtototal; intro p.
     apply weqimplimpl.
-    - intro hp; apply z_iso_to_slice_precat_z_iso; assumption.
-    - intro hp; apply (slice_precat_z_iso_to_z_iso _ _ _ hp).
+    - intro hp; apply z_iso_to_coslice_precat_z_iso; assumption.
+    - intro hp; apply (coslice_precat_z_iso_to_z_iso _ _ _ hp).
     - apply isaprop_is_z_isomorphism.
     - apply (isaprop_is_z_isomorphism(C:= x / C)).
   Defined.
