@@ -241,55 +241,6 @@ Section CosliceCatEquivalence.
 
   Context (S : hSet).
 
-  Definition coslice_functor_data
-    : functor_data (algebra_cat (free_theory S)) (coslice_cat_total SET S).
-  Proof.
-    use make_functor_data.
-    - intro A.
-      exists ((A : algebra _) : hSet).
-      intro s.
-      exact (action (T := free_theory S) (n := 0) (inr s) (weqvecfun 0 [()])).
-    - intros A B F.
-      exists (F : algebra_morphism _ _).
-      abstract (
-        apply funextfun;
-        intro s;
-        refine (mor_action _ _ _ @ _);
-        apply (maponpaths (action _));
-        apply funextfun;
-        intro i;
-        apply (fromstn0 i)
-      ).
-  Defined.
-
-  Lemma coslice_is_functor
-    : is_functor coslice_functor_data.
-  Proof.
-    split.
-    - intro A.
-      apply subtypePath.
-      {
-        intro.
-        apply funspace_isaset.
-        apply setproperty.
-      }
-      easy.
-    - intros A B C F G.
-      apply subtypePath.
-      {
-        intro.
-        apply funspace_isaset.
-        apply setproperty.
-      }
-      apply algebra_mor_comp.
-  Qed.
-
-  Definition coslice_functor
-    : algebra_cat (free_theory S) ⟶ coslice_cat_total SET S
-    := make_functor _ coslice_is_functor.
-
-
-(** an alternative route through lifting *)
   Definition coslice_functor_base_functor : algebra_cat (free_theory S) ⟶ SET.
   Proof.
     use make_functor.
@@ -304,7 +255,12 @@ Section CosliceCatEquivalence.
                   apply algebra_mor_comp).
   Defined.
 
-  Definition coslice_functor_alt
+  (**
+    We define the coslice functor as a lift of the base functor. Note that by from_lifted_functor,
+    postcomposing this lift with the forgetful functor (f: A → B) ↦ B gives
+    coslice_functor_base_functor again.
+   *)
+  Definition coslice_functor
     : algebra_cat (free_theory S) ⟶ coslice_cat_total SET S.
   Proof.
     apply (lifted_functor (F:=coslice_functor_base_functor)).
@@ -321,14 +277,6 @@ Section CosliceCatEquivalence.
         intro i; apply (fromstn0 i)).
     - abstract (split; intros; apply funspace_isaset; apply setproperty).
   Defined.
-
-  (** the main benefit is equality of functors *)
-  Lemma coslice_functor_alt_pr1_eq :
-    functor_composite coslice_functor_alt (pr1_category (coslice_cat_disp SET S)) = coslice_functor_base_functor.
-  Proof.
-    apply from_lifted_functor.
-  Qed.
-
 
   Definition coslice_to_algebra_morphism_data
     {A B : algebra (free_theory S)}
@@ -349,11 +297,11 @@ Section CosliceCatEquivalence.
       refine (subst_action B (inr s) (weqvecfun _ [()]) (λ i, coslicecat_mor_morphism _ _ F (a i)) @ !_).
       refine (_ @ eqtohomot (coslicecat_mor_comm _ _ F) s @ _).
       + apply (maponpaths (coslicecat_mor_morphism _ _ F)).
-        apply (maponpaths (action _)).
+        apply (maponpaths (action (A := A) _)).
         apply funextfun.
         intro i.
         apply (fromstn0 i).
-      + apply (maponpaths (action _)).
+      + apply (maponpaths (action (A := B) _)).
         apply funextfun.
         intro i.
         apply (fromstn0 i).
