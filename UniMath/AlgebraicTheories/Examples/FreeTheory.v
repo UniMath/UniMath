@@ -30,6 +30,9 @@ Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+
+
 Require Import UniMath.AlgebraicTheories.AlgebraCategory.
 Require Import UniMath.AlgebraicTheories.AlgebraCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
@@ -284,6 +287,48 @@ Section CosliceCatEquivalence.
   Definition coslice_functor
     : algebra_cat (free_theory S) ⟶ coslice_cat_total SET S
     := make_functor _ coslice_is_functor.
+
+
+(** an alternative route through lifting *)
+  Definition coslice_functor_base_functor : algebra_cat (free_theory S) ⟶ SET.
+  Proof.
+    use make_functor.
+    - use make_functor_data.
+      + intro A. exact ((A : algebra _) : hSet).
+      + intros A B F.
+        exact (F : algebra_morphism _ _).
+    - split.
+      + abstract (intro A;
+                  easy).
+      + abstract (intros A B C F G;
+                  apply algebra_mor_comp).
+  Defined.
+
+  Definition coslice_functor_alt
+    : algebra_cat (free_theory S) ⟶ coslice_cat_total SET S.
+  Proof.
+    apply (lifted_functor (F:=coslice_functor_base_functor)).
+    use tpair.
+    - use tpair.
+      + intros A s.
+        exact (action (T := free_theory S) (n := 0) (inr s) (weqvecfun 0 [()])).
+      + abstract (intros A B F;
+        apply funextfun;
+        intro s;
+        refine (mor_action _ _ _ @ _);
+        apply (maponpaths (action _));
+        apply funextfun;
+        intro i; apply (fromstn0 i)).
+    - abstract (split; intros; apply funspace_isaset; apply setproperty).
+  Defined.
+
+  (** the main benefit is equality of functors *)
+  Lemma coslice_functor_alt_pr1_eq :
+    functor_composite coslice_functor_alt (pr1_category (coslice_cat_disp SET S)) = coslice_functor_base_functor.
+  Proof.
+    apply from_lifted_functor.
+  Qed.
+
 
   Definition coslice_to_algebra_morphism_data
     {A B : algebra (free_theory S)}
