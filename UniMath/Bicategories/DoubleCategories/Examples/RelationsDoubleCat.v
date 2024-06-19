@@ -273,6 +273,13 @@ Proof.
   - exact rel_double_cat_pentagon.
 Defined.
 
+Proposition is_flat_rel_double_cat
+  : is_flat_double_cat rel_double_cat.
+Proof.
+  intro ; intros.
+  repeat (use funextsec ; intro) ; apply propproperty.
+Qed.
+
 Definition rel_univalent_double_cat
   : univalent_double_cat.
 Proof.

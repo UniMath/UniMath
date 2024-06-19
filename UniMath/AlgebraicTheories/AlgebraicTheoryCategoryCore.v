@@ -34,14 +34,14 @@ Section AlgebraicTheoryCategory.
 
   (* The suffix '_ax' for 'axiom' makes sense for descriptions of properties that are hProps. *)
   (* I am, however, still searching for a better naming scheme for non-propositional properties. *)
-  Definition pr_ax
+  Definition var_ax
     (T : indexed_set_cat nat)
     (n : nat)
     (i : stn n)
     : UU
     := T n.
 
-  Definition comp_ax
+  Definition subst_ax
     (T : indexed_set_cat nat)
     (m n : nat)
     (f : T m)
@@ -49,37 +49,37 @@ Section AlgebraicTheoryCategory.
     : UU
     := T n.
 
-  Let mor_pr_ax'
+  Let mor_var_ax'
     {T T' : indexed_set_cat nat}
     (F : indexed_set_cat nat⟦T, T'⟧)
-    (pr : ∏ n i, pr_ax T n i)
-    (pr' : ∏ n i, pr_ax T' n i)
+    (var : ∏ n i, var_ax T n i)
+    (var' : ∏ n i, var_ax T' n i)
     (n : nat)
     (i : stn n)
     : UU
-    := F n (pr n i) = pr' n i.
+    := F n (var n i) = var' n i.
 
-  Let mor_comp_ax'
+  Let mor_subst_ax'
     {T T' : indexed_set_cat nat}
     (F : indexed_set_cat nat⟦T, T'⟧)
-    (comp : ∏ m n f g, comp_ax T m n f g)
-    (comp' : ∏ m n f g, comp_ax T' m n f g)
+    (subst : ∏ m n f g, subst_ax T m n f g)
+    (subst' : ∏ m n f g, subst_ax T' m n f g)
     (m n : nat)
     (f : T m)
     (g : stn m → T n)
     : UU
-    := F n (comp m n f g) = comp' m n (F m f) (λ i, F n (g i)).
+    := F n (subst m n f g) = subst' m n (F m f) (λ i, F n (g i)).
 
   Definition algebraic_theory_data_disp_cat
     : disp_cat (indexed_set_cat nat).
   Proof.
     use disp_struct.
     - refine (λ T, _ × _).
-      + exact (∏ n i, pr_ax T n i).
-      + exact (∏ m n f g, comp_ax T m n f g).
+      + exact (∏ n i, var_ax T n i).
+      + exact (∏ m n f g, subst_ax T m n f g).
     - refine (λ T T' Tdata T'data F, _ × _).
-      + exact (∏ n i, mor_pr_ax' F (pr1 Tdata) (pr1 T'data) n i).
-      + exact (∏ m n f g, mor_comp_ax' F (pr2 Tdata) (pr2 T'data) m n f g).
+      + exact (∏ n i, mor_var_ax' F (pr1 Tdata) (pr1 T'data) n i).
+      + exact (∏ m n f g, mor_subst_ax' F (pr2 Tdata) (pr2 T'data) m n f g).
     - abstract (
         intros;
         apply isapropdirprod;
@@ -108,19 +108,19 @@ Section AlgebraicTheoryCategory.
     : nat → hSet
     := pr1 T.
 
-  Let data_pr
+  Let data_var
     {T : algebraic_theory_data_cat}
     {n : nat}
     (i : stn n)
-    : pr_ax (data_set T) n i
+    : var_ax (data_set T) n i
     := pr12 T n i.
 
-  Let data_comp
+  Let data_subst
     {T : algebraic_theory_data_cat}
     {m n : nat}
     (f : data_set T m)
     (g : stn m → data_set T n)
-    : comp_ax (data_set T) m n f g
+    : subst_ax (data_set T) m n f g
     := pr22 T m n f g.
 
   Let data_mor
@@ -130,70 +130,70 @@ Section AlgebraicTheoryCategory.
     : data_set T n → data_set T' n
     := pr1 F n.
 
-  Definition mor_pr_ax
+  Local Definition mor_var_ax
     {T T' : algebraic_theory_data_cat}
     (F : indexed_set_cat nat⟦data_set T, data_set T'⟧)
     (n : nat)
     (i : stn n)
     : UU
-    := mor_pr_ax' F (@data_pr T) (@data_pr T') n i.
+    := mor_var_ax' F (@data_var T) (@data_var T') n i.
 
-  Definition mor_comp_ax
+  Local Definition mor_subst_ax
     {T T' : algebraic_theory_data_cat}
     (F : indexed_set_cat nat⟦data_set T, data_set T'⟧)
     (m n : nat)
     (f : data_set T m)
     (g : stn m → data_set T n)
     : UU
-    := mor_comp_ax' F (@data_comp T) (@data_comp T') m n f g.
+    := mor_subst_ax' F (@data_subst T) (@data_subst T') m n f g.
 
-  Let data_mor_pr
+  Let data_mor_var
     {T T' : algebraic_theory_data_cat}
     (F : T --> T')
     {n : nat}
     (i : stn n)
-    : mor_pr_ax (@data_mor _ _ F) n i
+    : mor_var_ax (@data_mor _ _ F) n i
     := pr12 F n i.
 
-  Let data_mor_comp
+  Let data_mor_subst
     {T T' : algebraic_theory_data_cat}
     (F : T --> T')
     {m n : nat}
     (f : data_set T m)
     (g : stn m → data_set T n)
-    : mor_comp_ax (@data_mor _ _ F) m n f g
+    : mor_subst_ax (@data_mor _ _ F) m n f g
     := pr22 F m n f g.
 
 (** ** 1.2. The category of algebraic theories  *)
 
-  Definition comp_comp_ax
+  Local Definition subst_subst_ax
     (T : algebraic_theory_data_cat)
     (l m n : nat)
     (f_l : data_set T l)
     (f_m : stn l → data_set T m)
     (f_n : stn m → data_set T n)
     : UU
-    := data_comp (data_comp f_l f_m) f_n = data_comp f_l (λ t_l, data_comp (f_m t_l) f_n).
+    := data_subst (data_subst f_l f_m) f_n = data_subst f_l (λ t_l, data_subst (f_m t_l) f_n).
 
-  Definition pr_comp_ax
+  Local Definition var_subst_ax
     (T : algebraic_theory_data_cat)
     (m n : nat)
     (i : stn m)
     (f : stn m → data_set T n)
     : UU
-    := data_comp (data_pr i) f = f i.
+    := data_subst (data_var i) f = f i.
 
-  Definition comp_pr_ax
+  Local Definition subst_var_ax
     (T : algebraic_theory_data_cat)
     (n : nat)
     (f : data_set T n)
     : UU
-    := data_comp f data_pr = f.
+    := data_subst f data_var = f.
 
-  Definition is_algebraic_theory (T : algebraic_theory_data_cat) : UU :=
-    (∏ l m n f_l f_m f_n, comp_comp_ax T l m n f_l f_m f_n) ×
-    (∏ m n i f, pr_comp_ax T m n i f) ×
-    (∏ n f, comp_pr_ax T n f).
+  Local Definition is_algebraic_theory (T : algebraic_theory_data_cat) : UU :=
+    (∏ l m n f_l f_m f_n, subst_subst_ax T l m n f_l f_m f_n) ×
+    (∏ m n i f, var_subst_ax T m n i f) ×
+    (∏ n f, subst_var_ax T n f).
 
   Definition algebraic_theory_disp_cat
     : disp_cat algebraic_theory_data_cat
@@ -216,10 +216,10 @@ End AlgebraicTheoryCategory.
 
 (* The _ax definitions are mainly for ease of defining stuff. *)
 (* The Arguments commands here make sure that they are unfolded as soon as possible. *)
-Arguments pr_ax /.
-Arguments comp_ax /.
-Arguments mor_pr_ax /.
-Arguments mor_comp_ax /.
-Arguments comp_comp_ax /.
-Arguments pr_comp_ax /.
-Arguments comp_pr_ax /.
+Arguments var_ax /.
+Arguments subst_ax /.
+Arguments mor_var_ax /.
+Arguments mor_subst_ax /.
+Arguments subst_subst_ax /.
+Arguments var_subst_ax /.
+Arguments subst_var_ax /.

@@ -19,8 +19,7 @@
   3. A definition of the λ-calculus with compatibility between the pieces of data [lambda_calculus]
   4. Properties derived from the full λ-calculus
   4.1. Properties of rect
-  4.2. Properties of subst [subst_l_var]
-  4.3. A tactic for reducing λ-terms [reduce_lambda]
+  4.2. Properties of subst [subst_var]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -38,7 +37,7 @@ Definition lambda_calculus_data : UU := ∑
   (abs : ∏ n, L (S n) → L n)
   (subst : ∏ m n, L m → (stn m → L n) → L n)
   (inflate := (λ _ l, subst _ _ l (λ i, (var _ (stnweq (inl i))))) : ∏ n, L n → L (S n))
-  (subst_var : ∏ m n i (f : stn m → L n), subst _ _ (var _ i) f = f i)
+  (var_subst : ∏ m n i (f : stn m → L n), subst _ _ (var _ i) f = f i)
   (subst_app : ∏ m n l l' (f : stn m → L n),
     subst _ _ (app _ l l') f = app _ (subst _ _ l f) (subst _ _ l' f))
   (subst_abs : ∏ m n l (f : stn m → L n),
@@ -61,8 +60,8 @@ Definition lambda_calculus_data : UU := ∑
       A _ l → (∏ i, A _ (f i)) → A _ (subst m n l f))
     (f_inflate := (λ n _ al, f_subst _ _ _ _ al (λ i, (f_var _ (stnweq (inl i)))))
       : ∏ n (l : L n), A n l → A (S n) (inflate _ l))
-    (f_subst_var : ∏ m n i f af,
-      PathOver (Y := A n) (subst_var m n i f) (f_subst _ _ _ _ (f_var _ i) af) (af i))
+    (f_var_subst : ∏ m n i f af,
+      PathOver (Y := A n) (var_subst m n i f) (f_subst _ _ _ _ (f_var _ i) af) (af i))
     (f_subst_app : ∏ m n l al l' al' f af,
       PathOver
         (Y := A n)
@@ -109,7 +108,7 @@ Notation "(λ' n , x )" := (@abs _ n x).
 Definition inflate {L : lambda_calculus_data} {n} (l : L n)
   : L (S n)
   := subst l (λ i, (var (stnweq (inl i)))).
-Definition subst_var {L : lambda_calculus_data} {m n} i (f : stn m → L n)
+Definition var_subst {L : lambda_calculus_data} {m n} i (f : stn m → L n)
   : subst (var i) f = f i
   := pr122 (pr222 L) m n i f.
 Definition subst_app {L : lambda_calculus_data} {m n} l l' (f : stn m → L n)
@@ -141,7 +140,7 @@ Definition lambda_calculus_ind
     A n l → A (S n) (inflate l))
   (f_paths :
     (∏ m n i f af,
-      PathOver (Y := A n) (subst_var i f) (f_subst _ _ _ _ (f_var m i) af) (af i)) ×
+      PathOver (Y := A n) (var_subst i f) (f_subst _ _ _ _ (f_var m i) af) (af i)) ×
     (∏ m n l al l' al' f af,
       PathOver
         (Y := A n)
@@ -263,12 +262,12 @@ Proof.
   apply maponpaths.
   apply funextfun.
   intro i.
-  now rewrite subst_var.
+  now rewrite var_subst.
 Qed.
 
 Definition inflate_var {L : lambda_calculus_data} {n} (i : stn n)
   : inflate (L := L) (var i) = var (stnweq (inl i))
-  := subst_var i _.
+  := var_subst i _.
 
 Definition inflate_app {L : lambda_calculus_data} {n} (l l' : L n)
   : inflate (L := L) (app l l') = app (inflate l) (inflate l')
@@ -284,7 +283,7 @@ Proof.
   apply (maponpaths (λ x, _ x _)).
   apply funextfun.
   intro.
-  now rewrite inflate_var, subst_var, subst_var.
+  now rewrite inflate_var, var_subst, var_subst.
 Qed.
 
 Definition inflate_subst {L : lambda_calculus_data} {m n} (l : L m) (f : stn m → L n)
@@ -391,9 +390,9 @@ Definition lambda_calculus_rect_subst
     (λ i, lambda_calculus_rect _ f_var f_app f_abs f_subst f_paths _ (f i))
   := lambda_calculus_ind_subst l f.
 
-(** ** 4.2. Properties of subst [subst_l_var] *)
+(** ** 4.2. Properties of subst [subst_var] *)
 
-Lemma subst_l_var
+Lemma subst_var
   {L : lambda_calculus}
   {n : nat}
   (l : L n)
@@ -402,7 +401,7 @@ Proof.
   use (lambda_calculus_ind_prop (λ n l, (subst l var = l) ,, (setproperty _ _ _)));
     cbn.
   - intros.
-    apply subst_var.
+    apply var_subst.
   - intros ? ? ? H1 H2.
     now rewrite subst_app, H1, H2.
   - intros ? ? H.
@@ -421,35 +420,3 @@ Proof.
     intro.
     apply H.
 Qed.
-
-(** ** 4.3. A tactic for reducing λ-terms [reduce_lambda] *)
-
-Ltac repeatc n t :=
-  (t; repeatc (S n) t) || (
-    match n with
-    | 0 => idtac
-    | 1 => idtac t "."
-    | S (S _) => idtac "do" n t "."
-    end
-  ).
-
-Tactic Notation "repeatc" tactic(t) :=
-  repeatc 0 t.
-
-Ltac reduce_lambda := repeat progress (
-  (repeatc rewrite subst_var);
-  (repeatc rewrite subst_l_var);
-  (repeatc rewrite subst_app);
-  (repeatc rewrite subst_abs);
-  (repeatc rewrite subst_subst);
-  (repeatc rewrite subst_inflate);
-  (repeatc rewrite inflate_var);
-  (repeatc rewrite inflate_app);
-  (repeatc rewrite inflate_abs);
-  (repeatc rewrite inflate_subst);
-  (repeatc rewrite beta_equality);
-  (repeatc rewrite extend_tuple_inl);
-  (repeatc rewrite (extend_tuple_inl _ _ _ : extend_tuple _ _ (dni lastelement _) = _) );
-  (repeatc rewrite extend_tuple_inr);
-  (repeatc rewrite (extend_tuple_inr _ _ : extend_tuple _ _ lastelement = _))
-).

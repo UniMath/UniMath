@@ -232,6 +232,7 @@ Categories/HSET/SetCoends.v
 Profunctors/Examples.v
 Profunctors/Transformation.v
 Profunctors/Squares.v
+Profunctors/Collage.v
 
 SetValuedFunctors.v
 Categories/FinSet.v
@@ -432,6 +433,7 @@ SkewMonoidal/CategoriesOfMonoids.v
 
 EnrichedCats/BenabouCosmos.v
 EnrichedCats/EnrichedRelation.v
+EnrichedCats/LaxExtension.v
 EnrichedCats/Enrichment.v
 EnrichedCats/EnrichmentFunctor.v
 EnrichedCats/EnrichmentTransformation.v
@@ -511,6 +513,8 @@ EnrichedCats/Examples/DialgebraEnriched.v
 EnrichedCats/Examples/SliceEnriched.v
 EnrichedCats/Examples/EilenbergMooreEnriched.v
 EnrichedCats/Examples/ProductEnriched.v
+EnrichedCats/Examples/GraphEnriched.v
+EnrichedCats/Examples/CollageEnriched.v
 
 EnrichedCats/Examples/ChangeOfBase.v
 

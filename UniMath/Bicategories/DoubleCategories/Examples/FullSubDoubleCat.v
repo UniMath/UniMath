@@ -47,6 +47,16 @@ Proof.
     exact P.
 Defined.
 
+Proposition is_flat_full_sub_double_cat
+            {C : double_cat}
+            (P : C → UU)
+            (H : is_flat_double_cat C)
+  : is_flat_double_cat (full_sub_double_cat C P).
+Proof.
+  intro ; intros.
+  apply H.
+Qed.
+
 (** * 2. Properties of this double category *)
 Definition ver_weq_square_full_sub_double_cat
            (C : double_cat)

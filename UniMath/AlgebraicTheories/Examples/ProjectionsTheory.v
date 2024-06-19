@@ -19,7 +19,6 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.Algebras.
 
 (** * 1. The definition of the projections theory *)

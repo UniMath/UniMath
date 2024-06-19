@@ -11,6 +11,8 @@
   3. Limits [limits_lambda_theory_cat]
 
  **************************************************************************************************)
+Require Export UniMath.AlgebraicTheories.LambdaTheoryCategoryCore.
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -25,16 +27,14 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import UniMath.Combinatorics.Tuples.
 Require Import UniMath.Combinatorics.Vectors.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
-Require Import UniMath.AlgebraicTheories.LambdaTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
-Require Import UniMath.Combinatorics.Tuples.
 
 Local Open Scope cat.
 Local Open Scope algebraic_theories.
@@ -255,14 +255,14 @@ Proof.
         | ];
         apply funextsec;
         intro u);
-      [ refine (app_comp _ _ _ @ _);
-        apply (maponpaths (comp (_ (pr1 f u))));
+      [ refine (app_subst _ _ _ @ _);
+        apply (maponpaths (subst (_ (pr1 f u))));
         apply extend_tuple_eq;
         [ intro i;
           now rewrite extend_tuple_inl
         | now rewrite extend_tuple_inr ]
-      | refine (!_ @ abs_comp _ _ _);
-        apply (maponpaths (λ x, abs (comp (pr1 f u) x)));
+      | refine (!_ @ abs_subst _ _ _);
+        apply (maponpaths (λ x, abs (subst (pr1 f u) x)));
         apply extend_tuple_eq;
         [ intro i;
           now rewrite extend_tuple_inl

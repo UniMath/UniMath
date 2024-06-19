@@ -41,10 +41,8 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Tuples.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
-Require Import UniMath.AlgebraicTheories.LambdaTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
 Require Import UniMath.Combinatorics.Tuples.
 
@@ -81,13 +79,13 @@ Section EndomorphismAlgebraicTheory.
     use make_is_algebraic_theory.
     - intros l m n f_l f_m f_n.
       simpl.
-      rewrite assoc.
+      refine (assoc _ _ _ @ _).
       apply (maponpaths (λ f, f · f_l)).
       rewrite (ProductArrowEta _ _ _ _ _ (_ · _)).
       apply maponpaths, funextfun.
       intro.
       rewrite assoc'.
-      apply maponpaths.
+      refine (maponpaths _ _).
       exact (ProductPrCommutes _ _ _ _ _ _ _).
     - do 4 intro.
       exact (ProductPrCommutes _ _ _ _ _ _ _).
@@ -149,7 +147,7 @@ Section EndomorphismAlgebraicTheory.
       + refine (bp_commutes_1 _ _ _ _ @ _).
         refine (id_right _ @ !_).
         refine (bp_commutes_1 _ _ _ _ @ _).
-        refine (extend_tuple_inr _ _ @ _).
+        refine (extend_tuple_inr _ _ _ @ _).
         exact (maponpaths _ (homotinvweqweq _ (inr tt))).
       + do 2 refine (bp_commutes_2 _ _ _ _ @ !_).
         apply ProductArrow_eq.
@@ -185,7 +183,7 @@ Section EndomorphismAlgebraicTheory.
         exact (maponpaths _ (homotinvweqweq _ (inl j))).
       + refine (bp_commutes_1 _ _ _ _ @ _).
         refine (id_right _ @ !_).
-        refine (extend_tuple_inr _ _ @ _).
+        refine (extend_tuple_inr _ _ _ @ _).
         exact (maponpaths _ (homotinvweqweq _ (inr tt))).
   Qed.
 
@@ -379,9 +377,9 @@ Section Morphism.
       · inv_from_z_iso F_preserves_X).
 
   Context (F_preserves_φ_adj
-    : #F (φ_adj (pr2 E) (pr (T := L) (● 0 : stn 1)%stn))
+    : #F (φ_adj (pr2 E) (var (T := L) (● 0 : stn 1)%stn))
     = preserves_terminal_to_z_iso _ F_preserves_terminal C_terminal _
-      · φ_adj (pr2 E') (pr (T := L') (● 0 : stn 1)%stn)
+      · φ_adj (pr2 E') (var (T := L') (● 0 : stn 1)%stn)
       · inv_from_z_iso F_preserves_E).
 
   Context (F_preserves_app_abs_abs
@@ -456,7 +454,7 @@ Section Morphism.
     do 3 refine (assoc' _ _ _ @ _).
     apply (maponpaths (λ x, _ · x)).
     refine (_ @ assoc _ _ _).
-    apply (maponpaths (λ x, φ_adj (pr2 E') (pr (T := L') (● 0 : stn 1)%stn) · x)).
+    apply (maponpaths (λ x, φ_adj (pr2 E') (var (T := L') (● 0 : stn 1)%stn) · x)).
     apply z_iso_inv_on_right.
     refine (_ @ assoc' _ _ _).
     apply z_iso_inv_to_right.

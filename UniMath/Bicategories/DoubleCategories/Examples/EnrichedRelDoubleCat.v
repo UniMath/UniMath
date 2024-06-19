@@ -102,7 +102,7 @@ Section EnrichedRelationDoubleCat.
   Proof.
     use make_hor_comp_data.
     - intros X Y Z R₁ R₂.
-      exact (comp_enriched_relation R₁ R₂).
+      exact (R₁ ·e R₂).
     - intros ? ? ? ? ? ? ? ? ? ? ? ? ? τ θ.
       exact (comp_h_enriched_relation_square τ θ).
   Defined.
@@ -207,6 +207,13 @@ Section EnrichedRelationDoubleCat.
       + exact (is_univalent_enriched_relation_twosided_disp_cat V).
   Defined.
 
+  Proposition is_flat_enriched_rel_double_cat
+    : is_flat_double_cat enriched_rel_double_cat.
+  Proof.
+    intro ; intros.
+    apply isaprop_enriched_relation_square.
+  Qed.
+
   (** * 5. Companion pairs and conjoints *)
   Definition all_companions_enriched_rel
     : all_companions_double_cat enriched_rel_double_cat.
@@ -228,19 +235,10 @@ Section EnrichedRelationDoubleCat.
   Proof.
     refine (λ (X Y : hSet) (f : X → Y), _).
     simple refine (_ ,, _).
-    - exact (enriched_relation_converse
-               (companion_enriched_relation f)).
+    - exact (conjoint_enriched_relation f).
     - use make_double_cat_are_conjoints'.
-      + abstract
-          (intros x y ; cbn ;
-           use CoproductArrow ;
-           intro p ;
-           exact (CoproductIn _ _ _ (maponpaths f (!p)))).
-      + abstract
-          (intros x y ;
-           use CoproductArrow ; cbn ;
-           intro p ;
-           exact (CoproductIn _ _ _ (!p))).
+      + apply conjoint_enriched_relation_left.
+      + apply conjoint_enriched_relation_right.
       + abstract
           (apply isaprop_enriched_relation_square).
       + abstract

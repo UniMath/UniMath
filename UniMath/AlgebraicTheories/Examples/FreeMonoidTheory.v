@@ -27,7 +27,6 @@ Require Import UniMath.Combinatorics.Lists.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.Algebras.
 Require Import UniMath.AlgebraicTheories.AlgebraCategoryCore.
@@ -89,12 +88,12 @@ Lemma free_monoid_theory_algebra_to_setwithbinop_op_is_assoc
 Proof.
   intros a b c.
   pose (f := weqvecfun _ [(a ; b ; c)]).
-  pose (Hf := λ i Hi, !(pr_action _ (make_stn 3 i Hi) f)).
+  pose (Hf := λ i Hi, !(var_action _ (make_stn 3 i Hi) f)).
   cbn -[weqvecfun action].
   rewrite (Hf 0 (idpath true) : a = _),
     (Hf 1 (idpath true) : b = _),
     (Hf 2 (idpath true) : c = _).
-  now do 4 rewrite (move_action_through_weqvecfun f), <- comp_action.
+  now do 4 rewrite (move_action_through_weqvecfun f), <- subst_action.
 Qed.
 
 Definition free_monoid_theory_algebra_to_unit (A : algebra free_monoid_theory)
@@ -109,10 +108,10 @@ Proof.
   split;
     intro x;
     cbn -[weqvecfun action];
-    now rewrite <- (pr_action _ (make_stn 1 0 (idpath _)) (λ _, x)),
+    now rewrite <- (var_action _ (make_stn 1 0 (idpath _)) (λ _, x)),
       <- (lift_constant_action 1 _ (λ _, x) : _ = free_monoid_theory_algebra_to_unit A),
       (move_action_through_weqvecfun (λ _, x)),
-      <- comp_action.
+      <- subst_action.
 Qed.
 
 Definition free_monoid_theory_algebra_to_setwithbinop_op_is_unital
@@ -174,11 +173,11 @@ Proof.
   apply (list_ind (λ x, action (A := A') x a = action (A := A) x a)).
   - exact (!(lift_constant_action (A := A) _ (unel _) a)).
   - intros i xs Haction.
-    refine (comp_action A' op_el (weqvecfun _ [(free_monoid_unit i ; xs)]) a @ !_).
-    refine (comp_action A op_el (weqvecfun _ [(free_monoid_unit i ; xs)]) a @ !_).
+    refine (subst_action A' op_el (weqvecfun _ [(free_monoid_unit i ; xs)]) a @ !_).
+    refine (subst_action A op_el (weqvecfun _ [(free_monoid_unit i ; xs)]) a @ !_).
     now rewrite <- (move_action_through_weqvecfun (A := A) a),
       <- Haction,
-      (pr_action A _ _ :
+      (var_action A _ _ :
         action (free_monoid_unit i : free_monoid_theory n) _ = _).
 Qed.
 

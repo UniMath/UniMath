@@ -215,6 +215,7 @@ DoubleCategories/Examples/FullSubDoubleCat.v
 DoubleCategories/Examples/OpDoubleCat.v
 DoubleCategories/Examples/RelationsDoubleCat.v
 DoubleCategories/Examples/EnrichedRelDoubleCat.v
+DoubleCategories/Examples/LaxExtensionToFunctor.v
 DoubleCategories/Examples/SquareDoubleCat.v
 DoubleCategories/Examples/SquareDoubleCatTwo.v
 DoubleCategories/Examples/Coreflections.v
@@ -229,6 +230,8 @@ DoubleCategories/Examples/BiSetcatToDoubleCat.v
 DoubleCategories/Examples/ProfunctorDoubleCat.v
 DoubleCategories/Examples/EnrichedProfunctorDoubleCat.v
 DoubleCategories/Examples/Coalgebras.v
+
+DoubleCategories/Limits/DoubleTerminal.v
 
 DoubleCategories/AlternativeDefinitions/DoubleCatsUnfolded.v
 DoubleCategories/AlternativeDefinitions/DoubleCatsEquivalentDefinitions.v

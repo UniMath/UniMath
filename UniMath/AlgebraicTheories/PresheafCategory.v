@@ -15,6 +15,8 @@
   6. Products [products_presheaf_cat]
 
  **************************************************************************************************)
+Require Export UniMath.AlgebraicTheories.PresheafCategoryCore.
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -37,11 +39,9 @@ Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.IndexedSetCategory.
-Require Import UniMath.AlgebraicTheories.PresheafCategoryCore.
 Require Import UniMath.AlgebraicTheories.PresheafMorphisms.
 Require Import UniMath.AlgebraicTheories.Presheaves.
 
@@ -141,13 +141,13 @@ Section fibration.
         apply funextfun.
         intro.
         symmetry.
-        apply mor_comp.
+        apply mor_subst.
       - do 2 intro.
-        refine (_ @ op_pr P _).
+        refine (_ @ op_var P _).
         apply (maponpaths (op (P := P) f)).
         apply funextfun.
         intro.
-        apply mor_pr.
+        apply mor_var.
     Qed.
 
     Definition lifted_presheaf
@@ -478,7 +478,7 @@ Section BinProduct.
       apply op_op.
     - do 2 intro.
       apply pathsdirprod;
-      apply op_pr.
+      apply op_var.
   Qed.
 
   Definition binproduct_presheaf
@@ -624,7 +624,7 @@ Section Product.
     - do 2 intro.
       apply funextsec.
       intro.
-      apply op_pr.
+      apply op_var.
   Qed.
 
   Definition product_presheaf
