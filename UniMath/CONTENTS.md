@@ -1379,6 +1379,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [FundamentalTheorem/SurjectivePrecomposition.v](AlgebraicTheories/FundamentalTheorem/SurjectivePrecomposition.v)
    - [FundamentalTheorem/CommonUtilities/KaroubiEnvelope.v](AlgebraicTheories/FundamentalTheorem/CommonUtilities/KaroubiEnvelope.v)
    - [FundamentalTheorem/CommonUtilities/MonoidActions.v](AlgebraicTheories/FundamentalTheorem/CommonUtilities/MonoidActions.v)
+   - [FundamentalTheorem/CommonUtilities/EquivalenceFromComp.v](AlgebraicTheories/FundamentalTheorem/CommonUtilities/EquivalenceFromComp.v)
    - [FundamentalTheorem/AlgebraToTheory.v](AlgebraicTheories/FundamentalTheorem/AlgebraToTheory.v)
    - [All.v](AlgebraicTheories/All.v)
 ## Package Semantics
