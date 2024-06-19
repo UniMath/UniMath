@@ -1,11 +1,12 @@
 (**************************************************************************************************
 
-  Two precomposition functors are equivalent if their composite is equivalent
-
-  For D a category with colimits,
+  Let F: C → C' be a functor and F' : C' → C'' be a fully faithful functor. Let D be a category with
+  colimits. If the precomposition functor (F • F')* : [C'', D] ⟶ [C, D] is an equivalence, then F*
+  and F'* are equivalences to.
 
   Contents
-  1. Table of contents
+  1. F* is an equivalence [adjoint_equivalence_1_from_comp]
+  2. F'* is an equivalence [adjoint_equivalence_2_from_comp]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -35,6 +36,9 @@ Section AdjointEquivalenceFromComp.
   Context (HD : Colims D).
 
   Context (Hequiv : adj_equivalence_of_cats (pre_comp_functor (C := D) F' ∙ pre_comp_functor F)).
+
+
+(** * 1. F* is an equivalence *)
 
   Definition lan_after_pre_comp_iso
     (P : [C'', D])
@@ -74,6 +78,8 @@ Section AdjointEquivalenceFromComp.
         (lan_after_pre_comp_iso_is_counit P)
         (z_iso_is_z_isomorphism (lan_after_pre_comp_iso P))).
   Defined.
+
+(** * 2. F'* is an equivalence *)
 
   Definition adjoint_equivalence_2_from_comp
     : adj_equivalence_of_cats (pre_comp_functor (C := D) F)
