@@ -19,9 +19,10 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.coslicecat.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Tuples.
 
@@ -281,58 +282,19 @@ Section TheoryOfExtensions.
 
       End Mor.
 
-      (*
-      Definition algebra_to_coslice_data
-        : functor_data (algebra_cat (extensions_theory A)) (coslice_cat_total _ A)
-        := make_functor_data (C' := coslice_cat_total _ A)
-          (λ B, _ ,, algebra_to_coslice_morphism B)
-          (λ _ _ F, _ ,, algebra_to_coslice_commutes F).
-
-      Lemma algebra_to_coslice_is_functor
-        : is_functor algebra_to_coslice_data.
-      Proof.
-        split.
-        - intro B.
-          use subtypePath.
-          {
-            intro.
-            apply homset_property.
-          }
-          now apply algebra_morphism_eq.
-        - intros B B' B'' F F'.
-          use subtypePath.
-          {
-            intro.
-            apply homset_property.
-          }
-          apply algebra_morphism_eq.
-          refine (_ @ !algebra_mor_comp _ _).
-          refine (pr1_transportf (B := λ _, _ → _) _ _ @ _).
-          exact (maponpaths (λ z, z _) (transportf_const _ _)).
-      Qed.
-
-      Definition algebra_to_coslice_old
-        : algebra_cat (extensions_theory A) ⟶ coslice_cat_total _ A
-        := make_functor
-          algebra_to_coslice_data
-          algebra_to_coslice_is_functor.
-       *)
-
-      Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-
-      Definition algebra_to_coslice_base_functor :
-        algebra_cat (extensions_theory A) ⟶ algebra_cat T
-        := algebra_pullback extensions_theory_embedding.
-
       Definition algebra_to_coslice
         : algebra_cat (extensions_theory A) ⟶ coslice_cat_total _ A.
       Proof.
-        apply (lifted_functor (F:=algebra_to_coslice_base_functor)).
+        apply (lifted_functor (F := algebra_pullback extensions_theory_embedding)).
         use tpair.
         - use tpair.
-          + intro B. apply algebra_to_coslice_morphism.
-          + intros B B' F. apply algebra_to_coslice_commutes.
-        - split; intros; apply homset_property.
+          + intro B.
+            apply algebra_to_coslice_morphism.
+          + intros B B' F.
+            apply algebra_to_coslice_commutes.
+        - split;
+            intros;
+            apply homset_property.
       Defined.
 
     End AlgebraToCoslice.
