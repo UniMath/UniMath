@@ -281,6 +281,7 @@ Section TheoryOfExtensions.
 
       End Mor.
 
+      (*
       Definition algebra_to_coslice_data
         : functor_data (algebra_cat (extensions_theory A)) (coslice_cat_total _ A)
         := make_functor_data (C' := coslice_cat_total _ A)
@@ -310,11 +311,29 @@ Section TheoryOfExtensions.
           exact (maponpaths (λ z, z _) (transportf_const _ _)).
       Qed.
 
-      Definition algebra_to_coslice
+      Definition algebra_to_coslice_old
         : algebra_cat (extensions_theory A) ⟶ coslice_cat_total _ A
         := make_functor
           algebra_to_coslice_data
           algebra_to_coslice_is_functor.
+       *)
+
+      Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+
+      Definition algebra_to_coslice_base_functor :
+        algebra_cat (extensions_theory A) ⟶ algebra_cat T
+        := algebra_pullback extensions_theory_embedding.
+
+      Definition algebra_to_coslice
+        : algebra_cat (extensions_theory A) ⟶ coslice_cat_total _ A.
+      Proof.
+        apply (lifted_functor (F:=algebra_to_coslice_base_functor)).
+        use tpair.
+        - use tpair.
+          + intro B. apply algebra_to_coslice_morphism.
+          + intros B B' F. apply algebra_to_coslice_commutes.
+        - split; intros; apply homset_property.
+      Defined.
 
     End AlgebraToCoslice.
 
