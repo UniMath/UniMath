@@ -362,6 +362,7 @@ Section TheoryOfExtensions.
         Lemma G_is_algebra_morphism
           : is_algebra_morphism (A := coslice_to_algebra_ob F) (A' := coslice_to_algebra_ob F') G.
         Proof.
+          induction HG.
           intros n f b.
           revert f.
           apply eqtohomot.
@@ -378,11 +379,7 @@ Section TheoryOfExtensions.
             intro a.
             refine (!maponpaths (λ x, G (x _)) (algebra_mor_comp _ _) @ _).
             refine (maponpaths (λ x, G (_ x _)) (BinCoproductIn1Commutes _ _ _ _ _ _ _) @ _).
-            revert a.
-            apply eqtohomot.
-            refine (!algebra_mor_comp _ _ @ _).
-            apply maponpaths.
-            apply HG.
+            exact (!eqtohomot (algebra_mor_comp _ _) _).
           - apply algebra_morphism_eq.
             refine (algebra_mor_comp _ _ @ _).
             apply funextfun.
