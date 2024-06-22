@@ -39,11 +39,18 @@ Definition algebra_morphism_to_function
 Coercion algebra_morphism_to_function :
   algebra_morphism >-> Funclass.
 
+Definition is_algebra_morphism
+  {T : algebraic_theory}
+  {A A' : algebra_data T}
+  (F : A → A')
+  : UU
+  := ∏ n f a, mor_action_ax (identity T) F (@action T A) (@action T A') n f a.
+
 Definition make_algebra_morphism
   {T : algebraic_theory}
   {A A' : algebra T}
   (F : A → A')
-  (H : ∏ n f a, mor_action_ax (identity T) F (@action T A) (@action T A') n f a)
+  (H : is_algebra_morphism F)
   : algebra_morphism A A'
   := F ,, H ,, tt.
 
