@@ -17,6 +17,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
 
 (** for second construction: *)
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
@@ -152,3 +153,73 @@ Defined.
 Definition coslice_cat_total : category := total_category coslice_cat_disp.
 
 End coslice_cat_displayed.
+
+(** ** Isos in coslice categories *)
+
+Section Isos.
+
+  Local Notation "x / C" := (coslice_cat_total C x).
+
+  Context (C : category).
+  Context (x : C).
+
+  Lemma eq_z_iso_coslicecat (af bg : x / C) (f g : z_iso af bg) : pr1 f = pr1 g -> f = g.
+  Proof.
+    induction f as [f fP]; induction g as [g gP]; intro eq.
+    use (subtypePairEquality _ eq).
+    intro; apply isaprop_is_z_isomorphism.
+  Qed.
+
+  (** It suffices that the underlying morphism is an iso to get an iso in
+      the coslice category *)
+  Lemma z_iso_to_coslice_precat_z_iso (af bg : x / C) (h : af --> bg)
+    (isoh : is_z_isomorphism (pr1 h)) : is_z_isomorphism h.
+  Proof.
+    induction isoh as [hinv [h1 h2]].
+    use ((hinv ,, _) ,, _ ,, _);
+      simpl.
+    - now rewrite <- id_right,
+        <- h1,
+        assoc,
+        (pr2 h).
+    - apply subtypePath.
+      {
+        intro.
+        apply homset_property.
+      }
+      apply h1.
+    - apply subtypePath.
+      {
+        intro.
+        apply homset_property.
+      }
+      apply h2.
+  Defined.
+
+  (** An iso in the coslice category gives an iso in the base category *)
+  Lemma coslice_precat_z_iso_to_z_iso  (af bg : x / C) (h : af --> bg)
+    (p : is_z_isomorphism h) : is_z_isomorphism (pr1 h).
+  Proof.
+    induction p as [hinv [h1 h2]].
+    exists (pr1 hinv); split.
+    - apply (maponpaths pr1 h1).
+    - apply (maponpaths pr1 h2).
+  Defined.
+
+  Lemma weq_z_iso (af bg : x / C) :
+    z_iso af bg ≃ ∑ h : z_iso (pr1 af) (pr1 bg), pr2 af · h = pr2 bg.
+  Proof.
+    apply (weqcomp (weqtotal2asstor _ _)).
+    apply invweq.
+    apply (weqcomp (weqtotal2asstor _ _)).
+    apply weqfibtototal; intro h; simpl.
+    apply (weqcomp (weqdirprodcomm _ _)).
+    apply weqfibtototal; intro p.
+    apply weqimplimpl.
+    - intro hp; apply z_iso_to_coslice_precat_z_iso; assumption.
+    - intro hp; apply (coslice_precat_z_iso_to_z_iso _ _ _ hp).
+    - apply isaprop_is_z_isomorphism.
+    - apply (isaprop_is_z_isomorphism(C:= x / C)).
+  Defined.
+
+End Isos.
