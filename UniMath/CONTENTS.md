@@ -244,6 +244,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Equivalences/Core.v](CategoryTheory/Equivalences/Core.v)
    - [Equivalences/CompositesAndInverses.v](CategoryTheory/Equivalences/CompositesAndInverses.v)
    - [Equivalences/FullyFaithful.v](CategoryTheory/Equivalences/FullyFaithful.v)
+   - [Equivalences/EquivalenceFromComp.v](CategoryTheory/Equivalences/EquivalenceFromComp.v)
    - [Subcategory/FullEquivalences.v](CategoryTheory/Subcategory/FullEquivalences.v)
    - [Categories/HSET/MonoEpiIso.v](CategoryTheory/Categories/HSET/MonoEpiIso.v)
    - [Categories/HSET/Univalence.v](CategoryTheory/Categories/HSET/Univalence.v)
@@ -1381,7 +1382,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [FundamentalTheorem/SurjectivePrecomposition.v](AlgebraicTheories/FundamentalTheorem/SurjectivePrecomposition.v)
    - [FundamentalTheorem/CommonUtilities/KaroubiEnvelope.v](AlgebraicTheories/FundamentalTheorem/CommonUtilities/KaroubiEnvelope.v)
    - [FundamentalTheorem/CommonUtilities/MonoidActions.v](AlgebraicTheories/FundamentalTheorem/CommonUtilities/MonoidActions.v)
-   - [FundamentalTheorem/CommonUtilities/EquivalenceFromComp.v](AlgebraicTheories/FundamentalTheorem/CommonUtilities/EquivalenceFromComp.v)
    - [FundamentalTheorem/AlgebraToTheory.v](AlgebraicTheories/FundamentalTheorem/AlgebraToTheory.v)
    - [All.v](AlgebraicTheories/All.v)
 ## Package Semantics
