@@ -244,6 +244,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Equivalences/Core.v](CategoryTheory/Equivalences/Core.v)
    - [Equivalences/CompositesAndInverses.v](CategoryTheory/Equivalences/CompositesAndInverses.v)
    - [Equivalences/FullyFaithful.v](CategoryTheory/Equivalences/FullyFaithful.v)
+   - [Equivalences/EquivalenceFromComp.v](CategoryTheory/Equivalences/EquivalenceFromComp.v)
    - [Subcategory/FullEquivalences.v](CategoryTheory/Subcategory/FullEquivalences.v)
    - [Categories/HSET/MonoEpiIso.v](CategoryTheory/Categories/HSET/MonoEpiIso.v)
    - [Categories/HSET/Univalence.v](CategoryTheory/Categories/HSET/Univalence.v)
