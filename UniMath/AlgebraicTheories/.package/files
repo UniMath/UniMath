@@ -30,6 +30,8 @@ Examples/LambdaCalculus.v
 Examples/OnePointTheory.v
 Examples/Plus1Presheaf.v
 Examples/ProjectionsTheory.v
+Examples/TheoryAlgebra.v
+Examples/ExtensionsTheory.v
 
 Combinators.v
 CategoryOfRetracts.v
