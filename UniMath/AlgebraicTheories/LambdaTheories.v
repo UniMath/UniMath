@@ -223,9 +223,9 @@ Proof.
 Qed.
 
 Declare Scope lambda_calculus.
-Notation "( a b )" := (app a b) : lambda_calculus.
-Notation "( π m )" := (var (make_stn _ m (idpath true))) : lambda_calculus.
-Notation "(λ' n , x )" := (@abs _ n x) : lambda_calculus.
+  Notation "( a b )" := (app a b) (only printing) : lambda_calculus.
+  Notation "(π m )" := (var (make_stn _ m (idpath true))) (only printing) : lambda_calculus.
+  Notation "(λ' n , x )" := (@abs _ n x) (only printing) : lambda_calculus.
 Close Scope lambda_calculus.
 
 (** * 6. A characterization of app and abs in terms of app' and one *)

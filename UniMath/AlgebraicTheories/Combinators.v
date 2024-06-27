@@ -35,6 +35,7 @@ Require Import Ltac2.Ltac2.
 Local Open Scope vec.
 Local Open Scope stn.
 Local Open Scope algebraic_theories.
+Local Open Scope lambda_calculus.
 
 (** * 1. The tactics *)
 
@@ -221,7 +222,7 @@ Definition compose
 Notation "a ∘ b" :=
   (compose a b)
   (at level 40, left associativity)
-  : algebraic_theories.
+  : lambda_calculus.
 
 Ltac2 Set traversals as traversals0 := fun _ => (
     (fun () => match! goal with | [ |- _ ∘ _ = _ ] => refine '(maponpaths (λ x, x ∘ _) _ @ _) end),
@@ -449,7 +450,7 @@ Definition pair
 
 Notation "⟨ a , b ⟩" :=
   (pair a b)
-  : algebraic_theories.
+  : lambda_calculus.
 
 Ltac2 Set traversals as traversals0 := fun _ => (
     (fun () => match! goal with | [ |- ⟨_, _⟩ = _ ] => refine '(maponpaths (λ x, ⟨x, _⟩) _ @ _) end),

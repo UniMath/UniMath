@@ -45,6 +45,7 @@ Require Import UniMath.AlgebraicTheories.CategoryOfRetracts.
 Local Open Scope cat.
 Local Open Scope vec.
 Local Open Scope algebraic_theories.
+Local Open Scope lambda_calculus.
 Local Open Scope stn.
 
 (** * 1. The construction of the monoid *)
