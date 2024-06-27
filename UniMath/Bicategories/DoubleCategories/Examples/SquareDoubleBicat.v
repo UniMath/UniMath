@@ -1119,4 +1119,14 @@ Section SquareDoubleBicat.
     - exact HB_2_0.
     - apply square_vertically_saturated.
   Defined.
+
+  Proposition univalent_square_verity_double_bicat
+              (HB_2_0 : is_univalent_2_0 B)
+              (HB_2_1 : is_univalent_2_1 B)
+    : univalent_verity_double_bicat square_verity_double_bicat.
+  Proof.
+    split.
+    - exact (gregarious_univalent_square_verity_double_bicat HB_2_0 HB_2_1).
+    - exact (locally_univalent_square_verity_double_bicat HB_2_1).
+  Defined.
 End SquareDoubleBicat.

@@ -884,4 +884,12 @@ Section Enriched.
     - exact hor_globally_univalent_enriched_profunctor_verity_double_bicat.
     - exact enriched_profunctor_vertically_saturated.
   Defined.
+
+  Definition univalent_enriched_profunctor_verity_double_bicat
+    : univalent_verity_double_bicat enriched_profunctor_verity_double_bicat.
+  Proof.
+    split.
+    - exact gregarious_univalent_enriched_profunctor_verity_double_bicat.
+    - exact locally_univalent_enriched_profunctor_verity_double_bicat.
+  Defined.
 End Enriched.
