@@ -209,8 +209,8 @@ Section FunctorTotalCategoryFromSetFunctor.
         etrans.
         {
           apply maponpaths.
-          exact (from_eq_cat_of_setcategory
-                   (nat_trans_ax α _ _ (pr1 g))
+          exact (!path_functor_mor_alt
+                   (!nat_trans_ax α _ _ (pr1 g))
                    (pr2 f)).
         }
         rewrite !assoc.
@@ -358,7 +358,7 @@ Section NatTransTotalCategoryFromNatTrans.
       {
         apply maponpaths_2.
         apply maponpaths.
-        exact (from_eq_cat_of_setcategory (p (pr1 y)) (pr2 f)).
+        exact (!path_functor_mor_alt (!p (pr1 y)) (pr2 f)).
       }
       rewrite !assoc'.
       etrans.

@@ -23,18 +23,17 @@
  1. The category of strict categories
  2. Isomorphisms of strict categories
  3. The univalence of the category of strict categories
+ 4. An isomorphism of strict categories gives an adjoint equivalence [z_iso_to_equivalence]
 
  ******************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.catiso.
 Require Import UniMath.CategoryTheory.CategoryEquality.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 
 Local Open Scope cat.
 
@@ -442,3 +441,51 @@ Proof.
   - exact cat_of_setcategory.
   - exact is_univalent_cat_of_setcategory.
 Defined.
+
+Section IsoToEquivalence.
+
+  Context {A B : setcategory}.
+  Context (f : z_iso (C := cat_of_setcategory) A B).
+
+  Let F : A ⟶ B
+    := z_iso_mor f.
+  Let G : B ⟶ A
+    := inv_from_z_iso f.
+  Let η : functor_identity A ⟹ F ∙ G
+    := z_iso_mor (idtoiso (C := [A, A]) (!z_iso_inv_after_z_iso f)).
+  Let ϵ : G ∙ F ⟹ functor_identity B
+    := z_iso_mor (idtoiso (C := [B, B]) (z_iso_after_z_iso_inv f)).
+
+  Lemma FG_form_adjunction
+    : Core.form_adjunction F G η ϵ.
+  Proof.
+    split.
+    - intro c.
+      refine (maponpaths (λ x, # F (z_iso_mor x) · _) (idtoiso_functorcat_compute_pointwise _ _ _ _ _ (!z_iso_inv_after_z_iso f) _) @ _).
+      refine (!maponpaths (λ x, z_iso_mor x · _) (maponpaths_idtoiso _ _ _ _ _ _) @ _).
+      refine (maponpaths (λ x, _ · z_iso_mor x) (idtoiso_functorcat_compute_pointwise _ _ _ _ _ (z_iso_after_z_iso_inv f) _) @ _).
+      refine (!maponpaths z_iso_mor (idtoiso_concat _ _ _ _ _ _) @ _).
+      apply setcategory_refl_idtoiso.
+    - intro c.
+      refine (maponpaths (λ x, _ · #G (z_iso_mor x)) (idtoiso_functorcat_compute_pointwise _ _ _ _ _ (z_iso_after_z_iso_inv f) _) @ _).
+      refine (!maponpaths (λ x, _ · z_iso_mor x) (maponpaths_idtoiso _ _ _ _ _ _) @ _).
+      refine (maponpaths (λ x, z_iso_mor x · _) (idtoiso_functorcat_compute_pointwise _ _ _ _ _ (!z_iso_inv_after_z_iso f) _) @ _).
+      refine (!maponpaths z_iso_mor (idtoiso_concat _ _ _ _ _ _) @ _).
+      apply setcategory_refl_idtoiso.
+  Qed.
+
+  Lemma FG_forms_equivalence
+    : forms_equivalence (F ,, G ,, η ,, ϵ).
+  Proof.
+    split;
+      intro;
+      apply (is_functor_z_iso_pointwise_if_z_iso _ _ _ _ _ _ (z_iso_is_z_isomorphism _)).
+  Defined.
+
+  Definition z_iso_to_equivalence
+    : adj_equivalence_of_cats F
+    := make_adj_equivalence_of_cats _ _ _ _
+      FG_form_adjunction
+      FG_forms_equivalence.
+
+End IsoToEquivalence.

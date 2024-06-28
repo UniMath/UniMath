@@ -68,8 +68,8 @@ Section IsOpcartesianTotalSetCategory.
         {
           apply maponpaths.
           apply maponpaths_2.
-          apply (from_eq_cat_of_setcategory
-                   (maponpaths (λ z, #G z) (pr12 φ₁ @ !(pr12 φ₂)))
+          apply (!path_functor_mor_alt
+                   (!maponpaths (λ z, #G z) (pr12 φ₁ @ !(pr12 φ₂)))
                    (pr2 f)).
         }
         rewrite !assoc'.
