@@ -1215,4 +1215,14 @@ Section MateDoubleBicat.
       + exact HB_2_1.
     - apply mate_vertically_saturated.
   Defined.
+
+  Definition univalent_mate_verity_double_bicat
+             (HB_2_0 : is_univalent_2_0 B)
+             (HB_2_1 : is_univalent_2_1 B)
+    : univalent_verity_double_bicat mate_verity_double_bicat.
+  Proof.
+    split.
+    - exact (gregarious_univalent_mate_verity_double_bicat HB_2_0 HB_2_1).
+    - exact (locally_univalent_mate_verity_double_bicat HB_2_1).
+  Defined.
 End MateDoubleBicat.
