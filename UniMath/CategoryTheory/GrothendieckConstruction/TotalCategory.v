@@ -138,7 +138,7 @@ Proof.
       {
         apply maponpaths_2.
         apply maponpaths.
-        exact (!path_functor_mor_alt (!functor_id F (pr1 y)) (pr2 f)).
+        exact (path_functor_mor_right (functor_id F (pr1 y)) (pr2 f)).
       }
       cbn.
       rewrite !assoc.
@@ -187,7 +187,7 @@ Proof.
       {
         apply maponpaths_2.
         apply maponpaths.
-        exact (!path_functor_mor_alt (!functor_comp F (pr1 g) (pr1 h)) (pr2 f)).
+        exact (path_functor_mor_right (functor_comp F (pr1 g) (pr1 h)) (pr2 f)).
       }
       cbn.
       rewrite !assoc'.

@@ -309,7 +309,7 @@ Section CatIsoWeqIso.
           rewrite pathsinv0l.
           apply id_left.
         + intro f.
-          refine (_ @ path_functor_mor_alt (z_iso_after_z_iso_inv F_iso) f).
+          refine (_ @ path_functor_mor_left (z_iso_after_z_iso_inv F_iso) f).
           cbn.
           rewrite !functor_comp.
           etrans.
