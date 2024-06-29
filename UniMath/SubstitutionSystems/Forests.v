@@ -698,7 +698,7 @@ Abort.
 
 (*
 
-Those definitions need a full proof of Detype_ind_alg_data.
+Those definitions need a full proof of Detype_ind_alg_data to be complete.
 
 Definition Detype_ind_alg : FunctorAlg Forest_Functor_Id_H.
 Proof.
