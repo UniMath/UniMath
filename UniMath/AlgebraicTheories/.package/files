@@ -42,4 +42,5 @@ RepresentationTheorem.v
 FundamentalTheorem/SurjectivePrecomposition.v
 FundamentalTheorem/CommonUtilities/KaroubiEnvelope.v
 FundamentalTheorem/CommonUtilities/MonoidActions.v
+FundamentalTheorem/CommonUtilities/MonoidToCategory.v
 FundamentalTheorem/AlgebraToTheory.v
