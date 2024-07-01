@@ -1,3 +1,18 @@
+(**************************************************************************************************
+
+  Constructing an one-object category from a monoid
+
+  If we have a monoid, we can construct a one-object category from it. This is the one-dimensional
+  version of what happens in `Bicategories/MonoidalCategories/MonoidalFromBicategory.v`. In fact,
+  this gives a fully faithful functor from monoids to setcategories. Presheaves on such a one-object
+  category are equivalent to sets with a right monoid action.
+
+  Contents
+  1. The functor from monoids to categories [monoid_to_category]
+  1.2. Fully faithful [monoid_to_category_fully_faithful]
+  2. The equivalence between presheaves and monoid actions [monoid_presheaf_action_equivalence]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Monoids.
@@ -16,6 +31,8 @@ Local Open Scope cat.
 Local Open Scope multmonoid.
 
 Section MonoidToCategory.
+
+(** * 1. The functor from monoids to categories*)
 
   Section Ob.
 
@@ -118,6 +135,8 @@ Section MonoidToCategory.
       monoid_to_category_data
       monoid_to_category_is_functor.
 
+(** ** 1.2. Fully faithful *)
+
   Section FullyFaithful.
 
     Context (M M' : monoid).
@@ -192,6 +211,8 @@ Section MonoidToCategory.
     := weq_ff_functor_on_z_iso monoid_to_cat_fully_faithful.
 
 End MonoidToCategory.
+
+(** * 2. The equivalence between presheaves and monoid actions *)
 
 Section MonoidCategoryPresheaf.
 
