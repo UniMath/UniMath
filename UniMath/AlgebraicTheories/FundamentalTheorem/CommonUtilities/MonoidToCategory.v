@@ -130,7 +130,7 @@ Section MonoidToCategory.
   Qed.
 
   Definition monoid_to_category
-    : Monoid.monoid_category ⟶ cat_of_setcategory
+    : monoid_category ⟶ cat_of_setcategory
     := make_functor
       monoid_to_category_data
       monoid_to_category_is_functor.
@@ -206,7 +206,7 @@ Section MonoidToCategory.
 
   Definition monoid_iso_weq_monoid_category_equiv
     : ∏ (M M' : monoid),
-      z_iso (C := Monoid.monoid_category) M M'
+      z_iso (C := monoid_category) M M'
       ≃ z_iso (C := cat_of_setcategory) (monoid_to_category_ob M) (monoid_to_category_ob M')
     := weq_ff_functor_on_z_iso monoid_to_cat_fully_faithful.
 
