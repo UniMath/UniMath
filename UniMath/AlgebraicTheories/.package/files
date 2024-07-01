@@ -34,6 +34,7 @@ Examples/TheoryAlgebra.v
 Examples/ExtensionsTheory.v
 
 AlgebraicTheoryToLawvereTheory.v
+AlgebraicTheoryToMonoid.v
 
 Combinators.v
 CategoryOfRetracts.v
