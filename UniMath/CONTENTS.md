@@ -1384,6 +1384,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Examples/ProjectionsTheory.v](AlgebraicTheories/Examples/ProjectionsTheory.v)
    - [Examples/TheoryAlgebra.v](AlgebraicTheories/Examples/TheoryAlgebra.v)
    - [Examples/ExtensionsTheory.v](AlgebraicTheories/Examples/ExtensionsTheory.v)
+   - [AlgebraicTheoryToLawvereTheory.v](AlgebraicTheories/AlgebraicTheoryToLawvereTheory.v)
    - [Combinators.v](AlgebraicTheories/Combinators.v)
    - [CategoryOfRetracts.v](AlgebraicTheories/CategoryOfRetracts.v)
    - [OriginalRepresentationTheorem.v](AlgebraicTheories/OriginalRepresentationTheorem.v)
