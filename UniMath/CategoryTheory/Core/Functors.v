@@ -1319,7 +1319,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition path_functor_mor_alt
+Definition path_functor_mor_left
            {C₁ C₂ : category}
            {F G : C₁ ⟶ C₂}
            (p : F = G)
@@ -1332,6 +1332,20 @@ Proof.
   induction p ; cbn.
   rewrite id_left, id_right.
   apply idpath.
+Qed.
+
+Definition path_functor_mor_right
+           {C₁ C₂ : category}
+           {F G : C₁ ⟶ C₂}
+           (p : F = G)
+           {x y : C₁}
+           (f : x --> y)
+  : #F f
+    =
+    idtoiso (path_functor_ob p x) · #G f · idtoiso (!path_functor_ob p y).
+Proof.
+  induction p.
+  exact (!path_functor_mor_left (idpath _) _).
 Qed.
 
 Proposition functor_data_eq_alt
