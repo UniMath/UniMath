@@ -22,7 +22,7 @@ Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
-Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.PresheafCategory.
 Require Import UniMath.AlgebraicTheories.PresheafMorphisms.
