@@ -26,6 +26,7 @@ Require Import UniMath.AlgebraicTheories.Combinators.
 Require Import Ltac2.Ltac2.
 
 Local Open Scope algebraic_theories.
+Local Open Scope lambda_calculus.
 
 (** * 1. The endomorphism theory *)
 
