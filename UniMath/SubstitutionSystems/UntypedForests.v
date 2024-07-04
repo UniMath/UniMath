@@ -40,6 +40,7 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Colimits.
 Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.SubstitutionSystems.SigmaMonoids.
 Require UniMath.SubstitutionSystems.SortIndexing.
 Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
@@ -70,6 +71,8 @@ Proof.
 exact (isofhlevelssnset 1 sort (setproperty (stnset 3))).
 Qed.
 
+Local Definition Hsort' : isofhlevel 2 sort := (setproperty (stnset 3)).
+
 (* variables sort *)
 Definition sv : sort := make_stn 3 0 (idpath true : 0 < 3).
 (* terms sort *)
@@ -77,9 +80,9 @@ Definition st : sort := make_stn 3 0 (idpath true : 1 < 3).
 (* elimination alternatives sort *)
 Definition se : sort := make_stn 3 0 (idpath true : 2 < 3).
 
-Let sortToSet : category := SortIndexing.sortToSet sort Hsort.
-Let sortToSetSet : category := SortIndexing.sortToSetSet sort Hsort.
-Let sortToSet2 : category := SortIndexing.sortToSet2 sort Hsort.
+Local Definition sortToSet : category := SortIndexing.sortToSet sort Hsort.
+Local Definition sortToSetSet : category := SortIndexing.sortToSetSet sort Hsort.
+Local Definition sortToSet2 : category := SortIndexing.sortToSet2 sort Hsort.
 
 Definition TsortToSetSet : Terminal sortToSetSet := TsortToCC _ Hsort HSET TerminalHSET.
 
@@ -131,15 +134,17 @@ Definition UntypedForest_Functor_Id_H : functor sortToSet2 sortToSet2 :=
   SubstitutionSystems.Id_H sortToSet BCsortToSet UntypedForest_Functor_H.
 
 (** the canonical strength associated with UntypedForest_Sig *)
-Let θUntypedForest := MultiSortedMonadConstruction_actegorical.MultiSortedSigToStrength' sort Hsort SET
+Local Definition θUntypedForest := MultiSortedMonadConstruction_actegorical.MultiSortedSigToStrength' sort Hsort SET
                TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET UntypedForest_Sig.
 
 Definition ctx_ext (ξ : sortToSet) (s : sort) : sortToSet
   := sorted_option_functorSet s ξ.
 
+Definition ctx_equiv (ξ ξ' : sortToSet) : UU :=  ∏ s : sort, (z_iso ((pr1 ξ) s)  ((pr1 ξ') s)).
+
 (** the sigma-monoids for wellfounded and non-wellfounded syntax for UntypedForests *)
-Let σind : SigmaMonoid θUntypedForest := MultiSortedEmbeddingIndCoindHSET.σind sort Hsort UntypedForest_Sig.
-Let σcoind : SigmaMonoid θUntypedForest := MultiSortedEmbeddingIndCoindHSET.σcoind sort Hsort UntypedForest_Sig.
+Local Definition σind : SigmaMonoid θUntypedForest := MultiSortedEmbeddingIndCoindHSET.σind sort Hsort UntypedForest_Sig.
+Local Definition σcoind : SigmaMonoid θUntypedForest := MultiSortedEmbeddingIndCoindHSET.σcoind sort Hsort UntypedForest_Sig.
 
 Section IndAndCoind.
 
@@ -312,9 +317,41 @@ Definition sum_source_gen_newstyle_nonzero (n : nat) : sortToSet2 :=
   (fun _ IHn => BinProduct_of_functors BPsortToSet
     (functor_compose UntypedForest_gen (projSortToSet se ∙ hat_functorSet st)) IHn) n.
 
+Lemma sum_source_gen_eq (n : nat):
+   sum_source_gen  n =
+(ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized
+sort Hsort SET TerminalHSET BinProductsHSET BinCoproductsHSET
+CoproductsHSET ((functionToList n  (fun _ => ([] ,, se)),,st)) UntypedForest_gen).
+Proof.
+   apply idpath.
+Qed.
+
+Lemma sum_source_gen_newstyle_nonzero_eq (n : nat) :
+  sum_source_gen_newstyle_nonzero  n  =
+(ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized
+sort Hsort SET TerminalHSET BinProductsHSET BinCoproductsHSET
+CoproductsHSET ((functionToList  (S n)  (fun _ => ([] ,, se)),,st)) UntypedForest_gen).
+Proof.
+  induction n.
+  -apply idpath.
+  -change (sum_source_gen_newstyle_nonzero (S n))  with
+     (BinProduct_of_functors BPsortToSet
+       (functor_compose UntypedForest_gen (projSortToSet se ∙ hat_functorSet st))
+       (sum_source_gen_newstyle_nonzero  n )).
+   rewrite IHn.
+   apply idpath.
+Qed.
+
 Lemma sum_source_zero_gen_ok : sum_source_gen_newstyle_zero = sum_source_gen 0.
 Proof.
    apply idpath.
+Qed.
+
+Lemma sum_source_nonzero_gen_ok (n : nat) : sum_source_gen_newstyle_nonzero n = sum_source_gen (S n).
+Proof.
+  rewrite sum_source_gen_eq.
+  rewrite sum_source_gen_newstyle_nonzero_eq.
+  apply idpath.
 Qed.
 
 Definition sum_map_gen (n : nat) : sortToSet2⟦sum_source_gen n,UntypedForest_gen⟧.
@@ -341,7 +378,137 @@ Lemma sum_map_gen_natural_ppointwise (n : nat) (ξ ξ' : sortToSet) (f : sortToS
     apply (toforallpaths _ _ _ (sum_map_gen_natural_pointwise n ξ ξ' f u)).
   Qed.
 
+Section Church_int.
+
+  (* The goal fo the following section is to define church integers *)
+
+  Definition ChurchZero_gen (ξ : sortToSet) : UntypedForest_gen_ctx_sort ξ st.
+  Proof.
+    refine (pr1 (pr1 lam_map_gen _) _ _).
+    exists (idpath _).
+    change (UntypedForest_gen_ctx_sort (ctx_ext ξ sv)  sv).
+    refine (pr1 (pr1 lam_map_gen _) _ _).
+    exists (idpath _).
+    change (UntypedForest_gen_ctx_sort (ctx_ext (ctx_ext ξ  sv) sv) sv).
+    simple refine (pr1 (pr1 UntypedForest_eta_gen _) _ _).
+    cbn.
+    apply ii1.
+    exists (idpath _).
+    exact tt.
+  Defined.
+
+  Definition ChurchOne_gen (ξ : sortToSet) :  UntypedForest_gen_ctx_sort ξ st.
+  Proof.
+    refine (pr1 (pr1 lam_map_gen _) _ _).
+    exists (idpath _).
+    refine (pr1 (pr1 lam_map_gen _) _ _).
+    exists (idpath _).
+    refine (pr1 (pr1 (app_map_gen 1) _) _ _).
+    split ; exists (idpath _).
+    - change (UntypedForest_gen_ctx_sort (ctx_ext (ctx_ext ξ  sv)  sv)  sv).
+      simple refine (pr1 (pr1 UntypedForest_eta_gen _) _ _).
+      cbn.
+      apply ii2 ; apply ii1.
+      exists (idpath _).
+      exact tt.
+    - change (UntypedForest_gen_ctx_sort (ctx_ext (ctx_ext ξ sv) sv) sv).
+      simple refine (pr1 (pr1 UntypedForest_eta_gen _) _ _).
+      cbn.
+      apply ii1.
+      exists (idpath _).
+      exact tt.
+  Defined.
+
+  Definition Church_gen_body (n : nat) (ξ : sortToSet) : UntypedForest_gen_ctx_sort (ctx_ext (ctx_ext ξ  sv)  sv)  st.
+  Proof.
+    induction n.
+    - simple refine (pr1 (pr1 UntypedForest_eta_gen _) _ _).
+      cbn.
+      apply ii1.
+      exists (idpath _).
+      exact tt.
+    - refine (pr1 (pr1 (app_map_gen 1) _) _ _).
+       split ; exists (idpath _).
+       + change (UntypedForest_gen_ctx_sort (ctx_ext (ctx_ext ξ  sv)  sv)  sv).
+         simple refine (pr1 (pr1 UntypedForest_eta_gen _) _ _).
+         cbn.
+         apply ii2.
+         apply ii1.
+         exists (idpath _).
+         exact tt.
+       + exact IHn.
+  Defined.
+
+  Lemma Church_gen_body_rec_eq (n : nat) (ξ : sortToSet) :
+   Church_gen_body (S n) ξ =
+      pr1 (pr1 (app_map_gen 1) (ctx_ext (ctx_ext ξ  sv) sv))  st
+      ((idpath se,,
+        pr1 (pr1 UntypedForest_eta_gen (ctx_ext (ctx_ext ξ  sv) sv)) sv
+        (inr (inl (idpath sv,, tt)) : pr1 (pr1 (Id (ctx_ext (ctx_ext ξ  sv) sv))
+              sv))),,
+        idpath se,, Church_gen_body n  ξ).
+    Proof.
+      apply idpath.
+    Qed.
+
+    Definition  Church_gen_header (ξ : sortToSet) :
+      UntypedForest_gen_ctx_sort (ctx_ext (ctx_ext ξ  sv) sv) st -> UntypedForest_gen_ctx_sort ξ st.
+      Proof.
+        intro body.
+        refine (pr1 (pr1 lam_map_gen _) _ _).
+        exists (idpath _).
+        refine (pr1 (pr1 lam_map_gen _) _ _).
+        exists (idpath _).
+        exact body.
+      Defined.
+
+    Definition Church_gen (n : nat) (ξ  : sortToSet) : UntypedForest_gen_ctx_sort ξ st := Church_gen_header ξ (Church_gen_body n ξ).
+
+
+End Church_int.
 
 End IndAndCoind.
+
+Definition UntypedForest_ctx_sort_ind (ξ : sortToSet) (s : sort) : UU := UntypedForest_gen_ctx_sort σind ξ s.
+
+Definition UntypedForest_ctx_sort_coind (ξ : sortToSet) (s : sort) : UU := UntypedForest_gen_ctx_sort σcoind ξ s.
+
+Definition UntypedForest_ind : sortToSet2 := UntypedForest_gen σind.
+Definition UntypedForest_coind : sortToSet2 := UntypedForest_gen σcoind.
+
+Definition UntypedForest_eta_ind : sortToSet2⟦Id,UntypedForest_ind⟧ := UntypedForest_eta_gen σind.
+Definition UntypedForest_eta_coind : sortToSet2⟦Id,UntypedForest_coind⟧ := UntypedForest_eta_gen σcoind.
+
+Definition UntypedForest_tau_ind : UntypedForest_Functor_H UntypedForest_ind --> UntypedForest_ind  := SigmaMonoid_τ θUntypedForest σind.
+Definition UntypedForest_tau_coind : UntypedForest_Functor_H UntypedForest_coind --> UntypedForest_coind  := SigmaMonoid_τ θUntypedForest σcoind.
+
+Definition app_source_ind (n : nat) : sortToSet2 := app_source_gen σind n.
+Definition app_map_ind (n : nat)  : sortToSet2⟦app_source_ind n, UntypedForest_ind⟧ := app_map_gen σind n.
+Definition lam_source_ind : sortToSet2 := lam_source_gen σind.
+Definition lam_map_ind : sortToSet2⟦lam_source_ind, UntypedForest_ind⟧ := lam_map_gen σind.
+Definition sum_source_ind (n : nat) : sortToSet2 := sum_source_gen σind n.
+Definition sum_map_ind (n : nat) : sortToSet2⟦sum_source_ind n, UntypedForest_ind⟧ := sum_map_gen σind n.
+
+Definition app_source_coind (n : nat) : sortToSet2 := app_source_gen σcoind n.
+Definition app_map_coind  (n : nat) : sortToSet2⟦app_source_coind n, UntypedForest_coind⟧ := app_map_gen σcoind n.
+Definition lam_source_coind : sortToSet2 := lam_source_gen σcoind.
+Definition lam_map_coind : sortToSet2⟦lam_source_coind, UntypedForest_coind⟧ := lam_map_gen σcoind.
+Definition sum_source_coind (n : nat) : sortToSet2 := sum_source_gen σcoind n.
+Definition sum_map_coind (n : nat) : sortToSet2⟦sum_source_coind n, UntypedForest_coind⟧ := sum_map_gen σcoind n.
+
+(** get a handle on the recursion principles *)
+
+(** the initial algebra *)
+Definition UntypedForest_ind_IA : Initial (FunctorAlg UntypedForest_Functor_Id_H)
+  := DatatypeOfMultisortedBindingSig_CAT sort Hsort SET TerminalHSET InitialHSET BinProductsHSET
+       BinCoproductsHSET (fun s s' => ProductsHSET (s=s')) CoproductsHSET (EsortToSet2 sort Hsort)
+       (ColimsHSET_of_shape nat_graph) UntypedForest_Sig.
+(** notice that this is only the initial algebra and not the initial sigma monoid *)
+
+(** the final coalgebra *)
+Definition UntypedForest_coind_FC : Terminal (CoAlg_category UntypedForest_Functor_Id_H)
+  := coindCodatatypeOfMultisortedBindingSig_CAT sort Hsort HSET TerminalHSET
+         BinProductsHSET BinCoproductsHSET CoproductsHSET (LimsHSET_of_shape conat_graph)
+         I_coproduct_distribute_over_omega_limits_HSET UntypedForest_Sig is_univalent_HSET.
 
 End Signature.

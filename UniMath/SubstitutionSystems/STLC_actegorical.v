@@ -337,7 +337,7 @@ Section IndAndCoind.
         exact tt.
       - change (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s).
         simple refine (pr1 (pr1 STLC_eta_gen _) _ _).
-        cbn.
+         cbn.
         (** pick the last added variable of type [s] *)
         apply ii1.
         exists (idpath _).
@@ -369,7 +369,7 @@ Section IndAndCoind.
       Church_gen_body (S n) ξ =
         pr1 (pr1 (app_map_gen s s) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s
      ((idpath s,,
-       pr1 (pr1 STLC_eta_gen (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s)
+         pr1 (pr1 STLC_eta_gen (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s)
          (inr (inl (idpath (s ⇒ s),, tt)) : pr1 (pr1 (Id (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s)))),,
         idpath s,, Church_gen_body n ξ).
     Proof.
