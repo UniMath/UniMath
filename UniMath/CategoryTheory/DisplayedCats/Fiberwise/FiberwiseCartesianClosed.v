@@ -2,7 +2,7 @@
 
  Fiberwise exponentials
 
- In this file, we define when a fibration is fiberwise cartesian closed. Concretely, this
+ In this file, we define when a fibration is fiberwise Cartesian closed. Concretely, this
  means that every fiber category is Cartesian closed and that the substitution functor
  preserves exponentials. We also give a specialized builder for the case that the
  fibration lands in partial orders. Finally, we prove that binary products distribute over
