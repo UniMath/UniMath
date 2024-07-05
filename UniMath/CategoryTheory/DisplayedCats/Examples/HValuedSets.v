@@ -68,62 +68,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Hyperdoctrines.Tripos.
 Local Open Scope cat.
 Local Open Scope heyting.
 
-Definition el_pullback_set
-           {X₁ X₂ Y₁ Y₂ : hSet}
-           {f₁ : Y₁ → Y₂}
-           {f₂ : X₂ → Y₂}
-           {g₁ : X₁ → X₂}
-           {g₂ : X₁ → Y₁}
-           {p : (λ x, f₁(g₂ x)) = (λ x, f₂(g₁ x))}
-           (Hp : isPullback (C := SET) p)
-           (y : Y₁)
-           (x : X₂)
-           (q : f₁ y = f₂ x)
-  : X₁.
-Proof.
-  pose (P := make_Pullback _ Hp).
-  simple refine (PullbackArrow P unitset _ _ _ tt).
-  - exact (λ _, y).
-  - exact (λ _, x).
-  - abstract
-      (use funextsec ; intro ;
-       exact q).
-Defined.
-
-Proposition el_pullback_set_pr1
-            {X₁ X₂ Y₁ Y₂ : hSet}
-            {f₁ : Y₁ → Y₂}
-            {f₂ : X₂ → Y₂}
-            {g₁ : X₁ → X₂}
-            {g₂ : X₁ → Y₁}
-            {p : (λ x, f₁(g₂ x)) = (λ x, f₂(g₁ x))}
-            (Hp : isPullback (C := SET) p)
-            (y : Y₁)
-            (x : X₂)
-            (q : f₁ y = f₂ x)
-  : g₂ (el_pullback_set Hp y x q) = y.
-Proof.
-  pose (P := make_Pullback _ Hp).
-  use (eqtohomot (PullbackArrow_PullbackPr1 P _ _ _ _)).
-Qed.
-
-Proposition el_pullback_set_pr2
-            {X₁ X₂ Y₁ Y₂ : hSet}
-            {f₁ : Y₁ → Y₂}
-            {f₂ : X₂ → Y₂}
-            {g₁ : X₁ → X₂}
-            {g₂ : X₁ → Y₁}
-            {p : (λ x, f₁(g₂ x)) = (λ x, f₂(g₁ x))}
-            (Hp : isPullback (C := SET) p)
-            (y : Y₁)
-            (x : X₂)
-            (q : f₁ y = f₂ x)
-  : g₁ (el_pullback_set Hp y x q) = x.
-Proof.
-  pose (P := make_Pullback _ Hp).
-  use (eqtohomot (PullbackArrow_PullbackPr2 P _ _ _ _)).
-Qed.
-
 Section HValuedSets.
   Context (H : complete_heyting_algebra).
 
