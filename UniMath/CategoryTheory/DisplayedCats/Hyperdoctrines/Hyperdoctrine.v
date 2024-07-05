@@ -19,7 +19,7 @@
  This implies that every fiber is a preorder, because all morphisms over the identity are the
  same. In addition, we require that this displayed category is a fibration, so that we have a
  substitution operation, and we require that this displayed category is univalent, so that the
- fiber are partial orders rather than just preorders.
+ fibers are partial orders rather than just preorders.
 
  We start by defining hyperdoctrines, and then we provide suitable accessors. These accessors
  essentially give a shallow embedding of first order predicate logic using hyperdoctrines. We
