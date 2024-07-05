@@ -11,7 +11,7 @@
  of ordinary hyperdoctrines. In a first-order hyperdoctrine, we can interpret all the usual
  connectives from first-order predicate logic and equality. Note that we focus on intuitionistic
  first-order hyperdoctrines, so the law of excluded middle does not hold in them. For each of
- the connective, we also define accessors, which are similar to the elimination and introduction
+ the connectives, we also define accessors, which are similar to the elimination and introduction
  rules in natural deduction.
 
  Note that the connectives are defined as follows:
