@@ -12,7 +12,7 @@
  terms and substitutions are interpreted as morphisms.
 
  In this file, we formalize this notion. The most notable difference between the formalization
- and the definition described in the previous paragraph, is the usage of displayed categories.
+ and the definition described in the previous paragraph is the usage of displayed categories.
  More precisely, we do not represent a hyperdoctrine using a contravariant functor, but instead
  with a fibration that satisfies certain properties. These properties are local propositionality,
  which expresses that all displayed morphisms living over the same morphism in the base are equal.
