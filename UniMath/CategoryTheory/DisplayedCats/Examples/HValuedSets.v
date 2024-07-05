@@ -15,7 +15,7 @@
  by picking the Heyting algebra in a clever way, we can guarantee that some axioms are satisfied
  in the topos that arises from this tripos. These ideas are used in, for instance, "Intuitionistic
  Set Theory" by John Bell to construct a model of intuitionistic set theory where `ℕ → ℕ` is
- subcountable (which, in turn, is based on work by Andrej Bauer.
+ subcountable (which, in turn, is based on work by Andrej Bauer).
 
  References
  - "Tripos Theory in Retrospect" by Andrew Pitts
