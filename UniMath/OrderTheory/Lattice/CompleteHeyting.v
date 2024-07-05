@@ -2,7 +2,7 @@
 
  Complete Heyting algebras
 
- Heyting algebras provide a framework in which can interpret intuitionistic propositional
+ Heyting algebras provide a framework in which one can interpret intuitionistic propositional
  logic. In complete Heyting algebras, one can also take suprema over arbitrary subsets, and
  this allows one to also interpret the existential quantifier. Since infima can be constructed
  from suprema, one can also interpret the universal quantifier.
