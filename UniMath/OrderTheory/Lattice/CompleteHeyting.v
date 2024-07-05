@@ -7,7 +7,7 @@
  this allows one to also interpret the existential quantifier. Since infima can be constructed
  from suprema, one can also interpret the universal quantifier.
 
- Under the hood there are universe levels in play here. When we phrase complete, we need to
+ Under the hood there are universe levels in play here. When we phrase "complete", we need to
  indicate over which types it is complete. The easiest way to see this, is by working in
  predicative foundations. Suppose that we have universes `U` and `V` such that `U : V`. Then
  we can form the type of propositions in `U`, and this type lives in universe `V`. The resulting
