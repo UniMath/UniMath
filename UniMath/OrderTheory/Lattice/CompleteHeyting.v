@@ -13,10 +13,13 @@
  we can form the type of propositions in `U`, and this type lives in universe `V`. The resulting
  lattice of propositions would only be complete over types in `U` but not over types in `V`.
  Since UniMath uses impredicative foundations, the universe levels do not matter for
- propositions. However, it might matter for other examples.
+ propositions. However, it might matter for other examples. Note that similar considerations
+ are relevant when defining directed complete partial orders, see the PhD thesis by Tom de Jong.
 
  References:
  - Appendix A in "Intuitionistic Set Theory" by John Bell
+ - Section 3.1 in "Domain Theory in Constructive and Predicative Univalent Foundations" by Tom
+   de Jong
 
  Content
  1. Complete Heyting algebra
