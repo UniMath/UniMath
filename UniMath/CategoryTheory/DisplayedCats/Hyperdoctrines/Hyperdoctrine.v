@@ -19,7 +19,11 @@
  This implies that every fiber is a preorder, because all morphisms over the identity are the
  same. In addition, we require that this displayed category is a fibration, so that we have a
  substitution operation, and we require that this displayed category is univalent, so that the
- fibers are partial orders rather than just preorders.
+ fibers are partial orders rather than just preorders. This increases the usability of the
+ resulting language, and most examples satisfy this extra condition. The reason why this extra
+ condition, is because type formers are only preserved up to isomorphism usually. If the
+ displayed category is univalent, then these isomorphisms become equalities and we are also
+ guaranteed to have a set of formulas. This allows us to rewrite with the substitution laws.
 
  We start by defining hyperdoctrines, and then we provide suitable accessors. These accessors
  essentially give a shallow embedding of first order predicate logic using hyperdoctrines. We
