@@ -122,6 +122,18 @@ Section Univalence.
     apply isapropisweq.
   Qed.
 
+  Definition univalent_verity_double_bicat
+    : UU
+    := gregarious_univalent × locally_univalent_verity_double_bicat B.
+
+  Proposition isaprop_univalent_verity_double_bicat
+    : isaprop univalent_verity_double_bicat.
+  Proof.
+    use isapropdirprod.
+    - exact isaprop_gregarious_univalent.
+    - apply isaprop_locally_univalent_verity_double_bicat.
+  Qed.
+
   (** * 5. Horizontally globally univalent to gregarious univalent *)
   Definition hor_globally_univalent_to_gregarious_univalent
              (HB_2_1 : locally_univalent_verity_double_bicat B)
