@@ -99,9 +99,9 @@ Local Open Scope cat.
 Local Open Scope hd.
 
 (** * 1. First-order hyperdoctrines *)
-Definition first_order_prehyperdoctrine
+Definition first_order_preorder_hyperdoctrine
   : UU
-  := ∑ (H : prehyperdoctrine),
+  := ∑ (H : preorder_hyperdoctrine),
      fiberwise_terminal (hyperdoctrine_cleaving H)
      ×
      fiberwise_initial (hyperdoctrine_cleaving H)
@@ -115,9 +115,9 @@ Definition first_order_prehyperdoctrine
      ×
      has_dependent_sums (hyperdoctrine_cleaving H).
 
-Coercion first_order_prehyperdoctrine_to_prehyperdoctrine
-         (H : first_order_prehyperdoctrine)
-  : prehyperdoctrine.
+Coercion first_order_preorder_hyperdoctrine_to_preorder_hyperdoctrine
+         (H : first_order_preorder_hyperdoctrine)
+  : preorder_hyperdoctrine.
 Proof.
   exact (pr1 H).
 Defined.
@@ -145,9 +145,9 @@ Proof.
   exact (pr1 H).
 Defined.
 
-Coercion first_order_hyperdoctrine_to_prehyperdoctrine
+Coercion first_order_hyperdoctrine_to_preorder_hyperdoctrine
          (H : first_order_hyperdoctrine)
-  : first_order_prehyperdoctrine.
+  : first_order_preorder_hyperdoctrine.
 Proof.
   exact (_
          ,,
