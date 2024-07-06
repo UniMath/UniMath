@@ -108,8 +108,11 @@ SubobjectClassifier/PreservesSubobjectClassifier.v
 DisplayedCats/Binproducts.v
 
 DisplayedCats/Fiberwise/FiberwiseTerminal.v
+DisplayedCats/Fiberwise/FiberwiseInitial.v
 DisplayedCats/Fiberwise/FiberwiseProducts.v
+DisplayedCats/Fiberwise/FiberwiseCoproducts.v
 DisplayedCats/Fiberwise/FiberwiseEqualizers.v
+DisplayedCats/Fiberwise/FiberwiseCartesianClosed.v
 DisplayedCats/Fiberwise/DependentSums.v
 DisplayedCats/Fiberwise/DependentProducts.v
 DisplayedCats/Fiberwise/FiberwiseSubobjectClassifier.v
@@ -124,6 +127,12 @@ DisplayedCats/Codomain/IteratedSlice.v
 DisplayedCats/Codomain/CodFunctor.v
 DisplayedCats/Codomain/CodSubobjectClassifier.v
 DisplayedCats/Codomain/CodRegular.v
+
+DisplayedCats/Hyperdoctrines/Hyperdoctrine.v
+DisplayedCats/Hyperdoctrines/FirstOrderHyperdoctrine.v
+DisplayedCats/Hyperdoctrines/Tripos.v
+
+DisplayedCats/Examples/HValuedPredicates.v
 
 LocallyCartesianClosed/LocallyCartesianClosed.v
 DisplayedCats/Fiberwise/DualBeckChevalley.v

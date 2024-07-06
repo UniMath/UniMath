@@ -112,6 +112,45 @@ Proof.
     apply isaprop_preserves_terminal.
 Qed.
 
+Section FiberwiseTerminalPoset.
+  Context {C : category}
+          {D : disp_cat C}
+          (HD : cleaving D)
+          (HD' : locally_propositional D)
+          (truth : ∏ (Γ : C), D[{Γ}])
+          (truth_in : ∏ (Γ : C) (φ : D[{Γ}]), φ -->[ identity _ ] truth Γ)
+          (truth_sub : ∏ (Γ₁ Γ₂ : C) (s : Γ₁ --> Γ₂),
+                       truth Γ₁ = pr1 (HD Γ₂ Γ₁ s (truth Γ₂))).
+
+  Definition make_terminal_fiber_locally_propositional
+             (Γ : C)
+    : Terminal D[{Γ}].
+  Proof.
+    use make_Terminal.
+    - exact (truth Γ).
+    - intros φ.
+      use iscontraprop1.
+      + apply HD'.
+      + apply truth_in.
+  Defined.
+
+  Definition make_fiberwise_terminal_locally_propositional
+    : fiberwise_terminal HD.
+  Proof.
+    split.
+    - exact make_terminal_fiber_locally_propositional.
+    - intros Γ₁ Γ₂ s.
+      use preserves_terminal_if_preserves_chosen.
+      + apply make_terminal_fiber_locally_propositional.
+      + abstract
+          (unfold preserves_chosen_terminal ;
+           use (iso_to_Terminal
+                  (make_terminal_fiber_locally_propositional Γ₁)) ;
+           use idtoiso ;
+           apply truth_sub).
+  Defined.
+End FiberwiseTerminalPoset.
+
 (** * 2. Right adjoint from fiberwise terminal objects *)
 Section RightAdjointFromTerminal.
   Context {C : category}
