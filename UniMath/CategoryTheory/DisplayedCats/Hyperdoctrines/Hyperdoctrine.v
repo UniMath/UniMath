@@ -68,6 +68,28 @@ Delimit Scope hyperdoctrine with hd.
 Local Open Scope hd.
 
 (** * 1. Structure of hyperdoctrines *)
+Definition prehyperdoctrine
+  : UU
+  := ∑ (C : category)
+       (D : disp_cat C),
+     Terminal C
+     ×
+     BinProducts C
+     ×
+     cleaving D
+     ×
+     locally_propositional D.
+
+Definition make_prehyperdoctrine
+           (C : category)
+           (D : disp_cat C)
+           (T : Terminal C)
+           (BP : BinProducts C)
+           (HD : cleaving D)
+           (HD' : locally_propositional D)
+  : prehyperdoctrine
+  := C ,, D ,, T ,, BP ,, HD ,, HD'.
+
 Definition hyperdoctrine
   : UU
   := ∑ (C : category)
@@ -121,40 +143,59 @@ Definition make_univalent_hyperdoctrine
   : univalent_hyperdoctrine
   := C ,, D ,, T ,, BP ,, HD ,, HD' ,, HD'' ,, HC.
 
+Coercion hyperdoctrine_to_prehyperdoctrine
+         (H : hyperdoctrine)
+  : prehyperdoctrine.
+Proof.
+  exact (pr1 H
+         ,,
+         pr12 H
+         ,,
+         pr122 H
+         ,,
+         pr1 (pr222 H)
+         ,,
+         pr12 (pr222 H)
+         ,,
+         pr122 (pr222 H)).
+Defined.
+
 Coercion univalent_hyperdoctrine_to_hyperdoctrine
          (H : univalent_hyperdoctrine)
-  : hyperdoctrine
-  := pr1 H
-     ,,
-     pr12 H
-     ,,
-     pr122 H
-     ,,
-     pr1 (pr222 H)
-     ,,
-     pr12 (pr222 H)
-     ,,
-     pr122 (pr222 H)
-     ,,
-     pr1 (pr222 (pr222 H)).
+  : hyperdoctrine.
+Proof.
+  exact (pr1 H
+         ,,
+         pr12 H
+         ,,
+         pr122 H
+         ,,
+         pr1 (pr222 H)
+         ,,
+         pr12 (pr222 H)
+         ,,
+         pr122 (pr222 H)
+         ,,
+         pr1 (pr222 (pr222 H))).
+Defined.
 
 (** * 2. Accessors for types in a hyperdoctrine *)
 Definition hyperdoctrine_type
-           (H : hyperdoctrine)
+           (H : prehyperdoctrine)
   : UU
   := ob (pr1 H).
 
 Notation "'ty'" := hyperdoctrine_type : hyperdoctrine.
 
 Definition hyperdoctrine_unit_type
-           {H : hyperdoctrine}
+           {H : prehyperdoctrine}
   : ty H
   := TerminalObject (pr122 H).
 
 Notation "'𝟙'" := hyperdoctrine_unit_type : hyperdoctrine.
 
 Definition hyperdoctrine_product
-           {H : hyperdoctrine}
+           {H : prehyperdoctrine}
            (A B : ty H)
   : ty H
   := BinProductObject _ (pr1 (pr222 H) A B).
@@ -166,7 +207,7 @@ Notation "A ×h B" := (hyperdoctrine_product A B) (at level 75, right associativ
 
 (** Note that for identity and composition we can reuse the notation of categories *)
 Definition hyperdoctrine_term
-           {H :  hyperdoctrine}
+           {H : prehyperdoctrine}
            (Γ A : ty H)
   : UU
   := Γ --> A.
@@ -175,7 +216,7 @@ Notation "'tm'" := hyperdoctrine_term : hyperdoctrine.
 
 (** * 3.1. Terms for the unit type *)
 Definition hyperdoctrine_unit_term
-           {H : hyperdoctrine}
+           {H : prehyperdoctrine}
            {Γ : ty H}
   : tm Γ 𝟙
   := TerminalArrow _ _.
@@ -183,7 +224,7 @@ Definition hyperdoctrine_unit_term
 Notation "'!!'" := hyperdoctrine_unit_term : hyperdoctrine.
 
 Proposition hyperdoctrine_unit_eq
-            {H : hyperdoctrine}
+            {H : prehyperdoctrine}
             {Γ : ty H}
             (t₁ t₂ : tm Γ 𝟙)
   : t₁ = t₂.
@@ -193,7 +234,7 @@ Qed.
 
 (** * 3.2. Terms for the binary product type *)
 Definition hyperdoctrine_pr1
-           {H :  hyperdoctrine}
+           {H : prehyperdoctrine}
            {Γ A B : ty H}
            (t : tm Γ (A ×h B))
   : tm Γ A
@@ -202,7 +243,7 @@ Definition hyperdoctrine_pr1
 Notation "'π₁'" := hyperdoctrine_pr1 : hyperdoctrine.
 
 Definition hyperdoctrine_pr2
-           {H :  hyperdoctrine}
+           {H : prehyperdoctrine}
            {Γ A B : ty H}
            (t : tm Γ (A ×h B))
   : tm Γ B
@@ -211,7 +252,7 @@ Definition hyperdoctrine_pr2
 Notation "'π₂'" := hyperdoctrine_pr2 : hyperdoctrine.
 
 Definition hyperdoctrine_pair
-           {H :  hyperdoctrine}
+           {H : prehyperdoctrine}
            {Γ A B : ty H}
            (t₁ : tm Γ A)
            (t₂ : tm Γ B)
@@ -221,7 +262,7 @@ Definition hyperdoctrine_pair
 Notation "⟨ t₁ , t₂ ⟩" := (hyperdoctrine_pair t₁ t₂) : hyperdoctrine.
 
 Definition hyperdoctrine_diag
-           {H :  hyperdoctrine}
+           {H : prehyperdoctrine}
            (A : ty H)
   : tm A (A ×h A)
   := ⟨ identity _ , identity _ ⟩.
@@ -229,7 +270,7 @@ Definition hyperdoctrine_diag
 Notation "Δ_{ A }" := (hyperdoctrine_diag A) : hyperdoctrine.
 
 Proposition hyperdoctrine_pair_pr1
-            {H :  hyperdoctrine}
+            {H : prehyperdoctrine}
             {Γ A B : ty H}
             (t₁ : tm Γ A)
             (t₂ : tm Γ B)
@@ -240,7 +281,7 @@ Proof.
 Qed.
 
 Proposition hyperdoctrine_pair_pr2
-            {H :  hyperdoctrine}
+            {H : prehyperdoctrine}
             {Γ A B : ty H}
             (t₁ : tm Γ A)
             (t₂ : tm Γ B)
@@ -251,7 +292,7 @@ Proof.
 Qed.
 
 Proposition hyperdoctrine_pr1_comp
-            {H :  hyperdoctrine}
+            {H : prehyperdoctrine}
             {Γ Γ' A B : ty H}
             (s : tm Γ Γ')
             (t : tm Γ' (A ×h B))
@@ -262,7 +303,7 @@ Proof.
 Qed.
 
 Proposition hyperdoctrine_pair_comp_pr1
-            {H :  hyperdoctrine}
+            {H : prehyperdoctrine}
             {Γ A B : ty H}
             (t₁ : tm Γ A)
             (t₂ : tm Γ B)
@@ -275,7 +316,7 @@ Proof.
 Qed.
 
 Proposition hyperdoctrine_pr2_comp
-            {H :  hyperdoctrine}
+            {H : prehyperdoctrine}
             {Γ Γ' A B : ty H}
             (s : tm Γ Γ')
             (t : tm Γ' (A ×h B))
@@ -286,7 +327,7 @@ Proof.
 Qed.
 
 Proposition hyperdoctrine_pair_comp_pr2
-            {H :  hyperdoctrine}
+            {H : prehyperdoctrine}
             {Γ A B : ty H}
             (t₁ : tm Γ A)
             (t₂ : tm Γ B)
@@ -299,7 +340,7 @@ Proof.
 Qed.
 
 Proposition hyperdoctrine_pair_comp
-            {H :  hyperdoctrine}
+            {H : prehyperdoctrine}
             {Γ Γ' A B : ty H}
             (s : tm Γ Γ')
             (t₁ : tm Γ' A)
@@ -311,7 +352,7 @@ Proof.
 Qed.
 
 Proposition hyperdoctrine_pair_eta
-            {H :  hyperdoctrine}
+            {H : prehyperdoctrine}
             {Γ A B : ty H}
             (t : tm Γ (A ×h B))
   : t = ⟨ π₁ t , π₂ t ⟩.
@@ -321,7 +362,7 @@ Proof.
 Qed.
 
 Proposition hyperdoctrine_diag_comp
-            {H :  hyperdoctrine}
+            {H : prehyperdoctrine}
             {Γ A : ty H}
             (t : tm Γ A)
   : t · Δ_{ A } = ⟨ t , t ⟩.
@@ -334,7 +375,7 @@ Qed.
 
 (** * 4. Formulas in a hyperdoctrine *)
 Definition hyperdoctrine_formula
-           {H :  hyperdoctrine}
+           {H : prehyperdoctrine}
            (A : ty H)
   : UU
   := ob_disp (pr12 H) A.
@@ -342,12 +383,12 @@ Definition hyperdoctrine_formula
 Notation "'form'" := hyperdoctrine_formula : hyperdoctrine.
 
 Definition is_univalent_disp_hyperdoctrine
-           (H :  hyperdoctrine)
+           (H : hyperdoctrine)
   : is_univalent_disp _
   := pr222 (pr222 H).
 
 Proposition isaset_hyperdoctrine_formula
-            {H :  hyperdoctrine}
+            {H : hyperdoctrine}
             (A : ty H)
   : isaset (form A).
 Proof.
@@ -358,7 +399,7 @@ Defined.
 
 (** * 5. Proof terms in a hyperdoctrine *)
 Definition hyperdoctrine_proof
-           {H :  hyperdoctrine}
+           {H : prehyperdoctrine}
            {A : ty H}
            (Δ ψ : form A)
   : UU
@@ -367,17 +408,17 @@ Definition hyperdoctrine_proof
 Notation "Δ ⊢ ψ" := (hyperdoctrine_proof Δ ψ) (at level 100) : hyperdoctrine.
 
 Proposition hyperdoctrine_proof_eq
-            {H :  hyperdoctrine}
+            {H : prehyperdoctrine}
             {A : ty H}
             {Δ ψ : form A}
             (p q : Δ ⊢ ψ)
   : p = q.
 Proof.
-  apply (pr122 (pr222 H)).
+  apply (pr22 (pr222 H)).
 Qed.
 
 Proposition hyperdoctrine_hyp
-            {H :  hyperdoctrine}
+            {H : prehyperdoctrine}
             {A : ty H}
             (φ : form A)
   : φ ⊢ φ.
@@ -386,7 +427,7 @@ Proof.
 Qed.
 
 Proposition hyperdoctrine_cut
-            {H :  hyperdoctrine}
+            {H : prehyperdoctrine}
             {A : ty H}
             {Δ ψ χ : form A}
             (p : Δ ⊢ ψ)
@@ -398,7 +439,7 @@ Qed.
 
 (** * 6. Equality of formulas *)
 Proposition hyperdoctrine_formula_eq
-            {H :  hyperdoctrine}
+            {H : hyperdoctrine}
             {A : ty H}
             {φ ψ : form A}
             (p : φ ⊢ ψ)
@@ -413,12 +454,12 @@ Qed.
 
 (** * 7. Substitution on formulas in a hyperdoctrine *)
 Definition hyperdoctrine_cleaving
-           (H : hyperdoctrine)
+           (H : prehyperdoctrine)
   : cleaving _
   := pr12 (pr222 H).
 
 Definition hyperdoctrine_subst
-           {H :  hyperdoctrine}
+           {H : prehyperdoctrine}
            {Γ₁ Γ₂ : ty H}
            (φ : form Γ₂)
            (s : tm Γ₁ Γ₂)
@@ -428,7 +469,7 @@ Definition hyperdoctrine_subst
 Notation "φ [ s ]" := (hyperdoctrine_subst φ s) (at level 10) : hyperdoctrine.
 
 Proposition hyperdoctrine_id_subst
-            {H :  hyperdoctrine}
+            {H : hyperdoctrine}
             {Γ : ty H}
             (φ : form Γ)
   : φ [ identity _ ] = φ.
@@ -440,7 +481,7 @@ Proof.
 Qed.
 
 Proposition hyperdoctrine_comp_subst
-            {H :  hyperdoctrine}
+            {H : hyperdoctrine}
             {Γ₁ Γ₂ Γ₃ : ty H}
             (s₁ : Γ₁ --> Γ₂)
             (s₂ : Γ₂ --> Γ₃)
@@ -455,7 +496,7 @@ Proof.
 Qed.
 
 Proposition hyperdoctrine_proof_subst
-            {H :  hyperdoctrine}
+            {H : prehyperdoctrine}
             {Γ₁ Γ₂ : ty H}
             {Δ φ : form Γ₂}
             (s : tm Γ₁ Γ₂)

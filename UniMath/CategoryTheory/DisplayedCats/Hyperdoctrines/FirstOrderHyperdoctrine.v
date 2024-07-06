@@ -99,6 +99,29 @@ Local Open Scope cat.
 Local Open Scope hd.
 
 (** * 1. First-order hyperdoctrines *)
+Definition first_order_prehyperdoctrine
+  : UU
+  := ∑ (H : prehyperdoctrine),
+     fiberwise_terminal (hyperdoctrine_cleaving H)
+     ×
+     fiberwise_initial (hyperdoctrine_cleaving H)
+     ×
+     ∑ (P : fiberwise_binproducts (hyperdoctrine_cleaving H)),
+     fiberwise_bincoproducts (hyperdoctrine_cleaving H)
+     ×
+     fiberwise_exponentials P
+     ×
+     has_dependent_products (hyperdoctrine_cleaving H)
+     ×
+     has_dependent_sums (hyperdoctrine_cleaving H).
+
+Coercion first_order_prehyperdoctrine_to_prehyperdoctrine
+         (H : first_order_prehyperdoctrine)
+  : prehyperdoctrine.
+Proof.
+  exact (pr1 H).
+Defined.
+
 Definition first_order_hyperdoctrine
   : UU
   := ∑ (H : hyperdoctrine),
@@ -120,6 +143,27 @@ Coercion first_order_hyperdoctrine_to_hyperdoctrine
   : hyperdoctrine.
 Proof.
   exact (pr1 H).
+Defined.
+
+Coercion first_order_hyperdoctrine_to_prehyperdoctrine
+         (H : first_order_hyperdoctrine)
+  : first_order_prehyperdoctrine.
+Proof.
+  exact (_
+         ,,
+         pr12 H
+         ,,
+         pr122 H
+         ,,
+         pr1 (pr222 H)
+         ,,
+         pr12 (pr222 H)
+         ,,
+         pr122 (pr222 H)
+         ,,
+         pr1 (pr222 (pr222 H))
+         ,,
+         pr2 (pr222 (pr222 H))).
 Defined.
 
 Definition univalent_first_order_hyperdoctrine
@@ -239,7 +283,7 @@ Qed.
 Proposition truth_subst
             {H : first_order_hyperdoctrine}
             {Γ₁ Γ₂ : ty H}
-            (s : Γ₁ --> Γ₂)
+            (s : tm Γ₁ Γ₂)
   : ⊤ [ s ] = ⊤.
 Proof.
   use (isotoid_disp _ (idpath _)).
@@ -624,18 +668,18 @@ Proof.
        rewrite q ; clear q ;
        apply maponpaths ;
        pose (maponpaths (λ z, π₂ z) (pr12 ζ₁)) as q ; cbn in q ;
-       rewrite hyperdoctrine_pair_comp in q ;
+       rewrite (hyperdoctrine_pair_comp (H := H)) in q ;
        rewrite !assoc in q ;
-       rewrite hyperdoctrine_pr1_comp in q ;
+       rewrite (hyperdoctrine_pr1_comp (H := H)) in q ;
        rewrite hyperdoctrine_pr2_comp in q ;
        rewrite !id_right in q ;
        rewrite hyperdoctrine_pair_pr2 in q ;
        rewrite q ;
        clear q ;
        pose (maponpaths (λ z, π₂ z) (pr12 ζ₂)) as q ; cbn in q ;
-       rewrite hyperdoctrine_pair_comp in q ;
+       rewrite (hyperdoctrine_pair_comp (H := H)) in q ;
        rewrite !assoc in q ;
-       rewrite hyperdoctrine_pr1_comp in q ;
+       rewrite (hyperdoctrine_pr1_comp (H := H)) in q ;
        rewrite hyperdoctrine_pr2_comp in q ;
        rewrite !id_right in q ;
        rewrite hyperdoctrine_pair_pr2 in q ;

@@ -132,7 +132,7 @@ DisplayedCats/Hyperdoctrines/Hyperdoctrine.v
 DisplayedCats/Hyperdoctrines/FirstOrderHyperdoctrine.v
 DisplayedCats/Hyperdoctrines/Tripos.v
 
-DisplayedCats/Examples/HValuedSets.v
+DisplayedCats/Examples/HValuedPredicates.v
 
 LocallyCartesianClosed/LocallyCartesianClosed.v
 DisplayedCats/Fiberwise/DualBeckChevalley.v
