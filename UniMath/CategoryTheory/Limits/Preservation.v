@@ -41,7 +41,6 @@ Local Open Scope cat.
 (**
  1. Preservation of terminal objects
  *)
-
 Section PreservesTerminal.
 
   Context {C₁ C₂ : category}.
@@ -51,9 +50,9 @@ Section PreservesTerminal.
     : UU
     := ∏ (x : C₁), isTerminal C₁ x → isTerminal C₂ (F x).
 
-  Context (H : preserves_terminal).
-  Context (T : Terminal C₁).
-  Context (T' : Terminal C₂).
+  Context (H : preserves_terminal)
+          (T : Terminal C₁)
+          (T' : Terminal C₂).
 
   Definition preserves_terminal_to_terminal
     : Terminal C₂
@@ -233,10 +232,10 @@ Section PreservesBinProduct.
 
   Section Accessors.
 
-    Context {X X' : C₁}.
-    Context (H : preserves_binproduct).
-    Context (BP : BinProduct _ X X').
-    Context (BP' : BinProduct _ (F X) (F X')).
+    Context {X X' : C₁}
+            (H : preserves_binproduct)
+            (BP : BinProduct _ X X')
+            (BP' : BinProduct _ (F X) (F X')).
 
     Definition preserves_binproduct_to_binproduct
       : BinProduct _ (F X) (F X')
@@ -708,6 +707,25 @@ Proof.
   use isapropiscontr.
 Qed.
 
+Definition preserves_initial_to_initial
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (HF : preserves_initial F)
+           (I : Initial C₁)
+  : Initial C₂
+  := make_Initial _ (HF _ (pr2 I)).
+
+Definition preserves_initial_to_z_iso
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (HF : preserves_initial F)
+           (I₁ : Initial C₁)
+           (I₂ : Initial C₂)
+  : z_iso (preserves_initial_to_initial F HF I₁) I₂.
+Proof.
+  use ziso_Initials.
+Defined.
+
 Definition preserves_chosen_initial
            {C₁ C₂ : category}
            (HC₁ : Initial C₁)
@@ -814,6 +832,68 @@ Proof.
        apply maponpaths ;
        apply BinCoproductIn2Commutes).
 Defined.
+
+Section Accessors.
+  Context {C₁ C₂ : category}
+          (F : C₁ ⟶ C₂)
+          {X X' : C₁}
+          (HF : preserves_bincoproduct F)
+          (BP : BinCoproduct X X')
+          (BP' : BinCoproduct (F X) (F X')).
+
+    Definition preserves_bincoproduct_to_bincoproduct
+      : BinCoproduct (F X) (F X')
+      := make_BinCoproduct _ _ _ _ _ _ (HF _ _ _ _ _ (pr2 BP)).
+
+    Definition preserves_bincoproduct_to_z_iso
+      : z_iso preserves_bincoproduct_to_bincoproduct BP'
+      := z_iso_from_BinCoproduct_to_BinCoproduct _ _ _.
+
+    Lemma preserves_bincoproduct_to_preserves_in1
+      : #F (BinCoproductIn1 BP)
+        =
+        BinCoproductIn1 BP' · inv_from_z_iso preserves_bincoproduct_to_z_iso.
+    Proof.
+      refine (!_).
+      exact (BinCoproductIn1Commutes _ _ _ _ _ _ _).
+    Qed.
+
+    Lemma preserves_bincoproduct_to_preserves_in2
+      : #F (BinCoproductIn2 BP)
+        =
+        BinCoproductIn2 BP' · inv_from_z_iso preserves_bincoproduct_to_z_iso.
+    Proof.
+      refine (!_).
+      exact (BinCoproductIn2Commutes _ _ _ _ _ _ _).
+    Qed.
+
+    Lemma preserves_bincoproduct_to_preserves_arrow
+          {Y : C₁}
+          (f : X --> Y)
+          (f' : X' --> Y)
+      : inv_from_z_iso preserves_bincoproduct_to_z_iso · #F (BinCoproductArrow BP f f')
+        =
+        BinCoproductArrow BP' (#F f) (#F f').
+    Proof.
+      apply BinCoproductArrowsEq.
+      - cbn.
+        unfold from_BinCoproduct_to_BinCoproduct.
+        rewrite !assoc.
+        rewrite !BinCoproductIn1Commutes.
+        cbn.
+        rewrite <- functor_comp.
+        apply maponpaths.
+        apply BinCoproductIn1Commutes.
+      - cbn.
+        unfold from_BinCoproduct_to_BinCoproduct.
+        rewrite !assoc.
+        rewrite !BinCoproductIn2Commutes.
+        cbn.
+        rewrite <- functor_comp.
+        apply maponpaths.
+        apply BinCoproductIn2Commutes.
+    Qed.
+End Accessors.
 
 (**
  8. Preservation of (reflexive) coequalizers
