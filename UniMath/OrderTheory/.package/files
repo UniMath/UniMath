@@ -11,6 +11,7 @@ Lattice/Bounded.v
 Lattice/Complement.v
 Lattice/Distributive.v
 Lattice/Heyting.v
+Lattice/CompleteHeyting.v
 Lattice/Boolean.v
 Lattice/Examples/Bool.v
 Lattice/Examples/Subsets.v

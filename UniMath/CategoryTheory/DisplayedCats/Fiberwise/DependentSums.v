@@ -174,6 +174,66 @@ Section DependentSum.
        left_beck_chevalley f g h k p (L _ _ f) (L _ _ h).
 End DependentSum.
 
+Section DependentSumPoset.
+  Context {C : category}
+          {D : disp_cat C}
+          (HD : cleaving D)
+          (HD' : locally_propositional D)
+          (ex : ∏ (Γ₁ Γ₂ : C) (s : Γ₁ --> Γ₂), D[{Γ₁}] → D[{Γ₂}])
+          (ex_i : ∏ (Γ₁ Γ₂ : C)
+                    (s : Γ₁ --> Γ₂)
+                    (φ : D[{Γ₁}]),
+                  φ -->[ identity _ ] pr1 (HD _ _ s (ex _ _ s φ)))
+          (ex_e : ∏ (Γ₁ Γ₂ : C)
+                    (s : Γ₁ --> Γ₂)
+                    (ψ : D[{Γ₁}])
+                    (χ : D[{Γ₂}])
+                    (p : ψ -->[ identity _ ] pr1 (HD Γ₂ Γ₁ s χ)),
+                  ex Γ₁ Γ₂ s ψ -->[ identity _ ] χ)
+          (ex_sub : ∏ (Γ₁ Γ₂ Γ₃ Γ₄ : C)
+                       (s₁ : Γ₂ --> Γ₁)
+                       (s₂ : Γ₃ --> Γ₁)
+                       (s₃ : Γ₄ --> Γ₃)
+                       (s₄ : Γ₄ --> Γ₂)
+                       (p : s₄ · s₁ = s₃ · s₂)
+                       (Hp : isPullback p)
+                       (φ : D[{Γ₂}]),
+                    pr1 (HD Γ₁ Γ₃ s₂ (ex Γ₂ Γ₁ s₁ φ))
+                    -->[ identity _ ]
+                    ex Γ₄ Γ₃ s₃ (pr1 (HD Γ₂ Γ₄ s₄ φ))).
+
+  Definition make_dependent_sum_of_mor_poset
+             {Γ₁ Γ₂ : C}
+             (s : Γ₁ --> Γ₂)
+    : dependent_sum HD s.
+  Proof.
+    use right_adjoint_left_from_partial.
+    - exact (ex _ _ s).
+    - exact (ex_i _ _ s).
+    - intros ψ χ p.
+      use iscontraprop1.
+      + abstract
+          (use invproofirrelevance ;
+           intros ζ₁ ζ₂ ;
+           use subtypePath ; [ intro ; apply homset_property | ] ;
+           apply HD').
+      + simple refine (_ ,, _) ; [ | apply HD' ].
+        apply ex_e.
+        exact p.
+  Defined.
+
+  Definition make_has_dependent_sums_poset
+    : has_dependent_sums HD.
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ _ _ s, make_dependent_sum_of_mor_poset s).
+    - abstract
+        (intros Γ₁ Γ₂ Γ₃ Γ₄ s₁ s₂ s₃ s₄ p Hp φ ;
+         simple refine (_ ,, _ ,, _) ; [ | apply HD' | apply HD' ] ;
+         exact (ex_sub _ _ _ _ _ _ _ _ _ Hp φ)).
+  Defined.
+End DependentSumPoset.
+
 (** * 3. Accessors for dependent sums *)
 Section DependentSum.
   Context {C : category}
@@ -187,6 +247,12 @@ Section DependentSum.
              (xx : D[{x}])
     : D[{y}]
     := left_adjoint (pr1 S x y f) xx.
+
+  Definition dep_sum_mor
+             {xx₁ xx₂ : D[{x}]}
+             (ff : xx₁ --> xx₂)
+    : dep_sum xx₁ --> dep_sum xx₂
+    := #(left_adjoint (pr1 S x y f)) ff.
 
   Definition dep_sum_unit
              (xx : D[{x}])
