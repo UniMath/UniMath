@@ -16,6 +16,7 @@
   2. The terminal object [R_terminal]
   3. Fixpoints [fixpoint_is_fixpoint]
   4. Binary products [R_binproducts]
+  4.1 Some properties of the power objects, defined via binary products
   5. Exponential objects [R_exponentials]
   6. Every object is a retract of λ x, x [retraction_is_retraction]
   7. R is equivalent to the category given by the idempotents of L_1 [R_ob_weq_R']
@@ -30,6 +31,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Retracts.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
@@ -347,8 +349,8 @@ Section Category.
       refine '(pair_arrow_compose _ Lβ _ _ _ @ _).
       refine '(maponpaths (λ x, pair_arrow x _) (!compose_assoc _ Lβ _ _ _) @ _).
       refine '(maponpaths (λ x, pair_arrow _ x) (!compose_assoc _ Lβ _ _ _) @ _).
-      refine '(maponpaths (λ x, (pair_arrow (_ ∘ x) _)) ( π1_pair_arrow _ Lβ _ _) @ _).
-      refine '(maponpaths (λ x, (pair_arrow _ (_ ∘ x))) ( π2_pair_arrow _ Lβ _ _) @ _).
+      refine '(maponpaths (λ x, (pair_arrow (_ ∘ x) _)) ( π1_pair_arrow_alt _ Lβ _ _) @ _).
+      refine '(maponpaths (λ x, (pair_arrow _ (_ ∘ x))) ( π2_pair_arrow_alt _ Lβ _ _) @ _).
       refine '(maponpaths (λ x, pair_arrow x _) (compose_assoc _ Lβ _ _ _) @ _).
       refine '(maponpaths (λ x, pair_arrow _ x) (compose_assoc _ Lβ _ _ _) @ _).
       refine '(maponpaths (λ x, pair_arrow (x ∘ _) _) (R_ob_idempotent A) @ _).
@@ -369,7 +371,7 @@ Section Category.
       refine '(maponpaths (λ x, x ∘ _) (compose_assoc _ Lβ _ _ _) @ _).
       refine '(maponpaths (λ x, x ∘ _ ∘ _) (R_ob_idempotent _) @ _).
       refine '(!compose_assoc _ Lβ _ _ _ @ _).
-      refine '(maponpaths _ ( π1_pair_arrow _ Lβ _ _ : _ = _ ∘ _) @ _).
+      refine '(maponpaths _ ( π1_pair_arrow_alt _ Lβ _ _ : _ = _ ∘ _) @ _).
       refine '(compose_assoc _ Lβ _ _ _ @ _).
       exact (maponpaths (λ x, x ∘ _) (R_ob_idempotent _)).
     Qed.
@@ -388,7 +390,7 @@ Section Category.
       refine '(maponpaths (λ x, x ∘ _) (compose_assoc _ Lβ _ _ _) @ _).
       refine '(maponpaths (λ x, x ∘ _ ∘ _) (R_ob_idempotent _) @ _).
       refine '(!compose_assoc _ Lβ _ _ _ @ _).
-      refine '(maponpaths _ ( π2_pair_arrow _ Lβ _ _ : _ = _ ∘ _) @ _).
+      refine '(maponpaths _ ( π2_pair_arrow_alt _ Lβ _ _ : _ = _ ∘ _) @ _).
       refine '(compose_assoc _ Lβ _ _ _ @ _).
       exact (maponpaths (λ x, x ∘ _) (R_ob_idempotent _)).
     Qed.
@@ -415,8 +417,8 @@ Section Category.
         refine '(maponpaths (λ x, pair_arrow _ x ∘ _) (!compose_assoc _ Lβ _ _ _) @ _).
         refine '(maponpaths (λ x, pair_arrow (_ ∘ (_ ∘ pair_arrow x _)) _ ∘ _) (!R_mor_is_mor_left _) @ _).
         refine '(maponpaths (λ x, pair_arrow _ (_ ∘ (_ ∘ pair_arrow _ x)) ∘ _) (!R_mor_is_mor_left _) @ _).
-        refine '(maponpaths (λ x, pair_arrow (_ ∘ x) _ ∘ _) ( π1_pair_arrow _ Lβ _ _ : _ = _ ∘ _) @ _).
-        refine '(maponpaths (λ x, pair_arrow _ (_ ∘ x) ∘ _) ( π2_pair_arrow _ Lβ _ _ : _ = _ ∘ _) @ _).
+        refine '(maponpaths (λ x, pair_arrow (_ ∘ x) _ ∘ _) ( π1_pair_arrow_alt _ Lβ _ _ : _ = _ ∘ _) @ _).
+        refine '(maponpaths (λ x, pair_arrow _ (_ ∘ x) ∘ _) ( π2_pair_arrow_alt _ Lβ _ _ : _ = _ ∘ _) @ _).
         refine '(maponpaths (λ x, pair_arrow (_ ∘ x) _ ∘ _) (R_mor_is_mor_left _) @ _).
         refine '(maponpaths (λ x, pair_arrow x _ ∘ _) (R_mor_is_mor_left _) @ _).
         refine '(maponpaths (λ x, pair_arrow _ (_ ∘ x) ∘ _) (R_mor_is_mor_left _) @ _).
@@ -436,7 +438,7 @@ Section Category.
         apply R_mor_eq.
         refine '(maponpaths (λ x, _ ∘ pair_arrow x _) (!R_mor_is_mor_left _) @ _).
         refine '(!compose_assoc _ Lβ _ _ _ @ _).
-        refine '(maponpaths (λ x, _ ∘ x) ( π1_pair_arrow _ Lβ _ _ : _ = _ ∘ _) @ _).
+        refine '(maponpaths (λ x, _ ∘ x) ( π1_pair_arrow_alt _ Lβ _ _ : _ = _ ∘ _) @ _).
         refine '(maponpaths (λ x, _ ∘ x) (R_mor_is_mor_left _) @ _).
         exact (R_mor_is_mor_left _).
       Qed.
@@ -447,7 +449,7 @@ Section Category.
         apply R_mor_eq.
         refine '(maponpaths (λ x, _ ∘ pair_arrow _ x) (!R_mor_is_mor_left _) @ _).
         refine '(!compose_assoc _ Lβ _ _ _ @ _).
-        refine '(maponpaths (λ x, _ ∘ x) ( π2_pair_arrow _ Lβ _ _ : _ = _ ∘ _) @ _).
+        refine '(maponpaths (λ x, _ ∘ x) ( π2_pair_arrow_alt _ Lβ _ _ : _ = _ ∘ _) @ _).
         refine '(maponpaths (λ x, _ ∘ x) (R_mor_is_mor_left _) @ _).
         exact (R_mor_is_mor_left _).
       Qed.
@@ -494,6 +496,83 @@ Section Category.
     intros A B.
     apply R_binproduct.
   Defined.
+
+(** ** 4.1 Some properties of the power objects, defined via binary products *)
+
+  Section BinProductPowers.
+
+    Context {m : nat}.
+    Context (A : R_ob).
+
+    Let P := bin_product_power R A R_chosen_terminal R_binproducts m.
+
+    Lemma R_power_projection_is_n_π
+      (i : stn m)
+      : R_mor_to_L (ProductPr _ _ P i)
+      = A ∘ n_π i.
+    Proof.
+      induction m as [| m' IHm].
+      - apply fromempty.
+        apply negstn0.
+        exact i.
+      - cbn -[stnweq].
+        unfold sn_power_projection.
+        change (invmap (stnweq (n := m'))) with (invmap (stnweq (n := m'))).
+        change (invmap (weqdnicoprod m' lastelement)) with (invmap (stnweq (n := m'))).
+        induction (invmap stnweq i) as [i' | i'].
+        + refine '(compose_assoc _ Lβ _ _ _ @ _).
+          refine '(maponpaths (λ x, x ∘ _) (R_mor_is_mor_right _) @ _).
+          refine '(maponpaths (λ x, x ∘ _) (IHm _) @ _).
+          exact (!compose_assoc _ Lβ _ _ _).
+        + reflexivity.
+    Qed.
+
+    Lemma R_power_arrow_is_n_tuple_arrow
+      (B : R_ob)
+      (f : stn m → R_mor B A)
+      : R_mor_to_L (ProductArrow _ _ P f)
+      = n_tuple_arrow f.
+    Proof.
+      induction m as [ | m' IHm].
+      - refine '(maponpaths (λ x, (abs x)) (inflate_abs _ _) @ _).
+        refine '(maponpaths (λ x, (abs (abs x))) (var_subst _ _ _) @ _).
+        exact (maponpaths (λ x, (abs (abs x))) (extend_tuple_inr _ _ _)).
+      - refine '(maponpaths (λ x, pair_arrow x _) (IHm _) @ _).
+        refine '(maponpaths (λ x, (abs (⟨(app x _), _⟩))) (inflate_abs _ _) @ _).
+        refine '(maponpaths (λ x, (abs (⟨x, _⟩))) (beta_equality _ Lβ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (⟨x, _⟩))) (subst_subst _ _ _ _) @ _).
+        refine '(maponpaths (λ x, (abs (⟨x, _⟩))) (subst_n_tuple _ _ _) @ _).
+        apply (maponpaths (λ x, abs ⟨n_tuple x, _ ⟩)).
+        apply funextfun.
+        intro i.
+        refine '(subst_app _ _ _ _ @ _).
+        refine '(maponpaths (λ x, (app x _)) (subst_inflate _ _ _) @ _).
+        refine '(maponpaths (λ x, (app _ x)) (var_subst _ _ _) @ _).
+        refine '(maponpaths (λ x, (app _ (x • _))) (extend_tuple_inr _ _ _) @ _).
+        refine '(maponpaths (λ x, (app _ x)) (var_subst _ _ _) @ _).
+        refine '(maponpaths (λ x, (app _ x)) (extend_tuple_inr _ _ _) @ _).
+        apply (maponpaths (λ x, app (_ • x) _)).
+        apply funextfun.
+        intro j.
+        refine '(maponpaths (λ x, (x • _)) (extend_tuple_inl _ _ _) @ _).
+        refine '(var_subst _ _ _ @ _).
+        apply extend_tuple_inl.
+    Qed.
+
+    Lemma R_power_object_is_n_tuple_arrow
+      : R_ob_to_L (ProductObject _ _ P)
+      = n_tuple_arrow (λ (i : stn m), (R_ob_to_L A) ∘ n_π i).
+    Proof.
+        refine '(maponpaths R_mor_to_L (ProductArrowEta _ _ _ P _ (identity _)) @ _).
+        refine '(R_power_arrow_is_n_tuple_arrow _ _ @ _).
+        apply maponpaths.
+        apply funextfun.
+        intro i.
+        refine '(maponpaths R_mor_to_L (id_left (C := R) _) @ _).
+        apply R_power_projection_is_n_π.
+    Qed.
+
+  End BinProductPowers.
 
 (** * 5. Exponential objects *)
 
@@ -997,6 +1076,16 @@ Section Category.
       refine '(subst_abs _ _ _ @ _).
       refine '(maponpaths (λ x, (abs x)) (var_subst _ _ _) @ _).
       exact (maponpaths (λ x, (abs x)) (extend_tuple_inr _ _ _)).
+    Qed.
+
+    Lemma app_U
+      {m : nat}
+      (f : L m)
+      : app U_term f = f.
+    Proof.
+      refine '(beta_equality _ Lβ _ _ @ _).
+      refine '(var_subst _ _ _ @ _).
+      apply extend_tuple_inr.
     Qed.
 
     Lemma U_compose
