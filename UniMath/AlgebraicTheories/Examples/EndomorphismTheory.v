@@ -108,21 +108,26 @@ Section EndomorphismAlgebraicTheory.
     : ProductArrow _ _ (power n) f · ProductPr _ _ (power n) i = f i
     := (ProductPrCommutes _ _ _ (power n)) c f i.
 
-  Let bp_commutes_1 (n : nat) (c : C) (f : C⟦c, X⟧) (g : C⟦c, power n⟧)
-    : BinProductArrow _ (C_bin_products X (power n)) f g · BinProductPr1 _ _ = f
-    := BinProductPr1Commutes _ _ _ (C_bin_products X (power n)) c f g.
+  Let bp_commutes_1 (n : nat) (c : C) (f : C⟦c, power n⟧) (g : C⟦c, X⟧)
+    : BinProductArrow _ (C_bin_products (power n) X) f g · BinProductPr1 _ _ = f
+    := BinProductPr1Commutes _ _ _ (C_bin_products (power n) X) c f g.
 
-  Let bp_commutes_2 (n : nat) (c : C) (f : C⟦c, X⟧) (g : C⟦c, power n⟧)
-    : BinProductArrow _ (C_bin_products X (power n)) f g · BinProductPr2 _ _ = g
-    := BinProductPr2Commutes _ _ _ (C_bin_products X (power n)) c f g.
+  Let bp_commutes_2 (n : nat) (c : C) (f : C⟦c, power n⟧) (g : C⟦c, X⟧)
+    : BinProductArrow _ (C_bin_products (power n) X) f g · BinProductPr2 _ _ = g
+    := BinProductPr2Commutes _ _ _ (C_bin_products (power n) X) c f g.
 
-  Context (E : is_exponentiable C_bin_products X).
+  Context (E : is_exponentiable' C_bin_products X).
+
+  Let Adj
+    : are_adjoints (constprod_functor2 C_bin_products X) (pr1 E)
+    := pr2 E.
+
   Context (abs : C⟦pr1 E X, X⟧).
   Context (app : C⟦X, pr1 E X⟧).
 
   Let hom_weq (n: nat)
     : C⟦power (S n), X⟧ ≃ C⟦power n, pr1 E X⟧
-    := adjunction_hom_weq (pr2 E) (power n) X.
+    := adjunction_hom_weq Adj (power n) X.
 
   Definition endomorphism_lambda_theory_data
     : lambda_theory_data.
@@ -141,15 +146,10 @@ Section EndomorphismAlgebraicTheory.
     use make_is_lambda_theory.
     - intros m n f g.
       refine (maponpaths _ (assoc' _ _ _) @ _).
-      refine (φ_adj_inv_natural_precomp (pr2 E) _ _ _ _ _ @ _).
+      refine (φ_adj_inv_natural_precomp Adj _ _ _ _ _ @ _).
       apply (maponpaths (λ x, x · _)).
       apply BinProductArrowsEq.
-      + refine (bp_commutes_1 _ _ _ _ @ _).
-        refine (id_right _ @ !_).
-        refine (bp_commutes_1 _ _ _ _ @ _).
-        refine (extend_tuple_inr _ _ _ @ _).
-        exact (maponpaths _ (homotinvweqweq _ (inr tt))).
-      + do 2 refine (bp_commutes_2 _ _ _ _ @ !_).
+      + do 2 refine (bp_commutes_1 _ _ _ _ @ !_).
         apply ProductArrow_eq.
         intro i.
         refine (assoc' _ _ _ @ _).
@@ -161,10 +161,15 @@ Section EndomorphismAlgebraicTheory.
         intro j.
         refine (pow_commutes _ _ _ _ @ _).
         exact (maponpaths _ (homotinvweqweq _ (inl j))).
+      + refine (bp_commutes_2 _ _ _ _ @ _).
+        refine (id_right _ @ !_).
+        refine (bp_commutes_2 _ _ _ _ @ _).
+        refine (extend_tuple_inr _ _ _ @ _).
+        exact (maponpaths _ (homotinvweqweq _ (inr tt))).
     - intros m n f g.
       refine (_ @ assoc' _ _ _).
-      refine (_ @ maponpaths (λ x, x · _) (φ_adj_natural_precomp (pr2 E) _ _ _ _ _)).
-      apply (maponpaths (λ x, φ_adj (pr2 E) (x · _) · _)).
+      refine (_ @ maponpaths (λ x, x · _) (φ_adj_natural_precomp Adj _ _ _ _ _)).
+      apply (maponpaths (λ x, φ_adj Adj (x · _) · _)).
       apply ProductArrow_eq.
       intro i.
       refine (pow_commutes _ _ _ _ @ !_).
@@ -172,7 +177,7 @@ Section EndomorphismAlgebraicTheory.
       induction (invmap stnweq i) as [i' | i'];
         refine (maponpaths (λ x, _ · (_ x)) (homotinvweqweq stnweq _) @ _).
       + refine (assoc _ _ _ @ _).
-        refine (maponpaths (λ x, x · _) (bp_commutes_2 _ _ _ _) @ _).
+        refine (maponpaths (λ x, x · _) (bp_commutes_1 _ _ _ _) @ _).
         refine (assoc' _ _ _ @ _).
         refine (maponpaths (λ x, _ · x) (pow_commutes _ _ _ _) @ !_).
         refine (extend_tuple_inl _ _ _ @ _).
@@ -181,7 +186,7 @@ Section EndomorphismAlgebraicTheory.
         intro j.
         refine (pow_commutes _ _ _ _ @ _).
         exact (maponpaths _ (homotinvweqweq _ (inl j))).
-      + refine (bp_commutes_1 _ _ _ _ @ _).
+      + refine (bp_commutes_2 _ _ _ _ @ _).
         refine (id_right _ @ !_).
         refine (extend_tuple_inr _ _ _ @ _).
         exact (maponpaths _ (homotinvweqweq _ (inr tt))).
@@ -198,7 +203,7 @@ Section EndomorphismAlgebraicTheory.
     : has_β endomorphism_lambda_theory.
   Proof.
     intros n l.
-    refine (_ @ φ_adj_inv_after_φ_adj (pr2 E) _).
+    refine (_ @ φ_adj_inv_after_φ_adj Adj _).
     apply (maponpaths (φ_adj_inv _)).
     refine (assoc' _ _ _ @ _).
     refine (_ @ id_right _).
@@ -241,15 +246,23 @@ Section Morphism.
   Context (C'_bin_products : BinProducts C').
   Context (X' : C').
 
-  Context (E : is_exponentiable C_bin_products X).
+  Context (E : is_exponentiable' C_bin_products X).
   Context (abs : C⟦pr1 E X, X⟧).
   Context (app : C⟦X, pr1 E X⟧).
   Context (C_beta : abs · app = identity _).
 
-  Context (E' : is_exponentiable C'_bin_products X').
+  Let Adj
+    : are_adjoints (constprod_functor2 C_bin_products X) (pr1 E)
+    := pr2 E.
+
+  Context (E' : is_exponentiable' C'_bin_products X').
   Context (abs' : C'⟦pr1 E' X', X'⟧).
   Context (app' : C'⟦X', pr1 E' X'⟧).
   Context (C'_beta : abs' · app' = identity _).
+
+  Let Adj'
+    : are_adjoints (constprod_functor2 C'_bin_products X') (pr1 E')
+    := pr2 E'.
 
   Let L := endomorphism_lambda_theory C_terminal C_bin_products X E abs app.
   Let L' := endomorphism_lambda_theory C'_terminal C'_bin_products X' E' abs' app'.
@@ -277,8 +290,8 @@ Section Morphism.
     - apply (z_iso_Terminals (make_Terminal _ (F_preserves_terminal _ (pr2 C_terminal))) C'_terminal).
     - refine (z_iso_comp (preserves_binproduct_to_z_iso _ F_preserves_binproduct _ (C'_bin_products _ _)) _).
       apply binproduct_of_z_iso.
-      + exact F_preserves_X.
       + exact IHn.
+      + exact F_preserves_X.
   Defined.
 
   Lemma F_preserves_power_pr
@@ -295,21 +308,20 @@ Section Morphism.
         refine (maponpaths (λ x, _ · _ x · _) (homotinvweqweq stnweq _) @ !_).
       + refine (_ @ maponpaths (λ x, x · _) (assoc' _ _ _)).
         refine (_ @ maponpaths (λ x, x · _ · _) (assoc _ _ _)).
-        refine (_ @ !maponpaths (λ x, _ · x · _ · _) (BinProductOfArrowsPr2 _ _ _ _ _)).
+        refine (_ @ !maponpaths (λ x, _ · x · _ · _) (BinProductOfArrowsPr1 _ _ _ _ _)).
         refine (_ @ maponpaths (λ x, x · _ · _) (assoc' _ _ _)).
-        refine (_ @ !maponpaths (λ x, x · _ · _ · _) (BinProductPr2Commutes _ _ _ _ _ _ _)).
+        refine (_ @ !maponpaths (λ x, x · _ · _ · _) (BinProductPr1Commutes _ _ _ _ _ _ _)).
         refine (functor_comp _ _ _ @ _).
         refine (maponpaths _ (IHn _) @ _).
         refine (assoc _ _ _ @ _).
         exact (maponpaths (λ x, x · _) (assoc _ _ _)).
-      + cbn.
-        refine (_ @ maponpaths (λ x, x · _) (assoc _ _ _)).
-        refine (_ @ !maponpaths (λ x, _ x · _) (BinProductOfArrowsPr1 _ _ _ _ _)).
+      + refine (_ @ maponpaths (λ x, x · _) (assoc _ _ _)).
+        refine (_ @ !maponpaths (λ x, _ x · _) (BinProductOfArrowsPr2 _ _ _ _ _)).
         refine (_ @ maponpaths (λ x, x · _) (assoc' _ _ _)).
         refine (_ @ assoc _ _ _).
         refine (_ @ !maponpaths _ (z_iso_inv_after_z_iso _)).
         refine (_ @ !id_right _).
-        exact (!BinProductPr1Commutes _ _ _ _ _ _ _).
+        exact (!BinProductPr2Commutes _ _ _ _ _ _ _).
   Qed.
 
   Lemma F_preserves_product_arrow
@@ -370,16 +382,16 @@ Section Morphism.
 
   Context (F_preserves_E : z_iso (F (pr1 E X)) (pr1 E' X')).
   Context (F_preserves_φ_adj_inv
-    : #F (φ_adj_inv (pr2 E) app)
+    : #F (φ_adj_inv Adj app)
     = preserves_binproduct_to_z_iso _ F_preserves_binproduct (C_bin_products _ _) (C'_bin_products _ _)
       · binproduct_of_z_iso _ _ F_preserves_X F_preserves_X
-      · φ_adj_inv (pr2 E') app'
+      · φ_adj_inv Adj' app'
       · inv_from_z_iso F_preserves_X).
 
   Context (F_preserves_φ_adj
-    : #F (φ_adj (pr2 E) (var (T := L) (● 0 : stn 1)%stn))
+    : #F (φ_adj Adj (var (T := L) (● 0 : stn 1)%stn))
     = preserves_terminal_to_z_iso _ F_preserves_terminal C_terminal _
-      · φ_adj (pr2 E') (var (T := L') (● 0 : stn 1)%stn)
+      · φ_adj Adj' (var (T := L') (● 0 : stn 1)%stn)
       · inv_from_z_iso F_preserves_E).
 
   Context (F_preserves_app_abs_abs
@@ -392,7 +404,7 @@ Section Morphism.
     : preserves_app' functor_to_algebraic_theory_morphism.
   Proof.
     refine (maponpaths _ (φ_adj_inv_natural_precomp _ _ _ _ _ _) @ !_).
-    refine (φ_adj_inv_natural_precomp (pr2 E') _ _ _ _ _ @ !_).
+    refine (φ_adj_inv_natural_precomp Adj' _ _ _ _ _ @ !_).
     refine (maponpaths (λ x, _ · x · _) (functor_comp _ _ _) @ _).
     apply z_iso_inv_to_right.
     apply z_iso_inv_on_right.
@@ -413,27 +425,27 @@ Section Morphism.
       refine (maponpaths (λ x, x · _) (BinProductPr1Commutes _ _ _ _ _ _ _) @ _).
       refine (maponpaths (λ x, x · _) (functor_comp _ _ _) @ _).
       refine (maponpaths (λ x, x · _ · _) (preserves_binproduct_to_preserves_pr1 _ F_preserves_binproduct _ (C'_bin_products _ _)) @ _).
-      refine (maponpaths (λ x, _ · x · _) (functor_id _ _) @ _).
-      refine (maponpaths (λ x, x · _) (id_right _) @ !_).
+      refine (maponpaths (λ x, _ · x · _) (preserves_binproduct_to_preserves_pr2 _ F_preserves_binproduct _ (C'_bin_products _ _)) @ _).
+      refine (maponpaths (λ x, x · _) (assoc _ _ _) @ !_).
 
-      refine (maponpaths _ (id_right _) @ _).
+      refine (assoc _ _ _ @ _).
+      refine (maponpaths (λ x, x · _) (assoc' _ _ _) @ _).
+      refine (maponpaths (λ x, _ · x · _) (BinProductPr1Commutes _ _ _ _ _ _ _) @ _).
+      do 2 refine (maponpaths (λ x, x · _) (assoc _ _ _) @ _).
       refine (assoc' _ _ _ @ _).
-      refine (maponpaths (λ x, _ · x) (BinProductPr1Commutes _ _ _ _ _ _ _) @ _).
+      refine (maponpaths _ (BinProductOfArrowsPr2 _ _ _ _ _) @ _).
       exact (assoc _ _ _).
     - do 2 refine (maponpaths _ (BinProductOfArrowsPr2 _ _ _ _ _) @ !_).
       refine (assoc _ _ _ @ _).
       refine (maponpaths (λ x, x · _) (BinProductPr2Commutes _ _ _ _ _ _ _) @ _).
       refine (maponpaths (λ x, x · _) (functor_comp _ _ _) @ _).
       refine (maponpaths (λ x, x · _ · _) (preserves_binproduct_to_preserves_pr2 _ F_preserves_binproduct _ (C'_bin_products _ _)) @ _).
-      refine (maponpaths (λ x, _ · x · _) (preserves_binproduct_to_preserves_pr1 _ F_preserves_binproduct _ (C'_bin_products _ _)) @ _).
-      refine (maponpaths (λ x, x · _) (assoc _ _ _) @ !_).
+      refine (maponpaths (λ x, _ · x · _) (functor_id _ _) @ _).
+      refine (maponpaths (λ x, x · _) (id_right _) @ !_).
 
-      refine (assoc _ _ _ @ _).
-      refine (maponpaths (λ x, x · _) (assoc' _ _ _) @ _).
-      refine (maponpaths (λ x, _ · x · _) (BinProductPr2Commutes _ _ _ _ _ _ _) @ _).
-      do 2 refine (maponpaths (λ x, x · _) (assoc _ _ _) @ _).
+      refine (maponpaths _ (id_right _) @ _).
       refine (assoc' _ _ _ @ _).
-      refine (maponpaths _ (BinProductOfArrowsPr1 _ _ _ _ _) @ _).
+      refine (maponpaths (λ x, _ · x) (BinProductPr2Commutes _ _ _ _ _ _ _) @ _).
       exact (assoc _ _ _).
   Qed.
 
@@ -454,7 +466,7 @@ Section Morphism.
     do 3 refine (assoc' _ _ _ @ _).
     apply (maponpaths (λ x, _ · x)).
     refine (_ @ assoc _ _ _).
-    apply (maponpaths (λ x, φ_adj (pr2 E') (var (T := L') (● 0 : stn 1)%stn) · x)).
+    apply (maponpaths (λ x, φ_adj Adj' (var (T := L') (● 0 : stn 1)%stn) · x)).
     apply z_iso_inv_on_right.
     refine (_ @ assoc' _ _ _).
     apply z_iso_inv_to_right.
