@@ -797,14 +797,15 @@ End HomSetIso_from_Adjunction.
 
 Section HomSetIsoClosedUnderIso.
 
+  Context {C C' : category}.
+  Context (F F' : C ⟶ C').
+  Context (G : C' ⟶ C).
+  Context (α : z_iso (C := [C, C']) F F').
+  Context (H : are_adjoints F G).
+  Context (c : C).
+  Context (c' : C').
+
   Lemma φ_adj_under_iso
-    {C C' : category}
-    (F F' : C ⟶ C')
-    (G : C' ⟶ C)
-    (α : z_iso (C := [C, C']) F F')
-    (H : are_adjoints F G)
-    (c : C)
-    (c' : C')
     (f : C'⟦F' c, c'⟧)
     : φ_adj (are_adjoints_closed_under_iso _ _ _ α H) f = φ_adj H (((α : [C, C'] ⟦F, F'⟧) : F ⟹ F') c · f).
   Proof.
@@ -814,13 +815,6 @@ Section HomSetIsoClosedUnderIso.
   Qed.
 
   Lemma φ_adj_inv_under_iso
-    {C C' : category}
-    (F F' : C ⟶ C')
-    (G : C' ⟶ C)
-    (α : z_iso (C := [C, C']) F F')
-    (H : are_adjoints F G)
-    (c : C)
-    (c' : C')
     (f : C⟦c, G c'⟧)
     : φ_adj_inv (are_adjoints_closed_under_iso _ _ _ α H) f = ((z_iso_inv α : [C, C'] ⟦F', F⟧) : F' ⟹ F) c · φ_adj_inv H f.
   Proof.
