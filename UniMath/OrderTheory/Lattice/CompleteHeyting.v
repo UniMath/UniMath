@@ -24,6 +24,7 @@
  3. Laws for complete Heyting algebras
  4. Greatest lower bounds for complete Heyting algebras
  5. Derived laws for complete Heyting algebras
+ 6. Complete Heyting algebras from greatest upper bounds
 
  *********************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -709,3 +710,47 @@ Proof.
     use cha_min_le_min_r.
     apply cha_le_lub_pt.
 Qed.
+
+(** * 6. Complete Heyting algebras from greatest upper bounds *)
+Definition is_lowerbound_lattice
+           {X : hSet}
+           (L : lattice X)
+           {I : UU}
+           (f : I → X)
+           (x : X)
+  : UU
+  := ∏ (i : I), Lle L x (f i).
+
+Definition is_greatest_lowerbound_lattice
+           {X : hSet}
+           (L : lattice X)
+           {I : UU}
+           (f : I → X)
+           (x : X)
+  : UU
+  := is_lowerbound_lattice L f x
+     ×
+     ∏ (y : X), is_lowerbound_lattice L f y → Lle L y x.
+
+Definition complete_lattice_from_glb
+           {X : hSet}
+           (L : lattice X)
+           (H : ∏ (I : UU)
+                  (f : I → X),
+                ∑ (x : X),
+                is_greatest_lowerbound_lattice L f x)
+  : is_complete_lattice L.
+Proof.
+  intros I f.
+  pose (lub := H (∑ (x : X), ∏ (i : I), Lle L (f i) x) pr1).
+  refine (pr1 lub ,, _).
+  split.
+  - abstract
+      (intros i ;
+       use (pr22 lub) ;
+       intros p ;
+       exact (pr2 p i)).
+  - abstract
+      (intros x Hx ;
+       exact (pr12 lub (x ,, Hx))).
+Defined.

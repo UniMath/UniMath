@@ -350,6 +350,26 @@ Section Fiber_Functors.
     - apply isweqtransportf.
   Defined.
 
+  Definition fiber_functor_essentially_surjective
+             {C₁ C₂ : category}
+             {F : C₁ ⟶ C₂}
+             {D₁ : disp_cat C₁}
+             {D₂ : disp_cat C₂}
+             (FF : disp_functor F D₁ D₂)
+             (HFF : disp_functor_disp_ess_surj FF)
+             (x : C₁)
+    : essentially_surjective (fiber_functor FF x).
+  Proof.
+    intros y.
+    pose proof (HFF x y) as H.
+    revert H.
+    use factor_through_squash_hProp.
+    intros xxff.
+    induction xxff as [ xx ff ].
+    refine (hinhpr (xx ,, _)).
+    use z_iso_fiber_from_z_iso_disp.
+    exact ff.
+  Qed.
 End Fiber_Functors.
 
 (**

@@ -88,9 +88,9 @@ Section FiberwiseBinProductPoset.
           (and_sub : ∏ (Γ₁ Γ₂ : C)
                        (s : Γ₁ --> Γ₂)
                        (φ ψ : D[{Γ₂}]),
-                     pr1 (HD Γ₂ Γ₁ s (and Γ₂ φ ψ))
-                     =
-                     and Γ₁ (pr1 (HD Γ₂ Γ₁ s φ)) (pr1 (HD Γ₂ Γ₁ s ψ))).
+                     and Γ₁ (pr1 (HD Γ₂ Γ₁ s φ)) (pr1 (HD Γ₂ Γ₁ s ψ))
+                     -->
+                     pr1 (HD Γ₂ Γ₁ s (and Γ₂ φ ψ))).
 
   Definition make_binproduct_fiber_locally_propositional
              (Γ : C)
@@ -130,8 +130,10 @@ Section FiberwiseBinProductPoset.
                         (fiber_functor_from_cleaving D HD s φ)
                         (fiber_functor_from_cleaving D HD s ψ)))) ;
            [ | apply HD' | apply HD' ] ;
-           use idtoiso ;
-           apply and_sub).
+           use make_z_iso ; [ | apply and_sub | split ; apply HD' ] ;
+           apply BinProductArrow ;
+           [ exact (#(fiber_functor_from_cleaving D HD s) (BinProductPr1 _ _))
+           | exact (#(fiber_functor_from_cleaving D HD s) (BinProductPr2 _ _)) ]).
   Defined.
 End FiberwiseBinProductPoset.
 

@@ -127,11 +127,18 @@ DisplayedCats/Codomain/CodFunctor.v
 DisplayedCats/Codomain/CodSubobjectClassifier.v
 DisplayedCats/Codomain/CodRegular.v
 
+DisplayedCats/MonoCodomain/FiberMonoCod.v
+DisplayedCats/MonoCodomain/MonoCodFunctor.v
+DisplayedCats/MonoCodomain/Inclusion.v
+DisplayedCats/MonoCodomain/MonoCodLimits.v
+DisplayedCats/MonoCodomain/MonoCodLeftAdjoint.v
+DisplayedCats/MonoCodomain/MonoCodColimits.v
+
 DisplayedCats/Hyperdoctrines/Hyperdoctrine.v
 DisplayedCats/Hyperdoctrines/FirstOrderHyperdoctrine.v
 DisplayedCats/Hyperdoctrines/Tripos.v
 
-DisplayedCats/Examples/HValuedSets.v
+DisplayedCats/Examples/HValuedPredicates.v
 
 LocallyCartesianClosed/LocallyCartesianClosed.v
 DisplayedCats/Fiberwise/DualBeckChevalley.v
@@ -291,6 +298,7 @@ DisplayedCats/Equivalences.v
 DisplayedCats/EquivalenceOverId.v
 DisplayedCats/DisplayedCatEq.v
 DisplayedCats/Codomain.v
+DisplayedCats/Examples/MonoCodomain.v
 DisplayedCats/Projection.v
 DisplayedCats/SIP.v
 
