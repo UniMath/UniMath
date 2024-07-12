@@ -4,17 +4,21 @@
 
  We construct the displayed functor over the identity from the displayed category of
  monomorphisms to the displayed category of morphisms, and we instantiate it to obtain
- fiber functors.
+ fiber functors. We also show that an object in the slice category lies in the slice
+ category of monomorphisms if an only if the map to the terminal object is a monomorphism
+ as well.
 
  Content
  1. The displayed functor
  2. The fiber functor
+ 3. From the slice category to the slice category of monomorphisms
 
  **************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Monics.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
@@ -24,6 +28,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Examples.MonoCodomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.MonoCodomain.FiberMonoCod.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodDomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
 Local Open Scope cat.
@@ -102,3 +108,66 @@ Proof.
     }
     apply id_right.
 Qed.
+
+(** * 3. From the slice category to the slice category of monomorphisms *)
+Section MonicSlice.
+  Context {C : category}
+          {y : C}
+          (xf : C / y)
+          (T : Terminal (C / y)).
+
+    Let T' : Terminal (C / y) := codomain_fib_terminal y.
+    Let x : C := cod_dom xf .
+    Let f  : x --> y := cod_mor xf.
+
+    Let fm := @make_cod_fib_mor _ _ xf T' f (id_right _).
+
+    Proposition to_monic_slice_from_terminal
+                (H : isMonic (TerminalArrow T xf))
+      : isMonic (cod_mor xf).
+    Proof.
+      intros w g h p.
+      simple refine (maponpaths pr1 (H (cod_fib_comp f (make_cod_fib_ob g)) (_ ,, _) (_ ,, _) _)).
+      + cbn.
+        rewrite id_right.
+        apply idpath.
+      + cbn.
+        rewrite id_right.
+        exact (!p).
+      + apply TerminalArrowEq.
+    Qed.
+
+    Proposition from_monic_slice_to_terminal
+                (H : isMonic (cod_mor xf))
+      : isMonic (TerminalArrow T xf).
+    Proof.
+      intros xg φ ψ p.
+      use eq_mor_cod_fib.
+      use H.
+      use (cancel_z_iso _ _ (functor_on_z_iso (slice_dom _) (z_iso_Terminals T' T))).
+      pose (maponpaths dom_mor p) as q.
+      rewrite !comp_in_cod_fib in q.
+      assert (TerminalArrow T xf
+              =
+              fm · TerminalArrow T T') as r.
+      {
+        apply TerminalArrowEq.
+      }
+      rewrite r in q ; clear r.
+      rewrite !comp_in_cod_fib in q.
+      rewrite !assoc'.
+      exact q.
+    Qed.
+
+    Definition monic_slice_equiv_terminal
+      : isMonic (cod_mor xf)
+        ≃
+        isMonic (TerminalArrow T xf).
+    Proof.
+      use weqimplimpl.
+      - apply from_monic_slice_to_terminal.
+      - apply to_monic_slice_from_terminal.
+      - apply isapropisMonic.
+      - apply isapropisMonic.
+    Qed.
+End MonicSlice.
