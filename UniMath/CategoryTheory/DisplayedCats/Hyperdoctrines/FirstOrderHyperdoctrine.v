@@ -210,6 +210,32 @@ Proof.
          pr2 (pr222 (pr222 H))).
 Defined.
 
+Definition make_first_order_preorder_hyperdoctrine
+           (H : preorder_hyperdoctrine)
+           (TH : fiberwise_terminal (hyperdoctrine_cleaving H))
+           (IH : fiberwise_initial (hyperdoctrine_cleaving H))
+           (PH : fiberwise_binproducts (hyperdoctrine_cleaving H))
+           (CH : fiberwise_bincoproducts (hyperdoctrine_cleaving H))
+           (IMPH : fiberwise_exponentials PH)
+           (DPH : has_dependent_products (hyperdoctrine_cleaving H))
+           (DSH : has_dependent_sums (hyperdoctrine_cleaving H))
+  : first_order_preorder_hyperdoctrine
+  := H
+     ,,
+     TH
+     ,,
+     IH
+     ,,
+     PH
+     ,,
+     CH
+     ,,
+     IMPH
+     ,,
+     DPH
+     ,,
+     DSH.
+
 Definition make_first_order_hyperdoctrine
            (H : hyperdoctrine)
            (TH : fiberwise_terminal (hyperdoctrine_cleaving H))

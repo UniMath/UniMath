@@ -85,7 +85,7 @@ Section PreorderHyperdoctrineMonos.
   Definition subobject_first_order_preorder_hyperdoctrine
     : first_order_preorder_hyperdoctrine.
   Proof.
-    simple refine (_ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _).
+    use make_first_order_preorder_hyperdoctrine.
     - exact subobject_preorder_hyperdoctrine.
     - apply mono_codomain_fiberwise_terminal.
     - exact (mono_codomain_fiberwise_initial PB I HI).
