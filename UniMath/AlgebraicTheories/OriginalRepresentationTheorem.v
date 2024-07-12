@@ -117,7 +117,7 @@ Section EndomorphismTheory.
     : R_mor_to_L _ (appx f)
     = Combinators.uncurry (R_mor_to_L _ f).
   Proof.
-    refine '(ev_compose_pair_arrow _ Lβ _ _ _ _ @ _).
+    refine '(ev_compose_pair_arrow _ Lβ _ _ (_ ∘ _ ∘ p1_term _ _) (U L Lβ ∘ p2_term _ (U L Lβ)) @ _).
     refine '(maponpaths (λ x, (abs (app _ (app (app (inflate x) _) _)))) (compose_assoc _ Lβ _ _ _) @ _).
     refine '(!maponpaths (λ x, (abs (app _ (app (app (inflate (x ∘ _)) _) _)))) (compose_assoc _ Lβ _ _ _) @ _).
     refine '(maponpaths (λ x, (abs (app _ (app (app (inflate (_ ∘ x ∘ _)) _) _)))) (R_mor_is_mor_right _ Lβ _) @ _).
