@@ -187,7 +187,8 @@ Section Isomorphism.
     (s : L n)
     : U L Lβ ∘
       representation_theorem_iso_inv_data n s ∘
-      R_ob_to_L _ (ProductObject _ _ (bin_product_power (R L Lβ) (U L Lβ) (R_chosen_terminal L Lβ) (R_binproducts L Lβ) n))
+      R_ob_to_L _ (ProductObject _ _
+        (bin_product_power (R L Lβ) (U L Lβ) (R_chosen_terminal L Lβ) (R_binproducts L Lβ) n))
     = representation_theorem_iso_inv_data n s.
   Proof.
     refine '(maponpaths (λ x, (x ∘ _)) (U_compose _ Lβ _) @ _).
@@ -231,7 +232,8 @@ Section Isomorphism.
     refine '(_ @ !maponpaths (λ x, _ ∘ n_tuple_arrow x) (funextfun _ _ (λ i, U_compose_n_π _ Lβ _))).
     refine '(_ @ !maponpaths (λ x, abs (app _ (app x _))) (inflate_n_tuple_arrow _ _)).
     refine '(_ @ !maponpaths (λ x, abs (app _ x)) (app_n_tuple_arrow _ Lβ _ _)).
-    do 2 (refine '(maponpaths (λ x, abs (app (R_mor_to_L _ s • x) _)) (iscontr_uniqueness (iscontr_empty_tuple _) _) @ !_)).
+    do 2 (refine '(maponpaths (λ x, abs (app (R_mor_to_L _ s • x) _))
+      (iscontr_uniqueness (iscontr_empty_tuple _) _) @ !_)).
     apply (maponpaths (λ x, abs (app (R_mor_to_L _ s • _) (n_tuple x)))).
     apply funextfun.
     intro i.
@@ -277,7 +279,8 @@ Section Isomorphism.
     (m n : nat)
     (f : E m)
     (g : stn m → E n)
-    : representation_theorem_iso_mor (f • g) = (representation_theorem_iso_mor f) • (λ i, representation_theorem_iso_mor (g i)).
+    : representation_theorem_iso_mor (f • g)
+    = (representation_theorem_iso_mor f) • (λ i, representation_theorem_iso_mor (g i)).
   Proof.
     refine '(maponpaths (λ x, app (lift_constant _ x) _) (E_subst _ _ _ _) @ _).
     refine '(maponpaths (λ x, (app x _)) (subst_compose _ _ _ _) @ _).
@@ -287,7 +290,8 @@ Section Isomorphism.
     refine '(_ @ !subst_app _ _ _ _).
     refine '(_ @ !maponpaths (λ x, (app x _)) (subst_subst _ _ _ _)).
     refine '(_ @ !maponpaths (λ x, (app _ x)) (subst_n_tuple _ _ _)).
-    refine '(_ @ maponpaths (λ x, app (L := L) ((R_mor_to_L _ f) • x) _) (!iscontr_uniqueness (iscontr_empty_tuple _) _)).
+    refine '(_ @ maponpaths (λ x, app (L := L) ((R_mor_to_L _ f) • x) _)
+      (!iscontr_uniqueness (iscontr_empty_tuple _) _)).
     apply (maponpaths (λ x, app ((R_mor_to_L _ f) • _) (n_tuple x))).
     apply funextfun.
     intro i.
@@ -303,7 +307,8 @@ Section Isomorphism.
     refine '(maponpaths (λ x, (app x _)) (subst_curry _ _ _) @ _).
     refine '(app_curry _ Lβ _ _ @ _).
     refine '(maponpaths (λ x, (abs (app x _))) (inflate_subst _ _ _) @ _).
-    refine '(maponpaths (λ x, abs (app ((R_mor_to_L _ f) • x) _)) (iscontr_uniqueness (iscontr_empty_tuple _) _) @ _).
+    refine '(maponpaths (λ x, abs (app ((R_mor_to_L _ f) • x) _))
+      (iscontr_uniqueness (iscontr_empty_tuple _) _) @ _).
     refine '(maponpaths (λ x, abs (app (R_mor_to_L _ f • _) ⟨x, _⟩)) (inflate_n_tuple _ _) @ _).
     apply (maponpaths (λ x, abs (app (R_mor_to_L _ f • _) ⟨n_tuple x, _⟩))).
     apply funextfun.
@@ -322,7 +327,8 @@ Section Isomorphism.
     refine '(_ @ !appx_to_app _).
     refine '(_ @ !maponpaths (λ x, (app x _)) (inflate_app _ _ _)).
     refine '(_ @ !maponpaths (λ x, (app (app x _) _)) (inflate_subst _ _ _)).
-    refine '(_ @ !maponpaths (λ x, app (app (R_mor_to_L _ f • x) _) _) (iscontr_uniqueness (iscontr_empty_tuple _) _)).
+    refine '(_ @ !maponpaths (λ x, app (app (R_mor_to_L _ f • x) _) _)
+      (iscontr_uniqueness (iscontr_empty_tuple _) _)).
     refine '(_ @ !maponpaths (λ x, app (app (R_mor_to_L _ f • _) x) _) (inflate_n_tuple _ _)).
     apply (maponpaths (λ x, app (app (R_mor_to_L _ f • _) (n_tuple x)) _)).
     apply funextfun.

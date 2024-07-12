@@ -807,7 +807,8 @@ Section HomSetIsoClosedUnderIso.
 
   Lemma φ_adj_under_iso
     (f : C'⟦F' c, c'⟧)
-    : φ_adj (are_adjoints_closed_under_iso _ _ _ α H) f = φ_adj H (((α : [C, C'] ⟦F, F'⟧) : F ⟹ F') c · f).
+    : φ_adj (are_adjoints_closed_under_iso _ _ _ α H) f
+    = φ_adj H (((α : [C, C'] ⟦F, F'⟧) : F ⟹ F') c · f).
   Proof.
     refine (assoc' _ _ _ @ _).
     apply (maponpaths (λ x, _ · x)).
@@ -816,7 +817,8 @@ Section HomSetIsoClosedUnderIso.
 
   Lemma φ_adj_inv_under_iso
     (f : C⟦c, G c'⟧)
-    : φ_adj_inv (are_adjoints_closed_under_iso _ _ _ α H) f = ((z_iso_inv α : [C, C'] ⟦F', F⟧) : F' ⟹ F) c · φ_adj_inv H f.
+    : φ_adj_inv (are_adjoints_closed_under_iso _ _ _ α H) f
+    = ((z_iso_inv α : [C, C'] ⟦F', F⟧) : F' ⟹ F) c · φ_adj_inv H f.
   Proof.
     refine (assoc _ _ _ @ _).
     refine (_ @ assoc' _ _ _).
