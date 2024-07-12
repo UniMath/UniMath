@@ -80,7 +80,7 @@ Definition preorder_hyperdoctrine
      ×
      locally_propositional D.
 
-Definition make_prehyperdoctrine
+Definition make_preorder_hyperdoctrine
            (C : category)
            (D : disp_cat C)
            (T : Terminal C)
@@ -143,7 +143,7 @@ Definition make_univalent_hyperdoctrine
   : univalent_hyperdoctrine
   := C ,, D ,, T ,, BP ,, HD ,, HD' ,, HD'' ,, HC.
 
-Coercion hyperdoctrine_to_prehyperdoctrine
+Coercion hyperdoctrine_to_preorder_hyperdoctrine
          (H : hyperdoctrine)
   : preorder_hyperdoctrine.
 Proof.
