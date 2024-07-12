@@ -36,9 +36,9 @@ Local Open Scope cat.
 
 Section MonoCodomainLeftAdj.
   Context {C : category}
-          (HC : is_regular_category C)
-          (PB : Pullbacks C).
+          (HC : is_regular_category C).
 
+  Let PB : Pullbacks C := is_regular_category_pullbacks HC.
   Let HD : cleaving (disp_mono_codomain C) := mono_cod_disp_cleaving PB.
 
   (** * 1. Interpretation of the existential quantifier *)

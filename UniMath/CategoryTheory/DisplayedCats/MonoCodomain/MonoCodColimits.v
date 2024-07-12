@@ -287,7 +287,6 @@ End BinCoproductsMonoSlice.
 
 Section BinCoproductsStable.
   Context {C : category}
-          (PB : Pullbacks C)
           (BC : BinCoproducts C)
           (HBC : stable_bincoproducts BC)
           (HC : is_regular_category C)
@@ -295,6 +294,7 @@ Section BinCoproductsStable.
           {f : y₁ --> y₂}
           (xg₁ xg₂ : C /m y₂).
 
+  Let PB : Pullbacks C := is_regular_category_pullbacks HC.
   Let HD : cleaving (disp_mono_codomain C) := mono_cod_disp_cleaving PB.
 
   (**
@@ -603,11 +603,11 @@ End BinCoproductsStable.
 
 Definition mono_codomain_fiberwise_bincoproducts
            {C : category}
-           (PB : Pullbacks C)
+           (HC : is_regular_category C)
+           (PB := is_regular_category_pullbacks HC)
            (HD : cleaving (disp_mono_codomain C) := mono_cod_disp_cleaving PB)
            (BC : BinCoproducts C)
            (HBC : stable_bincoproducts BC)
-           (HC : is_regular_category C)
   : fiberwise_bincoproducts HD.
 Proof.
   use make_fiberwise_bincoproducts_locally_propositional.

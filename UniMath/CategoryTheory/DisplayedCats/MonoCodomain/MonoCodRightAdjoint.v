@@ -54,9 +54,11 @@ Local Open Scope cat.
 
 Section DependentProductsMonoCodomain.
   Context {C : category}
-          {PB : Pullbacks C}
-          (HC : is_locally_cartesian_closed PB)
           (HC' : is_regular_category C).
+
+  Let PB : Pullbacks C := is_regular_category_pullbacks HC'.
+
+  Context (HC : is_locally_cartesian_closed PB).
 
   Let HD : cleaving (disp_mono_codomain C)
     := mono_cod_disp_cleaving PB.
@@ -154,9 +156,9 @@ Section DependentProductsMonoCodomain.
         (mono_cod_dep_prod h).
   Proof.
     use right_from_left_beck_chevalley.
-    - exact (pr1 (mono_codomain_has_dependent_sums HC' PB) _ _ g).
-    - exact (pr1 (mono_codomain_has_dependent_sums HC' PB) _ _ k).
-    - use (pr2 (mono_codomain_has_dependent_sums HC' PB)).
+    - exact (pr1 (mono_codomain_has_dependent_sums HC') _ _ g).
+    - exact (pr1 (mono_codomain_has_dependent_sums HC') _ _ k).
+    - use (pr2 (mono_codomain_has_dependent_sums HC')).
       apply is_symmetric_isPullback.
       exact H.
   Defined.

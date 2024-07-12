@@ -57,12 +57,14 @@ Local Open Scope cat.
 (** * 1. The preorder hyperdoctrine of monomorphisms in a category *)
 Section PreorderHyperdoctrineMonos.
   Context {C : category}
-          (T : Terminal C)
-          {PB : Pullbacks C}
           (I : Initial C)
           (BC : BinCoproducts C)
-          (HC : is_locally_cartesian_closed PB)
           (HC' : is_regular_category C).
+
+  Let T : Terminal C := is_regular_category_terminal HC'.
+  Let PB : Pullbacks C := is_regular_category_pullbacks HC'.
+
+  Context (HC : is_locally_cartesian_closed PB).
 
   Let BP : BinProducts C := BinProductsFromPullbacks PB T.
   Let HBC : stable_bincoproducts BC
@@ -70,7 +72,7 @@ Section PreorderHyperdoctrineMonos.
   Let HI : is_strict_initial I
     := is_strict_initial_from_locally_cartesian_closed T HC I.
 
-  Definition subobject_preorder_hyperdoctrine
+  Definition mono_preorder_hyperdoctrine
     : preorder_hyperdoctrine.
   Proof.
     use make_preorder_hyperdoctrine.
@@ -82,30 +84,32 @@ Section PreorderHyperdoctrineMonos.
     - apply locally_propositional_mono_cod_disp_cat.
   Defined.
 
-  Definition subobject_first_order_preorder_hyperdoctrine
+  Definition mono_first_order_preorder_hyperdoctrine
     : first_order_preorder_hyperdoctrine.
   Proof.
     use make_first_order_preorder_hyperdoctrine.
-    - exact subobject_preorder_hyperdoctrine.
+    - exact mono_preorder_hyperdoctrine.
     - apply mono_codomain_fiberwise_terminal.
     - exact (mono_codomain_fiberwise_initial PB I HI).
     - apply mono_codomain_fiberwise_binproducts.
-    - exact (mono_codomain_fiberwise_bincoproducts PB BC HBC HC').
-    - exact (fiberwise_exponentials_mono_cod HC HC').
-    - exact (has_dependent_products_mono_cod HC HC').
-    - exact (mono_codomain_has_dependent_sums HC' PB).
+    - exact (mono_codomain_fiberwise_bincoproducts HC' BC HBC).
+    - exact (fiberwise_exponentials_mono_cod HC' HC).
+    - exact (has_dependent_products_mono_cod HC' HC).
+    - exact (mono_codomain_has_dependent_sums HC').
   Defined.
 End PreorderHyperdoctrineMonos.
 
 (** * 2. The hyperdoctrine of monomorphisms in a univalent category *)
 Section HyperdoctrineUnivalentSubobjects.
   Context {C : univalent_category}
-          (T : Terminal C)
-          {PB : Pullbacks C}
           (I : Initial C)
           (BC : BinCoproducts C)
-          (HC : is_locally_cartesian_closed PB)
           (HC' : is_regular_category C).
+
+  Let T : Terminal C := is_regular_category_terminal HC'.
+  Let PB : Pullbacks C := is_regular_category_pullbacks HC'.
+
+  Context (HC : is_locally_cartesian_closed PB).
 
   Let BP : BinProducts C := BinProductsFromPullbacks PB T.
   Let HBC : stable_bincoproducts BC
@@ -134,9 +138,9 @@ Section HyperdoctrineUnivalentSubobjects.
     - apply mono_codomain_fiberwise_terminal.
     - exact (mono_codomain_fiberwise_initial PB I HI).
     - apply mono_codomain_fiberwise_binproducts.
-    - exact (mono_codomain_fiberwise_bincoproducts PB BC HBC HC').
-    - exact (fiberwise_exponentials_mono_cod HC HC').
-    - exact (has_dependent_products_mono_cod HC HC').
-    - exact (mono_codomain_has_dependent_sums HC' PB).
+    - exact (mono_codomain_fiberwise_bincoproducts HC' BC HBC).
+    - exact (fiberwise_exponentials_mono_cod HC' HC).
+    - exact (has_dependent_products_mono_cod HC' HC).
+    - exact (mono_codomain_has_dependent_sums HC').
   Defined.
 End HyperdoctrineUnivalentSubobjects.
