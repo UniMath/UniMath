@@ -1334,3 +1334,11 @@ Proof.
   - exact hor_globally_univcat_profunctor_verity_double_bicat.
   - exact univcat_profunctor_vertically_saturated.
 Defined.
+
+Definition univalent_univcat_profunctor_verity_double_bicat
+  : univalent_verity_double_bicat univcat_profunctor_verity_double_bicat.
+Proof.
+  split.
+  - exact gregarious_univcat_profunctor_verity_double_bicat.
+  - exact locally_univcat_profunctor_verity_double_bicat.
+Defined.

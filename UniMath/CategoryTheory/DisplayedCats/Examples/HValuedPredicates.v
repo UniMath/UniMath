@@ -1,6 +1,6 @@
 (********************************************************************************************
 
- The tripos of sets valued in a complete Heyting algebra
+ The tripos of predicates valued in a complete Heyting algebra
 
  Fix a complete Heyting algebra `H`. We define the following displayed category over `Set`:
  - Objects over a set `X` are functions `X → H`
@@ -15,7 +15,7 @@
  by picking the Heyting algebra in a clever way, we can guarantee that some axioms are satisfied
  in the topos that arises from this tripos. These ideas are used in, for instance, "Intuitionistic
  Set Theory" by John Bell to construct a model of intuitionistic set theory where `ℕ → ℕ` is
- subcountable (which, in turn, is based on work by Andrej Bauer.
+ subcountable (which, in turn, is based on work by Andrej Bauer).
 
  References
  - "Tripos Theory in Retrospect" by Andrew Pitts
@@ -25,10 +25,10 @@
  [https://math.andrej.com/2011/06/15/constructive-gem-an-injection-from-baire-space-to-natural-numbers/]
 
  Content
- 1. The displayed category of H-valued sets
+ 1. The displayed category of H-valued predicates
  2. Properties of this displayed category
- 3. The hyperdoctrine of H-valued sets
- 4. Logic of H-valued sets
+ 3. The hyperdoctrine of H-valued predicates
+ 4. Logic of H-valued predicates
  4.1. Fiberwise terminal object
  4.2. Fiberwise initial object
  4.3. Fiberwise binary products
@@ -36,8 +36,8 @@
  4.5. Fiberwise exponentials
  4.6. Dependent products
  4.7. Dependent sums
- 5. The first-order hyperdoctrine of H-valued sets
- 6. The tripos of H-valued sets
+ 5. The first-order hyperdoctrine of H-valued predicates
+ 6. The tripos of H-valued predicates
 
  ********************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -68,66 +68,10 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Hyperdoctrines.Tripos.
 Local Open Scope cat.
 Local Open Scope heyting.
 
-Definition el_pullback_set
-           {X₁ X₂ Y₁ Y₂ : hSet}
-           {f₁ : Y₁ → Y₂}
-           {f₂ : X₂ → Y₂}
-           {g₁ : X₁ → X₂}
-           {g₂ : X₁ → Y₁}
-           {p : (λ x, f₁(g₂ x)) = (λ x, f₂(g₁ x))}
-           (Hp : isPullback (C := SET) p)
-           (y : Y₁)
-           (x : X₂)
-           (q : f₁ y = f₂ x)
-  : X₁.
-Proof.
-  pose (P := make_Pullback _ Hp).
-  simple refine (PullbackArrow P unitset _ _ _ tt).
-  - exact (λ _, y).
-  - exact (λ _, x).
-  - abstract
-      (use funextsec ; intro ;
-       exact q).
-Defined.
-
-Proposition el_pullback_set_pr1
-            {X₁ X₂ Y₁ Y₂ : hSet}
-            {f₁ : Y₁ → Y₂}
-            {f₂ : X₂ → Y₂}
-            {g₁ : X₁ → X₂}
-            {g₂ : X₁ → Y₁}
-            {p : (λ x, f₁(g₂ x)) = (λ x, f₂(g₁ x))}
-            (Hp : isPullback (C := SET) p)
-            (y : Y₁)
-            (x : X₂)
-            (q : f₁ y = f₂ x)
-  : g₂ (el_pullback_set Hp y x q) = y.
-Proof.
-  pose (P := make_Pullback _ Hp).
-  use (eqtohomot (PullbackArrow_PullbackPr1 P _ _ _ _)).
-Qed.
-
-Proposition el_pullback_set_pr2
-            {X₁ X₂ Y₁ Y₂ : hSet}
-            {f₁ : Y₁ → Y₂}
-            {f₂ : X₂ → Y₂}
-            {g₁ : X₁ → X₂}
-            {g₂ : X₁ → Y₁}
-            {p : (λ x, f₁(g₂ x)) = (λ x, f₂(g₁ x))}
-            (Hp : isPullback (C := SET) p)
-            (y : Y₁)
-            (x : X₂)
-            (q : f₁ y = f₂ x)
-  : g₁ (el_pullback_set Hp y x q) = x.
-Proof.
-  pose (P := make_Pullback _ Hp).
-  use (eqtohomot (PullbackArrow_PullbackPr2 P _ _ _ _)).
-Qed.
-
 Section HValuedSets.
   Context (H : complete_heyting_algebra).
 
-  (** * 1. The displayed category of H-valued sets *)
+  (** * 1. The displayed category of H-valued predicates *)
   Definition disp_cat_ob_mor_h_valued_sets
     : disp_cat_ob_mor SET.
   Proof.
@@ -228,7 +172,7 @@ Section HValuedSets.
            apply locally_propositional_h_valued_sets).
   Defined.
 
-  (** * 3. The hyperdoctrine of H-valued sets *)
+  (** * 3. The hyperdoctrine of H-valued predicates *)
   Definition h_valued_sets_hyperdoctrine
     : hyperdoctrine.
   Proof.
@@ -242,7 +186,7 @@ Section HValuedSets.
     - exact is_univalent_disp_h_valued_sets.
   Defined.
 
-  (** * 4. Logic of H-valued sets *)
+  (** * 4. Logic of H-valued predicates *)
 
   (** * 4.1. Fiberwise terminal object *)
   Definition fiberwise_terminal_h_valued_sets
@@ -409,7 +353,7 @@ Section HValuedSets.
          apply cha_le_refl).
   Defined.
 
-  (** * 5. The first-order hyperdoctrine of H-valued sets *)
+  (** * 5. The first-order hyperdoctrine of H-valued predicates *)
   Definition h_valued_sets_first_order_hyperdoctrine
     : first_order_hyperdoctrine.
   Proof.
@@ -424,7 +368,7 @@ Section HValuedSets.
     - exact has_dependent_sums_h_valued_sets.
   Defined.
 
-  (** * 6. The tripos of H-valued sets *)
+  (** * 6. The tripos of H-valued predicates *)
   Local Open Scope hd.
 
   Section TriposOfHValuedSets.

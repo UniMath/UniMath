@@ -609,6 +609,15 @@ Proof.
   - exact (double_cat_vertically_saturated C).
 Defined.
 
+Definition univalent_enriched_profunctor_verity_double_bicat
+           (C : univalent_double_cat)
+  : univalent_verity_double_bicat (double_cat_to_verity_double_bicat C).
+Proof.
+  split.
+  - apply gregarious_univalent_double_cat_to_verity_double_bicat.
+  - apply locally_univalent_double_cat_to_verity_double_bicat.
+Defined.
+
 (** * 6. Companions and conjoints *)
 Definition double_cat_to_verity_double_bicat_are_companions
            {C : double_cat}

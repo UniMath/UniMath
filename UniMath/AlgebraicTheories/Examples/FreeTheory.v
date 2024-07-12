@@ -30,6 +30,9 @@ Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+
+
 Require Import UniMath.AlgebraicTheories.AlgebraCategory.
 Require Import UniMath.AlgebraicTheories.AlgebraCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
@@ -238,62 +241,52 @@ Section CosliceCatEquivalence.
 
   Context (S : hSet).
 
-  Definition coslice_functor_data
-    : functor_data (algebra_cat (free_theory S)) (coslice_cat SET S).
+  Definition coslice_functor_base_functor : algebra_cat (free_theory S) ⟶ SET.
   Proof.
-    use make_functor_data.
-    - intro A.
-      exists ((A : algebra _) : hSet).
-      intro s.
-      exact (action (T := free_theory S) (n := 0) (inr s) (weqvecfun 0 [()])).
-    - intros A B F.
-      exists (F : algebra_morphism _ _).
-      abstract (
+    use make_functor.
+    - use make_functor_data.
+      + intro A. exact ((A : algebra _) : hSet).
+      + intros A B F.
+        exact (F : algebra_morphism _ _).
+    - split.
+      + abstract (intro A;
+                  easy).
+      + abstract (intros A B C F G;
+                  apply algebra_mor_comp).
+  Defined.
+
+  (**
+    We define the coslice functor as a lift of the base functor. Note that by from_lifted_functor,
+    postcomposing this lift with the forgetful functor (f: A → B) ↦ B gives
+    coslice_functor_base_functor again.
+   *)
+  Definition coslice_functor
+    : algebra_cat (free_theory S) ⟶ coslice_cat_total SET S.
+  Proof.
+    apply (lifted_functor (F:=coslice_functor_base_functor)).
+    use tpair.
+    - use tpair.
+      + intros A s.
+        exact (action (T := free_theory S) (n := 0) (inr s) (weqvecfun 0 [()])).
+      + abstract (intros A B F;
         apply funextfun;
         intro s;
         refine (mor_action _ _ _ @ _);
         apply (maponpaths (action _));
         apply funextfun;
-        intro i;
-        apply (fromstn0 i)
-      ).
+        intro i; apply (fromstn0 i)).
+    - abstract (split; intros; apply funspace_isaset; apply setproperty).
   Defined.
-
-  Lemma coslice_is_functor
-    : is_functor coslice_functor_data.
-  Proof.
-    split.
-    - intro A.
-      apply subtypePath.
-      {
-        intro.
-        apply funspace_isaset.
-        apply setproperty.
-      }
-      easy.
-    - intros A B C F G.
-      apply subtypePath.
-      {
-        intro.
-        apply funspace_isaset.
-        apply setproperty.
-      }
-      apply algebra_mor_comp.
-  Qed.
-
-  Definition coslice_functor
-    : algebra_cat (free_theory S) ⟶ coslice_cat SET S
-    := make_functor _ coslice_is_functor.
 
   Definition coslice_to_algebra_morphism_data
     {A B : algebra (free_theory S)}
-    (F : coslice_cat SET S ⟦ coslice_functor A, coslice_functor B ⟧)
+    (F : coslice_cat_total SET S ⟦ coslice_functor A, coslice_functor B ⟧)
     : A → B
     := coslicecat_mor_morphism _ _ F.
 
   Lemma coslice_to_is_algebra_morphism
     {A B : algebra (free_theory S)}
-    (F : coslice_cat SET S ⟦ coslice_functor A, coslice_functor B ⟧)
+    (F : coslice_cat_total SET S ⟦ coslice_functor A, coslice_functor B ⟧)
     : ∏ n f a, mor_action_ax (identity _) (coslice_to_algebra_morphism_data F) (@action _ A) (@action _ B) n f a.
   Proof.
     intros n f a.
@@ -304,11 +297,11 @@ Section CosliceCatEquivalence.
       refine (subst_action B (inr s) (weqvecfun _ [()]) (λ i, coslicecat_mor_morphism _ _ F (a i)) @ !_).
       refine (_ @ eqtohomot (coslicecat_mor_comm _ _ F) s @ _).
       + apply (maponpaths (coslicecat_mor_morphism _ _ F)).
-        apply (maponpaths (action _)).
+        apply (maponpaths (action (A := A) _)).
         apply funextfun.
         intro i.
         apply (fromstn0 i).
-      + apply (maponpaths (action _)).
+      + apply (maponpaths (action (A := B) _)).
         apply funextfun.
         intro i.
         apply (fromstn0 i).
@@ -316,7 +309,7 @@ Section CosliceCatEquivalence.
 
   Definition coslice_to_algebra_morphism
     {A B : algebra (free_theory S)}
-    (F : coslice_cat SET S ⟦ coslice_functor A, coslice_functor B ⟧)
+    (F : coslice_cat_total SET S ⟦ coslice_functor A, coslice_functor B ⟧)
     : algebra_morphism A B
     := make_algebra_morphism _ (coslice_to_is_algebra_morphism F).
 
@@ -340,7 +333,7 @@ Section CosliceCatEquivalence.
   Defined.
 
   Definition coslice_to_algebra_data
-    (T : coslice_cat SET S)
+    (T : coslice_cat_total SET S)
     : algebra_data (free_theory S).
   Proof.
     use make_algebra_data.
@@ -352,7 +345,7 @@ Section CosliceCatEquivalence.
   Defined.
 
   Lemma coslice_to_is_algebra
-    (T : coslice_cat SET S)
+    (T : coslice_cat_total SET S)
     : is_algebra (coslice_to_algebra_data T).
   Proof.
     split.
@@ -362,7 +355,7 @@ Section CosliceCatEquivalence.
   Qed.
 
   Definition coslice_to_algebra
-    (T : coslice_cat SET S)
+    (T : coslice_cat_total SET S)
     : algebra (free_theory S)
     := make_algebra _ (coslice_to_is_algebra T).
 

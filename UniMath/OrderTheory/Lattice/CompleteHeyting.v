@@ -2,21 +2,24 @@
 
  Complete Heyting algebras
 
- Heyting algebras provide a framework in which can interpret intuitionistic propositional
+ Heyting algebras provide a framework in which one can interpret intuitionistic propositional
  logic. In complete Heyting algebras, one can also take suprema over arbitrary subsets, and
  this allows one to also interpret the existential quantifier. Since infima can be constructed
  from suprema, one can also interpret the universal quantifier.
 
- Under the hood there are universe levels in play here. When we phrase complete, we need to
+ Under the hood there are universe levels in play here. When we phrase "complete", we need to
  indicate over which types it is complete. The easiest way to see this, is by working in
  predicative foundations. Suppose that we have universes `U` and `V` such that `U : V`. Then
  we can form the type of propositions in `U`, and this type lives in universe `V`. The resulting
  lattice of propositions would only be complete over types in `U` but not over types in `V`.
  Since UniMath uses impredicative foundations, the universe levels do not matter for
- propositions. However, it might matter for other examples.
+ propositions. However, it might matter for other examples. Note that similar considerations
+ are relevant when defining directed complete partial orders, see the PhD thesis by Tom de Jong.
 
  References:
  - Appendix A in "Intuitionistic Set Theory" by John Bell
+ - Section 3.1 in "Domain Theory in Constructive and Predicative Univalent Foundations" by Tom
+   de Jong
 
  Content
  1. Complete Heyting algebra
