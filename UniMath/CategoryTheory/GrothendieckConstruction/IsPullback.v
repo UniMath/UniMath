@@ -59,7 +59,7 @@ Section PullbackFromTotal.
       · f
       · idtoiso (!(α_iso_α_inv x y₂)).
   Proof.
-    refine (from_eq_cat_of_setcategory
+    refine (path_functor_mor_right
              (z_iso_after_z_iso_inv
                 (nat_z_iso_pointwise_z_iso αiso x)) f @ _) ; cbn.
     apply setcategory_eq_idtoiso_comp.
@@ -86,7 +86,7 @@ Section PullbackFromTotal.
       · f
       · idtoiso (!(α_inv_α_iso x y₂)).
   Proof.
-    refine (from_eq_cat_of_setcategory
+    refine (path_functor_mor_right
               (z_iso_inv_after_z_iso
                  (nat_z_iso_pointwise_z_iso αiso x)) f @ _) ; cbn.
     apply setcategory_eq_idtoiso_comp.
@@ -287,8 +287,8 @@ Section PullbackFromTotal.
           {
             apply maponpaths_2.
             apply maponpaths.
-            exact (from_eq_cat_of_setcategory
-                     (!(nat_trans_ax αinv _ _ (# P₁ g)))
+            exact (!path_functor_mor_left
+                     ((nat_trans_ax αinv _ _ (# P₁ g)))
                      (# (pr1 (# G₂ (pr1 (Hβ y)))) (pr2 (# P₂ f)))).
           }
           etrans.
@@ -317,8 +317,8 @@ Section PullbackFromTotal.
             etrans.
             {
               apply maponpaths.
-              exact (from_eq_cat_of_setcategory
-                       (!(functor_comp G₂ (pr1 (Hβ y)) (# F (# P₁ g)))
+              exact (path_functor_mor_right
+                       (!functor_comp G₂ (pr1 (Hβ y)) (# F (# P₁ g))
                         @ maponpaths
                             (λ q, # G₂ q)
                             (!(nat_trans_ax (nat_z_iso_inv (β ,, Hβ)) _ _ g))
@@ -536,7 +536,7 @@ Section PullbackFromTotal.
         {
           apply maponpaths.
           apply maponpaths_2.
-          exact (from_eq_cat_of_setcategory
+          exact (path_functor_mor_right
                    ((!functor_comp G₂ (pr1 (Hβ y)) (β y))
                     @ maponpaths
                         (λ z, # G₂ z)
@@ -900,8 +900,8 @@ Section PullbackFromTotal.
         {
           do 2 apply maponpaths_2.
           apply maponpaths.
-          exact (from_eq_cat_of_setcategory
-                   (!(nat_trans_ax αinv _ _ (pr1 (# φ₂ f))))
+          exact (!path_functor_mor_left
+                   (nat_trans_ax αinv _ _ (pr1 (# φ₂ f)))
                    (pr2 (δ₂ x))).
         }
         etrans.
@@ -1092,7 +1092,7 @@ Section PullbackFromTotal.
             etrans.
             {
               apply maponpaths.
-              exact (from_eq_cat_of_setcategory
+              exact (path_functor_mor_right
                        (maponpaths (λ z, #G₂ z) (q y))
                        (# (pr1 (α (pr1 (φ₁ y)))) (pr2 (# φ₁ f)))).
             }
@@ -1122,7 +1122,7 @@ Section PullbackFromTotal.
           {
             apply maponpaths_2.
             apply maponpaths.
-            apply (from_eq_cat_of_setcategory
+            apply (path_functor_mor_right
                      (nat_trans_ax αinv _ _(δ₁ y))
                      (# (pr1 (α (pr1 (φ₁ y)))) (pr2 (# φ₁ f)))).
           }
