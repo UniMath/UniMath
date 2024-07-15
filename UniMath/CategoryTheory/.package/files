@@ -215,6 +215,7 @@ Adjunctions/Restriction.v
 Adjunctions/Examples.v
 Subcategory/Reflective.v
 
+Categories/PrecategoryOfCategories.v
 Categories/CategoryOfSetCategories.v
 Limits/Examples/CategoryOfSetcategoriesLimits.v
 Categories/SetWith2BinOp.v

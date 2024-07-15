@@ -158,26 +158,15 @@ Definition equalizer_of_setcategory_ump_mor_data
 Proof.
   use make_functor_data.
   - refine (λ x, H x ,, _).
-    exact (maponpaths (λ z, pr11 z x) p).
+    abstract exact (maponpaths (λ z, pr11 z x) p).
   - refine (λ x y f, #H f ,, _).
-    abstract
-      (pose (from_eq_cat_of_setcategory p f) as q ;
-       cbn in q ;
-       etrans ;
-         [ apply maponpaths_2 ;
-           exact q
-         | ] ;
-       cbn ;
-       rewrite !assoc' ;
-       apply maponpaths ;
-       refine (_ @ id_right _) ;
-       apply maponpaths ;
-       refine (!_) ;
-       refine (_ @ pr1_idtoiso_concat
-                 (maponpaths (λ z, pr11 z y) (!p))
-                 (maponpaths (λ z, pr11 z y) p)) ;
-       refine (!_) ;
-       apply setcategory_refl_idtoiso).
+    abstract (
+      refine (_ @ path_functor_mor p f @ _);
+      [ apply (maponpaths (λ x, _ · idtoiso x));
+        apply isaset_ob
+      | apply (maponpaths (λ x, idtoiso x · _));
+        apply isaset_ob ]
+    ).
 Defined.
 
 Definition equalizer_of_setcategory_ump_mor_is_functor
@@ -268,49 +257,15 @@ Proof.
       intro.
       apply homset_property.
     }
-    cbn.
-    pose (from_eq_cat_of_setcategory K_pr1 f) as q.
-    cbn in q.
-    etrans.
-    {
-      apply maponpaths_2.
-      exact q.
-    }
-    rewrite !assoc'.
-    etrans.
-    {
-      apply maponpaths.
-      etrans.
-      {
-        apply maponpaths.
-        etrans.
-        {
-          apply maponpaths.
-          exact (idtoiso_equalizer_of_setcategory
-                   F G
-                   (equalizer_of_setcategory_ump_unique_subproof C₁ C₂ F G C₀ H p K K_pr1 x₂)).
-        }
-        refine (!_).
-        apply (pr1_idtoiso_concat
-                 (maponpaths (λ z, (pr11 z) x₂)
-                    (! K_pr1))).
-      }
-      etrans.
-      {
-        apply maponpaths.
-        apply setcategory_refl_idtoiso.
-      }
-      apply id_right.
-    }
-    apply maponpaths_2.
-    refine (!_).
-    etrans.
-    {
-      exact (idtoiso_equalizer_of_setcategory
-               F G
-               (equalizer_of_setcategory_ump_unique_subproof C₁ C₂ F G C₀ H p K K_pr1 x₁)).
-    }
-    apply setcategory_eq_idtoiso.
+    refine (_ @ path_functor_mor K_pr1 f @ _).
+    + apply (maponpaths (λ x, _ · x)).
+      refine (idtoiso_equalizer_of_setcategory _ _ (equalizer_of_setcategory_ump_unique_subproof C₁ C₂ F G C₀ H p K K_pr1 x₂) @ _).
+      apply (maponpaths (λ x, _ (idtoiso x))).
+      apply isaset_ob.
+    + apply (maponpaths (λ x, x · _)).
+      refine (_ @ !idtoiso_equalizer_of_setcategory _ _ (equalizer_of_setcategory_ump_unique_subproof C₁ C₂ F G C₀ H p K K_pr1 x₁)).
+      apply (maponpaths (λ x, _ (idtoiso x))).
+      apply isaset_ob.
 Qed.
 
 Definition cat_of_setcategory_equalizers

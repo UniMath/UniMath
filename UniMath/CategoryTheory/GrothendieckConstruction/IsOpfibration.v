@@ -68,7 +68,7 @@ Section IsOpcartesianTotalSetCategory.
         {
           apply maponpaths.
           apply maponpaths_2.
-          apply (from_eq_cat_of_setcategory
+          apply (path_functor_mor_right
                    (maponpaths (λ z, #G z) (pr12 φ₁ @ !(pr12 φ₂)))
                    (pr2 f)).
         }
@@ -76,16 +76,12 @@ Section IsOpcartesianTotalSetCategory.
         etrans.
         {
           do 3 apply maponpaths.
-          etrans.
-          {
-            refine (!_).
-            apply (pr1_idtoiso_concat
-                     (maponpaths
-                      (λ z, (pr11 z) (pr2 e₂))
-                      (!(maponpaths
-                           (λ z, # G z)
-                           (pr12 φ₁ @ ! pr12 φ₂))))).
-          }
+          refine (!pr1_idtoiso_concat
+            (!path_functor_ob
+              (maponpaths
+                #G
+                (pr12 φ₁ @ ! pr12 φ₂))
+              (pr2 e₂)) _ @ _).
           apply setcategory_refl_idtoiso.
         }
         rewrite id_right.
