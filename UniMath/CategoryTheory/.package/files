@@ -141,6 +141,7 @@ DisplayedCats/MonoCodomain/MonoHyperdoctrine.v
 DisplayedCats/Hyperdoctrines/Hyperdoctrine.v
 DisplayedCats/Hyperdoctrines/FirstOrderHyperdoctrine.v
 DisplayedCats/Hyperdoctrines/Tripos.v
+DisplayedCats/Hyperdoctrines/PERs.v
 
 DisplayedCats/Examples/HValuedPredicates.v
 

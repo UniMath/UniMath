@@ -333,6 +333,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Hyperdoctrines/Hyperdoctrine.v](CategoryTheory/DisplayedCats/Hyperdoctrines/Hyperdoctrine.v)
    - [DisplayedCats/Hyperdoctrines/FirstOrderHyperdoctrine.v](CategoryTheory/DisplayedCats/Hyperdoctrines/FirstOrderHyperdoctrine.v)
    - [DisplayedCats/Hyperdoctrines/Tripos.v](CategoryTheory/DisplayedCats/Hyperdoctrines/Tripos.v)
+   - [DisplayedCats/Hyperdoctrines/PERs.v](CategoryTheory/DisplayedCats/Hyperdoctrines/PERs.v)
    - [DisplayedCats/Examples/HValuedPredicates.v](CategoryTheory/DisplayedCats/Examples/HValuedPredicates.v)
    - [LocallyCartesianClosed/LocallyCartesianClosed.v](CategoryTheory/LocallyCartesianClosed/LocallyCartesianClosed.v)
    - [DisplayedCats/Fiberwise/DualBeckChevalley.v](CategoryTheory/DisplayedCats/Fiberwise/DualBeckChevalley.v)
