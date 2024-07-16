@@ -1361,7 +1361,7 @@ Qed.
    `progress` tactic.
 
    If one is trying to prove a goal with rather large formulas, then it might not be ideal
-   to use `simplify` directly. This is because one might be normalizes too many terms.
+   to use `simplify` directly. This is because one might be normalizing too many terms.
    Instead one could use `simplify_form` to simplify the formula and delay using
    `simplify_term` until it is necessary. The reason why this helps, is because one might
    have made the goal smaller and removed some unnecessary assumptions using weakening.
