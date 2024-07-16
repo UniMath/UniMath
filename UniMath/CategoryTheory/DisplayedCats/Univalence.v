@@ -105,7 +105,7 @@ Section Univalent_Categories.
 
 End Univalent_Categories.
 
-(** The displayed objects in a univalent displayed category form a set *)
+(** The displayed objects in a univalent displayed category form a set if it is locally propositional *)
 Definition isaset_disp_ob
            {C : category}
            (D : disp_univalent_category C)
