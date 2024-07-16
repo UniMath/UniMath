@@ -99,20 +99,3 @@ Proof.
   do 2 apply maponpaths_2.
   apply setcategory_eq_idtoiso.
 Qed.
-
-Definition from_eq_cat_of_setcategory
-           {C₁ C₂ : setcategory}
-           {F₁ F₂ : C₁ ⟶ C₂}
-           (p : F₁ = F₂)
-           {x₁ x₂ : pr1 C₁}
-          (f : x₁ --> x₂)
-  : # (pr1 F₁) f
-    =
-    idtoiso (maponpaths (λ z, pr11 z x₁) p)
-    · # (pr1 F₂) f
-    · idtoiso (maponpaths (λ z, pr11 z x₂) (!p)).
-Proof.
-  induction p ; cbn.
-  rewrite id_left, id_right.
-  apply idpath.
-Qed.
