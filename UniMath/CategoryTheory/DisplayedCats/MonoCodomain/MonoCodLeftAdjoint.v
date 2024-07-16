@@ -82,7 +82,8 @@ Section MonoCodomainLeftAdj.
         abstract
           (exact (!p)).
       - abstract
-          (apply PullbackArrow_PullbackPr2).
+          (cbn ;
+           apply PullbackArrow_PullbackPr2).
     Defined.
 
     Context {zh : C /m y₂}
@@ -105,6 +106,7 @@ Section MonoCodomainLeftAdj.
              rewrite <- q ;
              rewrite !assoc' ;
              apply maponpaths ;
+             cbn ;
              apply PullbackSqrCommutes).
       - abstract
           (exact (pr121 (He _ _ h _ _ _ (MonicisMonic _ h)))).

@@ -61,7 +61,7 @@ Section CodomainStructure.
   Proposition isTerminal_mono_codomain_fib
               {x : C}
               (yf : C /m x)
-              (H : is_z_isomorphism (pr2 yf))
+              (H : is_z_isomorphism (pr21 yf))
     : isTerminal (C /m x) yf.
   Proof.
     pose (f := (_ ,, H) : z_iso _ _).
@@ -127,8 +127,8 @@ Section CodomainStructure.
     Let fy₁' : C / x := mono_cod_to_cod_fib _ fy₁.
     Let fy₂' : C / x := mono_cod_to_cod_fib _ fy₂.
     Let pz' : C / x := mono_cod_to_cod_fib _ pz.
-    Let π₁' : pz' --> fy₁' := π₁.
-    Let π₂' : pz' --> fy₂' := π₂.
+    Let π₁' : pz' --> fy₁' := pr1 π₁.
+    Let π₂' : pz' --> fy₂' := pr1 π₂.
 
     Context (H : isBinProduct (C / x) _ _ _ π₁' π₂').
 
@@ -143,7 +143,7 @@ Section CodomainStructure.
           (use isaproptotal2 ; [ intro ; apply isapropdirprod ; apply homset_property | ] ;
            intros ;
            apply locally_propositional_mono_cod_disp_cat).
-      - simple refine (_ ,, _ ,, _).
+      - simple refine ((_ ,, tt) ,, _ ,, _).
         + exact (BinProductArrow _ P (#(mono_cod_to_cod_fib _) φ) (#(mono_cod_to_cod_fib _) ψ)).
         + apply locally_propositional_mono_cod_disp_cat.
         + apply locally_propositional_mono_cod_disp_cat.
@@ -163,10 +163,10 @@ Section CodomainStructure.
       + exact (cod_dom P).
       + use (make_Monic _ (cod_mor P)).
         abstract
-          (use isMonic_comp ; [ | apply MonicisMonic ] ;
-           apply MonicPullbackisMonic').
-    - exact (BinProductPr1 _ P).
-    - exact (BinProductPr2 _ P).
+          (use isMonic_comp ; [ | apply (MonicisMonic _ (monic_of_mono_in_cat fy₁)) ] ;
+           apply (MonicPullbackisMonic' _ _ (monic_of_mono_in_cat fy₂))).
+    - exact (BinProductPr1 _ P ,, tt).
+    - exact (BinProductPr2 _ P ,, tt).
     - apply mono_codomain_fib_binproducts_prod.
       apply isBinProduct_BinProduct.
   Defined.
@@ -185,6 +185,7 @@ Section CodomainStructure.
     pose (π₂ := BinProductPr2 (C /m y) (mono_codomain_fib_binproducts y m₁ m₂)).
     pose (π₁' := #(mono_cod_to_cod_fib _) π₁).
     pose (π₂' := #(mono_cod_to_cod_fib _) π₂).
+    Locate mono_cod_fiber_functor_on_mor.
     rewrite !mono_cod_fiber_functor_on_mor.
     use mono_codomain_fib_binproducts_prod.
     use codomain_fib_preserves_binproduct.
