@@ -120,7 +120,7 @@ Section FiberwiseTerminalPoset.
           (truth : ∏ (Γ : C), D[{Γ}])
           (truth_in : ∏ (Γ : C) (φ : D[{Γ}]), φ -->[ identity _ ] truth Γ)
           (truth_sub : ∏ (Γ₁ Γ₂ : C) (s : Γ₁ --> Γ₂),
-                       truth Γ₁ = pr1 (HD Γ₂ Γ₁ s (truth Γ₂))).
+                       truth Γ₁ --> pr1 (HD Γ₂ Γ₁ s (truth Γ₂))).
 
   Definition make_terminal_fiber_locally_propositional
              (Γ : C)
@@ -146,8 +146,8 @@ Section FiberwiseTerminalPoset.
           (unfold preserves_chosen_terminal ;
            use (iso_to_Terminal
                   (make_terminal_fiber_locally_propositional Γ₁)) ;
-           use idtoiso ;
-           apply truth_sub).
+           use make_z_iso ; [ apply truth_sub | apply TerminalArrow | ] ;
+           split ; apply HD').
   Defined.
 End FiberwiseTerminalPoset.
 

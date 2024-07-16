@@ -11,7 +11,7 @@
  Content
  1. Fiberwise exponentials
  2, Accessors
- 3. Specialized builder for fibrations that lend in posets
+ 3. Specialized builder for fibrations that land in posets
  4. Distributivity of products and coproducts
 
  ***************************************************************************************)
@@ -91,7 +91,7 @@ Definition preserves_exponentials_in_fib
   : preserves_exponentials (pr1 E y) (pr1 E x) (preserves_binproduct_in_fib P f)
   := pr2 E x y f.
 
-(** * 3. Specialized builder for fibrations that lend in posets *)
+(** * 3. Specialized builder for fibrations that land in posets *)
 Section FiberwiseExponentialsPoset.
   Context {C : category}
           {D : disp_cat C}
@@ -108,9 +108,9 @@ Section FiberwiseExponentialsPoset.
           (imp_sub : ∏ (Γ₁ Γ₂ : C)
                        (s : Γ₁ --> Γ₂)
                        (φ ψ : D[{Γ₂}]),
-                     pr1 (HD Γ₂ Γ₁ s (imp _ φ ψ))
-                     =
-                     imp _ (pr1 (HD Γ₂ Γ₁ s φ)) (pr1 (HD Γ₂ Γ₁ s ψ))).
+                     imp _ (pr1 (HD Γ₂ Γ₁ s φ)) (pr1 (HD Γ₂ Γ₁ s ψ))
+                     -->
+                     pr1 (HD Γ₂ Γ₁ s (imp _ φ ψ))).
 
   Definition exp_in_fiber_locally_propositional
              (Γ : C)
@@ -139,11 +139,8 @@ Section FiberwiseExponentialsPoset.
     - exact exp_in_fiber_locally_propositional.
     - abstract
         (intros Γ₁ Γ₂ s φ ψ ;
-         refine (transportf
-                   is_z_isomorphism
-                   _
-                   (pr2 (@idtoiso D[{Γ₁}] _ _ (imp_sub _ _ s φ ψ)))) ;
-         apply HD').
+         use make_is_z_isomorphism ; [ apply imp_sub | ] ;
+         split ; apply HD').
   Defined.
 End FiberwiseExponentialsPoset.
 
