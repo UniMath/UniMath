@@ -16,10 +16,23 @@
  monomorphisms `x --> y`. Note that this is how subobjects are defined in the file
  `Subobjects.v`.
 
- If one works with univalent categories, then monomorphisms have the right notion of equality.
- In addition, the type of monomorphisms into objects `y` automatically form a set. For this
- reason, it is not necessary to take quotients, and instead, we can define subobjects of `y`
- as objects over `y` in the aforementioned displayed category.
+ Let us be more precise. Suppose that we have two monomorphisms `m₁ : x₁ --> y` and
+ `m₂ : x₂ --> y` in a category `C`. If `C` is a strict category, then these two monomorphisms
+ are equal if `x₁ = x₂` and `m₁ = m₂` using a suitable transport. However, this is not the
+ right notion of equality of subobjects. For instance, if we work in the category of sets,
+ we would like `m₁` and `m₂` to be equal if they present the same subset of `y`. For that
+ reason, we identify subobjects up to isomorphism. Concretely, this means that we take a
+ quotient of the type `∑ (x : C), Monic x y`, which identifies `x₁` and `x₂` up to isomorphism
+ and the monomorphism if the resulting diagram commutes.
+
+ For univalent categories, it is not necessary to take a quotient. This is because two
+ inhabitants of the type `∑ (x : C), Monic x y` already are equal if their domains are
+ isomorphic and if the resulting triangle commutes. For this reason, we can define the type
+ of subobjects of an object `y` in a univalent category to be `∑ (x : C), Monic x y`. Note
+ that we can also prove that `∑ (x : C), Monic x y` is a set in a univalent category. If we
+ have two subobjects `m₁ : x₁ --> y` and `m₂ : x₂ --> y` and two isomorphisms `i₁ i₂ : x₁ ≅ x₂`
+ making the obvious triangles commutes, then we must have that `i₁ = i₂` by the fact that `m₂`
+ is a monomorphism. This is proven in [isaset_subobject_univ_cat].
 
  In terms of the fibers, we can say the following. If `C` is a univalent category, then the
  fiber of `y` along the displayed category of monomorphisms is a partial order. The underlying
@@ -48,26 +61,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 
 Local Open Scope cat.
-
-Definition isaset_disp_ob
-           {C : category}
-           (D : disp_univalent_category C)
-           (H : locally_propositional D)
-           (x : C)
-  : isaset (D x).
-Proof.
-  intros xx xx'.
-  use (isofhlevelweqb
-         1
-         (make_weq
-            _
-            (disp_univalent_category_is_univalent_disp D x x (idpath _) xx xx'))).
-  use isaproptotal2.
-  - intro.
-    apply isaprop_is_z_iso_disp.
-  - intros.
-    apply H.
-Qed.
 
 (** * 1. The displayed category of monomorphisms *)
 Section MonoCodomain.

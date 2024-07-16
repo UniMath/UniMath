@@ -38,8 +38,9 @@
  1. Structure of hyperdoctrines
  2. Accessors for types in a hyperdoctrine
  3. Accessors for terms in a hyperdoctrine
- 3.1. Terms for the unit type
- 3.2. Terms for the binary product type
+ 3.1. Substitution on terms
+ 3.2. Terms for the unit type
+ 3.3. Terms for the binary product type
  4. Formulas in a hyperdoctrine
  5. Proof terms in a hyperdoctrine
  6. Equality of formulas
@@ -180,10 +181,15 @@ Proof.
 Defined.
 
 (** * 2. Accessors for types in a hyperdoctrine *)
+Definition hyperdoctrine_type_category
+           (H : preorder_hyperdoctrine)
+  : category
+  := pr1 H.
+
 Definition hyperdoctrine_type
            (H : preorder_hyperdoctrine)
   : UU
-  := ob (pr1 H).
+  := ob (hyperdoctrine_type_category H).
 
 Notation "'ty'" := hyperdoctrine_type : hyperdoctrine.
 
@@ -214,7 +220,56 @@ Definition hyperdoctrine_term
 
 Notation "'tm'" := hyperdoctrine_term : hyperdoctrine.
 
-(** * 3.1. Terms for the unit type *)
+Definition tm_var
+           {H : preorder_hyperdoctrine}
+           (A : ty H)
+  : tm A A
+  := identity _.
+
+(** * 3.1. Substitution on terms *)
+Definition tm_subst
+           {H : preorder_hyperdoctrine}
+           {Γ₁ Γ₂ A : ty H}
+           (t : tm Γ₂ A)
+           (s : tm Γ₁ Γ₂)
+  : tm Γ₁ A
+  := s · t.
+
+Notation "t [ s ]tm" := (tm_subst t s) (at level 10) : hyperdoctrine.
+
+Proposition tm_subst_var
+            {H : preorder_hyperdoctrine}
+            {Γ A : ty H}
+            (t : tm Γ A)
+  : t [ tm_var Γ ]tm = t.
+Proof.
+  unfold tm_subst, tm_var.
+  apply id_left.
+Qed.
+
+Proposition var_tm_subst
+            {H : preorder_hyperdoctrine}
+            {Γ A : ty H}
+            (t : tm Γ A)
+  : (tm_var A) [ t ]tm = t.
+Proof.
+  unfold tm_subst, tm_var.
+  apply id_right.
+Qed.
+
+Proposition tm_subst_comp
+            {H : preorder_hyperdoctrine}
+            {Γ₁ Γ₂ Γ₃ A : ty H}
+            (s₁ : tm Γ₁ Γ₂)
+            (s₂ : tm Γ₂ Γ₃)
+            (t : tm Γ₃ A)
+  : (t [ s₂ ]tm) [ s₁ ]tm = t [ s₂ [ s₁ ]tm ]tm.
+Proof.
+  unfold tm_subst.
+  apply assoc.
+Qed.
+
+(** * 3.2. Terms for the unit type *)
 Definition hyperdoctrine_unit_term
            {H : preorder_hyperdoctrine}
            {Γ : ty H}
@@ -232,7 +287,7 @@ Proof.
   apply TerminalArrowEq.
 Qed.
 
-(** * 3.2. Terms for the binary product type *)
+(** * 3.3. Terms for the binary product type *)
 Definition hyperdoctrine_pr1
            {H : preorder_hyperdoctrine}
            {Γ A B : ty H}
@@ -265,7 +320,7 @@ Definition hyperdoctrine_diag
            {H : preorder_hyperdoctrine}
            (A : ty H)
   : tm A (A ×h A)
-  := ⟨ identity _ , identity _ ⟩.
+  := ⟨ tm_var _ , tm_var _ ⟩.
 
 Notation "Δ_{ A }" := (hyperdoctrine_diag A) : hyperdoctrine.
 
@@ -291,6 +346,17 @@ Proof.
   apply BinProductPr2Commutes.
 Qed.
 
+Proposition hyperdoctrine_pr1_subst
+            {H : preorder_hyperdoctrine}
+            {Γ Γ' A B : ty H}
+            (s : tm Γ Γ')
+            (t : tm Γ' (A ×h B))
+  : (π₁ t) [ s ]tm = π₁ (t [ s ]tm).
+Proof.
+  unfold hyperdoctrine_pr1, hyperdoctrine_pair.
+  apply assoc.
+Qed.
+
 Proposition hyperdoctrine_pr1_comp
             {H : preorder_hyperdoctrine}
             {Γ Γ' A B : ty H}
@@ -298,8 +364,7 @@ Proposition hyperdoctrine_pr1_comp
             (t : tm Γ' (A ×h B))
   : s · π₁ t = π₁ (s · t).
 Proof.
-  unfold hyperdoctrine_pr1, hyperdoctrine_pair.
-  apply assoc.
+  apply hyperdoctrine_pr1_subst.
 Qed.
 
 Proposition hyperdoctrine_pair_comp_pr1
@@ -307,12 +372,34 @@ Proposition hyperdoctrine_pair_comp_pr1
             {Γ A B : ty H}
             (t₁ : tm Γ A)
             (t₂ : tm Γ B)
-  : ⟨ t₁ , t₂ ⟩ · π₁ (identity _) = t₁.
+  : (π₁ (tm_var _)) [ ⟨ t₁ , t₂ ⟩ ]tm = t₁.
 Proof.
-  rewrite hyperdoctrine_pr1_comp.
+  rewrite hyperdoctrine_pr1_subst.
+  unfold tm_subst.
   rewrite id_right.
   rewrite hyperdoctrine_pair_pr1.
   apply idpath.
+Qed.
+
+Proposition hyperdoctrine_pair_comp_pr1'
+            {H : preorder_hyperdoctrine}
+            {Γ A B : ty H}
+            (t₁ : tm Γ A)
+            (t₂ : tm Γ B)
+  : ⟨ t₁, t₂ ⟩ · π₁ (tm_var (A ×h B)) = t₁.
+Proof.
+  apply hyperdoctrine_pair_comp_pr1.
+Qed.
+
+Proposition hyperdoctrine_pr2_subst
+            {H : preorder_hyperdoctrine}
+            {Γ Γ' A B : ty H}
+            (s : tm Γ Γ')
+            (t : tm Γ' (A ×h B))
+  : (π₂ t) [ s ]tm = π₂ (t [ s ]tm).
+Proof.
+  unfold hyperdoctrine_pr2, hyperdoctrine_pair.
+  apply assoc.
 Qed.
 
 Proposition hyperdoctrine_pr2_comp
@@ -322,8 +409,7 @@ Proposition hyperdoctrine_pr2_comp
             (t : tm Γ' (A ×h B))
   : s · π₂ t = π₂ (s · t).
 Proof.
-  unfold hyperdoctrine_pr2, hyperdoctrine_pair.
-  apply assoc.
+  apply hyperdoctrine_pr2_subst.
 Qed.
 
 Proposition hyperdoctrine_pair_comp_pr2
@@ -331,12 +417,35 @@ Proposition hyperdoctrine_pair_comp_pr2
             {Γ A B : ty H}
             (t₁ : tm Γ A)
             (t₂ : tm Γ B)
-  : ⟨ t₁ , t₂ ⟩ · π₂ (identity _) = t₂.
+  : (π₂ (tm_var _)) [ ⟨ t₁ , t₂ ⟩ ]tm = t₂.
 Proof.
-  rewrite hyperdoctrine_pr2_comp.
+  rewrite hyperdoctrine_pr2_subst.
+  unfold tm_subst.
   rewrite id_right.
   rewrite hyperdoctrine_pair_pr2.
   apply idpath.
+Qed.
+
+Proposition hyperdoctrine_pair_comp_pr2'
+            {H : preorder_hyperdoctrine}
+            {Γ A B : ty H}
+            (t₁ : tm Γ A)
+            (t₂ : tm Γ B)
+  : ⟨ t₁, t₂ ⟩ · π₂ (tm_var (A ×h B)) = t₂.
+Proof.
+  apply hyperdoctrine_pair_comp_pr2.
+Qed.
+
+Proposition hyperdoctrine_pair_subst
+            {H : preorder_hyperdoctrine}
+            {Γ Γ' A B : ty H}
+            (s : tm Γ Γ')
+            (t₁ : tm Γ' A)
+            (t₂ : tm Γ' B)
+  : ⟨ t₁ , t₂ ⟩ [ s ]tm = ⟨ t₁ [ s ]tm , t₂ [ s ]tm ⟩.
+Proof.
+  unfold hyperdoctrine_pair.
+  apply precompWithBinProductArrow.
 Qed.
 
 Proposition hyperdoctrine_pair_comp
@@ -345,10 +454,9 @@ Proposition hyperdoctrine_pair_comp
             (s : tm Γ Γ')
             (t₁ : tm Γ' A)
             (t₂ : tm Γ' B)
-  : s · ⟨ t₁ , t₂ ⟩ = ⟨ s · t₁ , s · t₂ ⟩.
+  : s · ⟨ t₁, t₂ ⟩ = ⟨ s · t₁, s · t₂ ⟩.
 Proof.
-  unfold hyperdoctrine_pair.
-  apply precompWithBinProductArrow.
+  apply hyperdoctrine_pair_subst.
 Qed.
 
 Proposition hyperdoctrine_pair_eta
@@ -361,14 +469,15 @@ Proof.
   apply BinProductArrowEta.
 Qed.
 
-Proposition hyperdoctrine_diag_comp
+Proposition hyperdoctrine_diag_subst
             {H : preorder_hyperdoctrine}
             {Γ A : ty H}
             (t : tm Γ A)
-  : t · Δ_{ A } = ⟨ t , t ⟩.
+  : Δ_{ A } [ t ]tm = ⟨ t , t ⟩.
 Proof.
   unfold hyperdoctrine_diag.
-  rewrite hyperdoctrine_pair_comp.
+  rewrite hyperdoctrine_pair_subst.
+  unfold tm_subst.
   rewrite !id_right.
   apply idpath.
 Qed.
@@ -472,7 +581,7 @@ Proposition hyperdoctrine_id_subst
             {H : hyperdoctrine}
             {Γ : ty H}
             (φ : form Γ)
-  : φ [ identity _ ] = φ.
+  : φ [ tm_var _ ] = φ.
 Proof.
   refine (!_).
   use (isotoid_disp (is_univalent_disp_hyperdoctrine H) (idpath _)).
@@ -486,7 +595,7 @@ Proposition hyperdoctrine_comp_subst
             (s₁ : Γ₁ --> Γ₂)
             (s₂ : Γ₂ --> Γ₃)
             (φ : form Γ₃)
-  : φ [ s₂ ] [ s₁ ] = φ [ s₁ · s₂ ].
+  : φ [ s₂ ] [ s₁ ] = φ [ s₂ [ s₁ ]tm ].
 Proof.
   use (isotoid_disp (is_univalent_disp_hyperdoctrine H) (idpath _)).
   use z_iso_disp_from_z_iso_fiber.
