@@ -46,7 +46,7 @@ jobs:
       matrix:
         os: [ubuntu-22.04]
         # https://github.com/coq-community/docker-coq/wiki#ocaml-versions-policy
-        coq-version: [latest, dev]
+        coq-version: [latest, 8.20, dev]
         # (the following is obsolete:) coq-version: [8.16] or [latest, 8.16] (when 8.17 is released)
         ocaml-version: [default]
 
