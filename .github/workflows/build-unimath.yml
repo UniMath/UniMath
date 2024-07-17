@@ -144,7 +144,7 @@ jobs:
       fail-fast: false
       matrix:
         satellite: [SetHITs, largecatmodules, GrpdHITs, TypeTheory]
-        coq-version: [latest, 8.20-alpha, dev]
+        coq-version: [latest, 8.20-alpha]
         # ocaml-version: [4.14-flambda]
 	ocaml-version: [default]
         # (outdated exception:) exclude:
