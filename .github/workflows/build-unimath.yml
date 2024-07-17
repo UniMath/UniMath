@@ -144,11 +144,16 @@ jobs:
       fail-fast: false
       matrix:
         satellite: [SetHITs, largecatmodules, GrpdHITs, TypeTheory]
-        coq-version: [latest, dev]
+        coq-version: [latest, 8.20-alpha, dev]
         ocaml-version: [4.14-flambda]
         # (outdated exception:) exclude:
         # - satellite: GrpdHITs
         #   coq-version: dev
+	exclude:
+	- satellite: SetHITs
+	  coq-version: dev
+	- satellite: TypeTheory
+	  coq-version: dev
     name: Build ${{ matrix.satellite }} (Coq ${{ matrix.coq-version }})
     runs-on: ubuntu-22.04
 
