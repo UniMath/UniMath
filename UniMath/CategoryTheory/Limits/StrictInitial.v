@@ -11,11 +11,13 @@
  1. Strict initial objects
  2. Strictness is preserved under isomorphism
  3. Stability of strict initial objects
+ 4. Monics from strict initial objects
 
  *************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodColimits.
@@ -144,3 +146,21 @@ Proof.
   use (is_initial_mor_to_strict_initial I).
   apply PullbackPr1.
 Qed.
+
+(** * 4. Monics from strict initial objects *)
+Definition monic_from_strict_initial
+           {C : category}
+           (I : Initial C)
+           (HI : is_strict_initial I)
+           (y : C)
+  : Monic C I y.
+Proof.
+  use make_Monic.
+  - apply InitialArrow.
+  - abstract
+      (intros x g h p ;
+       use (InitialArrowEq (O := make_Initial x _)) ;
+       use (iso_to_Initial I) ;
+       use z_iso_inv ;
+       exact (g ,, HI _ _)).
+Defined.

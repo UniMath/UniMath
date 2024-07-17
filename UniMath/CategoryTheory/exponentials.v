@@ -669,3 +669,36 @@ Section AccessorsExponentials.
     apply idpath.
   Qed.
 End AccessorsExponentials.
+
+(** * Preservation of exponentials by functors *)
+Definition preserves_exponentials_map
+           {C₁ C₂ : category}
+           {BC₁ : BinProducts C₁}
+           {BC₂ : BinProducts C₂}
+           (E₁ : Exponentials BC₁)
+           (E₂ : Exponentials BC₂)
+           {F : C₁ ⟶ C₂}
+           (HF : preserves_binproduct F)
+           (x y : C₁)
+  : F(exp E₁ x y) --> exp E₂ (F x) (F y).
+Proof.
+  use exp_lam.
+  pose (preserves_binproduct_to_z_iso
+          F HF
+          (BC₁ x (exp E₁ x y))
+          (BC₂ (F x) (F (exp E₁ x y))))
+    as f.
+  refine (inv_from_z_iso f · #F _).
+  apply exp_eval.
+Defined.
+
+Definition preserves_exponentials
+           {C₁ C₂ : category}
+           {BC₁ : BinProducts C₁}
+           {BC₂ : BinProducts C₂}
+           (E₁ : Exponentials BC₁)
+           (E₂ : Exponentials BC₂)
+           {F : C₁ ⟶ C₂}
+           (HF : preserves_binproduct F)
+  : UU
+  := ∏ (x y : C₁), is_z_isomorphism (preserves_exponentials_map E₁ E₂ HF x y).

@@ -57,7 +57,6 @@ Definition right_beck_chevalley_nat_trans
           (post_whisker (pre_whisker FR τ) HR)
           (post_whisker ε₁ (K ∙ HR))).
 
-
 Proposition right_beck_chevalley_nat_trans_ob
             {C₁ C₂ C₃ C₄ : category}
             {F : C₁ ⟶ C₂}
@@ -174,6 +173,66 @@ Section DependentProduct.
        right_beck_chevalley f g h k p (R _ _ f) (R _ _ h).
 End DependentProduct.
 
+Section DependentProductPoset.
+  Context {C : category}
+          {D : disp_cat C}
+          (HD : cleaving D)
+          (HD' : locally_propositional D)
+          (all : ∏ (Γ₁ Γ₂ : C) (s : Γ₁ --> Γ₂), D[{Γ₁}] → D[{Γ₂}])
+          (all_e : ∏ (Γ₁ Γ₂ : C)
+                     (s : Γ₁ --> Γ₂)
+                     (φ : D[{Γ₁}]),
+                   pr1 (HD _ _ s (all _ _ s φ)) -->[ identity _ ] φ)
+          (all_i : ∏ (Γ₁ Γ₂ : C)
+                     (s : Γ₁ --> Γ₂)
+                     (ψ : D[{Γ₁}])
+                     (χ : D[{Γ₂}])
+                     (p : pr1 (HD Γ₂ Γ₁ s χ) -->[ identity _ ] ψ),
+                   χ -->[ identity _ ] all Γ₁ Γ₂ s ψ)
+          (all_sub : ∏ (Γ₁ Γ₂ Γ₃ Γ₄ : C)
+                       (s₁ : Γ₂ --> Γ₁)
+                       (s₂ : Γ₃ --> Γ₁)
+                       (s₃ : Γ₄ --> Γ₃)
+                       (s₄ : Γ₄ --> Γ₂)
+                       (p : s₄ · s₁ = s₃ · s₂)
+                       (Hp : isPullback p)
+                       (φ : D[{Γ₂}]),
+                     all Γ₄ Γ₃ s₃ (pr1 (HD Γ₂ Γ₄ s₄ φ))
+                     -->[ identity Γ₃]
+                     pr1 (HD Γ₁ Γ₃ s₂ (all Γ₂ Γ₁ s₁ φ))).
+
+  Definition make_dependent_product_of_mor_poset
+             {Γ₁ Γ₂ : C}
+             (s : Γ₁ --> Γ₂)
+    : dependent_product HD s.
+  Proof.
+    use left_adjoint_from_partial.
+    - exact (all _ _ s).
+    - exact (all_e _ _ s).
+    - intros ψ χ p.
+      use iscontraprop1.
+      + abstract
+          (use invproofirrelevance ;
+           intros ζ₁ ζ₂ ;
+           use subtypePath ; [ intro ; apply homset_property | ] ;
+           apply HD').
+      + simple refine (_ ,, _) ; [ | apply HD' ].
+        apply all_i.
+        exact p.
+  Defined.
+
+  Definition make_has_dependent_products_poset
+    : has_dependent_products HD.
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ _ _ s, make_dependent_product_of_mor_poset s).
+    - abstract
+        (intros Γ₁ Γ₂ Γ₃ Γ₄ s₁ s₂ s₃ s₄ p Hp φ ;
+         simple refine (_ ,, _ ,, _) ; [ | apply HD' | apply HD' ] ;
+         exact (all_sub _ _ _ _ _ _ _ _ _ Hp φ)).
+  Defined.
+End DependentProductPoset.
+
 (** * 3. Accessors for dependent products *)
 Section DependentProduct.
   Context {C : category}
@@ -187,6 +246,12 @@ Section DependentProduct.
              (xx : D[{x}])
     : D[{y}]
     := right_adjoint (pr1 P x y f) xx.
+
+  Definition dep_prod_mor
+             {xx₁ xx₂ : D[{x}]}
+             (ff : xx₁ --> xx₂)
+    : dep_prod xx₁ --> dep_prod xx₂
+    := #(right_adjoint (pr1 P x y f)) ff.
 
   Definition dep_prod_unit
              (yy : D[{y}])
