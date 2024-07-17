@@ -150,10 +150,8 @@ jobs:
         # - satellite: GrpdHITs
         #   coq-version: dev
 	exclude:
-	- satellite: SetHITs
-	  coq-version: dev
-	- satellite: TypeTheory
-	  coq-version: dev
+	  - satellite: [SetHITs, TypeTheory]
+	    coq-version: dev
     name: Build ${{ matrix.satellite }} (Coq ${{ matrix.coq-version }})
     runs-on: ubuntu-22.04
 
