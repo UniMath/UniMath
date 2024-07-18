@@ -106,12 +106,6 @@ shell command (in this directory).
 make
 ```
 
-Alternatively, if you want to build a specific version of Coq for UniMath (not usually needed, but sometimes useful for compatibility reasons), and you have installed its dependencies as described above, you may issue the following command.
-
-```bash
-make BUILD_COQ=yes
-```
-
 Once this is done, you can start [browsing and editing UniMath](./USAGE.md).
 Below, we explain how to compile individual packages of UniMath, and how to
 create HTML documentation.
