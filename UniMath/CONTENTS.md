@@ -406,6 +406,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Categories/Module.v](CategoryTheory/Categories/Module.v)
    - [Categories/StandardCategories.v](CategoryTheory/Categories/StandardCategories.v)
    - [Categories/PreorderCategories.v](CategoryTheory/Categories/PreorderCategories.v)
+   - [Categories/MonoidToCategory.v](CategoryTheory/Categories/MonoidToCategory.v)
    - [Limits/Examples/UnitCategoryLimits.v](CategoryTheory/Limits/Examples/UnitCategoryLimits.v)
    - [Categories/Type/Colimits.v](CategoryTheory/Categories/Type/Colimits.v)
    - [Categories/Type/Limits.v](CategoryTheory/Categories/Type/Limits.v)
@@ -1393,7 +1394,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [FundamentalTheorem/SurjectivePrecomposition.v](AlgebraicTheories/FundamentalTheorem/SurjectivePrecomposition.v)
    - [FundamentalTheorem/CommonUtilities/KaroubiEnvelope.v](AlgebraicTheories/FundamentalTheorem/CommonUtilities/KaroubiEnvelope.v)
    - [FundamentalTheorem/CommonUtilities/MonoidActions.v](AlgebraicTheories/FundamentalTheorem/CommonUtilities/MonoidActions.v)
-   - [FundamentalTheorem/CommonUtilities/MonoidToCategory.v](AlgebraicTheories/FundamentalTheorem/CommonUtilities/MonoidToCategory.v)
    - [FundamentalTheorem/AlgebraToTheory.v](AlgebraicTheories/FundamentalTheorem/AlgebraToTheory.v)
    - [All.v](AlgebraicTheories/All.v)
 ## Package Semantics

@@ -14,17 +14,17 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.CategoryTheory.Categories.Monoid.
+Require Import UniMath.CategoryTheory.Categories.MonoidToCategory.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import UniMath.CategoryTheory.Categories.Monoid.
 
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryToLawvereTheory.
-Require Import UniMath.AlgebraicTheories.FundamentalTheorem.CommonUtilities.MonoidToCategory.
 
 Local Open Scope algebraic_theories.
 Local Open Scope cat.
