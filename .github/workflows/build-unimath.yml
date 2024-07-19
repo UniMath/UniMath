@@ -46,7 +46,7 @@ jobs:
       matrix:
         os: [ubuntu-22.04]
         # https://github.com/coq-community/docker-coq/wiki#ocaml-versions-policy
-        coq-version: [latest, 8.20-alpha, dev]
+        coq-version: ['latest', '8.20', 'dev']
         # (the following is obsolete:) coq-version: [8.16] or [latest, 8.16] (when 8.17 is released)
         ocaml-version: [default]
 
@@ -144,7 +144,7 @@ jobs:
       fail-fast: false
       matrix:
         satellite: [SetHITs, largecatmodules, GrpdHITs, TypeTheory]
-        coq-version: [latest, 8.20-alpha, dev]
+        coq-version: ['latest', '8.20', 'dev']
         ocaml-version: [default]
         # (outdated exception:) exclude:
         # - satellite: GrpdHITs
