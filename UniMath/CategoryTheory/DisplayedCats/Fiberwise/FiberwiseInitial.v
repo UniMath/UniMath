@@ -116,7 +116,9 @@ Section FiberwiseInitialPoset.
           (false : ∏ (Γ : C), D[{Γ}])
           (false_out : ∏ (Γ : C) (φ : D[{Γ}]), false Γ -->[ identity _ ] φ)
           (false_sub : ∏ (Γ₁ Γ₂ : C) (s : Γ₁ --> Γ₂),
-                       false Γ₁ = pr1 (HD Γ₂ Γ₁ s (false Γ₂))).
+                       pr1 (HD Γ₂ Γ₁ s (false Γ₂))
+                       -->[ identity _ ]
+                       false Γ₁).
 
   Definition make_initial_fiber_locally_propositional
              (Γ : C)
@@ -142,8 +144,8 @@ Section FiberwiseInitialPoset.
           (unfold preserves_chosen_initial ;
            use (iso_to_Initial
                   (make_initial_fiber_locally_propositional Γ₁)) ;
-           use idtoiso ;
-           apply false_sub).
+           use make_z_iso ; [ apply InitialArrow | apply false_sub | ] ;
+           split ; apply HD').
   Defined.
 End FiberwiseInitialPoset.
 

@@ -51,6 +51,16 @@
  usually require, and it does eliminate the syntax as a model. However, in many models all
  of the aforementioned adjoints do exist.
 
+ An important use case of first-order hyperdoctrines is using the internal language for reasoning.
+ The internal language is implemented via a shallow embedding. However, one challenge that one
+ meets when using this shallow embedding directly, is that one must simplify the goal completely
+ by hand. More concretely, there might be several substitutions in the statement that one is
+ proving, and to simplify it, one must rewrite using the right substitution laws. The same holds
+ for normalizing terms: one must simplify every β-redex by using an appropriate rewrite statement.
+ In this file, we also give a tactic that automates these processes. Below we comment on the
+ design of this tactic and in the file `PERs.v` in the proof of [eq_per_axioms], we explain
+ and demonstrate how this tactic is used.
+
  References
  - "Adjointness in Foundations" by William Lawvere
  - "Categorical logic" by Andrew Pitts in Handbook of logic in computer science, Volume 5
@@ -68,6 +78,7 @@
  9. Existential quantification
  10. Equality
  11. Derived rules for equality
+ 12. A tactic for simplifying goals in the internal language of first-order hyperdoctrines
 
  **********************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -209,6 +220,32 @@ Proof.
          ,,
          pr2 (pr222 (pr222 H))).
 Defined.
+
+Definition make_first_order_preorder_hyperdoctrine
+           (H : preorder_hyperdoctrine)
+           (TH : fiberwise_terminal (hyperdoctrine_cleaving H))
+           (IH : fiberwise_initial (hyperdoctrine_cleaving H))
+           (PH : fiberwise_binproducts (hyperdoctrine_cleaving H))
+           (CH : fiberwise_bincoproducts (hyperdoctrine_cleaving H))
+           (IMPH : fiberwise_exponentials PH)
+           (DPH : has_dependent_products (hyperdoctrine_cleaving H))
+           (DSH : has_dependent_sums (hyperdoctrine_cleaving H))
+  : first_order_preorder_hyperdoctrine
+  := H
+     ,,
+     TH
+     ,,
+     IH
+     ,,
+     PH
+     ,,
+     CH
+     ,,
+     IMPH
+     ,,
+     DPH
+     ,,
+     DSH.
 
 Definition make_first_order_hyperdoctrine
            (H : hyperdoctrine)
@@ -600,7 +637,7 @@ Proposition forall_intro
             {Γ A : ty H}
             {Δ : form Γ}
             {φ : form (Γ ×h A)}
-            (p : Δ [ π₁ (identity _) ] ⊢ φ)
+            (p : Δ [ π₁ (tm_var _) ] ⊢ φ)
   : Δ ⊢ ∀h φ.
 Proof.
   use (hyperdoctrine_cut
@@ -617,14 +654,14 @@ Proposition forall_elim
             {φ : form (Γ ×h A)}
             (p : Δ ⊢ ∀h φ)
             (t : tm Γ A)
-  : Δ ⊢ φ [ ⟨ identity _ , t ⟩ ].
+  : Δ ⊢ φ [ ⟨ tm_var _ , t ⟩ ].
 Proof.
   use (hyperdoctrine_cut p).
-  assert ((∀h φ)[ π₁ (identity (Γ ×h A)) ] ⊢ φ) as r.
+  assert ((∀h φ)[ π₁ (tm_var (Γ ×h A)) ] ⊢ φ) as r.
   {
     exact (dep_prod_counit (pr1 (pr222 (pr222 H))) (π₁ (identity (Γ ×h A))) φ).
   }
-  pose (hyperdoctrine_proof_subst ⟨ identity Γ , t ⟩ r) as r'.
+  pose (hyperdoctrine_proof_subst ⟨ tm_var Γ , t ⟩ r) as r'.
   rewrite hyperdoctrine_comp_subst in r'.
   rewrite hyperdoctrine_pair_comp_pr1 in r'.
   rewrite hyperdoctrine_id_subst in r'.
@@ -636,9 +673,9 @@ Proposition quantifier_subst_pb_eq
             {Γ₁ Γ₂ : ty H}
             (A : ty H)
             (s : tm Γ₁ Γ₂)
-  : π₁ (identity (Γ₁ ×h A)) · s
+  : s [ π₁ (tm_var (Γ₁ ×h A)) ]tm
     =
-    ⟨ π₁ (identity _) · s , π₂ (identity _) ⟩ · π₁ (identity _).
+    (π₁ (tm_var _)) [ ⟨ s [ π₁ (tm_var _) ]tm , π₂ (tm_var _) ⟩ ]tm.
 Proof.
   rewrite hyperdoctrine_pair_comp_pr1.
   apply idpath.
@@ -669,6 +706,7 @@ Proof.
        apply maponpaths ;
        pose (maponpaths (λ z, π₂ z) (pr12 ζ₁)) as q ; cbn in q ;
        rewrite (hyperdoctrine_pair_comp (H := H)) in q ;
+       unfold tm_subst in q ;
        rewrite !assoc in q ;
        rewrite (hyperdoctrine_pr1_comp (H := H)) in q ;
        rewrite hyperdoctrine_pr2_comp in q ;
@@ -678,6 +716,7 @@ Proof.
        clear q ;
        pose (maponpaths (λ z, π₂ z) (pr12 ζ₂)) as q ; cbn in q ;
        rewrite (hyperdoctrine_pair_comp (H := H)) in q ;
+       unfold tm_subst in q ;
        rewrite !assoc in q ;
        rewrite (hyperdoctrine_pr1_comp (H := H)) in q ;
        rewrite hyperdoctrine_pr2_comp in q ;
@@ -686,12 +725,13 @@ Proof.
        rewrite q ;
        clear q ;
        apply idpath).
-  - refine (⟨ t' , t · π₂ (identity _) ⟩ ,, _ ,, _).
+  - refine (⟨ t' , t · π₂ (tm_var _) ⟩ ,, _ ,, _).
     + abstract
         (rewrite hyperdoctrine_pair_comp ;
+         unfold tm_subst ;
          rewrite !assoc ;
-         rewrite hyperdoctrine_pair_comp_pr1 ;
-         rewrite hyperdoctrine_pair_comp_pr2 ;
+         rewrite hyperdoctrine_pair_comp_pr1' ;
+         rewrite hyperdoctrine_pair_comp_pr2' ;
          rewrite <- p ;
          rewrite hyperdoctrine_pr1_comp ;
          rewrite hyperdoctrine_pr2_comp ;
@@ -699,7 +739,7 @@ Proof.
          rewrite <- hyperdoctrine_pair_eta ;
          apply idpath).
     + abstract
-        (rewrite hyperdoctrine_pair_comp_pr1 ;
+        (rewrite hyperdoctrine_pair_comp_pr1' ;
          apply idpath).
 Defined.
 
@@ -710,7 +750,7 @@ Proposition forall_subst
             (φ : form (Γ₂ ×h A))
   : (∀h φ) [ s ]
     =
-    (∀h (φ [ ⟨ π₁ (identity _) · s , π₂ (identity _) ⟩ ])).
+    (∀h (φ [ ⟨ s [ π₁ (tm_var _) ]tm , π₂ (tm_var _) ⟩ ])).
 Proof.
   pose (pr21 (pr222 (pr222 H)) _ _ _ _ _ _ _ _ _ (quantifier_subst_pb A s) φ) as p.
   pose (f := (_ ,, p) : z_iso _ _).
@@ -737,7 +777,7 @@ Proposition exists_subst
             (φ : form (Γ₂ ×h A))
   : (∃h φ) [ s ]
     =
-    ∃h (φ [ ⟨ π₁ (identity _) · s , π₂ (identity _) ⟩ ]).
+    ∃h (φ [ ⟨ s [ π₁ (tm_var _) ]tm , π₂ (tm_var _) ⟩ ]).
 Proof.
   pose (pr22 (pr222 (pr222 H)) _ _ _ _ _ _ _ _ _ (quantifier_subst_pb A s) φ) as p.
   pose (f := (_ ,, p) : z_iso _ _).
@@ -752,15 +792,15 @@ Proposition exists_intro
             {Δ : form Γ}
             {φ : form (Γ ×h A)}
             {t : tm Γ A}
-            (p : Δ ⊢ φ [ ⟨ identity _ , t ⟩ ])
+            (p : Δ ⊢ φ [ ⟨ tm_var _ , t ⟩ ])
   : Δ ⊢ ∃h φ.
 Proof.
   use (hyperdoctrine_cut p).
-  assert (φ ⊢ (∃h φ) [ π₁ (identity (Γ ×h A)) ]) as r.
+  assert (φ ⊢ (∃h φ) [ π₁ (tm_var (Γ ×h A)) ]) as r.
   {
     exact (dep_sum_unit (pr2 (pr222 (pr222 H))) (π₁ (identity (Γ ×h A))) φ).
   }
-  pose (hyperdoctrine_proof_subst ⟨ identity Γ , t ⟩ r) as r'.
+  pose (hyperdoctrine_proof_subst ⟨ tm_var Γ , t ⟩ r) as r'.
   rewrite hyperdoctrine_comp_subst in r'.
   rewrite hyperdoctrine_pair_comp_pr1 in r'.
   rewrite hyperdoctrine_id_subst in r'.
@@ -773,10 +813,10 @@ Proposition exists_elim_empty
             {Δ ψ : form Γ}
             {φ : form (Γ ×h A)}
             (p : Δ ⊢ ∃h φ)
-            (q : φ ⊢ ψ [ π₁ (identity (Γ ×h A)) ])
+            (q : φ ⊢ ψ [ π₁ (tm_var (Γ ×h A)) ])
   : Δ ⊢ ψ.
 Proof.
-  assert (∃h (ψ [ π₁ (identity (Γ ×h A)) ]) ⊢ ψ) as r.
+  assert (∃h (ψ [ π₁ (tm_var (Γ ×h A)) ]) ⊢ ψ) as r.
   {
     exact (dep_sum_counit (pr2 (pr222 (pr222 H))) (π₁ (identity (Γ ×h A))) ψ).
   }
@@ -791,11 +831,11 @@ Proposition frobenius_reciprocity
             {Γ A : ty H}
             (φ : form (Γ ×h A))
             (Δ : form Γ)
-  : Δ ∧ (∃h φ) ⊢ (∃h (Δ [ π₁ (identity (Γ ×h A)) ] ∧ φ)).
+  : Δ ∧ (∃h φ) ⊢ (∃h (Δ [ π₁ (tm_var (Γ ×h A)) ] ∧ φ)).
 Proof.
-  enough (∃h φ ⊢ Δ ⇒ ∃h (Δ [ π₁ (identity (Γ ×h A)) ] ∧ φ)) as r₁.
+  enough (∃h φ ⊢ Δ ⇒ ∃h (Δ [ π₁ (tm_var (Γ ×h A)) ] ∧ φ)) as r₁.
   {
-    assert (Δ ∧ ∃h φ ⊢ Δ ⇒ ∃h (Δ [ π₁ (identity (Γ ×h A)) ] ∧ φ)) as r₂.
+    assert (Δ ∧ ∃h φ ⊢ Δ ⇒ ∃h (Δ [ π₁ (tm_var (Γ ×h A)) ] ∧ φ)) as r₂.
     {
       use weaken_right.
       exact r₁.
@@ -809,13 +849,13 @@ Proof.
   use impl_intro.
   rewrite exists_subst.
   use exists_intro.
-  - exact (π₂ (identity _)).
+  - exact (π₂ (tm_var _)).
   - rewrite hyperdoctrine_comp_subst.
-    rewrite hyperdoctrine_pair_comp.
-    rewrite !assoc.
+    rewrite hyperdoctrine_pair_subst.
+    rewrite tm_subst_comp.
     rewrite hyperdoctrine_pair_comp_pr1.
     rewrite hyperdoctrine_pair_comp_pr2.
-    rewrite !id_left.
+    rewrite tm_subst_var.
     rewrite conj_subst.
     rewrite hyperdoctrine_comp_subst.
     rewrite hyperdoctrine_pair_comp_pr1.
@@ -831,10 +871,10 @@ Proposition exists_elim
             {Δ ψ : form Γ}
             {φ : form (Γ ×h A)}
             (p : Δ ⊢ ∃h φ)
-            (q : Δ [ π₁ (identity (Γ ×h A)) ] ∧ φ ⊢ ψ [ π₁ (identity (Γ ×h A)) ])
+            (q : Δ [ π₁ (tm_var (Γ ×h A)) ] ∧ φ ⊢ ψ [ π₁ (tm_var (Γ ×h A)) ])
   : Δ ⊢ ψ.
 Proof.
-  assert (∃h (ψ [ π₁ (identity (Γ ×h A)) ]) ⊢ ψ) as r.
+  assert (∃h (ψ [ π₁ (tm_var (Γ ×h A)) ]) ⊢ ψ) as r.
   {
     exact (dep_sum_counit (pr2 (pr222 (pr222 H))) (π₁ (identity (Γ ×h A))) ψ).
   }
@@ -861,11 +901,11 @@ Proposition equal_subst
             {Γ₁ Γ₂ A : ty H}
             (s : Γ₁ --> Γ₂)
             (t₁ t₂ : tm Γ₂ A)
-  : (t₁ ≡ t₂) [ s ] = (s · t₁ ≡ s · t₂).
+  : (t₁ ≡ t₂) [ s ] = (t₁ [ s ]tm ≡ t₂ [ s ]tm).
 Proof.
   unfold first_order_hyperdoctrine_equal.
   rewrite hyperdoctrine_comp_subst.
-  rewrite hyperdoctrine_pair_comp.
+  rewrite hyperdoctrine_pair_subst.
   apply idpath.
 Qed.
 
@@ -882,7 +922,7 @@ Proof.
   pose (hyperdoctrine_proof_subst t p) as q.
   rewrite truth_subst in q.
   rewrite hyperdoctrine_comp_subst in q.
-  rewrite hyperdoctrine_diag_comp in q.
+  rewrite hyperdoctrine_diag_subst in q.
   exact q.
 Qed.
 
@@ -930,28 +970,28 @@ Proposition hyperdoctrine_eq_elim_help_con'
             {H : first_order_hyperdoctrine}
             {Γ A : ty H}
             (φ : form ((A ×h A) ×h Γ))
-            (p : ⊤ ⊢ φ [ ⟨ π₁ (identity _) · Δ_{A} , π₂ (identity _) ⟩ ])
+            (p : ⊤ ⊢ φ [ ⟨ Δ_{A} [ π₁ (tm_var _) ]tm , π₂ (tm_var _) ⟩ ])
             (t₁ t₂ : tm Γ A)
-  : t₁ ≡ t₂ ⊢ φ [ ⟨ ⟨ t₁ , t₂ ⟩ , identity _ ⟩ ].
+  : t₁ ≡ t₂ ⊢ φ [ ⟨ ⟨ t₁ , t₂ ⟩ , tm_var _ ⟩ ].
 Proof.
   assert (⊤ ⊢ (∀h φ) [ Δ_{ A } ]) as q.
   {
     rewrite forall_subst.
     use forall_intro.
     rewrite truth_subst.
-    rewrite hyperdoctrine_diag_comp.
-    rewrite hyperdoctrine_diag_comp in p.
+    rewrite hyperdoctrine_diag_subst.
+    rewrite hyperdoctrine_diag_subst in p.
     exact p.
   }
   refine (hyperdoctrine_cut (hyperdoctrine_eq_elim_help (∀h φ) q t₁ t₂) _).
   rewrite forall_subst.
-  use (hyperdoctrine_cut (forall_elim (hyperdoctrine_hyp _) (identity _))).
+  use (hyperdoctrine_cut (forall_elim (hyperdoctrine_hyp _) (tm_var _))).
   rewrite hyperdoctrine_comp_subst.
-  rewrite hyperdoctrine_pair_comp.
-  rewrite !assoc.
+  rewrite hyperdoctrine_pair_subst.
+  rewrite tm_subst_comp.
   rewrite hyperdoctrine_pair_comp_pr1.
   rewrite hyperdoctrine_pair_comp_pr2.
-  rewrite id_left.
+  rewrite tm_subst_var.
   apply hyperdoctrine_hyp.
 Qed.
 
@@ -961,37 +1001,37 @@ Definition hyperdoctrine_eq_elim_help_con_sub
   : tm ((A ×h A) ×h Γ) (Γ ×h (A ×h A)).
 Proof.
   refine ⟨ _ , ⟨ _ , _ ⟩ ⟩.
-  - exact (π₂ (identity _)).
-  - exact (π₁ (identity _) · π₁ (identity _)).
-  - exact (π₁ (identity _) · π₂ (identity _)).
+  - exact (π₂ (tm_var _)).
+  - exact ((π₁ (tm_var _)) [ π₁ (tm_var _) ]tm).
+  - exact ((π₂ (tm_var _)) [ π₁ (tm_var _) ]tm).
 Defined.
 
 Proposition hyperdoctrine_eq_elim_help_con
             {H : first_order_hyperdoctrine}
             {Γ A : ty H}
             (φ : form (Γ ×h (A ×h A)))
-            (p : ⊤ ⊢ φ [ ⟨ π₁ (identity _) , π₂ (identity _) · Δ_{A} ⟩ ])
+            (p : ⊤ ⊢ φ [ ⟨ π₁ (tm_var _) , Δ_{A} [ π₂ (tm_var _) ]tm ⟩ ])
             (t₁ t₂ : tm Γ A)
-  : t₁ ≡ t₂ ⊢ φ [ ⟨ identity _ , ⟨ t₁ , t₂ ⟩ ⟩ ].
+  : t₁ ≡ t₂ ⊢ φ [ ⟨ tm_var _ , ⟨ t₁ , t₂ ⟩ ⟩ ].
 Proof.
   pose (s := hyperdoctrine_eq_elim_help_con_sub Γ A).
-  assert (⊤ ⊢ φ [s] [⟨ π₁ (identity _) · Δ_{ A }, π₂ (identity _) ⟩])
+  assert (⊤ ⊢ φ [s] [⟨ Δ_{ A } [ π₁ (tm_var _) ]tm , π₂ (tm_var _) ⟩])
     as q.
   {
     unfold s, hyperdoctrine_eq_elim_help_con_sub.
     rewrite hyperdoctrine_comp_subst.
-    rewrite hyperdoctrine_diag_comp.
-    rewrite !hyperdoctrine_pair_comp.
+    rewrite hyperdoctrine_diag_subst.
+    rewrite !hyperdoctrine_pair_subst.
     rewrite hyperdoctrine_pair_comp_pr2.
-    rewrite !assoc.
+    rewrite !tm_subst_comp.
     rewrite !hyperdoctrine_pair_comp_pr1.
     rewrite hyperdoctrine_pair_comp_pr2.
-    rewrite hyperdoctrine_diag_comp in p.
-    pose (hyperdoctrine_proof_subst ⟨ π₂ (identity _) , π₁ (identity _) ⟩ p) as p'.
+    rewrite hyperdoctrine_diag_subst in p.
+    pose (hyperdoctrine_proof_subst ⟨ π₂ (tm_var _) , π₁ (tm_var _) ⟩ p) as p'.
     rewrite truth_subst in p'.
     refine (hyperdoctrine_cut p' _).
     rewrite hyperdoctrine_comp_subst.
-    rewrite !hyperdoctrine_pair_comp.
+    rewrite !hyperdoctrine_pair_subst.
     rewrite hyperdoctrine_pair_comp_pr2.
     rewrite !hyperdoctrine_pair_comp_pr1.
     apply hyperdoctrine_hyp.
@@ -999,9 +1039,9 @@ Proof.
   use (hyperdoctrine_cut (hyperdoctrine_eq_elim_help_con' (φ [ s ]) q t₁ t₂)).
   unfold s, hyperdoctrine_eq_elim_help_con_sub.
   rewrite hyperdoctrine_comp_subst.
-  rewrite !hyperdoctrine_pair_comp.
+  rewrite !hyperdoctrine_pair_subst.
   rewrite hyperdoctrine_pair_comp_pr2.
-  rewrite !assoc.
+  rewrite !tm_subst_comp.
   rewrite !hyperdoctrine_pair_comp_pr1.
   rewrite hyperdoctrine_pair_comp_pr2.
   apply hyperdoctrine_hyp.
@@ -1014,36 +1054,36 @@ Proposition hyperdoctrine_eq_elim
             (φ : form (Γ ×h A))
             {t₁ t₂ : tm Γ A}
             (p : Δ ⊢ t₁ ≡ t₂)
-            (q : Δ ⊢ φ [ ⟨ identity _ , t₁ ⟩ ])
-  : Δ ⊢ φ [ ⟨ identity _ , t₂ ⟩ ].
+            (q : Δ ⊢ φ [ ⟨ tm_var _ , t₁ ⟩ ])
+  : Δ ⊢ φ [ ⟨ tm_var _ , t₂ ⟩ ].
 Proof.
-  pose (φ [ ⟨ π₁ (identity _) , π₂ (identity _) · π₁ (identity _) ⟩ ]
+  pose (φ [ ⟨ π₁ (tm_var _) , (π₁ (tm_var _)) [ π₂ (tm_var _) ]tm ⟩ ]
         ⇒
-        φ [ ⟨ π₁ (identity _) , π₂ (identity _) · π₂ (identity _) ⟩ ])
+        φ [ ⟨ π₁ (tm_var _) , (π₂ (tm_var _)) [ π₂ (tm_var _) ]tm ⟩ ])
     as ψ.
-  assert (⊤ ⊢ ψ [⟨ π₁ (identity (Γ ×h A)), π₂ (identity (Γ ×h A)) · Δ_{ A} ⟩])
+  assert (⊤ ⊢ ψ [⟨ π₁ (tm_var (Γ ×h A)), Δ_{ A } [ π₂ (tm_var (Γ ×h A)) ]tm ⟩])
     as r.
   {
     unfold ψ.
     rewrite impl_subst.
     rewrite !hyperdoctrine_comp_subst.
-    rewrite !hyperdoctrine_pair_comp.
-    rewrite !assoc.
+    rewrite !hyperdoctrine_pair_subst.
+    rewrite !tm_subst_comp.
     rewrite hyperdoctrine_pair_comp_pr1.
     rewrite hyperdoctrine_pair_comp_pr2.
-    rewrite !assoc'.
+    rewrite <- !tm_subst_comp.
     unfold hyperdoctrine_diag.
     rewrite hyperdoctrine_pair_comp_pr1.
     rewrite hyperdoctrine_pair_comp_pr2.
-    rewrite !id_right.
+    rewrite !var_tm_subst.
     apply impl_id.
   }
   pose proof (hyperdoctrine_eq_elim_help_con ψ r t₁ t₂) as r'.
   unfold ψ in r'.
   rewrite impl_subst in r'.
   rewrite !hyperdoctrine_comp_subst in r'.
-  rewrite !hyperdoctrine_pair_comp in r'.
-  rewrite !assoc in r'.
+  rewrite !hyperdoctrine_pair_subst in r'.
+  rewrite !tm_subst_comp in r'.
   rewrite hyperdoctrine_pair_comp_pr1 in r'.
   rewrite hyperdoctrine_pair_comp_pr2 in r'.
   rewrite hyperdoctrine_pair_comp_pr1 in r'.
@@ -1062,23 +1102,23 @@ Proposition hyperdoctrine_eq_sym
             (p : Δ ⊢ t₁ ≡ t₂)
   : Δ ⊢ t₂ ≡ t₁.
 Proof.
-  pose (φ := (π₂ (identity _) ≡ π₁ (identity _) · t₁) : form (Γ ×h A)).
-  assert (Δ ⊢ φ [⟨ identity Γ , t₁ ⟩]) as q.
+  pose (φ := (π₂ (tm_var _) ≡ t₁ [ π₁ (tm_var _) ]tm) : form (Γ ×h A)).
+  assert (Δ ⊢ φ [⟨ tm_var Γ , t₁ ⟩]) as q.
   {
     unfold φ.
     rewrite equal_subst.
-    rewrite !assoc.
+    rewrite !tm_subst_comp.
     rewrite hyperdoctrine_pair_comp_pr1.
-    rewrite id_left.
+    rewrite tm_subst_var.
     rewrite hyperdoctrine_pair_comp_pr2.
     apply hyperdoctrine_refl.
   }
   pose (hyperdoctrine_eq_elim φ p q) as r.
   unfold φ in r.
   rewrite equal_subst in r.
-  rewrite !assoc in r.
+  rewrite !tm_subst_comp in r.
   rewrite hyperdoctrine_pair_comp_pr1 in r.
-  rewrite id_left in r.
+  rewrite tm_subst_var in r.
   rewrite hyperdoctrine_pair_comp_pr2 in r.
   exact r.
 Qed.
@@ -1092,23 +1132,23 @@ Proposition hyperdoctrine_eq_trans
             (p' : Δ ⊢ t₂ ≡ t₃)
   : Δ ⊢ t₁ ≡ t₃.
 Proof.
-  pose (φ := (π₂ (identity _) ≡ π₁ (identity _) · t₃) : form (Γ ×h A)).
-  assert (Δ ⊢ φ [⟨ identity Γ , t₂ ⟩]) as q.
+  pose (φ := (π₂ (tm_var _) ≡ t₃ [ π₁ (tm_var _) ]tm) : form (Γ ×h A)).
+  assert (Δ ⊢ φ [⟨ tm_var Γ , t₂ ⟩]) as q.
   {
     unfold φ.
     rewrite equal_subst.
-    rewrite !assoc.
+    rewrite !tm_subst_comp.
     rewrite hyperdoctrine_pair_comp_pr1.
-    rewrite id_left.
+    rewrite tm_subst_var.
     rewrite hyperdoctrine_pair_comp_pr2.
     exact p'.
   }
   pose (hyperdoctrine_eq_elim φ (hyperdoctrine_eq_sym p) q) as r.
   unfold φ in r.
   rewrite equal_subst in r.
-  rewrite !assoc in r.
+  rewrite !tm_subst_comp in r.
   rewrite hyperdoctrine_pair_comp_pr1 in r.
-  rewrite id_left in r.
+  rewrite tm_subst_var in r.
   rewrite hyperdoctrine_pair_comp_pr2 in r.
   exact r.
 Qed.
@@ -1132,31 +1172,31 @@ Proposition hyperdoctrine_eq_pr1
             (p : Δ ⊢ t ≡ t')
   : Δ ⊢ π₁ t ≡ π₁ t'.
 Proof.
-  pose (φ := (π₁ (identity _) · π₁ t ≡ π₁ (π₂ (identity (Γ ×h A ×h B)))) : form (Γ ×h A ×h B)).
-  assert (Δ ⊢ φ [⟨ identity Γ , t ⟩]) as r.
+  pose (φ := ((π₁ t) [ π₁ (tm_var _) ]tm ≡ π₁ (π₂ (tm_var (Γ ×h A ×h B)))) : form (Γ ×h A ×h B)).
+  assert (Δ ⊢ φ [⟨ tm_var Γ , t ⟩]) as r.
   {
     unfold φ.
     rewrite equal_subst.
-    rewrite !assoc.
-    rewrite !hyperdoctrine_pr1_comp.
-    rewrite id_right.
+    rewrite !tm_subst_comp.
+    rewrite !hyperdoctrine_pr1_subst.
+    rewrite var_tm_subst.
     rewrite hyperdoctrine_pair_pr1.
-    rewrite id_left.
-    rewrite !hyperdoctrine_pr2_comp.
-    rewrite id_right.
+    rewrite tm_subst_var.
+    rewrite !hyperdoctrine_pr2_subst.
+    rewrite var_tm_subst.
     rewrite hyperdoctrine_pair_pr2.
     apply hyperdoctrine_refl.
   }
   pose (hyperdoctrine_eq_elim φ p r) as r'.
   unfold φ in r'.
   rewrite equal_subst in r'.
-  rewrite !assoc in r'.
-  rewrite !hyperdoctrine_pr1_comp in r'.
-  rewrite id_right in r'.
+  rewrite !tm_subst_comp in r'.
+  rewrite !hyperdoctrine_pr1_subst in r'.
+  rewrite var_tm_subst in r'.
   rewrite hyperdoctrine_pair_pr1 in r'.
-  rewrite id_left in r'.
-  rewrite !hyperdoctrine_pr2_comp in r'.
-  rewrite id_right in r'.
+  rewrite tm_subst_var in r'.
+  rewrite !hyperdoctrine_pr2_subst in r'.
+  rewrite var_tm_subst in r'.
   rewrite hyperdoctrine_pair_pr2 in r'.
   exact r'.
 Qed.
@@ -1169,31 +1209,31 @@ Proposition hyperdoctrine_eq_pr2
             (p : Δ ⊢ t ≡ t')
   : Δ ⊢ π₂ t ≡ π₂ t'.
 Proof.
-  pose (φ := (π₁ (identity _) · π₂ t ≡ π₂ (π₂ (identity (Γ ×h A ×h B)))) : form (Γ ×h A ×h B)).
-  assert (Δ ⊢ φ [⟨ identity Γ , t ⟩]) as r.
+  pose (φ := ((π₂ t) [ π₁ (tm_var _) ]tm ≡ π₂ (π₂ (tm_var (Γ ×h A ×h B)))) : form (Γ ×h A ×h B)).
+  assert (Δ ⊢ φ [⟨ tm_var Γ , t ⟩]) as r.
   {
     unfold φ.
     rewrite equal_subst.
-    rewrite !assoc.
-    rewrite !hyperdoctrine_pr1_comp.
-    rewrite id_right.
+    rewrite !tm_subst_comp.
+    rewrite !hyperdoctrine_pr1_subst.
+    rewrite var_tm_subst.
     rewrite hyperdoctrine_pair_pr1.
-    rewrite id_left.
-    rewrite !hyperdoctrine_pr2_comp.
-    rewrite id_right.
+    rewrite tm_subst_var.
+    rewrite !hyperdoctrine_pr2_subst.
+    rewrite var_tm_subst.
     rewrite hyperdoctrine_pair_pr2.
     apply hyperdoctrine_refl.
   }
   pose (hyperdoctrine_eq_elim φ p r) as r'.
   unfold φ in r'.
   rewrite equal_subst in r'.
-  rewrite !assoc in r'.
-  rewrite !hyperdoctrine_pr1_comp in r'.
-  rewrite id_right in r'.
+  rewrite !tm_subst_comp in r'.
+  rewrite !hyperdoctrine_pr1_subst in r'.
+  rewrite var_tm_subst in r'.
   rewrite hyperdoctrine_pair_pr1 in r'.
-  rewrite id_left in r'.
-  rewrite !hyperdoctrine_pr2_comp in r'.
-  rewrite id_right in r'.
+  rewrite tm_subst_var in r'.
+  rewrite !hyperdoctrine_pr2_subst in r'.
+  rewrite var_tm_subst in r'.
   rewrite hyperdoctrine_pair_pr2 in r'.
   exact r'.
 Qed.
@@ -1207,35 +1247,35 @@ Proposition hyperdoctrine_eq_pair_left
             (t : tm Γ B)
   : Δ ⊢ ⟨ s₁ , t ⟩ ≡ ⟨ s₂ , t ⟩.
 Proof.
-  pose (φ := (⟨ π₁ (identity _) · s₁ , π₁ (identity _) · t ⟩
+  pose (φ := (⟨ s₁ [ π₁ (tm_var _) ]tm , t [ π₁ (tm_var _) ]tm ⟩
               ≡
-              ⟨ π₂ (identity _) , π₁ (identity _) · t ⟩)
+              ⟨ π₂ (tm_var _) , t [ π₁ (tm_var _) ]tm ⟩)
           : form (Γ ×h A)).
-  assert (Δ ⊢ φ [⟨ identity Γ , s₁ ⟩]) as r.
+  assert (Δ ⊢ φ [⟨ tm_var Γ , s₁ ⟩]) as r.
   {
     unfold φ.
     rewrite equal_subst.
-    rewrite !hyperdoctrine_pair_comp.
-    rewrite !assoc.
-    rewrite hyperdoctrine_pr1_comp.
-    rewrite hyperdoctrine_pr2_comp.
-    rewrite !id_right.
+    rewrite !hyperdoctrine_pair_subst.
+    rewrite !tm_subst_comp.
+    rewrite hyperdoctrine_pr1_subst.
+    rewrite hyperdoctrine_pr2_subst.
+    rewrite !var_tm_subst.
     rewrite hyperdoctrine_pair_pr1.
     rewrite hyperdoctrine_pair_pr2.
-    rewrite !id_left.
+    rewrite !tm_subst_var.
     apply hyperdoctrine_refl.
   }
   pose (hyperdoctrine_eq_elim φ p r) as r'.
   unfold φ in r'.
   rewrite equal_subst in r'.
-  rewrite !hyperdoctrine_pair_comp in r'.
-  rewrite !assoc in r'.
-  rewrite hyperdoctrine_pr1_comp in r'.
-  rewrite hyperdoctrine_pr2_comp in r'.
-  rewrite !id_right in r'.
+  rewrite !hyperdoctrine_pair_subst in r'.
+  rewrite !tm_subst_comp in r'.
+  rewrite hyperdoctrine_pr1_subst in r'.
+  rewrite hyperdoctrine_pr2_subst in r'.
+  rewrite !var_tm_subst in r'.
   rewrite hyperdoctrine_pair_pr1 in r'.
   rewrite hyperdoctrine_pair_pr2 in r'.
-  rewrite !id_left in r'.
+  rewrite !tm_subst_var in r'.
   exact r'.
 Qed.
 
@@ -1248,35 +1288,35 @@ Proposition hyperdoctrine_eq_pair_right
             (p : Δ ⊢ t₁ ≡ t₂)
   : Δ ⊢ ⟨ s , t₁ ⟩ ≡ ⟨ s , t₂ ⟩.
 Proof.
-  pose (φ := (⟨ π₁ (identity _) · s , π₁ (identity _) · t₁ ⟩
+  pose (φ := (⟨ s [ π₁ (tm_var _) ]tm , t₁ [ π₁ (tm_var _) ]tm ⟩
               ≡
-              ⟨ π₁ (identity _) · s , π₂ (identity _) ⟩)
+              ⟨ s [ π₁ (tm_var _) ]tm , π₂ (tm_var _) ⟩)
           : form (Γ ×h B)).
-  assert (Δ ⊢ φ [⟨ identity Γ , t₁ ⟩]) as r.
+  assert (Δ ⊢ φ [⟨ tm_var Γ , t₁ ⟩]) as r.
   {
     unfold φ.
     rewrite equal_subst.
-    rewrite !hyperdoctrine_pair_comp.
-    rewrite !assoc.
-    rewrite hyperdoctrine_pr1_comp.
-    rewrite hyperdoctrine_pr2_comp.
-    rewrite !id_right.
+    rewrite !hyperdoctrine_pair_subst.
+    rewrite !tm_subst_comp.
+    rewrite hyperdoctrine_pr1_subst.
+    rewrite hyperdoctrine_pr2_subst.
+    rewrite !var_tm_subst.
     rewrite hyperdoctrine_pair_pr1.
     rewrite hyperdoctrine_pair_pr2.
-    rewrite !id_left.
+    rewrite !tm_subst_var.
     apply hyperdoctrine_refl.
   }
   pose (hyperdoctrine_eq_elim φ p r) as r'.
   unfold φ in r'.
   rewrite equal_subst in r'.
-  rewrite !hyperdoctrine_pair_comp in r'.
-  rewrite !assoc in r'.
-  rewrite hyperdoctrine_pr1_comp in r'.
-  rewrite hyperdoctrine_pr2_comp in r'.
-  rewrite !id_right in r'.
+  rewrite !hyperdoctrine_pair_subst in r'.
+  rewrite !tm_subst_comp in r'.
+  rewrite hyperdoctrine_pr1_subst in r'.
+  rewrite hyperdoctrine_pr2_subst in r'.
+  rewrite !var_tm_subst in r'.
   rewrite hyperdoctrine_pair_pr1 in r'.
   rewrite hyperdoctrine_pair_pr2 in r'.
-  rewrite !id_left in r'.
+  rewrite !tm_subst_var in r'.
   exact r'.
 Qed.
 
@@ -1294,3 +1334,65 @@ Proof.
            (hyperdoctrine_eq_pair_left p _)
            (hyperdoctrine_eq_pair_right _ q)).
 Qed.
+
+(** * 12. A tactic for simplifying goals in the internal language of first-order hyperdoctrines *)
+
+(**
+   We design a tactic `simplify`, which is meant to help proving statements in the internal
+   language of some hyperdoctrine. Such goals are of the shape `Δ ⊢ φ`. The tactic `simplify`
+   simplifies `Δ` and φ` by calculating the substitutions and by putting all terms that occur
+   in either `Δ` or φ` in normal form.
+
+   We divide this tactic into two subroutines.
+   1. `simplify_form`. This tactic calculates all substitutions in `Δ` and `φ`.
+   2. `simplify_term`. This tactic normalizes all terms in `Δ` and `φ`.
+
+   Both `simplify_form` and `simplify_term` work by repeatedly using rewrite rules of the
+   internal language. The only difference lies in which rewrite rules they use. For
+   `simplify_form` the used rewrite rules are those that express how substitution acts on
+   formulas, and for `simplify_term` these are all rewrite rules on terms in the language.
+   We shall only explain how `simplify_form` is implemented, since `simplify_term` is
+   implemented in the same way.
+
+   The tactic `simplify_form` repeatedly tries to apply `simplify_form_step`, which tries
+   to rewrite each substitution rule in the language. If this succeeds, then the rewrites
+   are performed, and it continues. If no progress is made, then the tactic terminates.
+   Guaranteeing that the tactic terminates if no progress is made, is done using the
+   `progress` tactic.
+
+   If one is trying to prove a goal with rather large formulas, then it might not be ideal
+   to use `simplify` directly. This is because one might be normalizing too many terms.
+   Instead one could use `simplify_form` to simplify the formula and delay using
+   `simplify_term` until it is necessary. The reason why this helps, is because one might
+   have made the goal smaller and removed some unnecessary assumptions using weakening.
+   This is demonstrated in `PERs.v` in the proof of [eq_per_axioms].
+ *)
+Ltac simplify_form_step :=
+  rewrite ?truth_subst,
+    ?false_subst,
+    ?conj_subst,
+    ?disj_subst,
+    ?impl_subst,
+    ?forall_subst,
+    ?exists_subst,
+    ?equal_subst,
+    ?hyperdoctrine_comp_subst,
+    ?hyperdoctrine_id_subst.
+
+Ltac simplify_form :=
+  repeat (progress simplify_form_step).
+
+Ltac simplify_term_step :=
+  rewrite ?hyperdoctrine_pr1_subst,
+    ?hyperdoctrine_pr2_subst,
+    ?hyperdoctrine_pair_subst,
+    ?var_tm_subst,
+    ?tm_subst_comp,
+    ?tm_subst_var,
+    ?hyperdoctrine_pair_pr1,
+    ?hyperdoctrine_pair_pr2.
+
+Ltac simplify_term :=
+  repeat (progress simplify_term_step).
+
+Ltac simplify := simplify_form ; simplify_term.
