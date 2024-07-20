@@ -116,14 +116,18 @@ Section EndomorphismAlgebraicTheory.
     : BinProductArrow _ (C_bin_products (power n) X) f g · BinProductPr2 _ _ = g
     := BinProductPr2Commutes _ _ _ (C_bin_products (power n) X) c f g.
 
-  Context (E : is_exponentiable' C_bin_products X).
+  Context (E : is_exponentiable C_bin_products X).
+
+  Let E'
+    : is_left_adjoint (constprod_functor2 C_bin_products X)
+    := is_exponentiable_to_is_exponentiable' _ _ E.
 
   Let Adj
-    : are_adjoints (constprod_functor2 C_bin_products X) (pr1 E)
-    := pr2 E.
+    : are_adjoints (constprod_functor2 C_bin_products X) (pr1 E')
+    := pr2 E'.
 
-  Context (abs : C⟦pr1 E X, X⟧).
-  Context (app : C⟦X, pr1 E X⟧).
+  Context (abs : C⟦pr1 E' X, X⟧).
+  Context (app : C⟦X, pr1 E' X⟧).
 
   Let hom_weq (n: nat)
     : C⟦power (S n), X⟧ ≃ C⟦power n, pr1 E X⟧
@@ -246,26 +250,34 @@ Section Morphism.
   Context (C'_bin_products : BinProducts C').
   Context (X' : C').
 
-  Context (E : is_exponentiable' C_bin_products X).
-  Context (abs : C⟦pr1 E X, X⟧).
-  Context (app : C⟦X, pr1 E X⟧).
+  Context (E1 : is_exponentiable C_bin_products X).
+  Context (abs : C⟦pr1 E1 X, X⟧).
+  Context (app : C⟦X, pr1 E1 X⟧).
   Context (C_beta : abs · app = identity _).
 
-  Let Adj
-    : are_adjoints (constprod_functor2 C_bin_products X) (pr1 E)
-    := pr2 E.
+  Let E2
+    : is_left_adjoint (constprod_functor2 C_bin_products X)
+    := is_exponentiable_to_is_exponentiable' _ _ E1.
 
-  Context (E' : is_exponentiable' C'_bin_products X').
-  Context (abs' : C'⟦pr1 E' X', X'⟧).
-  Context (app' : C'⟦X', pr1 E' X'⟧).
+  Let Adj
+    : are_adjoints (constprod_functor2 C_bin_products X) (pr1 E2)
+    := pr2 E2.
+
+  Context (E1' : is_exponentiable C'_bin_products X').
+  Context (abs' : C'⟦pr1 E1' X', X'⟧).
+  Context (app' : C'⟦X', pr1 E1' X'⟧).
   Context (C'_beta : abs' · app' = identity _).
 
-  Let Adj'
-    : are_adjoints (constprod_functor2 C'_bin_products X') (pr1 E')
-    := pr2 E'.
+  Let E2'
+    : is_left_adjoint (constprod_functor2 C'_bin_products X')
+    := is_exponentiable_to_is_exponentiable' _ _ E1'.
 
-  Let L := endomorphism_lambda_theory C_terminal C_bin_products X E abs app.
-  Let L' := endomorphism_lambda_theory C'_terminal C'_bin_products X' E' abs' app'.
+  Let Adj'
+    : are_adjoints (constprod_functor2 C'_bin_products X') (pr1 E2')
+    := pr2 E2'.
+
+  Let L := endomorphism_lambda_theory C_terminal C_bin_products X E1 abs app.
+  Let L' := endomorphism_lambda_theory C'_terminal C'_bin_products X' E1' abs' app'.
 
   Context (F : C ⟶ C').
   Context (F_preserves_X : z_iso (F X) X').
@@ -380,7 +392,7 @@ Section Morphism.
     : algebraic_theory_morphism L L'
     := make_algebraic_theory_morphism _ functor_to_is_algebraic_theory_morphism.
 
-  Context (F_preserves_E : z_iso (F (pr1 E X)) (pr1 E' X')).
+  Context (F_preserves_E : z_iso (F (pr1 E2 X)) (pr1 E2' X')).
   Context (F_preserves_φ_adj_inv
     : #F (φ_adj_inv Adj app)
     = preserves_binproduct_to_z_iso _ F_preserves_binproduct (C_bin_products _ _) (C'_bin_products _ _)
@@ -395,9 +407,9 @@ Section Morphism.
       · inv_from_z_iso F_preserves_E).
 
   Context (F_preserves_app_abs_abs
-    : #F (# (pr1 E) (app · abs) · abs)
+    : #F (# (pr1 E2) (app · abs) · abs)
     = F_preserves_E
-      · # (pr1 E') (app' · abs') · abs'
+      · # (pr1 E2') (app' · abs') · abs'
       · inv_from_z_iso F_preserves_X).
 
   Lemma functor_to_morphism_preserves_app'
