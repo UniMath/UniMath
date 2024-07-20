@@ -15,8 +15,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Products.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
@@ -104,6 +103,19 @@ Section EndomorphismTheory.
     (f : E (S m))
     : R_mor_to_L _ (abs f) = Combinators.curry (R_mor_to_L _ f).
   Proof.
+    do 2 (refine '(maponpaths
+      (λ (x : R _ _ ⟦_, _⟧), R_section L Lβ _ ∘ (R_mor_to_L _ x))
+      (φ_adj_under_iso _ _ _ _ _ _ _ _) @ _)).
+    refine '(maponpaths
+      (λ x, R_section L Lβ _ ∘ (R_mor_to_L _ (φ_adj _ x : R _ _ ⟦_, _⟧)))
+      (assoc _ _ _) @ _).
+    refine '(maponpaths
+      (λ x, R_section L Lβ _ ∘ (R_mor_to_L _ (φ_adj _ (x · _) : R _ _ ⟦_, _⟧)))
+      (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso
+        (BinProduct_of_functors_commutes _ _ _ _ _ ) _)) @ _).
+    refine '(maponpaths
+      (λ x, R_section L Lβ _ ∘ (R_mor_to_L _ (φ_adj _ x : R _ _ ⟦_, _⟧)))
+      (id_left _) @ _).
     refine '(maponpaths
       (λ (x : R _ _ ⟦_, _⟧), R_section L Lβ _ ∘ (R_mor_to_L _ x))
       (φ_adj_from_partial _ _ _ (is_universal_arrow L Lβ _) _ _ f) @ _).
@@ -117,6 +129,15 @@ Section EndomorphismTheory.
     : R_mor_to_L _ (appx f)
     = Combinators.uncurry (R_mor_to_L _ f).
   Proof.
+    refine '(maponpaths (λ (x : R _ _ ⟦_, _⟧), R_mor_to_L _ x)
+      (φ_adj_inv_under_iso _ _ _ _ _ _ _ _) @ _).
+    refine '(maponpaths (λ (x : R _ _ ⟦_, _⟧), R_mor_to_L _ (_ · x))
+      (φ_adj_inv_under_iso _ _ _ _ _ _ _ _) @ _).
+    refine '(maponpaths (λ (x : R _ _ ⟦_, _⟧), R_mor_to_L _ x) (assoc _ _ _) @ _).
+    refine '(maponpaths (λ (x : R _ _ ⟦_, _⟧), R_mor_to_L _ (x · _))
+      (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso
+        (BinProduct_of_functors_commutes _ _ _ _ _ ) _)) @ _).
+    refine '(maponpaths (λ (x : R _ _ ⟦_, _⟧), R_mor_to_L _ x) (id_left _) @ _).
     refine '(ev_compose_pair_arrow _ Lβ _ _ (_ ∘ _ ∘ p1_term _ _) (U L Lβ ∘ p2_term _ (U L Lβ)) @ _).
     refine '(maponpaths (λ x, (abs (app _ (app (app (inflate x) _) _)))) (compose_assoc _ Lβ _ _ _) @ _).
     refine '(!maponpaths (λ x, (abs (app _ (app (app (inflate (x ∘ _)) _) _)))) (compose_assoc _ Lβ _ _ _) @ _).
