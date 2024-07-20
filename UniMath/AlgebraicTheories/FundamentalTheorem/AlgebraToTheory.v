@@ -769,8 +769,7 @@ Section AlgebraToTheory.
       - apply terminal_monoid_action.
       - apply binproducts_monoid_action_cat.
       - apply monoid_monoid_action.
-      - apply exponentials.is_exponentiable_to_is_exponentiable'.
-        apply is_exponentiable_monoid_action.
+      - apply is_exponentiable_monoid_action.
       - exact (inv_from_z_iso universal_monoid_exponential_iso · functional_abs).
       - exact (
           (functional_app : monoid_action_cat _ ⟦_, _⟧) ·
