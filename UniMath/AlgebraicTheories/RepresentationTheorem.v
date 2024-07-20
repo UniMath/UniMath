@@ -275,8 +275,9 @@ Section RepresentationTheorem.
     Qed.
 
     Definition theory_presheaf_exponentiable
-      : is_exponentiable' (bin_products_presheaf_cat _) (theory_presheaf L).
+      : is_exponentiable (bin_products_presheaf_cat _) (theory_presheaf L).
     Proof.
+      apply is_exponentiable'_to_is_exponentiable.
       use left_adjoint_from_partial.
       - exact plus_1_presheaf.
       - exact presheaf_exponent_morphism.
@@ -292,9 +293,26 @@ Section RepresentationTheorem.
       {m n : nat}
       (G : presheaf_cat L ⟦pow n, pr1 theory_presheaf_exponentiable (theory_presheaf L)⟧)
       (l : ((PO (S n)) m : hSet))
-      : pr1 (φ_adj_inv (pr2 theory_presheaf_exponentiable) G) m l
+      : pr1 (φ_adj_inv (pr2 (is_exponentiable_to_is_exponentiable' _ _ theory_presheaf_exponentiable)) G) m l
       = pr1 G m (pr1 l) • (extend_tuple var (pr2 l)).
     Proof.
+      refine (maponpaths
+        (λ (x : presheaf_morphism (PO (S n)) _), pr1 x m l)
+        (φ_adj_inv_under_iso _ _ _ (flip_z_iso (bin_products_presheaf_cat L) _) _ _ _ _) @ _).
+      refine (maponpaths
+        (λ x, pr1 ((_ : presheaf_morphism (PO (S n)) _) · x) m l)
+        (φ_adj_inv_under_iso _ _ _ _ _ _ _ _) @ _).
+      refine (maponpaths (λ (x : presheaf_morphism _ _), pr1 x m _) (assoc _ _ _) @ _).
+      refine (maponpaths
+        (λ x, pr1 (x · _ : presheaf_morphism (PO (S n)) _) m l)
+        (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso
+          (BinProduct_of_functors_commutes _ _
+            (bin_products_presheaf_cat L)
+            (constant_functor _ _ (theory_presheaf L))
+            (functor_identity _)
+          )
+          (PO n))) @ _).
+      refine (maponpaths (λ (x : presheaf_morphism (PO (S n)) _), pr1 x m l) (id_left _) @ _).
       refine (maponpaths (λ x, x _) (presheaf_mor_comp (P'' := theory_presheaf L) _ _ _) @ _).
       refine (maponpaths (λ x, x • _) _ @ maponpaths (λ x, (pr1 G) m (pr1 l) • x) _).
       - exact (maponpaths (λ x, x _) (presheaf_mor_comp _ G _)).
@@ -312,9 +330,22 @@ Section RepresentationTheorem.
       {m n : nat}
       (G : presheaf_cat L ⟦pow (S n), theory_presheaf L⟧)
       (l : ((PO n) m : hSet))
-      : pr1 (φ_adj (pr2 theory_presheaf_exponentiable) G) m l
+      : pr1 (φ_adj (pr2 (is_exponentiable_to_is_exponentiable' _ _ theory_presheaf_exponentiable)) G) m l
       = pr1 G (S m) (op l (λ i, var (stnweq (inl i))) ,, var (stnweq (n := m) (inr tt))).
     Proof.
+      do 2 refine (maponpaths
+        (λ (x : presheaf_morphism (PO n) _), pr1 x m l)
+        (φ_adj_under_iso _ _ _ _ _ _ _ _) @ _).
+      refine (maponpaths (λ x, pr1 (φ_adj _ x : presheaf_morphism _ _) m _) (assoc _ _ _) @ _).
+      refine (maponpaths (λ x, pr1 (φ_adj _ (x · _) : presheaf_morphism _ _) m _)
+        (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso
+            (BinProduct_of_functors_commutes _ _
+              (bin_products_presheaf_cat L)
+              (constant_functor _ _ (theory_presheaf L))
+              (functor_identity _)
+            )
+            (PO n))) @ _).
+      refine (maponpaths (λ x, pr1 (φ_adj _ x : presheaf_morphism _ _) m _) (id_left _) @ _).
       exact (maponpaths (λ x, pr1 x _ _) (φ_adj_from_partial (constprod_functor2 _ (theory_presheaf L)) _ _ _ _ _ _)).
     Qed.
 
@@ -561,7 +592,7 @@ Section RepresentationTheorem.
         refine (maponpaths (λ x, pr1 x _ _ • _) (ProductPrCommutes _ _ _ (pow _) _ _ _) @ _).
         apply var_subst.
       - apply idpath.
-    Time Qed.
+    Qed.
 
     Definition presheaf_lambda_theory_iso
       : z_iso (C := lambda_theory_cat) presheaf_lambda_theory L.
