@@ -1048,9 +1048,10 @@ Section Category.
     Defined.
 
     Definition R_exponentials
-      : Exponentials' R_binproducts.
+      : Exponentials R_binproducts.
     Proof.
       intro B.
+      apply is_exponentiable'_to_is_exponentiable.
       refine '(left_adjoint_from_partial _ _ _ _).
       - exact (exponential_ob B).
       - exact (eval_mor B).
