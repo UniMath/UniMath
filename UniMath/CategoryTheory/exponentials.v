@@ -82,149 +82,151 @@ Section Accessors.
 
   Context {C : category}
           {prodC : BinProducts C}
-          (expC : Exponentials prodC).
+          {x : C}
+          (exp_x : is_exponentiable prodC x).
 
-  Let expC' (a : C)
-    : is_left_adjoint (constprod_functor2 _ a)
-    := is_exponentiable_to_is_exponentiable' _ _ (expC _).
+  Let exp_x_alt
+    : is_left_adjoint (constprod_functor2 _ x)
+    := is_exponentiable_to_is_exponentiable' _ _ exp_x.
 
-  Definition exp
-             (x y : C)
+  Definition exp (y : C)
     : C
-    := pr1 (expC x) y.
+    := pr1 exp_x y.
 
-  Definition exp_eval
-             (x y : C)
-    : prodC x (exp x y) --> y
-    := counit_from_are_adjoints (pr2 (expC x)) y.
+  Definition exp_mor {y y' : C} (f : C⟦y, y'⟧)
+    : C⟦exp y, exp y'⟧
+    := #(pr1 exp_x) f.
 
-  Definition exp_eval_alt
-             (x y : C)
-    : prodC (exp x y) x --> y
-    := counit_from_are_adjoints (pr2 (expC' x)) y.
+  Definition exp_eval (y : C)
+    : prodC x (exp y) --> y
+    := counit_from_are_adjoints (pr2 exp_x) y.
+
+  Definition exp_eval_alt (y : C)
+    : prodC (exp y) x --> y
+    := counit_from_are_adjoints (pr2 exp_x_alt) y.
 
   Definition exp_lam
-             {x y z : C}
-             (f : prodC y x --> z)
-    : x --> exp y z
-    := φ_adj (pr2 (expC y)) f.
+             {y z : C}
+             (f : prodC x y --> z)
+    : y --> exp z
+    := φ_adj (pr2 exp_x) f.
 
   Definition exp_lam_alt
-             {x y z : C}
-             (f : prodC z x --> y)
-    : z --> exp x y
-    := φ_adj (pr2 (expC' x)) f.
+             {y z : C}
+             (f : prodC y x --> z)
+    : y --> exp z
+    := φ_adj (pr2 exp_x_alt) f.
 
   Definition exp_app
-             {x y z : C}
-             (f : x --> exp y z)
-    : prodC y x --> z
-    := φ_adj_inv ((pr2 (expC y))) f.
+             {y z : C}
+             (f : y --> exp z)
+    : prodC x y --> z
+    := φ_adj_inv (pr2 exp_x) f.
 
   Definition exp_app_alt
-             {x y z : C}
-             (f : z --> exp x y)
-    : prodC z x --> y
-    := φ_adj_inv (pr2 (expC' x)) f.
+             {y z : C}
+             (f : y --> exp z)
+    : prodC y x --> z
+    := φ_adj_inv (pr2 exp_x_alt) f.
 
   Definition exp_lam_app
-             {x y z : C}
-             (f : x --> exp y z)
+             {y z : C}
+             (f : y --> exp z)
     : exp_lam (exp_app f) = f
     := φ_adj_after_φ_adj_inv _ _.
 
   Definition exp_lam_app_alt
-             {x y z : C}
-             (f : x --> exp y z)
+             {y z : C}
+             (f : y --> exp z)
     : exp_lam_alt (exp_app_alt f) = f
     := φ_adj_after_φ_adj_inv _ _.
 
   Definition exp_app_lam
-             {x y z : C}
-             (f : prodC y x --> z)
+             {y z : C}
+             (f : prodC x y --> z)
     : exp_app (exp_lam f) = f
-    := φ_adj_inv_after_φ_adj (pr2 (expC _)) _.
+    := φ_adj_inv_after_φ_adj (pr2 exp_x) _.
 
   Definition exp_app_lam_alt
-             {x y z : C}
-             (f : prodC z x --> y)
+             {y z : C}
+             (f : prodC y x --> z)
     : exp_app_alt (exp_lam_alt f) = f
-    := φ_adj_inv_after_φ_adj (pr2 (expC' _)) _.
+    := φ_adj_inv_after_φ_adj (pr2 exp_x_alt) _.
 
   Proposition exp_beta
-              {x y z : C}
-              (f : prodC y x --> z)
+              {y z : C}
+              (f : prodC x y --> z)
     : BinProductOfArrows _ _ _ (identity _) (exp_lam f)
-      · exp_eval _ _
+      · exp_eval z
       =
       f.
   Proof.
     refine (!maponpaths (λ x, x · _) (BinProductOfArrows_idxcomp _ _ _ _) @ _).
     rewrite !assoc'.
-    refine (maponpaths _ (nat_trans_ax (counit_from_are_adjoints (pr2 (expC y))) _ _ f) @ _).
+    refine (maponpaths _ (nat_trans_ax (counit_from_are_adjoints (pr2 exp_x)) _ _ f) @ _).
     rewrite !assoc.
     refine (_ @ id_left _).
     apply maponpaths_2.
-    apply (triangle_id_left_ad (pr2 (expC y))).
+    apply (triangle_id_left_ad (pr2 exp_x)).
   Qed.
 
   Proposition exp_beta_alt
-              {x y z : C}
-              (f : prodC z x --> y)
+              {y z : C}
+              (f : prodC y x --> z)
     : BinProductOfArrows _ _ _ (exp_lam_alt f) (identity x)
-      · exp_eval_alt x y
+      · exp_eval_alt z
       =
       f.
   Proof.
     refine (!maponpaths (λ x, x · _) (BinProductOfArrows_compxid _ _ _ _) @ _).
     rewrite !assoc'.
-    refine (maponpaths _ (nat_trans_ax (counit_from_are_adjoints (pr2 (expC' x))) _ _ f) @ _).
+    refine (maponpaths _ (nat_trans_ax (counit_from_are_adjoints (pr2 exp_x_alt)) _ _ f) @ _).
     rewrite !assoc.
     refine (_ @ id_left _).
     apply maponpaths_2.
-    apply (triangle_id_left_ad (pr2 (expC' x))).
+    apply (triangle_id_left_ad (pr2 exp_x_alt)).
   Qed.
 
   Proposition exp_eta
-              {x y z : C}
-              (f : z --> exp x y)
+              {y z : C}
+              (f : y --> exp z)
     : f
       =
-      exp_lam (BinProductOfArrows C _ _ (identity x) f · exp_eval x y).
+      exp_lam (BinProductOfArrows C _ _ (identity x) f · exp_eval z).
   Proof.
     refine (_ @ !maponpaths (λ x, _ · x) (functor_comp _ _ _)).
     rewrite !assoc.
-    refine (!_ @ maponpaths_2 _ ((nat_trans_ax (unit_from_are_adjoints (pr2 (expC x))) _ _ f)) _).
+    refine (!_ @ maponpaths_2 _ ((nat_trans_ax (unit_from_are_adjoints (pr2 exp_x)) _ _ f)) _).
     refine (_ @ id_right _).
     rewrite !assoc'.
     apply maponpaths.
-    exact (triangle_id_right_ad (pr2 (expC x)) _).
+    exact (triangle_id_right_ad (pr2 exp_x) _).
   Qed.
 
   Proposition exp_eta_alt
-              {x y z : C}
-              (f : z --> exp x y)
+              {y z : C}
+              (f : y --> exp z)
     : f
       =
-      exp_lam_alt (BinProductOfArrows C _ _ f (identity x) · exp_eval_alt x y).
+      exp_lam_alt (BinProductOfArrows C _ _ f (identity x) · exp_eval_alt z).
   Proof.
     refine (_ @ !maponpaths (λ x, _ · x) (functor_comp _ _ _)).
     rewrite !assoc.
-    refine (!_ @ maponpaths_2 _ ((nat_trans_ax (unit_from_are_adjoints (pr2 (expC' x))) _ _ f)) _).
+    refine (!_ @ maponpaths_2 _ ((nat_trans_ax (unit_from_are_adjoints (pr2 exp_x_alt)) _ _ f)) _).
     refine (_ @ id_right _).
     rewrite !assoc'.
     apply maponpaths.
-    exact (triangle_id_right_ad (pr2 (expC' x)) _).
+    exact (triangle_id_right_ad (pr2 exp_x_alt) _).
   Qed.
 
   Proposition exp_funext
-              {x y z : C}
-              {f g : z --> exp x y}
+              {y z : C}
+              {f g : y --> exp z}
               (p : ∏ (a : C)
                      (h : a --> x),
-                   BinProductOfArrows C _ (prodC a z) h f · exp_eval x y
+                   BinProductOfArrows C _ (prodC a y) h f · exp_eval z
                    =
-                   BinProductOfArrows C _ (prodC a z) h g · exp_eval x y)
+                   BinProductOfArrows C _ (prodC a y) h g · exp_eval z)
     : f = g.
   Proof.
     refine (exp_eta f @ _ @ !(exp_eta g)).
@@ -233,13 +235,13 @@ Section Accessors.
   Qed.
 
   Proposition exp_funext_alt
-              {x y z : C}
-              {f g : z --> exp x y}
+              {y z : C}
+              {f g : y --> exp z}
               (p : ∏ (a : C)
                      (h : a --> x),
-                   BinProductOfArrows C _ (prodC z a) f h · exp_eval_alt x y
+                   BinProductOfArrows C _ (prodC y a) f h · exp_eval_alt z
                    =
-                   BinProductOfArrows C _ (prodC z a) g h · exp_eval_alt x y)
+                   BinProductOfArrows C _ (prodC y a) g h · exp_eval_alt z)
     : f = g.
   Proof.
     refine (exp_eta_alt f @ _ @ !(exp_eta_alt g)).
@@ -248,24 +250,74 @@ Section Accessors.
   Qed.
 
   Definition exp_lam_natural
-              {w x y z : C}
-              (f : prodC y x --> z)
-              (s : w --> x)
+              {w y z : C}
+              (f : prodC x y --> z)
+              (s : w --> y)
     : s · exp_lam f
       =
       exp_lam (BinProductOfArrows _ _ _ (identity _ ) s · f)
     := !φ_adj_natural_precomp _ _ _ _ _ _.
 
   Definition exp_lam_natural_alt
-              {w x y z : C}
-              (f : prodC x y --> z)
-              (s : w --> x)
+              {w y z : C}
+              (f : prodC y x --> z)
+              (s : w --> y)
     : s · exp_lam_alt f
       =
       exp_lam_alt (BinProductOfArrows _ _ _ s (identity _ ) · f)
     := !φ_adj_natural_precomp _ _ _ _ _ _.
 
 End Accessors.
+
+Section DoubleConversion.
+
+  Context {C : category}
+          {prodC : BinProducts C}
+          {x : C}
+          (exp_x_alt : is_left_adjoint (constprod_functor2 prodC x)).
+
+  Let exp_x_alt_alt
+    : is_exponentiable prodC x
+    := is_exponentiable'_to_is_exponentiable _ _ exp_x_alt.
+
+  Lemma is_exponentiable'_to_is_exponentiable'_eval
+    : exp_eval_alt exp_x_alt_alt = counit_from_are_adjoints (pr2 exp_x_alt).
+  Proof.
+    apply funextsec.
+    intro y.
+    refine (assoc _ _ _ @ _).
+    refine (maponpaths (λ x, x · _) (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso
+      (BinProduct_of_functors_commutes _ _ _ _ _) _)) @ _).
+    apply id_left.
+  Qed.
+
+  Lemma is_exponentiable'_to_is_exponentiable'_lam
+    {y z : C}
+    (f : prodC y x --> z)
+    : exp_lam_alt exp_x_alt_alt f = φ_adj (pr2 exp_x_alt) f.
+  Proof.
+    do 2 refine (φ_adj_under_iso _ _ _ _ _ _ _ _ @ _).
+    apply maponpaths.
+    refine (assoc _ _ _ @ _).
+    refine (maponpaths (λ x, x · _) (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso
+      (BinProduct_of_functors_commutes _ _ _ _ _) _)) @ _).
+    apply id_left.
+  Qed.
+
+  Lemma is_exponentiable'_to_is_exponentiable'_app
+    {y z : C}
+    (f : y --> exp exp_x_alt_alt z)
+    : exp_app_alt exp_x_alt_alt f = φ_adj_inv (pr2 exp_x_alt) f.
+  Proof.
+    refine (φ_adj_inv_under_iso _ _ _ (flip_z_iso _ _) _ _ _ _ @ _).
+    refine (maponpaths (λ x, _ · x) (φ_adj_inv_under_iso _ _ _ _ _ _ _ _) @ _).
+    refine (assoc _ _ _ @ _).
+    refine (maponpaths (λ x, x · _) (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso
+      (BinProduct_of_functors_commutes _ _ _ _ _) _)) @ _).
+    apply id_left.
+  Qed.
+
+End DoubleConversion.
 
 (** * 3. Preservation *)
 Section Preservation.
@@ -280,13 +332,13 @@ Section Preservation.
             {F : C₁ ⟶ C₂}
             (HF : preserves_binproduct F)
             (x y : C₁)
-    : F(exp E₁ x y) --> exp E₂ (F x) (F y).
+    : F(exp (E₁ x) y) --> exp (E₂ (F x)) (F y).
   Proof.
     use exp_lam.
     pose (preserves_binproduct_to_z_iso
             F HF
-            (BC₁ x (exp E₁ x y))
-            (BC₂ (F x) (F (exp E₁ x y))))
+            (BC₁ x (exp (E₁ x) y))
+            (BC₂ (F x) (F (exp (E₁ x) y))))
       as f.
     refine (inv_from_z_iso f · #F _).
     apply exp_eval.
