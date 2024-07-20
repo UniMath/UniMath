@@ -55,7 +55,7 @@ Definition exp_in_fib
            {x : C}
            (xx yy : D x)
   : D x
-  := exp (pr1 E x) xx yy.
+  := exp (pr1 E x xx) yy.
 
 Definition eval_in_fib
            {C : category}
@@ -66,7 +66,7 @@ Definition eval_in_fib
            {x : C}
            (xx yy : D[{x}])
   : binprod_in_fib P xx (exp_in_fib E xx yy) --> yy
-  := exp_eval (pr1 E x) xx yy.
+  := exp_eval (pr1 E x xx) yy.
 
 Definition lam_in_fib
            {C : category}
@@ -78,7 +78,7 @@ Definition lam_in_fib
            {xx yy zz : D[{x}]}
            (ff : binprod_in_fib P yy xx --> zz)
   : xx --> exp_in_fib E yy zz
-  := exp_lam (pr1 E x) ff.
+  := exp_lam (pr1 E x _) ff.
 
 Definition preserves_exponentials_in_fib
            {C : category}
