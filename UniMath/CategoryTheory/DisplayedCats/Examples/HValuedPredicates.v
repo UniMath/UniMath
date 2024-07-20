@@ -201,8 +201,8 @@ Section HValuedSets.
          apply cha_le_top).
     - abstract
         (cbn ;
-         intros X Y f ;
-         apply idpath).
+         intros X Y f x ;
+         apply cha_le_refl).
   Defined.
 
   (** * 4.2. Fiberwise initial object *)
@@ -218,8 +218,8 @@ Section HValuedSets.
          apply cha_bot_le).
     - abstract
         (cbn ;
-         intros X Y f ;
-         apply idpath).
+         intros X Y f x ;
+         apply cha_le_refl).
   Defined.
 
   (** * 4.3. Fiberwise binary products *)
@@ -237,8 +237,8 @@ Section HValuedSets.
         (intros X P Q R p q x ;
          exact (cha_min_le_case (p x) (q x))).
     - abstract
-        (intros X Y f P Q ;
-         apply idpath).
+        (intros X Y f P Q x ;
+         apply cha_le_refl).
   Defined.
 
   (** * 4.4. Fiberwise binary coproducts *)
@@ -256,8 +256,8 @@ Section HValuedSets.
         (intros X P Q R p q x ;
          exact (cha_max_le_case (p x) (q x))).
     - abstract
-        (intros X Y f P Q ;
-         apply idpath).
+        (intros X Y f P Q x ;
+         apply cha_le_refl).
   Defined.
 
   (** * 4.5. Fiberwise exponentials *)
@@ -277,8 +277,8 @@ Section HValuedSets.
          rewrite cha_min_comm ;
          exact (p x)).
     - abstract
-        (intros X Y f P Q ; cbn ;
-         apply idpath).
+        (intros X Y f P Q x ; cbn ;
+         apply cha_le_refl).
   Defined.
 
   (** * 4.6. Dependent products *)

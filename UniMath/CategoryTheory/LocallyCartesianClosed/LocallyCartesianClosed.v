@@ -26,6 +26,7 @@
  Contents
  1. Locally cartesian closed categories
  2. The slices of locally cartesian closed categories are cartesian closed
+ 3. Some properties of locally Cartesian closed categories
 
  *********************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -42,6 +43,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodDomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodColimits.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodLeftAdjoint.
 Require Import UniMath.CategoryTheory.exponentials.
@@ -49,6 +51,11 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.StrictInitial.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.DisjointBinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Preservation.
 
 Local Open Scope cat.
 
@@ -225,3 +232,56 @@ Proof.
                (is_right_adjoint_cod_fiber_functor PB (cod_mor yf))).
   - exact (locally_cartesian_closed_to_exponentials_nat_z_iso PB yf).
 Defined.
+
+(** * 3. Some properties of locally Cartesian closed categories *)
+Proposition is_strict_initial_from_exponentials
+            {C : category}
+            {BP : BinProducts C}
+            (exp : Exponentials BP)
+            (I : Initial C)
+  : is_strict_initial I.
+Proof.
+  intros w f.
+  pose (I' := make_Initial _ (left_adjoint_preserves_initial _ (exp w) _ (pr2 I))).
+  use make_is_z_isomorphism.
+  - apply InitialArrow.
+  - split.
+    + rewrite <- (BinProductPr2Commutes _ _ _ (BP w I) _ (identity _) f).
+      refine (_ @ BinProductPr1Commutes _ _ _ (BP w I) _ (identity _) f).
+      rewrite !assoc'.
+      apply maponpaths.
+      apply (InitialArrowEq (O := I')).
+    + apply InitialArrowEq.
+Qed.
+
+Proposition is_strict_initial_from_locally_cartesian_closed
+            {C : category}
+            (T : Terminal C)
+            {PB : Pullbacks C}
+            (HC : is_locally_cartesian_closed PB)
+            (I : Initial C)
+  : is_strict_initial I.
+Proof.
+  intros w f.
+  refine (functor_on_is_z_isomorphism
+            (cod_fib_terminal_to_base T)
+            (is_strict_initial_from_exponentials
+               (locally_cartesian_closed_to_exponentials PB HC T)
+               (initial_cod_fib T I)
+               (make_cod_fib_ob (TerminalArrow T w))
+               (f ,, _))).
+  apply TerminalArrowEq.
+Qed.
+
+Proposition is_locally_cartesian_closed_stable_bincoproducts
+            {C : category}
+            {PB : Pullbacks C}
+            (BC : BinCoproducts C)
+            (HC : is_locally_cartesian_closed PB)
+  : stable_bincoproducts BC.
+Proof.
+  use stable_bincoproducts_from_pb_preserves_bincoproduct.
+  - exact PB.
+  - intros x y f.
+    exact (left_adjoint_preserves_bincoproduct _ (HC x y f)).
+Qed.

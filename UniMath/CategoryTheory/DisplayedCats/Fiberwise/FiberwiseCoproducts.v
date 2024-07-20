@@ -90,7 +90,7 @@ Section FiberwiseBinCoproductPoset.
                       (s : Γ₁ --> Γ₂)
                       (φ ψ : D[{Γ₂}]),
                     pr1 (HD Γ₂ Γ₁ s (or Γ₂ φ ψ))
-                    =
+                    -->[ identity _ ]
                     or Γ₁ (pr1 (HD Γ₂ Γ₁ s φ)) (pr1 (HD Γ₂ Γ₁ s ψ))).
 
   Definition make_bincoproduct_fiber_locally_propositional
@@ -131,10 +131,10 @@ Section FiberwiseBinCoproductPoset.
                         (fiber_functor_from_cleaving D HD s φ)
                         (fiber_functor_from_cleaving D HD s ψ)))) ;
            [ | apply HD' | apply HD' ] ;
-           use idtoiso ;
-           cbn ;
-           refine (!_) ;
-           apply or_sub).
+           use make_z_iso ; [ | apply or_sub | split ; apply HD' ] ;
+           apply BinCoproductArrow ;
+           [ exact (#(fiber_functor_from_cleaving D HD s) (BinCoproductIn1 _))
+           | exact (#(fiber_functor_from_cleaving D HD s) (BinCoproductIn2 _)) ]).
   Defined.
 End FiberwiseBinCoproductPoset.
 
