@@ -39,12 +39,12 @@ Section MonoCodomainFunctor.
       abstract
         (apply HF ;
          apply MonicisMonic).
-    - simple refine (λ x₁ x₂ gy₁ gy₂ f p, #F (pr1 p) ,, _).
+    - simple refine (λ x₁ x₂ gy₁ gy₂ f p, (#F (pr11 p) ,, _) ,, tt).
       abstract
         (cbn ;
          rewrite <- !functor_comp ;
          apply maponpaths ;
-         exact (pr2 p)).
+         exact (pr21 p)).
   Defined.
 
   Definition disp_mono_codomain_functor
@@ -85,7 +85,7 @@ Section MonoCodomainFunctor.
              refine (!_ @ q @ _) ;
              apply maponpaths ;
              apply (homotweqinvweq (make_weq _ (HF'' z x)))).
-    - simple refine (_ ,, _).
+    - simple refine ((_ ,, tt) ,, _).
       + refine (pr1 f ,, _).
         abstract
           (cbn ;
@@ -103,12 +103,12 @@ Section MonoCodomainFunctor.
     intros x₁ x₂ gy₁ gy₂ f.
     use isweqimplimpl.
     - intros ff.
-      simple refine (_ ,, _).
-      + exact (fully_faithful_inv_hom HF' _ _ (pr1 ff)).
+      simple refine ((_ ,, _) ,, tt).
+      + exact (fully_faithful_inv_hom HF' _ _ (pr11 ff)).
       + use (invmaponpathsweq (make_weq _ (HF' _ _))).
         cbn -[fully_faithful_inv_hom].
         rewrite !functor_comp.
-        refine (_ @ pr2 ff).
+        refine (_ @ pr21 ff).
         apply maponpaths_2.
         apply (homotweqinvweq (make_weq _ (HF' _ _))).
     - apply locally_propositional_mono_cod_disp_cat.

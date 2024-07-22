@@ -60,20 +60,20 @@ Section MonoCodomainFiber.
              {y : C}
              (f : C /m y)
     : C
-    := pr1 f.
+    := pr11 f.
 
   Definition mono_cod_mor
              {y : C}
              (f : C /m y)
     : Monic C (mono_cod_dom f) y
-    := pr2 f.
+    := make_Monic _ _ (pr2 f).
 
   Definition mono_dom_mor
              {y : C}
              {f₁ f₂ : C /m y}
              (g : f₁ --> f₂)
     : mono_cod_dom f₁ --> mono_cod_dom f₂
-    := pr1 g.
+    := pr11 g.
 
   Proposition mono_mor_eq
               {y : C}
@@ -81,7 +81,7 @@ Section MonoCodomainFiber.
               (g : f₁ --> f₂)
     : mono_dom_mor g · mono_cod_mor f₂ = mono_cod_mor f₁.
   Proof.
-    exact (pr2 g @ id_right _).
+    exact (pr21 g @ id_right _).
   Qed.
 
   Proposition eq_mor_mono_cod_fib
@@ -98,7 +98,7 @@ Section MonoCodomainFiber.
              {x y : C}
              (f : Monic C x y)
     : C /m y
-    := x ,, f.
+    := (x ,, pr1 f) ,, pr2 f.
 
   Definition make_mono_cod_fib_mor
              {x : C}
@@ -107,7 +107,7 @@ Section MonoCodomainFiber.
              (p : g · mono_cod_mor f₂ = mono_cod_mor f₁)
     : f₁ --> f₂.
   Proof.
-    refine (g ,, _).
+    refine ((g ,, _) ,, tt).
     exact (p @ !(id_right _)).
   Defined.
 
