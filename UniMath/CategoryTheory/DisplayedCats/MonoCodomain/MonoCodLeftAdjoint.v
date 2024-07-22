@@ -2,10 +2,17 @@
 
  The existential quantifier in regular categories
 
- Suppose that we have a regular category. Then the displayed category of monomorphisms
- has dependent sums. The construction is similar to how dependent sums of morphisms are
- constructed. However, instead of taking the composition, we factorize the composition
- as an epimorphism followed by a monomorphism.
+ Suppose that we have a regular category. Following the interpretation of quantifiers as
+ adjoints, then the existential quantifier is given by the left adjoint of the pullback
+ functor. We show that in the displayed category of monomorphisms such left adjoints
+ exists, which allows us to interpret the existential quantifier in regular categories.
+
+ For ordinary morphisms, the left adjoint to pullback gives rise to dependent sums. For
+ them, the left adjoint always exists, and it is constructed by taking the composition.
+ The construction for monomorphisms is similar, because again we take the composition.
+ However, the composition of a monomorphism with an arbitrary morphism is not guaranteed
+ to result in a monomorphism, and thus we factorize the composition as an epimorphism
+ followed by a monomorphism. The inclusion of the image gives the existential quantifier.
 
  The main work lies in proving the stability of the existential quantifier under
  pullback. The main steps are described throughout the proof.

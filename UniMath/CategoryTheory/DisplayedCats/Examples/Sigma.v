@@ -420,38 +420,3 @@ Proof.
 Qed.
 
 End Sigma.
-
-(** Projection for the sigma *)
-Section SigmaProjection.
-  Context {C : category}
-          {D : disp_cat C}
-          (E : disp_cat (total_category D)).
-
-  Definition sigma_disp_pr_data
-    : disp_functor_data
-        (functor_identity C)
-        (sigma_disp_cat E)
-        D.
-  Proof.
-    simple refine (_ ,, _).
-    - exact (λ x xx, pr1 xx).
-    - exact (λ x y xx yy f ff, pr1 ff).
-  Defined.
-
-  Proposition sigma_disp_pr_axioms
-    : disp_functor_axioms sigma_disp_pr_data.
-  Proof.
-    split ; intro ; intros ; apply idpath.
-  Qed.
-
-  Definition sigma_disp_pr
-    : disp_functor
-        (functor_identity C)
-        (sigma_disp_cat E)
-        D.
-  Proof.
-    simple refine (_ ,, _).
-    - exact sigma_disp_pr_data.
-    - exact sigma_disp_pr_axioms.
-  Defined.
-End SigmaProjection.

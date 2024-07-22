@@ -70,55 +70,6 @@ Local Open Scope cat.
 Section MonoCodomain.
   Context (C : category).
 
-  (*
-  Definition mono_cod_disp_ob_mor : disp_cat_ob_mor C.
-  Proof.
-    simple refine (_ ,, _).
-    - exact (λ (x : C), ∑ (y : C), Monic C y x).
-    - exact (λ (x₁ x₂ : C)
-               (m₁ : ∑ (y : C), Monic C y x₁)
-               (m₂ : ∑ (y : C), Monic C y x₂)
-               (f : x₁ --> x₂),
-             ∑ (ff : pr1 m₁ --> pr1 m₂),
-             ff · pr2 m₂ = pr2 m₁ · f).
-  Defined.
-
-  Definition mono_cod_id_comp : disp_cat_id_comp _ mono_cod_disp_ob_mor.
-  Proof.
-    split.
-    - intros x m.
-      refine (identity _ ,, _).
-      abstract
-        (rewrite id_left, id_right ;
-         apply idpath).
-    - intros x y z f g m₁ m₂ m₃ ff gg.
-      refine (pr1 ff · pr1 gg ,, _).
-      abstract
-        (cbn in ff, gg ;
-         rewrite !assoc' ;
-         rewrite (pr2 gg) ;
-         rewrite !assoc ;
-         rewrite (pr2 ff) ;
-         apply idpath).
-  Defined.
-
-  Definition mono_cod_disp_data : disp_cat_data _
-    := mono_cod_disp_ob_mor
-       ,,
-       mono_cod_id_comp.
-
-  Lemma mono_cod_disp_axioms : disp_cat_axioms C mono_cod_disp_data.
-  Proof.
-    repeat split.
-    - intros ; apply locally_propositional_mono_cod_disp_cat.
-    - intros ; apply locally_propositional_mono_cod_disp_cat.
-    - intros ; apply locally_propositional_mono_cod_disp_cat.
-    - intros.
-      apply isasetaprop.
-      apply locally_propositional_mono_cod_disp_cat.
-  Qed.
-   *)
-
   Definition disp_mono_codomain : disp_cat C
     := sigma_disp_cat
          (disp_full_sub

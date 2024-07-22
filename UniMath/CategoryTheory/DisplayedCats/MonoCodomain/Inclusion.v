@@ -42,7 +42,7 @@ Definition mono_cod_to_cod
       (functor_identity C)
       (disp_mono_codomain C)
       (disp_codomain C)
-  := sigma_disp_pr _.
+  := sigmapr1_disp_functor _.
 
 (** * 2. The fiber functor *)
 Definition mono_cod_to_cod_fib
