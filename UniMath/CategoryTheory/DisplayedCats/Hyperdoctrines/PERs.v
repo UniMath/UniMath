@@ -276,6 +276,91 @@ Proof.
   exact (pr2 X).
 Defined.
 
+Definition partial_setoid_formula
+           {H : first_order_hyperdoctrine}
+           {X : partial_setoid H}
+           {Γ : ty H}
+           (x y : tm Γ X)
+  : form Γ
+  := X [ ⟨ x , y ⟩ ].
+
+Notation "x ~ y" := (partial_setoid_formula x y) : hyperdoctrine.
+
+Proposition partial_setoid_sym
+            {H : first_order_hyperdoctrine}
+            {X : partial_setoid H}
+            {Γ : ty H}
+            {Δ : form Γ}
+            {x y : tm Γ X}
+            (p : Δ ⊢ x ~ y)
+  : Δ ⊢ y ~ x.
+Proof.
+  use per_sym.
+  simplify.
+  exact p.
+Qed.
+
+Proposition partial_setoid_trans
+            {H : first_order_hyperdoctrine}
+            {X : partial_setoid H}
+            {Γ : ty H}
+            {Δ : form Γ}
+            {x : tm Γ X}
+            (y : tm Γ X)
+            {z : tm Γ X}
+            (p : Δ ⊢ x ~ y)
+            (q : Δ ⊢ y ~ z)
+  : Δ ⊢ x ~ z.
+Proof.
+  use per_trans.
+  - exact y.
+  - simplify.
+    exact p.
+  - simplify.
+    exact q.
+Qed.
+
+Proposition partial_setoid_refl_l
+            {H : first_order_hyperdoctrine}
+            {X : partial_setoid H}
+            {Γ : ty H}
+            {Δ : form Γ}
+            {x y : tm Γ X}
+            (p : Δ ⊢ x ~ y)
+  : Δ ⊢ x ~ x.
+Proof.
+  use (partial_setoid_trans y p).
+  use partial_setoid_sym.
+  exact p.
+Qed.
+
+Proposition partial_setoid_refl_r
+            {H : first_order_hyperdoctrine}
+            {X : partial_setoid H}
+            {Γ : ty H}
+            {Δ : form Γ}
+            {x y : tm Γ X}
+            (p : Δ ⊢ x ~ y)
+  : Δ ⊢ y ~ y.
+Proof.
+  use (partial_setoid_trans x _ p).
+  use partial_setoid_sym.
+  exact p.
+Qed.
+
+Proposition partial_setoid_subst
+            {H : first_order_hyperdoctrine}
+            {X : partial_setoid H}
+            {Γ Γ' : ty H}
+            (s : tm Γ Γ')
+            (x y : tm Γ' X)
+  : (x ~ y)[ s ] = (x [ s ]tm ~ y [ s ]tm).
+Proof.
+  unfold partial_setoid_formula.
+  simplify.
+  apply idpath.
+Qed.
+
 Section Constructions.
   Context {H : first_order_hyperdoctrine}.
 
@@ -460,17 +545,44 @@ Section Constructions.
     - exact (eq_per X).
   Defined.
 
+  Proposition eq_in_eq_partial_setoid
+              {Γ X : ty H}
+              {t₁ t₂ : tm Γ (eq_partial_setoid X)}
+              {Δ : form Γ}
+              (p : Δ ⊢ t₁ ≡ t₂)
+    : Δ ⊢ t₁ ~ t₂.
+  Proof.
+    unfold partial_setoid_formula ; cbn.
+    simplify.
+    exact p.
+  Qed.
+
+  Proposition from_eq_in_eq_partial_setoid
+              {Γ X : ty H}
+              {t₁ t₂ : tm Γ (eq_partial_setoid X)}
+              {Δ : form Γ}
+              (p : Δ ⊢ t₁ ~ t₂)
+    : Δ ⊢ t₁ ≡ t₂.
+  Proof.
+    unfold partial_setoid_formula in p ; cbn in p.
+    rewrite equal_subst in p.
+    rewrite hyperdoctrine_pr1_subst in p.
+    rewrite hyperdoctrine_pr2_subst in p.
+    rewrite !var_tm_subst in p.
+    rewrite hyperdoctrine_pair_pr1 in p.
+    rewrite hyperdoctrine_pair_pr2 in p.
+    exact p.
+  Qed.
+
   (** * 4. The product of partial setoids *)
   Section ProdPartialSetoid.
-    Context {X Y : ty H}
-            (eX : per X)
-            (eY : per Y).
+    Context (X Y : partial_setoid H).
 
     Definition prod_per_data
       : form ((X ×h Y) ×h X ×h Y)
       := let x := π₁ (tm_var _) : tm ((X ×h Y) ×h X ×h Y) (X ×h Y) in
          let y := π₂ (tm_var _) : tm ((X ×h Y) ×h X ×h Y) (X ×h Y) in
-         eX [ ⟨ π₁ x , π₁ y ⟩ ] ∧ eY [ ⟨ π₂ x , π₂ y ⟩ ].
+         π₁ x ~ π₁ y ∧ π₂ x ~ π₂ y.
 
     Proposition prod_per_axioms
       : per_axioms prod_per_data.
@@ -493,13 +605,14 @@ Section Constructions.
          By delaying simplify the terms, we save some time
        *)
       simplify_form.
+      rewrite !partial_setoid_subst.
       use conj_intro.
-      + use per_sym.
+      + use partial_setoid_sym.
         use weaken_right.
         use weaken_left.
         simplify_term.
         apply hyperdoctrine_hyp.
-      + use per_sym.
+      + use partial_setoid_sym.
         use weaken_right.
         use weaken_right.
         simplify_term.
@@ -525,8 +638,9 @@ Section Constructions.
          By delaying simplify the terms, we save some time
        *)
       simplify_form.
+      rewrite !partial_setoid_subst.
       use conj_intro.
-      + use (per_trans (π₁ y)).
+      + use (partial_setoid_trans (π₁ y)).
         * use weaken_left.
           use weaken_right.
           use weaken_left.
@@ -536,7 +650,7 @@ Section Constructions.
           use weaken_left.
           simplify_term.
           apply hyperdoctrine_hyp.
-      + use (per_trans (π₂ y)).
+      + use (partial_setoid_trans (π₂ y)).
         * use weaken_left.
           use weaken_right.
           use weaken_right.
@@ -555,14 +669,64 @@ Section Constructions.
       - exact prod_per_data.
       - exact prod_per_axioms.
     Defined.
-  End ProdPartialSetoid.
 
-  Definition prod_partial_setoid
-             (X Y : partial_setoid H)
-    : partial_setoid H.
-  Proof.
-    use make_partial_setoid.
-    - exact (X ×h Y).
-    - exact (prod_per X Y).
-  Defined.
+    Definition prod_partial_setoid
+      : partial_setoid H.
+    Proof.
+      use make_partial_setoid.
+      - exact (X ×h Y).
+      - exact prod_per.
+    Defined.
+
+    Proposition eq_in_prod_partial_setoid
+                {Γ : ty H}
+                {t₁ t₂ : tm Γ prod_partial_setoid}
+                {Δ : form Γ}
+                (p : Δ ⊢ π₁ t₁ ~ π₁ t₂)
+                (q : Δ ⊢ π₂ t₁ ~ π₂ t₂)
+      : Δ ⊢ t₁ ~ t₂.
+    Proof.
+      unfold partial_setoid_formula ; cbn ; unfold prod_per_data.
+      simplify.
+      rewrite !partial_setoid_subst.
+      simplify.
+      use conj_intro.
+      - exact p.
+      - exact q.
+    Qed.
+
+    Proposition eq_in_prod_partial_setoid_l
+                {Γ : ty H}
+                {t₁ t₂ : tm Γ prod_partial_setoid}
+                {Δ : form Γ}
+                (p : Δ ⊢ t₁ ~ t₂)
+      : Δ ⊢ π₁ t₁ ~ π₁ t₂.
+    Proof.
+      refine (hyperdoctrine_cut p _).
+      unfold partial_setoid_formula ; cbn ; unfold prod_per_data.
+      simplify_form.
+      rewrite !partial_setoid_subst.
+      simplify.
+      use weaken_left.
+      apply hyperdoctrine_hyp.
+    Qed.
+
+    Proposition eq_in_prod_partial_setoid_r
+                {Γ : ty H}
+                {t₁ t₂ : tm Γ prod_partial_setoid}
+                {Δ : form Γ}
+                (p : Δ ⊢ t₁ ~ t₂)
+      : Δ ⊢ π₂ t₁ ~ π₂ t₂.
+    Proof.
+      refine (hyperdoctrine_cut p _).
+      unfold partial_setoid_formula ; cbn ; unfold prod_per_data.
+      simplify_form.
+      rewrite !partial_setoid_subst.
+      simplify.
+      use weaken_right.
+      apply hyperdoctrine_hyp.
+    Qed.
+  End ProdPartialSetoid.
 End Constructions.
+
+Arguments prod_per_data {H} X Y /.
