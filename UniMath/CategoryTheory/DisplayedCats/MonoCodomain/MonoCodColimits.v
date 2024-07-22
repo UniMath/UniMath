@@ -107,9 +107,9 @@ Proof.
        use to_initial_slice_mono ;
        use (is_initial_mor_to_strict_initial (I ,, HI)) ;
        refine (PullbackPr1 _ · _) ;
-       refine (pr1 (InitialArrow (z ,, Hz) (_ ,, _))) ;
-       apply monic_from_strict_initial ;
-       exact HI).
+       exact (pr11 (InitialArrow
+                      (z ,, Hz)
+                      (make_mono_in_cat (monic_from_strict_initial I HI _))))).
 Defined.
 
 (** * 2. Binary coproducts in the slice of monomorphisms *)
