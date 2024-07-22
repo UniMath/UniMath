@@ -456,7 +456,7 @@ Proposition weaken_cut
   : Δ ⊢ ψ.
 Proof.
   refine (hyperdoctrine_cut _ q).
-  use (BinProductArrow _ (binprod_in_fib (pr1 (pr222 H)) Δ φ)).
+  use (BinProductArrow _ (binprod_in_fib _ Δ φ)).
   - apply hyperdoctrine_hyp.
   - exact p.
 Qed.
@@ -484,6 +484,44 @@ Proof.
   - use weaken_right.
     apply hyperdoctrine_hyp.
   - use weaken_left.
+    apply hyperdoctrine_hyp.
+Qed.
+
+Proposition hyp_ltrans
+            {H : first_order_hyperdoctrine}
+            {Γ : ty H}
+            {Δ Δ' Δ'' φ : form Γ}
+            (p : Δ ∧ (Δ' ∧ Δ'') ⊢ φ)
+  : (Δ ∧ Δ') ∧ Δ'' ⊢ φ.
+Proof.
+  refine (hyperdoctrine_cut _ p).
+  use conj_intro.
+  - do 2 use weaken_left.
+    apply hyperdoctrine_hyp.
+  - use conj_intro.
+    + use weaken_left.
+      use weaken_right.
+      apply hyperdoctrine_hyp.
+    + use weaken_right.
+      apply hyperdoctrine_hyp.
+Qed.
+
+Proposition hyp_rtrans
+            {H : first_order_hyperdoctrine}
+            {Γ : ty H}
+            {Δ Δ' Δ'' φ : form Γ}
+            (p : (Δ ∧ Δ') ∧ Δ'' ⊢ φ)
+  : Δ ∧ (Δ' ∧ Δ'') ⊢ φ.
+Proof.
+  refine (hyperdoctrine_cut _ p).
+  use conj_intro.
+  - use conj_intro.
+    + use weaken_left.
+      apply hyperdoctrine_hyp.
+    + use weaken_right.
+      use weaken_left.
+      apply hyperdoctrine_hyp.
+  - do 2 use weaken_right.
     apply hyperdoctrine_hyp.
 Qed.
 
@@ -1153,7 +1191,49 @@ Proof.
   exact r.
 Qed.
 
-Proposition hyperdoctrine_unit_eq
+Proposition hyperdoctrine_eq_transportf
+            {H : first_order_hyperdoctrine}
+            {Γ A : ty H}
+            {Δ : form Γ}
+            {t₁ t₂ : tm Γ A}
+            (φ : form A)
+            (p : Δ ⊢ t₁ ≡ t₂)
+            (q : Δ ⊢ φ [ t₁ ])
+  : Δ ⊢ φ [ t₂ ].
+Proof.
+  assert (Δ ⊢ t₁ ≡ t₂ ∧ φ [ t₁ ]) as r.
+  {
+    exact (conj_intro p q).
+  }
+  refine (hyperdoctrine_cut r _).
+  pose (hyperdoctrine_eq_elim
+          (φ [ π₂ (tm_var _) ])
+          (weaken_left (hyperdoctrine_hyp _) _)
+          (weaken_right (hyperdoctrine_hyp _) (t₁ ≡ t₂)))
+    as h.
+  rewrite !hyperdoctrine_comp_subst in h.
+  rewrite !hyperdoctrine_pr2_subst in h.
+  rewrite !var_tm_subst in h.
+  rewrite !hyperdoctrine_pair_pr2 in h.
+  exact h.
+Qed.
+
+Proposition hyperdoctrine_eq_transportb
+            {H : first_order_hyperdoctrine}
+            {Γ A : ty H}
+            {Δ : form Γ}
+            {t₁ t₂ : tm Γ A}
+            (φ : form A)
+            (p : Δ ⊢ t₁ ≡ t₂)
+            (q : Δ ⊢ φ [ t₂ ])
+  : Δ ⊢ φ [ t₁ ].
+Proof.
+  use (hyperdoctrine_eq_transportf _ _ q).
+  use hyperdoctrine_eq_sym.
+  exact p.
+Qed.
+
+Proposition hyperdoctrine_unit_eq_prf
             {H : first_order_hyperdoctrine}
             {Γ : ty H}
             (t : tm Γ 𝟙)
@@ -1162,6 +1242,18 @@ Proposition hyperdoctrine_unit_eq
 Proof.
   use hyperdoctrine_refl_eq.
   apply hyperdoctrine_unit_eq.
+Qed.
+
+Proposition hyperdoctrine_unit_tm_eq
+            {H : first_order_hyperdoctrine}
+            {Γ : ty H}
+            (t t' : tm Γ 𝟙)
+            (Δ : form Γ)
+  : Δ ⊢ t ≡ t'.
+Proof.
+  refine (hyperdoctrine_eq_trans (hyperdoctrine_unit_eq_prf t Δ) _).
+  use hyperdoctrine_eq_sym.
+  apply hyperdoctrine_unit_eq_prf.
 Qed.
 
 Proposition hyperdoctrine_eq_pr1
@@ -1333,6 +1425,42 @@ Proof.
   exact (hyperdoctrine_eq_trans
            (hyperdoctrine_eq_pair_left p _)
            (hyperdoctrine_eq_pair_right _ q)).
+Qed.
+
+Proposition hyperdoctrine_subst_eq
+            {H : first_order_hyperdoctrine}
+            {Γ Γ' B : ty H}
+            {Δ : form _}
+            {s₁ s₂ : tm Γ Γ'}
+            (p : Δ ⊢ s₁ ≡ s₂)
+            (t : tm Γ' B)
+  : Δ ⊢ t [ s₁ ]tm ≡ t [ s₂ ]tm.
+Proof.
+  pose (φ := t [ s₁ [ π₁ (tm_var _) ]tm ]tm ≡ t [ π₂ (tm_var _) ]tm).
+  assert (Δ ⊢ φ [⟨ tm_var Γ, s₁ ⟩]) as q.
+  {
+    unfold φ.
+    rewrite equal_subst.
+    rewrite !tm_subst_comp.
+    rewrite hyperdoctrine_pr1_subst.
+    rewrite hyperdoctrine_pr2_subst.
+    rewrite var_tm_subst.
+    rewrite hyperdoctrine_pair_pr1.
+    rewrite hyperdoctrine_pair_pr2.
+    rewrite tm_subst_var.
+    apply hyperdoctrine_refl.
+  }
+  pose (r := hyperdoctrine_eq_elim φ p q).
+  unfold φ in r.
+  rewrite equal_subst in r.
+  rewrite !tm_subst_comp in r.
+  rewrite hyperdoctrine_pr1_subst in r.
+  rewrite hyperdoctrine_pr2_subst in r.
+  rewrite var_tm_subst in r.
+  rewrite hyperdoctrine_pair_pr1 in r.
+  rewrite hyperdoctrine_pair_pr2 in r.
+  rewrite tm_subst_var in r.
+  exact r.
 Qed.
 
 (** * 12. A tactic for simplifying goals in the internal language of first-order hyperdoctrines *)

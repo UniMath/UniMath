@@ -287,6 +287,24 @@ Proof.
   apply TerminalArrowEq.
 Qed.
 
+Proposition hyperdoctrine_unit_eta
+            {H : preorder_hyperdoctrine}
+            {Γ : ty H}
+            (t : tm Γ 𝟙)
+  : t = !!.
+Proof.
+  apply hyperdoctrine_unit_eq.
+Qed.
+
+Proposition hyperdoctrine_unit_tm_subst
+            {H : preorder_hyperdoctrine}
+            {Γ Γ' : ty H}
+            (s : tm Γ Γ')
+  : !! [ s ]tm = !!.
+Proof.
+  apply hyperdoctrine_unit_eq.
+Qed.
+
 (** * 3.3. Terms for the binary product type *)
 Definition hyperdoctrine_pr1
            {H : preorder_hyperdoctrine}
@@ -483,11 +501,16 @@ Proof.
 Qed.
 
 (** * 4. Formulas in a hyperdoctrine *)
+Definition hyperdoctrine_formula_disp_cat
+           (H : preorder_hyperdoctrine)
+  : disp_cat (hyperdoctrine_type_category H)
+  := pr12 H.
+
 Definition hyperdoctrine_formula
            {H : preorder_hyperdoctrine}
            (A : ty H)
   : UU
-  := ob_disp (pr12 H) A.
+  := ob_disp (hyperdoctrine_formula_disp_cat H) A.
 
 Notation "'form'" := hyperdoctrine_formula : hyperdoctrine.
 
@@ -561,6 +584,28 @@ Proof.
   - refine (q ,, _ ,, _) ; apply (pr122 (pr222 H)).
 Qed.
 
+Proposition hyperdoctrine_formula_eq_f
+            {H : hyperdoctrine}
+            {A : ty H}
+            {φ ψ : form A}
+            (p : φ = ψ)
+  : φ ⊢ ψ.
+Proof.
+  induction p.
+  apply hyperdoctrine_hyp.
+Qed.
+
+Proposition hyperdoctrine_formula_eq_b
+            {H : hyperdoctrine}
+            {A : ty H}
+            {φ ψ : form A}
+            (p : φ = ψ)
+  : ψ ⊢ φ.
+Proof.
+  induction p.
+  apply hyperdoctrine_hyp.
+Qed.
+
 (** * 7. Substitution on formulas in a hyperdoctrine *)
 Definition hyperdoctrine_cleaving
            (H : preorder_hyperdoctrine)
@@ -613,4 +658,46 @@ Proposition hyperdoctrine_proof_subst
   : Δ [ s ] ⊢ φ [ s ].
 Proof.
   exact (#(fiber_functor_from_cleaving _ (hyperdoctrine_cleaving H) s) p).
+Qed.
+
+Proposition from_disp_mor_hyperdoctrine
+            {H : preorder_hyperdoctrine}
+            {Γ₁ Γ₂ : ty H}
+            {Δ : form Γ₁}
+            {φ : form Γ₂}
+            (s : tm Γ₁ Γ₂)
+            (p : Δ -->[ s ] φ)
+  : Δ ⊢ φ [ s ].
+Proof.
+  use (cartesian_factorisation
+         (cartesian_lift_is_cartesian _ _ (hyperdoctrine_cleaving H _ _ s φ))).
+  exact (transportb
+           (λ z, _ -->[ z ] _)
+           (id_left _)
+           p).
+Qed.
+
+Proposition to_disp_mor_hyperdoctrine
+            {H : preorder_hyperdoctrine}
+            {Γ₁ Γ₂ : ty H}
+            {Δ : form Γ₁}
+            {φ : form Γ₂}
+            (s : tm Γ₁ Γ₂)
+            (p : Δ ⊢ φ [ s ])
+  : Δ -->[ s ] φ.
+Proof.
+  refine (transportf (λ z, _ -->[ z ] _) (id_left _) (p ;; _)%mor_disp).
+  exact (mor_disp_of_cartesian_lift _ _ (hyperdoctrine_cleaving H _ _ s φ)).
+Qed.
+
+Proposition disp_mor_eq_hyperdoctrine
+            {H : preorder_hyperdoctrine}
+            {Γ₁ Γ₂ : ty H}
+            {Δ : form Γ₁}
+            {φ : form Γ₂}
+            (s : tm Γ₁ Γ₂)
+            (p q : Δ -->[ s ] φ)
+  : p = q.
+Proof.
+  apply (pr22 (pr222 H)).
 Qed.
