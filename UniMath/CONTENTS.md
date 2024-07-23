@@ -340,6 +340,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Hyperdoctrines/PartialEqRels/PERTerminal.v](CategoryTheory/Hyperdoctrines/PartialEqRels/PERTerminal.v)
    - [Hyperdoctrines/PartialEqRels/PERInitial.v](CategoryTheory/Hyperdoctrines/PartialEqRels/PERInitial.v)
    - [Hyperdoctrines/PartialEqRels/PERBinProducts.v](CategoryTheory/Hyperdoctrines/PartialEqRels/PERBinProducts.v)
+   - [Hyperdoctrines/PartialEqRels/PEREqualizers.v](CategoryTheory/Hyperdoctrines/PartialEqRels/PEREqualizers.v)
    - [DisplayedCats/Examples/HValuedPredicates.v](CategoryTheory/DisplayedCats/Examples/HValuedPredicates.v)
    - [LocallyCartesianClosed/LocallyCartesianClosed.v](CategoryTheory/LocallyCartesianClosed/LocallyCartesianClosed.v)
    - [DisplayedCats/Fiberwise/DualBeckChevalley.v](CategoryTheory/DisplayedCats/Fiberwise/DualBeckChevalley.v)

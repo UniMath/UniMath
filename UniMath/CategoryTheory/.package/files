@@ -149,6 +149,7 @@ Hyperdoctrines/PartialEqRels/PERConstantObjects.v
 Hyperdoctrines/PartialEqRels/PERTerminal.v
 Hyperdoctrines/PartialEqRels/PERInitial.v
 Hyperdoctrines/PartialEqRels/PERBinProducts.v
+Hyperdoctrines/PartialEqRels/PEREqualizers.v
 
 DisplayedCats/Examples/HValuedPredicates.v
 
