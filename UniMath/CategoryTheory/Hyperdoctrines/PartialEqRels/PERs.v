@@ -34,8 +34,8 @@
  ********************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-Require Import UniMath.CategoryTheory.DisplayedCats.Hyperdoctrines.Hyperdoctrine.
-Require Import UniMath.CategoryTheory.DisplayedCats.Hyperdoctrines.FirstOrderHyperdoctrine.
+Require Import UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+Require Import UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
 
 Local Open Scope cat.
 Local Open Scope hd.
