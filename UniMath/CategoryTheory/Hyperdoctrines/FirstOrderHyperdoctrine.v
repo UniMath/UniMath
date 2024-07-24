@@ -1427,6 +1427,22 @@ Proof.
            (hyperdoctrine_eq_pair_right _ q)).
 Qed.
 
+Proposition hyperdoctrine_eq_prod_eq
+            {H : first_order_hyperdoctrine}
+            {Γ A B : ty H}
+            {Δ : form Γ}
+            {t₁ t₂ : tm Γ (A ×h B)}
+            (p : Δ ⊢ π₁ t₁ ≡ π₁ t₂)
+            (q : Δ ⊢ π₂ t₁ ≡ π₂ t₂)
+  : Δ ⊢ t₁ ≡ t₂.
+Proof.
+  rewrite (hyperdoctrine_pair_eta t₁).
+  rewrite (hyperdoctrine_pair_eta t₂).
+  use hyperdoctrine_eq_pair_eq.
+  - exact p.
+  - exact q.
+Qed.
+
 Proposition hyperdoctrine_subst_eq
             {H : first_order_hyperdoctrine}
             {Γ Γ' B : ty H}

@@ -348,6 +348,24 @@ Proof.
   exact p.
 Qed.
 
+Proposition partial_setoid_path_to_eq
+            {H : first_order_hyperdoctrine}
+            {X : partial_setoid H}
+            {Γ : ty H}
+            {x y : tm Γ X}
+            {Δ : form Γ}
+            (p : Δ ⊢ x ~ x)
+            (q : Δ ⊢ x ≡ y)
+  : Δ ⊢ x ~ y.
+Proof.
+  use hyperdoctrine_eq_transportf.
+  - exact ⟨ x , x ⟩.
+  - use hyperdoctrine_eq_pair_eq.
+    + apply hyperdoctrine_refl.
+    + exact q.
+  - exact p.
+Qed.
+
 Proposition partial_setoid_subst
             {H : first_order_hyperdoctrine}
             {X : partial_setoid H}

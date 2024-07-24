@@ -193,18 +193,28 @@ Definition hyperdoctrine_type
 
 Notation "'ty'" := hyperdoctrine_type : hyperdoctrine.
 
+Definition hyperdoctrine_terminal_type
+           (H : preorder_hyperdoctrine)
+  : Terminal (hyperdoctrine_type_category H)
+  := pr122 H.
+
 Definition hyperdoctrine_unit_type
            {H : preorder_hyperdoctrine}
   : ty H
-  := TerminalObject (pr122 H).
+  := TerminalObject (hyperdoctrine_terminal_type H).
 
 Notation "'𝟙'" := hyperdoctrine_unit_type : hyperdoctrine.
+
+Definition hyperdoctrine_binproducts
+           (H : preorder_hyperdoctrine)
+  : BinProducts (hyperdoctrine_type_category H)
+  := pr1 (pr222 H).
 
 Definition hyperdoctrine_product
            {H : preorder_hyperdoctrine}
            (A B : ty H)
   : ty H
-  := BinProductObject _ (pr1 (pr222 H) A B).
+  := BinProductObject _ (hyperdoctrine_binproducts H A B).
 
 Notation "A ×h B" := (hyperdoctrine_product A B) (at level 75, right associativity)
     : hyperdoctrine.

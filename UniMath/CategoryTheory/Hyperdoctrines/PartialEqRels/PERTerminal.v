@@ -4,22 +4,26 @@
 
  The category of partial setoids has a terminal object. This terminal object is given by
  the terminal object in the category of types of the hyperdoctrine `H`, and the partial
- equivalence relation is given by the equality formula in `H`.
+ equivalence relation is given by the equality formula in `H`. We also show that the constant
+ object functor preserves terminal objects.
 
  Content
  1. Morphism to the terminal object
  2. Uniqueness of the morphism to the terminal object
  3. The terminal object
+ 4. Preservation of terminal objects by the constant object functor
 
  ******************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory.
+Require Import UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERConstantObjects.
 
 Local Open Scope cat.
 Local Open Scope hd.
@@ -177,4 +181,15 @@ Proof.
     use make_iscontr.
     + exact (partial_setoid_morphism_to_terminal X).
     + exact parital_setoid_morphism_to_terminal_eq.
+Defined.
+
+(** * 4. Preservation of terminal objects by the constant object functor *)
+Definition preserves_terminal_functor_to_partial_setoids
+           (H : first_order_hyperdoctrine)
+  : preserves_terminal (functor_to_partial_setoids H).
+Proof.
+  use preserves_terminal_chosen_to_chosen_z_iso.
+  - exact (hyperdoctrine_terminal_type H).
+  - exact (terminal_partial_setoid H).
+  - apply identity_z_iso.
 Defined.

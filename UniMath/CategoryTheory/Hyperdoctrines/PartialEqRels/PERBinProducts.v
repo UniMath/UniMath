@@ -34,6 +34,8 @@
  2. However, we would get the goal `π₁ x ~ y ⊢ π₁ x ~ π₁ x ∧ π₂ x ~ π₂ x` if we used the
     formula by Pitts instead. Here we would get stuck on proving `π₂ x ~ π₂ x`.
 
+ Finally, we show that the constant object functor preserves binary products.
+
  References
  - "Tripos Theory in Retrospect" by Andrew Pitts
  - "Realizability: an introduction to its categorical side" by Jaap van Oosten
@@ -44,16 +46,19 @@
  3. Pairing partial setoid morphisms
  4. The uniqueness
  5. Binary products of partial setoids
+ 6. Preservation of binary products by the constant object functor
 
  ******************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory.
+Require Import UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERConstantObjects.
 
 Local Open Scope cat.
 Local Open Scope hd.
@@ -812,7 +817,7 @@ Section Pairing.
   Qed.
 End Pairing.
 
-Arguments pair_partial_setoid_morphism_form {H W X Y} φ ψ.
+Arguments pair_partial_setoid_morphism_form {H W X Y} φ ψ /.
 
 (** * 5. Binary products of partial setoids *)
 Definition binproducts_partial_setoid
@@ -834,4 +839,263 @@ Proof.
         (intros χ ;
          use subtypePath ; [ intro ; apply isapropdirprod ; apply homset_property | ] ;
          exact (pair_partial_setoid_morphism_unique _ _ (pr12 χ) (pr22 χ))).
+Defined.
+
+(** * 6. Preservation of binary products by the constant object functor *)
+Section PreservesBinProductConstant.
+  Context {H : first_order_hyperdoctrine}
+          (X Y : ty H).
+
+  Definition preserves_binproduct_functor_to_partial_setoids_inv_form
+    : form
+        (prod_partial_setoid (eq_partial_setoid X) (eq_partial_setoid Y)
+         ×h
+         eq_partial_setoid (X ×h Y))
+    := π₁ (tm_var _) ≡ π₂ (tm_var _).
+
+  Arguments preserves_binproduct_functor_to_partial_setoids_inv_form /.
+
+  Proposition preserves_binproduct_functor_to_partial_setoids_inv_laws
+    : partial_setoid_morphism_laws
+        preserves_binproduct_functor_to_partial_setoids_inv_form.
+  Proof.
+    repeat split.
+    - unfold partial_setoid_mor_dom_defined_law ; cbn.
+      do 2 (use forall_intro).
+      use impl_intro.
+      use weaken_right.
+      use eq_in_prod_partial_setoid.
+      + use eq_in_eq_partial_setoid.
+        apply hyperdoctrine_refl.
+      + use eq_in_eq_partial_setoid.
+        apply hyperdoctrine_refl.
+    - unfold partial_setoid_mor_cod_defined_law ; cbn.
+      do 2 (use forall_intro).
+      use impl_intro.
+      use weaken_right.
+      use eq_in_eq_partial_setoid.
+      apply hyperdoctrine_refl.
+    - unfold partial_setoid_mor_eq_defined_law ; cbn.
+      do 4 (use forall_intro).
+      use impl_intro.
+      use weaken_right.
+      do 2 (use impl_intro).
+      simplify.
+      pose (xy₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h X ×h Y) ×h X ×h Y) ×h X ×h Y) ×h X ×h Y)))))).
+      pose (xy₂ := π₂ (π₁ (π₁ (tm_var ((((𝟙 ×h X ×h Y) ×h X ×h Y) ×h X ×h Y) ×h X ×h Y))))).
+      pose (xy₃ := π₂ (π₁ (tm_var ((((𝟙 ×h X ×h Y) ×h X ×h Y) ×h X ×h Y) ×h X ×h Y)))).
+      pose (xy₄ := π₂ (tm_var ((((𝟙 ×h X ×h Y) ×h X ×h Y) ×h X ×h Y) ×h X ×h Y))).
+      fold xy₁ xy₂ xy₃ xy₄.
+      use hyperdoctrine_eq_trans.
+      + exact xy₁.
+      + do 2 use weaken_left.
+        use hyperdoctrine_eq_sym.
+        use hyperdoctrine_eq_prod_eq.
+        * use from_eq_in_eq_partial_setoid.
+          exact (eq_in_prod_partial_setoid_l _ _ (hyperdoctrine_hyp _)).
+        * use from_eq_in_eq_partial_setoid.
+          exact (eq_in_prod_partial_setoid_r _ _ (hyperdoctrine_hyp _)).
+      + use hyperdoctrine_eq_trans.
+        * exact xy₃.
+        * use weaken_right.
+          apply hyperdoctrine_hyp.
+        * use weaken_left.
+          use weaken_right.
+          use from_eq_in_eq_partial_setoid.
+          apply hyperdoctrine_hyp.
+    - unfold partial_setoid_mor_unique_im_law ; cbn.
+      do 3 (use forall_intro).
+      use impl_intro.
+      use weaken_right.
+      use impl_intro.
+      simplify.
+      pose (xy₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h X ×h Y) ×h X ×h Y) ×h X ×h Y))))).
+      pose (xy₂ := π₂ (π₁ (tm_var (((𝟙 ×h X ×h Y) ×h X ×h Y) ×h X ×h Y)))).
+      pose (xy₃ := π₂ (tm_var (((𝟙 ×h X ×h Y) ×h X ×h Y) ×h X ×h Y))).
+      fold xy₁ xy₂ xy₃.
+      use eq_in_eq_partial_setoid.
+      use hyperdoctrine_eq_trans.
+      + exact xy₁.
+      + use hyperdoctrine_eq_sym.
+        use weaken_left.
+        apply hyperdoctrine_hyp.
+      + use weaken_right.
+        apply hyperdoctrine_hyp.
+    - unfold partial_setoid_mor_hom_exists_law ; cbn.
+      use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use exists_intro.
+      + exact (π₂ (tm_var _)).
+      + simplify.
+        apply hyperdoctrine_refl.
+  Qed.
+
+  Definition preserves_binproduct_functor_to_partial_setoids_inv
+    : partial_setoid_morphism
+        (prod_partial_setoid (eq_partial_setoid X) (eq_partial_setoid Y))
+        (eq_partial_setoid (X ×h Y)).
+  Proof.
+    use make_partial_setoid_morphism.
+    - exact preserves_binproduct_functor_to_partial_setoids_inv_form.
+    - exact preserves_binproduct_functor_to_partial_setoids_inv_laws.
+  Defined.
+
+  Let φ
+    : partial_setoid_morphism
+        (eq_partial_setoid (X ×h Y))
+        (prod_partial_setoid (eq_partial_setoid X) (eq_partial_setoid Y))
+    := pair_partial_setoid_morphism
+         (term_partial_setoid_morphism
+            (BinProductPr1 _ (hyperdoctrine_binproducts _ X Y)))
+         (term_partial_setoid_morphism
+            (BinProductPr2 _ (hyperdoctrine_binproducts _ X Y))).
+
+  Proposition preserves_binproduct_functor_to_partial_setoids_inv_left
+    : partial_setoid_comp_morphism
+        preserves_binproduct_functor_to_partial_setoids_inv
+        φ
+      =
+      id_partial_setoid_morphism _.
+  Proof.
+    unfold φ.
+    assert (BinProductPr1 (hyperdoctrine_type_category H) (hyperdoctrine_binproducts H X Y)
+            =
+            π₁ (tm_var _)) as q.
+    {
+      unfold hyperdoctrine_pr1, tm_var.
+      rewrite id_left.
+      apply idpath.
+    }
+    rewrite q ; clear q.
+    assert (BinProductPr2 (hyperdoctrine_type_category H) (hyperdoctrine_binproducts H X Y)
+            =
+            π₂ (tm_var _)) as q.
+    {
+      unfold hyperdoctrine_pr2, tm_var.
+      rewrite id_left.
+      apply idpath.
+    }
+    rewrite q ; clear q.
+    use eq_partial_setoid_morphism.
+    - use (exists_elim (hyperdoctrine_hyp _)) ; cbn.
+      use weaken_right.
+      simplify_form.
+      rewrite partial_setoid_subst.
+      simplify.
+      pose (xy₁ := π₁ (π₁ (tm_var (((X ×h Y) ×h X ×h Y) ×h X ×h Y)))).
+      pose (xy₂ := π₂ (π₁ (tm_var (((X ×h Y) ×h X ×h Y) ×h X ×h Y)))).
+      pose (xy₃ := π₂ (tm_var (((X ×h Y) ×h X ×h Y) ×h X ×h Y))).
+      cbn.
+      fold xy₁ xy₂ xy₃.
+      use eq_in_prod_partial_setoid.
+      + use eq_in_eq_partial_setoid.
+        simple refine (hyperdoctrine_eq_trans _ _).
+        * exact (π₁ xy₃).
+        * use weaken_left.
+          use hyperdoctrine_eq_pr1.
+          apply hyperdoctrine_hyp.
+        * use weaken_right.
+          use weaken_left.
+          apply hyperdoctrine_hyp.
+      + use eq_in_eq_partial_setoid.
+        simple refine (hyperdoctrine_eq_trans _ _).
+        * exact (π₂ xy₃).
+        * use weaken_left.
+          use hyperdoctrine_eq_pr2.
+          apply hyperdoctrine_hyp.
+        * do 2 use weaken_right.
+          apply hyperdoctrine_hyp.
+    - cbn.
+      use exists_intro.
+      + exact (π₁ (tm_var _)).
+      + simplify.
+        repeat (use conj_intro).
+        * apply hyperdoctrine_refl.
+        * use from_eq_in_eq_partial_setoid.
+          exact (eq_in_prod_partial_setoid_l _ _ (hyperdoctrine_hyp _)).
+        * use from_eq_in_eq_partial_setoid.
+          exact (eq_in_prod_partial_setoid_r _ _ (hyperdoctrine_hyp _)).
+  Qed.
+
+  Proposition preserves_binproduct_functor_to_partial_setoids_inv_right
+    : partial_setoid_comp_morphism
+        φ
+        preserves_binproduct_functor_to_partial_setoids_inv
+      =
+      id_partial_setoid_morphism _.
+  Proof.
+    unfold φ.
+    assert (BinProductPr1 (hyperdoctrine_type_category H) (hyperdoctrine_binproducts H X Y)
+            =
+            π₁ (tm_var _)) as q.
+    {
+      unfold hyperdoctrine_pr1, tm_var.
+      rewrite id_left.
+      apply idpath.
+    }
+    rewrite q ; clear q.
+    assert (BinProductPr2 (hyperdoctrine_type_category H) (hyperdoctrine_binproducts H X Y)
+            =
+            π₂ (tm_var _)) as q.
+    {
+      unfold hyperdoctrine_pr2, tm_var.
+      rewrite id_left.
+      apply idpath.
+    }
+    rewrite q ; clear q.
+    use eq_partial_setoid_morphism.
+    - use (exists_elim (hyperdoctrine_hyp _)) ; cbn.
+      use weaken_right.
+      simplify_form.
+      rewrite partial_setoid_subst.
+      simplify.
+      pose (xy₁ := π₁ (π₁ (tm_var (((X ×h Y) ×h X ×h Y) ×h X ×h Y)))).
+      pose (xy₂ := π₂ (π₁ (tm_var (((X ×h Y) ×h X ×h Y) ×h X ×h Y)))).
+      pose (xy₃ := π₂ (tm_var (((X ×h Y) ×h X ×h Y) ×h X ×h Y))).
+      cbn.
+      fold xy₁ xy₂ xy₃.
+      use eq_in_eq_partial_setoid.
+      use hyperdoctrine_eq_prod_eq.
+      + simple refine (hyperdoctrine_eq_trans _ _).
+        * exact (π₁ xy₃).
+        * do 2 use weaken_left.
+          apply hyperdoctrine_hyp.
+        * use hyperdoctrine_eq_pr1.
+          use weaken_right.
+          apply hyperdoctrine_hyp.
+      + simple refine (hyperdoctrine_eq_trans _ _).
+        * exact (π₂ xy₃).
+        * use weaken_left.
+          use weaken_right.
+          apply hyperdoctrine_hyp.
+        * use hyperdoctrine_eq_pr2.
+          use weaken_right.
+          apply hyperdoctrine_hyp.
+    - cbn.
+      use exists_intro.
+      + exact (π₁ (tm_var _)).
+      + simplify.
+        repeat (use conj_intro).
+        * apply hyperdoctrine_refl.
+        * apply hyperdoctrine_refl.
+        * use from_eq_in_eq_partial_setoid.
+          apply hyperdoctrine_hyp.
+  Qed.
+End PreservesBinProductConstant.
+
+Definition preserves_binproduct_functor_to_partial_setoids
+           (H : first_order_hyperdoctrine)
+  : preserves_binproduct (functor_to_partial_setoids H).
+Proof.
+  use preserves_binproduct_chosen_to_chosen.
+  - exact (hyperdoctrine_binproducts H).
+  - exact (binproducts_partial_setoid H).
+  - intros X Y.
+    use make_is_z_isomorphism.
+    + apply preserves_binproduct_functor_to_partial_setoids_inv.
+    + abstract
+        (split ;
+         [ apply preserves_binproduct_functor_to_partial_setoids_inv_right
+         | apply preserves_binproduct_functor_to_partial_setoids_inv_left ]).
 Defined.
