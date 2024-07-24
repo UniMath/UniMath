@@ -150,6 +150,7 @@ Hyperdoctrines/PartialEqRels/PERTerminal.v
 Hyperdoctrines/PartialEqRels/PERInitial.v
 Hyperdoctrines/PartialEqRels/PERBinProducts.v
 Hyperdoctrines/PartialEqRels/PEREqualizers.v
+Hyperdoctrines/PartialEqRels/PERMonomorphisms.v
 
 DisplayedCats/Examples/HValuedPredicates.v
 
