@@ -69,7 +69,7 @@ Section Def .
   Defined.
 End Def.
 
-Section Properties .
+Section Properties.
   Lemma isassoc_consensus {X : hSet} (b : prebilattice X) : isassoc (consensus b).
   Proof.
     exact (isassoc_Lmin (klattice b)) .
