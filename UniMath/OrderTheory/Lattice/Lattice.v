@@ -75,7 +75,6 @@ Definition Lmax {X : hSet} (lat : lattice X) : binop X := pr1 (pr2 lat).
 
 Lemma isaset_lattice (X : hSet) : isaset (lattice X) .
 Proof.
-Check (isasetbinoponhSet X).
 use isaset_total2.
 - use (isasetbinoponhSet X).
 - intro min.
