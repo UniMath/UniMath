@@ -1591,9 +1591,7 @@ Defined.
 
 Close Scope multmonoid.
 
-Section dual_lattice.
-  Definition dual_lattice {X : hSet} (l : lattice X) : lattice X := make_lattice (((isassoc_Lmax l),, (iscomm_Lmax l)),, ((isassoc_Lmin l),,(iscomm_Lmin l)),,(Lmax_absorb l),,(Lmin_absorb l)).
-End dual_lattice.
+Definition dual_lattice {X : hSet} (l : lattice X) : lattice X := make_lattice (((isassoc_Lmax l),, (iscomm_Lmax l)),, ((isassoc_Lmin l),,(iscomm_Lmin l)),,(Lmax_absorb l),,(Lmin_absorb l)).
 
 Section hProp_lattice.
 
