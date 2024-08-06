@@ -35,7 +35,7 @@ rewrite <- (homotweqinvweq f x), <- (homotweqinvweq f y);
   rewrite (pr222 (p (invmap f x) (invmap f y)))
 ];
 now rewrite homotweqinvweq,  homotweqinvweq, homotinvweqweq.
-Defined.
+Qed.
 
 Definition prebilattice_disp_category : category.
 Proof.

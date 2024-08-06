@@ -61,7 +61,7 @@ Section Def .
              rewrite transportf_total2_const.
              use g.
          --- apply isaprop_islatticeop.
-  Defined.
+  Qed.
 
   Definition prebilattice_eq {X : hSet} (b1 : prebilattice X) (b2 : prebilattice X) (m : meet b1 ~ meet b2) (j : join b1 ~ join b2) (c : consensus b1 ~ consensus b2) (g : gullibility b1 ~ gullibility b2): b1 = b2.
   Proof.

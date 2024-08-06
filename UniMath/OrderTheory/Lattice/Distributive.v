@@ -71,14 +71,14 @@ Section Properties.
   Lemma distrlattice_Lmax_ldistr  (l : distributive_lattice) : isldistr (Lmax l) (Lmin l) .
   Proof .
     intros ? ? ?. use (distributive_lattice_is_distributive l) .
-  Defined .
+  Qed .
 
   Lemma distrlattice_Lmax_rdistr (l : distributive_lattice) : isrdistr (Lmax l) (Lmin l) .
   Proof.
     use weqldistrrdistr.
     - use iscomm_Lmin.
     - intros ? ? ?. use (distributive_lattice_is_distributive l).
-  Defined.
+  Qed.
 
   Lemma dual_lattice_is_distributive (l : distributive_lattice) : is_distributive (dual_lattice l) .
   Proof.
@@ -95,15 +95,15 @@ Section Properties.
     }
     intros ? ? ?.
     use d .
-  Defined.
+  Qed.
 
   Lemma distrlattice_Lmin_ldistr (l : distributive_lattice) : isldistr (Lmin l) (Lmax l) .
   Proof.
     exact (distrlattice_Lmax_ldistr (make_distributive_lattice (dual_lattice_is_distributive l))).
-  Defined.
+  Qed.
 
   Lemma distrlattice_Lmin_rdistr (l : distributive_lattice): isrdistr (Lmin l) (Lmax l) .
   Proof.
     exact (distrlattice_Lmax_rdistr (make_distributive_lattice (dual_lattice_is_distributive l))).
-  Defined.
+  Qed.
 End Properties.
