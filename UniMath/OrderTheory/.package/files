@@ -18,6 +18,13 @@ Lattice/Examples/Bool.v
 Lattice/Examples/Subsets.v
 Lattice/Examples/Sieves.v
 
+Prebilattice/Prebilattice.v
+Prebilattice/Interlaced.v
+Prebilattice/Distributive.v
+Prebilattice/PrebilatticeDisplayedCat.v
+Prebilattice/Product.v
+Prebilattice/Examples/FOUR.v
+
 DCPOs/Core/DirectedSets.v
 DCPOs/Core/Basics.v
 DCPOs/Core/WayBelow.v
