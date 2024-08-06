@@ -233,6 +233,7 @@ Categories/Fld.v
 Categories/Module.v
 Categories/StandardCategories.v
 Categories/PreorderCategories.v
+Categories/MonoidToCategory.v
 
 Limits/Examples/UnitCategoryLimits.v
 
