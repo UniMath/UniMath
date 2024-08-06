@@ -16,9 +16,7 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.OrderTheory.Lattice.Lattice.
 Require Import UniMath.OrderTheory.Lattice.Bounded.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 
 Section definition .
   Definition prod_prebilattice_carrier (X1 X2 : hSet) := setdirprod X1 X2 .
@@ -454,7 +452,7 @@ Section representation_theorem.
           )).
   Defined.
 
-  Definition iso_interlaced_product {X : hSet} (b : interlaced_prebilattice X) : @Isos.iso (precategory_data_from_precategory prebilattice_disp_category) (X,, (pr1 b))
+  Definition iso_interlaced_product {X : hSet} (b : interlaced_prebilattice X) : @z_iso (precategory_data_from_precategory prebilattice_disp_category) (X,, (pr1 b))
                                                                                            (prod_prebilattice_carrier (pr1 (interlaced_prebilattice_to_prod b))
                                                                                                                       (pr12 (interlaced_prebilattice_to_prod b)),,
                                                                                                                       (pr1 (make_interlaced_prebilattice
@@ -484,6 +482,6 @@ Section representation_theorem.
     exists (pr122 interlacedToProd).
     exists (pr1 (pr222 interlacedToProd)).
     exists (pr2 (pr222 interlacedToProd)).
-    exact (isotoid prebilattice_disp_category is_univalent_prebilattice_disp_category (Isos.iso_to_z_iso (iso_interlaced_product b))).
+    exact (isotoid prebilattice_disp_category is_univalent_prebilattice_disp_category (iso_interlaced_product b)).
   Defined.
 End representation_theorem.

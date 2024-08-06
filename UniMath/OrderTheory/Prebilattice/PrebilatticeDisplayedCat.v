@@ -1,7 +1,7 @@
 (** Displayed category of pre-bilattices *)
 (** Georgios V. Pitsiladis, Aug. 2024 - *)
 Require Import UniMath.OrderTheory.Prebilattice.Prebilattice.
-Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
@@ -70,12 +70,11 @@ use SIP.
   -- exact (pr222 (p2 x y)).
 Defined.
 
-Definition prebilattice_iso {X1 : hSet} {X2 : hSet} (b1 : prebilattice X1) (b2 : prebilattice X2) (f : weq X1 X2) (p : respects_prebilattice_structure b1 b2 f) : @Isos.iso prebilattice_disp_category (X1,,b1) (X2,,b2).
+Definition prebilattice_iso {X1 : hSet} {X2 : hSet} (b1 : prebilattice X1) (b2 : prebilattice X2) (f : weq X1 X2) (p : respects_prebilattice_structure b1 b2 f) : @z_iso prebilattice_disp_category (X1,,b1) (X2,,b2).
 Proof.
 set( f' := (pr1weq f,, p) : (prebilattice_disp_category ⟦ X1,, b1, X2,, b2 ⟧)%cat).
 set (p_inv := weqinv_respects_prebilattice_structure b1 b2 f p).
 exists f'.
-use Isos.is_iso_from_is_z_iso.
 exists (invmap f,, p_inv).
 use make_dirprod.
 - use total2_paths_f.
@@ -98,7 +97,7 @@ Defined.
 
 Definition prebilattice_transportf_iso {X1 : hSet} {X2 : hSet} (b1 : prebilattice X1) (b2 : prebilattice X2) (f : weq X1 X2) (p : respects_prebilattice_structure b1 b2 f) : ∑ p, transportf prebilattice p b1 = b2.
 Proof.
-  set (I := Isos.iso_to_z_iso (prebilattice_iso b1 b2 f p)).
+  set (I := prebilattice_iso b1 b2 f p).
   set (i := fiber_paths (isotoid prebilattice_disp_category is_univalent_prebilattice_disp_category I)) .
   (* cbn in i. (* in order to see what path to use in the next line *)  *)
   exists ((base_paths (X1,, b1) (X2,, b2) (isotoid prebilattice_disp_category is_univalent_prebilattice_disp_category I))).
