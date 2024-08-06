@@ -66,7 +66,6 @@ Section equalities.
       use prebilattice_transportf; [set (i := m) | set (i := j) | set (i := c) | set (i := g)];
         use (homotcomp _ i);
         induction p;
-        rewrite idpath_transportf, idpath_transportf;
         use homotrefl.
     - apply isaprop_is_interlaced.
   Defined.
