@@ -61,9 +61,9 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCoproduct
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCartesianClosed.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
-Require Import UniMath.CategoryTheory.DisplayedCats.Hyperdoctrines.Hyperdoctrine.
-Require Import UniMath.CategoryTheory.DisplayedCats.Hyperdoctrines.FirstOrderHyperdoctrine.
-Require Import UniMath.CategoryTheory.DisplayedCats.Hyperdoctrines.Tripos.
+Require Import UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+Require Import UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+Require Import UniMath.CategoryTheory.Hyperdoctrines.Tripos.
 
 Local Open Scope cat.
 Local Open Scope heyting.

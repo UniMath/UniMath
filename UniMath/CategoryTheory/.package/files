@@ -138,10 +138,19 @@ DisplayedCats/MonoCodomain/MonoCodColimits.v
 DisplayedCats/MonoCodomain/MonoCodRightAdjoint.v
 DisplayedCats/MonoCodomain/MonoHyperdoctrine.v
 
-DisplayedCats/Hyperdoctrines/Hyperdoctrine.v
-DisplayedCats/Hyperdoctrines/FirstOrderHyperdoctrine.v
-DisplayedCats/Hyperdoctrines/Tripos.v
-DisplayedCats/Hyperdoctrines/PERs.v
+Hyperdoctrines/Hyperdoctrine.v
+Hyperdoctrines/FirstOrderHyperdoctrine.v
+Hyperdoctrines/Tripos.v
+
+Hyperdoctrines/PartialEqRels/PERs.v
+Hyperdoctrines/PartialEqRels/PERMorphisms.v
+Hyperdoctrines/PartialEqRels/PERCategory.v
+Hyperdoctrines/PartialEqRels/PERConstantObjects.v
+Hyperdoctrines/PartialEqRels/PERTerminal.v
+Hyperdoctrines/PartialEqRels/PERInitial.v
+Hyperdoctrines/PartialEqRels/PERBinProducts.v
+Hyperdoctrines/PartialEqRels/PEREqualizers.v
+Hyperdoctrines/PartialEqRels/PERMonomorphisms.v
 
 DisplayedCats/Examples/HValuedPredicates.v
 
