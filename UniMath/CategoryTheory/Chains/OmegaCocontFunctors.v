@@ -903,7 +903,7 @@ Definition omega_cocont_constprod_functor1 (x : C) :
 Lemma is_cocont_constprod_functor2 (x : C) : is_cocont (constprod_functor2 PC x).
 Proof.
   apply left_adjoint_cocont.
-  apply (is_left_adjoint_constprod_functor2 PC), hE.
+  apply (is_exponentiable_to_is_exponentiable' PC), hE.
 Defined.
 
 Lemma is_omega_cocont_constprod_functor2 (x : C) : is_omega_cocont (constprod_functor2 PC x).
