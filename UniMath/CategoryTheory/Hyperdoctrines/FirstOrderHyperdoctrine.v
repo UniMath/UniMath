@@ -78,7 +78,9 @@
  9. Existential quantification
  10. Equality
  11. Derived rules for equality
- 12. A tactic for simplifying goals in the internal language of first-order hyperdoctrines
+ 12. Derived connectives
+ 12.1. Bi-implication
+ 13. A tactic for simplifying goals in the internal language of first-order hyperdoctrines
 
  **********************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -1479,7 +1481,185 @@ Proof.
   exact r.
 Qed.
 
-(** * 12. A tactic for simplifying goals in the internal language of first-order hyperdoctrines *)
+(** * 12. Derived connectives *)
+
+(** * 12.1. Bi-implication *)
+Definition first_order_hyperdoctrine_iff
+           {H : first_order_hyperdoctrine}
+           {Γ : ty H}
+           (φ ψ : form Γ)
+  : form Γ
+  := (φ ⇒ ψ) ∧ (ψ ⇒ φ).
+
+Notation "φ ⇔ ψ" := (first_order_hyperdoctrine_iff φ ψ).
+
+Proposition iff_intro
+            {H : first_order_hyperdoctrine}
+            {Γ : ty H}
+            {Δ φ ψ : form Γ}
+            (p : Δ ∧ φ ⊢ ψ)
+            (q : Δ ∧ ψ ⊢ φ)
+  : Δ ⊢ φ ⇔ ψ.
+Proof.
+  use conj_intro.
+  - use impl_intro.
+    exact p.
+  - use impl_intro.
+    exact q.
+Qed.
+
+Proposition iff_elim_left
+            {H : first_order_hyperdoctrine}
+            {Γ : ty H}
+            {Δ φ ψ : form Γ}
+            (p : Δ ⊢ φ ⇔ ψ)
+            (q : Δ ⊢ φ)
+  : Δ ⊢ ψ.
+Proof.
+  use (impl_elim q).
+  exact (conj_elim_left p).
+Qed.
+
+Proposition iff_elim_right
+            {H : first_order_hyperdoctrine}
+            {Γ : ty H}
+            {Δ φ ψ : form Γ}
+            (p : Δ ⊢ φ ⇔ ψ)
+            (q : Δ ⊢ ψ)
+  : Δ ⊢ φ.
+Proof.
+  use (impl_elim q).
+  exact (conj_elim_right p).
+Qed.
+
+Proposition iff_subst
+            {H : first_order_hyperdoctrine}
+            {Γ₁ Γ₂ : ty H}
+            (s : tm Γ₁ Γ₂)
+            (φ ψ : form Γ₂)
+  : ((φ ⇔ ψ) [ s ])
+    =
+    (φ [ s ] ⇔ ψ [ s ]).
+Proof.
+  unfold first_order_hyperdoctrine_iff.
+  rewrite conj_subst.
+  rewrite !impl_subst.
+  apply idpath.
+Qed.
+
+Proposition iff_refl
+            {H : first_order_hyperdoctrine}
+            {Γ : ty H}
+            (Δ φ : form Γ)
+  : Δ ⊢ φ ⇔ φ.
+Proof.
+  use iff_intro.
+  - use weaken_right.
+    apply hyperdoctrine_hyp.
+  - use weaken_right.
+    apply hyperdoctrine_hyp.
+Qed.
+
+Proposition iff_sym
+            {H : first_order_hyperdoctrine}
+            {Γ : ty H}
+            {Δ φ ψ : form Γ}
+            (p : Δ ⊢ φ ⇔ ψ)
+  : Δ ⊢ ψ ⇔ φ.
+Proof.
+  use iff_intro.
+  - use (iff_elim_right (weaken_left p _)).
+    use weaken_right.
+    apply hyperdoctrine_hyp.
+  - use (iff_elim_left (weaken_left p _)).
+    use weaken_right.
+    apply hyperdoctrine_hyp.
+Qed.
+
+Proposition iff_trans
+            {H : first_order_hyperdoctrine}
+            {Γ : ty H}
+            {Δ φ ψ χ : form Γ}
+            (p : Δ ⊢ φ ⇔ ψ)
+            (q : Δ ⊢ ψ ⇔ χ)
+  : Δ ⊢ φ ⇔ χ.
+Proof.
+  use iff_intro.
+  - use (iff_elim_left (weaken_left q _)).
+    use (iff_elim_left (weaken_left p _)).
+    use weaken_right.
+    apply hyperdoctrine_hyp.
+  - use (iff_elim_right (weaken_left p _)).
+    use (iff_elim_right (weaken_left q _)).
+    use weaken_right.
+    apply hyperdoctrine_hyp.
+Qed.
+
+Proposition iff_true_true
+            {H : first_order_hyperdoctrine}
+            {Γ : ty H}
+            {Δ φ ψ : form Γ}
+            (p : Δ ⊢ φ)
+            (q : Δ ⊢ ψ)
+  : Δ ⊢ φ ⇔ ψ.
+Proof.
+  use iff_intro.
+  - use weaken_left.
+    exact q.
+  - use weaken_left.
+    exact p.
+Qed.
+
+(** * 12.2. Negation *)
+Definition first_order_hyperdoctrine_neg
+           {H : first_order_hyperdoctrine}
+           {Γ : ty H}
+           (φ : form Γ)
+  : form Γ
+  := φ ⇒ ⊥.
+
+Notation "¬ φ" := (first_order_hyperdoctrine_neg φ).
+
+Proposition neg_intro
+            {H : first_order_hyperdoctrine}
+            {Γ : ty H}
+            {Δ φ ψ : form Γ}
+            (p : Δ ∧ φ ⊢ ⊥)
+  : Δ ⊢ ¬ φ.
+Proof.
+  use impl_intro.
+  exact p.
+Qed.
+
+Proposition neg_elim
+            {H : first_order_hyperdoctrine}
+            {Γ : ty H}
+            {Δ φ ψ : form Γ}
+            (p : Δ ⊢ φ)
+            (q : Δ ⊢ ¬ φ)
+  : Δ ⊢ ψ.
+Proof.
+  use false_elim.
+  use (impl_elim p).
+  exact q.
+Qed.
+
+Proposition neg_subst
+            {H : first_order_hyperdoctrine}
+            {Γ₁ Γ₂ : ty H}
+            (s : tm Γ₁ Γ₂)
+            (φ : form Γ₂)
+  : (¬ φ) [ s ]
+    =
+    ¬ (φ [ s ]).
+Proof.
+  unfold first_order_hyperdoctrine_neg.
+  rewrite impl_subst.
+  rewrite false_subst.
+  apply idpath.
+Qed.
+
+(** * 13. A tactic for simplifying goals in the internal language of first-order hyperdoctrines *)
 
 (**
    We design a tactic `simplify`, which is meant to help proving statements in the internal
@@ -1520,6 +1700,8 @@ Ltac simplify_form_step :=
     ?forall_subst,
     ?exists_subst,
     ?equal_subst,
+    ?iff_subst,
+    ?neg_subst,
     ?hyperdoctrine_comp_subst,
     ?hyperdoctrine_id_subst.
 
@@ -1534,7 +1716,8 @@ Ltac simplify_term_step :=
     ?tm_subst_comp,
     ?tm_subst_var,
     ?hyperdoctrine_pair_pr1,
-    ?hyperdoctrine_pair_pr2.
+    ?hyperdoctrine_pair_pr2,
+    ?hyperdoctrine_unit_tm_subst.
 
 Ltac simplify_term :=
   repeat (progress simplify_term_step).

@@ -333,6 +333,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Hyperdoctrines/Hyperdoctrine.v](CategoryTheory/Hyperdoctrines/Hyperdoctrine.v)
    - [Hyperdoctrines/FirstOrderHyperdoctrine.v](CategoryTheory/Hyperdoctrines/FirstOrderHyperdoctrine.v)
    - [Hyperdoctrines/Tripos.v](CategoryTheory/Hyperdoctrines/Tripos.v)
+   - [Hyperdoctrines/GenericPredicate.v](CategoryTheory/Hyperdoctrines/GenericPredicate.v)
    - [Hyperdoctrines/PartialEqRels/PERs.v](CategoryTheory/Hyperdoctrines/PartialEqRels/PERs.v)
    - [Hyperdoctrines/PartialEqRels/PERMorphisms.v](CategoryTheory/Hyperdoctrines/PartialEqRels/PERMorphisms.v)
    - [Hyperdoctrines/PartialEqRels/PERCategory.v](CategoryTheory/Hyperdoctrines/PartialEqRels/PERCategory.v)

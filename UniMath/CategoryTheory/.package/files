@@ -141,6 +141,7 @@ DisplayedCats/MonoCodomain/MonoHyperdoctrine.v
 Hyperdoctrines/Hyperdoctrine.v
 Hyperdoctrines/FirstOrderHyperdoctrine.v
 Hyperdoctrines/Tripos.v
+Hyperdoctrines/GenericPredicate.v
 
 Hyperdoctrines/PartialEqRels/PERs.v
 Hyperdoctrines/PartialEqRels/PERMorphisms.v

@@ -388,43 +388,12 @@ Section HValuedSets.
   Proof.
     intro X ; cbn in * ; unfold prodtofuntoprod ; cbn.
     refine (power_h_valued_set X ,, in_power_h_valued_set X ,, _).
-    intros Γ R tt.
-    induction tt.
-    use cha_le_glb.
-    intros z.
-    induction z as [ z pz ].
-    induction z as [ tt γ ].
-    cbn in pz.
-    induction pz.
-    induction tt.
-    cbn.
-    use cha_le_lub.
-    - simple refine (((tt ,, γ) ,, _) ,, idpath _).
-      exact (λ (x : X), R (x ,, γ)).
-    - cbn.
-      use cha_le_glb.
-      intros z.
-      induction z as [ [ [ [ tt γ' ] P ] x ] q ].
-      cbn in *.
-      induction tt.
-      assert ((λ x : X, R (x,, γ)) = P) as p.
-      {
-        exact (maponpaths dirprod_pr2 (!q)).
-      }
-      induction p.
-      assert (γ = γ') as p.
-      {
-        exact (maponpaths (λ z, dirprod_pr2 (dirprod_pr1 z)) (!q)).
-      }
-      induction p.
-      use cha_min_le_case.
-      + use cha_to_le_exp.
-        rewrite cha_lunit_min_top.
-        apply cha_le_refl.
-      + use cha_to_le_exp.
-        rewrite cha_lunit_min_top.
-        apply cha_le_refl.
-  Qed.
+    intros Γ R ; cbn in *.
+    simple refine (_ ,, _).
+    - exact (λ Γ x, R (x ,, Γ)).
+    - abstract
+        (apply idpath).
+  Defined.
 
   Definition tripos_h_valued_sets
     : tripos.
