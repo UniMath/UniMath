@@ -26,6 +26,7 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Tuples.
@@ -572,8 +573,8 @@ Section AlgebraToTheory.
       refine (_ @ !subst_compose _ (var _) _ _).
       refine (_ @ !maponpaths (λ x, (x ∘ _)) (var_subst _ _ _)).
       apply maponpaths.
-      refine (maponpaths (λ x, (pair_arrow x _)) (π1_pair_arrow' _ Lβ _ _) @ _).
-      refine (maponpaths (λ x, (pair_arrow _ x)) (π2_pair_arrow' _ Lβ _ _) @ _).
+      refine (maponpaths (λ x, (pair_arrow x _)) (π1_pair_arrow _ Lβ _ _) @ _).
+      refine (maponpaths (λ x, (pair_arrow _ x)) (π2_pair_arrow _ Lβ _ _) @ _).
       refine (maponpaths (λ x, (abs (⟨(app x _), _⟩))) (inflate_abs _ _) @ _).
       refine (maponpaths (λ x, (abs (⟨_, (app x _)⟩))) (inflate_abs _ _) @ _).
       refine (maponpaths (λ x, (abs (⟨x, _⟩))) (beta_equality _ Lβ _ _) @ _).
@@ -714,9 +715,9 @@ Section AlgebraToTheory.
           refine (_ @ !maponpaths (λ x, (abs x)) (var_subst _ _ _));
           refine (_ @ !maponpaths (λ x, (abs x)) (extend_tuple_inr _ _ _)).
         + refine (maponpaths (λ x, (x ∘ _)) (subst_π1 _ _) @ _).
-          apply (π1_pair_arrow' _ Lβ).
+          apply (π1_pair_arrow _ Lβ).
         + refine (maponpaths (λ x, (x ∘ _)) (subst_π2 _ _) @ _).
-          apply (π2_pair_arrow' _ Lβ).
+          apply (π2_pair_arrow _ Lβ).
     Qed.
 
     Definition universal_monoid_exponential_iso
