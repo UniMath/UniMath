@@ -35,6 +35,10 @@ Define new lattices using:
 - abmonoidfrac
 *)
 
+(**
+Define dual lattice
+*)
+
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
@@ -68,6 +72,17 @@ Definition make_lattice {X : hSet} {min max : binop X} : islatticeop min max →
 
 Definition Lmin {X : hSet} (lat : lattice X) : binop X := pr1 lat.
 Definition Lmax {X : hSet} (lat : lattice X) : binop X := pr1 (pr2 lat).
+
+Lemma isaset_lattice (X : hSet) : isaset (lattice X) .
+Proof.
+use isaset_total2.
+- use (isasetbinoponhSet X).
+- intro min.
+  use isaset_total2.
+  -- use (isasetbinoponhSet X).
+  -- intro max.
+     use (isasetaprop (isaprop_islatticeop _ _)).
+Defined.
 
 Section lattice_pty.
 
@@ -1575,6 +1590,8 @@ Proof.
 Defined.
 
 Close Scope multmonoid.
+
+Definition dual_lattice {X : hSet} (l : lattice X) : lattice X := make_lattice (((isassoc_Lmax l),, (iscomm_Lmax l)),, ((isassoc_Lmin l),,(iscomm_Lmin l)),,(Lmax_absorb l),,(Lmin_absorb l)).
 
 Section hProp_lattice.
 
