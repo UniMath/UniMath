@@ -6,7 +6,6 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
-Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 
 Local Open Scope cat.
