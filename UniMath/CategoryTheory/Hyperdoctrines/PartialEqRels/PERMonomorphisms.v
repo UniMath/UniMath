@@ -3,7 +3,7 @@
  Monomorphisms into constant partial setoids
 
  In this file, we study monomorphisms into constant partial setoids. Let us be more precise
- on what this entails to. Suppose that we have a first-order hyperdoctrine `H`, and let `C`
+ on what this entails. Suppose that we have a first-order hyperdoctrine `H`, and let `C`
  be the category of types of `H`. We write `Form` for the displayed category over `C` whose
  objects over `Γ` are formulas in context `Γ`. The hyperdoctrine `H` gives rise to a category
  of partial setoids, which we denote by `PartialSetoid`. We already showed that we have a
