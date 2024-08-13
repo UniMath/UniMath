@@ -7,8 +7,8 @@
  a formula on `X ×h X` that is symmetric and transitive). We also defined the notion of a
  morphism between partial setoids: morphisms from a partial setoid `X` to a partial setoid
  `Y` are given by relations on `X` and `Y` satisfying some properties (which are described
- in the file `PerMorphisms.v`). In this file, we show that partial setoids together with
- partial setoid morphisms forms a category. To do so, we define the identity partial setoid
+ in the file `PerMorphisms.v`). In this file, we show how partial setoids together with
+ partial setoid morphisms form a category. To do so, we define the identity partial setoid
  morphism and the composition, and we show that the category laws are satisfied.
 
  Note that the category of partial setoids is the basis for the tripos-to-topos construction.
