@@ -7,7 +7,6 @@
  we identify none of the objects. In this partial setoid, none of the terms are defined,
  because reflexivity never holds. As such, this gives the initial object.
 
- give an alternative construction.
 
  Content
  1. The initial partial setoid
