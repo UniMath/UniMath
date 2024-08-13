@@ -7,7 +7,7 @@
  be the category of types of `H`. We write `Form` for the displayed category over `C` whose
  objects over `Γ` are formulas in context `Γ`. The hyperdoctrine `H` gives rise to a category
  of partial setoids, which we denote by `PartialSetoid`. We already showed that we have a
- functor, call it `F` from the category `C` of types to `PartialSetoid`. It sends every type
+ functor, call it `F`, from the category `C` of types to `PartialSetoid`. It sends every type
  to the partial setoid whose partial equivalence relation is given by the equality formula
  in the hyperdoctrine `H`. In this file, we construct a displayed functor over `F` from `Form`
  to the displayed category of monomorphisms in `PartialSetoid`. Concretely, this means that
