@@ -18,9 +18,9 @@ Proof.
       * use make_precategory_ob_mor.
         -- exact (Open (T := T)).
         -- intros U V.
-          exact (U ⊆ V).
+          exact (V ⊆ U).
       * exact (λ U x H, H).
-      * exact (λ U V W HUV HVW x Hx, HVW _ (HUV _ Hx)).
+      * exact (λ U V W HUV HVW x Hx, HUV _ (HVW _ Hx)).
     + abstract (
         use make_is_precategory_one_assoc;
         trivial
@@ -49,8 +49,8 @@ Proof.
     }
     apply (invmap (hsubtype_univalence _ _)).
     split.
-    + apply (pr1 H _).
     + apply (pr12 H _).
+    + apply (pr1 H _).
   - apply isaset_total2.
     + apply isasethsubtype.
     + intro.
@@ -80,26 +80,36 @@ Definition continuous_identity
   : continuous_function T T
   := identity (T : top_cat).
 
-Definition identity_to_functor_is_identity
+Definition continuous_to_functor_identity
   (T : TopologicalSpace)
-  : nat_z_iso (continuous_to_functor (continuous_identity T)) (functor_identity _).
+  : z_iso (C := [_, _]) (continuous_to_functor (continuous_identity T)) (functor_identity _).
 Proof.
-  use make_nat_z_iso.
+  use make_z_iso.
   - exact (nat_trans_id (functor_identity _)).
-  - intro.
-    exists (λ x y, y).
-    abstract easy.
+  - exact (nat_trans_id (functor_identity _)).
+  - abstract (
+      split;
+      apply nat_trans_eq_alt;
+      intro;
+      easy
+    ).
 Defined.
 
-Definition composite_to_functor_is_comp
+Definition continuous_to_functor_comp
   {T T' T'' : TopologicalSpace}
   (F : top_cat⟦T, T'⟧)
   (F' : top_cat⟦T', T''⟧)
-  : nat_z_iso (continuous_to_functor (F · F')) ((continuous_to_functor F') ∙ (continuous_to_functor F)).
+  : z_iso (C := [_, _])
+    (continuous_to_functor (F · F'))
+    ((continuous_to_functor F') ∙ (continuous_to_functor F)).
 Proof.
-  use make_nat_z_iso.
+  use make_z_iso.
   - exact (nat_trans_id (continuous_to_functor (F · F'))).
-  - intro.
-    exists (λ x y, y).
-    abstract easy.
+  - exact (nat_trans_id (continuous_to_functor (F · F'))).
+  - abstract (
+      split;
+      apply nat_trans_eq_alt;
+      intro;
+      easy
+    ).
 Defined.
