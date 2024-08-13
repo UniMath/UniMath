@@ -13,7 +13,7 @@
  to the displayed category of monomorphisms in `PartialSetoid`. Concretely, this means that
  every formula in `H` gives rise to a monomorphism into a constant object in the category of
  partial setoids. We also show that this displayed functor is both split essentially surjective
- and fullt faithful. Intuitively, this means that monomorphisms into a constant object are the
+ and fully faithful. Intuitively, this means that monomorphisms into a constant object are the
  same as formulas on it.
 
  This statement is similar to Lemma 3.3 in "Tripos Theory in Retrospect" by Andrew Pitts.
