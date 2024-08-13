@@ -4,6 +4,7 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.Topology.Topology.
 Require Import UniMath.Topology.CategoryTop.
 
@@ -18,7 +19,7 @@ Local Open Scope cat.
 Definition presheafed_space
   (D : category)
   : UU
-  := ∑ (X : TopologicalSpace), topological_space_category X ⟶ D.
+  := ∑ (X : TopologicalSpace), (topological_space_category X)^op ⟶ D.
 
 Coercion presheafed_space_to_space
   {D : category}
@@ -29,7 +30,7 @@ Coercion presheafed_space_to_space
 Definition presheafed_space_presheaf
   {D : category}
   (X : presheafed_space D)
-  : topological_space_category X ⟶ D
+  : (topological_space_category X)^op ⟶ D
   := pr2 X.
 
 
@@ -38,7 +39,7 @@ Definition presheafed_space_morphism
   (X Y : presheafed_space D)
   : UU
   := ∑ (f : continuous_function X Y),
-    continuous_to_functor f ∙ presheafed_space_presheaf X ⟹ presheafed_space_presheaf Y.
+    functor_opp (continuous_to_functor f) ∙ presheafed_space_presheaf X ⟹ presheafed_space_presheaf Y.
 
 Coercion presheafed_space_morphism_to_continuous
   {D : category}
@@ -51,7 +52,7 @@ Definition presheafed_space_morphism_to_nat_trans
   {D : category}
   {X Y : presheafed_space D}
   (f : presheafed_space_morphism X Y)
-  : continuous_to_functor f ∙ presheafed_space_presheaf X ⟹ presheafed_space_presheaf Y
+  : functor_opp (continuous_to_functor f) ∙ presheafed_space_presheaf X ⟹ presheafed_space_presheaf Y
   := pr2 f.
 
 
@@ -61,9 +62,12 @@ Definition presheafed_identity
   : presheafed_space_morphism X X.
 Proof.
   exists (continuous_identity X).
-  refine (nat_trans_comp _ _ _ _ (lunitor (C := bicat_of_cats) _)).
+  refine (nat_trans_comp _ _ _ _ (lunitor (C := bicat_of_cats) (presheafed_space_presheaf X))).
   refine (post_whisker _ _).
-  exact (z_iso_mor (continuous_to_functor_identity _)).
+  refine (nat_trans_comp _ _ _ (op_nt (inv_from_z_iso (continuous_to_functor_identity _))) _).
+  apply (inv_from_z_iso (C := [_^op, _^op])).
+  apply (z_iso_from_nat_z_iso (homset_property _)).
+  exact (op_triangle_nat_z_iso _).
 Defined.
 
 Definition presheafed_comp
@@ -76,9 +80,13 @@ Proof.
   exists (((f : continuous_function _ _) : top_cat⟦_, _⟧) · (g : continuous_function _ _)).
   refine (nat_trans_comp _ _ _ _ (presheafed_space_morphism_to_nat_trans g)).
   refine (nat_trans_comp _ _ _ _ (pre_whisker _ (presheafed_space_morphism_to_nat_trans f))).
-  refine (nat_trans_comp _ _ _ _ (rassociator (C := bicat_of_cats) _ _ _)).
+  refine (nat_trans_comp _ _ _ _ (rassociator (C := bicat_of_cats) (a := (topological_space_category Z)^op) (b := (topological_space_category Y)^op) _ _ _)
+  ).
   refine (post_whisker _ (presheafed_space_presheaf X)).
-  exact (z_iso_mor (continuous_to_functor_comp _ _)).
+  refine (nat_trans_comp _ _ _ (op_nt (inv_from_z_iso (continuous_to_functor_comp _ _))) _).
+  apply (inv_from_z_iso (C := [_^op, _^op])).
+  apply (z_iso_from_nat_z_iso (homset_property _)).
+  exact (functor_comp_op_nat_z_iso _ _).
 Defined.
 
 Opaque continuous_to_functor_identity.
@@ -100,14 +108,13 @@ Lemma presheafed_space_morphism_eq
   {X Y : presheafed_space D}
   (f f' : presheafed_space_morphism X Y)
   (H1 : (f : continuous_function _ _) = f')
-  (H2 : ∏ x, presheafed_space_morphism_to_nat_trans f x = # (presheafed_space_presheaf X) (idtoiso (maponpaths (λ f, continuous_to_functor f x) H1)) · presheafed_space_morphism_to_nat_trans f' x)
+  (H2 : ∏ x, presheafed_space_morphism_to_nat_trans f x = # (presheafed_space_presheaf X) (idtoiso (maponpaths (λ f, functor_opp (continuous_to_functor f) x) H1)) · presheafed_space_morphism_to_nat_trans f' x)
   : f = f'.
 Proof.
   induction f as [f1 f2], f' as [f1' f2'].
-  simpl in H1.
-  induction H1.
+  induction (H1 : f1 = f1').
   apply maponpaths.
-  apply nat_trans_eq_alt.
+  apply (nat_trans_eq_alt (C := (topological_space_category Y)^op)).
   intro x.
   refine (H2 x @ _).
   refine (_ @ id_left _).
@@ -124,8 +131,8 @@ Proof.
     + apply (id_left (C := top_cat)).
     + intro x.
       apply (maponpaths (λ x, x · _)).
-      refine (maponpaths (λ x, x · _) (id_right _) @ _).
-      refine (maponpaths (λ x, _ · x) (id_right _) @ _).
+      refine (maponpaths (λ x, x · _) (id_right (# (presheafed_space_presheaf X) _)) @ _).
+      refine (maponpaths (λ x, _ · x) (id_right (# (presheafed_space_presheaf X) _)) @ _).
       refine (!functor_comp (presheafed_space_presheaf X) _ _ @ _).
       apply maponpaths.
       apply isaprop_subtype_containedIn.
@@ -133,8 +140,8 @@ Proof.
     use presheafed_space_morphism_eq.
     + apply (id_right (C := top_cat)).
     + intro x.
-      refine (maponpaths (λ x, x · _ · _) (id_right _) @ _).
-      refine (maponpaths (λ x, _ · x) (id_right _) @ _).
+      refine (maponpaths (λ x, x · _ · _) (id_right (# (presheafed_space_presheaf X) _)) @ _).
+      refine (maponpaths (λ x, _ · x) (id_right (# (presheafed_space_presheaf Y) _)) @ _).
       refine (assoc' _ _ _ @ _).
       refine (!maponpaths _ (nat_trans_ax (presheafed_space_morphism_to_nat_trans f) _ _ _) @ _).
       refine (assoc _ _ _ @ _).
@@ -146,10 +153,10 @@ Proof.
     use presheafed_space_morphism_eq.
     + apply (assoc (C := top_cat)).
     + intro x.
-      refine (maponpaths (λ x, x · _ · _) (id_right _) @ _).
-      refine (maponpaths (λ x, _ · (x · _ · _)) (id_right _) @ _).
-      refine (_ @ !maponpaths (λ x, _ · (x · _ · _)) (id_right _)).
-      refine (_ @ !maponpaths (λ x, _ · (_ · (x · _ · _) · _)) (id_right _)).
+      refine (maponpaths (λ x, x · _ · _) (id_right (# (presheafed_space_presheaf W) _)) @ _).
+      refine (maponpaths (λ x, _ · (x · _ · _)) (id_right (# (presheafed_space_presheaf X) _)) @ _).
+      refine (_ @ !maponpaths (λ x, _ · (x · _ · _)) (id_right (# (presheafed_space_presheaf W) _))).
+      refine (_ @ !maponpaths (λ x, _ · (_ · (x · _ · _) · _)) (id_right (# (presheafed_space_presheaf W) _))).
       do 2 refine (assoc _ _ _ @ !_).
       apply (maponpaths (λ x, x · _)).
       refine (assoc _ _ _ @ _).
