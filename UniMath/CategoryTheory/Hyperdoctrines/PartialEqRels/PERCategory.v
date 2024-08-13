@@ -13,7 +13,7 @@
 
  Note that the category of partial setoids is the basis for the tripos-to-topos construction.
  If one looks at triposes, then the category of partial setoids actually is a topos.
- However, even if one only looks at first-order hyperdoctrine, then this category still
+ However, even if one only looks at first-order hyperdoctrines, then this category still
  has a lot of structure. For instance, it has all finite limits.
 
  The most interesting aspect of this construction is that in general this does not give
