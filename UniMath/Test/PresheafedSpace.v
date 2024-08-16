@@ -53,13 +53,13 @@ Defined.
 
 Local Lemma aux1
   {D : category}
-  {X Y : TopologicalSpace}
-  (f g : continuous_function X Y)
+  {X Y : top_cat}
+  (f g : top_cat⟦X, Y⟧)
   (H : f = g)
-  {Xdata : (topological_space_category X)^op ⟶ D}
-  {Ydata : (topological_space_category Y)^op ⟶ D}
-  (fdata : functor_opp (continuous_to_functor f) ∙ Xdata ⟹ Ydata)
-  : transportf (λ x, functor_opp (continuous_to_functor x) ∙ Xdata ⟹ Ydata) H fdata
+  {Xdata : presheafed_space_disp_cat_data D X}
+  {Ydata : presheafed_space_disp_cat_data D Y}
+  (fdata : Xdata -->[f] Ydata)
+  : transportf (mor_disp Xdata Ydata) H fdata
     = nat_trans_comp _ _ _ (post_whisker (op_nt (z_iso_mor (idtoiso (C := [_, _]) (maponpaths continuous_to_functor H)))) Xdata) fdata.
 Proof.
   induction H.
@@ -136,6 +136,156 @@ Definition presheafed_space_cat
   : category
   := total_category (presheafed_space_disp_cat D).
 
+(** The fully faithful functor from [(topological_space_category X)^op, D] to the presheafed space fiber over X *)
+
+Lemma id_disp_inv
+  {D : category}
+  {X : top_cat}
+  (P : (presheafed_space_disp_cat D)[{X}])
+  : (P : _ ⟶ _) ⟹ functor_opp (continuous_to_functor (identity X)) ∙ P.
+Proof.
+  refine (nat_trans_comp _ _ _ (linvunitor (C := bicat_of_cats) P) _).
+  apply post_whisker.
+  refine (nat_trans_comp _ _ _ _ (op_nt (z_iso_mor (continuous_to_functor_identity _)))).
+  apply (z_iso_mor (C := [_^op, _^op])).
+  apply (z_iso_from_nat_z_iso (homset_property _)).
+  exact (op_triangle_nat_z_iso _).
+Defined.
+
+Lemma id_disp_inv_after_id_disp
+  {D : category}
+  {X : top_cat}
+  (P : (presheafed_space_disp_cat D)[{X}])
+  : nat_trans_comp _ _ _ (id_disp (D := presheafed_space_disp_cat D) P) (id_disp_inv P) = nat_trans_id _.
+Proof.
+  apply (nat_trans_eq (homset_property D)).
+  intro x.
+  refine (maponpaths (λ x, x · _) (id_right _) @ _).
+  refine (maponpaths (λ x, _ · x) (id_left _) @ _).
+  refine (!functor_comp P _ _ @ _).
+  refine (_ @ functor_id P _).
+  apply maponpaths.
+  apply isaprop_subtype_containedIn.
+Qed.
+
+Lemma id_disp_after_id_disp_inv
+  {D : category}
+  {X : top_cat}
+  (P : (presheafed_space_disp_cat D)[{X}])
+  : nat_trans_comp _ _ _ (id_disp_inv P) (id_disp (D := presheafed_space_disp_cat D) P) = nat_trans_id _.
+Proof.
+  apply (nat_trans_eq (homset_property D)).
+  intro x.
+  refine (maponpaths (λ x, x · _) (id_left _) @ _).
+  refine (maponpaths (λ x, _ · x) (id_right _) @ _).
+  refine (!functor_comp P _ _ @ _).
+  refine (_ @ functor_id P _).
+  apply maponpaths.
+  apply isaprop_subtype_containedIn.
+Qed.
+
+Lemma functor_to_fiber_presheaf_is_functor
+  {D : category}
+  (X : top_cat)
+  : is_functor
+    (make_functor_data
+      (C := [(topological_space_category X)^op, D])
+      (C' := (presheafed_space_disp_cat D)[{X}])
+      (idfun _)
+      (λ P Q, nat_trans_comp _ _ _ (id_disp (D := presheafed_space_disp_cat D) P))).
+Proof.
+  split.
+  - intro P.
+    apply (nat_trans_eq (homset_property _)).
+    intro x.
+    apply id_right.
+  - intros P Q R f g.
+    refine (_ @ !aux1 _ _ _ _).
+    apply (nat_trans_eq (homset_property _)).
+    intro x.
+    cbn.
+    refine (maponpaths (λ x, x · _) (id_right _) @ _).
+    refine (_ @ !maponpaths (λ x, _ · (x · _ · _)) (id_right _)).
+    refine (_ @ !maponpaths (λ x, _ · (_ · (x · _) · _)) (id_right _)).
+    refine (_ @ !maponpaths (λ x, _ · (_ · (x · _))) (id_right _)).
+    refine (_ @ assoc' _ _ _).
+    refine (_ @ assoc' _ _ _).
+    refine (_ @ maponpaths (λ x, x · _ · _) (assoc' _ _ _)).
+    refine (_ @ maponpaths (λ x, x · _ · _) (assoc' _ _ _)).
+    refine (_ @ maponpaths (λ x, x · _) (assoc _ _ _)).
+    refine (_ @ maponpaths (λ x, _ · x · _) (nat_trans_ax f _ _ _)).
+    refine (_ @ maponpaths (λ x, x · _) (assoc' _ _ _)).
+    refine (_ @ assoc _ _ _).
+    apply (maponpaths (λ x, x · _)).
+    refine (_ @ maponpaths (λ x, x · _ · _) (functor_comp P _ _)).
+    refine (_ @ maponpaths (λ x, x · _) (functor_comp P _ _)).
+    refine (_ @ functor_comp P _ _).
+    apply (maponpaths (# (P : _ ⟶ _))).
+    apply isaprop_subtype_containedIn.
+Qed.
+
+Definition functor_to_fiber_presheaf_functor
+  (D : category)
+  (X : top_cat)
+  : [(topological_space_category X)^op, D] ⟶ (presheafed_space_disp_cat D)[{X}]
+  := make_functor _ (functor_to_fiber_presheaf_is_functor X).
+
+Definition functor_to_fiber_presheaf_functor_ff
+  {D : category}
+  (X : top_cat)
+  : fully_faithful (functor_to_fiber_presheaf_functor D X).
+Proof.
+  intros P Q.
+  use isweq_iso.
+  - exact (nat_trans_comp _ _ _ (id_disp_inv P)).
+  - abstract (
+      intro f;
+      refine (nat_trans_comp_assoc (homset_property _) _ _ _ _ _ _ _ @ _);
+      refine (maponpaths (λ x, nat_trans_comp _ _ _ x _) (id_disp_after_id_disp_inv P) @ _);
+      apply (nat_trans_comp_id_left (homset_property _))
+    ).
+  - abstract (
+      intro f;
+      refine (nat_trans_comp_assoc (homset_property _) _ _ _ _ _ _ _ @ _);
+      refine (maponpaths (λ x, nat_trans_comp _ _ _ x _) (id_disp_inv_after_id_disp P) @ _);
+      apply (nat_trans_comp_id_left (homset_property _))
+    ).
+Defined.
+
+(** Univalence *)
+
+Lemma is_univalent_disp_presheafed_space_disp_cat
+  (D : category)
+  (H : is_univalent D)
+  : is_univalent_disp (presheafed_space_disp_cat D).
+Proof.
+  apply is_univalent_disp_from_is_univalent_fiber.
+  intros X P Q.
+  use isweqhomot.
+  - exact (weqcomp
+      (make_weq _ (is_univalent_functor_category (_^op) D H _ _))
+      (weq_ff_functor_on_z_iso (functor_to_fiber_presheaf_functor_ff _) P Q)).
+  - abstract (
+      intro H';
+      induction H';
+      apply z_iso_eq;
+      apply (nat_trans_eq (homset_property _));
+      intro x;
+      apply id_right
+    ).
+  - apply weqproperty.
+Defined.
+
+Lemma is_univalent_presheafed_space_cat
+  (D : category)
+  (H : is_univalent D)
+  : is_univalent (presheafed_space_cat D).
+Proof.
+  apply is_univalent_total_category.
+  - apply is_univalent_top_cat.
+  - apply is_univalent_disp_presheafed_space_disp_cat.
+    exact H.
+Defined.
 
 (** Accessors *)
 
