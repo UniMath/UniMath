@@ -7,9 +7,6 @@
  we identify none of the objects. In this partial setoid, none of the terms are defined,
  because reflexivity never holds. As such, this gives the initial object.
 
- Note that if we were looking at a tripos, then one can construct a strict initial object
- in an alternative way as well. Every topos has a strict initial object, and that would
- give an alternative construction.
 
  Content
  1. The initial partial setoid

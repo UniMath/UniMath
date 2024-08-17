@@ -23,7 +23,7 @@
  by symmetry and transitivity. However, we are not guaranteed that `π₂ y` is also defined.
  This is what is added in our formula compared to one given by Pitts.
 
- The reason why we need to have this assumption, is because we want the first projection
+ We need to have this assumption because we want the first projection
  to be a morphism. In the file `PERMorphisms.v`, the full list of requirements are given.
  The relevant requirement is strictness: if `φ` is the formula describing a partial setoid
  morphism and we have `φ x y` for some `x` and `y`, then we must also have `x ~ x` (and

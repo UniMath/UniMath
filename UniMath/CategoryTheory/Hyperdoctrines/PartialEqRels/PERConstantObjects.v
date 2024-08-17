@@ -6,7 +6,7 @@
  the equality formula in the hyperdoctrine. In "Tripos Theory in Retrospect" by Andrew Pitts,
  these are called 'constant objects'. In this file, we show that this construction gives
  rise to a functor from the category of types to the category of partial setoids. Here
- the key step lies inn showing that every term gives rise to a partial setoid morphism.
+ the key step lies in showing that every term gives rise to a partial setoid morphism.
 
  References
  - "Tripos Theory in Retrospect" by Andrew Pitts

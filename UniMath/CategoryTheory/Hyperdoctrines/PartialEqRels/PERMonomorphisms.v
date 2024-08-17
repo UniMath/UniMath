@@ -3,17 +3,17 @@
  Monomorphisms into constant partial setoids
 
  In this file, we study monomorphisms into constant partial setoids. Let us be more precise
- on what this entails to. Suppose that we have a first-order hyperdoctrine `H`, and let `C`
+ on what this entails. Suppose that we have a first-order hyperdoctrine `H`, and let `C`
  be the category of types of `H`. We write `Form` for the displayed category over `C` whose
  objects over `Γ` are formulas in context `Γ`. The hyperdoctrine `H` gives rise to a category
  of partial setoids, which we denote by `PartialSetoid`. We already showed that we have a
- functor, call it `F` from the category `C` of types to `PartialSetoid`. It sends every type
+ functor, call it `F`, from the category `C` of types to `PartialSetoid`. It sends every type
  to the partial setoid whose partial equivalence relation is given by the equality formula
  in the hyperdoctrine `H`. In this file, we construct a displayed functor over `F` from `Form`
  to the displayed category of monomorphisms in `PartialSetoid`. Concretely, this means that
  every formula in `H` gives rise to a monomorphism into a constant object in the category of
  partial setoids. We also show that this displayed functor is both split essentially surjective
- and fullt faithful. Intuitively, this means that monomorphisms into a constant object are the
+ and fully faithful. Intuitively, this means that monomorphisms into a constant object are the
  same as formulas on it.
 
  This statement is similar to Lemma 3.3 in "Tripos Theory in Retrospect" by Andrew Pitts.
