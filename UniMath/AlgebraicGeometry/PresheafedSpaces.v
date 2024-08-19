@@ -299,7 +299,7 @@ Proof.
 Defined.
 
 Lemma is_univalent_presheafed_space_cat
-  (D : category)
+  {D : category}
   (H : is_univalent D)
   : is_univalent (presheafed_space_cat D).
 Proof.
