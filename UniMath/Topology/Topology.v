@@ -5,103 +5,105 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Export UniMath.Topology.Filters.
-Require Import UniMath.Algebra.Groups.
-Require Import UniMath.Algebra.DivisionRig.
 Require Import UniMath.Algebra.ConstructiveStructures.
+Require Import UniMath.Algebra.DivisionRig.
+Require Import UniMath.Algebra.Groups.
 
 Local Open Scope subtype.
 
 Section Open.
 
-Context {X : UU}.
-Context (O : hsubtype (hsubtype X)).
+  Context {X : UU}.
+  Context (O : hsubtype (hsubtype X)).
 
-Definition isSetOfOpen_union :=
-  ∏ P : hsubtype (hsubtype X),
-    (P ⊆ O) → O (union P).
-Lemma isaprop_isSetOfOpen_union :
-  isaprop isSetOfOpen_union.
-Proof.
-  apply (impred_isaprop _ (λ _, isapropimpl _ _ (propproperty _))).
-Qed.
-Definition isSetOfOpen_finite_intersection :=
-  ∏ (P : Sequence (hsubtype X)), (∏ m, O (P m)) → O (finite_intersection P).
-Lemma isaprop_isSetOfOpen_finite_intersection :
-  isaprop isSetOfOpen_finite_intersection.
-Proof.
-  apply (impred_isaprop _ (λ _, isapropimpl _ _ (propproperty _))).
-Qed.
+  Definition isSetOfOpen_union :=
+    ∏ P : hsubtype (hsubtype X),
+      (P ⊆ O) → O (union P).
+  Lemma isaprop_isSetOfOpen_union :
+    isaprop isSetOfOpen_union.
+  Proof.
+    apply (impred_isaprop _ (λ _, isapropimpl _ _ (propproperty _))).
+  Qed.
 
-Definition isSetOfOpen_htrue :=
-  O (λ _, htrue).
+  Definition isSetOfOpen_finite_intersection :=
+    ∏ (P : Sequence (hsubtype X)), (∏ m, O (P m)) → O (finite_intersection P).
+  Lemma isaprop_isSetOfOpen_finite_intersection :
+    isaprop isSetOfOpen_finite_intersection.
+  Proof.
+    apply (impred_isaprop _ (λ _, isapropimpl _ _ (propproperty _))).
+  Qed.
 
-Definition isSetOfOpen_and :=
-  ∏ A B, O A → O B → O (λ x, A x ∧ B x).
-Lemma isaprop_isSetOfOpen_and :
-  isaprop isSetOfOpen_and.
-Proof.
-  apply impred_isaprop ; intros A.
-  apply impred_isaprop ; intros B.
-  apply isapropimpl, isapropimpl.
-  now apply propproperty.
-Qed.
+  Definition isSetOfOpen_htrue :=
+    O (λ _, htrue).
 
-Lemma isSetOfOpen_hfalse :
-  isSetOfOpen_union
-  → O (λ _ : X, hfalse).
-Proof.
-  intros H0.
-  rewrite <- union_hfalse.
-  apply H0.
-  intro.
-  exact fromempty.
-Qed.
+  Definition isSetOfOpen_and :=
+    ∏ A B, O A → O B → O (λ x, A x ∧ B x).
+  Lemma isaprop_isSetOfOpen_and :
+    isaprop isSetOfOpen_and.
+  Proof.
+    apply impred_isaprop ; intros A.
+    apply impred_isaprop ; intros B.
+    apply isapropimpl, isapropimpl.
+    now apply propproperty.
+  Qed.
 
-Lemma isSetOfOpen_finite_intersection_htrue :
-  isSetOfOpen_finite_intersection
-  → isSetOfOpen_htrue.
-Proof.
-  intro H0.
-  unfold isSetOfOpen_htrue.
-  rewrite <- finite_intersection_htrue.
-  apply H0.
-  intros m.
-  induction (nopathsfalsetotrue (pr2 m)).
-Qed.
+  Lemma isSetOfOpen_hfalse :
+    isSetOfOpen_union
+    → O (λ _ : X, hfalse).
+  Proof.
+    intros H0.
+    rewrite <- union_hfalse.
+    apply H0.
+    intro.
+    exact fromempty.
+  Qed.
 
-Lemma isSetOfOpen_finite_intersection_and :
-  isSetOfOpen_finite_intersection
-  → isSetOfOpen_and.
-Proof.
-  intros H0 A B Ha Hb.
-  rewrite <- finite_intersection_and.
-  apply H0.
-  intros m ; simpl.
-  induction m as [m Hm].
-  now induction m.
-Qed.
-Lemma isSetOfOpen_finite_intersection_carac :
-  isSetOfOpen_htrue
-  → isSetOfOpen_and
-  → isSetOfOpen_finite_intersection.
-Proof.
-  intros Htrue Hpair L.
-  apply (pr2 (finite_intersection_hProp O)).
-  split.
-  - exact Htrue.
-  - exact Hpair.
-Qed.
+  Lemma isSetOfOpen_finite_intersection_htrue :
+    isSetOfOpen_finite_intersection
+    → isSetOfOpen_htrue.
+  Proof.
+    intro H0.
+    unfold isSetOfOpen_htrue.
+    rewrite <- finite_intersection_htrue.
+    apply H0.
+    intros m.
+    induction (nopathsfalsetotrue (pr2 m)).
+  Qed.
 
-Definition isSetOfOpen :=
-  isSetOfOpen_union × isSetOfOpen_finite_intersection.
+  Lemma isSetOfOpen_finite_intersection_and :
+    isSetOfOpen_finite_intersection
+    → isSetOfOpen_and.
+  Proof.
+    intros H0 A B Ha Hb.
+    rewrite <- finite_intersection_and.
+    apply H0.
+    intros m ; simpl.
+    induction m as [m Hm].
+    now induction m.
+  Qed.
 
-Lemma isaprop_isSetOfOpen
-  : isaprop isSetOfOpen.
-Proof.
-  apply isapropdirprod.
-  - apply isaprop_isSetOfOpen_union.
-  - apply isaprop_isSetOfOpen_finite_intersection.
-Qed.
+  Lemma isSetOfOpen_finite_intersection_carac :
+    isSetOfOpen_htrue
+    → isSetOfOpen_and
+    → isSetOfOpen_finite_intersection.
+  Proof.
+    intros Htrue Hpair L.
+    apply (pr2 (finite_intersection_hProp O)).
+    split.
+    - exact Htrue.
+    - exact Hpair.
+  Qed.
+
+  Definition isSetOfOpen :=
+    isSetOfOpen_union × isSetOfOpen_finite_intersection.
+
+  Lemma isaprop_isSetOfOpen
+    : isaprop isSetOfOpen.
+  Proof.
+    apply isapropdirprod.
+    - apply isaprop_isSetOfOpen_union.
+    - apply isaprop_isSetOfOpen_finite_intersection.
+  Qed.
 
 End Open.
 
@@ -138,60 +140,64 @@ Qed.
 
 Section Topology_pty.
 
-Context {T : TopologicalSpace}.
+  Context {T : TopologicalSpace}.
 
-Lemma isOpen_union :
-  ∏ P : hsubtype (hsubtype T),
-    (∏ A : hsubtype T, P A → isOpen A)
-    → isOpen (union P).
-Proof.
-  apply (pr1 (pr2 (pr2 T))).
-Qed.
-Lemma isOpen_finite_intersection :
-  ∏ (P : Sequence (hsubtype T)),
-    (∏ m , isOpen (P m))
-    → isOpen (finite_intersection P).
-Proof.
-  apply (pr2 (pr2 (pr2 T))).
-Qed.
+  Lemma isOpen_union :
+    ∏ P : hsubtype (hsubtype T),
+      (∏ A : hsubtype T, P A → isOpen A)
+      → isOpen (union P).
+  Proof.
+    apply (pr1 (pr2 (pr2 T))).
+  Qed.
 
-Lemma isOpen_hfalse :
-  isOpen (λ _ : T, hfalse).
-Proof.
-  apply isSetOfOpen_hfalse.
-  intros P H.
-  now apply isOpen_union.
-Qed.
-Lemma isOpen_htrue :
-  isOpen (λ _ : T, htrue).
-Proof.
-  rewrite <- finite_intersection_htrue.
-  apply isOpen_finite_intersection.
-  intros m.
-  induction (nopathsfalsetotrue (pr2 m)).
-Qed.
-Lemma isOpen_and :
-  ∏ A B : hsubtype T,
-    isOpen A → isOpen B → isOpen (λ x : T, A x ∧ B x).
-Proof.
-  apply isSetOfOpen_finite_intersection_and.
-  intros P Hp.
-  apply isOpen_finite_intersection.
-  apply Hp.
-Qed.
-Lemma isOpen_or :
-  ∏ A B : hsubtype T,
-    isOpen A → isOpen B → isOpen (λ x : T, A x ∨ B x).
-Proof.
-  intros A B Ha Hb.
-  rewrite <- union_or.
-  apply isOpen_union.
-  intros C.
-  apply hinhuniv.
-  apply sumofmaps ; intros ->.
-  - exact Ha.
-  - exact Hb.
-Qed.
+  Lemma isOpen_finite_intersection :
+    ∏ (P : Sequence (hsubtype T)),
+      (∏ m , isOpen (P m))
+      → isOpen (finite_intersection P).
+  Proof.
+    apply (pr2 (pr2 (pr2 T))).
+  Qed.
+
+  Lemma isOpen_hfalse :
+    isOpen (λ _ : T, hfalse).
+  Proof.
+    apply isSetOfOpen_hfalse.
+    intros P H.
+    now apply isOpen_union.
+  Qed.
+
+  Lemma isOpen_htrue :
+    isOpen (λ _ : T, htrue).
+  Proof.
+    rewrite <- finite_intersection_htrue.
+    apply isOpen_finite_intersection.
+    intros m.
+    induction (nopathsfalsetotrue (pr2 m)).
+  Qed.
+
+  Lemma isOpen_and :
+    ∏ A B : hsubtype T,
+      isOpen A → isOpen B → isOpen (λ x : T, A x ∧ B x).
+  Proof.
+    apply isSetOfOpen_finite_intersection_and.
+    intros P Hp.
+    apply isOpen_finite_intersection.
+    apply Hp.
+  Qed.
+
+  Lemma isOpen_or :
+    ∏ A B : hsubtype T,
+      isOpen A → isOpen B → isOpen (λ x : T, A x ∨ B x).
+  Proof.
+    intros A B Ha Hb.
+    rewrite <- union_or.
+    apply isOpen_union.
+    intros C.
+    apply hinhuniv.
+    apply sumofmaps ; intros ->.
+    - exact Ha.
+    - exact Hb.
+  Qed.
 
 End Topology_pty.
 
@@ -199,124 +205,127 @@ End Topology_pty.
 
 Section Neighborhood.
 
-Context {T : TopologicalSpace}.
+  Context {T : TopologicalSpace}.
 
-Definition neighborhood (x : T) : hsubtype (hsubtype T) :=
-  λ P : hsubtype T, ∃ O : Open, O x × (O ⊆ P).
+  Definition neighborhood (x : T) : hsubtype (hsubtype T) :=
+    λ P : hsubtype T, ∃ O : Open, O x × (O ⊆ P).
 
-Lemma neighborhood_isOpen (P : hsubtype T) :
-  (∏ x, P x → neighborhood x P) <-> isOpen P.
-Proof.
-  split.
-  - intros Hp.
-    set (Q := λ A : hsubtype T, isOpen A ∧ (make_hProp (A ⊆ P) (isaprop_subtype_containedIn A P))).
-    apply (subtype_equal_isOpen (union Q)).
-    + apply isOpen_union.
-      intros A Ha.
-      apply (pr1 Ha).
-    + split.
-      * cbn -[union].
-        apply hinhuniv.
-        intros A.
-        apply (pr2 (pr1 (pr2 A)) _).
-        exact (pr2 (pr2 A)).
-      * intros Px.
-        generalize (Hp _ Px).
-        apply hinhfun.
-        intros A.
-        exists (pr1 A) ; split.
-        -- split.
-          ++ apply (pr2 (pr1 A)).
-          ++ exact (pr2 (pr2 A)).
-        -- exact (pr1 (pr2 A)).
-  - intros Hp x Px.
-    apply hinhpr.
-    exists (P,,Hp).
+  Lemma neighborhood_isOpen (P : hsubtype T) :
+    (∏ x, P x → neighborhood x P) <-> isOpen P.
+  Proof.
     split.
-    + exact Px.
-    + intros y Py.
-      exact Py.
-Qed.
+    - intros Hp.
+      set (Q := λ A : hsubtype T, isOpen A ∧ (make_hProp (A ⊆ P) (isaprop_subtype_containedIn A P))).
+      apply (subtype_equal_isOpen (union Q)).
+      + apply isOpen_union.
+        intros A Ha.
+        apply (pr1 Ha).
+      + split.
+        * cbn -[union].
+          apply hinhuniv.
+          intros A.
+          apply (pr2 (pr1 (pr2 A)) _).
+          exact (pr2 (pr2 A)).
+        * intros Px.
+          generalize (Hp _ Px).
+          apply hinhfun.
+          intros A.
+          exists (pr1 A) ; split.
+          -- split.
+            ++ apply (pr2 (pr1 A)).
+            ++ exact (pr2 (pr2 A)).
+          -- exact (pr1 (pr2 A)).
+    - intros Hp x Px.
+      apply hinhpr.
+      exists (P,,Hp).
+      split.
+      + exact Px.
+      + intros y Py.
+        exact Py.
+  Qed.
 
-Lemma neighborhood_imply :
-  ∏ (x : T) (P Q : hsubtype T),
-    (P ⊆ Q) → neighborhood x P → neighborhood x Q.
-Proof.
-  intros x P Q H.
-  apply hinhfun.
-  intros O.
-  exists (pr1 O).
-  split.
-  - apply (pr1 (pr2 O)).
-  - intros y Hy.
-    apply (H y).
-    apply (pr2 (pr2 O) y).
-    exact Hy.
-Qed.
-Lemma neighborhood_forall :
-  ∏ (x : T) (P : hsubtype T),
-    (∏ y, P y) → neighborhood x P.
-Proof.
-  intros x P H.
-  apply hinhpr.
-  exists ((λ _ : T, htrue),,isOpen_htrue).
-  split.
-  - reflexivity.
-  - intros y _.
-    now apply H.
-Qed.
-Lemma neighborhood_and :
-  ∏ (x : T) (A B : hsubtype T),
-    neighborhood x A → neighborhood x B → neighborhood x (λ y, A y ∧ B y).
-Proof.
-  intros x A B.
-  apply hinhfun2.
-  intros Oa Ob.
-  exists ((λ x, pr1 Oa x ∧ pr1 Ob x) ,, isOpen_and _ _ (pr2 (pr1 Oa)) (pr2 (pr1 Ob))).
-  simpl.
-  split.
-  - split.
-    + apply (pr1 (pr2 Oa)).
-    + apply (pr1 (pr2 Ob)).
-  - intros y Hy.
+  Lemma neighborhood_imply :
+    ∏ (x : T) (P Q : hsubtype T),
+      (P ⊆ Q) → neighborhood x P → neighborhood x Q.
+  Proof.
+    intros x P Q H.
+    apply hinhfun.
+    intros O.
+    exists (pr1 O).
     split.
-    + apply (pr2 (pr2 Oa) y).
-      apply (pr1 Hy).
-    + apply (pr2 (pr2 Ob) y).
-      apply (pr2 Hy).
-Qed.
-Lemma neighborhood_point :
-  ∏ (x : T) (P : hsubtype T),
-    neighborhood x P → P x.
-Proof.
-  intros x P.
-  apply hinhuniv.
-  intros O.
-  apply (pr2 (pr2 O) x).
-  apply (pr1 (pr2 O)).
-Qed.
+    - apply (pr1 (pr2 O)).
+    - intros y Hy.
+      apply (H y).
+      apply (pr2 (pr2 O) y).
+      exact Hy.
+  Qed.
 
-Lemma neighborhood_neighborhood :
-  ∏ (x : T) (P : hsubtype T),
-    neighborhood x P
-    → ∃ Q : hsubtype T, neighborhood x Q
-                        × ∏ y : T, Q y → neighborhood y P.
-Proof.
-  intros x P.
-  apply hinhfun.
-  intros Q.
-  exists (pr1 Q).
-  split.
-  - apply (pr2 (neighborhood_isOpen _)).
-    + apply (pr2 (pr1 Q)).
-    + apply (pr1 (pr2 Q)).
-  - intros y Qy.
+  Lemma neighborhood_forall :
+    ∏ (x : T) (P : hsubtype T),
+      (∏ y, P y) → neighborhood x P.
+  Proof.
+    intros x P H.
     apply hinhpr.
+    exists ((λ _ : T, htrue),,isOpen_htrue).
+    split.
+    - reflexivity.
+    - intros y _.
+      now apply H.
+  Qed.
+
+  Lemma neighborhood_and :
+    ∏ (x : T) (A B : hsubtype T),
+      neighborhood x A → neighborhood x B → neighborhood x (λ y, A y ∧ B y).
+  Proof.
+    intros x A B.
+    apply hinhfun2.
+    intros Oa Ob.
+    exists ((λ x, pr1 Oa x ∧ pr1 Ob x) ,, isOpen_and _ _ (pr2 (pr1 Oa)) (pr2 (pr1 Ob))).
+    simpl.
+    split.
+    - split.
+      + apply (pr1 (pr2 Oa)).
+      + apply (pr1 (pr2 Ob)).
+    - intros y Hy.
+      split.
+      + apply (pr2 (pr2 Oa) y).
+        apply (pr1 Hy).
+      + apply (pr2 (pr2 Ob) y).
+        apply (pr2 Hy).
+  Qed.
+
+  Lemma neighborhood_point :
+    ∏ (x : T) (P : hsubtype T),
+      neighborhood x P → P x.
+  Proof.
+    intros x P.
+    apply hinhuniv.
+    intros O.
+    apply (pr2 (pr2 O) x).
+    apply (pr1 (pr2 O)).
+  Qed.
+
+  Lemma neighborhood_neighborhood :
+    ∏ (x : T) (P : hsubtype T),
+      neighborhood x P
+      → ∃ Q : hsubtype T, neighborhood x Q
+                          × ∏ y : T, Q y → neighborhood y P.
+  Proof.
+    intros x P.
+    apply hinhfun.
+    intros Q.
     exists (pr1 Q).
     split.
-    + exact Qy.
-    + exact (pr2 (pr2 Q)).
-Qed.
+    - apply (pr2 (neighborhood_isOpen _)).
+      + apply (pr2 (pr1 Q)).
+      + apply (pr1 (pr2 Q)).
+    - intros y Qy.
+      apply hinhpr.
+      exists (pr1 Q).
+      split.
+      + exact Qy.
+      + exact (pr2 (pr2 Q)).
+  Qed.
 
 End Neighborhood.
 
@@ -351,33 +360,34 @@ Coercion pr1base_of_neighborhood : base_of_neighborhood >-> Funclass.
 
 Section base_default.
 
-Context {T : TopologicalSpace} (x : T).
+  Context {T : TopologicalSpace} (x : T).
 
-Definition base_default : hsubtype (hsubtype T) :=
-  λ P : hsubtype T, isOpen P ∧ P x.
+  Definition base_default : hsubtype (hsubtype T) :=
+    λ P : hsubtype T, isOpen P ∧ P x.
 
-Lemma base_default_1 :
-  ∏ P : hsubtype T, base_default P → neighborhood x P.
-Proof.
-  intros P Hp.
-  apply hinhpr.
-  exists (P,,(pr1 Hp)) ; split.
-  - exact (pr2 Hp).
-  - intros y Hy.
-    assumption.
-Qed.
-Lemma base_default_2 :
-  ∏ P : hsubtype T, neighborhood x P → ∃ Q : hsubtype T, base_default Q × (Q ⊆ P).
-Proof.
-  intros P.
-  apply hinhfun.
-  intros Q.
-  exists (pr1 Q).
-  repeat split.
-  - exact (pr2 (pr1 Q)).
-  - exact (pr1 (pr2 Q)).
-  - exact (pr2 (pr2 Q)).
-Qed.
+  Lemma base_default_1 :
+    ∏ P : hsubtype T, base_default P → neighborhood x P.
+  Proof.
+    intros P Hp.
+    apply hinhpr.
+    exists (P,,(pr1 Hp)) ; split.
+    - exact (pr2 Hp).
+    - intros y Hy.
+      assumption.
+  Qed.
+
+  Lemma base_default_2 :
+    ∏ P : hsubtype T, neighborhood x P → ∃ Q : hsubtype T, base_default Q × (Q ⊆ P).
+  Proof.
+    intros P.
+    apply hinhfun.
+    intros Q.
+    exists (pr1 Q).
+    repeat split.
+    - exact (pr2 (pr1 Q)).
+    - exact (pr1 (pr2 Q)).
+    - exact (pr2 (pr2 Q)).
+  Qed.
 
 End base_default.
 
@@ -440,41 +450,41 @@ Qed.
 
 Section TopologyFromNeighborhood.
 
-Context {X : hSet}.
-Context (N : X → hsubtype (hsubtype X)).
-Context (Himpl : ∏ x, isfilter_imply (N x))
-        (Htrue : ∏ x, isfilter_htrue (N x))
-        (Hand : ∏ x, isfilter_and (N x))
-        (Hpt : ∏ x P, N x P → P x)
-        (H : ∏ x P, N x P → ∃ Q, N x Q × ∏ y, Q y → N y P).
+  Context {X : hSet}.
+  Context (N : X → hsubtype (hsubtype X)).
+  Context (Himpl : ∏ x, isfilter_imply (N x))
+          (Htrue : ∏ x, isfilter_htrue (N x))
+          (Hand : ∏ x, isfilter_and (N x))
+          (Hpt : ∏ x P, N x P → P x)
+          (H : ∏ x P, N x P → ∃ Q, N x Q × ∏ y, Q y → N y P).
 
-Definition topologyfromneighborhood (A : hsubtype X) :=
-  ∏ x : X, A x → N x A.
-Lemma isaprop_topologyfromneighborhood :
-  ∏ A, isaprop (topologyfromneighborhood A).
-Proof.
-  intros A.
-  apply impred_isaprop ; intros x ;
-  apply isapropimpl, propproperty.
-Qed.
+  Definition topologyfromneighborhood (A : hsubtype X) :=
+    ∏ x : X, A x → N x A.
+  Lemma isaprop_topologyfromneighborhood :
+    ∏ A, isaprop (topologyfromneighborhood A).
+  Proof.
+    intros A.
+    apply impred_isaprop ; intros x ;
+    apply isapropimpl, propproperty.
+  Qed.
 
-Lemma topologyfromneighborhood_open :
-  isSetOfOpen_union
-   (λ A : hsubtype X,
-          make_hProp (topologyfromneighborhood A)
-                    (isaprop_topologyfromneighborhood A)).
-Proof.
-  intros L Hl x.
-  apply hinhuniv.
-  intros A.
-  apply Himpl with (pr1 A).
-  - intros y Hy.
-    apply hinhpr.
-    now exists (pr1 A), (pr1 (pr2 A)).
-  - apply (Hl (pr1 A)).
-    + exact (pr1 (pr2 A)).
-    + exact (pr2 (pr2 A)).
-Qed.
+  Lemma topologyfromneighborhood_open :
+    isSetOfOpen_union
+    (λ A : hsubtype X,
+            make_hProp (topologyfromneighborhood A)
+                      (isaprop_topologyfromneighborhood A)).
+  Proof.
+    intros L Hl x.
+    apply hinhuniv.
+    intros A.
+    apply Himpl with (pr1 A).
+    - intros y Hy.
+      apply hinhpr.
+      now exists (pr1 A), (pr1 (pr2 A)).
+    - apply (Hl (pr1 A)).
+      + exact (pr1 (pr2 A)).
+      + exact (pr2 (pr2 A)).
+  Qed.
 
 End TopologyFromNeighborhood.
 
@@ -540,6 +550,7 @@ Proof.
     + apply (pr1 (pr2 Hn)).
     + apply (pr1 (pr2 (pr2 Hn))).
 Qed.
+
 Lemma isNeighborhood_isFilter {X : hSet} N :
   isNeighborhood N -> ∏ x : X, isFilter (N x).
 Proof.
@@ -556,105 +567,105 @@ Qed.
 
 Section topologygenerated.
 
-Context {X : hSet} (O : hsubtype (hsubtype X)).
+  Context {X : hSet} (O : hsubtype (hsubtype X)).
 
-Definition topologygenerated :=
-  λ (x : X) (A : hsubtype X),
-  (∃ L : Sequence (hsubtype X), (∏ n, O (L n)) × (finite_intersection L x) × (finite_intersection L ⊆ A)).
+  Definition topologygenerated :=
+    λ (x : X) (A : hsubtype X),
+    (∃ L : Sequence (hsubtype X), (∏ n, O (L n)) × (finite_intersection L x) × (finite_intersection L ⊆ A)).
 
-Lemma topologygenerated_imply :
-  ∏ x : X, isfilter_imply (topologygenerated x).
-Proof.
-  intros x A B H.
-  apply hinhfun.
-  intros L.
-  exists (pr1 L).
-  repeat split.
-  - exact (pr1 (pr2 L)).
-  - exact (pr1 (pr2 (pr2 L))).
-  - intros y Hy.
-    apply (H _), (pr2 (pr2 (pr2 L)) y), Hy.
-Qed.
-
-Lemma topologygenerated_htrue :
-  ∏ x : X, isfilter_htrue (topologygenerated x).
-Proof.
-  intros x.
-  apply hinhpr.
-  exists nil.
-  repeat split; intros n; induction (nopathsfalsetotrue (pr2 n)).
-Qed.
-
-Lemma topologygenerated_and :
-  ∏ x : X, isfilter_and (topologygenerated x).
-Proof.
-  intros x A B.
-  apply hinhfun2.
-  intros La Lb.
-  exists (concatenate (pr1 La) (pr1 Lb)).
-  repeat split.
-  - simpl ; intro.
-    apply (coprod_rect (λ x, O (coprod_rect _ _ _ x))) ; intros m.
-    + rewrite coprod_rect_compute_1.
-      exact (pr1 (pr2 La) _).
-    + rewrite coprod_rect_compute_2.
-      exact (pr1 (pr2 Lb) _).
-  - simpl ; intro.
-    apply (coprod_rect (λ y, (coprod_rect (λ _ : stn (length (pr1 La)) ⨿ stn (length (pr1 Lb)), hsubtype X) (λ j : stn (length (pr1 La)), (pr1 La) j)
-       (λ k : stn (length (pr1 Lb)), (pr1 Lb) k) y) x)) ; intros m.
-    + rewrite coprod_rect_compute_1.
-      exact (pr1 (pr2 (pr2 La)) _).
-    + rewrite coprod_rect_compute_2.
-      exact (pr1 (pr2 (pr2 Lb)) _).
-  - apply (pr2 (pr2 (pr2 La)) x0).
-    intros n.
-    simpl in X0.
-    unfold concatenate' in X0.
-    specialize (X0 (weqfromcoprodofstn_map (length (pr1 La)) (length (pr1 Lb)) (ii1 n))).
-    now rewrite (weqfromcoprodofstn_eq1 _ _) , coprod_rect_compute_1 in X0.
-  - apply (pr2 (pr2 (pr2 Lb)) x0).
-    intros n.
-    simpl in X0.
-    unfold concatenate' in X0.
-    specialize (X0 (weqfromcoprodofstn_map (length (pr1 La)) (length (pr1 Lb)) (ii2 n))).
-    now rewrite (weqfromcoprodofstn_eq1 _ _), coprod_rect_compute_2 in X0.
-Qed.
-
-Lemma topologygenerated_point :
-  ∏ (x : X) (P : hsubtype X), topologygenerated x P → P x.
-Proof.
-  intros x P.
-  apply hinhuniv.
-  intros L.
-  apply (pr2 (pr2 (pr2 L)) x).
-  exact (pr1 (pr2 (pr2 L))).
-Qed.
-
-Lemma topologygenerated_neighborhood :
-∏ (x : X) (P : hsubtype X),
- topologygenerated x P
- → ∃ Q : hsubtype X,
-    topologygenerated x Q × (∏ y : X, Q y → topologygenerated y P).
-Proof.
-  intros x P.
-  apply hinhfun.
-  intros L.
-  exists (finite_intersection (pr1 L)).
-  split.
-  - apply hinhpr.
+  Lemma topologygenerated_imply :
+    ∏ x : X, isfilter_imply (topologygenerated x).
+  Proof.
+    intros x A B H.
+    apply hinhfun.
+    intros L.
     exists (pr1 L).
     repeat split.
-    + exact (pr1 (pr2 L)).
-    + exact (pr1 (pr2 (pr2 L))).
-    + intros y Hy. assumption.
-  - intros y Hy.
+    - exact (pr1 (pr2 L)).
+    - exact (pr1 (pr2 (pr2 L))).
+    - intros y Hy.
+      apply (H _), (pr2 (pr2 (pr2 L)) y), Hy.
+  Qed.
+
+  Lemma topologygenerated_htrue :
+    ∏ x : X, isfilter_htrue (topologygenerated x).
+  Proof.
+    intros x.
     apply hinhpr.
-    exists (pr1 L).
+    exists nil.
+    repeat split; intros n; induction (nopathsfalsetotrue (pr2 n)).
+  Qed.
+
+  Lemma topologygenerated_and :
+    ∏ x : X, isfilter_and (topologygenerated x).
+  Proof.
+    intros x A B.
+    apply hinhfun2.
+    intros La Lb.
+    exists (concatenate (pr1 La) (pr1 Lb)).
     repeat split.
-    + exact (pr1 (pr2 L)).
-    + exact Hy.
-    + exact (pr2 (pr2 (pr2 L))).
-Qed.
+    - simpl ; intro.
+      apply (coprod_rect (λ x, O (coprod_rect _ _ _ x))) ; intros m.
+      + rewrite coprod_rect_compute_1.
+        exact (pr1 (pr2 La) _).
+      + rewrite coprod_rect_compute_2.
+        exact (pr1 (pr2 Lb) _).
+    - simpl ; intro.
+      apply (coprod_rect (λ y, (coprod_rect (λ _ : stn (length (pr1 La)) ⨿ stn (length (pr1 Lb)), hsubtype X) (λ j : stn (length (pr1 La)), (pr1 La) j)
+        (λ k : stn (length (pr1 Lb)), (pr1 Lb) k) y) x)) ; intros m.
+      + rewrite coprod_rect_compute_1.
+        exact (pr1 (pr2 (pr2 La)) _).
+      + rewrite coprod_rect_compute_2.
+        exact (pr1 (pr2 (pr2 Lb)) _).
+    - apply (pr2 (pr2 (pr2 La)) x0).
+      intros n.
+      simpl in X0.
+      unfold concatenate' in X0.
+      specialize (X0 (weqfromcoprodofstn_map (length (pr1 La)) (length (pr1 Lb)) (ii1 n))).
+      now rewrite (weqfromcoprodofstn_eq1 _ _) , coprod_rect_compute_1 in X0.
+    - apply (pr2 (pr2 (pr2 Lb)) x0).
+      intros n.
+      simpl in X0.
+      unfold concatenate' in X0.
+      specialize (X0 (weqfromcoprodofstn_map (length (pr1 La)) (length (pr1 Lb)) (ii2 n))).
+      now rewrite (weqfromcoprodofstn_eq1 _ _), coprod_rect_compute_2 in X0.
+  Qed.
+
+  Lemma topologygenerated_point :
+    ∏ (x : X) (P : hsubtype X), topologygenerated x P → P x.
+  Proof.
+    intros x P.
+    apply hinhuniv.
+    intros L.
+    apply (pr2 (pr2 (pr2 L)) x).
+    exact (pr1 (pr2 (pr2 L))).
+  Qed.
+
+  Lemma topologygenerated_neighborhood :
+  ∏ (x : X) (P : hsubtype X),
+  topologygenerated x P
+  → ∃ Q : hsubtype X,
+      topologygenerated x Q × (∏ y : X, Q y → topologygenerated y P).
+  Proof.
+    intros x P.
+    apply hinhfun.
+    intros L.
+    exists (finite_intersection (pr1 L)).
+    split.
+    - apply hinhpr.
+      exists (pr1 L).
+      repeat split.
+      + exact (pr1 (pr2 L)).
+      + exact (pr1 (pr2 (pr2 L))).
+      + intros y Hy. assumption.
+    - intros y Hy.
+      apply hinhpr.
+      exists (pr1 L).
+      repeat split.
+      + exact (pr1 (pr2 L)).
+      + exact Hy.
+      + exact (pr2 (pr2 (pr2 L))).
+  Qed.
 
 End topologygenerated.
 
@@ -691,6 +702,7 @@ Proof.
   - intros y Hy.
     now apply (Hy (0%nat,,paths_refl _)).
 Qed.
+
 Lemma TopologyGenerated_smallest {X : hSet} :
   ∏ (O : hsubtype (hsubtype X)) (T : isTopologicalSpace X),
     (∏ P : hsubtype X, O P → pr1 T P)
@@ -718,106 +730,106 @@ Qed.
 
 Section topologydirprod.
 
-Context (U V : TopologicalSpace).
+  Context (U V : TopologicalSpace).
 
-Definition topologydirprod :=
-  λ (z : U × V) (A : hsubtype (U × V)),
-  (∃ (Ax : hsubtype U) (Ay : hsubtype V),
-      (Ax (pr1 z) × isOpen Ax)
-        × (Ay (pr2 z) × isOpen Ay)
-        × (∏ x y, Ax x → Ay y → A (x,,y))).
+  Definition topologydirprod :=
+    λ (z : U × V) (A : hsubtype (U × V)),
+    (∃ (Ax : hsubtype U) (Ay : hsubtype V),
+        (Ax (pr1 z) × isOpen Ax)
+          × (Ay (pr2 z) × isOpen Ay)
+          × (∏ x y, Ax x → Ay y → A (x,,y))).
 
-Lemma topologydirprod_imply :
-  ∏ x : U × V, isfilter_imply (topologydirprod x).
-Proof.
-  intros x A B H.
-  apply hinhfun.
-  intros AB.
-  exists (pr1 AB), (pr1 (pr2 AB)) ; split ; [ | split].
-  - exact (pr1 (pr2 (pr2 AB))).
-  - exact (pr1 (pr2 (pr2 (pr2 AB)))).
-  - intros x' y' Hx' Hy'.
-    now apply (H _), (pr2 (pr2 (pr2 (pr2 AB)))).
-Qed.
+  Lemma topologydirprod_imply :
+    ∏ x : U × V, isfilter_imply (topologydirprod x).
+  Proof.
+    intros x A B H.
+    apply hinhfun.
+    intros AB.
+    exists (pr1 AB), (pr1 (pr2 AB)) ; split ; [ | split].
+    - exact (pr1 (pr2 (pr2 AB))).
+    - exact (pr1 (pr2 (pr2 (pr2 AB)))).
+    - intros x' y' Hx' Hy'.
+      now apply (H _), (pr2 (pr2 (pr2 (pr2 AB)))).
+  Qed.
 
-Lemma topologydirprod_htrue :
-  ∏ x : U × V, isfilter_htrue (topologydirprod x).
-Proof.
-  intros z.
-  apply hinhpr.
-  exists (λ _, htrue), (λ _, htrue).
-  repeat split.
-  - apply isOpen_htrue.
-  - apply isOpen_htrue.
-Qed.
-
-Lemma topologydirprod_and :
-  ∏ x : U × V, isfilter_and (topologydirprod x).
-Proof.
-  intros z A B.
-  apply hinhfun2.
-  intros A' B'.
-  exists (λ x, pr1 A' x ∧ pr1 B' x), (λ y, pr1 (pr2 A') y ∧ pr1 (pr2 B') y).
-  repeat split.
-  - apply (pr1 (pr1 (pr2 (pr2 A')))).
-  - apply (pr1 (pr1 (pr2 (pr2 B')))).
-  - apply isOpen_and.
-    + apply (pr2 (pr1 (pr2 (pr2 A')))).
-    + apply (pr2 (pr1 (pr2 (pr2 B')))).
-  - apply (pr1 (pr1 (pr2 (pr2 (pr2 A'))))).
-  - apply (pr1 (pr1 (pr2 (pr2 (pr2 B'))))).
-  - apply isOpen_and.
-    + apply (pr2 (pr1 (pr2 (pr2 (pr2 A'))))).
-    + apply (pr2 (pr1 (pr2 (pr2 (pr2 B'))))).
-  - apply (pr2 (pr2 (pr2 (pr2 A')))).
-    + apply (pr1 X).
-    + apply (pr1 X0).
-  - apply (pr2 (pr2 (pr2 (pr2 B')))).
-    + apply (pr2 X).
-    + apply (pr2 X0).
-Qed.
-
-Lemma topologydirprod_point :
-  ∏ (x : U × V) (P : hsubtype (U × V)), topologydirprod x P → P x.
-Proof.
-  intros xy A.
-  apply hinhuniv.
-  intros A'.
-  apply (pr2 (pr2 (pr2 (pr2 A')))).
-  - exact (pr1 (pr1 (pr2 (pr2 A')))).
-  - exact (pr1 (pr1 (pr2 (pr2 (pr2 A'))))).
-Qed.
-
-Lemma topologydirprod_neighborhood :
-  ∏ (x : U × V) (P : hsubtype (U × V)),
-    topologydirprod x P
-    → ∃ Q : hsubtype (U × V),
-      topologydirprod x Q
-                      × (∏ y : U × V, Q y → topologydirprod y P).
-Proof.
-  intros xy P.
-  apply hinhfun.
-  intros A'.
-  exists (λ z, pr1 A' (pr1 z) ∧ pr1 (pr2 A') (pr2 z)).
-  split.
-  - apply hinhpr.
-    exists (pr1 A'), (pr1 (pr2 A')).
-    split.
-    + exact (pr1 (pr2 (pr2 A'))).
-    + split.
-      * exact (pr1 (pr2 (pr2 (pr2 A')))).
-      * intros x' y' Ax' Ay'.
-        now split.
-  - intros z Az.
+  Lemma topologydirprod_htrue :
+    ∏ x : U × V, isfilter_htrue (topologydirprod x).
+  Proof.
+    intros z.
     apply hinhpr.
-    exists (pr1 A'), (pr1 (pr2 A')).
+    exists (λ _, htrue), (λ _, htrue).
     repeat split.
-    + exact (pr1 Az).
-    + exact (pr2 (pr1 (pr2 (pr2 A')))).
-    + exact (pr2 Az).
-    + exact (pr2 (pr1 (pr2 (pr2 (pr2 A'))))).
-    + exact (pr2 (pr2 (pr2 (pr2 A')))).
-Qed.
+    - apply isOpen_htrue.
+    - apply isOpen_htrue.
+  Qed.
+
+  Lemma topologydirprod_and :
+    ∏ x : U × V, isfilter_and (topologydirprod x).
+  Proof.
+    intros z A B.
+    apply hinhfun2.
+    intros A' B'.
+    exists (λ x, pr1 A' x ∧ pr1 B' x), (λ y, pr1 (pr2 A') y ∧ pr1 (pr2 B') y).
+    repeat split.
+    - apply (pr1 (pr1 (pr2 (pr2 A')))).
+    - apply (pr1 (pr1 (pr2 (pr2 B')))).
+    - apply isOpen_and.
+      + apply (pr2 (pr1 (pr2 (pr2 A')))).
+      + apply (pr2 (pr1 (pr2 (pr2 B')))).
+    - apply (pr1 (pr1 (pr2 (pr2 (pr2 A'))))).
+    - apply (pr1 (pr1 (pr2 (pr2 (pr2 B'))))).
+    - apply isOpen_and.
+      + apply (pr2 (pr1 (pr2 (pr2 (pr2 A'))))).
+      + apply (pr2 (pr1 (pr2 (pr2 (pr2 B'))))).
+    - apply (pr2 (pr2 (pr2 (pr2 A')))).
+      + apply (pr1 X).
+      + apply (pr1 X0).
+    - apply (pr2 (pr2 (pr2 (pr2 B')))).
+      + apply (pr2 X).
+      + apply (pr2 X0).
+  Qed.
+
+  Lemma topologydirprod_point :
+    ∏ (x : U × V) (P : hsubtype (U × V)), topologydirprod x P → P x.
+  Proof.
+    intros xy A.
+    apply hinhuniv.
+    intros A'.
+    apply (pr2 (pr2 (pr2 (pr2 A')))).
+    - exact (pr1 (pr1 (pr2 (pr2 A')))).
+    - exact (pr1 (pr1 (pr2 (pr2 (pr2 A'))))).
+  Qed.
+
+  Lemma topologydirprod_neighborhood :
+    ∏ (x : U × V) (P : hsubtype (U × V)),
+      topologydirprod x P
+      → ∃ Q : hsubtype (U × V),
+        topologydirprod x Q
+                        × (∏ y : U × V, Q y → topologydirprod y P).
+  Proof.
+    intros xy P.
+    apply hinhfun.
+    intros A'.
+    exists (λ z, pr1 A' (pr1 z) ∧ pr1 (pr2 A') (pr2 z)).
+    split.
+    - apply hinhpr.
+      exists (pr1 A'), (pr1 (pr2 A')).
+      split.
+      + exact (pr1 (pr2 (pr2 A'))).
+      + split.
+        * exact (pr1 (pr2 (pr2 (pr2 A')))).
+        * intros x' y' Ax' Ay'.
+          now split.
+    - intros z Az.
+      apply hinhpr.
+      exists (pr1 A'), (pr1 (pr2 A')).
+      repeat split.
+      + exact (pr1 Az).
+      + exact (pr2 (pr1 (pr2 (pr2 A')))).
+      + exact (pr2 Az).
+      + exact (pr2 (pr1 (pr2 (pr2 (pr2 A'))))).
+      + exact (pr2 (pr2 (pr2 (pr2 A')))).
+  Qed.
 
 End topologydirprod.
 
@@ -878,89 +890,89 @@ Qed.
 
 Section topologysubtype.
 
-Context {T : TopologicalSpace} (dom : hsubtype T).
+  Context {T : TopologicalSpace} (dom : hsubtype T).
 
-Definition topologysubtype :=
-  λ (x : ∑ x : T, dom x) (A : hsubtype (∑ x0 : T, dom x0)),
-  ∃ B : hsubtype T,
-    (B (pr1 x) × isOpen B) × (∏ y : ∑ x0 : T, dom x0, B (pr1 y) → A y).
+  Definition topologysubtype :=
+    λ (x : ∑ x : T, dom x) (A : hsubtype (∑ x0 : T, dom x0)),
+    ∃ B : hsubtype T,
+      (B (pr1 x) × isOpen B) × (∏ y : ∑ x0 : T, dom x0, B (pr1 y) → A y).
 
-Lemma topologysubtype_imply :
-  ∏ x : ∑ x : T, dom x, isfilter_imply (topologysubtype x).
-Proof.
-  intros x A B H.
-  apply hinhfun.
-  intros A'.
-  exists (pr1 A').
-  split.
-  - exact (pr1 (pr2 A')).
-  - intros y Hy.
-    now apply (H _), (pr2 (pr2 A')).
-Qed.
-
-Lemma topologysubtype_htrue :
-  ∏ x : ∑ x : T, dom x, isfilter_htrue (topologysubtype x).
-Proof.
-  intros x.
-  apply hinhpr.
-  exists (λ _, htrue).
-  repeat split.
-  now apply isOpen_htrue.
-Qed.
-
-Lemma topologysubtype_and :
-  ∏ x : ∑ x : T, dom x, isfilter_and (topologysubtype x).
-Proof.
-  intros x A B.
-  apply hinhfun2.
-  intros A' B'.
-  exists (λ x, pr1 A' x ∧ pr1 B' x).
-  repeat split.
-  - exact (pr1 (pr1 (pr2 A'))).
-  - exact (pr1 (pr1 (pr2 B'))).
-  - apply isOpen_and.
-    + exact (pr2 (pr1 (pr2 A'))).
-    + exact (pr2 (pr1 (pr2 B'))).
-  - apply (pr2 (pr2 A')), (pr1 X).
-  - apply (pr2 (pr2 B')), (pr2 X).
-Qed.
-
-Lemma topologysubtype_point :
-  ∏ (x : ∑ x : T, dom x) (P : hsubtype (∑ x0 : T, dom x0)),
-    topologysubtype x P → P x.
-Proof.
-  intros x A.
-  apply hinhuniv.
-  intros B.
-  apply (pr2 (pr2 B)), (pr1 (pr1 (pr2 B))).
-Qed.
-
-Lemma topologysubtype_neighborhood :
-  ∏ (x : ∑ x : T, dom x) (P : hsubtype (∑ x0 : T, dom x0)),
-    topologysubtype x P
-    → ∃ Q : hsubtype (∑ x0 : T, dom x0),
-      topologysubtype x Q
-       × (∏ y : ∑ x0 : T, dom x0, Q y → topologysubtype y P).
-Proof.
-  intros x A.
-  apply hinhfun.
-  intros B.
-  exists (λ y : ∑ x : T, dom x, pr1 B (pr1 y)).
-  split.
-  - apply hinhpr.
-    exists (pr1 B).
+  Lemma topologysubtype_imply :
+    ∏ x : ∑ x : T, dom x, isfilter_imply (topologysubtype x).
+  Proof.
+    intros x A B H.
+    apply hinhfun.
+    intros A'.
+    exists (pr1 A').
     split.
-    + exact (pr1 (pr2 B)).
-    + intros.
-      assumption.
-  - intros y By.
+    - exact (pr1 (pr2 A')).
+    - intros y Hy.
+      now apply (H _), (pr2 (pr2 A')).
+  Qed.
+
+  Lemma topologysubtype_htrue :
+    ∏ x : ∑ x : T, dom x, isfilter_htrue (topologysubtype x).
+  Proof.
+    intros x.
     apply hinhpr.
-    exists (pr1 B).
+    exists (λ _, htrue).
     repeat split.
-    + exact By.
-    + exact (pr2 (pr1 (pr2 B))).
-    + exact (pr2 (pr2 B)).
-Qed.
+    now apply isOpen_htrue.
+  Qed.
+
+  Lemma topologysubtype_and :
+    ∏ x : ∑ x : T, dom x, isfilter_and (topologysubtype x).
+  Proof.
+    intros x A B.
+    apply hinhfun2.
+    intros A' B'.
+    exists (λ x, pr1 A' x ∧ pr1 B' x).
+    repeat split.
+    - exact (pr1 (pr1 (pr2 A'))).
+    - exact (pr1 (pr1 (pr2 B'))).
+    - apply isOpen_and.
+      + exact (pr2 (pr1 (pr2 A'))).
+      + exact (pr2 (pr1 (pr2 B'))).
+    - apply (pr2 (pr2 A')), (pr1 X).
+    - apply (pr2 (pr2 B')), (pr2 X).
+  Qed.
+
+  Lemma topologysubtype_point :
+    ∏ (x : ∑ x : T, dom x) (P : hsubtype (∑ x0 : T, dom x0)),
+      topologysubtype x P → P x.
+  Proof.
+    intros x A.
+    apply hinhuniv.
+    intros B.
+    apply (pr2 (pr2 B)), (pr1 (pr1 (pr2 B))).
+  Qed.
+
+  Lemma topologysubtype_neighborhood :
+    ∏ (x : ∑ x : T, dom x) (P : hsubtype (∑ x0 : T, dom x0)),
+      topologysubtype x P
+      → ∃ Q : hsubtype (∑ x0 : T, dom x0),
+        topologysubtype x Q
+        × (∏ y : ∑ x0 : T, dom x0, Q y → topologysubtype y P).
+  Proof.
+    intros x A.
+    apply hinhfun.
+    intros B.
+    exists (λ y : ∑ x : T, dom x, pr1 B (pr1 y)).
+    split.
+    - apply hinhpr.
+      exists (pr1 B).
+      split.
+      + exact (pr1 (pr2 B)).
+      + intros.
+        assumption.
+    - intros y By.
+      apply hinhpr.
+      exists (pr1 B).
+      repeat split.
+      + exact By.
+      + exact (pr2 (pr1 (pr2 B))).
+      + exact (pr2 (pr2 B)).
+  Qed.
 
 End topologysubtype.
 
@@ -983,35 +995,37 @@ Defined.
 
 Section locally_base.
 
-Context {T : TopologicalSpace} (x : T) (base : base_of_neighborhood x).
+  Context {T : TopologicalSpace} (x : T) (base : base_of_neighborhood x).
 
-Lemma locally_base_imply :
-  isfilter_imply (neighborhood' x base).
-Proof.
-  intros A B H Ha.
-  apply (pr2 (neighborhood_equiv _ _ _)).
-  eapply neighborhood_imply.
-  - exact H.
-  - eapply neighborhood_equiv.
-    exact Ha.
-Qed.
-Lemma locally_base_htrue :
-  isfilter_htrue (neighborhood' x base).
-Proof.
-  apply (pr2 (neighborhood_equiv _ _ _)).
-  apply (pr2 (neighborhood_isOpen _)).
-  - apply isOpen_htrue.
-  - apply tt.
-Qed.
-Lemma locally_base_and :
-  isfilter_and (neighborhood' x base).
-Proof.
-  intros A B Ha Hb.
-  apply (pr2 (neighborhood_equiv _ _ _)).
-  eapply neighborhood_and.
-  - eapply neighborhood_equiv, Ha.
-  - eapply neighborhood_equiv, Hb.
-Qed.
+  Lemma locally_base_imply :
+    isfilter_imply (neighborhood' x base).
+  Proof.
+    intros A B H Ha.
+    apply (pr2 (neighborhood_equiv _ _ _)).
+    eapply neighborhood_imply.
+    - exact H.
+    - eapply neighborhood_equiv.
+      exact Ha.
+  Qed.
+
+  Lemma locally_base_htrue :
+    isfilter_htrue (neighborhood' x base).
+  Proof.
+    apply (pr2 (neighborhood_equiv _ _ _)).
+    apply (pr2 (neighborhood_isOpen _)).
+    - apply isOpen_htrue.
+    - apply tt.
+  Qed.
+
+  Lemma locally_base_and :
+    isfilter_and (neighborhood' x base).
+  Proof.
+    intros A B Ha Hb.
+    apply (pr2 (neighborhood_equiv _ _ _)).
+    eapply neighborhood_and.
+    - eapply neighborhood_equiv, Ha.
+    - eapply neighborhood_equiv, Hb.
+  Qed.
 
 End locally_base.
 
@@ -1054,6 +1068,7 @@ Proof.
     apply (Hx _).
     exact HP.
 Qed.
+
 Lemma ex_filter_lim_base_correct {T : TopologicalSpace} (F : Filter T) :
   ex_filter_lim_base F <-> ex_filter_lim F.
 Proof.
@@ -1094,6 +1109,7 @@ Proof.
     eapply (Hx _), neighborhood_equiv.
     exact HP.
 Qed.
+
 Lemma ex_lim_base_correct {X : UU} {T : TopologicalSpace} (f : X → T) (F : Filter X) :
   ex_lim_base f F <-> ex_lim f F.
 Proof.
@@ -1263,6 +1279,7 @@ Proof.
       * exact (pr1 (pr1 (pr2 (pr2 (pr2 Ho))))).
     + exact (pr2 (pr2 (pr2 (pr2 Ho)))).
 Qed.
+
 Lemma continuous_pr1 {U V : TopologicalSpace} :
   continuous (U := TopologyDirprod U V) (λ (xy : U × V), pr1 xy).
 Proof.
@@ -1290,6 +1307,7 @@ Proof.
       * exact (pr1 (pr2 O)).
       * intros x Hx. assumption.
 Qed.
+
 Lemma continuous_pr2 {U V : TopologicalSpace} :
   continuous (U := TopologyDirprod U V) (λ (xy : U × V), pr2 xy).
 Proof.
