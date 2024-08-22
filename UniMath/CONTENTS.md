@@ -461,6 +461,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [ElementsOp.v](CategoryTheory/ElementsOp.v)
    - [elems_slice_equiv.v](CategoryTheory/elems_slice_equiv.v)
    - [YonedaBinproducts.v](CategoryTheory/YonedaBinproducts.v)
+   - [YonedaExponentials.v](CategoryTheory/YonedaExponentials.v)
    - [ExponentiationLeftAdjoint.v](CategoryTheory/ExponentiationLeftAdjoint.v)
    - [Connected.v](CategoryTheory/Connected.v)
    - [LeftKanExtension.v](CategoryTheory/LeftKanExtension.v)
