@@ -4,7 +4,8 @@
 
   This file shows that the Yoneda embedding Y preserves exponentials. It does this by first
   establishing isomorphisms between Y(X^Y)(Z) and (Y(X)^Y(Y))(Z) for all Z, and then showing that
-  these equal to the morphisms given by `preserves_exponentials_map`. From this, we conclude that `preserves_exponentials_map` is an isomorphism.
+  these equal to the morphisms given by `preserves_exponentials_map`. From this, we conclude that
+  `preserves_exponentials_map` is an isomorphism.
 
   Contents
   1. The Yoneda embedding preserves exponentials [yoneda_preserves_exponentials]
@@ -45,7 +46,8 @@ Section YonedaPreservesExponentials.
     refine (hset_equiv_weq_z_iso _ _ _).
     refine (yoneda_weq _ _ (exp (Exponentials_PreShv _) _) ∘ _).
     refine (adjunction_hom_weq (pr2 (Exponentials_PreShv _)) _ _ ∘ _).
-    refine (invweq (z_iso_comp_right_weq (preserves_binproduct_to_z_iso _ (yoneda_preserves_binproduct _ BP) _ (BinProducts_PreShv _ _)) _) ∘ _).
+    refine (invweq (z_iso_comp_right_weq (preserves_binproduct_to_z_iso _
+      (yoneda_preserves_binproduct _ BP) _ (BinProducts_PreShv _ _)) _) ∘ _).
     refine (weq_from_fully_faithful (yoneda_fully_faithful _) _ _ ∘ _).
     refine (invweq (adjunction_hom_weq (pr2 (Exp X)) _ _) ∘ _).
     refine (invweq (weq_from_fully_faithful (yoneda_fully_faithful _) _ _) ∘ _).
