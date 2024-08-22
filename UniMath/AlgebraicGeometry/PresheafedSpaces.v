@@ -10,7 +10,9 @@
   along the functor on the categories of opens, induced by f.
   Next, the explicit fully faithful embedding of `[(open_category T)^op, D]` into the fiber over T
   is used to show univalence.
-  Lastly, this file defines types and accessors for the objects and morphisms in the category.
+  This file also defines types and accessors for the objects and morphisms in the category.
+  Lastly, this file contains the construction of the restriction of a presheafed space to an open
+  subset of the topological space.
 
   Contents
   1. The category [presheafed_space_cat]
@@ -18,6 +20,7 @@
     [functor_to_fiber_presheaf_functor] [functor_to_fiber_presheaf_functor_fully_faithful]
   3. Univalence [is_univalent_presheafed_space_cat]
   4. Types and accessors [presheafed_space] [presheafed_space_morphism]
+  5. Restriction of a presheafed space to an open subset [presheafed_space_restriction]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -316,6 +319,13 @@ Definition presheafed_space
   : UU
   := presheafed_space_cat D.
 
+Definition make_presheafed_space
+  {D : category}
+  (X : TopologicalSpace)
+  (F : (open_category X)^op ⟶ D)
+  : presheafed_space D
+  := X ,, F.
+
 Coercion presheafed_space_to_space
   {D : category}
   (X : presheafed_space D)
@@ -334,6 +344,14 @@ Definition presheafed_space_morphism
   : UU
   := (presheafed_space_cat D)⟦X, Y⟧.
 
+Definition make_presheafed_space_morphism
+  {D : category}
+  {X Y : presheafed_space D}
+  (f : continuous_function X Y)
+  (α : functor_opp (continuous_to_functor f) ∙ presheafed_space_presheaf X ⟹ presheafed_space_presheaf Y)
+  : presheafed_space_morphism X Y
+  := f ,, α.
+
 Coercion presheafed_space_morphism_to_continuous
   {D : category}
   {X Y : presheafed_space D}
@@ -347,3 +365,221 @@ Definition presheafed_space_morphism_to_nat_trans
   (f : presheafed_space_morphism X Y)
   : functor_opp (continuous_to_functor f) ∙ presheafed_space_presheaf X ⟹ presheafed_space_presheaf Y
   := pr2 f.
+
+(** TODO : Move this section to a separate file, or not? *)
+(** * 5. Restriction of a presheafed space to an open subset *)
+
+Section SubtypeSubtypes.
+
+  (** TODO : upstream this lemma *)
+
+  Lemma carrier_eq
+    (X : UU)
+    (A : hsubtype X)
+    (x y : A)
+    (H : pr1 x = pr1 y)
+    : x = y.
+  Proof.
+    apply subtypePath.
+    {
+      intro.
+      apply propproperty.
+    }
+    exact H.
+  Qed.
+
+  Context {X : UU}.
+  Context (A : hsubtype X).
+
+  (** TODO : upstream this section *)
+
+  Definition contained_subtype
+    : UU
+    := carrier (λ (B : hsubtype X), B ⊆ A).
+
+  Definition make_contained_subtype
+    (B : hsubtype X)
+    (H : B ⊆ A)
+    : contained_subtype
+    := make_carrier _ B H.
+
+  Coercion contained_subtype_to_subtype
+    (B : contained_subtype)
+    : hsubtype X
+    := pr1carrier _ B.
+
+  Definition contained_subtype_is_contained
+    (B : contained_subtype)
+    : B ⊆ A
+    := pr2 B.
+
+  Definition contained_subtype_eq
+    (B B' : contained_subtype)
+    (H1 : ∏ x, B x -> B' x)
+    (H2 : ∏ x, B' x -> B x)
+    : B = B'.
+  Proof.
+    apply carrier_eq.
+    apply funextfun.
+    intro x.
+    apply hPropUnivalence.
+    - apply H1.
+    - apply H2.
+  Qed.
+
+  Definition carrier_subtype_to_contained_subtype
+    (B : hsubtype A)
+    : contained_subtype.
+  Proof.
+    use make_contained_subtype.
+    - intro x.
+      exists (∑ (H : A x), B (x ,, H)).
+      abstract (
+        apply isaproptotal2;
+        intro;
+        intros;
+        apply propproperty
+      ).
+    - exact (λ x, pr1).
+  Defined.
+
+  Definition contained_subtype_to_carrier_subtype
+    (B : contained_subtype)
+    : hsubtype A.
+  Proof.
+    intro x.
+    exact (pr1 B (pr1 x)).
+  Defined.
+
+  Lemma carrier_subtype_to_contained_subtype_to_carrier_subtype
+    (B : hsubtype A)
+    : contained_subtype_to_carrier_subtype (carrier_subtype_to_contained_subtype B) = B.
+  Proof.
+    apply funextfun.
+    intro x.
+    apply hPropUnivalence.
+    - intro H.
+      refine (transportf B _ (pr2 H)).
+      now apply carrier_eq.
+    - intro H.
+      exists (pr2 x).
+      refine (transportf B _ H).
+      now apply carrier_eq.
+  Qed.
+
+  Lemma contained_subtype_to_carrier_subtype_to_contained_subtype
+    (B : contained_subtype)
+    : carrier_subtype_to_contained_subtype (contained_subtype_to_carrier_subtype B) = B.
+  Proof.
+    apply contained_subtype_eq.
+    - intros x H.
+      exact (pr2 H).
+    - intros x H.
+      exists (pr2 B x H).
+      exact H.
+  Qed.
+
+  Definition carrier_subtype_weq_contained_subtype
+    : hsubtype A ≃ contained_subtype
+    := weq_iso
+      carrier_subtype_to_contained_subtype
+      contained_subtype_to_carrier_subtype
+      carrier_subtype_to_contained_subtype_to_carrier_subtype
+      contained_subtype_to_carrier_subtype_to_contained_subtype.
+
+  Definition carrier_subtype_carrier_weq_contained_subtype_carrier
+    (B : hsubtype A)
+    : B ≃ carrier_subtype_weq_contained_subtype B
+    := invweq (totalAssociativity _).
+
+  Lemma carrier_subtype_contained_iff_contained_subtype_contained
+    (B B' : hsubtype A)
+    : B ⊆ B' ≃ carrier_subtype_weq_contained_subtype B ⊆ carrier_subtype_weq_contained_subtype B'.
+  Proof.
+    refine (weqiff _ (propproperty _) (propproperty _)).
+    split.
+    - intros H x Hx.
+      pose (f := invmap (carrier_subtype_carrier_weq_contained_subtype_carrier B)).
+      pose (g := subtype_inc H).
+      pose (h := carrier_subtype_carrier_weq_contained_subtype_carrier B').
+      exact ((pr2 ∘ h ∘ g ∘ f)%functions (x ,, Hx)).
+    - intros H x Hx.
+      pose (f := carrier_subtype_carrier_weq_contained_subtype_carrier B).
+      pose (g := subtype_inc H).
+      pose (h := invmap (carrier_subtype_carrier_weq_contained_subtype_carrier B')).
+      refine (transportf B' _ ((pr2 ∘ h ∘ g ∘ f)%functions (x ,, Hx))).
+      now apply carrier_eq.
+  Qed.
+
+End SubtypeSubtypes.
+
+(** TODO : upstream this lemma *)
+
+Local Open Scope open.
+
+Lemma TopologySubtype_open_iff_contained_subtype_open
+  {X : TopologicalSpace}
+  {U : Open (T := X)}
+  (V : hsubtype (pr1carrier _ U))
+  : isOpen (T := TopologySubtype (pr1carrier _ U)) V
+  ≃ isOpen (carrier_subtype_weq_contained_subtype _ V).
+Proof.
+  refine (weqiff _ (propproperty _) (propproperty _)).
+  split.
+  - intro HV.
+    apply neighborhood_isOpen.
+    intros x W.
+    refine (hinhfun _ (HV (x ,, pr1 W) (pr2 W))).
+    intro N.
+    exists ((pr1 N ,, pr212 N) ∩ U).
+    split.
+    + exact (pr112 N ,, pr1 W).
+    + intros y Hy.
+      exists (pr2 Hy).
+      exact (pr22 N (y ,, pr2 Hy) (pr1 Hy)).
+  - intros HV x Hx.
+    apply hinhpr.
+    exists (carrier_subtype_weq_contained_subtype _ V).
+    repeat split.
+    + exact (transportf
+        (λ V, pr1 (V x))
+        (!homotinvweqweq (carrier_subtype_weq_contained_subtype _) V)
+        Hx
+      ).
+    + exact HV.
+    + intros y Hy.
+      refine (transportf V _ (pr2 Hy)).
+      now apply carrier_eq.
+Qed.
+
+Local Close Scope open.
+
+Section Restriction.
+
+  Context {D : category}.
+  Context (X : presheafed_space D).
+  Context (U : Open (T := X)).
+
+  Definition presheafed_space_restriction
+    : presheafed_space D.
+  Proof.
+    use make_presheafed_space.
+    - exact (TopologySubtype (pr1carrier _ U)).
+    - refine (_ ∙ presheafed_space_presheaf X).
+      apply functor_opp.
+      use make_functor.
+      + use make_functor_data.
+        * intro V.
+          use tpair.
+          -- exact (carrier_subtype_weq_contained_subtype _ (pr1 V)).
+          -- exact (TopologySubtype_open_iff_contained_subtype_open (pr1 V) (pr2 V)).
+        * intros V W.
+          apply carrier_subtype_contained_iff_contained_subtype_contained.
+      + abstract (
+          split;
+          repeat intro;
+          apply propproperty
+        ).
+  Defined.
+
+End Restriction.
