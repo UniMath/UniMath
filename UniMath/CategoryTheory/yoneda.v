@@ -44,12 +44,6 @@ Ltac unf := unfold identity,
                    precategory_morphisms;
                    simpl.
 
-(** The following lemma is already in precategories.v . It should be transparent? *)
-
-Lemma iso_comp_left_isweq {C:category} {a b:ob C} (h:iso a b) (c:C) :
-  isweq (λ f : hom _ c a, f · h).
-Proof. intros. apply (@iso_comp_right_isweq C^op b a (opp_iso h)). Qed.
-
 (** * Yoneda functor *)
 
 (** ** On objects *)
