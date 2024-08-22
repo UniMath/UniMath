@@ -955,9 +955,9 @@ Section topologysubtype.
   Context {T : TopologicalSpace} (dom : hsubtype T).
 
   Definition topologysubtype :=
-    λ (x : ∑ x : T, dom x) (A : hsubtype (∑ x0 : T, dom x0)),
+    λ (x : dom) (A : hsubtype dom),
     ∃ B : hsubtype T,
-      (B (pr1 x) × isOpen B) × (∏ y : ∑ x0 : T, dom x0, B (pr1 y) → A y).
+      (B (pr1 x) × isOpen B) × (B ∘ pr1 ⊆ A).
 
   Lemma topologysubtype_imply :
     ∏ x : ∑ x : T, dom x, isfilter_imply (topologysubtype x).
@@ -969,7 +969,7 @@ Section topologysubtype.
     split.
     - exact (pr1 (pr2 A')).
     - intros y Hy.
-      now apply (H _), (pr2 (pr2 A')).
+      now apply (H _), (pr2 (pr2 A') y).
   Qed.
 
   Lemma topologysubtype_htrue :
@@ -995,8 +995,8 @@ Section topologysubtype.
     - apply isOpen_and.
       + exact (pr2 (pr1 (pr2 A'))).
       + exact (pr2 (pr1 (pr2 B'))).
-    - apply (pr2 (pr2 A')), (pr1 X).
-    - apply (pr2 (pr2 B')), (pr2 X).
+    - apply (pr2 (pr2 A') _), (pr1 X).
+    - apply (pr2 (pr2 B') _), (pr2 X).
   Qed.
 
   Lemma topologysubtype_point :
@@ -1006,7 +1006,7 @@ Section topologysubtype.
     intros x A.
     apply hinhuniv.
     intros B.
-    apply (pr2 (pr2 B)), (pr1 (pr1 (pr2 B))).
+    apply (pr2 (pr2 B) _), (pr1 (pr1 (pr2 B))).
   Qed.
 
   Lemma topologysubtype_neighborhood :
@@ -1025,7 +1025,7 @@ Section topologysubtype.
       exists (pr1 B).
       split.
       + exact (pr1 (pr2 B)).
-      + intros.
+      + intros y Hy.
         assumption.
     - intros y By.
       apply hinhpr.
