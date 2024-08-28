@@ -12,7 +12,10 @@
   functors on its Karoubi envelope, and this constitutes an adjoint equivalence.
 
   Contents
-  1. The Karoubi envelope and its embedding of C [karoubi_envelope] [karoubi_envelope_inclusion]
+  1. The Karoubi envelope and its embedding of C
+  1.1. The objects and morphisms and their constructors and accessors [karoubi_ob] [karoubi_mor]
+  1.2. The category [karoubi_envelope]
+  1.3. The embedding [karoubi_envelope_inclusion]
   1.1. Every object of the karoubi envelope is a retract of an element of C
     [karoubi_envelope_is_retract]
   1.2. Every idempotent in the karoubi envelope splits [karoubi_envelope_idempotent_splits]
@@ -29,6 +32,7 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.LeftKanExtension.
@@ -70,30 +74,85 @@ Section KaroubiEnvelope.
   Context (C : category).
 
 (** * 1. The Karoubi envelope and its embedding of C *)
+(** ** 1.1. The objects and morphisms and their constructors and accessors *)
 
-  Definition karoubi_envelope_ob_mor
-    : precategory_ob_mor.
-  Proof.
-    use make_precategory_ob_mor.
-    - exact (∑ (c : C), idempotent c).
-    - intros f f'.
-      exact (∑ (g : C⟦pr1 f, pr1 f'⟧), pr12 f · g = g × g · pr12 f' = g).
-  Defined.
+  Definition karoubi_ob
+    : UU
+    := ∑ (X : C),
+      idempotent X.
 
   Definition make_karoubi_ob
-    (c : C)
-    (f : C⟦c, c⟧)
+    (X : C)
+    (f : C⟦X, X⟧)
     (H : f · f = f)
-    : karoubi_envelope_ob_mor
-    := c ,, f ,, H.
+    : karoubi_ob
+    := X ,, f ,, H.
+
+  Coercion karoubi_ob_object
+    (X : karoubi_ob)
+    : C
+    := pr1 X.
+
+  Definition karoubi_ob_idempotent
+    (X : karoubi_ob)
+    : idempotent X
+    := pr2 X.
+
+  Definition karoubi_mor
+    (X Y : karoubi_ob)
+    : UU
+    := ∑ (f : C⟦X, Y⟧),
+      karoubi_ob_idempotent X · f = f ×
+      f · karoubi_ob_idempotent Y = f.
 
   Definition make_karoubi_mor
-    {c d : karoubi_envelope_ob_mor}
-    (f : C⟦pr1 c, pr1 d⟧)
-    (Hl : pr12 c · f = f)
-    (Hr : f · pr12 d = f)
-    : karoubi_envelope_ob_mor⟦c, d⟧
+    {X Y : karoubi_ob}
+    (f : C⟦X, Y⟧)
+    (Hl : karoubi_ob_idempotent X · f = f)
+    (Hr : f · karoubi_ob_idempotent Y = f)
+    : karoubi_mor X Y
     := f ,, Hl ,, Hr.
+
+  Coercion karoubi_mor_morphism
+    {X Y : karoubi_ob}
+    (f : karoubi_mor X Y)
+    : C⟦X, Y⟧
+    := pr1 f.
+
+  Definition karoubi_mor_commutes_left
+    {X Y : karoubi_ob}
+    (f : karoubi_mor X Y)
+    : karoubi_ob_idempotent X · f = f
+    := pr12 f.
+
+  Definition karoubi_mor_commutes_right
+    {X Y : karoubi_ob}
+    (f : karoubi_mor X Y)
+    : f · karoubi_ob_idempotent Y = f
+    := pr22 f.
+
+  Definition karoubi_mor_eq
+    {X Y : karoubi_ob}
+    (f g : karoubi_mor X Y)
+    (H : pr1 f = pr1 g)
+    : f = g.
+  Proof.
+    apply subtypePath.
+    {
+      intro x.
+      apply isapropdirprod;
+        apply homset_property.
+    }
+    exact H.
+  Qed.
+
+(** ** 1.2. The category *)
+
+  Definition karoubi_envelope_ob_mor
+    : precategory_ob_mor
+    := make_precategory_ob_mor
+      karoubi_ob
+      karoubi_mor.
 
   Definition karoubi_envelope_data
     : precategory_data.
@@ -108,21 +167,6 @@ Section KaroubiEnvelope.
       + abstract now rewrite assoc, (pr12 g).
       + abstract now rewrite assoc', (pr22 g').
   Defined.
-
-  Definition karoubi_mor_eq
-    {a b : karoubi_envelope_data}
-    (f g : karoubi_envelope_data⟦a, b⟧)
-    (H : pr1 f = pr1 g)
-    : f = g.
-  Proof.
-    apply subtypePath.
-    {
-      intro c.
-      apply isapropdirprod;
-        apply homset_property.
-    }
-    exact H.
-  Qed.
 
   Lemma karoubi_envelope_is_precategory
     : is_precategory karoubi_envelope_data.
@@ -158,6 +202,8 @@ Section KaroubiEnvelope.
         karoubi_envelope_data
         karoubi_envelope_is_precategory)
       karoubi_envelope_has_homsets.
+
+(** ** 1.3. The embedding *)
 
   Definition karoubi_envelope_inclusion
     : C ⟶ karoubi_envelope.
@@ -200,23 +246,23 @@ Section KaroubiEnvelope.
     (d : karoubi_envelope)
     : ∑ c, retraction d (karoubi_envelope_inclusion c).
   Proof.
-    exists (pr1 d).
+    exists (d : karoubi_ob).
     use (_ ,, _ ,, _).
-    - exists (pr12 d).
+    - exists (karoubi_ob_idempotent d).
       abstract (
         split;
-        [ exact (idempotent_is_idempotent (pr2 d))
+        [ apply idempotent_is_idempotent
         | apply id_right ]
       ).
-    - exists (pr12 d).
+    - exists (karoubi_ob_idempotent d).
       abstract (
         split;
         [ apply id_left
-        | exact (idempotent_is_idempotent (pr2 d)) ]
+        | apply idempotent_is_idempotent ]
       ).
     - abstract (
         apply karoubi_mor_eq;
-        apply (idempotent_is_idempotent (pr2 d))
+        apply idempotent_is_idempotent
       ).
   Defined.
 
@@ -228,20 +274,20 @@ Section KaroubiEnvelope.
     : is_split_idempotent e.
   Proof.
     use (_ ,, _ ,, _).
-    - exists (pr1 c).
-      exists (pr1 (e : c --> c)).
+    - exists (c : karoubi_ob).
+      exists ((e : c --> c) : karoubi_mor _ _).
       abstract exact (base_paths _ _ (idempotent_is_idempotent e)).
     - use (_ ,, _ ,, _).
-      + exists (pr1 (e : c --> c)).
+      + exists ((e : c --> c) : karoubi_mor _ _).
         abstract (
           split;
           [ exact (base_paths _ _ (idempotent_is_idempotent e))
-          | exact (pr22 (e : c --> c)) ]
+          | exact (karoubi_mor_commutes_right (e : c --> c)) ]
         ).
-      + exists (pr1 (e : c --> c)).
+      + exists ((e : c --> c) : karoubi_mor _ _).
         abstract (
           split;
-          [ exact (pr12 (e : c --> c))
+          [ exact (karoubi_mor_commutes_left (e : c --> c))
           | exact (base_paths _ _ (idempotent_is_idempotent e)) ]
         ).
       + abstract (
@@ -267,11 +313,16 @@ Section KaroubiEnvelope.
     Definition karoubi_functor_iso_inv
       : D ⟦ P c, lan_point HD karoubi_envelope_inclusion (functor_compose karoubi_envelope_inclusion P) c⟧.
     Proof.
-      refine (_ · colimIn _ (((pr1 c ,, tt) ,, pr12 c ,, id_left _ ,, pr22 c) : (vertex (lan_comma karoubi_envelope_inclusion c)))).
+      refine (_ · colimIn _ ((
+          (karoubi_ob_object c ,, tt) ,,
+          (karoubi_ob_idempotent c : _ --> _) ,,
+          id_left _ ,,
+          idempotent_is_idempotent _
+        ) : (vertex (lan_comma karoubi_envelope_inclusion c)))).
       apply (#P).
       use make_karoubi_mor.
-      - exact (pr12 c).
-      - exact (pr22 c).
+      - exact (karoubi_ob_idempotent c).
+      - apply idempotent_is_idempotent.
       - exact (id_right _).
     Defined.
 
@@ -293,8 +344,8 @@ Section KaroubiEnvelope.
           @ colimInCommutes
             (lan_colim HD karoubi_envelope_inclusion (pre_comp_functor karoubi_envelope_inclusion P) c)
             v
-            ((pr1 c ,, tt) ,, (make_karoubi_mor (c := make_karoubi_ob _ (identity _) _) (pr12 c) (id_left _) (pr22 c)))
-            ((pr12 v ,, (pr2 iscontrunit _)) ,, _));
+            ((karoubi_ob_object c ,, tt) ,, (make_karoubi_mor (X := make_karoubi_ob _ (identity _) _) (karoubi_ob_idempotent c) (id_left _) (idempotent_is_idempotent _)))
+            ((pr12 v ,, pr2 iscontrunit _) ,, _));
         apply karoubi_mor_eq.
         + exact (pr222 v).
         + apply idpath.
@@ -304,7 +355,7 @@ Section KaroubiEnvelope.
         refine (_ @ functor_id P _).
         apply maponpaths.
         apply karoubi_mor_eq.
-        exact (pr22 c).
+        apply idempotent_is_idempotent.
     Qed.
 
   End Iso.
@@ -365,17 +416,16 @@ Section KaroubiEnvelope.
     Proof.
       use make_functor_data.
       - intro A.
-        pose (E := Equalizers_PreShv _ _ (identity _) (# (yoneda _) (pr12 A))).
         use (_ ,, _ ,, _ ,, _ ,, _).
-        + exact E.
-        + exact (pr1 A).
+        + exact (Equalizers_PreShv _ _ (identity _) (# (yoneda _) (pr12 A))).
+        + exact (A : karoubi_ob).
         + apply EqualizerArrow.
-        + apply (EqualizerIn _ _ (# (yoneda _) (pr12 A))).
+        + apply (EqualizerIn _ _ (# (yoneda _) (karoubi_ob_idempotent A))).
           abstract (
             refine (id_right _ @ _);
             refine (_ @ functor_comp _ _ _);
             apply maponpaths;
-            exact (!pr22 A)
+            exact (!idempotent_is_idempotent _)
           ).
         + abstract (
             apply EqualizerInsEq;
@@ -387,14 +437,14 @@ Section KaroubiEnvelope.
           ).
       - intros A B f.
         refine (_ ,, tt).
-        apply (EqualizerIn _ _ (EqualizerArrow _ · # (yoneda _) (pr1 f))).
+        apply (EqualizerIn _ _ (EqualizerArrow _ · # (yoneda _) (f : karoubi_mor _ _))).
         abstract (
           do 2 refine (assoc' _ _ _ @ !_);
           apply maponpaths;
           refine (id_right _ @ _);
           refine (_ @ functor_comp _ _ _);
           apply maponpaths;
-          exact (!pr22 f)
+          exact (!karoubi_mor_commutes_right f)
         ).
     Defined.
 
@@ -430,23 +480,19 @@ Section KaroubiEnvelope.
 
     Section FullyFaithful.
 
-      Context (A B : karoubi_envelope).
+      Context {A B : karoubi_envelope}.
 
       Definition karoubi_equivalence_invmap_mor
-        (f : karoubi_envelope'⟦
-          karoubi_equivalence_functor A,
-          karoubi_equivalence_functor B ⟧)
-        : C⟦pr1 A, pr1 B⟧
+        (f : karoubi_equivalence_functor A --> karoubi_equivalence_functor B)
+        : C⟦(A : karoubi_ob), (B : karoubi_ob)⟧
         := invmap (weq_from_fully_faithful (yoneda_fully_faithful C) _ _)
             (pr22 (karoubi_equivalence_functor A) ·
               pr1 f ·
               retraction_section (pr22 (karoubi_equivalence_functor B))).
 
       Lemma karoubi_equivalence_invmap_mor_left
-        (f : karoubi_envelope'⟦
-          karoubi_equivalence_functor A,
-          karoubi_equivalence_functor B ⟧)
-        : pr12 A · karoubi_equivalence_invmap_mor f
+        (f : karoubi_equivalence_functor A --> karoubi_equivalence_functor B)
+        : karoubi_ob_idempotent A · karoubi_equivalence_invmap_mor f
           = karoubi_equivalence_invmap_mor f.
       Proof.
         refine (!invmap_eq _ _ _ (!_)).
@@ -463,10 +509,8 @@ Section KaroubiEnvelope.
       Qed.
 
       Lemma karoubi_equivalence_invmap_mor_right
-        (f : karoubi_envelope'⟦
-          karoubi_equivalence_functor A,
-          karoubi_equivalence_functor B ⟧)
-        : karoubi_equivalence_invmap_mor f · pr12 B
+        (f : karoubi_equivalence_functor A --> karoubi_equivalence_functor B)
+        : karoubi_equivalence_invmap_mor f · karoubi_ob_idempotent B
           = karoubi_equivalence_invmap_mor f.
       Proof.
         refine (!invmap_eq _ _ _ (!_)).
@@ -479,10 +523,8 @@ Section KaroubiEnvelope.
       Qed.
 
       Definition karoubi_equivalence_invmap
-        (f : karoubi_envelope'⟦
-          karoubi_equivalence_functor A,
-          karoubi_equivalence_functor B ⟧)
-        : karoubi_envelope⟦A, B⟧
+        (f : karoubi_equivalence_functor A --> karoubi_equivalence_functor B)
+        : A --> B
         := karoubi_equivalence_invmap_mor f ,,
           karoubi_equivalence_invmap_mor_left f ,,
           karoubi_equivalence_invmap_mor_right f.
@@ -505,13 +547,11 @@ Section KaroubiEnvelope.
         refine (maponpaths (λ x, x · _) (EqualizerCommutes _ _ _ _) @ _).
         refine (!functor_comp _ _ _ @ _).
         apply maponpaths.
-        exact (pr12 f).
+        apply karoubi_mor_commutes_left.
       Qed.
 
       Lemma karoubi_equivalence_weqinvweq
-        (f : karoubi_envelope'⟦
-          karoubi_equivalence_functor A,
-          karoubi_equivalence_functor B ⟧)
+        (f : karoubi_equivalence_functor A --> karoubi_equivalence_functor B)
         : # karoubi_equivalence_functor (karoubi_equivalence_invmap f)
           = f.
       Proof.
@@ -537,9 +577,9 @@ Section KaroubiEnvelope.
     Definition karoubi_equivalence_fully_faithful
       : fully_faithful karoubi_equivalence_functor
       := λ A B, isweq_iso _
-        (karoubi_equivalence_invmap A B)
-        (karoubi_equivalence_invweqweq A B)
-        (karoubi_equivalence_weqinvweq A B).
+        karoubi_equivalence_invmap
+        karoubi_equivalence_invweqweq
+        karoubi_equivalence_weqinvweq.
 
     Section SplitEssentiallySurjective.
 
@@ -548,7 +588,7 @@ Section KaroubiEnvelope.
       Definition karoubi_equivalence_preimage
         : karoubi_envelope.
       Proof.
-        use (_ ,, _ ,, _).
+        use make_karoubi_ob.
         - exact (pr12 P).
         - exact (invmap (weq_from_fully_faithful (yoneda_fully_faithful C) _ _)
             (pr22 P · retraction_section (pr22 P))).
@@ -633,11 +673,10 @@ Section OppKaroubiEquiv.
   Proof.
     use make_functor_data.
     - exact (idfun _).
-    - intros a b f.
-      use make_karoubi_mor.
-      + exact (pr1 f).
-      + exact (pr22 f).
-      + exact (pr12 f).
+    - intros a b.
+      apply totalfun.
+      intro f.
+      exact (pr1weq (weqdirprodcomm _ _)).
   Defined.
 
   Lemma opp_karoubi_functor_is_functor
@@ -645,7 +684,7 @@ Section OppKaroubiEquiv.
   Proof.
     split.
     - easy.
-    - intros a b c f g.
+    - do 5 intro.
       now apply karoubi_mor_eq.
   Qed.
 
@@ -660,7 +699,10 @@ Section OppKaroubiEquiv.
   Definition opp_karoubi_ob_lift_mor
     (c : karoubi_envelope (op_cat C))
     : karoubi_envelope (op_cat C) ⟦ opp_karoubi_functor (opp_karoubi_ob_lift c), c ⟧
-    := make_karoubi_mor _ (pr12 c) (pr22 c) (pr22 c).
+    := make_karoubi_mor _
+      (karoubi_ob_idempotent _ c)
+      (idempotent_is_idempotent _)
+      (idempotent_is_idempotent _).
 
   Section OppKaroubiOfLiftIsUniversalArrow.
 
@@ -671,17 +713,17 @@ Section OppKaroubiEquiv.
     Definition opp_karoubi_universal_mor
       : op_cat (karoubi_envelope C) ⟦ c', opp_karoubi_ob_lift c ⟧.
     Proof.
-      use make_karoubi_mor.
-      - exact (pr1 f).
-      - exact (pr22 f).
-      - exact (pr12 f).
+      revert f.
+      refine (totalfun _ _ _).
+      intro f.
+      exact (invmap (weqdirprodcomm _ _)).
     Defined.
 
     Lemma opp_karoubi_universal_eq
       : f = # opp_karoubi_functor opp_karoubi_universal_mor · opp_karoubi_ob_lift_mor c.
     Proof.
       apply karoubi_mor_eq.
-      exact (!pr22 f).
+      exact (!karoubi_mor_commutes_right _ f).
     Qed.
 
     Lemma opp_karoubi_universal_prop
@@ -698,7 +740,7 @@ Section OppKaroubiEquiv.
     Proof.
       apply karoubi_mor_eq.
       refine (_ @ !base_paths _ _ H).
-      exact (!pr12 g).
+      exact (!karoubi_mor_commutes_left _ g).
     Qed.
 
     Definition opp_karoubi_universal
@@ -724,16 +766,17 @@ Section OppKaroubiEquiv.
 
     Definition opp_karoubi_unit_iso_inv
       : karoubi_envelope C ⟦ c, c ⟧
-      := make_karoubi_mor _ (pr12 c) (pr22 c) (pr22 c).
+      := make_karoubi_mor _
+        (karoubi_ob_idempotent _ c)
+        (idempotent_is_idempotent _)
+        (idempotent_is_idempotent _).
 
     Lemma opp_karoubi_unit_is_inverse
       : is_inverse_in_precat (adjunit opp_karoubi_is_adjoint c) opp_karoubi_unit_iso_inv.
     Proof.
-      split.
-      - apply karoubi_mor_eq.
-        exact (pr22 c).
-      - apply karoubi_mor_eq.
-        exact (pr22 c).
+      split;
+        apply karoubi_mor_eq;
+        apply (idempotent_is_idempotent (karoubi_ob_idempotent _ c)).
     Qed.
 
     Definition opp_karoubi_unit_is_iso
@@ -748,16 +791,17 @@ Section OppKaroubiEquiv.
 
     Definition opp_karoubi_counit_iso_inv
       : karoubi_envelope (op_cat C) ⟦ c, opp_karoubi_ob_lift c ⟧
-      := make_karoubi_mor _ (pr12 c) (pr22 c) (pr22 c).
+      := make_karoubi_mor _
+        (karoubi_ob_idempotent _ c)
+        (idempotent_is_idempotent _)
+        (idempotent_is_idempotent _).
 
     Lemma opp_karoubi_counit_is_inverse
       : is_inverse_in_precat (adjcounit opp_karoubi_is_adjoint c) opp_karoubi_counit_iso_inv.
     Proof.
-      split.
-      - apply karoubi_mor_eq.
-        exact (pr22 c).
-      - apply karoubi_mor_eq.
-        exact (pr22 c).
+      split;
+        apply karoubi_mor_eq;
+        apply (idempotent_is_idempotent (karoubi_ob_idempotent _ c)).
     Qed.
 
     Definition opp_karoubi_counit_is_iso
