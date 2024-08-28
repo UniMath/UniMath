@@ -4,9 +4,10 @@
 
   Defines the Karoubi envelope, the idempotent completion, the category of retracts or the Cauchy
   completion of a category C. This is the completion of C in which every idempotent splits. Its
-  objects are the idempotent morphisms on objects of C. Equivalently, one can define the Karoubi
-  envelope as the category with an embedding from C such that every element is a retract of an
-  object of C, and such that every idempotent splits.
+  objects are the idempotent morphisms on objects of C.
+  Equivalently, one can define the Karoubi envelope as a displayed category over the presheaf
+  category over C, in which every presheaf is endowed with a retraction from the Yoneda embedding of
+  some object in C.
   Presheaves (and functors) from C to a category with colimits (or coequalizers) can be lifted to
   functors on its Karoubi envelope, and this constitutes an adjoint equivalence.
 
@@ -16,7 +17,9 @@
     [karoubi_envelope_is_retract]
   1.2. Every idempotent in the karoubi envelope splits [karoubi_envelope_idempotent_splits]
   2. Functors on C are equivalent to functors on the Karoubi envelope [karoubi_pullback_equivalence]
-  3. The formations of the opposite category and the Karoubi envelope commute [opp_karoubi]
+  3. The alternative definition, using the presheaf category [karoubi_envelope']
+  3.1. The equivalence between the two definitions [karoubi_equivalence]
+  4. The formations of the opposite category and the Karoubi envelope commute [opp_karoubi]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -25,16 +28,18 @@ Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.LeftKanExtension.
 Require Import UniMath.CategoryTheory.Limits.Coequalizers.
-Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.CategoryTheory.Retracts.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.yoneda.
 
 Require Import UniMath.AlgebraicTheories.FundamentalTheorem.SurjectivePrecomposition.
 
@@ -321,9 +326,303 @@ Section KaroubiEnvelope.
     - exact karoubi_functor_iso.
   Defined.
 
+  Section AlternativeDefinition.
+
+(** * 3. The alternative definition, using the presheaf category *)
+
+    Definition karoubi_envelope'
+      : category
+      := full_subcat
+        (PreShv C)
+        (λ P, ∑ (A : C), retraction P (yoneda _ A)).
+
+    Definition karoubi'_mor_eq
+      {A B : karoubi_envelope'}
+      (f f' : karoubi_envelope'⟦A, B⟧)
+      (H : pr1 f = pr1 f')
+      : f = f'
+      := pathsdirprod H (pr1 (isapropunit _ _)).
+
+    Definition make_karoubi'_z_iso
+      {A B : karoubi_envelope'}
+      (f : PreShv C⟦pr1 A, pr1 B⟧)
+      (g : PreShv C⟦pr1 B, pr1 A⟧)
+      (H : is_inverse_in_precat f g)
+      : z_iso A B.
+    Proof.
+      refine ((f ,, tt) ,, (g ,, tt) ,, _).
+      abstract now (
+        induction H;
+        split;
+        apply karoubi'_mor_eq
+      ).
+    Defined.
+
+(** ** 3.1. The equivalence between the two definitions *)
+
+    Definition karoubi_equivalence_functor_data
+      : functor_data karoubi_envelope karoubi_envelope'.
+    Proof.
+      use make_functor_data.
+      - intro A.
+        pose (E := Equalizers_PreShv _ _ (identity _) (# (yoneda _) (pr12 A))).
+        use (_ ,, _ ,, _ ,, _ ,, _).
+        + exact E.
+        + exact (pr1 A).
+        + apply EqualizerArrow.
+        + apply (EqualizerIn _ _ (# (yoneda _) (pr12 A))).
+          abstract (
+            refine (id_right _ @ _);
+            refine (_ @ functor_comp _ _ _);
+            apply maponpaths;
+            exact (!pr22 A)
+          ).
+        + abstract (
+            apply EqualizerInsEq;
+            refine (assoc' _ _ _ @ _);
+            refine (maponpaths _ (EqualizerCommutes _ _ _ _) @ _);
+            refine (!EqualizerEqAr _ @ _);
+            refine (_ @ !id_left _);
+            apply id_right
+          ).
+      - intros A B f.
+        refine (_ ,, tt).
+        apply (EqualizerIn _ _ (EqualizerArrow _ · # (yoneda _) (pr1 f))).
+        abstract (
+          do 2 refine (assoc' _ _ _ @ !_);
+          apply maponpaths;
+          refine (id_right _ @ _);
+          refine (_ @ functor_comp _ _ _);
+          apply maponpaths;
+          exact (!pr22 f)
+        ).
+    Defined.
+
+    Lemma karoubi_equivalence_is_functor
+      : is_functor karoubi_equivalence_functor_data.
+    Proof.
+      split.
+      - intro A.
+        apply karoubi'_mor_eq.
+        refine (EqualizerInsEq _ _ _ _).
+        refine (EqualizerCommutes _ _ _ _ @ _).
+        refine (!EqualizerEqAr _ @ _).
+        refine (_ @ !id_left _).
+        apply id_right.
+      - intros X Y Z f g.
+        apply karoubi'_mor_eq.
+        refine (EqualizerInsEq _ _ _ _).
+        refine (EqualizerCommutes _ _ _ _ @ _).
+        refine (_ @ assoc _ _ _).
+        refine (_ @ !maponpaths (λ x, _ · x) (EqualizerCommutes _ _ _ _)).
+        refine (_ @ assoc' _ _ _).
+        refine (_ @ !maponpaths (λ x, x · _) (EqualizerCommutes _ _ _ _)).
+        refine (_ @ assoc _ _ _).
+        apply maponpaths.
+        apply functor_comp.
+    Qed.
+
+    Definition karoubi_equivalence_functor
+      : karoubi_envelope ⟶ karoubi_envelope'
+      := make_functor
+        karoubi_equivalence_functor_data
+        karoubi_equivalence_is_functor.
+
+    Section FullyFaithful.
+
+      Context (A B : karoubi_envelope).
+
+      Definition karoubi_equivalence_invmap_mor
+        (f : karoubi_envelope'⟦
+          karoubi_equivalence_functor A,
+          karoubi_equivalence_functor B ⟧)
+        : C⟦pr1 A, pr1 B⟧
+        := invmap (weq_from_fully_faithful (yoneda_fully_faithful C) _ _)
+            (pr22 (karoubi_equivalence_functor A) ·
+              pr1 f ·
+              retraction_section (pr22 (karoubi_equivalence_functor B))).
+
+      Lemma karoubi_equivalence_invmap_mor_left
+        (f : karoubi_envelope'⟦
+          karoubi_equivalence_functor A,
+          karoubi_equivalence_functor B ⟧)
+        : pr12 A · karoubi_equivalence_invmap_mor f
+          = karoubi_equivalence_invmap_mor f.
+      Proof.
+        refine (!invmap_eq _ _ _ (!_)).
+        refine (functor_comp _ _ _ @ _).
+        refine (maponpaths (λ x, _ · x) (homotweqinvweq (weq_from_fully_faithful _ _ _) _) @ _).
+        do 2 refine (assoc _ _ _ @ maponpaths (λ x, x · _) _).
+        apply EqualizerInsEq.
+        refine (assoc' _ _ _ @ _).
+        refine (maponpaths (λ x, _ · x) (EqualizerCommutes _ _ _ _) @ _).
+        refine (_ @ !EqualizerCommutes _ _ _ _).
+        refine (!functor_comp _ _ _ @ _).
+        apply maponpaths.
+        apply idempotent_is_idempotent.
+      Qed.
+
+      Lemma karoubi_equivalence_invmap_mor_right
+        (f : karoubi_envelope'⟦
+          karoubi_equivalence_functor A,
+          karoubi_equivalence_functor B ⟧)
+        : karoubi_equivalence_invmap_mor f · pr12 B
+          = karoubi_equivalence_invmap_mor f.
+      Proof.
+        refine (!invmap_eq _ _ _ (!_)).
+        refine (functor_comp _ _ _ @ _).
+        refine (maponpaths (λ x, x · _) (homotweqinvweq (weq_from_fully_faithful _ _ _) _) @ _).
+        refine (assoc' _ _ _ @ _).
+        apply maponpaths.
+        refine (!EqualizerEqAr _ @ _).
+        apply id_right.
+      Qed.
+
+      Definition karoubi_equivalence_invmap
+        (f : karoubi_envelope'⟦
+          karoubi_equivalence_functor A,
+          karoubi_equivalence_functor B ⟧)
+        : karoubi_envelope⟦A, B⟧
+        := karoubi_equivalence_invmap_mor f ,,
+          karoubi_equivalence_invmap_mor_left f ,,
+          karoubi_equivalence_invmap_mor_right f.
+
+      Lemma karoubi_equivalence_invweqweq
+        (f: karoubi_envelope⟦ A, B ⟧)
+        : karoubi_equivalence_invmap (# karoubi_equivalence_functor f)
+          = f.
+      Proof.
+        use subtypePath.
+        {
+          intro.
+          apply isapropdirprod;
+          apply homset_property.
+        }
+        apply invmap_eq.
+        refine (assoc' _ _ _ @ _).
+        refine (maponpaths _ (EqualizerCommutes _ _ _ _) @ _).
+        refine (assoc _ _ _ @ _).
+        refine (maponpaths (λ x, x · _) (EqualizerCommutes _ _ _ _) @ _).
+        refine (!functor_comp _ _ _ @ _).
+        apply maponpaths.
+        exact (pr12 f).
+      Qed.
+
+      Lemma karoubi_equivalence_weqinvweq
+        (f : karoubi_envelope'⟦
+          karoubi_equivalence_functor A,
+          karoubi_equivalence_functor B ⟧)
+        : # karoubi_equivalence_functor (karoubi_equivalence_invmap f)
+          = f.
+      Proof.
+        apply karoubi'_mor_eq.
+        apply EqualizerInsEq.
+        refine (EqualizerCommutes _ _ _ _ @ _).
+        refine (maponpaths (λ x, _ · x) (homotweqinvweq (weq_from_fully_faithful _ _ _) _) @ _).
+        refine (assoc _ _ _ @ _).
+        apply (maponpaths (λ x, x · _)).
+        refine (assoc _ _ _ @ _).
+        refine (_ @ id_left _).
+        apply (maponpaths (λ x, x · _)).
+        apply EqualizerInsEq.
+        refine (assoc' _ _ _ @ _).
+        refine (maponpaths _ (EqualizerCommutes _ _ _ _) @ _).
+        refine (_ @ !id_left _).
+        refine (!EqualizerEqAr _ @ _).
+        apply id_right.
+      Qed.
+
+    End FullyFaithful.
+
+    Definition karoubi_equivalence_fully_faithful
+      : fully_faithful karoubi_equivalence_functor
+      := λ A B, isweq_iso _
+        (karoubi_equivalence_invmap A B)
+        (karoubi_equivalence_invweqweq A B)
+        (karoubi_equivalence_weqinvweq A B).
+
+    Section SplitEssentiallySurjective.
+
+      Context (P : karoubi_envelope').
+
+      Definition karoubi_equivalence_preimage
+        : karoubi_envelope.
+      Proof.
+        use (_ ,, _ ,, _).
+        - exact (pr12 P).
+        - exact (invmap (weq_from_fully_faithful (yoneda_fully_faithful C) _ _)
+            (pr22 P · retraction_section (pr22 P))).
+        - abstract (
+            apply (invmaponpathsweq (weq_from_fully_faithful (yoneda_fully_faithful C) _ _));
+            refine (functor_comp _ _ _ @ _);
+            refine (maponpaths (λ x, x · x) (homotweqinvweq (weq_from_fully_faithful _ _ _) _) @ _);
+            refine (_ @ !(homotweqinvweq (weq_from_fully_faithful _ _ _) _));
+            refine (assoc _ _ _ @ _);
+            refine (maponpaths (λ x, x · _) (assoc' _ _ _) @ _);
+            refine (maponpaths (λ x, _ · x · _) (retraction_is_retraction _) @ _);
+            exact (maponpaths (λ x, x · _) (id_right _))
+          ).
+      Defined.
+
+      Definition karoubi_equivalence_preimage_iso_mor
+        : PreShv C⟦
+          pr1 (karoubi_equivalence_functor karoubi_equivalence_preimage),
+          pr1 P⟧
+        := EqualizerArrow _ · retraction_retraction (pr22 P).
+
+      Definition karoubi_equivalence_preimage_iso_inv
+        : PreShv C⟦pr1 P,
+          pr1 (karoubi_equivalence_functor karoubi_equivalence_preimage)⟧.
+      Proof.
+        use EqualizerIn.
+        - apply (retraction_section (pr22 P)).
+        - abstract (
+            refine (_ @ !maponpaths (λ x, _ · x) (homotweqinvweq (weq_from_fully_faithful _ _ _) _));
+            refine (_ @ assoc' _ _ _);
+            refine (_ @ !maponpaths (λ x, x · _) (retraction_is_retraction _));
+            refine (_ @ !id_left _);
+            apply id_right
+          ).
+      Defined.
+
+      Lemma karoubi_equivalence_preimage_is_inverse
+        : is_inverse_in_precat
+          karoubi_equivalence_preimage_iso_mor
+          karoubi_equivalence_preimage_iso_inv.
+      Proof.
+        split.
+        - apply EqualizerInsEq.
+          refine (assoc' _ _ _ @ _).
+          refine (maponpaths (λ x, _ · x) (EqualizerCommutes _ _ _ _) @ _).
+          refine (assoc' _ _ _ @ _).
+          refine (!maponpaths (λ x, _ · x) (homotweqinvweq (weq_from_fully_faithful (yoneda_fully_faithful C) _ _) _) @ _).
+          refine (!EqualizerEqAr _ @ _).
+          refine (_ @ !id_left _).
+          apply id_right.
+        - refine (assoc _ _ _ @ _).
+          refine (maponpaths (λ x, x · _) (EqualizerCommutes _ _ _ _) @ _).
+          apply retraction_is_retraction.
+      Qed.
+
+    End SplitEssentiallySurjective.
+
+    Definition karoubi_equivalence_split_essentially_surjective
+      : split_essentially_surjective karoubi_equivalence_functor
+      := λ P,
+        karoubi_equivalence_preimage P ,,
+        make_karoubi'_z_iso _ _ (karoubi_equivalence_preimage_is_inverse P).
+
+    Definition karoubi_equivalence
+      : adj_equivalence_of_cats karoubi_equivalence_functor
+      := rad_equivalence_of_cats' _ _ _
+        karoubi_equivalence_fully_faithful
+        karoubi_equivalence_split_essentially_surjective.
+
+  End AlternativeDefinition.
+
 End KaroubiEnvelope.
 
-(** * 3. The formations of the opposite category and the Karoubi envelope commute *)
+(** * 4. The formations of the opposite category and the Karoubi envelope commute *)
 
 Section OppKaroubiEquiv.
 
