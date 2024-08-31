@@ -28,4 +28,5 @@ of the circle as a quotient of the affine line.
 ## Circle.v
 
 Construction of the circle as Bℤ.  A map from it to another type is determined
-by a point and a loop.  Forthcoming: the dependent version.
+by a point and a loop.  A map from it to a type dependent on it, is determined
+by a point over the point, and a path over the loop.
