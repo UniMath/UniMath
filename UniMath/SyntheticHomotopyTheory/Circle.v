@@ -2,9 +2,9 @@
 
   In this file we formalize the approach of Marc Bezem and Ulrik Buchholtz for proving that the type
   of Z-torsors has the induction principle that the circle should have.  In my older approach, (see
-  the file Circle.v), I managed to show only the recursion principle for the circle (where the
-  family of types is constant), and the computations were complicated and onerous.  Their approach
-  follows the same basic idea, goes further, and is simpler.  It is described in the file
+  the previous versions of Circle.v), I managed to show only the recursion principle for the circle
+  (where the family of types is constant), and the computations were complicated and onerous.  Their
+  approach follows the same basic idea, goes further, and is simpler.  It is described in the file
   https://github.com/UniMath/SymmetryBook/blob/master/ZTors.tex, commit
   1ba615fa7625516ad79fe3ad9ef68e1fc001d485.
 
