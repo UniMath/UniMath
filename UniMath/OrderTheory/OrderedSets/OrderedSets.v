@@ -4,6 +4,7 @@ Require Import UniMath.Combinatorics.FiniteSets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.DecidablePropositions.
+Require Import UniMath.OrderTheory.Posets.Examples.StandardFiniteSet.
 Local Open Scope poset.
 
 (** partially ordered sets and ordered sets *)

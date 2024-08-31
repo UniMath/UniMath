@@ -157,6 +157,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Posets/LiftPoset.v](OrderTheory/Posets/LiftPoset.v)
    - [Posets/QuotientPoset.v](OrderTheory/Posets/QuotientPoset.v)
    - [Posets.v](OrderTheory/Posets.v)
+   - [Posets/Examples/StandardFiniteSet.v](OrderTheory/Posets/Examples/StandardFiniteSet.v)
    - [Lattice/Lattice.v](OrderTheory/Lattice/Lattice.v)
    - [Lattice/Bounded.v](OrderTheory/Lattice/Bounded.v)
    - [Lattice/Complement.v](OrderTheory/Lattice/Complement.v)

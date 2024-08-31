@@ -5,6 +5,7 @@ Posets/PointedPosets.v
 Posets/LiftPoset.v
 Posets/QuotientPoset.v
 Posets.v
+Posets/Examples/StandardFiniteSet.v
 
 Lattice/Lattice.v
 Lattice/Bounded.v
