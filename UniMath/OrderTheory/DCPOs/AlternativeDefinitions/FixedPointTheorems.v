@@ -5,7 +5,7 @@ This file aims to state and develop various fixed-point theorems on posets; in p
 
 In particular, it aims to formalise some of the results of Pataraia, Dacar, Bauer, and Lumsdaine, given in https://arxiv.org/abs/1201.0340 .
 
-Note: There is some duplication with material on posets elsewhere in the library, e.g. [Algebra.Dcpo] and [Combinatorics.WellOrderedSets], which should ideally be refactored. (Indeed, there is some duplication of material also between those files.)
+Note: There is some duplication with material on posets elsewhere in the library, e.g. [Algebra.Dcpo] and [OrderTheory.OrderedSets.WellOrderedSets], which should ideally be refactored. (Indeed, there is some duplication of material also between those files.)
 
 ****************************************************************************
 Note: a newer and different implementation of DCPOs and fixed point theorems
@@ -16,7 +16,8 @@ can be found in OrderTheory.DCPOs.
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Combinatorics.WellOrderedSets.
+
+Require Import UniMath.OrderTheory.OrderedSets.WellOrderedSets.
 Require Import UniMath.OrderTheory.DCPOs.AlternativeDefinitions.Dcpo.
 
 Local Open Scope poset. (* for ≤, < *)

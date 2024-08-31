@@ -25,6 +25,9 @@ Prebilattice/PrebilatticeDisplayedCat.v
 Prebilattice/Product.v
 Prebilattice/Examples/FOUR.v
 
+OrderedSets/OrderedSets.v
+OrderedSets/WellOrderedSets.v
+
 DCPOs/Core/DirectedSets.v
 DCPOs/Core/Basics.v
 DCPOs/Core/WayBelow.v
