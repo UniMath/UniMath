@@ -7,7 +7,6 @@ PathsOver.v
 Nat.v
 Notations.v
 AlternativeProofs.v
-Subposets.v
 DoubleNegation.v
 DecidablePropositions.v
 Propositions.v

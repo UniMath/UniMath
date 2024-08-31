@@ -19,6 +19,7 @@ Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.OrderTheory.OrderedSets.WellOrderedSets.
 Require Import UniMath.OrderTheory.DCPOs.AlternativeDefinitions.Dcpo.
+Require Import UniMath.OrderTheory.Posets.Subposets.
 
 Local Open Scope poset. (* for ≤, < *)
 Local Open Scope logic. (* for logic in hProp *)
@@ -800,7 +801,7 @@ End Completeness.
 (** ** Upper bounds, completeness, etc in sub-posets *)
 Section Subposets.
 
-  (* TODO: upstream to [MoreFoundations.Subposets]? *)
+  (* TODO: upstream to [Posets.Subposets]? *)
   Definition subposet_incl {P : Poset} {A : Subposet' P} : posetmorphism A P
   := pr1 (pr2 A).
 

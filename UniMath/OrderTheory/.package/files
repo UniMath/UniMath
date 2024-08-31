@@ -4,6 +4,7 @@ Posets/PosetSum.v
 Posets/PointedPosets.v
 Posets/LiftPoset.v
 Posets/QuotientPoset.v
+Posets/Subposets.v
 Posets.v
 Posets/Examples/StandardFiniteSet.v
 
