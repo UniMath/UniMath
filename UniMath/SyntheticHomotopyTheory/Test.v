@@ -1,6 +1,6 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.SyntheticHomotopyTheory.Circle2.
+Require Import UniMath.SyntheticHomotopyTheory.Circle.
 Require Import UniMath.SyntheticHomotopyTheory.AffineLine.
 Require Import UniMath.NumberSystems.Integers.
 Local Open Scope hz.
