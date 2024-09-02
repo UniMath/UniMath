@@ -387,12 +387,16 @@ Section KaroubiEnvelope.
         (PreShv C)
         (λ P, ∑ (A : C), retraction P (yoneda _ A)).
 
-    Definition karoubi'_mor_eq
+    Lemma karoubi'_mor_eq
       {A B : karoubi_envelope'}
       (f f' : karoubi_envelope'⟦A, B⟧)
       (H : pr1 f = pr1 f')
-      : f = f'
-      := pathsdirprod H (pr1 (isapropunit _ _)).
+      : f = f'.
+    Proof.
+      use pathsdirprod.
+      - apply H.
+      - apply isapropunit.
+    Qed.
 
     Definition make_karoubi'_z_iso
       {A B : karoubi_envelope'}
