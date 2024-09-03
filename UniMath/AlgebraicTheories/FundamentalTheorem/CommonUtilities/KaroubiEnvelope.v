@@ -5,9 +5,13 @@
   Defines the Karoubi envelope, the idempotent completion, the category of retracts or the Cauchy
   completion of a category C. This is the completion of C in which every idempotent splits. Its
   objects are the idempotent morphisms on objects of C.
-  Equivalently, one can define the Karoubi envelope as a displayed category over the presheaf
-  category over C, in which every presheaf is endowed with a retraction from the Yoneda embedding of
-  some object in C.
+  The fully faithful embedding of C into this Karoubi envelope induces an equivalence on
+  isomorphisms, but also an equivalence on path types. Using these equivalences, one can show that
+  C is univalent if its Karoubi envelope is. Note that the converse does not necessarily hold: C
+  can be univalent when the Karoubi envelope is not univalent.
+  One can also define the Karoubi envelope as a displayed category over the presheaf category over
+  C, in which every presheaf is endowed with a retraction from the Yoneda embedding of some object
+  in C.
   Presheaves (and functors) from C to a category with colimits (or coequalizers) can be lifted to
   functors on its Karoubi envelope, and this constitutes an adjoint equivalence.
 
@@ -16,9 +20,10 @@
   1.1. The objects and morphisms and their constructors and accessors [karoubi_ob] [karoubi_mor]
   1.2. The category [karoubi_envelope]
   1.3. The embedding [karoubi_envelope_inclusion]
-  1.1. Every object of the karoubi envelope is a retract of an element of C
+  1.4. Every object of the karoubi envelope is a retract of an element of C
     [karoubi_envelope_is_retract]
-  1.2. Every idempotent in the karoubi envelope splits [karoubi_envelope_idempotent_splits]
+  1.5. Every idempotent in the karoubi envelope splits [karoubi_envelope_idempotent_splits]
+  1.6. If the karoubi envelope is univalent, C is univalent [karoubi_univalence]
   2. Functors on C are equivalent to functors on the Karoubi envelope [karoubi_pullback_equivalence]
   3. The alternative definition, using the presheaf category [karoubi_envelope']
   3.1. The equivalence between the two definitions [karoubi_equivalence]
@@ -235,12 +240,14 @@ Section KaroubiEnvelope.
     use isweq_iso.
     - intro f.
       exact (pr1 f).
-    - apply idpath.
-    - intro f.
-      now apply karoubi_mor_eq.
-  Qed.
+    - abstract reflexivity.
+    - abstract (
+        intro f;
+        now apply karoubi_mor_eq
+      ).
+  Defined.
 
-(** ** 1.1. Every object of the karoubi envelope is a retract of an element of C *)
+(** ** 1.4. Every object of the karoubi envelope is a retract of an element of C *)
 
   Definition karoubi_envelope_is_retract
     (d : karoubi_envelope)
@@ -266,7 +273,7 @@ Section KaroubiEnvelope.
       ).
   Defined.
 
-(** ** 1.2. Every idempotent in the karoubi envelope splits *)
+(** ** 1.5. Every idempotent in the karoubi envelope splits *)
 
   Definition karoubi_envelope_idempotent_splits
     (c : karoubi_envelope)
@@ -298,6 +305,45 @@ Section KaroubiEnvelope.
         apply karoubi_mor_eq;
         exact (!base_paths _ _ (idempotent_is_idempotent e))
       ).
+  Defined.
+
+(** ** 1.6. If the karoubi envelope is univalent, C is univalent *)
+
+  Definition karoubi_embedding_paths_weq
+    (X Y : C)
+    : (X = Y) ≃ (karoubi_envelope_inclusion X = karoubi_envelope_inclusion Y).
+  Proof.
+    use weq_iso.
+    - intro h.
+      use total2_paths_f.
+      + exact h.
+      + now induction h.
+    - exact (base_paths _ _).
+    - intro h.
+      now induction h.
+    - intro h.
+      refine (_ @ total2_fiber_paths _).
+      apply maponpaths.
+      refine (pr1 ((_ : isaset _) _ _ _ _)).
+      refine (isaset_carrier_subset (homset _ _) (λ _, make_hProp _ _)).
+      apply homset_property.
+  Defined.
+
+  Lemma karoubi_univalence
+    (H : is_univalent karoubi_envelope)
+    : is_univalent C.
+  Proof.
+    intros X Y.
+    use isweqhomot.
+    - refine (_ ∘ karoubi_embedding_paths_weq X Y)%weq.
+      refine (_ ∘ make_weq _ (H _ _))%weq.
+      exact (invweq (weq_ff_functor_on_z_iso karoubi_envelope_inclusion_fully_faithful _ _)).
+    - abstract (
+        intro h;
+        apply z_iso_eq;
+        now induction h
+      ).
+    - apply weqproperty.
   Defined.
 
 (** * 2. Functors on C are equivalent to functors on the Karoubi envelope *)
