@@ -98,6 +98,10 @@ Section RezkCompletion.
       : isweq (pre_composition_functor _ _ C Rezk_eta)
       := rezk_completion_universal_property _ Rezk_completion _ Ccat.
 
+    Definition Rezk_eta_weq
+      : [Rezk_completion, C] ≃ [A, C]
+      := make_weq _ Rezk_eta_Universal_Property.
+
     Definition Rezk_op_adj_equiv
       : adj_equivalence_of_cats
         (pre_composition_functor A^op Rezk_completion^op C
@@ -107,6 +111,10 @@ Section RezkCompletion.
     Definition Rezk_op_Universal_Property
       : isweq (pre_composition_functor A^op Rezk_completion^op C (functor_opp Rezk_eta))
       := rezk_completion_opp_universal_property _ Rezk_completion _ Ccat.
+
+    Definition Rezk_opp_weq
+      : [Rezk_completion^op, C] ≃ [A^op, C]
+      := make_weq _ Rezk_op_Universal_Property.
 
   End UniversalProperty.
 
