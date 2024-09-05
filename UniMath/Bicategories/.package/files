@@ -484,6 +484,7 @@ DisplayedBicats/DisplayedUniversalArrowOnCat.v
 
 RezkCompletions/BicatToLocalUnivalentBicat.v
 RezkCompletions/RezkCompletionOfBicategory.v
+RezkCompletions/Uniqueness.v
 RezkCompletions/StructuredCats/TerminalObject.v
 RezkCompletions/StructuredCats/BinProducts.v
 
