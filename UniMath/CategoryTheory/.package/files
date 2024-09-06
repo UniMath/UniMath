@@ -278,6 +278,7 @@ Presheaf.v
 ElementsOp.v
 elems_slice_equiv.v
 YonedaBinproducts.v
+YonedaExponentials.v
 ExponentiationLeftAdjoint.v
 
 Connected.v
