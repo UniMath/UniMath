@@ -413,7 +413,7 @@ Section Sections.
   Definition section_disp {C} (D : disp_cat C) : UU
     := total2 (@section_disp_axioms C D).
 
-  Lemma isaprop_section_disp_axioms {C : category} {D : disp_cat C} (F : section_disp_data D) 
+  Lemma isaprop_section_disp_axioms {C : category} {D : disp_cat C} (F : section_disp_data D)
     (Hmor : ∏ (x y : C) (f : x --> y) (c : D x) (d : D y), isaset (c -->[f] d)) :
     isaprop (section_disp_axioms F).
   Proof.
@@ -560,8 +560,8 @@ Definition section_nat_trans_disp
 
 Lemma isaset_section_nat_trans_disp
     {C : category}
-    {D : disp_cat C} 
-    (F F': section_disp D) : 
+    {D : disp_cat C}
+    (F F': section_disp D) :
   isaset (section_nat_trans_disp F F').
 Proof.
   apply (isofhleveltotal2 2).
@@ -753,210 +753,203 @@ End Section_transformation.
 Displayed functors and natural transformations form a displayed category over the ordinary functor category between the bases. *)
 
 Section Functor.
-(* TODO: clean up this section a bit. *)
+  (* TODO: clean up this section a bit. *)
 
-Variables C' C : category.
-Variable D' : disp_cat C'.
-Variable D : disp_cat C.
+  Variables C' C : category.
+  Variable D' : disp_cat C'.
+  Variable D : disp_cat C.
 
-Let FunctorsC'C := functor_category C' C.
+  Let FunctorsC'C := functor_category C' C.
 
-
-Definition disp_functor_cat :
-  disp_cat (FunctorsC'C).
-Proof.
-  use tpair.
-  - use tpair.
-    + use tpair.
-      * intro F.
+  Definition disp_functor_cat_data :
+    disp_cat_data (FunctorsC'C).
+  Proof.
+    use tpair.
+    - use tpair.
+      + intro F.
         apply (disp_functor F D' D).
-      * simpl. intros F' F FF' FF a.
+      + simpl. intros F' F FF' FF a.
         apply (disp_nat_trans a FF' FF).
-    + use tpair.
-      * intros x xx.
+    - use tpair.
+      + intros x xx.
         apply disp_nat_trans_id.
-      * intros ? ? ? ? ? ? ? ? X X0. apply (disp_nat_trans_comp X X0 ).
-  - repeat split.
-    + apply disp_nat_trans_id_left.
-    + apply disp_nat_trans_id_right.
-    + apply disp_nat_trans_assoc.
-    + intros ; apply isaset_disp_nat_trans.
-Defined.
+      + intros ? ? ? ? ? ? ? ? X X0. apply (disp_nat_trans_comp X X0 ).
+  Defined.
 
-(** TODO : characterize isos in the displayed functor cat *)
+  Lemma disp_functor_cat_is_disp_cat
+    : disp_cat_axioms _ disp_functor_cat_data.
+  Proof.
+    repeat split.
+    - apply disp_nat_trans_id_left.
+    - apply disp_nat_trans_id_right.
+    - apply disp_nat_trans_assoc.
+    - intros. apply isaset_disp_nat_trans.
+  Qed.
 
-(** TODO: integrate [has_homsets] assumptions below! *)
-Definition pointwise_z_iso_from_nat_z_iso {A X : precategory} {hsX : has_homsets X}
-  {F G : functor_precategory A X hsX}
-  (b : z_iso F G) (a : A) : z_iso (pr1 F a) (pr1 G a)
-  :=
-  functor_z_iso_pointwise_if_z_iso _ _ _ _ _ b (pr2 b)_ .
+  Definition disp_functor_cat :
+    disp_cat (FunctorsC'C)
+    := disp_functor_cat_data ,, disp_functor_cat_is_disp_cat.
+
+  (** TODO : characterize isos in the displayed functor cat *)
+
+  (** TODO: integrate [has_homsets] assumptions below! *)
+  Definition pointwise_z_iso_from_nat_z_iso {A X : precategory} {hsX : has_homsets X}
+    {F G : functor_precategory A X hsX}
+    (b : z_iso F G) (a : A) : z_iso (pr1 F a) (pr1 G a)
+    :=
+    functor_z_iso_pointwise_if_z_iso _ _ _ _ _ b (pr2 b)_ .
 
 
-Definition pointwise_inv_is_inv_on_z_iso {A X : precategory} {hsX : has_homsets X}
-  {F G : functor_precategory A X hsX}
-  (b : z_iso F G) (a : A) :
+  Definition pointwise_inv_is_inv_on_z_iso {A X : precategory} {hsX : has_homsets X}
+    {F G : functor_precategory A X hsX}
+    (b : z_iso F G) (a : A) :
 
-  inv_from_z_iso (pointwise_z_iso_from_nat_z_iso b a) =
-                                       pr1 (inv_from_z_iso b) a.
-Proof.
-  apply idpath.
-Defined.
+    inv_from_z_iso (pointwise_z_iso_from_nat_z_iso b a) =
+                                        pr1 (inv_from_z_iso b) a.
+  Proof.
+    apply idpath.
+  Defined.
 
-(** TODO : write a few lemmas about isos in
-    the disp functor precat,
-    to make the following sane
+  Definition is_pointwise_z_iso_if_is_disp_functor_cat_z_iso
+    (x y : FunctorsC'C)
+    (f : z_iso x y)
+    (xx : disp_functor_cat x)
+    (yy : disp_functor_cat y)
+    (FF : xx -->[ f ] yy)
+    (H : is_z_iso_disp f FF)
+    :
+    forall x' (xx' : D' x') , is_z_iso_disp (pointwise_z_iso_from_nat_z_iso f _ )
+                            (pr1 FF _ xx' ).
+  Proof.
+    intros x' xx'.
+    use tpair.
+    - set (X:= pr1 H). simpl in X.
+      apply (transportb _ (pointwise_inv_is_inv_on_z_iso f _ ) (X x' xx')).
+    - simpl. repeat split.
+      + etrans. apply mor_disp_transportf_postwhisker.
+        apply pathsinv0.
+        apply transportf_comp_lemma.
+        assert (XR:= pr1 (pr2 H)).
+        assert (XRT :=  (maponpaths pr1 XR)).
+        assert (XRT' :=  toforallpaths _ _ _  (toforallpaths _ _ _ XRT x')).
+        apply pathsinv0.
+        etrans. apply XRT'.
+        clear XRT' XRT XR.
+        assert (XR := @disp_nat_trans_transportf C' C D' D).
+        specialize (XR _ _ _ _ (! z_iso_after_z_iso_inv f)).
+        etrans. apply XR.
+        apply maponpaths_2, homset_property.
+      + etrans. apply mor_disp_transportf_prewhisker.
+        apply pathsinv0.
+        apply transportf_comp_lemma.
+        assert (XR:= inv_mor_after_z_iso_disp H).
+        assert (XRT :=  (maponpaths pr1 XR)).
+        assert (XRT' :=  toforallpaths _ _ _  (toforallpaths _ _ _ XRT x')).
+        apply pathsinv0.
+        etrans. apply XRT'.
+        clear XRT' XRT XR.
+        assert (XR := @disp_nat_trans_transportf C' C D' D).
+        specialize (XR _ _ _ _ (! z_iso_inv_after_z_iso f)).
+        etrans. apply XR.
+        apply maponpaths_2, homset_property.
+  Defined.
 
-    However: it seems to be better to work on
-    https://github.com/UniMath/UniMath/issues/362
-    first.
-*)
+  Lemma is_disp_nat_trans_pointwise_inv
+    (x y : FunctorsC'C)
+    (f : z_iso x y)
+    (xx : disp_functor_cat x)
+    (yy : disp_functor_cat y)
+    (FF : xx -->[ f] yy)
+    (H : ∏ (x' : C') (xx' : D' x'),
+        is_z_iso_disp (pointwise_z_iso_from_nat_z_iso f x') (pr1 FF x' xx'))
+    : disp_nat_trans_axioms (λ x' xx', inv_mor_disp_from_z_iso (H x' xx')).
+  Proof.
+    intros x' x0 f0 xx' xx0 ff.
+    apply (precomp_with_z_iso_disp_is_inj (make_z_iso_disp _ (H x' xx'))).
+    refine (assoc_disp _ _ _ @ _).
+    symmetry.
+    refine (mor_disp_transportf_prewhisker _ _ _ @ _).
+    refine (maponpaths (transportf _ _) (assoc_disp _ _ _) @ _).
+    refine (transport_f_f _ _ _ _ @ _).
+    refine (maponpaths (λ x, transportf _ _ (x ;; _)) (inv_mor_after_z_iso_disp (H _ _)) @ _).
+    refine (maponpaths (transportf _ _) (mor_disp_transportf_postwhisker _ _ _) @ _).
+    refine (maponpaths (λ x, transportf _ _ (transportf _ _ x)) (id_left_disp _) @ _).
+    refine (maponpaths (transportf _ _) (transport_f_f _ _ _ _) @ _).
+    refine (transport_f_f _ _ _ _ @ _).
+    symmetry.
+    apply transportf_transpose_left.
+    refine (!maponpaths (λ x, x ;; _) (transportf_transpose_left (pr2 FF x' x0 f0 xx' xx0 ff)) @ _).
+    refine (mor_disp_transportf_postwhisker _ _ _ @ _).
+    refine (maponpaths (transportf _ _) (assoc_disp_var _ _ _) @ _).
+    refine (transport_f_f _ _ _ _ @ _).
+    refine (maponpaths (λ x, transportf _ _ (_ ;; x)) (inv_mor_after_z_iso_disp (H _ _)) @ _).
+    refine (maponpaths (transportf _ _) (mor_disp_transportf_prewhisker _ _ _) @ _).
+    refine (transport_f_f _ _ _ _ @ _).
+    refine (maponpaths (λ x, transportf _ _ x) (id_right_disp _) @ _).
+    refine (transport_f_f _ _ _ _ @ _).
+    symmetry.
+    refine (transport_f_f _ _ _ _ @ _).
+    apply (maponpaths (λ x, transportf _ x _)).
+    apply homset_property.
+  Qed.
 
-Definition is_pointwise_z_iso_if_is_disp_functor_cat_z_iso
-  (x y : FunctorsC'C)
-  (f : z_iso x y)
-  (xx : disp_functor_cat x)
-  (yy : disp_functor_cat y)
-  (FF : xx -->[ f ] yy)
-  (H : is_z_iso_disp f FF)
-  :
-  forall x' (xx' : D' x') , is_z_iso_disp (pointwise_z_iso_from_nat_z_iso f _ )
-                          (pr1 FF _ xx' ).
-Proof.
-  intros x' xx'.
-  use tpair.
-  - set (X:= pr1 H). simpl in X.
-    apply (transportb _ (pointwise_inv_is_inv_on_z_iso f _ ) (X x' xx')).
-  - simpl. repeat split.
-    + etrans. apply mor_disp_transportf_postwhisker.
-      apply pathsinv0.
-      apply transportf_comp_lemma.
-      assert (XR:= pr1 (pr2 H)).
-      assert (XRT :=  (maponpaths pr1 XR)).
-      assert (XRT' :=  toforallpaths _ _ _  (toforallpaths _ _ _ XRT x')).
-      apply pathsinv0.
-      etrans. apply XRT'.
-      clear XRT' XRT XR.
-      assert (XR := @disp_nat_trans_transportf C' C D' D).
-      specialize (XR _ _ _ _ (! z_iso_after_z_iso_inv f)).
-      etrans. apply XR.
-      apply maponpaths_2, homset_property.
-    + etrans. apply mor_disp_transportf_prewhisker.
-      apply pathsinv0.
-      apply transportf_comp_lemma.
-      assert (XR:= inv_mor_after_z_iso_disp H).
-      assert (XRT :=  (maponpaths pr1 XR)).
-      assert (XRT' :=  toforallpaths _ _ _  (toforallpaths _ _ _ XRT x')).
-      apply pathsinv0.
-      etrans. apply XRT'.
-      clear XRT' XRT XR.
-      assert (XR := @disp_nat_trans_transportf C' C D' D).
-      specialize (XR _ _ _ _ (! z_iso_inv_after_z_iso f)).
-      etrans. apply XR.
-      apply maponpaths_2, homset_property.
-Defined.
+  Definition inv_disp_from_pointwise_z_iso
+    (x y : FunctorsC'C)
+    (f : z_iso x y)
+    (xx : disp_functor_cat x)
+    (yy : disp_functor_cat y)
+    (FF : xx -->[ f ] yy)
+    (H : forall x' (xx' : D' x') , is_z_iso_disp (pointwise_z_iso_from_nat_z_iso f _ )
+                            (pr1 FF _ xx' ))
+    :
+        yy -->[ inv_from_z_iso f] xx.
+  Proof.
+    use tpair.
+    + intros x' xx'.
+      exact (inv_mor_disp_from_z_iso (H x' xx')).
+    + intros x' x0 f0 xx' xx0 ff.
+      apply is_disp_nat_trans_pointwise_inv.
+  Defined.
 
-(* The following part has holes because of the migration from [iso] to [z_iso] as notion of isomorphism.
-   It compiled at the moment of commenting it. But at the price of two "Admitted".
+  Definition is_disp_functor_cat_z_iso_if_pointwise_z_iso
+    (x y : FunctorsC'C)
+    (f : z_iso x y)
+    (xx : disp_functor_cat x)
+    (yy : disp_functor_cat y)
+    (FF : xx -->[ f ] yy)
+    (H : forall x' (xx' : D' x') , is_z_iso_disp (pointwise_z_iso_from_nat_z_iso f _ )
+                            (pr1 FF _ xx' ))
+    : is_z_iso_disp f FF.
+  Proof.
+    use tpair.
+    - exact (inv_disp_from_pointwise_z_iso _ _ _ _ _ FF H).
+    - abstract (
+        split;
+        apply disp_nat_trans_eq;
+        intros c' xx';
+        refine (_ @ !disp_nat_trans_transportf _ _ _ _ _ _ _ _ _ _);
+        [ refine (z_iso_disp_after_inv_mor (H _ _) @ _)
+        | refine (inv_mor_after_z_iso_disp (H _ _) @ _) ];
+        apply (maponpaths (λ x, transportf _ x _));
+        apply homset_property
+      ).
+  Defined.
 
-Lemma is_disp_nat_trans_pointwise_inv
-  (x y : FunctorsC'C)
-  (f : z_iso x y)
-  (xx : disp_functor_cat x)
-  (yy : disp_functor_cat y)
-  (FF : xx -->[ f] yy)
-  (H : ∏ (x' : C') (xx' : D' x'),
-      is_z_iso_disp (pointwise_z_iso_from_nat_z_iso f x') (pr1 FF x' xx'))
-  (x' x0 : C')
-  (f0 : x' --> x0)
-  (xx' : D' x')
-  (xx0 : D' x0)
-  (ff : xx' -->[ f0] xx0)
-  : # (pr1 yy) ff ;; pr1 (H x0 xx0) =
-  transportb (mor_disp (pr1 yy x' xx') (pr1 xx x0 xx0)) (nat_trans_ax (inv_from_z_iso f) x' x0 f0)
-    (pr1 (H x' xx') ;; # (pr1 xx) ff).
-Proof.
-  show_id_type.
-Admitted.
+  Definition is_disp_functor_cat_z_iso_iff_pointwise_z_iso
+    (x y : FunctorsC'C)
+    (f : z_iso x y)
+    (xx : disp_functor_cat x)
+    (yy : disp_functor_cat y)
+    (FF : xx -->[ f ] yy)
+    :
+    (∏ x' (xx' : D' x') , is_z_iso_disp (pointwise_z_iso_from_nat_z_iso f _ )
+                            (pr1 FF _ xx' ))
+      <->
+      is_z_iso_disp f FF.
+  Proof.
+    split.
+    - apply is_disp_functor_cat_z_iso_if_pointwise_z_iso.
+    - apply is_pointwise_z_iso_if_is_disp_functor_cat_z_iso.
+  Defined.
 
-Definition inv_disp_from_pointwise_z_iso
-  (x y : FunctorsC'C)
-  (f : z_iso x y)
-  (xx : disp_functor_cat x)
-  (yy : disp_functor_cat y)
-  (FF : xx -->[ f ] yy)
-  (H : forall x' (xx' : D' x') , is_z_iso_disp (pointwise_z_iso_from_nat_z_iso f _ )
-                          (pr1 FF _ xx' ))
-  :
-       yy -->[ inv_from_z_iso f] xx.
-Proof.
-  use tpair.
-  + intros x' xx'.
-    simpl in xx. simpl in yy.
-    apply (pr1 (H x' xx')).
-  + intros x' x0 f0 xx' xx0 ff.
-    apply is_disp_nat_trans_pointwise_inv.
-Defined.
-
-Definition is_disp_functor_cat_iso_if_pointwise_z_iso
-  (x y : FunctorsC'C)
-  (f : z_iso x y)
-  (xx : disp_functor_cat x)
-  (yy : disp_functor_cat y)
-  (FF : xx -->[ f ] yy)
-  (H : forall x' (xx' : D' x') , is_z_iso_disp (pointwise_z_iso_from_nat_z_iso f _ )
-                          (pr1 FF _ xx' ))
-  : is_z_iso_disp f FF.
-Proof.
-  use tpair.
-  - apply (inv_disp_from_pointwise_z_iso _ _ _ _ _ FF H).
-  - split.
-    + apply subtypePath.
-      { intro. apply isaprop_disp_nat_trans_axioms. }
-      apply funextsec; intro c'.
-      apply funextsec; intro xx'.
-      apply pathsinv0.
-      etrans. apply disp_nat_trans_transportf.
-      cbn.
-      apply pathsinv0.
-      admit.
-      (*
-      etrans. apply mor_disp_transportf_postwhisker.
-      etrans. apply maponpaths. apply (iso_disp_after_inv_mor (H c' xx')).
-      etrans. apply transport_f_f.
-      apply maponpaths_2, homset_property.
-*)
-    + apply subtypePath.
-      { intro. apply isaprop_disp_nat_trans_axioms. }
-      apply funextsec; intro c'.
-      apply funextsec; intro xx'.
-      apply pathsinv0.
-      etrans. apply disp_nat_trans_transportf.
-      cbn.
-      apply pathsinv0.
-      admit.
-      (* etrans. apply mor_disp_transportf_prewhisker.
-      etrans. apply maponpaths. apply (inv_mor_after_iso_disp (H c' xx')).
-      etrans. apply transport_f_f.
-      apply maponpaths_2, homset_property. *)
-Admitted.
-
-Definition is_disp_functor_cat_z_iso_iff_pointwise_z_iso
-  (x y : FunctorsC'C)
-  (f : z_iso x y)
-  (xx : disp_functor_cat x)
-  (yy : disp_functor_cat y)
-  (FF : xx -->[ f ] yy)
-  :
-  (∏ x' (xx' : D' x') , is_z_iso_disp (pointwise_z_iso_from_nat_z_iso f _ )
-                          (pr1 FF _ xx' ))
-    <->
-    is_z_iso_disp f FF.
-Proof.
-  split.
-  - apply is_disp_functor_cat_iso_if_pointwise_z_iso.
-  - apply is_pointwise_z_iso_if_is_disp_functor_cat_z_iso.
-Defined.
-
-*)
 End Functor.
