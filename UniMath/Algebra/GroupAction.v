@@ -9,7 +9,7 @@ Require Import UniMath.MoreFoundations.Univalence.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
-Require Import UniMath.Combinatorics.OrderedSets.
+Require Import UniMath.OrderTheory.OrderedSets.OrderedSets.
 
 Import UniMath.MoreFoundations.PartA.
 
