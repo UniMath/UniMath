@@ -75,20 +75,14 @@ Notation "'SET'" := hset_category : cat.
 Definition emptyHSET : HSET.
 Proof.
   exists empty.
-  abstract (apply isasetempty).
+  exact isasetempty.
 Defined.
 
-Definition unitHSET : HSET.
-Proof.
-  exists unit.
-  abstract (apply isasetunit).
-Defined.
+Definition unitHSET : HSET
+  := unitset.
 
-Definition natHSET : HSET.
-Proof.
-  exists nat.
-  abstract (apply isasetnat).
-Defined.
+Definition natHSET : HSET
+  := natset.
 
 (*Definition of HomFunctor for categories, analagous definition for precategories is in ../Type/Core*)
 Section HomSetFunctors.
