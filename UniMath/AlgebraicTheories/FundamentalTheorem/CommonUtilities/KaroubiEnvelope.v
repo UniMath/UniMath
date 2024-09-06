@@ -319,14 +319,18 @@ Section KaroubiEnvelope.
       + exact h.
       + now induction h.
     - exact (base_paths _ _).
-    - intro h.
-      now induction h.
-    - intro h.
-      refine (_ @ total2_fiber_paths _).
-      apply maponpaths.
-      refine (pr1 ((_ : isaset _) _ _ _ _)).
-      refine (isaset_carrier_subset (homset _ _) (λ _, make_hProp _ _)).
-      apply homset_property.
+    - abstract (
+        intro h;
+        now induction h
+      ).
+    - abstract (
+        intro h;
+        refine (_ @ total2_fiber_paths _);
+        apply maponpaths;
+        refine (pr1 ((_ : isaset _) _ _ _ _));
+        refine (isaset_carrier_subset (homset _ _) (λ _, make_hProp _ _));
+        apply homset_property
+      ).
   Defined.
 
   Lemma karoubi_univalence
@@ -334,7 +338,7 @@ Section KaroubiEnvelope.
     : is_univalent C.
   Proof.
     intros X Y.
-    use isweqhomot.
+    use weqhomot.
     - refine (_ ∘ karoubi_embedding_paths_weq X Y)%weq.
       refine (_ ∘ make_weq _ (H _ _))%weq.
       exact (invweq (weq_ff_functor_on_z_iso karoubi_envelope_inclusion_fully_faithful _ _)).
@@ -343,7 +347,6 @@ Section KaroubiEnvelope.
         apply z_iso_eq;
         now induction h
       ).
-    - apply weqproperty.
   Defined.
 
 (** * 2. Functors on C are equivalent to functors on the Karoubi envelope *)
