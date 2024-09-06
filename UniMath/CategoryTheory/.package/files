@@ -250,6 +250,7 @@ Categories/Type/Colimits.v
 Categories/Type/Limits.v
 Categories/Type/Structures.v
 Categories/Type/Univalence.v
+Categories/Type/NoHomsets.v
 
 Categories/HSET/Limits.v
 Categories/HSET/Colimits.v
