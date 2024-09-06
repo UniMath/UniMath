@@ -12,6 +12,10 @@
   Now, if we apply this to the initial functors obtained from Rezk completions, we see that two Rezk
   completions are equal as well.
 
+  Note: In this file we prove equality of functors and categories. These particular proofs use a lot
+  of rewriting and induction on paths, which makes them unpleasant to compute with. Therefore, they
+  have been made opaque, even though their types are not a proposition.
+
   Contents
   1. An equality lemma for the type `functor_from A` [functor_from_eq]
   2. Two initial functors from a type are equal [initial_functor_unique]
@@ -50,7 +54,7 @@ Proof.
   apply maponpaths.
   refine (_ @ H2).
   exact (!functor_identity_right _ _ _).
-Defined.
+Qed.
 
 (** * 2. Two initial functors from a type are equal *)
 
@@ -84,6 +88,23 @@ Section InitialFunctorUnique.
   Let η := idtoiso (C := [_, _]) G'_after_G : z_iso (C := [_, _]) (functor_identity D) (G ∙ G').
   Let ɛ := idtoiso (C := [_, _]) G_after_G' : z_iso (C := [_, _]) (G' ∙ G) (functor_identity D').
 
+  Definition initial_functor_category_equivalence
+    : adjoint_equivalence (B := bicat_of_univ_cats) D D'.
+  Proof.
+    exists G.
+    apply (invmap (adj_equiv_is_equiv_cat _)).
+    use (adjointification (make_equivalence_of_cats (make_adjunction_data G _ _ _) (make_forms_equivalence _ _ _))).
+    + exact G'.
+    + exact (z_iso_mor η).
+    + exact (z_iso_mor ɛ).
+    + intro.
+      apply (is_functor_z_iso_pointwise_if_z_iso _ _ (homset_property _)).
+      apply z_iso_is_z_isomorphism.
+    + intro.
+      apply (is_functor_z_iso_pointwise_if_z_iso _ _ (homset_property _)).
+      apply z_iso_is_z_isomorphism.
+  Defined.
+
   Definition initial_functor_unique
     : F = F'.
   Proof.
@@ -93,22 +114,9 @@ Section InitialFunctorUnique.
       apply isaprop_is_initial_functor_from.
     }
     use functor_from_eq.
-    - exists G.
-      abstract (
-        apply (invmap (adj_equiv_is_equiv_cat _));
-        use (adjointification (make_equivalence_of_cats (make_adjunction_data G _ _ _) (make_forms_equivalence _ _ _)));
-        [ exact G'
-        | exact (z_iso_mor η)
-        | exact (z_iso_mor ɛ)
-        | intro;
-          apply (is_functor_z_iso_pointwise_if_z_iso _ _ (homset_property _));
-          apply z_iso_is_z_isomorphism
-        | intro;
-          apply (is_functor_z_iso_pointwise_if_z_iso _ _ (homset_property _));
-          apply z_iso_is_z_isomorphism ]
-      ).
-    - exact (initial_functor_arrow_commutes F F').
-  Defined.
+    - exact initial_functor_category_equivalence.
+    - apply initial_functor_arrow_commutes.
+  Qed.
 
 End InitialFunctorUnique.
 
@@ -129,4 +137,4 @@ Proof.
   pose (F' := (_ ,, rezk_completion_initial_functor_from _ D') : initial_functor_from A).
   apply (base_paths F F').
   apply initial_functor_unique.
-Defined.
+Qed.
