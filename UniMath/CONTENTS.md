@@ -439,6 +439,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Categories/Type/Limits.v](CategoryTheory/Categories/Type/Limits.v)
    - [Categories/Type/Structures.v](CategoryTheory/Categories/Type/Structures.v)
    - [Categories/Type/Univalence.v](CategoryTheory/Categories/Type/Univalence.v)
+   - [Categories/Type/NoHomsets.v](CategoryTheory/Categories/Type/NoHomsets.v)
    - [Categories/HSET/Limits.v](CategoryTheory/Categories/HSET/Limits.v)
    - [Categories/HSET/Colimits.v](CategoryTheory/Categories/HSET/Colimits.v)
    - [Categories/HSET/FilteredColimits.v](CategoryTheory/Categories/HSET/FilteredColimits.v)
