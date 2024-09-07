@@ -311,6 +311,7 @@ Inductives/Trees.v
 Inductives/LambdaCalculus.v
 Inductives/PropositionalLogic.v
 CategoricalRecursionSchemes.v
+PointedFunctorAlgebras.v
 
 DisplayedCats/Equivalences.v
 DisplayedCats/EquivalenceOverId.v
