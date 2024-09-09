@@ -1,12 +1,18 @@
+(**************************************************************************************************
 
-(** Some important constructions on displayed categories
+  The construction of a  displayed category with structure on objects and a proposition on morphisms
 
-Partial contents:
+  The full machinery of displayed categories allows for arbitrary complexity on both objects and
+  morphisms (any category can be considered a displayed category over the unit category). However,
+  in most practical cases, a displayed category is given by some additional structure on the
+  objects, and for the morphisms a proposition, stating that they preserve the structure. This class
+  of displayed categories is slightly easier to construct, because there are less axioms to verify.
+  Note that often, one can prove univalence for such a category using `SIP.v`.
 
-- Displayed category given by a structure on objects and a proposition
-   on morphisms of the base category
-*)
+  Contents
+  1. A displayed category from structure on objects and compatibility on morphisms [disp_struct]
 
+ **************************************************************************************************)
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -15,7 +21,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
 Local Open Scope cat.
 
-(** * Displayed category from structure on objects and compatibility on morphisms *)
+(** * 1. Displayed category from structure on objects and compatibility on morphisms *)
 
 Section struct_hom.
 
