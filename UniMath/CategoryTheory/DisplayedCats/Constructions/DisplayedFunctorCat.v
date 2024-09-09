@@ -1,7 +1,19 @@
+(**************************************************************************************************
 
-(** Displayed functor cat
-*)
+  The category of displayed functors
 
+  This is a displayed version of functor_category: a displayed category of displayed functors and
+  displayed natural transformation between two displayed categories, lying over the functor category
+  between the base categories.
+  The isomorphisms in the ordinary functor category are exactly the natural transformations that are
+  isomorphisms on every point. In the same way, the displayed isomorphisms in the displayed functor
+  category are the morphisms over an isomorphism, that are a displayed isomorphism at every point.
+
+  Contents
+  1. The displayed functor category [disp_functor_cat]
+  2. The characterization of displayed isomorphisms [is_disp_functor_cat_z_iso_iff_pointwise_z_iso]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -17,11 +29,9 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
-(** * Displayed functor category
-
-Displayed functors and natural transformations form a displayed category over the ordinary functor category between the bases. *)
-
 Section Functor.
+  (** * 1. The displayed functor category *)
+
   (* TODO: clean up this section a bit. *)
 
   Variables C' C : category.
@@ -58,6 +68,8 @@ Section Functor.
   Definition disp_functor_cat :
     disp_cat (FunctorsC'C)
     := disp_functor_cat_data ,, disp_functor_cat_is_disp_cat.
+
+  (** * 2. The characterization of displayed isomorphisms *)
 
   (** TODO : characterize isos in the displayed functor cat *)
 
