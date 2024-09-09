@@ -194,8 +194,8 @@ DisplayedCats/CatIsoDisplayed.v
 CategoryEquality.v
 Core/PosetCat.v
 WeakEquivalences.v
-rezk_completion.v
-RezkCompletion.v
+RezkCompletions/RezkCompletions.v
+RezkCompletions/Construction.v
 exponentials.v
 slicecat.v
 Limits/PullbacksSliceProductsEquiv.v

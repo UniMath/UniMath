@@ -29,7 +29,7 @@ Require Import UniMath.CategoryTheory.PrecompEquivalence.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.whiskering.
 
-Require Import UniMath.CategoryTheory.RezkCompletion.
+Require Import UniMath.CategoryTheory.RezkCompletions.RezkCompletions.
 
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
