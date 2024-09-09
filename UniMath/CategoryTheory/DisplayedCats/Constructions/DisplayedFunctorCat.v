@@ -71,18 +71,14 @@ Section Functor.
 
   (** * 2. The characterization of displayed isomorphisms *)
 
-  (** TODO : characterize isos in the displayed functor cat *)
-
-  (** TODO: integrate [has_homsets] assumptions below! *)
-  Definition pointwise_z_iso_from_nat_z_iso {A X : precategory} {hsX : has_homsets X}
-    {F G : functor_precategory A X hsX}
+  Definition pointwise_z_iso_from_nat_z_iso {A : precategory} {X : category}
+    {F G : [A, X]}
     (b : z_iso F G) (a : A) : z_iso (pr1 F a) (pr1 G a)
     :=
     functor_z_iso_pointwise_if_z_iso _ _ _ _ _ b (pr2 b)_ .
 
-
-  Definition pointwise_inv_is_inv_on_z_iso {A X : precategory} {hsX : has_homsets X}
-    {F G : functor_precategory A X hsX}
+  Definition pointwise_inv_is_inv_on_z_iso {A : precategory} {X : category}
+    {F G : [A, X]}
     (b : z_iso F G) (a : A) :
 
     inv_from_z_iso (pointwise_z_iso_from_nat_z_iso b a) =
