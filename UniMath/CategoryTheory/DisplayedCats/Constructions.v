@@ -36,17 +36,6 @@ Local Open Scope mor_disp_scope.
 
 Section Auxiliary.
 
-(* TODO: Move this to another file *)
-Lemma isweqcontrprop (X Y : UU) (f : X → Y) :
-  iscontr X → isaprop Y → isweq f.
-Proof.
-  intros HX HY.
-  apply isweqimplimpl.
-  - intros. apply HX.
-  - apply isapropifcontr. apply HX.
-  - apply HY.
-Defined.
-
 End Auxiliary.
 
 (** * Full subcategories *)

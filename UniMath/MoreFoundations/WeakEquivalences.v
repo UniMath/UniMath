@@ -1,6 +1,7 @@
 (** * Weak equivalences *)
 
 Require Import UniMath.Foundations.PartA.
+Require Import UniMath.Foundations.PartB.
 
 (** ** Contents
 
@@ -26,6 +27,16 @@ Proof.
     refine (path_assoc _ _ _ @ _).
     refine (maponpaths (λ p, p @ yeqz) (pathsinv0l xeqy) @ _).
     reflexivity.
+Defined.
+
+Lemma isweqcontrprop (X Y : UU) (f : X → Y) :
+  iscontr X → isaprop Y → isweq f.
+Proof.
+  intros HX HY.
+  apply isweqimplimpl.
+  - intros. apply HX.
+  - apply isapropifcontr. apply HX.
+  - apply HY.
 Defined.
 
 (** TODO: can this be derived from [weqtotal2comm12] or similar? *)
