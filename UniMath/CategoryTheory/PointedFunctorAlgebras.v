@@ -118,6 +118,9 @@ Definition is_ptd_alg_mor {X Y : ptd_alg} (f : X --> Y) : UU
 Definition ptd_alg_mor (X Y : ptd_alg) : UU
   := ∑ f : X --> Y, is_ptd_alg_mor f.
 
+Definition make_ptd_alg_mor {X Y : ptd_alg} (f : X --> Y) (p : is_ptd_alg_mor f)
+  : ptd_alg_mor X Y := (f,,p).
+
 #[reversible=no] Coercion mor_from_ptd_alg_mor {X Y : ptd_alg} (f : ptd_alg_mor X Y)
   : X --> Y := pr1 f.
 
@@ -126,7 +129,7 @@ Definition ptd_alg_mor_commutes {X Y : ptd_alg} (f : ptd_alg_mor X Y)
 
 Definition ptd_alg_mor_id (X : ptd_alg) : ptd_alg_mor X X.
 Proof.
-  exists (identity X).
+  apply make_ptd_alg_mor with (identity X).
   abstract (unfold is_ptd_alg_mor;
             rewrite functor_id, id_right, id_left;
             apply idpath).
@@ -135,7 +138,7 @@ Defined.
 Definition ptd_alg_mor_comp (X Y Z : ptd_alg) (f : ptd_alg_mor X Y) (g : ptd_alg_mor Y Z)
   : ptd_alg_mor X Z.
 Proof.
-  exists (f · g).
+  apply make_ptd_alg_mor with (f · g).
   abstract (unfold is_ptd_alg_mor;
             rewrite assoc;
             rewrite ptd_alg_mor_commutes;
@@ -146,10 +149,10 @@ Proof.
 Defined.
 
 Definition precategory_ptd_alg_ob_mor : precategory_ob_mor
-  := (ptd_alg,, ptd_alg_mor).
+  := make_precategory_ob_mor ptd_alg ptd_alg_mor.
 
 Definition precategory_ptd_alg_data : precategory_data
-  := (precategory_ptd_alg_ob_mor,, ptd_alg_mor_id,, ptd_alg_mor_comp).
+  := make_precategory_data precategory_ptd_alg_ob_mor ptd_alg_mor_id ptd_alg_mor_comp.
 
 End ptd_alg_precategory_data.
 
@@ -170,12 +173,11 @@ Defined.
 
 Lemma is_precategory_precategory_ptd_alg_data : is_precategory (precategory_ptd_alg_data F).
 Proof.
-  apply make_is_precategory; intros; apply ptd_alg_mor_eq.
+  apply make_is_precategory_one_assoc; intros; apply ptd_alg_mor_eq.
   - apply id_left.
   - apply id_right.
   - apply assoc.
-  - apply assoc'.
-Defined.
+Qed.
 
 Definition ptd_alg_precat : precategory := (_,, is_precategory_precategory_ptd_alg_data).
 
@@ -187,9 +189,9 @@ Proof.
   - intros f.
     apply isasetaprop.
     apply homset_property.
-Defined.
+Qed.
 
-Definition ptd_alg_category : category := (ptd_alg_precat,, has_homsets_pointed_alegbra).
+Definition ptd_alg_category : category := make_category ptd_alg_precat has_homsets_pointed_alegbra.
 
 (* The functor which forgets the pointed algebra stucture on the underlying object *)
 Definition forget_ptd_alg : ptd_alg_category ⟶ C.
@@ -198,7 +200,7 @@ Proof.
   - use make_functor_data.
     + simpl. exact (ptd_alg_carrier F).
     + simpl. intros X Y. exact (mor_from_ptd_alg_mor F).
-  - split; red; intros; apply idpath.
+  - abstract (split; red; intros; apply idpath).
 Defined.
 
 End PointedAlgebraCategory.
@@ -227,10 +229,9 @@ Let σ := point F.
 (*
 If X is a pointed algebra for F (well-pointed), then σ_X : X --> F X is iso.
 *)
-Definition well_pointed_point_z_iso_at_algebra (X : ptd_alg F) : z_iso X (F X).
+Definition well_pointed_point_is_z_iso_at_algebra (X : ptd_alg F) : is_z_isomorphism (σ X).
 Proof.
-  use make_z_iso.
-  - exact (σ X).
+  use make_is_z_isomorphism.
   - exact (ptd_alg_map F X).
   - split.
     (* σ_X ⋅ s = id_X is the axiom for pointed algebras *)
@@ -242,7 +243,7 @@ Proof.
       rewrite <- functor_id.
       apply maponpaths.
       apply ptd_alg_law.
-Defined.
+Qed.
 
 (* There is at most one pointed algebra structure on a given X : C. *)
 Corollary well_pointed_has_ptd_alg_isaprop (A : C)
@@ -250,7 +251,7 @@ Corollary well_pointed_has_ptd_alg_isaprop (A : C)
 Proof.
   apply invproofirrelevance; red. intros [a ar] [b br].
   apply subtypeInjectivity; simpl. { intros f. apply homset_property. }
-  set (point_A_z_iso := well_pointed_point_z_iso_at_algebra (make_ptd_alg F A a ar)).
+  set (point_A_z_iso := make_z_iso' _ (well_pointed_point_is_z_iso_at_algebra (make_ptd_alg F A a ar))).
   apply (pre_comp_with_z_iso_is_inj point_A_z_iso); simpl.
   exact (ar @ ! br).
 Defined.
@@ -259,7 +260,7 @@ Defined.
 Corollary well_pointed_mor_is_algebra_mor (X Y : ptd_alg F) (f : C ⟦ X, Y ⟧)
   : ptd_alg_map F X · f = # F f · ptd_alg_map F Y.
 Proof.
-  set (point_X_iso := well_pointed_point_z_iso_at_algebra X).
+  set (point_X_iso := make_z_iso' _ (well_pointed_point_is_z_iso_at_algebra X)).
   apply (pre_comp_with_z_iso_is_inj point_X_iso); simpl.
   rewrite assoc, assoc.
   rw_left_comp (ptd_alg_law F X). apply pathsinv0.
@@ -267,7 +268,7 @@ Proof.
   rewrite <- assoc.
   rw_right_comp (ptd_alg_law F Y).
   rewrite id_left, id_right; apply idpath.
-Defined.
+Qed.
 
 (* For a well-pointed algebra F, its category of pointed algebras can be viewed as a subcategory
 of C via the forgetful functor, because it is fully-faithful. *)
@@ -298,7 +299,7 @@ Proof.
     apply ptd_alg_law.
   - intros [a p]; apply idpath.
   - intros [X h]; induction h; apply idpath.
-Defined.
+Qed.
 
 End AlgebrasWellPointed.
 
@@ -428,7 +429,7 @@ Proof.
   induction i.
   - exact (idpath _).
   - exact (F_well_pointed ((F ^ i) A) @ maponpaths (#F) IHi).
-Defined.
+Qed.
 
 (*
   The structure map restricts to the identity via σ (F^ω A).
@@ -451,7 +452,7 @@ Proof.
   simpl. rewrite <- iter_chain_mor_is_point. (* well-pointedness used here! *)
   (* ... = α_A^i *)
   apply (colimInCommutes (CC A) i (1+i) (idpath _)).
-Defined.
+Qed.
 
 (*
   The primary object of construction - we will prove this is the free pointed-algebra.
@@ -469,8 +470,8 @@ Proof.
   apply colimOfArrows with (λ i, # (F ^ i) f).
   intros i _ []; simpl.
   induction i.
-  + simpl. apply pathsinv0, point_naturality.
-  + simpl. do 2 rewrite <- functor_comp. apply maponpaths. exact IHi.
+  + abstract (simpl; apply pathsinv0, point_naturality).
+  + abstract (simpl; do 2 rewrite <- functor_comp; apply maponpaths; exact IHi).
 Defined.
 
 Lemma free_ptd_alg_mor_restricts {A B : C} (f : A --> B) (i : nat)
@@ -480,12 +481,9 @@ Proof.
   apply colimArrowCommutes.
 Defined.
 
-Definition free_ptd_alg_data : functor_data C (ptd_alg_category F).
+Definition free_ptd_alg_mor_is_mor {A B : C} (f : A --> B)
+  : is_ptd_alg_mor F (free_ptd_alg_mor f).
 Proof.
-  exists free_ptd_alg_ob.
-  intros A B f.
-  exists (free_ptd_alg_mor f).
-
   apply (colim_mor_eq (F_CC A)); simpl.
   intros i.
   rewrite assoc, assoc.
@@ -498,11 +496,18 @@ Proof.
   rewrite functor_comp, <- assoc.
   apply cancel_precomposition.
   apply pathsinv0, shift_iter_map_restricts.
+Qed.
+
+Definition free_ptd_alg_data : functor_data C (ptd_alg_category F).
+Proof.
+  use make_functor_data.
+  - exact free_ptd_alg_ob.
+  - intros A B f.
+    exact (make_ptd_alg_mor F (free_ptd_alg_mor f) (free_ptd_alg_mor_is_mor f)).
 Defined.
 
-Definition free_ptd_alg : C ⟶ ptd_alg_category F.
+Lemma free_ptd_alg_is_functor : is_functor free_ptd_alg_data.
 Proof.
-  apply (make_functor free_ptd_alg_data).
   split.
   - intros A. apply ptd_alg_mor_eq.
     apply pathsinv0, colim_endo_is_identity. intros i.
@@ -517,7 +522,10 @@ Proof.
     rw_right_comp (free_ptd_alg_mor_restricts g i).
     rewrite assoc. apply cancel_postcomposition.
     apply pathsinv0, functor_comp.
-Defined.
+Qed.
+
+Definition free_ptd_alg : C ⟶ ptd_alg_category F
+  := make_functor free_ptd_alg_data free_ptd_alg_is_functor.
 
 (* We now prove that this is indeed the free functor, by constructing an adjunction *)
 
@@ -643,31 +651,32 @@ well-pointed endfunctor on C (in fact, an idempotent monad), whose
 pointed algebras form the "same" reflective subcategory.
 *)
 Theorem well_pointed_of_reflective_subcat
-  {C D : category} (adj : adjunction C D)
-  : let L := left_functor adj in
-    let R := right_functor adj in
-    let η := adjunit adj in
-      (fully_faithful R) → well_pointed (L∙R,,η).
+  {C D : category} 
+  (L : functor C D) (R : functor D C)
+  (H : are_adjoints L R)
+  (η := unit_from_are_adjoints H)
+  : fully_faithful R → well_pointed (L∙R,,η).
 Proof.
-  simpl. intro R_ff.
-  assert (counit_is_z_iso := counit_is_z_iso_if_right_adjoint_is_fully_faithful adj R_ff).
-  destruct adj as [[L [R [η ɛ]]] [t1 t2]].
-  red in t1, t2.
-  unfold
-    left_functor,
-    right_functor,
-    counit_from_left_adjoint,
-    counit_from_are_adjoints in *; simpl in *.
-  unfold adjcounit, adjunit in *; simpl in *.
-  intros A.
+  intro R_ff.
+  set (ɛ := counit_from_are_adjoints H).
+  intros A. simpl.
   (* The triangle identities imply that RLη and ηRL are sections of RɛLA, which is iso *)
-  specialize (t2 (L A)).
-  pose proof (t1' := maponpaths (#R) (t1 A)); clear t1; rename t1' into t1.
-  rewrite functor_comp, functor_id in t1.
-  specialize (counit_is_z_iso (L A)).
-  set (R_counit_LA_z_iso := make_z_iso' _ (functor_on_is_z_isomorphism R (counit_is_z_iso))).
-  apply (cancel_z_iso _ _ R_counit_LA_z_iso).
+  assert (t1 : # R (# L (η A)) · # R (ɛ (L A)) = identity (R (L A))). {
+    rewrite <- functor_id, <- functor_comp.
+    apply maponpaths.
+    apply triangle_id_left_ad.
+  }
+  assert (t2 : η (R (L A)) · # R (ɛ (L A)) = identity (R (L A))). {
+    apply triangle_id_right_ad.
+  }
+  assert (ɛ_z_iso := counit_is_z_iso_if_right_adjoint_is_fully_faithful H R_ff).
+  assert (p : is_z_isomorphism (# R (ɛ (L A)))). {
+    apply functor_on_is_z_isomorphism.
+    apply counit_is_z_iso_if_right_adjoint_is_fully_faithful.
+    exact R_ff.
+  }
+  apply (post_comp_with_z_iso_is_inj p).
   exact (t2 @ ! t1).
 Defined.
 
-(* TODO: prove the category of pointed algebras for (L∙R,,η) "is" C *)
+(* TODO: prove the category of pointed algebras for (L∙R,,η) "is" D *)
