@@ -52,7 +52,7 @@ Definition pointed_endofunctor (C : category) : UU := ∑ F : C ⟶ C, functor_i
 
 Definition make_pointed_endofunctor {C : category}
     (F : C ⟶ C) (σ : functor_identity C ⟹ F)
-  : pointed_endofunctor C := tpair _ F σ.
+  : pointed_endofunctor C := (F,,σ).
 
 (* The *point* of a pointed endofunctor *)
 Definition point {C : category} (F : pointed_endofunctor C) : functor_identity C ⟹ F := pr2 F.
@@ -62,7 +62,7 @@ Definition point_naturality {C : category} (F : pointed_endofunctor C) {x y : C}
   : (f · point F y = point F x · # F f).
 Proof.
   apply (nat_trans_ax (point F)).
-Defined.
+Qed.
 
 (*
   A well-pointed functor (F,,σ) satisfies Fσ = σF, i.e. for every c : C, the two
@@ -89,6 +89,10 @@ Let σ := point F.
 
 Definition ptd_alg_data : UU := ∑ X : C, F X --> X.
 
+Definition make_ptd_alg_data
+  : ∏ X : C, (F X --> X) → ptd_alg_data
+  := tpair (λ X, F X --> X).
+
 #[reversible=no] Coercion ptd_alg_carrier (X : ptd_alg_data) : C := pr1 X.
 
 Definition ptd_alg_map (X : ptd_alg_data) : F X --> X := pr2 X.
@@ -104,7 +108,7 @@ Definition ptd_alg : UU := ∑ X : ptd_alg_data, is_ptd_alg X.
 
 Definition make_ptd_alg (X : C) (s : F X --> X) (r : σ X · s = identity X)
   : ptd_alg
-  := (tpair (λ X, F X --> X) X s,, r).
+  := (make_ptd_alg_data X s,, r).
 
 Definition ptd_alg_law (X : ptd_alg) : σ X · (ptd_alg_map X) = identity X := pr2 X.
 
@@ -112,13 +116,13 @@ Definition ptd_alg_law (X : ptd_alg) : σ X · (ptd_alg_map X) = identity X := p
 
 Section ptd_alg_precategory_data.
 
-Definition is_ptd_alg_mor {X Y : ptd_alg} (f : X --> Y) : UU
+Definition is_ptd_alg_mor (X Y : ptd_alg) (f : X --> Y) : UU
   := ptd_alg_map X · f = #F f · ptd_alg_map Y.
 
 Definition ptd_alg_mor (X Y : ptd_alg) : UU
-  := ∑ f : X --> Y, is_ptd_alg_mor f.
+  := ∑ f : X --> Y, is_ptd_alg_mor X Y f.
 
-Definition make_ptd_alg_mor {X Y : ptd_alg} (f : X --> Y) (p : is_ptd_alg_mor f)
+Definition make_ptd_alg_mor {X Y : ptd_alg} (f : X --> Y) (p : is_ptd_alg_mor X Y f)
   : ptd_alg_mor X Y := (f,,p).
 
 #[reversible=no] Coercion mor_from_ptd_alg_mor {X Y : ptd_alg} (f : ptd_alg_mor X Y)
@@ -169,7 +173,7 @@ Proof.
   apply subtypeInjectivity.
   intro h.
   apply homset_property.
-Defined.
+Qed.
 
 Lemma is_precategory_precategory_ptd_alg_data : is_precategory (precategory_ptd_alg_data F).
 Proof.
@@ -179,7 +183,8 @@ Proof.
   - apply assoc.
 Qed.
 
-Definition ptd_alg_precat : precategory := (_,, is_precategory_precategory_ptd_alg_data).
+Definition ptd_alg_precat : precategory
+  := make_precategory (precategory_ptd_alg_data F) is_precategory_precategory_ptd_alg_data.
 
 Lemma has_homsets_pointed_alegbra : has_homsets ptd_alg_precat.
 Proof.
@@ -191,7 +196,8 @@ Proof.
     apply homset_property.
 Qed.
 
-Definition ptd_alg_category : category := make_category ptd_alg_precat has_homsets_pointed_alegbra.
+Definition ptd_alg_category : category
+  := make_category ptd_alg_precat has_homsets_pointed_alegbra.
 
 (* The functor which forgets the pointed algebra stucture on the underlying object *)
 Definition forget_ptd_alg : ptd_alg_category ⟶ C.
@@ -215,7 +221,7 @@ Here we discover that when F is well-pointed, such a map is also a section of
 In fact, this makes the category of pointed algebras for F into a reflective
 subcategory of C. Moreover, any reflective subcategory induces an idempotent
 monad, which is in particular, a well-pointed endofunctor, and the algebras
-for this well-pointed endofunctor recovers the reflective subcategory.
+for this well-pointed endofunctor recover the reflective subcategory.
 *)
 
 Section AlgebrasWellPointed.
@@ -251,15 +257,16 @@ Corollary well_pointed_has_ptd_alg_isaprop (A : C)
 Proof.
   apply invproofirrelevance; red. intros [a ar] [b br].
   apply subtypeInjectivity; simpl. { intros f. apply homset_property. }
-  set (point_A_z_iso := make_z_iso' _ (well_pointed_point_is_z_iso_at_algebra (make_ptd_alg F A a ar))).
-  apply (pre_comp_with_z_iso_is_inj point_A_z_iso); simpl.
+  set (is := (well_pointed_point_is_z_iso_at_algebra (make_ptd_alg F A a ar))).
+  apply (pre_comp_with_z_iso_is_inj is); simpl.
   exact (ar @ ! br).
-Defined.
+Qed.
 
 (* Given pointed algebras X, Y, any f : X ⟶ Y in C is a morphism of pointed algebras *)
 Corollary well_pointed_mor_is_algebra_mor (X Y : ptd_alg F) (f : C ⟦ X, Y ⟧)
-  : ptd_alg_map F X · f = # F f · ptd_alg_map F Y.
+  : is_ptd_alg_mor F X Y f.
 Proof.
+  red.
   set (point_X_iso := make_z_iso' _ (well_pointed_point_is_z_iso_at_algebra X)).
   apply (pre_comp_with_z_iso_is_inj point_X_iso); simpl.
   rewrite assoc, assoc.
@@ -275,10 +282,9 @@ of C via the forgetful functor, because it is fully-faithful. *)
 Lemma well_pointed_forgetul_fully_faithful : fully_faithful (forget_ptd_alg F).
 Proof.
   red. intros X Y.
-  use isweq_iso; simpl.
-  + exact (λ f, (f,,well_pointed_mor_is_algebra_mor X Y f)).
-  + intros f; simpl. apply ptd_alg_mor_eq; simpl. apply idpath.
-  + intros f; simpl. apply idpath. 
+  apply isweq_iso with (λ f, make_ptd_alg_mor F f (well_pointed_mor_is_algebra_mor X Y f)).
+  - abstract (intros; apply ptd_alg_mor_eq; apply idpath).
+  - abstract (intros; apply idpath). 
 Defined.
 
 (* Being in the (strict) image of the forgetful functor is a proposition. *)
@@ -288,7 +294,7 @@ Proof.
   intros A.
   (* We reduce to showing this proposition is equivalent to the previous one *)
   refine (isofhlevelweqf 1 _ (well_pointed_has_ptd_alg_isaprop A)).
-  use make_weq; [|use isweq_iso].
+  use weq_iso.
   (* These constructions are almost definitionally inverse *)
   - intros [a ar].
     exists (make_ptd_alg F A a ar).
@@ -396,7 +402,7 @@ Lemma shift_iter_map_restricts (A : C) (i : nat)
   : colimIn (F_CC A) i · shift_iter_map A = (colimIn (CC A)) (S i).
 Proof.
   apply colimArrowCommutes.
-Defined.
+Qed.
 
 (* Alternative to previous lemma *)
 Lemma shift_iter_map_restricts' (A : C) (i : nat)
@@ -404,7 +410,7 @@ Lemma shift_iter_map_restricts' (A : C) (i : nat)
 Proof.
   change (# F (colimIn (CC A) i)) with (colimIn (F_CC A) i).
   apply shift_iter_map_restricts.
-Defined.
+Qed.
 
 (**
   We need F to be well-pointed to prove (F^ω A, shift_iter_map A) forms a pointed
@@ -412,7 +418,7 @@ Defined.
   Dependency chain is:
   F_well_pointed
     => iter_chain_mor_is_point
-    => shift_iter_map_retraction
+    => shift_iter_map_forms_ptd_alg
     => free_ptd_alg_ob => free_ptd_alg
   
   The pointed algebra law is then used to construct the cocone for the counit
@@ -432,13 +438,14 @@ Proof.
 Qed.
 
 (*
-  The structure map restricts to the identity via σ (F^ω A).
+  The structure map restricts to the identity via σ (F^ω A),
+  thus making (F^ω A, shift_iter_map A) a pointed algebra.
   Not surprising, since the structure map is a colimit of components of σ
 *)
-Lemma shift_iter_map_retraction (A : C)
-  : σ (F^ω A) · (shift_iter_map A)
-    = identity (F^ω A).
+Lemma shift_iter_map_forms_ptd_alg (A : C)
+  : is_ptd_alg F (make_ptd_alg_data F (F^ω A) (shift_iter_map A)).
 Proof.
+  unfold is_ptd_alg; simpl.
   set (s := shift_iter_map A).
 
   apply pathsinv0, colim_endo_is_identity.
@@ -455,10 +462,10 @@ Proof.
 Qed.
 
 (*
-  The primary object of construction - we will prove this is the free pointed-algebra.
+  The free pointed algebra on A, (F^ω A, shift_iter_map A)
 *)
 Definition free_ptd_alg_ob (A : C) : ptd_alg F
-  := make_ptd_alg F (F^ω A) (shift_iter_map A) (shift_iter_map_retraction A).
+  := make_ptd_alg F (F^ω A) (shift_iter_map A) (shift_iter_map_forms_ptd_alg A).
 
 (*
   The free functor action on morphisms, given by the canonical map between the colimits
@@ -482,7 +489,7 @@ Proof.
 Defined.
 
 Definition free_ptd_alg_mor_is_mor {A B : C} (f : A --> B)
-  : is_ptd_alg_mor F (free_ptd_alg_mor f).
+  : is_ptd_alg_mor F _ _ (free_ptd_alg_mor f).
 Proof.
   apply (colim_mor_eq (F_CC A)); simpl.
   intros i.
@@ -561,8 +568,9 @@ Defined.
   F^ω X --> X. This is the underlying morphism in C.
   (Be aware of the implicit coercion of X to it's underlying object in C)
 *)
-Definition counit_FF_map (X : ptd_alg F) : colim (CC X) --> X.
+Definition counit_FF_map (X : ptd_alg F) : C ⟦ free_ptd_alg_ob X, X ⟧.
 Proof.
+  simpl.
   apply colimArrow. use make_cocone.
   + apply counit_FF_cocone_arrows.
   + apply counit_FF_forms_cocone.
@@ -574,9 +582,10 @@ Proof.
   apply colimArrowCommutes.
 Defined.
 
-Definition counit_FF_mor (X : ptd_alg F) : free_ptd_alg X --> X.
+Definition counit_FF_mor_is_mor (X : ptd_alg F) :
+  is_ptd_alg_mor F (free_ptd_alg X) X (counit_FF_map X).
 Proof.
-  exists (counit_FF_map X).
+  unfold is_ptd_alg_mor; simpl.
   apply (colim_mor_eq (F_CC X)).
   intros i.
   rewrite assoc, assoc.
@@ -587,13 +596,17 @@ Proof.
   rewrite <- functor_comp.
   apply maponpaths, pathsinv0.
   apply counit_FF_map_restricts.
-Defined.
+Qed.
 
-Definition counit_FF_adjunction
-  : forget_ptd_alg F ∙ free_ptd_alg ⟹ functor_identity (ptd_alg_category F).
+Definition counit_FF_mor (X : ptd_alg F) : free_ptd_alg X --> X
+  := make_ptd_alg_mor F (counit_FF_map X) (counit_FF_mor_is_mor X).
+
+Definition counit_FF_adjunction_is_nat_trans
+  : is_nat_trans
+      (forget_ptd_alg F ∙ free_ptd_alg)
+      (functor_identity (ptd_alg_category F))
+      counit_FF_mor.
 Proof.
-  use make_nat_trans. { exact counit_FF_mor. }
-
   intros X Y f. apply ptd_alg_mor_eq; simpl in *.
   apply colim_mor_eq; intros i. do 2 rewrite assoc.
   rw_left_comp (free_ptd_alg_mor_restricts f i).
@@ -610,10 +623,14 @@ Proof.
   rewrite <- (assoc _ _ (ptd_alg_map F Y)).
   apply cancel_precomposition.
   apply pathsinv0, ptd_alg_mor_commutes.
-Defined.
+Qed.
+
+Definition counit_FF_adjunction
+  : (forget_ptd_alg F ∙ free_ptd_alg) ⟹ (functor_identity (ptd_alg_category F))
+  := make_nat_trans _ _ _ counit_FF_adjunction_is_nat_trans.
 
 (* The adjunction witnessing that the free pointed-algebra functor is indeed free *)
-Definition free_forgetful_adjunction : are_adjoints free_ptd_alg (forget_ptd_alg F).
+Definition free_forgetful_are_adjoints : are_adjoints free_ptd_alg (forget_ptd_alg F).
 Proof.
   use make_are_adjoints.
   - exact unit_FF_adjunction.
@@ -632,9 +649,6 @@ Proof.
       apply shift_iter_map_restricts.
     + intro X. simpl. apply (counit_FF_map_restricts X 0).
 Defined.
-
-Corollary are_adjoints_FF : are_adjoints free_ptd_alg (forget_ptd_alg F).
-Proof. exact free_forgetful_adjunction. Defined.
 
 (* TODO: Involve fully-faithfulness of forget_ptd_alg F to say something
 about reflective subcategories *)
