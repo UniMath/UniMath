@@ -1,3 +1,20 @@
+(**************************************************************************************************
+
+  The category of displayed sections
+
+  We define the category of "displayed sections". For a displayed category D over a category C, this
+  category consists of the displayed parts of sections to the projection functor π1: ∫D ⟶ C. In
+  other words, a displayed section assigns to every object and morphism of C a displayed object or
+  morphism of D lying over this object or morphism.
+  A morphism of sections is then the displayed part of a natural transformation of which the
+  non-displayed part is the identity transformation.
+
+  Contents
+  1. Displayed sections and their accessors [section_disp]
+  2. Displayed natural transformations and their accessors [section_nat_trans_disp]
+  3. The category [section_disp_cat]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -7,39 +24,47 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
-(** Just like how context morphisms in a CwA can be built up out of terms, similarly, the basic building-block for functors into (total cats of) displayed categories will be analogous to a term.
+(**
+  Just like how context morphisms in a CwA can be built up out of terms, similarly, the basic
+  building-block for functors into (total cats of) displayed categories will be analogous to a term.
 
-We call it a _section_ (though we define it intrinsically, not as a section in a (bi)category), since it corresponds to a section of the forgetful functor. *)
-
+  We call it a _section_ (though we define it intrinsically, not as a section in a (bi)category),
+  since it corresponds to a section of the forgetful functor.
+*)
 Section Sections.
 
-  Definition section_disp_data {C} (D : disp_cat C) : UU
+  Context {C : category}.
+  Context {D : disp_cat C}.
+
+(** * 1. Displayed sections and their accessors *)
+
+  Definition section_disp_data : UU
     := ∑ (Fob : forall x:C, D x),
       (forall (x y:C) (f:x --> y), Fob x -->[f] Fob y).
 
-  Definition section_disp_on_objects {C} {D : disp_cat C}
-             (F : section_disp_data D) (x : C)
+  Definition section_disp_on_objects
+             (F : section_disp_data) (x : C)
     := pr1 F x : D x.
 
   Coercion section_disp_on_objects : section_disp_data >-> Funclass.
 
-  Definition section_disp_on_morphisms {C} {D : disp_cat C}
-             (F : section_disp_data D) {x y : C} (f : x --> y)
+  Definition section_disp_on_morphisms
+             (F : section_disp_data) {x y : C} (f : x --> y)
     := pr2 F _ _ f : F x -->[f] F y.
 
   Notation "# F" := (section_disp_on_morphisms F)
                       (at level 3) : mor_disp_scope.
 
-  Definition section_disp_axioms {C} {D : disp_cat C}
-             (F : section_disp_data D) : UU
+  Definition section_disp_axioms
+             (F : section_disp_data) : UU
     := ((forall x:C, # F (identity x) = id_disp (F x))
           × (forall (x y z : C) (f : x --> y) (g : y --> z),
                 # F (f · g) = (# F f) ;; (# F g))).
 
-  Definition section_disp {C} (D : disp_cat C) : UU
-    := total2 (@section_disp_axioms C D).
+  Definition section_disp : UU
+    := total2 section_disp_axioms.
 
-  Lemma isaprop_section_disp_axioms {C : category} {D : disp_cat C} (F : section_disp_data D)
+  Lemma isaprop_section_disp_axioms (F : section_disp_data)
     (Hmor : ∏ (x y : C) (f : x --> y) (c : D x) (d : D y), isaset (c -->[f] d)) :
     isaprop (section_disp_axioms F).
   Proof.
@@ -50,33 +75,26 @@ Section Sections.
       apply Hmor.
   Qed.
 
-  Definition section_disp_data_from_section_disp {C} {D : disp_cat C}
-             (F : section_disp D) := pr1 F.
+  Definition section_disp_data_from_section_disp
+             (F : section_disp) := pr1 F.
 
   Coercion section_disp_data_from_section_disp
     : section_disp >-> section_disp_data.
 
-  Definition section_disp_id {C} {D : disp_cat C} (F : section_disp D)
+  Definition section_disp_id (F : section_disp)
     := pr1 (pr2 F).
 
-  Definition section_disp_comp {C} {D : disp_cat C} (F : section_disp D)
+  Definition section_disp_comp (F : section_disp)
     := pr2 (pr2 F).
 
-End Sections.
-
-(* Natural transformations of sections  *)
-Section Section_transformation.
+(** * 2. Displayed natural transformations and their accessors *)
 
 Definition section_nat_trans_disp_data
-    {C : category}
-    {D : disp_cat C}
-    (F F' : section_disp D) : UU :=
+    (F F' : section_disp) : UU :=
   ∏ (x : C), F x -->[identity _] F' x.
 
 Definition section_nat_trans_disp_axioms
-    {C : category}
-    {D : disp_cat C}
-    {F F': section_disp D}
+    {F F': section_disp}
     (nt : section_nat_trans_disp_data F F') : UU :=
   ∏ x x' (f : x --> x'),
       transportf _
@@ -85,9 +103,7 @@ Definition section_nat_trans_disp_axioms
     nt x ;; section_disp_on_morphisms F' f.
 
 Lemma isaprop_section_nat_trans_disp_axioms
-    {C : category}
-    {D : disp_cat C}
-    {F F': section_disp D}
+    {F F': section_disp}
     (nt : section_nat_trans_disp_data F F') :
   isaprop (section_nat_trans_disp_axioms nt).
 Proof.
@@ -96,51 +112,43 @@ Proof.
 Qed.
 
 Definition section_nat_trans_disp
-    {C : category}
-    {D : disp_cat C}
-    (F F': section_disp D) : UU :=
+    (F F': section_disp) : UU :=
   ∑ (nt : section_nat_trans_disp_data F F'), section_nat_trans_disp_axioms nt.
 
-Lemma isaset_section_nat_trans_disp
-    {C : category}
-    {D : disp_cat C}
-    (F F': section_disp D) :
-  isaset (section_nat_trans_disp F F').
-Proof.
-  apply (isofhleveltotal2 2).
-  - apply impred. intro t. apply homsets_disp.
-  - intro x. apply isasetaprop. apply isaprop_section_nat_trans_disp_axioms.
-Qed.
-
 Definition section_nt_disp_data_from_section_nt_disp
-    {C : category}
-    {D : disp_cat C}
-    {F F': section_disp D}
+    {F F': section_disp}
     (nt : section_nat_trans_disp F F')
     : section_nat_trans_disp_data F F'
   := pr1 nt.
 
 Definition section_nat_trans_data_from_section_nat_trans_disp_funclass
-    {C : category}
-    {D : disp_cat C}
-    {F F': section_disp D}
+    {F F': section_disp}
     (nt : section_nat_trans_disp F F') :
   ∏ x : ob C, F x -->[identity _]  F' x := section_nt_disp_data_from_section_nt_disp nt.
 Coercion section_nat_trans_data_from_section_nat_trans_disp_funclass :
     section_nat_trans_disp >-> Funclass.
 
 Definition section_nt_disp_axioms_from_section_nt_disp
-    {C : category}
-    {D : disp_cat C}
-    {F F': section_disp D}
+    {F F': section_disp}
     (nt : section_nat_trans_disp F F')
     : section_nat_trans_disp_axioms nt
   := pr2 nt.
 
+Lemma section_nat_trans_eq (F F' : section_disp) (a a' : section_nat_trans_disp F F'):
+  (∏ x, a x = a' x) -> a = a'.
+Proof.
+  intro H.
+  assert (H' : pr1 a = pr1 a').
+  { now apply funextsec. }
+  apply (total2_paths_f H').
+  apply proofirrelevance.
+  apply isaprop_section_nat_trans_disp_axioms.
+Qed.
+
+(** * 3. The category *)
+
 Definition section_nat_trans_id
-    {C : category}
-    {D : disp_cat C}
-    (F : section_disp D)
+    (F : section_disp)
     : section_nat_trans_disp F F.
 Proof.
   use tpair.
@@ -157,9 +165,7 @@ Proof.
 Defined.
 
 Definition section_nat_trans_comp
-    {C : category}
-    {D : disp_cat C}
-    {F F' F'': section_disp D}
+    {F F' F'': section_disp}
     (FF' : section_nat_trans_disp F F')
     (F'F'' : section_nat_trans_disp F' F'') :
   section_nat_trans_disp F F''.
@@ -188,22 +194,8 @@ Proof.
     apply homset_property.
 Defined.
 
-Lemma section_nat_trans_eq {C : category} {D : disp_cat C}
-  (F F' : section_disp D) (a a' : section_nat_trans_disp F F'):
-  (∏ x, a x = a' x) -> a = a'.
-Proof.
-  intro H.
-  assert (H' : pr1 a = pr1 a').
-  { now apply funextsec. }
-  apply (total2_paths_f H').
-  apply proofirrelevance.
-  apply isaprop_section_nat_trans_disp_axioms.
-Qed.
-
 Definition section_nat_trans_id_left
-    {C : category}
-    {D : disp_cat C}
-    {F F': section_disp D}
+    {F F': section_disp}
     (FF' : section_nat_trans_disp F F') :
   section_nat_trans_comp (section_nat_trans_id F) FF' = FF'.
 Proof.
@@ -217,9 +209,7 @@ Proof.
 Qed.
 
 Definition section_nat_trans_id_right
-    {C : category}
-    {D : disp_cat C}
-    {F F': section_disp D}
+    {F F': section_disp}
     (FF' : section_nat_trans_disp F F') :
   section_nat_trans_comp FF' (section_nat_trans_id F') = FF'.
 Proof.
@@ -233,9 +223,7 @@ Proof.
 Qed.
 
 Definition section_nat_trans_assoc
-    {C : category}
-    {D : disp_cat C}
-    {F1 F2 F3 F4: section_disp D}
+    {F1 F2 F3 F4: section_disp}
     (F12 : section_nat_trans_disp F1 F2)
     (F23 : section_nat_trans_disp F2 F3)
     (F34 : section_nat_trans_disp F3 F4) :
@@ -253,4 +241,39 @@ Proof.
   apply homset_property.
 Qed.
 
-End Section_transformation.
+Lemma isaset_section_nat_trans_disp
+    (F F': section_disp) :
+  isaset (section_nat_trans_disp F F').
+Proof.
+  apply (isofhleveltotal2 2).
+  - apply impred. intro t. apply homsets_disp.
+  - intro x. apply isasetaprop. apply isaprop_section_nat_trans_disp_axioms.
+Qed.
+
+Definition section_disp_cat
+  : category.
+Proof.
+  use make_category.
+  - use make_precategory.
+    + use make_precategory_data.
+      * use make_precategory_ob_mor.
+        -- exact section_disp.
+        -- exact section_nat_trans_disp.
+      * exact section_nat_trans_id.
+      * do 3 intro.
+        exact section_nat_trans_comp.
+    + use make_is_precategory_one_assoc.
+      * do 2 intro.
+        exact section_nat_trans_id_left.
+      * do 2 intro.
+        exact section_nat_trans_id_right.
+      * do 4 intro.
+        exact section_nat_trans_assoc.
+  - exact isaset_section_nat_trans_disp.
+Defined.
+
+End Sections.
+
+Arguments section_disp_data {C} D.
+Arguments section_disp {C} D.
+Arguments section_disp_cat {C} D.
