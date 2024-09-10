@@ -296,6 +296,12 @@ DisplayedCats/Examples/DispFunctorPair.v
 DisplayedCats/Examples/Opposite.v
 DisplayedCats/Fibrations.v
 DisplayedCats/Examples/Reindexing.v
+DisplayedCats/Constructions/CategoryWithStructure.v
+DisplayedCats/Constructions/DisplayedFunctorCat.v
+DisplayedCats/Constructions/FullSubcategory.v
+DisplayedCats/Constructions/Product.v
+DisplayedCats/Constructions/DisplayedSections.v
+DisplayedCats/Constructions/FunctorLift.v
 DisplayedCats/Constructions.v
 
 FunctorAlgebras.v
