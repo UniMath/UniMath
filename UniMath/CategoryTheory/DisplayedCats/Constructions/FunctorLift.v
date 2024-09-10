@@ -45,7 +45,7 @@ Section FunctorLifting.
 
   Context {C C' : category}.
   Context {D : disp_cat C}.
-  Context (F : functor C' C).
+  Context {F : functor C' C}.
 
   Definition functor_lifting
     := section_disp (reindex_disp_cat F D).
@@ -93,7 +93,7 @@ Section FunctorLifting.
 
 End FunctorLifting.
 
-Arguments functor_lifting {C C'} (D).
+Arguments functor_lifting {C C'} D F.
 
 (** * 2. The special case where F is the identity *)
 
