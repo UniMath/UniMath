@@ -1,10 +1,21 @@
+(**************************************************************************************************
 
-(**
-- Direct products of displayed categories (and their projections)
-  - [dirprod_disp_cat D1 D2]
-  - [dirprodpr1_disp_functor], [dirprodpr2_disp_functor]
-*)
+  Direct products of displayed categories
 
+  Given displayed categories D1 and D2 over the same base C, we construct the displayed category
+  D1 × D2 over C with (D1 × D2) c = (D1 c) × (D2 c).
+  The isomorphisms in this category are equivalent to pairs of isomorphisms in D1 and D2. We can
+  use this to show that the category is displayed univalent if both D1 and D2 are.
+  And lastly, we can construct the projection displayed functors, lying over the identity functor on
+  C, which project on the data of D1 or D2 respectively.
+
+  Contents
+  1. The product displayed category [dirprod_disp_cat D1 D2] [D1 × D2]
+  2. A characterization of displayed isomorphism [z_iso_disp_prod_weq]
+  3. Univalence [dirprod_disp_cat_is_univalent]
+  4. The projecton displayed functors [dirprodpr1_disp_functor] [dirprodpr2_disp_functor]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -18,6 +29,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
+
+(** * 1. The product displayed category *)
 
 (** * Products of displayed (pre)categories
 
@@ -75,7 +88,7 @@ Qed.
 Definition dirprod_disp_cat : disp_cat C
   := (_ ,, dirprod_disp_cat_axioms).
 
-(** ** Characterization of the isomorphisms of the direct product of displayed categories *)
+(** * 2. A characterization of displayed isomorphism *)
 (** TODO: generalize over an aritrary base isomorphism *)
 Definition z_iso_disp_prod1
       {x : C}
@@ -166,6 +179,8 @@ Proof.
   - apply z_iso_disp_prod12.
 Defined.
 
+(** * 3. Univalence *)
+
 Lemma z_iso_disp_aux_weq
       (U1 : is_univalent_in_fibers D1)
       (U2 : is_univalent_in_fibers D2)
@@ -203,6 +218,8 @@ Proof.
     reflexivity.
   - apply z_iso_disp_aux_weq.
 Defined.
+
+(** * 4. The projecton displayed functors *)
 
 Definition dirprodpr1_disp_functor_data
   : disp_functor_data (functor_identity C) dirprod_disp_cat (D1).
