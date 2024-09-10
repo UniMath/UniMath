@@ -1,8 +1,30 @@
+(**************************************************************************************************
+
+  Constructing a functor to a total category via a functor to its base category
+
+  For two categories C and C' and a displayed category D over C, we can construct some functors from
+  C' to the total category ∫D from just a functor F : C' ⟶ C and a "functor lifting". A functor
+  lifting gives displayed objects and morphisms above F c and #F f for all c : C' and f : C'⟦c, c'⟧,
+  compatible with morphism composition.
+  If F is the identity functor on C, this construction gives sections to the projection functor
+  π1 : ∫D ⟶ C, because composing it with the projection gives the identity functor on C.
+  In that case, the construction is functorial, and gives a functor from the category
+  of displayed sections to the functor category [C, ∫D].
+
+  Contents
+  1. The construction of functors via lifting [lifted_functor]
+  2. The special case where F is the identity
+  2.1. The construction of a section from a displayed section [section_functor]
+  2.2. The construction of a natural transformation from a morphism [section_nat_trans]
+  2.3. The functor from displayed sections to the functor category [section_disp_to_section]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
@@ -14,9 +36,8 @@ Require Export UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSecti
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
-(** ** Functors into displayed categories *)
+(** * 1. The construction of functors via lifting *)
 
-(** With sections defined, we can now define _lifts_ to a displayed category of a functor into the base. *)
 Section FunctorLifting.
 
   Notation "# F" := (section_disp_on_morphisms F)
@@ -74,12 +95,14 @@ End FunctorLifting.
 
 Arguments functor_lifting {C C'} (D).
 
-(** redo the development for the special case that F is the identity *)
+(** * 2. The special case where F is the identity *)
 
 Section Sections.
 
   Context {C : category}.
   Context {D : disp_cat C}.
+
+(** ** 2.1. The construction of a section from a displayed section *)
 
   Section Ob.
 
@@ -116,7 +139,7 @@ Section Sections.
 
   End Ob.
 
-(* Natural transformations of sections  *)
+(** ** 2.2. The construction of a natural transformation from a morphism *)
 
   Section Mor.
 
@@ -149,4 +172,44 @@ Section Sections.
 
   End Mor.
 
+(** ** 2.3. The functor from displayed sections to the functor category *)
+
+  Lemma section_id_nat_trans
+    (F : section_disp D)
+    : section_nat_trans (section_nat_trans_id F) = nat_trans_id (section_functor F).
+  Proof.
+    now apply nat_trans_eq_alt.
+  Qed.
+
+  Lemma section_comp_nat_trans
+    {F F' F'' : section_disp D}
+    (nt : section_nat_trans_disp F F')
+    (nt' : section_nat_trans_disp F' F'')
+    : section_nat_trans (section_nat_trans_comp nt nt')
+    = nat_trans_comp _ _ _ (section_nat_trans nt) (section_nat_trans nt').
+  Proof.
+    apply nat_trans_eq_alt.
+    intro c.
+    use total2_paths_b.
+    - exact (!id_left _).
+    - apply (maponpaths (λ x, transportf _ x _)).
+      exact (!pathsinv0inv0 _).
+  Qed.
+
+  Definition section_disp_to_section
+    : section_disp_cat D ⟶ [C, total_category D].
+  Proof.
+    use make_functor.
+    - use make_functor_data.
+      + exact section_functor.
+      + do 2 intro.
+        exact section_nat_trans.
+    - split.
+      + exact section_id_nat_trans.
+      + do 3 intro.
+        exact section_comp_nat_trans.
+  Defined.
+
 End Sections.
+
+Arguments section_disp_to_section {C} D.
