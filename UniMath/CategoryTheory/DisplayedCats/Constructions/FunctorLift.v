@@ -85,34 +85,34 @@ Section Sections.
 
     Context (sd : section_disp D).
 
-  Definition section_functor_data
-    : functor_data C (total_category D).
-  Proof.
-    exists (λ x, (x ,, sd x)).
-    intros x y f. exists f. exact (section_disp_on_morphisms sd f).
-  Defined.
+    Definition section_functor_data
+      : functor_data C (total_category D).
+    Proof.
+      exists (λ x, (x ,, sd x)).
+      intros x y f. exists f. exact (section_disp_on_morphisms sd f).
+    Defined.
 
-  Definition section_functor_axioms
-    : is_functor section_functor_data.
-  Proof.
-    split.
-    - intro x. use total2_paths_f; simpl.
-      + apply idpath.
-      + apply (section_disp_id sd).
-    - intros x y z f g. use total2_paths_f; simpl.
-      + apply idpath.
-      + apply (section_disp_comp sd).
-  Qed.
+    Definition section_functor_axioms
+      : is_functor section_functor_data.
+    Proof.
+      split.
+      - intro x. use total2_paths_f; simpl.
+        + apply idpath.
+        + apply (section_disp_id sd).
+      - intros x y z f g. use total2_paths_f; simpl.
+        + apply idpath.
+        + apply (section_disp_comp sd).
+    Qed.
 
-  Definition section_functor :
-    functor C (total_category D) :=
-    section_functor_data ,, section_functor_axioms.
+    Definition section_functor :
+      functor C (total_category D) :=
+      section_functor_data ,, section_functor_axioms.
 
-  Lemma from_section_functor :
-    functor_composite section_functor (pr1_category D) = functor_identity C.
-  Proof.
-    use (functor_eq _ _ (homset_property C)). apply idpath.
-  Qed.
+    Lemma from_section_functor :
+      functor_composite section_functor (pr1_category D) = functor_identity C.
+    Proof.
+      use (functor_eq _ _ (homset_property C)). apply idpath.
+    Qed.
 
   End Ob.
 
@@ -123,29 +123,29 @@ Section Sections.
     Context {F F': section_disp D}.
     Context (nt : section_nat_trans_disp F F').
 
-Definition section_nat_trans_data :
-      nat_trans_data (section_functor F) (section_functor F').
-Proof.
-  intro x.
-  exists (identity _).
-  exact (nt x).
-Defined.
+    Definition section_nat_trans_data :
+          nat_trans_data (section_functor F) (section_functor F').
+    Proof.
+      intro x.
+      exists (identity _).
+      exact (nt x).
+    Defined.
 
-Definition section_nat_trans_axioms :
-      is_nat_trans (section_functor F) (section_functor F') section_nat_trans_data.
-Proof.
-  intros x x' f.
-  use total2_paths_f.
-  - simpl. now rewrite id_left, id_right.
-  - simpl.
-    rewrite <- (section_nt_disp_axioms_from_section_nt_disp nt).
-    apply transportf_paths.
-    apply homset_property.
-Qed.
+    Definition section_nat_trans_axioms :
+          is_nat_trans (section_functor F) (section_functor F') section_nat_trans_data.
+    Proof.
+      intros x x' f.
+      use total2_paths_f.
+      - simpl. now rewrite id_left, id_right.
+      - simpl.
+        rewrite <- (section_nt_disp_axioms_from_section_nt_disp nt).
+        apply transportf_paths.
+        apply homset_property.
+    Qed.
 
-Definition section_nat_trans
-    : nat_trans (section_functor F) (section_functor F') :=
-  section_nat_trans_data ,, section_nat_trans_axioms.
+    Definition section_nat_trans
+        : nat_trans (section_functor F) (section_functor F') :=
+      section_nat_trans_data ,, section_nat_trans_axioms.
 
   End Mor.
 
