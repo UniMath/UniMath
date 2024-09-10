@@ -89,188 +89,188 @@ Section Sections.
 
 (** * 2. Displayed natural transformations and their accessors *)
 
-Definition section_nat_trans_disp_data
-    (F F' : section_disp) : UU :=
-  ∏ (x : C), F x -->[identity _] F' x.
+  Definition section_nat_trans_disp_data
+      (F F' : section_disp) : UU :=
+    ∏ (x : C), F x -->[identity _] F' x.
 
-Definition section_nat_trans_disp_axioms
-    {F F': section_disp}
-    (nt : section_nat_trans_disp_data F F') : UU :=
-  ∏ x x' (f : x --> x'),
-      transportf _
-      (id_right _ @ !(id_left _))
-      (section_disp_on_morphisms F f ;; nt x') =
-    nt x ;; section_disp_on_morphisms F' f.
+  Definition section_nat_trans_disp_axioms
+      {F F': section_disp}
+      (nt : section_nat_trans_disp_data F F') : UU :=
+    ∏ x x' (f : x --> x'),
+        transportf _
+        (id_right _ @ !(id_left _))
+        (section_disp_on_morphisms F f ;; nt x') =
+      nt x ;; section_disp_on_morphisms F' f.
 
-Lemma isaprop_section_nat_trans_disp_axioms
-    {F F': section_disp}
-    (nt : section_nat_trans_disp_data F F') :
-  isaprop (section_nat_trans_disp_axioms nt).
-Proof.
-  do 3 (apply impred; intro).
-  apply homsets_disp.
-Qed.
+  Lemma isaprop_section_nat_trans_disp_axioms
+      {F F': section_disp}
+      (nt : section_nat_trans_disp_data F F') :
+    isaprop (section_nat_trans_disp_axioms nt).
+  Proof.
+    do 3 (apply impred; intro).
+    apply homsets_disp.
+  Qed.
 
-Definition section_nat_trans_disp
-    (F F': section_disp) : UU :=
-  ∑ (nt : section_nat_trans_disp_data F F'), section_nat_trans_disp_axioms nt.
+  Definition section_nat_trans_disp
+      (F F': section_disp) : UU :=
+    ∑ (nt : section_nat_trans_disp_data F F'), section_nat_trans_disp_axioms nt.
 
-Definition section_nt_disp_data_from_section_nt_disp
-    {F F': section_disp}
-    (nt : section_nat_trans_disp F F')
-    : section_nat_trans_disp_data F F'
-  := pr1 nt.
+  Definition section_nt_disp_data_from_section_nt_disp
+      {F F': section_disp}
+      (nt : section_nat_trans_disp F F')
+      : section_nat_trans_disp_data F F'
+    := pr1 nt.
 
-Definition section_nat_trans_data_from_section_nat_trans_disp_funclass
-    {F F': section_disp}
-    (nt : section_nat_trans_disp F F') :
-  ∏ x : ob C, F x -->[identity _]  F' x := section_nt_disp_data_from_section_nt_disp nt.
-Coercion section_nat_trans_data_from_section_nat_trans_disp_funclass :
-    section_nat_trans_disp >-> Funclass.
+  Definition section_nat_trans_data_from_section_nat_trans_disp_funclass
+      {F F': section_disp}
+      (nt : section_nat_trans_disp F F') :
+    ∏ x : ob C, F x -->[identity _]  F' x := section_nt_disp_data_from_section_nt_disp nt.
+  Coercion section_nat_trans_data_from_section_nat_trans_disp_funclass :
+      section_nat_trans_disp >-> Funclass.
 
-Definition section_nt_disp_axioms_from_section_nt_disp
-    {F F': section_disp}
-    (nt : section_nat_trans_disp F F')
-    : section_nat_trans_disp_axioms nt
-  := pr2 nt.
+  Definition section_nt_disp_axioms_from_section_nt_disp
+      {F F': section_disp}
+      (nt : section_nat_trans_disp F F')
+      : section_nat_trans_disp_axioms nt
+    := pr2 nt.
 
-Lemma section_nat_trans_eq (F F' : section_disp) (a a' : section_nat_trans_disp F F'):
-  (∏ x, a x = a' x) -> a = a'.
-Proof.
-  intro H.
-  assert (H' : pr1 a = pr1 a').
-  { now apply funextsec. }
-  apply (total2_paths_f H').
-  apply proofirrelevance.
-  apply isaprop_section_nat_trans_disp_axioms.
-Qed.
+  Lemma section_nat_trans_eq (F F' : section_disp) (a a' : section_nat_trans_disp F F'):
+    (∏ x, a x = a' x) -> a = a'.
+  Proof.
+    intro H.
+    assert (H' : pr1 a = pr1 a').
+    { now apply funextsec. }
+    apply (total2_paths_f H').
+    apply proofirrelevance.
+    apply isaprop_section_nat_trans_disp_axioms.
+  Qed.
 
 (** * 3. The category *)
 
-Definition section_nat_trans_id
-    (F : section_disp)
-    : section_nat_trans_disp F F.
-Proof.
-  use tpair.
-  - intro.
-    exact (id_disp _).
-  - simpl.
-    intros x x' f.
+  Definition section_nat_trans_id
+      (F : section_disp)
+      : section_nat_trans_disp F F.
+  Proof.
+    use tpair.
+    - intro.
+      exact (id_disp _).
+    - simpl.
+      intros x x' f.
 
-    rewrite id_left_disp, id_right_disp.
-    unfold transportb.
-    rewrite transport_f_f.
-    apply maponpaths_2.
+      rewrite id_left_disp, id_right_disp.
+      unfold transportb.
+      rewrite transport_f_f.
+      apply maponpaths_2.
+      apply homset_property.
+  Defined.
+
+  Definition section_nat_trans_comp
+      {F F' F'': section_disp}
+      (FF' : section_nat_trans_disp F F')
+      (F'F'' : section_nat_trans_disp F' F'') :
+    section_nat_trans_disp F F''.
+  Proof.
+    use tpair.
+    - intro x.
+      exact (transportf _ (id_left _) (FF' x ;; F'F'' x)).
+    - simpl.
+      intros x x' f.
+
+      rewrite mor_disp_transportf_prewhisker.
+      rewrite mor_disp_transportf_postwhisker.
+      rewrite transport_f_f.
+
+      rewrite assoc_disp_var, transport_f_f.
+      rewrite <- (section_nt_disp_axioms_from_section_nt_disp F'F'').
+
+      rewrite mor_disp_transportf_prewhisker, transport_f_f.
+
+      do 2 rewrite assoc_disp, transport_f_b.
+      rewrite <- (section_nt_disp_axioms_from_section_nt_disp FF').
+
+      rewrite mor_disp_transportf_postwhisker, transport_f_f.
+
+      apply maponpaths_2.
+      apply homset_property.
+  Defined.
+
+  Definition section_nat_trans_id_left
+      {F F': section_disp}
+      (FF' : section_nat_trans_disp F F') :
+    section_nat_trans_comp (section_nat_trans_id F) FF' = FF'.
+  Proof.
+    use section_nat_trans_eq.
+    intro x.
+    simpl.
+    rewrite id_left_disp.
+    rewrite transport_f_b.
+    apply transportf_set.
     apply homset_property.
-Defined.
+  Qed.
 
-Definition section_nat_trans_comp
-    {F F' F'': section_disp}
-    (FF' : section_nat_trans_disp F F')
-    (F'F'' : section_nat_trans_disp F' F'') :
-  section_nat_trans_disp F F''.
-Proof.
-  use tpair.
-  - intro x.
-    exact (transportf _ (id_left _) (FF' x ;; F'F'' x)).
-  - simpl.
-    intros x x' f.
+  Definition section_nat_trans_id_right
+      {F F': section_disp}
+      (FF' : section_nat_trans_disp F F') :
+    section_nat_trans_comp FF' (section_nat_trans_id F') = FF'.
+  Proof.
+    use section_nat_trans_eq.
+    intro x.
+    simpl.
+    rewrite id_right_disp.
+    rewrite transport_f_b.
+    apply transportf_set.
+    apply homset_property.
+  Qed.
 
-    rewrite mor_disp_transportf_prewhisker.
+  Definition section_nat_trans_assoc
+      {F1 F2 F3 F4: section_disp}
+      (F12 : section_nat_trans_disp F1 F2)
+      (F23 : section_nat_trans_disp F2 F3)
+      (F34 : section_nat_trans_disp F3 F4) :
+    section_nat_trans_comp F12 (section_nat_trans_comp F23 F34) = section_nat_trans_comp (section_nat_trans_comp F12 F23) F34.
+  Proof.
+    use section_nat_trans_eq.
+    intro x.
+    simpl.
     rewrite mor_disp_transportf_postwhisker.
-    rewrite transport_f_f.
-
-    rewrite assoc_disp_var, transport_f_f.
-    rewrite <- (section_nt_disp_axioms_from_section_nt_disp F'F'').
-
-    rewrite mor_disp_transportf_prewhisker, transport_f_f.
-
-    do 2 rewrite assoc_disp, transport_f_b.
-    rewrite <- (section_nt_disp_axioms_from_section_nt_disp FF').
-
-    rewrite mor_disp_transportf_postwhisker, transport_f_f.
-
+    rewrite mor_disp_transportf_prewhisker.
+    do 2 rewrite transport_f_f.
+    rewrite assoc_disp.
+    rewrite transport_f_b.
     apply maponpaths_2.
     apply homset_property.
-Defined.
+  Qed.
 
-Definition section_nat_trans_id_left
-    {F F': section_disp}
-    (FF' : section_nat_trans_disp F F') :
-  section_nat_trans_comp (section_nat_trans_id F) FF' = FF'.
-Proof.
-  use section_nat_trans_eq.
-  intro x.
-  simpl.
-  rewrite id_left_disp.
-  rewrite transport_f_b.
-  apply transportf_set.
-  apply homset_property.
-Qed.
+  Lemma isaset_section_nat_trans_disp
+      (F F': section_disp) :
+    isaset (section_nat_trans_disp F F').
+  Proof.
+    apply (isofhleveltotal2 2).
+    - apply impred. intro t. apply homsets_disp.
+    - intro x. apply isasetaprop. apply isaprop_section_nat_trans_disp_axioms.
+  Qed.
 
-Definition section_nat_trans_id_right
-    {F F': section_disp}
-    (FF' : section_nat_trans_disp F F') :
-  section_nat_trans_comp FF' (section_nat_trans_id F') = FF'.
-Proof.
-  use section_nat_trans_eq.
-  intro x.
-  simpl.
-  rewrite id_right_disp.
-  rewrite transport_f_b.
-  apply transportf_set.
-  apply homset_property.
-Qed.
-
-Definition section_nat_trans_assoc
-    {F1 F2 F3 F4: section_disp}
-    (F12 : section_nat_trans_disp F1 F2)
-    (F23 : section_nat_trans_disp F2 F3)
-    (F34 : section_nat_trans_disp F3 F4) :
-  section_nat_trans_comp F12 (section_nat_trans_comp F23 F34) = section_nat_trans_comp (section_nat_trans_comp F12 F23) F34.
-Proof.
-  use section_nat_trans_eq.
-  intro x.
-  simpl.
-  rewrite mor_disp_transportf_postwhisker.
-  rewrite mor_disp_transportf_prewhisker.
-  do 2 rewrite transport_f_f.
-  rewrite assoc_disp.
-  rewrite transport_f_b.
-  apply maponpaths_2.
-  apply homset_property.
-Qed.
-
-Lemma isaset_section_nat_trans_disp
-    (F F': section_disp) :
-  isaset (section_nat_trans_disp F F').
-Proof.
-  apply (isofhleveltotal2 2).
-  - apply impred. intro t. apply homsets_disp.
-  - intro x. apply isasetaprop. apply isaprop_section_nat_trans_disp_axioms.
-Qed.
-
-Definition section_disp_cat
-  : category.
-Proof.
-  use make_category.
-  - use make_precategory.
-    + use make_precategory_data.
-      * use make_precategory_ob_mor.
-        -- exact section_disp.
-        -- exact section_nat_trans_disp.
-      * exact section_nat_trans_id.
-      * do 3 intro.
-        exact section_nat_trans_comp.
-    + use make_is_precategory_one_assoc.
-      * do 2 intro.
-        exact section_nat_trans_id_left.
-      * do 2 intro.
-        exact section_nat_trans_id_right.
-      * do 4 intro.
-        exact section_nat_trans_assoc.
-  - exact isaset_section_nat_trans_disp.
-Defined.
+  Definition section_disp_cat
+    : category.
+  Proof.
+    use make_category.
+    - use make_precategory.
+      + use make_precategory_data.
+        * use make_precategory_ob_mor.
+          -- exact section_disp.
+          -- exact section_nat_trans_disp.
+        * exact section_nat_trans_id.
+        * do 3 intro.
+          exact section_nat_trans_comp.
+      + use make_is_precategory_one_assoc.
+        * do 2 intro.
+          exact section_nat_trans_id_left.
+        * do 2 intro.
+          exact section_nat_trans_id_right.
+        * do 4 intro.
+          exact section_nat_trans_assoc.
+    - exact isaset_section_nat_trans_disp.
+  Defined.
 
 End Sections.
 
