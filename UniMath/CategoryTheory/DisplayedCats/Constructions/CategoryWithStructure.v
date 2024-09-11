@@ -8,6 +8,7 @@
   objects, and for the morphisms a proposition, stating that they preserve the structure. This class
   of displayed categories is slightly easier to construct, because there are less axioms to verify.
   Note that often, one can prove univalence for such a category using `SIP.v`.
+  This construction is inspired by the Structure Identity Principle of the HoTT book (Section 9.8).
 
   Contents
   1. A displayed category from structure on objects and compatibility on morphisms [disp_struct]
