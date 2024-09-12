@@ -86,11 +86,17 @@ Proof.
 Qed.
 
 (** 1.2. Well-pointedness
-  A well-pointed functor (F,,σ) satisfies Fσ = σF, i.e. for every c : C, the two
-  ways of constructing a morphism F c --> F (F c) coincide.
+  A well-pointed functor (F,,σ) satisfies Fσ = σF, i.e. for every A : C, the two
+  ways of constructing a morphism F A --> F (F A) coincide.
 *)
-Definition well_pointed {C : category} (F : pointed_endofunctor C) : UU
-  := ∏ A : C, point F (F A) =  #F (point F A).
+Definition well_pointed {C : category} (F : pointed_endofunctor C)
+  : UU
+  := pre_whisker F (point F) = post_whisker (point F) F.
+
+(** In practice we use this pointwise version, which is also easier to read *)
+Definition well_pointed_pointwise {C : category} {F : pointed_endofunctor C}
+  : well_pointed F → ∏ A : C, point F (F A) = #F (point F A)
+  := λ H A, nat_trans_eq_pointwise H A.
 
 (** 1.3. Pointed endofunctor algebras (algebras for a pointed endofunctor)
   Endofunctors, pointed-endofunctors, monads all have associated categories
@@ -253,6 +259,7 @@ Context (F : pointed_endofunctor C).
 Context (H : well_pointed F).
 
 Let σ := point F.
+Let H' := well_pointed_pointwise H.
 
 (** 2.1. Structure maps are iso-inverses [well_pointed_point_is_z_iso_at_algebra]
 If X is a pointed algebra for (F, σ) (well-pointed), then σ_X : X --> F X is iso.
@@ -265,7 +272,7 @@ Proof.
   - apply ptd_alg_law.
   (* s · σ_X = id_{FX} follows from naturality + well-pointedness + law for pointed algebras *)
   - rewrite point_naturality.
-    rewrite H.
+    rewrite H'.
     refine (! functor_comp F _ _ @ _).
     rewrite <- functor_id.
     apply maponpaths.
@@ -443,7 +450,7 @@ Definition shift_iter_map_restricts' (A : C) (i : nat)
 *)
 Section TransfiniteConstructionWellPointed.
 
-Context (F_well_pointed : well_pointed F). 
+Context (F_well_pointed : well_pointed F).
 
 (** Since F is well-pointed, the chain morphisms are all points, i.e. F^i σ = σ F^i *)
 Lemma iter_chain_mor_is_point (i : nat) (A : C) : iter_chain_mor i A = σ ((F ^ i) A).
@@ -451,7 +458,7 @@ Proof.
   apply pathsinv0.
   induction i.
   - exact (idpath _).
-  - exact (F_well_pointed ((F ^ i) A) @ maponpaths (#F) IHi).
+  - exact (well_pointed_pointwise F_well_pointed ((F ^ i) A) @ maponpaths (#F) IHi).
 Qed.
 
 (** 3.3. The shift map forms a pointed algebra [shift_iter_map_forms_ptd_alg]
