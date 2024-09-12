@@ -37,7 +37,8 @@
 
  **************************************************************************************************)
 
-Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
@@ -692,8 +693,9 @@ Theorem well_pointed_of_fully_faithful_right_adjoint
   : fully_faithful R → well_pointed (L∙R,,η).
 Proof.
   intro R_ff.
-  set (ɛ := counit_from_are_adjoints H).
+  apply (nat_trans_eq (homset_property _)).
   intros A. simpl.
+  set (ɛ := counit_from_are_adjoints H).
   (* The triangle identities imply that RLη and ηRL are sections of RɛLA, which is iso *)
   assert (t1 : # R (# L (η A)) · # R (ɛ (L A)) = identity (R (L A))). {
     rewrite <- functor_id, <- functor_comp.
