@@ -163,9 +163,7 @@ Definition ptd_alg_mor_commutes {X Y : ptd_alg} (f : ptd_alg_mor X Y)
 Definition ptd_alg_mor_id (X : ptd_alg) : ptd_alg_mor X X.
 Proof.
   apply make_ptd_alg_mor with (identity X).
-  abstract (unfold is_ptd_alg_mor;
-            rewrite functor_id, id_right, id_left;
-            apply idpath).
+  abstract (unfold is_ptd_alg_mor; now rewrite functor_id, id_right, id_left).
 Defined.
 
 Definition ptd_alg_mor_comp (X Y Z : ptd_alg) (f : ptd_alg_mor X Y) (g : ptd_alg_mor Y Z)
@@ -177,8 +175,7 @@ Proof.
             rewrite ptd_alg_mor_commutes;
             rewrite <- assoc;
             rewrite ptd_alg_mor_commutes;
-            rewrite functor_comp, assoc;
-            apply idpath).
+            now rewrite functor_comp, assoc).
 Defined.
 
 Definition precategory_ptd_alg_ob_mor : precategory_ob_mor
@@ -235,7 +232,7 @@ Proof.
   - use make_functor_data.
     + simpl. exact (ptd_alg_carrier F).
     + simpl. intros X Y. exact (mor_from_ptd_alg_mor F).
-  - abstract (split; red; intros; apply idpath).
+  - abstract (split; red; now intros).
 Defined.
 
 End PointedAlgebraCategory.
@@ -303,7 +300,7 @@ Proof.
   rw_left_comp (! point_naturality F f).
   rewrite <- assoc.
   rw_right_comp (ptd_alg_law F Y).
-  rewrite id_left, id_right; apply idpath.
+  now rewrite id_left, id_right.
 Qed.
 
 (** 2.3. The forgetful functor is fully-faithful [well_pointed_forgetul_fully_faithful] *)
@@ -315,8 +312,8 @@ Lemma well_pointed_forgetul_fully_faithful : fully_faithful (forget_ptd_alg F).
 Proof.
   red. intros X Y.
   apply isweq_iso with (λ f, make_ptd_alg_mor F f (well_pointed_mor_is_algebra_mor X Y f)).
-  - abstract (intros; apply ptd_alg_mor_eq; apply idpath).
-  - abstract (intros; apply idpath). 
+  - abstract (intros; now apply ptd_alg_mor_eq).
+  - abstract easy. 
 Defined.
 
 (** Being in the (strict) image of the forgetful functor is a proposition. *)
@@ -335,8 +332,8 @@ Proof.
     induction h.
     exists (ptd_alg_map F X).
     apply ptd_alg_law.
-  - intros [a p]; apply idpath.
-  - intros [X h]; induction h; apply idpath.
+  - easy.
+  - now intros [X h]; induction h.
 Qed.
 
 End AlgebrasWellPointed.
