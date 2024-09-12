@@ -1,24 +1,41 @@
-(** ***************************************************************
+(**************************************************************************************************
 
-Billy Snikkers
-started September 2024
+  PointedFunctorAlgebras
 
-Contents :
+  An algebra for a pointed endofunctor (F, σ : 1 ⟹ F) is an object X with a structure map F(X) ⟶ X
+  which restricts to id on σ_X : X ⟶ F(X).
 
-  - Definitions of pointed endofunctors, pointed algebras (algebras
-    for a pointed endofunctor), well-pointed endofunctors
+  This file contains the transfinite construction (due to Kelly) of the free-algebra for a
+  *well-pointed*, ω-cocontinuous endofunctor, and the free-forgetful adjunction. There are also
+  connections to reflective subcategories (idempotent monads).
 
-  - The transfinite construction of the free-algebra for a well-pointed
-    endofunctor (due to Kelly), and the free-forgetful adjunction.
+  References:
+  * `nLab: transfinite construction of free algebras https://ncatlab.org/nlab/show/transfinite+construction+of+free+algebras
+  * `Max Kelly, A unified treatment of transfinite constructions for free algebras, free monoids, colimits, associated sheaves, and so on https://www.cambridge.org/core/journals/bulletin-of-the-australian-mathematical-society/article/unified-treatment-of-transfinite-constructions-for-free-algebras-free-monoids-colimits-associated-sheaves-and-so-on/FE2E25E4959E4D8B4DE721718E7F55EE
+  
+  Contents
+  1. Definitions
+  1.1. Pointed endofunctors
+  1.2. Well-pointedness
+  1.3. Pointed endofunctor algebras (algebras for a pointed endofunctor)
+  1.4. The category of pointed endofunctor algebras [ptd_alg_category] [forget_ptd_alg]
+  2. Properties of algebras for well-pointed endofunctors
+  2.1. Structure maps are iso-inverses [well_pointed_point_is_z_iso_at_algebra] 
+  2.2. Any morphism is a morphism of algebras [well_pointed_mor_is_algebra_mor] 
+  2.3. The forgetful functor is fully-faithful [well_pointed_forgetul_fully_faithful] 
+  3. The transfinite construction
+  3.1. The directed colimit A --> F(A) --> F^2(A) --> ... F^ω(A)
+  3.2. The shift map F(F^ω A) --> F^ω A [shift_iter_map]
+  3.3. The shift map forms a pointed algebra [shift_iter_map_forms_ptd_alg]
+  3.4. The free functor C ⟶ ptd_alg_category F [free_ptd_alg]
+  3.5. The free-forgetful adjunction [free_forgetful_form_adjunction]
+  4. Reflective subcategories give well-pointed endofunctors
+    [well_pointed_of_fully_faithful_right_adjoint]
 
-  - Connnection between well-pointed endofunctors and reflective
-    subcategories (idempotent monads).
+  started September 2024
+  Billy Snikkers
 
-References:
-
-* `nLab: transfinite construction of free algebras <https://ncatlab.org/nlab/show/transfinite+construction+of+free+algebras>`_
-* `Max Kelly, A unified treatment of transfinite constructions for free algebras, free monoids, colimits, associated sheaves, and so on <https://www.cambridge.org/core/journals/bulletin-of-the-australian-mathematical-society/article/unified-treatment-of-transfinite-constructions-for-free-algebras-free-monoids-colimits-associated-sheaves-and-so-on/FE2E25E4959E4D8B4DE721718E7F55EE>`_
-******************************************************************)
+ **************************************************************************************************)
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -44,7 +61,11 @@ Tactic Notation "rw_left_comp" constr(e) :=
 Tactic Notation "rw_right_comp" constr(e) :=
   apply (transportb (λ x, _ · x = _) ltac:(apply e)).
 
-(* A pointed endofunctor F comes with a natural transformation 1 ⟹ F *)
+(** 1. Definitions *)
+
+(** 1.1. Pointed endofunctors *)
+
+(** A pointed endofunctor F comes with a natural transformation 1 ⟹ F *)
 Definition pointed_endofunctor (C : category) : UU := ∑ F : C ⟶ C, functor_identity C ⟹ F.
 
 #[reversible=no] Coercion pointed_endofunctor_endofunctor
@@ -54,24 +75,24 @@ Definition make_pointed_endofunctor {C : category}
     (F : C ⟶ C) (σ : functor_identity C ⟹ F)
   : pointed_endofunctor C := (F,,σ).
 
-(* The *point* of a pointed endofunctor *)
+(** The *point* of a pointed endofunctor *)
 Definition point {C : category} (F : pointed_endofunctor C) : functor_identity C ⟹ F := pr2 F.
 
-(* Easier to use than nat_trans_ax since no identity functor is mentioned *)
+(** Easier to use than nat_trans_ax since no identity functor is mentioned *)
 Definition point_naturality {C : category} (F : pointed_endofunctor C) {x y : C} (f : x --> y)
   : (f · point F y = point F x · # F f).
 Proof.
   apply (nat_trans_ax (point F)).
 Qed.
 
-(*
+(** 1.2. Well-pointedness
   A well-pointed functor (F,,σ) satisfies Fσ = σF, i.e. for every c : C, the two
   ways of constructing a morphism F c --> F (F c) coincide.
 *)
 Definition well_pointed {C : category} (F : pointed_endofunctor C) : UU
   := ∏ A : C, point F (F A) =  #F (point F A).
 
-(**
+(** 1.3. Pointed endofunctor algebras (algebras for a pointed endofunctor)
   Endofunctors, pointed-endofunctors, monads all have associated categories
   of algebras, consisting of a structure map obeying some subset of the
   laws for the algebras of a monad. These algebra-categories must be disambiguated,
@@ -93,14 +114,15 @@ Definition make_ptd_alg_data
   : ∏ X : C, (F X --> X) → ptd_alg_data
   := tpair (λ X, F X --> X).
 
+(** This coercion is convenient for this file. Be aware of it. *)
 #[reversible=no] Coercion ptd_alg_carrier (X : ptd_alg_data) : C := pr1 X.
 
 Definition ptd_alg_map (X : ptd_alg_data) : F X --> X := pr2 X.
 
 Definition is_ptd_alg (X : ptd_alg_data) : UU := (σ X) · (ptd_alg_map X) = identity X.
 
-(* A pointed algebra for a pointed endofunctor is an algebra (a : F X --> X)
-  for the endofunctor which is a retraction of the point map (σ_X · a = id_X)
+(** A pointed algebra for (F,σ) is a pair (a : F X --> X)
+  which is a retraction of the point map, i.e., σ_X · a = id_X
 *)
 Definition ptd_alg : UU := ∑ X : ptd_alg_data, is_ptd_alg X.
 
@@ -112,7 +134,7 @@ Definition make_ptd_alg (X : C) (s : F X --> X) (r : σ X · s = identity X)
 
 Definition ptd_alg_law (X : ptd_alg) : σ X · (ptd_alg_map X) = identity X := pr2 X.
 
-(** Data for the category of algebras for the pointed endofunctor F, following FunctorAlgebras.v *)
+(** 1.4. The category of pointed endofunctor algebras [ptd_alg_category] [forget_ptd_alg] *)
 
 Section ptd_alg_precategory_data.
 
@@ -129,7 +151,7 @@ Definition make_ptd_alg_mor {X Y : ptd_alg} (f : X --> Y) (p : is_ptd_alg_mor X 
   : X --> Y := pr1 f.
 
 Definition ptd_alg_mor_commutes {X Y : ptd_alg} (f : ptd_alg_mor X Y)
-  : ptd_alg_map X · f = #F f · ptd_alg_map Y  := pr2 f.
+  : ptd_alg_map X · f = #F f · ptd_alg_map Y := pr2 f.
 
 Definition ptd_alg_mor_id (X : ptd_alg) : ptd_alg_mor X X.
 Proof.
@@ -199,7 +221,7 @@ Qed.
 Definition ptd_alg_category : category
   := make_category ptd_alg_precat has_homsets_pointed_alegbra.
 
-(* The functor which forgets the pointed algebra stucture on the underlying object *)
+(** The functor which forgets the pointed algebra stucture on the underlying object *)
 Definition forget_ptd_alg : ptd_alg_category ⟶ C.
 Proof.
   use make_functor.
@@ -211,17 +233,17 @@ Defined.
 
 End PointedAlgebraCategory.
 
-(*
-The notion of algebra for a pointed endofunctor F involves adding
-*structure* to a carrier object X : C, i.e. a map F X --> X which is a retraction
-of the point at X, σ_X : X --> F X.
-Here we discover that when F is well-pointed, such a map is also a section of
-σ_X, and so this structure degenerates to a *property* of X, i.e. is σ_X iso?
+(** 2. Properties of algebras for well-pointed endofunctors
 
-In fact, this makes the category of pointed algebras for F into a reflective
-subcategory of C. Moreover, any reflective subcategory induces an idempotent
-monad, which is in particular, a well-pointed endofunctor, and the algebras
-for this well-pointed endofunctor recover the reflective subcategory.
+The notion of algebra for a pointed endofunctor F involves adding *structure* to a carrier object
+X : C, i.e. a map F X --> X which is a retraction of the point at X, σ_X : X --> F X.
+Here we discover that when F is well-pointed, such a map is also a section of σ_X, and so this
+structure degenerates to a *property* of X, i.e. is σ_X iso?
+
+In fact, this makes the category of pointed algebras for F into a reflective subcategory of C.
+We will see later, that any reflective subcategory induces an idempotent monad, which is in
+particular, a well-pointed endofunctor, and the algebras for this well-pointed endofunctor recover
+the reflective subcategory.
 *)
 
 Section AlgebrasWellPointed.
@@ -232,26 +254,25 @@ Context (H : well_pointed F).
 
 Let σ := point F.
 
-(*
-If X is a pointed algebra for F (well-pointed), then σ_X : X --> F X is iso.
+(** 2.1. Structure maps are iso-inverses [well_pointed_point_is_z_iso_at_algebra]
+If X is a pointed algebra for (F, σ) (well-pointed), then σ_X : X --> F X is iso.
 *)
 Definition well_pointed_point_is_z_iso_at_algebra (X : ptd_alg F) : is_z_isomorphism (σ X).
 Proof.
-  use make_is_z_isomorphism.
-  - exact (ptd_alg_map F X).
-  - split.
-    (* σ_X ⋅ s = id_X is the axiom for pointed algebras *)
-    + apply ptd_alg_law.
-    (* s · σ_X = id_{FX} follows from naturality + well-pointedness + law for pointed algebras *)
-    + rewrite point_naturality.
-      rewrite H.
-      refine (! functor_comp F _ _ @ _).
-      rewrite <- functor_id.
-      apply maponpaths.
-      apply ptd_alg_law.
+  apply make_is_z_isomorphism with (ptd_alg_map F X).
+  split.
+  (* σ_X ⋅ s = id_X is the axiom for pointed algebras *)
+  - apply ptd_alg_law.
+  (* s · σ_X = id_{FX} follows from naturality + well-pointedness + law for pointed algebras *)
+  - rewrite point_naturality.
+    rewrite H.
+    refine (! functor_comp F _ _ @ _).
+    rewrite <- functor_id.
+    apply maponpaths.
+    apply ptd_alg_law.
 Qed.
 
-(* There is at most one pointed algebra structure on a given X : C. *)
+(** There is at most one pointed algebra structure on a given X : C. *)
 Corollary well_pointed_has_ptd_alg_isaprop (A : C)
   : isaprop (∑ a : F A --> A, (σ A) · a = identity A).
 Proof.
@@ -262,7 +283,7 @@ Proof.
   exact (ar @ ! br).
 Qed.
 
-(* Given pointed algebras X, Y, any f : X ⟶ Y in C is a morphism of pointed algebras *)
+(** 2.2. Any morphism is a morphism of algebras [well_pointed_mor_is_algebra_mor]  *)
 Corollary well_pointed_mor_is_algebra_mor (X Y : ptd_alg F) (f : C ⟦ X, Y ⟧)
   : is_ptd_alg_mor F X Y f.
 Proof.
@@ -277,8 +298,11 @@ Proof.
   rewrite id_left, id_right; apply idpath.
 Qed.
 
-(* For a well-pointed algebra F, its category of pointed algebras can be viewed as a subcategory
-of C via the forgetful functor, because it is fully-faithful. *)
+(** 2.3. The forgetful functor is fully-faithful [well_pointed_forgetul_fully_faithful] *)
+
+(** For a well-pointed algebra F, its category of pointed algebras can be viewed as a subcategory
+of C via the forgetful functor, because it is fully-faithful. The transfinite construction
+will exhibit a left adjoint, making this a reflective subcategory. *)
 Lemma well_pointed_forgetul_fully_faithful : fully_faithful (forget_ptd_alg F).
 Proof.
   red. intros X Y.
@@ -287,7 +311,7 @@ Proof.
   - abstract (intros; apply idpath). 
 Defined.
 
-(* Being in the (strict) image of the forgetful functor is a proposition. *)
+(** Being in the (strict) image of the forgetful functor is a proposition. *)
 Lemma well_pointed_image_forgetful_isaprop
   : ∏ A : C, isaprop (∑ X : ptd_alg F, forget_ptd_alg F X = A).
 Proof.
@@ -309,24 +333,22 @@ Qed.
 
 End AlgebrasWellPointed.
 
-(*
-For F : C ⟶ C well-pointed, we have a fully-faithful inclusion of
-ptd_alg_category F into C. We will show that F-Alg is actually reflective in C
-by constructing its left-adjoint, the free pointed-algebra functor.
+(** The transfinite construction
+For F : C ⟶ C well-pointed, we have a fully-faithful inclusion of ptd_alg_category F into C.
+We will show that F-Alg is actually reflective in C by constructing its left-adjoint, the free
+pointed-algebra functor.
 
-We handle only the Κ=ℕ case of the transfinite-construction, where C is assumed to
-have Κ-filtered colimits that F preserves.
-This means C has colimits of ℕ-indexed diagrams
-of the form X_0 --> X_1 --> X_2 --> ..., and F preserves them.
+We handle only the Κ=ℕ case of the transfinite-construction, where C is assumed to have Κ-filtered
+colimits, and F preserves them. This means C has colimits of ℕ-indexed diagrams of the form
+X_0 --> X_1 --> X_2 --> ..., and F preserves them.
 *)
 Section TransfiniteConstruction.
 
-(* Assumptions of the transfinite-construction *)
 Context {C : category}.
 Context (chain_colimits : Chains C).
 Context (F : pointed_endofunctor C).
 Context (F_omega_cocont : is_omega_cocont F).
-(* We will assume F is well-pointed, but that is not needed just yet *)
+(** We will also assume F is well-pointed, but that is not needed just yet *)
 
 Let σ := point F.
 
@@ -340,35 +362,34 @@ Proof.
   - exact (post_whisker IHi F).
 Defined.
 
-(* This property of the chain morphisms is definitional, but important conceptually. *)
+(** This property of the chain morphisms is definitional, but important conceptually. *)
 Definition iter_chain_mor_shift (i : nat) (A : C)
   : iter_chain_mor (S i) A = # F (iter_chain_mor i A)
   := idpath _.
 
-(* The diagram Id --> F --> FF --> ..., where the ith morphism is F^i σ(-) *)
+(** The diagram Id --> F --> FF --> ..., in [C,C] where the ith morphism is F^i (σ(-)) *)
 Definition iter_chain : chain [C, C].
 Proof.
-  exists (λ i, F ^ i).
+  apply make_diagram with (λ i, F ^ i).
   intros i _ []. exact (iter_chain_mor i).
 Defined.
 
+(** The diagram A --> F(A) --> FF(A) --> ..., in C where the ith morphism is F^i (σ A) *)
 Definition iter_chain_at (A : C) : chain C.
 Proof. 
-  exists (λ i, (F ^ i) A).
+  apply make_diagram with (λ i, (F ^ i) A).
   intros i _ []. exact (iter_chain_mor i A).
 Defined.
 
-(* 
-  The chosen colimiting cocone of A --> FA --> FFA --> ...
-*)
+(** 3.1. The directed colimit A --> F(A) --> F^2(A) --> ... F^ω(A) *)
 Let CC : ∏ A : C, ColimCocone (iter_chain_at A)
   := λ A, chain_colimits _.
 
 Local Notation "'F^ω'" := (λ A, colim (CC A)) (at level 0).
 
-(*
-  F is ω-cocontinuous, so applying F gives us a new colimiting
-  cocone of the mapped diagram F(A) -> F(FA) -> F(FFA) -> ...
+(**
+  F is ω-cocontinuous, so applying F gives us a new colimiting cocone of the mapped diagram
+  F(A) -> F(FA) -> F(FFA) -> ...
   with vertex F(F^ω A).
 *)
 Let F_CC : ∏ A : C, ColimCocone (mapchain F (iter_chain_at A))
@@ -377,7 +398,8 @@ Let F_CC : ∏ A : C, ColimCocone (mapchain F (iter_chain_at A))
 
 Local Notation "'FF^ω'" := (λ A, colim (F_CC A)) (at level 0).
 
-(*
+(** 3.2. The shift map F(F^ω A) --> F^ω A [shift_iter_map]
+
   We want a structure map of the form F(F^ω A) --> F^ω A.
   Since F(F^ω A) is a colimit, it suffices to construct a cocone
     F(A) --> F^ω A
@@ -390,27 +412,22 @@ Local Notation "'FF^ω'" := (λ A, colim (F_CC A)) (at level 0).
 Definition shift_iter_cocone (A : C)
   : cocone (mapchain F (iter_chain_at A)) (F^ω A).
 Proof.
-  exists (λ i, colimIn (CC A) (S i)).
-  intros i _ []; simpl. exact (colimInCommutes (CC A) (S i) _ (idpath (S (S i)))).
+  apply make_cocone with (λ i, colimIn (CC A) (S i)).
+  abstract (intros i _ []; exact (colimInCommutes (CC A) (S i) _ (idpath (S (S i))))).
 Defined.
 
 Definition shift_iter_map (A : C) : F (F^ω A) --> (F^ω A)
   := colimArrow (F_CC A) (F^ω A) (shift_iter_cocone A).
 
-(* The structure map restricted to F(F^i A) is the inclusion F^(1+i) A --> F^ω A *)
-Lemma shift_iter_map_restricts (A : C) (i : nat)
-  : colimIn (F_CC A) i · shift_iter_map A = (colimIn (CC A)) (S i).
-Proof.
-  apply colimArrowCommutes.
-Qed.
+(** The structure map restricted to F(F^i A) is the inclusion F^(1+i) A --> F^ω A *)
+Definition shift_iter_map_restricts (A : C) (i : nat)
+  : colimIn (F_CC A) i · shift_iter_map A = (colimIn (CC A)) (S i)
+  := colimArrowCommutes _ _ _ _.
 
-(* Alternative to previous lemma *)
-Lemma shift_iter_map_restricts' (A : C) (i : nat)
-  : # F (colimIn (CC A) i) · shift_iter_map A = (colimIn (CC A)) (S i).
-Proof.
-  change (# F (colimIn (CC A) i)) with (colimIn (F_CC A) i).
-  apply shift_iter_map_restricts.
-Qed.
+(** Alternative to previous *)
+Definition shift_iter_map_restricts' (A : C) (i : nat)
+  : # F (colimIn (CC A) i) · shift_iter_map A = (colimIn (CC A)) (S i)
+  := shift_iter_map_restricts A i.
 
 (**
   We need F to be well-pointed to prove (F^ω A, shift_iter_map A) forms a pointed
@@ -428,7 +445,7 @@ Section TransfiniteConstructionWellPointed.
 
 Context (F_well_pointed : well_pointed F). 
 
-(* Since F is well-pointed, the chain morphisms are all points, i.e. F^i σ = σ F^i *)
+(** Since F is well-pointed, the chain morphisms are all points, i.e. F^i σ = σ F^i *)
 Lemma iter_chain_mor_is_point (i : nat) (A : C) : iter_chain_mor i A = σ ((F ^ i) A).
 Proof.
   apply pathsinv0.
@@ -437,7 +454,7 @@ Proof.
   - exact (F_well_pointed ((F ^ i) A) @ maponpaths (#F) IHi).
 Qed.
 
-(*
+(** 3.3. The shift map forms a pointed algebra [shift_iter_map_forms_ptd_alg]
   The structure map restricts to the identity via σ (F^ω A),
   thus making (F^ω A, shift_iter_map A) a pointed algebra.
   Not surprising, since the structure map is a colimit of components of σ
@@ -461,13 +478,13 @@ Proof.
   apply (colimInCommutes (CC A) i (1+i) (idpath _)).
 Qed.
 
-(*
-  The free pointed algebra on A, (F^ω A, shift_iter_map A)
-*)
+(** 3.4. The free functor C ⟶ ptd_alg_category F [free_ptd_alg] *)
+
+(** The free pointed algebra on A, (F^ω A, shift_iter_map A) *)
 Definition free_ptd_alg_ob (A : C) : ptd_alg F
   := make_ptd_alg F (F^ω A) (shift_iter_map A) (shift_iter_map_forms_ptd_alg A).
 
-(*
+(**
   The free functor action on morphisms, given by the canonical map between the colimits
   NOTE: this is the underlying morphism in C, not in the category of algebras
 *)
@@ -481,12 +498,9 @@ Proof.
   + abstract (simpl; do 2 rewrite <- functor_comp; apply maponpaths; exact IHi).
 Defined.
 
-Lemma free_ptd_alg_mor_restricts {A B : C} (f : A --> B) (i : nat)
-  : colimIn (CC A) i · free_ptd_alg_mor f
-    = # (F ^ i) f · colimIn (CC B) i.
-Proof.
-  apply colimArrowCommutes.
-Qed.
+Definition free_ptd_alg_mor_restricts {A B : C} (f : A --> B) (i : nat)
+  : colimIn (CC A) i · free_ptd_alg_mor f = # (F ^ i) f · colimIn (CC B) i
+  := colimArrowCommutes _ _ _ _.
 
 Definition free_ptd_alg_mor_is_mor {A B : C} (f : A --> B)
   : is_ptd_alg_mor F _ _ (free_ptd_alg_mor f).
@@ -505,7 +519,7 @@ Proof.
   apply pathsinv0, shift_iter_map_restricts.
 Qed.
 
-Definition free_ptd_alg_data : functor_data C (ptd_alg_category F).
+Definition free_ptd_alg_functor_data : functor_data C (ptd_alg_category F).
 Proof.
   use make_functor_data.
   - exact free_ptd_alg_ob.
@@ -513,7 +527,7 @@ Proof.
     exact (make_ptd_alg_mor F (free_ptd_alg_mor f) (free_ptd_alg_mor_is_mor f)).
 Defined.
 
-Lemma free_ptd_alg_is_functor : is_functor free_ptd_alg_data.
+Lemma free_ptd_alg_is_functor : is_functor free_ptd_alg_functor_data.
 Proof.
   split.
   - intros A. apply ptd_alg_mor_eq.
@@ -532,9 +546,10 @@ Proof.
 Qed.
 
 Definition free_ptd_alg : C ⟶ ptd_alg_category F
-  := make_functor free_ptd_alg_data free_ptd_alg_is_functor.
+  := make_functor free_ptd_alg_functor_data free_ptd_alg_is_functor.
 
-(* We now prove that this is indeed the free functor, by constructing an adjunction *)
+(** 3.5. The free-forgetful adjunction [free_forgetful_form_adjunction]
+  We now prove that this is indeed the free functor, by constructing an adjunction *)
 
 Definition unit_FF_adjunction : functor_identity C ⟹ free_ptd_alg ∙ forget_ptd_alg F.
 Proof.
@@ -562,18 +577,16 @@ Proof.
     apply (maponpaths (λ x, # F x · _) IHi).
 Qed.
 
-(* The counit has a component at the pointed algebra X which is a morphism of algebras
-  F^ω X --> X. This is the underlying morphism in C.
+(** The counit has a component at the pointed algebra X which is a morphism of algebras F^ω X --> X.
+  This is the underlying morphism in C.
   (Be aware of the implicit coercion of X to it's underlying object in C)
 *)
 Definition counit_FF_map (X : ptd_alg F) : C ⟦ free_ptd_alg_ob X, X ⟧
   := colimArrow _ _ (make_cocone _ (counit_FF_forms_cocone X)).
 
 Definition counit_FF_map_restricts (X : ptd_alg F) (i : nat)
-  : colimIn (CC X) i · counit_FF_map X = counit_FF_cocone_arrows X i.
-Proof.
-  apply colimArrowCommutes.
-Qed.
+  : colimIn (CC X) i · counit_FF_map X = counit_FF_cocone_arrows X i
+  := colimArrowCommutes _ _ _ _.
 
 Definition counit_FF_mor_is_mor (X : ptd_alg F) :
   is_ptd_alg_mor F (free_ptd_alg X) X (counit_FF_map X).
@@ -655,14 +668,16 @@ End TransfiniteConstructionWellPointed.
 
 End TransfiniteConstruction.
 
-(*
+(** 4. Reflective subcategories give well-pointed endofunctors
+  [well_pointed_of_fully_faithful_right_adjoint]
+
 We've constructed the reflective subcategory given by the pointed algebras
 of a well-pointed endofunctor.
 Conversely, we can take *any* reflective subcategory of C and extract a
 well-pointed endfunctor on C (in fact, an idempotent monad), whose
 pointed algebras form the "same" reflective subcategory.
 *)
-Theorem well_pointed_of_reflective_subcat
+Theorem well_pointed_of_fully_faithful_right_adjoint
   {C D : category} 
   (L : functor C D) (R : functor D C)
   (H : are_adjoints L R)
