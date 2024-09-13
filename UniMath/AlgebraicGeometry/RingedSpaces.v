@@ -30,6 +30,8 @@ Local Open Scope cat.
 Local Open Scope subtype.
 Local Open Scope open.
 
+(* TODO: Show that the restriction of a ringed space is again a ringed space *)
+
 (** * 1. The sheaf property *)
 
 Section SheafProperty.
@@ -77,6 +79,30 @@ Section SheafProperty.
       (g : ∏ U : A, F (pr1 U)),
       agree_on_intersections g → ∑ f, ∏ (U : A), restrict A f U = g U.
 
+  Lemma isaprop_gluing
+    (H : has_locality)
+    (A : hsubtype Open)
+    (g : ∏ U : A, F (pr1 U))
+    (Hg : agree_on_intersections g)
+    : isaprop (∑ f, ∏ (U : A), restrict A f U = g U).
+  Proof.
+      intros f f'.
+      use make_iscontr.
+      + use subtypePath.
+        * intro h.
+          apply impred_isaprop.
+          intro x.
+          apply setproperty.
+        * apply (H A (pr1 f) (pr1 f')).
+          intro U.
+          exact (pr2 f U @ !pr2 f' U).
+      + intro t.
+        refine (pr1 (isaset_carrier_subset _ (λ _, make_hProp _ _) f f' t _)).
+        apply impred_isaprop.
+        intro.
+        apply setproperty.
+  Qed.
+
   Definition has_sheaf : UU
     := has_locality
       × has_gluing.
@@ -98,21 +124,8 @@ Section SheafProperty.
       apply impred_isaprop.
       intro g.
       apply impred_isaprop.
-      intros Hg f f'.
-      use make_iscontr.
-      + use subtypePath.
-        * intro h.
-          apply impred_isaprop.
-          intro x.
-          apply setproperty.
-        * apply (H A (pr1 f) (pr1 f')).
-          intro U.
-          exact (pr2 f U @ !pr2 f' U).
-      + intro t.
-        refine (pr1 (isaset_carrier_subset _ (λ _, make_hProp _ _) f f' t _)).
-        apply impred_isaprop.
-        intro.
-        apply setproperty.
+      apply isaprop_gluing.
+      exact H.
   Qed.
 
 End SheafProperty.

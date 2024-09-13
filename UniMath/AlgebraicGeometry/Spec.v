@@ -16,8 +16,9 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Export UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Categories.Commring.
-Require Import UniMath.AlgebraicGeometry.Topology.
-Require Import UniMath.AlgebraicGeometry.SheavesOfRings.
+Require Import UniMath.AlgebraicGeometry.CategoryOfOpens.
+Require Import UniMath.AlgebraicGeometry.PresheafedSpaces.
+Require Import UniMath.AlgebraicGeometry.RingedSpaces.
 
 Local Open Scope cat.
 Local Open Scope ring.
@@ -27,7 +28,8 @@ Local Open Scope open.
 
 (** ** Zariski topology *)
 
-Section spec.
+Section Spec.
+
   Context {R : commring}.
 
   Definition zariski_topology : (prime_ideal R -> hProp) -> hProp :=
@@ -119,7 +121,8 @@ Section spec.
                        zariski_topology_union
                        zariski_topology_htrue
                        zariski_topology_and.
-End spec.
+
+End Spec.
 
 Arguments Spec _ : clear implicits.
 
@@ -134,7 +137,8 @@ Arguments Spec _ : clear implicits.
     neighborhood V of p, contained in U, and elements f, g in R, such that for each q in V, g not in
     q, and s q = f/g. *)
 
-Section section.
+Section Sections.
+
   Context {R : commring} {U : @Open (Spec R)}.
 
   Definition is_quotient_on (V : Open)
@@ -158,14 +162,16 @@ Section section.
 
   Definition funext_section (s t : section) : (∀ p, s p = t p) -> s = t :=
     λ H, subtypePath_prop (funextsec _ _ _ H).
-End section.
+
+End Sections.
 
 Arguments section {_} _.
 
 
 (* [section U] is a commutative ring. *)
 
-Section section_commring.
+Section SectionCommring.
+
   Context {R : commring} {U : @Open (Spec R)}.
 
   Lemma isaset_section : isaset (section U).
@@ -406,7 +412,8 @@ Section section_commring.
                     isgrop_section_op1 iscomm_section_op1
                     ismonoidop_section_op2 iscomm_section_op2
                     isdistr_section_ops.
-End section_commring.
+
+End SectionCommring.
 
 Arguments section_hset {_} _.
 Arguments section_commring {_} _.
@@ -414,7 +421,8 @@ Arguments section_commring {_} _.
 
 (** *** Restriction of a section *)
 
-Section restriction.
+Section Restriction.
+
   Context {R : commring} {U V : @Open (Spec R)} (H : V ⊆ U).
 
   Definition restriction_section_map : (∏ p : carrier U, localization_at (pr1 p)) ->
@@ -475,10 +483,12 @@ Section restriction.
 
   Definition restriction_ringfun : ringfun (section_commring U) (section_commring V) :=
     rigfunconstr isringfun_restriction_section.
-End restriction.
+
+End Restriction.
 
 
-Section restriction_facts.
+Section RestrictionFacts.
+
   Context {R : commring} {U V : @Open (Spec R)}.
 
   Lemma restriction_paths (H : V ⊆ U) (s : section U) {p : Spec R} (HUp : U p) (HVp : V p) :
@@ -511,12 +521,14 @@ Section restriction_facts.
     { induction Heq. apply idpath. }
     apply H.
   Qed.
-End restriction_facts.
+
+End RestrictionFacts.
 
 
 (** *** Definition of the structure sheaf *)
 
-Section structure_sheaf.
+Section StructureSheaf.
+
   Context (R : commring).
 
   (* presheaf *)
@@ -541,9 +553,17 @@ Section structure_sheaf.
   Definition structure_presheaf : (open_category (Spec R))^op ⟶ commring_precategory :=
     make_functor structure_presheaf_data is_functor_structure_presheaf_data.
 
+  Definition Spec_presheafed_space
+    : presheafed_space commring_category.
+  Proof.
+    use make_presheafed_space.
+    - exact (Spec R).
+    - exact structure_presheaf.
+  Defined.
+
   (* locality *)
 
-  Lemma locality_structure_presheaf : locality structure_presheaf.
+  Lemma locality_structure_presheaf : has_locality Spec_presheafed_space.
   Proof.
     intros A s t H. apply funext_section. intro p.
     use (hinhuniv _ (hexists_open_neighborhood p)); intro HU.
@@ -583,21 +603,25 @@ Section structure_sheaf.
           apply section_intersection. apply Hg.
   Defined.
 
-  Lemma gluing_structure_presheaf (ac : AxiomOfChoice) : gluing structure_presheaf.
+  Lemma gluing_structure_presheaf (ac : AxiomOfChoice) : has_gluing Spec_presheafed_space.
   Proof.
     intros A g Hg.
-    set (H0 := ac (carrier_subset (⋃ A)) _ (@hexists_open_neighborhood _ A)).
-    use (hinhfun _ H0); intro H.
+    pose (P := make_hProp _ (isaprop_gluing _ (locality_structure_presheaf ) _ _ Hg)).
+    generalize (ac (carrier_subset (⋃ A)) _ (@hexists_open_neighborhood _ A)).
+    refine (hinhuniv (P := P) _).
+    intro H.
     exists (glue_sections g Hg H).
     intro U. apply funext_section.
     intro q. induction q as [q HUq]. cbn.
     apply section_intersection, Hg.
   Qed.
 
-  (* structure sheaf *)
+  Definition Spec_ringed_space (ac : AxiomOfChoice)
+    : ringed_space
+    := make_ringed_space
+      Spec_presheafed_space
+      (make_has_sheaf _
+        locality_structure_presheaf
+        (gluing_structure_presheaf ac)).
 
-  Definition structure_sheaf (ac : AxiomOfChoice) : sheaf_commring (Spec R) :=
-    make_sheaf_commring structure_presheaf
-                        locality_structure_presheaf
-                        (gluing_structure_presheaf ac).
-End structure_sheaf.
+End StructureSheaf.
