@@ -36,7 +36,13 @@ Section Schemes.
   Definition is_scheme
     (X : ringed_space)
     : UU
-    := ∏ (x : X), ∃ (U : Open) (R : commring), z_iso (C := presheafed_space_cat _) (presheafed_space_restriction X U) (Spec_presheafed_space R).
+    := ∏ (x : X),
+        ∃ (U : Open)
+          (H : U x)
+          (R : commring),
+          z_iso (C := presheafed_space_cat _)
+            (presheafed_space_restriction X U)
+            (Spec_presheafed_space R).
 
   Definition scheme_cat
     : category
