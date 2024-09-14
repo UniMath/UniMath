@@ -28,7 +28,7 @@
   3.2. The shift map F(F^ω A) --> F^ω A [shift_iter_map]
   3.3. The shift map forms a pointed algebra [shift_iter_map_forms_ptd_alg]
   3.4. The free functor C ⟶ ptd_alg_category F [free_ptd_alg]
-  3.5. The free-forgetful adjunction [free_forgetful_form_adjunction]
+  3.5. The free-forgetful adjunction [free_ptd_alg_forgetful_form_adjunction]
   4. Reflective subcategories give well-pointed endofunctors
     [well_pointed_of_fully_faithful_right_adjoint]
 
@@ -444,7 +444,7 @@ Definition shift_iter_map_restricts' (A : C) (i : nat)
     => free_ptd_alg_ob => free_ptd_alg
   
   The pointed algebra law is then used to construct the cocone for the counit
-  (see counit_FF_forms_cocone).
+  (see free_ptd_alg_counit_forms_cocone).
 *)
 Section TransfiniteConstructionWellPointed.
 
@@ -553,27 +553,27 @@ Qed.
 Definition free_ptd_alg : C ⟶ ptd_alg_category F
   := make_functor free_ptd_alg_functor_data free_ptd_alg_is_functor.
 
-(** 3.5. The free-forgetful adjunction [free_forgetful_form_adjunction]
+(** 3.5. The free-forgetful adjunction [free_ptd_alg_forgetful_form_adjunction]
   We now prove that this is indeed the free functor, by constructing an adjunction *)
 
-Definition unit_FF_adjunction : functor_identity C ⟹ free_ptd_alg ∙ forget_ptd_alg F.
+Definition free_ptd_alg_unit : functor_identity C ⟹ free_ptd_alg ∙ forget_ptd_alg F.
 Proof.
   apply make_nat_trans with (λ A, colimIn (CC A) 0).
   abstract (intros A B f; apply pathsinv0, (free_ptd_alg_mor_restricts f 0)).
 Defined.
 
-Definition counit_FF_cocone_arrows (X : ptd_alg F) : ∏ i : nat, C ⟦ (F ^ i) X, X ⟧.
+Definition free_ptd_alg_counit_cocone_arrows (X : ptd_alg F) : ∏ i : nat, C ⟦ (F ^ i) X, X ⟧.
 Proof.
   induction i as [|i IH].
   - exact (identity X). (* Forced by triangle identities *)
   - exact (# F IH · ptd_alg_map F X). (* Necessary to make ɛ an morphism of algebras *)
 Defined.
 
-Lemma counit_FF_forms_cocone (X : ptd_alg F)
-  : forms_cocone (iter_chain_at X) (counit_FF_cocone_arrows X).
+Lemma free_ptd_alg_counit_forms_cocone (X : ptd_alg F)
+  : forms_cocone (iter_chain_at X) (free_ptd_alg_counit_cocone_arrows X).
 Proof.
   red; intros i _ []; simpl.
-  set (ɛ := counit_FF_cocone_arrows).
+  set (ɛ := free_ptd_alg_counit_cocone_arrows).
   rewrite assoc.
   (* This could be done using iter_chain_mor_is_point, but it's not necessary! *)
   induction i.
@@ -586,45 +586,45 @@ Qed.
   This is the underlying morphism in C.
   (Be aware of the implicit coercion of X to it's underlying object in C)
 *)
-Definition counit_FF_map (X : ptd_alg F) : C ⟦ free_ptd_alg_ob X, X ⟧
-  := colimArrow _ _ (make_cocone _ (counit_FF_forms_cocone X)).
+Definition free_ptd_alg_counit_map (X : ptd_alg F) : C ⟦ free_ptd_alg_ob X, X ⟧
+  := colimArrow _ _ (make_cocone _ (free_ptd_alg_counit_forms_cocone X)).
 
-Definition counit_FF_map_restricts (X : ptd_alg F) (i : nat)
-  : colimIn (CC X) i · counit_FF_map X = counit_FF_cocone_arrows X i
+Definition free_ptd_alg_counit_map_restricts (X : ptd_alg F) (i : nat)
+  : colimIn (CC X) i · free_ptd_alg_counit_map X = free_ptd_alg_counit_cocone_arrows X i
   := colimArrowCommutes _ _ _ _.
 
-Definition counit_FF_mor_is_mor (X : ptd_alg F) :
-  is_ptd_alg_mor F (free_ptd_alg X) X (counit_FF_map X).
+Definition free_ptd_alg_counit_map_is_mor (X : ptd_alg F) :
+  is_ptd_alg_mor F (free_ptd_alg X) X (free_ptd_alg_counit_map X).
 Proof.
   unfold is_ptd_alg_mor; simpl.
   apply (colim_mor_eq (F_CC X)).
   intros i.
   rewrite assoc, assoc.
   rewrite shift_iter_map_restricts.
-  refine (counit_FF_map_restricts X (S i) @ _); simpl.
+  refine (free_ptd_alg_counit_map_restricts X (S i) @ _); simpl.
   apply cancel_postcomposition.
   change (colimIn (F_CC X) i) with (# F (colimIn (CC X) i)).
   rewrite <- functor_comp.
   apply maponpaths, pathsinv0.
-  apply counit_FF_map_restricts.
+  apply free_ptd_alg_counit_map_restricts.
 Qed.
 
-Definition counit_FF_mor (X : ptd_alg F) : free_ptd_alg X --> X
-  := make_ptd_alg_mor F (counit_FF_map X) (counit_FF_mor_is_mor X).
+Definition free_ptd_alg_counit_mor (X : ptd_alg F) : free_ptd_alg X --> X
+  := make_ptd_alg_mor F (free_ptd_alg_counit_map X) (free_ptd_alg_counit_map_is_mor X).
 
-Definition counit_FF_adjunction_is_nat_trans
+Definition free_ptd_alg_counit_is_nat_trans
   : is_nat_trans
       (forget_ptd_alg F ∙ free_ptd_alg)
       (functor_identity (ptd_alg_category F))
-      counit_FF_mor.
+      free_ptd_alg_counit_mor.
 Proof.
   intros X Y f. apply ptd_alg_mor_eq; simpl in *.
   apply colim_mor_eq; intros i. do 2 rewrite assoc.
   rw_left_comp (free_ptd_alg_mor_restricts f i).
   rewrite <- assoc.
-  rw_right_comp (counit_FF_map_restricts Y i).
-  rewrite (counit_FF_map_restricts X i).
-  set (ɛ := counit_FF_cocone_arrows).
+  rw_right_comp (free_ptd_alg_counit_map_restricts Y i).
+  rewrite (free_ptd_alg_counit_map_restricts X i).
+  set (ɛ := free_ptd_alg_counit_cocone_arrows).
 
   induction i; simpl. { rewrite id_left. apply id_right. }
   rewrite assoc. rewrite <- functor_comp.
@@ -636,17 +636,17 @@ Proof.
   apply pathsinv0, ptd_alg_mor_commutes.
 Qed.
 
-Definition counit_FF_adjunction
+Definition free_ptd_alg_counit
   : (forget_ptd_alg F ∙ free_ptd_alg) ⟹ (functor_identity (ptd_alg_category F))
-  := make_nat_trans _ _ _ counit_FF_adjunction_is_nat_trans.
+  := make_nat_trans _ _ _ free_ptd_alg_counit_is_nat_trans.
 
 (** This proves free construction is correctly named, it is left adjoint
   to the forgetful functor. *)
-Theorem free_forgetful_form_adjunction
+Theorem free_ptd_alg_forgetful_form_adjunction
   : form_adjunction free_ptd_alg
       (forget_ptd_alg F)
-      unit_FF_adjunction
-      counit_FF_adjunction.
+      free_ptd_alg_unit
+      free_ptd_alg_counit.
 Proof.
   split; red.
   + intro A. apply ptd_alg_mor_eq, pathsinv0; simpl.
@@ -654,17 +654,17 @@ Proof.
     rewrite assoc.
     rw_left_comp (free_ptd_alg_mor_restricts (colimIn (CC A) 0) i).
     rewrite <- assoc.
-    rw_right_comp (counit_FF_map_restricts (free_ptd_alg_ob A) i).
-    set (ɛ := counit_FF_cocone_arrows).
+    rw_right_comp (free_ptd_alg_counit_map_restricts (free_ptd_alg_ob A) i).
+    set (ɛ := free_ptd_alg_counit_cocone_arrows).
     induction i; simpl. { apply id_right. }
     rewrite assoc, <- functor_comp.
     apply (transportb (λ x, # F x · _ = _) IHi).
     apply shift_iter_map_restricts.
-  + intro X. simpl. apply (counit_FF_map_restricts X 0).
+  + intro X. simpl. apply (free_ptd_alg_counit_map_restricts X 0).
 Qed.
 
-Definition free_forgetful_are_adjoints : are_adjoints free_ptd_alg (forget_ptd_alg F)
-  := make_are_adjoints _ _ _ _ free_forgetful_form_adjunction.
+Definition free_ptd_alg_forgetful_are_adjoints : are_adjoints free_ptd_alg (forget_ptd_alg F)
+  := make_are_adjoints _ _ _ _ free_ptd_alg_forgetful_form_adjunction.
 
 (* TODO: Involve fully-faithfulness of forget_ptd_alg F to say something
 about reflective subcategories *)
