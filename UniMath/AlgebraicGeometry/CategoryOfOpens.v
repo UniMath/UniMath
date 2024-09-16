@@ -4,23 +4,22 @@
 
   This file defines the category of open subsets of a topological space, in which the morphisms are
   inclusions. A continuous function between two topological spaces gives a functor in the other
-  direction between their categories of opens. This file defines this functor and shows that for the
-  identity function or the composition of two continuous functions, the result of this construction
-  is respectively isomorphic to the identity functor or the compositions of the individual functors.
+  direction between their categories of opens. These together give an indexed category structure on
+  top_cat^op.
 
   Contents
   1. The category of opens [open_category]
   1.1. It is univalent [is_univalent_open_category]
   2. The functor construction [continuous_to_functor]
-  2.1. When applied to the identity function [continuous_to_functor_identity]
-  2.2. When applied to the composition of two continuous functions [continuous_to_functor_compose]
+  3. The indexed category structure [open_category_indexed]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.PreorderCategories.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.IndexedCategories.IndexedCategory.
 Require Import UniMath.Topology.CategoryTop.
 Require Import UniMath.Topology.Topology.
 
@@ -66,40 +65,31 @@ Proof.
   - abstract easy.
 Defined.
 
-(** ** 2.1. When applied to the identity function *)
+(** * 3. The indexed category structure *)
 
-Definition continuous_to_functor_identity
-  (T : TopologicalSpace)
-  : z_iso (C := [_, _]) (continuous_to_functor (identity (C := top_cat) T)) (functor_identity _).
+Definition open_category_indexed
+  : indexed_cat top_cat^op.
 Proof.
-  use make_z_iso.
-  - exact (nat_trans_id (functor_identity _)).
-  - exact (nat_trans_id (functor_identity _)).
+  use make_indexed_cat.
+  - use make_indexed_cat_data.
+    + intro T.
+      exact (open_category T ,, is_univalent_open_category T).
+    + intros T T'.
+      exact continuous_to_functor.
+    + intro T.
+      exact (nat_trans_id (functor_identity _)).
+    + intros T T' T'' F F'.
+      exact (nat_trans_id (continuous_to_functor (F · F'))).
+  - split.
+    + intros T U.
+      exists (nat_trans_id (functor_identity _) U).
+      abstract easy.
+    + intros T T' T'' F F' U.
+      exists (nat_trans_id (continuous_to_functor (F · F')) U).
+      abstract easy.
   - abstract (
-      split;
-      apply nat_trans_eq_alt;
-      intro;
-      easy
-    ).
-Defined.
-
-(** ** 2.2. When applied to the composition of two continuous functions *)
-
-Definition continuous_to_functor_compose
-  {T T' T'' : TopologicalSpace}
-  (F : top_cat⟦T, T'⟧)
-  (F' : top_cat⟦T', T''⟧)
-  : z_iso (C := [_, _])
-    (continuous_to_functor (F · F'))
-    (continuous_to_functor F' ∙ continuous_to_functor F).
-Proof.
-  use make_z_iso.
-  - exact (nat_trans_id (continuous_to_functor (F · F'))).
-  - exact (nat_trans_id (continuous_to_functor (F · F'))).
-  - abstract (
-      split;
-      apply nat_trans_eq_alt;
-      intro;
-      easy
+      repeat split;
+      intros;
+      apply isaprop_subtype_containedIn
     ).
 Defined.

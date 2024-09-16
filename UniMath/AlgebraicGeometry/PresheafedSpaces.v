@@ -33,7 +33,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.IndexedCategories.IndexedCategory.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.Topology.CategoryTop.
@@ -60,9 +60,8 @@ Proof.
     + intros X Xdata.
       refine (nat_trans_comp _ _ _ _ (lunitor (C := bicat_of_cats) Xdata)).
       refine (post_whisker _ _).
-      refine (nat_trans_comp _ _ _ (op_nt (inv_from_z_iso (continuous_to_functor_identity _))) _).
-      apply (inv_from_z_iso (C := [_^op, _^op])).
-      apply (z_iso_from_nat_z_iso (homset_property _)).
+      refine (nat_trans_comp _ _ _ (op_nt (nat_z_iso_to_trans (indexed_cat_id_nat_z_iso open_category_indexed _))) _).
+      apply nat_z_iso_to_trans_inv.
       exact (op_triangle_nat_z_iso _).
     + intros X Y Z f g Xdata Ydata Zdata fdata gdata.
       refine (nat_trans_comp _ _ _ _ gdata).
@@ -70,9 +69,8 @@ Proof.
       refine (nat_trans_comp _ _ _ _ (rassociator (C := bicat_of_cats) (a := (open_category Z)^op) (b := (open_category Y)^op) _ _ _)
       ).
       refine (post_whisker _ Xdata).
-      refine (nat_trans_comp _ _ _ (op_nt (inv_from_z_iso (continuous_to_functor_compose _ _))) _).
-      apply (inv_from_z_iso (C := [_^op, _^op])).
-      apply (z_iso_from_nat_z_iso (homset_property _)).
+      refine (nat_trans_comp _ _ _ (op_nt (nat_z_iso_to_trans (indexed_cat_comp_nat_z_iso open_category_indexed _ _))) _).
+      apply nat_z_iso_to_trans_inv.
       exact (functor_comp_op_nat_z_iso _ _).
 Defined.
 
@@ -171,9 +169,8 @@ Lemma id_disp_inv
 Proof.
   refine (nat_trans_comp _ _ _ (linvunitor (C := bicat_of_cats) P) _).
   apply post_whisker.
-  refine (nat_trans_comp _ _ _ _ (op_nt (z_iso_mor (continuous_to_functor_identity _)))).
-  apply (z_iso_mor (C := [_^op, _^op])).
-  apply (z_iso_from_nat_z_iso (homset_property _)).
+  refine (nat_trans_comp _ _ _ _ (op_nt (nat_z_iso_to_trans_inv (indexed_cat_id_nat_z_iso open_category_indexed _)))).
+  apply nat_z_iso_to_trans.
   exact (op_triangle_nat_z_iso _).
 Defined.
 
