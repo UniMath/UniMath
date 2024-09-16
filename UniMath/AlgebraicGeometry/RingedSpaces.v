@@ -30,8 +30,6 @@ Local Open Scope cat.
 Local Open Scope subtype.
 Local Open Scope open.
 
-(* TODO: Show that the restriction of a ringed space is again a ringed space *)
-
 (** * 1. The sheaf property *)
 
 Section SheafProperty.
