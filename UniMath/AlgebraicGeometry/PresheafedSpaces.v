@@ -25,8 +25,6 @@
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Bicategories.Core.Bicat.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
@@ -58,7 +56,7 @@ Proof.
       exact (functor_opp (continuous_to_functor f) ∙ Xdata ⟹ Ydata).
   - use tpair.
     + intros X Xdata.
-      refine (nat_trans_comp _ _ _ _ (lunitor (C := bicat_of_cats) Xdata)).
+      refine (nat_trans_comp _ _ _ _ (nat_trans_id _ : functor_identity _ ∙ Xdata ⟹ _)).
       refine (post_whisker _ _).
       refine (nat_trans_comp _ _ _ (op_nt (nat_z_iso_to_trans (indexed_cat_id_nat_z_iso open_category_indexed _))) _).
       apply nat_z_iso_to_trans_inv.
@@ -66,7 +64,7 @@ Proof.
     + intros X Y Z f g Xdata Ydata Zdata fdata gdata.
       refine (nat_trans_comp _ _ _ _ gdata).
       refine (nat_trans_comp _ _ _ _ (pre_whisker _ fdata)).
-      refine (nat_trans_comp _ _ _ _ (rassociator (C := bicat_of_cats) (a := (open_category Z)^op) (b := (open_category Y)^op) _ _ _)
+      refine (nat_trans_comp _ _ _ _ (nat_trans_id _ : (functor_opp (continuous_to_functor g) ∙ functor_opp (continuous_to_functor f)) ∙ Xdata ⟹ _)
       ).
       refine (post_whisker _ Xdata).
       refine (nat_trans_comp _ _ _ (op_nt (nat_z_iso_to_trans (indexed_cat_comp_nat_z_iso open_category_indexed _ _))) _).
@@ -167,7 +165,7 @@ Lemma id_disp_inv
   (P : (presheafed_space_disp_cat D)[{X}])
   : (P : _ ⟶ _) ⟹ functor_opp (continuous_to_functor (identity X)) ∙ P.
 Proof.
-  refine (nat_trans_comp _ _ _ (linvunitor (C := bicat_of_cats) P) _).
+  refine (nat_trans_comp _ _ _ (nat_trans_id _ : _ ⟹ functor_identity _ ∙ P) _).
   apply post_whisker.
   refine (nat_trans_comp _ _ _ _ (op_nt (nat_z_iso_to_trans_inv (indexed_cat_id_nat_z_iso open_category_indexed _)))).
   apply nat_z_iso_to_trans.
