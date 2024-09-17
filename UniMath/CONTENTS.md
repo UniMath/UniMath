@@ -496,6 +496,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Inductives/LambdaCalculus.v](CategoryTheory/Inductives/LambdaCalculus.v)
    - [Inductives/PropositionalLogic.v](CategoryTheory/Inductives/PropositionalLogic.v)
    - [CategoricalRecursionSchemes.v](CategoryTheory/CategoricalRecursionSchemes.v)
+   - [PointedFunctorAlgebras.v](CategoryTheory/PointedFunctorAlgebras.v)
    - [DisplayedCats/Equivalences.v](CategoryTheory/DisplayedCats/Equivalences.v)
    - [DisplayedCats/EquivalenceOverId.v](CategoryTheory/DisplayedCats/EquivalenceOverId.v)
    - [DisplayedCats/DisplayedCatEq.v](CategoryTheory/DisplayedCats/DisplayedCatEq.v)
