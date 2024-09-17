@@ -134,6 +134,10 @@ less fragile and to make the files have a more uniform and pleasing appearance.
 * Use `Lemma`, `Proposition`, or `Theorem` for proofs of propositions;
   for defining elements of types that are not propositions, use
   `Definition`.
+* Document the contents of a file with at least a documentation comment at the top of the file.
+  This comment explains the scope of the file, as well as its main results.
+  It also lists the names of the main definitions and results [in_brackets], which coqdoc recognizes and converts to hyperlinks.
+  For more information, [see the wiki](https://github.com/UniMath/UniMath/wiki/Style-Guide#add-comments-to-your-code).
 * Use Unicode notation freely, but make the parsing conventions uniform across files.
   All notations, except for certain notations in the Foundations package used everywhere,
   should be local or in a scope.  All scopes, if opened, should be opened only locally.
@@ -150,7 +154,7 @@ less fragile and to make the files have a more uniform and pleasing appearance.
 * When using `abstract` in a proof, it is unsound to refer later by name to the
   abstracted lemma (whose name typically ends with `_subproof`), because
   its type may vary from one version of Coq to another.  Coq's current behavior is also
-  unlikely to be duplicated precisely by a future proof assistant. 
+  unlikely to be duplicated precisely by a future proof assistant.
 * Define and use accessor functions for structures instead of chains
   of `pr1` and `pr2`. This makes the code easier to maintain in the
   long run (if the structure is rearranged the proofs will still work

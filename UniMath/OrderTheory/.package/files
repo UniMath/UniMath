@@ -4,7 +4,9 @@ Posets/PosetSum.v
 Posets/PointedPosets.v
 Posets/LiftPoset.v
 Posets/QuotientPoset.v
+Posets/Subposets.v
 Posets.v
+Posets/Examples/StandardFiniteSet.v
 
 Lattice/Lattice.v
 Lattice/Bounded.v
@@ -24,6 +26,9 @@ Prebilattice/Distributive.v
 Prebilattice/PrebilatticeDisplayedCat.v
 Prebilattice/Product.v
 Prebilattice/Examples/FOUR.v
+
+OrderedSets/OrderedSets.v
+OrderedSets/WellOrderedSets.v
 
 DCPOs/Core/DirectedSets.v
 DCPOs/Core/Basics.v

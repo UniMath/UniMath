@@ -9,7 +9,7 @@ Require Import UniMath.MoreFoundations.Propositions.
 Require Import UniMath.MoreFoundations.Subtypes.
 Require Import UniMath.MoreFoundations.Sets.
 Require Import UniMath.MoreFoundations.AxiomOfChoice.
-Require Import UniMath.Combinatorics.OrderedSets.
+Require Import UniMath.OrderTheory.OrderedSets.OrderedSets.
 
 Local Open Scope logic.
 Local Open Scope set.

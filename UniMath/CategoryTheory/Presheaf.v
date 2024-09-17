@@ -13,6 +13,7 @@ Contents:
 - Initial object ([Initial_PreShv])
 - Terminal object ([Terminal_PreShv])
 - Pullbacks ([Pullbacks_PreShv])
+- Equalizers ([Equalizers_PreShv])
 - Exponentials ([Exponentials_PreShv])
 - Constant presheaf ([constant_PreShv])
 - Definition of the subobject classifier (without proof) ([Ω_PreShv], [Ω_mor])
@@ -55,6 +56,8 @@ Require Import UniMath.CategoryTheory.Limits.Coproducts.
 Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.PullbackConstructions.
 
 Local Open Scope cat.
 
@@ -133,6 +136,12 @@ Lemma Pullbacks_PreShv : Pullbacks (PreShv C).
 Proof.
 now apply FunctorcategoryPullbacks, PullbacksHSET.
 Defined.
+
+(** Equalizers, via pullbacks and binproducts. It would be nice to have a direct proof. *)
+Definition Equalizers_PreShv : Equalizers (PreShv C)
+  := equalizers_from_pullbacks_prods
+    Pullbacks_PreShv
+    BinProducts_PreShv.
 
 Lemma Exponentials_PreShv :
   Exponentials BinProducts_PreShv.
