@@ -33,6 +33,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.TotalCategoryFacts.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.Product.
 
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 
@@ -228,7 +229,7 @@ Section LiftedTensorUnit.
   Lemma is_disp_univalent_functor_tensorunit_disp_cat
     : Univalence.is_univalent_disp (MonoidalFunctorCategory.functor_tensorunit_disp_cat TD TE ID IE).
   Proof.
-    apply Constructions.dirprod_disp_cat_is_univalent.
+    apply dirprod_disp_cat_is_univalent.
     - apply functor_tensor_disp_cat_is_univalent.
     - apply functor_unit_disp_cat_is_univalent.
   Qed.
