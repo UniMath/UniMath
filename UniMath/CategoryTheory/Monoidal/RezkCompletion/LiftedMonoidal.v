@@ -50,6 +50,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.TotalCategoryFacts.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.Product.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.
 
 Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
 Require Import UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorCategory.
@@ -743,9 +745,9 @@ Section RezkMonoidal.
     - apply is_univalent_total_category.
       + apply (is_univalent_functor_category _ _ Euniv).
       + apply is_disp_univalent_functor_tensorunit_disp_cat.
-    - apply Constructions.dirprod_disp_cat_is_univalent.
+    - apply dirprod_disp_cat_is_univalent.
       {
-        apply Constructions.dirprod_disp_cat_is_univalent.
+        apply dirprod_disp_cat_is_univalent.
         apply functor_lu_disp_cat_is_univalent.
         apply functor_ru_disp_cat_is_univalent.
       }
@@ -759,9 +761,9 @@ Section RezkMonoidal.
     - apply is_univalent_total_category.
       + apply (is_univalent_functor_category _ _ Euniv).
       + apply functor_tensorunit_disp_cat_is_univalent.
-    - apply Constructions.dirprod_disp_cat_is_univalent.
+    - apply dirprod_disp_cat_is_univalent.
       {
-        apply Constructions.dirprod_disp_cat_is_univalent.
+        apply dirprod_disp_cat_is_univalent.
         apply functor_lu_disp_cat_is_univalent.
         apply functor_ru_disp_cat_is_univalent.
       }
@@ -773,7 +775,7 @@ Section RezkMonoidal.
   Proof.
     apply is_univalent_total_category.
     - apply is_univalent_LaxMonoidalFunctorCategory.
-    - apply Constructions.disp_full_sub_univalent.
+    - apply disp_full_sub_univalent.
       intro ; apply isapropdirprod.
       apply isaprop_is_nat_z_iso.
       apply isaprop_is_z_isomorphism.
@@ -849,7 +851,7 @@ Section RezkMonoidal.
     - apply is_univalent_StrongMonoidalFunctorCategory.
     - apply is_univalent_total_category.
       + apply is_univalent_LaxMonoidalFunctorCategory'.
-      + apply Constructions.disp_full_sub_univalent.
+      + apply disp_full_sub_univalent.
         intro ; apply isapropdirprod.
         * apply NaturalTransformations.isaprop_is_nat_z_iso.
         * apply Isos.isaprop_is_z_isomorphism.
