@@ -534,7 +534,7 @@ Section StructureSheaf.
   (* presheaf *)
 
   Definition structure_presheaf_data :
-    functor_data (open_category (Spec R))^op commring_precategory.
+    functor_data (opens_cat (Spec R))^op commring_precategory.
   Proof.
     use make_functor_data.
     - exact section_commring.
@@ -550,7 +550,7 @@ Section StructureSheaf.
       apply rigfun_paths, funextsec. intro s. apply subtypePath_prop, idpath.
   Qed.
 
-  Definition structure_presheaf : (open_category (Spec R))^op ⟶ commring_precategory :=
+  Definition structure_presheaf : (opens_cat (Spec R))^op ⟶ commring_precategory :=
     make_functor structure_presheaf_data is_functor_structure_presheaf_data.
 
   Definition Spec_presheafed_space
