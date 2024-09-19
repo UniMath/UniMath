@@ -12,10 +12,14 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.RigsAndRings.
+Require Import UniMath.Algebra.Groups.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+
 Local Open Scope cat.
 
 
@@ -185,3 +189,298 @@ Section def_commring_category.
     make_univalent_category commring_category commring_category_is_univalent.
 
 End def_commring_category.
+
+Section Products.
+
+  Context (I : UU).
+  Context (X : I → commring).
+
+  Section Object.
+
+    Definition product_setwith2binop
+      : setwith2binop.
+    Proof.
+      use make_setwith2binop.
+      - apply (make_hSet (∏ i, X i)).
+        apply impred_isaset.
+        intro i.
+        apply setproperty.
+      - split;
+        intros x y i.
+        + apply (op1 (x i) (y i)).
+        + apply (op2 (x i) (y i)).
+    Defined.
+
+    Lemma product_iscommring
+      : iscommring product_setwith2binop.
+    Proof.
+      repeat split.
+      - use make_isgrop.
+        + use make_ismonoidop.
+          * abstract (
+              do 3 intro;
+              apply funextsec;
+              intro;
+              apply ringassoc1
+            ).
+          * use make_isunital.
+            -- intro i.
+              exact ringunel1.
+            -- abstract (
+                use make_isunit;
+                intro;
+                apply funextsec;
+                intro;
+                [ apply ringlunax1
+                | apply ringrunax1 ]
+              ).
+        + use make_invstruct.
+          * intros x i.
+            exact (ringinv1 (x i)).
+          * abstract (
+              use make_isinv;
+              intro;
+              apply funextsec;
+              intro;
+              [ apply ringlinvax1
+              | apply ringrinvax1 ]
+            ).
+      - abstract (
+          do 2 intro;
+          apply funextsec;
+          intro;
+          apply ringcomm1
+        ).
+      - abstract (
+          do 3 intro;
+          apply funextsec;
+          intro;
+          apply ringassoc2
+        ).
+      - use make_isunital.
+        + intro i.
+          exact ringunel2.
+        + abstract (
+            use make_isunit;
+            intro;
+            apply funextsec;
+            intro;
+            [ apply ringlunax2
+            | apply ringrunax2 ]
+          ).
+      - abstract (
+          do 3 intro;
+          apply funextsec;
+          intro;
+          apply ringldistr
+        ).
+      - abstract (
+          do 3 intro;
+          apply funextsec;
+          intro;
+          apply ringrdistr
+        ).
+      - abstract (
+          do 2 intro;
+          apply funextsec;
+          intro;
+          apply ringcomm2
+        ).
+    Defined.
+
+    Definition product_commring
+      : commring
+      := make_commring _ product_iscommring.
+
+  End Object.
+
+  Definition projection_ringfun
+    (i : I)
+    : ringfun product_commring (X i).
+  Proof.
+    apply (ringfunconstr (X := product_commring) (f := λ x, x i)).
+    abstract easy.
+  Defined.
+
+  Section Arrow.
+
+    Context (Y: commring).
+    Context (f: ∏ i : I, ringfun Y (X i)).
+
+    Definition product_ringfun
+      : ringfun Y product_commring.
+    Proof.
+      apply (ringfunconstr (X := Y) (Y := product_commring) (f := λ y i, f i y)).
+      abstract (
+        repeat split;
+        repeat intro;
+        apply funextsec;
+        intro i;
+        apply (f i)
+      ).
+    Defined.
+
+    Section Unique.
+
+      Context (g : ringfun Y product_commring).
+      Context (Hg : ∏ i, rigfuncomp g (projection_ringfun i) = f i).
+
+      Lemma product_ringfun_unique
+        : g = product_ringfun.
+      Proof.
+        apply rigfun_paths.
+        apply funextsec.
+        intro y.
+        apply funextsec.
+        intro i.
+        exact (maponpaths (λ (f : ringfun _ _), f y) (Hg i)).
+      Qed.
+
+    End Unique.
+
+  End Arrow.
+
+  Definition Products_commring_category
+    : Product I commring_category X.
+  Proof.
+    use make_Product.
+    - exact product_commring.
+    - exact projection_ringfun.
+    - use (make_isProduct _ _ (homset_property _)).
+      intros Y f.
+      use unique_exists.
+      + exact (product_ringfun Y f).
+      + abstract now intro; apply rigfun_paths.
+      + abstract (
+          intro;
+          apply impred_isaprop;
+          intro;
+          apply isaset_ringfun
+        ).
+      + exact (product_ringfun_unique Y f).
+  Defined.
+
+End Products.
+
+Section Equalizers.
+
+  Context (X Y : commring).
+  Context (f g : ringfun X Y).
+
+  Section Object.
+
+    Definition equalizer_hsubtype
+      : hsubtype X.
+    Proof.
+      intro x.
+      refine (make_hProp (f x = g x) _).
+      apply setproperty.
+    Defined.
+
+    Lemma equalizer_issubring
+      : issubring equalizer_hsubtype.
+    Proof.
+      split.
+      - use make_issubgr.
+        + use make_issubmonoid.
+          * intros x y.
+            refine (binopfunisbinopfun (ringaddfun f) (pr1 x) (pr1 y) @ !_).
+            refine (binopfunisbinopfun (ringaddfun g) (pr1 x) (pr1 y) @ !_).
+            refine (maponpaths (λ x, _ x _) (pr2 x) @ _).
+            exact (maponpaths _ (pr2 y)).
+          * refine (monoidfununel (ringaddfun f) @ !_).
+            exact (monoidfununel (ringaddfun g)).
+        + intros x Hx.
+          refine (monoidfuninvtoinv (ringaddfun f) _ @ !_).
+          refine (monoidfuninvtoinv (ringaddfun g) _ @ !_).
+          now apply maponpaths.
+      - use make_issubmonoid.
+        + intros x y.
+          refine (binopfunisbinopfun (ringmultfun f) (pr1 x) (pr1 y) @ !_).
+          refine (binopfunisbinopfun (ringmultfun g) (pr1 x) (pr1 y) @ !_).
+          refine (maponpaths (λ x, _ x _) (pr2 x) @ _).
+          exact (maponpaths _ (pr2 y)).
+        + refine (monoidfununel (ringmultfun f) @ !_).
+          exact (monoidfununel (ringmultfun g)).
+    Qed.
+
+    Definition equalizer_commring
+      : commring
+      := carrierofasubcommring (make_subring _ equalizer_issubring).
+
+  End Object.
+
+  Definition inclusion_ringfun
+    : ringfun equalizer_commring X
+    := subring_incl _.
+
+  Lemma inclusion_ringfun_commutes
+    : rigfuncomp inclusion_ringfun f = rigfuncomp inclusion_ringfun g.
+  Proof.
+    apply rigfun_paths.
+    apply funextfun.
+    intro x.
+    exact (pr2 x).
+  Qed.
+
+  Section Arrow.
+
+    Context (Z : commring).
+    Context (h : ringfun Z X).
+    Context (Hh : rigfuncomp h f = rigfuncomp h g).
+
+    Definition equalizer_ringfun
+      : ringfun Z equalizer_commring.
+    Proof.
+      use ringfunconstr.
+      - intro z.
+        exists (h z).
+        abstract exact (maponpaths (λ (f : ringfun _ _), f z) Hh).
+      - abstract (
+          apply make_isrigfun;
+          apply make_ismonoidfun;
+          repeat intro;
+          apply (subtypePath (λ _, setproperty Y _ _));
+          apply h
+        ).
+    Defined.
+
+    Section Unique.
+
+      Context (a : ringfun Z equalizer_commring).
+      Context (Ha : rigfuncomp a inclusion_ringfun = h).
+
+      Lemma equalizer_ringfun_unique
+        : a = equalizer_ringfun.
+      Proof.
+        apply rigfun_paths.
+        apply funextfun.
+        intro z.
+        apply (subtypePath (λ _, setproperty Y _ _)).
+        exact (maponpaths (λ (f : ringfun _ _), f z) (Ha)).
+      Qed.
+
+    End Unique.
+
+  End Arrow.
+
+  Definition Equalizers_commring_category
+    : Equalizer (C := commring_category) f g.
+  Proof.
+    use make_Equalizer.
+    - exact equalizer_commring.
+    - exact inclusion_ringfun.
+    - exact inclusion_ringfun_commutes.
+    - refine (make_isEqualizer _ _ _ _ _).
+      intros Z h Hh.
+      use unique_exists.
+      + exact (equalizer_ringfun Z h Hh).
+      + abstract now apply rigfun_paths.
+      + abstract (
+          intro;
+          apply isaset_ringfun
+        ).
+      + exact (equalizer_ringfun_unique Z h Hh).
+  Defined.
+
+End Equalizers.
