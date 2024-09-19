@@ -8,10 +8,10 @@
   top_cat^op.
 
   Contents
-  1. The category of opens [open_category]
-  1.1. It is univalent [is_univalent_open_category]
-  2. The functor construction [continuous_to_functor]
-  3. The indexed category structure [open_category_indexed]
+  1. The category of opens [opens_cat_ob]
+  1.1. It is univalent [is_univalent_opens_cat_ob]
+  2. The functor construction [opens_cat_mor]
+  3. The indexed category structure [opens_cat]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -27,19 +27,19 @@ Local Open Scope cat.
 
 (** * 1. The category of opens *)
 
-Section open_category.
+Section Ob.
 
   Context (X : TopologicalSpace).
 
   Definition open_po : po (@Open X) :=
     make_po _ (isporesrel _ _ (subtype_containment_ispreorder X)).
 
-  Definition open_category : category := po_category open_po.
+  Definition opens_cat_ob : category := po_category open_po.
 
 (** ** 1.1. It is univalent *)
 
-  Lemma is_univalent_open_category
-    : is_univalent open_category.
+  Lemma is_univalent_opens_cat_ob
+    : is_univalent opens_cat_ob.
   Proof.
     refine (pr2 (po_category_is_univalent_iff_is_antisymm _ _) _).
     - apply isofhlevel_hsubtype.
@@ -48,14 +48,14 @@ Section open_category.
       apply subtype_containment_isantisymm.
   Defined.
 
-End open_category.
+End Ob.
 
 (** * 2. The functor construction *)
 
-Definition continuous_to_functor
+Definition opens_cat_mor
   {T T' : TopologicalSpace}
   (F : continuous_function T T')
-  : open_category T' ⟶ open_category T.
+  : opens_cat_ob T' ⟶ opens_cat_ob T.
 Proof.
   use make_functor.
   - use make_functor_data.
@@ -67,29 +67,29 @@ Defined.
 
 (** * 3. The indexed category structure *)
 
-Definition open_category_indexed
+Definition opens_cat
   : indexed_cat top_cat^op.
 Proof.
   use make_indexed_cat.
   - use make_indexed_cat_data.
     + intro T.
-      exact (open_category T ,, is_univalent_open_category T).
+      exact (opens_cat_ob T ,, is_univalent_opens_cat_ob T).
     + intros T T'.
-      exact continuous_to_functor.
+      exact opens_cat_mor.
     + intro T.
       exact (nat_trans_id (functor_identity _)).
     + intros T T' T'' F F'.
-      exact (nat_trans_id (continuous_to_functor (F · F'))).
+      exact (nat_trans_id (opens_cat_mor (F · F'))).
   - split.
     + intros T U.
       exists (nat_trans_id (functor_identity _) U).
       abstract easy.
     + intros T T' T'' F F' U.
-      exists (nat_trans_id (continuous_to_functor (F · F')) U).
+      exists (nat_trans_id (opens_cat_mor (F · F')) U).
       abstract easy.
   - abstract (
       repeat split;
       intros;
-      apply isaprop_subtype_containedIn
+      apply propproperty
     ).
 Defined.
