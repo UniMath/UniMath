@@ -4,11 +4,11 @@
 
   This file defines, for a category D, the category of D-presheafed spaces as a displayed category
   over `top_cat`.
-  The fiber over a topological space T is equivalent to `[(open_category T)^op, D].
+  The fiber over a topological space T is equivalent to `[(opens_cat T)^op, D].
   For (T, P) and (T', P') pairs of spaces and presheaves, a displayed morphism over a continuous
   function `f: T → T'` is a natural transformation `α : F* T ⟹ T'`, with F* denoting pullback
   along the functor on the categories of opens, induced by f.
-  Next, the explicit fully faithful embedding of `[(open_category T)^op, D]` into the fiber over T
+  Next, the explicit fully faithful embedding of `[(opens_cat T)^op, D]` into the fiber over T
   is used to show univalence.
   This file also defines types and accessors for the objects and morphisms in the category.
   Lastly, this file contains the construction of the restriction of a presheafed space to an open
@@ -38,6 +38,7 @@ Require Import UniMath.Topology.CategoryTop.
 Require Import UniMath.Topology.Topology.
 
 Require Import UniMath.AlgebraicGeometry.CategoryOfOpens.
+Require Import UniMath.AlgebraicGeometry.Sheaves.Presheaves.
 
 Local Open Scope subtype.
 Local Open Scope cat.
@@ -50,24 +51,23 @@ Definition presheafed_space_disp_cat_data
 Proof.
   use tpair.
   - use make_disp_cat_ob_mor.
-    + intro X.
-      exact ((open_category X)^op ⟶ D).
+    + exact (presheaf D).
     + intros X Y Xdata Ydata f.
-      exact (functor_opp (continuous_to_functor f) ∙ Xdata ⟹ Ydata).
+      exact (presheaf_morphism (f _* Xdata) Ydata).
   - use tpair.
     + intros X Xdata.
       refine (nat_trans_comp _ _ _ _ (nat_trans_id _ : functor_identity _ ∙ Xdata ⟹ _)).
       refine (post_whisker _ _).
-      refine (nat_trans_comp _ _ _ (op_nt (nat_z_iso_to_trans (indexed_cat_id_nat_z_iso open_category_indexed _))) _).
+      refine (nat_trans_comp _ _ _ (op_nt (nat_z_iso_to_trans (indexed_cat_id_nat_z_iso opens_cat _))) _).
       apply nat_z_iso_to_trans_inv.
       exact (op_triangle_nat_z_iso _).
     + intros X Y Z f g Xdata Ydata Zdata fdata gdata.
       refine (nat_trans_comp _ _ _ _ gdata).
       refine (nat_trans_comp _ _ _ _ (pre_whisker _ fdata)).
-      refine (nat_trans_comp _ _ _ _ (nat_trans_id _ : (functor_opp (continuous_to_functor g) ∙ functor_opp (continuous_to_functor f)) ∙ Xdata ⟹ _)
+      refine (nat_trans_comp _ _ _ _ (nat_trans_id _ : (functor_opp (opens_cat $ g) ∙ functor_opp (opens_cat $ f)) ∙ Xdata ⟹ _)
       ).
       refine (post_whisker _ Xdata).
-      refine (nat_trans_comp _ _ _ (op_nt (nat_z_iso_to_trans (indexed_cat_comp_nat_z_iso open_category_indexed _ _))) _).
+      refine (nat_trans_comp _ _ _ (op_nt (nat_z_iso_to_trans (indexed_cat_comp_nat_z_iso opens_cat _ _))) _).
       apply nat_z_iso_to_trans_inv.
       exact (functor_comp_op_nat_z_iso _ _).
 Defined.
@@ -81,7 +81,7 @@ Local Lemma aux1
   {Ydata : presheafed_space_disp_cat_data D Y}
   (fdata : Xdata -->[f] Ydata)
   : transportf (mor_disp Xdata Ydata) H fdata
-    = nat_trans_comp _ _ _ (post_whisker (op_nt (z_iso_mor (idtoiso (C := [_, _]) (maponpaths continuous_to_functor H)))) Xdata) fdata.
+    = nat_trans_comp _ _ _ (post_whisker (op_nt (z_iso_mor (idtoiso (C := [_, _]) (maponpaths (λ f, opens_cat $ f) H)))) Xdata) fdata.
 Proof.
   induction H.
   apply (nat_trans_eq_alt _ Ydata).
@@ -105,7 +105,7 @@ Proof.
     refine (maponpaths (λ x, _ · x) (id_right (# (Xdata : _ ⟶ _) _)) @ _).
     refine (!functor_comp _ _ _ @ _).
     apply (maponpaths (# (Xdata : _ ⟶ _))).
-    apply isaprop_subtype_containedIn.
+    apply propproperty.
   - intros X Y f Xdata Ydata fdata.
     refine (_ @ !aux1 _ _ _ _).
     apply (nat_trans_eq_alt _ Ydata).
@@ -118,7 +118,7 @@ Proof.
     apply (maponpaths (λ x, x · _)).
     refine (!functor_comp _ _ _ @ _).
     apply (maponpaths (# (Xdata : _ ⟶ _))).
-    apply isaprop_subtype_containedIn.
+    apply propproperty.
   - intros W X Y Z f g h Wdata Xdata Ydata Zdata fdata gdata hdata.
     refine (_ @ !aux1 _ _ _ _).
     apply (nat_trans_eq_alt _ Zdata).
@@ -141,7 +141,7 @@ Proof.
     refine (_ @ maponpaths (λ x, x · _) (functor_comp _ _ _)).
     refine (_ @ functor_comp _ _ _).
     apply maponpaths.
-    apply isaprop_subtype_containedIn.
+    apply propproperty.
   - intros.
     apply isaset_nat_trans.
     apply homset_property.
@@ -163,11 +163,11 @@ Lemma id_disp_inv
   {D : category}
   {X : top_cat}
   (P : (presheafed_space_disp_cat D)[{X}])
-  : (P : _ ⟶ _) ⟹ functor_opp (continuous_to_functor (identity X)) ∙ P.
+  : (P : _ ⟶ _) ⟹ functor_opp (opens_cat $ (identity X)) ∙ P.
 Proof.
   refine (nat_trans_comp _ _ _ (nat_trans_id _ : _ ⟹ functor_identity _ ∙ P) _).
   apply post_whisker.
-  refine (nat_trans_comp _ _ _ _ (op_nt (nat_z_iso_to_trans_inv (indexed_cat_id_nat_z_iso open_category_indexed _)))).
+  refine (nat_trans_comp _ _ _ _ (op_nt (nat_z_iso_to_trans_inv (indexed_cat_id_nat_z_iso opens_cat _)))).
   apply nat_z_iso_to_trans.
   exact (op_triangle_nat_z_iso _).
 Defined.
@@ -185,7 +185,7 @@ Proof.
   refine (!functor_comp P _ _ @ _).
   refine (_ @ functor_id P _).
   apply maponpaths.
-  apply isaprop_subtype_containedIn.
+  apply propproperty.
 Qed.
 
 Lemma id_disp_after_id_disp_inv
@@ -201,7 +201,7 @@ Proof.
   refine (!functor_comp P _ _ @ _).
   refine (_ @ functor_id P _).
   apply maponpaths.
-  apply isaprop_subtype_containedIn.
+  apply propproperty.
 Qed.
 
 Lemma functor_to_fiber_presheaf_is_functor
@@ -209,7 +209,7 @@ Lemma functor_to_fiber_presheaf_is_functor
   (X : top_cat)
   : is_functor
     (make_functor_data
-      (C := [(open_category X)^op, D])
+      (C := [(opens_cat X)^op, D])
       (C' := (presheafed_space_disp_cat D)[{X}])
       (idfun _)
       (λ P Q, nat_trans_comp _ _ _ (id_disp (D := presheafed_space_disp_cat D) P))).
@@ -241,13 +241,13 @@ Proof.
     refine (_ @ maponpaths (λ x, x · _) (functor_comp P _ _)).
     refine (_ @ functor_comp P _ _).
     apply (maponpaths (# (P : _ ⟶ _))).
-    apply isaprop_subtype_containedIn.
+    apply propproperty.
 Qed.
 
 Definition functor_to_fiber_presheaf_functor
   (D : category)
   (X : top_cat)
-  : [(open_category X)^op, D] ⟶ (presheafed_space_disp_cat D)[{X}]
+  : [(opens_cat X)^op, D] ⟶ (presheafed_space_disp_cat D)[{X}]
   := make_functor _ (functor_to_fiber_presheaf_is_functor X).
 
 Definition functor_to_fiber_presheaf_functor_fully_faithful
@@ -317,7 +317,7 @@ Definition presheafed_space
 Definition make_presheafed_space
   {D : category}
   (X : TopologicalSpace)
-  (F : (open_category X)^op ⟶ D)
+  (F : presheaf D X)
   : presheafed_space D
   := X ,, F.
 
@@ -330,8 +330,10 @@ Coercion presheafed_space_to_space
 Definition presheafed_space_presheaf
   {D : category}
   (X : presheafed_space D)
-  : (open_category X)^op ⟶ D
+  : presheaf D X
   := pr2 X.
+
+Notation "'𝒪' X" := (presheafed_space_presheaf X) (at level 100).
 
 Definition presheafed_space_morphism
   {D : category}
@@ -343,7 +345,7 @@ Definition make_presheafed_space_morphism
   {D : category}
   {X Y : presheafed_space D}
   (f : continuous_function X Y)
-  (α : functor_opp (continuous_to_functor f) ∙ presheafed_space_presheaf X ⟹ presheafed_space_presheaf Y)
+  (α : presheaf_morphism (f _* (𝒪 X)) (𝒪 Y))
   : presheafed_space_morphism X Y
   := f ,, α.
 
@@ -358,7 +360,7 @@ Definition presheafed_space_morphism_to_nat_trans
   {D : category}
   {X Y : presheafed_space D}
   (f : presheafed_space_morphism X Y)
-  : functor_opp (continuous_to_functor f) ∙ presheafed_space_presheaf X ⟹ presheafed_space_presheaf Y
+  : presheaf_morphism (f _* (𝒪 X)) (𝒪 Y)
   := pr2 f.
 
 (** TODO : Move this section to a separate file, or not? *)
@@ -560,7 +562,7 @@ Section Restriction.
   Proof.
     use make_presheafed_space.
     - exact (TopologySubtype (pr1carrier _ U)).
-    - refine (_ ∙ presheafed_space_presheaf X).
+    - refine (_ ∙ 𝒪 X).
       apply functor_opp.
       use make_functor.
       + use make_functor_data.
