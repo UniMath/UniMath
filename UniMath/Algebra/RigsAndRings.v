@@ -1363,7 +1363,7 @@ Defined.
 
 Definition subring (X : ring) : UU := ∑ (A : hsubtype X), issubring A.
 
-Definition make_gsubring {X : ring}
+Definition make_subring {X : ring}
   (t : hsubtype X)
   (H : issubring t)
   : subring X
@@ -1400,6 +1400,15 @@ Definition carrierofasubring (X : ring) (A : subring X) : ring.
 Proof. intros. exists A. apply isringcarrier. Defined.
 Coercion carrierofasubring : subring >-> ring.
 
+Lemma isringfun_pr1 {X : ring} (A : subring X) : @isringfun A X pr1.
+Proof.
+  use make_isrigfun.
+  - apply (ismonoidfun_pr1 (X := ringaddabgr X) (addsubgr A)).
+  - apply (ismonoidfun_pr1 (X := ringmultmonoid X) (multsubmonoid A)).
+Defined.
+
+Definition subring_incl {X : ring} (A : subring X) : ringfun A X :=
+  ringfunconstr (isringfun_pr1 A).
 
 (** **** Quotient objects *)
 
