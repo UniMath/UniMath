@@ -99,7 +99,7 @@ Definition sym_mon_closed_cat
   : UU
   := ∑ (V : sym_monoidal_cat), monoidal_leftclosed V.
 
-#[reversible=no] Coercion sym_monoidal_closed_cat_to_sym_monoidal_cat
+Coercion sym_monoidal_closed_cat_to_sym_monoidal_cat
          (V : sym_mon_closed_cat)
   : sym_monoidal_cat
   := pr1 V.

@@ -148,7 +148,7 @@ Definition profunctor_iso_square
   : UU
   := ∑ (τ : profunctor_square F G P Q), is_profunctor_nat_iso τ.
 
-#[reversible=no] Coercion profunctor_iso_square_to_square
+Coercion profunctor_iso_square_to_square
          {C₁ C₂ D₁ D₂ : category}
          {F : C₁ ⟶ C₂}
          {G : D₁ ⟶ D₂}
@@ -158,7 +158,7 @@ Definition profunctor_iso_square
   : profunctor_square F G P Q
   := pr1 τ.
 
-#[reversible=no] Coercion profunctor_iso_square_is_iso
+Coercion profunctor_iso_square_is_iso
          {C₁ C₂ D₁ D₂ : category}
          {F : C₁ ⟶ C₂}
          {G : D₁ ⟶ D₂}

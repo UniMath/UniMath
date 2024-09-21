@@ -41,7 +41,7 @@ Definition make_lambda_theory_data
   : lambda_theory_data
   := T ,, app ,, abs.
 
-#[reversible=no] Coercion lambda_theory_data_to_algebraic_theory (L : lambda_theory_data)
+Coercion lambda_theory_data_to_algebraic_theory (L : lambda_theory_data)
   : algebraic_theory
   := pr1 L.
 
@@ -96,7 +96,7 @@ Definition make_lambda_theory
   : lambda_theory
   := L ,, H.
 
-#[reversible=no] Coercion lambda_theory_to_lambda_theory_data (L : lambda_theory) : lambda_theory_data := pr1 L.
+Coercion lambda_theory_to_lambda_theory_data (L : lambda_theory) : lambda_theory_data := pr1 L.
 
 Definition app_subst
   (L : lambda_theory)

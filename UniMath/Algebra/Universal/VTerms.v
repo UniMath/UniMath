@@ -22,7 +22,7 @@ Section VTerms.
   Definition make_varspec (σ: signature) (varsupp: hSet) (varsorts: varsupp → sorts σ)
     : varspec σ := (varsupp,, varsorts).
 
-  #[reversible=no] Coercion varsupp {σ: signature}: varspec σ → hSet := pr1.
+  Coercion varsupp {σ: signature}: varspec σ → hSet := pr1.
 
   Definition varsort {σ: signature} {V: varspec σ}: V → sorts σ := pr2 V.
 
