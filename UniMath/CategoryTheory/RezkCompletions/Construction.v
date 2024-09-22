@@ -36,7 +36,7 @@ Require Import UniMath.CategoryTheory.Subcategory.Full.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.whiskering.
 
-Require Export UniMath.CategoryTheory.RezkCompletion.
+Require Export UniMath.CategoryTheory.RezkCompletions.RezkCompletions.
 
 Local Open Scope cat.
 

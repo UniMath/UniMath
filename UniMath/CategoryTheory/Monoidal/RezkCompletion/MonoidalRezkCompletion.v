@@ -11,7 +11,7 @@ Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
 Require Import UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedMonoidal.
-Require Import UniMath.CategoryTheory.rezk_completion.
+Require Import UniMath.CategoryTheory.RezkCompletions.Construction.
 
 Local Open Scope cat.
 
