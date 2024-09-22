@@ -4,7 +4,7 @@ Require UniMath.Combinatorics.StandardFiniteSets.
 Require UniMath.Combinatorics.FiniteSets.
 Require UniMath.Combinatorics.FiniteSequences.
 Require UniMath.Combinatorics.FiniteSets.
-Require UniMath.Combinatorics.OrderedSets.
+Require UniMath.OrderTheory.OrderedSets.OrderedSets.
 Require UniMath.Combinatorics.StandardFiniteSets.
 Require UniMath.Combinatorics.BoundedSearch.
 Require UniMath.MoreFoundations.DecidablePropositions.
@@ -367,7 +367,7 @@ End Test_finite_sets.
 
 Section Test_ord.
 
-  Import UniMath.Combinatorics.OrderedSets.
+  Import UniMath.OrderTheory.OrderedSets.OrderedSets.
   Import UniMath.Combinatorics.StandardFiniteSets.
   Import UniMath.MoreFoundations.DecidablePropositions.
 

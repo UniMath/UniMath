@@ -251,6 +251,7 @@ Categories/Type/Colimits.v
 Categories/Type/Limits.v
 Categories/Type/Structures.v
 Categories/Type/Univalence.v
+Categories/Type/NoHomsets.v
 
 Categories/HSET/Limits.v
 Categories/HSET/Colimits.v
@@ -278,6 +279,7 @@ Presheaf.v
 ElementsOp.v
 elems_slice_equiv.v
 YonedaBinproducts.v
+YonedaExponentials.v
 ExponentiationLeftAdjoint.v
 
 Connected.v
@@ -295,6 +297,12 @@ DisplayedCats/Examples/DispFunctorPair.v
 DisplayedCats/Examples/Opposite.v
 DisplayedCats/Fibrations.v
 DisplayedCats/Examples/Reindexing.v
+DisplayedCats/Constructions/CategoryWithStructure.v
+DisplayedCats/Constructions/DisplayedFunctorCat.v
+DisplayedCats/Constructions/FullSubcategory.v
+DisplayedCats/Constructions/Product.v
+DisplayedCats/Constructions/DisplayedSections.v
+DisplayedCats/Constructions/FunctorLift.v
 DisplayedCats/Constructions.v
 
 FunctorAlgebras.v
@@ -310,6 +318,7 @@ Inductives/Trees.v
 Inductives/LambdaCalculus.v
 Inductives/PropositionalLogic.v
 CategoricalRecursionSchemes.v
+PointedFunctorAlgebras.v
 
 DisplayedCats/Equivalences.v
 DisplayedCats/EquivalenceOverId.v
