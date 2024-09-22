@@ -32,7 +32,7 @@ Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.RezkCompletion.
+Require Import UniMath.CategoryTheory.RezkCompletions.RezkCompletions.
 Require Import UniMath.CategoryTheory.WeakEquivalences.
 
 Local Open Scope cat.
