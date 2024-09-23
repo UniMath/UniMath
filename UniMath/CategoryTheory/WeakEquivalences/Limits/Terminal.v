@@ -9,6 +9,8 @@ Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
 
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 
+Local Open Scope cat.
+
 Lemma weak_equiv_reflects_terminal
     {C D : category} (F : C ⟶ D)
     : is_weak_equiv F
