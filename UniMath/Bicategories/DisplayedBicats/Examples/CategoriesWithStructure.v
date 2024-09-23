@@ -32,6 +32,9 @@
  4. Categories with chosen binary products
  5. Categories that have binary products
  6. Each type of 2-cells in the bicategory of categories with binary products (chosen/have) is contractible.
+ 7. Categories with chosen equalizers
+ 8. Categories that have equalizers
+ 9. Each type of 2-cells in the bicategory of categories with equalizers (chosen/have) is contractible.
 
  ************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -42,6 +45,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
@@ -157,6 +161,59 @@ Qed.
 
 Lemma disp_2cells_is_contr_chosen_binproducts
   : disp_2cells_iscontr disp_bicat_chosen_binproducts.
+Proof.
+  intro ; intros.
+  exists (tt,,tt).
+  intro.
+  use total2_paths_f ; apply iscontrunit.
+Qed.
+
+(**
+ 1. Categories with a chosen equalizers
+ *)
+Definition disp_bicat_chosen_equalizers
+  : disp_bicat bicat_of_cats.
+Proof.
+  use disp_subbicat.
+  - exact (λ C, Equalizers C).
+  - exact (λ C₁ C₂ BP₁ BP₂ F, preserves_chosen_equalizers_eq F BP₁ BP₂).
+  - exact (λ C T, identity_preserves_chosen_equalizers_eq T).
+  - exact (λ _ _ _ _ _ _ _ _ PF PG, composition_preserves_chosen_equalizers_eq PF PG).
+Defined.
+
+Definition cat_with_chosen_equalizers
+  : bicat
+  := total_bicat disp_bicat_chosen_equalizers.
+
+(**
+ 2. Categories that have equalizers
+ *)
+Definition disp_bicat_have_equalizers
+  : disp_bicat bicat_of_cats.
+Proof.
+  use disp_subbicat.
+  - exact (λ C, Equalizers C).
+  - exact (λ C₁ C₂ _ _ F, preserves_equalizer F).
+  - exact (λ C _, identity_preserves_equalizer _).
+  - exact (λ _ _ _ _ _ _ _ _ HF HG, composition_preserves_equalizer HF HG).
+Defined.
+
+Definition cat_with_equalizers
+  : bicat
+  := total_bicat disp_bicat_have_binproducts.
+
+(* Homotopy levels of each type of 2-cells *)
+Lemma disp_2cells_is_contr_have_equalizers
+  : disp_2cells_iscontr disp_bicat_have_equalizers.
+Proof.
+  intro ; intros.
+  exists (tt,,tt).
+  intro.
+  use total2_paths_f ; apply iscontrunit.
+Qed.
+
+Lemma disp_2cells_is_contr_chosen_equalizers
+  : disp_2cells_iscontr disp_bicat_chosen_equalizers.
 Proof.
   intro ; intros.
   exists (tt,,tt).

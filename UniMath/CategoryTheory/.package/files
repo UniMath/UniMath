@@ -184,7 +184,12 @@ catiso.v
 DisplayedCats/CatIsoDisplayed.v
 CategoryEquality.v
 Core/PosetCat.v
-WeakEquivalences.v
+
+WeakEquivalences/Core.v
+WeakEquivalences/Limits/Terminal.v
+WeakEquivalences/Limits/Binproducts.v
+WeakEquivalences/Limits/Equalizers.v
+
 rezk_completion.v
 RezkCompletion.v
 exponentials.v
