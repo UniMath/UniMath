@@ -1544,7 +1544,7 @@ Section ProductsFromBinProducts.
 
   Definition sn_power_object
     : C
-    := BP c P.
+    := BP P c.
 
   Definition sn_power_projection
     (i : stn (S n))
@@ -1552,10 +1552,10 @@ Section ProductsFromBinProducts.
   Proof.
     induction (invmap stnweq i) as [i' | i'].
     - exact (
-        BinProductPr2 _ _ ·
+        BinProductPr1 _ _ ·
         ProductPr _ _ _ i'
       ).
-    - apply BinProductPr1.
+    - apply BinProductPr2.
   Defined.
 
   Section Arrow.
@@ -1567,10 +1567,10 @@ Section ProductsFromBinProducts.
       : C ⟦c', sn_power_object⟧.
     Proof.
       use BinProductArrow.
-      - apply (cone' (stnweq (inr tt))).
       - apply ProductArrow.
         intro i.
         apply (cone' (stnweq (inl i))).
+      - apply (cone' (stnweq (inr tt))).
     Defined.
 
     Lemma sn_power_arrow_commutes
@@ -1581,10 +1581,10 @@ Section ProductsFromBinProducts.
       induction (invmap stnweq i) as [i' | i'].
       - refine (maponpaths (λ x, _ · (_ x)) (homotinvweqweq stnweq (inl i')) @ _).
         refine (assoc _ _ _ @ _).
-        refine (maponpaths (λ x, x · _) (BinProductPr2Commutes _ _ _ _ _ _ _) @ _).
+        refine (maponpaths (λ x, x · _) (BinProductPr1Commutes _ _ _ _ _ _ _) @ _).
         apply (ProductPrCommutes _ _ _ P).
       - refine (maponpaths (λ x, _ · (_ x)) (homotinvweqweq stnweq (inr i')) @ _).
-        refine (BinProductPr1Commutes _ _ _ (BP c P) _ _ _ @ _).
+        refine (BinProductPr2Commutes _ _ _ (BP P c) _ _ _ @ _).
         apply maponpaths.
         now apply stn_eq.
     Qed.
@@ -1602,14 +1602,14 @@ Section ProductsFromBinProducts.
         apply homset_property.
       }
       apply BinProductArrowUnique.
-      - refine (!_ @ pr2 t _).
-        apply maponpaths.
-        exact (maponpaths _ (homotinvweqweq _ _)).
       - apply ProductArrowUnique.
         intro i.
         refine (_ @ pr2 t _).
         refine (assoc' _ _ _ @ _).
         refine (maponpaths _ (!_)).
+        exact (maponpaths _ (homotinvweqweq _ _)).
+      - refine (!_ @ pr2 t _).
+        apply maponpaths.
         exact (maponpaths _ (homotinvweqweq _ _)).
     Qed.
 

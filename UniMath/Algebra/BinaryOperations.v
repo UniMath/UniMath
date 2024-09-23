@@ -2398,6 +2398,23 @@ Proof.
     exact (pr2 isl).
 Defined.
 
+Definition iscommsetquotfun2 {X: hSet} {R : eqrel X} (f : binop X) (is : iscomprelrelfun2 R R f) (p : iscomm f) : iscomm (setquotfun2 R R f is).
+Proof.
+  use (setquotuniv2prop _ (λ x y ,  @eqset (setquotinset _) ((setquotfun2 _ _ _ _) x y) ((setquotfun2 _ _ _ _) y x) )).
+  intros.
+  cbn.
+  now rewrite p.
+Defined.
+
+Definition isassocsetquotfun2 {X : hSet} {R : eqrel X} (f : binop X) (is : iscomprelrelfun2 R R f) (p : isassoc f) : isassoc (setquotfun2 R R f is).
+Proof.
+  set (ff := setquotfun2 _ _ _ is).
+  intros ? ? ?.
+  use (setquotuniv3prop _ (λ x y z, @eqset (setquotinset _) (ff (ff z x) y) (ff z (ff x y)))).
+  intros.
+  cbn.
+  now rewrite p.
+Defined.
 
 (** **** Direct products *)
 

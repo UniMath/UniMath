@@ -162,22 +162,6 @@ Definition stnset n := make_hSet (⟦n⟧) (isasetstn n).
 
 Definition stn_to_nat n : stnset n -> natset := pr1.
 
-Definition stnposet ( n : nat ) : Poset.
-Proof.
-  unfold Poset.
-  exists (_,,isasetstn n).
-  unfold PartialOrder.
-  exists (λ i j: ⟦n⟧, i ≤ j)%dnat.
-  unfold isPartialOrder.
-  split.
-  - unfold ispreorder.
-    split.
-    * intros i j k. apply istransnatleh.
-    * intros i. apply isreflnatleh.
-  - intros i j r s. apply (invmaponpathsincl _ ( isinclstntonat _ )).
-    apply isantisymmnatleh; assumption.
-Defined.
-
 Definition lastelement {n : nat} : ⟦S n⟧.
 Proof.
   split with n.

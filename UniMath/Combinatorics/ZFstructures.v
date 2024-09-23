@@ -25,8 +25,8 @@ Require Export UniMath.Foundations.Propositions.
 Require Export UniMath.Foundations.Sets.
 Require Export UniMath.Foundations.HLevels.
 
-Require Export UniMath.Combinatorics.WellOrderedSets.
-Require Export UniMath.Combinatorics.OrderedSets.
+Require Export UniMath.OrderTheory.OrderedSets.OrderedSets.
+Require Export UniMath.OrderTheory.OrderedSets.WellOrderedSets.
 
 Require Export UniMath.MoreFoundations.DecidablePropositions.
 Require Export UniMath.MoreFoundations.Propositions.

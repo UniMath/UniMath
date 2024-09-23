@@ -19,8 +19,8 @@ Written by: Anders Mörtberg (Feb 2018)
 
 Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.Combinatorics.OrderedSets.
-Require Import UniMath.Combinatorics.WellOrderedSets.
+Require Import UniMath.OrderTheory.OrderedSets.OrderedSets.
+Require Import UniMath.OrderTheory.OrderedSets.WellOrderedSets.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Setcategories.

@@ -46,7 +46,7 @@
  3. Cleaving for codomain of monomorphisms
  4. Isos in the codomain
  5. The univalence
- 6. Subobjects in univalent categories
+ 6. Accessors for monomorphisms
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -59,6 +59,10 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
 
 Local Open Scope cat.
 
@@ -66,44 +70,14 @@ Local Open Scope cat.
 Section MonoCodomain.
   Context (C : category).
 
-  Definition mono_cod_disp_ob_mor : disp_cat_ob_mor C.
-  Proof.
-    simple refine (_ ,, _).
-    - exact (λ (x : C), ∑ (y : C), Monic C y x).
-    - exact (λ (x₁ x₂ : C)
-               (m₁ : ∑ (y : C), Monic C y x₁)
-               (m₂ : ∑ (y : C), Monic C y x₂)
-               (f : x₁ --> x₂),
-             ∑ (ff : pr1 m₁ --> pr1 m₂),
-             ff · pr2 m₂ = pr2 m₁ · f).
-  Defined.
-
-  Definition mono_cod_id_comp : disp_cat_id_comp _ mono_cod_disp_ob_mor.
-  Proof.
-    split.
-    - intros x m.
-      refine (identity _ ,, _).
-      abstract
-        (rewrite id_left, id_right ;
-         apply idpath).
-    - intros x y z f g m₁ m₂ m₃ ff gg.
-      refine (pr1 ff · pr1 gg ,, _).
-      abstract
-        (cbn in ff, gg ;
-         rewrite !assoc' ;
-         rewrite (pr2 gg) ;
-         rewrite !assoc ;
-         rewrite (pr2 ff) ;
-         apply idpath).
-  Defined.
-
-  Definition mono_cod_disp_data : disp_cat_data _
-    := mono_cod_disp_ob_mor
-       ,,
-       mono_cod_id_comp.
+  Definition disp_mono_codomain : disp_cat C
+    := sigma_disp_cat
+         (disp_full_sub
+            (total_category (disp_codomain C))
+            (λ f, isMonic (pr22 f))).
 
   Definition locally_propositional_mono_cod_disp_cat
-    : locally_propositional mono_cod_disp_data.
+    : locally_propositional disp_mono_codomain.
   Proof.
     intros x₁ x₂ f m₁ m₂.
     induction m₁ as [ y₁ m₁ ].
@@ -113,29 +87,16 @@ Section MonoCodomain.
     use subtypePath.
     {
       intro.
+      apply isapropunit.
+    }
+    use subtypePath.
+    {
+      intro.
       apply homset_property.
     }
-    use (MonicisMonic _ m₂).
-    rewrite (pr2 ff).
-    rewrite (pr2 gg).
-    apply idpath.
+    use (MonicisMonic _ (make_Monic _ _ m₂)).
+    exact (pr21 ff @ !(pr21 gg)).
   Qed.
-
-  Lemma mono_cod_disp_axioms : disp_cat_axioms C mono_cod_disp_data.
-  Proof.
-    repeat split.
-    - intros ; apply locally_propositional_mono_cod_disp_cat.
-    - intros ; apply locally_propositional_mono_cod_disp_cat.
-    - intros ; apply locally_propositional_mono_cod_disp_cat.
-    - intros.
-      apply isasetaprop.
-      apply locally_propositional_mono_cod_disp_cat.
-  Qed.
-
-  Definition disp_mono_codomain : disp_cat C
-    := mono_cod_disp_data
-       ,,
-       mono_cod_disp_axioms.
 
   Proposition transportf_mono_cod_disp
               {x y : C}
@@ -143,16 +104,15 @@ Section MonoCodomain.
               {yy : disp_mono_codomain y}
               {f g : x --> y}
               (p : f = g)
-              (ff : xx -->[ f] yy)
-    : pr1 (transportf
+              (ff : xx -->[ f ] yy)
+    : pr11 (transportf
              (mor_disp xx yy)
              p
              ff)
       =
-        pr1 ff.
+      pr11 ff.
   Proof.
-    refine (pr1_transportf (A := C⟦_,_⟧) _ _ @ _).
-    rewrite transportf_const ; cbn.
+    induction p ; cbn.
     apply idpath.
   Qed.
 
@@ -162,13 +122,13 @@ Section MonoCodomain.
               {yy : disp_mono_codomain y}
               {f g : x --> y}
               (p : g = f)
-              (ff : xx -->[ f] yy)
-    : pr1 (transportb
+              (ff : xx -->[ f ] yy)
+    : pr11 (transportb
              (mor_disp xx yy)
              p
              ff)
       =
-        pr1 ff.
+      pr11 ff.
   Proof.
     apply transportf_mono_cod_disp.
   Qed.
@@ -182,20 +142,20 @@ Section PullbackToCartesian.
           {gy₁ : disp_mono_codomain C x₁}
           {hy₂ : disp_mono_codomain C x₂}
           (ff : gy₁ -->[ f ] hy₂)
-          (H : isPullback (pr2 ff))
+          (H : isPullback (pr21 ff))
           {w : C}
           (φ : w --> x₁)
           (vψ : disp_mono_codomain C w)
           (kp : vψ -->[ φ · f ] hy₂).
 
-  Let y₁ : C := pr1 gy₁.
-  Let y₂ : C := pr1 hy₂.
-  Let v : C := pr1 vψ.
-  Let g : y₁ --> x₁ := pr2 gy₁.
-  Let h : y₂ --> x₂ := pr2 hy₂.
-  Let ψ : v --> w := pr2 vψ.
-  Let k : v --> y₂ := pr1 kp.
-  Let l : y₁ --> y₂ := pr1 ff.
+  Let y₁ : C := pr11 gy₁.
+  Let y₂ : C := pr11 hy₂.
+  Let v : C := pr11 vψ.
+  Let g : y₁ --> x₁ := pr21 gy₁.
+  Let h : y₂ --> x₂ := pr21 hy₂.
+  Let ψ : v --> w := pr21 vψ.
+  Let k : v --> y₂ := pr11 kp.
+  Let l : y₁ --> y₂ := pr11 ff.
 
   Let P : Pullback h f := make_Pullback _ H.
 
@@ -217,7 +177,7 @@ Section PullbackToCartesian.
   Proof.
     refine (PullbackArrow P v k (ψ · φ) _).
     abstract
-      (refine (pr2 kp @ _) ;
+      (refine (pr21 kp @ _) ;
        apply assoc).
   Defined.
 
@@ -241,16 +201,17 @@ Definition isPullback_cartesian_in_mono_cod_disp
            {gy₁ : disp_mono_codomain _ x₁}
            {hy₂ : disp_mono_codomain _ x₂}
            (ff : gy₁ -->[ f ] hy₂)
-           (H : isPullback (pr2 ff))
+           (H : isPullback (pr21 ff))
   : is_cartesian ff.
 Proof.
   intros w φ vψ kp.
   use iscontraprop1.
   - exact (cartesian_mono_cod_disp_unique ff φ vψ kp).
-  - simple refine ((_ ,, _) ,, _).
+  - simple refine (((_ ,, _) ,, tt) ,, _).
     + exact (cartesian_mono_cod_disp_map ff H φ vψ kp).
     + exact (cartesian_mono_cod_disp_comm_pr2 ff H φ vψ kp).
-    + use subtypePath ; [ intro ; apply homset_property | ].
+    + use subtypePath ; [ intro ; apply isapropunit | ].
+      use subtypePath ; [ intro ; apply homset_property | ].
       exact (cartesian_mono_cod_disp_comm_pr1 ff H φ vψ kp).
 Defined.
 
@@ -261,12 +222,13 @@ Definition mono_cod_disp_cleaving
   : cleaving (disp_mono_codomain C).
 Proof.
   intros x₁ x₂ f yg.
-  pose (y := pr1 yg).
-  pose (g := pr2 yg).
+  pose (y := pr11 yg).
+  pose (g := pr21 yg).
   pose (P := H _ _ _ g f).
-  simple refine (_ ,, (_ ,, _) ,, _).
-  - refine (PullbackObject P ,, PullbackPr2 P ,, _).
-    apply MonicPullbackisMonic.
+  simple refine (_ ,, ((_ ,, _) ,, tt) ,, _).
+  - refine ((PullbackObject P ,, PullbackPr2 P) ,, _).
+    use (MonicPullbackisMonic _ (make_Monic _ _ _) _ P).
+    exact (pr2 yg).
   - exact (PullbackPr1 P).
   - exact (PullbackSqrCommutes P).
   - use isPullback_cartesian_in_mono_cod_disp.
@@ -279,10 +241,10 @@ Section IsosCodomain.
           {x : C}
           (fy gz : disp_mono_codomain C x).
 
-  Let y : C := pr1 fy.
-  Let f : y --> x := pr2 fy.
-  Let z : C := pr1 gz.
-  Let g : z --> x := pr2 gz.
+  Let y : C := pr11 fy.
+  Let f : y --> x := pr21 fy.
+  Let z : C := pr11 gz.
+  Let g : z --> x := pr21 gz.
 
   Definition iso_to_disp_iso_mono_cod
              (h : z_iso y z)
@@ -290,12 +252,12 @@ Section IsosCodomain.
     : z_iso_disp (identity_z_iso x) fy gz.
   Proof.
     use make_z_iso_disp.
-    - refine (pr1 h ,, _).
+    - refine ((pr1 h ,, _) ,, tt).
       abstract
         (cbn ;
          rewrite id_right ;
          exact (!p)).
-    - simple refine (_ ,, _ ,, _).
+    - simple refine ((_ ,, tt) ,, _ ,, _).
       + refine (inv_from_z_iso h ,, _).
         abstract
           (cbn ;
@@ -312,19 +274,19 @@ Section IsosCodomain.
   Proof.
     simple refine (_ ,, _).
     - use make_z_iso.
-      + exact (pr11 ff).
-      + exact (pr1 (inv_mor_disp_from_z_iso ff)).
+      + exact (pr111 ff).
+      + exact (pr11 (inv_mor_disp_from_z_iso ff)).
       + split.
         * abstract
-            (refine (maponpaths pr1 (inv_mor_after_z_iso_disp ff) @ _) ;
+            (refine (maponpaths (λ z, pr11 z) (inv_mor_after_z_iso_disp ff) @ _) ;
              rewrite transportb_mono_cod_disp ;
              apply idpath).
         * abstract
-            (refine (maponpaths pr1 (z_iso_disp_after_inv_mor ff) @ _) ;
+            (refine (maponpaths (λ z, pr11 z) (z_iso_disp_after_inv_mor ff) @ _) ;
              rewrite transportb_mono_cod_disp ;
              apply idpath).
     - abstract
-        (refine (!(pr21 ff @ _)) ;
+        (refine (!(pr211 ff @ _)) ;
          apply id_right).
   Defined.
 
@@ -353,17 +315,17 @@ Definition is_z_iso_disp_mono_codomain
            {x : C}
            {fy gz : disp_mono_codomain C x}
            (φp : fy -->[ identity x ] gz)
-           (H : is_z_isomorphism (pr1 φp))
+           (H : is_z_isomorphism (pr11 φp))
   : is_z_iso_disp (identity_z_iso x) φp.
 Proof.
   pose (h := (_ ,, H) : z_iso _ _).
-  simple refine (_ ,, _ ,, _).
+  simple refine ((_ ,, tt) ,, _ ,, _).
   - refine (inv_from_z_iso h ,, _).
     abstract
       (cbn ;
        use z_iso_inv_on_right ;
        rewrite id_right ;
-       refine (_ @ !(pr2 φp)) ;
+       refine (_ @ !(pr21 φp)) ;
        rewrite id_right ;
        apply idpath).
   - apply locally_propositional_mono_cod_disp_cat.
@@ -377,17 +339,17 @@ Definition is_z_iso_disp_mono_codomain'
            {fz : disp_mono_codomain C x}
            {fz' : disp_mono_codomain C y}
            (φp : fz -->[ h ] fz')
-           (H : is_z_isomorphism (pr1 φp))
+           (H : is_z_isomorphism (pr11 φp))
   : is_z_iso_disp h φp.
 Proof.
   pose (l := (_ ,, H) : z_iso _ _).
-  simple refine (_ ,, _ ,, _).
+  simple refine ((_ ,, tt) ,, _ ,, _).
   - refine (inv_from_z_iso l ,, _).
     abstract
       (cbn ;
        use z_iso_inv_on_right ;
        rewrite !assoc ;
-       refine (_ @ maponpaths (λ z, z · _) (!(pr2 φp))) ;
+       refine (_ @ maponpaths (λ z, z · _) (!(pr21 φp))) ;
        rewrite !assoc' ;
        rewrite z_iso_inv_after_z_iso ;
        rewrite id_right ;
@@ -402,13 +364,13 @@ Definition z_iso_disp_mono_codomain
            {f : z_iso x y}
            {h₁ : disp_mono_codomain C x}
            {h₂ : disp_mono_codomain C y}
-           (g : z_iso (pr1 h₁) (pr1 h₂))
-           (p : g · pr2 h₂ = pr2 h₁ · f)
+           (g : z_iso (pr11 h₁) (pr11 h₂))
+           (p : g · pr21 h₂ = pr21 h₁ · f)
   : z_iso_disp f h₁ h₂.
 Proof.
   use make_z_iso_disp.
-  - exact (pr1 g ,, p).
-  - simple refine (_ ,, _ ,, _).
+  - exact ((pr1 g ,, p) ,, tt).
+  - simple refine ((_ ,, tt) ,, _ ,, _).
     + refine (inv_from_z_iso g ,, _).
       abstract
         (use z_iso_inv_on_right ;
@@ -426,18 +388,18 @@ Definition from_z_iso_disp_mono_codomain
            {h₁ : disp_mono_codomain C x}
            {h₂ : disp_mono_codomain C y}
            (ff : z_iso_disp f h₁ h₂)
-  : z_iso (pr1 h₁) (pr1 h₂).
+  : z_iso (pr11 h₁) (pr11 h₂).
 Proof.
   use make_z_iso.
-  - exact (pr11 ff).
-  - exact (pr112 ff).
+  - exact (pr111 ff).
+  - exact (pr1 (pr112 ff)).
   - split.
     + abstract
-        (refine (maponpaths pr1 (pr222 ff) @ _) ;
+        (refine (maponpaths (λ z, pr11 z) (pr222 ff) @ _) ;
          rewrite transportb_mono_cod_disp ;
          apply idpath).
     + abstract
-        (refine (maponpaths pr1 (pr122 ff) @ _) ;
+        (refine (maponpaths (λ z, pr11 z) (pr122 ff) @ _) ;
          rewrite transportb_mono_cod_disp ;
          apply idpath).
 Defined.
@@ -447,29 +409,11 @@ Proposition disp_univalent_disp_mono_codomain
             (C : univalent_category)
   : is_univalent_disp (disp_mono_codomain C).
 Proof.
-  use is_univalent_disp_from_fibers.
-  intros x fy gz.
-  use weqhomot.
-  - refine (disp_iso_weq_iso_mono_cod _ _
-            ∘ weqtotal2 (make_weq _ (univalent_category_is_univalent C _ _)) _
-            ∘ total2_paths_equiv _ _ _)%weq.
-    abstract
-      (induction fy as [ y f ] ;
-       induction gz as [ z g ] ;
-       cbn ;
-       intro p ;
-       induction p ; cbn ;
-       rewrite id_left ;
-       apply path_sigma_hprop ;
-       apply isapropisMonic).
-  - intro p.
-    induction p.
-    use subtypePath.
-    {
-      intro.
-      apply isaprop_is_z_iso_disp.
-    }
-    apply locally_propositional_mono_cod_disp_cat.
+  use is_univalent_sigma_disp.
+  - use disp_univalent_disp_codomain.
+  - use disp_full_sub_univalent.
+    intro.
+    apply isapropisMonic.
 Qed.
 
 Definition univalent_disp_mono_codomain
@@ -481,38 +425,45 @@ Proof.
   - apply disp_univalent_disp_mono_codomain.
 Defined.
 
-(** * 6. Subobjects in univalent categories *)
-Definition subobject_univ_cat
-           {C : univalent_category}
+(** * 6. Accessors for monomorphisms *)
+Definition mono_in_cat
+           {C : category}
            (x : C)
   : UU
-  := univalent_disp_mono_codomain C x.
+  := disp_mono_codomain C x.
 
-Coercion subobject_univ_cat_to_ob
-         {C : univalent_category}
+Coercion mono_in_cat_to_ob
+         {C : category}
          {x : C}
-         (y : subobject_univ_cat x)
+         (y : mono_in_cat x)
   : C.
 Proof.
-  exact (pr1 y).
+  exact (pr11 y).
 Defined.
 
-Definition mono_of_subobject_univ_cat
-           {C : univalent_category}
+Definition monic_of_mono_in_cat
+           {C : category}
            {x : C}
-           (y : subobject_univ_cat x)
+           (y : mono_in_cat x)
   : Monic C y x
-  := pr2 y.
+  := make_Monic _ _ (pr2 y).
+
+Definition make_mono_in_cat
+           {C : category}
+           {x y : C}
+           (m : Monic C y x)
+  : mono_in_cat x
+  := (y ,, _) ,, MonicisMonic _ m.
 
 Section Subobjects.
   Context {C : univalent_category}
           (x : C).
 
   Definition isaset_subobject_univ_cat
-    : isaset (subobject_univ_cat x).
+    : isaset (mono_in_cat x).
   Proof.
     intros m₁ m₂.
-    use isaset_disp_ob.
+    apply (isaset_disp_ob (univalent_disp_mono_codomain C)).
     apply locally_propositional_mono_cod_disp_cat.
   Qed.
 
@@ -520,16 +471,16 @@ Section Subobjects.
     : hSet.
   Proof.
     use make_hSet.
-    - exact (subobject_univ_cat x).
+    - exact (mono_in_cat x).
     - apply isaset_subobject_univ_cat.
   Defined.
 
   Proposition eq_subobject_univ_cat
-              {y₁ y₂ : subobject_univ_cat x}
+              {y₁ y₂ : mono_in_cat x}
               (f : z_iso y₁ y₂)
-              (p : f · mono_of_subobject_univ_cat y₂
+              (p : f · monic_of_mono_in_cat y₂
                    =
-                   mono_of_subobject_univ_cat y₁)
+                   monic_of_mono_in_cat y₁)
     : y₁ = y₂.
   Proof.
     use (isotoid_disp (univalent_disp_mono_codomain C) (idpath _)).
