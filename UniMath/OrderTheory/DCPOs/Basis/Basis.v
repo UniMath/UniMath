@@ -62,7 +62,7 @@ Section BasisInDCPO.
     : UU
     := ∑ (B : UU), B → X.
 
-  #[reversible=no] Coercion dcpo_basis_data_to_type
+  Coercion dcpo_basis_data_to_type
            (B : dcpo_basis_data)
     : UU
     := pr1 B.
@@ -114,12 +114,12 @@ Section BasisInDCPO.
     : dcpo_basis
     := B ,, HB.
 
-  #[reversible=no] Coercion dcpo_basis_to_data
+  Coercion dcpo_basis_to_data
            (B : dcpo_basis)
     : dcpo_basis_data
     := pr1 B.
 
-  #[reversible=no] Coercion dcpo_basis_to_laws
+  Coercion dcpo_basis_to_laws
            (B : dcpo_basis)
     : dcpo_basis_laws B
     := pr2 B.

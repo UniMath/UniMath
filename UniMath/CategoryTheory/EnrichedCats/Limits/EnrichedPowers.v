@@ -54,7 +54,7 @@ Section EnrichedPowers.
     : UU
     := ∑ (a : C), v --> E ⦃ a , x ⦄.
 
-  #[reversible=no] Coercion ob_power_cone
+  Coercion ob_power_cone
            (a : power_cone)
     : C
     := pr1 a.
@@ -334,7 +334,7 @@ Definition cat_with_enrichment_power
   : UU
   := ∑ (C : cat_with_enrichment V), enrichment_power C.
 
-#[reversible=no] Coercion cat_with_enrichment_power_to_cat_with_enrichment
+Coercion cat_with_enrichment_power_to_cat_with_enrichment
          {V : sym_mon_closed_cat}
          (C : cat_with_enrichment_power V)
   : cat_with_enrichment V

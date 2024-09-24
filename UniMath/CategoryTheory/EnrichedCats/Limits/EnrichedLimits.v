@@ -58,7 +58,7 @@ Section EnrichedLimit.
        =
        #W f · fs j.
 
-  #[reversible=no] Coercion ob_enriched_lim_cone
+  Coercion ob_enriched_lim_cone
            (a : enriched_lim_cone)
     : C
     := pr1 a.
@@ -217,7 +217,7 @@ Section EnrichedLimit.
     := ∑ (a : enriched_lim_cone),
        is_lim_enriched a.
 
-  #[reversible=no] Coercion cone_of_lim_enriched
+  Coercion cone_of_lim_enriched
            (a : lim_enriched)
     : enriched_lim_cone
     := pr1 a.
