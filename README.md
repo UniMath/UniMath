@@ -46,10 +46,7 @@ Some scientific articles describing the contents of the UniMath library or work 
 Contributing to UniMath
 -----------------------
 
-To contribute to UniMath, submit a pull request.  Your code will be subject to the
-copyright and license agreement in [LICENSE.md](LICENSE.md).
-
-For the style guide and other instructions, see [UniMath/README.md](UniMath/README.md).
+See the documentation about [contributing](documentation/contributing/contributing.md)
 
 
 Citing UniMath

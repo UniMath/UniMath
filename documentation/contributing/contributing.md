@@ -1,7 +1,7 @@
 # Contributing
 
 Contributions are submitted in the form of pull requests on GitHub and are
-subject to approval by the UniMath Development Team. Your code will be subject to the 
+subject to approval by the UniMath Development Team. Your code will be subject to the
 copyright and license agreement in [LICENSE.md](LICENSE.md).
 
 Changes to the package "Foundations" are normally not accepted, for we are
