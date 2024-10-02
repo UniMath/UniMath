@@ -7,7 +7,7 @@ Since a part of the Bicategories is quite heavy and takes a long time to compile
 
 ## The satellite repositories
 
-The five satellites that fall within the continuous integration of this GitHub repository ([SetHITs](https://github.com/UniMath/SetHITs), [GrpdHITs](https://github.com/UniMath/GrpdHITs), [TypeTheory](https://github.com/UniMath/TypeTheory), [largecatmodules](https://github.com/UniMath/largecatmodules)), [Schools](https://github.com/UniMath/Schools)) are less integrated parts of UniMath, just like the "contributions" that Coq had a long time ago. Satellites do not need to conform to the coding style of UniMath as consistently as the UniMath library itself (HITs use more inductive types). They are maintained, even if this often only means propagating upstream changes.
+The five satellites that fall within the continuous integration of this GitHub repository ([SetHITs](https://github.com/UniMath/SetHITs), [GrpdHITs](https://github.com/UniMath/GrpdHITs), [TypeTheory](https://github.com/UniMath/TypeTheory), [largecatmodules](https://github.com/UniMath/largecatmodules), [Schools](https://github.com/UniMath/Schools)) are less integrated parts of UniMath, just like the "contributions" that Coq had a long time ago. Satellites do not need to conform to the coding style of UniMath as consistently as the UniMath library itself (HITs use more inductive types). They are maintained, even if this often only means propagating upstream changes.
 
 To download and compile a satellite repository, for example `SetHITs`, go to the root directory of the UniMath repository (so you should see a `UniMath` directory as well as a `README.md` file) and run
 ```bash
