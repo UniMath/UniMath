@@ -1,5 +1,9 @@
 # Contributing
 
+Potential work on the library is tracked in two ways. Firstly, there are the [GitHub issues](https://github.com/UniMath/UniMath/issues). These keep track of proofs, definitions, or refactorings that would make working with the UniMath library easier or better, or that are needed for further work. There is also the [opportunities](./opportunities.md) file, which tracks projects that would interesting to do, and are possible to do with the current state of the library, but are currently not necessary.
+
+Feel free to take up a project from either the issues or opportunities file, or to add new issues or opportunities you think of.
+
 Contributions are submitted in the form of pull requests on GitHub and are
 subject to approval by the UniMath Development Team. Your code will be subject to the
 copyright and license agreement in [LICENSE.md](LICENSE.md).

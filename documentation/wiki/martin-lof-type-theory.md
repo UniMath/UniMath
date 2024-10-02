@@ -1,23 +1,3 @@
-Univalent Mathematics Coq files
-===============================
-
-Each subdirectory of this directory consists of a separate package, with
-various authors, as recorded in the README (or README.md) file in it.
-
-## Contributing code to UniMath
-
-Volunteers may look at unassigned issues at GitHub and volunteer to be assigned
-one of them.  New proposals and ideas may be submitted as issues at GitHub for
-discussion and feedback.
-
-Contributions are submitted in the form of pull requests at GitHub and are
-subject to approval by the UniMath Development Team.
-
-Changes to the package "Foundations" are normally not accepted, for we are
-trying to keep it in a state close to what Vladimir Voevodsky originally
-intended.  A warning is issued if you run `make` or `make all` and have changed
-a file in the Foundations package.
-
 ## The UniMath formal language
 
 The formal language used in the UniMath project is based on Martin-Löf type
