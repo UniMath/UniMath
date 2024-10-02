@@ -6,6 +6,12 @@ Univalent Mathematics
 This [Coq](https://coq.inria.fr/) library aims to formalize a substantial body of mathematics using the
 [univalent point of view](https://en.wikipedia.org/wiki/Univalent_foundations).
 
+Discussing UniMath & Getting Help
+---------------------------------
+
+- For **questions** about the UniMath library and **requests** for **help** with installing, compiling or using the library, visit the [UniMath Zulip](https://unimath.zulipchat.com) (click [here](https://unimath.zulipchat.com/register/) to register).
+- For **bugs** and **suggestions** about **improvements**, file an [issue on GitHub](https://github.com/UniMath/UniMath/issues).
+
 
 Trying out UniMath
 ------------------
@@ -34,24 +40,16 @@ Contents
 The [UniMath subdirectory](UniMath/) contains various packages of formalized
 mathematics. For more information, see the [UniMath Table of Contents](UniMath/CONTENTS.md).
 
-Some scientific articles describing the contents of the UniMath library or work using it are listed in the 
+Some scientific articles describing the contents of the UniMath library or work using it are listed in the
 [wiki](https://github.com/UniMath/UniMath/wiki/Articles-with-accompanying-formalization-in-UniMath).
 
 Contributing to UniMath
 -----------------------
 
-To contribute to UniMath, submit a pull request.  Your code will be subject to the 
+To contribute to UniMath, submit a pull request.  Your code will be subject to the
 copyright and license agreement in [LICENSE.md](LICENSE.md).
 
 For the style guide and other instructions, see [UniMath/README.md](UniMath/README.md).
-
-Discussing UniMath & Getting Help
----------------------------------
-
-- **Questions** about the UniMath library, compilation, and installation of UniMath, etc.,
-can be asked in the [UniMath Zulip](https://unimath.zulipchat.com) (click [here](https://unimath.zulipchat.com/register/) to register)
-or on the [UniMath mailing list](mailto:univalent-mathematics@googlegroups.com) (archived in a [Google Group](https://groups.google.com/forum/#!forum/univalent-mathematics)).
-- **Bugs** should be reported in our [UniMath bug tracker on GitHub](https://github.com/UniMath/UniMath/issues).
 
 
 Citing UniMath
