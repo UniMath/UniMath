@@ -790,6 +790,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DaggerCategories/Functors/Factorization.v](CategoryTheory/DaggerCategories/Functors/Factorization.v)
    - [DaggerCategories/Functors/Precomp.v](CategoryTheory/DaggerCategories/Functors/Precomp.v)
    - [DaggerCategories/CatIso.v](CategoryTheory/DaggerCategories/CatIso.v)
+   - [MarkovCategories/MarkovCat.v](CategoryTheory/MarkovCategories/MarkovCat.v)
    - [All.v](CategoryTheory/All.v)
 ## Package ModelCategories
    - [Retract.v](ModelCategories/Retract.v)

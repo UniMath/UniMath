@@ -669,3 +669,6 @@ DaggerCategories/Functors/Factorization.v
 DaggerCategories/Functors/Precomp.v
 
 DaggerCategories/CatIso.v
+
+MarkovCategories/MarkovCat.v
+MarkovCategories/Determinism.v
