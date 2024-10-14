@@ -884,7 +884,7 @@ Section FormulaFunctor.
               apply hyperdoctrine_hyp.
       Qed.
 
-      Local Definition point_partial_setoid_morphism
+      Definition point_partial_setoid_morphism
         : partial_setoid_morphism (formula_to_partial_setoid Δ) X.
       Proof.
         use make_partial_setoid_morphism.

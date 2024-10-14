@@ -10,7 +10,7 @@
  1. The partial setoid representing the subobject classifier
  2. Accessors for the partial equivalence relation
  3. The map representing truth
- 4. The universal mapping property of triposes
+ 4. The universal mapping property of the subobject classifier
  4.1. Maps to the subobject classifier
  4.2. The map gives rise to a pullback square
  4.3. Uniqueness
@@ -240,7 +240,7 @@ Section TriposSubobjectClassifier.
     - exact omega_partial_setoid_true_laws.
   Defined.
 
-  (** * 4. The universal mapping property of triposes *)
+  (** * 4. The universal mapping property of the subobject classifier *)
   Section UMP.
     Context {X Y : partial_setoid H}
             (m : Monic (category_of_partial_setoids H) X Y).
@@ -677,6 +677,11 @@ Section TriposSubobjectClassifier.
           }
           refine (hyperdoctrine_cut r _).
           unfold Δ'.
+          (*
+           Key lemma:
+             if `φ` is monic
+             then `φ [⟨ x₁, y₁ ⟩] ∧ φ [⟨ x₂, y₁ ⟩] ⊢ x₁ ~ x₂`
+           *)
           (* we need that `φ` is monic *)
           (* the part in MonicLemma needs to be generalized *)
           admit.
@@ -700,17 +705,62 @@ Section TriposSubobjectClassifier.
             }
             simplify.
             rewrite tripos_form_to_tm_Prf.
-            admit. (* yes *)
+            use conj_intro ; [ | apply truth_intro ].
+            use (exists_elim (partial_setoid_mor_hom_exists ψ₂ (hyperdoctrine_hyp _))).
+            use weaken_right.
+            unfold w.
+            simplify.
+            use (hyperdoctrine_eq_transportf _ _ (hyperdoctrine_hyp _)).
+            use hyperdoctrine_eq_pair_right.
+            apply hyperdoctrine_unit_tm_eq.
           + unfold w.
             simplify_form.
             rewrite !partial_setoid_subst.
             simplify.
-            assert UU.
+            rewrite <- hyperdoctrine_comp_subst.
+            rewrite tripos_form_to_tm_Prf.
+            simplify_form.
+            refine (weaken_cut _ _).
             {
-              refine ((tripos_form_to_tm ⊤) [π₁ (tm_var ((𝟙 ×h W) ×h Y)) ]tm
-                      =
-                      tripos_form_to_tm ⊤).
-            (* we need to find an `x` *)
+              do 3 use weaken_right.
+              use (iff_elim_right (hyperdoctrine_hyp _)).
+              apply truth_intro.
+            }
+            refine (exists_elim _ _).
+            {
+              use weaken_right.
+              apply hyperdoctrine_hyp.
+            }
+            rewrite !conj_subst.
+            use hyp_sym.
+            use hyp_rtrans.
+            use weaken_left.
+            do 3 use hyp_rtrans.
+            use weaken_left.
+            simplify_form.
+            rewrite !partial_setoid_subst.
+            simplify.
+            use exists_intro.
+            {
+              exact (π₂ (tm_var _)).
+            }
+            rewrite exists_subst.
+            use exists_intro.
+            {
+              exact (π₂ (π₁ (tm_var _))).
+            }
+            simplify.
+            clear w h.
+            pose (x := π₂ (tm_var (((𝟙 ×h W) ×h Y) ×h X))).
+            pose (y := π₂ (π₁ (tm_var (((𝟙 ×h W) ×h Y) ×h X)))).
+            pose (w := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h W) ×h Y) ×h X))))).
+            fold x y w.
+            use conj_intro.
+            * do 3 use weaken_left.
+              apply hyperdoctrine_hyp.
+            * use weaken_left.
+              use weaken_right.
+              apply hyperdoctrine_hyp.
       Admitted.
 
       Definition is_pullback_subobject_classifier_partial_setoid_map
