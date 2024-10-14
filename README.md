@@ -5,7 +5,7 @@
 This [Rocq](https://coq.inria.fr/) library aims to formalize a substantial body of mathematics using the
 [univalent point of view](https://en.wikipedia.org/wiki/Univalent_foundations).
 
-## Discussing UniMath & Getting Help
+## Getting Help & Discussing UniMath
 
 - For **questions** about the UniMath library and **requests** for **help** with installing or using the library, visit the [UniMath Zulip](https://unimath.zulipchat.com) (click [here](https://unimath.zulipchat.com/register/) to register).
 - For **bugs** and **suggestions** about **improvements**, file an [issue on GitHub](https://github.com/UniMath/UniMath/issues).
