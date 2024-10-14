@@ -1,4 +1,36 @@
-## UniMath
+# About UniMath
+
+## Citing UniMath
+To cite UniMath in your article, you can use the following bibtex item:
+```bibtex
+@Misc{UniMath,
+    author = {Voevodsky, Vladimir and Ahrens, Benedikt and Grayson, Daniel and others},
+    title = {UniMath --- a computer-checked library of univalent mathematics},
+    url = {https://github.com/UniMath/UniMath},
+    howpublished = {available at \url{http://unimath.org}},
+    doi          = {10.5281/zenodo.10849216},
+    url          = {https://doi.org/10.5281/zenodo.10849216}
+ }
+```
+Note that this requires ```\usepackage{url}``` or ```\usepackage{hyperref}```.
+
+## Coordinating Committee
+The UniMath project was started in 2014 by merging the repository
+[Foundations](https://github.com/UniMath/Foundations), by Vladimir Voevodsky
+(written in 2010), with two repositories based on it:
+[rezk_completion](https://github.com/benediktahrens/rezk_completion), by
+Benedikt Ahrens, and [Ktheory](https://github.com/DanGrayson/Ktheory), by
+Daniel Grayson.  Vladimir Voevodsky was a member of the team until his death in
+September, 2017.
+
+The current members of the UniMath Coordinating Committee are:
+
+- Benedikt Ahrens
+- Daniel Grayson
+- Michael Lindgren
+- Peter LeFanu Lumsdaine
+- Ralph Matthes
+- Niels van der Weide
 
 ## Packages
 The largest two packages in the repository are CategoryTheory and Bicategories. Most of the activity in UniMath is centered around these two.
