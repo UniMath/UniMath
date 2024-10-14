@@ -54,7 +54,7 @@ Section EnrichedCoproducts.
        ×
        I_{V} --> E ⦃ y , a ⦄.
 
-  #[reversible=no] Coercion ob_enriched_binary_coprod_cocone
+  Coercion ob_enriched_binary_coprod_cocone
            (a : enriched_binary_coprod_cocone)
     : C
     := pr1 a.
@@ -112,12 +112,12 @@ Section EnrichedCoproducts.
     := ∑ (a : enriched_binary_coprod_cocone),
        is_binary_coprod_enriched a.
 
-  #[reversible=no] Coercion cone_of_binary_coprod_enriched
+  Coercion cone_of_binary_coprod_enriched
            (a : binary_coprod_enriched)
     : enriched_binary_coprod_cocone
     := pr1 a.
 
-  #[reversible=no] Coercion binary_coprod_enriched_is_coprod
+  Coercion binary_coprod_enriched_is_coprod
            (a : binary_coprod_enriched)
     : is_binary_coprod_enriched a
     := pr2 a.
@@ -612,7 +612,7 @@ Definition cat_with_enrichment_coproduct
   : UU
   := ∑ (C : cat_with_enrichment V), enrichment_binary_coprod C.
 
-#[reversible=no] Coercion cat_with_enrichment_coproduct_to_cat_with_enrichment
+Coercion cat_with_enrichment_coproduct_to_cat_with_enrichment
          {V : monoidal_cat}
          (C : cat_with_enrichment_coproduct V)
   : cat_with_enrichment V
