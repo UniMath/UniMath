@@ -1,4 +1,4 @@
-## Opaqueness?
+# Opaqueness?
 In coq, there is something called "Opaqueness". Usually, the contents of a definition, or a proof that is closed with `Defined`, are visible to coq. This means that `simpl` or `cbn` can unfold such a definition, but also that coq needs to move it around and manipulate it when proving things about it. Sometimes that is a good thing. It would be hard to prove anything about a specific function `nat -> nat` if we did not have access to its definition. On the other hand, if we prove a proposition, for example `forall n, f n = f (2 * n) + f(2 * n + 1)`, we are probably not interested in the proof term itself, but only in the fact that it exists. In fact, the proof term would only constitute clutter in subsequent goals and definitions where we would use it. In such cases, it is wise to make it opaque. Properly managing opaqueness/transparency saves at most one or two minutes per definition, which for a large development can make a great difference in evaluation time.
 
 ## When?
