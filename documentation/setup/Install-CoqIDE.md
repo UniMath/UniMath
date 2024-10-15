@@ -7,6 +7,11 @@ command.
 ```bash
 $ make BUILD_COQIDE=yes
 ```
+On debian, you might need to run the following two commands
+```
+$ apt-get build-dep coq
+$ apt-get install liblablgtksourceview2-ocaml-dev
+```
 
 Alternatively, you can specify the value of the BUILD_COQIDE option more
 permanently by following the instructions in the file
