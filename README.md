@@ -10,7 +10,6 @@ This [Rocq](https://coq.inria.fr/) library aims to formalize a substantial body 
 - For **questions** about the UniMath library and **requests** for **help** with installing or using the library, visit the [UniMath Zulip](https://unimath.zulipchat.com) (click [here](https://unimath.zulipchat.com/register/) to register).
 - For **bugs** and **suggestions** about **improvements**, file an [issue on GitHub](https://github.com/UniMath/UniMath/issues).
 
-
 ## Trying out UniMath
 
 You can try out UniMath in the browser by clicking [here](https://unimath.github.io/live/).
