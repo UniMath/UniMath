@@ -49,3 +49,37 @@ at the beginning of the file, since the setup above does not load this library b
 
 Various special commands for dealing with proof scripts are bound to keys in Proof General's proof mode.
 To get a list of such key bindings, type ` C-h f proof-mode RETURN `.
+
+# TAGS
+Tags in emacs is a convenient way for searching or replacing names throughout a development. To compile the TAGS file write:
+
+``make TAGS``
+
+and then to do a tags replace type `M-R` (or follow buttons in emacs: Edit -> Replace -> Replace in Tagged Files). For more information see:
+
+https://www.gnu.org/software/emacs/manual/html_node/emacs/Tags.html
+
+# Cheat sheet
+
+Coq Proof General supplies the following key-bindings:
+
+    C-c C-a C-i
+    Inserts “Intros ”
+
+    C-c C-a C-a
+    Inserts “Apply ”
+
+    C-c C-a C-s
+    Inserts “Section ”
+
+    C-c C-a C-e
+    Inserts “End <section-name>.” (this should work well with nested sections).
+
+    C-c C-a C-o
+    Prompts for a SearchIsos argument.
+
+    C-c C-a C-n
+    Locate "<notation>".
+
+    C-x v g
+    Calls "git blame".
