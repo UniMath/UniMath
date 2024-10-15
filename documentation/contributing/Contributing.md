@@ -6,7 +6,7 @@ Potential work on the library is tracked in two ways. Firstly, there are the [Gi
 Feel free to take up a project from either the issues or opportunities file, or to add new issues or opportunities you think of.
 
 ## Pull Requests
-The git and GitHub part of the contribution process, including forking, branching, and remote tracking, is documented in [Making a Pull Request](Making-a-pull-request).
+The git and GitHub part of the contribution process, including forking, branching, and remote tracking, is documented on the page about [git and GitHub](Git-and-GitHub).
 
 Before making a pull request:
 - Check all your modified code compiles.
