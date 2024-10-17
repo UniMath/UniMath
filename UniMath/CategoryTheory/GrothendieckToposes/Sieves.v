@@ -37,6 +37,7 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.CategoryTheory.Subobjects.
 Require Import UniMath.CategoryTheory.yoneda.
+Require Import UniMath.CategoryTheory.Monics.
 
 Local Open Scope cat.
 
@@ -115,6 +116,13 @@ Section Sieves.
     End Accessors.
 
   End SelectedMorphisms.
+
+  Definition maximal_sieve
+    (X : C)
+    : sieve X
+    := Subobjectscategory_ob
+      (identity (yoneda C X))
+      (identity_isMonic _).
 
 End Sieves.
 

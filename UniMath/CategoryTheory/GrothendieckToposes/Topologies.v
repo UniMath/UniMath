@@ -51,18 +51,17 @@ Section GrothendieckTopology.
     Context (selection : sieve_selection).
 
     Definition Grothendieck_topology_maximal_sieve_ax : hProp :=
-      ∀ (c : C),
-        selection c (Subobjectscategory_ob (identity (yoneda C c)) (identity_isMonic _)).
+      ∀ (c : C), selection c (maximal_sieve c).
 
     Definition Grothendieck_topology_stability_ax : hProp :=
       ∀ (c c' : C) (h : c' --> c) (s : sieve c),
         selection c s ⇒
-        selection c' (PullbackSubobject Pullbacks_PreShv s (# (yoneda C) h)).
+        selection c' (sieve_pullback h s).
 
     Definition Grothendieck_topology_transitivity_ax : hProp :=
       ∀ (c : C) (s : sieve c),
         (∏ (c' : C) (h : c' --> c),
-          selection c' (PullbackSubobject Pullbacks_PreShv s (# (yoneda C) h)))
+          selection c' (sieve_pullback h s))
         ⇒ selection c s.
 
     Definition is_Grothendieck_topology : hProp :=

@@ -282,9 +282,10 @@ YonedaExponentials.v
 ExponentiationLeftAdjoint.v
 
 GrothendieckToposes/Sieves.v
+GrothendieckToposes/Topologies.v
 GrothendieckToposes/GrothendieckTopologies.v
 GrothendieckToposes/Sheaves.v
-GrothendieckToposes/GrothendieckToposes.v
+GrothendieckToposes/Toposes.v
 GrothendieckToposes/Examples/TerminalSheaf.v
 GrothendieckToposes/Examples/EmptySieve.v
 GrothendieckToposes/Examples/DiscreteTopology.v

@@ -9,7 +9,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.GrothendieckToposes.Examples.EmptySieve.
 Require Import UniMath.CategoryTheory.GrothendieckToposes.Examples.TerminalSheaf.
-Require Import UniMath.CategoryTheory.GrothendieckToposes.GrothendieckTopologies.
+Require Import UniMath.CategoryTheory.GrothendieckToposes.Topologies.
 Require Import UniMath.CategoryTheory.GrothendieckToposes.Sheaves.
 Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.Limits.Terminal.

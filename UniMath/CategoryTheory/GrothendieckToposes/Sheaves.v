@@ -12,7 +12,7 @@ Require Import UniMath.CategoryTheory.Limits.Products.
 Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.CategoryTheory.yoneda.
 
-Require Import UniMath.CategoryTheory.GrothendieckToposes.GrothendieckTopologies.
+Require Import UniMath.CategoryTheory.GrothendieckToposes.Topologies.
 Require Import UniMath.CategoryTheory.GrothendieckToposes.Sieves.
 
 Local Open Scope cat.
