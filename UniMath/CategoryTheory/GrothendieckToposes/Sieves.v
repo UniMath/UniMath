@@ -1,3 +1,21 @@
+(**************************************************************************************************
+
+  Sieves
+
+  A sieve on X is a collection of morphisms to X, that is closed under precomposition. It is
+  formalized as a subobject of the yoneda embedding of X. In other words, it consists of
+  a presheaf F, together with a monomorphism F ⟹ yoneda X. Note that here, a monomorphism is a
+  pointwise injective natural transformation. The `selected` morphisms from Y to X are then the
+  images under this transformation of the elements of F Y.
+  This file defines sieves, together with accessors for the functor and natural transformation. It
+  also defines `selected morphisms` (consisting of an object Y, together with an element y : F Y)
+  with a constructor and some accessors.
+
+  Contents
+  1. Sieves [sieve]
+  2. Selected morphisms [sieve_selected_morphism]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Notations.
 
@@ -15,7 +33,8 @@ Section Sieves.
 
   Context {C : category}.
 
-  (** A sieve on c is a subobject of the yoneda functor. *)
+  (** 1. Sieves *)
+
   Definition sieve (c : C) : UU :=
     Subobjectscategory (yoneda C c).
 
@@ -28,6 +47,8 @@ Section Sieves.
   Definition sieve_nat_trans (S : sieve c) :
     sieve_functor S ⟹ yoneda_objects C c
     := Subobject_mor S.
+
+  (** 2. Selected morphisms *)
 
   Definition sieve_selected_morphism (S : sieve c)
     := ∑ (d : C), (sieve_functor S d : hSet).
