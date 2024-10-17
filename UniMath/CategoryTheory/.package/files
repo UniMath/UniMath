@@ -274,13 +274,17 @@ Categories/Woset.v
 Categories/Graph.v
 Categories/CGraph.v
 
-GrothendieckTopos.v
 Presheaf.v
 ElementsOp.v
 elems_slice_equiv.v
 YonedaBinproducts.v
 YonedaExponentials.v
 ExponentiationLeftAdjoint.v
+
+GrothendieckToposes/Sieves.v
+GrothendieckToposes/GrothendieckTopologies.v
+GrothendieckToposes/Sheaves.v
+GrothendieckToposes/GrothendieckToposes.v
 
 Connected.v
 LeftKanExtension.v
