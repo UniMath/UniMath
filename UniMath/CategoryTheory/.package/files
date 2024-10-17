@@ -285,6 +285,10 @@ GrothendieckToposes/Sieves.v
 GrothendieckToposes/GrothendieckTopologies.v
 GrothendieckToposes/Sheaves.v
 GrothendieckToposes/GrothendieckToposes.v
+GrothendieckToposes/Examples/TerminalSheaf.v
+GrothendieckToposes/Examples/EmptySieve.v
+GrothendieckToposes/Examples/DiscreteTopology.v
+GrothendieckToposes/Examples/IndiscreteTopology.v
 
 Connected.v
 LeftKanExtension.v
