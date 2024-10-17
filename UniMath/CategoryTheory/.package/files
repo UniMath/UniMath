@@ -241,7 +241,8 @@ Categories/Intdom.v
 Categories/Fld.v
 Categories/Module.v
 Categories/StandardCategories.v
-Categories/PreorderCategories.v
+Categories/PreorderCategory/Core.v
+Categories/PreorderCategory/Sieves.v
 Categories/MonoidToCategory.v
 
 Limits/Examples/UnitCategoryLimits.v
