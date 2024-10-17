@@ -283,7 +283,7 @@ ExponentiationLeftAdjoint.v
 
 GrothendieckToposes/Sieves.v
 GrothendieckToposes/Topologies.v
-GrothendieckToposes/GrothendieckTopologies.v
+GrothendieckToposes/Sites.v
 GrothendieckToposes/Sheaves.v
 GrothendieckToposes/Toposes.v
 GrothendieckToposes/Examples/TerminalSheaf.v

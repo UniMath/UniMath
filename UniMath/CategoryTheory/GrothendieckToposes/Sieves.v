@@ -45,7 +45,7 @@ Section Sieves.
 
   Context {C : category}.
 
-  (** 1. Sieves *)
+  (** * 1. Sieves *)
 
   Definition sieve (c : C) : UU :=
     Subobjectscategory (yoneda C c).
@@ -64,7 +64,7 @@ Section Sieves.
 
   End Accessors.
 
-  (** 2. Pullback of sieves *)
+  (** * 2. Pullback of sieves *)
 
   Definition sieve_pullback
     {X Y : C}
@@ -73,7 +73,7 @@ Section Sieves.
     : sieve Y
     := PullbackSubobject Pullbacks_PreShv S (# (yoneda C) f).
 
-  (** 3. Selected morphisms *)
+  (** * 3. Selected morphisms *)
 
   Section SelectedMorphisms.
 

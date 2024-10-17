@@ -34,7 +34,7 @@ Local Open Scope cat.
 
 Section GrothendieckTopology.
 
-  (* 1. The property for a collection of sieves of being a topology *)
+  (** * 1. The property for a collection of sieves of being a topology *)
 
   Context {C : category}.
 
@@ -78,7 +78,7 @@ Section GrothendieckTopology.
 
   End IsGrothendieckTopology.
 
-  (* 2. Grothendieck topologies *)
+  (** * 2. Grothendieck topologies *)
 
   Definition Grothendieck_topology : UU :=
     ∑ selection, is_Grothendieck_topology selection.
@@ -89,7 +89,6 @@ Section GrothendieckTopology.
     : Grothendieck_topology
     := selection ,, H.
 
-  (** Accessor functions *)
   Coercion Grothendieck_topology_sieve_selection (GT : Grothendieck_topology) :
     sieve_selection := pr1 GT.
 

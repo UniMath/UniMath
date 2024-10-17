@@ -4,13 +4,15 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.GrothendieckToposes.Topologies.
-Require Import UniMath.CategoryTheory.GrothendieckToposes.Sieves.
-Require Import UniMath.CategoryTheory.GrothendieckToposes.Sheaves.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.CategoryTheory.Subobjects.
 Require Import UniMath.CategoryTheory.yoneda.
+
+Require Import UniMath.CategoryTheory.GrothendieckToposes.Sheaves.
+Require Import UniMath.CategoryTheory.GrothendieckToposes.Sieves.
+Require Import UniMath.CategoryTheory.GrothendieckToposes.Sites.
+Require Import UniMath.CategoryTheory.GrothendieckToposes.Topologies.
 
 Local Open Scope cat.
 
@@ -87,6 +89,10 @@ Section IndiscreteTopology.
       indiscrete_topology_selection
       indiscrete_is_topology.
 
+  Definition indiscrete_site
+    : site
+    := make_site C indiscrete_topology.
+
 End IndiscreteTopology.
 
 Section Sheaves.
@@ -95,7 +101,7 @@ Section Sheaves.
   Context (P : PreShv C).
 
   Lemma indiscrete_presheaf_is_sheaf
-    : is_sheaf (indiscrete_topology C) P.
+    : is_sheaf (indiscrete_site C) P.
   Proof.
     intros X S f.
     refine ((_ : is_iso (C := PreShv C) _) _ f).

@@ -6,21 +6,19 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.
-Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Products.
 Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.CategoryTheory.yoneda.
 
-Require Import UniMath.CategoryTheory.GrothendieckToposes.Topologies.
 Require Import UniMath.CategoryTheory.GrothendieckToposes.Sieves.
+Require Import UniMath.CategoryTheory.GrothendieckToposes.Sites.
 
 Local Open Scope cat.
 
 Section Sheaves.
 
-  Context {C : category}.
-  Context (GT : Grothendieck_topology C).
+  Context (C : site).
 
   Section SheafProperties.
 
@@ -29,10 +27,10 @@ Section Sheaves.
     (** This is a formalization of the definition on page 122 *)
     Definition is_sheaf : UU :=
       ∏ (c : C)
-        (S : GT c)
-        (τ : sieve_functor (pr1carrier _ S) ⟹ (P : _ ⟶ _)),
+        (S : covering_sieve c)
+        (τ : sieve_functor S ⟹ (P : _ ⟶ _)),
       ∃! (η : yoneda_objects _ c ⟹ (P : _ ⟶ _)),
-        nat_trans_comp _ _ _ (sieve_nat_trans (pr1carrier _ S)) η = τ.
+        nat_trans_comp _ _ _ (sieve_nat_trans S) η = τ.
 
     Lemma isaprop_is_sheaf : isaprop is_sheaf.
     Proof.
@@ -45,12 +43,12 @@ Section Sheaves.
     Section EqualizerSheafProperty.
 
       Context {c : C}.
-      Context (S : GT c).
+      Context (S : covering_sieve c).
 
       (* Domain *)
 
       Definition sheaf_property_equalizer_domain_factor
-        (f : sieve_selected_morphism (pr1carrier _ S))
+        (f : sieve_selected_morphism S)
         : hSet
         := (P : _ ⟶ _) (sieve_selected_morphism_domain f).
 
@@ -62,10 +60,10 @@ Section Sheaves.
 
       Definition sheaf_property_equalizer_codomain_index
         : UU
-        := ∑ (f : sieve_selected_morphism (pr1carrier _ S)) (W : C), C⟦W, sieve_selected_morphism_domain f⟧.
+        := ∑ (f : sieve_selected_morphism S) (W : C), C⟦W, sieve_selected_morphism_domain f⟧.
 
       Definition make_sheaf_property_equalizer_codomain_index
-        (f : sieve_selected_morphism (pr1carrier _ S))
+        (f : sieve_selected_morphism S)
         (W : C)
         (g : C⟦W, sieve_selected_morphism_domain f⟧)
         : sheaf_property_equalizer_codomain_index
@@ -73,7 +71,7 @@ Section Sheaves.
 
       Definition sheaf_property_equalizer_codomain_index_selected_morphism
         (fWg : sheaf_property_equalizer_codomain_index)
-        : sieve_selected_morphism (pr1carrier _ S)
+        : sieve_selected_morphism S
         := pr1 fWg.
 
       Definition sheaf_property_equalizer_codomain_index_object
@@ -138,7 +136,7 @@ Section Sheaves.
         refine (maponpaths (λ x, x · _) (ProductPrCommutes _ _ _ _ _ _ _) @ !_).
         refine (_ @ functor_comp _ _ _).
         apply maponpaths.
-        exact (eqtohomot (nat_trans_ax (sieve_nat_trans (pr1carrier _ S)) _ _ _) _).
+        exact (eqtohomot (nat_trans_ax (sieve_nat_trans S) _ _ _) _).
       Qed.
 
       Definition sheaf_property_equalizer_induced_arrow
@@ -148,7 +146,7 @@ Section Sheaves.
     End EqualizerSheafProperty.
 
     Definition is_sheaf' : UU
-      := ∏ c (S : GT c),
+      := ∏ c (S : covering_sieve c),
         is_z_isomorphism (sheaf_property_equalizer_induced_arrow S).
 
     Lemma isaprop_is_sheaf'
@@ -161,10 +159,10 @@ Section Sheaves.
     Definition sheaf_locality_ax
       : UU
       := ∏ (c : C)
-          (S : GT c)
+          (S : covering_sieve c)
           (f g : ((P : _ ⟶ _) c : hSet)),
           (∏
-            (h : sieve_selected_morphism (pr1carrier _ S)),
+            (h : sieve_selected_morphism S),
               # (P : _ ⟶ _) h f
             = # (P : _ ⟶ _) h g)
           → f = g.
@@ -180,17 +178,17 @@ Section Sheaves.
       : UU
       := ∏
         (c : C)
-        (S : GT c)
+        (S : covering_sieve c)
         (x : ∏
-          (f : sieve_selected_morphism (pr1carrier _ S)),
+          (f : sieve_selected_morphism S),
           ((P : _ ⟶ _) (sieve_selected_morphism_domain f) : hSet)),
-        (∏ (f : sieve_selected_morphism (pr1carrier _ S))
+        (∏ (f : sieve_selected_morphism S)
           (W : C)
           (g : C⟦W, sieve_selected_morphism_domain f⟧),
           x (sieve_selected_morphism_compose f g)
           = # (P : _ ⟶ _) g (x f))
         → ∑ (z : (P : _ ⟶ _) c : hSet),
-            ∏ (f : sieve_selected_morphism (pr1carrier _ S)),
+            ∏ (f : sieve_selected_morphism S),
               # (P : _ ⟶ _) f z
               = x f.
 
@@ -325,7 +323,7 @@ Section Sheaves.
         intro Y.
         apply funextfun.
         intro x.
-        exact (pr2 HG (make_sieve_selected_morphism (S := pr1carrier _ S) Y x)).
+        exact (pr2 HG (make_sieve_selected_morphism (S := S) Y x)).
       - intro y.
         apply (homset_property (PreShv C)).
       - intros f Hf.

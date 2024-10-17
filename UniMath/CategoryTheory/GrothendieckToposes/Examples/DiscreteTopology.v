@@ -7,14 +7,16 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
-Require Import UniMath.CategoryTheory.GrothendieckToposes.Examples.EmptySieve.
-Require Import UniMath.CategoryTheory.GrothendieckToposes.Examples.TerminalSheaf.
-Require Import UniMath.CategoryTheory.GrothendieckToposes.Topologies.
-Require Import UniMath.CategoryTheory.GrothendieckToposes.Sheaves.
 Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.CategoryTheory.yoneda.
+
+Require Import UniMath.CategoryTheory.GrothendieckToposes.Examples.EmptySieve.
+Require Import UniMath.CategoryTheory.GrothendieckToposes.Examples.TerminalSheaf.
+Require Import UniMath.CategoryTheory.GrothendieckToposes.Sheaves.
+Require Import UniMath.CategoryTheory.GrothendieckToposes.Topologies.
+Require Import UniMath.CategoryTheory.GrothendieckToposes.Sites.
 
 Local Open Scope cat.
 
@@ -39,6 +41,10 @@ Section DiscreteTopology.
       discrete_topology_selection
       discrete_topology_is_topology.
 
+  Definition discrete_site
+    : site
+    := make_site C discrete_topology.
+
 End DiscreteTopology.
 
 Section Sheaves.
@@ -47,7 +53,7 @@ Section Sheaves.
 
   Section Pointwise.
 
-    Context (F : sheaf_cat (discrete_topology C)).
+    Context (F : sheaf_cat (discrete_site C)).
     Context (X : C).
 
     Let H := pr2 F X
@@ -87,7 +93,7 @@ Section Sheaves.
   End Pointwise.
 
   Definition discrete_topos_to_unit_functor
-    : sheaf_cat (discrete_topology C) ⟶ unit_category
+    : sheaf_cat (discrete_site C) ⟶ unit_category
     := functor_to_unit _.
 
   Lemma discrete_topos_to_unit_ff
@@ -129,7 +135,7 @@ Section Sheaves.
   Defined.
 
   Definition discrete_topos_is_unit
-    : adj_equiv (sheaf_cat (discrete_topology C)) unit_category
+    : adj_equiv (sheaf_cat (discrete_site C)) unit_category
     :=
     functor_to_unit _ ,,
       (rad_equivalence_of_cats' _ _ _

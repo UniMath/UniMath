@@ -12,6 +12,7 @@ Require Import UniMath.CategoryTheory.Subcategory.Core.
 
 Require Import UniMath.CategoryTheory.GrothendieckToposes.Topologies.
 Require Import UniMath.CategoryTheory.GrothendieckToposes.Sheaves.
+Require Import UniMath.CategoryTheory.GrothendieckToposes.Sites.
 
 Local Open Scope cat.
 
@@ -23,7 +24,7 @@ Section def_grothendiecktopos.
       Grothendieck topology (pr2 D). *)
   Definition Grothendieck_topos : UU :=
     ∑ D : category × Grothendieck_topology C,
-      adj_equiv (pr1 D) (sheaf_cat (pr2 D)).
+      adj_equiv (pr1 D) (sheaf_cat (make_site C (pr2 D))).
 
   (** Accessor functions *)
   Coercion Grothendieck_topos_category (GT : Grothendieck_topos) : category :=
@@ -33,7 +34,7 @@ Section def_grothendiecktopos.
     Grothendieck_topology C := pr21 GT.
 
   Definition Grothendieck_topos_functor (GT : Grothendieck_topos) :
-    functor GT (sheaf_cat (Grothendieck_topos_Grothendieck_topology GT)) :=
+    functor GT (sheaf_cat (make_site C (Grothendieck_topos_Grothendieck_topology GT))) :=
     pr2 GT.
 
   Definition Grothendieck_topos_equivalence (GT : Grothendieck_topos) :
