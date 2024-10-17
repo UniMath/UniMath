@@ -10,6 +10,7 @@ Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Products.
 Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.CategoryTheory.yoneda.
+Require Import UniMath.CategoryTheory.opp_precat.
 
 Require Import UniMath.CategoryTheory.GrothendieckToposes.Sieves.
 Require Import UniMath.CategoryTheory.GrothendieckToposes.Sites.
@@ -22,14 +23,14 @@ Section Sheaves.
 
   Section SheafProperties.
 
-    Context (P : PreShv C).
+    Context (P : C^op ⟶ HSET).
 
     (** This is a formalization of the definition on page 122 *)
     Definition is_sheaf : UU :=
       ∏ (c : C)
         (S : covering_sieve c)
-        (τ : sieve_functor S ⟹ (P : _ ⟶ _)),
-      ∃! (η : yoneda_objects _ c ⟹ (P : _ ⟶ _)),
+        (τ : sieve_functor S ⟹ P),
+      ∃! (η : yoneda_objects _ c ⟹ P),
         nat_trans_comp _ _ _ (sieve_nat_trans S) η = τ.
 
     Lemma isaprop_is_sheaf : isaprop is_sheaf.
@@ -50,7 +51,7 @@ Section Sheaves.
       Definition sheaf_property_equalizer_domain_factor
         (f : sieve_selected_morphism S)
         : hSet
-        := (P : _ ⟶ _) (sieve_selected_morphism_domain f).
+        := P (sieve_selected_morphism_domain f).
 
       Definition sheaf_property_equalizer_domain
         : hSet
@@ -87,7 +88,7 @@ Section Sheaves.
       Definition sheaf_property_equalizer_codomain_factor
         (fWg : sheaf_property_equalizer_codomain_index)
         : hSet
-        := (P : _ ⟶ _) (sheaf_property_equalizer_codomain_index_object fWg).
+        := P (sheaf_property_equalizer_codomain_index_object fWg).
 
       Definition sheaf_property_equalizer_codomain
         : hSet
@@ -109,16 +110,16 @@ Section Sheaves.
         apply (ProductArrow _ SET).
         intro fWg.
         refine (ProductPr _ _ _ (sheaf_property_equalizer_codomain_index_selected_morphism fWg) · _).
-        apply (# (P : _ ⟶ _)).
+        apply (# P).
         exact (sheaf_property_equalizer_codomain_index_morphism fWg).
       Defined.
 
       Definition sheaf_property_equalizer_inducer_arrow
-        : ((P : _ ⟶ _) c : hSet) → sheaf_property_equalizer_domain.
+        : (P c : hSet) → sheaf_property_equalizer_domain.
       Proof.
         apply (ProductArrow _ SET).
         intro f.
-        apply (# (P : _ ⟶ _) f).
+        apply (# P f).
       Defined.
 
       Lemma sheaf_property_equalizer_inducer_arrow_commutes
@@ -140,7 +141,7 @@ Section Sheaves.
       Qed.
 
       Definition sheaf_property_equalizer_induced_arrow
-        : SET⟦(P : _ ⟶ _) c, Equalizers_in_HSET _ _ sheaf_property_equalizer_arrow1 sheaf_property_equalizer_arrow2⟧
+        : SET⟦P c, Equalizers_in_HSET _ _ sheaf_property_equalizer_arrow1 sheaf_property_equalizer_arrow2⟧
         := EqualizerIn (C := SET) _ _ _ sheaf_property_equalizer_inducer_arrow_commutes.
 
     End EqualizerSheafProperty.
@@ -160,11 +161,11 @@ Section Sheaves.
       : UU
       := ∏ (c : C)
           (S : covering_sieve c)
-          (f g : ((P : _ ⟶ _) c : hSet)),
+          (f g : (P c : hSet)),
           (∏
             (h : sieve_selected_morphism S),
-              # (P : _ ⟶ _) h f
-            = # (P : _ ⟶ _) h g)
+              # P h f
+            = # P h g)
           → f = g.
 
     Lemma isaprop_locality_ax
@@ -181,15 +182,15 @@ Section Sheaves.
         (S : covering_sieve c)
         (x : ∏
           (f : sieve_selected_morphism S),
-          ((P : _ ⟶ _) (sieve_selected_morphism_domain f) : hSet)),
+          (P (sieve_selected_morphism_domain f) : hSet)),
         (∏ (f : sieve_selected_morphism S)
           (W : C)
           (g : C⟦W, sieve_selected_morphism_domain f⟧),
           x (sieve_selected_morphism_compose f g)
-          = # (P : _ ⟶ _) g (x f))
-        → ∑ (z : (P : _ ⟶ _) c : hSet),
+          = # P g (x f))
+        → ∑ (z : P c : hSet),
             ∏ (f : sieve_selected_morphism S),
-              # (P : _ ⟶ _) f z
+              # P f z
               = x f.
 
     Lemma isaprop_glueing_ax
@@ -250,11 +251,11 @@ Section Sheaves.
         intro x.
         use (!eqtohomot (nat_trans_eq_pointwise (path_to_ctr _ _ (H _) (make_nat_trans _ _ _ _) _) _) _ @ _).
         + intros d g.
-          refine (# (P : _ ⟶ _) g x).
+          refine (# P g x).
         + intros d d' g.
           apply funextfun.
           intro g'.
-          exact (eqtohomot (functor_comp (P : _ ⟶ _) g' g) x).
+          exact (eqtohomot (functor_comp P g' g) x).
         + apply nat_trans_eq_alt.
           reflexivity.
         + exact (eqtohomot (functor_id P c) x).
@@ -373,3 +374,64 @@ Section Sheaves.
   Defined.
 
 End Sheaves.
+
+Definition sheaf
+  (C : site)
+  : UU
+  := sheaf_cat C.
+
+Definition make_sheaf
+  {C : site}
+  (F : PreShv C)
+  (H : is_sheaf C F)
+  : sheaf C
+  := F ,, H.
+
+Coercion sheaf_functor
+  {C : site}
+  (F : sheaf C)
+  : C^op ⟶ HSET
+  := pr1 F.
+
+Definition sheaf_is_sheaf
+  {C : site}
+  (F : sheaf C)
+  : is_sheaf C F
+  := pr2 F.
+
+Section Morphisms.
+
+  Context {C : site}.
+
+  Definition sheaf_morphism
+    (F G : sheaf C)
+    : UU
+    := sheaf_cat C⟦F, G⟧.
+
+  Definition make_sheaf_morphism
+    {F G : sheaf C}
+    (f : F ⟹ G)
+    : sheaf_morphism F G
+    := f ,, tt.
+
+  Coercion sheaf_morphism_nat_trans
+    {F G : sheaf C}
+    (f : sheaf_morphism F G)
+    : F ⟹ G
+    := pr1 f.
+
+  Lemma sheaf_morphism_eq
+    {F G : sheaf C}
+    (f g : sheaf_morphism F G)
+    (H : (f : _ ⟹ _) = g)
+    : f = g.
+  Proof.
+    use subtypePath.
+    {
+      intro.
+      apply isapropunit.
+    }
+    exact H.
+  Qed.
+
+End Morphisms.

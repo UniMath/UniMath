@@ -17,7 +17,7 @@ Section TerminalSheaf.
   Context (C : site).
 
   Definition terminal_is_sheaf
-    : is_sheaf C (Terminal_PreShv).
+    : is_sheaf C (Terminal_PreShv : PreShv C).
   Proof.
     intros X S f.
     use unique_exists.
@@ -35,8 +35,8 @@ Section TerminalSheaf.
   Defined.
 
   Definition terminal_sheaf_sheaf
-    : sheaf_cat C
-    := _ ,, terminal_is_sheaf.
+    : sheaf C
+    := make_sheaf _ terminal_is_sheaf.
 
   Definition terminal_sheaf_is_terminal
     : isTerminal (sheaf_cat C) terminal_sheaf_sheaf.

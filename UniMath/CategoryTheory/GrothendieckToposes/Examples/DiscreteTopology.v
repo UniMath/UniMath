@@ -53,25 +53,25 @@ Section Sheaves.
 
   Section Pointwise.
 
-    Context (F : sheaf_cat (discrete_site C)).
-    Context (X : C).
+    Context (F : sheaf (discrete_site C)).
+    Context (X : discrete_site C).
 
-    Let H := pr2 F X
-      (make_carrier (discrete_topology C X) (EmptySieve.empty_sieve X) tt)
+    Let H := sheaf_is_sheaf F X
+      (make_covering_sieve (EmptySieve.empty_sieve X) tt)
       (InitialArrow Initial_PreShv _).
 
-    Let FX := (pr1 F : _ ⟶ _) X : hSet.
+    Let FX := F X : hSet.
 
     Definition discrete_sheaf_value
       : FX
-      := yoneda_weq C X (pr1 F) (pr11 H).
+      := yoneda_weq C X F (pr11 H).
 
     Lemma discrete_sheaf_value_unique
       (x : FX)
       : x = discrete_sheaf_value.
     Proof.
-      pose (E := pr2 H (invmap (yoneda_weq C X (pr1 F)) x ,, InitialArrowUnique Initial_PreShv _ _)).
-      refine (!eqtohomot (functor_id (pr1 F) X) x @ _).
+      pose (E := pr2 H (invmap (yoneda_weq C X F) x ,, InitialArrowUnique Initial_PreShv _ _)).
+      refine (!eqtohomot (functor_id F X) x @ _).
       exact (eqtohomot (nat_trans_eq_weq (homset_property _) _ _ (base_paths _ _ E) X) (identity X)).
     Qed.
 
@@ -102,7 +102,7 @@ Section Sheaves.
     intros P Q.
     use isweq_iso.
     - intro f.
-      use (_ ,, tt).
+      apply make_sheaf_morphism.
       use make_nat_trans.
       + intros X x.
         apply discrete_sheaf_value.
@@ -112,12 +112,10 @@ Section Sheaves.
         ).
     - abstract (
         intro f;
-        apply subtypePath;
-        [ intro;
-          apply isapropunit
-        | apply nat_trans_eq_alt;
-          intro X;
-          apply discrete_sheaf_morphism_irrelevance ]
+        apply sheaf_morphism_eq;
+        apply nat_trans_eq_alt;
+        intro X;
+        apply discrete_sheaf_morphism_irrelevance
       ).
     - abstract (
         intro f;
