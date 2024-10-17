@@ -1,14 +1,22 @@
-(** * Definiton of Grothendieck topology
-    The following definition is a formalization of the definition in Sheaves in Geometry and Logic,
-    Saunders Mac Lane and Ieke Moerdijk, pages 109 and 110.
+(**************************************************************************************************
 
-    Grothendieck topology is a collection J(c) of subobjects of the Yoneda functor, for every object
-    of C, such that:
-    - The Yoneda functor y(c) is in J(c).
-    - Pullback of a subobject in J(c) along any morphism h : c' --> c is in J(c')
-    - If S is a subobject of y(c) such that for all objects c' and all morphisms
-      h : c' --> c in C the pullback of S along h is in J(c'), then S is in J(c).
-  *)
+  Grothendieck Topologies
+
+  A Grothendieck topology is, for every object X of
+  C, a collection J(X) of sieves (subobjects of the Yoneda functor), such that:
+  - The Yoneda functor y(X) is in J(X).
+  - The pullback of a sieve in J(X) along any morphism f : Y --> X is in J(Y).
+  - If S is a sieve on X such that for all objects Y and all morphisms f : Y --> X in C the pullback
+    of S along f is in J(Y), then S is in J(X).
+  (Sheaves in Geometry and Logic, Saunders Mac Lane and Ieke Moerdijk, pages 109 and 110)
+
+  This file gives a definition of a Grothendieck topology, together with constructors and accessors.
+
+  Contents
+  1. The property for a collection of sieves of being a topology [is_Grothendieck_topology]
+  2. Grothendieck topologies [Grothendieck_topology]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Notations.
 
@@ -25,6 +33,8 @@ Local Open Scope logic.
 Local Open Scope cat.
 
 Section GrothendieckTopology.
+
+  (* 1. The property for a collection of sieves of being a topology *)
 
   Context {C : category}.
 
@@ -68,6 +78,8 @@ Section GrothendieckTopology.
       := H1 ,, H2 ,, H3.
 
   End IsGrothendieckTopology.
+
+  (* 2. Grothendieck topologies *)
 
   Definition Grothendieck_topology : UU :=
     ∑ selection, is_Grothendieck_topology selection.
