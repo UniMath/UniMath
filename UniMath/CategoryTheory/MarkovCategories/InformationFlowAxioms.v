@@ -71,4 +71,3 @@ Proof.
   }
   reflexivity.
 Qed.
-    

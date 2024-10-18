@@ -36,12 +36,10 @@ Section DefConditionals.
 
   Definition is_conditional {a x y : C} (f : a --> x ⊗ y) (k : x ⊗ a --> y) : UU
     := f = copy a 
-           · f #⊗ identity a
-           · (identity x #⊗ del _) #⊗ identity a
-           · mon_runitor _ #⊗ identity a
-           · copy x #⊗ identity a
+           · (f · proj1 · copy x) #⊗ identity a
            · mon_lassociator _ _ _
            · identity x #⊗ k.
+
 End DefConditionals.
 
 Definition has_conditionals (C : markov_category) : UU :=
@@ -63,12 +61,9 @@ Section Accessors.
 
   Proposition conditional_eq {a x y : C} (f : a --> x ⊗ y)
     : f = copy a 
-           · f #⊗ identity a
-           · (identity x #⊗ del _) #⊗ identity a
-           · mon_runitor _ #⊗ identity a
-           · copy x #⊗ identity a
+           · (f · proj1 · copy x) #⊗ identity a
            · mon_lassociator _ _ _
-           · identity x #⊗ conditional f.
+           · identity x #⊗ (conditional f).
   Proof.
     exact (pr2 (pr2 C a x y f)).
   Qed.
@@ -80,71 +75,89 @@ Section ConditionalsImplyPositivity.
   Context (f : x --> y) (g : y --> z).
   Context (det_fg : is_deterministic (f · g)).
 
-  Let psi := f · copy y · g #⊗ identity _.
+  Let psi := f · ⟨g , identity _⟩.
   Let s := conditional psi.
 
-  Proposition K : psi
+  Lemma psi_1 : psi · proj1 = f · g.
+  Proof.
+    unfold psi.
+    rewrite <- assoc.
+    rewrite pairing_proj1.
+    reflexivity.
+  Qed.
+
+  Lemma psi_2 : psi · proj2 = f.
+  Proof.
+    unfold psi.
+    rewrite <- assoc.
+    rewrite pairing_proj2.
+    rewrite id_right.
+    reflexivity.
+  Qed.
+
+  Lemma K : psi
             = copy x 
               · (f · g · copy z) #⊗ identity x
               · mon_lassociator _ _ _
               · identity z #⊗ s.
-  Proof. Admitted.
+  Proof. 
+    unfold s.
+    pose(w := conditional_eq psi).
+    rewrite psi_1 in w.
+    exact w.
+  Qed.
 
-  Proposition pos_flipped : psi = copy x · (f · g) #⊗ f.
-  Proof. Admitted.
 
-  Proposition pos : f · copy y · identity y #⊗ g = copy x · (f #⊗ (f · g)).
+  Lemma Aux : ⟨f · g, identity _ ⟩ · s = f.
+  Proof.
+    assert(A1 : f · g = f · g · ⟨identity _, identity _⟩ · proj2).
+    { rewrite <- assoc.
+      rewrite pairing_proj2, id_right.
+      reflexivity. }
+    rewrite A1.
+    rewrite <- (id_left (identity x)).
+    rewrite <- pairing_tensor.
+    rewrite <- assoc.
+    rewrite proj2_naturality.
+    rewrite assoc, assoc.
+    
+    assert(A2 : ⟨identity z, identity z⟩ = copy z). 
+    { rewrite tensor_id_id, id_right. reflexivity. }
+    rewrite A2.
+    rewrite <- K.
+    rewrite psi_2.
+    reflexivity.
+   Qed.     
+
+  Lemma pos_flipped : psi = ⟨f · g , f⟩.
+  Proof. 
+    rewrite K.
+    rewrite det_fg.
+    rewrite <- pairing_rassociator.
+    transitivity (⟨ f · g, ⟨ f · g, identity x ⟩ ⟩ 
+                  · (mon_rassociator z z x · mon_lassociator z z x)
+                  · identity z #⊗ s).
+    { rewrite assoc. reflexivity. }
+    rewrite mon_rassociator_lassociator.
+    rewrite id_right.
+    rewrite pairing_tensor, id_right.
+    rewrite Aux.
+    reflexivity.
+  Qed.
+    
+  Proposition pos : f · ⟨identity y , g⟩ = ⟨f , f · g⟩.
   Proof.
     apply cancel_braiding.
-    rewrite <- !assoc.
-    rewrite! tensor_sym_mon_braiding.
-    etrans. 
-    { apply maponpaths.
-      rewrite assoc.
-      rewrite copy_comm.
-      reflexivity. }
-    symmetry.
-    etrans.
-    { rewrite assoc.
-      rewrite copy_comm.
-      reflexivity. }
-    symmetry.
-    rewrite assoc.
+    rewrite <- assoc, !pairing_sym_mon_braiding.
     apply pos_flipped.
   Qed.
   
-  
 End ConditionalsImplyPositivity.
 
-(*
-Section ConditionalProperties.
-  Context {C : markov_category_with_conditionals}.
-
-
-  Let Y := C.
-
-  Proposition conditionals_imply_positive : is_positive C.
-  Proof.
-    unfold is_positive.
-    intros x y z f g det_fg.
-    pose(psi := f · copy y · g #⊗ identity _).
-    pose(s := conditional psi).
-    pose(K := conditional_eq psi).
-
-    assert(KK : psi
-            = copy x 
-              · (f · g · copy z) #⊗ identity x
-              · mon_lassociator _ _ _
-              · identity z #⊗ s).
-    {
-      admit.
-    }
-
-    clear K.
-
-    (* Main argument *)
-    transitivity psi.
-      
-    
-  
-End ConditionalProperties.*)
+Theorem conditionals_imply_positivity {C : markov_category_with_conditionals} : is_positive C.
+Proof.
+  unfold is_positive.
+  intros x y z f g d.
+  apply pos.
+  exact d.
+Qed.

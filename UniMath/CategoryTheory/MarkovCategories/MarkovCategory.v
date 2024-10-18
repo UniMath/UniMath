@@ -253,6 +253,26 @@ Section Marginals.
   Definition proj1 {x y : C} : x ⊗ y --> x := (identity _ #⊗ del _) · mon_runitor _.
   Definition proj2 {x y : C} : x ⊗ y --> y := (del _ #⊗ identity _) · mon_lunitor _.
 
+  Proposition copy_proj1 {x : C} : copy x · proj1 = identity x.
+  Proof.
+    unfold proj1.
+    rewrite assoc.
+    apply copy_del_r.
+  Qed.
+
+  Proposition copy_proj2 {x : C} : copy x · proj2 = identity x.
+  Proof.
+    unfold proj2.
+    rewrite assoc.
+    apply copy_del_l.
+  Qed.
+
+  Proposition proj2_naturality {x y z w : C}
+                               {f : y ⊗ z --> w} :
+    (proj2 #⊗ identity z) · f = mon_lassociator _ _ _ · (identity x #⊗ f) · proj2.
+  Proof.
+  Admitted.
+
 End Marginals.
 
 (* We define pairing notation ⟨f,g⟩ *)
@@ -269,6 +289,12 @@ Proof. Admitted.
 
 Section PairingProperties.
   Context {C : markov_category}.
+
+  Proposition pairing_id {x : C} : ⟨identity x, identity x⟩ = copy x.
+  Proof.
+    rewrite tensor_id_id, id_right.
+    reflexivity.
+  Qed.
 
   Proposition pairing_tensor {a x y x2 y2 : C} (f : a --> x) (g : a --> y)
                                                (f2 : x --> x2) (g2 : y --> y2) :
@@ -331,5 +357,21 @@ Section PairingProperties.
     rewrite copy_comm.
     reflexivity.
   Qed.
+
+  Proposition pairing_lassociator {a x y z : C} 
+      (f : a --> x) (g : a --> y) (h : a --> z) 
+   : ⟨⟨f,g⟩,h⟩ · mon_lassociator _ _ _ = ⟨f,⟨g,h⟩⟩.
+  Proof.
+    rewrite <- (id_left h).
+    rewrite <- pairing_tensor.
+    rewrite copy_assoc.
+    Search "mon_lassociator".
+    (* Naturality of associators ? *)
+    Admitted.
+
+  Proposition pairing_rassociator {a x y z : C} 
+      (f : a --> x) (g : a --> y) (h : a --> z) 
+   : ⟨f,⟨g,h⟩⟩ · mon_rassociator _ _ _ = ⟨⟨f,g⟩,h⟩.
+  Proof. Admitted.
 
 End PairingProperties.
