@@ -43,16 +43,173 @@ Require Import UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERBinProduct
 Local Open Scope cat.
 Local Open Scope hd.
 
+Section Exponentials.
+  Context {H : tripos}.
+
+  Section ExpPartialSetoid.
+    Context (X Y : partial_setoid H).
+    Context (Z : partial_setoid H)
+            (φ : partial_setoid_morphism (prod_partial_setoid X Z) Y).
+
+    (*
+      the main idea of the definition is okay
+      however
+      - develop infrastructure
+      - some aadditional assumptions might be needed
+     *)
+    (** * 3. Lambda abstraction of partial setoid morphisms *)
+    Definition lam_partial_setoid_form
+      : form (Z ×h exp_partial_setoid)
+      := let z := π₁ (π₁ (π₁ (tm_var (((Z ×h ℙ (X ×h Y)) ×h X) ×h Y)))) in
+         let P := π₂ (π₁ (π₁ (tm_var (((Z ×h ℙ (X ×h Y)) ×h X) ×h Y)))) in
+         let x := π₂ (π₁ (tm_var (((Z ×h ℙ (X ×h Y)) ×h X) ×h Y))) in
+         let y := π₂ (tm_var (((Z ×h ℙ (X ×h Y)) ×h X) ×h Y)) in
+         (∀h ∀h (φ [ ⟨ ⟨ x , z ⟩ , y ⟩ ] ⇔ ⟨ x , y ⟩ ∈ P)).
+
+    Proposition lam_partial_setoid_laws
+      : partial_setoid_morphism_laws lam_partial_setoid_form.
+    Proof.
+      repeat split.
+      - unfold partial_setoid_mor_dom_defined_law ; cbn.
+        simplify_form.
+        use forall_intro.
+        use forall_intro.
+        use impl_intro.
+        use weaken_right.
+        pose (z := π₂ (π₁ (tm_var ((𝟙 ×h Z) ×h ℙ (X ×h Y))))).
+        pose (f := π₂ (tm_var ((𝟙 ×h Z) ×h ℙ (X ×h Y)))).
+        fold z f.
+        admit. (* needs to be assumption *)
+      - unfold partial_setoid_mor_cod_defined_law ; cbn.
+        simplify_form.
+        do 2 use forall_intro.
+        use impl_intro.
+        use weaken_right.
+        pose (z := π₂ (π₁ (tm_var ((𝟙 ×h Z) ×h ℙ (X ×h Y))))).
+        pose (f := π₂ (tm_var ((𝟙 ×h Z) ×h ℙ (X ×h Y)))).
+        fold z f.
+        use eq_in_exp_partial_setoid.
+        + admit. (* needs to be assumption *)
+        + admit. (* free *)
+      - unfold partial_setoid_mor_eq_defined_law ; cbn.
+        admit.
+      - unfold  partial_setoid_mor_unique_im_law ; cbn -[lam_partial_setoid_form].
+        do 3 use forall_intro.
+        use impl_intro.
+        use weaken_right.
+        use impl_intro.
+        pose (z := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Z) ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)))))).
+        pose (f := π₂ (π₁ (tm_var (((𝟙 ×h Z) ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y))))).
+        pose (g := π₂ (tm_var (((𝟙 ×h Z) ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)))).
+        fold z f g.
+        simplify.
+        use eq_in_exp_partial_setoid.
+        + admit. (* needs to be assumption *)
+        + unfold exp_partial_setoid_eq, f, g, z ; clear f g z.
+          simplify.
+          do 2 use forall_intro.
+          simplify.
+          pose (x := π₂ (π₁ (tm_var (((((𝟙 ×h Z) ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)) ×h X) ×h Y)))).
+          pose (y := π₂ (tm_var (((((𝟙 ×h Z) ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)) ×h X) ×h Y))).
+          pose (f := π₂ (π₁ (π₁ (tm_var (((((𝟙 ×h Z) ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)) ×h X) ×h Y))))).
+          pose (g := π₂ (π₁ (π₁ (π₁ (tm_var (((((𝟙 ×h Z) ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)) ×h X) ×h Y)))))).
+          pose (z := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var (((((𝟙 ×h Z) ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)) ×h X) ×h Y))))))).
+          fold x y z f g.
+          admit. (* looks goed *)
+      - unfold partial_setoid_mor_hom_exists_law ; cbn.
+        use forall_intro.
+        use impl_intro.
+        use weaken_right.
+        simplify.
+        use exists_intro.
+        + refine {{ _ }}.
+          admit.
+        + (* seems ok *)
+          admit.
+    Admitted.
+
+    Definition lam_partial_setoid
+      : partial_setoid_morphism Z exp_partial_setoid.
+    Proof.
+      use make_partial_setoid_morphism.
+      - exact lam_partial_setoid_form.
+      - exact lam_partial_setoid_laws.
+    Defined.
+
+    Proposition lam_partial_setoid_comm
+      : φ
+        =
+        partial_setoid_comp_morphism
+          (pair_partial_setoid_morphism
+             (partial_setoid_comp_morphism
+                (partial_setoid_pr1 X Z)
+                (id_partial_setoid_morphism X))
+             (partial_setoid_comp_morphism
+                (partial_setoid_pr2 X Z)
+                lam_partial_setoid))
+          eval_partial_setoid.
+    Proof.
+      use eq_partial_setoid_morphism.
+      - cbn.
+    Admitted.
+
+    Context (φ' : partial_setoid_morphism Z exp_partial_setoid)
+            (p : φ
+                 =
+                 partial_setoid_comp_morphism
+                   (pair_partial_setoid_morphism
+                      (partial_setoid_comp_morphism
+                         (partial_setoid_pr1 X Z)
+                         (id_partial_setoid_morphism X))
+                      (partial_setoid_comp_morphism
+                         (partial_setoid_pr2 X Z)
+                         φ'))
+                   eval_partial_setoid).
+
+    (** * 4. Uniqueness *)
+    Proposition lam_partial_setoid_unique
+      : φ' = lam_partial_setoid.
+    Proof.
+    Admitted.
+  End ExpPartialSetoid.
+
+  (** * 5. Exponentials in the category of partial setoids *)
+  Definition exponentials_partial_setoid
+    : Exponentials (binproducts_partial_setoid H).
+  Proof.
+    intros X.
+    use left_adjoint_from_partial.
+    - exact (λ Y, exp_partial_setoid X Y).
+    - exact (λ Y, eval_partial_setoid X Y).
+    - intros Y Z f.
+      use make_iscontr.
+      + simple refine (_ ,, _).
+        * exact (lam_partial_setoid X Y Z f).
+        * exact (lam_partial_setoid_comm X Y Z f).
+      + abstract
+          (intros f' ;
+           induction f' as [ f' p ] ;
+           use subtypePath ; [ intro ; apply homset_property | ] ; cbn ;
+           exact (lam_partial_setoid_unique X Y Z f f' p)).
+  Defined.
+End Exponentials.
+
+Arguments exp_partial_setoid_per_form {H} X Y /.
+Arguments eval_partial_setoid_form {H} X Y /.
+Arguments lam_partial_setoid_form {H X Y Z} φ /.
+
+
 (**
 
-        look through this file
-        try to reduce memory consumption
-        possibly splitting?
+ back up
 
  **)
 
+
+
+
 Section Exponentials.
-  Context (H : tripos).
+  Context {H : tripos}.
 
   Section ExpPartialSetoid.
     Context (X Y : partial_setoid H).
@@ -790,6 +947,8 @@ Section Exponentials.
       simplify.
       apply hyperdoctrine_hyp.
     Qed.
+
+    (** file 1 *)
 
     (** * 2. The evaluation morphism *)
 

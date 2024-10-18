@@ -44,6 +44,7 @@
  3. The displayed functor from formulas to monomorphisms
  4. The displayed functor is fully faithful
  5. The displayed functor is split essentially surjective
+ 6. Identifying terms using monomorphisms
 
  ******************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -1356,6 +1357,145 @@ Section FormulaFunctor.
       + apply locally_propositional_mono_cod_disp_cat.
   Defined.
 End FormulaFunctor.
+
+(** * 6. Identifying terms using monomorphisms *)
+Lemma partial_setoid_mono_eq_lem
+      {H : first_order_hyperdoctrine}
+      {X Y : partial_setoid H}
+      (φ : partial_setoid_morphism X Y)
+      (Hφ : isMonic (C := category_of_partial_setoids H) φ)
+      {Γ : ty H}
+      {Δ : form Γ}
+      {x₁ x₂ : tm Γ X}
+      {y : tm Γ Y}
+      (p₁ : Δ ⊢ φ[⟨ x₁ , y ⟩])
+      (p₂ : Δ ⊢ φ[⟨ x₂ , y ⟩])
+      (r₁ : Δ ⊢ x₁ ~ x₁)
+      (r₂ : Δ ⊢ x₂ ~ x₂)
+      (fx₁ := point_partial_setoid_morphism H Δ x₁ r₁)
+      (fx₂ := point_partial_setoid_morphism H Δ x₂ r₂)
+  : partial_setoid_comp_morphism fx₁ φ ⊢ partial_setoid_comp_morphism fx₂ φ.
+Proof.
+  assert (r₃ : Δ ⊢ y ~ y).
+  {
+    refine (hyperdoctrine_cut p₂ _).
+    exact (partial_setoid_mor_cod_defined φ _ _ (hyperdoctrine_hyp _)).
+  }
+  cbn.
+  use (exists_elim (hyperdoctrine_hyp _)).
+  use weaken_right.
+  rewrite exists_subst.
+  pose (a := π₂ (tm_var ((Γ ×h Y) ×h X))).
+  pose (b := π₂ (π₁ (tm_var ((Γ ×h Y) ×h X)))).
+  pose (c := π₁ (π₁ (tm_var ((Γ ×h Y) ×h X)))).
+  use exists_intro.
+  {
+    exact (x₂ [ c ]tm).
+  }
+  simplify_form.
+  rewrite !partial_setoid_subst.
+  simplify.
+  fold a b c.
+  repeat use conj_intro.
+  - do 2 use weaken_left.
+    apply hyperdoctrine_hyp.
+  - do 2 use weaken_left.
+    refine (hyperdoctrine_cut (hyperdoctrine_proof_subst c r₂) _).
+    rewrite partial_setoid_subst.
+    apply hyperdoctrine_hyp.
+  - use (partial_setoid_mor_eq_defined φ).
+    + exact (x₂ [ c ]tm).
+    + exact (y [ c ]tm).
+    + do 2 use weaken_left.
+      refine (hyperdoctrine_cut (hyperdoctrine_proof_subst c r₂) _).
+      rewrite partial_setoid_subst.
+      apply hyperdoctrine_hyp.
+    + use (partial_setoid_mor_unique_im φ).
+      * exact a.
+      * use (partial_setoid_mor_eq_defined φ).
+        ** exact (x₁ [ c ]tm).
+        ** exact (y [ c ]tm).
+        ** use weaken_left.
+           use weaken_right.
+           use partial_setoid_sym.
+           apply hyperdoctrine_hyp.
+        ** do 2 use weaken_left.
+           refine (hyperdoctrine_cut (hyperdoctrine_proof_subst c r₃) _).
+           rewrite partial_setoid_subst.
+           apply hyperdoctrine_hyp.
+        ** do 2 use weaken_left.
+           refine (hyperdoctrine_cut (hyperdoctrine_proof_subst c p₁) _).
+           simplify.
+           apply hyperdoctrine_hyp.
+      * use weaken_right.
+        apply hyperdoctrine_hyp.
+    + do 2 use weaken_left.
+      refine (hyperdoctrine_cut (hyperdoctrine_proof_subst c p₂) _).
+      simplify.
+      apply hyperdoctrine_hyp.
+Qed.
+
+Definition partial_setoid_mono_eq
+           {H : first_order_hyperdoctrine}
+           {X Y : partial_setoid H}
+           (φ : partial_setoid_morphism X Y)
+           (Hφ : isMonic (C := category_of_partial_setoids H) φ)
+           {Γ : ty H}
+           {Δ : form Γ}
+           {x₁ x₂ : tm Γ X}
+           {y : tm Γ Y}
+           (p₁ : Δ ⊢ φ[⟨ x₁ , y ⟩])
+           (p₂ : Δ ⊢ φ[⟨ x₂ , y ⟩])
+  : Δ ⊢ x₁ ~ x₂.
+Proof.
+  assert (r₁ : Δ ⊢ x₁ ~ x₁).
+  {
+    refine (hyperdoctrine_cut p₁ _).
+    exact (partial_setoid_mor_dom_defined φ _ _ (hyperdoctrine_hyp _)).
+  }
+  assert (r₂ : Δ ⊢ x₂ ~ x₂).
+  {
+    refine (hyperdoctrine_cut p₂ _).
+    exact (partial_setoid_mor_dom_defined φ _ _ (hyperdoctrine_hyp _)).
+  }
+  assert (r₃ : Δ ⊢ y ~ y).
+  {
+    refine (hyperdoctrine_cut p₂ _).
+    exact (partial_setoid_mor_cod_defined φ _ _ (hyperdoctrine_hyp _)).
+  }
+  pose (fx₁ := point_partial_setoid_morphism H Δ x₁ r₁).
+  pose (fx₂ := point_partial_setoid_morphism H Δ x₂ r₂).
+  assert (q : partial_setoid_comp_morphism fx₁ φ = partial_setoid_comp_morphism fx₂ φ).
+  {
+    use eq_partial_setoid_morphism.
+    - apply (partial_setoid_mono_eq_lem φ Hφ p₁ p₂).
+    - apply (partial_setoid_mono_eq_lem φ Hφ p₂ p₁).
+  }
+  assert (Δ ⊢ fx₁[⟨ tm_var _ , x₁ ⟩]) as s.
+  {
+    cbn.
+    simplify_form.
+    rewrite partial_setoid_subst.
+    simplify.
+    rewrite hyperdoctrine_id_subst.
+    use conj_intro.
+    {
+      apply hyperdoctrine_hyp.
+    }
+    exact r₁.
+  }
+  refine (hyperdoctrine_cut _ _).
+  {
+    exact (from_eq_partial_setoid_morphism_f (Hφ _ fx₁ fx₂ q) s).
+  }
+  unfold fx₂.
+  cbn.
+  simplify_form.
+  rewrite partial_setoid_subst.
+  simplify.
+  use weaken_right.
+  apply hyperdoctrine_hyp.
+Qed.
 
 Arguments formula_to_per_form {H A} φ /.
 Arguments formula_to_partial_setoid_incl_form {H A} φ /.

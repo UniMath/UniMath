@@ -527,6 +527,19 @@ Proof.
     apply hyperdoctrine_hyp.
 Qed.
 
+Proposition conj_assoc
+            {H : first_order_hyperdoctrine}
+            {Γ : ty H}
+            (φ₁ φ₂ φ₃ : form Γ)
+  : ((φ₁ ∧ φ₂) ∧ φ₃) = (φ₁ ∧ (φ₂ ∧ φ₃)).
+Proof.
+  use hyperdoctrine_formula_eq.
+  - apply hyp_ltrans.
+    apply hyperdoctrine_hyp.
+  - apply hyp_rtrans.
+    apply hyperdoctrine_hyp.
+Qed.
+
 (** * 6. Disjunction *)
 Definition first_order_hyperdoctrine_disj
            {H : first_order_hyperdoctrine}

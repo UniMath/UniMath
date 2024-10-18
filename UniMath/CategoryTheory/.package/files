@@ -152,6 +152,10 @@ Hyperdoctrines/PartialEqRels/PERInitial.v
 Hyperdoctrines/PartialEqRels/PERBinProducts.v
 Hyperdoctrines/PartialEqRels/PEREqualizers.v
 Hyperdoctrines/PartialEqRels/PERMonomorphisms.v
+Hyperdoctrines/PartialEqRels/PERSubobjectClassifier.v
+Hyperdoctrines/PartialEqRels/ExponentialPER.v
+Hyperdoctrines/PartialEqRels/ExponentialEval.v
+Hyperdoctrines/PartialEqRels/ExponentialLam.v
 
 DisplayedCats/Examples/HValuedPredicates.v
 

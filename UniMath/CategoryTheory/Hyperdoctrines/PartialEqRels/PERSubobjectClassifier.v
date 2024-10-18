@@ -2,6 +2,34 @@
 
  The subobject classifier of partial setoids in a tripos
 
+ We show that the category of partial setoids in a tripos has a subobject classifier. In
+ essence, a tripos is a first-order hyperdoctrine in which we can take powersets. This also
+ us to define a type, which we call a generic object and which we denote by [Ω], and the
+ terms of this type represent propositions. We define the generic object by taking the
+ powerset of the terminal object.
+
+ To define the subobject classifier of partial setoids, we use this generic object. More
+ specifically, we define a (partial) equivalence relation on it, which identifies two
+ inhabitants of [Ω] if they are logically equivalent. Let us be precise. Every term [t] of
+ type [Ω] gives rise to a formula [Prf t] that represents the provability of [t]. The
+ partial equivalence relation on [Ω] identifies [t₁] and [t₂] if [Prf t₁] and [Prf t₂] are
+ logically equivalent. Note that, in fact, this is an equivalence relation.
+
+ We then proceed to show that this gives rise to a subobject classifier. For this, we must
+ also define a morphism from the terminal object to the partial setoid defined in the previous
+ paragraph, which entails to define a relation between the unit type and [Ω]. A term [t] of
+ type [Ω] is related with a term of the unit type if and only if [Prf t]. Concretely, this
+ represents the relation that relates the unique element of the unit type to every proposition
+ that is provable.
+
+ Verifying that this data actually gives rise to a subobject classifier, is a matter of
+ manual work. There are two interesting aspects in the proof. First, we constantly use
+ monomorphisms. To use the monomorphism assumption, the lemma [partial_setoid_mono_eq] is
+ useful. it allows us to identify two terms if they get mapped to the same term by the
+ monomorphism. Second, we also need to use the assumption that some square is a pullback
+ square. here we use the lemma [subobject_classifier_partial_setoid_map_unique_lem]. This
+ allows us to construct elements in the pullback.
+
  References
  - "Tripos Theory in Retrospect" by Andrew Pitts
  - "Realizability: an introduction to its categorical side" by Jaap van Oosten
@@ -246,6 +274,7 @@ Section TriposSubobjectClassifier.
             (m : Monic (category_of_partial_setoids H) X Y).
 
     Let φ : partial_setoid_morphism X Y := pr1 m.
+    Let Hφ : isMonic (C := category_of_partial_setoids H) φ := pr2 m.
 
     (** * 4.1. Maps to the subobject classifier *)
     Definition subobject_classifier_partial_setoid_map_form
@@ -677,14 +706,12 @@ Section TriposSubobjectClassifier.
           }
           refine (hyperdoctrine_cut r _).
           unfold Δ'.
-          (*
-           Key lemma:
-             if `φ` is monic
-             then `φ [⟨ x₁, y₁ ⟩] ∧ φ [⟨ x₂, y₁ ⟩] ⊢ x₁ ~ x₂`
-           *)
-          (* we need that `φ` is monic *)
-          (* the part in MonicLemma needs to be generalized *)
-          admit.
+          use (partial_setoid_mono_eq φ Hφ).
+          + exact y₁.
+          + use weaken_left.
+            apply hyperdoctrine_hyp.
+          + use weaken_right.
+            apply hyperdoctrine_hyp.
         - unfold partial_setoid_mor_hom_exists_law ; cbn.
           use forall_intro.
           use impl_intro.
@@ -761,7 +788,7 @@ Section TriposSubobjectClassifier.
             * use weaken_left.
               use weaken_right.
               apply hyperdoctrine_hyp.
-      Admitted.
+      Qed.
 
       Definition is_pullback_subobject_classifier_partial_setoid_map
         : partial_setoid_morphism W X.
@@ -967,13 +994,17 @@ Section TriposSubobjectClassifier.
             use weaken_right.
             use (partial_setoid_mor_dom_defined ψ₁ w y).
             apply hyperdoctrine_hyp.
-          + (* use that φ is monic *)
-            use partial_setoid_sym.
-            admit.
+          + use partial_setoid_sym.
+            use (partial_setoid_mono_eq φ Hφ).
+            * exact y.
+            * do 2 use weaken_left.
+              apply hyperdoctrine_hyp.
+            * do 2 use weaken_right.
+              apply hyperdoctrine_hyp.
           + use weaken_right.
             use weaken_left.
             apply hyperdoctrine_hyp.
-      Admitted.
+      Qed.
     End PullbackUMP.
 
     Definition is_pullback_subobject_classifier_partial_setoid
@@ -995,7 +1026,7 @@ Section TriposSubobjectClassifier.
              apply homset_property
            | ] ;
            induction ζ as [ ζ [ ζp ζq ]] ;
-           exact (is_pullback_subobject_classifier_partial_setoid_unique _ _ _ ζp ζq)).
+           exact (is_pullback_subobject_classifier_partial_setoid_unique _ _ _ ζp)).
     Defined.
 
     (** * 4.3. Uniqueness *)
@@ -1008,6 +1039,205 @@ Section TriposSubobjectClassifier.
             (Hχ : isPullback
                     (C := category_of_partial_setoids H)
                     p).
+
+    Lemma subobject_classifier_partial_setoid_map_unique_lem
+      : (χ ∧ Prf [π₂ (tm_var (Y ×h Ω))]
+         ⊢
+         ∃h (φ [⟨ π₂ (tm_var ((Y ×h Ω) ×h X)) , π₁ (π₁ (tm_var ((Y ×h Ω) ×h X))) ⟩])).
+    Proof.
+      pose (y := π₁ (tm_var (Y ×h Ω))).
+      pose (ω := π₂ (tm_var (Y ×h Ω))).
+      fold y ω.
+      assert (χ ∧ Prf [ω] ⊢ y ~ y) as q₁.
+      {
+        use weaken_left.
+        rewrite <- (hyperdoctrine_id_subst χ).
+        rewrite (hyperdoctrine_pair_eta (tm_var (Y ×h omega_partial_setoid))).
+        cbn.
+        fold y ω.
+        exact (partial_setoid_mor_dom_defined χ y ω (hyperdoctrine_hyp _)).
+      }
+      pose (fy := point_partial_setoid_morphism H (χ ∧ Prf [ω]) y q₁).
+      assert (partial_setoid_comp_morphism fy χ
+              =
+              partial_setoid_comp_morphism
+                (partial_setoid_morphism_to_terminal _)
+                omega_partial_setoid_true)
+        as feq.
+      {
+        use eq_partial_setoid_morphism ; cbn.
+        - use (exists_elim (hyperdoctrine_hyp _)).
+          rewrite conj_subst.
+          use weaken_right.
+          rewrite exists_subst.
+          use exists_intro ; [ apply !! | ].
+          unfold y, ω.
+          simplify_form.
+          rewrite !partial_setoid_subst.
+          simplify.
+          rewrite (hyperdoctrine_pair_eta (π₁ (π₁ (tm_var (((Y ×h Ω) ×h Ω) ×h Y))))).
+          clear y ω q₁ fy.
+          pose (y₁ := π₁ (π₁ (π₁ (tm_var (((Y ×h Ω) ×h Ω) ×h Y))))).
+          pose (ω₁ := π₂ (π₁ (π₁ (tm_var (((Y ×h Ω) ×h Ω) ×h Y))))).
+          pose (ω₂ := π₂ (π₁ (tm_var (((Y ×h Ω) ×h Ω) ×h Y)))).
+          pose (y₂ := π₂ (tm_var (((Y ×h Ω) ×h Ω) ×h Y))).
+          fold y₁ y₂ ω₁ ω₂.
+          simplify.
+          use conj_intro.
+          + unfold partial_setoid_formula.
+            cbn.
+            simplify.
+            repeat use conj_intro.
+            * apply hyperdoctrine_refl.
+            * do 3 use weaken_left.
+              apply hyperdoctrine_hyp.
+            * do 2 use weaken_left.
+              use weaken_right.
+              apply hyperdoctrine_hyp.
+          + use from_eq_in_omega_partial_setoid_left.
+            * exact ω₁.
+            * use (partial_setoid_mor_unique_im χ).
+              ** exact y₁.
+              ** do 3 use weaken_left.
+                 apply hyperdoctrine_hyp.
+              ** use partial_setoid_mor_eq_defined.
+                 *** exact y₂.
+                 *** exact ω₂.
+                 *** use weaken_left.
+                     use weaken_right.
+                     apply hyperdoctrine_hyp.
+                 *** use weaken_right.
+                     exact (partial_setoid_mor_cod_defined χ _ _ (hyperdoctrine_hyp _)).
+                 *** use weaken_right.
+                     apply hyperdoctrine_hyp.
+            * do 2 use weaken_left.
+              use weaken_right.
+              apply hyperdoctrine_hyp.
+        - use (exists_elim (hyperdoctrine_hyp _)).
+          rewrite conj_subst.
+          use weaken_right.
+          rewrite exists_subst.
+          use exists_intro.
+          {
+            exact (π₁ (π₁ (π₁ (tm_var _)))).
+          }
+          unfold y, ω.
+          simplify_form.
+          rewrite !partial_setoid_subst.
+          simplify.
+          rewrite (hyperdoctrine_pair_eta (π₁ (π₁ (tm_var (((Y ×h Ω) ×h Ω) ×h 𝟙))))).
+          clear y ω q₁ fy.
+          pose (y := π₁ (π₁ (π₁ (tm_var (((Y ×h Ω) ×h Ω) ×h 𝟙))))).
+          pose (ω₁ := π₂ (π₁ (π₁ (tm_var (((Y ×h Ω) ×h Ω) ×h 𝟙))))).
+          pose (ω₂ := π₂ (π₁ (tm_var (((Y ×h Ω) ×h Ω) ×h 𝟙)))).
+          pose (t := π₂ (tm_var (((Y ×h Ω) ×h Ω) ×h 𝟙))).
+          fold y t ω₁ ω₂.
+          unfold partial_setoid_formula.
+          cbn.
+          simplify.
+          use hyp_ltrans.
+          use weaken_right.
+          repeat use conj_intro.
+          + do 2 use weaken_left.
+            apply hyperdoctrine_hyp.
+          + use weaken_left.
+            use weaken_right.
+            apply hyperdoctrine_hyp.
+          + do 2 use weaken_left.
+            exact (partial_setoid_mor_dom_defined χ _ _ (hyperdoctrine_hyp _)).
+          + use (partial_setoid_mor_eq_defined χ).
+            * exact y.
+            * exact ω₁.
+            * do 2 use weaken_left.
+              exact (partial_setoid_mor_dom_defined χ _ _ (hyperdoctrine_hyp _)).
+            * use eq_in_omega_partial_setoid.
+              use iff_true_true.
+              ** use weaken_left.
+                 use weaken_right.
+                 apply hyperdoctrine_hyp.
+              ** use weaken_right.
+                 apply hyperdoctrine_hyp.
+            * do 2 use weaken_left.
+              apply hyperdoctrine_hyp.
+      }
+      pose (PullbackArrow
+              (make_Pullback _ Hχ)
+              (formula_to_partial_setoid H (χ ∧ Prf [ω]))
+              fy
+              (partial_setoid_morphism_to_terminal _)
+              feq)
+        as g.
+      cbn in g.
+      refine (weaken_cut _ _).
+      {
+        simple refine (partial_setoid_mor_hom_exists g _).
+        cbn.
+        apply tm_var.
+        unfold partial_setoid_formula.
+        cbn.
+        simplify.
+        repeat use conj_intro.
+        + use hyperdoctrine_refl.
+        + use weaken_left.
+          rewrite hyperdoctrine_id_subst.
+          apply hyperdoctrine_hyp.
+        + use weaken_right.
+          apply hyperdoctrine_hyp.
+      }
+      cbn.
+      use hyp_sym.
+      use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
+      rewrite conj_subst.
+      use hyp_ltrans.
+      use weaken_right.
+      simplify.
+      pose (y' := π₁ (π₁ (tm_var ((Y ×h Ω) ×h X)))).
+      pose (ω' := π₂ (π₁ (tm_var ((Y ×h Ω) ×h X)))).
+      pose (x' := π₂ (tm_var ((Y ×h Ω) ×h X))).
+      rewrite (hyperdoctrine_pair_eta (π₁ (tm_var ((Y ×h Ω) ×h X)))).
+      unfold y, ω.
+      fold x' ω' y'.
+      simplify.
+      pose (@from_eq_partial_setoid_morphism_b
+              _ _ _ _ _
+              (PullbackArrow_PullbackPr1 (make_Pullback _ Hχ) _ _ _ feq)
+              _
+              ((χ [⟨ y', ω' ⟩] ∧ Prf [ω']) ∧ g [⟨ ⟨ y', ω' ⟩, x' ⟩])
+              (π₁ (tm_var _))
+              (π₁ (π₁ (tm_var _)))).
+      cbn in h.
+      refine (hyperdoctrine_cut (h _) _).
+      {
+        unfold y, ω.
+        simplify_form.
+        rewrite partial_setoid_subst.
+        simplify.
+        rewrite (hyperdoctrine_pair_eta (π₁ (tm_var ((Y ×h Ω) ×h X)))).
+        fold x' y' ω'.
+        simplify.
+        repeat use conj_intro.
+        + do 2 use weaken_left.
+          apply hyperdoctrine_hyp.
+        + use weaken_left.
+          use weaken_right.
+          apply hyperdoctrine_hyp.
+        + do 2 use weaken_left.
+          exact (partial_setoid_mor_dom_defined χ _ _ (hyperdoctrine_hyp _)).
+      }
+      rewrite exists_subst.
+      use (exists_elim (hyperdoctrine_hyp _)).
+      use weaken_right.
+      simplify.
+      unfold x', y'.
+      simplify.
+      use exists_intro.
+      {
+        exact (π₂ (tm_var _)).
+      }
+      simplify.
+      use weaken_right.
+      apply hyperdoctrine_hyp.
+    Qed.
 
     Proposition subobject_classifier_partial_setoid_map_unique
       : χ = subobject_classifier_partial_setoid_map.
@@ -1062,8 +1292,9 @@ Section TriposSubobjectClassifier.
                fold x y ω.
                do 2 use weaken_right.
                apply hyperdoctrine_hyp.
-          * (* pullback assumption needed *)
-            admit.
+          * unfold ω, y.
+            simplify.
+            apply subobject_classifier_partial_setoid_map_unique_lem.
       - use (exists_elim
                (partial_setoid_mor_hom_exists
                   χ
@@ -1151,11 +1382,27 @@ Section TriposSubobjectClassifier.
                simplify.
                do 2 use weaken_right.
                apply hyperdoctrine_hyp.
-          * (* from pullback *)
-            admit.
+          * refine (iff_elim_left _ _).
+            {
+              do 2 use weaken_left.
+              use weaken_right.
+              apply hyperdoctrine_hyp.
+            }
+            do 2 use hyp_ltrans.
+            do 2 use weaken_right.
+            pose (hyperdoctrine_proof_subst
+                    ⟨ y , ω₂ ⟩
+                    subobject_classifier_partial_setoid_map_unique_lem)
+              as q.
+            refine (hyperdoctrine_cut _ (hyperdoctrine_cut q _)).
+            ** simplify.
+               apply hyperdoctrine_hyp.
+            ** unfold y.
+               simplify.
+               apply hyperdoctrine_hyp.
         + use weaken_right.
           apply hyperdoctrine_hyp.
-    Admitted.
+    Qed.
   End UMP.
 
   (** * 5. The subobject classifier of partial setoids *)
@@ -1188,4 +1435,4 @@ End TriposSubobjectClassifier.
 Arguments omega_per_form H /.
 Arguments omega_partial_setoid_true_form H /.
 Arguments subobject_classifier_partial_setoid_map_form {H X Y} m /.
-Arguments is_pullback_subobject_classifier_partial_setoid_map_form {H X Y} m {W} ψ₁ ψ₂ q /.
+Arguments is_pullback_subobject_classifier_partial_setoid_map_form {H X Y} m {W} ψ₁ /.
