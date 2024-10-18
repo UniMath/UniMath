@@ -3,8 +3,8 @@
   Sieves in a preorder category
 
   If we turn a preorder into a category C, a sieve on X : C (a subobject of the Yoneda presheaf of
-  X) is equivalent to a collection of objects Y with Y < X (the downset of X), such that if Y is in
-  the collection and Z < Y, then Z is also in the collection (the collection is downward closed).
+  X) is equivalent to a collection of objects Y with Y ≤ X (the downset of X), such that if Y is in
+  the collection and Z ≤ Y, then Z is also in the collection (the collection is downward closed).
 
   Contents
   1. The equivalence [po_sieve_weq_subtype]
@@ -26,6 +26,8 @@ Require Import UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
 Require Import UniMath.CategoryTheory.slicecat.
 
 Local Open Scope cat.
+
+(** * 1. The equivalence *)
 
 Section PoCategorySieve.
 
