@@ -1,3 +1,43 @@
+(**************************************************************************************************
+
+  Sheaves for a Grothendieck Topology
+
+  Given a site C (a category with, for every X : C, a chosen collection of sieves), there are
+  multiple equivalent ways to say when a presheaf F on C is a sheaf. Two of these occur on page 122
+  of Mac Lane and Moerdijk. In the list below, g will range over the selected morphisms of S, and h
+  will range over the morphisms to the domain of g.
+  This file defines F to be a sheaf if, for any object X and any X-sieve S, any of these equivalent
+  properties holds:
+  - Every natural transformation S ⟹ F factorizes uniquely via the transformation S ⟹ よ(X) of S.
+  - For E the equalizer of the product morphisms
+      f1, f2 : (∏ g, F (dom g)) → (∏ g h, F (dom h))
+      α1(x)_{g, h} = x_{h ⋅ g}
+      α2(x)_{g, h} = #F(h)(x_g)
+    the morphism β: F(X) → E, given by β(x)_g = #F(g)(x), is an isomorphism.
+  - (locality) Given x, y : F(X), if #F(g)(x) = #F(g)(y) for all g, then x = y.
+    (glueing)  Given, for all g, x_g : F(dom g) for all g, if for all h, x_{h ⋅ g} = #F(h)(x_g),
+                we have x : F(X) such that #F(g)(x) = x_g for all g.
+  This file defines these three properties, shows the equivalences. It also defines the category of
+  sheaves on a site C as a full subcategory of the presheaf category on C. Lastly, it defines object
+  and morphism types for this category.
+
+  Contents
+  1. The sheaf properties
+  1.1. The natural transformation property [is_sheaf]
+  1.2. The equalizer property [is_sheaf']
+  1.3. The elementary property [is_sheaf'']
+  2. The equivalences
+  2.1. The first implies the second [is_sheaf_to_is_sheaf']
+  2.2. The second implies the third [is_sheaf'_to_is_sheaf'']
+  2.3. The third implies the first [is_sheaf''_to_is_sheaf]
+  2.4. The implications the other way around
+    [is_sheaf''_to_is_sheaf'] [is_sheaf'_to_is_sheaf] [is_sheaf_to_is_sheaf'']
+  3. Sheaves
+  3.1. The category of sheaves [sheaf_cat]
+  3.2. Sheaves [sheaf]
+  3.3. Sheaf morphisms [sheaf_morphism]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Notations.
 
@@ -21,11 +61,14 @@ Section Sheaves.
 
   Context (C : site).
 
+(** * 1. The sheaf properties *)
+
   Section SheafProperties.
 
     Context (P : C^op ⟶ HSET).
 
-    (** This is a formalization of the definition on page 122 *)
+(** ** 1.1. The natural transformation property *)
+
     Definition is_sheaf : UU :=
       ∏ (c : C)
         (S : covering_sieve c)
@@ -40,6 +83,8 @@ Section Sheaves.
       apply impred_isaprop; intros τ.
       apply isapropiscontr.
     Qed.
+
+(** ** 1.2. The equalizer property *)
 
     Section EqualizerSheafProperty.
 
@@ -93,6 +138,8 @@ Section Sheaves.
       Definition sheaf_property_equalizer_codomain
         : hSet
         := ProductObject _ _ (ProductsHSET _ sheaf_property_equalizer_codomain_factor).
+
+      (* Arrows *)
 
       Definition sheaf_property_equalizer_arrow1
         : sheaf_property_equalizer_domain → sheaf_property_equalizer_codomain.
@@ -156,6 +203,8 @@ Section Sheaves.
       do 2 (apply impred_isaprop; intro).
       apply isaprop_is_z_isomorphism.
     Qed.
+
+(** ** 1.3. The elementary property *)
 
     Definition sheaf_locality_ax
       : UU
@@ -230,6 +279,9 @@ Section Sheaves.
       - exact (isaprop_glueing_ax H).
     Qed.
 
+(** * 2. The equivalences *)
+(** ** 2.1. The first implies the second *)
+
     Lemma is_sheaf_to_is_sheaf'
       : is_sheaf → is_sheaf'.
     Proof.
@@ -276,6 +328,8 @@ Section Sheaves.
         apply id_right.
     Qed.
 
+(** ** 2.2. The second implies the third *)
+
     Lemma is_sheaf'_to_is_sheaf''
       : is_sheaf' → is_sheaf''.
     Proof.
@@ -306,6 +360,8 @@ Section Sheaves.
         + intros g.
           refine (maponpaths (λ x, pr1 (x _) _) (z_iso_after_z_iso_inv i)).
     Qed.
+
+(** ** 2.3. The third implies the first *)
 
     Lemma is_sheaf''_to_is_sheaf
       : is_sheaf'' → is_sheaf.
@@ -338,6 +394,8 @@ Section Sheaves.
         apply id_right.
     Qed.
 
+(** ** 2.4. The implications the other way around *)
+
     Definition is_sheaf''_to_is_sheaf'
       : is_sheaf'' → is_sheaf'
       := (is_sheaf_to_is_sheaf' ∘ is_sheaf''_to_is_sheaf)%functions.
@@ -351,6 +409,9 @@ Section Sheaves.
       := (is_sheaf'_to_is_sheaf'' ∘ is_sheaf_to_is_sheaf')%functions.
 
   End SheafProperties.
+
+(** * 3. Sheaves *)
+(** ** 3.1. The category of sheaves *)
 
   (** The category of sheaves is the full subcategory of presheaves consisting of the presheaves
       which satisfy the is_sheaf proposition. *)
@@ -375,6 +436,8 @@ Section Sheaves.
 
 End Sheaves.
 
+(** ** 3.2. Sheaves *)
+
 Definition sheaf
   (C : site)
   : UU
@@ -398,6 +461,8 @@ Definition sheaf_is_sheaf
   (F : sheaf C)
   : is_sheaf C F
   := pr2 F.
+
+(** ** 3.3. Sheaf morphisms *)
 
 Section Morphisms.
 
