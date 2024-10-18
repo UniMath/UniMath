@@ -1,3 +1,16 @@
+(**************************************************************************************************
+
+  The Indiscrete Topology
+
+  For any category, there is a Grothendieck topology consisting of only the maximal sieves, where every morphism is a selected morphism: the sieves on X where the monomorphism into よ(X) is an
+  isomorphism. Equivalently, any natural transformation factors uniquely through the monomorphism.
+  This immediately shows that for this site, any presheaf is also a sheaf.
+
+  Contents
+  1. The indiscrete site [indiscrete_site]
+  2. Any presheaf is a sheaf [indiscrete_presheaf_is_sheaf]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -15,6 +28,8 @@ Require Import UniMath.CategoryTheory.GrothendieckToposes.Sites.
 Require Import UniMath.CategoryTheory.GrothendieckToposes.Topologies.
 
 Local Open Scope cat.
+
+(** * 1. The indiscrete site *)
 
 Section IndiscreteTopology.
 
@@ -49,10 +64,12 @@ Section IndiscreteTopology.
     (H : is_nat_z_iso (sieve_nat_trans (PullbackSubobject Pullbacks_PreShv S (# (yoneda C) (identity X)))))
     : z_iso (Subobject_dom S) (yoneda C X).
   Proof.
-    refine (z_iso_comp (z_iso_inv _) _).
-    - refine (_ ,, Pullback_of_z_iso' _ (Pullbacks_PreShv _ _ _
-        (# (yoneda C) (identity X))
-        (sieve_nat_trans S))).
+    refine (z_iso_comp
+      (b := Pullbacks_PreShv _ _ _ (# (yoneda C) (identity X)) (sieve_nat_trans S))
+      (z_iso_inv _)
+      _).
+    - refine (_ ,, _).
+      apply Pullback_of_z_iso'.
       apply functor_on_is_z_isomorphism.
       apply is_z_isomorphism_identity.
     - refine (_ ,, _).
@@ -95,19 +112,16 @@ Section IndiscreteTopology.
 
 End IndiscreteTopology.
 
-Section Sheaves.
+(** * 2. Any presheaf is a sheaf *)
 
-  Context {C : category}.
-  Context (P : PreShv C).
-
-  Lemma indiscrete_presheaf_is_sheaf
-    : is_sheaf (indiscrete_site C) P.
-  Proof.
-    intros X S f.
-    refine ((_ : is_iso (C := PreShv C) _) _ f).
-    apply is_iso_from_is_z_iso.
-    apply nat_trafo_z_iso_if_pointwise_z_iso.
-    exact (pr2 S).
-  Defined.
-
-End Sheaves.
+Lemma indiscrete_presheaf_is_sheaf
+  {C : category}
+  (P : PreShv C)
+  : is_sheaf (indiscrete_site C) P.
+Proof.
+  intros X S f.
+  refine ((_ : is_iso (C := PreShv C) _) _ f).
+  apply is_iso_from_is_z_iso.
+  apply nat_trafo_z_iso_if_pointwise_z_iso.
+  exact (pr2 S).
+Defined.

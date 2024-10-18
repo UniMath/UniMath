@@ -1,3 +1,19 @@
+(**************************************************************************************************
+
+  The Discrete Topology
+
+  For any category C, there is a Grothendieck topology that consists of all sieves.
+  Since this includes the empty sieve ∅, every sheaf F has a unique factorization ∅ ⟹ よ(X) ⟹ F
+  for all X. This means that F X is contractible. In other words, the sheaf category on the discrete
+  site is equivalent to the unit category.
+
+  Contents
+  1. The discrete site [discrete_site]
+  2. The sheaf category is equivalent to the unit category
+  2.1. The contractibility of F X [discrete_sheaf_contractible]
+  2.2. The equivalence [discrete_topos_is_unit]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
@@ -15,10 +31,12 @@ Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.GrothendieckToposes.Examples.EmptySieve.
 Require Import UniMath.CategoryTheory.GrothendieckToposes.Examples.TerminalSheaf.
 Require Import UniMath.CategoryTheory.GrothendieckToposes.Sheaves.
-Require Import UniMath.CategoryTheory.GrothendieckToposes.Topologies.
 Require Import UniMath.CategoryTheory.GrothendieckToposes.Sites.
+Require Import UniMath.CategoryTheory.GrothendieckToposes.Topologies.
 
 Local Open Scope cat.
+
+(** * 1. The discrete site *)
 
 Section DiscreteTopology.
 
@@ -47,9 +65,13 @@ Section DiscreteTopology.
 
 End DiscreteTopology.
 
+(** * 2. The sheaf category is equivalent to the unit category *)
+
 Section Sheaves.
 
   Context {C : category}.
+
+(** ** 2.1. The contractibility of F X *)
 
   Section Pointwise.
 
@@ -91,6 +113,8 @@ Section Sheaves.
     Qed.
 
   End Pointwise.
+
+(** ** 2.2. The equivalence *)
 
   Definition discrete_topos_to_unit_functor
     : sheaf_cat (discrete_site C) ⟶ unit_category

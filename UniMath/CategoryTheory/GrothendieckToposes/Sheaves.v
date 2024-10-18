@@ -8,6 +8,7 @@
   will range over the morphisms to the domain of g.
   This file defines F to be a sheaf if, for any object X and any X-sieve S, any of these equivalent
   properties holds:
+
   - Every natural transformation S ⟹ F factorizes uniquely via the transformation S ⟹ よ(X) of S.
   - For E the equalizer of the product morphisms
       f1, f2 : (∏ g, F (dom g)) → (∏ g h, F (dom h))
@@ -17,6 +18,7 @@
   - (locality) Given x, y : F(X), if #F(g)(x) = #F(g)(y) for all g, then x = y.
     (glueing)  Given, for all g, x_g : F(dom g) for all g, if for all h, x_{h ⋅ g} = #F(h)(x_g),
                 we have x : F(X) such that #F(g)(x) = x_g for all g.
+
   This file defines these three properties, shows the equivalences. It also defines the category of
   sheaves on a site C as a full subcategory of the presheaf category on C. Lastly, it defines object
   and morphism types for this category.

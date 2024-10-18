@@ -1,15 +1,31 @@
+(**************************************************************************************************
+
+  The empty sieve
+
+  For any category C and any X : C, the initial presheaf (Y ↦ ∅) can be given the structure of a
+  sieve on X. This is because any morphism from the empty type is injective. The sieve corresponds
+  to the empty collection of morphisms to X.
+
+  Contents
+  1. The empty sieve [empty_sieve]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
+
 Require Import UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.GrothendieckToposes.Sieves.
 Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.CategoryTheory.yoneda.
 
+Require Import UniMath.CategoryTheory.GrothendieckToposes.Sieves.
+
 Local Open Scope cat.
+
+(** * 1. The empty sieve *)
 
 Section EmptySieve.
 
