@@ -1,5 +1,26 @@
+(**************************************************************************************************
+
+  Subtypes of Preorders
+
+  Given a preorder ≤ on X, if we have a subtype of X, we can give its carrier a preorder structure
+  again.
+  Also, given an element x, the down type of x is the subtype of all elements y such that y ≤ x.
+  We say that a subtype Y of X is downward closed if x ∈ Y and y ≤ x implies that y ∈ Y.
+  Lastly, for any subtype Y of X, we can take its downward closure as the type of all y that are
+  smaller than some x ∈ Y (Equivalently, it would be the intersection of all downward closed
+  subtypes that contain Y).
+
+  Contents
+  1. The preorder structure on a subtype [subpreorder]
+  2. Down- and up-types [down_type] [up_type]
+  3. Downward closed subsets [is_downward_closed] [downward_closed_subtype]
+  4. The downward closure [downward_closure]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
+
+(** * 1. The preorder structure on a subtype *)
 
 Section SubPreorder.
 
@@ -23,6 +44,8 @@ Section SubPreorder.
 
 End SubPreorder.
 
+(** * 2. Down- and up-types *)
+
 Section DownType.
 
   Definition down_type
@@ -40,6 +63,8 @@ Section DownType.
     := λ y, P x y.
 
 End DownType.
+
+(** * 3. Downward closed subsets *)
 
 Section DownwardClosed.
 
@@ -74,6 +99,8 @@ Section DownwardClosed.
     := f ,, H.
 
 End DownwardClosed.
+
+(** * 4. The downward closure *)
 
 Section DownwardClosure.
 

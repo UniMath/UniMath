@@ -24,7 +24,7 @@ Section PoCategory.
 
   Context {X : UU}.
 
-  (** * 1. The category over a preorder *)
+(** * 1. The category over a preorder *)
 
   Definition po_precategory_ob_mor (PO : po X) : precategory_ob_mor :=
       make_precategory_ob_mor X (carrierofpo X PO).
@@ -64,7 +64,7 @@ Section PoCategory.
   Definition po_category (PO : po X) : category
     := make_category (po_precategory PO) (po_precategory_has_homsets PO).
 
-  (** * 2. Univalence *)
+(** * 2. Univalence *)
 
   Section Univalence.
 
