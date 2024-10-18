@@ -1,7 +1,18 @@
-(** * Grothendick toposes *)
-(** * Definition of Grothendieck topos
-    Grothendieck topos is a precategory which is equivalent to the category of sheaves on some
-    Grothendieck topology. *)
+(**************************************************************************************************
+
+  Grothendick toposes
+
+  A Grothendieck topos is a category that is equivalent to the category of sheaves on some site, see
+  Mac Lane and Moerdijk, page 127.
+  Note that the property of being a Grothendieck topos is not a proposition, because there are many
+  different sites with the same category of sieves. For example, every site with the discrete
+  topology has the same sheaf category.
+  This file defines the data of Grothendieck toposes, together with their constructor and accessors.
+
+  Contents
+  1. Grothendieck toposes [Grothendieck_topos]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Notations.
 
@@ -10,34 +21,31 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
 
-Require Import UniMath.CategoryTheory.GrothendieckToposes.Topologies.
 Require Import UniMath.CategoryTheory.GrothendieckToposes.Sheaves.
 Require Import UniMath.CategoryTheory.GrothendieckToposes.Sites.
 
-Local Open Scope cat.
+(** * 1. Grothendieck toposes *)
 
-Section def_grothendiecktopos.
+Definition Grothendieck_topos : UU :=
+  ∑ (C : category)
+    (D : site),
+    adj_equiv C (sheaf_cat D).
 
-  Variable C : category.
+Definition make_Grothendieck_topos
+  (C : category)
+  (D : site)
+  (F : adj_equiv C (sheaf_cat D))
+  : Grothendieck_topos
+  := C ,, D ,, F.
 
-  (** Here (pr1 D) is the precategory which is equivalent to the precategory of sheaves on the
-      Grothendieck topology (pr2 D). *)
-  Definition Grothendieck_topos : UU :=
-    ∑ D : category × Grothendieck_topology C,
-      adj_equiv (pr1 D) (sheaf_cat (make_site C (pr2 D))).
+Coercion Grothendieck_topos_category (GT : Grothendieck_topos) : category :=
+  pr1 GT.
 
-  (** Accessor functions *)
-  Coercion Grothendieck_topos_category (GT : Grothendieck_topos) : category :=
-    pr11 GT.
+Definition Grothendieck_topos_site
+  (GT : Grothendieck_topos)
+  : site := pr12 GT.
 
-  Definition Grothendieck_topos_Grothendieck_topology (GT : Grothendieck_topos) :
-    Grothendieck_topology C := pr21 GT.
-
-  Definition Grothendieck_topos_functor (GT : Grothendieck_topos) :
-    functor GT (sheaf_cat (make_site C (Grothendieck_topos_Grothendieck_topology GT))) :=
-    pr2 GT.
-
-  Definition Grothendieck_topos_equivalence (GT : Grothendieck_topos) :
-    adj_equivalence_of_cats (Grothendieck_topos_functor GT) := pr2 GT.
-
-End def_grothendiecktopos.
+Definition Grothendieck_topos_equivalence
+  (GT : Grothendieck_topos)
+  : adj_equiv GT (sheaf_cat (Grothendieck_topos_site GT))
+  := pr22 GT.
