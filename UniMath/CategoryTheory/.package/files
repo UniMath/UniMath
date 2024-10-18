@@ -670,5 +670,9 @@ DaggerCategories/Functors/Precomp.v
 
 DaggerCategories/CatIso.v
 
-MarkovCategories/MarkovCat.v
+MarkovCategories/MarkovCategory.v
 MarkovCategories/Determinism.v
+MarkovCategories/Univalence.v
+MarkovCategories/AlmostSurely.v
+MarkovCategories/Conditionals.v
+MarkovCategories/InformationFlowAxioms.v

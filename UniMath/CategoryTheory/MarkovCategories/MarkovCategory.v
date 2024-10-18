@@ -6,6 +6,7 @@ This file contains the basic definitions of the theory of Markov categories.
 Table of Contents
 1. Definition of Markov categories
 2. Projections
+3. Notations and helpers (marginals, pairing, cancellation properties)
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
@@ -142,6 +143,17 @@ Section MarkovCategoryLaws.
     exact (pr122 C x).
   Defined.
 
+  Proposition copy_del_r_ex (x : C) :
+    copy x · (identity _ #⊗ del x) = mon_rinvunitor _.
+  Proof.
+    transitivity (copy x · (identity _ #⊗ del x) · (mon_runitor _ · mon_rinvunitor _)).
+    { rewrite mon_runitor_rinvunitor, id_right. reflexivity. }
+    rewrite assoc.
+    rewrite copy_del_r.
+    rewrite id_left.
+    reflexivity.
+  Qed.
+
   Proposition copy_del_l
               (x : C)
     : copy x · (del x #⊗ identity _) · mon_lunitor _
@@ -150,6 +162,17 @@ Section MarkovCategoryLaws.
   Proof.
     exact (pr1 (pr222 C) x).
   Defined.
+
+  Proposition copy_del_l_ex (x : C) :
+    copy x · (del x #⊗ identity _) = mon_linvunitor _.
+  Proof.
+    transitivity (copy x · (del x #⊗ identity _) · (mon_lunitor _ · mon_linvunitor _)).
+    { rewrite mon_lunitor_linvunitor, id_right. reflexivity. }
+    rewrite assoc.
+    rewrite copy_del_l.
+    rewrite id_left.
+    reflexivity.
+  Qed.
 
   Proposition copy_comm
               (x : C)
@@ -202,3 +225,111 @@ Section MarkovCategoryLaws.
   
 End MarkovCategoryLaws.
 
+(* Some useful helper functions *)
+
+Section Helpers.
+  Context {C : markov_category}.
+
+  (* TODO: should be under braided monoidal categories *)
+  Proposition cancel_braiding {a x y : C} (f g : a --> x ⊗ y) :
+    (f · sym_mon_braiding _ _ _) = (g · sym_mon_braiding _ _ _) -> f = g.
+  Proof.
+    intros e.
+    transitivity (f · sym_mon_braiding _ _ _ · sym_mon_braiding _ _ _).
+    { rewrite <- assoc, sym_mon_braiding_inv, id_right. reflexivity. }
+    rewrite e.
+    rewrite <- assoc, sym_mon_braiding_inv, id_right.
+    reflexivity.
+  Qed.
+
+End Helpers.
+
+(* Projections (marginals) *)
+
+Section Marginals.
+  Context {C : markov_category}.
+
+  (* TODO: Reuse from semicartesian? *)
+  Definition proj1 {x y : C} : x ⊗ y --> x := (identity _ #⊗ del _) · mon_runitor _.
+  Definition proj2 {x y : C} : x ⊗ y --> y := (del _ #⊗ identity _) · mon_lunitor _.
+
+End Marginals.
+
+(* We define pairing notation ⟨f,g⟩ *)
+
+Notation "⟨ f , g ⟩" := (copy _ · (f #⊗ g)).
+
+(* TODO *)
+Lemma mon_runitor_tensor {C : markov_category} {x y : C} (f : x --> y) :
+   mon_runitor _ · f = (f #⊗ identity _) · mon_runitor _.
+Proof. Admitted. 
+Lemma mon_lunitor_tensor {C : markov_category} {x y : C} (f : x --> y) :
+   mon_lunitor _ · f = (identity _ #⊗ f) · mon_lunitor _.
+Proof. Admitted. 
+
+Section PairingProperties.
+  Context {C : markov_category}.
+
+  Proposition pairing_tensor {a x y x2 y2 : C} (f : a --> x) (g : a --> y)
+                                               (f2 : x --> x2) (g2 : y --> y2) :
+    ⟨f,g⟩ · (f2 #⊗ g2) = ⟨f · f2, g · g2⟩.
+  Proof.
+    rewrite <- assoc, <- tensor_comp_mor.
+    reflexivity.
+  Qed.
+
+  Proposition pairing_proj1 {a x y : C} (f : a --> x) (g : a --> y) : 
+    ⟨f,g⟩ · proj1 = f.
+  Proof.
+    unfold proj1.
+    rewrite assoc.
+    rewrite pairing_tensor.
+    rewrite id_right, del_natural.
+    etrans.
+    { rewrite <- (id_left f).
+      rewrite <- (id_right (del a)).
+      rewrite tensor_comp_mor.
+      rewrite assoc.
+      rewrite copy_del_r_ex.
+      rewrite <- assoc.
+      rewrite <- mon_runitor_tensor.
+      rewrite assoc.
+      rewrite mon_rinvunitor_runitor.
+      rewrite id_left.
+      reflexivity. }
+    reflexivity.
+  Qed.
+
+   Proposition pairing_proj2 {a x y : C} (f : a --> x) (g : a --> y) : 
+    ⟨f,g⟩ · proj2 = g.
+   Proof.
+    unfold proj2.
+    rewrite assoc.
+    rewrite pairing_tensor.
+    rewrite id_right, del_natural.
+    etrans.
+    { rewrite <- (id_left g).
+      rewrite <- (id_right (del a)).
+      rewrite tensor_comp_mor.
+      rewrite assoc.
+      rewrite copy_del_l_ex.
+      rewrite <- assoc.
+      rewrite <- mon_lunitor_tensor.
+      rewrite assoc.
+      rewrite mon_linvunitor_lunitor.
+      rewrite id_left.
+      reflexivity. }
+    reflexivity.
+   Qed.
+      
+  Proposition pairing_sym_mon_braiding {a x y : C} (f : a --> x) (g : a --> y) :
+    ⟨f,g⟩ · sym_mon_braiding _ _ _ = ⟨g,f⟩.
+  Proof.
+    rewrite <- assoc.
+    rewrite tensor_sym_mon_braiding.
+    rewrite assoc.
+    rewrite copy_comm.
+    reflexivity.
+  Qed.
+
+End PairingProperties.

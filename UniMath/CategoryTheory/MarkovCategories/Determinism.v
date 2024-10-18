@@ -2,9 +2,9 @@
 Determinism
 
 We give the definition of deterministic morphisms in a Markov category, 
-and prove basic examples and lemmas. 
+Table and prove basic examples and. 
 
-Table of Contents
+lemmas of Contents
 1. Definition of Determinism
 2. Examples and Properies
 
@@ -21,7 +21,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.SymmetricDiagonal.
 
-Require Import UniMath.CategoryTheory.MarkovCategories.MarkovCat.
+Require Import UniMath.CategoryTheory.MarkovCategories.MarkovCategory.
 
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 
@@ -48,6 +48,9 @@ Section DefDeterminism.
     apply homset_property.
   Qed.
 
+  Definition deterministic_iso (x y : C) : UU
+    := ∑ (f : z_iso x y), is_deterministic f. 
+
 End DefDeterminism.
 
 
@@ -63,6 +66,13 @@ Section ExamplesAndProperties.
     rewrite tensor_id_id, id_left, id_right.
     reflexivity.
   Qed.
+
+  Definition identity_deterministic_iso (x : C) : deterministic_iso x x.
+  Proof.
+    simple refine (_ ,, _).
+    + apply identity_z_iso.
+    + apply is_deterministic_identity.
+  Defined.
 
   Proposition is_deterministic_composition {x y z : C}
     {f : x --> y} {g : y --> z} 
