@@ -1,5 +1,26 @@
 (******************************************************************************************
 
+ Equalities of exponentials of partial setoids
+
+ Our goal is to prove that the category of partial setoids in a tripos is a topos, and for
+ that we need to show that it has exponentials. We already constructed the object of the
+ exponential and the evaluation and lambda abstraction morphisms. In this file, we finish
+ the construction by verifying the necessary equalities. The two equalities that we need
+ to verify are the following:
+ - The beta-rule. The evaluation and lambda abstraction map need to satisfy the beta-rule,
+   which can be expressed as the commutativity of a diagram.
+ - The eta-rule. Lambda abstraction gives the unique morphism making some diagram commute.
+
+ We start with some preliminary material. In both equalities, we need to deal with statements
+ expressing the commutativity of some diagram, more specifically, the moprhisms defined in
+ [partial_setoid_exp_comm] is equal to [φ]. Our first goal is to simplify these statements,
+ so that it becomes more convenient to prove/use it.
+
+ Content
+ 1. Basic material that is useful in the remainder of the file
+ 2. The beta rule
+ 3. The eta-rule
+
  ******************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
@@ -24,6 +45,7 @@ Section HelpEquality.
           (φ : partial_setoid_morphism (prod_partial_setoid X Z) Y)
           (ψ : partial_setoid_morphism Z (exp_partial_setoid X Y)).
 
+  (** * 1. Basic material that is useful in the remainder of the file *)
   Definition partial_setoid_exp_comm
     : partial_setoid_morphism (prod_partial_setoid X Z) Y
     := partial_setoid_comp_morphism
@@ -231,6 +253,79 @@ Section HelpEquality.
       rewrite <- !hyperdoctrine_pair_eta.
       apply hyperdoctrine_hyp.
   Qed.
+
+  Proposition from_exp_comm_partial_setoid_weaken
+              {Γ : ty H}
+              (Δ χ : form Γ)
+              (γ : tm Γ (prod_partial_setoid X Z ×h Y))
+              (Γ' := ((Γ ×h X ×h ℙ (X ×h Y)) ×h X) ×h Z)
+              (x₁ := π₁ (π₂ (π₁ (π₁ (tm_var Γ')))))
+              (x₂ := π₂ (π₁ (tm_var Γ')))
+              (z := π₂ (tm_var Γ'))
+              (δ := π₁ (π₁ (π₁ (tm_var Γ'))))
+              (f := π₂ (π₂ (π₁ (π₁ (tm_var Γ')))))
+              (p : Δ [δ]
+                   ∧ exp_comm_partial_setoid_1 [⟨ γ [δ ]tm, ⟨ x₁ , f ⟩ ⟩]
+                   ∧ exp_comm_partial_setoid_3 [⟨ ⟨ γ [δ ]tm, ⟨ x₁ , f ⟩ ⟩, x₂ ⟩]
+                   ∧ exp_comm_partial_setoid_2 [⟨ ⟨ γ [δ ]tm, ⟨ x₁ , f ⟩ ⟩, z ⟩]
+                   ⊢
+                   χ [δ])
+    : Δ ∧ exp_comm_partial_setoid [ γ ] ⊢ χ.
+  Proof.
+    unfold exp_comm_partial_setoid.
+    rewrite !exists_subst.
+    refine (exists_elim _ _).
+    {
+      use weaken_right.
+      apply hyperdoctrine_hyp.
+    }
+    rewrite !conj_subst.
+    use hyp_sym.
+    use hyp_rtrans.
+    use weaken_left.
+    use hyp_sym.
+    rewrite !exists_subst.
+    refine (exists_elim _ _).
+    {
+      use weaken_right.
+      use weaken_left.
+      apply hyperdoctrine_hyp.
+    }
+    rewrite !conj_subst.
+    refine (exists_elim _ _).
+    {
+      use weaken_left.
+      do 2 use weaken_right.
+      use weaken_left.
+      rewrite exists_subst.
+      apply hyperdoctrine_hyp.
+    }
+    rewrite !conj_subst.
+    refine (hyperdoctrine_cut _ (hyperdoctrine_cut p _)).
+    - repeat use conj_intro.
+      + do 3 use weaken_left.
+        simplify.
+        apply hyperdoctrine_hyp.
+      + do 2 use weaken_left.
+        do 3 use weaken_right.
+        simplify.
+        unfold x₁, f.
+        rewrite <- hyperdoctrine_pair_eta.
+        apply hyperdoctrine_hyp.
+      + use weaken_left.
+        use weaken_right.
+        unfold x₁, f.
+        rewrite <- hyperdoctrine_pair_eta.
+        simplify.
+        apply hyperdoctrine_hyp.
+      + use weaken_right.
+        unfold x₁, f.
+        rewrite <- hyperdoctrine_pair_eta.
+        simplify.
+        apply hyperdoctrine_hyp.
+    - simplify.
+      apply hyperdoctrine_hyp.
+  Qed.
 End HelpEquality.
 
 Section LamEqs.
@@ -238,7 +333,7 @@ Section LamEqs.
           {X Y Z : partial_setoid H}
           (φ : partial_setoid_morphism (prod_partial_setoid X Z) Y).
 
-  (* generalize this by making the lam_partial_setoid arbitrary *)
+  (** * 2. The beta rule *)
   Let ζ : partial_setoid_morphism (prod_partial_setoid X Z) Y
     := partial_setoid_exp_comm (lam_partial_setoid φ).
 
@@ -488,25 +583,463 @@ Section LamEqs.
       + exact (exp_partial_setoid_cod_defined _ _ p₃ p₁).
   Qed.
 
-  Context (φ' : partial_setoid_morphism Z (exp_partial_setoid X Y))
-          (p : φ
-               =
-               partial_setoid_comp_morphism
-                 (pair_partial_setoid_morphism
-                    (partial_setoid_comp_morphism
-                         (partial_setoid_pr1 X Z)
-                         (id_partial_setoid_morphism X))
-                      (partial_setoid_comp_morphism
-                         (partial_setoid_pr2 X Z)
-                         φ'))
-                   (eval_partial_setoid X Y)).
+  (** * 3. The eta-rule *)
+  Context (φ' : partial_setoid_morphism Z (exp_partial_setoid X Y)).
 
-    (** * 4. Uniqueness *)
-    Proposition lam_partial_setoid_unique
-      : φ' = lam_partial_setoid φ.
-    Proof.
-      use eq_partial_setoid_morphism.
-      - admit.
-      - admit.
-    Admitted.
-End PERLambda.
+  Let ζ' : partial_setoid_morphism (prod_partial_setoid X Z) Y
+    := partial_setoid_exp_comm φ'.
+
+  Context (p : φ = ζ').
+
+  Lemma lam_partial_setoid_unique_left
+    : φ' ⊢ lam_partial_setoid φ.
+  Proof.
+    rewrite p.
+    cbn.
+    pose (z := π₁ (tm_var (Z ×h exp_partial_setoid X Y))).
+    pose (f := π₂ (tm_var (Z ×h exp_partial_setoid X Y))).
+    rewrite <- (hyperdoctrine_id_subst (lam_partial_setoid_form ζ')).
+    rewrite (hyperdoctrine_pair_eta (tm_var (Z ×h exp_partial_setoid X Y))).
+    fold z f.
+    use to_lam_partial_setoid_eq.
+    - use (partial_setoid_mor_dom_defined φ' z f).
+      unfold z, f.
+      rewrite <- hyperdoctrine_pair_eta.
+      simplify.
+      apply hyperdoctrine_hyp.
+    - assert (φ' ⊢ f ~ f) as q.
+      {
+        use (partial_setoid_mor_cod_defined φ' z f).
+        unfold z, f.
+        rewrite <- hyperdoctrine_pair_eta.
+        simplify.
+        apply hyperdoctrine_hyp.
+      }
+      refine (hyperdoctrine_cut q _).
+      use from_eq_in_exp_partial_setoid_function_left.
+      {
+        exact f.
+      }
+      apply hyperdoctrine_hyp.
+    - unfold lam_partial_setoid_eq.
+      rewrite !forall_subst.
+      do 2 use forall_intro.
+      unfold z, f ; clear z f ; cbn -[ζ'].
+      simplify.
+      pose (x := π₂ (π₁ (tm_var (((Z ×h ℙ (X ×h Y)) ×h X) ×h Y)))).
+      pose (y := π₂ (tm_var (((Z ×h ℙ (X ×h Y)) ×h X) ×h Y))).
+      pose (z := π₁ (π₁ (π₁ (tm_var (((Z ×h ℙ (X ×h Y)) ×h X) ×h Y))))).
+      pose (f := π₂ (π₁ (π₁ (tm_var (((Z ×h ℙ (X ×h Y)) ×h X) ×h Y))))).
+      fold x y z f.
+      rewrite (hyperdoctrine_pair_eta (π₁ (π₁ (tm_var (((Z ×h ℙ (X ×h Y)) ×h X) ×h Y))))).
+      fold z f.
+      unfold ζ'.
+      rewrite <- exp_comm_partial_setoid_eq.
+      assert (φ' [⟨ z , f ⟩] ⊢ z ~ z) as q₁.
+      {
+        use (partial_setoid_mor_dom_defined φ' z f).
+        apply hyperdoctrine_hyp.
+      }
+      assert (φ' [⟨ z , f ⟩] ⊢ exp_partial_setoid_is_function [ f ]) as q₂.
+      {
+        use from_eq_in_exp_partial_setoid_function_left.
+        {
+          exact f.
+        }
+        use (partial_setoid_mor_cod_defined φ' z f).
+        apply hyperdoctrine_hyp.
+      }
+      assert (φ' [⟨ z , f ⟩] ∧ ⟨ x , y ⟩ ∈ f ⊢ x ~ x) as q₃.
+      {
+        use (exp_partial_setoid_dom_defined _ _ (weaken_left q₂ _)).
+        {
+          exact y.
+        }
+        use weaken_right.
+        apply hyperdoctrine_hyp.
+      }
+      use iff_intro.
+      + use from_exp_comm_partial_setoid_weaken.
+        unfold x, y, z, f.
+        clear x y z f q₁ q₂ q₃.
+        cbn.
+        simplify.
+        pose (Γ' := (((((Z ×h ℙ (X ×h Y)) ×h X) ×h Y) ×h X ×h ℙ (X ×h Y)) ×h X) ×h Z).
+        pose (x₁ := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var Γ')))))).
+        pose (x₂ := π₁ (π₂ (π₁ (π₁ (tm_var Γ'))))).
+        pose (x₃ := π₂ (π₁ (tm_var Γ'))).
+        pose (y := π₂ (π₁ (π₁ (π₁ (tm_var Γ'))))).
+        pose (z₁ := π₁ (π₁ (π₁ (π₁ (π₁ (π₁ (tm_var Γ'))))))).
+        pose (z₂ := π₂ (tm_var Γ')).
+        pose (f₁ := π₂ (π₁ (π₁ (π₁ (π₁ (π₁ (tm_var Γ'))))))).
+        pose (f₂ := π₂ (π₂ (π₁ (π₁ (tm_var Γ'))))).
+        unfold Γ' in * ; clear Γ'.
+        fold x₁ x₂ x₃ y z₁ z₂ f₁ f₂.
+        unfold exp_comm_partial_setoid_1, exp_comm_partial_setoid_2, exp_comm_partial_setoid_3.
+        simplify_form.
+        rewrite !partial_setoid_subst.
+        simplify.
+        pose (Δ := φ' [⟨ z₁, f₁ ⟩]
+                   ∧ (exp_partial_setoid_is_function [f₂]
+                      ∧ ⟨ x₂, y ⟩ ∈ f₂)
+                   ∧ (x₁ ~ x₃ ∧ z₁ ~ z₁ ∧ x₃ ~ x₂)
+                   ∧ x₁ ~ x₁
+                   ∧ z₁ ~ z₂
+                   ∧ φ' [⟨ z₂, f₂ ⟩]).
+        assert (Δ ⊢ z₁ ~ z₂) as q₁.
+        {
+          do 4 use weaken_right.
+          use weaken_left.
+          apply hyperdoctrine_hyp.
+        }
+        assert (Δ ⊢ x₁ ~ x₂) as q₂.
+        {
+          do 2 use weaken_right.
+          use weaken_left.
+          use partial_setoid_trans.
+          - exact x₃.
+          - use weaken_left.
+            apply hyperdoctrine_hyp.
+          - do 2 use weaken_right.
+            apply hyperdoctrine_hyp.
+        }
+        assert (Δ ⊢ exp_partial_setoid_is_function [f₂]) as q₃.
+        {
+          use weaken_right.
+          do 2 use weaken_left.
+          apply hyperdoctrine_hyp.
+        }
+        assert (Δ ⊢ exp_partial_setoid_eq [⟨ f₂, f₁ ⟩]) as q₄.
+        {
+          use from_eq_in_exp_partial_setoid_function_eq.
+          use (partial_setoid_mor_unique_im φ').
+          - exact z₁.
+          - use (partial_setoid_mor_eq_defined φ').
+            + exact z₂.
+            + exact f₂.
+            + use partial_setoid_sym.
+              exact q₁.
+            + use eq_in_exp_partial_setoid.
+              * exact q₃.
+              * apply exp_partial_setoid_eq_refl.
+            + do 5 use weaken_right.
+              apply hyperdoctrine_hyp.
+          - use weaken_left.
+            apply hyperdoctrine_hyp.
+        }
+        assert (Δ ⊢ exp_partial_setoid_is_function [f₁]) as q₅.
+        {
+          use exp_partial_setoid_eq_is_function.
+          - exact f₂.
+          - exact q₄.
+          - exact q₃.
+        }
+        assert (Δ ⊢ ⟨ x₂ , y ⟩ ∈ f₂) as q₆.
+        {
+          use weaken_right.
+          use weaken_left.
+          use weaken_right.
+          apply hyperdoctrine_hyp.
+        }
+        assert (Δ ⊢ y ~ y) as q₇.
+        {
+          exact (exp_partial_setoid_cod_defined _ _ q₃ q₆).
+        }
+        use (from_exp_partial_setoid_eq _ _ q₄).
+        use (exp_partial_setoid_eq_defined _ _ q₃).
+        * exact x₂.
+        * use partial_setoid_sym.
+          exact q₂.
+        * exact y.
+        * exact q₇.
+        * exact q₆.
+      + unfold exp_comm_partial_setoid.
+        rewrite exists_subst.
+        use exists_intro.
+        {
+          exact ⟨ x , f ⟩.
+        }
+        rewrite !conj_subst.
+        repeat use conj_intro.
+        * rewrite !exists_subst.
+          use exists_intro.
+          {
+            exact x.
+          }
+          simplify.
+          unfold exp_comm_partial_setoid_3.
+          simplify_form.
+          rewrite !partial_setoid_subst.
+          simplify.
+          repeat use conj_intro.
+          ** exact q₃.
+          ** use weaken_left.
+             exact q₁.
+          ** exact q₃.
+        * rewrite !exists_subst.
+          use exists_intro.
+          {
+            exact z.
+          }
+          simplify.
+          unfold exp_comm_partial_setoid_2.
+          simplify_form.
+          rewrite !partial_setoid_subst.
+          simplify.
+          repeat use conj_intro.
+          ** exact q₃.
+          ** use weaken_left.
+             exact q₁.
+          ** use weaken_left.
+             apply hyperdoctrine_hyp.
+        * simplify.
+          unfold exp_comm_partial_setoid_1.
+          simplify.
+          use conj_intro.
+          ** use weaken_left.
+             exact q₂.
+          ** use weaken_right.
+             apply hyperdoctrine_hyp.
+  Qed.
+
+  Lemma lam_partial_setoid_unique_right
+    : lam_partial_setoid φ ⊢ φ'.
+  Proof.
+    rewrite p.
+    use (exists_elim (partial_setoid_mor_hom_exists φ' _)).
+    - exact (π₁ (tm_var _)).
+    - use (partial_setoid_mor_dom_defined (lam_partial_setoid ζ')).
+      {
+        exact (π₂ (tm_var _)).
+      }
+      rewrite <- hyperdoctrine_pair_eta.
+      simplify.
+      apply hyperdoctrine_hyp.
+    - cbn.
+      simplify.
+      pose (z := π₁ (π₁ (tm_var ((Z ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y))))).
+      pose (f := π₂ (π₁ (tm_var ((Z ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y))))).
+      pose (g := π₂ (tm_var ((Z ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)))).
+      fold z f g.
+      rewrite (hyperdoctrine_pair_eta (π₁ (tm_var _))).
+      fold z f.
+      assert ((lam_partial_setoid_form ζ') [⟨ z , f ⟩] ∧ φ' [⟨ z , g ⟩] ⊢ z ~ z) as q₁.
+      {
+        use weaken_right.
+        use (partial_setoid_mor_dom_defined φ' z g).
+        apply hyperdoctrine_hyp.
+      }
+      use (partial_setoid_mor_eq_defined φ').
+      + exact z.
+      + exact g.
+      + exact q₁.
+      + use eq_in_exp_partial_setoid.
+        * use weaken_right.
+          refine (hyperdoctrine_cut _ _).
+          {
+            use (partial_setoid_mor_cod_defined φ' z g).
+            apply hyperdoctrine_hyp.
+          }
+          exact (from_eq_in_exp_partial_setoid_function_left _ _ (hyperdoctrine_hyp _)).
+        * unfold exp_partial_setoid_eq.
+          rewrite !forall_subst.
+          do 2 use forall_intro.
+          unfold z, f, g.
+          clear z f g q₁.
+          simplify.
+          pose (Γ := (((Z ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)) ×h X) ×h Y).
+          pose (x := π₂ (π₁ (tm_var Γ))).
+          pose (y := π₂ (tm_var Γ)).
+          pose (z := π₁ (π₁ (π₁ (π₁ (tm_var Γ))))).
+          pose (f := π₂ (π₁ (π₁ (π₁ (tm_var Γ))))).
+          pose (g := π₂ (π₁ (π₁ (tm_var Γ)))).
+          unfold Γ in * ; clear Γ.
+          fold x y z f g.
+          pose (Δ := (lam_partial_setoid_form ζ') [⟨ z, f ⟩] ∧ φ' [⟨ z, g ⟩]).
+          assert (Δ ⊢ (lam_partial_setoid_form ζ') [⟨ z, f ⟩]) as q.
+          {
+            use weaken_left.
+            apply hyperdoctrine_hyp.
+          }
+          refine (iff_trans _ (lam_partial_setoid_eq_iff _ _ _ q x y)).
+          unfold Δ.
+          unfold ζ'.
+          rewrite <- exp_comm_partial_setoid_eq.
+          use iff_intro.
+          ** unfold exp_comm_partial_setoid.
+             rewrite !exists_subst.
+             use exists_intro.
+             {
+               exact ⟨ x , g ⟩.
+             }
+             rewrite !conj_subst.
+             match goal with
+             | [ |- ?Δ' ⊢ _ ] => pose (Δ'' := Δ')
+             end.
+             assert (Δ'' ⊢ z ~ z) as q₁.
+             {
+               unfold Δ''.
+               use weaken_left.
+               use weaken_right.
+               use (partial_setoid_mor_dom_defined φ' z g).
+               apply hyperdoctrine_hyp.
+             }
+             assert (Δ'' ⊢ exp_partial_setoid_is_function [g]) as q₂.
+             {
+               use weaken_left.
+               use weaken_right.
+               refine (hyperdoctrine_cut _ _).
+               {
+                 use (partial_setoid_mor_cod_defined φ' z g).
+                 apply hyperdoctrine_hyp.
+               }
+               exact (from_eq_in_exp_partial_setoid_function_left _ _ (hyperdoctrine_hyp _)).
+             }
+             assert (Δ'' ⊢ x ~ x) as q₃.
+             {
+               use (exp_partial_setoid_dom_defined _ _ q₂).
+               {
+                 exact y.
+               }
+               use weaken_right.
+               apply hyperdoctrine_hyp.
+             }
+             repeat use conj_intro.
+             *** rewrite !exists_subst.
+                 use exists_intro.
+                 {
+                   exact x.
+                 }
+                 simplify.
+                 unfold exp_comm_partial_setoid_3.
+                 simplify_form.
+                 rewrite !partial_setoid_subst.
+                 simplify.
+                 repeat use conj_intro.
+                 **** exact q₃.
+                 **** exact q₁.
+                 **** exact q₃.
+             *** rewrite !exists_subst.
+                 use exists_intro.
+                 {
+                   exact z.
+                 }
+                 simplify.
+                 unfold exp_comm_partial_setoid_2.
+                 simplify_form.
+                 rewrite !partial_setoid_subst.
+                 simplify.
+                 repeat use conj_intro.
+                 **** exact q₃.
+                 **** exact q₁.
+                 **** use weaken_left.
+                      use weaken_right.
+                      apply hyperdoctrine_hyp.
+             *** unfold exp_comm_partial_setoid_1.
+                 simplify.
+                 use conj_intro.
+                 **** exact q₂.
+                 **** use weaken_right.
+                      apply hyperdoctrine_hyp.
+          ** clear Δ q.
+             unfold x, y, z, f, g.
+             use from_exp_comm_partial_setoid_weaken.
+             cbn.
+             simplify.
+             clear x y z f g.
+             pose (Γ := ((((((Z ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)) ×h X) ×h Y) ×h X ×h ℙ (X ×h Y))
+                           ×h X) ×h Z).
+             pose (x₁ := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var Γ)))))).
+             pose (x₂ := π₁ (π₂ (π₁ (π₁ (tm_var Γ))))).
+             pose (x₃ := π₂ (π₁ (tm_var Γ))).
+             pose (y := π₂ (π₁ (π₁ (π₁ (tm_var Γ))))).
+             pose (z₁ := π₁ (π₁ (π₁ (π₁ (π₁ (π₁ (π₁ (tm_var Γ)))))))).
+             pose (z₂ := π₂ (tm_var Γ)).
+             pose (f₁ := π₂ (π₁ (π₁ (π₁ (π₁ (π₁ (π₁ (tm_var Γ)))))))).
+             pose (f₂ := π₂ (π₁ (π₁ (π₁ (π₁ (π₁ (tm_var Γ))))))).
+             pose (f₃ := π₂ (π₂ (π₁ (π₁ (tm_var Γ))))).
+             unfold Γ in *.
+             fold x₁ x₂ x₃ y z₁ z₂ f₁ f₂ f₃.
+             unfold exp_comm_partial_setoid_1.
+             unfold exp_comm_partial_setoid_2.
+             unfold exp_comm_partial_setoid_3.
+             simplify_form.
+             rewrite !partial_setoid_subst.
+             simplify.
+             match goal with
+             | [ |- ?Δ' ⊢ _ ] => pose (Δ := Δ')
+             end.
+             assert (Δ ⊢ x₁ ~ x₂) as q₁.
+             {
+               use partial_setoid_trans.
+               - exact x₃.
+               - do 2 use weaken_right.
+                 do 2 use weaken_left.
+                 apply hyperdoctrine_hyp.
+               - do 2 use weaken_right.
+                 use weaken_left.
+                 do 2 use weaken_right.
+                 apply hyperdoctrine_hyp.
+             }
+             assert (Δ ⊢ exp_partial_setoid_is_function [f₃]) as q₂.
+             {
+               use weaken_right.
+               do 2 use weaken_left.
+               apply hyperdoctrine_hyp.
+             }
+             assert (Δ ⊢ z₁ ~ z₂) as q₃.
+             {
+               do 4 use weaken_right.
+               use weaken_left.
+               apply hyperdoctrine_hyp.
+             }
+             assert (Δ ⊢ exp_partial_setoid_eq[⟨ f₃ , f₂ ⟩]) as q₄.
+             {
+               use from_eq_in_exp_partial_setoid_function_eq.
+               use (partial_setoid_mor_unique_im φ').
+               - exact z₁.
+               - use (partial_setoid_mor_eq_defined φ').
+                 + exact z₂.
+                 + exact f₃.
+                 + use partial_setoid_sym.
+                   exact q₃.
+                 + use eq_in_exp_partial_setoid.
+                   * exact q₂.
+                   * apply exp_partial_setoid_eq_refl.
+                 + do 5 use weaken_right.
+                   apply hyperdoctrine_hyp.
+               - use weaken_left.
+                 use weaken_right.
+                 apply hyperdoctrine_hyp.
+             }
+             assert (Δ ⊢ ⟨ x₂, y ⟩ ∈ f₃) as q₅.
+             {
+               use weaken_right.
+               use weaken_left.
+               use weaken_right.
+               apply hyperdoctrine_hyp.
+             }
+             assert (Δ ⊢ y ~ y) as q₆.
+             {
+               exact (exp_partial_setoid_cod_defined _ _ q₂ q₅).
+             }
+             use (from_exp_partial_setoid_eq _ _ q₄).
+             use (exp_partial_setoid_eq_defined _ _ q₂).
+             *** exact x₂.
+             *** use partial_setoid_sym.
+                 exact q₁.
+             *** exact y.
+             *** exact q₆.
+             *** exact q₅.
+      + use weaken_right.
+        apply hyperdoctrine_hyp.
+  Qed.
+
+  Proposition lam_partial_setoid_unique
+    : φ' = lam_partial_setoid φ.
+  Proof.
+    use eq_partial_setoid_morphism.
+    - exact lam_partial_setoid_unique_left.
+    - exact lam_partial_setoid_unique_right.
+  Qed.
+End LamEqs.

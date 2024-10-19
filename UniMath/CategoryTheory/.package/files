@@ -156,6 +156,9 @@ Hyperdoctrines/PartialEqRels/PERSubobjectClassifier.v
 Hyperdoctrines/PartialEqRels/ExponentialPER.v
 Hyperdoctrines/PartialEqRels/ExponentialEval.v
 Hyperdoctrines/PartialEqRels/ExponentialLam.v
+Hyperdoctrines/PartialEqRels/ExponentialEqs.v
+Hyperdoctrines/PartialEqRels/PERExponentials.v
+Hyperdoctrines/TriposToTopos.v
 
 DisplayedCats/Examples/HValuedPredicates.v
 
