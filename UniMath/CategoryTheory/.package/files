@@ -161,6 +161,7 @@ Hyperdoctrines/PartialEqRels/PERExponentials.v
 Hyperdoctrines/TriposToTopos.v
 
 DisplayedCats/Examples/HValuedPredicates.v
+Hyperdoctrines/HValuedSets.v
 
 LocallyCartesianClosed/LocallyCartesianClosed.v
 DisplayedCats/Fiberwise/DualBeckChevalley.v

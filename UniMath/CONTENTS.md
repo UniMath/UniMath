@@ -358,6 +358,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Hyperdoctrines/PartialEqRels/PERExponentials.v](CategoryTheory/Hyperdoctrines/PartialEqRels/PERExponentials.v)
    - [Hyperdoctrines/TriposToTopos.v](CategoryTheory/Hyperdoctrines/TriposToTopos.v)
    - [DisplayedCats/Examples/HValuedPredicates.v](CategoryTheory/DisplayedCats/Examples/HValuedPredicates.v)
+   - [Hyperdoctrines/HValuedSets.v](CategoryTheory/Hyperdoctrines/HValuedSets.v)
    - [LocallyCartesianClosed/LocallyCartesianClosed.v](CategoryTheory/LocallyCartesianClosed/LocallyCartesianClosed.v)
    - [DisplayedCats/Fiberwise/DualBeckChevalley.v](CategoryTheory/DisplayedCats/Fiberwise/DualBeckChevalley.v)
    - [DisplayedCats/Codomain/CodRightAdjoint.v](CategoryTheory/DisplayedCats/Codomain/CodRightAdjoint.v)
