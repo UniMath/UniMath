@@ -411,6 +411,17 @@ Section Accessors.
     exact (pr1 (pr1 (pr222 V) x y)).
   Qed.
 
+  Proposition cancel_braiding {a x y : V} (f g : a --> x ⊗ y) :
+    (f · sym_mon_braiding _ _) = (g · sym_mon_braiding _ _) -> f = g.
+  Proof.
+    intros e.
+    transitivity (f · sym_mon_braiding _ _ · sym_mon_braiding _ _).
+    { rewrite <- assoc, sym_mon_braiding_inv, id_right. reflexivity. }
+    rewrite e.
+    rewrite <- assoc, sym_mon_braiding_inv, id_right.
+    reflexivity.
+  Qed.
+
   Definition is_z_isomorphism_sym_mon_braiding
              (x y : V)
     : is_z_isomorphism (sym_mon_braiding x y).
