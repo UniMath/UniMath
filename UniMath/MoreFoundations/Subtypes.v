@@ -1,5 +1,6 @@
 Require Export UniMath.MoreFoundations.Notations.
 Require Export UniMath.MoreFoundations.Propositions.
+(* Require Export UniMath.MoreFoundations.Sets. *)
 
 Declare Scope subtype.
 Delimit Scope subtype with subtype.
@@ -273,31 +274,36 @@ Definition binary_intersection' {X : UU} (U V : hsubtype X) : hsubtype X
 Definition binary_intersection {X : UU} (U V : hsubtype X) : hsubtype X
   := λ x, U x ∧ V x.
 
+Notation "A ∩ B" :=
+  (binary_intersection A B)
+  (at level 40, left associativity)
+  : subtype.
+
 Lemma binary_intersection_commutative {X : UU} (U V : hsubtype X)
-  : ∏ x : X, (binary_intersection U V) x -> (binary_intersection V U) x.
+  : U ∩ V ⊆ V ∩ U.
 Proof.
   intros ? p.
   exact (transportf _ (iscomm_hconj (U x) (V x)) p).
 Qed.
 
 Definition intersection_contained_l {X : UU} (U V : hsubtype X)
-  : subtype_containedIn (binary_intersection U V) U.
+  : U ∩ V ⊆ U.
 Proof.
   intros ? xinUV.
   apply xinUV.
 Qed.
 
 Definition intersection_contained_r {X : UU} (U V : hsubtype X)
-  : subtype_containedIn (binary_intersection U V) V.
+  : U ∩ V ⊆ V.
 Proof.
   intros ? xinUV.
   apply xinUV.
 Qed.
 
 Definition intersection_contained {X : UU} {U U' V V' : hsubtype X}
-           (uu : subtype_containedIn U U')
-           (vv : subtype_containedIn V V')
-  : subtype_containedIn (binary_intersection U V) (binary_intersection U' V').
+           (uu : U ⊆ U')
+           (vv : V ⊆ V')
+  : U ∩ V ⊆ U' ∩ V'.
 Proof.
   intros x p.
   cbn.
@@ -309,7 +315,7 @@ Proof.
 Qed.
 
 Lemma isaprop_subtype_containedIn {X : UU} (U V : hsubtype X)
-  : isaprop (subtype_containedIn U V).
+  : isaprop (U ⊆ V).
 Proof.
   apply impred_isaprop ; intro.
   apply isapropimpl.
@@ -389,7 +395,7 @@ Proof.
 Qed.
 
 Definition hsubtype_preserving {X Y : UU} (U : hsubtype X) (V : hsubtype Y) (f : X → Y)
-  : UU := subtype_containedIn (image_hsubtype U f) V.
+  : UU := (image_hsubtype U f) ⊆ V.
 
 Lemma isaprop_hsubtype_preserving {X Y : UU} (U : hsubtype X) (V : hsubtype Y) (f : X → Y)
   : isaprop (hsubtype_preserving U V f).
@@ -492,3 +498,135 @@ Proof.
   - exact(inr (x ,, y)).
   - apply idpath.
 Qed.
+
+Section ContainedSubtypes.
+
+  Context {X : UU}.
+  Context (A : hsubtype X).
+
+  Definition contained_subtype
+    : UU
+    := carrier (λ (B : hsubtype X), B ⊆ A).
+
+  Definition make_contained_subtype
+    (B : hsubtype X)
+    (H : B ⊆ A)
+    : contained_subtype
+    := make_carrier _ B H.
+
+  Coercion contained_subtype_to_subtype
+    (B : contained_subtype)
+    : hsubtype X
+    := pr1carrier _ B.
+
+  Definition contained_subtype_is_contained
+    (B : contained_subtype)
+    : B ⊆ A
+    := pr2 B.
+
+  Definition contained_subtype_eq
+    (B B' : contained_subtype)
+    (H1 : ∏ x, B x -> B' x)
+    (H2 : ∏ x, B' x -> B x)
+    : B = B'.
+  Proof.
+    apply carrier_eq.
+    apply funextfun.
+    intro x.
+    apply hPropUnivalence.
+    - apply H1.
+    - apply H2.
+  Qed.
+
+End ContainedSubtypes.
+
+Section CarrierSubtypes.
+
+  Context {X : UU}.
+  Context (A : hsubtype X).
+
+  Definition carrier_subtype_to_contained_subtype
+    (B : hsubtype A)
+    : contained_subtype A.
+  Proof.
+    use make_contained_subtype.
+    - intro x.
+      exists (∑ (H : A x), B (x ,, H)).
+      abstract (
+        apply isaproptotal2;
+        intro;
+        intros;
+        apply propproperty
+      ).
+    - exact (λ x, pr1).
+  Defined.
+
+  Definition contained_subtype_to_carrier_subtype
+    (B : contained_subtype A)
+    : hsubtype A.
+  Proof.
+    intro x.
+    exact (pr1 B (pr1 x)).
+  Defined.
+
+  Lemma carrier_subtype_to_contained_subtype_to_carrier_subtype
+    (B : hsubtype A)
+    : contained_subtype_to_carrier_subtype (carrier_subtype_to_contained_subtype B) = B.
+  Proof.
+    apply funextfun.
+    intro x.
+    apply hPropUnivalence.
+    - intro H.
+      refine (transportf B _ (pr2 H)).
+      now apply carrier_eq.
+    - intro H.
+      exists (pr2 x).
+      refine (transportf B _ H).
+      now apply carrier_eq.
+  Qed.
+
+  Lemma contained_subtype_to_carrier_subtype_to_contained_subtype
+    (B : contained_subtype A)
+    : carrier_subtype_to_contained_subtype (contained_subtype_to_carrier_subtype B) = B.
+  Proof.
+    apply contained_subtype_eq.
+    - intros x H.
+      exact (pr2 H).
+    - intros x H.
+      exists (pr2 B x H).
+      exact H.
+  Qed.
+
+  Definition carrier_subtype_weq_contained_subtype
+    : hsubtype A ≃ contained_subtype A
+    := weq_iso
+      carrier_subtype_to_contained_subtype
+      contained_subtype_to_carrier_subtype
+      carrier_subtype_to_contained_subtype_to_carrier_subtype
+      contained_subtype_to_carrier_subtype_to_contained_subtype.
+
+  Definition carrier_subtype_carrier_weq_contained_subtype_carrier
+    (B : hsubtype A)
+    : B ≃ carrier_subtype_weq_contained_subtype B
+    := invweq (totalAssociativity _).
+
+  Lemma carrier_subtype_contained_iff_contained_subtype_contained
+    (B B' : hsubtype A)
+    : B ⊆ B' ≃ carrier_subtype_weq_contained_subtype B ⊆ carrier_subtype_weq_contained_subtype B'.
+  Proof.
+    refine (weqiff _ (propproperty _) (propproperty _)).
+    split.
+    - intros H x Hx.
+      pose (f := invmap (carrier_subtype_carrier_weq_contained_subtype_carrier B)).
+      pose (g := subtype_inc H).
+      pose (h := carrier_subtype_carrier_weq_contained_subtype_carrier B').
+      exact ((pr2 ∘ h ∘ g ∘ f)%functions (x ,, Hx)).
+    - intros H x Hx.
+      pose (f := carrier_subtype_carrier_weq_contained_subtype_carrier B).
+      pose (g := subtype_inc H).
+      pose (h := invmap (carrier_subtype_carrier_weq_contained_subtype_carrier B')).
+      refine (transportf B' _ ((pr2 ∘ h ∘ g ∘ f)%functions (x ,, Hx))).
+      now apply carrier_eq.
+  Qed.
+
+End CarrierSubtypes.
