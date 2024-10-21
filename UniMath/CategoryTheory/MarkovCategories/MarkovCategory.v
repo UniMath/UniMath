@@ -9,7 +9,7 @@ Table of Contents
 3. Notations and helpers (marginals, pairing, cancellation properties)
 
 References
-- T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
+- T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics'
 **********************************************)
 
 Require Import UniMath.Foundations.All.
@@ -222,34 +222,14 @@ Section MarkovCategoryLaws.
   Proof.
     apply markov_category_unit_eq.
   Qed.
-  
+
 End MarkovCategoryLaws.
-
-(* Some useful helper functions *)
-
-Section Helpers.
-  Context {C : markov_category}.
-
-  (* TODO: should be under braided monoidal categories *)
-  Proposition cancel_braiding {a x y : C} (f g : a --> x ⊗ y) :
-    (f · sym_mon_braiding _ _ _) = (g · sym_mon_braiding _ _ _) -> f = g.
-  Proof.
-    intros e.
-    transitivity (f · sym_mon_braiding _ _ _ · sym_mon_braiding _ _ _).
-    { rewrite <- assoc, sym_mon_braiding_inv, id_right. reflexivity. }
-    rewrite e.
-    rewrite <- assoc, sym_mon_braiding_inv, id_right.
-    reflexivity.
-  Qed.
-
-End Helpers.
 
 (* Projections (marginals) *)
 
 Section Marginals.
   Context {C : markov_category}.
 
-  (* TODO: Reuse from semicartesian? *)
   Definition proj1 {x y : C} : x ⊗ y --> x := (identity _ #⊗ del _) · mon_runitor _.
   Definition proj2 {x y : C} : x ⊗ y --> y := (del _ #⊗ identity _) · mon_lunitor _.
 
@@ -269,23 +249,36 @@ Section Marginals.
 
   Proposition proj2_naturality {x y z w : C}
                                {f : y ⊗ z --> w} :
-    (proj2 #⊗ identity z) · f = mon_lassociator _ _ _ · (identity x #⊗ f) · proj2.
+    (proj2 #⊗ identity z) · f
+    =
+    mon_lassociator _ _ _ · (identity x #⊗ f) · proj2.
   Proof.
-  Admitted.
-
+    unfold proj2.
+    refine (!_).
+    etrans.
+    {
+      rewrite !assoc'.
+      apply maponpaths.
+      rewrite !assoc.
+      rewrite <- tensor_swap.
+      rewrite !assoc'.
+      rewrite tensor_lunitor.
+      apply idpath.
+    }
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite <- tensor_id_id.
+    rewrite <- tensor_lassociator.
+    rewrite tensor_comp_r_id_l.
+    rewrite !assoc'.
+    apply maponpaths.
+    apply mon_lunitor_triangle.
+  Qed.
 End Marginals.
 
 (* We define pairing notation ⟨f,g⟩ *)
 
 Notation "⟨ f , g ⟩" := (copy _ · (f #⊗ g)).
-
-(* TODO *)
-Lemma mon_runitor_tensor {C : markov_category} {x y : C} (f : x --> y) :
-   mon_runitor _ · f = (f #⊗ identity _) · mon_runitor _.
-Proof. Admitted. 
-Lemma mon_lunitor_tensor {C : markov_category} {x y : C} (f : x --> y) :
-   mon_lunitor _ · f = (identity _ #⊗ f) · mon_lunitor _.
-Proof. Admitted. 
 
 Section PairingProperties.
   Context {C : markov_category}.
@@ -304,7 +297,7 @@ Section PairingProperties.
     reflexivity.
   Qed.
 
-  Proposition pairing_proj1 {a x y : C} (f : a --> x) (g : a --> y) : 
+  Proposition pairing_proj1 {a x y : C} (f : a --> x) (g : a --> y) :
     ⟨f,g⟩ · proj1 = f.
   Proof.
     unfold proj1.
@@ -318,7 +311,7 @@ Section PairingProperties.
       rewrite assoc.
       rewrite copy_del_r_ex.
       rewrite <- assoc.
-      rewrite <- mon_runitor_tensor.
+      rewrite tensor_runitor.
       rewrite assoc.
       rewrite mon_rinvunitor_runitor.
       rewrite id_left.
@@ -326,7 +319,7 @@ Section PairingProperties.
     reflexivity.
   Qed.
 
-   Proposition pairing_proj2 {a x y : C} (f : a --> x) (g : a --> y) : 
+   Proposition pairing_proj2 {a x y : C} (f : a --> x) (g : a --> y) :
     ⟨f,g⟩ · proj2 = g.
    Proof.
     unfold proj2.
@@ -340,14 +333,14 @@ Section PairingProperties.
       rewrite assoc.
       rewrite copy_del_l_ex.
       rewrite <- assoc.
-      rewrite <- mon_lunitor_tensor.
+      rewrite tensor_lunitor.
       rewrite assoc.
       rewrite mon_linvunitor_lunitor.
       rewrite id_left.
       reflexivity. }
     reflexivity.
    Qed.
-      
+
   Proposition pairing_sym_mon_braiding {a x y : C} (f : a --> x) (g : a --> y) :
     ⟨f,g⟩ · sym_mon_braiding _ _ _ = ⟨g,f⟩.
   Proof.
@@ -358,20 +351,35 @@ Section PairingProperties.
     reflexivity.
   Qed.
 
-  Proposition pairing_lassociator {a x y z : C} 
-      (f : a --> x) (g : a --> y) (h : a --> z) 
+  Proposition pairing_lassociator {a x y z : C}
+      (f : a --> x) (g : a --> y) (h : a --> z)
    : ⟨⟨f,g⟩,h⟩ · mon_lassociator _ _ _ = ⟨f,⟨g,h⟩⟩.
   Proof.
     rewrite <- (id_left h).
     rewrite <- pairing_tensor.
     rewrite copy_assoc.
-    Search "mon_lassociator".
-    (* Naturality of associators ? *)
-    Admitted.
+    rewrite !assoc'.
+    rewrite tensor_lassociator.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite !assoc.
+      rewrite mon_rassociator_lassociator.
+      apply id_left.
+    }
+    rewrite <- tensor_comp_mor.
+    rewrite !id_left.
+    apply idpath.
+  Qed.
 
-  Proposition pairing_rassociator {a x y z : C} 
-      (f : a --> x) (g : a --> y) (h : a --> z) 
+  Proposition pairing_rassociator {a x y z : C}
+      (f : a --> x) (g : a --> y) (h : a --> z)
    : ⟨f,⟨g,h⟩⟩ · mon_rassociator _ _ _ = ⟨⟨f,g⟩,h⟩.
-  Proof. Admitted.
-
+  Proof.
+    rewrite <- pairing_lassociator.
+    rewrite !assoc'.
+    rewrite mon_lassociator_rassociator.
+    rewrite id_right.
+    apply idpath.
+  Qed.
 End PairingProperties.
