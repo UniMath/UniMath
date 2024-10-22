@@ -141,6 +141,7 @@ DisplayedCats/MonoCodomain/MonoHyperdoctrine.v
 Hyperdoctrines/Hyperdoctrine.v
 Hyperdoctrines/FirstOrderHyperdoctrine.v
 Hyperdoctrines/Tripos.v
+Hyperdoctrines/GenericPredicate.v
 
 Hyperdoctrines/PartialEqRels/PERs.v
 Hyperdoctrines/PartialEqRels/PERMorphisms.v
@@ -151,8 +152,16 @@ Hyperdoctrines/PartialEqRels/PERInitial.v
 Hyperdoctrines/PartialEqRels/PERBinProducts.v
 Hyperdoctrines/PartialEqRels/PEREqualizers.v
 Hyperdoctrines/PartialEqRels/PERMonomorphisms.v
+Hyperdoctrines/PartialEqRels/PERSubobjectClassifier.v
+Hyperdoctrines/PartialEqRels/ExponentialPER.v
+Hyperdoctrines/PartialEqRels/ExponentialEval.v
+Hyperdoctrines/PartialEqRels/ExponentialLam.v
+Hyperdoctrines/PartialEqRels/ExponentialEqs.v
+Hyperdoctrines/PartialEqRels/PERExponentials.v
+Hyperdoctrines/TriposToTopos.v
 
 DisplayedCats/Examples/HValuedPredicates.v
+Hyperdoctrines/HValuedSets.v
 
 LocallyCartesianClosed/LocallyCartesianClosed.v
 DisplayedCats/Fiberwise/DualBeckChevalley.v
