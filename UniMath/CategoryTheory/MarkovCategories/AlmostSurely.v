@@ -39,17 +39,6 @@ Section PropertiesAlmostSurely.
           {a x : C}
           (p : a --> x).
 
-  Proposition ase_flip {y : C} (f g : x --> y) :
-       p · ⟨identity _, f⟩ = p · ⟨identity _, g⟩
-   <-> p · ⟨f, identity _⟩ = p · ⟨g, identity _⟩.
-  Proof.
-  split.
-  all: intro E.
-  all: apply cancel_braiding.
-  all: do 2 rewrite <- assoc, pairing_sym_mon_braiding.
-  all: exact E.
-  Qed.
-
   Proposition ase_refl {y : C} (f : x --> y) : f =_{p} f.
   Proof. 
     reflexivity.

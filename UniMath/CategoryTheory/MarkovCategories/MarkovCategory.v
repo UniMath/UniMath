@@ -382,4 +382,17 @@ Section PairingProperties.
     rewrite id_right.
     apply idpath.
   Qed.
+  
+  Proposition pairing_flip {a x1 x2 y z : C} (p : a --> x1) (q : a --> x2) 
+        (f1 : x1 --> y) (f2 : x2 --> y)
+        (g1 : x1 --> z) (g2 : x2 --> z) :
+       p · ⟨f1 , g1⟩ = q · ⟨f2, g2⟩
+    -> p · ⟨g1 , f1⟩ = q · ⟨g2, f2⟩.
+  Proof.
+    intro E.
+    apply cancel_braiding.
+    do 2 rewrite <- assoc, pairing_sym_mon_braiding.
+    exact E.
+  Qed.
+
 End PairingProperties.

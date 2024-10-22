@@ -7,7 +7,8 @@ such as the various information flow axioms.
 
 1. Definition `markov_category_with_conditionals`
 2. Accessors
-3. Consequences and information flow axioms
+3. Bayesian inverse
+4. Consequences and information flow axioms
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
@@ -24,6 +25,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.MarkovCategories.MarkovCategory.
 Require Import UniMath.CategoryTheory.MarkovCategories.Determinism.
 Require Import UniMath.CategoryTheory.MarkovCategories.InformationFlowAxioms.
+Require Import UniMath.CategoryTheory.MarkovCategories.AlmostSurely.
 
 Import MonoidalNotations.
 
@@ -68,6 +70,71 @@ Section Accessors.
     exact (pr2 (pr2 C a x y f)).
   Qed.
 End Accessors.  
+
+Section DefBayesianInverse.
+  Context {C : markov_category}.
+  
+  Definition is_bayesian_inverse {x y : C} (p : I_{C} --> x) (f : x --> y) (fi : y --> x) : UU
+    := p · ⟨identity x, f⟩ = (p · f) · ⟨fi, identity y⟩.
+
+  Definition bayesian_inverse_ase_unique {x y : C} (p : I_{C} --> x) (f : x --> y) (g1 g2 : y --> x)
+                                         (b1 : is_bayesian_inverse p f g1) (b2 : is_bayesian_inverse p f g2) :
+    g1 =_{p · f} g2.
+  Proof.
+    unfold is_bayesian_inverse in *.
+    apply pairing_flip.
+    rewrite <- b1, <- b2.
+    reflexivity.
+  Qed.
+    
+End DefBayesianInverse.
+
+Lemma auxcoh {C : markov_category} {x y : C} (f : I_{C} --> x ⊗ x) (g : x ⊗ I_{C} --> y) : 
+     ⟨f, identity _⟩ · mon_lassociator _ _ _ · (identity _ #⊗ g) 
+   = f · (identity _ #⊗ (mon_rinvunitor _ · g)).
+Proof.
+  rewrite copy_I_mon_rinvunitor.
+  rewrite <- tensor_rinvunitor.
+  rewrite <- !assoc.
+  apply maponpaths.
+  (* Maybe like this? *)
+  rewrite <- mon_rinvunitor_triangle.
+  rewrite assoc.
+  Admitted.
+
+Section ConstructionBayesianInverse.
+  Context {C : markov_category_with_conditionals}.
+  Context {x : C}.
+  Context (p : I_{C} --> x).
+
+  Definition bayesian_inverse {y : C} (f : x --> y) : y --> x
+    := mon_rinvunitor y · conditional (p · ⟨f, identity x⟩).
+
+  Definition bayesian_inverse_eq {y : C} {f : x --> y} :
+    is_bayesian_inverse p f (bayesian_inverse f).
+  Proof.
+    unfold is_bayesian_inverse, bayesian_inverse.
+    apply pairing_flip.
+    pose(phi := p · ⟨ f, identity x ⟩).
+    pose(K := conditional_eq phi).
+    
+    assert(Aux1 : phi · proj1 = p · f).
+    { unfold phi. 
+      rewrite <- assoc.
+      rewrite pairing_proj1.
+      reflexivity. }
+    rewrite Aux1 in K.
+    clear Aux1.
+
+    rewrite auxcoh in K.
+    unfold phi in K.
+    rewrite <- assoc in K.
+    etrans. 
+    { rewrite K. reflexivity. }
+    reflexivity.
+  Qed.
+      
+End ConstructionBayesianInverse.
 
 Section ConditionalsImplyPositivity.
   Context {C : markov_category_with_conditionals}.

@@ -56,11 +56,11 @@ Section CausalityProperties.
     cbn.
     intros E.
     rewrite <- !assoc in E.
-    apply ase_flip.
+    apply pairing_flip.
     apply causality.
     rewrite assoc.
     symmetry. rewrite assoc. symmetry.
-    apply ase_flip.
+    apply pairing_flip.
     rewrite <- !assoc.
     exact E.
   Qed.
