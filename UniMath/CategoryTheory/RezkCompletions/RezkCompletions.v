@@ -35,7 +35,7 @@ Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.PrecompEquivalence.
-Require Import UniMath.CategoryTheory.WeakEquivalences.
+Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
 Require Import UniMath.CategoryTheory.whiskering.
 
 Local Open Scope cat.
