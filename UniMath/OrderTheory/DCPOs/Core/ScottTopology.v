@@ -90,7 +90,7 @@ Definition scott_open_set_to_pred
 
 Coercion scott_open_set_to_pred : scott_open_set >-> Funclass.
 
-#[reversible=no] Coercion is_scott_open_scott_open_set
+Coercion is_scott_open_scott_open_set
           {X : dcpo}
           (P : scott_open_set X)
   : is_scott_open P
@@ -110,7 +110,7 @@ Definition scott_closed_set_to_pred
 
 Coercion scott_closed_set_to_pred : scott_closed_set >-> Funclass.
 
-#[reversible=no] Coercion is_scott_closed_scott_closed_set
+Coercion is_scott_closed_scott_closed_set
           {X : dcpo}
           (P : scott_closed_set X)
   : is_scott_closed P

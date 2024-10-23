@@ -119,7 +119,7 @@ Definition make_functor_from
   : functor_from C
   := D ,, F.
 
-#[reversible=no] Coercion func_functor_from
+Coercion func_functor_from
   {C : precategory}
   (X : functor_from C)
   : functor C (pr1 X)
@@ -152,7 +152,7 @@ Definition initial_functor_from
   : UU
   := ∑ (F : functor_from C), is_initial_functor_from F.
 
-#[reversible=no] Coercion initial_functor_from_to_functor_from
+Coercion initial_functor_from_to_functor_from
   {C : precategory}
   (F : initial_functor_from C)
   : functor_from C

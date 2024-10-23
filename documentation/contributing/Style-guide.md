@@ -1,83 +1,45 @@
-Univalent Mathematics Coq files
-===============================
+* Avoid inductive types
+* Use notation wherever possible (and feasible)
+* Make sure that all variables (from induction and intros) are introduced by name
+* [Make everything opaque that should be opaque](./On-opaqueness)
+* Split long definitions into smaller parts. This makes unification faster, allows you to more easily make the right parts opaque and is more readable.
+* Structure your proof with [bullets](https://coq.inria.fr/refman/proofs/writing-proofs/proof-mode.html#bullets). An occasional proof part with curly braces is okay, but preferably use bullets. The first three levels are `-`, `+` and `*`. If you need more levels, start with `--` (or maybe `**`), but at that point you should probably start splitting up your proof.
+* Minimize your imports: When you create a commit or PR in which you have added `Require Import` statements to a file, or (re)moved code, check that all involved import statements are indeed used or useful. For larger changes, [JasonGross has created a tool](https://github.com/JasonGross/coq-tools) which can come in handy. However, always verify the outcome, because some redundant imports are still good to have (see [this discussion](https://github.com/UniMath/UniMath/issues/1664) for more details).
 
-Each subdirectory of this directory consists of a separate package, with
-various authors, as recorded in the README (or README.md) file in it.
+(see also [UniMath/README.md](https://github.com/UniMath/UniMath/blob/master/UniMath/README.md))
 
-## Contributing code to UniMath
+## Naming
+Here is a couple of guidelines for naming different things:
+* Names of files, directories and sections should be `CamelCase`.
+* Names of definitions and lemmas should be `snake_case`.
+* When a file defines a type of object, together with some properties, its name should be plural: `Categories`, `Monoids`, `Limits`. When a file constructs one such thing, it can be singular: `ArrowCategory`.
+* Naming (definitions, for example: "x_to_y" or "y_from_x"?)
 
-Volunteers may look at unassigned issues at GitHub and volunteer to be assigned
-one of them.  New proposals and ideas may be submitted as issues at GitHub for
-discussion and feedback.
+## Add comments to your code
+Keep the following guideline in mind: The top part is what you expect everybody to read. Comments in the middle are harder to find, so you should expect people to read them unless if they go very deeply into the file. Use some inline comments to explain interesting or hard parts of a proof. Regarding the header, it should tell a user what they can find inside the file. Here is a template:
+```coq
+(**************************************************************************************************
 
-Contributions are submitted in the form of pull requests at GitHub and are
-subject to approval by the UniMath Development Team.
+  Title of one line
 
-Changes to the package "Foundations" are normally not accepted, for we are
-trying to keep it in a state close to what Vladimir Voevodsky originally
-intended.  A warning is issued if you run `make` or `make all` and have changed
-a file in the Foundations package.
+  Then a (usually nonoptional) description of what a user should expect in this file,
+  useful information about the formalisation and/or references to related research papers.
 
-## Adding a file to a package
+  Contents
+  1. Then a table of contents [the_toc]
+  1.1. Explaining the layout of the file [layout]
+  2. With the names of the main theorems or definitions in brackets [main_theorem]
 
-Each package contains a subdirectory called ".package".  The file
-".packages/files" consists of a list of the paths to the *.v files of the
-package, in order, i.e., a file is listed after files it depends on.
-(That's just so the TAGS file will be correctly sequenced.)  To add a file to a
-package, add its path to that file.
-
-## Adding a new package
-
-Create a subdirectory of this directory, populate it with your files, add a
-README (or README.md) file, and add a file .package/files, listing the *.v
-files of your package, as above.  Then add the name of your package to the head
-of the list assigned to "PACKAGES" in the file "./Makefile", or, alternatively,
-if you'd like to test your package without modifying "./Makefile", which you might
-accidentally commit and push, add its name to the head of the list in
-"../build/Makefile-configuration", which is created from
-"../build/Makefile-configuration-template".
-
-## The UniMath formal language
-
-The formal language used in the UniMath project is based on Martin-Löf type
-theory, as present in MLTT79 below.  We are currently on version 2.
-
-UniMath-1 is MLTT79 except:
-
-- the bound variable in a λ-expression is annotated with its type
-- we omit W-types
-- just the finite types of cardinality 0, 1, and 2 are used, although there would be no problem with introducing further ones
-- we omit reflection from identities to judgmental equalities
-- we add the resizing rules from the [slides](https://www.math.ias.edu/vladimir/sites/math.ias.edu.vladimir/files/2011_Bergen.pdf) of Voevodsky's 2011 talk in Bergen
-
-UniMath-2 is UniMath-1 except:
-
-- we add η for pairs
-
-The axioms accepted are: the univalence axiom, the law of excluded middle, the
-axiom of choice, and a few new variants of the axiom of choice, validated by
-the semantic model.
-
-MLTT79 is this paper:
+ **************************************************************************************************)
 ```
-@incollection {MLTT79,
-    AUTHOR = {Martin-L\"of, Per},
-     TITLE = {Constructive mathematics and computer programming},
- BOOKTITLE = {Logic, methodology and philosophy of science, {VI} ({H}annover, 1979)},
-    SERIES = {Stud. Logic Found. Math.},
-    VOLUME = {104},
-     PAGES = {153--175},
- PUBLISHER = {North-Holland, Amsterdam},
-      YEAR = {1982},
-   MRCLASS = {03F50 (03B70 03F55 68Q45)},
-  MRNUMBER = {682410},
-MRREVIEWER = {B. H. Mayoh},
-       DOI = {10.1016/S0049-237X(09)70189-2},
-       URL = {http://dx.doi.org/10.1016/S0049-237X(09)70189-2},
-}
+Then make sure to refer back to the table of contents with headers inside your code, looking like this (the asterisks are to adhere to [coqdoc](https://coq.inria.fr/refman/using/tools/coqdoc.html#sections)):
+```coq
+(** * 1. Then a table of contents *)
+...
+(** ** 1.1. Explaining the layout of the file *)
 ```
 
-## UniMath coding style
+# Old UniMath coding style. To Be Cleaned Up
 
 In the following rules, we purposely restrict our use of Coq to a subset whose
 semantics is more likely to be rigorously verifiable and portable to new proof
