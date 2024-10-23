@@ -163,7 +163,7 @@ Section WeakEquivalencesReflectsEqualizers₀.
   Qed.
 
 
-  Let p_func : # F h · # F f₁ = # F h · # F f₂.
+  Local Definition p_func : # F h · # F f₁ = # F h · # F f₂.
   Proof.
     do 2 rewrite <- functor_comp.
     apply maponpaths.

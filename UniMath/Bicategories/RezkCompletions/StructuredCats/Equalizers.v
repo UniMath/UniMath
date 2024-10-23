@@ -36,9 +36,9 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
 Require Import UniMath.CategoryTheory.DisplayedCats.TotalAdjunction.
 
 Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
-Require Import UniMath.CategoryTheory.WeakEquivalences.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
+Require Import UniMath.CategoryTheory.WeakEquivalences.Limits.Equalizers.
 
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
@@ -71,6 +71,23 @@ Require Import UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrow.
 Require Import UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrowOnCat.
 
 Local Open Scope cat.
+
+Lemma Equalizer_eq
+  {C : category}
+  (E : Equalizers C)
+  {x x' y y' : ob C}
+  {f g : C⟦x, y⟧}
+  {f' g' : C⟦x', y'⟧}
+  (i_x : x' = x) (i_y : y = y')
+  (p1 : idtoiso i_x · f · idtoiso i_y= f')
+  (p2 : idtoiso i_x · g · idtoiso i_y = g')
+  : z_iso (E _ _ f g) (E _ _ f' g').
+Proof.
+  induction i_x, i_y, p1, p2.
+  cbn.
+  rewrite ! id_left, ! id_right.
+  apply identity_z_iso.
+Defined.
 
 Lemma isEqualizerUnderIso
   {C : category}
@@ -338,7 +355,7 @@ Section BicatOfCategoriesWithEqualizersHasRezkCompletion.
     }
 
     assert (pf₀ : isEqualizer f₁ f₂ e p). {
-      use (@weak_equiv_reflects_equalizers _ _ _ (pr2 Gw) x y a f₁ f₂ e p).
+      use (@weak_equiv_reflects_equalizers _ _ _ Gw x y a f₁ f₂ e p).
       use (isEqualizerUnderIso _ _ _ _ _ _ _ iEe).
       - exact (z_iso_inv ia).
       - exact (z_iso_inv ix).
@@ -374,7 +391,7 @@ Section BicatOfCategoriesWithEqualizersHasRezkCompletion.
     }
 
     set (αi := nat_z_iso_inv α).
-    use (isEqualizerUnderIso _ _ _ _ _ _ _ (Feq x y a f₁ f₂ e p (Equalizers.p_func p) _)).
+    use (isEqualizerUnderIso _ _ _ _ _ _ _ (Feq x y a f₁ f₂ e p (Equalizers.p_func (p := p)) _)).
     - use (z_iso_comp (_ ,, pr2 αi _)) ; simpl ; apply functor_on_z_iso.
       exact ia.
     - use (z_iso_comp (_ ,, pr2 αi _)) ; simpl ; apply functor_on_z_iso.
@@ -411,15 +428,13 @@ Section BicatOfCategoriesWithEqualizersHasRezkCompletion.
       set (g₁ := (fully_faithful_inv_hom (ff_from_weak_equiv _ Fw)) _ _ (iₓ · g' · pr12 iy)).
 
       set (E1_fg := E₁ _ _ f₁ g₁).
-      (* induction E1_fg as [[e₀ e₁] [e₂ e₃]] ; simpl in *. *)
-      set (t :=  weak_equiv_preserves_equalizers Fw _ _ _ _ _ _ _ (Equalizers.p_func (pr12 E1_fg)) (pr22 E1_fg)).
+      set (t :=  weak_equiv_preserves_equalizers Fw _ _ _ _ _ _ _ (Equalizers.p_func (p := pr12 E1_fg)) (pr22 E1_fg)).
       set (tE := make_Equalizer _ _ _ _ t).
       use (EqualizerOfIso f' g' iₓ (z_iso_inv iy)).
       unfold f₁, g₁ in tE.
       do 2 rewrite functor_on_fully_faithful_inv_hom in tE.
       exact tE.
-    - cbn.
-      intros C [E _].
+    - cbn ; intros C [E _].
       refine (tt ,, _).
       apply weak_equiv_preserves_equalizers.
       apply η_weak_equiv.
@@ -511,10 +526,6 @@ Section BicatOfCategoriesWithChosenEqualizersHasRezkCompletion.
     { apply isapropishinh. }
     intros [y iy].
 
-    pose (ϕ₁ := nat_z_iso_pointwise_z_iso α x).
-    pose (ϕ₂ := nat_z_iso_pointwise_z_iso α y).
-    pose (ψ₁ := isotoid _ (pr2 C3) ϕ₁).
-    pose (ψ₂ := isotoid _ (pr2 C3) ϕ₂).
     pose (j1 := isotoid _ (pr2 C2) ix).
     pose (j2 := isotoid _ (pr2 C2) iy).
 
@@ -523,8 +534,6 @@ Section BicatOfCategoriesWithChosenEqualizersHasRezkCompletion.
 
     set (f₁ := (fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ f').
     set (g₁ := (fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ g').
-
-    unfold preserves_chosen_equalizers_eq in Feq.
 
     use (factor_through_squash _ _ (Feq x y f₁ g₁)).
     { apply isapropishinh. }
@@ -547,20 +556,37 @@ Section BicatOfCategoriesWithChosenEqualizersHasRezkCompletion.
 
     etrans. {
       apply maponpaths.
-      exact (! pf_G) ; clear pf_G.
+      exact (! pf_G).
     }
-
-    etrans. {
-      apply (isotoid _ (pr2 C3) (nat_z_iso_pointwise_z_iso α (E₁ _ _ f₁ g₁))).
-    }
+    clear pf_G.
+    set (ϕ := isotoid _ (pr2 C3) (nat_z_iso_pointwise_z_iso α (E₁ _ _ f₁ g₁))).
+    refine (ϕ @ _).
     refine (pf_F @ _) ; clear pf_F.
+    use (isotoid _ (pr2 C3)).
 
+    pose (ϕ₁ := nat_z_iso_pointwise_z_iso α x).
+    pose (ϕ₂ := nat_z_iso_pointwise_z_iso α y).
+    pose (ψ₁ := isotoid _ (pr2 C3) ϕ₁).
+    pose (ψ₂ := isotoid _ (pr2 C3) (z_iso_inv ϕ₂)).
 
-
-
-
-
-  Admitted. (* Qed. *)
+    use (Equalizer_eq E₃ (f := #F f₁) (g := #F g₁) ψ₁ ψ₂).
+    - unfold ψ₁, ψ₂.
+      do 2 rewrite idtoiso_isotoid.
+      etrans. {
+        apply maponpaths_2.
+        exact (! pr21 α _ _ _).
+      }
+      apply z_iso_inv_to_right.
+      apply idpath.
+    - unfold ψ₁, ψ₂.
+      do 2 rewrite idtoiso_isotoid.
+      etrans. {
+        apply maponpaths_2.
+        exact (! pr21 α _ _ _).
+      }
+      apply z_iso_inv_to_right.
+      apply idpath.
+  Qed.
 
   Definition cat_with_chosen_equalizers_has_RezkCompletion
     : disp_left_universal_arrow LUR RR.
