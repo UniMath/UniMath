@@ -28,13 +28,16 @@
  Contents
  1. Categories with a chosen terminal object
  2. Categories that have a terminal object
- 3. Each type of 2-cells in the bicategory of categories with a terminal object (chosen/have) is contractible.
+ 3. Each type of 2-cells in the bicategory of categories with a terminal object (chosen/have) is contractible
  4. Categories with chosen binary products
  5. Categories that have binary products
- 6. Each type of 2-cells in the bicategory of categories with binary products (chosen/have) is contractible.
+ 6. Each type of 2-cells in the bicategory of categories with binary products (chosen/have) is contractible
  7. Categories with chosen equalizers
  8. Categories that have equalizers
- 9. Each type of 2-cells in the bicategory of categories with equalizers (chosen/have) is contractible.
+ 9. Each type of 2-cells in the bicategory of categories with equalizers (chosen/have) is contractible
+ 10. Categories with a chosen pullbacks
+ 11. Categories that have pullbacks
+ 12. Each type of 2-cells in the bicategory of categories with pullbacks (chosen/have) is contractible
 
  ************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -95,7 +98,7 @@ Definition cat_with_terminal_obj
   : bicat
   := total_bicat disp_bicat_have_terminal_obj.
 
-(* Homotopy levels of each type of 2-cells *)
+(* 3. Homotopy levels of each type of 2-cells *)
 Lemma disp_2cells_is_contr_have_terminal_obj
   : disp_2cells_iscontr disp_bicat_have_terminal_obj.
 Proof.
@@ -116,7 +119,7 @@ Qed.
 
 
 (**
- 1. Categories with a chosen binary products
+ 4. Categories with a chosen binary products
  *)
 Definition disp_bicat_chosen_binproducts
   : disp_bicat bicat_of_cats.
@@ -133,7 +136,7 @@ Definition cat_with_chosen_binproducts
   := total_bicat disp_bicat_chosen_binproducts.
 
 (**
- 2. Categories that have binary products
+ 5. Categories that have binary products
  *)
 Definition disp_bicat_have_binproducts
   : disp_bicat bicat_of_cats.
@@ -149,7 +152,7 @@ Definition cat_with_binproducts
   : bicat
   := total_bicat disp_bicat_have_binproducts.
 
-(* Homotopy levels of each type of 2-cells *)
+(* 6. Homotopy levels of each type of 2-cells *)
 Lemma disp_2cells_is_contr_have_binproducts
   : disp_2cells_iscontr disp_bicat_have_binproducts.
 Proof.
@@ -170,7 +173,7 @@ Qed.
 (***************)
 
 (**
- 1. Categories with a chosen equalizers
+ 7. Categories with a chosen equalizers
  *)
 Definition disp_bicat_chosen_equalizers
   : disp_bicat bicat_of_cats.
@@ -187,7 +190,7 @@ Definition cat_with_chosen_equalizers
   := total_bicat disp_bicat_chosen_equalizers.
 
 (**
- 2. Categories that have equalizers
+ 8. Categories that have equalizers
  *)
 Definition disp_bicat_have_equalizers
   : disp_bicat bicat_of_cats.
@@ -203,7 +206,7 @@ Definition cat_with_equalizers
   : bicat
   := total_bicat disp_bicat_have_binproducts.
 
-(* Homotopy levels of each type of 2-cells *)
+(* 9. Homotopy levels of each type of 2-cells *)
 Lemma disp_2cells_is_contr_have_equalizers
   : disp_2cells_iscontr disp_bicat_have_equalizers.
 Proof.
@@ -225,7 +228,7 @@ Qed.
 (***************)
 
 (**
- 1. Categories with a chosen pullbacks
+ 10. Categories with a chosen pullbacks
  *)
 Definition disp_bicat_chosen_pullbacks
   : disp_bicat bicat_of_cats.
@@ -242,7 +245,7 @@ Definition cat_with_chosen_pullbacks
   := total_bicat disp_bicat_chosen_pullbacks.
 
 (**
- 2. Categories that have pullbacks
+ 11. Categories that have pullbacks
  *)
 Definition disp_bicat_have_pullbacks
   : disp_bicat bicat_of_cats.
@@ -258,7 +261,7 @@ Definition cat_with_pullbacks
   : bicat
   := total_bicat disp_bicat_have_pullbacks.
 
-(* Homotopy levels of each type of 2-cells *)
+(* 12. Homotopy levels of each type of 2-cells *)
 Lemma disp_2cells_is_contr_have_pullbacks
   : disp_2cells_iscontr disp_bicat_have_pullbacks.
 Proof.
