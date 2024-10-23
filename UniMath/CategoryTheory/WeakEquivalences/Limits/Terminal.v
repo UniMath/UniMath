@@ -8,6 +8,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
 
 Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Preservation.
 
 Local Open Scope cat.
 

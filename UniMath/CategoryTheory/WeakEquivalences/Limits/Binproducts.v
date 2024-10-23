@@ -8,6 +8,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
 
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Preservation.
 
 Local Open Scope cat.
 
@@ -226,7 +227,7 @@ Section WeakEquivalencesReflectBinproducts₀.
       exact (pr22 φ₁ @ ! pr22 φ₂).
   Qed.
 
-End WeakEquivalencesReflectsProducts₀.
+End WeakEquivalencesReflectBinproducts₀.
 
 Lemma weak_equiv_reflects_products
   {C D : category} {F : C ⟶ D} (Fw : fully_faithful F)

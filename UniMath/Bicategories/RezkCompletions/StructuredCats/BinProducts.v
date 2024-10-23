@@ -35,7 +35,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Adjunctions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
 Require Import UniMath.CategoryTheory.DisplayedCats.TotalAdjunction.
 
-Require Import UniMath.CategoryTheory.WeakEquivalences.
+Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
+Require Import UniMath.CategoryTheory.WeakEquivalences.Limits.Binproducts.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 

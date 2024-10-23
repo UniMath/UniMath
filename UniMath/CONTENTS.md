@@ -389,6 +389,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [WeakEquivalences/Limits/Terminal.v](CategoryTheory/WeakEquivalences/Limits/Terminal.v)
    - [WeakEquivalences/Limits/Binproducts.v](CategoryTheory/WeakEquivalences/Limits/Binproducts.v)
    - [WeakEquivalences/Limits/Equalizers.v](CategoryTheory/WeakEquivalences/Limits/Equalizers.v)
+   - [WeakEquivalences/Limits/Pullbacks.v](CategoryTheory/WeakEquivalences/Limits/Pullbacks.v)
    - [RezkCompletions/RezkCompletions.v](CategoryTheory/RezkCompletions/RezkCompletions.v)
    - [RezkCompletions/Construction.v](CategoryTheory/RezkCompletions/Construction.v)
    - [exponentials.v](CategoryTheory/exponentials.v)
@@ -1250,6 +1251,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [RezkCompletions/Uniqueness.v](Bicategories/RezkCompletions/Uniqueness.v)
    - [RezkCompletions/StructuredCats/TerminalObject.v](Bicategories/RezkCompletions/StructuredCats/TerminalObject.v)
    - [RezkCompletions/StructuredCats/BinProducts.v](Bicategories/RezkCompletions/StructuredCats/BinProducts.v)
+   - [RezkCompletions/StructuredCats/Pullbacks.v](Bicategories/RezkCompletions/StructuredCats/Pullbacks.v)
    - [DaggerCategories/BicatOfDaggerCats.v](Bicategories/DaggerCategories/BicatOfDaggerCats.v)
    - [All.v](Bicategories/All.v)
 ## Package YonedaCT

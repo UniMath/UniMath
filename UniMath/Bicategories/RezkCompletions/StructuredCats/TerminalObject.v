@@ -35,7 +35,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Adjunctions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
 Require Import UniMath.CategoryTheory.DisplayedCats.TotalAdjunction.
 
-Require Import UniMath.CategoryTheory.WeakEquivalences.
+Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
+Require Import UniMath.CategoryTheory.WeakEquivalences.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 
@@ -46,20 +47,20 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.Bicategories.Core.Univalence.
 
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
-Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+(* Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
 
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.Transformations.PseudoTransformation.
 Require Import UniMath.Bicategories.PseudoFunctors.Biadjunction.
-Require Import UniMath.Bicategories.Modifications.Modification.
+Require Import UniMath.Bicategories.Modifications.Modification. *)
 
 Require Import UniMath.Bicategories.PseudoFunctors.UniversalArrow.
 Import PseudoFunctor.Notations.
 
-Require Import UniMath.Bicategories.DisplayedBicats.DispBiadjunction.
-Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
-Import DispBicat.Notations.
+(* Require Import UniMath.Bicategories.DisplayedBicats.DispBiadjunction.
+Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles. *)
+(* Import DispBicat.Notations. *)
 
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.BicatOfCatToUnivCat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOnCatToUniv.

@@ -167,6 +167,7 @@ Proof.
   intro.
   use total2_paths_f ; apply iscontrunit.
 Qed.
+(***************)
 
 (**
  1. Categories with a chosen equalizers
@@ -214,6 +215,61 @@ Qed.
 
 Lemma disp_2cells_is_contr_chosen_equalizers
   : disp_2cells_iscontr disp_bicat_chosen_equalizers.
+Proof.
+  intro ; intros.
+  exists (tt,,tt).
+  intro.
+  use total2_paths_f ; apply iscontrunit.
+Qed.
+
+(***************)
+
+(**
+ 1. Categories with a chosen pullbacks
+ *)
+Definition disp_bicat_chosen_pullbacks
+  : disp_bicat bicat_of_cats.
+Proof.
+  use disp_subbicat.
+  - exact (λ C, Pullbacks C).
+  - exact (λ C₁ C₂ BP₁ BP₂ F, preserves_chosen_pullbacks_eq F BP₁ BP₂).
+  - exact (λ C T, identity_preserves_chosen_pullbacks_eq T).
+  - exact (λ _ _ _ _ _ _ _ _ PF PG, composition_preserves_chosen_pullbacks_eq PF PG).
+Defined.
+
+Definition cat_with_chosen_pullbacks
+  : bicat
+  := total_bicat disp_bicat_chosen_pullbacks.
+
+(**
+ 2. Categories that have pullbacks
+ *)
+Definition disp_bicat_have_pullbacks
+  : disp_bicat bicat_of_cats.
+Proof.
+  use disp_subbicat.
+  - exact (λ C, Pullbacks C).
+  - exact (λ C₁ C₂ _ _ F, preserves_pullback F).
+  - exact (λ C _, identity_preserves_pullback _).
+  - exact (λ _ _ _ _ _ _ _ _ HF HG, composition_preserves_pullback HF HG).
+Defined.
+
+Definition cat_with_pullbacks
+  : bicat
+  := total_bicat disp_bicat_have_pullbacks.
+
+(* Homotopy levels of each type of 2-cells *)
+Lemma disp_2cells_is_contr_have_pullbacks
+  : disp_2cells_iscontr disp_bicat_have_pullbacks.
+Proof.
+  intro ; intros.
+  exists (tt,,tt).
+  intro.
+  use total2_paths_f ; apply iscontrunit.
+Qed.
+
+Lemma disp_2cells_is_contr_chosen_pullbacks
+  : disp_2cells_iscontr disp_bicat_chosen_pullbacks.
 Proof.
   intro ; intros.
   exists (tt,,tt).

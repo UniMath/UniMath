@@ -487,5 +487,6 @@ RezkCompletions/RezkCompletionOfBicategory.v
 RezkCompletions/Uniqueness.v
 RezkCompletions/StructuredCats/TerminalObject.v
 RezkCompletions/StructuredCats/BinProducts.v
+RezkCompletions/StructuredCats/Pullbacks.v
 
 DaggerCategories/BicatOfDaggerCats.v
