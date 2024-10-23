@@ -86,6 +86,32 @@ Section BicatOfCategoriesWithTerminalHasRezkCompletion.
   Let RR := (disp_psfunctor_on_cat_to_univ_cat D
                (disp_2cells_isaprop_from_disp_2cells_iscontr _ disp_2cells_is_contr_have_terminal_obj)).
 
+  Lemma weak_equiv_lifts_preserves_terminal
+    {C1 C2 C3 : category}
+    (F : C1 ⟶ C3)
+    (G : C1 ⟶ C2)
+    (H : C2 ⟶ C3)
+    (α : nat_z_iso (G ∙ H) F)
+    (Gw : is_weak_equiv G)
+    (Fpterm : preserves_terminal F)
+    : preserves_terminal H.
+  Proof.
+    intros x2 x2_is_term.
+    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw x2)).
+    { apply isaprop_isTerminal. }
+    intros [x1 i] y3.
+    use (iscontrweqb' (Y :=  (C3⟦y3, H(G x1)⟧))).
+    + use (iscontrweqb' (Y := (C3⟦y3, F x1⟧))).
+      * use (Fpterm _ _).
+        use (weak_equiv_reflects_terminal _ Gw).
+        exact (iso_to_Terminal (_,, x2_is_term) _ (z_iso_inv i)).
+      * apply z_iso_comp_left_weq.
+        exact (_ ,, pr2 α x1).
+    + apply z_iso_comp_left_weq.
+      apply functor_on_z_iso.
+      exact (z_iso_inv i).
+  Qed.
+
   Definition cat_with_terminal_obj_has_RezkCompletion
     : disp_left_universal_arrow LUR RR.
   Proof.
@@ -107,23 +133,10 @@ Section BicatOfCategoriesWithTerminalHasRezkCompletion.
       intro C1_term'.
       use weak_equiv_preserves_terminal.
       apply η_weak_equiv.
-    - intros C1 C2 C3 F G H α C1_term C2_term C3_term Gw.
+    - simpl ; intros C1 C2 C3 F G H α [T1 _] [T2 _] [T3 _] Gw.
       intros [t Fpterm].
       exists tt.
-      intros x2 x2_is_term.
-      use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw x2)).
-      { apply isaprop_isTerminal. }
-      intros [x1 i] y3.
-      use (iscontrweqb' (Y :=  (pr1 C3⟦y3, H(G x1)⟧))).
-      + use (iscontrweqb' (Y := (pr1 C3⟦y3, F x1⟧))).
-        * use (Fpterm _ _).
-          use (weak_equiv_reflects_terminal _ Gw).
-          exact (iso_to_Terminal (_,, x2_is_term) _ (z_iso_inv i)).
-        * apply z_iso_comp_left_weq.
-          exact (_ ,, pr2 α x1).
-      + apply z_iso_comp_left_weq.
-        apply functor_on_z_iso.
-        exact (z_iso_inv i).
+      exact (weak_equiv_lifts_preserves_terminal F G H α Gw Fpterm).
   Defined.
 
 End BicatOfCategoriesWithTerminalHasRezkCompletion.
