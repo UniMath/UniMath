@@ -88,7 +88,7 @@ Section ImplicationsBetweenAxioms.
   Proposition causal_implies_positive (C : markov_category) :
     is_causal C -> is_positive C.
   Proof.
-  (* TODO *)
+  (* TODO Theorem 2.24 in [Fritz&al] *)
   Admitted.
 
   Proposition positive_implies_all_isos_deterministic (C : markov_category) :

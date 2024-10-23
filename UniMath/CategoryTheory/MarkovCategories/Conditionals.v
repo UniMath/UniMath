@@ -8,7 +8,7 @@ such as the various information flow axioms.
 1. Definition `markov_category_with_conditionals`
 2. Accessors
 3. Bayesian inverse
-4. Consequences and information flow axioms
+4. Consequences and derived information flow axioms
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
@@ -97,10 +97,18 @@ Proof.
   rewrite <- tensor_rinvunitor.
   rewrite <- !assoc.
   apply maponpaths.
-  (* Maybe like this? *)
   rewrite <- mon_rinvunitor_triangle.
-  rewrite assoc.
-  Admitted.
+  etrans.
+  {
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite assoc.
+    rewrite mon_rassociator_lassociator.
+    apply id_left.
+  }
+  rewrite <- tensor_comp_l_id_r.
+  apply idpath.
+Qed.
 
 Section ConstructionBayesianInverse.
   Context {C : markov_category_with_conditionals}.
@@ -174,8 +182,7 @@ Section ConditionalsImplyPositivity.
     exact w.
   Qed.
 
-
-  Lemma Aux : ⟨f · g, identity _ ⟩ · s = f.
+  Local Lemma Aux : ⟨f · g, identity _ ⟩ · s = f.
   Proof.
     assert(A1 : f · g = f · g · ⟨identity _, identity _⟩ · proj2).
     { rewrite <- assoc.
@@ -228,3 +235,8 @@ Proof.
   apply pos.
   exact d.
 Qed.
+
+Theorem conditionals_imply_causality {C : markov_category_with_conditionals} : is_causal C.
+Proof.
+  (* TODO Theorem 11.34 in [Fritz] *)
+Admitted.
