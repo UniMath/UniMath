@@ -28,6 +28,11 @@ Section DefAlmostSurely.
   Definition equal_almost_surely {a x y : C} (p : a --> x) (f g : x --> y) : UU
     := p · ⟨identity _, f⟩ = p · ⟨identity _, g⟩.
 
+  Proposition isaprop_ase {a x y : C} (p : a --> x) (f g : x --> y) : isaprop (equal_almost_surely p f g).
+  Proof. 
+  apply homset_property.
+  Qed.  
+
 End DefAlmostSurely.
 
 Arguments equal_almost_surely {C a x y} p f g /.

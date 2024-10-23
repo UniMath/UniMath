@@ -297,6 +297,25 @@ Section PairingProperties.
     reflexivity.
   Qed.
 
+  Proposition pairing_tensor_l {a x y y2 : C} (f : a --> x) (g : a --> y)
+                                                 (g2 : y --> y2) :
+    ⟨f,g⟩ · (identity _ #⊗ g2) = ⟨f , g · g2⟩.
+  Proof.
+    rewrite pairing_tensor.
+    rewrite id_right.
+    reflexivity.
+  Qed.
+
+  Proposition pairing_tensor_r {a x y x2 : C} (f : a --> x) (g : a --> y)
+                                               (f2 : x --> x2) :
+    ⟨f,g⟩ · (f2 #⊗ identity _) = ⟨f · f2, g⟩.
+  Proof.
+    rewrite pairing_tensor.
+    rewrite id_right.
+    reflexivity.
+  Qed.
+
+
   Proposition pairing_proj1 {a x y : C} (f : a --> x) (g : a --> y) :
     ⟨f,g⟩ · proj1 = f.
   Proof.

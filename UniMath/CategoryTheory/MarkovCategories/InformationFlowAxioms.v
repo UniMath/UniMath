@@ -81,6 +81,27 @@ Section CausalityProperties.
     exact H2.
   Qed.
 
+
+  Proposition ase_congruence
+              {x y z : C}
+              {f f' : x --> y}
+              {g g' : y --> z}
+              {p : I_{C} --> x}
+              {q : I_{C} --> y}
+              (e1 : f =_{p} f')
+              (e2 : g =_{q} g')
+              (e3 : q = p · f)
+    : f · g =_{p} f' · g'.
+  Proof.
+    use ase_trans.
+    - exact (f · g').
+    - apply ase_comp.
+      rewrite <- e3.
+      exact e2. 
+    - apply ase_postcomp.
+      exact e1.
+  Qed.
+
 End CausalityProperties.
 
 Section ImplicationsBetweenAxioms.
@@ -89,7 +110,7 @@ Section ImplicationsBetweenAxioms.
     is_causal C -> is_positive C.
   Proof.
   (* TODO Theorem 2.24 in [Fritz&al] *)
-  Admitted.
+  Abort.
 
   Proposition positive_implies_all_isos_deterministic (C : markov_category) :
       is_positive C -> all_isos_deterministic C.
