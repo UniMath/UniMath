@@ -72,142 +72,6 @@ Require Import UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrowOnCat
 
 Local Open Scope cat.
 
-Lemma Equalizer_eq
-  {C : category}
-  (E : Equalizers C)
-  {x x' y y' : ob C}
-  {f g : C⟦x, y⟧}
-  {f' g' : C⟦x', y'⟧}
-  (i_x : x' = x) (i_y : y = y')
-  (p1 : idtoiso i_x · f · idtoiso i_y= f')
-  (p2 : idtoiso i_x · g · idtoiso i_y = g')
-  : z_iso (E _ _ f g) (E _ _ f' g').
-Proof.
-  induction i_x, i_y, p1, p2.
-  cbn.
-  rewrite ! id_left, ! id_right.
-  apply identity_z_iso.
-Defined.
-
-Lemma isEqualizerUnderIso
-  {C : category}
-  {a a' x x' y y' : ob C}
-  {e : C⟦a, x⟧} {f g : C⟦x, y⟧} {p : e · f = e · g}
-  {e' : C⟦a', x'⟧} {f' g' : C⟦x', y'⟧}
-  (p' : e' · f' = e' · g')
-  (i_a : z_iso a a') (i_x : z_iso x x') (i_y : z_iso y y')
-  (pd_e : e = i_a · e' · pr12 i_x)
-  (pd_f : f' · pr12 i_y = pr12 i_x · f)
-  (pd_g : g' · pr12 i_y = pr12 i_x · g)
-  : isEqualizer f g e p → isEqualizer f' g' e' p'.
-Proof.
-  intro E.
-  intros w h q.
-
-  assert (t :  h · pr12 i_x · f = h · pr12 i_x · g ). {
-    do 2 rewrite assoc'.
-    rewrite <- pd_f.
-    rewrite <- pd_g.
-    rewrite assoc.
-    rewrite q.
-    apply assoc'.
-  }
-  set (E' := E w (h · pr12 i_x) t).
-
-  assert (pfq :  pr11 E' · i_a · e' = h). {
-    pose (pr21 E') as W.
-    simpl in W.
-    rewrite pd_e in W.
-    do 2 rewrite assoc in W.
-    pose (z_iso_inv_to_right _ _ _ _ _ _ W) as V.
-    refine (_ @ V).
-    rewrite ! assoc'.
-    do 2 apply maponpaths.
-    refine (! id_right _ @ _).
-    apply maponpaths, pathsinv0.
-    apply (pr222 i_x).
-  }
-
-  use iscontraprop1.
-  - use invproofirrelevance.
-    intros φ₁ φ₂.
-    use subtypePath ; [ intro ; apply homset_property | ].
-    use (cancel_z_iso _ _ (z_iso_inv i_a)).
-    use (isEqualizerInsEq E).
-    rewrite !assoc'.
-    rewrite ! pd_e.
-    etrans. {
-      apply maponpaths.
-      rewrite ! assoc.
-      do 2 apply maponpaths_2.
-      refine (_ @ idpath (identity _)).
-      apply z_iso_after_z_iso_inv.
-    }
-    rewrite id_left.
-    rewrite assoc.
-    rewrite (pr2 φ₁).
-    etrans. 2: {
-      apply maponpaths.
-      rewrite ! assoc.
-      do 2 apply maponpaths_2.
-      refine (idpath (identity _) @ _).
-      apply pathsinv0, z_iso_after_z_iso_inv.
-    }
-    rewrite id_left.
-    rewrite assoc.
-    apply maponpaths_2.
-    exact (!(pr2 φ₂)).
-  - exact (pr11 E' · i_a ,, pfq).
-Qed.
-
-Definition EqualizerOfIso
-  {C : category}
-  {x' x y y' : ob C}
-  (f g : C⟦x, y⟧)
-  (i : z_iso x' x) (j : z_iso y y')
-  : Equalizer (i · f · j) (i · g · j) → Equalizer f g.
-Proof.
-  intro E.
-  use (make_Equalizer f g (EqualizerArrow E · i)).
-  - abstract (use (cancel_z_iso _ _ j) ;
-    refine (_ @ EqualizerEqAr E @ _) ;
-              [ refine (assoc' _ _ _ @ _) ;
-      refine (assoc' _ _ _ @ _) ;
-      apply maponpaths ;
-      apply assoc
-              | refine (_ @ assoc _ _ _);
-      refine (_ @ assoc _ _ _);
-      apply maponpaths;
-      apply assoc']).
-  - use (isEqualizerUnderIso _ _ _ _ _ _ _ (pr22 E)).
-    + apply identity_z_iso.
-    + exact i.
-    + exact (z_iso_inv j).
-    + apply pathsinv0.
-      refine (assoc' _ _ _ @ _).
-      refine (id_left _ @ _).
-      refine (_ @ id_right _).
-      refine (assoc' _ _ _ @ _).
-      apply maponpaths.
-      apply z_iso_inv_after_z_iso.
-    + apply pathsinv0.
-      do 2 rewrite assoc.
-      etrans. {
-        do 2 apply maponpaths_2.
-        apply (pr2 i).
-      }
-      refine (assoc' _ _ _ @ _).
-      apply id_left.
-    + apply pathsinv0.
-      do 2 rewrite assoc.
-      etrans. {
-        do 2 apply maponpaths_2.
-        apply (pr2 i).
-      }
-      refine (assoc' _ _ _ @ _).
-      apply id_left.
-Qed.
-
 Section BicatOfCategoriesWithEqualizersHasRezkCompletion.
 
   Let UnivCat := bicat_of_univ_cats.
@@ -223,9 +87,6 @@ Section BicatOfCategoriesWithEqualizersHasRezkCompletion.
     {G : C1 ⟶ C2}
     {H : C2 ⟶ C3}
     (α : nat_z_iso (G ∙ H) F)
-    (* (E₁ : Equalizers C1)
-    (E₂ : Equalizers (pr1 C2)) *)
-    (* (E₃ : Equalizers (pr1 C3)) *)
     (Gw : is_weak_equiv G)
     : preserves_equalizer F → preserves_equalizer H.
   Proof.
@@ -492,7 +353,6 @@ Section BicatOfCategoriesWithChosenEqualizersHasRezkCompletion.
     rewrite p₁, p₂.
     do 2 rewrite <- functor_comp.
     apply maponpaths.
-    Check functor_on_fully_faithful_inv_hom F (pr2 Fw) (#F g₁).
 
     assert (pf₀ : fully_faithful_inv_hom (ff_from_weak_equiv F Fw) x y (# F g₁) = g₁).
     { apply fully_faithful_inv_hom_is_inv. }
