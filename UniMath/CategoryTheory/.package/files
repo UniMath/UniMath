@@ -197,6 +197,7 @@ WeakEquivalences/Core.v
 WeakEquivalences/Limits/Terminal.v
 WeakEquivalences/Limits/Binproducts.v
 WeakEquivalences/Limits/Equalizers.v
+WeakEquivalences/Limits/Pullbacks.v
 RezkCompletions/RezkCompletions.v
 RezkCompletions/Construction.v
 exponentials.v
