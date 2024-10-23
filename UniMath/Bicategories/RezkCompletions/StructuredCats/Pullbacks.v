@@ -40,8 +40,6 @@ Require Import UniMath.CategoryTheory.WeakEquivalences.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 
-Search ( idtoiso (isotoid _ _ _)).
-
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
@@ -49,14 +47,6 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.Bicategories.Core.Univalence.
 
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
-(* Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
-
-Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
-Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
-Require Import UniMath.Bicategories.Transformations.PseudoTransformation.
-Require Import UniMath.Bicategories.PseudoFunctors.Biadjunction.
-Require Import UniMath.Bicategories.Modifications.Modification. *)
-
 Require Import UniMath.Bicategories.PseudoFunctors.UniversalArrow.
 Import PseudoFunctor.Notations.
 
@@ -419,11 +409,12 @@ Section BicatOfCategoriesWithPullbackHasRezkCompletion.
     - intros C1 C2 C3 F G H α P1 P2 P3 Gw.
       intros [t Fpb].
       exists tt.
-      use (weak_equiv_lifts_preserves_pullbacks C2 C3 α _ _ _ Gw Fpb).
-      + simpl in P1 ; admit.
-      + simpl in P2 ; admit.
-      + simpl in P3 ; admit.
-  Admitted.
+      use (weak_equiv_lifts_preserves_pullbacks C2 C3 α _ _ _ Gw Fpb)
+      ; intro ; intros ; apply hinhpr.
+      + simpl in P1 ; apply P1.
+      + simpl in P2 ; apply P2.
+      + simpl in P3 ; apply P3.
+  Qed.
 
 End BicatOfCategoriesWithPullbackHasRezkCompletion.
 
