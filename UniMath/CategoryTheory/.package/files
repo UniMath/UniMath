@@ -677,3 +677,4 @@ MarkovCategories/Univalence.v
 MarkovCategories/AlmostSurely.v
 MarkovCategories/Conditionals.v
 MarkovCategories/InformationFlowAxioms.v
+MarkovCategories/ProbabilitySpaces.v
