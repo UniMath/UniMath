@@ -170,6 +170,7 @@ Limits/Filtered.v
 IsoCommaCategory.v
 Limits/Examples/IsoCommaLimits.v
 CommaCategories.v
+Categories/Quotient.v
 
 NNO.v
 Subcategory/Limits.v
