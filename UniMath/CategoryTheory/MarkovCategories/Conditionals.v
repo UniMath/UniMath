@@ -144,6 +144,7 @@ Section ConstructionBayesianInverse.
       
 End ConstructionBayesianInverse.
 
+(* TODO Clean this up *)
 Section ConditionalsImplyPositivity.
   Context {C : markov_category_with_conditionals}.
   Context {x y z : C}.
@@ -201,7 +202,7 @@ Section ConditionalsImplyPositivity.
     rewrite <- K.
     rewrite psi_2.
     reflexivity.
-   Qed.     
+   Qed.
 
   Lemma pos_flipped : psi = ⟨f · g , f⟩.
   Proof. 
@@ -239,4 +240,4 @@ Qed.
 Theorem conditionals_imply_causality {C : markov_category_with_conditionals} : is_causal C.
 Proof.
   (* TODO Theorem 11.34 in [Fritz] *)
-Admitted.
+Abort.

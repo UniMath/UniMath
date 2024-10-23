@@ -81,7 +81,6 @@ Section CausalityProperties.
     exact H2.
   Qed.
 
-
   Proposition ase_congruence
               {x y z : C}
               {f f' : x --> y}

@@ -315,7 +315,6 @@ Section PairingProperties.
     reflexivity.
   Qed.
 
-
   Proposition pairing_proj1 {a x y : C} (f : a --> x) (g : a --> y) :
     ⟨f,g⟩ · proj1 = f.
   Proof.
