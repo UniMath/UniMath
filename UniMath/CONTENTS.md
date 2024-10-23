@@ -389,6 +389,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [WeakEquivalences/Limits/Terminal.v](CategoryTheory/WeakEquivalences/Limits/Terminal.v)
    - [WeakEquivalences/Limits/Binproducts.v](CategoryTheory/WeakEquivalences/Limits/Binproducts.v)
    - [WeakEquivalences/Limits/Equalizers.v](CategoryTheory/WeakEquivalences/Limits/Equalizers.v)
+   - [WeakEquivalences/LiftPreservation/Equalizers.v](CategoryTheory/WeakEquivalences/LiftPreservation/Equalizers.v)
    - [WeakEquivalences/Limits/Pullbacks.v](CategoryTheory/WeakEquivalences/Limits/Pullbacks.v)
    - [RezkCompletions/RezkCompletions.v](CategoryTheory/RezkCompletions/RezkCompletions.v)
    - [RezkCompletions/Construction.v](CategoryTheory/RezkCompletions/Construction.v)

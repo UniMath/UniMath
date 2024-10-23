@@ -11,7 +11,8 @@ Direct implementation of equalizers together with:
 Written by Tomi Pannila
 Extended by Langston Barrett (Nov 2018)
 
-*)
+ *)
+Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
@@ -450,15 +451,15 @@ Lemma isEqualizerUnderIso
   {e' : C⟦a', x'⟧} {f' g' : C⟦x', y'⟧}
   (p' : e' · f' = e' · g')
   (i_a : z_iso a a') (i_x : z_iso x x') (i_y : z_iso y y')
-  (pd_e : e = i_a · e' · pr12 i_x)
-  (pd_f : f' · pr12 i_y = pr12 i_x · f)
-  (pd_g : g' · pr12 i_y = pr12 i_x · g)
+  (pd_e : e = i_a · e' · pr1 (pr2 i_x))
+  (pd_f : f' · pr1 (pr2 i_y) = pr1 (pr2 i_x) · f)
+  (pd_g : g' · pr1 (pr2 i_y) = pr1 (pr2 i_x) · g)
   : isEqualizer f g e p → isEqualizer f' g' e' p'.
 Proof.
   intro E.
   intros w h q.
 
-  assert (t :  h · pr12 i_x · f = h · pr12 i_x · g ). {
+  assert (t :  h · pr1 (pr2 i_x) · f = h · pr1 (pr2 i_x) · g ). {
     do 2 rewrite assoc'.
     rewrite <- pd_f.
     rewrite <- pd_g.
@@ -466,10 +467,10 @@ Proof.
     rewrite q.
     apply assoc'.
   }
-  set (E' := E w (h · pr12 i_x) t).
+  set (E' := E w (h · pr1 (pr2 i_x)) t).
 
-  assert (pfq :  pr11 E' · i_a · e' = h). {
-    pose (pr21 E') as W.
+  assert (pfq :  pr1 (pr1 E') · i_a · e' = h). {
+    pose (pr2 (pr1 E')) as W.
     simpl in W.
     rewrite pd_e in W.
     do 2 rewrite assoc in W.
@@ -479,7 +480,7 @@ Proof.
     do 2 apply maponpaths.
     refine (! id_right _ @ _).
     apply maponpaths, pathsinv0.
-    apply (pr222 i_x).
+    apply (pr2 (pr2 (pr2 i_x))).
   }
 
   use iscontraprop1.
@@ -493,7 +494,7 @@ Proof.
     etrans. {
       apply maponpaths.
       rewrite ! assoc.
-      do 2 apply maponpaths_2.
+      do 2 apply PartA.maponpaths_2.
       refine (_ @ idpath (identity _)).
       apply z_iso_after_z_iso_inv.
     }
@@ -503,15 +504,15 @@ Proof.
     etrans. 2: {
       apply maponpaths.
       rewrite ! assoc.
-      do 2 apply maponpaths_2.
+      do 2 apply PartA.maponpaths_2.
       refine (idpath (identity _) @ _).
       apply pathsinv0, z_iso_after_z_iso_inv.
     }
     rewrite id_left.
     rewrite assoc.
-    apply maponpaths_2.
+    apply PartA.maponpaths_2.
     exact (!(pr2 φ₂)).
-  - exact (pr11 E' · i_a ,, pfq).
+  - exact (pr1 (pr1 E') · i_a ,, pfq).
 Qed.
 
 (** *)
@@ -534,7 +535,7 @@ Proof.
       refine (_ @ assoc _ _ _);
       apply maponpaths;
       apply assoc']).
-  - use (isEqualizerUnderIso _ _ _ _ _ _ _ (pr22 E)).
+  - use (isEqualizerUnderIso _ _ _ _ _ _ _ (pr2 (pr2 E))).
     + apply identity_z_iso.
     + exact i.
     + exact (z_iso_inv j).
@@ -548,7 +549,7 @@ Proof.
     + apply pathsinv0.
       do 2 rewrite assoc.
       etrans. {
-        do 2 apply maponpaths_2.
+        do 2 apply PartA.maponpaths_2.
         apply (pr2 i).
       }
       refine (assoc' _ _ _ @ _).
@@ -556,7 +557,7 @@ Proof.
     + apply pathsinv0.
       do 2 rewrite assoc.
       etrans. {
-        do 2 apply maponpaths_2.
+        do 2 apply PartA.maponpaths_2.
         apply (pr2 i).
       }
       refine (assoc' _ _ _ @ _).
