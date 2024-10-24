@@ -62,7 +62,7 @@ Section CategoriesWithPullbacksAdmitRezkCompletions.
     use make_disp_left_universal_arrow_if_contr_CAT_from_weak_equiv.
     - exact η_weak_equiv.
     - intros C1 C2 C2_univ F Fw [P1 _].
-      exact (weak_equiv_into_univ_creates_pullbacks C2_univ Fw P1 ,, tt).
+      exact (weak_equiv_into_univ_creates_haspullbacks C2_univ Fw P1 ,, tt).
     - intros C pb.
       refine (tt ,, _).
       apply weak_equiv_preserves_pullbacks.

@@ -488,5 +488,6 @@ RezkCompletions/Uniqueness.v
 RezkCompletions/StructuredCats/TerminalObject.v
 RezkCompletions/StructuredCats/BinProducts.v
 RezkCompletions/StructuredCats/Pullbacks.v
+RezkCompletions/StructuredCats/Equalizers.v
 
 DaggerCategories/BicatOfDaggerCats.v

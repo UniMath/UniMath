@@ -196,7 +196,7 @@ Definition disp_bicat_have_equalizers
   : disp_bicat bicat_of_cats.
 Proof.
   use disp_subbicat.
-  - exact (λ C, Equalizers C).
+  - exact (λ C, hasEqualizers (C := C)).
   - exact (λ C₁ C₂ _ _ F, preserves_equalizer F).
   - exact (λ C _, identity_preserves_equalizer _).
   - exact (λ _ _ _ _ _ _ _ _ HF HG, composition_preserves_equalizer HF HG).
@@ -251,7 +251,7 @@ Definition disp_bicat_have_pullbacks
   : disp_bicat bicat_of_cats.
 Proof.
   use disp_subbicat.
-  - exact (λ C, Pullbacks C).
+  - exact (λ C, hasPullbacks C).
   - exact (λ C₁ C₂ _ _ F, preserves_pullback F).
   - exact (λ C _, identity_preserves_pullback _).
   - exact (λ _ _ _ _ _ _ _ _ HF HG, composition_preserves_pullback HF HG).

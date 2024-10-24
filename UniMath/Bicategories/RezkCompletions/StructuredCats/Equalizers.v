@@ -78,7 +78,7 @@ Section CategoriesWithPullbacksAdmitRezkCompletions.
     use make_disp_left_universal_arrow_if_contr_CAT_from_weak_equiv.
     - exact η_weak_equiv.
     - intros C1 C2 C2_univ F Fw [E₁ _].
-      exact (weak_equiv_into_univ_creates_equalizers C2_univ Fw E₁ ,, tt).
+      exact (weak_equiv_into_univ_creates_hasequalizers C2_univ Fw E₁ ,, tt).
     - intros C ?.
       refine (tt ,, weak_equiv_preserves_equalizers (η_weak_equiv C)).
     - intros C1 C2 C3 F G H α E₁ E₂ E₃ Gw [t Feq].
