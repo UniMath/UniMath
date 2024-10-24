@@ -6,6 +6,7 @@ Require Export UniMath.Foundations.Sets.
 (** ** Contents
 
   - (More entries need to be added here...)
+  - An equality lemma for elements of a carrier type [carrier_eq]
   - Other universal properties for [setquot]
   - The equivalence relation of being in the same fiber
   - Subsets
@@ -17,6 +18,21 @@ Local Open Scope logic.
 Definition hProp_set : hSet := make_hSet _ isasethProp.
 
 Definition isconst {X:UU} {Y:hSet} (f : X -> Y) : hProp := ∀ x x', f x = f x'.
+
+Lemma carrier_eq
+  {X : UU}
+  {A : hsubtype X}
+  (x y : A)
+  (H : pr1 x = pr1 y)
+  : x = y.
+Proof.
+  apply subtypePath.
+  {
+    intro.
+    apply propproperty.
+  }
+  exact H.
+Qed.
 
 Definition squash_to_hSet {X : UU} {Y : hSet} (f : X -> Y) : isconst f -> ∥ X ∥ -> Y.
 Proof.
