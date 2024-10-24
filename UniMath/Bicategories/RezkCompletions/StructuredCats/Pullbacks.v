@@ -16,16 +16,16 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Adjunctions.Core.
+(* Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
-Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
+Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful. *)
 
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+(* Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
@@ -33,12 +33,14 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Adjunctions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
-Require Import UniMath.CategoryTheory.DisplayedCats.TotalAdjunction.
+Require Import UniMath.CategoryTheory.DisplayedCats.TotalAdjunction. *)
 
-Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
-Require Import UniMath.CategoryTheory.WeakEquivalences.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
+Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
+Require Import UniMath.CategoryTheory.WeakEquivalences.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.WeakEquivalences.LiftPreservation.Pullbacks.
+
 
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
@@ -50,8 +52,8 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.UniversalArrow.
 Import PseudoFunctor.Notations.
 
-Require Import UniMath.Bicategories.DisplayedBicats.DispBiadjunction.
-Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+(* Require Import UniMath.Bicategories.DisplayedBicats.DispBiadjunction.
+Require Import UniMath.Bicategories.DisplayedBicats.DispInvertibles. *)
 Import DispBicat.Notations.
 
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.BicatOfCatToUnivCat.
@@ -63,293 +65,6 @@ Require Import UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrow.
 Require Import UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrowOnCat.
 
 Local Open Scope cat.
-
-Section AuxPullbackIso.
-
-  Context {C : category}.
-
-  Lemma Pullback_eq
-    (P : Pullbacks C)
-    {x x' y y' z z' : ob C}
-    {f : C⟦x, z⟧} {g : C⟦y, z⟧}
-    {f' : C⟦x', z'⟧} {g' : C⟦y', z'⟧}
-    (i_x : x' = x) (i_y : y' = y) (i_z : z = z')
-    (p1 : idtoiso i_x · f · idtoiso i_z = f')
-    (p2 : idtoiso i_y · g · idtoiso i_z = g')
-    : z_iso (P _ _ _ f g) (P _ _ _ f' g').
-  Proof.
-    induction i_x, i_y, i_z, p1, p2.
-    cbn.
-    rewrite ! id_left, ! id_right.
-    apply identity_z_iso.
-  Defined.
-
-  Lemma transport_Pullback {x y z : ob C}
-    {f f' : C⟦x, z⟧} {g g' : C⟦y, z⟧}
-    (p1 : f = f') (p2 : g = g')
-    : Pullback f g ≃ Pullback f' g'.
-  Proof.
-    induction p1, p2.
-    apply idweq.
-  Defined.
-
-  Context {x y z p : ob C}
-    {π_y : C⟦p, y⟧} {π_x : C⟦p, x⟧} {f_y : C⟦y, z⟧} {f_x : C⟦x, z⟧}
-    (r_p : π_x · f_x = π_y · f_y).
-  Context {x' y' z' p' : ob C}
-    {π'_y : C⟦p', y'⟧} {π'_x : C⟦p', x'⟧} {f'_y : C⟦y', z'⟧} {f'_x : C⟦x', z'⟧}
-    {r'_p : π'_x · f'_x = π'_y · f'_y}
-    (pr_p : isPullback r_p).
-  Context (i_x : z_iso x' x) (i_y : z_iso y' y) (i_z : z_iso z' z) (i_p : z_iso p' p).
-
-  Lemma Pullback_iso_squares
-    (p_xf : i_x · f_x = f'_x · i_z)
-    (p_yf :  i_y · f_y = f'_y · i_z)
-    (π_ix : i_p · π_x = π'_x · i_x)
-    (π_iy :  π'_y · i_y = i_p · π_y)
-    : isPullback r'_p.
-  Proof.
-    (* intro Rp. *)
-    intros e g_x g_y r.
-    assert (pf : g_x · i_x · f_x = g_y · i_y · f_y). {
-      use (cancel_z_iso _ _ (z_iso_inv i_z)).
-      refine (_ @ r @ _).
-      - rewrite ! assoc'.
-        apply maponpaths.
-        rewrite assoc.
-        use z_iso_inv_to_right.
-        exact p_xf.
-      - rewrite ! assoc'.
-        apply maponpaths.
-        rewrite assoc.
-        use z_iso_inv_on_left.
-        exact p_yf.
-    }
-    set (t := pr_p e (g_x · i_x) (g_y · i_y) pf).
-    induction t as [[t₁ [pₗ pᵣ]] t₂].
-    use tpair.
-    - simple refine (_ ,, _ ,, _).
-      + exact (t₁ · z_iso_inv i_p).
-      + refine (_ @ ! (z_iso_inv_on_left _ _ _ _ _ _ pₗ)).
-        rewrite ! assoc'.
-        apply maponpaths.
-        use z_iso_inv_on_left.
-        rewrite assoc'.
-        use z_iso_inv_to_left.
-        exact π_ix.
-      + simpl.
-        refine (_ @ ! (z_iso_inv_on_left _ _ _ _ _ _ pᵣ)).
-        rewrite ! assoc'.
-        apply maponpaths.
-        use z_iso_inv_on_left.
-        rewrite assoc'.
-        apply pathsinv0.
-        use z_iso_inv_on_right.
-        exact π_iy.
-    - simpl.
-      intros [s₁ [qₗ qᵣ]].
-      use subtypePath.
-      { intro ; apply isapropdirprod ; apply homset_property. }
-      cbn.
-      use z_iso_inv_on_left.
-      apply pathsinv0.
-      use (base_paths _ _ (t₂ (s₁ · i_p ,, _ ,, _))).
-      + rewrite assoc', π_ix.
-        rewrite assoc.
-        now rewrite qₗ.
-      + simpl.
-        rewrite assoc'.
-        rewrite <- π_iy.
-        rewrite assoc.
-        now rewrite qᵣ.
-  Qed.
-
-End AuxPullbackIso.
-
-Section WeakEquivLiftsPreservesPullbacks.
-
-  Lemma weak_equiv_lifts_preserves_pullbacks
-    {C1 : category}
-    (C2 C3 : univalent_category)
-    {F : C1 ⟶ C3}
-    {G : C1 ⟶ C2}
-    {H : C2 ⟶ C3}
-    (α : nat_z_iso (G ∙ H) F)
-    (C1_pb : hasPullbacks C1)
-    (C2_pb : hasPullbacks (pr1 C2))
-    (C3_pb : hasPullbacks (pr1 C3))
-    (Gw : is_weak_equiv G)
-    : preserves_pullback F → preserves_pullback H.
-  Proof.
-    intros Fpb y1 y2 py' py fy gy π₁y π₂y q Fq ispby.
-    set (PB := make_Pullback _ ispby).
-
-    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw y1)).
-    { apply isaprop_isPullback. }
-    intros [x1 i1].
-    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw y2)).
-    { apply isaprop_isPullback. }
-    intros [x2 i2].
-    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw py)).
-    { apply isaprop_isPullback. }
-    intros [px i].
-    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw py')).
-    { apply isaprop_isPullback. }
-    intros [px' i'].
-
-    set (π₁x := (fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ (i · π₁y · z_iso_inv i1)).
-    set (π₂x := (fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ (i · π₂y · z_iso_inv i2)).
-    set (fx := (fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ (i1 · fy · z_iso_inv i')).
-    set (gx := (fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ (i2 · gy · z_iso_inv i')).
-
-    assert (pf₀ :  (π₁x · fx = π₂x · gx)).
-    {
-      unfold π₁x, fx, π₂x, gx.
-      do 2 rewrite <- fully_faithful_inv_comp.
-      apply maponpaths.
-      rewrite ! assoc'.
-      apply maponpaths.
-      rewrite ! assoc.
-      apply maponpaths_2.
-      refine (_ @ q @ _).
-      - apply maponpaths_2.
-        refine (_ @ id_right _).
-        refine (assoc' _ _ _ @ _).
-        apply maponpaths.
-        apply z_iso_after_z_iso_inv.
-      - apply maponpaths_2.
-        rewrite assoc'.
-        refine (! id_right _ @ _).
-        apply maponpaths.
-        apply pathsinv0, z_iso_after_z_iso_inv.
-    }
-
-    assert (pf : isPullback pf₀). {
-      use (@weak_equiv_reflects_pullbacks _ _ _ Gw x1 x2 px' px fx gx π₁x π₂x pf₀).
-      use (Pullback_iso_squares q ispby).
-      - exact i1.
-      - exact i2.
-      - exact i'.
-      - exact i.
-      - unfold fx.
-        rewrite functor_on_fully_faithful_inv_hom.
-        rewrite ! assoc'.
-        apply maponpaths.
-        refine (! id_right _ @ _).
-        apply maponpaths, pathsinv0.
-        apply (pr2 i').
-      - unfold gx.
-        rewrite functor_on_fully_faithful_inv_hom.
-        rewrite ! assoc'.
-        apply maponpaths.
-        refine (! id_right _ @ _).
-        apply maponpaths, pathsinv0.
-        apply (pr2 i').
-      - unfold π₁x.
-        rewrite functor_on_fully_faithful_inv_hom.
-        rewrite ! assoc'.
-        apply maponpaths.
-        refine (! id_right _ @ _).
-        apply maponpaths, pathsinv0.
-        apply (pr2 i1).
-      - unfold π₂x.
-        rewrite functor_on_fully_faithful_inv_hom.
-        rewrite ! assoc'.
-        apply maponpaths.
-        refine (_ @ id_right _).
-        apply maponpaths.
-        apply (pr2 i2).
-    }
-
-    use (Pullback_iso_squares _ (Fpb _ _ _ _ _ _ _ _ pf₀ (Pullbacks.p_func pf₀) pf)).
-    - exact (z_iso_comp (functor_on_z_iso H (z_iso_inv i1)) (_ ,, pr2 α _)).
-    - exact (z_iso_comp (functor_on_z_iso H (z_iso_inv i2)) (_ ,, pr2 α _)).
-    - exact (z_iso_comp (functor_on_z_iso H (z_iso_inv i')) (_ ,, pr2 α _)).
-    - exact (z_iso_comp (functor_on_z_iso H (z_iso_inv i)) (_ ,, pr2 α _)).
-    - unfold z_iso_comp, functor_on_z_iso.
-      simpl.
-      rewrite assoc'.
-      etrans. {
-        apply maponpaths.
-        exact (! pr21 α _ _ _).
-      }
-      simpl.
-      rewrite ! assoc.
-      rewrite <- ! functor_comp.
-      apply maponpaths_2, maponpaths.
-      use z_iso_inv_on_left.
-      rewrite assoc'.
-      apply pathsinv0.
-      use z_iso_inv_on_right.
-      unfold fx.
-      rewrite functor_on_fully_faithful_inv_hom.
-      rewrite assoc'.
-      etrans. { do 2 apply maponpaths, (z_iso_after_z_iso_inv i'). }
-      apply id_right.
-    - unfold z_iso_comp, functor_on_z_iso.
-      simpl.
-      rewrite assoc'.
-      etrans. {
-        apply maponpaths.
-        exact (! pr21 α _ _ _).
-      }
-      simpl.
-      rewrite ! assoc.
-      rewrite <- ! functor_comp.
-      apply maponpaths_2, maponpaths.
-      use z_iso_inv_on_left.
-      rewrite assoc'.
-      apply pathsinv0.
-      use z_iso_inv_on_right.
-      unfold gx.
-      rewrite functor_on_fully_faithful_inv_hom.
-      rewrite assoc'.
-      etrans. { do 2 apply maponpaths, (z_iso_after_z_iso_inv i'). }
-      apply id_right.
-    - unfold z_iso_comp, functor_on_z_iso.
-      simpl.
-      rewrite assoc'.
-      etrans. {
-        apply maponpaths.
-        exact (! pr21 α _ _ _).
-      }
-      simpl.
-      rewrite ! assoc.
-      rewrite <- ! functor_comp.
-      apply maponpaths_2, maponpaths.
-      use z_iso_inv_on_left.
-      rewrite assoc'.
-      apply pathsinv0.
-      use z_iso_inv_on_right.
-      unfold π₁x.
-      rewrite functor_on_fully_faithful_inv_hom.
-      rewrite assoc'.
-      etrans. { do 2 apply maponpaths, (z_iso_after_z_iso_inv i1). }
-      apply id_right.
-    - unfold z_iso_comp, functor_on_z_iso.
-      simpl.
-      rewrite assoc'.
-      etrans. 2: {
-        apply maponpaths.
-        apply (pr21 α _ _ _).
-      }
-      simpl.
-      rewrite ! assoc.
-      rewrite <- ! functor_comp.
-      apply maponpaths_2, maponpaths.
-      apply pathsinv0.
-      use z_iso_inv_on_left.
-      rewrite assoc'.
-      apply pathsinv0.
-      use z_iso_inv_on_right.
-      unfold π₂x.
-      rewrite functor_on_fully_faithful_inv_hom.
-      rewrite assoc'.
-      etrans. { do 2 apply maponpaths, (z_iso_after_z_iso_inv i2). }
-      apply id_right.
-  Qed.
-
-End WeakEquivLiftsPreservesPullbacks.
 
 Section BicatOfCategoriesWithPullbackHasRezkCompletion.
 
