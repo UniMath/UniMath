@@ -1761,3 +1761,105 @@ Proof.
   - abstract
       (split ; apply swap_pullback_mor_eq).
 Defined.
+
+Section PullbackIso.
+
+  Context {C : category}.
+
+  Lemma Pullback_eq
+    (P : Pullbacks C)
+    {x x' y y' z z' : ob C}
+    {f : C⟦x, z⟧} {g : C⟦y, z⟧}
+    {f' : C⟦x', z'⟧} {g' : C⟦y', z'⟧}
+    (i_x : x' = x) (i_y : y' = y) (i_z : z = z')
+    (p1 : idtoiso i_x · f · idtoiso i_z = f')
+    (p2 : idtoiso i_y · g · idtoiso i_z = g')
+    : z_iso (P _ _ _ f g) (P _ _ _ f' g').
+  Proof.
+    induction i_x, i_y, i_z, p1, p2.
+    cbn.
+    rewrite ! id_left, ! id_right.
+    apply identity_z_iso.
+  Defined.
+
+  Lemma transport_Pullback {x y z : ob C}
+    {f f' : C⟦x, z⟧} {g g' : C⟦y, z⟧}
+    (p1 : f = f') (p2 : g = g')
+    : Pullback f g ≃ Pullback f' g'.
+  Proof.
+    induction p1, p2.
+    apply idweq.
+  Defined.
+
+  Context {x y z p : ob C}
+    {π_y : C⟦p, y⟧} {π_x : C⟦p, x⟧} {f_y : C⟦y, z⟧} {f_x : C⟦x, z⟧}
+    (r_p : π_x · f_x = π_y · f_y).
+  Context {x' y' z' p' : ob C}
+    {π'_y : C⟦p', y'⟧} {π'_x : C⟦p', x'⟧} {f'_y : C⟦y', z'⟧} {f'_x : C⟦x', z'⟧}
+    {r'_p : π'_x · f'_x = π'_y · f'_y}
+    (pr_p : isPullback r_p).
+  Context (i_x : z_iso x' x) (i_y : z_iso y' y) (i_z : z_iso z' z) (i_p : z_iso p' p).
+
+  Lemma Pullback_iso_squares
+    (p_xf : i_x · f_x = f'_x · i_z)
+    (p_yf :  i_y · f_y = f'_y · i_z)
+    (π_ix : i_p · π_x = π'_x · i_x)
+    (π_iy :  π'_y · i_y = i_p · π_y)
+    : isPullback r'_p.
+  Proof.
+    (* intro Rp. *)
+    intros e g_x g_y r.
+    assert (pf : g_x · i_x · f_x = g_y · i_y · f_y). {
+      use (cancel_z_iso _ _ (z_iso_inv i_z)).
+      refine (_ @ r @ _).
+      - rewrite ! assoc'.
+        apply maponpaths.
+        rewrite assoc.
+        use z_iso_inv_to_right.
+        exact p_xf.
+      - rewrite ! assoc'.
+        apply maponpaths.
+        rewrite assoc.
+        use z_iso_inv_on_left.
+        exact p_yf.
+    }
+    set (t := pr_p e (g_x · i_x) (g_y · i_y) pf).
+    induction t as [[t₁ [pₗ pᵣ]] t₂].
+    use tpair.
+    - simple refine (_ ,, _ ,, _).
+      + exact (t₁ · z_iso_inv i_p).
+      + refine (_ @ ! (z_iso_inv_on_left _ _ _ _ _ _ pₗ)).
+        rewrite ! assoc'.
+        apply maponpaths.
+        use z_iso_inv_on_left.
+        rewrite assoc'.
+        use z_iso_inv_to_left.
+        exact π_ix.
+      + simpl.
+        refine (_ @ ! (z_iso_inv_on_left _ _ _ _ _ _ pᵣ)).
+        rewrite ! assoc'.
+        apply maponpaths.
+        use z_iso_inv_on_left.
+        rewrite assoc'.
+        apply pathsinv0.
+        use z_iso_inv_on_right.
+        exact π_iy.
+    - simpl.
+      intros [s₁ [qₗ qᵣ]].
+      use subtypePath.
+      { intro ; apply isapropdirprod ; apply homset_property. }
+      cbn.
+      use z_iso_inv_on_left.
+      apply pathsinv0.
+      use (base_paths _ _ (t₂ (s₁ · i_p ,, _ ,, _))).
+      + rewrite assoc', π_ix.
+        rewrite assoc.
+        now rewrite qₗ.
+      + simpl.
+        rewrite assoc'.
+        rewrite <- π_iy.
+        rewrite assoc.
+        now rewrite qᵣ.
+  Qed.
+
+End PullbackIso.
