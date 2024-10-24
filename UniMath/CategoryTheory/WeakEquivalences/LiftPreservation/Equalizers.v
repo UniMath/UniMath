@@ -27,7 +27,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.TotalAdjunction.
 Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
 Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
-Require Import UniMath.CategoryTheory.WeakEquivalences.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.WeakEquivalences.Reflection.Equalizers.
+Require Import UniMath.CategoryTheory.WeakEquivalences.Preservation.Equalizers.
 
 Local Open Scope cat.
 
@@ -245,3 +246,108 @@ Section LiftAlongWeakEquivalencePreservesEqualizers.
   Qed.
 
 End LiftAlongWeakEquivalencePreservesEqualizers.
+
+Section LiftAlongWeakEquivalencePreservesChosenEqualizersUptoEquality.
+
+  Context {C1 : category}
+    (C2 C3 : univalent_category)
+    {F : C1 ⟶ C3}
+    {G : C1 ⟶ C2}
+    {H : C2 ⟶ C3}
+    (α : nat_z_iso (G ∙ H) F)
+    (E₁ : Equalizers C1)
+    (E₂ : Equalizers (pr1 C2))
+    (E₃ : Equalizers (pr1 C3))
+    (Gw : is_weak_equiv G)
+    (Feq : preserves_chosen_equalizers_eq F E₁ E₃).
+
+  Section A.
+
+    Context {x y : C1}
+      (f' g' : C2⟦G x, G y⟧).
+
+    Let f₁ := (fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ f'.
+    Let g₁ := (fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ g'.
+
+    Lemma pf'_0
+      : ∥ H (E₂ (G x) (G y) f' g') = E₃ (H (G x)) (H (G y)) (# H f') (# H g') ∥.
+    Proof.
+
+      use (factor_through_squash _ _ (Feq x y f₁ g₁)).
+      { apply isapropishinh. }
+      intro pf_F.
+
+      set (Geq := weak_equiv_preserves_equalizers_eq Gw (pr2 C2) E₁ E₂).
+      use (factor_through_squash _ _ (Geq x y f₁ g₁)).
+      { apply isapropishinh. }
+      intro pf_G.
+      clear Geq.
+
+      assert (p₀ : f' = #G f₁).
+      { apply pathsinv0, functor_on_fully_faithful_inv_hom. }
+      assert (p₁ : g' = #G g₁).
+      { apply pathsinv0, functor_on_fully_faithful_inv_hom. }
+
+      apply hinhpr.
+      rewrite p₀, p₁.
+      clear p₀ p₁.
+
+      etrans. {
+        apply maponpaths.
+        exact (! pf_G).
+      }
+      clear pf_G.
+      set (ϕ := isotoid _ (pr2 C3) (nat_z_iso_pointwise_z_iso α (E₁ _ _ f₁ g₁))).
+      refine (ϕ @ _).
+      refine (pf_F @ _) ; clear pf_F.
+      use (isotoid _ (pr2 C3)).
+
+      pose (ϕ₁ := nat_z_iso_pointwise_z_iso α x).
+      pose (ϕ₂ := nat_z_iso_pointwise_z_iso α y).
+      pose (ψ₁ := isotoid _ (pr2 C3) ϕ₁).
+      pose (ψ₂ := isotoid _ (pr2 C3) (z_iso_inv ϕ₂)).
+
+      use (Equalizer_eq E₃ (f := #F f₁) (g := #F g₁) ψ₁ ψ₂).
+      - unfold ψ₁, ψ₂.
+        do 2 rewrite idtoiso_isotoid.
+        etrans. {
+          apply maponpaths_2.
+          exact (! pr21 α _ _ _).
+        }
+        apply z_iso_inv_to_right.
+        apply idpath.
+      - unfold ψ₁, ψ₂.
+        do 2 rewrite idtoiso_isotoid.
+        etrans. {
+          apply maponpaths_2.
+          exact (! pr21 α _ _ _).
+        }
+        apply z_iso_inv_to_right.
+        apply idpath.
+    Qed.
+
+  End A.
+
+  Lemma weak_equiv_lifts_preserves_chosen_equalizers_eq
+    : preserves_chosen_equalizers_eq H E₂ E₃.
+  Proof.
+    intros x' y' f' g'.
+
+    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw x')).
+    { apply isapropishinh. }
+    intros [x ix].
+
+    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw y')).
+    { apply isapropishinh. }
+    intros [y iy].
+
+    pose (j1 := isotoid _ (pr2 C2) ix).
+    pose (j2 := isotoid _ (pr2 C2) iy).
+
+    induction j1.
+    induction j2.
+
+    exact (pf'_0 f' g').
+  Qed.
+
+End LiftAlongWeakEquivalencePreservesChosenEqualizersUptoEquality.

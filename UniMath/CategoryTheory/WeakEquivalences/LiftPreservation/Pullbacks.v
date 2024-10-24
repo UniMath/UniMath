@@ -9,7 +9,8 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
-Require Import UniMath.CategoryTheory.WeakEquivalences.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.WeakEquivalences.Reflection.Pullbacks.
+Require Import UniMath.CategoryTheory.WeakEquivalences.Preservation.Pullbacks.
 
 Local Open Scope cat.
 
@@ -242,3 +243,116 @@ Section LiftAlongWeakEquivalencePreservesPullbacks.
   Qed.
 
 End LiftAlongWeakEquivalencePreservesPullbacks.
+
+Section LiftAlongWeakEquivalencePreservesChosenPullbacksUptoEquality.
+
+  Context {C1 : category}
+    (C2 C3 : univalent_category)
+    {F : C1 ⟶ C3}
+    {G : C1 ⟶ C2}
+    {H : C2 ⟶ C3}
+    (α : nat_z_iso (G ∙ H) F)
+    (P₁ : Pullbacks C1)
+    (P₂ : Pullbacks (pr1 C2))
+    (P₃ : Pullbacks (pr1 C3))
+    (Gw : is_weak_equiv G)
+    (Fpb : preserves_chosen_pullbacks_eq F P₁ P₃).
+
+  Section A.
+
+    Context {x y z : C1}
+      (f' : C2⟦G x, G z⟧)
+      (g' : C2⟦G y, G z⟧).
+
+    Lemma pf'_0
+      : ∥ H (P₂ (G z) (G x) (G y) f' g') = P₃ (H (G z)) (H (G x)) (H (G y)) (# H f') (# H g') ∥.
+    Proof.
+
+      set (f := (fully_faithful_inv_hom (ff_from_weak_equiv _ Gw) _ _ f')).
+      set (g := (fully_faithful_inv_hom (ff_from_weak_equiv _ Gw) _ _ g')).
+
+      use (factor_through_squash _ _ (Fpb x y z f g)).
+      { apply isapropishinh. }
+      intro v.
+      set (w := weak_equiv_preserves_pullbacks_eq Gw (pr2 C2) P₁ P₂ x y z f g).
+      use (factor_through_squash _ _ w).
+      { apply isapropishinh. }
+      clear w ; intro w.
+
+      apply hinhpr.
+
+      assert (pf_f : #G f = f'). {
+        unfold f ; now rewrite functor_on_fully_faithful_inv_hom.
+      }
+      assert (pf_g : #G g = g'). {
+        unfold g ; now rewrite functor_on_fully_faithful_inv_hom.
+      }
+
+      rewrite pf_f in w.
+      rewrite pf_g in w.
+      etrans. {
+        apply maponpaths.
+        exact (! w).
+      }
+      clear w.
+
+      set (ϕ₄ := nat_z_iso_pointwise_z_iso α (P₁ z x y f g)).
+      set (ψ := isotoid _ (pr2 C3) ϕ₄).
+      refine (ψ @ _).
+      refine (v @ _).
+
+      use (isotoid _ (pr2 C3)).
+
+      pose (ϕ₁ := nat_z_iso_pointwise_z_iso α x).
+      pose (ϕ₂ := nat_z_iso_pointwise_z_iso α y).
+      pose (ϕ₃ := z_iso_inv (nat_z_iso_pointwise_z_iso α z)).
+      pose (ψ₁ := isotoid _ (pr2 C3) ϕ₁).
+      pose (ψ₂ := isotoid _ (pr2 C3) ϕ₂).
+      pose (ψ₃ := isotoid _ (pr2 C3) ϕ₃).
+
+      use (Pullback_eq P₃ ψ₁ ψ₂ ψ₃).
+      - rewrite <- pf_f.
+        unfold ψ₁, ψ₃.
+        do 2 rewrite idtoiso_isotoid.
+        etrans. {
+          apply maponpaths_2.
+          exact (! pr21 α _ _ _).
+        }
+        apply z_iso_inv_to_right.
+        apply idpath.
+      - rewrite <- pf_g.
+        unfold ψ₂, ψ₃.
+        do 2 rewrite idtoiso_isotoid.
+        etrans. {
+          apply maponpaths_2.
+          exact (! pr21 α _ _ _).
+        }
+        apply z_iso_inv_to_right.
+        apply idpath.
+    Qed.
+
+  End A.
+
+  Lemma weak_equiv_lifts_preserves_chosen_pullbacks_eq
+    : preserves_chosen_pullbacks_eq H P₂ P₃.
+  Proof.
+    intros x' y' z' f' g'.
+
+    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw x')).
+    { apply isapropishinh. }
+    intros [x ix].
+    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw y')).
+    { apply isapropishinh. }
+    intros [y iy].
+    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw z')).
+    { apply isapropishinh. }
+    intros [z iz].
+
+    induction (isotoid _ (pr2 C2) ix).
+    induction (isotoid _ (pr2 C2) iy).
+    induction (isotoid _ (pr2 C2) iz).
+
+    exact (pf'_0 f' g').
+  Qed.
+
+End LiftAlongWeakEquivalencePreservesChosenPullbacksUptoEquality.
