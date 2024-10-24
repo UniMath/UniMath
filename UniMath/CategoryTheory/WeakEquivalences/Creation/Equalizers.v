@@ -11,6 +11,8 @@ Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.WeakEquivalences.Preservation.Equalizers.
 
+Require Import UniMath.CategoryTheory.WeakEquivalences.Reflection.Equalizers.
+
 Local Open Scope cat.
 
 Definition weak_equiv_into_univ_creates_equalizers
