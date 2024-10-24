@@ -198,6 +198,8 @@ WeakEquivalences/Core.v
 WeakEquivalences/Terminal.v
 WeakEquivalences/Preservation/Binproducts.v
 WeakEquivalences/Reflection/BinProducts.v
+WeakEquivalences/Creation/BinProducts.v
+WeakEquivalences/LiftPreservation/BinProducts.v
 WeakEquivalences/Preservation/Equalizers.v
 WeakEquivalences/Reflection/Equalizers.v
 WeakEquivalences/Creation/Equalizers.v

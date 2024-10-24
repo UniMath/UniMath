@@ -389,6 +389,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [WeakEquivalences/Terminal.v](CategoryTheory/WeakEquivalences/Terminal.v)
    - [WeakEquivalences/Preservation/Binproducts.v](CategoryTheory/WeakEquivalences/Preservation/Binproducts.v)
    - [WeakEquivalences/Reflection/BinProducts.v](CategoryTheory/WeakEquivalences/Reflection/BinProducts.v)
+   - [WeakEquivalences/Creation/BinProducts.v](CategoryTheory/WeakEquivalences/Creation/BinProducts.v)
+   - [WeakEquivalences/LiftPreservation/BinProducts.v](CategoryTheory/WeakEquivalences/LiftPreservation/BinProducts.v)
    - [WeakEquivalences/Preservation/Equalizers.v](CategoryTheory/WeakEquivalences/Preservation/Equalizers.v)
    - [WeakEquivalences/Reflection/Equalizers.v](CategoryTheory/WeakEquivalences/Reflection/Equalizers.v)
    - [WeakEquivalences/Creation/Equalizers.v](CategoryTheory/WeakEquivalences/Creation/Equalizers.v)
