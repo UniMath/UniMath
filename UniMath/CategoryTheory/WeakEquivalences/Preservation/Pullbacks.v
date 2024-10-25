@@ -1,6 +1,6 @@
 (**
    In this file, we show that an arbitrary weak equivalence F : C -> D preserves pullbacks.
-   The main work is done in weak_equiv_preserves_pullbacks, where we show that the image (under F) of a pullback in C, is also a pullback in D.
+   The main work is done in [weak_equiv_preserves_pullbacks], where we show that the image (under F) of a pullback in C, is also a pullback in D.
 
    If both C and D have pullbacks and D is univalent, we conclude that the image of a pullback is the pullback of the images.
  *)
