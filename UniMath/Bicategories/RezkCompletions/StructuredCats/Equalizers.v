@@ -1,4 +1,4 @@
-(*
+(**
 In this file, we show how the Rezk completion of a category has equalizers if the original category has equalizers.
 Hence, categories with equalizers admit a Rezk completion.
 

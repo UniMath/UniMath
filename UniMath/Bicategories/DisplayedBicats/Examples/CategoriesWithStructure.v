@@ -206,7 +206,7 @@ Definition cat_with_equalizers
   : bicat
   := total_bicat disp_bicat_have_binproducts.
 
-(* 9. Homotopy levels of each type of 2-cells *)
+(** 9. Homotopy levels of each type of 2-cells *)
 Lemma disp_2cells_is_contr_have_equalizers
   : disp_2cells_iscontr disp_bicat_have_equalizers.
 Proof.

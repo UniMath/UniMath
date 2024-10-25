@@ -44,7 +44,7 @@ Proof.
   unfold f₁, g₁ in tE.
   do 2 rewrite functor_on_fully_faithful_inv_hom in tE.
   exact tE.
-Defined.
+Qed.
 
 Definition weak_equiv_into_univ_creates_hasequalizers
     {C1 C2 : category}
@@ -78,4 +78,4 @@ Proof.
   do 2 rewrite functor_on_fully_faithful_inv_hom in tE.
 
   exact tE.
-Defined.
+Qed.
