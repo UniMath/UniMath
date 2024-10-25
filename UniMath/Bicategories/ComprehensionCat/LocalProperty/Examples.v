@@ -168,13 +168,13 @@ Defined.
 Definition sub_property_of_local_property_data
            (P : local_property)
   : UU
-  := ∏ (C : category), P C → UU.
+  := ∏ (C : univ_cat_with_finlim), P C → UU.
 
 Definition sub_property_of_local_property_laws
            (P : local_property)
            (Q : sub_property_of_local_property_data P)
   : UU
-  := (∏ (C : univalent_category)
+  := (∏ (C : univ_cat_with_finlim)
         (H : P C),
       isaprop (Q C H))
      ×
@@ -183,7 +183,7 @@ Definition sub_property_of_local_property_laws
         (H : P C),
       Q C H
       →
-      Q (C/x) (local_property_slice P C x H)).
+      Q (slice_univ_cat_with_finlim x) (local_property_slice P C x H)).
 
 Definition sub_property_of_local_property
            (P : local_property)
@@ -201,7 +201,7 @@ Definition make_sub_property_of_local_property
 Definition sub_property_of_local_property_to_data
            {P : local_property}
            (Q : sub_property_of_local_property P)
-           (C : category)
+           (C : univ_cat_with_finlim)
            (H : P C)
   : UU
   := pr1 Q C H.
@@ -212,7 +212,7 @@ Coercion sub_property_of_local_property_to_data
 Proposition isaprop_sub_property_of_local_property
             {P : local_property}
             (Q : sub_property_of_local_property P)
-            (C : univalent_category)
+            (C : univ_cat_with_finlim)
             (H : P C)
   : isaprop (Q C H).
 Proof.
@@ -226,7 +226,7 @@ Proposition sub_property_of_local_property_slice
             (x : C)
             (H : P C)
             (H' : Q C H)
-  : Q (C/x) (local_property_slice P C x H).
+  : Q (slice_univ_cat_with_finlim x) (local_property_slice P C x H).
 Proof.
   exact (pr22 Q C x H H').
 Defined.
@@ -298,7 +298,7 @@ Definition strict_initial_cat_property_data
 Proof.
   use make_cat_property_data.
   - exact (λ C, strict_initial_object C).
-  - exact (λ _ _ _ _ F, preserves_initial F).
+  - exact (λ _ _ _ _ F, preserves_initial (pr1 F)).
 Defined.
 
 Proposition strict_initial_cat_property_laws
@@ -352,7 +352,7 @@ Definition stable_bincoproducts_cat_property_data
 Proof.
   use make_cat_property_data.
   - exact (λ C, ∑ (BC : BinCoproducts C), stable_bincoproducts BC).
-  - exact (λ C₁ C₂ H₁ H₂ F, preserves_bincoproduct F).
+  - exact (λ C₁ C₂ H₁ H₂ F, preserves_bincoproduct (pr1 F)).
 Defined.
 
 Proposition stable_bincoproducts_cat_property_laws
@@ -456,7 +456,7 @@ Definition regular_cat_property_data
 Proof.
   use make_cat_property_data.
   - exact (λ C, coeqs_of_kernel_pair C × regular_epi_pb_stable C).
-  - exact (λ C₁ C₂ H₁ H₂ F, preserves_regular_epi F).
+  - exact (λ C₁ C₂ H₁ H₂ F, preserves_regular_epi (pr1 F)).
 Defined.
 
 Proposition regular_cat_property_laws

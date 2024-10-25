@@ -99,11 +99,25 @@ Section LocalPropertyBiequiv.
   Definition local_property_in_cod
              (C : univ_cat_with_finlim)
              (H : P C)
-    : fiberwise_cat_property P (cleaving_of_types (finlim_to_dfl_comp_cat C)).
+    : fiberwise_cat_property P (finlim_to_dfl_comp_cat C).
   Proof.
     use make_fiberwise_cat_property.
-    - exact (λ x, local_property_slice P C x H).
-    - exact (λ x y f, local_property_pb P _ f).
+    - intro Γ.
+      use (cat_property_ob_adj_equiv_f' P _ _ (local_property_slice P C Γ H)).
+      + apply functor_identity.
+      + apply identity_functor_is_adj_equivalence.
+    - intros Γ₁ Γ₂ s ; cbn.
+      use (cat_property_functor_nat_z_iso_adj_equiv_f'
+             P
+             _ _
+             _ _
+             _
+             (local_property_pb P H s)).
+      + apply functor_identity.
+      + apply functor_identity.
+      + apply identity_functor_is_adj_equivalence.
+      + apply identity_functor_is_adj_equivalence.
+      + exact (nat_z_iso_id (slice_univ_cat_pb_finlim s)).
   Defined.
 
   Proposition local_property_in_cod_functor
@@ -113,13 +127,22 @@ Section LocalPropertyBiequiv.
               {H₂ : P C₂}
               (HF : cat_property_functor P H₁ H₂ F)
     : fiberwise_cat_property_functor
-        (comp_cat_type_functor
-           (finlim_to_dfl_comp_cat_functor F))
+        (finlim_to_dfl_comp_cat_functor F)
         (local_property_in_cod _ H₁)
         (local_property_in_cod _ H₂).
   Proof.
-    use local_property_fiber_functor.
-    exact HF.
+    intro Γ.
+    use (cat_property_functor_nat_z_iso_adj_equiv_f'
+           P
+           _ _
+           _ _
+           _
+           (local_property_fiber_functor P _ _ _ HF Γ)).
+    - apply functor_identity.
+    - apply functor_identity.
+    - apply identity_functor_is_adj_equivalence.
+    - apply identity_functor_is_adj_equivalence.
+    - exact (nat_z_iso_id (slice_univ_cat_fiber F Γ)).
   Qed.
 
   Definition finlim_biequiv_dfl_comp_cat_disp_psfunctor_local_property
@@ -137,46 +160,39 @@ Section LocalPropertyBiequiv.
   (** * 2. The extended pseudofunctor from comprehension categories to categories *)
   Definition local_property_in_dfl_comp_cat
              (C : dfl_full_comp_cat)
-             (H : fiberwise_cat_property P (cleaving_of_types C))
-    : P C.
+             (H : fiberwise_cat_property P C)
+    : P (dfl_full_comp_cat_to_finlim C).
   Proof.
-    refine (cat_property_ob_adj_equiv_f' P _ _ _ (dfl_full_comp_cat_adjequiv_base C) (H _)).
-    - apply is_univalent_fiber.
-      apply disp_univalent_category_is_univalent_disp.
-    - apply univalent_category_is_univalent.
+    refine (cat_property_ob_adj_equiv_f' P _ _ (H _)).
+    apply (dfl_full_comp_cat_adjequiv_base C).
   Qed.
 
   Definition local_property_in_dfl_comp_cat_functor
              {C₁ C₂ : dfl_full_comp_cat}
              {F : dfl_full_comp_cat_functor C₁ C₂}
-             {H₁ : fiberwise_cat_property P (cleaving_of_types C₁)}
-             {H₂ : fiberwise_cat_property P (cleaving_of_types C₂)}
-             (HF : fiberwise_cat_property_functor (comp_cat_type_functor F) H₁ H₂)
+             {H₁ : fiberwise_cat_property P C₁}
+             {H₂ : fiberwise_cat_property P C₂}
+             (HF : fiberwise_cat_property_functor F H₁ H₂)
     : cat_property_functor
         P
         (local_property_in_dfl_comp_cat C₁ H₁)
         (local_property_in_dfl_comp_cat C₂ H₂)
-        F.
+        (dfl_functor_comp_cat_to_finlim_functor F).
   Proof.
     refine (cat_property_functor_nat_z_iso_adj_equiv_f'
               P
-              _ _ _ _
               _ _
-              (dfl_functor_nat_z_iso F)
-              (HF _)).
-    - apply is_univalent_fiber.
-      apply disp_univalent_category_is_univalent_disp.
-    - apply univalent_category_is_univalent.
-    - apply is_univalent_fiber.
-      apply disp_univalent_category_is_univalent_disp.
-    - apply univalent_category_is_univalent.
-    - use comp_adj_equivalence_of_cats.
+              _ _
+              _
+              (HF [])).
+    - refine (comp_adj_equivalence_of_cats _ _).
       + apply dfl_full_comp_cat_adjequiv_empty.
       + apply cod_fib_terminal.
     - pose (T := make_Terminal _ (comp_cat_functor_terminal F [] (pr2 []))).
-      use comp_adj_equivalence_of_cats.
+      refine (comp_adj_equivalence_of_cats _ _).
       + exact (dfl_full_comp_cat_adjequiv_terminal C₂ T).
       + exact (cod_fib_terminal T).
+    - apply (dfl_functor_nat_z_iso F).
   Qed.
 
   Definition dfl_comp_cat_to_finlim_disp_psfunctor_local_property
@@ -206,8 +222,8 @@ Section LocalPropertyBiequiv.
     - apply disp_2cells_iscontr_disp_bicat_of_univ_cat_with_cat_property.
     - intros C H.
       refine (tt ,, _).
-      cbn.
-      apply cat_property_id_functor'.
+      use cat_property_adj_equivalence_of_cats ; cbn.
+      apply identity_functor_is_adj_equivalence.
   Qed.
 
   Definition finlim_dfl_comp_cat_unit_local_property_pointwise_adjequiv
@@ -250,14 +266,8 @@ Section LocalPropertyBiequiv.
     - apply disp_2cells_iscontr_disp_bicat_of_cat_property_dfl_full_comp_cat.
     - refine (λ C H, tt ,, _).
       intro x ; cbn.
-      use (cat_property_adj_equivalence_of_cats'
-             P
-             _ _ _
-             (fiber_functor_comprehension_adj_equiv C x)).
-      + apply is_univalent_fiber.
-        apply disp_univalent_category_is_univalent_disp.
-      + apply is_univalent_fiber.
-        apply disp_univalent_disp_codomain.
+      use (cat_property_adj_equivalence_of_cats' P).
+      exact (fiber_functor_comprehension_adj_equiv C x).
   Qed.
 
   Definition finlim_dfl_comp_cat_counit_local_property_pointwise_adjequiv
