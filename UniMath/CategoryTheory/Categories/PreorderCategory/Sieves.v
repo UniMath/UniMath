@@ -5,9 +5,17 @@
   If we turn a preorder into a category C, a sieve on X : C (a subobject of the Yoneda presheaf of
   X) is equivalent to a collection of objects Y with Y ≤ X (the downset of X), such that if Y is in
   the collection and Z ≤ Y, then Z is also in the collection (the collection is downward closed).
+  Note that for the proof that going from a sieve to a subtype and then to a sieve, yields the same
+  sieve again, we use univalence of the category of sieves (subobjects).
 
   Contents
   1. The equivalence [po_sieve_weq_subtype]
+  1.1. The construction of a subtype from a sieve [sieve_to_subtype]
+  1.2. The construction of a sieve from a subtype [subtype_to_sieve]
+  1.3. The construction of a sieve from a sieve yields the same sieve again
+    [sieve_to_subtype_to_sieve]
+  1.4. The construction of a subtype from a subtype yields the same subtype again
+    [subtype_to_sieve_to_subtype]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -46,6 +54,8 @@ Section PoCategorySieve.
     apply propproperty.
   Qed.
 
+(** ** 1.1. The construction of a subtype from a sieve *)
+
   Definition sieve_to_subtype
     (f : sieve (C := po_category P) x)
     : downward_closed_subtype (subpreorder P (down_type P x)).
@@ -59,6 +69,8 @@ Section PoCategorySieve.
         exact (# (sieve_functor f) (pr2 z) (pr2 y))
       ).
   Defined.
+
+(** ** 1.2. The construction of a sieve from a subtype *)
 
   Section SubtypeToSieve.
 
@@ -79,7 +91,10 @@ Section PoCategorySieve.
             intros y z Hzy Hyx;
             use tpair;
             [ exact (istrans_po P z y x Hzy (pr1carrier _ Hyx))
-            | exact (downward_closed_is_downward_closed _ f (make_carrier _ _ (pr2 Hyx)) (make_carrier _ (make_carrier _ z _) Hzy)) ]
+            | exact (downward_closed_is_downward_closed _
+                f
+                (make_carrier _ _ (pr2 Hyx))
+                (make_carrier _ (make_carrier _ z _) Hzy)) ]
           ).
       - abstract (
           split;
@@ -123,6 +138,8 @@ Section PoCategorySieve.
     : sieve (C := po_category P) x
     := (subtype_to_functor f ,, tt) ,,
       make_Monic ([_, _]) (subtype_to_nat_trans f) (subtype_to_isMonic f).
+
+(** ** 1.3. The construction of a sieve from a sieve yields the same sieve again *)
 
   Section SieveToSubtypeToSieve.
 
@@ -211,6 +228,8 @@ Section PoCategorySieve.
     Qed.
 
   End SieveToSubtypeToSieve.
+
+(** ** 1.4. The construction of a subtype from a subtype yields the same subtype again *)
 
   Lemma subtype_to_sieve_to_subtype
     (f : downward_closed_subtype (subpreorder P (down_type P x)))

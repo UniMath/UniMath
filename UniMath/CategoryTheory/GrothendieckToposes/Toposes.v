@@ -1,13 +1,15 @@
 (**************************************************************************************************
 
-  Grothendick toposes
+  Grothendieck toposes
 
-  A Grothendieck topos is a category that is equivalent to the category of sheaves on some site, see
-  Mac Lane and Moerdijk, page 127.
+  A Grothendieck topos is a category that is equivalent to the category of sheaves on some site.
   Note that the property of being a Grothendieck topos is not a proposition, because there are many
   different sites with the same category of sieves. For example, every site with the discrete
   topology has the same sheaf category.
   This file defines the data of Grothendieck toposes, together with their constructor and accessors.
+
+  References
+  - Page 127 of 'Sheaves in Geometry and Logic' by Saunders Mac Lane and Ieke Moerdijk.
 
   Contents
   1. Grothendieck toposes [Grothendieck_topos]

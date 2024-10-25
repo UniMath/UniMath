@@ -12,9 +12,7 @@
   2. Univalence [po_category_is_univalent_iff_is_antisymm] [antisymm_po_univalent_category]
 
  **************************************************************************************************)
-Require Import UniMath.Foundations.HLevels.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
@@ -38,7 +36,7 @@ Section PoCategory.
     isaprop (po_precategory_data PO ⟦a,b⟧).
   Proof.
     apply propproperty.
-  Defined.
+  Qed.
 
   Definition po_precategory_data_is_precategory (PO : po X) :
     is_precategory (po_precategory_data PO).

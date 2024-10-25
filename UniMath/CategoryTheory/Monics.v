@@ -5,10 +5,8 @@
 - Construction of monics in functor categories
 *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -229,27 +227,6 @@ Section monics_subcategory.
         apply Monic_eq;
         reflexivity
       ).
-  Defined.
-
-  Definition total2_contr
-    {X : UU}
-    (P : X → UU)
-    (H : ∏ x, iscontr (P x))
-    : (∑ x, P x) ≃ X.
-  Proof.
-    use weq_iso.
-    - exact pr1.
-    - intro x.
-      exact (x ,, iscontrpr1 (H x)).
-    - abstract (
-        intro x;
-        apply subtypePath;
-        [ intro;
-          apply isapropifcontr;
-          apply H
-        | reflexivity ]
-      ).
-    - reflexivity.
   Defined.
 
   Definition monics_subcategory_paths_weq (a b : subcategory_of_monics)

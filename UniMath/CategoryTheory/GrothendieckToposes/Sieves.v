@@ -3,7 +3,7 @@
   Sieves
 
   A sieve on X is a collection of morphisms to X, that is closed under precomposition. It is
-  formalized as a subobject of the yoneda embedding of X. In other words, it consists of
+  formalized as a subobject of the Yoneda embedding of X. In other words, it consists of
   a presheaf F, together with a monomorphism F ⟹ yoneda X. Note that here, a monomorphism is a
   pointwise injective natural transformation. The `selected` morphisms from Y to X are then the
   images under this transformation of the elements of F Y.

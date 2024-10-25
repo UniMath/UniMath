@@ -129,7 +129,9 @@ Section Sheaves.
 
       Definition sheaf_property_equalizer_codomain_index_morphism
         (fWg : sheaf_property_equalizer_codomain_index)
-        : C⟦sheaf_property_equalizer_codomain_index_object fWg, sieve_selected_morphism_domain (sheaf_property_equalizer_codomain_index_selected_morphism fWg)⟧
+        : sheaf_property_equalizer_codomain_index_object fWg
+            -->
+          sieve_selected_morphism_domain (sheaf_property_equalizer_codomain_index_selected_morphism fWg)
         := pr22 fWg.
 
       Definition sheaf_property_equalizer_codomain_factor
@@ -325,9 +327,8 @@ Section Sheaves.
         apply funextsec.
         intro f.
         refine (!eqtohomot (nat_trans_ax (pr11 (H _)) _ _ _) _ @ _).
-        refine (_ @ eqtohomot (nat_trans_eq_pointwise (pr21 (H (make_nat_trans _ _ _ (is_sheaf_to_is_sheaf'_subproof c S w)))) _) (sieve_selected_morphism_preimage f)).
-        apply (maponpaths (pr11 (H _) _)).
-        apply id_right.
+        refine (maponpaths (pr11 (H _) _) (id_right _) @ _).
+        exact (eqtohomot (nat_trans_eq_pointwise (pr21 (H _)) _) _).
     Qed.
 
 (** ** 2.2. The second implies the third *)

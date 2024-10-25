@@ -2,7 +2,8 @@
 
   The Indiscrete Topology
 
-  For any category, there is a Grothendieck topology consisting of only the maximal sieves, where every morphism is a selected morphism: the sieves on X where the monomorphism into よ(X) is an
+  For any category, there is a Grothendieck topology consisting of only the maximal sieves, where
+  every morphism is a selected morphism: the sieves on X where the monomorphism into よ(X) is an
   isomorphism. Equivalently, any natural transformation factors uniquely through the monomorphism.
   This immediately shows that for this site, any presheaf is also a sheaf.
 
