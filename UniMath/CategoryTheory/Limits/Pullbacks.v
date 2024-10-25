@@ -1800,16 +1800,17 @@ Section PullbackIso.
     (pr_p : isPullback r_p).
   Context (i_x : z_iso x' x) (i_y : z_iso y' y) (i_z : z_iso z' z) (i_p : z_iso p' p).
 
-  Lemma Pullback_iso_squares
-    (p_xf : i_x · f_x = f'_x · i_z)
+  Context (p_xf : i_x · f_x = f'_x · i_z)
     (p_yf :  i_y · f_y = f'_y · i_z)
     (π_ix : i_p · π_x = π'_x · i_x)
-    (π_iy :  π'_y · i_y = i_p · π_y)
-    : isPullback r'_p.
-  Proof.
-    (* intro Rp. *)
-    intros e g_x g_y r.
-    assert (pf : g_x · i_x · f_x = g_y · i_y · f_y). {
+    (π_iy :  π'_y · i_y = i_p · π_y).
+
+  Section Aux.
+
+    Context {e : C} {g_x : C⟦e, x'⟧} {g_y : C⟦e, y'⟧} (r : g_x · f'_x = g_y · f'_y).
+
+    Lemma pf : g_x · i_x · f_x = g_y · i_y · f_y.
+    Proof.
       use (cancel_z_iso _ _ (z_iso_inv i_z)).
       refine (_ @ r @ _).
       - rewrite ! assoc'.
@@ -1822,36 +1823,62 @@ Section PullbackIso.
         rewrite assoc.
         use z_iso_inv_on_left.
         exact p_yf.
-    }
-    set (t := pr_p e (g_x · i_x) (g_y · i_y) pf).
-    induction t as [[t₁ [pₗ pᵣ]] t₂].
-    use tpair.
-    - simple refine (_ ,, _ ,, _).
-      + exact (t₁ · z_iso_inv i_p).
-      + refine (_ @ ! (z_iso_inv_on_left _ _ _ _ _ _ pₗ)).
-        rewrite ! assoc'.
-        apply maponpaths.
-        use z_iso_inv_on_left.
-        rewrite assoc'.
-        use z_iso_inv_to_left.
-        exact π_ix.
-      + simpl.
-        refine (_ @ ! (z_iso_inv_on_left _ _ _ _ _ _ pᵣ)).
-        rewrite ! assoc'.
-        apply maponpaths.
-        use z_iso_inv_on_left.
-        rewrite assoc'.
-        apply pathsinv0.
-        use z_iso_inv_on_right.
-        exact π_iy.
-    - simpl.
-      intros [s₁ [qₗ qᵣ]].
+    Qed.
+
+    Let t := pr_p e (g_x · i_x) (g_y · i_y) pf.
+
+    Definition Pullback_iso_squares_existence_mor
+      : C⟦e, p'⟧
+      := pr11 t · z_iso_inv i_p.
+
+    Lemma Pullback_iso_squares_existence_comm₀
+      : Pullback_iso_squares_existence_mor · π'_x = g_x.
+    Proof.
+      refine (_ @ ! (z_iso_inv_on_left _ _ _ _ _ _ (pr121 t))).
+      unfold Pullback_iso_squares_existence_mor.
+      rewrite ! assoc'.
+      apply maponpaths.
+      use z_iso_inv_on_left.
+      rewrite assoc'.
+      use z_iso_inv_to_left.
+      exact π_ix.
+    Qed.
+
+    Lemma Pullback_iso_squares_existence_comm₁
+      : Pullback_iso_squares_existence_mor · π'_y = g_y.
+    Proof.
+      simpl.
+      refine (_ @ ! (z_iso_inv_on_left _ _ _ _ _ _ (pr221 t))).
+      unfold Pullback_iso_squares_existence_mor.
+      rewrite ! assoc'.
+      apply maponpaths.
+      use z_iso_inv_on_left.
+      rewrite assoc'.
+      apply pathsinv0.
+      use z_iso_inv_on_right.
+      exact π_iy.
+    Qed.
+
+    Lemma Pullback_iso_squares_existence
+      : ∑ hk : C ⟦ e, p' ⟧, hk · π'_x = g_x × hk · π'_y = g_y.
+    Proof.
+      simple refine (_ ,, _ ,, _).
+      - exact Pullback_iso_squares_existence_mor.
+      - exact Pullback_iso_squares_existence_comm₀.
+      - exact Pullback_iso_squares_existence_comm₁.
+    Defined.
+
+    Lemma Pullback_iso_squares_uniqueness
+      (s : ∑ hk : C ⟦ e, p' ⟧, hk · π'_x = g_x × hk · π'_y = g_y)
+      : s = Pullback_iso_squares_existence.
+    Proof.
+      induction s as [s₁ [qₗ qᵣ]].
       use subtypePath.
       { intro ; apply isapropdirprod ; apply homset_property. }
       cbn.
       use z_iso_inv_on_left.
       apply pathsinv0.
-      use (base_paths _ _ (t₂ (s₁ · i_p ,, _ ,, _))).
+      use (base_paths _ _ (pr2 t (s₁ · i_p ,, _ ,, _))).
       + rewrite assoc', π_ix.
         rewrite assoc.
         now rewrite qₗ.
@@ -1860,6 +1887,17 @@ Section PullbackIso.
         rewrite <- π_iy.
         rewrite assoc.
         now rewrite qᵣ.
+    Qed.
+
+  End Aux.
+
+  Lemma Pullback_iso_squares
+    : isPullback r'_p.
+  Proof.
+    intros e g_x g_y r.
+    use tpair.
+    - exact (Pullback_iso_squares_existence r).
+    - intro ; apply Pullback_iso_squares_uniqueness.
   Qed.
 
 End PullbackIso.

@@ -12,10 +12,8 @@ Written by Tomi Pannila
 Extended by Langston Barrett (Nov 2018)
 
  *)
-Require Import UniMath.Foundations.PartA.
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -425,7 +423,6 @@ Proof.
        apply (EqualizerCommutes (make_Equalizer _ _ _ _ H))).
 Defined.
 
-(**  *)
 Lemma Equalizer_eq
   {C : category}
   (E : Equalizers C)
@@ -443,9 +440,9 @@ Proof.
   apply identity_z_iso.
 Defined.
 
-(**  *)
-Lemma isEqualizerUnderIso
-  {C : category}
+Section IsEqualizerUnderIso.
+
+  Context {C : category}
   {a a' x x' y y' : ob C}
   {e : C⟦a, x⟧} {f g : C⟦x, y⟧} {p : e · f = e · g}
   {e' : C⟦a', x'⟧} {f' g' : C⟦x', y'⟧}
@@ -454,115 +451,165 @@ Lemma isEqualizerUnderIso
   (pd_e : e = i_a · e' · pr1 (pr2 i_x))
   (pd_f : f' · pr1 (pr2 i_y) = pr1 (pr2 i_x) · f)
   (pd_g : g' · pr1 (pr2 i_y) = pr1 (pr2 i_x) · g)
-  : isEqualizer f g e p → isEqualizer f' g' e' p'.
-Proof.
-  intro E.
-  intros w h q.
+  (E : isEqualizer f g e p).
 
-  assert (t :  h · pr1 (pr2 i_x) · f = h · pr1 (pr2 i_x) · g ). {
-    do 2 rewrite assoc'.
-    rewrite <- pd_f.
-    rewrite <- pd_g.
-    rewrite assoc.
-    rewrite q.
-    apply assoc'.
-  }
-  set (E' := E w (h · pr1 (pr2 i_x)) t).
+  Section Aux.
 
-  assert (pfq :  pr1 (pr1 E') · i_a · e' = h). {
-    pose (pr2 (pr1 E')) as W.
-    simpl in W.
-    rewrite pd_e in W.
-    do 2 rewrite assoc in W.
-    pose (z_iso_inv_to_right _ _ _ _ _ _ W) as V.
-    refine (_ @ V).
-    rewrite ! assoc'.
-    do 2 apply maponpaths.
-    refine (! id_right _ @ _).
-    apply maponpaths, pathsinv0.
-    apply (pr2 (pr2 (pr2 i_x))).
-  }
+    Context {w : C} {h : C⟦w, x'⟧} (q : h · f' = h · g').
 
-  use iscontraprop1.
-  - use invproofirrelevance.
-    intros φ₁ φ₂.
-    use subtypePath ; [ intro ; apply homset_property | ].
-    use (cancel_z_iso _ _ (z_iso_inv i_a)).
-    use (isEqualizerInsEq E).
-    rewrite !assoc'.
-    rewrite ! pd_e.
-    etrans. {
-      apply maponpaths.
-      rewrite ! assoc.
-      do 2 apply PartA.maponpaths_2.
-      refine (_ @ idpath (identity _)).
-      apply z_iso_after_z_iso_inv.
-    }
-    rewrite id_left.
-    rewrite assoc.
-    rewrite (pr2 φ₁).
-    etrans. 2: {
-      apply maponpaths.
-      rewrite ! assoc.
-      do 2 apply PartA.maponpaths_2.
-      refine (idpath (identity _) @ _).
-      apply pathsinv0, z_iso_after_z_iso_inv.
-    }
-    rewrite id_left.
-    rewrite assoc.
-    apply PartA.maponpaths_2.
-    exact (!(pr2 φ₂)).
-  - exact (pr1 (pr1 E') · i_a ,, pfq).
-Qed.
+    Lemma t : h · pr1 (pr2 i_x) · f = h · pr1 (pr2 i_x) · g.
+    Proof.
+      do 2 rewrite assoc'.
+      rewrite <- pd_f.
+      rewrite <- pd_g.
+      rewrite assoc.
+      rewrite q.
+      apply assoc'.
+    Qed.
 
-(** *)
-Lemma EqualizerOfIso
-  {C : category}
-  {x' x y y' : ob C}
-  (f g : C⟦x, y⟧)
-  (i : z_iso x' x) (j : z_iso y y')
-  : Equalizer (i · f · j) (i · g · j) → Equalizer f g.
-Proof.
-  intro E.
-  use (make_Equalizer f g (EqualizerArrow E · i)).
-  - abstract (use (cancel_z_iso _ _ j) ;
-    refine (_ @ EqualizerEqAr E @ _) ;
-              [ refine (assoc' _ _ _ @ _) ;
-      refine (assoc' _ _ _ @ _) ;
-      apply maponpaths ;
-      apply assoc
-              | refine (_ @ assoc _ _ _);
-      refine (_ @ assoc _ _ _);
+    Let E' := E w (h · pr1 (pr2 i_x)) t.
+
+    Lemma pfq :  pr1 (pr1 E') · i_a · e' = h.
+    Proof.
+      pose (pr2 (pr1 E')) as W.
+      simpl in W.
+      rewrite pd_e in W.
+      do 2 rewrite assoc in W.
+      pose (z_iso_inv_to_right _ _ _ _ _ _ W) as V.
+      refine (_ @ V).
+      rewrite ! assoc'.
+      do 2 apply maponpaths.
+      refine (! id_right _ @ _).
+      apply maponpaths, pathsinv0.
+      apply (pr2 (pr2 (pr2 i_x))).
+    Qed.
+
+    Definition isEqualizerUnderIso_uvp_existence
+      : ∑ φ : C ⟦ w, a' ⟧, φ · e' = h
+      := pr1 (pr1 E') · i_a ,, pfq.
+
+    Lemma isEqualizerUnderIso_uvp_uniqueness
+      : isaprop (∑ φ : C ⟦ w, a' ⟧, φ · e' = h).
+    Proof.
+      use invproofirrelevance.
+      intros φ₁ φ₂.
+      use subtypePath ; [ intro ; apply homset_property | ].
+      use (cancel_z_iso _ _ (z_iso_inv i_a)).
+      use (isEqualizerInsEq E).
+      rewrite !assoc'.
+      rewrite ! pd_e.
+      etrans. {
+        apply maponpaths.
+        rewrite ! assoc.
+        do 2 apply maponpaths_2.
+        refine (_ @ idpath (identity _)).
+        apply z_iso_after_z_iso_inv.
+      }
+      rewrite id_left.
+      rewrite assoc.
+      rewrite (pr2 φ₁).
+      etrans.
+      2: {
+        apply maponpaths.
+        rewrite ! assoc.
+        do 2 apply maponpaths_2.
+        refine (idpath (identity _) @ _).
+        apply pathsinv0, z_iso_after_z_iso_inv.
+      }
+      rewrite id_left.
+      rewrite assoc.
+      apply PartA.maponpaths_2.
+      exact (!(pr2 φ₂)).
+    Qed.
+
+  End Aux.
+
+  Lemma isEqualizerUnderIso : isEqualizer f' g' e' p'.
+  Proof.
+    intros w h q.
+    use iscontraprop1.
+    - apply isEqualizerUnderIso_uvp_uniqueness.
+    - exact (isEqualizerUnderIso_uvp_existence q).
+  Defined.
+
+End IsEqualizerUnderIso.
+
+Section EqualizerOfIso.
+
+  Context {C : category}
+    {x' x y y' : ob C}
+    (f g : C⟦x, y⟧)
+    (i : z_iso x' x)
+    (j : z_iso y y')
+    (E : Equalizer (i · f · j) (i · g · j)).
+
+  Lemma EqualizerOfIso_diagram_proof
+    : EqualizerArrow E · i · f = EqualizerArrow E · i · g.
+  Proof.
+    use (cancel_z_iso _ _ j) ;
+      refine (_ @ EqualizerEqAr E @ _) ;
+      [ refine (assoc' _ _ _ @ _) ;
+        refine (assoc' _ _ _ @ _) ;
+        apply maponpaths ;
+        apply assoc
+      | refine (_ @ assoc _ _ _);
+        refine (_ @ assoc _ _ _);
+        apply maponpaths;
+        apply assoc'].
+  Qed.
+
+  Lemma EqualizerOfIso_diagram_proof_pd_e
+    : pr21 E = identity_z_iso E · (EqualizerArrow E · i) · pr12 i.
+  Proof.
+    apply pathsinv0 ;
+      refine (assoc' _ _ _ @ _);
+      refine (id_left _ @ _);
+      refine (_ @ id_right _);
+      refine (assoc' _ _ _ @ _);
       apply maponpaths;
-      apply assoc']).
-  - use (isEqualizerUnderIso _ _ _ _ _ _ _ (pr2 (pr2 E))).
-    + apply identity_z_iso.
-    + exact i.
-    + exact (z_iso_inv j).
-    + apply pathsinv0.
-      refine (assoc' _ _ _ @ _).
-      refine (id_left _ @ _).
-      refine (_ @ id_right _).
-      refine (assoc' _ _ _ @ _).
-      apply maponpaths.
       apply z_iso_inv_after_z_iso.
-    + apply pathsinv0.
-      do 2 rewrite assoc.
-      etrans. {
-        do 2 apply PartA.maponpaths_2.
-        apply (pr2 i).
-      }
-      refine (assoc' _ _ _ @ _).
-      apply id_left.
-    + apply pathsinv0.
-      do 2 rewrite assoc.
-      etrans. {
-        do 2 apply PartA.maponpaths_2.
-        apply (pr2 i).
-      }
-      refine (assoc' _ _ _ @ _).
-      apply id_left.
-Qed.
+  Qed.
+
+  Lemma  EqualizerOfIso_diagram_proof_pd_f
+    : f · pr12 (z_iso_inv j) = pr12 i · (i · f · j).
+  Proof.
+    apply pathsinv0.
+    do 2 rewrite assoc.
+    etrans. {
+      do 2 apply maponpaths_2.
+      apply (pr2 i).
+    }
+    refine (assoc' _ _ _ @ _).
+    apply id_left.
+  Qed.
+
+  Lemma  EqualizerOfIso_diagram_proof_pd_g
+    : g · pr12 (z_iso_inv j) = pr12 i · (i · g · j).
+  Proof.
+    apply pathsinv0.
+    do 2 rewrite assoc.
+    etrans. {
+      do 2 apply maponpaths_2.
+      apply (pr2 i).
+    }
+    refine (assoc' _ _ _ @ _).
+    apply id_left.
+  Qed.
+
+  Lemma EqualizerOfIso : Equalizer f g.
+  Proof.
+    use (make_Equalizer f g (EqualizerArrow E · i)).
+    - apply EqualizerOfIso_diagram_proof.
+    - use (isEqualizerUnderIso _ _ _ _ _ _ _ (pr2 (pr2 E))).
+      + apply identity_z_iso.
+      + exact i.
+      + exact (z_iso_inv j).
+      + apply EqualizerOfIso_diagram_proof_pd_e.
+      + apply EqualizerOfIso_diagram_proof_pd_f.
+      + apply EqualizerOfIso_diagram_proof_pd_g.
+  Defined.
+
+End EqualizerOfIso.
 
 (**
  In univalent categories, equalizers are unique up to equality
