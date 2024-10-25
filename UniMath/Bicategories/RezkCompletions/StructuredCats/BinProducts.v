@@ -96,7 +96,7 @@ Section CategoriesWithBinProductsAdmitRezkCompletions.
     - intros C1 C2 C3 F G H α C1_prod C2_prod C3_prod Gw.
       intros [t Fprod].
       exists tt.
-      exact (weak_equiv_lifts_preserves_binproducts C2 C3 α (pr1 C1_prod) (pr1 C2_prod) (pr1 C3_prod) Gw Fprod).
+      exact (weak_equiv_lifts_preserves_binproducts C2 C3 α Gw Fprod).
   Defined.
 
   Definition cat_with_chosen_binproducts_has_RezkCompletion
