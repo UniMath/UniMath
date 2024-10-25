@@ -63,4 +63,4 @@ Proof.
 
   set (t := weak_equiv_preserves_chosen_binproducts Fw C1_prod).
   exact (make_BinProduct _ _ _ _ _ _ (t x1 y1)).
-Defined.
+Qed.

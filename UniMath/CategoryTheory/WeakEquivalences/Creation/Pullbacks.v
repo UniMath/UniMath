@@ -55,7 +55,7 @@ Proof.
                (Pullbacks.p_func (pr12 P)) (pr22 P)).
   set (s := make_Pullback _ s').
   exact (pr1weq (transport_Pullback p₁ p₂) s).
-Defined.
+Qed.
 
 Lemma weak_equiv_into_univ_creates_haspullbacks
   {C1 C2 : category}
@@ -101,4 +101,4 @@ Proof.
   set (s := make_Pullback _ s').
   apply hinhpr.
   exact (pr1weq (transport_Pullback p₁ p₂) s).
-Defined.
+Qed.
