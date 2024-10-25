@@ -1,9 +1,10 @@
+(**
+In this file, we show that weak equivalences reflect and preserve terminal objects.
+ *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 
 Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
 
@@ -12,7 +13,7 @@ Require Import UniMath.CategoryTheory.Limits.Preservation.
 
 Local Open Scope cat.
 
-Lemma weak_equiv_reflects_terminal
+Proposition weak_equiv_reflects_terminal
     {C D : category} (F : C ⟶ D)
     : is_weak_equiv F
       → ∏ c : C, isTerminal _ (F c) → isTerminal _ c.
@@ -24,7 +25,7 @@ Lemma weak_equiv_reflects_terminal
 
 Section WeakEquivalencePreservationsTerminal.
 
-  Definition weak_equiv_preserves_chosen_terminal
+  Proposition weak_equiv_preserves_chosen_terminal
     {C D : category} (F : C ⟶ D)
     : is_weak_equiv F
       → ∏ t : Terminal C, preserves_chosen_terminal t F.
@@ -38,7 +39,7 @@ Section WeakEquivalencePreservationsTerminal.
     exact yi.
   Qed.
 
-  Definition weak_equiv_preserves_terminal
+  Corollary weak_equiv_preserves_terminal
     {C D : category} (F : C ⟶ D)
     : is_weak_equiv F → preserves_terminal F.
   Proof.
@@ -49,7 +50,7 @@ Section WeakEquivalencePreservationsTerminal.
     - exact x_is_t.
   Qed.
 
-  Definition weak_equiv_preserves_chosen_terminal_eq
+  Corollary weak_equiv_preserves_chosen_terminal_eq
     {C D : category} (F : C ⟶ D)
     : is_weak_equiv F
       → is_univalent D

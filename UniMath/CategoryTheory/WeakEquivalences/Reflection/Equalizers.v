@@ -1,9 +1,10 @@
+(**
+   In this file, we show how weak equivalences reflect equalizers.
+ *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 
 Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
 
@@ -20,19 +21,6 @@ Section WeakEquivalencesReflectsEqualizers₀.
       {f₁ f₂ : C ⟦ x, y ⟧}
       {h : C ⟦ e, x ⟧}
       {p : h · f₁ = h · f₂}.
-
-  Lemma hghg
-    {e' : C}
-    {h' : C ⟦ e', x ⟧}
-    (p' : h' · f₁ = h' · f₂)
-    (φ₁ φ₂ : ∑ φ : C ⟦ e', e ⟧, φ · h = h')
-    : # F (pr1 φ₁) · # F h = # F (pr1 φ₂) · # F h.
-  Proof.
-    do 2 rewrite <- functor_comp.
-    apply maponpaths.
-    exact (pr2 φ₁ @ ! pr2 φ₂).
-  Qed.
-
 
   Local Definition p_func : # F h · # F f₁ = # F h · # F f₂.
   Proof.
