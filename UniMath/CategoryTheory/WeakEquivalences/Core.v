@@ -1,3 +1,15 @@
+(**
+
+Section ``WeakEquivalences'' contains:
+   1. the definition of a weak equivalence (i.e., essentially surjective and fully faithful);
+   2. together with accessors;
+   3. a proof that ``is a weak equivalence'' is a proposition;
+   4. a proof that every identity functor (resp. the composite of weak equivalences) is a weak equivalence
+
+Section ``WeakEquivalenceInducesIsoOnUnivalentFunctorCategories'' contains a proof that precomposing with a weak equivalence (into arbitrary univalent categories) induces an identity on the hom-categories.
+
+ *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
