@@ -56,6 +56,8 @@
  6. Regularity
  7. Exactness
  8. Pretoposes
+ 9. Subobject classifiers
+ 10. Elementary toposes
 
  **************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -70,18 +72,26 @@ Require Import UniMath.CategoryTheory.RegularAndExact.ExactCategory.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseSubobjectClassifier.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodColimits.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.ColimitProperties.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodRegular.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodSubobjectClassifier.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.Limits.StrictInitial.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.Limits.DisjointBinCoproducts.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
 Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
 Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
 
@@ -570,8 +580,80 @@ Definition exact_local_property
        all_eqrel_effective_local_property.
 
 (** * 8. Pretoposes *)
-Definition pretoposes_local_property
+Definition pretopos_local_property
   : local_property
   := local_property_conj
        lextensive_local_property
        exact_local_property.
+
+(** * 9. Subobject classifiers *)
+Definition subobject_classifier_cat_property_data
+  : cat_property_data.
+Proof.
+  use make_cat_property_data.
+  - exact (λ C, subobject_classifier (terminal_univ_cat_with_finlim C)).
+  - exact (λ C₁ C₂ Ω₁ Ω₂ F,
+           preserves_subobject_classifier
+             F
+             (terminal_univ_cat_with_finlim C₁)
+             (terminal_univ_cat_with_finlim C₂)
+             (functor_finlim_preserves_terminal F)).
+Defined.
+
+Proposition subobject_classifier_cat_property_laws
+  : cat_property_laws subobject_classifier_cat_property_data.
+Proof.
+  repeat split.
+  - intro C ; simpl.
+    apply isaprop_subobject_classifier.
+  - intros C₁ C₂ Ω₁ Ω₂ F ; simpl.
+    apply isaprop_preserves_subobject_classifier.
+  - intros C Ω ; simpl.
+    apply identity_preserves_subobject_classifier.
+  - intros C₁ C₂ C₃ Ω₁ Ω₂ Ω₃ F G HF HG ; simpl.
+    exact (comp_preserves_subobject_classifier HF HG).
+Qed.
+
+Definition subobject_classifier_cat_property
+  : cat_property.
+Proof.
+  use make_cat_property.
+  - exact subobject_classifier_cat_property_data.
+  - exact subobject_classifier_cat_property_laws.
+Defined.
+
+Proposition subobject_classifier_is_local_property
+  : is_local_property subobject_classifier_cat_property.
+Proof.
+  use make_is_local_property.
+  - intros C x Ω.
+    apply (codomain_fiberwise_subobject_classifier _ (pullbacks_univ_cat_with_finlim C) Ω).
+  - intros C Ω x y f.
+    apply (codomain_fiberwise_subobject_classifier _ (pullbacks_univ_cat_with_finlim C) Ω).
+  - intros C₁ C₂ Ω₁ Ω₂ F HF x ; cbn.
+    use preserves_subobject_classifier_disp_codomain_fiber_functor.
+    + exact (terminal_univ_cat_with_finlim C₁).
+    + exact (terminal_univ_cat_with_finlim C₂).
+    + exact (binproducts_univ_cat_with_finlim C₁).
+    + exact (binproducts_univ_cat_with_finlim C₂).
+    + exact Ω₁.
+    + exact Ω₂.
+    + exact (functor_finlim_preserves_terminal F).
+    + exact (functor_finlim_preserves_binproduct F).
+    + exact HF.
+Qed.
+
+Definition subobject_classifier_local_property
+  : local_property.
+Proof.
+  use make_local_property.
+  - exact subobject_classifier_cat_property.
+  - exact subobject_classifier_is_local_property.
+Defined.
+
+(** * 10. Elementary toposes *)
+Definition topos_local_property
+  : local_property
+  := local_property_conj
+       pretopos_local_property
+       subobject_classifier_local_property.

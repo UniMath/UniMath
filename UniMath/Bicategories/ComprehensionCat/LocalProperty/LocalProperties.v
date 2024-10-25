@@ -110,12 +110,12 @@ Definition cat_property_data
   : UU
   := ∑ (P₀ : univ_cat_with_finlim → UU),
      ∏ (C₁ C₂ : univ_cat_with_finlim),
-     P₀ C₁ → P₀ C₂ → C₁ --> C₂ → UU.
+     P₀ C₁ → P₀ C₂ → functor_finlim C₁ C₂ → UU.
 
 Definition make_cat_property_data
            (P₀ : univ_cat_with_finlim → UU)
            (P₁ : ∏ (C₁ C₂ : univ_cat_with_finlim),
-                 P₀ C₁ → P₀ C₂ → C₁ --> C₂ → UU)
+                 P₀ C₁ → P₀ C₂ → functor_finlim C₁ C₂ → UU)
   : cat_property_data
   := P₀ ,, P₁.
 
@@ -132,7 +132,7 @@ Definition cat_property_functor
            {C₁ C₂ : univ_cat_with_finlim}
            (H₁ : P C₁)
            (H₂ : P C₂)
-           (F : C₁ --> C₂)
+           (F : functor_finlim C₁ C₂)
   : UU
   := pr2 P C₁ C₂ H₁ H₂ F.
 
@@ -145,7 +145,7 @@ Definition cat_property_laws
      (∏ (C₁ C₂ : univ_cat_with_finlim)
         (H₁ : P C₁)
         (H₂ : P C₂)
-        (F : C₁ --> C₂),
+        (F : functor_finlim C₁ C₂),
       isaprop (cat_property_functor P H₁ H₂ F))
      ×
      (∏ (C : univ_cat_with_finlim)
@@ -156,8 +156,8 @@ Definition cat_property_laws
         (H₁ : P C₁)
         (H₂ : P C₂)
         (H₃ : P C₃)
-        (F : C₁ --> C₂)
-        (G : C₂ --> C₃),
+        (F : functor_finlim C₁ C₂)
+        (G : functor_finlim C₂ C₃),
       cat_property_functor P H₁ H₂ F
       →
       cat_property_functor P H₂ H₃ G
@@ -195,7 +195,7 @@ Section CatPropertyLaws.
               {C₁ C₂ : univ_cat_with_finlim}
               (H₁ : P C₁)
               (H₂ : P C₂)
-              (F : C₁ --> C₂)
+              (F : functor_finlim C₁ C₂)
     : isaprop (cat_property_functor P H₁ H₂ F).
   Proof.
     exact (pr12 (pr2 P) C₁ C₂ H₁ H₂ F).
@@ -227,8 +227,8 @@ Section CatPropertyLaws.
               {H₁ : P C₁}
               {H₂ : P C₂}
               {H₃ : P C₃}
-              {F : C₁ --> C₂}
-              {G : C₂ --> C₃}
+              {F : functor_finlim C₁ C₂}
+              {G : functor_finlim C₂ C₃}
               (HF : cat_property_functor P H₁ H₂ F)
               (HG : cat_property_functor P H₂ H₃ G)
     : cat_property_functor P H₁ H₃ (F · G).
@@ -241,7 +241,7 @@ Section CatPropertyLaws.
               (F : adjoint_equivalence C₁ C₂)
               (H₁ : P C₁)
               (H₂ : P C₂)
-    : cat_property_functor P H₁ H₂ F.
+    : cat_property_functor P H₁ H₂ (pr1 F).
   Proof.
     revert C₁ C₂ F H₁ H₂.
     use J_2_0.
@@ -254,7 +254,7 @@ Section CatPropertyLaws.
 
   Proposition cat_property_adj_equivalence_of_cats
               {C₁ C₂ : univ_cat_with_finlim}
-              (F : C₁ --> C₂)
+              (F : functor_finlim C₁ C₂)
               (HF : adj_equivalence_of_cats (pr1 F))
               (H₁ : P C₁)
               (H₂ : P C₂)
@@ -267,7 +267,7 @@ Section CatPropertyLaws.
 
   Proposition cat_property_adj_equivalence_of_cats'
               {C₁ C₂ : univ_cat_with_finlim}
-              (F : C₁ --> C₂)
+              (F : functor_finlim C₁ C₂)
               (HF : adj_equivalence_of_cats (pr1 F))
               (H₁ : P C₁)
               (H₂ : P C₂)
@@ -298,7 +298,7 @@ Section CatPropertyLaws.
 
   Proposition cat_property_ob_left_adjoint_equivalence_f
               {C₁ C₂ : univ_cat_with_finlim}
-              (F : C₁ --> C₂)
+              (F : functor_finlim C₁ C₂)
               (HF : left_adjoint_equivalence F)
               (H : P C₁)
     : P C₂.
@@ -309,7 +309,7 @@ Section CatPropertyLaws.
 
   Proposition cat_property_ob_adj_equiv_f
               {C₁ C₂ : univ_cat_with_finlim}
-              (F : C₁ --> C₂)
+              (F : functor_finlim C₁ C₂)
               (HF : adj_equivalence_of_cats (pr1 F))
               (H : P C₁)
     : P C₂.
@@ -337,7 +337,7 @@ Section CatPropertyLaws.
               {C₁ C₂ : univ_cat_with_finlim}
               {H₁ : P C₁}
               {H₂ : P C₂}
-              {F G : C₁ --> C₂}
+              {F G : functor_finlim C₁ C₂}
               (τ : invertible_2cell F G)
               (HF : cat_property_functor P H₁ H₂ F)
     : cat_property_functor P H₁ H₂ G.
@@ -355,7 +355,7 @@ Section CatPropertyLaws.
               {C₁ C₂ : univ_cat_with_finlim}
               {H₁ : P C₁}
               {H₂ : P C₂}
-              {F G : C₁ --> C₂}
+              {F G : functor_finlim C₁ C₂}
               (τ : nat_z_iso (pr1 F) (pr1 G))
               (HF : cat_property_functor P H₁ H₂ F)
     : cat_property_functor P H₁ H₂ G.
@@ -373,8 +373,8 @@ Section CatPropertyLaws.
               {HD₂ : P D₂}
               (EC : adjoint_equivalence C₁ C₂)
               (ED : adjoint_equivalence D₁ D₂)
-              (F : C₁ --> D₁)
-              (G : C₂ --> D₂)
+              (F : functor_finlim C₁ D₁)
+              (G : functor_finlim C₂ D₂)
               (τ : nat_z_iso (pr1 F ∙ pr11 ED) (pr11 EC ∙ pr1 G))
               (HF : cat_property_functor P HC₁ HD₁ F)
     : cat_property_functor P HC₂ HD₂ G.
@@ -412,11 +412,11 @@ Section CatPropertyLaws.
               {HC₂ : P C₂}
               {HD₁ : P D₁}
               {HD₂ : P D₂}
-              {EC : C₁ --> C₂} {ED : D₁ --> D₂}
+              {EC : functor_finlim C₁ C₂} {ED : functor_finlim D₁ D₂}
               (HEC : adj_equivalence_of_cats (pr1 EC))
               (HED : adj_equivalence_of_cats (pr1 ED))
-              (F : C₁ --> D₁)
-              (G : C₂ --> D₂)
+              (F : functor_finlim C₁ D₁)
+              (G : functor_finlim C₂ D₂)
               (τ : nat_z_iso (pr1 F ∙ pr1 ED) (pr1 EC ∙ pr1 G))
               (HF : cat_property_functor P HC₁ HD₁ F)
     : cat_property_functor P HC₂ HD₂ G.
@@ -437,8 +437,8 @@ Section CatPropertyLaws.
               {EC : functor C₁ C₂} {ED : functor D₁ D₂}
               (HEC : adj_equivalence_of_cats EC)
               (HED : adj_equivalence_of_cats ED)
-              (F : C₁ --> D₁)
-              (G : C₂ --> D₂)
+              (F : functor_finlim C₁ D₁)
+              (G : functor_finlim C₂ D₂)
               (τ : nat_z_iso (pr1 F ∙ ED) (EC ∙ pr1 G))
               (HF : cat_property_functor P HC₁ HD₁ F)
     : cat_property_functor P HC₂ HD₂ G.

@@ -22,7 +22,7 @@
  Contents
  1. The internal language of pretoposes
  2. The internal language of ∏-pretoposes
- 3. The internal language of elementary pretoposes
+ 3. The internal language of elementary toposes
 
  ******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -75,7 +75,6 @@ Require Import UniMath.Bicategories.ComprehensionCat.CompCatNotations.
 Require Import UniMath.Bicategories.ComprehensionCat.DFLCompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.ComprehensionEso.
 Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.PiTypes.
-Require Import UniMath.Bicategories.ComprehensionCat.TypeFormers.SubobjectTypes.
 Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
 Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatWithProp.
 Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.CatWithProp.
@@ -87,65 +86,64 @@ Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.Counit.
 Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.Biequiv.
 Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.PiTypesBiequiv.
 Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.
-Require Import UniMath.Bicategories.ComprehensionCat.Biequivalence.SubobjectClassifier.
 
 (** * 1. The internal language of pretoposes *)
-Definition bicat_of_univ_pretoposes
+Definition bicat_of_univ_pretopos
   : bicat
   := total_bicat
-       (disp_bicat_of_univ_cat_with_cat_property pretoposes_local_property).
+       (disp_bicat_of_univ_cat_with_cat_property pretopos_local_property).
 
-Definition univ_pretoposes_language
+Definition univ_pretopos_language
   : bicat
   := total_bicat
-       (disp_bicat_of_cat_property_dfl_full_comp_cat pretoposes_local_property).
+       (disp_bicat_of_cat_property_dfl_full_comp_cat pretopos_local_property).
 
 Definition lang_univ_pretopos
   : psfunctor
-      bicat_of_univ_pretoposes
-      univ_pretoposes_language
+      bicat_of_univ_pretopos
+      univ_pretopos_language
   := total_psfunctor
        _ _ _
-       (finlim_biequiv_dfl_comp_cat_disp_psfunctor_local_property pretoposes_local_property).
+       (finlim_biequiv_dfl_comp_cat_disp_psfunctor_local_property pretopos_local_property).
 
 Definition internal_language_univ_pretopos
   : is_biequivalence lang_univ_pretopos
   := total_is_biequivalence
        _ _ _
        (finlim_biequiv_dfl_comp_cat_psfunctor_local_property
-          pretoposes_local_property).
+          pretopos_local_property).
 
 (** * 2. The internal language of ∏-pretoposes *)
-Definition disp_bicat_of_univ_pretoposes
+Definition disp_bicat_of_univ_pretopos
   : disp_bicat bicat_of_univ_cat_with_finlim
   := disp_dirprod_bicat
-       (disp_bicat_of_univ_cat_with_cat_property pretoposes_local_property)
+       (disp_bicat_of_univ_cat_with_cat_property pretopos_local_property)
        disp_bicat_univ_lccc.
 
-Definition bicat_of_univ_pi_pretoposes
+Definition bicat_of_univ_pi_pretopos
   : bicat
-  := total_bicat disp_bicat_of_univ_pretoposes.
+  := total_bicat disp_bicat_of_univ_pretopos.
 
-Definition disp_bicat_univ_pi_pretoposes_language
+Definition disp_bicat_univ_pi_pretopos_language
   : disp_bicat bicat_of_dfl_full_comp_cat
   := disp_dirprod_bicat
-       (disp_bicat_of_cat_property_dfl_full_comp_cat pretoposes_local_property)
+       (disp_bicat_of_cat_property_dfl_full_comp_cat pretopos_local_property)
        disp_bicat_of_pi_type_dfl_full_comp_cat.
 
-Definition univ_pi_pretoposes_language
+Definition univ_pi_pretopos_language
   : bicat
-  := total_bicat disp_bicat_univ_pi_pretoposes_language.
+  := total_bicat disp_bicat_univ_pi_pretopos_language.
 
 Definition disp_psfunctor_lang_univ_pi_pretopos
   : disp_psfunctor
-      disp_bicat_of_univ_pretoposes
-      disp_bicat_univ_pi_pretoposes_language
+      disp_bicat_of_univ_pretopos
+      disp_bicat_univ_pi_pretopos_language
       finlim_biequiv_dfl_comp_cat_psfunctor.
 Proof.
   refine (prod_disp_psfunctor
             _ _ _ _
             (finlim_biequiv_dfl_comp_cat_disp_psfunctor_local_property
-               pretoposes_local_property)
+               pretopos_local_property)
             finlim_biequiv_dfl_comp_cat_disp_psfunctor_pi_types).
   - apply disp_2cells_isaprop_disp_bicat_of_cat_property_dfl_full_comp_cat.
   - apply disp_locally_groupoid_disp_bicat_of_cat_property_dfl_full_comp_cat.
@@ -155,8 +153,8 @@ Defined.
 
 Definition lang_univ_pi_pretopos
   : psfunctor
-      bicat_of_univ_pi_pretoposes
-      univ_pi_pretoposes_language
+      bicat_of_univ_pi_pretopos
+      univ_pi_pretopos_language
   := total_psfunctor
        _ _ _
        disp_psfunctor_lang_univ_pi_pretopos.
@@ -172,7 +170,7 @@ Proof.
                _ _ _ _
                _ _ _ _
                (finlim_biequiv_dfl_comp_cat_psfunctor_local_property
-                  pretoposes_local_property)
+                  pretopos_local_property)
                finlim_biequiv_dfl_comp_cat_psfunctor_pi_types)).
   - apply disp_2cells_isaprop_disp_bicat_of_univ_cat_with_cat_property.
   - apply disp_locally_groupoid_disp_bicat_of_univ_cat_with_cat_property.
@@ -180,57 +178,54 @@ Proof.
   - exact disp_locally_groupoid_univ_lccc.
 Defined.
 
-(** * 3. The internal language of elementary pretoposes *)
-Definition disp_bicat_of_univ_elementary_toposes
+(** * 3. The internal language of elementary ptoposes *)
+Definition disp_bicat_of_univ_topos
   : disp_bicat bicat_of_univ_cat_with_finlim
   := disp_dirprod_bicat
-       disp_bicat_of_univ_pretoposes
-       disp_bicat_finlim_subobject_classifier.
+       (disp_bicat_of_univ_cat_with_cat_property topos_local_property)
+       disp_bicat_univ_lccc.
 
-Definition bicat_of_univ_elementary_toposes
+Definition bicat_of_univ_topos
   : bicat
-  := total_bicat disp_bicat_of_univ_elementary_toposes.
+  := total_bicat disp_bicat_of_univ_topos.
 
-Definition disp_bicat_univ_elementary_toposes_language
+Definition disp_bicat_univ_topos_language
   : disp_bicat bicat_of_dfl_full_comp_cat
   := disp_dirprod_bicat
-       disp_bicat_univ_pi_pretoposes_language
-       disp_bicat_of_subobject_classifier_type.
+       (disp_bicat_of_cat_property_dfl_full_comp_cat topos_local_property)
+       disp_bicat_of_pi_type_dfl_full_comp_cat.
 
-Definition univ_elementary_toposes_language
+Definition univ_topos_language
   : bicat
-  := total_bicat disp_bicat_univ_elementary_toposes_language.
+  := total_bicat disp_bicat_univ_topos_language.
 
-Definition disp_psfunctor_lang_elementary_topos
+Definition disp_psfunctor_lang_univ_topos
   : disp_psfunctor
-      disp_bicat_of_univ_elementary_toposes
-      disp_bicat_univ_elementary_toposes_language
+      disp_bicat_of_univ_topos
+      disp_bicat_univ_topos_language
       finlim_biequiv_dfl_comp_cat_psfunctor.
 Proof.
   refine (prod_disp_psfunctor
             _ _ _ _
-            disp_psfunctor_lang_univ_pi_pretopos
-            finlim_biequiv_dfl_comp_cat_disp_psfunctor_subobject_classifier).
-  - use disp_2cells_isaprop_prod.
-    + apply disp_2cells_isaprop_disp_bicat_of_cat_property_dfl_full_comp_cat.
-    + exact disp_2cells_isaprop_disp_bicat_of_pi_type_dfl_full_comp_cat.
-  - use disp_locally_groupoid_prod.
-    + apply disp_locally_groupoid_disp_bicat_of_cat_property_dfl_full_comp_cat.
-    + exact disp_locally_groupoid_disp_bicat_of_pi_type_dfl_full_comp_cat.
-  - apply disp_2cells_isaprop_disp_bicat_of_subobject_classifier_type.
-  - apply disp_locally_groupoid_disp_bicat_of_subobject_classifier_type.
+            (finlim_biequiv_dfl_comp_cat_disp_psfunctor_local_property
+               topos_local_property)
+            finlim_biequiv_dfl_comp_cat_disp_psfunctor_pi_types).
+  - apply disp_2cells_isaprop_disp_bicat_of_cat_property_dfl_full_comp_cat.
+  - apply disp_locally_groupoid_disp_bicat_of_cat_property_dfl_full_comp_cat.
+  - exact disp_2cells_isaprop_disp_bicat_of_pi_type_dfl_full_comp_cat.
+  - exact disp_locally_groupoid_disp_bicat_of_pi_type_dfl_full_comp_cat.
 Defined.
 
-Definition lang_univ_elementary_topos
+Definition lang_univ_topos
   : psfunctor
-      bicat_of_univ_elementary_toposes
-      univ_elementary_toposes_language
+      bicat_of_univ_topos
+      univ_topos_language
   := total_psfunctor
        _ _ _
-       disp_psfunctor_lang_elementary_topos.
+       disp_psfunctor_lang_univ_topos.
 
-Definition internal_language_univ_elementary_topos
-  : is_biequivalence lang_univ_elementary_topos.
+Definition internal_language_univ_topos
+  : is_biequivalence lang_univ_topos.
 Proof.
   refine (total_is_biequivalence
             _ _ _
@@ -239,23 +234,9 @@ Proof.
                _ _ _ _
                _ _ _ _
                _ _ _ _
-               (prod_disp_is_biequivalence_data
-                  _ _ _ _
-                  _ _ _ _
-                  _ _ _ _
-                  _ _ _ _
-                  (finlim_biequiv_dfl_comp_cat_psfunctor_local_property
-                     pretoposes_local_property)
-                  finlim_biequiv_dfl_comp_cat_psfunctor_pi_types)
-               finlim_biequiv_dfl_comp_cat_psfunctor_subobject_classifier)).
-  - use disp_2cells_isaprop_prod.
-    + apply disp_2cells_isaprop_disp_bicat_of_univ_cat_with_cat_property.
-    + exact disp_2cells_isaprop_univ_lccc.
-  - use disp_locally_groupoid_prod.
-    + apply disp_locally_groupoid_disp_bicat_of_univ_cat_with_cat_property.
-    + exact disp_locally_groupoid_univ_lccc.
-  - apply disp_2cells_isaprop_finlim_subobject_classifier.
-  - apply disp_locally_groupoid_finlim_subobject_classifier.
+               (finlim_biequiv_dfl_comp_cat_psfunctor_local_property
+                  topos_local_property)
+               finlim_biequiv_dfl_comp_cat_psfunctor_pi_types)).
   - apply disp_2cells_isaprop_disp_bicat_of_univ_cat_with_cat_property.
   - apply disp_locally_groupoid_disp_bicat_of_univ_cat_with_cat_property.
   - exact disp_2cells_isaprop_univ_lccc.

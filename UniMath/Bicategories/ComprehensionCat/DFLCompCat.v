@@ -116,10 +116,14 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
+Require Import UniMath.CategoryTheory.Limits.PreservationProperties.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
+Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
@@ -391,6 +395,51 @@ Proof.
   }
   exact (full_comp_nat_trans_eq p pp).
 Qed.
+
+Definition dfl_full_comp_cat_fiber
+           {C : dfl_full_comp_cat}
+           (Γ : C)
+  : univ_cat_with_finlim.
+Proof.
+  use make_univ_cat_with_finlim.
+  - exact (univalent_fiber_category (disp_cat_of_types C) Γ).
+  - apply dfl_full_comp_cat_terminal.
+  - use Pullbacks_from_Equalizers_BinProducts.
+    + apply fiberwise_binproducts_dfl_full_comp_cat.
+    + apply fiberwise_equalizers_dfl_full_comp_cat.
+Defined.
+
+Definition dfl_full_comp_cat_fiber_functor
+           {C : dfl_full_comp_cat}
+           {Γ₁ Γ₂ : C}
+           (s : Γ₁ --> Γ₂)
+  : functor_finlim (dfl_full_comp_cat_fiber Γ₂) (dfl_full_comp_cat_fiber Γ₁).
+Proof.
+  use make_functor_finlim.
+  - exact (fiber_functor_from_cleaving _ (cleaving_of_types C) s).
+  - apply fiberwise_terminal_dfl_full_comp_cat.
+  - use preserves_pullback_from_binproduct_equalizer.
+    + apply fiberwise_binproducts_dfl_full_comp_cat.
+    + apply fiberwise_equalizers_dfl_full_comp_cat.
+    + apply fiberwise_binproducts_dfl_full_comp_cat.
+    + apply fiberwise_equalizers_dfl_full_comp_cat.
+Defined.
+
+Definition dfl_full_comp_cat_functor_fiber_functor
+           {C₁ C₂ : dfl_full_comp_cat}
+           (F : dfl_full_comp_cat_functor C₁ C₂)
+           (Γ : C₁)
+  : functor_finlim (dfl_full_comp_cat_fiber Γ) (dfl_full_comp_cat_fiber (F Γ)).
+Proof.
+  use make_functor_finlim.
+  - exact (fiber_functor (comp_cat_type_functor F) Γ).
+  - apply preserves_terminal_dfl_full_comp_cat_functor.
+  - use preserves_pullback_from_binproduct_equalizer.
+    + apply fiberwise_binproducts_dfl_full_comp_cat.
+    + apply fiberwise_equalizers_dfl_full_comp_cat.
+    + apply preserves_binproducts_dfl_full_comp_cat_functor.
+    + apply preserves_equalizers_dfl_full_comp_cat_functor.
+Defined.
 
 (** * 4. Invertible 2-cells *)
 Section Invertible.
