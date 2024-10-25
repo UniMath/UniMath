@@ -284,7 +284,6 @@ Definition finlim_biequiv_dfl_comp_cat_disp_psfunctor_pi_types
 Proof.
   use make_disp_psfunctor_contr.
   - apply disp_2cells_iscontr_disp_bicat_of_pi_type_dfl_full_comp_cat.
-  - apply disp_locally_groupoid_disp_bicat_of_pi_type_dfl_full_comp_cat.
   - refine (λ C H, _ ,, tt).
     apply cod_dependent_products.
     exact (pr1 H).
@@ -301,7 +300,6 @@ Definition dfl_comp_cat_to_finlim_disp_psfunctor_pi_types
 Proof.
   use make_disp_psfunctor_contr.
   - exact disp_2cells_iscontr_univ_lccc.
-  - exact disp_locally_groupoid_univ_lccc.
   - refine (λ C P, _ ,, tt).
     exact (pr1 (has_dependent_products_adj_equiv_f
                   (finlim_dfl_comp_cat_counit_pointwise_equiv C)
@@ -332,7 +330,6 @@ Definition finlim_dfl_comp_cat_unit_pi_types
 Proof.
   use make_disp_pstrans_contr.
   - exact disp_2cells_iscontr_univ_lccc.
-  - exact disp_locally_groupoid_univ_lccc.
   - intros C H.
     refine (tt ,, _).
     apply id_preserves_locally_cartesian_closed'.
@@ -359,7 +356,6 @@ Definition finlim_dfl_comp_cat_unit_inv_pi_types
 Proof.
   use make_disp_pstrans_inv_contr.
   - exact disp_2cells_iscontr_univ_lccc.
-  - exact disp_locally_groupoid_univ_lccc.
   - apply finlim_dfl_comp_cat_unit_pi_types.
   - intros.
     apply finlim_dfl_comp_cat_unit_pi_types_pointwise_adjequiv.
@@ -377,7 +373,6 @@ Definition finlim_dfl_comp_cat_counit_pi_types
 Proof.
   use make_disp_pstrans_contr.
   - apply disp_2cells_iscontr_disp_bicat_of_pi_type_dfl_full_comp_cat.
-  - apply disp_locally_groupoid_disp_bicat_of_pi_type_dfl_full_comp_cat.
   - refine (λ C H, tt ,, _).
     apply (preserves_dependent_products_adj_equiv
              (finlim_dfl_comp_cat_counit_pointwise_equiv C)).
@@ -404,7 +399,6 @@ Definition finlim_dfl_comp_cat_counit_inv_pi_types
 Proof.
   use make_disp_pstrans_inv_contr.
   - apply disp_2cells_iscontr_disp_bicat_of_pi_type_dfl_full_comp_cat.
-  - apply disp_locally_groupoid_disp_bicat_of_pi_type_dfl_full_comp_cat.
   - apply finlim_dfl_comp_cat_counit_pi_types.
   - intros.
     apply finlim_dfl_comp_cat_counit_pi_types_pointwise_adjequiv.
@@ -434,15 +428,11 @@ Proof.
   - exact finlim_dfl_comp_cat_unit_inv_pi_types.
   - exact finlim_dfl_comp_cat_counit_pi_types.
   - use make_disp_invmodification_contr.
-    + exact disp_2cells_iscontr_univ_lccc.
-    + exact disp_locally_groupoid_univ_lccc.
+    exact disp_2cells_iscontr_univ_lccc.
   - use make_disp_invmodification_contr.
-    + exact disp_2cells_iscontr_univ_lccc.
-    + exact disp_locally_groupoid_univ_lccc.
+    exact disp_2cells_iscontr_univ_lccc.
   - use make_disp_invmodification_contr.
-    + exact disp_2cells_iscontr_disp_bicat_of_pi_type_dfl_full_comp_cat.
-    + exact disp_locally_groupoid_disp_bicat_of_pi_type_dfl_full_comp_cat.
+    exact disp_2cells_iscontr_disp_bicat_of_pi_type_dfl_full_comp_cat.
   - use make_disp_invmodification_contr.
-    + exact disp_2cells_iscontr_disp_bicat_of_pi_type_dfl_full_comp_cat.
-    + exact disp_locally_groupoid_disp_bicat_of_pi_type_dfl_full_comp_cat.
+    exact disp_2cells_iscontr_disp_bicat_of_pi_type_dfl_full_comp_cat.
 Defined.

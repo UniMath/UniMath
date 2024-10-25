@@ -130,7 +130,6 @@ Section LocalPropertyBiequiv.
   Proof.
     use make_disp_psfunctor_contr.
     - apply disp_2cells_iscontr_disp_bicat_of_cat_property_dfl_full_comp_cat.
-    - apply disp_locally_groupoid_disp_bicat_of_cat_property_dfl_full_comp_cat.
     - exact (λ C H, local_property_in_cod C (pr1 H) ,, tt).
     - exact (λ _ _ _ _ _ HF, tt ,, local_property_in_cod_functor (pr2 HF)).
   Defined.
@@ -188,7 +187,6 @@ Section LocalPropertyBiequiv.
   Proof.
     use make_disp_psfunctor_contr.
     - apply disp_2cells_iscontr_disp_bicat_of_univ_cat_with_cat_property.
-    - apply disp_locally_groupoid_disp_bicat_of_univ_cat_with_cat_property.
     - exact (λ C H, local_property_in_dfl_comp_cat C (pr1 H) ,, tt).
     - refine (λ _ _ _ _ _ HF, tt ,, local_property_in_dfl_comp_cat_functor _).
       exact (pr2 HF).
@@ -206,7 +204,6 @@ Section LocalPropertyBiequiv.
   Proof.
     use make_disp_pstrans_contr.
     - apply disp_2cells_iscontr_disp_bicat_of_univ_cat_with_cat_property.
-    - apply disp_locally_groupoid_disp_bicat_of_univ_cat_with_cat_property.
     - intros C H.
       refine (tt ,, _).
       cbn.
@@ -234,7 +231,6 @@ Section LocalPropertyBiequiv.
   Proof.
     use make_disp_pstrans_inv_contr.
     - apply disp_2cells_iscontr_disp_bicat_of_univ_cat_with_cat_property.
-    - apply disp_locally_groupoid_disp_bicat_of_univ_cat_with_cat_property.
     - apply finlim_dfl_comp_cat_unit_local_property.
     - intros.
       apply finlim_dfl_comp_cat_unit_local_property_pointwise_adjequiv.
@@ -252,7 +248,6 @@ Section LocalPropertyBiequiv.
   Proof.
     use make_disp_pstrans_contr.
     - apply disp_2cells_iscontr_disp_bicat_of_cat_property_dfl_full_comp_cat.
-    - apply disp_locally_groupoid_disp_bicat_of_cat_property_dfl_full_comp_cat.
     - refine (λ C H, tt ,, _).
       intro x ; cbn.
       use (cat_property_adj_equivalence_of_cats'
@@ -286,7 +281,6 @@ Section LocalPropertyBiequiv.
   Proof.
     use make_disp_pstrans_inv_contr.
     - apply disp_2cells_iscontr_disp_bicat_of_cat_property_dfl_full_comp_cat.
-    - apply disp_locally_groupoid_disp_bicat_of_cat_property_dfl_full_comp_cat.
     - apply finlim_dfl_comp_cat_counit_local_property.
     - intros.
       apply finlim_dfl_comp_cat_counit_local_property_pointwise_adjequiv.
@@ -316,16 +310,12 @@ Section LocalPropertyBiequiv.
     - exact finlim_dfl_comp_cat_unit_inv_local_property.
     - exact finlim_dfl_comp_cat_counit_local_property.
     - use make_disp_invmodification_contr.
-      + apply disp_2cells_iscontr_disp_bicat_of_univ_cat_with_cat_property.
-      + apply disp_locally_groupoid_disp_bicat_of_univ_cat_with_cat_property.
+      apply disp_2cells_iscontr_disp_bicat_of_univ_cat_with_cat_property.
     - use make_disp_invmodification_contr.
-      + apply disp_2cells_iscontr_disp_bicat_of_univ_cat_with_cat_property.
-      + apply disp_locally_groupoid_disp_bicat_of_univ_cat_with_cat_property.
+      apply disp_2cells_iscontr_disp_bicat_of_univ_cat_with_cat_property.
     - use make_disp_invmodification_contr.
-      + apply disp_2cells_iscontr_disp_bicat_of_cat_property_dfl_full_comp_cat.
-      + apply disp_locally_groupoid_disp_bicat_of_cat_property_dfl_full_comp_cat.
+      apply disp_2cells_iscontr_disp_bicat_of_cat_property_dfl_full_comp_cat.
     - use make_disp_invmodification_contr.
-      + apply disp_2cells_iscontr_disp_bicat_of_cat_property_dfl_full_comp_cat.
-      + apply disp_locally_groupoid_disp_bicat_of_cat_property_dfl_full_comp_cat.
+      apply disp_2cells_iscontr_disp_bicat_of_cat_property_dfl_full_comp_cat.
   Defined.
 End LocalPropertyBiequiv.

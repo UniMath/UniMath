@@ -132,8 +132,10 @@ Section NiceBuildersContr.
   Context {B₁ B₂ : bicat}
           {D₁ : disp_bicat B₁}
           {D₂ : disp_bicat B₂}
-          (HD₁ : disp_2cells_iscontr D₂)
-          (HD₂ : disp_locally_groupoid D₂).
+          (HD₁ : disp_2cells_iscontr D₂).
+
+  Let HD₂ : disp_locally_groupoid D₂
+    := disp_2cells_isgroupoid_from_disp_2cells_iscontr _ HD₁.
 
   Definition make_disp_psfunctor_contr
              {F : psfunctor B₁ B₂}

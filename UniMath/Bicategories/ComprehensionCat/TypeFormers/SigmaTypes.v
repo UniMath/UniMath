@@ -58,22 +58,6 @@ Local Open Scope cat.
 Local Open Scope comp_cat.
 
 (** * 1. The displayed bicategory of sigma types *)
-Proposition isaprop_dependent_sum
-            {C : cat_with_terminal_cleaving}
-            {x y : C}
-            (f : x --> y)
-  : isaprop (dependent_sum (cleaving_of_types C) f).
-Proof.
-  pose (D₁ := univalent_fiber_category (disp_cat_of_types C) y : bicat_of_univ_cats).
-  pose (D₂ := univalent_fiber_category (disp_cat_of_types C) x : bicat_of_univ_cats).
-  pose (F := (fiber_functor_from_cleaving _ (cleaving_of_types C) f : D₁ --> D₂)).
-  use (isofhlevelweqf _ (right_adjoint_weq_is_right_adjoint F)).
-  use (isofhlevelweqf _ op1_left_adjoint_weq_right_adjoint).
-  apply isaprop_left_adjoint.
-  use op1_bicat_is_univalent_2_1.
-  exact univalent_cat_is_univalent_2_1.
-Qed.
-
 Definition comp_cat_dependent_sum
            (C : comp_cat)
   : UU
@@ -113,6 +97,22 @@ Section Projections.
     : dep_sum_cc (subst_ty (π A) B) -->[ identity _ ] B
     := counit_from_right_adjoint (pr1 S Γ A) B.
 End Projections.
+
+Proposition isaprop_dependent_sum
+            {C : cat_with_terminal_cleaving}
+            {x y : C}
+            (f : x --> y)
+  : isaprop (dependent_sum (cleaving_of_types C) f).
+Proof.
+  pose (D₁ := univalent_fiber_category (disp_cat_of_types C) y : bicat_of_univ_cats).
+  pose (D₂ := univalent_fiber_category (disp_cat_of_types C) x : bicat_of_univ_cats).
+  pose (F := (fiber_functor_from_cleaving _ (cleaving_of_types C) f : D₁ --> D₂)).
+  use (isofhlevelweqf _ (right_adjoint_weq_is_right_adjoint F)).
+  use (isofhlevelweqf _ op1_left_adjoint_weq_right_adjoint).
+  apply isaprop_left_adjoint.
+  use op1_bicat_is_univalent_2_1.
+  exact univalent_cat_is_univalent_2_1.
+Qed.
 
 Proposition isaprop_comp_cat_dependent_sum
             (C : comp_cat)

@@ -401,7 +401,6 @@ Definition finlim_biequiv_dfl_comp_cat_disp_psfunctor_subobject_classifier
 Proof.
   use make_disp_psfunctor_contr.
   - apply disp_2cells_iscontr_disp_bicat_of_subobject_classifier_type.
-  - apply disp_locally_groupoid_disp_bicat_of_subobject_classifier_type.
   - refine (λ (C : univ_cat_with_finlim) Ω, _ ,, tt).
     exact (codomain_fiberwise_subobject_classifier
              (terminal_univ_cat_with_finlim C)
@@ -479,7 +478,6 @@ Definition dfl_comp_cat_to_finlim_disp_psfunctor_subobject_classifier
 Proof.
   use make_disp_psfunctor_contr.
   - apply disp_2cells_iscontr_finlim_subobject_classifier.
-  - apply disp_locally_groupoid_finlim_subobject_classifier.
   - exact (λ (C : dfl_full_comp_cat) Ω,
            subobject_classifier_in_dfl_comp_cat C (pr1 Ω)
            ,,
@@ -504,7 +502,6 @@ Definition finlim_dfl_comp_cat_unit_subobject_classifier
 Proof.
   use make_disp_pstrans_contr.
   - apply disp_2cells_iscontr_finlim_subobject_classifier.
-  - apply disp_locally_groupoid_finlim_subobject_classifier.
   - intros C H.
     refine (tt ,, _) ; cbn.
     apply identity_preserves_subobject_classifier.
@@ -531,7 +528,6 @@ Definition finlim_dfl_comp_cat_unit_inv_subobject_classifier
 Proof.
   use make_disp_pstrans_inv_contr.
   - apply disp_2cells_iscontr_finlim_subobject_classifier.
-  - apply disp_locally_groupoid_finlim_subobject_classifier.
   - apply finlim_dfl_comp_cat_unit_subobject_classifier.
   - intros.
     apply finlim_dfl_comp_cat_unit_subobject_classifier_pointwise_adjequiv.
@@ -549,7 +545,6 @@ Definition finlim_dfl_comp_cat_counit_subobject_classifier
 Proof.
   use make_disp_pstrans_contr.
   - apply disp_2cells_iscontr_disp_bicat_of_subobject_classifier_type.
-  - apply disp_locally_groupoid_disp_bicat_of_subobject_classifier_type.
   - refine (λ C Ω, tt ,, _).
     induction Ω as [ Ω [ ] ].
     intro x ; cbn ; cbn in x, Ω.
@@ -589,7 +584,6 @@ Definition finlim_dfl_comp_cat_counit_inv_subobject_classifier
 Proof.
   use make_disp_pstrans_inv_contr.
   - apply disp_2cells_iscontr_disp_bicat_of_subobject_classifier_type.
-  - apply disp_locally_groupoid_disp_bicat_of_subobject_classifier_type.
   - apply finlim_dfl_comp_cat_counit_subobject_classifier.
   - intros.
     apply finlim_dfl_comp_cat_counit_subobject_classifier_pointwise_adjequiv.
@@ -619,15 +613,11 @@ Proof.
   - exact finlim_dfl_comp_cat_unit_inv_subobject_classifier.
   - exact finlim_dfl_comp_cat_counit_subobject_classifier.
   - use make_disp_invmodification_contr.
-    + apply disp_2cells_iscontr_finlim_subobject_classifier.
-    + apply disp_locally_groupoid_finlim_subobject_classifier.
+    apply disp_2cells_iscontr_finlim_subobject_classifier.
   - use make_disp_invmodification_contr.
-    + apply disp_2cells_iscontr_finlim_subobject_classifier.
-    + apply disp_locally_groupoid_finlim_subobject_classifier.
+    apply disp_2cells_iscontr_finlim_subobject_classifier.
   - use make_disp_invmodification_contr.
-    + apply disp_2cells_iscontr_disp_bicat_of_subobject_classifier_type.
-    + apply disp_locally_groupoid_disp_bicat_of_subobject_classifier_type.
+    apply disp_2cells_iscontr_disp_bicat_of_subobject_classifier_type.
   - use make_disp_invmodification_contr.
-    + apply disp_2cells_iscontr_disp_bicat_of_subobject_classifier_type.
-    + apply disp_locally_groupoid_disp_bicat_of_subobject_classifier_type.
+    apply disp_2cells_iscontr_disp_bicat_of_subobject_classifier_type.
 Defined.
