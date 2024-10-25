@@ -1,10 +1,16 @@
+(**
+The universal property of the Rezk completion states, 1-dimensionally, that every functor F into a univalent category factors (uniquely) through the Rezk completion.
+The unique functor out of the Rezk completion is referred to as ``the lift of F''.
+The contents in this file conclude that if F preserves pullbacks, then so does its lift.
+
+In weak_equiv_lifts_preserves_pullbacks, we show that if F preserves all pullbacks in its domain, then all equalizers in the Rezk completion (of the domain) are also preserved.
+
+In weak_equiv_lifts_preserves_chosen_pullbacks_eq, we show that if all the involved categories have chosen pullbacks, and if F preserves the chosen pullbacks up to (propositional) equality, then so does it lift.
+ *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 
 Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
@@ -27,7 +33,7 @@ Section LiftAlongWeakEquivalencePreservesPullbacks.
 
   (* In this section, we show: preserves_pullback H *)
 
-  Section A.
+  Section LiftAlongWeakEquivalencePreservesEqualizers_subproofs.
 
     Context {y1 y2 py' py : C2}
       {fy : C2⟦y1, py'⟧}
@@ -49,7 +55,8 @@ Section LiftAlongWeakEquivalencePreservesPullbacks.
     Let fx := ((fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ (i1 · fy · z_iso_inv i')).
     Let gx := ((fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ (i2 · gy · z_iso_inv i')).
 
-    Lemma pf₀ : π₁x · fx = π₂x · gx.
+    Lemma fully_faithful_inv_hom_of_pullback_diagram_commutes
+      : π₁x · fx = π₂x · gx.
     Proof.
       unfold π₁x, fx, π₂x, gx.
       do 2 rewrite <- fully_faithful_inv_comp.
@@ -71,45 +78,70 @@ Section LiftAlongWeakEquivalencePreservesPullbacks.
         apply pathsinv0, z_iso_after_z_iso_inv.
     Qed.
 
-    Lemma pf : isPullback pf₀.
+    Lemma inv_of_pullback_leg_fy_commutes_with_image_modulo_isos
+      : i1 · fy = # G fx · i'.
     Proof.
-      use (@weak_equiv_reflects_pullbacks _ _ _ Gw x1 x2 px' px fx gx π₁x π₂x pf₀).
+      unfold fx.
+      rewrite functor_on_fully_faithful_inv_hom.
+      rewrite ! assoc'.
+      apply maponpaths.
+      refine (! id_right _ @ _).
+      apply maponpaths, pathsinv0.
+      apply (pr2 i').
+    Qed.
+
+    Lemma inv_of_pullback_leg_gy_commutes_with_image_modulo_isos
+      : i2 · gy = # G gx · i'.
+    Proof.
+      unfold gx.
+      rewrite functor_on_fully_faithful_inv_hom.
+      rewrite ! assoc'.
+      apply maponpaths.
+      refine (! id_right _ @ _).
+      apply maponpaths, pathsinv0.
+      apply (pr2 i').
+    Qed.
+
+    Lemma inv_of_pullback_first_projection_commutes_with_image_modulo_isos
+      : i · π₁y = # G π₁x · i1.
+    Proof.
+      unfold π₁x.
+      rewrite functor_on_fully_faithful_inv_hom.
+      rewrite ! assoc'.
+      apply maponpaths.
+      refine (! id_right _ @ _).
+      apply maponpaths, pathsinv0.
+      apply (pr2 i1).
+    Qed.
+
+    Lemma inv_of_pullback_second_projection_commutes_with_image_modulo_isos
+      : # G π₂x · i2 = i · π₂y.
+    Proof.
+      unfold π₂x.
+      rewrite functor_on_fully_faithful_inv_hom.
+      rewrite ! assoc'.
+      apply maponpaths.
+      refine (_ @ id_right _).
+      apply maponpaths.
+      apply (pr2 i2).
+    Qed.
+
+    Lemma fully_faithful_inv_hom_of_pullback_is_pullback
+      : isPullback fully_faithful_inv_hom_of_pullback_diagram_commutes.
+    Proof.
+      use (weak_equiv_reflects_pullbacks Gw).
       use (Pullback_iso_squares q ispby).
       - exact i1.
       - exact i2.
       - exact i'.
       - exact i.
-      - unfold fx.
-        rewrite functor_on_fully_faithful_inv_hom.
-        rewrite ! assoc'.
-        apply maponpaths.
-        refine (! id_right _ @ _).
-        apply maponpaths, pathsinv0.
-        apply (pr2 i').
-      - unfold gx.
-        rewrite functor_on_fully_faithful_inv_hom.
-        rewrite ! assoc'.
-        apply maponpaths.
-        refine (! id_right _ @ _).
-        apply maponpaths, pathsinv0.
-        apply (pr2 i').
-      - unfold π₁x.
-        rewrite functor_on_fully_faithful_inv_hom.
-        rewrite ! assoc'.
-        apply maponpaths.
-        refine (! id_right _ @ _).
-        apply maponpaths, pathsinv0.
-        apply (pr2 i1).
-      - unfold π₂x.
-        rewrite functor_on_fully_faithful_inv_hom.
-        rewrite ! assoc'.
-        apply maponpaths.
-        refine (_ @ id_right _).
-        apply maponpaths.
-        apply (pr2 i2).
+      - exact inv_of_pullback_leg_fy_commutes_with_image_modulo_isos.
+      - exact inv_of_pullback_leg_gy_commutes_with_image_modulo_isos.
+      - exact inv_of_pullback_first_projection_commutes_with_image_modulo_isos.
+      - exact inv_of_pullback_second_projection_commutes_with_image_modulo_isos.
     Qed.
 
-    Lemma pf_0
+    Lemma images_of_fully_faithful_inv_hom_of_leg_commute₀
       : # H (inv_from_z_iso i1) · pr1 α x1 · # F fx = # H fy · (# H (inv_from_z_iso i') · pr1 α px').
     Proof.
       rewrite assoc'.
@@ -132,7 +164,7 @@ Section LiftAlongWeakEquivalencePreservesPullbacks.
       apply id_right.
     Qed.
 
-    Lemma pf_1
+    Lemma images_of_fully_faithful_inv_hom_of_leg_commute₁
       : # H (inv_from_z_iso i2) · pr1 α x2 · # F gx = # H gy · (# H (inv_from_z_iso i') · pr1 α px').
     Proof.
       rewrite assoc'.
@@ -155,7 +187,7 @@ Section LiftAlongWeakEquivalencePreservesPullbacks.
       apply id_right.
     Qed.
 
-    Lemma pf_2
+    Lemma images_of_fully_faithful_inv_hom_of_first_projection_commute
       : # H (inv_from_z_iso i) · pr1 α px · # F π₁x = # H π₁y · (# H (inv_from_z_iso i1) · pr1 α x1).
     Proof.
       rewrite assoc'.
@@ -178,7 +210,7 @@ Section LiftAlongWeakEquivalencePreservesPullbacks.
       apply id_right.
     Qed.
 
-    Lemma pf_3
+    Lemma images_of_fully_faithful_inv_hom_of_second_projection_commute
       : # H π₂y · (# H (inv_from_z_iso i2) · pr1 α x2) = # H (inv_from_z_iso i) · pr1 α px · # F π₂x.
     Proof.
       unfold z_iso_comp, functor_on_z_iso.
@@ -207,18 +239,23 @@ Section LiftAlongWeakEquivalencePreservesPullbacks.
     Lemma pullback_is_preserved_after_lift
       : isPullback Fq.
     Proof.
-      use (Pullback_iso_squares _ (Fpb _ _ _ _ _ _ _ _ pf₀ (Pullbacks.p_func pf₀) pf)).
+      use (Pullback_iso_squares _
+             (Fpb _ _ _ _ _ _ _ _
+                fully_faithful_inv_hom_of_pullback_diagram_commutes
+                (Pullbacks.p_func fully_faithful_inv_hom_of_pullback_diagram_commutes)
+                fully_faithful_inv_hom_of_pullback_is_pullback
+          )).
       - exact (z_iso_comp (functor_on_z_iso H (z_iso_inv i1)) (_ ,, pr2 α _)).
       - exact (z_iso_comp (functor_on_z_iso H (z_iso_inv i2)) (_ ,, pr2 α _)).
       - exact (z_iso_comp (functor_on_z_iso H (z_iso_inv i')) (_ ,, pr2 α _)).
       - exact (z_iso_comp (functor_on_z_iso H (z_iso_inv i)) (_ ,, pr2 α _)).
-      - exact pf_0.
-      - exact pf_1.
-      - exact pf_2.
-      - exact pf_3.
-    Qed.
+      - exact images_of_fully_faithful_inv_hom_of_leg_commute₀.
+      - exact images_of_fully_faithful_inv_hom_of_leg_commute₁.
+      - exact images_of_fully_faithful_inv_hom_of_first_projection_commute.
+      - exact images_of_fully_faithful_inv_hom_of_second_projection_commute.
+    Defined.
 
-  End A.
+  End LiftAlongWeakEquivalencePreservesEqualizers_subproofs.
 
   Lemma weak_equiv_lifts_preserves_pullbacks
     : preserves_pullback H.
@@ -258,13 +295,13 @@ Section LiftAlongWeakEquivalencePreservesChosenPullbacksUptoEquality.
     (Gw : is_weak_equiv G)
     (Fpb : preserves_chosen_pullbacks_eq F P₁ P₃).
 
-  Section A.
+  Section LiftAlongWeakEquivalencePreservesChosenPullbacksUptoEqualityAfterInduction.
 
     Context {x y z : C1}
       (f' : C2⟦G x, G z⟧)
       (g' : C2⟦G y, G z⟧).
 
-    Lemma pf'_0
+    Lemma lift_preserves_chosen_pullbacks_uptoeq_after_isotoid_induction
       : ∥ H (P₂ (G z) (G x) (G y) f' g') = P₃ (H (G z)) (H (G x)) (H (G y)) (# H f') (# H g') ∥.
     Proof.
 
@@ -331,7 +368,7 @@ Section LiftAlongWeakEquivalencePreservesChosenPullbacksUptoEquality.
         apply idpath.
     Qed.
 
-  End A.
+  End LiftAlongWeakEquivalencePreservesChosenPullbacksUptoEqualityAfterInduction.
 
   Lemma weak_equiv_lifts_preserves_chosen_pullbacks_eq
     : preserves_chosen_pullbacks_eq H P₂ P₃.
@@ -352,7 +389,7 @@ Section LiftAlongWeakEquivalencePreservesChosenPullbacksUptoEquality.
     induction (isotoid _ (pr2 C2) iy).
     induction (isotoid _ (pr2 C2) iz).
 
-    exact (pf'_0 f' g').
+    exact (lift_preserves_chosen_pullbacks_uptoeq_after_isotoid_induction f' g').
   Qed.
 
 End LiftAlongWeakEquivalencePreservesChosenPullbacksUptoEquality.

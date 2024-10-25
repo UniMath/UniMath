@@ -1,10 +1,14 @@
+(**
+
+In this file, we show how a weak equivalence F : C1 -> C2, with C2 univalent (i.e., the Rezk completion), creates binary products.
+We consider two cases:
+1. C1 (merely) has binary products;
+2. C1 has chosen binary products.
+ *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 
 Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.

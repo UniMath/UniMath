@@ -1,28 +1,16 @@
+(**
+The universal property of the Rezk completion states, 1-dimensionally, that every functor F into a univalent category factors (uniquely) through the Rezk completion.
+The unique functor out of the Rezk completion is referred to as ``the lift of F''.
+The contents in this file conclude that if F preserves binary products, then so does its lift.
+
+In weak_equiv_lifts_preserves_binproducts, we show that if F preserves all binary products in its domain, then all binary products in the Rezk completion (of the domain) are also preserved.
+
+In weak_equiv_lifts_preserves_chosen_binproducts_eq, we show that if all the involved categories have chosen binary products, and if F preserves the chosen binary products up to (propositional) equality, then so does it lift.
+ *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Adjunctions.Core.
-Require Import UniMath.CategoryTheory.Equivalences.Core.
-Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
-Require Import UniMath.CategoryTheory.FunctorCategory.
-
-Require Import UniMath.CategoryTheory.Adjunctions.Core.
-Require Import UniMath.CategoryTheory.Equivalences.Core.
-Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
-
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
-Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
-Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
-
-Require Import UniMath.CategoryTheory.DisplayedCats.Adjunctions.
-Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
-Require Import UniMath.CategoryTheory.DisplayedCats.TotalAdjunction.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 
 Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
@@ -39,9 +27,6 @@ Lemma weak_equiv_lifts_preserves_binproducts
     {G : C1 ⟶ C2}
     {H : C2 ⟶ C3}
     (α : nat_z_iso (G ∙ H) F)
-    (C1_prod : hasBinProducts C1)
-    (C2_prod : hasBinProducts (pr1 C2))
-    (C3_prod : hasBinProducts (pr1 C3))
     (Gw : is_weak_equiv G)
     : preserves_binproduct F → preserves_binproduct H.
   Proof.
@@ -53,7 +38,6 @@ Lemma weak_equiv_lifts_preserves_binproducts
     use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw y2)).
     { apply isaprop_isBinProduct. }
     intros [x2 i2].
-    simpl in C1_prod, C2_prod, C3_prod.
 
     use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw py)).
     { apply isaprop_isBinProduct. }

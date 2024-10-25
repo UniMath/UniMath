@@ -1,28 +1,16 @@
+(**
+The universal property of the Rezk completion states, 1-dimensionally, that every functor F into a univalent category factors (uniquely) through the Rezk completion.
+The unique functor out of the Rezk completion is referred to as ``the lift of F''.
+The contents in this file conclude that if F preserves equalizers, then so does its lift.
+
+In weak_equiv_lifts_preserves_equalizers, we show that if F preserves all equalizers in its domain, then all equalizers in the Rezk completion (of the domain) are also preserved.
+
+In weak_equiv_lifts_preserves_chosen_equalizers_eq, we show that if all the involved categories have chosen equalizers, and if F preserves the chosen equalizers up to (propositional) equality, then so does it lift.
+ *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Adjunctions.Core.
-Require Import UniMath.CategoryTheory.Equivalences.Core.
-Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
-Require Import UniMath.CategoryTheory.FunctorCategory.
-
-Require Import UniMath.CategoryTheory.Adjunctions.Core.
-Require Import UniMath.CategoryTheory.Equivalences.Core.
-Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
-
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
-Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
-Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
-
-Require Import UniMath.CategoryTheory.DisplayedCats.Adjunctions.
-Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
-Require Import UniMath.CategoryTheory.DisplayedCats.TotalAdjunction.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 
 Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
 Require Import UniMath.CategoryTheory.Limits.Equalizers.
@@ -45,7 +33,7 @@ Section LiftAlongWeakEquivalencePreservesEqualizers.
 
   (* In this section, we show: preserves_equalizer H *)
 
-  Section A.
+  Section LiftAlongWeakEquivalencePreservesEqualizers_subproofs.
 
     (*
       An equalizer diagram (in C₂) is given: [a' -e'-> x' -={f₁', f₂'}=-> y'].
@@ -72,7 +60,8 @@ Section LiftAlongWeakEquivalencePreservesEqualizers.
     Let f₂ := (fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ (pr1 ix · f₂' · pr12 iy).
     Let e := (fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ (ia · e' · pr12 ix).
 
-    Let p : (e · f₁ = e · f₂).
+    Lemma fully_faithful_inv_hom_of_equalizer_diagram_commutes
+      : e · f₁ = e · f₂.
     Proof.
       unfold f₁, f₂, e.
       repeat (rewrite <- fully_faithful_inv_comp).
@@ -102,7 +91,65 @@ Section LiftAlongWeakEquivalencePreservesEqualizers.
       apply id_left.
     Qed.
 
-    Let pf : (is_z_isomorphism_mor (pr2 α a) · # H ia · # H e' · (# H (inv_from_z_iso ix) · α x) = # F e).
+    Lemma inv_of_equalizer_map_commutes_with_image_modulo_isos
+      : e' = z_iso_inv ia · # G e · pr12 (z_iso_inv ix).
+    Proof.
+      unfold e.
+      rewrite functor_on_fully_faithful_inv_hom.
+      rewrite ! assoc.
+      rewrite z_iso_inv_after_z_iso.
+      rewrite id_left.
+      rewrite assoc'.
+      apply pathsinv0.
+      etrans. {
+        apply maponpaths.
+        apply (z_iso_inv_after_z_iso (z_iso_inv ix)).
+      }
+      apply id_right.
+    Qed.
+
+    Lemma inv_of_f₁'_commutes_with_image_modulo_isos
+      : # G f₁ · pr12 (z_iso_inv iy) = pr12 (z_iso_inv ix) · f₁'.
+    Proof.
+      unfold f₁.
+      rewrite functor_on_fully_faithful_inv_hom.
+      rewrite assoc'.
+      etrans. {
+        apply maponpaths.
+        apply (z_iso_inv_after_z_iso (z_iso_inv iy)).
+      }
+      now rewrite id_right.
+    Qed.
+
+    Lemma inv_of_f₂'_commutes_with_image_modulo_isos
+      : # G f₂ · pr12 (z_iso_inv iy) = pr12 (z_iso_inv ix) · f₂'.
+    Proof.
+      unfold f₂.
+      rewrite functor_on_fully_faithful_inv_hom.
+      rewrite assoc'.
+      etrans. {
+        apply maponpaths.
+        apply (z_iso_inv_after_z_iso (z_iso_inv iy)).
+      }
+      now rewrite id_right.
+    Qed.
+
+    Lemma fully_faithful_inv_hom_of_equalizer_is_equalizer
+      : isEqualizer f₁ f₂ e fully_faithful_inv_hom_of_equalizer_diagram_commutes.
+    Proof.
+      use (weak_equiv_reflects_equalizers Gw).
+      use (isEqualizerUnderIso _ _ _ _ _ _ _ iEe).
+      - exact (z_iso_inv ia).
+      - exact (z_iso_inv ix).
+      - exact (z_iso_inv iy).
+      - exact inv_of_equalizer_map_commutes_with_image_modulo_isos.
+      - exact inv_of_f₁'_commutes_with_image_modulo_isos.
+      - exact inv_of_f₂'_commutes_with_image_modulo_isos.
+    Qed.
+
+    Lemma images_of_fully_faithful_inv_hom_of_equalizer_map_commute
+      : is_z_isomorphism_mor (pr2 α a) · # H ia · # H e' · (# H (inv_from_z_iso ix) · α x)
+        = # F e.
     Proof.
       etrans. {
         apply maponpaths_2.
@@ -128,7 +175,9 @@ Section LiftAlongWeakEquivalencePreservesEqualizers.
       apply functor_on_fully_faithful_inv_hom.
     Qed.
 
-    Let pf' : # H f₁' · (# H (inv_from_z_iso iy) · α y) = # H (inv_from_z_iso ix) · α x · # F f₁.
+    Lemma images_of_fully_faithful_inv_hom_of_f₁'_commute
+      : # H f₁' · (# H (inv_from_z_iso iy) · α y)
+        = # H (inv_from_z_iso ix) · α x · # F f₁.
     Proof.
       refine (assoc _ _ _ @ _).
       rewrite <- functor_comp.
@@ -149,7 +198,9 @@ Section LiftAlongWeakEquivalencePreservesEqualizers.
       apply pathsinv0, z_iso_after_z_iso_inv.
     Qed.
 
-    Let pf'' : # H f₂' · (# H (inv_from_z_iso iy) · α y) = # H (inv_from_z_iso ix) · α x · # F f₂.
+    Lemma images_of_fully_faithful_inv_hom_of_f₂'_commute
+      : # H f₂' · (# H (inv_from_z_iso iy) · α y)
+        = # H (inv_from_z_iso ix) · α x · # F f₂.
     Proof.
       refine (assoc _ _ _ @ _).
       rewrite <- functor_comp.
@@ -170,62 +221,28 @@ Section LiftAlongWeakEquivalencePreservesEqualizers.
       apply pathsinv0, z_iso_after_z_iso_inv.
     Qed.
 
-    Lemma pf₀ : isEqualizer f₁ f₂ e p.
-    Proof.
-      use (@weak_equiv_reflects_equalizers _ _ _ Gw x y a f₁ f₂ e p).
-      use (isEqualizerUnderIso _ _ _ _ _ _ _ iEe).
-      - exact (z_iso_inv ia).
-      - exact (z_iso_inv ix).
-      - exact (z_iso_inv iy).
-      - unfold e.
-        rewrite functor_on_fully_faithful_inv_hom.
-        rewrite ! assoc.
-        rewrite z_iso_inv_after_z_iso.
-        rewrite id_left.
-        rewrite assoc'.
-        apply pathsinv0.
-        etrans. {
-          apply maponpaths.
-          apply (z_iso_inv_after_z_iso (z_iso_inv ix)).
-        }
-        apply id_right.
-      - unfold f₁.
-        rewrite functor_on_fully_faithful_inv_hom.
-        rewrite assoc'.
-        etrans. {
-          apply maponpaths.
-          apply (z_iso_inv_after_z_iso (z_iso_inv iy)).
-        }
-        now rewrite id_right.
-      - unfold f₂.
-        rewrite functor_on_fully_faithful_inv_hom.
-        rewrite assoc'.
-        etrans. {
-          apply maponpaths.
-          apply (z_iso_inv_after_z_iso (z_iso_inv iy)).
-        }
-        now rewrite id_right.
-    Qed.
-
     Lemma equalizer_is_preserved_after_lift
       (Fr : # H e' · # H f₁' = # H e' · # H f₂')
       : isEqualizer (# H f₁') (# H f₂') (# H e') Fr.
     Proof.
       set (αi := nat_z_iso_inv α).
-      use (isEqualizerUnderIso _ _ _ _ _ _ _ (Feq x y a f₁ f₂ e p (Equalizers.p_func (p := p)) _)).
+      use (isEqualizerUnderIso _ _ _ _ _ _ _
+             (Feq x y a f₁ f₂ e
+                fully_faithful_inv_hom_of_equalizer_diagram_commutes
+                (Equalizers.p_func (p := fully_faithful_inv_hom_of_equalizer_diagram_commutes)) _)).
       - use (z_iso_comp (_ ,, pr2 αi _)) ; simpl ; apply functor_on_z_iso.
         exact ia.
       - use (z_iso_comp (_ ,, pr2 αi _)) ; simpl ; apply functor_on_z_iso.
         exact ix.
       - use (z_iso_comp (_ ,, pr2 αi _)) ; simpl ; apply functor_on_z_iso.
         exact iy.
-      - exact (! pf).
-      - exact pf'.
-      - apply pf''.
-      - apply pf₀.
-    Qed.
+      - exact (! images_of_fully_faithful_inv_hom_of_equalizer_map_commute).
+      - exact images_of_fully_faithful_inv_hom_of_f₁'_commute.
+      - exact images_of_fully_faithful_inv_hom_of_f₂'_commute.
+      - exact fully_faithful_inv_hom_of_equalizer_is_equalizer.
+    Defined.
 
-  End A.
+  End LiftAlongWeakEquivalencePreservesEqualizers_subproofs.
 
   Lemma weak_equiv_lifts_preserves_equalizers
     : preserves_equalizer H.
@@ -261,7 +278,7 @@ Section LiftAlongWeakEquivalencePreservesChosenEqualizersUptoEquality.
     (Gw : is_weak_equiv G)
     (Feq : preserves_chosen_equalizers_eq F E₁ E₃).
 
-  Section A.
+  Section LiftAlongWeakEquivalencePreservesChosenEqualizersUptoEqualityAfterInduction.
 
     Context {x y : C1}
       (f' g' : C2⟦G x, G y⟧).
@@ -269,7 +286,7 @@ Section LiftAlongWeakEquivalencePreservesChosenEqualizersUptoEquality.
     Let f₁ := (fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ f'.
     Let g₁ := (fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ g'.
 
-    Lemma pf'_0
+    Lemma lift_preserves_chosen_equalizers_uptoeq_after_isotoid_induction
       : ∥ H (E₂ (G x) (G y) f' g') = E₃ (H (G x)) (H (G y)) (# H f') (# H g') ∥.
     Proof.
 
@@ -326,7 +343,7 @@ Section LiftAlongWeakEquivalencePreservesChosenEqualizersUptoEquality.
         apply idpath.
     Qed.
 
-  End A.
+  End LiftAlongWeakEquivalencePreservesChosenEqualizersUptoEqualityAfterInduction.
 
   Lemma weak_equiv_lifts_preserves_chosen_equalizers_eq
     : preserves_chosen_equalizers_eq H E₂ E₃.
@@ -347,7 +364,7 @@ Section LiftAlongWeakEquivalencePreservesChosenEqualizersUptoEquality.
     induction j1.
     induction j2.
 
-    exact (pf'_0 f' g').
+    exact (lift_preserves_chosen_equalizers_uptoeq_after_isotoid_induction f' g').
   Qed.
 
 End LiftAlongWeakEquivalencePreservesChosenEqualizersUptoEquality.
