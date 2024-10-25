@@ -3,9 +3,13 @@ The universal property of the Rezk completion states, 1-dimensionally, that ever
 The unique functor out of the Rezk completion is referred to as ``the lift of F''.
 The contents in this file conclude that if F preserves pullbacks, then so does its lift.
 
-In weak_equiv_lifts_preserves_pullbacks, we show that if F preserves all pullbacks in its domain, then all equalizers in the Rezk completion (of the domain) are also preserved.
+In [weak_equiv_lifts_preserves_pullbacks], we show the following:
+Assume F preserves all pullbacks in its domain.
+Then, all equalizers in the codomain (the Rezk completion) are preserved by the lift.
 
-In weak_equiv_lifts_preserves_chosen_pullbacks_eq, we show that if all the involved categories have chosen pullbacks, and if F preserves the chosen pullbacks up to (propositional) equality, then so does it lift.
+In [weak_equiv_lifts_preserves_chosen_pullbacks_eq], we show the following:
+Assume the involved categories have chosen pullbacks.
+If F preserves the chosen pullbacks up to (propositional) equality, then so does it lift.
  *)
 
 Require Import UniMath.Foundations.All.

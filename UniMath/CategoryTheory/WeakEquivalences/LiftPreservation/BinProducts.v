@@ -3,9 +3,13 @@ The universal property of the Rezk completion states, 1-dimensionally, that ever
 The unique functor out of the Rezk completion is referred to as ``the lift of F''.
 The contents in this file conclude that if F preserves binary products, then so does its lift.
 
-In weak_equiv_lifts_preserves_binproducts, we show that if F preserves all binary products in its domain, then all binary products in the Rezk completion (of the domain) are also preserved.
+In [weak_equiv_lifts_preserves_binproducts], we show the following:
+Assume F preserves all binary products in its domain.
+Then, all binary products in the Rezk completion (of the domain) are also preserved.
 
-In weak_equiv_lifts_preserves_chosen_binproducts_eq, we show that if all the involved categories have chosen binary products, and if F preserves the chosen binary products up to (propositional) equality, then so does it lift.
+In [weak_equiv_lifts_preserves_chosen_binproducts_eq], we show the following:
+Assume all the involved categories have chosen binary products.
+If F preserves the chosen binary products up to (propositional) equality, then so does it lift.
  *)
 
 Require Import UniMath.Foundations.All.
