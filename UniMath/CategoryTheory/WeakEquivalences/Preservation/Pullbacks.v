@@ -1,9 +1,13 @@
+(**
+   In this file, we show that an arbitrary weak equivalence F : C -> D preserves pullbacks.
+   The main work is done in weak_equiv_preserves_pullbacks, where we show that the image (under F) of a pullback in C, is also a pullback in D.
+
+   If both C and D have pullbacks and D is univalent, we conclude that the image of a pullback is the pullback of the images.
+ *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 
 Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
 
@@ -90,7 +94,7 @@ Section WeakEquivalencePreservationsPullbacks₀.
 
 End WeakEquivalencePreservationsPullbacks₀.
 
-Definition weak_equiv_preserves_pullbacks
+Proposition weak_equiv_preserves_pullbacks
   {C D : category} {F : C ⟶ D} (Fw : is_weak_equiv F)
   : preserves_pullback F.
 Proof.
@@ -158,7 +162,7 @@ Proof.
   exact (e ,, (e₁ ,, e₂)).
 Qed.
 
-Definition weak_equiv_preserves_chosen_pullbacks
+Corollary weak_equiv_preserves_chosen_pullbacks
   {C D : category} {F : C ⟶ D} (Fw : is_weak_equiv F) (PB : Pullbacks C)
   : preserves_chosen_pullback PB F.
 Proof.
@@ -168,7 +172,7 @@ Proof.
   - apply isPullback_Pullback.
 Qed.
 
-Definition weak_equiv_preserves_pullbacks_eq
+Corollary weak_equiv_preserves_pullbacks_eq
   {C D : category} {F : C ⟶ D} (Fw : is_weak_equiv F) (Duniv : is_univalent D)
   (P₁ : Pullbacks C) (P₂ : Pullbacks D)
   : preserves_chosen_pullbacks_eq F P₁ P₂.

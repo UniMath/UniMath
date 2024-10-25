@@ -1,9 +1,13 @@
+(**
+   In this file, we show that an arbitrary weak equivalence F : C -> D preserves equalizers.
+   The main work is done in weak_equiv_preserves_equalizers, where we show that the image (under F) of a equalizer in C, is also an equalizer in D.
+
+   If both C and D have equalizers and D is univalent, we conclude that the image of a equalizer is the equalizer of the images.
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 
 Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
 
@@ -21,7 +25,6 @@ Section WeakEquivalencePreservationsEqualizers₀.
     {f₁ f₂ : C ⟦ x, y ⟧}
     {h : C ⟦ e, x ⟧}
     {p : h · f₁ = h · f₂}
-    (* {Fp : # F h · # F f₁ = # F h · # F f₂} *)
     (iE : isEqualizer f₁ f₂ h p)
     {e' : D}
     (h' : D ⟦e', F x⟧)
@@ -30,7 +33,6 @@ Section WeakEquivalencePreservationsEqualizers₀.
     (i : z_iso (F e'') e').
 
   Let E := make_Equalizer _ _ _ _ iE.
-  (* Let ϕ : C⟦e'', x⟧ := fully_faithful_inv_hom (ff_from_weak_equiv _ Fw) _ _ (i · h'). *)
 
   Lemma weak_equiv_preserves_equalizers_unique
     : isaprop (∑ φ : D⟦e', F e⟧, φ · # F h = h').
@@ -69,7 +71,7 @@ Section WeakEquivalencePreservationsEqualizers₀.
 
 End WeakEquivalencePreservationsEqualizers₀.
 
-Definition weak_equiv_preserves_equalizers
+Proposition weak_equiv_preserves_equalizers
   {C D : category} {F : C ⟶ D} (Fw : is_weak_equiv F)
   : preserves_equalizer F.
 Proof.
@@ -111,7 +113,7 @@ Proof.
   apply id_left.
 Qed.
 
-Definition weak_equiv_preserves_chosen_equalizers
+Corollary weak_equiv_preserves_chosen_equalizers
   {C D : category} {F : C ⟶ D} (Fw : is_weak_equiv F) (BP : Equalizers C)
   : preserves_chosen_equalizer BP F.
 Proof.
@@ -121,7 +123,7 @@ Proof.
   - apply isEqualizer_Equalizer.
 Qed.
 
-Definition weak_equiv_preserves_equalizers_eq
+Corollary weak_equiv_preserves_equalizers_eq
   {C D : category} {F : C ⟶ D} (Fw : is_weak_equiv F) (Duniv : is_univalent D)
   (E₁ : Equalizers C) (E₂ : Equalizers D)
   : preserves_chosen_equalizers_eq F E₁ E₂.
