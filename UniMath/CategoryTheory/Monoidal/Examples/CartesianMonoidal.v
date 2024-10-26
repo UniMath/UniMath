@@ -462,16 +462,16 @@ Section GeneralConstruction.
   Proof.
     use make_sym_mon_closed_cat.
     - exact (cartesian_monoidalcat ,, symmetric_cartesian_monoidalcat).
-    - exact (exp expC).
-    - exact (exp_eval_alt expC).
-    - exact (λ _ _ _ f, exp_lam_alt expC f).
+    - exact (λ x, exp (expC x)).
+    - exact (λ x, exp_eval_alt (expC x)).
+    - exact (λ _ _ _ f, exp_lam_alt (expC _) f).
     - abstract
         (cbn ;
          unfold monoidal_cat_tensor_mor ;
          unfold functoronmorphisms1 ;
          cbn ;
          intros x y z f ;
-         refine (_ @ exp_beta_alt expC f) ;
+         refine (_ @ exp_beta_alt (expC _) f) ;
          apply maponpaths_2 ;
          apply prod_lwhisker_rwhisker).
     - abstract
@@ -479,7 +479,7 @@ Section GeneralConstruction.
          unfold monoidal_cat_tensor_mor ;
          unfold functoronmorphisms1 ;
          cbn ;
-         refine (exp_eta_alt expC f @ _) ;
+         refine (exp_eta_alt (expC _) f @ _) ;
          apply maponpaths ;
          apply maponpaths_2 ;
          refine (!_) ;

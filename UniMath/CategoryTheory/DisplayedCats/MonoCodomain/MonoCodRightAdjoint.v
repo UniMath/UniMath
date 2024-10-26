@@ -82,7 +82,7 @@ Section DependentProductsMonoCodomain.
               (from_monic_slice_to_terminal
                  (mono_cod_to_cod_fib _ φ)
                  (codomain_fib_terminal _)
-                 (pr22 φ)))
+                 (MonicisMonic _ (monic_of_mono_in_cat φ))))
         as H.
       pose (make_Terminal
               _
@@ -113,7 +113,7 @@ Section DependentProductsMonoCodomain.
                (φ : C /m Γ₁)
       : mono_cod_pb PB s (mono_cod_forall φ) --> φ.
     Proof.
-      exact (ε (mono_cod_to_cod_fib _ φ)).
+      exact (ε (mono_cod_to_cod_fib _ φ) ,, tt).
     Defined.
 
     Definition mono_cod_forall_elim
@@ -122,8 +122,8 @@ Section DependentProductsMonoCodomain.
                (p : mono_cod_pb PB s χ --> ψ)
       : χ --> mono_cod_forall ψ.
     Proof.
-      refine (η (mono_cod_to_cod_fib _ χ) · #R _).
-      exact p.
+      refine (η (mono_cod_to_cod_fib _ χ) · #R _ ,, tt).
+      exact (pr1 p).
     Defined.
   End UniversalQuantification.
 
@@ -184,7 +184,8 @@ Section DependentProductsMonoCodomain.
     - exact (PullbackPr2 _).
     - exact (PullbackPr1 _).
     - abstract
-        (refine (!_) ;
+        (cbn ;
+         refine (!_) ;
          apply PullbackSqrCommutes).
   Defined.
 
@@ -274,7 +275,8 @@ Section DependentProductsMonoCodomain.
                rewrite PullbackArrow_PullbackPr1 ;
                apply idpath).
         + abstract
-            (apply PullbackArrow_PullbackPr1).
+            (cbn ;
+             apply PullbackArrow_PullbackPr1).
       - abstract
           (exact (mono_mor_eq (mono_cod_forall_elim _ _ _ _))).
     Defined.

@@ -5,7 +5,7 @@ This file aims to state and develop various fixed-point theorems on posets; in p
 
 In particular, it aims to formalise some of the results of Pataraia, Dacar, Bauer, and Lumsdaine, given in https://arxiv.org/abs/1201.0340 .
 
-Note: There is some duplication with material on posets elsewhere in the library, e.g. [Algebra.Dcpo] and [Combinatorics.WellOrderedSets], which should ideally be refactored. (Indeed, there is some duplication of material also between those files.)
+Note: There is some duplication with material on posets elsewhere in the library, e.g. [Algebra.Dcpo] and [OrderTheory.OrderedSets.WellOrderedSets], which should ideally be refactored. (Indeed, there is some duplication of material also between those files.)
 
 ****************************************************************************
 Note: a newer and different implementation of DCPOs and fixed point theorems
@@ -16,8 +16,10 @@ can be found in OrderTheory.DCPOs.
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Combinatorics.WellOrderedSets.
+
+Require Import UniMath.OrderTheory.OrderedSets.WellOrderedSets.
 Require Import UniMath.OrderTheory.DCPOs.AlternativeDefinitions.Dcpo.
+Require Import UniMath.OrderTheory.Posets.Subposets.
 
 Local Open Scope poset. (* for ≤, < *)
 Local Open Scope logic. (* for logic in hProp *)
@@ -378,7 +380,7 @@ Section Least.
     : least_of_family p -> I
   := pr1.
   (* Would be nice to make [least_of_family_index] a coercion, but can’t since its target is an arbitrary type. The best we can do instead is [realise_least_of_family]: *)
-  #[reversible=no] Coercion realise_least_of_family {I} (p : I -> P)
+  Coercion realise_least_of_family {I} (p : I -> P)
     : least_of_family p -> P
   := fun ih => p (pr1 ih).
 
@@ -437,7 +439,7 @@ Section Greatest.
     : greatest_of_family p -> I
   := pr1.
   (* Would be nice to make [greatest_of_family_index] a coercion, but can’t since its target is an arbitrary type. The best we can do instead is [realise_greatest_of_family]: *)
-  #[reversible=no] Coercion realise_greatest_of_family {I} (p : I -> P)
+  Coercion realise_greatest_of_family {I} (p : I -> P)
     : greatest_of_family p -> P
   := fun ih => p (pr1 ih).
 
@@ -597,7 +599,7 @@ Section Chains.
   Definition Chain (P : Poset) : UU
   := ∑ (I : UU), ∑ (p : I -> P), is_chain p.
 
-  #[reversible=no] Coercion chain_index {P} (C : Chain P) : UU
+  Coercion chain_index {P} (C : Chain P) : UU
   := pr1 C.
 
   Definition chain_family {P} (C : Chain P) : C -> P
@@ -627,10 +629,10 @@ Section Chains.
   Definition Chain_hsubtype (P : Poset) : UU
   := ∑ A : hsubtype P, is_chain (pr1carrier A).
 
-  #[reversible=no] Coercion pr1_Chain_hsubtype {P} : Chain_hsubtype P -> hsubtype P
+  Coercion pr1_Chain_hsubtype {P} : Chain_hsubtype P -> hsubtype P
   := pr1.
 
-  #[reversible=no] Coercion Chain_of_Chain_hsubtype (P : Poset)
+  Coercion Chain_of_Chain_hsubtype (P : Poset)
     : Chain_hsubtype P -> Chain P.
   Proof.
     intros C. exact (carrier C,, (pr1carrier C,, pr2 C)).
@@ -659,7 +661,7 @@ Section Directed.
   Definition Directed_family (P : Poset) : UU
   := ∑ (I : UU), ∑ (p : I -> P), isdirected p.
 
-  #[reversible=no] Coercion directed_index {P} (C : Directed_family P) : UU
+  Coercion directed_index {P} (C : Directed_family P) : UU
   := pr1 C.
 
   Definition directed_family {P} (C : Directed_family P) : C -> P
@@ -698,10 +700,10 @@ Section Directed.
   Definition Directed_hsubtype (P : Poset) : UU
   := ∑ A : hsubtype P, isdirected (pr1carrier A).
 
-  #[reversible=no] Coercion pr1_Directed_hsubtype {P} : Directed_hsubtype P -> hsubtype P
+  Coercion pr1_Directed_hsubtype {P} : Directed_hsubtype P -> hsubtype P
   := pr1.
 
-  #[reversible=no] Coercion Directed_of_Directed_hsubtype (P : Poset)
+  Coercion Directed_of_Directed_hsubtype (P : Poset)
     : Directed_hsubtype P -> Directed_family P.
   Proof.
     intros C. exact (carrier C,, (pr1carrier C,, pr2 C)).
@@ -799,7 +801,7 @@ End Completeness.
 (** ** Upper bounds, completeness, etc in sub-posets *)
 Section Subposets.
 
-  (* TODO: upstream to [MoreFoundations.Subposets]? *)
+  (* TODO: upstream to [Posets.Subposets]? *)
   Definition subposet_incl {P : Poset} {A : Subposet' P} : posetmorphism A P
   := pr1 (pr2 A).
 
@@ -1017,7 +1019,7 @@ Definition isfixedpoint {P : Poset} (f : P -> P) : hsubtype P
 
 Definition Fixedpoint {P : Poset} (f : P -> P) : UU := carrier (isfixedpoint f).
 
-#[reversible=no] Coercion pr1_Fixedpoint {P : Poset} {f : P -> P} : Fixedpoint f -> P
+Coercion pr1_Fixedpoint {P : Poset} {f : P -> P} : Fixedpoint f -> P
 := pr1carrier _.
 
 Definition fixedpoint_property  {P : Poset} {f : P -> P} (x : Fixedpoint f)
@@ -1030,7 +1032,7 @@ Definition ispostfixedpoint {P : Poset} (f : P -> P) : hsubtype P
 Definition Postfixedpoint {P : Poset} (f : P -> P) : UU
   := carrier (ispostfixedpoint f).
 
-#[reversible=no] Coercion pr1_Postfixedpoint {P : Poset} {f : P -> P} : Postfixedpoint f -> P
+Coercion pr1_Postfixedpoint {P : Poset} {f : P -> P} : Postfixedpoint f -> P
 := pr1carrier _.
 
 Definition postfixedpoint_property  {P : Poset} {f : P -> P} (x : Postfixedpoint f)

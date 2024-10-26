@@ -123,6 +123,36 @@ Proof.
               (z_iso_Terminals HC₁ (make_Terminal _ Hx)))).
 Defined.
 
+Definition preserves_terminal_chosen_to_chosen
+           {C₁ C₂ : category}
+           (T₁ : Terminal C₁)
+           (T₂ : Terminal C₂)
+           (F : C₁ ⟶ C₂)
+           (HF : is_z_isomorphism (TerminalArrow T₂ (F T₁)))
+  : preserves_terminal F.
+Proof.
+  use (preserves_terminal_if_preserves_chosen T₁).
+  unfold preserves_chosen_terminal.
+  use iso_to_Terminal.
+  - exact T₂.
+  - exact (z_iso_inv (_ ,, HF)).
+Defined.
+
+Definition preserves_terminal_chosen_to_chosen_z_iso
+           {C₁ C₂ : category}
+           (T₁ : Terminal C₁)
+           (T₂ : Terminal C₂)
+           (F : C₁ ⟶ C₂)
+           (HF : z_iso T₂ (F T₁))
+  : preserves_terminal F.
+Proof.
+  use (preserves_terminal_if_preserves_chosen T₁).
+  unfold preserves_chosen_terminal.
+  use iso_to_Terminal.
+  - exact T₂.
+  - exact HF.
+Defined.
+
 Definition preserves_chosen_terminal_eq
            {C₁ C₂ : category}
            (F : C₁ ⟶ C₂)
@@ -296,6 +326,33 @@ Section PreservesBinProduct.
   End Accessors.
 
 End PreservesBinProduct.
+
+Definition preserves_binproduct_chosen_to_chosen
+           {C₁ C₂ : category}
+           (P₁ : BinProducts C₁)
+           (P₂ : BinProducts C₂)
+           (F : C₁ ⟶ C₂)
+           (HF : ∏ (x y : C₁),
+                 is_z_isomorphism
+                   (BinProductArrow
+                      _ (P₂ (F x) (F y))
+                      (#F (BinProductPr1 _ (P₁ x y)))
+                      (#F (BinProductPr2 _ (P₁ x y)))))
+  : preserves_binproduct F.
+Proof.
+  use (preserves_binproduct_if_preserves_chosen P₁).
+  intros x y.
+  use (isBinProduct_z_iso (isBinProduct_BinProduct _ (P₂ (F x) (F y)))).
+  - exact (_ ,, HF x y).
+  - abstract
+      (cbn ;
+       rewrite BinProductPr1Commutes ;
+       apply idpath).
+  - abstract
+      (cbn ;
+       rewrite BinProductPr2Commutes ;
+       apply idpath).
+Defined.
 
 Definition identity_preserves_binproduct
           (C : category)

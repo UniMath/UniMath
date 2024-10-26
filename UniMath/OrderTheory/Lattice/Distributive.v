@@ -29,6 +29,13 @@ End Def.
 Definition distributive_lattice : UU :=
   ∑ (X : hSet) (L : lattice X), is_distributive L.
 
+Definition make_distributive_lattice {X : hSet} {l : lattice X} (i : is_distributive l) : distributive_lattice := (X,,l,,i).
+
+Definition distributive_lattice_is_distributive (l : distributive_lattice) := pr22 l.
+
+Definition distributive_lattice_to_lattice (l : distributive_lattice) : lattice (pr1 l) := pr1 (pr2 l).
+Coercion distributive_lattice_to_lattice : distributive_lattice >-> lattice.
+
 Section Bounded.
   Context {X : hSet} (L : bounded_lattice X).
 
@@ -59,3 +66,44 @@ Section Bounded.
   Qed.
 
 End Bounded.
+
+Section Properties.
+  Lemma distrlattice_Lmax_ldistr  (l : distributive_lattice) : isldistr (Lmax l) (Lmin l) .
+  Proof .
+    intros ? ? ?. use (distributive_lattice_is_distributive l) .
+  Qed .
+
+  Lemma distrlattice_Lmax_rdistr (l : distributive_lattice) : isrdistr (Lmax l) (Lmin l) .
+  Proof.
+    use weqldistrrdistr.
+    - use iscomm_Lmin.
+    - intros ? ? ?. use (distributive_lattice_is_distributive l).
+  Qed.
+
+  Lemma dual_lattice_is_distributive (l : distributive_lattice) : is_distributive (dual_lattice l) .
+  Proof.
+    assert (isldistr (Lmin l) (Lmax l) ) as d.
+    {
+      intros ? b c .
+      rewrite ((distributive_lattice_is_distributive l) (Lmax _ _ _) c b).
+      rewrite (iscomm_Lmin _ (Lmax _ _ _) _).
+      rewrite (Lmin_absorb) .
+      rewrite distrlattice_Lmax_rdistr.
+      rewrite <- (isassoc_Lmax _ c).
+      rewrite (Lmax_absorb).
+      reflexivity.
+    }
+    intros ? ? ?.
+    use d .
+  Qed.
+
+  Lemma distrlattice_Lmin_ldistr (l : distributive_lattice) : isldistr (Lmin l) (Lmax l) .
+  Proof.
+    exact (distrlattice_Lmax_ldistr (make_distributive_lattice (dual_lattice_is_distributive l))).
+  Qed.
+
+  Lemma distrlattice_Lmin_rdistr (l : distributive_lattice): isrdistr (Lmin l) (Lmax l) .
+  Proof.
+    exact (distrlattice_Lmax_rdistr (make_distributive_lattice (dual_lattice_is_distributive l))).
+  Qed.
+End Properties.

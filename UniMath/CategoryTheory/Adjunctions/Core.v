@@ -119,7 +119,7 @@ Definition make_form_adjunction {A B : category} {F : functor A B} {G : functor 
   Definition adjunction (A B : category) : UU
     := ∑ X : adjunction_data A B, form_adjunction' X.
 
-  #[reversible=no] Coercion data_from_adjunction {A B} (X : adjunction A B)
+  Coercion data_from_adjunction {A B} (X : adjunction A B)
     : adjunction_data _ _ := pr1 X.
 
   Definition make_adjunction {A B : category}
@@ -139,7 +139,7 @@ Definition make_form_adjunction {A B : category} {F : functor A B} {G : functor 
              (adj : adjunction A B) : triangle_2_statement adj
     := pr2 (pr2 adj).
 
-  #[reversible=no] Coercion are_adjoints_from_adjunction {A B} (X : adjunction A B)
+  Coercion are_adjoints_from_adjunction {A B} (X : adjunction A B)
     : are_adjoints (left_functor X) (right_functor X).
   Proof.
     use make_are_adjoints.
@@ -159,7 +159,7 @@ Definition make_form_adjunction {A B : category} {F : functor A B} {G : functor 
   Definition is_left_adjoint {A B : category} (F : functor A B) : UU :=
     ∑ (G : functor B A), are_adjoints F G.
 
-  #[reversible=no] Coercion adjunction_data_from_is_left_adjoint {A B : category}
+  Coercion adjunction_data_from_is_left_adjoint {A B : category}
          {F : functor A B} (HF : is_left_adjoint F)
   : adjunction_data A B
   := (F,, _ ,,unit_from_are_adjoints (pr2 HF) ,,counit_from_are_adjoints (pr2 HF) ).
@@ -793,8 +793,111 @@ Section HomSetIso_from_Adjunction.
     apply φ_adj_inv_natural_precomp.
   Qed.
 
-
 End HomSetIso_from_Adjunction.
+
+Section HomSetIsoClosedUnderIso.
+
+  Context {C C' : category}.
+  Context (F F' : C ⟶ C').
+  Context (G : C' ⟶ C).
+  Context (α : z_iso (C := [C, C']) F F').
+  Context (H : are_adjoints F G).
+  Context (c : C).
+  Context (c' : C').
+
+  Lemma φ_adj_under_iso
+    (f : C'⟦F' c, c'⟧)
+    : φ_adj (are_adjoints_closed_under_iso _ _ _ α H) f
+    = φ_adj H (((α : [C, C'] ⟦F, F'⟧) : F ⟹ F') c · f).
+  Proof.
+    refine (assoc' _ _ _ @ _).
+    apply (maponpaths (λ x, _ · x)).
+    exact (!functor_comp G _ _).
+  Qed.
+
+  Lemma φ_adj_inv_under_iso
+    (f : C⟦c, G c'⟧)
+    : φ_adj_inv (are_adjoints_closed_under_iso _ _ _ α H) f
+    = ((z_iso_inv α : [C, C'] ⟦F', F⟧) : F' ⟹ F) c · φ_adj_inv H f.
+  Proof.
+    refine (assoc _ _ _ @ _).
+    refine (_ @ assoc' _ _ _).
+    apply maponpaths_2.
+    apply (nat_trans_ax (inv_from_z_iso α)).
+  Qed.
+
+End HomSetIsoClosedUnderIso.
+
+Section HomSetIsoRightFromPartial.
+
+  Context {X A : category}.
+  Context (F : functor X A).
+  Context (G0 : ob A -> ob X).
+  Context (eps : ∏ a, A⟦F (G0 a),a⟧).
+  Context (Huniv : ∏ a, is_universal_arrow_from F a (G0 a) (eps a)).
+  Context (a : A).
+  Context (x : X).
+
+  Let G
+    : A ⟶ X
+    := G F G0 eps Huniv.
+
+  Let Adj
+    : are_adjoints F G
+    := (unit _ _ _ Huniv ,, counit _ _ _ _) ,, form_adjunctionFG F G0 eps Huniv.
+
+  (* Note that for f : X⟦x, G a⟧, we have φ_adj_inv Adj f = #F f · eps a definitionally *)
+
+  Lemma φ_adj_from_partial
+    (f : A⟦F x, a⟧)
+  : φ_adj Adj f = pr11 (Huniv a x f).
+  Proof.
+    refine (base_paths _ _ (pr2 (Huniv a x f) (_ ,, !_))).
+    refine (maponpaths (λ x, x · _) (functor_comp _ _ _) @ _).
+    refine (assoc' _ _ _ @ _).
+    refine (!maponpaths (λ x, _ · x) (pr21 (Huniv _ _ _)) @ _).
+    refine (assoc _ _ _ @ _).
+    refine (!maponpaths (λ x, x · _) (pr21 (Huniv _ _ _)) @ _).
+    apply id_left.
+  Qed.
+
+End HomSetIsoRightFromPartial.
+
+Section HomSetIsoLeftFromPartial.
+
+  Context {X A : category}.
+  Context (G : functor A X).
+  Context (F0 : ob X -> ob A).
+  Context (eta : ∏ x, X⟦x, G (F0 x)⟧).
+  Context (Huniv : ∏ x, is_universal_arrow_to G x (F0 x) (eta x)).
+  Context (x : X).
+  Context (a : A).
+
+  Let F
+    : X ⟶ A
+    := left_adj_from_partial G F0 eta Huniv.
+
+  Let Adj
+    : are_adjoints F G
+    := (unit_left_from_partial _ _ _ Huniv ,, counit_left_from_partial _ _ _ _) ,,
+      form_adjunctionFG_left_from_partial G F0 eta Huniv.
+
+  (* Note that for f : A⟦F x, a⟧, we have φ_adj Adj f = eta x · #G f definitionally *)
+
+  Lemma φ_adj_inv_from_partial
+    (f : X⟦x, G a⟧)
+  : φ_adj_inv Adj f = pr11 (Huniv x a f).
+  Proof.
+    refine (base_paths _ _ (pr2 (Huniv x a f) (_ ,, _))).
+    refine (maponpaths (λ x, _ · x) (functor_comp _ _ _) @ _).
+    refine (assoc _ _ _ @ _).
+    refine (maponpaths (λ x, x · _) (pr21 (Huniv _ _ _)) @ _).
+    refine (assoc' _ _ _ @ _).
+    refine (maponpaths (λ x, _ · x) (pr21 (Huniv _ _ _)) @ _).
+    apply id_right.
+  Qed.
+
+End HomSetIsoLeftFromPartial.
 
 (** * Adjunction defined from a natural isomorphism on homsets (F A --> B) ≃ (A --> G B) *)
 

@@ -58,7 +58,7 @@ Definition mor_op
   {m n : nat}
   (t : (P m : hSet))
   (f : stn m → (T n : hSet))
-  : mor_op_ax (identity T) F (@op T P) (@op T P') m n t f
+  : F _ (op t f) = op (F _ t) f
   := pr12 F m n t f.
 
 (** * 3. An equality lemma *)

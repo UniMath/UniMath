@@ -69,7 +69,7 @@ Definition make_two_cat_data
   : two_cat_data
   := C ,, cellsC ,, id ,, vC ,, lW ,, rW.
 
-#[reversible=no] Coercion precategory_from_two_cat_data (C : two_cat_data)
+Coercion precategory_from_two_cat_data (C : two_cat_data)
   : precategory_data
   := pr1 C.
 
@@ -202,10 +202,10 @@ Definition make_two_precat
   : two_precat
   := C ,, HC.
 
-#[reversible=no] Coercion two_cat_category_from_two_cat (C : two_precat)
+Coercion two_cat_category_from_two_cat (C : two_precat)
   : two_cat_category
   := pr1 C.
-#[reversible=no] Coercion two_cat_laws_from_two_cat (C : two_precat)
+Coercion two_cat_laws_from_two_cat (C : two_precat)
   : two_cat_laws C
   := pr2 C.
 
@@ -348,7 +348,7 @@ Definition make_two_cat
   : two_cat
   := C ,, HC.
 
-#[reversible=no] Coercion two_cat_to_two_precat
+Coercion two_cat_to_two_precat
          (C : two_cat)
   : two_precat
   := pr1 C.
@@ -781,7 +781,7 @@ Definition make_two_setcat
   : two_setcat
   := C ,, HC.
 
-#[reversible=no] Coercion two_setcat_to_two_cat
+Coercion two_setcat_to_two_cat
          (C : two_setcat)
   : two_cat
   := pr1 C.
@@ -813,7 +813,7 @@ Definition make_univalent_two_cat
   : univalent_two_cat
   := C ,, HC.
 
-#[reversible=no] Coercion univalent_two_cat_to_two_cat
+Coercion univalent_two_cat_to_two_cat
          (C : univalent_two_cat)
   : two_cat
   := pr1 C.

@@ -9,7 +9,7 @@ Require Import UniMath.MoreFoundations.Univalence.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
-Require Import UniMath.Combinatorics.OrderedSets.
+Require Import UniMath.OrderTheory.OrderedSets.OrderedSets.
 
 Import UniMath.MoreFoundations.PartA.
 
@@ -142,7 +142,7 @@ Proof.
   apply setproperty.
 Defined.
 
-#[reversible=no] Coercion underlyingIso {G:gr} {X Y:Action G} (e:ActionIso X Y) : X ≃ Y := pr1 e.
+Coercion underlyingIso {G:gr} {X Y:Action G} (e:ActionIso X Y) : X ≃ Y := pr1 e.
 
 Lemma underlyingIso_incl {G:gr} {X Y:Action G} :
   isincl (underlyingIso : ActionIso X Y → X ≃ Y).
@@ -282,7 +282,7 @@ Qed.
 
 Definition Torsor (G:gr) := total2 (@is_torsor G).
 
-#[reversible=no] Coercion underlyingAction {G} (X:Torsor G) := pr1 X : Action G.
+Coercion underlyingAction {G} (X:Torsor G) := pr1 X : Action G.
 
 Definition is_torsor_prop {G} (X:Torsor G) := pr2 X.
 
