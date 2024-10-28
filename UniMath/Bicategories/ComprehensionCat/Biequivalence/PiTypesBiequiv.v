@@ -124,8 +124,8 @@ Qed.
 Definition has_dependent_products_adj_equiv_f_help
            {C₁ C₂ : dfl_full_comp_cat}
            (F : adjoint_equivalence C₁ C₂)
-           (P : has_dependent_products (cleaving_of_types C₁))
-  : has_dependent_products (cleaving_of_types C₂).
+           (P : comp_cat_dependent_prod C₁)
+  : comp_cat_dependent_prod C₂.
 Proof.
   revert C₁ C₂ F P.
   use J_2_0.
@@ -140,8 +140,8 @@ Definition has_dependent_products_adj_equiv_f
            {C₁ C₂ : dfl_full_comp_cat}
            {F : dfl_full_comp_cat_functor C₁ C₂}
            (HF : left_adjoint_equivalence F)
-           (P : has_dependent_products (cleaving_of_types C₁))
-  : has_dependent_products (cleaving_of_types C₂).
+           (P : comp_cat_dependent_prod C₁)
+  : comp_cat_dependent_prod C₂.
 Proof.
   exact (has_dependent_products_adj_equiv_f_help (F ,, HF) P).
 Qed.
@@ -150,9 +150,9 @@ Definition preserves_dependent_products_adj_equiv_help
            {C₁ C₂ : dfl_full_comp_cat}
            (F : adjoint_equivalence C₁ C₂)
            (F' := pr1 F : dfl_full_comp_cat_functor C₁ C₂)
-           (P₁ : has_dependent_products (cleaving_of_types C₁))
-           (P₂ : has_dependent_products (cleaving_of_types C₂))
-  : preserves_dependent_products (cartesian_comp_cat_type_functor F') P₁ P₂.
+           (P₁ : comp_cat_dependent_prod C₁)
+           (P₂ : comp_cat_dependent_prod C₂)
+  : preserves_comp_cat_dependent_prod F' P₁ P₂.
 Proof.
   unfold F' ; clear F'.
   revert C₁ C₂ F P₁ P₂.
@@ -163,40 +163,31 @@ Proof.
   intros C P₁ P₂.
   assert (P₁ = P₂) as q.
   {
-    apply isaprop_has_dependent_products.
+    apply isaprop_comp_cat_dependent_prod.
   }
   induction q.
-  refine (transportf
-            (λ z, preserves_dependent_products z _ _)
-            _
-            (id_preserves_dependent_products _)).
-  use subtypePath.
-  {
-    intro.
-    apply isaprop_is_cartesian_disp_functor.
-  }
-  apply idpath.
+  exact (id_preserves_comp_cat_dependent_prod _ _).
 Qed.
 
 Definition preserves_dependent_products_adj_equiv
            {C₁ C₂ : dfl_full_comp_cat}
            {F : dfl_full_comp_cat_functor C₁ C₂}
            (HF : left_adjoint_equivalence F)
-           (P₁ : has_dependent_products (cleaving_of_types C₁))
-           (P₂ : has_dependent_products (cleaving_of_types C₂))
-  : preserves_dependent_products (cartesian_comp_cat_type_functor F) P₁ P₂.
+           (P₁ : comp_cat_dependent_prod C₁)
+           (P₂ : comp_cat_dependent_prod C₂)
+  : preserves_comp_cat_dependent_prod F P₁ P₂.
 Proof.
   exact (preserves_dependent_products_adj_equiv_help (F ,, HF) P₁ P₂).
 Qed.
 
 Definition preserves_dependent_products_inv2cell
            {C D : dfl_full_comp_cat}
-           {PC : has_dependent_products (cleaving_of_types C)}
-           {PD : has_dependent_products (cleaving_of_types D)}
+           {PC : comp_cat_dependent_prod C}
+           {PD : comp_cat_dependent_prod D}
            (F G : dfl_full_comp_cat_functor C D)
            (τ : invertible_2cell G F)
-           (HF : preserves_dependent_products (cartesian_comp_cat_type_functor F) PC PD)
-  : preserves_dependent_products (cartesian_comp_cat_type_functor G) PC PD.
+           (HF : preserves_comp_cat_dependent_prod F PC PD)
+  : preserves_comp_cat_dependent_prod G PC PD.
 Proof.
   revert C D G F τ PC PD HF.
   use J_2_1.
@@ -209,17 +200,17 @@ Qed.
 
 Definition preserves_dependent_products_adj_equiv_inv2cell_help
            {C₁ C₂ D₁ D₂ : dfl_full_comp_cat}
-           {PC₁ : has_dependent_products (cleaving_of_types C₁)}
-           {PC₂ : has_dependent_products (cleaving_of_types C₂)}
-           {PD₁ : has_dependent_products (cleaving_of_types D₁)}
-           {PD₂ : has_dependent_products (cleaving_of_types D₂)}
+           {PC₁ : comp_cat_dependent_prod C₁}
+           {PC₂ : comp_cat_dependent_prod C₂}
+           {PD₁ : comp_cat_dependent_prod D₁}
+           {PD₂ : comp_cat_dependent_prod D₂}
            (F : dfl_full_comp_cat_functor C₁ D₁)
            (G : dfl_full_comp_cat_functor C₂ D₂)
            (EC : adjoint_equivalence C₁ C₂)
            (ED : adjoint_equivalence D₁ D₂)
            (τ : invertible_2cell (pr1 EC · G) (F · pr1 ED))
-           (HF : preserves_dependent_products (cartesian_comp_cat_type_functor F) PC₁ PD₁)
-  : preserves_dependent_products (cartesian_comp_cat_type_functor G) PC₂ PD₂.
+           (HF : preserves_comp_cat_dependent_prod F PC₁ PD₁)
+  : preserves_comp_cat_dependent_prod G PC₂ PD₂.
 Proof.
   revert C₁ C₂ EC D₁ D₂ ED F G τ PC₁ PC₂ PD₁ PD₂ HF.
   use J_2_0.
@@ -234,12 +225,12 @@ Proof.
   intros D F G τ PC₁ PC₂ PD₁ PD₂ HF.
   assert (PC₁ = PC₂) as q.
   {
-    apply isaprop_has_dependent_products.
+    apply isaprop_comp_cat_dependent_prod.
   }
   induction q.
   assert (PD₁ = PD₂) as q.
   {
-    apply isaprop_has_dependent_products.
+    apply isaprop_comp_cat_dependent_prod.
   }
   induction q.
   use preserves_dependent_products_inv2cell.
@@ -254,10 +245,10 @@ Qed.
 
 Definition preserves_dependent_products_adj_equiv_inv2cell
            {C₁ C₂ D₁ D₂ : dfl_full_comp_cat}
-           {PC₁ : has_dependent_products (cleaving_of_types C₁)}
-           {PC₂ : has_dependent_products (cleaving_of_types C₂)}
-           {PD₁ : has_dependent_products (cleaving_of_types D₁)}
-           {PD₂ : has_dependent_products (cleaving_of_types D₂)}
+           {PC₁ : comp_cat_dependent_prod C₁}
+           {PC₂ : comp_cat_dependent_prod C₂}
+           {PD₁ : comp_cat_dependent_prod D₁}
+           {PD₂ : comp_cat_dependent_prod D₂}
            (F : dfl_full_comp_cat_functor C₁ D₁)
            (G : dfl_full_comp_cat_functor C₂ D₂)
            {EC : C₁ --> C₂}
@@ -265,8 +256,8 @@ Definition preserves_dependent_products_adj_equiv_inv2cell
            {ED : D₁ --> D₂}
            (HED : left_adjoint_equivalence ED)
            (τ : invertible_2cell (EC · G) (F · ED))
-           (HF : preserves_dependent_products (cartesian_comp_cat_type_functor F) PC₁ PD₁)
-  : preserves_dependent_products (cartesian_comp_cat_type_functor G) PC₂ PD₂.
+           (HF : preserves_comp_cat_dependent_prod F PC₁ PD₁)
+  : preserves_comp_cat_dependent_prod G PC₂ PD₂.
 Proof.
   exact (preserves_dependent_products_adj_equiv_inv2cell_help
            F G
@@ -285,10 +276,13 @@ Proof.
   use make_disp_psfunctor_contr.
   - apply disp_2cells_iscontr_disp_bicat_of_pi_type_dfl_full_comp_cat.
   - refine (λ C H, _ ,, tt).
+    use make_comp_cat_dependent_prod_all.
     apply cod_dependent_products.
     exact (pr1 H).
-  - refine (λ C₁ C₂ F P₁ P₂ HF, _).
-    exact HF.
+  - abstract
+      (refine (λ C₁ C₂ F P₁ P₂ HF, tt ,, _) ; simpl ;
+       use preserves_comp_cat_dependent_prod_all ;
+       exact (pr2 HF)).
 Defined.
 
 (** * 3. The extended pseudofunctor from comprehension categories to categories *)
@@ -301,6 +295,7 @@ Proof.
   use make_disp_psfunctor_contr.
   - exact disp_2cells_iscontr_univ_lccc.
   - refine (λ C P, _ ,, tt).
+    (*
     exact (pr1 (has_dependent_products_adj_equiv_f
                   (finlim_dfl_comp_cat_counit_pointwise_equiv C)
                   (pr1 P))).
@@ -316,7 +311,8 @@ Proof.
     + exact (pr1 P₂).
     + exact (psnaturality_of finlim_dfl_comp_cat_counit F).
     + exact (pr2 HF).
-Defined.
+Defined.*)
+Admitted.
 
 (** * 4. The unit *)
 Definition finlim_dfl_comp_cat_unit_pi_types

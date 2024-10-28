@@ -799,3 +799,16 @@ Proof.
          intro ;
          apply isapropdirprod ; use impred ; intro ; apply homset_property).
 Defined.
+
+(**
+   This gives us a bicategorical proof that being a left adjooint is a proposition
+ *)
+Proposition isaprop_is_left_adjoint
+            {C₁ C₂ : univalent_category}
+            (F : C₁ ⟶ C₂)
+  : isaprop (is_left_adjoint F).
+Proof.
+  use (isofhlevelweqf _ (left_adjoint_weq_is_left_adjoint F)).
+  apply isaprop_left_adjoint.
+  exact univalent_cat_is_univalent_2_1.
+Qed.
