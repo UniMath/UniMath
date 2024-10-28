@@ -57,6 +57,7 @@ Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed.
 Require Import UniMath.CategoryTheory.LocallyCartesianClosed.Preservation.
+Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Univalence.
@@ -267,6 +268,16 @@ Proof.
 Qed.
 
 (** * 2. The extended pseudofunctor from categories to comprehension categories *)
+Definition finlim_comp_cat_dependent_prod
+           (C : univ_cat_with_finlim)
+           (H : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C))
+  : comp_cat_dependent_prod (finlim_to_comp_cat C).
+Proof.
+  use make_comp_cat_dependent_prod_all.
+  apply cod_dependent_products.
+  exact H.
+Defined.
+
 Definition finlim_biequiv_dfl_comp_cat_disp_psfunctor_pi_types
   : disp_psfunctor
       disp_bicat_univ_lccc
@@ -276,9 +287,7 @@ Proof.
   use make_disp_psfunctor_contr.
   - apply disp_2cells_iscontr_disp_bicat_of_pi_type_dfl_full_comp_cat.
   - refine (λ C H, _ ,, tt).
-    use make_comp_cat_dependent_prod_all.
-    apply cod_dependent_products.
-    exact (pr1 H).
+    exact (finlim_comp_cat_dependent_prod C (pr1 H)).
   - abstract
       (refine (λ C₁ C₂ F P₁ P₂ HF, tt ,, _) ; simpl ;
        use preserves_comp_cat_dependent_prod_all ;
@@ -286,6 +295,75 @@ Proof.
 Defined.
 
 (** * 3. The extended pseudofunctor from comprehension categories to categories *)
+Definition dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_ob
+           (C : dfl_full_comp_cat)
+           (P : comp_cat_dependent_prod C)
+  : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim (dfl_full_comp_cat_to_finlim C)).
+Proof.
+  use dfl_full_comp_cat_mor_ind.
+  intros Γ A ; simpl.
+  refine (is_left_adjoint_equivalence
+            _ _ _ _
+            (fiber_functor_natural_nat_z_iso _ _ (comp_cat_comprehension C) (π A))
+            (fiber_functor_comprehension_adj_equiv _ _)
+            (fiber_functor_comprehension_adj_equiv _ _)
+            (pr1 P Γ A)).
+  - apply is_univalent_fiber.
+    apply disp_univalent_category_is_univalent_disp.
+  - apply is_univalent_fiber.
+    apply disp_univalent_category_is_univalent_disp.
+  - apply is_univalent_cod_slice.
+  - apply is_univalent_cod_slice.
+Qed.
+
+Definition dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_mor
+           {C₁ C₂ : dfl_full_comp_cat}
+           {F : dfl_full_comp_cat_functor C₁ C₂}
+           (P₁ : comp_cat_dependent_prod C₁)
+           (P₂ : comp_cat_dependent_prod C₂)
+           (HF : preserves_comp_cat_dependent_prod F P₁ P₂)
+  : preserves_locally_cartesian_closed
+      (functor_finlim_preserves_pullback (dfl_functor_comp_cat_to_finlim_functor F))
+      (dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_ob C₁ P₁)
+      (dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_ob C₂ P₂).
+Proof.
+  assert (comp_cat_dependent_prod
+            (finlim_to_dfl_comp_cat (dfl_full_comp_cat_to_finlim C₁)))
+    as P₁'.
+  {
+    use finlim_comp_cat_dependent_prod.
+    apply dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_ob.
+    exact P₁.
+  }
+  assert (comp_cat_dependent_prod
+            (finlim_to_dfl_comp_cat (dfl_full_comp_cat_to_finlim C₂)))
+    as P₂'.
+  {
+    use finlim_comp_cat_dependent_prod.
+    apply dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_ob.
+    exact P₂.
+  }
+  pose proof (preserves_dependent_products_adj_equiv_inv2cell
+                F
+                (finlim_to_dfl_comp_cat_functor (dfl_functor_comp_cat_to_finlim_functor F))
+                (finlim_dfl_comp_cat_counit_pointwise_equiv C₁)
+                (finlim_dfl_comp_cat_counit_pointwise_equiv C₂)
+                (psnaturality_of finlim_dfl_comp_cat_counit F)
+                HF
+                (PC₂ := P₁')
+                (PD₂ := P₂'))
+    as HF'.
+  use dfl_full_comp_cat_mor_ind.
+  intros Γ A B.
+  use (preserves_comp_cat_dependent_prod_all_lemma _ _ _ _ (HF' Γ _ B)).
+  - apply is_univalent_fiber.
+    apply disp_univalent_category_is_univalent_disp.
+  - apply is_univalent_fiber.
+    apply disp_univalent_category_is_univalent_disp.
+  - apply is_univalent_cod_slice.
+  - apply is_univalent_cod_slice.
+Qed.
+
 Definition dfl_comp_cat_to_finlim_disp_psfunctor_pi_types
   : disp_psfunctor
       disp_bicat_of_pi_type_dfl_full_comp_cat
@@ -295,24 +373,11 @@ Proof.
   use make_disp_psfunctor_contr.
   - exact disp_2cells_iscontr_univ_lccc.
   - refine (λ C P, _ ,, tt).
-    (*
-    exact (pr1 (has_dependent_products_adj_equiv_f
-                  (finlim_dfl_comp_cat_counit_pointwise_equiv C)
-                  (pr1 P))).
+    exact (dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_ob C (pr1 P)).
   - intros C₁ C₂ F P₁ P₂ HF.
     refine (tt ,, _).
-    simpl.
-    use (preserves_dependent_products_adj_equiv_inv2cell
-           F
-           (finlim_to_dfl_comp_cat_functor (dfl_functor_comp_cat_to_finlim_functor F))
-           (finlim_dfl_comp_cat_counit_pointwise_equiv C₁)
-           (finlim_dfl_comp_cat_counit_pointwise_equiv C₂)).
-    + exact (pr1 P₁).
-    + exact (pr1 P₂).
-    + exact (psnaturality_of finlim_dfl_comp_cat_counit F).
-    + exact (pr2 HF).
-Defined.*)
-Admitted.
+    exact (dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_mor _ _ (pr2 HF)).
+Qed.
 
 (** * 4. The unit *)
 Definition finlim_dfl_comp_cat_unit_pi_types

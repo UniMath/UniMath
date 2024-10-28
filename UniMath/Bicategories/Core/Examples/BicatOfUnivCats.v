@@ -21,6 +21,7 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
+Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Require Import UniMath.Bicategories.Core.AdjointUnique.
 Require Import UniMath.Bicategories.Core.Univalence.
@@ -811,4 +812,81 @@ Proof.
   use (isofhlevelweqf _ (left_adjoint_weq_is_left_adjoint F)).
   apply isaprop_left_adjoint.
   exact univalent_cat_is_univalent_2_1.
+Qed.
+
+(**
+   With univalence we also get simple proofs that left adjoints are preserved under adjoint
+   equivalence in the arrow bicategory
+ *)
+Proposition is_left_adjoint_equivalence_help
+            {C₁ C₂ C₃ C₄ : bicat_of_univ_cats}
+            {F : C₁ --> C₂}
+            {G : C₃ --> C₄}
+            {E : adjoint_equivalence C₁ C₃}
+            {E' : adjoint_equivalence C₂ C₄}
+            (τ : invertible_2cell (E · G) (F · E'))
+            (HF : is_left_adjoint F)
+  : is_left_adjoint G.
+Proof.
+  revert C₁ C₃ E C₂ C₄ E' F G τ HF.
+  use J_2_0.
+  {
+    exact univalent_cat_is_univalent_2_0.
+  }
+  intro C₁.
+  use J_2_0.
+  {
+    exact univalent_cat_is_univalent_2_0.
+  }
+  intro C₂.
+  intros F G τ.
+  assert (invertible_2cell F G) as τ'.
+  {
+    exact (comp_of_invertible_2cell
+             (rinvunitor_invertible_2cell _)
+             (comp_of_invertible_2cell
+                (inv_of_invertible_2cell τ)
+                (linvunitor_invertible_2cell _))).
+  }
+  clear τ.
+  revert C₁ C₂ F G τ'.
+  use J_2_1.
+  {
+    exact univalent_cat_is_univalent_2_1.
+  }
+  intros C₁ C₂ F H.
+  exact H.
+Qed.
+
+Proposition is_left_adjoint_equivalence
+            {C₁ C₂ C₃ C₄ : category}
+            (HC₁ : is_univalent C₁)
+            (HC₂ : is_univalent C₂)
+            (HC₃ : is_univalent C₃)
+            (HC₄ : is_univalent C₄)
+            {F : C₁ ⟶ C₂}
+            {G : C₃ ⟶ C₄}
+            {E : C₁ ⟶ C₃}
+            {E' : C₂ ⟶ C₄}
+            (τ : nat_z_iso (E ∙ G) (F ∙ E'))
+            (HE : adj_equivalence_of_cats E)
+            (HE' : adj_equivalence_of_cats E')
+            (HF : is_left_adjoint F)
+  : is_left_adjoint G.
+Proof.
+  use (is_left_adjoint_equivalence_help
+         (C₁ := C₁ ,, HC₁)
+         (C₂ := C₂ ,, HC₂)
+         (C₃ := C₃ ,, HC₃)
+         (C₄ := C₄ ,, HC₄)).
+  - exact F.
+  - refine (E ,, _).
+    use equiv_cat_to_adj_equiv.
+    exact HE.
+  - refine (E' ,, _).
+    use equiv_cat_to_adj_equiv.
+    exact HE'.
+  - use nat_z_iso_to_invertible_2cell.
+    exact τ.
+  - exact HF.
 Qed.

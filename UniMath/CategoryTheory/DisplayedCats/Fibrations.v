@@ -2864,6 +2864,34 @@ End FiberFunctorNatural.
 
 Arguments fiber_functor_natural_data {C₁ C₂ F D₁ D₂} HD₁ HD₂ FF {x y} f /.
 
+Proposition fiber_functor_natural_nat_z_iso_eq
+            {C₁ C₂ : category}
+            {F : C₁ ⟶ C₂}
+            {D₁ : disp_cat C₁} {D₂ : disp_cat C₂}
+            (HD₁ : cleaving D₁) (HD₂ : cleaving D₂)
+            (FF : disp_functor F D₁ D₂)
+            (HFF₁ HFF₂ : is_cartesian_disp_functor FF)
+            {x y : C₁}
+            (f : y --> x)
+  : fiber_functor_natural_nat_z_iso HD₁ HD₂ (FF ,, HFF₁) f
+    =
+    fiber_functor_natural_nat_z_iso HD₁ HD₂ (FF ,, HFF₂) f.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    apply isaprop_is_nat_z_iso.
+  }
+  use nat_trans_eq.
+  {
+    apply homset_property.
+  }
+  intro xx ; cbn.
+  use (cartesian_factorisation_unique (HFF₁ _ _ _ _ _ _ (HD₁ x y f xx))).
+  rewrite !cartesian_factorisation_commutes.
+  apply idpath.
+Qed.
+
 (**
  Transformations between fiber functors from equalities
  *)
