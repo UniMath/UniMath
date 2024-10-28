@@ -5,16 +5,18 @@
 - Construction of monics in functor categories
 *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.covyoneda.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
-Require Import UniMath.CategoryTheory.Core.Functors.
 
 Local Open Scope cat.
 
@@ -44,6 +46,18 @@ Section def_monic.
   Definition Monic (y z : C) : UU := ∑ f : y --> z, isMonic f.
 
   Definition make_Monic {y z : C} (f : y --> z) (H : isMonic f) : Monic y z := tpair _ f H.
+
+  Definition Monic_eq
+    {x y : C}
+    (f g : Monic x y)
+    (H : pr1 f = pr1 g)
+    : f = g.
+  Proof.
+    apply subtypePath.
+    - intro.
+      apply isapropisMonic.
+    - exact H.
+  Qed.
 
   (** Gets the arrow out of Monic. *)
   Definition MonicArrow {y z : C} (M : Monic y z) : C⟦y, z⟧ := pr1 M.
@@ -156,7 +170,7 @@ Section monics_subcategory.
     subcategory_of_monics⟦subprecategory_of_monics_ob c', subprecategory_of_monics_ob c⟧ :=
     tpair _ f isM.
 
-  (*A morphism (f,,s) in subcategory_of_monics is a z_iso 
+  (*A morphism (f,,s) in subcategory_of_monics is a z_iso
   if the underlying morphism is also a z_iso,
   because the inverse must be monic.
   *)
@@ -189,6 +203,54 @@ Section monics_subcategory.
     + use (isaprop_is_z_isomorphism).
     + use (isaprop_is_z_isomorphism).
   Defined.
+
+  Definition iso_in_subcategory_of_monics_weq (a b : subcategory_of_monics)
+    : z_iso (pr1 a) (pr1 b) ≃ z_iso a b.
+  Proof.
+    use weq_iso.
+    - intro f.
+      use (make_z_iso _ _ (make_dirprod _ _)).
+      + exact (is_iso_Monic _ _ (pr2 f)).
+      + exact (is_iso_Monic _ _ (pr2 (z_iso_inv f))).
+      + abstract apply Monic_eq, (z_iso_inv_after_z_iso f).
+      + abstract apply Monic_eq, (z_iso_after_z_iso_inv f).
+    - intro f.
+      exact (_ ,, invmap (is_z_iso_in_subcategory_of_monics_weq _ _ _) (pr2 f)).
+    - abstract (
+        intro f;
+        apply z_iso_eq;
+        reflexivity
+      ).
+    - abstract (
+        intro f;
+        apply z_iso_eq;
+        apply Monic_eq;
+        reflexivity
+      ).
+  Defined.
+
+  Definition monics_subcategory_paths_weq (a b : subcategory_of_monics)
+    : (a = b) ≃ (pr1 a = pr1 b).
+  Proof.
+    apply (weqonpaths (total2_contr (λ _, unit) (λ _, iscontrunit))).
+  Defined.
+
+  Lemma is_univalent_monics_cat
+    (H : is_univalent C)
+    : is_univalent subcategory_of_monics.
+  Proof.
+    intros a b.
+    use weqhomot.
+    - refine (iso_in_subcategory_of_monics_weq _ _ ∘ _)%weq.
+      refine (make_weq _ (H _ _) ∘ _)%weq.
+      refine (monics_subcategory_paths_weq _ _).
+    - intro x.
+      induction x.
+      apply z_iso_eq.
+      apply Monic_eq.
+      reflexivity.
+  Qed.
+
 End monics_subcategory.
 
 
@@ -206,6 +268,31 @@ Section monics_functorcategories.
       set (H'' := nat_trans_eq_pointwise H' x). cbn in H''.
       apply (H x) in H''.
       exact H''.
+  Qed.
+
+  Lemma presheaf_monic_isincl
+    {C : category}
+    {F G : C ⟶ HSET}
+    {α : F ⟹ G}
+    (H : isMonic (C := [_, _]) α)
+    (X : C)
+    : isincl (α X).
+  Proof.
+    apply (invmap (incl_injectivity _)).
+    intros x y.
+    refine (pr2 (weqiff (_ ,, _) (setproperty _ _ _) (setproperty _ _ _))).
+    intro Hxy.
+    do 2 refine (!maponpaths (λ (f : HSET⟦_, _⟧), f _) (functor_id F _) @ !_).
+    refine (eqtohomot (nat_trans_eq_pointwise
+        (H _ (invmap (covyoneda_weq _ X F) x) (invmap (covyoneda_weq _ X F) y) _)
+      X) (identity _)).
+    apply nat_trans_eq_alt.
+    intro Y.
+    apply funextfun.
+    intro f.
+    do 2 refine (maponpaths (λ (f : HSET⟦_, _⟧), f _) (nat_trans_ax _ _ _ _) @ !_).
+    apply (maponpaths (λ x, # G f x)).
+    exact Hxy.
   Qed.
 
 End monics_functorcategories.
