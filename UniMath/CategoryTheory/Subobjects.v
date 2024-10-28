@@ -24,6 +24,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.slicecat.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
@@ -42,10 +43,14 @@ Section def_subobjects.
     slice_cat (subcategory_of_monics C)
                  (subprecategory_of_monics_ob C c).
 
-  Lemma has_homsets_Subobjectscategory (c : C) :
-    has_homsets (Subobjectscategory c).
+  Lemma is_univalent_Subobjectscategory
+    (H : is_univalent C)
+    (c : C)
+    : is_univalent (Subobjectscategory c).
   Proof.
-  apply has_homsets_slice_precat.
+    apply is_univalent_slicecat.
+    apply is_univalent_monics_cat.
+    exact H.
   Qed.
 
   (** Construction of a subobject from a monic *)
