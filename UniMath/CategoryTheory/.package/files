@@ -245,7 +245,8 @@ Categories/Intdom.v
 Categories/Fld.v
 Categories/Module.v
 Categories/StandardCategories.v
-Categories/PreorderCategories.v
+Categories/PreorderCategory/Core.v
+Categories/PreorderCategory/Sieves.v
 Categories/MonoidToCategory.v
 
 Limits/Examples/UnitCategoryLimits.v
@@ -277,13 +278,22 @@ Categories/Woset.v
 Categories/Graph.v
 Categories/CGraph.v
 
-GrothendieckTopos.v
 Presheaf.v
 ElementsOp.v
 elems_slice_equiv.v
 YonedaBinproducts.v
 YonedaExponentials.v
 ExponentiationLeftAdjoint.v
+
+GrothendieckToposes/Sieves.v
+GrothendieckToposes/Topologies.v
+GrothendieckToposes/Sites.v
+GrothendieckToposes/Sheaves.v
+GrothendieckToposes/Toposes.v
+GrothendieckToposes/Examples/TerminalSheaf.v
+GrothendieckToposes/Examples/EmptySieve.v
+GrothendieckToposes/Examples/DiscreteTopology.v
+GrothendieckToposes/Examples/IndiscreteTopology.v
 
 Connected.v
 LeftKanExtension.v
