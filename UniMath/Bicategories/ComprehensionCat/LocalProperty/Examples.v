@@ -58,6 +58,9 @@
  8. Pretoposes
  9. Subobject classifiers
  10. Elementary toposes
+ 11. Parameterized natural number objects
+ 12. Arithmetic universes
+ 13. Elementary toposes with a natural numbers object
 
  **************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -69,6 +72,7 @@ Require Import UniMath.CategoryTheory.RegularAndExact.RegularEpi.
 Require Import UniMath.CategoryTheory.RegularAndExact.RegularEpiFacts.
 Require Import UniMath.CategoryTheory.RegularAndExact.RegularCategory.
 Require Import UniMath.CategoryTheory.RegularAndExact.ExactCategory.
+Require Import UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
@@ -81,6 +85,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.ColimitProperties.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodRegular.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodSubobjectClassifier.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodNNO.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
@@ -657,3 +662,86 @@ Definition topos_local_property
   := local_property_conj
        pretopos_local_property
        subobject_classifier_local_property.
+
+(** * 11. Parameterized natural number objects *)
+Definition parameterized_NNO_cat_property_data
+  : cat_property_data.
+Proof.
+  use make_cat_property_data.
+  - exact (λ C, parameterized_NNO
+                  (terminal_univ_cat_with_finlim C)
+                  (binproducts_univ_cat_with_finlim C)).
+  - exact (λ C₁ C₂ N₁ N₂ F,
+           preserves_parameterized_NNO
+             N₁ N₂
+             F
+             (functor_finlim_preserves_terminal F)).
+Defined.
+
+Proposition cat_property_laws_parameterized_NNO
+  : cat_property_laws parameterized_NNO_cat_property_data.
+Proof.
+  repeat split.
+  - intro C.
+    apply isaprop_parameterized_NNO.
+  - intros.
+    apply isaprop_preserves_parameterized_NNO.
+  - intros C N.
+    apply id_preserves_parameterized_NNO.
+  - intros C₁ C₂ C₃ N₁ N₂ N₃ F G HF HG.
+    exact (comp_preserves_parameterized_NNO HF HG).
+Qed.
+
+Definition parameterized_NNO_cat_property
+  : cat_property.
+Proof.
+  use make_cat_property.
+  - exact parameterized_NNO_cat_property_data.
+  - exact cat_property_laws_parameterized_NNO.
+Defined.
+
+Proposition is_local_property_parameterized_NNO
+  : is_local_property parameterized_NNO_cat_property.
+Proof.
+  use make_is_local_property.
+  - intros C x N.
+    exact (parameterized_NNO_prod_independent
+             (C := slice_univ_cat_with_finlim x)
+             _
+             (slice_parameterized_NNO N (pullbacks_univ_cat_with_finlim C) x)).
+  - intros C N x y f ; cbn.
+    use (preserves_parameterized_NNO_prod_independent
+             (C₁ := slice_univ_cat_with_finlim y)
+             (C₂ := slice_univ_cat_with_finlim x)).
+    apply slice_parameterized_NNO_stable.
+  - intros C₁ C₂ N₁ N₂ F HF x.
+    use (preserves_parameterized_NNO_prod_independent
+             (C₁ := slice_univ_cat_with_finlim x)
+             (C₂ := slice_univ_cat_with_finlim (F x))).
+    use codomain_functor_preserves_parameterized_NNO.
+    + apply functor_finlim_preserves_terminal.
+    + apply functor_finlim_preserves_binproduct.
+    + exact HF.
+Qed.
+
+Definition parameterized_NNO_local_property
+  : local_property.
+Proof.
+  use make_local_property.
+  - exact parameterized_NNO_cat_property.
+  - exact is_local_property_parameterized_NNO.
+Defined.
+
+(** * 12. Arithmetic universes *)
+Definition pretopos_with_nat_local_property
+  : local_property
+  := local_property_conj
+       pretopos_local_property
+       parameterized_NNO_local_property.
+
+(** * 13. Elementary toposes with a natural numbers object *)
+Definition topos_with_NNO_local_property
+  : local_property
+  := local_property_conj
+       topos_local_property
+       parameterized_NNO_local_property.
