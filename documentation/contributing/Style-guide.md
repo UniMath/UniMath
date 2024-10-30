@@ -6,8 +6,6 @@
 * Structure your proof with [bullets](https://coq.inria.fr/refman/proofs/writing-proofs/proof-mode.html#bullets). An occasional proof part with curly braces is okay, but preferably use bullets. The first three levels are `-`, `+` and `*`. If you need more levels, start with `--` (or maybe `**`), but at that point you should probably start splitting up your proof.
 * Minimize your imports: When you create a commit or PR in which you have added `Require Import` statements to a file, or (re)moved code, check that all involved import statements are indeed used or useful. For larger changes, [JasonGross has created a tool](https://github.com/JasonGross/coq-tools) which can come in handy. However, always verify the outcome, because some redundant imports are still good to have (see [this discussion](https://github.com/UniMath/UniMath/issues/1664) for more details).
 
-(see also [UniMath/README.md](https://github.com/UniMath/UniMath/blob/master/UniMath/README.md))
-
 ## Naming
 Here is a couple of guidelines for naming different things:
 * Names of files, directories and sections should be `CamelCase`.
