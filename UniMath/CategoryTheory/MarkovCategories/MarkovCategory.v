@@ -247,6 +247,47 @@ Section Marginals.
     apply copy_del_l.
   Qed.
 
+  Proposition sym_mon_braiding_proj1 {x y : C} : sym_mon_braiding _ x y · proj1 = proj2.
+  Proof.
+    unfold proj1.
+    rewrite !assoc.
+    rewrite <- tensor_sym_mon_braiding.
+    rewrite !assoc'.
+    rewrite sym_mon_braiding_runitor.
+    reflexivity.
+  Qed.
+
+  Proposition sym_mon_braiding_proj2 {x y : C} : sym_mon_braiding _ x y · proj2 = proj1.
+  Proof.
+    unfold proj2.
+    rewrite !assoc.
+    rewrite <- tensor_sym_mon_braiding.
+    rewrite !assoc'.
+    rewrite sym_mon_braiding_lunitor.
+    reflexivity.
+  Qed.
+
+
+  Proposition proj1_tensor {x' x y : C} (f : x' --> x) : (identity y #⊗ f) · proj1 = proj1.
+  Proof.
+    unfold proj1.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite <- tensor_comp_id_l.
+    rewrite del_natural.
+    reflexivity.
+  Qed.
+
+  Proposition proj2_tensor {x' x y : C} (f : x' --> x) : (f #⊗ identity y) · proj2 = proj2.
+  Proof.
+    unfold proj2.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite <- tensor_comp_id_r.
+    rewrite del_natural.
+    reflexivity.
+  Qed.
+
   Proposition proj2_naturality {x y z w : C}
                                {f : y ⊗ z --> w} :
     (proj2 #⊗ identity z) · f
@@ -312,6 +353,22 @@ Section PairingProperties.
   Proof.
     rewrite pairing_tensor.
     rewrite id_right.
+    reflexivity.
+  Qed.
+
+  Proposition pairing_split_l {a x y : C} (f : a --> x) (g : a --> y) :
+      ⟨f,g⟩ = ⟨f, identity _⟩ · (identity _ #⊗ g).
+  Proof.
+    rewrite pairing_tensor_l.
+    rewrite id_left.
+    reflexivity.
+  Qed.
+
+  Proposition pairing_split_r {a x y : C} (f : a --> x) (g : a --> y) :
+      ⟨f,g⟩ = ⟨identity _, g⟩ · (f #⊗ identity _).
+  Proof.
+    rewrite pairing_tensor_r.
+    rewrite id_left.
     reflexivity.
   Qed.
 
