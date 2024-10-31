@@ -1,10 +1,10 @@
 (*********************************************
 Determinism
 
-We give the definition of deterministic morphisms in a Markov category, 
-Table and prove basic examples and. 
+In this file, we provide the definition of a deterministic morphisms in a Markov category.
+We give proofs of determinism of all structure morphisms and show other examples and lemmas.
 
-lemmas of Contents
+Table of Contents
 1. Definition of Determinism
 2. Examples and Properies
 

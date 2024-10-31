@@ -1,6 +1,9 @@
 (*********************************************
 Probability Spaces and Couplings
 
+We define the categories of probability spaces and couplings over a Markov category with conditionals, 
+and show that they are equivalent as dagger categories.
+
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
 **********************************************)

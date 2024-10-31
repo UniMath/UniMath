@@ -6,7 +6,7 @@ This file contains the basic definitions of the theory of Markov categories.
 Table of Contents
 1. Definition of Markov categories
 2. Projections
-3. Notations and helpers (marginals, pairing, cancellation properties)
+3. Notations and Helper functions (projections, pairing, cancellation properties)
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics'

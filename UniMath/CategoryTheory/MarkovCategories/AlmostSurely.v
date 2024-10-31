@@ -1,7 +1,10 @@
 (*********************************************
-Almost-sure equality
+Almost-sure Equality
 
-We define almost-sure equality and prove some lemmas about it.
+In this file, we define the notion almost-sure equality and prove basic lemmas about it.
+
+Some useful properties of almost-sure equality only hold when assuming certain axioms such as causality. 
+Those properties are proved in InformationFlowAxioms.v
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 

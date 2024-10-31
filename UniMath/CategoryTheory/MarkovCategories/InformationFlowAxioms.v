@@ -1,12 +1,10 @@
 (*********************************************
 Information Flow Axioms
 
-We give definitions for relevant information flow axioms in Markov categories, such as
-- causality
-- relative positivity
-- positivity
-- the deterministic marginal property
-and prove their various implications.
+In this file, we provide definitions for various information flow axioms in Markov categories, such as
+1. causality
+2. positivity
+We establish various implications between the axioms, such as causality => positivity => all isomorphisms are deterministic.
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics'

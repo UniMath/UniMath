@@ -277,7 +277,7 @@ Section Couplings.
     
   Definition identity_coupling {x : C} (p : I_{C} --> x) : I_{C} --> x ⊗ x := p · copy x.
 
-  Proposition identity_coupling_proj1 {x : C} (p : I_{C} --> x) : identity_coupling p · proj1 = p.
+  Proposition identity_coupling_dom {x : C} (p : I_{C} --> x) : identity_coupling p · proj1 = p.
   Proof.
     unfold identity_coupling.
     rewrite <- assoc.
@@ -286,7 +286,7 @@ Section Couplings.
     reflexivity.
   Qed.
 
-  Proposition identity_coupling_proj2 {x : C} (p : I_{C} --> x) : identity_coupling p · proj2 = p.
+  Proposition identity_coupling_cod {x : C} (p : I_{C} --> x) : identity_coupling p · proj2 = p.
   Proof.
     unfold identity_coupling.
     rewrite <- assoc.
@@ -300,7 +300,7 @@ Section Couplings.
     coupling_composition (identity_coupling p) β = β.
   Proof.
     assert (e2 : p = β · proj1).
-    { rewrite <- e. rewrite identity_coupling_proj2. reflexivity. }
+    { rewrite <- e. rewrite identity_coupling_cod. reflexivity. }
     rewrite coupling_composition_eq2 ; [ | assumption ].
     unfold identity_coupling.
     rewrite <- assoc.
@@ -314,7 +314,7 @@ Section Couplings.
     coupling_composition β (identity_coupling p) = β.
   Proof.
     assert (e2 : p = β · proj2).
-    { rewrite e. rewrite identity_coupling_proj1. reflexivity. }
+    { rewrite e. rewrite identity_coupling_dom. reflexivity. }
     rewrite coupling_composition_eq3 ; [ | assumption ].
     unfold identity_coupling.
     rewrite <- assoc.

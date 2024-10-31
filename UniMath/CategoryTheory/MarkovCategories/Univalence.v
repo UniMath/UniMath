@@ -1,7 +1,8 @@
 (*********************************************
 Univalence 
 
-We define what it means for a Markov category to be univalent
+We define what it means for a Markov category to be univalent,
+i.e. equality of objects is equivalent to deterministic isomorphism.
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
