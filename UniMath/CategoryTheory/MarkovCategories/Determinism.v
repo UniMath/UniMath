@@ -376,4 +376,13 @@ Section ExamplesAndProperties.
     apply idpath.
   Qed.
 
+  Proposition is_deterministic_pairing {a x y : C} (f : a --> x) (g : a --> y)
+    (df : is_deterministic f) (dg : is_deterministic g) : is_deterministic ⟨f, g⟩. 
+  Proof.
+    unfold pairing.
+    apply is_deterministic_composition.
+    - apply is_deterministic_copy.
+    - apply is_deterministic_tensor ; assumption.
+  Qed.
+
 End ExamplesAndProperties.

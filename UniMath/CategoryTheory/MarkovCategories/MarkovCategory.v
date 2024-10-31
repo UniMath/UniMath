@@ -319,13 +319,21 @@ End Marginals.
 
 (* We define pairing notation ⟨f,g⟩ *)
 
-Notation "⟨ f , g ⟩" := (copy _ · (f #⊗ g)).
+Definition pairing {C : markov_category} {a x y : C} (f : a --> x) (g : a --> y) : a --> x ⊗ y := copy a · (f #⊗ g).
+
+Notation "⟨ f , g ⟩" := (pairing f g).
 
 Section PairingProperties.
   Context {C : markov_category}.
 
+  Proposition pairing_eq {a x y : C} (f : a --> x) (g : a --> y) : ⟨ f , g ⟩ = copy a · (f #⊗ g).
+  Proof.
+    reflexivity.
+  Qed.
+
   Proposition pairing_id {x : C} : ⟨identity x, identity x⟩ = copy x.
   Proof.
+    unfold pairing.
     rewrite tensor_id_id, id_right.
     reflexivity.
   Qed.
@@ -334,6 +342,7 @@ Section PairingProperties.
                                                (f2 : x --> x2) (g2 : y --> y2) :
     ⟨f,g⟩ · (f2 #⊗ g2) = ⟨f · f2, g · g2⟩.
   Proof.
+    unfold pairing.
     rewrite <- assoc, <- tensor_comp_mor.
     reflexivity.
   Qed.
@@ -382,6 +391,7 @@ Section PairingProperties.
     etrans.
     { rewrite <- (id_left f).
       rewrite <- (id_right (del a)).
+      unfold pairing.
       rewrite tensor_comp_mor.
       rewrite assoc.
       rewrite copy_del_r_ex.
@@ -404,6 +414,7 @@ Section PairingProperties.
     etrans.
     { rewrite <- (id_left g).
       rewrite <- (id_right (del a)).
+      unfold pairing.
       rewrite tensor_comp_mor.
       rewrite assoc.
       rewrite copy_del_l_ex.
@@ -419,6 +430,7 @@ Section PairingProperties.
   Proposition pairing_sym_mon_braiding {a x y : C} (f : a --> x) (g : a --> y) :
     ⟨f,g⟩ · sym_mon_braiding _ _ _ = ⟨g,f⟩.
   Proof.
+    unfold pairing.
     rewrite <- assoc.
     rewrite tensor_sym_mon_braiding.
     rewrite assoc.
@@ -431,7 +443,9 @@ Section PairingProperties.
    : ⟨⟨f,g⟩,h⟩ · mon_lassociator _ _ _ = ⟨f,⟨g,h⟩⟩.
   Proof.
     rewrite <- (id_left h).
+    rewrite (pairing_eq f g).
     rewrite <- pairing_tensor.
+    unfold pairing.
     rewrite copy_assoc.
     rewrite !assoc'.
     rewrite tensor_lassociator.

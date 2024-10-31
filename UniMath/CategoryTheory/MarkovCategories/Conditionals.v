@@ -76,6 +76,7 @@ Lemma auxcoh {C : markov_category} {x y : C} (f : I_{C} --> x ⊗ x) (g : x ⊗ 
      ⟨f, identity _⟩ · mon_lassociator _ _ _ · (identity _ #⊗ g) 
    = f · (identity _ #⊗ (mon_rinvunitor _ · g)).
 Proof.
+  unfold pairing.
   rewrite copy_I_mon_rinvunitor.
   rewrite <- tensor_rinvunitor.
   rewrite <- !assoc.
@@ -110,7 +111,9 @@ Section ConditionalDistributions.
   Proof.
     unfold conditional_distribution_1. 
     etrans. { apply (conditional_eq p). }
+    rewrite <- pairing_eq.
     rewrite auxcoh.
+    unfold pairing.
     rewrite assoc.
     reflexivity.
   Qed.
@@ -181,7 +184,7 @@ Section ConstructionBayesianInverse.
       reflexivity. }
     rewrite Aux1 in K.
     clear Aux1.
-
+    rewrite <- pairing_eq in K.
     rewrite auxcoh in K.
     unfold phi in K.
     rewrite <- assoc in K.
@@ -439,9 +442,8 @@ Section ConditionalsImplyPositivity.
     rewrite proj2_naturality.
     rewrite assoc, assoc.
     
-    assert(A2 : ⟨identity z, identity z⟩ = copy z). 
-    { rewrite tensor_id_id, id_right. reflexivity. }
-    rewrite A2.
+    rewrite pairing_id.
+    unfold pairing.
     rewrite <- K.
     rewrite psi_2.
     reflexivity.
@@ -451,6 +453,7 @@ Section ConditionalsImplyPositivity.
   Proof. 
     rewrite K.
     rewrite det_fg.
+    rewrite <- !pairing_eq.
     rewrite <- pairing_rassociator.
     transitivity (⟨ f · g, ⟨ f · g, identity x ⟩ ⟩ 
                   · (mon_rassociator z z x · mon_lassociator z z x)

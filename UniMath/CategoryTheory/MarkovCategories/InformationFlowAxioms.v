@@ -120,17 +120,15 @@ Section ImplicationsBetweenAxioms.
     pose (g := inv_from_z_iso f).
 
     transitivity (f · ⟨identity _ , identity _⟩).
-    { rewrite tensor_id_id, id_right. reflexivity. }
+    { rewrite pairing_id. reflexivity. }
     transitivity (f · ⟨identity _, g · f⟩).
     { unfold g. rewrite z_iso_after_z_iso_inv. reflexivity. } 
     etrans. 
-    { rewrite tensor_comp_id_l.
+    { Search pairing.
+      rewrite <- pairing_tensor_l.
       rewrite !assoc.
-      assert (aux : f · copy y · identity y #⊗ g = f · ⟨identity y , g⟩).
-      { rewrite assoc. reflexivity. }
-      rewrite aux.
       rewrite positivity.
-      { rewrite <- assoc, <- tensor_comp_mor, id_right.
+      { rewrite pairing_tensor_l.
         unfold g.
         rewrite z_iso_inv_after_z_iso, id_left.
         reflexivity.

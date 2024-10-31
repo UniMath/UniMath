@@ -75,7 +75,6 @@ Section PropertiesAlmostSurely.
     rewrite <- (id_left (identity x)).
     rewrite <- !pairing_tensor.
     rewrite !assoc.
-    rewrite !assoc in e.
     rewrite e.
     reflexivity.
   Qed.
