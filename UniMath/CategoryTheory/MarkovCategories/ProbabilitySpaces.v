@@ -1,8 +1,9 @@
 (*********************************************
-Probability Spaces and Couplings
+Probability Spaces
 
-We define the categories of probability spaces and couplings over a Markov category with conditionals, 
-and show that they are equivalent as dagger categories.
+We define the categories of probability spaces over a causal Markov category C.
+If C has conditionals, then this category becomes a dagger category, 
+and is equivalent as a dagger category to the category of couplings from Couplings.v
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
@@ -100,7 +101,6 @@ Section ProbabilitySpaces.
       apply ase_states_cong.
   Defined.   
     
-
   Definition prob_space : category.
   Proof.
     use mor_quot_category.
@@ -109,6 +109,3 @@ Section ProbabilitySpaces.
   Defined.
 
 End ProbabilitySpaces.
-
-
-
