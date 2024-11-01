@@ -465,6 +465,8 @@ Proof.
   - exact (is_inverse_in_precat_comp H1 H2).
 Defined.
 
+Arguments is_z_isomorphism_comp {C a b c f1 f2} H1 H2 /.
+
 Definition is_z_isomorphism_identity {C : precategory} (c : C) : is_z_isomorphism (identity c).
 Proof.
   use make_is_z_isomorphism.
