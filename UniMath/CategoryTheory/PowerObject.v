@@ -338,7 +338,7 @@ Definition PowerObject_charname_nattrans := nat_trans_comp _ _ _ idxT_whiskered_
 Definition PowerObject_charname_is_nat_z_iso : is_nat_z_iso PowerObject_charname_nattrans.
 Proof.
   intro c.
-  use is_z_iso_comp_of_is_z_isos.
+  use is_z_isomorphism_comp.
   + generalize c.
     use post_whisker_z_iso_is_z_iso.
     use op_nt_is_z_iso.

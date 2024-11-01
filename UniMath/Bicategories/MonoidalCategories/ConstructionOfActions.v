@@ -90,7 +90,7 @@ Proof.
   exists reindexed_action_right_unitor_nat_trans.
   intro.
   cbn.
-  use is_z_iso_comp_of_is_z_isos.
+  use is_z_isomorphism_comp.
   2: { exact (pr2 (act_ϱ actA) c). }
   - use is_z_iso_odot_z_iso.
     + exact (identity_is_z_iso _ ).
@@ -109,7 +109,7 @@ Proof.
   exists reindexed_action_convertor_nat_trans.
   intro x.
   pose (k := ob1 (ob1 x)); pose (k' := ob2 (ob1 x)); pose (k'' := ob2 x).
-  use is_z_iso_comp_of_is_z_isos.
+  use is_z_isomorphism_comp.
   - exact (pr2 (act_χ actA) ((k, U k'), U k'')).
   - use is_z_iso_odot_z_iso.
     + use identity_is_z_iso.

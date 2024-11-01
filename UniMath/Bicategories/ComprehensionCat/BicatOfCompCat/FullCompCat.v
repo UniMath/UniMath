@@ -107,7 +107,7 @@ Proof.
     apply identity_is_z_iso.
   - intros C₁ C₂ C₃ P₁ P₂ P₃ F G H₁ H₂ x xx.
     cbn.
-    use is_z_iso_comp_of_is_z_isos.
+    use is_z_isomorphism_comp.
     + apply (functor_on_z_iso _ (_ ,, H₁ x xx)).
     + apply H₂.
 Defined.
