@@ -223,7 +223,7 @@ Section EnrichedPowers.
       refine (transportf
                 is_z_isomorphism
                 _
-                (is_z_iso_comp_of_is_z_isos _ _ (postcomp_arr_is_z_iso E w _ (pr2 f)) (Ha w))).
+                (is_z_isomorphism_comp (postcomp_arr_is_z_iso E w _ (pr2 f)) (Ha w))).
       unfold postcomp_arr, is_power_enriched_map.
       cbn.
       use internal_funext.
