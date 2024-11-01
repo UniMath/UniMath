@@ -537,7 +537,7 @@ Section EssentiallySurjectiveIsEso.
       - exact essentially_surjective_is_eso_lift_left_nat_trans.
       - intro.
         use (fully_faithful_reflects_iso_proof _ _ _ HG' _ _ (make_z_iso' _ _)).
-        use is_z_iso_comp_of_is_z_isos.
+        use is_z_isomorphism_comp.
         + apply z_iso_is_z_isomorphism.
         + apply is_z_iso_inv_from_z_iso.
     Defined.
