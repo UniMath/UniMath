@@ -16,7 +16,7 @@ This method has some advantages:
 4. It makes possible to uninstall cleanly all the software.
 
 The main disadvantage of this method is that it is not the most used
-(see [INSTALL.md](https://github.com/UniMath/UniMath/blob/master/INSTALL.md))
+(see [Install.md](./Install.md))
 and it is not very well tested at the moment.
 
 ## Installation step-by-step
