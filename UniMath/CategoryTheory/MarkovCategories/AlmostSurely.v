@@ -31,9 +31,41 @@ Section DefAlmostSurely.
   Definition equal_almost_surely {a x y : C} (p : a --> x) (f g : x --> y) : UU
     := p · ⟨identity _, f⟩ = p · ⟨identity _, g⟩.
 
+  Proposition equal_almost_surely_r {a x y : C} (p : a --> x) (f g : x --> y) :
+    equal_almost_surely p f g -> p · ⟨identity _, f⟩ = p · ⟨identity _, g⟩.
+  Proof. 
+    intros e. rewrite e. reflexivity.
+  Qed.
+
+  Proposition equal_almost_surely_l {a x y : C} (p : a --> x) (f g : x --> y) :
+    equal_almost_surely p f g -> p · ⟨f, identity _⟩ = p · ⟨g, identity _⟩.
+  Proof. 
+    intros e.
+    apply cancel_braiding.
+    rewrite !assoc', !pairing_sym_mon_braiding.
+    apply equal_almost_surely_r.
+    assumption.
+  Qed.
+    
+  Proposition make_equal_almost_surely_r {a x y : C} (p : a --> x) (f g : x --> y) :
+    p · ⟨identity _, f⟩ = p · ⟨identity _, g⟩ -> equal_almost_surely p f g.
+  Proof. 
+    intros e.
+    exact e.
+  Qed.
+
+  Proposition make_equal_almost_surely_l {a x y : C} (p : a --> x) (f g : x --> y) :
+    p · ⟨f, identity _⟩ = p · ⟨g, identity _⟩ -> equal_almost_surely p f g.
+  Proof. 
+    intros e.
+    apply cancel_braiding.
+    rewrite !assoc', !pairing_sym_mon_braiding.
+    assumption.
+  Qed.
+
   Proposition isaprop_ase {a x y : C} (p : a --> x) (f g : x --> y) : isaprop (equal_almost_surely p f g).
   Proof. 
-  apply homset_property.
+    apply homset_property.
   Qed.  
 
 End DefAlmostSurely.
