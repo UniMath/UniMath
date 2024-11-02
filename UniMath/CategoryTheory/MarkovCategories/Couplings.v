@@ -69,8 +69,7 @@ Proof.
   exact (pr22 γ).
 Defined.
 
-
-Section CouplingCompositionRaw.
+Section CouplingCompositionLemmas.
   Context {C : markov_category_with_conditionals}.
 
   (* 
@@ -259,14 +258,179 @@ Section CouplingCompositionRaw.
     reflexivity.
   Qed.
 
-End CouplingCompositionRaw.
+End CouplingCompositionLemmas.
+
+
+Section CouplingDaggerLemmas.
+  Context {C : markov_category_with_conditionals}.
+
+  Definition coupling_dagger {x y : C} 
+          (γ : I_{C} --> x ⊗ y) : I_{C} --> y ⊗ x := γ · sym_mon_braiding _ _ _.
+
+  Proposition coupling_dagger_dom {x y : C} (γ : I_{C} --> x ⊗ y) :
+      coupling_dagger γ · proj1 = γ · proj2.
+  Proof.
+    unfold coupling_dagger.
+    rewrite assoc', sym_mon_braiding_proj1.
+    reflexivity.
+  Qed.
+
+  Proposition coupling_dagger_cod {x y : C} (γ : I_{C} --> x ⊗ y) :
+      coupling_dagger γ · proj2 = γ · proj1.
+  Proof.
+    unfold coupling_dagger.
+    rewrite assoc', sym_mon_braiding_proj2.
+    reflexivity.
+  Qed.
+
+  Proposition coupling_dagger_involution {x y : C} (γ : I_{C} --> x ⊗ y) :
+    coupling_dagger (coupling_dagger γ) = γ.
+  Proof.
+    unfold coupling_dagger.
+    rewrite assoc'.
+    rewrite sym_mon_braiding_inv.
+    rewrite id_right.
+    reflexivity.
+  Qed.
+
+  Proposition dagger_identity_coupling {x : C} {p : I_{C} --> x} :
+      coupling_dagger (identity_coupling p) = identity_coupling p.
+  Proof.
+    unfold coupling_dagger, identity_coupling.
+    rewrite assoc', copy_comm.
+    reflexivity.
+  Qed.
+
+  Proposition dagger_coupling_composition {x y z : C} 
+          (β : I_{C} --> x ⊗ y) (γ : I_{C} --> y ⊗ z)
+          (e : β · proj2 = γ · proj1) :
+      coupling_composition (coupling_dagger γ) (coupling_dagger β) 
+    = coupling_dagger (coupling_composition β γ).
+  Proof.
+    assert(compat : coupling_dagger γ · proj2 = coupling_dagger β · proj1).
+    { rewrite coupling_dagger_dom, coupling_dagger_cod, e.
+      reflexivity. }
+
+    assert(def_cond : (β · sym_mon_braiding C x y)|1 = β|2).
+    { reflexivity. }
+
+    etrans. 
+    { rewrite coupling_composition_eq2; [ | assumption ].
+      unfold coupling_dagger.
+      rewrite assoc'.
+      rewrite <- tensor_sym_mon_braiding.
+      rewrite def_cond.
+      rewrite assoc.
+      reflexivity.
+    }
+    symmetry.
+    etrans.
+    { rewrite coupling_composition_eq2; [ | assumption ].
+      unfold coupling_dagger.
+      reflexivity. }
+    apply maponpaths_2.
+
+    rewrite <- coupling_composition_eq2; [ | assumption ].
+    rewrite <- coupling_composition_eq3; [ | assumption ].
+    reflexivity.
+  Qed.
+
+End CouplingDaggerLemmas.
+
+
+Section BloomCouplingLemmas.
+  Context {C : markov_category_with_conditionals}.
+
+  Definition bloom_coupling {x y : C} (p : I_{C} --> x) (f : x --> y) : I_{C} --> x ⊗ y
+    := p · ⟨identity _, f⟩.
+
+  Proposition bloom_coupling_dom {x y : C} (p : I_{C} --> x) (f : x --> y) :
+    bloom_coupling p f · proj1 = p.
+  Proof.
+    unfold bloom_coupling.
+    rewrite assoc', pairing_proj1, id_right.
+    reflexivity.
+  Qed.
+
+  Proposition bloom_coupling_cod {x y : C} (p : I_{C} --> x) (f : x --> y) :
+    bloom_coupling p f · proj2 = p · f.
+  Proof.
+    unfold bloom_coupling.
+    rewrite assoc', pairing_proj2.
+    reflexivity.
+  Qed.
+
+  Proposition bloom_coupling_id {x : C} (p : I_{C} --> x) :
+    bloom_coupling p (identity x) = identity_coupling p.
+  Proof.
+    unfold bloom_coupling, identity_coupling.
+    rewrite pairing_id.
+    reflexivity.
+  Qed.
+
+  Proposition bloom_coupling_conditional_1_ase {x y : C} (p : I_{C} --> x) (f : x --> y) :
+    (bloom_coupling p f)|1 =_{p} f.
+  Proof.
+    unfold equal_almost_surely.
+
+    assert(e :   p · ⟨ identity x, (bloom_coupling p f) |1 ⟩ 
+               = bloom_coupling p f · proj1 · ⟨ identity x, (bloom_coupling p f) |1 ⟩).  
+    { rewrite bloom_coupling_dom. reflexivity. }
+    rewrite e. clear e.
+
+    rewrite <- conditional_distribution_1_eq.
+    reflexivity.
+  Qed.
+
+  Proposition bloom_coupling_conditional_2_ase {x y : C} (p : I_{C} --> x) (f : x --> y) :
+    (bloom_coupling p f)|2 =_{p · f} bayesian_inverse p f.
+  Proof.
+    unfold equal_almost_surely.
+
+    assert(e :    p · f · ⟨ identity y, (bloom_coupling p f) |2 ⟩ 
+                = bloom_coupling p f · proj2 · ⟨ identity y, (bloom_coupling p f) |2 ⟩).  
+    { rewrite bloom_coupling_cod. reflexivity. }
+    rewrite e. clear e.
+
+    apply cancel_braiding.
+    rewrite !assoc', !pairing_sym_mon_braiding, !assoc.
+
+    rewrite <- conditional_distribution_2_eq.
+    rewrite bayesian_inverse_eq_l.
+    reflexivity.
+  Qed.
+      
+  Proposition bloom_coupling_composition {x y z : C}
+            (p : I_{C} --> x) (f : x --> y) (g : y --> z) 
+    :   coupling_composition (bloom_coupling p f) (bloom_coupling (p · f) g)
+      = bloom_coupling p (f · g).
+  Proof.
+    assert(compat : bloom_coupling p f · proj2 = bloom_coupling (p · f) g · proj1).
+    { rewrite bloom_coupling_dom, bloom_coupling_cod.
+      reflexivity. }
+  
+    rewrite coupling_composition_eq2; [ | assumption ].
+    unfold bloom_coupling.
+    rewrite assoc'.
+    rewrite pairing_tensor.
+    rewrite id_left.
+
+    assert(target : f · (p · f · ⟨ identity y, g ⟩) |1 =_{p} f · g).
+    { use ase_comp.
+      - apply conditionals_imply_causality.
+      - apply bloom_coupling_conditional_1_ase. }
+
+    exact target.
+  Qed.    
+
+End BloomCouplingLemmas.
 
 #[global] Opaque coupling_composition.
 
 Section CouplingsCategory.
   Context {C : markov_category_with_conditionals}.
 
-  Definition couplings_identity (p : state C) : coupling p p.
+  Definition cat_couplings_identity (p : state C) : coupling p p.
     Proof.
       use make_coupling.
       - exact (identity_coupling p).
@@ -281,7 +445,7 @@ Section CouplingsCategory.
     reflexivity.
   Qed.
 
-  Definition couplings_composition {p q r : state C}
+  Definition cat_couplings_composition {p q r : state C}
        (β : coupling p q) (γ : coupling q r) : coupling p r.
   Proof.
     use make_coupling.
@@ -307,8 +471,8 @@ Section CouplingsCategory.
   Proof.
     use make_precategory_data.
     - exact couplings_precategory_ob_mor.
-    - exact couplings_identity.
-    - intros p q r β γ. exact (couplings_composition β γ).
+    - exact cat_couplings_identity.
+    - intros p q r β γ. exact (cat_couplings_composition β γ).
   Defined.
 
   Proposition is_precategory_couplings

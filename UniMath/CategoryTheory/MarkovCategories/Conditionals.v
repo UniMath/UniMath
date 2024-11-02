@@ -138,6 +138,30 @@ Section ConditionalDistributions.
     reflexivity.
   Qed.
 
+  Proposition conditional_distribution_1_ase_unique {x y : C} (p : I_{C} --> x ⊗ y) (f : x --> y) :
+    p = p · proj1 · ⟨identity x, f⟩ -> f =_{p · proj1} p|1.
+  Proof.
+    intros e.
+    unfold equal_almost_surely.
+    rewrite <- conditional_distribution_1_eq.
+    rewrite <- e.
+    reflexivity.
+  Qed.
+
+  Proposition conditional_distribution_2_ase_unique {x y : C} (p : I_{C} --> x ⊗ y) (f : y --> x) :
+    p = p · proj2 · ⟨f, identity y⟩ -> f =_{p · proj2} p|2.
+  Proof.
+    intros e.
+    unfold equal_almost_surely.
+    apply cancel_braiding.
+    rewrite !assoc'.
+    rewrite !pairing_sym_mon_braiding.
+    rewrite !assoc.
+    rewrite <- conditional_distribution_2_eq.
+    rewrite <- e.
+    reflexivity.
+  Qed.
+
 End ConditionalDistributions.
 
 Notation "p |1" := (conditional_distribution_1 p).
@@ -191,6 +215,25 @@ Section ConstructionBayesianInverse.
     etrans. 
     { rewrite K. reflexivity. }
     reflexivity.
+  Qed.
+
+  Proposition bayesian_inverse_eq_l {y : C} (f : x --> y) :
+    p · f · ⟨bayesian_inverse f, identity _⟩ = p · ⟨identity _, f⟩.
+  Proof.
+    symmetry.
+    assert(e : is_bayesian_inverse p f (bayesian_inverse f)). 
+      { apply bayesian_inverse_eq. }
+    unfold is_bayesian_inverse in e.
+    rewrite <- e.
+    reflexivity.
+  Qed. 
+   
+  Proposition bayesian_inverse_eq_r {y : C} (f : x --> y) :
+    p · f · ⟨identity _, bayesian_inverse f⟩ = p · ⟨f, identity _⟩.
+  Proof.
+    apply cancel_braiding.
+    rewrite !assoc', !pairing_sym_mon_braiding, assoc.
+    apply bayesian_inverse_eq_l.
   Qed.
       
 End ConstructionBayesianInverse.
@@ -293,4 +336,4 @@ Qed.
 Theorem conditionals_imply_causality {C : markov_category_with_conditionals} : is_causal C.
 Proof.
   (* TODO Theorem 11.34 in [Fritz] *)
-Abort.
+Admitted.
