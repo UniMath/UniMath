@@ -83,7 +83,7 @@ Section CouplingCompositionLemmas.
     and carrying around the proof `e` makes lemmas about `coupling_composition` harder to write.
 
     However, we will need the assumption `e` for the equivalent characterizations
-    `coupling_composition_eq1`,`coupling_composition_eq12,`coupling_composition_eq3`.
+    `coupling_composition_eq1`,`coupling_composition_eq12,`coupling_composition_eq_3`.
     
   *)
   Definition coupling_composition {x y z : C} 
@@ -98,7 +98,7 @@ Section CouplingCompositionLemmas.
     reflexivity.
   Qed.
 
-  Proposition coupling_composition_eq2 {x y z : C} 
+  Proposition coupling_composition_eq_2 {x y z : C} 
           (β : I_{C} --> x ⊗ y) (γ : I_{C} --> y ⊗ z)
           (e : β · proj2 = γ · proj1) 
     : coupling_composition β γ = β · (identity _ #⊗ γ|1).
@@ -111,7 +111,7 @@ Section CouplingCompositionLemmas.
     reflexivity.
   Qed.   
 
-  Proposition coupling_composition_eq3 {x y z : C} 
+  Proposition coupling_composition_eq_3 {x y z : C} 
           (β : I_{C} --> x ⊗ y) (γ : I_{C} --> y ⊗ z)
           (e : β · proj2 = γ · proj1) 
     : coupling_composition β γ = γ · (β|2 #⊗ identity _).
@@ -130,7 +130,7 @@ Section CouplingCompositionLemmas.
           (e : β · proj2 = γ · proj1) :
     coupling_composition β γ · proj1 = β · proj1.
   Proof.
-    rewrite coupling_composition_eq2 ; [ | assumption ].
+    rewrite coupling_composition_eq_2 ; [ | assumption ].
     rewrite assoc'.
     rewrite proj1_tensor.
     reflexivity.
@@ -141,7 +141,7 @@ Section CouplingCompositionLemmas.
           (e : β · proj2 = γ · proj1) :
     coupling_composition β γ · proj2 = γ · proj2.
   Proof.
-    rewrite coupling_composition_eq3 ; [ | assumption ].
+    rewrite coupling_composition_eq_3 ; [ | assumption ].
     rewrite assoc'.
     rewrite proj2_tensor.
     reflexivity.
@@ -173,7 +173,7 @@ Section CouplingCompositionLemmas.
   Proof.
     assert (e2 : p = β · proj1).
     { rewrite <- e. rewrite identity_coupling_cod. reflexivity. }
-    rewrite coupling_composition_eq2 ; [ | assumption ].
+    rewrite coupling_composition_eq_2 ; [ | assumption ].
     unfold identity_coupling.
     rewrite <- assoc.
     rewrite e2.
@@ -187,7 +187,7 @@ Section CouplingCompositionLemmas.
   Proof.
     assert (e2 : p = β · proj2).
     { rewrite e. rewrite identity_coupling_dom. reflexivity. }
-    rewrite coupling_composition_eq3 ; [ | assumption ].
+    rewrite coupling_composition_eq_3 ; [ | assumption ].
     unfold identity_coupling.
     rewrite <- assoc.
     rewrite e2.
@@ -231,7 +231,7 @@ Section CouplingCompositionLemmas.
 
     etrans.
     {
-      repeat (rewrite coupling_composition_eq2 ; [ | assumption ]).
+      repeat (rewrite coupling_composition_eq_2 ; [ | assumption ]).
       etrans.
       {
         do 2 apply maponpaths_2.
@@ -252,7 +252,7 @@ Section CouplingCompositionLemmas.
       apply maponpaths_2.
       exact (!(conditional_distribution_2_eq δ)).
     }
-    repeat (rewrite coupling_composition_eq3 ; [ | assumption ]).
+    repeat (rewrite coupling_composition_eq_3 ; [ | assumption ]).
     rewrite tensor_comp_id_r.
     rewrite assoc'.
     reflexivity.
@@ -315,7 +315,7 @@ Section CouplingDaggerLemmas.
     { reflexivity. }
 
     etrans. 
-    { rewrite coupling_composition_eq2; [ | assumption ].
+    { rewrite coupling_composition_eq_2; [ | assumption ].
       unfold coupling_dagger.
       rewrite assoc'.
       rewrite <- tensor_sym_mon_braiding.
@@ -325,13 +325,13 @@ Section CouplingDaggerLemmas.
     }
     symmetry.
     etrans.
-    { rewrite coupling_composition_eq2; [ | assumption ].
+    { rewrite coupling_composition_eq_2; [ | assumption ].
       unfold coupling_dagger.
       reflexivity. }
     apply maponpaths_2.
 
-    rewrite <- coupling_composition_eq2; [ | assumption ].
-    rewrite <- coupling_composition_eq3; [ | assumption ].
+    rewrite <- coupling_composition_eq_2; [ | assumption ].
+    rewrite <- coupling_composition_eq_3; [ | assumption ].
     reflexivity.
   Qed.
 
@@ -409,7 +409,7 @@ Section BloomCouplingLemmas.
     { rewrite bloom_coupling_dom, bloom_coupling_cod.
       reflexivity. }
   
-    rewrite coupling_composition_eq2; [ | assumption ].
+    rewrite coupling_composition_eq_2; [ | assumption ].
     unfold bloom_coupling.
     rewrite assoc'.
     rewrite pairing_tensor.
