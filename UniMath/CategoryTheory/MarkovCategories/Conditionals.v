@@ -241,16 +241,15 @@ End ConstructionBayesianInverse.
 #[global] Opaque bayesian_inverse.
 
 (* TODO Clean this up *)
-Section ConditionalsImplyPositivity.
+Section Lemmas.
   Context {C : markov_category_with_conditionals}.
   Context {x y z : C}.
   Context (f : x --> y) (g : y --> z).
-  Context (det_fg : is_deterministic (f · g)).
 
   Let psi := f · ⟨g , identity _⟩.
   Let s := conditional psi.
 
-  Lemma psi_1 : psi · proj1 = f · g.
+  Local Lemma psi_1 : psi · proj1 = f · g.
   Proof.
     unfold psi.
     rewrite <- assoc.
@@ -258,7 +257,7 @@ Section ConditionalsImplyPositivity.
     reflexivity.
   Qed.
 
-  Lemma psi_2 : psi · proj2 = f.
+  Local Lemma psi_2 : psi · proj2 = f.
   Proof.
     unfold psi.
     rewrite <- assoc.
@@ -267,11 +266,10 @@ Section ConditionalsImplyPositivity.
     reflexivity.
   Qed.
 
-  Lemma K : psi
-            = copy x 
-              · (f · g · copy z) #⊗ identity x
-              · mon_lassociator _ _ _
-              · identity z #⊗ s.
+  Local Lemma psi_disintegrated
+       : psi = ⟨f · g · copy z, identity x⟩
+               · mon_lassociator _ _ _
+               · identity z #⊗ s.
   Proof. 
     unfold s.
     pose(w := conditional_eq psi).
@@ -279,7 +277,7 @@ Section ConditionalsImplyPositivity.
     exact w.
   Qed.
 
-  Local Lemma Aux : ⟨f · g, identity _ ⟩ · s = f.
+  Local Lemma aux_psi_marginal : ⟨f · g, identity _ ⟩ · s = f.
   Proof.
     assert(A1 : f · g = f · g · ⟨identity _, identity _⟩ · proj2).
     { rewrite <- assoc.
@@ -294,14 +292,17 @@ Section ConditionalsImplyPositivity.
     
     rewrite pairing_id.
     unfold pairing.
-    rewrite <- K.
+    rewrite <- pairing_eq.
+    rewrite <- psi_disintegrated.
     rewrite psi_2.
     reflexivity.
    Qed.
 
-  Lemma pos_flipped : psi = ⟨f · g , f⟩.
+  (* Towards positivity *)
+
+  Local Lemma positivity_conclusion (det_fg : is_deterministic (f · g)) : psi = ⟨f · g , f⟩.
   Proof. 
-    rewrite K.
+    rewrite psi_disintegrated.
     rewrite det_fg.
     rewrite <- !pairing_eq.
     rewrite <- pairing_rassociator.
@@ -312,28 +313,44 @@ Section ConditionalsImplyPositivity.
     rewrite mon_rassociator_lassociator.
     rewrite id_right.
     rewrite pairing_tensor, id_right.
-    rewrite Aux.
+    rewrite aux_psi_marginal.
     reflexivity.
   Qed.
-    
-  Proposition pos : f · ⟨identity y , g⟩ = ⟨f , f · g⟩.
+
+  (* towards causality *)
+  Local Lemma causality_rewrite_lemma {w : C} (h : z --> w) :
+    f · ⟨g · ⟨h, identity _⟩, identity _⟩ 
+           = 
+           ⟨ f · (g · ⟨h, identity _⟩) · (identity _ #⊗ copy _) , identity _ ⟩ 
+           · (mon_rassociator _ _ _) #⊗ identity x
+           · mon_lassociator _ _ _
+           · identity _ #⊗ s.
   Proof.
-    apply cancel_braiding.
-    rewrite <- assoc, !pairing_sym_mon_braiding.
-    apply pos_flipped.
+  Admitted.
+
+  Local Lemma causality_conclusion {w : C} (h1 h2 : z --> w) 
+            (e : f · (g · ⟨h1, identity _⟩) = f · (g · ⟨h2, identity _⟩)) :
+      f · ⟨g · ⟨h1, identity _⟩, identity _⟩ 
+    = f · ⟨g · ⟨h2, identity _⟩, identity _⟩.
+  Proof.
+    rewrite! causality_rewrite_lemma.
+    rewrite e.
+    reflexivity.
   Qed.
   
-End ConditionalsImplyPositivity.
+End Lemmas.
 
 Theorem conditionals_imply_positivity {C : markov_category_with_conditionals} : is_positive C.
 Proof.
-  unfold is_positive.
+  apply make_positivity_l.
   intros x y z f g d.
-  apply pos.
+  apply positivity_conclusion.
   exact d.
 Qed.
 
 Theorem conditionals_imply_causality {C : markov_category_with_conditionals} : is_causal C.
 Proof.
-  (* TODO Theorem 11.34 in [Fritz] *)
-Admitted.
+  apply make_causality_l.
+  intros x y z w f g h1 h2.
+  apply causality_conclusion.
+Qed.

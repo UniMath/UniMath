@@ -44,6 +44,86 @@ Section InformationFlowAxioms.
 
 End InformationFlowAxioms.
 
+Section Accessors.
+    Context (C : markov_category).
+
+    (* The symmetric versions are useful *)
+
+    Proposition causality_l {iscaus : is_causal C} 
+                    {x y z w : C} (f : x --> y) (g : y --> z) (h1 h2 : z --> w) :
+           f · (g · ⟨h1, identity z⟩) = f · (g · ⟨h2, identity z⟩)
+       ->  f · ⟨g · ⟨h1, identity z⟩, identity y⟩ = f · ⟨g · ⟨h2, identity z⟩, identity y⟩.
+    Proof. apply iscaus. Qed.
+
+    Proposition causality_r {iscaus : is_causal C} 
+                    {x y z w : C} (f : x --> y) (g : y --> z) (h1 h2 : z --> w) :
+           f · (g · ⟨identity z, h1⟩) = f · (g · ⟨identity z, h2⟩)
+       ->  f · ⟨identity y, g · ⟨identity z, h1⟩⟩ = f · ⟨identity y, g · ⟨identity z, h2⟩⟩.
+    Proof.
+      intros e.
+      apply pairing_flip.
+      Admitted.
+
+    Proposition make_causality_l :
+      (∏ (x y z w : C) (f : x --> y) (g : y --> z) (h1 h2 : z --> w),
+                  f · (g · ⟨h1, identity z⟩) = f · (g · ⟨h2, identity z⟩)
+              ->  f · ⟨g · ⟨h1, identity z⟩, identity y⟩ = f · ⟨g · ⟨h2, identity z⟩, identity y⟩)
+      -> is_causal C.
+    Proof.
+      intros e. exact e.
+    Qed.
+
+    Proposition make_causality_r :
+      (∏ (x y z w : C) (f : x --> y) (g : y --> z) (h1 h2 : z --> w),
+                  f · (g · ⟨identity z, h1⟩) = f · (g · ⟨identity z, h2⟩)
+              ->  f · ⟨identity y, g · ⟨identity z, h1⟩⟩ = f · ⟨identity y, g · ⟨identity z, h2⟩⟩)
+      -> is_causal C.
+    Proof.
+      intros e. 
+      Admitted.
+
+    Proposition positivity_r {ispos : is_positive C}
+          {x y z : C} (f : x --> y) (g : y --> z) :
+      is_deterministic(f · g) -> f · ⟨identity _, g⟩ = ⟨f , f · g⟩.
+    Proof. apply ispos. Qed.
+
+    Proposition positivity_l {ispos : is_positive C}
+          {x y z : C} (f : x --> y) (g : y --> z) :
+      is_deterministic(f · g) -> f · ⟨g, identity _⟩ = ⟨f · g, f⟩.
+    Proof.
+      intros det.
+      apply cancel_braiding.
+      rewrite !assoc', !pairing_sym_mon_braiding.
+      use positivity_r; assumption.
+    Qed.
+
+    Proposition make_positivity_r :
+      (forall {x y z : C} (f : x --> y) (g : y --> z),
+        is_deterministic(f · g) -> f · ⟨identity _, g⟩ = ⟨f , f · g⟩)
+      -> is_positive C.
+    Proof.
+      intros p. exact p.
+    Qed.
+
+    Proposition make_positivity_l :
+      (forall {x y z : C} (f : x --> y) (g : y --> z),
+        is_deterministic(f · g) -> f · ⟨g, identity _⟩ = ⟨f · g, f⟩)
+      -> is_positive C.
+    Proof.
+      intros p. 
+      apply make_positivity_r.
+      intros x y z f g d.
+      apply cancel_braiding.
+      rewrite !assoc', !pairing_sym_mon_braiding.
+      apply p.
+      assumption.
+    Qed.
+
+End Accessors.
+
+(* TODO Make this opaque? *)
+(* #[global] Opaque is_causal is_positive. *)
+
 Section CausalityProperties.
   Context {C : markov_category} {causality : is_causal C}.
 
@@ -55,7 +135,7 @@ Section CausalityProperties.
     intros E.
     rewrite <- !assoc in E.
     apply pairing_flip.
-    apply causality.
+    apply causality_l; [ assumption | ].
     rewrite assoc.
     symmetry. rewrite assoc. symmetry.
     apply pairing_flip.
@@ -112,8 +192,7 @@ Section ImplicationsBetweenAxioms.
   Proposition positive_implies_all_isos_deterministic (C : markov_category) :
       is_positive C -> all_isos_deterministic C.
   Proof.
-    intros positivity x y f.
-    unfold is_positive in *.
+    intros pos x y f.
     unfold is_deterministic.
     pose (g := inv_from_z_iso f).
 
@@ -125,15 +204,15 @@ Section ImplicationsBetweenAxioms.
     { Search pairing.
       rewrite <- pairing_tensor_l.
       rewrite !assoc.
-      rewrite positivity.
+      rewrite positivity_r.
       { rewrite pairing_tensor_l.
         unfold g.
         rewrite z_iso_inv_after_z_iso, id_left.
         reflexivity.
       }
-      unfold g.
-      rewrite z_iso_inv_after_z_iso.
-      apply is_deterministic_identity.
+      - exact pos.
+      - rewrite z_iso_inv_after_z_iso.
+        apply is_deterministic_identity.
     }
     reflexivity.
   Qed.
