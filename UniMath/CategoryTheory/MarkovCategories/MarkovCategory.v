@@ -484,17 +484,4 @@ Section PairingProperties.
     exact E.
   Qed.
 
-  (*
-  Proposition pairing_flip_2 {a x1 x2 y z : C} (p : a --> x1) (q : a --> x2) 
-          (f1 : x1 --> y) (f2 : x2 --> y)
-          (g1 : x1 --> z) (g2 : x2 --> z) h1 h2 i1 i2 j1 j2 :
-        f1 · ⟨g1 · ⟨h1, i1⟩, j1⟩ = f2 · ⟨g2 · ⟨h2, i2⟩, j2⟩
-     -> f1 · ⟨j1, g1 · ⟨i1, h1⟩⟩ = f2 · ⟨j2, g2 · ⟨i2, h2⟩⟩
-  Proof.
-    intro E.
-    apply cancel_braiding.
-    do 2 rewrite <- assoc, pairing_sym_mon_braiding.
-    exact E.
-  Qed.*)
-
 End PairingProperties.

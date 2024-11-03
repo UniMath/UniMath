@@ -277,7 +277,7 @@ Section Lemmas.
     exact w.
   Qed.
 
-  Local Lemma aux_psi_marginal : ⟨f · g, identity _ ⟩ · s = f.
+  Local Lemma psi_disintegrated_marginal : ⟨f · g, identity _ ⟩ · s = f.
   Proof.
     assert(A1 : f · g = f · g · ⟨identity _, identity _⟩ · proj2).
     { rewrite <- assoc.
@@ -313,7 +313,7 @@ Section Lemmas.
     rewrite mon_rassociator_lassociator.
     rewrite id_right.
     rewrite pairing_tensor, id_right.
-    rewrite aux_psi_marginal.
+    rewrite psi_disintegrated_marginal.
     reflexivity.
   Qed.
 

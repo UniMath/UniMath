@@ -1,10 +1,18 @@
 (*********************************************
 Information Flow Axioms
 
-In this file, we provide definitions for various information flow axioms in Markov categories, such as
-1. causality
-2. positivity
-We establish various implications between the axioms, such as causality => positivity => all isomorphisms are deterministic.
+In this file, we provide definitions for various information flow axioms in Markov categories.
+1. Definition of the Information Flow Axioms 
+   - causality (`is_causal`)
+   - positivity (`is_positive`)
+2. Accessors
+   - each axiom has a left-associated and right-associated version
+   - we provide both, and conversions between them
+3. Consequences of Causality 
+   - causality is needed for nontrivial reasoning about almost sure equality
+4. Implications between the Axioms
+   - causality implies positivity
+   - positivity imples all isomorphisms are deterministic
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics'
@@ -29,6 +37,8 @@ Import MonoidalNotations.
 Local Open Scope cat.
 Local Open Scope moncat.
 
+(* 1. Definition of the Information Flow Axioms *)
+
 Section InformationFlowAxioms.
     Context (C : markov_category).
 
@@ -44,10 +54,66 @@ Section InformationFlowAxioms.
 
 End InformationFlowAxioms.
 
+(* 2. Accessors *)
+
+Section SwapLemmas.
+    Context {C : markov_category}.
+    
+    Local Lemma aux_simp_l {x y z w : C} (f : x --> y) (g : y --> z) (h : z --> w) :
+        f · ⟨ g · ⟨ h, identity z ⟩, identity y ⟩ 
+      = f · ⟨ identity y, g · ⟨ identity z, h ⟩⟩ 
+          · ((identity y #⊗ sym_mon_braiding _ _ _) · sym_mon_braiding _ _ _).
+    Proof.
+      rewrite !assoc, !assoc'.
+      apply maponpaths.
+      rewrite assoc.
+      rewrite pairing_tensor.
+      rewrite id_left.
+      rewrite assoc'.
+      rewrite !pairing_sym_mon_braiding.
+      reflexivity.
+    Qed.
+
+    Local Lemma aux_simp_r {x y z w : C} (f : x --> y) (g : y --> z) (h : z --> w) :
+        f · ⟨identity y, g · ⟨identity z, h⟩⟩
+      = f · ⟨ g · ⟨ h, identity z ⟩, identity y ⟩ 
+          · (sym_mon_braiding _ _ _ · (identity y #⊗ sym_mon_braiding _ _ _)).
+    Proof.
+      rewrite !assoc, !assoc'.
+      apply maponpaths.
+      rewrite assoc.
+      rewrite pairing_sym_mon_braiding.
+      rewrite pairing_tensor.
+      rewrite assoc'.
+      rewrite pairing_sym_mon_braiding.
+      rewrite id_left.
+      reflexivity.
+    Qed.
+
+    Local Lemma aux_swap_rl {x y z w : C} (f : x --> y) (g : y --> z) (h1 h2 : z --> w) :
+        f · ⟨identity y, g · ⟨identity z, h1⟩⟩ = f · ⟨identity y, g · ⟨identity z, h2⟩⟩
+     -> f · ⟨g · ⟨h1, identity z⟩, identity y⟩ = f · ⟨g · ⟨h2, identity z⟩, identity y⟩.
+    Proof.
+      intros e. 
+      rewrite !aux_simp_l.
+      rewrite e.
+      reflexivity.
+    Qed.
+
+    Local Lemma aux_swap_lr {x y z w : C} (f : x --> y) (g : y --> z) (h1 h2 : z --> w) :
+        f · ⟨g · ⟨h1, identity z⟩, identity y⟩ = f · ⟨g · ⟨h2, identity z⟩, identity y⟩
+     -> f · ⟨identity y, g · ⟨identity z, h1⟩⟩ = f · ⟨identity y, g · ⟨identity z, h2⟩⟩.
+    Proof. 
+      intros e.
+      rewrite !aux_simp_r.
+      rewrite e.
+      reflexivity.
+    Qed.
+
+End SwapLemmas.
+
 Section Accessors.
     Context (C : markov_category).
-
-    (* The symmetric versions are useful *)
 
     Proposition causality_l {iscaus : is_causal C} 
                     {x y z w : C} (f : x --> y) (g : y --> z) (h1 h2 : z --> w) :
@@ -61,8 +127,13 @@ Section Accessors.
        ->  f · ⟨identity y, g · ⟨identity z, h1⟩⟩ = f · ⟨identity y, g · ⟨identity z, h2⟩⟩.
     Proof.
       intros e.
-      apply pairing_flip.
-      Admitted.
+      apply aux_swap_lr.
+      use causality_l.
+      - assumption.
+      - rewrite !assoc in *.
+        apply pairing_flip.
+        assumption.
+    Qed.     
 
     Proposition make_causality_l :
       (∏ (x y z w : C) (f : x --> y) (g : y --> z) (h1 h2 : z --> w),
@@ -79,8 +150,16 @@ Section Accessors.
               ->  f · ⟨identity y, g · ⟨identity z, h1⟩⟩ = f · ⟨identity y, g · ⟨identity z, h2⟩⟩)
       -> is_causal C.
     Proof.
-      intros e. 
-      Admitted.
+      intros caus_l. 
+      apply make_causality_l.
+      intros x y z w f h h1 h2 p.
+      apply aux_swap_rl.
+      apply caus_l.
+      rewrite !assoc.
+      rewrite !assoc in p.
+      apply pairing_flip.
+      exact p.
+    Qed.
 
     Proposition positivity_r {ispos : is_positive C}
           {x y z : C} (f : x --> y) (g : y --> z) :
@@ -123,6 +202,8 @@ End Accessors.
 
 (* TODO Make this opaque? *)
 (* #[global] Opaque is_causal is_positive. *)
+
+(* 3. Consequences of Causality *)
 
 Section CausalityProperties.
   Context {C : markov_category} {causality : is_causal C}.
@@ -180,6 +261,8 @@ Section CausalityProperties.
   Qed.
 
 End CausalityProperties.
+
+(* 4. Implications between the Axioms *)
 
 Section ImplicationsBetweenAxioms.
 
