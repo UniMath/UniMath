@@ -377,9 +377,7 @@ Section Lemmas.
     rewrite pairing_rassociator.
     reflexivity.
   Qed.
-
-  Print causality_rewrite_lemma.
-
+  
   Local Lemma causality_conclusion {w : C} (h1 h2 : z --> w) 
             (e : f · (g · ⟨h1, identity _⟩) = f · (g · ⟨h2, identity _⟩)) :
       f · ⟨g · ⟨h1, identity _⟩, identity _⟩ 
