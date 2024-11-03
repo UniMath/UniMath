@@ -1,14 +1,20 @@
 (*********************************************
 Conditionals
 
-We define the notion of a Markov category with conditionals, 
-interderivable notions such as Bayesian inverses, and derive various consequences,
-such as the various information flow axioms.
+We define the notion of a Markov category with chosen conditionals, 
+interderivable notions such as Bayesian inverses, and derive
+various consequences for information flow axioms.
 
-1. Definition `markov_category_with_conditionals`
+1. Definition of `markov_category_with_conditionals`
 2. Accessors
-3. Bayesian inverse
+   - Specialized definitions and lemmas for conditional distributions
+3. Bayesian inverses
+   - Definition of the Bayesian inverse (dagger)
+   - Every Markov category with conditonals comes with a 
+     canonical choice of Bayesian inverse
 4. Consequences and derived information flow axioms
+   - Every Markov category with conditionals is causal
+   - Every Markov category with conditionals is positive
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
@@ -240,12 +246,12 @@ End ConstructionBayesianInverse.
 
 #[global] Opaque bayesian_inverse.
 
-(* TODO Clean this up *)
 Section Lemmas.
   Context {C : markov_category_with_conditionals}.
   Context {x y z : C}.
   Context (f : x --> y) (g : y --> z).
 
+  (* The causality and positivity proofs allow some shared setup *)
   Let psi := f · ⟨g , identity _⟩.
   Let s := conditional psi.
 
@@ -318,15 +324,61 @@ Section Lemmas.
   Qed.
 
   (* towards causality *)
+
   Local Lemma causality_rewrite_lemma {w : C} (h : z --> w) :
     f · ⟨g · ⟨h, identity _⟩, identity _⟩ 
            = 
-           ⟨ f · (g · ⟨h, identity _⟩) · (identity _ #⊗ copy _) , identity _ ⟩ 
+           ⟨ f · (g · ⟨h, identity _⟩) · (identity _ #⊗ copy _) , identity x ⟩ 
            · (mon_rassociator _ _ _) #⊗ identity x
            · mon_lassociator _ _ _
            · identity _ #⊗ s.
   Proof.
-  Admitted.
+    transitivity (⟨f · g · copy z, identity x⟩
+               · mon_lassociator _ _ _
+               · identity z #⊗ s
+               · ⟨h, identity _⟩ #⊗ identity _).
+    { etrans. {
+        rewrite <- pairing_tensor_l.
+        rewrite assoc.
+        assert(aux : f · ⟨ g, identity y ⟩ = psi). { reflexivity. }
+        rewrite aux.
+        rewrite psi_disintegrated.
+        reflexivity. }
+      reflexivity. }
+
+    etrans. {
+      rewrite assoc'.
+      rewrite <- tensor_split.
+      rewrite tensor_split'.
+      rewrite assoc.
+      reflexivity. }
+
+    apply maponpaths_2.
+
+    etrans. {
+      rewrite assoc'.
+      rewrite <- tensor_id_id.
+      rewrite <- tensor_lassociator.
+      rewrite assoc.
+      reflexivity. }
+
+    apply maponpaths_2.
+
+    rewrite !pairing_tensor_l.
+
+    apply (maponpaths (λ expr, ⟨expr, identity x⟩)).
+
+    rewrite !assoc'.
+    do 2 apply maponpaths.
+    rewrite assoc.
+    rewrite <- pairing_id.
+    rewrite !pairing_tensor.
+    rewrite !id_left, !id_right.    
+    rewrite pairing_rassociator.
+    reflexivity.
+  Qed.
+
+  Print causality_rewrite_lemma.
 
   Local Lemma causality_conclusion {w : C} (h1 h2 : z --> w) 
             (e : f · (g · ⟨h1, identity _⟩) = f · (g · ⟨h2, identity _⟩)) :

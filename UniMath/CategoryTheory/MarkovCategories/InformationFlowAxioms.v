@@ -285,10 +285,10 @@ Section ImplicationsBetweenAxioms.
     { unfold g. rewrite z_iso_after_z_iso_inv. reflexivity. } 
     etrans. 
     { Search pairing.
-      rewrite <- pairing_tensor_l.
+      rewrite <- pairing_tensor_r.
       rewrite !assoc.
       rewrite positivity_r.
-      { rewrite pairing_tensor_l.
+      { rewrite pairing_tensor_r.
         unfold g.
         rewrite z_iso_inv_after_z_iso, id_left.
         reflexivity.

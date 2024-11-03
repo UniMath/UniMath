@@ -104,7 +104,7 @@ Section CouplingCompositionLemmas.
     : coupling_composition β γ = β · (identity _ #⊗ γ|1).
   Proof. 
     unfold coupling_composition.
-    rewrite pairing_split_l.
+    rewrite pairing_split_r.
     rewrite assoc.
     apply maponpaths_2.
     rewrite <- conditional_distribution_2_eq.
@@ -117,7 +117,7 @@ Section CouplingCompositionLemmas.
     : coupling_composition β γ = γ · (β|2 #⊗ identity _).
   Proof. 
     unfold coupling_composition.
-    rewrite pairing_split_r.
+    rewrite pairing_split_l.
     rewrite assoc.
     apply maponpaths_2.
     rewrite e.
@@ -239,7 +239,7 @@ Section CouplingCompositionLemmas.
       }
       do 2 refine (assoc' _ _ _ @ _).
       rewrite <- tensor_comp_id_l.
-      rewrite pairing_tensor_l.
+      rewrite pairing_tensor_r.
       rewrite aux42.
       rewrite e1.
       rewrite aux42.
@@ -247,7 +247,7 @@ Section CouplingCompositionLemmas.
       rewrite <- (id_right (δ |1)).
       rewrite aux42.
       rewrite id_right.
-      rewrite <- pairing_tensor_r.
+      rewrite <- pairing_tensor_l.
       refine (assoc _ _ _ @ _).
       apply maponpaths_2.
       exact (!(conditional_distribution_2_eq δ)).
