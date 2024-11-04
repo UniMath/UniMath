@@ -11,14 +11,14 @@
    which can be expressed as the commutativity of a diagram.
  - The eta-rule. Lambda abstraction gives the unique morphism making some diagram commute.
 
- We start with some preliminary material. In both equalities, we need to deal with statements
- expressing the commutativity of some diagram, more specifically, the moprhisms defined in
- [partial_setoid_exp_comm] is equal to [φ]. Our first goal is to simplify these statements,
- so that it becomes more convenient to prove/use it.
+ We start with some preliminary material. To prove the beta-rule and the eta-rule, we need to
+ deal with statements that express the commutativity of some diagram, which says some morphism
+ defined by [partial_setoid_exp_comm] is equal to some [φ]. Our first goal is to simplify such
+ statements, so that proving and using them becomes more convenient.
 
  Content
  1. Basic material that is useful in the remainder of the file
- 2. The beta rule
+ 2. The beta-rule
  3. The eta-rule
 
  ******************************************************************************************)
@@ -333,7 +333,7 @@ Section LamEqs.
           {X Y Z : partial_setoid H}
           (φ : partial_setoid_morphism (prod_partial_setoid X Z) Y).
 
-  (** * 2. The beta rule *)
+  (** * 2. The beta-rule *)
   Let ζ : partial_setoid_morphism (prod_partial_setoid X Z) Y
     := partial_setoid_exp_comm (lam_partial_setoid φ).
 

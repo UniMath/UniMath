@@ -8,17 +8,17 @@
  Fix partial setoids `X`, `Y`, and `Z`, and let `φ` be a morphism from `X ×h Z` to `Y`. The
  lambda abstraction of `φ` is a morphism from `Z` to the exponential from `X` to `Y`. Recall
  that the exponential was defined using the powerset operation, and in essence, the function
- space from `X` to `Y` is defined as all sets all functional relations between  `X` and `Y`.
- The underlying formula of the lambda abstraction operator is thus given by a relation between
- `Z` and the exponential from `X` to `Y`. Let's say we have some term `z` of type `X` and a
- term `f` of the exponential, then these are related if both `z` and `f` are defined (i.e.,
- `z ~ z` and `f ~ f`), and if for all `x` and `y` we have that `φ` sends the pair `⟨ x , z ⟩`
- to `y` if and only if `f` sends `x` to `y`. The requirements are written down formally in
- [lam_partial_setoid_is_def] and [lam_partial_setoid_eq].
+ space from `X` to `Y` is defined as the collection of all  functional relations between  `X`
+ and `Y`. The underlying formula of the lambda abstraction operator is thus given by a relation
+ between `Z` and the exponential from `X` to `Y`. Let's say we have some term `z` of type `X`
+ and a term `f` of the exponential, then these are related if both `z` and `f` are defined
+ (i.e., `z ~ z` and `f ~ f`), and if for all `x` and `y` we have that `φ` sends the pair
+ `⟨ x , z ⟩` to `y` if and only if `f` sends `x` to `y`. The requirements are written down
+ formally in [lam_partial_setoid_is_def] and [lam_partial_setoid_eq].
 
  We are required to check that this is a partial setoid morphism, and thus we must show
  that every `z` such that `z ~ z` has an image, and thus we must verify that every `z` gets
- mapped to an actual function by lambda abstraction.  One of the required checks, is that
+ mapped to an actual function by lambda abstraction.  One of the required checks is that
  images exist and for that we use [lam_image_form].
 
  Content

@@ -9,7 +9,10 @@
  triposes. In essence, a tripos is a place where one can interpret first-order predicate logic
  and where one has power sets. Concretely, this means that a tripos is given by a first-order
  hyperdoctrine such that for every object `X` there is a powerset object `PX` and a membership
- predicate on `X ×h PX`.
+ predicate on `X ×h PX`. There also is some kind of universal property that relates predicates
+ on `X` in context `Γ` and terms of type `PX`. This is expressed by the axiom (CA) in the
+ paper "Tripos Theory in Retrospect" by Andrew Pitts. This file gives the definition of
+ triposes.
 
  The universal property of power sets can be expressed in two ways, and this gives rise to the
  notion of tripos and that of weak tripos. In "Tripos Theory in Retrospect" by Andrew Pitts,

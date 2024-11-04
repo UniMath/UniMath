@@ -3,7 +3,7 @@
  Exponentials of partial setoids
 
  Our goal is to show that the category of partial setoids in a tripos has exponentials. The
- first step to that, is to construct the partial setoid of functions. The idea behind this
+ first step to that is to construct the partial setoid of functions. The idea behind this
  construction is that we can represent function spaces using powersets. More specifically,
  the idea is that a function from `X` to `Y` can be represented as a subset of pairs of `X`
  and `Y` such that every member in `X` is paired with a unique member in `Y`.
@@ -24,7 +24,7 @@
  As a consequence, whenever we have `f ~ f`, then `f` must be a function, and thus this
  partial setoid consists of functions that are identified if they are pointwise equal.
 
- The constructon is this file is based on the proof of Theorem 2.2.1 in "Realizability: an
+ The constructon in this file is based on the proof of Theorem 2.2.1 in "Realizability: an
  introduction to its categorical side". In that proof, exponentials are constructed explicitly.
  One can also use another construction, which is done in "Tripos Theory in Retrospect", where
  power objects are constructed instead of exponentials. Both approaches are sufficient in

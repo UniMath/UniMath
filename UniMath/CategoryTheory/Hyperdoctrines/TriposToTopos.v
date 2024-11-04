@@ -10,9 +10,9 @@
  intuitionistic predicate logic, and by assuming that we can take powersets, we obtain
  impredicativity. Every tripos gives rise to a generic object, which is the object of all
  propositions in the hyperdoctrine. The generic object is defined to be the powerset of the
- terminal object (compare to the fact that hProp is the powerset of the unit type). A precise
- definition of triposes can be found in "Tripos Theory in Retrospect" by Andrew Pitts and
- in the file `Tripos.v`.
+ terminal object (compare to the fact that hProp is equivalent to the powerset of the unit type).
+ A precise definition of triposes can be found in "Tripos Theory in Retrospect" by Andrew Pitts
+ and in the file `Tripos.v`.
 
  Every tripos gives rise to the following category.
  - The objects of this category are partial setoids. These are given by an object in [C]
@@ -21,7 +21,7 @@
  - The morphisms from [(X , ~)] to [(Y , ~)] are given by functional relations between [X]
    and [Y]. We define these in the file `PartialEqRels.PERMorphisms.v` and we prove that this
    data forms a category in `PartialEqRels.PERCategory.v`.
- - To prove that this category has limits, we construct binary products, equalizers, and a
+ - To prove that this category has finite limits, we construct binary products, equalizers, and a
    terminal object. The terminal object and binary products are constructed using the structure
    of [C]. Here we use that the category [C] has a terminal object and binary products by
    definition of first-order hyperdoctrines. To construct equalizers, we use the fact that
@@ -39,7 +39,12 @@
  This shows that the category of partial setoids is a topos, and thus every tripos gives rise
  to a topos.
 
- There are several important instance of the tripos to topos construction, and these are
+ Note that the tripos-to-topos construction satisfies a universal property. We have a
+ pseudofunctor from toposes to first-order hyperdoctrines, which sends every topos to the
+ first-order hyperdoctrine of subobjects. The tripos-to-topos construction gives a left
+ biadjoint to this pseudofunctor, see Theorem 3.6 in "Tripos Theory in Retrospect".
+
+ There are several important instances of the tripos to topos construction, and these are
  described in "Tripos Theory in Retrospect" by Andrew Pitts. First, the category of [H]-valued
  sets can be constructed using the tripos to topos construction (here [H] is a Heyting algebra).
  This construction is used in the context of forcing and independence proofs. Second,

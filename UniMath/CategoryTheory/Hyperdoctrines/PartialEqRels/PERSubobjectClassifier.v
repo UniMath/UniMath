@@ -4,8 +4,8 @@
 
  We show that the category of partial setoids in a tripos has a subobject classifier. In
  essence, a tripos is a first-order hyperdoctrine in which we can take powersets. This also
- us to define a type, which we call a generic object and which we denote by [Ω], and the
- terms of this type represent propositions. We define the generic object by taking the
+ allows us to define a type, which we call a generic object and which we denote by [Ω], and
+ the terms of this type represent propositions. We define the generic object by taking the
  powerset of the terminal object.
 
  To define the subobject classifier of partial setoids, we use this generic object. More
@@ -17,17 +17,17 @@
 
  We then proceed to show that this gives rise to a subobject classifier. For this, we must
  also define a morphism from the terminal object to the partial setoid defined in the previous
- paragraph, which entails to define a relation between the unit type and [Ω]. A term [t] of
+ paragraph, which involves defining a relation between the unit type and [Ω]. A term [t] of
  type [Ω] is related with a term of the unit type if and only if [Prf t]. Concretely, this
  represents the relation that relates the unique element of the unit type to every proposition
  that is provable.
 
- Verifying that this data actually gives rise to a subobject classifier, is a matter of
+ Verifying that this data actually gives rise to a subobject classifier is a matter of
  manual work. There are two interesting aspects in the proof. First, we constantly use
  monomorphisms. To use the monomorphism assumption, the lemma [partial_setoid_mono_eq] is
  useful. it allows us to identify two terms if they get mapped to the same term by the
  monomorphism. Second, we also need to use the assumption that some square is a pullback
- square. here we use the lemma [subobject_classifier_partial_setoid_map_unique_lem]. This
+ square. Here we use the lemma [subobject_classifier_partial_setoid_map_unique_lem]. This
  allows us to construct elements in the pullback.
 
  References

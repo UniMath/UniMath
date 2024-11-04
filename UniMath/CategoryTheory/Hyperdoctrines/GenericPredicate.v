@@ -4,12 +4,20 @@
 
  We show that every tripos has a generic predicate (Theorem 4.4 in "Tripos Theory in Retrospect"
  by Andrew Pitts). In essence, a generic predicate is a formula from which all other formulas
- can be constructed. More concretely, it is given by a type `Ω` and a formula `prf` on `Ω` such
- that every formula `φ` in some context `Γ` can be obtained as a substitution of a term of type
- `Ω` in context `Γ`. The generic predicate is used in the tripos to topos construction to
- construct the subobject classifier of the topos. Note that a first-order hyperdoctrine with
- generic predicate does not necessarily give rise to a tripos. This would be the case if we
- assume the category of types to be Cartesian closed.
+ can be constructed. More concretely, a generic predicate in a tripos consists of
+ - a type `Ω`;
+ - a formula `prf` on `Ω`;
+ - for every formula `φ` in some context `Γ` a substitution `f` from `Γ` to `Ω` such that `φ`
+   is equal to `prf [ t ]`.
+ Every term `t` of type `Ω` in context `Γ` thus gives rise to a formula in context `Γ`, namely
+ `prf [ t ]`. In addition, every formula `φ` in context ‵Γ` is equal to `prf [ f ]` for some
+ substitution `f` from `Γ` to `Ω`. Hence, we have a surjection from terms of type `Ω` in context
+ `Γ` to formulas in context `Γ`.
+
+ The generic predicate is used in the tripos to topos construction to construct the subobject
+ classifier of the topos. Note that a first-order hyperdoctrine with generic predicate does not
+ necessarily give rise to a tripos. This would be the case if we assume the category of types to
+ be Cartesian closed.
 
  References
  - "Tripos Theory in Retrospect" by Andrew Pitts
