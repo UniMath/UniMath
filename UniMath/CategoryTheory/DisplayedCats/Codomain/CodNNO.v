@@ -252,7 +252,7 @@ Section CodNNO.
       use eq_mor_cod_fib.
       rewrite !comp_in_cod_fib.
       rewrite !assoc.
-      refine (_ @ parameterized_NNO_mor_Z _ _ N _ _ (dom_mor zy) (dom_mor sy)).
+      refine (_ @ parameterized_NNO_mor_Z N _ _ (dom_mor zy) (dom_mor sy)).
       apply maponpaths_2.
       use BinProductArrowsEq.
       - rewrite BinProductPr1Commutes.
@@ -308,7 +308,7 @@ Section CodNNO.
         cbn.
         rewrite !assoc'.
         apply maponpaths.
-        exact (!(parameterized_NNO_mor_S _ _ N _ _ (dom_mor zy) (dom_mor sy))).
+        exact (!(parameterized_NNO_mor_S N _ _ (dom_mor zy) (dom_mor sy))).
       }
       rewrite !assoc.
       apply maponpaths_2.
