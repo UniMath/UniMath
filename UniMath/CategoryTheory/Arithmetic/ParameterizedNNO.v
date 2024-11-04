@@ -42,8 +42,8 @@ Local Open Scope cat.
 
 Section ParameterizedNNO.
   Context {C : category}
-          (T : Terminal C)
-          (BC : BinProducts C).
+          {T : Terminal C}
+          {BC : BinProducts C}.
 
   (** * 1. Parameterized NNOs *)
   Definition is_parameterized_NNO
@@ -77,25 +77,23 @@ Section ParameterizedNNO.
        is_parameterized_NNO N z s.
 
   (** * 2. Accessors *)
-  Coercion parameterized_NNO_carroer
+  Coercion parameterized_NNO_carrier
            (N : parameterized_NNO)
     : C
     := pr1 N.
 
-  Definition parameterized_NNO_Z
-             (N : parameterized_NNO)
-    : T --> N
-    := pr12 N.
-
-  Definition parameterized_NNO_S
-             (N : parameterized_NNO)
-    : N --> N
-    := pr122 N.
-
   Section Accessors.
     Context (N : parameterized_NNO).
 
-    Let H : is_parameterized_NNO N (parameterized_NNO_Z N) (parameterized_NNO_S N)
+    Definition parameterized_NNO_Z
+      : T --> N
+      := pr12 N.
+
+    Definition parameterized_NNO_S
+      : N --> N
+      := pr122 N.
+
+    Let H : is_parameterized_NNO N parameterized_NNO_Z parameterized_NNO_S
       := pr222 N.
 
     Definition parameterized_NNO_mor
@@ -109,7 +107,7 @@ Section ParameterizedNNO.
                 (b y : C)
                 (zy : b --> y)
                 (sy : y --> y)
-      : BinProductArrow _ _ (identity _) (TerminalArrow _ _ · parameterized_NNO_Z N)
+      : BinProductArrow _ _ (identity _) (TerminalArrow _ _ · parameterized_NNO_Z)
         · parameterized_NNO_mor b y zy sy
         =
         zy.
@@ -121,7 +119,7 @@ Section ParameterizedNNO.
                 (b y : C)
                 (zy : b --> y)
                 (sy : y --> y)
-      : BinProductOfArrows _ _ _ (identity _) (parameterized_NNO_S N)
+      : BinProductOfArrows _ _ _ (identity _) parameterized_NNO_S
         · parameterized_NNO_mor b y zy sy
         =
         parameterized_NNO_mor b y zy sy · sy.
@@ -137,28 +135,28 @@ Section ParameterizedNNO.
                 (gz : BinProductArrow
                         _ _
                         (identity _)
-                        (TerminalArrow T b · parameterized_NNO_Z N)
+                        (TerminalArrow T b · parameterized_NNO_Z)
                       · g
                       =
                       zy)
                 (gs : BinProductOfArrows
                         _ _ _
                         (identity b)
-                        (parameterized_NNO_S N)
+                        parameterized_NNO_S
                       · g
                       =
                       g · sy)
                 (gz' : BinProductArrow
                          _ _
                          (identity _)
-                         (TerminalArrow T b · parameterized_NNO_Z N)
+                         (TerminalArrow T b · parameterized_NNO_Z)
                        · g'
                        =
                        zy)
                 (gs' : BinProductOfArrows
                          _ _ _
                          (identity b)
-                         (parameterized_NNO_S N)
+                         parameterized_NNO_S
                        · g'
                        =
                        g' · sy)
@@ -401,7 +399,7 @@ Section ParameterizedNNO.
     apply isaprop_is_parameterized_NNO.
   Qed.
 
-  Proposition parameterized_NNO_iso
+  Proposition parameterized_NNO_from_iso
               (HC : is_univalent C)
               {N₁ N₂ : parameterized_NNO}
               (f : z_iso N₁ N₂)
@@ -427,7 +425,7 @@ Section ParameterizedNNO.
   Proof.
     use invproofirrelevance.
     intros N₁ N₂.
-    use (parameterized_NNO_iso HC).
+    use (parameterized_NNO_from_iso HC).
     - use make_z_iso.
       + exact (mor_between_parameterized_NNO N₁ N₂).
       + exact (mor_between_parameterized_NNO N₂ N₁).
@@ -437,8 +435,8 @@ Section ParameterizedNNO.
   Qed.
 End ParameterizedNNO.
 
-Arguments parameterized_NNO_Z {C T BC} N.
-Arguments parameterized_NNO_S {C T BC} N.
+Arguments is_parameterized_NNO {C} T BC.
+Arguments parameterized_NNO {C} T BC.
 
 Proposition isaprop_parameterized_NNO
             (C : univalent_category)

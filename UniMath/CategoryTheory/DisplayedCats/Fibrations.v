@@ -2882,10 +2882,7 @@ Proof.
     intro.
     apply isaprop_is_nat_z_iso.
   }
-  use nat_trans_eq.
-  {
-    apply homset_property.
-  }
+  use nat_trans_eq_alt.
   intro xx ; cbn.
   use (cartesian_factorisation_unique (HFF₁ _ _ _ _ _ _ (HD₁ x y f xx))).
   rewrite !cartesian_factorisation_commutes.
