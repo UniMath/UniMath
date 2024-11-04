@@ -28,6 +28,7 @@
  4. Greatest lower bounds for complete Heyting algebras
  5. Derived laws for complete Heyting algebras
  6. Complete Heyting algebras from greatest upper bounds
+ 7. Basis
 
  *********************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -161,6 +162,14 @@ Definition complete_heyting_algebra_exp
   := pr222 H x y.
 
 Notation "x ⇒ y" := (complete_heyting_algebra_exp x y) : heyting.
+
+Definition complete_heyting_algebra_neg
+           {H : complete_heyting_algebra}
+           (x : H)
+  : H
+  := x ⇒ ⊥.
+
+Notation "¬ x" := (complete_heyting_algebra_neg x) : heyting.
 
 (** * 3. Laws for complete Heyting algebras *)
 
@@ -757,3 +766,53 @@ Proof.
       (intros x Hx ;
        exact (pr12 lub (x ,, Hx))).
 Defined.
+
+(** * 7. Basis *)
+Definition cha_basis
+           (H : complete_heyting_algebra)
+  : UU
+  := ∑ (B : UU)
+       (f : B → H),
+     ∏ (x : H),
+     x = \/_{ i : ∑ (b : B), f b ≤ x } f (pr1 i).
+
+Definition make_cha_basis
+           {H : complete_heyting_algebra}
+           (B : UU)
+           (f : B → H)
+           (HB : ∏ (x : H),
+                 x
+                 =
+                 \/_{ i : ∑ (b : B), f b ≤ x } f (pr1 i))
+  : cha_basis H
+  := B ,, f ,, HB.
+
+Coercion cha_basis_type
+         {H : complete_heyting_algebra}
+         (B : cha_basis H)
+  : UU
+  := pr1 B.
+
+Definition cha_basis_incl
+           {H : complete_heyting_algebra}
+           {B : cha_basis H}
+           (b : B)
+  : H
+  := pr12 B b.
+
+Proposition cha_basis_eq
+            {H : complete_heyting_algebra}
+            (B : cha_basis H)
+            (x : H)
+  : x
+    =
+    \/_{ i : ∑ (b : B), cha_basis_incl b ≤ x } cha_basis_incl (pr1 i).
+Proof.
+  exact (pr22 B x).
+Defined.
+
+
+Definition is_boolean_algebra
+           (H : complete_heyting_algebra)
+  : hProp
+  := (∀ (x : H), ((x ∨ ¬ x) = ⊤)%heyting)%logic.

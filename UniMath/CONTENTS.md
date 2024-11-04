@@ -170,6 +170,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [Lattice/Examples/Bool.v](OrderTheory/Lattice/Examples/Bool.v)
    - [Lattice/Examples/Subsets.v](OrderTheory/Lattice/Examples/Subsets.v)
    - [Lattice/Examples/Sieves.v](OrderTheory/Lattice/Examples/Sieves.v)
+   - [Lattice/Examples/Trivial.v](OrderTheory/Lattice/Examples/Trivial.v)
+   - [Lattice/Examples/ScottOpen.v](OrderTheory/Lattice/Examples/ScottOpen.v)
    - [Prebilattice/Prebilattice.v](OrderTheory/Prebilattice/Prebilattice.v)
    - [Prebilattice/Interlaced.v](OrderTheory/Prebilattice/Interlaced.v)
    - [Prebilattice/Distributive.v](OrderTheory/Prebilattice/Distributive.v)
