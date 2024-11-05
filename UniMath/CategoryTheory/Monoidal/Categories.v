@@ -1904,6 +1904,28 @@ Section MonoidalCatAccessors.
     apply idpath.
   Qed.
 
+  Definition z_iso_from_mon_lunitor (x : V) : 
+    z_iso (I_{V} ⊗ x) x.
+  Proof.
+    use make_z_iso.
+    + apply mon_lunitor.
+    + apply mon_linvunitor.
+    + split.
+      * apply mon_lunitor_linvunitor.
+      * apply mon_linvunitor_lunitor.
+  Defined.
+
+  Definition z_iso_from_mon_runitor (x : V) : 
+    z_iso (x ⊗ I_{V}) x.
+  Proof.
+    use make_z_iso.
+    + apply mon_runitor.
+    + apply mon_rinvunitor.
+    + split.
+      * apply mon_runitor_rinvunitor.
+      * apply mon_rinvunitor_runitor.
+  Defined.
+
   Definition monoidal_left_tensor_data
              (x : V)
     : functor_data V V.

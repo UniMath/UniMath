@@ -94,29 +94,6 @@ Section ExamplesAndProperties.
     reflexivity.
   Qed.
 
-  (***** TODO Two helper isomorphisms -- should go in Monoidal/Categories.v? **)
-  Definition z_iso_from_mon_lunitor (x : C) : 
-    z_iso (I_{C} ⊗ x) x.
-  Proof.
-    use make_z_iso.
-    + apply mon_lunitor.
-    + apply mon_linvunitor.
-    + split.
-      * apply mon_lunitor_linvunitor.
-      * apply mon_linvunitor_lunitor.
-  Defined.
-
-  Definition z_iso_from_mon_runitor (x : C) : 
-    z_iso (x ⊗ I_{C}) x.
-  Proof.
-    use make_z_iso.
-    + apply mon_runitor.
-    + apply mon_rinvunitor.
-    + split.
-      * apply mon_runitor_rinvunitor.
-      * apply mon_rinvunitor_runitor.
-  Defined.
-
   Proposition is_deterministic_to_terminal {x : C} (f : x --> I_{C}) :
     is_deterministic f.
   Proof.
