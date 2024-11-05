@@ -2,10 +2,18 @@
 Probability Spaces
 
 We define the categories of probability spaces over a causal Markov category C.
+- the objects are states (X,p) (i.e. objects equipped with a probability distribution)
+  * this is definitionally the same as the type [state C] of `State.v`
+  * it is also definitionally the same as the type of objects of the slice category I/C
+- morphisms f : (X,p) --> (Y,q) are p-almost sure equivalence classes of morphisms f : X --> Y
+  which preserve the state (i.e. pf = q)
+
+To construct this category, we use the quotient construction [mor_quot_category] of
+the slice category I/C under the congruence relation given by almost-sure equality.
 
 TODO: 
-If C has conditionals, then this category becomes a dagger category, 
-and is equivalent as a dagger category to the category of couplings from Couplings.v
+* If C has conditionals, then probability spaces become a dagger category, 
+* This category is equivalent as a dagger category to the category of couplings from Couplings.v
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 

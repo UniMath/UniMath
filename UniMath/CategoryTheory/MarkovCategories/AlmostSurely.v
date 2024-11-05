@@ -3,10 +3,18 @@ Almost-sure Equality
 
 In this file, we define the notion almost-sure equality and prove basic lemmas about it.
 
-TODO: brief explainantion of the notion
+Given a state p : I --> x, two morphisms f,g : x --> y are p-almost surely equal if the 
+distributions p · ⟨id, f⟩ = p · ⟨id, g⟩ coincide. This abstract property captures and generalizes
+almost-sure equality from probability theory, namely that the channels f(x) and g(x) are equal on the
+support of p, i.e. all x with p(x) > 0.
 
-Some useful properties of almost-sure equality only hold when assuming certain axioms such as causality. 
-Those properties are proved in InformationFlowAxioms.v
+Almost-sure equality is an equivalence relation, and many constructions such as 
+conditionals and Bayesian inverses are only unique up to almost-sure equality.  
+The category of probability spaces in `ProbabilitySpaces.v` is defined using
+the quotient modulo almost-sure equality.
+
+Some useful properties of almost-sure equality only hold when assuming further axioms such as causality. 
+Those properties are proved in `InformationFlowAxioms.v`.
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 

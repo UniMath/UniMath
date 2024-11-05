@@ -1,17 +1,19 @@
 (*********************************************
 Information Flow Axioms
 
-In this file, we provide definitions for various information flow axioms in Markov categories.
-TODO
-explain opaqueness choice
-format: (** * 2. Accessors *)
+In this file, we provide definitions for different information flow axioms in Markov categories.
+Those axioms are additional assumptions that ensures a Markov category would behave similar to genuine probabilistic models,
+which separates them from more exotic Markov categories (e.g. negative probability, fresh name generation, comonoids).
 
 1. Definition of the Information Flow Axioms 
    - causality ([is_causal])
    - positivity ([is_positive])
 2. Accessors
-   - each axiom has a left-associated and right-associated version
+   - each of the above axioms has a left-associated and right-associated version
    - we provide both, and conversions between them
+   - because we want to avoid a biased choice of one version in the definition of [is_causal] and [is_positive],
+     we chose to make those definitions opaque. Causality and positivity shall be established using the explicit constructors
+     [make_causality_l], [make_causality_r] etc. instead
 3. Consequences of Causality 
    - causality is needed for nontrivial reasoning about almost sure equality
 4. Implications between the Axioms
@@ -277,7 +279,7 @@ Section CausalityProperties.
 
 End CausalityProperties.
 
-(* 4. Implications between the Axioms *)
+(** 4. Implications between the Axioms *)
 
 Section ImplicationsBetweenAxioms.
 

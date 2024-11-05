@@ -3,9 +3,21 @@ Markov Categories
 
 This file contains the basic definitions of the theory of Markov categories.
 
-TODO
- - Briefly describe what a Markov category is
- - A bit of general context [markov_category] 
+A Markov category is a semicartesian monoidal category in which every object is equipped with the
+structure of a commutative comonoid (copy, delete). Semicartesian-ness implies that deletion is natural,
+while not every morphism commutes with copying. This expresses the difference between 
+running a nondeterministic or probabilistic computation twice, versus running it once 
+and copying (sharing) the resullt. 
+
+Markov categories have thus emerged as an abstract framework to study categories of probabilistic or
+nondeterministic computation. They serve as the central definition of Synthetic Probability Theory,
+which lets us capture many definitions of probability theory such as 
+- determinism
+- independence
+- almost sure equality
+- conditionals
+- conditional independence
+in an abstract categorical way.
 
 Table of Contents
 1. Definition of Markov categories
@@ -229,7 +241,7 @@ Section MarkovCategoryLaws.
 
 End MarkovCategoryLaws.
 
-(* Projections (marginals) *)
+(** * Projections (marginals) *)
 
 Section Marginals.
   Context {C : markov_category}.

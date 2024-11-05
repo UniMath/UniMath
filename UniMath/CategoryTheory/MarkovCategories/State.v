@@ -1,9 +1,10 @@
 (*********************************************
 State
 
-[...] states in markov categories
+A state in a Markov category C is pair (X,p) of an object equipped with a distribution I --> x.
 
-Todo: add faithfulness
+Here, we define states as a reuseable notion. States form for example the objects of the slice category
+I/C, as well as the categories of probability spaces and couplings over a Markov category C. 
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
@@ -34,5 +35,3 @@ Definition state_ob {C : markov_category} (p : state C) : C := pr1 p.
 
 Coercion state_mor {C : markov_category} (p : state C) : I_{C} --> state_ob p
   := pr2 p.
-
-

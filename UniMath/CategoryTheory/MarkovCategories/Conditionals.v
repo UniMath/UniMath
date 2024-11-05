@@ -1,11 +1,11 @@
 (*********************************************
 Conditionals
 
-We define the notion of a Markov category with chosen conditionals, 
-interderivable notions such as Bayesian inverses, and derive
-various consequences for information flow axioms.
+We define the notion of a Markov category with chosen conditionals,
+and various interderivable notions such as Bayesian inverses. We prove
+various consequences of the existence of conditionals for information flow axioms.
 
-1. Definition of `markov_category_with_conditionals`
+1. Definition of [markov_category_with_conditionals]
 2. Accessors
    - Specialized definitions and lemmas for conditional distributions
 3. Bayesian inverses
@@ -15,8 +15,6 @@ various consequences for information flow axioms.
 4. Consequences and derived information flow axioms
    - Every Markov category with conditionals is causal
    - Every Markov category with conditionals is positive
-
-TODO: section headings from table of contents, (** **) instead of (* *)
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
@@ -40,6 +38,7 @@ Import MonoidalNotations.
 Local Open Scope cat.
 Local Open Scope moncat.
 
+(** * 1. Definition of [markov_category_with_conditionals] *)
 
 Section DefConditionals.
   Context {C : markov_category}.
@@ -62,6 +61,8 @@ Definition markov_category_with_conditionals : UU :=
 Coercion markov_cat_with_conditional_to_markov
          (C : markov_category_with_conditionals)
   : markov_category := pr1 C.
+
+(** * 2. Accessors *)
 
 Section Accessors.
   Context {C : markov_category_with_conditionals}.
@@ -174,6 +175,8 @@ End ConditionalDistributions.
 Notation "p |1" := (conditional_distribution_1 p).
 Notation "p |2" := (conditional_distribution_2 p).
 
+(** * 3. Bayesian inverses *)
+
 Section DefBayesianInverse.
   Context {C : markov_category}.
   
@@ -247,12 +250,15 @@ End ConstructionBayesianInverse.
 
 #[global] Opaque bayesian_inverse.
 
+(** * 4. Consequences and derived information flow axioms *)
+
 Section Lemmas.
   Context {C : markov_category_with_conditionals}.
   Context {x y z : C}.
   Context (f : x --> y) (g : y --> z).
 
   (* The causality and positivity proofs allow some shared setup *)
+
   Let psi := f · ⟨g , identity _⟩.
   Let s := conditional psi.
 
@@ -305,7 +311,7 @@ Section Lemmas.
     reflexivity.
    Qed.
 
-  (* Towards positivity *)
+  (** Lemmas for the positivity proof *)
 
   Local Lemma positivity_conclusion (det_fg : is_deterministic (f · g)) : psi = ⟨f · g , f⟩.
   Proof. 
@@ -324,7 +330,7 @@ Section Lemmas.
     reflexivity.
   Qed.
 
-  (* towards causality *)
+  (** Lemmas for the causality proof *)
 
   Local Lemma causality_rewrite_lemma {w : C} (h : z --> w) :
       f · ⟨g · ⟨h, identity _⟩, identity _⟩ 

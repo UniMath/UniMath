@@ -1,7 +1,9 @@
 (*********************************************
 Couplings
 
-We define the category of couplings over a Markov category with conditionals
+A coupling between states p,q is a joint state γ which marginalizes to p and q.
+We prove various lemmas about such couplings. For a Markov category C with conditionals, 
+couplings can be composed to form a category [couplings C]. 
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
@@ -518,7 +520,7 @@ Section CouplingsCategory.
       use isapropdirprod ; apply homset_property. 
   Qed.
 
-  Definition couplings_category
+  Definition couplings 
     : category.
   Proof.
     use make_category.

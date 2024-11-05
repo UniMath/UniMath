@@ -2,10 +2,15 @@
 Determinism
 
 In this file, we provide the definition of a deterministic morphisms in a Markov category.
+A morphism f : x --> y is deterministic if it commutes with copying, i.e.
+[f · copy y = copy x · f #⊗ f].
 
- TODO: briefly explain determinism
+In probabilitic models, this condition accurately identifies those morphisms which behave deterministically. 
+The determinism condition expresses that the following are equivalent: running a computation twice,
+versus running it once and copying (sharing) the result.
 
-We give proofs of determinism of all structure morphisms and show other examples and lemmas.
+We give proofs of determinism of all relevant structure morphisms of the Markov category C,
+and prove various lemmas about composition of deterministic maps.
 
 Table of Contents
 1. Definition of Determinism
@@ -34,8 +39,7 @@ Import BifunctorNotations.
 Local Open Scope cat.
 Local Open Scope moncat.
 
-
-(** 1. Definition of Determinism **)
+(** 1. Definition of Determinism *)
 
 Section DefDeterminism.
   Context {C : markov_category}.
@@ -56,8 +60,7 @@ Section DefDeterminism.
 
 End DefDeterminism.
 
-
-(** 2. Examples and Properties **)
+(** * 2. Examples and Properties *)
 
 Section ExamplesAndProperties.
   Context {C : markov_category}.
@@ -91,7 +94,7 @@ Section ExamplesAndProperties.
     reflexivity.
   Qed.
 
-  (***** Two helper isomorphisms -- should go in Monoidal/Categories.v? **)
+  (***** TODO Two helper isomorphisms -- should go in Monoidal/Categories.v? **)
   Definition z_iso_from_mon_lunitor (x : C) : 
     z_iso (I_{C} ⊗ x) x.
   Proof.
