@@ -172,7 +172,7 @@ Definition functor_with_enrichment
   : UU
   := ∑ (F : E₁ ⟶ E₂), functor_enrichment F E₁ E₂.
 
-#[reversible=no] Coercion functor_with_enrichment_to_functor
+Coercion functor_with_enrichment_to_functor
          {V : monoidal_cat}
          {E₁ : cat_with_enrichment V}
          {E₂ : cat_with_enrichment V}
@@ -398,7 +398,7 @@ Definition functor_comp_enrichment_fully_faithful
   : fully_faithful_enriched_functor (functor_comp_enrichment FE₁ FE₂).
 Proof.
   intros x y ; cbn.
-  use is_z_iso_comp_of_is_z_isos.
+  use is_z_isomorphism_comp.
   - apply HF₁.
   - apply HF₂.
 Defined.

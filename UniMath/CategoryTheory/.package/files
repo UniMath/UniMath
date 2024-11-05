@@ -141,6 +141,7 @@ DisplayedCats/MonoCodomain/MonoHyperdoctrine.v
 Hyperdoctrines/Hyperdoctrine.v
 Hyperdoctrines/FirstOrderHyperdoctrine.v
 Hyperdoctrines/Tripos.v
+Hyperdoctrines/GenericPredicate.v
 
 Hyperdoctrines/PartialEqRels/PERs.v
 Hyperdoctrines/PartialEqRels/PERMorphisms.v
@@ -151,8 +152,16 @@ Hyperdoctrines/PartialEqRels/PERInitial.v
 Hyperdoctrines/PartialEqRels/PERBinProducts.v
 Hyperdoctrines/PartialEqRels/PEREqualizers.v
 Hyperdoctrines/PartialEqRels/PERMonomorphisms.v
+Hyperdoctrines/PartialEqRels/PERSubobjectClassifier.v
+Hyperdoctrines/PartialEqRels/ExponentialPER.v
+Hyperdoctrines/PartialEqRels/ExponentialEval.v
+Hyperdoctrines/PartialEqRels/ExponentialLam.v
+Hyperdoctrines/PartialEqRels/ExponentialEqs.v
+Hyperdoctrines/PartialEqRels/PERExponentials.v
+Hyperdoctrines/TriposToTopos.v
 
 DisplayedCats/Examples/HValuedPredicates.v
+Hyperdoctrines/HValuedSets.v
 
 LocallyCartesianClosed/LocallyCartesianClosed.v
 DisplayedCats/Fiberwise/DualBeckChevalley.v
@@ -195,8 +204,8 @@ DisplayedCats/CatIsoDisplayed.v
 CategoryEquality.v
 Core/PosetCat.v
 WeakEquivalences.v
-rezk_completion.v
-RezkCompletion.v
+RezkCompletions/RezkCompletions.v
+RezkCompletions/Construction.v
 exponentials.v
 slicecat.v
 Limits/PullbacksSliceProductsEquiv.v
@@ -242,7 +251,8 @@ Categories/Intdom.v
 Categories/Fld.v
 Categories/Module.v
 Categories/StandardCategories.v
-Categories/PreorderCategories.v
+Categories/PreorderCategory/Core.v
+Categories/PreorderCategory/Sieves.v
 Categories/MonoidToCategory.v
 
 Limits/Examples/UnitCategoryLimits.v
@@ -274,13 +284,22 @@ Categories/Woset.v
 Categories/Graph.v
 Categories/CGraph.v
 
-GrothendieckTopos.v
 Presheaf.v
 ElementsOp.v
 elems_slice_equiv.v
 YonedaBinproducts.v
 YonedaExponentials.v
 ExponentiationLeftAdjoint.v
+
+GrothendieckToposes/Sieves.v
+GrothendieckToposes/Topologies.v
+GrothendieckToposes/Sites.v
+GrothendieckToposes/Sheaves.v
+GrothendieckToposes/Toposes.v
+GrothendieckToposes/Examples/TerminalSheaf.v
+GrothendieckToposes/Examples/EmptySieve.v
+GrothendieckToposes/Examples/DiscreteTopology.v
+GrothendieckToposes/Examples/IndiscreteTopology.v
 
 Connected.v
 LeftKanExtension.v
@@ -297,6 +316,12 @@ DisplayedCats/Examples/DispFunctorPair.v
 DisplayedCats/Examples/Opposite.v
 DisplayedCats/Fibrations.v
 DisplayedCats/Examples/Reindexing.v
+DisplayedCats/Constructions/CategoryWithStructure.v
+DisplayedCats/Constructions/DisplayedFunctorCat.v
+DisplayedCats/Constructions/FullSubcategory.v
+DisplayedCats/Constructions/Product.v
+DisplayedCats/Constructions/DisplayedSections.v
+DisplayedCats/Constructions/FunctorLift.v
 DisplayedCats/Constructions.v
 
 FunctorAlgebras.v
@@ -312,6 +337,7 @@ Inductives/Trees.v
 Inductives/LambdaCalculus.v
 Inductives/PropositionalLogic.v
 CategoricalRecursionSchemes.v
+PointedFunctorAlgebras.v
 
 DisplayedCats/Equivalences.v
 DisplayedCats/EquivalenceOverId.v

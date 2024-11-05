@@ -357,9 +357,9 @@ Section TotalEquivalence.
     : ∏ x : total_category D1, is_z_isomorphism (pr1 (adjunit (total_adjunction FF) x)).
   Proof.
     intro x.
-    use is_z_iso_comp_of_is_z_isos.
+    use is_z_isomorphism_comp.
     - apply Isos.identity_is_z_iso.
-    - use Isos.is_z_iso_comp_of_is_z_isos.
+    - use is_z_isomorphism_comp.
       + apply (adj_equiv_of_cats_from_adj F).
       + apply Isos.identity_is_z_iso.
   Defined.
@@ -451,9 +451,9 @@ Section TotalEquivalence.
     :  ∏ b : total_category D2, Isos.is_z_isomorphism (pr1 (adjcounit (total_adjunction FF) b)).
   Proof.
     intro.
-    use Isos.is_z_iso_comp_of_is_z_isos.
+    use is_z_isomorphism_comp.
     - apply Isos.identity_is_z_iso.
-    - use Isos.is_z_iso_comp_of_is_z_isos.
+    - use is_z_isomorphism_comp.
       + apply (adj_equiv_of_cats_from_adj F).
       + apply Isos.identity_is_z_iso.
   Defined.

@@ -64,7 +64,7 @@ Section EnrichedCopowers.
     : UU
     := ∑ (a : C), v --> E ⦃ x , a ⦄.
 
-  #[reversible=no] Coercion ob_copower_cocone
+  Coercion ob_copower_cocone
            (a : copower_cocone)
     : C
     := pr1 a.
@@ -232,7 +232,7 @@ Section EnrichedCopowers.
       refine (transportf
                 is_z_isomorphism
                 _
-                (is_z_iso_comp_of_is_z_isos _ _ (precomp_arr_is_z_iso E w _ (pr2 f)) (Ha w))).
+                (is_z_isomorphism_comp (precomp_arr_is_z_iso E w _ (pr2 f)) (Ha w))).
       unfold precomp_arr, is_copower_enriched_map.
       cbn.
       use internal_funext.
@@ -311,7 +311,7 @@ Definition cat_with_enrichment_copower
   : UU
   := ∑ (C : cat_with_enrichment V), enrichment_copower C.
 
-#[reversible=no] Coercion cat_with_enrichment_copower_to_cat_with_enrichment
+Coercion cat_with_enrichment_copower_to_cat_with_enrichment
          {V : sym_mon_closed_cat}
          (C : cat_with_enrichment_copower V)
   : cat_with_enrichment V
