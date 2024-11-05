@@ -195,8 +195,7 @@ Section CouplingCompositionLemmas.
     reflexivity.
   Qed.
 
-  (* TODO serious name *)
-  Proposition aux42 {x y x' y' : C}
+  Local Lemma conditional_distribution_1_to_2 {x y x' y' : C}
     (β : I_{C} --> x ⊗ y)
     (f : x --> x') (g : y --> y') :
    β · proj1 · ⟨ f , β|1 · g ⟩ = β · proj2 · ⟨ β|2 · f, g ⟩.
@@ -240,12 +239,12 @@ Section CouplingCompositionLemmas.
       do 2 refine (assoc' _ _ _ @ _).
       rewrite <- tensor_comp_id_l.
       rewrite pairing_tensor_r.
-      rewrite aux42.
+      rewrite conditional_distribution_1_to_2.
       rewrite e1.
-      rewrite aux42.
+      rewrite conditional_distribution_1_to_2.
       rewrite e2.
       rewrite <- (id_right (δ |1)).
-      rewrite aux42.
+      rewrite conditional_distribution_1_to_2.
       rewrite id_right.
       rewrite <- pairing_tensor_l.
       refine (assoc _ _ _ @ _).
