@@ -2,10 +2,32 @@
 Univalence 
 
 We define what it means for a Markov category to be univalent,
-i.e. equality of objects is equivalent to deterministic isomorphism.
+namely equality of objects is equivalent to deterministic isomorphism.
+
+Markov categories can equivalently be defined as semi-Cartesian monoidal categories
+that supply commutative comonoids. More specifically, in a Markov category
+every object is equipped with a commutative comonoid structure given by
+the copy and delete maps. Note that while deletion is necessarily natural
+(because Markov categories are semi-Cartesian), the copy map is not required
+to be natural.
+
+A  notion of univalence for symmetric monoidal categories that supply some structure
+given by a PROP is given in Example 13.2 in "The Univalence Principle" by Ahrens,
+North, Shulman and Tsementzis. The indiscernibilities are isomorphism that commute with
+the PROP structure. For Markov categories, this means isomorphisms that commute with
+both the copy and delete map. Since commutation with the delete map is automatic (the
+delete morphism lands in the terminal object), indiscernibilities are given by
+isomorphisms that commute with the copy map. Deterministic isomorphisms are exactly
+those isomorphisms that satisfy that property. Hence, univalence for Markov categories
+should be defined using deterministic isomorphisms.
+
+Note that in many examples of Markov categories deterministic isomorphisms are the same
+as ordinary isomorphisms (for example those satisfying the the axioms in `InformationFlowAxioms.v`, 
+such as positivity and causality). For those, univalence and Markov univalence are equivalent.
 
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
+- B. Ahrens, P.R. North, M. Shulman, D. Tsementzis - 'The Univalence Principle'
 **********************************************)
 
 Require Import UniMath.Foundations.All.

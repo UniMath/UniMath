@@ -3,6 +3,10 @@ Markov Categories
 
 This file contains the basic definitions of the theory of Markov categories.
 
+TODO
+ - Briefly describe what a Markov category is
+ - A bit of general context [markov_category] 
+
 Table of Contents
 1. Definition of Markov categories
 2. Projections
@@ -319,7 +323,9 @@ End Marginals.
 
 (* We define pairing notation ⟨f,g⟩ *)
 
-Definition pairing {C : markov_category} {a x y : C} (f : a --> x) (g : a --> y) : a --> x ⊗ y := copy a · (f #⊗ g).
+Definition pairing {C : markov_category} {a x y : C} 
+                   (f : a --> x) (g : a --> y) : a --> x ⊗ y 
+    := copy a · (f #⊗ g).
 
 Notation "⟨ f , g ⟩" := (pairing f g).
 

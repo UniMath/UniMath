@@ -3,6 +3,8 @@ Almost-sure Equality
 
 In this file, we define the notion almost-sure equality and prove basic lemmas about it.
 
+TODO: brief explainantion of the notion
+
 Some useful properties of almost-sure equality only hold when assuming certain axioms such as causality. 
 Those properties are proved in InformationFlowAxioms.v
 
@@ -63,7 +65,8 @@ Section DefAlmostSurely.
     assumption.
   Qed.
 
-  Proposition isaprop_ase {a x y : C} (p : a --> x) (f g : x --> y) : isaprop (equal_almost_surely p f g).
+  Proposition isaprop_ase {a x y : C} (p : a --> x) (f g : x --> y) :
+      isaprop (equal_almost_surely p f g).
   Proof. 
     apply homset_property.
   Qed.  

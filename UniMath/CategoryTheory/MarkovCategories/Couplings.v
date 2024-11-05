@@ -19,6 +19,8 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 
 Require Import UniMath.CategoryTheory.MarkovCategories.MarkovCategory.
 Require Import UniMath.CategoryTheory.MarkovCategories.Determinism.
+
+Require Import UniMath.CategoryTheory.MarkovCategories.State.
 Require Import UniMath.CategoryTheory.MarkovCategories.InformationFlowAxioms.
 Require Import UniMath.CategoryTheory.MarkovCategories.AlmostSurely.
 Require Import UniMath.CategoryTheory.MarkovCategories.Conditionals.
@@ -27,14 +29,6 @@ Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
-
-Definition state (C : markov_category) := ∑ (x : C), I_{C} --> x.
-
-(* maybe not 
-Coercion state_to_ob {C : markov_category} (p : state C) : C := pr1 p. *)
-
-Coercion state_to_mor {C : markov_category} (p : state C) : I_{C} --> pr1 p
-  := pr2 p.
 
 Definition coupling {C : markov_category} {x y : C} (p : I_{C} --> x) (q : I_{C} --> y) : UU
   := ∑ (γ : I_{C} --> x ⊗ y), (γ · proj1 = p) × (γ · proj2 = q).
@@ -53,7 +47,13 @@ Proposition coupling_ext {C : markov_category} {p q : state C} {β γ : coupling
   (coupling_to_state β) = (coupling_to_state γ) -> β = γ.
 Proof.
   intros pf.
-  Admitted.
+  use subtypePath.
+  {
+    intro.
+    use isapropdirprod ; apply homset_property.
+  }
+  exact pf.
+Qed.
 
 Proposition coupling_dom {C : markov_category} {x y : C} 
         {p : I_{C} --> x} {q : I_{C} --> y} (γ : coupling p q) :
@@ -437,7 +437,7 @@ Section CouplingsCategory.
       - apply identity_coupling_cod.
     Defined.
 
-  Proposition couplings_composable {p q r : state C}
+  Lemma couplings_composable {p q r : state C}
        (β : coupling p q) (γ : coupling q r) : β · proj2 = γ · proj1.
   Proof. 
     rewrite coupling_dom, coupling_cod.
@@ -449,12 +449,12 @@ Section CouplingsCategory.
   Proof.
     use make_coupling.
     - exact (coupling_composition β γ).
-    - rewrite coupling_composition_dom.
-      + apply coupling_dom.
-      + apply couplings_composable.
-    - rewrite coupling_composition_cod.
-      + apply coupling_cod.
-      + apply couplings_composable.
+    - abstract
+        (rewrite coupling_composition_dom ;
+         [ apply coupling_dom | apply couplings_composable ]).
+    - abstract
+        (rewrite coupling_composition_cod ;
+         [ apply coupling_cod | apply couplings_composable ]).
   Defined.
 
   Definition couplings_precategory_ob_mor
@@ -511,8 +511,12 @@ Section CouplingsCategory.
     : has_homsets couplings_precategory.
   Proof.
     intros x y.
-    admit. (* use coupling_ext *)
-  Admitted.
+    use isaset_total2.
+    - apply homset_property.
+    - intro f.
+      apply isasetaprop.
+      use isapropdirprod ; apply homset_property. 
+  Qed.
 
   Definition couplings_category
     : category.

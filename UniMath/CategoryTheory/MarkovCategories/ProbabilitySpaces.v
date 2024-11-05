@@ -2,6 +2,8 @@
 Probability Spaces
 
 We define the categories of probability spaces over a causal Markov category C.
+
+TODO: 
 If C has conditionals, then this category becomes a dagger category, 
 and is equivalent as a dagger category to the category of couplings from Couplings.v
 
@@ -21,6 +23,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 
 Require Import UniMath.CategoryTheory.MarkovCategories.MarkovCategory.
 Require Import UniMath.CategoryTheory.MarkovCategories.Determinism.
+Require Import UniMath.CategoryTheory.MarkovCategories.State.
 Require Import UniMath.CategoryTheory.MarkovCategories.InformationFlowAxioms.
 Require Import UniMath.CategoryTheory.MarkovCategories.AlmostSurely.
 Require Import UniMath.CategoryTheory.MarkovCategories.Conditionals.
@@ -34,29 +37,26 @@ Section ProbabilitySpaces.
   Context {C : markov_category}
           (causality : is_causal C).
   
-  Definition states : category.
+  Definition states_cat : category.
   Proof.
     use coslice_cat.
     + exact C.
     + exact I_{C}.
   Defined.
 
-  Definition state : UU := states.
+  (* states are definitionally the same as objects of states_cat *)
 
-  Coercion state_ob (p : state) : C := pr1 p.
+  Definition state_mor (p q : state C) : UU := states_cat ⟦ p, q ⟧ .
 
-  Coercion state_to_mor (p : state) : I_{C} --> p := pr2 p.
+  Coercion state_mor_to_mor {p q : state C} (f : state_mor p q)
+    : C ⟦ state_ob p , state_ob q ⟧ := pr1 f.
 
-  Definition state_mor (p q : state) : UU := p --> q.
-
-  Coercion state_mor_to_mor {p q : state} (f : state_mor p q) : C ⟦ p, q ⟧ := pr1 f.
-
-  Proposition state_mor_eq {p q : state} (f : state_mor p q) : p · f = q.
+  Proposition state_mor_eq {p q : state C} (f : state_mor p q) : p · f = q.
   Proof.
     exact (pr2 f).
   Qed.
 
-  Definition ase_states (p q : state) : hrel (state_mor p q).
+  Definition ase_states (p q : state C) : hrel (state_mor p q).
   Proof. 
     intros f g.
     use make_hProp.
@@ -64,7 +64,7 @@ Section ProbabilitySpaces.
     - apply isaprop_ase.
    Defined.
 
-  Proposition is_eqrel_ase_states (p q : state) : iseqrel (ase_states p q).
+  Proposition is_eqrel_ase_states (p q : state C) : iseqrel (ase_states p q).
   Proof.
     repeat split.
     - intros f g h.
@@ -74,7 +74,7 @@ Section ProbabilitySpaces.
   Qed.
 
   Proposition ase_states_cong
-              {p q r : state}
+              {p q r : state C}
               {f f' : state_mor p q}
               {g g' : state_mor q r}
               (e₁ : ase_states _ _ f f')
@@ -89,7 +89,7 @@ Section ProbabilitySpaces.
     - exact (!(state_mor_eq f)).
   Qed.
 
-  Definition ase_cong : mor_cong_rel states.
+  Definition ase_cong : mor_cong_rel states_cat.
   Proof.
     use make_mor_cong_rel.
     - intros p q.
@@ -104,7 +104,7 @@ Section ProbabilitySpaces.
   Definition prob_space : category.
   Proof.
     use mor_quot_category.
-    - exact states.
+    - exact states_cat.
     - exact ase_cong.
   Defined.
 

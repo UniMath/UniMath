@@ -2,9 +2,13 @@
 Information Flow Axioms
 
 In this file, we provide definitions for various information flow axioms in Markov categories.
+TODO
+explain opaqueness choice
+format: (** * 2. Accessors *)
+
 1. Definition of the Information Flow Axioms 
-   - causality (`is_causal`)
-   - positivity (`is_positive`)
+   - causality ([is_causal])
+   - positivity ([is_positive])
 2. Accessors
    - each axiom has a left-associated and right-associated version
    - we provide both, and conversions between them
@@ -37,7 +41,7 @@ Import MonoidalNotations.
 Local Open Scope cat.
 Local Open Scope moncat.
 
-(* 1. Definition of the Information Flow Axioms *)
+(** * 1. Definition of the Information Flow Axioms *)
 
 Section InformationFlowAxioms.
     Context (C : markov_category).
@@ -47,14 +51,28 @@ Section InformationFlowAxioms.
                   f · (g · ⟨h1, identity z⟩) = f · (g · ⟨h2, identity z⟩)
               ->  f · ⟨g · ⟨h1, identity z⟩, identity y⟩ = f · ⟨g · ⟨h2, identity z⟩, identity y⟩.
 
+    Proposition isaprop_is_causal
+      : isaprop is_causal.
+    Proof.
+      repeat (use impred ; intro).
+      apply homset_property.
+    Qed.
+
     Definition is_positive : UU
         := ∏ (x y z : C) (f : x --> y) (g : y --> z),
            is_deterministic (f · g) 
            -> f · ⟨identity _, g⟩ = ⟨f , f · g⟩.
 
+    Proposition isaprop_is_positive
+      : isaprop is_positive.
+    Proof.
+      repeat (use impred ; intro).
+      apply homset_property.
+    Qed.
+
 End InformationFlowAxioms.
 
-(* 2. Accessors *)
+(** * 2. Accessors *)
 
 Section SwapLemmas.
     Context {C : markov_category}.
@@ -177,7 +195,7 @@ Section Accessors.
     Qed.
 
     Proposition make_positivity_r :
-      (forall {x y z : C} (f : x --> y) (g : y --> z),
+      (∏ {x y z : C} (f : x --> y) (g : y --> z),
         is_deterministic(f · g) -> f · ⟨identity _, g⟩ = ⟨f , f · g⟩)
       -> is_positive C.
     Proof.
@@ -185,7 +203,7 @@ Section Accessors.
     Qed.
 
     Proposition make_positivity_l :
-      (forall {x y z : C} (f : x --> y) (g : y --> z),
+      (∏ {x y z : C} (f : x --> y) (g : y --> z),
         is_deterministic(f · g) -> f · ⟨g, identity _⟩ = ⟨f · g, f⟩)
       -> is_positive C.
     Proof.
@@ -200,10 +218,7 @@ Section Accessors.
 
 End Accessors.
 
-(* TODO Make this opaque? *)
-(* #[global] Opaque is_causal is_positive. *)
-
-(* 3. Consequences of Causality *)
+(** * 3. Consequences of Causality *)
 
 Section CausalityProperties.
   Context {C : markov_category} {causality : is_causal C}.
@@ -284,8 +299,7 @@ Section ImplicationsBetweenAxioms.
     transitivity (f · ⟨identity _, g · f⟩).
     { unfold g. rewrite z_iso_after_z_iso_inv. reflexivity. } 
     etrans. 
-    { Search pairing.
-      rewrite <- pairing_tensor_r.
+    { rewrite <- pairing_tensor_r.
       rewrite !assoc.
       rewrite positivity_r.
       { rewrite pairing_tensor_r.
@@ -301,3 +315,5 @@ Section ImplicationsBetweenAxioms.
   Qed.
 
 End ImplicationsBetweenAxioms.
+
+#[global] Opaque is_causal is_positive.

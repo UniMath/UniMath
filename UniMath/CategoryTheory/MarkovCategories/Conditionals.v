@@ -16,6 +16,8 @@ various consequences for information flow axioms.
    - Every Markov category with conditionals is causal
    - Every Markov category with conditionals is positive
 
+TODO: section headings from table of contents, (** **) instead of (* *)
+
 References
 - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
 **********************************************)
@@ -77,8 +79,7 @@ Section Accessors.
   Qed.
 End Accessors.
 
-(* TODO this already gets used twice, so it could be an interesting named lemma *)
-Lemma auxcoh {C : markov_category} {x y : C} (f : I_{C} --> x ⊗ x) (g : x ⊗ I_{C} --> y) : 
+Lemma copy_tensor_x_I_mor_comp {C : markov_category} {x y : C} (f : I_{C} --> x ⊗ x) (g : x ⊗ I_{C} --> y) : 
      ⟨f, identity _⟩ · mon_lassociator _ _ _ · (identity _ #⊗ g) 
    = f · (identity _ #⊗ (mon_rinvunitor _ · g)).
 Proof.
@@ -118,7 +119,7 @@ Section ConditionalDistributions.
     unfold conditional_distribution_1. 
     etrans. { apply (conditional_eq p). }
     rewrite <- pairing_eq.
-    rewrite auxcoh.
+    rewrite copy_tensor_x_I_mor_comp.
     unfold pairing.
     rewrite assoc.
     reflexivity.
@@ -215,7 +216,7 @@ Section ConstructionBayesianInverse.
     rewrite Aux1 in K.
     clear Aux1.
     rewrite <- pairing_eq in K.
-    rewrite auxcoh in K.
+    rewrite copy_tensor_x_I_mor_comp in K.
     unfold phi in K.
     rewrite <- assoc in K.
     etrans. 
@@ -326,12 +327,11 @@ Section Lemmas.
   (* towards causality *)
 
   Local Lemma causality_rewrite_lemma {w : C} (h : z --> w) :
-    f · ⟨g · ⟨h, identity _⟩, identity _⟩ 
-           = 
-           ⟨ f · (g · ⟨h, identity _⟩) · (identity _ #⊗ copy _) , identity x ⟩ 
-           · (mon_rassociator _ _ _) #⊗ identity x
-           · mon_lassociator _ _ _
-           · identity _ #⊗ s.
+      f · ⟨g · ⟨h, identity _⟩, identity _⟩ 
+    = ⟨ f · (g · ⟨h, identity _⟩) · (identity _ #⊗ copy _) , identity x ⟩ 
+      · (mon_rassociator _ _ _) #⊗ identity x
+      · mon_lassociator _ _ _
+      · identity _ #⊗ s.
   Proof.
     transitivity (⟨f · g · copy z, identity x⟩
                · mon_lassociator _ _ _

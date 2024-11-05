@@ -2,6 +2,9 @@
 Determinism
 
 In this file, we provide the definition of a deterministic morphisms in a Markov category.
+
+ TODO: briefly explain determinism
+
 We give proofs of determinism of all structure morphisms and show other examples and lemmas.
 
 Table of Contents
@@ -110,7 +113,6 @@ Section ExamplesAndProperties.
       * apply mon_runitor_rinvunitor.
       * apply mon_rinvunitor_runitor.
   Defined.
-  (*****************)
 
   Proposition is_deterministic_to_terminal {x : C} (f : x --> I_{C}) :
     is_deterministic f.
