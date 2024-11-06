@@ -14,6 +14,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
@@ -106,13 +107,16 @@ Definition is_left_adjoint_slice_dom
            (x : C)
   : is_left_adjoint (slice_dom x).
 Proof.
-  use left_adjoint_from_partial.
-  - exact (λ z, pr_cod_fib BP x z).
-  - exact (λ z, BinProductPr2 _ (BP x z)).
-  - intros z yf g.
+  use coreflections_to_is_left_adjoint.
+  intro z.
+  use make_coreflection.
+  - use make_coreflection_data.
+    + exact (pr_cod_fib BP x z).
+    + exact (BinProductPr2 _ (BP x z)).
+  - intro g.
     use iscontraprop1.
     + apply is_left_adjoint_slice_dom_unique.
     + simple refine (_ ,, _).
-      * exact (is_left_adjoint_slice_dom_mor BP yf g).
+      * exact (is_left_adjoint_slice_dom_mor BP _ g).
       * apply is_left_adjoint_slice_dom_comm.
 Defined.

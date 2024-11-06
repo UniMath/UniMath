@@ -27,15 +27,17 @@ Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.exponentials.
 
 Local Open Scope cat.
 
 Lemma is_universal_arrow_from_after_path_induction
   {D C : category} (S : D ⟶ C) (c : C) (r : D) (f₁ f₂ : C⟦S r, c⟧) (p : f₁ = f₂)
-  : is_universal_arrow_from S c r f₁ → is_universal_arrow_from S c r f₂.
+  : is_coreflection (make_coreflection_data r f₁) → is_coreflection (make_coreflection_data r f₂).
 Proof.
   apply transportf.
+  apply maponpaths.
   exact p.
 Qed. (* or defined. *)
 
@@ -45,7 +47,7 @@ Section IsExponentiableObject.
 
   Definition is_exponentiable_alt_uvp
     {x y e : C} (ev : C⟦P x e, y⟧) : UU
-    := is_universal_arrow_from (constprod_functor1 P x) y e ev.
+    := is_coreflection (make_coreflection_data (F := constprod_functor1 P x) e ev).
 
   (* Evaluation map + universal property *)
   Definition is_Exponent
@@ -54,7 +56,9 @@ Section IsExponentiableObject.
 
   (* The existence of the exponential [x,y] *)
   Definition Exponent (x y : C) : UU
-    := ∑ e : C, is_Exponent x y e.
+    := coreflection y (constprod_functor1 P x).
+
+  Identity Coercion exponent_to_coreflection : Exponent >-> coreflection.
 
   (* The existence of exponentials [x, -] *)
   Definition is_exponentiable_alt (x : C) : UU
@@ -70,120 +74,49 @@ Section IsExponentiableAsHasRightAdjoint.
     : is_exponentiable_alt P x → is_exponentiable P x.
   Proof.
     intro e.
-    use left_adjoint_from_partial.
-    - exact (λ y, pr1 (e y)).
-    - exact (λ y, pr12 (e y)).
-    - intro ; intro ; intros ; apply (pr22 (e _)).
+    apply right_adjoint_weq_coreflections.
+    intro y.
+    apply e.
   Defined.
 
   Lemma is_exponentiable_to_uvp {x : C} (e: is_exponentiable P x)
     : ∏ y : C, is_exponentiable_alt_uvp P (exp_eval e y).
   Proof.
     intro y.
-    set (l := left_adjoint_to_adjunction e).
-    set (ll := make_are_adjoints _ _ _ _ (pr2 l)).
-    set (lw := nathomweq_from_adj ll).
-    intros a f.
-    set (lww := pr2 (invweq (hom_weq lw)) f).
-    use (iscontrweqb' lww).
-    use weqfibtototal.
-    intro g.
-    apply weqpathsinv0.
+    exact (coreflection_is_coreflection (right_adjoint_weq_coreflections _ e y)).
   Defined.
 
   Lemma is_exponentiable_to_is_exponentiable_alt (x : C)
     : is_exponentiable P x → is_exponentiable_alt P x.
   Proof.
     intros e y.
-    simple refine (_ ,, _ ,, _).
-    - exact (exp e y).
-    - exact (exp_eval e y).
-    - apply is_exponentiable_to_uvp.
+    exact (right_adjoint_weq_coreflections _ e y).
   Defined.
 
 End IsExponentiableAsHasRightAdjoint.
 
 Section UniquenessUpToIso.
 
-  Context {C : category} (P : BinProducts C).
-
-  Lemma unique_maps_between_evaluation_maps_form_inverses
-    {x y e e' : C}
-    {ev : C ⟦ P x e, y ⟧}
-    {ev' : C ⟦ P x e', y ⟧}
-    (ev_uvp : is_exponentiable_alt_uvp P ev)
-    (ev'_uvp : is_exponentiable_alt_uvp P ev')
-    : pr1 (iscontrpr1 (ev'_uvp e ev)) · pr1 (iscontrpr1 (ev_uvp e' ev')) = identity e.
-  Proof.
-    refine (_ @ idpath (pr1 (iscontrpr1 (ev_uvp e ev))) @ _).
-    - use (base_paths _ _ (pr2 (ev_uvp e ev) (_ ,, _))).
-      simpl.
-      etrans.
-      2: {
-        apply maponpaths_2.
-        apply BinProductOfArrows_idxcomp.
-      }
-      rewrite assoc'.
-      etrans.
-      2: {
-        apply maponpaths.
-        exact (pr21 (ev_uvp e' ev')).
-      }
-      apply (pr21 (ev'_uvp _ _)).
-    - use (! base_paths _ _ (pr2 (ev_uvp e ev) (_ ,, _))).
-      refine (! id_left _ @ _).
-      apply maponpaths_2.
-      apply pathsinv0, BinProductOfArrows_id.
-  Qed.
-
-  Lemma exponentials_unique_up_to_iso
+  Definition exponentials_unique_up_to_iso
+    {C : category} (P : BinProducts C)
     {x y : C} {e e' : C}
     {ev : C⟦P x e, y⟧} {ev' : C⟦P x e', y⟧}
     (ev_uvp : is_exponentiable_alt_uvp P ev)
     (ev'_uvp : is_exponentiable_alt_uvp P ev')
-    : z_iso e e'.
-  Proof.
-    use make_z_iso.
-      - exact (pr1 (iscontrpr1 (ev'_uvp e ev))).
-      - exact (pr1 (iscontrpr1 (ev_uvp e' ev'))).
-      - split ; apply unique_maps_between_evaluation_maps_form_inverses.
-  Defined.
+    : z_iso e e'
+    := coreflection_uniqueness_iso (make_coreflection _ ev_uvp) (make_coreflection _ ev'_uvp).
 
 End UniquenessUpToIso.
 
 Section UniquenessUpToEq.
 
-  Context {C : category} (P : BinProducts C).
-
-  Lemma equality_of_exponentials
-    {x y : C}
-    (ϕ₁ ϕ₂ : Exponent P x y)
-    (p : pr1 ϕ₁ = pr1 ϕ₂)
-    (q : BinProductOfArrows _ _ _ (identity _) (idtoiso (! p)) · (pr12 ϕ₁) = pr12 ϕ₂)
-    : ϕ₁ = ϕ₂.
-  Proof.
-    use (total2_paths_f p).
-    use total2_paths_f.
-    {
-      refine (_ @ q).
-      unfold is_Exponent ; rewrite pr1_transportf.
-      apply transportf_BinProductOfArrows_right.
-    }
-    use proofirrelevance.
-    do 2 (apply impred_isaprop ; intro) ; apply isapropiscontr.
-  Qed.
-
-  Lemma isaprop_Exponent (x y : C)
+  Lemma isaprop_Exponent
+    {C : category} (P : BinProducts C)
+    (x y : C)
     : is_univalent C → isaprop (Exponent P x y).
   Proof.
     intro C_univ.
-    use invproofirrelevance.
-    intros ϕ₁ ϕ₂.
-    use equality_of_exponentials.
-    - use (isotoid _ C_univ).
-      exact (exponentials_unique_up_to_iso P (pr22 ϕ₁) (pr22 ϕ₂)).
-    - rewrite inv_isotoid, idtoiso_isotoid.
-      exact (! pr21 (pr22 ϕ₁ _ (pr12 ϕ₂))).
+    exact (isaprop_coreflection C_univ).
   Qed.
 
 End UniquenessUpToEq.

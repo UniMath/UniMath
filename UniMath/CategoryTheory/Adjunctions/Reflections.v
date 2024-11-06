@@ -127,6 +127,13 @@ Section Reflections.
     : reflection_data d F
     := pr1 f.
 
+  Definition reflection_is_reflection
+    {d : D}
+    {F : C ⟶ D}
+    (f : reflection d F)
+    : is_reflection f
+    := pr2 f.
+
   Definition reflection_arrow
     {d : D}
     {F : C ⟶ D}
@@ -272,9 +279,10 @@ Section Reflections.
     {d : D}
     {F : C ⟶ D}
     (HC : is_univalent C)
-    (f f' : reflection d F)
-    : f = f'.
+    : isaprop (reflection d F).
   Proof.
+    apply invproofirrelevance.
+    intros f f'.
     use (reflection_isotoid HC).
     - apply reflection_uniqueness_iso.
     - apply reflection_uniqueness_iso_commutes.

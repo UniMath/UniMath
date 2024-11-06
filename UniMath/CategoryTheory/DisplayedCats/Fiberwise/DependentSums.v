@@ -19,6 +19,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Reflections.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
@@ -207,19 +208,19 @@ Section DependentSumPoset.
              (s : Γ₁ --> Γ₂)
     : dependent_sum HD s.
   Proof.
-    use right_adjoint_left_from_partial.
-    - exact (ex _ _ s).
-    - exact (ex_i _ _ s).
-    - intros ψ χ p.
-      use iscontraprop1.
-      + abstract
-          (use invproofirrelevance ;
-           intros ζ₁ ζ₂ ;
-           use subtypePath ; [ intro ; apply homset_property | ] ;
-           apply HD').
-      + simple refine (_ ,, _) ; [ | apply HD' ].
-        apply ex_e.
-        exact p.
+    apply reflections_to_is_right_adjoint.
+    intro x.
+    use make_reflection.
+    - use make_reflection_data.
+      + exact (ex _ _ s x).
+      + exact (ex_i _ _ s x).
+    - intros p.
+      use make_reflection_arrow.
+      + apply ex_e.
+        exact (p : _ --> _).
+      + abstract apply HD'.
+      + intros.
+        abstract apply HD'.
   Defined.
 
   Definition make_has_dependent_sums_poset

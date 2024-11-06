@@ -30,6 +30,7 @@ Require Import UniMath.CategoryTheory.PowerObject.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.Subobjects.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
@@ -280,7 +281,7 @@ Proof.
   exact (TerminalArrow T b · true Ω).
 Defined.
 
-(*we are going to use [left_adjoint_from_partial], so, given (b c : C) we set up:
+(*we are going to use [coreflections_to_is_left_adjoint], so, given (b c : C) we set up:
   Subobject_dom G0  (the object c^b : C)
   ev                (the evaluation morphism : C ⟦ b x c^b , c ⟧
   universality      (a proof which show e b c is universal)
@@ -482,22 +483,28 @@ Proof.
     h_sq.
 Qed.
 
-(* Opaque isBinProduct_Pullback. *)
-
-Local Lemma universality (b c : C): is_universal_arrow_from (constprod_functor1 BinProd b) c (Subobject_dom (G0 b c)) (ev b c).
+Local Definition exp_coreflection_data
+  (b c : C)
+  : coreflection_data c (constprod_functor1 BinProd b).
 Proof.
-  intros a f.
-  use unique_exists.
-  + exact (g c b a f).
+  use make_coreflection_data.
+  - exact (Subobject_dom (G0 b c)).
+  - exact (ev b c).
+Defined.
+
+Local Lemma universality (b c : C)
+  : is_coreflection (exp_coreflection_data b c).
+Proof.
+  intros f.
+  use make_coreflection_arrow.
+  + exact (g c b _ f).
   + use g_tri.
-  + intro.
-    use homset_property.
   + intros g' g_tri'.
     simpl in g_tri'.
     unfold BinProduct_of_functors_mor in g_tri'.
     simpl in g_tri'.
     use (MonicisMonic _ (Subobject_Monic (G0 b c))).
-    use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  (nat_z_iso_inv (PowerObject_nat_z_iso P)) (a,,c ⨉ b)))).
+    use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  (nat_z_iso_inv (PowerObject_nat_z_iso P)) (coreflection_data_object f ,,c ⨉ b)))).
     unfold hset_z_iso_equiv.
     cbn - [BinProd G0 Subobject_mor isBinProduct_Pullback].
     fold BinProd.
@@ -512,13 +519,13 @@ Proof.
       use (BinProduct_OfArrows_assoc BinProd). }
     use pathsinv0.
     intermediate_path (
-      (identity c) ⨱ ((identity b) ⨱ ((g c b a f) · Subobject_mor (G0 b c)))·
+      (identity c) ⨱ ((identity b) ⨱ ((g c b _ f) · Subobject_mor (G0 b c)))·
       BinProduct_assoc BinProd _ _ _ · PowerObject_inPred _ _).
     { use cancel_postcomposition.
       use pathsinv0.
       use (BinProduct_OfArrows_assoc BinProd). }
     rewrite !assoc'.
-    use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  ( (PowerObject_nat_z_iso P)) (b⨉a,,c)))).
+    use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  ( (PowerObject_nat_z_iso P)) (b⨉ (coreflection_data_object f) ,,c)))).
     unfold hset_z_iso_equiv.
     cbn - [BinProd G0 Subobject_mor BinProduct_assoc].
     unfold PowerObject_nt_data.
@@ -533,14 +540,16 @@ Proof.
     use g_tri'.
 Defined.
 
+Local Definition exp_coreflection
+  (b c : C)
+  : coreflection c (constprod_functor1 BinProd b)
+  := make_coreflection _ (universality b c).
+
 Definition Exponentials_from_Topos : Exponentials (BinProd).
 Proof.
   intro b.
-  use left_adjoint_from_partial.
-  + intro c.
-    exact (Subobject_dom (G0 b c)).
-  + exact (ev b).
-  + exact (universality b).
+  apply coreflections_to_is_left_adjoint.
+  exact (exp_coreflection b).
 Defined.
 
 End Exponentials.

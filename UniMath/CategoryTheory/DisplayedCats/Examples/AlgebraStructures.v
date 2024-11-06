@@ -21,6 +21,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Reflections.
 Require Import UniMath.CategoryTheory.Categories.HSET.All.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
@@ -554,38 +555,6 @@ Section MonadToStruct.
     Let YY : category_of_monad_algebra
       := Y ,, hY.
 
-    Proposition monad_to_hset_struct_adj_lift_unique
-      : isaprop
-          (∑ f' : monad_free_alg X --> YY,
-            η M X · # (underlying_of_hset_struct monad_to_hset_struct) f'
-            =
-            f).
-    Proof.
-      use invproofirrelevance.
-      intros φ₁ φ₂.
-      use subtypePath.
-      {
-        intro.
-        apply homset_property.
-      }
-      use eq_mor_hset_struct.
-      cbn ; intro x.
-      pose (eqtohomot (@Monad_law2 _ M X) x) as p.
-      cbn in p.
-      rewrite <- p ; clear p.
-      pose (eqtohomot (pr21 φ₁) (# M (η M X) x)) as p.
-      cbn in p.
-      rewrite p ; clear p.
-      pose (eqtohomot (pr21 φ₂) (# M (η M X) x)) as p.
-      cbn in p.
-      rewrite p ; clear p.
-      apply maponpaths.
-      refine (!(eqtohomot (functor_comp M (η M X) (pr11 φ₁)) x) @ _).
-      refine (_ @ eqtohomot (functor_comp M (η M X) (pr11 φ₂)) x).
-      apply maponpaths_2.
-      exact (pr2 φ₁ @ !(pr2 φ₂)).
-    Qed.
-
     Definition monad_to_hset_struct_adj_lift
       : monad_free_alg X --> YY.
     Proof.
@@ -606,28 +575,48 @@ Section MonadToStruct.
     Defined.
 
     Proposition monad_to_hset_struct_adj_lift_eq
-      : η M X · #M f · hY = f.
+      : f = η M X · #M f · hY.
     Proof.
       rewrite <- (nat_trans_ax (η M) _ _ f).
       rewrite !assoc'.
-      refine (_ @ id_right _).
+      refine (!id_right (f : SET⟦_, _⟧) @ _).
       apply maponpaths.
-      exact (monad_algebra_unit hY).
+      exact (!monad_algebra_unit hY).
     Qed.
+
+    Proposition monad_to_hset_struct_adj_lift_unique
+      (g : monad_free_alg X --> YY)
+      (Hg : f = η M X · # (underlying_of_hset_struct monad_to_hset_struct) g)
+      : g = monad_to_hset_struct_adj_lift.
+    Proof.
+      use eq_mor_hset_struct.
+      cbn ; intro x.
+      refine (!maponpaths (pr1 g) (eqtohomot (@Monad_law2 _ M X) x) @ _).
+      cbn.
+      pose (eqtohomot (pr2 g) (# M (η M X) x)) as p.
+      cbn in p.
+      rewrite p ; clear p.
+      apply maponpaths.
+      refine (!eqtohomot (functor_comp M (η M X) (pr1 g)) x @ _).
+      apply (maponpaths_2 _ (!Hg)).
+    Qed.
+
   End FreeAlgAdjunction.
 
   Definition monad_underlying_is_right_adjoint
     : is_right_adjoint (underlying_of_hset_struct monad_to_hset_struct).
   Proof.
-    use right_adjoint_left_from_partial.
-    - exact (λ X, monad_free_alg X).
-    - exact (λ X, η M X).
-    - refine (λ X Y f, _).
-      use iscontraprop1.
-      + exact (monad_to_hset_struct_adj_lift_unique (pr2 Y) f).
-      + simple refine (_ ,, _).
-        * exact (monad_to_hset_struct_adj_lift (pr2 Y) f).
-        * exact (monad_to_hset_struct_adj_lift_eq (pr2 Y) f).
+    apply reflections_to_is_right_adjoint.
+    intro X.
+    use make_reflection.
+    - use make_reflection_data.
+      + exact (monad_free_alg X).
+      + exact (η M X).
+    - intro f.
+      use make_reflection_arrow.
+      + exact (monad_to_hset_struct_adj_lift _ (f : _ --> _)).
+      + exact (monad_to_hset_struct_adj_lift_eq _ (f : _ --> _)).
+      + exact (monad_to_hset_struct_adj_lift_unique _ _).
   Defined.
 
   Definition monad_free_alg_functor

@@ -29,6 +29,8 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Reflections.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -888,17 +890,19 @@ Section ExpIndependent.
     : Exponentials BC₂.
   Proof.
     intros x.
-    use left_adjoint_from_partial.
-    - exact (exp (E x)).
-    - exact (λ y,
-             iso_between_BinProduct (BC₂ x (exp (E x) y)) (BC₁ x (exp (E x) y))
+    apply right_adjoint_weq_coreflections.
+    intro y.
+    use make_coreflection.
+    - use make_coreflection_data.
+      + exact (exp (E x) y).
+      + exact (iso_between_BinProduct (BC₂ x (exp (E x) y)) (BC₁ x (exp (E x) y))
              · exp_eval (E x) y).
-    - intros y z f.
-      use iscontraprop1.
-      + apply exponentials_independent_eta.
-      + simple refine (_ ,, _).
-        * exact (exp_lam (E x) (z_iso_inv (iso_between_BinProduct (BC₂ x z) (BC₁ x z)) · f)).
-        * apply exponentials_independent_beta.
+    - intros f.
+      use make_coreflection_arrow.
+      + exact (exp_lam (E x) (z_iso_inv (iso_between_BinProduct (BC₂ x _) (BC₁ x _)) · f)).
+      + apply exponentials_independent_beta.
+      + intros g Hg.
+        exact (base_paths _ _ (proofirrelevance _ (exponentials_independent_eta f) (g ,, Hg) (_ ,, (exponentials_independent_beta _)))).
   Defined.
 End ExpIndependent.
 

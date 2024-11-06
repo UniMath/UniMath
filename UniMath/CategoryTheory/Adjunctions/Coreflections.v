@@ -128,6 +128,13 @@ Section Coreflections.
     : coreflection_data d F
     := pr1 f.
 
+  Definition coreflection_is_coreflection
+    {d : D}
+    {F : C ⟶ D}
+    (f : coreflection d F)
+    : is_coreflection f
+    := pr2 f.
+
   Definition coreflection_arrow
     {d : D}
     {F : C ⟶ D}
@@ -273,9 +280,10 @@ Section Coreflections.
     {d : D}
     {F : C ⟶ D}
     (HC : is_univalent C)
-    (f f' : coreflection d F)
-    : f = f'.
+    : isaprop (coreflection d F).
   Proof.
+    apply invproofirrelevance.
+    intros f f'.
     use (coreflection_isotoid HC).
     - apply coreflection_uniqueness_iso.
     - apply coreflection_uniqueness_iso_commutes.

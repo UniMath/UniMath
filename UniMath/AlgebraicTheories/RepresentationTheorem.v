@@ -17,6 +17,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Core.Prelude.
@@ -225,36 +226,30 @@ Section RepresentationTheorem.
 
     Lemma presheaf_exponent_induced_morphism_unique
       {P P' : presheaf L}
-      (F : presheaf_morphism (BPO P' (theory_presheaf L)) P)
-      (F' : ∑ (f' : presheaf_morphism P' (plus_1_presheaf P)),
-        F
+      (f : presheaf_morphism (BPO P' (theory_presheaf L)) P)
+      (f' : presheaf_morphism P' (plus_1_presheaf P))
+      (Hf' : f
         = # (constprod_functor2 (bin_products_presheaf_cat _) (theory_presheaf L))
         (f' : presheaf_cat L ⟦P', plus_1_presheaf P⟧)
         · presheaf_exponent_morphism P
       )
-      : F'
-      = presheaf_exponent_induced_morphism F,, presheaf_exponent_induced_morphism_commutes F.
+      : f' = presheaf_exponent_induced_morphism f.
     Proof.
-      apply subtypePairEquality.
-      {
-        intro.
-        apply (homset_property (presheaf_cat L)).
-      }
-      apply (presheaf_morphism_eq (pr1 F') _).
+      apply (presheaf_morphism_eq f' _).
       intro n.
       apply funextfun.
       intro t.
-      refine (_ @ maponpaths (λ x, pr1 x _ _) (!pr2 F')).
+      refine (_ @ maponpaths (λ x, pr1 x _ _) (!Hf')).
       refine (!(maponpaths (λ x, x _) (presheaf_mor_comp (P := BPO _ _) _ _ _) @ _)).
       refine (maponpaths
         (λ x, op (x _ : P _ : hSet) _)
-        (presheaf_mor_comp _ (pr1 F' : presheaf_cat L ⟦P', plus_1_presheaf P⟧) _)
+        (presheaf_mor_comp _ (f' : presheaf_cat L ⟦P', plus_1_presheaf P⟧) _)
       @ _).
       refine (maponpaths
         (λ x, (pr12 P) _ _ (x : P _ : hSet) _)
-        (mor_op (pr1 F') _ _)
+        (mor_op f' _ _)
       @ _).
-      refine (op_op P (pr1 F' n t) _ _ @ _).
+      refine (op_op P (f' n t) _ _ @ _).
       refine (_ @ op_var _ _).
       apply maponpaths.
       apply funextfun.
@@ -279,15 +274,19 @@ Section RepresentationTheorem.
       : is_exponentiable (bin_products_presheaf_cat _) (theory_presheaf L).
     Proof.
       apply is_exponentiable'_to_is_exponentiable.
-      use left_adjoint_from_partial.
-      - exact plus_1_presheaf.
-      - exact presheaf_exponent_morphism.
-      - intros P P' F.
-        use make_iscontr.
-        + use tpair.
-          * exact (presheaf_exponent_induced_morphism F).
-          * exact (presheaf_exponent_induced_morphism_commutes F).
-        + exact (presheaf_exponent_induced_morphism_unique F).
+      apply coreflections_to_is_left_adjoint.
+      intro T.
+      use make_coreflection.
+      - use make_coreflection_data.
+        + apply plus_1_presheaf.
+          exact T.
+        + exact (presheaf_exponent_morphism T).
+      - intro f.
+        use make_coreflection_arrow.
+        + apply presheaf_exponent_induced_morphism.
+          exact (f : _ --> _).
+        + apply presheaf_exponent_induced_morphism_commutes.
+        + apply presheaf_exponent_induced_morphism_unique.
     Defined.
 
     Lemma invmap_hom_weq_eq
@@ -321,7 +320,7 @@ Section RepresentationTheorem.
     Proof.
       refine (maponpaths (λ (x : presheaf_morphism (PO n) _), x m l)
         (is_exponentiable'_to_is_exponentiable'_lam _ _ ) @ _).
-      exact (maponpaths (λ (x : presheaf_morphism (PO n) _), x _ _) (φ_adj_from_partial (constprod_functor2 _ (theory_presheaf L)) _ _ _ _ _ _)).
+      exact (maponpaths (λ (x : presheaf_morphism (PO n) _), x _ _) (coreflections_to_are_adjoints_φ_adj _ _)).
     Qed.
 
   End Exponentiable.
