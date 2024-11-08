@@ -14,7 +14,7 @@
 
  The second class is given by ∏-pretoposes. These are pretoposes that are locally Cartesian
  closed, so we combine the biequivalence for π-types together with the biequivalence for being
- a pretopos. More precisely, we take the product of these two displayed biequivalence. Compared
+ a pretopos. More precisely, we take the product of these two displayed biequivalences. Compared
  to pretoposes, the internal language of ∏-pretoposes also supports ∏-types.
 
  The third class is given by pretoposes with natural numbers , and these also are defined using
