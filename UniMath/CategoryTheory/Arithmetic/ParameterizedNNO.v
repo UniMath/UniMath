@@ -7,7 +7,7 @@
  of the natural numbers, and thus this object plays the role of the natural umbers in the
  internal language of that category.
 
- However, if our category is not Cartesian closed, then it is better to use a slightly strong
+ However, if our category is not Cartesian closed, then it is better to use a slightly stronger
  notion, namely that of a parameterized natural numbers object. The definition of a parameterized
  natural numbers object is quite similar to that of an ordinary natural numbers object: the only
  difference is that we require a slightly stronger recursion principle where one can use an arbitrary
