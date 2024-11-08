@@ -11,7 +11,7 @@
  Formulating this requirement is a bit tedious, because weakening is only preserved up to
  isomorphism. We need to take this into account, and that makes the formulation of preservation
  more convoluted. In addition, we need to work with pseudomorphisms to guarantee that
- substitution is actually preserved up to isomorphism. Note that we also make use univalence
+ substitution is actually preserved up to isomorphism. Note that we also make use of univalence
  in this development. This is so that we can treat isomorphisms as equalities, and so that
  we can use induction on isomorphisms.
 
