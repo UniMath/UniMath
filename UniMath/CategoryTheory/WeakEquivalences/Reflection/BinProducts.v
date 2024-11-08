@@ -1,5 +1,5 @@
 (**
-   In this file, we show how weak equivalences reflect binary products.
+   In this file, we show that weak equivalences reflect binary products.
  *)
 
 Require Import UniMath.Foundations.All.

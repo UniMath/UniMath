@@ -1,5 +1,5 @@
 (**
-   In this file, we show how weak equivalences reflect equalizers.
+   In this file, we show that weak equivalences reflect equalizers.
  *)
 
 Require Import UniMath.Foundations.All.

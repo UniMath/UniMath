@@ -1,5 +1,5 @@
 (**
-   In this file, we show how weak equivalences reflect pullbacks.
+   In this file, we show that weak equivalences reflect pullbacks.
  *)
 
 Require Import UniMath.Foundations.All.

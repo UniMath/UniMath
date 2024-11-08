@@ -1,8 +1,8 @@
 (**
    In this file, we show that an arbitrary weak equivalence F : C -> D preserves equalizers.
-   The main work is done in [weak_equiv_preserves_equalizers], where we show that the image (under F) of a equalizer in C, is also an equalizer in D.
+   The main work is done in [weak_equiv_preserves_equalizers], where we show that the image (under F) of an equalizer in C is also an equalizer in D.
 
-   If both C and D have equalizers and D is univalent, we conclude that the image of a equalizer is the equalizer of the images.
+   If both C and D have equalizers and D is univalent, we conclude that the image of an equalizer is the equalizer of the images.
 *)
 
 Require Import UniMath.Foundations.All.

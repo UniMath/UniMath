@@ -1,6 +1,6 @@
 (**
    In this file, we show that an arbitrary weak equivalence F : C -> D preserves binary products.
-   The main work is done in [weak_equiv_preserves_binproducts], where we show that the image (under F) of a binary product in C, is also a product in D.
+   The main work is done in [weak_equiv_preserves_binproducts], where we show that the image (under F) of a binary product in C is also a product in D.
 
    If both C and D have binary products and D is univalent, we conclude that the image of a pullback is the pullback of the images.
  *)
