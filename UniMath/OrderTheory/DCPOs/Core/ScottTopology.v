@@ -238,10 +238,15 @@ Section PropertiesScottTopology.
   (**
    6. Upper sets (with respect to the way-below relation) are Scott open
    *)
+  Definition way_below_upper_set
+             (x : X)
+    : X → hProp
+    := λ y, x ≪ y.
+
   Proposition upper_set_is_scott_open
               (CX : continuous_dcpo_struct X)
               (x : X)
-    : is_scott_open (λ y, x ≪ y).
+    : is_scott_open (way_below_upper_set x).
   Proof.
     split.
     - intros y₁ y₂ p q.
@@ -267,9 +272,25 @@ Section PropertiesScottTopology.
       exact (trans_way_below_le q₁ r).
   Qed.
 
+  Definition way_below_upper_scott_open_set
+             (CX : continuous_dcpo_struct X)
+             (x : X)
+    : scott_open_set X
+    := way_below_upper_set x ,, upper_set_is_scott_open CX x.
+
+  Proposition way_below_upper_scott_open_subset
+              (x₁ x₂ y : X)
+              (p : x₂ ≪ x₁)
+              (H : way_below_upper_set x₁ y)
+    : way_below_upper_set x₂ y.
+  Proof.
+    unfold way_below_upper_set in *.
+    exact (trans_way_below p H).
+  Qed.
+
   (** * 7. Empty and top sets are Scott open *)
   Definition true_scott_open_set
-    (A : dcpo)
+             (A : dcpo)
     : scott_open_set A.
   Proof.
     simple refine (_ ,, _).
@@ -288,7 +309,7 @@ Section PropertiesScottTopology.
   Defined.
 
   Definition false_scott_open_set
-    (A : dcpo)
+             (A : dcpo)
     : scott_open_set A.
   Proof.
     simple refine (_ ,, _).
@@ -325,6 +346,8 @@ Section PropertiesScottTopology.
       exact Hi.
   Qed.
 End PropertiesScottTopology.
+
+Arguments way_below_upper_set {X} x y /.
 
 (** * 9. More examples of Scott open sets *)
 

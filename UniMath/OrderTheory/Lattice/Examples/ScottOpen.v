@@ -12,13 +12,16 @@
  3. Suprema
  4. Exponentials
  5. The complete Heyting algebra of Scott open sets
+ 6. A basis for this complete Heyting algebra
 
  **********************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.OrderTheory.DCPOs.Core.DirectedSets.
 Require Import UniMath.OrderTheory.DCPOs.Core.Basics.
+Require Import UniMath.OrderTheory.DCPOs.Core.WayBelow.
 Require Import UniMath.OrderTheory.DCPOs.Core.ScottTopology.
+Require Import UniMath.OrderTheory.DCPOs.Basis.Basis.
 Require Import UniMath.OrderTheory.DCPOs.Basis.Continuous.
 Require Import UniMath.OrderTheory.Lattice.Lattice.
 Require Import UniMath.OrderTheory.Lattice.Bounded.
@@ -219,7 +222,7 @@ Section ScottOpenCHA.
     split.
     - exact (is_upperbound_union_scott_open P).
     - exact (is_least_upperbounded_union_open P).
-  Qed.
+  Defined.
 
   (** * 4. Exponentials *)
   Proposition exponential_scott_open_law
@@ -275,5 +278,80 @@ Section ScottOpenCHA.
     - exact bounded_lattice_scott_open_set.
     - exact is_complete_lattice_scott_open_set.
     - exact exponential_scott_open.
+  Defined.
+
+  Proposition scott_open_cha_le
+              {X₁ X₂ : scott_open_cha}
+              (H : ∏ (x : D), pr1 X₁ x → pr1 X₂ x)
+    : (X₁ ≤ X₂)%heyting.
+  Proof.
+    use bounded_lattice_scott_open_set_le.
+    exact H.
+  Qed.
+
+  (** * 6. A basis for this complete Heyting algebra *)
+  Context (B : dcpo_basis D).
+
+  Definition cha_basis_data_scott_open_cha
+    : cha_basis_data scott_open_cha.
+  Proof.
+    use make_cha_basis_data.
+    - exact B.
+    - exact (λ b, way_below_upper_scott_open_set (continuous_struct_from_basis B) (B b)).
+    - exact (λ b₁ b₂, B b₁ ≪ B b₂).
+  Defined.
+
+  Proposition cha_basis_laws_scott_open_cha
+    : cha_basis_laws cha_basis_data_scott_open_cha.
+  Proof.
+    repeat split ; cbn -[way_below].
+    - intros b₁ b₂ b₃ p q.
+      exact (trans_way_below p q).
+    - intros X.
+      use eq_scott_open_set.
+      + intros x p.
+        assert (Hx : X (⨆ directed_set_from_basis B x)).
+        {
+          rewrite (approximating_basis_lub B x).
+          exact p.
+        }
+        pose proof (is_scott_open_lub_inaccessible
+                      X
+                      (directed_set_from_basis B x)
+                      Hx)
+          as q.
+        revert q.
+        use factor_through_squash_hProp.
+        intros b.
+        induction b as [ [ b q₁ ] q₂ ].
+        cbn in q₂ ; unfold basis_below_map in q₂ ; cbn in q₂.
+        use hinhpr.
+        simple refine ((_ ,, _) ,, _).
+        * exact b.
+        * use bounded_lattice_scott_open_set_le ; cbn -[way_below].
+          intros y r.
+          refine (is_scott_open_upper_set X q₂ _).
+          use way_below_to_le.
+          exact r.
+        * cbn -[way_below].
+          exact q₁.
+      + intros x.
+        use factor_through_squash_hProp.
+        cbn -[way_below].
+        intro b.
+        induction b as [ [ b p ] q ].
+        exact (from_bounded_lattice_scott_open_set_le p q).
+    - intros b₁ b₂ p.
+      use scott_open_cha_le ; cbn -[way_below].
+      intros x q.
+      exact (trans_way_below p q).
+  Qed.
+
+  Definition cha_basis_scott_open_cha
+    : cha_basis scott_open_cha.
+  Proof.
+    use make_cha_basis.
+    - exact cha_basis_data_scott_open_cha.
+    - exact cha_basis_laws_scott_open_cha.
   Defined.
 End ScottOpenCHA.

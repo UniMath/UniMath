@@ -768,37 +768,83 @@ Proof.
 Defined.
 
 (** * 7. Basis *)
-Definition cha_basis
+Definition cha_basis_data
            (H : complete_heyting_algebra)
   : UU
-  := ∑ (B : UU)
-       (f : B → H),
-     ∏ (x : H),
-     x = \/_{ i : ∑ (b : B), f b ≤ x } f (pr1 i).
+  := ∑ (B : UU),
+     (B → H)
+     ×
+     (B → B → hProp).
 
-Definition make_cha_basis
+Definition make_cha_basis_data
            {H : complete_heyting_algebra}
            (B : UU)
            (f : B → H)
-           (HB : ∏ (x : H),
-                 x
-                 =
-                 \/_{ i : ∑ (b : B), f b ≤ x } f (pr1 i))
-  : cha_basis H
-  := B ,, f ,, HB.
+           (R : B → B → hProp)
+  : cha_basis_data H
+  := B ,, f ,, R.
 
 Coercion cha_basis_type
          {H : complete_heyting_algebra}
-         (B : cha_basis H)
+         (B : cha_basis_data H)
   : UU
   := pr1 B.
 
 Definition cha_basis_incl
            {H : complete_heyting_algebra}
-           {B : cha_basis H}
+           {B : cha_basis_data H}
            (b : B)
   : H
   := pr12 B b.
+
+Definition cha_basis_rel
+           {H : complete_heyting_algebra}
+           {B : cha_basis_data H}
+           (b₁ b₂ : B)
+  : hProp
+  := pr22 B b₁ b₂.
+
+Definition cha_basis_laws
+           {H : complete_heyting_algebra}
+           (B : cha_basis_data H)
+  : UU
+  := (∏ (b₁ b₂ b₃ : B),
+      cha_basis_rel b₁ b₂ → cha_basis_rel b₂ b₃ → cha_basis_rel b₁ b₃)
+     ×
+     (∏ (x : H),
+      x = \/_{ i : ∑ (b : B), cha_basis_incl b ≤ x } cha_basis_incl (pr1 i))
+     ×
+     (∏ (b₁ b₂ : B),
+      cha_basis_rel b₁ b₂ → cha_basis_incl b₂ ≤ cha_basis_incl b₁).
+
+Definition cha_basis
+           (H : complete_heyting_algebra)
+  : UU
+  := ∑ (B : cha_basis_data H), cha_basis_laws B.
+
+Definition make_cha_basis
+           {H : complete_heyting_algebra}
+           (B : cha_basis_data H)
+           (HB : cha_basis_laws B)
+  : cha_basis H
+  := B ,, HB.
+
+Coercion cha_basis_to_data
+         {H : complete_heyting_algebra}
+         (B : cha_basis H)
+  : cha_basis_data H
+  := pr1 B.
+
+Proposition cha_basis_trans
+            {H : complete_heyting_algebra}
+            (B : cha_basis H)
+            {b₁ b₂ b₃ : B}
+            (p : cha_basis_rel b₁ b₂)
+            (q : cha_basis_rel b₂ b₃)
+  : cha_basis_rel b₁ b₃.
+Proof.
+  exact (pr12 B b₁ b₂ b₃ p q).
+Defined.
 
 Proposition cha_basis_eq
             {H : complete_heyting_algebra}
@@ -808,10 +854,20 @@ Proposition cha_basis_eq
     =
     \/_{ i : ∑ (b : B), cha_basis_incl b ≤ x } cha_basis_incl (pr1 i).
 Proof.
-  exact (pr22 B x).
+  exact (pr122 B x).
 Defined.
 
+Proposition cha_basis_antimonotone
+            {H : complete_heyting_algebra}
+            (B : cha_basis H)
+            {b₁ b₂ : B}
+            (p : cha_basis_rel b₁ b₂)
+  : cha_basis_incl b₂ ≤ cha_basis_incl b₁.
+Proof.
+  exact (pr222 B b₁ b₂ p).
+Defined.
 
+(** * 8. Complete Boolean algebras *)
 Definition is_boolean_algebra
            (H : complete_heyting_algebra)
   : hProp
