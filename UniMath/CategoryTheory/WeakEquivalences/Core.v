@@ -6,7 +6,9 @@ Section ``WeakEquivalences'' contains:
    3. a proof that ``is a weak equivalence'' is a proposition;
    4. a proof that every identity functor (resp. the composite of weak equivalences) is a weak equivalence
 
-Section ``WeakEquivalenceInducesIsoOnUnivalentFunctorCategories'' contains a proof that precomposing with a weak equivalence (into arbitrary univalent categories) induces an identity on the hom-categories.
+Section ``WeakEquivalenceInducesIsoOnUnivalentFunctorCategories'' contains a proof for the statement:
+Let H : C → D be a weak equivalence (between not-necesssarily univalent categories) and E a univalent category.
+Then, the functor (H · -) : [D, E] → [C, E] is an isomorphism of (univalent) categories; and hence an isomorphism.
 
  *)
 
