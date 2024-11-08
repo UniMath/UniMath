@@ -11,7 +11,7 @@ We define the categories of probability spaces over a causal Markov category C.
 To construct this category, we use the quotient construction [mor_quot_category] of
 the slice category I/C under the congruence relation given by almost-sure equality.
 
-TODO: 
+The following theorems need to be added to this file: 
 * If C has conditionals, then probability spaces become a dagger category, 
 * This category is equivalent as a dagger category to the category of couplings from Couplings.v
 
