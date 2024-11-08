@@ -37,7 +37,7 @@ Definition mor_cong_rel_to_eqrel
   : hProp
   := pr1 eq x y f g.
 
-Notation "f ~_{ eq } g" := (mor_cong_rel_to_eqrel eq f g) (at level 70).
+Notation "f ~_{ eq } g" := (mor_cong_rel_to_eqrel eq f g) (at level 70) : cat.
 
 Proposition mor_cong_rel_congruence
             {C : category}
