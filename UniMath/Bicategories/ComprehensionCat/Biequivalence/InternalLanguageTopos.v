@@ -32,7 +32,7 @@
 
  The fifth class is given by elementary toposes with an NNO. We approach these in the same
  way as ordinary toposes. The only difference being that we use another local property,
- which includes a parameterized natural numbers objects. Since toposes are Cartesian closed,
+ which includes a parameterized natural numbers object. Since toposes are Cartesian closed,
  parameterized natural numbers objects are the same as ordinary ones.
 
  Contents
