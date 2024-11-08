@@ -37,6 +37,7 @@ Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
+Local Open Scope markov.
 
 (** * 1. Definition of [markov_category_with_conditionals] *)
 
@@ -111,9 +112,9 @@ Section ConditionalDistributions.
   Definition conditional_distribution_2 {x y : C} (p : I_{C} --> x ⊗ y) : y --> x
     := conditional_distribution_1 (p · sym_mon_braiding _ _ _). 
 
-  Notation "p |1" := (conditional_distribution_1 p).
-  Notation "p |2" := (conditional_distribution_2 p).
-
+  Notation "p |1" := (conditional_distribution_1 p) : markov.
+  Notation "p |2" := (conditional_distribution_2 p) : markov.
+ 
   Proposition conditional_distribution_1_eq {x y : C} (p : I_{C} --> x ⊗ y) :
     p = p · proj1 · ⟨identity x, p|1⟩.
   Proof.
@@ -172,8 +173,8 @@ Section ConditionalDistributions.
 
 End ConditionalDistributions.
 
-Notation "p |1" := (conditional_distribution_1 p).
-Notation "p |2" := (conditional_distribution_2 p).
+Notation "p |1" := (conditional_distribution_1 p) : markov.
+Notation "p |2" := (conditional_distribution_2 p) : markov.
 
 (** * 3. Bayesian inverses *)
 

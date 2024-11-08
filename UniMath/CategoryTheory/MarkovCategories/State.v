@@ -28,6 +28,7 @@ Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
+Local Open Scope markov.
 
 Definition state (C : markov_category) := ∑ (x : C), I_{C} --> x.
 

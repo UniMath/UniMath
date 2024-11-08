@@ -31,6 +31,7 @@ Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
+Local Open Scope markov.
 
 Definition coupling {C : markov_category} {x y : C} (p : I_{C} --> x) (q : I_{C} --> y) : UU
   := ∑ (γ : I_{C} --> x ⊗ y), (γ · proj1 = p) × (γ · proj2 = q).

@@ -34,6 +34,7 @@ Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
+Local Open Scope markov.
 
 Section DefAlmostSurely.
   Context {C : markov_category}.
@@ -82,7 +83,7 @@ Section DefAlmostSurely.
 End DefAlmostSurely.
 
 Arguments equal_almost_surely {C a x y} p f g /.
-Notation "f =_{ p } g" := (equal_almost_surely p f g) (at level 70).
+Notation "f =_{ p } g" := (equal_almost_surely p f g) (at level 70) : markov.
 
 Section PropertiesAlmostSurely.
 

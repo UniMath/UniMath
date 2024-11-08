@@ -1,12 +1,26 @@
-(* We define quotients of categories under a congruence relation on morphism
-*)
+(*********************************************
+Quotient
 
+In this file, we construct the quotient category of a category C under a
+congruence relation on its morphisms.
+- the objects are the same as the objects of C
+- the morphisms f : x --> y are equivalence classes of morphisms [f] : x --> y in C
+- the axioms of a congruence relation make sure that composition is well-defined 
+  in the quotient category 
+
+Outline
+* 1. Definition of a congruence relation [mor_cong_rel C] on a category C
+* 2. Definition of the quotient category [mor_quot_category]
+
+**********************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Prelude.
 
 Local Open Scope cat.
+
+(** * 1. Definition of a congruence relation [mor_cong_rel C] on a category C *)
 
 Definition mor_cong_rel (C : category) : UU
   := ∑ (eq : ∏ (x y : C), eqrel (x --> y)),
@@ -51,6 +65,8 @@ Proposition mor_cong_rel_congruence
 Proof.
   exact (pr2 eq _ _ _ _ _ _ _ p q).
 Qed.
+
+(** * 2. Definition of the quotient category [mor_quot_category] *)
 
 Section QuotientMorphisms.
   Context {C : category}

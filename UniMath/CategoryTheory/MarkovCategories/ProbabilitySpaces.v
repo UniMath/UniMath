@@ -40,6 +40,7 @@ Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
+Local Open Scope markov.
 
 Section ProbabilitySpaces.
   Context {C : markov_category}

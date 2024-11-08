@@ -42,6 +42,7 @@ Import MonoidalNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
+Local Open Scope markov.
 
 (** * 1. Definition of the Information Flow Axioms *)
 

@@ -38,6 +38,7 @@ Import BifunctorNotations.
 
 Local Open Scope cat.
 Local Open Scope moncat.
+Local Open Scope markov.
 
 (** 1. Definition of Determinism *)
 

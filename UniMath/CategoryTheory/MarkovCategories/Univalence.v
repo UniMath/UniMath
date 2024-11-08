@@ -11,7 +11,7 @@ the copy and delete maps. Note that while deletion is necessarily natural
 (because Markov categories are semi-Cartesian), the copy map is not required
 to be natural.
 
-A  notion of univalence for symmetric monoidal categories that supply some structure
+A notion of univalence for symmetric monoidal categories that supply some structure
 given by a PROP is given in Example 13.2 in "The Univalence Principle" by Ahrens,
 North, Shulman and Tsementzis. The indiscernibilities are isomorphism that commute with
 the PROP structure. For Markov categories, this means isomorphisms that commute with
@@ -46,6 +46,7 @@ Require Import UniMath.CategoryTheory.MarkovCategories.Determinism.
 
 Local Open Scope cat.
 Local Open Scope moncat.
+Local Open Scope markov.
 
 Definition idtodet_iso
            {C : markov_category}

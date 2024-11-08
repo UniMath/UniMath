@@ -42,6 +42,11 @@ Import MonoidalNotations.
 Local Open Scope cat.
 Local Open Scope moncat.
 
+Declare Scope markov.
+Delimit Scope markov with markov.
+
+Local Open Scope markov.
+
 (** 1. Definition of Markov categories **)
 
 Definition markov_category_data : UU
@@ -339,7 +344,7 @@ Definition pairing {C : markov_category} {a x y : C}
                    (f : a --> x) (g : a --> y) : a --> x ⊗ y 
     := copy a · (f #⊗ g).
 
-Notation "⟨ f , g ⟩" := (pairing f g).
+Notation "⟨ f , g ⟩" := (pairing f g) : markov.
 
 Section PairingProperties.
   Context {C : markov_category}.
