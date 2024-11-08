@@ -52,7 +52,10 @@ Section ProbabilitySpaces.
     + exact I_{C}.
   Defined.
 
-  (* states are definitionally the same as objects of states_cat *)
+  (**
+  In the next definition we use that states are definitionally the same as objects of states_cat.
+  If that was not the case, that definition would not type check.
+   *)
 
   Definition state_mor (p q : state C) : UU := states_cat ⟦ p, q ⟧ .
 
