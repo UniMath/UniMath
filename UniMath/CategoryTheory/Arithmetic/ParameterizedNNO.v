@@ -7,16 +7,15 @@
  of the natural numbers, and thus this object plays the role of the natural umbers in the
  internal language of that category.
 
- However, there are several contexts in which the notion of a natural numbers object is too
- weak, namely when the category is not Cartesian closed. In that setting, one would like to
- use a slightly stronger notion, namely that of a parameterized natural numbers object. The
- definition of a parameterized natural numbers object is quite similar to that of an ordinary
- natural numbers object: the only difference is that we require a slightly stronger recursion
- principle where one can use an arbitrary object of parameters (see, for instance, Definition
- 2.1 in "Joyal's arithmetic universe as list-arithmetic pretopos" by Maietti). There are various
- kinds of categories that are not Cartesian closed but which support such a parameterized
- natural numbers object, namely list-arithmetic pretoposes and arithmetical universes. Note
- that to formulate the notion of a parameterized natural numbers object we use binary products.
+ However, if our category is not Cartesian closed, then it is better to use a slightly strong
+ notion, namely that of a parameterized natural numbers object. The definition of a parameterized
+ natural numbers object is quite similar to that of an ordinary natural numbers object: the only
+ difference is that we require a slightly stronger recursion principle where one can use an arbitrary
+ object of parameters (see, for instance, Definition 2.1 in "Joyal's arithmetic universe as
+ list-arithmetic pretopos" by Maietti). There are various kinds of categories that are not Cartesian
+ closed but which support such a parameterized natural numbers object, namely list-arithmetic
+ pretoposes and arithmetical universes. Note that to formulate the notion of a parameterized
+ natural numbers object we use binary products.
 
  References
  - "Joyal's arithmetic universe as list-arithmetic pretopos" by Maietti

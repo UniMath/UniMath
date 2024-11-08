@@ -8,9 +8,10 @@
  following classes of toposes.
 
  The first one is given by pretoposes. A pretopos is a category that is extensive and exact.
- This can be expressed via a local property, and from that we directly obtain the biequivalence.
- The internal language of this class of toposes is given by extensional type theory with
- ∑-types, quotient types, and disjoint sum types.
+ This can be expressed via a local property (i.e., a property on categories that is closed
+ under slicing, see the file `LocalProperty.LocalProperties.v`), and from that we directly
+ obtain the biequivalence. The internal language of this class of toposes is given by extensional
+ type theory with ∑-types, quotient types, and disjoint sum types.
 
  The second class is given by ∏-pretoposes. These are pretoposes that are locally Cartesian
  closed, so we combine the biequivalence for π-types together with the biequivalence for being
