@@ -592,7 +592,7 @@ Proof.
   - exact (comp_mor_of_street_fib_nat_trans F₁ F₂).
   - intro x.
     cbn.
-    apply is_z_iso_comp_of_is_z_isos.
+    apply is_z_isomorphism_comp.
     + apply functor_on_is_z_isomorphism.
       apply (mor_of_street_fib_preserves_nat_z_iso F₁).
     + apply (mor_of_street_fib_preserves_nat_z_iso F₂).

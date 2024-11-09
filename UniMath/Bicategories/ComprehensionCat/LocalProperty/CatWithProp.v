@@ -152,8 +152,6 @@ Proof.
   use disp_left_adjoint_equivalence_subbicat.
   - clear C₁ C₂ F HF T₁ T₂ FF.
     intros C₁ C₂ H₁ H₂ F HF.
-    apply (cat_property_adj_equiv
-             P
-             (_ ,, pr1 (left_adjoint_equivalence_total_disp_weq _ _ HF))).
+    apply (cat_property_adj_equiv P (F ,, HF)).
   - exact is_univalent_2_bicat_of_univ_cat_with_finlim.
 Qed.

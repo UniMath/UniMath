@@ -48,7 +48,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 (* The following are used for examples *)
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
-Require Import UniMath.CategoryTheory.NNO.
+Require Import UniMath.CategoryTheory.Arithmetic.NNO.
 
 
 (* used for analysis of algebras for coproduct functor *)
