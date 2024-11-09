@@ -58,6 +58,46 @@ Local Open Scope cat.
 Local Open Scope comp_cat.
 
 (** * 1. The displayed bicategory of sigma types *)
+Definition comp_cat_dependent_sum
+           (C : comp_cat)
+  : UU
+  := ∑ (sig : ∏ (Γ : C) (A : ty Γ), dependent_sum (cleaving_of_types C) (π A)),
+     ∏ (Γ₁ Γ₂ : C)
+       (A₁ : ty Γ₁)
+       (A₂ : ty Γ₂)
+       (s₁ : Γ₁ --> Γ₂)
+       (s₂ : Γ₁ & A₁ --> Γ₂ & A₂)
+       (p : s₂ · π A₂ = π A₁ · s₁)
+       (Hp : isPullback p),
+     left_beck_chevalley
+       _
+       (π A₂) s₁ (π A₁) s₂
+       p
+       (sig _ A₂)
+       (sig _ A₁).
+
+Section Projections.
+  Context {C : comp_cat}
+          (S : comp_cat_dependent_sum C)
+          {Γ : C}
+          (A : ty Γ).
+
+  Definition dep_sum_cc
+             (B : ty (Γ & A))
+    : ty Γ
+    := Adjunctions.Core.left_adjoint (pr1 S Γ A) B.
+
+  Definition dep_sum_unit_cc
+             (B : ty (Γ & A))
+    : B -->[ identity _ ] subst_ty (π A) (dep_sum_cc B)
+    := unit_from_right_adjoint (pr1 S Γ A) B.
+
+  Definition dep_sum_counit_cc
+             (B : ty Γ)
+    : dep_sum_cc (subst_ty (π A) B) -->[ identity _ ] B
+    := counit_from_right_adjoint (pr1 S Γ A) B.
+End Projections.
+
 Proposition isaprop_dependent_sum
             {C : cat_with_terminal_cleaving}
             {x y : C}
@@ -74,36 +114,67 @@ Proof.
   exact univalent_cat_is_univalent_2_1.
 Qed.
 
-Proposition isaprop_has_dependent_sums
-            (C : cat_with_terminal_cleaving)
-  : isaprop (has_dependent_sums (cleaving_of_types C)).
+Proposition isaprop_comp_cat_dependent_sum
+            (C : comp_cat)
+  : isaprop (comp_cat_dependent_sum C).
 Proof.
   use isaproptotal2.
   - intro.
-    do 10 (use impred ; intro).
+    do 8 (use impred ; intro).
     apply isaprop_left_beck_chevalley.
   - intros.
-    do 3 (use funextsec ; intro).
+    do 2 (use funextsec ; intro).
     apply isaprop_dependent_sum.
 Qed.
 
+Definition make_comp_cat_dependent_sum
+           {C : comp_cat}
+           (sig : ∏ (Γ : C) (A : ty Γ),
+                  dependent_sum (cleaving_of_types C) (π A))
+           (stable : ∏ (Γ₁ Γ₂ : C)
+                       (A₁ : ty Γ₁)
+                       (A₂ : ty Γ₂)
+                       (s₁ : Γ₁ --> Γ₂)
+                       (s₂ : Γ₁ & A₁ --> Γ₂ & A₂)
+                       (p : s₂ · π A₂ = π A₁ · s₁)
+                       (Hp : isPullback p),
+                     left_beck_chevalley
+                       _
+                       (π A₂) s₁ (π A₁) s₂
+                       p
+                       (sig _ A₂)
+                       (sig _ A₁))
+  : comp_cat_dependent_sum C
+  := sig ,, stable.
+
+Definition make_comp_cat_dependent_sum_all
+           {C : comp_cat}
+           (HC : has_dependent_sums (cleaving_of_types C))
+  : comp_cat_dependent_sum C.
+Proof.
+  use make_comp_cat_dependent_sum.
+  - exact (λ Γ A, pr1 HC _ _ (π A)).
+  - intros Γ₁ Γ₂ A₁ A₂ s₁ s₂ p Hp.
+    exact (pr2 HC _ _ _ _ _ _ _ _ _ Hp).
+Defined.
+
 Definition dependent_sum_map
            {C : comp_cat}
-           (D : has_dependent_sums (cleaving_of_types C))
+           (D : comp_cat_dependent_sum C)
            {Γ : C}
            (A : ty Γ)
            (B : ty (Γ & A))
-  : Γ & A & B --> Γ & dep_sum D (π A) B
-  := comp_cat_comp_mor (dep_sum_unit D (π A) B)
-     · comp_cat_extend_over (dep_sum D (π A) B) (π A).
+  : Γ & A & B --> Γ & dep_sum_cc D A B
+  := comp_cat_comp_mor (dep_sum_unit_cc D A B)
+     · comp_cat_extend_over (dep_sum_cc D A B) (π A).
 
 Proposition dependent_sum_map_eq
             {C : comp_cat}
-            (D : has_dependent_sums (cleaving_of_types C))
+            (D : comp_cat_dependent_sum C)
             {Γ : C}
             (A : ty Γ)
             (B : ty (Γ & A))
-  : dependent_sum_map D A B · π (dep_sum D (π A) B)
+  : dependent_sum_map D A B · π (dep_sum_cc D A B)
     =
     π B · π A.
 Proof.
@@ -127,7 +198,7 @@ Qed.
 Definition strong_dependent_sums
            (C : comp_cat)
   : UU
-  := ∑ (D : has_dependent_sums (cleaving_of_types C)),
+  := ∑ (D : comp_cat_dependent_sum C),
      ∏ (Γ : C)
        (A : ty Γ)
        (B : ty (Γ & A)),
@@ -136,7 +207,7 @@ Definition strong_dependent_sums
 Coercion strong_dependent_sum_to_dependent_sums
          {C : comp_cat}
          (D : strong_dependent_sums C)
-  : has_dependent_sums (cleaving_of_types C).
+  : comp_cat_dependent_sum C.
 Proof.
   exact (pr1 D).
 Defined.
@@ -159,7 +230,7 @@ Proof.
     do 3 (use impred ; intro).
     apply isaprop_is_z_isomorphism.
   - intros.
-    apply isaprop_has_dependent_sums.
+    apply isaprop_comp_cat_dependent_sum.
 Qed.
 
 Definition disp_bicat_of_sigma_type

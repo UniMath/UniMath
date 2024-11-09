@@ -24,7 +24,9 @@ Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.PullbackConstructions.
 Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
@@ -377,6 +379,15 @@ Definition binproducts_univ_cat_with_finlim
        (pullbacks_univ_cat_with_finlim C)
        (terminal_univ_cat_with_finlim C).
 
+Definition equalizers_univ_cat_with_finlim
+           (C : univ_cat_with_finlim)
+  : Equalizers C.
+Proof.
+  use equalizer_from_pb_prod.
+  - exact (pullbacks_univ_cat_with_finlim C).
+  - exact (binproducts_univ_cat_with_finlim C).
+Defined.
+
 Definition functor_finlim
            (C₁ C₂ : univ_cat_with_finlim)
   : UU
@@ -389,6 +400,18 @@ Definition make_functor_finlim
            (FP : preserves_pullback F)
   : functor_finlim C₁ C₂
   := F ,, (tt ,, FT) ,, (tt ,, FP).
+
+Definition make_functor_finlim_adjequiv
+           {C₁ C₂ : univ_cat_with_finlim}
+           (F : C₁ ⟶ C₂)
+           (HF : adj_equivalence_of_cats F)
+  : functor_finlim C₁ C₂.
+Proof.
+  use make_functor_finlim.
+  - exact F.
+  - exact (right_adjoint_preserves_terminal _ (adj_equivalence_of_cats_inv _ HF)).
+  - exact (right_adjoint_preserves_pullback _ (adj_equivalence_of_cats_inv _ HF)).
+Defined.
 
 Coercion functor_of_functor_finlim
          {C₁ C₂ : univ_cat_with_finlim}
@@ -418,6 +441,18 @@ Definition functor_finlim_preserves_binproduct
        (pullbacks_univ_cat_with_finlim C₁)
        (functor_finlim_preserves_pullback F)
        (functor_finlim_preserves_terminal F).
+
+Definition functor_finlim_preserves_equalizer
+           {C₁ C₂ : univ_cat_with_finlim}
+           (F : functor_finlim C₁ C₂)
+  : preserves_equalizer F.
+Proof.
+  use preserves_equalizer_from_pullback_terminal.
+  - exact (terminal_univ_cat_with_finlim C₁).
+  - exact (pullbacks_univ_cat_with_finlim C₁).
+  - exact (functor_finlim_preserves_pullback F).
+  - exact (functor_finlim_preserves_terminal F).
+Qed.
 
 Definition nat_trans_finlim
            {C₁ C₂ : univ_cat_with_finlim}
@@ -477,6 +512,19 @@ Proof.
       (use nat_trans_finlim_eq ;
        intro x ;
        apply (z_iso_after_z_iso_inv (_ ,, Hτ x))).
+Defined.
+
+Definition invertible_2cell_cat_with_finlim
+           {C₁ C₂ : univ_cat_with_finlim}
+           {F G : functor_finlim C₁ C₂}
+           (τ : nat_z_iso (pr1 F) (pr1 G))
+  : invertible_2cell F G.
+Proof.
+  use make_invertible_2cell.
+  - use make_nat_trans_finlim.
+    exact τ.
+  - use is_invertible_2cell_cat_with_finlim.
+    apply τ.
 Defined.
 
 Definition left_adjoint_equivalence_univ_cat_with_finlim
