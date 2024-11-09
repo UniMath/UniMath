@@ -36,7 +36,7 @@ Require Import UniMath.CategoryTheory.Limits.Initial.
 (* The following are used for examples *)
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
-Require Import UniMath.CategoryTheory.NNO.
+Require Import UniMath.CategoryTheory.Arithmetic.NNO.
 
 Local Open Scope cat.
 
