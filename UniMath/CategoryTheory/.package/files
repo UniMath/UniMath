@@ -181,7 +181,11 @@ Limits/Examples/IsoCommaLimits.v
 CommaCategories.v
 Categories/Quotient.v
 
-NNO.v
+Arithmetic/NNO.v
+Arithmetic/ParameterizedNNO.v
+
+DisplayedCats/Codomain/CodNNO.v
+
 Subcategory/Limits.v
 EpiFacts.v
 Categories/Type/Core.v

@@ -56,6 +56,11 @@
  6. Regularity
  7. Exactness
  8. Pretoposes
+ 9. Subobject classifiers
+ 10. Elementary toposes
+ 11. Parameterized natural number objects
+ 12. Arithmetic universes
+ 13. Elementary toposes with a natural numbers object
 
  **************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -67,21 +72,31 @@ Require Import UniMath.CategoryTheory.RegularAndExact.RegularEpi.
 Require Import UniMath.CategoryTheory.RegularAndExact.RegularEpiFacts.
 Require Import UniMath.CategoryTheory.RegularAndExact.RegularCategory.
 Require Import UniMath.CategoryTheory.RegularAndExact.ExactCategory.
+Require Import UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseSubobjectClassifier.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodColimits.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.ColimitProperties.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodRegular.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodSubobjectClassifier.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodNNO.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.Limits.StrictInitial.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.Limits.DisjointBinCoproducts.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
 Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
 Require Import UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
 
@@ -168,13 +183,13 @@ Defined.
 Definition sub_property_of_local_property_data
            (P : local_property)
   : UU
-  := ∏ (C : category), P C → UU.
+  := ∏ (C : univ_cat_with_finlim), P C → UU.
 
 Definition sub_property_of_local_property_laws
            (P : local_property)
            (Q : sub_property_of_local_property_data P)
   : UU
-  := (∏ (C : univalent_category)
+  := (∏ (C : univ_cat_with_finlim)
         (H : P C),
       isaprop (Q C H))
      ×
@@ -183,7 +198,7 @@ Definition sub_property_of_local_property_laws
         (H : P C),
       Q C H
       →
-      Q (C/x) (local_property_slice P C x H)).
+      Q (slice_univ_cat_with_finlim x) (local_property_slice P C x H)).
 
 Definition sub_property_of_local_property
            (P : local_property)
@@ -201,7 +216,7 @@ Definition make_sub_property_of_local_property
 Definition sub_property_of_local_property_to_data
            {P : local_property}
            (Q : sub_property_of_local_property P)
-           (C : category)
+           (C : univ_cat_with_finlim)
            (H : P C)
   : UU
   := pr1 Q C H.
@@ -212,7 +227,7 @@ Coercion sub_property_of_local_property_to_data
 Proposition isaprop_sub_property_of_local_property
             {P : local_property}
             (Q : sub_property_of_local_property P)
-            (C : univalent_category)
+            (C : univ_cat_with_finlim)
             (H : P C)
   : isaprop (Q C H).
 Proof.
@@ -226,7 +241,7 @@ Proposition sub_property_of_local_property_slice
             (x : C)
             (H : P C)
             (H' : Q C H)
-  : Q (C/x) (local_property_slice P C x H).
+  : Q (slice_univ_cat_with_finlim x) (local_property_slice P C x H).
 Proof.
   exact (pr22 Q C x H H').
 Defined.
@@ -298,7 +313,7 @@ Definition strict_initial_cat_property_data
 Proof.
   use make_cat_property_data.
   - exact (λ C, strict_initial_object C).
-  - exact (λ _ _ _ _ F, preserves_initial F).
+  - exact (λ _ _ _ _ F, preserves_initial (pr1 F)).
 Defined.
 
 Proposition strict_initial_cat_property_laws
@@ -352,7 +367,7 @@ Definition stable_bincoproducts_cat_property_data
 Proof.
   use make_cat_property_data.
   - exact (λ C, ∑ (BC : BinCoproducts C), stable_bincoproducts BC).
-  - exact (λ C₁ C₂ H₁ H₂ F, preserves_bincoproduct F).
+  - exact (λ C₁ C₂ H₁ H₂ F, preserves_bincoproduct (pr1 F)).
 Defined.
 
 Proposition stable_bincoproducts_cat_property_laws
@@ -456,7 +471,7 @@ Definition regular_cat_property_data
 Proof.
   use make_cat_property_data.
   - exact (λ C, coeqs_of_kernel_pair C × regular_epi_pb_stable C).
-  - exact (λ C₁ C₂ H₁ H₂ F, preserves_regular_epi F).
+  - exact (λ C₁ C₂ H₁ H₂ F, preserves_regular_epi (pr1 F)).
 Defined.
 
 Proposition regular_cat_property_laws
@@ -570,8 +585,163 @@ Definition exact_local_property
        all_eqrel_effective_local_property.
 
 (** * 8. Pretoposes *)
-Definition pretoposes_local_property
+Definition pretopos_local_property
   : local_property
   := local_property_conj
        lextensive_local_property
        exact_local_property.
+
+(** * 9. Subobject classifiers *)
+Definition subobject_classifier_cat_property_data
+  : cat_property_data.
+Proof.
+  use make_cat_property_data.
+  - exact (λ C, subobject_classifier (terminal_univ_cat_with_finlim C)).
+  - exact (λ C₁ C₂ Ω₁ Ω₂ F,
+           preserves_subobject_classifier
+             F
+             (terminal_univ_cat_with_finlim C₁)
+             (terminal_univ_cat_with_finlim C₂)
+             (functor_finlim_preserves_terminal F)).
+Defined.
+
+Proposition subobject_classifier_cat_property_laws
+  : cat_property_laws subobject_classifier_cat_property_data.
+Proof.
+  repeat split.
+  - intro C ; simpl.
+    apply isaprop_subobject_classifier.
+  - intros C₁ C₂ Ω₁ Ω₂ F ; simpl.
+    apply isaprop_preserves_subobject_classifier.
+  - intros C Ω ; simpl.
+    apply identity_preserves_subobject_classifier.
+  - intros C₁ C₂ C₃ Ω₁ Ω₂ Ω₃ F G HF HG ; simpl.
+    exact (comp_preserves_subobject_classifier HF HG).
+Qed.
+
+Definition subobject_classifier_cat_property
+  : cat_property.
+Proof.
+  use make_cat_property.
+  - exact subobject_classifier_cat_property_data.
+  - exact subobject_classifier_cat_property_laws.
+Defined.
+
+Proposition subobject_classifier_is_local_property
+  : is_local_property subobject_classifier_cat_property.
+Proof.
+  use make_is_local_property.
+  - intros C x Ω.
+    apply (codomain_fiberwise_subobject_classifier _ (pullbacks_univ_cat_with_finlim C) Ω).
+  - intros C Ω x y f.
+    apply (codomain_fiberwise_subobject_classifier _ (pullbacks_univ_cat_with_finlim C) Ω).
+  - intros C₁ C₂ Ω₁ Ω₂ F HF x ; cbn.
+    use preserves_subobject_classifier_disp_codomain_fiber_functor.
+    + exact (terminal_univ_cat_with_finlim C₁).
+    + exact (terminal_univ_cat_with_finlim C₂).
+    + exact (binproducts_univ_cat_with_finlim C₁).
+    + exact (binproducts_univ_cat_with_finlim C₂).
+    + exact Ω₁.
+    + exact Ω₂.
+    + exact (functor_finlim_preserves_terminal F).
+    + exact (functor_finlim_preserves_binproduct F).
+    + exact HF.
+Qed.
+
+Definition subobject_classifier_local_property
+  : local_property.
+Proof.
+  use make_local_property.
+  - exact subobject_classifier_cat_property.
+  - exact subobject_classifier_is_local_property.
+Defined.
+
+(** * 10. Elementary toposes *)
+Definition topos_local_property
+  : local_property
+  := local_property_conj
+       pretopos_local_property
+       subobject_classifier_local_property.
+
+(** * 11. Parameterized natural number objects *)
+Definition parameterized_NNO_cat_property_data
+  : cat_property_data.
+Proof.
+  use make_cat_property_data.
+  - exact (λ C, parameterized_NNO
+                  (terminal_univ_cat_with_finlim C)
+                  (binproducts_univ_cat_with_finlim C)).
+  - exact (λ C₁ C₂ N₁ N₂ F,
+           preserves_parameterized_NNO
+             N₁ N₂
+             F
+             (functor_finlim_preserves_terminal F)).
+Defined.
+
+Proposition cat_property_laws_parameterized_NNO
+  : cat_property_laws parameterized_NNO_cat_property_data.
+Proof.
+  repeat split.
+  - intro C.
+    apply isaprop_parameterized_NNO.
+  - intros.
+    apply isaprop_preserves_parameterized_NNO.
+  - intros C N.
+    apply id_preserves_parameterized_NNO.
+  - intros C₁ C₂ C₃ N₁ N₂ N₃ F G HF HG.
+    exact (comp_preserves_parameterized_NNO HF HG).
+Qed.
+
+Definition parameterized_NNO_cat_property
+  : cat_property.
+Proof.
+  use make_cat_property.
+  - exact parameterized_NNO_cat_property_data.
+  - exact cat_property_laws_parameterized_NNO.
+Defined.
+
+Proposition is_local_property_parameterized_NNO
+  : is_local_property parameterized_NNO_cat_property.
+Proof.
+  use make_is_local_property.
+  - intros C x N.
+    exact (parameterized_NNO_prod_independent
+             (C := slice_univ_cat_with_finlim x)
+             _
+             (slice_parameterized_NNO N (pullbacks_univ_cat_with_finlim C) x)).
+  - intros C N x y f ; cbn.
+    use (preserves_parameterized_NNO_prod_independent
+             (C₁ := slice_univ_cat_with_finlim y)
+             (C₂ := slice_univ_cat_with_finlim x)).
+    apply slice_parameterized_NNO_stable.
+  - intros C₁ C₂ N₁ N₂ F HF x.
+    use (preserves_parameterized_NNO_prod_independent
+             (C₁ := slice_univ_cat_with_finlim x)
+             (C₂ := slice_univ_cat_with_finlim (F x))).
+    use codomain_functor_preserves_parameterized_NNO.
+    + apply functor_finlim_preserves_terminal.
+    + apply functor_finlim_preserves_binproduct.
+    + exact HF.
+Qed.
+
+Definition parameterized_NNO_local_property
+  : local_property.
+Proof.
+  use make_local_property.
+  - exact parameterized_NNO_cat_property.
+  - exact is_local_property_parameterized_NNO.
+Defined.
+
+(** * 12. Arithmetic universes *)
+Definition pretopos_with_nat_local_property
+  : local_property
+  := local_property_conj
+       pretopos_local_property
+       parameterized_NNO_local_property.
+
+(** * 13. Elementary toposes with a natural numbers object *)
+Definition topos_with_NNO_local_property
+  : local_property
+  := local_property_conj
+       topos_local_property
+       parameterized_NNO_local_property.
