@@ -26,9 +26,9 @@
  2. Operations of complete Heyting algebras
  3. Laws for complete Heyting algebras
  4. Greatest lower bounds for complete Heyting algebras
- 5. Derived laws for complete Heyting algebras
- 6. Complete Heyting algebras from greatest upper bounds
- 7. Basis
+ 5. Complete Heyting algebras from greatest upper bounds
+ 6. Basis
+ 7. Complete Boolean algebras
 
  *********************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -588,9 +588,7 @@ Qed.
 
 #[global] Opaque complete_heyting_algebra_glb.
 
-(** * 5. Derived laws for complete Heyting algebras *)
-
-(** * 6. Complete Heyting algebras from greatest upper bounds *)
+(** * 5. Complete Heyting algebras from greatest upper bounds *)
 Definition is_lowerbound_lattice
            {X : hSet}
            (L : lattice X)
@@ -634,7 +632,7 @@ Proof.
        exact (pr12 lub (x ,, Hx))).
 Defined.
 
-(** * 7. Basis *)
+(** * 6. Basis *)
 Definition cha_basis_data
            (H : complete_heyting_algebra)
   : UU
@@ -734,7 +732,7 @@ Proof.
   exact (pr222 B b₁ b₂ p).
 Defined.
 
-(** * 8. Complete Boolean algebras *)
+(** * 7. Complete Boolean algebras *)
 Definition is_boolean_algebra
            (H : complete_heyting_algebra)
   : hProp
