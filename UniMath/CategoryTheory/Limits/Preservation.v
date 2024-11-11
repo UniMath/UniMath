@@ -354,6 +354,99 @@ Proof.
        apply idpath).
 Defined.
 
+Proposition preserves_binproduct_of_arrows
+            {C₁ C₂ : category}
+            {BC₁ : BinProducts C₁}
+            {BC₂ : BinProducts C₂}
+            {F : C₁ ⟶ C₂}
+            (HF : preserves_binproduct F)
+            {x₁ x₂ y₁ y₂ : C₁}
+            (f : x₁ --> x₂)
+            (g : y₁ --> y₂)
+  : inv_from_z_iso (preserves_binproduct_to_z_iso F HF _ _)
+    · #F(BinProductOfArrows _ (BC₁ _ _) (BC₁ _ _) f g)
+    =
+    BinProductOfArrows _ (BC₂ _ _) (BC₂ _ _) (#F f) (#F g)
+    · inv_from_z_iso (preserves_binproduct_to_z_iso F HF _ _).
+Proof.
+  cbn.
+  use (BinProductArrowsEq
+         _ _ _
+         (preserves_binproduct_to_binproduct F HF (BC₁ x₂ y₂))).
+  - etrans.
+    {
+      unfold BinProductOfArrows.
+      apply maponpaths_2.
+      apply maponpaths.
+      apply (preserves_binproduct_to_preserves_arrow F HF (BC₁ _ _) (BC₂ _ _)).
+    }
+    cbn.
+    rewrite !assoc'.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply (BinProductPr1Commutes
+               _ _ _
+               (preserves_binproduct_to_binproduct F HF (BC₁ x₂ y₂))).
+    }
+    rewrite BinProductPr1Commutes.
+    etrans.
+    {
+      rewrite functor_comp.
+      rewrite !assoc.
+      apply maponpaths_2.
+      apply (BinProductPr1Commutes
+               _ _ _
+               (preserves_binproduct_to_binproduct F HF _)).
+    }
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      apply (BinProductPr1Commutes
+               _ _ _
+               (preserves_binproduct_to_binproduct F HF (BC₁ x₂ y₂))).
+    }
+    rewrite BinProductOfArrowsPr1.
+    apply idpath.
+  - etrans.
+    {
+      unfold BinProductOfArrows.
+      apply maponpaths_2.
+      apply maponpaths.
+      apply (preserves_binproduct_to_preserves_arrow F HF (BC₁ _ _) (BC₂ _ _)).
+    }
+    cbn.
+    rewrite !assoc'.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply (BinProductPr2Commutes
+               _ _ _
+               (preserves_binproduct_to_binproduct F HF (BC₁ x₂ y₂))).
+    }
+    rewrite BinProductPr2Commutes.
+    etrans.
+    {
+      rewrite functor_comp.
+      rewrite !assoc.
+      apply maponpaths_2.
+      apply (BinProductPr2Commutes
+               _ _ _
+               (preserves_binproduct_to_binproduct F HF _)).
+    }
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      apply (BinProductPr2Commutes
+               _ _ _
+               (preserves_binproduct_to_binproduct F HF (BC₁ x₂ y₂))).
+    }
+    rewrite BinProductOfArrowsPr2.
+    apply idpath.
+Qed.
+
 Definition identity_preserves_binproduct
           (C : category)
   : preserves_binproduct (functor_identity C)

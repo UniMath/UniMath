@@ -358,6 +358,112 @@ Section Preservation.
 
 End Preservation.
 
+Proposition preserves_exponentials_map_id
+            {C : category}
+            {BC : BinProducts C}
+            (E : Exponentials BC)
+            (x y : C)
+  : identity _
+    =
+    preserves_exponentials_map E E (identity_preserves_binproduct C) x y.
+Proof.
+  unfold preserves_exponentials_map.
+  cbn.
+  refine (exp_eta _ _ @ _).
+  apply maponpaths.
+  apply maponpaths_2.
+  unfold BinProductOfArrows.
+  rewrite !id_right.
+  apply idpath.
+Qed.
+
+Definition id_preserves_exponentials
+           {C : category}
+           {BC : BinProducts C}
+           (E : Exponentials BC)
+  : preserves_exponentials E E (identity_preserves_binproduct _).
+Proof.
+  intros x y.
+  use is_z_isomorphism_path.
+  - apply identity.
+  - apply preserves_exponentials_map_id.
+  - apply identity_is_z_iso.
+Defined.
+
+Section CompPreserves.
+  Context {C₁ C₂ C₃ : category}
+          {BC₁ : BinProducts C₁}
+          {BC₂ : BinProducts C₂}
+          {BC₃ : BinProducts C₃}
+          {E₁ : Exponentials BC₁}
+          {E₂ : Exponentials BC₂}
+          {E₃ : Exponentials BC₃}
+          {F : C₁ ⟶ C₂}
+          {HF : preserves_binproduct F}
+          (HFE : preserves_exponentials E₁ E₂ HF)
+          {G : C₂ ⟶ C₃}
+          {HG : preserves_binproduct G}
+          (HGE : preserves_exponentials E₂ E₃ HG).
+
+  Proposition comp_preserves_exponentials_eq
+              (x y : C₁)
+    : # G (preserves_exponentials_map E₁ E₂ HF x y)
+      · preserves_exponentials_map E₂ E₃ HG (F x) (F y)
+      =
+      preserves_exponentials_map E₁ E₃ (composition_preserves_binproduct HF HG) x y.
+  Proof.
+    unfold preserves_exponentials_map ; cbn.
+    refine (exp_eta _ _ @ _).
+    apply maponpaths.
+    etrans.
+    {
+      rewrite <- BinProductOfArrows_idxcomp.
+      rewrite !assoc'.
+      rewrite exp_beta.
+      rewrite !assoc.
+      rewrite <- (functor_id G).
+      apply maponpaths_2.
+      refine (!_).
+      apply preserves_binproduct_of_arrows.
+    }
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      refine (!(functor_comp G _ _) @ _).
+      apply maponpaths.
+      apply exp_beta.
+    }
+    rewrite functor_comp.
+    rewrite !assoc.
+    apply maponpaths_2.
+    use z_iso_inv_on_right.
+    etrans.
+    {
+      apply (preserves_binproduct_to_preserves_arrow
+               G HG
+               (preserves_binproduct_to_binproduct F HF (BC₁ x (exp (E₁ x) y)))
+               (BC₃ _ _)).
+    }
+    cbn.
+    apply idpath.
+  Qed.
+
+  Definition comp_preserves_exponentials
+    : preserves_exponentials E₁ E₃ (composition_preserves_binproduct HF HG).
+  Proof.
+    intros x y.
+    use is_z_isomorphism_path.
+    - exact (#G(preserves_exponentials_map E₁ E₂ HF x y)
+             · preserves_exponentials_map E₂ E₃ HG (F x) (F y)).
+    - apply comp_preserves_exponentials_eq.
+    - use is_z_isomorphism_comp.
+      + use functor_on_is_z_isomorphism.
+        apply HFE.
+      + apply HGE.
+  Qed.
+End CompPreserves.
+
 (** * 4. Transport along an adjoint equivalence *)
 Section ExponentialsCarriedThroughAdjointEquivalence.
 
