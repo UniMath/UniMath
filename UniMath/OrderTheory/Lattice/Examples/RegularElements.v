@@ -1,268 +1,54 @@
+(**********************************************************************************************
+
+ Regular elements in a complete Heyting algebra
+
+ Every complete Heyting algebra gives rise to a complete Boolean algebra, namely the complete
+ Heyting algebra of all regular elements.
+
+ More specifically, suppose that we have a complete Heyting algebra [H]. We say that an element
+ [x] is regular if [x = ¬ ¬ x]. The connective on regular elements are defined as follows.
+ - Top element: [⊤] in [H]
+ - Bottom element: [⊤] in [H]
+ - Conjunction of [x] and [y]: [x ∧ y] in [H]
+ - Negation of [x]: [¬ x] in [H]. Note that [¬ x] is regular, because even intuitionistically
+   we have that [¬ ¬ ¬ x] implies [¬ x].
+ - Greatest lower bounds of regular elements are computed as in [H].
+ However, disjunctions and least upper bounds are defined different compared to [H]. If we have
+ two regular elements [x] and [y], then the disjunction [x ∨ y] is not necessarily regular.
+ Instead their disjunction is defined to be [¬ ¬(x ∨ y)], which always is regular. We use the
+ same idea for least upper bounds. Those also are not guaranteed to be regular, and thus we
+ also add a double negation. Exponentials are defined using least upper bounds.
+
+ References
+ - The appendix in "Intuitionistic Set Theory" by Bell
+
+ Content
+ 1. Regular elements
+ 2. Examples of regular elements
+ 2.1. Top and bottom
+ 2.2. The double negation
+ 2.3. Negation of regular elements
+ 2.4. Conjunction and disjunction
+ 2.5. Greatest lower bounds
+ 3. The lattice of regular elements
+ 4. The bounded lattice of regular elements
+ 5. The complete lattice of regular elements
+ 6. Least upper bounds of regular elements
+ 7. Exponentials
+ 8. The complete Boolean algebra of regular elements
+
+ **********************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.OrderTheory.Lattice.Lattice.
 Require Import UniMath.OrderTheory.Lattice.Bounded.
 Require Import UniMath.OrderTheory.Lattice.Heyting.
 Require Import UniMath.OrderTheory.Lattice.CompleteHeyting.
+Require Import UniMath.OrderTheory.Lattice.DerivedLawsCompleteHeyting.
 
 Local Open Scope heyting.
 
-Proposition cha_not_top
-            (H : complete_heyting_algebra)
-  : ¬ ⊤ = (⊥ : H).
-Proof.
-  cbn.
-  use cha_le_antisymm.
-  - rewrite <- (cha_runit_min_bot (¬ ⊤)).
-    use cha_exp_eval.
-  - use cha_to_le_exp.
-    use cha_min_le_l.
-Qed.
-
-Proposition cha_not_bot
-            (H : complete_heyting_algebra)
-  : ¬ ⊥ = (⊤ : H).
-Proof.
-  cbn.
-  use cha_le_antisymm.
-  - use cha_le_top.
-  - use cha_to_le_exp.
-    use cha_min_le_r.
-Qed.
-
-Proposition cha_not_not
-            {H : complete_heyting_algebra}
-            (x : H)
-  : x ≤ ¬ ¬ x.
-Proof.
-  use cha_to_le_exp.
-  rewrite cha_min_comm.
-  use cha_exp_eval.
-Qed.
-
-Proposition cha_not_eval
-            {H : complete_heyting_algebra}
-            (x : H)
-  : (¬x ∧ x) ≤ ⊥.
-Proof.
-  apply cha_exp_eval.
-Qed.
-
-Proposition cha_and_monotone
-            {H : complete_heyting_algebra}
-            {x₁ x₂ y₁ y₂ : H}
-            (p : x₁ ≤ x₂)
-            (q : y₁ ≤ y₂)
-  : (x₁ ∧ y₁) ≤ (x₂ ∧ y₂).
-Proof.
-  use cha_min_le_case.
-  - refine (cha_le_trans _ p).
-    apply cha_min_le_l.
-  - refine (cha_le_trans _ q).
-    apply cha_min_le_r.
-Qed.
-
-Proposition cha_and_monotone_l
-            {H : complete_heyting_algebra}
-            {x₁ x₂ y : H}
-            (p : x₁ ≤ x₂)
-  : (x₁ ∧ y) ≤ (x₂ ∧ y).
-Proof.
-  use (cha_and_monotone p).
-  apply cha_le_refl.
-Qed.
-
-Proposition cha_and_monotone_r
-            {H : complete_heyting_algebra}
-            {x y₁ y₂ : H}
-            (q : y₁ ≤ y₂)
-  : (x ∧ y₁) ≤ (x ∧ y₂).
-Proof.
-  refine (cha_and_monotone _ q).
-  apply cha_le_refl.
-Qed.
-
-Proposition cha_not_antimonotone
-            {H : complete_heyting_algebra}
-            {x y : H}
-            (p : y ≤ x)
-  : ¬ x ≤ ¬ y.
-Proof.
-  use cha_to_le_exp.
-  refine (cha_le_trans _ _).
-  {
-    exact (cha_and_monotone_r p).
-  }
-  use cha_exp_eval.
-Qed.
-
-Proposition cha_not_not_monotone
-            {H : complete_heyting_algebra}
-            {x y : H}
-            (p : x ≤ y)
-  : ¬ ¬ x ≤ ¬ ¬ y.
-Proof.
-  do 2 use cha_not_antimonotone.
-  exact p.
-Qed.
-
-Proposition cha_not_not_not
-            {H : complete_heyting_algebra}
-            (x : H)
-  : ¬ ¬ ¬ x = ¬ x.
-Proof.
-  use cha_le_antisymm.
-  - use cha_to_le_exp.
-    refine (cha_le_trans _ _).
-    {
-      refine (cha_and_monotone_r _).
-      apply cha_not_not.
-    }
-    use cha_exp_eval.
-  - apply cha_not_not.
-Qed.
-
-Proposition cha_not_not_lem
-            {H : complete_heyting_algebra}
-            (x : H)
-  : ¬ ¬(x ∨ ¬ x) = ⊤.
-Proof.
-  use cha_le_antisymm.
-  - apply cha_le_top.
-  - use cha_to_le_exp.
-    rewrite cha_lunit_min_top.
-    refine (cha_le_trans _ (cha_not_eval (¬ x))).
-    use cha_min_le_case.
-    + use cha_to_le_exp.
-      refine (cha_le_trans _ (cha_exp_eval (x ∨ ¬ x) _)).
-      use cha_and_monotone_r.
-      use cha_max_le_r.
-    + use cha_to_le_exp.
-      refine (cha_le_trans _ (cha_exp_eval (x ∨ ¬ x) _)).
-      use cha_and_monotone_r.
-      use cha_max_le_l.
-Qed.
-
-Proposition cha_disj_not
-            {H : complete_heyting_algebra}
-            (x y : H)
-  : (¬x ∨ ¬y) ≤ ¬(x ∧ y).
-Proof.
-  use cha_max_le_case.
-  - use cha_not_antimonotone.
-    use cha_min_le_l.
-  - use cha_not_antimonotone.
-    use cha_min_le_r.
-Qed.
-
-Proposition cha_conj_not
-            {H : complete_heyting_algebra}
-            (x y : H)
-  : (¬x ∧ ¬y) = ¬(x ∨ y).
-Proof.
-  use cha_le_antisymm.
-  - use cha_to_le_exp.
-    rewrite cha_min_comm.
-    use cha_from_le_exp.
-    use cha_max_le_case.
-    + use cha_to_le_exp.
-      refine (cha_le_trans _ _).
-      {
-        exact (cha_and_monotone_r (cha_min_le_l _ _)).
-      }
-      rewrite cha_min_comm.
-      use cha_exp_eval.
-    + use cha_to_le_exp.
-      refine (cha_le_trans _ _).
-      {
-        exact (cha_and_monotone_r (cha_min_le_r _ _)).
-      }
-      rewrite cha_min_comm.
-      use cha_exp_eval.
-  - use cha_min_le_case.
-    + use cha_to_le_exp.
-      refine (cha_le_trans _ _).
-      {
-        refine (cha_and_monotone_r _).
-        exact (cha_max_le_l x y).
-      }
-      use cha_exp_eval.
-    + use cha_to_le_exp.
-      refine (cha_le_trans _ _).
-      {
-        refine (cha_and_monotone_r _).
-        exact (cha_max_le_r x y).
-      }
-      use cha_exp_eval.
-Qed.
-
-Proposition cha_not_not_conj
-            {H : complete_heyting_algebra}
-            (x y : H)
-  : ¬ ¬(x ∧ y) = (¬ ¬ x ∧ ¬ ¬ y).
-Proof.
-  use cha_le_antisymm.
-  - use cha_min_le_case.
-    + use cha_not_not_monotone.
-      apply cha_min_le_l.
-    + use cha_not_not_monotone.
-      apply cha_min_le_r.
-  - use cha_to_le_exp.
-    refine (cha_le_trans _ (cha_not_eval (¬ x))).
-    use cha_min_le_case.
-    + refine (cha_le_trans (cha_min_le_l _ _) _).
-      use cha_min_le_l.
-    + use cha_to_le_exp.
-      refine (cha_le_trans _ (cha_not_eval (¬ y))).
-      use cha_min_le_case.
-      * refine (cha_le_trans (cha_min_le_l _ _) _).
-        refine (cha_le_trans (cha_min_le_l _ _) _).
-        use cha_min_le_r.
-      * use cha_to_le_exp.
-        refine (cha_le_trans _ (cha_not_eval (x ∧ y))).
-        use cha_min_le_case.
-        ** refine (cha_le_trans (cha_min_le_l _ _) _).
-           refine (cha_le_trans (cha_min_le_l _ _) _).
-           use cha_min_le_r.
-        ** use cha_min_le_case.
-           *** refine (cha_le_trans (cha_min_le_l _ _) _).
-               use cha_min_le_r.
-           *** use cha_min_le_r.
-Qed.
-
-Proposition cha_not_not_disj_not
-            {H : complete_heyting_algebra}
-            (x y : H)
-  : ¬ ¬ (¬x ∨ ¬y) = ¬(x ∧ y).
-Proof.
-  use cha_le_antisymm.
-  - rewrite <- (cha_not_not_not (x ∧ y)).
-    use cha_not_not_monotone.
-    apply cha_disj_not.
-  - rewrite <- cha_conj_not.
-    rewrite <- (cha_not_not_not (x ∧ y)).
-    rewrite <- cha_not_not_conj.
-    apply cha_le_refl.
-Qed.
-
-Proposition cha_glb_conj
-            {H : complete_heyting_algebra}
-            {I : UU}
-            (f : I → H)
-            (x : H)
-  : (/\_{ i : I } f i ∧ x) ≤ /\_{ i : I } (f i ∧ x).
-Proof.
-  use cha_le_glb.
-  intro i.
-  use cha_and_monotone_l.
-  use cha_glb_le.
-  - exact i.
-  - apply cha_le_refl.
-Qed.
-
-
-
-
+(** * 1. Regular elements *)
 Definition is_regular_element
            {H : complete_heyting_algebra}
            (x : H)
@@ -339,7 +125,6 @@ Proof.
   - apply isaset_regular_element.
 Defined.
 
-
 Proposition cha_not_antimonotone_inv
             {H : complete_heyting_algebra}
             {x y : regular_element H}
@@ -351,7 +136,9 @@ Proof.
   exact q.
 Qed.
 
+(** * 2. Examples of regular elements *)
 
+(** ** 2.1. Top and bottom *)
 Definition top_regular_element
            (H : complete_heyting_algebra)
   : regular_element H.
@@ -378,6 +165,7 @@ Proof.
        apply cha_le_refl).
 Defined.
 
+(** * 2.2. The double negation *)
 Proposition not_not_is_regular_element
             {H : complete_heyting_algebra}
             (x : H)
@@ -402,6 +190,7 @@ Proof.
   - apply not_not_is_regular_element.
 Defined.
 
+(** ** 2.3. Negation of regular elements *)
 Definition not_regular_element
            {H : complete_heyting_algebra}
            (x : regular_element H)
@@ -415,6 +204,7 @@ Proof.
        apply cha_le_refl).
 Defined.
 
+(** ** 2.4. Conjunction and disjunction *)
 Proposition is_regular_conj
             {H : complete_heyting_algebra}
             (x y : regular_element H)
@@ -438,13 +228,11 @@ Proof.
   - apply is_regular_conj.
 Defined.
 
-
 Definition disj_regular_element
            {H : complete_heyting_algebra}
            (x y : regular_element H)
   : regular_element H
   := not_not_regular_element (x ∨ y).
-
 
 Proposition is_regular_glb
             {H : complete_heyting_algebra}
@@ -461,6 +249,7 @@ Proof.
   exact (cha_glb_le_pt f i).
 Qed.
 
+(** ** 2.5. Greatest lower bounds *)
 Definition glb_regular_element
            {H : complete_heyting_algebra}
            {I : UU}
@@ -472,7 +261,7 @@ Proof.
   - apply is_regular_glb.
 Defined.
 
-
+(** * 3. The lattice of regular elements *)
 Proposition regular_element_islatticeop
             (H : complete_heyting_algebra)
   : islatticeop
@@ -562,6 +351,7 @@ Proof.
   exact (maponpaths pr1 p).
 Qed.
 
+(** * 4. The bounded lattice of regular elements *)
 Proposition regular_element_bounded_latticeop
             (H : complete_heyting_algebra)
   : bounded_latticeop
@@ -590,6 +380,7 @@ Proof.
   - exact (regular_element_bounded_latticeop H).
 Defined.
 
+(** * 5. The complete lattice of regular elements *)
 Proposition is_glb_glb_regular_element
             {H : complete_heyting_algebra}
             {I : UU}
@@ -618,6 +409,7 @@ Proof.
   apply is_glb_glb_regular_element.
 Defined.
 
+(** * 6. Least upper bounds of regular elements *)
 Definition lub_regular_element
            {H : complete_heyting_algebra}
            (I : UU)
@@ -723,14 +515,12 @@ Proof.
     apply cha_le_refl.
 Qed.
 
-
+(** * 7. Exponentials *)
 Definition impl_regular_element
            {H : complete_heyting_algebra}
            (x y : regular_element H)
   : regular_element H
   := lub_regular_element (∑ (w : regular_element H), (w ∧ x) ≤ y) pr1.
-
-
 
 Proposition regular_element_is_exponential
             {H : complete_heyting_algebra}
@@ -786,6 +576,7 @@ Proof.
   - exact regular_element_is_exponential.
 Defined.
 
+(** * 8. The complete Boolean algebra of regular elements *)
 Definition regular_element_cha
            (H : complete_heyting_algebra)
   : complete_heyting_algebra.

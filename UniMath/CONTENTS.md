@@ -165,6 +165,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Lattice/Distributive.v](OrderTheory/Lattice/Distributive.v)
    - [Lattice/Heyting.v](OrderTheory/Lattice/Heyting.v)
    - [Lattice/CompleteHeyting.v](OrderTheory/Lattice/CompleteHeyting.v)
+   - [Lattice/DerivedLawsCompleteHeyting.v](OrderTheory/Lattice/DerivedLawsCompleteHeyting.v)
    - [Lattice/Boolean.v](OrderTheory/Lattice/Boolean.v)
    - [Lattice/Examples/FromPartialOrder.v](OrderTheory/Lattice/Examples/FromPartialOrder.v)
    - [Lattice/Examples/Bool.v](OrderTheory/Lattice/Examples/Bool.v)

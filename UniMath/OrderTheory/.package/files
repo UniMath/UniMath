@@ -16,6 +16,7 @@ Lattice/Complement.v
 Lattice/Distributive.v
 Lattice/Heyting.v
 Lattice/CompleteHeyting.v
+Lattice/DerivedLawsCompleteHeyting.v
 Lattice/Boolean.v
 Lattice/Examples/FromPartialOrder.v
 Lattice/Examples/Bool.v
