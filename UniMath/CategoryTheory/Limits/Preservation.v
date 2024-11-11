@@ -625,6 +625,51 @@ Proof.
      apply EqualizerEqAr).
 Defined.
 
+Definition preserves_chosen_equalizers_eq
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (BE₁ : Equalizers C₁)
+           (BE₂ : Equalizers C₂)
+  : UU
+  := ∏ (x y : C₁) (f g : C₁⟦x,y⟧), ∥ F (BE₁ _ _ f g) = BE₂ _ _ (#F f) (#F g) ∥.
+
+Proposition identity_preserves_chosen_equalizers_eq
+            {C : category}
+            (BE : Equalizers C)
+  : preserves_chosen_equalizers_eq (functor_identity C) BE BE.
+Proof.
+  intro ; intros.
+  apply hinhpr.
+  apply idpath.
+Qed.
+
+Proposition composition_preserves_chosen_equalizers_eq
+            {C₁ C₂ C₃ : category}
+            {F : C₁ ⟶ C₂}
+            {G : C₂ ⟶ C₃}
+            {BE₁ : Equalizers C₁}
+            {BE₂ : Equalizers C₂}
+            {BE₃ : Equalizers C₃}
+            (HF : preserves_chosen_equalizers_eq F BE₁ BE₂)
+            (HG : preserves_chosen_equalizers_eq G BE₂ BE₃)
+  : preserves_chosen_equalizers_eq (F ∙ G) BE₁ BE₃.
+Proof.
+  intros x y f g.
+
+  use (factor_through_squash _ _ (HF _ _ f g)).
+  { apply propproperty. }
+  intros HFxy.
+
+  use (factor_through_squash _ _ (HG _ _ (#F f) (#F g))).
+  { apply propproperty. }
+  intros HGxy.
+
+  apply hinhpr.
+  cbn in *.
+  rewrite HFxy.
+  now rewrite HGxy.
+Qed.
+
 (**
  5. Preservation of pullbacks
  *)
@@ -731,6 +776,51 @@ Proof.
        apply maponpaths ;
        apply (PullbackArrow_PullbackPr2 (make_Pullback p Hpb))).
 Defined.
+
+Definition preserves_chosen_pullbacks_eq
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (P₁ : Pullbacks C₁)
+           (P₂ : Pullbacks C₂)
+  : UU
+  := ∏ (x y z : C₁) (f : C₁⟦x,z⟧) (g : C₁⟦y, z⟧), ∥ F (P₁ _ _ _ f g) = P₂ _ _ _ (#F f) (#F g) ∥.
+
+Proposition identity_preserves_chosen_pullbacks_eq
+            {C : category}
+            (P : Pullbacks C)
+  : preserves_chosen_pullbacks_eq (functor_identity C) P P.
+Proof.
+  intro ; intros.
+  apply hinhpr.
+  apply idpath.
+Qed.
+
+Proposition composition_preserves_chosen_pullbacks_eq
+            {C₁ C₂ C₃ : category}
+            {F : C₁ ⟶ C₂}
+            {G : C₂ ⟶ C₃}
+            {P₁ : Pullbacks C₁}
+            {P₂ : Pullbacks C₂}
+            {P₃ : Pullbacks C₃}
+            (HF : preserves_chosen_pullbacks_eq F P₁ P₂)
+            (HG : preserves_chosen_pullbacks_eq G P₂ P₃)
+  : preserves_chosen_pullbacks_eq (F ∙ G) P₁ P₃.
+Proof.
+  intros x y z f g.
+
+  use (factor_through_squash _ _ (HF _ _ _ f g)).
+  { apply propproperty. }
+  intros HFxy.
+
+  use (factor_through_squash _ _ (HG _ _ _ (#F f) (#F g))).
+  { apply propproperty. }
+  intros HGxy.
+
+  apply hinhpr.
+  cbn in *.
+  rewrite HFxy.
+  now rewrite HGxy.
+Qed.
 
 (**
  6. Preservation of initial objects
