@@ -173,6 +173,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Lattice/Examples/Sieves.v](OrderTheory/Lattice/Examples/Sieves.v)
    - [Lattice/Examples/Trivial.v](OrderTheory/Lattice/Examples/Trivial.v)
    - [Lattice/Examples/ScottOpen.v](OrderTheory/Lattice/Examples/ScottOpen.v)
+   - [Lattice/Examples/RegularElements.v](OrderTheory/Lattice/Examples/RegularElements.v)
    - [Prebilattice/Prebilattice.v](OrderTheory/Prebilattice/Prebilattice.v)
    - [Prebilattice/Interlaced.v](OrderTheory/Prebilattice/Interlaced.v)
    - [Prebilattice/Distributive.v](OrderTheory/Prebilattice/Distributive.v)

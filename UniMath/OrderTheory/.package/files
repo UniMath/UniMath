@@ -24,6 +24,7 @@ Lattice/Examples/Subsets.v
 Lattice/Examples/Sieves.v
 Lattice/Examples/Trivial.v
 Lattice/Examples/ScottOpen.v
+Lattice/Examples/RegularElements.v
 
 Prebilattice/Prebilattice.v
 Prebilattice/Interlaced.v
