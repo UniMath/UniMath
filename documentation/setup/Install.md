@@ -3,8 +3,8 @@ Installation of UniMath on Unix-like systems
 
 ## Remarks
 
-- This file describes the default method for installing UniMath.  An alternative method using the [Nix Package Manager](https://nixos.org/nix/) is available in the file [INSTALL\_NIX.md](https://github.com/UniMath/UniMath/blob/master/INSTALL_NIX.md).
-- A sketch for getting UniMath to run on Windows is given at [INSTALL\_WIN.md](./INSTALL_WIN.md).
+- This file describes the default method for installing UniMath.  An alternative method using the [Nix Package Manager](https://nixos.org/nix/) is available in the file [Install-Nix.md](./Install-Nix.md).
+- A sketch for getting UniMath to run on Windows is given at [Install-Windows.md](./Install-Windows.md).
 
 ## Preparing your computer
 

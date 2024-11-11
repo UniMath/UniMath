@@ -398,7 +398,7 @@ Definition functor_comp_enrichment_fully_faithful
   : fully_faithful_enriched_functor (functor_comp_enrichment FE₁ FE₂).
 Proof.
   intros x y ; cbn.
-  use is_z_iso_comp_of_is_z_isos.
+  use is_z_isomorphism_comp.
   - apply HF₁.
   - apply HF₂.
 Defined.

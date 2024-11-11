@@ -456,8 +456,6 @@ ComprehensionCat/LocalProperty/CatWithProp.v
 ComprehensionCat/LocalProperty/DFLCompCatWithProp.v
 ComprehensionCat/Biequivalence/LocalProperty.v
 
-ComprehensionCat/TypeFormers/SubobjectTypes.v
-ComprehensionCat/Biequivalence/SubobjectClassifier.v
 ComprehensionCat/Biequivalence/PiTypesBiequiv.v
 ComprehensionCat/Biequivalence/InternalLanguageTopos.v
 
@@ -487,5 +485,7 @@ RezkCompletions/RezkCompletionOfBicategory.v
 RezkCompletions/Uniqueness.v
 RezkCompletions/StructuredCats/TerminalObject.v
 RezkCompletions/StructuredCats/BinProducts.v
+RezkCompletions/StructuredCats/Pullbacks.v
+RezkCompletions/StructuredCats/Equalizers.v
 
 DaggerCategories/BicatOfDaggerCats.v

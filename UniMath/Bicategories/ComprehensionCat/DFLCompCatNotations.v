@@ -531,7 +531,7 @@ Section DFLCompCat.
              (A : ty Γ)
              (B : ty (Γ & A))
     : ty Γ
-    := dep_sum (strong_dependent_sum_dfl_full_comp_cat C) (π A) B.
+    := dep_sum_cc (strong_dependent_sum_dfl_full_comp_cat C) A B.
 
   Definition dfl_sigma_type_strong
              {Γ : C}

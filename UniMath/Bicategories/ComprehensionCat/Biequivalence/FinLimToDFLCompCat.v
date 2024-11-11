@@ -113,10 +113,17 @@ Section FinLimToDFLCompCat.
     - apply identity_z_iso.
   Defined.
 
+  Definition finlim_to_dfl_comp_cat_dep_sums
+    : comp_cat_dependent_sum finlim_to_full_comp_cat.
+  Proof.
+    use make_comp_cat_dependent_sum_all.
+    apply cod_fiber_has_dependent_sum.
+  Defined.
+
   Definition finlim_to_dfl_comp_cat_strong_sums
     : strong_dependent_sums finlim_to_full_comp_cat.
   Proof.
-    refine (cod_fiber_has_dependent_sum _ ,, _).
+    refine (finlim_to_dfl_comp_cat_dep_sums ,, _).
     intros Γ A B.
     use is_z_isomorphism_path.
     - apply identity.

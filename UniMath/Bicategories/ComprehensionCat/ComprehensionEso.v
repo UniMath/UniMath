@@ -10,6 +10,9 @@
  language in Clairambault and Dybjer is closer to syntax. This is due to the fact that
  different formalisms are used.
 
+ We conclude this file by showing that a property holds for every substitution if it holds
+ for every display map.
+
  References
  - 'The biequivalence of locally cartesian closed categories and Martin-Löf type theories'
    by Clairambault and Dybjer.
@@ -317,7 +320,7 @@ Section ComprehensionEso.
       unfold comprehension_eso_mor_help, comprehension_eso_inv_mor_help.
       unfold sub_to_extension.
       use eq_sub_to_extension.
-      -  rewrite id_left.
+      - rewrite id_left.
         rewrite !assoc'.
         etrans.
         {
@@ -499,3 +502,75 @@ Section ComprehensionEso.
             _
             (fiber_functor_comprehension_adj_equiv Γ)).
 End ComprehensionEso.
+
+(**
+ A property holds for all morphism if it holds for every display map
+ *)
+Proposition dfl_full_comp_cat_mor_ind_iso_help
+            (C : dfl_full_comp_cat)
+            (P : ∏ (Γ Δ : C), Γ --> Δ → UU)
+            (Pπ : ∏ (Γ : C) (A : ty Γ), P _ _ (π A))
+            {Γ Γ' Δ : C}
+            (p : Γ = Γ')
+            {s : Γ --> Δ}
+            {s' : Γ' --> Δ}
+            (r : s = idtoiso p · s')
+            (H : P _ _ s)
+  : P _ _ s'.
+Proof.
+  induction p.
+  cbn in r.
+  rewrite id_left in r.
+  induction r.
+  exact H.
+Qed.
+
+Lemma dfl_full_comp_cat_mor_ind_iso
+      (C : dfl_full_comp_cat)
+      (P : ∏ (Γ Δ : C), Γ --> Δ → UU)
+      (Pπ : ∏ (Γ : C) (A : ty Γ), P _ _ (π A))
+      {Γ Γ' Δ : C}
+      (i : z_iso Γ Γ')
+      {s : Γ --> Δ}
+      {s' : Γ' --> Δ}
+      (r : s = i · s')
+      (H : P _ _ s)
+  : P _ _ s'.
+Proof.
+  simple refine (dfl_full_comp_cat_mor_ind_iso_help C P Pπ (isotoid _ _ i) _ H).
+  - apply univalent_category_is_univalent.
+  - rewrite idtoiso_isotoid.
+    exact r.
+Qed.
+
+Theorem dfl_full_comp_cat_mor_ind
+        (C : dfl_full_comp_cat)
+        (P : ∏ (Γ Δ : C), Γ --> Δ → UU)
+        (Pπ : ∏ (Γ : C) (A : ty Γ), P _ _ (π A))
+        {Γ Δ : C}
+        (s : Γ --> Δ)
+  : P _ _ s.
+Proof.
+  pose (A := comprehension_eso_ty C s).
+  assert (s = comprehension_eso_inv_mor C s · π (comprehension_eso_ty C s)) as p.
+  {
+    rewrite <- comprehension_eso_mor_eq.
+    rewrite !assoc.
+    rewrite comprehension_eso_inv_mor_mor.
+    rewrite id_left.
+    apply idpath.
+  }
+  rewrite p.
+  simple refine (dfl_full_comp_cat_mor_ind_iso C P Pπ _ _ (Pπ Δ A)).
+  - refine (_ ,, _).
+    apply is_z_iso_comprehension_eso_mor.
+  - cbn.
+    rewrite !assoc.
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths_2.
+      apply comprehension_eso_mor_inv_mor.
+    }
+    apply id_left.
+Qed.

@@ -44,7 +44,7 @@ Proposition is_univalent_cod_slice
 Proof.
   use is_univalent_fiber.
   apply disp_univalent_disp_codomain.
-Qed.
+Defined.
 
 Definition cod_pb
            {C : category}
