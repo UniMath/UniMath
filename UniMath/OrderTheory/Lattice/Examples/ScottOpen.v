@@ -23,6 +23,7 @@ Require Import UniMath.OrderTheory.DCPOs.Core.WayBelow.
 Require Import UniMath.OrderTheory.DCPOs.Core.ScottTopology.
 Require Import UniMath.OrderTheory.DCPOs.Basis.Basis.
 Require Import UniMath.OrderTheory.DCPOs.Basis.Continuous.
+Require Import UniMath.OrderTheory.DCPOs.Examples.IdealCompletion.
 Require Import UniMath.OrderTheory.Lattice.Lattice.
 Require Import UniMath.OrderTheory.Lattice.Bounded.
 Require Import UniMath.OrderTheory.Lattice.Heyting.
@@ -355,3 +356,7 @@ Section ScottOpenCHA.
     - exact cha_basis_laws_scott_open_cha.
   Defined.
 End ScottOpenCHA.
+
+Section ScottOpenIdealCompletion.
+  Context (B : abstract_basis).
+End ScottOpenIdealCompletion.
