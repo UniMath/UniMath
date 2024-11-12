@@ -461,7 +461,7 @@ Section CompPreserves.
       + use functor_on_is_z_isomorphism.
         apply HFE.
       + apply HGE.
-  Qed.
+  Defined.
 End CompPreserves.
 
 (** * 4. Transport along an adjoint equivalence *)
