@@ -13,6 +13,7 @@
  4. Exponentials
  5. The complete Heyting algebra of Scott open sets
  6. A basis for this complete Heyting algebra
+ 7. A basis for the Scott open sets in the rounded ideal completion
 
  **********************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -357,6 +358,48 @@ Section ScottOpenCHA.
   Defined.
 End ScottOpenCHA.
 
+(** * 7. A basis for the Scott open sets in the rounded ideal completion *)
 Section ScottOpenIdealCompletion.
   Context (B : abstract_basis).
+
+  Definition cha_basis_data_rounded_ideal_completion
+    : cha_basis_data (scott_open_cha (rounded_ideal_completion B)).
+  Proof.
+    use make_cha_basis_data.
+    - exact B.
+    - exact (λ b, way_below_upper_scott_open_set
+                    (rounded_ideal_completion_continuous_struct B)
+                    (principal_ideal _ b)).
+    - exact (λ b₁ b₂, b₁ ≺ b₂).
+  Defined.
+
+  Proposition cha_basis_laws_rounded_ideal_completion
+    : cha_basis_laws cha_basis_data_rounded_ideal_completion.
+  Proof.
+    repeat split.
+    - cbn.
+      intros ? ? ? p q.
+      exact (trans_abstract_basis p q).
+    - intros X.
+      exact (cha_basis_eq
+               (cha_basis_scott_open_cha
+                  (rounded_ideal_completion B)
+                  (rounded_ideal_completion_basis B))
+               X).
+    - intros b₁ b₂ p.
+      use scott_open_cha_le.
+      intros I q.
+      cbn in p ; cbn -[way_below] in q ; cbn -[way_below].
+      refine (trans_way_below _ q).
+      use lt_way_below.
+      exact p.
+  Qed.
+
+  Definition cha_basis_rounded_ideal_completion
+    : cha_basis (scott_open_cha (rounded_ideal_completion B)).
+  Proof.
+    use make_cha_basis.
+    - exact cha_basis_data_rounded_ideal_completion.
+    - exact cha_basis_laws_rounded_ideal_completion.
+  Defined.
 End ScottOpenIdealCompletion.
