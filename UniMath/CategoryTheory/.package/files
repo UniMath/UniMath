@@ -179,6 +179,7 @@ Limits/Filtered.v
 IsoCommaCategory.v
 Limits/Examples/IsoCommaLimits.v
 CommaCategories.v
+Categories/Quotient.v
 
 Arithmetic/NNO.v
 Arithmetic/ParameterizedNNO.v
@@ -714,3 +715,13 @@ DaggerCategories/Functors/Factorization.v
 DaggerCategories/Functors/Precomp.v
 
 DaggerCategories/CatIso.v
+
+MarkovCategories/MarkovCategory.v
+MarkovCategories/Determinism.v
+MarkovCategories/Univalence.v
+MarkovCategories/AlmostSurely.v
+MarkovCategories/Conditionals.v
+MarkovCategories/InformationFlowAxioms.v
+MarkovCategories/State.v
+MarkovCategories/ProbabilitySpaces.v
+MarkovCategories/Couplings.v
