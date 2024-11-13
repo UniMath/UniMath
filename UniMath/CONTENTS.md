@@ -357,6 +357,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [Hyperdoctrines/PartialEqRels/ExponentialLam.v](CategoryTheory/Hyperdoctrines/PartialEqRels/ExponentialLam.v)
    - [Hyperdoctrines/PartialEqRels/ExponentialEqs.v](CategoryTheory/Hyperdoctrines/PartialEqRels/ExponentialEqs.v)
    - [Hyperdoctrines/PartialEqRels/PERExponentials.v](CategoryTheory/Hyperdoctrines/PartialEqRels/PERExponentials.v)
+   - [Hyperdoctrines/PartialEqRels/Logic/SubobjectDispCat.v](CategoryTheory/Hyperdoctrines/PartialEqRels/Logic/SubobjectDispCat.v)
+   - [Hyperdoctrines/PartialEqRels/Logic/Truth.v](CategoryTheory/Hyperdoctrines/PartialEqRels/Logic/Truth.v)
    - [Hyperdoctrines/TriposToTopos.v](CategoryTheory/Hyperdoctrines/TriposToTopos.v)
    - [DisplayedCats/Examples/HValuedPredicates.v](CategoryTheory/DisplayedCats/Examples/HValuedPredicates.v)
    - [Hyperdoctrines/HValuedSets.v](CategoryTheory/Hyperdoctrines/HValuedSets.v)
