@@ -42,7 +42,7 @@ Proof.
 exact (pr2 (pr2 (pr2 n))).
 Qed.
 
-Section UMP.
+Section UniversalMappingProperty.
   Context (N : NNO)
           {x : C}
           (z : 1 --> x)
@@ -72,15 +72,15 @@ Section UMP.
               (gs : sucNNO N · g = g · s)
     : f = g.
   Proof.
-    exact (maponpaths
-             pr1
+    exact (base_paths
+             _ _
              (proofirrelevance
                 _
                 (isapropifcontr (isNNO_NNO N x z s))
                 (f ,, fz ,, fs)
                 (g ,, gz ,, gs))).
   Qed.
-End UMP.
+End UniversalMappingProperty.
 
 Definition make_NNO (n : C) (z : C ⟦ 1, n ⟧) (s : C ⟦ n, n ⟧)
  (h : isNNO n z s) : NNO := (n,,z,,s,,h).
@@ -89,51 +89,50 @@ Definition hasNNO : hProp := ∥ NNO ∥.
 
 End nno.
 
-Definition mor_between_NNO
-           {C : category}
-           {TC : Terminal C}
-           (N₁ N₂ : NNO TC)
-  : N₁ --> N₂.
-Proof.
-  use NNO_mor.
-  - exact (zeroNNO TC N₂).
-  - exact (sucNNO TC N₂).
-Defined.
+Section UniqueUpToIso.
+  Context {C : category}
+          {TC : Terminal C}.
 
-Proposition mor_between_NNO_inv
-            {C : category}
-            {TC : Terminal C}
-            (N₁ N₂ : NNO TC)
-  : mor_between_NNO N₁ N₂ · mor_between_NNO N₂ N₁
-    =
-    identity _.
-Proof.
-  unfold mor_between_NNO.
-  use NNO_mor_unique.
-  - exact (zeroNNO TC N₁).
-  - exact (sucNNO TC N₁).
-  - rewrite !assoc.
-    rewrite !NNO_mor_Z.
-    apply idpath.
-  - apply id_right.
-  - rewrite !assoc.
-    rewrite NNO_mor_S.
-    rewrite !assoc'.
-    rewrite NNO_mor_S.
-    apply idpath.
-  - rewrite id_left, id_right.
-    apply idpath.
-Qed.
+  Definition mor_between_NNO
+             (N₁ N₂ : NNO TC)
+    : N₁ --> N₂.
+  Proof.
+    use NNO_mor.
+    - exact (zeroNNO TC N₂).
+    - exact (sucNNO TC N₂).
+  Defined.
 
-Definition iso_between_NNO
-           {C : category}
-           {TC : Terminal C}
-           (N₁ N₂ : NNO TC)
-  : z_iso N₁ N₂.
-Proof.
-  use make_z_iso.
-  - apply mor_between_NNO.
-  - apply mor_between_NNO.
-  - abstract
-      (split ; apply mor_between_NNO_inv).
-Defined.
+  Proposition mor_between_NNO_inv
+              (N₁ N₂ : NNO TC)
+    : mor_between_NNO N₁ N₂ · mor_between_NNO N₂ N₁
+      =
+      identity _.
+  Proof.
+    unfold mor_between_NNO.
+    use NNO_mor_unique.
+    - exact (zeroNNO TC N₁).
+    - exact (sucNNO TC N₁).
+    - rewrite !assoc.
+      rewrite !NNO_mor_Z.
+      apply idpath.
+    - apply id_right.
+    - rewrite !assoc.
+      rewrite NNO_mor_S.
+      rewrite !assoc'.
+      rewrite NNO_mor_S.
+      apply idpath.
+    - rewrite id_left, id_right.
+      apply idpath.
+  Qed.
+
+  Definition iso_between_NNO
+             (N₁ N₂ : NNO TC)
+    : z_iso N₁ N₂.
+  Proof.
+    use make_z_iso.
+    - apply mor_between_NNO.
+    - apply mor_between_NNO.
+    - abstract
+        (split ; apply mor_between_NNO_inv).
+  Defined.
+End UniqueUpToIso.

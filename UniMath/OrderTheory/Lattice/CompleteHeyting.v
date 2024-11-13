@@ -27,7 +27,7 @@
  3. Laws for complete Heyting algebras
  4. Greatest lower bounds for complete Heyting algebras
  5. Complete Heyting algebras from greatest upper bounds
- 6. Basis
+ 6. Bases for complete Heyting algebras
  7. Complete Boolean algebras
 
  *********************************************************************************************)
@@ -632,7 +632,7 @@ Proof.
        exact (pr12 lub (x ,, Hx))).
 Defined.
 
-(** * 6. Basis *)
+(** * 6. Bases for complete Heyting algebras *)
 Definition cha_basis_data
            (H : complete_heyting_algebra)
   : UU

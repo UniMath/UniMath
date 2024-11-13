@@ -37,6 +37,7 @@ Require Import UniMath.OrderTheory.DCPOs.Core.WayBelow.
 Require Import UniMath.OrderTheory.DCPOs.Basis.Continuous.
 
 Local Open Scope dcpo.
+Local Open Scope subtype.
 
 Section ScottTopology.
   Context {X : dcpo}.
@@ -275,11 +276,15 @@ Section PropertiesScottTopology.
   Definition way_below_upper_scott_open_set
              (CX : continuous_dcpo_struct X)
              (x : X)
-    : scott_open_set X
-    := way_below_upper_set x ,, upper_set_is_scott_open CX x.
+    : scott_open_set X.
+  Proof.
+    use make_scott_open_set.
+    - exact (way_below_upper_set x).
+    - exact (upper_set_is_scott_open CX x).
+  Defined.
 
   Proposition way_below_upper_scott_open_subset
-              (x₁ x₂ y : X)
+              {x₁ x₂ y : X}
               (p : x₂ ≪ x₁)
               (H : way_below_upper_set x₁ y)
     : way_below_upper_set x₂ y.
@@ -355,7 +360,7 @@ Arguments way_below_upper_set {X} x y /.
 Proposition is_scott_open_intersection
             {D : dcpo}
             (P₁ P₂ : scott_open_set D)
-  : is_scott_open (λ (x : D), P₁ x ∧ P₂ x).
+  : is_scott_open (P₁ ∩ P₂).
 Proof.
   split.
   - intros x y p q.
@@ -388,7 +393,7 @@ Definition scott_open_set_intersection
   : scott_open_set D.
 Proof.
   use make_scott_open_set.
-  - exact (λ x, P₁ x ∧ P₂ x).
+  - exact (P₁ ∩ P₂).
   - exact (is_scott_open_intersection P₁ P₂).
 Defined.
 
@@ -397,7 +402,7 @@ Proposition is_scott_open_union
             {D : dcpo}
             {I : UU}
             (P : I → scott_open_set D)
-  : is_scott_open (λ x : D, ∃ i : I, P i x).
+  : is_scott_open (⋃ P).
 Proof.
   split.
   - intros x y p q.
@@ -425,7 +430,7 @@ Definition scott_open_set_union
   : scott_open_set D.
 Proof.
   use make_scott_open_set.
-  - exact (λ x, ∃ (i : I), P i x).
+  - exact (⋃ P).
   - exact (is_scott_open_union P).
 Defined.
 
@@ -446,7 +451,7 @@ Defined.
 Proposition is_scott_open_bin_union
             {D : dcpo}
             (P₁ P₂ : scott_open_set D)
-  : is_scott_open (λ (x : D), P₁ x ∨ P₂ x).
+  : is_scott_open (P₁ ∪ P₂).
 Proof.
   split.
   - intros x y.
@@ -481,6 +486,6 @@ Definition scott_open_set_bin_union
   : scott_open_set D.
 Proof.
   use make_scott_open_set.
-  - exact (λ x, P₁ x ∨ P₂ x).
+  - exact (P₁ ∪ P₂).
   - exact (is_scott_open_bin_union P₁ P₂).
 Defined.

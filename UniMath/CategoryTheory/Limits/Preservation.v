@@ -370,6 +370,8 @@ Proposition preserves_binproduct_of_arrows
     · inv_from_z_iso (preserves_binproduct_to_z_iso F HF _ _).
 Proof.
   cbn.
+  pose (H₁ := preserves_binproduct_to_binproduct F HF (BC₁ x₁ y₁)).
+  pose (H₂ := preserves_binproduct_to_binproduct F HF (BC₁ x₂ y₂)).
   use (BinProductArrowsEq
          _ _ _
          (preserves_binproduct_to_binproduct F HF (BC₁ x₂ y₂))).
@@ -385,9 +387,7 @@ Proof.
     etrans.
     {
       do 2 apply maponpaths.
-      apply (BinProductPr1Commutes
-               _ _ _
-               (preserves_binproduct_to_binproduct F HF (BC₁ x₂ y₂))).
+      apply (BinProductPr1Commutes _ _ _ H₂).
     }
     rewrite BinProductPr1Commutes.
     etrans.
@@ -395,17 +395,13 @@ Proof.
       rewrite functor_comp.
       rewrite !assoc.
       apply maponpaths_2.
-      apply (BinProductPr1Commutes
-               _ _ _
-               (preserves_binproduct_to_binproduct F HF _)).
+      apply (BinProductPr1Commutes _ _ _ H₁).
     }
     refine (!_).
     etrans.
     {
       apply maponpaths.
-      apply (BinProductPr1Commutes
-               _ _ _
-               (preserves_binproduct_to_binproduct F HF (BC₁ x₂ y₂))).
+      apply (BinProductPr1Commutes _ _ _ H₂).
     }
     rewrite BinProductOfArrowsPr1.
     apply idpath.
@@ -421,9 +417,7 @@ Proof.
     etrans.
     {
       do 2 apply maponpaths.
-      apply (BinProductPr2Commutes
-               _ _ _
-               (preserves_binproduct_to_binproduct F HF (BC₁ x₂ y₂))).
+      apply (BinProductPr2Commutes _ _ _ H₂).
     }
     rewrite BinProductPr2Commutes.
     etrans.
@@ -431,17 +425,13 @@ Proof.
       rewrite functor_comp.
       rewrite !assoc.
       apply maponpaths_2.
-      apply (BinProductPr2Commutes
-               _ _ _
-               (preserves_binproduct_to_binproduct F HF _)).
+      apply (BinProductPr2Commutes _ _ _ H₁).
     }
     refine (!_).
     etrans.
     {
       apply maponpaths.
-      apply (BinProductPr2Commutes
-               _ _ _
-               (preserves_binproduct_to_binproduct F HF (BC₁ x₂ y₂))).
+      apply (BinProductPr2Commutes _ _ _ H₂).
     }
     rewrite BinProductOfArrowsPr2.
     apply idpath.
