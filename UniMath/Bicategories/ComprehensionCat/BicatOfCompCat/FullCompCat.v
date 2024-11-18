@@ -107,7 +107,7 @@ Proof.
     apply identity_is_z_iso.
   - intros C₁ C₂ C₃ P₁ P₂ P₃ F G H₁ H₂ x xx.
     cbn.
-    use is_z_iso_comp_of_is_z_isos.
+    use is_z_isomorphism_comp.
     + apply (functor_on_z_iso _ (_ ,, H₁ x xx)).
     + apply H₂.
 Defined.
@@ -221,6 +221,15 @@ Definition full_comp_cat_functor_is_z_iso
   : is_z_isomorphism
       (comprehension_nat_trans_mor (comp_cat_functor_comprehension F) xx)
   := pr22 F x xx.
+
+Definition full_comp_cat_functor_z_iso
+           {C₁ C₂ : full_comp_cat}
+           (F : full_comp_cat_functor C₁ C₂)
+           {x : C₁}
+           (xx : disp_cat_of_types C₁ x)
+  : z_iso (F (comprehension_functor_ob (comp_cat_comprehension C₁) xx))
+          (comprehension_functor_ob (comp_cat_comprehension C₂) (comp_cat_type_functor F x xx))
+  := _ ,, full_comp_cat_functor_is_z_iso F xx.
 
 Proposition full_comp_cat_fiber_nat_trans_ax
             {C₁ C₂ : full_comp_cat}
