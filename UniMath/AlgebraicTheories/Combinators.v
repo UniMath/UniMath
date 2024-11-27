@@ -255,8 +255,8 @@ Proof.
   refine '(_ @ !maponpaths (λ x, (abs (app x _))) (inflate_subst _ _ _)).
   refine '(_ @ !maponpaths (λ x, (abs (app _ (app x _)))) (inflate_subst _ _ _)).
   refine '(
-    maponpaths (λ x, abs (app (_ x) _)) _ @
-    maponpaths (λ x, abs (app _ (app (_ x) _))) _
+    maponpaths (λ x, abs (app (a • x) _)) _ @
+    maponpaths (λ x, abs (app _ (app (b • x) _))) _
   );
     apply funextfun;
     intro i;
@@ -483,8 +483,8 @@ Proof.
   refine '(_ @ !maponpaths (λ x, (abs (app (app _ x) _))) (inflate_subst _ _ _)).
   refine '(_ @ !maponpaths (λ x, (abs (app _ x))) (inflate_subst _ _ _)).
   refine '(
-    maponpaths (λ x, abs (app (app _ (_ x)) _)) _ @
-    maponpaths (λ x, abs (app _ (_ x))) _
+    maponpaths (λ x, abs (app (app _ (a • x)) _)) _ @
+    maponpaths (λ x, abs (app _ (b • x))) _
   );
     apply funextfun;
     intro i;

@@ -1179,7 +1179,7 @@ Section Category'.
     do 2 (apply maponpaths).
     apply funextfun.
     intro i.
-    refine '(maponpaths (λ x, _ x • _) (pr2 iscontrstn1 i) @ _).
+    refine '(maponpaths (λ x, extend_tuple _ _ x • _) (pr2 iscontrstn1 i) @ _).
     refine '(var_subst _ _ _ @ _).
     apply extend_tuple_inr.
   Qed.
