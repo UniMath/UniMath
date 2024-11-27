@@ -26,8 +26,9 @@
  2. Operations of complete Heyting algebras
  3. Laws for complete Heyting algebras
  4. Greatest lower bounds for complete Heyting algebras
- 5. Derived laws for complete Heyting algebras
- 6. Complete Heyting algebras from greatest upper bounds
+ 5. Complete Heyting algebras from greatest upper bounds
+ 6. Bases for complete Heyting algebras
+ 7. Complete Boolean algebras
 
  *********************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -161,6 +162,14 @@ Definition complete_heyting_algebra_exp
   := pr222 H x y.
 
 Notation "x ⇒ y" := (complete_heyting_algebra_exp x y) : heyting.
+
+Definition complete_heyting_algebra_neg
+           {H : complete_heyting_algebra}
+           (x : H)
+  : H
+  := x ⇒ ⊥.
+
+Notation "¬ x" := (complete_heyting_algebra_neg x) : heyting.
 
 (** * 3. Laws for complete Heyting algebras *)
 
@@ -579,142 +588,7 @@ Qed.
 
 #[global] Opaque complete_heyting_algebra_glb.
 
-(** * 5. Derived laws for complete Heyting algebras *)
-Proposition cha_min_le_min_l
-            {H : complete_heyting_algebra}
-            {x₁ x₂ : H}
-            (p : x₁ ≤ x₂)
-            (y : H)
-  : (x₁ ∧ y) ≤ (x₂ ∧ y).
-Proof.
-  use cha_min_le_case.
-  - refine (cha_le_trans _ p).
-    apply cha_min_le_l.
-  - apply cha_min_le_r.
-Qed.
-
-Proposition cha_min_le_min_r
-            {H : complete_heyting_algebra}
-            (x : H)
-            {y₁ y₂ : H}
-            (p : y₁ ≤ y₂)
-  : (x ∧ y₁) ≤ (x ∧ y₂).
-Proof.
-  use cha_min_le_case.
-  - apply cha_min_le_l.
-  - refine (cha_le_trans _ p).
-    apply cha_min_le_r.
-Qed.
-
-Proposition cha_max_le_max_l
-            {H : complete_heyting_algebra}
-            {x₁ x₂ : H}
-            (p : x₁ ≤ x₂)
-            (y : H)
-  : (x₁ ∨ y) ≤ (x₂ ∨ y).
-Proof.
-  use cha_max_le_case.
-  - refine (cha_le_trans p _).
-    apply cha_max_le_l.
-  - apply cha_max_le_r.
-Qed.
-
-Proposition cha_max_le_max_r
-            {H : complete_heyting_algebra}
-            (x : H)
-            {y₁ y₂ : H}
-            (p : y₁ ≤ y₂)
-  : (x ∨ y₁) ≤ (x ∨ y₂).
-Proof.
-  use cha_max_le_case.
-  - apply cha_max_le_l.
-  - refine (cha_le_trans p _).
-    apply cha_max_le_r.
-Qed.
-
-Proposition cha_curry
-            {H : complete_heyting_algebra}
-            (x y z : H)
-  : (x ⇒ (y ⇒ z)) = (x ∧ y ⇒ z).
-Proof.
-  use cha_le_antisymm.
-  - use cha_to_le_exp.
-    rewrite <- cha_min_assoc.
-    refine (cha_le_trans _ (cha_exp_eval y z)).
-    use cha_min_le_min_l.
-    apply cha_exp_eval.
-  - use cha_to_le_exp.
-    use cha_to_le_exp.
-    rewrite cha_min_assoc.
-    apply cha_exp_eval.
-Qed.
-
-Proposition cha_max_min_distributive
-            {H : complete_heyting_algebra}
-            (x y z : H)
-  : (x ∧ (y ∨ z)) = ((x ∧ y) ∨ (x ∧ z)).
-Proof.
-  use cha_le_antisymm.
-  - rewrite cha_min_comm.
-    use cha_from_le_exp.
-    use cha_max_le_case.
-    + use cha_to_le_exp.
-      rewrite cha_min_comm.
-      use cha_max_le_l.
-    + use cha_to_le_exp.
-      rewrite cha_min_comm.
-      use cha_max_le_r.
-  - use cha_min_le_case.
-    + use cha_max_le_case.
-      * apply cha_min_le_l.
-      * apply cha_min_le_l.
-    + use cha_max_le_case.
-      * refine (cha_le_trans (cha_min_le_r _ _) _).
-        apply cha_max_le_l.
-      * refine (cha_le_trans (cha_min_le_r _ _) _).
-        apply cha_max_le_r.
-Qed.
-
-Proposition cha_min_max_distributive
-            {H : complete_heyting_algebra}
-            (x y z : H)
-  : (x ∨ (y ∧ z)) = ((x ∨ y) ∧ (x ∨ z)).
-Proof.
-  rewrite (cha_max_min_distributive (x ∨ y) x z).
-  rewrite (cha_min_comm (x ∨ y) x).
-  rewrite cha_min_absorb.
-  rewrite (cha_min_comm (x ∨ y) z).
-  rewrite cha_max_min_distributive.
-  rewrite (cha_min_comm z y).
-  rewrite <- cha_max_assoc.
-  apply maponpaths_2.
-  rewrite (cha_min_comm z x).
-  rewrite (cha_max_absorb x z).
-  apply idpath.
-Qed.
-
-Proposition cha_frobenius
-            {H : complete_heyting_algebra}
-            {I : UU}
-            (f : I → H)
-            (x : H)
-  : (x ∧ \/_{ i } f i) = \/_{ i } (x ∧ f i).
-Proof.
-  use cha_le_antisymm.
-  - rewrite (cha_min_comm x (\/_{ i } f i)).
-    use cha_from_le_exp.
-    use cha_lub_le.
-    intro i.
-    use cha_to_le_exp.
-    rewrite (cha_min_comm (f i) x).
-    exact (cha_le_lub_pt (λ j, x ∧ f j) i).
-  - use cha_lub_le.
-    intro i ; cbn.
-    use cha_min_le_min_r.
-    apply cha_le_lub_pt.
-Qed.
-
-(** * 6. Complete Heyting algebras from greatest upper bounds *)
+(** * 5. Complete Heyting algebras from greatest upper bounds *)
 Definition is_lowerbound_lattice
            {X : hSet}
            (L : lattice X)
@@ -757,3 +631,109 @@ Proof.
       (intros x Hx ;
        exact (pr12 lub (x ,, Hx))).
 Defined.
+
+(** * 6. Bases for complete Heyting algebras *)
+Definition cha_basis_data
+           (H : complete_heyting_algebra)
+  : UU
+  := ∑ (B : UU),
+     (B → H)
+     ×
+     (B → B → hProp).
+
+Definition make_cha_basis_data
+           {H : complete_heyting_algebra}
+           (B : UU)
+           (f : B → H)
+           (R : B → B → hProp)
+  : cha_basis_data H
+  := B ,, f ,, R.
+
+Coercion cha_basis_type
+         {H : complete_heyting_algebra}
+         (B : cha_basis_data H)
+  : UU
+  := pr1 B.
+
+Definition cha_basis_incl
+           {H : complete_heyting_algebra}
+           {B : cha_basis_data H}
+           (b : B)
+  : H
+  := pr12 B b.
+
+Definition cha_basis_rel
+           {H : complete_heyting_algebra}
+           {B : cha_basis_data H}
+           (b₁ b₂ : B)
+  : hProp
+  := pr22 B b₁ b₂.
+
+Definition cha_basis_laws
+           {H : complete_heyting_algebra}
+           (B : cha_basis_data H)
+  : UU
+  := (∏ (b₁ b₂ b₃ : B),
+      cha_basis_rel b₁ b₂ → cha_basis_rel b₂ b₃ → cha_basis_rel b₁ b₃)
+     ×
+     (∏ (x : H),
+      x = \/_{ i : ∑ (b : B), cha_basis_incl b ≤ x } cha_basis_incl (pr1 i))
+     ×
+     (∏ (b₁ b₂ : B),
+      cha_basis_rel b₁ b₂ → cha_basis_incl b₂ ≤ cha_basis_incl b₁).
+
+Definition cha_basis
+           (H : complete_heyting_algebra)
+  : UU
+  := ∑ (B : cha_basis_data H), cha_basis_laws B.
+
+Definition make_cha_basis
+           {H : complete_heyting_algebra}
+           (B : cha_basis_data H)
+           (HB : cha_basis_laws B)
+  : cha_basis H
+  := B ,, HB.
+
+Coercion cha_basis_to_data
+         {H : complete_heyting_algebra}
+         (B : cha_basis H)
+  : cha_basis_data H
+  := pr1 B.
+
+Proposition cha_basis_trans
+            {H : complete_heyting_algebra}
+            (B : cha_basis H)
+            {b₁ b₂ b₃ : B}
+            (p : cha_basis_rel b₁ b₂)
+            (q : cha_basis_rel b₂ b₃)
+  : cha_basis_rel b₁ b₃.
+Proof.
+  exact (pr12 B b₁ b₂ b₃ p q).
+Defined.
+
+Proposition cha_basis_eq
+            {H : complete_heyting_algebra}
+            (B : cha_basis H)
+            (x : H)
+  : x
+    =
+    \/_{ i : ∑ (b : B), cha_basis_incl b ≤ x } cha_basis_incl (pr1 i).
+Proof.
+  exact (pr122 B x).
+Defined.
+
+Proposition cha_basis_antimonotone
+            {H : complete_heyting_algebra}
+            (B : cha_basis H)
+            {b₁ b₂ : B}
+            (p : cha_basis_rel b₁ b₂)
+  : cha_basis_incl b₂ ≤ cha_basis_incl b₁.
+Proof.
+  exact (pr222 B b₁ b₂ p).
+Defined.
+
+(** * 7. Complete Boolean algebras *)
+Definition is_boolean_algebra
+           (H : complete_heyting_algebra)
+  : hProp
+  := (∀ (x : H), ((x ∨ ¬ x) = ⊤)%heyting)%logic.

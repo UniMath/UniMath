@@ -23,6 +23,11 @@
  6. Upper sets (with respect to the way-below relation) are Scott open
  7. Empty and top sets are Scott open
  8. Complements of Scott open sets
+ 9. More examples of Scott open sets
+ 9.1. Intersection
+ 9.2. Type-indexed unions
+ 9.3. Exponentials
+ 9.4. Binary unions
 
  ******************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -32,6 +37,7 @@ Require Import UniMath.OrderTheory.DCPOs.Core.WayBelow.
 Require Import UniMath.OrderTheory.DCPOs.Basis.Continuous.
 
 Local Open Scope dcpo.
+Local Open Scope subtype.
 
 Section ScottTopology.
   Context {X : dcpo}.
@@ -81,6 +87,34 @@ Definition scott_open_set
   : UU
   := ∑ (P : X → hProp), is_scott_open P.
 
+Proposition isaset_scott_open_set
+            (D : dcpo)
+  : isaset (scott_open_set D).
+Proof.
+  use isaset_total2.
+  - use funspace_isaset.
+    exact isasethProp.
+  - intro P.
+    use isasetaprop.
+    apply propproperty.
+Qed.
+
+Definition set_of_scott_open_set
+           (D : dcpo)
+  : hSet.
+Proof.
+  use make_hSet.
+  - exact (scott_open_set D).
+  - apply isaset_scott_open_set.
+Defined.
+
+Definition make_scott_open_set
+           {D : dcpo}
+           (P : D → hProp)
+           (HP : is_scott_open P)
+  : scott_open_set D
+  := P ,, HP.
+
 Definition scott_open_set_to_pred
            {X : dcpo}
            (P : scott_open_set X)
@@ -95,6 +129,25 @@ Coercion is_scott_open_scott_open_set
           (P : scott_open_set X)
   : is_scott_open P
   := pr2 P.
+
+Proposition eq_scott_open_set
+            {D : dcpo}
+            {P₁ P₂ : scott_open_set D}
+            (H₁ : ∏ (x : D), P₁ x → P₂ x)
+            (H₂ : ∏ (x : D), P₂ x → P₁ x)
+  : P₁ = P₂.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    apply propproperty.
+  }
+  use funextsec.
+  intro x.
+  use hPropUnivalence.
+  - exact (H₁ x).
+  - exact (H₂ x).
+Qed.
 
 Definition scott_closed_set
            (X : dcpo)
@@ -186,10 +239,15 @@ Section PropertiesScottTopology.
   (**
    6. Upper sets (with respect to the way-below relation) are Scott open
    *)
+  Definition way_below_upper_set
+             (x : X)
+    : X → hProp
+    := λ y, x ≪ y.
+
   Proposition upper_set_is_scott_open
               (CX : continuous_dcpo_struct X)
               (x : X)
-    : is_scott_open (λ y, x ≪ y).
+    : is_scott_open (way_below_upper_set x).
   Proof.
     split.
     - intros y₁ y₂ p q.
@@ -215,9 +273,29 @@ Section PropertiesScottTopology.
       exact (trans_way_below_le q₁ r).
   Qed.
 
+  Definition way_below_upper_scott_open_set
+             (CX : continuous_dcpo_struct X)
+             (x : X)
+    : scott_open_set X.
+  Proof.
+    use make_scott_open_set.
+    - exact (way_below_upper_set x).
+    - exact (upper_set_is_scott_open CX x).
+  Defined.
+
+  Proposition way_below_upper_scott_open_subset
+              {x₁ x₂ y : X}
+              (p : x₂ ≪ x₁)
+              (H : way_below_upper_set x₁ y)
+    : way_below_upper_set x₂ y.
+  Proof.
+    unfold way_below_upper_set in *.
+    exact (trans_way_below p H).
+  Qed.
+
   (** * 7. Empty and top sets are Scott open *)
   Definition true_scott_open_set
-    (A : dcpo)
+             (A : dcpo)
     : scott_open_set A.
   Proof.
     simple refine (_ ,, _).
@@ -236,7 +314,7 @@ Section PropertiesScottTopology.
   Defined.
 
   Definition false_scott_open_set
-    (A : dcpo)
+             (A : dcpo)
     : scott_open_set A.
   Proof.
     simple refine (_ ,, _).
@@ -273,3 +351,141 @@ Section PropertiesScottTopology.
       exact Hi.
   Qed.
 End PropertiesScottTopology.
+
+Arguments way_below_upper_set {X} x y /.
+
+(** * 9. More examples of Scott open sets *)
+
+(** ** 9.1. Intersection *)
+Proposition is_scott_open_intersection
+            {D : dcpo}
+            (P₁ P₂ : scott_open_set D)
+  : is_scott_open (P₁ ∩ P₂).
+Proof.
+  split.
+  - intros x y p q.
+    induction p as [ p₁ p₂ ].
+    split.
+    + exact (is_scott_open_upper_set P₁ p₁ q).
+    + exact (is_scott_open_upper_set P₂ p₂ q).
+  - intros A HA.
+    induction HA as [ HA₁ HA₂ ].
+    refine (factor_through_squash_hProp _ _ (is_scott_open_lub_inaccessible P₁ A HA₁)).
+    intros i.
+    induction i as [ i Hi ].
+    refine (factor_through_squash_hProp _ _ (is_scott_open_lub_inaccessible P₂ A HA₂)).
+    intros j.
+    induction j as [ j Hj ].
+    refine (factor_through_squash_hProp _ _ (directed_set_top A i j)).
+    intros k.
+    induction k as [ k Hk ].
+    induction Hk as [ Hk₁ Hk₂ ].
+    refine (hinhpr (k ,, _ ,, _)).
+    + refine (is_scott_open_upper_set P₁ _ Hk₁).
+      exact Hi.
+    + refine (is_scott_open_upper_set P₂ _ Hk₂).
+      exact Hj.
+Qed.
+
+Definition scott_open_set_intersection
+           {D : dcpo}
+           (P₁ P₂ : scott_open_set D)
+  : scott_open_set D.
+Proof.
+  use make_scott_open_set.
+  - exact (P₁ ∩ P₂).
+  - exact (is_scott_open_intersection P₁ P₂).
+Defined.
+
+(** ** 9.2. Type-indexed unions *)
+Proposition is_scott_open_union
+            {D : dcpo}
+            {I : UU}
+            (P : I → scott_open_set D)
+  : is_scott_open (⋃ P).
+Proof.
+  split.
+  - intros x y p q.
+    revert p.
+    use factor_through_squash_hProp.
+    intros i.
+    induction i as [ i Hi ].
+    refine (hinhpr  (i ,, _)).
+    exact (is_scott_open_upper_set (P i) Hi q).
+  - intros A.
+    use factor_through_squash_hProp.
+    intros i.
+    induction i as [ i Hi ].
+    refine (factor_through_squash_hProp _ _ (is_scott_open_lub_inaccessible (P i) A Hi)).
+    intros j.
+    induction j as [ a Ha ].
+    refine (hinhpr (a ,, _)).
+    exact (hinhpr (i ,, Ha)).
+Qed.
+
+Definition scott_open_set_union
+           {D : dcpo}
+           {I : UU}
+           (P : I → scott_open_set D)
+  : scott_open_set D.
+Proof.
+  use make_scott_open_set.
+  - exact (⋃ P).
+  - exact (is_scott_open_union P).
+Defined.
+
+(** ** 9.3. Exponentials *)
+Definition scott_open_set_exp
+           {D : dcpo}
+           (P₁ P₂ : scott_open_set D)
+  : scott_open_set D.
+Proof.
+  simple refine (scott_open_set_union _).
+  - exact (∑ (Q : scott_open_set D),
+           ∏ (x : D),
+           P₁ x × Q x → P₂ x).
+  - exact pr1.
+Defined.
+
+(** ** 9.4. Binary unions *)
+Proposition is_scott_open_bin_union
+            {D : dcpo}
+            (P₁ P₂ : scott_open_set D)
+  : is_scott_open (P₁ ∪ P₂).
+Proof.
+  split.
+  - intros x y.
+    use factor_through_squash_hProp.
+    intros p q.
+    induction p as [ p  | p ].
+    + use hdisj_in1.
+      exact (is_scott_open_upper_set P₁ p q).
+    + use hdisj_in2.
+      exact (is_scott_open_upper_set P₂ p q).
+  - intros A.
+    use factor_through_squash_hProp.
+    intros p.
+    induction p as [ p | p ].
+    + refine (factor_through_squash_hProp _ _ (is_scott_open_lub_inaccessible P₁ A p)).
+      intros i.
+      induction i as [ i Hi ].
+      refine (hinhpr (i ,, _)).
+      use hdisj_in1.
+      exact Hi.
+    + refine (factor_through_squash_hProp _ _ (is_scott_open_lub_inaccessible P₂ A p)).
+      intros i.
+      induction i as [ i Hi ].
+      refine (hinhpr (i ,, _)).
+      use hdisj_in2.
+      exact Hi.
+Qed.
+
+Definition scott_open_set_bin_union
+           {D : dcpo}
+           (P₁ P₂ : scott_open_set D)
+  : scott_open_set D.
+Proof.
+  use make_scott_open_set.
+  - exact (P₁ ∪ P₂).
+  - exact (is_scott_open_bin_union P₁ P₂).
+Defined.
