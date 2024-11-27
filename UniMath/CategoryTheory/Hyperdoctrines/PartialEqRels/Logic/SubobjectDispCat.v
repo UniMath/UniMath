@@ -4,7 +4,7 @@
 
  In this file, we characterize the internal logic of  the category of partial setoids in a
  first-order hyperdoctrine. To do so, we first give an alternative description of subobjects.
- Subobjects of a partial setoid `X` can equivalent be described as a formula `φ` in context
+ Subobjects of a partial setoid `X` can equivalently be described as a formula `φ` in context
  [X] such that
  - if `φ [ x ]` holds, then also `x ~ x`
  - if both `x ~ y` and `φ [ x ]` hold, then so does `φ [ y ]`
