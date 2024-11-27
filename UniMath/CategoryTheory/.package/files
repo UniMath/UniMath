@@ -158,6 +158,16 @@ Hyperdoctrines/PartialEqRels/ExponentialEval.v
 Hyperdoctrines/PartialEqRels/ExponentialLam.v
 Hyperdoctrines/PartialEqRels/ExponentialEqs.v
 Hyperdoctrines/PartialEqRels/PERExponentials.v
+Hyperdoctrines/PartialEqRels/Logic/SubobjectDispCat.v
+Hyperdoctrines/PartialEqRels/Logic/MonoEquiv.v
+Hyperdoctrines/PartialEqRels/Logic/Truth.v
+Hyperdoctrines/PartialEqRels/Logic/Falsity.v
+Hyperdoctrines/PartialEqRels/Logic/Conjunction.v
+Hyperdoctrines/PartialEqRels/Logic/Disjunction.v
+Hyperdoctrines/PartialEqRels/Logic/Implication.v
+Hyperdoctrines/PartialEqRels/Logic/Existential.v
+Hyperdoctrines/PartialEqRels/Logic/Universal.v
+Hyperdoctrines/PartialEqRels/InternalLogic.v
 Hyperdoctrines/TriposToTopos.v
 
 DisplayedCats/Examples/HValuedPredicates.v
