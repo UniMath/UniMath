@@ -2,7 +2,7 @@
 
  Equivalence between subobjects and codomains
 
- We show construct a displayed equivalence between the displayed category of monomorphisms
+ We construct a displayed equivalence between the displayed category of monomorphisms
  and of subobjects of partial setoids, as defined in `SubobjectDispCat.v`. This allows us
  to reason about the internal logic of partial setoids using the notion of subobject that
  we defined in `SubobjectDispCat`. This simplifies reasoning in the internal logic.
