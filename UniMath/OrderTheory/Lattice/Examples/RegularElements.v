@@ -6,7 +6,7 @@
  Heyting algebra of all regular elements.
 
  More specifically, suppose that we have a complete Heyting algebra [H]. We say that an element
- [x] is regular if [x = ¬ ¬ x]. The connective on regular elements are defined as follows.
+ [x] is regular if [x = ¬ ¬ x]. The connectives on regular elements are defined as follows.
  - Top element: [⊤] in [H]
  - Bottom element: [⊤] in [H]
  - Conjunction of [x] and [y]: [x ∧ y] in [H]
