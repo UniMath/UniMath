@@ -8,7 +8,6 @@
  (flags :standard
         -noinit
         -indices-matter
-        -type-in-type
         -w -notation-overridden))
 
 (rule
