@@ -324,58 +324,19 @@ Section ParameterizedNNO.
         + exact (is_NNO_parameterized_NNO_mor_Z N y zy sy).
         + exact (is_NNO_parameterized_NNO_mor_S N y zy sy).
     Defined.
+
+    Definition parameterized_NNO_to_NNO
+      : NNO T.
+    Proof.
+      use make_NNO.
+      - exact N.
+      - exact (parameterized_NNO_Z N).
+      - exact (parameterized_NNO_S N).
+      - apply is_NNO_parameterized_NNO.
+    Defined.
   End ParameterizedNNOToNNO.
 
   (** * 4. Uniqueness of parameterized NNOs *)
-  Definition mor_between_parameterized_NNO
-             (N₁ N₂ : parameterized_NNO)
-    : N₁ --> N₂.
-  Proof.
-    use is_NNO_parameterized_NNO_mor.
-    - exact (parameterized_NNO_Z N₂).
-    - exact (parameterized_NNO_S N₂).
-  Defined.
-
-  Proposition mor_between_parameterized_NNO_Z
-              (N₁ N₂ : parameterized_NNO)
-    : parameterized_NNO_Z N₁ · mor_between_parameterized_NNO N₁ N₂
-      =
-      parameterized_NNO_Z N₂.
-  Proof.
-    apply is_NNO_parameterized_NNO_mor_Z.
-  Qed.
-
-  Proposition mor_between_parameterized_NNO_S
-              (N₁ N₂ : parameterized_NNO)
-    : parameterized_NNO_S N₁ · mor_between_parameterized_NNO N₁ N₂
-      =
-      mor_between_parameterized_NNO N₁ N₂ · parameterized_NNO_S N₂.
-  Proof.
-    apply is_NNO_parameterized_NNO_mor_S.
-  Qed.
-
-  Proposition mor_between_parameterized_NNO_eq
-              (N₁ N₂ : parameterized_NNO)
-    : mor_between_parameterized_NNO N₁ N₂ · mor_between_parameterized_NNO N₂ N₁
-      =
-      identity _.
-  Proof.
-    use is_NNO_parameterized_NNO_unique.
-    - exact (parameterized_NNO_Z N₁).
-    - exact (parameterized_NNO_S N₁).
-    - rewrite !assoc.
-      rewrite !mor_between_parameterized_NNO_Z.
-      apply idpath.
-    - rewrite !assoc.
-      rewrite mor_between_parameterized_NNO_S.
-      rewrite !assoc'.
-      rewrite mor_between_parameterized_NNO_S.
-      apply idpath.
-    - apply id_right.
-    - rewrite id_left, id_right.
-      apply idpath.
-  Qed.
-
   Proposition parameterized_NNO_eq
               {N₁ N₂ : parameterized_NNO}
               (p : (N₁ : C) = N₂)
@@ -425,12 +386,9 @@ Section ParameterizedNNO.
     use invproofirrelevance.
     intros N₁ N₂.
     use (parameterized_NNO_from_iso HC).
-    - use make_z_iso.
-      + exact (mor_between_parameterized_NNO N₁ N₂).
-      + exact (mor_between_parameterized_NNO N₂ N₁).
-      + split ; apply mor_between_parameterized_NNO_eq.
-    - apply mor_between_parameterized_NNO_Z.
-    - apply mor_between_parameterized_NNO_S.
+    - exact (iso_between_NNO (parameterized_NNO_to_NNO N₁) (parameterized_NNO_to_NNO N₂)).
+    - apply (NNO_mor_Z _ (parameterized_NNO_to_NNO N₁)).
+    - apply (NNO_mor_S _ (parameterized_NNO_to_NNO N₁)).
   Qed.
 End ParameterizedNNO.
 
