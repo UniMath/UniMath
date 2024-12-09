@@ -1,16 +1,55 @@
-Require Import UniMath.Foundations.All.
+(************************************************************************************************
+
+ The category of setgroupoids
+
+ In this file, we define the category of setgroupoids, which are groupoids whose type of objects
+ is a set. We also characterize the isomorphisms in this category and we prove that this category
+ is univalent.
+
+ At first instance, this might seem as the `wrong' thing to do in univalent foundations. After
+ all, we have univalent groupoids (aka 1-types), and it is generally to work with those. The key
+ difference between univalent groupoids and setgroupoids is that the former is identified up to
+ adjoint equivalence, whereas the latter is identified up to isomorphism of groupoids. This
+ difference is quite fundamental, and one consequence is that we have a univalent bicategory of
+ univalent groupoids, and a univalent category of setgroupoids.
+
+ This difference also affects how one incarnates the groupoid model of type theory. We have
+ at least two ways to define the groupoid model:
+ - As a univalent bicategory. Contexts are interpreted as univalent groupoids.
+ - As a univalent category. Contexts are interpreted as setgroupoids.
+ If we study the groupoid model as a univalent bicategory, then we necessarily get a
+ 2-dimensional syntax. However, if our goal is to develop a 1-dimensional syntax, then we can
+ use setgroupoids instead. For this reason, we define the univalent category of setgroupoids in
+ this file.
+
+ Note that one would usually define the category of setgroupoids as a full subcategory of the
+ category of setcategories, we take a difference approach here. This is because the definitions
+ of full subcategory of some category `C` in UniMath do not have exactly the same morphisms as
+ `C`, but instead they also have contain an element of the unit type. Since we want the morphisms
+ between setgroupoids to exactly be functors, we define this category by hand. However, we reuse
+ the laws of the category of setcategories.
+
+ References
+ - 'Bicategorical type theory: semantics and syntax' by Ahrens, North, van der Weide
+ - 'Two-dimensional models of type theory' by Garner
+ - 'The groupoid interpretation of type theory' by Hofmann and Streicher
+
+ Content
+ 1. Groupoids whose objects form a set
+ 2. The category of setgroupoids
+ 3. Isomorphisms
+ 4. The univalent category of setgroupoids
+
+ ************************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.Groupoids.
-Require Import UniMath.CategoryTheory.Subcategory.Full.
-Require Import UniMath.CategoryTheory.catiso.
-Require Import UniMath.CategoryTheory.CategoryEquality.
-Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
 
 Local Open Scope cat.
 
+(** * 1. Groupoids whose objects form a set *)
 Definition setgroupoid
   : UU
   := ∑ (C : setcategory), is_pregroupoid C.
@@ -29,6 +68,7 @@ Proof.
   exact (pr2 G x y f).
 Qed.
 
+(** * 2. The category of setgroupoids *)
 Definition precat_ob_mor_of_setgroupoid
   : precategory_ob_mor.
 Proof.
@@ -81,7 +121,7 @@ Proof.
   - exact has_homsets_setgroupoid.
 Defined.
 
-
+(** * 3. Isomorphisms *)
 Section Isomorphism.
   Context {G₁ G₂ : cat_of_setgroupoid}
           (F : G₁ --> G₂).
@@ -111,6 +151,7 @@ Section Isomorphism.
   Defined.
 End Isomorphism.
 
+(** * 4. The univalent category of setgroupoids *)
 Proposition is_univalent_cat_of_setgroupoid
   : is_univalent cat_of_setgroupoid.
 Proof.
