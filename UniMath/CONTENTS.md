@@ -458,6 +458,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Subcategory/Reflective.v](CategoryTheory/Subcategory/Reflective.v)
    - [Categories/PrecategoryOfCategories.v](CategoryTheory/Categories/PrecategoryOfCategories.v)
    - [Categories/CategoryOfSetCategories.v](CategoryTheory/Categories/CategoryOfSetCategories.v)
+   - [Categories/CategoryOfSetGroupoids.v](CategoryTheory/Categories/CategoryOfSetGroupoids.v)
    - [Limits/Examples/CategoryOfSetcategoriesLimits.v](CategoryTheory/Limits/Examples/CategoryOfSetcategoriesLimits.v)
    - [Categories/SetWith2BinOp.v](CategoryTheory/Categories/SetWith2BinOp.v)
    - [Categories/Monoid.v](CategoryTheory/Categories/Monoid.v)

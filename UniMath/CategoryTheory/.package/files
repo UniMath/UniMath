@@ -266,6 +266,7 @@ Subcategory/Reflective.v
 
 Categories/PrecategoryOfCategories.v
 Categories/CategoryOfSetCategories.v
+Categories/CategoryOfSetGroupoids.v
 Limits/Examples/CategoryOfSetcategoriesLimits.v
 Categories/SetWith2BinOp.v
 Categories/Monoid.v
