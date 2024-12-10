@@ -10,14 +10,14 @@ various consequences of the existence of conditionals for information flow axiom
    - Specialized definitions and lemmas for conditional distributions
 3. Bayesian inverses
    - Definition of the Bayesian inverse (dagger)
-   - Every Markov category with conditonals comes with a 
+   - Every Markov category with conditonals comes with a
      canonical choice of Bayesian inverse
 4. Consequences and derived information flow axioms
    - Every Markov category with conditionals is causal
    - Every Markov category with conditionals is positive
 
 References
-- T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
+- T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics'
 **********************************************)
 
 Require Import UniMath.Foundations.All.
@@ -45,7 +45,7 @@ Section DefConditionals.
   Context {C : markov_category}.
 
   Definition is_conditional {a x y : C} (f : a --> x ⊗ y) (k : x ⊗ a --> y) : UU
-    := f = copy a 
+    := f = copy a
            · (f · proj1 · copy x) #⊗ identity a
            · mon_lassociator _ _ _
            · identity x #⊗ k.
@@ -57,7 +57,7 @@ Definition has_conditionals (C : markov_category) : UU :=
    ∑ (k : x ⊗ a --> y), is_conditional f k.
 
 Definition markov_category_with_conditionals : UU :=
-   ∑ (C : markov_category), has_conditionals C. 
+   ∑ (C : markov_category), has_conditionals C.
 
 Coercion markov_cat_with_conditional_to_markov
          (C : markov_category_with_conditionals)
@@ -72,7 +72,7 @@ Section Accessors.
     := pr1 (pr2 C a x y f).
 
   Proposition conditional_eq {a x y : C} (f : a --> x ⊗ y)
-    : f = copy a 
+    : f = copy a
            · (f · proj1 · copy x) #⊗ identity a
            · mon_lassociator _ _ _
            · identity x #⊗ (conditional f).
@@ -81,8 +81,8 @@ Section Accessors.
   Qed.
 End Accessors.
 
-Lemma copy_tensor_x_I_mor_comp {C : markov_category} {x y : C} (f : I_{C} --> x ⊗ x) (g : x ⊗ I_{C} --> y) : 
-     ⟨f, identity _⟩ · mon_lassociator _ _ _ · (identity _ #⊗ g) 
+Lemma copy_tensor_x_I_mor_comp {C : markov_category} {x y : C} (f : I_{C} --> x ⊗ x) (g : x ⊗ I_{C} --> y) :
+     ⟨f, identity _⟩ · mon_lassociator _ _ _ · (identity _ #⊗ g)
    = f · (identity _ #⊗ (mon_rinvunitor _ · g)).
 Proof.
   unfold pairing.
@@ -110,15 +110,15 @@ Section ConditionalDistributions.
     := mon_rinvunitor _ · conditional p.
 
   Definition conditional_distribution_2 {x y : C} (p : I_{C} --> x ⊗ y) : y --> x
-    := conditional_distribution_1 (p · sym_mon_braiding _ _ _). 
+    := conditional_distribution_1 (p · sym_mon_braiding _ _ _).
 
-  Notation "p |1" := (conditional_distribution_1 p) : markov.
-  Notation "p |2" := (conditional_distribution_2 p) : markov.
- 
+  Notation "p |1" := (conditional_distribution_1 p) (at level 1, left associativity) : markov.
+  Notation "p |2" := (conditional_distribution_2 p) (at level 1, left associativity) : markov.
+
   Proposition conditional_distribution_1_eq {x y : C} (p : I_{C} --> x ⊗ y) :
     p = p · proj1 · ⟨identity x, p|1⟩.
   Proof.
-    unfold conditional_distribution_1. 
+    unfold conditional_distribution_1.
     etrans. { apply (conditional_eq p). }
     rewrite <- pairing_eq.
     rewrite copy_tensor_x_I_mor_comp.
@@ -173,14 +173,14 @@ Section ConditionalDistributions.
 
 End ConditionalDistributions.
 
-Notation "p |1" := (conditional_distribution_1 p) : markov.
-Notation "p |2" := (conditional_distribution_2 p) : markov.
+Notation "p |1" := (conditional_distribution_1 p) (at level 1, left associativity) : markov.
+Notation "p |2" := (conditional_distribution_2 p) (at level 1, left associativity) : markov.
 
 (** * 3. Bayesian inverses *)
 
 Section DefBayesianInverse.
   Context {C : markov_category}.
-  
+
   Definition is_bayesian_inverse {x y : C} (p : I_{C} --> x) (f : x --> y) (fi : y --> x) : UU
     := p · ⟨identity x, f⟩ = (p · f) · ⟨fi, identity y⟩.
 
@@ -193,7 +193,7 @@ Section DefBayesianInverse.
     rewrite <- b1, <- b2.
     reflexivity.
   Qed.
-    
+
 End DefBayesianInverse.
 
 Section ConstructionBayesianInverse.
@@ -211,9 +211,9 @@ Section ConstructionBayesianInverse.
     apply pairing_flip.
     pose(phi := p · ⟨ f, identity x ⟩).
     pose(K := conditional_eq phi).
-    
+
     assert(Aux1 : phi · proj1 = p · f).
-    { unfold phi. 
+    { unfold phi.
       rewrite <- assoc.
       rewrite pairing_proj1.
       reflexivity. }
@@ -223,7 +223,7 @@ Section ConstructionBayesianInverse.
     rewrite copy_tensor_x_I_mor_comp in K.
     unfold phi in K.
     rewrite <- assoc in K.
-    etrans. 
+    etrans.
     { rewrite K. reflexivity. }
     reflexivity.
   Qed.
@@ -232,13 +232,13 @@ Section ConstructionBayesianInverse.
     p · f · ⟨bayesian_inverse f, identity _⟩ = p · ⟨identity _, f⟩.
   Proof.
     symmetry.
-    assert(e : is_bayesian_inverse p f (bayesian_inverse f)). 
+    assert(e : is_bayesian_inverse p f (bayesian_inverse f)).
       { apply bayesian_inverse_eq. }
     unfold is_bayesian_inverse in e.
     rewrite <- e.
     reflexivity.
-  Qed. 
-   
+  Qed.
+
   Proposition bayesian_inverse_eq_r {y : C} (f : x --> y) :
     p · f · ⟨identity _, bayesian_inverse f⟩ = p · ⟨f, identity _⟩.
   Proof.
@@ -246,7 +246,7 @@ Section ConstructionBayesianInverse.
     rewrite !assoc', !pairing_sym_mon_braiding, assoc.
     apply bayesian_inverse_eq_l.
   Qed.
-      
+
 End ConstructionBayesianInverse.
 
 #[global] Opaque bayesian_inverse.
@@ -284,7 +284,7 @@ Section Lemmas.
        : psi = ⟨f · g · copy z, identity x⟩
                · mon_lassociator _ _ _
                · identity z #⊗ s.
-  Proof. 
+  Proof.
     unfold s.
     pose(w := conditional_eq psi).
     rewrite psi_1 in w.
@@ -303,7 +303,7 @@ Section Lemmas.
     rewrite <- assoc.
     rewrite proj2_naturality.
     rewrite assoc, assoc.
-    
+
     rewrite pairing_id.
     unfold pairing.
     rewrite <- pairing_eq.
@@ -315,12 +315,12 @@ Section Lemmas.
   (** Lemmas for the positivity proof *)
 
   Local Lemma positivity_conclusion (det_fg : is_deterministic (f · g)) : psi = ⟨f · g , f⟩.
-  Proof. 
+  Proof.
     rewrite psi_disintegrated.
     rewrite det_fg.
     rewrite <- !pairing_eq.
     rewrite <- pairing_rassociator.
-    transitivity (⟨ f · g, ⟨ f · g, identity x ⟩ ⟩ 
+    transitivity (⟨ f · g, ⟨ f · g, identity x ⟩ ⟩
                   · (mon_rassociator z z x · mon_lassociator z z x)
                   · identity z #⊗ s).
     { rewrite assoc. reflexivity. }
@@ -334,8 +334,8 @@ Section Lemmas.
   (** Lemmas for the causality proof *)
 
   Local Lemma causality_rewrite_lemma {w : C} (h : z --> w) :
-      f · ⟨g · ⟨h, identity _⟩, identity _⟩ 
-    = ⟨ f · (g · ⟨h, identity _⟩) · (identity _ #⊗ copy _) , identity x ⟩ 
+      f · ⟨g · ⟨h, identity _⟩, identity _⟩
+    = ⟨ f · (g · ⟨h, identity _⟩) · (identity _ #⊗ copy _) , identity x ⟩
       · (mon_rassociator _ _ _) #⊗ identity x
       · mon_lassociator _ _ _
       · identity _ #⊗ s.
@@ -380,21 +380,21 @@ Section Lemmas.
     rewrite assoc.
     rewrite <- pairing_id.
     rewrite !pairing_tensor.
-    rewrite !id_left, !id_right.    
+    rewrite !id_left, !id_right.
     rewrite pairing_rassociator.
     reflexivity.
   Qed.
-  
-  Local Lemma causality_conclusion {w : C} (h1 h2 : z --> w) 
+
+  Local Lemma causality_conclusion {w : C} (h1 h2 : z --> w)
             (e : f · (g · ⟨h1, identity _⟩) = f · (g · ⟨h2, identity _⟩)) :
-      f · ⟨g · ⟨h1, identity _⟩, identity _⟩ 
+      f · ⟨g · ⟨h1, identity _⟩, identity _⟩
     = f · ⟨g · ⟨h2, identity _⟩, identity _⟩.
   Proof.
     rewrite! causality_rewrite_lemma.
     rewrite e.
     reflexivity.
   Qed.
-  
+
 End Lemmas.
 
 Theorem conditionals_imply_positivity {C : markov_category_with_conditionals} : is_positive C.
