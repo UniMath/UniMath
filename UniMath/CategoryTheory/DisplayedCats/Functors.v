@@ -534,3 +534,25 @@ Proof.
   rewrite transportfbinv.
   apply idpath.
 Qed.
+
+Proposition disp_functor_idtoiso_disp
+            {C₁ C₂ : category}
+            {D₁ : disp_cat C₁}
+            {D₂ : disp_cat C₂}
+            {F : C₁ ⟶ C₂}
+            (FF : disp_functor F D₁ D₂)
+            {x : C₁}
+            {xx₁ xx₂ : D₁ x}
+            (p : xx₁ = xx₂)
+  : (♯ FF (idtoiso_disp (idpath _) p)
+     =
+     transportb
+       (λ z, _ -->[ z ] _)
+       (functor_id _ _)
+       (idtoiso_disp (idpath _) (maponpaths (FF x) p)))%mor_disp.
+Proof.
+  induction p.
+  cbn.
+  rewrite disp_functor_id.
+  apply idpath.
+Qed.

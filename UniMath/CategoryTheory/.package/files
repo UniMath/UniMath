@@ -346,6 +346,7 @@ DisplayedCats/Examples/DispFunctorPair.v
 DisplayedCats/Examples/Opposite.v
 DisplayedCats/Fibrations.v
 DisplayedCats/Examples/Reindexing.v
+DisplayedCats/PreservesCleaving.v
 DisplayedCats/Constructions/CategoryWithStructure.v
 DisplayedCats/Constructions/DisplayedFunctorCat.v
 DisplayedCats/Constructions/FullSubcategory.v

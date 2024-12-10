@@ -526,6 +526,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Examples/Opposite.v](CategoryTheory/DisplayedCats/Examples/Opposite.v)
    - [DisplayedCats/Fibrations.v](CategoryTheory/DisplayedCats/Fibrations.v)
    - [DisplayedCats/Examples/Reindexing.v](CategoryTheory/DisplayedCats/Examples/Reindexing.v)
+   - [DisplayedCats/PreservesCleaving.v](CategoryTheory/DisplayedCats/PreservesCleaving.v)
    - [DisplayedCats/Constructions/CategoryWithStructure.v](CategoryTheory/DisplayedCats/Constructions/CategoryWithStructure.v)
    - [DisplayedCats/Constructions/DisplayedFunctorCat.v](CategoryTheory/DisplayedCats/Constructions/DisplayedFunctorCat.v)
    - [DisplayedCats/Constructions/FullSubcategory.v](CategoryTheory/DisplayedCats/Constructions/FullSubcategory.v)

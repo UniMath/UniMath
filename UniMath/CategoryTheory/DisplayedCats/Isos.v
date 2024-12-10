@@ -500,6 +500,42 @@ Section Utilities.
   Qed.
 End Utilities.
 
+(** Lemmas for `idtoiso_disp` *)
+Proposition idtoiso_disp_inv
+            {C : category}
+            {D : disp_cat C}
+            {x : C}
+            {xx₁ xx₂ : D x}
+            (p : xx₁ = xx₂)
+  : (z_iso_inv_from_z_iso_disp (idtoiso_disp (idpath _) p) : _ -->[ _ ] _)
+    =
+    idtoiso_disp (idpath _) (!p).
+Proof.
+  induction p.
+  cbn.
+  apply idpath.
+Qed.
+
+Proposition idtoiso_disp_comp
+            {C : category}
+            {D : disp_cat C}
+            {x : C}
+            {xx₁ xx₂ xx₃ : D x}
+            (p : xx₁ = xx₂)
+            (q : xx₂ = xx₃)
+  : (idtoiso_disp (idpath _) p ;; idtoiso_disp (idpath _) q
+     =
+     transportb
+       (λ z, _ -->[ z ] _)
+       (id_left _)
+       (idtoiso_disp (idpath _) (p @ q)))%mor_disp.
+Proof.
+  induction p, q.
+  cbn.
+  rewrite id_left_disp.
+  apply idpath.
+Qed.
+
 (**
  Displayed isomorphisms are closed under transporting
  *)
