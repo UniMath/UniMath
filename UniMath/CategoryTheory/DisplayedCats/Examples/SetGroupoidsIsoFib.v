@@ -409,6 +409,84 @@ Proof.
     exact (♯(pr1 FF) ff)%mor_disp.
 Defined.
 
+Proposition transportb_disp_functor_data_help_on_mor_base
+            {G₁ G₂ : setgroupoid}
+            {F F' : G₁ ⟶ G₂}
+            (p : pr1 F = pr1 F')
+            {x y : G₁}
+            (f : x --> y)
+  : idtoiso (maponpaths (λ z, pr1 z x) p)
+    · # F' f
+    · idtoiso (maponpaths (λ z, pr1 z y) (! p))
+    =
+    # F f.
+Proof.
+  induction F as [ FD HF ], F' as [ FD' HF' ].
+  cbn in *.
+  induction p ; cbn.
+  rewrite id_left, id_right.
+  apply idpath.
+Qed.
+
+Proposition transportb_disp_functor_data_help_on_mor_path
+            {G₁ G₂ : setgroupoid}
+            {F F' : G₁ ⟶ G₂}
+            (p : pr1 F = pr1 F')
+            {D₁ : disp_cat_data_of_disp_setgrpd G₁}
+            {D₂ : disp_cat_data_of_disp_setgrpd G₂}
+            (FF : D₁ -->[ F' ] D₂)
+            {y : G₁}
+            (yy : pr1 D₁ y)
+  : transportf (pr1 D₂) (maponpaths (λ z, pr1 z y) (!p)) (pr1 FF y yy)
+    =
+    transportb_disp_functor_data_help p FF y yy.
+Proof.
+  induction F as [ FD HF ], F' as [ FD' HF' ].
+  cbn in *.
+  induction p ; cbn.
+  apply idpath.
+Defined.
+
+Proposition transportb_disp_functor_data_help_on_mor
+            {G₁ G₂ : setgroupoid}
+            {F F' : G₁ ⟶ G₂}
+            (p : pr1 F = pr1 F')
+            {D₁ : disp_cat_data_of_disp_setgrpd G₁}
+            {D₂ : disp_cat_data_of_disp_setgrpd G₂}
+            (FF : D₁ -->[ F' ] D₂)
+            {x y : G₁}
+            {f : x --> y}
+            {xx : pr1 D₁ x}
+            {yy : pr1 D₁ y}
+            (ff : xx -->[ f ] yy)
+  : (♯(transportb_disp_functor_data_help p FF) ff
+     =
+     transportf
+       (λ z,
+        transportb_disp_functor_data_help p FF x xx
+        -->[ z ]
+        transportb_disp_functor_data_help p FF y yy)
+       (transportb_disp_functor_data_help_on_mor_base p f)
+       (idtoiso_disp (maponpaths (λ z, pr1 z x) p) (transportfbinv _ _ _)
+        ;; ♯(pr1 FF) ff
+        ;; idtoiso_disp
+             (maponpaths (λ z, pr1 z y) (!p))
+             (transportb_disp_functor_data_help_on_mor_path p FF yy)))%mor_disp.
+Proof.
+  induction F as [ FD HF ], F' as [ FD' HF' ].
+  cbn in *.
+  induction p ; cbn.
+  rewrite (id_right_disp (D := pr1 D₂)).
+  unfold transportb.
+  rewrite transport_f_f.
+  rewrite (id_left_disp (D := pr1 D₂)).
+  unfold transportb.
+  rewrite transport_f_f.
+  refine (!_).
+  apply transportf_set.
+  apply (homset_property G₂).
+Qed.
+
 Definition transportb_disp_functor_data
            {G₁ G₂ : setgroupoid}
            {F F' : G₁ ⟶ G₂}
@@ -434,6 +512,61 @@ Proposition transportb_disp_setgrpd_help
 Proof.
   induction p.
   apply idpath.
+Qed.
+
+Proposition transportb_disp_setgrpd_help_ob
+            {G₁ G₂ : setgroupoid}
+            {F F' : G₁ ⟶ G₂}
+            (p : F = F')
+            {D₁ : disp_cat_data_of_disp_setgrpd G₁}
+            {D₂ : disp_cat_data_of_disp_setgrpd G₂}
+            (FF : D₁ -->[ F' ] D₂)
+            {x : G₁}
+            (xx : pr1 D₁ x)
+  : pr1 (transportb (mor_disp D₁ D₂) p FF) x xx
+    =
+    transportb_disp_functor_data p FF x xx.
+Proof.
+  induction p.
+  apply idpath.
+Defined.
+
+Proposition transportb_disp_setgrpd_mor_help
+            {G₁ G₂ : setgroupoid}
+            {F F' : G₁ ⟶ G₂}
+            (p : F = F')
+            {D₁ : disp_cat_data_of_disp_setgrpd G₁}
+            {D₂ : disp_cat_data_of_disp_setgrpd G₂}
+            (FF : D₁ -->[ F' ] D₂)
+            {x y : G₁}
+            {f : x --> y}
+            {xx : pr1 D₁ x}
+            {yy : pr1 D₁ y}
+            (ff : xx -->[ f ] yy)
+  : disp_functor_on_morphisms
+      (pr1 (transportb (mor_disp D₁ D₂) p FF))
+      ff
+    =
+    transportf
+      (λ z,
+       pr1 (transportb (mor_disp D₁ D₂) p FF) x xx
+       -->[ z ]
+       pr1 (transportb (mor_disp D₁ D₂) p FF) y yy)
+      (id_right _ @ id_left _)
+      (idtoiso_disp (idpath _) (transportb_disp_setgrpd_help_ob p FF xx)
+       ;; (disp_functor_on_morphisms (transportb_disp_functor_data p FF) ff)
+       ;; idtoiso_disp (idpath _) (!(transportb_disp_setgrpd_help_ob p FF yy)))%mor_disp.
+Proof.
+  induction p ; cbn.
+  rewrite (id_right_disp (D := pr1 D₂)).
+  unfold transportb.
+  rewrite transport_f_f.
+  rewrite (id_left_disp (D := pr1 D₂)).
+  unfold transportb.
+  rewrite transport_f_f.
+  refine (!_).
+  use transportf_set.
+  apply (homset_property G₂).
 Qed.
 
 Proposition transportb_disp_setgrpd
@@ -511,7 +644,55 @@ Proposition transportb_disp_setgrpd_mor
        ;; disp_functor_on_morphisms (pr1 FF) ff
        ;; idtoiso_disp (idpath _) (!(transportb_disp_setgrpd_ob p FF yy)))%mor_disp.
 Proof.
-Admitted.
+  (**
+     We change the implicit arguments in this proof to make the goals more readable
+   *)
+  Local Arguments transportf {X P x x' e} _.
+  Local Arguments idtoiso_disp {_ _ _ _ _ _ _ _}.
+  etrans.
+  {
+    apply transportb_disp_setgrpd_mor_help.
+  }
+  apply maponpaths.
+  etrans.
+  {
+    apply maponpaths_2.
+    apply maponpaths.
+    apply transportb_disp_functor_data_help_on_mor.
+  }
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite !(assoc_disp_var (D := pr1 D₂)).
+  rewrite !mor_disp_transportf_prewhisker.
+  rewrite !transport_f_f.
+  etrans.
+  {
+    do 4 apply maponpaths.
+    apply (idtoiso_disp_comp' (D := pr1 D₂)).
+  }
+  rewrite !(assoc_disp (D := pr1 D₂)).
+  unfold transportb.
+  rewrite !mor_disp_transportf_prewhisker.
+  rewrite !transport_f_f.
+  etrans.
+  {
+    apply maponpaths.
+    do 2 apply maponpaths_2.
+    apply (idtoiso_disp_comp' (D := pr1 D₂)).
+  }
+  rewrite !mor_disp_transportf_postwhisker.
+  rewrite !transport_f_f.
+  use transportf_transpose_right.
+  unfold transportb.
+  rewrite transport_f_f.
+  cbn -[idtoiso_disp].
+  refine (_ @ idtoiso_disp_set_grpd_prepostcomp (p' := idpath _) (q' := idpath _) _ _ _ _ _).
+  apply maponpaths_2.
+  apply (homset_property G₂).
+Qed.
+
+Arguments transportf {X} P {x x'} e _.
+Arguments idtoiso_disp {_ _ _ _} _ {_ _} _.
 
 (** * 5. Verification of the axioms *)
 Proposition isaset_disp_functor
