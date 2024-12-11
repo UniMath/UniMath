@@ -482,6 +482,37 @@ Proof.
   exact (maponpaths (λ z, pr1 z x xx) (transportb_disp_setgrpd p FF)).
 Qed.
 
+Proposition transportb_disp_setgrpd_mor
+            {G₁ G₂ : setgroupoid}
+            {FD : functor_data G₁ G₂}
+            {HF₁ HF₂ : is_functor FD}
+            (F := (FD ,, HF₁) : G₁ ⟶ G₂)
+            (F' := (FD ,, HF₂) : G₁ ⟶ G₂)
+            (p : F = F')
+            {D₁ : disp_cat_data_of_disp_setgrpd G₁}
+            {D₂ : disp_cat_data_of_disp_setgrpd G₂}
+            (FF : D₁ -->[ F' ] D₂)
+            {x y : G₁}
+            {f : x --> y}
+            {xx : pr1 D₁ x}
+            {yy : pr1 D₁ y}
+            (ff : xx -->[ f ] yy)
+  : disp_functor_on_morphisms
+      (pr1 (transportb (mor_disp D₁ D₂) p FF))
+      ff
+    =
+    transportf
+      (λ z,
+       pr1 (transportb (mor_disp D₁ D₂) p FF) x xx
+       -->[ z ]
+       pr1 (transportb (mor_disp D₁ D₂) p FF) y yy)
+      (id_right _ @ id_left _)
+      (idtoiso_disp (idpath _) (transportb_disp_setgrpd_ob p FF xx)
+       ;; disp_functor_on_morphisms (pr1 FF) ff
+       ;; idtoiso_disp (idpath _) (!(transportb_disp_setgrpd_ob p FF yy)))%mor_disp.
+Proof.
+Admitted.
+
 (** * 5. Verification of the axioms *)
 Proposition isaset_disp_functor
             {G₁ G₂ : setgroupoid}
@@ -843,12 +874,214 @@ Section Isos.
            rewrite id_left, id_right ;
            apply idpath).
       - intro ff ; cbn -[idtoiso_disp].
-        (* equality of disp functors on morphisms *)
-        (* dont worry about exact proof of equality, strict anyway *)
-        admit.
+        etrans.
+        {
+          apply maponpaths.
+          apply maponpaths_2.
+          apply maponpaths.
+          exact (!(disp_functor_eq_mor (!(inv_mor_after_z_iso_disp HF)) ff)).
+        }
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          apply maponpaths_2.
+          apply maponpaths.
+          apply maponpaths_2.
+          apply maponpaths.
+          apply transportb_disp_setgrpd_mor.
+        }
+        cbn -[idtoiso_disp].
+        rewrite !(assoc_disp_var (D := D₁)).
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite !mor_disp_transportf_postwhisker.
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          do 4 apply maponpaths.
+          apply (idtoiso_disp_comp (D := D₁)).
+        }
+        unfold transportb.
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite !transport_f_f.
+        rewrite !(assoc_disp_var (D := D₁)).
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          do 5 apply maponpaths.
+          apply (idtoiso_disp_comp (D := D₁)).
+        }
+        unfold transportb.
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite !transport_f_f.
+        rewrite !(assoc_disp (D := D₁)).
+        unfold transportb.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          do 3 apply maponpaths_2.
+          apply (idtoiso_disp_comp (D := D₁)).
+        }
+        unfold transportb.
+        rewrite !mor_disp_transportf_postwhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          do 2 apply maponpaths_2.
+          apply (idtoiso_disp_comp (D := D₁)).
+        }
+        unfold transportb.
+        rewrite !mor_disp_transportf_postwhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          apply idtoiso_disp_set_grpd_refl.
+        }
+        unfold transportb.
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite !transport_f_f.
+        rewrite id_right_disp.
+        unfold transportb.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          apply maponpaths_2.
+          apply idtoiso_disp_set_grpd_refl.
+        }
+        unfold transportb.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite !transport_f_f.
+        rewrite id_left_disp.
+        unfold transportb.
+        rewrite !transport_f_f.
+        apply transportf_set.
+        apply (homset_property G).
       - intro ff.
-        (* equality of disp functors on morphisms *)
-    Admitted.
+        cbn -[idtoiso_disp].
+        rewrite (disp_functor_transportf _ F).
+        rewrite (disp_functor_comp F).
+        unfold transportb.
+        rewrite transport_f_f.
+        rewrite (disp_functor_comp F).
+        unfold transportb.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          apply (disp_functor_idtoiso_disp F).
+        }
+        unfold transportb.
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          do 2 apply maponpaths_2.
+          apply (disp_functor_idtoiso_disp F).
+        }
+        unfold transportb.
+        rewrite !mor_disp_transportf_postwhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          apply maponpaths_2.
+          apply maponpaths.
+          exact (!(disp_functor_eq_mor (!(z_iso_disp_after_inv_mor HF)) ff)).
+        }
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          apply maponpaths_2.
+          apply maponpaths.
+          apply maponpaths_2.
+          apply maponpaths.
+          apply transportb_disp_setgrpd_mor.
+        }
+        cbn -[idtoiso_disp].
+        rewrite !(assoc_disp_var (D := D₂)).
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite !mor_disp_transportf_postwhisker.
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          do 4 apply maponpaths.
+          apply (idtoiso_disp_comp (D := D₂)).
+        }
+        unfold transportb.
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite !transport_f_f.
+        rewrite !(assoc_disp_var (D := D₂)).
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          do 5 apply maponpaths.
+          apply (idtoiso_disp_comp (D := D₂)).
+        }
+        unfold transportb.
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite !transport_f_f.
+        rewrite !(assoc_disp (D := D₂)).
+        unfold transportb.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          do 3 apply maponpaths_2.
+          apply (idtoiso_disp_comp (D := D₂)).
+        }
+        unfold transportb.
+        rewrite !mor_disp_transportf_postwhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          do 2 apply maponpaths_2.
+          apply (idtoiso_disp_comp (D := D₂)).
+        }
+        unfold transportb.
+        rewrite !mor_disp_transportf_postwhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          apply idtoiso_disp_set_grpd_refl.
+        }
+        unfold transportb.
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite !transport_f_f.
+        rewrite id_right_disp.
+        unfold transportb.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          apply maponpaths_2.
+          apply idtoiso_disp_set_grpd_refl.
+        }
+        unfold transportb.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite !transport_f_f.
+        rewrite id_left_disp.
+        unfold transportb.
+        rewrite !transport_f_f.
+        apply transportf_set.
+        apply (homset_property G).
+    Qed.
   End FromIso.
 End Isos.
 
