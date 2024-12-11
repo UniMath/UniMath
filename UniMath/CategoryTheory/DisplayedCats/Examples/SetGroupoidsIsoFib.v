@@ -26,6 +26,8 @@
  4. Transport lemmas
  5. Verification of the axioms
  6. This displayed category is univalent
+ 6.1. Isos of displayed setgroupoids
+ 6.2. Proof of univalence
  7. The displayed category of isofibrations
  8. A cleaving for the displayed category of isofibrations
 
@@ -57,6 +59,17 @@ Definition is_disp_setgrpd
   := (∏ (x : C), isaset (D x))
      ×
      groupoidal_disp_cat D.
+
+Proposition isaprop_is_disp_setgrpd
+            {C : category}
+            (D : disp_cat C)
+  : isaprop (is_disp_setgrpd D).
+Proof.
+  use isapropdirprod.
+  - use impred ; intro.
+    apply isapropisaset.
+  - apply isaprop_groupoidal_disp_cat.
+Qed.
 
 Definition disp_setgrpd
            (C : category)
@@ -515,10 +528,237 @@ Proof.
 Defined.
 
 (** * 6. This displayed category is univalent *)
+
+(** ** 6.1. Isos of displayed setgroupoids *)
+Section Isos.
+  Context {G : setgroupoid}
+          {D₁ D₂ : disp_setgrpd G}
+          (F : disp_functor (functor_identity G) D₁ D₂).
+
+  Section ToIso.
+    Context (HF₁ : ∏ (x : G), isweq (F x))
+            (HF₂ : disp_functor_ff F).
+
+    Let Fo (x : G) : D₁ x ≃ D₂ x := make_weq _ (HF₁ x).
+
+    Definition to_is_z_iso_disp_disp_setgrpd_inv_data
+      : disp_functor_data (functor_identity (pr1 G)) D₂ D₁.
+    Proof.
+      simple refine (_ ,, _).
+      - exact (λ x xx, invmap (Fo x) xx).
+      - refine (λ x y xx yy f ff,
+                disp_functor_ff_inv
+                  F
+                  HF₂
+                  (transportb
+                     (λ z, _ -->[ z ] _)
+                     _
+                     (idtoiso_disp (idpath _) (homotweqinvweq (Fo x) xx)
+                      ;; ff
+                      ;; idtoiso_disp (idpath _) (!(homotweqinvweq (Fo y) yy)))%mor_disp)).
+        abstract
+          (cbn ;
+           rewrite id_left, id_right ;
+           apply idpath).
+    Defined.
+
+    Proposition to_is_z_iso_disp_disp_setgrpd_inv_laws
+      : disp_functor_axioms to_is_z_iso_disp_disp_setgrpd_inv_data.
+    Proof.
+      split.
+      - intros x xx ; cbn -[idtoiso_disp].
+        unfold transportb.
+        rewrite (id_right_disp (D := D₂)).
+        unfold transportb.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          apply (idtoiso_disp_comp (D := D₂)).
+        }
+        unfold transportb.
+        rewrite transport_f_f.
+        rewrite pathsinv0r.
+        cbn.
+        refine (_ @ disp_functor_ff_inv_identity F HF₂ _).
+        apply maponpaths.
+        unfold transportb.
+        apply maponpaths_2.
+        apply (homset_property G).
+      - intros x y z xx yy zz f g ff gg ; cbn -[idtoiso_disp].
+        refine (_ @ disp_functor_ff_inv_compose F HF₂ _ _).
+        apply maponpaths.
+        unfold transportb.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite !transport_f_f.
+        rewrite !(assoc_disp_var (D := D₂)).
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite !transport_f_f.
+        refine (!_).
+        etrans.
+        {
+          do 3 apply maponpaths.
+          rewrite assoc_disp.
+          apply maponpaths.
+          apply maponpaths_2.
+          etrans.
+          {
+            apply (idtoiso_disp_comp (D := D₂)).
+          }
+          rewrite pathsinv0l ; cbn.
+          apply idpath.
+        }
+        unfold transportb.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite !transport_f_f.
+        rewrite (id_left_disp (D := D₂)).
+        unfold transportb.
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite transport_f_f.
+        apply maponpaths_2.
+        apply (homset_property G).
+    Qed.
+
+    Definition to_is_z_iso_disp_disp_setgrpd_inv
+      : disp_functor (functor_identity (pr1 G)) D₂ D₁.
+    Proof.
+      simple refine (_ ,, _).
+      - exact to_is_z_iso_disp_disp_setgrpd_inv_data.
+      - exact to_is_z_iso_disp_disp_setgrpd_inv_laws.
+    Defined.
+
+    Proposition to_is_z_iso_disp_disp_setgrpd_left
+      : disp_functor_composite_data to_is_z_iso_disp_disp_setgrpd_inv F
+        =
+        pr1 (disp_functor_identity D₂).
+    Proof.
+      (* equality of displayed functor data *)
+    Admitted.
+
+    Proposition to_is_z_iso_disp_disp_setgrpd_right
+      : disp_functor_composite_data F to_is_z_iso_disp_disp_setgrpd_inv
+        =
+        pr1 (disp_functor_identity D₁).
+    Proof.
+      (* equality of displayed functor data *)
+    Admitted.
+
+    Definition to_is_z_iso_disp_disp_setgrpd
+      : is_z_iso_disp (D := disp_cat_of_disp_setgrpd) (identity_z_iso _) F.
+    Proof.
+      simple refine (_ ,, _ ,, _).
+      - exact to_is_z_iso_disp_disp_setgrpd_inv.
+      - abstract
+          (use disp_functor_eq ;
+           rewrite transportb_disp_setgrpd ;
+           exact to_is_z_iso_disp_disp_setgrpd_left).
+      - abstract
+          (use disp_functor_eq ;
+           rewrite transportb_disp_setgrpd ;
+           exact to_is_z_iso_disp_disp_setgrpd_right).
+    Defined.
+  End ToIso.
+
+  Section FromIso.
+    Context (HF : is_z_iso_disp
+                    (D := disp_cat_of_disp_setgrpd)
+                    (identity_z_iso _)
+                    F).
+
+    Let F' : disp_functor (functor_identity G) D₂ D₁
+      := inv_mor_disp_from_z_iso HF.
+
+    Definition is_z_iso_disp_to_isweq
+               (x : G)
+      : isweq (F x).
+    Proof.
+      use isweq_iso.
+      - exact (λ xx, F' x xx).
+      - cbn.
+        intros xx.
+        admit.
+        (* equality of disp functors on objects *)
+      - cbn.
+        intros xx.
+        admit.
+        (* equality of disp functors on objects *)
+    Admitted.
+
+    Definition is_z_iso_disp_to_ff
+      : disp_functor_ff F.
+    Proof.
+      intros x y xx yy f.
+      use isweq_iso.
+      - cbn.
+        intros ff.
+        pose (♯ F' ff)%mor_disp as m.
+        cbn in m.
+        admit.
+      - intro ff.
+        (* equality of disp functors on morphisms *)
+        admit.
+      - intro ff.
+        (* equality of disp functors on morphisms *)
+    Admitted.
+  End FromIso.
+End Isos.
+
+Definition disp_setgrpd_iso_weq
+           {G : setgroupoid}
+           {D₁ D₂ : disp_setgrpd G}
+           (F : disp_functor (functor_identity G) D₁ D₂)
+  : ((∏ (x : G), isweq (F x)) × disp_functor_ff F)
+    ≃
+    is_z_iso_disp (D := disp_cat_of_disp_setgrpd) (identity_z_iso _) F.
+Proof.
+  use weqimplimpl.
+  - intro HF.
+    use to_is_z_iso_disp_disp_setgrpd.
+    + exact (pr1 HF).
+    + exact (pr2 HF).
+  - intro HF.
+    split.
+    + exact (is_z_iso_disp_to_isweq F HF).
+    + exact (is_z_iso_disp_to_ff F HF).
+  - abstract
+      (use isapropdirprod ; [ | apply isaprop_disp_functor_ff ] ;
+       use impred ; intro ;
+       apply isapropisweq).
+  - abstract
+      (apply isaprop_is_z_iso_disp).
+Defined.
+
+(** ** 6.2. Proof of univalence *)
 Proposition is_univalent_disp_cat_of_disp_setgrpd
   : is_univalent_disp disp_cat_of_disp_setgrpd.
 Proof.
-Admitted.
+  use is_univalent_disp_from_fibers.
+  intros G D₁ D₂.
+  cbn in G, D₁, D₂.
+  use weqhomot.
+  - refine (_
+            ∘ disp_cat_eq _ _
+            ∘ path_sigma_hprop _ _ _ (isaprop_is_disp_setgrpd _))%weq.
+    use weqfibtototal.
+    intro F ; cbn.
+    apply disp_setgrpd_iso_weq.
+  - intro p.
+    induction p.
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_is_z_iso_disp.
+    }
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_disp_functor_axioms.
+    }
+    apply idpath.
+Qed.
 
 Definition univ_disp_cat_of_disp_setgrpd
   : disp_univalent_category cat_of_setgroupoid.
