@@ -338,6 +338,49 @@ Section TotalUnivalent.
   Defined.
 End TotalUnivalent.
 
+(** ** [idtoiso] in the total category *)
+Proposition idtoiso_total_category
+            {C : category}
+            {D : disp_cat C}
+            {x y : total_category D}
+            (p : x = y)
+  : pr1 (idtoiso (C := total_category D) p)
+    =
+    (pr1 (idtoiso (base_paths _ _ p))
+    ,,
+    (pr1 (idtoiso_disp (base_paths _ _ p) (fiber_paths p)))).
+Proof.
+  induction p ; cbn.
+  apply idpath.
+Qed.
+
+Proposition idtoiso_total_category_pr2_path
+            {C : category}
+            {D : disp_cat C}
+            {x y : total_category D}
+            (p : x = y)
+  : pr1 (idtoiso (base_paths x y p)) = pr11 (idtoiso p).
+Proof.
+  induction p ; cbn.
+  apply idpath.
+Defined.
+
+Proposition idtoiso_total_category_pr2
+            {C : category}
+            {D : disp_cat C}
+            {x y : total_category D}
+            (p : x = y)
+  : pr21 (idtoiso (C := total_category D) p)
+    =
+    transportf
+      (λ z, _ -->[ z ] _)
+      (idtoiso_total_category_pr2_path p)
+      (pr1 (idtoiso_disp (base_paths _ _ p) (fiber_paths p))).
+Proof.
+  induction p ; cbn.
+  apply idpath.
+Qed.
+
 (** ** Total functors of displayed functors*)
 Section Total_Functors.
 

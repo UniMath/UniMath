@@ -54,6 +54,12 @@ Definition setgroupoid
   : UU
   := ∑ (C : setcategory), is_pregroupoid C.
 
+Definition make_setgroupoid
+           (C : setcategory)
+           (HC : is_pregroupoid C)
+  : setgroupoid
+  := C ,, HC.
+
 Coercion setgroupoid_to_setcategory
          (G : setgroupoid)
   : setcategory
