@@ -33,6 +33,15 @@
  - Types in context [Γ]: isofibrations into [Γ], which we represent using displayed categories
  - Context extension: the context extension is given by the total category
 
+ It is important to note that this comprehension category is not full. Morphisms between
+ types are given by functors that preserve the chosen Cartesian lifts, which is not generally
+ satisfied by all functors. The same holds for other univalent comprehension categories that
+ give higher dimensional models of type theory, such as cubical sets or simplicial sets. That
+ is because types in such models are equipped with structure that expresses that they are
+ fibrant in some suitable sense, and to guarantee that the resulting displayed category is
+ univalent, morphisms must be required to preserve that structure on the nose. Since not all
+ morphisms satisfy this requirement, the resulting comprehension category will not be full.
+
  References
  - 'Bicategorical type theory: semantics and syntax' by Ahrens, North, Van der Weide
  - 'Two-dimensional models of type theory' by Garner
