@@ -51,6 +51,98 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
 
 Local Open Scope cat.
 
+Proposition disp_functor_data_over_id_eq_help
+            {C : category}
+            {D₁ D₂ : disp_cat C}
+            {FF₁ FF₂ : disp_functor_data (functor_identity _) D₁ D₂}
+            (p : pr1 FF₁ = pr1 FF₂)
+            (q : ∏ (x y : C)
+                   (f : x --> y)
+                   (xx : D₁ x)
+                   (yy : D₁ y)
+                   (ff : xx -->[ f ] yy),
+                 (♯FF₁ ff
+                  ;; idtoiso_disp
+                       (idpath _)
+                       (toforallpaths _ _ _ (toforallpaths _ _ _ p y) yy)
+                  =
+                  transportf
+                    (λ z, _ -->[ z ] _)
+                    (id_left _ @ (!(id_right _)))
+                    (idtoiso_disp
+                       (idpath _)
+                       (toforallpaths _ _ _ (toforallpaths _ _ _ p x) xx)
+                     ;; ♯FF₂ ff))%mor_disp)
+  : FF₁ = FF₂.
+Proof.
+  induction FF₁ as [ FFo₁ FFm₁ ].
+  induction FF₂ as [ FFo₂ FFm₂ ].
+  cbn in p.
+  induction p.
+  cbn in *.
+  apply maponpaths.
+  use funextsec ; intro x.
+  use funextsec ; intro y.
+  use funextsec ; intro xx.
+  use funextsec ; intro yy.
+  use funextsec ; intro f.
+  use funextsec ; intro ff.
+  specialize (q x y f xx yy ff).
+  rewrite id_right_disp in q.
+  refine (transportf_transpose_right q @ _).
+  rewrite transport_f_f.
+  rewrite id_left_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  use transportf_set.
+  apply homset_property.
+Qed.
+
+Proposition disp_functor_data_over_id_eq
+            {C : category}
+            {D₁ D₂ : disp_cat C}
+            {FF₁ FF₂ : disp_functor_data (functor_identity _) D₁ D₂}
+            (p : ∏ (x : C) (xx : D₁ x), FF₁ x xx = FF₂ x xx)
+            (q : ∏ (x y : C)
+                   (f : x --> y)
+                   (xx : D₁ x)
+                   (yy : D₁ y)
+                   (ff : xx -->[ f ] yy),
+                 (♯FF₁ ff ;; idtoiso_disp (idpath _) (p y yy)
+                  =
+                  transportf
+                    (λ z, _ -->[ z ] _)
+                    (id_left _ @ (!(id_right _)))
+                    (idtoiso_disp (idpath _) (p x xx) ;; ♯FF₂ ff))%mor_disp)
+  : FF₁ = FF₂.
+Proof.
+  use disp_functor_data_over_id_eq_help.
+  - use funextsec ; intro x.
+    use funextsec ; intro xx.
+    exact (p x xx).
+  - intros x y f xx yy ff.
+    rewrite !toforallpaths_funextsec.
+    apply q.
+Qed.
+
+Proposition disp_functor_ff_FF_inv
+                {C₁ C₂ : category}
+                {F : C₁ ⟶ C₂}
+                {D₁ : disp_cat C₁}
+                {D₂ : disp_cat C₂}
+                {FF : disp_functor F D₁ D₂}
+                (HFF : disp_functor_ff FF)
+                {x y : C₁}
+                {f : x --> y}
+                {xx : D₁ x}
+                {yy : D₁ y}
+                (ff : xx -->[ f ] yy)
+      : disp_functor_ff_inv FF HFF (♯FF ff) = ff.
+    Proof.
+      apply (homotinvweqweq ((disp_functor_ff_weq FF HFF xx yy f))).
+    Qed.
+
+
 (** * 1. Displayed categories that represent setgroupoids *)
 Definition is_disp_setgrpd
            {C : category}
@@ -635,16 +727,124 @@ Section Isos.
         =
         pr1 (disp_functor_identity D₂).
     Proof.
-      (* equality of displayed functor data *)
-    Admitted.
+      use disp_functor_data_over_id_eq.
+      - intros x xx ; cbn.
+        apply (homotweqinvweq (Fo x)).
+      - intros x y f xx yy ff ; cbn -[idtoiso_disp].
+        etrans.
+        {
+          apply maponpaths_2.
+          apply (FF_disp_functor_ff_inv HF₂).
+        }
+        unfold transportb.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite !(assoc_disp_var (D := D₂)).
+        rewrite !transport_f_f.
+        etrans.
+        {
+          do 3 apply maponpaths.
+          apply (idtoiso_disp_comp (D := D₂)).
+        }
+        rewrite pathsinv0l.
+        unfold transportb.
+        rewrite !mor_disp_transportf_prewhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          apply id_right_disp.
+        }
+        unfold transportb.
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite transport_f_f.
+        apply maponpaths_2.
+        apply (homset_property G).
+    Qed.
 
     Proposition to_is_z_iso_disp_disp_setgrpd_right
       : disp_functor_composite_data F to_is_z_iso_disp_disp_setgrpd_inv
         =
         pr1 (disp_functor_identity D₁).
     Proof.
-      (* equality of displayed functor data *)
-    Admitted.
+      use disp_functor_data_over_id_eq.
+      - intros x xx ; cbn.
+        apply (homotinvweqweq (Fo x)).
+      - intros x y f xx yy ff ; cbn -[idtoiso_disp].
+        unfold transportb.
+        refine (_ @ disp_functor_ff_FF_inv HF₂ _).
+        etrans.
+        {
+          apply maponpaths.
+          exact (!(disp_functor_ff_FF_inv HF₂ _)).
+        }
+        etrans.
+        {
+          refine (!_).
+          apply (disp_functor_ff_inv_compose F HF₂).
+        }
+        apply maponpaths.
+        unfold transportb.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite transport_f_f.
+        rewrite (disp_functor_transportf _ F).
+        etrans.
+        {
+          do 2 apply maponpaths.
+          apply (disp_functor_idtoiso_disp F).
+        }
+        unfold transportb.
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite transport_f_f.
+        rewrite (assoc_disp_var (D := D₂)).
+        rewrite transport_f_f.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          apply (idtoiso_disp_comp (D := D₂)).
+        }
+        unfold transportb.
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          do 4 apply maponpaths.
+          etrans.
+          {
+            apply maponpaths.
+            apply (homotweqinvweqweq (Fo y)).
+          }
+          apply pathsinv0l.
+        }
+        etrans.
+        {
+          apply maponpaths.
+          apply id_right_disp.
+        }
+        unfold transportb.
+        rewrite transport_f_f.
+        refine (!_).
+        rewrite (disp_functor_comp F).
+        unfold transportb.
+        rewrite transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          apply maponpaths_2.
+          apply (disp_functor_idtoiso_disp F).
+        }
+        unfold transportb.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          apply maponpaths_2.
+          do 2 apply maponpaths.
+          apply (homotweqinvweqweq (Fo x)).
+        }
+        apply maponpaths_2.
+        apply homset_property.
+    Qed.
 
     Definition to_is_z_iso_disp_disp_setgrpd
       : is_z_iso_disp (D := disp_cat_of_disp_setgrpd) (identity_z_iso _) F.
