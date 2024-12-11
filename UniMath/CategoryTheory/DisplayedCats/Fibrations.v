@@ -2981,3 +2981,38 @@ Proof.
   rewrite cartesian_factorisation_commutes.
   apply idpath.
 Qed.
+
+(** Sufficient condition for being a Cartesian functor *)
+Proposition is_cartesian_disp_functor_chosen_lifts
+            {C₁ C₂ : category}
+            {F : C₁ ⟶ C₂}
+            {D₁ : disp_cat C₁}
+            (I₁ : cleaving D₁)
+            {D₂ : disp_cat C₂}
+            {FF : disp_functor F D₁ D₂}
+            (H : ∏ (x y : C₁)
+                   (f : x --> y)
+                   (yy : D₁ y),
+                 is_cartesian (♯FF (cleaving_mor I₁ f yy))%mor_disp)
+  : is_cartesian_disp_functor FF.
+Proof.
+  intros x y f xx yy ff Hff.
+  pose (l := yy ,, ff ,, Hff : cartesian_lift xx f).
+  pose (l' := I₁ x y f xx).
+  pose (disp_functor_on_z_iso_disp FF (cartesian_lifts_iso l l')) as iso.
+  pose (Hff' := H _ _ f xx).
+  simple refine (z_iso_disp_to_is_cartesian _ Hff' iso _).
+  - abstract
+      (cbn ;
+       rewrite <- functor_comp ;
+       rewrite id_left ;
+       apply idpath).
+  - cbn.
+    rewrite <- disp_functor_comp_var.
+    rewrite cartesian_factorisation_commutes'.
+    unfold transportb.
+    rewrite disp_functor_transportf.
+    rewrite transport_f_f.
+    apply maponpaths_2.
+    apply homset_property.
+Qed.

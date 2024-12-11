@@ -6,7 +6,7 @@
  by reindexing.
 
  Content:
- 1. Transport lemma
+ 1. Transport lemmas and [idtoiso] in the reindexing
  2. Characterization of displayed isomorphisms
  3. Univalence
  4. Characterization of cartesian and opcartesian morphisms
@@ -120,7 +120,7 @@ Section Reindexing.
 End Reindexing.
 
 (**
- 1. Transport lemma
+ 1. Transport lemmas and [idtoiso] in the reindexing
  *)
 Definition transportf_reindex
            {C' C : category}
@@ -150,6 +150,77 @@ Definition transportf_reindex
       ff.
 Proof.
   induction p ; apply idpath.
+Qed.
+
+Proposition transportf_reindex_ob
+            {C₁ C₂ : category}
+            {D : disp_cat C₂}
+            {F : C₁ ⟶ C₂}
+            {x y : C₁}
+            (p : x = y)
+            (xx : D (F x))
+  : transportf (reindex_disp_cat F D) p xx
+    =
+    transportf D (maponpaths (λ z, F z) p) xx.
+Proof.
+  induction p ; cbn.
+  apply idpath.
+Qed.
+
+Proposition idtoiso_reindex_disp_cat
+            {C₁ C₂ : category}
+            {F : C₁ ⟶ C₂}
+            {D : disp_cat C₂}
+            {x : C₁}
+            {xx xx' : D(F x)}
+            (p : xx = xx')
+  : pr1 (idtoiso_disp (D := reindex_disp_cat F D) (idpath _) p)
+    =
+    transportb
+      (λ z, _ -->[ z ] _)
+      (functor_id _ _)
+      (idtoiso_disp (D := D) (idpath _) p).
+Proof.
+  induction p.
+  apply idpath.
+Qed.
+
+Proposition idtoiso_reindex_disp_cat'_path
+            {C₁ C₂ : category}
+            {F : C₁ ⟶ C₂}
+            {D : disp_cat C₂}
+            {x x' : C₁}
+            {xx : D(F x)}
+            {xx' : D(F x')}
+            {p : x = x'}
+            (pp : transportf (λ z, D(F z)) p xx = xx')
+  : transportf D (maponpaths F p) xx = xx'.
+Proof.
+  induction p ; cbn in *.
+  exact pp.
+Defined.
+
+Proposition idtoiso_reindex_disp_cat'
+            {C₁ C₂ : category}
+            {F : C₁ ⟶ C₂}
+            {D : disp_cat C₂}
+            {x x' : C₁}
+            {xx : D(F x)}
+            {xx' : D(F x')}
+            {p : x = x'}
+            (pp : transportf (λ z, D(F z)) p xx = xx')
+  : pr1 (idtoiso_disp (D := reindex_disp_cat F D) p pp)
+    =
+    transportf
+      (λ z, _ -->[ z ] _)
+      (pr1_maponpaths_idtoiso F p)
+      (idtoiso_disp (D := D) (maponpaths F p) (idtoiso_reindex_disp_cat'_path pp)).
+Proof.
+  induction p ; cbn in pp.
+  induction pp ; cbn.
+  unfold transportb.
+  apply maponpaths_2.
+  apply homset_property.
 Qed.
 
 (**
@@ -316,6 +387,44 @@ Proof.
          use subtypePath ; [ intro ; apply isaprop_is_z_iso_disp | ] ;
          cbn ;
          apply transportbfinv).
+Defined.
+
+Definition is_z_isomorphism_reindex_disp_cat
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (D : disp_cat C₂)
+           {x y : C₁}
+           {f : x --> y}
+           (Hf : is_z_isomorphism f)
+           {xx : D(F x)}
+           {yy : D(F y)}
+           (ff : xx -->[ #F f ] yy)
+           (Hff : is_z_iso_disp
+                    (make_z_iso' (#F f) (functor_on_is_z_isomorphism F Hf))
+                    ff)
+  : is_z_iso_disp (D := reindex_disp_cat F D) (make_z_iso' f Hf) ff.
+Proof.
+  pose (fiso := make_z_iso_disp _ Hff).
+  simple refine (_ ,, _ ,, _) ; cbn.
+  + apply fiso.
+  + abstract
+      (cbn ;
+       refine (maponpaths (transportb _ _) (pr12 Hff) @ _) ;
+       refine (!_) ;
+       refine (transportf_reindex (F := F) (D := D) _ _ @ _) ;
+       unfold transportb ;
+       rewrite !transport_f_f ;
+       apply maponpaths_2 ;
+       apply homset_property).
+  + abstract
+      (cbn ;
+       refine (maponpaths (transportb _ _) (pr22 Hff) @ _) ;
+       refine (!_) ;
+       refine (transportf_reindex (F := F) (D := D) _ _ @ _) ;
+       unfold transportb ;
+       rewrite !transport_f_f ;
+       apply maponpaths_2 ;
+       apply homset_property).
 Defined.
 
 (**
