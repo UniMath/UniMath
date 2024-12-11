@@ -30,7 +30,7 @@
  the laws of the category of setcategories.
 
  References
- - 'Bicategorical type theory: semantics and syntax' by Ahrens, North, van der Weide
+ - 'Bicategorical type theory: semantics and syntax' by Ahrens, North, Van der Weide
  - 'Two-dimensional models of type theory' by Garner
  - 'The groupoid interpretation of type theory' by Hofmann and Streicher
 
