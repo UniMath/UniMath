@@ -51,98 +51,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
 
 Local Open Scope cat.
 
-Proposition disp_functor_data_over_id_eq_help
-            {C : category}
-            {D₁ D₂ : disp_cat C}
-            {FF₁ FF₂ : disp_functor_data (functor_identity _) D₁ D₂}
-            (p : pr1 FF₁ = pr1 FF₂)
-            (q : ∏ (x y : C)
-                   (f : x --> y)
-                   (xx : D₁ x)
-                   (yy : D₁ y)
-                   (ff : xx -->[ f ] yy),
-                 (♯FF₁ ff
-                  ;; idtoiso_disp
-                       (idpath _)
-                       (toforallpaths _ _ _ (toforallpaths _ _ _ p y) yy)
-                  =
-                  transportf
-                    (λ z, _ -->[ z ] _)
-                    (id_left _ @ (!(id_right _)))
-                    (idtoiso_disp
-                       (idpath _)
-                       (toforallpaths _ _ _ (toforallpaths _ _ _ p x) xx)
-                     ;; ♯FF₂ ff))%mor_disp)
-  : FF₁ = FF₂.
-Proof.
-  induction FF₁ as [ FFo₁ FFm₁ ].
-  induction FF₂ as [ FFo₂ FFm₂ ].
-  cbn in p.
-  induction p.
-  cbn in *.
-  apply maponpaths.
-  use funextsec ; intro x.
-  use funextsec ; intro y.
-  use funextsec ; intro xx.
-  use funextsec ; intro yy.
-  use funextsec ; intro f.
-  use funextsec ; intro ff.
-  specialize (q x y f xx yy ff).
-  rewrite id_right_disp in q.
-  refine (transportf_transpose_right q @ _).
-  rewrite transport_f_f.
-  rewrite id_left_disp.
-  unfold transportb.
-  rewrite transport_f_f.
-  use transportf_set.
-  apply homset_property.
-Qed.
-
-Proposition disp_functor_data_over_id_eq
-            {C : category}
-            {D₁ D₂ : disp_cat C}
-            {FF₁ FF₂ : disp_functor_data (functor_identity _) D₁ D₂}
-            (p : ∏ (x : C) (xx : D₁ x), FF₁ x xx = FF₂ x xx)
-            (q : ∏ (x y : C)
-                   (f : x --> y)
-                   (xx : D₁ x)
-                   (yy : D₁ y)
-                   (ff : xx -->[ f ] yy),
-                 (♯FF₁ ff ;; idtoiso_disp (idpath _) (p y yy)
-                  =
-                  transportf
-                    (λ z, _ -->[ z ] _)
-                    (id_left _ @ (!(id_right _)))
-                    (idtoiso_disp (idpath _) (p x xx) ;; ♯FF₂ ff))%mor_disp)
-  : FF₁ = FF₂.
-Proof.
-  use disp_functor_data_over_id_eq_help.
-  - use funextsec ; intro x.
-    use funextsec ; intro xx.
-    exact (p x xx).
-  - intros x y f xx yy ff.
-    rewrite !toforallpaths_funextsec.
-    apply q.
-Qed.
-
-Proposition disp_functor_ff_FF_inv
-                {C₁ C₂ : category}
-                {F : C₁ ⟶ C₂}
-                {D₁ : disp_cat C₁}
-                {D₂ : disp_cat C₂}
-                {FF : disp_functor F D₁ D₂}
-                (HFF : disp_functor_ff FF)
-                {x y : C₁}
-                {f : x --> y}
-                {xx : D₁ x}
-                {yy : D₁ y}
-                (ff : xx -->[ f ] yy)
-      : disp_functor_ff_inv FF HFF (♯FF ff) = ff.
-    Proof.
-      apply (homotinvweqweq ((disp_functor_ff_weq FF HFF xx yy f))).
-    Qed.
-
-
 (** * 1. Displayed categories that represent setgroupoids *)
 Definition is_disp_setgrpd
            {C : category}
@@ -557,6 +465,23 @@ Proof.
   apply idpath.
 Qed.
 
+Proposition transportb_disp_setgrpd_ob
+            {G₁ G₂ : setgroupoid}
+            {FD : functor_data G₁ G₂}
+            {HF₁ HF₂ : is_functor FD}
+            (F := (FD ,, HF₁) : G₁ ⟶ G₂)
+            (F' := (FD ,, HF₂) : G₁ ⟶ G₂)
+            (p : F = F')
+            {D₁ : disp_cat_data_of_disp_setgrpd G₁}
+            {D₂ : disp_cat_data_of_disp_setgrpd G₂}
+            (FF : D₁ -->[ F' ] D₂)
+            {x : G₁}
+            (xx : pr1 D₁ x)
+  : pr1 (transportb (mor_disp D₁ D₂) p FF) x xx = pr1 FF x xx.
+Proof.
+  exact (maponpaths (λ z, pr1 z x xx) (transportb_disp_setgrpd p FF)).
+Qed.
+
 (** * 5. Verification of the axioms *)
 Proposition isaset_disp_functor
             {G₁ G₂ : setgroupoid}
@@ -871,34 +796,55 @@ Section Isos.
     Let F' : disp_functor (functor_identity G) D₂ D₁
       := inv_mor_disp_from_z_iso HF.
 
+    Lemma is_z_iso_disp_setgrpd_left_law
+          {x : G}
+          (xx : D₁ x)
+      : F' x (F x xx) = xx.
+    Proof.
+      refine (disp_functor_eq_ob (inv_mor_after_z_iso_disp HF) xx @ _).
+      apply transportb_disp_setgrpd_ob.
+    Qed.
+
+    Lemma is_z_iso_disp_setgrpd_right_law
+          {x : G}
+          (xx : D₂ x)
+      : F x (F' x xx) = xx.
+    Proof.
+      refine (disp_functor_eq_ob (z_iso_disp_after_inv_mor HF) xx @ _).
+      apply transportb_disp_setgrpd_ob.
+    Qed.
+
     Definition is_z_iso_disp_to_isweq
                (x : G)
       : isweq (F x).
     Proof.
       use isweq_iso.
       - exact (λ xx, F' x xx).
-      - cbn.
-        intros xx.
-        admit.
-        (* equality of disp functors on objects *)
-      - cbn.
-        intros xx.
-        admit.
-        (* equality of disp functors on objects *)
-    Admitted.
+      - intros xx ; cbn.
+        apply is_z_iso_disp_setgrpd_left_law.
+      - intros xx ; cbn.
+        apply is_z_iso_disp_setgrpd_right_law.
+    Qed.
 
     Definition is_z_iso_disp_to_ff
       : disp_functor_ff F.
     Proof.
       intros x y xx yy f.
       use isweq_iso.
-      - cbn.
-        intros ff.
-        pose (♯ F' ff)%mor_disp as m.
-        cbn in m.
-        admit.
-      - intro ff.
+      - intros ff.
+        refine (transportf
+                  (λ z, _ -->[ z ] _)
+                  _
+                  (idtoiso_disp (idpath _) (!(is_z_iso_disp_setgrpd_left_law xx))
+                   ;; ♯ F' ff
+                   ;; idtoiso_disp (idpath _) (is_z_iso_disp_setgrpd_left_law yy))%mor_disp).
+        abstract
+          (cbn ;
+           rewrite id_left, id_right ;
+           apply idpath).
+      - intro ff ; cbn -[idtoiso_disp].
         (* equality of disp functors on morphisms *)
+        (* dont worry about exact proof of equality, strict anyway *)
         admit.
       - intro ff.
         (* equality of disp functors on morphisms *)
