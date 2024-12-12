@@ -70,6 +70,19 @@ by [star X] [s1; s2; ...; sn] = [X s1 ; X s2 ; ... ; X sn]. *)
 
 Definition star {S: UU} (X: sUU S): sUU (list S) := λ l: list S, hvec (vec_map X l).
 
+Definition setstar {S: UU} (X: shSet S): shSet (list S).
+Proof.
+  intro l.
+  use make_hSet.
+  - exact (star X l).
+  - unfold star.
+    apply isasethvec.
+    apply make_hvec.
+    intros i.
+    rewrite !el_vec_map.
+    apply setproperty.
+Qed.
+
 Bind Scope hvec_scope with star.
 
 Notation "A ⋆" := (star A) (at level 3, format "'[ ' A '⋆' ']'"): sorted_scope.

@@ -234,5 +234,7 @@ Definition make_hSetalgebra {σ : signature} {A: algebra σ} (setproperty: has_s
 Definition hSetalgebra_to_algebra {σ : signature} (A: hSetalgebra σ): algebra σ
 := ((λ s : sorts σ, pr1 (pr1 A s)),, pr2 A).
 
+Coercion hSetalgebra_to_algebra : hSetalgebra >-> algebra.
+
 Definition has_supportsets_hSetalgebra {σ : signature} (A: hSetalgebra σ): has_supportsets (hSetalgebra_to_algebra A)
 := λ s: sorts σ, setproperty (pr1 A s).

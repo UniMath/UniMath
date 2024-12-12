@@ -25,9 +25,11 @@ Modules/Quotient.v
 Modules.v
 Matrix.v
 Universal/HVectors.v
+Universal/HVecRel.v
 Universal/SortedTypes.v
 Universal/Signatures.v
 Universal/Algebras.v
+Universal/Congruences.v
 Universal/Terms.v
 Universal/TermAlgebras.v
 Universal/VTerms.v
