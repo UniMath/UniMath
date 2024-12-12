@@ -14,7 +14,7 @@
  groupoids (groupoids up to strict equality) following the work by Gratzer, Gylterud, Mörtberg,
  and Stenholm.
 
- Each of these approach comes with their own characteristics. For instance, univalent groupoids
+ Each of these approaches comes with their own characteristics. For instance, univalent groupoids
  form a univalent bicategory rather than a univalent category, and, as a consequence, the
  model of univalent groupoids is described by a comprehension bicategory. The resulting syntax
  is thus 2-dimensional in nature (see 'Bicategorical type theory: semantics and syntax' or
