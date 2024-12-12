@@ -266,7 +266,9 @@ Subcategory/Reflective.v
 
 Categories/PrecategoryOfCategories.v
 Categories/CategoryOfSetCategories.v
+Categories/CategoryOfSetGroupoids.v
 Limits/Examples/CategoryOfSetcategoriesLimits.v
+Limits/Examples/CategoryOfSetGroupoidsLimits.v
 Categories/SetWith2BinOp.v
 Categories/Monoid.v
 Categories/Abmonoid.v
@@ -345,6 +347,7 @@ DisplayedCats/Examples/DispFunctorPair.v
 DisplayedCats/Examples/Opposite.v
 DisplayedCats/Fibrations.v
 DisplayedCats/Examples/Reindexing.v
+DisplayedCats/PreservesCleaving.v
 DisplayedCats/Constructions/CategoryWithStructure.v
 DisplayedCats/Constructions/DisplayedFunctorCat.v
 DisplayedCats/Constructions/FullSubcategory.v
@@ -375,6 +378,9 @@ DisplayedCats/Codomain.v
 DisplayedCats/Examples/MonoCodomain.v
 DisplayedCats/Projection.v
 DisplayedCats/SIP.v
+
+DisplayedCats/Examples/SetGroupoidsIsoFib.v
+DisplayedCats/Examples/SetGroupoidComprehension.v
 
 Monads/Monads.v
 Monads/LModules.v
