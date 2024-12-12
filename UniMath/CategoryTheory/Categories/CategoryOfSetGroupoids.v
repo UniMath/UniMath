@@ -7,7 +7,7 @@
  is univalent.
 
  At first instance, this might seem as the `wrong' thing to do in univalent foundations. After
- all, we have univalent groupoids (aka 1-types), and it is generally to work with those. The key
+ all, we have univalent groupoids (aka 1-types), and it is generally better to work with those. The key
  difference between univalent groupoids and setgroupoids is that the former is identified up to
  adjoint equivalence, whereas the latter is identified up to isomorphism of groupoids. This
  difference is quite fundamental, and one consequence is that we have a univalent bicategory of
