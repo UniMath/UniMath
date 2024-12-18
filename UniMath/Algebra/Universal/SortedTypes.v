@@ -7,6 +7,7 @@ _Universal Algebra for Computer Scientist_, Springer.
 *)
 
 Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Export UniMath.Combinatorics.MoreLists.
 
 Require Export UniMath.Algebra.Universal.HVectors.
@@ -112,4 +113,71 @@ Proof.
   unfold starfun.
   apply pathsinv0.
   apply h1map_compose.
+Defined.
+
+(*indexed hsubtypes*)
+
+Definition shsubtype {S:UU} (X : sUU S) : UU := ∏ s: S, hsubtype (X s).
+
+(*indexed image*)
+
+Definition simage {S:UU} {X Y: sUU S} (f:X s→ Y) : sUU S
+  := λ s, image (f s).
+
+Definition shfiber {S:UU} {X Y: sUU S} (f:X s→ Y) : ∏ s, Y s → UU
+  := λ (s:S) (y : Y s), (∑ (x : X s), f s x = y). 
+
+Definition simage_shsubtype {S:UU} {X Y : sUU S} (f : X s→ Y)
+  : shsubtype Y := λ (s:S) (y : Y s), (∃ (x : X s), f s x = y).
+
+(*TODO: generalize the map in the type of [ys] to any type starting with [is_hinh]*)
+Theorem squash_simage
+  {S:UU} {X Y : sUU S} (f : X s→ Y)
+        (ss : list S)
+        (ys : (simage_shsubtype f)⋆ ss)
+  {Q:UU} (isQ : isaprop Q) :
+  (hvec (h1lower ((shfiber f)⋆⋆ ss (h1map (λ s, pr1) ys))) → Q)
+  → Q.
+Proof.
+  revert ss ys.
+  use list_ind.
+  - intros t tQ. exact (tQ t).
+  - intros ss_hd ss_tl IH ys IHH.
+    use (IH (htl ys)).
+    intro fib_tl.
+    destruct ys as [ys_hd ys_tl].
+    destruct ys_hd as [ys_hd ys_hd_is]. (*TODO (?): use accessors instead*)
+    use (squash_to_prop ys_hd_is isQ).
+    intro fib_hd.
+    use IHH.
+    use make_dirprod.
+    + simpl.
+      use fib_hd.
+    + use fib_tl.
+Qed.
+
+
+Definition transportb_funextfun_hvec {S:UU}
+  {n:nat} {v: vec S n}
+  (F F' : sUU S) (H : F ~ F')
+  (f' : hvec (vec_map F' v))
+  : transportb (λ x : sUU S, hvec (vec_map x v))
+    (funextsec _ F F' H) f' 
+  = h1map (λ s, transportb (idfun UU) (H s)) f'.
+Proof.
+  revert n v f'.
+  use (vec_ind _ _).
+  - intro f'.
+    use proofirrelevancecontr.
+    use iscontrunit.
+  - intros s n v IH f'.
+    use dirprod_paths.
+    + simpl.
+      eapply pathscomp0.
+      { use pr1_transportb. }
+      use (transportb_funextfun (idfun UU)).
+    + simpl.
+      eapply pathscomp0.
+      { use pr2_transportb. }
+      use IH.
 Defined.

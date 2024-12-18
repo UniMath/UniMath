@@ -98,6 +98,35 @@ Proof.
   intros. exact (!pr1_eqweqmap2 _ @ maponpaths pr1 (weqpathsweq w)).
 Defined.
 
+(*TODO: improve the proof*)
+Definition weqpath_transportb {X Y} (w : X ≃ Y) :
+  transportb (idfun UU) (weqtopaths (invweq w)) = pr1 w.
+Proof.
+  intros.
+  eapply pathscomp0.
+  { use (! pr1_eqweqmap2 _). }
+  use (maponpaths pr1).
+  eapply pathscomp0.
+  { use eqweqmap_pathsinv0. }
+  use (transportb (λ arg, invweq arg = w) (weqpathsweq (invweq w))).
+  simpl.
+  use subtypePath.
+  - use isapropisweq.
+  - use funextsec.
+    intro.
+    use invinv.
+Defined.
+
+Definition weqpath_transportb' {X Y} (w : X ≃ Y) :
+  transportb (idfun UU) (weqtopaths w) = invmap w.
+Proof.
+  use (transportf (λ arg, transportb (idfun UU) (weqtopaths w) = invmap arg) (weqpathsweq w)).
+  simpl.
+  change (weqtopathsUAH univalenceAxiom X Y w) with (weqtopaths w).
+  induction (weqtopaths w).
+  use (maponpaths pr1 inv_idweq_is_idweq).
+Defined.
+
 Definition weqpath_cast {X Y} (w : X ≃ Y) : cast (weqtopaths w) = w.
 Proof.
   intros. exact (pr1_eqweqmap _ @ maponpaths pr1 (weqpathsweq w)).
@@ -162,4 +191,40 @@ Proof.
   use funextsec.
   intro x.
   apply h.
+Defined.
+
+Definition funextsec_inv {T:UU} (P : T → UU)
+  (f g : ∏ t : T, P t)
+  (H : f ~ g)
+  : (! funextsec P f g H)
+  = funextsec P g f (λ t, ! (H t)).
+Proof.
+  use (transportb (λ h, ! funextsec P f g h = funextsec P g f (λ t : T, ! h t)) (!toforallpaths_funextsec _) _).
+    use (invmap ((weqonpaths (weqtoforallpaths _ _ _)) _ _)).
+  induction (funextsec P f g H).
+  cbn.
+  rewrite funextsec_toforallpaths, toforallpaths_funextsec.
+  apply idpath.
+Qed.
+
+Definition transportb_funextfun {X Y : UU} (P : Y -> UU) (F F' : X -> Y) (H : ∏ (x : X), F x = F' x)
+           (x : X) (f : P (F' x)) :
+  transportb (λ x0 : X → Y, P (x0 x)) (funextsec _ F F' H) f = transportb (λ x0 : Y, P x0) (H x) f.
+Proof.
+  apply (toforallpaths_induction
+           _ _ F F' (λ H', transportb (λ x0 : X → Y, P (x0 x))
+                                       (funextsec (λ _ : X, Y) F F' (λ x0 : X, H' x0)) f =
+                            transportb (λ x0 : Y, P x0) (H' x) f)).
+  intro e. clear H.
+  set (XR := homotinvweqweq (weqtoforallpaths _ F F') e).
+  set (H := funextsec (λ _ : X, Y) F F' (λ x0 : X, toforallpaths (λ _ : X, Y) F F' e x0)).
+  set (P' := λ x0 : X → Y, P (x0 x)).
+  use pathscomp0.
+  - exact (transportb P' e f).
+  - use transportf_paths.
+    use invrot.
+    eapply pathscomp0.
+    { use pathsinv0inv0. }
+    exact XR.
+  - induction e. cbn. apply idpath.
 Defined.

@@ -888,3 +888,30 @@ Proof.
       apply IH_tl.
       apply H.
 Qed.
+
+Section Hvec_ofpaths.
+  Context {S: UU} {n: nat} {v: vec S n}
+          {B A: S → UU}
+          (L: ∏ (s:S), B s → A s)
+          (hv : hvec (vec_map A v))
+          (fib : hvec (h1lower (h1map (λ s a, ∑ (b: B s), L s b = a)hv)))
+          (E : hvec (h1map_vec (λ (s:S) (a:A s), ∏ (t: ∑ (b: B s), L s b = a), L s (pr1 t) = a) hv)).
+
+  (*TODO: this hypothesis are specific to prove [[issubuniverse_image]] in [[SubAlgebras.v]]. Can we generalize? *)
+
+  Theorem hvec_ofpaths : h1map L (h2lower (h2map (λ s (p:A s), pr1 ) fib)) = hv.
+  Proof.
+    revert n v hv fib E.
+    use (vec_ind _ _).
+    - intros hv fib E.
+      cbn.
+      induction hv.
+      apply idpath.
+    - intros s n v IH hv fib E.
+      use dirprod_paths.
+      + use (hhd E).
+      + use IH.
+        use (htl E). 
+  Defined.
+
+End Hvec_ofpaths.

@@ -29,6 +29,8 @@ Universal/HVecRel.v
 Universal/SortedTypes.v
 Universal/Signatures.v
 Universal/Algebras.v
+Universal/Algebras_eq.v
+Universal/SubAlgebras.v
 Universal/Congruences.v
 Universal/Terms.v
 Universal/TermAlgebras.v

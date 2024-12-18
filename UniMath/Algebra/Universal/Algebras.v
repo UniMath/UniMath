@@ -239,3 +239,13 @@ Coercion hSetalgebra_to_algebra : hSetalgebra >-> algebra.
 
 Definition has_supportsets_hSetalgebra {σ : signature} (A: hSetalgebra σ): has_supportsets (hSetalgebra_to_algebra A)
 := λ s: sorts σ, setproperty (pr1 A s).
+
+Lemma transportf_fun_op {σ : signature} {A B : sUU (sorts σ)}
+  (p : A = B)
+  (nm : names σ) (f : (A⋆ (arity nm) → A (sort nm)))
+  : transportf (λ x : sUU (sorts σ), x⋆ (arity nm) → x (sort nm)) p f
+  = (transportf (λ x : sUU (sorts σ), x (sort nm)) p) ∘ f ∘ (transportb (λ x : sUU (sorts σ), x⋆ (arity nm)) p).
+Proof.
+  induction p.
+  apply idpath.
+Defined.

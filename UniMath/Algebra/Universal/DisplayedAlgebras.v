@@ -83,3 +83,5 @@ Section SubAlgebrasAsTotalAlgebras.
   Qed.
 
 End SubAlgebrasAsTotalAlgebras.
+
+(*TODO: Morfismi inducono algebre dispiegeate*)
