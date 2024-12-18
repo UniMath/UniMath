@@ -30,6 +30,7 @@
  6.2. Proof of univalence
  7. The displayed category of isofibrations
  8. A cleaving for the displayed category of isofibrations
+ 9. The displayed category of split isofibrations
 
  *****************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -48,6 +49,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.DisplayedCatEq.
 Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 Local Open Scope cat.
 
@@ -1543,4 +1545,444 @@ Proof.
   - exact (disp_cat_isofib_subst F (pr1 D) (pr2 D)).
   - exact (disp_cat_isofib_subst_mor F (pr1 D) (pr2 D)).
   - exact (is_cartesian_disp_cat_isofib_subst F (pr1 D) (pr2 D)).
+Defined.
+
+(** * 9. The displayed category of split isofibrations *)
+Definition is_split_isofibration
+           {G : setgroupoid}
+           {D : disp_setgrpd G}
+           (I : cleaving D)
+  : UU
+  := is_split_id I × is_split_comp I.
+
+Proposition split_isofib_cleaving_id_ob_path
+            {G : setgroupoid}
+            {D : disp_setgrpd G}
+            {I : cleaving D}
+            (H : is_split_isofibration I)
+            {x : G}
+            (xx : D x)
+  : cleaving_ob I (identity x) xx = xx.
+Proof.
+  exact (pr1 (pr1 H x xx)).
+Defined.
+
+Proposition split_isofib_cleaving_id_mor_path
+            {G : setgroupoid}
+            {D : disp_setgrpd G}
+            {I : cleaving D}
+            (H : is_split_isofibration I)
+            {x : G}
+            (xx : D x)
+  : cleaving_mor I (identity x) xx
+    =
+    transportb
+      (λ zz, zz -->[ _ ] _)
+      (split_isofib_cleaving_id_ob_path H xx)
+      (id_disp xx).
+Proof.
+  exact (pr2 (pr1 H x xx)).
+Defined.
+
+Proposition split_isofib_cleaving_id_mor_path'
+            {G : setgroupoid}
+            {D : disp_setgrpd G}
+            {I : cleaving D}
+            (H : is_split_isofibration I)
+            {x : G}
+            (xx : D x)
+  : cleaving_mor I (identity x) xx
+    =
+    transportf
+      (λ z, _ -->[ z ] _)
+      (!(id_right _) @ id_left _)
+      (idtoiso_disp (idpath x) (split_isofib_cleaving_id_ob_path H xx)).
+Proof.
+  refine (split_isofib_cleaving_id_mor_path H xx @ _).
+  etrans.
+  {
+    apply transportf_precompose_disp.
+  }
+  rewrite idtoiso_disp_inv.
+  rewrite pathsinv0inv0.
+  rewrite id_right_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  apply idpath.
+Qed.
+
+Proposition split_isofib_cleaving_comp_ob_path
+            {G : setgroupoid}
+            {D : disp_setgrpd G}
+            {I : cleaving D}
+            (H : is_split_isofibration I)
+            {x y z : G}
+            (f : y --> z)
+            (g : x --> y)
+            (zz : D z)
+  : cleaving_ob I (g · f) zz = cleaving_ob I g (cleaving_ob I f zz).
+Proof.
+  exact (pr1 (pr2 H z y x f g zz)).
+Defined.
+
+Proposition split_isofib_cleaving_comp_mor_path
+            {G : setgroupoid}
+            {D : disp_setgrpd G}
+            {I : cleaving D}
+            (H : is_split_isofibration I)
+            {x y z : G}
+            (f : y --> z)
+            (g : x --> y)
+            (zz : D z)
+  : cleaving_mor I (g · f) zz
+    =
+    transportb
+      (λ xx, xx -->[ g · f ] zz)
+      (split_isofib_cleaving_comp_ob_path H f g zz)
+      (cleaving_mor I g (cleaving_ob I f zz) ;; cleaving_mor I f zz)%mor_disp.
+Proof.
+  exact (pr2 (pr2 H z y x f g zz)).
+Defined.
+
+Proposition split_isofib_cleaving_comp_mor_path'
+            {G : setgroupoid}
+            {D : disp_setgrpd G}
+            {I : cleaving D}
+            (H : is_split_isofibration I)
+            {x y z : G}
+            (f : y --> z)
+            (g : x --> y)
+            (zz : D z)
+  : (cleaving_mor I g (cleaving_ob I f zz) ;; cleaving_mor I f zz)%mor_disp
+    =
+    transportf
+      (λ z, _ -->[ z ] _)
+      (id_left _)
+      (idtoiso_disp (idpath x) (!(split_isofib_cleaving_comp_ob_path H f g zz))
+       ;; cleaving_mor I (g · f) zz)%mor_disp.
+Proof.
+  refine (!_).
+  etrans.
+  {
+    do 2 apply maponpaths.
+    exact (split_isofib_cleaving_comp_mor_path H f g zz).
+  }
+  etrans.
+  {
+    do 2 apply maponpaths.
+    apply transportf_precompose_disp.
+  }
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite transport_f_f.
+  rewrite idtoiso_disp_inv.
+  rewrite pathsinv0inv0.
+  rewrite assoc_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  rewrite assoc_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  etrans.
+  {
+    apply maponpaths.
+    do 2 apply maponpaths_2.
+    apply idtoiso_disp_comp.
+  }
+  unfold transportb.
+  rewrite !mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  rewrite pathsinv0l.
+  cbn.
+  rewrite (id_left_disp (D := D)).
+  unfold transportb.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  apply transportf_set.
+  apply (homset_property G).
+Qed.
+
+Proposition isaprop_is_split_isofibration
+            {G : setgroupoid}
+            {D : disp_setgrpd G}
+            (I : cleaving D)
+  : isaprop (is_split_isofibration I).
+Proof.
+  use isapropdirprod.
+  - repeat (use impred ; intro).
+    use isaproptotal2.
+    + intro.
+      apply homsets_disp.
+    + intros.
+      apply isaset_ob_disp_set_grpd.
+  - repeat (use impred ; intro).
+    use isaproptotal2.
+    + intro.
+      apply homsets_disp.
+    + intros.
+      apply isaset_ob_disp_set_grpd.
+Qed.
+
+Definition disp_cat_split_isofib
+  : disp_cat cat_of_setgroupoid
+  := sigma_disp_cat
+       (disp_full_sub
+          (total_category disp_cat_isofib)
+          (λ D, is_split_isofibration (pr22 D))).
+
+Definition is_univalent_disp_cat_split_isofib
+  : is_univalent_disp disp_cat_split_isofib.
+Proof.
+  use is_univalent_sigma_disp.
+  - exact is_univalent_disp_cat_isofib.
+  - use disp_full_sub_univalent.
+    intros D.
+    exact (isaprop_is_split_isofibration (pr22 D)).
+Qed.
+
+Definition univalent_disp_cat_split_isofib
+  : disp_univalent_category univalent_cat_of_setgroupoid.
+Proof.
+  use make_disp_univalent_category.
+  - exact disp_cat_split_isofib.
+  - exact is_univalent_disp_cat_split_isofib.
+Defined.
+
+Proposition mor_eq_disp_cat_split_isofib
+            {G₁ G₂ : setgroupoid}
+            {F : G₁ ⟶ G₂}
+            {D₁ : disp_cat_split_isofib G₁}
+            {D₂ : disp_cat_split_isofib G₂}
+            {FF FF' : D₁ -->[ F ] D₂}
+            (p : pr11 FF = pr11 FF')
+  : FF = FF'.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    apply isapropunit.
+  }
+  use mor_eq_disp_cat_isofib.
+  exact p.
+Qed.
+
+(** * 10. A cleaving for the displayed category of split isofibrations *)
+Proposition cleaving_mor_on_eq_base
+            {C : category}
+            {x y : C}
+            {f g : x --> y}
+            (p : f = g)
+  : idtoiso (idpath x) · g = f.
+Proof.
+  induction p ; cbn.
+  apply id_left.
+Qed.
+
+Proposition cleaving_ob_eq
+            {C : category}
+            {D : disp_cat C}
+            (H : cleaving D)
+            {x y : C}
+            {f g : x --> y}
+            (p : f = g)
+            (yy : D y)
+  : cleaving_ob H f yy = cleaving_ob H g yy.
+Proof.
+  induction p.
+  apply idpath.
+Defined.
+
+Proposition cleaving_mor_on_eq
+            {C : category}
+            {D : disp_cat C}
+            (H : cleaving D)
+            {x y : C}
+            {f g : x --> y}
+            (p : f = g)
+            (yy : D y)
+  : cleaving_mor H f yy
+    =
+    transportf
+      (λ z, cleaving_ob H f yy -->[ z ] yy)
+      (cleaving_mor_on_eq_base p)
+      (idtoiso_disp (idpath _) (cleaving_ob_eq H p yy)
+       ;;
+       cleaving_mor H g yy)%mor_disp.
+Proof.
+  induction p.
+  cbn.
+  rewrite id_left_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  refine (!_).
+  apply transportf_set.
+  apply homset_property.
+Qed.
+
+Section Cleaving.
+  Context {G₁ G₂ : setgroupoid}
+          (F : G₂ ⟶ G₁)
+          (D : disp_setgrpd G₁)
+          (I : cleaving D)
+          (H : is_split_isofibration I).
+
+  Let DD : disp_cat_split_isofib G₁ := (D ,, I) ,, H.
+
+  Proposition is_split_cleaving_reindex
+    : is_split_isofibration (pr2 (disp_cat_isofib_subst F D I)).
+  Proof.
+    cbn ; split.
+    - intros x xx.
+      simple refine (_ ,, _).
+      + refine (_ @ split_isofib_cleaving_id_ob_path H xx).
+        exact (!(cleaving_ob_eq I (!functor_id F x) xx)).
+      + cbn.
+        refine (!_).
+        etrans.
+        {
+          apply transportf_precompose_disp.
+        }
+        rewrite idtoiso_disp_inv.
+        rewrite pathsinv0inv0.
+        unfold transportb.
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite transport_f_f.
+        rewrite (id_right_disp (D := D)).
+        unfold transportb.
+        rewrite transport_f_f.
+        cbn -[idtoiso_disp].
+        etrans.
+        {
+          apply maponpaths.
+          exact (!(transportf_transpose_left (idtoiso_disp_comp _ _))).
+        }
+        rewrite transport_f_f.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          exact (!(transportb_transpose_left (split_isofib_cleaving_id_mor_path' H xx))).
+        }
+        unfold transportb.
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          exact (cleaving_mor_on_eq I (!functor_id F x) xx).
+        }
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite transport_f_f.
+        rewrite assoc_disp.
+        unfold transportb.
+        rewrite transport_f_f.
+        rewrite idtoiso_disp_comp.
+        unfold transportb.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite transport_f_f.
+        rewrite pathsinv0l.
+        cbn.
+        rewrite (id_left_disp (D := D)).
+        unfold transportb.
+        rewrite transport_f_f.
+        apply transportf_set.
+        apply (homset_property G₁).
+    - intros z y x f g zz.
+      simple refine (_ ,, _).
+      + refine (_ @ split_isofib_cleaving_comp_ob_path H _ _ zz).
+        exact (cleaving_ob_eq I (functor_comp F g f) zz).
+      + cbn.
+        refine (!_).
+        etrans.
+        {
+          apply transportf_precompose_disp.
+        }
+        rewrite idtoiso_disp_inv.
+        rewrite pathsinv0inv0.
+        unfold transportb.
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          apply (split_isofib_cleaving_comp_mor_path' H).
+        }
+        rewrite mor_disp_transportf_prewhisker.
+        rewrite transport_f_f.
+        rewrite assoc_disp.
+        unfold transportb.
+        rewrite transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          apply maponpaths_2.
+          apply idtoiso_disp_comp.
+        }
+        unfold transportb.
+        rewrite mor_disp_transportf_postwhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          apply maponpaths_2.
+          rewrite <- path_assoc.
+          rewrite pathsinv0r.
+          rewrite pathscomp0rid.
+          apply idpath.
+        }
+        refine (!_).
+        etrans.
+        {
+          exact (cleaving_mor_on_eq I (functor_comp F g f) zz).
+        }
+        apply maponpaths_2.
+        apply (homset_property G₁).
+  Qed.
+
+  Definition disp_cat_split_isofib_subst
+    : disp_cat_split_isofib G₂.
+  Proof.
+    simple refine (_ ,, _).
+    - exact (disp_cat_isofib_subst F D I).
+    - exact is_split_cleaving_reindex.
+  Defined.
+
+  Definition disp_cat_split_isofib_subst_mor
+    : disp_cat_split_isofib_subst -->[ F ] DD.
+  Proof.
+    simple refine (_ ,, _).
+    - exact (disp_cat_isofib_subst_mor F D I).
+    - exact tt.
+  Defined.
+
+  Definition is_cartesian_disp_cat_split_isofib_subst
+    : is_cartesian disp_cat_split_isofib_subst_mor.
+  Proof.
+    intros G₃ F' D' FF.
+    simple refine (_ ,, _).
+    - simple refine (((_ ,, _) ,, tt) ,, _) ; cbn.
+      + exact (lift_functor_into_reindex (pr11 FF)).
+      + apply preserves_cleaving_lift_reindex.
+        exact (pr21 FF).
+      + abstract
+          (use (mor_eq_disp_cat_split_isofib (FF' := FF)) ;
+           use disp_functor_eq ;
+           apply idpath).
+    - abstract
+        (intros K ;
+         induction K as [ K KK ] ;
+         use subtypePath ; [ intro ; apply homsets_disp | ] ;
+         use mor_eq_disp_cat_split_isofib ;
+         use disp_functor_eq ;
+         cbn ;
+         exact (maponpaths (λ z, pr111 z) KK)).
+  Defined.
+End Cleaving.
+
+Definition cleaving_disp_cat_split_isofib
+  : cleaving disp_cat_split_isofib.
+Proof.
+  intros G₁ G₂ F D.
+  simple refine (_ ,, _ ,, _).
+  - exact (disp_cat_split_isofib_subst F _ _ (pr2 D)).
+  - exact (disp_cat_split_isofib_subst_mor F _ _ (pr2 D)).
+  - exact (is_cartesian_disp_cat_split_isofib_subst F _ _ (pr2 D)).
 Defined.

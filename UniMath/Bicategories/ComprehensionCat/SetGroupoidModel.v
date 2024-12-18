@@ -42,6 +42,10 @@
  univalent, morphisms must be required to preserve that structure on the nose. Since not all
  morphisms satisfy this requirement, the resulting comprehension category will not be full.
 
+ Note that we consider two versions of the setgroupid model: one where types in a context [Γ]
+ are given by pseudofunctors from [Γ] to the bicategory of setgroupoids, and one where types
+ in a context [Γ] are given by functors to the category of setgroupoids.
+
  References
  - 'Bicategorical type theory: semantics and syntax' by Ahrens, North, Van der Weide
  - 'Two-dimensional models of type theory' by Garner
@@ -52,6 +56,7 @@
 
  Content
  1. The univalent comprehension category of setgroupoids
+ 2. The univalent comprehension category of setgroupoids with split isofibrations
 
  *********************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -102,4 +107,38 @@ Proof.
   use make_comp_cat.
   - exact setgroupoid_cat_with_terminal_cleaving.
   - exact setgroupoid_comprehension_functor.
+Defined.
+
+(** * 2. The univalent comprehension category of setgroupoids with split isofibrations *)
+Definition setgroupoid_cat_split_with_terminal_disp_cat
+  : cat_with_terminal_disp_cat.
+Proof.
+  use make_cat_with_terminal_disp_cat.
+  - exact univalent_cat_of_setgroupoid.
+  - exact terminal_obj_setgroupoid.
+  - exact univalent_disp_cat_split_isofib.
+Defined.
+
+Definition setgroupoid_cat_split_with_terminal_cleaving
+  : cat_with_terminal_cleaving.
+Proof.
+  use make_cat_with_terminal_cleaving.
+  - exact setgroupoid_cat_split_with_terminal_disp_cat.
+  - exact cleaving_disp_cat_split_isofib.
+Defined.
+
+Definition setgroupoid_split_comprehension_functor
+  : comprehension_functor setgroupoid_cat_split_with_terminal_cleaving.
+Proof.
+  use make_comprehension_functor.
+  - exact disp_cat_split_isofib_comprehension.
+  - exact disp_cat_split_isofib_comprehension_cartesian.
+Defined.
+
+Definition setgroupoid_comp_cat_split
+  : comp_cat.
+Proof.
+  use make_comp_cat.
+  - exact setgroupoid_cat_split_with_terminal_cleaving.
+  - exact setgroupoid_split_comprehension_functor.
 Defined.
