@@ -20,11 +20,13 @@ Local Open Scope sorted_scope.
 (** An element of [sUU S] is an [S]-sorted type, i.e., an [S]-indexed family of types. *)
 
 Definition sUU (S: UU): UU := S → UU.
+Identity Coercion Id_sUU : sUU >-> Funclass.
 
 (** If [X] and [Y] are [S]-sorted types, then [sfun X Y] is an [S]-sorted mapping, i.e.,
 a [S]-indexed family of functions [X s → Y s]. *)
 
 Definition sfun {S: UU} (X Y: sUU S): UU := ∏ s: S, X s → Y s.
+Identity Coercion sfun_Id : sfun >-> Funclass.
 
 Notation "x s→ y" := (sfun x y) (at level 99, y at level 200, right associativity): type_scope.
 

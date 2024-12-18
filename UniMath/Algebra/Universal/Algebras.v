@@ -103,9 +103,10 @@ Bind Scope hom_scope with hom.
 
 Local Open Scope hom.
 
-Definition hom2fun {σ: signature} {A1 A2: algebra σ} (f: A1 ↷ A2): ∏ s: sorts σ, support A1 s → support A2 s:= pr1 f.
+Definition hom2fun {σ: signature} {A1 A2: algebra σ} (f: A1 ↷ A2)
+  : sfun (support A1) (support A2) := pr1 f.
 
-Coercion hom2fun: hom >-> Funclass.
+Coercion hom2fun: hom >-> sfun.
 
 Definition hom2axiom {σ: signature} {A1 A2: algebra σ} (f: A1 ↷ A2) := pr2 f.
 
