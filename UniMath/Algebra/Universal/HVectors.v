@@ -620,6 +620,21 @@ Proof.
     exact (f x (pr1 h1v) (pr1 h2v) ::: IHv f (pr2 h1v) (pr2 h2v)).
 Defined.
 
+(*TODO: write comment*)
+Definition h12map {A: UU} {n: nat} {v: vec A n}
+                  {P: A → UU} {R: ∏ (a: A) (p: P a), UU}
+                  (f: ∏ (a: A) (p: P a), R a p) (*h2v: hvec (h1map_vec Q h1v)*)
+                  (h1v: hvec (vec_map P v))
+  : hvec (h1map_vec R h1v).
+Proof.
+  revert n v f h1v.
+  refine (vec_ind _ _ _ ).
+  - intros.
+    exact [()].
+  - intros x n xs IHv f h1v.
+    exact (f x (pr1 h1v) ::: IHv f (pr2 h1v)).
+Defined.
+
 (*[[hel]] of an [[h2map]] is just the appropriate casting of function application*)
 Definition helh2map {A: UU} {n: nat} {v: vec A n} {P: A → UU} {h1v: hvec (vec_map P v)}
                  {Q: ∏ (a: A) (p: P a), UU} {R: ∏ (a: A) (p: P a), UU}
