@@ -13,6 +13,7 @@
  2. The comprehension functor
  3. Some transport lemmas that we need
  4. The comprehension functor is Cartesian
+ 5. Comprehension for split isofibrations
 
  *****************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -601,6 +602,86 @@ Definition disp_cat_isofib_comprehension_cartesian
 Proof.
   use is_cartesian_disp_functor_chosen_lifts.
   - exact cleaving_disp_cat_isofib.
+  - intros G₁ G₂ F D.
+    use isPullback_cartesian_in_cod_disp.
+    intros G₀ H₁ H₂ p.
+    simple refine (_ ,, _).
+    + simple refine (_ ,, _ ,, _).
+      * exact (isofib_comprehension_pb_mor p).
+      * apply isofib_comprehension_pb_mor_pr1.
+      * apply isofib_comprehension_pb_mor_pr2.
+    + abstract
+        (intros H' ;
+         use subtypePath ;
+         [ intro ; apply isapropdirprod ; apply homset_property | ] ;
+         exact (isofib_comprehension_pb_mor_unique
+                  _
+                  (pr12 H')
+                  (pr22 H'))).
+Defined.
+
+(** * 5. Comprehension for split isofibrations *)
+Definition disp_cat_split_isofib_comprehension_data
+  : disp_functor_data
+      (functor_identity _)
+      disp_cat_split_isofib
+      (disp_codomain _).
+Proof.
+  simple refine (_ ,, _).
+  - exact (λ (G : setgroupoid)
+             (D : disp_cat_split_isofib G),
+           total_set_groupoid (pr1 D)
+           ,,
+           pr1_category _).
+  - refine (λ (G₁ G₂ : setgroupoid)
+              (D₁ : disp_cat_split_isofib G₁)
+              (D₂ : disp_cat_split_isofib G₂)
+              (F : G₁ ⟶ G₂)
+              (FF : D₁ -->[ F ] D₂),
+             total_functor (pr11 FF)
+             ,,
+             _).
+    exact (total_functor_commute_eq (pr11 FF)).
+Defined.
+
+Proposition disp_cat_split_isofib_comprehension_axioms
+  : disp_functor_axioms disp_cat_split_isofib_comprehension_data.
+Proof.
+  split.
+  - intros.
+    use subtypePath.
+    {
+      intro.
+      apply homset_property.
+    }
+    use functor_eq ; [ apply homset_property | ] ; cbn.
+    apply idpath.
+  - intros.
+    use subtypePath.
+    {
+      intro.
+      apply homset_property.
+    }
+    use functor_eq ; [ apply homset_property | ] ; cbn.
+    apply idpath.
+Qed.
+
+Definition disp_cat_split_isofib_comprehension
+  : disp_functor
+      (functor_identity _)
+      disp_cat_split_isofib
+      (disp_codomain _).
+Proof.
+  simple refine (_ ,, _).
+  - exact disp_cat_split_isofib_comprehension_data.
+  - exact disp_cat_split_isofib_comprehension_axioms.
+Defined.
+
+Definition disp_cat_split_isofib_comprehension_cartesian
+  : is_cartesian_disp_functor disp_cat_split_isofib_comprehension.
+Proof.
+  use is_cartesian_disp_functor_chosen_lifts.
+  - exact cleaving_disp_cat_split_isofib.
   - intros G₁ G₂ F D.
     use isPullback_cartesian_in_cod_disp.
     intros G₀ H₁ H₂ p.
