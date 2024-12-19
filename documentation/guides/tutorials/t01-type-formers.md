@@ -143,7 +143,7 @@ If we want to prove (or define) something based on some `n : nat`, we can again 
 * The base case: we give our proof for `n = O`.
 * The induction step: given a proof for `n = m`, we give a proof for `n = S m`.
 
-Since every natural number consists of a finite number of `S`es and then a `O`, the combination of the two parts of the induction will reach every number eventually. For example, we can define a function `double` which doubles a natural number, and then show that `double (S n) = S (S (double n))`:
+Since every natural number consists of a finite number of `S`es and then a `O`, the combination of the two parts of the induction will reach every number eventually. For example, we can define functions `double` and `quadruple` which double and quadruple a natural number, and then show that `double (double n) = quadruple n`:
 ```coq
 Definition double
   : nat → nat
@@ -151,27 +151,145 @@ Definition double
     O                 (* The base case *)
     (λ n x, S (S x)). (* The induction step: if `double n` gives `x`, double (n + 1) should give x + 2 *)
 
+Definition quadruple
+  : nat → nat
+  := nat_rect _
+    O                         (* The base case *)
+    (λ n x, S (S (S (S x)))). (* The induction step: if `double n` gives `x`, double (n + 1) should give x + 2 *)
+
 Lemma double_sn
   (n : nat)
-  : double (S n) = S (S (double n)).
+  : double (double n) = quadruple n.
 Proof.
-  induction n.
-  - reflexivity. (* This shows that 2 = 2 *)
-  - reflexivity. (* This shows that S (S (S (S (double n)))) = S (S (S (S (double n)))) *)
+  induction n as [ | n IHn ].
+  - reflexivity. (* This shows that double (double 0) = quadruple 0 *)
+  - simpl.       (* This simplifies double (double (S n)) to S (S (S (S (double n)))) *)
+    rewrite IHn. (* This replaces (double (double n)) by quadruple n *)
+    reflexivity. (* This shows that S (S (S (S (quadruple n)))) = S (S (S (S (quadruple n)))) *)
 Qed.
 ```
 
 ## Coproducts
-⨿
-inl inr
+Another type that you will encounter sometimes is the coproduct (or `disjoint union`) type. We can inject terms `x : X` and `y : Y` as `inl x : X ⨿ Y` and `inr y : X ⨿ Y` ("inject left" and "inject right").
+
+The induction principle allows us to show things about some `u : X ⨿ Y` by assuming that either `u = inl x` for some `x : X` or `u = inr y` for some `y : Y`. We will use this to construct a function that swaps the two sides of the coproduct, and show that applying it twice gives the same term back again:
+```coq
+Definition coprod_swap
+  (X Y : UU)
+  : X ⨿ Y → Y ⨿ X
+  := coprod_rect _
+    (λ x, inr x)    (* coprod_swap (inl x) = inr x *)
+    (λ y, inl y).   (* coprod_swap (inr y) = inl y *)
+
+Lemma coprod_swap_twice
+  (X Y : UU)
+  (u : X ⨿ Y)
+  : coprod_swap Y X (coprod_swap X Y u) = u.
+Proof.
+  induction u as [x | y].
+  - reflexivity. (* This shows that coprod_swap _ _ (coprod_swap _ _ (inl x)) = inl x *)
+  - reflexivity. (* This shows that coprod_swap _ _ (coprod_swap _ _ (inr y)) = inr y *)
+Qed.
+```
+
+## Paths
+Now we will take a look at equalities, which are also called 'paths', because of their role in homotopy type theory. If we have some type `X : UU` and two terms `x y : X`, then we have the type of paths `x = y`. There is only one basic constructor for this type: `idpath x : x = x`.
+
+In UniMath, path types are sometimes inhabited by multiple distinct terms. For example, `bool = bool` has two terms, one of which is the identity:
+```coq
+Definition bool_idpath
+  : bool = bool
+  := idpath _.
+```
+If we have some `x : X` and want to show something about `p : x = y` for all `y : X`, then the induction principle allows us to assume that `p = idpath x`:
+```coq
+Lemma path_symmetry
+  (X : UU)
+  (x y : X)
+  (p : x = y)
+  : y = x.
+Proof.
+  induction p. (* This removes y from the context and replaces it by x everywhere *)
+  exact (idpath x).
+Qed.
+```
 
 ## Dependent sums
-total2
-∑
-,,
-pr1 pr2
+Now we get to the 'dependent' types, which turn the type theory of coq into a dependent type theory. They both start from a 'family of types', given by a function `Y : X → UU`.
+
+The dependent sum is written as `∑ (x : X), Y x` (which is notation for `total2 Y`). Its terms are pairs `(x ,, y)` (notation for `tpair Y x y`), where `x : X` and `y : Y x`. The direct product `X × Z` is a special case of this, with `Y` given by the constant family `λ _, Z`.
+
+We can use the dependent sum to create this toy example of a type of 'equal terms'. An equal term of some `x : X` is given by some `y : X`, together with a path `p : y = x`.
+```coq
+Definition equal_term
+  (X : UU)
+  (x : X)
+  : UU
+  := ∑ (y : X), y = x.
+```
+A trivial example of a term of this type, is given by the identity path on `x`:
+```coq
+Definition identity_equal_term
+  (X : UU)
+  (x : X)
+  : equal_term X x
+  := x ,, idpath x.
+```
+The induction principle for the dependent sum, splits up the pairs into their first and second components. The library also contains functions for this, called `pr1` and `pr2`.
+```coq
+Definition equal_term_term
+  (X : UU)
+  (x : X)
+  (y : equal_term X x)
+  : X.
+Proof.
+  induction y as [y p]. (* Gives y : X and p : x = y *)
+  exact y.
+Defined.
+
+Definition equal_term_equality
+  (X : UU)
+  (x : X)
+  (y : equal_term X x)
+  : equal_term_term X x y = x
+  := pr2 y.
+```
 
 ## Dependent products
-∏
-λ
-_ _
+If the dependent sum is a more general form of the direct product, the dependent product is a more general form of the function type. If we have a family of types `Y : X → UU`, then the terms `f : ∏ (x : X), Y x` of the dependent product turn any `x : X` into some `f x : Y x`. The function type `X → Z` is a special case, where `Y` is given by the constant family `λ _, Z`.
+
+For example, we can define the type of
+```coq
+Definition all_terms_are_equal
+  (X : UU)
+  (x : X)
+  : UU
+  := ∏ (y : X), y = x.
+```
+Just like with functions, we can create a term of the dependent product by bringing an argument `x : X` into the context, and producing a term of `Y x`.
+```coq
+Definition all_terms_are_equal_unit
+  : all_terms_are_equal unit tt.
+Proof.
+  intro t.      (* This turns the goal into t = tt *)
+  induction t.  (* This replaces t by tt *)
+  reflexivity.
+Defined.
+```
+We can use a term of `all_terms_are_equal X x` to show that any two values of a function from `X` must be equal:
+```coq
+Lemma all_terms_are_equal_fun
+  (X Y : UU)
+  (x : X)
+  (H : all_terms_are_equal X x)
+  (f : X → Y)
+  (y z : X)
+  : f y = f z.
+Proof.
+  pose (H y) as Hy. (* This adds Hy : y = x to the context *)
+  rewrite Hy.       (* This rewrites f y to f x *)
+  pose (H z) as Hz. (* This adds Hz : z = x to the context *)
+  rewrite Hz.       (* This rewrites f z to f x *)
+  reflexivity.      (* This shows that f x = f x *)
+Qed.
+```
