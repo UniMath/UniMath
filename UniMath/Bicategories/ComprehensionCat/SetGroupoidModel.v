@@ -44,7 +44,9 @@
 
  Note that we consider two versions of the setgroupid model: one where types in a context [Γ]
  are given by pseudofunctors from [Γ] to the bicategory of setgroupoids, and one where types
- in a context [Γ] are given by functors to the category of setgroupoids.
+ in a context [Γ] are given by functors to the category of setgroupoids. Usually, the groupoid
+ model is the latter of the two, and types are given by functors to setgroupoids. However, we
+ define both versions.
 
  References
  - 'Bicategorical type theory: semantics and syntax' by Ahrens, North, Van der Weide
