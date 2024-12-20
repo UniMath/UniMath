@@ -92,6 +92,14 @@ Proof.
   exact (dirprod_pr2 p).
 Defined.
 
+Definition true_and_false
+  : bool × bool.
+Proof.
+  split.          (* This splits up the goal into two goals `bool` *)
+  - exact true.
+  - exact false.
+Defined.
+
 Definition double
   : nat → nat
   := nat_rect _
@@ -174,6 +182,15 @@ Definition equal_term_equality
   (y : equal_term X x)
   : equal_term_term X x y = x
   := pr2 y.
+
+Definition is_even
+  (n : nat)
+  : UU
+  := ∑ m, n = 2 * m.
+
+Definition even_numbers
+  : UU
+  := ∑ n, is_even n.
 
 Definition all_terms_are_equal
   (X : UU)

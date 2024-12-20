@@ -3,6 +3,19 @@ In this tutorial, we will take a look at the building blocks of types that you w
 
 In unimath, all types have the same type `UU` (they all live in the *type universe* `UU`). If you see `X : UU` somewhere, that just means that `X` is a (or any) type.
 
+We will cover
+ - [Function types](#function-types)
+ - [The type of booleans](#the-type-of-booleans)
+ - [The unit type](#the-unit-type)
+ - [The empty type](#the-empty-type)
+ - [Induction](#induction)
+ - [Direct Products](#direct-products)
+ - [The natural numbers](#the-natural-numbers)
+ - [Coproducts](#coproducts)
+ - [Paths](#paths)
+ - [Dependent sums](#dependent-sums)
+ - [Dependent products](#dependent-products)
+
 ## Function types
 The first type that we will need to discuss is the type of functions. If we have types `X` and `Y`, we have a function type `X → Y`. We can create a function `X → Y` by bringing an argument `x : X` into the context, and constructing a term of type `Y`. For example, the constant function from any type can be defined as follows:
 ```coq
@@ -133,6 +146,17 @@ Proof.
 Defined.
 ```
 
+If the goal is a direct product, there is a tactic named `split`, which splits up the goal into the two parts:
+```coq
+Definition true_and_false
+  : bool × bool.
+Proof.
+  split.          (* This splits up the goal into two goals `bool` *)
+  - exact true.
+  - exact false.
+Defined.
+```
+
 ## The natural numbers
 The next type that we will discuss are the natural numbers. These are the 'counting numbers' 0, 1, 2, 3, …
 
@@ -253,6 +277,19 @@ Definition equal_term_equality
   (y : equal_term X x)
   : equal_term_term X x y = x
   := pr2 y.
+```
+
+### Subtypes
+Using dependent sums, we can also create subtypes. If we have a predicate `P : X → UU`, the type of `x : X` such that `P x`, is given by `∑ x, P x`. For example, the type of 'even' natural numbers can be given by
+```coq
+Definition is_even
+  (n : nat)
+  : UU
+  := ∑ m, n = 2 * m.
+
+Definition even_numbers
+  : UU
+  := ∑ n, is_even n.
 ```
 
 ## Dependent products
