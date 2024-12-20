@@ -431,7 +431,12 @@ Proof.
   intros. induction ex. induction ey. apply idpath.
 Defined.
 
-Lemma dirprodeq (A B : UU) (ab ab' : A × B) :
+Definition total2_paths2 {A : UU} {B : UU} {a1 a2:A} {b1 b2:B}
+  (p : a1 = a2) (q : b1 = b2)
+  : a1,,b1 = a2,,b2
+  := pathsdirprod p q.
+
+Lemma dirprod_paths {A B : UU} {ab ab' : A × B} :
   pr1 ab = pr1 ab' -> pr2 ab = pr2 ab' -> ab = ab'.
 Proof.
   intros H H'.
@@ -442,6 +447,9 @@ Proof.
   apply idpath.
 Defined.
 
+Definition dirprodeq (A B :  UU) (s s' : A × B)
+      (p : pr1 s = pr1 s') (q : pr2 s = pr2 s') : s = s'
+      := dirprod_paths p q.
 
 (** *** The function [ maponpaths ] between paths types defined by a function between ambient types
 
@@ -786,14 +794,6 @@ Proof.
   intros. induction p. change _ with (b1 = b2) in q. induction q. apply idpath.
 Defined.
 
-Lemma dirprod_paths {A : UU} {B :  UU} {s s' : A × B}
-      (p : pr1 s = pr1 s') (q : pr2 s = pr2 s') : s = s'.
-Proof.
-  intros.
-  induction s as [a b]; induction s' as [a' b']; simpl in *.
-  exact (two_arg_paths p q).
-Defined.
-
 Lemma total2_paths_f {A : UU} {B : A -> UU} {s s' : ∑ x, B x}
       (p : pr1 s = pr1 s')
       (q : transportf B p (pr2 s) = pr2 s') : s = s'.
@@ -810,12 +810,6 @@ Proof.
   intros.
   induction s as [a b]; induction s' as [a' b']; simpl in *.
   exact (two_arg_paths_b p q).
-Defined.
-
-Lemma total2_paths2 {A : UU} {B : UU} {a1 a2:A} {b1 b2:B}
-      (p : a1 = a2) (q : b1 = b2) : a1,,b1 = a2,,b2.
-Proof.
-  intros. exact (two_arg_paths p q).
 Defined.
 
 Lemma total2_paths2_f {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1}
