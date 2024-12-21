@@ -190,7 +190,7 @@ When `Y` is a predicate, the dependent sum `∑ x, Y x` is a subtype of `X`. In 
 subtypePath :         isPredicate Y → pr1 p = pr1 p' → p = p.
 subtypePairEquality : isPredicate Y → x = x' → x,, y = x',, y'.
 ```
-For example, we can show that `iscontr X` is a proposition if `X` is a set. We will talk more about sets later, but in a set, there is at most one path `x = y` between any two terms `x y : X`.
+For example, we can show that `iscontr X` is a proposition if `X` is a set. In a set, there is at most one path `x = y` between any two terms `x y : X`. See [tutorial 4](./t04-htypes.md) for more information about sets.
 ```coq
 Lemma isaprop_iscontr
   (X : hSet)
