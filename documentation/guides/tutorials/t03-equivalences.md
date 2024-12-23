@@ -2,11 +2,12 @@
 
 In this tutorial, we will take a look at so-called 'weak equivalences' between types. We will look at
 
-- [Equivalences](#equivalences)
-  - [How do we use a weak equivalence?](#how-do-we-use-a-weak-equivalence)
-  - [How do we create a weak equivalence?](#how-do-we-create-a-weak-equivalence)
+- [Using a weak equivalence](#using-a-weak-equivalence)
+- [Creating a weak equivalence](#creating-a-weak-equivalence)
+- [Weak equivalences as an equivalence relation](#weak-equivalences-as-an-equivalence-relation)
 
-Intuitively, such an equivalence `f : X ≃ Y` consists of a function `f : X → Y`, a function `g : Y → X` such that for all `x : X` and `y : Y`, `g (f x) = x` and `f (g y) = y`, so `f` is an 'isomorphism'. Indeed, if `X` and `Y` are sets (see [tutorial 4](./t04-htypes.md)), the isomorphisms `X ≅ Y` and equivalences `X ≃ Y` are equivalent (shown in [`hset_equiv_weq_z_iso`](../../../UniMath/CategoryTheory/Categories/HSET/MonoEpiIso.v)). However, for general types `X` and `Y`, the proof that `f` is an isomorphism is not a proposition. In other words: the inverse, together with the proof that it is an inverse, is not unique. Since this is undesirable for a couple of reasons, equivalences for general types have a different definition:
+
+Intuitively, an equivalence `f : X ≃ Y` consists of a function `f : X → Y` and a function `g : Y → X` such that for all `x : X` and `y : Y`, `g (f x) = x` and `f (g y) = y`, so `f` is an 'isomorphism'. Indeed, if `X` and `Y` are sets (see [tutorial 4](./t04-htypes.md)), the isomorphisms `X ≅ Y` and equivalences `X ≃ Y` are equivalent (shown in [`hset_equiv_weq_z_iso`](../../../UniMath/CategoryTheory/Categories/HSET/MonoEpiIso.v)). However, for general types `X` and `Y`, the proof that `f` is an isomorphism is not a proposition. In other words: the inverse, together with the proof that it is an inverse, is not unique. Since this is undesirable for a couple of reasons, equivalences for general types have a different definition:
 ```coq
 Definition hfiber {X Y : UU} (f : X -> Y) (y : Y)
   : UU

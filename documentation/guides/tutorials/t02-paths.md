@@ -3,15 +3,14 @@
 In this tutorial, we will cover paths. We will talk about how paths can be constructed. Among other things, we will talk about lemmas that are often used for constructing paths.
 
 We will cover
- - [Paths as an equivalence relation](#paths-as-an-equivalence-relation)
- - [Maponpaths](#maponpaths)
-   - [Variants](#variants)
- - [Functions](#functions)
- - [Direct products](#direct-products)
- - [Dependent sums](#dependent-sums)
-   - [Subtypes](#subtypes)
- - [Dependent products](#dependent-products)
-
+- [Paths as an equivalence relation](#paths-as-an-equivalence-relation)
+- [Maponpaths](#maponpaths)
+  - [Variants](#variants)
+- [Functions](#functions)
+- [Direct products](#direct-products)
+- [Dependent sums](#dependent-sums)
+  - [Subtypes](#subtypes)
+- [Dependent products](#dependent-products)
 
 ## Paths as an equivalence relation
 We have already seen the `reflexivity` tactic, which uses the fact that paths are 'reflexive' (because of the existence of `idpath`). There is also the `symmetry` tactic, which turns a goal `x = y` into the goal `y = x`. Lastly, there is the `transitivity a` tactic, which splits a goal `x = y` into `x = a` and `a = y`:

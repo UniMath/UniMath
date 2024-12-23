@@ -4,17 +4,17 @@ In this tutorial, we will take a look at the building blocks of types that you w
 In unimath, all types have the same type `UU` (they all live in the *type universe* `UU`). If you see `X : UU` somewhere, that just means that `X` is a (or any) type.
 
 We will cover
- - [Function types](#function-types)
- - [The type of booleans](#the-type-of-booleans)
- - [The unit type](#the-unit-type)
- - [The empty type](#the-empty-type)
- - [Induction](#induction)
- - [Direct Products](#direct-products)
- - [The natural numbers](#the-natural-numbers)
- - [Coproducts](#coproducts)
- - [Paths](#paths)
- - [Dependent sums](#dependent-sums)
- - [Dependent products](#dependent-products)
+- [Function types](#function-types)
+- [The type of booleans](#the-type-of-booleans)
+- [The unit type](#the-unit-type)
+- [The empty type](#the-empty-type)
+- [Induction](#induction)
+- [Direct Products](#direct-products)
+- [The natural numbers](#the-natural-numbers)
+- [Coproducts](#coproducts)
+- [Paths](#paths)
+- [Dependent sums](#dependent-sums)
+- [Dependent products](#dependent-products)
 
 ## Function types
 The first type that we will need to discuss is the type of functions. If we have types `X` and `Y`, we have a function type `X → Y`. We can create a function `X → Y` by bringing an argument `x : X` into the context, and constructing a term of type `Y`. For example, the constant function from any type can be defined as follows:
