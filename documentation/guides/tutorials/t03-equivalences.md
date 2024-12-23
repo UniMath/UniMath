@@ -74,9 +74,33 @@ Qed.
 
 ## Creating a weak equivalence
 The most basic way to construct an equivalence `X ≃ Y` is using `weq_iso`, which has the data of an isomorphism as its inputs. If `f : X → Y` has already been established and the goal is `isweq f`, there is the related lemma `isweq_iso`, which has the same inputs.
+```coq
+Definition coprod_swap_weq
+  (X Y : UU)
+  : X ⨿ Y ≃ Y ⨿ X.
+Proof.
+  use make_weq.
+  - intro xy.                   (* This brings xy : X ⨿ Y into the context *)
+    induction xy as [x | y].
+    + exact (inr x).            (* We send inl x to inr x *)
+    + exact (inl y).            (* We send inr y to inl y *)
+  - use isweq_iso.
+    + intro yx.                 (* This brings yx : Y ⨿ X into the context *)
+      induction yx as [y | x].
+      * exact (inr y).          (* We send inl y to inr y *)
+      * exact (inl x).          (* We send inr x to inl x *)
+    + intro xy.
+      induction xy as [x | y];  (* This splits up the goal in a case for inl x and inr y, *)
+        reflexivity.            (* Both of which are trivial *)
+    + intro yx.
+      induction yx as [y | x];
+        reflexivity.
+Defined.
+```
 
 Another common way to show `isweq f` is to use the lemma `weqhomot`, which takes as inputs some `f' : X ≃ Y`  and a proof that `f' ~ f` (notation for `homot f' f`, which means `∏ x, f' x = f x`). There is also the related lemma `isweqhomot`, where the input `f' : X ≃ Y` is split into `f' : X → Y` and `H : isweq f'`.
 
+`weqhomot` is often used in univalence proofs: in those cases, there is a fairly simple function `f : X → Y`, but the 'simplest' way to get an equivalence `X ≃ Y` is as a complicated composition `f4 ∘ f3 ∘ f2 ∘ f1 : X ≃ W ≃ Z ≃ Y`. Then, one can show using `weqhomot` that `f` is an equivalence as well.
 
 ## Weak equivalences as an equivalence relation
 Just like with paths, there is an identity equivalence `idweq X : X ≃ X` and for `f : X ≃ Y` and `g : Y ≃ Z`, we can invert `invweq f : Y ≃ X` and compose `(g ∘ f)%weq : X ≃ Z` (which is notation for `weqcomp f g`).

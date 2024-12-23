@@ -38,3 +38,25 @@ Proof.
   apply (maponpaths (invmap f)).  (* This changes the goal to o (o (f x) (f y)) (f z) = o (f x) (o (f y) (f z)) *)
   apply H.
 Qed.
+
+Definition coprod_swap_weq
+  (X Y : UU)
+  : X ⨿ Y ≃ Y ⨿ X.
+Proof.
+  use make_weq.
+  - intro xy.                   (* This brings xy : X ⨿ Y into the context *)
+    induction xy as [x | y].
+    + exact (inr x).            (* We send inl x to inr x *)
+    + exact (inl y).            (* We send inr y to inl y *)
+  - use isweq_iso.
+    + intro yx.                 (* This brings yx : Y ⨿ X into the context *)
+      induction yx as [y | x].
+      * exact (inr y).          (* We send inl y to inr y *)
+      * exact (inl x).          (* We send inr x to inl x *)
+    + intro xy.
+      induction xy as [x | y];  (* This splits up the goal in a case for inl x and inr y, *)
+        reflexivity.            (* Both of which are trivial *)
+    + intro yx.
+      induction yx as [y | x];
+        reflexivity.
+Defined.
