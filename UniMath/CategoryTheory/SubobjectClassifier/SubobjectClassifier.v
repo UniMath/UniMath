@@ -99,7 +99,7 @@ Proof.
   use tpair; [exact O|].
   use tpair; [exact true|].
   assumption.
-Qed.
+Definition.
 
 (** ** Accessors *)
 
