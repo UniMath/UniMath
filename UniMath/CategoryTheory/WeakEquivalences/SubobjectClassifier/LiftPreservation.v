@@ -24,30 +24,30 @@ Require Import UniMath.CategoryTheory.WeakEquivalences.SubObjectClassifier.Refle
 Local Open Scope cat.
 
 Lemma weak_equiv_lifts_preserves_terminal
-    {C1 C2 C3 : category}
-    {F : C1 ⟶ C3}
-    {G : C1 ⟶ C2}
-    {H : C2 ⟶ C3}
-    (α : nat_z_iso (G ∙ H) F)
-    (Gw : is_weak_equiv G)
-    (Fpterm : preserves_terminal F)
-    : preserves_terminal H.
-  Proof.
-    intros x2 x2_is_term.
-    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw x2)).
-    { apply isaprop_isTerminal. }
-    intros [x1 i] y3.
-    use (iscontrweqb' (Y :=  (C3⟦y3, H(G x1)⟧))).
-    + use (iscontrweqb' (Y := (C3⟦y3, F x1⟧))).
-      * use (Fpterm _ _).
-        use (weak_equiv_reflects_terminal _ Gw).
-        exact (iso_to_Terminal (_,, x2_is_term) _ (z_iso_inv i)).
-      * apply z_iso_comp_left_weq.
-        exact (_ ,, pr2 α x1).
-    + apply z_iso_comp_left_weq.
-      apply functor_on_z_iso.
-      exact (z_iso_inv i).
-  Qed.
+  {C1 C2 C3 : category}
+  {F : C1 ⟶ C3}
+  {G : C1 ⟶ C2}
+  {H : C2 ⟶ C3}
+  (α : nat_z_iso (G ∙ H) F)
+  (Gw : is_weak_equiv G)
+  (Fpterm : preserves_terminal F)
+  : preserves_terminal H.
+Proof.
+  intros x2 x2_is_term.
+  use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw x2)).
+  { apply isaprop_isTerminal. }
+  intros [x1 i] y3.
+  use (iscontrweqb' (Y :=  (C3⟦y3, H(G x1)⟧))).
+  + use (iscontrweqb' (Y := (C3⟦y3, F x1⟧))).
+    * use (Fpterm _ _).
+      use (weak_equiv_reflects_terminal _ Gw).
+      exact (iso_to_Terminal (_,, x2_is_term) _ (z_iso_inv i)).
+    * apply z_iso_comp_left_weq.
+      exact (_ ,, pr2 α x1).
+  + apply z_iso_comp_left_weq.
+    apply functor_on_z_iso.
+    exact (z_iso_inv i).
+Qed.
 
 Section LiftAlongWeakEquivalencePreservesSubobjectClassifier.
 
@@ -69,7 +69,7 @@ Section LiftAlongWeakEquivalencePreservesSubobjectClassifier.
 
     Context {Ω₂ : C2}
       {tr₂ : C2⟦T2, Ω₂⟧}
-      (Ω₂_issoc : is_subobject_classifier T2 Ω₂ tr₂)
+      (Ω₂_is_soc : is_subobject_classifier T2 Ω₂ tr₂)
       {Ω₁ : C1}
       (i₁ : z_iso (G Ω₁) Ω₂).
 
@@ -80,7 +80,7 @@ Section LiftAlongWeakEquivalencePreservesSubobjectClassifier.
     Let t_12 := pr1 (pr2 T2 _) : C2⟦G T1, T2⟧.
     Let tr₁ := fully_faithful_inv_hom (pr2 Gw) T1 Ω₁ (t_12 · tr₂ · z_iso_inv i₁).
 
-    Lemma Ω₁_issoc'
+    Lemma Ω₁_is_soc'
       : tr₂ · inv_from_z_iso i₁
         = # G tr₁.
     Proof.
@@ -92,7 +92,7 @@ Section LiftAlongWeakEquivalencePreservesSubobjectClassifier.
       apply (weak_equiv_preserves_terminal _ Gw _ (pr2 T1)).
     Qed.
 
-    Lemma Ω₁_issoc : is_subobject_classifier T1 Ω₁ tr₁.
+    Lemma Ω₁_is_soc : is_subobject_classifier T1 Ω₁ tr₁.
     Proof.
       use (weak_equiv_reflects_is_subobject_classifier T1 Gw).
       use (SubobjectClassifierIso.z_iso_to_is_subobject_classifier (make_subobject_classifier _ _ Ω₂_issoc)).
@@ -100,8 +100,8 @@ Section LiftAlongWeakEquivalencePreservesSubobjectClassifier.
       - exact Ω₁_issoc'.
     Qed.
 
-    Let Ω₃_H_issoc := Fps Ω₁ tr₁ Ω₁_issoc.
-    Let Ω₃_H := make_subobject_classifier _ _ Ω₃_H_issoc.
+    Let Ω₃_H_is_soc := Fps Ω₁ tr₁ Ω₁_is_soc.
+    Let Ω₃_H := make_subobject_classifier _ _ Ω₃_H_is_soc.
 
     Lemma weak_equiv_lifts_preserves_subobject_classifier''
       : true' Ω₃_H · (inv_from_z_iso (nat_z_iso_pointwise_z_iso α Ω₁) · # H i₁) = tr₃.
@@ -160,13 +160,13 @@ Section LiftAlongWeakEquivalencePreservesSubobjectClassifier.
   Lemma weak_equiv_lifts_preserves_subobject_classifier
     : preserves_subobject_classifier H T2 T3 (weak_equiv_lifts_preserves_terminal α Gw Fpt).
   Proof.
-    intros Ω₂ tr₂ Ω₂_issoc.
+    intros Ω₂ tr₂ Ω₂_is_soc.
 
     use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw Ω₂)).
     { apply isaprop_is_subobject_classifier. }
     intros [Ω₁ i₁].
 
-    exact (weak_equiv_lifts_preserves_subobject_classifier' Ω₂_issoc i₁).
+    exact (weak_equiv_lifts_preserves_subobject_classifier' Ω₂_is_soc i₁).
   Qed.
 
 End LiftAlongWeakEquivalencePreservesSubobjectClassifier.

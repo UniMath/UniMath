@@ -29,7 +29,6 @@ Lemma weak_equiv_preserves_monic
   {x y : C} (m : Monic _ x y)
   : isMonic (#F m).
 Proof.
-  unfold isMonic.
   intros d g₁ g₂ p.
   unfold Monic in m.
   unfold isMonic in m.
@@ -91,7 +90,7 @@ Section WeakEquivalencesReflectSubobjectClassifiersExistence.
   Context {C D : category} (T_C : Terminal C)
     {F : C ⟶ D} (Fw : is_weak_equiv F) (T_D : isTerminal D (F T_C)).
 
-  Definition image_of_terminal_is_terminal : Terminal D
+  Let image_of_terminal_is_terminal : Terminal D
     := F T_C ,, T_D.
 
   Context {Ω : ob C} (tr : C⟦T_C, Ω⟧)

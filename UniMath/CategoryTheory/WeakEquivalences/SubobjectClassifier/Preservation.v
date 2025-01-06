@@ -1,6 +1,5 @@
 (**
    In this file, we show that an arbitrary weak equivalence F : C -> D preserves subobject classifiers.
-
  *)
 
 Require Import UniMath.Foundations.All.
@@ -38,16 +37,16 @@ Section ReflectionOfMonomorphisms.
 
   Context {C D : category}
     {F : C ⟶ D}
-    (Fw : is_weak_equiv F). (* we only need fully faithfulness *)
+    (Fw : fully_faithful F).
 
   Context {d₁ d₂ : D}
     {c₁ c₂ : C}
     (i₁ : z_iso (F c₁) d₁)
     (i₂ : z_iso (F c₂) d₂).
 
-  Definition reflection (f : D⟦d₁, d₂⟧)
+  Let reflection (f : D⟦d₁, d₂⟧)
     : C⟦c₁, c₂⟧
-    := fully_faithful_inv_hom (pr2 Fw) c₁ c₂ (i₁ · f· z_iso_inv i₂).
+    := fully_faithful_inv_hom Fw c₁ c₂ (i₁ · f· z_iso_inv i₂).
 
   Lemma reflection_of_mono_is_mono
     (f : D⟦d₁, d₂⟧)
@@ -55,7 +54,7 @@ Section ReflectionOfMonomorphisms.
   Proof.
     intro fm.
     unfold reflection.
-    apply (faithful_reflects_mono F (pr2 Fw)).
+    apply (faithful_reflects_mono _ Fw).
     rewrite functor_on_fully_faithful_inv_hom.
     repeat (use isMonic_comp).
     + apply is_iso_isMonic, z_iso_is_z_isomorphism.
@@ -91,7 +90,7 @@ Section WeakEquivalencePreservationsSubobjectClassifier.
     (i₂ : z_iso (F c₂) d₂).
 
   Context (f : Monic D d₁ d₂).
-  Let refl_f := reflection_of_mono Fw i₁ i₂ f.
+  Let refl_f := reflection_of_mono (pr2 Fw) i₁ i₂ f.
   Let const_tr₂ := TerminalArrow t_D d₁ · (TerminalArrow (preserves_terminal_to_terminal F t_F t_C) t_D · # F (pr12 Ω)).
 
   Lemma square_of_reflection_subobject_classifier'
@@ -104,8 +103,8 @@ Section WeakEquivalencePreservationsSubobjectClassifier.
     etrans. {
       apply maponpaths_2.
       rewrite assoc'.
-        apply maponpaths.
-        apply TerminalArrowUnique.
+      apply maponpaths.
+      apply TerminalArrowUnique.
     }
 
     assert (r₀ : TerminalArrow (preserves_terminal_to_terminal F t_F t_C) d₁
@@ -125,7 +124,7 @@ Section WeakEquivalencePreservationsSubobjectClassifier.
   Qed.
 
   Lemma square_of_reflection_subobject_classifier
-  (φ : ∑ (χ : D⟦d₂, F Ω⟧), ∑ (H : MonicArrow D f · χ = const_tr₂), isPullback H)
+    (φ : ∑ (χ : D⟦d₂, F Ω⟧), ∑ (H : MonicArrow D f · χ = const_tr₂), isPullback H)
     : refl_f · invmap (weq_from_fully_faithful (ff_from_weak_equiv F Fw) c₂ Ω) (i₂ · pr1 φ)
       = const_true c₁ Ω.
   Proof.
@@ -206,16 +205,18 @@ Section WeakEquivalencePreservationsSubobjectClassifier.
           apply maponpaths.
           rewrite z_iso_inv_after_z_iso.
           rewrite id_right.
-          etrans. { apply (functor_on_fully_faithful_inv_hom _ (pr2 Fw)). }
-          apply assoc'.
+          apply (functor_on_fully_faithful_inv_hom _ (pr2 Fw)).
+          (* apply assoc'. *)
         * intro pq.
           etrans. {
             apply maponpaths.
             apply (functor_on_fully_faithful_inv_hom _ (pr2 Fw)).
           }
           rewrite ! assoc.
-          use z_iso_inv_to_right.
-          exact pq.
+          rewrite pq.
+          rewrite !assoc'.
+          rewrite z_iso_inv_after_z_iso.
+          apply id_right.
         * apply homset_property.
         * apply homset_property.
       + use weqcontrcontr ; apply contr_to_contr_paths.
@@ -250,7 +251,7 @@ Section WeakEquivalencePreservationsSubobjectClassifier.
     set (χ₂ := invmap (weq_from_fully_faithful (ff_from_weak_equiv F Fw) c₂ Ω) (i₂ · pr1 φ₂)
            : C⟦c₂, Ω⟧).
 
-    use (subobject_classifier_map_eq Ω (reflection_of_mono Fw i₁ i₂ f)).
+    use (subobject_classifier_map_eq Ω (reflection_of_mono (pr2 Fw) i₁ i₂ f)).
     - apply square_of_reflection_subobject_classifier.
     - apply square_of_reflection_subobject_classifier.
     - apply pullback_square_of_reflection.
