@@ -500,6 +500,89 @@ Section Utilities.
   Qed.
 End Utilities.
 
+(** Lemmas for `idtoiso_disp` *)
+Proposition idtoiso_disp_inv
+            {C : category}
+            {D : disp_cat C}
+            {x : C}
+            {xx₁ xx₂ : D x}
+            (p : xx₁ = xx₂)
+  : (z_iso_inv_from_z_iso_disp (idtoiso_disp (idpath _) p) : _ -->[ _ ] _)
+    =
+    idtoiso_disp (idpath _) (!p).
+Proof.
+  induction p.
+  cbn.
+  apply idpath.
+Qed.
+
+Proposition idtoiso_disp_comp
+            {C : category}
+            {D : disp_cat C}
+            {x : C}
+            {xx₁ xx₂ xx₃ : D x}
+            (p : xx₁ = xx₂)
+            (q : xx₂ = xx₃)
+  : (idtoiso_disp (idpath _) p ;; idtoiso_disp (idpath _) q
+     =
+     transportb
+       (λ z, _ -->[ z ] _)
+       (id_left _)
+       (idtoiso_disp (idpath _) (p @ q)))%mor_disp.
+Proof.
+  induction p, q.
+  cbn.
+  rewrite id_left_disp.
+  apply idpath.
+Qed.
+
+Proposition idtoiso_disp_comp'_path
+            {C : category}
+            {D : disp_cat C}
+            {x₁ x₂ x₃: C}
+            {xx₁ : D x₁}
+            {xx₂ : D x₂}
+            {xx₃ : D x₃}
+            {p : x₁ = x₂}
+            {q : x₂ = x₃}
+            (pp : transportf D p xx₁ = xx₂)
+            (qq : transportf D q xx₂ = xx₃)
+  : transportf D (p @ q) xx₁ = xx₃.
+Proof.
+  refine (!(transport_f_f _ _ _ _) @ _).
+  refine (_ @ qq).
+  apply maponpaths.
+  exact pp.
+Defined.
+
+Proposition idtoiso_disp_comp'
+            {C : category}
+            {D : disp_cat C}
+            {x₁ x₂ x₃: C}
+            {xx₁ : D x₁}
+            {xx₂ : D x₂}
+            {xx₃ : D x₃}
+            {p : x₁ = x₂}
+            {q : x₂ = x₃}
+            (pp : transportf D p xx₁ = xx₂)
+            (qq : transportf D q xx₂ = xx₃)
+  : (idtoiso_disp p pp ;; idtoiso_disp q qq
+     =
+     transportf
+       (λ z, _ -->[ z ] _)
+       (pr1_idtoiso_concat p q)
+       (idtoiso_disp (p @ q) (idtoiso_disp_comp'_path pp qq)))%mor_disp.
+Proof.
+  induction p, q.
+  cbn in pp, qq.
+  induction pp, qq.
+  cbn.
+  rewrite id_left_disp.
+  unfold transportb.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
 (**
  Displayed isomorphisms are closed under transporting
  *)
