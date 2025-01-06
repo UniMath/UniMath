@@ -1,3 +1,8 @@
+(*
+  The universal property of the Rezk completion states that for every functor F : C₁ → C₂, with C₂ univalent, extends along the (unit of the) Rezk completion to a functor F' : RC(C₂) → C₃.
+  In this file, we proof that if F preserves the subobject classifier, then so does F'.
+ *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
