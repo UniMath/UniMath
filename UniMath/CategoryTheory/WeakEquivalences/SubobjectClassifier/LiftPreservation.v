@@ -95,9 +95,9 @@ Section LiftAlongWeakEquivalencePreservesSubobjectClassifier.
     Lemma Ω₁_is_soc : is_subobject_classifier T1 Ω₁ tr₁.
     Proof.
       use (weak_equiv_reflects_is_subobject_classifier T1 Gw).
-      use (SubobjectClassifierIso.z_iso_to_is_subobject_classifier (make_subobject_classifier _ _ Ω₂_issoc)).
+      use (SubobjectClassifierIso.z_iso_to_is_subobject_classifier (make_subobject_classifier _ _ Ω₂_is_soc)).
       - exact (z_iso_inv i₁).
-      - exact Ω₁_issoc'.
+      - exact Ω₁_is_soc'.
     Qed.
 
     Let Ω₃_H_is_soc := Fps Ω₁ tr₁ Ω₁_is_soc.
