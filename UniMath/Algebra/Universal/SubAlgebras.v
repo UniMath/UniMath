@@ -41,6 +41,18 @@ Definition embedding_isincl {σ : signature} {B A : algebra σ} (i:embedding B A
 Definition embedding_ishom {σ : signature} {B A : algebra σ} (i:embedding B A)
   : ishom i := pr22 i.
 
+Lemma isapropisembedding {σ : signature} (B A : algebra σ) (i : B s→ A)
+  (setprop: has_supportsets A)
+  : isaprop ((∏ s, isincl (i s)) × (ishom i)).
+Proof.
+  use isapropdirprod.
+  - use impred.
+    intro.
+    use isapropisincl.
+  - use isapropishom.
+    use setprop.
+Qed.
+
 End Embedding.
 
 Section SubUniverse.
@@ -94,7 +106,7 @@ Defined.
 
 End SubUniverse.
 
-Theorem issubuniverse_image {σ : signature} {A B: algebra σ} (f : B ↷ A) 
+Theorem issubuniverse_image {σ : signature} {A B: algebra σ} (f : B ↷ A)
 : issubuniverse A (simage_shsubtype f).
 Proof.
   intros nm ys.
@@ -117,6 +129,9 @@ Qed.
 Section embedding_subuniverse_weq.
 
 Context {σ : signature} (A : algebra σ).
+
+(*TODO: Prove the same result without this hypothesis*)
+Context (setprop : has_supportsets A).
 
 Local Theorem algebraofsubuniverse_image
   (B : algebra σ) (i : embedding B A)
@@ -141,40 +156,114 @@ Proof.
       * use isinclprtoimage.
         use embedding_isincl.
       * use issurjprtoimage.
-Defined. 
+Defined.
 
-Theorem aaa (extra : has_supportsets A):
+Local Theorem embeddingofsubuniverse_image
+  (B : algebra σ) (i : embedding B A)
+  : transportb (λ arg, embedding arg A) (algebraofsubuniverse_image B i) (embeddingofsubuniverse (issubuniverse_image i)) = i.
+Proof.
+  use subtypePath.
+  { intro.
+    use isapropisembedding.
+    exact setprop. }
+    eapply pathscomp0.
+    { use (pr1_transportb (algebraofsubuniverse_image B i) _). }
+    simpl.
+    use funextsec.
+    intro s.
+    eapply pathscomp0.
+    { use transportf_sfun. }
+    use funextsec.
+    intro b.
+    simpl.
+    eapply pathscomp0.
+    { refine (maponpaths (pr1carrier (simage_shsubtype (pr1 i) s)) _).
+      unfold transportb.
+      use (functtransportf support (λ x, x s) (! (! algebraofsubuniverse_image B i)) b). }
+    rewrite pathsinv0inv0.
+    unfold pr1carrier.
+    unfold algebraofsubuniverse_image.
+    rewrite support_make_algebra_eq.
+    unfold make_algebra_support_eq.
+    eapply pathscomp0.
+    { eapply (maponpaths pr1).
+      eapply pathscomp0.
+      { use (transportf_funextfun (idfun UU)). }
+      simpl.
+      refine (toforallpaths _ _ _ _ b).
+      use weqpath_transport. }
+    apply idpath.
+Defined.
+
+Definition embedding_to_subuniverse
+  (B : ∑ B : algebra σ, embedding B A)
+  : ∑ PB : shsubtype A, issubuniverse A PB.
+Proof.
+  destruct B as [B i].
+  exact (simage_shsubtype i,,issubuniverse_image i).
+Defined.
+
+Definition subuniverse_to_embedding
+  (B : ∑ PB : shsubtype A, issubuniverse A PB)
+  : ∑ B : algebra σ, embedding B A.
+Proof.
+  destruct B as [PB is_su_PB].
+    use (tpair _ (algebraofsubuniverse is_su_PB) (embeddingofsubuniverse is_su_PB)).
+Defined.
+
+Lemma subuniverse_to_embedding_to_subuniverse
+  (B : ∑ B : algebra σ, embedding B A)
+  : subuniverse_to_embedding (embedding_to_subuniverse B) = B.
+Proof.
+  destruct B as [B i].
+  use total2_paths2_f.
+  + use pathsinv0.
+    use algebraofsubuniverse_image.
+  + use embeddingofsubuniverse_image.
+Qed.
+
+Lemma embedding_to_subuniverse_to_embedding
+  (B : ∑ PB : shsubtype A, issubuniverse A PB)
+  : embedding_to_subuniverse (subuniverse_to_embedding B) = B.
+Proof.
+  use subtypePath.
+    { intro. use isapropissubuniverse. }
+    simpl.
+    use funextsec.
+    intro s.
+    use funextsec.
+    intro a.
+    unfold simage_shsubtype.
+    simpl.
+    use hPropUnivalence.
+    + unfold pr1carrier.
+      intro P.
+      use (squash_to_prop P).
+      { use propproperty. }
+      intro b.
+      destruct b as [b Hb].
+      destruct b as [b Bb].
+      simpl in Hb.
+      destruct Hb.
+      exact Bb.
+    + intro Ba.
+      use hinhpr.
+      unfold pr1carrier.
+      simpl.
+      use tpair.
+      * exact (a,, Ba).
+      * apply idpath.
+Qed.
+
+Theorem embedding_subuniverse_weq:
   (∑ (B:algebra σ), embedding B A) ≃
-  (∑ (PB : shsubtype A), issubuniverse A PB). 
-
+  (∑ (PB : shsubtype A), issubuniverse A PB).
 Proof.
   use weq_iso.
-  - intro B.
-    destruct B as [B i].
-    exact (simage_shsubtype i,,issubuniverse_image i).
-  - intro B.
-    destruct B as [PB is_su_PB].
-    use (tpair _ (algebraofsubuniverse is_su_PB) (embeddingofsubuniverse is_su_PB)).
-  - intros B.
-    destruct B as [B i].
-    use total2_paths2_f.
-    + use pathsinv0.
-      use algebraofsubuniverse_image.
-    + admit.
-      (* use subtypePath.
-      { (*TODO: the [extra] hypothesis can probably be removed, but the proof of [algebraofsubuniverse_image] need to be better*)
-        intro.
-        use isapropdirprod.
-        - use impred.
-          intro.
-          use isapropisincl.
-        - use isapropishom.
-          use extra. }
-      eapply pathscomp0.
-      { use (pr1_transportf (A:= algebra σ) (B:= λ B0, B0 s→ A)
-          (P:= λ B0 i, (∏ s, isincl (i s)) × (ishom i))). }
-      simpl.
-      change (λ x : algebra σ, x s→ A) with (λ x: algebra σ, (support x) s→ A). *)
-Abort.
+  - use embedding_to_subuniverse.
+  - use subuniverse_to_embedding.
+  - use subuniverse_to_embedding_to_subuniverse.
+  - use embedding_to_subuniverse_to_embedding.
+Defined.
 
 End embedding_subuniverse_weq.

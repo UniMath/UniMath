@@ -6,20 +6,27 @@ Require Import UniMath.Algebra.Universal.Algebras.
 Local Open Scope sorted.
 Local Open Scope hom_scope.
 
+Theorem make_algebra_support_eq {σ : signature} {A B : algebra σ}
+  (h : A s→ B) (isweq : ∏ s:(sorts σ), isweq (h s))
+  : support A = support B.
+Proof.
+  use funextsec.
+  intro s.
+  use weqtopaths.
+  exact (h s ,, isweq s).
+Defined.
+
 Theorem make_algebra_eq {σ : signature} {A B : algebra σ}
   (h : A ↷ B) (isweq : ∏ s:(sorts σ), isweq (h s))
   : A = B.
 Proof.
   use total2_paths2_f.
-  - use funextsec.
-    intro s.
-    use weqtopaths.
-    exact (h s ,, isweq s).
-  - eapply pathscomp0. 
+  - use (make_algebra_support_eq h isweq).
+  - eapply pathscomp0.
     { use transportf_sec_constant. }
     use funextsec.
     intro nm.
-    eapply pathscomp0. 
+    eapply pathscomp0.
     { use transportf_fun_op. }
     use funextsec.
     intro xs.
@@ -56,4 +63,11 @@ Proof.
     use (pathsweq1' (h s,, isweq s)).
     use (maponpaths (λ arg, arg b)).
     use weqpath_transportb'.
+Defined.
+
+Theorem support_make_algebra_eq {σ : signature} {A B : algebra σ}
+  (h : A ↷ B) (isweq : ∏ s:(sorts σ), isweq (h s))
+  : maponpaths support (make_algebra_eq h isweq) = make_algebra_support_eq h isweq.
+Proof.
+  use total2_paths2_comp1.
 Defined.

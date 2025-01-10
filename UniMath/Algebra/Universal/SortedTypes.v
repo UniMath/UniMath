@@ -125,7 +125,7 @@ Definition simage {S:UU} {X Y: sUU S} (f:X s→ Y) : sUU S
   := λ s, image (f s).
 
 Definition shfiber {S:UU} {X Y: sUU S} (f:X s→ Y) : ∏ s, Y s → UU
-  := λ (s:S) (y : Y s), (∑ (x : X s), f s x = y). 
+  := λ (s:S) (y : Y s), (∑ (x : X s), f s x = y).
 
 Definition simage_shsubtype {S:UU} {X Y : sUU S} (f : X s→ Y)
   : shsubtype Y := λ (s:S) (y : Y s), (∃ (x : X s), f s x = y).
@@ -156,13 +156,19 @@ Proof.
     + use fib_tl.
 Qed.
 
+Definition transportf_sfun {X S : UU} {Y: sUU S} (P : X -> sUU S)
+           {x1 x2 : X}(e : x1 = x2)(f : P x1 s→ Y) (s:S):
+  transportf (λ x, (P x s→ Y)) e f s = (f s) ∘ (transportb (λ x, P x s) e).
+Proof.
+  intros. induction e. apply idpath.
+Defined.
 
 Definition transportb_funextfun_hvec {S:UU}
   {n:nat} {v: vec S n}
   (F F' : sUU S) (H : F ~ F')
   (f' : hvec (vec_map F' v))
   : transportb (λ x : sUU S, hvec (vec_map x v))
-    (funextsec _ F F' H) f' 
+    (funextsec _ F F' H) f'
   = h1map (λ s, transportb (idfun UU) (H s)) f'.
 Proof.
   revert n v f'.
