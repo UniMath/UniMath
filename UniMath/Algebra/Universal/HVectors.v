@@ -2,6 +2,7 @@
 (** Gianluca Amato, Matteo Calosci, Marco Maggesi, Cosimo Perini Brogi 2019-2024. *)
 
 Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Export UniMath.Combinatorics.Vectors.
 
@@ -799,6 +800,89 @@ Proof.
     use map_on_two_paths.
     + exact (pr1 h2path).
     + exact (IHxs (pr2 h1v) (pr2 h2path)).
+Defined.
+
+Lemma transportb_h1map_compose_beta {S : UU} {n: nat} {v: vec S n}
+  (B : S → UU)
+  (C : S → UU)
+  (D : ∏ (s: S), (B s) → UU)
+  (E : ∏ (s: S), UU)
+
+  (p : ∏ (s: S), C s → B s)
+  (f : ∏ (s: S) (c : C s), D s (p s c))
+  (g : ∏ (s: S) (b : B s), D s b → E s)
+  (cs : hvec (vec_map (λ s : S, C s) v))
+  
+  (vhd : S)
+  (cshd : C vhd)
+
+  : transportb
+      (λ arg, hvec (h1lower arg))
+      (h1map_compose (λ s, p s) D 
+        (cshd:::cs : hvec (vec_map C (vhd ::: v))))
+      (h12map (λ s, f s) (cshd:::cs : hvec (vec_map C (vhd ::: v))))
+    =
+    (f vhd cshd) :::
+    transportb
+      (λ arg, hvec (h1lower arg))
+      (h1map_compose (λ s, p s) D 
+        (cs))
+      (h12map (λ s, f s) (cs)).
+  Proof.
+    use dirprod_paths.
+    - simpl.
+      eapply pathscomp0.
+      { use pr1_transportb. }
+      simpl.
+      induction (h1map_compose (λ s : S, p s) D cs).
+      apply idpath.
+    - simpl.
+      eapply pathscomp0.
+      { use pr2_transportb. }
+      simpl.
+      use pathsinv0.
+      use (functtransportb 
+        (hcons (D vhd (p vhd cshd)))
+        (λ a0 : UU × hvec (vec_map (λ _ : S, UU) v), hvec (h1lower (htl a0)))
+        (h1map_compose (λ s : S, p s) D cs)
+        (h12map (λ s : S, f s) cs)).
+  Defined.
+
+(*TODO: is it possible to somehow factorize this proof?*)
+Lemma h2map_transport_h1mapcompose
+  {S : UU} {n: nat} {v: vec S n}
+  (B : S → UU)
+  (C : S → UU)
+  (D : ∏ (s: S), (B s) → UU)
+  (E : ∏ (s: S), UU)
+
+  (p : ∏ (s: S), C s → B s)
+  (f : ∏ (s: S) (c : C s), D s (p s c))
+  (g : ∏ (s: S) (b : B s), D s b → E s)
+  (cs : hvec (vec_map (λ s : S, C s) v))
+
+  : h2lower (h2map (λ (s:S) (b:B s), g s b)
+      (transportb
+        (λ arg, hvec (h1lower arg))
+        (h1map_compose (λ s, p s) D cs)
+        (h12map (λ s, f s) cs)))
+  = h1map (Q:= E) (λ s c, g s (p s c) (f s c) ) cs.
+Proof.
+  generalize dependent n.
+  refine (vec_ind _ _ _).
+  - intro cs. apply idpath.
+  - intros s n v IH cs.
+    destruct cs as [hhd_cs htl_cs].
+    eapply pathscomp0.
+    { eapply (maponpaths h2lower).
+      eapply (maponpaths (h2map (λ (s0 : S) (b : B s0), g s0 b))).
+      use transportb_h1map_compose_beta.
+      + exact E.
+      + exact g.
+    }
+    simpl.
+    use maponpaths.
+    use IH.
 Defined.
 
 (** ** Functions from hvecs and their curried variants. *)
