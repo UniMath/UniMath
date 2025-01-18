@@ -25,11 +25,19 @@
  always gives rise to a terminal object in the bicategory of enriched
  categories.
 
+ Finally, we show how to construct the unit enriched category whose
+ enriched hom object is given by the unit of the monoidal category.
+ This enriched category is not univalent in general. For instance,
+ if we look at enrichments over the monoidal category of abelian groups
+ with the tensor product, then isomorphisms in the enriched unit category
+ correspond to integers.
+
  Contents
  1. The enrichment of the unit category
  2. Enrichment for functors/natural transformations to the unit
  3. The enrichment of the unit category via terminal objects
  4. Enrichment for functors/natural transformations to the unit via terminal objects
+ 5. The enriched unit category using the unit of the monoidal category
 
  **********************************************************************)
 Require Import UniMath.Foundations.All.
@@ -43,6 +51,8 @@ Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
+Require Import UniMath.CategoryTheory.EnrichedCats.Enriched.Enriched.
+Require Import UniMath.CategoryTheory.EnrichedCats.Enriched.EnrichmentEquiv.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
@@ -343,3 +353,56 @@ Section UnitEnrichmentViaTerminal.
     apply TerminalArrowEq.
   Qed.
 End UnitEnrichmentViaTerminal.
+
+(** 5. The enriched unit category using the unit of the monoidal category *)
+Section UnitEnrichedUnitMon.
+  Context (V : monoidal_cat).
+
+  Definition unit_enriched_precat_data
+    : enriched_precat_data V.
+  Proof.
+    use make_enriched_precat_data.
+    - exact unit.
+    - exact (λ x y, I_{V}).
+    - exact (λ _, identity _).
+    - exact (λ x y z, mon_lunitor _).
+  Defined.
+
+  Proposition unit_enriched_precat_id_ax
+    : enriched_id_ax unit_enriched_precat_data.
+  Proof.
+    intros x y.
+    split ; cbn.
+    - rewrite tensor_id_id.
+      apply id_left.
+    - rewrite tensor_id_id.
+      rewrite mon_lunitor_I_mon_runitor_I.
+      apply id_left.
+  Qed.
+
+  Proposition unit_enriched_precat_assoc_ax
+    : enriched_assoc_ax unit_enriched_precat_data.
+  Proof.
+    intros w x y z ; cbn.
+    rewrite !assoc.
+    rewrite <- mon_triangle.
+    rewrite mon_lunitor_I_mon_runitor_I.
+    apply idpath.
+  Qed.
+
+  Definition unit_enriched_precat
+    : enriched_precat V.
+  Proof.
+    use make_enriched_precat.
+    - exact unit_enriched_precat_data.
+    - exact unit_enriched_precat_id_ax.
+    - exact unit_enriched_precat_assoc_ax.
+  Defined.
+
+  Definition unit_enriched_cat_with_enrichment
+    : cat_with_enrichment V.
+  Proof.
+    use enriched_precat_weq_cat_with_enrichment.
+    exact unit_enriched_precat.
+  Defined.
+End UnitEnrichedUnitMon.
