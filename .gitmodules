@@ -4,3 +4,6 @@
 [submodule "sub/coq-tools"]
 	path = sub/coq-tools
 	url = https://github.com/JasonGross/coq-tools
+[submodule "sub/alectryon"]
+	path = sub/alectryon
+	url = git@github.com:cpitclaudel/alectryon.git
