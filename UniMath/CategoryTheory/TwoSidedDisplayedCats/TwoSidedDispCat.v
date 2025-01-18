@@ -103,13 +103,9 @@ Proof.
   apply idpath.
 Defined.
 
-Section TwoSidedDispCat.
-  Context {C₁ C₂ : category}.
-
-  (**
-   1.1. Definition of two-sided displayed categories
-   *)
-  Definition twosided_disp_cat_ob_mor
+(** * 1.1. Definition of two-sided displayed categories *)
+Definition twosided_disp_cat_ob_mor
+           (C₁ C₂ : precategory_ob_mor)
     : UU
     := ∑ (D : C₁ → C₂ → UU),
        ∏ (x₁ x₂ : C₁)
@@ -124,98 +120,228 @@ Section TwoSidedDispCat.
        →
        UU.
 
-  Definition twosided_disp_cat_ob_mor_to_ob
-             {D : twosided_disp_cat_ob_mor}
-             (x : C₁)
-             (y : C₂)
-    : UU
-    := pr1 D x y.
+Definition twosided_disp_cat_ob_mor_to_ob
+           {C₁ C₂ : precategory_ob_mor}
+           {D : twosided_disp_cat_ob_mor C₁ C₂}
+           (x : C₁)
+           (y : C₂)
+  : UU
+  := pr1 D x y.
 
-  Coercion twosided_disp_cat_ob_mor_to_ob : twosided_disp_cat_ob_mor >-> Funclass.
+Coercion twosided_disp_cat_ob_mor_to_ob : twosided_disp_cat_ob_mor >-> Funclass.
 
-  Definition twosided_disp_cat_ob_mor_to_mor
-             {D : twosided_disp_cat_ob_mor}
+Definition twosided_disp_cat_ob_mor_to_mor
+           {C₁ C₂ : precategory_ob_mor}
+           {D : twosided_disp_cat_ob_mor C₁ C₂}
+           {x₁ x₂ : C₁}
+           {y₁ y₂ : C₂}
+           (xy₁ : D x₁ y₁)
+           (xy₂ : D x₂ y₂)
+           (f : x₁ --> x₂)
+           (g : y₁ --> y₂)
+  : UU
+  := pr2 D x₁ x₂ y₁ y₂ xy₁ xy₂ f g.
+
+Notation "xy₁ -->[ f ][ g ] xy₂"
+  := (twosided_disp_cat_ob_mor_to_mor xy₁ xy₂ f g)
+       (at level 50, left associativity, xy₂ at next level).
+
+Definition twosided_disp_cat_id
+           {C₁ C₂ : precategory_data}
+           (D : twosided_disp_cat_ob_mor C₁ C₂)
+  : UU
+  := ∏ (x : C₁)
+       (y : C₂)
+       (xy : D x y),
+     xy -->[ identity x ][ identity y ] xy.
+
+Definition twosided_disp_cat_comp
+           {C₁ C₂ : precategory_data}
+           (D : twosided_disp_cat_ob_mor C₁ C₂)
+  : UU
+  := ∏ (x₁ x₂ x₃ : C₁)
+       (y₁ y₂ y₃ : C₂)
+       (xy₁ : D x₁ y₁)
+       (xy₂ : D x₂ y₂)
+       (xy₃ : D x₃ y₃)
+       (f₁ : x₁ --> x₂)
+       (f₂ : x₂ --> x₃)
+       (g₁ : y₁ --> y₂)
+       (g₂ : y₂ --> y₃),
+    xy₁ -->[ f₁ ][ g₁ ] xy₂
+    →
+    xy₂ -->[ f₂ ][ g₂ ] xy₃
+    →
+    xy₁ -->[ f₁ · f₂ ][ g₁ · g₂ ] xy₃.
+
+Definition twosided_disp_cat_id_comp
+           {C₁ C₂ : precategory_data}
+           (D : twosided_disp_cat_ob_mor C₁ C₂)
+  : UU
+  := twosided_disp_cat_id D × twosided_disp_cat_comp D.
+
+Definition twosided_disp_cat_data
+           {C₁ C₂ : precategory_data}
+  : UU
+  := ∑ (D : twosided_disp_cat_ob_mor C₁ C₂),
+     twosided_disp_cat_id_comp D.
+
+Coercion twosided_disp_cat_data_to_twosided_disp_cat_ob_mor
+         {C₁ C₂ : precategory_data}
+         (D : twosided_disp_cat_data)
+  : twosided_disp_cat_ob_mor C₁ C₂
+  := pr1 D.
+
+Definition id_two_disp
+           {C₁ C₂ : precategory_data}
+           {D : twosided_disp_cat_data}
+           {x : C₁}
+           {y : C₂}
+           (xy : D x y)
+  : xy -->[ identity x ][ identity y ] xy
+  := pr12 D x y xy.
+
+Definition comp_two_disp
+           {C₁ C₂ : precategory_data}
+           {D : twosided_disp_cat_data}
+           {x₁ x₂ x₃ : C₁}
+           {y₁ y₂ y₃ : C₂}
+           {xy₁ : D x₁ y₁}
+           {xy₂ : D x₂ y₂}
+           {xy₃ : D x₃ y₃}
+           {f₁ : x₁ --> x₂}
+           {f₂ : x₂ --> x₃}
+           {g₁ : y₁ --> y₂}
+           {g₂ : y₂ --> y₃}
+           (fg₁ : xy₁ -->[ f₁ ][ g₁ ] xy₂)
+           (fg₂ : xy₂ -->[ f₂ ][ g₂ ] xy₃)
+  : xy₁ -->[ f₁ · f₂ ][ g₁ · g₂ ] xy₃
+  := pr22 D _ _ _ _ _ _ _ _ _ _ _ _ _ fg₁ fg₂.
+
+Notation "fg₁ ;;2 fg₂"
+  := (comp_two_disp fg₁ fg₂)
+       (at level 50, left associativity, format "fg₁  ;;2  fg₂").
+
+Section TwoSidedDispCat.
+  Context {C₁ C₂ : category}.
+
+  Definition transportf_disp_mor2
+             {D : twosided_disp_cat_data}
              {x₁ x₂ : C₁}
              {y₁ y₂ : C₂}
-             (xy₁ : D x₁ y₁)
-             (xy₂ : D x₂ y₂)
-             (f : x₁ --> x₂)
-             (g : y₁ --> y₂)
-    : UU
-    := pr2 D x₁ x₂ y₁ y₂ xy₁ xy₂ f g.
-
-  Local Notation "xy₁ -->[ f ][ g ] xy₂"
-    := (twosided_disp_cat_ob_mor_to_mor xy₁ xy₂ f g)
-         (at level 50, left associativity, xy₂ at next level).
-
-  Definition twosided_disp_cat_id
-             (D : twosided_disp_cat_ob_mor)
-    : UU
-    := ∏ (x : C₁)
-         (y : C₂)
-         (xy : D x y),
-       xy -->[ identity x ][ identity y ] xy.
-
-  Definition twosided_disp_cat_comp
-             (D : twosided_disp_cat_ob_mor)
-    : UU
-    := ∏ (x₁ x₂ x₃ : C₁)
-         (y₁ y₂ y₃ : C₂)
-         (xy₁ : D x₁ y₁)
-         (xy₂ : D x₂ y₂)
-         (xy₃ : D x₃ y₃)
-         (f₁ : x₁ --> x₂)
-         (f₂ : x₂ --> x₃)
-         (g₁ : y₁ --> y₂)
-         (g₂ : y₂ --> y₃),
-       xy₁ -->[ f₁ ][ g₁ ] xy₂
-       →
-       xy₂ -->[ f₂ ][ g₂ ] xy₃
-       →
-       xy₁ -->[ f₁ · f₂ ][ g₁ · g₂ ] xy₃.
-
-  Definition twosided_disp_cat_id_comp
-             (D : twosided_disp_cat_ob_mor)
-    : UU
-    := twosided_disp_cat_id D × twosided_disp_cat_comp D.
-
-  Definition twosided_disp_cat_data
-    : UU
-    := ∑ (D : twosided_disp_cat_ob_mor),
-       twosided_disp_cat_id_comp D.
-
-  Coercion twosided_disp_cat_data_to_twosided_disp_cat_ob_mor
-           (D : twosided_disp_cat_data)
-    : twosided_disp_cat_ob_mor
-    := pr1 D.
-
-  Definition id_two_disp
-             {D : twosided_disp_cat_data}
-             {x : C₁}
-             {y : C₂}
-             (xy : D x y)
-    : xy -->[ identity x ][ identity y ] xy
-    := pr12 D x y xy.
-
-  Definition comp_two_disp
-             {D : twosided_disp_cat_data}
-             {x₁ x₂ x₃ : C₁}
-             {y₁ y₂ y₃ : C₂}
              {xy₁ : D x₁ y₁}
              {xy₂ : D x₂ y₂}
-             {xy₃ : D x₃ y₃}
-             {f₁ : x₁ --> x₂}
-             {f₂ : x₂ --> x₃}
-             {g₁ : y₁ --> y₂}
-             {g₂ : y₂ --> y₃}
-             (fg₁ : xy₁ -->[ f₁ ][ g₁ ] xy₂)
-             (fg₂ : xy₂ -->[ f₂ ][ g₂ ] xy₃)
-    : xy₁ -->[ f₁ · f₂ ][ g₁ · g₂ ] xy₃
-    := pr22 D _ _ _ _ _ _ _ _ _ _ _ _ _ fg₁ fg₂.
+             {f₁ f₂ : x₁ --> x₂}
+             (p : f₁ = f₂)
+             {g₁ g₂ : y₁ --> y₂}
+             (q : g₁ = g₂)
+             (fg : xy₁ -->[ f₁ ][ g₁ ] xy₂)
+    : xy₁ -->[ f₂ ][ g₂ ] xy₂
+    := transportf
+         (λ z, _ -->[ z ][ _ ] _)
+         p
+         (transportf
+            (λ z, _ -->[ _ ][ z ] _)
+            q
+            fg).
 
-  Local Notation "fg₁ ;;2 fg₂"
-    := (comp_two_disp fg₁ fg₂)
-         (at level 50, left associativity, format "fg₁  ;;2  fg₂").
+  Definition transportb_disp_mor2
+             {D : twosided_disp_cat_data}
+             {x₁ x₂ : C₁}
+             {y₁ y₂ : C₂}
+             {xy₁ : D x₁ y₁}
+             {xy₂ : D x₂ y₂}
+             {f₁ f₂ : x₁ --> x₂}
+             (p : f₁ = f₂)
+             {g₁ g₂ : y₁ --> y₂}
+             (q : g₁ = g₂)
+             (fg : xy₁ -->[ f₂ ][ g₂ ] xy₂)
+    : xy₁ -->[ f₁ ][ g₁ ] xy₂
+    := transportf_disp_mor2 (!p) (!q) fg.
+
+  Proposition transport_f_f_disp_mor2
+              {D : twosided_disp_cat_data}
+              {x₁ x₂ : C₁}
+              {y₁ y₂ : C₂}
+              {xy₁ : D x₁ y₁}
+              {xy₂ : D x₂ y₂}
+              {f₁ f₂ f₃ : x₁ --> x₂}
+              (p₁ : f₁ = f₂) (p₂ : f₂ = f₃)
+              {g₁ g₂ g₃ : y₁ --> y₂}
+              (q₁ : g₁ = g₂) (q₂ : g₂ = g₃)
+              (fg : xy₁ -->[ f₁ ][ g₁ ] xy₂)
+    : transportf_disp_mor2
+        p₂ q₂
+        (transportf_disp_mor2
+           p₁ q₁
+           fg)
+      =
+      transportf_disp_mor2
+        (p₁ @ p₂) (q₁ @ q₂)
+        fg.
+  Proof.
+    induction p₁, p₂, q₁, q₂ ; cbn.
+    apply idpath.
+  Qed.
+
+  Proposition transportfb_disp_mor2
+              {D : twosided_disp_cat_data}
+              {x₁ x₂ : C₁}
+              {y₁ y₂ : C₂}
+              {xy₁ : D x₁ y₁}
+              {xy₂ : D x₂ y₂}
+              {f₁ f₂ : x₁ --> x₂}
+              (p : f₁ = f₂)
+              {g₁ g₂ : y₁ --> y₂}
+              (q : g₁ = g₂)
+              (fg : xy₁ -->[ f₂ ][ g₂ ] xy₂)
+    : transportf_disp_mor2 p q (transportb_disp_mor2 p q fg) = fg.
+  Proof.
+    induction p, q ; cbn.
+    apply idpath.
+  Qed.
+
+  Proposition transport_b_b_disp_mor2
+              {D : twosided_disp_cat_data}
+              {x₁ x₂ : C₁}
+              {y₁ y₂ : C₂}
+              {xy₁ : D x₁ y₁}
+              {xy₂ : D x₂ y₂}
+              {f₁ f₂ f₃ : x₁ --> x₂}
+              (p₁ : f₂ = f₁) (p₂ : f₃ = f₂)
+              {g₁ g₂ g₃ : y₁ --> y₂}
+              (q₁ : g₂ = g₁) (q₂ : g₃ = g₂)
+              (fg : xy₁ -->[ f₁ ][ g₁ ] xy₂)
+    : transportb_disp_mor2
+        p₂ q₂
+        (transportb_disp_mor2
+           p₁ q₁
+           fg)
+      =
+      transportb_disp_mor2
+        (p₂ @ p₁) (q₂ @ q₁)
+        fg.
+  Proof.
+    induction p₁, p₂, q₁, q₂ ; cbn.
+    apply idpath.
+  Qed.
+
+  Proposition transportbf_disp_mor2
+              {D : twosided_disp_cat_data}
+              {x₁ x₂ : C₁}
+              {y₁ y₂ : C₂}
+              {xy₁ : D x₁ y₁}
+              {xy₂ : D x₂ y₂}
+              {f₁ f₂ : x₁ --> x₂}
+              (p : f₁ = f₂)
+              {g₁ g₂ : y₁ --> y₂}
+              (q : g₁ = g₂)
+              (fg : xy₁ -->[ f₁ ][ g₁ ] xy₂)
+    : transportb_disp_mor2 p q (transportf_disp_mor2 p q fg) = fg.
+  Proof.
+    induction p, q ; cbn.
+    apply idpath.
+  Qed.
 
   Definition id_two_disp_left_law
              (D : twosided_disp_cat_data)
@@ -229,13 +355,10 @@ Section TwoSidedDispCat.
          (fg : xy₁ -->[ f ][ g ] xy₂),
        id_two_disp xy₁ ;;2 fg
        =
-       transportb
-         (λ z, _ -->[ z ][ _] _)
+       transportb_disp_mor2
          (id_left _)
-         (transportb
-            (λ z, _ -->[ _ ][ z ] _)
-            (id_left _)
-            fg).
+         (id_left _)
+         fg.
 
   Definition id_two_disp_right_law
              (D : twosided_disp_cat_data)
@@ -249,13 +372,10 @@ Section TwoSidedDispCat.
          (fg : xy₁ -->[ f ][ g ] xy₂),
        fg ;;2 id_two_disp xy₂
        =
-       transportb
-         (λ z, _ -->[ z ][ _] _)
+       transportb_disp_mor2
          (id_right _)
-         (transportb
-            (λ z, _ -->[ _ ][ z ] _)
-            (id_right _)
-            fg).
+         (id_right _)
+         fg.
 
   Definition assoc_two_disp_law
              (D : twosided_disp_cat_data)
@@ -277,13 +397,10 @@ Section TwoSidedDispCat.
          (fg₃ : xy₃ -->[ f₃ ][ g₃ ] xy₄),
        (fg₁ ;;2 (fg₂ ;;2 fg₃))
        =
-       transportb
-         (λ z, _ -->[ z ][ _] _)
+       transportb_disp_mor2
          (assoc _ _ _)
-         (transportb
-            (λ z, _ -->[ _ ][ z ] _)
-            (assoc _ _ _)
-            ((fg₁ ;;2 fg₂) ;;2 fg₃)).
+         (assoc _ _ _)
+         ((fg₁ ;;2 fg₂) ;;2 fg₃).
 
   Definition isaset_disp_mor_law
              (D : twosided_disp_cat_data)
@@ -329,7 +446,7 @@ Section TwoSidedDispCat.
     := ∑ (D : twosided_disp_cat_data),
        twosided_disp_cat_axioms D.
 
-  Coercion twosided_disp_cat_to_twosided_disp_cat_data
+  #[reversible] Coercion twosided_disp_cat_to_twosided_disp_cat_data
            (D : twosided_disp_cat)
     : twosided_disp_cat_data
     := pr1 D.
@@ -345,16 +462,13 @@ Section TwoSidedDispCat.
              (fg : xy₁ -->[ f ][ g ] xy₂)
     : id_two_disp xy₁ ;;2 fg
       =
-      transportb
-        (λ z, _ -->[ z ][ _] _)
+      transportb_disp_mor2
         (id_left _)
-        (transportb
-           (λ z, _ -->[ _ ][ z ] _)
-           (id_left _)
-           fg).
+        (id_left _)
+        fg.
   Proof.
     exact (pr12 D _ _ _ _ _ _ _ _ fg).
-  Qed.
+  Defined.
 
   Definition id_two_disp_right
              {D : twosided_disp_cat}
@@ -367,16 +481,13 @@ Section TwoSidedDispCat.
              (fg : xy₁ -->[ f ][ g ] xy₂)
     : fg ;;2 id_two_disp xy₂
       =
-      transportb
-        (λ z, _ -->[ z ][ _] _)
+      transportb_disp_mor2
         (id_right _)
-        (transportb
-           (λ z, _ -->[ _ ][ z ] _)
-           (id_right _)
-           fg).
+        (id_right _)
+        fg.
   Proof.
     exact (pr122 D _ _ _ _ _ _ _ _ fg).
-  Qed.
+  Defined.
 
   Definition assoc_two_disp
              {D : twosided_disp_cat}
@@ -397,16 +508,13 @@ Section TwoSidedDispCat.
              (fg₃ : xy₃ -->[ f₃ ][ g₃ ] xy₄)
     : (fg₁ ;;2 (fg₂ ;;2 fg₃))
       =
-      transportb
-        (λ z, _ -->[ z ][ _] _)
+      transportb_disp_mor2
         (assoc _ _ _)
-        (transportb
-           (λ z, _ -->[ _ ][ z ] _)
-           (assoc _ _ _)
-           ((fg₁ ;;2 fg₂) ;;2 fg₃)).
+        (assoc _ _ _)
+        ((fg₁ ;;2 fg₂) ;;2 fg₃).
   Proof.
     exact (pr1 (pr222 D) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ fg₁ fg₂ fg₃).
-  Qed.
+  Defined.
 
   Definition isaset_disp_mor
              {D : twosided_disp_cat}
@@ -419,7 +527,7 @@ Section TwoSidedDispCat.
     : isaset (xy₁ -->[ f ][ g ] xy₂).
   Proof.
     exact (pr2 (pr222 D) _ _ _ _ xy₁ xy₂ f g).
-  Qed.
+  Defined.
 
   (**
    1.2. Derived laws
@@ -578,23 +686,14 @@ Section TwoSidedDispCat.
              (fg : xy₁ -->[ f ][ g ] xy₂)
     : fg
       =
-      transportf
-        (λ z, _ -->[ z ][ _ ] _)
+      transportf_disp_mor2
         (id_left _)
-        (transportf
-           (λ z, _ -->[ _ ][ z ] _)
-           (id_left _)
-           (id_two_disp xy₁ ;;2 fg)).
+        (id_left _)
+        (id_two_disp xy₁ ;;2 fg).
   Proof.
-    use (@transportf_transpose_right _ (λ z, _ -->[ z ][ _ ] _)).
-    use (@transportf_transpose_right _ (λ z, _ -->[ _ ][ z ] _)).
-    refine (!_).
-    etrans.
-    {
-      apply id_two_disp_left.
-    }
-    refine (!_).
-    apply twosided_swap_transport.
+    rewrite id_two_disp_left.
+    rewrite transportfb_disp_mor2.
+    apply idpath.
   Qed.
 
   Definition id_two_disp_right_alt
@@ -608,23 +707,14 @@ Section TwoSidedDispCat.
              (fg : xy₁ -->[ f ][ g ] xy₂)
     : fg
       =
-      transportf
-        (λ z, _ -->[ z ][ _] _)
+      transportf_disp_mor2
         (id_right _)
-        (transportf
-           (λ z, _ -->[ _ ][ z ] _)
-           (id_right _)
-           (fg ;;2 id_two_disp xy₂)).
+        (id_right _)
+        (fg ;;2 id_two_disp xy₂).
   Proof.
-    use (@transportf_transpose_right _ (λ z, _ -->[ z ][ _ ] _)).
-    use (@transportf_transpose_right _ (λ z, _ -->[ _ ][ z ] _)).
-    refine (!_).
-    etrans.
-    {
-      apply id_two_disp_right.
-    }
-    refine (!_).
-    apply twosided_swap_transport.
+    rewrite id_two_disp_right.
+    rewrite transportfb_disp_mor2.
+    apply idpath.
   Qed.
 
   Definition assoc_two_disp_alt
@@ -646,23 +736,14 @@ Section TwoSidedDispCat.
              (fg₃ : xy₃ -->[ f₃ ][ g₃ ] xy₄)
     : ((fg₁ ;;2 fg₂) ;;2 fg₃)
       =
-      transportf
-        (λ z, _ -->[ z ][ _] _)
+      transportf_disp_mor2
         (assoc _ _ _)
-        (transportf
-           (λ z, _ -->[ _ ][ z ] _)
-           (assoc _ _ _)
-           (fg₁ ;;2 (fg₂ ;;2 fg₃))).
+        (assoc _ _ _)
+        (fg₁ ;;2 (fg₂ ;;2 fg₃)).
   Proof.
-    use (@transportf_transpose_right _ (λ z, _ -->[ z ][ _ ] _)).
-    use (@transportf_transpose_right _ (λ z, _ -->[ _ ][ z ] _)).
-    refine (!_).
-    etrans.
-    {
-      apply assoc_two_disp.
-    }
-    refine (!_).
-    apply twosided_swap_transport.
+    rewrite assoc_two_disp.
+    rewrite transportfb_disp_mor2.
+    apply idpath.
   Qed.
 
   Definition two_disp_post_whisker_left
@@ -715,6 +796,58 @@ Section TwoSidedDispCat.
     apply idpath.
   Qed.
 
+  Definition two_disp_post_whisker_f
+             {D : twosided_disp_cat}
+             {x₁ x₂ x₃ : C₁}
+             {y₁ y₂ y₃ : C₂}
+             {xy₁ : D x₁ y₁}
+             {xy₂ : D x₂ y₂}
+             {xy₃ : D x₃ y₃}
+             {f₁ : x₁ --> x₂}
+             {f₂ f₂' : x₂ --> x₃}
+             (p : f₂' = f₂)
+             {g₁ : y₁ --> y₂}
+             {g₂ g₂' : y₂ --> y₃}
+             (q : g₂' = g₂)
+             (fg₁ : xy₁ -->[ f₁ ][ g₁ ] xy₂)
+             (fg₂ : xy₂ -->[ f₂' ][ g₂' ] xy₃)
+    : fg₁ ;;2 transportf_disp_mor2 p q fg₂
+      =
+      transportf_disp_mor2
+        (maponpaths (λ z, _ · z) p)
+        (maponpaths (λ z, _ · z) q)
+        (fg₁ ;;2 fg₂).
+  Proof.
+    induction p, q ; cbn.
+    apply idpath.
+  Qed.
+
+  Definition two_disp_post_whisker_b
+             {D : twosided_disp_cat}
+             {x₁ x₂ x₃ : C₁}
+             {y₁ y₂ y₃ : C₂}
+             {xy₁ : D x₁ y₁}
+             {xy₂ : D x₂ y₂}
+             {xy₃ : D x₃ y₃}
+             {f₁ : x₁ --> x₂}
+             {f₂ f₂' : x₂ --> x₃}
+             (p : f₂ = f₂')
+             {g₁ : y₁ --> y₂}
+             {g₂ g₂' : y₂ --> y₃}
+             (q : g₂ = g₂')
+             (fg₁ : xy₁ -->[ f₁ ][ g₁ ] xy₂)
+             (fg₂ : xy₂ -->[ f₂' ][ g₂' ] xy₃)
+    : fg₁ ;;2 transportb_disp_mor2 p q fg₂
+      =
+      transportb_disp_mor2
+        (maponpaths (λ z, _ · z) p)
+        (maponpaths (λ z, _ · z) q)
+        (fg₁ ;;2 fg₂).
+  Proof.
+    induction p, q ; cbn.
+    apply idpath.
+  Qed.
+
   Definition two_disp_pre_whisker_left
              {D : twosided_disp_cat}
              {x₁ x₂ x₃ : C₁}
@@ -764,19 +897,159 @@ Section TwoSidedDispCat.
     induction p ; cbn.
     apply idpath.
   Qed.
+
+  Definition two_disp_pre_whisker_f
+             {D : twosided_disp_cat}
+             {x₁ x₂ x₃ : C₁}
+             {y₁ y₂ y₃ : C₂}
+             {xy₁ : D x₁ y₁}
+             {xy₂ : D x₂ y₂}
+             {xy₃ : D x₃ y₃}
+             {f₁ f₁' : x₁ --> x₂}
+             (p : f₁' = f₁)
+             {f₂ : x₂ --> x₃}
+             {g₁ g₁' : y₁ --> y₂}
+             (q : g₁' = g₁)
+             {g₂ : y₂ --> y₃}
+             (fg₁ : xy₁ -->[ f₁' ][ g₁' ] xy₂)
+             (fg₂ : xy₂ -->[ f₂ ][ g₂ ] xy₃)
+    : transportf_disp_mor2 p q fg₁ ;;2 fg₂
+      =
+      transportf_disp_mor2
+        (maponpaths (λ z, z · _) p)
+        (maponpaths (λ z, z · _) q)
+        (fg₁ ;;2 fg₂).
+  Proof.
+    induction p, q ; cbn.
+    apply idpath.
+  Qed.
+
+  Definition two_disp_pre_whisker_b
+             {D : twosided_disp_cat}
+             {x₁ x₂ x₃ : C₁}
+             {y₁ y₂ y₃ : C₂}
+             {xy₁ : D x₁ y₁}
+             {xy₂ : D x₂ y₂}
+             {xy₃ : D x₃ y₃}
+             {f₁ f₁' : x₁ --> x₂}
+             (p : f₁ = f₁')
+             {f₂ : x₂ --> x₃}
+             {g₁ g₁' : y₁ --> y₂}
+             (q : g₁ = g₁')
+             {g₂ : y₂ --> y₃}
+             (fg₁ : xy₁ -->[ f₁' ][ g₁' ] xy₂)
+             (fg₂ : xy₂ -->[ f₂ ][ g₂ ] xy₃)
+    : transportb_disp_mor2 p q fg₁ ;;2 fg₂
+      =
+      transportb_disp_mor2
+        (maponpaths (λ z, z · _) p)
+        (maponpaths (λ z, z · _) q)
+        (fg₁ ;;2 fg₂).
+  Proof.
+    induction p, q ; cbn.
+    apply idpath.
+  Qed.
+
+  Proposition transportf_disp_mor2_idpath
+              {D : twosided_disp_cat}
+              {x₁ x₂ : C₁}
+              {y₁ y₂ : C₂}
+              {xy₁ : D x₁ y₁}
+              {xy₂ : D x₂ y₂}
+              {f : x₁ --> x₂}
+              (p : f = f)
+              {g : y₁ --> y₂}
+              (q : g = g)
+              (fg : xy₁ -->[ f ][ g ] xy₂)
+    : transportf_disp_mor2 p q fg = fg.
+  Proof.
+    assert (p = idpath _) as h₁.
+    {
+      apply homset_property.
+    }
+    assert (q = idpath _) as h₂.
+    {
+      apply homset_property.
+    }
+    rewrite h₁, h₂ ; cbn.
+    apply idpath.
+  Qed.
+
+  Proposition transportb_disp_mor2_idpath
+              {D : twosided_disp_cat}
+              {x₁ x₂ : C₁}
+              {y₁ y₂ : C₂}
+              {xy₁ : D x₁ y₁}
+              {xy₂ : D x₂ y₂}
+              {f : x₁ --> x₂}
+              (p : f = f)
+              {g : y₁ --> y₂}
+              (q : g = g)
+              (fg : xy₁ -->[ f ][ g ] xy₂)
+    : transportb_disp_mor2 p q fg = fg.
+  Proof.
+    apply transportf_disp_mor2_idpath.
+  Qed.
+
+  Proposition transportf_disp_mor2_eq
+              {D : twosided_disp_cat}
+              {x₁ x₂ : C₁}
+              {y₁ y₂ : C₂}
+              {xy₁ : D x₁ y₁}
+              {xy₂ : D x₂ y₂}
+              {f f' : x₁ --> x₂}
+              {p p' : f = f'}
+              {g g' : y₁ --> y₂}
+              {q q' : g = g'}
+              {fg fg' : xy₁ -->[ f ][ g ] xy₂}
+              (s : fg = fg')
+    : transportf_disp_mor2 p q fg = transportf_disp_mor2 p' q' fg'.
+  Proof.
+    assert (p = p') as h₁.
+    {
+      apply homset_property.
+    }
+    assert (q = q') as h₂.
+    {
+      apply homset_property.
+    }
+    rewrite h₁, h₂, s.
+    apply idpath.
+  Qed.
+
+  Proposition transportb_disp_mor2_eq
+              {D : twosided_disp_cat}
+              {x₁ x₂ : C₁}
+              {y₁ y₂ : C₂}
+              {xy₁ : D x₁ y₁}
+              {xy₂ : D x₂ y₂}
+              {f f' : x₁ --> x₂}
+              {p p' : f' = f}
+              {g g' : y₁ --> y₂}
+              {q q' : g' = g}
+              {fg fg' : xy₁ -->[ f ][ g ] xy₂}
+              (s : fg = fg')
+    : transportb_disp_mor2 p q fg = transportb_disp_mor2 p' q' fg'.
+  Proof.
+    assert (p = p') as h₁.
+    {
+      apply homset_property.
+    }
+    assert (q = q') as h₂.
+    {
+      apply homset_property.
+    }
+    rewrite h₁, h₂, s.
+    apply idpath.
+  Qed.
 End TwoSidedDispCat.
 
 Arguments twosided_disp_cat_ob_mor _ _ : clear implicits.
 Arguments twosided_disp_cat_data _ _ : clear implicits.
 Arguments twosided_disp_cat _ _ : clear implicits.
 
-Notation "xy₁ -->[ f ][ g ] xy₂"
-  := (twosided_disp_cat_ob_mor_to_mor xy₁ xy₂ f g)
-       (at level 50, left associativity, xy₂ at next level) : cat.
-
-Notation "fg₁ ;;2 fg₂"
-  := (comp_two_disp fg₁ fg₂)
-       (at level 50, left associativity, format "fg₁  ;;2  fg₂") : cat.
+Notation "'trf₂' fg" := (transportf_disp_mor2 _ _ fg) (at level 50, only printing).
+Notation "'trb₂' fg" := (transportb_disp_mor2 _ _ fg) (at level 50, only printing).
 
 (**
  2. Two-sided displayed categories are displayed categories over the product

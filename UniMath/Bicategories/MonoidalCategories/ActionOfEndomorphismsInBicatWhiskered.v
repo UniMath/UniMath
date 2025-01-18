@@ -24,8 +24,8 @@ Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
 Require Import UniMath.CategoryTheory.Actegories.CoproductsInActegories.
 
 Import Bicat.Notations.
@@ -182,7 +182,7 @@ Proof.
   rewrite X.
   apply idpath.
 Qed. (* 44s on a modern Intel machine *)
-(** in fact, we need this with lifted actegories everywhere *)
+(** in fact, we need this with reindexed actegories everywhere *)
 
 End TheHomogeneousCase.
 
@@ -227,7 +227,7 @@ Lemma lax_lineators_for_actegoryfromprecomp_and_CAT_version_agree (F : functor [
 Proof.
   Time (apply idpath). (* very slow: __ on a modern Intel machine *)
 Time Qed. (* __ on a modern Intel machine *)
-(** in fact, we need this with lifted actegories everywhere *)
+(** in fact, we need this with reindexed actegories everywhere *)
 *)
 
 Section DistributionOfCoproducts.

@@ -15,12 +15,12 @@
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Combinatorics.Posets.
+Require Import UniMath.OrderTheory.Posets.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.categories.HSET.All.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.equalizers.
-Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.Categories.HSET.All.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Products.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
 Require Import UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
@@ -69,6 +69,10 @@ Qed.
 Definition struct_pointed_poset_strict
   : hset_struct
   := struct_pointed_poset_strict_data ,, struct_pointed_poset_strict_laws.
+
+Definition category_of_pointed_poset_strict
+  : category
+  := category_of_hset_struct struct_pointed_poset_strict.
 
 (**
  2. The cartesian structure of pointed posets
@@ -236,9 +240,9 @@ Proof.
   - exact pointed_PartialOrder_boolset.
   - intros X Y PX PY.
     use (pointed_quotient_poset
-             (prod_pointed_PartialOrder PX PY)
-             (smash_set PX PY)
-             (smash_set_downward_closd PX PY)).
+           (prod_pointed_PartialOrder PX PY)
+           (smash_set PX PY)
+           (smash_set_downward_closd PX PY)).
     exact (pointed_poset_strict_smash_eqrel_equiv PX PY).
 Defined.
 

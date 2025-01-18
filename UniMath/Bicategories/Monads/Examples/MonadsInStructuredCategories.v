@@ -7,12 +7,12 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.limits.initial.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.Preservation.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.Bicategories.Core.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
@@ -50,8 +50,8 @@ Proof.
     + exact C.
     + exact M.
   - use make_disp_mnd.
-    + exact (tt ,, TC).
-    + exact (MT ,, tt).
+    + exact (TC ,, tt).
+    + exact (tt ,, MT).
     + exact (tt ,, tt).
     + exact (tt ,, tt).
 Defined.
@@ -72,8 +72,8 @@ Proof.
     + exact C.
     + exact M.
   - use make_disp_mnd.
-    + exact (tt ,, BC).
-    + exact (MB ,, tt).
+    + exact (BC ,, tt).
+    + exact (tt ,, MB).
     + exact (tt ,, tt).
     + exact (tt ,, tt).
 Defined.
@@ -94,8 +94,8 @@ Proof.
     + exact C.
     + exact M.
   - use make_disp_mnd.
-    + exact (tt ,, PC).
-    + exact (MP ,, tt).
+    + exact (PC ,, tt).
+    + exact (tt ,, MP).
     + exact (tt ,, tt).
     + exact (tt ,, tt).
 Defined.
@@ -103,14 +103,14 @@ Defined.
 (**
  4. Monads in the bicategory of categories with finite limits
  *)
-Definition make_mnd_univ_cat_with_finlim
+Definition make_mnd_bicat_of_univ_cat_with_finlim
            (C : univalent_category)
            (M : Monad C)
            (TC : Terminal C)
            (PC : Pullbacks C)
            (MT : preserves_terminal M)
            (MP : preserves_pullback M)
-  : mnd univ_cat_with_finlim.
+  : mnd bicat_of_univ_cat_with_finlim.
 Proof.
   use make_mnd_total_bicat.
   - apply disp_2cells_isaprop_prod ; apply disp_2cells_isaprop_subbicat.
@@ -118,8 +118,8 @@ Proof.
     + exact C.
     + exact M.
   - use make_disp_mnd.
-    + exact ((tt ,, TC) ,, (tt ,, PC)).
-    + exact ((MT ,, tt) ,, (MP ,, tt)).
+    + exact ((TC ,, tt) ,, (PC ,, tt)).
+    + exact ((tt ,, MT) ,, (tt ,, MP)).
     + cbn.
       exact ((tt ,, tt) ,, (tt ,, tt)).
     + cbn.
@@ -142,8 +142,8 @@ Proof.
     + exact C.
     + exact M.
   - use make_disp_mnd.
-    + exact (tt ,, IC).
-    + exact (MI ,, tt).
+    + exact (IC ,, tt).
+    + exact (tt ,, MI).
     + exact (tt ,, tt).
     + exact (tt ,, tt).
 Defined.
@@ -164,8 +164,8 @@ Proof.
     + exact C.
     + exact M.
   - use make_disp_mnd.
-    + exact (tt ,, SC).
-    + exact (MS ,, tt).
+    + exact (SC ,, tt).
+    + exact (tt ,, MS).
     + exact (tt ,, tt).
     + exact (tt ,, tt).
 Defined.

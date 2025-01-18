@@ -17,8 +17,8 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import
         UniMath.CategoryTheory.Equivalences.Core
-        UniMath.CategoryTheory.categories.HSET.Core
-        UniMath.CategoryTheory.categories.HSET.MonoEpiIso
+        UniMath.CategoryTheory.Categories.HSET.Core
+        UniMath.CategoryTheory.Categories.HSET.MonoEpiIso
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.opp_precat
         UniMath.CategoryTheory.Presheaf
@@ -394,6 +394,6 @@ Section elems_slice_equiv.
     (PreShv_to_slice ,,  slice_to_PreShv ,, PreShv_unit ,, slice_counit) ,, (PreShv_all_iso ,, slice_all_z_iso).
 
   Definition PreShv_of_elems_slice_of_PreShv_adj_equiv : adj_equivalence_of_cats PreShv_to_slice :=
-    @adjointificiation (PreShv ∫P) (PreShv C / P) PreShv_of_elems_slice_of_PreShv_equiv.
+    @adjointification (PreShv ∫P) (PreShv C / P) PreShv_of_elems_slice_of_PreShv_equiv.
 
 End elems_slice_equiv.

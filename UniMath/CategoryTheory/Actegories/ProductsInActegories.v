@@ -15,7 +15,7 @@ Require Import UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
 Require Import UniMath.CategoryTheory.Actegories.ProductActegory.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.ProductCategory.
-Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
 
 
 Local Open Scope cat.

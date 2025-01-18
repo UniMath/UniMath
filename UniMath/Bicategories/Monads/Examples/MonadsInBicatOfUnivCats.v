@@ -34,9 +34,9 @@ Local Open Scope cat.
  *)
 Definition mnd_bicat_of_univ_cats_to_Monad
            (m : mnd bicat_of_univ_cats)
-  : Monad (pr1 (ob_of_mnd m)).
+  : Monad (pr1(ob_of_mnd m)).
 Proof.
-  simple refine (((_ ,, _) ,, _) ,, _).
+  simple refine (_,,((_ ,, _) ,, _)).
   - exact (endo_of_mnd m).
   - exact (mult_of_mnd m).
   - exact (unit_of_mnd m).
@@ -82,20 +82,20 @@ Proof.
          intro x ;
          cbn ;
          rewrite id_left ;
-         apply m).
+         apply (Monad_law2(T:=m) x)).
     + abstract
         (use nat_trans_eq ; [ apply homset_property | ] ;
          intro x ;
          cbn ;
          rewrite id_left ;
-         apply m).
+         apply (Monad_law1(T:=m) x)).
     + abstract
         (use nat_trans_eq ; [ apply homset_property | ] ;
          intro x ;
          cbn ;
          rewrite id_left ;
          refine (!_) ;
-         apply m).
+         apply (Monad_law3(T:=m) x)).
 Defined.
 
 (**
@@ -121,11 +121,9 @@ Definition mnd_bicat_of_univ_cats_weq_Monad_inv₂
            (m : Monad C)
   : mnd_bicat_of_univ_cats_to_Monad (Monad_to_mnd_bicat_of_univ_cats m) = m.
 Proof.
-  use subtypePath.
-  {
-    intro.
-    apply isaprop_Monad_laws.
-  }
+  use total2_paths_f.
+  { apply idpath. }
+  apply monads_category_disp_eq.
   apply idpath.
 Qed.
 

@@ -201,7 +201,7 @@ Abort.
 
 (** ** Discrete categories *)
 
-(** See [Categories.categories.StandardCategories] for a proof that any discrete
+(** See [Categories.Categories.StandardCategories] for a proof that any discrete
     category is equivalent to the path groupoid of its objects. *)
 
 (** A discrete category is a univalent [pregroupoid] with an underlying [setcategory].

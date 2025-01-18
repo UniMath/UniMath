@@ -1,6 +1,6 @@
 
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -95,6 +95,26 @@ Section Disp_Functor.
     : ♯ FF (id_disp xx) = transportb _ (functor_id F x) (id_disp (FF _ xx))
     := pr1 (pr2 FF) x xx.
 
+  Proposition disp_functor_id_var
+              {C₁ C₂ : category}
+              {F : C₁ ⟶ C₂}
+              {D₁ : disp_cat C₁}
+              {D₂ : disp_cat C₂}
+              (FF : disp_functor F D₁ D₂)
+              {x : C₁}
+              (xx : D₁ x)
+    : id_disp (FF x xx)
+      =
+      transportf
+        (λ z, _ -->[ z ] _)
+        (functor_id F x)
+        (♯ FF (id_disp xx)).
+  Proof.
+    rewrite disp_functor_id.
+    rewrite transportfbinv.
+    apply idpath.
+  Qed.
+
   Definition disp_functor_comp {C' C} {F} {D' : disp_cat C'} {D : disp_cat C}
              (FF : disp_functor F D' D)
              {x y z} {xx : D' x} {yy} {zz} {f : x --> y} {g : y --> z}
@@ -116,6 +136,17 @@ Section Disp_Functor.
   Defined.
 
   (** Useful transport lemma for [disp_functor]. *)
+
+ Lemma disp_functor_eq {C C':category} {F: functor C C'} {D:disp_cat C} {D':disp_cat C'}
+ (DF DF': disp_functor F D D')
+  : pr1 DF = pr1 DF' -> DF = DF'.
+ Proof.
+  intro H.
+  apply (total2_paths_f H).
+  apply proofirrelevance.
+  apply isaprop_disp_functor_axioms.
+ Defined.
+
   Lemma disp_functor_transportf {C' C : category}
         {D' : disp_cat C'} {D : disp_cat C}
         (F : functor C' C) (FF : disp_functor F D' D)
@@ -281,6 +312,18 @@ Section Disp_Functor.
       ∏ x y (xx : D x) (yy : D y) (f : x --> y),
         isweq (fun ff : xx -->[f] yy => ♯ FF ff).
 
+    Proposition isaprop_disp_functor_ff
+                {C₁ C₂ : category}
+                {F : C₁ ⟶ C₂}
+                {D₁ : disp_cat C₁}
+                {D₂ : disp_cat C₂}
+                (FF : disp_functor F D₁ D₂)
+      : isaprop (disp_functor_ff FF).
+    Proof.
+      do 5 (use impred ; intro).
+      apply isapropisweq.
+    Qed.
+
     Section ff_reflects_isos.
 
       (* TODO: Try making FF implicit, since it can be inferred from [FF_ff]. *)
@@ -350,6 +393,41 @@ Section Disp_Functor.
 
     End ff_reflects_isos.
 
+    Proposition FF_disp_functor_ff_inv
+                {C₁ C₂ : category}
+                {F : C₁ ⟶ C₂}
+                {D₁ : disp_cat C₁}
+                {D₂ : disp_cat C₂}
+                {FF : disp_functor F D₁ D₂}
+                (HFF : disp_functor_ff FF)
+                {x y : C₁}
+                {f : x --> y}
+                {xx : D₁ x}
+                {yy : D₁ y}
+                (ff : FF x xx -->[ (#F f) ] FF y yy)
+      : ♯FF (disp_functor_ff_inv FF HFF ff) = ff.
+    Proof.
+      apply (homotweqinvweq ((disp_functor_ff_weq FF HFF xx yy f))).
+    Qed.
+
+    Proposition disp_functor_ff_FF_inv
+                {C₁ C₂ : category}
+                {F : C₁ ⟶ C₂}
+                {D₁ : disp_cat C₁}
+                {D₂ : disp_cat C₂}
+                {FF : disp_functor F D₁ D₂}
+                (HFF : disp_functor_ff FF)
+                {x y : C₁}
+                {f : x --> y}
+                {xx : D₁ x}
+                {yy : D₁ y}
+                (ff : xx -->[ f ] yy)
+      : disp_functor_ff_inv FF HFF (♯FF ff) = ff.
+    Proof.
+      apply (homotinvweqweq ((disp_functor_ff_weq FF HFF xx yy f))).
+    Qed.
+
+
     (** Given a base functor [F : C —> C'] and a displayed functor [FF : D' -> D] over it, there are two different “essential surjectivity” conditions one can put on [FF].
 
 Given [c : C] and [d : D' (F c)], one can ask for a lift of [d] either in [D c] itself, or more generally in some fiber [D c'] with [c'] isomorphic to [c].
@@ -377,6 +455,22 @@ The second version is better-behaved in general; but the stricter first version 
 
     (* TODO: add access functions for these. *)
 
+    Definition disp_functor_disp_ess_surj
+               {C₁ C₂ : category}
+               {F : C₁ ⟶ C₂}
+               {D₁ : disp_cat C₁}
+               {D₂ : disp_cat C₂}
+               (FF : disp_functor F D₁ D₂)
+      : hProp
+      := ∀ (x : C₁)
+           (yy : D₂ (F x)),
+         ∃ (xx : D₁ x),
+         z_iso_disp
+           (identity_z_iso _)
+           (FF x xx)
+           yy.
+
+
   End Functor_Properties.
 End Disp_Functor.
 
@@ -388,6 +482,123 @@ Notation "♯ F" := (disp_functor_on_morphisms F)
 
 #[deprecated(note="Use '♯' (input: \# or \sharp) instead.")]
 Notation "# F" := ♯ F (only parsing) : mor_disp_scope.
+
+Proposition disp_functor_data_over_id_eq_help
+            {C : category}
+            {D₁ D₂ : disp_cat C}
+            {FF₁ FF₂ : disp_functor_data (functor_identity _) D₁ D₂}
+            (p : pr1 FF₁ = pr1 FF₂)
+            (q : ∏ (x y : C)
+                   (f : x --> y)
+                   (xx : D₁ x)
+                   (yy : D₁ y)
+                   (ff : xx -->[ f ] yy),
+                 (♯FF₁ ff
+                  ;; idtoiso_disp
+                       (idpath _)
+                       (toforallpaths _ _ _ (toforallpaths _ _ _ p y) yy)
+                  =
+                  transportf
+                    (λ z, _ -->[ z ] _)
+                    (id_left _ @ (!(id_right _)))
+                    (idtoiso_disp
+                       (idpath _)
+                       (toforallpaths _ _ _ (toforallpaths _ _ _ p x) xx)
+                     ;; ♯FF₂ ff))%mor_disp)
+  : FF₁ = FF₂.
+Proof.
+  induction FF₁ as [ FFo₁ FFm₁ ].
+  induction FF₂ as [ FFo₂ FFm₂ ].
+  cbn in p.
+  induction p.
+  cbn in *.
+  apply maponpaths.
+  use funextsec ; intro x.
+  use funextsec ; intro y.
+  use funextsec ; intro xx.
+  use funextsec ; intro yy.
+  use funextsec ; intro f.
+  use funextsec ; intro ff.
+  specialize (q x y f xx yy ff).
+  rewrite id_right_disp in q.
+  refine (transportf_transpose_right q @ _).
+  rewrite transport_f_f.
+  rewrite id_left_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  use transportf_set.
+  apply homset_property.
+Qed.
+
+Proposition disp_functor_data_over_id_eq
+            {C : category}
+            {D₁ D₂ : disp_cat C}
+            {FF₁ FF₂ : disp_functor_data (functor_identity _) D₁ D₂}
+            (p : ∏ (x : C) (xx : D₁ x), FF₁ x xx = FF₂ x xx)
+            (q : ∏ (x y : C)
+                   (f : x --> y)
+                   (xx : D₁ x)
+                   (yy : D₁ y)
+                   (ff : xx -->[ f ] yy),
+                 (♯FF₁ ff ;; idtoiso_disp (idpath _) (p y yy)
+                  =
+                  transportf
+                    (λ z, _ -->[ z ] _)
+                    (id_left _ @ (!(id_right _)))
+                    (idtoiso_disp (idpath _) (p x xx) ;; ♯FF₂ ff))%mor_disp)
+  : FF₁ = FF₂.
+Proof.
+  use disp_functor_data_over_id_eq_help.
+  - use funextsec ; intro x.
+    use funextsec ; intro xx.
+    exact (p x xx).
+  - intros x y f xx yy ff.
+    rewrite !toforallpaths_funextsec.
+    apply q.
+Qed.
+
+Proposition disp_functor_eq_ob
+            {C : category}
+            {D₁ D₂ : disp_cat C}
+            {FF₁ FF₂ : disp_functor (functor_identity _) D₁ D₂}
+            (p : FF₁ = FF₂)
+            {x : C}
+            (xx : D₁ x)
+  : FF₁ x xx = FF₂ x xx.
+Proof.
+  induction p.
+  apply idpath.
+Defined.
+
+Proposition disp_functor_eq_mor
+            {C : category}
+            {D₁ D₂ : disp_cat C}
+            {FF₁ FF₂ : disp_functor (functor_identity _) D₁ D₂}
+            (p : FF₁ = FF₂)
+            {x y : C}
+            {f : x --> y}
+            {xx : D₁ x}
+            {yy : D₁ y}
+            (ff : xx -->[ f ] yy)
+  : (transportf
+       (λ z, _ -->[ z ] _)
+       (id_right _ @ id_left _)
+       (idtoiso_disp (idpath _) (disp_functor_eq_ob (!p) xx)
+        ;; ♯FF₁ ff
+        ;; idtoiso_disp (idpath _) (disp_functor_eq_ob p yy))
+     =
+     ♯FF₂ ff)%mor_disp.
+Proof.
+  induction p ; cbn.
+  rewrite id_right_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  rewrite id_left_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  use transportf_set.
+  apply homset_property.
+Qed.
 
 (** Operations on displayed functors/transformations over the identity *)
 Section CompDispFunctorOverIdentity.
@@ -430,3 +641,51 @@ Section CompDispFunctorOverIdentity.
     - exact disp_functor_over_id_composite_axioms.
   Defined.
 End CompDispFunctorOverIdentity.
+
+(**
+ Various lemmas
+ *)
+Proposition pr1_idtoiso_disp_functor
+            {C₁ C₂ : category}
+            {F : C₁ ⟶ C₂}
+            {D₁ : disp_cat C₁}
+            {D₂ : disp_cat C₂}
+            (FF : disp_functor F D₁ D₂)
+            {x : C₁}
+            {xx yy : D₁ x}
+            (p : xx = yy)
+  : pr1 (idtoiso_disp (idpath (F x)) (maponpaths (FF x) p))
+    =
+    transportf
+      (λ z, _ -->[ z ] _)
+      (functor_id F _)
+      (♯FF (idtoiso_disp (idpath x) p)).
+Proof.
+  induction p.
+  cbn.
+  rewrite disp_functor_id.
+  rewrite transportfbinv.
+  apply idpath.
+Qed.
+
+Proposition disp_functor_idtoiso_disp
+            {C₁ C₂ : category}
+            {D₁ : disp_cat C₁}
+            {D₂ : disp_cat C₂}
+            {F : C₁ ⟶ C₂}
+            (FF : disp_functor F D₁ D₂)
+            {x : C₁}
+            {xx₁ xx₂ : D₁ x}
+            (p : xx₁ = xx₂)
+  : (♯ FF (idtoiso_disp (idpath _) p)
+     =
+     transportb
+       (λ z, _ -->[ z ] _)
+       (functor_id _ _)
+       (idtoiso_disp (idpath _) (maponpaths (FF x) p)))%mor_disp.
+Proof.
+  induction p.
+  cbn.
+  rewrite disp_functor_id.
+  apply idpath.
+Qed.

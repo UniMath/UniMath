@@ -22,20 +22,20 @@ Require Import UniMath.Combinatorics.Lists.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.categories.HSET.Slice.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Slice.
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.Chains.OmegaCocontFunctors.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.initial.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
@@ -53,6 +53,7 @@ Local Open Scope subsys.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.BindingSigToMonad.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.MultiSortedMonadConstruction.
 
@@ -61,29 +62,14 @@ Local Open Scope cat.
 Section ccs.
 
 (* Preliminary stuff, upstream? *)
-Local Infix "::" := (@cons _).
-Local Notation "[]" := (@nil _) (at level 0, format "[]").
+(* Local Infix "::" := (@cons _).
+Local Notation "[]" := (@nil _) (at level 0, format "[]"). *)
 Local Notation "C / X" := (slice_cat C X).
-Local Notation "a + b" := (setcoprod a b) : set.
+(* Local Notation "a + b" := (setcoprod a b) : set. *)
 
-(* Was there a general version of this somewhere? *)
-Definition six_rec {A : UU} (a b c d e f : A) : stn 6 -> A.
-Proof.
-induction 1 as [n p].
-induction n as [|n _]; [apply a|].
-induction n as [|n _]; [apply b|].
-induction n as [|n _]; [apply c|].
-induction n as [|n _]; [apply d|].
-induction n as [|n _]; [apply e|].
-induction n as [|n _]; [apply f|].
-induction (nopathsfalsetotrue p).
-Defined.
-
-(** We assume a two element set of sorts *)
-Definition sort : hSet := @tpair _ (λ X, isaset X) bool isasetbool.
-
-Definition ty : sort := true.
-Definition el : sort := false.
+Let sort := CCSsort.
+Let ty := CCSty.
+Let el := CCSel.
 
 Local Definition HSET_over_sort : category.
 Proof.
@@ -93,56 +79,8 @@ Defined.
 
 Let HSET_over_sort2 := [HSET/sort,HSET_over_sort].
 
-(** The grammar of expressions and objects from page 157:
-<<
-E ::= (Πx:E) E                product of types
-    | Prop                    type of propositions
-    | Proof(t)                type of proofs of proposition t
 
-t ::= x                       variable
-    | (λx:E) t                function abstraction
-    | App([x:E] E, t, t)      function application
-    | (∀x:E) t                universal quantification
->>
-
-We refer to the first syntactic class as ty and the second as el. We first reformulate the rules as
-follows:
-<<
-A,B ::= Π(A,x.B)              product of types
-      | Prop                  type of propositions
-      | Proof(t)              type of proofs of proposition t
-
-t,u ::= x                     variable
-      | λ(A,x.t)              function abstraction
-      | App(A,x.B,t,u)        function application
-      | ∀(A,x.t)              universal quantification
->>
-
-This grammar then gives 6 operations, to the left as Vladimir's restricted 2-sorted signature (where
-el is 0 and ty is 1) and to the right as a multisorted signature:
-
-((0, 1), (1, 1), 1)                 = (([],ty), ([el], ty), ty)
-(1)                                 = ([],ty)
-((0, 0), 1)                         = (([], el), ty)
-((0, 1), (1, 0), 0)                 = (([], ty), ([el], el), el)
-((0, 1), (1, 1), (0, 0), (0, 0), 0) = (([], ty), ([el], ty), ([], el), ([], el), el)
-((0, 1), (1, 0), 0)                 = (([], ty), ([el], el), el)
-
-*)
-
-(** The multisorted signature of CC-S *)
-Definition CCS_Sig : MultiSortedSig sort.
-Proof.
-use make_MultiSortedSig.
-- exact (stn 6,,isasetstn 6).
-- apply six_rec.
-  + exact ((([],,ty) :: (cons el [],,ty) :: nil),,ty).
-  + exact ([],,ty).
-  + exact ((([],,el) :: nil),,ty).
-  + exact ((([],,ty) :: (cons el [],,el) :: nil),,el).
-  + exact ((([],,ty) :: (cons el [],,ty) :: ([],,el) :: ([],,el) :: nil),,el).
-  + exact ((([],,ty) :: (cons el [],,el) :: nil),,el).
-Defined.
+Local Notation "'Id'" := (functor_identity _).
 
 Definition CCS_Signature : Signature (HSET / sort) _ _ :=
   MultiSortedSigToSignature sort CCS_Sig.
@@ -182,8 +120,7 @@ Local Notation "'Id'" := (functor_identity HSET_over_sort).
 Local Notation "x ⊗ y" := (BinProductObject _ (BP x y)).
 
 (** The variables *)
-Definition var_map : HSET_over_sort2⟦Id,CCS⟧ :=
-  BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _) · CCS_mor.
+Definition var_map : HSET_over_sort2⟦Id,CCS⟧ := η CCS_alg.
 
 Definition Pi_source (X : HSET_over_sort2) : HSET_over_sort2 :=
   ((X ∙ proj_functor sort ty) ⊗ (sorted_option_functor sort el ∙ X ∙ proj_functor sort ty)) ∙ hat_functor sort ty.
@@ -191,15 +128,14 @@ Definition Pi_source (X : HSET_over_sort2) : HSET_over_sort2 :=
 (** The Pi constructor *)
 Definition Pi_map : HSET_over_sort2⟦Pi_source CCS,CCS⟧ :=
   (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 0)%stn)
-    · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _))
-    · CCS_mor.
+    ·  τ CCS_alg.
 
 Definition Prop_source (X : HSET_over_sort2) : HSET_over_sort2 :=
   constant_functor (slice_cat HSET _) HSET 1%CS  ∙ hat_functor sort ty.
 
 Definition Prop_map : HSET_over_sort2⟦Prop_source CCS,CCS⟧.
 Proof.
-use ((CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 1)%stn) · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _)) · CCS_mor).
+use ((CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 1)%stn)  · τ CCS_alg).
 Defined.
 
 Definition Proof_source (X : HSET_over_sort2) : HSET_over_sort2 :=
@@ -208,8 +144,7 @@ Definition Proof_source (X : HSET_over_sort2) : HSET_over_sort2 :=
 (** The Proof constructor *)
 Definition Proof_map : HSET_over_sort2⟦Proof_source CCS,CCS⟧ :=
   (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 2)%stn)
-    · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _))
-    · CCS_mor.
+    · τ CCS_alg.
 
 Definition lam_source (X : HSET_over_sort2) : HSET_over_sort2 :=
   ((X ∙ proj_functor sort ty) ⊗ (sorted_option_functor sort el ∙ X ∙ proj_functor sort el)) ∙ hat_functor sort el.
@@ -217,8 +152,7 @@ Definition lam_source (X : HSET_over_sort2) : HSET_over_sort2 :=
 (** The lambda constructor *)
 Definition lam_map : HSET_over_sort2⟦lam_source CCS,CCS⟧ :=
   (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 3)%stn)
-    · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _))
-    · CCS_mor.
+    · τ CCS_alg.
 
 Definition app_source (X : HSET_over_sort2) : HSET_over_sort2 :=
   ((X ∙ proj_functor sort ty) ⊗
@@ -229,8 +163,7 @@ Definition app_source (X : HSET_over_sort2) : HSET_over_sort2 :=
 (** The app constructor *)
 Definition app_map : HSET_over_sort2⟦app_source CCS,CCS⟧ :=
   (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 4)%stn)
-    · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _))
-    · CCS_mor.
+    · τ CCS_alg.
 
 Definition forall_source (X : HSET_over_sort2) : HSET_over_sort2 :=
   ((X ∙ proj_functor sort ty) ⊗ (sorted_option_functor sort el ∙ X ∙ proj_functor sort el)) ∙ hat_functor sort el.
@@ -238,8 +171,7 @@ Definition forall_source (X : HSET_over_sort2) : HSET_over_sort2 :=
 (** The ∀ constructor *)
 Definition forall_map : HSET_over_sort2⟦forall_source CCS,CCS⟧ :=
   (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (● 5)%stn)
-    · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _))
-    · CCS_mor.
+    · τ CCS_alg.
 
 Definition make_CCS_Algebra X
   (fvar    : HSET_over_sort2⟦Id,X⟧)

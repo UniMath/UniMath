@@ -22,7 +22,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
@@ -367,7 +367,7 @@ Section Initial.
     : is_biinitial_repr X.
   Proof.
     intros Y.
-    exact (adjointificiation (is_biinitial_to_is_biinitial_repr_help HX Y)).
+    exact (adjointification (is_biinitial_to_is_biinitial_repr_help HX Y)).
   Defined.
 
   Definition is_biinitial_weq_is_biinitial_repr

@@ -10,7 +10,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.categories.HSET.All.
+Require Import UniMath.CategoryTheory.Categories.HSET.All.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
@@ -197,6 +197,35 @@ Definition locally_strict
            (B : bicat)
   : UU
   := ∏ (a b : B), isaset (a --> b).
+
+Definition globally_strict
+           (B : bicat)
+  : UU
+  := isaset B.
+
+(** Set bicategories *)
+Definition bisetcat
+  : UU
+  := ∑ (B : bicat), locally_strict B × globally_strict B.
+
+Coercion bisetcat_to_bicat
+         (B : bisetcat)
+  : bicat
+  := pr1 B.
+
+Proposition locally_strict_bisetcat
+            (B : bisetcat)
+  : locally_strict B.
+Proof.
+  exact (pr12 B).
+Qed.
+
+Proposition globally_strict_bisetcat
+            (B : bisetcat)
+  : globally_strict B.
+Proof.
+  exact (pr22 B).
+Qed.
 
 Definition is_strict_bicat
            (B : bicat)
@@ -845,6 +874,47 @@ Lemma idto2mor_idtoiso_two_cat
 Proof.
   induction p.
   apply idpath.
+Qed.
+
+Definition is_invertible_2cell_idto2mor
+           {C : two_cat}
+           {a b : C}
+           {f g : a --> b}
+           (p : f = g)
+  : is_invertible_2cell (C := two_cat_to_bicat C) (idto2mor p).
+Proof.
+  induction p.
+  apply (id2_invertible_2cell (C := two_cat_to_bicat C)).
+Defined.
+
+Definition idto2mor_invertible_2cell
+           {C : two_cat}
+           {a b : C}
+           {f g : a --> b}
+           (p : f = g)
+  : invertible_2cell (C := two_cat_to_bicat C) f g.
+Proof.
+  use make_invertible_2cell.
+  - exact (idto2mor p).
+  - apply is_invertible_2cell_idto2mor.
+Defined.
+
+Proposition is_univalent_2_1_two_cat_to_bicat
+            {C : two_cat}
+            (HC : locally_univalent_two_cat C)
+  : is_univalent_2_1 (two_cat_to_bicat C).
+Proof.
+  intros x y f g.
+  use weqhomot.
+  - exact (make_weq _ (HC x y f g))%weq.
+  - intros p.
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_is_invertible_2cell.
+    }
+    induction p ; cbn.
+    apply idpath.
 Qed.
 
 Lemma two_cat_is_strict_bicat

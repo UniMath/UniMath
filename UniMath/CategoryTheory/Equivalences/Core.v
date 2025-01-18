@@ -7,9 +7,14 @@ Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman (January 2013)
 
 (** ** Contents:
 
-- Definition of (adjoint) equivalence of categories
+- Definition of (adjoint) equivalence of categories [adj_equivalence_of_cats]
+- Constructor for an equivalence of categories from a right adjoint functor
+    [adj_equivalence_from_right_adjoint]
 - Equivalence of categories yields weak equivalence of object types
-- A fully faithful and ess. surjective functor induces equivalence of precategories, if the source is a univalent_category.
+    [weq_on_objects_from_adj_equiv_of_cats]
+- A fully faithful and ess. surjective functor induces equivalence of precategories if it is also
+    split ess. surjective or if the source is a univalent_category
+    [rad_equivalence_of_cats'] [rad_equivalence_of_cats]
 
 *)
 
@@ -90,6 +95,131 @@ Proof.
   - apply H2.
 Defined.
 
+Section MakeAdjEquivalenceOfCats'.
+
+  Context {A B : category}.
+  Context (F : functor A B).
+  Context (G : functor B A).
+  Context (η : functor_identity B ⟹ G ∙ F).
+  Context (ε : F ∙ G ⟹ functor_identity A).
+  Context (H1 : form_adjunction G F η ε).
+  Context (H2 : ∏ a, is_z_isomorphism (η a)).
+  Context (H3 : ∏ a, is_z_isomorphism (ε a)).
+
+  Definition make_adj_equivalence_of_cats'_unit_nat_trans_data
+    : nat_trans_data (functor_identity A) (F ∙ G).
+  Proof.
+    intro a.
+    exact (inv_from_z_iso (_ ,, H3 a)).
+  Defined.
+
+  Lemma make_adj_equivalence_of_cats'_unit_is_nat_trans
+    : is_nat_trans _ _ make_adj_equivalence_of_cats'_unit_nat_trans_data.
+  Proof.
+    intros a a' f.
+    symmetry.
+    apply z_iso_inv_on_right.
+    rewrite assoc.
+    apply z_iso_inv_on_left.
+    symmetry.
+    apply nat_trans_ax.
+  Qed.
+
+  Definition make_adj_equivalence_of_cats'_unit
+    : functor_identity A ⟹ F ∙ G
+    := make_nat_trans _ _ _ make_adj_equivalence_of_cats'_unit_is_nat_trans.
+
+  Definition make_adj_equivalence_of_cats'_counit_nat_trans_data
+    : nat_trans_data (G ∙ F) (functor_identity B).
+  Proof.
+    intro a.
+    exact (inv_from_z_iso (_ ,, H2 a)).
+  Defined.
+
+  Lemma make_adj_equivalence_of_cats'_counit_is_nat_trans
+    : is_nat_trans _ _ make_adj_equivalence_of_cats'_counit_nat_trans_data.
+  Proof.
+    intros a a' f.
+    symmetry.
+    apply z_iso_inv_on_right.
+    rewrite assoc.
+    apply z_iso_inv_on_left.
+    symmetry.
+    apply nat_trans_ax.
+  Qed.
+
+  Definition make_adj_equivalence_of_cats'_counit
+    : G ∙ F ⟹ functor_identity B
+    := make_nat_trans _ _ _ make_adj_equivalence_of_cats'_counit_is_nat_trans.
+
+  Lemma make_adj_equivalence_of_cats'_form_adjunction
+    : form_adjunction F G make_adj_equivalence_of_cats'_unit make_adj_equivalence_of_cats'_counit.
+  Proof.
+    use make_form_adjunction.
+    - intro a.
+      refine (maponpaths (λ x, x · _) (functor_on_inv_from_z_iso _ _) @ _).
+      apply z_iso_inv_on_right.
+      symmetry.
+      refine (id_right _ @ _).
+      refine (_ @ id_right _).
+      symmetry.
+      apply z_iso_inv_on_right.
+      symmetry.
+      apply (pr2 H1).
+    - intro a.
+      refine (maponpaths _ (functor_on_inv_from_z_iso _ _) @ _).
+      apply z_iso_inv_on_right.
+      symmetry.
+      refine (id_right _ @ _).
+      refine (_ @ id_right _).
+      symmetry.
+      apply z_iso_inv_on_right.
+      symmetry.
+      apply (pr1 H1).
+  Qed.
+
+  Definition make_adj_equivalence_of_cats'_are_adjoints
+    : are_adjoints F G
+    := make_are_adjoints _ _
+        make_adj_equivalence_of_cats'_unit
+        make_adj_equivalence_of_cats'_counit
+        make_adj_equivalence_of_cats'_form_adjunction.
+
+  Lemma make_adj_equivalence_of_cats'_forms_equivalence
+    : forms_equivalence (G ,, make_adj_equivalence_of_cats'_are_adjoints : is_left_adjoint F).
+  Proof.
+    split;
+      intro;
+      apply is_z_iso_inv_from_z_iso.
+  Qed.
+
+  Definition make_adj_equivalence_of_cats'
+  : adj_equivalence_of_cats F.
+  Proof.
+    use tpair.
+    - exists G.
+      exact make_adj_equivalence_of_cats'_are_adjoints.
+    - exact make_adj_equivalence_of_cats'_forms_equivalence.
+  Defined.
+
+End MakeAdjEquivalenceOfCats'.
+
+Definition adj_equivalence_from_right_adjoint
+  {A B : category}
+  (F : functor A B)
+  (H1 : is_right_adjoint F)
+  (H2 : ∏ a, is_z_isomorphism ((unit_from_right_adjoint H1) a))
+  (H3 : ∏ a, is_z_isomorphism ((counit_from_right_adjoint H1) a))
+  : adj_equivalence_of_cats F
+  := make_adj_equivalence_of_cats'
+    F
+    (left_adjoint H1)
+    (unit_from_right_adjoint H1)
+    (counit_from_right_adjoint H1)
+    (pr2 (pr2 H1))
+    H2
+    H3.
+
 Definition adj_equivalence_inv {A B : category}
   {F : functor A B} (HF : adj_equivalence_of_cats F) : functor B A :=
     right_adjoint HF.
@@ -147,6 +277,22 @@ Section Accessors.
     apply (pr2 (pr2 HF)).
   Defined.
 End Accessors.
+
+Section Inverse.
+
+  Context {A B : category}.
+  Context (F : functor A B).
+  Context (H : adj_equivalence_of_cats F).
+
+  Definition adj_equivalence_of_cats_inv
+    : adj_equivalence_of_cats (H^^-1)
+    := adj_equivalence_from_right_adjoint
+      (right_adjoint H)
+      (is_right_adjoint_right_adjoint H)
+      (pr1 (pr2 H))
+      (pr2 (pr2 H)).
+
+End Inverse.
 
 Section AdjEquiv.
   Definition adj_equiv (A B : category) : UU
@@ -329,7 +475,7 @@ Proof.
   - apply adjointification_triangle_1.
 Qed.
 
-Definition adjointificiation : adj_equivalence_of_cats F.
+Definition adjointification : adj_equivalence_of_cats F.
 Proof.
   use make_adj_equivalence_of_cats.
   - exact G.
@@ -456,38 +602,29 @@ Defined.
     univalent_category.
 *)
 
-Section from_fully_faithful_and_ess_surj_to_equivalence.
+Section FullyFaithfulAndSplitEssentiallySurjectiveToEquivalence.
 
 Variables A B : category.
-Hypothesis HA : is_univalent A.
 Variable F : functor A B.
 Hypothesis HF : fully_faithful F.
-Hypothesis HS : essentially_surjective F.
+Hypothesis HS : split_essentially_surjective F.
 
 (** Definition of a functor which will later be the right adjoint. *)
 
-Definition rad_ob : ob B -> ob A.
-Proof.
-  use split_essentially_surjective_inv_on_obj.
-  - exact F.
-  - apply ff_essentially_surjective_to_split; assumption.
-Defined.
+Definition rad_ob
+  : ob B -> ob A
+  := split_essentially_surjective_inv_on_obj F HS.
 
 (** Definition of the epsilon transformation *)
 
-Definition rad_eps (b : ob B) : z_iso (F (rad_ob b)) b.
-Proof.
-  apply (pr2 (HS b (tpair (λ x, isaprop x) _
-               (isaprop_sigma_z_iso A B HA F HF b)) (λ x, x))).
-Defined.
+Definition rad_eps (b : ob B) : z_iso (F (rad_ob b)) b := pr2 (HS _).
 
 (** The right adjoint on morphisms *)
 
 Definition rad_mor (b b' : ob B) (g : b --> b') : rad_ob b --> rad_ob b'.
 Proof.
   set (epsgebs' := rad_eps b · g · z_iso_inv_from_z_iso (rad_eps b')).
-  set (Gg := fully_faithful_inv_hom HF (rad_ob b) _ epsgebs').
-  exact Gg.
+  exact (fully_faithful_inv_hom HF (rad_ob b) _ epsgebs').
 Defined.
 
 (** Definition of the eta transformation *)
@@ -500,11 +637,9 @@ Defined.
 
 (** Above data specifies a functor *)
 
-Definition rad_functor_data : functor_data B A.
-Proof.
-  exists rad_ob.
-  exact rad_mor.
-Defined.
+Definition rad_functor_data
+  : functor_data B A
+  := make_functor_data rad_ob rad_mor.
 
 Lemma rad_is_functor : is_functor rad_functor_data.
 Proof.
@@ -524,12 +659,8 @@ Proof.
   apply idpath.
 Qed.
 
-Definition rad : ob [B, A].
-Proof.
-  exists rad_functor_data.
-  apply rad_is_functor.
-Defined.
-
+Definition rad : ob [B, A]
+  := make_functor rad_functor_data rad_is_functor.
 
 (** Epsilon is natural *)
 
@@ -550,7 +681,7 @@ Proof.
 Qed.
 
 Definition rad_eps_trans : nat_trans _ _ :=
-   tpair (is_nat_trans _ _ ) _ rad_eps_is_nat_trans.
+  make_nat_trans _ _ _ rad_eps_is_nat_trans.
 
 (** Eta is natural *)
 
@@ -636,7 +767,7 @@ Defined.
     remains to show that [eta], [eps] are isos
 *)
 
-Lemma rad_equivalence_of_cats : adj_equivalence_of_cats F.
+Lemma rad_equivalence_of_cats' : adj_equivalence_of_cats F.
 Proof.
   exists rad_is_left_adjoint.
   split; simpl.
@@ -654,4 +785,18 @@ Proof.
   intro b. apply (pr2 (rad_eps b)).
 Defined.
 
-End from_fully_faithful_and_ess_surj_to_equivalence.
+End FullyFaithfulAndSplitEssentiallySurjectiveToEquivalence.
+
+Lemma rad_equivalence_of_cats
+  (A B : category)
+  (HA : is_univalent A)
+  (F : functor A B)
+  (HF : fully_faithful F)
+  (HS : essentially_surjective F)
+ : adj_equivalence_of_cats F.
+Proof.
+  apply rad_equivalence_of_cats'.
+  - exact HF.
+  - apply ff_essentially_surjective_to_split;
+    assumption.
+Defined.

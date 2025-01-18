@@ -12,47 +12,38 @@ Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Universal.EqAlgebras.
 
 Local Open Scope stn.
+Local Open Scope eq.
 
 (** Signature. *)
 
 Definition monoid_signature := make_signature_simple_single_sorted [2; 0].
 
+Definition monoid_sort : sorts monoid_signature := tt.
+
 (** Algebra of monoids without equations. *)
 
 Definition monoid_algebra (M: monoid)
   : algebra monoid_signature
-  := make_algebra_simple_single_sorted monoid_signature M
-  [(
-    λ p, op (pr1 p) (pr12 p) ;
-    λ _, unel M
-  )].
+  := make_algebra_simple_single_sorted' monoid_signature M [( op ; unel M )].
 
 Module Eqspec.
 
 (** Free algebra of open terms. *)
 
 Definition monoid_varspec : varspec monoid_signature
-  := make_varspec monoid_signature natset (λ _, tt).
+  := make_varspec monoid_signature natset (λ _, monoid_sort).
 
 Definition Mon : UU := term monoid_signature monoid_varspec tt.
-Definition mul : Mon → Mon → Mon := build_term_curried (●0: names monoid_signature).
-Definition id  : Mon := build_term_curried (●1: names monoid_signature).
+Definition mul : Mon → Mon → Mon := build_term' (●0: names monoid_signature).
+Definition id  : Mon := build_term' (●1: names monoid_signature).
 
 Definition x : Mon := varterm (0: monoid_varspec).
 Definition y : Mon := varterm (1: monoid_varspec).
 Definition z : Mon := varterm (2: monoid_varspec).
 
-Definition monoid_equation : UU
-  := equation monoid_signature monoid_varspec.
-
-Definition monoid_mul_assoc : monoid_equation :=
-  tt,, make_dirprod (mul (mul x y) z) (mul x (mul y z)).
-
-Definition monoid_mul_lid : monoid_equation
-  := tt,, make_dirprod (mul id x) x.
-
-Definition monoid_mul_rid : monoid_equation
-  := tt,, make_dirprod (mul x id) x.
+Definition monoid_mul_assoc := mul (mul x y) z == mul x (mul y z).
+Definition monoid_mul_lid := mul id x == x.
+Definition monoid_mul_rid := mul x id == x.
 
 Definition monoid_axioms : eqsystem monoid_signature monoid_varspec
   := ⟦ 3 ⟧,, three_rec monoid_mul_assoc monoid_mul_lid monoid_mul_rid.

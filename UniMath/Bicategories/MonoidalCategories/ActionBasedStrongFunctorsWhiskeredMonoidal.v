@@ -3,7 +3,7 @@
 This means that the requirement on strength is that it behaves as a ``homomorphism'' w.r.t. the
 monoidal structures. More precisely, we construct transformations in both directions between parameterized distributivity (in a slightly massaged form to accommodate reasoning through bicategories) and displayed sections that are a formalization-friendly form of strong monoidal functors that are right inverses of the projection from the target displayed category. The result makes use of displayed monoidal categories.
 
-The non-monoidal basic situation is now presented in [UniMath.CategoryTheory.categories.Dialgebras].
+The non-monoidal basic situation is now presented in [UniMath.CategoryTheory.Categories.Dialgebras].
 
 Author: Ralph Matthes 2021, 2022
 
@@ -17,7 +17,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.categories.Dialgebras.
+Require Import UniMath.CategoryTheory.Categories.Dialgebras.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
@@ -547,9 +547,11 @@ Section Main.
       change (montrafotargetbicat_disp w) in π.
       exact (montrafotargetbicat_tensor_comp_aux v w v' w f (identity w) η π η' π Hyp (id_disp π)).
     Qed.
+
     Definition montrafotargetbicat_disp_tensor: disp_tensor montrafotargetbicat_disp Mon_V.
     Proof.
-      use make_disp_bifunctor.
+      use make_disp_bifunctor_locally_prop.
+      - intro; intros; apply trafotargetbicat_disp_cells_isaprop.
       - use make_disp_bifunctor_data.
         + intros v w η π.
           exact (param_distr_bicat_pentagon_eq_body_variant_RHS v w η π).
@@ -559,8 +561,8 @@ Section Main.
         + cbn.
           intros v v' w f η η' π Hyp.
           apply montrafotargetbicat_tensor_comp_aux_inst2; assumption.
-      - red. repeat split; red; intros; apply trafotargetbicat_disp_cells_isaprop.
     Defined.
+
     (** the following are called data elements, but they have no computational content *)
     Lemma montrafotargetbicat_disp_leftunitor_data: disp_leftunitor_data montrafotargetbicat_disp_tensor montrafotargetbicat_disp_unit.
     Proof.
@@ -1272,19 +1274,6 @@ Section Main.
       exact lax_monoidal_functor_assoc_inst.
      Qed.
 
-    Lemma montrafotargetbicat_disp_associator_iso: disp_associator_iso montrafotargetbicat_disp_associator_data montrafotargetbicat_disp_associatorinv_data.
-    Proof.
-      intros v1 v2 v3 η1 η2 η3.
-      (** now we benefit from working in a displayed monoidal category *)
-      split; apply trafotargetbicat_disp_cells_isaprop.
-    Qed.
-
-    Lemma montrafotargetbicat_disp_associator_law: disp_associator_law montrafotargetbicat_disp_associator_data montrafotargetbicat_disp_associatorinv_data.
-    Proof.
-      (** now we benefit from working in a displayed monoidal category *)
-      repeat (split; try (red; intros; apply trafotargetbicat_disp_cells_isaprop)); try apply trafotargetbicat_disp_cells_isaprop.
-    Qed.
-
     Lemma montrafotargetbicat_disp_leftunitorinv_data: disp_leftunitorinv_data montrafotargetbicat_disp_tensor montrafotargetbicat_disp_unit.
     Proof.
       intros v η.
@@ -1381,19 +1370,6 @@ Section Main.
       apply (lhs_left_invert_cell _ _ _ (is_invertible_2cell_rassociator _ _ _)).
       cbn.
       apply pathsinv0, lunitor_triangle.
-    Qed.
-
-    Lemma montrafotargetbicat_disp_leftunitor_iso: disp_leftunitor_iso montrafotargetbicat_disp_leftunitor_data montrafotargetbicat_disp_leftunitorinv_data.
-    Proof.
-      intros v η.
-      (** now we benefit from working in a displayed monoidal category *) split; apply trafotargetbicat_disp_cells_isaprop.
-    Qed.
-
-    Lemma montrafotargetbicat_disp_leftunitor_law: disp_leftunitor_law montrafotargetbicat_disp_leftunitor_data montrafotargetbicat_disp_leftunitorinv_data.
-    Proof.
-      split.
-      - red. intros. apply trafotargetbicat_disp_cells_isaprop.
-      - exact montrafotargetbicat_disp_leftunitor_iso.
     Qed.
 
     Lemma montrafotargetbicat_disp_rightunitorinv_data: disp_rightunitorinv_data montrafotargetbicat_disp_tensor montrafotargetbicat_disp_unit.
@@ -1520,19 +1496,6 @@ Section Main.
       apply runitor_rwhisker.
     Qed.
 
-    Lemma montrafotargetbicat_disp_rightunitor_iso: disp_rightunitor_iso montrafotargetbicat_disp_rightunitor_data montrafotargetbicat_disp_rightunitorinv_data.
-    Proof.
-      intros v η.
-      (** now we benefit from working in a displayed monoidal category *) split; apply trafotargetbicat_disp_cells_isaprop.
-    Qed.
-
-    Lemma montrafotargetbicat_disp_rightunitor_law: disp_rightunitor_law montrafotargetbicat_disp_rightunitor_data montrafotargetbicat_disp_rightunitorinv_data.
-    Proof.
-      split.
-      - red. intros. apply trafotargetbicat_disp_cells_isaprop.
-      - exact montrafotargetbicat_disp_rightunitor_iso.
-    Qed.
-
     Definition montrafotargetbicat_disp_monoidal_data: disp_monoidal_data montrafotargetbicat_disp Mon_V.
     Proof.
       exists montrafotargetbicat_disp_tensor.
@@ -1547,13 +1510,9 @@ Section Main.
 
     Definition montrafotargetbicat_disp_monoidal: disp_monoidal montrafotargetbicat_disp Mon_V.
     Proof.
-      exists montrafotargetbicat_disp_monoidal_data.
-      split.
-      { exact montrafotargetbicat_disp_leftunitor_law. }
-      split; [ exact montrafotargetbicat_disp_rightunitor_law |].
-      split; [ exact montrafotargetbicat_disp_associator_law |].
-      (** now we benefit from working in a displayed monoidal category *)
-      split; red; intros; apply trafotargetbicat_disp_cells_isaprop.
+      use make_disp_monoidal_locally_prop.
+      - intro; intros; apply trafotargetbicat_disp_cells_isaprop.
+      - exact montrafotargetbicat_disp_monoidal_data.
     Defined.
 
     Definition parameterized_distributivity_bicat_nat : UU := H ⟹ H'.
@@ -1796,7 +1755,7 @@ Defined.
         use total2_paths_f.
         - cbn.
           unfold δ_from_ms.
-          apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip1_with_sections.
+          apply UniMath.CategoryTheory.Categories.Dialgebras.roundtrip1_with_sections.
         - cbn.
           match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
           assert (Hprop: isaprop goaltype).
@@ -1816,7 +1775,7 @@ Defined.
         use total2_paths_f.
         - cbn.
           unfold δ_from_ms.
-          apply UniMath.CategoryTheory.categories.Dialgebras.roundtrip2_with_sections.
+          apply UniMath.CategoryTheory.Categories.Dialgebras.roundtrip2_with_sections.
         - cbn.
           match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
           assert (Hprop: isaprop goaltype).

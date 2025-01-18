@@ -26,7 +26,6 @@ Require Import UniMath.CategoryTheory.Monoidal.Functors.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
-Require Import UniMath.CategoryTheory.Monoidal.Displayed.MonoidalSections.
 Require Import UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMonoidal.
 
 Require Import UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.

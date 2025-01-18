@@ -2,7 +2,29 @@
 
  Limits of enriched categories
 
- In this file we construct several limits of enriched categories.
+ In this file we construct several limits of enriched categories. The construction
+ of these limits is similar as for categories: final objects are constructed via
+ the unit category, inserters are constructed via dialgebras, equifiers are
+ constructed via full subcategories, and Eilenberg-Moore objects are constructed
+ using the Eilenberg-Moore category of a monad.
+
+ Note that we give two different constructions of the final object. For one of
+ them, we assume that the monoidal category is semi-cartesian. This way, the
+ enrichment is given by the unit of the monoidal category. In the other construction,
+ we assume that the monoidal category has a terminal object.
+
+ Another thing to notice, is that to construct inserters (and to construct
+ Eilenberg-Moore objects), we assume that the category `V` over which we enrich,
+ has equalizers. Morphisms in the category of dialgebras are given by a morphism
+ such that a certain diagram commutes. Equalizers are used to phrase this
+ commutativity condition. To construct equifiers, we don't need to make any
+ additional assumptions on `V`, because full subcategories of enriched categories
+ can be constructed in general.
+
+ The largest part of the formalization of these limits is collecting functors and
+ natural transformation that we already constructed in the directory on enriched
+ categories. The only parts that remain to be proven, are the coherences that
+ need to be proven.
 
  Contents:
  1. Final object
@@ -13,19 +35,16 @@
  *********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
 Require Import UniMath.CategoryTheory.Subcategory.Full.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
-Require Import UniMath.CategoryTheory.categories.Dialgebras.
-Require Import UniMath.CategoryTheory.categories.EilenbergMoore.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.Dialgebras.
+Require Import UniMath.CategoryTheory.Categories.EilenbergMoore.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.equalizers.
+Require Import UniMath.CategoryTheory.Monoidal.Structure.Cartesian.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
@@ -66,31 +85,34 @@ Section LimitsEnrichedCats.
    *)
 
   (**
-   Note that to construct the final object, we assume that the
-   monoidal category `V` is semi-cartesian, which means that
+   Note that in this construction of the final object, we assume that
+   the monoidal category `V` is semi-cartesian, which means that
    the unit is a terminal object. We use this to construct the
    univalent enriched unit category.
    *)
   Section FinalObject.
-    Context (HV : isTerminal V (I_{V})).
+    Context (HV : is_semicartesian V).
 
-    Let enriched_bifinal : bicat_of_enriched_cats V
-      := unit_category ,, unit_enrichment V HV.
+    Let enriched_bifinal : enriched_cat V
+      := make_enriched_cat (unit_category) (unit_enrichment V HV).
 
     Definition is_bifinal_enriched_cats
       : is_bifinal enriched_bifinal.
     Proof.
       use make_is_bifinal.
-      - exact (λ E,
-               functor_to_unit _
-               ,,
-               functor_to_unit_enrichment V HV (pr2 E)).
-      - exact (λ C F G,
-               unit_category_nat_trans (pr1 F) (pr1 G)
-               ,,
-               nat_trans_to_unit_enrichment _ _ _ (pr2 F) (pr2 G)).
+      - refine (λ (E : enriched_cat V), _).
+        use make_enriched_functor.
+        + exact (functor_to_unit E).
+        + exact (functor_to_unit_enrichment V HV E).
+      - refine (λ (E : enriched_cat V) (F G : enriched_functor E _), _).
+        use make_enriched_nat_trans.
+        + exact (unit_category_nat_trans F G).
+        + exact (nat_trans_to_unit_enrichment
+                   _ _ _
+                   (enriched_functor_enrichment F)
+                   (enriched_functor_enrichment G)).
       - abstract
-          (intros C f g α β ;
+          (intros C F G τ θ ;
            use subtypePath ;
            [ intro ; apply isaprop_nat_trans_enrichment
            | ] ;
@@ -103,30 +125,85 @@ Section LimitsEnrichedCats.
   End FinalObject.
 
   (**
+   Note that in this construction of the final object, we assume that
+   the monoidal category `V` has a terminal object.
+   *)
+  Section FinalObject.
+    Context (T : Terminal V).
+
+    Let enriched_bifinal_from_terminal : bicat_of_enriched_cats V
+      := make_enriched_cat unit_category (unit_enrichment_from_terminal V T).
+
+    Definition is_bifinal_enriched_cats_from_terminal
+      : is_bifinal enriched_bifinal_from_terminal.
+    Proof.
+      use make_is_bifinal.
+      - refine (λ (E : enriched_cat V), _).
+        use make_enriched_functor.
+        + exact (functor_to_unit E).
+        + exact (functor_to_unit_enrichment_from_terminal V T E).
+      - refine (λ (E : enriched_cat V) (F G : enriched_functor E _), _).
+        use make_enriched_nat_trans.
+        + exact (unit_category_nat_trans F G).
+        + exact (nat_trans_to_unit_enrichment_from_terminal
+                   _ _ _
+                   (enriched_functor_enrichment F)
+                   (enriched_functor_enrichment G)).
+      - abstract
+          (intros C F G τ θ ;
+           use subtypePath ;
+           [ intro ; apply isaprop_nat_trans_enrichment
+           | ] ;
+           apply nat_trans_to_unit_eq).
+    Defined.
+
+    Definition bifinal_enriched_cats_from_terminal
+      : bifinal_obj (bicat_of_enriched_cats V)
+      := enriched_bifinal_from_terminal ,, is_bifinal_enriched_cats_from_terminal.
+  End FinalObject.
+
+  (**
    2. Inserters
    *)
   Section Inserters.
     Context (HV : Equalizers V)
-            {E₁ E₂ : bicat_of_enriched_cats V}
-            (F G : E₁ --> E₂).
+            {E₁ E₂ : enriched_cat V}
+            (F G : enriched_functor E₁ E₂).
 
     Definition enriched_inserter_cat
-      : bicat_of_enriched_cats V
-      := univalent_dialgebra (pr1 F) (pr1 G)
-         ,,
-         dialgebra_enrichment _ HV (pr2 F) (pr2 G).
+      : enriched_cat V.
+    Proof.
+      use make_enriched_cat.
+      - exact (univalent_dialgebra F G).
+      - exact (dialgebra_enrichment
+                 _ HV
+                 (enriched_functor_enrichment F)
+                 (enriched_functor_enrichment G)).
+    Defined.
 
     Definition enriched_inserter_pr1
-      : enriched_inserter_cat --> E₁
-      := dialgebra_pr1 (pr1 F) (pr1 G)
-         ,,
-         dialgebra_pr1_enrichment _ HV (pr2 F) (pr2 G).
+      : enriched_functor enriched_inserter_cat E₁.
+    Proof.
+      use make_enriched_functor.
+      - exact (dialgebra_pr1 F G).
+      - exact (dialgebra_pr1_enrichment
+                 _ HV
+                 (enriched_functor_enrichment F)
+                 (enriched_functor_enrichment G)).
+    Defined.
 
     Definition enriched_inserter_cell
-      : enriched_inserter_pr1 · F ==> enriched_inserter_pr1 · G
-      := dialgebra_nat_trans (pr1 F) (pr1 G)
-         ,,
-         dialgebra_nat_trans_enrichment _ HV (pr2 F) (pr2 G).
+      : enriched_nat_trans
+          (enriched_inserter_pr1 · F)
+          (enriched_inserter_pr1 · G).
+    Proof.
+      use make_enriched_nat_trans.
+      - exact (dialgebra_nat_trans F G).
+      - exact (dialgebra_nat_trans_enrichment
+                 _ HV
+                 (enriched_functor_enrichment F)
+                 (enriched_functor_enrichment G)).
+    Defined.
 
     Definition enriched_inserter_cone
       : inserter_cone F G.
@@ -142,7 +219,7 @@ Section LimitsEnrichedCats.
     Proof.
       intros q.
       use make_inserter_1cell.
-      - simple refine (_ ,, _).
+      - use make_enriched_functor.
         + exact (nat_trans_to_dialgebra
                    (pr1 (inserter_cone_pr1 q))
                    (pr1 (inserter_cone_cell q))).
@@ -153,7 +230,7 @@ Section LimitsEnrichedCats.
                    (pr1 (inserter_cone_cell q))
                    (pr2 (inserter_cone_cell q))).
       - use make_invertible_2cell.
-        + simple refine (_ ,, _).
+        + use make_enriched_nat_trans.
           * exact (nat_trans_to_dialgebra_pr1
                      (pr1 (inserter_cone_pr1 q))
                      (pr1 (inserter_cone_cell q))).
@@ -163,32 +240,11 @@ Section LimitsEnrichedCats.
                      (pr2 F) (pr2 G)
                      (pr1 (inserter_cone_cell q))
                      (pr2 (inserter_cone_cell q))).
-        + use make_is_invertible_2cell.
-          * simple refine (_ ,, _).
-            ** cbn.
-               exact (nat_z_iso_inv
-                        (nat_trans_to_dialgebra_pr1_nat_z_iso
-                           (pr1 (inserter_cone_pr1 q))
-                           (pr1 (inserter_cone_cell q)))).
-            ** exact (nat_trans_to_dialgebra_pr1_enrichment_inv
-                        _
-                        HV
-                        (pr2 F) (pr2 G)
-                        (pr1 (inserter_cone_cell q))
-                        (pr2 (inserter_cone_cell q))).
-          * abstract
-              (use subtypePath ; [ intro ; apply isaprop_nat_trans_enrichment | ] ;
-               use nat_trans_eq ; [ apply homset_property | ] ;
-               intro x ; cbn ;
-               apply id_left).
-          * abstract
-              (use subtypePath ; [ intro ; apply isaprop_nat_trans_enrichment | ] ;
-               use nat_trans_eq ; [ apply homset_property | ] ;
-               intro x ; cbn ;
-               apply id_left).
+        + use make_is_invertible_2cell_enriched.
+          intros x.
+          apply is_z_isomorphism_identity.
       - abstract
-          (use subtypePath ; [ intro ; apply isaprop_nat_trans_enrichment | ] ;
-           use nat_trans_eq ; [ apply homset_property | ] ;
+          (use eq_enriched_nat_trans ;
            intro x ; cbn ;
            rewrite !(functor_id (pr1 F)), !(functor_id (pr1 G)) ;
            rewrite !id_left, !id_right ;
@@ -200,19 +256,18 @@ Section LimitsEnrichedCats.
     Proof.
       intros E₀ K₁ K₂ α p.
       simple refine (_ ,, _).
-      - simple refine (_ ,, _).
+      - use make_enriched_nat_trans.
         + apply (build_nat_trans_to_dialgebra (pr1 K₁) (pr1 K₂) (pr1 α)).
           abstract
             (intro x ;
-             pose (maponpaths (λ z, pr11 z x) p) as p' ;
+             pose (from_eq_enriched_nat_trans p x) as p' ;
              cbn in p' ;
              rewrite !id_left, !id_right in p' ;
              exact p').
-        + apply build_nat_trans_to_dialgebra_enrichment.
+        + apply make_nat_trans_to_dialgebra_enrichment.
           exact (pr2 α).
       - abstract
-          (use subtypePath ; [ intro ; apply isaprop_nat_trans_enrichment | ] ;
-           use nat_trans_eq ; [ apply homset_property | ] ;
+          (use eq_enriched_nat_trans ;
            intro x ; cbn ;
            apply idpath).
     Defined.
@@ -221,18 +276,10 @@ Section LimitsEnrichedCats.
       : has_inserter_ump_eq enriched_inserter_cone.
     Proof.
       intros E₀ K₁ K₂ α p n₁ n₂ q₁ q₂.
-      use subtypePath.
-      {
-        intro.
-        apply isaprop_nat_trans_enrichment.
-      }
-      use nat_trans_eq.
-      {
-        apply homset_property.
-      }
+      use eq_enriched_nat_trans.
       intro x.
       use eq_dialgebra.
-      exact (maponpaths (λ z, pr11 z x) (q₁ @ !q₂)).
+      exact (from_eq_enriched_nat_trans (q₁ @ !q₂) x).
     Qed.
   End Inserters.
 
@@ -255,40 +302,36 @@ Section LimitsEnrichedCats.
    3. Equifiers
    *)
   Section EquifierEnrichedCat.
-    Context {E₁ E₂ : bicat_of_enriched_cats V}
-            {F G : E₁ --> E₂}
-            (τ θ : F ==> G).
+    Context {E₁ E₂ : enriched_cat V}
+            {F G : enriched_functor E₁ E₂}
+            (τ θ : enriched_nat_trans F G).
 
     Definition equifier_bicat_of_enriched_cats
-      : bicat_of_enriched_cats V.
+      : enriched_cat V.
     Proof.
-      simple refine (_ ,, _).
-      - use (subcategory_univalent (pr1 E₁)).
+      use make_enriched_cat.
+      - use (subcategory_univalent E₁).
         intro x.
         use make_hProp.
-        + exact (pr11 τ x = pr11 θ x).
+        + exact (τ x = θ x).
         + apply homset_property.
-      - apply (fullsub_enrichment _ (pr2 E₁)).
+      - apply (fullsub_enrichment _ E₁).
     Defined.
 
     Definition equifier_bicat_of_enriched_cats_pr1
-      : equifier_bicat_of_enriched_cats --> E₁
-      := sub_precategory_inclusion _ _ ,, fullsub_inclusion_enrichment _ _ _.
+      : enriched_functor equifier_bicat_of_enriched_cats E₁.
+    Proof.
+      use make_enriched_functor.
+      - exact (sub_precategory_inclusion _ _).
+      - exact (fullsub_inclusion_enrichment _ _ _).
+    Defined.
 
     Definition equifier_bicat_of_enriched_cats_eq
       : equifier_bicat_of_enriched_cats_pr1 ◃ τ
         =
         equifier_bicat_of_enriched_cats_pr1 ◃ θ.
     Proof.
-      use subtypePath.
-      {
-        intro.
-        apply isaprop_nat_trans_enrichment.
-      }
-      use nat_trans_eq.
-      {
-        apply homset_property.
-      }
+      use eq_enriched_nat_trans.
       intro x.
       exact (pr2 x).
     Qed.
@@ -301,8 +344,8 @@ Section LimitsEnrichedCats.
            equifier_bicat_of_enriched_cats_eq.
 
     Section EquifierUMP1.
-      Context (E₀ : bicat_of_enriched_cats V)
-              (H : E₀ --> E₁)
+      Context (E₀ : enriched_cat V)
+              (H : enriched_functor E₀ E₁)
               (q : H ◃ τ = H ◃ θ).
 
       Definition equifier_bicat_of_enriched_cats_ump_1_functor_data
@@ -312,7 +355,7 @@ Section LimitsEnrichedCats.
       Proof.
         use make_functor_data.
         - refine (λ x, pr11 H x ,, _).
-          exact (maponpaths (λ z, pr11 z x) q).
+          exact (from_eq_enriched_nat_trans q x).
         - exact (λ x y f, # (pr11 H) f ,, tt).
       Defined.
 
@@ -357,7 +400,7 @@ Section LimitsEnrichedCats.
       Definition equifier_bicat_of_enriched_cats_ump_1_mor
         : E₀ --> equifier_bicat_of_enriched_cats_cone.
       Proof.
-        simple refine (_ ,, _).
+        use make_enriched_functor.
         - exact equifier_bicat_of_enriched_cats_ump_1_functor.
         - exact equifier_bicat_of_enriched_cats_ump_1_enrichment.
       Defined.
@@ -368,7 +411,7 @@ Section LimitsEnrichedCats.
           ==>
           H.
       Proof.
-        simple refine (_ ,, _).
+        use make_enriched_nat_trans.
         - use make_nat_trans.
           + exact (λ _, identity _).
           + abstract
@@ -412,7 +455,7 @@ Section LimitsEnrichedCats.
           equifier_bicat_of_enriched_cats_ump_1_mor
           · equifier_bicat_of_enriched_cats_pr1.
       Proof.
-        simple refine (_ ,, _).
+        use make_enriched_nat_trans.
         - use make_nat_trans.
           + exact (λ _, identity _).
           + abstract
@@ -458,18 +501,9 @@ Section LimitsEnrichedCats.
       Proof.
         use make_invertible_2cell.
         - exact equifier_bicat_of_enriched_cats_ump_1_cell.
-        - use make_is_invertible_2cell.
-          + exact equifier_bicat_of_enriched_cats_ump_1_inv.
-          + abstract
-              (use subtypePath ; [ intro ; apply isaprop_nat_trans_enrichment | ] ;
-               use nat_trans_eq ; [ apply homset_property | ] ;
-               intro ;
-               apply id_right).
-          + abstract
-              (use subtypePath ; [ intro ; apply isaprop_nat_trans_enrichment | ] ;
-               use nat_trans_eq ; [ apply homset_property | ] ;
-               intro ;
-               apply id_right).
+        - use make_is_invertible_2cell_enriched.
+          intros x ; cbn.
+          apply is_z_isomorphism_identity.
       Defined.
     End EquifierUMP1.
 
@@ -483,22 +517,22 @@ Section LimitsEnrichedCats.
     Defined.
 
     Section EquifierUMP2.
-      Context {D : bicat_of_enriched_cats V}
+      Context {D : enriched_cat V}
               {H₁ H₂ : D --> equifier_bicat_of_enriched_cats_cone}
-              (α : H₁ · equifier_cone_pr1 equifier_bicat_of_enriched_cats_cone
-                   ==>
-                   H₂ · equifier_cone_pr1 equifier_bicat_of_enriched_cats_cone).
+              (α : enriched_nat_trans
+                     (H₁ · equifier_cone_pr1 equifier_bicat_of_enriched_cats_cone)
+                     (H₂ · equifier_cone_pr1 equifier_bicat_of_enriched_cats_cone)).
 
       Definition equifier_bicat_of_univ_cats_ump_2_nat_trans
         : pr1 H₁ ==> pr1 H₂.
       Proof.
         use make_nat_trans.
-        - exact (λ x, pr11 α x ,, tt).
+        - exact (λ x, α x ,, tt).
         - abstract
             (intros x y f ;
              use subtypePath ; [ intro ; apply isapropunit | ] ;
              cbn ;
-             exact (nat_trans_ax (pr1 α) _ _ f)).
+             exact (nat_trans_ax α _ _ f)).
       Defined.
 
       Definition equifier_bicat_of_enriched_cats_ump_2_enrichment
@@ -517,7 +551,7 @@ Section LimitsEnrichedCats.
       Definition equifier_bicat_of_enriched_cats_ump_2_cell
         : H₁ ==> H₂.
       Proof.
-        simple refine (_ ,, _).
+        use make_enriched_nat_trans.
         - exact equifier_bicat_of_univ_cats_ump_2_nat_trans.
         - exact equifier_bicat_of_enriched_cats_ump_2_enrichment.
       Defined.
@@ -525,15 +559,7 @@ Section LimitsEnrichedCats.
       Definition equifier_bicat_of_enriched_cats_ump_2_eq
         : equifier_bicat_of_enriched_cats_ump_2_cell ▹ _  = α.
       Proof.
-        use subtypePath.
-        {
-          intro.
-          apply isaprop_nat_trans_enrichment.
-        }
-        use nat_trans_eq.
-        {
-          apply homset_property.
-        }
+        use eq_enriched_nat_trans.
         intro x.
         apply idpath.
       Qed.
@@ -552,22 +578,14 @@ Section LimitsEnrichedCats.
       : has_equifier_ump_eq equifier_bicat_of_enriched_cats_cone.
     Proof.
       intros D H₁ H₂ α φ₁ φ₂ p q.
-      use subtypePath.
-      {
-        intro.
-        apply isaprop_nat_trans_enrichment.
-      }
-      use nat_trans_eq.
-      {
-        apply homset_property.
-      }
+      use eq_enriched_nat_trans.
       intro x.
       use subtypePath.
       {
         intro.
         apply isapropunit.
       }
-      exact (maponpaths (λ z, pr11 z x) (p @ !q)).
+      exact (from_eq_enriched_nat_trans (p @ !q) x).
     Qed.
   End EquifierEnrichedCat.
 
@@ -602,24 +620,22 @@ Section LimitsEnrichedCats.
       : em_cone EM.
     Proof.
       use make_em_cone.
-      - exact (eilenberg_moore_univalent_cat C M
-               ,,
-               eilenberg_moore_enrichment HV EM').
-      - exact (eilenberg_moore_pr M
-               ,,
-               eilenberg_moore_pr_enrichment HV EM').
-      - exact (eilenberg_moore_nat_trans M
-               ,,
-               eilenberg_moore_nat_trans_enrichment HV EM').
+      - use make_enriched_cat.
+        + exact (eilenberg_moore_univalent_cat C M).
+        + exact (eilenberg_moore_enrichment HV EM').
+      - use make_enriched_functor.
+        + exact (eilenberg_moore_pr M).
+        + exact (eilenberg_moore_pr_enrichment HV EM').
+      - use make_enriched_nat_trans.
+        + exact (eilenberg_moore_nat_trans M).
+        + exact (eilenberg_moore_nat_trans_enrichment HV EM').
       - abstract
-          (use subtypePath ; [ intro ; apply isaprop_nat_trans_enrichment | ] ;
-           use nat_trans_eq ; [ apply homset_property | ] ;
+          (use eq_enriched_nat_trans ;
            intro x ; cbn ;
            rewrite id_left ;
            exact (!(pr12 x))).
       - abstract
-          (use subtypePath ; [ intro ; apply isaprop_nat_trans_enrichment | ] ;
-           use nat_trans_eq ; [ apply homset_property | ] ;
+          (use eq_enriched_nat_trans ;
            intro x ; cbn ;
            rewrite (functor_id (pr1 (endo_of_mnd EM))) ;
            rewrite id_left, id_right ;
@@ -668,7 +684,7 @@ Section LimitsEnrichedCats.
       Definition em_enriched_cat_ump_1_mor
         : q --> em_enriched_cat_cone.
       Proof.
-        simple refine (_ ,, _).
+        use make_enriched_functor.
         - exact em_enriched_cat_ump_1_functor.
         - exact em_enriched_cat_ump_1_enrichment.
       Defined.
@@ -681,14 +697,13 @@ Section LimitsEnrichedCats.
           mor_of_em_cone EM q.
       Proof.
         use make_mnd_cell.
-        - simple refine (_ ,, _).
+        - use make_enriched_nat_trans.
           + apply functor_to_eilenberg_moore_cat_pr.
           + apply (functor_to_eilenberg_moore_cat_pr_enrichment
                      HV
                      EM').
         - abstract
-            (use subtypePath ; [ intro ; apply isaprop_nat_trans_enrichment | ] ;
-             use nat_trans_eq ; [ apply homset_property | ] ;
+            (use eq_enriched_nat_trans ;
              intro x ;
              do 2 refine (id_right _ @ _) ;
              do 2 refine (assoc' _ _ _ @ _) ;
@@ -701,24 +716,6 @@ Section LimitsEnrichedCats.
              apply (functor_id M)).
       Defined.
 
-      Definition em_enriched_cat_ump_1_inv2cell_inv
-        : mor_of_mnd_mor (mor_of_em_cone EM q)
-          ==>
-          mor_of_mnd_mor
-          (# (mnd_incl (bicat_of_enriched_cats V))
-             em_enriched_cat_ump_1_mor
-           · mor_of_em_cone EM em_enriched_cat_cone).
-      Proof.
-        simple refine (_ ,, _).
-        - exact (nat_z_iso_to_trans_inv
-                   (functor_to_eilenberg_moore_cat_pr_nat_z_iso
-                      M
-                      (pr1 (mor_of_mnd_mor (mor_of_em_cone _ q)))
-                      (pr1 (mnd_mor_endo (mor_of_em_cone _ q)))
-                      _ _)).
-        - apply functor_to_eilenberg_moore_cat_pr_enrichment_inv.
-      Defined.
-
       Definition em_enriched_cat_ump_1_inv2cell
         : invertible_2cell
             (# (mnd_incl (bicat_of_enriched_cats V))
@@ -729,18 +726,9 @@ Section LimitsEnrichedCats.
         use make_invertible_2cell.
         - exact em_enriched_cat_ump_1_inv2cell_cell.
         - use is_invertible_mnd_2cell.
-          use make_is_invertible_2cell.
-          + exact em_enriched_cat_ump_1_inv2cell_inv.
-          + abstract
-              (use subtypePath ; [ intro ; apply isaprop_nat_trans_enrichment | ] ;
-               use nat_trans_eq ; [ apply homset_property | ] ;
-               intro x ;
-               apply id_left).
-          + abstract
-              (use subtypePath ; [ intro ; apply isaprop_nat_trans_enrichment | ] ;
-               use nat_trans_eq ; [ apply homset_property | ] ;
-               intro x ;
-               apply id_left).
+          use make_is_invertible_2cell_enriched.
+          intro x.
+          apply is_z_isomorphism_identity.
       Defined.
     End EilenbergMooreUMP1.
 
@@ -754,7 +742,7 @@ Section LimitsEnrichedCats.
     Defined.
 
     Section EilenbergMooreUMP2.
-      Context {E' : bicat_of_enriched_cats V}
+      Context {E' : enriched_cat V}
               (FE₁ FE₂ : E' --> em_enriched_cat_cone)
               (Eτ : # (mnd_incl (bicat_of_enriched_cats V)) FE₁
                     · mor_of_em_cone EM em_enriched_cat_cone
@@ -773,26 +761,42 @@ Section LimitsEnrichedCats.
           =
           # M (τ x) · mor_of_eilenberg_moore_ob (F₂ x).
       Proof.
-        refine (!_ @ mnd_cell_endo_enriched _ Eτ x @ _).
-        - do 4 refine (assoc' _ _ _ @ _).
-          refine (id_left _ @ _).
-          apply maponpaths.
-          refine (id_left _ @ _).
-          refine (assoc _ _ _ @ _).
-          refine (_ @ id_left _).
-          simpl.
+        etrans.
+        {
           apply maponpaths_2.
-          refine (id_right _ @ _).
-          apply id_left.
-        - apply maponpaths.
-          do 3 refine (assoc' _ _ _ @ _).
-          refine (id_left _ @ _).
-          refine (_ @ id_right _).
-          simpl.
+          refine (!(id_right _) @ _).
+          apply maponpaths_2.
+          refine (!(id_right _) @ _).
+          etrans.
+          {
+            apply maponpaths.
+            exact (!(id_left _)).
+          }
+          apply maponpaths_2.
+          refine (!(id_right _) @ _).
+          apply maponpaths_2.
+          exact (!(id_left _)).
+        }
+        refine (!_).
+        etrans.
+        {
           apply maponpaths.
-          refine (id_left _ @ _).
-          refine (id_right _ @ _).
-          apply id_left.
+          refine (!(id_right _) @ _).
+          apply maponpaths_2.
+          refine (!(id_right _) @ _).
+          etrans.
+          {
+            apply maponpaths.
+            exact (!(id_left _)).
+          }
+          apply maponpaths_2.
+          refine (!(id_right _) @ _).
+          apply maponpaths_2.
+          exact (!(id_left _)).
+        }
+        refine (!_).
+        pose (mnd_cell_endo_enriched _ Eτ x) as p.
+        exact p.
       Qed.
 
       Definition em_enriched_cat_ump_2_nat_trans
@@ -802,7 +806,7 @@ Section LimitsEnrichedCats.
       Definition em_enriched_cat_ump_2_cell
         : FE₁ ==> FE₂.
       Proof.
-        simple refine (_ ,, _).
+        use make_enriched_nat_trans.
         - exact em_enriched_cat_ump_2_nat_trans.
         - use nat_trans_to_eilenberg_moore_cat_enrichment.
           apply (pr21 Eτ).
@@ -818,19 +822,21 @@ Section LimitsEnrichedCats.
           (use invproofirrelevance ;
            intros φ₁ φ₂ ;
            use subtypePath ; [ intro ; apply cellset_property | ] ;
-           use subtypePath ; [ intro ; apply isaprop_nat_trans_enrichment | ] ;
-           use nat_trans_eq ; [ apply homset_property | ] ;
+           use eq_enriched_nat_trans ;
            intro x ;
-           pose (maponpaths (λ z, pr111 z x) (pr2 φ₁)) as p₁ ;
-           pose (maponpaths (λ z, pr111 z x) (pr2 φ₂)) as p₂ ;
+           pose (from_eq_enriched_nat_trans
+                   (maponpaths (λ z, pr1 z) (pr2 φ₁))
+                   x) as p₁ ;
+           pose (from_eq_enriched_nat_trans
+                   (maponpaths (λ z, pr1 z) (pr2 φ₂))
+                   x) as p₂ ;
            use eq_mor_eilenberg_moore ;
-           exact (p₁ @ (!p₂))).
+           exact (p₁ @ !p₂)).
       - simple refine (_ ,, _).
         + exact (em_enriched_cat_ump_2_cell FE₁ FE₂ Eτ).
         + abstract
             (use eq_mnd_cell ;
-             use subtypePath ; [ intro ; apply isaprop_nat_trans_enrichment | ] ;
-             use nat_trans_eq ; [ apply homset_property | ] ;
+             use eq_enriched_nat_trans ;
              intro x ;
              apply idpath).
     Defined.

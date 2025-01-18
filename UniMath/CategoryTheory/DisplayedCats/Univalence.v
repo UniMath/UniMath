@@ -1,6 +1,6 @@
 
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -104,3 +104,24 @@ Section Univalent_Categories.
   Qed.
 
 End Univalent_Categories.
+
+(** The displayed objects in a univalent displayed category form a set if it is locally propositional *)
+Definition isaset_disp_ob
+           {C : category}
+           (D : disp_univalent_category C)
+           (H : locally_propositional D)
+           (x : C)
+  : isaset (D x).
+Proof.
+  intros xx xx'.
+  use (isofhlevelweqb
+         1
+         (make_weq
+            _
+            (disp_univalent_category_is_univalent_disp D x x (idpath _) xx xx'))).
+  use isaproptotal2.
+  - intro.
+    apply isaprop_is_z_iso_disp.
+  - intros.
+    apply H.
+Qed.

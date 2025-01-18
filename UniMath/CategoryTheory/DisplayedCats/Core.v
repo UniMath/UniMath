@@ -140,6 +140,24 @@ Definition comp_disp {C: precategory_data} {D : disp_cat_data C}
   : xx -->[f · g] zz
 := pr2 (pr2 D) _ _ _ _ _ _ _ _ ff gg.
 
+Definition locally_propositional
+           {C : category}
+           (D : disp_cat_data C)
+  : UU
+  := ∏ (x y : C)
+       (f : x --> y)
+       (xx : D x) (yy : D y),
+     isaprop (xx -->[ f ] yy).
+
+Definition isaprop_locally_propositional
+           {C : category}
+           (D : disp_cat_data C)
+  : isaprop (locally_propositional D).
+Proof.
+  do 5 (use impred ; intro).
+  apply isapropisaprop.
+Defined.
+
 Declare Scope mor_disp_scope.
 Local Notation "ff ;; gg" := (comp_disp ff gg)
   (at level 50, left associativity, format "ff  ;;  gg")
@@ -169,6 +187,17 @@ Definition disp_cat_data_from_disp_cat {C} (D : disp_cat C)
  := pr1 D : disp_cat_data C.
 Coercion disp_cat_data_from_disp_cat : disp_cat >-> disp_cat_data.
 
+Definition make_disp_cat_locally_prop
+           {C : category}
+           {D : disp_cat_data C}
+           (LP : locally_propositional D)
+  : disp_cat C.
+Proof.
+  exists D.
+  abstract (repeat split; intro; intros; try apply LP;
+            apply isasetaprop;
+            apply LP).
+Defined.
 
 (** All the axioms are given in two versions, [foo : T1 = transportb e T2] and [foo_var : T2 = transportf e T1], so that either direction can be invoked easily in “compute left-to-right” style. *)
 
@@ -218,6 +247,17 @@ Defined.
 
 Definition homsets_disp {C} {D : disp_cat C} {x y} (f : x --> y) (xx : D x) (yy : D y)
   : isaset (xx -->[f] yy) := pr2 (pr2 (pr2 (pr2 D))) _ _ _ _ _.
+
+Definition double_transport_disp {C C':category} {D':disp_cat C'} {a b a' b':C}
+(F:functor C C') (f:a-->b)  (x:D' (F a)) (y:D' (F b)) (p:a=a') (q:b=b')
+: x-->[#F f]y
+-> transportf (λ z, D' (F z)) p x -->[# F (double_transport p q f)]
+     transportf (λ z, D' (F z)) q y.
+Proof.
+  intro Df.
+  destruct p, q.
+  exact Df.
+Defined.
 
 (** ** Utility lemmas *)
 Section Lemmas.
@@ -298,6 +338,39 @@ Lemma cancel_precomposition_disp {C} {D : disp_cat C}
 Proof.
   etrans. apply maponpaths, ee.
   apply mor_disp_transportf_prewhisker.
+Qed.
+
+Lemma assoc4_disp {C: category} {D: disp_cat C} {a b c d e: C}
+{da: D a} {db: D b} {dc: D c} {dd: D d} {de: D e} {f: a--> b} {g: b --> c} {h: c --> d} {i: d --> e}
+(df: da -->[f] db) (dg: db -->[g] dc) (dh: dc -->[h] dd) (di: dd -->[i] de)
+  : df ;; dg ;; dh ;; di = transportb _ (assoc4 C  a b c d e f g h i) (df ;; (dg ;; dh) ;; di).
+Proof.
+  rewrite assoc_disp.
+  unfold transportb.
+  rewrite mor_disp_transportf_postwhisker.
+  apply PartA.transportb_transpose_right.
+  apply (maponpaths (λ e, transportf _ e _)).
+  apply uip.
+  apply homset_property.
+Qed.
+
+Lemma id_conjugation_disp {C: category} {D: disp_cat C} {a b: C}
+{da: D a} {db: D b} {f: a--> b} {g: b --> a} {x: b --> b}
+(df: da -->[f] db) (dg: db -->[g] da) (dx: db -->[x] db) (e0: x = identity _) (e1 : f · g = identity _)
+  : dx = transportb _ e0 (id_disp _) -> df ;; dg = transportb _ e1 (id_disp _) ->
+    df ;; dx ;;dg = transportb _ (id_conjugation f g x e0 e1) (id_disp _).
+Proof.
+  intros H H'.
+  rewrite H. unfold transportb.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite (id_right_disp df).
+  rewrite transport_f_b.
+  repeat rewrite mor_disp_transportf_postwhisker.
+  rewrite H'.
+  rewrite transport_f_b.
+  apply (maponpaths (λ e, transportf _ e _)).
+  apply uip.
+  apply homset_property.
 Qed.
 
 End Lemmas.

@@ -15,13 +15,16 @@
  4. The identity
  5. Composition
  6. Functors between discrete two-sided displayed categories form a set
+ 7. Two-sided displayed functors versus displayed functors
 
  **********************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
@@ -81,13 +84,10 @@ Section DisplayedFunctor.
     := ∏ (x : C₁) (y : C₂) (xy : D₁ x y),
        #2 FG (id_two_disp xy)
        =
-       transportb
-         (λ z, _ -->[ z ][ _] _)
+       transportb_disp_mor2
          (functor_id F x)
-         (transportb
-            (λ z, _ -->[ _ ][ z ] _)
-            (functor_id G y)
-            (id_two_disp (FG _ _ xy))).
+         (functor_id G y)
+         (id_two_disp (FG _ _ xy)).
 
   Definition twosided_disp_functor_comp_law
              (FG : twosided_disp_functor_data)
@@ -105,18 +105,22 @@ Section DisplayedFunctor.
          (fg₂ : xy₂ -->[ f₂ ][ g₂ ] xy₃),
        #2 FG (fg₁ ;;2 fg₂)
        =
-       transportb
-         (λ z, _ -->[ z ][ _] _)
+       transportb_disp_mor2
          (functor_comp F f₁ f₂)
-         (transportb
-            (λ z, _ -->[ _ ][ z ] _)
-            (functor_comp G g₁ g₂)
-            (#2 FG fg₁ ;;2 #2 FG fg₂)).
+         (functor_comp G g₁ g₂)
+         (#2 FG fg₁ ;;2 #2 FG fg₂).
 
   Definition twosided_disp_functor_laws
              (FG : twosided_disp_functor_data)
     : UU
     := twosided_disp_functor_id_law FG × twosided_disp_functor_comp_law FG.
+
+  Proposition isaprop_twosided_disp_functor_laws
+              (FG : twosided_disp_functor_data)
+    : isaprop (twosided_disp_functor_laws FG).
+  Proof.
+    use isapropdirprod ; repeat (use impred ; intro) ; apply isaset_disp_mor.
+  Qed.
 
   Definition twosided_disp_functor
     : UU
@@ -134,14 +138,28 @@ Section DisplayedFunctor.
              (xy : D₁ x y)
     : #2 FG (id_two_disp xy)
       =
-      transportb
-        (λ z, _ -->[ z ][ _] _)
+      transportb_disp_mor2
         (functor_id F x)
-        (transportb
-           (λ z, _ -->[ _ ][ z ] _)
-           (functor_id G y)
-           (id_two_disp (FG _ _ xy)))
+        (functor_id G y)
+        (id_two_disp (FG _ _ xy))
     := pr12 FG x y xy.
+
+  Definition twosided_disp_functor_id_alt
+             (FG : twosided_disp_functor)
+             {x : C₁}
+             {y : C₂}
+             (xy : D₁ x y)
+    : id_two_disp (FG _ _ xy)
+      =
+      transportf_disp_mor2
+        (functor_id F x)
+        (functor_id G y)
+        (#2 FG (id_two_disp xy)).
+  Proof.
+    rewrite twosided_disp_functor_id.
+    rewrite transportfb_disp_mor2.
+    apply idpath.
+  Qed.
 
   Definition twosided_disp_functor_comp
              (FG : twosided_disp_functor)
@@ -158,13 +176,10 @@ Section DisplayedFunctor.
              (fg₂ : xy₂ -->[ f₂ ][ g₂ ] xy₃)
     : #2 FG (fg₁ ;;2 fg₂)
       =
-      transportb
-        (λ z, _ -->[ z ][ _] _)
+      transportb_disp_mor2
         (functor_comp F f₁ f₂)
-        (transportb
-           (λ z, _ -->[ _ ][ z ] _)
-           (functor_comp G g₁ g₂)
-           (#2 FG fg₁ ;;2 #2 FG fg₂))
+        (functor_comp G g₁ g₂)
+        (#2 FG fg₁ ;;2 #2 FG fg₂)
     := pr22 FG _ _ _ _ _ _ _ _ _ _ _ fg₁ _ _ fg₂.
 
   Definition twosided_disp_functor_comp_alt
@@ -182,17 +197,13 @@ Section DisplayedFunctor.
              (fg₂ : xy₂ -->[ f₂ ][ g₂ ] xy₃)
     : #2 FG fg₁ ;;2 #2 FG fg₂
       =
-      transportf
-        (λ z, _ -->[ z ][ _] _)
+      transportf_disp_mor2
         (functor_comp F f₁ f₂)
-        (transportf
-           (λ z, _ -->[ _ ][ z ] _)
-           (functor_comp G g₁ g₂)
-           (#2 FG (fg₁ ;;2 fg₂))).
+        (functor_comp G g₁ g₂)
+        (#2 FG (fg₁ ;;2 fg₂)).
   Proof.
     rewrite twosided_disp_functor_comp.
-    rewrite <- twosided_swap_transport.
-    rewrite !transportfbinv.
+    rewrite transportfb_disp_mor2.
     apply idpath.
   Qed.
 End DisplayedFunctor.
@@ -256,6 +267,112 @@ Definition transportb_twosided_disp_functor_right
       (#2 FG fg).
 Proof.
   induction p.
+  apply idpath.
+Qed.
+
+Definition transportf_twosided_disp_functor_left
+           {C₁ C₁' C₂ C₂' : category}
+           {F : C₁ ⟶ C₁'}
+           {G : C₂ ⟶ C₂'}
+           {D₁ : twosided_disp_cat C₁ C₂}
+           {D₂ : twosided_disp_cat C₁' C₂'}
+           (FG : twosided_disp_functor F G D₁ D₂)
+           {x₁ x₂ : C₁}
+           {y₁ y₂ : C₂}
+           {xy₁ : D₁ x₁ y₁}
+           {xy₂ : D₁ x₂ y₂}
+           {f f' : x₁ --> x₂}
+           (p : f' = f)
+           {g : y₁ --> y₂}
+           (fg : xy₁ -->[ f' ][ g ] xy₂)
+  : #2 FG (transportf (λ z, xy₁ -->[ z ][ g ] xy₂) p fg)
+    =
+    transportf
+      (λ z, FG _ _ xy₁ -->[ z ][ _ ] FG _ _ xy₂)
+      (maponpaths (λ z, #F z) p)
+      (#2 FG fg).
+Proof.
+  induction p.
+  apply idpath.
+Qed.
+
+Definition transportf_twosided_disp_functor_right
+           {C₁ C₁' C₂ C₂' : category}
+           {F : C₁ ⟶ C₁'}
+           {G : C₂ ⟶ C₂'}
+           {D₁ : twosided_disp_cat C₁ C₂}
+           {D₂ : twosided_disp_cat C₁' C₂'}
+           (FG : twosided_disp_functor F G D₁ D₂)
+           {x₁ x₂ : C₁}
+           {y₁ y₂ : C₂}
+           {xy₁ : D₁ x₁ y₁}
+           {xy₂ : D₁ x₂ y₂}
+           {f : x₁ --> x₂}
+           {g g' : y₁ --> y₂}
+           (p : g' = g)
+           (fg : xy₁ -->[ f ][ g' ] xy₂)
+  : #2 FG (transportf (λ z, xy₁ -->[ f ][ z ] xy₂) p fg)
+    =
+    transportf
+      (λ z, FG _ _ xy₁ -->[ _ ][ z ] FG _ _ xy₂)
+      (maponpaths (λ z, #G z) p)
+      (#2 FG fg).
+Proof.
+  induction p.
+  apply idpath.
+Qed.
+
+Definition transportf_twosided_disp_functor
+           {C₁ C₁' C₂ C₂' : category}
+           {F : C₁ ⟶ C₁'}
+           {G : C₂ ⟶ C₂'}
+           {D₁ : twosided_disp_cat C₁ C₂}
+           {D₂ : twosided_disp_cat C₁' C₂'}
+           (FG : twosided_disp_functor F G D₁ D₂)
+           {x₁ x₂ : C₁}
+           {y₁ y₂ : C₂}
+           {xy₁ : D₁ x₁ y₁}
+           {xy₂ : D₁ x₂ y₂}
+           {f f' : x₁ --> x₂}
+           (p : f = f')
+           {g g' : y₁ --> y₂}
+           (q : g = g')
+           (fg : xy₁ -->[ f ][ g ] xy₂)
+  : #2 FG (transportf_disp_mor2 p q fg)
+    =
+    transportf_disp_mor2
+      (maponpaths (λ z, #F z) p)
+      (maponpaths (λ z, #G z) q)
+      (#2 FG fg).
+Proof.
+  induction p, q.
+  apply idpath.
+Qed.
+
+Definition transportb_twosided_disp_functor
+           {C₁ C₁' C₂ C₂' : category}
+           {F : C₁ ⟶ C₁'}
+           {G : C₂ ⟶ C₂'}
+           {D₁ : twosided_disp_cat C₁ C₂}
+           {D₂ : twosided_disp_cat C₁' C₂'}
+           (FG : twosided_disp_functor F G D₁ D₂)
+           {x₁ x₂ : C₁}
+           {y₁ y₂ : C₂}
+           {xy₁ : D₁ x₁ y₁}
+           {xy₂ : D₁ x₂ y₂}
+           {f f' : x₁ --> x₂}
+           (p : f = f')
+           {g g' : y₁ --> y₂}
+           (q : g = g')
+           (fg : xy₁ -->[ f' ][ g' ] xy₂)
+  : #2 FG (transportb_disp_mor2 p q fg)
+    =
+    transportb_disp_mor2
+      (maponpaths (λ z, #F z) p)
+      (maponpaths (λ z, #G z) q)
+      (#2 FG fg).
+Proof.
+  induction p, q.
   apply idpath.
 Qed.
 
@@ -372,24 +489,18 @@ Section CompFunctor.
     split.
     - intro ; intros ; cbn.
       rewrite twosided_disp_functor_id.
-      rewrite transportb_twosided_disp_functor_left.
-      rewrite transportb_twosided_disp_functor_right.
+      rewrite transportb_twosided_disp_functor.
       rewrite twosided_disp_functor_id.
-      unfold transportb.
-      rewrite !twosided_prod_transport.
-      rewrite transport_f_f.
-      apply maponpaths_2.
-      apply isaset_dirprod ; apply homset_property.
+      rewrite transport_b_b_disp_mor2.
+      use transportb_disp_mor2_eq.
+      apply idpath.
     - intro ; intros ; cbn.
       rewrite twosided_disp_functor_comp.
-      rewrite transportb_twosided_disp_functor_left.
-      rewrite transportb_twosided_disp_functor_right.
+      rewrite transportb_twosided_disp_functor.
       rewrite twosided_disp_functor_comp.
-      unfold transportb.
-      rewrite !twosided_prod_transport.
-      rewrite transport_f_f.
-      apply maponpaths_2.
-      apply isaset_dirprod ; apply homset_property.
+      rewrite transport_b_b_disp_mor2.
+      use transportb_disp_mor2_eq.
+      apply idpath.
   Qed.
 
   Definition comp_twosided_disp_functor
@@ -423,9 +534,155 @@ Proof.
       apply isaset_disp_mor.
   - intro.
     apply isasetaprop.
-    apply isapropdirprod.
-    + repeat (use impred ; intro).
-      apply isaset_disp_mor.
-    + repeat (use impred ; intro).
-      apply isaset_disp_mor.
+    apply isaprop_twosided_disp_functor_laws.
 Qed.
+
+(**
+ 7. Two-sided displayed functors versus displayed functors
+ *)
+Section ToDispFunctor.
+  Context {C₁ C₁' C₂ C₂' : category}
+          {F : C₁ ⟶ C₁'}
+          {G : C₂ ⟶ C₂'}
+          {D₁ : twosided_disp_cat C₁ C₂}
+          {D₂ : twosided_disp_cat C₁' C₂'}
+          (FG : twosided_disp_functor F G D₁ D₂).
+
+  Definition two_sided_disp_functor_to_disp_functor_data
+    : disp_functor_data
+        (pair_functor F G)
+        (twosided_disp_cat_to_disp_cat _ _ D₁)
+        (twosided_disp_cat_to_disp_cat _ _ D₂).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ xy, FG (pr1 xy) (pr2 xy)).
+    - exact (λ x₁ x₂ xx₁ xx₂ f ff, #2 FG ff).
+  Defined.
+
+  Proposition two_sided_disp_functor_to_disp_functor_axioms
+    : disp_functor_axioms
+        two_sided_disp_functor_to_disp_functor_data.
+  Proof.
+    split.
+    - intros x xx ; cbn.
+      rewrite twosided_disp_functor_id.
+      unfold transportb_disp_mor2, transportf_disp_mor2.
+      rewrite twosided_prod_transport.
+      unfold transportb.
+      apply maponpaths_2.
+      apply isasetdirprod ; apply homset_property.
+    - intros x y z xx yy zz f g ff gg ; cbn.
+      rewrite twosided_disp_functor_comp.
+      unfold transportb_disp_mor2, transportf_disp_mor2.
+      rewrite twosided_prod_transport.
+      unfold transportb.
+      apply maponpaths_2.
+      apply isasetdirprod ; apply homset_property.
+  Qed.
+
+  Definition two_sided_disp_functor_to_disp_functor
+    : disp_functor
+        (pair_functor F G)
+        (twosided_disp_cat_to_disp_cat _ _ D₁)
+        (twosided_disp_cat_to_disp_cat _ _ D₂).
+  Proof.
+    simple refine (_ ,, _).
+    - exact two_sided_disp_functor_to_disp_functor_data.
+    - exact two_sided_disp_functor_to_disp_functor_axioms.
+  Defined.
+End ToDispFunctor.
+
+Section FromDispFunctor.
+  Context {C₁ C₁' C₂ C₂' : category}
+          {F : C₁ ⟶ C₁'}
+          {G : C₂ ⟶ C₂'}
+          {D₁ : twosided_disp_cat C₁ C₂}
+          {D₂ : twosided_disp_cat C₁' C₂'}
+          (FG : disp_functor
+                  (pair_functor F G)
+                  (twosided_disp_cat_to_disp_cat _ _ D₁)
+                  (twosided_disp_cat_to_disp_cat _ _ D₂)).
+
+  Definition disp_functor_to_two_sided_disp_functor_data
+    : twosided_disp_functor_data F G D₁ D₂.
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ x y xy, FG (x ,, y) xy).
+    - exact (λ x₁ x₂ y₁ y₂ xy₁ xy₂ f g fg,
+             @disp_functor_on_morphisms
+                _ _ _ _ _
+                FG
+                (x₁ ,, y₁) (x₂ ,, y₂)
+                xy₁ xy₂
+                (f ,, g)
+                fg).
+  Defined.
+
+  Proposition disp_functor_to_two_sided_disp_functor_axioms
+    : twosided_disp_functor_laws
+        F G D₁ D₂
+        disp_functor_to_two_sided_disp_functor_data.
+  Proof.
+    split.
+    - intros x y xy ; cbn.
+      etrans.
+      {
+        exact (@disp_functor_id _ _ _ _ _ FG (x ,, y) xy).
+      }
+      unfold transportb_disp_mor2, transportf_disp_mor2.
+      rewrite twosided_prod_transport.
+      unfold transportb.
+      apply maponpaths_2.
+      apply isasetdirprod ; apply homset_property.
+    - intros x₁ x₂ x₃ y₁ y₂ y₃ xy₁ xy₂ xy₃ f₁ g₁ fg₁ f₂ g₂ fg₂ ; cbn.
+      etrans.
+      {
+        exact (@disp_functor_comp
+                 _ _ _ _ _
+                 FG
+                 (x₁ ,, y₁) (x₂ ,, y₂) (x₃ ,, y₃)
+                 xy₁ xy₂ xy₃
+                 (f₁ ,, g₁) (f₂ ,, g₂)
+                 fg₁ fg₂).
+      }
+      unfold transportb_disp_mor2, transportf_disp_mor2.
+      rewrite twosided_prod_transport.
+      unfold transportb.
+      apply maponpaths_2.
+      apply isasetdirprod ; apply homset_property.
+  Qed.
+
+  Definition disp_functor_to_two_sided_disp_functor
+    : twosided_disp_functor F G D₁ D₂.
+  Proof.
+    simple refine (_ ,, _).
+    - exact disp_functor_to_two_sided_disp_functor_data.
+    - exact disp_functor_to_two_sided_disp_functor_axioms.
+  Defined.
+End FromDispFunctor.
+
+Definition two_sided_disp_functor_weq_disp_functor
+           {C₁ C₁' C₂ C₂' : category}
+           (F : C₁ ⟶ C₁')
+           (G : C₂ ⟶ C₂')
+           (D₁ : twosided_disp_cat C₁ C₂)
+           (D₂ : twosided_disp_cat C₁' C₂')
+  : twosided_disp_functor F G D₁ D₂
+    ≃
+    disp_functor
+      (pair_functor F G)
+      (twosided_disp_cat_to_disp_cat _ _ D₁)
+      (twosided_disp_cat_to_disp_cat _ _ D₂).
+Proof.
+  use weq_iso.
+  - exact two_sided_disp_functor_to_disp_functor.
+  - exact disp_functor_to_two_sided_disp_functor.
+  - abstract
+      (intros FG ;
+       use subtypePath ; [ intro ; apply isaprop_twosided_disp_functor_laws | ] ;
+       apply idpath).
+  - abstract
+      (intros FG ;
+       use subtypePath ; [ intro ; apply isaprop_disp_functor_axioms | ] ;
+       apply idpath).
+Defined.

@@ -11,27 +11,21 @@
 Ambroise LAFONT January 2017
 *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.MoreFoundations.Tactics.
-
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.coequalizers.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.limits.graphs.pushouts.
-Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
-Require Import UniMath.CategoryTheory.limits.pushouts.
-Require Import UniMath.CategoryTheory.limits.coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Pushouts.
+Require Import UniMath.CategoryTheory.Limits.Graphs.EqDiag.
+Require Import UniMath.CategoryTheory.Limits.Pushouts.
+Require Import UniMath.CategoryTheory.Limits.Coequalizers.
 
 Local Open Scope cat.
 
@@ -50,6 +44,31 @@ Section EffectiveEpi.
          (isCoequalizer (PullbackPr1 g)
                         (PullbackPr2 g) f (PullbackSqrCommutes g)).
 End EffectiveEpi.
+
+Proposition isaprop_isEffective
+            {C : category}
+            (H : is_univalent C)
+            {x y : C}
+            (f : x --> y)
+  : isaprop (isEffective f).
+Proof.
+  use isaproptotal2.
+  - intro.
+    apply isaprop_isCoequalizer.
+  - intros.
+    apply isaprop_Pullback.
+    exact H.
+Qed.
+
+Proposition isaprop_isEffective'
+            {C : univalent_category}
+            {x y : C}
+            (f : x --> y)
+  : isaprop (isEffective f).
+Proof.
+  use isaprop_isEffective.
+  apply univalent_category_is_univalent.
+Qed.
 
 Definition EpisAreEffective (C:category) :=
   ∏ (A B:C) (f:C⟦A,B⟧), isEpi f -> isEffective f.
@@ -152,7 +171,7 @@ Section PointwiseEpi.
       exact (empty_rect _ )||exact (λ _, idpath _).
   Defined.
 
-  Lemma Pushouts_pw_epi (colimD : graphs.pushouts.Pushouts D) (A B : functor C D)
+  Lemma Pushouts_pw_epi (colimD : Graphs.Pushouts.Pushouts D) (A B : functor C D)
        (a: A ⟹ B)  (epia:isEpi (C:=CD) a) : ∏ (x:C), isEpi (a x).
   Proof.
     intro  x; simpl.

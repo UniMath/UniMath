@@ -12,10 +12,11 @@ Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.YonedaLemma.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+Require Import UniMath.Bicategories.PseudoFunctors.Properties.
 
 Require Import UniMath.Bicategories.RezkCompletions.BicatToLocalUnivalentBicat.
-Require Import UniMath.CategoryTheory.rezk_completion.
-Require Import UniMath.CategoryTheory.RezkCompletion.
+Require Import UniMath.CategoryTheory.RezkCompletions.Construction.
+Require Import UniMath.CategoryTheory.RezkCompletions.RezkCompletions.
 
 Local Open Scope cat.
 

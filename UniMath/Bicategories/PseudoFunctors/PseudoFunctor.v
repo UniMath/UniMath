@@ -179,6 +179,19 @@ Proof.
     + apply vcomp_linv.
 Defined.
 
+Definition psfunctor_inv2cell
+           {C D : bicat}
+           (F : psfunctor C D)
+           {a b : C}
+           {f g : a --> b}
+           (α : invertible_2cell f g)
+  : invertible_2cell (#F f) (#F g).
+Proof.
+  use make_invertible_2cell.
+  - exact (##F α).
+  - apply psfunctor_is_iso.
+Defined.
+
 Section PseudoFunctorDerivedLaws.
   Context {C D : bicat}.
   Variable (F : psfunctor C D).
@@ -206,6 +219,21 @@ Section PseudoFunctorDerivedLaws.
     rewrite psfunctor_lunitor ; cbn.
     rewrite <- !vassocr.
     reflexivity.
+  Qed.
+
+  Definition psfunctor_F_linvunitor
+             {a b : C}
+             (f : a --> b)
+    : (linvunitor (#F f))
+      =
+      ##F (linvunitor f)
+      • (psfunctor_comp F _ _)^-1
+      • ((psfunctor_id F a)^-1 ▹ #F f).
+  Proof.
+    use vcomp_move_L_Mp ; [ is_iso | ].
+    use vcomp_move_L_Mp ; [ is_iso | ].
+    refine (!_).
+    apply psfunctor_linvunitor.
   Qed.
 
   Definition psfunctor_rinvunitor
@@ -478,65 +506,29 @@ Proof.
   exact (pr2 a).
 Defined.
 
-Definition local_equivalence
-           {B₁ B₂ : bicat}
-           (B₁_is_univalent_2_1 : is_univalent_2_1 B₁)
-           (B₂_is_univalent_2_1 : is_univalent_2_1 B₂)
-           (F : psfunctor B₁ B₂)
-  : UU
-  := ∏ (x y : B₁),
-     @left_adjoint_equivalence
-       bicat_of_univ_cats
-       _ _
-       (Fmor_univ
-          F x y
-          B₁_is_univalent_2_1
-          B₂_is_univalent_2_1).
-
-Definition local_weak_equivalence
-           {B1 B2 : bicat} (F : psfunctor B1 B2) : UU
-  := ∏ (x y : B1),
-    Functors.essentially_surjective (Fmor F x y)
-                                    × fully_faithful (Fmor F x y).
-
-Definition essentially_surjective
+(**
+ `idtoiso_2_1` for pseudofunctors
+ *)
+Definition idtoiso_2_1_psfunctor
            {B₁ B₂ : bicat}
            (F : psfunctor B₁ B₂)
-  : hProp
-  := ∀ (y : B₂), ∃ (x : B₁), adjoint_equivalence (F x) y.
-
-Definition weak_equivalence
-           {B₁ B₂ : bicat}
-           (B₁_is_univalent_2_1 : is_univalent_2_1 B₁)
-           (B₂_is_univalent_2_1 : is_univalent_2_1 B₂)
-           (F : psfunctor B₁ B₂)
-  : UU
-  := local_equivalence
-       B₁_is_univalent_2_1
-       B₂_is_univalent_2_1
-       F
-       × essentially_surjective F.
-
-Definition weak_biequivalence
-           {B1 B2 : bicat} (F : psfunctor B1 B2) : UU
-  := essentially_surjective F × local_weak_equivalence F.
-
-Lemma weak_equivalence_to_is_weak_biequivalence
-      {B1 B2 : bicat}
-      {u1 : is_univalent_2_1 B1}
-      {u2 : is_univalent_2_1 B2}
-      (F : psfunctor B1 B2)
-  : weak_equivalence u1 u2 F -> weak_biequivalence F.
+           {x y : B₁}
+           {f g : x --> y}
+           (p : f = g)
+  : idtoiso_2_1 _ _ (maponpaths #F p)
+    =
+    ##F (idtoiso_2_1 _ _ p) ,, psfunctor_is_iso _ _.
 Proof.
-  intro w.
-  exists (pr2 w).
-  intros x y.
-  set (a := pr1 w x y).
-  split ;
-    [apply functor_from_equivalence_is_essentially_surjective |
-      apply fully_faithful_from_equivalence
-    ] ; apply (adj_equiv_to_equiv_cat (Fmor_univ F x y u1 u2)) ; exact (pr1 w x y).
-Defined.
+  induction p ; cbn.
+  use subtypePath.
+  {
+    intro.
+    apply isaprop_is_invertible_2cell.
+  }
+  cbn.
+  rewrite psfunctor_id2.
+  apply idpath.
+Qed.
 
 Module Notations.
   Notation "'##'" := (psfunctor_on_cells).

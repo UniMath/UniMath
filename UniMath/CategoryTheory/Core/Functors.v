@@ -463,6 +463,23 @@ Proof.
   apply idpath.
 Qed.
 
+Definition transportf_z_iso_functors
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           {x₁ x₂ : C₁}
+           (y : C₂)
+           (p : x₁ = x₂)
+           (i : z_iso (F x₁) y)
+  : pr1 (transportf (λ (x : C₁), z_iso (F x) y) p i)
+    =
+    #F (inv_from_z_iso (idtoiso p)) · i.
+Proof.
+  induction p ; cbn.
+  rewrite functor_id.
+  rewrite id_left.
+  apply idpath.
+Qed.
+
 (** ** Functors preserve inverses *)
 
 Lemma functor_on_inv_from_z_iso {C C' : precategory} (F : functor C C')
@@ -887,6 +904,15 @@ Proof.
   apply impred; intro; apply isapropishinh.
 Defined.
 
+Lemma identity_functor_is_essentially_surjective (C : category)
+  : essentially_surjective (functor_identity C).
+Proof.
+  intro x.
+  apply hinhpr.
+  exists x.
+  apply identity_z_iso.
+Qed.
+
 (** Composition of essentially surjective functors yields an essentially
     surjective functor. *)
 
@@ -911,6 +937,22 @@ Proof.
   - apply (pr2 isoGe).
 Defined.
 
+(** If the composition of two functors is essentially surjective,
+  the second functor is essentially surjective as well. *)
+Lemma essentially_surjective_2_from_comp
+  {C C' C'' : category}
+  (F : C ⟶ C')
+  (F' : C' ⟶ C'')
+  (H : essentially_surjective (functor_composite F F'))
+  : essentially_surjective F'.
+Proof.
+  intro.
+  refine (hinhfun _ (H b)).
+  intro x.
+  exists (F (pr1 x)).
+  exact (pr2 x).
+Qed.
+
 (** ** Faithful functors *)
 
 Definition faithful {C D : precategory_data} (F : functor C D) :=
@@ -934,6 +976,32 @@ Proof.
   intros ? ?; apply (isinclcomp (_,, faithF _ _) (_,, faithG _ _)).
 Qed.
 
+(** If the composition of two functors is faithful, the first functor is faithful as well. *)
+Lemma faithful_1_from_comp
+  {C C' C'' : category}
+  (F : C ⟶ C')
+  (F' : C' ⟶ C'')
+  (H : faithful (functor_composite F F'))
+  : faithful F.
+Proof.
+  intros a b f g g'.
+  pose (H _ _ (#F' f)).
+  cbn in i.
+  use make_iscontr.
+  - apply subtypePath.
+    {
+      intro.
+      apply homset_property.
+    }
+    exact (base_paths _ _ (pr1 (H _ _ _
+      (make_hfiber _ (pr1 g) (maponpaths #F' (pr2 g)))
+      (make_hfiber _ (pr1 g') (maponpaths #F' (pr2 g')))))).
+  - intro.
+    refine (iscontrpr1 ((_ : isaset _) _ _ _ _)).
+    apply isaset_hfiber;
+      apply homset_property.
+Qed.
+
 (** Faithful functors reflect commutative triangles. If F f · F g = F h,
     in D, then f · g = h in C. (Really, this is true more generally for any
     diagram.) *)
@@ -946,6 +1014,17 @@ Proof.
   apply (Injectivity (# F)).
   - apply isweqonpathsincl, FF.
   - exact (functor_comp F f g @ feq).
+Defined.
+
+(** a simpler instance of that principle *)
+Lemma faithful_reflects_morphism_equality {C D : precategory} (F : functor C D)
+      (FF : faithful F) {a b : ob C} (f g : C ⟦a, b⟧) :
+  # F f = # F g → f = g.
+Proof.
+  intros feq.
+  apply (Injectivity (# F)).
+  - apply isweqonpathsincl, FF.
+  - exact feq.
 Defined.
 
 (** ** Full functors *)
@@ -1211,6 +1290,98 @@ Proof.
   - apply isaprop_faithful.
   - do 2 (use impred ; intro).
     apply isapropissurjective.
+Qed.
+
+(** More on equality of functors *)
+Definition path_functor_ob
+           {C₁ C₂ : category}
+           {F G : C₁ ⟶ C₂}
+           (p : F = G)
+           (x : C₁)
+  : F x = G x.
+Proof.
+  induction p.
+  apply idpath.
+Defined.
+
+Definition path_functor_mor
+           {C₁ C₂ : category}
+           {F G : C₁ ⟶ C₂}
+           (p : F = G)
+           {x y : C₁}
+           (f : x --> y)
+  : #F f · idtoiso (path_functor_ob p y)
+    =
+    idtoiso (path_functor_ob p x) · #G f.
+Proof.
+  induction p ; cbn.
+  rewrite id_left, id_right.
+  apply idpath.
+Qed.
+
+Definition path_functor_mor_left
+           {C₁ C₂ : category}
+           {F G : C₁ ⟶ C₂}
+           (p : F = G)
+           {x y : C₁}
+           (f : x --> y)
+  : idtoiso (!(path_functor_ob p x)) · #F f · idtoiso (path_functor_ob p y)
+    =
+    #G f.
+Proof.
+  induction p ; cbn.
+  rewrite id_left, id_right.
+  apply idpath.
+Qed.
+
+Definition path_functor_mor_right
+           {C₁ C₂ : category}
+           {F G : C₁ ⟶ C₂}
+           (p : F = G)
+           {x y : C₁}
+           (f : x --> y)
+  : #F f
+    =
+    idtoiso (path_functor_ob p x) · #G f · idtoiso (!path_functor_ob p y).
+Proof.
+  induction p.
+  exact (!path_functor_mor_left (idpath _) _).
+Qed.
+
+Proposition functor_data_eq_alt
+            {C C' : category}
+            {F F' : functor_data C C'}
+            (p : F ~ F')
+            (q : ∏ (x y : C)
+                   (f : x --> y),
+                 #F f · idtoiso (p y)
+                 =
+                 idtoiso (p x) · #F' f)
+  : F = F'.
+Proof.
+  use functor_data_eq.
+  - exact p.
+  - intros x y f.
+    specialize (q x y f).
+    unfold double_transport.
+    rewrite <- idtoiso_postcompose.
+    rewrite <- idtoiso_precompose.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      exact q.
+    }
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      refine (!_).
+      apply pr1_idtoiso_concat.
+    }
+    rewrite pathsinv0l.
+    cbn.
+    apply id_left.
 Qed.
 
 

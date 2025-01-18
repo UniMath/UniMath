@@ -21,10 +21,10 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
-Require Import UniMath.CategoryTheory.categories.Dialgebras.
-Require Import UniMath.CategoryTheory.categories.CatIsoInserter.
-Require Import UniMath.CategoryTheory.categories.EilenbergMoore.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.Dialgebras.
+Require Import UniMath.CategoryTheory.Categories.CatIsoInserter.
+Require Import UniMath.CategoryTheory.Categories.EilenbergMoore.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
 Require Import UniMath.CategoryTheory.Subcategory.Full.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -102,13 +102,8 @@ Section CatsBinprodUMP.
   Definition binprod_ump_2_cell_univ_cat
     : has_binprod_ump_2_cell (univ_cat_binprod_cone C₁ C₂).
   Proof.
-    intros q F₁ F₂ α β ; cbn -[functor_composite] in *.
-    use make_nat_trans.
-    - exact (λ x, α x ,, β x).
-    - intros x y f.
-      use pathsdirprod.
-      + apply (nat_trans_ax α).
-      + apply (nat_trans_ax β).
+    intros q F₁ F₂ α β.
+    exact (prod_nat_trans α β).
   Defined.
 
   Definition binprod_ump_2_cell_pr1_univ_cat
@@ -393,13 +388,6 @@ Section ReindexingPullback.
     {
       refine (maponpaths (λ z, z · _) _).
       apply id_left.
-    }
-    etrans.
-    {
-      apply maponpaths.
-      exact (inv_from_z_iso_in_total
-               (is_invertible_2cell_to_is_nat_z_iso _ (pr2 (pb_cone_cell q)) x)
-               _).
     }
     exact (nat_trans_eq_pointwise
              (vcomp_rinv
@@ -1019,9 +1007,6 @@ Section EilenbergMooreUMP.
         * abstract
             (intro x ;
              pose (nat_trans_eq_pointwise (mnd_cell_endo α) x) as p ;
-             simpl in p ;
-             rewrite !id_left, !id_right in p ;
-             unfold mor_of_eilenberg_moore_mor in p ;
              simpl in p ;
              rewrite !id_left, !id_right in p ;
              exact p).

@@ -18,7 +18,7 @@ Require Import UniMath.Combinatorics.Lists.
 - Abelian group presented by a set of generators and relations
 *)
 
-Local Open Scope multmonoid_scope.
+Local Open Scope multmonoid.
 Local Notation "[]" := nil (at level 0, format "[]").
 Local Infix "::" := cons.
 
@@ -109,7 +109,7 @@ Proof.
 Qed.
 
 (** Functoriality of the [free_monoidfun] *)
-Lemma free_monoidfun_comp_homot {X Y Z : hSet} (f : X -> Y) (g : Y -> Z) :
+Lemma free_monoidfun_comp_homot {X Y Z : hSet} (f : X → Y) (g : Y → Z) :
   (free_monoidfun (g ∘ f)) ~ free_monoidfun g ∘ free_monoidfun f.
 Proof.
   intro; apply map_compose.
@@ -281,6 +281,18 @@ Proof.
     unfold funcomp. rewrite free_abmonoidfun_setquotpr.
     refine (!setquotunivcomm _ _ _ _ _).
 Defined.
+
+Proposition free_abmonoid_mor_eq
+            {X : hSet}
+            {Y : abmonoid}
+            {f g : monoidfun (free_abmonoid X) Y}
+            (p : ∏ (x : X), f (free_abmonoid_unit x) = g (free_abmonoid_unit x))
+  : f = g.
+Proof.
+  use (invmaponpathsweq (invweq (free_abmonoid_universal_property X Y)) f g).
+  use funextsec.
+  exact p.
+Qed.
 
 (* Abelian monoid presented by a set of generators and relations *)
 

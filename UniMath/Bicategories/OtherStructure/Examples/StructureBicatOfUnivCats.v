@@ -22,15 +22,15 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Groupoids.
 Require Import UniMath.CategoryTheory.Core.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.StreetOpFibration.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
@@ -236,10 +236,13 @@ Proof.
     intro x ; cbn.
     apply id_left.
   - intros C₁ C₂ F.
-    use nat_trans_eq ; [ apply homset_property | ].
+    use nat_trans_eq.
+    {
+      apply homset_property.
+    }
     intro  ; cbn.
     rewrite !id_left.
-    exact (!(functor_id _ _)).
+    exact (functor_id _ _).
 Qed.
 
 Definition bicat_of_univ_cat_duality

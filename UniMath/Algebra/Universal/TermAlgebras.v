@@ -1,5 +1,5 @@
 (** * The ground term algebra and the proof it is initial. *)
-(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2023 *)
 
 Require Import UniMath.Foundations.All.
 
@@ -12,7 +12,13 @@ Local Open Scope hom.
 Section TermAlgebra.
 
   Definition term_algebra (σ: signature): algebra σ
-    := make_algebra (gtermset σ) build_gterm.
+    := make_algebra (gterm σ) build_gterm.
+
+  Definition has_supportsets_termalgebra (σ: signature): has_supportsets (term_algebra σ)
+    := λ (s: sorts σ), isasetterm s.
+
+  Definition term_hSetalgebra (σ: signature): hSetalgebra σ
+    := make_hSetalgebra (has_supportsets_termalgebra σ).
 
   Context {σ: signature}.
 
@@ -37,13 +43,10 @@ Section TermAlgebra.
   Definition gevalhom (a: algebra σ): term_algebra σ ↷ a
     := make_hom (ishomgeval a).
 
-  Definition iscontrhomsfromgterm (a: algebra σ): iscontr (term_algebra σ ↷ a).
+  Lemma gevalhom_is_unique {a: algebra σ} (f: term_algebra σ ↷ a):
+    pr1 f = pr1 (gevalhom a).
   Proof.
-    exists (gevalhom a).
-    intro f.
     induction f as [f fishom].
-    apply subtypePairEquality'.
-    2: apply isapropishom.
     apply funextsec.
     intro s.
     apply funextfun.
@@ -58,6 +61,17 @@ Section TermAlgebra.
     unfold starfun.
     apply h1map_path.
     exact IH.
+  Qed.
+
+  Definition iscontrhomsfromgterm (a: algebra σ) (setprop: has_supportsets a)
+    : iscontr (term_algebra σ ↷ a).
+  Proof.
+    exists (gevalhom a).
+    intro f.
+    apply subtypePairEquality'.
+    - apply gevalhom_is_unique.
+    - apply isapropishom.
+      exact setprop.
   Defined.
 
 End TermAlgebra.

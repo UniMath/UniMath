@@ -13,6 +13,7 @@ Contents:
 - Initial object ([Initial_PreShv])
 - Terminal object ([Terminal_PreShv])
 - Pullbacks ([Pullbacks_PreShv])
+- Equalizers ([Equalizers_PreShv])
 - Exponentials ([Exponentials_PreShv])
 - Constant presheaf ([constant_PreShv])
 - Definition of the subobject classifier (without proof) ([Ω_PreShv], [Ω_mor])
@@ -28,8 +29,8 @@ Written by: Anders Mörtberg, 2017-2019
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.Algebra.Monoids.
-Require Import UniMath.Algebra.Lattice.Lattice.
-Require Import UniMath.Algebra.Lattice.Bounded.
+Require Import UniMath.OrderTheory.Lattice.Lattice.
+Require Import UniMath.OrderTheory.Lattice.Bounded.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -41,20 +42,22 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.LatticeObject.
 
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
-Require Import UniMath.CategoryTheory.categories.HSET.Structures.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
 
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.initial.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.PullbackConstructions.
 
 Local Open Scope cat.
 
@@ -133,6 +136,12 @@ Lemma Pullbacks_PreShv : Pullbacks (PreShv C).
 Proof.
 now apply FunctorcategoryPullbacks, PullbacksHSET.
 Defined.
+
+(** Equalizers, via pullbacks and binproducts. It would be nice to have a direct proof. *)
+Definition Equalizers_PreShv : Equalizers (PreShv C)
+  := equalizers_from_pullbacks_prods
+    Pullbacks_PreShv
+    BinProducts_PreShv.
 
 Lemma Exponentials_PreShv :
   Exponentials BinProducts_PreShv.
@@ -299,7 +308,7 @@ Defined.
 
 Lemma isMonic_Ω_mor : isMonic Ω_mor.
 Proof.
-now apply from_terminal_isMonic.
+now apply global_element_isMonic.
 Qed.
 
 Local Notation "c ⊗ d" := (BinProductObject _ (BinProducts_PreShv c d)) : cat.

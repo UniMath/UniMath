@@ -52,7 +52,7 @@ Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 
 (* For the symmetric group *)
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 
 Local Open Scope cat.
 
@@ -196,7 +196,7 @@ End ContrCatLemmas.
 
 (** *** Monoids *)
 
-Local Open Scope multmonoid_scope.
+Local Open Scope multmonoid.
 
 (** **** Monoids as categories ([monoid_weq_contr_category]) *)
 

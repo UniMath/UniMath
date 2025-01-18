@@ -34,19 +34,9 @@ Section MonoidToMonad.
   Let η := monoid_unit _ M.
   Let μ := monoid_multiplication _ M.
 
-  Definition monoid_to_monad_multiplication_CAT : functor_with_μ C.
-  Proof.
-    exists x.
-    exact μ.
-  Defined.
+  Definition monoid_to_disp_Monad_data_CAT : disp_Monad_data x := μ ,, η.
 
-  Definition monoid_to_monad_data_CAT : Monad_data C.
-  Proof.
-    exists monoid_to_monad_multiplication_CAT.
-    exact η.
-  Defined.
-
-  Lemma monoid_to_monoid_laws_CAT : Monad_laws monoid_to_monad_data_CAT.
+  Lemma monoid_to_disp_Monad_laws_CAT : disp_Monad_laws monoid_to_disp_Monad_data_CAT.
   Proof.
     repeat split.
     - intro c.
@@ -64,7 +54,7 @@ Section MonoidToMonad.
   Qed.
 
   Definition monoid_to_monad_CAT : Monad C
-    := _ ,, monoid_to_monoid_laws_CAT.
+    := _ ,, _ ,, monoid_to_disp_Monad_laws_CAT.
 
 End MonoidToMonad.
 

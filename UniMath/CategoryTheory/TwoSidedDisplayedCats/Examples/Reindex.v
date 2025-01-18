@@ -141,7 +141,7 @@ Section Reindexing.
   Proof.
     repeat split.
     - intros x₁ x₂ y₁ y₂ xy₁ xy₂ f g fg ; cbn.
-      unfold transportb.
+      unfold transportb_disp_mor2, transportf_disp_mor2, transportb ; cbn.
       etrans.
       {
         apply twosided_prod_transport.
@@ -169,7 +169,7 @@ Section Reindexing.
       apply maponpaths_2.
       apply isaset_dirprod ; apply homset_property.
     - intros x₁ x₂ y₁ y₂ xy₁ xy₂ f g fg ; cbn.
-      unfold transportb.
+      unfold transportb_disp_mor2, transportf_disp_mor2, transportb ; cbn.
       etrans.
       {
         apply twosided_prod_transport.
@@ -198,7 +198,7 @@ Section Reindexing.
       apply isaset_dirprod ; apply homset_property.
     - intros x₁ x₂ x₃ x₄ y₁ y₂ y₃ y₄ xy₁ xy₂ xy₃ xy₄ f₁ f₂ f₃ g₁ g₂ g₃ fg₁ fg₂ fg₃.
       cbn.
-      unfold transportb.
+      unfold transportb_disp_mor2, transportf_disp_mor2, transportb ; cbn.
       etrans.
       {
         apply twosided_prod_transport.
@@ -281,7 +281,7 @@ Section Reindexing.
       simple refine (_ ,, _ ,, _).
       - exact (iso_inv_twosided_disp Hfg).
       - abstract
-          (cbn ; unfold transportb ;
+          (cbn ; unfold transportb_disp_mor2, transportf_disp_mor2, transportb ; cbn ;
            etrans ; [ apply twosided_prod_transport | ] ;
            etrans ; [ apply maponpaths ; exact (inv_after_iso_twosided_disp Hfg) | ] ;
            etrans ; [ apply maponpaths ; apply twosided_prod_transport | ] ;
@@ -293,7 +293,7 @@ Section Reindexing.
            apply maponpaths_2 ;
            apply isaset_dirprod ; apply homset_property).
       - abstract
-          (cbn ; unfold transportb ;
+          (cbn ; unfold transportb_disp_mor2, transportf_disp_mor2, transportb ; cbn ;
            etrans ; [ apply twosided_prod_transport | ] ;
            etrans ; [ apply maponpaths ; exact (iso_after_inv_twosided_disp Hfg) | ] ;
            etrans ; [ apply maponpaths ; apply twosided_prod_transport | ] ;
@@ -358,7 +358,7 @@ Section Reindexing.
                    p)
              as p' ;
            refine (p' @ _) ;
-           unfold transportb ;
+           unfold transportb_disp_mor2, transportf_disp_mor2, transportb ; cbn ;
            rewrite twosided_prod_transport_reindex ;
            rewrite !twosided_prod_transport ;
            rewrite !transport_f_f ;
@@ -378,7 +378,7 @@ Section Reindexing.
                    p)
              as p' ;
            refine (p' @ _) ;
-           unfold transportb ;
+           unfold transportb_disp_mor2, transportf_disp_mor2, transportb ; cbn ;
            rewrite twosided_prod_transport_reindex ;
            rewrite !twosided_prod_transport ;
            rewrite !transport_f_f ;

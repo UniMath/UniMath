@@ -1,7 +1,7 @@
 (**
   Construction of actegories:
   - the monoidal category acting on itself
-  - lifting an action from the target of a strong monoidal functor to its source
+  - reindexing an action from the target of a strong monoidal functor to its source
 
 Reconstructs the results from [UniMath.Bicategories.MonoidalCategories.ConstructionOfActions]
 in the whiskered setting.
@@ -61,7 +61,7 @@ Context {C : category} (Act : actegory Mon_V C)
 
 Context {F : W ⟶ V} (U : fmonoidal Mon_W Mon_V F).
 
-Definition lifted_action_data: bifunctor_data W C C.
+Definition reindexed_action_data: bifunctor_data W C C.
 Proof.
   use make_bifunctor_data.
   - intros w x. exact (F w ⊗_{Act} x).
@@ -69,7 +69,7 @@ Proof.
   - intros x w w' g. exact (#F g ⊗^{Act}_{r} x).
 Defined.
 
-Lemma lifted_action_data_is_bifunctor: is_bifunctor lifted_action_data.
+Lemma reindexed_action_data_is_bifunctor: is_bifunctor reindexed_action_data.
 Proof.
   split5; red; intros; cbn.
   - apply (bifunctor_leftid Act).
@@ -79,46 +79,46 @@ Proof.
   - apply (bifunctor_equalwhiskers Act).
 Qed.
 
-Definition lifted_action_unitor_data : action_unitor_data Mon_W lifted_action_data.
+Definition reindexed_action_unitor_data : action_unitor_data Mon_W reindexed_action_data.
 Proof.
   intro x.
   exact (pr1 (fmonoidal_preservesunitstrongly U) ⊗^{Act}_{r} x · au^{Act}_{x}).
 Defined.
 
-Definition lifted_action_unitorinv_data : action_unitorinv_data Mon_W lifted_action_data.
+Definition reindexed_action_unitorinv_data : action_unitorinv_data Mon_W reindexed_action_data.
 Proof.
   intro x.
   exact (auinv^{Act}_{x} · fmonoidal_preservesunit U ⊗^{Act}_{r} x).
 Defined.
 
-Definition lifted_actor_data : actor_data Mon_W lifted_action_data.
+Definition reindexed_actor_data : actor_data Mon_W reindexed_action_data.
 Proof.
   intros v w x.
   exact (pr1 (fmonoidal_preservestensorstrongly U v w) ⊗^{Act}_{r} x · aα^{Act}_{F v,F w,x}).
 Defined.
 
-Definition lifted_actorinv_data : actorinv_data Mon_W lifted_action_data.
+Definition reindexed_actorinv_data : actorinv_data Mon_W reindexed_action_data.
 Proof.
   intros v w x.
   exact (aαinv^{Act}_{F v,F w,x} · fmonoidal_preservestensordata U v w ⊗^{Act}_{r} x).
 Defined.
 
-Definition lifted_actegory_data: actegory_data Mon_W C.
+Definition reindexed_actegory_data: actegory_data Mon_W C.
 Proof.
   use make_actegory_data.
-  - exact lifted_action_data.
-  - exact lifted_action_unitor_data.
-  - exact lifted_action_unitorinv_data.
-  - exact lifted_actor_data.
-  - exact lifted_actorinv_data.
+  - exact reindexed_action_data.
+  - exact reindexed_action_unitor_data.
+  - exact reindexed_action_unitorinv_data.
+  - exact reindexed_actor_data.
+  - exact reindexed_actorinv_data.
 Defined.
 
-Lemma lifted_actegory_laws: actegory_laws Mon_W lifted_actegory_data.
+Lemma reindexed_actegory_laws: actegory_laws Mon_W reindexed_actegory_data.
 Proof.
   split5. (* splits into the 5 main goals *)
-  - exact lifted_action_data_is_bifunctor.
+  - exact reindexed_action_data_is_bifunctor.
   - split3.
-    + intros x y f. cbn. unfold lifted_action_unitor_data.
+    + intros x y f. cbn. unfold reindexed_action_unitor_data.
       etrans.
       2: {
         rewrite assoc'.
@@ -128,8 +128,8 @@ Proof.
       do 2 rewrite assoc.
       apply maponpaths_2.
       apply (! bifunctor_equalwhiskers Act _ _ _ _  (pr1 (fmonoidal_preservesunitstrongly U)) f).
-    + cbn. unfold lifted_action_unitor_data.
-      unfold lifted_action_unitorinv_data.
+    + cbn. unfold reindexed_action_unitor_data.
+      unfold reindexed_action_unitorinv_data.
       etrans. {
         rewrite assoc'.
         apply maponpaths.
@@ -144,8 +144,8 @@ Proof.
         exact (pr22 (fmonoidal_preservesunitstrongly U)).
       }
       apply (bifunctor_rightid Act).
-    + cbn. unfold lifted_action_unitor_data.
-      unfold lifted_action_unitorinv_data.
+    + cbn. unfold reindexed_action_unitor_data.
+      unfold reindexed_action_unitorinv_data.
       etrans. {
         rewrite assoc'.
         apply maponpaths.
@@ -161,7 +161,7 @@ Proof.
   - split4.
     + intros v w z z' h.
       cbn.
-      unfold lifted_actor_data.
+      unfold reindexed_actor_data.
       rewrite assoc'.
       rewrite (actegory_actornatleft Mon_V Act (F v) (F w) z z' h).
       do 2 rewrite assoc.
@@ -169,7 +169,7 @@ Proof.
       apply (bifunctor_equalwhiskers Act).
     + intros v v' w z f.
       cbn.
-      unfold lifted_actor_data.
+      unfold reindexed_actor_data.
       rewrite assoc'.
       rewrite (actegory_actornatright Mon_V Act).
       do 2 rewrite assoc.
@@ -180,7 +180,7 @@ Proof.
       exact (fmonoidal_preservestensornatright U).
     + intros v w w' z g.
       cbn.
-      unfold lifted_actor_data.
+      unfold reindexed_actor_data.
       rewrite assoc'.
       rewrite (actegory_actornatleftright Mon_V Act).
       do 2 rewrite assoc.
@@ -191,8 +191,8 @@ Proof.
       exact (fmonoidal_preservestensornatleft U).
     + split.
       * cbn.
-        unfold lifted_actor_data.
-        unfold lifted_actorinv_data.
+        unfold reindexed_actor_data.
+        unfold reindexed_actorinv_data.
         etrans. {
           rewrite assoc'.
           apply maponpaths.
@@ -208,8 +208,8 @@ Proof.
         }
         apply bifunctor_rightid.
       * cbn.
-        unfold lifted_actor_data.
-        unfold lifted_actorinv_data.
+        unfold reindexed_actor_data.
+        unfold reindexed_actorinv_data.
         etrans. {
           rewrite assoc'.
           apply maponpaths.
@@ -224,8 +224,8 @@ Proof.
         exact (pr2 (actegory_actorisolaw Mon_V Act (F v) (F w) z)).
   - intros v y.
     cbn.
-    unfold lifted_actor_data.
-    unfold lifted_action_unitor_data.
+    unfold reindexed_actor_data.
+    unfold reindexed_action_unitor_data.
     rewrite assoc'.
     rewrite (bifunctor_leftcomp Act).
     etrans. {
@@ -258,7 +258,7 @@ Proof.
     apply id_left.
   - intros w v v' z.
     cbn.
-    unfold lifted_actor_data.
+    unfold reindexed_actor_data.
 
     etrans.
     2: {
@@ -297,7 +297,7 @@ Proof.
     apply (! preserves_associativity_of_inverse_preserves_tensor pα _ _ _ _).
 Qed.
 
-Definition lifted_actegory: actegory Mon_W C := lifted_actegory_data,,lifted_actegory_laws.
+Definition reindexed_actegory: actegory Mon_W C := reindexed_actegory_data,,reindexed_actegory_laws.
 
 End A.
 
@@ -306,7 +306,7 @@ Section B.
   Context {V : category} (Mon_V : monoidal V).
 
   Definition actegory_with_canonical_pointed_action: actegory (monoidal_pointed_objects Mon_V) V :=
-    lifted_actegory Mon_V (actegory_with_canonical_self_action Mon_V)
+    reindexed_actegory Mon_V (actegory_with_canonical_self_action Mon_V)
       (monoidal_pointed_objects Mon_V) (forget_monoidal_pointed_objects_monoidal Mon_V).
 
 End B.

@@ -25,10 +25,10 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.limits.initial.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.Chains.Adamek.
@@ -75,7 +75,7 @@ Context {D : category}.
 
 Section the_iteration_principle.
 
-Variables (X : D) (L : functor C D) (IL : isInitial D (L 0)) (HL : is_omega_cocont L).
+Context (X : D) (L : functor C D) (IL : isInitial D (L 0)) (HL : is_omega_cocont L).
 
 Let ILD : Initial D := tpair _ _ IL.
 Local Notation "'L0'" := (InitialObject ILD).
@@ -87,7 +87,7 @@ Definition ψ_target : functor C^op HSET := functor_composite (functor_opp F) ψ
 
 Section general_case.
 
-Variable (ψ : ψ_source ⟹ ψ_target).
+Context (ψ : ψ_source ⟹ ψ_target).
 
 Let LchnF : chain D := mapchain L chnF.
 Let z : D⟦L0,X⟧ := InitialArrow ILD X.
@@ -221,8 +221,8 @@ End general_case.
 (** * Specialized Mendler Iteration *)
 Section special_case.
 
-Variables (G : functor D D) (ρ : G X --> X).
-Variables (θ : functor_composite F L ⟹ functor_composite L G).
+Context (G : functor D D) (ρ : G X --> X)
+        (θ : functor_composite F L ⟹ functor_composite L G).
 
 Lemma is_nat_trans_ψ_from_comps :
         is_nat_trans ψ_source ψ_target
@@ -252,20 +252,20 @@ End the_iteration_principle.
 (** * Fusion law for Generalized Iteration in Mendler-style *)
 Section fusion_law.
 
-Variables (X X' : D).
+Context (X X' : D).
 
 Let Yon : functor D^op HSET := yoneda_objects D X.
 Let Yon' : functor D^op HSET := yoneda_objects D X'.
 
-Variables (L : functor C D) (HL : is_omega_cocont L) (IL : isInitial D (L 0)).
-Variables (ψ : ψ_source X L ⟹ ψ_target X L).
+Context (L : functor C D) (HL : is_omega_cocont L) (IL : isInitial D (L 0))
+        (ψ : ψ_source X L ⟹ ψ_target X L).
 
-Variables (L' : functor C D) (HL' : is_omega_cocont L') (IL' : isInitial D (L' 0)).
-Variables (ψ' : ψ_source X' L' ⟹ ψ_target X' L').
+Context (L' : functor C D) (HL' : is_omega_cocont L') (IL' : isInitial D (L' 0))
+        (ψ' : ψ_source X' L' ⟹ ψ_target X' L').
 
-Variables (Φ : functor_composite (functor_opp L) Yon ⟹ functor_composite (functor_opp L') Yon').
+Context (Φ : functor_composite (functor_opp L) Yon ⟹ functor_composite (functor_opp L') Yon').
 
-Variables (H : ψ μF · Φ (F μF) = Φ μF · ψ' μF).
+Context (H : ψ μF · Φ (F μF) = Φ μF · ψ' μF).
 
 Theorem fusion_law : Φ μF (It X L IL HL ψ) = It X' L' IL' HL' ψ'.
 Proof.

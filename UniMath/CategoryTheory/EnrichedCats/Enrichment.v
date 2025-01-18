@@ -44,7 +44,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.covyoneda.
-Require Import UniMath.CategoryTheory.categories.HSET.All.
+Require Import UniMath.CategoryTheory.Categories.HSET.All.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 
 Import MonoidalNotations.
@@ -169,20 +169,20 @@ Proof.
 Qed.
 
 Definition enrichment
-           (C : category)
+           (C : precategory_data)
            (V : monoidal_cat)
   : UU
   := ∑ (E : enrichment_data C V), enrichment_laws E.
 
 Coercion enrichment_to_data
-         {C : category}
+         {C : precategory_data}
          {V : monoidal_cat}
          (E : enrichment C V)
   : enrichment_data C V
   := pr1 E.
 
 Section EnrichmentLaws.
-  Context {C : category}
+  Context {C : precategory_data}
           {V : monoidal_cat}
           (E : enrichment C V).
 
@@ -347,6 +347,87 @@ Coercion cat_with_enrichment_to_enrichment
          (E : cat_with_enrichment V)
   : enrichment E V
   := pr2 E.
+
+Definition univ_cat_with_enrichment
+           (V : monoidal_cat)
+  : UU
+  := ∑ (C : univalent_category), enrichment C V.
+
+Coercion univ_cat_with_enrichment_to_univ_cat
+         {V : monoidal_cat}
+         (E : univ_cat_with_enrichment V)
+  : univalent_category
+  := pr1 E.
+
+Coercion univ_cat_with_enrichment_to_enrichment
+         {V : monoidal_cat}
+         (E : univ_cat_with_enrichment V)
+  : enrichment E V
+  := pr2 E.
+
+Proposition is_precategory_from_enrichment
+            {C : precategory_data}
+            {V : monoidal_cat}
+            (E : enrichment C V)
+  : is_precategory C.
+Proof.
+  use make_is_precategory_one_assoc.
+  - intros x y f.
+    refine (!(enriched_to_from_arr E _) @ _ @ enriched_to_from_arr E _).
+    apply maponpaths.
+    rewrite enriched_from_arr_comp.
+    rewrite enriched_from_arr_id.
+    rewrite tensor_split'.
+    rewrite !assoc.
+    rewrite mon_linvunitor_I_mon_rinvunitor_I.
+    rewrite <- tensor_rinvunitor.
+    rewrite !assoc'.
+    rewrite <- (enrichment_id_right E x y).
+    rewrite mon_rinvunitor_runitor.
+    apply id_right.
+  - intros x y f.
+    refine (!(enriched_to_from_arr E _) @ _ @ enriched_to_from_arr E _).
+    apply maponpaths.
+    rewrite enriched_from_arr_comp.
+    rewrite enriched_from_arr_id.
+    rewrite tensor_split.
+    rewrite !assoc.
+    rewrite <- tensor_linvunitor.
+    rewrite !assoc'.
+    rewrite <- (enrichment_id_left E x y).
+    rewrite mon_linvunitor_lunitor.
+    apply id_right.
+  - intros w x y z f g h.
+    refine (!(enriched_to_from_arr E _) @ _ @ enriched_to_from_arr E _).
+    apply maponpaths.
+    etrans.
+    {
+      rewrite !enriched_from_arr_comp.
+      rewrite tensor_comp_r_id_r.
+      rewrite !assoc'.
+      rewrite enrichment_assoc.
+      apply idpath.
+    }
+    refine (!_).
+    rewrite !enriched_from_arr_comp.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite tensor_comp_l_id_r.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite !assoc'.
+    apply maponpaths.
+    rewrite tensor_comp_l_id_l.
+    rewrite tensor_comp_r_id_l.
+    rewrite !assoc'.
+    rewrite tensor_lassociator.
+    rewrite !assoc.
+    apply maponpaths_2.
+    rewrite mon_linvunitor_I_mon_rinvunitor_I.
+    rewrite <- mon_inv_triangle.
+    rewrite mon_linvunitor_I_mon_rinvunitor_I.
+    apply idpath.
+Qed.
 
 (**
  2. Equality of enrichments

@@ -48,55 +48,63 @@ Section FreeAlgebras.
     apply fromtermstep'.
   Defined.
 
-  Definition iscontr_universalmap
-    : iscontr (∑ h: free_algebra σ V ↷ a, ∏ v: V, h (varsort v) (varterm v) = α v).
+  Lemma universalmap_is_unique (h: free_algebra σ V ↷ a) (honvars: ∏ v: V, h (varsort v) (varterm v) = α v): pr1 h = pr1 universalmap.
+  Proof.
+    induction h as [h hishom].
+    simpl.
+    apply funextsec.
+    intro s.
+    apply funextfun.
+    unfold homot.
+    revert s.
+    apply (term_ind(σ := vsignature σ V)).
+    unfold term_ind_HP.
+    intros nm hv IHhv.
+    induction nm as [nm | v].
+    * change (inl nm) with (namelift V nm).
+      change (sort (namelift V nm)) with (sort nm).
+      change (build_gterm (namelift V nm) hv) with (ops (free_algebra σ V) nm hv) at 1.
+      change (build_gterm (namelift V nm) hv) with (build_term nm hv).
+      rewrite hishom.
+      rewrite evalstep.
+      apply maponpaths.
+      revert hv IHhv.
+      change (@arity (vsignature σ V) (inl nm)) with (arity nm).
+      generalize (arity nm).
+      refine (list_ind _ _ _).
+      -- reflexivity.
+      -- intros x xs IHxs hv IHhv.
+         unfold starfun.
+           simpl.
+           simpl in IHhv.
+           apply hcons_paths.
+           + exact (pr1 IHhv).
+           + exact (IHxs (pr2 hv) (pr2 IHhv)).
+    * induction hv.
+      change (inr v) with (varname v).
+      change (sort (varname v)) with (varsort v).
+      change (build_gterm (varname v) tt) with (varterm v).
+      rewrite honvars.
+      unfold eval.
+      rewrite fromtermstep'.
+      apply idpath.
+  Qed.
+
+  Definition iscontr_universalmap (setprop: has_supportsets a)
+    :  iscontr (∑ h: free_algebra σ V ↷ a, ∏ v: V, h (varsort v) (varterm v) = α v).
   Proof.
     exists universalmap.
     intro h.
     induction h as [h honvars].
     apply subtypePairEquality'.
-    - induction h as [h hishom].
-      apply subtypePairEquality'.
-      2: apply isapropishom.
-      apply funextsec.
-      intro s.
-      apply funextfun.
-      unfold homot.
-      revert s.
-      apply (term_ind(σ := vsignature σ V)).
-      unfold term_ind_HP.
-      intros nm hv IHhv.
-      induction nm as [nm | v].
-      * change (inl nm) with (namelift V nm).
-        change (sort (namelift V nm)) with (sort nm).
-        change (build_gterm (namelift V nm) hv) with (ops (free_algebra σ V) nm hv) at 1.
-        change (build_gterm (namelift V nm) hv) with (build_term nm hv).
-        rewrite hishom.
-        rewrite evalstep.
-        apply maponpaths.
-        revert hv IHhv.
-        change (@arity (vsignature σ V) (inl nm)) with (arity nm).
-        generalize (arity nm).
-        refine (list_ind _ _ _).
-        -- reflexivity.
-        -- intros x xs IHxs hv IHhv.
-           unfold starfun.
-             simpl.
-             simpl in IHhv.
-             apply hcons_paths.
-             + exact (pr1 IHhv).
-             + exact (IHxs (pr2 hv) (pr2 IHhv)).
-      * induction hv.
-        change (inr v) with (varname v).
-        change (sort (varname v)) with (varsort v).
-        change (build_gterm (varname v) tt) with (varterm v).
-        rewrite honvars.
-        unfold eval.
-        rewrite fromtermstep'.
-        apply idpath.
-   - apply impred_isaprop.
-     intros.
-     apply (supportset a (varsort t)).
+    - apply subtypePairEquality'.
+      + apply universalmap_is_unique.
+        assumption.
+      + apply isapropishom.
+        assumption.
+    - apply impred_isaprop.
+      intros.
+      apply (setprop (varsort t)).
   Defined.
 
 End FreeAlgebras.

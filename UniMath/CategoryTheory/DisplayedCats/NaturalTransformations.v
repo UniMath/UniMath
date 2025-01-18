@@ -759,3 +759,218 @@ Proof.
   apply transportf_set.
   apply homset_property.
 Qed.
+
+Section disp_nat_iso.
+
+Context {C C': category} {D: disp_cat C} {D': disp_cat C'} {F G: functor C C'}.
+
+
+Definition is_disp_nat_z_iso {DF: disp_functor F D D'} {DG: disp_functor G D D'}
+(α: nat_z_iso F G) (β: disp_nat_trans α DF DG) : UU
+    := ∏ (c:C) (d:D c), is_z_iso_disp (nat_z_iso_pointwise_z_iso α c) (β c d).
+
+Definition disp_nat_z_iso (DF: disp_functor F D D') (DG: disp_functor G D D')
+  (α: nat_z_iso F G): UU
+  := ∑ (β : disp_nat_trans α DF DG), is_disp_nat_z_iso α β.
+
+
+
+Context {DF: disp_functor F D D'} {DG: disp_functor G D D'}.
+
+Definition disp_nat_z_iso_to_trans {α: nat_z_iso F G}
+(µ : disp_nat_z_iso DF DG α) : disp_nat_trans α DF DG
+  := pr1 µ.
+
+Coercion disp_nat_z_iso_to_trans : disp_nat_z_iso >-> disp_nat_trans.
+
+End disp_nat_iso.
+
+Proposition isaprop_is_disp_nat_z_iso
+            {C₁ C₂ : category}
+            {F G : C₁ ⟶ C₂}
+            {τ : nat_z_iso F G}
+            {D₁ : disp_cat C₁}
+            {D₂ : disp_cat C₂}
+            {FF : disp_functor F D₁ D₂}
+            {GG : disp_functor G D₁ D₂}
+            (ττ : disp_nat_trans τ FF GG)
+  : isaprop (is_disp_nat_z_iso τ ττ).
+Proof.
+  repeat (use impred ; intro).
+  apply isaprop_is_z_iso_disp.
+Qed.
+
+
+Section disp_nat_z_iso_inv.
+Context {C C': category} {D: disp_cat C} {D': disp_cat C'} {F G: functor C C'}.
+Context {DF: disp_functor F D D'} {DG: disp_functor G D D'}.
+
+Local Open Scope mor_disp.
+
+Lemma disp_nat_z_iso_to_trans_inv_data {α: nat_z_iso F G}
+(β :disp_nat_z_iso DF DG α)
+: disp_nat_trans_data (nat_z_iso_to_trans_inv α) DG DF.
+Proof.
+  intros c d.
+  exact (pr1 (pr2 β c d)).
+Defined.
+
+Lemma disp_nat_z_iso_to_trans_inv_axioms {α: nat_z_iso F G}
+(β :disp_nat_z_iso DF DG α)
+: disp_nat_trans_axioms (disp_nat_z_iso_to_trans_inv_data β).
+Proof.
+  intros a b f x y Df.
+  set (eq_nat_trans := nat_trans_ax (nat_z_iso_to_trans_inv α) a b f).
+  apply (postcomp_with_z_iso_disp_is_inj _ _ (pr2 β b y)).
+  etrans. apply assoc_disp_var.
+  apply PartA.transportf_transpose_left.
+  etrans. apply (maponpaths _ (pr1 (pr2 (pr2 β b y)))).
+  etrans. apply mor_disp_transportf_prewhisker.
+  apply PartA.transportf_transpose_left.
+  etrans. apply id_right_disp.
+  apply pathsinv0.
+  etrans. apply transport_b_b.
+  etrans. apply transport_b_b.
+  apply PartA.transportf_transpose_left.
+  etrans. apply assoc_disp_var.
+  apply PartA.transportf_transpose_left.
+  etrans. apply (maponpaths _ ((pr2 (pr1 β)) a b f x y Df)).
+  etrans. apply mor_disp_transportf_prewhisker.
+  apply PartA.transportf_transpose_left.
+  etrans. apply assoc_disp.
+  apply PartA.transportf_transpose_left.
+  etrans. apply (maponpaths (λ Dg, Dg ;;  ♯ DG Df)
+                 (pr1 (pr2 (pr2 β a x)))).
+  etrans. apply mor_disp_transportf_postwhisker.
+  apply PartA.transportf_transpose_left.
+  etrans. apply id_left_disp.
+  apply pathsinv0.
+  etrans. apply transport_b_b.
+  etrans. apply transport_b_b.
+  etrans. apply transport_b_b.
+  etrans. apply transport_b_b.
+  etrans. apply transport_b_b.
+  apply two_arg_paths.
+  * apply uip.
+    apply homset_property.
+  * reflexivity.
+Qed.
+
+Definition disp_nat_z_iso_to_trans_inv {α: nat_z_iso F G}
+(β :disp_nat_z_iso DF DG α)
+  : disp_nat_trans (nat_z_iso_to_trans_inv α) DG DF
+  := (disp_nat_z_iso_to_trans_inv_data β,, disp_nat_z_iso_to_trans_inv_axioms β).
+
+
+Definition disp_nat_z_iso_inv {α: nat_z_iso F G}
+(β :disp_nat_z_iso DF DG α)
+  : disp_nat_z_iso  DG DF (nat_z_iso_inv α).
+Proof.
+  use tpair.
+  - exact (disp_nat_z_iso_to_trans_inv β).
+  - intros c d.
+    exists (β c d).
+    split.
+    * exact (pr2 (pr2 (pr2 β c d))).
+    * exact (pr1 (pr2 (pr2 β c d))).
+Defined.
+
+Local Open Scope cat.
+
+Lemma nat_z_iso_iso_inv (α: nat_z_iso F G) (c:C) (d:D c)
+    : α c · nat_z_iso_to_trans_inv α c = identity (F c).
+Proof.
+  apply (pr2 (pr2 α c)).
+Qed.
+
+Lemma disp_nat_z_iso_iso_inv {α: nat_z_iso F G}
+(β: disp_nat_z_iso DF DG α) (c:C) (d:D c)
+    : (β c d) ;; (disp_nat_z_iso_to_trans_inv β c d) =
+      transportb (mor_disp (DF c d) (DF c d))
+        (nat_z_iso_iso_inv α c d)
+        (id_disp (DF c d)).
+Proof.
+  etrans. apply (pr2 (pr2 (pr2 β c d))).
+  apply two_arg_paths.
+  - apply uip.
+    apply homset_property.
+  - reflexivity.
+Qed.
+
+Lemma nat_z_iso_inv_iso (α: nat_z_iso F G) (c:C) (d:D c)
+    : nat_z_iso_to_trans_inv α c · α c = identity (G c).
+Proof.
+  apply (pr2 (pr2 α c)).
+Qed.
+
+Lemma disp_nat_z_iso_inv_iso {α: nat_z_iso F G}
+(β: disp_nat_z_iso DF DG α) (c:C) (d:D c)
+    : (disp_nat_z_iso_to_trans_inv β c d) ;; (β c d) =
+      transportb (mor_disp (DG c d) (DG c d))
+        (nat_z_iso_inv_iso α c d)
+        (id_disp (DG c d)).
+Proof.
+  etrans. apply (pr1 (pr2 (pr2 β c d))).
+  apply two_arg_paths.
+  - apply uip.
+    apply homset_property.
+  - reflexivity.
+Qed.
+
+Local Close Scope cat.
+End disp_nat_z_iso_inv.
+Local Close Scope mor_disp.
+
+
+
+Section disp_nat_z_iso_comp.
+Context {C C': category} {D: disp_cat C} {D': disp_cat C'} {F G H: functor C C'}.
+Context {DF: disp_functor F D D'} {DG: disp_functor G D D'} {DH: disp_functor H D D'}.
+
+
+Lemma disp_nat_trans_comp_inv {α: nat_z_iso F G} {α': nat_z_iso G H}
+(β: disp_nat_z_iso DF DG α) (β': disp_nat_z_iso DG DH α') (c:C) (d:D c)
+  : is_disp_inverse (nat_z_iso_pointwise_z_iso (nat_z_iso_comp α α') c)
+        (disp_nat_trans_comp β β' c d)
+        (disp_nat_trans_comp (disp_nat_z_iso_inv β') (disp_nat_z_iso_inv β) c d).
+Proof.
+  split.
+  - etrans. apply assoc_disp.
+    apply PartA.transportb_transpose_left.
+    etrans. apply assoc4_disp.
+    apply PartA.transportb_transpose_left.
+    etrans. apply id_conjugation_disp.
+    * apply disp_nat_z_iso_inv_iso.
+    * apply disp_nat_z_iso_inv_iso.
+    * unfold transportb.
+      repeat rewrite transport_f_f.
+      apply two_arg_paths.
+      -- apply uip.
+         apply homset_property.
+      -- reflexivity.
+  - etrans. apply assoc_disp.
+     apply PartA.transportb_transpose_left.
+     etrans. apply assoc4_disp.
+     apply PartA.transportb_transpose_left.
+     etrans. apply id_conjugation_disp.
+     * apply disp_nat_z_iso_iso_inv.
+     * apply disp_nat_z_iso_iso_inv.
+     * unfold transportb.
+       repeat rewrite transport_f_f.
+       apply two_arg_paths.
+       -- apply uip.
+          apply homset_property.
+       -- reflexivity.
+Qed.
+
+Definition disp_nat_z_iso_comp {α: nat_z_iso F G} {α': nat_z_iso G H}
+(β: disp_nat_z_iso DF DG α) (β': disp_nat_z_iso DG DH α')
+  : disp_nat_z_iso DF DH (nat_z_iso_comp α α') .
+Proof.
+  exists (disp_nat_trans_comp β β').
+  intros c d.
+  exists (disp_nat_trans_comp (disp_nat_z_iso_inv β') (disp_nat_z_iso_inv β) c d).
+  apply disp_nat_trans_comp_inv.
+Defined.
+
+End disp_nat_z_iso_comp.

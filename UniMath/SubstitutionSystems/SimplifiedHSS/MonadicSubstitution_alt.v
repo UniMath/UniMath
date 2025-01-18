@@ -24,10 +24,10 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
@@ -68,11 +68,9 @@ Context (H : functor [C, C] [C, C])
         (θ : StrengthForSignature H)
         (HH : is_omega_cocont H).
 
-Let Const_plus_H (X : EndC) : functor EndC EndC
-    := BinCoproduct_of_functors _ _ CPEndC (constant_functor _ _ X) H.
+Let Const_plus_H (X : EndC) : functor EndC EndC := Const_plus_H C CP H X.
 
-Let Id_H : functor [C, C] [C, C]
-  := Const_plus_H (functor_identity _ : EndC).
+Let Id_H : functor [C, C] [C, C] := Id_H C CP H.
 
 Definition TermHSS : hss_category CP (Presignature_Signature (H,,θ)) :=
   InitHSS C CP IC CC (Presignature_Signature (H,,θ)) HH.

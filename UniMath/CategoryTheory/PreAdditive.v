@@ -27,11 +27,10 @@ Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.opp_precat.
 
-Require Import UniMath.CategoryTheory.limits.zero.
-Require Import UniMath.CategoryTheory.limits.kernels.
-Require Import UniMath.CategoryTheory.limits.cokernels.
-Import AddNotation.
-Local Open Scope addmonoid_scope.
+Require Import UniMath.CategoryTheory.Limits.Zero.
+Require Import UniMath.CategoryTheory.Limits.Kernels.
+Require Import UniMath.CategoryTheory.Limits.Cokernels.
+Local Open Scope addmonoid.
 
 (** * Definition of a PreAdditive precategory
    A preadditive precategory is a precategory such that the sets of morphisms are abelian groups and

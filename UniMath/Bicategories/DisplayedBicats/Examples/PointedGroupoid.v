@@ -10,7 +10,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.TransportMorphisms.
 Require Import UniMath.CategoryTheory.Groupoids.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.OneTypes.
 Require Import UniMath.Bicategories.Core.Examples.Groupoids.

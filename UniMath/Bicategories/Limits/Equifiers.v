@@ -280,7 +280,7 @@ Section Equifiers.
   Proof.
     use make_univalent_category.
     - exact (universal_equifier_cat x).
-    - use is_univalent_full_subcat.
+    - use is_univalent_full_sub_category.
       use is_univ_hom.
       exact HB_2_1.
   Defined.
