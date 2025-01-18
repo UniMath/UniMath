@@ -18,8 +18,8 @@ For instance, you can run the files from the [School on Univalent Mathematics](h
 ## Further documentation
 
 * For **general** information about UniMath, citing UniMath and the coordinating committee, see the documentation page [about UniMath](./documentation/misc/About-UniMath.md).
-* For **installing** UniMath and other software-related information, see [setup](./documentation/setup/setup.md).
-* For **contributing** to UniMath, see the documentation about [contributing](documentation/contributing/contributing.md).
+* For **installing** UniMath and other software-related information, see [setup](./documentation/setup/Setup.md).
+* For **contributing** to UniMath, see the documentation about [contributing](documentation/contributing/Contributing.md).
 
 ## Acknowledgments
 
