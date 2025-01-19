@@ -6,8 +6,6 @@ Require Import UniMath.MoreFoundations.Nat.
 Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.MoreFoundations.PartA.
 
-Notation ℕ := nat.
-
 Definition target_paths {Y} (f:ℕ->Y) := ∏ n, f n=f(S n).
 
 Definition gHomotopy {Y} (f:ℕ->Y) (s:target_paths f) := fun

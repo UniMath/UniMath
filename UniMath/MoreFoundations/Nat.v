@@ -9,7 +9,7 @@ Require Import UniMath.MoreFoundations.Propositions.
 
 Local Open Scope nat.
 
-Definition ℕ := nat.
+Notation ℕ := nat.
 
 Module Uniqueness.
 
