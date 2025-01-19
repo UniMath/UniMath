@@ -5,6 +5,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.Propositions.
 
 Local Open Scope nat.
 
