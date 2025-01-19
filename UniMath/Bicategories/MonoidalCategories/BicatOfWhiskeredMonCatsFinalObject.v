@@ -16,7 +16,7 @@ this resides in a separate file because of the heavy dependencies
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 

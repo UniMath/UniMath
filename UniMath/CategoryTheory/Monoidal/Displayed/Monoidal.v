@@ -15,10 +15,12 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
@@ -112,6 +114,36 @@ Section DisplayedMonoidalCategories.
        × (disp_rightunitorinv_data DT i)
        × (disp_associator_data DT)
        × (disp_associatorinv_data DT).
+
+  Definition make_disp_monoidal_data_groupoidal
+             {C : category}
+             (D : disp_cat C)
+             (gdisp : groupoidal_disp_cat D)
+             (M : monoidal C)
+             (DT : disp_tensor D M)
+             (i : D I_{M})
+             (dlu : disp_leftunitor_data DT i)
+             (dru : disp_rightunitor_data DT i)
+             (dα : disp_associator_data DT)
+    : disp_monoidal_data D M.
+  Proof.
+    exists DT. exists i. exists dlu.
+    use tpair.
+    { intros x xx.
+      set (aux := gdisp _ _ _ (pr2 (leftunitor_nat_z_iso M) x) _ _ (dlu x xx)).
+      exact (pr1 aux).
+    }
+    exists dru.
+    use tpair.
+    { intros x xx.
+      set (aux := gdisp _ _ _ (pr2 (rightunitor_nat_z_iso M) x) _ _ (dru x xx)).
+      exact (pr1 aux).
+    }
+    exists dα.
+    intros x y z xx yy zz.
+    set (aux := gdisp _ _ _ (pr2 (z_iso_from_associator_iso M x y z)) _ _ (dα x y z xx yy zz)).
+    exact (pr1 aux).
+  Defined.
 
   Definition disp_monoidal_tensor
              {C : category}
@@ -623,7 +655,7 @@ Section DisplayedMonoidalCategories.
              {C : category}
              {D : disp_cat C}
              {M : monoidal C}
-             (DMD :  disp_monoidal_data D M)
+             (DMD : disp_monoidal_data D M)
     : UU
     := (disp_leftunitor_law dlu_{DMD} dluinv_{DMD})
        × (disp_rightunitor_law dru_{DMD} druinv_{DMD})
@@ -637,6 +669,63 @@ Section DisplayedMonoidalCategories.
              (M : monoidal C)
     : UU
     := ∑ (MD : disp_monoidal_data D M), (disp_monoidal_laws MD).
+
+  Definition make_disp_monoidal_locally_prop
+             {C : category}
+             {D : disp_cat C}
+             (LP : locally_propositional D)
+             {M : monoidal C}
+             (DMD : disp_monoidal_data D M)
+    : disp_monoidal D M.
+  Proof.
+    exists DMD.
+    abstract (repeat split ; try intro ; intros ; apply LP).
+  Defined.
+
+  Definition make_disp_monoidal_groupoidal
+             {C : category}
+             {D : disp_cat C}
+             (gdisp : groupoidal_disp_cat D)
+             {M : monoidal C}
+             (DT : disp_tensor D M)
+             (i : D I_{M})
+             (dlu : disp_leftunitor_data DT i)
+             (dru : disp_rightunitor_data DT i)
+             (dα : disp_associator_data DT) :
+    let DMD := make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα in
+           ∏ (dlu_nat : disp_leftunitor_nat dlu_{DMD})
+             (dru_nat : disp_rightunitor_nat dru_{DMD})
+             (dα_nat_left : disp_associator_nat_leftwhisker dα_{DMD})
+             (dα_nat_right : disp_associator_nat_rightwhisker dα_{DMD})
+             (dα_nat_left_right : disp_associator_nat_leftrightwhisker dα_{DMD})
+             (dtriangle : disp_triangle_identity dlu_{DMD} dru_{DMD} dα_{DMD})
+             (dpentagon : disp_pentagon_identity dα_{DMD}),
+      disp_monoidal D M.
+  Proof.
+    intros.
+    use tpair.
+    - exact DMD.
+    - split5.
+      + split.
+        * exact dlu_nat.
+        * intros x xx.
+          set (aux := gdisp _ _ _ (pr2 (leftunitor_nat_z_iso M) x) _ _ (dlu x xx)).
+          exact (pr2 aux).
+      + split.
+        * exact dru_nat.
+        * intros x xx.
+          set (aux := gdisp _ _ _ (pr2 (rightunitor_nat_z_iso M) x) _ _ (dru x xx)).
+          exact (pr2 aux).
+      + split4.
+        * exact dα_nat_left.
+        * exact dα_nat_right.
+        * exact dα_nat_left_right.
+        * intros x y z xx yy zz.
+          set (aux := gdisp _ _ _ (pr2 (z_iso_from_associator_iso M x y z)) _ _ (dα x y z xx yy zz)).
+          exact (pr2 aux).
+      + exact dtriangle.
+      + exact dpentagon.
+  Defined.
 
   Definition disp_monoidal_mondata
              {C : category}

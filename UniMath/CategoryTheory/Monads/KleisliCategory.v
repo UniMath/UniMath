@@ -49,7 +49,7 @@ End Monad_Lemmas.
 
 Section Kleisli_Categories.
 
-Definition Kleisli_precat_ob_mor_monad {C : precategory_data} (T : Monad_data C) :
+Definition Kleisli_precat_ob_mor_monad {C : category} (T : Monad C) :
   precategory_ob_mor.
 Proof.
   use tpair.
@@ -58,7 +58,7 @@ Proof.
     exact (X --> T Y).
 Defined.
 
-Definition Kleisli_precat_data_monad {C : precategory_data} (T : Monad_data C) :
+Definition Kleisli_precat_data_monad {C : category} (T : Monad C) :
   precategory_data.
 Proof.
   use make_precategory_data.
@@ -332,6 +332,14 @@ Section KleisliUMP1.
   Proof.
     intro x.
     apply is_z_isomorphism_identity.
+  Defined.
+
+  Definition functor_from_kleisli_cat_monad_nat_z_iso
+    : nat_z_iso (Left_Kleisli_functor m ∙ functor_from_kleisli_cat_monad) F.
+  Proof.
+    use make_nat_z_iso.
+    - exact functor_from_kleisli_cat_monad_nat_trans.
+    - exact functor_from_kleisli_cat_monad_nat_trans_is_z_iso.
   Defined.
 End KleisliUMP1.
 

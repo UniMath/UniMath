@@ -87,6 +87,28 @@ Section FullSub.
     - exact fullsub_enrichment_laws.
   Defined.
 
+  Proposition fullsub_enrichment_precomp_arr
+              {x y : subcategory C (full_sub_precategory P)}
+              (w : subcategory C (full_sub_precategory P))
+              (f : x --> y)
+    : precomp_arr fullsub_enrichment w f
+      =
+      precomp_arr E (pr1 w) (pr1 f).
+  Proof.
+    apply idpath.
+  Qed.
+
+  Proposition fullsub_enrichment_postcomp_arr
+              {x y : subcategory C (full_sub_precategory P)}
+              (w : subcategory C (full_sub_precategory P))
+              (f : x --> y)
+    : postcomp_arr fullsub_enrichment w f
+      =
+      postcomp_arr E (pr1 w) (pr1 f).
+  Proof.
+    apply idpath.
+  Qed.
+
   (**
    2. The enrichment of the inclusion
    *)

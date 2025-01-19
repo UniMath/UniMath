@@ -15,7 +15,7 @@ Require Export UniMath.Algebra.Universal.Terms.
 
 Local Open Scope sorted.
 
-Section Variables.
+Section VTerms.
 
   Definition varspec (σ: signature) := ∑ V: hSet, V → sorts σ.
 
@@ -37,7 +37,7 @@ Section Variables.
 
   Definition term (σ: signature) (V: varspec σ): sUU (sorts σ) := gterm (vsignature σ V).
 
-  Definition termset (σ: signature) (V: varspec σ): shSet (sorts σ) := gtermset (vsignature σ V).
+  Definition termset (σ: signature) (V: varspec σ): sUU (sorts σ) := gtermset (vsignature σ V).
 
   Definition build_term {V: varspec σ} (nm: names σ) (v: (term σ V)⋆ (arity nm))
     : term σ V (sort nm) := build_gterm (namelift V nm) v.
@@ -45,10 +45,6 @@ Section Variables.
   Definition varterm {V: varspec σ} (v: V): term σ V (varsort v) := build_gterm (varname v) [()].
 
   Definition assignment {σ: signature} (A: sUU (sorts σ)) (V: varspec σ) : UU := ∏ v: V, A (varsort v).
-
-  Definition build_term_curried {V: varspec σ} (nm: names σ)
-    : iterfun (vec_map (term σ V) (pr2 (arity (namelift V nm)))) (term σ V (sort (namelift V nm)))
-    := build_gterm_curried (namelift V nm).
 
   (** Evaluation maps for terms and corresponding unfolding properties *)
 
@@ -88,4 +84,10 @@ Section Variables.
     apply idpath.
   Defined.
 
-End Variables.
+  (** ** Helpers for working with curried functions *)
+
+  Definition build_term' {V: varspec σ} (nm: names σ)
+    : iterfun (vec_map (term σ V) (arity (namelift V nm))) (term σ V (sort (namelift V nm)))
+    := build_gterm' (namelift V nm).
+
+End VTerms.

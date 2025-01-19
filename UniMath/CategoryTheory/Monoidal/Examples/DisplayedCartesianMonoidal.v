@@ -14,8 +14,8 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Binproducts.
@@ -51,7 +51,7 @@ Section FixADisplayedCategory.
       exact (dispBinProductOfArrows _ _ _ ff (id_disp dd)).
   Defined.
 
-  Definition DCM_tensor_laws : is_disp_bifunctor DCM_tensor_data.
+  Definition DCM_tensor_laws : is_disp_bifunctor M DCM_tensor_data.
   Proof.
     red; repeat split; red; intros.
     - cbn. unfold dispBinProductOfArrows. apply pathsinv0. apply dispBinProductArrowUnique.

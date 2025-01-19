@@ -58,25 +58,18 @@ Section DualityInvolutionEnriched.
            (op2_psfunctor (op_enriched_psfunctor V))).
   Proof.
     use make_pstrans_data.
-    - cbn.
-      exact (λ E, functor_identity _ ,, op_enriched_unit V (pr2 E)).
-    - intros E₁ E₂ F.
+    - refine (λ (E : enriched_cat V), _).
+      use make_enriched_functor.
+      + exact (functor_identity E).
+      + exact (op_enriched_unit V E).
+    - refine (λ (E₁ E₂ : enriched_cat V) (F : enriched_functor _ _), _).
       use make_invertible_2cell.
-      + exact (op_unit_nat_trans (pr1 F)
-               ,,
-               op_enriched_unit_naturality V (pr2 F)).
-      + use make_is_invertible_2cell.
-        * exact (nat_z_iso_to_trans_inv (op_unit_nat_z_iso (pr1 F))
-                 ,,
-                 op_enriched_unit_naturality_inv V (pr2 F)).
-        * abstract
-            (use eq_2cell_enriched ;
-             intro x ; cbn ;
-             apply id_left).
-        * abstract
-            (use eq_2cell_enriched ;
-             intro x ; cbn ;
-             apply id_left).
+      + use make_enriched_nat_trans.
+        * exact (op_unit_nat_trans F).
+        * exact (op_enriched_unit_naturality V (enriched_functor_enrichment F)).
+      + use make_is_invertible_2cell_enriched.
+        intro x.
+        apply is_z_isomorphism_identity.
   Defined.
 
   Proposition bicat_of_enriched_cat_duality_unit_is_pstrans
@@ -84,16 +77,16 @@ Section DualityInvolutionEnriched.
   Proof.
     repeat split.
     - intros E₁ E₂ F G α.
-      use eq_2cell_enriched.
+      use eq_enriched_nat_trans.
       intro x ; cbn.
       rewrite id_left, id_right.
       apply idpath.
     - intros E.
-      use eq_2cell_enriched.
+      use eq_enriched_nat_trans.
       intros x ; cbn.
       apply idpath.
     - intros E₁ E₂ E₃ F G.
-      use eq_2cell_enriched.
+      use eq_enriched_nat_trans.
       intros x ; cbn.
       rewrite functor_id.
       rewrite !id_left.
@@ -120,47 +113,46 @@ Section DualityInvolutionEnriched.
         (id_psfunctor (bicat_of_enriched_cats V)).
   Proof.
     use make_pstrans_data.
-    - cbn.
-      exact (λ E, functor_identity _ ,, op_enriched_unit_inv V (pr2 E)).
-    - intros E₁ E₂ F.
+    - refine (λ (E : enriched_cat V), _).
+      use make_enriched_functor.
+      + exact (functor_identity E).
+      + exact (op_enriched_unit_inv V E).
+    - refine (λ (E₁ E₂ : enriched_cat V) (F : enriched_functor _ _), _).
       use make_invertible_2cell.
-      + exact (op_unit_inv_nat_trans (pr1 F)
-               ,,
-               op_enriched_unit_inv_naturality V (pr2 F)).
-      + use make_is_invertible_2cell.
-        * exact (nat_z_iso_to_trans_inv (op_unit_inv_nat_z_iso (pr1 F))
-                 ,,
-                 op_enriched_unit_inv_naturality_inv V (pr2 F)).
-        * abstract
-            (use eq_2cell_enriched ;
-             intro x ; cbn ;
-             apply id_left).
-        * abstract
-            (use eq_2cell_enriched ;
-             intro x ; cbn ;
-             apply id_left).
+      + use make_enriched_nat_trans.
+        * exact (op_unit_inv_nat_trans F).
+        * exact (op_enriched_unit_inv_naturality V (enriched_functor_enrichment F)).
+      + use make_is_invertible_2cell_enriched.
+        intro x.
+        apply is_z_isomorphism_identity.
   Defined.
 
   Proposition bicat_of_enriched_cat_duality_unit_inv_is_pstrans
     : is_pstrans bicat_of_enriched_cat_duality_unit_inv_data.
   Proof.
-    repeat split.
+    simple refine (_ ,, _ ,, _).
     - intros E₁ E₂ F G α ; simpl.
-      use eq_2cell_enriched.
+      use eq_enriched_nat_trans.
       intro x ; cbn.
       rewrite id_left, id_right.
       apply idpath.
-    - intros E ; simpl.
-      use eq_2cell_enriched.
+    - intros E.
+      Opaque comp_psfunctor.
+      use eq_enriched_nat_trans.
+      Transparent comp_psfunctor.
       intros x ; cbn.
       rewrite !id_left.
       apply idpath.
-    - intros E₁ E₂ E₃ F G ; simpl.
-      use eq_2cell_enriched.
+    - intros E₁ E₂ E₃ F G.
+      Opaque comp_psfunctor.
+      use eq_enriched_nat_trans.
+      Transparent comp_psfunctor.
       intros x ; cbn.
       rewrite !id_left, !id_right.
       exact (!(functor_id _ _)).
-  Admitted.
+      Opaque comp_psfunctor.
+  Qed.
+  Transparent comp_psfunctor.
 
   Definition bicat_of_enriched_cat_duality_unit_inv
     : pstrans
@@ -179,28 +171,21 @@ Section DualityInvolutionEnriched.
         (id₁ (id_psfunctor (bicat_of_enriched_cats V)))
         (bicat_of_enriched_cat_duality_unit · bicat_of_enriched_cat_duality_unit_inv).
   Proof.
-    intros E.
+    refine (λ (E : enriched_cat _), _).
     use make_invertible_2cell.
-    - exact (op_unit_unit_inv_nat_trans _ ,, op_enriched_unit_unit_inv V (pr2 E)).
-    - use make_is_invertible_2cell.
-      + exact (nat_z_iso_to_trans_inv (op_unit_unit_inv_nat_z_iso _)
-               ,,
-               op_enriched_unit_unit_inv_inv V (pr2 E)).
-      + abstract
-          (use eq_2cell_enriched ;
-           intros x ; cbn ;
-           apply id_left).
-      + abstract
-          (use eq_2cell_enriched ;
-           intros x ; cbn ;
-           apply id_left).
+    - use make_enriched_nat_trans.
+      + exact (op_unit_unit_inv_nat_trans _).
+      + exact (op_enriched_unit_unit_inv V E).
+    - use make_is_invertible_2cell_enriched.
+      intro x.
+      apply is_z_isomorphism_identity.
   Defined.
 
   Proposition bicat_of_enriched_cat_duality_unit_unit_inv_laws
     : is_modification bicat_of_enriched_cat_duality_unit_unit_inv_data.
   Proof.
     intros E₁ E₂ F.
-    use eq_2cell_enriched.
+    use eq_enriched_nat_trans.
     intros x ; cbn.
     rewrite (functor_id (pr1 F)), !id_left.
     apply idpath.
@@ -221,30 +206,21 @@ Section DualityInvolutionEnriched.
         (bicat_of_enriched_cat_duality_unit_inv · bicat_of_enriched_cat_duality_unit)
         (id₁ _).
   Proof.
-    intros E.
+    refine (λ (E : enriched_cat V), _).
     use make_invertible_2cell.
-    - exact (op_unit_inv_unit_nat_trans _
-             ,,
-             op_enriched_unit_inv_unit V (pr2 E)).
-    - use make_is_invertible_2cell.
-      + exact (nat_z_iso_to_trans_inv (op_unit_inv_unit_nat_z_iso _)
-               ,,
-               op_enriched_unit_inv_unit_inv V (pr2 E)).
-      + abstract
-          (use eq_2cell_enriched ;
-           intros x ; cbn ;
-           apply id_left).
-      + abstract
-          (use eq_2cell_enriched ;
-           intros x ; cbn ;
-           apply id_left).
+    - use make_enriched_nat_trans.
+      + exact (op_unit_inv_unit_nat_trans _).
+      + exact (op_enriched_unit_inv_unit V E).
+    - use make_is_invertible_2cell_enriched.
+      intro x.
+      apply is_z_isomorphism_identity.
   Defined.
 
   Proposition bicat_of_enriched_cat_duality_unit_inv_unit_laws
     : is_modification bicat_of_enriched_cat_duality_unit_inv_unit_data.
   Proof.
     intros E₁ E₂ F.
-    use eq_2cell_enriched.
+    use eq_enriched_nat_trans.
     intro x ; cbn.
     rewrite (functor_id (pr1 F)), !id_left.
     apply idpath.
@@ -261,25 +237,17 @@ Section DualityInvolutionEnriched.
   Defined.
 
   Definition bicat_of_enriched_cat_duality_triangle
-             (E : op2_bicat (bicat_of_enriched_cats V))
+             (E : enriched_cat V)
     : invertible_2cell
         (bicat_of_enriched_cat_duality_unit (op_enriched_psfunctor V E))
-        (# (op_enriched_psfunctor V) (bicat_of_enriched_cat_duality_unit E)).
+        (# (op_enriched_psfunctor V) (bicat_of_enriched_cat_duality_unit E : E --> _)).
   Proof.
     use make_invertible_2cell.
-    - exact (op_triangle_nat_trans _ ,, op_enriched_triangle V (pr2 E)).
-    - use make_is_invertible_2cell.
-      + exact (nat_z_iso_to_trans_inv (op_triangle_nat_z_iso _)
-               ,,
-               op_enriched_triangle_inv V (pr2 E)).
-      + abstract
-          (use eq_2cell_enriched ;
-           intros x ; cbn ;
-           apply id_left).
-      + abstract
-          (use eq_2cell_enriched ;
-           intros x ; cbn ;
-           apply id_left).
+    - use make_enriched_nat_trans.
+      + exact (op_triangle_nat_trans _).
+      + exact (op_enriched_triangle V E).
+    - use make_is_invertible_2cell_enriched.
+      apply op_triangle_nat_z_iso.
   Defined.
 
   Definition bicat_of_enriched_cat_duality_data
@@ -298,14 +266,14 @@ Section DualityInvolutionEnriched.
   Proof.
     split.
     - intro E.
-      use eq_2cell_enriched.
+      use eq_enriched_nat_trans.
       intro x ; cbn.
-      apply id_left.
+      exact (id_left (identity x)).
     - intros E₁ E₂ F.
-      use eq_2cell_enriched.
+      use eq_enriched_nat_trans.
       intro x ; cbn.
       rewrite !id_left.
-      exact (!(functor_id _ _)).
+      exact (functor_id _ _).
   Qed.
 
   Definition bicat_of_enriched_cat_duality

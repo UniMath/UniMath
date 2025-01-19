@@ -17,11 +17,13 @@ Contents :
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.equalizers.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.coequalizers.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
@@ -51,6 +53,24 @@ Section FixDispCat.
     ∑ pppp1pp2 : (∑ pp : D (BinProductObject _ P),
                      (pp -->[BinProductPr1 _ P] cc) × (pp -->[BinProductPr2 _ P] dd)),
         is_dispBinProduct c d P cc dd (pr1 pppp1pp2) (pr1 (pr2 pppp1pp2)) (pr2 (pr2 pppp1pp2)).
+
+  Definition make_dispBinProduct_locally_prop (c d : C) (P : BinProduct C c d) (cc : D c) (dd : D d)
+    (LP : locally_propositional D)
+    (dBP_data : ∑ pp : D (BinProductObject _ P),
+          (pp -->[BinProductPr1 _ P] cc) × (pp -->[BinProductPr2 _ P] dd))
+    (mediating : ∏ (a : C) (f : a --> c) (g : a --> d) (aa : D a)
+                   (ff : aa -->[f] cc) (gg : aa -->[g] dd),
+        aa -->[ BinProductArrow C P f g] pr1 dBP_data)
+    : dispBinProduct c d P cc dd.
+  Proof.
+    exists dBP_data.
+    intro; intros.
+    use tpair.
+    - exists (mediating a f g aa ff gg).
+      abstract (split; apply LP).
+    - abstract (intro t; apply subtypePath;
+                [intro; apply isapropdirprod; apply homsets_disp | apply LP]).
+  Defined.
 
   Definition dispBinProductObject {c d : C} (P : BinProduct C c d) {cc : D c} {dd : D d}
     (dP : dispBinProduct c d P cc dd) : D (BinProductObject _ P) := pr1 (pr1 dP).
@@ -462,6 +482,18 @@ Section FixDispCat.
 
   Definition dispTerminal (P : Terminal C) : UU :=
     ∑ pp :  D (TerminalObject P), is_dispTerminal P pp.
+
+  Definition make_dispTerminal_locally_prop (P : Terminal C)
+    (LP : locally_propositional D) (dTO_data : D (TerminalObject P))
+    (mediating : ∏ (a : C) (aa : D a), aa -->[TerminalArrow P a] dTO_data)
+    : dispTerminal P.
+  Proof.
+    exists dTO_data.
+    intro; intros.
+    use tpair.
+    - exact (mediating a aa).
+    - intro; apply LP.
+  Defined.
 
   Definition dispTerminalObject {P : Terminal C} (dP : dispTerminal P) : D (TerminalObject P) := pr1 dP.
 
@@ -1164,6 +1196,412 @@ Section FixDispCat.
       - exact (total_category_Product d _ (DC _ _)).
       - exact (total_category_ProductPr d _ (DC _ _)).
       - apply total_category_isProduct.
+    Defined.
+  End FixType.
+
+  (**
+   Displayed binary coproducts
+   *)
+  Definition disp_isBinCoproduct
+             {x y : C}
+             {xx : D x}
+             {yy : D y}
+             (p : BinCoproduct x y)
+             (pp : D p)
+             (ιι₁ : xx -->[ BinCoproductIn1 p ] pp)
+             (ιι₂ : yy -->[ BinCoproductIn2 p ] pp)
+    : UU
+    := ∏ (w : C)
+         (ww : D w)
+         (f : x --> w)
+         (ff : xx -->[ f ] ww)
+         (g : y --> w)
+         (gg : yy -->[ g ] ww),
+       ∃! (hh : pp -->[ BinCoproductArrow p f g ] ww),
+       (transportf
+          (λ z, _ -->[ z ] _)
+          (BinCoproductIn1Commutes _ _ _ p _ f g)
+          (ιι₁ ;; hh)
+        =
+        ff)
+       ×
+       (transportf
+          (λ z, _ -->[ z ] _)
+          (BinCoproductIn2Commutes _ _ _ p _ f g)
+          (ιι₂ ;; hh)
+        =
+        gg).
+
+  Definition disp_BinCoproduct
+             {x y : C}
+             (xx : D x)
+             (yy : D y)
+             (p : BinCoproduct x y)
+    : UU
+    := ∑ (pp : D p)
+         (ιι₁ : xx -->[ BinCoproductIn1 p ] pp)
+         (ιι₂ : yy -->[ BinCoproductIn2 p ] pp),
+       disp_isBinCoproduct p pp ιι₁ ιι₂.
+
+    Definition disp_BinCoproducts
+               (PC : BinCoproducts C)
+      : UU
+      := ∏ (x y : C)
+           (xx : D x)
+           (yy : D y),
+         disp_BinCoproduct xx yy (PC x y).
+
+    Section TotalBinCoproduct.
+      Context (x_xx y_yy : total_category D).
+
+      Let x : C := pr1 x_xx.
+      Let y : C := pr1 y_yy.
+      Let xx : D x := pr2 x_xx.
+      Let yy : D y := pr2 y_yy.
+
+      Context (p : BinCoproduct x y)
+              (pp : disp_BinCoproduct xx yy p).
+
+      Definition total_category_BinCoproduct
+        : total_category D
+        := _ ,, pr1 pp.
+
+      Definition total_category_BinCoproductIn1
+        : x_xx --> total_category_BinCoproduct
+        := _ ,, pr12 pp.
+
+      Definition total_category_BinCoproductIn2
+        : y_yy --> total_category_BinCoproduct
+        := _ ,, pr122 pp.
+
+      Section TotalBinCoproductUMP.
+        Context {w : C}
+                (ww : D w)
+                {f : x --> w}
+                (ff : xx -->[ f ] ww)
+                {g : y --> w}
+                (gg : yy -->[ g ] ww).
+
+        Let t_w : total_category D
+          := w ,, ww.
+        Let t_f : x_xx --> t_w
+          := f ,, ff.
+        Let t_g : y_yy --> t_w
+          := g ,, gg.
+
+        Proposition total_category_BinCoproductUnique
+          : isaprop
+              (∑ (fg : total_category_BinCoproduct --> t_w),
+               (total_category_BinCoproductIn1 · fg = t_f)
+               ×
+               (total_category_BinCoproductIn2 · fg = t_g)).
+        Proof.
+          use invproofirrelevance.
+          intros φ₁ φ₂.
+          use subtypePath.
+          {
+            intro.
+            use isapropdirprod ; apply homset_property.
+          }
+          use total2_paths_f.
+          - use BinCoproductArrowsEq.
+            + exact (maponpaths pr1 (pr12 φ₁ @ !(pr12 φ₂))).
+            + exact (maponpaths pr1 (pr22 φ₁ @ !(pr22 φ₂))).
+          - assert (r : pr11 φ₂ = BinCoproductArrow p f g).
+            {
+              use BinCoproductArrowsEq.
+              + refine (maponpaths pr1 (pr12 φ₂) @ _).
+                cbn.
+                rewrite BinCoproductIn1Commutes.
+                apply idpath.
+              + refine (maponpaths pr1 (pr22 φ₂) @ _).
+                cbn.
+                rewrite BinCoproductIn2Commutes.
+                apply idpath.
+            }
+            rewrite <- (transportbfinv
+                          (λ z, _ -->[ z ] _)
+                          r
+                          (pr21 φ₂)).
+            rewrite <- (transportbfinv
+                          (λ z, _ -->[ z ] _)
+                          r
+                          (transportf _ _ _)).
+            apply maponpaths.
+            use (maponpaths
+                   pr1
+                   (proofirrelevance
+                      _
+                      (isapropifcontr
+                         (pr222 pp w ww f ff g gg))
+                      (transportf _ _ _ ,, _)
+                      (transportf _ _ _ ,, _))).
+            + cbn.
+              split.
+              * rewrite !mor_disp_transportf_prewhisker.
+                rewrite !transport_f_f.
+                refine (_ @ fiber_paths (pr12 φ₁)).
+                apply maponpaths_2.
+                apply homset_property.
+              * rewrite !mor_disp_transportf_prewhisker.
+                rewrite !transport_f_f.
+                refine (_ @ fiber_paths (pr22 φ₁)).
+                apply maponpaths_2.
+                apply homset_property.
+            + cbn.
+              split.
+              * rewrite !mor_disp_transportf_prewhisker.
+                rewrite !transport_f_f.
+                refine (_ @ fiber_paths (pr12 φ₂)).
+                apply maponpaths_2.
+                apply homset_property.
+              * rewrite !mor_disp_transportf_prewhisker.
+                rewrite !transport_f_f.
+                refine (_ @ fiber_paths (pr22 φ₂)).
+                apply maponpaths_2.
+                apply homset_property.
+        Qed.
+
+        Definition total_category_BinCoproductArrow
+          : total_category_BinCoproduct --> t_w
+          := _ ,, pr11 (pr222 pp w ww f ff g gg).
+
+        Proposition total_category_BinCoproductArrowIn1
+          : total_category_BinCoproductIn1 · total_category_BinCoproductArrow = t_f.
+        Proof.
+          use total2_paths_f.
+          - apply BinCoproductIn1Commutes.
+          - exact (pr121 (pr222 pp w ww f ff g gg)).
+        Qed.
+
+        Proposition total_category_BinCoproductArrowIn2
+          : total_category_BinCoproductIn2 · total_category_BinCoproductArrow = t_g.
+        Proof.
+          use total2_paths_f.
+          - apply BinCoproductIn2Commutes.
+          - exact (pr221 (pr222 pp w ww f ff g gg)).
+        Qed.
+      End TotalBinCoproductUMP.
+
+      Definition total_category_isBinCoproduct
+        : isBinCoproduct
+            _ _ _
+            total_category_BinCoproduct
+            total_category_BinCoproductIn1
+            total_category_BinCoproductIn2.
+      Proof.
+        intros w f g.
+        use iscontraprop1.
+        - apply total_category_BinCoproductUnique.
+        - simple refine (_ ,, _ ,, _).
+          + exact (total_category_BinCoproductArrow (pr2 w) (pr2 f) (pr2 g)).
+          + apply total_category_BinCoproductArrowIn1.
+          + apply total_category_BinCoproductArrowIn2.
+      Defined.
+    End TotalBinCoproduct.
+
+    Definition total_BinCoproducts
+               (PC : BinCoproducts C)
+               (DC : disp_BinCoproducts PC)
+      : BinCoproducts (total_category D).
+    Proof.
+      intros x y.
+      use make_BinCoproduct.
+      - exact (total_category_BinCoproduct
+                 x y
+                 (PC (pr1 x) (pr1 y))
+                 (DC _ _ (pr2 x) (pr2 y))).
+      - exact (total_category_BinCoproductIn1
+                 x y
+                 (PC (pr1 x) (pr1 y))
+                 (DC _ _ (pr2 x) (pr2 y))).
+      - exact (total_category_BinCoproductIn2
+                 x y
+                 (PC (pr1 x) (pr1 y))
+                 (DC _ _ (pr2 x) (pr2 y))).
+      - exact (total_category_isBinCoproduct
+                 x y
+                 (PC (pr1 x) (pr1 y))
+                 (DC _ _ (pr2 x) (pr2 y))).
+    Defined.
+
+  (**
+   Displayed coproducts indexed over arbitrary types
+   *)
+  Section FixType.
+    Context (I : UU).
+
+    Definition disp_isCoproduct
+               {d : I → C}
+               (dd : ∏ (i : I), D (d i))
+               (p : Coproduct I C d)
+               (pp : D p)
+               (ππ : ∏ (i : I), dd i -->[ CoproductIn _ _ p i ] pp)
+      : UU
+      := ∏ (w : C)
+           (ww : D w)
+           (f : ∏ (i : I), d i --> w)
+           (ff : ∏ (i : I), dd i -->[ f i ] ww),
+         ∃! (hh : pp -->[ CoproductArrow _ _ p f ] ww),
+         ∏ (i : I),
+         transportf
+           (λ z, _ -->[ z ] _)
+           (CoproductInCommutes _ _ _ p _ f i)
+           (ππ i ;; hh)
+         =
+         ff i.
+
+    Definition disp_Coproduct
+               {d : I → C}
+               (dd : ∏ (i : I), D (d i))
+               (p : Coproduct I C d)
+      : UU
+      := ∑ (pp : D p)
+           (ππ : ∏ (i : I), dd i -->[ CoproductIn _ _ p i ] pp),
+         disp_isCoproduct dd p pp ππ.
+
+    Definition disp_Coproducts
+               (PC : Coproducts I C)
+      : UU
+      := ∏ (d : I → C)
+           (dd : ∏ (i : I), D (d i)),
+         disp_Coproduct dd (PC d).
+
+    Section TotalCoproduct.
+      Context (d_dd : I → total_category D).
+
+      Let d : I → C
+        := λ i, pr1 (d_dd i).
+
+      Let dd : ∏ (i : I), D (d i)
+        := λ i, pr2 (d_dd i).
+
+      Context (p : Coproduct I C d)
+              (pp : disp_Coproduct dd p).
+
+      Definition total_category_Coproduct
+        : total_category D
+        := _ ,, pr1 pp.
+
+      Definition total_category_CoproductIn
+                 (i : I)
+        : d_dd i --> total_category_Coproduct
+        := _ ,, pr12 pp i.
+
+      Section TotalCoproductUMP.
+        Context {w : C}
+                (ww : D w)
+                {f : ∏ (i : I), d i --> w}
+                (ff : ∏ (i : I), dd i -->[ f i ] ww).
+
+        Let t_w : total_category D
+          := w ,, ww.
+
+        Let t_f : ∏ (i : I), d_dd i --> t_w
+          := λ i, f i ,, ff i.
+
+        Proposition total_category_CoproductUnique
+          : isaprop
+              (∑ (φ : total_category_Coproduct --> t_w),
+               ∏ (i : I), total_category_CoproductIn i · φ = t_f i).
+        Proof.
+          use invproofirrelevance.
+          intros φ₁ φ₂.
+          use subtypePath.
+          {
+            intro.
+            use impred ; intro.
+            apply homset_property.
+          }
+          use total2_paths_f.
+          - use CoproductArrow_eq.
+            intro i.
+            exact (maponpaths pr1 (pr2 φ₁ i @ !(pr2 φ₂ i))).
+          - assert (r : pr11 φ₂ = CoproductArrow _ _ p f).
+            {
+              use CoproductArrow_eq.
+              intro i.
+              refine (maponpaths pr1 (pr2 φ₂ i) @ _).
+              cbn.
+              rewrite CoproductInCommutes.
+              apply idpath.
+            }
+            rewrite <- (transportbfinv
+                          (λ z, _ -->[ z ] _)
+                          r
+                          (pr21 φ₂)).
+            rewrite <- (transportbfinv
+                          (λ z, _ -->[ z ] _)
+                          r
+                          (transportf _ _ _)).
+            apply maponpaths.
+            use (maponpaths
+                   pr1
+                   (proofirrelevance
+                      _
+                      (isapropifcontr
+                         (pr22 pp w ww f ff))
+                      (transportf _ _ _ ,, _)
+                      (transportf _ _ _ ,, _))).
+            + cbn.
+              intro i.
+              rewrite mor_disp_transportf_prewhisker.
+              rewrite !transport_f_f.
+              rewrite mor_disp_transportf_prewhisker.
+              rewrite !transport_f_f.
+              refine (_ @ fiber_paths (pr2 φ₁ i)).
+              apply maponpaths_2.
+              apply homset_property.
+            + cbn.
+              intro i.
+              rewrite mor_disp_transportf_prewhisker.
+              rewrite transport_f_f.
+              refine (_ @ fiber_paths (pr2 φ₂ i)).
+              apply maponpaths_2.
+              apply homset_property.
+        Qed.
+
+        Definition total_category_CoproductArrow
+          : total_category_Coproduct --> t_w
+          := _ ,, pr11 (pr22 pp w ww f ff).
+
+        Proposition total_category_CoproductInCommutes
+                    (i : I)
+          : total_category_CoproductIn i · total_category_CoproductArrow
+            =
+            t_f i.
+        Proof.
+          use total2_paths_f.
+          - exact (CoproductInCommutes _ _ _ p _ _ i).
+          - exact (pr21 (pr22 pp w ww f ff) i).
+        Qed.
+      End TotalCoproductUMP.
+
+      Definition total_category_isCoproduct
+        : isCoproduct
+            _ _ _
+            total_category_Coproduct
+            total_category_CoproductIn.
+      Proof.
+        intros w f.
+        use iscontraprop1.
+        - apply total_category_CoproductUnique.
+        - simple refine (_ ,, _).
+          + exact (total_category_CoproductArrow (pr2 w) (λ i, pr2 (f i))).
+          + exact (total_category_CoproductInCommutes (pr2 w) (λ i, pr2 (f i))).
+      Defined.
+    End TotalCoproduct.
+
+    Definition total_Coproducts
+               (PC : Coproducts I C)
+               (DC : disp_Coproducts PC)
+      : Coproducts I (total_category D).
+    Proof.
+      intros d.
+      use make_Coproduct.
+      - exact (total_category_Coproduct d _ (DC _ _)).
+      - exact (total_category_CoproductIn d _ (DC _ _)).
+      - apply total_category_isCoproduct.
     Defined.
   End FixType.
 End FixDispCat.

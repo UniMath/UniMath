@@ -21,11 +21,8 @@ Contents :
 ************************************************************)
 
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -162,7 +159,7 @@ Definition make_form_adjunction {A B : category} {F : functor A B} {G : functor 
   Definition is_left_adjoint {A B : category} (F : functor A B) : UU :=
     ∑ (G : functor B A), are_adjoints F G.
 
-Coercion adjunction_data_from_is_left_adjoint {A B : category}
+  Coercion adjunction_data_from_is_left_adjoint {A B : category}
          {F : functor A B} (HF : is_left_adjoint F)
   : adjunction_data A B
   := (F,, _ ,,unit_from_are_adjoints (pr2 HF) ,,counit_from_are_adjoints (pr2 HF) ).
@@ -282,40 +279,66 @@ Coercion adjunction_data_from_is_left_adjoint {A B : category}
       + apply (pr2 H2).
   Defined.
 
-  Lemma is_left_adjoint_z_iso {A B : category}
-        (F G : functor A B) (αiso : @z_iso [A,B] F G) (HF : is_left_adjoint F) :
-    is_left_adjoint G.
+  Lemma are_adjoints_closed_under_iso_data {A B : category}
+    (F G : functor A B) (H : functor B A) (αiso : @z_iso [A,B] F G) (HF : are_adjoints F H)
+    : adjunction_data A B.
   Proof.
     set (α := pr1 αiso : nat_trans F G).
     set (αinv := inv_from_z_iso αiso : nat_trans G F).
-    destruct HF as [F' [[α' β'] [HF1 HF2]]]; simpl in HF1, HF2.
-    use tpair.
-    - apply F'.
-    - use make_are_adjoints.
-      + apply (nat_trans_comp _ _ _ α' (post_whisker α F')).
-      + apply (nat_trans_comp _ _ _ (pre_whisker F' αinv) β').
-      + split.
-        * unfold triangle_1_statement.
-          simpl; intro a; rewrite assoc, functor_comp.
-          etrans; [ apply cancel_postcomposition; rewrite <- assoc;
-                    apply maponpaths, (nat_trans_ax αinv)|].
-          etrans; [ rewrite assoc, <- !assoc;
-                    apply maponpaths, maponpaths, (nat_trans_ax β')|].
-          simpl; rewrite assoc.
-          etrans; [ apply cancel_postcomposition, (nat_trans_ax αinv)|].
-          rewrite assoc.
-          etrans; [ apply cancel_postcomposition; rewrite <- assoc;
-                    apply maponpaths, HF1|].
-          now rewrite id_right; apply (nat_trans_eq_pointwise (z_iso_after_z_iso_inv αiso)).
-        * unfold triangle_2_statement in *.
-          simpl; intro b; rewrite functor_comp, assoc.
-          etrans; [ apply cancel_postcomposition; rewrite <- assoc;
-                    eapply maponpaths, pathsinv0, functor_comp|].
-          etrans; [ apply cancel_postcomposition, maponpaths, maponpaths,
-                    (nat_trans_eq_pointwise (z_iso_inv_after_z_iso αiso))|].
-          cbn. rewrite (functor_id F'), id_right. apply (HF2 b).
+    destruct HF as [[α' β'] [HF1 HF2]].
+    exists G. exists H.
+    split.
+    - apply (nat_trans_comp _ _ _ α' (post_whisker α H)).
+    - apply (nat_trans_comp _ _ _ (pre_whisker H αinv) β').
   Defined.
 
+  Lemma are_adjoints_closed_under_iso_laws {A B : category}
+    (F G : functor A B) (H : functor B A) (αiso : @z_iso [A,B] F G) (HF : are_adjoints F H)
+    : form_adjunction' (are_adjoints_closed_under_iso_data F G H αiso HF).
+  Proof.
+    set (α := pr1 αiso : nat_trans F G).
+    set (αinv := inv_from_z_iso αiso : nat_trans G F).
+    destruct HF as [[α' β'] [HF1 HF2]]; simpl in HF1, HF2.
+    split.
+    - unfold triangle_1_statement.
+      simpl; intro a; rewrite assoc, functor_comp.
+      etrans; [ apply cancel_postcomposition; rewrite <- assoc;
+                apply maponpaths, (nat_trans_ax αinv)|].
+      etrans; [ rewrite assoc, <- !assoc;
+                apply maponpaths, maponpaths, (nat_trans_ax β')|].
+      simpl; rewrite assoc.
+      etrans; [ apply cancel_postcomposition, (nat_trans_ax αinv)|].
+      rewrite assoc.
+      etrans; [ apply cancel_postcomposition; rewrite <- assoc;
+                apply maponpaths, HF1|].
+      now rewrite id_right; apply (nat_trans_eq_pointwise (z_iso_after_z_iso_inv αiso)).
+    - unfold triangle_2_statement in *.
+      simpl; intro b; rewrite functor_comp, assoc.
+      etrans; [ apply cancel_postcomposition; rewrite <- assoc;
+                eapply maponpaths, pathsinv0, functor_comp|].
+      etrans; [ apply cancel_postcomposition, maponpaths, maponpaths,
+          (nat_trans_eq_pointwise (z_iso_inv_after_z_iso αiso))|].
+      cbn. rewrite (functor_id H), id_right. apply (HF2 b).
+  Qed.
+
+  Lemma are_adjoints_closed_under_iso {A B : category}
+        (F G : functor A B) (H : functor B A) (αiso : @z_iso [A,B] F G) (HF : are_adjoints F H) :
+    are_adjoints G H.
+  Proof.
+    set (adj_data := are_adjoints_closed_under_iso_data F G H αiso HF).
+    use make_are_adjoints.
+    - exact (adjunit adj_data).
+    - exact (adjcounit adj_data).
+    - apply are_adjoints_closed_under_iso_laws.
+  Defined.
+
+  Corollary is_left_adjoint_closed_under_iso {A B : category}
+        (F G : functor A B) (αiso : @z_iso [A,B] F G) (HF : is_left_adjoint F) :
+    is_left_adjoint G.
+  Proof.
+    destruct HF as [F' Hisadj].
+    exact (F',,are_adjoints_closed_under_iso F G F' αiso Hisadj).
+  Defined.
 
   (** * Identity functor is a left adjoint *)
 
@@ -378,27 +401,38 @@ Proof.
   use make_nat_trans.
   * intro x.
     apply (pr1 (pr1 (Huniv (F x) x (identity _)))).
-  *  intros x y f; simpl.
-     destruct (Huniv (F y) y (identity (F y))) as [t p], t as [t p0]; simpl.
-     destruct (Huniv (F x) x (identity (F x))) as [t0 p1], t0 as [t0 p2]; simpl.
-     destruct
-       (Huniv (F y) (G0 (F x)) (eps (F x) · # F f)) as [t1 p3], t1 as [t1 p4]; simpl.
-     assert (H1 : # F f = # F (t0 · t1) · eps (F y));
-     [now rewrite functor_comp, <- assoc, <- p4, assoc, <- p2, id_left|];
-     destruct (Huniv (F y) x (# F f)) as [t2 p5];
-     set (HH := (maponpaths pr1 (p5 (_,,H1))));
-     simpl in HH; rewrite HH.
-     assert (H2 : # F f = # F (f · t) · eps (F y));
-     [now rewrite functor_comp, <- assoc, <- p0, id_right|];
-     set (HHH := (maponpaths pr1 (p5 (_,,H2)))); simpl in HHH;
-     now rewrite HHH.
+  * abstract (
+      intros x y f;
+      simpl;
+      destruct (Huniv (F y) y (identity (F y))) as [t p], t as [t p0];
+      simpl;
+      destruct (Huniv (F x) x (identity (F x))) as [t0 p1], t0 as [t0 p2];
+      simpl;
+      destruct
+        (Huniv (F y) (G0 (F x)) (eps (F x) · # F f)) as [t1 p3], t1 as [t1 p4];
+      simpl;
+      assert (H1 : # F f = # F (t0 · t1) · eps (F y));
+      [now rewrite functor_comp, <- assoc, <- p4, assoc, <- p2, id_left|];
+      destruct (Huniv (F y) x (# F f)) as [t2 p5];
+      set (HH := (maponpaths pr1 (p5 (_,,H1))));
+      simpl in HH;
+      rewrite HH;
+      assert (H2 : # F f = # F (f · t) · eps (F y));
+      [now rewrite functor_comp, <- assoc, <- p0, id_right|];
+      set (HHH := (maponpaths pr1 (p5 (_,,H2)))); simpl in HHH;
+      now rewrite HHH
+    ).
 Defined.
 
 Local Definition counit : nat_trans (functor_composite G F) (functor_identity A).
 Proof.
   use tpair.
-  * red. apply eps.
-  * abstract (intros a b f; simpl; apply (pathsinv0 (pr2 (pr1 (Huniv b (G0 a) (eps a · f)))))).
+  * red.
+    apply eps.
+  * abstract (
+      intros a b f;
+      apply (pathsinv0 (pr2 (pr1 (Huniv b (G0 a) (eps a · f)))))
+    ).
 Defined.
 
 Local Lemma form_adjunctionFG : form_adjunction F G unit counit.
@@ -759,8 +793,111 @@ Section HomSetIso_from_Adjunction.
     apply φ_adj_inv_natural_precomp.
   Qed.
 
-
 End HomSetIso_from_Adjunction.
+
+Section HomSetIsoClosedUnderIso.
+
+  Context {C C' : category}.
+  Context (F F' : C ⟶ C').
+  Context (G : C' ⟶ C).
+  Context (α : z_iso (C := [C, C']) F F').
+  Context (H : are_adjoints F G).
+  Context (c : C).
+  Context (c' : C').
+
+  Lemma φ_adj_under_iso
+    (f : C'⟦F' c, c'⟧)
+    : φ_adj (are_adjoints_closed_under_iso _ _ _ α H) f
+    = φ_adj H (((α : [C, C'] ⟦F, F'⟧) : F ⟹ F') c · f).
+  Proof.
+    refine (assoc' _ _ _ @ _).
+    apply (maponpaths (λ x, _ · x)).
+    exact (!functor_comp G _ _).
+  Qed.
+
+  Lemma φ_adj_inv_under_iso
+    (f : C⟦c, G c'⟧)
+    : φ_adj_inv (are_adjoints_closed_under_iso _ _ _ α H) f
+    = ((z_iso_inv α : [C, C'] ⟦F', F⟧) : F' ⟹ F) c · φ_adj_inv H f.
+  Proof.
+    refine (assoc _ _ _ @ _).
+    refine (_ @ assoc' _ _ _).
+    apply maponpaths_2.
+    apply (nat_trans_ax (inv_from_z_iso α)).
+  Qed.
+
+End HomSetIsoClosedUnderIso.
+
+Section HomSetIsoRightFromPartial.
+
+  Context {X A : category}.
+  Context (F : functor X A).
+  Context (G0 : ob A -> ob X).
+  Context (eps : ∏ a, A⟦F (G0 a),a⟧).
+  Context (Huniv : ∏ a, is_universal_arrow_from F a (G0 a) (eps a)).
+  Context (a : A).
+  Context (x : X).
+
+  Let G
+    : A ⟶ X
+    := G F G0 eps Huniv.
+
+  Let Adj
+    : are_adjoints F G
+    := (unit _ _ _ Huniv ,, counit _ _ _ _) ,, form_adjunctionFG F G0 eps Huniv.
+
+  (* Note that for f : X⟦x, G a⟧, we have φ_adj_inv Adj f = #F f · eps a definitionally *)
+
+  Lemma φ_adj_from_partial
+    (f : A⟦F x, a⟧)
+  : φ_adj Adj f = pr11 (Huniv a x f).
+  Proof.
+    refine (base_paths _ _ (pr2 (Huniv a x f) (_ ,, !_))).
+    refine (maponpaths (λ x, x · _) (functor_comp _ _ _) @ _).
+    refine (assoc' _ _ _ @ _).
+    refine (!maponpaths (λ x, _ · x) (pr21 (Huniv _ _ _)) @ _).
+    refine (assoc _ _ _ @ _).
+    refine (!maponpaths (λ x, x · _) (pr21 (Huniv _ _ _)) @ _).
+    apply id_left.
+  Qed.
+
+End HomSetIsoRightFromPartial.
+
+Section HomSetIsoLeftFromPartial.
+
+  Context {X A : category}.
+  Context (G : functor A X).
+  Context (F0 : ob X -> ob A).
+  Context (eta : ∏ x, X⟦x, G (F0 x)⟧).
+  Context (Huniv : ∏ x, is_universal_arrow_to G x (F0 x) (eta x)).
+  Context (x : X).
+  Context (a : A).
+
+  Let F
+    : X ⟶ A
+    := left_adj_from_partial G F0 eta Huniv.
+
+  Let Adj
+    : are_adjoints F G
+    := (unit_left_from_partial _ _ _ Huniv ,, counit_left_from_partial _ _ _ _) ,,
+      form_adjunctionFG_left_from_partial G F0 eta Huniv.
+
+  (* Note that for f : A⟦F x, a⟧, we have φ_adj Adj f = eta x · #G f definitionally *)
+
+  Lemma φ_adj_inv_from_partial
+    (f : X⟦x, G a⟧)
+  : φ_adj_inv Adj f = pr11 (Huniv x a f).
+  Proof.
+    refine (base_paths _ _ (pr2 (Huniv x a f) (_ ,, _))).
+    refine (maponpaths (λ x, _ · x) (functor_comp _ _ _) @ _).
+    refine (assoc _ _ _ @ _).
+    refine (maponpaths (λ x, x · _) (pr21 (Huniv _ _ _)) @ _).
+    refine (assoc' _ _ _ @ _).
+    refine (maponpaths (λ x, _ · x) (pr21 (Huniv _ _ _)) @ _).
+    apply id_right.
+  Qed.
+
+End HomSetIsoLeftFromPartial.
 
 (** * Adjunction defined from a natural isomorphism on homsets (F A --> B) ≃ (A --> G B) *)
 
@@ -1122,3 +1259,38 @@ Section AdjunctionLemmas.
   Qed.
 
 End AdjunctionLemmas.
+
+(** More builders for adjunctions *)
+Definition left_adjoint_to_adjunction
+           {C₁ C₂ : category}
+           {L : C₁ ⟶ C₂}
+           (HL : is_left_adjoint L)
+  : adjunction C₁ C₂.
+Proof.
+  use make_adjunction.
+  - use make_adjunction_data.
+    + exact L.
+    + exact (right_adjoint HL).
+    + exact (adjunit HL).
+    + exact (adjcounit HL).
+  - split.
+    + exact (pr122 HL).
+    + exact (pr222 HL).
+Defined.
+
+Definition right_adjoint_to_adjunction
+           {C₁ C₂ : category}
+           {R : C₁ ⟶ C₂}
+           (HR : is_right_adjoint R)
+  : adjunction C₂ C₁.
+Proof.
+  use make_adjunction.
+  - use make_adjunction_data.
+    + exact (left_adjoint HR).
+    + exact R.
+    + exact (adjunit (pr2 HR)).
+    + exact (adjcounit (pr2 HR)).
+  - split.
+    + exact (pr122 HR).
+    + exact (pr222 HR).
+Defined.

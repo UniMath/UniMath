@@ -21,10 +21,10 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.SubobjectClassifier.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.PowerObject.
 Require Import UniMath.CategoryTheory.Monics.
@@ -32,7 +32,7 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Subobjects.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
+Require Import UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
 
 Local Open Scope cat.
 
@@ -295,7 +295,7 @@ Proof.
   { use Subobjectscategory_ob.
     - exact T.
     - exact (name_true b).
-    - use from_terminal_isMonic.
+    - use global_element_isMonic.
   }
   - use u.
 Defined.
@@ -426,11 +426,11 @@ Local Lemma g_aux (c b a : C) (f: C ⟦ constprod_functor1 BinProd b a, c ⟧) :
   TerminalArrow T a
   · Subobject_mor
       (Subobjectscategory_ob (name_true b)
-         (from_terminal_isMonic T (PowerObject_on_ob P b) (name_true b))).
+         (global_element_isMonic T (PowerObject_on_ob P b) (name_true b))).
 Proof.
   assert (p : name_true b = Subobject_mor
     (Subobjectscategory_ob (name_true b)
-        (from_terminal_isMonic T (PowerObject_on_ob P b) (name_true b)))). { apply idpath. }
+        (global_element_isMonic T (PowerObject_on_ob P b) (name_true b)))). { apply idpath. }
     induction p.
     use (invmaponpathsweq (hset_z_iso_equiv _ _ (nat_z_iso_pointwise_z_iso  (nat_z_iso_inv (PowerObject_nat_z_iso P)) (a,,b)))).
     simpl.

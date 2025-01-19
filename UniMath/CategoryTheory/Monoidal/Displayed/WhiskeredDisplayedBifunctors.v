@@ -29,7 +29,7 @@ Section DisplayedBifunctor.
 
   Definition disp_bifunctor_data
              {A B C : category}
-             (F : bifunctor A B C)
+             (F : bifunctor_data A B C)
              (DA : disp_cat A)
              (DB : disp_cat B)
              (DC : disp_cat C)
@@ -55,7 +55,7 @@ Section DisplayedBifunctor.
 
   Definition make_disp_bifunctor_data
              {A B C : category}
-             (F : bifunctor A B C)
+             (F : bifunctor_data A B C)
              (DA : disp_cat A)
              (DB : disp_cat B)
              (DC : disp_cat C)
@@ -82,7 +82,7 @@ Section DisplayedBifunctor.
 
   Definition disp_bifunctor_on_objects
              {A B C : category}
-             {F : bifunctor A B C}
+             {F : bifunctor_data A B C}
              {DA : disp_cat A}
              {DB : disp_cat B}
              {DC : disp_cat C}
@@ -96,7 +96,7 @@ Section DisplayedBifunctor.
 
   Definition disp_leftwhiskering_on_morphisms
              {A B C : category}
-             {F : bifunctor A B C}
+             {F : bifunctor_data A B C}
              {DA : disp_cat A}
              {DB : disp_cat B}
              {DC : disp_cat C}
@@ -118,7 +118,7 @@ Section DisplayedBifunctor.
 
   Definition disp_rightwhiskering_on_morphisms
              {A B C : category}
-             {F : bifunctor A B C}
+             {F : bifunctor_data A B C}
              {DA : disp_cat A}
              {DB : disp_cat B}
              {DC : disp_cat C}
@@ -350,7 +350,7 @@ Section DisplayedBifunctor.
 
   Definition is_disp_bifunctor
              {A B C : category}
-             {F : bifunctor A B C}
+             (F : bifunctor A B C)
              {DA : disp_cat A}
              {DB : disp_cat B}
              {DC : disp_cat C}
@@ -369,7 +369,7 @@ Section DisplayedBifunctor.
              (DB : disp_cat B)
              (DC : disp_cat C)
     : UU
-    := ∑ (DF : disp_bifunctor_data F DA DB DC), is_disp_bifunctor DF.
+    := ∑ (DF : disp_bifunctor_data F DA DB DC), is_disp_bifunctor F DF.
 
   Definition make_disp_bifunctor
              {A B C : category}
@@ -378,9 +378,23 @@ Section DisplayedBifunctor.
              {DB : disp_cat B}
              {DC : disp_cat C}
              (DF : disp_bifunctor_data F DA DB DC)
-             (H : is_disp_bifunctor DF)
+             (H : is_disp_bifunctor F DF)
     : disp_bifunctor F DA DB DC
     := (DF,,H).
+
+  Definition make_disp_bifunctor_locally_prop
+             {A B C : category}
+             {F : bifunctor A B C}
+             {DA : disp_cat A}
+             {DB : disp_cat B}
+             {DC : disp_cat C}
+             {LP : locally_propositional DC}
+             (DF : disp_bifunctor_data F DA DB DC)
+    : disp_bifunctor F DA DB DC.
+  Proof.
+    exists DF.
+    abstract (repeat split ; try intro ; intros ; apply LP).
+  Defined.
 
   Definition disp_bifunctordata_from_disp_bifunctor
              {A B C : category}
@@ -394,14 +408,14 @@ Section DisplayedBifunctor.
 
   Coercion disp_bifunctordata_from_disp_bifunctor : disp_bifunctor >-> disp_bifunctor_data.
 
-  Definition is_disp_bifunctordata_from_disp_bifunctor
+  Definition is_disp_bifunctor_from_disp_bifunctor
              {A B C : category}
              {F : bifunctor A B C}
              {DA : disp_cat A}
              {DB : disp_cat B}
              {DC : disp_cat C}
              (DF : disp_bifunctor F DA DB DC)
-    : is_disp_bifunctor DF
+    : is_disp_bifunctor F DF
     := pr2 DF.
 
   Definition disp_bifunctor_leftid
@@ -412,7 +426,7 @@ Section DisplayedBifunctor.
              {DC : disp_cat C}
              (DF : disp_bifunctor F DA DB DC)
     : disp_bifunctor_leftidax DF
-    := pr1 (is_disp_bifunctordata_from_disp_bifunctor DF).
+    := pr1 (is_disp_bifunctor_from_disp_bifunctor DF).
 
   Definition disp_bifunctor_rightid
              {A B C : category}
@@ -422,7 +436,7 @@ Section DisplayedBifunctor.
              {DC : disp_cat C}
              (DF : disp_bifunctor F DA DB DC)
     : disp_bifunctor_rightidax DF
-    := pr1 (pr2 (is_disp_bifunctordata_from_disp_bifunctor DF)).
+    := pr1 (pr2 (is_disp_bifunctor_from_disp_bifunctor DF)).
 
   Definition disp_bifunctor_leftcomp
              {A B C : category}
@@ -432,7 +446,7 @@ Section DisplayedBifunctor.
              {DC : disp_cat C}
              (DF : disp_bifunctor F DA DB DC)
     : disp_bifunctor_leftcompax DF
-    := pr1 (pr2 (pr2 (is_disp_bifunctordata_from_disp_bifunctor DF))).
+    := pr1 (pr2 (pr2 (is_disp_bifunctor_from_disp_bifunctor DF))).
 
   Definition disp_bifunctor_rightcomp
              {A B C : category}
@@ -442,7 +456,7 @@ Section DisplayedBifunctor.
              {DC : disp_cat C}
              (DF : disp_bifunctor F DA DB DC)
     : disp_bifunctor_rightcompax DF
-    := pr1 (pr2 (pr2 (pr2 (is_disp_bifunctordata_from_disp_bifunctor DF)))).
+    := pr1 (pr2 (pr2 (pr2 (is_disp_bifunctor_from_disp_bifunctor DF)))).
 
   Definition disp_bifunctor_equalwhiskers
              {A B C : category}
@@ -452,7 +466,7 @@ Section DisplayedBifunctor.
              {DC : disp_cat C}
              (DF : disp_bifunctor F DA DB DC)
     : dispfunctoronmorphisms_are_equal DF
-    := pr2 (pr2 (pr2 (pr2 (is_disp_bifunctordata_from_disp_bifunctor DF)))).
+    := pr2 (pr2 (pr2 (pr2 (is_disp_bifunctor_from_disp_bifunctor DF)))).
 
 End DisplayedBifunctor.
 
@@ -478,14 +492,14 @@ Section DisplayedWhiskeredBinaturaltransformation.
 
   Definition disp_binat_trans_data
              {A B C : category}
-             {F : bifunctor A B C}
-             {G : bifunctor A B C}
+             {F : bifunctor_data A B C}
+             {G : bifunctor_data A B C}
              {DA : disp_cat A}
              {DB : disp_cat B}
              {DC : disp_cat C}
              (α : binat_trans_data F G)
-             (DF : disp_bifunctor F DA DB DC)
-             (DG : disp_bifunctor G DA DB DC)
+             (DF : disp_bifunctor_data F DA DB DC)
+             (DG : disp_bifunctor_data G DA DB DC)
     : UU
     := ∏ (x : A)
          (y : B)
@@ -495,14 +509,14 @@ Section DisplayedWhiskeredBinaturaltransformation.
 
   Definition make_disp_binat_trans_data
              {A B C : category}
-             {F : bifunctor A B C}
-             {G : bifunctor A B C}
+             {F : bifunctor_data A B C}
+             {G : bifunctor_data A B C}
              {DA : disp_cat A}
              {DB : disp_cat B}
              {DC : disp_cat C}
              {α : binat_trans_data F G}
-             {DF : disp_bifunctor F DA DB DC}
-             {DG : disp_bifunctor G DA DB DC}
+             {DF : disp_bifunctor_data F DA DB DC}
+             {DG : disp_bifunctor_data G DA DB DC}
              (dα :  ∏ (x : A)
                       (y : B)
                       (xx : DA x)
@@ -513,14 +527,14 @@ Section DisplayedWhiskeredBinaturaltransformation.
 
   Definition is_disp_binat_trans
              {A B C : category}
-             {F : bifunctor A B C}
-             {G : bifunctor A B C}
+             {F : bifunctor_data A B C}
+             {G : bifunctor_data A B C}
              {DA : disp_cat A}
              {DB : disp_cat B}
              {DC : disp_cat C}
              {α : binat_trans F G}
-             {DF : disp_bifunctor F DA DB DC}
-             {DG : disp_bifunctor G DA DB DC}
+             {DF : disp_bifunctor_data F DA DB DC}
+             {DG : disp_bifunctor_data G DA DB DC}
              (dα : disp_binat_trans_data α DF DG)
     : UU
     := (∏ (x : A)
@@ -576,8 +590,8 @@ Section DisplayedWhiskeredBinaturaltransformation.
         {DB : disp_cat B}
         {DC : disp_cat C}
         {α : binat_trans F G}
-        {DF : disp_bifunctor F DA DB DC}
-        {DG : disp_bifunctor G DA DB DC}
+        {DF : disp_bifunctor_data F DA DB DC}
+        {DG : disp_bifunctor_data G DA DB DC}
         {dα : disp_binat_trans_data α DF DG}
         (dαn : is_disp_binat_trans dα)
         (x1 x2 : A)
@@ -628,8 +642,8 @@ Section DisplayedWhiskeredBinaturaltransformation.
              {DB : disp_cat B}
              {DC : disp_cat C}
              (α : binat_trans F G)
-             (DF : disp_bifunctor F DA DB DC)
-             (DG : disp_bifunctor G DA DB DC)
+             (DF : disp_bifunctor_data F DA DB DC)
+             (DG : disp_bifunctor_data G DA DB DC)
     : UU
     := ∑ (dα : disp_binat_trans_data α DF DG), is_disp_binat_trans dα.
 
@@ -641,8 +655,8 @@ Section DisplayedWhiskeredBinaturaltransformation.
              {DB : disp_cat B}
              {DC : disp_cat C}
              {α : binat_trans F G}
-             {DF : disp_bifunctor F DA DB DC}
-             {DG : disp_bifunctor G DA DB DC}
+             {DF : disp_bifunctor_data F DA DB DC}
+             {DG : disp_bifunctor_data G DA DB DC}
              (dα : disp_binat_trans_data α DF DG)
              (H : is_disp_binat_trans dα)
     : disp_binat_trans α DF DG
@@ -682,8 +696,8 @@ Section DisplayedWhiskeredBinaturaltransformation.
              {DC : disp_cat C}
              {α : binat_trans F G}
              (αiso : is_binatiso α)
-             {DF : disp_bifunctor F DA DB DC}
-             {DG : disp_bifunctor G DA DB DC}
+             {DF : disp_bifunctor_data F DA DB DC}
+             {DG : disp_bifunctor_data G DA DB DC}
              (dα : disp_binat_trans α DF DG)
     : UU
     := ∏ (x : A)

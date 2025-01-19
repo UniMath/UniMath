@@ -33,8 +33,8 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Export UniMath.CategoryTheory.FunctorCategory.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
 Require Import UniMath.CategoryTheory.whiskering.
 
 Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).
@@ -43,12 +43,6 @@ Ltac unf := unfold identity,
                    compose,
                    precategory_morphisms;
                    simpl.
-
-(** The following lemma is already in precategories.v . It should be transparent? *)
-
-Lemma iso_comp_left_isweq {C:category} {a b:ob C} (h:iso a b) (c:C) :
-  isweq (λ f : hom _ c a, f · h).
-Proof. intros. apply (@iso_comp_right_isweq C^op b a (opp_iso h)). Qed.
 
 (** * Yoneda functor *)
 

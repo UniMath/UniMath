@@ -26,8 +26,8 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
 
 Import MonoidalNotations.
 Local Open Scope cat.
@@ -47,7 +47,7 @@ Section EnrichedCoproducts.
     : UU
     := ∑ (a : C), ∏ (j : J), I_{V} --> E ⦃ D j , a ⦄.
 
-  Coercion ob_enriched_coprod_cocone
+  #[reversible] Coercion ob_enriched_coprod_cocone
            (a : enriched_coprod_cocone)
     : C
     := pr1 a.

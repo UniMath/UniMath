@@ -16,14 +16,14 @@ Require Import UniMath.Combinatorics.Lists.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.categories.HSET.Slice.
-Require Import UniMath.CategoryTheory.limits.initial.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Slice.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.slicecat.
@@ -31,8 +31,10 @@ Require Import UniMath.CategoryTheory.slicecat.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.Notation.
+Require UniMath.SubstitutionSystems.SubstitutionSystems.
 Local Open Scope subsys.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted.
 Require Import UniMath.SubstitutionSystems.MultiSortedMonadConstruction.
 
@@ -41,11 +43,11 @@ Local Open Scope cat.
 (** * The simply typed lambda calculus from a multisorted binding signature *)
 Section Lam.
 
-Variable (sort : hSet) (arr : sort → sort → sort).
+Context (sort : hSet) (arr : sort → sort → sort).
 
 (** A lot of notations, upstream? *)
-Local Infix "::" := (@cons _).
-Local Notation "[]" := (@nil _) (at level 0, format "[]").
+(* Local Infix "::" := (@cons _).
+Local Notation "[]" := (@nil _) (at level 0, format "[]"). *)
 Local Notation "C / X" := (slice_cat C X).
 Local Notation "a + b" := (setcoprod a b) : set.
 
@@ -68,22 +70,13 @@ apply Coproducts_functor_precat, Coproducts_slice_precat, CoproductsHSET.
 apply setproperty.
 Defined.
 
-
-(** The signature of the simply typed lambda calculus *)
-Definition STLC_Sig : MultiSortedSig sort.
-Proof.
-use make_MultiSortedSig.
-- apply ((sort × sort) + (sort × sort))%set. (* todo: fix this once level of × is fixed *)
-- intros H; induction H as [st|st]; induction st as [s t].
-  + exact ((([],,arr s t) :: ([],,s) :: nil),,t).
-  + exact (((cons s [],,t) :: []),,arr s t).
-Defined.
+Local Definition STLC_Sig : MultiSortedSig sort := STLC_Sig sort arr.
 
 (** The signature with strength for the simply typed lambda calculus *)
 Definition STLC_Signature : Signature (HSET / sort) _ _:=
   MultiSortedSigToSignature sort STLC_Sig.
 
-Let Id_H := Id_H _ (BinCoproducts_HSET_slice sort).
+Let Id_H := SubstitutionSystems.Id_H _ (BinCoproducts_HSET_slice sort).
 
 Definition STLC_Functor : functor HSET_over_sort2 HSET_over_sort2 :=
   Id_H STLC_Signature.
@@ -120,8 +113,7 @@ Local Notation "x ⊗ y" := (BinProductObject _ (BP x y)).
 (** The variables *)
 
 
-Definition var_map : HSET_over_sort2⟦1,STLC⟧ :=
-  BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _) · STLC_mor.
+Definition var_map : HSET_over_sort2⟦1,STLC⟧ := SubstitutionSystems.η STLC_alg.
 
 (** The source of the application constructor *)
 Definition app_source (s t : sort) (X : HSET_over_sort2) : HSET_over_sort2 :=
@@ -130,8 +122,7 @@ Definition app_source (s t : sort) (X : HSET_over_sort2) : HSET_over_sort2 :=
 (** The application constructor *)
 Definition app_map (s t : sort) : HSET_over_sort2⟦app_source s t STLC,STLC⟧ :=
   (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (ii1 (s,, t)))
-    · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _))
-    · STLC_mor.
+    · SubstitutionSystems.τ STLC_alg.
 
 (** The source of the lambda constructor *)
 Definition lam_source (s t : sort) (X : HSET_over_sort2) : HSET_over_sort2 :=
@@ -139,8 +130,7 @@ Definition lam_source (s t : sort) (X : HSET_over_sort2) : HSET_over_sort2 :=
 
 Definition lam_map (s t : sort) : HSET_over_sort2⟦lam_source s t STLC,STLC⟧ :=
   (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _) (ii2 (s,,t)))
-    · BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _)
-    · STLC_mor.
+    · SubstitutionSystems.τ STLC_alg.
 
 Definition make_STLC_Algebra X (fvar : HSET_over_sort2⟦1,X⟧)
   (fapp : ∏ s t, HSET_over_sort2⟦app_source s t X,X⟧)

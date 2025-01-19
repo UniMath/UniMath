@@ -1,8 +1,10 @@
 
-Dcpo.v
-FixedPointTheorems.v
 BinaryOperations.v
+Monoids2.v
+AbelianMonoids.v
 Monoids.v
+Groups2.v
+AbelianGroups.v
 Groups.v
 GroupAction.v
 RigsAndRings.v
@@ -12,14 +14,6 @@ DivisionRig.v
 Apartness.v
 ConstructiveStructures.v
 Archimedean.v
-Lattice/Lattice.v
-Lattice/Bounded.v
-Lattice/Complement.v
-Lattice/Distributive.v
-Lattice/Heyting.v
-Lattice/Boolean.v
-Lattice/Examples/Bool.v
-Lattice/Examples/Subsets.v
 IteratedBinaryOperations.v
 Free_Monoids_and_Groups.v
 Tests.v
@@ -40,6 +34,7 @@ Universal/VTerms.v
 Universal/FreeAlgebras.v
 Universal/Equations.v
 Universal/EqAlgebras.v
+Universal/WTypes.v
 Universal/Examples/Nat.v
 Universal/Examples/Bool.v
 Universal/Examples/Monoid.v

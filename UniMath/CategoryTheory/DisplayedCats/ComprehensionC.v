@@ -13,7 +13,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
@@ -24,26 +24,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Local Open Scope cat.
 
 (** * Definition of a cartesian displayed functor *)
-
-(* TODO: upstream to with definition of fibrations/cartesianness *)
-Definition is_cartesian_disp_functor
-  {C C' : category} {F : functor C C'}
-  {D : disp_cat C} {D' : disp_cat C'} (FF : disp_functor F D D') : UU
-:= ∏  (c c' : C) (f : c' --> c)
-      (d : D c) (d' : D c') (ff : d' -->[f] d),
-  is_cartesian ff -> is_cartesian (♯ FF ff).
-
-
-(* TODO: upstream *)
-Lemma isaprop_is_cartesian
-    {C : category} {D : disp_cat C}
-    {c c' : C} {f : c' --> c}
-    {d : D c} {d' : D c'} (ff : d' -->[f] d)
-  : isaprop (is_cartesian ff).
-Proof.
-  repeat (apply impred_isaprop; intro).
-  apply isapropiscontr.
-Qed.
 
 (* TODO: upstream *)
 Lemma is_cartesian_from_z_iso_to_cartesian
@@ -87,9 +67,6 @@ Proof.
     apply maponpaths_2, homset_property.
 Defined.
 
-(* TODO: upstream *)
-
-(* TODO: upstream also *)
 (** For a functor to be cartesian, it’s enough to show that it preserves _some_ cartesian lift of each lifting problem.
 
   Of course, this can only happen when the domain is a fibration; and in practice, it is useful exactly in the case where one has shown it is a fibration by exhibiting some particular construction of (mere existence of) cartesian lifts. *)
@@ -150,5 +127,3 @@ Definition comprehension_cat_structure (C : category) : UU
   := ∑ (D : disp_cat C) (H : cleaving D)
      (F : disp_functor (functor_identity _ ) D (disp_codomain C)),
      is_cartesian_disp_functor F.
-
-Arguments comprehension_cat_structure _ : clear implicits.

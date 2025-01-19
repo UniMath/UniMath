@@ -35,7 +35,7 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
@@ -59,19 +59,12 @@ Context (CP : BinCoproducts C).
 Local Notation "'EndC'":= ([C, C]) .
 Let CPEndC : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CP.
 
-Variable H : Signature C C C.
+Context (H : Signature C C C).
 
 Let θ := theta H.
 
 Let θ_strength1_int := Sig_strength_law1 H.
 Let θ_strength2_int := Sig_strength_law2 H.
-
-Let Id_H
-: functor EndC EndC
-  := BinCoproduct_of_functors _ _ CPEndC
-                       (constant_functor _ _ (functor_identity _ : EndC))
-                       H.
-
 
 (** The category of pointed endofunctors on [C] *)
 Local Notation "'Ptd'" := (category_Ptd C).
@@ -85,7 +78,7 @@ Section mu_from_fbracket.
 
 (** We assume given a hss [T] *)
 
-Variable T : hss CP H.
+Context (T : hss CP H).
 
 Local Notation "'p' T" := (ptd_from_alg T) (at level 3).
 Local Notation "f ⊕ g" := (BinCoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g).
@@ -162,9 +155,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition functor_with_mu_from_hss : functor_with_μ C := `T,, μ_2.
-
-Definition Monad_data_from_hss : Monad_data C := functor_with_mu_from_hss ,, μ_0.
+Definition disp_Monad_data_from_hss : disp_Monad_data `T := μ_2 ,, μ_0.
 
 (** *** Proof of the first monad law *)
 
@@ -449,7 +440,7 @@ Proof.
           assert (HT := prejoin_from_hetsubst_τ T).
           assert (H6 := nat_trans_eq_pointwise HT); clear HT.
           unfold coproduct_nat_trans_in2_data.
-          unfold tau_from_alg in H6.
+          unfold tau_from_alg, tau2_from_alg in H6.
           rewrite assoc in H6.
           apply H6.
       }
@@ -553,13 +544,13 @@ Unset Printing Implicit.
 
 (** Finally putting together all the preparatory results to obtain a monad *)
 
-Lemma Monad_laws_from_hss : Monad_laws Monad_data_from_hss.
+Lemma disp_Monad_laws_from_hss : disp_Monad_laws disp_Monad_data_from_hss.
 Proof.
   split.
-  - unfold Monad_data_from_hss; simpl; split.
+  - unfold disp_Monad_data_from_hss; simpl; split.
     + apply Monad_law_1_from_hss.
     + apply Monad_law_2_from_hss.
-  - unfold Monad_data_from_hss; simpl.
+  - unfold disp_Monad_data_from_hss; simpl.
     intro c.
     intermediate_path (pr1 μ_3 c).
     + set (H1 := μ_3_T_μ_2_μ_2).
@@ -570,11 +561,7 @@ Proof.
       apply pathsinv0, H2.
 Qed.
 
-Definition Monad_from_hss : Monad C.
-Proof.
-  exists Monad_data_from_hss.
-  exact Monad_laws_from_hss.
-Defined.
+Definition Monad_from_hss : Monad C := _ ,, _ ,, disp_Monad_laws_from_hss.
 
 End mu_from_fbracket.
 
@@ -621,22 +608,14 @@ Lemma is_functor_hss_to_monad : is_functor hss_to_monad_functor_data.
 Proof.
   split; simpl.
   - intro a.
-    apply (invmap (Monad_Mor_equiv _ _ _ )).
+    apply (invmap (Monad_Mor_equiv _ _ )).
     apply idpath.
   - intros a b c f g.
-    apply (invmap (Monad_Mor_equiv _ _ _ )).
+    apply (invmap (Monad_Mor_equiv _ _ )).
     apply idpath.
 Qed.
 
 Definition hss_to_monad_functor : functor _ _ := tpair _ _ is_functor_hss_to_monad.
-
-Lemma isaset_Monad_Mor (T T' : Monad C) : isaset (Monad_Mor T T').
-Proof.
-  intros β β'.
-  apply (isofhlevelweqb _ (Monad_Mor_equiv _ _ _)).
-  apply isaset_nat_trans.
-  apply homset_property.
-Qed.
 
 Definition hssMor_Monad_Mor_eq {T T' : hss CP H} (β β' : hssMor T T')
   : β = β' ≃ Monad_Mor_from_hssMor β = Monad_Mor_from_hssMor β'.
@@ -644,7 +623,7 @@ Proof.
   eapply weqcomp.
   - apply hssMor_eq.
   - apply invweq.
-    apply Monad_Mor_equiv.
+    use Monad_Mor_equiv.
 Defined.
 
 (** *** The functor from hss to monads is faithful, i.e. forgets at most structure *)

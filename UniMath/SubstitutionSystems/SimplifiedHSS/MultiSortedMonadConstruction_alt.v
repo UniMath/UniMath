@@ -22,22 +22,22 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.categories.HSET.Structures.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
@@ -47,7 +47,9 @@ Require Import UniMath.SubstitutionSystems.SimplifiedHSS.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
+Require UniMath.SubstitutionSystems.SortIndexing.
 Require Import UniMath.SubstitutionSystems.SimplifiedHSS.BindingSigToMonad.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 
 Local Open Scope cat.
@@ -55,35 +57,33 @@ Local Open Scope cat.
 Section MBindingSig.
 
 (* Interestingly we only need that [sort] is a 1-type *)
-Variables (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
+Context (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
 
 (* Assumptions on [C] used to construct the functor *)
 (* Note that there is some redundancy in the assumptions *)
-Variables (TC : Terminal C) (IC : Initial C)
-          (BP : BinProducts C) (BC : BinCoproducts C)
-          (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
+Context (TC : Terminal C) (IC : Initial C)
+        (BP : BinProducts C) (BC : BinCoproducts C)
+        (* (PC : forall (I : UU), Products I C) *) (eqsetPC : forall (s s' : sort), Products (s=s') C)
+        (CC : forall (I : UU), isaset I → Coproducts I C).
 
 Local Notation "'1'" := (TerminalObject TC).
 Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
 
-(** Define the discrete category of sorts *)
-Let sort_cat : category := path_pregroupoid sort Hsort.
-
 (** This represents "sort → C" *)
-Let sortToC : category := [sort_cat,C].
-Let make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid Hsort f.
+Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
-Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
-Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
+Let BCsortToC : BinCoproducts sortToC := SortIndexing.BCsortToC sort Hsort _ BC.
+
+Let BPsortToCC : BinProducts [sortToC,C] := SortIndexing.BPsortToCC sort Hsort _ BP.
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
-Variables (expSortToCC : Exponentials BPC)
-          (HC : Colims_of_shape nat_graph C).
-(* The expSortToCC assumption says that [sortToC,C] has exponentials. It
+Context (EsortToCC : Exponentials BPsortToCC)
+        (HC : Colims_of_shape nat_graph C).
+(* The EsortToCC assumption says that [sortToC,C] has exponentials. It
    could be reduced to exponentials in C, but we only have the case
    for C = Set formalized in
 
-     CategoryTheory.categories.HSET.Structures.Exponentials_functor_HSET
+     CategoryTheory.Categories.HSET.Structures.Exponentials_functor_HSET
 
  *)
 
@@ -112,7 +112,10 @@ Proof.
 apply SignatureToHSS.
 + apply Initial_functor_precat, IC.
 + apply ColimsFunctorCategory_of_shape, HC.
-+ apply is_omega_cocont_MultiSortedSigToSignature; try assumption.
++ apply is_omega_cocont_MultiSortedSigToSignature.
+  - exact eqsetPC.
+  - exact EsortToCC.
+  - exact HC.
 Defined.
 
 (* The above HSS is initial *)
@@ -137,19 +140,18 @@ End MBindingSig.
 
 Section MBindingSigMonadHSET.
 
-(* Assume a set of sorts *)
-Context (sort : hSet) (Hsort : isofhlevel 3 sort).
+Context (sort : UU) (Hsort : isofhlevel 3 sort).
 
-Let sortToSet : category := [path_pregroupoid sort Hsort, HSET].
+Let sortToSet : category := SortIndexing.sortToSet sort Hsort.
 
 Definition projSortToSet : sort → functor sortToSet HSET :=
   projSortToC sort Hsort HSET.
 
 Definition hat_functorSet : sort → HSET ⟶ sortToSet :=
-  hat_functor sort (isofhlevelssnset 1 _ (setproperty sort)) HSET CoproductsHSET.
+  hat_functor sort Hsort HSET CoproductsHSET.
 
 Definition sorted_option_functorSet : sort → sortToSet ⟶ sortToSet :=
-  sorted_option_functor _ (isofhlevelssnset 1 _ (setproperty sort)) HSET
+  sorted_option_functor _ Hsort HSET
                         TerminalHSET BinCoproductsHSET CoproductsHSET.
 
 Definition MultiSortedSigToSignatureSet : MultiSortedSig sort → Signature sortToSet sortToSet sortToSet.
@@ -169,7 +171,7 @@ use MultiSortedSigToMonad.
 - apply InitialHSET.
 - apply BinProductsHSET.
 - apply BinCoproductsHSET.
-- apply ProductsHSET.
+- intros. apply ProductsHSET.
 - apply CoproductsHSET.
 - apply Exponentials_functor_HSET.
 - apply ColimsHSET_of_shape.

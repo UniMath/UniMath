@@ -4,9 +4,9 @@
     the strength notion is based on lax lineators where endofunctors act on possibly non-endofunctors, but the
     signature functor generated from a multi-sorted binding signature falls into the special case of endofunctors,
     and the lineator notion can be transferred (through weak equivalence) to the strength notion of
-    generalized heterogeneous substitution systems (GHSS)
+    monoidal heterogeneous substitution systems (MHSS)
 
-    accordingly a GHSS is constructed and a monad obtained through it, cf. [MultiSortedMonadConstruction_actegorical]
+    accordingly a MHSS is constructed and a monad obtained through it, cf. [MultiSortedMonadConstruction_actegorical]
 
 author: Ralph Matthes, 2023
 
@@ -25,24 +25,25 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.categories.HSET.Structures.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Structures.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
+Require UniMath.SubstitutionSystems.SortIndexing.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
@@ -63,6 +64,7 @@ Require Import UniMath.CategoryTheory.Actegories.Examples.ActionOfEndomorphismsI
 Require Import UniMath.CategoryTheory.Actegories.Examples.SelfActionInCATElementary.
 (* Require Import UniMath.SubstitutionSystems.EquivalenceSignaturesWithActegoryMorphisms. *)
 Require Import UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.
+Require Import UniMath.SubstitutionSystems.MultiSortedBindingSig.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require UniMath.SubstitutionSystems.BindingSigToMonad_actegorical.
 Require Import UniMath.SubstitutionSystems.ContinuitySignature.ContinuityOfMultiSortedSigToFunctor.
@@ -89,51 +91,46 @@ Context (TC : Terminal C) (IC : Initial C)
 Local Notation "'1'" := (TerminalObject TC).
 Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
 
-(** Define the discrete category of sorts *)
-Let sort_cat : category := path_pregroupoid sort Hsort.
-
 (** This represents "sort → C" *)
-Let sortToC : category := [sort_cat,C].
-Let make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid Hsort f.
+Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
-Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC.
-Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP.
+Let BPsortToCC : BinProducts [sortToC,C] := SortIndexing.BPsortToCC sort Hsort _ BP.
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
-Context (expSortToCC : Exponentials BPC)
+Context (EsortToCC : Exponentials BPsortToCC)
           (HC : Colims_of_shape nat_graph C).
-(* The expSortToCC assumption says that [sortToC,C] has exponentials. It
+(* The EsortToCC assumption says that [sortToC,C] has exponentials. It
    could be reduced to exponentials in C, but we only have the case
    for C = Set formalized in
 
-     CategoryTheory.categories.HSET.Structures.Exponentials_functor_HSET
+     CategoryTheory.Categories.HSET.Structures.Exponentials_functor_HSET
 
 *)
 
 (** end of Preamble copied from [Multisorted_alt] *)
 
-Local Definition sortToC1 := [sortToC, sortToC].
-Local Definition sortToC2 := [sortToC1, sortToC1].
-Local Definition sortToCC := [sortToC, C].
-Local Definition sortToC1C := [sortToC1, sortToCC].
+Local Definition sortToC2 := SortIndexing.sortToC2 sort Hsort C.
+Local Definition sortToC3 := SortIndexing.sortToC3 sort Hsort C.
+Local Definition sortToCC := SortIndexing.sortToCC sort Hsort C.
+Local Definition sortToC21C := [sortToC2, sortToCC].
 
 Let ops : MultiSortedSig sort → hSet := ops sort.
-Let arity : ∏ M : MultiSortedSig sort, MultiSorted_alt.ops sort M → list (list sort × sort) × sort
+Let arity : ∏ M : MultiSortedSig sort, ops M → list (list sort × sort) × sort
     := arity sort.
 
 
 Local Definition sorted_option_functor := sorted_option_functor sort Hsort C TC BC CC.
 Local Definition projSortToC : sort -> sortToCC := projSortToC sort Hsort C.
-Local Definition option_list : list sort → sortToC1 := option_list sort Hsort C TC BC CC.
-Local Definition exp_functor : list sort × sort -> sortToC1C
+Local Definition option_list : list sort → sortToC2 := option_list sort Hsort C TC BC CC.
+Local Definition exp_functor : list sort × sort -> sortToC21C
   := exp_functor sort Hsort C TC BC CC.
-Local Definition exp_functor_list : list (list sort × sort) -> sortToC1C
+Local Definition exp_functor_list : list (list sort × sort) -> sortToC21C
   := exp_functor_list sort Hsort C TC BP BC CC.
-Local Definition hat_exp_functor_list : list (list sort × sort) × sort -> sortToC2
+Local Definition hat_exp_functor_list : list (list sort × sort) × sort -> sortToC3
   := hat_exp_functor_list sort Hsort C TC BP BC CC.
-Local Definition MultiSortedSigToFunctor : MultiSortedSig sort -> sortToC2 := MultiSortedSigToFunctor sort Hsort C TC BP BC CC.
+Local Definition MultiSortedSigToFunctor : MultiSortedSig sort -> sortToC3 := MultiSortedSigToFunctor sort Hsort C TC BP BC CC.
 Local Definition CoproductsMultiSortedSig : ∏ M : MultiSortedSig sort,
-       Coproducts (ops M) sortToC1 := CoproductsMultiSortedSig sort Hsort C CC.
+       Coproducts (ops M) sortToC2 := CoproductsMultiSortedSig sort Hsort C CC.
 
 
 (** * Construction of the lineator for the endofunctor on [C^sort,C^sort]
@@ -148,7 +145,7 @@ Section strength_through_actegories.
   Local Definition ActPtd_CAT (E : category) : actegory Mon_ptdendo_CAT [sortToC,E] :=
     EquivalenceLaxLineatorsHomogeneousCase.actegoryPtdEndosOnFunctors_CAT sortToC E.
   Local Definition ActPtd_CAT_Endo := ActPtd_CAT sortToC.
-  Local Definition ActPtd_CAT_FromSelf : actegory Mon_ptdendo_CAT sortToC1
+  Local Definition ActPtd_CAT_FromSelf : actegory Mon_ptdendo_CAT sortToC2
     := actegory_with_canonical_pointed_action Mon_endo_CAT.
 
   Local Definition pointedstrengthfromprecomp_CAT (E : category) :=
@@ -158,41 +155,41 @@ Section strength_through_actegories.
   Local Definition pointedstrengthfromselfaction_CAT :=
     lineator_lax Mon_ptdendo_CAT ActPtd_CAT_FromSelf ActPtd_CAT_FromSelf.
 
-  Let ptdlifteddistributivity_CAT (G : sortToC1) : UU :=
-        BindingSigToMonad_actegorical.ptdlifteddistributivity_CAT G.
+  Let pointedlaxcommutator_CAT (G : sortToC2) : UU :=
+        BindingSigToMonad_actegorical.pointedlaxcommutator_CAT G.
 
   Local Definition δCCCATEndo (M : MultiSortedSig sort) :
     actegory_coprod_distributor Mon_ptdendo_CAT (CoproductsMultiSortedSig M) ActPtd_CAT_Endo.
   Proof.
-    use lifted_coprod_distributor.
+    use reindexed_coprod_distributor.
     use actegory_from_precomp_CAT_coprod_distributor.
   Defined.
 
   Local Definition δCCCATfromSelf (M : MultiSortedSig sort) :
     actegory_coprod_distributor Mon_ptdendo_CAT (CoproductsMultiSortedSig M) ActPtd_CAT_FromSelf.
   Proof.
-    use lifted_coprod_distributor.
+    use reindexed_coprod_distributor.
     use SelfActCAT_CAT_coprod_distributor.
   Defined.
 
-  Definition lifteddistrCAT_option_functor (s : sort) :
-    ptdlifteddistributivity_CAT (sorted_option_functor s).
+  Definition ptdlaxcommutatorCAT_option_functor (s : sort) :
+    pointedlaxcommutator_CAT (sorted_option_functor s).
   Proof.
-    use BindingSigToMonad_actegorical.lifteddistr_genopt.
+    use BindingSigToMonad_actegorical.ptdlaxcommutator_genopt.
   Defined.
 
-  Definition lifteddistrCAT_option_list (xs : list sort) :
-    ptdlifteddistributivity_CAT (option_list xs).
+  Definition ptdlaxcommutatorCAT_option_list (xs : list sort) :
+    pointedlaxcommutator_CAT (option_list xs).
   Proof.
     induction xs as [[|n] xs].
     + induction xs.
-      apply unit_lifteddistributivity.
+      apply unit_relativelaxcommutator.
     + induction n as [|n IH].
       * induction xs as [m []].
-        apply lifteddistrCAT_option_functor.
+        apply ptdlaxcommutatorCAT_option_functor.
       * induction xs as [m [k xs]].
-        use composedlifteddistributivity.
-        -- exact (lifteddistrCAT_option_functor m).
+        use composedrelativelaxcommutator.
+        -- exact (ptdlaxcommutatorCAT_option_functor m).
         -- exact (IH (k,,xs)).
   Defined.
 
@@ -203,15 +200,15 @@ Section strength_through_actegories.
     use list_ind.
     - cbn. (* in [MultiSorted_alt], the analogous construction [Sig_exp_functor] has a composition
               with the strength of the identity functor since [Gθ_Signature] needs a composition *)
-      use lifted_lax_lineator.
+      use reindexed_lax_lineator.
       exact (lax_lineator_postcomp_actegories_from_precomp_CAT _ _ _ (projSortToC t)).
     - intros x xs H; simpl.
       use comp_lineator_lax.
-      3: { use lifted_lax_lineator.
+      3: { use reindexed_lax_lineator.
            2: { exact (lax_lineator_postcomp_actegories_from_precomp_CAT _ _ _ (projSortToC t)). }
       }
-      use liftedstrength_from_δ.
-      exact (lifteddistrCAT_option_list (cons x xs)).
+      use reindexedstrength_from_commutator.
+      exact (ptdlaxcommutatorCAT_option_list (cons x xs)).
   Defined.
 
   Definition StrengthCAT_exp_functor_list (xs : list (list sort × sort)) :
@@ -219,7 +216,7 @@ Section strength_through_actegories.
   Proof.
     induction xs as [[|n] xs].
     - induction xs.
-      use lifted_lax_lineator.
+      use reindexed_lax_lineator.
       apply constconst_functor_lax_lineator.
     - induction n as [|n IH].
       + induction xs as [m []].
@@ -237,7 +234,7 @@ Section strength_through_actegories.
     use comp_lineator_lax.
     - exact (ActPtd_CAT C).
     - apply StrengthCAT_exp_functor_list.
-    - use lifted_lax_lineator.
+    - use reindexed_lax_lineator.
       apply lax_lineator_postcomp_actegories_from_precomp_CAT.
   Defined.
 
@@ -255,7 +252,7 @@ Section strength_through_actegories.
   Definition MultiSortedSigToStrengthFromSelfCAT (M : MultiSortedSig sort) :
     pointedstrengthfromselfaction_CAT (MultiSortedSigToFunctor M).
   Proof.
-    apply EquivalenceLaxLineatorsHomogeneousCase.lax_lineators_from_lifted_precomp_CAT_and_lifted_self_action_agree.
+    apply EquivalenceLaxLineatorsHomogeneousCase.lax_lineators_from_reindexed_precomp_CAT_and_reindexed_self_action_agree.
     apply MultiSortedSigToStrengthCAT.
   Defined.
    *)
@@ -267,7 +264,7 @@ Section strength_through_actegories.
   Proof.
     apply weqSignatureLaxMorphismActegoriesHomogeneous_alt.
     exists (MultiSortedSigToFunctor M).
-    apply lax_lineators_from_lifted_precomp_and_lifted_self_action_agree.
+    apply lax_lineators_from_reindexed_precomp_and_reindexed_self_action_agree.
     apply MultiSortedSigToStrength.
   Defined.
 
@@ -281,10 +278,10 @@ Section strength_through_actegories.
 
 
   (** *** we now adapt the definitions to [MultiSortedSigToFunctor'] *)
-  Local Definition MultiSortedSigToFunctor' : MultiSortedSig sort -> sortToC2 := MultiSortedSigToFunctor' sort Hsort C TC BP BC CC.
-  Local Definition hat_exp_functor_list'_optimized : list (list sort × sort) × sort -> sortToC2
+  Local Definition MultiSortedSigToFunctor' : MultiSortedSig sort -> sortToC3 := MultiSortedSigToFunctor' sort Hsort C TC BP BC CC.
+  Local Definition hat_exp_functor_list'_optimized : list (list sort × sort) × sort -> sortToC3
     := hat_exp_functor_list'_optimized sort Hsort C TC BP BC CC.
-  Local Definition hat_exp_functor_list'_piece : (list sort × sort) × sort -> sortToC2
+  Local Definition hat_exp_functor_list'_piece : (list sort × sort) × sort -> sortToC3
     := hat_exp_functor_list'_piece sort Hsort C TC BC CC.
 
   Definition StrengthCAT_hat_exp_functor_list'_piece (xt : (list sort × sort) × sort) :
@@ -292,11 +289,11 @@ Section strength_through_actegories.
   Proof.
     unfold hat_exp_functor_list'_piece, ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_piece.
     use comp_lineator_lax.
-    2: { refine (liftedstrength_from_δ Mon_endo_CAT Mon_ptdendo_CAT (forget_monoidal_pointed_objects_monoidal Mon_endo_CAT)
+    2: { refine (reindexedstrength_from_commutator Mon_endo_CAT Mon_ptdendo_CAT (forget_monoidal_pointed_objects_monoidal Mon_endo_CAT)
                    _ (SelfActCAT sortToC)).
-         exact (lifteddistrCAT_option_list (pr1 (pr1 xt))).
+         exact (ptdlaxcommutatorCAT_option_list (pr1 (pr1 xt))).
     }
-    use lifted_lax_lineator.
+    use reindexed_lax_lineator.
     apply (lax_lineator_postcomp_SelfActCAT).
     Defined.
 
@@ -306,7 +303,7 @@ Section strength_through_actegories.
     induction xst as [xs t].
     induction xs as [[|n] xs].
     - induction xs.
-      use lifted_lax_lineator.
+      use reindexed_lax_lineator.
       use comp_lineator_lax. (* the next two lines go through [actegory_from_precomp_CAT] *)
       2: { apply constconst_functor_lax_lineator. }
       apply lax_lineator_postcomp_SelfActCAT_alt.

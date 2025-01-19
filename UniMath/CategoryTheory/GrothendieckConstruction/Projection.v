@@ -23,7 +23,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.categories.CategoryOfSetCategories.
+Require Import UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
 Require Import UniMath.CategoryTheory.GrothendieckConstruction.TotalCategory.
 
 Local Open Scope cat.
@@ -209,7 +209,7 @@ Section FunctorTotalCategoryFromSetFunctor.
         etrans.
         {
           apply maponpaths.
-          exact (from_eq_cat_of_setcategory
+          exact (path_functor_mor_right
                    (nat_trans_ax α _ _ (pr1 g))
                    (pr2 f)).
         }
@@ -358,7 +358,7 @@ Section NatTransTotalCategoryFromNatTrans.
       {
         apply maponpaths_2.
         apply maponpaths.
-        exact (from_eq_cat_of_setcategory (p (pr1 y)) (pr2 f)).
+        exact (path_functor_mor_right (p (pr1 y)) (pr2 f)).
       }
       rewrite !assoc'.
       etrans.

@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # This workflow contains four jobs:
+  # This workflow contains four kinds of jobs:
   #   - sanity-checks
   #   - build-Unimath-ubuntu: (Linux, docker-coq, latest Coq >= 8.16, manual cache)
   #   - build-macos: (MacOS, Opam, Coq 8.16.0, cache using actions/setup-ocaml)
@@ -27,7 +27,7 @@ jobs:
     name: Sanity Checks
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install build dependencies
         run: |
           sudo apt-get update
@@ -46,19 +46,19 @@ jobs:
       matrix:
         os: [ubuntu-22.04]
         # https://github.com/coq-community/docker-coq/wiki#ocaml-versions-policy
-        coq-version: [latest, dev]
-        # coq-version: [8.16] or [latest, 8.16] (when 8.17 is released)
+        coq-version: ['latest', 'dev', '8.19', '8.20']
+        # (the following is obsolete:) coq-version: [8.16] or [latest, 8.16] (when 8.17 is released)
         ocaml-version: [default]
 
     name: Build on Linux (Coq ${{ matrix.coq-version }})
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Grab the cache if available and extract it to dune-cache/. We tell dune
       # to use $(pwd)/dune-cache/ in the custom_script when initiating the
       # docker run.
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v4
         id: cache
         with:
           path: dune-cache
@@ -94,20 +94,20 @@ jobs:
         if: ${{ always() }}
         run: sudo chown -R 1001:116 .
 
-      - uses: actions/cache/save@v3
+      - uses: actions/cache/save@v4
         if: always()
         with:
           path: dune-cache
           key: UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
 
   # Build UniMath on MacOS using latest stable release of Coq installed with
-  # Homebrew (currently 8.16.1). Build files are cached.
+  # Homebrew (8.18.0 still on March 18, 2024). Build files are cached.
   build-macos:
-    name: Build on macOS (Coq 8.16)
+    name: Build on macOS (latest Coq on Homebrew)
 
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Coq
         run: |
           brew install coq ocaml-findlib dune
@@ -115,7 +115,7 @@ jobs:
           coqc --version
           dune --version
 
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v4
         id: cache
         with:
           path: dune-cache
@@ -129,42 +129,43 @@ jobs:
           export DUNE_CACHE_ROOT=$(pwd)/dune-cache/
           dune build --display=short --error-reporting=twice --cache=enabled UniMath/
 
-      - uses: actions/cache/save@v3
+      - uses: actions/cache/save@v4
         if: always ()
         with:
           path: dune-cache
           key: UniMath-MacOS-${{ github.run_id }}-${{ github.run_number }}
 
   # Build the satellites in parallel using docker-coq images with the latest
-  # stable patch-release of Coq 8.16, except for TypeTheory, which is built
+  # stable patch-release of Coq 8.19 as of March 20, 2024
+  # (outdated comment:) except for TypeTheory, which is built
   # using the latest stable 8.15 release.
   build-satellites:
     strategy:
       fail-fast: false
       matrix:
-        satellite: [SetHITs, largecatmodules, GrpdHITs, TypeTheory]
-        coq-version: [latest, dev]
-        ocaml-version: [4.14-flambda]
-        exclude:
-          - satellite: GrpdHITs
-            coq-version: dev
+        satellite: [SetHITs, largecatmodules, GrpdHITs, TypeTheory, Schools]
+        coq-version: ['latest', 'dev']
+        ocaml-version: [default]
+        # (outdated exception:) exclude:
+        # - satellite: GrpdHITs
+        #   coq-version: dev
     name: Build ${{ matrix.satellite }} (Coq ${{ matrix.coq-version }})
     runs-on: ubuntu-22.04
 
     steps:
       # Check out the current branch of UniMath in the current directory.
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Check out the satellite we want to build in Satellite/.
       - name: Clone ${{ matrix.satellite }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: UniMath/${{ matrix.satellite }}
           path: Satellite
 
       # Grab the cache if available. We tell dune to use $(pwd)/dune-cache/ in
       # the custom_script below.
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v4
         id: cache
         with:
           path: dune-cache
@@ -200,7 +201,7 @@ jobs:
         if: ${{ always() }}
         run: sudo chown -R 1001:116 .
 
-      - uses: actions/cache/save@v3
+      - uses: actions/cache/save@v4
         if: always ()
         with:
           path: dune-cache

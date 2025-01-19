@@ -1,5 +1,5 @@
 (** * Terms for a given signature. *)
-(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2022 *)
 (**
 This file contains a formalization of terms over a signature, implemented as a sequence of
 operation symbols. This sequence is though to be executed by a stack machine: each
@@ -11,6 +11,7 @@ Here we only define ground terms, while terms with variables will be defined in 
 *)
 
 Require Import UniMath.MoreFoundations.Notations.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.Combinatorics.Maybe.
 Require Import UniMath.Algebra.Universal.SortedTypes.
@@ -19,6 +20,7 @@ Require Export UniMath.Algebra.Universal.Signatures.
 Local Open Scope sorted.
 Local Open Scope hvec.
 Local Open Scope list.
+Local Open Scope transport.
 
 (** ** Definition of [oplist] (operations list). *)
 (**
@@ -666,8 +668,16 @@ Section Term.
     [build_term (princop t) (subterms t))] is equal to [t] modulo [transport].
   *)
 
+  Local Lemma princop_sorteq_buildterm (nm: names σ) (v: (term σ)⋆ (arity nm))
+     : princop_sorteq (build_term nm v) = idpath (sort nm).
+  Proof.
+     apply proofirrelevance.
+     apply isasetifdeceq.
+     apply decproperty.
+  Defined.
+
   Local Lemma term_normalization {s: sorts σ} (t: term σ s)
-     : transportf (term σ) (princop_sorteq t) (build_term (princop t) (subterms t)) = t.
+     : princop_sorteq t # (build_term (princop t) (subterms t)) = t.
   Proof.
     unfold princop, subterms, princop_sorteq.
     induction (term_decompose t) as [nm [v [vlen [nmsort normalization]]]].
@@ -687,20 +697,13 @@ Section Term.
   Local Lemma subterms_build_term (nm: names σ) (v: (term σ)⋆ (arity nm))
     : subterms (build_term nm v) = v.
   Proof.
-    set (t := build_term nm v).
-    set (tnorm := term_normalization t).
-    assert (princop_sorteq_idpath: princop_sorteq t = idpath (sort nm)).
-    {
-      apply proofirrelevance.
-      apply isasetifdeceq.
-      apply decproperty.
-    }
-    rewrite princop_sorteq_idpath in tnorm.
-    change (transportb (term σ) (idpath (sort nm)) t) with t in tnorm.
-    set (tnorm_list := maponpaths pr1 tnorm).
-    apply cons_inj2 in tnorm_list.
-    apply vecoplist2oplist_inj in tnorm_list.
-    exact tnorm_list.
+    set (tnorm := term_normalization (build_term nm v)).
+    rewrite princop_sorteq_buildterm in tnorm.
+    apply (maponpaths pr1) in tnorm.
+    simpl in tnorm.
+    apply cons_inj2 in tnorm.
+    apply vecoplist2oplist_inj in tnorm.
+    apply tnorm.
   Defined.
 
   (** *** Miscellanea properties for terms. *)
@@ -752,7 +755,7 @@ Section TermInduction.
     - intros s t tlen.
       exact (term_notnil tlen).
     - intros s t tlen.
-      apply (transportf (P s) (term_normalization t)).
+      apply (transportf _ (term_normalization t)).
       induction (princop_sorteq t).
       change (P (sort (princop t)) (build_term (princop t) (subterms t))).
       apply (R (princop t) (subterms t)).
@@ -828,7 +831,8 @@ Section TermInduction.
     : term_ind P R (build_term nm v) = R nm v (h2map (λ s t q, term_ind P R t) (h1lift v)).
   Proof.
     unfold term_ind.
-    set (t := build_term nm v).
+    set (princop_sorteq_idpath := princop_sorteq_buildterm nm v).
+    set (t := build_term nm v) in *.
     simpl (length t).
     unfold term_ind_onlength at 1.
     rewrite nat_rect_step.
@@ -837,12 +841,6 @@ Section TermInduction.
     clearbody v0len v0norm.  (* Needed to make induction work *)
     change (princop t) with nm in *.
     induction (! (subterms_build_term nm v: subterms t = v)).
-    assert (princop_sorteq_idpath: princop_sorteq t = idpath (sort nm)).
-    {
-      apply proofirrelevance.
-      apply isasetifdeceq.
-      apply decproperty.
-    }
     induction (! princop_sorteq_idpath).
     change (build_term nm v = t) in v0norm.
     assert (v0normisid: v0norm = idpath _).
@@ -890,6 +888,27 @@ Section TermInduction.
     apply idpath.
   Defined.
 
+  Lemma build_term_inj (nm1 nm2: names σ) (v1: (term σ)⋆ (arity nm1)) (v2: (term σ)⋆ (arity nm2)) (p: sort nm1 = sort nm2)
+    : p # build_term nm1 v1 = build_term nm2 v2 → ∑ eqnm: nm1 = nm2, (transportf (λ op, (term σ)⋆ (arity op)) eqnm v1) = v2.
+  Proof.
+    intro X.
+    (* The following three lines are in the place of a rewrite *)
+    set (Y := transportf_total2_const _ _ (λ t s, isaterm s t)  _ _ _ p  (oplist_build_isaterm nm1 v1)).
+    apply (pathscomp0 (!Y)) in X.
+    clear Y.
+    unfold build_term in X.
+    unfold oplist_build in X.
+    apply (maponpaths pr1) in X.
+    simpl in X.
+    pose (eqnm := X).
+    apply cons_inj1 in eqnm.
+    exists eqnm.
+    induction eqnm.
+    apply cons_inj2 in X.
+    apply vecoplist2oplist_inj in X.
+    exact X.
+  Defined.
+
 End TermInduction.
 
 (** ** Notations for ground terms. *)
@@ -910,51 +929,8 @@ Notation fromgtermstep := fromtermstep.
 
 Notation build_gterm := build_term.
 
-(** * Curried version of [build_term] *)
+(** *** Helpers for working with curried functions. *)
 
-(** Defines a curried version of [build_term] which is easier to use in practice. **)
-
-Section iterbuild.
-
-  (**
-    If [v] is a vector of types of length [n], [iterfun v B] is the curried version of [v → B], i.e.
-    [iterfun v B] =  [(el v 1) → ((el v 2) → ...... → ((el v n) → B)].
-  *)
-
-  Definition iterfun {n: nat} (v: vec UU n) (B: UU): UU.
-  Proof.
-    revert n v.
-    refine (vec_ind _ _ _).
-    - exact B.
-    - intros x n xs IHxs.
-      exact (x → IHxs).
-  Defined.
-
-  (**
-     If  [f: hvec v → B], then [itercurry f] is the curried version of [f], which has type
-     [iterfun v B].
-  *)
-
-  Definition itercurry {n: nat} {v: vec UU n} {B: UU} (f: hvec v → B): iterfun v B.
-  Proof.
-    revert n v f.
-    refine (vec_ind _ _ _).
-    - intros.
-      exact (f tt).
-    - intros x n xs IHxs f.
-      simpl in f.
-      simpl.
-      intro a.
-      exact (IHxs (λ l, f (a,, l))).
-  Defined.
-
-  (**
-    [build_term_curried nm t1 ... tn] builds a term from the operation symbol [nm] and terms (of the
-    correct sort) [t1] ... [tn].
-  *)
-
-  Definition build_gterm_curried {σ: signature} (nm: names σ)
-    : iterfun (vec_map (term σ) (pr2 (arity nm))) (term σ (sort nm))
-    := itercurry (build_term nm).
-
-End iterbuild.
+Definition build_gterm' {σ: signature} (nm: names σ)
+  : iterfun (vec_map (term σ) (arity nm)) (term σ (sort nm))
+  := currify (build_term nm).

@@ -37,12 +37,12 @@ Section MonoidalSections.
   Import DisplayedMonoidalNotations.
 
   Context {C : category} {D : disp_cat C}.
-  Local Notation TD := (total_category D).
+  Let TD : category := total_category D.
   Context (M : monoidal C) (DM : disp_monoidal D M).
-  Local Notation TM := (total_monoidal DM).
+  Let TM : monoidal TD := total_monoidal DM.
 
   Definition section_preserves_tensor_data (sd : section_disp D) : UU
-    := ∏ (x y : C),  sd x ⊗⊗_{ DM} sd y -->[ identity (x ⊗_{ M} y)] sd (x ⊗_{ M} y).
+    := ∏ (x y : C),  sd x ⊗⊗_{DM} sd y -->[identity (x ⊗_{M} y)] sd (x ⊗_{M} y).
 
   Lemma sectionfunctor_preserves_tensordata
         {sd : section_disp D}
@@ -56,7 +56,7 @@ Section MonoidalSections.
   Defined.
 
   Definition section_preserves_unit (sd : section_disp D) : UU
-    :=  dI_{DM} -->[ identity I_{M}] sd I_{M}.
+    :=  dI_{DM} -->[identity I_{M}] sd I_{M}.
 
   Lemma sectionfunctor_preserves_unit
         {sd : section_disp D}
@@ -152,9 +152,9 @@ Section MonoidalSections.
   (* This equality I should have somewhere, have to check in different files *)
   Definition equality_for_leftunitality
              (x : C)
-    : identity I_{ M} ⊗^{ M}_{r} x · identity (I_{ M} ⊗_{ M} x) · lu^{ M }_{ x}
+    : identity I_{M} ⊗^{M}_{r} x · identity (I_{M} ⊗_{M} x) · lu^{M}_{x}
       =
-      lu^{ M }_{ x}.
+      lu^{M}_{x}.
   Proof.
     rewrite assoc'.
     rewrite (bifunctor_rightid M).
@@ -168,7 +168,7 @@ Section MonoidalSections.
              (spu : section_preserves_unit sd)
     : UU
     := ∏ (x : C),
-       spu ⊗⊗^{ DM}_{r} sd x ;; spt I_{ M} x ;; # sd lu^{ M }_{ x}
+       spu ⊗⊗^{DM}_{r} sd x ;; spt I_{M} x ;; # sd lu^{M}_{x}
        =
        transportb
          _
@@ -202,9 +202,9 @@ Section MonoidalSections.
 
   (* This equality I should have somewhere, have to check in different files *)
   Definition equality_for_rightunitality (x : C)
-    : x ⊗^{ M}_{l} identity I_{ M} · identity (x ⊗_{ M} I_{ M}) · ru^{ M }_{ x}
+    : x ⊗^{M}_{l} identity I_{M} · identity (x ⊗_{M} I_{M}) · ru^{M}_{x}
       =
-      ru^{ M }_{ x}.
+      ru^{M}_{x}.
   Proof.
     rewrite assoc'.
     rewrite (bifunctor_leftid M).
@@ -218,7 +218,7 @@ Section MonoidalSections.
              (spu : section_preserves_unit sd)
     : UU
     := ∏ (x : C),
-       sd x ⊗⊗^{DM}_{l} spu ;; spt x I_{ M} ;; # sd ru^{ M }_{ x}
+       sd x ⊗⊗^{DM}_{l} spu ;; spt x I_{M} ;; # sd ru^{M}_{x}
        =
        transportb
          _
@@ -253,9 +253,9 @@ Section MonoidalSections.
   (* This equality I should have somewhere, have to check in different files *)
   Definition equality_for_associativity
              (x y z : C)
-    : identity (x ⊗_{ M} y) ⊗^{ M}_{r} z · identity ((x ⊗_{ M} y) ⊗_{ M} z) · α^{ M }_{ x, y, z}
+    : identity (x ⊗_{M} y) ⊗^{M}_{r} z · identity ((x ⊗_{M} y) ⊗_{M} z) · α^{M}_{ x, y, z}
       =
-      α^{ M }_{ x, y, z} · x ⊗^{ M}_{l} identity (y ⊗_{ M} z) · identity (x ⊗_{ M} (y ⊗_{ M} z)).
+      α^{M}_{ x, y, z} · x ⊗^{M}_{l} identity (y ⊗_{M} z) · identity (x ⊗_{M} (y ⊗_{M} z)).
   Proof.
     rewrite assoc'.
     rewrite (bifunctor_leftid M).
@@ -271,12 +271,12 @@ Section MonoidalSections.
              (spt : section_preserves_tensor_data sd)
     : UU
     := ∏ (x y z : C),
-       spt x y ⊗⊗^{ DM}_{r} sd z ;; spt (x ⊗_{ M} y) z ;; # sd α^{ M }_{ x, y, z}
+       spt x y ⊗⊗^{DM}_{r} sd z ;; spt (x ⊗_{M} y) z ;; # sd α^{M}_{ x, y, z}
        =
        transportb
          _
          (equality_for_associativity x y z)
-         (dα^{ DM }_{ sd x, sd y, sd z} ;; sd x ⊗⊗^{ DM}_{l} spt y z ;; spt x (y ⊗_{ M} z)).
+         (dα^{DM}_{ sd x, sd y, sd z} ;; sd x ⊗⊗^{DM}_{l} spt y z ;; spt x (y ⊗_{M} z)).
 
   Definition sectionfunctor_preserves_associativity
              {sd : section_disp D}

@@ -11,15 +11,16 @@
  2. Posets is a cartesian structure
  3. Limits of posets
  4. Exponentials of posets
+ 5. Binary coproducts of posets
 
  *****************************************************************)
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Combinatorics.Posets.
+Require Import UniMath.OrderTheory.Posets.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.categories.HSET.All.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.equalizers.
-Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.Categories.HSET.All.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Products.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
 Require Import UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
@@ -175,3 +176,41 @@ Definition cartesian_closed_struct_poset
   := cartesian_closed_struct_poset_data
      ,,
      cartesian_closed_struct_poset_laws.
+
+(**
+ 5. Binary coproducts of posets
+ *)
+Definition binary_coproducts_struct_poset
+  : hset_binary_coprod_struct struct_poset.
+Proof.
+  simple refine (_ ,, _).
+  - exact (λ X Y PX PY, coproduct_PartialOrder PX PY).
+  - simple refine (_ ,, _ ,, _) ; cbn.
+    + abstract
+        (intros X Y PX PY ; cbn ;
+         exact (is_monotone_inl PX PY)).
+    + abstract
+        (intros X Y PX PY ; cbn ;
+         exact (is_monotone_inr PX PY)).
+    + abstract
+        (intros X Y Z PX PY PZ f g Pf Pg ;
+         exact (is_monotone_sumofmaps _ _ Pf Pg)).
+Defined.
+
+(**
+ 6. Set-indexed coproducts of posets
+ *)
+Definition set_coproducts_struct_poset
+           (I : hSet)
+  : hset_struct_set_coprod struct_poset I.
+Proof.
+  simple refine (_ ,, _).
+  - exact (λ Y PY, coproduct_set_PartialOrder _ PY).
+  - simple refine (_ ,, _) ; cbn.
+    + abstract
+        (intros Y PY ; cbn ;
+         exact (is_monotone_set_in _ PY)).
+    + abstract
+        (refine (λ Y PY W PW f Pf, _) ;
+         exact (is_monotone_set_coproduct_map _ _ Pf)).
+Defined.

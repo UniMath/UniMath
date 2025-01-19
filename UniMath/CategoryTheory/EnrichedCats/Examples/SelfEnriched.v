@@ -365,105 +365,44 @@ Section SelfEnrichment.
           (functor_id_enrichment self_enrichment)
           (strength_to_enrichment tM).
     Proof.
+      use nat_trans_enrichment_via_comp.
       intros x y ; cbn.
       use internal_funext.
       intros w h.
+      rewrite self_enrichment_precomp, self_enrichment_postcomp.
       etrans.
       {
         rewrite tensor_comp_r_id_r.
         rewrite !assoc'.
-        unfold internal_comp.
         rewrite internal_beta.
         rewrite !assoc.
-        apply maponpaths_2.
-        rewrite tensor_comp_r_id_r.
-        rewrite !assoc'.
-        apply maponpaths.
-        rewrite !assoc.
-        rewrite tensor_lassociator.
-        rewrite !assoc'.
-        apply maponpaths.
         rewrite <- tensor_comp_mor.
         rewrite id_right.
-        unfold internal_from_arr.
-        rewrite internal_beta.
-        apply idpath.
-      }
-      etrans.
-      {
-        rewrite !assoc'.
-        do 2 apply maponpaths.
         rewrite tensor_split.
         rewrite !assoc'.
         rewrite internal_beta.
         apply idpath.
       }
-      etrans.
-      {
-        apply maponpaths.
-        rewrite tensor_comp_id_l.
-        rewrite !assoc.
-        rewrite <- mon_triangle.
-        apply idpath.
-      }
-      etrans.
-      {
-        rewrite !assoc.
-        rewrite <- tensor_comp_mor.
-        rewrite mon_rinvunitor_runitor.
-        rewrite id_right.
-        rewrite <- tensor_comp_mor.
-        rewrite id_left.
-        apply idpath.
-      }
       refine (!_).
       etrans.
       {
         rewrite tensor_comp_r_id_r.
         rewrite !assoc'.
-        unfold internal_comp.
         rewrite internal_beta.
-        rewrite tensor_comp_r_id_r.
-        rewrite !assoc'.
-        etrans.
-        {
-          apply maponpaths.
-          rewrite !assoc.
-          rewrite tensor_lassociator.
-          rewrite !assoc'.
-          apply maponpaths.
-          rewrite !assoc.
-          rewrite tensor_id_id.
-          rewrite <- tensor_split'.
-          rewrite tensor_split.
-          rewrite !assoc'.
-          unfold internal_from_arr.
-          rewrite internal_beta.
-          rewrite !assoc.
-          rewrite tensor_lunitor.
-          apply idpath.
-        }
-        etrans.
-        {
-          apply maponpaths.
-          rewrite !assoc.
-          rewrite mon_lunitor_triangle.
-          apply idpath.
-        }
         rewrite !assoc.
-        rewrite <- tensor_comp_mor.
-        rewrite id_right.
-        rewrite mon_linvunitor_lunitor.
         apply idpath.
       }
       rewrite tensor_comp_id_l.
       rewrite !assoc'.
       apply maponpaths.
-      refine (nat_trans_ax (η M) _ _ (internal_eval x y) @ _).
       rewrite !assoc.
-      apply maponpaths_2.
       refine (!_).
-      apply (left_strong_monad_unit tM).
+      etrans.
+      {
+        apply maponpaths_2.
+        apply (left_strong_monad_unit tM).
+      }
+      exact (!(nat_trans_ax (η M) _ _ (internal_eval x y))).
     Qed.
 
     Proposition monad_left_strong_to_enrichment_mu
@@ -474,113 +413,67 @@ Section SelfEnrichment.
              (strength_to_enrichment tM))
           (strength_to_enrichment tM).
     Proof.
+      use nat_trans_enrichment_via_comp.
       intros x y ; cbn.
       use internal_funext.
       intros w h.
+      rewrite self_enrichment_precomp, self_enrichment_postcomp.
       etrans.
       {
         rewrite tensor_comp_r_id_r.
         rewrite !assoc'.
-        unfold internal_comp.
         rewrite internal_beta.
-        rewrite tensor_comp_r_id_r.
-        rewrite !assoc'.
-        etrans.
-        {
-          apply maponpaths.
-          rewrite !assoc.
-          rewrite tensor_lassociator.
-          rewrite !assoc'.
-          apply maponpaths.
-          rewrite !assoc.
-          rewrite <- tensor_comp_mor.
-          rewrite id_right.
-          unfold internal_from_arr.
-          rewrite internal_beta.
-          rewrite tensor_split.
-          rewrite !assoc'.
-          rewrite internal_beta.
-          apply idpath.
-        }
-        rewrite tensor_comp_id_l.
-        etrans.
-        {
-          apply maponpaths.
-          rewrite !assoc.
-          rewrite <- mon_triangle.
-          apply idpath.
-        }
         rewrite !assoc.
         rewrite <- tensor_comp_mor.
         rewrite id_right.
-        rewrite mon_rinvunitor_runitor.
+        rewrite tensor_split.
+        rewrite !assoc'.
+        rewrite internal_beta.
+        rewrite tensor_comp_id_l.
         rewrite !assoc'.
         apply maponpaths.
         rewrite !assoc.
         apply maponpaths_2.
         apply left_strong_monad_mu.
       }
-      etrans.
-      {
-        rewrite !assoc'.
-        do 3 apply maponpaths.
-        exact (!(nat_trans_ax (μ M) _ _ (internal_eval x y))).
-      }
       refine (!_).
       etrans.
       {
         rewrite tensor_comp_r_id_r.
         rewrite !assoc'.
-        unfold internal_comp.
         rewrite internal_beta.
+        rewrite !assoc.
+        apply maponpaths_2.
         rewrite tensor_comp_r_id_r.
         rewrite !assoc'.
-        etrans.
-        {
-          apply maponpaths.
-          rewrite !assoc.
-          rewrite tensor_lassociator.
-          rewrite !assoc'.
-          apply maponpaths.
-          rewrite !assoc.
-          rewrite <- tensor_comp_mor.
-          rewrite id_right.
-          rewrite tensor_comp_r_id_r.
-          rewrite !assoc'.
-          rewrite internal_beta.
-          rewrite tensor_split.
-          unfold internal_from_arr.
-          rewrite !assoc'.
-          rewrite internal_beta.
-          rewrite !assoc.
-          rewrite tensor_lunitor.
-          apply idpath.
-        }
-        etrans.
-        {
-          apply maponpaths.
-          rewrite !assoc.
-          rewrite mon_lunitor_triangle.
-          apply idpath.
-        }
+        rewrite internal_beta.
         rewrite !assoc.
-        rewrite <- tensor_comp_mor.
-        rewrite id_right.
-        rewrite mon_linvunitor_lunitor.
         apply idpath.
       }
+      rewrite tensor_split.
+      rewrite !assoc'.
+      apply maponpaths.
+      etrans.
+      {
+        rewrite <- (functor_id M).
+        rewrite !assoc.
+        rewrite left_strength_natural.
+        rewrite !assoc'.
+        apply maponpaths.
+        rewrite !assoc.
+        rewrite <- functor_comp.
+        rewrite internal_beta.
+        apply idpath.
+      }
+      refine (!_).
+      etrans.
+      {
+        do 2 apply maponpaths.
+        exact (!(nat_trans_ax (μ M) _ _ (internal_eval x y))).
+      }
       cbn.
+      rewrite functor_comp.
       rewrite !assoc'.
-      apply maponpaths.
-      rewrite !assoc.
-      apply maponpaths_2.
-      rewrite <- functor_id.
-      rewrite left_strength_natural.
-      rewrite !assoc'.
-      apply maponpaths.
-      rewrite <- !functor_comp.
-      apply maponpaths.
-      rewrite internal_beta.
       apply idpath.
     Qed.
 

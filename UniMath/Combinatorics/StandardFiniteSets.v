@@ -26,6 +26,17 @@ Proof.
   exact (pr2 i).
 Defined.
 
+Lemma stn_eq
+  {n : nat}
+  (i i' : stn n)
+  (H : pr1 i = pr1 i')
+  : i = i'.
+Proof.
+  refine (subtypePath _ H).
+  intro.
+  apply isasetbool.
+Qed.
+
 (* old way:
    Notation " 'stnel' ( i , j ) " :=
       ( make_stn _ _  ( ctlong natlth isdecrelnatlth j i ( idpath true ) ) )
@@ -150,22 +161,6 @@ Defined.
 Definition stnset n := make_hSet (⟦n⟧) (isasetstn n).
 
 Definition stn_to_nat n : stnset n -> natset := pr1.
-
-Definition stnposet ( n : nat ) : Poset.
-Proof.
-  unfold Poset.
-  exists (_,,isasetstn n).
-  unfold PartialOrder.
-  exists (λ i j: ⟦n⟧, i ≤ j)%dnat.
-  unfold isPartialOrder.
-  split.
-  - unfold ispreorder.
-    split.
-    * intros i j k. apply istransnatleh.
-    * intros i. apply isreflnatleh.
-  - intros i j r s. apply (invmaponpathsincl _ ( isinclstntonat _ )).
-    apply isantisymmnatleh; assumption.
-Defined.
 
 Definition lastelement {n : nat} : ⟦S n⟧.
 Proof.
@@ -1704,6 +1699,22 @@ Proof. revert n'.
          + intro X. apply (fromempty ( negweqstnsn0 n X)).
          + intro X. apply maponpaths. apply IHn.
            apply weqcutforstn. assumption.
+Defined.
+
+Definition eqtoweqstn
+  {n n' : nat}
+  (H : n = n')
+  : stn n ≃ stn n'.
+Proof.
+  use weq_iso.
+  - intro i.
+    refine (make_stn _ i _).
+    abstract exact (transportf (λ x, i < x) H (stnlt i)).
+  - intro i.
+    refine (make_stn _ i _).
+    abstract exact (transportf (λ x, i < x) (!H) (stnlt i)).
+  - abstract (intro i; now apply stn_eq).
+  - abstract (intro i; now apply stn_eq).
 Defined.
 
 Corollary stnsdnegweqtoeq ( n n' : nat ) ( dw : dneg (⟦n⟧ ≃ ⟦n'⟧) ) : n = n'.

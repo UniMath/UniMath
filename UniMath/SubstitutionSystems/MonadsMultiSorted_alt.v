@@ -19,42 +19,38 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
+
+Require UniMath.SubstitutionSystems.SortIndexing.
 
 Local Open Scope cat.
 
 Section MonadInSortToC.
 
-Variables (sort : hSet) (Hsort : isofhlevel 3 sort) (C : category) (BC : BinCoproducts C) (TC : Terminal C).
+Context (sort : hSet) (Hsort : isofhlevel 3 sort) (C : category) (BC : BinCoproducts C) (TC : Terminal C).
 
-Let sortToC : category := [path_pregroupoid sort Hsort, C].
+Let sortToC : category := SortIndexing.sortToC sort Hsort C.
 
-Local Lemma BinCoproductsSortToC : BinCoproducts sortToC.
-Proof.
-apply BinCoproducts_functor_precat, BC.
-Defined.
+Local Definition BCsortToC : BinCoproducts sortToC := SortIndexing.BCsortToC sort Hsort _ BC.
 
-Local Lemma TerminalSortToC : Terminal sortToC.
-Proof.
-apply Terminal_functor_precat, TC.
-Defined.
+Local Definition TsortToC : Terminal sortToC := SortIndexing.TsortToC sort Hsort _ TC.
 
-Local Notation "a ⊕ b" := (BinCoproductObject (BinCoproductsSortToC a b)).
-Local Notation "1" := (TerminalObject TerminalSortToC).
+Local Notation "a ⊕ b" := (BinCoproductObject (BCsortToC a b)).
+Local Notation "1" := (TerminalObject TsortToC).
 
 Context {M : Monad sortToC}.
 
@@ -100,21 +96,21 @@ Qed.
 
 (* As the instantiation at a specific sort t does not add much we don't do it for the exchange law *)
 Definition monadSubstGen_instantiated {X Y : sortToC} (f : sortToC⟦X,M Y⟧) :
-  sortToC⟦M (X ⊕ Y),M Y⟧ := monadSubstGen M BinCoproductsSortToC Y f.
+  sortToC⟦M (X ⊕ Y),M Y⟧ := monadSubstGen M BCsortToC Y f.
 
 Definition monadSubstGen_fun {X Y : sortToC} (f : ∏ s, C⟦pr1 X s,pr1 (M Y) s⟧) :
   ∏ t, C⟦pr1 (M (X ⊕ Y)) t,pr1 (M Y) t⟧ :=
     λ t, pr1 (monadSubstGen_instantiated (sortToC_fun f)) t.
 
 Definition monadSubst_instantiated {X : sortToC} (f : sortToC⟦1,M X⟧) :
-  sortToC⟦M (1 ⊕ X),M X⟧ := monadSubst M BinCoproductsSortToC TerminalSortToC X f.
+  sortToC⟦M (1 ⊕ X),M X⟧ := monadSubst M BCsortToC TsortToC X f.
 
 Definition mweak_instantiated {X Y : sortToC} :
-  sortToC⟦M Y,M (X ⊕ Y)⟧ := mweak M BinCoproductsSortToC _ _.
+  sortToC⟦M Y,M (X ⊕ Y)⟧ := mweak M BCsortToC _ _.
 
 Definition mexch_instantiated {X Y Z : sortToC} :
   sortToC⟦M (X ⊕ (Y ⊕ Z)), M (Y ⊕ (X ⊕ Z))⟧ :=
-    mexch M BinCoproductsSortToC _ _ _.
+    mexch M BCsortToC _ _ _.
 
 Lemma subst_interchange_law_gen_instantiated {X Y Z : sortToC}
       (f : sortToC⟦X,M (Y ⊕ Z)⟧) (g : sortToC⟦Y, M Z⟧) :

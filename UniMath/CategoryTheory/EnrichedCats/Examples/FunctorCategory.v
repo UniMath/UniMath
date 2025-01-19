@@ -38,32 +38,33 @@
  Contents
  1. The category of enriched functors
  2. This category is univalent
- 3. The enrichment
+ 3. Operations on the enriched functor category
+ 4. The enrichment
+ 5. Enrichment for enriched presheaf categories
 
  **********************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.EnrichedCats.Enrichment.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
 Require Import UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
 Require Import UniMath.CategoryTheory.EnrichedCats.Examples.HomFunctor.
+Require Import UniMath.CategoryTheory.EnrichedCats.Examples.OppositeEnriched.
+Require Import UniMath.CategoryTheory.EnrichedCats.Examples.SelfEnriched.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Closed.
 Require Import UniMath.CategoryTheory.OppositeCategory.Core.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.limits.equalizers.
-Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Products.
 
 Import MonoidalNotations.
 
@@ -199,7 +200,7 @@ Section EnrichedFunctorCategory.
   Defined.
 End EnrichedFunctorCategory.
 
-Definition enriched_univalent_category
+Definition enriched_univalent_functor_category
            {V : monoidal_cat}
            (C₁ C₂ : univalent_category)
            (E₁ : enrichment C₁ V)
@@ -208,7 +209,103 @@ Definition enriched_univalent_category
   := enriched_functor_category E₁ E₂ ,, is_univalent_enriched_functor_cat _ _ (pr2 C₂).
 
 (**
- 3. The enrichment
+ 3. Operations on the enriched functor category
+ *)
+Definition is_nat_z_iso_enriched_functor_category_z_iso
+           {V : monoidal_cat}
+           {C₁ C₂ : category}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           {F G : enriched_functor_category E₁ E₂}
+           (τ : z_iso F G)
+  : is_nat_z_iso (pr111 τ).
+Proof.
+  exact (pr2 (nat_z_iso_from_z_iso _ (z_iso_base_from_total τ))).
+Defined.
+
+Definition comp_enriched_functor_category
+           {V : monoidal_cat}
+           {C₁ C₂ C₃ : category}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           {E₃ : enrichment C₃ V}
+           (F : enriched_functor_category E₁ E₂)
+           (G : enriched_functor_category E₂ E₃)
+  : enriched_functor_category E₁ E₃
+  := pr1 F ∙ pr1 G
+     ,,
+     functor_comp_enrichment (pr2 F) (pr2 G).
+
+Definition pre_whisker_enriched_functor_category
+           {V : monoidal_cat}
+           {C₁ C₂ C₃ : category}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           {E₃ : enrichment C₃ V}
+           (F : enriched_functor_category E₁ E₂)
+           {G₁ G₂ : enriched_functor_category E₂ E₃}
+           (τ : G₁ --> G₂)
+  : comp_enriched_functor_category F G₁
+    -->
+    comp_enriched_functor_category F G₂.
+Proof.
+  simple refine (_ ,, _).
+  - exact (pre_whisker (pr11 F) (pr1 τ)).
+  - use pre_whisker_enrichment.
+    exact (pr2 τ).
+Defined.
+
+Definition post_whisker_enriched_functor_category
+           {V : monoidal_cat}
+           {C₁ C₂ C₃ : category}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           {E₃ : enrichment C₃ V}
+           {F₁ F₂ : enriched_functor_category E₁ E₂}
+           (τ : F₁ --> F₂)
+           (G : enriched_functor_category E₂ E₃)
+  : comp_enriched_functor_category F₁ G
+    -->
+    comp_enriched_functor_category F₂ G.
+Proof.
+  simple refine (_ ,, _).
+  - exact (post_whisker (pr1 τ) (pr1 G)).
+  - use post_whisker_enrichment.
+    exact (pr2 τ).
+Defined.
+
+Definition lassociator_enriched_functor_category
+           {V : monoidal_cat}
+           {C₁ C₂ C₃ C₄ : category}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           {E₃ : enrichment C₃ V}
+           {E₄ : enrichment C₄ V}
+           (F : enriched_functor_category E₁ E₂)
+           (G : enriched_functor_category E₂ E₃)
+           (H : enriched_functor_category E₃ E₄)
+  : comp_enriched_functor_category (comp_enriched_functor_category F G) H
+    -->
+    comp_enriched_functor_category F (comp_enriched_functor_category G H)
+  := nat_trans_id _ ,, lassociator_enrichment (pr2 F) (pr2 G) (pr2 H).
+
+Definition rassociator_enriched_functor_category
+           {V : monoidal_cat}
+           {C₁ C₂ C₃ C₄ : category}
+           {E₁ : enrichment C₁ V}
+           {E₂ : enrichment C₂ V}
+           {E₃ : enrichment C₃ V}
+           {E₄ : enrichment C₄ V}
+           (F : enriched_functor_category E₁ E₂)
+           (G : enriched_functor_category E₂ E₃)
+           (H : enriched_functor_category E₃ E₄)
+  : comp_enriched_functor_category F (comp_enriched_functor_category G H)
+    -->
+    comp_enriched_functor_category (comp_enriched_functor_category F G) H
+  := nat_trans_id _ ,, rassociator_enrichment (pr2 F) (pr2 G) (pr2 H).
+
+(**
+ 4. The enrichment
  *)
 Section EnrichedFunctorCategory.
   Context {V : sym_mon_closed_cat}
@@ -968,3 +1065,25 @@ Section EnrichedFunctorCategory.
        ,,
        enriched_functor_category_enrichment_laws.
 End EnrichedFunctorCategory.
+
+(**
+ 5. Enrichment for enriched presheaf categories
+ *)
+Definition enriched_presheaf_enrichment
+           {V : sym_mon_closed_cat}
+           {C : category}
+           (E : enrichment C V)
+           (EqV : Equalizers V)
+           (PV : Products C V)
+           (PV' : Products (C × C) V)
+  : enrichment
+      (enriched_functor_category
+         (op_enrichment V E)
+         (self_enrichment V))
+      V
+  := enriched_functor_category_enrichment
+       (op_enrichment V E)
+       (self_enrichment V)
+       EqV
+       PV
+       PV'.

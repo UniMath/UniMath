@@ -25,6 +25,9 @@
  functors are equivalences if the involved categories are univalent. From this
  formulation, we can also deduce a universal mapping property.
 
+ For both definitions, we use the notion of orthogonality for 1-cells in
+ bicategories.
+
  In this file, we consider both definitions, and we show that they are indeed
  equivalent.
 
@@ -58,6 +61,7 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Morphisms.FullyFaithful.
 Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Morphisms.Properties.ClosedUnderInvertibles.
+Require Import UniMath.Bicategories.OrthogonalFactorization.Orthogonality.
 Require Import UniMath.Bicategories.Limits.Pullbacks.
 Require Import UniMath.Bicategories.Limits.PullbackFunctions.
 Import PullbackFunctions.Notations.
@@ -74,54 +78,13 @@ Section EsoMorphisms.
   (**
    1. Esos
    *)
-  Definition pre_comp_post_comp_commute
-             {c₁ c₂ : B}
-             (m : c₁ --> c₂)
-    : pre_comp c₁ f ∙ post_comp b₁ m
-      ⟹
-      post_comp b₂ m ∙ pre_comp c₂ f.
-  Proof.
-    use make_nat_trans.
-    - exact (λ _, rassociator _ _ _).
-    - abstract
-        (intros h₁ h₂ α ;
-         cbn ;
-         rewrite rwhisker_lwhisker_rassociator ;
-         apply idpath).
-  Defined.
-
-  Definition pre_comp_post_comp_commute_z_iso
-             {c₁ c₂ : B}
-             (m : c₁ --> c₂)
-    : nat_z_iso
-        (pre_comp c₁ f ∙ post_comp b₁ m)
-        (post_comp b₂ m ∙ pre_comp c₂ f).
-  Proof.
-    use make_nat_z_iso.
-    - exact (pre_comp_post_comp_commute m).
-    - intro.
-      use is_inv2cell_to_is_z_iso ; cbn.
-      is_iso.
-  Defined.
-
-  Definition is_eso_functor
-             {c₁ c₂ : B}
-             (m : c₁ --> c₂)
-    : hom b₂ c₁ ⟶ iso_comma (post_comp b₁ m) (pre_comp c₂ f).
-  Proof.
-    use iso_comma_ump1.
-    - exact (pre_comp c₁ f).
-    - exact (post_comp b₂ m).
-    - exact (pre_comp_post_comp_commute_z_iso m).
-  Defined.
 
   Definition is_eso
     : UU
     := ∏ (c₁ c₂ : B)
          (m : c₁ --> c₂)
          (Hm : fully_faithful_1cell m),
-       adj_equivalence_of_cats
-         (is_eso_functor m).
+       f ⊥ m.
 
   Definition isaprop_is_eso
              (HB_2_1 : is_univalent_2_1 B)
@@ -131,19 +94,7 @@ Section EsoMorphisms.
     use impred ; intro c₂.
     use impred ; intro m.
     use impred ; intro H.
-    use (isofhlevelweqf
-             1
-             (@adj_equiv_is_equiv_cat
-                (univ_hom HB_2_1 b₂ c₁)
-                (@univalent_iso_comma
-                   (univ_hom HB_2_1 b₁ c₁)
-                   (univ_hom HB_2_1 b₂ c₂)
-                   (univ_hom HB_2_1 b₁ c₂)
-                   (post_comp b₁ m)
-                   (pre_comp c₂ f))
-                (is_eso_functor m))).
-    apply isaprop_left_adjoint_equivalence.
-    exact univalent_cat_is_univalent_2_1.
+    exact (isaprop_orthogonal f m HB_2_1).
   Defined.
 
   (**
@@ -227,93 +178,20 @@ Section EsoMorphisms.
    Note that local univalence is needed so that we can get an equivalence from functors
    that are essentially surjective and fully faithful.
    *)
-  Section MakeEso.
-    Context (HB_2_1 : is_univalent_2_1 B)
-            (H₁ : is_eso_full)
-            (H₂ : is_eso_faithful)
-            (H₃ : is_eso_essentially_surjective).
-
-    Section MakeEsoHelp.
-      Context {c₁ c₂ : B}
-              {m : c₁ --> c₂}
-              (Hm : fully_faithful_1cell m).
-
-      Definition make_is_eso_full
-        : full (is_eso_functor m).
-      Proof.
-        intros l₁ l₂.
-        intro k.
-        apply hinhpr.
-        simple refine (_ ,, _) ; cbn.
-        - exact (pr1 (H₁ c₁ c₂ m Hm l₁ l₂ (pr11 k) (pr21 k) (pr2 k))).
-        - abstract
-            (use subtypePath ; [ intro ; apply cellset_property | ] ;
-             cbn ;
-             exact (pathsdirprod
-                      (pr12 (H₁ c₁ c₂ m Hm l₁ l₂ (pr11 k) (pr21 k) (pr2 k)))
-                      (pr22 (H₁ c₁ c₂ m Hm l₁ l₂ (pr11 k) (pr21 k) (pr2 k))))).
-      Defined.
-
-      Definition make_is_eso_faithful
-        : faithful (is_eso_functor m).
-      Proof.
-        intros l₁ l₂.
-        intro im.
-        use invproofirrelevance.
-        intros ζ₁ ζ₂.
-        use subtypePath.
-        {
-          intro.
-          apply homset_property.
-        }
-        use (H₂ c₁ c₂ m Hm l₁ l₂ (pr1 ζ₁) (pr1 ζ₂)).
-        - exact (maponpaths (λ z, pr11 z) (pr2 ζ₁)
-                 @ !(maponpaths (λ z, pr11 z) (pr2 ζ₂))).
-        - exact (maponpaths (λ z, dirprod_pr2 (pr1 z)) (pr2 ζ₁)
-                            @ !(maponpaths (λ z, dirprod_pr2 (pr1 z)) (pr2 ζ₂))).
-      Qed.
-
-      Definition make_is_eso_fully_faithful
-        : fully_faithful (is_eso_functor m).
-      Proof.
-        use full_and_faithful_implies_fully_faithful.
-        split.
-        - exact make_is_eso_full.
-        - exact make_is_eso_faithful.
-      Defined.
-
-      Definition make_is_eso_essentially_surjective
-        : essentially_surjective (is_eso_functor m).
-      Proof.
-        intros h.
-        pose (ℓ := H₃ c₁ c₂ m Hm (pr11 h) (pr21 h) (z_iso_to_inv2cell (pr2 h))).
-        apply hinhpr.
-        simple refine (_ ,, _).
-        - exact (pr1 ℓ).
-        - use make_z_iso'.
-          + simple refine ((_ ,, _) ,, _) ; cbn.
-            * exact (pr12 ℓ).
-            * exact (pr122 ℓ).
-            * exact (pr222 ℓ).
-          + use is_z_iso_iso_comma.
-            * use is_inv2cell_to_is_z_iso.
-              apply property_from_invertible_2cell.
-            * use is_inv2cell_to_is_z_iso.
-              apply property_from_invertible_2cell.
-      Defined.
-    End MakeEsoHelp.
-
-    Definition make_is_eso
-      : is_eso.
-    Proof.
-      intros c₁ c₂ m Hm.
-      use rad_equivalence_of_cats.
-      - use is_univ_hom.
-        exact HB_2_1.
-      - exact (make_is_eso_fully_faithful Hm).
-      - exact (make_is_eso_essentially_surjective Hm).
-    Defined.
-  End MakeEso.
+  Definition make_is_eso
+             (HB_2_1 : is_univalent_2_1 B)
+             (H₁ : is_eso_full)
+             (H₂ : is_eso_faithful)
+             (H₃ : is_eso_essentially_surjective)
+    : is_eso.
+  Proof.
+    intros c₁ c₂ m Hm.
+    use make_orthogonal.
+    - exact HB_2_1.
+    - exact (H₁ c₁ c₂ m Hm).
+    - exact (H₂ c₁ c₂ m Hm).
+    - exact (H₃ c₁ c₂ m Hm).
+  Defined.
 
   (**
    3. Projections for esos
@@ -332,37 +210,21 @@ Section EsoMorphisms.
 
       Definition is_eso_lift_1
         : b₂ --> c₁
-        := right_adjoint (H c₁ c₂ m Hm) ((g₁ ,, g₂) ,, inv2cell_to_z_iso α).
+        := orthogonal_lift_1 (H c₁ c₂ m Hm) g₁ g₂ α.
 
       Definition is_eso_lift_1_comm_left
-        : invertible_2cell (f · is_eso_lift_1) g₁.
-      Proof.
-        apply z_iso_to_inv2cell.
-        exact (functor_on_z_iso
-                (iso_comma_pr1 _ _)
-                (counit_pointwise_z_iso_from_adj_equivalence
-                   (H c₁ c₂ m Hm)
-                   ((g₁ ,, g₂) ,, inv2cell_to_z_iso α))).
-      Defined.
+        : invertible_2cell (f · is_eso_lift_1) g₁
+        := orthogonal_lift_1_comm_left (H c₁ c₂ m Hm) g₁ g₂ α.
 
       Definition is_eso_lift_1_comm_right
-        : invertible_2cell (is_eso_lift_1 · m) g₂.
-      Proof.
-        apply z_iso_to_inv2cell.
-        exact (functor_on_z_iso
-                 (iso_comma_pr2 _ _)
-                 (counit_pointwise_z_iso_from_adj_equivalence
-                    (H c₁ c₂ m Hm)
-                    ((g₁ ,, g₂) ,, inv2cell_to_z_iso α))).
-      Defined.
+        : invertible_2cell (is_eso_lift_1 · m) g₂
+        := orthogonal_lift_1_comm_right (H c₁ c₂ m Hm) g₁ g₂ α.
 
       Definition is_eso_lift_1_eq
         : (is_eso_lift_1_comm_left ▹ m) • α
           =
           rassociator _ _ _ • (f ◃ is_eso_lift_1_comm_right)
-        := pr2 (counit_from_left_adjoint
-                  (pr1 (H c₁ c₂ m Hm))
-                  ((g₁ ,, g₂) ,, inv2cell_to_z_iso α)).
+        := orthogonal_lift_1_eq (H c₁ c₂ m Hm) g₁ g₂ α.
     End LiftOne.
 
     (** Lifting property for for 2-cells *)
@@ -377,166 +239,17 @@ Section EsoMorphisms.
                    =
                    rassociator _ _ _ • (f ◃ k₂)).
 
-      Let R : iso_comma (post_comp b₁ m) (pre_comp c₂ f) ⟶ hom b₂ c₁
-        := right_adjoint (H c₁ c₂ m Hm).
-
-      Let φ : iso_comma (post_comp b₁ m) (pre_comp c₂ f)
-        := (f · l₁ ,, l₁ · m) ,, inv2cell_to_z_iso (rassociator_invertible_2cell _ _ _).
-      Let ψ : iso_comma (post_comp b₁ m) (pre_comp c₂ f)
-        := (f · l₂ ,, l₂ · m) ,, inv2cell_to_z_iso (rassociator_invertible_2cell _ _ _).
-      Let μ : φ --> ψ
-        := (k₁ ,, k₂) ,, p.
-
-      Let η₁ : l₁ ==> R φ
-        := unit_from_left_adjoint (H c₁ c₂ m Hm) l₁.
-      Let η₂ : R ψ ==> l₂
-        := z_iso_to_inv2cell (unit_pointwise_z_iso_from_adj_equivalence (H c₁ c₂ m Hm) l₂)^-1.
-      Let ε₁ : f · R φ ==> f · l₁
-        := pr11 (counit_from_left_adjoint (pr1 (H c₁ c₂ m Hm)) φ).
-      Let ε₂ : f · R ψ ==> f · l₂
-        := pr11 (counit_from_left_adjoint (pr1 (H c₁ c₂ m Hm)) ψ).
-      Let ε₁' : R φ · m ==> l₁ · m
-        := pr21 (counit_from_left_adjoint (pr1 (H c₁ c₂ m Hm)) φ).
-      Let ε₂' : R ψ · m ==> l₂ · m
-        := pr21 (counit_from_left_adjoint (pr1 (H c₁ c₂ m Hm)) ψ).
-
       Definition is_eso_lift_2
         : l₁ ==> l₂
-        := η₁ • #R μ • η₂.
-
-      Local Lemma is_eso_lift_2_counit_invertible
-        : is_invertible_2cell ε₂.
-      Proof.
-        exact (property_from_invertible_2cell
-                 (z_iso_to_inv2cell
-                    (functor_on_z_iso
-                       (iso_comma_pr1 _ _)
-                       (counit_pointwise_z_iso_from_adj_equivalence (H c₁ c₂ m Hm) ψ)))).
-      Qed.
-
-      Local Lemma is_eso_lift_2_left_path_1
-        : (f ◃ #R μ) • ε₂ = ε₁ • k₁.
-      Proof.
-        exact (maponpaths
-                 (λ z, pr11 z)
-                 (nat_trans_ax (counit_from_left_adjoint (H c₁ c₂ m Hm)) _ _ μ)).
-      Qed.
-
-      Local Lemma is_eso_lift_2_left_path_2
-        : (f ◃ η₁) • ε₁ = id2 _.
-      Proof.
-        exact (maponpaths
-                 (λ z, pr11 z)
-                 (triangle_id_left_ad (pr21 (H c₁ c₂ m Hm)) l₁)).
-      Qed.
+        := orthogonal_lift_2 (H c₁ c₂ m Hm) l₁ l₂ k₁ k₂ p.
 
       Definition is_eso_lift_2_left
-        : f ◃ is_eso_lift_2 = k₁.
-      Proof.
-        unfold is_eso_lift_2.
-        rewrite <- !lwhisker_vcomp.
-        use vcomp_move_R_Mp.
-        {
-          unfold η₂.
-          is_iso.
-        }
-        use (vcomp_rcancel ε₂).
-        {
-          exact is_eso_lift_2_counit_invertible.
-        }
-        rewrite !vassocl.
-        etrans.
-        {
-          apply maponpaths.
-          exact is_eso_lift_2_left_path_1.
-        }
-        cbn.
-        rewrite !vassocr.
-        etrans.
-        {
-          apply maponpaths_2.
-          exact is_eso_lift_2_left_path_2.
-        }
-        rewrite id2_left.
-        rewrite !vassocl.
-        refine (!_).
-        etrans.
-        {
-          apply maponpaths.
-          exact (maponpaths
-                   (λ z, pr11 z)
-                   (triangle_id_left_ad (pr21 (H c₁ c₂ m Hm)) l₂)).
-        }
-        cbn.
-        rewrite id2_right.
-        apply idpath.
-      Qed.
-
-      Local Lemma is_eso_lift_2_counit_invertible'
-        : is_invertible_2cell ε₂'.
-      Proof.
-        exact (property_from_invertible_2cell
-                 (z_iso_to_inv2cell
-                    (functor_on_z_iso
-                       (iso_comma_pr2 _ _)
-                       (counit_pointwise_z_iso_from_adj_equivalence (H c₁ c₂ m Hm) ψ)))).
-      Qed.
-
-      Local Lemma is_eso_lift_2_right_path_1
-        : (#R μ ▹ m) • ε₂' = ε₁' • k₂.
-      Proof.
-        exact (maponpaths
-                 (λ z, dirprod_pr2 (pr1 z))
-                 (nat_trans_ax (counit_from_left_adjoint (H c₁ c₂ m Hm)) _ _ μ)).
-      Qed.
-
-      Local Lemma is_eso_lift_2_right_path_2
-        : (η₁ ▹ m) • ε₁' = id2 _.
-      Proof.
-        exact (maponpaths
-                 (λ z, dirprod_pr2 (pr1 z))
-                 (triangle_id_left_ad (pr21 (H c₁ c₂ m Hm)) l₁)).
-      Qed.
+        : f ◃ is_eso_lift_2 = k₁
+        := orthogonal_lift_2_left (H c₁ c₂ m Hm) l₁ l₂ k₁ k₂ p.
 
       Definition is_eso_lift_2_right
-        : is_eso_lift_2 ▹ m = k₂.
-      Proof.
-        unfold is_eso_lift_2.
-        rewrite <- !rwhisker_vcomp.
-        use vcomp_move_R_Mp.
-        {
-          unfold η₂.
-          is_iso.
-        }
-        cbn.
-        use (vcomp_rcancel ε₂').
-        {
-          exact is_eso_lift_2_counit_invertible'.
-        }
-        rewrite !vassocl.
-        etrans.
-        {
-          apply maponpaths.
-          exact is_eso_lift_2_right_path_1.
-        }
-        rewrite !vassocr.
-        etrans.
-        {
-          apply maponpaths_2.
-          exact is_eso_lift_2_right_path_2.
-        }
-        rewrite id2_left.
-        rewrite !vassocl.
-        refine (!_).
-        etrans.
-        {
-          apply maponpaths.
-          exact (maponpaths
-                   (λ z, dirprod_pr2 (pr1 z))
-                   (triangle_id_left_ad (pr21 (H c₁ c₂ m Hm)) l₂)).
-        }
-        apply id2_right.
-      Qed.
+        : is_eso_lift_2 ▹ m = k₂
+        := orthogonal_lift_2_right (H c₁ c₂ m Hm) l₁ l₂ k₁ k₂ p.
     End LiftTwo.
 
     (** Lifting property for for equalities *)
@@ -550,82 +263,20 @@ Section EsoMorphisms.
                (p₂ : ζ₁ ▹ m = ζ₂ ▹ m)
       : ζ₁ = ζ₂.
     Proof.
-      pose (pr2 (fully_faithful_implies_full_and_faithful
-                   _ _ _
-                   (fully_faithful_from_equivalence _ _ _ (H c₁ c₂ m Hm)))
-                l₁ l₂)
-        as Heq.
-      assert (((f ◃ ζ₁) ▹ m) • rassociator f l₂ m
-              =
-              rassociator f l₁ m • (f ◃ (ζ₁ ▹ m)))
-        as r₁.
-      {
-        refine (!_).
-        apply rwhisker_lwhisker_rassociator.
-      }
-      assert (((f ◃ ζ₂) ▹ m) • rassociator f l₂ m
-              =
-              rassociator f l₁ m • (f ◃ (ζ₂ ▹ m)))
-        as r₂.
-      {
-        refine (!_).
-        apply rwhisker_lwhisker_rassociator.
-      }
-      pose (proofirrelevance
-              _
-              (Heq ((f ◃ ζ₁ ,, ζ₁ ▹ m) ,, r₁)))
-        as Hprop.
-      refine (maponpaths pr1 (Hprop (_ ,, _) (_ ,, _))).
-      - use subtypePath.
-        {
-          intro.
-          apply cellset_property.
-        }
-        cbn.
-        apply idpath.
-      - use subtypePath.
-        {
-          intro.
-          apply cellset_property.
-        }
-        cbn.
-        use pathsdirprod.
-        + exact (!p₁).
-        + exact (!p₂).
+      exact (orthogonal_lift_eq (H c₁ c₂ m Hm) ζ₁ ζ₂ p₁ p₂).
     Qed.
   End Projections.
 
   (**
    4. Esos via pullbacks
    *)
-  Definition is_eso_via_pb_cone
-             (HB_2_1 : is_univalent_2_1 B)
-             {c₁ c₂ : B}
-             (m : c₁ --> c₂)
-             (Hm : fully_faithful_1cell m)
-    : @pb_cone
-        bicat_of_univ_cats
-        (univ_hom HB_2_1 b₁ c₁)
-        (univ_hom HB_2_1 b₂ c₂)
-        (univ_hom HB_2_1 b₁ c₂)
-        (post_comp b₁ m)
-        (pre_comp c₂ f).
-  Proof.
-    use make_pb_cone.
-    - exact (univ_hom HB_2_1 b₂ c₁).
-    - exact (pre_comp c₁ f).
-    - exact (post_comp b₂ m).
-    - use nat_z_iso_to_invertible_2cell.
-      exact (pre_comp_post_comp_commute_z_iso m).
-  Defined.
-
   Definition is_eso_via_pb
              (HB_2_1 : is_univalent_2_1 B)
     : UU
     := ∏ (c₁ c₂ : B)
          (m : c₁ --> c₂)
          (Hm : fully_faithful_1cell m),
-       has_pb_ump (is_eso_via_pb_cone HB_2_1 m Hm).
+       orthogonal_via_pb f m HB_2_1.
 
   Definition isaprop_is_eso_via_pb
              (HB_2_1 : is_univalent_2_1 B)
@@ -635,150 +286,18 @@ Section EsoMorphisms.
     use impred ; intro c₂.
     use impred ; intro m.
     use impred ; intro Hm.
-    use isaprop_has_pb_ump.
-    exact univalent_cat_is_univalent_2_1.
-  Defined.
-
-  (**
-   5. Equivalence of the definitions
-   *)
-  Definition is_eso_to_is_eso_via_pb
-             (HB_2_1 : is_univalent_2_1 B)
-             (Hf : is_eso)
-    : is_eso_via_pb HB_2_1.
-  Proof.
-    intros c₁ c₂ m Hm.
-    specialize (Hf c₁ c₂ m Hm).
-    use (left_adjoint_equivalence_to_pb
-           _ _ _
-           (@iso_comma_has_pb_ump
-               (univ_hom HB_2_1 b₁ c₁)
-               (univ_hom HB_2_1 b₂ c₂)
-               (univ_hom HB_2_1 b₁ c₂)
-               (post_comp b₁ m)
-               (pre_comp c₂ f))
-           _
-           _).
-    - exact univalent_cat_is_univalent_2_0.
-    - exact (is_eso_functor m).
-    - exact (@equiv_cat_to_adj_equiv
-               (univ_hom HB_2_1 b₂ c₁)
-               (@univalent_iso_comma
-                  (univ_hom HB_2_1 b₁ c₁)
-                  (univ_hom HB_2_1 b₂ c₂)
-                  (univ_hom HB_2_1 b₁ c₂)
-                  (post_comp b₁ m)
-                  (pre_comp c₂ f))
-               (is_eso_functor m)
-               Hf).
-    - use nat_z_iso_to_invertible_2cell.
-      use make_nat_z_iso.
-      + use make_nat_trans.
-        * exact (λ _, id2 _).
-        * abstract
-            (intros h₁ h₂ α ; cbn ;
-             rewrite id2_left, id2_right ;
-             apply idpath).
-      + intro.
-        use is_inv2cell_to_is_z_iso ; cbn.
-        is_iso.
-    - use nat_z_iso_to_invertible_2cell.
-      use make_nat_z_iso.
-      + use make_nat_trans.
-        * exact (λ _, id2 _).
-        * abstract
-            (intros h₁ h₂ α ; cbn ;
-             rewrite id2_left, id2_right ;
-             apply idpath).
-      + intro.
-        use is_inv2cell_to_is_z_iso ; cbn.
-        is_iso.
-    - abstract
-        (use nat_trans_eq ; [ apply homset_property | ] ;
-         intro x ; cbn ;
-         rewrite id2_rwhisker, lwhisker_id2 ;
-         rewrite !id2_left, !id2_right ;
-         apply idpath).
-  Defined.
-
-  Definition is_eso_via_pb_to_is_eso_nat_trans
-             (HB_2_1 : is_univalent_2_1 B)
-             {c₁ c₂ : B}
-             {m : c₁ --> c₂}
-             (Hm : fully_faithful_1cell m)
-    : is_eso_functor m
-      ⟹
-      pr1 (pb_ump_mor
-             (@iso_comma_has_pb_ump
-                (univ_hom HB_2_1 b₁ c₁)
-                (univ_hom HB_2_1 b₂ c₂)
-                (univ_hom HB_2_1 b₁ c₂)
-                (post_comp b₁ m)
-                (pre_comp c₂ f))
-             (is_eso_via_pb_cone HB_2_1 m Hm)).
-  Proof.
-    use make_nat_trans.
-    - intro h.
-      simple refine ((id2 _ ,, id2 _) ,, _).
-      abstract
-        (cbn ;
-         rewrite id2_rwhisker, lwhisker_id2, id2_left, id2_right ;
-         apply idpath).
-    - abstract
-        (intros h₁ h₂ γ ;
-         use subtypePath ; [ intro ; apply cellset_property | ] ;
-         cbn ;
-         rewrite !id2_left, !id2_right ;
-         apply idpath).
-  Defined.
-
-  Definition is_eso_via_pb_to_is_eso
-             (HB_2_1 : is_univalent_2_1 B)
-             (Hf : is_eso_via_pb HB_2_1)
-    : is_eso.
-  Proof.
-    intros c₁ c₂ m Hm.
-    specialize (Hf c₁ c₂ m Hm).
-    apply (@adj_equiv_to_equiv_cat
-             (univ_hom HB_2_1 b₂ c₁)
-             (@univalent_iso_comma
-                (univ_hom HB_2_1 b₁ c₁)
-                (univ_hom HB_2_1 b₂ c₂)
-                (univ_hom HB_2_1 b₁ c₂)
-                (post_comp b₁ m)
-                (pre_comp c₂ f))
-             (is_eso_functor m)).
-    pose (pb_ump_mor_left_adjoint_equivalence
-            _
-            _
-            (@iso_comma_has_pb_ump
-               (univ_hom HB_2_1 b₁ c₁)
-               (univ_hom HB_2_1 b₂ c₂)
-               (univ_hom HB_2_1 b₁ c₂)
-               (post_comp b₁ m)
-               (pre_comp c₂ f))
-            Hf)
-      as p.
-    use (left_adjoint_equivalence_invertible p).
-    - exact (is_eso_via_pb_to_is_eso_nat_trans HB_2_1 Hm).
-    - use is_nat_z_iso_to_is_invertible_2cell.
-      intro.
-      use is_z_iso_iso_comma.
-      + use is_inv2cell_to_is_z_iso ; cbn.
-        is_iso.
-      + use is_inv2cell_to_is_z_iso ; cbn.
-        is_iso.
+    exact (isaprop_orthogonal_via_pb f m HB_2_1).
   Defined.
 
   Definition is_eso_weq_is_eso_via_pb
              (HB_2_1 : is_univalent_2_1 B)
     : is_eso ≃ is_eso_via_pb HB_2_1.
   Proof.
-    use weqimplimpl.
-    - exact (is_eso_to_is_eso_via_pb HB_2_1).
-    - exact (is_eso_via_pb_to_is_eso HB_2_1).
-    - exact (isaprop_is_eso HB_2_1).
-    - exact (isaprop_is_eso_via_pb HB_2_1).
+    use weqonsecfibers ; intro c₁.
+    use weqonsecfibers ; intro c₂.
+    use weqonsecfibers ; intro m.
+    use weqonsecfibers ; intro Hm₁.
+    exact (orthogonal_weq_orthogonal_via_pb f m HB_2_1).
   Defined.
 End EsoMorphisms.
 
@@ -791,11 +310,11 @@ Definition eso_ff_factorization
   := ∏ (b₁ b₂ : B)
        (f : b₁ --> b₂),
      ∑ (im : B)
-       (m : im --> b₂)
-       (f' : b₁ --> im),
-     fully_faithful_1cell m
-     ×
+       (f' : b₁ --> im)
+       (m : im --> b₂),
      is_eso f'
+     ×
+     fully_faithful_1cell m
      ×
      invertible_2cell (f' · m) f.
 

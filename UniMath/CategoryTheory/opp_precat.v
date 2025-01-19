@@ -25,6 +25,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 
 Local Open Scope cat.
@@ -564,4 +565,37 @@ Proof.
   - exact (op_unit_inv_unit_nat_trans C).
   - intro.
     apply identity_is_z_iso.
+Defined.
+
+(**
+ idtoiso in the opposite
+ *)
+Proposition idtoiso_opp
+            {C : category}
+            {x y : C}
+            (p : x = y)
+  : pr1 (@idtoiso (C^op) _ _ p) = pr1 (@idtoiso C _ _ (!p)).
+Proof.
+  induction p ; cbn.
+  apply idpath.
+Qed.
+
+(** The opposite of a setcategory *)
+Definition is_setcategory_opp
+           {C : category}
+           (HC : is_setcategory C)
+  : is_setcategory (C^op).
+Proof.
+  split.
+  - apply HC.
+  - apply homset_property.
+Qed.
+
+Definition opp_setcategory
+           (C : setcategory)
+  : setcategory.
+Proof.
+  use make_setcategory.
+  - exact (C^op).
+  - apply C.
 Defined.

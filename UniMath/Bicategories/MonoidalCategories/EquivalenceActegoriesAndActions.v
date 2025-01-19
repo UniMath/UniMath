@@ -30,7 +30,7 @@ Require Import UniMath.Bicategories.Transformations.PseudoTransformation.
 
 Import BifunctorNotations.
 
-Local Opaque bifunctor_data_from_functorintoendofunctorcat_is_bifunctor.
+#[local] Opaque bifunctor_data_from_functorintoendofunctorcat_is_bifunctor.
 
 
 Section ActegoryToObject.
@@ -275,6 +275,7 @@ Section ActegoryFromObject.
 
 End ActegoryFromObject.
 
+Section FixAMonCat.
 Context {V : category} (Mon_V : monoidal V).
 
 Local Definition ACAT
@@ -371,7 +372,6 @@ Section FromActegoriesToActionsInCat.
 
   Import MonoidalNotations.
 
-  Context (ax2 : actionbicat_ax2 (monoidal_swapped Mon_V) bicat_of_cats).
   Definition acat_to_acti_on_ob : ob ACAT -> ob ACTI
     := λ act, actegory_to_object Mon_V ax2 (pr2 act).
 
@@ -755,10 +755,8 @@ End FromActionInCatToActegories.
 
 Section ActionInCatEquivActegories.
 
-  Context (ax2 : actionbicat_ax2 (monoidal_swapped Mon_V) bicat_of_cats).
-
   Definition acti_to_acat_unit_data_on_ob (a : ACTI)
-    : ACTI ⟦Composition.comp_psfunctor (acat_to_acti ax2) acti_to_acat a, Identity.id_psfunctor ACTI a⟧.
+    : ACTI ⟦Composition.comp_psfunctor acat_to_acti acti_to_acat a, Identity.id_psfunctor ACTI a⟧.
   Proof.
     exists (identity _).
     use tpair.
@@ -798,7 +796,7 @@ Section ActionInCatEquivActegories.
   Defined.
 
   Definition acti_to_acat_unit_data
-    :  pstrans_data (Composition.comp_psfunctor (acat_to_acti ax2) acti_to_acat) (Identity.id_psfunctor ACTI).
+    :  pstrans_data (Composition.comp_psfunctor acat_to_acti acti_to_acat) (Identity.id_psfunctor ACTI).
   Proof.
     use make_pstrans_data.
     - exact (λ a, acti_to_acat_unit_data_on_ob a).
@@ -860,7 +858,7 @@ Section ActionInCatEquivActegories.
   Qed.
 
   Definition acti_to_acat_unit
-    :  pstrans (Composition.comp_psfunctor (acat_to_acti ax2) acti_to_acat) (Identity.id_psfunctor ACTI).
+    :  pstrans (Composition.comp_psfunctor acat_to_acti acti_to_acat) (Identity.id_psfunctor ACTI).
   Proof.
     use make_pstrans.
     - exact acti_to_acat_unit_data.
@@ -868,7 +866,7 @@ Section ActionInCatEquivActegories.
   Defined.
 
   Definition acti_to_acat_counit_data_on_ob (a : ACAT)
-    : ACAT ⟦Composition.comp_psfunctor acti_to_acat (acat_to_acti ax2) a, Identity.id_psfunctor ACAT a⟧.
+    : ACAT ⟦Composition.comp_psfunctor acti_to_acat acat_to_acti a, Identity.id_psfunctor ACAT a⟧.
   Proof.
     exists (identity _).
     exists (λ _ _, identity _).
@@ -885,7 +883,7 @@ Section ActionInCatEquivActegories.
   Defined.
 
   Definition acti_to_acat_counit_data
-    :  pstrans_data (Composition.comp_psfunctor acti_to_acat (acat_to_acti ax2)) (Identity.id_psfunctor ACAT).
+    :  pstrans_data (Composition.comp_psfunctor acti_to_acat acat_to_acti) (Identity.id_psfunctor ACAT).
   Proof.
     use make_pstrans_data.
     - exact (λ a, acti_to_acat_counit_data_on_ob a).
@@ -944,7 +942,7 @@ Section ActionInCatEquivActegories.
   Qed.
 
   Definition acti_to_acat_counit
-    :  pstrans (Composition.comp_psfunctor acti_to_acat (acat_to_acti ax2)) (Identity.id_psfunctor ACAT).
+    :  pstrans (Composition.comp_psfunctor acti_to_acat acat_to_acti) (Identity.id_psfunctor ACAT).
   Proof.
     use make_pstrans.
     - exact acti_to_acat_counit_data.
@@ -952,7 +950,7 @@ Section ActionInCatEquivActegories.
   Defined.
 
   Definition acti_biequiv_unit_counit_acat
-    : is_biequivalence_unit_counit acti_to_acat (acat_to_acti ax2).
+    : is_biequivalence_unit_counit acti_to_acat acat_to_acti.
   Proof.
     exists acti_to_acat_unit.
     exact acti_to_acat_counit.
@@ -960,7 +958,7 @@ Section ActionInCatEquivActegories.
 
   Definition ps_base_ACTI
     :  Base.ps_base ACTI ACTI ⟦ pr111 (Identity.id_psfunctor ACTI),
-  pr111 (Composition.comp_psfunctor (acat_to_acti ax2) acti_to_acat) ⟧.
+  pr111 (Composition.comp_psfunctor acat_to_acti acti_to_acat) ⟧.
   Proof.
     intro.
     exists (functor_identity _).
@@ -1000,7 +998,7 @@ Section ActionInCatEquivActegories.
 
   Definition ps_base_ACAT
     :  Base.ps_base ACAT ACAT ⟦ pr111 (Identity.id_psfunctor ACAT),
-                                pr111 (Composition.comp_psfunctor acti_to_acat (acat_to_acti ax2)) ⟧.
+                                pr111 (Composition.comp_psfunctor acti_to_acat acat_to_acti) ⟧.
   Proof.
     intro.
     exists (functor_identity _).
@@ -1028,7 +1026,7 @@ Section ActionInCatEquivActegories.
   Defined.
 
   Definition ACAT_invertible_2cell {a1 a2 : ACAT} (f : ACAT⟦a1,a2⟧)
-    : invertible_2cell (ps_base_ACAT a1 · acti_to_acat_on_mor (acat_to_acti_on_mor ax2 f)) (f · ps_base_ACAT a2).
+    : invertible_2cell (ps_base_ACAT a1 · acti_to_acat_on_mor (acat_to_acti_on_mor f)) (f · ps_base_ACAT a2).
   Proof.
     repeat (use tpair).
     - exact (λ _, identity _).
@@ -1071,7 +1069,7 @@ Section ActionInCatEquivActegories.
   Defined.
 
   Definition ACTI_invertible_2cell {a1 a2 : ACTI} (f : ACTI⟦a1,a2⟧)
-    :   invertible_2cell (ps_base_ACTI a1 · acat_to_acti_on_mor ax2 (acti_to_acat_on_mor f)) (f · ps_base_ACTI a2).
+    :   invertible_2cell (ps_base_ACTI a1 · acat_to_acti_on_mor (acti_to_acat_on_mor f)) (f · ps_base_ACTI a2).
   Proof.
     use tpair.
     - use tpair.
@@ -1121,7 +1119,7 @@ Section ActionInCatEquivActegories.
 
   Definition ps_functor_ACTI
     : psfunctor_bicat ACTI ACTI ⟦ Identity.id_psfunctor ACTI,
-                                  Composition.comp_psfunctor (acat_to_acti ax2) acti_to_acat ⟧.
+                                  Composition.comp_psfunctor acat_to_acti acti_to_acat ⟧.
   Proof.
     refine (_ ,, tt).
     use tpair.
@@ -1139,7 +1137,7 @@ Section ActionInCatEquivActegories.
 
   Definition ps_functor_ACAT
     :  psfunctor_bicat ACAT ACAT ⟦ Identity.id_psfunctor ACAT,
-  Composition.comp_psfunctor acti_to_acat (acat_to_acti ax2) ⟧.
+  Composition.comp_psfunctor acti_to_acat acat_to_acti ⟧.
   Proof.
     refine (_ ,, tt).
     use tpair.
@@ -1291,7 +1289,7 @@ Section ActionInCatEquivActegories.
   Definition invertible_2cell_unit_data (a : ACTI)
     :  prebicat_cells ACTI
     ((pr111 (acti_to_acat_unit · Adjunctions.left_adjoint_right_adjoint unit_left_adjoint_data)) a)
-    ((pr111 (identity (Composition.comp_psfunctor (acat_to_acti ax2) acti_to_acat))) a).
+    ((pr111 (identity (Composition.comp_psfunctor acat_to_acti acti_to_acat))) a).
   Proof.
     use tpair.
       + exists (λ _, identity _).
@@ -1522,7 +1520,7 @@ Section ActionInCatEquivActegories.
   Definition acti_is_biequiv_acat
     : is_biequivalence acti_to_acat.
   Proof.
-    exists (acat_to_acti ax2).
+    exists acat_to_acti.
     exists acti_biequiv_unit_counit_acat.
     exact acti_biequiv_adj_acat.
   Defined.
@@ -1535,3 +1533,4 @@ Section ActionInCatEquivActegories.
   Defined.
 
 End ActionInCatEquivActegories.
+End FixAMonCat.

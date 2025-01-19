@@ -40,32 +40,37 @@ Section OppositePseudofunctor.
         (bicat_of_enriched_cats V).
   Proof.
     use make_psfunctor_data.
-    - exact (λ E,
-             op_unicat (pr1 E)
-             ,,
-             op_enrichment V (pr2 E)).
-    - exact (λ E₁ E₂ F,
-             functor_opp (pr1 F)
-             ,,
-             functor_op_enrichment V (pr2 F)).
-    - exact (λ E₁ E₂ F₁ F₂ τ,
-             op_nt (pr1 τ)
-             ,,
-             nat_trans_op_enrichment V _ (pr2 τ)).
-    - exact (λ E,
-             functor_identity_op _
-             ,,
-             functor_identity_op_enrichment V (pr2 E)).
-    - exact (λ E₁ E₂ E₃ F G,
-             functor_comp_op _ _
-             ,,
-             functor_comp_op_enrichment V (pr2 F) (pr2 G)).
+    - refine (λ (E : enriched_cat V), _).
+      use make_enriched_cat.
+      + exact (op_unicat E).
+      + exact (op_enrichment V E).
+    - refine (λ (E₁ E₂ : enriched_cat V) (F : enriched_functor _ _), _).
+      use make_enriched_functor.
+      + exact (functor_opp F).
+      + exact (functor_op_enrichment V (enriched_functor_enrichment F)).
+    - refine (λ (E₁ E₂ : enriched_cat V)
+                (F₁ F₂ : enriched_functor _ _)
+                (τ : enriched_nat_trans _ _), _).
+      use make_enriched_nat_trans.
+      + exact (op_nt τ).
+      + exact (nat_trans_op_enrichment V _ τ).
+    - refine (λ (E : enriched_cat V), _).
+      use make_enriched_nat_trans.
+      + exact (functor_identity_op _).
+      + exact (functor_identity_op_enrichment V E).
+    - refine (λ (E₁ E₂ E₃ : enriched_cat V) (F G : enriched_functor _ _), _).
+      use make_enriched_nat_trans.
+      + exact (functor_comp_op _ _).
+      + exact (functor_comp_op_enrichment
+                 V
+                 (enriched_functor_enrichment F)
+                 (enriched_functor_enrichment G)).
   Defined.
 
   Proposition op_enriched_psfunctor_laws
     : psfunctor_laws op_enriched_psfunctor_data.
   Proof.
-    repeat split ; intro ; intros ; use eq_2cell_enriched ; intro ; cbn.
+    repeat split ; intro ; intros ; use eq_enriched_nat_trans ; intro ; cbn.
     - apply idpath.
     - apply idpath.
     - rewrite !id_left.
@@ -86,34 +91,14 @@ Section OppositePseudofunctor.
     : invertible_cells op_enriched_psfunctor_data.
   Proof.
     split.
-    - intro E.
-      use make_is_invertible_2cell.
-      + exact (nat_z_iso_to_trans_inv
-                 (functor_identity_op_nat_z_iso _)
-               ,,
-               functor_identity_op_inv_enrichment V (pr2 E)).
-      + abstract
-          (use eq_2cell_enriched ;
-           intro x ; cbn ;
-           apply id_left).
-      + abstract
-          (use eq_2cell_enriched ;
-           intro x ; cbn ;
-           apply id_left).
-    - intros E₁ E₂ E₃ F G.
-      use make_is_invertible_2cell.
-      + exact (nat_z_iso_to_trans_inv
-                 (functor_comp_op_nat_z_iso _ _)
-               ,,
-               functor_comp_op_inv_enrichment V (pr2 F) (pr2 G)).
-      + abstract
-          (use eq_2cell_enriched ;
-           intro x ; cbn ;
-           apply id_left).
-      + abstract
-          (use eq_2cell_enriched ;
-           intro x ; cbn ;
-           apply id_left).
+    - refine (λ (E : enriched_cat V), _).
+      use make_is_invertible_2cell_enriched.
+      intro x.
+      apply is_z_isomorphism_identity.
+    - refine (λ (E₁ E₂ E₃ : enriched_cat V) (F G : enriched_functor _ _), _).
+      use make_is_invertible_2cell_enriched.
+      intro x.
+      apply is_z_isomorphism_identity.
   Defined.
 
   Definition op_enriched_psfunctor

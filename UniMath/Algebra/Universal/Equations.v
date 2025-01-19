@@ -8,48 +8,59 @@ Require Import UniMath.MoreFoundations.Notations.
 
 Require Export UniMath.Algebra.Universal.VTerms.
 
-Section Equations.
+(** ** Equations.
+An equation is a pair of terms (with variables) of the same sort
+*)
 
-  (** An equation is a pair of terms (with variables) of the same sort *)
+Definition equation (σ : signature) (V: varspec σ): UU
+  := ∑ s: sorts σ, term σ V s × term σ V s.
 
-  Definition equation (σ : signature) (V: varspec σ): UU
-    := ∑ s: sorts σ, term σ V s × term σ V s.
+Definition eqsort {σ: signature} {V: varspec σ} (eq: equation σ V)
+  : sorts σ := pr1 eq.
 
-  Definition eqsort {σ: signature} {V: varspec σ} (eq: equation σ V)
-    : sorts σ := pr1 eq.
+Definition lhs {σ : signature} {V: varspec σ} (eq: equation σ V): term σ V (eqsort eq) := pr12 eq.
 
-  Definition lhs {σ : signature} {V: varspec σ} (eq: equation σ V): term σ V (eqsort eq) := pr12 eq.
+Definition rhs {σ : signature} {V: varspec σ} (eq: equation σ V): term σ V (eqsort eq) := pr22 eq.
 
-  Definition rhs {σ : signature} {V: varspec σ} (eq: equation σ V): term σ V (eqsort eq) := pr22 eq.
+Definition make_equation {σ: signature} {V: varspec σ} {s: sorts σ} (lhs rhs: term σ V s)
+  : equation σ V :=  s ,, lhs ,, rhs.
 
-  (**
-  Since we do not have power types, we define an equation system as a type of equation
-  identifiers endowed with a map from identifiers to equations.
-  *)
+(** ** Notations for equations. *)
 
-  Definition eqsystem (σ : signature) (V: varspec σ): UU
-    := ∑ E : UU, E → equation σ V.
+Declare Scope eq_scope.
 
-  Definition eqsystemids (σ : signature) (V: varspec σ): eqsystem σ V → UU := pr1.
+Delimit Scope eq_scope with eq.
 
-  Coercion eqsystemids : eqsystem >-> UU.
+Bind Scope eq_scope with equation.
 
-  Definition geteq {σ: signature} {V: varspec σ} {sys : eqsystem σ V}: sys → equation σ V
-    := pr2 sys.
+Notation "lhs == rhs" := (make_equation lhs rhs) (at level 95, no associativity): eq_scope.
 
-  (**
-  An equational specification is a signature endowed with an equation system (and the
-  necessary variable specification).
-  *)
+(** ** Equation systems.
+Since we do not have power types, we define an equation system as a type of equation
+identifiers endowed with a map from identifiers to equations.
+*)
 
-  Definition eqspec: UU  := ∑ (σ : signature) (V: varspec σ), eqsystem σ V.
+Definition eqsystem (σ : signature) (V: varspec σ): UU
+  := ∑ E : UU, E → equation σ V.
 
-  Definition signature_of_eqspec: eqspec → signature := pr1.
+Definition eqsystemids (σ : signature) (V: varspec σ): eqsystem σ V → UU := pr1.
 
-  Coercion signature_of_eqspec : eqspec >-> signature.
+Coercion eqsystemids : eqsystem >-> UU.
 
-  Definition variables (σ: eqspec): varspec σ := pr12 σ.
+Definition geteq {σ: signature} {V: varspec σ} {sys : eqsystem σ V}: sys → equation σ V
+  := pr2 sys.
 
-  Definition equations (σ: eqspec): eqsystem σ (variables σ) := pr22 σ.
+(** ** Equational specifications.
+An equational specification is a signature endowed with an equation system (and the
+necessary variable specification).
+*)
 
-End Equations.
+Definition eqspec: UU  := ∑ (σ : signature) (V: varspec σ), eqsystem σ V.
+
+Definition signature_of_eqspec: eqspec → signature := pr1.
+
+Coercion signature_of_eqspec : eqspec >-> signature.
+
+Definition variables (σ: eqspec): varspec σ := pr12 σ.
+
+Definition equations (σ: eqspec): eqsystem σ (variables σ) := pr22 σ.
