@@ -1,5 +1,3 @@
-(* -*- coding: utf-8 *)
-
 (** * Natural numbers *)
 
 Require Import UniMath.Foundations.All.

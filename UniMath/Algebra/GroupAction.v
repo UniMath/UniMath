@@ -1,5 +1,3 @@
-(* -*- coding: utf-8 *)
-
 (** * Group actions *)
 
 Require Import UniMath.Foundations.All.

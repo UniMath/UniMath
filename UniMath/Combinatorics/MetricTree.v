@@ -1,5 +1,3 @@
-(* -*- coding: utf-8 *)
-
 (** * Metric trees *)
 
 Require Import UniMath.Foundations.All.
