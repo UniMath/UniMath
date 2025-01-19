@@ -1,5 +1,6 @@
 Require Export UniMath.MoreFoundations.Notations.
 Require Import UniMath.MoreFoundations.Tactics.
+Require Export UniMath.MoreFoundations.Propositions.
 
 Lemma retract_dec {X Y} (f : X -> Y) (g : Y -> X) (h : f ∘ g ~ idfun Y) : isdeceq X -> isdeceq Y.
 Proof.
@@ -392,3 +393,43 @@ Notation " x ≠ y " := (natneq_DecidableProposition x y) (at level 70, no assoc
                         decidable_nat.
 
 Delimit Scope decidable_nat with dnat.
+
+Local Open Scope logic.
+
+Lemma decidable_proof_by_contradiction {P:hProp} : decidable P -> ¬ ¬ P -> P.
+Proof.
+  intros dec nnp. induction dec as [p|np].
+  - exact p.
+  - apply fromempty. exact (nnp np).
+Defined.
+
+Lemma proof_by_contradiction {P:hProp} : LEM -> ¬ ¬ P -> P.
+Proof.
+  intro lem.
+  exact (decidable_proof_by_contradiction (lem P)).
+Defined.
+
+Lemma dneg_elim_to_LEM : (∏ P:hProp, ¬ ¬ P -> P) -> LEM.
+(* a converse for Lemma dneg_LEM *)
+Proof.
+  intros dne. intros P. simple refine (dne (_,,_) _).
+  simpl. intros n.
+  assert (q : ¬ (P ∨ ¬ P)).
+  { now apply weqnegtonegishinh. }
+  assert (r := fromnegcoprod_prop q).
+  exact (pr2 r (pr1 r)).
+Defined.
+
+Lemma negforall_to_existsneg {X:UU} (P:X->hProp) : LEM -> (¬ ∀ x, P x) -> (∃ x, ¬ (P x)).
+(* was omitted from the section on "Negation and quantification" in Foundations/Propositions.v *)
+Proof.
+  intros lem nf. apply (proof_by_contradiction lem); intro c. use nf; clear nf. intro x.
+  assert (q := neghexisttoforallneg _ c x); clear c; simpl in q.
+  exact (proof_by_contradiction lem q).
+Defined.
+
+Lemma negimpl_to_conj (P Q:hProp) : LEM -> ( ¬ (P ⇒ Q) -> P ∧ ¬ Q ).
+Proof.
+  intros lem ni. assert (r := negforall_to_existsneg _ lem ni); clear lem ni.
+  apply (squash_to_hProp r); clear r; intros [p nq]. exact (p,,nq).
+Defined.
