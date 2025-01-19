@@ -725,9 +725,3 @@ Proof.
   }
   apply ( X n ( hinhpr ( tpair _ n ( make_dirprod ( isreflnatleh n ) l ) ) ) ).
 Defined.
-
-(*
-Local Variables:
-compile-command: "make -C ../.. TAGS UniMath/Ktheory/Nat.vo"
-End:
-*)

@@ -82,9 +82,3 @@ Proof.
   intros. refine (_ @ map_path_check s n _).
   apply pathsinv0. apply maponpathscomp.
 Defined.
-
-(*
-Local Variables:
-compile-command: "make -C ../.. UniMath/SyntheticHomotopyTheory/Halfline.vo"
-End:
-*)

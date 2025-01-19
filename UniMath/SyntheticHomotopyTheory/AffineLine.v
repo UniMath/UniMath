@@ -640,9 +640,3 @@ Definition affine_line_value {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) : Y.
 Proof.
   exact (affine_line_map s (affine_line_point (T:=T))).
 Defined.
-
-(*
-Local Variables:
-compile-command: "make -C ../.. UniMath/SyntheticHomotopyTheory/AffineLine.vo"
-End:
-*)

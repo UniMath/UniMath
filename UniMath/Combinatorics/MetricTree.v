@@ -103,9 +103,3 @@ Proof.
           assert (c := natlthtolehsn _ _ b).
           exact (nat_dist_minus 1 n c). } } } }
 Defined.
-
-(*
-Local Variables:
-compile-command: "make -C ../.. TAGS UniMath/Ktheory/MetricTree.vo"
-End:
-*)
