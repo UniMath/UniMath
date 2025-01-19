@@ -7,7 +7,6 @@
   - a few miscellaneous lemmas on decidable propositions and classical logic
   - definitions of LEM and other classicality principles, and relationships between them
   - a couple of alternative frameworks for working with decidable relations and propositions, besides [decprop], [decrel] already provided upstream in [Foundations]
-  - definitions of the classical omniscience principles, and relationships between them
  **************************************************************************************************)
 
 Require Export UniMath.MoreFoundations.Notations.
@@ -477,48 +476,3 @@ Notation " x ≠ y " := (natneq_DecidableProposition x y) (at level 70, no assoc
 
 Delimit Scope decidable_nat with dnat.
 Local Open Scope decidable_nat.
-
-(** * Omniscience Principles
-
-Varous classicality axioms known in constructive mathematics as _omniscience principles_; see Bishop 1967 _Foundations of Constructive Mathematics_ §I.3, or Bridges, Vița 2006 _Techniques of Constructive Analysis_ §1.3. *)
-Section Omniscience_Principles.
-
-Section Auxiliary.
-(* Auxiliary material on decidable predicates on [nat]; currently redundant with some material in [Combinatorics.StandardFiniteSets], should both probably by upstreamed to [MoreFoundations.Nat]. *)
-
-(* note: could be generalised to arbitrary total orders (with “least” instead of “minimal”) *)
-Definition isaprop_minimal_witness_nat (P : nat -> hProp)
-  : isaprop (∑ n:nat, P n ∧ ∀ m, (m < n ⇒ ¬ (P n))%logic).
-Proof.
-  apply isaproptotal2. { intro; apply propproperty. }
-  intros x y [Px x_minl] [Py y_minl].
-  apply isantisymmnatgeh.
-  - apply negnatlthtogeh. intros x_lt_y.
-    use (y_minl x); assumption.
-  - apply negnatlthtogeh. intros y_lt_x.
-    use (x_minl y); eassumption.
-Defined.
-
-Definition minimal_witness_of_witness_nat (P : nat -> hProp)
-    (n : nat) (Pn : P n)
-  : (∑ n':nat, P n' ∧ ∀ m, (m < n' ⇒ ¬ (P n))%logic).
-Proof.
-  (* follows from [natdecleast] and related lemmas in [Combinatorics.StandardFiniteSets], which should probably be upstreamed to [MoreFoundations.Nat] *)
-Admitted.
-
-End Auxiliary.
-
-(** Our first form of Markov’s principle is stated with just [nat], [bool], and coproduct, to be as elementary as possible.  *)
-Definition markovs_principle_data (p : nat → bool) : UU
-  := (∑ (n : nat), p n = false) ⨿ (∏ (n:nat), p n = true).
-
-Definition markovs_principle_as_decidable_existence (p : nat → bool) : hProp
-  := decidable_prop (∃ (n : nat), p n = false).
-
-Lemma markovs_principle_data_equiv_decidable (p : nat → bool)
-  : markovs_principle_data p <-> markovs_principle_as_decidable_existence p.
-Proof.
-  (* requires extraction of witness from existence in natural numbers *)
-Abort.
-
-End Omniscience_Principles.
