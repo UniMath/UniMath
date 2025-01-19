@@ -121,11 +121,11 @@ Proof.
                              (∏ n : nat, f2 (S n) = IH n (f2 n))).
   { apply weqfibtototal; intro f2. apply weqfibtototal; intro h0.
     apply weqpr1; intro ih2.
-    exact (Nat.Uniqueness.hNatRecursionUniq
+    exact (hNatRecursionUniq
              (λ n, P (negpos (ii1 n)))
              (IH' O (f2 O))
              (λ n, IH' (S n))). }
-  apply Nat.Uniqueness.hNatRecursionUniq.
+  apply hNatRecursionUniq.
 Defined.
 
 Lemma A (P:ℤ->Type) (p0:P zero)

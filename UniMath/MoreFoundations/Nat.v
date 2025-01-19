@@ -1,4 +1,15 @@
-(** * Natural numbers *)
+(**************************************************************************************************
+
+  Natural numbers
+
+  This file gives further basic results on the natural numbers extending those provided in [Foundations.NaturalNumbers]:
+
+  - formulation of the recursion property as a unique existence statement for functions on ℕ [hNatRecursionUniq, hNatRecursion_weq]
+  - the recursive definition of the path family over ℕ [nat_discern]
+  - definition and properties of the distance function on ℕ [nat_dist]
+  - miscellaneous arithmetic lemmas
+  - bounded quantification over ℕ, including uniqueness/searchibility of (minimal) witnesses
+ **************************************************************************************************)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Tactics.
@@ -9,9 +20,10 @@ Local Open Scope nat.
 
 Notation ℕ := nat.
 
-Module Uniqueness.
+(** * Recursion property *)
+Section Uniqueness.
 
-  Lemma helper_A (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n))
+  Local Lemma nat_recursion_helper_A (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n))
         (f:∏ n, P n) :
     weq (∏ n, f n = nat_rect P p0 IH n)
         (f 0=p0 × ∏ n, f(S n)=IH n (f n)).
@@ -31,30 +43,30 @@ Module Uniqueness.
       apply pathscomp0rid. }
   Defined.
 
-  Lemma helper_B (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n))
+  Local Lemma nat_recursion_helper_B (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n))
         (f:∏ n, P n) :
     weq (f = nat_rect P p0 IH)
         ((f 0=p0) × (∏ n, f(S n)=IH n (f n))).
   Proof.
     intros.
-    exact (weqcomp (weqtoforallpaths _ _ _) (helper_A _ _ _ _)).
+    exact (weqcomp (weqtoforallpaths _ _ _) (nat_recursion_helper_A _ _ _ _)).
   Defined.
 
-  Lemma helper_C (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n)) :
+  Local Lemma nat_recursion_helper_C (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n)) :
     (∑ f:∏ n, P n, f = nat_rect P p0 IH)
       ≃
     (∑ f:∏ n, P n, f 0=p0 × ∏ n, f(S n)=IH n (f n)).
   Proof.
-    intros. apply weqfibtototal. intros f. apply helper_B.
+    intros. apply weqfibtototal. intros f. apply nat_recursion_helper_B.
   Defined.
 
   Lemma hNatRecursionUniq (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n)) :
     ∃! (f:∏ n, P n), f 0=p0 × ∏ n, f(S n) = IH n (f n).
   Proof.
-    intros. exact (iscontrweqf (helper_C _ _ _) (iscontrcoconustot _ _)).
+    intros. exact (iscontrweqf (nat_recursion_helper_C _ _ _) (iscontrcoconustot _ _)).
   Defined.
 
-  Lemma helper_D (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n)) :
+  Local Lemma nat_recursion_helper_D (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n)) :
      (∑ f:∏ n, P n, (f 0=p0) × (∏ n, f(S n)=IH n (f n)))
        ≃
         (@hfiber
@@ -74,122 +86,128 @@ Module Uniqueness.
     weq (total2 (fun f:∏ n, P n => ∏ n, f(S n)=IH n (f n))) (P 0).
   Proof.
     intros. exists (λ f, pr1 f 0). intro p0.
-    apply (iscontrweqf (helper_D _ _ _)). apply hNatRecursionUniq.
+    apply (iscontrweqf (nat_recursion_helper_D _ _ _)). apply hNatRecursionUniq.
   Defined.
 
 End Uniqueness.
 
-Fixpoint nat_dist (m n:nat) : nat :=
+(** * Discernment family on ℕ
+The standard recursive definition of a type family equivalent to equality on ℕ — that is, a code-decode method characterisation of equality on ℕ *)
+
+Section NatDiscern.
+
+Fixpoint nat_discern (m n:nat) : UU :=
   match m , n with
-    | S m, S n => nat_dist m n
-    | 0, n => n
-    | m, 0 => m end.
+    | S m, S n => nat_discern m n
+    | 0, S n => empty
+    | S m, 0 => empty
+    | 0, 0 => unit end.
 
-Module Discern.
+Goal ∏ m n, nat_discern m n -> nat_discern (S m) (S n).
+Proof.
+  intros ? ? e. exact e.
+Defined.
 
-  Fixpoint nat_discern (m n:nat) : UU :=
-    match m , n with
-      | S m, S n => nat_discern m n
-      | 0, S n => empty
-      | S m, 0 => empty
-      | 0, 0 => unit end.
+Lemma nat_discern_inj m n : nat_discern (S m) (S n) -> nat_discern m n.
+Proof.
+  intros e. induction m.
+  { induction n. { exact tt. } { simpl in e. exact (fromempty e). } }
+  { induction n. { simpl in e. exact (fromempty e). } { simpl in e. exact e. } }
+Defined.
 
-  Goal ∏ m n, nat_discern m n -> nat_discern (S m) (S n).
-  Proof.
-    intros ? ? e. exact e.
-  Defined.
+Lemma nat_discern_isaprop m n : isaprop (nat_discern m n).
+Proof.
+  revert n; induction m as [|m IHm].
+  { intros n. induction n as [|n IHn].
+    { apply isapropifcontr. apply iscontrunit. }
+    { simpl. apply isapropempty. } }
+  { intros n. induction n as [|n IHn].
+    { simpl. apply isapropempty. }
+    { simpl. apply IHm. } }
+Defined.
 
-  Lemma nat_discern_inj m n : nat_discern (S m) (S n) -> nat_discern m n.
-  Proof.
-    intros e. induction m.
-    { induction n. { exact tt. } { simpl in e. exact (fromempty e). } }
-    { induction n. { simpl in e. exact (fromempty e). } { simpl in e. exact e. } }
-  Defined.
+Lemma nat_discern_unit m : nat_discern m m = unit.
+Proof.
+  induction m as [|m IHm]. { reflexivity. } { simpl. apply IHm. }
+Defined.
 
-  Lemma nat_discern_isaprop m n : isaprop (nat_discern m n).
-  Proof.
-    revert n; induction m as [|m IHm].
-    { intros n. induction n as [|n IHn].
-      { apply isapropifcontr. apply iscontrunit. }
-      { simpl. apply isapropempty. } }
-    { intros n. induction n as [|n IHn].
-      { simpl. apply isapropempty. }
-      { simpl. apply IHm. } }
-  Defined.
+Lemma nat_discern_iscontr m : iscontr (nat_discern m m).
+Proof.
+  apply iscontraprop1.
+  { apply nat_discern_isaprop. }
+  { induction m as [|m IHm]. { exact tt. } { simpl. exact IHm. } }
+Defined.
 
-  Lemma nat_discern_unit m : nat_discern m m = unit.
-  Proof.
-    induction m as [|m IHm]. { reflexivity. } { simpl. apply IHm. }
-  Defined.
+Fixpoint nat_discern_to_eq m n : nat_discern m n -> m = n.
+Proof.
+  destruct m as [|m'].
+  { destruct n as [|n'].
+    { intros _. reflexivity. } { simpl. exact fromempty. } }
+  { destruct n as [|n'].
+    { simpl. exact fromempty. }
+    { simpl. intro i. assert(b := nat_discern_to_eq _ _ i); clear i.
+      destruct b. reflexivity. } }
+Defined.
 
-  Lemma nat_discern_iscontr m : iscontr (nat_discern m m).
-  Proof.
-    apply iscontraprop1.
-    { apply nat_discern_isaprop. }
-    { induction m as [|m IHm]. { exact tt. } { simpl. exact IHm. } }
-  Defined.
+Goal ∏ m n (e:nat_discern m n), maponpaths S (nat_discern_to_eq m n e) = nat_discern_to_eq (S m) (S n) e.
+Proof.
+  reflexivity.
+Defined.
 
-  Fixpoint helper_A m n : nat_dist m n = 0 -> nat_discern m n.
-  Proof.
-    destruct m as [|m'].
-    { destruct n as [|n'].
-      { intros _. exact tt. } { simpl. exact (negpathssx0 n'). } }
-    { destruct n as [|n'].
-      { simpl. exact (negpathssx0 m'). } { simpl. exact (helper_A m' n'). } }
-  Defined.
+Fixpoint eq_to_nat_discern m n : m = n -> nat_discern m n.
+Proof.
+  intros e. destruct e.
+       (* alternatively:
+        destruct m. { exact tt. } { simpl. exact (the (nat_discern_iscontr _)). }
+        *)
+  exact (cast (! nat_discern_unit m) tt).
+Defined.
 
-  Fixpoint helper_B m n : nat_discern m n -> m = n.
-  Proof.
-    destruct m as [|m'].
-    { destruct n as [|n'].
-      { intros _. reflexivity. } { simpl. exact fromempty. } }
-    { destruct n as [|n'].
-      { simpl. exact fromempty. }
-      { simpl. intro i. assert(b := helper_B _ _ i); clear i.
-        destruct b. reflexivity. } }
-  Defined.
+Lemma apSC m n (e:m=n) : eq_to_nat_discern m n e = eq_to_nat_discern (S m) (S n) (maponpaths S e).
+Proof.
+  intros. apply proofirrelevance. apply nat_discern_isaprop.
+Defined.
 
-  Goal ∏ m n (e:nat_discern m n), maponpaths S (helper_B m n e) = helper_B (S m) (S n) e.
-  Proof.
-    reflexivity.
-  Defined.
+Definition isweq_nat_discern_to_eq m n : isweq (nat_discern_to_eq m n).
+Proof.
+  intros. simple refine (isweq_iso _ (eq_to_nat_discern _ _) _ _).
+  { intro e. assert(p := ! nat_discern_to_eq _ _ e). destruct p.
+    apply proofirrelevancecontr. apply nat_discern_iscontr. }
+  { intro e. destruct e. induction m as [|m IHm].
+    { reflexivity. }
+    { exact (  maponpaths (nat_discern_to_eq (S m) (S m)) (! apSC _ _ (idpath m))
+                          @ maponpaths (maponpaths S) IHm). } }
+Defined.
 
-  Fixpoint helper_C m n : m = n -> nat_discern m n.
-  Proof.
-    intros e. destruct e.
-         (* alternatively:
-          destruct m. { exact tt. } { simpl. exact (the (nat_discern_iscontr _)). }
-          *)
-    exact (cast (! nat_discern_unit m) tt).
-  Defined.
+Definition weq_nat_discern_eq m n : (nat_discern m n) ≃ (m = n).
+Proof.
+  intros. exact (make_weq (nat_discern_to_eq _ _) (isweq_nat_discern_to_eq _ _)).
+Defined.
 
-  Lemma apSC m n (e:m=n) : helper_C m n e = helper_C (S m) (S n) (maponpaths S e).
-  Proof.
-    intros. apply proofirrelevance. apply nat_discern_isaprop.
-  Defined.
+End NatDiscern.
 
-  Definition helper_D m n : isweq (helper_B m n).
-  Proof.
-    intros. simple refine (isweq_iso _ (helper_C _ _) _ _).
-    { intro e. assert(p := ! helper_B _ _ e). destruct p.
-      apply proofirrelevancecontr. apply nat_discern_iscontr. }
-    { intro e. destruct e. induction m as [|m IHm].
-      { reflexivity. }
-      { exact (  maponpaths (helper_B (S m) (S m)) (! apSC _ _ (idpath m))
-                            @ maponpaths (maponpaths S) IHm). } }
-  Defined.
+(** * Distance function on ℕ *)
+Section NatDist.
 
-  Definition E m n : (nat_discern m n) ≃ (m = n).
-  Proof.
-    intros. exact (make_weq (helper_B _ _) (helper_D _ _)).
-  Defined.
+Fixpoint nat_dist (m n:nat) : nat :=
+match m , n with
+  | S m, S n => nat_dist m n
+  | 0, n => n
+  | m, 0 => m end.
 
-  Definition nat_dist_anti m n : nat_dist m n = 0 -> m = n.
-  Proof.
-    intros i. exact (helper_B _ _ (helper_A _ _ i)).
-  Defined.
+Fixpoint nat_dist_helper_A m n : nat_dist m n = 0 -> nat_discern m n.
+Proof.
+  destruct m as [|m'].
+  { destruct n as [|n'].
+    { intros _. exact tt. } { simpl. exact (negpathssx0 n'). } }
+  { destruct n as [|n'].
+    { simpl. exact (negpathssx0 m'). } { simpl. exact (nat_dist_helper_A m' n'). } }
+Defined.
 
-End Discern.
+Definition nat_dist_anti m n : nat_dist m n = 0 -> m = n.
+Proof.
+  intros i. exact (nat_discern_to_eq _ _ (nat_dist_helper_A _ _ i)).
+Defined.
 
 Fixpoint nat_dist_symm m n : nat_dist m n = nat_dist n m.
 Proof.
@@ -365,6 +383,11 @@ Proof.
         { apply natlehandplusl. assumption. } } } }
 Defined.
 
+End NatDist.
+
+(** * Miscellaneous arithmetic lemmas *)
+Section Arithmetic.
+
 Lemma plusmn0n0 m n : m + n = 0 -> n = 0.
 Proof.
   intros i. assert (a := natlehmplusnm m n). rewrite i in a.
@@ -451,6 +474,7 @@ Proof.
   exact (minusplusnmm _ _ p).
 Qed.
 
+End Arithmetic.
 
 (** * Bounded quantification *)
 
@@ -611,8 +635,6 @@ Proof.
     + apply IHn.
     + apply ( is ( S n ) ).
 Defined.
-
-
 
 (** The following lemma finds the largest [ n' ] such that [ neg ( P n' ) ]. It is a stronger form of ( neg ∏ ) -> ( exists neg ) in the case of bounded quantification of decidable propositions. *)
 
