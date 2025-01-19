@@ -1,3 +1,14 @@
+(**************************************************************************************************
+
+  Decidable Propositions
+
+  This file contains a grab-bag of material on decidable propositions and classical logic, including:
+
+  - definitions of LEM and other classicality principles, and relationships between them
+  - a couple alternative frameworks for working with decidable relations and propositions, besides [decprop], [decrel] already provided upstream in [Foundations]
+  - miscellaneous other lemmas on decidable propositions and classical logic
+ **************************************************************************************************)
+
 Require Export UniMath.MoreFoundations.Notations.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Export UniMath.MoreFoundations.Propositions.
