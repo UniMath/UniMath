@@ -378,7 +378,7 @@ Section OrthogonalityProjections.
       Let η₁ : l₁ ==> R φ
         := unit_from_left_adjoint (H : adj_equivalence_of_cats _) l₁.
       Let η₂ : R ψ ==> l₂
-        := z_iso_to_inv2cell (unit_pointwise_z_iso_from_adj_equivalence H l₂)^-1.
+        := (z_iso_to_inv2cell (unit_pointwise_z_iso_from_adj_equivalence H l₂))^-1.
       Let ε₁ : f · R φ ==> f · l₁
         := pr11 (counit_from_left_adjoint (pr1 H) φ).
       Let ε₂ : f · R ψ ==> f · l₂

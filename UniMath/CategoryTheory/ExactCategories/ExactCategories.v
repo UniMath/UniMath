@@ -1056,7 +1056,7 @@ Section OppositeExactCategory.
   Defined.
 End OppositeExactCategory.
 
-Notation "C '^op'" := (oppositeExactCategory C) (at level 3, format "C ^op") : excat.
+Notation "C '^op'" := (oppositeExactCategory C) (format "C ^op") : excat.
 
 Section ExactCategoryFacts.
   Lemma ExactToMono {M : ExactCategory} {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isMonic i.
