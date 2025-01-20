@@ -1560,7 +1560,7 @@ Definition disp_locally_sym
            {B : bicat} (D : disp_bicat B)
   := ∏ (a b : B) (f g : a --> b) (x : invertible_2cell f g)
        (aa : D a) (bb : D b) (ff : aa -->[f] bb) (gg : aa -->[g] bb)
-       (xx : disp_2cells x ff gg), disp_2cells (x^-1) gg ff.
+       (xx : disp_2cells x ff gg), disp_2cells x^-1 gg ff.
 
 Definition make_disp_locally_groupoid
            {B : bicat} (D : disp_bicat B)

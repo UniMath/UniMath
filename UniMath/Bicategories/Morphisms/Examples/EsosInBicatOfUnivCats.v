@@ -516,7 +516,7 @@ Section EssentiallySurjectiveIsEso.
       }
       rewrite !assoc'.
       apply maponpaths.
-      apply (nat_trans_ax (α^-1)).
+      apply (nat_trans_ax α^-1).
     Qed.
 
     Definition essentially_surjective_is_eso_lift_left_nat_trans

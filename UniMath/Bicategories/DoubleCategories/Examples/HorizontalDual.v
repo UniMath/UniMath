@@ -373,13 +373,13 @@ Section HorizontalDual.
   Proof.
     use weq_iso.
     - use (λ τ, make_invertible_2cell _).
-      + exact (τ^-1).
+      + exact τ^-1.
       + use make_is_invertible_2cell.
         * exact τ.
         * exact (vcomp_rinv τ).
         * exact (vcomp_linv τ).
     - use (λ τ, make_invertible_2cell _).
-      + exact (τ^-1).
+      + exact τ^-1.
       + use make_is_invertible_2cell.
         * exact τ.
         * exact (vcomp_rinv τ).

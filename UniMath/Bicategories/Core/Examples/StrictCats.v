@@ -183,7 +183,7 @@ Definition from_is_invertible_2cell_bicat_of_strict_cat
 Proof.
   intros x.
   use make_is_z_isomorphism.
-  - exact (pr1 (Hα^-1) x).
+  - exact (pr1 Hα^-1 x).
   - abstract
       (split ;
        [ exact (nat_trans_eq_pointwise (vcomp_rinv Hα) x)

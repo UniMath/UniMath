@@ -473,7 +473,7 @@ Definition vcomp_linv {C : prebicat_data} {a b : C} {f g : a --> b}
 
 Definition is_invertible_2cell_inv {C : prebicat_data} {a b : C} {f g : a --> b}
            {η : f ==> g} (inv_η : is_invertible_2cell η)
-  : is_invertible_2cell (inv_η^-1)
+  : is_invertible_2cell inv_η^-1
   := make_is_invertible_2cell (vcomp_linv inv_η) (vcomp_rinv inv_η).
 
 Definition is_invertible_2cell_id₂ {C : prebicat} {a b : C} (f : a --> b)

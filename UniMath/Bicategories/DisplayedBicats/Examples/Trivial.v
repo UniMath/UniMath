@@ -153,7 +153,7 @@ Definition trivial_is_invertible_2cell_to_is_disp_invertible
   : is_disp_invertible_2cell Hα β.
 Proof.
   simple refine (_ ,, (_ ,, _)).
-  - exact (Hβ^-1).
+  - exact Hβ^-1.
   - abstract
       (unfold transportb ; cbn ;
        rewrite transportf_const ;

@@ -288,7 +288,7 @@ Section LocalEquivalencePseudoFunctoriality.
     use make_invertible_2cell.
     - exact (local_equivalence_inv_twocell τ).
     - use make_is_invertible_2cell.
-      + exact (local_equivalence_inv_twocell (τ^-1)).
+      + exact (local_equivalence_inv_twocell τ^-1).
       + abstract
           (rewrite <- local_equivalence_inv_twocell_comp ;
            rewrite vcomp_rinv ;

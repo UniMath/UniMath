@@ -182,7 +182,7 @@ Defined.
 
 Lemma grinvinv (X : gr) (a : X) : (a^-1)^-1 = a.
 Proof.
-  apply (grlcan X (a^-1)).
+  apply (grlcan X a^-1).
   rewrite (grlinvax X a). rewrite (grrinvax X _).
   apply idpath.
 Defined.
@@ -195,7 +195,7 @@ Proof.
 Defined.
 
 Lemma grinvandmonoidfun (X Y : gr) {f : X → Y} (is : ismonoidfun f) (x : X) :
-  f (x^-1) = (f x)^-1.
+  f x^-1 = (f x)^-1.
 Proof.
   apply (grrcan Y (f x)).
   rewrite <- (pr1 is _ _). rewrite (grlinvax X).
@@ -204,14 +204,14 @@ Proof.
 Qed.
 
 Lemma monoidfuninvtoinv {X Y : gr} (f : monoidfun X Y) (x : X) :
-  f (x^-1) = (f x)^-1.
+  f x^-1 = (f x)^-1.
 Proof.
   apply grinvandmonoidfun.
   apply (pr2 f).
 Qed.
 
 Lemma grinvop (Y : gr) :
-  ∏ y1 y2 : Y, (y1 * y2)^-1 = (y2^-1) * (y1^-1).
+  ∏ y1 y2 : Y, (y1 * y2)^-1 = y2^-1 * y1^-1.
 Proof.
   intros y1 y2.
   apply (grrcan Y y1).
@@ -227,14 +227,14 @@ Qed.
 Lemma isinvbinophrelgr (X : gr) {R : hrel X} (is : isbinophrel R) : isinvbinophrel R.
 Proof.
   set (is1 := pr1 is). set (is2 := pr2 is). split.
-  - intros a b c r. set (r' := is1 _ _ (c^-1) r).
+  - intros a b c r. set (r' := is1 _ _ c^-1 r).
     clearbody r'. rewrite <- (assocax X _ _ a) in r'.
     rewrite <- (assocax X _ _ b) in r'.
     rewrite (grlinvax X c) in r'.
     rewrite (lunax X a) in r'.
     rewrite (lunax X b) in r'.
     apply r'.
-  - intros a b c r. set (r' := is2 _ _ (c^-1) r).
+  - intros a b c r. set (r' := is2 _ _ c^-1 r).
     clearbody r'. rewrite ((assocax X a _ _)) in r'.
     rewrite ((assocax X b _ _)) in r'.
     rewrite (grrinvax X c) in r'.
@@ -251,26 +251,26 @@ Proof.
     rewrite <- (grlinvax X c) in r.
     rewrite (assocax X _ _ a) in r.
     rewrite (assocax X _ _ b) in r.
-    apply (is1 _ _ (c^-1) r).
+    apply (is1 _ _ c^-1 r).
   - intros a b c r. rewrite <- (runax X a) in r.
     rewrite <- (runax X b) in r.
     rewrite <- (grrinvax X c) in r.
     rewrite <- (assocax X a _ _) in r.
     rewrite <- (assocax X b _ _) in r.
-    apply (is2 _ _ (c^-1) r).
+    apply (is2 _ _ c^-1 r).
 Qed.
 
 Lemma grfromgtunel (X : gr) {R : hrel X} (is : isbinophrel R) {x : X} (isg : R x 1) :
-  R 1 (x^-1).
+  R 1 x^-1.
 Proof.
   intros.
-  set (r := (pr2 is) _ _ (x^-1) isg).
+  set (r := (pr2 is) _ _ x^-1 isg).
   rewrite (grrinvax X x) in r.
   rewrite (lunax X _) in r.
   apply r.
 Defined.
 
-Lemma grtogtunel (X : gr) {R : hrel X} (is : isbinophrel R) {x : X} (isg : R 1 (x^-1)) :
+Lemma grtogtunel (X : gr) {R : hrel X} (is : isbinophrel R) {x : X} (isg : R 1 x^-1) :
   R x 1.
 Proof.
   assert (r := (pr2 is) _ _ x isg).
@@ -280,15 +280,15 @@ Proof.
 Defined.
 
 Lemma grfromltunel (X : gr) {R : hrel X} (is : isbinophrel R) {x : X} (isg : R 1 x) :
-  R (x^-1) 1.
+  R x^-1 1.
 Proof.
-  assert (r := (pr1 is) _ _ (x^-1) isg).
+  assert (r := (pr1 is) _ _ x^-1 isg).
   rewrite (grlinvax X x) in r.
   rewrite (runax X _) in r.
   apply r.
 Defined.
 
-Lemma grtoltunel (X : gr) {R : hrel X} (is : isbinophrel R) {x : X} (isg : R (x^-1) 1) :
+Lemma grtoltunel (X : gr) {R : hrel X} (is : isbinophrel R) {x : X} (isg : R x^-1 1) :
   R 1 x.
 Proof.
   assert (r := (pr1 is) _ _ x isg).
@@ -300,10 +300,10 @@ Defined.
 (** *** Subobjects *)
 
 Definition issubgr {X : gr} (A : hsubtype X) : UU :=
-  (issubmonoid A) × (∏ x : X, A x → A (x^-1)).
+  (issubmonoid A) × (∏ x : X, A x → A x^-1).
 
 Definition make_issubgr {X : gr} {A : hsubtype X} (H1 : issubmonoid A)
-           (H2 : ∏ x : X, A x → A (x^-1)) : issubgr A := H1 ,, H2.
+           (H2 : ∏ x : X, A x → A x^-1) : issubgr A := H1 ,, H2.
 
 Lemma isapropissubgr {X : gr} (A : hsubtype X) : isaprop (issubgr A).
 Proof.
@@ -311,7 +311,7 @@ Proof.
   - apply isapropissubmonoid.
   - apply impred. intro x.
     apply impred. intro a.
-    apply (pr2 (A (x^-1))).
+    apply (pr2 (A x^-1)).
 Defined.
 
 Definition subgr (X : gr) : UU := ∑ (A : hsubtype X), issubgr A.
@@ -388,9 +388,9 @@ Proof.
   unfold iscomprelrelfun. intros x x' r.
   induction R as [ R iseq ]. induction iseq as [ ispo0 symm0 ].
   induction ispo0 as [ trans0 refl0 ]. unfold isbinophrel in isb.
-  set (r0 := isc _ _ _ _ (isc _ _ _ _ (refl0 (x'^-1)) r) (refl0 (x^-1))).
+  set (r0 := isc _ _ _ _ (isc _ _ _ _ (refl0 x'^-1) r) (refl0 x^-1)).
   rewrite (grlinvax X x') in r0.
-  rewrite (assocax X (x'^-1) x (x^-1)) in r0.
+  rewrite (assocax X x'^-1 x x^-1) in r0.
   rewrite (grrinvax X x) in r0. rewrite (lunax X _) in r0.
   rewrite (runax X _) in r0.
   apply (symm0 _ _ r0).
@@ -406,7 +406,7 @@ Proof.
   - unfold islinv.
     apply (setquotunivprop R (λ x, _ = _)%logic).
     intro x.
-    apply (@maponpaths _ _ (setquotpr R) ((x^-1) * x) 1).
+    apply (@maponpaths _ _ (setquotpr R) (x^-1 * x) 1).
     apply (grlinvax X).
   - unfold isrinv.
     apply (setquotunivprop R (λ x, _ = _)%logic).
@@ -639,9 +639,9 @@ Section NormalSubGroups.
     unfold rcoset_in_lcoset.
     intros g n1.
     use tpair.
-    - exists ((g^-1) * (pr1 n1) / (g^-1)). use normalprop.
+    - exists (g^-1 * (pr1 n1) / g^-1). use normalprop.
     - simpl.
-      rewrite (assocax _ (g^-1) _ _).
+      rewrite (assocax _ g^-1 _ _).
       rewrite <- (assocax _ g _ _).
       rewrite (grrinvax X).
       rewrite (lunax X).
@@ -679,7 +679,7 @@ Section NormalSubGroups.
       + simpl.
         rewrite (grinvinv _).
         rewrite (assocax _ a _ _).
-        rewrite (assocax _ (c^-1) _ _).
+        rewrite (assocax _ c^-1 _ _).
         rewrite <- (assocax _ c _ _).
         rewrite (grrinvax _).
         rewrite (lunax _).

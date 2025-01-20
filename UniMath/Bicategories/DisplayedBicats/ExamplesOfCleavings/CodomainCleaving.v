@@ -483,7 +483,7 @@ Section CodomainCleaving.
       Proof.
         use (pb_ump_cell pb_sqr) ; cbn.
         - exact (ℓhx^-1 • (_ ◃ δ) • ℓhx').
-        - exact (ℓπ • pr1 σσ • (ℓπ')^-1).
+        - exact (ℓπ • pr1 σσ • ℓπ'^-1).
         - exact is_pb_to_cartesian_lift_2cell_cell_eq.
       Defined.
 
@@ -525,7 +525,7 @@ Section CodomainCleaving.
         }
         use (pb_ump_eq pb_sqr).
         - exact (ℓhx^-1 • (_ ◃ δ) • ℓhx').
-        - exact (ℓπ • pr1 σσ • (ℓπ')^-1).
+        - exact (ℓπ • pr1 σσ • ℓπ'^-1).
         - apply is_pb_to_cartesian_lift_2cell_cell_eq.
         - rewrite !vassocl.
           use vcomp_move_L_pM ; [ is_iso | ].

@@ -1153,7 +1153,7 @@ Section InserterEquivalence.
       use (vcomp_lcancel (lassociator _ _ _)) ; [ is_iso | ].
       rewrite !rwhisker_rwhisker.
       apply maponpaths_2.
-      use (vcomp_lcancel (_ ◃ (γ₁')^-1)) ; [ is_iso | ].
+      use (vcomp_lcancel (_ ◃ γ₁'^-1)) ; [ is_iso | ].
       rewrite <- !vcomp_whisker.
       apply maponpaths_2.
       use (vcomp_lcancel (rassociator _ _ _)) ; [ is_iso | ].

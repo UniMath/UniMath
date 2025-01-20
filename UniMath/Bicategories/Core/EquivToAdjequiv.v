@@ -68,7 +68,7 @@ Lemma full_spec
            (α : f ∘ k₁ ==> f ∘ k₂)
   : f ◅ (representable_full η θ Hη k₁ k₂ α) = α.
 Proof.
-  refine (representable_faithful (Hθ^-1) (f ∘ k₁) (f ∘ k₂) _ α _ _).
+  refine (representable_faithful Hθ^-1 (f ∘ k₁) (f ∘ k₂) _ α _ _).
   { is_iso. }
   apply (vcomp_lcancel (lassociator _ _ _)).
   { is_iso. }
@@ -104,7 +104,7 @@ Section EquivToAdjEquiv.
 
   Local Definition ε : f ∘ g ==> id₁ Y.
   Proof.
-    refine (representable_full (θiso^-1) (ηiso^-1) _ (f ∘ g) (id₁ Y) _).
+    refine (representable_full θiso^-1 ηiso^-1 _ (f ∘ g) (id₁ Y) _).
     { is_iso. }
     exact ((linvunitor g)
              o runitor g
@@ -136,7 +136,7 @@ Section EquivToAdjEquiv.
   Proof.
     rewrite !vassocr.
     unfold ε.
-    rewrite (full_spec (θiso^-1) (ηiso^-1) _ (is_invertible_2cell_inv _) (f ∘ g) (id₁ Y) _).
+    rewrite (full_spec θiso^-1 ηiso^-1 _ (is_invertible_2cell_inv _) (f ∘ g) (id₁ Y) _).
     rewrite <- !vassocr.
     rewrite linvunitor_lunitor, id2_right.
     rewrite !vassocr.
@@ -284,7 +284,7 @@ Section EquivToAdjEquiv.
   Proof.
     use (representable_faithful _ _ _ _ _ _ help2).
     - exact f.
-    - exact (εiso^-1).
+    - exact εiso^-1.
     - is_iso.
   Qed.
 

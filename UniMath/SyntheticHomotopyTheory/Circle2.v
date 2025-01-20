@@ -443,9 +443,9 @@ Proof.
   change (cp s_compute_0 h0) with (∇ e).
   change (cp (idpath loop) p) with p.
   rewrite composePathOverPath_compute, composePathPathOver_compute.
-  intermediate_path (cp (pathscomp0rid loop) (cp α0 (h0^-1) * p * ∇ e)).
+  intermediate_path (cp (pathscomp0rid loop) (cp α0 h0^-1 * p * ∇ e)).
   { rewrite cp_left. apply (maponpaths (cp (pathscomp0rid loop))).
-    exact (assocPathOver (cp α0 (h0^-1)) p (cp s_compute_0 h0)). }
+    exact (assocPathOver (cp α0 h0^-1) p (cp s_compute_0 h0)). }
   rewrite cp_apstar'; fold s0.
   unfold α0. rewrite invrotrot'. change (cp s_compute_0 h0) with (∇ e).
   rewrite inversePathOverIdpath'.
