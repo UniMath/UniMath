@@ -189,7 +189,7 @@ Section elems_slice_equiv.
     exact (maponpaths (# (pr1 P) f) (pr2 s)).
   Defined.
 
-  Definition slice_to_PreShv_ob_funct_data (Q : PreShv C / P) : functor_data ((∫P)^op) HSET :=
+  Definition slice_to_PreShv_ob_funct_data (Q : PreShv C / P) : functor_data (∫P)^op HSET :=
     slice_to_PreShv_ob_ob Q ,, @slice_to_PreShv_ob_mor Q.
 
   Definition slice_to_PreShv_ob_is_funct (Q : PreShv C / P) : is_functor (slice_to_PreShv_ob_funct_data Q).

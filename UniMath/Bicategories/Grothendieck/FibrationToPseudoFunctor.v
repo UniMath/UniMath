@@ -290,7 +290,7 @@ Section GrothendieckConstruction.
   Definition psfunctor_fib_to_psfunctor_bicat_data
     : psfunctor_data
         (fib_slice_bicat C)
-        (psfunctor_bicat (cat_to_bicat (C^op)) bicat_of_univ_cats).
+        (psfunctor_bicat (cat_to_bicat C^op) bicat_of_univ_cats).
   Proof.
     use make_psfunctor_data.
     - exact (λ P,
@@ -455,7 +455,7 @@ Section GrothendieckConstruction.
   Definition psfunctor_fib_to_psfunctor_bicat
     : psfunctor
         (fib_slice_bicat C)
-        (psfunctor_bicat (cat_to_bicat (C^op)) bicat_of_univ_cats).
+        (psfunctor_bicat (cat_to_bicat C^op) bicat_of_univ_cats).
   Proof.
     use make_psfunctor.
     - exact psfunctor_fib_to_psfunctor_bicat_data.

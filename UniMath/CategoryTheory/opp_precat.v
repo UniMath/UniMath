@@ -307,7 +307,7 @@ Proof.
   - apply isaprop_is_iso.
 Defined.
 
-Definition has_homsets_op (C : category) : has_homsets (C^op).
+Definition has_homsets_op (C : category) : has_homsets C^op.
 Proof.
   intros a b.
   apply C.
@@ -366,7 +366,7 @@ Definition rm_op_mor {C : category} {b c : C} (f : C^op⟦c, b⟧) : C⟦b, c⟧
 (** Functoriality of taking the opposite *)
 Definition functor_identity_op
            (C : category)
-  : functor_identity (C^op)
+  : functor_identity C^op
     ⟹
     functor_opp (functor_identity C).
 Proof.
@@ -389,7 +389,7 @@ Defined.
 Definition functor_identity_op_nat_z_iso
            (C : category)
   : nat_z_iso
-      (functor_identity (C^op))
+      (functor_identity C^op)
       (functor_opp (functor_identity C)).
 Proof.
   use make_nat_z_iso.
@@ -574,7 +574,7 @@ Proposition idtoiso_opp
             {C : category}
             {x y : C}
             (p : x = y)
-  : pr1 (@idtoiso (C^op) _ _ p) = pr1 (@idtoiso C _ _ (!p)).
+  : pr1 (@idtoiso C^op _ _ p) = pr1 (@idtoiso C _ _ (!p)).
 Proof.
   induction p ; cbn.
   apply idpath.
@@ -584,7 +584,7 @@ Qed.
 Definition is_setcategory_opp
            {C : category}
            (HC : is_setcategory C)
-  : is_setcategory (C^op).
+  : is_setcategory C^op.
 Proof.
   split.
   - apply HC.
@@ -596,6 +596,6 @@ Definition opp_setcategory
   : setcategory.
 Proof.
   use make_setcategory.
-  - exact (C^op).
+  - exact C^op.
   - apply C.
 Defined.

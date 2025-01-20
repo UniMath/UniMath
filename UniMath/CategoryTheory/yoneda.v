@@ -57,7 +57,7 @@ Definition yoneda_objects_mor (C : category) (c : C)
     λ g, f · g.
 
 Definition yoneda_ob_functor_data (C : category) (c : C) :
-    functor_data (C^op) HSET.
+    functor_data C^op HSET.
 Proof.
   exists (λ c', make_hSet (yoneda_objects_ob C c c') (homset_property C _ _ ) ).
   intros a b f g. unfold yoneda_objects_ob in *. simpl in *.
