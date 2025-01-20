@@ -49,7 +49,7 @@ Proof.
   intro n.
   unfold natlth.
   unfold natgth.    (* `n < m` is defined as `natgtb m n = true` *)
-  apply isasetbool. (* Since bool is a set, any two equality proofs in bool are the same *)
+  apply isasetbool. (* Since bool is a set, equality in bool is a proposition *)
 Qed.
 
 Definition is_finite
@@ -83,3 +83,43 @@ Proof.
     + apply Hi.
     + apply Hf.
 Qed.
+
+(* A proposition is decidable if we have a proof of either the proposition, or of its negation *)
+Definition is_decidable
+  (X : hProp)
+  : UU
+  := X ⨿ (X → ∅).
+
+Lemma isaprop_is_decidable
+  (X : hProp)
+  : isaprop (is_decidable X).
+Proof.
+  (* A coproduct of two propositions is a propositions if the propositions exclude each other *)
+  apply isapropcoprod.
+  (* X is a proposition *)
+  - apply propproperty.
+  (* (X → ∅) is a proposition *)
+  - apply isapropimpl.
+    apply isapropempty.
+  (* X and (X → ∅) never hold at the same time *)
+  - intros p q.
+    apply q.
+    apply p.
+Qed.
+
+Definition decidable_hProp
+  : hSet.
+Proof.
+  use carrier_subset.
+  - use make_hSet.
+    (* Our base type is the type of propositions *)
+    + exact hProp.
+    (* The propositions form a set *)
+    + exact isasethProp.
+  - intro X.
+    use make_hProp.
+    (* Our subtype is given by decidability of the propositions *)
+    + exact (is_decidable X).
+    (* And decidability is a proposition *)
+    + apply isaprop_is_decidable.
+Defined.
