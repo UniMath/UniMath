@@ -4,7 +4,9 @@ In homotopy type theory, types are regarded as spaces, where equality between te
 
 - [Contractible types](#contractible-types)
 - [Mere propositions](#mere-propositions)
+  - [The propositional truncation](#the-propositional-truncation)
 - [Homotopy sets](#homotopy-sets)
+  - [Predicates and subsets](#predicates-and-subsets)
 - [Homotopy types](#homotopy-types-1)
 
 ## Contractible types
@@ -238,4 +240,3 @@ isofhleveltotal2    : ∏ n Y,    isofhlevel n X → (∏ x, isofhlevel n (Y x))
 impredfun           : ∏ n X Y,  isofhlevel n Y → isofhlevel n (X → Y).
 impred              : ∏ n X Y,  (∏ x, isofhlevel n (Y x)) → isofhlevel n (∏ x, Y x).
 ```
-
