@@ -46,7 +46,7 @@ Definition is_precat_opp_precat_data (C : precategory) : is_precategory (opp_pre
 Definition opp_precat (C : precategory) : precategory :=
   tpair _ (opp_precat_data C) (is_precat_opp_precat_data C).
 
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : cat.
+Local Notation "C '^op'" := (opp_precat C) (at level 1, format "C ^op") : cat.
 
 Goal ∏ C:precategory, C^op^op = C. reflexivity. Qed.
 
@@ -204,7 +204,7 @@ Qed.
 
 End opp_functor_properties.
 
-Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : cat.
+Notation "C '^op'" := (opp_precat C) (at level 1, format "C ^op") : cat.
 
 Lemma functor_opp_identity {C : precategory} (hsC : has_homsets C) :
   functor_opp (functor_identity C) = functor_identity C^op.
@@ -352,7 +352,7 @@ Definition op_unicat (C : univalent_category)
   : univalent_category
   := (op_category C ,, op_is_univalent C).
 
-Notation "C '^op'" := (op_category C) (at level 3, format "C ^op") : cat.
+Notation "C '^op'" := (op_category C) (at level 1, format "C ^op") : cat.
 
 
 Definition op_ob {C : category} (c : ob C) : ob C^op := c.

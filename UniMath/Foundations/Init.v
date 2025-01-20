@@ -83,9 +83,9 @@ Reserved Notation "! p " (at level 50, left associativity).
 
 Reserved Notation "p #' x" (right associativity, at level 65).
 
-Reserved Notation "C '^op'" (at level 3, format "C ^op").
+Reserved Notation "C '^op'" (at level 1, format "C ^op").
 
-Reserved Notation "q '^-1'" (at level 10).
+Reserved Notation "q '^-1'" (at level 1).
 
 Reserved Notation "a <-- b" (at level 55).
 

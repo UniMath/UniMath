@@ -208,7 +208,7 @@ Section elems_slice_equiv.
   Definition slice_to_PreShv_ob : PreShv C / P → PreShv ∫P :=
     λ Q,  slice_to_PreShv_ob_funct_data Q ,,  slice_to_PreShv_ob_is_funct Q.
 
-  Definition slice_to_PreShv_ob_nat {X Y : PreShv C / P} (F : X --> Y) (e : ∫P^op) :
+  Definition slice_to_PreShv_ob_nat {X Y : PreShv C / P} (F : X --> Y) (e : (∫P)^op) :
     (slice_to_PreShv_ob_ob X) e --> (slice_to_PreShv_ob_ob Y) e.
   Proof.
     induction e as [e Pe].
