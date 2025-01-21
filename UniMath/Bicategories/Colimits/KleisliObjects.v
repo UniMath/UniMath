@@ -332,7 +332,7 @@ Section KleisliObject.
       Definition kleisi_ump_cell_inv
         : g₂ ==> g₁.
       Proof.
-        refine (kleisli_ump_cell (α^-1) _).
+        refine (kleisli_ump_cell α^-1 _).
         abstract
           (use vcomp_move_R_Mp ; [ is_iso | ] ;
            rewrite !vassocl ;

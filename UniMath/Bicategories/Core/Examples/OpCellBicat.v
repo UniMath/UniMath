@@ -149,7 +149,7 @@ Definition from_op2_is_invertible_2cell
   : @is_invertible_2cell B x y g f α.
 Proof.
   use make_is_invertible_2cell.
-  - exact (Hα^-1).
+  - exact Hα^-1.
   - exact (vcomp_linv Hα).
   - exact (vcomp_rinv Hα).
 Defined.
@@ -163,7 +163,7 @@ Definition to_op2_is_invertible_2cell
   : is_invertible_2cell α.
 Proof.
   use make_is_invertible_2cell.
-  - exact (Hα^-1).
+  - exact Hα^-1.
   - exact (vcomp_linv Hα).
   - exact (vcomp_rinv Hα).
 Defined.

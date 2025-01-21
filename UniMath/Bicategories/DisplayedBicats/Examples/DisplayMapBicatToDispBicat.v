@@ -519,7 +519,7 @@ Section ArrowSubBicatToDispBicat.
   Proof.
     simple refine (_ ,, _ ,, _).
     - use make_disp_map_bicat_cell.
-      + exact (Hαα^-1).
+      + exact Hαα^-1.
       + abstract
           (use vcomp_move_R_Mp ; [ is_iso | ] ; cbn ;
            rewrite !vassocl ;

@@ -547,7 +547,7 @@ Definition cp_apstar'
       (p:a2=a1) (p':a1=a2) (α : !p=p')
       (b1:B a1) (b2:B a2)
       (pp : PathOver (Y:=B) p b2 b1) :
-  cp α (pp^-1) = inversePathOver' (cp (invrot α) pp).
+  cp α pp^-1 = inversePathOver' (cp (invrot α) pp).
 Proof.
   now induction α, p.
 Defined.

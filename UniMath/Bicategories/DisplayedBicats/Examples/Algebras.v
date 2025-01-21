@@ -573,7 +573,7 @@ Section Algebra.
       rewrite <- lwhisker_hcomp.
       rewrite !(maponpaths (λ z, (_ • z) ▹ _) (vassocl _ _ _)).
       rewrite <- vcomp_whisker.
-      rewrite <- (runitor_natural _ _ _ _ (x^-1)).
+      rewrite <- (runitor_natural _ _ _ _ x^-1).
       rewrite <- rwhisker_hcomp.
       rewrite <- !lwhisker_vcomp, <- !rwhisker_vcomp.
       rewrite !vassocl.

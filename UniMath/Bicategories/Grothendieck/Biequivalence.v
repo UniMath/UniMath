@@ -134,7 +134,7 @@ Section GrothendieckConstruction.
   Definition grothendieck_construction
     : biequivalence
         (fib_slice_bicat C)
-        (psfunctor_bicat (cat_to_bicat (C^op)) bicat_of_univ_cats)
+        (psfunctor_bicat (cat_to_bicat C^op) bicat_of_univ_cats)
     := psfunctor_fib_to_psfunctor_bicat C
        ,,
        is_biequivalence_psfunctor_fib_to_psfunctor_bicat.

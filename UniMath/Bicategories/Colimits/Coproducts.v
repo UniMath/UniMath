@@ -395,7 +395,7 @@ Section Coproduct.
       : is_invertible_2cell (bincoprod_ump_2cell α β).
     Proof.
       use make_is_invertible_2cell.
-      - exact (bincoprod_ump_2cell (Hα^-1) (Hβ^-1)).
+      - exact (bincoprod_ump_2cell Hα^-1 Hβ^-1).
       - use (bincoprod_ump_2cell_unique (id2 _) (id2 _)).
         + abstract
             (rewrite <- !lwhisker_vcomp ;

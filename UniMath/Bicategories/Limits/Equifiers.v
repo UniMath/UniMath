@@ -239,7 +239,7 @@ Section Equifiers.
       : is_invertible_2cell (equifier_ump_cell ζ).
     Proof.
       use make_is_invertible_2cell.
-      - exact (equifier_ump_cell (Hζ^-1)).
+      - exact (equifier_ump_cell Hζ^-1).
       - abstract
           (use (equifier_ump_eq_alt (id2 _)) ;
            rewrite <- !rwhisker_vcomp ;

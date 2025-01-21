@@ -910,7 +910,7 @@ Section IsInvertibleMndCell.
     : f₂ ==> f₁.
   Proof.
     use make_mnd_cell.
-    - exact (Hτ^-1).
+    - exact Hτ^-1.
     - abstract
         (cbn ;
          use vcomp_move_L_pM ; [ is_iso | ] ; cbn ;
@@ -943,7 +943,7 @@ Definition from_invertible_mnd_2cell
   : is_invertible_2cell (cell_of_mnd_cell τ).
 Proof.
   use make_is_invertible_2cell.
-  - exact (pr1 (Hτ^-1)).
+  - exact (pr1 Hτ^-1).
   - abstract
       (exact (maponpaths pr1 (vcomp_rinv Hτ))).
   - abstract

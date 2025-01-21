@@ -41,7 +41,7 @@ Local Open Scope cat.
 Arguments functor_composite {_ _ _} _ _ .
 Arguments nat_trans_comp {_ _ _ _ _} _ _ .
 Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
+Local Notation "C '^op'" := (opp_precat C) (format "C ^op").
 Local Notation "↓ f" := (mor_from_algebra_mor _ _ _ f) (at level 3, format "↓ f").
 Local Notation "'chain'" := (diagram nat_graph).
 

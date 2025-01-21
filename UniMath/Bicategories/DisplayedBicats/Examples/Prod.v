@@ -860,7 +860,7 @@ Proof.
   use make_invertible_2cell.
   - exact (pr11 α ,, pr121 α).
   - use make_is_invertible_2cell.
-    + exact (pr1 (α^-1) ,, pr12 (α^-1)).
+    + exact (pr1 α^-1 ,, pr12 α^-1).
     + abstract
         (use total2_paths_f ; [ apply (maponpaths pr1 (vcomp_rinv α)) | ] ;
          cbn ;
@@ -897,7 +897,7 @@ Proof.
   use make_invertible_2cell.
   - exact (pr11 α ,, pr221 α).
   - use make_is_invertible_2cell.
-    + exact (pr1 (α^-1) ,, pr22 (α^-1)).
+    + exact (pr1 α^-1 ,, pr22 α^-1).
     + abstract
         (use total2_paths_f ; [ apply (maponpaths pr1 (vcomp_rinv α)) | ] ;
          cbn ;

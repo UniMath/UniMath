@@ -531,7 +531,7 @@ Section Composition.
       use (vcomp_lcancel
              (mor_to_pb_obj_pr1
                 (pr2 h₁) (id₁ _)
-                (linvunitor_invertible_2cell _)^-1)).
+                (linvunitor_invertible_2cell _))^-1).
       {
         is_iso.
       }
@@ -637,7 +637,7 @@ Section Composition.
         is_iso.
         apply property_from_invertible_2cell.
       }
-      use (vcomp_rcancel (comp_unit_mor (pr2 h₁) ◃ (pb_on_1cell_pr2 f (pr2 β)) ^-1)).
+      use (vcomp_rcancel (comp_unit_mor (pr2 h₁) ◃ (pb_on_1cell_pr2 f (pr2 β))^-1)).
       {
         is_iso.
       }

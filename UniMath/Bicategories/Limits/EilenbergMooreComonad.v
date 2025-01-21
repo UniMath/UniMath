@@ -335,7 +335,7 @@ Section EilenbergMooreComonad.
       Definition em_comnd_ump_cell_inv
         : g₂ ==> g₁.
       Proof.
-        refine (em_comnd_ump_cell (α^-1) _).
+        refine (em_comnd_ump_cell α^-1 _).
         abstract
           (use vcomp_move_L_Mp ; [ is_iso | ] ;
            rewrite !vassocl ;

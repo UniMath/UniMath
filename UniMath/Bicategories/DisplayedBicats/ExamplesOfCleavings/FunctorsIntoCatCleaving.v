@@ -90,7 +90,7 @@ Definition functors_into_cat_local_iso_cleaving
 Proof.
   intros C₁ C₂ G₁ G₂ F₁ F₂ α β.
   simple refine (_ ,, _ ,, _).
-  - exact (nat_trans_comp _ _ _ α (post_whisker (β^-1) _)).
+  - exact (nat_trans_comp _ _ _ α (post_whisker β^-1 _)).
   - abstract
       (intro x ;
        refine (assoc' (pr1 α x) _ _ @ _ @ id_right _) ;

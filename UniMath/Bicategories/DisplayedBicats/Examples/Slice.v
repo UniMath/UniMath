@@ -571,7 +571,7 @@ Definition from_is_invertible_2cell_in_slice_bicat
   : is_invertible_2cell (pr1 α).
 Proof.
   use make_is_invertible_2cell.
-  - exact (pr1 (Hα^-1)).
+  - exact (pr1 Hα^-1).
   - exact (maponpaths pr1 (vcomp_rinv Hα)).
   - exact (maponpaths pr1 (vcomp_linv Hα)).
 Defined.

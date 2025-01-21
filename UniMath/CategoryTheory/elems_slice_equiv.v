@@ -189,7 +189,7 @@ Section elems_slice_equiv.
     exact (maponpaths (# (pr1 P) f) (pr2 s)).
   Defined.
 
-  Definition slice_to_PreShv_ob_funct_data (Q : PreShv C / P) : functor_data ((∫P)^op) HSET :=
+  Definition slice_to_PreShv_ob_funct_data (Q : PreShv C / P) : functor_data (∫P)^op HSET :=
     slice_to_PreShv_ob_ob Q ,, @slice_to_PreShv_ob_mor Q.
 
   Definition slice_to_PreShv_ob_is_funct (Q : PreShv C / P) : is_functor (slice_to_PreShv_ob_funct_data Q).
@@ -208,7 +208,7 @@ Section elems_slice_equiv.
   Definition slice_to_PreShv_ob : PreShv C / P → PreShv ∫P :=
     λ Q,  slice_to_PreShv_ob_funct_data Q ,,  slice_to_PreShv_ob_is_funct Q.
 
-  Definition slice_to_PreShv_ob_nat {X Y : PreShv C / P} (F : X --> Y) (e : ∫P^op) :
+  Definition slice_to_PreShv_ob_nat {X Y : PreShv C / P} (F : X --> Y) (e : (∫P)^op) :
     (slice_to_PreShv_ob_ob X) e --> (slice_to_PreShv_ob_ob Y) e.
   Proof.
     induction e as [e Pe].

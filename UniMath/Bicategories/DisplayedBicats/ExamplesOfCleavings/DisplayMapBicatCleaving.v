@@ -273,7 +273,7 @@ Section DispMapBicatCleaving.
         : ℓ ==> ℓ'.
       Proof.
         use (pb_ump_cell Hpb) ; cbn.
-        - exact (ℓp₁ • pr1 σσ • (ℓ'p₁)^-1).
+        - exact (ℓp₁ • pr1 σσ • ℓ'p₁^-1).
         - exact (ℓp₂^-1 • (_ ◃ δ) • ℓ'p₂).
         - exact pb_lift_2cell_factor_cell_eq.
       Defined.
@@ -293,7 +293,7 @@ Section DispMapBicatCleaving.
           intro ; apply cellset_property.
         }
         use (pb_ump_eq Hpb).
-        - exact (ℓp₁ • pr1 σσ • (ℓ'p₁)^-1).
+        - exact (ℓp₁ • pr1 σσ • ℓ'p₁^-1).
         - exact (ℓp₂^-1 • (_ ◃ δ) • ℓ'p₂).
         - apply pb_lift_2cell_factor_cell_eq.
         - use vcomp_move_L_Mp ; [ is_iso | ].
