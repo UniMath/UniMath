@@ -84,7 +84,7 @@ Section BiadjunctionPreservation.
                 • rassociator _ _ _
                 • (_ ◃ (((psfunctor_comp L _ _)^-1 ▹ _)
                         • rassociator _ _ _
-                        • (_ ◃ psnaturality_of (biadj_counit R) f^-1)
+                        • (_ ◃ (psnaturality_of (biadj_counit R) f)^-1)
                         • lassociator _ _ _
                         • ((linvunitor _ •  _) ▹ _)
                         • lunitor _))).
@@ -94,7 +94,7 @@ Section BiadjunctionPreservation.
                 • rassociator _ _ _
                 • (_ ◃ (((psfunctor_comp L _ _)^-1 ▹ _)
                         • rassociator _ _ _
-                        • (_ ◃ psnaturality_of (biadj_counit R) f^-1)
+                        • (_ ◃ (psnaturality_of (biadj_counit R) f)^-1)
                         • lassociator _ _ _
                         • ((linvunitor _ •  _) ▹ _)
                         • lunitor _))).

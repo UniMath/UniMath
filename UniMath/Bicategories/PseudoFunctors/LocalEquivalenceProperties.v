@@ -288,7 +288,7 @@ Section LocalEquivalencePseudoFunctoriality.
     use make_invertible_2cell.
     - exact (local_equivalence_inv_twocell τ).
     - use make_is_invertible_2cell.
-      + exact (local_equivalence_inv_twocell (τ^-1)).
+      + exact (local_equivalence_inv_twocell τ^-1).
       + abstract
           (rewrite <- local_equivalence_inv_twocell_comp ;
            rewrite vcomp_rinv ;
@@ -302,7 +302,7 @@ Section LocalEquivalencePseudoFunctoriality.
   Proposition local_equivalence_counit_triangle_inv
               {x y : B₁}
               (f : F x --> F y)
-    : local_equivalence_inv_inv2cell (local_equivalence_counit_inv2cell f)^-1
+    : (local_equivalence_inv_inv2cell (local_equivalence_counit_inv2cell f))^-1
       =
       (local_equivalence_unit_inv2cell (local_equivalence_inv_onecell f)).
   Proof.

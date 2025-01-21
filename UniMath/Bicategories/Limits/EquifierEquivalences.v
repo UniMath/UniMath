@@ -316,7 +316,7 @@ Section EquifierEquivalence.
               • lassociator _ _ _
               • (ξ ▹ _)
               • rassociator _ _ _
-              • (_ ◃ (γ₁')^-1)
+              • (_ ◃ γ₁'^-1)
               • lassociator _ _ _) ; cbn.
     - rewrite !vassocl.
       use vcomp_move_L_pM ; [ is_iso | ].

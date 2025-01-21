@@ -368,7 +368,7 @@ Section Inserters.
     Let inv : u₂ ==> u₁
       := inserter_ump_cell
            H
-           (Hα^-1)
+           Hα^-1
            is_invertible_2cell_inserter_ump_cell_inv_path.
 
     Local Lemma is_invertible_2cell_inserter_ump_cell_inv_right
@@ -896,7 +896,7 @@ Section InserterConservative.
     : g₂ ==> g₁.
   Proof.
     use (inserter_ump_cell H).
-    - exact (Hβ^-1).
+    - exact Hβ^-1.
     - abstract
         (cbn ;
          use vcomp_move_R_Mp ; [ is_iso | ] ; cbn ;

@@ -39,7 +39,7 @@ Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 
 Local Open Scope cat.
 
-Local Notation "C '^op'" := (op_category C) (at level 3, format "C ^op") : cat.
+Local Notation "C '^op'" := (op_category C) (at level 1, format "C ^op") : cat.
 
 (** * Translation of structures from C^op to C *)
 Section def_opposites.
@@ -55,51 +55,51 @@ Section def_opposites.
   Definition opp_Monic {a b : C} (f : @Monic (op_category C) a b) : @Epi C b a :=
     @make_Epi C _ _ f (opp_isMonic f (pr2 f)).
 
-  Definition opp_isEpi {a b : C} (f : a --> b) (H : @isEpi (C^op) _ _ f) : @isMonic C _ _ f := H.
+  Definition opp_isEpi {a b : C} (f : a --> b) (H : @isEpi C^op _ _ f) : @isMonic C _ _ f := H.
   Opaque opp_isEpi.
 
-  Definition opp_Epi {a b : C} (f : @Epi (C^op) a b) : @Monic C b a :=
+  Definition opp_Epi {a b : C} (f : @Epi C^op a b) : @Monic C b a :=
     @make_Monic C _ _ f (opp_isEpi f (pr2 f)).
 
 
   (** ** Initial, Terminal, and Zero *)
 
-  Definition opp_isInitial {x : C} (H : @isInitial (C^op) x) : @isTerminal C x := H.
+  Definition opp_isInitial {x : C} (H : @isInitial C^op x) : @isTerminal C x := H.
 
-  Definition opp_Initial (I : @Initial (C^op)) : @Terminal C :=
+  Definition opp_Initial (I : @Initial C^op) : @Terminal C :=
     @make_Terminal C _ (opp_isInitial (pr2 I)).
 
-  Definition opp_isTerminal {x : C} (H : @isTerminal (C^op) x) : @isInitial C x := H.
+  Definition opp_isTerminal {x : C} (H : @isTerminal C^op x) : @isInitial C x := H.
 
-  Definition opp_Terminal (T : @Terminal (C^op)) : @Initial C :=
+  Definition opp_Terminal (T : @Terminal C^op) : @Initial C :=
     @make_Initial C _ (opp_isTerminal (pr2 T)).
 
-  Lemma opp_isZero {x : C} (H : @isZero (C^op) x) : @isZero C x.
+  Lemma opp_isZero {x : C} (H : @isZero C^op x) : @isZero C x.
   Proof.
     use make_isZero.
     - intros a. exact (dirprod_pr2 H a).
     - intros a. exact (dirprod_pr1 H a).
   Qed.
 
-  Definition opp_Zero (Z : @Zero (C^op)) : @Zero C := @make_Zero C _ (opp_isZero (pr2 Z)).
+  Definition opp_Zero (Z : @Zero C^op) : @Zero C := @make_Zero C _ (opp_isZero (pr2 Z)).
 
 
   (** ** Equality on ZeroArrows *)
 
-  Lemma opp_ZeroArrowTo {x : C} (Z : @Zero (C^op)) :
-    @ZeroArrowTo (C^op) Z x = @ZeroArrowFrom C (opp_Zero Z) x.
+  Lemma opp_ZeroArrowTo {x : C} (Z : @Zero C^op) :
+    @ZeroArrowTo C^op Z x = @ZeroArrowFrom C (opp_Zero Z) x.
   Proof.
     apply ArrowsToZero.
   Qed.
 
-  Lemma opp_ZeroArrowFrom {x : C} (Z : @Zero (C^op)) :
-    @ZeroArrowFrom (C^op) Z x = @ZeroArrowTo C (opp_Zero Z) x.
+  Lemma opp_ZeroArrowFrom {x : C} (Z : @Zero C^op) :
+    @ZeroArrowFrom C^op Z x = @ZeroArrowTo C (opp_Zero Z) x.
   Proof.
     apply ArrowsFromZero.
   Qed.
 
-  Lemma opp_ZeroArrow {x y : C} (Z : @Zero (C^op)) :
-    @ZeroArrow (C^op) Z x y = @ZeroArrow C (opp_Zero Z) y x.
+  Lemma opp_ZeroArrow {x y : C} (Z : @Zero C^op) :
+    @ZeroArrow C^op Z x y = @ZeroArrow C (opp_Zero Z) y x.
   Proof.
     unfold ZeroArrow.
     rewrite opp_ZeroArrowTo.
@@ -112,26 +112,26 @@ Section def_opposites.
 
   (** ** Equalizers and Coequalizers *)
 
-  Lemma opp_isEqualizer {x y z : C} (f g : (C^op)⟦y, z⟧) (e : (C^op)⟦x, y⟧) (H : e · f = e · g)
+  Lemma opp_isEqualizer {x y z : C} (f g : C^op⟦y, z⟧) (e : C^op⟦x, y⟧) (H : e · f = e · g)
     (H' : @isEqualizer (op_category C) _ _ _ f g e H) : @isCoequalizer C _ _ _ f g e H.
   Proof.
     exact H'.
   Qed.
 
-  Lemma opp_isCoequalizer {x y z : C} (f g : (C^op)⟦x, y⟧) (e : (C^op)⟦y, z⟧)
-        (H : f · e = g · e) (H' : @isCoequalizer (C^op) _ _ _ f g e H) :
+  Lemma opp_isCoequalizer {x y z : C} (f g : C^op⟦x, y⟧) (e : C^op⟦y, z⟧)
+        (H : f · e = g · e) (H' : @isCoequalizer C^op _ _ _ f g e H) :
     @isEqualizer C _ _ _ f g e H.
   Proof.
     exact H'.
   Qed.
 
-  Definition opp_Equalizer {y z : C} (f g : (C^op)⟦y, z⟧) (E : @Equalizer (op_category C) y z f g) :
+  Definition opp_Equalizer {y z : C} (f g : C^op⟦y, z⟧) (E : @Equalizer (op_category C) y z f g) :
     @Coequalizer C z y f g := @make_Coequalizer C _ _ _ f g (EqualizerArrow E) (EqualizerEqAr E)
                                               (opp_isEqualizer f g (EqualizerArrow E)
                                                                (EqualizerEqAr E)
                                                                (isEqualizer_Equalizer E)).
 
-  Definition opp_Coequalizer {y z : C} (f g : (C^op)⟦y, z⟧) (E : @Coequalizer (C^op) y z f g) :
+  Definition opp_Coequalizer {y z : C} (f g : C^op⟦y, z⟧) (E : @Coequalizer C^op y z f g) :
     @Equalizer C z y f g := @make_Equalizer C _ _ _ f g (CoequalizerArrow E) (CoequalizerEqAr E)
                                           (opp_isCoequalizer f g (CoequalizerArrow E)
                                                              (CoequalizerEqAr E)
@@ -144,7 +144,7 @@ Section def_opposites.
     exact (E y x f g).
   Defined.
 
-  Definition opp_Coequalizers (E : @Coequalizers (C^op)) : @Equalizers C.
+  Definition opp_Coequalizers (E : @Coequalizers C^op) : @Equalizers C.
   Proof.
     intros x y f g.
     use opp_Coequalizer.
@@ -155,7 +155,7 @@ Section def_opposites.
   (** ** Kernels and Cokernels *)
 
 
-  Local Lemma opp_isCokernel_eq {x y z : C^op} (f : (C^op)⟦x, y⟧) (g : C^op⟦y, z⟧) (Z : Zero (C^op))
+  Local Lemma opp_isCokernel_eq {x y z : C^op} (f : C^op⟦x, y⟧) (g : C^op⟦y, z⟧) (Z : Zero C^op)
         (H : f · g = ZeroArrow Z _ _) (Z' : Zero C) :
     (g : C⟦z, y⟧) · (f : C⟦y, x⟧) = ZeroArrow Z' _ _.
   Proof.
@@ -163,7 +163,7 @@ Section def_opposites.
     exact (ZerosArrowEq C (opp_Zero Z) Z' z x).
   Qed.
 
-  Lemma opp_isCokernel {x y z : C^op} {f : (C^op)⟦x, y⟧} {g : C^op⟦y, z⟧} {Z : Zero (C^op)}
+  Lemma opp_isCokernel {x y z : C^op} {f : C^op⟦x, y⟧} {g : C^op⟦y, z⟧} {Z : Zero C^op}
         {H : f · g = ZeroArrow Z _ _} (K' : isKernel (C:=op_category C) Z f g H) {Z' : Zero C} :
     isCokernel Z' (g : C⟦z, y⟧) (f : C⟦y, x⟧) (opp_isCokernel_eq f g Z H Z').
   Proof.
@@ -180,15 +180,15 @@ Section def_opposites.
         apply idpath.
   Qed.
 
-  Local Lemma opp_Kernel_eq {y z : C} (f : (C^op)⟦y, z⟧) (Z : Zero (C^op))
+  Local Lemma opp_Kernel_eq {y z : C} (f : C^op⟦y, z⟧) (Z : Zero C^op)
              (K : @Kernel (op_category C) Z y z f) :
     @compose C^op _ _ _ (KernelArrow K) f = ZeroArrow (opp_Zero Z) z K.
   Proof.
     cbn. rewrite <- opp_ZeroArrow. apply (KernelCompZero (C:= op_category _) Z K).
   Qed.
 
-  Lemma opp_Kernel_isCokernel {y z : C} (f : (C^op)⟦y, z⟧) (Z : Zero (C^op))
-             (K : @Kernel (C^op) Z y z f) :
+  Lemma opp_Kernel_isCokernel {y z : C} (f : C^op⟦y, z⟧) (Z : Zero C^op)
+             (K : @Kernel C^op Z y z f) :
     isCokernel (opp_Zero Z) f (KernelArrow K) (opp_Kernel_eq f Z K).
   Proof.
     use make_isCokernel.
@@ -201,8 +201,8 @@ Section def_opposites.
         apply idpath.
   Qed.
 
-  Definition opp_Kernel {y z : C} (f : (C^op)⟦y, z⟧) (Z : Zero (C^op))
-             (K : @Kernel (C^op) Z y z f) : @Cokernel C (opp_Zero Z) z y f.
+  Definition opp_Kernel {y z : C} (f : C^op⟦y, z⟧) (Z : Zero C^op)
+             (K : @Kernel C^op Z y z f) : @Cokernel C (opp_Zero Z) z y f.
   Proof.
     use make_Cokernel.
     - exact K.
@@ -211,7 +211,7 @@ Section def_opposites.
     - exact (opp_Kernel_isCokernel f Z K).
   Defined.
 
-  Lemma opp_isKernel {x y z : op_category C} {f : (C^op)⟦x, y⟧} {g : C^op⟦y, z⟧} {Z : Zero (C^op)}
+  Lemma opp_isKernel {x y z : op_category C} {f : C^op⟦x, y⟧} {g : C^op⟦y, z⟧} {Z : Zero C^op}
         {H : f · g = ZeroArrow Z _ _} (CK' : isCokernel Z f g H) {Z' : Zero C} :
     isKernel Z' (g : C⟦z, y⟧) (f : C⟦y, x⟧) (opp_isCokernel_eq f g Z H Z').
   Proof.
@@ -228,15 +228,15 @@ Section def_opposites.
       apply idpath.
   Qed.
 
-  Local Lemma opp_Cokernel_eq {y z : C} (f : (C^op)⟦y, z⟧) (Z : Zero (C^op))
-             (CK : @Cokernel (C^op) Z y z f) :
-    @compose (C^op) _ _ _ f (CokernelArrow CK) = ZeroArrow (opp_Zero Z) CK y.
+  Local Lemma opp_Cokernel_eq {y z : C} (f : C^op⟦y, z⟧) (Z : Zero C^op)
+             (CK : @Cokernel C^op Z y z f) :
+    @compose C^op _ _ _ f (CokernelArrow CK) = ZeroArrow (opp_Zero Z) CK y.
   Proof.
     cbn. rewrite <- opp_ZeroArrow. apply (CokernelCompZero Z CK).
   Qed.
 
-  Lemma opp_Cokernel_isKernel {y z : C} (f : (C^op)⟦y, z⟧) (Z : Zero (C^op))
-             (CK : @Cokernel (C^op) Z y z f) :
+  Lemma opp_Cokernel_isKernel {y z : C} (f : C^op⟦y, z⟧) (Z : Zero C^op)
+             (CK : @Cokernel C^op Z y z f) :
     isKernel (opp_Zero Z) (CokernelArrow CK) f (opp_Cokernel_eq f Z CK).
   Proof.
     use make_isKernel.
@@ -249,8 +249,8 @@ Section def_opposites.
       apply idpath.
   Qed.
 
-  Definition opp_Cokernel {y z : C} (f : (C^op)⟦y, z⟧) (Z : Zero (C^op))
-             (CK : @Cokernel (C^op) Z y z f) : @Kernel C (opp_Zero Z) z y f.
+  Definition opp_Cokernel {y z : C} (f : C^op⟦y, z⟧) (Z : Zero C^op)
+             (CK : @Cokernel C^op Z y z f) : @Kernel C (opp_Zero Z) z y f.
   Proof.
     use make_Kernel.
     - exact CK.
@@ -259,14 +259,14 @@ Section def_opposites.
     - exact (opp_Cokernel_isKernel f Z CK).
   Defined.
 
-  Definition opp_Kernels (Z : Zero (C^op)) (K : @Kernels (C^op) Z) : @Cokernels C (opp_Zero Z).
+  Definition opp_Kernels (Z : Zero C^op) (K : @Kernels C^op Z) : @Cokernels C (opp_Zero Z).
   Proof.
     intros x y f.
     use opp_Kernel.
     apply (K y x f).
   Defined.
 
-  Definition opp_Cokernels (Z : Zero (C^op)) (CK : @Cokernels (C^op) Z) : @Kernels C (opp_Zero Z).
+  Definition opp_Cokernels (Z : Zero C^op) (CK : @Cokernels C^op Z) : @Kernels C (opp_Zero Z).
   Proof.
     intros x y f.
     use opp_Cokernel.
@@ -276,38 +276,38 @@ Section def_opposites.
 
   (** ** Pushouts and pullbacks *)
 
-  Lemma opp_isPushout {a b c d : C} (f : (C^op)⟦a, b⟧) (g : (C^op)⟦a, c⟧)
-        (in1 : (C^op)⟦b, d⟧) (in2 : (C^op)⟦c, d⟧) (H : f · in1 = g · in2)
-        (iPo : @isPushout (C^op) a b c d f g in1 in2 H) : @isPullback C a b c d f g in1 in2 H.
+  Lemma opp_isPushout {a b c d : C} (f : C^op⟦a, b⟧) (g : C^op⟦a, c⟧)
+        (in1 : C^op⟦b, d⟧) (in2 : C^op⟦c, d⟧) (H : f · in1 = g · in2)
+        (iPo : @isPushout C^op a b c d f g in1 in2 H) : @isPullback C a b c d f g in1 in2 H.
   Proof.
     exact iPo.
   Qed.
 
-  Lemma opp_isPullback {a b c d : C} (f : (C^op)⟦b, a⟧) (g : (C^op)⟦c, a⟧)
-        (p1 : (C^op)⟦d, b⟧) (p2 : (C^op)⟦d, c⟧) (H : p1 · f = p2 · g)
-        (iPb : @isPullback (C^op) a b c d f g p1 p2 H) : @isPushout C a b c d f g p1 p2 H.
+  Lemma opp_isPullback {a b c d : C} (f : C^op⟦b, a⟧) (g : C^op⟦c, a⟧)
+        (p1 : C^op⟦d, b⟧) (p2 : C^op⟦d, c⟧) (H : p1 · f = p2 · g)
+        (iPb : @isPullback C^op a b c d f g p1 p2 H) : @isPushout C a b c d f g p1 p2 H.
   Proof.
     exact iPb.
   Qed.
 
-  Definition opp_Pushout {a b c : C} (f : (C^op)⟦a, b⟧) (g : (C^op)⟦a, c⟧)
-             (Po : @Pushout (C^op) a b c f g) : @Pullback C a b c f g.
+  Definition opp_Pushout {a b c : C} (f : C^op⟦a, b⟧) (g : C^op⟦a, c⟧)
+             (Po : @Pushout C^op a b c f g) : @Pullback C a b c f g.
   Proof.
     exact Po.
   Defined.
 
-  Definition opp_Pullback {a b c : C} (f : (C^op)⟦b, a⟧) (g : (C^op)⟦c, a⟧)
-             (Pb : @Pullback (C^op) a b c f g) : @Pushout C a b c f g.
+  Definition opp_Pullback {a b c : C} (f : C^op⟦b, a⟧) (g : C^op⟦c, a⟧)
+             (Pb : @Pullback C^op a b c f g) : @Pushout C a b c f g.
   Proof.
     exact Pb.
   Defined.
 
-  Definition opp_Pushouts (Pos : @Pushouts (C^op)) : @Pullbacks C.
+  Definition opp_Pushouts (Pos : @Pushouts C^op) : @Pullbacks C.
   Proof.
     exact Pos.
   Defined.
 
-  Definition opp_Pullbacks (Pbs : @Pushouts (C^op)) : @Pullbacks C.
+  Definition opp_Pullbacks (Pbs : @Pushouts C^op) : @Pullbacks C.
   Proof.
     exact Pbs.
   Defined.
@@ -315,23 +315,23 @@ Section def_opposites.
 
   (** ** BinProducts and BinCoproducts *)
 
-  Definition opp_isBinProduct (c d p : C) (p1 : (C^op)⟦p, c⟧) (p2 : (C^op)⟦p, d⟧)
-             (iBPC : @isBinProduct (C^op) c d p p1 p2) : @isBinCoproduct C c d p p1 p2 :=
+  Definition opp_isBinProduct (c d p : C) (p1 : C^op⟦p, c⟧) (p2 : C^op⟦p, d⟧)
+             (iBPC : @isBinProduct C^op c d p p1 p2) : @isBinCoproduct C c d p p1 p2 :=
     iBPC.
 
-  Definition opp_isBinCoproduct (a b co : C) (ia : (C^op)⟦a, co⟧) (ib : (C^op)⟦b, co⟧)
-             (iBCC : @isBinCoproduct (C^op) a b co ia ib) :
+  Definition opp_isBinCoproduct (a b co : C) (ia : C^op⟦a, co⟧) (ib : C^op⟦b, co⟧)
+             (iBCC : @isBinCoproduct C^op a b co ia ib) :
     @isBinProduct C a b co ia ib := iBCC.
 
-  Definition opp_BinProduct (c d : C) (BPC : @BinProduct (C^op) c d) :
+  Definition opp_BinProduct (c d : C) (BPC : @BinProduct C^op c d) :
     @BinCoproduct C c d := BPC.
 
-  Definition opp_BinCoproduct (c d : C) (BCC : @BinCoproduct (C^op) c d) :
+  Definition opp_BinCoproduct (c d : C) (BCC : @BinCoproduct C^op c d) :
     @BinProduct C c d := BCC.
 
-  Definition opp_BinProducts (BP : @BinProducts (C^op)) : @BinCoproducts C := BP.
+  Definition opp_BinProducts (BP : @BinProducts C^op) : @BinCoproducts C := BP.
 
-  Definition opp_BinCoproducts (BC : @BinCoproducts (C^op)) : @BinProducts C := BC.
+  Definition opp_BinCoproducts (BC : @BinCoproducts C^op) : @BinProducts C := BC.
 
 End def_opposites.
 
@@ -344,56 +344,56 @@ Section def_opposites'.
 
   (** ** Monic and Epi *)
 
-  Definition isMonic_opp {a b : C} {f : C⟦a, b⟧} (H : @isMonic C a b f) : @isEpi (C^op) b a f := H.
+  Definition isMonic_opp {a b : C} {f : C⟦a, b⟧} (H : @isMonic C a b f) : @isEpi C^op b a f := H.
   Opaque isMonic_opp.
 
-  Definition Monic_opp {a b : C} (f : @Monic C a b) : @Epi (C^op) b a :=
-    @make_Epi (C^op) b a f (isMonic_opp (pr2 f)).
+  Definition Monic_opp {a b : C} (f : @Monic C a b) : @Epi C^op b a :=
+    @make_Epi C^op b a f (isMonic_opp (pr2 f)).
 
-  Definition isEpi_opp {a b : C} {f : C⟦a, b⟧} (H : @isEpi C a b f) : @isMonic (C^op) b a f := H.
+  Definition isEpi_opp {a b : C} {f : C⟦a, b⟧} (H : @isEpi C a b f) : @isMonic C^op b a f := H.
   Opaque isEpi_opp.
 
-  Definition Epi_opp {a b : C} (f : @Epi C a b) : @Monic (C^op) b a :=
-    @make_Monic (C^op) b a f (isEpi_opp (pr2 f)).
+  Definition Epi_opp {a b : C} (f : @Epi C a b) : @Monic C^op b a :=
+    @make_Monic C^op b a f (isEpi_opp (pr2 f)).
 
 
   (** ** Initial, Terminal, and Zero *)
 
-  Definition isInitial_opp {x : C} (H : @isInitial C x) : @isTerminal (C^op) x := H.
+  Definition isInitial_opp {x : C} (H : @isInitial C x) : @isTerminal C^op x := H.
 
-  Definition Initial_opp (I : @Initial C) : @Terminal (C^op) :=
-    @make_Terminal (C^op) _ (isInitial_opp (pr2 I)).
+  Definition Initial_opp (I : @Initial C) : @Terminal C^op :=
+    @make_Terminal C^op _ (isInitial_opp (pr2 I)).
 
-  Definition isTerminal_opp {x : C} (H : @isTerminal C x) : @isInitial (C^op) x := H.
+  Definition isTerminal_opp {x : C} (H : @isTerminal C x) : @isInitial C^op x := H.
 
-  Definition Terminal_opp (T : @Terminal C) : @Initial (C^op) :=
-    @make_Initial (C^op) _ (isTerminal_opp (pr2 T)).
+  Definition Terminal_opp (T : @Terminal C) : @Initial C^op :=
+    @make_Initial C^op _ (isTerminal_opp (pr2 T)).
 
-  Lemma isZero_opp {x : C} (H : @isZero C x) : @isZero (C^op) x.
+  Lemma isZero_opp {x : C} (H : @isZero C x) : @isZero C^op x.
   Proof.
     use make_isZero.
     - intros a. apply (pr2 H a).
     - intros a. apply (pr1 H a).
   Defined.
 
-  Definition Zero_opp (T : @Zero C) : @Zero (C^op) := @make_Zero (C^op) _ (isZero_opp (pr2 T)).
+  Definition Zero_opp (T : @Zero C) : @Zero C^op := @make_Zero C^op _ (isZero_opp (pr2 T)).
 
   (** ** Equality on ZeroArrows *)
 
   Lemma ZeroArrowTo_opp {x : C} (Z : @Zero C) :
-    @ZeroArrowTo C Z x = @ZeroArrowFrom (C^op) (Zero_opp Z) x.
+    @ZeroArrowTo C Z x = @ZeroArrowFrom C^op (Zero_opp Z) x.
   Proof.
     apply ArrowsToZero.
   Qed.
 
   Lemma ZeroArrowFrom_opp {x : C} (Z : @Zero C) :
-    @ZeroArrowFrom C Z x = @ZeroArrowTo (C^op) (Zero_opp Z) x.
+    @ZeroArrowFrom C Z x = @ZeroArrowTo C^op (Zero_opp Z) x.
   Proof.
     apply ArrowsFromZero.
   Qed.
 
   Lemma ZeroArrow_opp {x y : C} (Z : @Zero C) :
-    @ZeroArrow C Z x y = @ZeroArrow (C^op) (Zero_opp Z) y x.
+    @ZeroArrow C Z x y = @ZeroArrow C^op (Zero_opp Z) y x.
   Proof.
     unfold ZeroArrow.
     rewrite ZeroArrowTo_opp.
@@ -407,33 +407,33 @@ Section def_opposites'.
   (** ** Equalizers and Coequalizers *)
 
   Definition isEqualizer_opp {x y z : C} (f g : C⟦y, z⟧) (e : C⟦x, y⟧) (H : e · f = e · g)
-             (isE : @isEqualizer C _ _ _ f g e H) : @isCoequalizer (C^op) _ _ _ f g e H := isE.
+             (isE : @isEqualizer C _ _ _ f g e H) : @isCoequalizer C^op _ _ _ f g e H := isE.
 
   Definition isCoequalizer_opp {x y z : C} (f g : C⟦x, y⟧) (e : C⟦y, z⟧) (H : f · e = g · e)
-             (isC : @isCoequalizer C _ _ _ f g e H) : @isEqualizer (C^op) _ _ _ f g e H := isC.
+             (isC : @isCoequalizer C _ _ _ f g e H) : @isEqualizer C^op _ _ _ f g e H := isC.
 
   Definition Equalizer_opp {y z : C} (f g : C⟦y, z⟧) (E : @Equalizer C y z f g) :
-    @Coequalizer (C^op) z y f g := @make_Coequalizer (C^op) _ _ _ f g (EqualizerArrow E)
+    @Coequalizer C^op z y f g := @make_Coequalizer C^op _ _ _ f g (EqualizerArrow E)
                                                    (EqualizerEqAr E)
                                                    (isEqualizer_opp f g (EqualizerArrow E)
                                                                     (EqualizerEqAr E)
                                                                     (isEqualizer_Equalizer E)).
 
   Definition Coequalizer_opp {y z : C} (f g : C⟦y, z⟧) (CE : @Coequalizer C y z f g) :
-    @Equalizer (C^op) z y f g := @make_Equalizer (C^op) _ _ _ f g (CoequalizerArrow CE)
+    @Equalizer C^op z y f g := @make_Equalizer C^op _ _ _ f g (CoequalizerArrow CE)
                                                (CoequalizerEqAr CE)
                                                (isCoequalizer_opp f g (CoequalizerArrow CE)
                                                                   (CoequalizerEqAr CE)
                                                                   (isCoequalizer_Coequalizer CE)).
 
-  Definition Equalizers_opp (E : @Equalizers C) : @Coequalizers (C^op).
+  Definition Equalizers_opp (E : @Equalizers C) : @Coequalizers C^op.
   Proof.
     intros x y f g.
     use Equalizer_opp.
     exact (E y x f g).
   Defined.
 
-  Definition Coequalizers_opp (CE : @Coequalizers C) : @Equalizers (C^op).
+  Definition Coequalizers_opp (CE : @Coequalizers C) : @Equalizers C^op.
   Proof.
     intros x y f g.
     use Coequalizer_opp.
@@ -492,7 +492,7 @@ Section def_opposites'.
   Qed.
 
   Definition Kernel_opp {y z : C} (f : C⟦y, z⟧) (Z : Zero C) (K : @Kernel C Z y z f) :
-    @Cokernel (C^op) (Zero_opp Z) z y f.
+    @Cokernel C^op (Zero_opp Z) z y f.
   Proof.
     use make_Cokernel.
     - exact K.
@@ -539,7 +539,7 @@ Section def_opposites'.
   Qed.
 
   Definition Cokernel_opp {y z : C} (f : C⟦y, z⟧) (Z : Zero C) (CK : @Cokernel C Z y z f) :
-    @Kernel (C^op) (Zero_opp Z) z y f.
+    @Kernel C^op (Zero_opp Z) z y f.
   Proof.
     use make_Kernel.
     - exact CK.
@@ -548,14 +548,14 @@ Section def_opposites'.
     - exact (Cokernel_opp_isKernel f Z CK).
   Defined.
 
-  Definition Kernels_opp (Z : Zero C) (K : @Kernels C Z) : @Cokernels (C^op) (Zero_opp Z).
+  Definition Kernels_opp (Z : Zero C) (K : @Kernels C Z) : @Cokernels C^op (Zero_opp Z).
   Proof.
     intros x y f.
     use Kernel_opp.
     apply (K y x f).
   Defined.
 
-  Definition Cokernels_opp (Z : Zero C) (CK : @Cokernels C Z) : @Kernels (C^op) (Zero_opp Z).
+  Definition Cokernels_opp (Z : Zero C) (CK : @Cokernels C Z) : @Kernels C^op (Zero_opp Z).
   Proof.
     intros x y f.
     use Cokernel_opp.
@@ -567,42 +567,42 @@ Section def_opposites'.
 
   Definition isPushout_opp {a b c d : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧) (in1 : C⟦b, d⟧) (in2 : C⟦c, d⟧)
              (H : f · in1 = g · in2) (iPo : @isPushout C a b c d f g in1 in2 H) :
-    @isPullback (C^op) a b c d f g in1 in2 H := iPo.
+    @isPullback C^op a b c d f g in1 in2 H := iPo.
 
   Definition isPullback_opp {a b c d : C} (f : C⟦b, a⟧) (g : C⟦c, a⟧) (p1 : C⟦d, b⟧) (p2 : C⟦d, c⟧)
         (H : p1 · f = p2 · g) (iPb : @isPullback C a b c d f g p1 p2 H) :
-    @isPushout (C^op) a b c d f g p1 p2 H := iPb.
+    @isPushout C^op a b c d f g p1 p2 H := iPb.
 
   Definition Pushout_opp {a b c : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧) (Po : @Pushout C a b c f g) :
-    @Pullback (C^op) a b c f g := Po.
+    @Pullback C^op a b c f g := Po.
 
   Definition Pullback_opp {a b c : C} (f : C⟦b, a⟧) (g : C⟦c, a⟧) (Pb : @Pullback C a b c f g) :
-    @Pushout (C^op) a b c f g := Pb.
+    @Pushout C^op a b c f g := Pb.
 
-  Definition Pushouts_opp (Pos : @Pushouts C) : @Pullbacks (C^op) := Pos.
+  Definition Pushouts_opp (Pos : @Pushouts C) : @Pullbacks C^op := Pos.
 
-  Definition Pullbacks_opp (Pbs : @Pushouts C) : @Pullbacks (C^op) := Pbs.
+  Definition Pullbacks_opp (Pbs : @Pushouts C) : @Pullbacks C^op := Pbs.
 
 
   (** ** BinProducts and BinCoproducts *)
 
   Definition isBinProduct_opp (c d p : C) (p1 : C⟦p, c⟧) (p2 : C⟦p, d⟧)
              (iBPC : @isBinProduct C c d p p1 p2) :
-    @isBinCoproduct (C^op) c d p p1 p2 := iBPC.
+    @isBinCoproduct C^op c d p p1 p2 := iBPC.
 
   Definition isBinCoproduct_opp (a b co : C) (ia : C⟦a, co⟧) (ib : C⟦b, co⟧)
              (iBCC : @isBinCoproduct C a b co ia ib) :
-    @isBinProduct (C^op) a b co ia ib := iBCC.
+    @isBinProduct C^op a b co ia ib := iBCC.
 
   Definition BinProduct_opp (c d : C) (iBPC : @BinProduct C c d) :
-    @BinCoproduct (C^op) c d := iBPC.
+    @BinCoproduct C^op c d := iBPC.
 
   Definition BinCoproduct_opp (c d : C) (iBCC : @BinCoproduct C c d) :
-    @BinProduct (C^op) c d := iBCC.
+    @BinProduct C^op c d := iBCC.
 
-  Definition BinProducts_opp (BP : @BinProducts C) : @BinCoproducts (C^op) := BP.
+  Definition BinProducts_opp (BP : @BinProducts C) : @BinCoproducts C^op := BP.
 
-  Definition BinCoproducts_opp (BC : @BinCoproducts C) : @BinProducts (C^op) := BC.
+  Definition BinCoproducts_opp (BC : @BinCoproducts C) : @BinProducts C^op := BC.
 
 End def_opposites'.
 

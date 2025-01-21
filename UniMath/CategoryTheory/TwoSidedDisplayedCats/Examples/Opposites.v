@@ -47,7 +47,7 @@ Section VerOpposite.
 
   (** * 1.1. The construction of the 2-sided displayed category *)
   Definition ver_op_twosided_disp_cat_ob_mor
-    : twosided_disp_cat_ob_mor (C₁^op) (C₂^op).
+    : twosided_disp_cat_ob_mor C₁^op C₂^op.
   Proof.
     simple refine (_ ,, _).
     - exact (λ x y, D x y).
@@ -72,7 +72,7 @@ Section VerOpposite.
   Defined.
 
   Definition ver_op_twosided_disp_cat_data
-    : twosided_disp_cat_data (C₁^op) (C₂^op).
+    : twosided_disp_cat_data C₁^op C₂^op.
   Proof.
     simple refine (_ ,, _).
     - exact ver_op_twosided_disp_cat_ob_mor.
@@ -97,7 +97,7 @@ Section VerOpposite.
   Qed.
 
   Definition ver_op_twosided_disp_cat
-    : twosided_disp_cat (C₁^op) (C₂^op).
+    : twosided_disp_cat C₁^op C₂^op.
   Proof.
     simple refine (_ ,, _).
     - exact ver_op_twosided_disp_cat_data.

@@ -149,7 +149,7 @@ Goal ∏ (M:precategory) (P:MorphismPair M), MorphismPair_opp (MorphismPair_opp 
 Proof.
   reflexivity.
 Qed.
-Goal ∏ (M:category) (p:MorphismPair (M^op)), MorphismPair M.
+Goal ∏ (M:category) (p:MorphismPair M^op), MorphismPair M.
   intros. exact (MorphismPair_opp p).
 Qed.
 Goal ∏ (M:category) (P Q : MorphismPair M^op) (f:MorphismPairIsomorphism P Q),

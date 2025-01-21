@@ -285,7 +285,7 @@ Section Inverse.
   Context (H : adj_equivalence_of_cats F).
 
   Definition adj_equivalence_of_cats_inv
-    : adj_equivalence_of_cats (H^^-1)
+    : adj_equivalence_of_cats H^^-1
     := adj_equivalence_from_right_adjoint
       (right_adjoint H)
       (is_right_adjoint_right_adjoint H)

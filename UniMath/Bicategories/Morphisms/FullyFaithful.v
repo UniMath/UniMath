@@ -464,7 +464,7 @@ Proof.
   - intros z g₁ g₂ αf ?.
     refine (fully_faithful_1cell_inv_map Hf αf ,, _ ,, _).
     + use make_is_invertible_2cell.
-      * exact (fully_faithful_1cell_inv_map Hf (Hαf^-1)).
+      * exact (fully_faithful_1cell_inv_map Hf Hαf^-1).
       * abstract
           (use (fully_faithful_1cell_faithful Hf) ;
            rewrite <- rwhisker_vcomp ;
