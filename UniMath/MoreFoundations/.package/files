@@ -4,12 +4,12 @@ WeakEquivalences.v
 Tactics.v
 PartA.v
 PathsOver.v
+Propositions.v
 Nat.v
 Notations.v
 AlternativeProofs.v
 DoubleNegation.v
 DecidablePropositions.v
-Propositions.v
 NullHomotopies.v
 Interval.v
 NegativePropositions.v
