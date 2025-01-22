@@ -111,7 +111,7 @@ Section IndexedFunctorToCartesianFunctor.
   Proof.
     intros x y f xx yy ff Hff ; cbn in *.
     apply is_cartesian_indexed_cat.
-    use is_z_iso_comp_of_is_z_isos.
+    use is_z_isomorphism_comp.
     - use functor_on_is_z_isomorphism.
       exact (is_cartesian_to_iso_indexed_cat Φ ff Hff).
     - apply is_z_isomorphism_inv.

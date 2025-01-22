@@ -354,6 +354,89 @@ Proof.
        apply idpath).
 Defined.
 
+Proposition preserves_binproduct_of_arrows
+            {C₁ C₂ : category}
+            {BC₁ : BinProducts C₁}
+            {BC₂ : BinProducts C₂}
+            {F : C₁ ⟶ C₂}
+            (HF : preserves_binproduct F)
+            {x₁ x₂ y₁ y₂ : C₁}
+            (f : x₁ --> x₂)
+            (g : y₁ --> y₂)
+  : inv_from_z_iso (preserves_binproduct_to_z_iso F HF _ _)
+    · #F(BinProductOfArrows _ (BC₁ _ _) (BC₁ _ _) f g)
+    =
+    BinProductOfArrows _ (BC₂ _ _) (BC₂ _ _) (#F f) (#F g)
+    · inv_from_z_iso (preserves_binproduct_to_z_iso F HF _ _).
+Proof.
+  cbn.
+  pose (H₁ := preserves_binproduct_to_binproduct F HF (BC₁ x₁ y₁)).
+  pose (H₂ := preserves_binproduct_to_binproduct F HF (BC₁ x₂ y₂)).
+  use (BinProductArrowsEq
+         _ _ _
+         (preserves_binproduct_to_binproduct F HF (BC₁ x₂ y₂))).
+  - etrans.
+    {
+      unfold BinProductOfArrows.
+      apply maponpaths_2.
+      apply maponpaths.
+      apply (preserves_binproduct_to_preserves_arrow F HF (BC₁ _ _) (BC₂ _ _)).
+    }
+    cbn.
+    rewrite !assoc'.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply (BinProductPr1Commutes _ _ _ H₂).
+    }
+    rewrite BinProductPr1Commutes.
+    etrans.
+    {
+      rewrite functor_comp.
+      rewrite !assoc.
+      apply maponpaths_2.
+      apply (BinProductPr1Commutes _ _ _ H₁).
+    }
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      apply (BinProductPr1Commutes _ _ _ H₂).
+    }
+    rewrite BinProductOfArrowsPr1.
+    apply idpath.
+  - etrans.
+    {
+      unfold BinProductOfArrows.
+      apply maponpaths_2.
+      apply maponpaths.
+      apply (preserves_binproduct_to_preserves_arrow F HF (BC₁ _ _) (BC₂ _ _)).
+    }
+    cbn.
+    rewrite !assoc'.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply (BinProductPr2Commutes _ _ _ H₂).
+    }
+    rewrite BinProductPr2Commutes.
+    etrans.
+    {
+      rewrite functor_comp.
+      rewrite !assoc.
+      apply maponpaths_2.
+      apply (BinProductPr2Commutes _ _ _ H₁).
+    }
+    refine (!_).
+    etrans.
+    {
+      apply maponpaths.
+      apply (BinProductPr2Commutes _ _ _ H₂).
+    }
+    rewrite BinProductOfArrowsPr2.
+    apply idpath.
+Qed.
+
 Definition identity_preserves_binproduct
           (C : category)
   : preserves_binproduct (functor_identity C)
@@ -625,6 +708,51 @@ Proof.
      apply EqualizerEqAr).
 Defined.
 
+Definition preserves_chosen_equalizers_eq
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (BE₁ : Equalizers C₁)
+           (BE₂ : Equalizers C₂)
+  : UU
+  := ∏ (x y : C₁) (f g : C₁⟦x,y⟧), ∥ F (BE₁ _ _ f g) = BE₂ _ _ (#F f) (#F g) ∥.
+
+Proposition identity_preserves_chosen_equalizers_eq
+            {C : category}
+            (BE : Equalizers C)
+  : preserves_chosen_equalizers_eq (functor_identity C) BE BE.
+Proof.
+  intro ; intros.
+  apply hinhpr.
+  apply idpath.
+Qed.
+
+Proposition composition_preserves_chosen_equalizers_eq
+            {C₁ C₂ C₃ : category}
+            {F : C₁ ⟶ C₂}
+            {G : C₂ ⟶ C₃}
+            {BE₁ : Equalizers C₁}
+            {BE₂ : Equalizers C₂}
+            {BE₃ : Equalizers C₃}
+            (HF : preserves_chosen_equalizers_eq F BE₁ BE₂)
+            (HG : preserves_chosen_equalizers_eq G BE₂ BE₃)
+  : preserves_chosen_equalizers_eq (F ∙ G) BE₁ BE₃.
+Proof.
+  intros x y f g.
+
+  use (factor_through_squash _ _ (HF _ _ f g)).
+  { apply propproperty. }
+  intros HFxy.
+
+  use (factor_through_squash _ _ (HG _ _ (#F f) (#F g))).
+  { apply propproperty. }
+  intros HGxy.
+
+  apply hinhpr.
+  cbn in *.
+  rewrite HFxy.
+  now rewrite HGxy.
+Qed.
+
 (**
  5. Preservation of pullbacks
  *)
@@ -731,6 +859,51 @@ Proof.
        apply maponpaths ;
        apply (PullbackArrow_PullbackPr2 (make_Pullback p Hpb))).
 Defined.
+
+Definition preserves_chosen_pullbacks_eq
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (P₁ : Pullbacks C₁)
+           (P₂ : Pullbacks C₂)
+  : UU
+  := ∏ (x y z : C₁) (f : C₁⟦x,z⟧) (g : C₁⟦y, z⟧), ∥ F (P₁ _ _ _ f g) = P₂ _ _ _ (#F f) (#F g) ∥.
+
+Proposition identity_preserves_chosen_pullbacks_eq
+            {C : category}
+            (P : Pullbacks C)
+  : preserves_chosen_pullbacks_eq (functor_identity C) P P.
+Proof.
+  intro ; intros.
+  apply hinhpr.
+  apply idpath.
+Qed.
+
+Proposition composition_preserves_chosen_pullbacks_eq
+            {C₁ C₂ C₃ : category}
+            {F : C₁ ⟶ C₂}
+            {G : C₂ ⟶ C₃}
+            {P₁ : Pullbacks C₁}
+            {P₂ : Pullbacks C₂}
+            {P₃ : Pullbacks C₃}
+            (HF : preserves_chosen_pullbacks_eq F P₁ P₂)
+            (HG : preserves_chosen_pullbacks_eq G P₂ P₃)
+  : preserves_chosen_pullbacks_eq (F ∙ G) P₁ P₃.
+Proof.
+  intros x y z f g.
+
+  use (factor_through_squash _ _ (HF _ _ _ f g)).
+  { apply propproperty. }
+  intros HFxy.
+
+  use (factor_through_squash _ _ (HG _ _ _ (#F f) (#F g))).
+  { apply propproperty. }
+  intros HGxy.
+
+  apply hinhpr.
+  cbn in *.
+  rewrite HFxy.
+  now rewrite HGxy.
+Qed.
 
 (**
  6. Preservation of initial objects

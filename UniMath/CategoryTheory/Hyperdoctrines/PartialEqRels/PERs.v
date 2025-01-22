@@ -744,6 +744,20 @@ Section Constructions.
       use weaken_right.
       apply hyperdoctrine_hyp.
     Qed.
+
+    Proposition from_eq_in_prod_partial_setoid
+                {Γ : ty H}
+                {t₁ t₂ : tm Γ prod_partial_setoid}
+                {Δ : form Γ}
+                (p : Δ ⊢ t₁ ~ t₂)
+      : Δ ⊢ π₁ t₁ ~ π₁ t₂ ∧ π₂ t₁ ~ π₂ t₂.
+    Proof.
+      use conj_intro.
+      - use eq_in_prod_partial_setoid_l.
+        exact p.
+      - use eq_in_prod_partial_setoid_r.
+        exact p.
+    Qed.
   End ProdPartialSetoid.
 End Constructions.
 

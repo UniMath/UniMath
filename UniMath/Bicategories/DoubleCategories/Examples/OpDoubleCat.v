@@ -292,7 +292,7 @@ Section VerOpposite.
     : double_cat.
   Proof.
     use make_double_cat.
-    - exact (C^op).
+    - exact C^op.
     - exact (ver_op_twosided_disp_cat (hor_mor C)).
     - exact hor_id_ver_opposite_double_cat.
     - exact hor_comp_ver_opposite_double_cat.

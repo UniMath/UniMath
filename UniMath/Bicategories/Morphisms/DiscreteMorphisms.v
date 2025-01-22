@@ -116,7 +116,7 @@ Proof.
   intros x g₁ g₂ α Hα.
   pose (H := is_invertible_2cell_pseudomonic_1cell_inv_map Hf (α ▹ f) Hα).
   use make_is_invertible_2cell.
-  - exact (H^-1).
+  - exact H^-1.
   - abstract
       (use vcomp_move_R_Mp ; [ is_iso | ] ; cbn ;
        rewrite id2_left ;

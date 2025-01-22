@@ -1,0 +1,9 @@
+-Q UniMath
+UniMath
+
+-arg "-type-in-type"
+-arg "-noinit"
+-arg "-indices-matter"
+-arg "-type-in-type"
+-arg "-w"
+-arg "-notation-overridden"

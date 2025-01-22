@@ -321,7 +321,7 @@ Section HorizontalBicat.
         apply transportfb_square.
     - intros Hs.
       simple refine (_ ,, _ ,, _).
-      + exact (Hs^-1).
+      + exact Hs^-1.
       + refine (!_).
         etrans.
         {

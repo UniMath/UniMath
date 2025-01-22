@@ -1450,7 +1450,7 @@ Section PairingWithAnObject.
 End PairingWithAnObject.
 
 
-Definition category_op_binproduct {C D:category}: ((C^op) × (D^op)) ⟶ (C × D)^op.
+Definition category_op_binproduct {C D:category}: (C^op × D^op) ⟶ (C × D)^op.
 Proof.
   use make_functor.
   + use make_functor_data.

@@ -940,7 +940,7 @@ Section SquareDoubleBicat.
         f g.
   Proof.
     use make_invertible_2cell.
-    - exact (τ^-1).
+    - exact τ^-1.
     - use make_is_invertible_2cell.
       + exact τ.
       + abstract
@@ -958,7 +958,7 @@ Section SquareDoubleBicat.
     : invertible_2cell (C := B) f g.
   Proof.
     use make_invertible_2cell.
-    - exact (τ^-1).
+    - exact τ^-1.
     - use make_is_invertible_2cell.
       + exact τ.
       + abstract

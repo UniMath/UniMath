@@ -1468,16 +1468,16 @@ Section LocalOpCleavingToLocalIsoCleaving.
 
   Definition local_opcleaving_to_local_iso_cleaving_lift
     : xx -->[ f ] yy
-    := HD x y xx yy g f gg (α^-1).
+    := HD x y xx yy g f gg α^-1.
 
   Let ff : xx -->[ f ] yy
     := local_opcleaving_to_local_iso_cleaving_lift.
 
   Let γ : gg ==>[ α^-1 ] ff
-    := cell_of_opcartesian_lift_2cell _ (HD x y xx yy g f gg (α^-1)).
+    := cell_of_opcartesian_lift_2cell _ (HD x y xx yy g f gg α^-1).
 
   Let Hγ : is_opcartesian_2cell _ γ
-    := cell_of_opcartesian_lift_2cell_is_opcartesian _ (HD x y xx yy g f gg (α^-1)).
+    := cell_of_opcartesian_lift_2cell_is_opcartesian _ (HD x y xx yy g f gg α^-1).
 
   Definition local_opcleaving_to_local_iso_cleaving_disp_iso_cell
     : ff ==>[ α ] gg.

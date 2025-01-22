@@ -325,7 +325,7 @@ Section OpFibSlice.
   Proof.
     intros x xx.
     simple refine (_ ,, _ ,, _).
-    - exact (pr1 (Hα^-1) x xx).
+    - exact (pr1 Hα^-1 x xx).
     - abstract
         (use transportb_transpose_right ;
          refine (_ @ maponpaths (λ z, pr1 z x xx) (vcomp_linv Hα)) ;

@@ -491,7 +491,7 @@ Definition is_disp_invertible_2cell_cod
 Proof.
   use tpair.
   - use tpair.
-    + exact (Hαα^-1).
+    + exact Hαα^-1.
     + abstract
         (simpl ;
          use vcomp_move_R_Mp ; is_iso ;

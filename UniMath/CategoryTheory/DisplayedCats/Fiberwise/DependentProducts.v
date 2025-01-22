@@ -307,22 +307,21 @@ Section IdPreserves.
   Context {C : category}
           {D : disp_cat C}
           {HD : cleaving D}
-          (P : has_dependent_products HD)
           {x y : C}
           (f : x --> y)
+          (P : dependent_product HD f)
           (a : D[{x}]).
 
   Let R : D[{x}] ⟶ D[{y}]
-    := right_adjoint (pr1 P x y f).
+    := right_adjoint P.
   Let η : functor_identity D[{y}] ⟹ fiber_functor_from_cleaving D HD f ∙ R
-    := unit_from_left_adjoint (pr1 P x y f).
+    := unit_from_left_adjoint P.
   Let ε : R ∙ fiber_functor_from_cleaving D HD f ⟹ functor_identity _
-    := counit_from_left_adjoint (pr1 P x y f).
+    := counit_from_left_adjoint P.
 
   Lemma right_beck_chevalley_nat_trans_id_on_ob
     : right_beck_chevalley_nat_trans
-        (pr1 P x y f)
-        (pr1 P x y f)
+        P P
         (fiber_functor_natural_nat_z_iso HD HD (id_cartesian_disp_functor D) f)
         a
       =
@@ -356,8 +355,7 @@ Section IdPreserves.
 
   Proposition right_beck_chevalley_nat_trans_id
     : right_beck_chevalley_nat_trans
-        (pr1 P x y f)
-        (pr1 P x y f)
+        P P
         (fiber_functor_natural_nat_z_iso HD HD (id_cartesian_disp_functor D) f)
         a
       =
@@ -367,7 +365,7 @@ Section IdPreserves.
     rewrite right_beck_chevalley_nat_trans_id_natural.
     rewrite functor_id.
     rewrite id_right.
-    exact (pr222 (pr1 P x y f) a).
+    exact (pr222 P a).
   Qed.
 End IdPreserves.
 
@@ -379,7 +377,7 @@ Definition id_preserves_dependent_products
   : preserves_dependent_products (id_cartesian_disp_functor D) P P.
 Proof.
   intros x y f a.
-  use (is_z_isomorphism_path (!(right_beck_chevalley_nat_trans_id P f a))).
+  use (is_z_isomorphism_path (!(right_beck_chevalley_nat_trans_id f _ a))).
   apply is_z_isomorphism_identity.
 Qed.
 
@@ -395,38 +393,37 @@ Section CompPreserves.
           {G : C₂ ⟶ C₃}
           (FF : cartesian_disp_functor F D₁ D₂)
           (GG : cartesian_disp_functor G D₂ D₃)
-          (P₁ : has_dependent_products HD₁)
-          (P₂ : has_dependent_products HD₂)
-          (P₃ : has_dependent_products HD₃)
           {x y : C₁}
           (f : x --> y)
-          (a : D₁[{x}]).
+          (a : D₁[{x}])
+          (P₁ : dependent_product HD₁ f)
+          (P₂ : dependent_product HD₂ (#F f))
+          (P₃ : dependent_product HD₃ (#G (#F f))).
 
   Let R₁ : D₁[{x}] ⟶ D₁[{y}]
-    := right_adjoint (pr1 P₁ x y f).
+    := right_adjoint P₁.
   Let η₁ : functor_identity _ ⟹ fiber_functor_from_cleaving D₁ HD₁ f ∙ R₁
-    := unit_from_left_adjoint (pr1 P₁ x y f).
+    := unit_from_left_adjoint P₁.
   Let ε₁ : R₁ ∙ fiber_functor_from_cleaving D₁ HD₁ f ⟹ functor_identity _
-    := counit_from_left_adjoint (pr1 P₁ x y f).
+    := counit_from_left_adjoint P₁.
 
   Let R₂ : D₂[{F x}] ⟶ D₂[{F y}]
-    := right_adjoint (pr1 P₂ (F x) (F y) (#F f)).
+    := right_adjoint P₂.
   Let η₂ : functor_identity _ ⟹ fiber_functor_from_cleaving D₂ HD₂ (#F f) ∙ R₂
-    := unit_from_left_adjoint (pr1 P₂ (F x) (F y) (#F f)).
+    := unit_from_left_adjoint P₂.
   Let ε₂ : R₂ ∙ fiber_functor_from_cleaving D₂ HD₂ (#F f) ⟹ functor_identity _
-    := counit_from_left_adjoint (pr1 P₂ (F x) (F y) (#F f)).
+    := counit_from_left_adjoint P₂.
 
   Let R₃ : D₃[{G(F x)}] ⟶ D₃[{G(F y)}]
-    := right_adjoint (pr1 P₃ (G(F x)) (G(F y)) (#G (#F f))).
+    := right_adjoint P₃.
   Let η₃ : functor_identity _ ⟹ fiber_functor_from_cleaving D₃ HD₃ (#G(#F f)) ∙ R₃
-    := unit_from_left_adjoint (pr1 P₃ (G(F x)) (G(F y)) (#G(#F f))).
+    := unit_from_left_adjoint P₃.
   Let ε₃ : R₃ ∙ fiber_functor_from_cleaving D₃ HD₃ (#G(#F f)) ⟹ functor_identity _
-    := counit_from_left_adjoint (pr1 P₃ (G(F x)) (G(F y)) (#G(#F f))).
+    := counit_from_left_adjoint P₃.
 
   Lemma right_beck_chevalley_nat_trans_comp_ob
     : right_beck_chevalley_nat_trans
-        (pr1 P₁ x y f)
-        (pr1 P₃ (G(F x)) (G(F y)) (#G(#F f)))
+        P₁ P₃
         (fiber_functor_natural_nat_z_iso HD₁ HD₃ (comp_cartesian_disp_functor FF GG) f)
         a
       =
@@ -439,8 +436,7 @@ Section CompPreserves.
 
   Lemma right_beck_chevalley_nat_trans_comp_ob_on_left
     : right_beck_chevalley_nat_trans
-        (pr1 P₁ x y f)
-        (pr1 P₂ (F x) (F y) (#F f))
+        P₁ P₂
         (fiber_functor_natural_nat_z_iso HD₁ HD₂ FF f)
         a
       =
@@ -453,10 +449,7 @@ Section CompPreserves.
 
   Lemma right_beck_chevalley_nat_trans_comp_ob_on_right
     : right_beck_chevalley_nat_trans
-        (pr1 P₂ (F x) (F y) (# F f))
-        (pr1 P₃ (G (F x))
-           (G (F y))
-           (# G (# F f)))
+        P₂ P₃
         (fiber_functor_natural_nat_z_iso HD₂ HD₃ GG (#F f)) (FF x a)
       =
       η₃ _
@@ -516,20 +509,17 @@ Section CompPreserves.
 
   Proposition right_beck_chevalley_nat_trans_comp
     : right_beck_chevalley_nat_trans
-        (pr1 P₁ x y f)
-        (pr1 P₃ (G(F x)) (G(F y)) (#G(#F f)))
+        P₁ P₃
         (fiber_functor_natural_nat_z_iso HD₁ HD₃ (comp_cartesian_disp_functor FF GG) f)
         a
       =
       #(fiber_functor GG _)
           (right_beck_chevalley_nat_trans
-             (pr1 P₁ x y f)
-             (pr1 P₂ (F x) (F y) (#F f))
+             P₁ P₂
              (fiber_functor_natural_nat_z_iso HD₁ HD₂ FF f)
              a)
       · right_beck_chevalley_nat_trans
-          (pr1 P₂ (F x) (F y) (#F f))
-          (pr1 P₃ (G(F x)) (G(F y)) (#G(#F f)))
+          P₂ P₃
           (fiber_functor_natural_nat_z_iso HD₂ HD₃ GG (#F f))
           (FF _ a).
   Proof.
@@ -584,7 +574,7 @@ Section CompPreserves.
       }
       rewrite !assoc.
       apply maponpaths_2.
-      exact (pr122 (pr1 P₂ _ _ _) (fiber_functor FF y (R₁ a))).
+      exact (pr122 P₂ (fiber_functor FF y (R₁ a))).
     }
     rewrite id_left.
     etrans.
@@ -633,7 +623,13 @@ Definition comp_preserves_dependent_products
       P₃.
 Proof.
   intros x y f a.
-  use (is_z_isomorphism_path (!(right_beck_chevalley_nat_trans_comp FF GG P₁ P₂ P₃ f a))).
+  use (is_z_isomorphism_path
+         (!(right_beck_chevalley_nat_trans_comp
+              FF GG
+              f a
+              (pr1 P₁ _ _ f)
+              (pr1 P₂ _ _ (#F f))
+              (pr1 P₃ _ _ (#G (#F f)))))).
   use is_z_isomorphism_comp.
   - use functor_on_is_z_isomorphism.
     apply HFF.

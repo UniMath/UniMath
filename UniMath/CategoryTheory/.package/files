@@ -141,6 +141,7 @@ DisplayedCats/MonoCodomain/MonoHyperdoctrine.v
 Hyperdoctrines/Hyperdoctrine.v
 Hyperdoctrines/FirstOrderHyperdoctrine.v
 Hyperdoctrines/Tripos.v
+Hyperdoctrines/GenericPredicate.v
 
 Hyperdoctrines/PartialEqRels/PERs.v
 Hyperdoctrines/PartialEqRels/PERMorphisms.v
@@ -151,8 +152,26 @@ Hyperdoctrines/PartialEqRels/PERInitial.v
 Hyperdoctrines/PartialEqRels/PERBinProducts.v
 Hyperdoctrines/PartialEqRels/PEREqualizers.v
 Hyperdoctrines/PartialEqRels/PERMonomorphisms.v
+Hyperdoctrines/PartialEqRels/PERSubobjectClassifier.v
+Hyperdoctrines/PartialEqRels/ExponentialPER.v
+Hyperdoctrines/PartialEqRels/ExponentialEval.v
+Hyperdoctrines/PartialEqRels/ExponentialLam.v
+Hyperdoctrines/PartialEqRels/ExponentialEqs.v
+Hyperdoctrines/PartialEqRels/PERExponentials.v
+Hyperdoctrines/PartialEqRels/Logic/SubobjectDispCat.v
+Hyperdoctrines/PartialEqRels/Logic/MonoEquiv.v
+Hyperdoctrines/PartialEqRels/Logic/Truth.v
+Hyperdoctrines/PartialEqRels/Logic/Falsity.v
+Hyperdoctrines/PartialEqRels/Logic/Conjunction.v
+Hyperdoctrines/PartialEqRels/Logic/Disjunction.v
+Hyperdoctrines/PartialEqRels/Logic/Implication.v
+Hyperdoctrines/PartialEqRels/Logic/Existential.v
+Hyperdoctrines/PartialEqRels/Logic/Universal.v
+Hyperdoctrines/PartialEqRels/InternalLogic.v
+Hyperdoctrines/TriposToTopos.v
 
 DisplayedCats/Examples/HValuedPredicates.v
+Hyperdoctrines/HValuedSets.v
 
 LocallyCartesianClosed/LocallyCartesianClosed.v
 DisplayedCats/Fiberwise/DualBeckChevalley.v
@@ -170,8 +189,13 @@ Limits/Filtered.v
 IsoCommaCategory.v
 Limits/Examples/IsoCommaLimits.v
 CommaCategories.v
+Categories/Quotient.v
 
-NNO.v
+Arithmetic/NNO.v
+Arithmetic/ParameterizedNNO.v
+
+DisplayedCats/Codomain/CodNNO.v
+
 Subcategory/Limits.v
 EpiFacts.v
 Categories/Type/Core.v
@@ -193,9 +217,24 @@ catiso.v
 DisplayedCats/CatIsoDisplayed.v
 CategoryEquality.v
 Core/PosetCat.v
-WeakEquivalences.v
+
+WeakEquivalences/Core.v
+WeakEquivalences/Terminal.v
+WeakEquivalences/Preservation/Binproducts.v
+WeakEquivalences/Reflection/BinProducts.v
+WeakEquivalences/Creation/BinProducts.v
+WeakEquivalences/LiftPreservation/BinProducts.v
+WeakEquivalences/Preservation/Equalizers.v
+WeakEquivalences/Reflection/Equalizers.v
+WeakEquivalences/Creation/Equalizers.v
+WeakEquivalences/LiftPreservation/Equalizers.v
+WeakEquivalences/Preservation/Pullbacks.v
+WeakEquivalences/Reflection/Pullbacks.v
+WeakEquivalences/Creation/Pullbacks.v
+WeakEquivalences/LiftPreservation/Pullbacks.v
 RezkCompletions/RezkCompletions.v
 RezkCompletions/Construction.v
+
 exponentials.v
 slicecat.v
 Limits/PullbacksSliceProductsEquiv.v
@@ -227,7 +266,9 @@ Subcategory/Reflective.v
 
 Categories/PrecategoryOfCategories.v
 Categories/CategoryOfSetCategories.v
+Categories/CategoryOfSetGroupoids.v
 Limits/Examples/CategoryOfSetcategoriesLimits.v
+Limits/Examples/CategoryOfSetGroupoidsLimits.v
 Categories/SetWith2BinOp.v
 Categories/Monoid.v
 Categories/Abmonoid.v
@@ -241,7 +282,8 @@ Categories/Intdom.v
 Categories/Fld.v
 Categories/Module.v
 Categories/StandardCategories.v
-Categories/PreorderCategories.v
+Categories/PreorderCategory/Core.v
+Categories/PreorderCategory/Sieves.v
 Categories/MonoidToCategory.v
 
 Limits/Examples/UnitCategoryLimits.v
@@ -273,13 +315,22 @@ Categories/Woset.v
 Categories/Graph.v
 Categories/CGraph.v
 
-GrothendieckTopos.v
 Presheaf.v
 ElementsOp.v
 elems_slice_equiv.v
 YonedaBinproducts.v
 YonedaExponentials.v
 ExponentiationLeftAdjoint.v
+
+GrothendieckToposes/Sieves.v
+GrothendieckToposes/Topologies.v
+GrothendieckToposes/Sites.v
+GrothendieckToposes/Sheaves.v
+GrothendieckToposes/Toposes.v
+GrothendieckToposes/Examples/TerminalSheaf.v
+GrothendieckToposes/Examples/EmptySieve.v
+GrothendieckToposes/Examples/DiscreteTopology.v
+GrothendieckToposes/Examples/IndiscreteTopology.v
 
 Connected.v
 LeftKanExtension.v
@@ -296,6 +347,7 @@ DisplayedCats/Examples/DispFunctorPair.v
 DisplayedCats/Examples/Opposite.v
 DisplayedCats/Fibrations.v
 DisplayedCats/Examples/Reindexing.v
+DisplayedCats/PreservesCleaving.v
 DisplayedCats/Constructions/CategoryWithStructure.v
 DisplayedCats/Constructions/DisplayedFunctorCat.v
 DisplayedCats/Constructions/FullSubcategory.v
@@ -326,6 +378,9 @@ DisplayedCats/Codomain.v
 DisplayedCats/Examples/MonoCodomain.v
 DisplayedCats/Projection.v
 DisplayedCats/SIP.v
+
+DisplayedCats/Examples/SetGroupoidsIsoFib.v
+DisplayedCats/Examples/SetGroupoidComprehension.v
 
 Monads/Monads.v
 Monads/LModules.v
@@ -676,3 +731,13 @@ DaggerCategories/Functors/Factorization.v
 DaggerCategories/Functors/Precomp.v
 
 DaggerCategories/CatIso.v
+
+MarkovCategories/MarkovCategory.v
+MarkovCategories/Determinism.v
+MarkovCategories/Univalence.v
+MarkovCategories/AlmostSurely.v
+MarkovCategories/Conditionals.v
+MarkovCategories/InformationFlowAxioms.v
+MarkovCategories/State.v
+MarkovCategories/ProbabilitySpaces.v
+MarkovCategories/Couplings.v

@@ -17,6 +17,7 @@
   3. Preservation [preserves_exponentials]
   4. Transport along an adjoint equivalence
     [is_expDd0_adjunction_laws] [exponentials_through_adj_equivalence_univalent_cats]
+  5. Exponentials are independent of the choice of the binary products
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -357,6 +358,112 @@ Section Preservation.
 
 End Preservation.
 
+Proposition preserves_exponentials_map_id
+            {C : category}
+            {BC : BinProducts C}
+            (E : Exponentials BC)
+            (x y : C)
+  : identity _
+    =
+    preserves_exponentials_map E E (identity_preserves_binproduct C) x y.
+Proof.
+  unfold preserves_exponentials_map.
+  cbn.
+  refine (exp_eta _ _ @ _).
+  apply maponpaths.
+  apply maponpaths_2.
+  unfold BinProductOfArrows.
+  rewrite !id_right.
+  apply idpath.
+Qed.
+
+Definition id_preserves_exponentials
+           {C : category}
+           {BC : BinProducts C}
+           (E : Exponentials BC)
+  : preserves_exponentials E E (identity_preserves_binproduct _).
+Proof.
+  intros x y.
+  use is_z_isomorphism_path.
+  - apply identity.
+  - apply preserves_exponentials_map_id.
+  - apply identity_is_z_iso.
+Defined.
+
+Section CompPreserves.
+  Context {C₁ C₂ C₃ : category}
+          {BC₁ : BinProducts C₁}
+          {BC₂ : BinProducts C₂}
+          {BC₃ : BinProducts C₃}
+          {E₁ : Exponentials BC₁}
+          {E₂ : Exponentials BC₂}
+          {E₃ : Exponentials BC₃}
+          {F : C₁ ⟶ C₂}
+          {HF : preserves_binproduct F}
+          (HFE : preserves_exponentials E₁ E₂ HF)
+          {G : C₂ ⟶ C₃}
+          {HG : preserves_binproduct G}
+          (HGE : preserves_exponentials E₂ E₃ HG).
+
+  Proposition comp_preserves_exponentials_eq
+              (x y : C₁)
+    : # G (preserves_exponentials_map E₁ E₂ HF x y)
+      · preserves_exponentials_map E₂ E₃ HG (F x) (F y)
+      =
+      preserves_exponentials_map E₁ E₃ (composition_preserves_binproduct HF HG) x y.
+  Proof.
+    unfold preserves_exponentials_map ; cbn.
+    refine (exp_eta _ _ @ _).
+    apply maponpaths.
+    etrans.
+    {
+      rewrite <- BinProductOfArrows_idxcomp.
+      rewrite !assoc'.
+      rewrite exp_beta.
+      rewrite !assoc.
+      rewrite <- (functor_id G).
+      apply maponpaths_2.
+      refine (!_).
+      apply preserves_binproduct_of_arrows.
+    }
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      refine (!(functor_comp G _ _) @ _).
+      apply maponpaths.
+      apply exp_beta.
+    }
+    rewrite functor_comp.
+    rewrite !assoc.
+    apply maponpaths_2.
+    use z_iso_inv_on_right.
+    etrans.
+    {
+      apply (preserves_binproduct_to_preserves_arrow
+               G HG
+               (preserves_binproduct_to_binproduct F HF (BC₁ x (exp (E₁ x) y)))
+               (BC₃ _ _)).
+    }
+    cbn.
+    apply idpath.
+  Qed.
+
+  Definition comp_preserves_exponentials
+    : preserves_exponentials E₁ E₃ (composition_preserves_binproduct HF HG).
+  Proof.
+    intros x y.
+    use is_z_isomorphism_path.
+    - exact (#G(preserves_exponentials_map E₁ E₂ HF x y)
+             · preserves_exponentials_map E₂ E₃ HG (F x) (F y)).
+    - apply comp_preserves_exponentials_eq.
+    - use is_z_isomorphism_comp.
+      + use functor_on_is_z_isomorphism.
+        apply HFE.
+      + apply HGE.
+  Defined.
+End CompPreserves.
+
 (** * 4. Transport along an adjoint equivalence *)
 Section ExponentialsCarriedThroughAdjointEquivalence.
 
@@ -671,3 +778,125 @@ Section AlternativeWithUnivalence.
   Defined.
 
 End AlternativeWithUnivalence.
+
+(** * 5. Exponentials are independent of the choice of the binary products *)
+
+(**
+ Note that the proof below can be simplified if we assume that [C] is univalent.
+ However, we need this statement also for categories that are not univalent.
+ *)
+Section ExpIndependent.
+  Context {C : category}
+          (BC₁ BC₂ : BinProducts C)
+          (E : Exponentials BC₁).
+
+  Lemma exponentials_independent_eta
+        {x y z : C}
+        (f : BC₂ x z --> y)
+    : isaprop
+        (∑ (f' : z --> exp (E x) y),
+         f
+         =
+         # (constprod_functor1 BC₂ x) f'
+         · (iso_between_BinProduct (BC₂ x (exp (E x) y)) (BC₁ x (exp (E x) y))
+            · exp_eval (E x) y)).
+  Proof.
+    use invproofirrelevance.
+    intros g₁ g₂.
+    pose proof (p := !(pr2 g₁) @ pr2 g₂).
+    cbn in p.
+    unfold BinProduct_of_functors_mor in p.
+    cbn in p.
+    rewrite !assoc in p.
+    rewrite !precompWithBinProductArrow in p.
+    rewrite !(BinProductOfArrowsPr1 _ (BC₂ x (exp (E x) y)) (BC₂ x z)) in p.
+    rewrite !(BinProductOfArrowsPr2 _ (BC₂ x (exp (E x) y)) (BC₂ x z)) in p.
+    rewrite !id_right in p.
+    use subtypePath.
+    {
+      intro.
+      apply homset_property.
+    }
+    refine (exp_eta _ _ @ _ @ !(exp_eta _ _)).
+    apply maponpaths.
+    unfold BinProductOfArrows.
+    rewrite !id_right.
+    simple refine (_ @ maponpaths (λ h, iso_between_BinProduct _ _ · h) p @ _).
+    - cbn.
+      rewrite !assoc.
+      apply maponpaths_2.
+      rewrite precompWithBinProductArrow.
+      rewrite (BinProductPr1Commutes _ _ _ (BC₂ x z)).
+      rewrite !assoc.
+      rewrite (BinProductPr2Commutes _ _ _ (BC₂ x z)).
+      apply idpath.
+    - cbn.
+      rewrite !assoc.
+      apply maponpaths_2.
+      rewrite precompWithBinProductArrow.
+      rewrite (BinProductPr1Commutes _ _ _ (BC₂ x z)).
+      rewrite !assoc.
+      rewrite (BinProductPr2Commutes _ _ _ (BC₂ x z)).
+      apply idpath.
+  Qed.
+
+  Lemma exponentials_independent_beta
+        {x y z : C}
+        (f : BC₂ x z --> y)
+    : f
+      =
+      BinProductOfArrows
+        C
+        (BC₂ x (exp (E x) y))
+        (BC₂ x z)
+        (identity x)
+        (exp_lam
+           (E x)
+           (BinProductArrow C (BC₂ x z) (BinProductPr1 C (BC₁ x z)) (BinProductPr2 C (BC₁ x z))
+            · f))
+      · (BinProductArrow C (BC₁ x (exp (E x) y))
+           (BinProductPr1 C (BC₂ x (exp (E x) y)))
+           (BinProductPr2 C (BC₂ x (exp (E x) y))) · exp_eval (E x) y).
+  Proof.
+    use (cancel_z_iso' (z_iso_inv (iso_between_BinProduct (BC₂ x z) (BC₁ x z)))).
+    refine (!(exp_beta (E x) _) @ _).
+    rewrite !assoc.
+    apply maponpaths_2.
+    cbn.
+    refine (!_).
+    unfold BinProductOfArrows.
+    rewrite !precompWithBinProductArrow.
+    rewrite !id_right.
+    etrans.
+    {
+      apply maponpaths_2.
+      etrans.
+      {
+        apply BinProductPr1Commutes.
+      }
+      apply BinProductPr1Commutes.
+    }
+    apply maponpaths.
+    rewrite BinProductPr2Commutes.
+    rewrite !assoc.
+    rewrite BinProductPr2Commutes.
+    apply idpath.
+  Qed.
+
+  Definition exponentials_independent
+    : Exponentials BC₂.
+  Proof.
+    intros x.
+    use left_adjoint_from_partial.
+    - exact (exp (E x)).
+    - exact (λ y,
+             iso_between_BinProduct (BC₂ x (exp (E x) y)) (BC₁ x (exp (E x) y))
+             · exp_eval (E x) y).
+    - intros y z f.
+      use iscontraprop1.
+      + apply exponentials_independent_eta.
+      + simple refine (_ ,, _).
+        * exact (exp_lam (E x) (z_iso_inv (iso_between_BinProduct (BC₂ x z) (BC₁ x z)) · f)).
+        * apply exponentials_independent_beta.
+  Defined.
+End ExpIndependent.

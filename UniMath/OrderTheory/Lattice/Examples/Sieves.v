@@ -388,7 +388,6 @@ Section FixPoset.
   Definition bounded_lattice_set_of_sieves
     : bounded_lattice set_of_sieves.
   Proof.
-    Check poset_to_bounded_lattice.
     use make_bounded_lattice.
     - exact lattice_set_of_sieves.
     - exact empty_sieve.

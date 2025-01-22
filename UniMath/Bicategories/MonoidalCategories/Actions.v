@@ -366,7 +366,7 @@ Definition U_action_ρ_is_nat_z_iso : is_nat_z_iso U_action_ρ_nat_trans.
 Proof.
   intro.
   cbn.
-  use is_z_iso_comp_of_is_z_isos.
+  use is_z_isomorphism_comp.
   - use is_z_iso_tensor_z_iso.
     + exact (identity_is_z_iso _ ).
     + apply (is_z_iso_inv_from_z_iso (make_z_iso _ _ (strong_monoidal_functor_ϵ_is_z_iso U))).
@@ -394,7 +394,7 @@ Lemma U_action_χ_is_nat_z_iso : is_nat_z_iso U_action_χ_nat_trans.
 Proof.
   intro x.
   pose (k := ob1 (ob1 x)); pose (k' := ob2 (ob1 x)); pose (k'' := ob2 x).
-  use is_z_iso_comp_of_is_z_isos.
+  use is_z_isomorphism_comp.
   - exact (pr2 α_A ((k, U k'), U k'')).
   - use is_z_iso_tensor_z_iso.
     + use identity_is_z_iso.
