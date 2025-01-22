@@ -2,7 +2,12 @@
 
 As mentioned before in [the tutorial about paths](./t02-paths.md), if we have a type `X` and a family of types `Y : X → UU`, and if we have a path `p : x = x'` for `x x' : X`, we can 'transport' a term `y : Y x` over this path to get `transportf Y e y : Y x'`, or transport `y' : Y x'` to get `transportb Y e y' : Y x` (note that `transportb Y e` is defined as `transportf Y (!e)`). For example, if we have `m n : nat`, `Hmn : m = n` and `Hm : m ≥ 5`, and if our goal is `n ≥ 5`, `transportf (λ l, l ≥ 5) Hmn Hm` solves this goal. Note that using a transport instead of rewriting is usually not the right approach, even though it is a possibility.
 
-Often when proving `(x ,, y) = (x' ,, y')` in `a b : ∑ x, Y x`, one will first show that `H : x = x'` and then that `transportf Y H y = y'`.
+Often when proving `(x ,, y) = (x' ,, y')` in `a b : ∑ x, Y x`, one will first show that `H : x = x'` and then that `transportf Y H y = y'`. However, the latter part can be really hard. In this tutorial, we will take a look at some ways to work with transports. We will take a look at
+
+- [Avoiding transports](#avoiding-transports)
+- [Existing lemmas](#existing-lemmas)
+- [Custom lemmas](#custom-lemmas)
+
 
 ## Avoiding transports
 Often, the best approach of dealing with transports is to avoid them wherever possible. It is notoriously hard to navigate through 'transport hell', so there are some techniques to make sure you encounter them as little as possible. Most of them boil down to working in small steps:
@@ -34,7 +39,9 @@ Now, most types in UniMath are parameterized: functions and morphisms have a dom
 ## Custom lemmas
 Most of the time, lemmas such as those in the previous section suffice for the simple cases that you encounter once or twice. However, sometimes the dependent type `Y` is very complicated and sometimes you need a certain fact about transports multiple times.
 
-If you need to reduce a transport to a statement without transports (for example, by replacing it with a composition by `idtoiso`), it often helps to generalize the statement a bit, to make it work for transport over general paths `H : x = x'`, and turn it into an auxiliary lemma. In this lemma, you can use induction to trivialize the transport and turn every `idtoiso` into the identity isomorphism. Then most of the time, the goal becomes a statement about how working with the identity does not change anything. For example:
+If you need to reduce a transport to a statement without transports (for example, replacing the transport by a composition with `idtoiso`), it often helps to generalize the statement a bit, to make it work for transport over general paths `H : x = x'`, and turn it into an auxiliary lemma. In this lemma, you can use induction to trivialize the transport and turn every `idtoiso` into the identity isomorphism. Then most of the time, the goal becomes a statement about how working with the identity does not change anything.
+
+Consider a somewhat complicated example, where we work with pairs `(X, Xdata)`, consisting of a category `X` and a D-presheaf `Xdata` on that category. Morphisms between such category-presheaf pairs are again a pair `(f, fdata)`, consisting of a backwards functor `f` between the categories and a natural transformation `fdata` from the pullback `f* Xdata` to `Ydata`. The following lemma then states that transporting such a transformation `fdata` along a path `e : f = g` is the same as precomposing it with some whiskered version of `idtoiso e`:
 ```coq
 Local Lemma aux1
   {D : category}
