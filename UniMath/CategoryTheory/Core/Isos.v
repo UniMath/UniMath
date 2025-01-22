@@ -591,14 +591,6 @@ Proof.
   exact H.
 Qed.
 
-Lemma cancel_precomposition_z_iso {C : precategory} {a b c : C}
-    (f : z_iso a b) (g h : b --> c) : f · g = f · h -> g = h.
-Proof.
-  use pre_comp_with_z_iso_is_inj.
-  - exact (pr1 (pr2 f)).
-  - exact (pr2 (pr2 f)).
-Qed.
-
 Lemma pre_comp_with_z_iso_is_inj' {C : precategory} {a b b' : C} {f : a --> b}
       (i : is_z_isomorphism f) : ∏ (f' g' : b --> b'), f · f' = f · g' -> f' = g'.
 Proof.
