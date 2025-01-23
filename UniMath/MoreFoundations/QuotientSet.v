@@ -1,5 +1,3 @@
-(* -*- coding: utf-8 -*- *)
-
 Require Import
         UniMath.Foundations.Sets
         UniMath.MoreFoundations.PartA.

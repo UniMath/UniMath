@@ -6,8 +6,6 @@ Require Import UniMath.MoreFoundations.Nat.
 Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.MoreFoundations.PartA.
 
-Notation ℕ := nat.
-
 Definition target_paths {Y} (f:ℕ->Y) := ∏ n, f n=f(S n).
 
 Definition gHomotopy {Y} (f:ℕ->Y) (s:target_paths f) := fun
@@ -22,7 +20,7 @@ Proof.
   intros. unfold GuidedHomotopy, nullHomotopyFrom.
   refine (@iscontrweqb _ (∑ y, y=f 0) _ _).
   { apply weqfibtototal. intro y.
-    exact (Nat.Uniqueness.hNatRecursion_weq
+    exact (hNatRecursion_weq
              (λ n, y = f n) (λ n hn, hn @ s n)). }
   { apply iscontrcoconustot. }
 Defined.
@@ -84,9 +82,3 @@ Proof.
   intros. refine (_ @ map_path_check s n _).
   apply pathsinv0. apply maponpathscomp.
 Defined.
-
-(*
-Local Variables:
-compile-command: "make -C ../.. UniMath/SyntheticHomotopyTheory/Halfline.vo"
-End:
-*)

@@ -46,8 +46,3 @@ Module Test_assoc.
   Goal ∏ (M:monoid) (x y z:M), x+y+z = x+(y+z). Proof. apply assocax. Defined.
 
 End Test_assoc.
-(*
-Local Variables:
-compile-command: "make -C ../../.. TAGS UniMath/Foundations/Algebra/Tests.vo"
-End:
-*)
