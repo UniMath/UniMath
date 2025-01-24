@@ -37,7 +37,7 @@ Relevant notions in UniMath:
 
 ## Markov Categories
 
-Markov categories [1] give a synthetic way to study probability theory, and in particular, they can be used to give semantics for probabilistic programming languages [2]. For example, the notion of a deterministic morphism can be define internal to arbitrary Markov categories. 
+Markov categories [1] give a synthetic way to study probability theory, and in particular, they can be used to give semantics for probabilistic programming languages [2]. For example, the notion of a deterministic morphism can be define internal to arbitrary Markov categories.
 
 The goal of this project would be:
 ⁃ Define the notion of Markov category (Definition 2.1 in [1], Definition 6.3 in [2]).

@@ -4,7 +4,7 @@ Browsing and editing a file in the UniMath source tree
 
 The UniMath library consists of Coq source files (file ending *.v) in the subdirectory `UniMath/UniMath`.
 
-Once you have [installed](./INSTALL.md) UniMath, you can start browsing and editing the source files.
+Once you have [installed](./Install.md) UniMath, you can start browsing and editing the source files.
 There are several programs to interactively edit and step through the files, among which
 are
 1. [CoqIDE](https://coq.inria.fr/refman/practical-tools/coqide.html) and
@@ -22,14 +22,14 @@ When opening a source file in the directory `UniMath/UniMath` in Emacs, the foll
 1. *The Proof General add-on to Emacs is loaded.*
    Proof General is an add-on to the text editor Emacs, adding buttons, menus, and keyboard shortcuts
    to interact with Coq, the proof assistant that UniMath relies on.
-   During the [installation procedure](./INSTALL.md) you have set up Proof General on your computer.
+   During the [installation procedure](./Install.md) you have set up Proof General on your computer.
 2. *A Unicode input method is loaded.*
    It allows you to insert Unicode symbols using a LaTeX-like syntax.
-   See [Section on Unicode input below](USAGE.md/#unicode-input)
+   See [the page on Unicode input below](../unimath/Symbols-list.md).
 3. Proof General is informed about the location of the Coq proof assistant installed during the installation of UniMath,
    and of the options that need to be passed to Coq.
 
-Items 2 and 3 are achieved through the Emacs configuration file [`.dir-locals.el`](./UniMath/.dir-locals.el) located in
+Items 2 and 3 are achieved through the Emacs configuration file [`.dir-locals.el`](../../UniMath/.dir-locals.el) located in
 the subdirectory `UniMath/UniMath`.
 For this reason, we recommend you save your UniMath files in this subdirectory as well.
 
