@@ -526,7 +526,7 @@ Section CodNNO.
         intro.
         use isapropdirprod ; apply homset_property.
       }
-      use (cancel_precomposition_z_iso slice_parameterized_NNO_mor_dom_iso).
+      use (cancel_z_iso' slice_parameterized_NNO_mor_dom_iso).
       use eq_mor_cod_fib.
       rewrite !comp_in_cod_fib.
       use parameterized_NNO_mor_unique.

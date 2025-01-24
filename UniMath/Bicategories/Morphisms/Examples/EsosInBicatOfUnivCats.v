@@ -270,7 +270,7 @@ Section EssentiallySurjectiveIsEso.
     - apply homset_property.
     - intro xx.
       induction xx as [ x i ].
-      use (cancel_precomposition_z_iso (functor_on_z_iso H₁ i)).
+      use (cancel_z_iso' (functor_on_z_iso H₁ i)).
       cbn.
       rewrite !nat_trans_ax.
       apply maponpaths_2.
@@ -344,18 +344,6 @@ Section EssentiallySurjectiveIsEso.
                    (functor_on_z_iso H₂ (pr2 z))).
     Defined.
 
-    (* upstream *)
-    Local Lemma cancel_postcomposition_z_iso : ∏ {C : precategory} {a b c : C} (h : z_iso b c) (f g : C ⟦ a, b ⟧), f · h = g · h → f = g.
-    Proof.
-      intros.
-      use post_comp_with_z_iso_is_inj.
-      - exact c.
-      - exact (pr1 h).
-      - exact (pr1 (pr2 h)).
-      - exact (pr2 (pr2 h)).
-      - assumption.
-    Qed.
-
     Local Definition isaprop_mor_fiber
                {y₁ y₂ : pr1 C₂}
                (g : y₁ --> y₂)
@@ -372,7 +360,7 @@ Section EssentiallySurjectiveIsEso.
         apply homset_property.
       }
       use (invmaponpathsweq (make_weq _ (HG' x₁ x₂))) ; cbn.
-      use (cancel_postcomposition_z_iso i₂).
+      use (cancel_z_iso _ _ i₂).
       exact (!(pr2 φ₁) @ pr2 φ₂).
     Qed.
 

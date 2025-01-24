@@ -267,7 +267,7 @@ Section Total_Category.
       = (inv_from_z_iso f,, inv_mor_disp_from_z_iso ff).
   Proof.
     (* Could de-opacify [is_z_iso_total] and then use [inv_from_z_iso_].  If de-opacfying [is_z_iso_total] would make its inverse compute definitionally, that’d be wonderful, but for the sake of just this one lemma, it’s probably not worth it.  So we prove this the hard way. *)
-    apply cancel_precomposition_z_iso with (total_z_iso f ff).
+    apply cancel_z_iso' with (total_z_iso f ff).
     etrans. apply z_iso_inv_after_z_iso. apply pathsinv0.
     use total2_paths_f; cbn.
     - apply z_iso_inv_after_z_iso.
