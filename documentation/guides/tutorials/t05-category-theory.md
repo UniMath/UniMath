@@ -130,7 +130,7 @@ Definition path_category_morphism_iso
     (path_category_morphism_is_iso f).
 ```
 
-For `z_iso`, there are the following accessors, and some lemmas that show that they form an equivalence relation:
+For `z_iso`, there are the following accessors, and some lemmas that show that they form an equivalence relation. Note that `z_iso_mor` is a coercion:
 
 ```coq
 z_iso_mor               : z_iso a b → a --> b
@@ -156,7 +156,68 @@ z_iso_comp_left_weq             : z_iso a b → ∏ c, c --> a ≃ c --> b
 is_z_isomorphism_path           : f = f' → is_z_isomorphism f → is_z_isomorphism f'
 ```
 
-## Functors and Natural Transformations
+## Functors
+```coq
+functor C C'      := ∑ (F : functor_data C C'), is_functor F.
+functor_data C C' := ∑ (F : ob C → ob C'), ∏ a b, a --> b -> F a --> F b.
+is_functor F      := functor_idax F × functor_compax F.
+functor_idax F    := ∏ a, #F (identity a) = identity (F a).
+functor_compax F  := ∏ a b c f g, #F (f · g) = #F f · #F g .
+```
+
+```coq
+Coercion functor_on_objects : functor_data >-> Funclass.
+Notation "# F" := (functor_on_morphisms F) (at level 3) : cat.
+Notation "a ⟶ b" := (functor a b) : cat.
+Notation "F ∙ G" := (functor_composite F G) : cat.
+```
+
+```coq
+functor_id
+functor_comp
+functor_on_z_iso
+reflects_morphism
+functor_composite
+functor_identity
+constant_functor
+fully_faithful
+weq_ff_functor_on_z_iso
+split_essentially_surjective
+faithful
+full
+full_and_faithful
+weq_fully_faithful_full_and_faithful
+essentially_surjective
+```
+
+## Natural Transformations
+
+```coq
+Definition nat_trans F F'       := ∑ (t : nat_trans_data F F'), is_nat_trans F F' t.
+Definition nat_trans_data F F'  := ∏ x, F x -->  F' x.
+Definition is_nat_trans F F' t  := ∏ x x' f, # F f · t x' = t x · #F' f.
+```
+
+```coq
+Notation "F ⟹ G" := (nat_trans F G) (at level 39) : cat.
+Coercion nat_trans_data_from_nat_trans_funclass : nat_trans >-> Funclass.
+```
+
+```coq
+nat_trans_ax
+nat_trans_eq_weq
+nat_trans_id
+nat_trans_comp
+```
+
+```coq
+nat_z_iso_functor_comp_assoc
+```
+
+```coq
+is_nat_z_iso
+nat_z_iso
+```
 
 ## Univalence
 
