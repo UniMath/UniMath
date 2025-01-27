@@ -157,6 +157,7 @@ is_z_isomorphism_path           : f = f' → is_z_isomorphism f → is_z_isomorp
 ```
 
 ## Functors
+Functors are defined as
 ```coq
 functor C C'      := ∑ (F : functor_data C C'), is_functor F.
 functor_data C C' := ∑ (F : ob C → ob C'), ∏ a b, a --> b -> F a --> F b.
@@ -164,31 +165,25 @@ is_functor F      := functor_idax F × functor_compax F.
 functor_idax F    := ∏ a, #F (identity a) = identity (F a).
 functor_compax F  := ∏ a b c f g, #F (f · g) = #F f · #F g .
 ```
+Of course, there are constructors `make_functor` and `make_functor_data` (`make_is_functor` has not yet been added) and accessors `functor_id` and `functor_comp`. There is a coercion, so if `F` is a functor, you can also write `F` for the action on objects. The action on a morphism `f` has notation `# F f`. Lastly, `C ⟶ D` is notation for the type `functor C D`.
 
-```coq
-Coercion functor_on_objects : functor_data >-> Funclass.
-Notation "# F" := (functor_on_morphisms F) (at level 3) : cat.
-Notation "a ⟶ b" := (functor a b) : cat.
-Notation "F ∙ G" := (functor_composite F G) : cat.
-```
+Of course, functors `F` and `G` can be composed to `F ∙ G` (notation for `functor_composite F G`) and there is an identity `functor_identity C`. There also is a constant functor `constant_functor C D X` that sends everything to `X : D`.
 
+Note that a functor sends isos to isos: `functor_on_z_iso F a b : z_iso a b → z_iso (F a) (F b)`.
+
+The core file defines the following properties for functors:
 ```coq
-functor_id
-functor_comp
-functor_on_z_iso
-reflects_morphism
-functor_composite
-functor_identity
-constant_functor
-fully_faithful
-weq_ff_functor_on_z_iso
-split_essentially_surjective
-faithful
-full
-full_and_faithful
-weq_fully_faithful_full_and_faithful
-essentially_surjective
+split_essentially_surjective F  := ∏ b,     ∑ a, z_iso (F a) b
+essentially_surjective F        := ∏ b,     ∃ a : C, z_iso (F a) b
+fully_faithful F                := ∏ a b,   isweq (# F)
+full_and_faithful F             := full F × faithful F.
+full F                          := ∏ a b,   issurjective (λ f, # F f)
+faithful F                      := ∏ a b,   isincl (λ f, # F f)
+reflects_morphism F P           := ∏ a b f, P D (F a) (F b) (# F f) → P C a b f
 ```
+Of course, fully faithful is equivalent to full and faithful: `weq_fully_faithful_full_and_faithful C D F : fully_faithful F ≃ full_and_faithful F`.
+
+`reflects_morphism F P` means that `F` reflects property `P` on morphisms (i.e. if the image of a morphism satisfies `P`, the original morphism satisfies `P`). For example, a fully faithful functor reflects isomorphisms, which actually gives an equivalence: `weq_ff_functor_on_z_iso : fully_faithful F → ∏ a b, z_iso a b ≃ z_iso (F a) (F b)`.
 
 ## Natural Transformations
 
