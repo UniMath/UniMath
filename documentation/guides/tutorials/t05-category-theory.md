@@ -171,7 +171,7 @@ Of course, functors `F` and `G` can be composed to `F ∙ G` (notation for `func
 
 Note that a functor sends isos to isos: `functor_on_z_iso F a b : z_iso a b → z_iso (F a) (F b)`.
 
-The core file defines the following properties for functors:
+The file [Core.Functors](../../../UniMath/CategoryTheory/Core/Functors.v) defines the following properties that a functor can have:
 ```coq
 split_essentially_surjective F  := ∏ b,     ∑ a, z_iso (F a) b
 essentially_surjective F        := ∏ b,     ∃ a : C, z_iso (F a) b
@@ -186,33 +186,30 @@ Of course, fully faithful is equivalent to full and faithful: `weq_fully_faithfu
 `reflects_morphism F P` means that `F` reflects property `P` on morphisms (i.e. if the image of a morphism satisfies `P`, the original morphism satisfies `P`). For example, a fully faithful functor reflects isomorphisms, which actually gives an equivalence: `weq_ff_functor_on_z_iso : fully_faithful F → ∏ a b, z_iso a b ≃ z_iso (F a) (F b)`.
 
 ## Natural Transformations
-
+Natural transformations between functors `F` and `F'` are defined as
 ```coq
 Definition nat_trans F F'       := ∑ (t : nat_trans_data F F'), is_nat_trans F F' t.
 Definition nat_trans_data F F'  := ∏ x, F x -->  F' x.
 Definition is_nat_trans F F' t  := ∏ x x' f, # F f · t x' = t x · #F' f.
 ```
 
+Again, there is a constructor `make_nat_trans`, a coercion from `nat_trans` to `nat_trans_data` and an accessor `nat_trans_ax` for the property. The type `nat_trans F G` is denoted `F ⟹ G`.
+
+Transformations `f : F ⟹ G` and `g : G ⟹ H` can be composed to `nat_trans_comp F G H f g` and there is an identity `nat_trans_id F : F ⟹ F`.
+
+Equality between natural transformation is determined by equality on its data: `nat_trans_eq_weq : has_homsets D → ∏ F G f g, f = g ≃ (∏ c, f c = g c)`. Note that there is a lemma `nat_trans_eq_alt : ∏ F F' f g, (∏ c, f c = g c) → f = g` which assumes that `D` is a category instead of a precategory, so it does not need `has_homsets D` separately.
+
+There is a category `[C, D]` (notation for `functor_category C D`), defined in [CategoryTheory.FunctorCategory](../../../UniMath/CategoryTheory/FunctorCategory.v), where the objects are functors `C ⟶ D` and the morphisms are natural transformations. This means, of course, that there is a notion of isomorphism `F ≅ G` between functors.
+
+There is also a special notion of isomorphism of functors, which is called a 'natural isomorphism', defined in [Core.NaturalTransformations](../../../UniMath/CategoryTheory/Core/NaturalTransformations.v) as a natural transformation that also is a pointwise isomorphism:
 ```coq
-Notation "F ⟹ G" := (nat_trans F G) (at level 39) : cat.
-Coercion nat_trans_data_from_nat_trans_funclass : nat_trans >-> Funclass.
+nat_z_iso C D F G       := ∑ (f : F ⟹ G), is_nat_z_iso μ
+is_nat_z_iso C D F G f  := ∏ c, is_z_isomorphism (f c)
 ```
 
-```coq
-nat_trans_ax
-nat_trans_eq_weq
-nat_trans_id
-nat_trans_comp
-```
+Of course, they are equivalent, as shown in [CategoryTheory.FunctorCategory](../../../UniMath/CategoryTheory/FunctorCategory.v) in the lemma `z_iso_is_nat_z_iso F G : z_iso F G ≃ nat_z_iso F G`.
 
-```coq
-nat_z_iso_functor_comp_assoc
-```
-
-```coq
-is_nat_z_iso
-nat_z_iso
-```
+Lastly, there is a somewhat noteworthy lemma `nat_z_iso_functor_comp_assoc F1 F2 F3 : nat_z_iso (F1 ∙ (F2 ∙ F3)) ((F1 ∙ F2) ∙ F3)`, showing associativity of functor composition as a natural isomorphism.
 
 ## Univalence
 
