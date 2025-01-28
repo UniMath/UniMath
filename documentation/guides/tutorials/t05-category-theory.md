@@ -405,6 +405,55 @@ Qed.
 ```
 
 ### Adjunctions
+Adjunctions are defined in [CategoryTheory.Adjunctions.Core](../../../UniMath/CategoryTheory/Adjunctions/Core.v). The primary definitions are as follows. Note that there are multiple ways to package the same information, which can be a bit confusing:
+
+```coq
+adjunction A B                              := ∑ (X : adjunction_data A B), form_adjunction' X
+adjunction_data A B                         := ∑ (F : A ⟶ B)
+                                                  (G : B ⟶ A),
+                                                  functor_identity A ⟹ F ∙ G ×
+                                                  G ∙ F ⟹ functor_identity B
+form_adjunction'                            := triangle_1_statement X ×
+                                                triangle_2_statement X
+triangle_1_statement A B (F ,, G ,, μ ,, ɛ) := ∏ a, # F (η a) · ε (F a) = identity (F a)
+triangle_2_statement A B (F ,, G ,, μ ,, ɛ) := ∏ b, η (G b) · # G (ε b) = identity (G b)
+
+is_left_adjoint A B F                       := ∑ G, are_adjoints F G
+is_right_adjoint A B F                      := ∑ F, are_adjoints F G
+are_adjoints A B F G                        := ∑ μɛ, form_adjunction F G (pr1 μɛ) (pr2 μɛ)
+form_adjunction A B F G f g                 := form_adjunction' (F ,, G ,, μ ,, ɛ)
+```
+
+There are coercions
+```coq
+is_left_adjoint >-> adjunction_data
+adjunction >-> adjunction_data
+adjunction >-> are_adjoints
+are_adjoints >-> is_left_adjoint
+are_adjoints >-> is_right_adjoint
+```
+and definitions
+```coq
+(left|right)_adjoint_to_adjunction  : is_(left|right)_adjoint F → adjunction A B
+```
+
+Since there are multiple ways to package the same information, there are multiple accessors for the same property on different objects. Here are the accessors for the left and right adjoints, the (co)units and the triangle statements:
+```coq
+(left|right)_functor                (X : adjunction_data A B)
+(left|right)_adjoint                (H : is_(right|left)_adjoint G)
+
+adj(co)unit                         (X : adjunction_data A B)
+(co)unit_from_(left|right)_adjoint  (H : is_(left|right)_adjoint F)
+(co)unit_from_are_adjoints          (H : are_adjoints F G)
+
+triangle_id_(left|right)_ad         (H : are_adjoints F G)
+```
+<!-- triangle_(1|2)_statement_from_adjunction  (adj : adjunction A B) -->
+
+One "easy" way to show that a functor is an adjunction is using 'universal arrows' or '(co)reflections'. This construction is formalized as `(left|right)_adjoint_from_partial` (using reflections along the functor) and `(right|left)_adjoint_left_from_partial` (using coreflections along the functor).
+
+Some `H : are_adjoints F G` gives an equivalence on homsets `adjunction_hom_weq H X Y : F X --> Y ≃ X --> G Y`, with the map given by `φ_adj H` and the inverse by `φ_adj_inv H`. Conversely, one can show `are_adjoints F G` from a natural equivalence on homsets using `adj_from_nathomweq`. Actually, these mappings between adjunctions and homset equivalences form an equivalence themselves (`adjunction_homsetiso_weq : are_adjoints F G ≃ natural_hom_weq F G`).
+
 ### Equivalences
 
 ## Displayed Categories
