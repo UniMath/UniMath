@@ -185,6 +185,60 @@ Of course, fully faithful is equivalent to full and faithful: `weq_fully_faithfu
 
 `reflects_morphism F P` means that `F` reflects property `P` on morphisms (i.e. if the image of a morphism satisfies `P`, the original morphism satisfies `P`). For example, a fully faithful functor reflects isomorphisms, which actually gives an equivalence: `weq_ff_functor_on_z_iso : fully_faithful F → ∏ a b, z_iso a b ≃ z_iso (F a) (F b)`.
 
+In the following extensive example, we will construct a functor from the path category of `X` to its opposite category, which flips all the paths. We will show that it is fully faithful and split essentially surjective.
+
+```coq
+Definition path_category_involution_functor_data
+  (X : HLevel 3)
+  : functor_data (path_category X) (path_category X)^op.
+Proof.
+  use make_functor_data.
+  - intro x.
+    exact x.
+  - intros a b f.
+    exact (!f).
+Defined.
+
+Lemma path_category_involution_is_functor
+  (X : HLevel 3)
+  : is_functor (path_category_involution_functor_data X).
+Proof.
+  split.
+  - intro x.
+    reflexivity.
+  - intros x y z.
+    exact pathscomp_inv.
+Qed.
+
+Definition path_category_involution
+  (X : HLevel 3)
+  : path_category X ⟶ (path_category X)^op
+  := make_functor
+    (path_category_involution_functor_data X)
+    (path_category_involution_is_functor X).
+
+Definition path_category_involution_essentially_surjective
+  (X : HLevel 3)
+  : split_essentially_surjective (path_category_involution X).
+Proof.
+  intro x.
+  exists x.
+  exact (identity_z_iso x).
+Defined.
+
+Definition path_category_fully_faithful
+  (X : HLevel 3)
+  : fully_faithful (path_category_involution X).
+Proof.
+  intros x y.
+  use isweq_iso.
+  - intro f.
+    exact (!f).
+  - exact pathsinv0inv0.
+  - exact pathsinv0inv0.
+Defined.
+```
+
 ## Natural Transformations
 Natural transformations between functors `F` and `F'` are defined as
 ```coq
@@ -209,10 +263,66 @@ is_nat_z_iso C D F G f  := ∏ c, is_z_isomorphism (f c)
 
 Of course, they are equivalent, as shown in [CategoryTheory.FunctorCategory](../../../UniMath/CategoryTheory/FunctorCategory.v) in the lemma `z_iso_is_nat_z_iso F G : z_iso F G ≃ nat_z_iso F G`.
 
+For example, we can show that when we compose the involution functor from the previous example with its opposite (`C ⟶ C^op ⟶ C^op^op = C`), the result is isomorphic to the identity functor:
+```coq
+Definition path_category_involution_nat_iso
+  (X : HLevel 3)
+  : nat_z_iso
+    (path_category_involution X ∙ functor_opp (path_category_involution X))
+    (functor_identity (path_category X)).
+Proof.
+  use make_nat_z_iso.
+  - use make_nat_trans.
+    + intro x.
+      exact (idpath x).
+    + intros x y f.
+      refine (pathscomp0rid _ @ _).
+      exact (pathsinv0inv0 f).
+  - intro x.
+    apply (is_z_isomorphism_identity x).
+Defined.
+
+Definition path_category_involution_iso
+  (X : HLevel 3)
+  : z_iso (C := [path_category X, path_category X])
+    (path_category_involution X ∙ functor_opp (path_category_involution X))
+    (functor_identity (path_category X))
+  := invmap
+    (z_iso_is_nat_z_iso (D := path_category X) _ _)
+    (path_category_involution_nat_iso X).
+```
+
 Lastly, there is a somewhat noteworthy lemma `nat_z_iso_functor_comp_assoc F1 F2 F3 : nat_z_iso (F1 ∙ (F2 ∙ F3)) ((F1 ∙ F2) ∙ F3)`, showing associativity of functor composition as a natural isomorphism.
 
 ## Univalence
+The univalent category is a core definition in univalent foundations. It is a category where isomorphism is equivalent to equality:
+```coq
+idtoiso C a b   := paths_rect C a (λ c _, z_iso a c) (identity_z_iso a) b
+is_univalent C  := ∏ a b, isweq idtoiso
+```
+Note that `idtoiso` is defined using path induction.
 
+When working with univalent categories, the property `H : is_univalent C` is often handled separately from `C : category`. Still, in some cases, they are packaged together as an instance of `univalent_category := ∑ (C : category), is_univalent C`. For those cases, there is a constructor `make_univalent_category`, as well as a coercion from `C : univalent_category` to `C : category`, and an accessor `univalent_category_is_univalent C : is_univalent C`.
+
+The following definitions expose the different parts of the equivalence:
+```coq
+isotoid C                 : is_univalent C → z_iso a b → a = b
+idtoiso_isotoid C H a b f : idtoiso (isotoid C H f) = f
+isotoid_idtoiso C H a b p : isotoid C H (idtoiso p) = p
+```
+
+Now, [Core.Univalence](../../../UniMath/CategoryTheory/Core/Univalence.v) has an interesting lemma about the structure of the object type of a univalent category, as well as a lot of lemmas about the behaviour of `idtoiso` and `isotoid`. For example:
+```coq
+univalent_category_has_groupoid_ob  : ∏ (C : univalent_category), isofhlevel 3 C
+inv_isotoid C H a b f               : ! isotoid C H f = isotoid C H (z_iso_inv_from_z_iso f)
+isotoid_comp C H a b c f g          : isotoid C H (z_iso_comp e f) = isotoid C H e @ isotoid C H f
+transportf_isotoid C H a a' b f g   : transportf (λ c, C ⟦ c, b ⟧) (isotoid C H f) g = inv_from_z_iso f · g
+transportf_isotoid' C H a b b' f g  : transportf (λ c, C ⟦ a, c ⟧) (isotoid C H f) g = g · f
+```
+
+For many standard category constructions, univalence of one component gives univalence of the category, like a functor category ([`is_univalent_functor_category`](../../../UniMath/CategoryTheory/FunctorCategory.v)), a (co)slice category ([`is_univalent_slicecat`](../../../UniMath/CategoryTheory/slicecat.v)), a full subcategory ([`is_univalent_full_sub_category`](../../../UniMath/CategoryTheory/Subcategory/Full.v)) and an opposite category ([`op_is_univalent`](../../../UniMath/CategoryTheory/opp_precat.v)).
+
+Now, we can show that the path category from the example is univalent, since `idtoiso` effectively sends a path `p` to `(p, !p, pathsinv0r p, pathsinv0l p)`. From this, we can deduce that the functor category between `path_category X` and itself is univalent, and we can conclude that the isomorphism which we showed earlier, is in fact an equality:
 ```coq
 Lemma is_univalent_path_category
   (X : HLevel 3)
@@ -222,10 +332,22 @@ Proof.
   use isweq_iso.
   - exact z_iso_mor.
   - intro x.
-    now induction x.
+    induction x.
+    reflexivity.
   - intro y.
     apply z_iso_eq.
-    now induction (z_iso_mor y).
+    induction (z_iso_mor y).
+    reflexivity.
+Qed.
+
+Lemma involution_is_involution
+  (X : HLevel 3)
+  : path_category_involution X ∙ functor_opp (path_category_involution X)
+  = functor_identity (path_category X).
+Proof.
+  use (isotoid _ _ (path_category_involution_iso X)).
+  apply is_univalent_functor_category.
+  apply is_univalent_path_category.
 Qed.
 ```
 
