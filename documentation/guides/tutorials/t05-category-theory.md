@@ -351,7 +351,61 @@ Proof.
 Qed.
 ```
 
-## Limits
+## Further material
+In this section, we will try to give some quick pointers about what kind of material can be found where in the library.
+
+### Categories
+The package [CategoryTheory.Categories](../../../UniMath/CategoryTheory/Categories/) contains material about a lot of examples of categories, like [the category of sets](../../../UniMath/CategoryTheory/Categories/HSET/Core.v), [the category of groups](../../../UniMath/CategoryTheory/Categories/Gr.v) and [the unit category, the empty category and the category with two objects and one arrow `⊥ → ⊤`](../../../UniMath/CategoryTheory/Categories/StandardCategories.v)
+
+### (Co)limits
+Limits and colimits are described in the package [CategoryTheory.Limits](../../../UniMath/CategoryTheory/Limits/).
+
+First of all, note that it contains [Limits.Cats](../../../UniMath/CategoryTheory/Limits/Cats/). This small package defines a diagram `d` of shape `g` in a category `C` as a functor `d : g → C`, which is very close to the pen-and-paper definition of a diagram. However, this is fairly unwieldy. For example, for a diagram, composition and identity morphisms are irrelevant and only give clutter.
+
+Therefore, [Limits.Graphs](../../../UniMath/CategoryTheory/Limits/Graphs/) instead defines the shape of a diagram as a graph `g`, and a diagram `d` as a mapping of the nodes `v` and edges `e` to objects `dob d v` and morphisms `dmor d e` of `C`. A proof that a category has limits gives for every graph `g` and `g`-diagram `d`, a limiting cone `L : LimCone d`. Of course, `LimCone` has a constructor `make_LimCone` and accessors
+```coq
+lim L                     : C
+limOut L v                : lim L --> dob d v
+limOutCommutes L u v e    : limOut L u · dmor d e = limOut L v
+limArrow L                : ∏ c (cc : cone d c), c --> lim L
+limArrowCommutes L c cc v : limArrow L c cc · limOut L v = coneOut cc v
+limArrowUnique L c cc     : ∏ (k : c --> lim L) (H : (∏ v, k · limOut L v = coneOut cc v)),
+                              k = limArrow L c cc
+```
+Of note are also
+```coq
+limArrowEta L c           : ∏ (f : c --> lim L), f = limArrow L c ((λ v, f · limOut CC v) ,, ...)
+arr_to_LimCone_eq L c f g : (∏ v, f · limOut l v = g · limOut l v) → f = g
+limOfArrows L1 L2         : ∏ (f : ∏ u, dob d1 u --> dob d2 u) (H : ∏ u v e, f u · dmor d2 e = dmor d1 e · f v),
+    lim L1 --> lim L2
+```
+
+Now, apart from general limits and colimits, there are all kinds of "specific" limits and colimits, like [BinaryProducts](../../../UniMath/CategoryTheory/Limits/BinProducts.v), [Equalizers](../../../UniMath/CategoryTheory/Limits/Equalizers.v) and [Cokernels](../../../UniMath/CategoryTheory/Limits/Cokernels.v). Most of these are defined twice: once [directly](../../../UniMath/CategoryTheory/Limits/BinProducts.v), and once [by defining the appropriate diagram and using the definition of general limits](../../../UniMath/CategoryTheory/Limits/Graphs/BinProducts.v). For the former, slightly less data is passed around, wheras the latter reuses more of the existing machinery. In practice, the [direct](../../../UniMath/CategoryTheory/Limits/BinProducts.v) version is almost always the preferred one.
+
+For such a specific instance of a (co)limit, you can look for the following in its file:
+- A definition both for one such limit (`BinProduct C P Q`) and for the type that denotes when the category has them all (`BinProducts C`);
+- A constructor (`make_BinProduct`) and accessors (`BinProductObject`, `BinProductPr1`, `BinProductArrow`, `BinProductPr1Commutes`, `BinProductArrowUnique`) like those for general limits and their arrows;
+- An equality lemma for arrows into (or out of) the (co)limit (`BinProductArrowsEq`);
+- A proof that if a category has general limits, it also has this specific kind of limits (`BinProducts_from_Lims`);
+- An alternative definition, about an equivalence of morphisms (`isBinProduct'`);
+- A proof that two limits of the same diagram are isomorphic (`iso_between_BinProduct`);
+- A proof that something isomorphic to some limit is also a limit (`iso_to_isBinProduct`).
+
+In our running example of the path category, objects are only connected by a morphism if there is a path between them (so they are equal). This means that most limits do not exist in this category, unless `X` is contractible:
+```coq
+Lemma path_category_terminal_contr
+  (X : HLevel 3)
+  : Terminal (path_category X) → iscontr X.
+Proof.
+  intro T.
+  exists (T : path_category X).
+  intro x.
+  exact (TerminalArrow T x).
+Qed.
+```
+
+### Adjunctions
+### Equivalences
 
 ## Displayed Categories
 

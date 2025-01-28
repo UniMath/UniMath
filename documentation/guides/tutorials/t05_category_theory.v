@@ -2,6 +2,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.opp_precat.
 
 Local Open Scope cat.
@@ -189,4 +190,14 @@ Proof.
   use (isotoid _ _ (path_category_involution_iso X)).
   apply is_univalent_functor_category.
   apply is_univalent_path_category.
+Qed.
+
+Lemma path_category_terminal_contr
+  (X : HLevel 3)
+  : Terminal (path_category X) → iscontr X.
+Proof.
+  intro T.
+  exists (T : path_category X).
+  intro x.
+  exact (TerminalArrow T x).
 Qed.
