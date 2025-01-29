@@ -8,8 +8,8 @@ If you are new to UniMath, we recommend to take a look at the tutorials. You can
 2. [Reasoning with paths](./tutorials/t02-paths.md)
 3. [Equivalences between types](./tutorials/t03-equivalences.md)
 4. [Propositions and Sets: homotopy types](./tutorials/t04-htypes.md)
-5. [Working with transports](./tutorials/t05-transports.md)
-6. [Category Theory](./tutorials/t06-category-theory.md)
+5. [Category Theory](./tutorials/t05-category-theory.md)
+6. [Working with transports](./tutorials/t06-transports.md)
 
 ## Other guides
 In this folder, you will also find guides on a couple of separate topics:

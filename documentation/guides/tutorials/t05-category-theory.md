@@ -8,7 +8,7 @@ One of the big selling points of univalent foundations over other branches of ty
 - [Natural Transformations](#natural-transformations)
 - [Univalence](#univalence)
 - [Further material](#further-material)
-  - [Categories](#categories-1)
+  - [Examples](#examples)
   - [(Co)limits](#colimits)
   - [Adjunctions](#adjunctions)
   - [Equivalences](#equivalences)
@@ -361,7 +361,7 @@ Qed.
 ## Further material
 In this section, we will try to give some quick pointers about what kind of material can be found where in the library.
 
-### Categories
+### Examples
 The package [CategoryTheory.Categories](../../../UniMath/CategoryTheory/Categories/) contains material about a lot of examples of categories, like [the category of sets](../../../UniMath/CategoryTheory/Categories/HSET/Core.v), [the category of groups](../../../UniMath/CategoryTheory/Categories/Gr.v) and [the unit category, the empty category and the category with two objects and one arrow `⊥ → ⊤`](../../../UniMath/CategoryTheory/Categories/StandardCategories.v)
 
 ### (Co)limits
@@ -551,7 +551,7 @@ disp_cat_axioms C D   := ∏ x y f xx yy ff,                      id_disp _ ;; f
                           ∏ x y z w f g h xx yy zz ww ff gg hh, ff ;; (gg ;; hh) = transportb _ (assoc _ _ _) ((ff ;; gg) ;; hh) ×
                           ∏ x y f xx yy,                        isaset (xx -->[f] yy)
 ```
-There are also notions of `disp_functor`, `disp_nat_trans`, `disp_adjunction`, `equiv_over` etc.
+There are also notions of `z_iso_disp`, `disp_functor`, `disp_nat_trans`, `disp_adjunction`, `equiv_over` etc.
 
 ### Some constructions
 Here are some constructions that you may use or encounter sometimes:
