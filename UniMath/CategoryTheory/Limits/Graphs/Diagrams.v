@@ -887,15 +887,15 @@ Definition reverse_graph_zig_zag
   : graph_zig_zag y x
   := length_of_graph_zig_zag gs ,, reverse_graph_zig_zag_of_length (pr2 gs).
 
-(* this assumes the induction hypothesis for all 
+(* this assumes the induction hypothesis for all
    edges, not just those in the path *)
-Lemma graph_zig_zag_strong_induction_helper 
+Lemma graph_zig_zag_strong_induction_helper
     {g : graph}
     {P : vertex g -> UU} :
-  ∏ n, ∏ (x y : vertex g), 
-      (P x) -> 
-      (∏ (a b : vertex g), P a -> (edge a b ⨿ edge b a) -> P b) -> 
-      graph_zig_zag_of_length n x y -> 
+  ∏ n, ∏ (x y : vertex g),
+      (P x) ->
+      (∏ (a b : vertex g), P a -> (edge a b ⨿ edge b a) -> P b) ->
+      graph_zig_zag_of_length n x y ->
       P y.
 Proof.
   intro n.
@@ -908,7 +908,7 @@ Proof.
     exact (eind x z Hx xz).
 Defined.
 
-Lemma graph_zig_zag_strong_induction 
+Lemma graph_zig_zag_strong_induction
     {g : graph}
     {x y : vertex g}
     (gs : graph_zig_zag x y) :
@@ -930,7 +930,7 @@ Defined.
 Definition is_connected (g : graph) : UU :=
     ∏ (v1 v2 : vertex g), graph_zig_zag v1 v2.
 
-Lemma connected_graph_zig_zag_strong_induction 
+Lemma connected_graph_zig_zag_strong_induction
     {g : graph}
     (x : vertex g)
     {y : vertex g}
