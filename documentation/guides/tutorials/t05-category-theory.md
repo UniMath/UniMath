@@ -456,6 +456,61 @@ Some `H : are_adjoints F G` gives an equivalence on homsets `adjunction_hom_weq 
 
 ### Equivalences
 
+Equivalences, in particular adjoint equivalences, between categories are covered in [CategoryTheory.Equivalences](../../../UniMath/CategoryTheory/Equivalences/) and in particular, in [CategoryTheory.Equivalences.Core](../../../UniMath/CategoryTheory/Equivalences/Core.v).
+
+The primary definitions are
+```coq
+adj_equiv A B             := ∑ (F : functor A B), adj_equivalence_of_cats F.
+adj_equivalence_of_cats F := ∑ (H : is_left_adjoint F), forms_equivalence H.
+forms_equivalence X       := ∏ a, is_z_isomorphism (adjunit X a) ×
+                              ∏ b, is_z_isomorphism (adjcounit X b).
+equivalence_of_cats A B   := ∑ (X : adjunction_data A B), forms_equivalence X.
+```
+
+It contains the followin coercions
+```coq
+adj_equiv >-> functor A B
+adj_equiv >-> adjunction
+adj_equiv >-> adj_equivalence_of_cats
+adj_equiv >-> equivalence_of_cats
+adj_equivalence_of_cats >-> is_left_adjoint
+equivalence_of_cats >-> adjunction_data
+```
+
+For the isomorphisms, there are the following accessors:
+```coq
+adj(co)unitiso                                  (X : equivalence_of_cats A B)
+(co)unit_pointwise_z_iso_from_adj_equivalence   (HF : adj_equivalence_of_cats F)
+(co)unit_nat_z_iso_from_adj_equivalence_of_cats (HF : adj_equivalence_of_cats F)
+(co)unit_z_iso_from_adj_equivalence_of_cats     (HF : adj_equivalence_of_cats F)
+```
+
+The file [Equivalences.Core](../../../UniMath/CategoryTheory/Equivalences/Core.v) contains a couple of lemmas and definitions for working with equivalences. First of all, besides the expected constructors, there is also a constructor `make_adj_equivalence_of_cats'` for constructing an adjoint equivalence between `A` and `B` from an adjunction between `B` and `A`. Also, there is a lemma `rad_equivalence_of_cats'`, which constructs an adjoint equivalence from a fully faithful and split essentially surjective functor, and a corollary `rad_equivalence_of_cats` which does the same, but for a fully faithful and essentially surjective functor originating from a univalent category.
+
+Then there is a lemma `triangle_2_from_1`, showing that if the unit and counit are isomorphisms, it suffices to show just one of the triangle statements. Also, if we have just an equivalence, `adjointification` constructs an adjoint equivalence from this.
+
+The lemma `weq_on_objects_from_adj_equiv_of_cats` shows that an adjoint equivalence between two univalent categories gives a weak equivalence between the object types.
+
+The file [Equivalences.CompositesAndInverses](../../../UniMath/CategoryTheory/Equivalences/CompositesAndInverses.v) contains the construction of the composite and inverse adjoint equivalences, as well as two lemmas, showing that if two out of three of `F`, `G` and `F ∙ G` are equivalences, the third is an equivalence too:
+
+```coq
+comp_adj_equiv                : adj_equiv A B
+                                  → adj_equiv B C
+                                  → adj_equiv A C
+adj_equiv_inv                 : adj_equiv A B
+                                  → adj_equiv B A
+two_out_of_three_first F G H  : nat_z_iso (F ∙ G) H
+                                  → adj_equivalence_of_cats G
+                                  → adj_equivalence_of_cats H
+                                  → adj_equivalence_of_cats F
+two_out_of_three_second F G H : nat_z_iso (F ∙ G) H
+                                  → adj_equivalence_of_cats F
+                                  → adj_equivalence_of_cats H
+                                  → adj_equivalence_of_cats G
+```
+
+Lastly, the file [Equivalences.FullyFaithful](../../../UniMath/CategoryTheory/Equivalences/FullyFaithful.v) shows that if a functor is an equivalence, it is both fully faithful (`fully_faithful_from_equivalence`) and essentially surjective (`functor_from_equivalence_is_essentially_surjective`).
+
 ## Displayed Categories
 
 ## Bicategories
