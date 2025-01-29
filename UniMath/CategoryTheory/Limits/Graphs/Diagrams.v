@@ -15,6 +15,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 
 Local Open Scope cat.
 
@@ -66,6 +67,12 @@ Definition constant_diagram
 End diagram_def.
 
 Coercion graph_from_precategory : precategory >-> graph.
+
+Definition diagram_pointwise {A C : category} {g : graph} (D : diagram g [A, C]) (a : A) : diagram g C.
+Proof.
+exists (λ v, pr1 (dob D v) a); intros u v e.
+now apply (pr1 (dmor D e) a).
+Defined.
 
 Section map.
 
@@ -159,9 +166,6 @@ Definition append_graph_zig_zag
      ,,
      append_graph_zig_zag_of_length (pr2 fs) (pr2 gs).
 
-(**
- 5. Reversing zig-zags
- *)
 Definition post_cons_left_graph_zig_zag_of_length
            {g : graph}
            {n : nat}

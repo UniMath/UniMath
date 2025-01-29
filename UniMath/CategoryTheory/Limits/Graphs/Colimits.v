@@ -27,6 +27,8 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
+Require Export UniMath.CategoryTheory.Limits.Graphs.Diagrams.
+
 Local Open Scope cat.
 
 (** * Definition of colimits *)
@@ -395,13 +397,7 @@ Section ColimFunctor.
 Context {A C : category} {g : graph} (D : diagram g [A, C]).
 (* Variable HC : Colims C. *) (* Too strong! *)
 
-Definition diagram_pointwise (a : A) : diagram g C.
-Proof.
-exists (λ v, pr1 (dob D v) a); intros u v e.
-now apply (pr1 (dmor D e) a).
-Defined.
-
-Variable (HCg : ∏ (a : A), ColimCocone (diagram_pointwise a)).
+Variable (HCg : ∏ (a : A), ColimCocone (diagram_pointwise D a)).
 
 Definition ColimFunctor_ob (a : A) : C := colim (HCg a).
 
@@ -442,7 +438,7 @@ use tpair.
 Defined.
 
 Definition cocone_pointwise (F : [A,C]) (cc : cocone D F) a :
-  cocone (diagram_pointwise a) (pr1 F a).
+  cocone (diagram_pointwise D a) (pr1 F a).
 Proof.
 use make_cocone.
 - now intro v; apply (pr1 (coconeIn cc v) a).
@@ -490,7 +486,7 @@ Defined.
 
 Definition isColimFunctor_is_pointwise_Colim
   (X : [A,C]) (R : cocone D X) (H : isColimCocone D X R)
-  : ∏ a, isColimCocone (diagram_pointwise a) _ (cocone_pointwise X R a).
+  : ∏ a, isColimCocone (diagram_pointwise D a) _ (cocone_pointwise X R a).
 Proof.
   intro a.
   apply (is_z_iso_isColim  _ (HCg a)).
@@ -542,7 +538,7 @@ Section map.
 Context {C D : precategory} (F : functor C D).
 
 Definition mapcocone {g : graph} (d : diagram g C) {x : C}
-  (dx : cocone d x) : cocone (mapdiagram d) (F x).
+  (dx : cocone d x) : cocone (mapdiagram F d) (F x).
 Proof.
 use make_cocone.
 - simpl; intro n.
@@ -553,7 +549,7 @@ Defined.
 
 Definition preserves_colimit {g : graph} (d : diagram g C) (L : C)
   (cc : cocone d L) : UU :=
-  isColimCocone d L cc -> isColimCocone (mapdiagram d) (F L) (mapcocone d cc).
+  isColimCocone d L cc -> isColimCocone (mapdiagram F d) (F L) (mapcocone d cc).
 
 Definition preserves_colimits_of_shape (g : graph) : UU :=
   ∏ (d : diagram g C) (L : C)(cc : cocone d L), preserves_colimit d L cc.
