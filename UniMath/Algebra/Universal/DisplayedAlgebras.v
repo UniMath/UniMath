@@ -29,7 +29,6 @@ Definition make_disp_alg {A:algebra σ}
     (nm: names σ) (base_xs : hvec (vec_map A (arity nm)))
   : hvec (h1map_vec (v:= (arity nm)) (fib D) base_xs) → ((fib D) (sort nm) (ops A nm (base_xs))) := pr2 D nm base_xs.
 
-
 Definition total_alg {A: algebra σ} (D: disp_alg A) : algebra σ.
 Proof.
   use make_algebra.
@@ -131,6 +130,25 @@ Section DisplayedAlgebrasFromMorphisms.
   Defined.
 
 End DisplayedAlgebrasFromMorphisms.
+
+Section Product.
+
+Context {σ: signature}.
+
+Definition ProductDisplayedAlgebra (A B: algebra σ): disp_alg A
+  := make_disp_alg (λ s a, B s)(λ nm _ X, ops B nm (h2lower X)).
+
+Definition ProductAlgebra (A B: algebra σ): algebra σ
+  := make_algebra
+      (λ s, A s × B s)
+      (
+        λ nm X,
+        let X1 := (h1map (Q:= (λ s, A s)) (λ s x, pr1 x) X) in
+        let X2 := (h1map (Q:= (λ s, B s)) (λ s x, pr2 x) X) in
+        (ops A nm X1,, ops B nm X2)
+      ).
+
+End Product.
 
 Section weqHomDispAlg.
 
