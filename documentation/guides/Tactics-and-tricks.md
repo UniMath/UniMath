@@ -47,7 +47,7 @@ These tactics act on a (sequence of) tactics `t`.
 
 The tactic `now t` will execute `t` and then close the goal if it has become trivial (and else it will fail).
 
-If `t` closes the goal, the tactic `abstract t` will execute `t` and make the proof term produced by `t` opaque (see [On Opaqueness](./On-opaqueness)). This is useful if you are, for example, defining a (not too complicated) functor, which needs two pieces of data, but also two proofs, and you don't want to split it yet into two (or one) proofs with `Defined` and two (or one) proofs with `Qed`.
+If `t` closes the goal, the tactic `abstract t` will execute `t` and make the proof term produced by `t` opaque (see [On Opaqueness](./Opaqueness.md)). This is useful if you are, for example, defining a (not too complicated) functor, which needs two pieces of data, but also two proofs, and you don't want to split it yet into two (or one) proofs with `Defined` and two (or one) proofs with `Qed`.
 
 The tactic `do n t` will try to execute `t` exactly `n` times (and fail if `t` fails before `n` executions are reached).
 

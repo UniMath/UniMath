@@ -230,9 +230,3 @@ Proof.
     ).
   - reflexivity.
 Defined.
-
-(*
-Local Variables:
-compile-command: "make -C ../.. TAGS TAGS-Ktheory UniMath/Ktheory/Equivalences.vo"
-End:
-*)

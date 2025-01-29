@@ -1,5 +1,3 @@
-(* -*- coding: utf-8 -*- *)
-
 (** * Well Ordered Sets *)
 
 (** In this file our goal is to prove Zorn's Lemma and Zermelo's Well-Ordering Theorem. *)
