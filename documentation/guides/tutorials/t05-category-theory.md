@@ -7,8 +7,15 @@ One of the big selling points of univalent foundations over other branches of ty
 - [Functors](#functors)
 - [Natural Transformations](#natural-transformations)
 - [Univalence](#univalence)
-- [Limits](#limits)
+- [Further material](#further-material)
+  - [Categories](#categories-1)
+  - [(Co)limits](#colimits)
+  - [Adjunctions](#adjunctions)
+  - [Equivalences](#equivalences)
 - [Displayed Categories](#displayed-categories)
+  - [Some constructions](#some-constructions)
+  - [Univalence](#univalence-1)
+  - [Limits](#limits)
 - [Bicategories](#bicategories)
 
 ## Categories
@@ -452,7 +459,7 @@ triangle_id_(left|right)_ad         (H : are_adjoints F G)
 
 One "easy" way to show that a functor is an adjunction is using 'universal arrows' or '(co)reflections'. This construction is formalized as `(left|right)_adjoint_from_partial` (using reflections along the functor) and `(right|left)_adjoint_left_from_partial` (using coreflections along the functor).
 
-Some `H : are_adjoints F G` gives an equivalence on homsets `adjunction_hom_weq H X Y : F X --> Y ≃ X --> G Y`, with the map given by `φ_adj H` and the inverse by `φ_adj_inv H`. Conversely, one can show `are_adjoints F G` from a natural equivalence on homsets using `adj_from_nathomweq`. Actually, these mappings between adjunctions and homset equivalences form an equivalence themselves (`adjunction_homsetiso_weq : are_adjoints F G ≃ natural_hom_weq F G`).
+Some `H : are_adjoints F G` gives an equivalence on homsets `adjunction_hom_weq H X Y : F X --> Y ≃ X --> G Y`, with the map given by `φ_adj H` and the inverse by `φ_adj_inv H`. Conversely, you can show `are_adjoints F G` from a natural equivalence on homsets using `adj_from_nathomweq`. Actually, these mappings between adjunctions and homset equivalences form an equivalence themselves (`adjunction_homsetiso_weq : are_adjoints F G ≃ natural_hom_weq F G`).
 
 ### Equivalences
 
@@ -467,7 +474,7 @@ forms_equivalence X       := ∏ a, is_z_isomorphism (adjunit X a) ×
 equivalence_of_cats A B   := ∑ (X : adjunction_data A B), forms_equivalence X.
 ```
 
-It contains the followin coercions
+It contains the following coercions
 ```coq
 adj_equiv >-> functor A B
 adj_equiv >-> adjunction
@@ -485,7 +492,7 @@ adj(co)unitiso                                  (X : equivalence_of_cats A B)
 (co)unit_z_iso_from_adj_equivalence_of_cats     (HF : adj_equivalence_of_cats F)
 ```
 
-The file [Equivalences.Core](../../../UniMath/CategoryTheory/Equivalences/Core.v) contains a couple of lemmas and definitions for working with equivalences. First of all, besides the expected constructors, there is also a constructor `make_adj_equivalence_of_cats'` for constructing an adjoint equivalence between `A` and `B` from an adjunction between `B` and `A`. Also, there is a lemma `rad_equivalence_of_cats'`, which constructs an adjoint equivalence from a fully faithful and split essentially surjective functor, and a corollary `rad_equivalence_of_cats` which does the same, but for a fully faithful and essentially surjective functor originating from a univalent category.
+The file [Equivalences.Core](../../../UniMath/CategoryTheory/Equivalences/Core.v) contains a couple of lemmas and definitions for working with equivalences. First of all, besides the expected constructors, there is also a constructor `make_adj_equivalence_of_cats'` for constructing an adjoint equivalence between `A` and `B` from an adjunction between `B` and `A`. Also, there is a very important lemma `rad_equivalence_of_cats'`, which constructs an adjoint equivalence from a fully faithful and split essentially surjective functor, and a corollary `rad_equivalence_of_cats` which does the same, but for a fully faithful and essentially surjective functor originating from a univalent category.
 
 Then there is a lemma `triangle_2_from_1`, showing that if the unit and counit are isomorphisms, it suffices to show just one of the triangle statements. Also, if we have just an equivalence, `adjointification` constructs an adjoint equivalence from this.
 
@@ -513,4 +520,60 @@ Lastly, the file [Equivalences.FullyFaithful](../../../UniMath/CategoryTheory/Eq
 
 ## Displayed Categories
 
+In category, many categories are constructed on top of another, often on top of `HSET`. For example, a topological space is "a set with a distinguished set of subsets", a group is "a set with an addition operation" and a ring is "an abelian group that also has a multiplication operation". One way to state this formally is that there are forgetful functors `Top ⟶ HSET` and `Ring ⟶ Group ⟶ HSET`. However, there is another way to frame this, which is as a "displayed category". A displayed category `D` over a category `C`, gives a type of "displayed objects" `D x` (for example, the group structures for a set) for every `x : C`, and a type of displayed morphisms `xx -->[f] yy` for every `f : C⟦x, y⟧`, `xx : D x` and `yy : D y`. Of course, it also has a notion of composition `ff ;; gg`, identity `id_disp` and suitable axioms (like `id_left_disp`, `assoc_disp` and `homsets_disp`).
+
+Displayed categories are a very useful tool in formalization, and sometimes (like when working with a fibration) they actually are a better formalism than forgetful functors. For a theoretical introduction to displayed categories, see [Ahrens & Lumsdaine](https://arxiv.org/abs/1705.04296).
+
+The material about displayed categories is in the [CategoryTheory.DisplayedCats](../../../UniMath/CategoryTheory/DisplayedCats/) directory. The definition of `disp_cat` is in [CategoryTheory.DisplayedCats.Core](../../../UniMath/CategoryTheory/DisplayedCats/Core.v), and its structure is as follows, very much like the structure of `category`:
+```coq
+disp_cat
+  disp_cat_data
+    disp_cat_ob_mor
+      ob_disp
+      mod_disp
+    disp_cat_id_comp
+      id_disp
+      comp_disp
+  disp_cat_axioms
+    id_left_disp
+    id_right_disp
+    assoc_disp
+    homsets_disp
+```
+
+The main datatypes here are defined as follows. Note that, for example, `identity x · f` is not definitionally equal to `f`, so `xx -->[identity x · f] yy` is not the same as `xx -->[f] yy` and we need to transport over `id_left` to get from one to the other:
+```coq
+disp_cat_ob_mor C     := ∑ (obd : C → UU),                      ∏ x y, obd x → obd y → (x --> y) → UU.
+disp_cat_id_comp C D  := ∏ x xx,                                xx -->[identity x] xx ×
+                          ∏ x y z f g xx yy zz,                 (xx -->[f] yy) -> (yy -->[g] zz) -> (xx -->[f · g] zz)
+disp_cat_axioms C D   := ∏ x y f xx yy ff,                      id_disp _ ;; ff = transportb _ (id_left _) ff ×
+                          ∏ x y f xx yy ff,                     ff ;; id_disp _ = transportb _ (id_right _) ff ×
+                          ∏ x y z w f g h xx yy zz ww ff gg hh, ff ;; (gg ;; hh) = transportb _ (assoc _ _ _) ((ff ;; gg) ;; hh) ×
+                          ∏ x y f xx yy,                        isaset (xx -->[f] yy)
+```
+There are also notions of `disp_functor`, `disp_nat_trans`, `disp_adjunction`, `equiv_over` etc.
+
+### Some constructions
+Here are some constructions that you may use or encounter sometimes:
+* For many displayed categories, the additional structure of the morphisms is a mere proposition. For example, for groups, the additional structure of the morphisms is the statement that the function between the sets preserves the group structure. For topological spaces, it is the statement that the function preserves the opens. If this is the case, the axioms about the morphisms follow automatically, and you can use `disp_struct`, defined in [DisplayedCats.Constructions.CategoryWithStructure](../../../UniMath/CategoryTheory/DisplayedCats/Constructions/CategoryWithStructure.v).
+* If we have a displayed category `D` over `C` (for example, giving every object of `HSET` a group structure), we can combine the two into the "total category" (for example, the category of groups) `total_category D`, defined in [DisplayedCats.Total](../../../UniMath/CategoryTheory/DisplayedCats/Total.v). It has a forgetful functor `pr1_category : C D, total_category D ⟶ C`.
+* Actually, if we just consider `D x` for one `x : C`, we also get a category: `fiber_category D x`, which is denoted `D[{x}]` and defined in [DisplayedCats.Fiber](../../../UniMath/CategoryTheory/DisplayedCats/Fiber.v). Because every morphism in `D[{x}]` is a displayed morphism over `identity x`, composing two of them gives a displayed morphism over `identity x · identity x`. Therefore, morphism composition in this category uses transport over `id_right x` to land in `xx -->[identity x] xx` again.
+* If we have displayed categories `D` over `C` and `E` over `total_category D`, we can combine them to get a displayed category `sigma_disp_cat` over `C`, defined in [DisplayedCats.Examples.Sigma](../../../UniMath/CategoryTheory/DisplayedCats/Examples/Sigma.v).
+* We can view the product of two categories `C1` and `C2` as a displayed category `disp_cartesian' C1 C2` over `C1`, defined in [DisplayedCats.Examples.Cartesian](../../../UniMath/CategoryTheory/DisplayedCats/Examples/Cartesian.v). Note that the file also contains a definition `disp_cartesian C1 C2`, which uses more of the existing abstract machinery to get the same result. However, this machinery means that composition in this category uses an additional transport, which makes working with it more complicated.
+* For displayed categories `D1` and `D2` over `C`, you can combine their added structure into a displayed category `D1 × D2` over `C` (defined in [DisplayedCats.Constructions.Product](../../../UniMath/CategoryTheory/DisplayedCats/Constructions/Product.v)).
+
+### Univalence
+One of the advantages of displayed categories is in showing that some category is univalent. This is because distributed over different files, there are lemmas like the following:
+```coq
+is_univalent_total_category                   : is_univalent C → is_univalent_disp D → is_univalent (total_category D)
+is_univalent_disp_iff_fibers_are_univalent D  : is_univalent_disp D <-> (∏ x, is_univalent D[{x}])
+is_univalent_sigma_disp E                     : is_univalent_disp D → is_univalent_disp E → is_univalent_disp (sigma_disp_cat E)
+is_univalent_disp_cartesian' C1 C2            : is_univalent C2 → is_univalent_disp (disp_cartesian' C1 C2)
+dirprod_disp_cat_is_univalent D1 D2           : is_univalent_disp D1 → is_univalent_disp D2 → is_univalent_disp (D1 × D2)
+```
+
+### Limits
+For showing that a category has limits, there is a similar, though slightly more cumbersome approach: you first show that a displayed category `D` over `C` "creates" a certain limit (`creates_limit`, defined in [DisplayedCats.Limits](../../../UniMath/CategoryTheory/DisplayedCats/Limits.v)), i.e. the limit can be lifted from `C` to `total_category D`. Then you use lemmas like `total_limit`, `creates_limits_sigma_disp_cat` and maybe even `fiber_limit` to show for the desired category that it has limits.
+
 ## Bicategories
+To be added by Niels
