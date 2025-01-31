@@ -127,8 +127,28 @@ Definition simage {S:UU} {X Y: sUU S} (f:X s→ Y) : sUU S
 Definition shfiber {S:UU} {X Y: sUU S} (f:X s→ Y) : ∏ s, Y s → UU
   := λ (s:S) (y : Y s), (∑ (x : X s), f s x = y).
 
+Definition shfiber_fiber {S:UU} {X Y: sUU S} {f:X s→ Y}
+  {s : S} {y : Y s}
+  (fib : shfiber f s y)
+  : X s := pr1 fib.
+
+Definition shfiber_path {S:UU} {X Y: sUU S} {f:X s→ Y}
+  {s : S} {y : Y s}
+  (fib : shfiber f s y)
+  : f s (shfiber_fiber fib) = y
+  := pr2 fib.
+
 Definition simage_shsubtype {S:UU} {X Y : sUU S} (f : X s→ Y)
   : shsubtype Y := λ (s:S) (y : Y s), (∃ (x : X s), f s x = y).
+
+Lemma hvec_of_shfiber {S : UU} {A B : sUU S}
+{h : A s→ B} {l : list S}
+(bs : hvec (vec_map B l))
+(xs : hvec (h1map_vec (shfiber h) bs))
+: (h ⋆⋆)%sorted l (h2lower (h2map (λ (s:S) (b : B s), pr1) xs)) = bs.
+Proof.
+  use hvec_ofpaths.
+Defined.
 
 (*TODO: generalize the map in the type of [ys] to any type starting with [is_hinh]*)
 Theorem squash_simage

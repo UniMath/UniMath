@@ -121,9 +121,6 @@ Proof.
     { use (hom2axiom f). }
     use maponpaths.
     use hvec_ofpaths.
-    use (h2map _ fibers).
-    intros s a _.
-    use pr2.
 Qed.
 
 Section embedding_subuniverse_weq.

@@ -99,6 +99,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Universal/Algebras.v](Algebra/Universal/Algebras.v)
    - [Universal/Algebras_eq.v](Algebra/Universal/Algebras_eq.v)
    - [Universal/SubAlgebras.v](Algebra/Universal/SubAlgebras.v)
+   - [Universal/DisplayedAlgebras.v](Algebra/Universal/DisplayedAlgebras.v)
    - [Universal/Congruences.v](Algebra/Universal/Congruences.v)
    - [Universal/Terms.v](Algebra/Universal/Terms.v)
    - [Universal/TermAlgebras.v](Algebra/Universal/TermAlgebras.v)

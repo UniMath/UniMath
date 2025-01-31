@@ -207,6 +207,39 @@ Proof.
   apply idpath.
 Qed.
 
+(*[toforallpaths_induction'] is the same as [toforallpaths_induction] in [Foundations/UnivalenceAxiom.v] but with f and g dependent functions*)
+Lemma toforallpaths_induction' (X : UU) (Y: X -> UU) (f g : ∏ (x:X), Y x)
+  (P : (∏ x, f x = g x) -> UU)
+  (H : ∏ e : f = g, P (toforallpaths _ _ _ e)) : ∏ i : (∏ x, f x = g x), P i.
+Proof.
+  intros i. rewrite <- (homotweqinvweq (weqtoforallpaths _ f g)). apply H.
+Defined.
+
+Definition transportf_funextsec
+  {X: UU} {Y : X -> UU} (P : ∏ (x:X), Y x -> UU)
+  (F F' : ∏ (x:X), Y x)
+  (H : ∏ (x : X), F x = F' x)
+  (x : X) (f : P x (F x))
+  :
+  transportf (λ (x0 : ∏(x:X), Y x), P x (x0 x)) (funextsec _ F F' H) f = transportf (λ x0 : Y x, P x x0) (H x) f.
+Proof.
+  use (toforallpaths_induction' X Y F F'
+    (λ H',  transportf  (λ x0 : ∏ x0 : X, Y x0, P x (x0 x))
+                        (funextsec Y F F' H')
+                        f =
+            transportf  (λ x0 : Y x, P x x0)
+                        (H' x)
+                        f) _ H).
+  intro e. clear H.
+  set (XR := homotinvweqweq (weqtoforallpaths _ F F') e).
+  set (H := funextsec Y F F' (toforallpaths Y F F' e)).
+  set (P' := λ (F0 : ∏ (x:X), Y x) , P x (F0 x)).
+  use pathscomp0.
+  - exact (transportf P' e f).
+  - use transportf_paths. exact XR.
+  - induction e. apply idpath.
+Defined.
+
 Definition transportb_funextfun {X Y : UU} (P : Y -> UU) (F F' : X -> Y) (H : ∏ (x : X), F x = F' x)
            (x : X) (f : P (F' x)) :
   transportb (λ x0 : X → Y, P (x0 x)) (funextsec _ F F' H) f = transportb (λ x0 : Y, P x0) (H x) f.
