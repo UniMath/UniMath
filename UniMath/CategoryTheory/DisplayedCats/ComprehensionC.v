@@ -13,12 +13,15 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Export UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 Local Open Scope cat.
@@ -127,3 +130,29 @@ Definition comprehension_cat_structure (C : category) : UU
   := ∑ (D : disp_cat C) (H : cleaving D)
      (F : disp_functor (functor_identity _ ) D (disp_codomain C)),
      is_cartesian_disp_functor F.
+
+Definition make_comprehension_cat_structure
+  {C : category}
+  (D : disp_cat C)
+  {HD : cleaving D}
+  (χ : disp_functor (functor_identity C) D (disp_codomain C))
+  (Hχ : is_cartesian_disp_functor χ)
+  : comprehension_cat_structure C :=
+  (D ,, HD ,, χ ,, Hχ).
+
+Definition comprehension {C : category} (CC : comprehension_cat_structure C)
+  : disp_functor (functor_identity C) (pr1 CC) (disp_codomain C) :=
+  pr122 CC.
+
+(** Pseudo Map between Comprehension Categories *)
+Definition pseudo_map_structure {C C' : category} (CC : comprehension_cat_structure C) (CC' : comprehension_cat_structure C') :=
+  ∑ (F : C ⟶ C') (Γ : disp_functor F (pr1 CC) (pr1 CC')),
+    disp_nat_trans (nat_trans_id F) (disp_functor_composite Γ (comprehension CC')) (disp_functor_composite (comprehension CC) (disp_codomain_functor F)).
+
+(** Transformation between Pseudo Maps *)
+Definition transformation_structure
+  {C C' : category}
+  {CC : comprehension_cat_structure C} {CC' : comprehension_cat_structure C'}
+  (F F': pseudo_map_structure CC CC')
+  :=
+  ∑ (α : nat_trans (pr1 F) (pr1 F')), disp_nat_trans α (pr12 F) (pr12 F').
