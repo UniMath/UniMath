@@ -6,6 +6,7 @@
     - define the inclusion functor [ι : disp_map_cat D ⇒ disp_codomain C]
     - TODO: show the inclusion functor preserves cartesian arrows
     - define the map between display maps [map_dispmap D D']
+    - TODO: show the conversion from a display_map to a comprehension category
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -18,7 +19,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 (* Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor. *)
-(* Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC. *)
+Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 Local Open Scope cat.
 
 (** ** Display Map *)
@@ -32,7 +33,7 @@ Definition has_map_pullbacks {C : category} (D : displaymap_data C) :=
 Definition display_map (C : category) :=
   ∑ (D : displaymap_data C), has_map_pullbacks D.
 
-(** **** Display Map Category *)
+(** ** Display Map Category *)
 (** This is based on the definition for [disp_codomain]. *)
 (** See: Codomain.v *)
 
@@ -169,6 +170,8 @@ Proof.
   exact (disp_map_is_cartesian f d).
 Defined.
 
+(** ** Inclusion Functor *)
+
 Definition disp_map_inclusion
   {C : category} (D : display_map C)
   : disp_functor (functor_identity C) (disp_map_cat D) (disp_codomain C).
@@ -184,7 +187,7 @@ Defined.
 Notation "'ι'" := disp_map_inclusion.
 
 
-(** **** Map of DispMaps *)
+(** ** Map of DispMaps *)
 Definition preserves_maps {C C' : category} (D : display_map C) (D' : display_map C') (F : C ⟶ C') :=
   ∏ (a b : C) (d : a --> b), (pr1 D) _ _ d -> (pr1 D') _ _ (#F d).
 
@@ -196,3 +199,36 @@ Definition map_dispmap {C C' : category} (D : display_map C) (D' : display_map C
 
 Definition functor_from_map {C C' : category} (D : display_map C) (D' : display_map C') (F : map_dispmap D D') : C ⟶ C' := pr1 F.
 Coercion functor_from_map : map_dispmap >-> functor.
+
+
+(** ** Conversion to a Comprehension Category *)
+Definition display_map_to_comprehension_category
+  {C : category}
+  (D : display_map C)
+  :
+  comprehension_cat_structure C.
+Proof.
+  use make_comprehension_cat_structure.
+  - exact (disp_map_cat D).
+  - exact disp_map_cleaving.
+  - exact (ι D).
+  - admit.
+Admitted.
+Notation "'τ'" := display_map_to_comprehension_category.
+
+Definition map_disp_map_to_pseudo_map_structure
+  {C C': category}
+  {D : display_map C} {D' : display_map C'}
+  (F : map_dispmap D D')
+  : pseudo_map_structure (τ D) (τ D').
+Proof.
+Admitted.
+Notation "'≻'" := map_disp_map_to_pseudo_map_structure.
+
+Definition nat_trans_to_transformation_structure
+  {C C' : category}
+  {D : display_map C} {D' : display_map C'}
+  {F F' : map_dispmap D D'}
+  (α : nat_trans F F')
+  : transformation_structure (≻ F) (≻ F').
+Admitted.
