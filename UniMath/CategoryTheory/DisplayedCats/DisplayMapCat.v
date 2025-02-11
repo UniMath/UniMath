@@ -13,12 +13,9 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-(* Require Import UniMath.CategoryTheory.DisplayedCats.Isos. *)
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
-(* Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations. *)
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
-(* Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor. *)
 Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 Local Open Scope cat.
 
