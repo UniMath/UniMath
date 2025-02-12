@@ -39,7 +39,7 @@
  5. The first-order hyperdoctrine of H-valued predicates
  6. Comprehension category of H-valued predicates
  7. The tripos of H-valued predicates
- 8. The comprehension category of H-valued predicates it not necessarily full
+ 8. The comprehension category of H-valued predicates is not necessarily full
 
  ********************************************************************************************)
 Require Import UniMath.Foundations.All.
