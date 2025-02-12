@@ -563,7 +563,7 @@ Section HValuedSets.
   Defined.
 End HValuedSets.
 
-(** * 8. The comprehension category of H-valued predicates it not necessarily full *)
+(** * 8. The comprehension category of H-valued predicates is not necessarily full *)
 Lemma h_valued_pred_comprehension_ff_no_non_trivial_open
       {D : dcpo}
       (X : scott_open_set D)
