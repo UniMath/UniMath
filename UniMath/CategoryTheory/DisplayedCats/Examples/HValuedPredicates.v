@@ -37,23 +37,34 @@
  4.6. Dependent products
  4.7. Dependent sums
  5. The first-order hyperdoctrine of H-valued predicates
- 6. The tripos of H-valued predicates
+ 6. Comprehension category of H-valued predicates
+ 7. The tripos of H-valued predicates
+ 8. The comprehension category of H-valued predicates it not necessarily full
 
  ********************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.OrderTheory.Lattice.Lattice.
+Require Import UniMath.OrderTheory.Lattice.Bounded.
 Require Import UniMath.OrderTheory.Lattice.CompleteHeyting.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.OrderTheory.Lattice.Examples.ScottOpen.
+Require Import UniMath.OrderTheory.DCPOs.Core.Basics.
+Require Import UniMath.OrderTheory.DCPOs.Core.ScottTopology.
+Require Import UniMath.OrderTheory.DCPOs.Examples.Discrete.
+Require Import UniMath.OrderTheory.DCPOs.Basis.Continuous.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Categories.HSET.All.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
+Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseInitial.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
@@ -368,7 +379,155 @@ Section HValuedSets.
     - exact has_dependent_sums_h_valued_sets.
   Defined.
 
-  (** * 6. The tripos of H-valued predicates *)
+  (** * 6. Comprehension category of H-valued predicates *)
+  Definition h_valued_pred_comprehension_data
+    : disp_functor_data
+        (functor_identity _)
+        disp_cat_h_valued_sets
+        (disp_codomain _).
+  Proof.
+    simple refine (_ ,, _).
+    - exact (λ (X : hSet) (p : X → H), {{ p }} ,, pr1).
+    - simple refine (λ (X Y : hSet)
+                       (p : X → H)
+                       (q : Y → H)
+                       (f : X → Y)
+                       Hf,
+                     _ ,, _).
+      + refine (λ x, f (pr1 x) ,, _).
+        abstract
+          (exact (cha_le_trans (pr2 x) (Hf _))).
+      + abstract
+          (apply idpath).
+  Defined.
+
+  Proposition h_valued_pred_comprehension_laws
+    : disp_functor_axioms h_valued_pred_comprehension_data.
+  Proof.
+    split.
+    - intros.
+      use subtypePath.
+      {
+        intro.
+        apply homset_property.
+      }
+      use funextsec ; intro.
+      use subtypePath.
+      {
+        intro.
+        apply propproperty.
+      }
+      cbn.
+      apply idpath.
+    - intros.
+      use subtypePath.
+      {
+        intro.
+        apply homset_property.
+      }
+      use funextsec ; intro.
+      use subtypePath.
+      {
+        intro.
+        apply propproperty.
+      }
+      cbn.
+      apply idpath.
+  Qed.
+
+  Definition h_valued_pred_comprehension
+    : disp_functor
+        (functor_identity _)
+        disp_cat_h_valued_sets
+        (disp_codomain _).
+  Proof.
+    simple refine (_ ,, _).
+    - exact h_valued_pred_comprehension_data.
+    - exact h_valued_pred_comprehension_laws.
+  Defined.
+
+  Definition disp_cat_h_valued_pred_comprehension
+    : is_cartesian_disp_functor h_valued_pred_comprehension.
+  Proof.
+    use is_cartesian_disp_functor_chosen_lifts.
+    - exact cleaving_h_valued_sets.
+    - refine (λ (X Y : hSet) (f : X → Y) (q : Y → H), _).
+      use isPullback_cartesian_in_cod_disp.
+      intros W h k e.
+      simple refine (_ ,, _).
+      + cbn in W, h, k, e.
+        simple refine (_ ,, _ ,, _).
+        * intro w ; cbn.
+          simple refine (k w ,, _).
+          abstract
+            (cbn ;
+             rewrite <- (eqtohomot e w) ;
+             exact (pr2 (h w))).
+        * abstract
+            (use funextsec ;
+             intro w ;
+             use subtypePath ; [ intro ; apply propproperty | ] ;
+             cbn ;
+             refine (!_) ;
+             apply (eqtohomot e)).
+        * abstract
+            (apply idpath).
+      + abstract
+          (intro t ;
+           use subtypePath ; [ intro ; apply isapropdirprod ; apply homset_property | ] ;
+           cbn in W, h, k, e, t ;
+           use funextsec ;
+           intro w ;
+           use subtypePath ; [ intro ; apply propproperty | ] ; cbn ;
+           exact (eqtohomot (pr22 t) w)).
+  Defined.
+
+  Definition h_valued_pred_comprehension_structure
+    : comprehension_cat_structure SET.
+  Proof.
+    simple refine (_ ,, _ ,, _ ,, _).
+    - exact disp_cat_h_valued_sets.
+    - exact cleaving_h_valued_sets.
+    - exact h_valued_pred_comprehension.
+    - exact disp_cat_h_valued_pred_comprehension.
+  Defined.
+
+  Proposition disp_functor_ff_h_valued_pred_comprehension_weq
+    : disp_functor_ff h_valued_pred_comprehension
+      ≃
+      (∏ (x y : H), (⊤ ≤ x → ⊤ ≤ y) → (x ≤ y)).
+  Proof.
+    use weqimplimpl.
+    - intros HF x y p.
+      pose (Hw := make_weq _ (HF unitset unitset (λ _, x) (λ _, y) (idfun _))).
+      refine (invmap Hw _ tt) ; cbn.
+      simple refine ((λ z, pr1 z ,, p (pr2 z)) ,, _) ; cbn.
+      apply idpath.
+    - intros HF.
+      refine (λ (X Y : hSet) (p : X → H) (q : Y → H) (f : X → Y), _).
+      use isweq_iso.
+      + intros ff x ; cbn.
+        apply HF.
+        intro Hx.
+        pose proof (eqtohomot (pr2 ff) (x ,, Hx)) as e.
+        cbn in e.
+        rewrite <- e.
+        exact (pr2 (pr1 ff (x ,, Hx))).
+      + intro.
+        use funextsec ; intro.
+        apply propproperty.
+      + intros ff.
+        use subtypePath ; [ intro ; apply homset_property | ].
+        use funextsec ; intro x ; cbn in x.
+        use subtypePath ; [ intro ; apply propproperty | ].
+        cbn.
+        exact (!(eqtohomot (pr2 ff) x)).
+    - apply isaprop_disp_functor_ff.
+    - repeat (use impred ; intro).
+      apply propproperty.
+  Qed.
+
+  (** * 7. The tripos of H-valued predicates *)
   Local Open Scope hd.
 
   Section TriposOfHValuedSets.
@@ -403,3 +562,48 @@ Section HValuedSets.
     - exact is_tripos_h_valued_sets.
   Defined.
 End HValuedSets.
+
+(** * 8. The comprehension category of H-valued predicates it not necessarily full *)
+Lemma h_valued_pred_comprehension_ff_no_non_trivial_open
+      {D : dcpo}
+      (X : scott_open_set D)
+      {x y : D}
+      (Hx : X x → ∅)
+      (Hy : X y)
+      (H : disp_functor_ff (h_valued_pred_comprehension (scott_open_cha D)))
+  : ∅.
+Proof.
+  assert (Lle (bounded_lattice_scott_open_set D) X (false_scott_open_set D))
+    as HX.
+  {
+    apply (disp_functor_ff_h_valued_pred_comprehension_weq
+             _
+             H
+             X
+             (false_scott_open_set D)).
+    intro fX.
+    use fromempty.
+    apply Hx.
+    apply (from_bounded_lattice_scott_open_set_le _ fX).
+    exact tt.
+  }
+  exact (from_bounded_lattice_scott_open_set_le _ HX Hy).
+Qed.
+
+Proposition h_valued_pred_comprehension_discrete_dcpo_not_ff
+            (D := discrete_dcpo natset)
+  : disp_functor_ff (h_valued_pred_comprehension (scott_open_cha D)) → ∅.
+Proof.
+  intro H.
+  use (h_valued_pred_comprehension_ff_no_non_trivial_open _ _ _ H).
+  - use way_below_upper_scott_open_set.
+    + exact (dcpo_continuous_struct_discrete natset).
+    + exact 0.
+  - exact 1.
+  - exact 0.
+  - intro p.
+    use (negpaths0sx 0).
+    exact (discrete_way_below_to_eq natset p).
+  - use discrete_eq_to_way_below.
+    apply idpath.
+Qed.
