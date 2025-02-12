@@ -77,7 +77,7 @@ jobs:
             startGroup "Workaround permission issue"
             getent passwd
             getent group
-            sudo chown -R rocq:rocq .
+            sudo chown -R coq:coq .
             endGroup
 
             startGroup "Print versions"
@@ -184,7 +184,7 @@ jobs:
           ocaml_version: ${{ matrix.ocaml-version }}
           custom_script: |
             startGroup "Workaround permission issue"
-            sudo chown -R rocq:rocq .
+            sudo chown -R coq:coq .
             endGroup
 
             startGroup "Print versions"
