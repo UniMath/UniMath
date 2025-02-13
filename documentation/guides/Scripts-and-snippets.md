@@ -1,3 +1,4 @@
+# Scripts and Snippets
 This page documents a couple of useful scripts and snippets for working with coq and UniMath.
 
 ## See which files are currently being compiled with dune
