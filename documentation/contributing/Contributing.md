@@ -6,15 +6,15 @@ Potential work on the library is tracked in two ways. Firstly, there are the [Gi
 Feel free to take up a project from either the issues or opportunities file, or to add new issues or opportunities you think of.
 
 ## Pull Requests
-The git and GitHub part of the contribution process, including forking, branching, and remote tracking, is documented on the page about [git and GitHub](Git-and-GitHub).
+The git and GitHub part of the contribution process, including forking, branching, and remote tracking, is documented on the page about [git and GitHub](./Git-and-GitHub.md).
 
 Before making a pull request:
 - Check all your modified code compiles.
 - Run the sanity checks with `make sanity-checks`.
-- Make sure that your code adheres to the [Style guide](./Style-guide.md). In particular, to make sure that your code is usable down the road, make sure that your proofs and definitions have the correct [opaqueness](./../misc/On-opaqueness.md).
+- Make sure that your code adheres to the [Style guide](./Style-guide.md). In particular, to make sure that your code is usable down the road, make sure that your proofs and definitions have the correct [opaqueness](./../guides/Opaqueness.md).
 - If you have changed the file structure of the repository, for example by adding a new file, make sure you have followed the instructions below.
 
-In the end, you will need someone from the [coordinating committee](../misc/About-UniMath.md#coordinating-committee) to merge your pull request into the main repository. Note that from then on, your code will be subject to the [copyright and license agreement](../../LICENSE.md).
+In the end, you will need someone from the [coordinating committee](../unimath/About-UniMath.md#coordinating-committee) to merge your pull request into the main repository. Note that from then on, your code will be subject to the [copyright and license agreement](../../LICENSE.md).
 
 ## Foundations
 

@@ -1,7 +1,7 @@
 * Avoid inductive types
 * Use notation wherever possible (and feasible)
 * Make sure that all variables (from induction and intros) are introduced by name
-* [Make everything opaque that should be opaque](./On-opaqueness)
+* [Make everything opaque that should be opaque](../guides/Opaqueness)
 * Split long definitions into smaller parts. This makes unification faster, allows you to more easily make the right parts opaque and is more readable.
 * Structure your proof with [bullets](https://coq.inria.fr/refman/proofs/writing-proofs/proof-mode.html#bullets). An occasional proof part with curly braces is okay, but preferably use bullets. The first three levels are `-`, `+` and `*`. If you need more levels, start with `--` (or maybe `**`), but at that point you should probably start splitting up your proof.
 * Minimize your imports: When you create a commit or PR in which you have added `Require Import` statements to a file, or (re)moved code, check that all involved import statements are indeed used or useful. For larger changes, [JasonGross has created a tool](https://github.com/JasonGross/coq-tools) which can come in handy. However, always verify the outcome, because some redundant imports are still good to have (see [this discussion](https://github.com/UniMath/UniMath/issues/1664) for more details).

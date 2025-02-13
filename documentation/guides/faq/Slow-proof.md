@@ -1,5 +1,5 @@
 ## Make things opaque
-One of the first things to check if proofs are becoming slow, or proof terms become large, is whether [the things that should be opaque](./On-opaqueness), are opaque.
+One of the first things to check if proofs are becoming slow, or proof terms become large, is whether [the things that should be opaque](../Opaqueness.md), are opaque.
 However, note that properly managing opaqueness/transparency saves at most one or two minutes per definition. If a definition is very slow, then it is most likely related to unification. Also, make sure to properly split your definitions. By having everything split up in multiple identifiers, unification becomes a bit nicer, because computation gets blocked more.
 
 ## Try to pinpoint the origin of slowness

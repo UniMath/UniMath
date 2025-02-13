@@ -22,7 +22,7 @@ If you have previously compiled UniMath using `make` you need to clean up your
 repository or else dune will complain about files that it does not know how to
 compile. Running `make clean` should be enough.
 
-Assuming coq is installed (otherwise see for example [INSTALL.md](INSTALL.md))
+Assuming coq is installed (otherwise see for example [Install.md](./Install.md))
 and in your `PATH` you should now be able to build UniMath with the command
 `dune build`. **Note** that dune by default does not have caching enabled. To
 enable this once give the flag `--cache=enabled` to dune:
