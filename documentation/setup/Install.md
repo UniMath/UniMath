@@ -27,13 +27,13 @@ brew install coq
 
 Alternatively, you can install Coq in any other standard way; or you can ask UniMath to build its own copy of Coq, which may be useful if your globally installed Coq is a version incompatible with UniMath.  If you plan to do this, then you must first install its dependencies, e.g. with the Homebrew command:
 ```bash
-brew install bash objective-caml ocaml-num ocaml-findlib camlp5 
+brew install bash objective-caml ocaml-num ocaml-findlib camlp5
 ```
-or, for more customisability, using the "opam" OCaml package manager, according to the detailed instructions in [`INSTALL_OPAM.md`](./INSTALL_OPAM.md).
+or, for more customisability, using the "opam" OCaml package manager, according to the detailed instructions in [`Install-opam.md`](./Install-opam.md).
 
 Emacs may be installed using https://emacsformacosx.com/, http://aquamacs.org, or any other flavour of Emacs you prefer.
 
-Now you may proceed to the instructions for [Installation of Proof General](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
+Now you may proceed to the instructions for [Installation of Proof General](#installation-of-proof-general-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 
 The automated sanity checks (for contributions to UniMath) may require a more recent version of bash than the one preinstalled on Mac OS; this can be installed with `brew install bash`.
 
@@ -51,7 +51,7 @@ following shell command.
 ```bash
  sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs
 ```
-Now proceed with [Installation of Proof General](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
+Now proceed with [Installation of Proof General](#installation-of-proof-general-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 
 ### Preparing for the installation under Arch Linux or Manjaro Linux
 
@@ -64,7 +64,7 @@ shell commands.
  sudo pacman --sync --needed ocaml camlp5 ocaml-findlib ocaml-num
  sudo pacman -S emacs
 ```
-Now proceed with [Installation of Proof General](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
+Now proceed with [Installation of Proof General](#installation-of-proof-general-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 
 ## Installation of Proof General (all operating systems)
 
@@ -106,7 +106,7 @@ shell command (in this directory).
 make
 ```
 
-Once this is done, you can start [browsing and editing UniMath](./USAGE.md).
+Once this is done, you can start [browsing and editing UniMath](../guides/Guides.md).
 Below, we explain how to compile individual packages of UniMath, and how to
 create HTML documentation.
 
@@ -147,7 +147,7 @@ create HTML documentation.
    ```
    The path to that directory from here, by default, is ./sub/coq/user-contrib/.
 
-- To install [CoqIDE](https://coq.inria.fr/refman/practical-tools/coqide.html), see [INSTALL\_COQIDE](./INSTALL_COQIDE.md).
+- To install [CoqIDE](https://coq.inria.fr/refman/practical-tools/coqide.html), see [Install-CoqIDE](./Install-CoqIDE.md).
 
 ## TAGS files
 
@@ -273,7 +273,7 @@ between the version of OCaml used and the version of Coq being compiled.
 File "lib/pp_control.ml", line 61, characters 22-33:
 Error: This expression has type bytes -> int -> int -> unit
        but an expression was expected of type string -> int -> int -> unit
-       Type bytes is not compatible with type string 
+       Type bytes is not compatible with type string
 ```
 
 For example, Coq 8.6.1 cannot be compiled by OCaml 4.06.0, and must instead be
@@ -282,7 +282,7 @@ compiled by an older version.  In the instructions above, we arrange for OCaml
 
 ### Problems caused by ill-formed input to make
 
-When calling `make`, various files are read, some of them not under version control by git. 
+When calling `make`, various files are read, some of them not under version control by git.
 If those files are ill-formed, `make` stops working; in particular, `make` cannot be used to delete and recreate those files.
 When such a situation arises, one solution is to try cleaning everything with this command:
 ```bash
@@ -330,7 +330,7 @@ This package is not among the build dependencies for older versions of Coq.
 
 - Before submitting a pull request, developers should run the sanity checks that are specified
   in the Makefile by adding `sanity-checks` to the "make" command line.
-  
+
 - One of the sanity checks checks that all proof files in the directory tree
   are listed in the corresponding package, but it will complain even about
   files you haven't checked in; to disable the test, add `-o
@@ -346,4 +346,4 @@ This package is not among the build dependencies for older versions of Coq.
   `LIMIT_MEMORY=yes` to the `make` command line.  Unfortunately, under Mac OS
   X, such memory limits are ineffective, so you may prefer to run the test
   under Linux.
-  
+

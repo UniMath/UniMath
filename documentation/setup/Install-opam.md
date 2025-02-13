@@ -2,7 +2,7 @@
 
 This method for installing OCaml (in order to also build Coq) allows more
 flexibility, but is more involved than the method in
-[INSTALL.md](./INSTALL.md), because it depends on "opam".
+[Install.md](./Install.md), because it depends on "opam".
 
 First install opam and needed prerequisites:
 

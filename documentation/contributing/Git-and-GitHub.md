@@ -88,7 +88,7 @@ git push -u origin YonedaLemma
 Before making a pull request:
 - Check all your modified code compiles
 - Run the sanity checks with `make sanity-checks`
-- Check you have followed the [style guide](Style-Guide.md) and other instructions in [Contributing](Contributing.md) for creating new files/packages.
+- Check you have followed the [style guide](./Style-guide.md) and other instructions in [Contributing](./Contributing.md) for creating new files/packages.
 
 It is fine if there are still issues when you make the pull request. The pull request will be reviewed and you can make changes before the pull request is merged.
 
@@ -105,7 +105,7 @@ Once your pull request has been reviewed and approved, it can be merged. This wi
 
 ### Merging pull requests on the commandline
 
-This subsection is only relevant if you have write access to the repository (i.e. if you are on the [coordinating committee](../misc/About-UniMath.md#coordinating-committee)).
+This subsection is only relevant if you have write access to the repository (i.e. if you are on the [coordinating committee](../unimath/About-UniMath.md#coordinating-committee)).
 
 To merge a pull request on the command line, first make sure that git also fetches pull requests to your computer. Go to [`.git/config`](../../.git/config) and locate the section that corresponds to the main UniMath repository, for example:
 ```
