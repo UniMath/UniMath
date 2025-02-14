@@ -134,25 +134,50 @@ Definition comprehension_cat_structure (C : category) : UU
 Definition make_comprehension_cat_structure
   {C : category}
   (D : disp_cat C)
-  {HD : cleaving D}
+  {clD : cleaving D}
   (χ : disp_functor (functor_identity C) D (disp_codomain C))
-  (Hχ : is_cartesian_disp_functor χ)
+  (H : forall c c' f d, is_cartesian (♯ χ (clD c c' f d)))
+  (* (Hχ : is_cartesian_disp_functor χ) *)
   : comprehension_cat_structure C :=
-  (D ,, HD ,, χ ,, Hχ).
+  (D ,, clD ,, χ ,, cartesian_functor_from_cleaving clD H).
 
 Definition comprehension {C : category} (CC : comprehension_cat_structure C)
   : disp_functor (functor_identity C) (pr1 CC) (disp_codomain C) :=
   pr122 CC.
+Notation "'π_χ'" := comprehension.
 
 (** Pseudo Map between Comprehension Categories *)
 Definition pseudo_map_structure {C C' : category} (CC : comprehension_cat_structure C) (CC' : comprehension_cat_structure C') :=
   ∑ (F : C ⟶ C') (Γ : disp_functor F (pr1 CC) (pr1 CC')),
-    disp_nat_trans (nat_trans_id F) (disp_functor_composite Γ (comprehension CC')) (disp_functor_composite (comprehension CC) (disp_codomain_functor F)).
+    disp_nat_z_iso (disp_functor_composite Γ (π_χ CC')) (disp_functor_composite (π_χ CC) (disp_codomain_functor F)) (nat_z_iso_id F).
+
+Definition make_pseudo_map_structure
+  {C C' : category} {CC : comprehension_cat_structure C} {CC' : comprehension_cat_structure C'}
+  {F : C ⟶ C'}
+  (Γ : disp_functor F (pr1 CC) (pr1 CC'))
+  (ϕ : disp_nat_z_iso (disp_functor_composite Γ (π_χ CC')) (disp_functor_composite (π_χ CC) (disp_codomain_functor F)) (nat_z_iso_id F))
+  : pseudo_map_structure CC CC'
+  := (F ,, Γ ,, ϕ).
 
 (** Transformation between Pseudo Maps *)
-Definition transformation_structure
-  {C C' : category}
-  {CC : comprehension_cat_structure C} {CC' : comprehension_cat_structure C'}
-  (F F': pseudo_map_structure CC CC')
-  :=
-  ∑ (α : nat_trans (pr1 F) (pr1 F')), disp_nat_trans α (pr12 F) (pr12 F').
+
+(* Definition transformation_structure *)
+(*   {C C' : category} *)
+(*   {CC : comprehension_cat_structure C} {CC' : comprehension_cat_structure C'} *)
+(*   (F F': pseudo_map_structure CC CC') *)
+(*   := *)
+(*   ∑ (α : nat_trans (pr1 F) (pr1 F')) (α_bar : disp_nat_trans α (pr12 F) (pr12 F')), *)
+(*   ∏ (c : C) (cc : pr1 CC c), *)
+(*     comp_disp (#(π_χ CC') (α_bar c cc)) (pr22 F' c cc) *)
+(*     = *)
+(*       (* transportb _ ((nat_trans_comp_id_right _ (pr1 F) (pr1 F') _) @ (nat_trans_comp_id_left _ (pr1 F) (pr1 F') _)) *) *)
+(*       (comp_disp (pr22 F c cc) (disp_codomain_nat_trans α _ _)) *)
+(* . *)
+
+(* Definition make_transformation_structure *)
+(*   {C C' : category} *)
+(*   {CC : comprehension_cat_structure C} {CC' : comprehension_cat_structure C'} *)
+(*   {F F' : pseudo_map_structure CC CC'} *)
+(*   (α : nat_trans (pr1 F) (pr1 F')) *)
+(*   (α_bar : disp_nat_trans α (pr12 F) (pr12 F')) *)
+(*   (H : unit) *)
