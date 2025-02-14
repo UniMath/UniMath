@@ -25,7 +25,8 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+
+Require Export UniMath.CategoryTheory.Limits.Graphs.Diagrams.
 
 Local Open Scope cat.
 
@@ -622,10 +623,12 @@ End Reflects.
 
 (** Put in a module for namespace reasons *)
 
+Require UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require UniMath.CategoryTheory.opp_precat.
 
 Module co.
 
+Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Import UniMath.CategoryTheory.opp_precat.
 
 Section lim_def.

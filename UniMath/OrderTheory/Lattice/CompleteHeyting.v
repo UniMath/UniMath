@@ -171,6 +171,23 @@ Definition complete_heyting_algebra_neg
 
 Notation "¬ x" := (complete_heyting_algebra_neg x) : heyting.
 
+Definition h_valued_pred_comp
+           {H : complete_heyting_algebra}
+           {X : hSet}
+           (p : X → H)
+  : hSet.
+Proof.
+  use make_hSet.
+  - exact (∑ (x : X), ⊤%heyting ≤ p x).
+  - abstract
+      (use isaset_total2 ; [ apply setproperty | ] ;
+       intro x ;
+       apply isasetaprop ;
+       apply propproperty).
+Defined.
+
+Notation "{{ p }}" := (h_valued_pred_comp p) : heyting.
+
 (** * 3. Laws for complete Heyting algebras *)
 
 (**

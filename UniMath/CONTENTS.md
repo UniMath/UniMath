@@ -269,6 +269,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [covyoneda.v](CategoryTheory/covyoneda.v)
    - [Limits/Cones.v](CategoryTheory/Limits/Cones.v)
    - [Limits/Equalizers.v](CategoryTheory/Limits/Equalizers.v)
+   - [Limits/Graphs/Diagrams.v](CategoryTheory/Limits/Graphs/Diagrams.v)
    - [Limits/Graphs/Colimits.v](CategoryTheory/Limits/Graphs/Colimits.v)
    - [Limits/Graphs/Limits.v](CategoryTheory/Limits/Graphs/Limits.v)
    - [Limits/Graphs/EqDiag.v](CategoryTheory/Limits/Graphs/EqDiag.v)
