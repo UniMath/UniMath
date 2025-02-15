@@ -14,12 +14,15 @@ Require Import UniMath.CategoryTheory.Categories.MonoidToCategory.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.Equivalences.EquivalenceFromComp.
 Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.Limits.Products.
 Require Import UniMath.CategoryTheory.Retracts.
+Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import UniMath.CategoryTheory.FunctorCategory.
 
 Require Import Ltac2.Ltac2.
 
@@ -424,10 +427,6 @@ Section L1.
   Defined.
 
 End L1.
-
-Require Import UniMath.CategoryTheory.Equivalences.EquivalenceFromComp.
-Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
-Require Import UniMath.CategoryTheory.whiskering.
 
 Section Equivalence.
 
