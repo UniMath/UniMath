@@ -225,7 +225,7 @@ Section KaroubiEnvelope.
         * exact f.
         * apply id_left.
         * apply id_right.
-    - split.
+    - apply make_is_functor.
       + abstract (
           intro a;
           now apply karoubi_mor_eq
@@ -507,7 +507,7 @@ Section KaroubiEnvelope.
     Lemma karoubi_equivalence_is_functor
       : is_functor karoubi_equivalence_functor_data.
     Proof.
-      split.
+      apply make_is_functor.
       - intro A.
         apply karoubi'_mor_eq.
         refine (EqualizerInsEq _ _ _ _).
@@ -738,7 +738,7 @@ Section OppKaroubiEquiv.
   Lemma opp_karoubi_functor_is_functor
     : is_functor opp_karoubi_functor_data.
   Proof.
-    split.
+    apply make_is_functor.
     - easy.
     - do 5 intro.
       now apply karoubi_mor_eq.
@@ -921,7 +921,7 @@ Proof.
           apply karoubi_mor_commutes_right
         ).
   - abstract (
-      split;
+      apply make_is_functor;
       [ intro c;
         now apply karoubi_mor_eq
       | intros c d e f g;
@@ -972,7 +972,7 @@ Qed.
 Lemma setcategory_karoubi_is_functor
   : is_functor setcategory_karoubi_functor_data.
 Proof.
-  split.
+  apply make_is_functor.
   - refine (λ (C : setcategory), _).
     now use karoubi_functor_eq.
   - refine (λ (C D E : setcategory) (f : C ⟶ D) (g : D ⟶ E), _).
@@ -1003,7 +1003,7 @@ Proof.
         -- exact (maponpaths (karoubi_mor_morphism _) (karoubi_mor_commutes_left _ f)).
         -- exact (maponpaths (karoubi_mor_morphism _) (karoubi_mor_commutes_right _ f)).
     + abstract (
-        split;
+        apply make_is_functor;
         repeat intro;
         now apply karoubi_mor_eq
       ).
