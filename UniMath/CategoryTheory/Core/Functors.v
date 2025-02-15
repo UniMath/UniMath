@@ -78,6 +78,12 @@ Definition functor_compax {C C' : precategory_data} (F : functor_data C C') :=
 Definition is_functor {C C' : precategory_data} (F : functor_data C C') :=
   ( functor_idax F ) × ( functor_compax F ) .
 
+Definition make_is_functor {C C' : precategory_data} {F : functor_data C C'}
+  (H1 : functor_idax F)
+  (H2 : functor_compax F)
+  : is_functor F
+  := make_dirprod H1 H2.
+
 Lemma isaprop_is_functor (C C' : precategory_data) (hs: has_homsets C')
       (F : functor_data C C') : isaprop (is_functor F).
 Proof.
