@@ -14,20 +14,15 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
-Require Import UniMath.CategoryTheory.Limits.Equalizers.
 
 Require Import UniMath.CategoryTheory.Subobjects.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
 
 

@@ -445,6 +445,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [UnderCategories.v](CategoryTheory/UnderCategories.v)
    - [Subobjects.v](CategoryTheory/Subobjects.v)
    - [SubobjectClassifier/SubobjectClassifier.v](CategoryTheory/SubobjectClassifier/SubobjectClassifier.v)
+   - [SubobjectClassifier/Operations.v](CategoryTheory/SubobjectClassifier/Operations.v)
    - [SubobjectClassifier/SubobjectClassifierIso.v](CategoryTheory/SubobjectClassifier/SubobjectClassifierIso.v)
    - [Quotobjects.v](CategoryTheory/Quotobjects.v)
    - [AbelianPushoutPullback.v](CategoryTheory/AbelianPushoutPullback.v)
