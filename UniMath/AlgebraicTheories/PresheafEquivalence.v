@@ -1,3 +1,32 @@
+(**************************************************************************************************
+
+  The equivalence between presheaves on the monoid L1 and on the Lawvere theory L
+
+  Let L be a λ-theory. The set L 1 of terms with one free variable form a monoid under substitution,
+  with unit x1, which gives a one-object category [algebraic_theory_monoid_category] and we will
+  denote this with L1. We also have a category [algebraic_theory_to_lawvere], with objects {0, 1, …}
+  and morphisms from m to n given by (L n)^m. We will denote this with LL.
+
+  The embedding L1 ↪ LL gives a precomposition functor on functor categories [LL, D] ⟶ [L1, D]. In
+  this file, we will show that this functor is an equivalence.
+
+  We first show that we have an equivalence F: R ≃ K between the Karoubi envelope K of L1 and the
+  category of retracts R from Scott's representation theorem.
+  Then, by Scott's representation theorem, we can embed LL into the Karoubi envelope K, sending n to
+  F(U^n).
+  The composition L1 ⟶ LL ⟶ K equals the embedding of L1 into its Karoubi envelope. Therefore, the
+  precomposition [K, D] ⟶ [L1, D] is an equivalence.
+  If D has colimits, the statements above suffice to show that the individual precompositions
+  [K, D] ⟶ [LL, D] and [LL, D] ⟶ [L1, D] are equivalences, which concludes the proof.
+
+  Contents
+  1. The equivalence between R and K [algebraic_theory_retracts_equiv_karoubi]
+  2. The fully faithful functor from LL to K [algebraic_theory_lawvere_to_karoubi]
+  2.1. The isomorphism between the composed functor and the embedding from L1 to K
+    [algebraic_theory_lawvere_to_karoubi_after_theory_monoid_to_lawvere]
+  3. The equivalence [lawvere_theory_presheaf_equiv_monoid_presheaf]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
@@ -29,6 +58,8 @@ Local Open Scope algebraic_theories.
 Local Open Scope stn.
 Local Open Scope cat.
 Local Open Scope lambda_calculus.
+
+(** * 1. The equivalence between R and K *)
 
 Section Karoubi.
 
@@ -144,6 +175,8 @@ Section Karoubi.
 
 End Karoubi.
 
+(** * 2. The fully faithful functor from LL to K *)
+
 Section Functors.
 
   Context (L : lambda_theory).
@@ -226,6 +259,8 @@ Section Functors.
       exact (!maponpaths (λ (x : lambda_theory_morphism _ _), x _ _) (z_iso_inv_after_z_iso φ)).
   Qed.
 
+(** * 2.1. The isomorphism between the composed functor and the embedding from L1 to K *)
+
   Definition U_iso_algebraic_theory_to_unit
     : z_iso
       (algebraic_theory_retracts_to_karoubi L Lβ (U L Lβ))
@@ -302,6 +337,8 @@ Section Functors.
   Defined.
 
 End Functors.
+
+(** * 3. The equivalence *)
 
 Section Equivalence.
 
