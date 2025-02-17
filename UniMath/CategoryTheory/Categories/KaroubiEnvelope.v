@@ -897,38 +897,50 @@ Proof.
   - apply isaset_karoubi_envelope.
 Defined.
 
+Definition setcategory_karoubi_functor_mor_data
+  {C D : setcategory}
+  (F : C ⟶ D)
+  : functor_data (set_karoubi_envelope C) (set_karoubi_envelope D).
+Proof.
+ use make_functor_data.
+  - refine (λ (c : karoubi_ob C), _).
+    refine (make_karoubi_ob _ (F c) _ _).
+    apply (functor_preserves_is_idempotent _ (karoubi_ob_idempotent _ c)).
+  - refine (λ c d (f : karoubi_mor _ c d), _).
+    use make_karoubi_mor.
+    + exact (#F f).
+    + abstract (
+        refine (!functor_comp F _ _ @ _);
+        apply maponpaths;
+        apply karoubi_mor_commutes_left
+      ).
+    + abstract (
+        refine (!functor_comp F _ _ @ _);
+        apply maponpaths;
+        apply karoubi_mor_commutes_right
+      ).
+Defined.
+
+Lemma setcategory_karoubi_functor_mor_is_functor
+  {C D : setcategory}
+  (F : C ⟶ D)
+  : is_functor (setcategory_karoubi_functor_mor_data F).
+Proof.
+  apply make_is_functor.
+  - intro c.
+    now apply karoubi_mor_eq.
+  - intros c d e f g.
+    apply karoubi_mor_eq.
+    apply functor_comp.
+Qed.
+
 Definition setcategory_karoubi_functor_mor
   {C D : setcategory}
   (F : C ⟶ D)
-  : set_karoubi_envelope C ⟶ set_karoubi_envelope D.
-Proof.
-  use make_functor.
-  - use make_functor_data.
-    + refine (λ (c : karoubi_ob C), _).
-      refine (make_karoubi_ob _ (F c) _ _).
-      apply (functor_preserves_is_idempotent _ (karoubi_ob_idempotent _ c)).
-    + refine (λ c d (f : karoubi_mor _ c d), _).
-      use make_karoubi_mor.
-      * exact (#F f).
-      * abstract (
-          refine (!functor_comp F _ _ @ _);
-          apply maponpaths;
-          apply karoubi_mor_commutes_left
-        ).
-      * abstract (
-          refine (!functor_comp F _ _ @ _);
-          apply maponpaths;
-          apply karoubi_mor_commutes_right
-        ).
-  - abstract (
-      apply make_is_functor;
-      [ intro c;
-        now apply karoubi_mor_eq
-      | intros c d e f g;
-        apply karoubi_mor_eq;
-        apply functor_comp ]
-    ).
-Defined.
+  : set_karoubi_envelope C ⟶ set_karoubi_envelope D
+  := make_functor
+    (setcategory_karoubi_functor_mor_data F)
+    (setcategory_karoubi_functor_mor_is_functor F).
 
 Definition setcategory_karoubi_functor_data
   : functor_data cat_of_setcategory cat_of_setcategory
@@ -985,33 +997,51 @@ Definition setcategory_karoubi_functor
     setcategory_karoubi_functor_data
     setcategory_karoubi_is_functor.
 
-Definition setcategory_karoubi_monad_multiplication
-  : setcategory_karoubi_functor ∙ setcategory_karoubi_functor ⟹ setcategory_karoubi_functor.
+Definition setcategory_karoubi_monad_multiplication_data_data
+  (C : setcategory)
+  : functor_data (setcategory_karoubi_functor (setcategory_karoubi_functor C) : setcategory)
+  (setcategory_karoubi_functor C : setcategory).
 Proof.
-  use make_nat_trans.
-  - intro C.
-    use make_functor.
-    + use make_functor_data.
-      * intro c.
-        use make_karoubi_ob.
-        -- exact (karoubi_ob_object _ (karoubi_ob_object _ c)).
-        -- exact (karoubi_mor_morphism _ (idempotent_morphism (karoubi_ob_idempotent _ c))).
-        -- exact (maponpaths (karoubi_mor_morphism _) (idempotent_is_idempotent (karoubi_ob_idempotent _ c))).
-      * intros a b f.
-        use make_karoubi_mor.
-        -- exact (karoubi_mor_morphism _ (karoubi_mor_morphism _ f)).
-        -- exact (maponpaths (karoubi_mor_morphism _) (karoubi_mor_commutes_left _ f)).
-        -- exact (maponpaths (karoubi_mor_morphism _) (karoubi_mor_commutes_right _ f)).
-    + abstract (
-        apply make_is_functor;
-        repeat intro;
-        now apply karoubi_mor_eq
-      ).
-  - abstract (
-      intros C D F;
-      now use karoubi_functor_eq
-    ).
+  use make_functor_data.
+  - intro c.
+    use make_karoubi_ob.
+    + exact (karoubi_ob_object _ (karoubi_ob_object _ c)).
+    + exact (karoubi_mor_morphism _ (idempotent_morphism (karoubi_ob_idempotent _ c))).
+    + exact (maponpaths (karoubi_mor_morphism _) (idempotent_is_idempotent (karoubi_ob_idempotent _ c))).
+  - intros a b f.
+    use make_karoubi_mor.
+    + exact (karoubi_mor_morphism _ (karoubi_mor_morphism _ f)).
+    + exact (maponpaths (karoubi_mor_morphism _) (karoubi_mor_commutes_left _ f)).
+    + exact (maponpaths (karoubi_mor_morphism _) (karoubi_mor_commutes_right _ f)).
 Defined.
+
+Lemma setcategory_karoubi_monad_multiplication_data_is_functor
+  (C : setcategory)
+  : is_functor (setcategory_karoubi_monad_multiplication_data_data C).
+Proof.
+  apply make_is_functor;
+  repeat intro;
+  now apply karoubi_mor_eq.
+Qed.
+
+Definition setcategory_karoubi_monad_multiplication_data
+  : nat_trans_data (setcategory_karoubi_functor ∙ setcategory_karoubi_functor) setcategory_karoubi_functor
+  := λ C, make_functor
+    (setcategory_karoubi_monad_multiplication_data_data C)
+    (setcategory_karoubi_monad_multiplication_data_is_functor C).
+
+Lemma setcategory_karoubi_monad_multiplication_is_nat_trans
+  : is_nat_trans _ _ setcategory_karoubi_monad_multiplication_data.
+Proof.
+  intros C D F.
+  now use karoubi_functor_eq.
+Qed.
+
+Definition setcategory_karoubi_monad_multiplication
+  : setcategory_karoubi_functor ∙ setcategory_karoubi_functor ⟹ setcategory_karoubi_functor
+  := make_nat_trans _ _
+    setcategory_karoubi_monad_multiplication_data
+    setcategory_karoubi_monad_multiplication_is_nat_trans.
 
 Definition setcategory_karoubi_monad_unit
   : functor_identity cat_of_setcategory ⟹ setcategory_karoubi_functor.
