@@ -1,6 +1,5 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Algebra.Monoids2.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryToLawvereTheory.
@@ -11,7 +10,6 @@ Require Import UniMath.AlgebraicTheories.LambdaTheories.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.OriginalRepresentationTheorem.
 Require Import UniMath.CategoryTheory.Categories.KaroubiEnvelope.
-Require Import UniMath.CategoryTheory.Categories.MonoidToCategory.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
