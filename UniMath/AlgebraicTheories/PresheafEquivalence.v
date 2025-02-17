@@ -4,6 +4,7 @@ Require Import UniMath.Algebra.Monoids2.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryToLawvereTheory.
+Require Import UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.
 Require Import UniMath.AlgebraicTheories.CategoryOfRetracts.
 Require Import UniMath.AlgebraicTheories.Combinators.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
@@ -30,106 +31,6 @@ Local Open Scope algebraic_theories.
 Local Open Scope stn.
 Local Open Scope cat.
 Local Open Scope lambda_calculus.
-
-Section Monoid.
-
-  Context (T : algebraic_theory).
-
-  Definition algebraic_theory_to_setwithbinop
-    : setwithbinop.
-  Proof.
-    refine '(make_setwithbinop _ _).
-    - exact (T 1).
-    - intros f g.
-      exact (f • (λ _, g)).
-  Defined.
-
-  Definition algebraic_theory_to_unit
-    : algebraic_theory_to_setwithbinop
-    := var (● 0 : stn 1).
-
-  Lemma algebraic_theory_to_isunit
-    : isunit op algebraic_theory_to_unit.
-  Proof.
-    apply make_isunit.
-    - intro f.
-      apply var_subst.
-    - intro f.
-      refine '(_ @ subst_var _ f).
-      apply (maponpaths (λ x, f • x)).
-      apply funextfun.
-      intro.
-      apply maponpaths.
-      exact (!iscontr_uniqueness iscontrstn1 x).
-  Qed.
-
-  Definition algebraic_theory_to_monoid
-    : monoid.
-  Proof.
-    refine '(make_monoid _ _).
-    - exact algebraic_theory_to_setwithbinop.
-    - apply make_ismonoidop.
-      + abstract (exact (λ f g h, subst_subst _ f _ _)).
-      + refine '(make_isunital _ _).
-        * exact algebraic_theory_to_unit.
-        * exact algebraic_theory_to_isunit.
-  Defined.
-
-  Definition algebraic_theory_monoid_category
-    : setcategory
-    := monoid_to_category algebraic_theory_to_monoid.
-
-  Definition algebraic_theory_monoid_to_lawvere_data
-    : functor_data
-      algebraic_theory_monoid_category
-      (algebraic_theory_to_lawvere T : setcategory).
-  Proof.
-    refine '(make_functor_data _ _).
-    - intro.
-      exact 1.
-    - intros ? ? f.
-      exact (λ _, f).
-  Defined.
-
-  Lemma algebraic_theory_monoid_to_lawvere_is_functor
-    : is_functor algebraic_theory_monoid_to_lawvere_data.
-  Proof.
-    split.
-    - intro.
-      apply funextfun.
-      intro t.
-      apply (maponpaths var).
-      apply proofirrelevancecontr.
-      apply iscontrstn1.
-    - intros ? ? ? f g.
-      reflexivity.
-  Qed.
-
-  Definition algebraic_theory_monoid_to_lawvere
-    : algebraic_theory_monoid_category ⟶
-      (algebraic_theory_to_lawvere T : setcategory)
-    := make_functor
-      algebraic_theory_monoid_to_lawvere_data
-      algebraic_theory_monoid_to_lawvere_is_functor.
-
-  Lemma algebraic_theory_monoid_to_lawvere_fully_faithful
-    : fully_faithful algebraic_theory_monoid_to_lawvere.
-  Proof.
-    intros ? ?.
-    refine '(isweq_iso _ _ _ _).
-    - intro f.
-      exact (f (● 0)).
-    - intro f.
-      reflexivity.
-    - intro f.
-      apply funextfun.
-      intro.
-      apply (maponpaths f).
-      apply proofirrelevancecontr.
-      apply iscontrstn1.
-  Qed.
-
-End Monoid.
 
 Section Karoubi.
 
@@ -361,10 +262,10 @@ Section Functors.
         ).
   Defined.
 
-  Definition algebraic_theory_lawvere_to_karoubi_after_algebraic_theory_monoid_to_lawvere
+  Definition algebraic_theory_lawvere_to_karoubi_after_theory_monoid_to_lawvere
     : z_iso
       (C := [_, _])
-      (algebraic_theory_monoid_to_lawvere L ∙ algebraic_theory_lawvere_to_karoubi)
+      (theory_monoid_to_lawvere L ∙ algebraic_theory_lawvere_to_karoubi)
       (karoubi_envelope_inclusion (algebraic_theory_monoid_category L)).
   Proof.
     pose (ψ := z_iso_comp
@@ -417,12 +318,12 @@ Section Equivalence.
       [algebraic_theory_monoid_category L, D].
   Proof.
     refine '(_ ,, _).
-    - exact (pre_comp_functor (algebraic_theory_monoid_to_lawvere L)).
+    - exact (pre_comp_functor (theory_monoid_to_lawvere L)).
     - refine '(adjoint_equivalence_2_from_comp _ _ (algebraic_theory_lawvere_to_karoubi_fully_faithful L Lβ) _ HD _).
       apply (adj_equivalence_of_cats_closed_under_iso (pre_comp_functor_assoc _ _)).
       refine '(adj_equivalence_of_cats_closed_under_iso ((functor_on_z_iso
         (pre_comp_functor_functor _ _ _)
-        (z_iso_inv (algebraic_theory_lawvere_to_karoubi_after_algebraic_theory_monoid_to_lawvere _ _)))) _).
+        (z_iso_inv (algebraic_theory_lawvere_to_karoubi_after_theory_monoid_to_lawvere _ _)))) _).
       exact (karoubi_pullback_equivalence _ _ HD).
   Defined.
 
