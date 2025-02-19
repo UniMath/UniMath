@@ -15,6 +15,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Export UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.whiskering.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
@@ -160,24 +161,60 @@ Definition make_pseudo_map_structure
   := (F ,, Γ ,, ϕ).
 
 (** Transformation between Pseudo Maps *)
+Lemma nat_trans_pre_whisker_id
+  {C C': category} {F G : C ⟶ C'} (α : nat_trans F G)
+  : pre_whisker (functor_identity C) α = α.
+Proof.
+  use subtypePath.
+  - exact (λ _, isaprop_is_nat_trans _ _ (pr2 C') _ _ _).
+  - reflexivity.
+Qed.
 
-(* Definition transformation_structure *)
-(*   {C C' : category} *)
-(*   {CC : comprehension_cat_structure C} {CC' : comprehension_cat_structure C'} *)
-(*   (F F': pseudo_map_structure CC CC') *)
-(*   := *)
-(*   ∑ (α : nat_trans (pr1 F) (pr1 F')) (α_bar : disp_nat_trans α (pr12 F) (pr12 F')), *)
-(*   ∏ (c : C) (cc : pr1 CC c), *)
-(*     comp_disp (#(π_χ CC') (α_bar c cc)) (pr22 F' c cc) *)
-(*     = *)
-(*       (* transportb _ ((nat_trans_comp_id_right _ (pr1 F) (pr1 F') _) @ (nat_trans_comp_id_left _ (pr1 F) (pr1 F') _)) *) *)
-(*       (comp_disp (pr22 F c cc) (disp_codomain_nat_trans α _ _)) *)
-(* . *)
+Lemma nat_trans_post_whisker_id
+  {C C': category} {F G : C ⟶ C'} (α : nat_trans F G)
+  : post_whisker α (functor_identity C') = α.
+Proof.
+  use subtypePath.
+  - exact (λ _, isaprop_is_nat_trans _ _ (pr2 C') _ _ _).
+  - reflexivity.
+Qed.
 
-(* Definition make_transformation_structure *)
-(*   {C C' : category} *)
-(*   {CC : comprehension_cat_structure C} {CC' : comprehension_cat_structure C'} *)
-(*   {F F' : pseudo_map_structure CC CC'} *)
-(*   (α : nat_trans (pr1 F) (pr1 F')) *)
-(*   (α_bar : disp_nat_trans α (pr12 F) (pr12 F')) *)
-(*   (H : unit) *)
+(* FIXME: rename this to sg better? *)
+(* FIXME: move this to a more appropriate file *)
+Lemma base_nat_trans_equality
+  {C C' : category} {F G: C ⟶ C'} (α : nat_trans F G)
+  : nat_trans_comp (functor_composite F (functor_identity C'))
+     (functor_composite G (functor_identity C')) (functor_identity C ∙ G)
+     (post_whisker α (functor_identity C')) (nat_z_iso_id G) =
+   nat_trans_comp (F ∙ functor_identity C') (functor_identity C ∙ F)
+     (functor_composite (functor_identity C) G) (nat_z_iso_id F)
+     (pre_whisker (functor_identity C) α).
+Proof.
+  rewrite nat_trans_pre_whisker_id.
+  rewrite nat_trans_post_whisker_id.
+  use subtypePath.
+  - exact (λ _, isaprop_is_nat_trans _ _ (pr2 C') _ _ _).
+  - cbn. apply funextsec. intros x. rewrite id_left, id_right. exact (idpath _).
+Qed.
+
+Definition transformation_structure_axiom
+  {C C' : category}
+  {CC : comprehension_cat_structure C} {CC' : comprehension_cat_structure C'}
+  {F F': pseudo_map_structure CC CC'}
+  {α : nat_trans (pr1 F) (pr1 F')}
+  (α_bar : disp_nat_trans α (pr12 F) (pr12 F'))
+  := disp_nat_trans_comp (post_whisker_disp_nat_trans α_bar (π_χ CC')) (pr22 F')
+    =
+      transportb
+        (λ n, disp_nat_trans n _ _)
+        (base_nat_trans_equality α)
+      (disp_nat_trans_comp (pr22 F) (pre_whisker_disp_nat_trans (π_χ CC) (disp_codomain_nat_trans α))).
+
+Definition transformation_structure
+  {C C' : category}
+  {CC : comprehension_cat_structure C} {CC' : comprehension_cat_structure C'}
+  (F F': pseudo_map_structure CC CC')
+  :=
+  ∑ (α : nat_trans (pr1 F) (pr1 F')) (α_bar : disp_nat_trans α (pr12 F) (pr12 F')),
+    transformation_structure_axiom α_bar
+.

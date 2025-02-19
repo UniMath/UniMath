@@ -326,10 +326,57 @@ Proof.
 Defined.
 Notation "'≻'" := map_display_map_to_pseudo_map_structure.
 
+(** ** Conversion of transformations *)
+(** Once more we rely on the definition for the codomain display category to define the transformation between two display map categories. *)
+Definition display_map_nat_trans
+  {C₁ C₂ : category}
+  {D₁ : display_map_class C₁} {D₂ : display_map_class C₂}
+  {F G : map_dispmap D₁ D₂}
+  (α : F ⟹ G)
+  : disp_nat_trans α (display_map_functor F) (display_map_functor G).
+Proof.
+  simple refine (_ ,, _).
+  - refine (λ y xf, α _ ,, _).
+    abstract
+      (cbn ;
+       apply (!(nat_trans_ax α _ _ _))).
+  - abstract (intros y₁ y₂ g xf₁ xf₂ p ;
+       use eq_display_map_cat_mor ;
+       rewrite (@transportb_display_map _ _ _ _ (display_map_functor F y₁ xf₁)) ;
+       apply (nat_trans_ax α _ _ _)).
+Defined.
+
+Definition nat_trans_to_transformation_structure_axiom
+  {C C' : category}
+  {D : display_map_class C} {D' : display_map_class C'}
+  {F F' : map_dispmap D D'}
+  (α : nat_trans F F')
+  : @transformation_structure_axiom _ _ _ _ (≻ F) (≻ F') α (display_map_nat_trans α).
+Proof.
+  unfold transformation_structure_axiom.
+  use subtypePath.
+  { exact (λ _, isaprop_disp_nat_trans_axioms _ _). }
+
+  use funextsec. intros x.
+  use funextsec. intros dx.
+  rewrite disp_nat_trans_transportb. cbn.
+  use subtypePath.
+  { exact (λ _, homset_property _ _ _ _ _). }
+  rewrite transportb_cod_disp.
+  simpl.
+  rewrite id_left,id_right.
+  exact (idpath _).
+Qed.
+
 Definition nat_trans_to_transformation_structure
   {C C' : category}
   {D : display_map_class C} {D' : display_map_class C'}
   {F F' : map_dispmap D D'}
   (α : nat_trans F F')
   : transformation_structure (≻ F) (≻ F').
-Admitted.
+Proof.
+  use (_ ,, _ ,, _); cbn.
+ - exact α.
+ - exact (display_map_nat_trans α).
+ - exact (nat_trans_to_transformation_structure_axiom _).
+Defined.
