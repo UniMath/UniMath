@@ -13,12 +13,16 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Export UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.whiskering.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 Local Open Scope cat.
@@ -127,3 +131,73 @@ Definition comprehension_cat_structure (C : category) : UU
   := ∑ (D : disp_cat C) (H : cleaving D)
      (F : disp_functor (functor_identity _ ) D (disp_codomain C)),
      is_cartesian_disp_functor F.
+
+Definition make_comprehension_cat_structure
+  {C : category}
+  (D : disp_cat C)
+  {clD : cleaving D}
+  (χ : disp_functor (functor_identity C) D (disp_codomain C))
+  (H : forall c c' f d, is_cartesian (♯ χ (clD c c' f d)))
+  (* (Hχ : is_cartesian_disp_functor χ) *)
+  : comprehension_cat_structure C :=
+  (D ,, clD ,, χ ,, cartesian_functor_from_cleaving clD H).
+
+Definition comprehension {C : category} (CC : comprehension_cat_structure C)
+  : disp_functor (functor_identity C) (pr1 CC) (disp_codomain C) :=
+  pr122 CC.
+Declare Scope comp_cat_struct.
+Local Open Scope comp_cat_struct.
+Notation "'π_χ'" := comprehension : comp_cat_struct.
+
+(** Pseudo Map between Comprehension Categories *)
+Definition pseudo_map_structure {C C' : category} (CC : comprehension_cat_structure C) (CC' : comprehension_cat_structure C') :=
+  ∑ (F : C ⟶ C') (F_bar : disp_functor F (pr1 CC) (pr1 CC')),
+    disp_nat_z_iso (disp_functor_composite F_bar (π_χ CC')) (disp_functor_composite (π_χ CC) (disp_codomain_functor F)) (nat_z_iso_id F).
+
+Definition make_pseudo_map_structure
+  {C C' : category} {CC : comprehension_cat_structure C} {CC' : comprehension_cat_structure C'}
+  {F : C ⟶ C'}
+  (F_bar : disp_functor F (pr1 CC) (pr1 CC'))
+  (ϕ : disp_nat_z_iso (disp_functor_composite F_bar (π_χ CC')) (disp_functor_composite (π_χ CC) (disp_codomain_functor F)) (nat_z_iso_id F))
+  : pseudo_map_structure CC CC'
+  := (F ,, F_bar ,, ϕ).
+
+(** Transformation between Pseudo Maps *)
+Lemma base_nat_trans_equality
+  {C C' : category} {F G: C ⟶ C'} (α : nat_trans F G)
+  : nat_trans_comp (functor_composite F (functor_identity C'))
+     (functor_composite G (functor_identity C')) (functor_identity C ∙ G)
+     (post_whisker α (functor_identity C')) (nat_z_iso_id G) =
+   nat_trans_comp (F ∙ functor_identity C') (functor_identity C ∙ F)
+     (functor_composite (functor_identity C) G) (nat_z_iso_id F)
+     (pre_whisker (functor_identity C) α).
+Proof.
+  simpl.
+  rewrite identity_pre_whisker.
+  rewrite identity_post_whisker.
+  rewrite (nat_trans_comp_id_left (pr2 C') F G _).
+  rewrite (nat_trans_comp_id_right (pr2 C') F G _).
+  apply idpath.
+Qed.
+
+Definition transformation_structure_axiom
+  {C C' : category}
+  {CC : comprehension_cat_structure C} {CC' : comprehension_cat_structure C'}
+  {F F': pseudo_map_structure CC CC'}
+  {α : nat_trans (pr1 F) (pr1 F')}
+  (α_bar : disp_nat_trans α (pr12 F) (pr12 F'))
+  := disp_nat_trans_comp (post_whisker_disp_nat_trans α_bar (π_χ CC')) (pr22 F')
+    =
+      transportb
+        (λ n, disp_nat_trans n _ _)
+        (base_nat_trans_equality α)
+      (disp_nat_trans_comp (pr22 F) (pre_whisker_disp_nat_trans (π_χ CC) (disp_codomain_nat_trans α))).
+
+Definition transformation_structure
+  {C C' : category}
+  {CC : comprehension_cat_structure C} {CC' : comprehension_cat_structure C'}
+  (F F': pseudo_map_structure CC CC')
+  :=
+  ∑ (α : nat_trans (pr1 F) (pr1 F')) (α_bar : disp_nat_trans α (pr12 F) (pr12 F')),
+    transformation_structure_axiom α_bar
+.

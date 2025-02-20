@@ -591,6 +591,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/FunctorCategory.v](CategoryTheory/DisplayedCats/FunctorCategory.v)
    - [DisplayedCats/Adjunctions.v](CategoryTheory/DisplayedCats/Adjunctions.v)
    - [DisplayedCats/ComprehensionC.v](CategoryTheory/DisplayedCats/ComprehensionC.v)
+   - [DisplayedCats/DisplayMapCat.v](CategoryTheory/DisplayedCats/DisplayMapCat.v)
    - [DisplayedCats/StreetFibration.v](CategoryTheory/DisplayedCats/StreetFibration.v)
    - [DisplayedCats/StreetOpFibration.v](CategoryTheory/DisplayedCats/StreetOpFibration.v)
    - [DisplayedCats/ReindexingForward.v](CategoryTheory/DisplayedCats/ReindexingForward.v)
