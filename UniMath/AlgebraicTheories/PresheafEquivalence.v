@@ -115,23 +115,41 @@ Section Karoubi.
       algebraic_theory_retracts_to_karoubi_data
       algebraic_theory_retracts_to_karoubi_is_functor.
 
+  Definition algebraic_theory_retracts_to_karoubi_fully_faithful_mor_data
+    {A B: R L Lβ}
+    (f : algebraic_theory_karoubi ⟦ algebraic_theory_retracts_to_karoubi A, algebraic_theory_retracts_to_karoubi B ⟧)
+    : L 0
+    := abs ((f : karoubi_mor _ _ _) : _ ⟦_, _⟧).
+
+  Lemma algebraic_theory_retracts_to_karoubi_fully_faithful_mor_is_mor
+    {A B: R_ob L}
+    (f : algebraic_theory_karoubi ⟦ algebraic_theory_retracts_to_karoubi A, algebraic_theory_retracts_to_karoubi B ⟧)
+    : B ∘ algebraic_theory_retracts_to_karoubi_fully_faithful_mor_data f ∘ A
+      = algebraic_theory_retracts_to_karoubi_fully_faithful_mor_data f.
+  Proof.
+    refine '(!maponpaths (λ x, x ∘ _ ∘ _) (functional_equation_eta Lβ (!R_ob_idempotent _ _)) @ _).
+    refine '(maponpaths (λ x, x ∘ _) (compose_is_subst _ Lβ _ _) @ _).
+    refine '(maponpaths (λ x, abs x ∘ _) (karoubi_mor_commutes_right _ f) @ _).
+    refine '(!maponpaths (λ x, _ ∘ x) (functional_equation_eta Lβ (!R_ob_idempotent _ _)) @ _).
+    refine '(compose_is_subst _ Lβ _ _ @ _).
+    apply (maponpaths abs).
+    apply (karoubi_mor_commutes_left _ f).
+  Qed.
+
+  Definition algebraic_theory_retracts_to_karoubi_fully_faithful_mor
+    {A B: R L Lβ}
+    (f : algebraic_theory_karoubi ⟦ algebraic_theory_retracts_to_karoubi A, algebraic_theory_retracts_to_karoubi B ⟧)
+    : R L Lβ ⟦ A, B ⟧
+    := make_R_mor _
+      (algebraic_theory_retracts_to_karoubi_fully_faithful_mor_data f)
+      (algebraic_theory_retracts_to_karoubi_fully_faithful_mor_is_mor f).
+
   Lemma algebraic_theory_retracts_to_karoubi_fully_faithful
     : fully_faithful algebraic_theory_retracts_to_karoubi.
   Proof.
     intros A B.
     refine '(isweq_iso _ _ _ _).
-    - intro f.
-      refine '(_ ,, _).
-      + exact (abs ((f : karoubi_mor _ _ _) : _ ⟦_, _⟧)).
-      + abstract (
-          refine '(!maponpaths (λ x, x ∘ _ ∘ _) (functional_equation_eta Lβ (!R_ob_idempotent _ _)) @ _);
-          refine '(maponpaths (λ x, x ∘ _) (compose_is_subst _ Lβ _ _) @ _);
-          refine '(maponpaths (λ x, abs x ∘ _) (karoubi_mor_commutes_right _ f) @ _);
-          refine '(!maponpaths (λ x, _ ∘ x) (functional_equation_eta Lβ (!R_ob_idempotent _ _)) @ _);
-          refine '(compose_is_subst _ Lβ _ _ @ _);
-          apply maponpaths;
-          apply (karoubi_mor_commutes_left _ f)
-        ).
+    - exact algebraic_theory_retracts_to_karoubi_fully_faithful_mor.
     - abstract (
         intro f;
         apply R_mor_eq;
@@ -148,7 +166,7 @@ Section Karoubi.
     (A : algebraic_theory_karoubi)
     : R (n := 0) L Lβ.
   Proof.
-    refine '(_ ,, _).
+    refine '(make_R_ob _ _ _).
     - exact (abs (karoubi_ob_idempotent _ A : _ ⟦_, _⟧)).
     - abstract (
         refine '(compose_is_subst _ Lβ _ _ @ _);
@@ -157,37 +175,98 @@ Section Karoubi.
       ).
   Defined.
 
-  Definition algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso
-    (A : algebraic_theory_karoubi)
-    : z_iso (algebraic_theory_retracts_to_karoubi
-      (algebraic_theory_retracts_to_karoubi_split_essentially_surjective_ob A)) A.
-  Proof.
-    refine '(make_z_iso _ _ _).
-    - refine '(make_karoubi_mor _ _ _ _).
-      + exact (karoubi_ob_idempotent _ A : _ ⟦_, _⟧).
-      + abstract (
-          refine '(_ @ idempotent_is_idempotent (karoubi_ob_idempotent _ A));
-          apply (maponpaths (λ x, _ • x));
-          apply funextfun;
-          intro;
-          apply Lβ
-        ).
-      + abstract (exact (idempotent_is_idempotent (karoubi_ob_idempotent _ A))).
-    - refine '(make_karoubi_mor _ _ _ _).
-      + exact (karoubi_ob_idempotent _ A : _ ⟦_, _⟧).
-      + abstract (exact (idempotent_is_idempotent (karoubi_ob_idempotent _ A))).
-      + abstract (
-          refine '(_ @ idempotent_is_idempotent (karoubi_ob_idempotent _ A));
-          apply (maponpaths (λ x, x • _));
-          apply Lβ
-        ).
-    - abstract (
-        refine '(make_is_inverse_in_precat _ _);
-        apply karoubi_mor_eq;
-        try (refine '(_ @ !Lβ _ _));
-        exact (idempotent_is_idempotent (karoubi_ob_idempotent _ A))
-      ).
-  Defined.
+  Section SplitEssentiallySurjective.
+
+    Context (A : karoubi_ob (algebraic_theory_monoid_category L)).
+
+    Definition algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_mor_data
+      : algebraic_theory_monoid_category L⟦algebraic_theory_retracts_to_karoubi
+      (algebraic_theory_retracts_to_karoubi_split_essentially_surjective_ob A) : karoubi_ob _, A⟧
+      := karoubi_ob_idempotent _ A.
+
+    Lemma algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_mor_commutes_left
+      : karoubi_ob_idempotent _ (algebraic_theory_retracts_to_karoubi
+          (algebraic_theory_retracts_to_karoubi_split_essentially_surjective_ob A))
+        · algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_mor_data
+      = algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_mor_data.
+    Proof.
+      refine '(_ @ idempotent_is_idempotent (karoubi_ob_idempotent _ A)).
+      apply (maponpaths (λ x, _ • x)).
+      apply funextfun.
+      intro.
+      apply Lβ.
+    Qed.
+
+    Lemma algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_mor_commutes_right
+      : algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_mor_data
+        · karoubi_ob_idempotent _ A
+      = algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_mor_data.
+    Proof.
+      exact (idempotent_is_idempotent (karoubi_ob_idempotent _ A)).
+    Qed.
+
+    Definition algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_mor
+      : algebraic_theory_karoubi⟦algebraic_theory_retracts_to_karoubi
+        (algebraic_theory_retracts_to_karoubi_split_essentially_surjective_ob A), A⟧
+      := make_karoubi_mor _
+        algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_mor_data
+        algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_mor_commutes_left
+        algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_mor_commutes_right.
+
+    Definition algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_inv_data
+      : algebraic_theory_monoid_category L⟦A, algebraic_theory_retracts_to_karoubi
+        (algebraic_theory_retracts_to_karoubi_split_essentially_surjective_ob A) : karoubi_ob _⟧
+      := karoubi_ob_idempotent _ A.
+
+    Lemma algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_inv_commutes_left
+      : karoubi_ob_idempotent _ A
+        · algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_inv_data
+      = algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_inv_data.
+    Proof.
+      exact (idempotent_is_idempotent (karoubi_ob_idempotent _ A)).
+    Qed.
+
+    Lemma algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_inv_commutes_right
+      : algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_inv_data
+        · karoubi_ob_idempotent _ (algebraic_theory_retracts_to_karoubi
+          (algebraic_theory_retracts_to_karoubi_split_essentially_surjective_ob A))
+      = algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_inv_data.
+    Proof.
+      refine '(_ @ idempotent_is_idempotent (karoubi_ob_idempotent _ A)).
+      apply (maponpaths (λ x, x • _)).
+      apply Lβ.
+    Qed.
+
+    Definition algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_inv
+      : algebraic_theory_karoubi⟦A, algebraic_theory_retracts_to_karoubi
+        (algebraic_theory_retracts_to_karoubi_split_essentially_surjective_ob A)⟧
+      := make_karoubi_mor _
+        algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_inv_data
+        algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_inv_commutes_left
+        algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_inv_commutes_right.
+
+    Lemma algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_is_inverse
+      : is_inverse_in_precat
+        algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_mor
+        algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_inv.
+    Proof.
+      refine '(make_is_inverse_in_precat _ _).
+      - apply karoubi_mor_eq.
+        refine '(_ @ !Lβ _ _).
+        exact (idempotent_is_idempotent (karoubi_ob_idempotent _ A)).
+      - apply karoubi_mor_eq.
+        exact (idempotent_is_idempotent (karoubi_ob_idempotent _ A)).
+    Qed.
+
+    Definition algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso
+      : z_iso (algebraic_theory_retracts_to_karoubi
+        (algebraic_theory_retracts_to_karoubi_split_essentially_surjective_ob A)) A
+      := make_z_iso
+        algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_mor
+        algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_inv
+        algebraic_theory_retracts_to_karoubi_split_essentially_surjective_iso_is_inverse.
+
+  End SplitEssentiallySurjective.
 
   Definition algebraic_theory_retracts_to_karoubi_split_essentially_surjective
     : split_essentially_surjective algebraic_theory_retracts_to_karoubi

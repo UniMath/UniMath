@@ -62,6 +62,12 @@ Section Category.
   Coercion R_ob_to_L (A : R_ob) : L n := pr1 A.
   Definition R_ob_idempotent (A : R_ob) : A ∘ A = A := pr2 A.
 
+  Definition make_R_ob
+    (l : L n)
+    (Hl : l ∘ l = l)
+    : R_ob
+    := l ,, Hl.
+
   Lemma R_ob_eq
     {A B : R_ob}
     (H : (A : L n) = B)
@@ -78,6 +84,13 @@ Section Category.
   Definition R_mor (A B : R_ob) : UU := ∑ (f : L n), B ∘ f ∘ A = f.
   Coercion R_mor_to_L {A B : R_ob} (f : R_mor A B) : L n := pr1 f.
   Definition R_mor_is_mor {A B : R_ob} (f : R_mor A B) : B ∘ f ∘ A = f := pr2 f.
+
+  Definition make_R_mor
+    {A B : R_ob}
+    (f : L n)
+    (Hf : B ∘ f ∘ A = f)
+    : R_mor A B
+    := f ,, Hf.
 
   Lemma R_mor_is_mor_left
     {A B : R_ob}
