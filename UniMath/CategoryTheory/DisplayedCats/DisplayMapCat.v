@@ -4,9 +4,10 @@
     - add an interpretation as a subcategory of [codomain C]
     - show that this subcategory is a cleaving [display_map_cleaving]
     - define the inclusion functor [ι : display_map_cat D ⇒ disp_codomain C]
-    - TODO: show the inclusion functor preserves cartesian arrows
     - define the map between display maps [map_dispmap D D']
-    - TODO: show the conversion from a display_map_class to a comprehension category
+    - show that given a Display Map Category we can construct a corresponding Comprehension Category
+    - show that given a functor between display map categories, we can construct a pseudo map between the corresponding comprehension categories
+    - show the same for natural transformations
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -21,8 +22,12 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
 Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 Local Open Scope cat.
 
+Declare Scope disp_map_cat.
+Local Open Scope disp_map_cat.
+
+
 (** ** Display Map *)
-Definition display_map_class_data (C : category) :=
+Definition display_map_class_data (C : category) : UU :=
   ∏ a b : C, a --> b -> hProp.
 Definition display_map_class_data_to_fun {C} {a b} (D : display_map_class_data C) : a --> b -> hProp := D a b.
 Coercion display_map_class_data_to_fun : display_map_class_data >-> Funclass.
@@ -33,6 +38,7 @@ Definition has_map_pullbacks {C : category} (D : display_map_class_data C) :=
 
 Definition display_map_class (C : category) :=
   ∑ (D : display_map_class_data C), has_map_pullbacks D.
+
 Definition display_map_class_to_data {C : category} (D : display_map_class C) : display_map_class_data C := pr1 D.
 Coercion display_map_class_to_data : display_map_class >-> display_map_class_data.
 
@@ -188,7 +194,7 @@ Proof.
   - simpl. intros x y z dx dy dz f g ff gg. use eq_display_map_cat_mor.
     reflexivity.
 Defined.
-Notation "'ι'" := display_map_inclusion.
+Notation "'ι'" := display_map_inclusion : disp_map_cat.
 
 Definition ι_preserves_cartesian
   {C : category} {D : display_map_class C}
@@ -201,42 +207,27 @@ Proof.
   apply isPullback_Pullback.
 Qed.
 
-(** ** Map of DispMaps *)
+(** ** Functor between Display Map Classes *)
+
 Definition preserves_maps {C C' : category} (D : display_map_class C) (D' : display_map_class C') (F : C ⟶ C') :=
   ∏ (a b : C) (d : a --> b), D d -> D' (#F d).
 
 Definition preserves_pullbacks {C C' : category} (D : display_map_class C) (D' : display_map_class C') (F : C ⟶ C') :=
   ∏ (a b c : C) (f : b --> a) (g : c --> a), D g -> Pullback f g -> Pullback (#F f) (#F g).
 
-Definition map_dispmap {C C' : category} (D : display_map_class C) (D' : display_map_class C') :=
+Definition display_map_class_functor {C C' : category} (D : display_map_class C) (D' : display_map_class C') :=
   ∑ (F: C ⟶ C'), preserves_maps D D' F × preserves_pullbacks D D' F.
 
-Definition functor_from_map {C C' : category} (D : display_map_class C) (D' : display_map_class C') (F : map_dispmap D D') : C ⟶ C' := pr1 F.
-Coercion functor_from_map : map_dispmap >-> functor.
+Definition functor_from_display_map_class_functor {C C' : category} (D : display_map_class C) (D' : display_map_class C') (F : display_map_class_functor D D') : C ⟶ C' := pr1 F.
+Coercion functor_from_display_map_class_functor : display_map_class_functor >-> functor.
 
-
-(** ** Conversion to a Comprehension Category *)
-Definition display_map_to_comprehension_category
-  {C : category}
-  (D : display_map_class C)
-  :
-  comprehension_cat_structure C.
-Proof.
-  use make_comprehension_cat_structure.
-  - exact (display_map_cat D).
-  - exact display_map_cleaving.
-  - exact (ι D).
-  - exact ι_preserves_cartesian.
-Defined.
-Notation "'τ'" := display_map_to_comprehension_category.
-
-(** ** Conversion of Maps *)
+(** ** Functor between Display Map Categories *)
 (** *** Define how functor `F` acts on the Display Map Category  *)
 (** Here, we once again follow the definitions for codomain from [Codomain/CodFunctor.v]. *)
 Definition display_map_functor_data
   {C₁ C₂ : category}
   {D₁ : display_map_class C₁} {D₂ : display_map_class C₂}
-  (F : map_dispmap D₁ D₂)
+  (F : display_map_class_functor D₁ D₂)
   : disp_functor_data F (display_map_cat D₁) (display_map_cat D₂).
 Proof.
   simple refine (_ ,, _).
@@ -252,7 +243,7 @@ Defined.
 Proposition display_map_functor_axioms
   {C₁ C₂ : category}
   {D₁ : display_map_class C₁} {D₂ : display_map_class C₂}
-  (F : map_dispmap D₁ D₂)
+  (F : display_map_class_functor D₁ D₂)
   : disp_functor_axioms (display_map_functor_data F).
 Proof.
   split.
@@ -275,7 +266,7 @@ Qed.
 Definition display_map_functor
   {C₁ C₂ : category}
   {D₁ : display_map_class C₁} {D₂ : display_map_class C₂}
-  (F : map_dispmap D₁ D₂)
+  (F : display_map_class_functor D₁ D₂)
   : disp_functor F (display_map_cat D₁) (display_map_cat D₂).
 Proof.
   simple refine (_ ,, _).
@@ -283,13 +274,49 @@ Proof.
   - exact (display_map_functor_axioms F).
 Defined.
 
+(** ** Natural Transformation *)
+(** Once more we rely on the definition for the codomain display category to define the transformation between two display map categories. *)
+Definition display_map_nat_trans
+  {C₁ C₂ : category}
+  {D₁ : display_map_class C₁} {D₂ : display_map_class C₂}
+  {F G : display_map_class_functor D₁ D₂}
+  (α : F ⟹ G)
+  : disp_nat_trans α (display_map_functor F) (display_map_functor G).
+Proof.
+  simple refine (_ ,, _).
+  - refine (λ y xf, α _ ,, _).
+    abstract
+      (cbn ;
+       apply (!(nat_trans_ax α _ _ _))).
+  - abstract (intros y₁ y₂ g xf₁ xf₂ p ;
+       use eq_display_map_cat_mor ;
+       rewrite (@transportb_display_map _ _ _ _ (display_map_functor F y₁ xf₁)) ;
+       apply (nat_trans_ax α _ _ _)).
+Defined.
+
+(** ** Corresponding Comprehension Category *)
+Definition display_map_to_comprehension_category
+  {C : category}
+  (D : display_map_class C)
+  :
+  comprehension_cat_structure C.
+Proof.
+  use make_comprehension_cat_structure.
+  - exact (display_map_cat D).
+  - exact display_map_cleaving.
+  - exact (ι D).
+  - exact ι_preserves_cartesian.
+Defined.
+Notation "'DM2CC'" := display_map_to_comprehension_category : disp_map_cat.
+
+(** ** Pseudo Map corresponding to a functor between Display Map Categories *)
 Definition ι_map_is_map_ι
   {C₁ C₂ : category}
   {D₁ : display_map_class C₁} {D₂ : display_map_class C₂}
-  (F : map_dispmap D₁ D₂)
+  (F : display_map_class_functor D₁ D₂)
   : disp_nat_z_iso
-      (disp_functor_composite (display_map_functor F) (π_χ (τ D₂)))
-      (disp_functor_composite (π_χ (τ D₁)) (disp_codomain_functor F))
+      (disp_functor_composite (display_map_functor F) (π_χ (DM2CC D₂)))
+      (disp_functor_composite (π_χ (DM2CC D₁)) (disp_codomain_functor F))
     (nat_z_iso_id F).
 Proof.
   repeat (use tpair); simpl.
@@ -316,47 +343,28 @@ Defined.
 Definition map_display_map_to_pseudo_map_structure
   {C C': category}
   {D : display_map_class C} {D' : display_map_class C'}
-  (F : map_dispmap D D')
-  : pseudo_map_structure (τ D) (τ D').
+  (F : display_map_class_functor D D')
+  : pseudo_map_structure (DM2CC D) (DM2CC D').
 Proof.
   use make_pseudo_map_structure.
   - exact F.
   - exact (display_map_functor F).
   - exact (ι_map_is_map_ι F).
 Defined.
-Notation "'≻'" := map_display_map_to_pseudo_map_structure.
+Notation "'MD2PM'" := map_display_map_to_pseudo_map_structure : disp_map_cat.
 
-(** ** Conversion of transformations *)
-(** Once more we rely on the definition for the codomain display category to define the transformation between two display map categories. *)
-Definition display_map_nat_trans
-  {C₁ C₂ : category}
-  {D₁ : display_map_class C₁} {D₂ : display_map_class C₂}
-  {F G : map_dispmap D₁ D₂}
-  (α : F ⟹ G)
-  : disp_nat_trans α (display_map_functor F) (display_map_functor G).
-Proof.
-  simple refine (_ ,, _).
-  - refine (λ y xf, α _ ,, _).
-    abstract
-      (cbn ;
-       apply (!(nat_trans_ax α _ _ _))).
-  - abstract (intros y₁ y₂ g xf₁ xf₂ p ;
-       use eq_display_map_cat_mor ;
-       rewrite (@transportb_display_map _ _ _ _ (display_map_functor F y₁ xf₁)) ;
-       apply (nat_trans_ax α _ _ _)).
-Defined.
+(** ** Transformation corresponding to a natural transformation between functors between display map categories *)
 
 Definition nat_trans_to_transformation_structure_axiom
   {C C' : category}
   {D : display_map_class C} {D' : display_map_class C'}
-  {F F' : map_dispmap D D'}
+  {F F' : display_map_class_functor D D'}
   (α : nat_trans F F')
-  : @transformation_structure_axiom _ _ _ _ (≻ F) (≻ F') α (display_map_nat_trans α).
+  : @transformation_structure_axiom _ _ _ _ (MD2PM F) (MD2PM F') α (display_map_nat_trans α).
 Proof.
   unfold transformation_structure_axiom.
   use subtypePath.
   { exact (λ _, isaprop_disp_nat_trans_axioms _ _). }
-
   use funextsec. intros x.
   use funextsec. intros dx.
   rewrite disp_nat_trans_transportb. cbn.
@@ -371,9 +379,9 @@ Qed.
 Definition nat_trans_to_transformation_structure
   {C C' : category}
   {D : display_map_class C} {D' : display_map_class C'}
-  {F F' : map_dispmap D D'}
+  {F F' : display_map_class_functor D D'}
   (α : nat_trans F F')
-  : transformation_structure (≻ F) (≻ F').
+  : transformation_structure (MD2PM F) (MD2PM F').
 Proof.
   use (_ ,, _ ,, _); cbn.
  - exact α.
