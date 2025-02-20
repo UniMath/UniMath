@@ -21,6 +21,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
 Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 Local Open Scope cat.
+Local Open Scope comp_cat_struct.
 
 Declare Scope disp_map_cat.
 Local Open Scope disp_map_cat.

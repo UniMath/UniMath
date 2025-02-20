@@ -145,42 +145,24 @@ Definition make_comprehension_cat_structure
 Definition comprehension {C : category} (CC : comprehension_cat_structure C)
   : disp_functor (functor_identity C) (pr1 CC) (disp_codomain C) :=
   pr122 CC.
-Notation "'π_χ'" := comprehension.
+Declare Scope comp_cat_struct.
+Local Open Scope comp_cat_struct.
+Notation "'π_χ'" := comprehension : comp_cat_struct.
 
 (** Pseudo Map between Comprehension Categories *)
 Definition pseudo_map_structure {C C' : category} (CC : comprehension_cat_structure C) (CC' : comprehension_cat_structure C') :=
-  ∑ (F : C ⟶ C') (Γ : disp_functor F (pr1 CC) (pr1 CC')),
-    disp_nat_z_iso (disp_functor_composite Γ (π_χ CC')) (disp_functor_composite (π_χ CC) (disp_codomain_functor F)) (nat_z_iso_id F).
+  ∑ (F : C ⟶ C') (F_bar : disp_functor F (pr1 CC) (pr1 CC')),
+    disp_nat_z_iso (disp_functor_composite F_bar (π_χ CC')) (disp_functor_composite (π_χ CC) (disp_codomain_functor F)) (nat_z_iso_id F).
 
 Definition make_pseudo_map_structure
   {C C' : category} {CC : comprehension_cat_structure C} {CC' : comprehension_cat_structure C'}
   {F : C ⟶ C'}
-  (Γ : disp_functor F (pr1 CC) (pr1 CC'))
-  (ϕ : disp_nat_z_iso (disp_functor_composite Γ (π_χ CC')) (disp_functor_composite (π_χ CC) (disp_codomain_functor F)) (nat_z_iso_id F))
+  (F_bar : disp_functor F (pr1 CC) (pr1 CC'))
+  (ϕ : disp_nat_z_iso (disp_functor_composite F_bar (π_χ CC')) (disp_functor_composite (π_χ CC) (disp_codomain_functor F)) (nat_z_iso_id F))
   : pseudo_map_structure CC CC'
-  := (F ,, Γ ,, ϕ).
+  := (F ,, F_bar ,, ϕ).
 
 (** Transformation between Pseudo Maps *)
-Lemma nat_trans_pre_whisker_id
-  {C C': category} {F G : C ⟶ C'} (α : nat_trans F G)
-  : pre_whisker (functor_identity C) α = α.
-Proof.
-  use subtypePath.
-  - exact (λ _, isaprop_is_nat_trans _ _ (pr2 C') _ _ _).
-  - reflexivity.
-Qed.
-
-Lemma nat_trans_post_whisker_id
-  {C C': category} {F G : C ⟶ C'} (α : nat_trans F G)
-  : post_whisker α (functor_identity C') = α.
-Proof.
-  use subtypePath.
-  - exact (λ _, isaprop_is_nat_trans _ _ (pr2 C') _ _ _).
-  - reflexivity.
-Qed.
-
-(* FIXME: rename this to sg better? *)
-(* FIXME: move this to a more appropriate file *)
 Lemma base_nat_trans_equality
   {C C' : category} {F G: C ⟶ C'} (α : nat_trans F G)
   : nat_trans_comp (functor_composite F (functor_identity C'))
@@ -190,11 +172,12 @@ Lemma base_nat_trans_equality
      (functor_composite (functor_identity C) G) (nat_z_iso_id F)
      (pre_whisker (functor_identity C) α).
 Proof.
-  rewrite nat_trans_pre_whisker_id.
-  rewrite nat_trans_post_whisker_id.
-  use subtypePath.
-  - exact (λ _, isaprop_is_nat_trans _ _ (pr2 C') _ _ _).
-  - cbn. apply funextsec. intros x. rewrite id_left, id_right. exact (idpath _).
+  simpl.
+  rewrite identity_pre_whisker.
+  rewrite identity_post_whisker.
+  rewrite (nat_trans_comp_id_left (pr2 C') F G _).
+  rewrite (nat_trans_comp_id_right (pr2 C') F G _).
+  apply idpath.
 Qed.
 
 Definition transformation_structure_axiom
