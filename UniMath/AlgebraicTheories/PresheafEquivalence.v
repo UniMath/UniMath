@@ -334,42 +334,61 @@ Section Functors.
         ).
   Defined.
 
+  Let ψ
+    : z_iso
+    (algebraic_theory_lawvere_to_karoubi (theory_monoid_to_lawvere L tt))
+    (karoubi_envelope_inclusion (algebraic_theory_monoid_category L) tt)
+    := z_iso_comp
+      (functor_on_z_iso (algebraic_theory_retracts_to_karoubi L Lβ) (make_z_iso' _
+        (terminal_binprod_unit_l_z (R_chosen_terminal L Lβ) (R_binproducts _ _) (U L Lβ))))
+      U_iso_algebraic_theory_to_unit.
+
+  Definition algebraic_theory_lawvere_to_karoubi_after_theory_monoid_to_lawvere_nat_trans_data
+    : nat_trans_data
+      (theory_monoid_to_lawvere L ∙ algebraic_theory_lawvere_to_karoubi)
+      (karoubi_envelope_inclusion (algebraic_theory_monoid_category L))
+    := λ t, ψ.
+
+  Lemma algebraic_theory_lawvere_to_karoubi_after_theory_monoid_to_lawvere_is_nat_trans
+    : is_nat_trans _ _ algebraic_theory_lawvere_to_karoubi_after_theory_monoid_to_lawvere_nat_trans_data.
+  Proof.
+    intros t1 t2 f.
+    apply karoubi_mor_eq.
+    refine '(_ @ maponpaths (λ x, x • _) (Lβ _ _)).
+    refine '(maponpaths (λ x, x • _) (var_subst _ _ _) @ _).
+    refine '(subst_is_compose _ Lβ _ _ @ _).
+    refine '(_ @ !maponpaths (λ x, _ • (λ _, x)) (var_subst _ _ _)).
+    refine '(_ @ !subst_is_compose _ Lβ (abs f) _).
+    apply maponpaths.
+    refine '(maponpaths (λ (x : R_mor _ _ _), (x : L 0)) (p2_commutes _ _ _ _ _ _ _) @ _).
+    refine '(_ @ !abs_compose _ Lβ _ _).
+    apply (maponpaths (λ x, abs (f • x))).
+    apply funextfun.
+    intro i.
+    induction (!iscontr_uniqueness iscontrstn1 i).
+    refine '(_ @ !maponpaths (λ x, app (inflate x) _) (abs_compose _ Lβ _ _)).
+    refine '(_ @ !maponpaths (λ x, app (inflate (abs x)) _) (var_subst _ _ _)).
+    refine '(!maponpaths (λ x, app x _) (inflate_n_π _ _) @ _).
+    refine '(!maponpaths (λ x, app (inflate x) _) (functional_equation_eta Lβ (idpath π2)) @ _).
+    exact (maponpaths (λ x, app (inflate (abs x)) _) (appx_to_app _)).
+  Qed.
+
+  Definition algebraic_theory_lawvere_to_karoubi_after_theory_monoid_to_lawvere_nat_trans
+    : theory_monoid_to_lawvere L ∙ algebraic_theory_lawvere_to_karoubi
+      ⟹ karoubi_envelope_inclusion (algebraic_theory_monoid_category L)
+    := make_nat_trans _ _
+      algebraic_theory_lawvere_to_karoubi_after_theory_monoid_to_lawvere_nat_trans_data
+      algebraic_theory_lawvere_to_karoubi_after_theory_monoid_to_lawvere_is_nat_trans.
+
   Definition algebraic_theory_lawvere_to_karoubi_after_theory_monoid_to_lawvere
     : z_iso
       (C := [_, _])
       (theory_monoid_to_lawvere L ∙ algebraic_theory_lawvere_to_karoubi)
       (karoubi_envelope_inclusion (algebraic_theory_monoid_category L)).
   Proof.
-    pose (ψ := z_iso_comp
-      (functor_on_z_iso (algebraic_theory_retracts_to_karoubi L Lβ) (make_z_iso' _
-        (terminal_binprod_unit_l_z (R_chosen_terminal L Lβ) (R_binproducts _ _) (U L Lβ))))
-      U_iso_algebraic_theory_to_unit).
     apply z_iso_is_nat_z_iso.
     refine '(make_nat_z_iso _ _ _ _).
-    - refine '(make_nat_trans _ _ _ _).
-      + intro t.
-        exact ψ.
-      + abstract (
-          intros t1 t2 f;
-          apply karoubi_mor_eq;
-          refine '(_ @ maponpaths (λ x, x • _) (Lβ _ _));
-          refine '(maponpaths (λ x, x • _) (var_subst _ _ _) @ _);
-          refine '(subst_is_compose _ Lβ _ _ @ _);
-          refine '(_ @ !maponpaths (λ x, _ • (λ _, x)) (var_subst _ _ _));
-          refine '(_ @ !subst_is_compose _ Lβ (abs f) _);
-          apply maponpaths;
-          refine '(maponpaths (λ (x : R_mor _ _ _), (x : L 0)) (p2_commutes _ _ _ _ _ _ _) @ _);
-          refine '(_ @ !abs_compose _ Lβ _ _);
-          apply (maponpaths (λ x, abs (f • x)));
-          apply funextfun;
-          intro i;
-          induction (!iscontr_uniqueness iscontrstn1 i);
-          refine '(_ @ !maponpaths (λ x, app (inflate x) _) (abs_compose _ Lβ _ _));
-          refine '(_ @ !maponpaths (λ x, app (inflate (abs x)) _) (var_subst _ _ _));
-          refine '(!maponpaths (λ x, app x _) (inflate_n_π _ _) @ _);
-          refine '(!maponpaths (λ x, app (inflate x) _) (functional_equation_eta Lβ (idpath π2)) @ _);
-          exact (maponpaths (λ x, app (inflate (abs x)) _) (appx_to_app _))
-        ).
+    - exact algebraic_theory_lawvere_to_karoubi_after_theory_monoid_to_lawvere_nat_trans.
     - intro t.
       induction t.
       exact (z_iso_is_z_isomorphism ψ).
