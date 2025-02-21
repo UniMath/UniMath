@@ -62,6 +62,12 @@ Section Category.
   Coercion R_ob_to_L (A : R_ob) : L n := pr1 A.
   Definition R_ob_idempotent (A : R_ob) : A ∘ A = A := pr2 A.
 
+  Definition make_R_ob
+    (l : L n)
+    (Hl : l ∘ l = l)
+    : R_ob
+    := l ,, Hl.
+
   Lemma R_ob_eq
     {A B : R_ob}
     (H : (A : L n) = B)
@@ -78,6 +84,13 @@ Section Category.
   Definition R_mor (A B : R_ob) : UU := ∑ (f : L n), B ∘ f ∘ A = f.
   Coercion R_mor_to_L {A B : R_ob} (f : R_mor A B) : L n := pr1 f.
   Definition R_mor_is_mor {A B : R_ob} (f : R_mor A B) : B ∘ f ∘ A = f := pr2 f.
+
+  Definition make_R_mor
+    {A B : R_ob}
+    (f : L n)
+    (Hf : B ∘ f ∘ A = f)
+    : R_mor A B
+    := f ,, Hf.
 
   Lemma R_mor_is_mor_left
     {A B : R_ob}
@@ -1161,102 +1174,3 @@ Section Category.
   End Retractions.
 
 End Category.
-
-(** * 7. R is equivalent to the category given by the idempotents of L_1 *)
-
-Section Category'.
-  Context (L : lambda_theory).
-  Context (Lβ : has_β L).
-
-  Lemma compose_is_subst
-    (A : L 1)
-    : abs A ∘ abs A = abs (A • (λ _, A)).
-  Proof.
-    refine '(compose_abs _ Lβ _ _ @ _).
-    refine '(maponpaths (λ x, (abs (app x _))) (inflate_abs _ _) @ _).
-    refine '(maponpaths (λ x, (abs x)) (beta_equality _ Lβ _ _) @ _).
-    refine '(maponpaths (λ x, (abs x)) (subst_subst _ _ _ _) @ _).
-    do 2 (apply maponpaths).
-    apply funextfun.
-    intro i.
-    refine '(maponpaths (λ x, extend_tuple _ _ x • _) (pr2 iscontrstn1 i) @ _).
-    refine '(var_subst _ _ _ @ _).
-    apply extend_tuple_inr.
-  Qed.
-
-  Definition R'_ob : UU
-    := ∑ (l : L 1), l • (λ i, l) = l.
-
-  Coercion R'_ob_to_L
-    (A : R'_ob)
-    : L 1
-    := pr1 A.
-
-  Definition R'_ob_idempotent
-    (A : R'_ob)
-    : A • (λ i, A) = (A : L 1)
-    := pr2 A.
-
-  Lemma R'_ob_eq
-    {A B : R'_ob}
-    (H : (A : L 1) = B)
-    : A = B.
-  Proof.
-    apply subtypePath.
-    {
-      intro.
-      apply setproperty.
-    }
-    exact H.
-  Qed.
-
-  Definition R_ob_weq_R'
-    : R_ob (n := 0) L ≃ R'_ob.
-  Proof.
-    refine '(weq_iso _ _ _ _).
-    - intro A.
-      exists (app (inflate A) (var (stnweq (inr tt)))).
-      abstract (
-        refine '(subst_app _ _ _ _ @ _);
-        refine '(maponpaths (λ x, (app x _)) (subst_inflate _ _ _) @ _);
-        refine '(maponpaths (λ x, (app _ x)) (var_subst _ _ _) @ _);
-        refine '(maponpaths (λ x, app (_ • x) _) (proofirrelevancecontr (iscontr_empty_tuple _) _ (λ i, var (stnweq (inl i)))) @ _);
-        refine '(!Lβ 0 _ @ _);
-        refine '(maponpaths appx (R_ob_idempotent _ A) @ _);
-        apply appx_to_app
-      ).
-    - intro A.
-      exists (abs A).
-      abstract (
-        refine '(compose_abs _ Lβ _ _ @ _);
-        refine '(maponpaths (λ x, (abs (app x _))) (inflate_abs _ _) @ _);
-        refine '(maponpaths (λ x, (abs x)) (beta_equality _ Lβ _ _) @ _);
-        refine '(maponpaths (λ x, (abs x)) (subst_subst _ _ _ _) @ _);
-        apply maponpaths;
-        refine '(_ @ R'_ob_idempotent _);
-        apply maponpaths;
-        apply funextfun;
-        intro i;
-        induction (!uniqueness iscontrstn1 _ : stnweq (inr tt) = i);
-        refine '(maponpaths (λ x, (x • _)) (extend_tuple_inr _ _ _) @ _);
-        refine '(var_subst _ _ _ @ _);
-        apply extend_tuple_inr
-      ).
-    - abstract (
-        intro A;
-        apply R_ob_eq;
-        refine '(!maponpaths abs (appx_to_app A) @ _);
-        refine '(_ @ R_ob_idempotent _ _);
-        apply (maponpaths abs);
-        refine '(!maponpaths appx (R_ob_idempotent _ _) @ _);
-        apply Lβ
-      ).
-    - abstract (
-        intro A;
-        apply R'_ob_eq;
-        refine '(!appx_to_app _ @ _);
-        apply Lβ
-      ).
-  Defined.
-
-End Category'.

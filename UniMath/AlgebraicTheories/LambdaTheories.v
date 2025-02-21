@@ -140,6 +140,34 @@ Proof.
   apply setproperty.
 Qed.
 
+Lemma functional_equation_eta
+  {L : lambda_theory}
+  (Lβ : has_β L)
+  {x : L 0}
+  {y : L 1}
+  (Hx : x = abs y)
+  : abs (appx x) = x.
+Proof.
+  refine (_ @ !Hx).
+  refine (_ @ maponpaths abs (Lβ _ _)).
+  do 2 (apply maponpaths).
+  exact Hx.
+Qed.
+
+Lemma functional_equation_beta
+  {L : lambda_theory}
+  (Lη : has_η L)
+  {x : L 1}
+  {y : L 0}
+  (Hx : x = appx y)
+  : appx (abs x) = x.
+Proof.
+  refine (_ @ !Hx).
+  refine (_ @ maponpaths appx (Lη _ _)).
+  do 2 (apply maponpaths).
+  exact Hx.
+Qed.
+
 (** * 4. Lemmas on the interaction of abs with subst *)
 
 Definition subst_abs (L : lambda_theory) {m n : nat} (f : L (S m)) (g : stn m → L n)

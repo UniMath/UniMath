@@ -35,6 +35,7 @@ Examples/ExtensionsTheory.v
 
 AlgebraicTheoryToLawvereTheory.v
 AlgebraicTheoryToMonoid.v
+PresheafEquivalence.v
 
 Combinators.v
 CategoryOfRetracts.v
