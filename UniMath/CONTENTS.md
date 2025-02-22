@@ -1492,6 +1492,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Examples/ExtensionsTheory.v](AlgebraicTheories/Examples/ExtensionsTheory.v)
    - [AlgebraicTheoryToLawvereTheory.v](AlgebraicTheories/AlgebraicTheoryToLawvereTheory.v)
    - [AlgebraicTheoryToMonoid.v](AlgebraicTheories/AlgebraicTheoryToMonoid.v)
+   - [PresheafEquivalence.v](AlgebraicTheories/PresheafEquivalence.v)
    - [Combinators.v](AlgebraicTheories/Combinators.v)
    - [CategoryOfRetracts.v](AlgebraicTheories/CategoryOfRetracts.v)
    - [OriginalRepresentationTheorem.v](AlgebraicTheories/OriginalRepresentationTheorem.v)

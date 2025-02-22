@@ -118,8 +118,12 @@ Section Lawvere.
 
   Context (T : algebraic_theory).
 
+  Definition algebraic_theory_monoid_category
+    : setcategory
+    := monoid_to_category (algebraic_theory_to_monoid T).
+
   Definition theory_monoid_to_lawvere
-    : monoid_to_category_ob (algebraic_theory_to_monoid T) ⟶ (algebraic_theory_to_lawvere T : setcategory).
+    : algebraic_theory_monoid_category ⟶ (algebraic_theory_to_lawvere T : setcategory).
   Proof.
     use make_functor.
     - use make_functor_data.
@@ -133,8 +137,8 @@ Section Lawvere.
           apply funextfun;
           intro i;
           apply (maponpaths var);
-          symmetry;
-          apply (iscontr_uniqueness (iscontrstn1))
+          apply proofirrelevancecontr;
+          apply iscontrstn1
         ).
       + abstract easy.
   Defined.
@@ -152,8 +156,8 @@ Section Lawvere.
         apply funextfun;
         intro i;
         apply (maponpaths f);
-        symmetry;
-        apply (iscontr_uniqueness (iscontrstn1))
+        apply proofirrelevancecontr;
+        apply iscontrstn1
       ).
   Defined.
 
