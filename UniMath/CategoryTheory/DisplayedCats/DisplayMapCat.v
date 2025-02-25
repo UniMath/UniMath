@@ -33,11 +33,11 @@ Definition display_map_class_data (C : category) : UU :=
 Definition display_map_class_data_to_fun {C} {a b} (D : display_map_class_data C) : a --> b -> hProp := D a b.
 Coercion display_map_class_data_to_fun : display_map_class_data >-> Funclass.
 
-Definition has_map_pullbacks {C : category} (D : display_map_class_data C) :=
+Definition has_map_pullbacks {C : category} (D : display_map_class_data C) : UU :=
   ∏ (a b c : C) (f : b --> a) (d : c --> a),
     D _ _ d -> ∑ (p : Pullback d f), D _ _ (PullbackPr2 p).
 
-Definition display_map_class (C : category) :=
+Definition display_map_class (C : category) : UU :=
   ∑ (D : display_map_class_data C), has_map_pullbacks D.
 
 Definition display_map_class_to_data {C : category} (D : display_map_class C) : display_map_class_data C := pr1 D.
@@ -59,11 +59,14 @@ Definition disp_map_id_comp
   : disp_cat_id_comp _ (disp_map_ob_mor D).
 Proof.
   split; cbn.
-  - intros x xx. exists (identity (pr1 xx)).
-    rewrite id_left, id_right. reflexivity.
-  - intros x y z f g xx yy zz ff gg. exists (pr1 ff · pr1 gg).
-    rewrite <- assoc. rewrite (pr2 gg). rewrite assoc, (pr2 ff).
-    symmetry. exact (assoc _ _ _).
+  - intros x xx.
+    exists (identity (pr1 xx)).
+    abstract (rewrite id_left, id_right; reflexivity ).
+  - intros x y z f g xx yy zz ff gg.
+    exists (pr1 ff · pr1 gg).
+    abstract (
+      rewrite <- assoc; rewrite (pr2 gg), assoc, (pr2 ff);
+      symmetry; exact (assoc _ _ _)).
 Defined.
 
 Definition display_map_cat_data {C : category} (D : display_map_class C) : disp_cat_data _ := (disp_map_ob_mor D ,, disp_map_id_comp).
@@ -155,20 +158,17 @@ Proof.
   use tpair.
   - use tpair.
     + exists ((PullbackArrow (pr1 (display_map_pullback f d)) (pr1 d'') t (pr12 d'' · g) (Ht @ assoc _ _ _))).
-      simpl. exact (PullbackArrow_PullbackPr2 _ _ _ _ _).
+      exact (PullbackArrow_PullbackPr2 _ _ _ _ _).
     + simpl. use subtypePath.
-      { exact (λ _, homset_property _ _ _ _ _). }
-      { simpl. exact (PullbackArrow_PullbackPr1 _ _ _ _ _). }
+      abstract ( exact (λ _, homset_property _ _ _ _ _)).
+      exact (PullbackArrow_PullbackPr1 _ _ _ _ _).
   - simpl. intros [[p Hp] Hcomp]. use subtypePath.
-    + intros [p' Hp'].
-      exact (homsets_disp (g · f) d'' _ _ (t,,Ht)).
-    + simpl. use subtypePath.
-      { exact (λ _, homset_property _ _ _ _ _). }
-      {
-        simpl. apply PullbackArrowUnique'.
-        - apply base_paths in Hcomp. simpl in Hcomp. exact Hcomp.
-        - exact Hp.
-      }
+    abstract ( intros [p' Hp']; exact (homsets_disp (g · f) d'' _ _ (t,,Ht))).
+    use subtypePath.
+    abstract ( exact (λ _, homset_property _ _ _ _ _)).
+    simpl. apply PullbackArrowUnique'.
+    + apply base_paths in Hcomp. simpl in Hcomp. exact Hcomp.
+    + exact Hp.
 Defined.
 
 Definition display_map_cleaving
