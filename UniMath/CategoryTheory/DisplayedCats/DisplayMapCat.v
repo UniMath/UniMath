@@ -311,13 +311,13 @@ Defined.
 Notation "'DM2CC'" := display_map_to_comprehension_category : disp_map_cat.
 
 (** ** Pseudo Map corresponding to a functor between Display Map Categories *)
-Definition ι_map_is_map_ι
+Definition map_ι_is_ι_map
   {C₁ C₂ : category}
   {D₁ : display_map_class C₁} {D₂ : display_map_class C₂}
   (F : display_map_class_functor D₁ D₂)
   : disp_nat_z_iso
-      (disp_functor_composite (display_map_functor F) (π_χ (DM2CC D₂)))
       (disp_functor_composite (π_χ (DM2CC D₁)) (disp_codomain_functor F))
+      (disp_functor_composite (display_map_functor F) (π_χ (DM2CC D₂)))
     (nat_z_iso_id F).
 Proof.
   repeat (use tpair); simpl.
@@ -350,7 +350,7 @@ Proof.
   use make_pseudo_map_structure.
   - exact F.
   - exact (display_map_functor F).
-  - exact (ι_map_is_map_ι F).
+  - exact (map_ι_is_ι_map F).
 Defined.
 Notation "'MD2PM'" := map_display_map_to_pseudo_map_structure : disp_map_cat.
 
@@ -363,14 +363,8 @@ Definition nat_trans_to_transformation_structure_axiom
   (α : nat_trans F F')
   : @transformation_structure_axiom _ _ _ _ (MD2PM F) (MD2PM F') α (display_map_nat_trans α).
 Proof.
-  unfold transformation_structure_axiom.
-  use subtypePath.
-  { exact (λ _, isaprop_disp_nat_trans_axioms _ _). }
-  use funextsec. intros x.
-  use funextsec. intros dx.
-  rewrite disp_nat_trans_transportb. cbn.
-  use subtypePath.
-  { exact (λ _, homset_property _ _ _ _ _). }
+  intros x xx.
+  use eq_cod_mor.
   rewrite transportb_cod_disp.
   simpl.
   rewrite id_left,id_right.
