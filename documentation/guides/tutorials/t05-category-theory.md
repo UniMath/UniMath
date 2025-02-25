@@ -576,4 +576,59 @@ dirprod_disp_cat_is_univalent D1 D2           : is_univalent_disp D1 → is_univ
 For showing that a category has limits, there is a similar, though slightly more cumbersome approach: you first show that a displayed category `D` over `C` "creates" a certain limit (`creates_limit`, defined in [DisplayedCats.Limits](../../../UniMath/CategoryTheory/DisplayedCats/Limits.v)), i.e. the limit can be lifted from `C` to `total_category D`. Then you use lemmas like `total_limit`, `creates_limits_sigma_disp_cat` and maybe even `fiber_limit` to show for the desired category that it has limits.
 
 ## Bicategories
-To be added by Niels
+
+Bicategories are a 2-dimensional version of categories. They have objects, 1-cells (between objects), and 2-cells (between 1-cells). Associativity and unitality only hold weakly: they do not necessarily hold as identities on 1-cells, but instead they are only guaranteed to hold up to an invertible 2-cell. The key example of a bicategory is the bicategory of categories, whose objects are categories, 1-cells are functors, and 2-cells are natural transformations.
+
+The accessors for bicategories are as follows:
+- `x --> y`: type of 1-cells from `x` to `y`. Note: one can also write `B ⟦ x , y ⟧`.
+- `f ==> g`: type of 2-cells from `f` to `g`
+- `identity x`: identity 1-cell on `x`
+- `f · g`: composition of 1-cells
+- `id2 f`: identity 2-cell on `f`
+- `τ • τ': composition of 2-cells (note that \bu is used to type •)
+- `lunitor f`: left unitor (`identity _ · f ==> f`)
+- `linvunitor f`: inverse of the left unitor (`f ==> identity _ · f`)
+- `runitor f`: right unitor (`f · identity _ ==> f`)
+- `rinvunitor f`: inverse of the right unitor (`f ==> f · identity _`)
+- `lassociator f g h`: left associator (`f · (g · h) ==> (f · g) · h`)
+- `rassociator f g h`: right associator (`(f · g) · h ==> f · (g · h)`)
+- `f ◃ τ`: left whiskering. Given `f : x --> y` and `τ : g₁ ==> g₂` where `g₁ g₂ : y --> z`, then `f ◃ τ : f · g₁ ==> f · g₂`
+- `τ ▹ g`: right whiskering. Given `g : y --> z` and `τ : f₁ ==> f₂` where `f₁ f₂ : x --> y`, then `τ ▹ g : f₁ · g ==> f₂ · g`
+
+There are various laws, which can be found in `Core/Bicat.v` and `Core/Bicategory_laws.v`.
+
+### Invertible 2-cells and adjoint equivalences
+
+An invertible 2-cell `τ` from 1-cells `f` to `g` is given by 2-cells `τ : f ==> g` and `τ^-1 : g ==> f` that compose to the identity. The type expressing that some 2-cell `τ : f ==> g` is invertible, is a proposition. The type of invertible 2-cells is denoted by `invertible_2cell f g`.
+
+An eqivalence `f` from `x` to `y` consists of 1-cells `f : x --> y` and `g : y --> x` together with invertible 2-cells witnessing that both `f · g` and `g · f` are isomorphic to the identity. Note that we do not require any coherences. The type of equivalences from `x` to `y` is denoted by `left_equivalence x y`.
+
+Finally, an adjoint equivalence `f` from `x` to `y` is given by an equivalence that satisfies the triangle equality for the unit and counit. The type of adjoint equivalences from `x` to `y` is denoted by `adjoint_equivalence x y`, and the type expressing that `f` is an adjoint equivalence is denoted by `left_adjoint_equivalence f`. The important statements about adjoint equivalences are:
+- `equiv_to_adjequiv`: refines a (not necessarily coherent) equivalence into an adjoint equivalence
+- `isaprop_left_adjoint_equivalence`: the type expressing that a 1-cell is an adjoint equivalence, is a proposition if the bicategory is locally univalent
+
+Invertible 2-cells and adjoint equivalences are used to define local and global univalence of bicategories. A bicategory is locally univalent (`is_univalent_2_1`) if identity of 1-cells corresponds to invertible 2-cells and a bicategory is globally univalent (`is_univalent_2_0`) if identity of objects corresponds to adjoint equivalences. A bicategory is univalent if it is both locally and globally univalent.
+
+### Displayed bicategories
+
+Displayed bicategories are a useful tool for modularly constructing bicategories, and to conveniently prove that the resulting bicategories are univalent. The ideas behind displayed bicategories is the same as for displayed categories. The only difference is that displayed bicategories are 2-dimensional in nature meaning that they come with a notion of displayed 2-cell. In UniMath, we have the basic theory of displayed bicategories, and a wide variety of displayed bicategories. The theory includes statements to prove the univalence of the total bicategory. In addition, there is a formalization of the notion of fibration of bicategories (`cleaving_of_bicats`).
+
+Relevant identifiers:
+- `disp_bicat`: the type of displayed bicategories
+- `disp_univalent_2_0`: global univalence for displayed bicategories
+- `disp_univalent_2_1`: local univalence for displayed bicategories
+- `disp_univalent_2`: univalence for displayed bicategories
+- `total_bicat`: the total bicategory
+- `pr1_psfunctor`: the projection
+- `total_is_univalent_2_1`: local univalence of the total bicategory
+- `total_is_univalent_2_0`: global univalence of the total bicategory
+
+The bicategory of pseudofunctors is defined using displayed bicategories. The reason behind this is that it simplifies the proof of univalence. The bicategory of pseudofunctors is denoted by `psfunctor_bicat B₁ B₂`, the type of pseudofunctors from `B₁` to `B₂` is denoted by `psfunctor B₁ B₂`, the type of pseudotransformations from `F` to `G` is denoted by `pstrans F G`, and the type of modifications from `τ₁` to `τ₂` is denoted by `modification τ₁ τ₂`. Finally, the type of invertible modifications is denoted by `invertible_modification τ₁ τ₂`.
+
+### References
+- ``Bicategories in univalent foundations'' by Ahrens, Frumin, Maggesi, Veltri, Van der Weide.
+- ``Bicategorical type theory: semantics and syntax'' by Ahrens, North, Van der Weide.
+- ``The Formal Theory of Monads, Univalently'' by Van der Weide.
+- ``Univalent Double Categories'' by Van der Weide, Rasekh, Ahrens, North.
+- ``Insights from univalent foundations: A case study using double categories'' by Rasekh, Van der Weide, Ahrens North.
+- ``The internal languages of univalent categories'' by Van der Weide

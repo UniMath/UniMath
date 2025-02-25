@@ -252,6 +252,7 @@ LocalizingClass.v
 UnderCategories.v
 Subobjects.v
 SubobjectClassifier/SubobjectClassifier.v
+SubobjectClassifier/Operations.v
 SubobjectClassifier/SubobjectClassifierIso.v
 Quotobjects.v
 AbelianPushoutPullback.v

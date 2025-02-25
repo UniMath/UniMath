@@ -395,6 +395,7 @@ Section groundTermAlgebraWtype.
         use pathsinv0.
         etrans.
         { use idpath_transportf. }
+        unfold idfun.
         use maponpaths.
         induction (!homotweqinvweq (gtweq_sec nm) f).
         use pathsinv0.
