@@ -154,6 +154,15 @@ Proof.
   - intro a. apply idpath.
 Qed.
 
+Lemma identity_pre_whisker (B : precategory_data) (C : category)
+  (F G : functor_data B C) (α : nat_trans F G)
+  : pre_whisker (functor_identity B) α = α.
+Proof.
+  apply nat_trans_eq.
+  - apply homset_property.
+  - intro a. apply idpath.
+Qed.
+
 Lemma pre_whisker_composition (A B : precategory_data) (C : category)
   (H : functor_data A B) (a b c : functor_data B C)
   (f : nat_trans a b) (g : nat_trans b c)
@@ -292,6 +301,15 @@ Proof.
   - apply homset_property.
   - intro a. unfold post_whisker. simpl.
     apply functor_id.
+Qed.
+
+Lemma identity_post_whisker (B : precategory_data) (C : category)
+  (F G : functor_data B C) (α : nat_trans F G)
+  : post_whisker α (functor_identity C) = α.
+Proof.
+  apply nat_trans_eq.
+  - apply homset_property.
+  - intro a. apply idpath.
 Qed.
 
 Lemma post_whisker_composition (A B : precategory) (C : category)
