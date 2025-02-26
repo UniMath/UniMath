@@ -222,6 +222,25 @@ Definition display_map_class_functor {C C' : category} (D : display_map_class C)
 Definition functor_from_display_map_class_functor {C C' : category} (D : display_map_class C) (D' : display_map_class C') (F : display_map_class_functor D D') : C ⟶ C' := pr1 F.
 Coercion functor_from_display_map_class_functor : display_map_class_functor >-> functor.
 
+Definition display_map_class_functor_identity
+  {C : category} (D : display_map_class C)
+  : display_map_class_functor D D.
+Proof.
+  exists (functor_identity C).
+  abstract (exact ((λ _ _ _ tt, tt) ,, (λ _ _ _ _ _ _ pb, pb))).
+Defined.
+
+Definition display_map_class_functor_composite
+  {C₁ C₂ C₃ : category}
+  {D₁ : display_map_class C₁} {D₂ : display_map_class C₂} {D₃ : display_map_class C₃}
+  (F₁ : display_map_class_functor D₁ D₂)
+  (F₂ : display_map_class_functor D₂ D₃)
+  : display_map_class_functor D₁ D₃.
+Proof.
+  exists (functor_composite F₁ F₂).
+  abstract (exact ((λ _ _ _ tt, (pr12 F₂) _ _ _ ((pr12 F₁) _ _ _ tt)) ,, (λ _ _ _ _ _ tt pb, (pr22 F₂) _ _ _ _ _ ((pr12 F₁) _ _ _ tt) ((pr22 F₁) _ _ _ _ _ tt pb)))).
+Defined.
+
 (** ** Functor between Display Map Categories *)
 (** *** Define how functor `F` acts on the Display Map Category  *)
 (** Here, we once again follow the definitions for codomain from [Codomain/CodFunctor.v]. *)
