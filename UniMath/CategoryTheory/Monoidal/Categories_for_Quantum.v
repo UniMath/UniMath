@@ -133,6 +133,26 @@ Definition super_pos_unit
 Notation "u^{ op }_{ A , B }" := (super_pos_unit op A B ).
 
 
+(* Lemma 2.15 *)
+
+Lemma zero_super_unit_eq
+      {M : monoidal_cat}
+      {Z : Zero (pr1 M)}
+      {op : superpos_rule M}
+      (A B : pr1 M)
+: (ZeroArrow Z A B) = u^{op}_{A,B}.
+Proof.
+  set (q := u^{op}_{Z,B}).
+  set (h := u^{op}_{A,Z}).
+  assert (X : (u^{ op }_{ A, B} = h · q)).
+  exact (((pr2 (pr2 (pr2 (pr2 op)))) A Z B) h).
+  symmetry.
+  assert (X0 : (h · q = ZeroArrow Z A B)).
+  exact (ZeroArrowEq (pr1 M) Z A B h q).
+  rewrite X.
+  exact X0.
+Defined.
+
 
 (* Definition 2.17 *)
 
@@ -145,6 +165,9 @@ Definition is_linear_func
 : UU 
 := ∏ (A B: pr1 M), ∏ (f g : A --> B), #F((op^{opC}_{A,B} f g)) 
 = (op^{opN}_{F(A),F(B)} (#F(f)) (#F(g))).
+
+      
+
 
 
 (**
@@ -249,10 +272,6 @@ Definition bipr_rule
 (satisf_bipr_1 bipr inj1 proj1) × (satisf_bipr_2 bipr inj2 proj2)×
 (satisf_zero_12 Z bipr inj1 proj2)×(satisf_zero_21 Z bipr inj2 proj1)×
 (satisf_bipr_3 Z op bipr inj1 proj1 inj2 proj2).
-
-
-
-
 
 
 
