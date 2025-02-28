@@ -445,6 +445,7 @@ Categories/Rel.v
 
 Monoidal/WhiskeredBifunctors.v
 Monoidal/Categories.v
+Monoidal/CategoriesForQuantum.v
 Monoidal/StrongMonad.v
 
 Monoidal/Structure/Symmetric.v
@@ -745,5 +746,3 @@ MarkovCategories/InformationFlowAxioms.v
 MarkovCategories/State.v
 MarkovCategories/ProbabilitySpaces.v
 MarkovCategories/Couplings.v
-
-Monoidal/Categories_for_Quantum.v
