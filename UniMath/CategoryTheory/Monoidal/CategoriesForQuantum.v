@@ -19,10 +19,13 @@
  ***************************************************************************)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.CategoryTheory.All.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Monoidal.Categories.
+Require Import UniMath.CategoryTheory.limits.zero.
+
 
 Local Open Scope cat.
-
 
 
 
@@ -151,7 +154,7 @@ Proof.
   exact (ZeroArrowEq (pr1 M) Z A B h q).
   rewrite X.
   exact X0.
-Defined.
+Qed.
 
 
 (* Definition 2.17 *)
@@ -215,7 +218,7 @@ Definition satisf_bipr_1
            (inj : injec_mor_1 bipr)
            (proj : proj_mor_1 bipr)
 : UU 
-:= ∏ ( A B : pr1 M), (inj A B)· (proj A B) = id A.
+:= ∏ ( A B : pr1 M), (inj A B)· (proj A B) = identity A.
 
 Definition satisf_bipr_2 
            {M : monoidal_cat}
@@ -223,7 +226,7 @@ Definition satisf_bipr_2
            (inj : injec_mor_2 bipr)
            (proj : proj_mor_2 bipr)
 : UU 
-:= ∏ ( A B : pr1 M), (inj A B)· (proj A B) = id B.
+:= ∏ ( A B : pr1 M), (inj A B)· (proj A B) = identity B.
 
 
 Definition satisf_zero_12 
@@ -254,7 +257,7 @@ Definition satisf_bipr_3
            (inj2 : injec_mor_2 bipr)
            (proj2 : proj_mor_2 bipr)
 : UU 
-:= ∏ ( A B : pr1 M), id (bipr A B) = op^{opM}_{(bipr A B) , 
+:= ∏ ( A B : pr1 M), identity (bipr A B) = op^{opM}_{(bipr A B) , 
  (bipr A B)} ((proj1 A B) · (inj1 A B)) ((proj2 A B) · (inj2 A B)).
 
 
@@ -272,9 +275,6 @@ Definition bipr_rule
 (satisf_bipr_1 bipr inj1 proj1) × (satisf_bipr_2 bipr inj2 proj2)×
 (satisf_zero_12 Z bipr inj1 proj2)×(satisf_zero_21 Z bipr inj2 proj1)×
 (satisf_bipr_3 Z op bipr inj1 proj1 inj2 proj2).
-
-
-
 
 
 
