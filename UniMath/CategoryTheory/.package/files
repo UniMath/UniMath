@@ -445,6 +445,7 @@ Categories/Rel.v
 
 Monoidal/WhiskeredBifunctors.v
 Monoidal/Categories.v
+Monoidal/CategoriesForQuantum.v
 Monoidal/StrongMonad.v
 
 Monoidal/Structure/Symmetric.v
