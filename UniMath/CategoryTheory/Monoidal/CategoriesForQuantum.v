@@ -22,7 +22,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
-Require Import UniMath.CategoryTheory.limits.zero.
+Require Import UniMath.CategoryTheory.Limits.Zero.
 
 
 Local Open Scope cat.
