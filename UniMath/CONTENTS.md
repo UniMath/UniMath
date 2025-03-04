@@ -615,6 +615,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Categories/Rel.v](CategoryTheory/Categories/Rel.v)
    - [Monoidal/WhiskeredBifunctors.v](CategoryTheory/Monoidal/WhiskeredBifunctors.v)
    - [Monoidal/Categories.v](CategoryTheory/Monoidal/Categories.v)
+   - [Monoidal/CategoriesForQuantum.v](CategoryTheory/Monoidal/CategoriesForQuantum.v)
    - [Monoidal/StrongMonad.v](CategoryTheory/Monoidal/StrongMonad.v)
    - [Monoidal/Structure/Symmetric.v](CategoryTheory/Monoidal/Structure/Symmetric.v)
    - [Monoidal/Structure/SymmetricDiagonal.v](CategoryTheory/Monoidal/Structure/SymmetricDiagonal.v)
