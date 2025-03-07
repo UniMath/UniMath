@@ -1464,6 +1464,7 @@ The packages and files are listed here in logical order: each file depends only 
 ## Package AlgebraicTheories
    - [FiniteSetSkeleton.v](AlgebraicTheories/FiniteSetSkeleton.v)
    - [IndexedSetCategory.v](AlgebraicTheories/IndexedSetCategory.v)
+   - [ReflexiveObjects.v](AlgebraicTheories/ReflexiveObjects.v)
    - [AlgebraicTheoryCategoryCore.v](AlgebraicTheories/AlgebraicTheoryCategoryCore.v)
    - [AlgebraicTheories.v](AlgebraicTheories/AlgebraicTheories.v)
    - [AlgebraicTheoryMorphisms.v](AlgebraicTheories/AlgebraicTheoryMorphisms.v)
