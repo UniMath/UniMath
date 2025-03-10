@@ -14,8 +14,10 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
@@ -42,6 +44,14 @@ Definition display_map_class (C : category) : UU :=
 
 Definition display_map_class_to_data {C : category} (D : display_map_class C) : display_map_class_data C := pr1 D.
 Coercion display_map_class_to_data : display_map_class >-> display_map_class_data.
+
+Definition isPredicate_display_map_class
+  {C : category} (D : display_map_class C)
+  (a b : C)
+  : isPredicate (pr1 D a b).
+Proof.
+  intros f. apply (pr2 (pr1 D a b f)).
+Qed.
 
 (** ** Display Map Category *)
 (** This is based on the definition for [disp_codomain]. *)
@@ -126,6 +136,41 @@ Qed.
 Definition display_map_cat {C : category} (D : display_map_class C) : disp_cat C
   := (display_map_cat_data D ,, display_map_cat_axioms).
 
+(** Bit of univalence *)
+Lemma is_univalent_display_map_cat
+  {C : category} (C_univ : is_univalent C)
+  (D : display_map_class C)
+  : is_univalent_disp (display_map_cat D).
+Proof.
+  intros x₁ x₂ px12 dx₁ dx₂ d_iso; cbn.
+  unfold iscontr, hfiber.
+  use tpair; try (use tpair); cbn.
+  - use total2_paths_f; cbn.
+    + rewrite pr1_transportf, transportf_const; cbn.
+      apply (isotoid _ C_univ).
+      exists (pr11 d_iso), (pr112 d_iso). split.
+      * pose (Hfg := pr22 (is_z_iso_disp_from_z_iso d_iso)). apply base_paths in Hfg.
+        unfold mor_disp in Hfg. simpl in Hfg.
+        rewrite pr1_transportb, transportb_const in Hfg.  simpl in Hfg.
+        exact Hfg.
+      * pose (Hgf := pr12 (is_z_iso_disp_from_z_iso d_iso)). apply base_paths in Hgf.
+        unfold mor_disp in Hgf. simpl in Hgf.
+        rewrite pr1_transportb, transportb_const in Hgf.  simpl in Hgf.
+        exact Hgf.
+    + admit.
+  - admit.
+Admitted.
+
+Definition univalent_display_map_cat
+  {C : category} (C_univ : is_univalent C)
+  (D : display_map_class C)
+  : disp_univalent_category C.
+Proof.
+  use make_disp_univalent_category.
+  - exact (display_map_cat D).
+  - exact (is_univalent_display_map_cat C_univ D).
+Defined.
+
 Definition display_map_pullback
   {C : category} {D : display_map_class C}
   {Γ Γ' : C} (f : Γ' --> Γ)
@@ -208,13 +253,43 @@ Proof.
   apply isPullback_Pullback.
 Qed.
 
+Lemma is_cartesian_ι
+  {C : category} (D : display_map_class C)
+  : is_cartesian_disp_functor (ι D).
+Proof.
+  apply (cartesian_functor_from_cleaving display_map_cleaving).
+  exact (ι_preserves_cartesian).
+Qed.
+
+Definition cartesian_ι
+  {C : category} (D : display_map_class C)
+  : cartesian_disp_functor (functor_identity C) (display_map_cat D) (disp_codomain C)
+  := (ι D ,, is_cartesian_ι D).
+
+Lemma ι_ff
+  {C : category} (D : display_map_class C)
+  : disp_functor_ff (ι D).
+Proof.
+  intros x₁ x₂ dx₁ dx₂ f [ι_g Hsq].
+  unfold iscontr, hfiber.
+  assert (Heq : (♯(ι D))%mor_disp (ι_g ,, Hsq) = (ι_g,,Hsq)).
+  {
+    cbn. exact (idpath _).
+  }
+  exists ((ι_g ,, Hsq) ,, Heq).
+  intros [[g' Hsq'] Heq'].
+  use subtypePath.
+  - intros t. exact (homsets_disp _ _ _ _ _).
+  - cbn. exact Heq'.
+Qed.
+
 (** ** Functor between Display Map Classes *)
 
 Definition preserves_maps {C C' : category} (D : display_map_class C) (D' : display_map_class C') (F : C ⟶ C') :=
   ∏ (a b : C) (d : a --> b), D d -> D' (#F d).
 
 Definition preserves_pullbacks {C C' : category} (D : display_map_class C) (D' : display_map_class C') (F : C ⟶ C') :=
-  ∏ (a b c : C) (f : b --> a) (g : c --> a), D g -> Pullback f g -> Pullback (#F f) (#F g).
+  ∏ (a b c : C) (f : b --> a) (g : c --> a) (_ : D f) (pb : Pullback f g), isPullback (!functor_comp F _ _ @ maponpaths (#F) (PullbackSqrCommutes pb) @ functor_comp F _ _).
 
 Definition display_map_class_functor {C C' : category} (D : display_map_class C) (D' : display_map_class C') :=
   ∑ (F: C ⟶ C'), preserves_maps D D' F × preserves_pullbacks D D' F.
@@ -222,12 +297,26 @@ Definition display_map_class_functor {C C' : category} (D : display_map_class C)
 Definition functor_from_display_map_class_functor {C C' : category} (D : display_map_class C) (D' : display_map_class C') (F : display_map_class_functor D D') : C ⟶ C' := pr1 F.
 Coercion functor_from_display_map_class_functor : display_map_class_functor >-> functor.
 
+Definition display_map_class_functor_preserved_pullback
+  {C₁ C₂ : category} {D₁ : display_map_class C₁} {D₂ : display_map_class C₂}
+  (F : display_map_class_functor D₁ D₂)
+  {a b c: C₁} {d : b --> a} {f : c --> a} (H : D₁ d) (pb : Pullback d f)
+  : Pullback (#F d) (#F f).
+Proof.
+  repeat (use tpair).
+  - exact (F pb).
+  - exact (#F (PullbackPr1 pb)).
+  - exact (#F (PullbackPr2 pb)).
+  - simpl. exact (!functor_comp F _ _ @ maponpaths (#F) (PullbackSqrCommutes pb) @ functor_comp F _ _).
+  - simpl. exact (pr22 F _ _ _ _ _ H pb).
+Defined.
+
 Definition display_map_class_functor_identity
   {C : category} (D : display_map_class C)
   : display_map_class_functor D D.
 Proof.
   exists (functor_identity C).
-  abstract (exact ((λ _ _ _ tt, tt) ,, (λ _ _ _ _ _ _ pb, pb))).
+  abstract (exact ((λ _ _ _ tt, tt) ,, (λ _ _ _ _ _ _ pb, isPullback_Pullback pb))).
 Defined.
 
 Definition display_map_class_functor_composite
@@ -238,7 +327,12 @@ Definition display_map_class_functor_composite
   : display_map_class_functor D₁ D₃.
 Proof.
   exists (functor_composite F₁ F₂).
-  abstract (exact ((λ _ _ _ tt, (pr12 F₂) _ _ _ ((pr12 F₁) _ _ _ tt)) ,, (λ _ _ _ _ _ tt pb, (pr22 F₂) _ _ _ _ _ ((pr12 F₁) _ _ _ tt) ((pr22 F₁) _ _ _ _ _ tt pb)))).
+  split.
+  - abstract (exact (λ _ _ _ tt, (pr12 F₂) _ _ _ ((pr12 F₁) _ _ _ tt))).
+  - abstract (
+        intros ? ? ? ? ? tt pb; unfold functor_comp; simpl;
+        apply ((pr22 F₂) _ _ _ _ _ ((pr12 F₁) _ _ _ tt) (display_map_class_functor_preserved_pullback F₁ tt pb))
+      ).
 Defined.
 
 (** ** Functor between Display Map Categories *)
@@ -293,6 +387,42 @@ Proof.
   - exact (display_map_functor_data F).
   - exact (display_map_functor_axioms F).
 Defined.
+
+(* TODO: give this a better name *)
+Lemma pr2_eq
+  {C₁ C₂ : category}
+  {D₁ : display_map_class C₁} {D₂ : display_map_class C₂}
+  (F : display_map_class_functor D₁ D₂)
+  {x y : C₁} (f : y --> x) (dx : display_map_cat D₁ x)
+  : # F (PullbackPr2 (pr1 (display_map_pullback f dx))) = PullbackPr2 (display_map_class_functor_preserved_pullback F (pr22 dx) (pr1 (display_map_pullback f dx))).
+Proof.
+  exact (idpath _).
+Qed.
+
+Lemma pr1_eq
+  {C₁ C₂ : category}
+  {D₁ : display_map_class C₁} {D₂ : display_map_class C₂}
+  (F : display_map_class_functor D₁ D₂)
+  {x y : C₁} (f : y --> x) (dx : display_map_cat D₁ x)
+  : # F (PullbackPr1 (pr1 (display_map_pullback f dx))) = PullbackPr1 (display_map_class_functor_preserved_pullback F (pr22 dx) (pr1 (display_map_pullback f dx))).
+Proof.
+  exact (idpath _).
+Qed.
+
+Lemma is_cartesian_display_map_functor
+  {C₁ C₂ : category}
+  {D₁ : display_map_class C₁} {D₂ : display_map_class C₂}
+  (F : display_map_class_functor D₁ D₂)
+  : is_cartesian_disp_functor (display_map_functor F).
+Proof.
+  apply (cartesian_functor_from_cleaving display_map_cleaving).
+  intros x₁ x₂ f dx₁ y₃ g dy₃ hh.
+  repeat (use tpair); cbn in *.
+  - exact (PullbackArrow (display_map_class_functor_preserved_pullback F (pr22 dx₁) (pr1 (display_map_pullback f dx₁))) _ (pr1 hh) (pr12 dy₃ · g) (pr2 hh @ assoc _ _ _)).
+  - rewrite pr2_eq. apply (PullbackArrow_PullbackPr2 (display_map_class_functor_preserved_pullback F (pr22 dx₁) (pr1 (display_map_pullback f dx₁)))).
+  - rewrite (pr1_eq F f dx₁).
+Admitted.
+
 
 (** ** Natural Transformation *)
 (** Once more we rely on the definition for the codomain display category to define the transformation between two display map categories. *)
