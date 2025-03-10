@@ -1,5 +1,6 @@
 FiniteSetSkeleton.v
 IndexedSetCategory.v
+ReflexiveObjects.v
 
 AlgebraicTheoryCategoryCore.v
 AlgebraicTheories.v

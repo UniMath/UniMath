@@ -63,8 +63,9 @@ Local Open Scope lambda_calculus.
 
 Section Karoubi.
 
-  Context (L : lambda_theory).
-  Context (Lβ : has_β L).
+  Context (L : β_lambda_theory).
+
+  Let Lβ : has_β L := β_lambda_theory_has_β L.
 
   Definition algebraic_theory_karoubi
     : setcategory
@@ -289,12 +290,13 @@ End Karoubi.
 
 Section Functors.
 
-  Context (L : lambda_theory).
-  Context (Lβ : has_β L).
+  Context (L : β_lambda_theory).
+
+  Let Lβ : has_β L := β_lambda_theory_has_β L.
 
   Let φ
-    : z_iso (E L Lβ) L
-    := representation_theorem_iso L Lβ.
+    : z_iso (E L) L
+    := representation_theorem_iso L.
 
   Let Pn
     (n : nat)
@@ -312,13 +314,13 @@ Section Functors.
   Proof.
     refine '(make_functor_data _ _).
     - intro n.
-      refine '(algebraic_theory_retracts_equiv_karoubi L Lβ _).
+      refine '(algebraic_theory_retracts_equiv_karoubi L _).
       exact (ProductObject _ _ (Pn n)).
     - intros m n f.
-      apply (#(algebraic_theory_retracts_equiv_karoubi L Lβ)).
+      apply (#(algebraic_theory_retracts_equiv_karoubi L)).
       apply ProductArrow.
       intro i.
-      apply ((inv_from_z_iso φ : lambda_theory_morphism _ _) m).
+      apply ((inv_from_z_iso φ : β_lambda_theory_morphism _ _) m).
       exact (f i).
   Defined.
 
@@ -327,20 +329,20 @@ Section Functors.
   Proof.
     refine '(make_is_functor _ _).
     - intro n.
-      refine '(_ @ functor_id (algebraic_theory_retracts_equiv_karoubi _ _) _).
-      apply (maponpaths (#(algebraic_theory_retracts_equiv_karoubi L Lβ))).
+      refine '(_ @ functor_id (algebraic_theory_retracts_equiv_karoubi _) _).
+      apply (maponpaths (#(algebraic_theory_retracts_equiv_karoubi L))).
       refine '(!ProductArrowUnique _ _ _ _ _ _ _ _).
       intro i.
       refine '(id_left _ @ _).
-      exact (!mor_var (inv_from_z_iso φ : lambda_theory_morphism _ _) i).
+      exact (!mor_var (inv_from_z_iso φ : β_lambda_theory_morphism _ _) i).
     - intros l m n f g.
-      refine '(_ @ functor_comp (algebraic_theory_retracts_equiv_karoubi _ _) _ _).
-      apply (maponpaths (#(algebraic_theory_retracts_equiv_karoubi L Lβ))).
+      refine '(_ @ functor_comp (algebraic_theory_retracts_equiv_karoubi _) _ _).
+      apply (maponpaths (#(algebraic_theory_retracts_equiv_karoubi L))).
       refine '(!ProductArrowUnique _ _ _ _ _ _ _ _).
       intro i.
       refine '(assoc' _ _ _ @ _).
       refine '(maponpaths _ (ProductPrCommutes _ _ _ _ _ _ _) @ _).
-      exact (!mor_subst (inv_from_z_iso φ : lambda_theory_morphism _ _) (g i) f).
+      exact (!mor_subst (inv_from_z_iso φ : β_lambda_theory_morphism _ _) (g i) f).
   Qed.
 
   Definition algebraic_theory_lawvere_to_karoubi
@@ -356,32 +358,32 @@ Section Functors.
     intros m n.
     refine '(isweq_iso _ _ _ _).
     - intros f i.
-      apply ((z_iso_mor φ : lambda_theory_morphism _ _) _).
+      apply ((z_iso_mor φ : β_lambda_theory_morphism _ _) _).
       refine '(_ · ProductPr _ _ (Pn n) i).
       apply (weq_from_fully_faithful (fully_faithful_from_equivalence _ _ _
-        (algebraic_theory_retracts_equiv_karoubi L Lβ))).
+        (algebraic_theory_retracts_equiv_karoubi L))).
       exact f.
     - intro f.
       apply funextfun.
       intro i.
-      refine '(_ @ maponpaths (λ (x : lambda_theory_morphism _ _), x _ _) (z_iso_after_z_iso_inv φ)).
-      apply (maponpaths ((z_iso_mor φ : lambda_theory_morphism _ _) m)).
+      refine '(_ @ maponpaths (λ (x : β_lambda_theory_morphism _ _), x _ _) (z_iso_after_z_iso_inv φ)).
+      apply (maponpaths ((z_iso_mor φ : β_lambda_theory_morphism _ _) m)).
       refine '(maponpaths (λ x, x · _) (homotinvweqweq (weq_from_fully_faithful _ _ _) _) @ _).
-      exact (ProductPrCommutes _ _ _ _ _ _ _).
+      exact (ProductPrCommutes _ _ _ (Pn n) _ _ _).
     - intro f.
       refine '(_ @ homotweqinvweq (weq_from_fully_faithful (fully_faithful_from_equivalence _ _ _
-        (algebraic_theory_retracts_equiv_karoubi L Lβ)) _ _) _).
-      apply (maponpaths (# (algebraic_theory_retracts_equiv_karoubi L Lβ))).
+        (algebraic_theory_retracts_equiv_karoubi L)) _ _) _).
+      apply (maponpaths (# (algebraic_theory_retracts_equiv_karoubi L))).
       refine '(!ProductArrowUnique _ _ _ (Pn n) _ _ _ _).
       intro i.
-      exact (!maponpaths (λ (x : lambda_theory_morphism _ _), x _ _) (z_iso_inv_after_z_iso φ)).
+      exact (!maponpaths (λ (x : β_lambda_theory_morphism _ _), x _ _) (z_iso_inv_after_z_iso φ)).
   Qed.
 
 (** * 2.1. The isomorphism between the composed functor and the embedding from L1 to K *)
 
   Definition U_iso_algebraic_theory_to_unit
     : z_iso
-      (algebraic_theory_retracts_to_karoubi L Lβ (U L Lβ))
+      (algebraic_theory_retracts_to_karoubi L (U L Lβ))
       (karoubi_envelope_inclusion (algebraic_theory_monoid_category L) tt).
   Proof.
     refine '(make_z_iso _ _ _).
@@ -418,7 +420,7 @@ Section Functors.
     (algebraic_theory_lawvere_to_karoubi (theory_monoid_to_lawvere L tt))
     (karoubi_envelope_inclusion (algebraic_theory_monoid_category L) tt)
     := z_iso_comp
-      (functor_on_z_iso (algebraic_theory_retracts_to_karoubi L Lβ) (make_z_iso' _
+      (functor_on_z_iso (algebraic_theory_retracts_to_karoubi L) (make_z_iso' _
         (terminal_binprod_unit_l_z (R_chosen_terminal L Lβ) (R_binproducts _ _) (U L Lβ))))
       U_iso_algebraic_theory_to_unit.
 
@@ -479,8 +481,7 @@ End Functors.
 
 Section Equivalence.
 
-  Context (L : lambda_theory).
-  Context (Lβ : has_β L).
+  Context (L : β_lambda_theory).
   Context (D : category).
   Context (HD : Colims D).
 
@@ -491,11 +492,11 @@ Section Equivalence.
   Proof.
     refine '(_ ,, _).
     - exact (pre_comp_functor (theory_monoid_to_lawvere L)).
-    - refine '(adjoint_equivalence_2_from_comp _ _ (algebraic_theory_lawvere_to_karoubi_fully_faithful L Lβ) _ HD _).
+    - refine '(adjoint_equivalence_2_from_comp _ _ (algebraic_theory_lawvere_to_karoubi_fully_faithful L) _ HD _).
       apply (adj_equivalence_of_cats_closed_under_iso (pre_comp_functor_assoc _ _)).
       refine '(adj_equivalence_of_cats_closed_under_iso ((functor_on_z_iso
         (pre_comp_functor_functor _ _ _)
-        (z_iso_inv (algebraic_theory_lawvere_to_karoubi_after_theory_monoid_to_lawvere _ _)))) _).
+        (z_iso_inv (algebraic_theory_lawvere_to_karoubi_after_theory_monoid_to_lawvere _)))) _).
       exact (karoubi_pullback_equivalence _ _ HD).
   Defined.
 

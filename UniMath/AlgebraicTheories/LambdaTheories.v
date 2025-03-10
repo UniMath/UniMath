@@ -127,6 +127,20 @@ Proof.
   apply setproperty.
 Qed.
 
+Definition β_lambda_theory : UU := β_lambda_theory_cat.
+
+Coercion β_lambda_theory_to_lambda_theory (L : β_lambda_theory) : lambda_theory := pr1 L.
+
+Definition β_lambda_theory_has_β
+  (L : β_lambda_theory)
+  : has_β L
+  := pr2 L.
+
+Definition make_β_lambda_theory
+  (L : lambda_theory)
+  (H : has_β L)
+  := L ,, H.
+
 (** * 3. The definiiton of η-equality *)
 
 Definition has_η (L : lambda_theory) : UU
