@@ -67,6 +67,7 @@ Limits/Terminal.v
 Limits/Zero.v
 Limits/BinCoproducts.v
 Limits/BinProducts.v
+Limits/BinBiproducts.v
 
 Limits/Graphs/BinCoproducts.v
 Limits/Graphs/Coproducts.v
