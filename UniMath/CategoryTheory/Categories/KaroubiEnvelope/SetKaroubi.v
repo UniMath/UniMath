@@ -1,30 +1,29 @@
 (**************************************************************************************************
 
-  The Karoubi Envelope
+  The Setcategory Karoubi Construction
 
-  Defines the Karoubi envelope, the idempotent completion, the category of retracts or the Cauchy
-  completion of a category C. This is the completion of C in which every idempotent splits. Its
-  objects are the idempotent morphisms on objects of C.
+  Constructs the setcategory Karoubi envelope.
+  Its objects are the idempotent morphisms on objects of C.
   The fully faithful embedding of C into this Karoubi envelope induces an equivalence on
   isomorphisms, but also an equivalence on path types. Using these equivalences, one can show that
   C is univalent if its Karoubi envelope is. Note that the converse does not necessarily hold: C
   can be univalent when the Karoubi envelope is not univalent.
-  One can also define the Karoubi envelope as a displayed category over the presheaf category over
-  C, in which every presheaf is endowed with a retraction from the Yoneda embedding of some object
-  in C.
-  Presheaves (and functors) from C to a category with colimits (or coequalizers) can be lifted to
-  functors on its Karoubi envelope, and this constitutes an adjoint equivalence.
+  One can equivalently define the Karoubi envelope as a displayed category over the presheaf
+  category over C, in which every presheaf is endowed with a retraction from the Yoneda embedding of
+  some object in C.
+  As is expected of a closure, the construction gives a monad on the category of setcategories.
 
   Contents
-  1. The Karoubi envelope and its embedding of C
-  1.1. The objects and morphisms and their constructors and accessors [set_karoubi_ob] [set_karoubi_mor]
-  1.2. The category [set_karoubi]
+  1. The setcategory Karoubi envelope
+  1.1. The objects and morphisms and their constructors and accessors
+    [set_karoubi_ob] [set_karoubi_mor]
+  1.2. The category [set_karoubi_cat]
   1.3. The embedding [set_karoubi_inclusion]
   1.4. Every object of the karoubi envelope is a retract of an element of C
     [set_karoubi_is_retract]
   1.5. Every idempotent in the karoubi envelope splits [set_karoubi_idempotent_splits]
-  1.6. If the karoubi envelope is univalent, C is univalent [set_karoubi_univalence]
-  2. Functors on C are equivalent to functors on the Karoubi envelope [set_karoubi_pullback_equivalence]
+  1.6. The bundling of the above into a term of set_karoubi_envelope [set_karoubi]
+  2. If the karoubi envelope is univalent, C is univalent [set_karoubi_univalence]
   3. The alternative definition, using the presheaf category [set_karoubi_envelope']
   3.1. The equivalence between the two definitions [set_karoubi_equivalence]
   4. The formations of the opposite category and the Karoubi envelope commute [opp_set_karoubi]
@@ -39,193 +38,24 @@ Require Import UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
-Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.LeftKanExtension.
-Require Import UniMath.CategoryTheory.Limits.Coequalizers.
 Require Import UniMath.CategoryTheory.Limits.Equalizers.
-Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.CategoryTheory.Retracts.
-Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.yoneda.
 
-Require Import UniMath.AlgebraicTheories.FundamentalTheorem.SurjectivePrecomposition.
+Require Import UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.
 
 Local Open Scope cat.
 
-Lemma retract_functor_is_equalizer
-  {C D : category}
-  (F : C ⟶ D)
-  {a b : C}
-  (H : retraction b a)
-  : Equalizer (#F (retraction_retraction H) · #F (retraction_section H)) (identity (F a)).
-Proof.
-  exact (retract_is_equalizer (functor_preserves_retraction F H)).
-Defined.
-
-Lemma retract_functor_is_coequalizer
-  {C D : category}
-  (F : C ⟶ D)
-  {a b : C}
-  (H : retraction b a)
-  : Coequalizer (#F (retraction_retraction H) · #F (retraction_section H)) (identity (F a)).
-Proof.
-  exact (retract_is_coequalizer (functor_preserves_retraction F H)).
-Defined.
-
-(* Data *)
-
-Definition karoubi_envelope_data
-  (C : category)
-  : UU
-  := ∑ (D : category), C ⟶ D.
-
-Definition make_karoubi_envelope_data
-  {C : category}
-  (D : category)
-  (F : C ⟶ D)
-  : karoubi_envelope_data C
-  := D ,, F.
-
-Coercion karoubi_envelope_data_category
-  {C : category}
-  (D : karoubi_envelope_data C)
-  : category
-  := pr1 D.
-
-Definition karoubi_envelope_functor
-  {C : category}
-  (D : karoubi_envelope_data C)
-  : C ⟶ D
-  := pr2 D.
-
-(* Karoubi envelope *)
-
-Definition idempotents_split
-  (D : category)
-  : UU
-  := ∏ (X : D) (f : idempotent X), ∥ is_split_idempotent f ∥.
-
-Definition objects_are_retracts
-  {C D : category}
-  (F : C ⟶ D)
-  : UU
-  := ∏ (X : D), ∃ (Y : C), retraction X (F Y).
-
-Definition is_karoubi_envelope
-  {C : category}
-  (D : karoubi_envelope_data C)
-  : UU
-  := idempotents_split D ×
-    fully_faithful (karoubi_envelope_functor D) ×
-    objects_are_retracts (karoubi_envelope_functor D).
-
-Definition make_is_karoubi_envelope
-  {C : category}
-  {D : karoubi_envelope_data C}
-  (H1 : idempotents_split D)
-  (H2 : fully_faithful (karoubi_envelope_functor D))
-  (H3 : objects_are_retracts (karoubi_envelope_functor D))
-  : is_karoubi_envelope D
-  := H1 ,, H2 ,, H3.
-
-Definition karoubi_envelope
-  (C : category)
-  : UU
-  := ∑ (D : karoubi_envelope_data C), is_karoubi_envelope D.
-
-Definition make_karoubi_envelope
-  {C : category}
-  (D : karoubi_envelope_data C)
-  (H : is_karoubi_envelope D)
-  : karoubi_envelope C
-  := D ,, H.
-
-Coercion karoubi_envelope_to_data
-  {C : category}
-  (D : karoubi_envelope C)
-  : karoubi_envelope_data C
-  := pr1 D.
-
-Definition karoubi_envelope_idempotents_split
-  {C : category}
-  (D : karoubi_envelope C)
-  : idempotents_split D
-  := pr12 D.
-
-Definition karoubi_envelope_fully_faithful
-  {C : category}
-  (D : karoubi_envelope C)
-  : fully_faithful (karoubi_envelope_functor D)
-  := pr122 D.
-
-Definition karoubi_envelope_objects_are_retracts
-  {C : category}
-  (D : karoubi_envelope C)
-  : objects_are_retracts (karoubi_envelope_functor D)
-  := pr222 D.
-
-(* Univalent *)
-
-Definition univalent_karoubi_envelope
-  (C : category)
-  : UU
-  := ∑ (D : karoubi_envelope C), is_univalent D.
-
-Definition make_univalent_karoubi_envelope
-  {C : category}
-  (D : karoubi_envelope C)
-  (H : is_univalent D)
-  : univalent_karoubi_envelope C
-  := D ,, H.
-
-Coercion univalent_karoubi_envelope_to_karoubi_envelope
-  {C : category}
-  (D : univalent_karoubi_envelope C)
-  : karoubi_envelope C
-  := pr1 D.
-
-Definition univalent_karoubi_envelope_is_univalent
-  {C : category}
-  (D : univalent_karoubi_envelope C)
-  : is_univalent D
-  := pr2 D.
-
-(* Set *)
-
-Definition set_karoubi_envelope
-  (C : category)
-  : UU
-  := ∑ (D : karoubi_envelope C), is_setcategory D.
-
-Definition make_set_karoubi_envelope
-  {C : category}
-  (D : karoubi_envelope C)
-  (H : is_setcategory D)
-  : set_karoubi_envelope C
-  := D ,, H.
-
-Coercion set_karoubi_envelope_to_karoubi_envelope
-  {C : category}
-  (D : set_karoubi_envelope C)
-  : karoubi_envelope C
-  := pr1 D.
-
-Definition set_karoubi_envelope_is_setcategory
-  {C : category}
-  (D : set_karoubi_envelope C)
-  : is_setcategory D
-  := pr2 D.
+(** * 1. The setcategory Karoubi envelope and its embedding of C *)
 
 Section SetKaroubi.
 
   Context (C : category).
 
-(** * 1. The setcategory Karoubi envelope and its embedding of C *)
 (** ** 1.1. The objects and morphisms and their constructors and accessors *)
 
   Definition set_karoubi_ob
@@ -394,7 +224,7 @@ Section SetKaroubi.
       ).
   Defined.
 
-(** ** 1.5. Every idempotent in the setcategory karoubi envelope splits *)
+(** ** 1.4. Every idempotent in the setcategory karoubi envelope splits *)
 
   Definition set_karoubi_idempotent_splits
     (c : set_karoubi_cat)
@@ -428,7 +258,7 @@ Section SetKaroubi.
       ).
   Defined.
 
-(** ** 1.4. Every object of the setcategory karoubi envelope is a retract of an element of C *)
+(** ** 1.5. Every object of the setcategory karoubi envelope is a retract of an element of C *)
 
   Definition set_karoubi_is_retract
     (d : set_karoubi_cat)
@@ -454,11 +284,60 @@ Section SetKaroubi.
       ).
   Defined.
 
-(** ** 1.6. If the karoubi envelope is univalent, C is univalent *)
+End SetKaroubi.
+
+(** * 1.6. The bundling of the above into a term of set_karoubi_envelope *)
+
+Definition set_karoubi_data
+  (C : category)
+  : karoubi_envelope_data C
+  := make_karoubi_envelope_data
+      (set_karoubi_cat C)
+      (set_karoubi_inclusion C).
+
+Lemma set_karoubi_is_karoubi
+  (C : category)
+  : is_karoubi_envelope (set_karoubi_data C).
+Proof.
+  use make_is_karoubi_envelope.
+  - intros X f.
+    apply hinhpr.
+    apply set_karoubi_idempotent_splits.
+  - apply set_karoubi_inclusion_fully_faithful.
+  - intros X.
+    apply hinhpr.
+    apply set_karoubi_is_retract.
+Qed.
+
+Lemma isaset_set_karoubi
+  (C : setcategory)
+  : isaset (set_karoubi_cat C).
+Proof.
+  apply isaset_total2.
+  + apply isaset_ob.
+  + intro x.
+    refine (isaset_carrier_subset (homset _ _) (λ _, make_hProp _ _)).
+    apply homset_property.
+Qed.
+
+Definition set_karoubi
+  (C : setcategory)
+  : set_karoubi_envelope C
+  := make_set_karoubi_envelope
+    (make_karoubi_envelope
+      (set_karoubi_data C)
+      (set_karoubi_is_karoubi C))
+    (isaset_set_karoubi C).
+
+(** 2. If the karoubi envelope is univalent, C is univalent *)
+
+Section Univalence.
+
+  Context (C : category).
 
   Definition set_karoubi_embedding_paths_weq
     (X Y : C)
-    : (X = Y) ≃ (set_karoubi_inclusion X = set_karoubi_inclusion Y).
+    : (X = Y) ≃ (set_karoubi_inclusion C X = set_karoubi_inclusion C Y).
   Proof.
     use weq_iso.
     - intro h.
@@ -481,14 +360,14 @@ Section SetKaroubi.
   Defined.
 
   Lemma set_karoubi_univalence
-    (H : is_univalent set_karoubi_cat)
+    (H : is_univalent (set_karoubi_cat C))
     : is_univalent C.
   Proof.
     intros X Y.
     use weqhomot.
     - refine (_ ∘ set_karoubi_embedding_paths_weq X Y)%weq.
       refine (_ ∘ make_weq _ (H _ _))%weq.
-      exact (invweq (weq_ff_functor_on_z_iso set_karoubi_inclusion_fully_faithful _ _)).
+      exact (invweq (weq_ff_functor_on_z_iso (set_karoubi_inclusion_fully_faithful C) _ _)).
     - abstract (
         intro h;
         apply z_iso_eq;
@@ -496,136 +375,13 @@ Section SetKaroubi.
       ).
   Defined.
 
-  Definition set_karoubi_data
-    : karoubi_envelope_data C
-    := make_karoubi_envelope_data
-        set_karoubi_cat
-        set_karoubi_inclusion.
+End Univalence.
 
-End SetKaroubi.
-
-Lemma set_karoubi_is_karoubi
-  (C : category)
-  : is_karoubi_envelope (set_karoubi_data C).
-Proof.
-  use make_is_karoubi_envelope.
-  - intros X f.
-    apply hinhpr.
-    apply set_karoubi_idempotent_splits.
-  - apply set_karoubi_inclusion_fully_faithful.
-  - intros X.
-    apply hinhpr.
-    apply set_karoubi_is_retract.
-Qed.
-
-Lemma isaset_set_karoubi
-  (C : setcategory)
-  : is_setcategory (set_karoubi_cat C).
-Proof.
-  split.
-  - apply isaset_total2.
-    + apply isaset_ob.
-    + intro x.
-      refine (isaset_carrier_subset (homset _ _) (λ _, make_hProp _ _)).
-      apply homset_property.
-  - apply homset_property.
-Qed.
-
-Definition set_karoubi
-  (C : setcategory)
-  : set_karoubi_envelope C
-  := make_set_karoubi_envelope
-    (make_karoubi_envelope
-      (set_karoubi_data C)
-      (set_karoubi_is_karoubi C))
-    (isaset_set_karoubi C).
-
-(** * 2. Functors on C are equivalent to functors on the setcategory Karoubi envelope *)
-
-Section Functors.
-
-  Context {C : category}.
-  Context (D : karoubi_envelope C).
-  Context (E : category).
-  Context (HE : Colims E).
-
-  Section Iso.
-
-    Context (P : D ⟶ E).
-    Context (d : D).
-    Context (c : C).
-    Context (f : retraction d (karoubi_envelope_functor D c)).
-
-    Definition set_karoubi_functor_iso_inv
-      : E ⟦ P d, lan_point HE (karoubi_envelope_functor D) (functor_compose (karoubi_envelope_functor D) P) d⟧.
-    Proof.
-      refine (_ · colimIn _ ((
-        (c ,, tt) ,, (f : _ --> _)
-      ) : vertex (lan_comma _ _))).
-      apply (#P).
-      exact (retraction_section f).
-    Defined.
-
-    Lemma set_karoubi_functor_iso_is_inverse
-      : is_inverse_in_precat
-        (pr1 (Core.counit_from_right_adjoint (is_right_adjoint_precomposition HE (karoubi_envelope_functor D)) P) d)
-        set_karoubi_functor_iso_inv.
-    Proof.
-      split.
-      - refine (assoc _ _ _ @ _).
-        apply colim_mor_eq.
-        intro v.
-        refine (assoc _ _ _ @ _).
-        refine (maponpaths (λ x, x · _) (assoc _ _ _) @ _).
-        refine (maponpaths (λ x, x · _ · _) (lan_precomposition_counit_point_colimIn HE _ P d _ _ _) @ _).
-        refine (!maponpaths (λ x, x · _) (functor_comp P _ _) @ _).
-        refine (_ @ !id_right _).
-        simple refine (_ @ colimInCommutes (lan_colim HE _ (pre_comp_functor _ P) _) v ((c ,, tt) ,, (f : _ --> _)) ((fully_faithful_inv_hom (karoubi_envelope_fully_faithful D) _ _ (pr2 v · retraction_section f) ,, pr2 iscontrunit _) ,, _)).
-        + apply (maponpaths (λ x, #P x · _)).
-          exact (!functor_on_fully_faithful_inv_hom _ _ _).
-        + refine (_ @ !maponpaths (λ x, x · _) (functor_on_fully_faithful_inv_hom _ _ _)).
-          refine (_ @ assoc _ _ _).
-          apply maponpaths.
-          exact (!retraction_is_retraction _).
-      - refine (assoc' _ _ _ @ _).
-        refine (maponpaths _ (lan_precomposition_counit_point_colimIn HE _ P d _ _ _) @ _).
-        refine (!functor_comp _ _ _ @ _).
-        refine (_ @ functor_id P _).
-        apply maponpaths.
-        apply retraction_is_retraction.
-    Qed.
-
-  End Iso.
-
-  Definition set_karoubi_functor_iso
-    (P : D ⟶ E)
-    : is_z_isomorphism (Core.counit_from_right_adjoint (is_right_adjoint_precomposition HE (karoubi_envelope_functor D)) P).
-  Proof.
-    apply nat_trafo_z_iso_if_pointwise_z_iso.
-    intro d.
-    refine (factor_through_squash (isaprop_is_z_isomorphism _) _ (karoubi_envelope_objects_are_retracts D d)).
-    intro c.
-    refine (make_is_z_isomorphism _ _ (set_karoubi_functor_iso_is_inverse _ _ (pr1 c) (pr2 c))).
-  Defined.
-
-  Definition set_karoubi_pullback_equivalence
-    : adj_equivalence_of_cats
-      (pre_comp_functor (C := E) (karoubi_envelope_functor D)).
-  Proof.
-    use adj_equivalence_from_right_adjoint.
-    - apply (is_right_adjoint_precomposition HE).
-    - intro P.
-      exact (z_iso_is_z_isomorphism (pre_comp_after_lan_iso _ (karoubi_envelope_fully_faithful D) _ HE P)).
-    - exact set_karoubi_functor_iso.
-  Defined.
-
-End Functors.
+(** * 3. The alternative definition, using the presheaf category *)
 
 Section AlternativeDefinition.
 
   Context (C : category).
-
-(** * 3. The alternative definition, using the presheaf category *)
 
   Definition set_karoubi'
     : category
