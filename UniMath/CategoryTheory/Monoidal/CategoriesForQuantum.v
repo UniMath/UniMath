@@ -121,7 +121,7 @@ Definition superpos_commutes
            : f +^{op} g = g +^{op} f
         := (pr12 ((pr1 op) A B)) f g.
 
-Definition superunit_zero
+Definition superpos_unit_zero
            {C : category}
            (op: superpos_oper C)
            (A B : C)
@@ -129,7 +129,7 @@ Definition superunit_zero
            : f +^{op} u^{op}_{A,B} = f
            := (pr2 (pr222 ((pr1 op) A B))) f.
 
-Definition super_assoc
+Definition superpos_assoc
            {C : category}
            (op: superpos_oper C)
            (A B : C)
@@ -156,7 +156,7 @@ Definition superpos_compat_with_comp_2
            : ( f +^{oper} f')·g = (f·g) +^{oper} (f'·g)
       := ((pr122 oper)) A B D f f' g.
 
-Definition super_units_compat_1
+Definition superpos_units_compat_1
            {C : category}
            (oper: superpos_oper C)
            (A B D : C)
@@ -164,7 +164,7 @@ Definition super_units_compat_1
            : u^{oper}_{D , B} = u^{oper}_{D , A} · f
       := (pr1 (pr222 oper)) A B D f.
 
-Definition super_units_compat_2
+Definition superpos_units_compat_2
            {C : category}
            (oper: superpos_oper C)
            (A B D : C)
@@ -185,7 +185,7 @@ Proof.
   set (q := u^{op}_{Z,B}).
   set (h := u^{op}_{A,Z}).
   assert (X : (u^{ op }_{ A, B} = h · q)).
-  exact (super_units_compat_2 op A Z B h).
+  exact (superpos_units_compat_2 op A Z B h).
   symmetry.
   assert (X0 : (h · q = ZeroArrow Z A B)).
   exact (ZeroArrowEq C Z A B h q).
@@ -247,10 +247,12 @@ Proof.
   assert (H2: c1 = (BinProductPr1 C binprod)).
   - set (Y0 := superpos_compat_with_comp_2 op obP obP A (pro1 · in1) (pro2 · in2) (BinProductPr1 C binprod)).
     assert (Y1 : (BinProductPr1 C binprod) = pro1).
-    unfold BinProductPr1. 
-    unfold binprod.
-    unfold bin_biproduct_pr1.
-    reflexivity.
+    {
+      unfold BinProductPr1. 
+      unfold binprod.
+      unfold bin_biproduct_pr1.
+      reflexivity.
+    }
     rewrite Y1 in Y0.
     unfold sum in c1.
     unfold c1.
@@ -274,7 +276,7 @@ Proof.
     assert (A2 : (pro1 +^{op} (ZeroArrow Z P A) = pro1 )).
     set (im1 := zero_super_unit_eq Z op P A).
     rewrite im1.
-    exact (superunit_zero op P A pro1).
+    exact (superpos_unit_zero op P A pro1). 
 
     rewrite A0.
     rewrite A1.
@@ -285,10 +287,12 @@ Proof.
     set (Y2 := superpos_compat_with_comp_2 op obP obP B (pro1 · in1) (pro2 · in2) (BinProductPr2 C binprod)).
 
     assert (Y3 : (BinProductPr2 C binprod) = pro2).
-    unfold BinProductPr2. 
-    unfold binprod.
-    unfold bin_biproduct_pr2.
-    reflexivity.
+    {
+      unfold BinProductPr2. 
+      unfold binprod.
+      unfold bin_biproduct_pr2.
+      reflexivity.
+    }
     rewrite Y3 in Y2.
     unfold sum in c2.
     unfold c2.
@@ -315,7 +319,7 @@ Proof.
     assert (bb4 : u^{ op }_{ P, B} +^{ op} pro2 = pro2 +^{ op} u^{ op }_{ P, B}).
     exact (superpos_commutes op P B u^{ op }_{ P, B} pro2).
     rewrite bb4.
-    exact (superunit_zero op P B pro2).
+    exact (superpos_unit_zero op P B pro2).
 
     rewrite A3.
     rewrite A4.
@@ -334,8 +338,6 @@ Proof.
   exact X4.
 
 Qed.
-
-
 
 
 
