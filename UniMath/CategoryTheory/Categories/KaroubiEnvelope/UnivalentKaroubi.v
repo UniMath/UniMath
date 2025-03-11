@@ -21,7 +21,10 @@ Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.yoneda.
 
-Require Import UniMath.CategoryTheory.Retracts.
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Set.
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.FunctorCategory.
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Fullsub.
 
 Local Open Scope cat.
 
@@ -158,3 +161,40 @@ Section EmbeddingIntoKaroubiEnvelope.
   Defined.
 
 End EmbeddingIntoKaroubiEnvelope.
+
+Lemma composite_of_retractions {C : category} {x y z : C}
+  (r : retraction x y) (s : retraction y z)
+  : retraction x z.
+Proof.
+  exists (retraction_section r · retraction_section s).
+  exists (retraction_retraction s · retraction_retraction r).
+  unfold is_retraction.
+  refine (assoc _ _ _ @ _).
+  etrans. {
+    apply maponpaths_2.
+    refine (assoc' _ _ _ @ _).
+    apply maponpaths.
+    exact (retraction_is_retraction s).
+  }
+  etrans. {
+    apply maponpaths_2.
+    apply id_right.
+  }
+  apply retraction_is_retraction.
+Qed.
+
+Proposition idempotents_in_karoubi_envelope_split (X : category)
+    : idempotents_split (univ_karoubi_envelope X).
+Proof.
+  use idempotents_split_in_full_subcat.
+  - apply idempotents_split_in_functor_cat.
+    + apply is_univalent_HSET.
+    + apply idempotents_split_in_set.
+  - intros F G r.
+    use (factor_through_squash _ _ (pr2 F)).
+    { apply isapropishinh. }
+    intros [x r'].
+    apply hinhpr.
+    exists x.
+    exact (composite_of_retractions r r').
+Defined.
