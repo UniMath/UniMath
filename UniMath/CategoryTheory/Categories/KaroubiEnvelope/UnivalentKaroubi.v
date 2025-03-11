@@ -25,32 +25,21 @@ Require Import UniMath.CategoryTheory.Retracts.
 
 Local Open Scope cat.
 
-Let P (X : category) : univalent_category.
-Proof.
-  use make_univalent_category.
-  - exact ([X^op, SET]).
-  - apply is_univalent_functor_category.
-    apply is_univalent_HSET.
-Defined.
-
-Let y (X : category) : functor X (P X)
-    := yoneda X.
-
 Section RetractsOfPresheaves.
 
   Context {X : category}.
 
-  Definition presheaf_is_retract (F : P X) : UU
-    := ∥ ∑ x : X, retraction F (y X x) ∥.
+  Definition presheaf_is_retract (F : [X^op, SET]) : UU
+    := ∥ ∑ x : X, retraction F (yoneda X x) ∥.
 
-  Lemma isaprop_presheaf_is_retract (F : P X)
+  Lemma isaprop_presheaf_is_retract (F : [X^op, SET])
     : isaprop (presheaf_is_retract F).
   Proof.
     apply isapropishinh.
   Qed.
 
   Lemma representable_presheaf_is_retract
-    : ∏ x : X, presheaf_is_retract (y X x).
+    : ∏ x : X, presheaf_is_retract (yoneda X x).
   Proof.
     intro x.
     apply hinhpr.
@@ -70,7 +59,7 @@ Section DefinitionOfKaroubiEnvelope.
   Definition univ_karoubi_envelope : category.
   Proof.
     use full_subcat.
-    - exact (P X).
+    - exact ([X^op, SET]).
     - exact (λ F, presheaf_is_retract F).
   Defined.
 
@@ -78,7 +67,7 @@ Section DefinitionOfKaroubiEnvelope.
     : is_univalent univ_karoubi_envelope.
   Proof.
     apply is_univalent_full_subcat.
-    - apply (P X).
+    - apply is_univalent_functor_category, is_univalent_HSET.
     - intro ; apply isaprop_presheaf_is_retract.
   Qed.
 
@@ -114,17 +103,17 @@ Section EmbeddingIntoKaroubiEnvelope.
   Proof.
     use make_functor_data.
     - intro x.
-      exists (y X x).
+      exists (yoneda X x).
       apply representable_presheaf_is_retract.
     - intros x₀ x₁ f.
-      exact (#(y X) f ,, tt).
+      exact (#(yoneda X) f ,, tt).
   Defined.
 
   Lemma embedding_into_karoubi_envelope_is_functor
     : is_functor embedding_into_karoubi_envelope_data.
   Proof.
     split ; intro ; intros
-    ; apply univ_karoubi_envelope_eq_on_mor ; apply (y X).
+    ; apply univ_karoubi_envelope_eq_on_mor ; apply (yoneda X).
   Qed.
 
   Definition embedding_into_karoubi_envelope
@@ -139,7 +128,7 @@ Section EmbeddingIntoKaroubiEnvelope.
     {x₁ x₂ : X}
     (f : KE⟦embedding_into_karoubi_envelope x₁, embedding_into_karoubi_envelope x₂⟧)
     (g : X ⟦x₁, x₂⟧)
-    : (#(y X) g = pr1 f) ≃ #(y X) g ,, tt = f.
+    : (#(yoneda X) g = pr1 f) ≃ #(yoneda X) g ,, tt = f.
   Proof.
     use weq_iso.
     - intro p.
@@ -160,7 +149,7 @@ Section EmbeddingIntoKaroubiEnvelope.
     intros x₁ x₂.
     intro f.
     use iscontrweqf.
-    - exact (∑ g : X ⟦x₁, x₂⟧, #(y X) g = pr1 f).
+    - exact (∑ g : X ⟦x₁, x₂⟧, #(yoneda X) g = pr1 f).
     - unfold hfiber.
       use weqfibtototal.
       intro.
