@@ -289,6 +289,7 @@ Categories/PreorderCategory/Sieves.v
 Categories/MonoidToCategory.v
 Categories/KaroubiEnvelope/Core.v
 Categories/KaroubiEnvelope/SetKaroubi.v
+Categories/KaroubiEnvelope/UnivalentKaroubi.v
 
 Limits/Examples/UnitCategoryLimits.v
 
