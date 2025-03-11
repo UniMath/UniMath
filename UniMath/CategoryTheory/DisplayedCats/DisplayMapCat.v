@@ -388,26 +388,27 @@ Proof.
   - exact (display_map_functor_axioms F).
 Defined.
 
-(* TODO: give this a better name *)
-Lemma pr2_eq
-  {C₁ C₂ : category}
-  {D₁ : display_map_class C₁} {D₂ : display_map_class C₂}
-  (F : display_map_class_functor D₁ D₂)
-  {x y : C₁} (f : y --> x) (dx : display_map_cat D₁ x)
-  : # F (PullbackPr2 (pr1 (display_map_pullback f dx))) = PullbackPr2 (display_map_class_functor_preserved_pullback F (pr22 dx) (pr1 (display_map_pullback f dx))).
+Lemma isPullback_is_cartesian_display_map
+  {C : category} (D : display_map_class C)
+  {x₁ x₂ : C} {f : x₁ --> x₂}
+  {dx₁ : display_map_cat D x₁} {dx₂ : display_map_cat D x₂} {df : dx₁ -->[f] dx₂}
+  : isPullback (pr2 df) -> is_cartesian df.
 Proof.
-  exact (idpath _).
-Qed.
-
-Lemma pr1_eq
-  {C₁ C₂ : category}
-  {D₁ : display_map_class C₁} {D₂ : display_map_class C₂}
-  (F : display_map_class_functor D₁ D₂)
-  {x y : C₁} (f : y --> x) (dx : display_map_cat D₁ x)
-  : # F (PullbackPr1 (pr1 (display_map_pullback f dx))) = PullbackPr1 (display_map_class_functor_preserved_pullback F (pr22 dx) (pr1 (display_map_pullback f dx))).
-Proof.
-  exact (idpath _).
-Qed.
+  intros Hpb x₃ g dx₃ dh. unfold isPullback in Hpb. specialize Hpb with (pr1 dx₃) (pr1 dh) (pr12 dx₃ · g).
+  pose (pb := Hpb (pr2 dh @ assoc _ _ _)). destruct pb as [[hk [H1 H2]] Hunique].
+  repeat (use tpair); simpl in *.
+  - exact hk.
+  - exact H2.
+  - use eq_display_map_cat_mor; cbn. exact H1.
+  - intros [[hk' H2'] H1'].
+    repeat (use subtypePath).
+    + admit.
+    + exact (λ _, homset_property _ _ _ _ _).
+    + simpl. apply base_paths in H1'. simpl in *.
+      specialize Hunique with (hk' ,, (H1' ,, H2')).
+      apply base_paths in Hunique. simpl in Hunique.
+      exact Hunique.
+Admitted.
 
 Lemma is_cartesian_display_map_functor
   {C₁ C₂ : category}
@@ -416,13 +417,11 @@ Lemma is_cartesian_display_map_functor
   : is_cartesian_disp_functor (display_map_functor F).
 Proof.
   apply (cartesian_functor_from_cleaving display_map_cleaving).
-  intros x₁ x₂ f dx₁ y₃ g dy₃ hh.
-  repeat (use tpair); cbn in *.
-  - exact (PullbackArrow (display_map_class_functor_preserved_pullback F (pr22 dx₁) (pr1 (display_map_pullback f dx₁))) _ (pr1 hh) (pr12 dy₃ · g) (pr2 hh @ assoc _ _ _)).
-  - rewrite pr2_eq. apply (PullbackArrow_PullbackPr2 (display_map_class_functor_preserved_pullback F (pr22 dx₁) (pr1 (display_map_pullback f dx₁)))).
-  - rewrite (pr1_eq F f dx₁).
-Admitted.
-
+  intros x₁ x₂ f dx₁.
+  apply isPullback_is_cartesian_display_map.
+  apply (pr22 F).
+  exact (pr22 dx₁).
+Qed.
 
 (** ** Natural Transformation *)
 (** Once more we rely on the definition for the codomain display category to define the transformation between two display map categories. *)
