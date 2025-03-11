@@ -33,7 +33,10 @@ Categories/HSET/Core.v
 CategorySum.v
 Subcategory/Core.v
 Subcategory/Full.v
-Retracts.v
+IdempotentsAndSplitting/Retracts.v
+IdempotentsAndSplitting/Set.v
+IdempotentsAndSplitting/FunctorCategory.v
+IdempotentsAndSplitting/Fullsub.v
 Monics.v
 Epis.v
 SplitMonicsAndEpis.v
@@ -288,7 +291,9 @@ Categories/StandardCategories.v
 Categories/PreorderCategory/Core.v
 Categories/PreorderCategory/Sieves.v
 Categories/MonoidToCategory.v
-Categories/KaroubiEnvelope.v
+Categories/KaroubiEnvelope/Core.v
+Categories/KaroubiEnvelope/SetKaroubi.v
+Categories/KaroubiEnvelope/UnivalentKaroubi.v
 
 Limits/Examples/UnitCategoryLimits.v
 

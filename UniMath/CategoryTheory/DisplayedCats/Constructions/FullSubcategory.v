@@ -17,6 +17,7 @@
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
@@ -74,6 +75,12 @@ Defined.
 (** * 3. Shortcuts for just the resulting total category *)
 
 Definition full_subcat (C : category) (P : C → UU) : category := total_category (disp_full_sub C P).
+
+Definition full_subcat_pr1_fully_faithful
+  (C : category)
+  (P : C → UU)
+  : fully_faithful (pr1_category (disp_full_sub C P))
+  := fully_faithful_pr1_category _ (λ (a b : full_subcat _ _) _, iscontrunit).
 
 Definition is_univalent_full_subcat (C : category) (univC : is_univalent C) (P : C → UU) :
   (∏ x : C, isaprop (P x)) → is_univalent (full_subcat C P).
