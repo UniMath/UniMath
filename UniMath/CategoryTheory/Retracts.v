@@ -52,6 +52,14 @@ Section SectionsAndRetractions.
         (r : B --> A),
         is_retraction s r.
 
+  Definition make_retraction
+    {A B : C}
+    (s : A --> B)
+    (r : B --> A)
+    (H : is_retraction s r)
+    : retraction A B
+    := s ,, r ,, H.
+
   Section Accessors.
 
     Context {A B : C}.
@@ -84,6 +92,24 @@ Section SectionsAndRetractions.
     apply isaprop_is_retraction.
     apply H.
   Qed.
+
+  Definition compose_retraction
+    {X Y Z : C}
+    (f : retraction X Y)
+    (g : retraction Y Z)
+    : retraction X Z.
+  Proof.
+    use make_retraction.
+    - exact (retraction_section f · retraction_section g).
+    - exact (g · f).
+    - abstract (
+        refine (assoc _ _ _ @ _);
+        refine (maponpaths (λ x, x · _) (assoc' _ _ _) @ _);
+        refine (maponpaths (λ x, _ · x · _) (retraction_is_retraction _) @ _);
+        refine (maponpaths (λ x, x · _) (id_right _) @ _);
+        apply retraction_is_retraction
+      ).
+  Defined.
 
 End SectionsAndRetractions.
 
@@ -120,6 +146,15 @@ Section Idempotents.
     (e : c --> c)
     : UU
     := ∑ c' (H : retraction c' c), e = retraction_retraction H · retraction_section H.
+
+  Definition make_is_split_idempotent
+    {c : C}
+    {e : c --> c}
+    (c' : C)
+    (H1 : retraction c' c)
+    (H2 : e = retraction_retraction H1 · retraction_section H1)
+    : is_split_idempotent e
+    := c' ,, H1 ,, H2.
 
   Definition split_idempotent
     (c : C)
@@ -177,6 +212,7 @@ Section Functors.
 
   Context {C D : category}.
   Context (F : C ⟶ D).
+  Context (H : fully_faithful F).
 
 (** ** 3.1. Retractions are preserved by functors *)
   Lemma functor_preserves_is_retraction
@@ -195,6 +231,22 @@ Section Functors.
     : retraction (F b) (F a)
     := _ ,, _ ,, functor_preserves_is_retraction H.
 
+  Lemma fully_faithful_functor_reflects_is_retraction
+    {a b : C}
+    (f : retraction (F b) (F a))
+    : is_retraction (fully_faithful_inv_hom H _ _ (retraction_section f)) (fully_faithful_inv_hom H _ _ f).
+  Proof.
+    refine (!fully_faithful_inv_comp _ _ _ _ _ _ _ _ _ @ _).
+    refine (maponpaths _ (retraction_is_retraction _) @ _).
+    apply fully_faithful_inv_identity.
+  Qed.
+
+  Definition fully_faithful_functor_reflects_retraction
+    {a b : C}
+    (f : retraction (F b) (F a))
+    : retraction b a
+    := _ ,, _ ,, fully_faithful_functor_reflects_is_retraction f.
+
 (** ** 3.2. Idempotents are preserved by functors *)
   Lemma functor_preserves_is_idempotent
     {c : C}
@@ -212,13 +264,28 @@ Section Functors.
     : idempotent (F c)
     := _ ,, functor_preserves_is_idempotent H.
 
+  Lemma fully_faithful_functor_reflects_is_idempotent
+    {c : C}
+    (f : idempotent (F c))
+    : is_idempotent (fully_faithful_inv_hom H _ _ f).
+  Proof.
+    refine (!fully_faithful_inv_comp _ _ _ _ _ _ _ _ _ @ _).
+    apply maponpaths.
+    apply idempotent_is_idempotent.
+  Qed.
+
+  Definition fully_faithful_functor_reflects_idempotent
+    {c : C}
+    (f : idempotent (F c))
+    : idempotent c
+    := _ ,, fully_faithful_functor_reflects_is_idempotent f.
+
 (** ** 3.3. Split idempotents are preserved by functors *)
   Lemma functor_preserves_is_split_idempotent
     {c : C}
     (f : split_idempotent c)
     : is_split_idempotent (#F f).
   Proof.
-    unfold is_split_idempotent.
     exists (F (split_idempotent_object f)).
     exists (functor_preserves_retraction (split_idempotent_retraction f)).
     refine (_ @ functor_comp _ _ _).
