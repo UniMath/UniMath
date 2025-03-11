@@ -127,6 +127,20 @@ Proof.
   apply setproperty.
 Qed.
 
+Definition β_lambda_theory : UU := β_lambda_theory_cat.
+
+Coercion β_lambda_theory_to_lambda_theory (L : β_lambda_theory) : lambda_theory := pr1 L.
+
+Definition β_lambda_theory_has_β
+  (L : β_lambda_theory)
+  : has_β L
+  := pr2 L.
+
+Definition make_β_lambda_theory
+  (L : lambda_theory)
+  (H : has_β L)
+  := L ,, H.
+
 (** * 3. The definiiton of η-equality *)
 
 Definition has_η (L : lambda_theory) : UU
@@ -138,6 +152,34 @@ Lemma isaprop_has_η
 Proof.
   do 2 (apply impred; intro).
   apply setproperty.
+Qed.
+
+Lemma functional_equation_eta
+  {L : lambda_theory}
+  (Lβ : has_β L)
+  {x : L 0}
+  {y : L 1}
+  (Hx : x = abs y)
+  : abs (appx x) = x.
+Proof.
+  refine (_ @ !Hx).
+  refine (_ @ maponpaths abs (Lβ _ _)).
+  do 2 (apply maponpaths).
+  exact Hx.
+Qed.
+
+Lemma functional_equation_beta
+  {L : lambda_theory}
+  (Lη : has_η L)
+  {x : L 1}
+  {y : L 0}
+  (Hx : x = appx y)
+  : appx (abs x) = x.
+Proof.
+  refine (_ @ !Hx).
+  refine (_ @ maponpaths appx (Lη _ _)).
+  do 2 (apply maponpaths).
+  exact Hx.
 Qed.
 
 (** * 4. Lemmas on the interaction of abs with subst *)

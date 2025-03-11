@@ -488,6 +488,36 @@ Defined.
 
 End adjointification.
 
+(** * Being an adjoint equivalence is closed under isomorphism *)
+
+Definition forms_equivalence_closed_under_iso
+  {A B : category}
+  {F G : functor A B}
+  (α : @z_iso [A,B] F G)
+  (HF : adj_equivalence_of_cats F)
+  : forms_equivalence (is_left_adjoint_closed_under_iso F G α HF).
+Proof.
+  use make_forms_equivalence.
+  - intro a.
+    apply is_z_isomorphism_comp.
+    + exact (z_iso_is_z_isomorphism (unit_pointwise_z_iso_from_adj_equivalence HF a)).
+    + apply (functor_on_is_z_isomorphism (adj_equivalence_inv HF)).
+      exact (pr2_nat_z_iso (z_iso_is_nat_z_iso _ _ α) a).
+  - intro a.
+    apply is_z_isomorphism_comp.
+    + exact (pr2_nat_z_iso (z_iso_is_nat_z_iso _ _ (z_iso_inv α)) _).
+    + exact (z_iso_is_z_isomorphism (counit_pointwise_z_iso_from_adj_equivalence HF a)).
+Defined.
+
+Definition adj_equivalence_of_cats_closed_under_iso
+  {A B : category}
+  {F G : functor A B}
+  (α : @z_iso [A,B] F G)
+  (HF : adj_equivalence_of_cats F)
+  : adj_equivalence_of_cats G
+  := is_left_adjoint_closed_under_iso _ _ α HF ,,
+    forms_equivalence_closed_under_iso α HF.
+
 (** * Identity functor is an adjoint equivalence *)
 
 Lemma identity_functor_is_adj_equivalence {A : category} :

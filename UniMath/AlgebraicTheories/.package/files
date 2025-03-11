@@ -1,5 +1,6 @@
 FiniteSetSkeleton.v
 IndexedSetCategory.v
+ReflexiveObjects.v
 
 AlgebraicTheoryCategoryCore.v
 AlgebraicTheories.v
@@ -35,6 +36,7 @@ Examples/ExtensionsTheory.v
 
 AlgebraicTheoryToLawvereTheory.v
 AlgebraicTheoryToMonoid.v
+PresheafEquivalence.v
 
 Combinators.v
 CategoryOfRetracts.v

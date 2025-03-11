@@ -287,7 +287,8 @@ Categories/StandardCategories.v
 Categories/PreorderCategory/Core.v
 Categories/PreorderCategory/Sieves.v
 Categories/MonoidToCategory.v
-Categories/KaroubiEnvelope.v
+Categories/KaroubiEnvelope/Core.v
+Categories/KaroubiEnvelope/SetKaroubi.v
 
 Limits/Examples/UnitCategoryLimits.v
 
@@ -416,6 +417,7 @@ DisplayedCats/Examples/Three.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
+DisplayedCats/DisplayMapCat.v
 DisplayedCats/StreetFibration.v
 DisplayedCats/StreetOpFibration.v
 DisplayedCats/ReindexingForward.v
