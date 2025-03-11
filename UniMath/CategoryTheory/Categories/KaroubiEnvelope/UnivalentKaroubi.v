@@ -34,7 +34,7 @@ Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
 Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Set.
 Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.FunctorCategory.
 Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Fullsub.
-(* Require Import UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core. *)
+Require Import UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.
 
 Local Open Scope cat.
 
@@ -278,5 +278,5 @@ Proof.
     intros [x r'].
     apply hinhpr.
     exists x.
-    exact (composite_of_retractions r r').
+    exact (compose_retraction r r').
 Defined.
