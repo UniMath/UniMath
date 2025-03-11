@@ -154,6 +154,15 @@ Proof.
   - intro a. apply idpath.
 Qed.
 
+Lemma identity_pre_whisker (B : precategory_data) (C : category)
+  (F G : functor_data B C) (α : nat_trans F G)
+  : pre_whisker (functor_identity B) α = α.
+Proof.
+  apply nat_trans_eq.
+  - apply homset_property.
+  - intro a. apply idpath.
+Qed.
+
 Lemma pre_whisker_composition (A B : precategory_data) (C : category)
   (H : functor_data A B) (a b c : functor_data B C)
   (f : nat_trans a b) (g : nat_trans b c)
@@ -189,6 +198,90 @@ Definition pre_comp_functor {A B C: category} :
   [A, B] → [B, C] ⟶ [A, C] :=
     pre_composition_functor _ _ _.
 
+Section Functor.
+
+  Context (A B C : category).
+
+  Definition pre_comp_nat_trans_data
+    {F G : A ⟶ B}
+    (α : F ⟹ G)
+    : nat_trans_data (pre_comp_functor (C := C) F) (pre_comp_functor G)
+    := post_whisker α.
+
+  Lemma pre_comp_is_nat_trans
+    {F G : A ⟶ B}
+    (α : F ⟹ G)
+    : is_nat_trans _ _ (pre_comp_nat_trans_data α).
+  Proof.
+    intros H H' β.
+    apply nat_trans_eq_alt.
+    intro a.
+    exact (!nat_trans_ax β _ _ _).
+  Qed.
+
+  Definition pre_comp_nat_trans
+    {F G : A ⟶ B}
+    (α : F ⟹ G)
+    : pre_comp_functor (C := C) F ⟹ pre_comp_functor G
+    := make_nat_trans _ _
+      (pre_comp_nat_trans_data α)
+      (pre_comp_is_nat_trans α).
+
+  Definition pre_comp_functor_functor_data
+    : functor_data [A, B] [[B, C], [A, C]]
+    := make_functor_data (C' := [_, _])
+      pre_comp_functor
+      (λ _ _ α, pre_comp_nat_trans α).
+
+  Lemma pre_comp_functor_functor_is_functor
+    : is_functor pre_comp_functor_functor_data.
+  Proof.
+    apply make_is_functor.
+    - intro F.
+      apply nat_trans_eq_alt.
+      intro G.
+      apply nat_trans_eq_alt.
+      intro a.
+      apply (functor_id G).
+    - intros F G H α β.
+      apply nat_trans_eq_alt.
+      intro I.
+      apply nat_trans_eq_alt.
+      intro a.
+      apply (functor_comp I).
+  Qed.
+
+  Definition pre_comp_functor_functor
+    : [A, B] ⟶ [[B, C], [A, C]]
+    := make_functor
+      pre_comp_functor_functor_data
+      pre_comp_functor_functor_is_functor.
+
+End Functor.
+
+Definition pre_comp_functor_assoc
+  {A B C D : category}
+  (F : A ⟶ B)
+  (G : B ⟶ C)
+  : z_iso (C := [[C, D], [A, D]])
+    (pre_comp_functor (F ∙ G))
+    (pre_comp_functor G ∙ pre_comp_functor F).
+Proof.
+  apply (invmap (z_iso_is_nat_z_iso _ _)).
+  use make_nat_z_iso.
+  - use make_nat_trans.
+    + intro H.
+      exact (z_iso_inv (invmap (z_iso_is_nat_z_iso _ _) (nat_z_iso_functor_comp_assoc _ _ _))).
+    + abstract (
+        intros H H' α;
+        apply nat_trans_eq_alt;
+        intro a;
+        exact (id_right _ @ !id_left _)
+      ).
+  - intro H.
+    apply z_iso_is_z_isomorphism.
+Defined.
+
 (** Postcomposition with a functor is functorial *)
 
 Definition post_composition_functor_data (A B C : category)
@@ -208,6 +301,15 @@ Proof.
   - apply homset_property.
   - intro a. unfold post_whisker. simpl.
     apply functor_id.
+Qed.
+
+Lemma identity_post_whisker (B : precategory_data) (C : category)
+  (F G : functor_data B C) (α : nat_trans F G)
+  : post_whisker α (functor_identity C) = α.
+Proof.
+  apply nat_trans_eq.
+  - apply homset_property.
+  - intro a. apply idpath.
 Qed.
 
 Lemma post_whisker_composition (A B : precategory) (C : category)
@@ -245,6 +347,64 @@ Definition post_comp_functor {A B C : category} :
   [B, C] → [A, B] ⟶ [A, C] :=
   post_composition_functor _ _ _.
 
+Section Functor.
+
+  Context (A B C : category).
+
+  Definition post_comp_nat_trans_data
+    {F G : B ⟶ C}
+    (α : F ⟹ G)
+    : nat_trans_data (post_comp_functor (A := A) F) (post_comp_functor G)
+    := λ (H : _ ⟶ _), pre_whisker H α.
+
+  Lemma post_comp_is_nat_trans
+    {F G : B ⟶ C}
+    (α : F ⟹ G)
+    : is_nat_trans _ _ (post_comp_nat_trans_data α).
+  Proof.
+    intros H H' β.
+    apply nat_trans_eq_alt.
+    intro a.
+    apply (nat_trans_ax α).
+  Qed.
+
+  Definition post_comp_nat_trans
+    {F G : B ⟶ C}
+    (α : F ⟹ G)
+    : post_comp_functor (C := C) F ⟹ post_comp_functor G
+    := make_nat_trans _ _
+      (post_comp_nat_trans_data α)
+      (post_comp_is_nat_trans α).
+
+  Definition post_comp_functor_functor_data
+    : functor_data [B, C] [[A, B], [A, C]]
+    := make_functor_data (C' := [_, _])
+      post_comp_functor
+      (λ _ _ α, post_comp_nat_trans α).
+
+  Lemma post_comp_functor_functor_is_functor
+    : is_functor post_comp_functor_functor_data.
+  Proof.
+    apply make_is_functor.
+    - intro F.
+      apply nat_trans_eq_alt.
+      intro G.
+      apply nat_trans_eq_alt.
+      reflexivity.
+    - intros F G H α β.
+      apply nat_trans_eq_alt.
+      intro I.
+      apply nat_trans_eq_alt.
+      reflexivity.
+  Qed.
+
+  Definition post_comp_functor_functor
+    : [B, C] ⟶ [[A, B], [A, C]]
+    := make_functor
+      post_comp_functor_functor_data
+      post_comp_functor_functor_is_functor.
+
+End Functor.
 
 Lemma pre_whisker_nat_z_iso
       {C D E : category} (F : functor C D)
