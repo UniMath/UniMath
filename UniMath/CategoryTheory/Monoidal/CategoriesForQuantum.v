@@ -339,6 +339,162 @@ Proof.
 
 Qed.
 
+(* Proving that the structure given in 2.18 of Heunen and Vicary
+indeed gives a biproduct *)
+
+Lemma axiom3_converse
+  (C : category)
+  (A B P : C)
+  (Z : Zero C)
+  (op : superpos_oper C)
+  (p1 : P --> A)
+  (p2 : P --> B)
+  (i1 : A --> P)
+  (i2 : B --> P)
+  (H1 : i1 · p1 = (identity A))
+  (H2 : i2 · p2 = (identity B))
+  (Z1 : i1 · p2 = (ZeroArrow Z A B))
+  (Z2 : i2 · p1 = (ZeroArrow Z B A))
+  (A3 : (identity P) = (p1 · i1) +^{op} (p2 · i2))
+  : bin_biproduct A B Z.
+Proof.
+
+  assert (X0 : isBinProduct C A B P p1 p2).
+  {
+    unfold isBinProduct.
+    intros a f g. 
+    set (mor := (f · i1) +^{op} (g·i2)).
+    assert (H0 : mor · p1 = f). 
+    { 
+      unfold mor.
+      rewrite superpos_compat_with_comp_2.
+      assert (T : f · i1 · p1 = f).
+      rewrite assoc'. rewrite H1. exact (id_right f).
+      assert (T1 : g · i2 · p1 = u^{op}_{a,A}).
+      rewrite assoc'.
+      rewrite Z2.
+      rewrite (zero_super_unit_eq Z op B A).
+      symmetry.
+      rewrite (superpos_units_compat_2 op a B A g).
+      reflexivity.
+      rewrite T. rewrite T1. rewrite superpos_unit_zero.
+      reflexivity.
+    }
+    assert (Y1 : mor · p2 = g).
+    {
+      unfold mor.
+      rewrite superpos_compat_with_comp_2.
+      assert (T : g · i2 · p2 = g).
+      rewrite assoc'.
+      rewrite H2.
+      exact (id_right g).
+      assert (T1 : f · i1 · p2 = u^{op}_{a,B}).
+      rewrite assoc'.
+      rewrite Z1.
+      rewrite (zero_super_unit_eq Z op A B).
+      symmetry.
+      rewrite (superpos_units_compat_2 op a A B f).
+      reflexivity.
+      rewrite T. rewrite T1. rewrite superpos_commutes. rewrite superpos_unit_zero.
+      reflexivity.
+    }
+    use tpair. 
+    exact (mor ,, H0 ,, Y1).
+    intro cntr.
+    apply subtypePath.
+    intros x. 
+    apply isapropdirprod; apply C. 
+
+    set (q_mor := pr1 cntr). 
+    assert (X4 : q_mor · (p1 · i1) +^{op} (p2 · i2) = (f · i1) +^{op} (g · i2)).
+    rewrite superpos_compat_with_comp_1.
+    assert (X5 : q_mor · (p1 · i1) = f · i1).
+    rewrite assoc.
+    unfold q_mor.
+    rewrite (pr12 cntr).
+    reflexivity.
+    assert (X6 : q_mor · (p2 · i2) = g · i2).
+    rewrite assoc.
+    unfold q_mor.
+    rewrite (pr22 cntr).
+    reflexivity.
+    rewrite X5. rewrite X6.
+    reflexivity.
+    rewrite <- A3 in X4. rewrite id_right in X4.
+    simpl. exact X4.
+  }
+  assert (X1 : isBinCoproduct C A B P i1 i2).
+  {
+    unfold isBinCoproduct.
+    intros c f g.
+    set (mor := (p1 · f) +^{op} (p2 · g)).
+    assert (H0 : i1 · mor = f).
+    {
+      unfold mor.
+      rewrite superpos_compat_with_comp_1.
+      assert (Y0 : (i1 · (p1 · f)) = f).
+      rewrite assoc. rewrite H1.
+      exact (id_left f).
+      assert (Y1 : (i1 · (p2 · g)) = u^{op}_{A,c}).
+      rewrite assoc. rewrite Z1.
+      assert (Y11 : ZeroArrow Z A B = u^{op}_{A,B}).
+      exact (zero_super_unit_eq Z op A B).
+      rewrite Y11.
+      symmetry.
+      exact (superpos_units_compat_1 op B c A g).
+      rewrite Y0. rewrite Y1.
+      exact (superpos_unit_zero op A c f).
+    }
+    assert (K1 : i2 · mor = g).
+    {
+      unfold mor.
+      rewrite superpos_compat_with_comp_1.
+      assert (Y0 : (i2 · (p2 · g)) = g).
+      rewrite assoc.
+      rewrite H2.
+      exact (id_left g).
+      assert (Y1 : (i2 · (p1 · f)) = u^{op}_{B,c}).
+      rewrite assoc.
+      rewrite Z2.
+      assert (Y11 : ZeroArrow Z B A = u^{op}_{B,A}).
+      exact (zero_super_unit_eq Z op B A).
+      rewrite Y11.
+      symmetry.
+      exact (superpos_units_compat_1 op A c B f).
+      rewrite Y0. 
+      rewrite Y1.
+      rewrite superpos_commutes.
+      exact (superpos_unit_zero op B c g).
+    }
+    use tpair.
+    exact (mor ,, H0 ,, K1).
+    intro cntr.
+    apply subtypePath.
+    intros x. 
+    apply isapropdirprod; apply C. 
+
+
+    set (h := pr1 cntr).
+    assert (Y2 : ((p1 · i1) +^{ op} (p2 · i2)) · h = h).
+    rewrite <- A3.
+    exact (id_left h).
+    rewrite superpos_compat_with_comp_2 in Y2.
+
+    assert (B1 : (p1 · i1 · h) = p1 · f).
+    unfold h. rewrite assoc'. rewrite (pr12 cntr).
+    reflexivity.
+    assert (B2 : (p2 · i2 · h) = p2 · g).
+    unfold h. rewrite assoc'. rewrite (pr22 cntr).
+    reflexivity.
+    rewrite B1 in Y2. rewrite B2 in Y2.
+    symmetry. exact Y2.
+  }
+  set (is_bipr := make_is_bin_biproduct (P ,, (p1 ,, p2 ,, i1 ,, i2)) X0 X1 H1 Z1 Z2 H2).
+  exact (make_bin_biproduct (P,, p1,, p2,, i1,, i2) is_bipr).
+
+Qed.
+
+
 
 
 
