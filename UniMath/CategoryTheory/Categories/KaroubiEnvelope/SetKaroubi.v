@@ -19,9 +19,9 @@
     [set_karoubi_ob] [set_karoubi_mor]
   1.2. The category [set_karoubi_cat]
   1.3. The embedding [set_karoubi_inclusion]
-  1.4. Every object of the karoubi envelope is a retract of an element of C
+  1.4. Every idempotent in the karoubi envelope splits [set_karoubi_idempotent_splits]
+  1.5. Every object of the karoubi envelope is a retract of an element of C
     [set_karoubi_is_retract]
-  1.5. Every idempotent in the karoubi envelope splits [set_karoubi_idempotent_splits]
   1.6. The bundling of the above into a term of set_karoubi_envelope [set_karoubi]
   2. If the karoubi envelope is univalent, C is univalent [set_karoubi_univalence]
   3. The alternative definition, using the presheaf category [set_karoubi_envelope']
@@ -286,7 +286,7 @@ Section SetKaroubi.
 
 End SetKaroubi.
 
-(** * 1.6. The bundling of the above into a term of set_karoubi_envelope *)
+(** ** 1.6. The bundling of the above into a term of set_karoubi_envelope *)
 
 Definition set_karoubi_data
   (C : category)
