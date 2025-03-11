@@ -8,7 +8,9 @@
   Contents
   1. Retractions [retraction]
   2. Idempotents and split idempotents [idempotent] [split_idempotent]
-  2.2. Split idempotent implies idempotent [split_idempotent_is_idempotent]
+  2.1. Split idempotent implies idempotent [split_idempotent_is_idempotent]
+  2.2. In a univalent category, being split idempotent is a mere proposition
+    [isaprop_is_split_idempotent]
   3. Functors
   3.1. Retractions are preserved by functors [functor_preserves_retraction]
   3.2. Idempotents are preserved by functors [functor_preserves_idempotent]
@@ -17,8 +19,7 @@
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.OppositeCategory.Core.
 
 Local Open Scope cat.
@@ -191,7 +192,7 @@ Section Idempotents.
     : split_idempotent_morphism e = split_idempotent_retraction e · retraction_section (split_idempotent_retraction e)
     := pr222 e.
 
-(** ** 2.2. Split idempotent implies idempotent *)
+(** ** 2.1. Split idempotent implies idempotent *)
   Lemma split_idempotent_is_idempotent
     {c : C}
     (e : split_idempotent c)
@@ -206,6 +207,74 @@ Section Idempotents.
   Qed.
 
 End Idempotents.
+
+(** ** 2.2. In a univalent category, being split idempotent is a mere proposition *)
+
+Definition is_split_idempotent_eq
+  {C : category}
+  {X : C}
+  {f : C⟦X, X⟧}
+  (g g' : is_split_idempotent f)
+  (H1 : pr1 g = pr1 g')
+  (H2 : transportf (λ Y, C⟦Y, X⟧) H1 (pr112 g) = pr112 g')
+  (H3 : transportf (λ Y, C⟦X, Y⟧) H1 (pr1 (pr212 g)) = pr1 (pr212 g'))
+  : g = g'.
+Proof.
+  repeat use total2_paths_f.
+  - exact H1.
+  - refine (_ @ H2).
+    clear H2 H3.
+    now induction H1.
+  - refine (_ @ H3).
+    refine (pr1_transportf (B := λ _, C⟦X, _⟧) _ _ @ _).
+    refine (eqtohomot (transportf_const _ _) _ @ _).
+    clear H3 H2.
+    now induction H1.
+  - apply homset_property.
+  - apply homset_property.
+Qed.
+
+Lemma isaprop_is_split_idempotent
+  {C : category}
+  {x : C}
+  (f : C⟦x, x⟧)
+  (C_is_univ : is_univalent C)
+  : isaprop (is_split_idempotent f).
+Proof.
+  apply invproofirrelevance.
+  intros X X'.
+  induction X as [X HX], HX as [r HX].
+  induction X' as [X' HX'], HX' as [r' HX'].
+  use is_split_idempotent_eq.
+  - apply (isotoid _ C_is_univ).
+    use make_z_iso.
+    + exact (retraction_section r · r').
+    + exact (retraction_section r' · r).
+    + abstract (
+        use make_is_inverse_in_precat;
+        refine (assoc _ _ _ @ _);
+        refine (maponpaths (λ x, x · _) (assoc' _ _ _) @ _);
+        [ refine (maponpaths (λ x, _ · x · _) (!HX' @ HX) @ _)
+        | refine (maponpaths (λ x, _ · x · _) (!HX @ HX') @ _) ];
+        refine (maponpaths (λ x, x · _) (assoc _ _ _) @ _);
+        refine (assoc' _ _ _ @ _);
+        refine (maponpaths _ (retraction_is_retraction _) @ _);
+        refine (id_right _ @ _);
+        apply retraction_is_retraction
+      ).
+  - refine (transportf_isotoid _ _ _ _ _ _ _ @ _).
+    refine (assoc' _ _ _ @ _).
+    refine (maponpaths (λ x, _ · x) (!HX @ HX') @ _).
+    refine (assoc _ _ _ @ _).
+    refine (maponpaths (λ x, x · _) (retraction_is_retraction _) @ _).
+    apply id_left.
+  - refine (transportf_isotoid' _ _ _ _ _ _ _ @ _).
+    refine (assoc _ _ _ @ _).
+    refine (maponpaths (λ x, x · _) (!HX @ HX') @ _).
+    refine (assoc' _ _ _ @ _).
+    refine (maponpaths _ (retraction_is_retraction _) @ _).
+    apply id_right.
+Qed.
 
 (** * 3. Functors *)
 Section Functors.
