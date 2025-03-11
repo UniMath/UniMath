@@ -293,6 +293,7 @@ Categories/MonoidToCategory.v
 Categories/KaroubiEnvelope/Core.v
 Categories/KaroubiEnvelope/SetKaroubi.v
 Categories/KaroubiEnvelope/UnivalentKaroubi.v
+Categories/KaroubiEnvelope/RezkCompletion.v
 
 Limits/Examples/UnitCategoryLimits.v
 

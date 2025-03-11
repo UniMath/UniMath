@@ -485,6 +485,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Categories/KaroubiEnvelope/Core.v](CategoryTheory/Categories/KaroubiEnvelope/Core.v)
    - [Categories/KaroubiEnvelope/SetKaroubi.v](CategoryTheory/Categories/KaroubiEnvelope/SetKaroubi.v)
    - [Categories/KaroubiEnvelope/UnivalentKaroubi.v](CategoryTheory/Categories/KaroubiEnvelope/UnivalentKaroubi.v)
+   - [Categories/KaroubiEnvelope/RezkCompletion.v](CategoryTheory/Categories/KaroubiEnvelope/RezkCompletion.v)
    - [Limits/Examples/UnitCategoryLimits.v](CategoryTheory/Limits/Examples/UnitCategoryLimits.v)
    - [Categories/Type/Colimits.v](CategoryTheory/Categories/Type/Colimits.v)
    - [Categories/Type/Limits.v](CategoryTheory/Categories/Type/Limits.v)
