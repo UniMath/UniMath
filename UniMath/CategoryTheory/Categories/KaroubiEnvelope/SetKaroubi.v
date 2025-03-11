@@ -43,7 +43,7 @@ Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Presheaf.
-Require Import UniMath.CategoryTheory.Retracts.
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
 Require Import UniMath.CategoryTheory.yoneda.
 
 Require Import UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.

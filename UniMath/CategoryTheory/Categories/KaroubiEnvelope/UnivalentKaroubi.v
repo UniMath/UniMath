@@ -14,6 +14,7 @@
   1.4. Every object of the karoubi envelope is a retract of an element of C
     [univalent_karoubi_objects_are_retracts]
   1.5. The bundling of the above into a term of univalent_karoubi_envelope [univalent_karoubi]
+  1.6. Every idempotent in the karoubi envelope splits [idempotents_in_karoubi_envelope_split]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -27,9 +28,12 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Presheaf.
-Require Import UniMath.CategoryTheory.Retracts.
 Require Import UniMath.CategoryTheory.yoneda.
 
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Set.
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.FunctorCategory.
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Fullsub.
 Require Import UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.
 
 Local Open Scope cat.
@@ -258,4 +262,21 @@ Proof.
       * exact (embedding_into_karoubi_is_fully_faithful C).
       * exact (univalent_karoubi_objects_are_retracts C).
   - apply (is_univalent_karoubi_cat C).
+Defined.
+
+(** ** 1.6. Another proof of the splitting *)
+Proposition idempotents_in_karoubi_envelope_split (X : category)
+    : idempotents_split (univalent_karoubi_cat X).
+Proof.
+  use idempotents_split_in_full_subcat.
+  - apply idempotents_split_in_functor_cat.
+    + apply is_univalent_HSET.
+    + apply idempotents_split_in_set.
+  - intros F G r.
+    use (factor_through_squash _ _ (pr2 F)).
+    { apply isapropishinh. }
+    intros [x r'].
+    apply hinhpr.
+    exists x.
+    exact (compose_retraction r r').
 Defined.

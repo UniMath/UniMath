@@ -26,7 +26,7 @@ Require Import UniMath.CategoryTheory.LeftKanExtension.
 Require Import UniMath.CategoryTheory.Limits.Coequalizers.
 Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
-Require Import UniMath.CategoryTheory.Retracts.
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
 Require Import UniMath.CategoryTheory.whiskering.
 
 Require Import UniMath.AlgebraicTheories.FundamentalTheorem.SurjectivePrecomposition.
