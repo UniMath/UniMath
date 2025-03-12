@@ -347,6 +347,7 @@ LeftKanExtension.v
 Categories/CartesianCubicalSets.v
 
 OppositeCategory/OppositeAdjunction.v
+OppositeCategory/OppositeEquivalence.v
 OppositeCategory/OppositeOfFunctorCategory.v
 
 Chains/Chains.v
