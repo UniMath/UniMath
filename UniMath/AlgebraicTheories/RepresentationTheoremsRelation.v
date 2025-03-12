@@ -110,7 +110,7 @@ Section Diagram.
     : D4⟦E, X⟧
     := EqualizerArrow E.
 
-  Definition left_hand_iso_inv
+  Local Definition left_hand_iso_inv
     : D4⟦X, E⟧.
   Proof.
     use (EqualizerIn E X g).
@@ -122,7 +122,7 @@ Section Diagram.
     ).
   Defined.
 
-  Lemma left_hand_iso_is_iso
+  Local Lemma left_hand_iso_is_iso
     : is_inverse_in_precat left_hand_iso_mor left_hand_iso_inv.
   Proof.
     split.
@@ -138,14 +138,14 @@ Section Diagram.
       refine (β_lambda_theory_has_β L _ _).
   Qed.
 
-  Definition left_hand_iso
+  Local Definition left_hand_iso
     : z_iso E X
     := make_z_iso
       left_hand_iso_mor
       left_hand_iso_inv
       left_hand_iso_is_iso.
 
-  Definition right_hand_iso
+  Local Definition right_hand_iso
     : z_iso X ((F5 ∙ F5' ∙ adj_equiv_inv F4 ∙ adj_equiv_inv F4') (theory_presheaf L)).
   Proof.
     use make_z_iso.
