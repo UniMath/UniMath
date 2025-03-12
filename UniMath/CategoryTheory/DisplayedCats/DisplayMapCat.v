@@ -81,6 +81,20 @@ Defined.
 
 Definition display_map_cat_data {C : category} (D : display_map_class C) : disp_cat_data _ := (disp_map_ob_mor D ,, disp_map_id_comp).
 
+Definition eq_display_map_cat_ob
+  {C : category} {D : display_map_class C}
+  {x : C}
+  {dx₁ dx₂ : display_map_cat_data D x}
+  {p₁ : pr1 dx₁ = pr1 dx₂}
+  (p₂ : transportf (λ y, y --> x) p₁ (pr12 dx₁) = pr12 dx₂)
+  : dx₁ = dx₂.
+Proof.
+  use total2_paths_f; try (use subtypePath).
+  - exact p₁.
+  - exact (isPredicate_display_map_class _ _ _).
+  - rewrite pr1_transportf. exact p₂.
+Qed.
+
 Proposition transportf_display_map
   {C : category} {D : display_map_class C}
   {x y : C} {dx : display_map_cat_data D x} {dy : display_map_cat_data D y}
@@ -145,8 +159,8 @@ Proof.
   intros x₁ x₂ px12 dx₁ dx₂ d_iso; cbn.
   unfold iscontr, hfiber.
   use tpair; try (use tpair); cbn.
-  - use total2_paths_f; cbn.
-    + rewrite pr1_transportf, transportf_const; cbn.
+  - symmetry. use eq_display_map_cat_ob.
+    + symmetry. rewrite pr1_transportf, transportf_const; cbn.
       apply (isotoid _ C_univ).
       exists (pr11 d_iso), (pr112 d_iso). split.
       * pose (Hfg := pr22 (is_z_iso_disp_from_z_iso d_iso)). apply base_paths in Hfg.
@@ -157,7 +171,7 @@ Proof.
         unfold mor_disp in Hgf. simpl in Hgf.
         rewrite pr1_transportb, transportb_const in Hgf.  simpl in Hgf.
         exact Hgf.
-    + admit.
+    + cbn. admit.
   - admit.
 Admitted.
 
@@ -396,19 +410,19 @@ Lemma isPullback_is_cartesian_display_map
 Proof.
   intros Hpb x₃ g dx₃ dh. unfold isPullback in Hpb. specialize Hpb with (pr1 dx₃) (pr1 dh) (pr12 dx₃ · g).
   pose (pb := Hpb (pr2 dh @ assoc _ _ _)). destruct pb as [[hk [H1 H2]] Hunique].
-  repeat (use tpair); simpl in *.
+  repeat (use tpair).
   - exact hk.
   - exact H2.
   - use eq_display_map_cat_mor; cbn. exact H1.
   - intros [[hk' H2'] H1'].
     repeat (use subtypePath).
-    + admit.
+    + exact (λ _, homsets_disp _ _ _ _ _).
     + exact (λ _, homset_property _ _ _ _ _).
     + simpl. apply base_paths in H1'. simpl in *.
       specialize Hunique with (hk' ,, (H1' ,, H2')).
       apply base_paths in Hunique. simpl in Hunique.
       exact Hunique.
-Admitted.
+Qed.
 
 Lemma is_cartesian_display_map_functor
   {C₁ C₂ : category}
