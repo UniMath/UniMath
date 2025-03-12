@@ -106,7 +106,7 @@ Section Diagram.
   Let g := #(yoneda _) (set_karoubi_ob_idempotent _ (F1 U)).
   Let E := Equalizers_PreShv X X f g.
 
-  Definition left_hand_iso_mor
+  Local Definition left_hand_iso_mor
     : D4⟦E, X⟧
     := EqualizerArrow E.
 
