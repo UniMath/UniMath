@@ -251,6 +251,61 @@ Definition adj_equiv_inv
   : adj_equiv B A
   := adj_equivalence_inv F ,, adj_equivalence_of_cats_inv F.
 
+Section Transpositions.
+
+  Context {C D : category}.
+  Context {F : adj_equiv C D}.
+
+  Definition adj_equiv_inv_transpose_left
+    {X : D}
+    {Y : C}
+    (f : z_iso X (F Y))
+    : z_iso (adj_equiv_inv F X) Y.
+  Proof.
+    refine (z_iso_comp _ (z_iso_inv (unit_pointwise_z_iso_from_adj_equivalence F Y))).
+    apply weq_ff_functor_on_weq_isobandf.
+    - apply right_adj_equiv_is_ff.
+    - exact f.
+  Defined.
+
+  Definition adj_equiv_inv_transpose_right
+    {X : C}
+    {Y : D}
+    (f : z_iso (F X) Y)
+    : z_iso X (adj_equiv_inv F Y).
+  Proof.
+    refine (z_iso_comp (unit_pointwise_z_iso_from_adj_equivalence F X) _).
+    apply weq_ff_functor_on_weq_isobandf.
+    - apply right_adj_equiv_is_ff.
+    - exact f.
+  Defined.
+
+  Definition adj_equiv_transpose_left
+    {X : C}
+    {Y : D}
+    (f : z_iso X (adj_equiv_inv F Y))
+    : z_iso (F X) Y.
+  Proof.
+    refine (z_iso_comp _ (counit_pointwise_z_iso_from_adj_equivalence F Y)).
+    apply weq_ff_functor_on_weq_isobandf.
+    - exact (right_adj_equiv_is_ff _ _ _ (adj_equiv_inv F)).
+    - exact f.
+  Defined.
+
+  Definition adj_equiv_transpose_right
+    {X : D}
+    {Y : C}
+    (f : z_iso (adj_equiv_inv F X) Y)
+    : z_iso X (F Y).
+  Proof.
+    refine (z_iso_comp (z_iso_inv (counit_pointwise_z_iso_from_adj_equivalence F X)) _).
+    apply weq_ff_functor_on_weq_isobandf.
+    - exact (right_adj_equiv_is_ff _ _ _ (adj_equiv_inv F)).
+    - exact f.
+  Defined.
+
+End Transpositions.
+
 (** Closure under natural isomorphisms *)
 Definition nat_z_iso_equivalence_of_cats
            {C₁ C₂ : category}
