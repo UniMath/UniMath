@@ -41,8 +41,8 @@ PresheafEquivalence.v
 Combinators.v
 CategoryOfRetracts.v
 OriginalRepresentationTheorem.v
-
 RepresentationTheorem.v
+RepresentationTheoremsRelation.v
 
 FundamentalTheorem/SurjectivePrecomposition.v
 FundamentalTheorem/CommonUtilities/MonoidActions.v

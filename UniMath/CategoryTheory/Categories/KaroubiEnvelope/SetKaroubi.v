@@ -24,7 +24,7 @@
     [set_karoubi_is_retract]
   1.6. The bundling of the above into a term of set_karoubi_envelope [set_karoubi]
   2. If the karoubi envelope is univalent, C is univalent [set_karoubi_univalence]
-  3. The alternative definition, using the presheaf category [set_karoubi_envelope']
+  3. The alternative definition, using the presheaf category [set_karoubi']
   3.1. The equivalence between the two definitions [set_karoubi_equivalence]
   4. The formations of the opposite category and the Karoubi envelope commute [opp_set_karoubi]
   5. The Karoubi envelope construction gives a monad on the category of setcategories

@@ -294,6 +294,7 @@ Categories/MonoidToCategory.v
 Categories/KaroubiEnvelope/Core.v
 Categories/KaroubiEnvelope/SetKaroubi.v
 Categories/KaroubiEnvelope/UnivalentKaroubi.v
+Categories/KaroubiEnvelope/RezkCompletion.v
 
 Limits/Examples/UnitCategoryLimits.v
 
@@ -347,6 +348,7 @@ LeftKanExtension.v
 Categories/CartesianCubicalSets.v
 
 OppositeCategory/OppositeAdjunction.v
+OppositeCategory/OppositeEquivalence.v
 OppositeCategory/OppositeOfFunctorCategory.v
 
 Chains/Chains.v
