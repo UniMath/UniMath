@@ -283,6 +283,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Limits/Zero.v](CategoryTheory/Limits/Zero.v)
    - [Limits/BinCoproducts.v](CategoryTheory/Limits/BinCoproducts.v)
    - [Limits/BinProducts.v](CategoryTheory/Limits/BinProducts.v)
+   - [Limits/BinBiproducts.v](CategoryTheory/Limits/BinBiproducts.v)
    - [Limits/Graphs/BinCoproducts.v](CategoryTheory/Limits/Graphs/BinCoproducts.v)
    - [Limits/Graphs/Coproducts.v](CategoryTheory/Limits/Graphs/Coproducts.v)
    - [Limits/Graphs/BinProducts.v](CategoryTheory/Limits/Graphs/BinProducts.v)
