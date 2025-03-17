@@ -438,6 +438,47 @@ Section IsBinBiproduct'.
 
 End IsBinBiproduct'.
 
+(*Proving that the structure given in 2.18 of Heunen and Vicary
+indeed gives a biproduct *)
+
+Lemma axiom3_converse
+  (C : category)
+  (A B P : C)
+  (Z : Zero C)
+  (op : superpos_oper C)
+  (p1 : P --> A)
+  (p2 : P --> B)
+  (i1 : A --> P)
+  (i2 : B --> P)
+  (H1 : i1 · p1 = (identity A))
+  (H2 : i2 · p2 = (identity B))
+  (Z1 : i1 · p2 = (u^{op}_{A, B}))
+  (Z2 : i2 · p1 = (u^{op}_{B, A}))
+  (A3 : (identity P) = (p1 · i1) +^{op} (p2 · i2))
+  : bin_biproduct A B Z.
+Proof.
+
+  set (bipr_data := (make_bin_biproduct_data P p1 p2 i1 i2)).
+  assert (ZZ1 : i1 · p2 = ZeroArrow Z A B).
+  {
+    rewrite Z1.
+    symmetry. 
+    exact (zero_super_unit_eq Z op A B).
+  }
+  assert (ZZ2 : i2 · p1 = ZeroArrow Z B A).
+  {
+    rewrite Z2. 
+    symmetry. 
+    exact (zero_super_unit_eq Z op B A).
+  }
+  change (i1) with (bin_biproduct_i1 bipr_data) in H1,Z1,A3.
+  change (i2) with (bin_biproduct_i2 bipr_data) in H2,Z2,A3.
+  change (p1) with (bin_biproduct_pr1 bipr_data) in H1,Z2,A3.
+  change (p2) with (bin_biproduct_pr2 bipr_data) in H2,Z1,A3.
+  set (is_bipr := (@make_is_bin_biproduct' C A B bipr_data Z op H1 H2 ZZ1 ZZ2 A3)).
+  exact (make_bin_biproduct bipr_data is_bipr).
+Qed.
+
 
 
 
