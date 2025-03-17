@@ -1,3 +1,18 @@
+(***************************************************************************
+
+ Monoidal Categories for Quantum Theory
+
+ In this file we introduce formalism from the book Categories for Quantum 
+ Theory: An Introduction, by Chris Heunen and James Vicary (2019). We 
+ define a superposition rule in a category, define linear functors, and 
+ explore interactions of superposition with biproducts, as seen in Heunen 
+ and Vicary from sections 2.2.2 and 2.2.3. 
+
+ Contents
+ 1. Superposition Rules
+ 2. Biproducts
+
+ ***************************************************************************)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -208,6 +223,12 @@ Definition is_linear_func
 =  (#F(f)) +^{opN} (#F(g)).
 
 
+(**
+
+2. Biproducts
+
+*)
+
 (* Axiom 3 from Definition 2.18 in Heunen and Vicary *)
 
 Lemma id_biproduct_superpos
@@ -304,7 +325,7 @@ Section IsBinBiproduct'.
       reflexivity.
     Qed.
 
-    Lemma make_is_bin_biproduct'_product_arrow_commutes'
+    Lemma make_is_bin_biproduct'_product_arrow_unique
       (h': C⟦Q, P⟧)
       (H : h' · bin_biproduct_pr1 P = f × h' · bin_biproduct_pr2 P = g)
       : h' = make_is_bin_biproduct'_product_arrow.
@@ -319,18 +340,6 @@ Section IsBinBiproduct'.
       reflexivity.
     Qed.
 
-(* isn't this lemma below the same as the above?
-
-    Lemma make_is_bin_biproduct'_product_arrow_unique
-      (h': C⟦Q, P⟧)
-      (H : h' · bin_biproduct_pr1 P = f × h' · bin_biproduct_pr2 P = g)
-      : h' = make_is_bin_biproduct'_product_arrow.
-    Proof.
-      
-    Qed.
-
-*)
-
     Definition make_is_bin_biproduct'_product_property
       : ∃! (h: C⟦Q, P⟧), h · bin_biproduct_pr1 P = f × h · bin_biproduct_pr2 P = g.
     Proof.
@@ -344,7 +353,7 @@ Section IsBinBiproduct'.
           apply isapropdirprod;
           apply homset_property
         ).
-      - exact make_is_bin_biproduct'_product_arrow_commutes'.
+      - exact make_is_bin_biproduct'_product_arrow_unique.
     Defined.
 
   End ProductUniversalProperty.
@@ -392,7 +401,7 @@ Section IsBinBiproduct'.
       reflexivity.
     Qed.
 
-    Lemma make_is_bin_biproduct'_coproduct_arrow_commutes'
+    Lemma make_is_bin_biproduct'_coproduct_arrow_unique
       (h': C⟦P, Q⟧)
       (H : bin_biproduct_i1 P · h' = f × bin_biproduct_i2 P · h' = g)
       : h' = make_is_bin_biproduct'_coproduct_arrow.
@@ -419,7 +428,7 @@ Section IsBinBiproduct'.
           apply isapropdirprod;
           apply homset_property
         ).
-      - exact make_is_bin_biproduct'_coproduct_arrow_commutes'.
+      - exact make_is_bin_biproduct'_coproduct_arrow_unique.
     Defined.
 
   End CoproductUniversalProperty.
@@ -478,7 +487,6 @@ Proof.
   set (is_bipr := (@make_is_bin_biproduct' C A B bipr_data Z op H1 H2 ZZ1 ZZ2 A3)).
   exact (make_bin_biproduct bipr_data is_bipr).
 Qed.
-
 
 
 
