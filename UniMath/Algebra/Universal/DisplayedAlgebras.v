@@ -7,40 +7,40 @@ Require Import UniMath.Algebra.Universal.HVectors.
 
 Section Definitions.
 
-Context {σ:signature}.
+  Context {σ:signature}.
 
-Definition disp_alg (A:algebra σ) :=
-  ∑ fib : (∏ (s: sorts σ) (a : support A s), UU),
-    ∏ (nm: names σ) (base_xs : hvec (vec_map A (arity nm))),
-      hvec (h1map_vec (v:= (arity nm)) fib base_xs)
-      → (fib (sort nm) (ops A nm (base_xs))).
+  Definition disp_alg (A:algebra σ) :=
+    ∑ fib : (∏ (s: sorts σ) (a : support A s), UU),
+      ∏ (nm: names σ) (base_xs : hvec (vec_map A (arity nm))),
+        hvec (h1map_vec (v:= (arity nm)) fib base_xs)
+        → (fib (sort nm) (ops A nm (base_xs))).
 
-Definition make_disp_alg {A:algebra σ}
-  (fib : (∏ (s: sorts σ) (a : support A s), UU))
-  (overops : ∏ (nm: names σ) (base_xs : hvec (vec_map A (arity nm))),
-    hvec (h1map_vec (v:= (arity nm)) fib base_xs) → (fib (sort nm) (ops A nm (base_xs))))
-  : disp_alg A
-  := fib,, overops.
+  Definition make_disp_alg {A:algebra σ}
+    (fib : (∏ (s: sorts σ) (a : support A s), UU))
+    (overops : ∏ (nm: names σ) (base_xs : hvec (vec_map A (arity nm))),
+      hvec (h1map_vec (v:= (arity nm)) fib base_xs) → (fib (sort nm) (ops A nm (base_xs))))
+    : disp_alg A
+    := fib,, overops.
 
-(*Accessors*)
-  Definition fib {A:algebra σ} (D: disp_alg A)
-  : (∏ (s: sorts σ) (a : support A s), UU) := pr1 D.
-  Definition overops {A:algebra σ} (D: disp_alg A)
-    (nm: names σ) (base_xs : hvec (vec_map A (arity nm)))
-  : hvec (h1map_vec (v:= (arity nm)) (fib D) base_xs) → ((fib D) (sort nm) (ops A nm (base_xs))) := pr2 D nm base_xs.
+  (*Accessors*)
+    Definition fib {A:algebra σ} (D: disp_alg A)
+    : (∏ (s: sorts σ) (a : support A s), UU) := pr1 D.
+    Definition overops {A:algebra σ} (D: disp_alg A)
+      (nm: names σ) (base_xs : hvec (vec_map A (arity nm)))
+    : hvec (h1map_vec (v:= (arity nm)) (fib D) base_xs) → ((fib D) (sort nm) (ops A nm (base_xs))) := pr2 D nm base_xs.
 
-Definition total_alg {A: algebra σ} (D: disp_alg A) : algebra σ.
-Proof.
-  use make_algebra.
-  - intro s.
-    exact (∑(a: A s), fib D s a).
-  - intros nm xs.
-    use tpair.
-    + exact (ops A nm (h1map (λ s, pr1) xs)).
-    + use overops. (*TODO: can we define this without transport and/or a new "map" variant ?*)
-      use (transportb (λ arg, hvec (h1lower arg)) (h1map_compose (λ s, pr1) (fib D) xs)).
-      use (h12map (λ s, pr2) xs).
-Defined.
+  Definition total_alg {A: algebra σ} (D: disp_alg A) : algebra σ.
+  Proof.
+    use make_algebra.
+    - intro s.
+      exact (∑(a: A s), fib D s a).
+    - intros nm xs.
+      use tpair.
+      + exact (ops A nm (h1map (λ s, pr1) xs)).
+      + use overops. (*TODO: can we define this without transport and/or a new "map" variant ?*)
+        use (transportb (λ arg, hvec (h1lower arg)) (h1map_compose (λ s, pr1) (fib D) xs)).
+        use (h12map (λ s, pr2) xs).
+  Defined.
 
 End Definitions.
 
@@ -51,12 +51,10 @@ End Definitions.
     {base_xs base_xs' : hvec (vec_map B (arity nm))}
     (fiber : hvec (h1lower (h1map (pr1 D) base_xs)))
     (e : base_xs = base_xs')
-:
-    transportf
-    (λ x : hvec (vec_map B (arity nm)), fib D (sort nm) (ops B nm x))
-    e (overops D nm base_xs fiber)
-    =
-    overops D nm base_xs' (transportf (λ bs, hvec (h1lower (h1map (fib D) bs))) e fiber).
+    : transportf
+      (λ x : hvec (vec_map B (arity nm)), fib D (sort nm) (ops B nm x))
+      e (overops D nm base_xs fiber)
+    = overops D nm base_xs' (transportf (λ bs, hvec (h1lower (h1map (fib D) bs))) e fiber).
   Proof.
     induction e.
     apply idpath.
@@ -133,20 +131,20 @@ End DisplayedAlgebrasFromMorphisms.
 
 Section Product.
 
-Context {σ: signature}.
+  Context {σ: signature}.
 
-Definition ProductDisplayedAlgebra (A B: algebra σ): disp_alg A
-  := make_disp_alg (λ s a, B s)(λ nm _ X, ops B nm (h2lower X)).
+  Definition ProductDisplayedAlgebra (A B: algebra σ): disp_alg A
+    := make_disp_alg (λ s a, B s)(λ nm _ X, ops B nm (h2lower X)).
 
-Definition ProductAlgebra (A B: algebra σ): algebra σ
-  := make_algebra
-      (λ s, A s × B s)
-      (
-        λ nm X,
-        let X1 := (h1map (Q:= (λ s, A s)) (λ s x, pr1 x) X) in
-        let X2 := (h1map (Q:= (λ s, B s)) (λ s x, pr2 x) X) in
-        (ops A nm X1,, ops B nm X2)
-      ).
+  Definition ProductAlgebra (A B: algebra σ): algebra σ
+    := make_algebra
+        (λ s, A s × B s)
+        (
+          λ nm X,
+          let X1 := (h1map (Q:= (λ s, A s)) (λ s x, pr1 x) X) in
+          let X2 := (h1map (Q:= (λ s, B s)) (λ s x, pr2 x) X) in
+          (ops A nm X1,, ops B nm X2)
+        ).
 
 End Product.
 
@@ -265,7 +263,7 @@ Section weqHomDispAlg.
       change (λ x0 : UU, x0) with (idfun UU).
       use weqpath_transportb'. }
     reflexivity.
-  Defined.
+  Qed.
 
   Lemma fibers_dispalg_forgetful_hom (D : disp_alg B)
   : fibers_dispalg (forgetful_hom D) = D.
@@ -278,7 +276,7 @@ Section weqHomDispAlg.
           (A:= ∏ s : sorts σ, B s → UU)
           (B:= names σ)
           (C:= λ fib0 nm, ∏ (base_xs : hvec (vec_map B (arity nm))),
-    hvec (h1map_vec fib0 base_xs) → fib0 (sort nm) (ops B nm base_xs))
+            hvec (h1map_vec fib0 base_xs) → fib0 (sort nm) (ops B nm base_xs))
           _ _). }
       use funextsec.
       intro nm.
@@ -319,7 +317,7 @@ Section weqHomDispAlg.
       eapply pathscomp0.
       { apply h2map_compose. }
       apply h2map_idfun.
-    Defined.
+  Qed.
 
   Theorem morphism_dispalg_weq :
     (∑ (A:algebra σ), hom A B) ≃ (disp_alg B).

@@ -250,7 +250,7 @@ Proof.
       use tpair.
       * exact (a,, Ba).
       * apply idpath.
-Qed.
+Defined.
 
 Theorem embedding_subuniverse_weq:
   (∑ (B:algebra σ), embedding B A) ≃

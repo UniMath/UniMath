@@ -51,6 +51,8 @@ Definition eqrelofcong {σ : signature} {A : algebra σ} (R : congruence A) (s: 
   : eqrel (support A s)
   := (pr1 R) s ,, (pr12 R) s.
 
+Coercion eqrelofcong : congruence >-> Funclass.
+
 Definition quotalgebra {σ : signature} (A : algebra σ) (R : congruence A)
   : algebra σ.
 Proof.

@@ -118,4 +118,4 @@ Proof.
     use (maponpaths (λ arg, setquot (hhd rels) × arg)).
     use weqtopaths.
     use IH.
-Qed.
+Defined.

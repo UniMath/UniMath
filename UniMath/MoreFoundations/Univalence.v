@@ -213,7 +213,7 @@ Lemma toforallpaths_induction' (X : UU) (Y: X -> UU) (f g : ∏ (x:X), Y x)
   (H : ∏ e : f = g, P (toforallpaths _ _ _ e)) : ∏ i : (∏ x, f x = g x), P i.
 Proof.
   intros i. rewrite <- (homotweqinvweq (weqtoforallpaths _ f g)). apply H.
-Defined.
+Qed.
 
 Definition transportf_funextsec
   {X: UU} {Y : X -> UU} (P : ∏ (x:X), Y x -> UU)
@@ -238,7 +238,7 @@ Proof.
   - exact (transportf P' e f).
   - use transportf_paths. exact XR.
   - induction e. apply idpath.
-Defined.
+Qed.
 
 Definition transportb_funextfun {X Y : UU} (P : Y -> UU) (F F' : X -> Y) (H : ∏ (x : X), F x = F' x)
            (x : X) (f : P (F' x)) :
