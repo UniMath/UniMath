@@ -1,3 +1,12 @@
+(***************************************************************************
+
+ Implementation of Binary Biproducts
+
+ In this file we introduce the definition of a biproduct, along with accessors
+ for the biproduct axioms, and coercions into binary products and coproducts.
+
+ ***************************************************************************)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
