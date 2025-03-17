@@ -394,3 +394,21 @@ Proof.
   intros.
   unfold pt', basepoint, X', BasePointComponent, pointedType, pr2; cbn beta.
 Abort.
+
+
+(*Lemmas on [prtoimage]*)
+
+Lemma hfiberprtoimage {X Y : UU} (f : X -> Y) (y : image f)
+  : hfiber (prtoimage f) y = hfiber f (pr1image f y).
+Proof.
+  use weqtopaths.
+  use (samehfibers (prtoimage f) (pr1image f) (isinclpr1image f) y).
+Defined. 
+
+Lemma isinclprtoimage {X Y : UU} (f : X -> Y) (is: isincl f) : isincl (prtoimage f).
+Proof.
+  intro y.
+  fold isaprop.
+  rewrite hfiberprtoimage.
+  use is.
+Qed.
