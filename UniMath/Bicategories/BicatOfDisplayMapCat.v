@@ -6,6 +6,8 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.DisplayMapCat.
 
@@ -23,6 +25,7 @@ Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FullCompCat.
 
 Local Open Scope bicategory_scope.
+Local Open Scope mor_disp_scope.
 Local Open Scope cat.
 
 Definition prebicat_display_map_cat_data : prebicat_data.
@@ -124,7 +127,7 @@ Proof.
       * use make_cat_with_terminal_disp_cat.
         -- exact C.
         -- exact TC.
-        -- exact (univalent_display_map_cat (pr2 C) D).
+        -- exact (univalent_display_map_cat D).
       * exact (display_map_cleaving).
     + exact (cartesian_ι D).
   - exact (ι_ff D).
@@ -159,10 +162,9 @@ Proof.
     + exact α.
     + exact (display_map_nat_trans α).
   - abstract (
-    intros x dx; simpl in x,dx; cbn;
-    rewrite id_left, id_right;
-    exact (idpath _)
-    ).
+        intros x dx; simpl in x,dx; cbn;
+        rewrite id_left, id_right;
+        exact (idpath _)).
 Defined.
 
 Definition display_map_to_comp_cat_id_1cell
@@ -170,8 +172,16 @@ Definition display_map_to_comp_cat_id_1cell
       prebicat_cells bicat_full_comp_cat (identity (display_map_cat_to_full_comp_cat D))
         (display_map_functor_to_comp_cat_functor D D (identity D)).
 Proof.
-  intros [C [TC D]]. cbn.
-Admitted.
+  intros [C [TC D]]. use make_full_comp_cat_nat_trans. use make_comp_cat_nat_trans.
+  - use make_nat_trans_with_terminal_cleaving. use make_nat_trans_with_terminal_disp_cat.
+    + exact (nat_trans_id _).
+    + cbn. use (_ ,, _).
+      * intros x dx; simpl in *. exists (identity _). abstract (exact (id_left _ @ !id_right _)).
+      * abstract (intros x₁ x₂ f dx₁ dx₂ df;
+        use eq_display_map_cat_mor; rewrite (transportb_display_map _ (identity (pr1 dx₁) · pr1 df ,, _));
+        exact (id_right _ @ !id_left _)).
+  - abstract (intros x dx; exact (id_right _ @ !id_left _)).
+Qed.
 
 Definition display_map_to_comp_cat_comp_1cell
   : ∏ (D₁ D₂ D₃ : bicat_display_map_cat) (F : bicat_display_map_cat ⟦ D₁, D₂ ⟧) (G : bicat_display_map_cat ⟦ D₂, D₃ ⟧),
@@ -179,6 +189,22 @@ Definition display_map_to_comp_cat_comp_1cell
       (display_map_functor_to_comp_cat_functor D₁ D₂ F · display_map_functor_to_comp_cat_functor D₂ D₃ G)
       (display_map_functor_to_comp_cat_functor D₁ D₃ (F · G)).
 Proof.
+  intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [C₃ [TC₃ D₃]] [F pT_F] [G pT_G]. use make_full_comp_cat_nat_trans. use make_comp_cat_nat_trans.
+  - use make_nat_trans_with_terminal_cleaving. use make_nat_trans_with_terminal_disp_cat.
+    + exact (nat_trans_id _).
+    + cbn. unfold display_map_class_functor_composite, display_map_functor_data. simpl.
+      use (_ ,, _).
+      * intros x dx. exists (identity _). abstract (exact (id_left _ @ !id_right _)).
+      * simpl. intros x₁ x₂ f dx₁ dx₂ df. simpl.
+        symmetry. etrans.
+        all: use subtypePath; try exact (λ _, homset_property _ _ _ _ _).
+        -- apply (transportb_display_map_mor (is_nat_trans_id (functor_composite F G) _ _ _) _).
+        use subtypePath. { exact (λ _ , homset_property _ _ _ _ _). }
+        cbn. symmetry. etrans.
+        -- unfold mor_disp, disp_map_ob_mor. apply (@transportb_display_map C₃ _ (pr1 G (pr1 F x₁)) (G (F x₂)) _ _ _ _ (is_nat_trans_id (functor_composite_data (pr1 F) (pr1 G)) x₁ x₂ f) _).
+        -- exact (transportb_display_map _ (identity (G (F (pr1 dx₁))) · # G (# F (pr1 df)) ,, _)).
+        -- rewrite id_right. rewrite <- id_left with (f := #G (#F (pr1 df))). exact (idpath _).
+        -- symmetry. apply transportb_display_map.
 Admitted.
 
 Definition bicat_display_map_cat_to_bicat_full_comp_cat_data
