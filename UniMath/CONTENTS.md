@@ -1501,6 +1501,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Examples/ProjectionsTheory.v](AlgebraicTheories/Examples/ProjectionsTheory.v)
    - [Examples/TheoryAlgebra.v](AlgebraicTheories/Examples/TheoryAlgebra.v)
    - [Examples/ExtensionsTheory.v](AlgebraicTheories/Examples/ExtensionsTheory.v)
+   - [Examples/EmptyPresheaf.v](AlgebraicTheories/Examples/EmptyPresheaf.v)
    - [AlgebraicTheoryToLawvereTheory.v](AlgebraicTheories/AlgebraicTheoryToLawvereTheory.v)
    - [AlgebraicTheoryToMonoid.v](AlgebraicTheories/AlgebraicTheoryToMonoid.v)
    - [PresheafEquivalence.v](AlgebraicTheories/PresheafEquivalence.v)
