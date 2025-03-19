@@ -534,29 +534,42 @@ Proof.
   exact (pr22 dx₁).
 Qed.
 
-Lemma display_map_functor_composite_is_composite_display_map_functor
+Definition display_map_functor_composite_to_composite_display_map_functor_data
+  {C₁ C₂ C₃ : category} {D₁ : display_map_class C₁} {D₂ : display_map_class C₂} {D₃ : display_map_class C₃}
+  (F : display_map_class_functor D₁ D₂) (G : display_map_class_functor D₂ D₃)
+  : disp_nat_trans_data (nat_trans_id (functor_composite_data (pr1 F) (pr1 G)))
+      (disp_functor_composite_data (display_map_functor F) (display_map_functor G))
+      (display_map_functor_data (display_map_class_functor_composite F G)).
+Proof.
+  intros x dx; cbn.
+  exists (identity _).
+  abstract (exact (id_left _ @ !id_right _)).
+Defined.
+
+Definition display_map_functor_composite_to_composite_display_map_functor_axiom
+  {C₁ C₂ C₃ : category} {D₁ : display_map_class C₁} {D₂ : display_map_class C₂} {D₃ : display_map_class C₃}
+  (F : display_map_class_functor D₁ D₂) (G : display_map_class_functor D₂ D₃)
+  : disp_nat_trans_axioms (display_map_functor_composite_to_composite_display_map_functor_data F G).
+Proof.
+  intros x₁ x₂ f dx₁ dx₂ df.
+  use subtypePath. abstract (exact (λ _, homset_property _ _ _ _ _)).
+  symmetry. etrans.
+  apply transportb_display_map_mor.
+  simpl.
+  exact (id_left _ @ !id_right _).
+Qed.
+
+Definition display_map_functor_composite_to_composite_display_map_functor
   {C₁ C₂ C₃ : category} {D₁ : display_map_class C₁} {D₂ : display_map_class C₂} {D₃ : display_map_class C₃}
   {F : display_map_class_functor D₁ D₂} {G : display_map_class_functor D₂ D₃}
-  : (disp_functor_composite (display_map_functor F) (display_map_functor G)) =
-      (display_map_functor (display_map_class_functor_composite F G)).
+  : disp_nat_trans (nat_trans_id (functor_composite_data (pr1 F) (pr1 G)))
+      (disp_functor_composite_data (display_map_functor F) (display_map_functor G))
+      (display_map_functor_data (display_map_class_functor_composite F G)).
 Proof.
-  apply subtypePath.
-  - exact (λ _, isaprop_disp_functor_axioms _).
-  - use total2_paths_f; cbn.
-    + apply funextsec. intros x. apply funextsec. intros dx.
-      use eq_display_map_cat_ob.
-      * exact (idpath _).
-      * exact (idpath _).
-    + apply funextsec. intros x₁.
-      apply funextsec. intros x₂.
-      apply funextsec. intros dx₁.
-      apply funextsec. intros dx₂.
-      apply funextsec. intros f.
-      apply funextsec. intros df.
-      etrans.
-      * use subtypePath. abstract (exact (λ _, homset_property _ _ _ _ _)).
-        (* apply transportf_display_map_mor. *)
-Admitted.
+  use tpair.
+  - exact (display_map_functor_composite_to_composite_display_map_functor_data _ _).
+  - exact (display_map_functor_composite_to_composite_display_map_functor_axiom _ _).
+Defined.
 
 (** ** Natural Transformation *)
 (** Once more we rely on the definition for the codomain display category to define the transformation between two display map categories. *)

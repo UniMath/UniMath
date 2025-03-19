@@ -192,20 +192,9 @@ Proof.
   intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [C₃ [TC₃ D₃]] [F pT_F] [G pT_G]. use make_full_comp_cat_nat_trans. use make_comp_cat_nat_trans.
   - use make_nat_trans_with_terminal_cleaving. use make_nat_trans_with_terminal_disp_cat.
     + exact (nat_trans_id _).
-    + cbn. unfold display_map_class_functor_composite, display_map_functor_data. simpl.
-      use (_ ,, _).
-      * intros x dx. exists (identity _). abstract (exact (id_left _ @ !id_right _)).
-      * simpl. intros x₁ x₂ f dx₁ dx₂ df. simpl.
-        symmetry. etrans.
-        all: use subtypePath; try exact (λ _, homset_property _ _ _ _ _).
-        -- apply (transportb_display_map_mor (is_nat_trans_id (functor_composite F G) _ _ _) _).
-        use subtypePath. { exact (λ _ , homset_property _ _ _ _ _). }
-        cbn. symmetry. etrans.
-        -- unfold mor_disp, disp_map_ob_mor. apply (@transportb_display_map C₃ _ (pr1 G (pr1 F x₁)) (G (F x₂)) _ _ _ _ (is_nat_trans_id (functor_composite_data (pr1 F) (pr1 G)) x₁ x₂ f) _).
-        -- exact (transportb_display_map _ (identity (G (F (pr1 dx₁))) · # G (# F (pr1 df)) ,, _)).
-        -- rewrite id_right. rewrite <- id_left with (f := #G (#F (pr1 df))). exact (idpath _).
-        -- symmetry. apply transportb_display_map.
-Admitted.
+    + exact display_map_functor_composite_to_composite_display_map_functor.
+  - abstract (intros x dx; cbn; rewrite ? (pr121 G); exact (!assoc _ _ _ @ id_left _ @ id_left _ @ !id_right _)).
+Defined.
 
 Definition bicat_display_map_cat_to_bicat_full_comp_cat_data
   : psfunctor_data bicat_display_map_cat bicat_full_comp_cat.
