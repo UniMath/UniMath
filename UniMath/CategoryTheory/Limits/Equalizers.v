@@ -20,7 +20,7 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Monics.
-Require Import UniMath.CategoryTheory.Retracts.
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
 
 (** ** Definition *)
 Section def_equalizers.

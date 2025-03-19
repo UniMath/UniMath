@@ -4,12 +4,14 @@
 
   In 1980, Dana Scott showed that a every λ-theory L arises as the endomorphism theory of λ x, x in
   the category of retracts of L. This file constructs the endomorphism theory, describes its
-  operations more explicitly and constructs the isomorphism.
+  operations more explicitly and constructs the isomorphism. Since the category of λ-theories is
+  univalent, we can frame it as "the endomorphism theory construction has a right inverse".
 
   Contents
   1. The endomorphism theory [E]
   1.1. An explicit description of its operations [E_var] [E_subst] [E_abs] [E_app]
   2. The isomorphism [representation_theorem_iso]
+  3. The right inverse [endomorphism_theory_right_inverse]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -29,6 +31,7 @@ Require Import UniMath.AlgebraicTheories.Combinators.
 Require Import UniMath.AlgebraicTheories.Examples.EndomorphismTheory.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
 Require Import UniMath.AlgebraicTheories.LambdaTheoryCategory.
+Require Import UniMath.AlgebraicTheories.ReflexiveObjects.
 
 Require Import Ltac2.Ltac2.
 
@@ -40,29 +43,28 @@ Local Open Scope lambda_calculus.
 
 Section EndomorphismTheory.
 
-  Context (L : lambda_theory).
-  Context (Lβ : has_β L).
   Context {n : nat}.
+  Context (L : β_lambda_theory).
 
-  Definition E
-    : lambda_theory.
+  Let Lβ : has_β L := β_lambda_theory_has_β L.
+
+  Definition lambda_theory_to_reflexive_object
+    : reflexive_object.
   Proof.
-    refine '(endomorphism_lambda_theory _ _ _ _ _ _).
+    refine '(make_reflexive_object _ _ _ _ _ _ _ _).
     - exact (R (n := n) L Lβ).
-    - exact (R_terminal _ _ (c := abs (var (stnweq (inr tt))))).
-    - apply R_binproducts.
+    - exact (R_chosen_terminal L Lβ).
+    - exact (R_binproducts L Lβ).
     - exact (U L Lβ).
-    - apply R_exponentials.
-    - apply R_section.
-    - apply R_retraction.
+    - exact (R_exponentials L Lβ _).
+    - exact (R_section L Lβ _).
+    - exact (R_retraction L Lβ _).
+    - exact (R_retraction_is_retraction L Lβ _).
   Defined.
 
-  Definition Eβ
-    : has_β E.
-  Proof.
-    apply endomorphism_theory_has_β.
-    apply R_retraction_is_retraction.
-  Qed.
+  Definition E
+    : β_lambda_theory
+    := reflexive_object_to_lambda_theory lambda_theory_to_reflexive_object.
 
 (** ** 1.1. An explicit description of its operations *)
 
@@ -166,12 +168,13 @@ End EndomorphismTheory.
 
 Section Isomorphism.
 
-  Context (L : lambda_theory).
-  Context (Lβ : has_β L).
+  Context (L : β_lambda_theory).
+
+  Let Lβ : has_β L := β_lambda_theory_has_β L.
 
   Let E
-    : lambda_theory
-    := E L Lβ (n := 0).
+    : β_lambda_theory
+    := E L (n := 0).
 
   Definition representation_theorem_iso_mor
     {m : nat}
@@ -215,7 +218,7 @@ Section Isomorphism.
     refine '(inflate_compose _ _ _ @ _).
     refine '(maponpaths (λ x, x ∘ _) (subst_U_term _ _) @ _).
     refine '(maponpaths (λ x, _ ∘ x) (inflate_n_π _ _) @ _).
-    exact (U_compose_n_π _ Lβ _).
+    exact (U_compose_n_π _ _).
   Qed.
 
   Definition representation_theorem_iso_inv
@@ -235,7 +238,7 @@ Section Isomorphism.
     refine '(maponpaths (λ x, (abs (app _ x))) (subst_n_tuple _ _ _) @ _).
     refine '(_ @ R_mor_is_mor_right _ Lβ s).
     refine '(_ @ !maponpaths (λ x, _ ∘ x) (R_power_object_is_n_tuple_arrow _ _ _)).
-    refine '(_ @ !maponpaths (λ x, _ ∘ n_tuple_arrow x) (funextfun _ _ (λ i, U_compose_n_π _ Lβ _))).
+    refine '(_ @ !maponpaths (λ x, _ ∘ n_tuple_arrow x) (funextfun _ _ (λ i, U_compose_n_π _ _))).
     refine '(_ @ !maponpaths (λ x, abs (app _ (app x _))) (inflate_n_tuple_arrow _ _)).
     refine '(_ @ !maponpaths (λ x, abs (app _ x)) (app_n_tuple_arrow _ Lβ _ _)).
     do 2 (refine '(maponpaths (λ x, abs (app (R_mor_to_L _ s • x) _))
@@ -275,7 +278,7 @@ Section Isomorphism.
     (i : stn m)
     : representation_theorem_iso_mor (var (T := E) i) = var i.
   Proof.
-    refine '(maponpaths (λ x, app (lift_constant _ x) _) (E_var _ _ _) @ _).
+    refine '(maponpaths (λ x, app (lift_constant _ x) _) (E_var _ _) @ _).
     refine '(maponpaths (λ x, (app x _)) (subst_n_π _ _ _) @ _).
     apply n_π_tuple.
     exact Lβ.
@@ -288,7 +291,7 @@ Section Isomorphism.
     : representation_theorem_iso_mor (f • g)
     = (representation_theorem_iso_mor f) • (λ i, representation_theorem_iso_mor (g i)).
   Proof.
-    refine '(maponpaths (λ x, app (lift_constant _ x) _) (E_subst _ _ _ _) @ _).
+    refine '(maponpaths (λ x, app (lift_constant _ x) _) (E_subst _ _ _) @ _).
     refine '(maponpaths (λ x, (app x _)) (subst_compose _ _ _ _) @ _).
     refine '(maponpaths (λ x, (app (_ ∘ x) _)) (subst_n_tuple_arrow _ _ _) @ _).
     refine '(app_compose _ Lβ _ _ _ @ _).
@@ -309,7 +312,7 @@ Section Isomorphism.
     (f : E (S n))
     : representation_theorem_iso_mor (abs f) = abs (representation_theorem_iso_mor f).
   Proof.
-    refine '(maponpaths (λ x, app (lift_constant _ x) _) (E_abs _ _ _) @ _).
+    refine '(maponpaths (λ x, app (lift_constant _ x) _) (E_abs _ _) @ _).
     refine '(maponpaths (λ x, (app x _)) (subst_curry _ _ _) @ _).
     refine '(app_curry _ Lβ _ _ @ _).
     refine '(maponpaths (λ x, (abs (app x _))) (inflate_subst _ _ _) @ _).
@@ -327,7 +330,7 @@ Section Isomorphism.
     (f : E n)
     : representation_theorem_iso_mor (appx f) = appx (representation_theorem_iso_mor f).
   Proof.
-    refine '(maponpaths (λ x, app (lift_constant _ x) _) (E_app _ _ _) @ _).
+    refine '(maponpaths (λ x, app (lift_constant _ x) _) (E_app _ _) @ _).
     refine '(maponpaths (λ x, (app x _)) (subst_uncurry _ _ _) @ _).
     refine '(app_uncurry_pair _ Lβ _ _ _ @ _).
     refine '(_ @ !appx_to_app _).
@@ -343,8 +346,9 @@ Section Isomorphism.
   Qed.
 
   Definition representation_theorem_iso
-    : z_iso (C := lambda_theory_cat) E L.
+    : z_iso (C := β_lambda_theory_cat) E L.
   Proof.
+    apply make_β_lambda_theory_z_iso.
     refine '(make_lambda_theory_z_iso _ _ _ _ _).
     - refine '(make_algebraic_theory_z_iso _ _ _ _ _).
       + intro n.
@@ -362,3 +366,17 @@ Section Isomorphism.
   Defined.
 
 End Isomorphism.
+
+(** * 3. The right inverse *)
+
+Lemma endomorphism_theory_right_inverse
+  : funcomp
+    (lambda_theory_to_reflexive_object (n := 0))
+    reflexive_object_to_lambda_theory
+  = idfun β_lambda_theory.
+Proof.
+  apply funextsec.
+  intro L.
+  apply (isotoid _ is_univalent_β_lambda_theory_cat).
+  apply representation_theorem_iso.
+Defined.

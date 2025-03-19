@@ -106,6 +106,37 @@ Proof.
   apply H.
 Qed.
 
+Definition β_lambda_theory_morphism
+  (L L' : β_lambda_theory)
+  : UU
+  := β_lambda_theory_cat⟦L, L'⟧.
+
+Coercion β_lambda_theory_morphism_to_lambda_theory_morphism
+  {L L' : β_lambda_theory}
+  (f : β_lambda_theory_morphism L L')
+  : lambda_theory_morphism L L'
+  := pr1 f.
+
+Definition make_β_lambda_theory_morphism
+  {L L' : β_lambda_theory}
+  (f : lambda_theory_morphism L L')
+  : β_lambda_theory_morphism L L'
+  := f ,, tt.
+
+Lemma β_lambda_theory_morphism_eq
+  {L L' : β_lambda_theory}
+  (f f' : β_lambda_theory_morphism L L')
+  (H : (f : lambda_theory_morphism L L') = f')
+  : f = f'.
+Proof.
+  apply subtypePath.
+  {
+    intro.
+    apply isapropunit.
+  }
+  exact H.
+Qed.
+
 (** 2. An algebaic theory morphism is a λ-theory morphism if it preserves "app'" and "one" *)
 
 Section MakeIsLambdaTheoryMorphism'.

@@ -93,6 +93,9 @@ Definition lim {C : precategory} {g : graph} {d : diagram g C} (CC : LimCone d) 
 Definition limCone {C : precategory} {g : graph} {d : diagram g C} (CC : LimCone d) :
   cone d (lim CC) := pr2 (pr1 CC).
 
+Definition isLimCone_from_LimCone {C : precategory} {g : graph} {d : diagram g C} (CC : LimCone d) :
+  isLimCone d (lim CC) _ := pr2 CC.
+
 Definition limOut {C : precategory} {g : graph} {d : diagram g C} (CC : LimCone d) :
   ∏ (v : vertex g), C⟦lim CC, dob d v⟧ := coneOut (limCone CC).
 

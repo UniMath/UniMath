@@ -16,7 +16,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
-Require Import UniMath.CategoryTheory.Retracts.
+Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
 
 Section def_coequalizers.
 
