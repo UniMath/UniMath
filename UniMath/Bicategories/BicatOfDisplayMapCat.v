@@ -181,7 +181,7 @@ Proof.
         use eq_display_map_cat_mor; rewrite (transportb_display_map _ (identity (pr1 dx₁) · pr1 df ,, _));
         exact (id_right _ @ !id_left _)).
   - abstract (intros x dx; exact (id_right _ @ !id_left _)).
-Qed.
+Defined.
 
 Definition display_map_to_comp_cat_comp_1cell
   : ∏ (D₁ D₂ D₃ : bicat_display_map_cat) (F : bicat_display_map_cat ⟦ D₁, D₂ ⟧) (G : bicat_display_map_cat ⟦ D₂, D₃ ⟧),
@@ -210,37 +210,79 @@ Defined.
 Lemma bicat_display_map_cat_to_bicat_full_comp_cat_id2_law
   : psfunctor_id2_law bicat_display_map_cat_to_bicat_full_comp_cat_data.
 Proof.
-Admitted.
+  intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [F pT_F].
+  use full_comp_nat_trans_eq.
+  - intros x. cbn. exact (idpath _).
+  - intros x dx. use eq_display_map_cat_mor. etrans.
+    + apply transportf_display_map_mor.
+    + cbn. exact (idpath _).
+Qed.
 
 Lemma bicat_display_map_cat_to_bicat_full_comp_cat_vcomp2_law
   : psfunctor_vcomp2_law bicat_display_map_cat_to_bicat_full_comp_cat_data.
 Proof.
-Admitted.
+  intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [F pT_F] [G pT_G] [H pT_H] α β. cbn in * |-.
+  use full_comp_nat_trans_eq.
+  - intros x. cbn. exact (idpath _).
+  - intros x dx. use eq_display_map_cat_mor. etrans.
+    + apply transportf_display_map_mor.
+    + cbn. exact (idpath _).
+Qed.
 
 Lemma bicat_display_map_cat_to_bicat_full_comp_cat_lunitor_law
   : psfunctor_lunitor_law bicat_display_map_cat_to_bicat_full_comp_cat_data.
 Proof.
-Admitted.
+  intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [F pT_F].
+  use full_comp_nat_trans_eq.
+  - intros x. cbn. rewrite (pr121 F). exact (!id_right _ @ !id_right _).
+  - intros x dx. use eq_display_map_cat_mor. etrans.
+    + apply transportf_display_map_mor.
+    + cbn. rewrite (pr121 F). exact (!id_right _ @ !id_right _).
+Qed.
 
 Lemma bicat_display_map_cat_to_bicat_full_comp_cat_runitor_law
   : psfunctor_runitor_law bicat_display_map_cat_to_bicat_full_comp_cat_data.
 Proof.
-Admitted.
+  intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [F pT_F].
+  use full_comp_nat_trans_eq.
+  - intros x. cbn. exact (!id_right _ @ !id_right _).
+  - intros x dx. use eq_display_map_cat_mor. etrans.
+    + apply transportf_display_map_mor.
+    + cbn. exact (!id_right _ @ !id_right _).
+Qed.
 
 Lemma bicat_display_map_cat_to_bicat_full_comp_cat_lassociator_law
   : psfunctor_lassociator_law bicat_display_map_cat_to_bicat_full_comp_cat_data.
 Proof.
-Admitted.
+  intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [C₃ [TC₃ D₃]] [C₄ [TC₄ D₄]] [F pT_F] [G pT_G] [H pT_H].
+  use full_comp_nat_trans_eq.
+  - intros x. cbn. rewrite ? (pr121 H). exact (idpath _).
+  - intros x dx. use eq_display_map_cat_mor. etrans.
+    + apply transportf_display_map_mor.
+    + cbn. rewrite ? (pr121 H). exact (idpath _).
+Qed.
 
 Lemma bicat_display_map_cat_to_bicat_full_comp_cat_lwhisker_law
   : psfunctor_lwhisker_law bicat_display_map_cat_to_bicat_full_comp_cat_data.
 Proof.
-Admitted.
+  intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [C₃ [TC₃ D₃]] [F pT_F] [G pT_G] [H pT_H] α.
+  use full_comp_nat_trans_eq.
+  - intros x. cbn. exact (id_left _ @ !id_right _).
+  - intros x dx. use eq_display_map_cat_mor. etrans.
+    + apply transportf_display_map_mor.
+    + cbn. exact (id_left _ @ !id_right _).
+Qed.
 
 Lemma bicat_display_map_cat_to_bicat_full_comp_cat_rwhisker_law
   : psfunctor_rwhisker_law bicat_display_map_cat_to_bicat_full_comp_cat_data.
 Proof.
-Admitted.
+  intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [C₃ [TC₃ D₃]] [F pT_F] [G pT_G] [H pT_H] α.
+  use full_comp_nat_trans_eq.
+  - intros x. cbn. exact (id_left _ @ !id_right _).
+  - intros x dx. use eq_display_map_cat_mor. etrans.
+    + apply transportf_display_map_mor.
+    + cbn. exact (id_left _ @ !id_right _).
+Qed.
 
 Lemma bicat_display_map_cat_to_bicat_full_comp_cat_laws
   : psfunctor_laws bicat_display_map_cat_to_bicat_full_comp_cat_data.
