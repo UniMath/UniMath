@@ -17,6 +17,8 @@ Ltac easy :=
    | match goal with | H : _ → ∅ |- _ => induction H; trivial end
    | match goal with | H : _ → _ → ∅ |- _ => induction H; trivial end ].
 
+Ltac Ltac.easy_forward_decl ::= easy.
+
 (** Override the Coq now tactic so that it uses unimath_easy instead *)
 Tactic Notation "now" tactic(t) := t; easy.
 
