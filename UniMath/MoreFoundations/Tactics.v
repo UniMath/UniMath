@@ -17,6 +17,20 @@ Ltac easy :=
    | match goal with | H : _ → ∅ |- _ => induction H; trivial end
    | match goal with | H : _ → _ → ∅ |- _ => induction H; trivial end ].
 
+(* In Rocq <9.1, Ltac2 "now" will use Ltac1 "easy" from Init.Tactics
+   (not the one defined above this comment).
+   In Rocq >=9.1 Ltac2 "now" uses "Init.Ltac.easy_forward_decl",
+   which would get set to Init.Tactics.easy if we loaded Init.Tactics but we stop loading it.
+   Instead we set the forward decl to the "easy" defined above this comment.
+   For compat we define a Ltac easy_forward_decl so that the redefinition doesn't fail in Rocq <9.1.
+ *)
+Module ForCompat.
+  Ltac easy_forward_decl := fail "should never be used".
+End ForCompat.
+Import ForCompat. Import Init.Ltac.
+
+Ltac easy_forward_decl ::= easy.
+
 (** Override the Coq now tactic so that it uses unimath_easy instead *)
 Tactic Notation "now" tactic(t) := t; easy.
 
