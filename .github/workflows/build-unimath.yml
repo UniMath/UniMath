@@ -81,7 +81,6 @@ jobs:
             startGroup "Print versions"
             opam --version
             opam exec -- dune --version
-            opam exec -- coqc --version
             endGroup
 
             startGroup "Build UniMath"
