@@ -3,6 +3,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.whiskering.
@@ -19,10 +20,10 @@ Require Import UniMath.Bicategories.Core.Bicat.
 (* Require Import UniMath.Bicategories.PseudoFunctors.Display.Compositor. *)
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
-Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.DispCatTerminal.
-Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FibTerminal.
-Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.CompCat.
-Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.FullCompCat.
+Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+Import Bicat.Notations.
+Import DispBicat.Notations.
+Import PseudoFunctor.Notations.
 
 Local Open Scope bicategory_scope.
 Local Open Scope mor_disp_scope.
@@ -107,7 +108,7 @@ Definition prebicat_display_map_cat_isaset_cells : isaset_cells (prebicat_displa
 Proof.
   intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [F pT_F] [G pT_G]; cbn in *.
   exact (isaset_nat_trans (pr21 C₂) F G).
-Defined.
+Qed.
 
 Definition bicat_display_map_cat : bicat.
 Proof.
@@ -297,19 +298,96 @@ Proof.
   - exact bicat_display_map_cat_to_bicat_full_comp_cat_rwhisker_law.
 Qed.
 
+Lemma bicat_display_map_cat_to_bicat_full_comp_cat_id_2cell
+  : ∏ d : bicat_display_map_cat,
+      disp_nat_trans
+        (nat_trans_id (functor_identity (pr1 d))
+          :
+          functor_data_from_functor _ _
+            (full_comp_cat_functor_to_comp_cat_functor
+              (# bicat_display_map_cat_to_bicat_full_comp_cat_data (id₁ d)))
+          ⟹ functor_data_from_functor _ _
+              (full_comp_cat_functor_to_comp_cat_functor
+                (id₁ (bicat_display_map_cat_to_bicat_full_comp_cat_data d))))
+        (comp_cat_type_functor
+          (full_comp_cat_functor_to_comp_cat_functor
+            (# bicat_display_map_cat_to_bicat_full_comp_cat_data (id₁ d))))
+        (comp_cat_type_functor
+          (full_comp_cat_functor_to_comp_cat_functor
+            (id₁ (bicat_display_map_cat_to_bicat_full_comp_cat_data d)))).
+Proof.
+  intros [C [TC D]]. use tpair.
+  - intros x dx; cbn in *. exists (identity _). abstract (exact (id_left _ @ !id_right _)).
+  - abstract (intros x₁ x₂ f dx₁ dx₂ [df Hsq];
+    (* symmetry; etrans; use eq_display_map_cat_mor. *)
+    use eq_display_map_cat_mor; symmetry; etrans;
+    (* the following did not work: *)
+    (* + apply transportb_display_map_mor. *)
+    (* we'll unfold it instead: *)
+    [ refine (pr1_transportf (A := C⟦_, _⟧) _ _ @ _); rewrite transportf_const; simpl; apply id_left | simpl; exact (!id_right _)]).
+Defined.
+
 Lemma bicat_display_map_cat_to_bicat_full_comp_cat_invertible_id_2cell
   : ∏ D : bicat_display_map_cat,
       is_invertible_2cell (PseudoFunctorBicat.psfunctor_id bicat_display_map_cat_to_bicat_full_comp_cat_data D).
 Proof.
-  intros [C [TC D]]. cbn.
-Admitted.
+  intros [C [TC D]].
+  use tpair.
+  - use make_full_comp_cat_nat_trans. use make_comp_cat_nat_trans.
+    + use make_nat_trans_with_terminal_cleaving. use make_nat_trans_with_terminal_disp_cat.
+      * cbn. exact (nat_trans_id _).
+      * exact (bicat_display_map_cat_to_bicat_full_comp_cat_id_2cell _).
+    + intros x dx; cbn in *. exact (idpath _).
+  - use tpair; use full_comp_nat_trans_eq; simpl.
+    + intros x. exact (id_left _).
+    + intros x dx. use eq_display_map_cat_mor. etrans;
+      [ apply transportf_display_map_mor | exact (id_left _)].
+    + intros x. exact (id_left _).
+    + intros x dx. use eq_display_map_cat_mor. etrans;
+      [ apply transportf_display_map_mor | exact (id_left _)].
+Qed.
+
+Lemma bicat_display_map_cat_to_bicat_full_comp_cat_comp_2cell
+  : ∏ (D₁ D₂ D₃ : bicat_display_map_cat) (F : bicat_display_map_cat ⟦ D₁, D₂ ⟧) (G : bicat_display_map_cat ⟦ D₂, D₃ ⟧),
+      disp_nat_trans
+        (nat_trans_id (full_comp_cat_functor_to_comp_cat_functor (# bicat_display_map_cat_to_bicat_full_comp_cat_data (F · G))))
+        (comp_cat_type_functor
+          (full_comp_cat_functor_to_comp_cat_functor (# bicat_display_map_cat_to_bicat_full_comp_cat_data (F · G))))
+        (comp_cat_type_functor
+          (full_comp_cat_functor_to_comp_cat_functor (# bicat_display_map_cat_to_bicat_full_comp_cat_data F
+            · # bicat_display_map_cat_to_bicat_full_comp_cat_data G))).
+Proof.
+  intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [C₃ [TC₃ D₃]] F G.
+  use tpair.
+  - intros x dx. exists (identity _). abstract (exact (id_left _ @ !id_right _)).
+  - abstract (intros x₁ x₂ f dx₁ dx₂ [df Hsq];
+    use eq_display_map_cat_mor; symmetry; etrans;
+    [ refine (pr1_transportf (A := C₃⟦_, _⟧) _ _ @ _); rewrite transportf_const; simpl; apply id_left | simpl; exact (!id_right _)]).
+Defined.
 
 Lemma bicat_display_map_cat_to_bicat_full_comp_cat_invertible_comp_2cell
   : ∏ (D₁ D₂ D₃ : bicat_display_map_cat) (F : bicat_display_map_cat ⟦ D₁, D₂ ⟧) (G : bicat_display_map_cat ⟦ D₂, D₃ ⟧),
     is_invertible_2cell (PseudoFunctorBicat.psfunctor_comp bicat_display_map_cat_to_bicat_full_comp_cat_data F G).
 Proof.
-  intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [C₃ [TC₃ D₃]] F G. cbn.
-Admitted.
+  intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [C₃ [TC₃ D₃]] F G.
+  use tpair.
+  - use make_full_comp_cat_nat_trans. use make_comp_cat_nat_trans.
+    + use make_nat_trans_with_terminal_cleaving. use make_nat_trans_with_terminal_disp_cat.
+      * exact (nat_trans_id _).
+      * exact (bicat_display_map_cat_to_bicat_full_comp_cat_comp_2cell _ _ _ _ _).
+    + intros x dx. cbn. rewrite functor_id. rewrite ? id_left. exact (idpath _).
+  (* - abstract ( *)
+  - split; use full_comp_nat_trans_eq;
+    [ intros x; exact (id_left _)
+    | intros x dx; use subtypePath; try (exact (λ _, homset_property _ _ _ _ _)); etrans;
+      [ refine (pr1_transportf (A := C₃⟦_, _⟧) _ _ @ _); rewrite transportf_const;
+        apply id_left | exact (idpath _) ]
+    | intros x; exact (id_left _)
+    | intros x dx; use subtypePath; try (exact (λ _, homset_property _ _ _ _ _)); etrans;
+      [ refine (pr1_transportf (A := C₃⟦_, _⟧) _ _ @ _); rewrite transportf_const;
+        apply id_left | exact (idpath _) ]].
+        (* ). *)
+Qed.
 
 Lemma bicat_display_map_cat_to_bicat_full_comp_cat_invertible_cells
   : invertible_cells bicat_display_map_cat_to_bicat_full_comp_cat_data.

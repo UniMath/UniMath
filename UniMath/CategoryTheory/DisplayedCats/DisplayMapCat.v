@@ -427,7 +427,7 @@ Definition display_map_class_functor_identity
   : display_map_class_functor D D.
 Proof.
   exists (functor_identity C).
-  abstract (exact ((λ _ _ _ tt, tt) ,, (λ _ _ _ _ _ _ pb, isPullback_Pullback pb))).
+  exact ((λ _ _ _ tt, tt) ,, (λ _ _ _ _ _ _ pb, isPullback_Pullback pb)).
 Defined.
 
 Definition display_map_class_functor_composite
