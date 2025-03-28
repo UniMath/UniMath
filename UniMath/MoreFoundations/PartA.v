@@ -248,6 +248,15 @@ Proof.
   apply (transport_map (λ a, pr2 (P := λ _, B2 a))).
 Defined.
 
+Lemma pr1_transportb {A : UU} {B : A -> UU} {P : ∏ a, B a -> UU}
+   {a a' : A} (e : a = a') (xs : ∑ b : B a', P _ b):
+   pr1 (transportb (λ x, ∑ b : B x, P _ b) e xs) =
+     transportb (λ x, B x) e (pr1 xs).
+Proof.
+  apply pathsinv0.
+  apply (transport_map (λ a, pr1 (P := P a))).
+Defined.
+
 Lemma coprodcomm_coprodcomm {X Y : UU} (v : X ⨿ Y) : coprodcomm Y X (coprodcomm X Y v) = v.
 Proof.
   induction v as [x|y]; reflexivity.
