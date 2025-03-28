@@ -408,7 +408,7 @@ Definition display_map_class_functor {C C' : category} (D : display_map_class C)
 Definition functor_from_display_map_class_functor {C C' : category} (D : display_map_class C) (D' : display_map_class C') (F : display_map_class_functor D D') : C ⟶ C' := pr1 F.
 Coercion functor_from_display_map_class_functor : display_map_class_functor >-> functor.
 
-Definition display_map_class_functor_preserved_pullback
+Definition display_map_class_functor_preserves_pullback
   {C₁ C₂ : category} {D₁ : display_map_class C₁} {D₂ : display_map_class C₂}
   (F : display_map_class_functor D₁ D₂)
   {a b c: C₁} {d : b --> a} {f : c --> a} (H : D₁ d) (pb : Pullback d f)
