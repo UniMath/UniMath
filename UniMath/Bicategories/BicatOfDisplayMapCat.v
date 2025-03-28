@@ -125,16 +125,16 @@ Section DisplayMapCategoryToFullComprehensionCategory.
   Definition display_map_cat_to_full_comp_cat
     : bicat_display_map_cat → bicat_full_comp_cat.
   Proof.
-    intros [C [TC D]]. use make_full_comp_cat.
+    intros D. use make_full_comp_cat.
     - use make_comp_cat.
       + use make_cat_with_terminal_cleaving.
         * use make_cat_with_terminal_disp_cat.
-          -- exact C.
-          -- exact TC.
-          -- exact (univalent_display_map_cat D).
+          -- exact (pr1 D).
+          -- exact (pr12 D).
+          -- exact (univalent_display_map_cat (pr22 D)).
         * exact (display_map_cleaving).
-      + exact (cartesian_ι D).
-    - exact (ι_ff D).
+      + exact (cartesian_ι (pr22 D)).
+    - exact (ι_ff (pr22 D)).
   Defined.
 
   Definition display_map_functor_to_comp_cat_functor
@@ -142,7 +142,7 @@ Section DisplayMapCategoryToFullComprehensionCategory.
         bicat_display_map_cat ⟦ t₁, t₂ ⟧
         → bicat_full_comp_cat ⟦ display_map_cat_to_full_comp_cat t₁, display_map_cat_to_full_comp_cat t₂ ⟧.
   Proof.
-    intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] F; use make_full_comp_cat_functor.
+    intros D₁ D₂ F; use make_full_comp_cat_functor.
     - use make_comp_cat_functor.
       + use make_functor_with_terminal_cleaving.
         * use make_functor_with_terminal_disp_cat.
@@ -160,7 +160,7 @@ Section DisplayMapCategoryToFullComprehensionCategory.
       → prebicat_cells bicat_full_comp_cat (display_map_functor_to_comp_cat_functor D₁ D₂ F)
           (display_map_functor_to_comp_cat_functor D₁ D₂ G).
   Proof.
-    intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [F pT_F] [G pT_G] α. simpl in *.
+    intros D₁ D₂ F G α. simpl in *.
     use make_full_comp_cat_nat_trans; use make_comp_cat_nat_trans.
     - use make_nat_trans_with_terminal_cleaving. use make_nat_trans_with_terminal_disp_cat.
       + exact α.
@@ -176,7 +176,7 @@ Section DisplayMapCategoryToFullComprehensionCategory.
         prebicat_cells bicat_full_comp_cat (identity (display_map_cat_to_full_comp_cat D))
           (display_map_functor_to_comp_cat_functor D D (identity D)).
   Proof.
-    intros [C [TC D]]. use make_full_comp_cat_nat_trans. use make_comp_cat_nat_trans.
+    intros D. use make_full_comp_cat_nat_trans. use make_comp_cat_nat_trans.
     - use make_nat_trans_with_terminal_cleaving. use make_nat_trans_with_terminal_disp_cat.
       + exact (nat_trans_id _).
       + cbn. use (_ ,, _).
@@ -193,11 +193,11 @@ Section DisplayMapCategoryToFullComprehensionCategory.
         (display_map_functor_to_comp_cat_functor D₁ D₂ F · display_map_functor_to_comp_cat_functor D₂ D₃ G)
         (display_map_functor_to_comp_cat_functor D₁ D₃ (F · G)).
   Proof.
-    intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [C₃ [TC₃ D₃]] [F pT_F] [G pT_G]. use make_full_comp_cat_nat_trans. use make_comp_cat_nat_trans.
+    intros D₁ D₂ D₃ F G. use make_full_comp_cat_nat_trans. use make_comp_cat_nat_trans.
     - use make_nat_trans_with_terminal_cleaving. use make_nat_trans_with_terminal_disp_cat.
       + exact (nat_trans_id _).
       + exact display_map_functor_composite_to_composite_display_map_functor.
-    - abstract (intros x dx; cbn; rewrite ? (pr121 G); exact (!assoc _ _ _ @ id_left _ @ id_left _ @ !id_right _)).
+    - abstract (intros x dx; cbn; rewrite ? (pr12 (pr11 G)); exact (!assoc _ _ _ @ id_left _ @ id_left _ @ !id_right _)).
   Defined.
 
   Definition bicat_display_map_cat_to_bicat_full_comp_cat_data
