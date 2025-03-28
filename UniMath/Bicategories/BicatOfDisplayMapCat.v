@@ -34,7 +34,7 @@ Definition prebicat_display_map_cat_data : prebicat_data.
 Proof.
   use build_prebicat_data.
   - exact (∑ C : univalent_category, Terminal C × display_map_class C).
-  - intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]].                                                        exact (∑ (F : display_map_class_functor D₁ D₂), preserves_terminal (pr1 F)).
+  - intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]].                                                        exact (∑ (F : display_map_class_functor D₁ D₂), preserves_terminal F).
   - intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [F pT_F] [G pT_G].                                      exact (nat_trans F G).
   - intros [C [TC D]].                                                                         exact (display_map_class_functor_identity D ,, identity_preserves_terminal _).
   - intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [C₃ [TC₃ D₃]] [F pT_F] [G pT_G].                        exact (display_map_class_functor_composite F G ,, composition_preserves_terminal pT_F pT_G).
@@ -119,6 +119,28 @@ Proof.
   - exact prebicat_display_map_cat_isaset_cells.
 Defined.
 
+(** Some functions for clarity *)
+Definition display_map_cat_to_base_category:
+  bicat_display_map_cat -> univalent_category := pr1.
+
+Definition display_map_cat_to_terminal_category:
+  ∏ D : bicat_display_map_cat, Terminal (display_map_cat_to_base_category D) := λ D, pr12 D.
+
+Definition display_map_cat_to_display_map_class:
+  ∏ D : bicat_display_map_cat, display_map_class (display_map_cat_to_base_category D) := λ D, pr22 D.
+
+Definition display_map_functor_to_functor
+  {D₁ D₂ : bicat_display_map_cat}
+  : bicat_display_map_cat ⟦D₁, D₂⟧ -> (display_map_cat_to_base_category D₁) ⟶(display_map_cat_to_base_category D₂) := pr1.
+
+Definition display_map_functor_to_display_map_class_functor
+  {D₁ D₂ : bicat_display_map_cat}
+  : bicat_display_map_cat ⟦D₁, D₂⟧ -> display_map_class_functor (display_map_cat_to_display_map_class D₁) (display_map_cat_to_display_map_class D₂) := pr1.
+
+Definition display_map_functor_preserves_terminal
+  {D₁ D₂ : bicat_display_map_cat}
+  : ∏ F : bicat_display_map_cat ⟦D₁, D₂⟧, preserves_terminal (display_map_functor_to_functor F) := pr2.
+
 (** ** Pseudofunctor into the Bicategory of Full Comprehension Categories *)
 Section DisplayMapCategoryToFullComprehensionCategory.
 
@@ -129,12 +151,12 @@ Section DisplayMapCategoryToFullComprehensionCategory.
     - use make_comp_cat.
       + use make_cat_with_terminal_cleaving.
         * use make_cat_with_terminal_disp_cat.
-          -- exact (pr1 D).
-          -- exact (pr12 D).
-          -- exact (univalent_display_map_cat (pr22 D)).
-        * exact (display_map_cleaving).
-      + exact (cartesian_ι (pr22 D)).
-    - exact (ι_ff (pr22 D)).
+          -- exact (display_map_cat_to_base_category D).
+          -- exact (display_map_cat_to_terminal_category D).
+          -- exact (univalent_display_map_cat (display_map_cat_to_display_map_class D)).
+        * exact display_map_cleaving.
+      + exact (cartesian_ι _).
+    - exact (ι_ff _).
   Defined.
 
   Definition display_map_functor_to_comp_cat_functor
@@ -146,12 +168,12 @@ Section DisplayMapCategoryToFullComprehensionCategory.
     - use make_comp_cat_functor.
       + use make_functor_with_terminal_cleaving.
         * use make_functor_with_terminal_disp_cat.
-          -- exact (pr11 F).
-          -- exact (pr2 F).
-          -- exact (display_map_functor (pr1 F)).
-        * exact (is_cartesian_display_map_functor (pr1 F)).
-      + exact (map_ι_is_ι_map (pr1 F)).
-    - abstract (exact (λ x dx, pr1 (map_ι_is_ι_map (pr1 F) x dx) ,, id_left _ ,, id_right _ )).
+          -- exact (display_map_functor_to_functor F).
+          -- exact (display_map_functor_preserves_terminal F).
+          -- exact (display_map_functor (display_map_functor_to_display_map_class_functor F)).
+        * exact (is_cartesian_display_map_functor _).
+      + exact (map_ι_is_ι_map (display_map_functor_to_display_map_class_functor F)).
+    - abstract (exact (λ x dx, pr1 (map_ι_is_ι_map (display_map_functor_to_display_map_class_functor F) x dx) ,, id_left _ ,, id_right _ )).
   Defined.
 
   Definition display_map_transformation_to_comp_cat_transformation
@@ -238,10 +260,10 @@ Section DisplayMapCategoryToFullComprehensionCategory.
   Proof.
     intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [F pT_F].
     use full_comp_nat_trans_eq.
-    - intros x. cbn. rewrite (pr121 F). exact (!id_right _ @ !id_right _).
+    - intros x. cbn. rewrite (functor_id F). exact (!id_right _ @ !id_right _).
     - intros x dx. use eq_display_map_cat_mor. etrans.
       + apply transportf_display_map_mor.
-      + cbn. rewrite (pr121 F). exact (!id_right _ @ !id_right _).
+      + cbn. rewrite (functor_id F). exact (!id_right _ @ !id_right _).
   Qed.
 
   Lemma bicat_display_map_cat_to_bicat_full_comp_cat_runitor_law
@@ -260,10 +282,10 @@ Section DisplayMapCategoryToFullComprehensionCategory.
   Proof.
     intros [C₁ [TC₁ D₁]] [C₂ [TC₂ D₂]] [C₃ [TC₃ D₃]] [C₄ [TC₄ D₄]] [F pT_F] [G pT_G] [H pT_H].
     use full_comp_nat_trans_eq.
-    - intros x. cbn. rewrite ? (pr121 H). exact (idpath _).
+    - intros x. cbn. rewrite ? (functor_id H). exact (idpath _).
     - intros x dx. use eq_display_map_cat_mor. etrans.
       + apply transportf_display_map_mor.
-      + cbn. rewrite ? (pr121 H). exact (idpath _).
+      + cbn. rewrite ? (functor_id H). exact (idpath _).
   Qed.
 
   Lemma bicat_display_map_cat_to_bicat_full_comp_cat_lwhisker_law
@@ -379,7 +401,6 @@ Section DisplayMapCategoryToFullComprehensionCategory.
         * exact (nat_trans_id _).
         * exact (bicat_display_map_cat_to_bicat_full_comp_cat_comp_2cell _ _ _ _ _).
       + intros x dx. cbn. rewrite functor_id. rewrite ? id_left. exact (idpath _).
-    (* - abstract ( *)
     - split; use full_comp_nat_trans_eq;
       [ intros x; exact (id_left _)
       | intros x dx; use subtypePath; try (exact (λ _, homset_property _ _ _ _ _)); etrans;
@@ -389,7 +410,6 @@ Section DisplayMapCategoryToFullComprehensionCategory.
       | intros x dx; use subtypePath; try (exact (λ _, homset_property _ _ _ _ _)); etrans;
         [ refine (pr1_transportf (A := C₃⟦_, _⟧) _ _ @ _); rewrite transportf_const;
           apply id_left | exact (idpath _) ]].
-          (* ). *)
   Qed.
 
   Lemma bicat_display_map_cat_to_bicat_full_comp_cat_invertible_cells

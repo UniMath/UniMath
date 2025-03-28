@@ -442,7 +442,7 @@ Proof.
   - abstract (exact (λ _ _ _ tt, (pr12 F₂) _ _ _ ((pr12 F₁) _ _ _ tt))).
   - abstract (
         intros ? ? ? ? ? tt pb; unfold functor_comp; simpl;
-        apply ((pr22 F₂) _ _ _ _ _ ((pr12 F₁) _ _ _ tt) (display_map_class_functor_preserved_pullback F₁ tt pb))
+        apply ((pr22 F₂) _ _ _ _ _ ((pr12 F₁) _ _ _ tt) (display_map_class_functor_preserves_pullback F₁ tt pb))
       ).
 Defined.
 
