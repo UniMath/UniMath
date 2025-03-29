@@ -1,24 +1,32 @@
-(** * Examples of adjunctions
+(**************************************************************************************************
 
-- The binary delta_functor is left adjoint to binproduct_functor
+  Examples of Adjunctions
 
-- The general delta functor is left adjoint to the general product
-  functor
+  The binary delta functor C → C × C is a left (right) adjoint to the binary (co)product functor
+  C × C → C, and the general delta functor C → C^I is a left (right) adjoint to the general
+  (co)product functor C^I → C.
+  The swapping functor [C, [D, E]] → [D, [C, E]] is a left adjoint to itself.
+  Lastly, the constant functor that sends everything to the initial object is a left adjoint to the
+  functor that sends everything to the terminal object.
 
-- The bincoproduct_functor is left adjoint to the binary delta functor
+  Contents
+  1. Adjunctions between delta functors and (co)product functors
+  1.1. The adjunction between the binary delta and product functor
+    [is_left_adjoint_bindelta_functor]
+  1.2. The adjunction between the general delta and product functor
+    [is_left_adjoint_delta_functor]
+  1.3. The adjunction between the binary coproduct and delta functor
+    [is_left_adjoint_bincoproduct_functor]
+  1.4. The adjunction between the general coproduct and delta functor
+    [is_left_adjoint_coproduct_functor]
+  2. Swapping of arguments in functor categories [are_adjoint_functor_cat_swap]
+  3. Adjunctions are closed under natural isomorphism [is_left_adjoint_nat_z_iso]
+  4. The adjunction between the constant initial and terminal functors
+    [initial_terminal_are_adjoints]
 
-- The general coproduct functor is left adjoint to the general delta
-  functor
+  Written by: Anders Mörtberg, 2016
 
-- Swapping of arguments in functor categories
-
-- Adjunctions are closed under natural isomorphism
-
-- Composition of adjunctions
-
-Written by: Anders Mörtberg, 2016
-
-*)
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
@@ -26,8 +34,10 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.Limits.Coproducts.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
@@ -35,128 +45,119 @@ Require Import UniMath.CategoryTheory.whiskering.
 
 Local Open Scope cat.
 
-Section bindelta_functor_adjunction.
+(** ** 1. Adjunctions between delta functors and (co)product functors *)
+Section DeltaProductAdjunctions.
 
-Context {C : category} (PC : BinProducts C).
+  Context {C : category}.
 
-(** The binary delta_functor is left adjoint to binproduct_functor *)
-Lemma is_left_adjoint_bindelta_functor : is_left_adjoint (bindelta_functor C).
-Proof.
-apply (tpair _ (binproduct_functor PC)).
-use tpair.
-- split.
-  + use tpair.
-    * simpl; intro x.
-      apply (BinProductArrow _ _ (identity x) (identity x)).
-    * abstract (intros p q f; simpl;
-                now rewrite precompWithBinProductArrow, id_right, postcompWithBinProductArrow, id_left).
-  + use tpair.
-    * simpl; intro x; split; [ apply BinProductPr1 | apply BinProductPr2 ].
-    * abstract (intros p q f; unfold catbinprodmor, compose; simpl;
-                now rewrite BinProductOfArrowsPr1, BinProductOfArrowsPr2).
-- abstract (split; simpl; intro x;
-  [ unfold catbinprodmor, compose; simpl;
-    now rewrite BinProductPr1Commutes, BinProductPr2Commutes
-  | cbn; rewrite postcompWithBinProductArrow, !id_left;
-    apply pathsinv0, BinProduct_endo_is_identity;
-      [ apply BinProductPr1Commutes | apply BinProductPr2Commutes ]]).
-Defined.
+(** ** 1.1. The adjunction between the binary delta and product functor *)
+  Lemma is_left_adjoint_bindelta_functor
+    (PC : BinProducts C)
+    : is_left_adjoint (bindelta_functor C).
+  Proof.
+  apply (tpair _ (binproduct_functor PC)).
+  use tpair.
+  - split.
+    + use tpair.
+      * simpl; intro x.
+        apply (BinProductArrow _ _ (identity x) (identity x)).
+      * abstract (intros p q f; simpl;
+                  now rewrite precompWithBinProductArrow, id_right, postcompWithBinProductArrow, id_left).
+    + use tpair.
+      * simpl; intro x; split; [ apply BinProductPr1 | apply BinProductPr2 ].
+      * abstract (intros p q f; unfold catbinprodmor, compose; simpl;
+                  now rewrite BinProductOfArrowsPr1, BinProductOfArrowsPr2).
+  - abstract (split; simpl; intro x;
+    [ unfold catbinprodmor, compose; simpl;
+      now rewrite BinProductPr1Commutes, BinProductPr2Commutes
+    | cbn; rewrite postcompWithBinProductArrow, !id_left;
+      apply pathsinv0, BinProduct_endo_is_identity;
+        [ apply BinProductPr1Commutes | apply BinProductPr2Commutes ]]).
+  Defined.
 
-End bindelta_functor_adjunction.
+(** ** 1.2. The adjunction between the general delta and product functor *)
+  Lemma is_left_adjoint_delta_functor
+    (I : UU)
+    (PC : Products I C)
+    : is_left_adjoint (delta_functor I C).
+  Proof.
+  apply (tpair _ (product_functor _ PC)).
+  use tpair.
+  - split.
+    + use tpair.
+      * simpl; intro x.
+        apply (ProductArrow _ _ _ (λ _, identity x)).
+      * abstract (intros p q f; simpl;
+                  now rewrite precompWithProductArrow, id_right,
+                              postcompWithProductArrow, id_left).
+    + use tpair.
+      * intros x i; apply ProductPr.
+      * abstract (intros p q f; apply funextsec; intro i; unfold compose; simpl;
+                  now rewrite ProductOfArrowsPr).
+  - abstract (split; simpl; intro x;
+      [ apply funextsec; intro i; apply (ProductPrCommutes _ _ (λ _, x))
+      | cbn; rewrite postcompWithProductArrow;
+        apply pathsinv0, Product_endo_is_identity; intro i;
+        eapply pathscomp0; [|apply (ProductPrCommutes I C _ (PC x))];
+        apply cancel_postcomposition, maponpaths, funextsec; intro j; apply id_left]).
+  Defined.
 
-Section delta_functor_adjunction.
+(** ** 1.3. The adjunction between the binary coproduct and delta functor *)
+  Lemma is_left_adjoint_bincoproduct_functor
+    (PC : BinCoproducts C)
+    : is_left_adjoint (bincoproduct_functor PC).
+  Proof.
+  apply (tpair _ (bindelta_functor _)).
+  use tpair.
+  - split.
+    + use tpair.
+      * simpl; intro p; set (x := pr1 p); set (y := pr2 p).
+        split; [ apply (BinCoproductIn1 (PC x y)) | apply (BinCoproductIn2 (PC x y)) ].
+      * abstract (intros p q f; unfold catbinprodmor, compose; simpl;
+                  now rewrite BinCoproductOfArrowsIn1, BinCoproductOfArrowsIn2).
+    + use tpair.
+      * intro x; apply (BinCoproductArrow _ (identity x) (identity x)).
+      * abstract (intros p q f; simpl;
+                  now rewrite precompWithBinCoproductArrow, postcompWithBinCoproductArrow,
+                              id_right, id_left).
+  - abstract (split; simpl; intro x;
+    [ cbn; rewrite precompWithBinCoproductArrow, !id_right;
+      apply pathsinv0, BinCoproduct_endo_is_identity;
+        [ apply BinCoproductIn1Commutes | apply BinCoproductIn2Commutes ]
+    | unfold catbinprodmor, compose; simpl;
+      now rewrite BinCoproductIn1Commutes, BinCoproductIn2Commutes ]).
+  Defined.
 
-Context (I : UU) {C : category} (PC : Products I C).
+(** ** 1.4. The adjunction between the general coproduct and delta functor *)
+  Lemma is_left_adjoint_coproduct_functor
+    (I : UU)
+    (PC : Coproducts I C)
+    : is_left_adjoint (coproduct_functor I PC).
+  Proof.
+  apply (tpair _ (delta_functor _ _)).
+  use tpair.
+  - split.
+    + use tpair.
+      * intros p i; apply CoproductIn.
+      * abstract (intros p q f; apply funextsec; intro i; unfold compose; simpl;
+                  now rewrite CoproductOfArrowsIn).
+    + use tpair.
+      * intro x; apply (CoproductArrow _ _ _ (λ _, identity x)).
+      * abstract (intros p q f; simpl;
+                  now rewrite precompWithCoproductArrow,
+                              postcompWithCoproductArrow,
+                              id_right, id_left).
+  - abstract (split; simpl; intro x;
+      [ cbn; rewrite precompWithCoproductArrow;
+        apply pathsinv0, Coproduct_endo_is_identity; intro i;
+        eapply pathscomp0; [|apply CoproductInCommutes];
+        apply maponpaths, maponpaths, funextsec; intro j; apply id_right
+      | apply funextsec; intro i; apply (CoproductInCommutes _ _ (λ _, x))]).
+  Defined.
 
-(** The general delta functor is left adjoint to the general product functor *)
-Lemma is_left_adjoint_delta_functor :
-  is_left_adjoint (delta_functor I C).
-Proof.
-apply (tpair _ (product_functor _ PC)).
-use tpair.
-- split.
-  + use tpair.
-    * simpl; intro x.
-      apply (ProductArrow _ _ _ (λ _, identity x)).
-    * abstract (intros p q f; simpl;
-                now rewrite precompWithProductArrow, id_right,
-                            postcompWithProductArrow, id_left).
-  + use tpair.
-    * intros x i; apply ProductPr.
-    * abstract (intros p q f; apply funextsec; intro i; unfold compose; simpl;
-                now rewrite ProductOfArrowsPr).
-- abstract (split; simpl; intro x;
-    [ apply funextsec; intro i; apply (ProductPrCommutes _ _ (λ _, x))
-    | cbn; rewrite postcompWithProductArrow;
-      apply pathsinv0, Product_endo_is_identity; intro i;
-      eapply pathscomp0; [|apply (ProductPrCommutes I C _ (PC x))];
-      apply cancel_postcomposition, maponpaths, funextsec; intro j; apply id_left]).
-Defined.
+End DeltaProductAdjunctions.
 
-End delta_functor_adjunction.
-
-Section bincoproduct_functor_adjunction.
-
-Context {C : category} (PC : BinCoproducts C).
-
-(** The bincoproduct_functor left adjoint to delta_functor *)
-Lemma is_left_adjoint_bincoproduct_functor : is_left_adjoint (bincoproduct_functor PC).
-Proof.
-apply (tpair _ (bindelta_functor _)).
-use tpair.
-- split.
-  + use tpair.
-    * simpl; intro p; set (x := pr1 p); set (y := pr2 p).
-      split; [ apply (BinCoproductIn1 (PC x y)) | apply (BinCoproductIn2 (PC x y)) ].
-    * abstract (intros p q f; unfold catbinprodmor, compose; simpl;
-                now rewrite BinCoproductOfArrowsIn1, BinCoproductOfArrowsIn2).
-  + use tpair.
-    * intro x; apply (BinCoproductArrow _ (identity x) (identity x)).
-    * abstract (intros p q f; simpl;
-                now rewrite precompWithBinCoproductArrow, postcompWithBinCoproductArrow,
-                            id_right, id_left).
-- abstract (split; simpl; intro x;
-  [ cbn; rewrite precompWithBinCoproductArrow, !id_right;
-    apply pathsinv0, BinCoproduct_endo_is_identity;
-      [ apply BinCoproductIn1Commutes | apply BinCoproductIn2Commutes ]
-  | unfold catbinprodmor, compose; simpl;
-    now rewrite BinCoproductIn1Commutes, BinCoproductIn2Commutes ]).
-Defined.
-
-End bincoproduct_functor_adjunction.
-
-Section coproduct_functor_adjunction.
-
-Context (I : UU) {C : category} (PC : Coproducts I C).
-
-(** The general coproduct functor left adjoint to the general delta functor *)
-Lemma is_left_adjoint_coproduct_functor :
-  is_left_adjoint (coproduct_functor I PC).
-Proof.
-apply (tpair _ (delta_functor _ _)).
-use tpair.
-- split.
-  + use tpair.
-    * intros p i; apply CoproductIn.
-    * abstract (intros p q f; apply funextsec; intro i; unfold compose; simpl;
-                now rewrite CoproductOfArrowsIn).
-  + use tpair.
-    * intro x; apply (CoproductArrow _ _ _ (λ _, identity x)).
-    * abstract (intros p q f; simpl;
-                now rewrite precompWithCoproductArrow,
-                            postcompWithCoproductArrow,
-                            id_right, id_left).
-- abstract (split; simpl; intro x;
-    [ cbn; rewrite precompWithCoproductArrow;
-      apply pathsinv0, Coproduct_endo_is_identity; intro i;
-      eapply pathscomp0; [|apply CoproductInCommutes];
-      apply maponpaths, maponpaths, funextsec; intro j; apply id_right
-    | apply funextsec; intro i; apply (CoproductInCommutes _ _ (λ _, x))]).
-Defined.
-
-End coproduct_functor_adjunction.
-
-(** * Swapping of arguments in functor categories *)
+(** ** 2. Swapping of arguments in functor categories *)
 Section functor_swap.
 
 Local Notation "[ C , D ]" := (functor_category C D).
@@ -278,7 +279,7 @@ Defined.
 
 End functor_swap.
 
-(** * Adjunctions are closed under natural isomorphism *)
+(** ** 3. Adjunctions are closed under natural isomorphism *)
 Section LeftAdjointIso.
   Context {C D : category}
           {L₁ L₂ : C ⟶ D}
@@ -355,95 +356,41 @@ Section LeftAdjointIso.
   Defined.
 End LeftAdjointIso.
 
-(** * Composition of adjunctions *)
-Section CompAdjoint.
-  Context {C D E : category}
-          {L₁ : C ⟶ D}
-          {L₂ : D ⟶ E}
-          (HL₁ : is_left_adjoint L₁)
-          (HL₂ : is_left_adjoint L₂).
+(** ** 4. The adjunction between the constant initial and terminal functors *)
+Section InitialTerminal.
 
-  Let R₁ : D ⟶ C := right_adjoint HL₁.
-  Let η₁ : functor_identity C ⟹ L₁ ∙ R₁ := unit_from_left_adjoint HL₁.
-  Let ε₁ : R₁ ∙ L₁ ⟹ functor_identity _ := counit_from_left_adjoint HL₁.
+  Context {C C' : category}.
+  Context (I : Initial C').
+  Context (T : Terminal C).
 
-  Let R₂ : E ⟶ D := right_adjoint HL₂.
-  Let η₂ : functor_identity _ ⟹ L₂ ∙ R₂ := unit_from_left_adjoint HL₂.
-  Let ε₂ : R₂ ∙ L₂ ⟹ functor_identity _ := counit_from_left_adjoint HL₂.
-
-  Let R' : E ⟶ C := R₂ ∙ R₁.
-  Let η' : functor_identity _ ⟹ L₁ ∙ L₂ ∙ R'
-    := nat_trans_comp
-         _ _ _
-         η₁
-         (pre_whisker L₁ (post_whisker η₂ R₁)).
-  Let ε' : R' ∙ L₁ ∙ L₂ ⟹ functor_identity _
-    := nat_trans_comp
-         _ _ _
-         (pre_whisker R₂ (post_whisker ε₁ L₂))
-         ε₂.
-
-  Proposition comp_is_left_adjoint_triangle_1
-    : triangle_1_statement (L₁ ∙ L₂ ,, R' ,, η' ,, ε').
+  Definition initial_terminal_are_adjoints
+    : are_adjoints (Initial_functor_precat C C' I : [_, _]) (Terminal_functor_precat C' C T : [_, _]).
   Proof.
-    intro x.
-    cbn -[η₁ η₂ ε₁ ε₂].
-    rewrite !assoc.
-    rewrite <- functor_comp.
-    etrans.
-    {
-      apply maponpaths_2.
-      apply maponpaths.
-      rewrite functor_comp.
-      rewrite !assoc'.
-      apply maponpaths.
-      apply (nat_trans_ax ε₁).
-    }
-    cbn -[η₁ η₂ ε₁ ε₂].
-    rewrite !assoc.
-    etrans.
-    {
-      apply maponpaths_2.
-      apply maponpaths.
-      apply maponpaths_2.
-      apply (pr122 HL₁).
-    }
-    rewrite id_left.
-    apply (pr122 HL₂).
-  Qed.
-
-  Proposition comp_is_left_adjoint_triangle_2
-    : triangle_2_statement (L₁ ∙ L₂ ,, R' ,, η' ,, ε').
-  Proof.
-    intro x.
-    cbn -[η₁ η₂ ε₁ ε₂].
-    rewrite !assoc'.
-    rewrite <- functor_comp.
-    etrans.
-    {
-      do 2 apply maponpaths.
-      rewrite functor_comp.
-      rewrite !assoc.
-      apply maponpaths_2.
-      refine (!_).
-      apply (nat_trans_ax η₂).
-    }
-    cbn -[η₁ η₂ ε₁ ε₂].
-    rewrite !assoc'.
-    etrans.
-    {
-      do 3 apply maponpaths.
-      apply (pr222 HL₂).
-    }
-    rewrite id_right.
-    apply (pr222 HL₁).
-  Qed.
-
-  Definition comp_is_left_adjoint
-    : is_left_adjoint (L₁ ∙ L₂).
-  Proof.
-    simple refine (R' ,, (η' ,, ε') ,, (_ ,, _)).
-    - exact comp_is_left_adjoint_triangle_1.
-    - exact comp_is_left_adjoint_triangle_2.
+    apply adjunction_homsetiso_weq.
+    use tpair.
+    - intros A B.
+      use weq_iso.
+      + intro.
+        apply TerminalArrow.
+      + intro.
+        apply InitialArrow.
+      + abstract (
+          intro;
+          apply InitialArrowEq
+        ).
+      + abstract (
+          intro;
+          apply TerminalArrowEq
+        ).
+    - abstract (
+        split;
+        intros;
+        apply TerminalArrowEq
+      ).
   Defined.
-End CompAdjoint.
+
+  Definition initial_terminal_adjunction
+    : adjunction C C'
+    := left_adjoint_to_adjunction initial_terminal_are_adjoints.
+
+End InitialTerminal.
