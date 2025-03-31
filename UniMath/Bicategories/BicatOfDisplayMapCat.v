@@ -120,26 +120,21 @@ Proof.
 Defined.
 
 (** Some functions for clarity *)
-Definition display_map_cat_to_base_category:
-  bicat_display_map_cat -> univalent_category := pr1.
+Definition display_map_univ_cat : UU := bicat_display_map_cat.
+Coercion bicat_display_map_cat_ob_to_display_map_univ_cat (D : bicat_display_map_cat) : display_map_univ_cat := D.
 
-Definition display_map_cat_to_terminal_category:
-  ∏ D : bicat_display_map_cat, Terminal (display_map_cat_to_base_category D) := λ D, pr12 D.
+Coercion display_map_cat_to_base_category (D : display_map_univ_cat) : univalent_category := pr1 D.
 
-Definition display_map_cat_to_display_map_class:
-  ∏ D : bicat_display_map_cat, display_map_class (display_map_cat_to_base_category D) := λ D, pr22 D.
+Coercion display_map_cat_to_terminal_category (D : display_map_univ_cat) : Terminal D := pr12 D.
 
-Definition display_map_functor_to_functor
-  {D₁ D₂ : bicat_display_map_cat}
-  : bicat_display_map_cat ⟦D₁, D₂⟧ -> (display_map_cat_to_base_category D₁) ⟶(display_map_cat_to_base_category D₂) := pr1.
+Coercion display_map_cat_to_display_map_class (D : display_map_univ_cat) : display_map_class (display_map_cat_to_base_category D) := pr22 D.
 
-Definition display_map_functor_to_display_map_class_functor
-  {D₁ D₂ : bicat_display_map_cat}
-  : bicat_display_map_cat ⟦D₁, D₂⟧ -> display_map_class_functor (display_map_cat_to_display_map_class D₁) (display_map_cat_to_display_map_class D₂) := pr1.
+Definition display_map_cat_functor (D₁ D₂ : bicat_display_map_cat) : UU := bicat_display_map_cat ⟦D₁, D₂⟧.
+Coercion bicat_display_map_mor_to_display_map_cat_functor  {D₁ D₂ : bicat_display_map_cat} (F : bicat_display_map_cat ⟦D₁, D₂⟧) : display_map_cat_functor D₁ D₂ := F.
 
-Definition display_map_functor_preserves_terminal
-  {D₁ D₂ : bicat_display_map_cat}
-  : ∏ F : bicat_display_map_cat ⟦D₁, D₂⟧, preserves_terminal (display_map_functor_to_functor F) := pr2.
+Coercion display_map_functor_to_display_map_class_functor {D₁ D₂ : bicat_display_map_cat} (F : display_map_cat_functor D₁ D₂) : display_map_class_functor D₁ D₂ := pr1 F.
+
+Coercion display_map_functor_preserves_terminal {D₁ D₂ : bicat_display_map_cat} (F : display_map_cat_functor D₁ D₂) : preserves_terminal F := pr2 F.
 
 (** ** Pseudofunctor into the Bicategory of Full Comprehension Categories *)
 Section DisplayMapCategoryToFullComprehensionCategory.
@@ -151,9 +146,9 @@ Section DisplayMapCategoryToFullComprehensionCategory.
     - use make_comp_cat.
       + use make_cat_with_terminal_cleaving.
         * use make_cat_with_terminal_disp_cat.
-          -- exact (display_map_cat_to_base_category D).
-          -- exact (display_map_cat_to_terminal_category D).
-          -- exact (univalent_display_map_cat (display_map_cat_to_display_map_class D)).
+          -- exact D.
+          -- exact D.
+          -- exact (univalent_display_map_cat D).
         * exact display_map_cleaving.
       + exact (cartesian_ι _).
     - exact (ι_ff _).
@@ -168,9 +163,9 @@ Section DisplayMapCategoryToFullComprehensionCategory.
     - use make_comp_cat_functor.
       + use make_functor_with_terminal_cleaving.
         * use make_functor_with_terminal_disp_cat.
-          -- exact (display_map_functor_to_functor F).
-          -- exact (display_map_functor_preserves_terminal F).
-          -- exact (display_map_functor (display_map_functor_to_display_map_class_functor F)).
+          -- exact F.
+          -- exact F.
+          -- exact (display_map_functor F).
         * exact (is_cartesian_display_map_functor _).
       + exact (map_ι_is_ι_map (display_map_functor_to_display_map_class_functor F)).
     - abstract (exact (λ x dx, pr1 (map_ι_is_ι_map (display_map_functor_to_display_map_class_functor F) x dx) ,, id_left _ ,, id_right _ )).
