@@ -24,7 +24,7 @@
   4. The adjunction between the constant initial and terminal functors
     [initial_terminal_are_adjoints]
 
-  Written by: Anders Mörtberg, 2016
+  Started by: Anders Mörtberg, 2016
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
