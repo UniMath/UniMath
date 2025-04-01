@@ -76,154 +76,162 @@ Require Import Ltac2.Message.
 Require Import Ltac2.Control.
 Require Import Ltac2.Notations.
 
-Ltac2 Type t_traversal := (pattern * (constr -> constr)).
-Ltac2 Type t_rewrite := (pattern * constr).
+Ltac2 Notation "pn:" p(pattern) : 0 := p.
+
+(**
+  A traversal consists of
+  - A pattern `p`, describing the goal `p = _` where the traversal activates;
+  - A term `t` describing the step `refine '(maponpaths t _)`;
+  - Strings `l` and `r` such that the string `λ x, l x r` is `t`.
+*)
+Ltac2 Type t_traversal := (pattern * constr * (string * string)).
+
+(**
+  A rewrite consists of
+  - A pattern `p`, describing the goal `p = _` where the rewrite activates;
+  - A term `t` of an identity type, describing the rewrite;
+  - A string representation of `t`.
+*)
+Ltac2 Type t_rewrite := (pattern * constr * string).
 
 Ltac2 mutable hyperrewrites () : t_rewrite list := [].
 Ltac2 mutable hypertraversals () : t_traversal list := [].
 
-Ltac2 make_function
-  (f : constr -> constr)
-  : constr
-  :=
-  let q := Fresh.in_goal @x in
-  Constr.in_context q '(_) (fun _ =>
-    let y := f (hyp q) in
-    exact $y
-  ).
-
-Ltac2 Notation "pn:" p(pattern) : 0 := p.
-
 Ltac2 Set hypertraversals as traversals := fun _ =>
-  (pn:( _ [ _]tm), (fun x => '( $x [ _ ]tm))) ::
-  (pn:( _ [ _]tm), (fun x => '( _  [ $x]tm))) ::
-  (pn:( _ [ _]  ), (fun x => '( $x [ _ ]  ))) ::
-  (pn:( _ [ _]  ), (fun x => '( _  [ $x]  ))) ::
-  (pn:( _ ∧ _   ), (fun x => '( $x ∧ _    ))) ::
-  (pn:( _ ∧ _   ), (fun x => '( _  ∧ $x   ))) ::
-  (pn:( _ ∨ _   ), (fun x => '( $x ∨ _    ))) ::
-  (pn:( _ ∨ _   ), (fun x => '( _  ∨ $x   ))) ::
-  (pn:( _ ⇒ _   ), (fun x => '( $x ⇒ _    ))) ::
-  (pn:( _ ⇒ _   ), (fun x => '( _  ⇒ $x   ))) ::
-  (pn:( _ ≡ _   ), (fun x => '( $x ≡ _    ))) ::
-  (pn:( _ ≡ _   ), (fun x => '( _  ≡ $x   ))) ::
-  (pn:( _ ⇔ _   ), (fun x => '( $x ⇔ _    ))) ::
-  (pn:( _ ⇔ _   ), (fun x => '( _  ⇔ $x   ))) ::
-  (pn:( _ ~ _   ), (fun x => '( $x ~ _    ))) ::
-  (pn:( _ ~ _   ), (fun x => '( _  ~ $x   ))) ::
-  (pn:(⟨_ , _⟩  ), (fun x => '(⟨$x, _ ⟩   ))) ::
-  (pn:(⟨_ , _⟩  ), (fun x => '(⟨_ , $x⟩   ))) ::
-  (pn:(∀h _     ), (fun x => '(∀h $x      ))) ::
-  (pn:(∃h _     ), (fun x => '(∃h $x      ))) ::
-  (pn:(¬  _     ), (fun x => '(¬  $x      ))) ::
-  (pn:(π₁ _     ), (fun x => '(π₁ $x      ))) ::
-  (pn:(π₂ _     ), (fun x => '(π₂ $x      ))) ::
+  (pn:( _ [ _ ]tm), '(fun x =>  x [ _ ]tm), ( ""," [ _ ]tm")) ::
+  (pn:( _ [ _ ]tm), '(fun x =>  _ [ x ]tm), (   "_ [","]tm")) ::
+  (pn:( _ [ _ ]  ), '(fun x =>  x [ _ ]  ), (" "," [ _ ]"  )) ::
+  (pn:( _ [ _ ]  ), '(fun x =>  _ [ x ]  ), (   "_ [","]"  )) ::
+  (pn:( _ ∧ _    ), '(fun x =>  x ∧ _    ), ( ""," ∧ _"    )) ::
+  (pn:( _ ∧ _    ), '(fun x =>  _ ∧ x    ), (   "_ ∧ ",""  )) ::
+  (pn:( _ ∨ _    ), '(fun x =>  x ∨ _    ), ( ""," ∨ _"    )) ::
+  (pn:( _ ∨ _    ), '(fun x =>  _ ∨ x    ), (   "_ ∨ ",""  )) ::
+  (pn:( _ ⇒ _    ), '(fun x =>  x ⇒ _    ), ( ""," ⇒ _"    )) ::
+  (pn:( _ ⇒ _    ), '(fun x =>  _ ⇒ x    ), (   "_ ⇒ ",""  )) ::
+  (pn:( _ ≡ _    ), '(fun x =>  x ≡ _    ), ( ""," ≡ _"    )) ::
+  (pn:( _ ≡ _    ), '(fun x =>  _ ≡ x    ), (   "_ ≡ ",""  )) ::
+  (pn:( _ ⇔ _    ), '(fun x =>  x ⇔ _    ), ( ""," ⇔ _"    )) ::
+  (pn:( _ ⇔ _    ), '(fun x =>  _ ⇔ x    ), (   "_ ⇔ ",""  )) ::
+  (pn:( _ ~ _    ), '(fun x =>  x ~ _    ), ( ""," ~ _"    )) ::
+  (pn:( _ ~ _    ), '(fun x =>  _ ~ x    ), (   "_ ~ ",""  )) ::
+  (pn:(⟨_ , _⟩   ), '(fun x => ⟨x , _⟩   ), ("⟨"," , _⟩"   )) ::
+  (pn:(⟨_ , _⟩   ), '(fun x => ⟨_ , x⟩   ), (  "⟨_ , ","⟩" )) ::
+  (pn:(∀h _      ), '(fun x => ∀h x      ), ( "∀h ",""     )) ::
+  (pn:(∃h _      ), '(fun x => ∃h x      ), ( "∃h ",""     )) ::
+  (pn:(¬  _      ), '(fun x => ¬  x      ), (  "¬ ",""     )) ::
+  (pn:(π₁ _      ), '(fun x => π₁ x      ), ( "π₁ ",""     )) ::
+  (pn:(π₂ _      ), '(fun x => π₂ x      ), ( "π₂ ",""     )) ::
   traversals ().
 
 Ltac2 Set hyperrewrites as rewrites := fun () =>
-  (pn:(⊤[_]),            '(truth_subst _)) ::
-  (pn:(⊥[_]),            '(false_subst _)) ::
-  (pn:((_ ∧ _)[_]),      '(conj_subst _ _ _)) ::
-  (pn:((_ ∨ _)[_]),      '(disj_subst _ _ _)) ::
-  (pn:((_ ⇒ _)[_]),      '(impl_subst _ _ _)) ::
-  (pn:((_ ⇔ _)[_]),      '(iff_subst _ _ _)) ::
-  (pn:((_ ≡ _)[_]),      '(equal_subst _ _ _)) ::
-  (pn:((_ ~ _)[_]),      '(partial_setoid_subst   _ _ _)) ::
-  (pn:((∀h _)[_]),       '(forall_subst _ _)) ::
-  (pn:((∃h _)[_]),       '(exists_subst _ _)) ::
-  (pn:((¬ _)[_]),        '(neg_subst _ _)) ::
-  (pn:((_[_])[_]),       '(hyperdoctrine_comp_subst _ _ _)) ::
-  (pn:(_[tm_var _]),     '(hyperdoctrine_id_subst _)) ::
-  (pn:((π₁ _)[_]tm),     '(hyperdoctrine_pr1_subst _ _)) ::
-  (pn:((π₂ _)[_]tm),     '(hyperdoctrine_pr2_subst _ _)) ::
-  (pn:(⟨_, _⟩[_]tm),     '(hyperdoctrine_pair_subst _ _ _)) ::
-  (pn:((tm_var _)[_]tm), '(var_tm_subst _)) ::
-  (pn:((_ [_]tm)[_]tm),  '(tm_subst_comp _ _ _)) ::
-  (pn:(_[tm_var _]tm),   '(tm_subst_var _)) ::
-  (pn:(π₁⟨_, _⟩),        '(hyperdoctrine_pair_pr1 _ _)) ::
-  (pn:(π₂⟨_, _⟩),        '(hyperdoctrine_pair_pr2 _ _)) ::
-  (pn:(!![_]tm),         '(hyperdoctrine_unit_tm_subst _)) ::
+  (pn:(⊤[_]),            '(truth_subst _                 ), "truth_subst _"                 ) ::
+  (pn:(⊥[_]),            '(false_subst _                 ), "false_subst _"                 ) ::
+  (pn:((_ ∧ _)[_]),      '(conj_subst _ _ _              ), "conj_subst _ _ _"              ) ::
+  (pn:((_ ∨ _)[_]),      '(disj_subst _ _ _              ), "disj_subst _ _ _"              ) ::
+  (pn:((_ ⇒ _)[_]),      '(impl_subst _ _ _              ), "impl_subst _ _ _"              ) ::
+  (pn:((_ ⇔ _)[_]),      '(iff_subst _ _ _               ), "iff_subst _ _ _"               ) ::
+  (pn:((_ ≡ _)[_]),      '(equal_subst _ _ _             ), "equal_subst _ _ _"             ) ::
+  (pn:((_ ~ _)[_]),      '(partial_setoid_subst   _ _ _  ), "partial_setoid_subst   _ _ _"  ) ::
+  (pn:((∀h _)[_]),       '(forall_subst _ _              ), "forall_subst _ _"              ) ::
+  (pn:((∃h _)[_]),       '(exists_subst _ _              ), "exists_subst _ _"              ) ::
+  (pn:((¬ _)[_]),        '(neg_subst _ _                 ), "neg_subst _ _"                 ) ::
+  (pn:((_[_])[_]),       '(hyperdoctrine_comp_subst _ _ _), "hyperdoctrine_comp_subst _ _ _") ::
+  (pn:(_[tm_var _]),     '(hyperdoctrine_id_subst _      ), "hyperdoctrine_id_subst _"      ) ::
+  (pn:((π₁ _)[_]tm),     '(hyperdoctrine_pr1_subst _ _   ), "hyperdoctrine_pr1_subst _ _"   ) ::
+  (pn:((π₂ _)[_]tm),     '(hyperdoctrine_pr2_subst _ _   ), "hyperdoctrine_pr2_subst _ _"   ) ::
+  (pn:(⟨_, _⟩[_]tm),     '(hyperdoctrine_pair_subst _ _ _), "hyperdoctrine_pair_subst _ _ _") ::
+  (pn:((tm_var _)[_]tm), '(var_tm_subst _                ), "var_tm_subst _"                ) ::
+  (pn:((_ [_]tm)[_]tm),  '(tm_subst_comp _ _ _           ), "tm_subst_comp _ _ _"           ) ::
+  (pn:(_[tm_var _]tm),   '(tm_subst_var _                ), "tm_subst_var _"                ) ::
+  (pn:(π₁⟨_, _⟩),        '(hyperdoctrine_pair_pr1 _ _    ), "hyperdoctrine_pair_pr1 _ _"    ) ::
+  (pn:(π₂⟨_, _⟩),        '(hyperdoctrine_pair_pr2 _ _    ), "hyperdoctrine_pair_pr2 _ _"    ) ::
+  (pn:(!![_]tm),         '(hyperdoctrine_unit_tm_subst _ ), "hyperdoctrine_unit_tm_subst _ ") ::
   rewrites ().
 
-Ltac2 Type state := {
-  outer_map : constr -> constr;
-  inner_map : (constr -> constr) list
+(**
+  While traversing, the `navigation`, deconstructed as `(l, r, (pr, in, po))`, gives the contextual
+  information for printing rewrites:
+    `refine (pr (λ x, ` + (join "(" reverse(l)) + ` x ` + (join ")" r) + `) in (_) po)`
+  For example: `maponpaths (λ x, _ ∧ (x ~ _)) (_) @ _` or `transportf (λ x, (x ∨ _) ⊢ _) (_) _`.
+*)
+Ltac2 Type navigation := {
+  left: string list;
+  right: string list;
+  preinpostfix: (string * string * string)
 }.
 
-Ltac2 compose_functions
-  (f : (constr -> constr) list)
-  : constr
-  := make_function (List.fold_left (fun f g x => g (f x)) (fun x => x) f).
-
-Ltac2 print_refine' (s : state) (c : constr) :=
-  let f := compose_functions (s.(inner_map)) in
-  (s.(outer_map) '(maponpaths $f $c)).
-
-Ltac2 print_refine (s : state) (c : constr) :=
-  Message.print (
-    Message.concat
-    (Message.of_string "refine '(")
-    (Message.concat
-      (Message.of_constr (print_refine' s c))
-      (Message.of_string ").")
-    )
-  ).
-
-Require Import Ltac2.Constr.
-Require Import Ltac2.Message.
-
-Definition test
-  : unit.
-Proof.
-  print_refine'
-      {outer_map := (fun x => '($x @ _)); inner_map := []}
-      '(var_tm_subst _)) in
-Defined.
-
-  let (short: bool) := match s.(left), s.(right) with
-    | [], [] => true
-    | _, _ => false
-  end in
-  let (beginning, ending) := match (s.(side)), short with
-    | 0, true => ("refine '(", " @ _).")
-    | 0, false => ("refine '(maponpaths (λ x, ", ") @ _).")
-    | _, true => ("refine '(_ @ !", ").")
-    | _, false => ("refine '(_ @ !maponpaths (λ x, ", ")).")
-  end in
-  let navigation := match short with
-    | true => []
-    | false => [
-        String.concat "" (List.rev (s.(left))) ;
+(* Prints a rewrite with navigation n and identity t (in its string representation) *)
+Ltac2 print_refine (n : navigation) (t : string) :=
+  let (prefix, infix, postfix) := n.(preinpostfix) in
+  Message.print (Message.of_string (
+      String.concat "" [
+        prefix ;
+        "(λ x, " ;
+        String.concat "(" (List.rev (n.(left))) ;
         "x" ;
-        String.concat "" (s.(right)) ;
-        ") ("
+        String.concat ")" (n.(right)) ;
+        ")" ;
+        infix ;
+        "(" ;
+        t ;
+        ")" ;
+        postfix
       ]
-  end in
-  Message.print (Message.of_string (String.concat "" [
-    beginning ;
-    String.concat "" navigation ;
-    t ;
-    ending
-  ])).
+  )).
+
+Ltac2 rec iterate_until
+  (l : 't1 list)
+  (f : 't1 -> 't1 list -> 't2 option)
+  : 't2 option
+  := match l with
+  | []     => None
+  | x :: l => match f x l with
+    | Some y => Some y
+    | None   => iterate_until l f
+    end
+  end.
+
+Ltac2 try_opt (f : unit -> 'a) : 'a option :=
+  Control.once_plus
+    (fun () => Some (f ()))
+    (fun _ => None).
+
+Ltac2 just_fail0 () : 'a := Control.zero (Tactic_failure None).
+Ltac2 Notation "just_fail" := just_fail0 ().
+
+Ltac2 append_navigation
+  (n : navigation)
+  ((l, r) : string * string)
+  : navigation
+  := {n with
+    left := (l :: n.(left));
+    right := (r :: n.(right));
+  }.
 
 Ltac2 rec traverse
-    (traversals : ((unit -> unit) * string * string) list)
-    (s : state)
-    (t : state -> unit) ()
-  := t s;
-    List.iter (
-      fun (m, l, r) =>
-      try (
-        m ();
-        Control.focus 2 2 (
-          traverse traversals {
-            s with
-            left := (l :: "(" :: s.(left));
-            right := (r :: ")" :: s.(right))
-          } t
-        )
-      )) traversals;
-    fail.
+    (traversals : t_traversal list)
+    (preorder :  navigation -> bool)
+    (postorder : navigation -> bool)
+    (n : navigation)
+  : ((t_traversal list) list) option
+  := if preorder n then Some [] else
+    let r := iterate_until
+      traversals
+      (fun (p, c, t) l =>
+        match! goal with
+        | [ |- $pattern:p = _ ] => try_opt (fun () =>
+          refine '(maponpaths $c _);
+            match traverse traversals preorder postorder (append_navigation n t) with
+            | Some x => Some (l :: x)
+            | None => just_fail
+            end)
+        | [ |- _ ] => None
+        end
+      ) in
+    match r with
+    | Some (Some x) => Some x
+    | _ => if postorder n then Some [[]] else None
+    end.
 
 Ltac2 simplify
     (traversals : ((unit -> unit) * string * string) list)
