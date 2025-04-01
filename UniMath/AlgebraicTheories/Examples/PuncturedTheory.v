@@ -49,7 +49,7 @@ Section PuncturedTheory.
     use make_algebraic_theory_data.
     - intro n.
       induction n as [| n H].
-      + exact (make_hSet _ isasetempty).
+      + exact emptyset.
       + exact (T (S n)).
     - intros n i.
       induction n.
@@ -197,7 +197,6 @@ Section PuncturedTheory.
       intro a0'.
       use make_is_algebra.
       - intros m n f g a.
-        unfold AlgebraCategoryCore.subst_action_ax.
         destruct m as [| m], n as [| n].
         + refine (maponpaths (λ x, action x _) _).
           refine (_ @ subst_var _ _).
