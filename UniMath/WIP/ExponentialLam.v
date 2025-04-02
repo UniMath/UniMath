@@ -76,6 +76,49 @@ Require Import Ltac2.Message.
 Require Import Ltac2.Control.
 Require Import Ltac2.Notations.
 
+(** Executes a function for all terms of a list, until the function returns something *)
+Ltac2 rec iterate_until
+  (f : 'a -> 'a list -> 'b option)
+  (l : 'a list)
+  : 'b option
+  := match l with
+  | []     => None
+  | x :: l => match f x l with
+    | Some y => Some y
+    | None   => iterate_until f l
+    end
+  end.
+
+(** Executes `f`, and if it returns a value, recurses with that value *)
+Ltac2 rec repeat_while
+  (f : 'a -> ('a option))
+  (t : 'a)
+  : unit
+  :=
+  match f t with
+  | Some t' => repeat_while f t'
+  | None => ()
+  end.
+
+(** Fails with an arbitrary return type, because the `fail` tactic is only of type `unit -> unit` *)
+Ltac2 failv0 () : 'a := zero (Tactic_failure None).
+Ltac2 Notation "failv" := failv0 ().
+
+(** Executes a tactic. Returns its result if it succeeds and `None` if not. *)
+Ltac2 try_opt (f : unit -> 'a) : 'a option :=
+  once_plus
+    (fun () => Some (f ()))
+    (fun _ => None).
+
+(** Attempts to unpack an option. Returns `x` if it is `Some x`, and fails if it is `None`. *)
+Ltac2 option_unpack
+  (o : 'a option)
+  : 'a
+  := match o with
+  | Some x => x
+  | None => failv
+  end.
+
 Ltac2 Notation "pn:" p(pattern) : 0 := p.
 
 (**
@@ -106,7 +149,17 @@ Ltac2 Type navigation := {
   preinpostfix: (string * string * string)
 }.
 
-(* Prints a rewrite with navigation n and identity t (in its string representation) *)
+(** Adds a new step on the inside of the navigation *)
+Ltac2 append_navigation
+  (n : navigation)
+  ((l, r) : string * string)
+  : navigation
+  := {n with
+    left := (l :: n.(left));
+    right := (r :: n.(right));
+  }.
+
+(** Prints a rewrite with navigation n and identity t (in its string representation) *)
 Ltac2 print_refine (n : navigation) (t : string) :=
   let (prefix, infix, postfix) := n.(preinpostfix) in
   Message.print (Message.of_string (
@@ -124,43 +177,6 @@ Ltac2 print_refine (n : navigation) (t : string) :=
         postfix
       ]
   )).
-
-Ltac2 rec iterate_until
-  (f : 't1 -> 't1 list -> 't2 option)
-  (l : 't1 list)
-  : 't2 option
-  := match l with
-  | []     => None
-  | x :: l => match f x l with
-    | Some y => Some y
-    | None   => iterate_until f l
-    end
-  end.
-
-Ltac2 try_opt (f : unit -> 'a) : 'a option :=
-  once_plus
-    (fun () => Some (f ()))
-    (fun _ => None).
-
-Ltac2 just_fail0 () : 'a := zero (Tactic_failure None).
-Ltac2 Notation "just_fail" := just_fail0 ().
-
-Ltac2 append_navigation
-  (n : navigation)
-  ((l, r) : string * string)
-  : navigation
-  := {n with
-    left := (l :: n.(left));
-    right := (r :: n.(right));
-  }.
-
-Ltac2 option_unpack
-  (o : 'a option)
-  : 'a
-  := match o with
-  | Some x => x
-  | None => just_fail
-  end.
 
 Ltac2 traverse_subterm
   (traverse : navigation -> ((t_traversal list) list) option)
@@ -182,11 +198,16 @@ Ltac2 traverse_subterm
         end
       ).
 
+(**
+  At each subterm of the left hand side of the goal, executes `preorder`, then recurses, and then
+  executes `postorder`. If either preorder or postorder returns true, stops executing and returns
+  the remaining traversals at each level.
+*)
 Ltac2 rec traverse
-    (traversals : t_traversal list)
-    (preorder :  navigation -> bool)
-    (postorder : navigation -> bool)
-    (n : navigation)
+  (traversals : t_traversal list)
+  (preorder :  navigation -> bool)
+  (postorder : navigation -> bool)
+  (n : navigation)
   : ((t_traversal list) list) option
   := if preorder n then Some [] else
     match iterate_until (traverse_subterm (traverse traversals preorder postorder) n) traversals with
@@ -194,18 +215,19 @@ Ltac2 rec traverse
     | _ => if postorder n then Some [[]] else None
     end.
 
+(** Tries to rewrite any subterm of the left hand side of the goal, from the top level downwards *)
 Ltac2 simplify_component
-    (traversals : t_traversal list)
-    (rewrites : t_rewrite list)
-    : navigation -> ((t_traversal list) list) option
+  (traversals : t_traversal list)
+  (rewrites : t_rewrite list)
+  : navigation -> ((t_traversal list) list) option
   := traverse
       traversals
-      (fun n => List.fold_left (fun b (p, c', t) =>
+      (fun n => List.fold_left (fun b (p, c, t) =>
           if b then true else
             match (try_opt (fun () =>
               match! goal with
               | [ |- $pattern:p = _ ] =>
-                refine (c' ());
+                refine (c ());
                 print_refine n t
               end
             )) with
@@ -216,11 +238,15 @@ Ltac2 simplify_component
       )
       (fun _ => false).
 
+(**
+  Uses `top_traversals` to get a goal of the form `[term] = _`, and tries to repeatedly rewrite the
+  highest rewritable subterm of the left hand side of that goal.
+*)
 Ltac2 simplify
-    (traversals : t_traversal list)
-    (rewrites : t_rewrite list)
-    (top_traversals : ((unit -> unit) * navigation) list)
-    : unit
+  (traversals : t_traversal list)
+  (rewrites : t_rewrite list)
+  (top_traversals : ((unit -> unit) * navigation) list)
+  : unit
   :=
   List.iter (fun (m, n) =>
     try (
