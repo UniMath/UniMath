@@ -3,6 +3,7 @@ Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
@@ -14,6 +15,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 
 Local Open Scope cat.
+
+(* Magmas *)
 
 Definition magma_disp_cat
   : disp_cat HSET.
@@ -35,9 +38,43 @@ Proof.
     ).
 Defined.
 
+Lemma is_univalent_magma_disp_cat
+  : is_univalent_disp magma_disp_cat.
+Proof.
+  apply is_univalent_disp_iff_fibers_are_univalent.
+  intros X op op'.
+  use isweq_iso.
+  - intro f.
+    apply funextfun.
+    intro x.
+    apply funextfun.
+    intro y.
+    exact (z_iso_mor f x y).
+  - abstract (
+      intro;
+      apply proofirrelevance;
+      apply isasetbinoponhSet
+    ).
+  - abstract (
+      intro;
+      apply z_iso_eq;
+      apply proofirrelevance;
+      do 2 (apply impred_isaprop; intro);
+      apply setproperty
+    ).
+Defined.
+
 Definition magma_cat
   : category
   := total_category magma_disp_cat.
+
+Lemma is_univalent_magma_cat
+  : is_univalent magma_cat.
+Proof.
+  apply is_univalent_total_category.
+  - apply is_univalent_HSET.
+  - apply is_univalent_magma_disp_cat.
+Defined.
 
 Definition magma
   : UU
@@ -60,13 +97,35 @@ Definition magma_morphism_function
 
 Coercion magma_morphism_function : magma_morphism >-> Funclass.
 
+(* Abelian magmas *)
+
 Definition abelian_magma_disp_cat
   : disp_cat magma_cat
   := disp_full_sub magma_cat (λ X, iscomm (op (X := X))).
 
+Lemma is_univalent_abelian_magma_disp_cat
+  : is_univalent_disp abelian_magma_disp_cat.
+Proof.
+  apply disp_full_sub_univalent.
+  intro.
+  apply isapropiscomm.
+Defined.
+
+(* Semigroups *)
+
 Definition semigroup_disp_cat
   : disp_cat magma_cat
   := disp_full_sub magma_cat (λ X, isassoc (op (X := X))).
+
+Lemma is_univalent_semigroup_disp_cat
+  : is_univalent_disp semigroup_disp_cat.
+Proof.
+  apply disp_full_sub_univalent.
+  intro.
+  apply isapropisassoc.
+Defined.
+
+(* Unital Magmas *)
 
 Definition unital_magma_disp_cat
   : disp_cat magma_cat.
@@ -76,10 +135,7 @@ Proof.
     exact (isunital (op (X := X))).
   - refine (λ X Y uX uY (f : magma_morphism X Y), _).
     exact (f (pr1 uX) = pr1 uY).
-  - abstract (
-      intros;
-      apply setproperty
-    ).
+  - abstract (intros; apply setproperty).
   - abstract easy.
   - abstract (
       refine (λ X Y Z uX uY uZ (f g : magma_morphism _ _) Hf Hg, _);
@@ -89,9 +145,64 @@ Proof.
     ).
 Defined.
 
+Lemma is_univalent_unital_magma_disp_cat
+  : is_univalent_disp unital_magma_disp_cat.
+Proof.
+  apply is_univalent_disp_iff_fibers_are_univalent.
+  refine (λ (X : magma) (u u' : isunital _), _).
+  use isweq_iso.
+  - intro f.
+    apply proofirrelevance.
+    apply isapropisunital.
+  - abstract (intro; apply proofirrelevance, isasetaprop, isapropisunital).
+  - abstract (intro; apply z_iso_eq, setproperty).
+Defined.
+
+(* Monoids *)
+
 Definition monoid_disp_cat
   : disp_cat magma_cat
   := dirprod_disp_cat semigroup_disp_cat unital_magma_disp_cat.
+
+Definition is_univalent_monoid_disp_cat
+  : is_univalent_disp monoid_disp_cat
+  := dirprod_disp_cat_is_univalent _ _
+    is_univalent_semigroup_disp_cat
+    is_univalent_unital_magma_disp_cat.
+
+Definition monoid_cat
+  : category
+  := total_category monoid_disp_cat.
+
+Definition is_univalent_monoid_cat
+  : is_univalent monoid_cat
+  := is_univalent_total_category
+    is_univalent_magma_cat
+    is_univalent_monoid_disp_cat.
+
+(* Abelian Monoids *)
+
+Definition abelian_monoid_disp_cat
+  : disp_cat magma_cat
+  := dirprod_disp_cat monoid_disp_cat abelian_magma_disp_cat.
+
+Definition is_univalent_abelian_monoid_disp_cat
+  : is_univalent_disp abelian_monoid_disp_cat
+  := dirprod_disp_cat_is_univalent _ _
+    is_univalent_monoid_disp_cat
+    is_univalent_abelian_magma_disp_cat.
+
+Definition abelian_monoid_cat
+  : category
+  := total_category abelian_monoid_disp_cat.
+
+Definition is_univalent_abelian_monoid_cat
+  : is_univalent abelian_monoid_cat
+  := is_univalent_total_category
+    is_univalent_magma_cat
+    is_univalent_abelian_monoid_disp_cat.
+
+(* Groups *)
 
 Definition group_disp_cat
   : disp_cat magma_cat.
@@ -117,62 +228,73 @@ Proof.
     ).
 Defined.
 
-Definition abelian_monoid_disp_cat
-  : disp_cat magma_cat
-  := dirprod_disp_cat monoid_disp_cat abelian_magma_disp_cat.
+Lemma is_univalent_group_disp_cat
+  : is_univalent_disp group_disp_cat.
+Proof.
+  apply is_univalent_sigma_disp.
+  - apply is_univalent_monoid_disp_cat.
+  - apply is_univalent_disp_iff_fibers_are_univalent.
+    intros X inv inv'.
+    use isweq_iso.
+    + intro f.
+      apply (subtypePath (isapropisinv _ _)).
+      apply funextfun.
+      intro x.
+      exact (z_iso_mor f x).
+    + abstract (
+        intro;
+        apply proofirrelevance;
+        simple refine (isaset_carrier_subset (make_hSet _ _) (λ _, make_hProp _ _) _ _);
+        [ apply funspace_isaset;
+          apply setproperty
+        | apply isapropisinv ]
+      ).
+    + abstract (
+        intro;
+        apply z_iso_eq;
+        apply proofirrelevance;
+        apply impred_isaprop;
+        intro;
+        apply setproperty
+      ).
+Defined.
+
+Definition group_cat
+  : category
+  := total_category group_disp_cat.
+
+Definition is_univalent_group_cat
+  : is_univalent group_cat
+  := is_univalent_total_category
+    is_univalent_magma_cat
+    is_univalent_group_disp_cat.
+
+(* Abelian Groups *)
 
 Definition abelian_group_disp_cat
   : disp_cat magma_cat
   := dirprod_disp_cat group_disp_cat abelian_magma_disp_cat.
 
-Lemma is_univalent_abelian_group_disp_cat
-  : is_univalent_disp abelian_group_disp_cat.
-Proof.
-  apply dirprod_disp_cat_is_univalent.
-  - apply is_univalent_sigma_disp.
-    + apply dirprod_disp_cat_is_univalent.
-      * apply disp_full_sub_univalent.
-        intro X.
-        apply isapropisassoc.
-      * apply is_univalent_disp_iff_fibers_are_univalent.
-        refine (λ (X : magma) (u u' : isunital _), _).
-        use isweq_iso.
-        -- intro f.
-          apply proofirrelevance.
-          apply isapropisunital.
-        -- intro x.
-          apply proofirrelevance.
-          apply isasetaprop.
-          apply isapropisunital.
-        -- intro x.
-          apply z_iso_eq.
-          apply setproperty.
-    + apply is_univalent_disp_iff_fibers_are_univalent.
-      intros X inv inv'.
-      use isweq_iso.
-      -- intro f.
-        apply subtypePath.
-        {
-          intro.
-          apply isapropisinv.
-        }
-        apply funextfun.
-        intro x.
-        exact (z_iso_mor f x).
-      -- intro x.
-        apply proofirrelevance.
-        refine ((_ : isaset _) _ _).
-        simple refine (isaset_carrier_subset (make_hSet _ _) (λ _, make_hProp _ _)).
-        ++ apply funspace_isaset.
-          apply setproperty.
-        ++ apply isapropisinv.
-      -- intro x.
-        apply z_iso_eq.
-        apply proofirrelevance.
-        apply impred_isaprop.
-        intro.
-        apply setproperty.
-  - apply disp_full_sub_univalent.
-    intro X.
-    apply isapropiscomm.
-Defined.
+Definition is_univalent_abelian_group_disp_cat
+  : is_univalent_disp abelian_group_disp_cat
+  := dirprod_disp_cat_is_univalent _ _
+    is_univalent_group_disp_cat
+    is_univalent_abelian_magma_disp_cat.
+
+Definition abelian_group_cat
+  : category
+  := total_category abelian_group_disp_cat.
+
+Definition is_univalent_abelian_group_cat
+  : is_univalent abelian_group_cat
+  := is_univalent_total_category
+    is_univalent_magma_cat
+    is_univalent_abelian_group_disp_cat.
+
+Require Import Algebra.Groups.
+Require Import Algebra.Monoids.
+
+Check (idpath _ : (monoid_cat : UU) = monoid).
+Check (idpath _ : (abelian_monoid_cat : UU) = abmonoid).
+Check (idpath _ : (group_cat : UU) = gr).
+Check (idpath _ : (abelian_group_cat : UU) = abgr).
