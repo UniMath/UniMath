@@ -17,73 +17,11 @@ Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
 
 Require Import UniMath.CategoryTheory.WeakEquivalences.Terminal.
+Require Import UniMath.CategoryTheory.WeakEquivalences.Mono.
 Require Import UniMath.CategoryTheory.WeakEquivalences.Preservation.Pullbacks.
 Require Import UniMath.CategoryTheory.WeakEquivalences.Preservation.SubobjectClassifier.
 
 Local Open Scope cat.
-
-Lemma weak_equiv_preserves_monic
-  {C D : category}
-  {F : functor C D}
-  (Fw : is_weak_equiv F)
-  {x y : C} (m : Monic _ x y)
-  : isMonic (#F m).
-Proof.
-  intros d g₁ g₂ p.
-  unfold Monic in m.
-  unfold isMonic in m.
-
-  use (factor_through_squash _ _ (eso_from_weak_equiv _ Fw d)).
-  { apply homset_property. }
-  intros [d₀ i].
-  set (h₁ := fully_faithful_inv_hom (ff_from_weak_equiv _ Fw) _ _ (i · g₁)).
-  set (h₂ := fully_faithful_inv_hom (ff_from_weak_equiv _ Fw) _ _ (i · g₂)).
-
-  assert (pf₀ : h₁ = h₂).
-  {
-    use (pr2 m d₀ h₁ h₂).
-    unfold h₁, h₂.
-    use (faithful_reflects_morphism_equality _ (pr2 Fw)).
-    do 2 rewrite functor_comp.
-    do 2 rewrite functor_on_fully_faithful_inv_hom.
-    rewrite ! assoc'.
-    apply maponpaths.
-    exact p.
-  }
-
-  unfold h₁, h₂ in pf₀.
-
-  assert (spf₀ : g₁ = z_iso_inv i · #F h₁).
-  {
-    unfold h₁.
-    rewrite functor_on_fully_faithful_inv_hom.
-    rewrite assoc.
-    rewrite z_iso_inv_after_z_iso.
-    apply pathsinv0, id_left.
-  }
-  assert (spf₁ : g₂ = z_iso_inv i · #F h₂).
-  {
-    unfold h₂.
-    rewrite functor_on_fully_faithful_inv_hom.
-    rewrite assoc.
-    rewrite z_iso_inv_after_z_iso.
-    apply pathsinv0, id_left.
-  }
-  refine (spf₀ @ _ @ ! spf₁).
-  apply maponpaths.
-
-  unfold h₁, h₂.
-  apply maponpaths.
-  exact pf₀.
-Qed.
-
-Definition weak_equiv_preserves_mono
-  {C D : category}
-  {F : functor C D}
-  (Fw : is_weak_equiv F)
-  {x y : C} (m : Monic _ x y)
-  : Monic _ (F x) (F y)
-  := #F m ,, weak_equiv_preserves_monic Fw m.
 
 Section WeakEquivalencesReflectSubobjectClassifiersExistence.
 

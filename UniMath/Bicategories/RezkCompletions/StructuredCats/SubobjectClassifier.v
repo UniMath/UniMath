@@ -1,11 +1,5 @@
 (*
-In this file, we show how the Rezk completion admits a subobject classifier, if the original category has a subobject classifier.
-
-Contents:
-1. BicatOfCategoriesWithBinProductsHasRezkCompletion:
-   A construction of the Rezk completion of categories equipped with binary products (up to propositional truncation).
-2. BicatOfCategoriesWithChosenBinProductsHasRezkCompletion:
-   A construction of the Rezk completion of categories equipped with chosen binary products.
+In this file, we show how the Rezk completion for finitely complete categories lifts to those equipped with a subobject classifier.
 *)
 
 Require Import UniMath.Foundations.All.

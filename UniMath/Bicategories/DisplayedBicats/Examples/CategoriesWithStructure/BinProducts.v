@@ -1,3 +1,15 @@
+(*
+  In this file, we construct bicategories whose objects are categories with binary products, and whose morphisms suitably preserve binary products.
+  (See [Bicategories/DisplayedBicats/Examples/CategoriesWithStructure/FiniteLimits.v] for more details.)
+
+  Contents:
+  - [disp_bicat_chosen_binproducts] is the (displayed) bicategory whose objects are categories *equipped with chosen* binary products, and whose morphisms are functors that *preserve the chosen* products up to an equality. (The equality is surrounded by a truncation to enforce that the preservation is a proposition.)
+
+  - [disp_bicat_have_binproducts] is the (displayed) bicategory whose objects are categories for which there *merely exists* binary products, and whose morphisms are functors that *preserve any chosen* binary products.
+
+  - [disp_bicat_binproducts] is the (displayed) bicategory whose objects are the same as in [disp_bicat_chosen_binproducts], and whose morphisms are the same as in [disp_bicat_have_binproducts].
+ *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
@@ -27,13 +39,10 @@ Section CategoriesWithChosenBinProductsAndPreservationUpToEquality.
     : bicat
     := total_bicat disp_bicat_chosen_binproducts.
 
-  Lemma disp_2cells_is_contr_chosen_binproducts
+  Lemma disp_2cells_iscontr_chosen_binproducts
     : disp_2cells_iscontr disp_bicat_chosen_binproducts.
   Proof.
-    intro ; intros.
-    exists (tt,,tt).
-    intro.
-    use total2_paths_f ; apply iscontrunit.
+    apply disp_2cells_iscontr_subbicat.
   Qed.
 
 End CategoriesWithChosenBinProductsAndPreservationUpToEquality.
@@ -54,13 +63,10 @@ Section CategoriesWithExistingBinProductsAndPreservationIsCreation.
     : bicat
     := total_bicat disp_bicat_have_binproducts.
 
-  Lemma disp_2cells_is_contr_have_binproducts
+  Lemma disp_2cells_iscontr_have_binproducts
     : disp_2cells_iscontr disp_bicat_have_binproducts.
   Proof.
-    intro ; intros.
-    exists (tt,,tt).
-    intro.
-    use total2_paths_f ; apply iscontrunit.
+    apply disp_2cells_iscontr_subbicat.
   Qed.
 
 End CategoriesWithExistingBinProductsAndPreservationIsCreation.
@@ -79,10 +85,7 @@ Section CategoriesWithChosenBinProductsAndPreservationIsCreation.
 
   Lemma disp_2cells_iscontr_binproducts : disp_2cells_iscontr disp_bicat_binproducts.
   Proof.
-    intro ; intros.
-    exists (tt,,tt).
-    intro.
-    use total2_paths_f ; apply iscontrunit.
+    apply disp_2cells_iscontr_subbicat.
   Qed.
 
 End CategoriesWithChosenBinProductsAndPreservationIsCreation.

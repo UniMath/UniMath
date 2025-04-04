@@ -39,7 +39,7 @@ Section LiftAlongWeakEquivalencePreservesSubobjectClassifier.
     (T3 : Terminal C3)
     (Fps : preserves_subobject_classifier _ T1 T3 Fpt).
 
-  Let T2 : Terminal C2 := _ ,, weak_equiv_preserves_terminal _ Gw (pr1 T1) (pr2 T1).
+  Let T2 : Terminal C2 := weak_equiv_creates_terminal Gw T1.
 
   Section Aux.
 
@@ -146,46 +146,3 @@ Section LiftAlongWeakEquivalencePreservesSubobjectClassifier.
   Qed.
 
 End LiftAlongWeakEquivalencePreservesSubobjectClassifier.
-
-Lemma Terminal_unique_up_to_id_if_univalent
-  (C : univalent_category) (T₁ T₂ : Terminal C)
-  : T₁ = T₂.
-Proof.
-  use subtypePath.
-  { intro ; apply isaprop_isTerminal. }
-  use isotoid.
-  { apply C. }
-  use z_iso_Terminals.
-Defined.
-
-Lemma subobject_classifier_independent_of_chosen_terminal_if_univalent
-{C : univalent_category} (T₁ T₂ : Terminal C)
-  : subobject_classifier T₁ → subobject_classifier T₂.
-Proof.
-  intro Ω.
-  induction (Terminal_unique_up_to_id_if_univalent C T₁ T₂).
-  exact Ω.
-Defined.
-
-Lemma preserves_subobject_classifier_independent_of_chosen_terminal_if_univalent
-  {C₁ C₂ : category} {F : functor C₁ C₂} (T₁ : Terminal C₁) (T₂ : Terminal C₂)
-  {Ft : preserves_terminal F} (FΩ : preserves_subobject_classifier _ T₁ T₂ Ft)
-  : is_univalent C₁ → ∏ T₁' : Terminal C₁, preserves_subobject_classifier _ T₁' T₂ Ft.
-Proof.
-  intros C₁_univ T₁'.
-  induction (Terminal_unique_up_to_id_if_univalent (C₁ ,, C₁_univ) T₁ T₁').
-  exact FΩ.
-
-  (* intros T₁' Ω t Ω_uvp.
-  use is_subobject_classifier_eq_ar.
-  - exact (TerminalArrow (preserves_terminal_to_terminal F Ft T₁) T₂
-             · (# F (TerminalArrow T₁' T₁ · t))).
-  - rewrite functor_comp, assoc.
-    apply maponpaths_2.
-    apply (TerminalArrowUnique (preserves_terminal_to_terminal _ _ _)).
-  - use (FΩ Ω (TerminalArrow _ _ · t)).
-
-    unfold is_subobject_classifier.
-    intros x y m.
-    set (uvp := Ω_uvp x y m). *)
-Qed.

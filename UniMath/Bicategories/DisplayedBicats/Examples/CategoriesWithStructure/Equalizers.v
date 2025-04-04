@@ -1,3 +1,15 @@
+(*
+  In this file, we construct bicategories whose objects are categories with equalizers, and whose morphisms suitably preserve equalizers.
+  (See [Bicategories/DisplayedBicats/Examples/CategoriesWithStructure/FiniteLimits.v] for more details.)
+
+  Contents:
+  - [disp_bicat_chosen_equalizers] is the (displayed) bicategory whose objects are categories *equipped with chosen* equalizers, and whose morphisms are functors that *preserve the chosen* equalizers up to an equality. (The equality is surrounded by a truncation to enforce that the preservation is a proposition.)
+
+  - [disp_bicat_have_equalizers] is the (displayed) bicategory whose objects are categories for which there *merely exists* equalizers, and whose morphisms are functors that *preserve any chosen* equalizers.
+
+  - [disp_bicat_equalizers] is the (displayed) bicategory whose objects are the same as in [disp_bicat_chosen_equalizers], and whose morphisms are the same as in [disp_bicat_have_equalizers].
+ *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
@@ -30,10 +42,7 @@ Section CategoriesWithChosenEqualizersAndPreservationUpToEquality.
   Lemma disp_2cells_iscontr_chosen_equalizers
     : disp_2cells_iscontr disp_bicat_chosen_equalizers.
   Proof.
-    intro ; intros.
-    exists (tt,,tt).
-    intro.
-    use total2_paths_f ; apply iscontrunit.
+    apply disp_2cells_iscontr_subbicat.
   Qed.
 
 End CategoriesWithChosenEqualizersAndPreservationUpToEquality.
@@ -57,10 +66,7 @@ Section CategoriesWithExistingEqualizersAndPreservationIsCreation.
   Lemma disp_2cells_iscontr_have_equalizers
     : disp_2cells_iscontr disp_bicat_have_equalizers.
   Proof.
-    intro ; intros.
-    exists (tt,,tt).
-    intro.
-    use total2_paths_f ; apply iscontrunit.
+    apply disp_2cells_iscontr_subbicat.
   Qed.
 
 End CategoriesWithExistingEqualizersAndPreservationIsCreation.
@@ -80,10 +86,7 @@ Section CategoriesWithChosenEqualizersAndPreservationIsCreation.
   Lemma disp_2cells_iscontr_equalizers
     : disp_2cells_iscontr disp_bicat_equalizers.
   Proof.
-    intro ; intros.
-    exists (tt,,tt).
-    intro.
-    use total2_paths_f ; apply iscontrunit.
+    apply disp_2cells_iscontr_subbicat.
   Qed.
 
 End CategoriesWithChosenEqualizersAndPreservationIsCreation.

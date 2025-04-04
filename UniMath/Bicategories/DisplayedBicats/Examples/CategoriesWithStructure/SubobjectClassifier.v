@@ -1,3 +1,9 @@
+(*
+  In this file, we construct the (displayed) bicategory [disp_bicat_subobject_classifier] whose objects are categories equipped with chosen finite limits and a chosen subobject, and whose morphisms are functors that preserve finite limits and the subobject classifier.
+
+  Remark: In this file, we work only over the bicategory [disp_bicat_limits] to ensure that we have a chosen terminal object.
+ *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
@@ -31,10 +37,7 @@ Section LexCategoriesWithChosenSubobjectClassifierAndPreservationIsCreation.
   Lemma disp_2cells_iscontr_subobject_classifier'
     : disp_2cells_iscontr disp_bicat_subobject_classifier'.
   Proof.
-    intro ; intros.
-    exists (tt,,tt).
-    intro.
-    use total2_paths_f ; apply iscontrunit.
+    apply disp_2cells_iscontr_subbicat.
   Qed.
 
   Definition disp_bicat_subobject_classifier

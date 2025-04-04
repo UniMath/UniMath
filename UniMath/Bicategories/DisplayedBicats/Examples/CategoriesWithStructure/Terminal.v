@@ -1,4 +1,15 @@
-(************************************************************************************)
+(*
+  In this file, we construct bicategories whose objects are categories with a terminal object, and whose morphisms suitably preserve terminal objects.
+  (See [Bicategories/DisplayedBicats/Examples/CategoriesWithStructure/FiniteLimits.v] for more details.)
+
+  Contents:
+  - [disp_bicat_chosen_terminal] is the (displayed) bicategory whose objects are categories *equipped with a chosen* terminal object, and whose morphisms are functors that *preserve the chosen* terminal objects up to an equality. (The equality is surrounded by a truncation to enforce that the preservation is a proposition.)
+
+  - [disp_bicat_have_terminal] is the (displayed) bicategory whose objects are categories for which there *merely exists* a terminal object, and whose morphisms are functors that *preserve any chosen* terminal object.
+
+  - [disp_bicat_terminal] is the (displayed) bicategory whose objects are the same as in [disp_bicat_chosen_terminal], and whose morphisms are the same as in [disp_bicat_have_terminal].
+ *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
@@ -14,7 +25,7 @@ Local Open Scope cat.
 
 Section CategoriesWithChosenTerminalAndPreservationUpToEquality.
 
-  Definition disp_bicat_chosen_terminal_obj
+  Definition disp_bicat_chosen_terminal
     : disp_bicat bicat_of_cats.
   Proof.
     use disp_subbicat.
@@ -24,24 +35,21 @@ Section CategoriesWithChosenTerminalAndPreservationUpToEquality.
     - exact (λ _ _ _ _ _ _ _ _ PF PG, composition_preserves_chosen_terminal_eq PF PG).
   Defined.
 
-  Definition cat_with_chosen_terminal_obj
+  Definition cat_with_chosen_terminal
     : bicat
-    := total_bicat disp_bicat_chosen_terminal_obj.
+    := total_bicat disp_bicat_chosen_terminal.
 
-  Lemma disp_2cells_is_contr_chosen_terminal_obj
-    : disp_2cells_iscontr disp_bicat_chosen_terminal_obj.
+  Lemma disp_2cells_iscontr_chosen_terminal
+    : disp_2cells_iscontr disp_bicat_chosen_terminal.
   Proof.
-    intro ; intros.
-    exists (tt,,tt).
-    intro.
-    use total2_paths_f ; apply iscontrunit.
+    apply disp_2cells_iscontr_subbicat.
   Qed.
 
 End CategoriesWithChosenTerminalAndPreservationUpToEquality.
 
 Section CategoriesWithExistingTerminalAndPreservationIsCreation.
 
-  Definition disp_bicat_have_terminal_obj
+  Definition disp_bicat_have_terminal
     : disp_bicat bicat_of_cats.
   Proof.
     use disp_subbicat.
@@ -51,18 +59,14 @@ Section CategoriesWithExistingTerminalAndPreservationIsCreation.
     - exact (λ _ _ _ _ _ _ _ _ HF HG, composition_preserves_terminal HF HG).
   Defined.
 
-  Definition cat_with_terminal_obj
+  Definition cat_with_terminal
     : bicat
-    := total_bicat disp_bicat_have_terminal_obj.
+    := total_bicat disp_bicat_have_terminal.
 
-  (* 3. Homotopy levels of each type of 2-cells *)
-  Lemma disp_2cells_is_contr_have_terminal_obj
-    : disp_2cells_iscontr disp_bicat_have_terminal_obj.
+  Lemma disp_2cells_iscontr_have_terminal
+    : disp_2cells_iscontr disp_bicat_have_terminal.
   Proof.
-    intro ; intros.
-    exists (tt,,tt).
-    intro.
-    use total2_paths_f ; apply iscontrunit.
+    apply disp_2cells_iscontr_subbicat.
   Qed.
 
 End CategoriesWithExistingTerminalAndPreservationIsCreation.
@@ -79,12 +83,10 @@ Section CategoriesWithChosenTerminalAndPreservationIsCreation.
     - exact (λ _ _ _ _ _ _ _ _ HF HG, composition_preserves_terminal HF HG).
   Defined.
 
-  Lemma disp_2cells_iscontr_terminal : disp_2cells_iscontr disp_bicat_terminal.
+  Lemma disp_2cells_iscontr_terminal
+    : disp_2cells_iscontr disp_bicat_terminal.
   Proof.
-    intro ; intros.
-    exists (tt,,tt).
-    intro.
-    use total2_paths_f ; apply iscontrunit.
+    apply disp_2cells_iscontr_subbicat.
   Qed.
 
 End CategoriesWithChosenTerminalAndPreservationIsCreation.

@@ -13,6 +13,7 @@ Require Import UniMath.CategoryTheory.Monics.
 
 Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
 Require Import UniMath.CategoryTheory.WeakEquivalences.Terminal.
+Require Import UniMath.CategoryTheory.WeakEquivalences.Mono.
 Require Import UniMath.CategoryTheory.WeakEquivalences.Preservation.Pullbacks.
 Require Import UniMath.CategoryTheory.WeakEquivalences.Reflection.Pullbacks.
 
@@ -20,54 +21,6 @@ Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
 
 Local Open Scope cat.
-
-Lemma contr_to_contr_paths {A : UU}
-  : iscontr A → (∏ a b : A, iscontr (a = b)).
-Proof.
-  intros contrA ? ?.
-  use tpair.
-  - apply proofirrelevancecontr.
-    exact contrA.
-  - intro.
-    induction t.
-    apply (pr2 (isofhlevelcontr 1 contrA a a) _ @ ! pr2 (isofhlevelcontr 1 contrA a a) _).
-Qed.
-
-Section ReflectionOfMonomorphisms.
-
-  Context {C D : category}
-    {F : C ⟶ D}
-    (Fw : fully_faithful F).
-
-  Context {d₁ d₂ : D}
-    {c₁ c₂ : C}
-    (i₁ : z_iso (F c₁) d₁)
-    (i₂ : z_iso (F c₂) d₂).
-
-  Let reflection (f : D⟦d₁, d₂⟧)
-    : C⟦c₁, c₂⟧
-    := fully_faithful_inv_hom Fw c₁ c₂ (i₁ · f· z_iso_inv i₂).
-
-  Lemma reflection_of_mono_is_mono
-    (f : D⟦d₁, d₂⟧)
-    : isMonic f → isMonic (reflection f).
-  Proof.
-    intro fm.
-    unfold reflection.
-    apply (faithful_reflects_mono _ Fw).
-    rewrite functor_on_fully_faithful_inv_hom.
-    repeat (use isMonic_comp).
-    + apply is_iso_isMonic, z_iso_is_z_isomorphism.
-    + apply fm.
-    + apply is_iso_isMonic, z_iso_is_z_isomorphism.
-  Qed.
-
-  Definition reflection_of_mono
-    (f : Monic D d₁ d₂)
-    : Monic C c₁ c₂
-    := make_Monic _ (reflection f) (reflection_of_mono_is_mono f (pr2 f)).
-
-End ReflectionOfMonomorphisms.
 
 Section WeakEquivalencePreservationsSubobjectClassifier.
 

@@ -1,3 +1,15 @@
+(*
+  In this file, we construct bicategories whose objects are categories with pullbacks, and whose morphisms suitably preserve pullbacks.
+  (See [Bicategories/DisplayedBicats/Examples/CategoriesWithStructure/FiniteLimits.v] for more details.)
+
+  Contents:
+  - [disp_bicat_chosen_pullbacks] is the (displayed) bicategory whose objects are categories *equipped with chosen* pullbacks, and whose morphisms are functors that *preserve the chosen* pullbacks up to an equality. (The equality is surrounded by a truncation to enforce that the preservation is a proposition.)
+
+  - [disp_bicat_have_pullbacks] is the (displayed) bicategory whose objects are categories for which there *merely exists* pullbacks, and whose morphisms are functors that *preserve any chosen* pullbacks.
+
+  - [disp_bicat_pullbacks] is the (displayed) bicategory whose objects are the same as in [disp_bicat_chosen_pullbacks], and whose morphisms are the same as in [disp_bicat_have_pullbacks].
+ *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
@@ -30,10 +42,7 @@ Section CategoriesWithChosenPullbacksAndPreservationUpToEquality.
   Lemma disp_2cells_iscontr_chosen_pullbacks
     : disp_2cells_iscontr disp_bicat_chosen_pullbacks.
   Proof.
-    intro ; intros.
-    exists (tt,,tt).
-    intro.
-    use total2_paths_f ; apply iscontrunit.
+    apply disp_2cells_iscontr_subbicat.
   Qed.
 
 End CategoriesWithChosenPullbacksAndPreservationUpToEquality.
@@ -57,10 +66,7 @@ Section CategoriesWithExistingPullbacksAndPreservationIsCreation.
   Lemma disp_2cells_iscontr_have_pullbacks
     : disp_2cells_iscontr disp_bicat_have_pullbacks.
   Proof.
-    intro ; intros.
-    exists (tt,,tt).
-    intro.
-    use total2_paths_f ; apply iscontrunit.
+    apply disp_2cells_iscontr_subbicat.
   Qed.
 
 End CategoriesWithExistingPullbacksAndPreservationIsCreation.
@@ -80,10 +86,7 @@ Section CategoriesWithChosenPullbacksAndPreservationIsCreation.
   Lemma disp_2cells_iscontr_pullbacks
     : disp_2cells_iscontr disp_bicat_pullbacks.
   Proof.
-    intro ; intros.
-    exists (tt,,tt).
-    intro.
-    use total2_paths_f ; apply iscontrunit.
+    apply disp_2cells_iscontr_subbicat.
   Qed.
 
 End CategoriesWithChosenPullbacksAndPreservationIsCreation.

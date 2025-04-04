@@ -493,7 +493,7 @@ RezkCompletions/BicatToLocalUnivalentBicat.v
 RezkCompletions/RezkCompletionOfBicategory.v
 RezkCompletions/Uniqueness.v
 RezkCompletions/DisplayedRezkCompletions.v
-RezkCompletions/StructuredCats/TerminalObject.v
+RezkCompletions/StructuredCats/Terminal.v
 RezkCompletions/StructuredCats/BinProducts.v
 RezkCompletions/StructuredCats/Pullbacks.v
 RezkCompletions/StructuredCats/Equalizers.v

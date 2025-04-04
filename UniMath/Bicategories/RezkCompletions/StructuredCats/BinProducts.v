@@ -3,11 +3,13 @@ In this file, we show how the Rezk completion of a categories has a suitable bin
 Hence, categories with binary products admit a Rezk completion.
 
 Contents:
-1. BicatOfCategoriesWithBinProductsHasRezkCompletion:
-   A construction of the Rezk completion of categories equipped with binary products (up to propositional truncation).
-2. BicatOfCategoriesWithChosenBinProductsHasRezkCompletion:
+1. [BicatOfCategoriesWithBinProductsHasRezkCompletion]
+   A construction of the Rezk completion of categories (merely) having binary products.
+2. [BicatOfCategoriesWithChosenBinProductsHasRezkCompletion]
    A construction of the Rezk completion of categories equipped with chosen binary products.
-*)
+3. [CategoriesWithChosenTerminalAndPreservationIsCreationHasRezkCompletions]
+   A construction of the Rezk completion for categories equipped with a chosen binary products.
+ *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -80,13 +82,10 @@ Section CategoriesWithBinProductsAdmitRezkCompletions.
   Context (LUR : left_universal_arrow univ_cats_to_cats).
   Context (η_weak_equiv : ∏ C : category, is_weak_equiv (pr12 LUR C)).
 
-  Definition cat_with_binproducts_has_RezkCompletion
-    : disp_left_universal_arrow LUR
-        (disp_psfunctor_on_cat_to_univ_cat disp_bicat_have_binproducts
-           (disp_2cells_isaprop_from_disp_2cells_iscontr _ disp_2cells_is_contr_have_binproducts)).
+  Lemma disp_bicat_have_binproducts_has_RC
+    : cat_with_struct_has_RC η_weak_equiv disp_bicat_have_binproducts.
   Proof.
-    use make_disp_left_universal_arrow_if_contr_CAT_from_weak_equiv.
-    - exact η_weak_equiv.
+    simple refine (_ ,, _ ,, _).
     - intros C1 C2 C2_univ F Fw BP₁.
       exact (weak_equiv_into_univ_creates_hasbinproducts C2_univ Fw (pr1 BP₁) ,, tt).
     - intros C BP.
@@ -99,13 +98,24 @@ Section CategoriesWithBinProductsAdmitRezkCompletions.
       exact (weak_equiv_lifts_preserves_binproducts C2 C3 α Gw Fprod).
   Defined.
 
-  Definition cat_with_chosen_binproducts_has_RezkCompletion
-    : disp_left_universal_arrow LUR
-        (disp_psfunctor_on_cat_to_univ_cat disp_bicat_chosen_binproducts
-           (disp_2cells_isaprop_from_disp_2cells_iscontr _ disp_2cells_is_contr_chosen_binproducts)).
+  Corollary disp_bicat_have_binproducts_has_Rezk_completions
+    : cat_with_structure_has_RezkCompletion disp_bicat_have_binproducts.
   Proof.
-    use make_disp_left_universal_arrow_if_contr_CAT_from_weak_equiv.
-    - exact η_weak_equiv.
+    apply (make_RezkCompletion_from_locally_contractible _ _ disp_bicat_have_binproducts_has_RC).
+    exact disp_2cells_iscontr_have_binproducts.
+  Defined.
+
+End CategoriesWithBinProductsAdmitRezkCompletions.
+
+Section CategoriesWithChosenBinProductsAndPreservationUpToEqualityHasRezkCompletions.
+
+  Context {LUR : left_universal_arrow univ_cats_to_cats}
+    (η_weak_equiv : ∏ C : category, is_weak_equiv (pr12 LUR C)).
+
+  Definition disp_bicat_chosen_binproducts_has_RC
+    : cat_with_struct_has_RC η_weak_equiv disp_bicat_chosen_binproducts.
+  Proof.
+    simple refine (_ ,, _ ,, _).
     - intros C1 C2 C2_univ F Fw C1_prod.
       exact (weak_equiv_into_univ_creates_binproducts C2_univ Fw (pr1 C1_prod) ,, tt).
     - intros C C1_prod.
@@ -119,7 +129,14 @@ Section CategoriesWithBinProductsAdmitRezkCompletions.
       exact (weak_equiv_lifts_preserves_chosen_binproducts_eq C2 C3 α (pr1 C1_prod) (pr1 C2_prod) (pr1 C3_prod) Gw Fprod).
   Defined.
 
-End CategoriesWithBinProductsAdmitRezkCompletions.
+  Corollary disp_bicat_chosen_binproducts_has_Rezk_completions
+    : cat_with_structure_has_RezkCompletion disp_bicat_chosen_binproducts.
+  Proof.
+    apply (make_RezkCompletion_from_locally_contractible _ _ disp_bicat_chosen_binproducts_has_RC).
+    exact disp_2cells_iscontr_chosen_binproducts.
+  Defined.
+
+End CategoriesWithChosenBinProductsAndPreservationUpToEqualityHasRezkCompletions.
 
 Section CategoriesWithChosenBinProductsAndPreservationIsCreationHasRezkCompletions.
 
