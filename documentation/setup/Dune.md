@@ -80,5 +80,5 @@ We hope this issue gets resolved soon as this would remove any need to configure
 ## Generating documentation
 To generate documentation with Dune for UniMath (or another theory like SetHITs or TypeTheory), perform the following steps:
 1. Navigate to the [`UniMath`](../../UniMath/) directory *inside* the repository. This is the root directory of the code: the directory with the [`dune`](../../UniMath/dune) file that contains the `coq.theory` stanza. For other theories, this is for example [`SetHITs/code`](../../SetHITs/code) or [`TypeTheory/TypeTheory`](../../TypeTheory/TypeTheory/).
-2. Execute the command `$ dune build UniMath.html` (adjust accordingly for your theory of choice).
-3. Your documentation will be located in [`_build/default/UniMath/UniMath.html`](../../_build/default/UniMath/UniMath.html/) (or something similar for another theory).
+2. Execute the command `$ dune build UniMath.html` (adjust accordingly for your theory of choice, like `$ dune build SetHITs.html`).
+3. Your documentation will be located in [`_build/default/UniMath/UniMath.html`](../../_build/default/UniMath/UniMath.html/) (or something similar for another theory, like [`_build/default/TypeTheory/TypeTheory/TypeTheory.html/`](../../_build/default/TypeTheory/TypeTheory/TypeTheory.html)).
