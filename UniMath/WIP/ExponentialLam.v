@@ -43,34 +43,6 @@ Require Import UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.ExponentialPE
 Local Open Scope cat.
 Local Open Scope hd.
 
-Section PERLambda.
-  Context {H : tripos}
-          {X Y Z : partial_setoid H}
-          (φ : partial_setoid_morphism (prod_partial_setoid X Z) Y).
-
-  (** * 1. The formula defining abstraction *)
-  Definition lam_partial_setoid_is_def
-    : form (Z ×h exp_partial_setoid X Y)
-    := let z := π₁ (tm_var (Z ×h exp_partial_setoid X Y)) in
-       let f := π₂ (tm_var (Z ×h exp_partial_setoid X Y)) in
-       z ~ z
-       ∧
-       exp_partial_setoid_is_function [ f ].
-
-  Definition lam_partial_setoid_eq
-    : form (Z ×h exp_partial_setoid X Y)
-    := let z := π₁ (π₁ (π₁ (tm_var (((Z ×h ℙ (X ×h Y)) ×h X) ×h Y)))) in
-       let f := π₂ (π₁ (π₁ (tm_var (((Z ×h ℙ (X ×h Y)) ×h X) ×h Y)))) in
-       let x := π₂ (π₁ (tm_var (((Z ×h ℙ (X ×h Y)) ×h X) ×h Y))) in
-       let y := π₂ (tm_var (((Z ×h ℙ (X ×h Y)) ×h X) ×h Y)) in
-       (∀h ∀h (φ [ ⟨ ⟨ x , z ⟩ , y ⟩ ] ⇔ ⟨ x , y ⟩ ∈ f)).
-
-  Definition lam_partial_setoid_form
-    : form (Z ×h exp_partial_setoid X Y)
-    := lam_partial_setoid_is_def
-       ∧
-       lam_partial_setoid_eq.
-
 Require Import Ltac2.Ltac2.
 Require Import Ltac2.Message.
 Require Import Ltac2.Control.
@@ -110,15 +82,6 @@ Ltac2 try_opt (f : unit -> 'a) : 'a option :=
     (fun () => Some (f ()))
     (fun _ => None).
 
-(** Attempts to unpack an option. Returns `x` if it is `Some x`, and fails if it is `None`. *)
-Ltac2 option_unpack
-  (o : 'a option)
-  : 'a
-  := match o with
-  | Some x => x
-  | None => failv
-  end.
-
 Ltac2 Notation "pn:" p(pattern) : 0 := p.
 
 (**
@@ -127,7 +90,18 @@ Ltac2 Notation "pn:" p(pattern) : 0 := p.
   - A term `t` describing the step `refine '(maponpaths t _)`;
   - Strings `l` and `r` such that the string `λ x, l x r` is `t`.
 *)
-Ltac2 Type t_traversal := (pattern * (unit -> constr) * (string * string)).
+Ltac2 Type rec t_traversal := {
+  p : pattern;
+  c : unit -> constr;
+  s : (string * string);
+  t : (t_traversal list) option
+}.
+
+Ltac2 make_traversal0 (p : pattern) (c : unit -> constr) (l : string) (r : string)
+  : t_traversal
+  := {p := p; c := c; s := (l, r); t := None}.
+
+Ltac2 Notation "make_traversal" p(pattern) x(thunk(open_constr)) := make_traversal0 p x.
 
 (**
   A rewrite consists of
@@ -179,24 +153,24 @@ Ltac2 print_refine (n : navigation) (t : string) :=
   )).
 
 Ltac2 traverse_subterm
-  (traverse : navigation -> ((t_traversal list) list) option)
+  (traverse : (t_traversal list) option -> navigation -> (t_traversal list) option)
   (n : navigation)
-  ((p, c', t) : t_traversal)
+  (t : t_traversal)
   (l : t_traversal list)
-  : ((t_traversal list) list) option
-  := try_opt (fun () =>
-        match! goal with
-        | [ |- $pattern:p = _ ] =>
-          let c := c' () in
-          refine '(maponpaths $c _);
-          focus 2 2 (fun () =>
-            option_unpack
-              (Option.map
-                (fun x => l :: x)
-                (traverse (append_navigation n t)))
-          )
-        end
-      ).
+  : (t_traversal list) option
+  := let p := t.(p) in
+    try_opt (fun () =>
+      match! goal with
+      | [ |- $pattern:p = _ ] =>
+        let c := t.(c) () in
+        refine '(maponpaths $c _);
+        focus 2 2 (fun () =>
+          Option.get_bt (Option.map
+            (fun (x : t_traversal list) => ({t with t := Some x}) :: l)
+            (traverse (t.(t)) (append_navigation n (t.(s)))))
+        )
+      end
+    ).
 
 (**
   At each subterm of the left hand side of the goal, executes `preorder`, then recurses, and then
@@ -207,19 +181,23 @@ Ltac2 rec traverse
   (traversals : t_traversal list)
   (preorder :  navigation -> bool)
   (postorder : navigation -> bool)
+  (first_traversals : (t_traversal list) option)
   (n : navigation)
-  : ((t_traversal list) list) option
-  := if preorder n then Some [] else
-    match iterate_until (traverse_subterm (traverse traversals preorder postorder) n) traversals with
+  : (t_traversal list) option
+  := if preorder n then Some traversals else
+    match iterate_until
+      (traverse_subterm (traverse traversals preorder postorder) n)
+      (Option.default traversals first_traversals)
+    with
     | Some x => Some x
-    | _ => if postorder n then Some [[]] else None
+    | _ => if postorder n then Some [] else None
     end.
 
 (** Tries to rewrite any subterm of the left hand side of the goal, from the top level downwards *)
 Ltac2 simplify_component
   (traversals : t_traversal list)
   (rewrites : t_rewrite list)
-  : navigation -> ((t_traversal list) list) option
+  : (t_traversal list) option -> navigation -> (t_traversal list) option
   := traverse
       traversals
       (fun n => List.fold_left (fun b (p, c, t) =>
@@ -252,14 +230,14 @@ Ltac2 simplify
     try (
       m ();
       focus 2 2 (fun () =>
-        repeat (
-          refine '(_ @ _);
-          focus 2 2 (fun () =>
-            match simplify_component traversals rewrites n with
-            | Some _ => ()
-            | None => fail
-            end)
-        );
+        repeat_while
+        (fun (l : t_traversal list) =>
+          try_opt (fun () =>
+            refine '(_ @ _);
+            focus 2 2 (fun () => Option.get_bt (simplify_component traversals rewrites (Some l) n))
+          )
+        )
+        traversals;
         reflexivity
       )
     )
@@ -269,29 +247,29 @@ Ltac2 mutable hyperrewrites () : t_rewrite list := [].
 Ltac2 mutable hypertraversals () : t_traversal list := [].
 
 Ltac2 Set hypertraversals as traversals := fun _ =>
-  (pn:( _ [ _ ]tm), (fun () => '(λ x,  x [ _ ]tm)), ( ""," [ _ ]tm")) ::
-  (pn:( _ [ _ ]tm), (fun () => '(λ x,  _ [ x ]tm)), (   "_ [","]tm")) ::
-  (pn:( _ [ _ ]  ), (fun () => '(λ x,  x [ _ ]  )), (" "," [ _ ]"  )) ::
-  (pn:( _ [ _ ]  ), (fun () => '(λ x,  _ [ x ]  )), (   "_ [","]"  )) ::
-  (pn:( _ ∧ _    ), (fun () => '(λ x,  x ∧ _    )), ( ""," ∧ _"    )) ::
-  (pn:( _ ∧ _    ), (fun () => '(λ x,  _ ∧ x    )), (   "_ ∧ ",""  )) ::
-  (pn:( _ ∨ _    ), (fun () => '(λ x,  x ∨ _    )), ( ""," ∨ _"    )) ::
-  (pn:( _ ∨ _    ), (fun () => '(λ x,  _ ∨ x    )), (   "_ ∨ ",""  )) ::
-  (pn:( _ ⇒ _    ), (fun () => '(λ x,  x ⇒ _    )), ( ""," ⇒ _"    )) ::
-  (pn:( _ ⇒ _    ), (fun () => '(λ x,  _ ⇒ x    )), (   "_ ⇒ ",""  )) ::
-  (pn:( _ ≡ _    ), (fun () => '(λ x,  x ≡ _    )), ( ""," ≡ _"    )) ::
-  (pn:( _ ≡ _    ), (fun () => '(λ x,  _ ≡ x    )), (   "_ ≡ ",""  )) ::
-  (pn:( _ ⇔ _    ), (fun () => '(λ x,  x ⇔ _    )), ( ""," ⇔ _"    )) ::
-  (pn:( _ ⇔ _    ), (fun () => '(λ x,  _ ⇔ x    )), (   "_ ⇔ ",""  )) ::
-  (pn:( _ ~ _    ), (fun () => '(λ x,  x ~ _    )), ( ""," ~ _"    )) ::
-  (pn:( _ ~ _    ), (fun () => '(λ x,  _ ~ x    )), (   "_ ~ ",""  )) ::
-  (pn:(⟨_ , _⟩   ), (fun () => '(λ x, ⟨x , _⟩   )), ("⟨"," , _⟩"   )) ::
-  (pn:(⟨_ , _⟩   ), (fun () => '(λ x, ⟨_ , x⟩   )), (  "⟨_ , ","⟩" )) ::
-  (pn:(∀h _      ), (fun () => '(λ x, ∀h x      )), ( "∀h ",""     )) ::
-  (pn:(∃h _      ), (fun () => '(λ x, ∃h x      )), ( "∃h ",""     )) ::
-  (pn:(¬  _      ), (fun () => '(λ x, ¬  x      )), (  "¬ ",""     )) ::
-  (pn:(π₁ _      ), (fun () => '(λ x, π₁ x      )), ( "π₁ ",""     )) ::
-  (pn:(π₂ _      ), (fun () => '(λ x, π₂ x      )), ( "π₂ ",""     )) ::
+  (make_traversal ( _ [ _ ]tm) (λ x,  x [ _ ]tm)  "" " [ _ ]tm") ::
+  (make_traversal ( _ [ _ ]tm) (λ x,  _ [ x ]tm)    "_ [" "]tm") ::
+  (make_traversal ( _ [ _ ]  ) (λ x,  x [ _ ]  ) " " " [ _ ]"  ) ::
+  (make_traversal ( _ [ _ ]  ) (λ x,  _ [ x ]  )    "_ [" "]"  ) ::
+  (make_traversal ( _ ∧ _    ) (λ x,  x ∧ _    )  "" " ∧ _"    ) ::
+  (make_traversal ( _ ∧ _    ) (λ x,  _ ∧ x    )    "_ ∧ " ""  ) ::
+  (make_traversal ( _ ∨ _    ) (λ x,  x ∨ _    )  "" " ∨ _"    ) ::
+  (make_traversal ( _ ∨ _    ) (λ x,  _ ∨ x    )    "_ ∨ " ""  ) ::
+  (make_traversal ( _ ⇒ _    ) (λ x,  x ⇒ _    )  "" " ⇒ _"    ) ::
+  (make_traversal ( _ ⇒ _    ) (λ x,  _ ⇒ x    )    "_ ⇒ " ""  ) ::
+  (make_traversal ( _ ≡ _    ) (λ x,  x ≡ _    )  "" " ≡ _"    ) ::
+  (make_traversal ( _ ≡ _    ) (λ x,  _ ≡ x    )    "_ ≡ " ""  ) ::
+  (make_traversal ( _ ⇔ _    ) (λ x,  x ⇔ _    )  "" " ⇔ _"    ) ::
+  (make_traversal ( _ ⇔ _    ) (λ x,  _ ⇔ x    )    "_ ⇔ " ""  ) ::
+  (make_traversal ( _ ~ _    ) (λ x,  x ~ _    )  "" " ~ _"    ) ::
+  (make_traversal ( _ ~ _    ) (λ x,  _ ~ x    )    "_ ~ " ""  ) ::
+  (make_traversal (⟨_ , _⟩   ) (λ x, ⟨x , _⟩   ) "⟨" " , _⟩"   ) ::
+  (make_traversal (⟨_ , _⟩   ) (λ x, ⟨_ , x⟩   )   "⟨_ , " "⟩" ) ::
+  (make_traversal (∀h _      ) (λ x, ∀h x      )  "∀h " ""     ) ::
+  (make_traversal (∃h _      ) (λ x, ∃h x      )  "∃h " ""     ) ::
+  (make_traversal (¬  _      ) (λ x, ¬  x      )   "¬ " ""     ) ::
+  (make_traversal (π₁ _      ) (λ x, π₁ x      )  "π₁ " ""     ) ::
+  (make_traversal (π₂ _      ) (λ x, π₂ x      )  "π₂ " ""     ) ::
   traversals ().
 
 Ltac2 Set hyperrewrites as rewrites := fun () =>
@@ -321,21 +299,21 @@ Ltac2 Set hyperrewrites as rewrites := fun () =>
 
 Ltac2 hypertop_traversals () : ((unit -> unit) * navigation) list :=
   ((fun () => match! goal with
-    | [ |- _ ⊢ ?b ] => refine '(transportb (λ x, x ⊢ $b) _ _); cbv beta
+    | [ |- _ = _ ] => refine '(!(!_ @ !_))
     end),
-    {left := [""]; right := [" ⊢ _"]; preinpostfix := ("refine '(transportb ", " ", " _).")}) ::
-  ((fun () => match! goal with
-    | [ |- ?a ⊢ _ ] => refine '(transportb (λ x, $a ⊢ x) _ _); cbv beta
-    end),
-    {left := ["_ ⊢ "]; right := [""]; preinpostfix := ("refine '(transportb ", " ", " _).")}) ::
+    {left := [""]; right := [""]; preinpostfix := ("refine '(_ @ !maponpaths ", " ", ").")}) ::
   ((fun () => match! goal with
     | [ |- _ = _ ] => refine '(_ @ _)
     end),
     {left := [""]; right := [""]; preinpostfix := ("refine '(maponpaths ", " ", " @ _).")}) ::
   ((fun () => match! goal with
-    | [ |- _ = _ ] => refine '(!(!_ @ !_))
+    | [ |- ?a ⊢ _ ] => refine '(transportb (λ x, $a ⊢ x) _ _); cbv beta
     end),
-    {left := [""]; right := [""]; preinpostfix := ("refine '(_ @ !maponpaths ", " ", ").")}) ::
+    {left := ["_ ⊢ "]; right := [""]; preinpostfix := ("refine '(transportb ", " ", " _).")}) ::
+  ((fun () => match! goal with
+    | [ |- _ ⊢ ?b ] => refine '(transportb (λ x, x ⊢ $b) _ _); cbv beta
+    end),
+    {left := [""]; right := [" ⊢ _"]; preinpostfix := ("refine '(transportb ", " ", " _).")}) ::
   [].
 
 Ltac2 hypersimplify0 () :=
@@ -345,6 +323,34 @@ Ltac2 hypersimplify0 () :=
   (List.rev (hypertop_traversals ())).
 
 Ltac2 Notation hypersimplify := hypersimplify0 ().
+
+Section PERLambda.
+  Context {H : tripos}
+          {X Y Z : partial_setoid H}
+          (φ : partial_setoid_morphism (prod_partial_setoid X Z) Y).
+
+  (** * 1. The formula defining abstraction *)
+  Definition lam_partial_setoid_is_def
+    : form (Z ×h exp_partial_setoid X Y)
+    := let z := π₁ (tm_var (Z ×h exp_partial_setoid X Y)) in
+       let f := π₂ (tm_var (Z ×h exp_partial_setoid X Y)) in
+       z ~ z
+       ∧
+       exp_partial_setoid_is_function [ f ].
+
+  Definition lam_partial_setoid_eq
+    : form (Z ×h exp_partial_setoid X Y)
+    := let z := π₁ (π₁ (π₁ (tm_var (((Z ×h ℙ (X ×h Y)) ×h X) ×h Y)))) in
+       let f := π₂ (π₁ (π₁ (tm_var (((Z ×h ℙ (X ×h Y)) ×h X) ×h Y)))) in
+       let x := π₂ (π₁ (tm_var (((Z ×h ℙ (X ×h Y)) ×h X) ×h Y))) in
+       let y := π₂ (tm_var (((Z ×h ℙ (X ×h Y)) ×h X) ×h Y)) in
+       (∀h ∀h (φ [ ⟨ ⟨ x , z ⟩ , y ⟩ ] ⇔ ⟨ x , y ⟩ ∈ f)).
+
+  Definition lam_partial_setoid_form
+    : form (Z ×h exp_partial_setoid X Y)
+    := lam_partial_setoid_is_def
+       ∧
+       lam_partial_setoid_eq.
 
   (** * 2. Accessors *)
   Section Accessors.
@@ -597,8 +603,8 @@ Ltac2 Notation hypersimplify := hypersimplify0 ().
     refine '(_ @ maponpaths (λ φ, φ [ ⟨ ⟨ x , y ⟩ , ⟨ !! , z ⟩ ⟩ ]) lam_image_form_eq_help @ _).
     * unfold lam_image_form.
       symmetry.
-      hypersimplify.
-    * hypersimplify.
+      now hypersimplify.
+    * now hypersimplify.
   Qed.
 
   Proposition is_function_lam_image_form
@@ -610,7 +616,7 @@ Ltac2 Notation hypersimplify := hypersimplify0 ().
     hypersimplify.
     repeat (apply conj_intro).
     - unfold exp_partial_setoid_dom_defined_law.
-      hypersimplify0 false 0.
+      hypersimplify.
       do 2 (apply forall_intro).
       apply impl_intro.
       apply weaken_right.
@@ -633,7 +639,7 @@ Ltac2 Notation hypersimplify := hypersimplify0 ().
       hypersimplify.
       apply hyperdoctrine_hyp.
     - unfold exp_partial_setoid_cod_defined_law.
-      hypersimplify0 false 0.
+      hypersimplify.
       do 2 (apply forall_intro).
       apply impl_intro.
       apply weaken_right.
@@ -652,9 +658,9 @@ Ltac2 Notation hypersimplify := hypersimplify0 ().
       rewrite lam_image_form_eq.
       apply hyperdoctrine_hyp.
     - unfold exp_partial_setoid_eq_defined_law.
-      Time hypersimplify0 false 0;
-      do 4 (apply forall_intro);
-      do 3 (apply impl_intro);
+      hypersimplify.
+      do 4 (apply forall_intro).
+      do 3 (apply impl_intro).
       hypersimplify.
       pose (Γ := ((((𝟙 ×h Z) ×h X) ×h X) ×h Y) ×h Y).
       pose (x₁ := π₂ (π₁ (π₁ (π₁ (tm_var Γ))))).
