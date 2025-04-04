@@ -67,11 +67,11 @@ Import DispBicat.Notations.
 
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.BicatOfCatToUnivCat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOnCatToUniv.
-
-Require Import UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.
-
 Require Import UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrow.
 Require Import UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrowOnCat.
+
+Require Import UniMath.Bicategories.RezkCompletions.DisplayedRezkCompletions.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.BinProducts.
 
 Local Open Scope cat.
 
@@ -120,3 +120,33 @@ Section CategoriesWithBinProductsAdmitRezkCompletions.
   Defined.
 
 End CategoriesWithBinProductsAdmitRezkCompletions.
+
+Section CategoriesWithChosenBinProductsAndPreservationIsCreationHasRezkCompletions.
+
+  Context {LUR : left_universal_arrow univ_cats_to_cats}
+    (η_weak_equiv : ∏ C : category, is_weak_equiv (pr12 LUR C)).
+
+  Lemma disp_bicat_binproducts_has_RC
+    : cat_with_struct_has_RC η_weak_equiv disp_bicat_binproducts.
+  Proof.
+    simple refine (_ ,, _ ,, _).
+    - intros C1 C2 C2_univ F Fw [BP1 ?].
+      exact (weak_equiv_into_univ_creates_binproducts C2_univ Fw BP1 ,, tt).
+    - intros C [BP1 ?].
+      refine (tt ,, _).
+      apply weak_equiv_preserves_binproducts.
+      apply η_weak_equiv.
+    - intros C1 C2 C3 F G H α C1_prod C2_prod C3_prod Gw.
+      intros [t Fprod].
+      exists tt.
+      exact (weak_equiv_lifts_preserves_binproducts C2 C3 α Gw Fprod).
+  Defined.
+
+  Corollary disp_bicat_binproducts_has_Rezk_completions
+    : cat_with_structure_has_RezkCompletion disp_bicat_binproducts.
+  Proof.
+    apply (make_RezkCompletion_from_locally_contractible _ _ disp_bicat_binproducts_has_RC).
+    exact disp_2cells_iscontr_binproducts.
+  Defined.
+
+End CategoriesWithChosenBinProductsAndPreservationIsCreationHasRezkCompletions.

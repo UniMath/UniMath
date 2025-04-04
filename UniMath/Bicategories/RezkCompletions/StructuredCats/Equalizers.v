@@ -35,15 +35,15 @@ Import PseudoFunctor.Notations.
 
 Require Import UniMath.Bicategories.PseudoFunctors.Examples.BicatOfCatToUnivCat.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOnCatToUniv.
-
-Require Import UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.
-
 Require Import UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrow.
 Require Import UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrowOnCat.
 
+Require Import UniMath.Bicategories.RezkCompletions.DisplayedRezkCompletions.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Equalizers.
+
 Local Open Scope cat.
 
-Section CategoriesWithPullbacksAdmitRezkCompletions.
+Section CategoriesWithEqualizersAdmitRezkCompletions.
 
   Context (LUR : left_universal_arrow univ_cats_to_cats).
   Context (η_weak_equiv : ∏ C : category, is_weak_equiv (pr12 LUR C)).
@@ -51,7 +51,7 @@ Section CategoriesWithPullbacksAdmitRezkCompletions.
   Definition cat_with_equalizers_has_RezkCompletion
     : disp_left_universal_arrow LUR
         (disp_psfunctor_on_cat_to_univ_cat disp_bicat_have_equalizers
-           (disp_2cells_isaprop_from_disp_2cells_iscontr _ disp_2cells_is_contr_have_equalizers)).
+           (disp_2cells_isaprop_from_disp_2cells_iscontr _ disp_2cells_iscontr_have_equalizers)).
   Proof.
     use make_disp_left_universal_arrow_if_contr_CAT_from_weak_equiv.
     - exact η_weak_equiv.
@@ -66,7 +66,7 @@ Section CategoriesWithPullbacksAdmitRezkCompletions.
   Definition cat_with_chosen_equalizers_has_RezkCompletion
   : disp_left_universal_arrow LUR
       (disp_psfunctor_on_cat_to_univ_cat disp_bicat_chosen_equalizers
-         (disp_2cells_isaprop_from_disp_2cells_iscontr _ disp_2cells_is_contr_chosen_equalizers)).
+         (disp_2cells_isaprop_from_disp_2cells_iscontr _ disp_2cells_iscontr_chosen_equalizers)).
   Proof.
     use make_disp_left_universal_arrow_if_contr_CAT_from_weak_equiv.
     - exact η_weak_equiv.
@@ -81,4 +81,34 @@ Section CategoriesWithPullbacksAdmitRezkCompletions.
       exact (weak_equiv_lifts_preserves_chosen_equalizers_eq C2 C3 α (pr1 E₁) (pr1 E₂) (pr1 E₃) Gw Feq).
   Defined.
 
-End CategoriesWithPullbacksAdmitRezkCompletions.
+End CategoriesWithEqualizersAdmitRezkCompletions.
+
+Section CategoriesWithChosenEqualizersAndPreservationIsCreationHasRezkCompletions.
+
+  Context {LUR : left_universal_arrow univ_cats_to_cats}
+    (η_weak_equiv : ∏ C : category, is_weak_equiv (pr12 LUR C)).
+
+  Lemma disp_bicat_equalizers_has_RC
+    : cat_with_struct_has_RC η_weak_equiv disp_bicat_equalizers.
+  Proof.
+    simple refine (_ ,, _ ,, _).
+    - intros C1 C2 C2_univ F Fw [E1 ?].
+      exact (weak_equiv_into_univ_creates_equalizers C2_univ Fw E1 ,, tt).
+    - intros C [E1 ?].
+      refine (tt ,, _).
+      apply weak_equiv_preserves_equalizers.
+      apply η_weak_equiv.
+    - intros C1 C2 C3 F G H α E1 E2 E3 Gw.
+      intros [t F_pe].
+      exists tt.
+      exact (weak_equiv_lifts_preserves_equalizers C2 C3 α Gw F_pe).
+  Defined.
+
+  Corollary disp_bicat_equalizers_has_Rezk_completions
+    : cat_with_structure_has_RezkCompletion disp_bicat_equalizers.
+  Proof.
+    apply (make_RezkCompletion_from_locally_contractible _ _ disp_bicat_equalizers_has_RC).
+    exact disp_2cells_iscontr_equalizers.
+  Defined.
+
+End CategoriesWithChosenEqualizersAndPreservationIsCreationHasRezkCompletions.
