@@ -1023,6 +1023,7 @@ Proof.
   apply (maponpaths pr1 (pr2 isc Hi)).
 Defined.
 
+
 (** *** Homotopy fibers [ hfiber ] *)
 
 Definition hfiber {X Y : UU} (f : X -> Y) (y : Y) : UU := ∑ x : X, f x = y.
