@@ -17,6 +17,8 @@ Local Open Scope logic.
 
 Definition hProp_set : hSet := make_hSet _ isasethProp.
 
+Definition emptyset : hSet := make_hSet ∅ isasetempty.
+
 Definition isconst {X:UU} {Y:hSet} (f : X -> Y) : hProp := ∀ x x', f x = f x'.
 
 Lemma carrier_eq

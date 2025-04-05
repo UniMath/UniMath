@@ -168,3 +168,16 @@ Proof.
   intro i.
   apply var_subst.
 Qed.
+
+Lemma subst_inflate_extend_tuple
+  (T : algebraic_theory)
+  {m : nat}
+  (f : T 0)
+  (g : stn 0 → T m)
+  : inflate f • extend_tuple g (lift_constant _ f) = f • g.
+Proof.
+  refine (subst_inflate _ f _ @ _).
+  apply maponpaths.
+  apply proofirrelevancecontr.
+  apply iscontr_empty_tuple.
+Qed.
