@@ -149,18 +149,6 @@ End PrecompEquivalence.
 
 Section WeakEquivalenceProperties.
 
-  Lemma iscontr_prod (A B : UU)
-    : iscontr A -> iscontr B -> iscontr (A × B).
-  Proof.
-    intros p q.
-    exists (pr1 p ,, pr1 q).
-    intro t.
-    use total2_paths_f.
-    { apply (pr2 p). }
-    rewrite transportf_const.
-    apply (pr2 q).
-  Qed.
-
   Context {C1 C2 D1 D2 : category}
           (F : functor C1 C2) (G : functor D1 D2).
 

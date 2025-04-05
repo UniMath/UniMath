@@ -24,6 +24,7 @@
  1. Preserving subobject classifiers
  2. Preservation of chosen subobject classifiers
  3. Preservation of subobject classifiers via isomorphisms
+ 4. Preservation of subobject classifiers is independent of the choice of terminal object
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -267,4 +268,15 @@ Proof.
            (C₁ := make_univalent_category C₁ HC₁)
            (C₂ := make_univalent_category C₂ HC₂)
            HF').
+Qed.
+
+(** * 4. Preservation of subobject classifiers is independent of the choice of terminal object *)
+Lemma preserves_subobject_classifier_independent_of_chosen_terminal_if_univalent
+  {C₁ C₂ : category} {F : functor C₁ C₂} (T₁ : Terminal C₁) (T₂ : Terminal C₂)
+  {Ft : preserves_terminal F} (FΩ : preserves_subobject_classifier _ T₁ T₂ Ft)
+  : is_univalent C₁ → ∏ T₁' : Terminal C₁, preserves_subobject_classifier _ T₁' T₂ Ft.
+Proof.
+  intros C₁_univ T₁'.
+  induction (Terminal_unique_up_to_id_if_univalent (C₁ ,, C₁_univ) T₁ T₁').
+  exact FΩ.
 Qed.

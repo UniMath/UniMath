@@ -94,7 +94,7 @@ Proof.
   use tpair; [exact O|].
   use tpair; [exact true|].
   assumption.
-Qed.
+Defined.
 
 (** ** Accessors *)
 

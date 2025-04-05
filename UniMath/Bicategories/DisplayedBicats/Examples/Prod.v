@@ -917,3 +917,14 @@ Proof.
                   (λ z, pr12 g ==>[ z ] pr12 g)
                   (λ z, pr22 g ==>[ z ] pr22 g))).
 Defined.
+
+Lemma disp_2cells_of_dirprod_iscontr
+  {B : bicat} {D₁ D₂ : disp_bicat B}
+  (D₁_contr : disp_2cells_iscontr D₁) (D₂_contr : disp_2cells_iscontr D₂)
+  : disp_2cells_iscontr (disp_dirprod_bicat D₁ D₂).
+Proof.
+  intro ; intros.
+  apply iscontr_prod.
+  - apply D₁_contr.
+  - apply D₂_contr.
+Qed.
