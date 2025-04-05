@@ -533,18 +533,6 @@ Proof.
     apply (IHn _ is).
 Defined.
 
-Lemma contr_to_contr_paths {A : UU}
-  : iscontr A → (∏ a b : A, iscontr (a = b)).
-Proof.
-  intros contrA ? ?.
-  use tpair.
-  - apply proofirrelevancecontr.
-    exact contrA.
-  - intro.
-    induction t.
-    apply (pr2 (isofhlevelcontr 1 contrA a a) _ @ ! pr2 (isofhlevelcontr 1 contrA a a) _).
-Qed.
-
 Lemma isofhlevelfweq (n : nat) {X Y : UU} (f : X ≃ Y) : isofhlevelf n f.
 Proof.
   unfold isofhlevelf. intro y.

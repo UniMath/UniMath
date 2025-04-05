@@ -172,7 +172,7 @@ Section WeakEquivalencePreservationsSubobjectClassifier.
           apply id_right.
         * apply homset_property.
         * apply homset_property.
-      + use weqcontrcontr ; apply contr_to_contr_paths.
+      + use weqcontrcontr ; apply isapropifcontr.
         * apply t_F, t_C.
         * apply t_D.
   Qed.
@@ -287,7 +287,7 @@ Section WeakEquivalencePreservationsSubobjectClassifier.
           exact pq.
         * apply homset_property.
         * apply homset_property.
-      + use weqcontrcontr ; apply contr_to_contr_paths.
+      + use weqcontrcontr ; apply isapropifcontr.
         * apply t_F, t_C.
         * apply t_D.
   Qed.
