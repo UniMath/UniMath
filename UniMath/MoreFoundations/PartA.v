@@ -409,6 +409,13 @@ Proof.
   apply HB.
 Defined.
 
+Lemma iscontr_prod (X Y : UU)
+  : iscontr X -> iscontr Y -> iscontr (X × Y).
+Proof.
+  intros h₀ h₁.
+  exact (isofhleveldirprod 0 _ _ h₀ h₁).
+Qed.
+
 (** ** Pointed types *)
 
 Section PointedTypes.

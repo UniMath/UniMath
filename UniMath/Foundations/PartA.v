@@ -1023,18 +1023,6 @@ Proof.
   apply (maponpaths pr1 (pr2 isc Hi)).
 Defined.
 
-Lemma iscontr_prod (X Y : UU)
-  : iscontr X -> iscontr Y -> iscontr (X × Y).
-Proof.
-  intros p q.
-  exists (pr1 p ,, pr1 q).
-  intro t.
-  use total2_paths_f.
-  { apply (pr2 p). }
-  rewrite transportf_const.
-  apply (pr2 q).
-Qed.
-
 (** *** Homotopy fibers [ hfiber ] *)
 
 Definition hfiber {X Y : UU} (f : X -> Y) (y : Y) : UU := ∑ x : X, f x = y.
