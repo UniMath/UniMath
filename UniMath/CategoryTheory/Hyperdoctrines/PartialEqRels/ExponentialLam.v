@@ -627,8 +627,9 @@ Section PERLambda.
              *** use (partial_setoid_mor_eq_defined φ).
                  **** exact ⟨ x , z' ⟩.
                  **** exact y.
-                 **** use eq_in_prod_partial_setoid ; simplify.
+                 **** use eq_in_prod_partial_setoid.
                       {
+                        simplify.
                         use weaken_right.
                         refine (hyperdoctrine_cut
                                   (partial_setoid_mor_dom_defined
@@ -644,6 +645,7 @@ Section PERLambda.
                         simplify.
                         apply hyperdoctrine_hyp.
                       }
+                      simplify.
                       do 3 use weaken_left.
                       use partial_setoid_sym.
                       apply hyperdoctrine_hyp.
