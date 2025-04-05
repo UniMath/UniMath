@@ -9,6 +9,8 @@ Require Import Ltac2.Notations.
 Require Import Tactic.Simplify.
 Require Import Tactic.Common.
 
+Require Import UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.
+
 Local Open Scope hd.
 
 Ltac2 mutable hypertraversals () : t_traversal list := [].
@@ -63,30 +65,52 @@ Ltac2 Set hyperrewrites as rewrites := fun () =>
   (1, (pn:(!![_]tm),         (fun () => '(hyperdoctrine_unit_tm_subst _ )), "hyperdoctrine_unit_tm_subst _ ")) ::
   rewrites ().
 
-Ltac2 hypertop_traversals () : ((unit -> unit) * navigation) list :=
+Ltac2 hypertop_traversals (ltac2 : bool) : ((unit -> unit) * navigation) list :=
   ((fun () => match! goal with
-    | [ |- _ = _ ] => refine '(!(!_ @ !_))
-    end),
-    {left := [""]; right := [""]; preinpostfix := ("refine '(_ @ !maponpaths ", " ", ").")}) ::
-  ((fun () => match! goal with
+    | [ |- _ = _ ] => refine '(!(_ @ !_))
+    end), {
+      left := [""];
+      right := [""];
+      preinpostfix := (String.concat "" ["refine "; (if ltac2 then "'" else ""); "(_ @ !maponpaths "], " ", ").")
+  }) :: ((fun () => match! goal with
     | [ |- _ = _ ] => refine '(_ @ _)
-    end),
-    {left := [""]; right := [""]; preinpostfix := ("refine '(maponpaths ", " ", " @ _).")}) ::
-  ((fun () => match! goal with
+    end), {
+      left := [""];
+      right := [""];
+      preinpostfix := (String.concat "" ["refine "; (if ltac2 then "'" else ""); "(maponpaths "], " ", " @ _).")
+  }) :: ((fun () => match! goal with
     | [ |- ?a ⊢ _ ] => refine '(transportb (λ x, $a ⊢ x) _ _); cbv beta
-    end),
-    {left := ["_ ⊢ "]; right := [""]; preinpostfix := ("refine '(transportb ", " ", " _).")}) ::
+    end), {
+      left := ["_ ⊢ "];
+      right := [""];
+      preinpostfix := (String.concat "" ["refine "; (if ltac2 then "'" else ""); "(transportb "], " ", " _).")}) ::
   ((fun () => match! goal with
     | [ |- _ ⊢ ?b ] => refine '(transportb (λ x, x ⊢ $b) _ _); cbv beta
     end),
-    {left := [""]; right := [" ⊢ _"]; preinpostfix := ("refine '(transportb ", " ", " _).")}) ::
+    {left := [""]; right := [" ⊢ _"]; preinpostfix := (String.concat "" ["refine "; (if ltac2 then "'" else ""); "(transportb "], " ", " _).")}) ::
   [].
 
-Ltac2 hypersimplify0 (rewrite_level : int option) : unit :=
+Ltac2 hypersimplify0 (ltac2 : bool option) : int option -> unit :=
   simplify
   (List.rev (hypertraversals ()))
   (List.rev (hyperrewrites ()))
-  (List.rev (hypertop_traversals ()))
-  rewrite_level.
+  (List.rev (hypertop_traversals (Option.default true ltac2))).
 
 Ltac2 Notation "hypersimplify" n(opt(next)) := hypersimplify0 (n).
+
+Ltac2 Set hypertraversals as traversals := fun _ =>
+  (make_traversal (fun () => match! goal with | [|- (_  ~ ?b   ) = _ ] => '(λ x,  x ~$b    ) end)  "" " ~ _"    ) ::
+  (make_traversal (fun () => match! goal with | [|- (?a ~  _   ) = _ ] => '(λ x,  $a~ x    ) end)    "_ ~ " ""  ) ::
+  traversals ().
+
+Ltac2 Set hyperrewrites as rewrites := fun () =>
+  (1, (pn:((_ ~ _)[_]),      (fun () => '(partial_setoid_subst   _ _ _  )), "partial_setoid_subst   _ _ _"  )) ::
+  rewrites ().
+
+Set Default Proof Mode "Classic".
+
+Tactic Notation "hypersimplify" := ltac2:(hypersimplify0 (Some false) None).
+Tactic Notation "hypersimplify" int(n) := let f := ltac2:(n |- hypersimplify0 (Some false) (Ltac1.to_int n)) in f n.
+
+Tactic Notation "simplify" := ltac2:(hypersimplify0 (Some false) None).
+Tactic Notation "simplify_form" := ltac2:(hypersimplify0 (Some false) (Some 0)).

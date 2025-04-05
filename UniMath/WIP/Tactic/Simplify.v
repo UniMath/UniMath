@@ -55,19 +55,19 @@ Ltac2 append_navigation
 Ltac2 print_refine (n : navigation) (t : string) :=
   let (prefix, infix, postfix) := n.(preinpostfix) in
   Message.print (Message.of_string (
-      String.concat "" [
-        prefix ;
-        "(λ x, " ;
-        String.concat "(" (List.rev (n.(left))) ;
-        "x" ;
-        String.concat ")" (n.(right)) ;
-        ")" ;
-        infix ;
-        "(" ;
-        t ;
-        ")" ;
-        postfix
-      ]
+    String.concat "" [
+      prefix ;
+      "(λ x, " ;
+      String.concat "(" (List.rev (n.(left))) ;
+      "x" ;
+      String.concat ")" (n.(right)) ;
+      ")" ;
+      infix ;
+      "(" ;
+      t ;
+      ")" ;
+      postfix
+    ]
   )).
 
 Ltac2 traverse_subterm

@@ -40,6 +40,8 @@ Require Import UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERBinProducts.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.ExponentialPER.
 
+Require Import WIP.Hypersimplify.
+
 Local Open Scope cat.
 Local Open Scope hd.
 
