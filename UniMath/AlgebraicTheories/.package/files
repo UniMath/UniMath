@@ -34,6 +34,7 @@ Examples/ProjectionsTheory.v
 Examples/TheoryAlgebra.v
 Examples/ExtensionsTheory.v
 Examples/EmptyPresheaf.v
+Examples/PuncturedTheory.v
 
 AlgebraicTheoryToLawvereTheory.v
 AlgebraicTheoryToMonoid.v

@@ -1503,6 +1503,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Examples/TheoryAlgebra.v](AlgebraicTheories/Examples/TheoryAlgebra.v)
    - [Examples/ExtensionsTheory.v](AlgebraicTheories/Examples/ExtensionsTheory.v)
    - [Examples/EmptyPresheaf.v](AlgebraicTheories/Examples/EmptyPresheaf.v)
+   - [Examples/PuncturedTheory.v](AlgebraicTheories/Examples/PuncturedTheory.v)
    - [AlgebraicTheoryToLawvereTheory.v](AlgebraicTheories/AlgebraicTheoryToLawvereTheory.v)
    - [AlgebraicTheoryToMonoid.v](AlgebraicTheories/AlgebraicTheoryToMonoid.v)
    - [PresheafEquivalence.v](AlgebraicTheories/PresheafEquivalence.v)
