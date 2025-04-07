@@ -75,7 +75,7 @@ jobs:
           ocaml_version: ${{ matrix.ocaml-version }}
           custom_script: |
             startGroup "Workaround permission issue"
-            sudo chown -R coq:coq . || sudo chown -R rocq:rocq .
+            sudo chown -R 1000:1000 .
             endGroup
 
             startGroup "Print versions"
@@ -182,7 +182,7 @@ jobs:
           ocaml_version: ${{ matrix.ocaml-version }}
           custom_script: |
             startGroup "Workaround permission issue"
-            sudo chown -R coq:coq . || sudo chown -R rocq:rocq .
+            sudo chown -R 1000:1000 .
             endGroup
 
             startGroup "Print versions"
