@@ -18,6 +18,7 @@ Require Import UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClas
 
 Require Import UniMath.CategoryTheory.WeakEquivalences.Terminal.
 Require Import UniMath.CategoryTheory.WeakEquivalences.Mono.
+Require Import UniMath.CategoryTheory.WeakEquivalences.Reflection.Pullbacks.
 Require Import UniMath.CategoryTheory.WeakEquivalences.Preservation.Pullbacks.
 Require Import UniMath.CategoryTheory.WeakEquivalences.Preservation.SubobjectClassifier.
 
