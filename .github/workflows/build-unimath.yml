@@ -85,7 +85,7 @@ jobs:
             startGroup "Print versions"
             opam --version
             opam exec -- dune --version
-            opam exec -- coqc --version
+            opam exec -- coqc --version || opam exec -- rocq --version
             endGroup
 
             startGroup "Build UniMath"
@@ -196,7 +196,7 @@ jobs:
             startGroup "Print versions"
             opam --version
             opam exec -- dune --version
-            opam exec -- coqc --version
+            opam exec -- coqc --version || opam exec -- rocq --version
             endGroup
 
             startGroup "Build Satellite"
