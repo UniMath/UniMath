@@ -226,7 +226,7 @@ Proof.
   intros yf.
   use is_left_adjoint_nat_z_iso.
   - exact (cod_pb PB (cod_mor yf) ∙ comp_functor (cod_mor yf)).
-  - use comp_is_left_adjoint.
+  - use is_left_adjoint_functor_composite.
     + apply HC.
     + exact (is_left_adjoint_left_adjoint
                (is_right_adjoint_cod_fiber_functor PB (cod_mor yf))).

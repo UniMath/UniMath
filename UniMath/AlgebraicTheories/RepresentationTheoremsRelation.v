@@ -12,9 +12,13 @@
   Moreover, when the reflexive object U of Scott's proof is chased along this diagram, the result is
   isomorphic to Hyland's reflexive object theory_presheaf L.
 
+  We also show that the reflexive objects in Scott's and Hyland's proofs are not equal, which shows
+  that the endomorphism theory construction does not have a left inverse.
+
   Contents
   1. The diagram [scott_to_hyland]
   2. The isomorphism between the reflexive objects [scott_to_hyland_U_to_L]
+  3. The endomorphism theory has no left inverse [endomorphism_theory_no_left_inverse]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -42,22 +46,30 @@ Require Import UniMath.CategoryTheory.OppositeCategory.OppositeOfFunctorCategory
 Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.CategoryTheory.RezkCompletions.RezkCompletions.
 Require Import UniMath.CategoryTheory.yoneda.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
 
+Require Import UniMath.AlgebraicTheories.LambdaCalculus.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheories.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryToLawvereTheory.
 Require Import UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.
 Require Import UniMath.AlgebraicTheories.CategoryOfRetracts.
+Require Import UniMath.AlgebraicTheories.Examples.EmptyPresheaf.
+Require Import UniMath.AlgebraicTheories.Examples.EndomorphismTheory.
+Require Import UniMath.AlgebraicTheories.Examples.LambdaCalculus.
 Require Import UniMath.AlgebraicTheories.LambdaTheories.
+Require Import UniMath.AlgebraicTheories.OriginalRepresentationTheorem.
 Require Import UniMath.AlgebraicTheories.PresheafCategoryCore.
 Require Import UniMath.AlgebraicTheories.PresheafEquivalence.
+Require Import UniMath.AlgebraicTheories.PresheafMorphisms.
 Require Import UniMath.AlgebraicTheories.Presheaves.
+Require Import UniMath.AlgebraicTheories.ReflexiveObjects.
+Require Import UniMath.AlgebraicTheories.RepresentationTheorem.
 
 Local Open Scope cat.
 
 Section Diagram.
 
   Context (L : β_lambda_theory).
-
 
 (** * 1. The diagram *)
 
@@ -169,3 +181,32 @@ Section Diagram.
   Defined.
 
 End Diagram.
+
+(** * 3. The endomorphism theory has no left inverse *)
+Lemma scott_neq_hyland
+  (L : β_lambda_theory)
+  : OriginalRepresentationTheorem.lambda_theory_to_reflexive_object L (n := 0)
+  != RepresentationTheorem.lambda_theory_to_reflexive_object L.
+Proof.
+  intro HS.
+  pose (f := transportf
+    (λ X, ∏ (A : reflexive_object_category X), X --> A)
+    HS
+    (R_retraction _ _)
+    (empty_presheaf L) : presheaf_morphism _ _).
+  exact (f 1 (var firstelement)).
+Qed.
+
+Definition endomorphism_theory_no_left_inverse
+  (L : lambda_calculus)
+  (f : β_lambda_theory → reflexive_object)
+  (H : funcomp reflexive_object_to_lambda_theory f = idfun reflexive_object)
+  : ∅.
+Proof.
+  apply (scott_neq_hyland (make_β_lambda_theory _ (lambda_calculus_has_β L))).
+  do 2 refine (!_ @ eqtohomot H _).
+  apply (maponpaths f).
+  refine (eqtohomot OriginalRepresentationTheorem.endomorphism_theory_right_inverse _ @ !_).
+  refine (eqtohomot RepresentationTheorem.endomorphism_theory_right_inverse _ @ !_).
+  reflexivity.
+Qed.
