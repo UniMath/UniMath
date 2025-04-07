@@ -224,32 +224,32 @@ Lemma embedding_to_subuniverse_to_embedding
   : embedding_to_subuniverse (subuniverse_to_embedding B) = B.
 Proof.
   use subtypePath.
-    { intro. use isapropissubuniverse. }
+  { intro. use isapropissubuniverse. }
+  simpl.
+  use funextsec.
+  intro s.
+  use funextsec.
+  intro a.
+  unfold simage_shsubtype.
+  simpl.
+  use hPropUnivalence.
+  + unfold pr1carrier.
+    intro P.
+    use (squash_to_prop P).
+    { use propproperty. }
+    intro b.
+    destruct b as [b Hb].
+    destruct b as [b Bb].
+    simpl in Hb.
+    destruct Hb.
+    exact Bb.
+  + intro Ba.
+    use hinhpr.
+    unfold pr1carrier.
     simpl.
-    use funextsec.
-    intro s.
-    use funextsec.
-    intro a.
-    unfold simage_shsubtype.
-    simpl.
-    use hPropUnivalence.
-    + unfold pr1carrier.
-      intro P.
-      use (squash_to_prop P).
-      { use propproperty. }
-      intro b.
-      destruct b as [b Hb].
-      destruct b as [b Bb].
-      simpl in Hb.
-      destruct Hb.
-      exact Bb.
-    + intro Ba.
-      use hinhpr.
-      unfold pr1carrier.
-      simpl.
-      use tpair.
-      * exact (a,, Ba).
-      * apply idpath.
+    use tpair.
+    * exact (a,, Ba).
+    * apply idpath.
 Defined.
 
 Theorem embedding_subuniverse_weq:

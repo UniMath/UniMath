@@ -46,7 +46,6 @@ Definition iscong {σ : signature}
 Definition congruence {σ : signature} (A : algebra σ)
   := ∑ (R : shrel A), iscong A R.
 
-(*TODO: make this a coercion*)
 Definition eqrelofcong {σ : signature} {A : algebra σ} (R : congruence A) (s: sorts σ)
   : eqrel (support A s)
   := (pr1 R) s ,, (pr12 R) s.
