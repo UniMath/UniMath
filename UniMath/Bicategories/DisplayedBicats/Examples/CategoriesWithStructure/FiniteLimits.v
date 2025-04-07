@@ -42,7 +42,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStruc
 
 Local Open Scope cat.
 
-Section CategoriesWithChosenFiniteLimitsAndPreservationIsCreation.
+Section CategoriesWithChosenFiniteLimitsAndPreservationUpToIso.
 
   Definition disp_bicat_limits : disp_bicat bicat_of_cats
     := disp_dirprod_bicat
@@ -62,7 +62,7 @@ Section CategoriesWithChosenFiniteLimitsAndPreservationIsCreation.
     - apply disp_2cells_iscontr_equalizers. *)
   Qed.
 
-End CategoriesWithChosenFiniteLimitsAndPreservationIsCreation.
+End CategoriesWithChosenFiniteLimitsAndPreservationUpToIso.
 
 Section CategoriesWithChosenFiniteLimitsAndPreservationUpToEquality.
 
@@ -88,7 +88,7 @@ Section CategoriesWithChosenFiniteLimitsAndPreservationUpToEquality.
 
 End CategoriesWithChosenFiniteLimitsAndPreservationUpToEquality.
 
-Section CategoriesWithExistingFiniteLimitsAndPreservationIsCreation.
+Section CategoriesWithExistingFiniteLimitsAndPreservationUpToIso.
 
   Definition disp_bicat_have_limits
     : disp_bicat bicat_of_cats
@@ -110,4 +110,4 @@ Section CategoriesWithExistingFiniteLimitsAndPreservationIsCreation.
     - apply disp_2cells_iscontr_chosen_equalizers. *)
   Qed.
 
-End CategoriesWithExistingFiniteLimitsAndPreservationIsCreation.
+End CategoriesWithExistingFiniteLimitsAndPreservationUpToIso.

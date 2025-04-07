@@ -7,7 +7,7 @@ Contents:
    A construction of the Rezk completion of categories (merely) having a terminal object.
 2. [BicatOfCategoriesWithChosenTerminalHasRezkCompletion]
    A construction of the Rezk completion of categories equipped with a chosen terminal object.
-3. [CategoriesWithChosenTerminalAndPreservationIsCreationHasRezkCompletions]
+3. [CategoriesWithChosenTerminalAndPreservationUpToIsoHasRezkCompletions]
    A construction of the Rezk completion for categories equipped with a chosen terminal object.
 *)
 
@@ -122,7 +122,7 @@ Section BicatOfCategoriesWithChosenTerminalHasRezkCompletion.
 
 End BicatOfCategoriesWithChosenTerminalHasRezkCompletion.
 
-Section CategoriesWithChosenTerminalAndPreservationIsCreationHasRezkCompletions.
+Section CategoriesWithChosenTerminalAndPreservationUpToIsoHasRezkCompletions.
 
   Context {LUR : left_universal_arrow univ_cats_to_cats}
     (η_weak_equiv : ∏ C : category, is_weak_equiv (pr12 LUR C)).
@@ -150,4 +150,4 @@ Section CategoriesWithChosenTerminalAndPreservationIsCreationHasRezkCompletions.
     exact disp_2cells_iscontr_terminal.
   Defined.
 
-End CategoriesWithChosenTerminalAndPreservationIsCreationHasRezkCompletions.
+End CategoriesWithChosenTerminalAndPreservationUpToIsoHasRezkCompletions.

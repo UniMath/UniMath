@@ -5,9 +5,9 @@ Hence, categories with equalizers admit a Rezk completion.
 Contents:
 1. [CategoriesWithEqualizersAdmitRezkCompletions]
    A construction of the Rezk completion of categories (merely) having equalizers.
-2. [CategoriesWithChosenEqualizersAndPreservationIsCreationHasRezkCompletions]
+2. [CategoriesWithChosenEqualizersAndPreservationUpToIsoHasRezkCompletions]
    A construction of the Rezk completion of categories equipped with chosen equalizers.
-3. [CategoriesWithChosenEqualizersAndPreservationIsCreationHasRezkCompletions]
+3. [CategoriesWithChosenEqualizersAndPreservationUpToIsoHasRezkCompletions]
    A construction of the Rezk completion of categories equipped with chosen equalizers.
 *)
 
@@ -45,7 +45,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStruc
 
 Local Open Scope cat.
 
-Section CategoriesWithEqualizersAndPreservationIsCreationHasRezkCompletions.
+Section CategoriesWithEqualizersAndPreservationUpToIsoHasRezkCompletions.
 
   Context (LUR : left_universal_arrow univ_cats_to_cats).
   Context (η_weak_equiv : ∏ C : category, is_weak_equiv (pr12 LUR C)).
@@ -69,7 +69,7 @@ Section CategoriesWithEqualizersAndPreservationIsCreationHasRezkCompletions.
     exact disp_2cells_iscontr_have_equalizers.
   Defined.
 
-End CategoriesWithEqualizersAndPreservationIsCreationHasRezkCompletions.
+End CategoriesWithEqualizersAndPreservationUpToIsoHasRezkCompletions.
 
 Section CategoriesWithChosenEqualizersAndPreservationUpToEqualityHasRezkCompletions.
 
@@ -100,7 +100,7 @@ Section CategoriesWithChosenEqualizersAndPreservationUpToEqualityHasRezkCompleti
 
 End CategoriesWithChosenEqualizersAndPreservationUpToEqualityHasRezkCompletions.
 
-Section CategoriesWithChosenEqualizersAndPreservationIsCreationHasRezkCompletions.
+Section CategoriesWithChosenEqualizersAndPreservationUpToIsoHasRezkCompletions.
 
   Context {LUR : left_universal_arrow univ_cats_to_cats}
     (η_weak_equiv : ∏ C : category, is_weak_equiv (pr12 LUR C)).
@@ -128,4 +128,4 @@ Section CategoriesWithChosenEqualizersAndPreservationIsCreationHasRezkCompletion
     exact disp_2cells_iscontr_equalizers.
   Defined.
 
-End CategoriesWithChosenEqualizersAndPreservationIsCreationHasRezkCompletions.
+End CategoriesWithChosenEqualizersAndPreservationUpToIsoHasRezkCompletions.

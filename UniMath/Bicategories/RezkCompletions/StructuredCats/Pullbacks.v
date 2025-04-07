@@ -5,7 +5,7 @@ Hence, categories with terminal objects admit a Rezk completion.
 Contents:
 1. [CategoriesWithPullbacksAdmitRezkCompletions]
    A construction of the Rezk completion of categories equipped with a terminal object (up to propositional truncation).
-2. [CategoriesWithChosenPullbacksAndPreservationIsCreationHasRezkCompletions]
+2. [CategoriesWithChosenPullbacksAndPreservationUpToIsoHasRezkCompletions]
    A construction of the Rezk completion of categories equipped with a chosen terminal object.
 *)
 
@@ -43,7 +43,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStruc
 
 Local Open Scope cat.
 
-Section CategoriesWithPullbacksAndPreservationIsCreationHasRezkCompletions.
+Section CategoriesWithPullbacksAndPreservationUpToIsoHasRezkCompletions.
 
   Context (LUR : left_universal_arrow univ_cats_to_cats)
     (η_weak_equiv : ∏ C : category, is_weak_equiv (pr12 LUR C)).
@@ -71,7 +71,7 @@ Section CategoriesWithPullbacksAndPreservationIsCreationHasRezkCompletions.
     exact disp_2cells_iscontr_have_pullbacks.
   Defined.
 
-End CategoriesWithPullbacksAndPreservationIsCreationHasRezkCompletions.
+End CategoriesWithPullbacksAndPreservationUpToIsoHasRezkCompletions.
 
 Section CategoriesWithChosenPullbacksAndPreservationUpToEqualityHasRezkCompletions.
 
@@ -104,7 +104,7 @@ Section CategoriesWithChosenPullbacksAndPreservationUpToEqualityHasRezkCompletio
 
 End CategoriesWithChosenPullbacksAndPreservationUpToEqualityHasRezkCompletions.
 
-Section CategoriesWithChosenPullbacksAndPreservationIsCreationHasRezkCompletions.
+Section CategoriesWithChosenPullbacksAndPreservationUpToIsoHasRezkCompletions.
 
   Context {LUR : left_universal_arrow univ_cats_to_cats}
     (η_weak_equiv : ∏ C : category, is_weak_equiv (pr12 LUR C)).
@@ -132,4 +132,4 @@ Section CategoriesWithChosenPullbacksAndPreservationIsCreationHasRezkCompletions
     exact disp_2cells_iscontr_pullbacks.
   Defined.
 
-End CategoriesWithChosenPullbacksAndPreservationIsCreationHasRezkCompletions.
+End CategoriesWithChosenPullbacksAndPreservationUpToIsoHasRezkCompletions.

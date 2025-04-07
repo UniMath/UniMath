@@ -47,7 +47,7 @@ Section CategoriesWithChosenPullbacksAndPreservationUpToEquality.
 
 End CategoriesWithChosenPullbacksAndPreservationUpToEquality.
 
-Section CategoriesWithExistingPullbacksAndPreservationIsCreation.
+Section CategoriesWithExistingPullbacksAndPreservationUpToIso.
 
   Definition disp_bicat_have_pullbacks
     : disp_bicat bicat_of_cats.
@@ -69,9 +69,9 @@ Section CategoriesWithExistingPullbacksAndPreservationIsCreation.
     apply disp_2cells_iscontr_subbicat.
   Qed.
 
-End CategoriesWithExistingPullbacksAndPreservationIsCreation.
+End CategoriesWithExistingPullbacksAndPreservationUpToIso.
 
-Section CategoriesWithChosenPullbacksAndPreservationIsCreation.
+Section CategoriesWithChosenPullbacksAndPreservationUpToIso.
 
   Definition disp_bicat_pullbacks
     : disp_bicat bicat_of_cats.
@@ -89,4 +89,4 @@ Section CategoriesWithChosenPullbacksAndPreservationIsCreation.
     apply disp_2cells_iscontr_subbicat.
   Qed.
 
-End CategoriesWithChosenPullbacksAndPreservationIsCreation.
+End CategoriesWithChosenPullbacksAndPreservationUpToIso.

@@ -47,7 +47,7 @@ Section CategoriesWithChosenBinProductsAndPreservationUpToEquality.
 
 End CategoriesWithChosenBinProductsAndPreservationUpToEquality.
 
-Section CategoriesWithExistingBinProductsAndPreservationIsCreation.
+Section CategoriesWithExistingBinProductsAndPreservationUpToIso.
 
   Definition disp_bicat_have_binproducts
     : disp_bicat bicat_of_cats.
@@ -69,9 +69,9 @@ Section CategoriesWithExistingBinProductsAndPreservationIsCreation.
     apply disp_2cells_iscontr_subbicat.
   Qed.
 
-End CategoriesWithExistingBinProductsAndPreservationIsCreation.
+End CategoriesWithExistingBinProductsAndPreservationUpToIso.
 
-Section CategoriesWithChosenBinProductsAndPreservationIsCreation.
+Section CategoriesWithChosenBinProductsAndPreservationUpToIso.
 
   Definition disp_bicat_binproducts
     : disp_bicat bicat_of_cats.
@@ -88,4 +88,4 @@ Section CategoriesWithChosenBinProductsAndPreservationIsCreation.
     apply disp_2cells_iscontr_subbicat.
   Qed.
 
-End CategoriesWithChosenBinProductsAndPreservationIsCreation.
+End CategoriesWithChosenBinProductsAndPreservationUpToIso.

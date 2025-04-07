@@ -7,7 +7,7 @@ Contents:
    A construction of the Rezk completion of categories (merely) having binary products.
 2. [BicatOfCategoriesWithChosenBinProductsHasRezkCompletion]
    A construction of the Rezk completion of categories equipped with chosen binary products.
-3. [CategoriesWithChosenTerminalAndPreservationIsCreationHasRezkCompletions]
+3. [CategoriesWithChosenTerminalAndPreservationUpToIsoHasRezkCompletions]
    A construction of the Rezk completion for categories equipped with a chosen binary products.
  *)
 
@@ -138,7 +138,7 @@ Section CategoriesWithChosenBinProductsAndPreservationUpToEqualityHasRezkComplet
 
 End CategoriesWithChosenBinProductsAndPreservationUpToEqualityHasRezkCompletions.
 
-Section CategoriesWithChosenBinProductsAndPreservationIsCreationHasRezkCompletions.
+Section CategoriesWithChosenBinProductsAndPreservationUpToIsoHasRezkCompletions.
 
   Context {LUR : left_universal_arrow univ_cats_to_cats}
     (η_weak_equiv : ∏ C : category, is_weak_equiv (pr12 LUR C)).
@@ -166,4 +166,4 @@ Section CategoriesWithChosenBinProductsAndPreservationIsCreationHasRezkCompletio
     exact disp_2cells_iscontr_binproducts.
   Defined.
 
-End CategoriesWithChosenBinProductsAndPreservationIsCreationHasRezkCompletions.
+End CategoriesWithChosenBinProductsAndPreservationUpToIsoHasRezkCompletions.

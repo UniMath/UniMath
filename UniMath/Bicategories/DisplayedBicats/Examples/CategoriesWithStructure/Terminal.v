@@ -47,7 +47,7 @@ Section CategoriesWithChosenTerminalAndPreservationUpToEquality.
 
 End CategoriesWithChosenTerminalAndPreservationUpToEquality.
 
-Section CategoriesWithExistingTerminalAndPreservationIsCreation.
+Section CategoriesWithExistingTerminalAndPreservationUpToIso.
 
   Definition disp_bicat_have_terminal
     : disp_bicat bicat_of_cats.
@@ -69,9 +69,9 @@ Section CategoriesWithExistingTerminalAndPreservationIsCreation.
     apply disp_2cells_iscontr_subbicat.
   Qed.
 
-End CategoriesWithExistingTerminalAndPreservationIsCreation.
+End CategoriesWithExistingTerminalAndPreservationUpToIso.
 
-Section CategoriesWithChosenTerminalAndPreservationIsCreation.
+Section CategoriesWithChosenTerminalAndPreservationUpToIso.
 
   Definition disp_bicat_terminal
     : disp_bicat bicat_of_cats.
@@ -89,4 +89,4 @@ Section CategoriesWithChosenTerminalAndPreservationIsCreation.
     apply disp_2cells_iscontr_subbicat.
   Qed.
 
-End CategoriesWithChosenTerminalAndPreservationIsCreation.
+End CategoriesWithChosenTerminalAndPreservationUpToIso.

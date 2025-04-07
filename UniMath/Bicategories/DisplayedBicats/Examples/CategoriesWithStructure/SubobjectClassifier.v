@@ -22,7 +22,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStruc
 
 Local Open Scope cat.
 
-Section LexCategoriesWithChosenSubobjectClassifierAndPreservationIsCreation.
+Section LexCategoriesWithChosenSubobjectClassifierAndPreservationUpToIso.
 
   Definition disp_bicat_subobject_classifier'
     : disp_bicat (total_bicat disp_bicat_limits).
@@ -52,4 +52,4 @@ Section LexCategoriesWithChosenSubobjectClassifierAndPreservationIsCreation.
     - apply disp_2cells_iscontr_subobject_classifier'.
   Qed.
 
-End LexCategoriesWithChosenSubobjectClassifierAndPreservationIsCreation.
+End LexCategoriesWithChosenSubobjectClassifierAndPreservationUpToIso.

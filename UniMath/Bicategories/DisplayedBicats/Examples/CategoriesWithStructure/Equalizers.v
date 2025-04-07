@@ -47,7 +47,7 @@ Section CategoriesWithChosenEqualizersAndPreservationUpToEquality.
 
 End CategoriesWithChosenEqualizersAndPreservationUpToEquality.
 
-Section CategoriesWithExistingEqualizersAndPreservationIsCreation.
+Section CategoriesWithExistingEqualizersAndPreservationUpToIso.
 
   Definition disp_bicat_have_equalizers
     : disp_bicat bicat_of_cats.
@@ -69,9 +69,9 @@ Section CategoriesWithExistingEqualizersAndPreservationIsCreation.
     apply disp_2cells_iscontr_subbicat.
   Qed.
 
-End CategoriesWithExistingEqualizersAndPreservationIsCreation.
+End CategoriesWithExistingEqualizersAndPreservationUpToIso.
 
-Section CategoriesWithChosenEqualizersAndPreservationIsCreation.
+Section CategoriesWithChosenEqualizersAndPreservationUpToIso.
 
   Definition disp_bicat_equalizers
     : disp_bicat bicat_of_cats.
@@ -89,4 +89,4 @@ Section CategoriesWithChosenEqualizersAndPreservationIsCreation.
     apply disp_2cells_iscontr_subbicat.
   Qed.
 
-End CategoriesWithChosenEqualizersAndPreservationIsCreation.
+End CategoriesWithChosenEqualizersAndPreservationUpToIso.
