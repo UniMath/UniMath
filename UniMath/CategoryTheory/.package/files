@@ -70,7 +70,6 @@ Limits/Terminal.v
 Limits/Zero.v
 Limits/BinCoproducts.v
 Limits/BinProducts.v
-Limits/BinBiproducts.v
 
 Limits/Graphs/BinCoproducts.v
 Limits/Graphs/Coproducts.v
@@ -453,7 +452,6 @@ Categories/Rel.v
 
 Monoidal/WhiskeredBifunctors.v
 Monoidal/Categories.v
-Monoidal/CategoriesForQuantum.v
 Monoidal/StrongMonad.v
 
 Monoidal/Structure/Symmetric.v

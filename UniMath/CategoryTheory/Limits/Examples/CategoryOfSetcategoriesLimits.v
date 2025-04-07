@@ -240,16 +240,14 @@ Proof.
   {
     apply homset_property.
   }
-  assert (equalizer_of_setcategory_ump_unique_subproof : pr1 K ~ pr1 (equalizer_of_setcategory_ump_mor F G H p)).
-  { abstract
+  use functor_data_eq.
+  - abstract
       (intro x ;
        use subtypePath ;
        [ intro z ;
          exact (pr12 C₂ (F z) (G z))
        | ] ;
-       exact (maponpaths (λ z, pr11 z x) K_pr1)). }
-  use functor_data_eq.
-  - exact equalizer_of_setcategory_ump_unique_subproof.
+       exact (maponpaths (λ z, pr11 z x) K_pr1)).
   - intros x₁ x₂ f.
     rewrite double_transport_idtoiso.
     rewrite !assoc'.
@@ -261,11 +259,11 @@ Proof.
     }
     refine (_ @ path_functor_mor K_pr1 f @ _).
     + apply (maponpaths (λ x, _ · x)).
-      refine (idtoiso_equalizer_of_setcategory _ _ (equalizer_of_setcategory_ump_unique_subproof x₂) @ _).
+      refine (idtoiso_equalizer_of_setcategory _ _ (equalizer_of_setcategory_ump_unique_subproof C₁ C₂ F G C₀ H p K K_pr1 x₂) @ _).
       apply (maponpaths (λ x, _ (idtoiso x))).
       apply isaset_ob.
     + apply (maponpaths (λ x, x · _)).
-      refine (_ @ !idtoiso_equalizer_of_setcategory _ _ (equalizer_of_setcategory_ump_unique_subproof x₁)).
+      refine (_ @ !idtoiso_equalizer_of_setcategory _ _ (equalizer_of_setcategory_ump_unique_subproof C₁ C₂ F G C₀ H p K K_pr1 x₁)).
       apply (maponpaths (λ x, _ (idtoiso x))).
       apply isaset_ob.
 Qed.

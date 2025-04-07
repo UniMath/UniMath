@@ -470,8 +470,6 @@ Logic/Examples/OpfibrationsComprehensionBicat.v
 Logic/Examples/DisplayMapComprehensionBicat.v
 Logic/Examples/FunctorsIntoCatComprehensionBicat.v
 
-BicatOfDisplayMapCat.v
-
 OtherStructure/DualityInvolution.v
 OtherStructure/DualityInvolutionProperties.v
 OtherStructure/ClassifyingDiscreteOpfib.v

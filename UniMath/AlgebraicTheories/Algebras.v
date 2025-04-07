@@ -68,16 +68,6 @@ Definition make_is_algebra
   : is_algebra A
   := H1 ,, H2.
 
-Lemma isaprop_is_algebra
-  {T : algebraic_theory}
-  (A : algebra_data T)
-  : isaprop (is_algebra A).
-Proof.
-  apply isapropdirprod;
-    repeat (apply impred_isaprop; intro);
-    apply setproperty.
-Qed.
-
 Definition algebra
   (T : algebraic_theory)
   : UU
