@@ -139,7 +139,7 @@ Section MakeRezkCompletionsForSigma.
   Context {D : disp_bicat bicat_of_cats} (E : disp_bicat (total_bicat D)).
   Context (D_RC : cat_with_struct_has_RC LUR_weq D).
 
-  Let LL0 : bicat_of_cats → category := λ C,  (pr1 (pr1 LUR C)).
+  Let LL0 : bicat_of_cats → category := λ C, (pr1 (pr1 LUR C)).
   Let η := pr12 LUR.
 
   Context (weak_equiv_preserve_struct

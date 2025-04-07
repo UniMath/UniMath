@@ -35,7 +35,7 @@ Section WeakEquivalencesReflectSubobjectClassifiersExistence.
     (is_cl : is_subobject_classifier (C := D) image_of_terminal_is_terminal _ (#F tr)).
 
   Let Ω₀ : subobject_classifier (_,,T_D)
-      := make_subobject_classifier _ _ is_cl.
+     := make_subobject_classifier _ _ is_cl.
 
   Context {x y : C} (m : Monic C x y).
   Let classifying_map_reflection : C⟦y, Ω⟧.
@@ -64,7 +64,7 @@ Section WeakEquivalencesReflectSubobjectClassifiersExistence.
   Lemma classifying_map_square_isPullback
     : isPullback classifying_map_square.
   Proof.
-    use (Pullbacks.weak_equiv_reflects_pullbacks Fw).
+    use (weak_equiv_reflects_pullbacks Fw).
     intros d' g k pf.
 
     assert (pf₀ :  g · pr11 (is_cl (F x) (F y) (weak_equiv_preserves_mono Fw m)) = k · # F tr).
@@ -100,7 +100,7 @@ Section WeakEquivalencesReflectSubobjectClassifiers₀.
      {F : C ⟶ D} (Fw : is_weak_equiv F).
 
    Let T_D : Terminal D
-       := make_Terminal _ (weak_equiv_preserves_terminal _ Fw T_C (pr2 T_C)).
+      := make_Terminal _ (weak_equiv_preserves_terminal _ Fw T_C (pr2 T_C)).
 
   Context {Ω : ob C} (tr : C⟦T_C, Ω⟧)
     (is_cl : is_subobject_classifier (C := D) T_D _ (#F tr)).
@@ -130,7 +130,7 @@ Section WeakEquivalencesReflectSubobjectClassifiers₀.
     (ϕ : ∑ (χ : C ⟦ y, Ω ⟧) (H : m · χ = TerminalArrow T_C x · tr), isPullback H)
     :   isPullback (pb_square ϕ).
   Proof.
-    use (Pullbacks.weak_equiv_preserves_pullbacks Fw).
+    use (weak_equiv_preserves_pullbacks Fw).
     - exact (pr12 ϕ).
     - exact (pr22 ϕ).
   Qed.
@@ -147,15 +147,15 @@ Section WeakEquivalencesReflectSubobjectClassifiers₀.
   Lemma weak_equiv_reflects_subobject_classifier_uvp_uniqueness
     {x y : ob C} (m : Monics.Monic C x y)
     : isaprop (∑ (χ : C ⟦ y, Ω ⟧)
-                 (H : Monics.MonicArrow C m · χ = TerminalArrow T_C x · tr),
-          Pullbacks.isPullback H
+                 (H : MonicArrow C m · χ = TerminalArrow T_C x · tr),
+          isPullback H
         ).
   Proof.
     use invproofirrelevance.
     intros ϕ₁ ϕ₂.
     use subtypePath.
     { intro ; use isaproptotal2.
-      { intro ; apply Pullbacks.isaprop_isPullback. }
+      { intro ; apply isaprop_isPullback. }
       intro ; intros.
       use proofirrelevance.
       apply homset_property.
