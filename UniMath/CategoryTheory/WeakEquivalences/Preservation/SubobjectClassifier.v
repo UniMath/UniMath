@@ -341,7 +341,7 @@ Corollary weak_equiv_creates_subobject_classifier'
 Proof.
   set (P_2 := weak_equiv_preserves_subobject_classifier Fw T1 T2 P1 (pr12 P1) (pr22 P1)).
   exact (make_subobject_classifier _ _ P_2).
-Qed.
+Defined.
 
 Corollary weak_equiv_creates_subobject_classifier
   {C1 C2 : category}
@@ -352,4 +352,4 @@ Corollary weak_equiv_creates_subobject_classifier
   : subobject_classifier (make_Terminal _ (weak_equiv_preserves_terminal _ Fw _ (pr2 T1))).
 Proof.
   exact (weak_equiv_creates_subobject_classifier' Fw T1 _ P1).
-Qed.
+Defined.
