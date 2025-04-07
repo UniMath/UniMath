@@ -78,6 +78,10 @@ jobs:
             sudo chown -R 1000:1000 .
             endGroup
 
+            startGroup "Install the coq shim if need be"
+            command -v coqc || opam install --confirm-level=unsafe-yes -j 2 coq-core
+            endGroup
+
             startGroup "Print versions"
             opam --version
             opam exec -- dune --version
@@ -183,6 +187,10 @@ jobs:
           custom_script: |
             startGroup "Workaround permission issue"
             sudo chown -R 1000:1000 .
+            endGroup
+
+            startGroup "Install the coq shim if need be"
+            command -v coqc || opam install --confirm-level=unsafe-yes -j 2 coq-core
             endGroup
 
             startGroup "Print versions"
