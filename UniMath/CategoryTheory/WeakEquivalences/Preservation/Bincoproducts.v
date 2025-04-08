@@ -1,5 +1,5 @@
 (**
-   In this file, we show that an arbitrary weak equivalence F : C -> D preserves binary coproducts.
+   In this file, we show that any weak equivalence F : C -> D preserves binary coproducts.
    The main work is done in [weak_equiv_preserves_bincoproducts], where we show that the image (under F) of a binary coproduct in C is also a coproduct in D.
  *)
 

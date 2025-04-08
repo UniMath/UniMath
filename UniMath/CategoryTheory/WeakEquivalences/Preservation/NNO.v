@@ -1,5 +1,5 @@
 (**
-   In this file, we show that an arbitrary weak equivalence F : C -> D preserves a natural numbers object.
+   In this file, we show that any weak equivalence F : C -> D preserves a natural numbers object.
  *)
 
 
