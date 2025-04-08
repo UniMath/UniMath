@@ -979,6 +979,52 @@ Proof.
               (ziso_Initials HC₁ (make_Initial _ Hx)))).
 Defined.
 
+Definition preserves_chosen_initial_eq
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (T₁ : Initial C₁)
+           (T₂ : Initial C₂)
+  : UU
+  := ∥ F T₁ = T₂ ∥.
+
+Proposition identity_preserves_chosen_initial_eq
+            {C : category}
+            (T : Initial C)
+  : preserves_chosen_initial_eq (functor_identity C) T T.
+Proof.
+  apply hinhpr.
+  apply idpath.
+Qed.
+
+Proposition composition_preserves_chosen_initial_eq
+            {C₁ C₂ C₃ : category}
+            {F : C₁ ⟶ C₂}
+            {G : C₂ ⟶ C₃}
+            {T₁ : Initial C₁}
+            {T₂ : Initial C₂}
+            {T₃ : Initial C₃}
+            (HF : preserves_chosen_initial_eq F T₁ T₂)
+            (HG : preserves_chosen_initial_eq G T₂ T₃)
+  : preserves_chosen_initial_eq (F ∙ G) T₁ T₃.
+Proof.
+  revert HF.
+  use factor_through_squash.
+  {
+    apply propproperty.
+  }
+  intro p.
+  revert HG.
+  use factor_through_squash.
+  {
+    apply propproperty.
+  }
+  intro q.
+  cbn.
+  apply hinhpr.
+  rewrite p, q.
+  apply idpath.
+Qed.
+
 (**
  7. Preservation of binary coproducts
  *)
