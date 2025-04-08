@@ -274,7 +274,7 @@ Section HomomorphismNNO.
     : UU
     := is_z_isomorphism
          (NNO_mor _ N₁
-            (preserves_chosen_terminal_iso T₁ F_pT · #F (zeroNNO _ N₀))
+            (preserves_chosen_terminal_to_z_iso F_pT T₁ · #F (zeroNNO _ N₀))
             (#F (sucNNO _ N₀))
          ).
 
@@ -318,9 +318,9 @@ Section HomomorphismNNO.
   Proof.
     use is_z_isomorphism_path.
     - refine (NNO_mor _ N₂ _ _ · #G (NNO_mor _ N₁ _ _)).
-      + exact (preserves_chosen_terminal_iso T₂ G_pT · #G (zeroNNO T₁ N₁)).
+      + exact (preserves_chosen_terminal_to_z_iso G_pT T₂ · #G (zeroNNO T₁ N₁)).
       + exact (#G (sucNNO T₁ N₁)).
-      + exact (preserves_chosen_terminal_iso T₁ F_pT · # F (zeroNNO T₀ N₀)).
+      + exact (preserves_chosen_terminal_to_z_iso F_pT T₁ · # F (zeroNNO T₀ N₀)).
       + exact (# F (sucNNO T₀ N₀)).
     - use NNO_mor_unique'.
       + refine (assoc _ _ _ @ _).

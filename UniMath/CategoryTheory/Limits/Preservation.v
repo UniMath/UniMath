@@ -123,6 +123,18 @@ Proof.
               (z_iso_Terminals HC₁ (make_Terminal _ Hx)))).
 Defined.
 
+Definition preserves_chosen_terminal_to_z_iso
+  {C₁ C₂ : category}
+  {T₁ : Terminal C₁}
+  {F : C₁ ⟶ C₂}
+  (F_T : preserves_chosen_terminal T₁ F)
+  : ∏ T₂ : Terminal C₂, z_iso T₂ (F T₁).
+Proof.
+  intro T₂.
+  use (z_iso_inv (preserves_terminal_to_z_iso _ _ T₁ T₂)).
+  exact (preserves_terminal_if_preserves_chosen _ _ F_T).
+Defined.
+
 Definition preserves_terminal_chosen_to_chosen
            {C₁ C₂ : category}
            (T₁ : Terminal C₁)
