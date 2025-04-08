@@ -75,13 +75,17 @@ jobs:
           ocaml_version: ${{ matrix.ocaml-version }}
           custom_script: |
             startGroup "Workaround permission issue"
-            sudo chown -R coq:coq . || sudo chown -R rocq:rocq .
+            sudo chown -R 1000:1000 .
+            endGroup
+
+            startGroup "Install the coq shim if need be"
+            command -v coqc || opam install --confirm-level=unsafe-yes -j 2 coq-core
             endGroup
 
             startGroup "Print versions"
             opam --version
             opam exec -- dune --version
-            opam exec -- coqc --version
+            opam exec -- coqc --version || opam exec -- rocq --version
             endGroup
 
             startGroup "Build UniMath"
@@ -182,13 +186,17 @@ jobs:
           ocaml_version: ${{ matrix.ocaml-version }}
           custom_script: |
             startGroup "Workaround permission issue"
-            sudo chown -R coq:coq . || sudo chown -R rocq:rocq .
+            sudo chown -R 1000:1000 .
+            endGroup
+
+            startGroup "Install the coq shim if need be"
+            command -v coqc || opam install --confirm-level=unsafe-yes -j 2 coq-core
             endGroup
 
             startGroup "Print versions"
             opam --version
             opam exec -- dune --version
-            opam exec -- coqc --version
+            opam exec -- coqc --version || opam exec -- rocq --version
             endGroup
 
             startGroup "Build Satellite"
