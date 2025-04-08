@@ -8,6 +8,7 @@ Require Export UniMath.Foundations.Sets.
   - (More entries need to be added here...)
   - An equality lemma for elements of a carrier type [carrier_eq]
   - Other universal properties for [setquot]
+  - The trivial equivalence relation on the unit type
   - The equivalence relation of being in the same fiber
   - Subsets
   - Binary relations
@@ -127,6 +128,63 @@ Theorem setquotuniv4prop' {X : UU} {R : eqrel X}
 Proof.
   exact (setquotuniv4prop R (λ x1 x2 x3 x4, make_hProp (P x1 x2 x3 x4) (H x1 x2 x3 x4)) ps).
 Defined.
+
+(** ** The trivial equivalence relation on the unit type*)
+Definition unittrivialrel : hrel unit := λ _ _, htrue.
+
+Lemma iseqrelunittrivialrel : iseqrel unittrivialrel.
+Proof.
+  use iseqrelconstr.
+  - intros ? ? ? ? ?. exact tt.
+  - intros ?. exact tt.
+  - intros ? ? ?. exact tt.
+Qed.
+
+Definition uniteqrel : eqrel unit := unittrivialrel,,iseqrelunittrivialrel.
+
+Definition unittrivialrel_iseqclasstotalsubtype : iseqclass uniteqrel (totalsubtype unit).
+Proof.
+  use iseqclassconstr.
+  - use hinhpr.
+    use (invmap (weqtotalsubtype _)).
+    exact tt.
+  - intros _ ? _ _.
+    exact tt.
+  - intros ? ? _ _.
+    exact tt.
+Qed.
+
+Definition unittrivialrel_setquot := totalsubtype unit ,, unittrivialrel_iseqclasstotalsubtype.
+
+Lemma unittrivialrel_setquot_eq (c : setquot uniteqrel) : totalsubtype unit = c.
+Proof.
+  use funextsec.
+  intro t.
+  induction t.
+  cbn.
+  use hPropUnivalence.
+  - intros _ .
+    induction c as [c iseqclass].
+    induction iseqclass as [ishinh is].
+    use (squash_to_hProp ishinh).
+    intro t.
+    induction t as [t tinc].
+    induction t.
+    exact tinc.
+  - intros _.
+    exact tt.
+Qed.
+
+Lemma iscontr_setquotuniteqrel : iscontr (setquot uniteqrel).
+Proof.
+  use make_iscontr.
+  - exact unittrivialrel_setquot.
+  - intro c.
+    use pathsinv0.
+    use subtypePath.
+    + use isapropiseqclass.
+    + use unittrivialrel_setquot_eq.
+Qed.
 
 (** ** The equivalence relation of being in the same fiber *)
 
@@ -370,6 +428,14 @@ Proof.
   apply isapropimpl.
   now apply pr2.
 Qed.
+
+(*Accessor to iseqrel from eqrel*)
+Definition iseqreleqrel {X : UU} (R : eqrel X) : iseqrel R := pr2 R.
+
+Definition iseqreldirprod {X Y : UU} (RX : hrel X) (RY : hrel Y)
+           (isx : iseqrel RX) (isy : iseqrel RY) :
+  iseqrel (hreldirprod RX RY)
+  := pr2 (eqreldirprod (RX,,isx) (RY,,isy)).
 
 (**
  Useful functions for when using univalence of sets
