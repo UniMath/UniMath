@@ -218,42 +218,6 @@ Section UniqueUpToIso.
   Defined.
 End UniqueUpToIso.
 
-Section ToBeMoved.
-
-  Lemma identity_preserves_chosen_terminal
-    {C : category} (T : Terminal C)
-    : preserves_chosen_terminal T (functor_identity C).
-  Proof.
-    apply T.
-  Qed.
-
-  Lemma composition_preserves_chosen_terminal
-    {C₀ C₁ C₂ : category}
-    {F : functor C₀ C₁} {G : functor C₁ C₂}
-    {T₀ : Terminal C₀} {T₁ : Terminal C₁}
-    (F_pT : preserves_chosen_terminal T₀ F)
-    (G_pT : preserves_chosen_terminal T₁ G)
-    : preserves_chosen_terminal T₀ (functor_composite F G).
-  Proof.
-    set (t₁ := preserves_terminal_if_preserves_chosen _ _ F_pT).
-    set (t₂ := preserves_terminal_if_preserves_chosen _ _ G_pT).
-    apply (t₂ _ (t₁ _ (pr2 T₀))).
-  Qed.
-
-  Definition preserves_chosen_terminal_iso
-    {C₀ C₁ : category}
-    {F : functor C₀ C₁}
-    {T₀ : Terminal C₀}
-    (T₁ : Terminal C₁)
-    (F_pT : preserves_chosen_terminal T₀ F)
-    : z_iso T₁ (F T₀).
-  Proof.
-    use (z_iso_inv (preserves_terminal_to_z_iso _ _ T₀ T₁)).
-    exact (preserves_terminal_if_preserves_chosen T₀ _ F_pT).
-  Defined.
-
-End ToBeMoved.
-
 Section HomomorphismNNO.
 
   Definition preserves_NNO
