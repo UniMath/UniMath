@@ -1,10 +1,15 @@
 (**
 
-Definition natural number objects (NNO's)
+- Definition natural number objects (NNO's) [NNO];
+- A proof that the existence of an NNO is independent of the choice of terminal object [NNO_transport_along_terminal];
+- A proof that NNO's are unique up to isomorphism [iso_between_NNO];
+- Definitions of functors preserving NNO's [preserves_NNO, preserves_chosen_NNO];
+- Proofs that the identity preserve NNO's, and that the composition of NNO preserving functors is NNO preserving.
 
 This is related to the initial algebra definition in FunctorAlgebras.v
 
 Written by: Anders Mörtberg, 2018
+Extended by: Kobe Wullaert, 2025
 
 *)
 Require Import UniMath.MoreFoundations.All.
