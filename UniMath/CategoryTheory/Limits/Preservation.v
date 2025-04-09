@@ -123,6 +123,18 @@ Proof.
               (z_iso_Terminals HC₁ (make_Terminal _ Hx)))).
 Defined.
 
+Definition preserves_chosen_terminal_to_z_iso
+  {C₁ C₂ : category}
+  {T₁ : Terminal C₁}
+  {F : C₁ ⟶ C₂}
+  (F_T : preserves_chosen_terminal T₁ F)
+  : ∏ T₂ : Terminal C₂, z_iso T₂ (F T₁).
+Proof.
+  intro T₂.
+  use (z_iso_inv (preserves_terminal_to_z_iso _ _ T₁ T₂)).
+  exact (preserves_terminal_if_preserves_chosen _ _ F_T).
+Defined.
+
 Definition preserves_terminal_chosen_to_chosen
            {C₁ C₂ : category}
            (T₁ : Terminal C₁)
@@ -152,6 +164,26 @@ Proof.
   - exact T₂.
   - exact HF.
 Defined.
+
+Lemma identity_preserves_chosen_terminal
+  {C : category} (T : Terminal C)
+  : preserves_chosen_terminal T (functor_identity C).
+Proof.
+  apply T.
+Qed.
+
+Lemma composition_preserves_chosen_terminal
+  {C₀ C₁ C₂ : category}
+  {F : functor C₀ C₁} {G : functor C₁ C₂}
+  {T₀ : Terminal C₀} {T₁ : Terminal C₁}
+  (F_pT : preserves_chosen_terminal T₀ F)
+  (G_pT : preserves_chosen_terminal T₁ G)
+  : preserves_chosen_terminal T₀ (functor_composite F G).
+Proof.
+  set (t₁ := preserves_terminal_if_preserves_chosen _ _ F_pT).
+  set (t₂ := preserves_terminal_if_preserves_chosen _ _ G_pT).
+  apply (t₂ _ (t₁ _ (pr2 T₀))).
+Qed.
 
 Definition preserves_chosen_terminal_eq
            {C₁ C₂ : category}
@@ -978,6 +1010,52 @@ Proof.
               F
               (ziso_Initials HC₁ (make_Initial _ Hx)))).
 Defined.
+
+Definition preserves_chosen_initial_eq
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+           (T₁ : Initial C₁)
+           (T₂ : Initial C₂)
+  : UU
+  := ∥ F T₁ = T₂ ∥.
+
+Proposition identity_preserves_chosen_initial_eq
+            {C : category}
+            (T : Initial C)
+  : preserves_chosen_initial_eq (functor_identity C) T T.
+Proof.
+  apply hinhpr.
+  apply idpath.
+Qed.
+
+Proposition composition_preserves_chosen_initial_eq
+            {C₁ C₂ C₃ : category}
+            {F : C₁ ⟶ C₂}
+            {G : C₂ ⟶ C₃}
+            {T₁ : Initial C₁}
+            {T₂ : Initial C₂}
+            {T₃ : Initial C₃}
+            (HF : preserves_chosen_initial_eq F T₁ T₂)
+            (HG : preserves_chosen_initial_eq G T₂ T₃)
+  : preserves_chosen_initial_eq (F ∙ G) T₁ T₃.
+Proof.
+  revert HF.
+  use factor_through_squash.
+  {
+    apply propproperty.
+  }
+  intro p.
+  revert HG.
+  use factor_through_squash.
+  {
+    apply propproperty.
+  }
+  intro q.
+  cbn.
+  apply hinhpr.
+  rewrite p, q.
+  apply idpath.
+Qed.
 
 (**
  7. Preservation of binary coproducts
