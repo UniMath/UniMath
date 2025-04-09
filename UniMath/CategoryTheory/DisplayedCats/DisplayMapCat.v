@@ -516,7 +516,12 @@ Proof.
     + exact (λ _, homsets_disp _ _ _ _ _).
     + exact (λ _, homset_property _ _ _ _ _).
     + simpl. apply base_paths in H1'. simpl in *.
-      specialize Hunique with (hk' ,, (H1' ,, H2')).
+      match goal with [ H : ∏ _ : ?A, _  |- _ ] => transparent assert (a : A) end.
+      { exists hk'.
+        exists H1'.
+        exact H2'.
+      }
+      specialize Hunique with a.
       apply base_paths in Hunique. simpl in Hunique.
       exact Hunique.
 Qed.
