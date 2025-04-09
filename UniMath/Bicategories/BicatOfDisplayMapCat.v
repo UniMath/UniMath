@@ -17,6 +17,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.DisplayMapCat.
 
 Require Import UniMath.Bicategories.Core.Bicat.
+Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
@@ -135,6 +136,29 @@ Coercion bicat_display_map_mor_to_display_map_cat_functor  {D₁ D₂ : bicat_di
 Coercion display_map_functor_to_display_map_class_functor {D₁ D₂ : bicat_display_map_cat} (F : display_map_cat_functor D₁ D₂) : display_map_class_functor D₁ D₂ := pr1 F.
 
 Coercion display_map_functor_preserves_terminal {D₁ D₂ : bicat_display_map_cat} (F : display_map_cat_functor D₁ D₂) : preserves_terminal F := pr2 F.
+
+(** ** Univalence of the Bicategory of Display Map Categories *)
+Section UnivalentBicatOfDisplayMapCat.
+
+  Proposition is_univalent_2_0_bicat_display_map_cat :
+    is_univalent_2_0 bicat_display_map_cat.
+  Proof.
+    intros D₁ D₂.
+  Admitted.
+
+  Proposition is_univalent_2_1_bicat_display_map_cat :
+    is_univalent_2_1 bicat_display_map_cat.
+  Proof.
+    split.
+  Admitted.
+
+  Proposition is_univalent_2_bicat_display_map_cat :
+    is_univalent_2 bicat_display_map_cat.
+  Proof.
+    split.
+  Admitted.
+
+End UnivalentBicatOfDisplayMapCat.
 
 (** ** Pseudofunctor into the Bicategory of Full Comprehension Categories *)
 Section DisplayMapCategoryToFullComprehensionCategory.

@@ -402,8 +402,10 @@ Definition preserves_maps {C C' : category} (D : display_map_class C) (D' : disp
 Definition preserves_pullbacks {C C' : category} (D : display_map_class C) (D' : display_map_class C') (F : C ⟶ C') :=
   ∏ (a b c : C) (f : b --> a) (g : c --> a) (_ : D f) (pb : Pullback f g), isPullback (!functor_comp F _ _ @ maponpaths (#F) (PullbackSqrCommutes pb) @ functor_comp F _ _).
 
+Definition is_display_map_class_functor {C C' : category} (D : display_map_class C) (D' : display_map_class C') (F: C ⟶ C') := preserves_maps D D' F × preserves_pullbacks D D' F.
+
 Definition display_map_class_functor {C C' : category} (D : display_map_class C) (D' : display_map_class C') :=
-  ∑ (F: C ⟶ C'), preserves_maps D D' F × preserves_pullbacks D D' F.
+  ∑ (F: C ⟶ C'), is_display_map_class_functor D D' F.
 
 Definition functor_from_display_map_class_functor {C C' : category} (D : display_map_class C) (D' : display_map_class C') (F : display_map_class_functor D D') : C ⟶ C' := pr1 F.
 Coercion functor_from_display_map_class_functor : display_map_class_functor >-> functor.
@@ -422,12 +424,30 @@ Proof.
   - simpl. exact (pr22 F _ _ _ _ _ H pb).
 Defined.
 
+
+Definition is_display_map_class_functor_identity
+  {C : category} (D : display_map_class C)
+  : is_display_map_class_functor D D (functor_identity C).
+Proof.
+  exact ((λ _ _ _ tt, tt) ,, (λ _ _ _ _ _ _ pb, isPullback_Pullback pb)).
+Defined.
+
 Definition display_map_class_functor_identity
   {C : category} (D : display_map_class C)
-  : display_map_class_functor D D.
+  : display_map_class_functor D D
+  := (_ ,, is_display_map_class_functor_identity _).
+
+Definition is_display_map_class_functor_composite
+  {C₁ C₂ C₃ : category}
+  {D₁ : display_map_class C₁} {D₂ : display_map_class C₂} {D₃ : display_map_class C₃}
+  {F₁ : C₁ ⟶ C₂} {F₂ : C₂ ⟶ C₃}
+  (HF₁ : is_display_map_class_functor D₁ D₂ F₁) (HF₂ : is_display_map_class_functor D₂ D₃ F₂)
+  : is_display_map_class_functor D₁ D₃ (functor_composite F₁ F₂).
 Proof.
-  exists (functor_identity C).
-  exact ((λ _ _ _ tt, tt) ,, (λ _ _ _ _ _ _ pb, isPullback_Pullback pb)).
+  split.
+  - exact (λ _ _ _ tt, (pr1 HF₂) _ _ _ ((pr1 HF₁) _ _ _ tt)).
+  - intros ? ? ? ? ? tt pb; unfold functor_comp; simpl.
+    apply ((pr2 HF₂) _ _ _ _ _ ((pr1 HF₁) _ _ _ tt) (display_map_class_functor_preserves_pullback (_ ,, HF₁) tt pb)).
 Defined.
 
 Definition display_map_class_functor_composite
@@ -435,16 +455,8 @@ Definition display_map_class_functor_composite
   {D₁ : display_map_class C₁} {D₂ : display_map_class C₂} {D₃ : display_map_class C₃}
   (F₁ : display_map_class_functor D₁ D₂)
   (F₂ : display_map_class_functor D₂ D₃)
-  : display_map_class_functor D₁ D₃.
-Proof.
-  exists (functor_composite F₁ F₂).
-  split.
-  - abstract (exact (λ _ _ _ tt, (pr12 F₂) _ _ _ ((pr12 F₁) _ _ _ tt))).
-  - abstract (
-        intros ? ? ? ? ? tt pb; unfold functor_comp; simpl;
-        apply ((pr22 F₂) _ _ _ _ _ ((pr12 F₁) _ _ _ tt) (display_map_class_functor_preserves_pullback F₁ tt pb))
-      ).
-Defined.
+  : display_map_class_functor D₁ D₃
+  := (_ ,, is_display_map_class_functor_composite (pr2 F₁) (pr2 F₂)).
 
 (** ** Functor between Display Map Categories *)
 (** *** Define how functor `F` acts on the Display Map Category  *)
