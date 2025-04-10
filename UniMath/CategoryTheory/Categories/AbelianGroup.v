@@ -650,50 +650,60 @@ Defined.
    - Epis are surjective
    - Monics are injective
 *)
-Section abgr_monics_and_epis.
+Section Epis.
 
   (** ** Epis *)
 
+  Context {A B : abgr}.
+  Context (f : abelian_group_morphism A B).
+
   Definition abgr_epi_hfiber_inhabited
-             {A B : abgr} (f : abelian_group_category⟦A, B⟧) (isE : isEpi f) (b : B)
+              (isE : isEpi f) (b : B)
              (H : setquotpr (abgr_Cokernel_eqrel f) b =
-                  setquotpr (abgr_Cokernel_eqrel f) 1%multmonoid) : ∥ hfiber (pr1 f) b ∥.
+                  setquotpr (abgr_Cokernel_eqrel f) 1%multmonoid) : ∥ hfiber f b ∥.
   Proof.
     set (tmp := weqpathsinsetquot (abgr_Cokernel_eqrel f) b (unel _)).
-    apply (hinhuniv _ ((invweq tmp) H)). intros Y. apply hinhpr. induction Y as [t p].
+    refine (hinhuniv _ ((invweq tmp) H)). intros Y. apply hinhpr. induction Y as [t p].
     rewrite grinvunel in p. rewrite (runax B) in p.
-    exact (make_hfiber (pr1 f) t p).
+    exact (make_hfiber f t p).
   Qed.
 
-  Definition abgr_epi_issurjective {A B : abgr} (f : abelian_group_category⟦A, B⟧) (isE : isEpi f) :
-    issurjective (pr1 f).
+  Definition abgr_epi_issurjective (isE : isEpi f) :
+    issurjective f.
   Proof.
     intros x. apply abgr_epi_hfiber_inhabited.
     - exact isE.
     - set (tmp := isE (abgr_Cokernel_abgr f) (abgr_CokernelArrow f)
-                      (unelabgrfun B (abgr_Cokernel_abgr f))).
-      assert (H : f · abgr_CokernelArrow f = f · unelabgrfun B (abgr_Cokernel_abgr f)).
+                      (unel_abelian_group_morphism B (abgr_Cokernel_abgr f))).
+      assert (H : f · abgr_CokernelArrow f = f · unel_abelian_group_morphism B (abgr_Cokernel_abgr f)).
       {
         rewrite abgr_Cokernel_eq.
         rewrite <- abgr_Zero_arrow_comp.
         rewrite ZeroArrow_comp_right.
         reflexivity.
       }
-      exact (toforallpaths _ _ _ (base_paths _ _ (tmp H)) x).
+      exact (maponpaths (λ (f : abelian_group_morphism _ _), f x) (tmp H)).
   Qed.
 
+End Epis.
+
+Section Monics.
 
   (** ** Monics *)
 
-  Lemma nat_nat_prod_abgr_abelian_group_morphism_eq {A B : abgr} (a1 a2 : A) (f : abelian_group_morphism A B)
-        (H : f a1 = f a2) : monoidfuncomp (nat_nat_prod_abmonoid_abelian_group_morphism a1) f =
-                            monoidfuncomp (nat_nat_prod_abmonoid_abelian_group_morphism a2) f.
+  Context {A B : abgr}.
+  Context (f : abelian_group_morphism A B).
+
+  Lemma nat_nat_prod_abgr_abelian_group_morphism_eq (a1 a2 : A) (H : f a1 = f a2)
+    : composite_abelian_monoid_morphism (nat_nat_prod_abmonoid_abelian_monoid_morphism a1) (abelian_group_to_monoid_morphism f)
+    = composite_abelian_monoid_morphism (nat_nat_prod_abmonoid_abelian_monoid_morphism a2) (abelian_group_to_monoid_morphism f).
   Proof.
-    apply abelian_group_morphism_eq. apply funextfun. intros x. induction x as [x1 x2]. cbn.
+    apply abelian_monoid_morphism_eq. apply funextfun. intros x. induction x as [x1 x2]. cbn.
     unfold nataddabmonoid_nataddabmonoid_to_monoid_fun.
     unfold nat_nat_to_monoid_fun. Opaque nat_to_monoid_fun. cbn.
-    apply (pathscomp0 (binopfunisbinopfun f _ _)).
-    apply (pathscomp0 _ (! (binopfunisbinopfun f _ _))). cbn.
+    refine (binopfunisbinopfun f _ _ @ _).
+    refine (_ @ (! (binopfunisbinopfun f _ _))). cbn.
+    change (pr1binopfun _ _ (pr1 f)) with (f : _ → _).
     rewrite (abelian_group_morphism_nat_to_monoid_fun f a1 x1).
     rewrite (abelian_group_morphism_nat_to_monoid_fun f a2 x1).
     rewrite (abelian_group_morphism_nat_to_monoid_fun f (grinv A a1) x2).
@@ -701,457 +711,446 @@ Section abgr_monics_and_epis.
     apply two_arg_paths.
     - induction H. reflexivity.
     - assert (e : f (grinv A a1) = f (grinv A a2)). {
-        apply (@grlcan B _ _ (pr1 f a1)).
-        apply (pathscomp0 (! binopfunisbinopfun f a1 (grinv A a1))).
-        apply (pathscomp0 (maponpaths (pr1 f) (grrinvax A a1))).
-        cbn in H. rewrite H.
-        apply (pathscomp0 _ (binopfunisbinopfun f a2 (grinv A a2))).
-        apply (pathscomp0 _ (! (maponpaths (pr1 f) (grrinvax A a2)))).
+        apply (@grlcan B _ _ (f a1)).
+        refine (! binopfunisbinopfun f a1 (grinv A a1) @ _).
+        refine (maponpaths f (grrinvax A a1) @ _).
+        rewrite H.
+        refine (_ @ binopfunisbinopfun f a2 (grinv A a2)).
+        refine (_ @ !maponpaths f (grrinvax A a2)).
         reflexivity.
       }
       induction e. reflexivity.
   Qed.
   Transparent nat_to_monoid_fun.
 
-  Lemma abgr_abelian_group_morphism_precomp {A :abmonoid} {B C : abgr} (f1 f2 : abelian_group_morphism B C)
-        (g : abelian_group_morphism A B) (H : issurjective (pr1 g)) :
-    monoidfuncomp g f1 = monoidfuncomp g f2 -> f1 = f2.
+  Lemma abgr_abelian_group_morphism_precomp {X Y Z : abmonoid} (f1 f2 : abelian_monoid_morphism Y Z)
+        (g : abelian_monoid_morphism X Y) (H : issurjective g) :
+    g · f1 = g · f2 -> f1 = f2.
   Proof.
-    intros e. apply abelian_group_morphism_eq. apply funextfun. intros x.
-    apply (squash_to_prop (H x) (setproperty C _ _)). intros hf.
+    intros e. apply abelian_monoid_morphism_eq, funextfun. intros x.
+    apply (squash_to_prop (H x) (setproperty Z _ _)). intros hf.
     rewrite <- (hfiberpr2 _ _ hf).
-    exact (toforallpaths _ _ _ (base_paths _ _ e) (hfiberpr1 _ _ hf)).
+    exact (maponpaths (λ (f : abelian_monoid_morphism _ _), f (hfiberpr1 _ _ hf)) e).
   Qed.
 
-  Lemma hz_abgr_fun_monoifun_paths {A B : abgr} (a1 a2 : A) (f : abelian_group_morphism A B) (H : f a1 = f a2) :
-    monoidfuncomp (hz_abgr_fun_abelian_group_morphism a1) f = monoidfuncomp (hz_abgr_fun_abelian_group_morphism a2) f.
+  Lemma hz_abgr_fun_monoifun_paths (a1 a2 : A) (H : f a1 = f a2)
+  : (f ∘ hz_abgr_fun_abelian_group_morphism a1)%functions
+  = (f ∘ hz_abgr_fun_abelian_group_morphism a2)%functions.
   Proof.
-    apply (@abgr_abelian_group_morphism_precomp
-           (abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig))
-           hzaddabgr B
-           (monoidfuncomp (hz_abgr_fun_abelian_group_morphism a1) f)
-           (monoidfuncomp (hz_abgr_fun_abelian_group_morphism a2) f)
-           hz_abmonoid_abelian_group_morphism).
+    refine (maponpaths (λ (f : abelian_monoid_morphism _ _), (f : _ → _)) (abgr_abelian_group_morphism_precomp
+           (composite_abelian_monoid_morphism (abelian_group_to_monoid_morphism (hz_abgr_fun_abelian_group_morphism a1)) (abelian_group_to_monoid_morphism f))
+           (composite_abelian_monoid_morphism (abelian_group_to_monoid_morphism (hz_abgr_fun_abelian_group_morphism a2)) (abelian_group_to_monoid_morphism f))
+           hz_abmonoid_abelian_monoid_morphism _ _)).
     - apply issurjsetquotpr.
-    - rewrite monoidfunassoc. rewrite monoidfunassoc.
-      rewrite abgr_natnat_hz_X_comm. rewrite abgr_natnat_hz_X_comm.
-      exact (nat_nat_prod_abgr_abelian_group_morphism_eq a1 a2 f H).
+    - rewrite !assoc, !abgr_natnat_hz_X_comm.
+      exact (nat_nat_prod_abgr_abelian_group_morphism_eq a1 a2 H).
   Qed.
 
-  Definition abgr_monic_isincl {A B : abgr} (f : abelian_group_category⟦A, B⟧) (isM : isMonic f) :
-    isincl (pr1 f).
+  Definition abgr_monic_isincl (isM : isMonic f) :
+    isincl f.
   Proof.
     intros b h1 h2.
     use make_iscontr.
-    - apply total2_paths_f.
-      + set (e := hfiberpr2 _ _ h1 @ (! hfiberpr2 _ _ h2)).
-        set (tmp := isM hzaddabgr (hz_abgr_fun_abelian_group_morphism (h1))
-                        (hz_abgr_fun_abelian_group_morphism (h2))
-                        (hz_abgr_fun_monoifun_paths (h1) (h2) f e)).
-        set (e' := toforallpaths _ _ _ (base_paths _ _ tmp) hzone).
-        apply (grrcan A (unel A)). apply (grrcan A (unel A)). exact e'.
-      + apply proofirrelevance. apply (setproperty B).
+    - use subtypePath.
+      {
+        intro.
+        apply setproperty.
+      }
+      apply (grrcan A (unel A)). apply (grrcan A (unel A)).
+      refine (maponpaths
+        (λ (f : abelian_group_morphism _ _), f hzone)
+        (isM hzaddabgr (hz_abgr_fun_abelian_group_morphism (pr1 h1))
+                      (hz_abgr_fun_abelian_group_morphism (pr1 h2)) _)).
+      apply abelian_group_morphism_eq.
+      apply (hz_abgr_fun_monoifun_paths _ _ (hfiberpr2 _ _ h1 @ (! hfiberpr2 _ _ h2))).
     - intros t. apply proofirrelevance. apply isaset_hfiber.
       + apply setproperty.
       + apply setproperty.
   Qed.
 
-  Definition abgr_monic_isInjective {A B : abgr} (f : abelian_group_category⟦A, B⟧) (isM : isMonic f) :
-    isInjective (pr1 f).
+  Definition abgr_monic_isInjective (isM : isMonic f) :
+    isInjective f.
   Proof.
-    exact (isweqonpathsincl (pr1 f) (abgr_monic_isincl f isM)).
+    exact (isweqonpathsincl f (abgr_monic_isincl isM)).
   Qed.
 
-  Lemma abgr_monic_paths {A B : abgr} (f : abelian_group_category⟦A, B⟧) (isM : isMonic f) (a1 a2 : A) :
-    pr1 f a1 = pr1 f a2 -> a1 = a2.
+  Lemma abgr_monic_paths (isM : isMonic f) (a1 a2 : A) :
+    f a1 = f a2 -> a1 = a2.
   Proof.
-    exact (invweq (make_weq _ (abgr_monic_isInjective f isM a1 a2))).
+    exact (invweq (make_weq _ (abgr_monic_isInjective isM a1 a2))).
   Qed.
 
-  Lemma abgr_abelian_group_morphism_postcomp {A B C : abgr} (f1 f2 : abelian_group_morphism A B) (g : abelian_group_morphism B C)
-        (isM : isMonic (g : abelian_group_category⟦B, C⟧)) :
-    monoidfuncomp f1 g = monoidfuncomp f2 g -> f1 = f2.
-  Proof.
-    intros e. apply abelian_group_morphism_eq. apply funextfun. intros x.
-    apply (invmap (make_weq _ (abgr_monic_isInjective g isM (pr1 f1 x) (pr1 f2 x)))).
-    exact (toforallpaths _ _ _ (base_paths _ _ e) x).
-  Qed.
+End Monics.
 
-End abgr_monics_and_epis.
+Lemma abgr_abelian_group_morphism_postcomp {A B C : abgr} (f1 f2 : abelian_group_morphism A B) (g : abelian_group_morphism B C)
+      (isM : isMonic (g : abelian_group_category⟦B, C⟧)) :
+  monoidfuncomp f1 g = monoidfuncomp f2 g -> f1 = f2.
+Proof.
+  intros e. apply abelian_group_morphism_eq. apply funextfun. intros x.
+  apply (invmap (make_weq _ (abgr_monic_isInjective g isM (f1 x) (f2 x)))).
+  exact (maponpaths (λ (f : monoidfun _ _), f x) e).
+Qed.
 
 
 (** * Monics are kernels of their cokernels and epis are cokernels of their kernels *)
-Section abgr_monic_kernels_epi_cokernels.
+Section Monics.
 
 
   (** ** Monics are kernels of their cokernels *)
 
-  Definition abgr_monic_kernel_in_hfiber_iscontr {A B C : abgr} (f : abelian_group_category⟦A, B⟧)
-             (isM : isMonic f) (h : abelian_group_category⟦C, B⟧)
-             (H : h · CokernelArrow (abgr_Cokernel f) =
-                  ZeroArrow abgr_Zero C (abgr_Cokernel f)) (c : C) :
-    iscontr (hfiber (pr1 f) (h c)).
+  Context {A B : abgr}.
+  Context (f : abelian_group_morphism A B).
+  Context (isM : isMonic f).
+
+  Definition abgr_monic_kernel_in_hfiber_iscontr {C : abgr} (h : abelian_group_morphism C B)
+    (H : h · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero C (abgr_Cokernel f)) (c : C) :
+    iscontr (hfiber f (h c)).
   Proof.
     apply (squash_to_prop
            ((invweq (weqpathsinsetquot (abgr_Cokernel_eqrel f) (h c) (unel _)))
-              (toforallpaths _ _ _ (base_paths _ _ H) c)) (isapropiscontr _)).
+              (maponpaths (λ (f : abelian_group_morphism _ _), f c) H)) (isapropiscontr _)).
     intros hf.
     use make_iscontr.
-    - apply make_hfiber.
+    - use make_hfiber.
       + exact (pr1 hf).
       + apply (pathscomp0 (pr2 hf)). rewrite grinvunel. apply (runax B).
-    - intros t. apply total2_paths_f.
-      + apply (invmap (make_weq _ (abgr_monic_isInjective f isM (pr1 t) (pr1 hf)))).
-        apply (pathscomp0 (hfiberpr2 _ _ t)). apply (pathscomp0 _ (! (pr2 hf))).
-        rewrite grinvunel. rewrite runax. reflexivity.
-      + apply proofirrelevance. apply (setproperty B).
+    - intros t. apply subtypePath.
+      {
+        intro.
+        apply setproperty.
+      }
+      apply (invmap (make_weq _ (abgr_monic_isInjective f isM (pr1 t) (pr1 hf)))).
+      apply (pathscomp0 (hfiberpr2 _ _ t)). use (pathscomp0 _ (! (pr2 hf))).
+      rewrite grinvunel. rewrite runax. reflexivity.
   Qed.
 
-  Lemma abgr_monic_kernel_in_hfiber_mult_eq {A B : abgr} (f : abelian_group_category⟦A, B⟧)
-        (w : abgr) (x x' : w) (h : abelian_group_category⟦w, B⟧) (X : hfiber (pr1 f) (pr1 h x))
-        (X0 : hfiber (pr1 f) (pr1 h x')) :
-    pr1 f (pr1 X * pr1 X0)%multmonoid = pr1 h (x * x')%multmonoid.
+  Lemma abgr_monic_kernel_in_hfiber_mult_eq {C : abgr} (x x' : C) (h : abelian_group_morphism C B) (X : hfiber f (h x)) (X0 : hfiber f (h x')) :
+    f (pr1 X * pr1 X0)%multmonoid = h (x * x')%multmonoid.
   Proof.
-    rewrite (pr1 (pr2 f)).
+    rewrite !monoidfunmul.
     rewrite (pr2 X).
     rewrite (pr2 X0).
-    rewrite (pr1 (pr2 h)).
     reflexivity.
   Qed.
 
-  Definition abgr_monic_kernel_in_hfiber_mult {A B : abgr} (f : abelian_group_category⟦A, B⟧)
-             (w : abgr) (x x' : w) (h : abelian_group_category⟦w, B⟧) :
-    hfiber (pr1 f) (pr1 h x) -> hfiber (pr1 f) (pr1 h x')
-    -> hfiber (pr1 f) (pr1 h (x * x')%multmonoid).
+  Definition abgr_monic_kernel_in_hfiber_mult
+              {C : abgr} (x x' : C) (h : abelian_group_morphism C B) :
+    hfiber f (h x) -> hfiber f (h x')
+    -> hfiber f (h (x * x')%multmonoid).
   Proof.
     intros X X0.
-    exact (make_hfiber (pr1 f) ((pr1 X) * (pr1 X0))%multmonoid
-                      (abgr_monic_kernel_in_hfiber_mult_eq f w x x' h X X0)).
+    exact (make_hfiber f ((pr1 X) * (pr1 X0))%multmonoid
+                      (abgr_monic_kernel_in_hfiber_mult_eq x x' h X X0)).
   Defined.
 
-  Lemma abgr_monic_kernel_in_hfiber_unel_eq {A B C : abgr} (f : abelian_group_category⟦A, B⟧)
-        (h : abelian_group_category⟦C, B⟧) : pr1 f 1%multmonoid = pr1 h 1%multmonoid.
+  Lemma abgr_monic_kernel_in_hfiber_unel_eq {C : abgr}
+        (h : abelian_group_morphism C B) : f 1%multmonoid = h 1%multmonoid.
   Proof.
-    rewrite (pr2 (pr2 h)). apply (pr2 (pr2 f)).
+    now rewrite !monoidfununel.
   Qed.
 
-  Definition abgr_monic_kernel_in_hfiber_unel {A B : abgr} (f : abelian_group_category⟦A, B⟧) (w : abgr)
-             (h : abelian_group_category⟦w, B⟧) : hfiber (pr1 f) (pr1 h 1%multmonoid) :=
-    make_hfiber (pr1 f) 1%multmonoid (abgr_monic_kernel_in_hfiber_unel_eq f h).
+  Definition abgr_monic_kernel_in_hfiber_unel (w : abgr)
+             (h : abelian_group_morphism w B) : hfiber f (h 1%multmonoid) :=
+    make_hfiber f 1%multmonoid (abgr_monic_kernel_in_hfiber_unel_eq h).
 
-  Definition abgr_monic_kernel_in {A B : abgr} (f : abelian_group_category⟦A, B⟧) (isM : isMonic f)
+  Definition abgr_monic_kernel_in
              (w : abgr) (h: abelian_group_category⟦w, B⟧)
              (H : h · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero _ _) : w -> A.
   Proof.
     intros x.
-    exact (hfiberpr1 _ _ (iscontrpr1 (@abgr_monic_kernel_in_hfiber_iscontr A B w f isM h H x))).
+    exact (hfiberpr1 _ _ (iscontrpr1 (@abgr_monic_kernel_in_hfiber_iscontr w h H x))).
   Defined.
 
-  Definition abgr_monic_kernel_in_isbinopfun {A B : abgr} (f : abelian_group_category⟦A, B⟧)
-             (isM : isMonic f) (w : abgr) (h: abelian_group_category⟦w, B⟧)
+  Definition abgr_monic_kernel_in_isbinopfun (w : abgr) (h: abelian_group_morphism w B)
              (H : h · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero _ _) :
-    isbinopfun (abgr_monic_kernel_in f isM w h H).
+    isbinopfun (abgr_monic_kernel_in w h H).
   Proof.
-    apply make_isbinopfun.
-    - apply make_isbinopfun. intros x x'.
-      set (t := abgr_monic_kernel_in_hfiber_iscontr f isM h H x).
-      set (tmp := abgr_monic_kernel_in_hfiber_mult
-                    f w x x' h
-                    (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr f isM h H x))
-                    (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr f isM h H x'))).
-      apply pathscomp0.
-      + exact (hfiberpr1 _ _ tmp).
-      + unfold abgr_monic_kernel_in.
-        apply (invmap (make_weq _ (abgr_monic_isInjective f isM _ _))).
-        apply (pathscomp0 (hfiberpr2 _ _ (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr
-                                                      f isM h H (x * x')%multmonoid)))).
-        apply pathsinv0.
-        exact (hfiberpr2 _ _ tmp).
-      + reflexivity.
-    - assert (e : iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr f isM h H 1%multmonoid)
-                  = (abgr_monic_kernel_in_hfiber_unel f w h)).
-      {
-        apply total2_paths_f.
-        - apply (invmap (make_weq _ (abgr_monic_isInjective f isM _ _))).
-          apply (pathscomp0 (hfiberpr2 _ _ (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr
-                                                        f isM h H 1%multmonoid)))).
-          apply pathsinv0.
-          exact (hfiberpr2 _ _ (abgr_monic_kernel_in_hfiber_unel f w h)).
-        - apply proofirrelevance. apply setproperty.
-      }
-      exact (base_paths _ _ e).
+    apply make_isbinopfun. intros x x'.
+    set (t := abgr_monic_kernel_in_hfiber_iscontr h H x).
+    set (tmp := abgr_monic_kernel_in_hfiber_mult
+                  x x' h
+                  (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr h H x))
+                  (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr h H x'))).
+    change ((abgr_monic_kernel_in _ _ _ _ + _)%addmonoid) with (hfiberpr1 _ _ tmp).
+    unfold abgr_monic_kernel_in.
+    apply (invmap (make_weq _ (abgr_monic_isInjective f isM _ _))).
+    refine (hfiberpr2 _ _ (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr
+                                                  h H (x * x')%multmonoid)) @ _).
+    exact (!hfiberpr2 _ _ tmp).
   Qed.
 
-  Definition abgr_monic_kernel_in_abelian_group_morphism {A B : abgr} (f : abelian_group_category⟦A, B⟧)
-             (isM : isMonic f) (w : abgr) (h: abelian_group_category⟦w, B⟧)
+  Definition abgr_monic_kernel_in_abelian_group_morphism
+             (w : abgr) (h: abelian_group_category⟦w, B⟧)
              (H : h · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero _ _) :
-    abelian_group_morphism w A := make_abelian_group_morphism _ (abgr_monic_kernel_in_isbinopfun f isM w h H).
+    abelian_group_morphism w A := make_abelian_group_morphism _ (abgr_monic_kernel_in_isbinopfun w h H).
 
-  Definition abgr_monic_Kernel_eq {A B : abgr} (f : abelian_group_category⟦A, B⟧) (isM : isMonic f) :
+  Definition abgr_monic_Kernel_eq :
     f · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero A (abgr_Cokernel f).
   Proof.
     apply CokernelCompZero.
   Qed.
 
-  Lemma abgr_monic_Kernel_isKernel_comm {A B C : abgr} (f : abelian_group_category⟦A, B⟧)
-        (isM : isMonic f) (h : abelian_group_category⟦C, B⟧)
+  Lemma abgr_monic_Kernel_isKernel_comm {C : abgr}
+        (h : abelian_group_morphism C B)
         (H : h · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero C (abgr_Cokernel f)):
-    monoidfuncomp (abgr_monic_kernel_in_abelian_group_morphism f isM C h H) f = h.
+    abgr_monic_kernel_in_abelian_group_morphism C h H · f = h.
   Proof.
     apply abelian_group_morphism_eq. apply funextfun. intros x.
-    exact (hfiberpr2 _ _ (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr f isM h H x))).
+    exact (hfiberpr2 _ _ (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr h H x))).
   Qed.
 
-  Definition make_abgr_monic_Kernel_isKernel {A B C : abgr} (f : abelian_group_category⟦A, B⟧)
-             (isM : isMonic f) (h : abelian_group_category⟦C, B⟧)
+  Definition make_abgr_monic_Kernel_isKernel {C : abgr}
+             (h : abelian_group_category⟦C, B⟧)
              (H : h · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero C (abgr_Cokernel f)) :
     ∑ ψ : abelian_group_category ⟦C, A⟧, ψ · f = h.
   Proof.
-    apply tpair.
-    - exact (abgr_monic_kernel_in_abelian_group_morphism f isM C h H).
-    - exact (abgr_monic_Kernel_isKernel_comm f isM h H).
+    use tpair.
+    - exact (abgr_monic_kernel_in_abelian_group_morphism C h H).
+    - exact (abgr_monic_Kernel_isKernel_comm h H).
   Defined.
 
-  Definition abgr_monic_Kernel_isKernel_uniqueness {A B C : abgr} (f : abelian_group_category⟦A, B⟧)
-             (isM : isMonic f) (h : abelian_group_category⟦C, B⟧)
+  Definition abgr_monic_Kernel_isKernel_uniqueness {C : abgr}
+             (h : abelian_group_category⟦C, B⟧)
              (H : h · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero C (abgr_Cokernel f))
              (t : ∑ ψ : abelian_group_category ⟦C, A⟧, ψ · f = h) :
-    t = make_abgr_monic_Kernel_isKernel f isM h H.
+    t = make_abgr_monic_Kernel_isKernel h H.
   Proof.
-    apply total2_paths_f.
-    - apply abelian_group_morphism_eq. apply funextfun. intros x.
-      apply (invmap (make_weq _ (abgr_monic_isInjective f isM _ _))).
-      apply (pathscomp0 (toforallpaths _ _ _ (base_paths _ _ (pr2 t)) x)).
-      apply pathsinv0.
-      exact (hfiberpr2 _ _ (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr f isM h H x))).
-    - apply proofirrelevance. apply setproperty.
+    apply subtypePath.
+    {
+      intro.
+      apply homset_property.
+    }
+    apply abelian_group_morphism_eq. apply funextfun. intros x.
+    apply (invmap (make_weq _ (abgr_monic_isInjective _ isM _ _))).
+    refine (maponpaths (λ (f : abelian_group_morphism _ _), f x) (hfiberpr2 _ _ t) @ _).
+    symmetry.
+    exact (hfiberpr2 _ _ (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr h H x))).
   Qed.
 
-  Definition abgr_monic_Kernel_isKernel {A B : abgr} (f : abelian_group_category⟦A, B⟧) (isM : isMonic f) :
+  Definition abgr_monic_Kernel_isKernel :
     isKernel abgr_Zero f (CokernelArrow (abgr_Cokernel f))
              (CokernelCompZero abgr_Zero (abgr_Cokernel f)).
   Proof.
     apply make_isKernel.
     - intros w h H.
       use make_iscontr.
-      + exact (make_abgr_monic_Kernel_isKernel f isM h H).
-      + exact (abgr_monic_Kernel_isKernel_uniqueness f isM h H).
+      + exact (make_abgr_monic_Kernel_isKernel h H).
+      + exact (abgr_monic_Kernel_isKernel_uniqueness h H).
   Defined.
 
-  Definition abgr_monic_kernel {A B : abgr} (f : abelian_group_category⟦A, B⟧) (isM : isMonic f) :
+  Definition abgr_monic_kernel :
     Kernel abgr_Zero (CokernelArrow (abgr_Cokernel f)) :=
-    make_Kernel abgr_Zero f (CokernelArrow (abgr_Cokernel f)) (abgr_monic_Kernel_eq f isM)
-              (abgr_monic_Kernel_isKernel f isM).
+    make_Kernel abgr_Zero f (CokernelArrow (abgr_Cokernel f)) (abgr_monic_Kernel_eq)
+              (abgr_monic_Kernel_isKernel).
 
-  Lemma abgr_monic_kernel_comp {A B : abgr} (f : abelian_group_category⟦A, B⟧) (isM : isMonic f) :
-    KernelArrow (abgr_monic_kernel f isM) = f.
+  Lemma abgr_monic_kernel_comp :
+    KernelArrow (abgr_monic_kernel) = f.
   Proof.
     reflexivity.
   Qed.
 
+End Monics.
 
-  (** ** Epis are cokernels of their kernels *)
+(** ** Epis are cokernels of their kernels *)
 
-  Definition abgr_epi_cokernel_out_kernel_hsubtype {A B : abgr}
-             (f : abelian_group_category⟦A, B⟧) (a : A)
-             (H : pr1 f a = 1%multmonoid) : abgr_kernel_hsubtype f.
+Section Epis.
+
+  Context {A B : abgr}.
+  Context (f : abelian_group_morphism A B).
+  Context (isE : isEpi f).
+
+  Definition abgr_epi_cokernel_out_kernel_hsubtype (a : A)
+             (H : f a = 1%multmonoid) : abgr_kernel_hsubtype f.
   Proof.
     exact (a,, H).
   Defined.
 
-  Lemma abgr_epi_cokernel_out_data_eq {A B C : abgr} (f : abelian_group_category⟦A, B⟧)
-        (isE : isEpi f) (h : abelian_group_category⟦A, C⟧)
+  Lemma abgr_epi_cokernel_out_data_eq {C : abgr}
+         (h : abelian_group_morphism A C)
         (H : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero (abgr_Kernel f) C) :
-    ∏ x : abgr_kernel_hsubtype f, pr1 h (pr1carrier (abgr_kernel_hsubtype f) x) = 1%multmonoid.
+    ∏ x : abgr_kernel_hsubtype f, h (pr1carrier (abgr_kernel_hsubtype f) x) = 1%multmonoid.
   Proof.
-    exact (toforallpaths _ _ _ (base_paths _ _ H)).
+    intro x.
+    exact (maponpaths (λ (f : abelian_group_morphism (abgr_Kernel f : abelian_group_category) _), f x) H).
   Qed.
 
-  Lemma abgr_epi_cokernel_out_data_hfibers_to_unel {A B : abgr} (f : abelian_group_category⟦A, B⟧) (b : B)
-        (hfib1 hfib2 : hfiber (pr1 f) b) :
-    (pr1 f) ((pr1 hfib1) * (grinv A (pr1 hfib2)))%multmonoid = unel B.
+  Lemma abgr_epi_cokernel_out_data_hfibers_to_unel (b : B)
+        (hfib1 hfib2 : hfiber (f) b) :
+    (f) ((pr1 hfib1) * (grinv A (pr1 hfib2)))%multmonoid = unel B.
   Proof.
-    rewrite (pr1 (pr2 f)).
-    apply (grrcan (abgrtogr B) (pr1 f (pr1 hfib2))).
-    rewrite (assocax B). rewrite <- (pr1 (pr2 f)).
-    rewrite (grlinvax A). rewrite (pr2 (pr2 f)).
+    rewrite monoidfunmul.
+    apply (grrcan (abgrtogr B) (f (pr1 hfib2))).
+    rewrite (assocax B). rewrite <- monoidfunmul.
+    rewrite (grlinvax A). rewrite monoidfununel.
     rewrite (runax B). rewrite (lunax B).
     rewrite (pr2 hfib1). rewrite (pr2 hfib2).
     reflexivity.
   Qed.
 
-  Lemma abgr_epi_cokernel_out_data_hfiber_eq {A B C : abgr} (f : abelian_group_category⟦A, B⟧)
-        (isE : isEpi f) (h : abelian_group_category⟦A, C⟧)
+  Lemma abgr_epi_cokernel_out_data_hfiber_eq {C : abgr}
+        (h : abelian_group_morphism A C)
         (H : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero _ _) (b : B)
-        (X : hfiber (pr1 f) b) : ∏ hfib : hfiber (pr1 f) b, pr1 h (pr1 hfib) = pr1 h (pr1 X).
+        (X : hfiber (f) b) : ∏ hfib : hfiber f b, h (pr1 hfib) = h (pr1 X).
   Proof.
     intros hfib.
-    apply (grrcan C (grinv (abgrtogr C) (pr1 h (pr1 X)))).
+    apply (grrcan C (grinv (abgrtogr C) (h (pr1 X)))).
     rewrite (grrinvax C).
-    set (e1 := abgr_epi_cokernel_out_data_hfibers_to_unel f b hfib X).
-    set (tmp1 := ! (monoidfuninvtoinv h (hfiberpr1 _ _ X))). cbn in tmp1.
-    apply (pathscomp0 (maponpaths (λ k : _, ((pr1 h (pr1 hfib)) * k)%multmonoid) tmp1)).
-    rewrite <- (pr1 (pr2 h)).
-    set (tmp2 := abgr_epi_cokernel_out_data_eq f isE h H).
+    set (e1 := abgr_epi_cokernel_out_data_hfibers_to_unel b hfib X).
+    set (tmp1 := ! (group_morphism_inv h (hfiberpr1 _ _ X))). cbn in tmp1.
+    apply (pathscomp0 (maponpaths (λ k : _, ((h (pr1 hfib)) * k)%multmonoid) tmp1)).
+    rewrite <- (monoidfunmul h).
+    set (tmp2 := abgr_epi_cokernel_out_data_eq h H).
     set (tmp3 := abgr_epi_cokernel_out_kernel_hsubtype
-                   f (pr1 hfib * grinv A (pr1 X))%multmonoid e1).
+                   (pr1 hfib * grinv A (pr1 X))%multmonoid e1).
     set (tmp4 := tmp2 tmp3). cbn in tmp4. exact tmp4.
   Qed.
 
-  Lemma abgr_epi_CokernelOut_iscontr {A B C : abgr} (f : abelian_group_category⟦A, B⟧)
-        (isE : isEpi f) (h : abelian_group_category⟦A, C⟧)
+  Lemma abgr_epi_CokernelOut_iscontr {C : abgr}
+        (h : abelian_group_morphism A C)
         (H : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero _ _) (b : B) :
-    iscontr (∑ x : C, ∏ (hfib : hfiber (pr1 f) b), pr1 h (pr1 hfib) = x).
+    iscontr (∑ x : C, ∏ (hfib : hfiber f b), h (pr1 hfib) = x).
   Proof.
     apply (squash_to_prop (abgr_epi_issurjective f isE b) (isapropiscontr _)).
     intros X. use make_iscontr.
-    - apply tpair.
-      + exact (pr1 h (pr1 X)).
-      + exact (abgr_epi_cokernel_out_data_hfiber_eq f isE h H b X).
-    - intros t. apply total2_paths_f.
-      + exact (! ((pr2 t) X)).
-      + apply proofirrelevance. apply impred. intros t0. apply (setproperty C).
+    - use tpair.
+      + exact (h (pr1 X)).
+      + exact (abgr_epi_cokernel_out_data_hfiber_eq h H b X).
+    - intros t. apply subtypePath.
+      {
+        intro.
+        apply impred.
+        intros t0.
+        apply (setproperty C).
+      }
+      exact (! ((pr2 t) X)).
   Defined.
 
-  Definition abgr_epi_CokernelOut_mult_eq {A B C : abgr} (b1 b2 : B)
-             (f : abelian_group_category⟦A, B⟧) (isE : isEpi f) (h : abelian_group_category⟦A, C⟧)
+  Definition abgr_epi_CokernelOut_mult_eq {C : abgr} (b1 b2 : B)
+             (h : abelian_group_morphism A C)
              (H : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero _ _)
-             (X : ∑ x : C, ∏ hfib : hfiber (pr1 f) b1, pr1 h (pr1 hfib) = x)
-             (X0 : ∑ x : C, ∏ hfib : hfiber (pr1 f) b2, pr1 h (pr1 hfib) = x) :
-    ∏ hfib : hfiber (pr1 f) (b1 * b2)%multmonoid, pr1 h (pr1 hfib) = (pr1 X * pr1 X0)%multmonoid.
+             (X : ∑ x : C, ∏ hfib : hfiber (f) b1, h (pr1 hfib) = x)
+             (X0 : ∑ x : C, ∏ hfib : hfiber (f) b2, h (pr1 hfib) = x) :
+    ∏ hfib : hfiber (f) (b1 * b2)%multmonoid, h (pr1 hfib) = (pr1 X * pr1 X0)%multmonoid.
   Proof.
     intros hfib.
     apply (squash_to_prop (abgr_epi_issurjective f isE b1) (setproperty C _ _)). intros X1.
     apply (squash_to_prop (abgr_epi_issurjective f isE b2) (setproperty C _ _)). intros X2.
-    rewrite <- ((pr2 X) X1). rewrite <- ((pr2 X0) X2). rewrite <- (pr1 (pr2 h)).
+    rewrite <- ((pr2 X) X1). rewrite <- ((pr2 X0) X2). rewrite <- monoidfunmul.
     exact (abgr_epi_cokernel_out_data_hfiber_eq
-             f isE h H (b1 * b2)%multmonoid (hfiberbinop (f : abelian_group_morphism _ _) b1 b2 X1 X2) hfib).
+             h H (b1 * b2)%multmonoid (hfiberbinop (f : abelian_group_morphism _ _) b1 b2 X1 X2) hfib).
   Qed.
 
-  Definition abgr_epi_cokernel_out_data_mult {A B C : abgr} (b1 b2 : B)
-             (f : abelian_group_category⟦A, B⟧) (isE : isEpi f) (h : abelian_group_category⟦A, C⟧)
+  Definition abgr_epi_cokernel_out_data_mult {C : abgr} (b1 b2 : B)
+             (h : abelian_group_morphism A C)
              (H : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero _ _) :
-    (∑ x : C, ∏ (hfib : hfiber (pr1 f) b1), pr1 h (pr1 hfib) = x) ->
-    (∑ x : C, ∏ (hfib : hfiber (pr1 f) b2), pr1 h (pr1 hfib) = x) ->
-    (∑ x : C, ∏ (hfib : hfiber (pr1 f) (b1 * b2)%multmonoid), pr1 h (pr1 hfib) = x).
+    (∑ x : C, ∏ (hfib : hfiber (f) b1), h (pr1 hfib) = x) ->
+    (∑ x : C, ∏ (hfib : hfiber (f) b2), h (pr1 hfib) = x) ->
+    (∑ x : C, ∏ (hfib : hfiber (f) (b1 * b2)%multmonoid), h (pr1 hfib) = x).
   Proof.
     intros X X0.
     exact (tpair _ ((pr1 X) * (pr1 X0))%multmonoid
-                 (abgr_epi_CokernelOut_mult_eq b1 b2 f isE h H X X0)).
+                 (abgr_epi_CokernelOut_mult_eq b1 b2 h H X X0)).
   Defined.
 
-  Definition abgr_epi_cokernel_out_data_unel_eq {A B C : abgr}
-             (f : abelian_group_category⟦A, B⟧) (isE : isEpi f) (h : abelian_group_category⟦A, C⟧)
+  Definition abgr_epi_cokernel_out_data_unel_eq {C : abgr}
+             (h : abelian_group_morphism A C)
              (H : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero _ _) :
-    ∏ hfib : hfiber (pr1 f) 1%multmonoid, pr1 h (pr1 hfib) = 1%multmonoid.
+    ∏ hfib : hfiber (f) 1%multmonoid, h (pr1 hfib) = 1%multmonoid.
   Proof.
     intros hfib.
-    set (hfib_unel := make_hfiber (pr1 f) 1%multmonoid (pr2 (pr2 f))).
-    rewrite (abgr_epi_cokernel_out_data_hfiber_eq f isE h H 1%multmonoid hfib_unel hfib).
+    set (hfib_unel := make_hfiber f 1%multmonoid (monoidfununel f)).
+    rewrite (abgr_epi_cokernel_out_data_hfiber_eq h H 1%multmonoid hfib_unel hfib).
     exact (monoidfununel h).
   Qed.
 
-  Definition abgr_epi_cokernel_out_data_unel {A B C : abgr} (f : abelian_group_category⟦A, B⟧)
-             (isE : isEpi f) (h : abelian_group_category⟦A, C⟧)
+  Definition abgr_epi_cokernel_out_data_unel {C : abgr}
+             (h : abelian_group_morphism A C)
              (H : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero _ _) :
-    ( ∑ x : C, ∏ (hfib : hfiber (pr1 f) 1%multmonoid),  pr1 h (pr1 hfib) = x) :=
-    tpair _ 1%multmonoid (abgr_epi_cokernel_out_data_unel_eq f isE h H).
+    ( ∑ x : C, ∏ (hfib : hfiber (f) 1%multmonoid),  h (pr1 hfib) = x) :=
+    tpair _ 1%multmonoid (abgr_epi_cokernel_out_data_unel_eq h H).
 
-  Lemma abgr_epi_cokernel_out_isbinopfun {A B C : abgr} (f : abelian_group_category⟦A, B⟧)
-        (isE : isEpi f) (h : abelian_group_category⟦A, C⟧)
+  Lemma abgr_epi_cokernel_out_isbinopfun {C : abgr} (h : abelian_group_morphism A C)
         (H : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero _ _) :
-    isbinopfun (λ b : B, (pr1 (iscontrpr1 (abgr_epi_CokernelOut_iscontr f isE h H b)))).
+    isbinopfun (λ b : B, (pr1 (iscontrpr1 (abgr_epi_CokernelOut_iscontr h H b)))).
   Proof.
-    apply make_isbinopfun.
-    - apply make_isbinopfun. intros x x'.
-      set (HH0 := abgr_epi_cokernel_out_data_mult
-                    x x' f isE h H
-                    (iscontrpr1 (abgr_epi_CokernelOut_iscontr f isE h H x))
-                    (iscontrpr1 (abgr_epi_CokernelOut_iscontr f isE h H x'))).
-      assert (HH : iscontrpr1 (abgr_epi_CokernelOut_iscontr f isE h H (x * x')%multmonoid) = HH0).
-      {
-        set (tmp := abgr_epi_CokernelOut_iscontr f isE h H (x * x')%multmonoid).
-        rewrite (pr2 tmp). apply pathsinv0. rewrite (pr2 tmp).
-        reflexivity.
-      }
-      exact (base_paths _ _ HH).
-    - assert (HH : iscontrpr1 (abgr_epi_CokernelOut_iscontr f isE h H 1%multmonoid)
-                   = abgr_epi_cokernel_out_data_unel f isE h H).
-      {
-        rewrite (pr2 (abgr_epi_CokernelOut_iscontr f isE h H 1%multmonoid)).
-        apply pathsinv0.
-        rewrite (pr2 (abgr_epi_CokernelOut_iscontr f isE h H 1%multmonoid)).
-        reflexivity.
-      }
-      exact (base_paths _ _ HH).
+    apply make_isbinopfun. intros x x'.
+    set (HH0 := abgr_epi_cokernel_out_data_mult
+                  x x' h H
+                  (iscontrpr1 (abgr_epi_CokernelOut_iscontr h H x))
+                  (iscontrpr1 (abgr_epi_CokernelOut_iscontr h H x'))).
+    assert (HH : iscontrpr1 (abgr_epi_CokernelOut_iscontr h H (x * x')%multmonoid) = HH0).
+    {
+      set (tmp := abgr_epi_CokernelOut_iscontr h H (x * x')%multmonoid).
+      rewrite (pr2 tmp). apply pathsinv0. rewrite (pr2 tmp).
+      reflexivity.
+    }
+    exact (base_paths _ _ HH).
   Qed.
 
-  Definition abgr_epi_cokernel_out_abelian_group_morphism {A B C : abgr} (f : abelian_group_category⟦A, B⟧)
-             (isE : isEpi f) (h : abelian_group_category⟦A, C⟧)
+  Definition abgr_epi_cokernel_out_abelian_group_morphism {C : abgr} (h : abelian_group_morphism A C)
              (H : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero _ _) :
-    abelian_group_morphism B C := make_abelian_group_morphism _ (abgr_epi_cokernel_out_isbinopfun f isE h H).
+    abelian_group_morphism B C := make_abelian_group_morphism _ (abgr_epi_cokernel_out_isbinopfun h H).
 
-  Definition abgr_epi_cokernel_eq {A B : abgr} (f : abelian_group_category⟦A, B⟧) (isE : isEpi f) :
+  Definition abgr_epi_cokernel_eq :
     KernelArrow (abgr_Kernel f) · f = ZeroArrow abgr_Zero _ _.
   Proof.
     apply KernelCompZero.
   Qed.
 
-  Lemma abgr_epi_cokernel_isCokernel_comm {A B C : abgr} (f : abelian_group_category⟦A, B⟧)
-             (isE : isEpi f)  (h : abelian_group_category⟦A, C⟧)
+  Lemma abgr_epi_cokernel_isCokernel_comm {C : abgr} (h : abelian_group_morphism A C)
              (H : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero (abgr_Kernel f) C) :
-    f · abgr_epi_cokernel_out_abelian_group_morphism f isE h H = h.
+    f · abgr_epi_cokernel_out_abelian_group_morphism h H = h.
   Proof.
-    apply total2_paths_f.
-    - apply funextfun. intros x. apply pathsinv0.
-      exact (pr2 (iscontrpr1 (abgr_epi_CokernelOut_iscontr f isE h H (pr1 f x)))
-                 (@make_hfiber _ _ (pr1 f) (pr1 f x) x (idpath _))).
-    - apply proofirrelevance. apply isapropisbinopfun.
+    apply abelian_group_morphism_eq.
+    apply funextfun. intros x. apply pathsinv0.
+    exact (pr2 (iscontrpr1 (abgr_epi_CokernelOut_iscontr h H (f x)))
+               (@make_hfiber _ _ (f) (f x) x (idpath _))).
   Qed.
 
-  Definition make_abgr_epi_cokernel_isCokernel {A B C : abgr} (f : abelian_group_category⟦A, B⟧)
-             (isE : isEpi f)  (h : abelian_group_category⟦A, C⟧)
+  Definition make_abgr_epi_cokernel_isCokernel {C : abgr} (h : abelian_group_morphism A C)
              (H : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero (abgr_Kernel f) C) :
     ∑ ψ : abelian_group_category ⟦B, C⟧, f · ψ = h.
   Proof.
-    apply tpair.
-    - exact (abgr_epi_cokernel_out_abelian_group_morphism f isE h H).
-    - exact (abgr_epi_cokernel_isCokernel_comm f isE h H).
+    use tpair.
+    - exact (abgr_epi_cokernel_out_abelian_group_morphism h H).
+    - exact (abgr_epi_cokernel_isCokernel_comm h H).
   Defined.
 
-  Lemma abgr_epi_cokernel_isCokernel_uniqueness {A B C : abgr} (f : abelian_group_category⟦A, B⟧)
-        (isE : isEpi f)  (h : abelian_group_category⟦A, C⟧)
+  Lemma abgr_epi_cokernel_isCokernel_uniqueness {C : abgr} (h : abelian_group_morphism A C)
         (H : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero (abgr_Kernel f) C)
         (t : ∑ ψ : abelian_group_category ⟦B, C⟧, f · ψ = h) :
-    t = make_abgr_epi_cokernel_isCokernel f isE h H.
+    t = make_abgr_epi_cokernel_isCokernel h H.
   Proof.
-    apply total2_paths_f.
-    - apply isE. apply (pathscomp0 (pr2 t)). apply abelian_group_morphism_eq. apply funextfun. intros x.
-      exact (pr2 (iscontrpr1 (abgr_epi_CokernelOut_iscontr f isE h H (pr1 f x)))
-                 (@make_hfiber _ _ (pr1 f) (pr1 f x) x (idpath _))).
-    - apply proofirrelevance. apply setproperty.
+    apply subtypePath.
+    {
+      intro.
+      apply homset_property.
+    }
+    apply isE. apply (pathscomp0 (pr2 t)). apply abelian_group_morphism_eq. apply funextfun. intros x.
+    exact (pr2 (iscontrpr1 (abgr_epi_CokernelOut_iscontr h H (f x)))
+               (@make_hfiber _ _ (f) (f x) x (idpath _))).
   Qed.
 
-  Definition abgr_epi_cokernel_isCokernel {A B : abgr} (f : abelian_group_category⟦A, B⟧) (isE : isEpi f) :
-    isCokernel abgr_Zero (KernelArrow (abgr_Kernel f)) f (abgr_epi_cokernel_eq f isE).
+  Definition abgr_epi_cokernel_isCokernel :
+    isCokernel abgr_Zero (KernelArrow (abgr_Kernel f)) f (abgr_epi_cokernel_eq).
   Proof.
     apply make_isCokernel.
     - intros w h H. use make_iscontr.
-      + exact (make_abgr_epi_cokernel_isCokernel f isE h H).
-      + intros t. exact (abgr_epi_cokernel_isCokernel_uniqueness f isE h H t).
+      + exact (make_abgr_epi_cokernel_isCokernel h H).
+      + intros t. exact (abgr_epi_cokernel_isCokernel_uniqueness h H t).
   Defined.
 
-  Definition abgr_epi_cokernel {A B : abgr} (f : abelian_group_category⟦A, B⟧) (isE : isEpi f) :
+  Definition abgr_epi_cokernel :
     Cokernel abgr_Zero (KernelArrow (abgr_Kernel f)) :=
-    make_Cokernel abgr_Zero (KernelArrow (abgr_Kernel f)) f _ (abgr_epi_cokernel_isCokernel f isE).
+    make_Cokernel abgr_Zero (KernelArrow (abgr_Kernel f)) f _ (abgr_epi_cokernel_isCokernel).
 
-  Definition abgr_epi_cokernel_comp {A B : abgr} (f : abelian_group_category⟦A, B⟧) (isE : isEpi f) :
-    CokernelArrow (abgr_epi_cokernel f isE) = f.
+  Definition abgr_epi_cokernel_comp :
+    CokernelArrow (abgr_epi_cokernel) = f.
   Proof.
     reflexivity.
   Qed.
 
-End abgr_monic_kernels_epi_cokernels.
+End Epis.
 
 
 (** * Category of abelian groups is an abelian category *)
@@ -1160,21 +1159,21 @@ Section abgr_abelian.
   Definition abgr_Abelian : AbelianPreCat.
   Proof.
     set (BinDS := to_BinDirectSums abgr_Additive).
-    apply (make_Abelian abelian_group_category).
+    use (make_Abelian abelian_group_category).
     - apply make_Data1.
       + exact abgr_Zero.
       + intros X Y. exact (BinDirectSum_BinProduct abgr_Additive (BinDS X Y)).
       + intros X Y. exact (BinDirectSum_BinCoproduct abgr_Additive (BinDS X Y)).
-    - apply make_AbelianData.
+    - use make_AbelianData.
       + apply make_Data2.
         * intros A B f. exact (abgr_Kernel f).
         * intros A B f. exact (abgr_Cokernel f).
       + apply make_MonicsAreKernels.
         intros x y M.
-        exact (KernelisKernel abgr_Zero (abgr_monic_kernel M (MonicisMonic abelian_group_category M))).
+        exact (KernelisKernel abgr_Zero (abgr_monic_kernel _ (MonicisMonic abelian_group_category M))).
       + apply make_EpisAreCokernels.
         intros x y E.
-        exact (CokernelisCokernel abgr_Zero (abgr_epi_cokernel E (EpiisEpi abelian_group_category E))).
+        exact (CokernelisCokernel abgr_Zero (abgr_epi_cokernel _ (EpiisEpi abelian_group_category E))).
   Defined.
 
 End abgr_abelian.
