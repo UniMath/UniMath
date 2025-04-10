@@ -76,6 +76,18 @@ Definition abelian_group_morphism_to_group_morphism
 
 Coercion abelian_group_morphism_to_group_morphism : abelian_group_morphism >-> group_morphism.
 
+Definition abelian_group_to_monoid_morphism
+  {X Y : abgr}
+  (f : abelian_group_morphism X Y)
+  : abelian_monoid_morphism X Y.
+Proof.
+  use make_abelian_monoid_morphism.
+  - exact f.
+  - apply make_ismonoidfun.
+    + apply binopfunisbinopfun.
+    + exact (monoidfununel f).
+Defined.
+
 Definition make_abelian_group_morphism
   {X Y : abgr}
   (f : X → Y)
