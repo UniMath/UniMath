@@ -6,7 +6,7 @@
     - Displayed Bicategory of Display Map Categories with Terminal Object [disp_bicat_terminal_display_map_cat]
       - TODO: Useful coercions
       - TODO: Univalence
-    - TODO: Pseudofunctor into the Bicategory of Full Comprehension Categories [psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat]
+    - Pseudofunctor into the Bicategory of Full Comprehension Categories [psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat]
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -20,6 +20,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
+Require Import UniMath.CategoryTheory.PrecompEquivalence.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
@@ -108,16 +109,24 @@ Proposition disp_univalent_2_1_disp_bicat_display_map_cat :
   disp_univalent_2_1 disp_bicat_display_map_cat.
 Proof.
   use fiberwise_local_univalent_is_univalent_2_1.
-  intros C₁ C₂ F D₁ D₂ HF HF'. use weqhomot; cbn in *.
-  - unfold disp_invertible_2cell, id2_invertible_2cell.
-    unfold is_invertible_2cell_id₂, make_invertible_2cell, make_is_invertible_2cell, is_disp_invertible_2cell, id2_left, nat_trans_id. cbn.
-Admitted.
+  intros C₁ C₂ F D₁ D₂ HF HF'; cbn in * |-.
+  use isweqcontrcontr; cbn.
+  - apply isPredicate_is_display_map_class_functor.
+  - unfold disp_invertible_2cell, id2_invertible_2cell, is_invertible_2cell_id₂, make_invertible_2cell, make_is_invertible_2cell, is_disp_invertible_2cell, id2_left, nat_trans_id. cbn.
+    rewrite ? transportb_const; simpl.
+    apply iscontr_prod; [exact iscontrunit | apply iscontr_prod; [exact iscontrunit | apply iscontr_prod]].
+    all: apply isapropunit.
+Qed.
 
 Proposition disp_univalent_2_0_disp_bicat_display_map_cat :
   disp_univalent_2_0 disp_bicat_display_map_cat.
 Proof.
   use fiberwise_univalent_2_0_to_disp_univalent_2_0.
-  intros c d d'; use weqhomot; cbn in *.
+  intros C D D'.
+  use isweq_iso; cbn in *.
+  - intros [F [[G H1] H2]]; cbn in * |-.
+    apply display_map_class_iso_to_id; assumption.
+  - intros p. simpl.
 Admitted.
 
 (** ** Displayed Bicategory of Display Map Categories with Terminal object in base *)
