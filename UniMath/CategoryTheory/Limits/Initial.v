@@ -84,6 +84,12 @@ Arguments InitialArrowUnique {_} _ _ _.
 Arguments make_isInitial {_} _ _ _.
 Arguments make_Initial {_} _ _.
 
+Lemma isaprop_isInitial {C : category} (O : ob C)
+  : isaprop (isInitial _ O).
+Proof.
+  apply impred_isaprop ; intro.
+  apply isapropiscontr.
+Qed.
 
 (** * Being initial is a property in a (saturated/univalent) category *)
 Section Initial_Unique.
