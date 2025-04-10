@@ -190,10 +190,10 @@ Definition pr1rigfun (X Y : rig) : rigfun X Y → (X → Y) := @pr1 _ _.
 Coercion pr1rigfun : rigfun >-> Funclass.
 
 Definition rigaddfun {X Y : rig} (f : rigfun X Y) :
-  monoidfun (rigaddabmonoid X) (rigaddabmonoid Y) := monoidfunconstr (pr1 (pr2 f)).
+  monoidfun (rigaddabmonoid X) (rigaddabmonoid Y) := make_monoidfun (pr1 (pr2 f)).
 
 Definition rigmultfun {X Y : rig} (f : rigfun X Y) :
-  monoidfun (rigmultmonoid X) (rigmultmonoid Y) := monoidfunconstr (pr2 (pr2 f)).
+  monoidfun (rigmultmonoid X) (rigmultmonoid Y) := make_monoidfun (pr2 (pr2 f)).
 
 Definition rigfun_to_unel_rigaddmonoid {X Y : rig} (f : rigfun X Y) : f (0%rig) = 0%rig :=
   pr2 (pr1 (pr2 f)).
@@ -203,8 +203,8 @@ Proof.
   use rigfunconstr.
   - exact (g ∘ f).
   - use make_isrigfun.
-    + exact (pr2 (monoidfuncomp (rigaddfun f) (rigaddfun g))).
-    + exact (pr2 (monoidfuncomp (rigmultfun f) (rigmultfun g))).
+    + exact (ismonoidfun_monoidfun (monoidfuncomp (rigaddfun f) (rigaddfun g))).
+    + exact (ismonoidfun_monoidfun (monoidfuncomp (rigmultfun f) (rigmultfun g))).
 Defined.
 
 Lemma rigfun_paths {X Y : rig} (f g : rigfun X Y) (e : pr1 f = pr1 g) : f = g.
@@ -814,10 +814,10 @@ Defined.
 Definition ringfunconstr {X Y : ring} {f : X → Y} (is : isringfun f) : ringfun X Y := rigfunconstr is.
 Identity Coercion id_ringfun : ringfun >-> rigfun.
 
-Definition ringaddfun {X Y : ring} (f : ringfun X Y) : monoidfun X Y := monoidfunconstr (pr1 (pr2 f)).
+Definition ringaddfun {X Y : ring} (f : ringfun X Y) : monoidfun X Y := make_monoidfun (pr1 (pr2 f)).
 
 Definition ringmultfun {X Y : ring} (f : ringfun X Y) :
-  monoidfun (ringmultmonoid X) (ringmultmonoid Y) := monoidfunconstr (pr2 (pr2 f)).
+  monoidfun (ringmultmonoid X) (ringmultmonoid Y) := make_monoidfun (pr2 (pr2 f)).
 
 Definition ringiso (X Y : ring) := rigiso X Y.
 
@@ -2468,7 +2468,7 @@ Definition isaddmonoidfuntocommringfrac (X : commring) (S : @subabmonoid (ringmu
 
 Definition tocommringfracandminus0 (X : commring) (S : @subabmonoid (ringmultabmonoid X)) (x : X) :
   tocommringfrac X S (- x) = - tocommringfrac X S x :=
-  grinvandmonoidfun _ _ (isaddmonoidfuntocommringfrac X S) x.
+  binopfun_preserves_inv _ (isbinop1funtocommringfrac X S) x.
 
 Definition tocommringfracandminus (X : commring) (S : @subabmonoid (ringmultabmonoid X)) (x y : X) :
   tocommringfrac X S (x - y) = tocommringfrac X S x - tocommringfrac X S y.

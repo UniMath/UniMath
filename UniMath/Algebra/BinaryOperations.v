@@ -1589,6 +1589,17 @@ Coercion pr1binopfun : binopfun >-> Funclass.
 
 Definition binopfunisbinopfun {X Y : setwithbinop} (f : binopfun X Y) : isbinopfun f := pr2 f.
 
+Lemma binopfun_eq
+  {X Y : setwithbinop}
+  (f g : binopfun X Y)
+  (H : (f : X → Y) = g)
+  : f = g.
+Proof.
+  apply subtypePath.
+  - exact isapropisbinopfun.
+  - exact H.
+Qed.
+
 Lemma isasetbinopfun  (X Y : setwithbinop) : isaset (binopfun X Y).
 Proof.
   apply (isasetsubset (pr1binopfun X Y)).

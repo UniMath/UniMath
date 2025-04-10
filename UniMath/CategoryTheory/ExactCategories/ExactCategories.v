@@ -517,7 +517,7 @@ Section PreAdditive.
   Coercion PreAdditive_functor_to_functor {M N:PreAdditive} : PreAdditive_functor M N -> functor M N := pr1.
   Definition functor_on_morphisms_add {C C' : PreAdditive} (F : PreAdditive_functor C C') { a b : C}
     : monoidfun (a --> b) (F a --> F b)
-    := monoidfunconstr (pr2 F a b).
+    := make_monoidfun (pr2 F a b).
   Local Notation "# F" := (functor_on_morphisms_add F) : abgrcat.
   Lemma add_functor_comp {M N:PreAdditive} (F : PreAdditive_functor M N) {A B C:M} (f:A --> B) (g:B --> C) :
     # F (f · g) = # F f · # F g.

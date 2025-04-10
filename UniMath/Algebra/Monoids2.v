@@ -20,6 +20,9 @@ Require Export UniMath.Algebra.BinaryOperations.
 Require Import UniMath.MoreFoundations.Subtypes.
 Require Import UniMath.MoreFoundations.Sets.
 
+Require Export UniMath.CategoryTheory.Categories.Magma.
+Require Export UniMath.CategoryTheory.Core.Categories.
+
 Declare Scope multmonoid.
 Delimit Scope multmonoid with multmonoid.
 
@@ -27,14 +30,16 @@ Local Open Scope multmonoid.
 
 (** ****  Basic definitions *)
 
-Definition monoid : UU := ∑ (X : setwithbinop), ismonoidop (@op X).
+Definition monoid
+  : UU
+  := monoid_category.
 
 Definition make_monoid (t : setwithbinop) (H : ismonoidop (@op t))
   : monoid
   := t ,, H.
 
-Definition pr1monoid : monoid → setwithbinop := @pr1 _ _.
-Coercion pr1monoid : monoid >-> setwithbinop.
+Definition pr1monoid : monoid → magma := @pr1 _ _.
+Coercion pr1monoid : monoid >-> magma.
 
 Definition assocax (X : monoid) : isassoc (@op X) := pr1 (pr2 X).
 
@@ -90,55 +95,53 @@ Proof.
   - apply (setproperty Y).
 Defined.
 
-Definition monoidfun (X Y : monoid) : UU := ∑ (f : X → Y), ismonoidfun f.
+Definition monoidfun (X Y : monoid) : UU := monoid_category⟦X, Y⟧%cat.
 
-Definition monoidfunconstr {X Y : monoid} {f : X → Y} (is : ismonoidfun f) : monoidfun X Y :=
-  f ,, is.
+Definition make_monoidfun {X Y : monoid} {f : X → Y} (is : ismonoidfun f) : monoidfun X Y
+  := (f ,, pr1 is) ,, (tt ,, pr2 is).
 
-Definition pr1monoidfun (X Y : monoid) : monoidfun X Y → (X → Y) := @pr1 _ _.
+Definition pr1monoidfun (X Y : monoid) (f : monoidfun X Y) : X → Y := pr11 f.
 
-Definition monoidfuntobinopfun (X Y : monoid) : monoidfun X Y -> binopfun X Y :=
-  λ f, make_binopfun (pr1 f) (pr1 (pr2 f)).
+Definition monoidfuntobinopfun (X Y : monoid) (f : monoidfun X Y) : binopfun X Y :=
+  pr1 f.
 Coercion monoidfuntobinopfun : monoidfun >-> binopfun.
 
-Definition monoidfununel {X Y : monoid} (f : monoidfun X Y) : f 1 = 1 := pr2 (pr2 f).
+Definition ismonoidfun_monoidfun
+  {X Y : monoid}
+  (f : monoidfun X Y)
+  : ismonoidfun f
+  := pr21 f ,, pr22 f.
 
 Definition monoidfunmul {X Y : monoid} (f : monoidfun X Y) (x x' : X) : f (x * x') = f x * f x' :=
-  pr1 (pr2 f) x x'.
+  ismonoidfunisbinopfun (ismonoidfun_monoidfun f) x x'.
 
-Definition monoidfun_paths {X Y : monoid} (f g : monoidfun X Y) (e : pr1 f = pr1 g) : f = g.
+Definition monoidfununel {X Y : monoid} (f : monoidfun X Y) : f 1 = 1 := ismonoidfununel (ismonoidfun_monoidfun f).
+
+Definition monoidfun_paths {X Y : monoid} (f g : monoidfun X Y) (e : (f : _ → _) = g) : f = g.
 Proof.
-  use total2_paths_f.
-  - exact e.
-  - use proofirrelevance. use isapropismonoidfun.
+  apply subtypePath.
+  {
+    intro.
+    apply isapropdirprod.
+    - apply isapropunit.
+    - apply setproperty.
+  }
+  apply (subtypePath (isapropisbinopfun)).
+  exact e.
 Qed.
 
 Lemma isasetmonoidfun (X Y : monoid) : isaset (monoidfun X Y).
 Proof.
-  apply (isasetsubset (pr1monoidfun X Y)).
-  - change (isofhlevel 2 (X → Y)).
-    apply impred. intro.
-    apply (setproperty Y).
-  - refine (isinclpr1 _ _). intro.
-    apply isapropismonoidfun.
+  apply homset_property.
 Defined.
 
-Lemma ismonoidfuncomp {X Y Z : monoid} (f : monoidfun X Y) (g : monoidfun Y Z) :
-  ismonoidfun (g ∘ f).
-Proof.
-  exists (isbinopfuncomp f g).
-  simpl. rewrite (pr2 (pr2 f)).
-  apply (pr2 (pr2 g)).
-Qed.
-
 Definition monoidfuncomp {X Y Z : monoid} (f : monoidfun X Y) (g : monoidfun Y Z) :
-  monoidfun X Z := monoidfunconstr (ismonoidfuncomp f g).
+  monoidfun X Z := (f · g)%cat.
 
 Lemma monoidfunassoc {X Y Z W : monoid} (f : monoidfun X Y) (g : monoidfun Y Z)
-      (h : monoidfun Z W) :
-  monoidfuncomp f (monoidfuncomp g h) = monoidfuncomp (monoidfuncomp f g) h.
+      (h : monoidfun Z W) : monoidfuncomp f (monoidfuncomp g h) = monoidfuncomp (monoidfuncomp f g) h.
 Proof.
-  use monoidfun_paths. use idpath.
+  apply assoc.
 Qed.
 
 Lemma unelmonoidfun_ismonoidfun (X Y : monoid) : ismonoidfun (Y := Y) (λ x : X, 1).
@@ -149,27 +152,7 @@ Proof.
 Qed.
 
 Definition unelmonoidfun (X Y : monoid) : monoidfun X Y :=
-  monoidfunconstr (unelmonoidfun_ismonoidfun X Y).
-
-Lemma monoidfuntounit_ismonoidfun (X : monoid) : ismonoidfun (Y := unitmonoid) (λ x : X, 1).
-Proof.
-  use make_ismonoidfun.
-  - use make_isbinopfun. intros x x'. use isProofIrrelevantUnit.
-  - use isProofIrrelevantUnit.
-Qed.
-
-Definition monoidfuntounit (X : monoid) : monoidfun X unitmonoid :=
-  monoidfunconstr (monoidfuntounit_ismonoidfun X).
-
-Lemma monoidfunfromunit_ismonoidfun (X : monoid) : ismonoidfun (Y := X) (λ x : unitmonoid, 1).
-Proof.
-  use make_ismonoidfun.
-  - use make_isbinopfun. intros x x'. exact (!runax X _).
-  - use idpath.
-Qed.
-
-Definition monoidfunfromunit (X : monoid) : monoidfun unitmonoid X :=
-  monoidfunconstr (monoidfunfromunit_ismonoidfun X).
+  make_monoidfun (unelmonoidfun_ismonoidfun X Y).
 
 Definition monoidmono (X Y : monoid) : UU := ∑ (f : incl X Y), ismonoidfun f.
 
@@ -180,18 +163,18 @@ Definition pr1monoidmono (X Y : monoid) : monoidmono X Y → incl X Y := @pr1 _ 
 Coercion pr1monoidmono : monoidmono >-> incl.
 
 Definition monoidincltomonoidfun (X Y : monoid) :
-  monoidmono X Y → monoidfun X Y := λ f, monoidfunconstr (pr2 f).
+  monoidmono X Y → monoidfun X Y := λ f, make_monoidfun (pr2 f).
 Coercion monoidincltomonoidfun : monoidmono >-> monoidfun.
 
-Definition monoidmonotobinopmono (X Y : monoid) : monoidmono X Y → binopmono X Y :=
-  λ f, make_binopmono (pr1 f) (pr1 (pr2 f)).
+Definition monoidmonotobinopmono (X Y : monoid) : monoidmono X Y → binopmono X Y := λ f, make_binopmono (pr1 f) (pr1 (pr2 f)).
 Coercion monoidmonotobinopmono : monoidmono >-> binopmono.
 
 Definition monoidmonocomp {X Y Z : monoid}
            (f : monoidmono X Y) (g : monoidmono Y Z) : monoidmono X Z :=
-  make_monoidmono (inclcomp (pr1 f) (pr1 g)) (ismonoidfuncomp f g).
+  make_monoidmono (inclcomp (pr1 f) (pr1 g)) (ismonoidfun_monoidfun (monoidfuncomp f g)).
 
-Definition monoidiso (X Y : monoid) : UU := ∑ (f : X ≃ Y), ismonoidfun f.
+Definition monoidiso (X Y : monoid) : UU :=
+  ∑ (f : X ≃ Y), ismonoidfun f.
 
 Definition make_monoidiso {X Y : monoid} (f : X ≃ Y) (is : ismonoidfun f) :
   monoidiso X Y := f ,, is.
@@ -244,64 +227,6 @@ Lemma monoidfunidright {A B : monoid} (f : monoidfun A B) : monoidfuncomp f (idm
 Proof.
   use monoidfun_paths. use idpath.
 Qed.
-
-
-(** **** (X = Y) ≃ (monoidiso X Y)
-   The idea here is to use the following composition
-
-                           (X = Y) ≃ (X ╝ Y)
-                                   ≃ (monoidiso' X Y)
-                                   ≃ (monoidiso X Y).
-
-   The reason why we use monoidiso' is that then we can use univalence for sets with binops,
-   [setwithbinop_univalence]. See [monoid_univalence_weq2].
- *)
-
-Local Definition monoidiso' (X Y : monoid) : UU :=
-  ∑ g : (∑ f : X ≃ Y, isbinopfun f), (pr1 g) 1 = 1.
-
-Definition monoid_univalence_weq1 (X Y : monoid) : (X = Y) ≃ (X ╝ Y) :=
-  total2_paths_equiv _ X Y.
-
-Definition monoid_univalence_weq2 (X Y : monoid) : (X ╝ Y) ≃ (monoidiso' X Y).
-Proof.
-  use weqbandf.
-  - exact (setwithbinop_univalence X Y).
-  - intros e. cbn. use invweq. induction X as [X Xop]. induction Y as [Y Yop]. cbn in e.
-    cbn. induction e. use weqimplimpl.
-    + intros i. use proofirrelevance. use isapropismonoidop.
-    + intros i. induction i. use idpath.
-    + use setproperty.
-    + use isapropifcontr. exact (@isapropismonoidop X (pr2 X) Xop Yop).
-Defined.
-Opaque monoid_univalence_weq2.
-
-Definition monoid_univalence_weq3 (X Y : monoid) : (monoidiso' X Y) ≃ (monoidiso X Y) :=
-  weqtotal2asstor (λ w : X ≃ Y, isbinopfun w)
-                  (λ y : (∑ w : weq X Y, isbinopfun w), (pr1 y) 1 = 1).
-
-Definition monoid_univalence_map (X Y : monoid) : X = Y → monoidiso X Y.
-Proof.
-  intro e. induction e. exact (idmonoidiso X).
-Defined.
-
-Lemma monoid_univalence_isweq (X Y : monoid) :
-  isweq (monoid_univalence_map X Y).
-Proof.
-  use isweqhomot.
-  - exact (weqcomp (monoid_univalence_weq1 X Y)
-                   (weqcomp (monoid_univalence_weq2 X Y) (monoid_univalence_weq3 X Y))).
-  - intros e. induction e.
-    refine (weqcomp_to_funcomp_app @ _).
-    use weqcomp_to_funcomp_app.
-  - use weqproperty.
-Defined.
-Opaque monoid_univalence_isweq.
-
-Definition monoid_univalence (X Y : monoid) : (X = Y) ≃ (monoidiso X Y)
-  := make_weq
-    (monoid_univalence_map X Y)
-    (monoid_univalence_isweq X Y).
 
 
 (** **** Subobjects *)
@@ -374,7 +299,11 @@ Proof.
 Defined.
 
 Definition carrierofsubmonoid {X : monoid} (A : submonoid X) : monoid.
-Proof. exists A. apply ismonoidcarrier. Defined.
+Proof.
+  use make_monoid.
+  - exact A.
+  - apply ismonoidcarrier.
+Defined.
 Coercion carrierofsubmonoid : submonoid >-> monoid.
 
 Lemma intersection_submonoid :
@@ -391,7 +320,7 @@ Proof.
 Qed.
 
 (* Lemma ismonoidfun_pr1 {X : monoid} (A : submonoid X) : ismonoidfun (pr1submonoid X A). *)
-(* ismonoidfunconstr _ _. *)
+(* ismake_monoidfun _ _. *)
 
 Lemma ismonoidfun_pr1 {X : monoid} (A : submonoid X) : @ismonoidfun A X pr1.
 Proof.
@@ -401,7 +330,7 @@ Proof.
 Defined.
 
 Definition submonoid_incl {X : monoid} (A : submonoid X) : monoidfun A X :=
-  monoidfunconstr (ismonoidfun_pr1 A).
+  make_monoidfun (ismonoidfun_pr1 A).
 
 (** Every monoid has a submonoid which is a group, the collection of elements
     with inverses. This is used to construct the automorphism group from the
@@ -506,7 +435,7 @@ Proof.
 Defined.
 
 Definition monoidquotpr {X : monoid} (R : binopeqrel X) : monoidfun X (monoidquot R) :=
-  monoidfunconstr (ismonoidfun_setquotpr R).
+  make_monoidfun (ismonoidfun_setquotpr R).
 
 Lemma ismonoidfun_setquotuniv {X Y : monoid} {R : binopeqrel X} (f : monoidfun X Y)
       (H : iscomprelfun R f) : @ismonoidfun (monoidquot R) Y (setquotuniv R Y f H).
@@ -534,7 +463,7 @@ Defined.
 
 Definition monoidquotuniv {X Y : monoid} {R : binopeqrel X} (f : monoidfun X Y)
       (H : iscomprelfun R f) : monoidfun (monoidquot R) Y :=
-  monoidfunconstr (ismonoidfun_setquotuniv f H).
+  make_monoidfun (ismonoidfun_setquotuniv f H).
 
 Definition monoidquotfun {X Y : monoid} {R : binopeqrel X} {S : binopeqrel Y}
   (f : monoidfun X Y) (H : ∏ x x' : X, R x x' → S (f x) (f x')) : monoidfun (monoidquot R) (monoidquot S) :=
