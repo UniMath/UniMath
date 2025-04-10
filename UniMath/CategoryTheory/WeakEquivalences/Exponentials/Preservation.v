@@ -59,9 +59,11 @@ End PrelimProducts.
 
 Section IsExponentiableCharacterization.
   (* This section has to be moved to CategoryTheory.exponentials.v *)
+  (* Some renaming is also appropriate *)
 
   Context (C : category) (P : BinProducts C).
 
+  (* (e,ev) satisfies the universal property of the exponential [x, y] *)
   Definition is_exponentiable_alt_uvp
     (x y e : C) (ev : C⟦P x e, y⟧)
     : UU
@@ -70,17 +72,20 @@ Section IsExponentiableCharacterization.
         f = BinProductOfArrows C (P _ _) (P _ _)
               (identity x) f' · ev.
 
+  (* Evaluation map + universal property *)
   Definition is_exponentiable_alt_mor
     (x y e : C) : UU
     := ∑ (ev : C⟦P x e, y⟧), is_exponentiable_alt_uvp x y e ev.
 
+  (* The existence of the exponential [x,y] *)
   Definition is_exponentiable_alt_struct (x y : C) : UU
     := ∑ e : C, is_exponentiable_alt_mor x y e.
 
+  (* The existence of exponentials [x, -] *)
   Definition is_exponentiable_alt (x : C) : UU
     := ∏ (y : C), is_exponentiable_alt_struct x y.
 
-  (* Rename*)
+  (* Rename: proof that the unique maps (associated to the evaluation) compose to the identity *)
   Lemma bl
     {x y e e' : C}
     {ev : C ⟦ P x e, y ⟧}
@@ -173,6 +178,8 @@ Section IsExponentiableCharacterization.
         apply weqpathsinv0.
     Defined.
 
+    (* We have maps back and forth, not yet shown that they are inverses of eachother *)
+
 End IsExponentiableCharacterization.
 
 Section PreservationExponentialObjects.
@@ -192,6 +199,7 @@ Section PreservationExponentialObjects.
     intro F_pE.
     intros x y.
     set (ex := F_pE _ (E₀ x)).
+    (* follows since both the domain and codomain witness exponentiability *)
   Admitted.
 
 End PreservationExponentialObjects.
@@ -263,14 +271,10 @@ Section WeakEquivalencesPreserveExponentialObjects.
         exact f₀.
       Defined.
 
-      Lemma image_of_exp_uvp
-        : ∃! f' : C₁ ⟦ a₁, F (exp ex₀ y₀) ⟧,
-            f₁ = BinProductOfArrows C₁ (P₁ (F x₀) (F (exp ex₀ y₀))) (P₁ (F x₀) a₁)
-                   (identity (F x₀)) f' · ev_.
+      Lemma image_of_exp_uvp_existence_commutation
+        : f₁ = BinProductOfArrows C₁ (P₁ (F x₀) (F (exp ex₀ y₀))) (P₁ (F x₀) a₁)
+                 (identity (F x₀)) f₁_curry · ev_.
       Proof.
-        use iscontraprop1.
-        { admit. }
-        exists f₁_curry.
         unfold f₁_curry, ev_.
         set (pf := maponpaths #F (exp_app_lam ex₀ f₀)).
         rewrite Ff₀ in pf.
@@ -288,7 +292,25 @@ Section WeakEquivalencesPreserveExponentialObjects.
         use (cancel_z_iso' i_FPxa_PFxA).
         refine (_ @ pf @ _).
         (* (* P₁ and F(P₀) are not definitionally equal.. *) *)
+        -
       Admitted.
+
+      Lemma image_of_exp_uvp_uniqueness
+        : isaprop (∑ f' : C₁ ⟦ a₁, F (exp ex₀ y₀) ⟧,
+                f₁ = BinProductOfArrows C₁ (P₁ (F x₀) (F (exp ex₀ y₀))) (P₁ (F x₀) a₁) (identity (F x₀)) f' · ev_).
+      Proof.
+      Admitted.
+
+      Lemma image_of_exp_uvp
+        : ∃! f' : C₁ ⟦ a₁, F (exp ex₀ y₀) ⟧,
+            f₁ = BinProductOfArrows C₁ (P₁ (F x₀) (F (exp ex₀ y₀))) (P₁ (F x₀) a₁)
+                   (identity (F x₀)) f' · ev_.
+      Proof.
+        use iscontraprop1.
+        { exact image_of_exp_uvp_uniqueness. }
+        exists f₁_curry.
+        exact image_of_exp_uvp_existence_commutation.
+      Defined.
 
     End ImageOfExponentiableIsExponentUVP.
 
@@ -451,3 +473,11 @@ Section WeakEquivalencesIntoUnivalentCatsCreatesExponentials.
   Defined.
 
 End WeakEquivalencesIntoUnivalentCatsCreatesExponentials.
+
+Section WeakEquivalencesReflectExponentials.
+  (* TODO *)
+End WeakEquivalencesReflectExponentials.
+
+Section WeakEquivalencesLiftPreserveExponentials.
+  (* TODO *)
+End WeakEquivalencesLiftPreserveExponentials.
