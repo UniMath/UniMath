@@ -306,7 +306,7 @@ Definition functor_to_monoidfun {CC1 CC2 : contr_cat} (funct : functor CC1 CC2) 
   monoidfun (invmap monoid_weq_contr_category CC1)
             (invmap monoid_weq_contr_category CC2).
 Proof.
-  use monoidfunconstr.
+  use make_monoidfun.
   - cbn in *.
     intros endo.
     apply (contr_cat_hom_weq (funct (iscontrpr1 (pr2 CC1)))

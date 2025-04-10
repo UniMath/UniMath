@@ -18,6 +18,9 @@
 Require Import UniMath.MoreFoundations.Sets.
 Require Import UniMath.MoreFoundations.Orders.
 
+Require Import UniMath.CategoryTheory.Categories.Magma.
+Require Import UniMath.CategoryTheory.Core.Categories.
+
 Require Import UniMath.Algebra.Monoids2.
 
 Declare Scope addmonoid.
@@ -29,7 +32,7 @@ Notation "0" := (unel _) : addmonoid.
 
 Local Open Scope addmonoid.
 
-Definition abmonoid : UU := ∑ (X : setwithbinop), isabmonoidop (@op X).
+Definition abmonoid : UU := abelian_monoid_category.
 
 Definition make_abmonoid (t : setwithbinop) (H : isabmonoidop (@op t))
   : abmonoid
@@ -47,6 +50,67 @@ Definition abmonoidrer (X : abmonoid) (a b c d : X) :
 Definition abmonoid_of_monoid (X : monoid) (H : iscomm (@op X)) : abmonoid :=
   make_abmonoid X (make_isabmonoidop (pr2 X) H).
 
+Definition abelian_monoid_morphism
+  (X Y : abmonoid)
+  : UU
+  := abelian_monoid_category⟦X, Y⟧%cat.
+
+Definition abelian_monoid_morphism_to_monoidfun
+  {X Y : abmonoid}
+  (f : abelian_monoid_morphism X Y)
+  : monoidfun X Y.
+Proof.
+  use make_monoidfun.
+  - exact (pr1 f : binopfun _ _).
+  - apply make_ismonoidfun.
+    + apply binopfunisbinopfun.
+    + exact (pr212 f).
+Defined.
+
+Coercion abelian_monoid_morphism_to_monoidfun : abelian_monoid_morphism >-> monoidfun.
+
+Definition make_abelian_monoid_morphism
+  {X Y : abmonoid}
+  (f : X → Y)
+  (H : ismonoidfun f)
+  : abelian_monoid_morphism X Y
+  := (f ,, pr1 H) ,, ((tt ,, pr2 H) ,, tt).
+
+Definition monoidfun_to_abelian_monoid_morphism
+  {X Y : abmonoid}
+  (f : monoidfun X Y)
+  : abelian_monoid_morphism X Y
+  := make_abelian_monoid_morphism f (ismonoidfun_monoidfun f).
+
+Lemma abelian_monoid_morphism_eq
+  {X Y : abmonoid}
+  (f g : abelian_monoid_morphism X Y)
+  (H : (f : X → Y) = g)
+  : f = g.
+Proof.
+  apply subtypePath.
+  {
+    refine (λ (h : magma_morphism _ _), _).
+    refine (isapropdirprod _ _ _ isapropunit).
+    refine (isapropdirprod _ _ isapropunit _).
+    apply setproperty.
+  }
+  apply binopfun_eq.
+  exact H.
+Qed.
+
+Definition identity_abelian_monoid_morphism
+  (X : abmonoid)
+  : abelian_monoid_morphism X X
+  := identity X.
+
+Definition composite_abelian_monoid_morphism
+  {X Y Z : abmonoid}
+  (f : abelian_monoid_morphism X Y)
+  (g : abelian_monoid_morphism Y Z)
+  : abelian_monoid_morphism X Z
+  := (f · g)%cat.
+
 
 (** **** Construction of the trivial abmonoid consisting of one element given by unit. *)
 
@@ -59,26 +123,6 @@ Qed.
 
 Definition unitabmonoid : abmonoid := make_abmonoid unitmonoid unitabmonoid_isabmonoid.
 
-Lemma abmonoidfuntounit_ismonoidfun (X : abmonoid) : ismonoidfun (Y := unitabmonoid) (λ x : X, 0).
-Proof.
-  use make_ismonoidfun.
-  - use make_isbinopfun. intros x x'. use isProofIrrelevantUnit.
-  - use isProofIrrelevantUnit.
-Qed.
-
-Definition abmonoidfuntounit (X : abmonoid) : monoidfun X unitabmonoid :=
-  monoidfunconstr (abmonoidfuntounit_ismonoidfun X).
-
-Lemma abmonoidfunfromunit_ismonoidfun (X : abmonoid) : ismonoidfun (Y := X) (λ x : unitabmonoid, 0).
-Proof.
-  use make_ismonoidfun.
-  - use make_isbinopfun. intros x x'. exact (!runax X _).
-  - use idpath.
-Qed.
-
-Definition abmonoidfunfromunit (X : abmonoid) : monoidfun unitabmonoid X :=
-  monoidfunconstr (abmonoidfunfromunit_ismonoidfun X).
-
 Lemma unelabmonoidfun_ismonoidfun (X Y : abmonoid) : ismonoidfun (Y := Y) (λ x : X, 0).
 Proof.
   use make_ismonoidfun.
@@ -87,7 +131,7 @@ Proof.
 Qed.
 
 Definition unelabmonoidfun (X Y : abmonoid) : monoidfun X Y :=
-  monoidfunconstr (unelabmonoidfun_ismonoidfun X Y).
+  make_monoidfun (unelabmonoidfun_ismonoidfun X Y).
 
 
 (** **** Abelian monoid structure on homsets
@@ -96,22 +140,23 @@ Definition unelabmonoidfun (X Y : abmonoid) : monoidfun X Y :=
  *)
 
 Lemma abmonoidshombinop_ismonoidfun {X Y : abmonoid} (f g : monoidfun X Y) :
-  @ismonoidfun X Y (λ x : pr1 X, pr1 f x + pr1 g x).
+  @ismonoidfun X Y (λ x : X, f x + g x).
 Proof.
   use make_ismonoidfun.
   - use make_isbinopfun.
-    intros x x'. cbn. rewrite (pr1 (pr2 f)). rewrite (pr1 (pr2 g)).
+    intros x x'. cbn.
+    rewrite (monoidfunmul f).
+    rewrite (monoidfunmul g).
     rewrite (assocax Y). rewrite (assocax Y). use maponpaths.
     rewrite <- (assocax Y). rewrite <- (assocax Y).
-    use (maponpaths (λ y : Y, y + pr1 g x')).
+    use (maponpaths (λ y : Y, y + g x')).
     use (commax Y).
-  - refine (maponpaths (λ h : Y, pr1 f 0 + h)
-                                (monoidfununel g) @ _).
+  - refine (maponpaths (λ h : Y, f 0 + h) (monoidfununel g) @ _).
     rewrite runax. exact (monoidfununel f).
 Qed.
 
 Definition abmonoidshombinop {X Y : abmonoid} : binop (monoidfun X Y) :=
-  (λ f g, monoidfunconstr (abmonoidshombinop_ismonoidfun f g)).
+  (λ f g, make_monoidfun (abmonoidshombinop_ismonoidfun f g)).
 
 Lemma abmonoidsbinop_runax {X Y : abmonoid} (f : monoidfun X Y) :
   abmonoidshombinop f (unelmonoidfun X Y) = f.
@@ -171,64 +216,6 @@ Proof.
 Defined.
 
 
-(** **** (X = Y) ≃ (monoidiso X Y)
-    We use the following composition
-
-                      (X = Y) ≃ ((make_abmonoid' X) = (make_abmonoid' Y))
-                              ≃ ((pr1 (make_abmonoid' X)) = (pr1 (make_abmonoid' Y)))
-                              ≃ (monoidiso X Y)
-
-    where the third weak equivalence is given by univalence for monoids, [monoid_univalence].
-*)
-
-Local Definition abmonoid' : UU := ∑ m : monoid, iscomm (@op m).
-
-Local Definition make_abmonoid' (X : abmonoid) : abmonoid' :=
-  (pr1 X ,, dirprod_pr1 (pr2 X)) ,, dirprod_pr2 (pr2 X).
-
-Definition abmonoid_univalence_weq1 : abmonoid ≃ abmonoid' :=
-  weqtotal2asstol (λ X : setwithbinop, ismonoidop (@op X))
-                  (λ y : (∑ X : setwithbinop, ismonoidop op), iscomm (@op (pr1 y))).
-
-Definition abmonoid_univalence_weq1' (X Y : abmonoid) :
-  (X = Y) ≃ ((make_abmonoid' X) = (make_abmonoid' Y)) :=
-  make_weq _ (@isweqmaponpaths abmonoid abmonoid' abmonoid_univalence_weq1 X Y).
-
-Definition abmonoid_univalence_weq2 (X Y : abmonoid) :
-  ((make_abmonoid' X) = (make_abmonoid' Y)) ≃ ((pr1 (make_abmonoid' X)) = (pr1 (make_abmonoid' Y))).
-Proof.
-  use subtypeInjectivity.
-  intros w. use isapropiscomm.
-Defined.
-Opaque abmonoid_univalence_weq2.
-
-Definition abmonoid_univalence_weq3 (X Y : abmonoid) :
-  ((pr1 (make_abmonoid' X)) = (pr1 (make_abmonoid' Y))) ≃ (monoidiso X Y) :=
-  monoid_univalence (pr1 (make_abmonoid' X)) (pr1 (make_abmonoid' Y)).
-
-Definition abmonoid_univalence_map (X Y : abmonoid) : (X = Y) → (monoidiso X Y).
-Proof.
-  intro e. induction e. exact (idmonoidiso X).
-Defined.
-
-Lemma abmonoid_univalence_isweq (X Y : abmonoid) : isweq (abmonoid_univalence_map X Y).
-Proof.
-  use isweqhomot.
-  - exact (weqcomp (abmonoid_univalence_weq1' X Y)
-                   (weqcomp (abmonoid_univalence_weq2 X Y) (abmonoid_univalence_weq3 X Y))).
-  - intros e. induction e.
-    refine (weqcomp_to_funcomp_app @ _).
-    use weqcomp_to_funcomp_app.
-  - use weqproperty.
-Defined.
-Opaque abmonoid_univalence_isweq.
-
-Definition abmonoid_univalence (X Y : abmonoid) : (X = Y) ≃ (monoidiso X Y)
-  := make_weq
-    (abmonoid_univalence_map X Y)
-    (abmonoid_univalence_isweq X Y).
-
-
 (** **** Subobjects *)
 
 Definition subabmonoid (X : abmonoid) := submonoid X.
@@ -238,7 +225,7 @@ Lemma iscommcarrier {X : abmonoid} (A : submonoid X) : iscomm (@op A).
 Proof.
   intros a a'.
   apply (invmaponpathsincl _ (isinclpr1carrier A)).
-  simpl. apply (pr2 (pr2 X)).
+  simpl. apply commax.
 Qed.
 
 Definition isabmonoidcarrier {X : abmonoid} (A : submonoid X) :
@@ -246,7 +233,9 @@ Definition isabmonoidcarrier {X : abmonoid} (A : submonoid X) :
 
 Definition carrierofsubabmonoid {X : abmonoid} (A : subabmonoid X) : abmonoid.
 Proof.
-  unfold subabmonoid in A. exists A. apply isabmonoidcarrier.
+  use make_abmonoid.
+  - exact A.
+  - apply isabmonoidcarrier.
 Defined.
 Coercion carrierofsubabmonoid : subabmonoid >-> abmonoid.
 
@@ -353,11 +342,11 @@ Proof.
   exists (@op A  a1 a2).
   induction a1 as [ a1 aa1 ]. induction a2 as [ a2 aa2 ].
   simpl in *.
-  rewrite (rer a c b' d'). rewrite (rer b d a' c').
-  rewrite (rer (a + b') (c + d') a1 a2).
-  rewrite (rer (b + a') (d + c') a1 a2).
-  induction eq1. induction eq2.
-  apply idpath.
+  refine (maponpaths (λ x, x + _) (rer a c b' d') @ !_).
+  refine (maponpaths (λ x, x + _) (rer b d a' c') @ !_).
+  refine (rer (a + b') (c + d') a1 a2 @ !_).
+  refine (rer (b + a') (d + c') a1 a2 @ !_).
+  exact (maponpaths (λ x, x + _) eq1 @ maponpaths _ eq2).
 Qed.
 
 Definition abmonoidfracop (X : abmonoid) (A : submonoid X) :

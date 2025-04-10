@@ -1108,11 +1108,11 @@ Lemma nat_to_monoid_unel' {X : abgr} (x : X) (n : nat) :
 Proof.
   induction n as [ | n IHn].
   - use (runax X).
-  - Opaque nat_to_monoid_fun. cbn in *.
+  - Opaque nat_to_monoid_fun.
     rewrite (@nat_to_monoid_fun_S X x). rewrite (@nat_to_monoid_fun_S X (grinv X x)).
     rewrite (commax X _ x). rewrite (assocax X).
     rewrite <- (assocax X (@nat_to_monoid_fun X x n)).
-    use (pathscomp0 (maponpaths (λ xx : pr1 X, (x * (xx * (grinv X x))))%multmonoid IHn)).
+    use (pathscomp0 (maponpaths (λ xx : X, (x * (xx * (grinv X x))))%multmonoid IHn)).
     clear IHn. use (pathscomp0 _ (grrinvax X x)).
     use two_arg_paths.
     + use idpath.
@@ -1174,7 +1174,7 @@ Qed.
 Definition nat_nat_prod_abmonoid_monoidfun {X : abgr} (x : X) :
   monoidfun (abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig)) X.
 Proof.
-  use monoidfunconstr.
+  use make_monoidfun.
   - exact (nataddabmonoid_nataddabmonoid_to_monoid_fun x).
   - use make_ismonoidfun.
     + exact (nat_nat_monoid_fun_isbinopfun x).
@@ -1196,7 +1196,7 @@ Qed.
 Definition hz_abmonoid_monoidfun :
   monoidfun (abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig)) hzaddabgr.
 Proof.
-  use monoidfunconstr.
+  use make_monoidfun.
   - use setquotpr.
   - exact hz_abmonoid_ismonoidfun.
 Defined.
@@ -1223,7 +1223,8 @@ Definition nat_nat_fun_ind2 {X : abgr} (x : X) (n1 n2 m k : nat) :
   nat_nat_to_monoid_fun x (make_dirprod n1 (S m)) = nat_nat_to_monoid_fun x (make_dirprod n2 (S k)).
 Proof.
   intros H.
-  unfold nat_nat_to_monoid_fun in *. cbn in *.
+  unfold nat_nat_to_monoid_fun in *.
+  cbn.
   rewrite (@nat_to_monoid_fun_S X (grinv X x)).
   rewrite (@nat_to_monoid_fun_S X (grinv X x)).
   rewrite <- (assocax X). rewrite <- (assocax X).
@@ -1299,7 +1300,7 @@ Qed.
 (** Construction of the monoidfun \mathbb{Z} --> A, 1 ↦ x *)
 Definition hz_abgr_fun_monoidfun {X : abgr} (x : X) : monoidfun hzaddabgr X.
 Proof.
-  use monoidfunconstr.
+  use make_monoidfun.
   - exact (hz_abgr_fun x).
   - exact (hz_abgr_fun_ismonoidfun x).
 Defined.
@@ -1319,11 +1320,11 @@ Qed.
 
 Opaque nat_to_monoid_fun.
 Lemma monoidfun_nat_to_monoid_fun {X Y : abgr} (f : monoidfun X Y) (x : X) (n : nat) :
-  pr1 f (nat_to_monoid_fun x n) = nat_to_monoid_fun (f x) n.
+  f (nat_to_monoid_fun x n) = nat_to_monoid_fun (f x) n.
 Proof.
   induction n as [ | n IHn].
   - use monoidfununel.
-  - use (pathscomp0 (maponpaths (pr1 f) (@nat_to_monoid_fun_S X x n))).
+  - use (pathscomp0 (maponpaths f (@nat_to_monoid_fun_S X x n))).
     use (pathscomp0 (binopfunisbinopfun f _ _)).
     use (pathscomp0 _ (! (@nat_to_monoid_fun_S Y (f x) n))).
     use two_arg_paths.

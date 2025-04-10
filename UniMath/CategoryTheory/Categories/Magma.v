@@ -64,12 +64,12 @@ Proof.
     ).
 Defined.
 
-Definition magma_cat
+Definition magma_category
   : category
   := total_category magma_disp_cat.
 
-Lemma is_univalent_magma_cat
-  : is_univalent magma_cat.
+Lemma is_univalent_magma_category
+  : is_univalent magma_category.
 Proof.
   apply is_univalent_total_category.
   - apply is_univalent_HSET.
@@ -78,16 +78,14 @@ Defined.
 
 Definition magma
   : UU
-  := magma_cat.
+  := magma_category.
 
-Coercion magma_set (X : magma) : hSet := pr1 X.
-
-Definition op {X : magma} : X → X → X := pr2 X.
+Coercion magma_to_setwithbinop (X : magma) : setwithbinop := X.
 
 Definition magma_morphism
   (X Y : magma)
   : UU
-  := magma_cat⟦X, Y⟧.
+  := magma_category⟦X, Y⟧.
 
 Definition magma_morphism_function
   {X Y : magma}
@@ -100,8 +98,8 @@ Coercion magma_morphism_function : magma_morphism >-> Funclass.
 (* Abelian magmas *)
 
 Definition abelian_magma_disp_cat
-  : disp_cat magma_cat
-  := disp_full_sub magma_cat (λ X, iscomm (op (X := X))).
+  : disp_cat magma_category
+  := disp_full_sub magma_category (λ X, iscomm (op (X := X))).
 
 Lemma is_univalent_abelian_magma_disp_cat
   : is_univalent_disp abelian_magma_disp_cat.
@@ -114,8 +112,8 @@ Defined.
 (* Semigroups *)
 
 Definition semigroup_disp_cat
-  : disp_cat magma_cat
-  := disp_full_sub magma_cat (λ X, isassoc (op (X := X))).
+  : disp_cat magma_category
+  := disp_full_sub magma_category (λ X, isassoc (op (X := X))).
 
 Lemma is_univalent_semigroup_disp_cat
   : is_univalent_disp semigroup_disp_cat.
@@ -128,7 +126,7 @@ Defined.
 (* Unital Magmas *)
 
 Definition unital_magma_disp_cat
-  : disp_cat magma_cat.
+  : disp_cat magma_category.
 Proof.
   use disp_struct.
   - intro X.
@@ -161,51 +159,27 @@ Defined.
 (* Monoids *)
 
 Definition monoid_disp_cat
-  : disp_cat magma_cat
+  : disp_cat magma_category
   := dirprod_disp_cat semigroup_disp_cat unital_magma_disp_cat.
 
-Definition is_univalent_monoid_disp_cat
-  : is_univalent_disp monoid_disp_cat
-  := dirprod_disp_cat_is_univalent _ _
-    is_univalent_semigroup_disp_cat
-    is_univalent_unital_magma_disp_cat.
-
-Definition monoid_cat
+Definition monoid_category
   : category
   := total_category monoid_disp_cat.
-
-Definition is_univalent_monoid_cat
-  : is_univalent monoid_cat
-  := is_univalent_total_category
-    is_univalent_magma_cat
-    is_univalent_monoid_disp_cat.
 
 (* Abelian Monoids *)
 
 Definition abelian_monoid_disp_cat
-  : disp_cat magma_cat
+  : disp_cat magma_category
   := dirprod_disp_cat monoid_disp_cat abelian_magma_disp_cat.
 
-Definition is_univalent_abelian_monoid_disp_cat
-  : is_univalent_disp abelian_monoid_disp_cat
-  := dirprod_disp_cat_is_univalent _ _
-    is_univalent_monoid_disp_cat
-    is_univalent_abelian_magma_disp_cat.
-
-Definition abelian_monoid_cat
+Definition abelian_monoid_category
   : category
   := total_category abelian_monoid_disp_cat.
-
-Definition is_univalent_abelian_monoid_cat
-  : is_univalent abelian_monoid_cat
-  := is_univalent_total_category
-    is_univalent_magma_cat
-    is_univalent_abelian_monoid_disp_cat.
 
 (* Groups *)
 
 Definition group_disp_cat
-  : disp_cat magma_cat.
+  : disp_cat magma_category.
 Proof.
   apply (sigma_disp_cat (D := monoid_disp_cat)).
   use disp_struct.
@@ -228,73 +202,16 @@ Proof.
     ).
 Defined.
 
-Lemma is_univalent_group_disp_cat
-  : is_univalent_disp group_disp_cat.
-Proof.
-  apply is_univalent_sigma_disp.
-  - apply is_univalent_monoid_disp_cat.
-  - apply is_univalent_disp_iff_fibers_are_univalent.
-    intros X inv inv'.
-    use isweq_iso.
-    + intro f.
-      apply (subtypePath (isapropisinv _ _)).
-      apply funextfun.
-      intro x.
-      exact (z_iso_mor f x).
-    + abstract (
-        intro;
-        apply proofirrelevance;
-        simple refine (isaset_carrier_subset (make_hSet _ _) (λ _, make_hProp _ _) _ _);
-        [ apply funspace_isaset;
-          apply setproperty
-        | apply isapropisinv ]
-      ).
-    + abstract (
-        intro;
-        apply z_iso_eq;
-        apply proofirrelevance;
-        apply impred_isaprop;
-        intro;
-        apply setproperty
-      ).
-Defined.
-
-Definition group_cat
+Definition group_category
   : category
   := total_category group_disp_cat.
-
-Definition is_univalent_group_cat
-  : is_univalent group_cat
-  := is_univalent_total_category
-    is_univalent_magma_cat
-    is_univalent_group_disp_cat.
 
 (* Abelian Groups *)
 
 Definition abelian_group_disp_cat
-  : disp_cat magma_cat
+  : disp_cat magma_category
   := dirprod_disp_cat group_disp_cat abelian_magma_disp_cat.
 
-Definition is_univalent_abelian_group_disp_cat
-  : is_univalent_disp abelian_group_disp_cat
-  := dirprod_disp_cat_is_univalent _ _
-    is_univalent_group_disp_cat
-    is_univalent_abelian_magma_disp_cat.
-
-Definition abelian_group_cat
+Definition abelian_group_category
   : category
   := total_category abelian_group_disp_cat.
-
-Definition is_univalent_abelian_group_cat
-  : is_univalent abelian_group_cat
-  := is_univalent_total_category
-    is_univalent_magma_cat
-    is_univalent_abelian_group_disp_cat.
-
-Require Import Algebra.Groups.
-Require Import Algebra.Monoids.
-
-Check (idpath _ : (monoid_cat : UU) = monoid).
-Check (idpath _ : (abelian_monoid_cat : UU) = abmonoid).
-Check (idpath _ : (group_cat : UU) = gr).
-Check (idpath _ : (abelian_group_cat : UU) = abgr).
