@@ -442,4 +442,4 @@ Proof.
   - exact psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
   - exact psfunctor_laws_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
   - exact invertible_cells_psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
-Defined
+Defined.

@@ -1308,6 +1308,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Logic/Examples/DisplayMapComprehensionBicat.v](Bicategories/Logic/Examples/DisplayMapComprehensionBicat.v)
    - [Logic/Examples/FunctorsIntoCatComprehensionBicat.v](Bicategories/Logic/Examples/FunctorsIntoCatComprehensionBicat.v)
    - [BicatOfDisplayMapCat.v](Bicategories/BicatOfDisplayMapCat.v)
+   - [DispBicatOfDisplayMapCat.v](Bicategories/DispBicatOfDisplayMapCat.v)
    - [OtherStructure/DualityInvolution.v](Bicategories/OtherStructure/DualityInvolution.v)
    - [OtherStructure/DualityInvolutionProperties.v](Bicategories/OtherStructure/DualityInvolutionProperties.v)
    - [OtherStructure/ClassifyingDiscreteOpfib.v](Bicategories/OtherStructure/ClassifyingDiscreteOpfib.v)

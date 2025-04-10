@@ -471,6 +471,7 @@ Logic/Examples/DisplayMapComprehensionBicat.v
 Logic/Examples/FunctorsIntoCatComprehensionBicat.v
 
 BicatOfDisplayMapCat.v
+DispBicatOfDisplayMapCat.v
 
 OtherStructure/DualityInvolution.v
 OtherStructure/DualityInvolutionProperties.v
