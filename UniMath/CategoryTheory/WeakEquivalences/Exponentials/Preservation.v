@@ -182,28 +182,6 @@ Section IsExponentiableCharacterization.
 
 End IsExponentiableCharacterization.
 
-Section PreservationExponentialObjects.
-
-  Definition preserves_exponential_objects
-    {C₀ C₁ : category} (F : functor C₀ C₁)
-    (P₀ : BinProducts C₀) (P₁ : BinProducts C₁)
-    : UU
-    := ∏ x : C₀, is_exponentiable P₀ x → is_exponentiable P₁ (F x).
-
-  Lemma preserves_exponential_objects_to_preserves_exponentials
-    {C₀ C₁ : category} (F : functor C₀ C₁)
-    (P₀ : BinProducts C₀) (P₁ : BinProducts C₁)
-    (E₀ : Exponentials P₀) (E₁ : Exponentials P₁) (F_pP : preserves_binproduct F)
-    : preserves_exponential_objects F P₀ P₁ → preserves_exponentials E₀ E₁ F_pP.
-  Proof.
-    intro F_pE.
-    intros x y.
-    set (ex := F_pE _ (E₀ x)).
-    (* follows since both the domain and codomain witness exponentiability *)
-  Admitted.
-
-End PreservationExponentialObjects.
-
 Section WeakEquivalencesPreserveExponentialObjects.
 
   Context {C₀ C₁ : category}
@@ -329,22 +307,6 @@ Section WeakEquivalencesPreserveExponentialObjects.
 
   End ImageOfExponentialIsExponent.
 
-  Proposition weak_equiv_preserves_exponential_objects
-    : preserves_exponential_objects F P₀ P₁.
-  Proof.
-    intros x₀ ex₀.
-    use is_exponentiable_alt_to_is_exponentiable.
-    intro y₁.
-    use (factor_through_squash _ _ (pr1 F_weq y₁)).
-    { intro ; apply isaprop_is_exponentiable_alt_struct.
-      exact C₁_univ. }
-    intros [y₀ iy].
-
-    exists (F (exp ex₀ y₀)).
-    apply image_of_chosen_exp_is_exponentiable.
-    exact iy.
-  Defined.
-
 End WeakEquivalencesPreserveExponentialObjects.
 
 Section IsExponentiableAltTransportAlongIso.
@@ -460,9 +422,15 @@ Section WeakEquivalencesIntoUnivalentCatsCreatesExponentials.
     }
     intros [x₀ ix].
     apply (is_exponentiable_alt_closed_under_iso _ ix).
-    use is_exponentiable_to_is_exponentiable_alt.
-    use (weak_equiv_preserves_exponential_objects F_weq C₁_univ P₀).
-    apply E₀.
+    intro y₁.
+    use (factor_through_squash _ _ (pr1 F_weq y₁)).
+    { intro ; apply isaprop_is_exponentiable_alt_struct.
+      exact C₁_univ. }
+    intros [y₀ iy].
+
+    exists (F (exp (E₀ x₀) y₀)).
+    apply image_of_chosen_exp_is_exponentiable.
+    exact iy.
   Defined.
 
   Lemma weak_equiv_into_univ_creates_exponentials'
