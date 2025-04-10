@@ -70,7 +70,12 @@ DisplayedBicats/Examples/BicatOfInvertibles.v
 DisplayedBicats/Examples/EndoMap.v
 
 Core/Examples/StructuredCategories.v
-DisplayedBicats/Examples/CategoriesWithStructure.v
+DisplayedBicats/Examples/CategoriesWithStructure/Terminal.v
+DisplayedBicats/Examples/CategoriesWithStructure/BinProducts.v
+DisplayedBicats/Examples/CategoriesWithStructure/Pullbacks.v
+DisplayedBicats/Examples/CategoriesWithStructure/Equalizers.v
+DisplayedBicats/Examples/CategoriesWithStructure/FiniteLimits.v
+DisplayedBicats/Examples/CategoriesWithStructure/SubobjectClassifier.v
 
 MonoidalCategories/MonoidalFromBicategory.v
 MonoidalCategories/EndofunctorsMonoidal.v
@@ -488,9 +493,12 @@ DisplayedBicats/DisplayedUniversalArrowOnCat.v
 RezkCompletions/BicatToLocalUnivalentBicat.v
 RezkCompletions/RezkCompletionOfBicategory.v
 RezkCompletions/Uniqueness.v
-RezkCompletions/StructuredCats/TerminalObject.v
+RezkCompletions/DisplayedRezkCompletions.v
+RezkCompletions/StructuredCats/Terminal.v
 RezkCompletions/StructuredCats/BinProducts.v
 RezkCompletions/StructuredCats/Pullbacks.v
 RezkCompletions/StructuredCats/Equalizers.v
+RezkCompletions/StructuredCats/FiniteLimits.v
+RezkCompletions/StructuredCats/SubobjectClassifier.v
 
 DaggerCategories/BicatOfDaggerCats.v
