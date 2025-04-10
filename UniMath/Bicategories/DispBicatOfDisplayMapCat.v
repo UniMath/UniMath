@@ -127,6 +127,11 @@ Proof.
   - intros [F [[G H1] H2]]; cbn in * |-.
     apply display_map_class_iso_to_id; assumption.
   - intros p. simpl.
+    apply isasetaprop.
+    apply isaproptotal2.
+    + apply isPredicate_has_map_pullbacks.
+    + intros d d' Hd Hd'. apply impred_isaprop. intro. apply impred_isaprop. intro t'. apply impred_isaprop.
+      intro f.
 Admitted.
 
 (** ** Displayed Bicategory of Display Map Categories with Terminal object in base *)

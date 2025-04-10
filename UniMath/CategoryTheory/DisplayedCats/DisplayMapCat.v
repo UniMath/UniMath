@@ -480,7 +480,7 @@ Proof.
     + apply (preserves_maps_is_display_map_class_functor _ _ _ HG).
     + intro. apply propproperty.
     + intro. apply propproperty.
-Qed.
+Defined.
 
 Definition display_map_class_functor {C C' : category} (D : display_map_class C) (D' : display_map_class C') :=
   ∑ (F: C ⟶ C'), is_display_map_class_functor D D' F.
