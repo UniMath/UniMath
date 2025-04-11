@@ -82,9 +82,17 @@ Section def_preadditive.
              (x y z : PWA) (f : x --> y) : monoidfun (to_abgr y z) (to_abgr x z) :=
     make_monoidfun (to_premor_monoid iPA x y z f).
 
+  Definition to_premor_abelian_group_morphism {PWA : categoryWithAbgrops} (iPA : isPreAdditive PWA)
+             (x y z : PWA) (f : x --> y) : abelian_group_morphism (to_abgr y z) (to_abgr x z) :=
+    binopfun_to_abelian_group_morphism (to_premor_monoidfun iPA x y z f).
+
   Definition to_postmor_monoidfun {PWA : categoryWithAbgrops} (iPA : isPreAdditive PWA)
              (x y z : PWA) (f : y --> z) : monoidfun (to_abgr x y) (to_abgr x z) :=
     make_monoidfun (to_postmor_monoid iPA x y z f).
+
+  Definition to_postmor_abelian_group_morphism {PWA : categoryWithAbgrops} (iPA : isPreAdditive PWA)
+             (x y z : PWA) (f : y --> z) : abelian_group_morphism (to_abgr x y) (to_abgr x z) :=
+    binopfun_to_abelian_group_morphism (to_postmor_monoidfun iPA x y z f).
 
   (** Definition of preadditive categories *)
   Definition PreAdditive : UU := ∑ PA : categoryWithAbgrops, isPreAdditive PA.

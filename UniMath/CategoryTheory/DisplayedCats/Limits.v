@@ -420,13 +420,16 @@ Definition fiber_limits
     (cl _ _ _ _).
 
 Section Sigma.
-  Context (D' := sigma_disp_cat).
+  Context {C : category}.
+  Context {D : disp_cat C}.
+  Context {E : disp_cat (total_category D)}.
+  Context (D' := sigma_disp_cat E).
   Context {J : graph}.
   Context {d : diagram J (total_category D')}.
   Context {L : LimCone (mapdiagram (pr1_category _) d)}.
 
-  Context (HD : creates_limit (mapdiagram (total_functor sigmapr1_disp_functor) d) L).
-  Context (HE : creates_limit (mapdiagram sigma_to_E_total_functor d) (total_limit _ HD)).
+  Context (HD : creates_limit (mapdiagram (total_functor (sigmapr1_disp_functor E)) d) L).
+  Context (HE : creates_limit (mapdiagram (sigma_to_E_total_functor E) d) (total_limit _ HD)).
 
   Definition tip_sigma_disp_cat
     : D' (lim L)
@@ -440,9 +443,9 @@ Section Sigma.
   Lemma forms_cone_sigma_disp_cat
     (u v : vertex J)
     (e : edge u v)
-    : compose (C := total_category sigma_disp_cat) (a := _ ,, _) (_ ,, cone_sigma_disp_cat u) (dmor d e) = (_ ,, cone_sigma_disp_cat v).
+    : compose (C := total_category D') (a := _ ,, _) (_ ,, cone_sigma_disp_cat u) (dmor d e) = (_ ,, cone_sigma_disp_cat v).
   Proof.
-    apply (pr2 (mapcone E_to_sigma_total_functor _ (make_cone _ (pr221 HE)))).
+    apply (pr2 (mapcone (E_to_sigma_total_functor E) _ (make_cone _ (pr221 HE)))).
   Qed.
 
   Section Arrow.
@@ -451,11 +454,11 @@ Section Sigma.
     Context (d'_cone : cone d d').
 
     Let d_cone := (make_LimCone _ _ _ (pr2 HE)).
-    Let e_cone := mapcone sigma_to_E_total_functor _ d'_cone.
+    Let e_cone := mapcone (sigma_to_E_total_functor E) _ d'_cone.
 
     Definition sigma_lim_arrow
       : total_category D'⟦d', lim L,, tip_sigma_disp_cat⟧
-      := (# E_to_sigma_total_functor)%cat (limArrow d_cone _ e_cone).
+      := (# (E_to_sigma_total_functor E))%cat (limArrow d_cone _ e_cone).
 
     Lemma sigma_lim_arrow_commutes
       : is_cone_mor d'_cone
@@ -463,7 +466,7 @@ Section Sigma.
         sigma_lim_arrow.
     Proof.
       intro u.
-      exact (maponpaths (# E_to_sigma_total_functor)%cat (limArrowCommutes d_cone _ e_cone u)).
+      exact (maponpaths (# (E_to_sigma_total_functor E))%cat (limArrowCommutes d_cone _ e_cone u)).
     Qed.
 
     Lemma sigma_lim_arrow_unique
@@ -477,10 +480,10 @@ Section Sigma.
         intro.
         apply homset_property.
       }
-      pose (f' := (# sigma_to_E_total_functor)%cat (pr1 t)).
-      pose (Hf' := λ u, maponpaths (# sigma_to_E_total_functor)%cat (pr2 t u)).
+      pose (f' := (# (sigma_to_E_total_functor E))%cat (pr1 t)).
+      pose (Hf' := λ u, maponpaths (# (sigma_to_E_total_functor E))%cat (pr2 t u)).
       pose (uniq := limArrowUnique d_cone _ e_cone f' Hf').
-      exact (maponpaths (# E_to_sigma_total_functor)%cat uniq).
+      exact (maponpaths (# (E_to_sigma_total_functor E))%cat uniq).
     Qed.
 
   End Arrow.
@@ -498,11 +501,15 @@ Section Sigma.
 End Sigma.
 
 Definition creates_limits_sigma_disp_cat
+  {C : category}
+  {D : disp_cat C}
+  {E : disp_cat (total_category D)}
+  (D' := sigma_disp_cat E)
   {J : graph}
-  (F : diagram J (total_category sigma_disp_cat))
+  (F : diagram J (total_category D'))
   (L : LimCone (mapdiagram (pr1_category _) F))
-  (HD : creates_limit (mapdiagram (total_functor sigmapr1_disp_functor) F) L)
-  (HE : creates_limit (mapdiagram sigma_to_E_total_functor F) (total_limit _ HD))
+  (HD : creates_limit (mapdiagram (total_functor (sigmapr1_disp_functor E)) F) L)
+  (HE : creates_limit (mapdiagram (sigma_to_E_total_functor E) F) (total_limit _ HD))
   : creates_limit F L
   := make_creates_limit
     (tip_sigma_disp_cat HD HE)
