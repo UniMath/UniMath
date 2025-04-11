@@ -1205,8 +1205,8 @@ Section abgr_corollaries.
   Local Lemma abgr_Additive_is_iso_premor_inverses {Add : CategoryWithAdditiveStructure} (x y z : Add) {f : x --> y}
         (H : is_z_isomorphism f) :
     is_inverse_in_precat
-      (binopfun_to_abelian_group_morphism (to_premor_monoidfun Add x y z f))
-      (binopfun_to_abelian_group_morphism (to_premor_monoidfun Add y x z (is_z_isomorphism_mor H))).
+      (to_premor_abelian_group_morphism Add x y z f)
+      (to_premor_abelian_group_morphism Add y x z (is_z_isomorphism_mor H)).
   Proof.
     apply make_is_inverse_in_precat.
     - apply abelian_group_morphism_eq.
@@ -1233,8 +1233,8 @@ Section abgr_corollaries.
   Local Lemma abgr_Additive_is_iso_postmor_inverses {Add : CategoryWithAdditiveStructure} (x y z : Add) {f : y --> z}
         (H : is_z_isomorphism f) :
     is_inverse_in_precat
-      (binopfun_to_abelian_group_morphism (to_postmor_monoidfun Add x y z f))
-      (binopfun_to_abelian_group_morphism (to_postmor_monoidfun Add x z y (is_z_isomorphism_mor H))).
+      (to_postmor_abelian_group_morphism Add x y z f)
+      (to_postmor_abelian_group_morphism Add x z y (is_z_isomorphism_mor H)).
   Proof.
     apply make_is_inverse_in_precat.
     - apply abelian_group_morphism_eq.
@@ -1247,7 +1247,7 @@ Section abgr_corollaries.
 
   Lemma abgr_Additive_is_iso_postmor {Add : CategoryWithAdditiveStructure} (x y z : Add) {f : y --> z}
         (H : is_z_isomorphism f) :
-    is_z_isomorphism (binopfun_to_abelian_group_morphism (to_postmor_monoidfun Add x y z f)).
+    is_z_isomorphism ((to_postmor_abelian_group_morphism Add x y z f)).
   Proof.
     use make_is_z_isomorphism.
     - apply binopfun_to_abelian_group_morphism.
@@ -1260,8 +1260,8 @@ Section abgr_corollaries.
 
   Local Lemma abgr_Additive_premor_postmor_is_iso_inverses {Add : CategoryWithAdditiveStructure} (x y : Add)
         {f : x --> y}
-        (H1 : is_z_isomorphism (binopfun_to_abelian_group_morphism (to_premor_monoidfun Add x y x f)))
-        (H2 : is_z_isomorphism (binopfun_to_abelian_group_morphism (to_postmor_monoidfun Add y x y f))) :
+        (H1 : is_z_isomorphism (to_premor_abelian_group_morphism Add x y x f))
+        (H2 : is_z_isomorphism (to_postmor_abelian_group_morphism Add y x y f)) :
     is_inverse_in_precat f ((is_z_isomorphism_mor H1 : abelian_group_morphism _ _) (identity x)).
   Proof.
     set (mor1 := (is_z_isomorphism_mor H1 : abelian_group_morphism _ _) (identity x)).
@@ -1283,8 +1283,8 @@ Section abgr_corollaries.
   Qed.
 
   Lemma abgr_Additive_premor_postmor_is_iso {Add : CategoryWithAdditiveStructure} (x y : Add) {f : x --> y}
-        (H1 : is_z_isomorphism (binopfun_to_abelian_group_morphism (to_premor_monoidfun Add x y x f)))
-        (H2 : is_z_isomorphism (binopfun_to_abelian_group_morphism (to_postmor_monoidfun Add y x y f))) :
+        (H1 : is_z_isomorphism ((to_premor_abelian_group_morphism Add x y x f)))
+        (H2 : is_z_isomorphism ((to_postmor_abelian_group_morphism Add y x y f))) :
     is_z_isomorphism f.
   Proof.
     use make_is_z_isomorphism.

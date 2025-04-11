@@ -40,9 +40,8 @@ Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.RigsAndRings.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Categories.Monoid.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.catiso.
 
 (* For the endomorphism ring  *)
@@ -240,12 +239,15 @@ Proof.
   - exact monoid_to_category.
   - exact (uncurry contr_category_to_monoid).
   - (** By univalence for monoids, it suffices to show that they are isomorphic *)
-    intros Mon; apply monoid_univalence.
-    use tpair.
-    + apply idweq.
-    + use make_dirprod.
-      * intros ? ?; apply idpath.
-      * apply idpath.
+    intros Mon. apply is_univalent_monoid_category.
+    use make_z_iso.
+    + use make_monoidfun.
+      * exact (idfun _).
+      * abstract easy.
+    + use make_monoidfun.
+      * exact (idfun _).
+      * abstract easy.
+    + abstract now (apply make_is_inverse_in_precat; apply monoidfun_eq).
   - intros contrcat.
     use contr_cat_eq.
     + use make_functor.
