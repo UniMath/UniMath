@@ -122,7 +122,7 @@ Definition binopfun_to_group_morphism
   : group_morphism X Y
   := make_group_morphism f (binopfunisbinopfun f).
 
-Lemma group_morphism_eq
+Lemma group_morphism_paths
   {X Y : gr}
   (f g : group_morphism X Y)
   (H : (f : X → Y) = g)
@@ -141,6 +141,30 @@ Proof.
   apply binopfun_eq.
   exact H.
 Qed.
+
+Definition group_morphism_eq
+  {X Y : gr}
+  {f g : group_morphism X Y}
+  : (f = g) ≃ (∏ x, f x = g x).
+Proof.
+  use weq_iso.
+  - intros e x.
+    exact (maponpaths (λ (f : group_morphism _ _), f x) e).
+  - intro e.
+    apply group_morphism_paths, funextfun.
+    exact e.
+  - abstract (
+      intro x;
+      apply homset_property
+    ).
+  - abstract (
+      intro;
+      apply proofirrelevance;
+      apply impred_isaprop;
+      intro;
+      apply setproperty
+    ).
+Defined.
 
 Definition identity_group_morphism
   (X : gr)

@@ -82,7 +82,7 @@ Definition monoidfun_to_abelian_monoid_morphism
   : abelian_monoid_morphism X Y
   := make_abelian_monoid_morphism f (ismonoidfun_monoidfun f).
 
-Lemma abelian_monoid_morphism_eq
+Lemma abelian_monoid_morphism_paths
   {X Y : abmonoid}
   (f g : abelian_monoid_morphism X Y)
   (H : (f : X → Y) = g)
@@ -98,6 +98,30 @@ Proof.
   apply binopfun_eq.
   exact H.
 Qed.
+
+Definition abelian_monoid_morphism_eq
+  {X Y : abmonoid}
+  {f g : abelian_monoid_morphism X Y}
+  : (f = g) ≃ (∏ x, f x = g x).
+Proof.
+  use weq_iso.
+  - intros e x.
+    exact (maponpaths (λ (f : abelian_monoid_morphism _ _), f x) e).
+  - intro e.
+    apply abelian_monoid_morphism_paths, funextfun.
+    exact e.
+  - abstract (
+      intro x;
+      apply homset_property
+    ).
+  - abstract (
+      intro;
+      apply proofirrelevance;
+      apply impred_isaprop;
+      intro;
+      apply setproperty
+    ).
+Defined.
 
 Definition identity_abelian_monoid_morphism
   (X : abmonoid)

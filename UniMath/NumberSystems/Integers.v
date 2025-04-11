@@ -1313,7 +1313,7 @@ Lemma abgr_natnat_hz_X_comm {X : abgr} (x : X) :
   composite_abelian_monoid_morphism hz_abmonoid_abelian_monoid_morphism (abelian_group_to_monoid_morphism (hz_abgr_fun_abelian_group_morphism x)) =
   nat_nat_prod_abmonoid_abelian_monoid_morphism x.
 Proof.
-  apply abelian_monoid_morphism_eq, funextfun. intros n. use setquotunivcomm.
+  apply abelian_monoid_morphism_eq. intros n. use setquotunivcomm.
 Qed.
 
 Opaque nat_to_monoid_fun.

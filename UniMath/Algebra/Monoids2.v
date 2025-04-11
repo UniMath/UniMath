@@ -130,6 +130,30 @@ Proof.
   exact e.
 Qed.
 
+Definition monoidfun_eq
+  {X Y : monoid}
+  {f g : monoidfun X Y}
+  : (f = g) ≃ (∏ x, f x = g x).
+Proof.
+  use weq_iso.
+  - intros e x.
+    exact (maponpaths (λ (f : monoidfun _ _), f x) e).
+  - intro e.
+    apply monoidfun_paths, funextfun.
+    exact e.
+  - abstract (
+      intro x;
+      apply homset_property
+    ).
+  - abstract (
+      intro;
+      apply proofirrelevance;
+      apply impred_isaprop;
+      intro;
+      apply setproperty
+    ).
+Defined.
+
 Lemma isasetmonoidfun (X Y : monoid) : isaset (monoidfun X Y).
 Proof.
   apply homset_property.

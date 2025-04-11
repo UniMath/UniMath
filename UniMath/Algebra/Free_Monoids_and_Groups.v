@@ -257,7 +257,7 @@ Proof.
   - apply free_abmonoid_extend.
   - intro g. exact (g ∘ free_abmonoid_unit).
   - intro f. apply funextfun. intro x. reflexivity.
-  - intro g. apply abelian_monoid_morphism_eq, funextfun, free_abmonoid_extend_comp.
+  - intro g. apply abelian_monoid_morphism_eq, free_abmonoid_extend_comp.
 Defined.
 
 Definition free_abelian_monoid_morphism {X Y : hSet} (f : X → Y) :
@@ -343,7 +343,7 @@ Proof.
   use weq_iso.
   - intro g. exact (tpair _ (g ∘ presented_abmonoid_intro) (iscomprelfun_presented_abelian_monoid_morphism g)).
   - intro f. exact (presented_abmonoid_extend (pr1 f) (pr2 f)).
-  - intro g. apply abelian_monoid_morphism_eq, funextfun, presented_abmonoid_extend_comp.
+  - intro g. apply abelian_monoid_morphism_eq, presented_abmonoid_extend_comp.
   - intro f. use total2_paths_f.
     + apply funextfun. intro x. reflexivity.
     + apply isapropiscomprelfun.
@@ -507,7 +507,7 @@ Proof.
   - intro g. exact (g ∘ free_gr_unit).
   - intro f. apply funextfun. intro x. reflexivity.
   - intro g.
-    apply group_morphism_eq, funextfun, free_gr_extend_comp.
+    apply group_morphism_eq, free_gr_extend_comp.
 Defined.
 
 Definition free_grfun {X Y : hSet} (f : X → Y) : group_morphism (free_gr X) (free_gr Y) :=
@@ -594,7 +594,7 @@ Proof.
   use weq_iso.
   - intro g. exact (tpair _ (g ∘ presented_gr_intro) (iscomprelfun_presented_grfun g)).
   - intro f. exact (presented_gr_extend (pr1 f) (pr2 f)).
-  - intro g. apply group_morphism_eq, funextfun, presented_gr_extend_comp.
+  - intro g. apply group_morphism_eq, presented_gr_extend_comp.
   - intro f. use total2_paths_f.
     + apply funextfun. intro x. reflexivity.
     + apply isapropiscomprelfun.
@@ -681,7 +681,7 @@ Proof.
   - apply free_abgr_extend.
   - intro g. exact (g ∘ free_abgr_unit).
   - intro f. apply funextfun. intro x. reflexivity.
-  - intro g. apply abelian_group_morphism_eq, funextfun, free_abgr_extend_comp.
+  - intro g. apply abelian_group_morphism_eq, free_abgr_extend_comp.
 Defined.
 
 Definition free_abgrfun {X Y : hSet} (f : X → Y) :
@@ -755,7 +755,7 @@ Proof.
   use weq_iso.
   - intro g. exact (tpair _ (g ∘ presented_abgr_intro) (iscomprelfun_presented_abgrfun g)).
   - intro f. exact (presented_abgr_extend (pr1 f) (pr2 f)).
-  - intro g. apply abelian_group_morphism_eq, funextfun, presented_abgr_extend_comp.
+  - intro g. apply abelian_group_morphism_eq, presented_abgr_extend_comp.
   - intro f. use total2_paths_f.
     + apply funextfun. intro x. reflexivity.
     + apply isapropiscomprelfun.
