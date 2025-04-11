@@ -101,7 +101,7 @@ Definition binopfun_to_abelian_group_morphism
   : abelian_group_morphism X Y
   := make_abelian_group_morphism f (binopfunisbinopfun f).
 
-Lemma abelian_group_morphism_eq
+Lemma abelian_group_morphism_paths
   {X Y : abgr}
   (f g : abelian_group_morphism X Y)
   (H : (f : X → Y) = g)
@@ -121,6 +121,30 @@ Proof.
   apply binopfun_eq.
   exact H.
 Qed.
+
+Definition abelian_group_morphism_eq
+  {X Y : abgr}
+  {f g : abelian_group_morphism X Y}
+  : (f = g) ≃ (∏ x, f x = g x).
+Proof.
+  use weq_iso.
+  - intros e x.
+    exact (maponpaths (λ (f : abelian_group_morphism _ _), f x) e).
+  - intro e.
+    apply abelian_group_morphism_paths, funextfun.
+    exact e.
+  - abstract (
+      intro x;
+      apply homset_property
+    ).
+  - abstract (
+      intro;
+      apply proofirrelevance;
+      apply impred_isaprop;
+      intro;
+      apply setproperty
+    ).
+Defined.
 
 Definition identity_abelian_group_morphism
   (X : abgr)
@@ -171,13 +195,13 @@ Definition abgrshombinop_inv {X Y : abgr} (f : abelian_group_morphism X Y) : abe
 Definition abgrshombinop_linvax {X Y : abgr} (f : abelian_group_morphism X Y) :
   abgrshombinop (abgrshombinop_inv f) f = unel_abelian_group_morphism X Y.
 Proof.
-  apply abelian_group_morphism_eq. apply funextfun. intros x. apply (@grlinvax Y).
+  apply abelian_group_morphism_eq. intros x. apply (@grlinvax Y).
 Qed.
 
 Definition abgrshombinop_rinvax {X Y : abgr} (f : abelian_group_morphism X Y) :
   abgrshombinop f (abgrshombinop_inv f) = unel_abelian_group_morphism X Y.
 Proof.
-  apply abelian_group_morphism_eq. apply funextfun. intros x. apply (grrinvax Y).
+  apply abelian_group_morphism_eq. intros x. apply (grrinvax Y).
 Qed.
 
 Lemma abgrshomabgr_isabgrop (X Y : abgr) :
@@ -189,7 +213,6 @@ Proof.
       * abstract (
           do 3 intro;
           apply abelian_group_morphism_eq;
-          apply funextfun;
           intro;
           apply assocax
         ).
@@ -198,7 +221,6 @@ Proof.
             apply make_isunit;
             intro;
             apply abelian_group_morphism_eq;
-            apply funextfun;
             intro;
             [ apply lunax
             | apply runax ]
@@ -211,7 +233,6 @@ Proof.
   - abstract (
       intros f g;
       apply abelian_group_morphism_eq;
-      apply funextfun;
       intro;
       apply (commax Y)
     ).
