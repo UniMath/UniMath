@@ -95,7 +95,7 @@ Proof.
     refine (isapropdirprod _ _ isapropunit _).
     apply setproperty.
   }
-  apply binopfun_eq.
+  apply binopfun_paths.
   exact H.
 Qed.
 

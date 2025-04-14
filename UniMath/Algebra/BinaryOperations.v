@@ -1589,7 +1589,17 @@ Coercion pr1binopfun : binopfun >-> Funclass.
 
 Definition binopfunisbinopfun {X Y : setwithbinop} (f : binopfun X Y) : isbinopfun f := pr2 f.
 
-Lemma binopfun_eq
+Lemma isasetbinopfun  (X Y : setwithbinop) : isaset (binopfun X Y).
+Proof.
+  apply (isasetsubset (pr1binopfun X Y)).
+  - change (isofhlevel 2 (X → Y)).
+    apply impred. intro.
+    apply (setproperty Y).
+  - refine (isinclpr1 _ _). intro.
+    apply isapropisbinopfun.
+Defined.
+
+Lemma binopfun_paths
   {X Y : setwithbinop}
   (f g : binopfun X Y)
   (H : (f : X → Y) = g)
@@ -1600,14 +1610,29 @@ Proof.
   - exact H.
 Qed.
 
-Lemma isasetbinopfun  (X Y : setwithbinop) : isaset (binopfun X Y).
+Definition binopfun_eq
+  {X Y : setwithbinop}
+  (f g : binopfun X Y)
+  : (f = g) ≃ (∏ x, f x = g x).
 Proof.
-  apply (isasetsubset (pr1binopfun X Y)).
-  - change (isofhlevel 2 (X → Y)).
-    apply impred. intro.
-    apply (setproperty Y).
-  - refine (isinclpr1 _ _). intro.
-    apply isapropisbinopfun.
+  use weq_iso.
+  - intros e x.
+    exact (maponpaths (λ (f : binopfun _ _), f x) e).
+  - intro e.
+    apply binopfun_paths.
+    apply funextfun.
+    exact e.
+  - abstract (
+      intro x;
+      apply isasetbinopfun
+    ).
+  - abstract (
+      intro;
+      apply proofirrelevance;
+      apply impred_isaprop;
+      intro;
+      apply setproperty
+    ).
 Defined.
 
 Lemma isbinopfuncomp {X Y Z : setwithbinop} (f : binopfun X Y) (g : binopfun Y Z) :
