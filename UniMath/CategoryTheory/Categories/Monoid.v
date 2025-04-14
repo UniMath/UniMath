@@ -1,9 +1,9 @@
 (**************************************************************************************************
 
-  The Category of Monoids
+  The Univalent Category of Monoids
 
-  This category defines the category of monoids, and gives the forgetful and free functors to and
-  from the category of sets.
+  This file shows that the category of monoids, already defined in Magma.v, is univalent. It gives
+  the forgetful and free functors to and from the category of sets.
 
   Contents
   1. The univalent category of monoids [monoid_univalent_category]
@@ -139,18 +139,18 @@ Defined.
 Definition monoid_free_forgetful_adjunction_data :
   adjunction_data HSET monoid_category .
 Proof.
-  use tpair; [|use tpair]. (* TODO: there should be a constructor for this *)
+  use make_adjunction_data.
   - exact monoid_free_functor.
   - exact monoid_forgetful_functor.
-  - split.
-    + exact monoid_free_forgetful_unit.
-    + exact monoid_free_forgetful_counit.
+  - exact monoid_free_forgetful_unit.
+  - exact monoid_free_forgetful_counit.
 Defined.
 
 Lemma monoid_free_forgetful_adjunction :
   form_adjunction' monoid_free_forgetful_adjunction_data.
 Proof.
-  split; intro.
+  apply make_form_adjunction;
+    intro.
   - apply monoidfun_paths.
     apply funextfun.
     simpl.

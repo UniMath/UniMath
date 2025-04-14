@@ -2,6 +2,9 @@
 (** * Contents
 - Definition of additive categories
 - Quotient of an additive category is additive
+- Kernels, Equalizers, Cokernels, and Coequalizers in CategoryWithAdditiveStructure categories
+- Monics and Epis in an additive category
+- Miscellaneous results about pre- and postcomposition in an additive category
 *)
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
@@ -9,6 +12,7 @@ Require Import UniMath.MoreFoundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.AbelianGroups.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -463,7 +467,7 @@ Section additive_minus_monic.
 End additive_minus_monic.
 
 
-(** Kernels and cokernels in PreAdditive *)
+(** * Monics and Epis in an additive category *)
 Section monics_and_epis_in_additive.
 
   Variable A : CategoryWithAdditiveStructure.
@@ -497,3 +501,116 @@ Section monics_and_epis_in_additive.
   Qed.
 
 End monics_and_epis_in_additive.
+
+(** * Miscellaneous results about pre- and postcomposition in an additive category *)
+
+Section Misc.
+
+  Context {Add : CategoryWithAdditiveStructure}.
+  Context (x y : Add).
+
+  (** (_ · ZeroArrow) = ZeroArrow = (ZeroArrow · _) *)
+  Section ZeroComposition.
+
+    Context (z : Add).
+
+    Lemma AdditiveZeroArrow_postmor_Abelian :
+      to_postmor_abelian_group_morphism Add x y z (ZeroArrow (to_Zero Add) y z) =
+      unel_abelian_group_morphism (x --> y)%abgrcat (x --> z)%abgrcat.
+    Proof.
+      rewrite <- PreAdditive_unel_zero.
+      apply abelian_group_morphism_eq. intros f. exact (to_premor_unel Add z f).
+    Qed.
+
+    Lemma AdditiveZeroArrow_premor_Abelian :
+      to_premor_abelian_group_morphism Add x y z (ZeroArrow (to_Zero Add) x y) =
+      unel_abelian_group_morphism (y --> z)%abgrcat (x --> z)%abgrcat.
+    Proof.
+      rewrite <- PreAdditive_unel_zero.
+      apply abelian_group_morphism_eq. intros f. exact (to_postmor_unel Add x f).
+    Qed.
+
+  End ZeroComposition.
+
+  (** if f is an  isomorphism, then (f · _) and (_ · f) are isomorphisms as well *)
+  Section IsoComposition.
+
+    Context (z : Add).
+
+    Local Lemma abgr_Additive_is_iso_premor_inverses {f : x --> y} (H : is_z_isomorphism f) :
+      is_inverse_in_precat
+        (to_premor_abelian_group_morphism Add x y z f)
+        (to_premor_abelian_group_morphism Add y x z (is_z_isomorphism_mor H)).
+    Proof.
+      apply make_is_inverse_in_precat.
+      - apply abelian_group_morphism_eq.
+        intros x0. cbn. unfold to_premor. rewrite assoc.
+        rewrite (is_inverse_in_precat2 H). apply id_left.
+      - apply abelian_group_morphism_eq.
+        intros x0. cbn. unfold to_premor. rewrite assoc.
+        rewrite (is_inverse_in_precat1 H). apply id_left.
+    Qed.
+
+    Definition abgr_Additive_is_iso_premor {f : x --> y} (H : is_z_isomorphism f) :
+      is_z_isomorphism (to_premor_abelian_group_morphism Add x y z f)
+      := make_is_z_isomorphism _ _ (abgr_Additive_is_iso_premor_inverses H).
+
+    Local Lemma abgr_Additive_is_iso_postmor_inverses {f : y --> z} (H : is_z_isomorphism f) :
+      is_inverse_in_precat
+        (to_postmor_abelian_group_morphism Add x y z f)
+        (to_postmor_abelian_group_morphism Add x z y (is_z_isomorphism_mor H)).
+    Proof.
+      apply make_is_inverse_in_precat.
+      - apply abelian_group_morphism_eq.
+        intros x0. cbn. unfold to_postmor. rewrite <- assoc.
+        rewrite (is_inverse_in_precat1 H). apply id_right.
+      - apply abelian_group_morphism_eq.
+        intros x0. cbn. unfold to_postmor. rewrite <- assoc.
+        rewrite (is_inverse_in_precat2 H). apply id_right.
+    Qed.
+
+    Definition abgr_Additive_is_iso_postmor {f : y --> z} (H : is_z_isomorphism f) :
+      is_z_isomorphism (to_postmor_abelian_group_morphism Add x y z f)
+      := make_is_z_isomorphism _ _ (abgr_Additive_is_iso_postmor_inverses H).
+
+  End IsoComposition.
+
+  (** If (f · _) and (_ · f) are isomorphisms, then f is an isomorphism as well *)
+  Section IsoFromComposition.
+
+    Context {f : x --> y}.
+    Context (H1 : is_z_isomorphism (to_premor_abelian_group_morphism Add x y x f)).
+    Context (H2 : is_z_isomorphism (to_postmor_abelian_group_morphism Add y x y f)).
+
+    Local Lemma abgr_Additive_premor_postmor_is_iso_inverses :
+      is_inverse_in_precat f ((is_z_isomorphism_mor H1 : abelian_group_morphism _ _) (identity x)).
+    Proof.
+      set (mor1 := (is_z_isomorphism_mor H1 : abelian_group_morphism _ _) (identity x)).
+      set (mor2 := (is_z_isomorphism_mor H2 : abelian_group_morphism _ _) (identity y)).
+      assert (Hx := abelian_group_morphism_eq (is_inverse_in_precat2 H1) (identity x) : f · mor1 = identity x).
+      assert (Hy := abelian_group_morphism_eq (is_inverse_in_precat2 H2) (identity y) :  mor2 · f = identity y).
+      assert (H : mor1 = mor2).
+      {
+        rewrite <- (id_right mor2).
+        rewrite <- Hx.
+        rewrite assoc.
+        rewrite Hy.
+        rewrite id_left.
+        reflexivity.
+      }
+      apply make_is_inverse_in_precat.
+      - exact Hx.
+      - rewrite H. exact Hy.
+    Qed.
+
+    Lemma abgr_Additive_premor_postmor_is_iso :
+      is_z_isomorphism f.
+    Proof.
+      use make_is_z_isomorphism.
+      - exact ((is_z_isomorphism_mor H1 : abelian_group_morphism _ _) (identity x)).
+      - exact abgr_Additive_premor_postmor_is_iso_inverses.
+    Defined.
+
+  End IsoFromComposition.
+
+End Misc.

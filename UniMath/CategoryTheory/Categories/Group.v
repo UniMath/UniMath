@@ -1,9 +1,13 @@
-(** * Category of grs *)
-(** ** Contents
-- Precategory of grs
-- Category of grs
-*)
+(**************************************************************************************************
 
+  The Univalent Category of Groups
+
+  This file shows that the category of groups, already defined in Magma.v, is univalent.
+
+  Contents
+  1. The univalent category of groups [group_univalent_category]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 
 Require Import UniMath.Algebra.BinaryOperations.
@@ -22,6 +26,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 
 Local Open Scope cat.
+
+(** * 1. The univalent category of groups *)
 
 Lemma is_univalent_group_disp_cat
   : is_univalent_disp group_disp_cat.

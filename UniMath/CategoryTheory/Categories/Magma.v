@@ -1,3 +1,31 @@
+(**************************************************************************************************
+
+  The Category of Magmas and Related Categories
+
+  This file defines the category of magmas.
+  It defines the categories of abelian magmas, semigroups and unital magmas as displayed categories
+  over the category of magmas.
+  It then defines the category of monoids as a displayed product category of semigroups and unital
+  magmas.
+  The category of groups is constructed via a displayed category over the category of monoids.
+  Lastly, the categories of abelian groups and abelian monoids are again a displayed product of
+  their respective category and the category of abelian magmas.
+  For the categories that do not have their own files in this package (magmas, abelian magmas,
+  semigroups and unital magmas), univalence is shown here.
+
+  Contents
+  1. The category of magmas [magma_category] [is_univalent_magma_category]
+  1.1. Magmas [magma]
+  1.2. Magma morphisms [magma_morphism]
+  2. The category of abelian magmas [abelian_magma_disp_cat] [is_univalent_abelian_magma_disp_cat]
+  3. The category of semigroups [semigroup_disp_cat] [is_univalent_semigroup_disp_cat]
+  4. The category of unital magmas [unital_magma_disp_cat] [is_univalent_unital_magma_disp_cat]
+  5. The category of monoids [monoid_category]
+  6. The category of abelian monoids [abelian_monoid_category]
+  7. The category of groups [group_category]
+  8. The category of abelian groups [abelian_group_category]
+
+ **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
@@ -16,7 +44,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 
 Local Open Scope cat.
 
-(* Magmas *)
+(** * 1. The category of magmas *)
 
 Definition magma_disp_cat
   : disp_cat HSET.
@@ -76,26 +104,28 @@ Proof.
   - apply is_univalent_magma_disp_cat.
 Defined.
 
+(** ** 1.1. Magmas *)
+
 Definition magma
   : UU
   := magma_category.
 
 Coercion magma_to_setwithbinop (X : magma) : setwithbinop := X.
 
+(** ** 1.2. Magma morphisms *)
+
 Definition magma_morphism
   (X Y : magma)
   : UU
   := magma_category⟦X, Y⟧.
 
-Definition magma_morphism_function
+Coercion magma_morphism_to_binopfun
   {X Y : magma}
   (f : magma_morphism X Y)
-  : X → Y
-  := pr1 f.
+  : binopfun X Y
+  := f.
 
-Coercion magma_morphism_function : magma_morphism >-> Funclass.
-
-(* Abelian magmas *)
+(** * 2. The category of abelian magmas *)
 
 Definition abelian_magma_disp_cat
   : disp_cat magma_category
@@ -109,7 +139,7 @@ Proof.
   apply isapropiscomm.
 Defined.
 
-(* Semigroups *)
+(** * 3. The category of semigroups *)
 
 Definition semigroup_disp_cat
   : disp_cat magma_category
@@ -123,7 +153,7 @@ Proof.
   apply isapropisassoc.
 Defined.
 
-(* Unital Magmas *)
+(** * 4. The category of unital magmas *)
 
 Definition unital_magma_disp_cat
   : disp_cat magma_category.
@@ -156,7 +186,7 @@ Proof.
   - abstract (intro; apply z_iso_eq, setproperty).
 Defined.
 
-(* Monoids *)
+(** * 5. The category of monoids *)
 
 Definition monoid_disp_cat
   : disp_cat magma_category
@@ -166,7 +196,7 @@ Definition monoid_category
   : category
   := total_category monoid_disp_cat.
 
-(* Abelian Monoids *)
+(** * 6. The category of abelian monoids *)
 
 Definition abelian_monoid_disp_cat
   : disp_cat magma_category
@@ -176,7 +206,7 @@ Definition abelian_monoid_category
   : category
   := total_category abelian_monoid_disp_cat.
 
-(* Groups *)
+(** * 7. The category of groups *)
 
 Definition group_disp_cat
   : disp_cat magma_category.
@@ -206,7 +236,7 @@ Definition group_category
   : category
   := total_category group_disp_cat.
 
-(* Abelian Groups *)
+(** * 8. The category of abelian groups *)
 
 Definition abelian_group_disp_cat
   : disp_cat magma_category
