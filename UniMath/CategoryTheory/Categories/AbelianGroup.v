@@ -1,29 +1,42 @@
-(** * Category of abelian groups *)
-(** ** Contents
-- Precategory of abelian groups
-- Category of abelian groups
-- Zero object and Zero arrow
- - Zero object
- - Zero arrow
-- Category of abelian groups is preadditive
-- Category of abelian groups is additive
-- Kernels and Cokernels
- - Kernels
- - Cokernels
-- Monics are inclusions and Epis are surjections
- - Epis are surjections
- - Monics are inclusions
-- Monics are kernels of their cokernels and epis are cokernels of their kernels
- - Monics are Kernels
- - Epis are Cokernels
-- The category of abelian groups is an abelian category
-- Corollaries to additive categories
-*)
+(**************************************************************************************************
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.Foundations.UnivalenceAxiom.
+  The Univalent Category of Abelian Groups
+
+  This file shows properties of the category of abelian groups, which is defined in Magma.v. For
+  example, it shows that the category is univalent.
+
+  The category has an additive structure. The trivial abelian group is its zero object, with the
+  zero arrows given by 0(x) = 0. Pointwise addition (f + g)(x) = f x + g x gives a binary operation
+  on the morphisms and the direct product of abelian groups gives a direct sum.
+
+  The category has kernels and cokernels, with the cokernel of f: A → B given by B / Im f.
+
+  In this category, one can formulate more directly what it means to be a kernel: for morphisms
+  f : X → Y and g : Y → Z, if f · g = 0, if f is monic and if the fiber above any element in Y that
+  maps to 0 : Z is inhabited, X is the kernel of g.
+
+  Contents
+  1. The univalent category of abelian groups [abelian_group_univalent_category]
+  2. The additive structure
+  2.1. The abelian group structure on homsets [abgr_WithAbGrops]
+  2.2. The preadditive structure [abgr_PreAdditive]
+  2.3. The zero object [abgr_Zero]
+  2.4. Direct sums [abgr_isBinDirectSum]
+  2.5. The additive structure [abgr_Additive]
+  3. Kernels and Cokernels
+  3.1. Kernels [abgr_Kernels]
+  3.2. Cokernels [abgr_Cokernels]
+  4. Monics are inclusions and Epis are surjections
+  4.1. Epis are surjections [abgr_epi_issurjective]
+  4.2. Monics are inclusions [abgr_monic_isInjective]
+  5. Monics are kernels of their cokernels and epis are cokernels of their kernels
+  5.1. Monics are Kernels [abgr_monic_kernel]
+  5.2. Epis are Cokernels [abgr_epi_cokernel]
+  6. The category of abelian groups is an abelian category [abgr_Abelian]
+  7. An elementwise criterion for isKernel [abgr_isKernel_Criteria]
+
+ **************************************************************************************************)
+Require Import UniMath.Foundations.All.
 
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Groups.
@@ -35,9 +48,6 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
-
-Require Import UniMath.CategoryTheory.Categories.Magma.
-Require Import UniMath.CategoryTheory.Categories.Group.
 
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
@@ -61,10 +71,14 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.Product.
 
+Require Import UniMath.CategoryTheory.Categories.Magma.
+Require Import UniMath.CategoryTheory.Categories.Group.
+
 Local Open Scope cat.
 Local Open Scope addmonoid.
 Local Open Scope abgr.
 
+(** * 1. The univalent category of abelian groups *)
 
 Definition is_univalent_abelian_group_disp_cat
   : is_univalent_disp abelian_group_disp_cat
@@ -82,17 +96,50 @@ Definition abelian_group_univalent_category
   : univalent_category
   := make_univalent_category abelian_group_category is_univalent_abelian_group_category.
 
-(** * Zero object and Zero arrow
-   - Zero object is the abelian group which consists of one element, the unit element.
-   - The unique morphism to zero object maps every element to the unit element.
-   - The unique morphism from the zero object maps unit to unit.
-   - The unique morphisms which factors through zero object maps every element to the unit
-     element.
-   - Computations on zero object
- *)
-Section def_abgr_zero.
+(** * 2. The additive structure *)
+(** ** 2.1. The abelian group structure on homsets *)
 
-  (** ** Zero in abelian category *)
+Definition abgr_WithBinOpsData : precategoryWithBinOpsData abelian_group_category.
+Proof.
+  exact @abgrshombinop.
+Defined.
+
+Definition abgr_WithBinOps : precategoryWithBinOps :=
+  make_precategoryWithBinOps abelian_group_category abgr_WithBinOpsData.
+
+Definition abgr_WithAbGrops : categoryWithAbgrops.
+Proof.
+  use make_categoryWithAbgrops.
+  - exact abgr_WithBinOps.
+  - apply make_categoryWithAbgropsData.
+    exact @abgrshomabgr_isabgrop.
+Defined.
+
+(** ** 2.2. The preadditive structure *)
+
+Definition abgr_isPreAdditive : isPreAdditive abgr_WithAbGrops.
+Proof.
+  apply make_isPreAdditive.
+  (* Precomposition with morphism is linear *)
+  - intros X Y Z f.
+    apply make_ismonoidfun.
+    + apply make_isbinopfun. intros g h. apply abelian_group_morphism_eq. intros x. reflexivity.
+    + apply abelian_group_morphism_eq. intros x. reflexivity.
+  (* Postcomposition with morphism is linear *)
+  - intros X Y Z f.
+    apply make_ismonoidfun.
+    + apply make_isbinopfun. intros g h. apply abelian_group_morphism_eq. intros x.
+      refine (monoidfunmul (f : abelian_group_morphism _ _) _ _ @ _).
+      reflexivity.
+    + apply abelian_group_morphism_eq. intros x. exact (monoidfununel (f : abelian_group_morphism _ _)).
+Qed.
+
+Definition abgr_PreAdditive : PreAdditive :=
+  make_PreAdditive abgr_WithAbGrops abgr_isPreAdditive.
+
+(** ** 2.3. The zero object *)
+
+Section def_abgr_zero.
 
   Lemma isconnectedfromunitabgr (a : abelian_group_category) (t : abelian_group_morphism unitabgr a):
     t = unel_abelian_group_morphism unitabgr (a : abgr).
@@ -120,26 +167,6 @@ Section def_abgr_zero.
 
   Definition abgr_Zero : Zero abelian_group_category := make_Zero unitabgr abgr_isZero.
 
-
-  (** ** Computations on zero object *)
-
-  Lemma abgr_Zero_comp : ZeroObject (abgr_Zero) = unitabgr.
-  Proof.
-    reflexivity.
-  Qed.
-
-  Lemma abgr_Zero_from_comp (A : abgr) :
-    ZeroArrowFrom (Z := abgr_Zero) A = unel_abelian_group_morphism unitabgr A.
-  Proof.
-    reflexivity.
-  Qed.
-
-  Lemma abgr_Zero_to_comp (A : abgr) :
-    ZeroArrowTo (Z := abgr_Zero) A = unel_abelian_group_morphism A unitabgr.
-  Proof.
-    reflexivity.
-  Qed.
-
   Lemma abgr_Zero_arrow_comp (A B : abgr) :
     ZeroArrow abgr_Zero A B = unel_abelian_group_morphism A B.
   Proof.
@@ -148,77 +175,9 @@ Section def_abgr_zero.
 
 End def_abgr_zero.
 
+(** ** 2.4. Direct sums *)
 
-(** * Preadditive structure on the category of abelian groups
-   - Binary operation on homsets.
-   - Abelian group structure on homsets
-   - PreAdditive structure on the category of abelian groups
-*)
-Section abgr_preadditive.
-
-  (** ** Binary operations on homsets
-      Let f, g : X --> Y be morphisms in the category of abelian groups. Then f + g is defined to be
-      the morphism (f + g) x = (f x) + (g x). This gives [precategoryWithBinOps] structure on the
-      category.
-  *)
-
-  Definition abgr_WithBinOpsData : precategoryWithBinOpsData abelian_group_category.
-  Proof.
-    exact @abgrshombinop.
-  Defined.
-
-  Definition abgr_WithBinOps : precategoryWithBinOps :=
-    make_precategoryWithBinOps abelian_group_category abgr_WithBinOpsData.
-
-  (** ** [categoryWithAbgrops] structure on the category of abelian groups *)
-
-  Definition abgr_WithAbGrops : categoryWithAbgrops.
-  Proof.
-    use make_categoryWithAbgrops.
-    - exact abgr_WithBinOps.
-    - apply make_categoryWithAbgropsData.
-      exact @abgrshomabgr_isabgrop.
-  Defined.
-
-  (** ** [PreAdditive] structure on the category of abelian groups *)
-
-  Definition abgr_isPreAdditive : isPreAdditive abgr_WithAbGrops.
-  Proof.
-    apply make_isPreAdditive.
-    (* Precomposition with morphism is linear *)
-    - intros X Y Z f.
-      apply make_ismonoidfun.
-      + apply make_isbinopfun. intros g h. apply abelian_group_morphism_eq. intros x. reflexivity.
-      + apply abelian_group_morphism_eq. intros x. reflexivity.
-    (* Postcomposition with morphism is linear *)
-    - intros X Y Z f.
-      apply make_ismonoidfun.
-      + apply make_isbinopfun. intros g h. apply abelian_group_morphism_eq. intros x.
-        refine (monoidfunmul (f : abelian_group_morphism _ _) _ _ @ _).
-        reflexivity.
-      + apply abelian_group_morphism_eq. intros x. exact (monoidfununel (f : abelian_group_morphism _ _)).
-  Qed.
-
-  Definition abgr_PreAdditive : PreAdditive :=
-    make_PreAdditive abgr_WithAbGrops abgr_isPreAdditive.
-
-End abgr_preadditive.
-
-
-(** * Additive structure on the category of abelian groups
-   - Direct sums
-   - Additive category structure
- *)
-Section abgr_additive.
-
-  (** ** Direct sums
-     Direct sum of X and Y is given by the direct product abelian group X × Y. The inclusions
-     and projections are given by
-     - In1 :  x ↦ (x, 0)
-     - In2 :  y ↦ (0, y)
-     - Pr1 :  (x, y) ↦ x
-     - Pr2 :  (x, y) ↦ y
-   *)
+Section DirectSums.
 
   Lemma abgr_DirectSumPr1_isbinopfun (A B : abgr) :
     isbinopfun (λ X : abgrdirprod A B, dirprod_pr1 X).
@@ -309,28 +268,28 @@ Section abgr_additive.
     - exact (abgr_DirectSumId X Y).
   Defined.
 
-  Definition abgr_AdditiveStructure : AdditiveStructure abgr_PreAdditive.
-  Proof.
-    apply make_AdditiveStructure.
-    - exact abgr_Zero.
-    - apply make_BinDirectSums. intros X Y. use make_BinDirectSum.
-      + exact (abgrdirprod X Y).
-      + exact (abgr_DirectSumIn1 X Y).
-      + exact (abgr_DirectSumIn2 X Y).
-      + exact (abgr_DirectSumPr1 X Y).
-      + exact (abgr_DirectSumPr2 X Y).
-      + exact (abgr_isBinDirectSum X Y).
-  Defined.
+End DirectSums.
 
-  Definition abgr_Additive : CategoryWithAdditiveStructure := make_Additive abgr_PreAdditive abgr_AdditiveStructure.
+(** ** 2.5. The additive structure *)
 
-End abgr_additive.
+Definition abgr_AdditiveStructure : AdditiveStructure abgr_PreAdditive.
+Proof.
+  apply make_AdditiveStructure.
+  - exact abgr_Zero.
+  - apply make_BinDirectSums. intros X Y. use make_BinDirectSum.
+    + exact (abgrdirprod X Y).
+    + exact (abgr_DirectSumIn1 X Y).
+    + exact (abgr_DirectSumIn2 X Y).
+    + exact (abgr_DirectSumPr1 X Y).
+    + exact (abgr_DirectSumPr2 X Y).
+    + exact (abgr_isBinDirectSum X Y).
+Defined.
 
+Definition abgr_Additive : CategoryWithAdditiveStructure := make_Additive abgr_PreAdditive abgr_AdditiveStructure.
 
-(** * Kernels and Cokernels
-   - Kernels in the category of abelian groups
-   - Cokernels in the category of abelian groups
- *)
+(** * 3. Kernels and Cokernels *)
+(** ** 3.1. Kernels *)
+
 Section Kernels.
 
   Context {A B : abgr}.
@@ -443,10 +402,7 @@ Proof.
   intros A B f. exact (abgr_Kernel f).
 Defined.
 
-  (** ** Cokernels
-     - Let f : X --> Y be a morphism of abelian groups. A cokernel for f is given by the quotient
-       quotient group Y/(Im f) together with the canonical morphism Y --> Y/(Im f).
-   *)
+(** ** 3.2. Cokernels *)
 
 Section Cokernels.
 
@@ -644,14 +600,11 @@ Proof.
   intros A B f. exact (abgr_Cokernel f).
 Defined.
 
+(** * 4. Monics are inclusions and Epis are surjections *)
 
-(** * Monics are injective and epis are surjective
-   - Epis are surjective
-   - Monics are injective
-*)
 Section abgr_monics_and_epis.
 
-  (** ** Epis *)
+(** ** 4.1. Epis are surjections *)
 
   Context {A B : abgr}.
   Context (f : abelian_group_morphism A B).
@@ -684,7 +637,7 @@ Section abgr_monics_and_epis.
       exact (abelian_group_morphism_eq (tmp H) x).
   Qed.
 
-  (** ** Monics *)
+(** ** 4.2. Monics are inclusions *)
 
   Lemma nat_nat_prod_abgr_abelian_group_morphism_eq (a1 a2 : A) (H : f a1 = f a2)
     : composite_abelian_monoid_morphism (nat_nat_prod_abmonoid_abelian_monoid_morphism a1) (abelian_group_to_monoid_morphism f)
@@ -782,12 +735,10 @@ Proof.
   exact (monoidfun_eq e x).
 Qed.
 
+(** * 5. Monics are kernels of their cokernels and epis are cokernels of their kernels *)
+(** ** 5.1. Monics are Kernels *)
 
-(** * Monics are kernels of their cokernels and epis are cokernels of their kernels *)
 Section Monics.
-
-
-  (** ** Monics are kernels of their cokernels *)
 
   Context {A B : abgr}.
   Context (f : abelian_group_morphism A B).
@@ -942,7 +893,7 @@ Section Monics.
 
 End Monics.
 
-(** ** Epis are cokernels of their kernels *)
+(** ** 5.2. Epis are Cokernels *)
 
 Section Epis.
 
@@ -1142,160 +1093,30 @@ Section Epis.
 
 End Epis.
 
+(** * 6. The category of abelian groups is an abelian category *)
 
-(** * Category of abelian groups is an abelian category *)
-Section abgr_abelian.
+Definition abgr_Abelian : AbelianPreCat.
+Proof.
+  set (BinDS := to_BinDirectSums abgr_Additive).
+  use (make_Abelian abelian_group_category).
+  - apply make_Data1.
+    + exact abgr_Zero.
+    + intros X Y. exact (BinDirectSum_BinProduct abgr_Additive (BinDS X Y)).
+    + intros X Y. exact (BinDirectSum_BinCoproduct abgr_Additive (BinDS X Y)).
+  - use make_AbelianData.
+    + apply make_Data2.
+      * intros A B f. exact (abgr_Kernel f).
+      * intros A B f. exact (abgr_Cokernel f).
+    + apply make_MonicsAreKernels.
+      intros x y M.
+      exact (KernelisKernel abgr_Zero (abgr_monic_kernel _ (MonicisMonic abelian_group_category M))).
+    + apply make_EpisAreCokernels.
+      intros x y E.
+      exact (CokernelisCokernel abgr_Zero (abgr_epi_cokernel _ (EpiisEpi abelian_group_category E))).
+Defined.
 
-  Definition abgr_Abelian : AbelianPreCat.
-  Proof.
-    set (BinDS := to_BinDirectSums abgr_Additive).
-    use (make_Abelian abelian_group_category).
-    - apply make_Data1.
-      + exact abgr_Zero.
-      + intros X Y. exact (BinDirectSum_BinProduct abgr_Additive (BinDS X Y)).
-      + intros X Y. exact (BinDirectSum_BinCoproduct abgr_Additive (BinDS X Y)).
-    - use make_AbelianData.
-      + apply make_Data2.
-        * intros A B f. exact (abgr_Kernel f).
-        * intros A B f. exact (abgr_Cokernel f).
-      + apply make_MonicsAreKernels.
-        intros x y M.
-        exact (KernelisKernel abgr_Zero (abgr_monic_kernel _ (MonicisMonic abelian_group_category M))).
-      + apply make_EpisAreCokernels.
-        intros x y E.
-        exact (CokernelisCokernel abgr_Zero (abgr_epi_cokernel _ (EpiisEpi abelian_group_category E))).
-  Defined.
+(** * 7. An elementwise criterion for isKernel *)
 
-End abgr_abelian.
-
-
-(** * Corollaries to additive categories
-   In an additive category the homsets are abelian groups and pre- and postcompositions are
-   morphisms of abelian groups. In this section we prove the following lemmas about additive
-   categories using the theory of abelian groups developed above
-   - A morphism φ in an additive category which gives isomorphisms (φ · _) and (_ · φ) is an
-     isomorphism, [abgr_Additive_premor_postmor_is_iso].
-   - A criteria of being a kernel in the category of abelian groups which applys only elements
-     of abelian groups, [abgr_isKernel_Criteria].
-*)
-Section abgr_corollaries.
-
-  (** ** Isomorphism criteria *)
-
-  (** *** (_ · ZeroArrow) = ZeroArrow = (ZeroArrow · _) *)
-
-  Lemma AdditiveZeroArrow_postmor_Abelian {Add : CategoryWithAdditiveStructure} (x y z : Add) :
-    to_postmor_monoidfun Add x y z (ZeroArrow (Additive.to_Zero Add) y z) =
-    (ZeroArrow (to_Zero abgr_Abelian) (to_abgr x y) (to_abgr x z) : abelian_group_morphism _ _).
-  Proof.
-    rewrite <- PreAdditive_unel_zero.
-    apply monoidfun_eq. intros f. exact (to_premor_unel Add z f).
-  Qed.
-
-  Lemma AdditiveZeroArrow_premor_Abelian {Add : CategoryWithAdditiveStructure} (x y z : Add) :
-    to_premor_monoidfun Add x y z (ZeroArrow (Additive.to_Zero Add) x y) =
-    (ZeroArrow (to_Zero abgr_Abelian) (to_abgr y z) (to_abgr x z) : abelian_group_morphism _ _).
-  Proof.
-    rewrite <- PreAdditive_unel_zero.
-    apply monoidfun_eq. intros f. exact (to_postmor_unel Add x f).
-  Qed.
-
-  (** *** f isomorphism ⇒ (f · _) isomorphism *)
-
-  Local Lemma abgr_Additive_is_iso_premor_inverses {Add : CategoryWithAdditiveStructure} (x y z : Add) {f : x --> y}
-        (H : is_z_isomorphism f) :
-    is_inverse_in_precat
-      (to_premor_abelian_group_morphism Add x y z f)
-      (to_premor_abelian_group_morphism Add y x z (is_z_isomorphism_mor H)).
-  Proof.
-    apply make_is_inverse_in_precat.
-    - apply abelian_group_morphism_eq.
-      intros x0. cbn. unfold to_premor. rewrite assoc.
-      rewrite (is_inverse_in_precat2 H). apply id_left.
-    - apply abelian_group_morphism_eq.
-      intros x0. cbn. unfold to_premor. rewrite assoc.
-      rewrite (is_inverse_in_precat1 H). apply id_left.
-  Qed.
-
-  Lemma abgr_Additive_is_iso_premor {Add : CategoryWithAdditiveStructure} (x y z : Add) {f : x --> y}
-        (H : is_z_isomorphism f) :
-    is_z_isomorphism (binopfun_to_abelian_group_morphism (to_premor_monoidfun Add x y z f)).
-  Proof.
-    use make_is_z_isomorphism.
-    - apply binopfun_to_abelian_group_morphism.
-      apply (to_premor_monoidfun Add).
-      exact (is_z_isomorphism_mor H).
-    - apply abgr_Additive_is_iso_premor_inverses.
-  Defined.
-
-  (** *** f isomorphism ⇒ (_ · f) isomorphism *)
-
-  Local Lemma abgr_Additive_is_iso_postmor_inverses {Add : CategoryWithAdditiveStructure} (x y z : Add) {f : y --> z}
-        (H : is_z_isomorphism f) :
-    is_inverse_in_precat
-      (to_postmor_abelian_group_morphism Add x y z f)
-      (to_postmor_abelian_group_morphism Add x z y (is_z_isomorphism_mor H)).
-  Proof.
-    apply make_is_inverse_in_precat.
-    - apply abelian_group_morphism_eq.
-      intros x0. cbn. unfold to_postmor. rewrite <- assoc.
-      rewrite (is_inverse_in_precat1 H). apply id_right.
-    - apply abelian_group_morphism_eq.
-      intros x0. cbn. unfold to_postmor. rewrite <- assoc.
-      rewrite (is_inverse_in_precat2 H). apply id_right.
-  Qed.
-
-  Lemma abgr_Additive_is_iso_postmor {Add : CategoryWithAdditiveStructure} (x y z : Add) {f : y --> z}
-        (H : is_z_isomorphism f) :
-    is_z_isomorphism ((to_postmor_abelian_group_morphism Add x y z f)).
-  Proof.
-    use make_is_z_isomorphism.
-    - apply binopfun_to_abelian_group_morphism.
-      apply (to_postmor_monoidfun Add).
-      exact (is_z_isomorphism_mor H).
-    - apply abgr_Additive_is_iso_postmor_inverses.
-  Defined.
-
-  (** *** Pre- and postcomposition with f is an isomorphism ⇒ f isomorphism *)
-
-  Local Lemma abgr_Additive_premor_postmor_is_iso_inverses {Add : CategoryWithAdditiveStructure} (x y : Add)
-        {f : x --> y}
-        (H1 : is_z_isomorphism (to_premor_abelian_group_morphism Add x y x f))
-        (H2 : is_z_isomorphism (to_postmor_abelian_group_morphism Add y x y f)) :
-    is_inverse_in_precat f ((is_z_isomorphism_mor H1 : abelian_group_morphism _ _) (identity x)).
-  Proof.
-    set (mor1 := (is_z_isomorphism_mor H1 : abelian_group_morphism _ _) (identity x)).
-    set (mor2 := (is_z_isomorphism_mor H2 : abelian_group_morphism _ _) (identity y)).
-    assert (Hx := abelian_group_morphism_eq (is_inverse_in_precat2 H1) (identity x) : f · mor1 = identity x).
-    assert (Hy := abelian_group_morphism_eq (is_inverse_in_precat2 H2) (identity y) :  mor2 · f = identity y).
-    assert (H : mor1 = mor2).
-    {
-      rewrite <- (id_right mor2).
-      rewrite <- Hx.
-      rewrite assoc.
-      rewrite Hy.
-      rewrite id_left.
-      reflexivity.
-    }
-    apply make_is_inverse_in_precat.
-    - exact Hx.
-    - rewrite H. exact Hy.
-  Qed.
-
-  Lemma abgr_Additive_premor_postmor_is_iso {Add : CategoryWithAdditiveStructure} (x y : Add) {f : x --> y}
-        (H1 : is_z_isomorphism ((to_premor_abelian_group_morphism Add x y x f)))
-        (H2 : is_z_isomorphism ((to_postmor_abelian_group_morphism Add y x y f))) :
-    is_z_isomorphism f.
-  Proof.
-    use make_is_z_isomorphism.
-    - exact ((is_z_isomorphism_mor H1 : abelian_group_morphism _ _) (identity x)).
-    - exact (abgr_Additive_premor_postmor_is_iso_inverses _ _ H1 H2).
-  Defined.
-
-End abgr_corollaries.
-
-
-(** ** A criteria for isKernel which applys only the elements in the abelian group. *)
 Section KernelCriterion.
 
   Context {X Y Z : abgr}.

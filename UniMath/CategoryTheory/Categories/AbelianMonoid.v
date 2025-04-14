@@ -1,8 +1,8 @@
 (**************************************************************************************************
 
-  The Category of Abelian Monoids
+  The Univalent Category of Abelian Monoids
 
-  This file defines the univalent category of abelian monoids.
+  This file shows that the category of abelian monoids, already defined in Magma.v, is univalent.
 
   Contents
   1. The univalent category of abelian monoids [abelian_monoid_univalent_category]
