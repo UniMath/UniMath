@@ -118,7 +118,7 @@ Proof.
       intro.
       apply setproperty.
   }
-  apply binopfun_eq.
+  apply binopfun_paths.
   exact H.
 Qed.
 
