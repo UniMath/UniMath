@@ -64,7 +64,7 @@ Section Connectives.
     Proof.
       refine (hyperdoctrine_cut p _).
       unfold per_subobject_forall_form.
-      simplify_form.
+      hypersimplify 0.
       use weaken_left.
       rewrite partial_setoid_subst.
       simplify.
@@ -83,7 +83,7 @@ Section Connectives.
       use (impl_elim q).
       refine (hyperdoctrine_cut p _).
       unfold per_subobject_forall_form.
-      simplify_form.
+      hypersimplify 0.
       use weaken_right.
       simplify.
       refine (hyperdoctrine_cut _ _).
@@ -105,7 +105,7 @@ Section Connectives.
       : Δ ⊢ per_subobject_forall_form [ b ].
     Proof.
       unfold per_subobject_forall_form.
-      simplify_form.
+      hypersimplify 0.
       rewrite partial_setoid_subst.
       simplify.
       use conj_intro.
@@ -124,7 +124,7 @@ Section Connectives.
         unfold per_subobject_forall_form.
         pose (b := π₂ (tm_var (𝟙 ×h B))).
         fold b.
-        simplify_form.
+        hypersimplify 0.
         rewrite partial_setoid_subst.
         use weaken_left.
         simplify.
@@ -137,7 +137,7 @@ Section Connectives.
         + use weaken_left.
           exact (partial_setoid_refl_r (hyperdoctrine_hyp _)).
         + use forall_intro.
-          simplify_form.
+          hypersimplify 0.
           rewrite partial_setoid_subst.
           simplify.
           pose (b₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h B) ×h B) ×h A))))).
@@ -183,7 +183,7 @@ Section Connectives.
       use weaken_right.
       use impl_intro.
       cbn.
-      simplify_form.
+      hypersimplify 0.
       rewrite partial_setoid_subst.
       simplify.
       use hyp_sym.
@@ -243,7 +243,7 @@ Section Connectives.
         exact (partial_setoid_refl_r (hyperdoctrine_hyp _)).
       - use forall_intro.
         use impl_intro.
-        simplify_form.
+        hypersimplify 0.
         rewrite partial_setoid_subst.
         simplify.
         pose (b₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h B) ×h B) ×h A))))).

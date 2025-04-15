@@ -190,7 +190,7 @@ Section PartialEquivalenceRelationInitial.
     - cbn.
       use (exists_elim (hyperdoctrine_hyp _)).
       use weaken_right.
-      simplify_form.
+      hypersimplify 0.
       use false_elim.
       use weaken_right.
       apply hyperdoctrine_hyp.

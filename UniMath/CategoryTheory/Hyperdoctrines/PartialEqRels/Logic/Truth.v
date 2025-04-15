@@ -138,7 +138,7 @@ Section TruthFormula.
         exact γ₃.
       }
       rewrite partial_setoid_subst.
-      simplify_form.
+      hypersimplify 0.
       rewrite !partial_setoid_subst.
       simplify.
       fold γ₁ γ₂ γ₃.

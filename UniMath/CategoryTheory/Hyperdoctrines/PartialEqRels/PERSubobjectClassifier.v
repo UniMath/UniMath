@@ -297,7 +297,7 @@ Section TriposSubobjectClassifier.
         do 2 (use forall_intro).
         use impl_intro.
         use weaken_right.
-        simplify_form.
+        hypersimplify 0.
         rewrite !partial_setoid_subst.
         simplify.
         pose (y := π₂ (π₁ (tm_var ((𝟙 ×h Y) ×h Ω)))).
@@ -309,7 +309,7 @@ Section TriposSubobjectClassifier.
         do 2 (use forall_intro).
         use impl_intro.
         use weaken_right.
-        simplify_form.
+        hypersimplify 0.
         rewrite partial_setoid_subst.
         simplify.
         pose (y := π₂ (π₁ (tm_var ((𝟙 ×h Y) ×h Ω)))).
@@ -322,7 +322,7 @@ Section TriposSubobjectClassifier.
         use impl_intro.
         use weaken_right.
         do 2 use impl_intro.
-        simplify_form.
+        hypersimplify 0.
         rewrite !partial_setoid_subst.
         simplify.
         pose (y₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h Y) ×h Y) ×h Ω) ×h Ω)))))).
@@ -345,7 +345,7 @@ Section TriposSubobjectClassifier.
                rewrite conj_subst.
                use hyp_ltrans.
                use weaken_right.
-               simplify_form.
+               hypersimplify 0.
                unfold y₁, y₂, ω₁, ω₂ ; clear y₁ y₂ ω₁ ω₂.
                rewrite !partial_setoid_subst.
                simplify.
@@ -393,7 +393,7 @@ Section TriposSubobjectClassifier.
                rewrite conj_subst.
                use hyp_ltrans.
                use weaken_right.
-               simplify_form.
+               hypersimplify 0.
                unfold y₁, y₂, ω₁, ω₂ ; clear y₁ y₂ ω₁ ω₂.
                rewrite !partial_setoid_subst.
                simplify.
@@ -423,7 +423,7 @@ Section TriposSubobjectClassifier.
         do 3 use forall_intro.
         use impl_intro.
         use weaken_right.
-        simplify_form.
+        hypersimplify 0.
         rewrite !partial_setoid_subst.
         simplify.
         pose (y := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Y) ×h Ω) ×h Ω))))).
@@ -455,7 +455,7 @@ Section TriposSubobjectClassifier.
         {
           exact (tripos_form_to_tm (∃h (φ [ ⟨ π₂ (tm_var _) , π₂ (π₁ (tm_var _)) ⟩ ]))).
         }
-        simplify_form.
+        hypersimplify 0.
         rewrite partial_setoid_subst.
         unfold y.
         simplify.
@@ -490,7 +490,7 @@ Section TriposSubobjectClassifier.
         {
           exact !!.
         }
-        simplify_form.
+        hypersimplify 0.
         rewrite !partial_setoid_subst.
         simplify.
         pose (x := π₁ (π₁ (tm_var ((X ×h Ω) ×h Y)))).
@@ -518,7 +518,7 @@ Section TriposSubobjectClassifier.
         {
           exact (π₂ (tm_var _)).
         }
-        simplify_form.
+        hypersimplify 0.
         rewrite !partial_setoid_subst.
         simplify.
         pose (x := π₁ (π₁ (π₁ (tm_var (((X ×h Ω) ×h 𝟙) ×h Y))))).
@@ -579,7 +579,7 @@ Section TriposSubobjectClassifier.
           rewrite exists_subst.
           use (exists_elim (hyperdoctrine_hyp _)).
           use weaken_right.
-          simplify_form.
+          hypersimplify 0.
           rewrite partial_setoid_subst.
           simplify.
           pose (w := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h W) ×h X) ×h Y))))).
@@ -596,7 +596,7 @@ Section TriposSubobjectClassifier.
           rewrite exists_subst.
           use (exists_elim (hyperdoctrine_hyp _)).
           use weaken_right.
-          simplify_form.
+          hypersimplify 0.
           rewrite partial_setoid_subst.
           simplify.
           pose (w := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h W) ×h X) ×h Y))))).
@@ -617,7 +617,7 @@ Section TriposSubobjectClassifier.
           rewrite conj_subst.
           use hyp_ltrans.
           use weaken_right.
-          simplify_form.
+          hypersimplify 0.
           rewrite !partial_setoid_subst.
           simplify.
           pose (w₁ := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var (((((𝟙 ×h W) ×h W) ×h X) ×h X) ×h Y))))))).
@@ -662,14 +662,14 @@ Section TriposSubobjectClassifier.
           use weaken_right.
           use (exists_elim (hyperdoctrine_hyp _)).
           use weaken_right.
-          simplify_form.
+          hypersimplify 0.
           use impl_intro.
           use hyp_sym.
           use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
           rewrite conj_subst.
           use hyp_ltrans.
           use weaken_right.
-          simplify_form.
+          hypersimplify 0.
           rewrite partial_setoid_subst.
           simplify.
           pose (w := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var (((((𝟙 ×h W) ×h X) ×h X) ×h Y) ×h Y))))))).
@@ -741,12 +741,12 @@ Section TriposSubobjectClassifier.
             use hyperdoctrine_eq_pair_right.
             apply hyperdoctrine_unit_tm_eq.
           + unfold w.
-            simplify_form.
+            hypersimplify 0.
             rewrite !partial_setoid_subst.
             simplify.
             rewrite <- hyperdoctrine_comp_subst.
             rewrite tripos_form_to_tm_Prf.
-            simplify_form.
+            hypersimplify 0.
             refine (weaken_cut _ _).
             {
               do 3 use weaken_right.
@@ -764,7 +764,7 @@ Section TriposSubobjectClassifier.
             use weaken_left.
             do 3 use hyp_rtrans.
             use weaken_left.
-            simplify_form.
+            hypersimplify 0.
             rewrite !partial_setoid_subst.
             simplify.
             use exists_intro.
@@ -864,7 +864,7 @@ Section TriposSubobjectClassifier.
             {
               exact x.
             }
-            simplify_form.
+            hypersimplify 0.
             assert (ψ₁ [⟨ w, y₁ ⟩] ∧ φ [⟨ x, y₂ ⟩] ∧ ψ₁ [⟨ w, y₂ ⟩] ⊢ φ [⟨ x, y₁ ⟩]) as r.
             {
               use (partial_setoid_mor_eq_defined φ).
@@ -952,7 +952,7 @@ Section TriposSubobjectClassifier.
             * use weaken_right.
               apply hyperdoctrine_hyp.
             * use (from_eq_partial_setoid_morphism_f ζp) ; cbn.
-              simplify_form.
+              hypersimplify 0.
               use exists_intro.
               {
                 exact x.
@@ -973,7 +973,7 @@ Section TriposSubobjectClassifier.
                        (weaken_right (hyperdoctrine_hyp _) _))
                     _).
           cbn.
-          simplify_form.
+          hypersimplify 0.
           use hyp_sym.
           use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
           rewrite conj_subst.
@@ -1072,7 +1072,7 @@ Section TriposSubobjectClassifier.
           rewrite exists_subst.
           use exists_intro ; [ apply !! | ].
           unfold y, ω.
-          simplify_form.
+          hypersimplify 0.
           rewrite !partial_setoid_subst.
           simplify.
           rewrite (hyperdoctrine_pair_eta (π₁ (π₁ (tm_var (((Y ×h Ω) ×h Ω) ×h Y))))).
@@ -1122,7 +1122,7 @@ Section TriposSubobjectClassifier.
             exact (π₁ (π₁ (π₁ (tm_var _)))).
           }
           unfold y, ω.
-          simplify_form.
+          hypersimplify 0.
           rewrite !partial_setoid_subst.
           simplify.
           rewrite (hyperdoctrine_pair_eta (π₁ (π₁ (tm_var (((Y ×h Ω) ×h Ω) ×h 𝟙))))).
@@ -1209,7 +1209,7 @@ Section TriposSubobjectClassifier.
       refine (hyperdoctrine_cut (h _) _).
       {
         unfold y, ω.
-        simplify_form.
+        hypersimplify 0.
         rewrite partial_setoid_subst.
         simplify.
         rewrite (hyperdoctrine_pair_eta (π₁ (tm_var ((Y ×h Ω) ×h X)))).
@@ -1258,7 +1258,7 @@ Section TriposSubobjectClassifier.
             rewrite conj_subst.
             use hyp_ltrans.
             use weaken_right.
-            simplify_form.
+            hypersimplify 0.
             unfold y, ω ; clear y ω.
             simplify.
             pose (y := π₁ (π₁ (tm_var ((Y ×h Ω) ×h X)))).
@@ -1283,7 +1283,7 @@ Section TriposSubobjectClassifier.
                use hyp_sym.
                apply hyperdoctrine_hyp.
             ** unfold y, ω, x ; clear x y ω.
-               simplify_form.
+               hypersimplify 0.
                rewrite partial_setoid_subst.
                simplify.
                pose (y := π₁ (π₁ (π₁ (tm_var (((Y ×h Ω) ×h X) ×h 𝟙))))).
@@ -1299,7 +1299,7 @@ Section TriposSubobjectClassifier.
                (partial_setoid_mor_hom_exists
                   χ
                   (weaken_left (hyperdoctrine_hyp _) _))).
-        simplify_form.
+        hypersimplify 0.
         rewrite partial_setoid_subst.
         simplify.
         pose (y := π₁ (π₁ (tm_var ((Y ×h Ω) ×h Ω)))).
@@ -1351,7 +1351,7 @@ Section TriposSubobjectClassifier.
             use hyp_ltrans.
             use weaken_right.
             unfold y, ω₁, ω₂, Δ, Δ' ; clear r Δ Δ' y ω₁ ω₂.
-            simplify_form.
+            hypersimplify 0.
             rewrite partial_setoid_subst.
             simplify.
             pose (y := π₁ (π₁ (π₁ (tm_var (((Y ×h Ω) ×h Ω) ×h X))))).
@@ -1377,7 +1377,7 @@ Section TriposSubobjectClassifier.
                use weaken_right.
                use hyp_sym.
                apply hyperdoctrine_hyp.
-            ** simplify_form.
+            ** hypersimplify 0.
                rewrite !partial_setoid_subst.
                simplify.
                do 2 use weaken_right.

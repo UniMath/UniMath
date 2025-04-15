@@ -645,7 +645,7 @@ Section Constructions.
          ```
          By delaying simplify the terms, we save some time
        *)
-      simplify_form.
+      hypersimplify 0.
       rewrite !partial_setoid_subst.
       use conj_intro.
       + use partial_setoid_sym.
@@ -678,7 +678,7 @@ Section Constructions.
          ````
          By delaying simplify the terms, we save some time
        *)
-      simplify_form.
+      hypersimplify 0.
       rewrite !partial_setoid_subst.
       use conj_intro.
       + use (partial_setoid_trans (π₁ y)).
@@ -745,7 +745,7 @@ Section Constructions.
     Proof.
       refine (hyperdoctrine_cut p _).
       unfold partial_setoid_formula ; cbn ; unfold prod_per_data.
-      simplify_form.
+      hypersimplify 0.
       rewrite !partial_setoid_subst.
       simplify.
       use weaken_left.
@@ -761,7 +761,7 @@ Section Constructions.
     Proof.
       refine (hyperdoctrine_cut p _).
       unfold partial_setoid_formula ; cbn ; unfold prod_per_data.
-      simplify_form.
+      hypersimplify 0.
       rewrite !partial_setoid_subst.
       simplify.
       use weaken_right.

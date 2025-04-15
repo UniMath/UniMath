@@ -212,7 +212,7 @@ Section Conjunction.
     rewrite !conj_subst.
     use hyp_ltrans.
     use weaken_right.
-    simplify_form.
+    hypersimplify 0.
     rewrite !partial_setoid_subst.
     simplify.
     pose (γ₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂) ×h Γ₂)))))).
