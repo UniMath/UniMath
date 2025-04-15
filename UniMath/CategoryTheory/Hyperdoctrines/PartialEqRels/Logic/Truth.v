@@ -133,7 +133,7 @@ Section TruthFormula.
       {
         exact γ₃.
       }
-      hypersimplify 0.
+      hypersimplify_form.
       hypersimplify.
       fold γ₁ γ₂ γ₃.
       use conj_intro.

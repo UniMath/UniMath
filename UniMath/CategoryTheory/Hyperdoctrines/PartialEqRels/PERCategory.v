@@ -365,7 +365,7 @@ Section CompPartialSetoidMorphism.
       + exact (partial_setoid_mor_cod_defined φ₁ _ _ (hyperdoctrine_hyp _)).
       + use (exists_elim
                (partial_setoid_mor_hom_exists φ₂ (weaken_right (hyperdoctrine_hyp _) _))).
-        hypersimplify 0.
+        hypersimplify_form.
         use hyp_sym.
         use hyp_rtrans.
         use weaken_left.
@@ -445,7 +445,7 @@ Section CategoryOfPartialSetoids.
         fold x x' y.
         use exists_intro.
         * exact (π₁ (tm_var (X ×h Y))).
-        * hypersimplify 0.
+        * hypersimplify_form.
           rewrite partial_setoid_subst.
           unfold x, x', y ; clear x x' y.
           hypersimplify.
@@ -484,7 +484,7 @@ Section CategoryOfPartialSetoids.
         fold x y y'.
         use exists_intro.
         * exact (π₂ (tm_var (X ×h Y))).
-        * hypersimplify 0.
+        * hypersimplify_form.
           rewrite partial_setoid_subst.
           unfold x, y, y' ; clear x y y'.
           hypersimplify.
@@ -500,10 +500,10 @@ Section CategoryOfPartialSetoids.
       use eq_partial_setoid_morphism ; cbn in *.
       + use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right.
-        hypersimplify 0.
+        hypersimplify_form.
         use hyp_sym.
         use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
-        hypersimplify 0.
+        hypersimplify_form.
         use hyp_ltrans.
         use weaken_right.
         hypersimplify.
@@ -531,9 +531,9 @@ Section CategoryOfPartialSetoids.
              apply hyperdoctrine_hyp.
       + use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right.
-        hypersimplify 0.
+        hypersimplify_form.
         use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
-        hypersimplify 0.
+        hypersimplify_form.
         use hyp_ltrans.
         use weaken_right.
         hypersimplify.

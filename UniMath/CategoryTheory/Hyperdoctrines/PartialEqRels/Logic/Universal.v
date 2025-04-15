@@ -64,7 +64,7 @@ Section Connectives.
     Proof.
       refine (hyperdoctrine_cut p _).
       unfold per_subobject_forall_form.
-      hypersimplify 0.
+      hypersimplify_form.
       use weaken_left.
       hypersimplify.
       apply hyperdoctrine_hyp.
@@ -82,7 +82,7 @@ Section Connectives.
       use (impl_elim q).
       refine (hyperdoctrine_cut p _).
       unfold per_subobject_forall_form.
-      hypersimplify 0.
+      hypersimplify_form.
       use weaken_right.
       hypersimplify.
       refine (hyperdoctrine_cut _ _).
@@ -104,7 +104,7 @@ Section Connectives.
       : Δ ⊢ per_subobject_forall_form [ b ].
     Proof.
       unfold per_subobject_forall_form.
-      hypersimplify 0.
+      hypersimplify_form.
       hypersimplify.
       use conj_intro.
       - exact p.
@@ -122,7 +122,7 @@ Section Connectives.
         unfold per_subobject_forall_form.
         pose (b := π₂ (tm_var (𝟙 ×h B))).
         fold b.
-        hypersimplify 0.
+        hypersimplify_form.
         rewrite partial_setoid_subst.
         use weaken_left.
         hypersimplify.
@@ -135,7 +135,7 @@ Section Connectives.
         + use weaken_left.
           exact (partial_setoid_refl_r (hyperdoctrine_hyp _)).
         + use forall_intro.
-          hypersimplify 0.
+          hypersimplify_form.
           hypersimplify.
           pose (b₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h B) ×h B) ×h A))))).
           pose (b₂ := π₂ (π₁ (tm_var (((𝟙 ×h B) ×h B) ×h A)))).
@@ -180,7 +180,7 @@ Section Connectives.
       use weaken_right.
       use impl_intro.
       cbn.
-      hypersimplify 0.
+      hypersimplify_form.
       hypersimplify.
       use hyp_sym.
       use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
@@ -237,7 +237,7 @@ Section Connectives.
         exact (partial_setoid_refl_r (hyperdoctrine_hyp _)).
       - use forall_intro.
         use impl_intro.
-        hypersimplify 0.
+        hypersimplify_form.
         hypersimplify.
         pose (b₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h B) ×h B) ×h A))))).
         pose (b₂ := π₂ (π₁ (tm_var (((𝟙 ×h B) ×h B) ×h A)))).

@@ -56,7 +56,7 @@ Section Connectives.
       - use forall_intro.
         use impl_intro.
         use weaken_right.
-        hypersimplify 0.
+        hypersimplify_form.
         hypersimplify.
         pose (γ := π₂ (tm_var (𝟙 ×h Γ))).
         fold γ.
@@ -66,7 +66,7 @@ Section Connectives.
         use impl_intro.
         use weaken_right.
         use impl_intro.
-        hypersimplify 0.
+        hypersimplify_form.
         hypersimplify.
         pose (γ₁ := π₂ (π₁ (tm_var ((𝟙 ×h Γ) ×h Γ)))).
         pose (γ₂ := π₂ (tm_var ((𝟙 ×h Γ) ×h Γ))).
@@ -116,7 +116,7 @@ Section Connectives.
       use weaken_right.
       use impl_intro.
       cbn ; unfold ζ.
-      hypersimplify 0.
+      hypersimplify_form.
       hypersimplify.
       pose (γ₁ := π₂ (π₁ (tm_var ((𝟙 ×h Γ) ×h Γ)))).
       pose (γ₂ := π₂ (tm_var ((𝟙 ×h Γ) ×h Γ))).
@@ -153,7 +153,7 @@ Section Connectives.
       use weaken_right.
       use impl_intro.
       cbn ; unfold ζ.
-      hypersimplify 0.
+      hypersimplify_form.
       hypersimplify.
       pose (γ₁ := π₂ (π₁ (tm_var ((𝟙 ×h Γ) ×h Γ)))).
       pose (γ₂ := π₂ (tm_var ((𝟙 ×h Γ) ×h Γ))).
@@ -206,14 +206,14 @@ Section Connectives.
     use impl_intro.
     use hyp_sym.
     cbn.
-    hypersimplify 0.
+    hypersimplify_form.
     hypersimplify.
     simple refine (exists_elim (partial_setoid_mor_hom_exists s _) _).
     - exact (π₂ (π₁ (tm_var ((𝟙 ×h Γ₁) ×h Γ₁)))).
     - use weaken_left.
       use weaken_right.
       apply hyperdoctrine_hyp.
-    - hypersimplify 0.
+    - hypersimplify_form.
       hypersimplify.
       pose (γ₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂))))).
       pose (γ₁' := π₂ (π₁ (tm_var (((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂)))).
@@ -221,7 +221,7 @@ Section Connectives.
       fold γ₁ γ₁' γ₂.
       use exists_intro.
       + exact γ₂.
-      + hypersimplify 0.
+      + hypersimplify_form.
         hypersimplify.
         fold γ₁' γ₂.
         repeat (use conj_intro).
@@ -259,7 +259,7 @@ Section Connectives.
           use hyp_ltrans.
           use weaken_right.
           unfold γ₁, γ₁', γ₂ ; clear γ₁ γ₁' γ₂.
-          hypersimplify 0.
+          hypersimplify_form.
           hypersimplify.
           pose (γ₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂) ×h Γ₂)))))).
           pose (γ₁' := π₂ (π₁ (π₁ (tm_var ((((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂) ×h Γ₂))))).

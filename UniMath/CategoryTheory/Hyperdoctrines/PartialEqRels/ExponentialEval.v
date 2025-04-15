@@ -189,7 +189,7 @@ Section PEREvaluation.
       + use weaken_left.
         apply hyperdoctrine_hyp.
       + unfold x, f ; clear x f.
-        hypersimplify 0.
+        hypersimplify_form.
         hypersimplify.
         pose (x := π₁ (π₂ (π₁ (tm_var ((𝟙 ×h X ×h ℙ (X ×h Y)) ×h Y))))).
         pose (f := π₂ (π₂ (π₁ (tm_var ((𝟙 ×h X ×h ℙ (X ×h Y)) ×h Y))))).

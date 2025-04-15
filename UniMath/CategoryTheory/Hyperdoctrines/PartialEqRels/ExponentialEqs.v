@@ -142,7 +142,7 @@ Section HelpEquality.
     {
       exact ⟨ t₁ , f ⟩.
     }
-    hypersimplify 0.
+    hypersimplify_form.
     repeat use conj_intro.
     - use exists_intro.
       {
@@ -150,7 +150,7 @@ Section HelpEquality.
       }
       unfold exp_comm_partial_setoid_3.
       cbn.
-      hypersimplify 0.
+      hypersimplify_form.
       rewrite !partial_setoid_subst.
       simplify.
       fold x y z.
@@ -163,7 +163,7 @@ Section HelpEquality.
         exact t₃.
       }
       unfold exp_comm_partial_setoid_2.
-      hypersimplify 0.
+      hypersimplify_form.
       rewrite !partial_setoid_subst.
       simplify.
       fold x y z.
@@ -213,12 +213,12 @@ Section HelpEquality.
     }
     unfold Δ in q.
     use (exists_elim q) ; clear q.
-    hypersimplify 0.
+    hypersimplify_form.
     use hyp_ltrans.
     use weaken_right.
     use hyp_ltrans.
     use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
-    hypersimplify 0.
+    hypersimplify_form.
     use hyp_ltrans.
     use weaken_right.
     simplify.
@@ -451,10 +451,10 @@ Section LamEqs.
         exact p₂.
       + cbn.
         unfold lam_partial_setoid_form.
-        hypersimplify 0.
+        hypersimplify_form.
         use conj_intro.
         * unfold lam_partial_setoid_is_def.
-          hypersimplify 0.
+          hypersimplify_form.
           rewrite partial_setoid_subst.
           simplify.
           repeat use conj_intro.
@@ -499,7 +499,7 @@ Section LamEqs.
         use weaken_right.
         use weaken_left.
         unfold exp_comm_partial_setoid_3.
-        hypersimplify 0.
+        hypersimplify_form.
         rewrite !partial_setoid_subst.
         simplify.
         use partial_setoid_trans.
@@ -543,7 +543,7 @@ Section LamEqs.
         do 2 use weaken_right.
         unfold exp_comm_partial_setoid_2.
         rewrite !conj_subst.
-        hypersimplify 0.
+        hypersimplify_form.
         rewrite !partial_setoid_subst.
         simplify.
         use weaken_right.
@@ -658,7 +658,7 @@ Section LamEqs.
         unfold Γ' in * ; clear Γ'.
         fold x₁ x₂ x₃ y z₁ z₂ f₁ f₂.
         unfold exp_comm_partial_setoid_1, exp_comm_partial_setoid_2, exp_comm_partial_setoid_3.
-        hypersimplify 0.
+        hypersimplify_form.
         rewrite !partial_setoid_subst.
         simplify.
         pose (Δ := φ' [⟨ z₁, f₁ ⟩]
@@ -750,7 +750,7 @@ Section LamEqs.
           }
           simplify.
           unfold exp_comm_partial_setoid_3.
-          hypersimplify 0.
+          hypersimplify_form.
           rewrite !partial_setoid_subst.
           simplify.
           repeat use conj_intro.
@@ -765,7 +765,7 @@ Section LamEqs.
           }
           simplify.
           unfold exp_comm_partial_setoid_2.
-          hypersimplify 0.
+          hypersimplify_form.
           rewrite !partial_setoid_subst.
           simplify.
           repeat use conj_intro.
@@ -894,7 +894,7 @@ Section LamEqs.
                  }
                  simplify.
                  unfold exp_comm_partial_setoid_3.
-                 hypersimplify 0.
+                 hypersimplify_form.
                  rewrite !partial_setoid_subst.
                  simplify.
                  repeat use conj_intro.
@@ -908,7 +908,7 @@ Section LamEqs.
                  }
                  simplify.
                  unfold exp_comm_partial_setoid_2.
-                 hypersimplify 0.
+                 hypersimplify_form.
                  rewrite !partial_setoid_subst.
                  simplify.
                  repeat use conj_intro.
@@ -945,7 +945,7 @@ Section LamEqs.
              unfold exp_comm_partial_setoid_1.
              unfold exp_comm_partial_setoid_2.
              unfold exp_comm_partial_setoid_3.
-             hypersimplify 0.
+             hypersimplify_form.
              rewrite !partial_setoid_subst.
              simplify.
              match goal with

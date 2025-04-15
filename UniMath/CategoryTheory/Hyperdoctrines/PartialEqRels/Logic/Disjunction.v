@@ -211,7 +211,7 @@ Section Disjunction.
     rewrite !conj_subst.
     use hyp_ltrans.
     use weaken_right.
-    hypersimplify 0.
+    hypersimplify_form.
     hypersimplify.
     pose (γ₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂))))).
     pose (γ₁' := π₂ (π₁ (tm_var (((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂)))).

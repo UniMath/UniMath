@@ -130,14 +130,14 @@ Section Existential.
       use weaken_right.
       use impl_intro.
       cbn ; unfold per_subobject_exists_form.
-      hypersimplify 0.
+      hypersimplify_form.
       rewrite partial_setoid_subst.
       simplify.
       simple refine (exists_elim (partial_setoid_mor_hom_exists φ _) _).
       - exact (π₂ (π₁ (tm_var ((𝟙 ×h A) ×h A)))).
       - use weaken_left.
         exact (partial_setoid_refl_l (hyperdoctrine_hyp _)).
-      - hypersimplify 0.
+      - hypersimplify_form.
         rewrite !partial_setoid_subst.
         simplify.
         pose (a₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h A) ×h A) ×h B))))).
@@ -192,7 +192,7 @@ Section Existential.
       use impl_intro.
       cbn.
       cbn ; unfold per_subobject_exists_form.
-      hypersimplify 0.
+      hypersimplify_form.
       rewrite partial_setoid_subst.
       simplify.
       use hyp_sym.
@@ -200,7 +200,7 @@ Section Existential.
       rewrite conj_subst.
       use hyp_ltrans.
       use weaken_right.
-      hypersimplify 0.
+      hypersimplify_form.
       rewrite partial_setoid_subst.
       simplify.
       pose (b₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h B) ×h B) ×h A))))).
@@ -232,7 +232,7 @@ Section Existential.
       refine (exists_elim r₃ _).
       unfold Δ ; clear Δ r₁ r₂ r₃.
       unfold a, b₁, b₂ ; clear a b₁ b₂.
-      hypersimplify 0.
+      hypersimplify_form.
       rewrite partial_setoid_subst.
       simplify.
       pose (b₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h B) ×h B) ×h A) ×h B)))))).
@@ -319,7 +319,7 @@ Section Existential.
           use (exists_elim (hyperdoctrine_hyp _)).
           use weaken_right.
           unfold Γ, Δ, a₁, a₂, a₃, a₃'.
-          hypersimplify 0.
+          hypersimplify_form.
           rewrite !partial_setoid_subst.
           simplify.
           pose (Γ' := (((((𝟙 ×h A₃) ×h A₃) ×h A₁) ×h A₂) ×h A₁) ×h A₂).
@@ -335,7 +335,7 @@ Section Existential.
           {
             exact x₁.
           }
-          hypersimplify 0.
+          hypersimplify_form.
           rewrite !partial_setoid_subst.
           simplify.
           fold x₁ x₂ x₃ x₄ x₅ x₆.
@@ -383,7 +383,7 @@ Section Existential.
           use (exists_elim (hyperdoctrine_hyp _)).
           use weaken_right.
           unfold Γ, Δ, a₁, a₂, a₃, a₃'.
-          hypersimplify 0.
+          hypersimplify_form.
           rewrite !partial_setoid_subst.
           simplify.
           pose (Γ' := (((((𝟙 ×h A₃) ×h A₃) ×h A₁) ×h A₂) ×h A₁) ×h A₃).
@@ -399,7 +399,7 @@ Section Existential.
           {
             exact x₄.
           }
-          hypersimplify 0.
+          hypersimplify_form.
           rewrite !partial_setoid_subst.
           simplify.
           fold x₁ x₂ x₃ x₄ x₅ x₆.
@@ -479,14 +479,14 @@ Section Existential.
         assert (Δ' ⊢ f [⟨ γ , b₂ ⟩]) as r'.
         {
           unfold f, a₂ ; cbn.
-          hypersimplify 0.
+          hypersimplify_form.
           rewrite partial_setoid_subst.
           simplify.
           use conj_intro.
           - exact q'.
           - refine (hyperdoctrine_cut q' _).
             unfold Δ, a₁, a₂, a₃, a₃', γ.
-            hypersimplify 0.
+            hypersimplify_form.
             rewrite partial_setoid_subst.
             simplify.
             fold b₁ b₂ b₃ b₃'.
@@ -536,14 +536,14 @@ Section Existential.
         assert (Δ' ⊢ g [⟨ γ , b₃ ⟩]) as r'.
         {
           unfold g, a₃ ; cbn.
-          hypersimplify 0.
+          hypersimplify_form.
           rewrite partial_setoid_subst.
           simplify.
           use conj_intro.
           - exact q'.
           - refine (hyperdoctrine_cut q' _).
             unfold Δ, a₁, a₂, a₃, a₃', γ.
-            hypersimplify 0.
+            hypersimplify_form.
             rewrite partial_setoid_subst.
             simplify.
             fold b₁ b₂ b₃ b₃'.
@@ -593,7 +593,7 @@ Section Existential.
       use weaken_right.
       use impl_intro.
       cbn ; unfold per_subobject_exists_form ; cbn.
-      hypersimplify 0.
+      hypersimplify_form.
       rewrite partial_setoid_subst.
       simplify.
       use hyp_sym.
@@ -601,7 +601,7 @@ Section Existential.
       rewrite !conj_subst.
       use hyp_ltrans.
       use weaken_right.
-      hypersimplify 0.
+      hypersimplify_form.
       rewrite !partial_setoid_subst.
       simplify.
       use hyp_rtrans.
@@ -610,7 +610,7 @@ Section Existential.
       rewrite !conj_subst.
       use hyp_ltrans.
       use weaken_right.
-      hypersimplify 0.
+      hypersimplify_form.
       rewrite !partial_setoid_subst.
       simplify.
       pose (h := per_subobject_exists_subst_pb_fun).
@@ -628,7 +628,7 @@ Section Existential.
           pose (a₂ := π₂ (tm_var Γ)).
           fold a₁ a₂ a₃ a₃'.
           apply hyperdoctrine_hyp.
-      - hypersimplify 0.
+      - hypersimplify_form.
         rewrite !partial_setoid_subst.
         simplify.
         pose (Γ := ((((𝟙 ×h A₃) ×h A₃) ×h A₁) ×h A₂) ×h A₄).
@@ -657,7 +657,7 @@ Section Existential.
             ** use weaken_right.
                apply hyperdoctrine_hyp.
             ** use weaken_left.
-               hypersimplify 0.
+               hypersimplify_form.
                rewrite partial_setoid_subst.
                simplify.
                apply hyperdoctrine_hyp.
@@ -671,7 +671,7 @@ Section Existential.
             ** use weaken_right.
                apply hyperdoctrine_hyp.
             ** use weaken_left.
-               hypersimplify 0.
+               hypersimplify_form.
                rewrite partial_setoid_subst.
                simplify.
                apply hyperdoctrine_hyp.

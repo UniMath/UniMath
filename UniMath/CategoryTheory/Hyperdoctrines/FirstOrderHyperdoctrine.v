@@ -1694,7 +1694,7 @@ Qed.
   - The rewrites with level 1 are all rewrite rules on terms in the language, used to normalize all
     terms in `Δ` and `φ`.
 
-  In some cases, it is a bit faster to use `hypersimplify 0` to simplify the formula and delay using
+  In some cases, it is a bit faster to use `hypersimplify_form` to simplify the formula and delay using
   the full `hypersimplify` until it is necessary. The reason why this helps, is because one might
   have made the goal smaller and removed some unnecessary assumptions using weakening.
   This is demonstrated in `PERs.v` in the proof of [eq_per_axioms].
@@ -1800,8 +1800,8 @@ Set Default Proof Mode "Classic".
 
 Tactic Notation "hypersimplify" := ltac2:(hypersimplify0 (Some false) (Some false) None).
 Tactic Notation "hypersimplifyp" := ltac2:(hypersimplify0 (Some false) (Some true) None).
-Tactic Notation "hypersimplify" int(n) := let f := ltac2:(n |- hypersimplify0 (Some false) (Some false) (Ltac1.to_int n)) in f n.
-Tactic Notation "hypersimplifyp" int(n) := let f := ltac2:(n |- hypersimplify0 (Some false) (Some true) (Ltac1.to_int n)) in f n.
+Tactic Notation "hypersimplify_form" := ltac2:(hypersimplify0 (Some false) (Some false) (Some 0)).
+Tactic Notation "hypersimplifyp_form" := ltac2:(hypersimplify0 (Some false) (Some true) (Some 0)).
 
 Ltac simplify_form_step :=
   rewrite ?truth_subst,
