@@ -1272,7 +1272,7 @@ Section short_short_exact_sequences.
   Proof.
     apply abelian_group_morphism_eq.
     intro x.
-    refine (_ @ monoidfun_eq (AdditiveZeroArrow_postmor_Abelian (Add := PT) _ _ _) x).
+    refine (_ @ abelian_group_morphism_eq (AdditiveZeroArrow_postmor_Abelian (Add := PT) _ _ _) x).
     cbn. unfold to_postmor.
     rewrite <- assoc. apply cancel_precomposition. exact (DTriCompZero D).
   Qed.
@@ -1346,7 +1346,7 @@ Section short_short_exact_sequences.
   Proof.
     apply abelian_group_morphism_eq.
     intro x.
-    refine (_ @ monoidfun_eq (AdditiveZeroArrow_premor_Abelian (Add := PT) _ _ _) x).
+    refine (_ @ abelian_group_morphism_eq (AdditiveZeroArrow_premor_Abelian (Add := PT) _ _ _) x).
     cbn. unfold to_premor. rewrite assoc.
     apply cancel_postcomposition. exact (DTriCompZero D).
   Qed.
