@@ -8,11 +8,13 @@
    classifiers in a category is a proposition.
  - If an object is isomorphic to a subobject classifier, then it is also a subobject
    classifier.
- For the second statement, we use univalent categories, because it simplifies the proof.
+ - The existence of a subobject classifier is independent of the choice of terminal object
+ For the second and third statement, we use univalent categories, because it simplifies the proof.
 
  Contents
  1. Isomorphisms between subobject classifiers
  2. Being isomorphic to subobject classifiers
+ 3. Independence of terminal object
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -185,3 +187,13 @@ Proof.
   - rewrite idtoiso_isotoid.
     exact q.
 Qed.
+
+(** * 3. Independence of terminal object *)
+Lemma subobject_classifier_independent_of_chosen_terminal_if_univalent
+  {C : univalent_category} (T₁ T₂ : Terminal C)
+  : subobject_classifier T₁ → subobject_classifier T₂.
+Proof.
+  intro Ω.
+  induction (Terminal_unique_up_to_id_if_univalent C T₁ T₂).
+  exact Ω.
+Defined.
