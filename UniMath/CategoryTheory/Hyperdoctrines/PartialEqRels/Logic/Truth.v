@@ -45,15 +45,13 @@ Section TruthFormula.
     - use forall_intro.
       use impl_intro.
       use weaken_right.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       apply hyperdoctrine_hyp.
     - do 2 use forall_intro.
       use impl_intro.
       use weaken_right.
       use impl_intro.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (γ₁ := π₂ (π₁ (tm_var ((𝟙 ×h Γ) ×h Γ)))).
       pose (γ₂ := π₂ (tm_var ((𝟙 ×h Γ) ×h Γ))).
       fold γ₁ γ₂.
@@ -88,8 +86,7 @@ Section TruthFormula.
     use weaken_right.
     use impl_intro.
     cbn.
-    rewrite !partial_setoid_subst.
-    simplify.
+    hypersimplify.
     pose (γ₁ := π₂ (π₁ (tm_var ((𝟙 ×h Γ) ×h Γ)))).
     pose (γ₂ := π₂ (tm_var ((𝟙 ×h Γ) ×h Γ))).
     fold γ₁ γ₂.
@@ -115,8 +112,7 @@ Section TruthFormula.
     use weaken_right.
     use impl_intro.
     cbn.
-    rewrite !partial_setoid_subst.
-    simplify.
+    hypersimplify.
     pose (γ₁ := π₂ (π₁ (tm_var ((𝟙 ×h Γ₁) ×h Γ₁)))).
     pose (γ₂ := π₂ (tm_var ((𝟙 ×h Γ₁) ×h Γ₁))).
     fold γ₁ γ₂.
@@ -137,10 +133,8 @@ Section TruthFormula.
       {
         exact γ₃.
       }
-      rewrite partial_setoid_subst.
       hypersimplify 0.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       fold γ₁ γ₂ γ₃.
       use conj_intro.
       + use weaken_right.

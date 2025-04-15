@@ -66,8 +66,7 @@ Section Connectives.
       unfold per_subobject_forall_form.
       hypersimplify 0.
       use weaken_left.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       apply hyperdoctrine_hyp.
     Qed.
 
@@ -85,12 +84,12 @@ Section Connectives.
       unfold per_subobject_forall_form.
       hypersimplify 0.
       use weaken_right.
-      simplify.
+      hypersimplify.
       refine (hyperdoctrine_cut _ _).
       {
         exact (forall_elim (hyperdoctrine_hyp _) a).
       }
-      simplify.
+      hypersimplify.
       apply hyperdoctrine_hyp.
     Qed.
 
@@ -106,11 +105,10 @@ Section Connectives.
     Proof.
       unfold per_subobject_forall_form.
       hypersimplify 0.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use conj_intro.
       - exact p.
-      - simplify.
+      - hypersimplify.
         exact q.
     Qed.
 
@@ -127,7 +125,7 @@ Section Connectives.
         hypersimplify 0.
         rewrite partial_setoid_subst.
         use weaken_left.
-        simplify.
+        hypersimplify.
         apply hyperdoctrine_hyp.
       - do 2 use forall_intro.
         use impl_intro.
@@ -138,8 +136,7 @@ Section Connectives.
           exact (partial_setoid_refl_r (hyperdoctrine_hyp _)).
         + use forall_intro.
           hypersimplify 0.
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify.
           pose (b₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h B) ×h B) ×h A))))).
           pose (b₂ := π₂ (π₁ (tm_var (((𝟙 ×h B) ×h B) ×h A)))).
           pose (a := π₂ (tm_var (((𝟙 ×h B) ×h B) ×h A))).
@@ -184,15 +181,13 @@ Section Connectives.
       use impl_intro.
       cbn.
       hypersimplify 0.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use hyp_sym.
       use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
       rewrite !conj_subst.
       use hyp_ltrans.
       use weaken_right.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (a₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h A) ×h A) ×h B))))).
       pose (a₂ := π₂ (π₁ (tm_var (((𝟙 ×h A) ×h A) ×h B)))).
       pose (b := π₂ (tm_var (((𝟙 ×h A) ×h A) ×h B))).
@@ -233,8 +228,7 @@ Section Connectives.
       use weaken_right.
       use impl_intro.
       cbn.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use to_per_subobject_forall_form.
       - pose (b₁ := π₂ (π₁ (tm_var ((𝟙 ×h B) ×h B)))).
         pose (b₂ := π₂ (tm_var ((𝟙 ×h B) ×h B))).
@@ -244,8 +238,7 @@ Section Connectives.
       - use forall_intro.
         use impl_intro.
         hypersimplify 0.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (b₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h B) ×h B) ×h A))))).
         pose (b₂ := π₂ (π₁ (tm_var (((𝟙 ×h B) ×h B) ×h A)))).
         pose (a := π₂ (tm_var (((𝟙 ×h B) ×h B) ×h A))).
@@ -253,18 +246,17 @@ Section Connectives.
         use (per_subobject_mor p).
         + exact a.
         + cbn.
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify.
           use weaken_right.
           use (partial_setoid_mor_dom_defined φ a b₂).
           apply hyperdoctrine_hyp.
         + cbn.
-          simplify.
+          hypersimplify.
           use exists_intro.
           {
             exact b₁.
           }
-          simplify.
+          hypersimplify.
           use conj_intro.
           * use (partial_setoid_mor_eq_defined φ).
             ** exact a.

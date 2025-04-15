@@ -329,8 +329,7 @@ Section PartialEqRelDispCat.
       pose (x₁ := π₂ (π₁ (tm_var ((𝟙 ×h X) ×h X)))).
       pose (x₂ := π₂ (tm_var ((𝟙 ×h X) ×h X))).
       fold x₁ x₂.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use impl_intro.
       use per_subobject_eq.
       + exact x₁.
@@ -350,7 +349,7 @@ Section PartialEqRelDispCat.
       pose (x := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h X) ×h Z) ×h Y))))).
       pose (z := π₂ (π₁ (tm_var (((𝟙 ×h X) ×h Z) ×h Y)))).
       pose (y := π₂ (tm_var (((𝟙 ×h X) ×h Z) ×h Y))).
-      simplify.
+      hypersimplify.
       fold x y z.
       use impl_intro.
       use (per_subobject_mor q).
@@ -430,8 +429,7 @@ Section PartialEqRelDispCat.
         * apply tm_var.
         * fold x.
           cbn.
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify.
           use (per_subobject_def ψ₁).
           apply hyperdoctrine_hyp.
         * apply hyperdoctrine_hyp.
@@ -442,8 +440,7 @@ Section PartialEqRelDispCat.
         * apply tm_var.
         * fold x.
           cbn.
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify.
           use (per_subobject_def ψ₂).
           apply hyperdoctrine_hyp.
         * apply hyperdoctrine_hyp.
@@ -477,8 +474,7 @@ Section PartialEqRelDispCat.
         rewrite exists_subst.
         use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (x := π₂ (tm_var ((𝟙 ×h Y) ×h X))).
         pose (y := π₂ (π₁ (tm_var ((𝟙 ×h Y) ×h X)))).
         fold x y.
@@ -497,15 +493,14 @@ Section PartialEqRelDispCat.
         rewrite !conj_subst.
         use hyp_ltrans.
         use weaken_right.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (y₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Y) ×h Y) ×h X))))).
         pose (y₂ := π₂ (π₁ (tm_var (((𝟙 ×h Y) ×h Y) ×h X)))).
         pose (x := π₂ (tm_var (((𝟙 ×h Y) ×h Y) ×h X))).
         fold y₁ y₂ x.
         use exists_intro.
         + exact x.
-        + simplify.
+        + hypersimplify.
           fold y₂.
           use conj_intro.
           * use (partial_setoid_mor_eq_defined φ).
@@ -553,7 +548,7 @@ Section PartialEqRelDispCat.
       rewrite !conj_subst.
       use hyp_ltrans.
       use weaken_right.
-      simplify.
+      hypersimplify.
       pose (x₁ := π₂ (π₁ (tm_var (((𝟙 ×h Y) ×h X) ×h X)))).
       pose (x₂ := π₂ (tm_var (((𝟙 ×h Y) ×h X) ×h X))).
       pose (y := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Y) ×h X) ×h X))))).
@@ -601,7 +596,7 @@ Section PartialEqRelDispCat.
           * exact w.
           * apply hyperdoctrine_hyp.
         + unfold w, y ; clear w y.
-          simplify.
+          hypersimplify.
           pose (w := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h W) ×h Y) ×h X))))).
           pose (y := π₂ (π₁ (tm_var (((𝟙 ×h W) ×h Y) ×h X)))).
           pose (x := π₂ (tm_var (((𝟙 ×h W) ×h Y) ×h X))).
@@ -610,7 +605,7 @@ Section PartialEqRelDispCat.
           {
             exact x.
           }
-          simplify.
+          hypersimplify.
           fold y.
           use conj_intro.
           * use weaken_right.
@@ -623,7 +618,7 @@ Section PartialEqRelDispCat.
                {
                  exact y.
                }
-               simplify.
+               hypersimplify.
                use conj_intro.
                *** do 2 use weaken_left.
                    apply hyperdoctrine_hyp.

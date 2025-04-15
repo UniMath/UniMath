@@ -1755,43 +1755,51 @@ Ltac2 Set hyperrewrites as rewrites := fun () =>
   (1, (pn:(!![_]tm),         (fun () => '(hyperdoctrine_unit_tm_subst _ )), "hyperdoctrine_unit_tm_subst _ ")) ::
   rewrites ().
 
-Ltac2 hypertop_traversals (ltac2 : bool) : ((unit -> unit) * navigation) list :=
+Ltac2 hypertop_traversals (ltac2 : bool) (print: bool) : ((unit -> unit) * navigation) list :=
   ((fun () => match! goal with
     | [ |- _ = _ ] => refine '(!(_ @ !_))
     end), {
       left := [""];
       right := [""];
-      preinpostfix := (String.concat "" ["refine "; (if ltac2 then "'" else ""); "(_ @ !maponpaths "], " ", ").")
+      preinpostfix := (String.concat "" ["refine "; (if ltac2 then "'" else ""); "(_ @ !maponpaths "], " ", ").");
+      print := print
   }) :: ((fun () => match! goal with
     | [ |- _ = _ ] => refine '(_ @ _)
     end), {
       left := [""];
       right := [""];
-      preinpostfix := (String.concat "" ["refine "; (if ltac2 then "'" else ""); "(maponpaths "], " ", " @ _).")
+      preinpostfix := (String.concat "" ["refine "; (if ltac2 then "'" else ""); "(maponpaths "], " ", " @ _).");
+      print := print
   }) :: ((fun () => match! goal with
     | [ |- ?a ⊢ _ ] => refine '(transportb (λ x, $a ⊢ x) _ _); cbv beta
     end), {
       left := ["_ ⊢ "];
       right := [""];
-      preinpostfix := (String.concat "" ["refine "; (if ltac2 then "'" else ""); "(transportb "], " ", " _).")}) ::
-  ((fun () => match! goal with
+      preinpostfix := (String.concat "" ["refine "; (if ltac2 then "'" else ""); "(transportb "], " ", " _).");
+      print := print
+  }) :: ((fun () => match! goal with
     | [ |- _ ⊢ ?b ] => refine '(transportb (λ x, x ⊢ $b) _ _); cbv beta
-    end),
-    {left := [""]; right := [" ⊢ _"]; preinpostfix := (String.concat "" ["refine "; (if ltac2 then "'" else ""); "(transportb "], " ", " _).")}) ::
-  [].
+    end), {
+      left := [""];
+      right := [" ⊢ _"];
+      preinpostfix := (String.concat "" ["refine "; (if ltac2 then "'" else ""); "(transportb "], " ", " _).");
+      print := print
+  }) :: [].
 
-Ltac2 hypersimplify0 (ltac2 : bool option) : int option -> unit :=
+Ltac2 hypersimplify0 (ltac2 : bool option) (print: bool option) : int option -> unit :=
   simplify
   (List.rev (hypertraversals ()))
   (List.rev (hyperrewrites ()))
-  (List.rev (hypertop_traversals (Option.default true ltac2))).
+  (List.rev (hypertop_traversals (Option.default true ltac2) (Option.default false print))).
 
-Ltac2 Notation "hypersimplify" n(opt(next)) := hypersimplify0 (n).
+Ltac2 Notation "hypersimplify" print(opt(next)) n(opt(next)) := hypersimplify0 (Some true) print (n).
 
 Set Default Proof Mode "Classic".
 
-Tactic Notation "hypersimplify" := ltac2:(hypersimplify0 (Some false) None).
-Tactic Notation "hypersimplify" int(n) := let f := ltac2:(n |- hypersimplify0 (Some false) (Ltac1.to_int n)) in f n.
+Tactic Notation "hypersimplify" := ltac2:(hypersimplify0 (Some false) (Some false) None).
+Tactic Notation "hypersimplifyp" := ltac2:(hypersimplify0 (Some false) (Some true) None).
+Tactic Notation "hypersimplify" int(n) := let f := ltac2:(n |- hypersimplify0 (Some false) (Some false) (Ltac1.to_int n)) in f n.
+Tactic Notation "hypersimplifyp" int(n) := let f := ltac2:(n |- hypersimplify0 (Some false) (Some true) (Ltac1.to_int n)) in f n.
 
 Ltac simplify_form_step :=
   rewrite ?truth_subst,

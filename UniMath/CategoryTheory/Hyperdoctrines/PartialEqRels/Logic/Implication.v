@@ -57,8 +57,7 @@ Section Connectives.
         use impl_intro.
         use weaken_right.
         hypersimplify 0.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (γ := π₂ (tm_var (𝟙 ×h Γ))).
         fold γ.
         use weaken_right.
@@ -68,8 +67,7 @@ Section Connectives.
         use weaken_right.
         use impl_intro.
         hypersimplify 0.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (γ₁ := π₂ (π₁ (tm_var ((𝟙 ×h Γ) ×h Γ)))).
         pose (γ₂ := π₂ (tm_var ((𝟙 ×h Γ) ×h Γ))).
         fold γ₁ γ₂.
@@ -119,8 +117,7 @@ Section Connectives.
       use impl_intro.
       cbn ; unfold ζ.
       hypersimplify 0.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (γ₁ := π₂ (π₁ (tm_var ((𝟙 ×h Γ) ×h Γ)))).
       pose (γ₂ := π₂ (tm_var ((𝟙 ×h Γ) ×h Γ))).
       fold γ₁ γ₂.
@@ -157,8 +154,7 @@ Section Connectives.
       use impl_intro.
       cbn ; unfold ζ.
       hypersimplify 0.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (γ₁ := π₂ (π₁ (tm_var ((𝟙 ×h Γ) ×h Γ)))).
       pose (γ₂ := π₂ (tm_var ((𝟙 ×h Γ) ×h Γ))).
       fold γ₁ γ₂.
@@ -167,12 +163,11 @@ Section Connectives.
         use (per_subobject_mor p).
         + exact γ₁.
         + cbn.
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify.
           do 2 use weaken_left.
           apply hyperdoctrine_hyp.
         + cbn.
-          simplify.
+          hypersimplify.
           use conj_intro.
           * use per_subobject_eq.
             ** exact γ₂.
@@ -212,16 +207,14 @@ Section Connectives.
     use hyp_sym.
     cbn.
     hypersimplify 0.
-    rewrite !partial_setoid_subst.
-    simplify.
+    hypersimplify.
     simple refine (exists_elim (partial_setoid_mor_hom_exists s _) _).
     - exact (π₂ (π₁ (tm_var ((𝟙 ×h Γ₁) ×h Γ₁)))).
     - use weaken_left.
       use weaken_right.
       apply hyperdoctrine_hyp.
     - hypersimplify 0.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (γ₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂))))).
       pose (γ₁' := π₂ (π₁ (tm_var (((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂)))).
       pose (γ₂ := π₂ (tm_var (((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂))).
@@ -229,8 +222,7 @@ Section Connectives.
       use exists_intro.
       + exact γ₂.
       + hypersimplify 0.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         fold γ₁' γ₂.
         repeat (use conj_intro).
         * use hyp_ltrans.
@@ -254,7 +246,7 @@ Section Connectives.
             {
               exact γ₂.
             }
-            simplify.
+            hypersimplify.
             fold γ₁.
             do 3 use weaken_right.
             apply hyperdoctrine_hyp.
@@ -268,8 +260,7 @@ Section Connectives.
           use weaken_right.
           unfold γ₁, γ₁', γ₂ ; clear γ₁ γ₁' γ₂.
           hypersimplify 0.
-          rewrite !partial_setoid_subst.
-          simplify.
+          hypersimplify.
           pose (γ₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂) ×h Γ₂)))))).
           pose (γ₁' := π₂ (π₁ (π₁ (tm_var ((((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂) ×h Γ₂))))).
           pose (γ₂ := π₂ (π₁ (tm_var ((((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂) ×h Γ₂)))).

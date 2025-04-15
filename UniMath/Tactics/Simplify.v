@@ -68,7 +68,8 @@ Ltac2 Type t_rewrite := (pattern * (unit -> constr) * string).
 Ltac2 Type navigation := {
   left: string list;
   right: string list;
-  preinpostfix: (string * string * string)
+  preinpostfix: (string * string * string);
+  print: bool;
 }.
 
 (** Adds a new step on the inside of the navigation *)
@@ -83,22 +84,24 @@ Ltac2 append_navigation
 
 (** Prints a rewrite with navigation n and identity t (in its string representation) *)
 Ltac2 print_refine (n : navigation) (t : string) :=
-  let (prefix, infix, postfix) := n.(preinpostfix) in
-  Message.print (Message.of_string (
-    String.concat "" [
-      prefix ;
-      "(λ x, " ;
-      String.concat "(" (List.rev (n.(left))) ;
-      "x" ;
-      String.concat ")" (n.(right)) ;
-      ")" ;
-      infix ;
-      "(" ;
-      t ;
-      ")" ;
-      postfix
-    ]
-  )).
+  if n.(print) then
+    let (prefix, infix, postfix) := n.(preinpostfix) in
+      Message.print (Message.of_string (
+        String.concat "" [
+          prefix ;
+          "(λ x, " ;
+          String.concat "(" (List.rev (n.(left))) ;
+          "x" ;
+          String.concat ")" (n.(right)) ;
+          ")" ;
+          infix ;
+          "(" ;
+          t ;
+          ")" ;
+          postfix
+        ]
+      ))
+  else ().
 
 (** * 2. The traversal tactic *)
 

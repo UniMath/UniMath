@@ -49,7 +49,7 @@ Section Disjunction.
       - use forall_intro.
         use impl_intro.
         use weaken_right.
-        simplify.
+        hypersimplify.
         use (disj_elim (hyperdoctrine_hyp _)).
         + use weaken_right.
           use (per_subobject_def ψ₁).
@@ -62,7 +62,7 @@ Section Disjunction.
         use weaken_right.
         use impl_intro.
         use hyp_sym.
-        simplify.
+        hypersimplify.
         pose (γ₁ := π₂ (π₁ (tm_var ((𝟙 ×h Γ) ×h Γ)))).
         pose (γ₂ := π₂ (tm_var ((𝟙 ×h Γ) ×h Γ))).
         fold γ₁ γ₂.
@@ -107,8 +107,7 @@ Section Disjunction.
       use weaken_right.
       use impl_intro.
       cbn.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (γ₁ := π₂ (π₁ (tm_var ((𝟙 ×h Γ) ×h Γ)))).
       pose (γ₂ := π₂ (tm_var ((𝟙 ×h Γ) ×h Γ))).
       fold γ₁ γ₂.
@@ -132,8 +131,7 @@ Section Disjunction.
       use weaken_right.
       use impl_intro.
       cbn.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (γ₁ := π₂ (π₁ (tm_var ((𝟙 ×h Γ) ×h Γ)))).
       pose (γ₂ := π₂ (tm_var ((𝟙 ×h Γ) ×h Γ))).
       fold γ₁ γ₂.
@@ -162,8 +160,7 @@ Section Disjunction.
       use weaken_right.
       use impl_intro.
       cbn.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (γ₁ := π₂ (π₁ (tm_var ((𝟙 ×h Γ) ×h Γ)))).
       pose (γ₂ := π₂ (tm_var ((𝟙 ×h Γ) ×h Γ))).
       fold γ₁ γ₂.
@@ -174,8 +171,7 @@ Section Disjunction.
         use (per_subobject_mor p).
         + exact γ₁.
         + cbn.
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify.
           use weaken_left.
           apply hyperdoctrine_hyp.
         + use weaken_right.
@@ -185,8 +181,7 @@ Section Disjunction.
         use (per_subobject_mor q).
         + exact γ₁.
         + cbn.
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify.
           use weaken_left.
           apply hyperdoctrine_hyp.
         + use weaken_right.
@@ -217,8 +212,7 @@ Section Disjunction.
     use hyp_ltrans.
     use weaken_right.
     hypersimplify 0.
-    rewrite !partial_setoid_subst.
-    simplify.
+    hypersimplify.
     pose (γ₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂))))).
     pose (γ₁' := π₂ (π₁ (tm_var (((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂)))).
     pose (γ₂ := π₂ (tm_var (((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂))).
@@ -231,7 +225,7 @@ Section Disjunction.
       use disj_intro_left.
       use exists_intro.
       + exact γ₂.
-      + simplify.
+      + hypersimplify.
         fold γ₁'.
         use conj_intro.
         * use weaken_left.
@@ -251,7 +245,7 @@ Section Disjunction.
       use disj_intro_right.
       use exists_intro.
       + exact γ₂.
-      + simplify.
+      + hypersimplify.
         fold γ₁'.
         use conj_intro.
         * use weaken_left.

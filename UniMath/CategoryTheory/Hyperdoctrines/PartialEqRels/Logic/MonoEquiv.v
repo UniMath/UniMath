@@ -60,8 +60,7 @@ Section MonoSubobjectEquiv.
         use impl_intro.
         use weaken_right.
         hypersimplify 0.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (x₁ := π₂ (π₁ (tm_var ((𝟙 ×h X) ×h X)))).
         pose (x₂ := π₂ (tm_var ((𝟙 ×h X) ×h X))).
         fold x₁ x₂.
@@ -80,8 +79,7 @@ Section MonoSubobjectEquiv.
         use weaken_right.
         use impl_intro.
         hypersimplify 0.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (x₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h X) ×h X) ×h X))))).
         pose (x₂ := π₂ (π₁ (tm_var (((𝟙 ×h X) ×h X) ×h X)))).
         pose (x₃ := π₂ (tm_var (((𝟙 ×h X) ×h X) ×h X))).
@@ -126,8 +124,7 @@ Section MonoSubobjectEquiv.
       unfold partial_setoid_formula ; cbn.
       unfold χ.
       hypersimplify 0.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use conj_intro.
       - exact p.
       - exact q.
@@ -144,8 +141,7 @@ Section MonoSubobjectEquiv.
       unfold partial_setoid_formula ; cbn.
       unfold χ.
       hypersimplify 0.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use weaken_left.
       apply hyperdoctrine_hyp.
     Qed.
@@ -161,8 +157,7 @@ Section MonoSubobjectEquiv.
       unfold partial_setoid_formula ; cbn.
       unfold χ.
       hypersimplify 0.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use weaken_right.
       apply hyperdoctrine_hyp.
     Qed.
@@ -181,8 +176,7 @@ Section MonoSubobjectEquiv.
         use weaken_right.
         cbn.
         hypersimplify 0.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (x₁ := π₂ (π₁ (tm_var ((𝟙 ×h X) ×h X)))).
         pose (x₂ := π₂ (tm_var ((𝟙 ×h X) ×h X))).
         fold x₁ x₂.
@@ -195,8 +189,7 @@ Section MonoSubobjectEquiv.
         use impl_intro.
         use weaken_right.
         hypersimplify 0.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (x₁ := π₂ (π₁ (tm_var ((𝟙 ×h X) ×h X)))).
         pose (x₂ := π₂ (tm_var ((𝟙 ×h X) ×h X))).
         fold x₁ x₂.
@@ -207,8 +200,7 @@ Section MonoSubobjectEquiv.
         use weaken_right.
         do 2 use impl_intro.
         hypersimplify 0.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (x₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h X) ×h X) ×h X) ×h X)))))).
         pose (x₂ := π₂ (π₁ (π₁ (tm_var ((((𝟙 ×h X) ×h X) ×h X) ×h X))))).
         pose (x₃ := π₂ (π₁ (tm_var ((((𝟙 ×h X) ×h X) ×h X) ×h X)))).
@@ -243,8 +235,7 @@ Section MonoSubobjectEquiv.
         use impl_intro.
         cbn.
         hypersimplify 0.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (x₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h X) ×h X) ×h X))))).
         pose (x₂ := π₂ (π₁ (tm_var (((𝟙 ×h X) ×h X) ×h X)))).
         pose (x₃ := π₂ (tm_var (((𝟙 ×h X) ×h X) ×h X))).
@@ -268,8 +259,7 @@ Section MonoSubobjectEquiv.
           exact x.
         }
         hypersimplify 0.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify.
         use conj_intro.
         + use from_subobject_to_partial_setoid_eq.
           apply hyperdoctrine_hyp.
@@ -315,7 +305,7 @@ Section MonoSubobjectEquiv.
           {
             exact x.
           }
-          simplify.
+          hypersimplify.
           use conj_intro.
           + apply hyperdoctrine_hyp.
           + use (partial_setoid_mor_cod_defined ψ₁ w x).
@@ -326,7 +316,7 @@ Section MonoSubobjectEquiv.
         hypersimplify 0.
         use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right.
-        simplify.
+        hypersimplify.
         pose (w := π₁ (π₁ (tm_var ((W ×h X) ×h X)))).
         pose (x₁ := π₂ (π₁ (tm_var ((W ×h X) ×h X)))).
         pose (x₂ := π₂ (tm_var ((W ×h X) ×h X))).
@@ -360,7 +350,7 @@ Section MonoSubobjectEquiv.
           {
             exact x.
           }
-          simplify.
+          hypersimplify.
           use conj_intro.
           + apply hyperdoctrine_hyp.
           + use (partial_setoid_mor_cod_defined ψ₂ w x).
@@ -371,7 +361,7 @@ Section MonoSubobjectEquiv.
         hypersimplify 0.
         use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right.
-        simplify.
+        hypersimplify.
         pose (w := π₁ (π₁ (tm_var ((W ×h X) ×h X)))).
         pose (x₁ := π₂ (π₁ (tm_var ((W ×h X) ×h X)))).
         pose (x₂ := π₂ (tm_var ((W ×h X) ×h X))).
@@ -505,8 +495,7 @@ Section MonoSubobjectEquiv.
         + use (from_subobject_to_partial_setoid_eq ψ₁).
           apply hyperdoctrine_hyp.
         + hypersimplify 0.
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify.
           pose (x := π₂ (π₁ (tm_var ((𝟙 ×h X) ×h Y)))).
           pose (y := π₂ (tm_var ((𝟙 ×h X) ×h Y))).
           fold x y.
@@ -557,8 +546,7 @@ Section MonoSubobjectEquiv.
         use weaken_right.
         cbn ; unfold ξ ; cbn.
         hypersimplify 0.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (x := π₁ (π₁ (tm_var ((X ×h Y) ×h Y)))).
         pose (y₁ := π₂ (π₁ (tm_var ((X ×h Y) ×h Y)))).
         pose (y₂ := π₂ (tm_var ((X ×h Y) ×h Y))).
@@ -568,8 +556,7 @@ Section MonoSubobjectEquiv.
           exact x.
         }
         hypersimplify 0.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         fold x y₁ y₂.
         repeat use conj_intro.
         + do 2 use weaken_left.
@@ -594,8 +581,7 @@ Section MonoSubobjectEquiv.
         use weaken_right.
         cbn ; unfold ξ ; cbn.
         hypersimplify 0.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (x₁ := π₁ (π₁ (tm_var ((X ×h Y) ×h X)))).
         pose (y := π₂ (π₁ (tm_var ((X ×h Y) ×h X)))).
         pose (x₂ := π₂ (tm_var ((X ×h Y) ×h X))).
@@ -605,8 +591,7 @@ Section MonoSubobjectEquiv.
           exact y.
         }
         hypersimplify 0.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         fold x₁ x₂ y.
         repeat use conj_intro.
         + use partial_setoid_mor_eq_defined.
@@ -710,8 +695,7 @@ Section MonoSubobjectEquiv.
           exact x.
         }
         hypersimplify 0.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         repeat use conj_intro.
         * use weaken_left.
           use (partial_setoid_mor_dom_defined φ x y).
@@ -726,8 +710,7 @@ Section MonoSubobjectEquiv.
         use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right.
         hypersimplify 0.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (x := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h X) ×h Y) ×h Y))))).
         pose (y₁ := π₂ (π₁ (tm_var (((𝟙 ×h X) ×h Y) ×h Y)))).
         pose (y₂ := π₂ (tm_var (((𝟙 ×h X) ×h Y) ×h Y))).
@@ -764,11 +747,10 @@ Section MonoSubobjectEquiv.
       - use forall_intro.
         use impl_intro.
         use weaken_right.
-        simplify.
+        hypersimplify.
         use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (x := π₂ (π₁ (tm_var ((𝟙 ×h X) ×h Y)))).
         pose (y := π₂ (tm_var ((𝟙 ×h X) ×h Y))).
         fold x y.
@@ -779,14 +761,13 @@ Section MonoSubobjectEquiv.
         use weaken_right.
         use impl_intro.
         use hyp_sym.
-        simplify.
+        hypersimplify.
         use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
         rewrite conj_subst.
         use hyp_ltrans.
         use weaken_right.
         hypersimplify 0.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (x₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h X) ×h X) ×h Y))))).
         pose (x₂ := π₂ (π₁ (tm_var (((𝟙 ×h X) ×h X) ×h Y)))).
         pose (y := π₂ (tm_var (((𝟙 ×h X) ×h X) ×h Y))).
@@ -795,7 +776,7 @@ Section MonoSubobjectEquiv.
         {
           exact y.
         }
-        simplify.
+        hypersimplify.
         fold x₂.
         use partial_setoid_mor_eq_defined.
         + exact y.
@@ -843,7 +824,7 @@ Section MonoSubobjectEquiv.
           {
             exact y.
           }
-          simplify.
+          hypersimplify.
           apply hyperdoctrine_hyp.
       - do 2 use forall_intro.
         use impl_intro.
@@ -858,7 +839,7 @@ Section MonoSubobjectEquiv.
         use impl_intro.
         use weaken_right.
         do 2 use impl_intro.
-        simplify.
+        hypersimplify.
         pose (x₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h X) ×h X) ×h Y) ×h Y)))))).
         pose (x₂ := π₂ (π₁ (π₁ (tm_var ((((𝟙 ×h X) ×h X) ×h Y) ×h Y))))).
         pose (y₁ := π₂ (π₁ (tm_var ((((𝟙 ×h X) ×h X) ×h Y) ×h Y)))).
@@ -880,7 +861,7 @@ Section MonoSubobjectEquiv.
         use impl_intro.
         use weaken_right.
         use impl_intro.
-        simplify.
+        hypersimplify.
         pose (x := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h X) ×h Y) ×h Y))))).
         pose (y₁ := π₂ (π₁ (tm_var (((𝟙 ×h X) ×h Y) ×h Y)))).
         pose (y₂ := π₂ (tm_var (((𝟙 ×h X) ×h Y) ×h Y))).
@@ -896,7 +877,7 @@ Section MonoSubobjectEquiv.
         use weaken_right.
         unfold partial_setoid_formula; cbn.
         unfold ζ.
-        simplify.
+        hypersimplify.
         use weaken_right.
         apply hyperdoctrine_hyp.
     Qed.
@@ -924,7 +905,7 @@ Section MonoSubobjectEquiv.
       - use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right ; cbn.
         unfold ξ₁.
-        simplify.
+        hypersimplify.
         pose (x₁ := π₁ (π₁ (tm_var ((X ×h X) ×h Y)))).
         pose (x₂ := π₂ (π₁ (tm_var ((X ×h X) ×h Y)))).
         pose (y := π₂ (tm_var ((X ×h X) ×h Y))).
@@ -933,8 +914,7 @@ Section MonoSubobjectEquiv.
         + exact x₁.
         + unfold ζ.
           hypersimplify 0.
-          rewrite !partial_setoid_subst.
-          simplify.
+          hypersimplify.
           fold x₁ x₂.
           repeat use conj_intro.
           * use weaken_left.
@@ -944,7 +924,7 @@ Section MonoSubobjectEquiv.
             {
               exact y.
             }
-            simplify.
+            hypersimplify.
             fold x₁.
             use weaken_left.
             apply hyperdoctrine_hyp.
@@ -958,8 +938,7 @@ Section MonoSubobjectEquiv.
         use weaken_right ; cbn.
         unfold ζ.
         hypersimplify 0.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         use hyp_sym.
         use hyp_rtrans.
         use hyp_sym.
@@ -968,8 +947,7 @@ Section MonoSubobjectEquiv.
         use hyp_ltrans.
         use weaken_right.
         hypersimplify 0.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (x₁ := π₁ (π₁ (π₁ (tm_var (((X ×h X) ×h X) ×h Y))))).
         pose (x₂ := π₂ (π₁ (π₁ (tm_var (((X ×h X) ×h X) ×h Y))))).
         pose (x₃ := π₂ (π₁ (tm_var (((X ×h X) ×h X) ×h Y)))).
@@ -978,7 +956,7 @@ Section MonoSubobjectEquiv.
         use exists_intro.
         + exact y.
         + unfold ξ₁.
-          simplify.
+          hypersimplify.
           fold x₁ x₂.
           use conj_intro.
           * use weaken_right.
@@ -1013,7 +991,7 @@ Section MonoSubobjectEquiv.
       - do 2 use forall_intro ; cbn.
         use impl_intro.
         use weaken_right.
-        simplify.
+        hypersimplify.
         pose (y := π₂ (π₁ (tm_var ((𝟙 ×h Y) ×h X)))).
         pose (x := π₂ (tm_var ((𝟙 ×h Y) ×h X))).
         fold x y.
@@ -1022,7 +1000,7 @@ Section MonoSubobjectEquiv.
       - do 2 use forall_intro ; cbn.
         use impl_intro.
         use weaken_right.
-        simplify.
+        hypersimplify.
         pose (y := π₂ (π₁ (tm_var ((𝟙 ×h Y) ×h X)))).
         pose (x := π₂ (tm_var ((𝟙 ×h Y) ×h X))).
         fold x y.
@@ -1030,18 +1008,18 @@ Section MonoSubobjectEquiv.
         + use (partial_setoid_mor_cod_defined φ y x).
           apply hyperdoctrine_hyp.
         + cbn ; unfold ζ.
-          simplify.
+          hypersimplify.
           use exists_intro.
           {
             exact y.
           }
-          simplify.
+          hypersimplify.
           apply hyperdoctrine_hyp.
       - do 4 use forall_intro ; cbn.
         use impl_intro.
         use weaken_right.
         do 2 use impl_intro.
-        simplify.
+        hypersimplify.
         pose (y₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h Y) ×h Y) ×h X) ×h X)))))).
         pose (y₂ := π₂ (π₁ (π₁ (tm_var ((((𝟙 ×h Y) ×h Y) ×h X) ×h X))))).
         pose (x₁ := π₂ (π₁ (tm_var ((((𝟙 ×h Y) ×h Y) ×h X) ×h X)))).
@@ -1065,7 +1043,7 @@ Section MonoSubobjectEquiv.
         use impl_intro.
         use weaken_right.
         use impl_intro.
-        simplify.
+        hypersimplify.
         pose (y := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Y) ×h X) ×h X))))).
         pose (x₁ := π₂ (π₁ (tm_var (((𝟙 ×h Y) ×h X) ×h X)))).
         pose (x₂ := π₂ (tm_var (((𝟙 ×h Y) ×h X) ×h X))).
@@ -1078,12 +1056,12 @@ Section MonoSubobjectEquiv.
           * use weaken_right.
             apply hyperdoctrine_hyp.
         + cbn ; unfold ζ.
-          simplify.
+          hypersimplify.
           use exists_intro.
           {
             exact y.
           }
-          simplify.
+          hypersimplify.
           use weaken_left.
           apply hyperdoctrine_hyp.
       - use forall_intro ; cbn.
@@ -1093,8 +1071,7 @@ Section MonoSubobjectEquiv.
         + exact (π₂ (tm_var _)).
         + apply hyperdoctrine_hyp.
         + hypersimplify 0.
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify.
           pose (y := π₂ (π₁ (tm_var ((𝟙 ×h Y) ×h X)))).
           pose (x := π₂ (tm_var ((𝟙 ×h Y) ×h X))).
           fold x y.
@@ -1102,7 +1079,7 @@ Section MonoSubobjectEquiv.
           {
             exact x.
           }
-          simplify.
+          hypersimplify.
           fold y.
           use weaken_right.
           apply hyperdoctrine_hyp.
@@ -1129,8 +1106,7 @@ Section MonoSubobjectEquiv.
       - use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right ; cbn ; unfold ξ₂.
         hypersimplify 0.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (y := π₁ (π₁ (tm_var ((Y ×h X) ×h X)))).
         pose (x₁ := π₂ (π₁ (tm_var ((Y ×h X) ×h X)))).
         pose (x₂ := π₂ (tm_var ((Y ×h X) ×h X))).
@@ -1140,8 +1116,7 @@ Section MonoSubobjectEquiv.
           exact x₁.
         }
         hypersimplify 0.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         fold x₁ x₂ y.
         use conj_intro.
         + use partial_setoid_mor_eq_defined.
@@ -1161,8 +1136,7 @@ Section MonoSubobjectEquiv.
       - use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right ; cbn ; unfold ξ₂, ζ.
         hypersimplify 0.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (y := π₁ (π₁ (tm_var ((Y ×h X) ×h X)))).
         pose (x₁ := π₂ (π₁ (tm_var ((Y ×h X) ×h X)))).
         pose (x₂ := π₂ (tm_var ((Y ×h X) ×h X))).
@@ -1172,8 +1146,7 @@ Section MonoSubobjectEquiv.
           exact x₁.
         }
         hypersimplify 0.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         fold x₁ x₂ y.
         repeat use conj_intro.
         + use partial_setoid_mor_eq_defined.
@@ -1192,7 +1165,7 @@ Section MonoSubobjectEquiv.
           {
             exact y.
           }
-          simplify.
+          hypersimplify.
           use partial_setoid_mor_eq_defined.
           * exact y.
           * exact x₂.

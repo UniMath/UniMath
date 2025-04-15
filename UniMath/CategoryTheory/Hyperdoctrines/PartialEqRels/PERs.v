@@ -311,7 +311,7 @@ Proposition partial_setoid_sym
   : Δ ⊢ y ~ x.
 Proof.
   use per_sym.
-  simplify.
+  hypersimplify.
   exact p.
 Qed.
 
@@ -329,9 +329,9 @@ Proposition partial_setoid_trans
 Proof.
   use per_trans.
   - exact y.
-  - simplify.
+  - hypersimplify.
     exact p.
-  - simplify.
+  - hypersimplify.
     exact q.
 Qed.
 
@@ -390,7 +390,7 @@ Proposition partial_setoid_subst
   : (x ~ y)[ s ] = (x [ s ]tm ~ y [ s ]tm).
 Proof.
   unfold partial_setoid_formula.
-  simplify.
+  hypersimplify.
   apply idpath.
 Qed.
 
@@ -468,7 +468,7 @@ Section Constructions.
          Essentially, the resulting term consists of a bunch of `rewrites`
          that are possible in the term.
        *)
-      simplify.
+      hypersimplify.
       (**
          Now the goal is as follows
          ```
@@ -549,13 +549,13 @@ Section Constructions.
       pose (z := π₂ (tm_var (((𝟙 ×h T) ×h T) ×h T))).
       unfold T in *.
       fold x y z.
-      simplify.
+      hypersimplify.
       use forall_intro.
       use forall_intro.
       use forall_intro.
       use impl_intro.
       use impl_intro.
-      simplify.
+      hypersimplify.
       (**
          Here the goal is
          ```
@@ -594,7 +594,7 @@ Section Constructions.
     : Δ ⊢ t₁ ~ t₂.
   Proof.
     unfold partial_setoid_formula ; cbn.
-    simplify.
+    hypersimplify.
     exact p.
   Qed.
 
@@ -728,9 +728,8 @@ Section Constructions.
       : Δ ⊢ t₁ ~ t₂.
     Proof.
       unfold partial_setoid_formula ; cbn ; unfold prod_per_data.
-      simplify.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
+      hypersimplify.
       use conj_intro.
       - exact p.
       - exact q.
@@ -746,8 +745,7 @@ Section Constructions.
       refine (hyperdoctrine_cut p _).
       unfold partial_setoid_formula ; cbn ; unfold prod_per_data.
       hypersimplify 0.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use weaken_left.
       apply hyperdoctrine_hyp.
     Qed.
@@ -762,8 +760,7 @@ Section Constructions.
       refine (hyperdoctrine_cut p _).
       unfold partial_setoid_formula ; cbn ; unfold prod_per_data.
       hypersimplify 0.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use weaken_right.
       apply hyperdoctrine_hyp.
     Qed.

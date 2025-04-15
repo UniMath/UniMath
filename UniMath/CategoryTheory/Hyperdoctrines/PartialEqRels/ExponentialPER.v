@@ -133,8 +133,7 @@ Section ExponentialPartialSetoid.
     clear r ; rename r' into r.
     refine (weaken_cut r _).
     simplify_form.
-    rewrite partial_setoid_subst.
-    simplify.
+    hypersimplify.
     refine (impl_elim _ (weaken_right (hyperdoctrine_hyp _) _)).
     use weaken_left.
     exact q.
@@ -163,8 +162,7 @@ Section ExponentialPartialSetoid.
     clear r ; rename r' into r.
     refine (weaken_cut r _).
     simplify_form.
-    rewrite partial_setoid_subst.
-    simplify.
+    hypersimplify.
     refine (impl_elim _ (weaken_right (hyperdoctrine_hyp _) _)).
     use weaken_left.
     exact q.
@@ -335,8 +333,7 @@ Section ExponentialPartialSetoid.
     clear r ; rename r' into r.
     refine (weaken_cut r _).
     simplify_form.
-    rewrite !partial_setoid_subst.
-    simplify.
+    hypersimplify.
     refine (impl_elim
               _
               (impl_elim
@@ -366,8 +363,7 @@ Section ExponentialPartialSetoid.
     pose (r' := forall_elim r x).
     refine (weaken_cut r' _).
     simplify_form.
-    rewrite partial_setoid_subst.
-    simplify.
+    hypersimplify.
     use (impl_elim _ (weaken_right (hyperdoctrine_hyp _) _)).
     use weaken_left.
     exact q.
@@ -400,7 +396,7 @@ Section ExponentialPartialSetoid.
     pose proof (forall_elim p y) as p'.
     clear p ; rename p' into p.
     refine (weaken_cut p _).
-    simplify.
+    hypersimplify.
     use (iff_elim_left (weaken_right (hyperdoctrine_hyp _) _)).
     use weaken_left.
     exact q.
@@ -415,7 +411,7 @@ Section ExponentialPartialSetoid.
     unfold exp_partial_setoid_eq.
     rewrite !forall_subst.
     do 2 use forall_intro.
-    simplify.
+    hypersimplify.
     apply iff_refl.
   Qed.
 
@@ -428,9 +424,9 @@ Section ExponentialPartialSetoid.
   Proof.
     refine (hyperdoctrine_cut p _).
     unfold exp_partial_setoid_eq.
-    simplify.
+    hypersimplify.
     do 2 use forall_intro.
-    simplify.
+    hypersimplify.
     pose (γ := π₁ (π₁ (tm_var ((Γ ×h X) ×h Y)))).
     pose (x := π₂ (π₁ (tm_var ((Γ ×h X) ×h Y)))).
     pose (y := π₂ (tm_var ((Γ ×h X) ×h Y))).
@@ -438,7 +434,7 @@ Section ExponentialPartialSetoid.
     simple refine (hyperdoctrine_cut (forall_elim (hyperdoctrine_hyp _) x) _).
     simplify_form.
     simple refine (hyperdoctrine_cut (forall_elim (hyperdoctrine_hyp _) y) _).
-    simplify.
+    hypersimplify.
     fold γ.
     use iff_sym.
     apply hyperdoctrine_hyp.
@@ -456,7 +452,7 @@ Section ExponentialPartialSetoid.
     unfold exp_partial_setoid_eq.
     simplify_form.
     do 2 use forall_intro.
-    simplify.
+    hypersimplify.
     pose (γ := π₁ (π₁ (tm_var ((Γ ×h X) ×h Y)))).
     pose (x := π₂ (π₁ (tm_var ((Γ ×h X) ×h Y)))).
     pose (y := π₂ (tm_var ((Γ ×h X) ×h Y))).
@@ -470,16 +466,16 @@ Section ExponentialPartialSetoid.
     simple refine (weaken_cut (weaken_left (forall_elim (hyperdoctrine_hyp _) y) _) _).
     use hyp_ltrans.
     use weaken_right.
-    simplify.
+    hypersimplify.
     use (iff_trans (weaken_right (hyperdoctrine_hyp _) _)).
     use weaken_left.
     refine (hyperdoctrine_cut (hyperdoctrine_proof_subst _ q) _).
     unfold exp_partial_setoid_eq.
-    simplify.
+    hypersimplify.
     simple refine (hyperdoctrine_cut (forall_elim (hyperdoctrine_hyp _) x) _).
     simplify_form.
     simple refine (hyperdoctrine_cut (forall_elim (hyperdoctrine_hyp _) y) _).
-    simplify.
+    hypersimplify.
     apply hyperdoctrine_hyp.
   Qed.
 
@@ -499,8 +495,7 @@ Section ExponentialPartialSetoid.
       do 2 use forall_intro.
       use impl_intro.
       simplify_form.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (γ := π₁ (π₁ (tm_var ((Γ ×h X) ×h Y)))).
       pose (x := π₂ (π₁ (tm_var ((Γ ×h X) ×h Y)))).
       pose (y := π₂ (tm_var ((Γ ×h X) ×h Y))).
@@ -510,12 +505,12 @@ Section ExponentialPartialSetoid.
       + exact y.
       + use weaken_left.
         refine (hyperdoctrine_cut (hyperdoctrine_proof_subst γ q) _).
-        simplify.
+        hypersimplify.
         apply hyperdoctrine_hyp.
       + use (weaken_cut (weaken_left (hyperdoctrine_proof_subst γ p) _) _).
         use hyp_ltrans.
         use weaken_right.
-        simplify.
+        hypersimplify.
         use from_exp_partial_setoid_eq.
         * exact (g [ γ ]tm).
         * use weaken_right.
@@ -527,8 +522,7 @@ Section ExponentialPartialSetoid.
       simplify_form.
       do 2 use forall_intro.
       use impl_intro.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (γ := π₁ (π₁ (tm_var ((Γ ×h X) ×h Y)))).
       pose (x := π₂ (π₁ (tm_var ((Γ ×h X) ×h Y)))).
       pose (y := π₂ (tm_var ((Γ ×h X) ×h Y))).
@@ -538,12 +532,12 @@ Section ExponentialPartialSetoid.
       + exact x.
       + use weaken_left.
         refine (hyperdoctrine_cut (hyperdoctrine_proof_subst γ q) _).
-        simplify.
+        hypersimplify.
         apply hyperdoctrine_hyp.
       + use (weaken_cut (weaken_left (hyperdoctrine_proof_subst γ p) _) _).
         use hyp_ltrans.
         use weaken_right.
-        simplify.
+        hypersimplify.
         use from_exp_partial_setoid_eq.
         * exact (g [ γ ]tm).
         * use weaken_right.
@@ -555,8 +549,7 @@ Section ExponentialPartialSetoid.
       simplify_form.
       do 4 use forall_intro.
       do 3 use impl_intro.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (γ := π₁ (π₁ (π₁ (π₁ (tm_var ((((Γ ×h X) ×h X) ×h Y) ×h Y)))))).
       pose (x₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((Γ ×h X) ×h X) ×h Y) ×h Y)))))).
       pose (x₂ := π₂ (π₁ (π₁ (tm_var ((((Γ ×h X) ×h X) ×h Y) ×h Y))))).
@@ -567,12 +560,12 @@ Section ExponentialPartialSetoid.
       + exact (f [ γ ]tm).
       + do 3 use weaken_left.
         refine (hyperdoctrine_cut (hyperdoctrine_proof_subst γ p) _).
-        simplify.
+        hypersimplify.
         apply hyperdoctrine_hyp.
       + use exp_partial_setoid_eq_defined.
         * do 3 use weaken_left.
           refine (hyperdoctrine_cut (hyperdoctrine_proof_subst γ q) _).
-          simplify.
+          hypersimplify.
           apply hyperdoctrine_hyp.
         * exact x₁.
         * do 2 use weaken_left.
@@ -586,7 +579,7 @@ Section ExponentialPartialSetoid.
           ** exact (g [ γ ]tm).
           ** do 3 use weaken_left.
              refine (hyperdoctrine_cut (hyperdoctrine_proof_subst γ p) _).
-             simplify.
+             hypersimplify.
              use exp_partial_setoid_eq_sym.
              apply hyperdoctrine_hyp.
           ** use weaken_right.
@@ -596,8 +589,7 @@ Section ExponentialPartialSetoid.
       do 3 use forall_intro.
       do 2 use impl_intro.
       simplify_form.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (γ := π₁ (π₁ (π₁ (tm_var (((Γ ×h X) ×h Y) ×h Y))))).
       pose (x := π₂ (π₁ (π₁ (tm_var (((Γ ×h X) ×h Y) ×h Y))))).
       pose (y₁ := π₂ (π₁ (tm_var (((Γ ×h X) ×h Y) ×h Y)))).
@@ -607,14 +599,14 @@ Section ExponentialPartialSetoid.
       + exact (f [ γ ]tm).
       + do 2 use weaken_left.
         refine (hyperdoctrine_cut (hyperdoctrine_proof_subst γ q) _).
-        simplify.
+        hypersimplify.
         apply hyperdoctrine_hyp.
       + exact x.
       + use from_exp_partial_setoid_eq.
         * exact (g [ γ ]tm).
         * do 2 use weaken_left.
           refine (hyperdoctrine_cut (hyperdoctrine_proof_subst γ p) _).
-          simplify.
+          hypersimplify.
           use exp_partial_setoid_eq_sym.
           apply hyperdoctrine_hyp.
         * use weaken_left.
@@ -624,7 +616,7 @@ Section ExponentialPartialSetoid.
         * exact (g [ γ ]tm).
         * do 2 use weaken_left.
           refine (hyperdoctrine_cut (hyperdoctrine_proof_subst γ p) _).
-          simplify.
+          hypersimplify.
           use exp_partial_setoid_eq_sym.
           apply hyperdoctrine_hyp.
         * use weaken_right.
@@ -633,8 +625,7 @@ Section ExponentialPartialSetoid.
       simplify_form.
       use forall_intro.
       use impl_intro.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (γ := π₁ (tm_var (Γ ×h X))).
       pose (x := π₂ (tm_var (Γ ×h X))).
       fold γ x.
@@ -642,26 +633,26 @@ Section ExponentialPartialSetoid.
       + exact (f [ γ ]tm).
       + use weaken_left.
         refine (hyperdoctrine_cut (hyperdoctrine_proof_subst γ q) _).
-        simplify.
+        hypersimplify.
         apply hyperdoctrine_hyp.
       + exact x.
       + use weaken_right.
         apply hyperdoctrine_hyp.
       + unfold γ, x ; clear γ x.
-        simplify.
+        hypersimplify.
         pose (γ := π₁ (π₁ (tm_var ((Γ ×h X) ×h Y)))).
         pose (x := π₂ (π₁ (tm_var ((Γ ×h X) ×h Y)))).
         pose (y := π₂ (tm_var ((Γ ×h X) ×h Y))).
         fold γ x y.
         use exists_intro.
         * exact y.
-        * simplify.
+        * hypersimplify.
           fold γ x.
           use from_exp_partial_setoid_eq.
           ** exact (f [ γ ]tm).
           ** do 2 use weaken_left.
              refine (hyperdoctrine_cut (hyperdoctrine_proof_subst γ p) _).
-             simplify.
+             hypersimplify.
              apply hyperdoctrine_hyp.
           ** use weaken_right.
              apply hyperdoctrine_hyp.
@@ -684,7 +675,7 @@ Section ExponentialPartialSetoid.
       do 2 use forall_intro.
       use impl_intro.
       use weaken_right.
-      simplify.
+      hypersimplify.
       pose (f := π₂ (π₁ (tm_var ((𝟙 ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y))))).
       pose (g := π₂ (tm_var ((𝟙 ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)))).
       fold f g.
@@ -703,7 +694,7 @@ Section ExponentialPartialSetoid.
       use impl_intro.
       use weaken_right.
       use impl_intro.
-      simplify.
+      hypersimplify.
       pose (f := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)))))).
       pose (g := π₂ (π₁ (tm_var (((𝟙 ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y))))).
       pose (h := π₂ (tm_var (((𝟙 ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)))).
@@ -746,7 +737,7 @@ Section ExponentialPartialSetoid.
     : Δ ⊢ f ~ g.
   Proof.
     unfold partial_setoid_formula ; cbn.
-    simplify.
+    hypersimplify.
     use conj_intro.
     - exact p.
     - exact q.
@@ -761,7 +752,7 @@ Section ExponentialPartialSetoid.
   Proof.
     refine (hyperdoctrine_cut p _).
     unfold partial_setoid_formula ; cbn.
-    simplify.
+    hypersimplify.
     use weaken_left.
     apply hyperdoctrine_hyp.
   Qed.
@@ -775,7 +766,7 @@ Section ExponentialPartialSetoid.
   Proof.
     refine (hyperdoctrine_cut (partial_setoid_sym p) _).
     unfold partial_setoid_formula ; cbn.
-    simplify.
+    hypersimplify.
     use weaken_left.
     apply hyperdoctrine_hyp.
   Qed.
@@ -789,7 +780,7 @@ Section ExponentialPartialSetoid.
   Proof.
     refine (hyperdoctrine_cut p _).
     unfold partial_setoid_formula ; cbn.
-    simplify.
+    hypersimplify.
     use weaken_right.
     apply hyperdoctrine_hyp.
   Qed.
@@ -803,7 +794,7 @@ Section ExponentialPartialSetoid.
   Proof.
     refine (hyperdoctrine_cut p _).
     unfold partial_setoid_formula ; cbn.
-    simplify.
+    hypersimplify.
     apply hyperdoctrine_hyp.
   Qed.
 End ExponentialPartialSetoid.
