@@ -68,6 +68,7 @@ If we want to show that something is contractible, there are a couple of lemmas 
 iscontrunit       : iscontr unit.
 unique_exists     : ∏ x,  Y x → (∏ x, isaprop (Y x)) → (∏ y, Y y → y = x) → (∑ x, Y x).
 iscontrfuntocontr :       iscontr Y → iscontr (X → Y).
+iscontr_prod	  : ∏ X Y, iscontr X → iscontr Y → iscontr (X × Y).
 impred_iscontr    : ∏ Y,  (∏ x, iscontr (Y x)) → iscontr (∏ x, Y x).
 ```
 
