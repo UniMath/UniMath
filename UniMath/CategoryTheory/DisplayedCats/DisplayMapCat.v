@@ -35,6 +35,15 @@ Definition display_map_class_data (C : category) : UU :=
 Definition display_map_class_data_to_fun {C} {a b} (D : display_map_class_data C) : a --> b -> hProp := D a b.
 Coercion display_map_class_data_to_fun : display_map_class_data >-> Funclass.
 
+Proposition isaset_display_map_class_data (C : category)
+  : isaset (display_map_class_data C).
+Proof.
+  apply impred_isaset; intros x.
+  apply impred_isaset; intros y.
+  apply impred_isaset; intros f.
+  exact isasethProp.
+Qed.
+
 Definition has_map_pullbacks {C : category} (D : display_map_class_data C) : UU :=
   ∏ (a b c : C) (f : b --> a) (d : c --> a),
     D _ _ d -> ∑ (p : Pullback d f), D _ _ (PullbackPr2 p).
@@ -57,6 +66,23 @@ Qed.
 
 Definition display_map_class (C : category) : UU :=
   ∑ (D : display_map_class_data C), has_map_pullbacks D.
+
+Proposition display_map_class_equiv_weq_data_equiv
+  {C : univalent_category}
+  (D D' : display_map_class C)
+  : D = D' ≃ pr1 D = pr1 D'.
+Proof.
+  use (_ ∘ total2_paths_equiv _ _ _)%weq.
+  use make_weq.
+  - intros p. apply p.
+  - use isweq_iso.
+    + intros base_p. exists base_p.
+      apply isPredicate_has_map_pullbacks.
+    + cbn. intros p. use subtypePath.
+      * intros base_p. apply isasetaprop. apply isPredicate_has_map_pullbacks.
+      * apply idpath.
+    + intros p. apply idpath.
+Qed.
 
 Definition display_map_class_to_data {C : category} (D : display_map_class C) : display_map_class_data C := pr1 D.
 Coercion display_map_class_to_data : display_map_class >-> display_map_class_data.
@@ -481,6 +507,75 @@ Proof.
     + intro. apply propproperty.
     + intro. apply propproperty.
 Defined.
+
+Definition display_map_class_equiv_to_display_map_class_adjoint
+  {C : category}
+  (D D' : display_map_class C)
+  : pr1 D = pr1 D'
+  ->
+    (is_display_map_class_functor D D' (functor_identity C))
+      ×
+    (is_display_map_class_functor D' D (functor_identity C)).
+Proof.
+Set Printing Coercions.
+  intros p. split; split.
+  - intros x y f H. unfold display_map_class_to_data. rewrite <- p. apply H.
+  - intros x y z f g Hf pb. apply pb.
+  - intros x y f H. unfold display_map_class_to_data. rewrite -> p. apply H.
+  - intros x y z f g Hf pb. apply pb.
+Unset Printing Coercions.
+Defined.
+
+Definition display_map_class_adjoint_to_display_map_class_equiv
+  {C : univalent_category}
+  (D D' : display_map_class C)
+  : (is_display_map_class_functor D D' (functor_identity C))
+      ×
+    (is_display_map_class_functor D' D (functor_identity C))
+  ->
+    pr1 D = pr1 D'.
+Proof.
+  intros [HF HG].
+  apply (maponpaths (pr1) (display_map_class_iso_to_id HF HG)).
+Defined.
+
+Proposition display_map_class_equiv_to_adj_to_equiv
+  {C : univalent_category}
+  (D D' : display_map_class C)
+  : ∏ p : pr1 D = pr1 D',
+    display_map_class_adjoint_to_display_map_class_equiv D D'
+    (display_map_class_equiv_to_display_map_class_adjoint D D' p) = p.
+Proof.
+  intros p. apply isaset_display_map_class_data.
+Qed.
+
+Proposition display_map_class_adjoint_to_equiv_to_adj
+  {C : univalent_category}
+  (D D' : display_map_class C)
+  : ∏ adj : is_display_map_class_functor D D' (functor_identity C) × is_display_map_class_functor D' D (functor_identity C),
+    display_map_class_equiv_to_display_map_class_adjoint D D'
+    (display_map_class_adjoint_to_display_map_class_equiv D D' adj) = adj.
+Proof.
+  intros [HF HG].
+  apply dirprod_paths; apply isPredicate_is_display_map_class_functor.
+Qed.
+
+Lemma display_map_class_data_equiv_weq_display_map_class_adjoint
+  {C : univalent_category}
+  (D D' : display_map_class C)
+  : pr1 D = pr1 D'
+    ≃
+    (is_display_map_class_functor D D' (functor_identity C))
+      ×
+    (is_display_map_class_functor D' D (functor_identity C)).
+Proof.
+  use make_weq.
+  - apply display_map_class_equiv_to_display_map_class_adjoint.
+  - use isweq_iso.
+    + apply display_map_class_adjoint_to_display_map_class_equiv.
+    + apply display_map_class_equiv_to_adj_to_equiv.
+    + apply display_map_class_adjoint_to_equiv_to_adj.
+Qed.
 
 Definition display_map_class_functor {C C' : category} (D : display_map_class C) (D' : display_map_class C') :=
   ∑ (F: C ⟶ C'), is_display_map_class_functor D D' F.

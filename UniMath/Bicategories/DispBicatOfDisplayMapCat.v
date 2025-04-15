@@ -105,8 +105,8 @@ Coercion bicat_display_map_cat_ob_to_display_map_cat (D : bicat_display_map_cat)
 Coercion display_map_cat_to_base_cat (D : display_map_cat) : univalent_category := pr1 D.
 
 (** *** Univalence *)
-Proposition disp_univalent_2_1_disp_bicat_display_map_cat :
-  disp_univalent_2_1 disp_bicat_display_map_cat.
+Proposition disp_univalent_2_1_disp_bicat_display_map_cat
+  : disp_univalent_2_1 disp_bicat_display_map_cat.
 Proof.
   use fiberwise_local_univalent_is_univalent_2_1.
   intros C₁ C₂ F D₁ D₂ HF HF'; cbn in * |-.
@@ -118,21 +118,110 @@ Proof.
     all: apply isapropunit.
 Qed.
 
-Proposition disp_univalent_2_0_disp_bicat_display_map_cat :
-  disp_univalent_2_0 disp_bicat_display_map_cat.
+Definition display_map_class_adj_to_disp_adjoint_equiv
+  {C : bicat_of_univ_cats} (D D' : disp_bicat_display_map_cat C)
+  : is_display_map_class_functor D D' (functor_identity (univalent_category_to_category C))
+    × is_display_map_class_functor D' D (functor_identity (univalent_category_to_category C))
+  -> disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) D D'.
+Proof.
+  intros [HF HG].
+  exists HF. use tpair.
+  - exists HG. cbn. exact (tt ,, tt).
+  - split; use tpair.
+    (* TODO: investigate speed *)
+    + cbn. rewrite transportb_const. apply idpath.
+    + cbn. rewrite transportb_const. apply idpath.
+    + exists tt. split; cbn.
+      * simpl. rewrite transportb_const. apply idpath.
+      * simpl. rewrite transportb_const. apply idpath.
+    + exists tt. split; cbn.
+      * simpl. rewrite transportb_const. apply idpath.
+      * simpl. rewrite transportb_const. apply idpath.
+Defined.
+
+Definition disp_adjoint_equiv_to_display_map_class_adj
+  {C : bicat_of_univ_cats} (D D' : disp_bicat_display_map_cat C)
+  : disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) D D'
+  -> is_display_map_class_functor D D' (functor_identity (univalent_category_to_category C))
+    × is_display_map_class_functor D' D (functor_identity (univalent_category_to_category C)).
+Proof.
+  intros [HF [[HG ?] ?]].
+  exact (HF ,, HG).
+Defined.
+
+Lemma display_map_class_adj_to_disp_adj_to_adj
+  {C : bicat_of_univ_cats} (D D' : disp_bicat_display_map_cat C)
+  : ∏ adj : is_display_map_class_functor D D' (functor_identity (univalent_category_to_category C)) × is_display_map_class_functor D' D (functor_identity (univalent_category_to_category C)),
+    disp_adjoint_equiv_to_display_map_class_adj D D'
+      (display_map_class_adj_to_disp_adjoint_equiv D D' adj) = adj.
+Proof.
+  intros [HF HG]. apply dirprod_paths; apply isPredicate_is_display_map_class_functor.
+Qed.
+
+Lemma disp_adjoint_equivalence_to_adj_to_disp_adj
+  {C : bicat_of_univ_cats} (D D' : disp_bicat_display_map_cat C)
+  : ∏ adj : disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) D D',
+    display_map_class_adj_to_disp_adjoint_equiv D D'
+      (disp_adjoint_equiv_to_display_map_class_adj D D' adj) = adj.
+Proof.
+  intros adj. apply subtypePath.
+  {
+    intro. apply isaprop_disp_left_adjoint_equivalence.
+    - apply univalent_cat_is_univalent_2_1.
+    - apply disp_univalent_2_1_disp_bicat_display_map_cat.
+  }
+  apply idpath.
+Qed.
+
+Definition display_map_class_adjoint_weq_disp_adjoint_equivalence
+  {C : bicat_of_univ_cats} (D D' : disp_bicat_display_map_cat C)
+  : is_display_map_class_functor D D' (functor_identity (univalent_category_to_category C))
+    × is_display_map_class_functor D' D (functor_identity (univalent_category_to_category C))
+  ≃ disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) D D'.
+Proof.
+  use make_weq.
+  - apply display_map_class_adj_to_disp_adjoint_equiv.
+  - use isweq_iso.
+    + apply disp_adjoint_equiv_to_display_map_class_adj.
+    + apply display_map_class_adj_to_disp_adj_to_adj.
+    + apply disp_adjoint_equivalence_to_adj_to_disp_adj.
+Qed.
+
+Proposition disp_univalent_2_0_disp_bicat_display_map_cat
+  : disp_univalent_2_0 disp_bicat_display_map_cat.
 Proof.
   use fiberwise_univalent_2_0_to_disp_univalent_2_0.
   intros C D D'.
-  use isweq_iso; cbn in *.
-  - intros [F [[G H1] H2]]; cbn in * |-.
-    apply display_map_class_iso_to_id; assumption.
-  - intros p. simpl.
-    apply isasetaprop.
-    apply isaproptotal2.
-    + apply isPredicate_has_map_pullbacks.
-    + intros d d' Hd Hd'. apply impred_isaprop. intro. apply impred_isaprop. intro t'. apply impred_isaprop.
-      intro f.
-Admitted.
+  use weqhomot.
+  Set Printing Coercions.
+  - refine (display_map_class_adjoint_weq_disp_adjoint_equivalence D D'
+           ∘ display_map_class_data_equiv_weq_display_map_class_adjoint D D' 
+           ∘ display_map_class_equiv_weq_data_equiv D D')%weq.
+  - intros p; cbn in p. induction p.
+    use subtypePath.
+    {
+      intro. apply isaprop_disp_left_adjoint_equivalence.
+      - apply univalent_cat_is_univalent_2_1.
+      - apply disp_univalent_2_1_disp_bicat_display_map_cat.
+    }
+    apply isPredicate_is_display_map_class_functor.
+Qed.
+
+Definition disp_univalent_2_disp_bicat_display_map_cat
+  : disp_univalent_2 disp_bicat_display_map_cat.
+Proof.
+  split.
+  - exact disp_univalent_2_0_disp_bicat_display_map_cat.
+  - exact disp_univalent_2_1_disp_bicat_display_map_cat.
+Qed.
+
+Definition univalent_2_bicat_display_map_cat
+  : is_univalent_2 bicat_display_map_cat.
+Proof.
+  use total_is_univalent_2.
+  - exact disp_univalent_2_disp_bicat_display_map_cat.
+  - exact univalent_cat_is_univalent_2.
+Qed.
 
 (** ** Displayed Bicategory of Display Map Categories with Terminal object in base *)
 Definition disp_bicat_terminal_display_map_cat :
@@ -163,6 +252,18 @@ Coercion terminal_display_map_functor_preserves_terminal {D₁ D₂ : bicat_term
 Definition terminal_display_map_nat_trans {D₁ D₂ : bicat_terminal_display_map_cat} (F G : bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧) : UU := prebicat_cells bicat_terminal_display_map_cat F G.
 Coercion bicat_terminal_display_map_cat_2cell_to_nat_trans {D₁ D₂ : bicat_terminal_display_map_cat} {F G : bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧} (θ : prebicat_cells bicat_terminal_display_map_cat F G) : terminal_display_map_nat_trans F G := θ.
 Coercion terminal_display_map_nat_trans_to_base_nat_trans {D₁ D₂ : bicat_terminal_display_map_cat} {F G : bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧} (θ : terminal_display_map_nat_trans F G) : nat_trans _ _ := pr1 θ.
+
+(** *** Univalence of [disp_bicat_terminal_display_map_cat]. *)
+(** TODO: potentially add some of the smaller terms as well? *)
+
+Definition is_univalent_2_bicat_terminal_display_map_cat
+  : is_univalent_2 bicat_terminal_display_map_cat.
+Proof.
+  use is_univalent_2_total_dirprod.
+  - exact univalent_cat_is_univalent_2.
+  - exact disp_univalent_2_disp_bicat_terminal_obj.
+  - exact disp_univalent_2_disp_bicat_display_map_cat.
+Qed.
 
 
 (** ** Pseudofunctor from the bicategory of display map categories with terminal objects into the bicategory of full comprehension categories. *)
