@@ -60,10 +60,11 @@ Ltac2 make_traversal (c : unit -> constr) (l : string) (r : string)
 Ltac2 Type t_rewrite := (pattern * (unit -> constr) * string).
 
 (**
-  While traversing, the `navigation`, deconstructed as `(l, r, (pre, in, post))`, gives the
+  While traversing, `n : navigation`, with preinpostfix deconstructed as (pre, in, post), gives the
   contextual information for printing rewrites `rew`:
-    `refine (pre (λ x, ` + (join "(" reverse(l)) + ` x ` + (join ")" r) + `) in (rew) post)`
+    `refine (pre (λ x, ` + (join "(" reverse(left)) + ` x ` + (join ")" right) + `) in (rew) post)`
   For example: `maponpaths (λ x, _ ∧ (x ~ _)) (_) @ _` or `transportf (λ x, (x ∨ _) ⊢ _) (_) _`.
+  The value `print` keeps track of whether we want to print rewrites or not.
 *)
 Ltac2 Type navigation := {
   left: string list;

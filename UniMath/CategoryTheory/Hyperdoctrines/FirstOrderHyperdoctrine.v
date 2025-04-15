@@ -1682,9 +1682,11 @@ Qed.
 (** * 13. A tactic for simplifying goals in the internal language of first-order hyperdoctrines *)
 
 (**
-  The tactic `simplify` helps proving statements in the internal language of a hyperdoctrine. Such
-  goals are of the shape `Δ ⊢ φ`. The tactic simplifies `Δ` and φ` by propagating the substitutions
-  and by putting all terms that occur in either `Δ` or φ` in normal form.
+  The tactic `hypersimplify` helps proving statements in the internal language of a hyperdoctrine.
+  Such goals are of the shape `Δ ⊢ φ`. The tactic simplifies `Δ` and φ` by propagating the
+  substitutions and by putting all terms that occur in either `Δ` or φ` in normal form. The tactic
+  can print the rewrite statements that can replace it, by invoking `hypersimplify true` in Ltac2 or
+  `hypersimplifyp` in Ltac1 (see the `Notation` commands further down).
 
   The tactic uses identities with two different levels:
   - The rewrites with level 0 are those that express how substitution acts on formulas, and are used
@@ -1697,8 +1699,8 @@ Qed.
   have made the goal smaller and removed some unnecessary assumptions using weakening.
   This is demonstrated in `PERs.v` in the proof of [eq_per_axioms].
 
-  The tactic can be extended with new substitutions and normalizations. For example, handling of `~`
-  is added in `PERs.v`.
+  The tactic can be extended with new traversals and rewrites. For example, handling of `~` is added
+  in `PERs.v`.
  *)
 
 Set Default Proof Mode "Ltac2".
