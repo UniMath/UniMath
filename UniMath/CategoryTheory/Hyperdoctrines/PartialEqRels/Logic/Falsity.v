@@ -46,13 +46,13 @@ Section FalsityFormula.
       use impl_intro.
       use weaken_right.
       use false_elim.
-      simplify.
+      hypersimplify.
       apply hyperdoctrine_hyp.
     - do 2 use forall_intro.
       do 2 use impl_intro.
       use weaken_right.
       use false_elim.
-      simplify.
+      hypersimplify.
       apply hyperdoctrine_hyp.
   Qed.
 
@@ -79,7 +79,7 @@ Section FalsityFormula.
     use weaken_right.
     cbn.
     use false_elim.
-    simplify.
+    hypersimplify.
     apply hyperdoctrine_hyp.
   Qed.
 
@@ -104,7 +104,7 @@ Section FalsityFormula.
     use hyp_ltrans.
     use weaken_right.
     do 2 use weaken_right.
-    simplify.
+    hypersimplify.
     apply hyperdoctrine_hyp.
   Qed.
 

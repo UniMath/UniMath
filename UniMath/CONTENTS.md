@@ -130,6 +130,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Abmonoids_Tactics.v](Tactics/Abmonoids_Tactics.v)
    - [Groups_Tactics.v](Tactics/Groups_Tactics.v)
    - [Nat_Tactics.v](Tactics/Nat_Tactics.v)
+   - [Simplify.v](Tactics/Simplify.v)
    - [All.v](Tactics/All.v)
 ## Package NumberSystems
    - [NaturalNumbersAlgebra.v](NumberSystems/NaturalNumbersAlgebra.v)
