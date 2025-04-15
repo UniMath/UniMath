@@ -88,7 +88,7 @@ Section FormulaFunctor.
   Proof.
     split ; cbn.
     - unfold per_symm_axiom.
-      simplify.
+      hypersimplify.
       pose (x₁ := π₂ (π₁ (tm_var ((𝟙 ×h A) ×h A)))).
       pose (x₂ := π₂ (tm_var ((𝟙 ×h A) ×h A))).
       fold x₁ x₂.
@@ -106,7 +106,7 @@ Section FormulaFunctor.
         * use weaken_right.
           apply hyperdoctrine_hyp.
     - unfold per_trans_axiom.
-      simplify.
+      hypersimplify.
       pose (x₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h A) ×h A) ×h A))))).
       pose (x₂ := π₂ (π₁ (tm_var (((𝟙 ×h A) ×h A) ×h A)))).
       pose (x₃ := π₂ (tm_var (((𝟙 ×h A) ×h A) ×h A))).
@@ -160,7 +160,7 @@ Section FormulaFunctor.
     : Δ ⊢ t₁ ~ t₂.
   Proof.
     unfold partial_setoid_formula ; cbn.
-    simplify.
+    hypersimplify.
     use conj_intro.
     - exact p.
     - exact q.
@@ -177,7 +177,7 @@ Section FormulaFunctor.
   Proof.
     refine (hyperdoctrine_cut p _).
     unfold partial_setoid_formula ; cbn.
-    simplify.
+    hypersimplify.
     use weaken_left.
     apply hyperdoctrine_hyp.
   Qed.
@@ -193,7 +193,7 @@ Section FormulaFunctor.
   Proof.
     refine (hyperdoctrine_cut p _).
     unfold partial_setoid_formula ; cbn.
-    simplify.
+    hypersimplify.
     use weaken_right.
     apply hyperdoctrine_hyp.
   Qed.
@@ -209,7 +209,7 @@ Section FormulaFunctor.
   Proof.
     refine (hyperdoctrine_cut p _).
     unfold partial_setoid_formula ; cbn.
-    simplify.
+    hypersimplify.
     use hyperdoctrine_eq_transportf.
     - exact t₁.
     - use weaken_left.
@@ -236,7 +236,7 @@ Section FormulaFunctor.
   Proof.
     repeat split.
     - unfold partial_setoid_mor_dom_defined_law ; cbn.
-      simplify.
+      hypersimplify.
       pose (x₁ := π₂ (π₁ (tm_var ((𝟙 ×h A) ×h A)))).
       pose (x₂ := π₂ (tm_var ((𝟙 ×h A) ×h A))).
       fold x₁ x₂.
@@ -248,7 +248,7 @@ Section FormulaFunctor.
       + use weaken_right.
         apply hyperdoctrine_hyp.
     - unfold partial_setoid_mor_cod_defined_law ; cbn.
-      simplify.
+      hypersimplify.
       pose (x₁ := π₂ (π₁ (tm_var ((𝟙 ×h A) ×h A)))).
       pose (x₂ := π₂ (tm_var ((𝟙 ×h A) ×h A))).
       fold x₁ x₂.
@@ -258,7 +258,7 @@ Section FormulaFunctor.
       use eq_in_eq_partial_setoid.
       use hyperdoctrine_refl.
     - unfold partial_setoid_mor_eq_defined_law ; cbn.
-      simplify.
+      hypersimplify.
       pose (x₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h A) ×h A) ×h A) ×h A)))))).
       pose (x₂ := π₂ (π₁ (π₁ (tm_var ((((𝟙 ×h A) ×h A) ×h A) ×h A))))).
       pose (x₃ := π₂ (π₁ (tm_var ((((𝟙 ×h A) ×h A) ×h A) ×h A)))).
@@ -292,7 +292,7 @@ Section FormulaFunctor.
         * do 2 use weaken_right.
           apply hyperdoctrine_hyp.
     - unfold partial_setoid_mor_unique_im_law ; cbn.
-      simplify.
+      hypersimplify.
       pose (x₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h A) ×h A) ×h A))))).
       pose (x₂ := π₂ (π₁ (tm_var (((𝟙 ×h A) ×h A) ×h A)))).
       pose (x₃ := π₂ (tm_var (((𝟙 ×h A) ×h A) ×h A))).
@@ -311,13 +311,13 @@ Section FormulaFunctor.
         use weaken_left.
         apply hyperdoctrine_hyp.
     - unfold partial_setoid_mor_hom_exists_law ; cbn.
-      simplify.
+      hypersimplify.
       use forall_intro.
       use impl_intro.
       use weaken_right.
       use exists_intro.
       + exact (π₂ (tm_var _)).
-      + simplify.
+      + hypersimplify.
         pose (x := π₂ (tm_var (𝟙 ×h A))).
         fold x.
         use conj_intro.
@@ -362,7 +362,7 @@ Section FormulaFunctor.
       simplify_form.
       use exists_intro.
       + exact (π₂ (tm_var _)).
-      + simplify.
+      + hypersimplify.
         use conj_intro.
         * rewrite <- hyperdoctrine_pair_eta.
           rewrite hyperdoctrine_id_subst.
@@ -385,7 +385,7 @@ Section FormulaFunctor.
       simplify_form.
       use (exists_elim (hyperdoctrine_hyp _)).
       use weaken_right.
-      simplify.
+      hypersimplify.
       use hyp_rtrans.
       use weaken_left.
       pose (x := π₁ (π₁ (tm_var ((X ×h A) ×h A)))).
@@ -443,7 +443,7 @@ Section FormulaFunctor.
   Proof.
     repeat split.
     - unfold partial_setoid_mor_dom_defined_law ; cbn.
-      simplify.
+      hypersimplify.
       pose (x := π₂ (π₁ (tm_var ((𝟙 ×h Γ₁) ×h Γ₂)))).
       pose (y := π₂ (tm_var ((𝟙 ×h Γ₁) ×h Γ₂))).
       fold x y.
@@ -455,7 +455,7 @@ Section FormulaFunctor.
       + use weaken_left.
         apply hyperdoctrine_hyp.
     - unfold partial_setoid_mor_cod_defined_law ; cbn.
-      simplify.
+      hypersimplify.
       pose (x := π₂ (π₁ (tm_var ((𝟙 ×h Γ₁) ×h Γ₂)))).
       pose (y := π₂ (tm_var ((𝟙 ×h Γ₁) ×h Γ₂))).
       fold x y.
@@ -468,7 +468,7 @@ Section FormulaFunctor.
         use weaken_left.
         apply hyperdoctrine_hyp.
     - unfold partial_setoid_mor_eq_defined_law ; cbn.
-      simplify.
+      hypersimplify.
       pose (x₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂) ×h Γ₂)))))).
       pose (x₂ := π₂ (π₁ (π₁ (tm_var ((((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂) ×h Γ₂))))).
       pose (y₁ := π₂ (π₁ (tm_var ((((𝟙 ×h Γ₁) ×h Γ₁) ×h Γ₂) ×h Γ₂)))).
@@ -505,7 +505,7 @@ Section FormulaFunctor.
                  do 2 use weaken_left.
                  exact (eq_from_formula_to_partial_setoid _ (hyperdoctrine_hyp _)).
     - unfold partial_setoid_mor_unique_im_law ; cbn.
-      simplify.
+      hypersimplify.
       pose (x := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Γ₁) ×h Γ₂) ×h Γ₂))))).
       pose (y₁ := π₂ (π₁ (tm_var (((𝟙 ×h Γ₁) ×h Γ₂) ×h Γ₂)))).
       pose (y₂ := π₂ (tm_var (((𝟙 ×h Γ₁) ×h Γ₂) ×h Γ₂))).
@@ -528,13 +528,13 @@ Section FormulaFunctor.
         use weaken_left.
         apply hyperdoctrine_hyp.
     - unfold partial_setoid_mor_hom_exists_law ; cbn.
-      simplify.
+      hypersimplify.
       use forall_intro.
       use impl_intro.
       use weaken_right.
       use exists_intro.
       + exact (s [ π₂ (tm_var (𝟙 ×h Γ₁)) ]tm).
-      + simplify.
+      + hypersimplify.
         pose (x := π₂ (tm_var (𝟙 ×h Γ₁))).
         fold x.
         use conj_intro.
@@ -546,7 +546,7 @@ Section FormulaFunctor.
                           (hyperdoctrine_hyp _))
                        _).
              refine (hyperdoctrine_cut (hyperdoctrine_proof_subst x q) _).
-             simplify.
+             hypersimplify.
              apply hyperdoctrine_hyp.
           ** apply hyperdoctrine_refl.
   Qed.
@@ -585,7 +585,7 @@ Section FormulaFunctor.
       simplify_form.
       use exists_intro.
       + exact (π₁ (π₁ (tm_var _))).
-      + simplify.
+      + hypersimplify.
         pose (x := π₁ (π₁ (tm_var ((Γ₁ ×h Γ₂) ×h Γ₂)))).
         pose (y₁ := π₂ (π₁ (tm_var ((Γ₁ ×h Γ₂) ×h Γ₂)))).
         pose (y₂ := π₂ (tm_var ((Γ₁ ×h Γ₂) ×h Γ₂))).
@@ -609,7 +609,7 @@ Section FormulaFunctor.
       simplify_form.
       use exists_intro.
       + exact (π₂ (π₁ (tm_var _))).
-      + simplify.
+      + hypersimplify.
         pose (x₁ := π₁ (π₁ (tm_var ((Γ₁ ×h Γ₂) ×h Γ₁)))).
         pose (y := π₂ (π₁ (tm_var ((Γ₁ ×h Γ₂) ×h Γ₁)))).
         pose (x₂ := π₂ (tm_var ((Γ₁ ×h Γ₂) ×h Γ₁))).
@@ -619,7 +619,7 @@ Section FormulaFunctor.
           refine (weaken_cut
                     (weaken_left (weaken_right (hyperdoctrine_proof_subst x₁ q) _) _)
                     _).
-          simplify.
+          hypersimplify.
           use hyperdoctrine_eq_transportf.
           * exact (s [ x₁ ]tm).
           * use weaken_left.
@@ -702,22 +702,22 @@ Section FormulaFunctor.
       + apply tm_var.
       + exact s.
       + cbn.
-        simplify.
+        hypersimplify.
         use exists_intro.
         * exact (tm_var _).
         * unfold formula_to_partial_setoid_incl_form.
-          simplify.
+          hypersimplify.
           simplify_form.
           repeat (use conj_intro).
           ** apply hyperdoctrine_refl.
           ** apply hyperdoctrine_hyp.
           ** apply hyperdoctrine_refl.
       + cbn.
-        simplify.
+        hypersimplify.
         use (exists_elim (hyperdoctrine_hyp _)).
         do 2 use weaken_right.
         unfold formula_to_partial_setoid_incl_form.
-        simplify.
+        hypersimplify.
         use hyperdoctrine_eq_transportf.
         * exact (π₂ (tm_var (X ×h Y))).
         * use weaken_left.
@@ -777,8 +777,7 @@ Section FormulaFunctor.
           use impl_intro.
           use weaken_right.
           simplify_form.
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify.
           use eq_in_formula_to_partial_setoid.
           + apply hyperdoctrine_refl.
           + use weaken_left.
@@ -788,8 +787,7 @@ Section FormulaFunctor.
           use impl_intro.
           use weaken_right.
           simplify_form.
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify.
           use weaken_right.
           exact (partial_setoid_refl_l (hyperdoctrine_hyp _)).
         - unfold partial_setoid_mor_eq_defined_law ; cbn.
@@ -798,8 +796,7 @@ Section FormulaFunctor.
           use weaken_right.
           do 2 use impl_intro.
           simplify_form.
-          rewrite !partial_setoid_subst.
-          simplify.
+          hypersimplify.
           pose (γ₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h Γ) ×h Γ) ×h X) ×h X)))))).
           pose (γ₂ := π₂ (π₁ (π₁ (tm_var ((((𝟙 ×h Γ) ×h Γ) ×h X) ×h X))))).
           pose (x₁ := π₂ (π₁ (tm_var ((((𝟙 ×h Γ) ×h Γ) ×h X) ×h X)))).
@@ -809,7 +806,7 @@ Section FormulaFunctor.
           use (hyperdoctrine_cut (ψ := Δ')).
           {
             unfold Δ', partial_setoid_formula ; cbn.
-            simplify.
+            hypersimplify.
             repeat (use conj_intro).
             + do 3 use weaken_left.
               apply hyperdoctrine_hyp.
@@ -853,8 +850,7 @@ Section FormulaFunctor.
           use weaken_right.
           use impl_intro.
           simplify_form.
-          rewrite !partial_setoid_subst.
-          simplify.
+          hypersimplify.
           use partial_setoid_trans.
           + exact (t [ π₂ (π₁ (π₁ (tm_var _))) ]tm).
           + use weaken_left.
@@ -870,9 +866,8 @@ Section FormulaFunctor.
           use exists_intro.
           + exact (t [ π₂ (tm_var _) ]tm).
           + simplify_form.
-            rewrite !partial_setoid_subst.
-            simplify.
-            simplify.
+            hypersimplify.
+            hypersimplify.
             use conj_intro.
             * exact (prop_from_formula_to_partial_setoid _ (hyperdoctrine_hyp _)).
             * refine (hyperdoctrine_cut
@@ -903,26 +898,26 @@ Section FormulaFunctor.
         do 2 use forall_intro.
         use impl_intro.
         use weaken_right.
-        simplify.
+        hypersimplify.
         use eq_in_formula_to_partial_setoid.
         + apply hyperdoctrine_refl.
         + simplify_form.
           use exists_intro.
           * exact (π₂ (tm_var _)).
-          * simplify.
+          * hypersimplify.
             apply hyperdoctrine_hyp.
       - unfold partial_setoid_mor_cod_defined_law ; cbn.
         do 2 use forall_intro.
         use impl_intro.
         use weaken_right.
-        simplify.
+        hypersimplify.
         exact (partial_setoid_mor_dom_defined φ _ _ (hyperdoctrine_hyp _)).
       - unfold partial_setoid_mor_eq_defined_law ; cbn.
         do 4 use forall_intro.
         use impl_intro.
         use weaken_right.
         do 2 use impl_intro.
-        simplify.
+        hypersimplify.
         refine (partial_setoid_mor_eq_defined φ _ _ (weaken_right (hyperdoctrine_hyp _) _)).
         + use weaken_left.
           use weaken_right.
@@ -935,7 +930,7 @@ Section FormulaFunctor.
         use impl_intro.
         use weaken_right.
         use impl_intro.
-        simplify.
+        hypersimplify.
         pose (x₁ := π₂ (π₁ (tm_var (((𝟙 ×h A) ×h X) ×h X)))).
         pose (x₂ := π₂ (tm_var (((𝟙 ×h A) ×h X) ×h X))).
         pose (a := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h A) ×h X) ×h X))))).
@@ -967,8 +962,7 @@ Section FormulaFunctor.
           + cbn.
             unfold Δ.
             simplify_form.
-            rewrite partial_setoid_subst.
-            simplify.
+            hypersimplify.
             use conj_intro.
             * apply hyperdoctrine_hyp.
             * use weaken_left.
@@ -977,8 +971,7 @@ Section FormulaFunctor.
           + cbn.
             unfold Δ.
             simplify_form.
-            rewrite partial_setoid_subst.
-            simplify.
+            hypersimplify.
             use weaken_right.
             apply hyperdoctrine_hyp.
         }
@@ -988,11 +981,9 @@ Section FormulaFunctor.
           simplify_form.
           use exists_intro.
           * exact (π₂ (π₁ (π₁ (tm_var _)))).
-          * rewrite !partial_setoid_subst.
-            simplify.
+          * hypersimplify.
             unfold x₁, x₂.
-            rewrite !partial_setoid_subst.
-            simplify.
+            hypersimplify.
             repeat (use conj_intro).
             ** do 2 use weaken_left.
                apply hyperdoctrine_hyp.
@@ -1000,10 +991,10 @@ Section FormulaFunctor.
                rewrite !conj_subst.
                do 2 use weaken_left.
                use weaken_right.
-               simplify.
+               hypersimplify.
                exact (partial_setoid_mor_dom_defined φ _ _ (hyperdoctrine_hyp _)).
             ** unfold Δ, x₁, a, x₂ ; clear Δ x₁ a x₂ r₁ r₂.
-               simplify.
+               hypersimplify.
                pose (a₁ := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var (((((𝟙 ×h A) ×h X) ×h X) ×h A) ×h X))))))).
                pose (x₁ := π₂ (π₁ (π₁ (π₁ (tm_var (((((𝟙 ×h A) ×h X) ×h X) ×h A) ×h X)))))).
                pose (x₂ := π₂ (π₁ (π₁ (tm_var (((((𝟙 ×h A) ×h X) ×h X) ×h A) ×h X))))).
@@ -1048,12 +1039,10 @@ Section FormulaFunctor.
           simplify_form.
           use exists_intro.
           * exact (π₂ (π₁ (π₁ (π₁ (tm_var _))))).
-          * rewrite !partial_setoid_subst.
-            simplify.
-            rewrite !partial_setoid_subst.
-            simplify.
+          * hypersimplify.
+            hypersimplify.
             unfold x₁, x₂.
-            simplify.
+            hypersimplify.
             repeat (use conj_intro).
             ** do 2 use weaken_left.
                apply hyperdoctrine_hyp.
@@ -1061,10 +1050,10 @@ Section FormulaFunctor.
                do 2 use weaken_left.
                rewrite conj_subst.
                use weaken_left.
-               simplify.
+               hypersimplify.
                exact (partial_setoid_mor_dom_defined φ _ _ (hyperdoctrine_hyp _)).
             ** unfold Δ, x₁, a, x₂.
-               simplify.
+               hypersimplify.
                clear Δ x₁ a x₂ r₁ r₂.
                pose (a₁ := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var (((((𝟙 ×h A) ×h X) ×h X) ×h A) ×h X))))))).
                pose (x₁ := π₂ (π₁ (π₁ (π₁ (tm_var (((((𝟙 ×h A) ×h X) ×h X) ×h A) ×h X)))))).
@@ -1108,10 +1097,10 @@ Section FormulaFunctor.
         use forall_intro.
         use impl_intro.
         use weaken_right.
-        simplify.
+        hypersimplify.
         unfold partial_setoid_formula.
         cbn.
-        simplify.
+        hypersimplify.
         use weaken_right.
         apply hyperdoctrine_hyp.
     Qed.
@@ -1139,17 +1128,16 @@ Section FormulaFunctor.
       - cbn.
         use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right.
-        simplify.
+        hypersimplify.
         use exists_intro.
         + exact (π₁ (π₁ (tm_var _))).
         + simplify_form.
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify.
           repeat (use conj_intro).
           * apply hyperdoctrine_refl.
           * use exists_intro.
             ** exact (π₂ (tm_var _)).
-            ** simplify.
+            ** hypersimplify.
                use weaken_left.
                apply hyperdoctrine_hyp.
           * use (partial_setoid_mor_unique_im φ).
@@ -1162,8 +1150,7 @@ Section FormulaFunctor.
         use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right.
         simplify_form.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify.
         use hyp_sym.
         use hyp_rtrans.
         use hyp_sym.
@@ -1174,8 +1161,7 @@ Section FormulaFunctor.
         use exists_intro.
         + exact (π₂ (tm_var _)).
         + simplify_form.
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify.
           use conj_intro.
           * use weaken_right.
             apply hyperdoctrine_hyp.
@@ -1206,27 +1192,27 @@ Section FormulaFunctor.
         do 2 use forall_intro.
         use impl_intro.
         use weaken_right.
-        simplify.
+        hypersimplify.
         exact (partial_setoid_mor_dom_defined φ _ _ (hyperdoctrine_hyp _)).
       - unfold partial_setoid_mor_cod_defined_law ; cbn.
         do 2 use forall_intro.
         use impl_intro.
         use weaken_right.
-        simplify.
+        hypersimplify.
         use eq_in_formula_to_partial_setoid.
         + use from_eq_in_eq_partial_setoid.
           exact (partial_setoid_mor_cod_defined φ _ _ (hyperdoctrine_hyp _)).
         + simplify_form.
           use exists_intro.
           * exact (π₂ (π₁ (tm_var _))).
-          * simplify.
+          * hypersimplify.
             apply hyperdoctrine_hyp.
       - unfold partial_setoid_mor_eq_defined_law ; cbn.
         do 4 use forall_intro.
         use impl_intro.
         use weaken_right.
         do 2 use impl_intro.
-        simplify.
+        hypersimplify.
         use (partial_setoid_mor_eq_defined φ).
         + exact (π₂ (π₁ (π₁ (π₁ (tm_var _))))).
         + exact (π₂ (π₁ (tm_var _))).
@@ -1245,7 +1231,7 @@ Section FormulaFunctor.
         use impl_intro.
         use weaken_right.
         use impl_intro.
-        simplify.
+        hypersimplify.
         use eq_in_formula_to_partial_setoid.
         + use from_eq_in_eq_partial_setoid.
           use (partial_setoid_mor_unique_im φ).
@@ -1257,7 +1243,7 @@ Section FormulaFunctor.
         + simplify_form.
           use exists_intro.
           * exact (π₂ (π₁ (π₁ (tm_var _)))).
-          * simplify.
+          * hypersimplify.
             use weaken_left.
             apply hyperdoctrine_hyp.
       - unfold partial_setoid_mor_hom_exists_law ; cbn.
@@ -1269,7 +1255,7 @@ Section FormulaFunctor.
         use exists_intro.
         + exact (π₂ (tm_var _)).
         + cbn.
-          simplify.
+          hypersimplify.
           use weaken_right.
           apply hyperdoctrine_hyp.
     Qed.
@@ -1296,8 +1282,7 @@ Section FormulaFunctor.
         use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right.
         simplify_form.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify.
         use hyp_rtrans.
         use hyp_sym.
         use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
@@ -1307,8 +1292,7 @@ Section FormulaFunctor.
         use exists_intro.
         + exact (π₂ (π₁ (tm_var _))).
         + simplify_form.
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify.
           use conj_intro.
           * do 2 use weaken_left.
             apply hyperdoctrine_hyp.
@@ -1319,12 +1303,11 @@ Section FormulaFunctor.
       - cbn.
         use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right.
-        simplify.
+        hypersimplify.
         use exists_intro.
         + exact (π₂ (tm_var _)).
         + simplify_form.
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify.
           repeat (use conj_intro).
           * use weaken_left.
             apply hyperdoctrine_hyp.
@@ -1333,7 +1316,7 @@ Section FormulaFunctor.
             apply hyperdoctrine_hyp.
           * use exists_intro.
             ** exact (π₁ (π₁ (tm_var _))).
-            ** simplify.
+            ** hypersimplify.
                use weaken_left.
                apply hyperdoctrine_hyp.
     Qed.
@@ -1393,8 +1376,7 @@ Proof.
     exact (x₂ [ c ]tm).
   }
   simplify_form.
-  rewrite !partial_setoid_subst.
-  simplify.
+  hypersimplify.
   fold a b c.
   repeat use conj_intro.
   - do 2 use weaken_left.
@@ -1425,13 +1407,13 @@ Proof.
            apply hyperdoctrine_hyp.
         ** do 2 use weaken_left.
            refine (hyperdoctrine_cut (hyperdoctrine_proof_subst c p₁) _).
-           simplify.
+           hypersimplify.
            apply hyperdoctrine_hyp.
       * use weaken_right.
         apply hyperdoctrine_hyp.
     + do 2 use weaken_left.
       refine (hyperdoctrine_cut (hyperdoctrine_proof_subst c p₂) _).
-      simplify.
+      hypersimplify.
       apply hyperdoctrine_hyp.
 Qed.
 
@@ -1475,9 +1457,7 @@ Proof.
   {
     cbn.
     simplify_form.
-    rewrite partial_setoid_subst.
-    simplify.
-    rewrite hyperdoctrine_id_subst.
+    hypersimplify.
     use conj_intro.
     {
       apply hyperdoctrine_hyp.
@@ -1491,8 +1471,7 @@ Proof.
   unfold fx₂.
   cbn.
   simplify_form.
-  rewrite partial_setoid_subst.
-  simplify.
+  hypersimplify.
   use weaken_right.
   apply hyperdoctrine_hyp.
 Qed.

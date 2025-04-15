@@ -84,13 +84,12 @@ Section PERLambda.
     Proof.
       refine (hyperdoctrine_cut p _).
       unfold lam_partial_setoid_form.
-      simplify_form.
+      hypersimplify_form.
       use weaken_left.
       unfold lam_partial_setoid_is_def.
-      simplify_form.
+      hypersimplify_form.
       use weaken_left.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       apply hyperdoctrine_hyp.
     Qed.
 
@@ -99,12 +98,12 @@ Section PERLambda.
     Proof.
       refine (hyperdoctrine_cut p _).
       unfold lam_partial_setoid_form.
-      simplify_form.
+      hypersimplify_form.
       use weaken_left.
       unfold lam_partial_setoid_is_def.
-      simplify_form.
+      hypersimplify_form.
       use weaken_right.
-      simplify.
+      hypersimplify.
       apply hyperdoctrine_hyp.
     Qed.
 
@@ -113,12 +112,12 @@ Section PERLambda.
     Proof.
       refine (hyperdoctrine_cut p _).
       unfold lam_partial_setoid_form.
-      simplify_form.
+      hypersimplify_form.
       use weaken_left.
       unfold lam_partial_setoid_is_def.
-      simplify_form.
+      hypersimplify_form.
       use weaken_right.
-      simplify.
+      hypersimplify.
       apply exp_partial_setoid_eq_refl.
     Qed.
 
@@ -129,15 +128,15 @@ Section PERLambda.
     Proof.
       refine (hyperdoctrine_cut p _).
       unfold lam_partial_setoid_form.
-      simplify_form.
+      hypersimplify_form.
       use weaken_right.
       unfold lam_partial_setoid_eq.
-      simplify_form.
+      hypersimplify_form.
       use (hyperdoctrine_cut (forall_elim (hyperdoctrine_hyp _) x) _).
-      simplify_form.
+      hypersimplify_form.
       use (hyperdoctrine_cut (forall_elim (hyperdoctrine_hyp _) y) _).
       cbn.
-      simplify.
+      hypersimplify.
       apply hyperdoctrine_hyp.
     Qed.
 
@@ -174,9 +173,8 @@ Section PERLambda.
   Proof.
     unfold lam_partial_setoid_form, lam_partial_setoid_is_def.
     cbn.
-    simplify_form.
-    rewrite partial_setoid_subst.
-    simplify.
+    hypersimplify_form.
+    hypersimplify.
     repeat use conj_intro.
     - exact p₁.
     - exact p₂.
@@ -201,7 +199,7 @@ Section PERLambda.
       rewrite !forall_subst.
       do 2 use forall_intro.
       cbn.
-      simplify.
+      hypersimplify.
       pose (γ := π₁ (π₁ (tm_var ((Γ ×h X) ×h Y)))).
       pose (x := π₂ (π₁ (tm_var ((Γ ×h X) ×h Y)))).
       pose (y := π₂ (tm_var ((Γ ×h X) ×h Y))).
@@ -213,13 +211,13 @@ Section PERLambda.
           refine (hyperdoctrine_cut
                     (hyperdoctrine_proof_subst γ r)
                     _).
-          simplify.
+          hypersimplify.
           apply hyperdoctrine_hyp.
         * use (partial_setoid_mor_eq_defined φ).
           ** exact ⟨ x , z' [ γ ]tm ⟩.
           ** exact y.
           ** use eq_in_prod_partial_setoid.
-             *** simplify.
+             *** hypersimplify.
                  use weaken_right.
                  refine (hyperdoctrine_cut
                            (partial_setoid_mor_dom_defined
@@ -229,10 +227,10 @@ Section PERLambda.
                  use (hyperdoctrine_cut
                         (eq_in_prod_partial_setoid_l _ _ (hyperdoctrine_hyp _))
                         _).
-                 simplify.
+                 hypersimplify.
                  apply hyperdoctrine_hyp.
              *** use weaken_left.
-                 simplify.
+                 hypersimplify.
                  rewrite <- partial_setoid_subst.
                  use hyperdoctrine_proof_subst.
                  use partial_setoid_sym.
@@ -252,14 +250,14 @@ Section PERLambda.
                refine (hyperdoctrine_cut
                          (hyperdoctrine_proof_subst γ r)
                          _).
-               simplify.
+               hypersimplify.
                apply hyperdoctrine_hyp.
             ** use weaken_right.
                apply hyperdoctrine_hyp.
           * refine (hyperdoctrine_cut
                       (eq_in_prod_partial_setoid_l _ _ (hyperdoctrine_hyp _))
                       _).
-            simplify.
+            hypersimplify.
             apply hyperdoctrine_hyp.
         }
         assert (Δ [γ] ∧ ⟨ x, y ⟩ ∈ f [γ ]tm ⊢ y ~ y) as lem₂.
@@ -271,7 +269,7 @@ Section PERLambda.
             refine (hyperdoctrine_cut
                       (hyperdoctrine_proof_subst γ r)
                       _).
-            simplify.
+            hypersimplify.
             apply hyperdoctrine_hyp.
           }
           use weaken_right.
@@ -281,9 +279,9 @@ Section PERLambda.
         * exact ⟨ x , z [ γ ]tm ⟩.
         * exact y.
         * use eq_in_prod_partial_setoid.
-          ** simplify.
+          ** hypersimplify.
              exact lem₁.
-          ** simplify.
+          ** hypersimplify.
              use weaken_left.
              rewrite <- partial_setoid_subst.
              use hyperdoctrine_proof_subst.
@@ -295,7 +293,7 @@ Section PERLambda.
              refine (hyperdoctrine_cut
                        (hyperdoctrine_proof_subst γ r)
                        _).
-             simplify.
+             hypersimplify.
              apply hyperdoctrine_hyp.
           ** use weaken_right.
              apply hyperdoctrine_hyp.
@@ -332,11 +330,11 @@ Section PERLambda.
       refine (_ @ maponpaths (λ φ, φ [ ⟨ ⟨ x , y ⟩ , ⟨ !! , z ⟩ ⟩ ]) lam_image_form_eq_help).
       unfold lam_image_form.
       cbn.
-      simplify.
+      hypersimplify.
       apply idpath.
     }
     cbn.
-    simplify.
+    hypersimplify.
     apply idpath.
   Qed.
 
@@ -346,16 +344,15 @@ Section PERLambda.
     : Δ ⊢ exp_partial_setoid_is_function [{{lam_image_form}}].
   Proof.
     unfold exp_partial_setoid_is_function.
-    simplify_form.
+    hypersimplify_form.
     repeat use conj_intro.
     - unfold exp_partial_setoid_dom_defined_law.
-      simplify_form.
+      hypersimplify_form.
       do 2 use forall_intro.
       use impl_intro.
       use weaken_right.
-      simplify_form.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify_form.
+      hypersimplify.
       pose (x := π₂ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y)))).
       pose (y := π₂ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))).
       pose (z := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))))).
@@ -371,16 +368,15 @@ Section PERLambda.
                 (partial_setoid_mor_dom_defined φ ⟨ x , z ⟩ y (hyperdoctrine_hyp _))
                 _).
       refine (hyperdoctrine_cut (eq_in_prod_partial_setoid_l _ _ (hyperdoctrine_hyp _)) _).
-      simplify.
+      hypersimplify.
       apply hyperdoctrine_hyp.
     - unfold exp_partial_setoid_cod_defined_law.
-      simplify_form.
+      hypersimplify_form.
       do 2 use forall_intro.
       use impl_intro.
       use weaken_right.
-      simplify_form.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify_form.
+      hypersimplify.
       pose (x := π₂ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y)))).
       pose (y := π₂ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))).
       pose (z := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))))).
@@ -395,12 +391,11 @@ Section PERLambda.
       rewrite lam_image_form_eq.
       apply hyperdoctrine_hyp.
     - unfold exp_partial_setoid_eq_defined_law.
-      simplify_form.
+      hypersimplify_form.
       do 4 use forall_intro.
       do 3 use impl_intro.
-      simplify_form.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify_form.
+      hypersimplify.
       pose (Γ := ((((𝟙 ×h Z) ×h X) ×h X) ×h Y) ×h Y).
       pose (x₁ := π₂ (π₁ (π₁ (π₁ (tm_var Γ))))).
       pose (x₂ := π₂ (π₁ (π₁ (tm_var Γ)))).
@@ -422,17 +417,16 @@ Section PERLambda.
       + exact ⟨ x₁ , z ⟩.
       + exact y₁.
       + use eq_in_prod_partial_setoid.
-        * simplify.
+        * hypersimplify.
           do 2 use weaken_left.
           use weaken_right.
           apply hyperdoctrine_hyp.
-        * simplify.
+        * hypersimplify.
           do 3 use weaken_left.
           refine (hyperdoctrine_cut
                     (hyperdoctrine_proof_subst ⟨ !! , z ⟩ p)
                     _).
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify.
           apply hyperdoctrine_hyp.
       + use weaken_left.
         use weaken_right.
@@ -440,14 +434,13 @@ Section PERLambda.
       + use weaken_right.
         apply hyperdoctrine_hyp.
     - unfold exp_partial_setoid_unique_im_law.
-      simplify_form.
+      hypersimplify_form.
       do 3 use forall_intro.
       use impl_intro.
       use weaken_right.
       use impl_intro.
-      simplify_form.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify_form.
+      hypersimplify.
       pose (z := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h Z) ×h X) ×h Y) ×h Y)))))).
       pose (x := π₂ (π₁ (π₁ (tm_var ((((𝟙 ×h Z) ×h X) ×h Y) ×h Y))))).
       pose (y := π₂ (π₁ (tm_var ((((𝟙 ×h Z) ×h X) ×h Y) ×h Y)))).
@@ -467,11 +460,10 @@ Section PERLambda.
       + use weaken_right.
         apply hyperdoctrine_hyp.
     - unfold exp_partial_setoid_im_exists_law.
-      simplify_form.
+      hypersimplify_form.
       use forall_intro.
       use impl_intro.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (x := π₂ (tm_var ((𝟙 ×h Z) ×h X))).
       pose (z := π₂ (π₁ (tm_var ((𝟙 ×h Z) ×h X)))).
       fold x.
@@ -482,15 +474,14 @@ Section PERLambda.
       }
       use hyp_ltrans.
       use weaken_right.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       fold z.
       use (exists_elim (partial_setoid_mor_hom_exists φ (x := ⟨ x , z ⟩) _)).
       + use eq_in_prod_partial_setoid.
-        * simplify.
+        * hypersimplify.
           use weaken_left.
           apply hyperdoctrine_hyp.
-        * simplify.
+        * hypersimplify.
           use weaken_right.
           apply hyperdoctrine_hyp.
       + unfold x, z ; clear x z.
@@ -503,9 +494,8 @@ Section PERLambda.
           exact y.
         }
         cbn.
-        simplify_form.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify_form.
+        hypersimplify.
         fold x y z.
         rewrite (hyperdoctrine_pair_eta (π₁ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))))).
         fold z.
@@ -526,7 +516,7 @@ Section PERLambda.
     rewrite !forall_subst.
     do 2 use forall_intro.
     cbn.
-    simplify.
+    hypersimplify.
     pose (x := π₂ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y)))).
     pose (y := π₂ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))).
     pose (z := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h Z) ×h X) ×h Y))))).
@@ -547,7 +537,7 @@ Section PERLambda.
   Proof.
     repeat split.
     - unfold partial_setoid_mor_dom_defined_law ; cbn.
-      simplify_form.
+      hypersimplify_form.
       use forall_intro.
       use forall_intro.
       use impl_intro.
@@ -558,7 +548,7 @@ Section PERLambda.
       use (lam_partial_setoid_form_def_dom z f).
       apply hyperdoctrine_hyp.
     - unfold partial_setoid_mor_cod_defined_law ; cbn.
-      simplify_form.
+      hypersimplify_form.
       do 2 use forall_intro.
       use impl_intro.
       use weaken_right.
@@ -596,12 +586,11 @@ Section PERLambda.
           use (lam_partial_setoid_form_is_function z f).
           apply hyperdoctrine_hyp.
       + unfold lam_partial_setoid_eq.
-        simplify_form.
+        hypersimplify_form.
         do 2 use forall_intro.
         unfold f', f, z', z ; cbn ; clear f' f z' z.
-        simplify_form.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify_form.
+        hypersimplify.
         pose (Γ := (((((𝟙 ×h Z) ×h Z) ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)) ×h X) ×h Y).
         pose (y := π₂ (tm_var Γ)).
         pose (x := π₂ (π₁ (tm_var Γ))).
@@ -625,8 +614,9 @@ Section PERLambda.
              *** use (partial_setoid_mor_eq_defined φ).
                  **** exact ⟨ x , z' ⟩.
                  **** exact y.
-                 **** use eq_in_prod_partial_setoid ; simplify.
+                 **** use eq_in_prod_partial_setoid.
                       {
+                        hypersimplify.
                         use weaken_right.
                         refine (hyperdoctrine_cut
                                   (partial_setoid_mor_dom_defined
@@ -639,9 +629,10 @@ Section PERLambda.
                                      _ _
                                      (hyperdoctrine_hyp _))
                                   _).
-                        simplify.
+                        hypersimplify.
                         apply hyperdoctrine_hyp.
                       }
+                      hypersimplify.
                       do 3 use weaken_left.
                       use partial_setoid_sym.
                       apply hyperdoctrine_hyp.
@@ -681,15 +672,15 @@ Section PERLambda.
       pose (f := π₂ (π₁ (tm_var (((𝟙 ×h Z) ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y))))).
       pose (g := π₂ (tm_var (((𝟙 ×h Z) ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)))).
       fold z f g.
-      simplify.
+      hypersimplify.
       use eq_in_exp_partial_setoid.
       + use weaken_left.
         use (lam_partial_setoid_form_is_function z f).
         apply hyperdoctrine_hyp.
       + unfold exp_partial_setoid_eq, f, g, z ; clear f g z.
-        simplify.
+        hypersimplify.
         do 2 use forall_intro.
-        simplify.
+        hypersimplify.
         pose (Γ := ((((𝟙 ×h Z) ×h ℙ (X ×h Y)) ×h ℙ (X ×h Y)) ×h X) ×h Y).
         pose (x := π₂ (π₁ (tm_var Γ))).
         pose (y := π₂ (tm_var Γ)).
@@ -712,11 +703,11 @@ Section PERLambda.
       use forall_intro.
       use impl_intro.
       use weaken_right.
-      simplify.
+      hypersimplify.
       use exists_intro.
       + exact {{ lam_image_form }}.
       + pose (z := π₂ (tm_var (𝟙 ×h Z))).
-        simplify.
+        hypersimplify.
         fold z.
         use to_lam_partial_setoid_eq.
         * apply hyperdoctrine_hyp.
