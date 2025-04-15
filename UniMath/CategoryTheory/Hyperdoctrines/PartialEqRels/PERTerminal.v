@@ -46,9 +46,8 @@ Proof.
   unfold partial_setoid_morphism_to_terminal_form.
   repeat split.
   - unfold partial_setoid_mor_dom_defined_law.
-    cbn ; simplify.
-    rewrite partial_setoid_subst.
-    simplify.
+    cbn ; hypersimplify.
+    hypersimplify.
     pose (x := π₂ (π₁ (tm_var ((𝟙 ×h X) ×h 𝟙)))).
     fold x.
     use forall_intro.
@@ -57,9 +56,8 @@ Proof.
     use weaken_right.
     apply hyperdoctrine_hyp.
   - unfold partial_setoid_mor_cod_defined_law.
-    cbn ; simplify.
-    rewrite partial_setoid_subst.
-    simplify.
+    cbn ; hypersimplify.
+    hypersimplify.
     pose (x := π₂ (π₁ (tm_var ((𝟙 ×h X) ×h 𝟙)))).
     pose (y := π₂ (tm_var ((𝟙 ×h X) ×h 𝟙))).
     fold x y.
@@ -70,9 +68,8 @@ Proof.
     use eq_in_eq_partial_setoid.
     apply hyperdoctrine_refl.
   - unfold partial_setoid_mor_eq_defined_law.
-    cbn ; simplify.
-    rewrite !partial_setoid_subst.
-    simplify.
+    cbn ; hypersimplify.
+    hypersimplify.
     pose (T := X).
     pose (T' := 𝟙 : ty H).
     pose (x₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h T) ×h T) ×h T') ×h T')))))).
@@ -92,9 +89,8 @@ Proof.
     }
     apply hyperdoctrine_hyp.
   - unfold partial_setoid_mor_unique_im_law.
-    cbn ; simplify.
-    rewrite !partial_setoid_subst.
-    simplify.
+    cbn ; hypersimplify.
+    hypersimplify.
     pose (T := X).
     pose (T' := 𝟙 : ty H).
     pose (x := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h T) ×h T') ×h T'))))).
@@ -109,9 +105,8 @@ Proof.
     use eq_in_eq_partial_setoid.
     use hyperdoctrine_unit_tm_eq.
   - unfold partial_setoid_mor_hom_exists_law.
-    cbn ; simplify.
-    rewrite !partial_setoid_subst.
-    simplify.
+    cbn ; hypersimplify.
+    hypersimplify.
     pose (T := X).
     pose (T' := 𝟙 : ty H).
     pose (x := π₂ (tm_var (𝟙 ×h T))).
@@ -123,8 +118,7 @@ Proof.
     use weaken_right.
     use exists_intro.
     + exact !!.
-    + rewrite partial_setoid_subst.
-      simplify.
+    + hypersimplify.
       apply hyperdoctrine_hyp.
 Qed.
 
@@ -151,13 +145,13 @@ Proof.
   - use (partial_setoid_mor_dom_defined φ x y).
     unfold x, y.
     rewrite <- hyperdoctrine_pair_eta.
-    simplify.
+    hypersimplify.
     apply hyperdoctrine_hyp.
   - use (exists_elim (partial_setoid_mor_hom_exists φ (hyperdoctrine_hyp _))).
     cbn.
     use weaken_right.
     unfold x, y ; clear x y.
-    simplify.
+    hypersimplify.
     pose (x := π₁ (tm_var ((X ×h 𝟙) ×h 𝟙))).
     pose (y := π₂ (tm_var ((X ×h 𝟙) ×h 𝟙))).
     fold x y.

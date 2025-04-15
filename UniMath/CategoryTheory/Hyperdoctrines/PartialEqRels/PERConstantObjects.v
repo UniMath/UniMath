@@ -46,7 +46,7 @@ Proof.
   unfold term_partial_setoid_morphism_form.
   repeat split.
   - unfold partial_setoid_mor_dom_defined_law.
-    cbn ; simplify.
+    cbn ; hypersimplify.
     pose (T := X).
     pose (T' := Y).
     pose (x := π₂ (π₁ (tm_var ((𝟙 ×h T) ×h T')))).
@@ -57,10 +57,10 @@ Proof.
     use forall_intro.
     use impl_intro.
     use eq_in_eq_partial_setoid.
-    simplify.
+    hypersimplify.
     apply hyperdoctrine_refl.
   - unfold partial_setoid_mor_cod_defined_law.
-    cbn ; simplify.
+    cbn ; hypersimplify.
     pose (T := X).
     pose (T' := Y).
     pose (x := π₂ (π₁ (tm_var ((𝟙 ×h T) ×h T')))).
@@ -71,10 +71,10 @@ Proof.
     use forall_intro.
     use impl_intro.
     use eq_in_eq_partial_setoid.
-    simplify.
+    hypersimplify.
     apply hyperdoctrine_refl.
   - unfold partial_setoid_mor_eq_defined_law.
-    cbn ; simplify.
+    cbn ; hypersimplify.
     pose (T := X).
     pose (T' := Y).
     pose (x₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h T) ×h T) ×h T') ×h T')))))).
@@ -90,7 +90,7 @@ Proof.
     use impl_intro.
     use impl_intro.
     use impl_intro.
-    simplify.
+    hypersimplify.
     use hyperdoctrine_eq_trans.
     + exact y₁.
     + use hyperdoctrine_eq_trans.
@@ -108,7 +108,7 @@ Proof.
       use from_eq_in_eq_partial_setoid.
       apply hyperdoctrine_hyp.
   - unfold partial_setoid_mor_unique_im_law.
-    cbn ; simplify.
+    cbn ; hypersimplify.
     pose (T := X).
     pose (T' := Y).
     pose (x := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h T) ×h T') ×h T'))))).
@@ -122,7 +122,7 @@ Proof.
     use impl_intro.
     use impl_intro.
     use eq_in_eq_partial_setoid.
-    simplify.
+    hypersimplify.
     use hyperdoctrine_eq_trans.
     + exact (t [ x ]tm).
     + use weaken_left.
@@ -132,7 +132,7 @@ Proof.
     + use weaken_right.
       apply hyperdoctrine_hyp.
   - unfold partial_setoid_mor_hom_exists_law.
-    cbn ; simplify.
+    cbn ; hypersimplify.
     pose (T := X).
     pose (T' := Y).
     pose (x := π₂ (tm_var (𝟙 ×h T))).
@@ -142,10 +142,10 @@ Proof.
     use forall_intro.
     use impl_intro.
     unfold x, y.
-    simplify.
+    hypersimplify.
     use exists_intro.
     + exact (t [ π₂ (tm_var _) ]tm).
-    + simplify.
+    + hypersimplify.
       apply hyperdoctrine_refl.
 Qed.
 
@@ -193,7 +193,7 @@ Section ConstantObject.
       use eq_partial_setoid_morphism ; cbn in *.
       + use exists_intro.
         * exact (t₁ [ π₁ (tm_var _) ]tm).
-        * simplify.
+        * hypersimplify.
           use conj_intro.
           ** apply hyperdoctrine_refl.
           ** use (hyperdoctrine_eq_trans _ (hyperdoctrine_hyp _)).
@@ -201,7 +201,7 @@ Section ConstantObject.
              exact (!(tm_subst_comp (π₁ (tm_var (X ×h Z))) t₁ t₂)).
       + use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right.
-        simplify.
+        hypersimplify.
         use (hyperdoctrine_eq_trans _ (weaken_right (hyperdoctrine_hyp _) _)).
         use weaken_left.
         use hyperdoctrine_eq_trans.
