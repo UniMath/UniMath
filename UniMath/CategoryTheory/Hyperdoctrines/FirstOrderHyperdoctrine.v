@@ -108,8 +108,15 @@ Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 
+Require Import UniMath.Tactics.Simplify.
+Require Import UniMath.Tactics.Utilities.
+Require Import Ltac2.Ltac2.
+Require Import Ltac2.Notations.
+
 Local Open Scope cat.
 Local Open Scope hd.
+
+Set Default Proof Mode "Classic".
 
 (** * 1. First-order hyperdoctrines *)
 Definition first_order_preorder_hyperdoctrine
@@ -1675,35 +1682,117 @@ Qed.
 (** * 13. A tactic for simplifying goals in the internal language of first-order hyperdoctrines *)
 
 (**
-   We design a tactic `simplify`, which is meant to help proving statements in the internal
-   language of some hyperdoctrine. Such goals are of the shape `Δ ⊢ φ`. The tactic `simplify`
-   simplifies `Δ` and φ` by calculating the substitutions and by putting all terms that occur
-   in either `Δ` or φ` in normal form.
+  The tactic `simplify` helps proving statements in the internal language of a hyperdoctrine. Such
+  goals are of the shape `Δ ⊢ φ`. The tactic simplifies `Δ` and φ` by propagating the substitutions
+  and by putting all terms that occur in either `Δ` or φ` in normal form.
 
-   We divide this tactic into two subroutines.
-   1. `simplify_form`. This tactic calculates all substitutions in `Δ` and `φ`.
-   2. `simplify_term`. This tactic normalizes all terms in `Δ` and `φ`.
+  The tactic uses identities with two different levels:
+  - The rewrites with level 0 are those that express how substitution acts on formulas, and are used
+    to propagate substitutions in `Δ` and `φ`.
+  - The rewrites with level 1 are all rewrite rules on terms in the language, used to normalize all
+    terms in `Δ` and `φ`.
 
-   Both `simplify_form` and `simplify_term` work by repeatedly using rewrite rules of the
-   internal language. The only difference lies in which rewrite rules they use. For
-   `simplify_form` the used rewrite rules are those that express how substitution acts on
-   formulas, and for `simplify_term` these are all rewrite rules on terms in the language.
-   We shall only explain how `simplify_form` is implemented, since `simplify_term` is
-   implemented in the same way.
+  In some cases, it is a bit faster to use `hypersimplify 0` to simplify the formula and delay using
+  the full `hypersimplify` until it is necessary. The reason why this helps, is because one might
+  have made the goal smaller and removed some unnecessary assumptions using weakening.
+  This is demonstrated in `PERs.v` in the proof of [eq_per_axioms].
 
-   The tactic `simplify_form` repeatedly tries to apply `simplify_form_step`, which tries
-   to rewrite each substitution rule in the language. If this succeeds, then the rewrites
-   are performed, and it continues. If no progress is made, then the tactic terminates.
-   Guaranteeing that the tactic terminates if no progress is made, is done using the
-   `progress` tactic.
-
-   If one is trying to prove a goal with rather large formulas, then it might not be ideal
-   to use `simplify` directly. This is because one might be normalizing too many terms.
-   Instead one could use `simplify_form` to simplify the formula and delay using
-   `simplify_term` until it is necessary. The reason why this helps, is because one might
-   have made the goal smaller and removed some unnecessary assumptions using weakening.
-   This is demonstrated in `PERs.v` in the proof of [eq_per_axioms].
+  The tactic can be extended with new substitutions and normalizations. For example, handling of `~`
+  is added in `PERs.v`.
  *)
+
+Set Default Proof Mode "Ltac2".
+
+Ltac2 mutable hypertraversals () : t_traversal list := [].
+
+Ltac2 Set hypertraversals as traversals := fun _ =>
+  (make_traversal (fun () => match! goal with | [|- (_  [ ?b]tm) = _ ] => '(λ x,  x [$b ]tm) end)  "" " [ _ ]tm") ::
+  (make_traversal (fun () => match! goal with | [|- (?a [  _]tm) = _ ] => '(λ x,  $a[ x ]tm) end)    "_ [" "]tm") ::
+  (make_traversal (fun () => match! goal with | [|- (_  [ ?b]  ) = _ ] => '(λ x,  x [$b ]  ) end) " " " [ _ ]"  ) ::
+  (make_traversal (fun () => match! goal with | [|- (?a [  _]  ) = _ ] => '(λ x,  $a[ x ]  ) end)    "_ [" "]"  ) ::
+  (make_traversal (fun () => match! goal with | [|- (_  ∧ ?b   ) = _ ] => '(λ x,  x ∧$b    ) end)  "" " ∧ _"    ) ::
+  (make_traversal (fun () => match! goal with | [|- (?a ∧  _   ) = _ ] => '(λ x,  $a∧ x    ) end)    "_ ∧ " ""  ) ::
+  (make_traversal (fun () => match! goal with | [|- (_  ∨ ?b   ) = _ ] => '(λ x,  x ∨$b    ) end)  "" " ∨ _"    ) ::
+  (make_traversal (fun () => match! goal with | [|- (?a ∨  _   ) = _ ] => '(λ x,  $a∨ x    ) end)    "_ ∨ " ""  ) ::
+  (make_traversal (fun () => match! goal with | [|- (_  ⇒ ?b   ) = _ ] => '(λ x,  x ⇒$b    ) end)  "" " ⇒ _"    ) ::
+  (make_traversal (fun () => match! goal with | [|- (?a ⇒  _   ) = _ ] => '(λ x,  $a⇒ x    ) end)    "_ ⇒ " ""  ) ::
+  (make_traversal (fun () => match! goal with | [|- (_  ≡ ?b   ) = _ ] => '(λ x,  x ≡$b    ) end)  "" " ≡ _"    ) ::
+  (make_traversal (fun () => match! goal with | [|- (?a ≡  _   ) = _ ] => '(λ x,  $a≡ x    ) end)    "_ ≡ " ""  ) ::
+  (make_traversal (fun () => match! goal with | [|- (_  ⇔ ?b   ) = _ ] => '(λ x,  x ⇔$b    ) end)  "" " ⇔ _"    ) ::
+  (make_traversal (fun () => match! goal with | [|- (?a ⇔  _   ) = _ ] => '(λ x,  $a⇔ x    ) end)    "_ ⇔ " ""  ) ::
+  (make_traversal (fun () => match! goal with | [|- (⟨_ ,?b⟩   ) = _ ] => '(λ x, ⟨x ,$b⟩   ) end) "⟨" " , _⟩"   ) ::
+  (make_traversal (fun () => match! goal with | [|- (⟨?a, _⟩   ) = _ ] => '(λ x, ⟨$a, x⟩   ) end)   "⟨_ , " "⟩" ) ::
+  (make_traversal (fun () => match! goal with | [|- (∀h _      ) = _ ] => '(λ x, ∀h x      ) end)  "∀h " ""     ) ::
+  (make_traversal (fun () => match! goal with | [|- (∃h _      ) = _ ] => '(λ x, ∃h x      ) end)  "∃h " ""     ) ::
+  (make_traversal (fun () => match! goal with | [|- (¬  _      ) = _ ] => '(λ x, ¬  x      ) end)   "¬ " ""     ) ::
+  (make_traversal (fun () => match! goal with | [|- (π₁ _      ) = _ ] => '(λ x, π₁ x      ) end)  "π₁ " ""     ) ::
+  (make_traversal (fun () => match! goal with | [|- (π₂ _      ) = _ ] => '(λ x, π₂ x      ) end)  "π₂ " ""     ) ::
+  traversals ().
+
+Ltac2 mutable hyperrewrites () : (int * t_rewrite) list := [].
+
+Ltac2 Set hyperrewrites as rewrites := fun () =>
+  (0, (pn:(⊤[_]),            (fun () => '(truth_subst _                 )), "truth_subst _"                 )) ::
+  (0, (pn:(⊥[_]),            (fun () => '(false_subst _                 )), "false_subst _"                 )) ::
+  (0, (pn:((_ ∧ _)[_]),      (fun () => '(conj_subst _ _ _              )), "conj_subst _ _ _"              )) ::
+  (0, (pn:((_ ∨ _)[_]),      (fun () => '(disj_subst _ _ _              )), "disj_subst _ _ _"              )) ::
+  (0, (pn:((_ ⇒ _)[_]),      (fun () => '(impl_subst _ _ _              )), "impl_subst _ _ _"              )) ::
+  (0, (pn:((_ ⇔ _)[_]),      (fun () => '(iff_subst _ _ _               )), "iff_subst _ _ _"               )) ::
+  (0, (pn:((_ ≡ _)[_]),      (fun () => '(equal_subst _ _ _             )), "equal_subst _ _ _"             )) ::
+  (0, (pn:((∀h _)[_]),       (fun () => '(forall_subst _ _              )), "forall_subst _ _"              )) ::
+  (0, (pn:((∃h _)[_]),       (fun () => '(exists_subst _ _              )), "exists_subst _ _"              )) ::
+  (0, (pn:((¬ _)[_]),        (fun () => '(neg_subst _ _                 )), "neg_subst _ _"                 )) ::
+  (0, (pn:((_[_])[_]),       (fun () => '(hyperdoctrine_comp_subst _ _ _)), "hyperdoctrine_comp_subst _ _ _")) ::
+  (0, (pn:(_[tm_var _]),     (fun () => '(hyperdoctrine_id_subst _      )), "hyperdoctrine_id_subst _"      )) ::
+  (1, (pn:((π₁ _)[_]tm),     (fun () => '(hyperdoctrine_pr1_subst _ _   )), "hyperdoctrine_pr1_subst _ _"   )) ::
+  (1, (pn:((π₂ _)[_]tm),     (fun () => '(hyperdoctrine_pr2_subst _ _   )), "hyperdoctrine_pr2_subst _ _"   )) ::
+  (1, (pn:(⟨_, _⟩[_]tm),     (fun () => '(hyperdoctrine_pair_subst _ _ _)), "hyperdoctrine_pair_subst _ _ _")) ::
+  (1, (pn:((tm_var _)[_]tm), (fun () => '(var_tm_subst _                )), "var_tm_subst _"                )) ::
+  (1, (pn:((_ [_]tm)[_]tm),  (fun () => '(tm_subst_comp _ _ _           )), "tm_subst_comp _ _ _"           )) ::
+  (1, (pn:(_[tm_var _]tm),   (fun () => '(tm_subst_var _                )), "tm_subst_var _"                )) ::
+  (1, (pn:(π₁⟨_, _⟩),        (fun () => '(hyperdoctrine_pair_pr1 _ _    )), "hyperdoctrine_pair_pr1 _ _"    )) ::
+  (1, (pn:(π₂⟨_, _⟩),        (fun () => '(hyperdoctrine_pair_pr2 _ _    )), "hyperdoctrine_pair_pr2 _ _"    )) ::
+  (1, (pn:(!![_]tm),         (fun () => '(hyperdoctrine_unit_tm_subst _ )), "hyperdoctrine_unit_tm_subst _ ")) ::
+  rewrites ().
+
+Ltac2 hypertop_traversals (ltac2 : bool) : ((unit -> unit) * navigation) list :=
+  ((fun () => match! goal with
+    | [ |- _ = _ ] => refine '(!(_ @ !_))
+    end), {
+      left := [""];
+      right := [""];
+      preinpostfix := (String.concat "" ["refine "; (if ltac2 then "'" else ""); "(_ @ !maponpaths "], " ", ").")
+  }) :: ((fun () => match! goal with
+    | [ |- _ = _ ] => refine '(_ @ _)
+    end), {
+      left := [""];
+      right := [""];
+      preinpostfix := (String.concat "" ["refine "; (if ltac2 then "'" else ""); "(maponpaths "], " ", " @ _).")
+  }) :: ((fun () => match! goal with
+    | [ |- ?a ⊢ _ ] => refine '(transportb (λ x, $a ⊢ x) _ _); cbv beta
+    end), {
+      left := ["_ ⊢ "];
+      right := [""];
+      preinpostfix := (String.concat "" ["refine "; (if ltac2 then "'" else ""); "(transportb "], " ", " _).")}) ::
+  ((fun () => match! goal with
+    | [ |- _ ⊢ ?b ] => refine '(transportb (λ x, x ⊢ $b) _ _); cbv beta
+    end),
+    {left := [""]; right := [" ⊢ _"]; preinpostfix := (String.concat "" ["refine "; (if ltac2 then "'" else ""); "(transportb "], " ", " _).")}) ::
+  [].
+
+Ltac2 hypersimplify0 (ltac2 : bool option) : int option -> unit :=
+  simplify
+  (List.rev (hypertraversals ()))
+  (List.rev (hyperrewrites ()))
+  (List.rev (hypertop_traversals (Option.default true ltac2))).
+
+Ltac2 Notation "hypersimplify" n(opt(next)) := hypersimplify0 (n).
+
+Set Default Proof Mode "Classic".
+
+Tactic Notation "hypersimplify" := ltac2:(hypersimplify0 (Some false) None).
+Tactic Notation "hypersimplify" int(n) := let f := ltac2:(n |- hypersimplify0 (Some false) (Ltac1.to_int n)) in f n.
+
 Ltac simplify_form_step :=
   rewrite ?truth_subst,
     ?false_subst,

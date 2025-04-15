@@ -37,8 +37,14 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
 
+Require Import UniMath.Tactics.Utilities.
+Require Import UniMath.Tactics.Simplify.
+Require Import Ltac2.Ltac2.
+
 Local Open Scope cat.
 Local Open Scope hd.
+
+Set Default Proof Mode "Classic".
 
 Section PartialEquivalenceRelation.
   Context {H : first_order_hyperdoctrine}.
@@ -286,6 +292,15 @@ Definition partial_setoid_formula
 
 Notation "x ~ y" := (partial_setoid_formula x y) : hyperdoctrine.
 
+Set Default Proof Mode "Ltac2".
+
+Ltac2 Set hypertraversals as traversals := fun _ =>
+  (make_traversal (fun () => match! goal with | [|- (_ ~ _) = _ ] => '(λ x, x ~ _) end) "" " ~ _"  ) ::
+  (make_traversal (fun () => match! goal with | [|- (?a ~ _) = _ ] => '(λ x, $a ~ x) end)   "_ ~ " "") ::
+  traversals ().
+
+Set Default Proof Mode "Classic".
+
 Proposition partial_setoid_sym
             {H : first_order_hyperdoctrine}
             {X : partial_setoid H}
@@ -378,6 +393,14 @@ Proof.
   simplify.
   apply idpath.
 Qed.
+
+Set Default Proof Mode "Ltac2".
+
+Ltac2 Set hyperrewrites as rewrites := fun () =>
+  (1, (pn:((_ ~ _)[_]),      (fun () => '(partial_setoid_subst   _ _ _  )), "partial_setoid_subst   _ _ _"  )) ::
+  rewrites ().
+
+Set Default Proof Mode "Classic".
 
 Section Constructions.
   Context {H : first_order_hyperdoctrine}.
