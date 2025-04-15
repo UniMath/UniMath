@@ -118,7 +118,7 @@ Section HelpEquality.
     hypersimplify.
     rewrite !conj_assoc.
     reflexivity.
-  Time Qed.
+  Qed.
 
   Proposition to_exp_comm_partial_setoid
               (Δ : form ((X ×h Z) ×h Y))
