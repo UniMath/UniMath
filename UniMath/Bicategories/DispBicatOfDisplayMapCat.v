@@ -2,7 +2,7 @@
     Contents:
     - Displayed Bicategory of Display Map Categories [disp_bicat_display_map_cat]
       - TODO: Useful coercions
-      - TODO: Univalence
+      - Univalence
     - Displayed Bicategory of Display Map Categories with Terminal Object [disp_bicat_terminal_display_map_cat]
       - TODO: Useful coercions
       - TODO: Univalence
@@ -127,16 +127,8 @@ Proof.
   intros [HF HG].
   exists HF. use tpair.
   - exists HG. cbn. exact (tt ,, tt).
-  - split; use tpair.
-    (* TODO: investigate speed *)
-    + cbn. rewrite transportb_const. apply idpath.
-    + cbn. rewrite transportb_const. apply idpath.
-    + exists tt. split; cbn.
-      * simpl. rewrite transportb_const. apply idpath.
-      * simpl. rewrite transportb_const. apply idpath.
-    + exists tt. split; cbn.
-      * simpl. rewrite transportb_const. apply idpath.
-      * simpl. rewrite transportb_const. apply idpath.
+  - split; use tpair; try (exists tt; split);
+    (etrans; [apply (idpath (idfun _ tt)) | apply (eqtohomot (!(transportb_const _ _)) tt)]).
 Defined.
 
 Definition disp_adjoint_equiv_to_display_map_class_adj
@@ -145,8 +137,7 @@ Definition disp_adjoint_equiv_to_display_map_class_adj
   -> is_display_map_class_functor D D' (functor_identity (univalent_category_to_category C))
     × is_display_map_class_functor D' D (functor_identity (univalent_category_to_category C)).
 Proof.
-  intros [HF [[HG ?] ?]].
-  exact (HF ,, HG).
+  intros [HF [[HG ?] ?]]. exact (HF ,, HG).
 Defined.
 
 Lemma display_map_class_adj_to_disp_adj_to_adj
@@ -298,8 +289,7 @@ Proof.
         -- exact (display_map_functor F).
       * exact (is_cartesian_display_map_functor (_ ,, _)).
     + exact (pr1 (map_ι_is_ι_map F)).
-    (* TODO: check the performance of the following *)
-  - abstract (exact (λ x dx, pr1 ((pr11 (map_ι_is_ι_map F)) x dx) ,, id_left _ ,, id_right _ )).
+  - abstract (intros x dx; exists (pr1 ((pr11 (map_ι_is_ι_map F)) x dx)); exists (id_left _); apply id_right).
 Defined.
 
 Definition terminal_display_map_transformation_to_full_comp_cat_transformation
