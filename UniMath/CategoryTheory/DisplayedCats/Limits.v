@@ -1,7 +1,8 @@
 (**
-Limits
-*)
 
+  Limits
+
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -23,7 +24,6 @@ Local Open Scope mor_disp.
 
 Section Creates_Limits.
 
-(* TODO: consider implicitness of argument *)
 Definition creates_limit
   {C : category}
   {D : disp_cat C}
@@ -275,8 +275,11 @@ Section fiber.
     (mapdiagram (fiber_to_total_functor D c ∙ pr1_category D) F)
   ) : LimCone (mapdiagram (pr1_category _) (mapdiagram _ F)))).
 
-  Let Δ := limArrow L _ (constant_cone J c).
-  Let L' := make_LimCone _ _ _ (pr2 H).
+  Let Δ : C⟦c, lim L⟧
+    := limArrow L _ (constant_cone J c).
+
+  Let L' : LimCone (mapdiagram (fiber_to_total_functor D c) F)
+    := make_LimCone _ _ _ (pr2 H).
 
   Context (candidate : cartesian_lift (pr11 H) Δ).
 
@@ -453,8 +456,11 @@ Section Sigma.
     Context (d' : total_category D').
     Context (d'_cone : cone d d').
 
-    Let d_cone := (make_LimCone _ _ _ (pr2 HE)).
-    Let e_cone := mapcone (sigma_to_E_total_functor E) _ d'_cone.
+    Let d_cone : LimCone (mapdiagram (sigma_to_E_total_functor E) d)
+      := (make_LimCone _ _ _ (pr2 HE)).
+
+    Let e_cone : cone (mapdiagram (sigma_to_E_total_functor E) d) (sigma_to_E_total_functor E d')
+      := mapcone (sigma_to_E_total_functor E) _ d'_cone.
 
     Definition sigma_lim_arrow
       : total_category D'⟦d', lim L,, tip_sigma_disp_cat⟧
@@ -573,6 +579,3 @@ Proof.
 Defined.
 
 End creates_preserves.
-
-
-(* *)

@@ -1,4 +1,4 @@
-(**************************************************************************************************
+(**
 
   The Univalent Category of Monoids
 
@@ -12,7 +12,7 @@
   2.2. The Free functor [monoid_free_functor]
   2.3. The adjunction [monoid_free_forgetful_adjunction]
 
- **************************************************************************************************)
+ *)
 Require Import UniMath.Foundations.All.
 
 Require Import UniMath.Algebra.BinaryOperations.

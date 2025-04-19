@@ -1,23 +1,27 @@
-(** Authors Anthony Bordg and Floris van Doorn, February-December 2017 *)
+(**
 
+  Ring Modules
+
+  Contents
+  1. The ring of endomorphisms of an abelian group
+  2. Modules (the definition of the small type of R-modules over a ring R)
+  3. R-module morphisms
+    3.1 Linearity
+    3.2 [modulefun]
+    3.3 R-module homomorphisms form an R-module
+    3.4 Isomorphisms ([moduleiso])
+
+  Originally written by Anthony Bordg and Floris van Doorn, February-December 2017
+
+ *)
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.Monoids.
 
-(** ** Contents
-- The ring of endomorphisms of an abelian group
-- Modules (the definition of the small type of R-modules over a ring R)
- - R-module morphisms
-  - Linearity
-  - [modulefun]
-  - R-module homomorphisms form an R-module
-  - Isomorphisms ([moduleiso])
-*)
-
 Local Open Scope addmonoid.
 
-(** ** The ring of endomorphisms of an abelian group *)
+(** * 1. The ring of endomorphisms of an abelian group *)
 
 (** Two binary operations on the set of endomorphisms of an abelian group *)
 
@@ -121,19 +125,23 @@ Proof. exact (make_ismonoidop isassoc_ringofendabgr_op1 isunital_ringofendabgr_o
 
 Local Close Scope abgr_scope.
 
+Local Open Scope abgr_scope.
+
 (** ringofendabgr_op1 is a group operation *)
 
 Definition setofendabgr_inv {G : abgr} : monoidfun G G -> monoidfun G G.
 Proof.
   intro f.
-  apply (@make_monoidfun G G (λ x : G, grinv G (pr1setofendabgr f x))).
-  apply make_dirprod.
-  - intros x x'.
-    rewrite (setofendabgr_to_isbinopfun f).
-    rewrite (grinvop G).
-    apply (commax G).
-  - rewrite (setofendabgr_to_unel f).
-    apply (grinvunel G).
+  apply (make_monoidfun (f := λ x, (-pr1setofendabgr f x)%abgr)).
+  abstract (
+    apply make_ismonoidfun;
+    [ intros x x';
+      rewrite (setofendabgr_to_isbinopfun f);
+      rewrite (grinvop G);
+      apply (commax G)
+    | rewrite (setofendabgr_to_unel f);
+      apply (grinvunel G) ]
+    ).
 Defined.
 
 Local Open Scope abgr_scope.
@@ -145,7 +153,7 @@ Proof.
   apply monoidfun_paths.
   apply funextfun. intro x.
   apply (grlinvax G).
-Defined.
+Qed.
 
 Lemma isrinv_setofendabgr_inv {G : abgr} :
   isrinv (@ringofendabgr_op1 G) (unel_is (@ismonoidop_ringofendabgr_op1 G)) setofendabgr_inv.
@@ -154,7 +162,7 @@ Proof.
   apply monoidfun_paths.
   apply funextfun. intro x.
   apply (grrinvax G).
-Defined.
+Qed.
 
 Lemma isinv_setofendabgr_inv {G : abgr} :
   isinv (@ringofendabgr_op1 G) (unel_is (@ismonoidop_ringofendabgr_op1 G)) setofendabgr_inv.
@@ -173,7 +181,7 @@ Proof.
   apply monoidfun_paths.
   apply funextfun. intro x.
   apply (commax G).
-Defined.
+Qed.
 
 Lemma isabgrop_ringofendabgr_op1 {G : abgr} : isabgrop (@ringofendabgr_op1 G).
 Proof. exact (make_isabgrop isgrop_ringofendabgr_op1 iscomm_ringofendabgr_op1). Defined.
@@ -185,7 +193,7 @@ Proof.
   intros f g h.
   apply monoidfun_paths.
   reflexivity.
-Defined.
+Qed.
 
 Definition setofendabgr_un1 {G: abgr} : monoidfun G G.
 Proof.
@@ -253,7 +261,7 @@ Definition ringofendabgr (G : abgr) : ring :=
   @make_ring (setwith2binopofendabgr G) (@isringops_setofendabgr_op G).
 
 
-(** ** Modules: the definition of the small type of R-modules over a ring R  *)
+(** * 2. Modules: the definition of the small type of R-modules over a ring R  *)
 
 (** A module over R may be defined as a ring homomorphism from R to the ring of
     endomorphisms of an Abelian group (in other words, a ring action on the
@@ -379,34 +387,45 @@ Proof.
       apply idpath.
 Defined.
 
-Definition mult_to_module_struct {R : ring} {G : abgr} {m : R -> G -> G}
+Definition mult_to_module_struct_fun {R : ring} {G : abgr} {m : R -> G -> G}
+           (ax1 : mult_isldistr_wrt_grop m)
+           : R → ringofendabgr G
+           := mult_to_ringofendabgr ax1.
+
+Lemma mult_to_module_struct_ismonoidfun {R : ring} {G : abgr} {m : R -> G -> G}
            (ax1 : mult_isldistr_wrt_grop m) (ax2 : mult_isrdistr_wrt_ringop1 m)
-           (ax3 : mult_isrdistr_wrt_ringop2 m) (ax4 : mult_unel m) : module_struct R G.
+           (ax3 : mult_isrdistr_wrt_ringop2 m) (ax4 : mult_unel m)
+  : isrigfun (X := R) (Y := ringofendabgr G) (mult_to_module_struct_fun ax1).
 Proof.
-  split with (λ r : R, mult_to_ringofendabgr ax1 r).
-  apply make_dirprod.
-  - apply make_dirprod.
+  apply make_isrigfun.
+  - apply make_ismonoidfun.
     + intros r s.
       apply monoidfun_paths.
       apply funextfun. intro x. apply ax2.
     + apply monoidfun_paths.
       apply funextfun. intro x. change (m ringunel1 x = unel G). apply (grlcan G (m (ringunel1) x)).
       rewrite runax. rewrite <- (ax2 ringunel1 ringunel1 x). rewrite ringrunax1. apply idpath.
-  - apply make_dirprod.
+  - apply make_ismonoidfun.
     + intros r s.
       apply monoidfun_paths.
       apply funextfun. intro x. apply ax3.
     + apply monoidfun_paths.
       apply funextfun. intro x. apply ax4.
-Defined.
+Qed.
+
+Definition mult_to_module_struct {R : ring} {G : abgr} {m : R -> G -> G}
+           (ax1 : mult_isldistr_wrt_grop m) (ax2 : mult_isrdistr_wrt_ringop1 m)
+           (ax3 : mult_isrdistr_wrt_ringop2 m) (ax4 : mult_unel m)
+  : module_struct R G
+  := mult_to_module_struct_fun ax1 ,, mult_to_module_struct_ismonoidfun ax1 ax2 ax3 ax4.
 
 Definition mult_to_module {R : ring} {G : abgr} {m : R -> G -> G} (ax1 : mult_isldistr_wrt_grop m)
            (ax2 : mult_isrdistr_wrt_ringop1 m) (ax3 : mult_isrdistr_wrt_ringop2 m)
            (ax4 : mult_unel m) : module R := make_module G (mult_to_module_struct ax1 ax2 ax3 ax4).
 
-(** *** R-module morphisms *)
+(** * 3. R-module morphisms *)
 
-(** **** Linearity *)
+(** ** 3.1. Linearity *)
 
 Definition islinear {R : ring} {M N : module R} (f : M -> N) :=
   ∏ r : R, ∏ x : M, f (r * x) = r * (f x).
@@ -443,7 +462,7 @@ Proof.
    apply (setproperty N).
 Defined.
 
-(** The type of linear functions M -> N is a set. *)
+(** ** 3.2. The type of linear functions M -> N is a set. *)
 Lemma isasetlinearfun {R : ring} (M N : module R) : isaset (linearfun M N).
 Proof.
   intros. apply (isasetsubset (@pr1linearfun R M N)).
@@ -455,7 +474,7 @@ Proof.
     apply isapropislinear.
 Defined.
 
-(** **** [modulefun] *)
+(** ** 3.3. [modulefun] *)
 
 Definition ismodulefun {R : ring} {M N : module R} (f : M -> N) : UU :=
    (isbinopfun f) × (islinear f).
@@ -688,7 +707,7 @@ Proof.
   - intros f. use modulefun_paths2. intros x. cbn. apply module_mult_unel2.
 Defined.
 
-(** **** Isomorphisms ([moduleiso]) *)
+(** ** 3.4. Isomorphisms ([moduleiso]) *)
 
 Definition moduleiso {R : ring} (M N : module R) : UU :=
   ∑ w : pr1module M ≃ pr1module N, ismodulefun w.

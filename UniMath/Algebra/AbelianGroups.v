@@ -1,21 +1,21 @@
 (**
- - Abelian groups
-  - Basic definitions
-  - Univalence for abelian groups
-  - Subobjects
-  - Kernels
-  - Quotient objects
-  - Direct products
-  - Abelian group of fractions of an abelian unitary monoid
-  - Abelian group of fractions and abelian monoid of fractions
-  - Canonical homomorphism to the abelian group of fractions
-  - Abelian group of fractions in the case when all elements are
-    cancelable
-  - Relations on the abelian group of fractions
-  - Relations and the canonical homomorphism to [abgrdiff]
-*)
-(** *** Abelian group of fractions of an abelian unitary monoid *)
 
+  Abelian (Commutative) Groups
+
+  Contents
+  1. Basic definitions
+  2. Subobjects
+  3. Kernels
+  4. Quotient objects
+  5. Direct products
+  6. Abelian group of fractions of an abelian unitary monoid
+  7. Abelian group of fractions and abelian monoid of fractions
+  8. Canonical homomorphism to the abelian group of fractions
+  9. Abelian group of fractions in the case when all elements are cancelable
+  10. Relations on the abelian group of fractions
+  11. Relations and the canonical homomorphism to [abgrdiff]
+
+ *)
 Require Import UniMath.MoreFoundations.Orders.
 Require Import UniMath.MoreFoundations.Subtypes.
 
@@ -25,9 +25,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Export UniMath.Algebra.Groups2.
 Require Export UniMath.Algebra.AbelianMonoids.
 
-(** ** Abelian groups *)
-
-(** *** Basic definitions *)
+(** * 1. Basic definitions *)
 
 Local Open Scope addmonoid.
 
@@ -127,19 +125,14 @@ Definition abelian_group_morphism_eq
   {f g : abelian_group_morphism X Y}
   : (f = g) ≃ (∏ x, f x = g x).
 Proof.
-  use weq_iso.
+  use weqimplimpl.
   - intros e x.
     exact (maponpaths (λ (f : abelian_group_morphism _ _), f x) e).
   - intro e.
     apply abelian_group_morphism_paths, funextfun.
     exact e.
+  - abstract apply homset_property.
   - abstract (
-      intro x;
-      apply homset_property
-    ).
-  - abstract (
-      intro;
-      apply proofirrelevance;
       apply impred_isaprop;
       intro;
       apply setproperty
@@ -246,7 +239,7 @@ Proof.
 Defined.
 
 
-(** *** Subobjects *)
+(** * 2. Subobjects *)
 
 Definition subabgr (X : abgr) := subgr X.
 Identity Coercion id_subabgr : subabgr >-> subgr.
@@ -274,7 +267,7 @@ Definition abgr_kernel_hsubtype {A B : abgr} (f : abelian_group_morphism A B) : 
 Definition abgr_image_hsubtype {A B : abgr} (f : abelian_group_morphism A B) : hsubtype B :=
   (λ y : B, ∃ x : A, (f x) = y).
 
-(** * Kernels
+(** * 3. Kernels
     Let f : X → Y be a morphism of abelian groups. A kernel of f is given by the subgroup of X
     consisting of elements x such that [f x = 0].
  *)
@@ -340,7 +333,7 @@ Definition abgr_image {A B : abgr} (f : abelian_group_morphism A B) : @subabgr B
   @subgrconstr B (@abgr_image_hsubtype A B f) (abgr_image_issubgr f).
 
 
-(** *** Quotient objects *)
+(** * 4. Quotient objects *)
 
 Lemma isabgrquot {X : abgr} (R : binopeqrel X) : isabgrop (@op (setwithbinopquot R)).
 Proof.
@@ -352,7 +345,7 @@ Definition abgrquot {X : abgr} (R : binopeqrel X) : abgr.
 Proof. exists (setwithbinopquot R). apply isabgrquot. Defined.
 
 
-(** *** Direct products *)
+(** * 5. Direct products *)
 
 Lemma isabgrdirprod (X Y : abgr) : isabgrop (@op (setwithbinopdirprod X Y)).
 Proof.
@@ -365,6 +358,8 @@ Proof.
   exists (setwithbinopdirprod X Y).
   apply isabgrdirprod.
 Defined.
+
+(** * 6. Abelian group of fractions of an abelian unitary monoid *)
 
 Section Fractions.
 
@@ -467,7 +462,7 @@ Definition prabgrdiff (X : abmonoid) : X → X → abgrdiff X :=
   λ x x' : X, setquotpr (eqrelabgrdiff X) (x ,, x').
 
 
-(** *** Abelian group of fractions and abelian monoid of fractions *)
+(** * 7. Abelian group of fractions and abelian monoid of fractions *)
 
 Definition weqabgrdiffint (X : abmonoid) : weq (X × X) (X × totalsubtype X) :=
   weqdirprodf (idweq X) (invweq (weqtotalsubtype X)).
@@ -486,7 +481,7 @@ Proof.
 Defined.
 
 
-(** *** Canonical homomorphism to the abelian group of fractions *)
+(** * 8. Canonical homomorphism to the abelian group of fractions *)
 
 Definition toabgrdiff (X : abmonoid) (x : X) : abgrdiff X := setquotpr _ (x ,, 0).
 
@@ -502,7 +497,7 @@ Proof.
 Defined.
 
 
-(** *** Abelian group of fractions in the case when all elements are cancelable *)
+(** * 9. Abelian group of fractions in the case when all elements are cancelable *)
 
 Lemma isinclprabgrdiff (X : abmonoid) (iscanc : ∏ x : X, isrcancelable (@op X) x) :
   ∏ x' : X, isincl (λ x, prabgrdiff X x x').
@@ -526,7 +521,7 @@ Proof.
 Defined.
 
 
-(** *** Relations on the abelian group of fractions *)
+(** * 10. Relations on the abelian group of fractions *)
 
 Definition abgrdiffrelint (X : abmonoid) (L : hrel X) : hrel (setwithbinopdirprod X X) :=
   λ xa yb, ∃ (c0 : X), L ((pr1 xa + pr2 yb) + c0) ((pr1 yb + pr2 xa) + c0).
@@ -808,7 +803,7 @@ Proof.
 Defined.
 
 
-(** *** Relations and the canonical homomorphism to [ abgrdiff ] *)
+(** * 11. Relations and the canonical homomorphism to [abgrdiff] *)
 
 Lemma iscomptoabgrdiff (X : abmonoid) {L : hrel X} (is : isbinophrel L) :
   iscomprelrelfun L (abgrdiffrel X is) (toabgrdiff X).

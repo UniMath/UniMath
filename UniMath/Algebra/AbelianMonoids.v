@@ -1,20 +1,21 @@
-(** For some examples, see [UniMath.NumberSystems.NaturalNumbersAlgebra] *)
-(** *** Abelian (commutative) monoids *)
 (**
- - Abelian (commutative) monoids
-  - Basic definitions
-  - Univalence for abelian monoids
-  - Subobjects
-  - Quotient objects
-  - Direct products
-  - Monoid of fractions of an abelian monoid
-  - Canonical homomorphism to the monoid of fractions
-  - Abelian monoid of fractions in the case when elements of the
-    localization submonoid are cancelable
-  - Relations on the abelian monoid of fractions
-  - Relations and canonical homomorphism to [abmonoidfrac]
-*)
 
+  Abelian (Commutative) Monoids
+
+  For some examples, see [UniMath.NumberSystems.NaturalNumbersAlgebra].
+
+  Contents
+  1. Basic definitions
+  2. Subobjects
+  3. Quotient objects
+  4. Direct products
+  5. Monoid of fractions of an abelian monoid
+  6. Canonical homomorphism to the monoid of fractions
+  7. Abelian monoid of fractions in the case when elements of the localization submonoid are cancelable
+  8. Relations on the abelian monoid of fractions
+  9. Relations and canonical homomorphism to [abmonoidfrac]
+
+ *)
 Require Import UniMath.MoreFoundations.Sets.
 Require Import UniMath.MoreFoundations.Orders.
 
@@ -28,7 +29,7 @@ Delimit Scope addmonoid with addmonoid.
 Notation "x + y" := (op x y) : addmonoid.
 Notation "0" := (unel _) : addmonoid.
 
-(** **** Basic definitions *)
+(** * 1. Basic definitions *)
 
 Local Open Scope addmonoid.
 
@@ -104,19 +105,14 @@ Definition abelian_monoid_morphism_eq
   {f g : abelian_monoid_morphism X Y}
   : (f = g) ≃ (∏ x, f x = g x).
 Proof.
-  use weq_iso.
+  use weqimplimpl.
   - intros e x.
     exact (maponpaths (λ (f : abelian_monoid_morphism _ _), f x) e).
   - intro e.
     apply abelian_monoid_morphism_paths, funextfun.
     exact e.
+  - abstract apply homset_property.
   - abstract (
-      intro x;
-      apply homset_property
-    ).
-  - abstract (
-      intro;
-      apply proofirrelevance;
       apply impred_isaprop;
       intro;
       apply setproperty
@@ -240,7 +236,7 @@ Proof.
 Defined.
 
 
-(** **** Subobjects *)
+(** * 2. Subobjects *)
 
 Definition subabmonoid (X : abmonoid) := submonoid X.
 Identity Coercion id_subabmonoid : subabmonoid >-> submonoid.
@@ -266,7 +262,7 @@ Coercion carrierofsubabmonoid : subabmonoid >-> abmonoid.
 Definition subabmonoid_incl {X : abmonoid} (A : subabmonoid X) : monoidfun A X :=
 submonoid_incl A.
 
-(** **** Quotient objects *)
+(** * 3. Quotient objects *)
 
 Lemma iscommquot {X : abmonoid} (R : binopeqrel X) : iscomm (@op (setwithbinopquot R)).
 Proof.
@@ -285,7 +281,7 @@ Definition abmonoidquot {X : abmonoid} (R : binopeqrel X) : abmonoid.
 Proof. exists (setwithbinopquot R). apply isabmonoidquot. Defined.
 
 
-(** **** Direct products *)
+(** * 4. Direct products *)
 
 Lemma iscommdirprod (X Y : abmonoid) : iscomm (@op (setwithbinopdirprod X Y)).
 Proof.
@@ -303,7 +299,7 @@ Definition abmonoiddirprod (X Y : abmonoid) : abmonoid.
 Proof. exists (setwithbinopdirprod X Y). apply isabmonoiddirprod. Defined.
 
 
-(** **** Monoid of fractions of an abelian monoid
+(** * 5. Monoid of fractions of an abelian monoid
 
 Note : the following construction uses onbly associativity and commutativity
 of the [abmonoid] operations but does not use the unit element. *)
@@ -449,7 +445,7 @@ Proof.
   ).
 Defined.
 
-(** **** Canonical homomorphism to the monoid of fractions *)
+(** * 6. Canonical homomorphism to the monoid of fractions *)
 
 Definition toabmonoidfrac (X : abmonoid) (A : submonoid X) (x : X) : abmonoidfrac X A :=
   setquotpr _ (x ,, unel A).
@@ -474,7 +470,7 @@ Definition ismonoidfuntoabmonoidfrac (X : abmonoid) (A : submonoid X) :
   isbinopfuntoabmonoidfrac X A ,, isunitalfuntoabmonoidfrac X A.
 
 
-(** **** Abelian monoid of fractions in the case when elements of the localziation submonoid are cancelable *)
+(** * 7. Abelian monoid of fractions in the case when elements of the localization submonoid are cancelable *)
 
 Definition hrel0abmonoidfrac (X : abmonoid) (A : submonoid X) : hrel (X × A) :=
   λ xa yb : setdirprod X A, (pr1 xa + pr1 (pr2 yb) = pr1 yb + pr1 (pr2 xa))%logic.
@@ -526,7 +522,7 @@ Proof.
 Defined.
 
 
-(** **** Relations on the abelian monoid of fractions *)
+(** * 8. Relations on the abelian monoid of fractions *)
 
 Definition abmonoidfracrelint (X : abmonoid) (A : subabmonoid X) (L : hrel X) :
   hrel (setwithbinopdirprod X A) :=
@@ -1088,7 +1084,7 @@ Proof.
 Defined.
 
 
-(** **** Relations and the canonical homomorphism to [abmonoidfrac] *)
+(** * 9. Relations and canonical homomorphism to [abmonoidfrac] *)
 
 Lemma iscomptoabmonoidfrac (X : abmonoid) (A : submonoid X) {L : hrel X}
       (is : ispartbinophrel A L) : iscomprelrelfun L (abmonoidfracrel X A is) (toabmonoidfrac X A).

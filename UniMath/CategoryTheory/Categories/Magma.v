@@ -1,4 +1,4 @@
-(**************************************************************************************************
+(**
 
   The Category of Magmas and Related Categories
 
@@ -25,7 +25,7 @@
   7. The category of groups [group_category]
   8. The category of abelian groups [abelian_group_category]
 
- **************************************************************************************************)
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 

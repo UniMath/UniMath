@@ -1,4 +1,4 @@
-(**************************************************************************************************
+(**
 
   The Univalent Category of Abelian Monoids
 
@@ -7,7 +7,7 @@
   Contents
   1. The univalent category of abelian monoids [abelian_monoid_univalent_category]
 
- **************************************************************************************************)
+ *)
 Require Import UniMath.Foundations.All.
 
 Require Import UniMath.CategoryTheory.Categories.Magma.
