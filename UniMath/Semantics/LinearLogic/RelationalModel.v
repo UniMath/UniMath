@@ -660,7 +660,7 @@ Section CofreeComonoidUMP.
 
     Definition comonoid_mor_REL_to_monoid_mor
       : monoidfun (free_abmonoid X) (REL_comonoid_to_monoid C)
-      := comonoid_mor_REL_to_map ,, ismonoidfun_comonoid_mor_REL_to_map.
+      := make_monoidfun ismonoidfun_comonoid_mor_REL_to_map.
   End ToMonoidMor.
 
   Proposition cofree_comonoid_REL_map_unique
@@ -692,11 +692,13 @@ Section CofreeComonoidUMP.
       use funextsec ; intro y₂.
       use hPropUnivalence.
       - intro p.
-        exact (eqweqmaphProp (eqtohomot (eqtohomot (maponpaths pr1 H) y₂) y₁) p).
+        exact (eqweqmaphProp (eqtohomot (monoidfun_eq H y₂) y₁) p).
       - intro p.
-        exact (eqweqmaphProp (!eqtohomot (eqtohomot (maponpaths pr1 H) y₂) y₁) p).
+        exact (eqweqmaphProp (!eqtohomot (monoidfun_eq H y₂) y₁) p).
     }
-    use free_abmonoid_mor_eq.
+    refine (invmap monoidfun_eq (abelian_monoid_morphism_eq (free_abmonoid_mor_eq
+      (f := monoidfun_to_abelian_monoid_morphism (comonoid_mor_REL_to_monoid_mor _))
+      (g := monoidfun_to_abelian_monoid_morphism (comonoid_mor_REL_to_monoid_mor _)) _))).
     intro x ; cbn.
     use funextsec ; intro y.
     use hPropUnivalence.

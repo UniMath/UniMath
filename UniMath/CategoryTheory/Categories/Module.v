@@ -70,10 +70,10 @@ Definition mor_to_modulefun {M N : ob mod_category} : mod_category⟦M, N⟧ -> 
 
 (** Mod is a univalent category ([Mod_is_univalent]) *)
 
-Definition modules_univalence_weq (M N : mod_category) : (M ╝ N) ≃ (moduleiso' M N).
+(* Definition modules_univalence_weq (M N : mod_category) : (M ╝ N) ≃ (moduleiso' M N).
 Proof.
    use weqbandf.
-   - apply abgr_univalence.
+   - refine (abgr_univalence).
    - intro e.
      use invweq.
      induction M. induction N. cbn in e. induction e.
@@ -208,7 +208,7 @@ Proof.
 Defined.
 
 Definition univalent_category_mod_precategory : univalent_category
-  := make_univalent_category mod_category is_univalent_mod.
+  := make_univalent_category mod_category is_univalent_mod. *)
 
 (** * Abelian structure *)
 

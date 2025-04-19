@@ -163,7 +163,7 @@ Section MonoidToCategory.
 
       Definition functor_to_monoidfun
         : monoidfun M M'
-        := _ ,, functor_to_is_monoidfun.
+        := make_monoidfun functor_to_is_monoidfun.
 
     End Mor.
 
@@ -171,12 +171,7 @@ Section MonoidToCategory.
       (f : monoidfun M M')
       : functor_to_monoidfun (monoid_to_category_mor f) = f.
     Proof.
-      apply subtypePath.
-      {
-        intro.
-        apply isapropismonoidfun.
-      }
-      apply idpath.
+      now apply monoidfun_paths.
     Qed.
 
     Lemma monoid_to_category_fully_faithful_functor_iso

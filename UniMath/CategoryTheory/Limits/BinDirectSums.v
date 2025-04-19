@@ -73,12 +73,12 @@ Section def_bindirectsums.
         assert (q := to_premor_linear' i1 (p1 · f) (p2 · g)).
         rewrite 2 rewrite_op in q. rewrite q. clear q.
         rewrite 2 assoc. rewrite e11. rewrite id_left.
-        rewrite e12. rewrite to_postmor_unel'. rewrite runax.
+        rewrite e12. rewrite to_postmor_unel'. rewrite (runax (to_abgr a T)).
         reflexivity.
       + assert (q := to_premor_linear' i2 (p1 · f) (p2 · g)).
         rewrite 2 rewrite_op in q. rewrite q. clear q.
         rewrite 2 assoc. rewrite e22. rewrite id_left.
-        rewrite e21. rewrite to_postmor_unel'. rewrite lunax.
+        rewrite e21. rewrite to_postmor_unel'. rewrite (lunax (to_abgr b T)).
         reflexivity.
     - intros h. cbn beta. apply isapropdirprod;apply hs.
     - intros h. cbn beta. intros [p q]. rewrite <- p, <- q.
@@ -100,12 +100,12 @@ Section def_bindirectsums.
       + assert (q := to_postmor_linear' (f · i1) (g · i2) p1).
         rewrite 2 rewrite_op in q. rewrite q. clear q.
         rewrite <- 2 assoc. rewrite e11. rewrite id_right.
-        rewrite e21. rewrite to_premor_unel'. rewrite runax.
+        rewrite e21. rewrite to_premor_unel'. rewrite (runax (to_abgr T a)).
         reflexivity.
       + assert (q := to_postmor_linear' (f · i1) (g · i2) p2).
         rewrite 2 rewrite_op in q. rewrite q. clear q.
         rewrite <- 2 assoc. rewrite e22. rewrite id_right.
-        rewrite e12. rewrite to_premor_unel'. rewrite lunax.
+        rewrite e12. rewrite to_premor_unel'. rewrite (lunax (to_abgr T b)).
         reflexivity.
     - intros h. cbn beta. apply isapropdirprod;apply hs.
     - intros h. cbn beta. intros [p q]. rewrite <- p, <- q.
@@ -858,7 +858,7 @@ Proof.
   - apply ArrowsToZero.
   - apply ArrowsToZero.
   - apply ArrowsFromZero.
-  - rewrite id_right. rewrite to_premor_unel'. rewrite rewrite_op. rewrite runax. reflexivity.
+  - rewrite id_right. rewrite to_premor_unel'. rewrite rewrite_op. rewrite (runax (to_abgr A A)). reflexivity.
 Qed.
 Definition TrivialDirectSum {M : PreAdditive} (Z:Zero M) (A:M) : BinDirectSum A Z.
 Proof.
@@ -871,7 +871,7 @@ Proof.
   - apply id_right.
   - apply ArrowsFromZero.
   - apply ArrowsToZero.
-  - rewrite id_right. rewrite to_premor_unel'. rewrite rewrite_op. rewrite lunax. reflexivity.
+  - rewrite id_right. rewrite to_premor_unel'. rewrite rewrite_op. rewrite (lunax (to_abgr A A)). reflexivity.
 Qed.
 Definition TrivialDirectSum' {M : PreAdditive} (Z:Zero M) (A:M) : BinDirectSum Z A.
 Proof.

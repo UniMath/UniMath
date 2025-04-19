@@ -80,11 +80,19 @@ Section def_preadditive.
 
   Definition to_premor_monoidfun {PWA : categoryWithAbgrops} (iPA : isPreAdditive PWA)
              (x y z : PWA) (f : x --> y) : monoidfun (to_abgr y z) (to_abgr x z) :=
-    monoidfunconstr (to_premor_monoid iPA x y z f).
+    make_monoidfun (to_premor_monoid iPA x y z f).
+
+  Definition to_premor_abelian_group_morphism {PWA : categoryWithAbgrops} (iPA : isPreAdditive PWA)
+             (x y z : PWA) (f : x --> y) : abelian_group_morphism (to_abgr y z) (to_abgr x z) :=
+    binopfun_to_abelian_group_morphism (to_premor_monoidfun iPA x y z f).
 
   Definition to_postmor_monoidfun {PWA : categoryWithAbgrops} (iPA : isPreAdditive PWA)
              (x y z : PWA) (f : y --> z) : monoidfun (to_abgr x y) (to_abgr x z) :=
-    monoidfunconstr (to_postmor_monoid iPA x y z f).
+    make_monoidfun (to_postmor_monoid iPA x y z f).
+
+  Definition to_postmor_abelian_group_morphism {PWA : categoryWithAbgrops} (iPA : isPreAdditive PWA)
+             (x y z : PWA) (f : y --> z) : abelian_group_morphism (to_abgr x y) (to_abgr x z) :=
+    binopfun_to_abelian_group_morphism (to_postmor_monoidfun iPA x y z f).
 
   (** Definition of preadditive categories *)
   Definition PreAdditive : UU := ∑ PA : categoryWithAbgrops, isPreAdditive PA.
@@ -380,13 +388,13 @@ Section preadditive_quotient.
   Qed.
 
   Local Definition abgrquotpr_monoidfun {A : abgr} (H : @binopeqrel A) : monoidfun A (abgrquot H) :=
-    monoidfunconstr (abgrquotpr_ismonoidfun H).
+    make_monoidfun (abgrquotpr_ismonoidfun H).
 
   Local Lemma monoidfun_inv {A B : abgr} (f : monoidfun A B) (a : A) :
     f (grinv A a) = grinv B (f a).
   Proof.
     apply (grlcan B (f a)). rewrite (grrinvax B).
-    use (pathscomp0 (pathsinv0 (((pr1 (pr2 f)) a (grinv A a))))).
+    refine ((pathsinv0 ((monoidfunmul f a (grinv A a)))) @ _).
     rewrite (grrinvax A). apply (pr2 (pr2 f)).
   Qed.
 
@@ -396,7 +404,7 @@ Section preadditive_quotient.
     unfold subgrhrel. unfold subgrhrel_hprop.
     use iseqrelconstr.
     (* istrans *)
-    - intros x1 x2 x3 y1 y2. cbn in *. unfold ishinh_UU in *.
+    - intros x1 x2 x3 y1 y2. unfold ishinh_UU in *.
       use (squash_to_prop y1 (propproperty _)). intros Y1. clear y1.
       use (squash_to_prop y2 (propproperty _)). intros Y2. clear y2.
       use hinhpr.
@@ -431,7 +439,7 @@ Section preadditive_quotient.
   Proof.
     use isbinophrelif.
     - apply (pr2 (pr2 A)).
-    - intros a b c X. cbn in *. unfold ishinh_UU in *.
+    - intros a b c X. unfold ishinh_UU in *.
       use (squash_to_prop X (propproperty _)). intros X''.
       use hinhpr.
       use tpair.
@@ -1070,9 +1078,9 @@ Section RewritingAids.
   Definition rightCompIsHomo {M:PreAdditive} {b c : M} (a:M) (f : b --> c) : ismonoidfun (to_postmor a f)
     := @to_postmor_monoid _ M _ _ _ _.
   Definition leftCompHomo {M:PreAdditive} {a b : M} (f : a --> b) (c:M) : monoidfun (b-->c) (a-->c)
-    := to_premor c f,, to_premor_monoid M _ _ _ f.
+    := make_monoidfun (to_premor_monoid M _ _ _ f).
   Definition rightCompHomo {M:PreAdditive} {b c : M} (a:M) (f : b --> c) : monoidfun (a-->b) (a-->c)
-    := to_postmor a f,, to_postmor_monoid M _ _ _ f.
+    := make_monoidfun (to_postmor_monoid M _ _ _ f).
   Lemma rightDistribute {M:PreAdditive} {a b c : M} (f : a --> b) (g h : b --> c) : f · (g + h) = f · g + f · h.
   Proof.
     apply leftCompIsHomo.
@@ -1083,10 +1091,10 @@ Section RewritingAids.
   Qed.
   Lemma rightMinus {M:PreAdditive} {a b c : M} (f : a --> b) (g : b --> c) : f · (- g) = - (f·g).
   Proof.
-    exact (monoidfuninvtoinv (leftCompHomo f c) g).
+    exact (binopfun_preserves_inv (leftCompHomo f c) (binopfunisbinopfun _) g).
   Qed.
   Lemma leftMinus {M:PreAdditive} {a b c : M} (f : a --> b) (g : b --> c) : (- f) · g = - (f·g).
   Proof.
-    exact (monoidfuninvtoinv (rightCompHomo a g) f).
+    exact (binopfun_preserves_inv (rightCompHomo a g) (binopfunisbinopfun _) f).
   Qed.
 End RewritingAids.

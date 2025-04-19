@@ -20,7 +20,6 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.OrderTheory.Lattice.Lattice.
 Require Import UniMath.OrderTheory.Lattice.Bounded.
 

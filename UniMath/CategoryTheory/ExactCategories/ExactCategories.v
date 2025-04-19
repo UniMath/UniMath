@@ -249,12 +249,12 @@ Section PreAdditive.
       exists (1 - π₁·f·ι₂).
       unfold elem21. split.
       - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax (Hom_add _ _ _) _).
-        rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite rightMinus.
+        rewrite (assocax (to_abgr AB AB)). apply maponpaths. rewrite id_right, id_left. rewrite rightMinus.
         rewrite <- assocax. rewrite grlinvax. rewrite lunax. rewrite assoc'. rewrite <- (assoc π₁ f ι₂).
         rewrite (assoc ι₂). rewrite DirectSumIn2Pr1. rewrite zeroLeft. rewrite zeroRight.
         rewrite grinvunel. reflexivity.
       - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax (Hom_add _ _ _) _).
-        rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite leftMinus.
+        rewrite (assocax (to_abgr AB AB)). apply maponpaths. rewrite id_right, id_left. rewrite leftMinus.
         rewrite <- assocax. rewrite grrinvax. rewrite lunax. rewrite assoc'. rewrite <- (assoc π₁ f ι₂).
         rewrite (assoc ι₂). rewrite DirectSumIn2Pr1. rewrite zeroLeft. rewrite zeroRight.
         rewrite grinvunel. reflexivity.
@@ -265,13 +265,13 @@ Section PreAdditive.
   Proof.
     exists (1 - π₂·f·ι₁). unfold elem12. split.
     - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax (Hom_add _ _ _) _).
-      rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite rightMinus.
+      rewrite (assocax (to_abgr AB AB)). apply maponpaths. rewrite id_right, id_left. rewrite rightMinus.
       rewrite <- assocax. rewrite grlinvax. rewrite lunax. rewrite assoc'. rewrite <- (assoc _ f _).
       rewrite 2 (assoc ι₁). rewrite DirectSumIn1Pr2. rewrite zeroLeft. rewrite zeroLeft.
       rewrite 2 zeroRight.
       use grinvunel.
     - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax (Hom_add _ _ _) _).
-      rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite leftMinus.
+      rewrite (assocax (to_abgr AB AB)). apply maponpaths. rewrite id_right, id_left. rewrite leftMinus.
       rewrite <- assocax. rewrite grrinvax. rewrite lunax. rewrite assoc'. rewrite <- (assoc _ f _).
       rewrite (assoc ι₁). rewrite (assoc ι₁). rewrite DirectSumIn1Pr2. rewrite 2 zeroLeft.
       rewrite 2 zeroRight. use grinvunel.
@@ -517,7 +517,7 @@ Section PreAdditive.
   Coercion PreAdditive_functor_to_functor {M N:PreAdditive} : PreAdditive_functor M N -> functor M N := pr1.
   Definition functor_on_morphisms_add {C C' : PreAdditive} (F : PreAdditive_functor C C') { a b : C}
     : monoidfun (a --> b) (F a --> F b)
-    := monoidfunconstr (pr2 F a b).
+    := make_monoidfun (pr2 F a b).
   Local Notation "# F" := (functor_on_morphisms_add F) : abgrcat.
   Lemma add_functor_comp {M N:PreAdditive} (F : PreAdditive_functor M N) {A B C:M} (f:A --> B) (g:B --> C) :
     # F (f · g) = # F f · # F g.
@@ -537,7 +537,7 @@ Section PreAdditive.
   Lemma add_functor_sub {M N:PreAdditive} (F : PreAdditive_functor M N) {A B:M} (g:A --> B) :
     # F (-g) = - # F g.
   Proof.
-    exact (grinvandmonoidfun _ _ (pr2 F A B) g).
+    exact (binopfun_preserves_inv _ (binopfunisbinopfun (#F)) g).
   Qed.
   Lemma zeroCriterion {M:PreAdditive} {Z:M} : identity Z = 0 <-> isZero Z.
   Proof.
@@ -564,8 +564,8 @@ Section PreAdditive.
     repeat split.
     - rewrite <- add_functor_comp. rewrite (to_IdIn1 ds). apply functor_id.
     - rewrite <- add_functor_comp. rewrite (to_IdIn2 ds). apply functor_id.
-    - rewrite <- add_functor_comp. rewrite (to_Unel1 ds); unfold to_unel. use ismonoidfununel. use (pr2 F).
-    - rewrite <- add_functor_comp. rewrite (to_Unel2 ds); unfold to_unel. use ismonoidfununel. use (pr2 F).
+    - rewrite <- add_functor_comp. rewrite (to_Unel1 ds); unfold to_unel. apply add_functor_zero.
+    - rewrite <- add_functor_comp. rewrite (to_Unel2 ds); unfold to_unel. apply add_functor_zero.
     - rewrite <- 2 add_functor_comp. rewrite <- add_functor_add. rewrite (to_BinOpId' ds). apply functor_id.
   Qed.
   Definition applyFunctorToBinDirectSum {M N:PreAdditive} (F : PreAdditive_functor M N) {A B:M} :
@@ -585,12 +585,12 @@ Section PreAdditive.
     rewrite <- to_BinOpId''.
     rewrite leftDistribute, 2 rightDistribute.
     rewrite assoc', (assoc ι₂). rewrite DirectSumIn2Pr1.
-    rewrite zeroLeft, zeroRight, lunax.
+    rewrite zeroLeft, zeroRight, (lunax (to_abgr ab ab)).
     rewrite assoc', (assoc ι₂). rewrite (to_IdIn2 ba), id_left.
     apply maponpaths.
     rewrite assoc', (assoc ι₁). rewrite (to_IdIn1 ba), id_left.
     rewrite assoc', (assoc ι₁). rewrite DirectSumIn1Pr2.
-    rewrite zeroLeft, zeroRight, runax.
+    rewrite zeroLeft, zeroRight, (runax (to_abgr ab ab)).
     reflexivity.
   Defined.
   Definition SwitchIso {M:PreAdditive} (a b:M) (ab : BinDirectSum a b) (ba : BinDirectSum b a) : z_iso ab ba.
@@ -606,10 +606,10 @@ Section PreAdditive.
       rewrite leftDistribute. rewrite 2 assoc'.
       rewrite (to_Unel2 cb).
       unfold to_unel.           (* fix to_Unel2! *)
-      rewrite zeroRight. rewrite lunax.
+      rewrite zeroRight. rewrite (lunax (to_abgr a c)).
       rewrite (to_IdIn1 cb). rewrite id_right. reflexivity.
     - rewrite assoc'. rewrite leftDistribute. rewrite (assoc' π₂ _ π₂).
-      rewrite (to_Unel1 cb). unfold to_unel. rewrite zeroRight. rewrite runax.
+      rewrite (to_Unel1 cb). unfold to_unel. rewrite zeroRight. rewrite (runax (to_abgr bc b)).
       rewrite 2 assoc. rewrite BinDirectSumPr1Commutes, BinDirectSumPr2Commutes.
       rewrite assoc'. rewrite (to_IdIn2 cb). rewrite id_right. reflexivity.
   Qed.
@@ -1405,7 +1405,7 @@ Section ExactCategoryFacts.
         unfold BinDirectSumIndAr. rewrite BinDirectSumPr2Commutes.
         rewrite assoc. rewrite rightDistribute. rewrite 2 leftDistribute.
         rewrite 2 id_right. rewrite (to_Unel1 AC). unfold to_unel.
-        rewrite lunax. rewrite id_right. rewrite 2 assoc.
+        rewrite (lunax (to_abgr A C)). rewrite id_right. rewrite 2 assoc.
         rewrite (to_IdIn1 AC). rewrite id_left.
         rewrite assoc'. rewrite (to_IdIn2 AC). rewrite id_right. reflexivity. }
     induction (!e); clear e.
@@ -1550,7 +1550,7 @@ Section ExactCategoryFacts.
         apply (grrinvax (Hom_add _ _ _)).
       - rewrite BinDirectSumPr2Commutes. unfold elem12. rewrite rightDistribute, leftDistribute.
         rewrite id_right. rewrite assoc. rewrite (assoc' _ _ π₂).
-        rewrite (to_Unel1 CB); unfold to_unel. rewrite zeroRight. rewrite runax.
+        rewrite (to_Unel1 CB); unfold to_unel. rewrite zeroRight. rewrite (runax (to_abgr A B)).
         unfold q. rewrite BinDirectSumPr2Commutes. reflexivity. }
     assert (e' : q · elem12 _ (grinv j) · SwitchMap _ _ _ _ = ToBinDirectSum BC i 0).
     { rewrite e. apply SwitchMapEqnTo. }
@@ -1568,7 +1568,7 @@ Section ExactCategoryFacts.
     assert (es := ExactSequenceFromMono _ _ co); clear co.
     assert (t : i · to_In1 BC = ToBinDirectSum BC i 0).
     { rewrite <- ToBinDirectSumFormulaUnique. unfold ToBinDirectSumFormula.
-      rewrite rewrite_op. rewrite zeroLeft, runax. reflexivity. }
+      rewrite rewrite_op. rewrite zeroLeft, (runax (to_abgr A BC)). reflexivity. }
     assert (l' : isAdmissibleMonomorphism (i · to_In1 BC)).
     { induction (!t). exact l. }
     clear l t.
@@ -1820,7 +1820,7 @@ Section SplitSequences.
     - exact (to_Unel1 AB).
     - intros T h e. exists (h · π₁). refine (_ @ id_right _).
       rewrite <- (to_BinOpId AB). rewrite rewrite_op. rewrite rightDistribute.
-      rewrite assoc'. rewrite (assoc _ π₂ _). rewrite e. rewrite zeroLeft. rewrite runax. reflexivity.
+      rewrite assoc'. rewrite (assoc _ π₂ _). rewrite e. rewrite zeroLeft. rewrite (runax (to_abgr T AB)). reflexivity.
   Defined.
   Lemma DirectSumToCokernel {M:PreAdditive} {A B:M} (AB : BinDirectSum A B) : isCokernel' (to_In1 AB) (to_Pr2 AB).
   Proof.
@@ -1829,7 +1829,7 @@ Section SplitSequences.
     - exact (to_Unel1 AB).
     - intros T h e. exists (ι₂ · h). refine (_ @ id_left _).
       rewrite <- (to_BinOpId AB). rewrite rewrite_op. rewrite leftDistribute.
-      rewrite assoc. rewrite (assoc' _ ι₁ _). rewrite e. rewrite zeroRight. rewrite lunax. reflexivity.
+      rewrite assoc. rewrite (assoc' _ ι₁ _). rewrite e. rewrite zeroRight. rewrite (lunax (to_abgr AB T)). reflexivity.
   Defined.
   Lemma isSplitToKernelCokernelPair {M:PreAdditive} {A B C:M} (i:A-->B) (p:B-->C) :
     isSplit2 i p -> isKernelCokernelPair i p.
@@ -1864,32 +1864,32 @@ Section SplitSequences.
       rewrite (assoc j). rewrite (to_IdIn1 jq). rewrite id_left.
       rewrite assoc'. rewrite (assoc i'). rewrite (to_IdIn2 ip). rewrite id_left.
       rewrite (assoc _ q'). rewrite (assoc' _ j'). rewrite (to_Unel2 jq); unfold to_unel.
-      rewrite zeroRight, zeroLeft, runax.
+      rewrite zeroRight, zeroLeft, (runax (to_abgr PQ PQ)).
       rewrite (assoc' _ j). rewrite (assoc j). rewrite (to_Unel1 jq). unfold to_unel.
-      rewrite zeroLeft, zeroRight, lunax. rewrite assoc'.
+      rewrite zeroLeft, zeroRight, (lunax (to_abgr PQ PQ)). rewrite assoc'.
       rewrite (assoc j'). rewrite (to_IdIn2 jq). rewrite id_left. apply (to_BinOpId PQ). }
     { rewrite rightDistribute. rewrite assoc'. rewrite (assoc' q').
       rewrite (assoc j). rewrite (to_IdIn1 jq). rewrite id_left.
       rewrite assoc. rewrite (to_Unel1 ip); unfold to_unel.
-      rewrite zeroLeft. rewrite lunax. rewrite assoc'.
+      rewrite zeroLeft. rewrite (lunax (to_abgr A PQ)). rewrite assoc'.
       rewrite (assoc j). rewrite (to_Unel1 jq); unfold to_unel.
       rewrite zeroLeft, zeroRight. reflexivity. }
     { rewrite leftDistribute. rewrite assoc'. rewrite (assoc j).
       rewrite (to_IdIn1 jq). rewrite id_left. rewrite (assoc' _ i').
       rewrite (to_Unel2 ip); unfold to_unel.
-      rewrite zeroRight. rewrite lunax. rewrite assoc'.
+      rewrite zeroRight. rewrite (lunax (to_abgr PQ A)). rewrite assoc'.
       rewrite (assoc j'). rewrite (to_Unel2 jq);unfold to_unel.
       rewrite zeroLeft, zeroRight. reflexivity. }
     { rewrite rightDistribute, 2 leftDistribute. rewrite assoc.
       rewrite (assoc' _ i'). rewrite (assoc' _ ι₁). rewrite (assoc ι₁).
       rewrite (to_IdIn1 PQ). rewrite id_left. rewrite assoc.
       rewrite (assoc' q). rewrite (assoc _ _ (i' · j)).
-      rewrite (to_Unel2 PQ); unfold to_unel. rewrite zeroLeft, zeroRight, runax.
-      rewrite <- assocax. rewrite <- (leftDistribute _ _ j).
+      rewrite (to_Unel2 PQ); unfold to_unel. rewrite zeroLeft, zeroRight, (runax (to_abgr C C)).
+      rewrite <- (assocax (to_abgr C C)). rewrite <- (leftDistribute (q' · p' · i) _ j).
       rewrite 2 (assoc' q'). rewrite <- (rightDistribute q').
       rewrite (to_BinOpId' ip). rewrite id_right.
       rewrite (assoc' _ ι₁). rewrite (assoc ι₁). rewrite (to_Unel1 PQ); unfold to_unel.
-      rewrite zeroLeft, zeroRight, lunax. rewrite (assoc' q).
+      rewrite zeroLeft, zeroRight, (lunax (to_abgr C C)). rewrite (assoc' q).
       rewrite (assoc ι₂). rewrite (to_IdIn2 PQ).
       rewrite id_left. exact (to_BinOpId' jq). }
   Qed.
@@ -1916,7 +1916,7 @@ Section SplitSequences.
         use tpair.
         * rewrite leftDistribute. rewrite (assoc' _ j q). rewrite (to_IdIn2 e).
           rewrite id_right. rewrite (assoc' _ i q). rewrite (to_Unel1 e); unfold to_unel.
-          rewrite zeroRight, lunax. reflexivity.
+          rewrite zeroRight, (lunax (to_abgr A'C A'')). reflexivity.
         * intros T r s eqn. apply iscontraprop1.
           { apply invproofirrelevance. intros h k.
             apply subtypePath.
@@ -1935,14 +1935,14 @@ Section SplitSequences.
           { rewrite leftDistribute, 2 rightDistribute.
             rewrite assoc'. rewrite (assoc _ _ i). rewrite (to_IdIn1 A'C). rewrite id_left.
             rewrite (assoc' (r · p)). rewrite 2 (assoc ι₁).
-            rewrite (to_Unel1 A'C); unfold to_unel. rewrite 2 zeroLeft, zeroRight, runax.
+            rewrite (to_Unel1 A'C); unfold to_unel. rewrite 2 zeroLeft, zeroRight, (runax (to_abgr T A)).
             rewrite (assoc' s). rewrite (assoc ι₂). rewrite (to_Unel2 A'C); unfold to_unel.
-            rewrite zeroLeft, zeroRight, lunax. rewrite 2 assoc. rewrite (assoc' s).
+            rewrite zeroLeft, zeroRight, (lunax (to_abgr T A)). rewrite 2 assoc. rewrite (assoc' s).
             rewrite (to_IdIn2 A'C). rewrite id_right. rewrite (!eqn).
             rewrite 2 assoc'. rewrite <- (rightDistribute r). rewrite (to_BinOpId' e).
             apply id_right. }
           { rewrite leftDistribute. rewrite (assoc' (r · p)). rewrite (to_Unel1 A'C); unfold to_unel.
-            rewrite zeroRight, lunax. rewrite assoc'. rewrite (to_IdIn2 A'C).
+            rewrite zeroRight, (lunax (to_abgr T C)). rewrite assoc'. rewrite (to_IdIn2 A'C).
             apply id_right. }
     - cbn. exact (hinhpr(A',,ι₁,, hinhpr (π₁,,ι₂,,BinDirectSum_isBinDirectSum _ A'C))).
   Qed.

@@ -19,7 +19,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Categories.Abgr.
+Require Import UniMath.CategoryTheory.Categories.AbelianGroup.
 Require Import UniMath.CategoryTheory.Categories.Commring.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
@@ -39,7 +39,7 @@ Local Open Scope cat.
  *)
 Definition bimodule_abgr
   : twosided_disp_cat commring_category commring_category
-  := constant_twosided_disp_cat _ _ abgr_category.
+  := constant_twosided_disp_cat _ _ abelian_group_category.
 
 Definition action_on_bimodule_ob_mor
   : disp_cat_ob_mor (total_twosided_disp_category bimodule_abgr).
@@ -61,7 +61,7 @@ Proof.
            λ (μ₁ : R₁ → G → R₂ → G) (μ₂ : S₁ → H → S₂ → H) f,
            let f₁ := (pr1 f : R₁ → S₁) in
            let f₂ := (pr12 f : R₂ → S₂) in
-           let g := (pr22 f : G → H) in
+           let g := ((pr22 f : abelian_group_morphism _ _) : G → H) in
            ∏ (x : R₁) (y : G) (z : R₂),
            g (μ₁ x y z)
            =
@@ -210,7 +210,7 @@ Proof.
   use is_univalent_sigma_of_twosided_disp_cat.
   - use is_univalent_sigma_of_twosided_disp_cat.
     + use is_univalent_constant_twosided_disp_cat.
-      exact abgr_category_is_univalent.
+      exact is_univalent_abelian_group_category.
     + exact is_univalent_action_on_bimodule.
   - exact is_univalent_disp_cat_bimodule_laws.
 Qed.

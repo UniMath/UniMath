@@ -135,7 +135,7 @@ Section quotmod_def.
 
   Definition quotmod_ringmap : R -> ringofendabgr quotmod_abgr.
   Proof.
-    intros r. use tpair.
+    intros r. use make_monoidfun.
     + exact (quotmod_ringact r).
     + use make_ismonoidfun.
       * use make_isbinopfun.
@@ -172,7 +172,7 @@ Section quotmod_def.
       (* We show this using the universal property of the set quotient. *)
       all: use (setquotunivprop E (λ m, make_hProp _ _)); [use isasetsetquot|].
       (* Expand out some definitions. *)
-      all: intros m; simpl; unfold unel, quotmod_ringact.
+      all: intros m; simpl; unfold unel, quotmod_ringact, compose; simpl.
       (* Apply the computation rule of the universal property of the set quotient. *)
       all: [> do 3 rewrite (setquotunivcomm E) | rewrite (setquotunivcomm E)
             | do 3 rewrite (setquotunivcomm E) | rewrite (setquotunivcomm E)].

@@ -1,27 +1,29 @@
 (**
-Limits
-*)
 
+  Limits
+
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Diagrams.
 Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.CategoryWithStructure.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.
+Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
 
 Local Open Scope cat.
 Local Open Scope mor_disp.
 
 Section Creates_Limits.
 
-(* TODO: consider implicitness of argument *)
 Definition creates_limit
   {C : category}
   {D : disp_cat C}
@@ -273,8 +275,11 @@ Section fiber.
     (mapdiagram (fiber_to_total_functor D c ∙ pr1_category D) F)
   ) : LimCone (mapdiagram (pr1_category _) (mapdiagram _ F)))).
 
-  Let Δ := limArrow L _ (constant_cone J c).
-  Let L' := make_LimCone _ _ _ (pr2 H).
+  Let Δ : C⟦c, lim L⟧
+    := limArrow L _ (constant_cone J c).
+
+  Let L' : LimCone (mapdiagram (fiber_to_total_functor D c) F)
+    := make_LimCone _ _ _ (pr2 H).
 
   Context (candidate : cartesian_lift (pr11 H) Δ).
 
@@ -417,6 +422,107 @@ Definition fiber_limits
     (H _ _ _)
     (cl _ _ _ _).
 
+Section Sigma.
+  Context {C : category}.
+  Context {D : disp_cat C}.
+  Context {E : disp_cat (total_category D)}.
+  Context (D' := sigma_disp_cat E).
+  Context {J : graph}.
+  Context {d : diagram J (total_category D')}.
+  Context {L : LimCone (mapdiagram (pr1_category _) d)}.
+
+  Context (HD : creates_limit (mapdiagram (total_functor (sigmapr1_disp_functor E)) d) L).
+  Context (HE : creates_limit (mapdiagram (sigma_to_E_total_functor E) d) (total_limit _ HD)).
+
+  Definition tip_sigma_disp_cat
+    : D' (lim L)
+    := pr11 HD ,, pr11 HE.
+
+  Definition cone_sigma_disp_cat
+    (j : vertex J)
+    : tip_sigma_disp_cat -->[limOut L j] pr2 (dob d j)
+    := pr121 HD j ,, pr121 HE j.
+
+  Lemma forms_cone_sigma_disp_cat
+    (u v : vertex J)
+    (e : edge u v)
+    : compose (C := total_category D') (a := _ ,, _) (_ ,, cone_sigma_disp_cat u) (dmor d e) = (_ ,, cone_sigma_disp_cat v).
+  Proof.
+    apply (pr2 (mapcone (E_to_sigma_total_functor E) _ (make_cone _ (pr221 HE)))).
+  Qed.
+
+  Section Arrow.
+
+    Context (d' : total_category D').
+    Context (d'_cone : cone d d').
+
+    Let d_cone : LimCone (mapdiagram (sigma_to_E_total_functor E) d)
+      := (make_LimCone _ _ _ (pr2 HE)).
+
+    Let e_cone : cone (mapdiagram (sigma_to_E_total_functor E) d) (sigma_to_E_total_functor E d')
+      := mapcone (sigma_to_E_total_functor E) _ d'_cone.
+
+    Definition sigma_lim_arrow
+      : total_category D'⟦d', lim L,, tip_sigma_disp_cat⟧
+      := (# (E_to_sigma_total_functor E))%cat (limArrow d_cone _ e_cone).
+
+    Lemma sigma_lim_arrow_commutes
+      : is_cone_mor d'_cone
+        (make_cone _ forms_cone_sigma_disp_cat)
+        sigma_lim_arrow.
+    Proof.
+      intro u.
+      exact (maponpaths (# (E_to_sigma_total_functor E))%cat (limArrowCommutes d_cone _ e_cone u)).
+    Qed.
+
+    Lemma sigma_lim_arrow_unique
+      (t : ∑ x, is_cone_mor d'_cone (make_cone _ forms_cone_sigma_disp_cat) x)
+      : t = sigma_lim_arrow ,, sigma_lim_arrow_commutes.
+    Proof.
+      use subtypePairEquality.
+      {
+        intro.
+        apply impred_isaprop.
+        intro.
+        apply homset_property.
+      }
+      pose (f' := (# (sigma_to_E_total_functor E))%cat (pr1 t)).
+      pose (Hf' := λ u, maponpaths (# (sigma_to_E_total_functor E))%cat (pr2 t u)).
+      pose (uniq := limArrowUnique d_cone _ e_cone f' Hf').
+      exact (maponpaths (# (E_to_sigma_total_functor E))%cat uniq).
+    Qed.
+
+  End Arrow.
+
+  Definition is_lim_cone_sigma_disp_cat
+    : isLimCone _ _ (make_cone _ (forms_cone_sigma_disp_cat)).
+  Proof.
+    intros d' d'_cone.
+    use ((_ ,, _) ,, _).
+    - exact (sigma_lim_arrow d' d'_cone).
+    - exact (sigma_lim_arrow_commutes d' d'_cone).
+    - exact (sigma_lim_arrow_unique d' d'_cone).
+  Defined.
+
+End Sigma.
+
+Definition creates_limits_sigma_disp_cat
+  {C : category}
+  {D : disp_cat C}
+  {E : disp_cat (total_category D)}
+  (D' := sigma_disp_cat E)
+  {J : graph}
+  (F : diagram J (total_category D'))
+  (L : LimCone (mapdiagram (pr1_category _) F))
+  (HD : creates_limit (mapdiagram (total_functor (sigmapr1_disp_functor E)) F) L)
+  (HE : creates_limit (mapdiagram (sigma_to_E_total_functor E) F) (total_limit _ HD))
+  : creates_limit F L
+  := make_creates_limit
+    (tip_sigma_disp_cat HD HE)
+    (cone_sigma_disp_cat HD HE)
+    (forms_cone_sigma_disp_cat HD HE)
+    (is_lim_cone_sigma_disp_cat HD HE).
+
 Section creates_preserves.
 
 Context {C : category}
@@ -473,6 +579,3 @@ Proof.
 Defined.
 
 End creates_preserves.
-
-
-(* *)

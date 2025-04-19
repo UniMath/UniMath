@@ -283,10 +283,11 @@ Categories/CategoryOfSetGroupoids.v
 Limits/Examples/CategoryOfSetcategoriesLimits.v
 Limits/Examples/CategoryOfSetGroupoidsLimits.v
 Categories/SetWith2BinOp.v
+Categories/Magma.v
 Categories/Monoid.v
-Categories/Abmonoid.v
-Categories/Gr.v
-Categories/Abgr.v
+Categories/AbelianMonoid.v
+Categories/Group.v
+Categories/AbelianGroup.v
 Categories/Rig.v
 Categories/Commrig.v
 Categories/Ring.v
@@ -407,8 +408,8 @@ Monads/MonadAlgebras.v
 Monads/Comonads.v
 Monads/ComonadCoalgebras.v
 
-DisplayedCats/Limits.v
 DisplayedCats/Examples/Sigma.v
+DisplayedCats/Limits.v
 DisplayedCats/Examples.v
 DisplayedCats/Examples/UnitalBinop.v
 DisplayedCats/Examples/CategoryOfPosets.v

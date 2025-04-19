@@ -1,56 +1,47 @@
-(** * Algebra 1. Part A. Generalities. Vladimir Voevodsky. Aug. 2011 -. *)
-(** ** Contents
-- Sets with one and two binary operations
- - Unary operations
- - Binary operations
-  - General definitions
-  - Standard conditions on one binary operation on a set
-   - Elements with inverses
-   - Group operations
-  - Standard conditions on a pair of binary operations on a set
- - Sets with one binary operation
-  - General definitions
-  - Functions compatible with a binary operation (homomorphism)
-    and their properties
-  - Transport of properties of a binary operation
-  - Subobject
-  - Relations compatible with a binary operation and quotient objects
-  - Relations inversely compatible with a binary operation
-  - Homomorphisms and relations
-  - Quotient relations
-  - Direct products
- - Sets with two binary operations
-  - General definitions
-  - Functions compatible with a pair of binary operation (homomorphisms)
-    and their properties
-  - Transport of properties of a pair of binary operations
-  - Subobjects
-  - Quotient objects
-  - Direct products
- - Infinitary operations
-*)
+(**
 
+  Sets With One and Two Binary Operations
 
-(** ** Preamble *)
+  Contents
+  1. Unary operations
+  2. Binary operations
+  2.1. General definitions
+  2.2. Standard conditions on one binary operation on a set
+  2.3. Elements with inverses
+  2.4. Group operations
+  2.5. Standard conditions on a pair of binary operations on a set
+  3. Sets with one binary operation
+  3.1. General definitions
+  3.2. Functions compatible with a binary operation (homomorphism) and their properties
+  3.3. Transport of properties of a binary operation
+  3.4. Subobject
+  3.5. Relations compatible with a binary operation and quotient objects
+  3.6. Relations inversely compatible with a binary operation
+  3.7. Homomorphisms and relations
+  3.8. Quotient relations
+  3.9. Direct products
+  4. Sets with two binary operations
+  4.1. General definitions
+  4.2. Functions compatible with a pair of binary operation (homomorphisms) and their properties
+  4.3. Transport of properties of a pair of binary operations
+  4.4. Subobjects
+  4.5. Quotient objects
+  4.6. Direct products
+  5. Infinitary operations
 
-(** Imports *)
+  Originally written by Vladimir Voevodsky, Aug. 2011.
 
+ *)
 Require Export UniMath.Foundations.Sets.
 Require Export UniMath.MoreFoundations.Propositions.
 
-(** To upstream files *)
-
-
-(** ** Sets with one and two binary operations *)
-
-(** *** Unary operations *)
+(** * 1. Unary operations *)
 
 Definition unop (X : UU) : UU := X → X.
 
-(** *** Binary operations *)
+(** * 2. Binary operations *)
 
-
-(** **** General definitions *)
+(** * 2.1. General definitions *)
 
 Definition islcancelable {X : UU} (opp : binop X) (x : X) : UU := isincl (λ x0 : X, opp x x0).
 
@@ -88,9 +79,7 @@ Definition binop_weq_bck {X Y : UU} (H : X ≃ Y) :
   binop Y → binop X :=
   λ (opp : binop Y) (x y : X), invmap H (opp (H x) (H y)).
 
-(** **** Standard conditions on one binary operation on a set *)
-
-(** *)
+(** * 2.2. Standard conditions on one binary operation on a set *)
 
 Definition isassoc {X : UU} (opp : binop X) : UU :=
   ∏ x x' x'', opp (opp x x') x'' = opp x (opp x' x'').
@@ -183,7 +172,7 @@ Proof.
   apply isapropisunital.
 Defined.
 
-(** ***** Elements with inverses  *)
+(** * 2.3. Elements with inverses *)
 
 Section ElementsWithInverses.
   Context {X : UU} (opp : binop X) (is : ismonoidop opp).
@@ -414,7 +403,7 @@ Definition invstruct {X : UU} (opp : binop X) (is : ismonoidop opp) : UU :=
 Definition make_invstruct {X : UU} {opp : binop X} {is : ismonoidop opp} (inv0 : X → X)
            (H : isinv opp (unel_is is) inv0) : invstruct opp is := inv0 ,, H.
 
-(** ***** Group operations *)
+(** * 2.4. Group operations *)
 
 Definition isgrop {X : UU} (opp : binop X) : UU :=
   ∑ (is : ismonoidop opp), invstruct opp is.
@@ -732,9 +721,7 @@ Proof.
   apply isapropiscomm.
 Defined.
 
-(** **** Standard conditions on a pair of binary operations on a set *)
-
-(** *)
+(** * 2.5. Standard conditions on a pair of binary operations on a set *)
 
 Definition isldistr {X : UU} (opp1 opp2 : binop X) : UU :=
   ∏ x x' x'' : X, opp2 x'' (opp1 x x') = opp1 (opp2 x'' x) (opp2 x'' x').
@@ -1521,9 +1508,9 @@ Proof.
 Defined.
 
 
-(** *** Sets with one binary operation *)
+(** * 3. Sets with one binary operation *)
 
-(** **** General definitions *)
+(** * 3.1. General definitions *)
 
 Definition setwithbinop : UU := ∑ (X : hSet), binop X.
 
@@ -1552,7 +1539,7 @@ Notation "x * y" := (op x y) : multoperation_scope.
 Definition setwithbinop_rev (X : setwithbinop) : setwithbinop :=
   make_setwithbinop X (λ x y, op y x).
 
-(** **** Functions compatible with a binary operation (homomorphisms) and their properties *)
+(** * 3.2. Functions compatible with a binary operation (homomorphism) and their properties *)
 
 Definition isbinopfun {X Y : setwithbinop} (f : X → Y) : UU :=
   ∏ x x' : X, f (op x x') = op (f x) (f x').
@@ -1597,6 +1584,37 @@ Proof.
     apply (setproperty Y).
   - refine (isinclpr1 _ _). intro.
     apply isapropisbinopfun.
+Defined.
+
+Lemma binopfun_paths
+  {X Y : setwithbinop}
+  (f g : binopfun X Y)
+  (H : (f : X → Y) = g)
+  : f = g.
+Proof.
+  apply subtypePath.
+  - exact isapropisbinopfun.
+  - exact H.
+Qed.
+
+Definition binopfun_eq
+  {X Y : setwithbinop}
+  (f g : binopfun X Y)
+  : (f = g) ≃ (∏ x, f x = g x).
+Proof.
+  use weqimplimpl.
+  - intros e x.
+    exact (maponpaths (λ (f : binopfun _ _), f x) e).
+  - intro e.
+    apply binopfun_paths.
+    apply funextfun.
+    exact e.
+  - abstract apply isasetbinopfun.
+  - abstract (
+      apply impred_isaprop;
+      intro;
+      apply setproperty
+    ).
 Defined.
 
 Lemma isbinopfuncomp {X Y Z : setwithbinop} (f : binopfun X Y) (g : binopfun Y Z) :
@@ -1730,7 +1748,7 @@ Definition hfiberbinop {A B : setwithbinop} (f : binopfun A B) (b1 b2 : B)
   make_hfiber (pr1 f) (@op A (pr1 hf1) (pr1 hf2)) (hfiberbinop_path f b1 b2 hf1 hf2).
 
 
-(** **** Transport of properties of a binary operation  *)
+(** * 3.3. Transport of properties of a binary operation *)
 
 Lemma islcancelablemonob {X Y : setwithbinop} (f : binopmono X Y) (x : X)
       (is : islcancelable (@op Y) (f x)) : islcancelable (@op X) x.
@@ -1937,7 +1955,7 @@ Definition isabgropisob {X Y : setwithbinop} (f : binopiso X Y) (is : isabgrop (
   isabgrop (@op X) := isgropisob f is ,, iscommisob f (commax_is is).
 
 
-(** **** Subobjects *)
+(** * 3.4. Subobject *)
 
 Definition issubsetwithbinop {X : hSet} (opp : binop X) (A : hsubtype X) : UU :=
   ∏ a a' : A, A (opp (pr1 a) (pr1 a')).
@@ -1988,7 +2006,7 @@ Defined.
 Coercion carrierofasubsetwithbinop : subsetswithbinop >-> setwithbinop.
 
 
-(** **** Relations compatible with a binary operation and quotient objects *)
+(** * 3.5. Relations compatible with a binary operation and quotient objects *)
 
 Definition isbinophrel {X : setwithbinop} (R : hrel X) : UU :=
   (∏ a b c : X, R a b → R (op c a) (op c b)) × (∏ a b c : X, R a b → R (op a c) (op b c)).
@@ -2257,7 +2275,7 @@ Proof.
   intros x1 x2 r' S' s. use s. apply H. exact r'.
 Defined.
 
-(** **** Relations inversely compatible with a binary operation *)
+(** * 3.6. Relations inversely compatible with a binary operation *)
 
 Definition isinvbinophrel {X : setwithbinop} (R : hrel X) : UU :=
   (∏ a b c : X, R (op c a) (op c b) →  R a b) × (∏ a b c : X, R (op a c) (op b c) → R a b).
@@ -2327,7 +2345,7 @@ Proof.
 Defined.
 
 
-(** **** Homomorphisms and relations *)
+(** * 3.7. Homomorphisms and relations *)
 
 Lemma binophrelandfun {X Y : setwithbinop} (f : binopfun X Y) (R : hrel Y) (is : @isbinophrel Y R) :
   @isbinophrel X (λ x x', R (f x) (f x')).
@@ -2376,7 +2394,7 @@ Proof.
 Defined.
 
 
-(** **** Quotient relations *)
+(** * 3.8. Quotient relations *)
 
 Lemma isbinopquotrel {X : setwithbinop} (R : binopeqrel X) {L : hrel X} (is : iscomprelrel R L)
       (isl : isbinophrel L) : @isbinophrel (setwithbinopquot R) (quotrel is).
@@ -2416,7 +2434,7 @@ Proof.
   now rewrite p.
 Defined.
 
-(** **** Direct products *)
+(** * 3.9. Direct products *)
 
 Definition setwithbinopdirprod (X Y : setwithbinop) : setwithbinop.
 Proof.
@@ -2428,9 +2446,9 @@ Proof.
 Defined.
 
 
-(** *** Sets with two binary operations *)
+(** * 4. Sets with two binary operations *)
 
-(** **** General definitions *)
+(** * 4.1. General definitions *)
 
 Definition setwith2binop : UU := ∑ (X : hSet), (binop X) × (binop X).
 
@@ -2461,7 +2479,7 @@ Proof.
 Qed.
 
 
-(** **** Functions compatible with a pair of binary operation (homomorphisms) and their properties *)
+(** * 4.2. Functions compatible with a pair of binary operation (homomorphisms) and their properties *)
 
 Definition istwobinopfun {X Y : setwith2binop} (f : X → Y) : UU :=
   (∏ x x' : X, f (op1 x x') = op1 (f x) (f x')) ×
@@ -2671,7 +2689,7 @@ Definition setwith2binop_univalence (X Y : setwith2binop) : (X = Y) ≃ (twobino
     (setwith2binop_univalence_isweq X Y).
 
 
-(** **** Transport of properties of a pair of binary operations *)
+(** * 4.3. Transport of properties of a pair of binary operations *)
 
 Lemma isldistrmonob {X Y : setwith2binop} (f : twobinopmono X Y) (is : isldistr (@op1 Y) (@op2 Y)) :
   isldistr (@op1 X) (@op2 X).
@@ -2777,7 +2795,7 @@ Definition iscommringopsisob {X Y : setwith2binop} (f : twobinopiso X Y)
   isringopsisob f is ,, iscommisob (binop2iso f) (pr2 is).
 
 
-(** **** Subobjects *)
+(** * 4.4. Subobjects *)
 
 Definition issubsetwith2binop {X : setwith2binop} (A : hsubtype X) : UU :=
   (∏ a a' : A, A (op1 (pr1 a) (pr1 a'))) × (∏ a a' : A, A (op2 (pr1 a) (pr1 a'))).
@@ -2831,7 +2849,7 @@ Defined.
 Coercion carrierofsubsetwith2binop : subsetswith2binop >-> setwith2binop.
 
 
-(** **** Quotient objects *)
+(** * 4.5. Quotient objects *)
 
 Definition is2binophrel {X : setwith2binop} (R : hrel X) : UU :=
   (@isbinophrel (setwithbinop1 X) R) × (@isbinophrel (setwithbinop2 X) R).
@@ -2896,7 +2914,7 @@ Proof.
 Defined.
 
 
-(** **** Direct products *)
+(** * 4.6. Direct products *)
 
 Definition setwith2binopdirprod (X Y : setwith2binop) : setwith2binop.
 Proof.
@@ -2909,7 +2927,7 @@ Proof.
 Defined.
 
 
-(** ** Infinitary operations *)
+(** * 5. Infinitary operations *)
 
 (** Limit a more general infinitary operation to a binary operation *)
 
@@ -2917,5 +2935,3 @@ Lemma infinitary_op_to_binop {X : hSet} (op : ∏ I : UU, (I → X) → X) : bin
 Proof.
   intros x y; exact (op _ (bool_rect (λ _, X) x y)).
 Defined.
-
-(* End of file *)

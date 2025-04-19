@@ -42,7 +42,7 @@ Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 Require Import UniMath.CategoryTheory.Abelian.
 Require Import UniMath.CategoryTheory.ShortExactSequences.
-Require Import UniMath.CategoryTheory.Categories.Abgr.
+Require Import UniMath.CategoryTheory.Categories.AbelianGroup.
 
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.

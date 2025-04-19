@@ -5,27 +5,17 @@
   - The sigma category [sigma_disp_cat]
   - The displayed projection functor from sigma to D [sigmapr1_disp_functor]
   - Displayed univalence for sigma [is_univalent_sigma_disp]
-  - Sigma creates limits [creates_limits_sigma_disp_cat]
   - Projection for the sigma construction
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Equivalences.Core.
-Require Import UniMath.CategoryTheory.Adjunctions.Core.
-Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
-Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
-Require Import UniMath.CategoryTheory.DisplayedCats.Limits.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
@@ -130,7 +120,6 @@ Proof.
   apply idpath.
 Qed.
 
-(** ** Limits *)
 Definition sigma_to_E_total_functor
   : total_category sigma_disp_cat ⟶ total_category E.
 Proof.
@@ -154,97 +143,6 @@ Proof.
       exact (pr11 t ,, pr21 t ,, pr2 t).
   - abstract now use tpair; intro.
 Defined.
-
-Section Limits.
-  Context (D' := sigma_disp_cat).
-  Context {J : graph}.
-  Context {d : diagram J (total_category D')}.
-  Context {L : LimCone (mapdiagram (pr1_category _) d)}.
-
-  Context (HD : creates_limit (mapdiagram (total_functor sigmapr1_disp_functor) d) L).
-  Context (HE : creates_limit (mapdiagram sigma_to_E_total_functor d) (total_limit _ HD)).
-
-  Definition tip_sigma_disp_cat
-    : D' (lim L)
-    := pr11 HD ,, pr11 HE.
-
-  Definition cone_sigma_disp_cat
-    (j : vertex J)
-    : tip_sigma_disp_cat -->[limOut L j] pr2 (dob d j)
-    := pr121 HD j ,, pr121 HE j.
-
-  Lemma forms_cone_sigma_disp_cat
-    (u v : vertex J)
-    (e : edge u v)
-    : compose (C := total_category sigma_disp_cat) (a := _ ,, _) (_ ,, cone_sigma_disp_cat u) (dmor d e) = (_ ,, cone_sigma_disp_cat v).
-  Proof.
-    apply (pr2 (mapcone E_to_sigma_total_functor _ (make_cone _ (pr221 HE)))).
-  Qed.
-
-  Section Arrow.
-
-    Context (d' : total_category D').
-    Context (d'_cone : cone d d').
-
-    Let d_cone := (make_LimCone _ _ _ (pr2 HE)).
-    Let e_cone := mapcone sigma_to_E_total_functor _ d'_cone.
-
-    Definition sigma_lim_arrow
-      : total_category D'⟦d', lim L,, tip_sigma_disp_cat⟧
-      := (# E_to_sigma_total_functor)%cat (limArrow d_cone _ e_cone).
-
-    Lemma sigma_lim_arrow_commutes
-      : is_cone_mor d'_cone
-        (make_cone _ forms_cone_sigma_disp_cat)
-        sigma_lim_arrow.
-    Proof.
-      intro u.
-      exact (maponpaths (# E_to_sigma_total_functor)%cat (limArrowCommutes d_cone _ e_cone u)).
-    Qed.
-
-    Lemma sigma_lim_arrow_unique
-      (t : ∑ x, is_cone_mor d'_cone (make_cone _ forms_cone_sigma_disp_cat) x)
-      : t = sigma_lim_arrow ,, sigma_lim_arrow_commutes.
-    Proof.
-      use subtypePairEquality.
-      {
-        intro.
-        apply impred_isaprop.
-        intro.
-        apply homset_property.
-      }
-      pose (f' := (# sigma_to_E_total_functor)%cat (pr1 t)).
-      pose (Hf' := λ u, maponpaths (# sigma_to_E_total_functor)%cat (pr2 t u)).
-      pose (uniq := limArrowUnique d_cone _ e_cone f' Hf').
-      exact (maponpaths (# E_to_sigma_total_functor)%cat uniq).
-    Qed.
-
-  End Arrow.
-
-  Definition is_lim_cone_sigma_disp_cat
-    : isLimCone _ _ (make_cone _ (forms_cone_sigma_disp_cat)).
-  Proof.
-    intros d' d'_cone.
-    use ((_ ,, _) ,, _).
-    - exact (sigma_lim_arrow d' d'_cone).
-    - exact (sigma_lim_arrow_commutes d' d'_cone).
-    - exact (sigma_lim_arrow_unique d' d'_cone).
-  Defined.
-
-End Limits.
-
-Definition creates_limits_sigma_disp_cat
-  {J : graph}
-  (F : diagram J (total_category sigma_disp_cat))
-  (L : LimCone (mapdiagram (pr1_category _) F))
-  (HD : creates_limit (mapdiagram (total_functor sigmapr1_disp_functor) F) L)
-  (HE : creates_limit (mapdiagram sigma_to_E_total_functor F) (total_limit _ HD))
-  : creates_limit F L
-  := make_creates_limit
-    (tip_sigma_disp_cat HD HE)
-    (cone_sigma_disp_cat HD HE)
-    (forms_cone_sigma_disp_cat HD HE)
-    (is_lim_cone_sigma_disp_cat HD HE).
 
 (** ** Univalence *)
 (** *** Characterization of the isos of sigma_disp_cat *)

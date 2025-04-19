@@ -1062,7 +1062,7 @@ Proof.
 Qed.
 
 
-(** **** hz -> abgr, 1 ↦ x, n ↦ x + x + ... + x  (n times), [hz_abmonoid_monoidfun] *)
+(** **** hz -> abgr, 1 ↦ x, n ↦ x + x + ... + x  (n times), [hz_abmonoid_abelian_group_morphism] *)
 
 Definition nat_to_monoid_fun {X : monoid} (x : X) : natset -> X.
 Proof.
@@ -1108,11 +1108,11 @@ Lemma nat_to_monoid_unel' {X : abgr} (x : X) (n : nat) :
 Proof.
   induction n as [ | n IHn].
   - use (runax X).
-  - Opaque nat_to_monoid_fun. cbn in *.
+  - Opaque nat_to_monoid_fun.
     rewrite (@nat_to_monoid_fun_S X x). rewrite (@nat_to_monoid_fun_S X (grinv X x)).
     rewrite (commax X _ x). rewrite (assocax X).
     rewrite <- (assocax X (@nat_to_monoid_fun X x n)).
-    use (pathscomp0 (maponpaths (λ xx : pr1 X, (x * (xx * (grinv X x))))%multmonoid IHn)).
+    use (pathscomp0 (maponpaths (λ xx : X, (x * (xx * (grinv X x))))%multmonoid IHn)).
     clear IHn. use (pathscomp0 _ (grrinvax X x)).
     use two_arg_paths.
     + use idpath.
@@ -1171,34 +1171,34 @@ Proof.
   use (pathscomp0 (lunax X _)). use idpath.
 Qed.
 
-Definition nat_nat_prod_abmonoid_monoidfun {X : abgr} (x : X) :
-  monoidfun (abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig)) X.
+Definition nat_nat_prod_abmonoid_abelian_monoid_morphism {X : abgr} (x : X) :
+  abelian_monoid_morphism (abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig)) X.
 Proof.
-  use monoidfunconstr.
+  use make_abelian_monoid_morphism.
   - exact (nataddabmonoid_nataddabmonoid_to_monoid_fun x).
-  - use make_ismonoidfun.
+  - apply make_ismonoidfun.
     + exact (nat_nat_monoid_fun_isbinopfun x).
     + exact (nat_nat_prod_abmonoid_fun_unel x).
 Defined.
 
-Lemma hz_abmonoid_ismonoidfun :
+Lemma hz_abmonoid_is_abelian_monoid_morphism :
   @ismonoidfun
     (abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig))
     hzaddabgr (@setquotpr (abmonoiddirprod (rigaddabmonoid natcommrig)
                                            (rigaddabmonoid natcommrig))
                           (binopeqrelabgrdiff (rigaddabmonoid natcommrig))).
 Proof.
-  use make_ismonoidfun.
-  - use make_isbinopfun. intros x x'. use idpath.
-  - use idpath.
+  apply make_ismonoidfun.
+  - apply make_isbinopfun. intros x x'. use idpath.
+  - apply idpath.
 Qed.
 
-Definition hz_abmonoid_monoidfun :
-  monoidfun (abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig)) hzaddabgr.
+Definition hz_abmonoid_abelian_monoid_morphism :
+  abelian_monoid_morphism (abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig)) hzaddabgr.
 Proof.
-  use monoidfunconstr.
+  use make_abelian_monoid_morphism.
   - use setquotpr.
-  - exact hz_abmonoid_ismonoidfun.
+  - exact hz_abmonoid_is_abelian_monoid_morphism.
 Defined.
 
 Definition nat_nat_fun_unel {X : abgr} (x : X) (n : nat) :
@@ -1223,7 +1223,8 @@ Definition nat_nat_fun_ind2 {X : abgr} (x : X) (n1 n2 m k : nat) :
   nat_nat_to_monoid_fun x (make_dirprod n1 (S m)) = nat_nat_to_monoid_fun x (make_dirprod n2 (S k)).
 Proof.
   intros H.
-  unfold nat_nat_to_monoid_fun in *. cbn in *.
+  unfold nat_nat_to_monoid_fun in *.
+  cbn.
   rewrite (@nat_to_monoid_fun_S X (grinv X x)).
   rewrite (@nat_to_monoid_fun_S X (grinv X x)).
   rewrite <- (assocax X). rewrite <- (assocax X).
@@ -1236,10 +1237,10 @@ Transparent nat_to_monoid_fun.
 Opaque nat_to_monoid_fun.
 Definition abgr_precategory_integer_fun_iscomprelfun {X : abgr} (x : X) :
   iscomprelfun (binopeqrelabgrdiff (rigaddabmonoid natcommrig))
-               (nat_nat_prod_abmonoid_monoidfun x).
+               (nat_nat_prod_abmonoid_abelian_monoid_morphism x).
 Proof.
   intros x1. induction x1 as [x1 e1].
-  unfold nat_nat_prod_abmonoid_monoidfun. cbn.
+  unfold nat_nat_prod_abmonoid_abelian_monoid_morphism. cbn.
   unfold nataddabmonoid_nataddabmonoid_to_monoid_fun.
   unfold nat_nat_to_monoid_fun. cbn.
   induction x1 as [ | x1 IHx1].
@@ -1279,56 +1280,53 @@ Transparent nat_to_monoid_fun.
 Definition hz_abgr_fun {X : abgr} (x : X) : hzaddabgr -> X.
 Proof.
   use setquotuniv.
-  - exact (nat_nat_prod_abmonoid_monoidfun x).
+  - exact (nat_nat_prod_abmonoid_abelian_monoid_morphism x).
   - exact (abgr_precategory_integer_fun_iscomprelfun x).
 Defined.
 
-(** Hide ismonoidfun behind Qed. *)
-Definition hz_abgr_fun_ismonoidfun {X : abgr} (x : X) : ismonoidfun (hz_abgr_fun x).
+(** Hide isabelian_group_morphism behind Qed. *)
+Definition hz_abgr_fun_isbinopfun {X : abgr} (x : X) : isbinopfun (hz_abgr_fun x).
 Proof.
-  use make_ismonoidfun.
-  - use isbinopfun_twooutof3b.
-    + use (abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig)).
-    + use (hz_abmonoid_monoidfun).
-    + use issurjsetquotpr.
-    + use binopfunisbinopfun.
-    + use binopfunisbinopfun.
-  - use (runax X).
+  use isbinopfun_twooutof3b.
+  + use (abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig)).
+  + use (hz_abmonoid_abelian_monoid_morphism).
+  + use issurjsetquotpr.
+  + use binopfunisbinopfun.
+  + use binopfunisbinopfun.
 Qed.
 
-(** Construction of the monoidfun \mathbb{Z} --> A, 1 ↦ x *)
-Definition hz_abgr_fun_monoidfun {X : abgr} (x : X) : monoidfun hzaddabgr X.
+(** Construction of the abelian_group_morphism \mathbb{Z} --> A, 1 ↦ x *)
+Definition hz_abgr_fun_abelian_group_morphism {X : abgr} (x : X) : abelian_group_morphism hzaddabgr X.
 Proof.
-  use monoidfunconstr.
+  use make_abelian_group_morphism.
   - exact (hz_abgr_fun x).
-  - exact (hz_abgr_fun_ismonoidfun x).
+  - exact (hz_abgr_fun_isbinopfun x).
 Defined.
 
 (** Commutativity of the following diagram
 
-                          nat × nat --- nat_nat_prod_abmonoid_monoidfun --->  X
-        hz_abgr_fun_monoidfun |                                               ||
-                             hz -------- hz_abmonoid_monoidfun -------------> X
+                          nat × nat -- nat_nat_prod_abmonoid_abelian_monoid_morphism --->  X
+        hz_abgr_fun_abelian_group_morphism |                                               ||
+                             hz -------- hz_abmonoid_abelian_group_morphism -------------> X
  *)
 Lemma abgr_natnat_hz_X_comm {X : abgr} (x : X) :
-  monoidfuncomp hz_abmonoid_monoidfun (hz_abgr_fun_monoidfun x) =
-  nat_nat_prod_abmonoid_monoidfun x.
+  composite_abelian_monoid_morphism hz_abmonoid_abelian_monoid_morphism (abelian_group_to_monoid_morphism (hz_abgr_fun_abelian_group_morphism x)) =
+  nat_nat_prod_abmonoid_abelian_monoid_morphism x.
 Proof.
-  use monoidfun_paths. use funextfun. intros n. use setquotunivcomm.
+  apply abelian_monoid_morphism_eq. intros n. use setquotunivcomm.
 Qed.
 
 Opaque nat_to_monoid_fun.
-Lemma monoidfun_nat_to_monoid_fun {X Y : abgr} (f : monoidfun X Y) (x : X) (n : nat) :
-  pr1 f (nat_to_monoid_fun x n) = nat_to_monoid_fun (f x) n.
+Lemma abelian_group_morphism_nat_to_monoid_fun {X Y : abgr} (f : abelian_group_morphism X Y) (x : X) (n : nat) :
+  f (nat_to_monoid_fun x n) = nat_to_monoid_fun (f x) n.
 Proof.
   induction n as [ | n IHn].
-  - use monoidfununel.
-  - use (pathscomp0 (maponpaths (pr1 f) (@nat_to_monoid_fun_S X x n))).
-    use (pathscomp0 (binopfunisbinopfun f _ _)).
-    use (pathscomp0 _ (! (@nat_to_monoid_fun_S Y (f x) n))).
-    use two_arg_paths.
-    + exact IHn.
-    + use idpath.
+  - apply (monoidfununel f).
+  - refine (maponpaths f (@nat_to_monoid_fun_S X x n) @ _).
+    refine (binopfunisbinopfun f _ _ @ _).
+    refine (_ @ ! @nat_to_monoid_fun_S Y (f x) n).
+    apply (maponpaths (λ x, _ x _)).
+    exact IHn.
 Qed.
 Transparent nat_to_monoid_fun.
 

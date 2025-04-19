@@ -75,14 +75,22 @@ Lemma K_0_map_universal_property {M:ExactCategory} {G:abgr} :
   ≃
   ∑ f : ob M -> G, ∏ E:ShortExactSequence M, f(Ob2 E) = f(Ob1 E) + f(Ob3 E).
 Proof.
-  apply (weqcomp (presented_abgr_universal_property (K_0_hrel M) G)).
-  apply (weqtotal2 π₀_universal_property). intros h. apply weqiff.
-  + split.
-    * intros i E. exact (i _ _ (K_0_related E)).
-    * intros k w w' r. apply (squash_to_prop r (setproperty _ _ _)).
-      clear r; intros [E [e e']]. induction (!e), (!e'); clear e e'. exact (k E).
-  + apply isapropiscomprelfun.
-  + apply impred_isaprop; intros E. apply setproperty.
+  use (weqcomp (Y := abelian_group_morphism (K_0 M) G)).
+  - use weq_iso.
+    + intro f.
+      exact (binopfun_to_abelian_group_morphism f).
+    + intro f.
+      exact f.
+    + abstract now intro f; apply monoidfun_eq.
+    + abstract now intro f; apply abelian_group_morphism_eq.
+  - apply (weqcomp (presented_abgr_universal_property (K_0_hrel M) G)).
+    apply (weqtotal2 π₀_universal_property). intros h. apply weqiff.
+    + split.
+      * intros i E. exact (i _ _ (K_0_related E)).
+      * intros k w w' r. apply (squash_to_prop r (setproperty _ _ _)).
+        clear r; intros [E [e e']]. induction (!e), (!e'); clear e e'. exact (k E).
+    + apply isapropiscomprelfun.
+    + apply impred_isaprop; intros E. apply setproperty.
 Defined.
 Definition K_0_universal_map {M:ExactCategory} {G:abgr} (f : ob M -> G) :
   (∏ E:ShortExactSequence M, f(Ob2 E) = f(Ob1 E) + f(Ob3 E)) -> monoidfun (K_0 M) G.
