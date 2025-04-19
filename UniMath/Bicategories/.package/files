@@ -457,6 +457,12 @@ ComprehensionCat/LocalProperty/DFLCompCatWithProp.v
 ComprehensionCat/Biequivalence/LocalProperty.v
 
 ComprehensionCat/Biequivalence/PiTypesBiequiv.v
+
+ComprehensionCat/Universes/CatWithUniv/CatWithOb.v
+ComprehensionCat/Universes/CatWithUniv/UniverseInCat.v
+ComprehensionCat/Universes/CatWithUniv/UniverseAsMorphism.v
+ComprehensionCat/Universes/CatWithUniv/UniverseDispBicat.v
+
 ComprehensionCat/Biequivalence/InternalLanguageTopos.v
 
 ComprehensionCat/SetGroupoidModel.v
