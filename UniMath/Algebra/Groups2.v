@@ -1,18 +1,19 @@
-(** ** Contents
+(**
 
- - Groups
-  - Basic definitions
-  - Univalence for groups
-  - Computation lemmas for groups
-  - Relations on groups
-  - Subobjects
-  - Quotient objects
-  - Cosets
-  - Normal Subgroups
-  - Direct products
-  - Group of invertible elements in a monoid
-*)
+  Groups
 
+  Contents
+  1. Basic definitions
+  2. Computation lemmas for groups
+  3. Relations on groups
+  4. Subobjects
+  5. Quotient objects
+  6. Cosets
+  7. Normal Subgroups
+  8. Direct products
+  9. Group of invertible elements in a monoid
+
+ *)
 Require Import UniMath.MoreFoundations.Subtypes.
 Require Export UniMath.Algebra.Monoids2.
 Require Export UniMath.Algebra.BinaryOperations.
@@ -26,9 +27,7 @@ Delimit Scope gr with gr.
 Local Open Scope multmonoid.
 Local Open Scope gr.
 
-(** ** Groups *)
-
-(** *** Basic definitions *)
+(** * 1. Basic definitions *)
 
 Definition gr : UU := group_category.
 
@@ -147,19 +146,14 @@ Definition group_morphism_eq
   {f g : group_morphism X Y}
   : (f = g) ≃ (∏ x, f x = g x).
 Proof.
-  use weq_iso.
+  use weqimplimpl.
   - intros e x.
     exact (maponpaths (λ (f : group_morphism _ _), f x) e).
   - intro e.
     apply group_morphism_paths, funextfun.
     exact e.
+  - abstract apply homset_property.
   - abstract (
-      intro x;
-      apply homset_property
-    ).
-  - abstract (
-      intro;
-      apply proofirrelevance;
       apply impred_isaprop;
       intro;
       apply setproperty
@@ -197,7 +191,7 @@ Definition unelgrfun (X Y : gr) : group_morphism X Y :=
   binopfun_to_group_morphism (unelmonoidfun X Y).
 
 
-(** *** Computation lemmas for groups *)
+(** * 2. Computation lemmas for groups *)
 
 Definition weqlmultingr (X : gr) (x0 : X) : X ≃ X :=
   make_weq _ (isweqlmultingr_is (pr2 X) x0).
@@ -250,7 +244,7 @@ Proof.
 Qed.
 
 
-(** *** Relations on groups *)
+(** * 3. Relations on groups *)
 
 Lemma isinvbinophrelgr (X : gr) {R : hrel X} (is : isbinophrel R) : isinvbinophrel R.
 Proof.
@@ -325,7 +319,7 @@ Proof.
 Defined.
 
 
-(** *** Subobjects *)
+(** * 4. Subobjects *)
 
 Definition issubgr {X : gr} (A : hsubtype X) : UU :=
   (issubmonoid A) × (∏ x : X, A x → A x^-1).
@@ -411,7 +405,7 @@ Qed.
 Definition subgr_incl {X : gr} (A : subgr X) : group_morphism A X :=
   binopfun_to_group_morphism (X := A) (submonoid_incl A).
 
-(** *** Quotient objects *)
+(** * 5. Quotient objects *)
 
 Lemma grquotinvcomp {X : gr} (R : binopeqrel X) : iscomprelrelfun R R (λ x, x^-1).
 Proof.
@@ -453,7 +447,7 @@ Definition isgrquot {X : gr} (R : binopeqrel X) : isgrop (@op (setwithbinopquot 
 Definition grquot {X : gr} (R : binopeqrel X) : gr.
 Proof. exists (setwithbinopquot R). apply isgrquot. Defined.
 
-(** *** Cosets *)
+(** * 6. Cosets *)
 
 Section GrCosets.
   Context {X : gr}.
@@ -588,7 +582,7 @@ Section GrCosets.
 End GrCosets.
 
 
-(** *** Normal Subgroups *)
+(** * 7. Normal Subgroups *)
 
 Section NormalSubGroups.
 
@@ -728,7 +722,7 @@ Section NormalSubGroups.
 
 End NormalSubGroups.
 
-(** *** Direct products *)
+(** * 8. Direct products *)
 
 Lemma isgrdirprod (X Y : gr) : isgrop (@op (setwithbinopdirprod X Y)).
 Proof.
@@ -746,7 +740,7 @@ Defined.
 Definition grdirprod (X Y : gr) : gr.
 Proof. exists (setwithbinopdirprod X Y). apply isgrdirprod. Defined.
 
-(** *** Group of invertible elements in a monoid *)
+(** * 9. Group of invertible elements in a monoid *)
 
 Definition invertible_submonoid_grop X : isgrop (@op (invertible_submonoid X)).
 Proof.

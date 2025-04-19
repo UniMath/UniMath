@@ -1,4 +1,4 @@
-(**************************************************************************************************
+(**
 
   The Univalent Category of Groups
 
@@ -7,7 +7,7 @@
   Contents
   1. The univalent category of groups [group_univalent_category]
 
- **************************************************************************************************)
+ *)
 Require Import UniMath.Foundations.All.
 
 Require Import UniMath.Algebra.BinaryOperations.

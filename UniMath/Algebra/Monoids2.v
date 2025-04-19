@@ -1,17 +1,17 @@
-(** ** Standard Algebraic Structures *)
-(** *** Monoids *)
 (**
- - Monoids
-  - Basics definitions
-  - Univalence for monoids
-  - Functions between monoids compatible with structures (homomorphisms)
-    and their properties
-  - Subobjects
-  - Kernels
-  - Quotient objects
-  - Cosets
-  - Direct products
-*)
+
+  Monoids
+
+  Contents
+  1. Basic definitions
+  2. Functions between monoids compatible with structures (homomorphisms) and their properties
+  3. Subobjects
+  4. Kernels
+  5. Quotient objects
+  6. Cosets
+  7. Direct products
+
+ *)
 
 (** The following line has to be removed for the file to compile with Coq8.2 *)
 Unset Kernel Term Sharing.
@@ -28,7 +28,7 @@ Delimit Scope multmonoid with multmonoid.
 
 Local Open Scope multmonoid.
 
-(** ****  Basic definitions *)
+(** * 1. Basic definitions *)
 
 Definition monoid
   : UU
@@ -74,7 +74,7 @@ Definition unitmonoid : monoid :=
              unitmonoid_ismonoid.
 
 
-(** **** Functions between monoids compatible with structure (homomorphisms) and their properties *)
+(** * 2. Functions between monoids compatible with structures (homomorphisms) and their properties *)
 
 Definition ismonoidfun {X Y : monoid} (f : X → Y) : UU :=
   isbinopfun f × (f 1 = 1).
@@ -135,19 +135,14 @@ Definition monoidfun_eq
   {f g : monoidfun X Y}
   : (f = g) ≃ (∏ x, f x = g x).
 Proof.
-  use weq_iso.
+  use weqimplimpl.
   - intros e x.
     exact (maponpaths (λ (f : monoidfun _ _), f x) e).
   - intro e.
     apply monoidfun_paths, funextfun.
     exact e.
+  - abstract apply homset_property.
   - abstract (
-      intro x;
-      apply homset_property
-    ).
-  - abstract (
-      intro;
-      apply proofirrelevance;
       apply impred_isaprop;
       intro;
       apply setproperty
@@ -253,7 +248,7 @@ Proof.
 Qed.
 
 
-(** **** Subobjects *)
+(** * 3. Subobjects *)
 
 Definition issubmonoid {X : monoid} (A : hsubtype X) : UU :=
   (issubsetwithbinop (@op X) A) × (A 1).
@@ -384,7 +379,7 @@ Proof.
   exact (x,, is_inv_inv (@op X) _ _ _ x0isxinv).
 Defined.
 
-(** **** Kernels *)
+(** * 4. Kernels *)
 
 (** Kernels
     Let f : X → Y be a morphism of monoids. The kernel of f is
@@ -416,7 +411,7 @@ Defined.
 Definition kernel_submonoid {A B : monoid} (f : monoidfun A B) : @submonoid A :=
   make_submonoid _ (kernel_issubmonoid f).
 
-(** **** Quotient objects *)
+(** * 5. Quotient objects *)
 
 Lemma isassocquot {X : monoid} (R : binopeqrel X) : isassoc (@op (setwithbinopquot R)).
 Proof.
@@ -513,7 +508,7 @@ Defined.
 Definition quotient_by_monoidfun {X Y : monoid} (f : monoidfun X Y) : monoid :=
   monoidquot (fiber_binopeqrel f).
 
-(** **** Cosets *)
+(** * 6. Cosets *)
 
 Section Cosets.
   Context {X : monoid} (Y : submonoid X).
@@ -525,7 +520,7 @@ Section Cosets.
     ∑ y : Y, (pr1 y) * x1 = x2.
 End Cosets.
 
-(** **** Direct products *)
+(** * 7. Direct products *)
 
 Lemma isassocdirprod (X Y : monoid) : isassoc (@op (setwithbinopdirprod X Y)).
 Proof.

@@ -1,4 +1,4 @@
-(**************************************************************************************************
+(**
 
   The Univalent Category of Abelian Groups
 
@@ -35,7 +35,7 @@
   6. The category of abelian groups is an abelian category [abgr_Abelian]
   7. An elementwise criterion for isKernel [abgr_isKernel_Criteria]
 
- **************************************************************************************************)
+ *)
 Require Import UniMath.Foundations.All.
 
 Require Import UniMath.Algebra.BinaryOperations.
@@ -610,9 +610,10 @@ Section abgr_monics_and_epis.
   Context (f : abelian_group_morphism A B).
 
   Definition abgr_epi_hfiber_inhabited
-              (isE : isEpi f) (b : B)
-             (H : setquotpr (abgr_Cokernel_eqrel f) b =
-                  setquotpr (abgr_Cokernel_eqrel f) 0) : ∥ hfiber f b ∥.
+    (isE : isEpi f)
+    (b : B)
+    (H : setquotpr (abgr_Cokernel_eqrel f) b = setquotpr (abgr_Cokernel_eqrel f) 0)
+    : ∥ hfiber f b ∥.
   Proof.
     set (tmp := weqpathsinsetquot (abgr_Cokernel_eqrel f) b 0).
     refine (hinhuniv _ ((invweq tmp) H)). intros Y. apply hinhpr. induction Y as [t p].
@@ -645,7 +646,7 @@ Section abgr_monics_and_epis.
   Proof.
     apply abelian_monoid_morphism_eq. intros x. induction x as [x1 x2]. cbn.
     unfold nataddabmonoid_nataddabmonoid_to_monoid_fun.
-    unfold nat_nat_to_monoid_fun. Opaque nat_to_monoid_fun. cbn.
+    unfold nat_nat_to_monoid_fun. cbn -[nat_to_monoid_fun].
     refine (binopfunisbinopfun f _ _ @ _).
     refine (_ @ (! (binopfunisbinopfun f _ _))). cbn.
     change (pr1binopfun _ _ (pr1 f)) with (f : _ → _).
@@ -666,7 +667,6 @@ Section abgr_monics_and_epis.
       }
       induction e. reflexivity.
   Qed.
-  Transparent nat_to_monoid_fun.
 
   Lemma abgr_abelian_group_morphism_precomp {X Y Z : abmonoid}
     (f1 f2 : abelian_monoid_morphism Y Z)
@@ -908,8 +908,8 @@ Section Epis.
   Defined.
 
   Lemma abgr_epi_cokernel_out_data_eq {C : abgr}
-         (h : abelian_group_morphism A C)
-        (H : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero (abgr_Kernel f) C) :
+    (h : abelian_group_morphism A C)
+    (H : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero (abgr_Kernel f) C) :
     ∏ x : abgr_kernel_hsubtype f, h (pr1carrier (abgr_kernel_hsubtype f) x) = 0.
   Proof.
     intro x.
