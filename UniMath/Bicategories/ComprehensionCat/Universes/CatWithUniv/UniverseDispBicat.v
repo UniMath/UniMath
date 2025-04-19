@@ -525,3 +525,85 @@ Proof.
 Qed.
 
 (** * 4. Accessors *)
+Definition bicat_of_univ_cat_with_finlim_universe
+  : bicat
+  := total_bicat disp_bicat_finlim_universe.
+
+Proposition is_univalent_2_bicat_of_univ_cat_with_finlim_universe
+  : is_univalent_2 bicat_of_univ_cat_with_finlim_universe.
+Proof.
+  use total_is_univalent_2.
+  - exact disp_univalent_2_disp_bicat_finlim_universe.
+  - exact is_univalent_2_bicat_of_univ_cat_with_finlim.
+Qed.
+
+Proposition is_univalent_2_1_bicat_of_univ_cat_with_finlim_universe
+  : is_univalent_2_1 bicat_of_univ_cat_with_finlim_universe.
+Proof.
+  exact (pr2 is_univalent_2_bicat_of_univ_cat_with_finlim_universe).
+Qed.
+
+Proposition is_univalent_2_0_bicat_of_univ_cat_with_finlim_universe
+  : is_univalent_2_0 bicat_of_univ_cat_with_finlim_universe.
+Proof.
+  exact (pr1 is_univalent_2_bicat_of_univ_cat_with_finlim_universe).
+Qed.
+
+Definition univ_cat_with_finlim_universe
+  : UU
+  := bicat_of_univ_cat_with_finlim_universe.
+
+Coercion univ_cat_with_finlim_universe_to_univ_cat_finlim_ob
+         (C : univ_cat_with_finlim_universe)
+  : univ_cat_with_finlim_ob
+  := pr1 C ,, pr12 C.
+
+Definition univ_cat_cat_stable_el_map
+           (C : univ_cat_with_finlim_universe)
+  : cat_stable_el_map C
+  := pr122 C.
+
+Definition functor_finlim_universe
+           (C₁ C₂ : univ_cat_with_finlim_universe)
+  : UU
+  := C₁ --> C₂.
+
+Coercion functor_finlim_universe_to_functor_finlim_ob
+         {C₁ C₂ : univ_cat_with_finlim_universe}
+         (F : functor_finlim_universe C₁ C₂)
+  : functor_finlim_ob C₁ C₂
+  := pr1 F ,, pr12 F.
+
+Definition functor_finlim_universe_preserves_el
+           {C₁ C₂ : univ_cat_with_finlim_universe}
+           (F : functor_finlim_universe C₁ C₂)
+  : functor_preserves_el
+      (univ_cat_cat_stable_el_map C₁)
+      (univ_cat_cat_stable_el_map C₂)
+      F
+  := pr22 F.
+
+Definition nat_trans_finlim_universe
+           {C₁ C₂ : univ_cat_with_finlim_universe}
+           (F G : functor_finlim_universe C₁ C₂)
+  : UU
+  := F ==> G.
+
+Coercion nat_trans_finlim_ob_to_functor_nat_trans_ob
+         {C₁ C₂ : univ_cat_with_finlim_universe}
+         {F G : functor_finlim_universe C₁ C₂}
+         (τ : nat_trans_finlim_universe F G)
+  : nat_trans_finlim_ob F G
+  := pr1 τ ,, pr12 τ.
+
+Proposition nat_trans_universe_preserves_el
+            {C₁ C₂ : univ_cat_with_finlim_universe}
+            {F G : functor_finlim_universe C₁ C₂}
+            (τ : nat_trans_finlim_universe F G)
+  : nat_trans_preserves_el
+      τ
+      (functor_finlim_universe_preserves_el F)
+      (functor_finlim_universe_preserves_el G).
+Proof.
+  exact (pr22 τ).
+Defined.
