@@ -346,13 +346,42 @@ Proof.
   exact (pr12 el Γ t).
 Defined.
 
-Definition cat_el_map_pb_mor_comp
-           {C : univ_cat_with_finlim_ob}
-           (el : cat_stable_el_map_coherent C)
-           {Γ₁ Γ₂ Γ₃ : C}
-           (s₁ : Γ₁ --> Γ₂)
-           (s₂ : Γ₂ --> Γ₃)
-           (t : Γ₃ --> univ_cat_universe C)
+Proposition cat_el_map_pb_mor_id'_path
+            {C : univ_cat_with_finlim_ob}
+            (el : cat_stable_el_map_coherent C)
+            {Γ : C}
+            {s : Γ --> Γ}
+            {t : Γ --> univ_cat_universe C}
+            (p : identity _ = s)
+  : s · t = t.
+Proof.
+  rewrite <- p.
+  apply id_left.
+Qed.
+
+Proposition cat_el_map_pb_mor_id'
+            {C : univ_cat_with_finlim_ob}
+            (el : cat_stable_el_map_coherent C)
+            {Γ : C}
+            (s : Γ --> Γ)
+            (t : Γ --> univ_cat_universe C)
+            (p : identity _ = s)
+  : cat_el_map_pb_mor el s t
+    =
+    cat_el_map_el_eq el (cat_el_map_pb_mor_id'_path el p).
+Proof.
+  induction p.
+  refine (cat_el_map_pb_mor_id el t @ _).
+  apply cat_el_map_el_eq_eq.
+Qed.
+
+Proposition cat_el_map_pb_mor_comp
+            {C : univ_cat_with_finlim_ob}
+            (el : cat_stable_el_map_coherent C)
+            {Γ₁ Γ₂ Γ₃ : C}
+            (s₁ : Γ₁ --> Γ₂)
+            (s₂ : Γ₂ --> Γ₃)
+            (t : Γ₃ --> univ_cat_universe C)
   : cat_el_map_pb_mor el (s₁ · s₂) t
     =
     cat_el_map_el_eq el (assoc' _ _ _)
@@ -361,6 +390,35 @@ Definition cat_el_map_pb_mor_comp
 Proof.
   exact (pr22 el Γ₁ Γ₂ Γ₃ s₁ s₂ t).
 Defined.
+
+Proposition cat_el_map_pb_mor_comp'
+            {C : univ_cat_with_finlim_ob}
+            (el : cat_stable_el_map_coherent C)
+            {Γ₁ Γ₂ Γ₃ : C}
+            (s₁ : Γ₁ --> Γ₂)
+            (s₂ : Γ₂ --> Γ₃)
+            (t : Γ₃ --> univ_cat_universe C)
+  : cat_el_map_pb_mor el s₁ (s₂ · t)
+    · cat_el_map_pb_mor el s₂ t
+    =
+    cat_el_map_el_eq el (assoc _ _ _)
+    · cat_el_map_pb_mor el (s₁ · s₂) t.
+Proof.
+  rewrite cat_el_map_pb_mor_comp.
+  refine (!_).
+  refine (assoc _ _ _ @ _).
+  etrans.
+  {
+
+    apply maponpaths_2.
+    refine (assoc _ _ _ @ _).
+    apply maponpaths_2.
+    rewrite cat_el_map_el_eq_comp.
+    apply cat_el_map_el_eq_id.
+  }
+  rewrite id_left.
+  apply idpath.
+Qed.
 
 (** This lemma calculates the necessary transport for an equality principle *)
 Proposition transportf_cat_el_map
@@ -385,9 +443,104 @@ Proof.
   apply idpath.
 Qed.
 
+Proposition cat_el_map_eq_weq
+            {C : univ_cat_with_finlim_ob}
+            (el₁ el₂ : cat_stable_el_map_coherent C)
+  : (el₁ = el₂)
+    ≃
+    ∑ (pq : ∏ (Γ : C)
+              (t : Γ --> univ_cat_universe C),
+            ∑ (p : z_iso (cat_el_map_el el₁ t) (cat_el_map_el el₂ t)),
+            p · cat_el_map_mor el₂ t
+            =
+            cat_el_map_mor el₁ t),
+    (∏ (Γ Δ : C)
+       (s : Γ --> Δ)
+       (t : Δ --> univ_cat_universe C),
+     cat_el_map_pb_mor el₁ s t · pr1 (pq _ _)
+     =
+     pr1 (pq _ _) · cat_el_map_pb_mor el₂ s t).
+Proof.
+  induction el₁ as [ el₁ H₁ ].
+  induction el₂ as [ el₂ H₂ ].
+  induction el₁ as [ el₁ r₁ ].
+  induction el₂ as [ el₂ r₂ ].
+  refine (_ ∘ path_sigma_hprop _ _ _ _)%weq.
+  {
+    apply isaprop_is_coherent_cat_stable_el_map.
+  }
+  refine (_ ∘ total2_paths_equiv _ _ _)%weq.
+  use weqtotal2.
+  - refine (_ ∘ weqtoforallpaths _ _ _)%weq.
+    use weqonsecfibers.
+    intro Γ.
+    refine (_ ∘ weqtoforallpaths _ _ _)%weq.
+    use weqonsecfibers.
+    intro t ; cbn.
+    refine (_ ∘ total2_paths_equiv _ _ _)%weq.
+    use weqtotal2.
+    + use make_weq.
+      * exact (λ p, idtoiso p).
+      * apply univalent_category_is_univalent.
+    + intro p ; cbn ; cbn in p.
+      use weqimplimpl.
+      * rewrite <- idtoiso_precompose.
+        intro r.
+        refine (maponpaths (λ z, _ · z) (!r) @ _).
+        rewrite assoc.
+        refine (maponpaths (λ z, z · _) (!(pr1_idtoiso_concat _ _)) @ _).
+        rewrite pathsinv0r.
+        apply id_left.
+      * rewrite <- idtoiso_precompose.
+        intro r.
+        refine (maponpaths (λ z, _ · z) (!r) @ _).
+        rewrite assoc.
+        refine (maponpaths (λ z, z · _) (!(pr1_idtoiso_concat _ _)) @ _).
+        rewrite pathsinv0l.
+        apply id_left.
+      * apply homset_property.
+      * apply homset_property.
+  - intro p ; cbn in p.
+    induction p ; cbn.
+    refine (_ ∘ weqtoforallpaths _ _ _)%weq.
+    use weqonsecfibers.
+    intros Γ.
+    refine (_ ∘ weqtoforallpaths _ _ _)%weq.
+    use weqonsecfibers.
+    intros Δ.
+    refine (_ ∘ weqtoforallpaths _ _ _)%weq.
+    use weqonsecfibers.
+    intros s.
+    refine (_ ∘ weqtoforallpaths _ _ _)%weq.
+    use weqonsecfibers.
+    intros t ; cbn.
+    unfold cat_el_map_pb_mor ; cbn.
+    refine (_ ∘ path_sigma_hprop _ _ _ _)%weq.
+    {
+      use isaproptotal2.
+      {
+        intro.
+        apply isaprop_isPullback.
+      }
+      intros.
+      apply homset_property.
+    }
+    use weqimplimpl.
+    + abstract
+        (intro p ;
+         rewrite id_right, id_left ;
+         exact p).
+    + abstract
+        (rewrite id_right, id_left ;
+         intro p ;
+         exact p).
+    + apply homset_property.
+    + apply homset_property.
+Defined.
+
 Proposition cat_el_map_eq
             {C : univ_cat_with_finlim_ob}
-            {el₁ el₂ : cat_stable_el_map C}
+            {el₁ el₂ : cat_stable_el_map_coherent C}
             (p : ∏ (Γ : C)
                    (t : Γ --> univ_cat_universe C),
                  z_iso (cat_el_map_el el₁ t) (cat_el_map_el el₂ t))
@@ -404,56 +557,8 @@ Proposition cat_el_map_eq
                   p _ _ · cat_el_map_pb_mor el₂ s t)
   : el₁ = el₂.
 Proof.
-  induction el₁ as [ el₁ H₁ ].
-  induction el₂ as [ el₂ H₂ ].
-  use total2_paths_f.
-  {
-    use funextsec ; intro Γ.
-    use funextsec ; intro t.
-    use total2_paths_f.
-    {
-      use isotoid.
-      {
-        apply univalent_category_is_univalent.
-      }
-      apply p.
-    }
-    rewrite transportf_isotoid.
-    use z_iso_inv_on_right.
-    refine (!_).
-    apply q.
-  }
-  cbn.
-  unfold cat_el_map_stable.
-  use funextsec ; intro Γ.
-  rewrite transportf_sec_constant.
-  use funextsec ; intro Δ.
-  rewrite transportf_sec_constant.
-  use funextsec ; intro s.
-  rewrite transportf_sec_constant.
-  use funextsec ; intro t.
-  rewrite transportf_sec_constant.
-  use subtypePath.
-  {
-    intro.
-    use isaproptotal2.
-    {
-      intro.
-      apply isaprop_isPullback.
-    }
-    intros.
-    apply homset_property.
-  }
-  rewrite pr1_transportf.
-  rewrite transportf_cat_el_map.
-  rewrite !toforallpaths_funextsec.
-  rewrite !base_total2_paths.
-  rewrite idtoiso_inv.
-  cbn.
-  rewrite !idtoiso_isotoid.
-  rewrite !assoc'.
-  use z_iso_inv_on_right.
-  apply r.
+  use (invmap (cat_el_map_eq_weq el₁ el₂)).
+  exact ((λ Γ t, p Γ t ,, q Γ t) ,, r).
 Qed.
 
 (** * 4. Preservation by functors *)
@@ -472,6 +577,21 @@ Definition functor_el_map
      =
      f
      · cat_el_map_mor el₂ (#F t · functor_on_universe F).
+
+Proposition isaset_functor_el_map
+            {C₁ C₂ : univ_cat_with_finlim_ob}
+            (el₁ : cat_el_map C₁)
+            (el₂ : cat_el_map C₂)
+            (F : functor_finlim_ob C₁ C₂)
+  : isaset (functor_el_map el₁ el₂ F).
+Proof.
+  do 2 (use impred_isaset ; intro).
+  use isaset_total2.
+  - apply isaset_z_iso.
+  - intro.
+    apply isasetaprop.
+    apply homset_property.
+Qed.
 
 Definition functor_el_map_iso
            {C₁ C₂ : univ_cat_with_finlim_ob}
@@ -668,6 +788,18 @@ Definition functor_stable_el_map
      · cat_el_map_el_eq el₂ (functor_stable_el_map_path F s t)
      · cat_el_map_pb_mor el₂ (#F s) (# F t · functor_on_universe F).
 
+Proposition isaprop_functor_stable_el_map
+            {C₁ C₂ : univ_cat_with_finlim_ob}
+            {el₁ : cat_stable_el_map C₁}
+            {el₂ : cat_stable_el_map C₂}
+            {F : functor_finlim_ob C₁ C₂}
+            (Fel : functor_el_map el₁ el₂ F)
+  : isaprop (functor_stable_el_map Fel).
+Proof.
+  repeat (use impred ; intro).
+  apply homset_property.
+Qed.
+
 Definition functor_preserves_el
            {C₁ C₂ : univ_cat_with_finlim_ob}
            (el₁ : cat_stable_el_map C₁)
@@ -676,6 +808,20 @@ Definition functor_preserves_el
   : UU
   := ∑ (Fel : functor_el_map el₁ el₂ F),
      functor_stable_el_map Fel.
+
+Proposition isaset_functor_preserves_el
+            {C₁ C₂ : univ_cat_with_finlim_ob}
+            (el₁ : cat_stable_el_map C₁)
+            (el₂ : cat_stable_el_map C₂)
+            (F : functor_finlim_ob C₁ C₂)
+  : isaset (functor_preserves_el el₁ el₂ F).
+Proof.
+  use isaset_total2.
+  - apply isaset_functor_el_map.
+  - intro.
+    apply isasetaprop.
+    apply isaprop_functor_stable_el_map.
+Qed.
 
 Coercion functor_preserves_el_to_el_map
          {C₁ C₂ : univ_cat_with_finlim_ob}

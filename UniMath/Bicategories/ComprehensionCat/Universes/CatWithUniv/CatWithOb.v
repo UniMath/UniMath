@@ -445,3 +445,38 @@ Proposition nat_trans_universe_eq
 Proof.
   exact (pr2 τ).
 Defined.
+
+Definition invertible_2cell_to_nat_z_iso_cat_with_finlim_ob
+           {C₁ C₂ : univ_cat_with_finlim_ob}
+           {F G : functor_finlim_ob C₁ C₂}
+           (τ : invertible_2cell F G)
+  : nat_z_iso F G.
+Proof.
+  use make_nat_z_iso.
+  - exact (pr111 τ).
+  - intro x.
+    use make_is_z_isomorphism.
+    + exact (pr111 (τ^-1) x).
+    + abstract
+        (split ;
+         [ exact (maponpaths (λ z, pr111 z x) (vcomp_rinv τ))
+         | exact (maponpaths (λ z, pr111 z x) (vcomp_linv τ)) ]).
+Defined.
+
+Proposition invertible_2cell_cat_with_finlim_ob
+            {C₁ C₂ : univ_cat_with_finlim_ob}
+            {F G : functor_finlim_ob C₁ C₂}
+            (τ : invertible_2cell F G)
+            (x : C₁)
+  : (τ^-1 : nat_trans_finlim_ob G F) x
+    =
+    inv_from_z_iso
+      (nat_z_iso_pointwise_z_iso
+         (invertible_2cell_to_nat_z_iso_cat_with_finlim_ob τ)
+         x).
+Proof.
+  refine (_ @ id_left _).
+  use z_iso_inv_on_left.
+  refine (!_).
+  exact (maponpaths (λ z, pr111 z x) (vcomp_linv τ)).
+Qed.

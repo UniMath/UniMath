@@ -16,31 +16,6 @@
  gives rise to a map `El` by taking the pullback. In addition, if we have a universe given by an
  object and a map `El`, then we obtain the morphism `π : U_* --> U` by taking `El (identity U)`.
 
- It is worthwhile to note that our development differs slightly from the work byJoyal and
- Moerdijk. Suppose that we have a morphism `π : U_* --> U` in a category `C` with finite limits.
- In the development in this file, we say that that a map `f : x --> y` in `C` is small if it can
- be obtained as a pullback of `π`: there is a moprhism `g : y --> U` such that `f` is the
- pullback of `π` along `g`. However, Joyal and Moerdijk use a different definition. They say
- that a map is small if we can put
-<<
-
-   x -----> x' ----->> U_*
-   |        |           |
- f |        |           | π
-   |        |           |
-   V        V           V
-   y -----> y' ----->>  U
-
->>
- Here the right square is a pullback and the maps `x' --> U_*` and `y' --> U` are epimorphisms.
- The difference is that they look at universes satisfying a descent condition, whereas we do
- not. Descent corresponds to a type theoretic axiom of replacement, which is necessary if one
- is interested in models of set theory. However, that axiom is usually not required in type
- theory, so we disregard it.
-
- References
- - 'Algebraic Set Theory' by Joyal and Moerdijk
-
  Content
  1. Every universe gives rise to a morphism
  2. Every morphism gives rise to a universe
@@ -587,11 +562,6 @@ Section UniverseAsMorphism.
     Definition cat_el_map_coherent_to_mor_to_el_map
       : cat_stable_el_map_coherent_from_mor (cat_el_map_mor el (identity _)) = el.
     Proof.
-      use subtypePath.
-      {
-        intro.
-        apply isaprop_is_coherent_cat_stable_el_map.
-      }
       use cat_el_map_eq.
       - intros Γ t.
         exact (z_iso_comp
