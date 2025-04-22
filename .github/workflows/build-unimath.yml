@@ -214,3 +214,26 @@ jobs:
         with:
           path: dune-cache
           key: ${{ matrix.satellite }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
+
+  html-docs:
+    name: HTML Documentation
+    needs: build-Unimath-ubuntu
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache/restore@v4
+        with:
+          path: dune-cache
+          restore-keys: UniMath-Linux-coq-latest-
+
+      # Tar workspace files
+      - name: 'Tar the entire directory'
+        run: tar -cf build.tar .
+
+      # We upload build artifacts for use by documentation
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: build.tar
