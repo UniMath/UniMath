@@ -109,14 +109,13 @@ Proposition disp_univalent_2_1_disp_bicat_display_map_cat
   : disp_univalent_2_1 disp_bicat_display_map_cat.
 Proof.
   use fiberwise_local_univalent_is_univalent_2_1.
-  intros C₁ C₂ F D₁ D₂ HF HF'; cbn in * |-.
-  use isweqcontrcontr; cbn.
+  intros C₁ C₂ F D₁ D₂ HF HF'.
+  use isweqcontrcontr.
   - apply isPredicate_is_display_map_class_functor.
-  - unfold disp_invertible_2cell, id2_invertible_2cell, is_invertible_2cell_id₂, make_invertible_2cell, make_is_invertible_2cell, is_disp_invertible_2cell, id2_left, nat_trans_id. cbn.
-    rewrite ? transportb_const; simpl.
+  - unfold disp_invertible_2cell, id2_invertible_2cell, is_invertible_2cell_id₂, make_invertible_2cell, make_is_invertible_2cell, is_disp_invertible_2cell, id2_left, nat_trans_id; cbn.
     apply iscontr_prod; [exact iscontrunit | apply iscontr_prod; [exact iscontrunit | apply iscontr_prod]].
     all: apply isapropunit.
-Qed.
+Defined.
 
 Definition display_map_class_adj_to_disp_adjoint_equiv
   {C : bicat_of_univ_cats} (D D' : disp_bicat_display_map_cat C)
@@ -126,9 +125,13 @@ Definition display_map_class_adj_to_disp_adjoint_equiv
 Proof.
   intros [HF HG].
   exists HF. use tpair.
-  - exists HG. cbn. exact (tt ,, tt).
-  - split; use tpair; try (exists tt; split);
-    (etrans; [apply (idpath (idfun _ tt)) | apply (eqtohomot (!(transportb_const _ _)) tt)]).
+  - exists HG. exact (tt ,, tt).
+  - abstract (split; use tpair;
+      [ apply isapropunit
+      | apply isapropunit
+      | exists tt; split; apply isapropunit
+      | exists tt; split; apply isapropunit
+    ]).
 Defined.
 
 Definition disp_adjoint_equiv_to_display_map_class_adj
@@ -322,7 +325,6 @@ Proof.
       * abstract (intros x₁ x₂ f dx₁ dx₂ df;
         use eq_display_map_cat_mor; rewrite (transportb_display_map _ (identity (pr1 dx₁) · pr1 df ,, _));
         exact (id_right _ @ !id_left _)).
-    (* TODO: check the performance of the following *)
   - abstract (intros x dx; exact (id_right _ @ !id_left _)).
 Defined.
 
@@ -508,20 +510,19 @@ Proof.
   use tpair.
   - use make_full_comp_cat_nat_trans. use make_comp_cat_nat_trans.
     + use make_nat_trans_with_terminal_cleaving. use make_nat_trans_with_terminal_disp_cat.
-      * exact (nat_trans_id _).
-      * exact (helper_comp2_cell_bicat_terminal_display_map_cat_to_bicat_full_comp_cat _ _ _ _ _).
-    + intros x dx. cbn. rewrite functor_id. rewrite ? id_left. exact (idpath _).
-  - split; use full_comp_nat_trans_eq;
-    [ intros x; exact (id_left _)
-    | intros x dx; use subtypePath; try (exact (λ _, homset_property _ _ _ _ _)); etrans;
-      [ refine (pr1_transportf (A := _⟦_, _⟧) _ _ @ _); rewrite transportf_const;
-        apply id_left | exact (idpath _) ]
-    | intros x; exact (id_left _)
-    | intros x dx; use subtypePath; try (exact (λ _, homset_property _ _ _ _ _)); etrans;
-      [ refine (pr1_transportf (A := _⟦_, _⟧) _ _ @ _); rewrite transportf_const;
-        apply id_left | exact (idpath _) ]].
-(* TODO: improve performance *)
-Qed.
+      * apply nat_trans_id.
+      * apply helper_comp2_cell_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+    + abstract (intros x dx; cbn; rewrite functor_id; rewrite ? id_left; apply idpath).
+  - abstract (split; use full_comp_nat_trans_eq;
+      [ intros x; exact (id_left _)
+      | intros x dx; use subtypePath; try (exact (λ _, homset_property _ _ _ _ _)); etrans;
+        [ refine (pr1_transportf (A := _⟦_, _⟧) _ _ @ _); rewrite transportf_const;
+          apply id_left | exact (idpath _) ]
+      | intros x; exact (id_left _)
+      | intros x dx; use subtypePath; try (exact (λ _, homset_property _ _ _ _ _)); etrans;
+        [ refine (pr1_transportf (A := _⟦_, _⟧) _ _ @ _); rewrite transportf_const;
+          apply id_left | exact (idpath _) ]]).
+Defined.
 
 Definition invertible_cells_psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat
   : invertible_cells psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
@@ -539,3 +540,4 @@ Proof.
   - exact psfunctor_laws_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
   - exact invertible_cells_psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
 Defined.
+
