@@ -234,6 +234,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
+          path: _build
 
       - name: Build the documentation
         uses: coq-community/docker-coq-action@v1
@@ -257,11 +258,8 @@ jobs:
         if: ${{ always() }}
         run: sudo chown -R 1001:116 .
 
-      - name: Pack the generated documentation
-        run: tar -cf docs.tar _build/default/UniMath/UniMath.html/*
-
       - name: Upload the generated documentation
         uses: actions/upload-artifact@v4
         with:
           name: docs
-          path: docs.tar
+          path: _build/default/UniMath/UniMath.html
