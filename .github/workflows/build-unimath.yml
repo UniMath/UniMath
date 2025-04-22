@@ -245,9 +245,12 @@ jobs:
 
       - name: Build the documentation
         uses: coq-community/docker-coq-action@v1
-        custom_script: |
-          cd UniMath
-          dune build UniMath/AlgebraicTheories.html
+        with:
+          coq_version: latest
+          ocaml_version: default
+          custom_script: |
+            cd UniMath
+            dune build UniMath/AlgebraicTheories.html
 
       - name: Pack the generated documentation
         run: tar -cf docs.tar _build/default/UniMath/UniMath.html/*

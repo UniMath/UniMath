@@ -1,9 +1,0 @@
-# name: Generate Documentation
-
-# on:
-#   workflow_run:
-#     workflows: [CI Build UniMath]
-#     types:
-#       - completed
-
-# jobs:
