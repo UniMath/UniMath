@@ -249,8 +249,16 @@ jobs:
           coq_version: latest
           ocaml_version: default
           custom_script: |
+            startGroup "Workaround permission issue"
+            sudo chown -R 1000:1000 .
+            endGroup
             cd UniMath
             dune build UniMath/AlgebraicTheories.html
+            cd ..
+
+      - name: Revert permissions
+        if: ${{ always() }}
+        run: sudo chown -R 1001:116 .
 
       - name: Pack the generated documentation
         run: tar -cf docs.tar _build/default/UniMath/UniMath.html/*
