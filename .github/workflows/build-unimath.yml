@@ -252,6 +252,11 @@ jobs:
             startGroup "Workaround permission issue"
             sudo chown -R 1000:1000 .
             endGroup
+
+            startGroup "Install the coq shim if need be"
+            command -v coqc || opam install --confirm-level=unsafe-yes -j 2 coq-core
+            endGroup
+
             cd UniMath
             dune build UniMath/AlgebraicTheories.html
             cd ..
