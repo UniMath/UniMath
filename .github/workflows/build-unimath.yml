@@ -241,7 +241,7 @@ jobs:
           name: build
 
       - name: Unpack the build directory
-        run: tar -xf build.tar --directory ./_build/
+        run: mkdir _build && tar -xf build.tar --directory _build
 
       - name: Build the documentation
         uses: coq-community/docker-coq-action@v1
