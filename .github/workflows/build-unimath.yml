@@ -104,18 +104,13 @@ jobs:
           path: dune-cache
           key: UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
 
-      # Tar workspace files
-      - name: Pack the build directory
-        if: matrix.coq-version == 'latest'
-        run: tar -cf build.tar ./_build/*
-
       # We upload build artifacts for use by documentation
       - name: Upload Artifact
         if: matrix.coq-version == 'latest'
         uses: actions/upload-artifact@v4
         with:
           name: build
-          path: build.tar
+          path: _build
 
   # Build UniMath on MacOS using latest stable release of Coq installed with
   # Homebrew (8.18.0 still on March 18, 2024). Build files are cached.
@@ -239,9 +234,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-
-      - name: Unpack the build directory
-        run: mkdir _build && tar -xf build.tar --directory _build
 
       - name: Build the documentation
         uses: coq-community/docker-coq-action@v1
