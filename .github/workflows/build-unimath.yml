@@ -286,7 +286,7 @@ jobs:
           path: site/gen/coqdoc
 
       - name: Push to the pages branch
-        uses: JamesIves/github-pages-deploy-action@4
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
           folder: site
