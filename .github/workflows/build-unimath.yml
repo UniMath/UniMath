@@ -63,8 +63,9 @@ jobs:
         with:
           path: dune-cache
           # Example key: UniMath-Linux-coq-8.16-123456789-10
-          key: UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
+          key: UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}-doc
           restore-keys: |
+            UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
             UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}
             UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-
 
@@ -226,7 +227,6 @@ jobs:
         id: cache
         with:
           path: dune-cache
-          # Example key: UniMath-Linux-coq-8.16-123456789-10
           key: UniMath-Linux-coq-latest-${{ github.run_id }}-${{ github.run_number }}
           restore-keys: |
             UniMath-Linux-coq-latest-${{ github.run_id }}
@@ -258,10 +258,36 @@ jobs:
         if: always()
         with:
           path: dune-cache
-          key: UniMath-Linux-coq-latest-${{ github.run_id }}-${{ github.run_number }}
+          key: UniMath-Linux-coq-latest-${{ github.run_id }}-${{ github.run_number }}-doc
 
       - name: Upload the generated documentation
         uses: actions/upload-artifact@v4
         with:
           name: docs
           path: _build/default/UniMath/UniMath.html
+
+  assemble-site:
+    name: Assemble the Site
+    needs: html-docs
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create the site directory
+        run: mkdir site && mkdir site/gen
+
+      - name: Copy markdown files
+        run: find . -name "*.md" -exec cp --parents {} site \;
+
+      - name: Download the generated documentation
+        uses: actions/download-artifact@v4
+        with:
+          name: docs
+          path: site/gen/coqdoc
+
+      - name: Push to the pages branch
+        uses: JamesIves/github-pages-deploy-action@4
+        with:
+          branch: gh-pages
+          folder: site
+          single-commit: true
