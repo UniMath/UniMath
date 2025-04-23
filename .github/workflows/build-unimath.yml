@@ -247,7 +247,7 @@ jobs:
             endGroup
 
             cd UniMath
-            dune build UniMath.html
+            opam exec -- dune build --cache=enabled UniMath.html
             cd ..
 
       - name: Revert permissions
@@ -269,6 +269,8 @@ jobs:
   assemble-site:
     name: Assemble the Site
     needs: html-docs
+    permissions:
+      content: write
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
