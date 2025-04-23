@@ -220,7 +220,7 @@ jobs:
 
   html-docs:
     name: HTML Documentation
-    # if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     needs: build-Unimath-ubuntu
     runs-on: ubuntu-22.04
     steps:
@@ -272,7 +272,7 @@ jobs:
 
   assemble-site:
     name: Assemble the site
-    # if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     needs: html-docs
     permissions:
       contents: write
@@ -284,7 +284,7 @@ jobs:
         run: mkdir site && mkdir site/gen
 
       - name: Copy markdown files
-        run: find . -name "*.md" -exec cp --parents {} site \;
+        run: find . -name "*.md" -exec cp --parents {} site \;; cp _config.yml site
 
       - name: Download the generated documentation
         uses: actions/download-artifact@v4
