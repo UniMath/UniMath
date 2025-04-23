@@ -249,9 +249,9 @@ jobs:
             command -v coqc || opam install --confirm-level=unsafe-yes -j 2 coq-core
             endGroup
 
-            cd UniMath
             export DUNE_CACHE_ROOT=$(pwd)/dune-cache/
-            opam exec -- dune build --cache=enabled UniMath.html
+            cd UniMath
+            opam exec -- dune build --cache=enabled @doc
             cd ..
 
       - name: Revert permissions
