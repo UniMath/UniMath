@@ -270,7 +270,7 @@ jobs:
     name: Assemble the Site
     needs: html-docs
     permissions:
-      content: write
+      contents: write
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
