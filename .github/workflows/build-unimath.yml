@@ -296,5 +296,5 @@ jobs:
         with:
           branch: gh-pages
           folder: site
-          token: ${{secrets.TMP_ACTION_TOKEN}}
+          token: ${{secrets.UNIMATH_ACTION_TOKEN}}
           single-commit: true
