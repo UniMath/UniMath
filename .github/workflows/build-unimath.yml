@@ -218,6 +218,7 @@ jobs:
 
   html-docs:
     name: HTML Documentation
+    # if: github.ref == 'refs/heads/master'
     needs: build-Unimath-ubuntu
     runs-on: ubuntu-22.04
     steps:
@@ -267,7 +268,8 @@ jobs:
           path: _build/default/UniMath/UniMath.html
 
   assemble-site:
-    name: Assemble the Site
+    name: Assemble the site
+    # if: github.ref == 'refs/heads/master'
     needs: html-docs
     permissions:
       contents: write
@@ -285,11 +287,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: docs
-          path: site/gen/coqdoc
+          path: site/gen/rocqdoc
 
       - name: Push to the pages branch
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
           folder: site
+          token: ${{secrets.TMP_ACTION_TOKEN}}
           single-commit: true
