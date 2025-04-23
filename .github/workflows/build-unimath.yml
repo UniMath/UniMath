@@ -63,8 +63,10 @@ jobs:
         with:
           path: dune-cache
           # Example key: UniMath-Linux-coq-8.16-123456789-10
-          key: UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}-doc
+          key: UniMath-doc-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
           restore-keys: |
+            UniMath-doc-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}
+            UniMath-doc-${{ runner.os }}-coq-${{ matrix.coq-version }}-
             UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
             UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}
             UniMath-${{ runner.os }}-coq-${{ matrix.coq-version }}-
@@ -259,7 +261,7 @@ jobs:
         if: always()
         with:
           path: dune-cache
-          key: UniMath-Linux-coq-latest-${{ github.run_id }}-${{ github.run_number }}-doc
+          key: UniMath-doc-Linux-coq-latest-${{ github.run_id }}-${{ github.run_number }}
 
       - name: Upload the generated documentation
         uses: actions/upload-artifact@v4
