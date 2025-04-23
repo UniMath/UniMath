@@ -297,6 +297,4 @@ jobs:
         with:
           branch: gh-pages
           folder: site
-          token: ${{secrets.TMP_ACTION_TOKEN}}
-          git-config-email: arnoudvanderleer@gmail.com
           single-commit: true
