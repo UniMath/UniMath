@@ -5,7 +5,7 @@
       - Univalence
     - Displayed Bicategory of Display Map Categories with Terminal Object [disp_bicat_terminal_display_map_cat]
       - TODO: Useful coercions
-      - TODO: Univalence
+      - Univalence
     - Pseudofunctor into the Bicategory of Full Comprehension Categories [psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat]
  *)
 Require Import UniMath.Foundations.All.
@@ -26,7 +26,6 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
 Require Import UniMath.Bicategories.Core.Examples.StructuredCategories.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
-(* Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor. *)
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
@@ -248,7 +247,49 @@ Coercion bicat_terminal_display_map_cat_2cell_to_nat_trans {D₁ D₂ : bicat_te
 Coercion terminal_display_map_nat_trans_to_base_nat_trans {D₁ D₂ : bicat_terminal_display_map_cat} {F G : bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧} (θ : terminal_display_map_nat_trans F G) : nat_trans _ _ := pr1 θ.
 
 (** *** Univalence of [disp_bicat_terminal_display_map_cat]. *)
-(** TODO: potentially add some of the smaller terms as well? *)
+Definition is_univalent_2_1_disp_bicat_terminal_display_map_cat
+  : disp_univalent_2_1 disp_bicat_terminal_display_map_cat.
+Proof.
+  use is_univalent_2_1_dirprod_bicat.
+  - exact disp_univalent_2_1_disp_bicat_terminal_obj.
+  - exact disp_univalent_2_1_disp_bicat_display_map_cat.
+Qed.
+
+Definition is_univalent_2_0_disp_bicat_terminal_display_map_cat
+  : disp_univalent_2_0 disp_bicat_terminal_display_map_cat.
+Proof.
+  use is_univalent_2_0_dirprod_bicat.
+  - exact univalent_cat_is_univalent_2_1.
+  - exact disp_univalent_2_disp_bicat_terminal_obj.
+  - exact disp_univalent_2_disp_bicat_display_map_cat.
+Qed.
+
+Definition is_univalent_2_disp_bicat_terminal_display_map_cat
+  : disp_univalent_2 disp_bicat_terminal_display_map_cat.
+Proof.
+  use is_univalent_2_dirprod_bicat.
+  - exact univalent_cat_is_univalent_2_1.
+  - exact disp_univalent_2_disp_bicat_terminal_obj.
+  - exact disp_univalent_2_disp_bicat_display_map_cat.
+Qed.
+
+Definition is_univalent_2_1_bicat_terminal_display_map_cat
+  : is_univalent_2_1 bicat_terminal_display_map_cat.
+Proof.
+  use is_univalent_2_1_total_dirprod.
+  - exact univalent_cat_is_univalent_2_1.
+  - exact disp_univalent_2_1_disp_bicat_terminal_obj.
+  - exact disp_univalent_2_1_disp_bicat_display_map_cat.
+Qed.
+
+Definition is_univalent_2_0_bicat_terminal_display_map_cat
+  : is_univalent_2_0 bicat_terminal_display_map_cat.
+Proof.
+  use is_univalent_2_0_total_dirprod.
+  - exact univalent_cat_is_univalent_2.
+  - exact disp_univalent_2_disp_bicat_terminal_obj.
+  - exact disp_univalent_2_disp_bicat_display_map_cat.
+Qed.
 
 Definition is_univalent_2_bicat_terminal_display_map_cat
   : is_univalent_2 bicat_terminal_display_map_cat.
@@ -258,7 +299,6 @@ Proof.
   - exact disp_univalent_2_disp_bicat_terminal_obj.
   - exact disp_univalent_2_disp_bicat_display_map_cat.
 Qed.
-
 
 (** ** Pseudofunctor from the bicategory of display map categories with terminal objects into the bicategory of full comprehension categories. *)
 
