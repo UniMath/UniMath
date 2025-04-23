@@ -186,7 +186,6 @@ Proof.
   use fiberwise_univalent_2_0_to_disp_univalent_2_0.
   intros C D D'.
   use weqhomot.
-  Set Printing Coercions.
   - refine (display_map_class_adjoint_weq_disp_adjoint_equivalence D D'
            ∘ display_map_class_data_equiv_weq_display_map_class_adjoint D D' 
            ∘ display_map_class_equiv_weq_data_equiv D D')%weq.
