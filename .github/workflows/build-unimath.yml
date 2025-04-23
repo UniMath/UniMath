@@ -250,6 +250,7 @@ jobs:
             endGroup
 
             cd UniMath
+            export DUNE_CACHE_ROOT=$(pwd)/dune-cache/
             opam exec -- dune build --cache=enabled UniMath.html
             cd ..
 
