@@ -73,8 +73,7 @@ Proof.
     use forall_intro.
     use impl_intro.
     use weaken_right.
-    rewrite partial_setoid_subst.
-    simplify.
+    hypersimplify.
     exact (partial_setoid_refl_l (hyperdoctrine_hyp _)).
   - unfold partial_setoid_mor_cod_defined_law.
     pose (T := X).
@@ -87,8 +86,7 @@ Proof.
     use forall_intro.
     use impl_intro.
     use weaken_right.
-    rewrite partial_setoid_subst.
-    simplify.
+    hypersimplify.
     exact (partial_setoid_refl_r (hyperdoctrine_hyp _)).
   - unfold partial_setoid_mor_eq_defined_law.
     pose (T := X).
@@ -107,8 +105,7 @@ Proof.
     use weaken_right.
     use impl_intro.
     use impl_intro.
-    rewrite !partial_setoid_subst.
-    simplify.
+    hypersimplify.
     use partial_setoid_trans.
     + exact x₁.
     + use partial_setoid_sym.
@@ -135,8 +132,7 @@ Proof.
     use impl_intro.
     use weaken_right.
     use impl_intro.
-    rewrite !partial_setoid_subst.
-    simplify.
+    hypersimplify.
     use partial_setoid_trans.
     + exact x.
     + use partial_setoid_sym.
@@ -154,13 +150,11 @@ Proof.
     use forall_intro.
     use impl_intro.
     use weaken_right.
-    rewrite partial_setoid_subst.
-    simplify.
+    hypersimplify.
     use exists_intro.
     + exact x.
     + unfold y.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use hyperdoctrine_hyp.
 Qed.
 
@@ -203,7 +197,7 @@ Section CompPartialSetoidMorphism.
       unfold T, T' in *.
       fold x z.
       unfold partial_setoid_comp_morphism_form.
-      simplify.
+      hypersimplify.
       pose (y := π₂ (tm_var (((𝟙 ×h X) ×h Z) ×h Y))).
       fold y.
       use forall_intro.
@@ -214,7 +208,7 @@ Section CompPartialSetoidMorphism.
       use weaken_right.
       rewrite partial_setoid_subst.
       unfold x, y, z.
-      simplify.
+      hypersimplify.
       use weaken_left.
       apply (partial_setoid_mor_dom_defined φ₁ _ _ (hyperdoctrine_hyp _)).
     - unfold partial_setoid_mor_cod_defined_law.
@@ -225,7 +219,7 @@ Section CompPartialSetoidMorphism.
       unfold T, T' in *.
       fold x z.
       unfold partial_setoid_comp_morphism_form.
-      simplify.
+      hypersimplify.
       pose (y := π₂ (tm_var (((𝟙 ×h X) ×h Z) ×h Y))).
       fold y.
       use forall_intro.
@@ -236,7 +230,7 @@ Section CompPartialSetoidMorphism.
       use weaken_right.
       rewrite partial_setoid_subst.
       unfold x, y, z.
-      simplify.
+      hypersimplify.
       use weaken_right.
       apply (partial_setoid_mor_cod_defined φ₂ _ _ (hyperdoctrine_hyp _)).
     - unfold partial_setoid_mor_eq_defined_law.
@@ -249,7 +243,7 @@ Section CompPartialSetoidMorphism.
       unfold T, T' in *.
       fold x₁ x₂ z₁ z₂.
       unfold partial_setoid_comp_morphism_form.
-      simplify.
+      hypersimplify.
       pose (y := π₂ (tm_var (((((𝟙 ×h X) ×h X) ×h Z) ×h Z) ×h Y))).
       fold y.
       do 4 use forall_intro.
@@ -261,11 +255,10 @@ Section CompPartialSetoidMorphism.
       rewrite conj_subst.
       use hyp_ltrans.
       use weaken_right.
-      simplify.
-      rewrite !partial_setoid_subst.
+      hypersimplify.
       use exists_intro.
       + exact (π₂ (tm_var _)).
-      + simplify.
+      + hypersimplify.
         use conj_intro.
         * use hyp_rtrans.
           use weaken_left.
@@ -273,7 +266,7 @@ Section CompPartialSetoidMorphism.
           use hyp_rtrans.
           use weaken_left.
           unfold x₁, x₂, y.
-          simplify.
+          hypersimplify.
           use (partial_setoid_mor_eq_defined
                  φ₁
                  _
@@ -289,7 +282,7 @@ Section CompPartialSetoidMorphism.
           use hyp_ltrans.
           use weaken_right.
           unfold z₁, z₂, y.
-          simplify.
+          hypersimplify.
           use (partial_setoid_mor_eq_defined
                  φ₂
                  _
@@ -308,24 +301,23 @@ Section CompPartialSetoidMorphism.
       unfold T, T' in *.
       fold x z₁ z₂.
       unfold partial_setoid_comp_morphism_form.
-      simplify.
+      hypersimplify.
       do 3 use forall_intro.
       use impl_intro.
       use weaken_right.
       use (exists_elim (hyperdoctrine_hyp _)).
       use weaken_right.
-      simplify.
+      hypersimplify.
       use impl_intro.
       use hyp_sym.
       use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
       rewrite conj_subst.
       use hyp_ltrans.
       use weaken_right.
-      simplify.
-      rewrite partial_setoid_subst.
+      hypersimplify.
       unfold x, z₁, z₂.
       clear x z₁ z₂.
-      simplify.
+      hypersimplify.
       pose (x := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var (((((𝟙 ×h X) ×h Z) ×h Z) ×h Y) ×h Y))))))).
       pose (y := π₂ (π₁ (tm_var (((((𝟙 ×h X) ×h Z) ×h Z) ×h Y) ×h Y)))).
       pose (y' := π₂ (tm_var (((((𝟙 ×h X) ×h Z) ×h Z) ×h Y) ×h Y))).
@@ -373,7 +365,7 @@ Section CompPartialSetoidMorphism.
       + exact (partial_setoid_mor_cod_defined φ₁ _ _ (hyperdoctrine_hyp _)).
       + use (exists_elim
                (partial_setoid_mor_hom_exists φ₂ (weaken_right (hyperdoctrine_hyp _) _))).
-        simplify_form.
+        hypersimplify_form.
         use hyp_sym.
         use hyp_rtrans.
         use weaken_left.
@@ -381,11 +373,11 @@ Section CompPartialSetoidMorphism.
         use exists_intro.
         * exact (π₂ (tm_var _)).
         * unfold partial_setoid_comp_morphism_form.
-          simplify.
+          hypersimplify.
           use exists_intro.
           ** exact (π₂ (π₁ (tm_var _))).
           ** unfold x, y, z.
-             simplify.
+             hypersimplify.
              apply hyperdoctrine_hyp.
   Qed.
 
@@ -429,8 +421,7 @@ Section CategoryOfPartialSetoids.
       use eq_partial_setoid_morphism ; cbn in *.
       + use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (x := π₁ (π₁ (tm_var ((X ×h Y) ×h X)))).
         pose (x' := π₂ (tm_var ((X ×h Y) ×h X))).
         pose (y := π₂ (π₁ (tm_var ((X ×h Y) ×h X)))).
@@ -447,18 +438,17 @@ Section CategoryOfPartialSetoids.
           exact (partial_setoid_mor_cod_defined φ _ _ (hyperdoctrine_hyp _)).
         * use weaken_right.
           apply hyperdoctrine_hyp.
-      + rewrite partial_setoid_subst.
-        simplify.
+      + hypersimplify.
         pose (x := π₁ (π₁ (tm_var ((X ×h Y) ×h X)))).
         pose (x' := π₂ (tm_var ((X ×h Y) ×h X))).
         pose (y := π₂ (π₁ (tm_var ((X ×h Y) ×h X)))).
         fold x x' y.
         use exists_intro.
         * exact (π₁ (tm_var (X ×h Y))).
-        * simplify_form.
+        * hypersimplify_form.
           rewrite partial_setoid_subst.
           unfold x, x', y ; clear x x' y.
-          simplify.
+          hypersimplify.
           use conj_intro.
           ** use (partial_setoid_mor_dom_defined φ _ (π₂ (tm_var _))).
              rewrite <- hyperdoctrine_pair_eta.
@@ -471,8 +461,7 @@ Section CategoryOfPartialSetoids.
       use eq_partial_setoid_morphism ; cbn in *.
       + use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (x := π₁ (π₁ (tm_var ((X ×h Y) ×h Y)))).
         pose (y := π₂ (π₁ (tm_var ((X ×h Y) ×h Y)))).
         pose (y' := π₂ (tm_var ((X ×h Y) ×h Y))).
@@ -488,18 +477,17 @@ Section CategoryOfPartialSetoids.
           apply hyperdoctrine_hyp.
         * use weaken_left.
           apply hyperdoctrine_hyp.
-      + rewrite partial_setoid_subst.
-        simplify.
+      + hypersimplify.
         pose (x := π₁ (π₁ (tm_var ((X ×h Y) ×h Y)))).
         pose (y := π₂ (π₁ (tm_var ((X ×h Y) ×h Y)))).
         pose (y' := π₂ (tm_var ((X ×h Y) ×h Y))).
         fold x y y'.
         use exists_intro.
         * exact (π₂ (tm_var (X ×h Y))).
-        * simplify_form.
+        * hypersimplify_form.
           rewrite partial_setoid_subst.
           unfold x, y, y' ; clear x y y'.
-          simplify.
+          hypersimplify.
           use conj_intro.
           ** rewrite <- hyperdoctrine_pair_eta.
              rewrite hyperdoctrine_id_subst.
@@ -512,13 +500,13 @@ Section CategoryOfPartialSetoids.
       use eq_partial_setoid_morphism ; cbn in *.
       + use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right.
-        simplify_form.
+        hypersimplify_form.
         use hyp_sym.
         use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
-        simplify_form.
+        hypersimplify_form.
         use hyp_ltrans.
         use weaken_right.
-        simplify.
+        hypersimplify.
         pose (w := π₁ (π₁ (π₁ (tm_var (((W ×h Z) ×h X) ×h Y))))).
         pose (x := π₂ (π₁ (tm_var (((W ×h Z) ×h X) ×h Y)))).
         pose (y := π₂ (tm_var (((W ×h Z) ×h X) ×h Y))).
@@ -526,12 +514,12 @@ Section CategoryOfPartialSetoids.
         fold w x y z.
         use exists_intro.
         * exact y.
-        * simplify.
+        * hypersimplify.
           fold z.
           use conj_intro.
           ** use exists_intro.
              *** exact x.
-             *** simplify.
+             *** hypersimplify.
                  fold w.
                  use conj_intro.
                  **** use weaken_left.
@@ -543,12 +531,12 @@ Section CategoryOfPartialSetoids.
              apply hyperdoctrine_hyp.
       + use (exists_elim (hyperdoctrine_hyp _)).
         use weaken_right.
-        simplify_form.
+        hypersimplify_form.
         use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
-        simplify_form.
+        hypersimplify_form.
         use hyp_ltrans.
         use weaken_right.
-        simplify.
+        hypersimplify.
         pose (w := π₁ (π₁ (π₁ (tm_var (((W ×h Z) ×h Y) ×h X))))).
         pose (x := π₂ (tm_var (((W ×h Z) ×h Y) ×h X))).
         pose (y := π₂ (π₁ (tm_var (((W ×h Z) ×h Y) ×h X)))).
@@ -556,7 +544,7 @@ Section CategoryOfPartialSetoids.
         fold w x y z.
         use exists_intro.
         * exact x.
-        * simplify.
+        * hypersimplify.
           fold w.
           use conj_intro.
           ** use weaken_right.
@@ -564,7 +552,7 @@ Section CategoryOfPartialSetoids.
              apply hyperdoctrine_hyp.
           ** use exists_intro.
              *** exact y.
-             *** simplify.
+             *** hypersimplify.
                  fold z.
                  use conj_intro.
                  **** do 2  use weaken_right.

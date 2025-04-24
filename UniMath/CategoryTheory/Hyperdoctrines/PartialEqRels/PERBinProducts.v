@@ -94,17 +94,16 @@ Section Projections.
       use weaken_right.
       cbn.
       simplify_form.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use eq_in_prod_partial_setoid.
       + use partial_setoid_refl_l.
         * exact y.
-        * simplify.
+        * hypersimplify.
           use weaken_left.
           use hyperdoctrine_hyp.
       + use weaken_right.
         unfold x.
-        simplify.
+        hypersimplify.
         apply hyperdoctrine_hyp.
     - unfold partial_setoid_mor_cod_defined_law.
       pose (T := prod_partial_setoid X Y).
@@ -120,8 +119,7 @@ Section Projections.
       cbn.
       simplify_form.
       use weaken_left.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use partial_setoid_refl_r.
       + exact (π₁ x).
       + apply hyperdoctrine_hyp.
@@ -144,8 +142,7 @@ Section Projections.
       use impl_intro.
       cbn.
       simplify_form.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use conj_intro.
       + use (partial_setoid_trans y₁).
         * use (partial_setoid_trans (π₁ x₁)).
@@ -178,8 +175,7 @@ Section Projections.
       use weaken_right.
       use impl_intro.
       simplify_form.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use partial_setoid_trans.
       + exact (π₁ x).
       + use partial_setoid_sym.
@@ -201,16 +197,14 @@ Section Projections.
       use impl_intro.
       use weaken_right.
       simplify_form.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use exists_intro.
       + exact (π₁ (π₂ (tm_var _))).
       + simplify_form.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         use conj_intro.
         * unfold y.
-          simplify.
+          hypersimplify.
           use eq_in_prod_partial_setoid_l.
           apply hyperdoctrine_hyp.
         * use eq_in_prod_partial_setoid_r.
@@ -252,16 +246,15 @@ Section Projections.
       use weaken_right.
       cbn.
       simplify_form.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use eq_in_prod_partial_setoid.
       + use weaken_left.
         unfold x.
-        simplify.
+        hypersimplify.
         apply hyperdoctrine_hyp.
       + use partial_setoid_refl_l.
         * exact y.
-        * simplify.
+        * hypersimplify.
           use weaken_right.
           use hyperdoctrine_hyp.
     - unfold partial_setoid_mor_cod_defined_law.
@@ -278,8 +271,7 @@ Section Projections.
       cbn.
       simplify_form.
       use weaken_right.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use partial_setoid_refl_r.
       + exact (π₂ x).
       + apply hyperdoctrine_hyp.
@@ -302,8 +294,7 @@ Section Projections.
       use impl_intro.
       cbn.
       simplify_form.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use conj_intro.
       + do 2 use weaken_left.
         use eq_in_prod_partial_setoid_l.
@@ -335,8 +326,7 @@ Section Projections.
       use weaken_right.
       use impl_intro.
       simplify_form.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use partial_setoid_trans.
       + exact (π₂ x).
       + use partial_setoid_sym.
@@ -357,18 +347,16 @@ Section Projections.
       use impl_intro.
       use weaken_right.
       simplify_form.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use exists_intro.
       + exact (π₂ (π₂ (tm_var _))).
       + simplify_form.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         use conj_intro.
         * use eq_in_prod_partial_setoid_l.
           apply hyperdoctrine_hyp.
         * unfold y.
-          simplify.
+          hypersimplify.
           use eq_in_prod_partial_setoid_r.
           apply hyperdoctrine_hyp.
   Qed.
@@ -405,7 +393,7 @@ Section Pairing.
     unfold pair_partial_setoid_morphism_form.
     repeat split.
     - unfold partial_setoid_mor_dom_defined_law.
-      cbn ; simplify.
+      cbn ; hypersimplify.
       pose (w := π₂ (π₁ (tm_var ((𝟙 ×h W) ×h X ×h Y)))).
       pose (x := π₁ (π₂ (tm_var ((𝟙 ×h W) ×h X ×h Y)))).
       pose (y := π₂ (π₂ (tm_var ((𝟙 ×h W) ×h X ×h Y)))).
@@ -416,7 +404,7 @@ Section Pairing.
       use (partial_setoid_mor_dom_defined ψ w y).
       apply hyperdoctrine_hyp.
     - unfold partial_setoid_mor_cod_defined_law.
-      cbn ; simplify.
+      cbn ; hypersimplify.
       pose (w := π₂ (π₁ (tm_var ((𝟙 ×h W) ×h X ×h Y)))).
       pose (x := π₁ (π₂ (tm_var ((𝟙 ×h W) ×h X ×h Y)))).
       pose (y := π₂ (π₂ (tm_var ((𝟙 ×h W) ×h X ×h Y)))).
@@ -441,7 +429,7 @@ Section Pairing.
       pose (xy₂ := π₂ (tm_var ((((𝟙 ×h T) ×h T) ×h T') ×h T'))).
       unfold T, T' in *.
       fold w₁ w₂ xy₁ xy₂.
-      simplify.
+      hypersimplify.
       do 4 use forall_intro.
       use impl_intro.
       use weaken_right.
@@ -482,7 +470,7 @@ Section Pairing.
       pose (z₂ := π₂ (tm_var (((𝟙 ×h T) ×h T') ×h T'))).
       unfold T, T' in *.
       fold x z₁ z₂.
-      simplify.
+      hypersimplify.
       do 3 use forall_intro.
       use impl_intro.
       use weaken_right.
@@ -521,7 +509,7 @@ Section Pairing.
       use forall_intro.
       use impl_intro.
       use weaken_right.
-      simplify.
+      hypersimplify.
       use (exists_elim
              (partial_setoid_mor_hom_exists φ (hyperdoctrine_hyp _))).
       rewrite partial_setoid_subst.
@@ -534,7 +522,7 @@ Section Pairing.
       use exists_intro.
       + exact (⟨ π₂ (π₁ (tm_var _)) , π₂ (tm_var _) ⟩).
       + unfold x, y.
-        simplify.
+        hypersimplify.
         apply hyperdoctrine_hyp.
   Qed.
 
@@ -560,8 +548,7 @@ Section Pairing.
       use weaken_right.
       unfold partial_setoid_pr1_form.
       simplify_form.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (w := π₁ (π₁ (tm_var ((W ×h X) ×h X ×h Y)))).
       pose (x := π₁ (π₂ (tm_var ((W ×h X) ×h X ×h Y)))).
       pose (x' := π₂ (π₁ (tm_var ((W ×h X) ×h X ×h Y)))).
@@ -591,13 +578,11 @@ Section Pairing.
         apply hyperdoctrine_hyp.
       + unfold partial_setoid_pr1_form.
         simplify_form.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         use exists_intro.
         * exact (⟨ π₂ (π₁ (tm_var _)) , π₂ (tm_var _) ⟩).
         * simplify_form.
-          rewrite !partial_setoid_subst.
-          simplify.
+          hypersimplify.
           use conj_intro.
           ** use conj_intro.
              *** use weaken_left.
@@ -629,8 +614,7 @@ Section Pairing.
       use weaken_right.
       unfold partial_setoid_pr2_form.
       simplify_form.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (w := π₁ (π₁ (tm_var ((W ×h Y) ×h X ×h Y)))).
       pose (x := π₁ (π₂ (tm_var ((W ×h Y) ×h X ×h Y)))).
       pose (y' := π₂ (π₁ (tm_var ((W ×h Y) ×h X ×h Y)))).
@@ -660,13 +644,11 @@ Section Pairing.
         apply hyperdoctrine_hyp.
       + unfold partial_setoid_pr2_form.
         simplify_form.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         use exists_intro.
         * exact (⟨ π₂ (tm_var _) , π₂ (π₁ (tm_var _)) ⟩).
         * simplify_form.
-          rewrite !partial_setoid_subst.
-          simplify.
+          hypersimplify.
           use conj_intro.
           ** use conj_intro.
              *** use weaken_right.
@@ -701,8 +683,7 @@ Section Pairing.
         use exists_intro.
         * exact (π₂ (tm_var _)).
         * simplify_form.
-          rewrite !partial_setoid_subst.
-          simplify.
+          hypersimplify.
           rewrite <- hyperdoctrine_pair_eta.
           simplify_form.
           repeat (use conj_intro).
@@ -722,8 +703,7 @@ Section Pairing.
         use exists_intro.
         * exact (π₂ (tm_var _)).
         * simplify_form.
-          rewrite !partial_setoid_subst.
-          simplify.
+          hypersimplify.
           rewrite <- hyperdoctrine_pair_eta.
           simplify_form.
           repeat (use conj_intro).
@@ -759,7 +739,7 @@ Section Pairing.
       simplify_form.
       rewrite !partial_setoid_subst.
       unfold Δ, w, x, y.
-      simplify.
+      hypersimplify.
       clear q w x y Δ.
       use hyp_ltrans.
       use weaken_right.
@@ -773,22 +753,20 @@ Section Pairing.
       use hyp_ltrans.
       use weaken_right.
       cbn.
-      simplify.
+      hypersimplify.
       use hyp_sym.
       use (exists_elim (weaken_left (hyperdoctrine_hyp _) _)).
       rewrite conj_subst.
       use hyp_ltrans.
       use weaken_right.
       simplify_form.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (w := π₁ (π₁ (π₁ (tm_var (((W ×h X ×h Y) ×h X ×h Y) ×h X ×h Y))))).
       pose (xy₁:= π₂ (π₁ (tm_var (((W ×h X ×h Y) ×h X ×h Y) ×h X ×h Y)))).
       pose (xy₂ := π₂ (π₁ (π₁ (tm_var (((W ×h X ×h Y) ×h X ×h Y) ×h X ×h Y))))).
       pose (xy₃ := π₂ (tm_var (((W ×h X ×h Y) ×h X ×h Y) ×h X ×h Y))).
       fold w xy₁ xy₂ xy₃.
-      rewrite (hyperdoctrine_pair_eta (π₁ (π₁ (tm_var (((W ×h X ×h Y) ×h X ×h Y) ×h X ×h Y))))).
-      fold w xy₂.
+      refine (transportb (λ x, _ ⊢ _[x]) (hyperdoctrine_pair_eta _ : _ = ⟨w, xy₂⟩) _).
       use (partial_setoid_mor_eq_defined χ).
       + exact w.
       + exact xy₁.
@@ -880,7 +858,7 @@ Section PreservesBinProductConstant.
       use impl_intro.
       use weaken_right.
       do 2 (use impl_intro).
-      simplify.
+      hypersimplify.
       pose (xy₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h X ×h Y) ×h X ×h Y) ×h X ×h Y) ×h X ×h Y)))))).
       pose (xy₂ := π₂ (π₁ (π₁ (tm_var ((((𝟙 ×h X ×h Y) ×h X ×h Y) ×h X ×h Y) ×h X ×h Y))))).
       pose (xy₃ := π₂ (π₁ (tm_var ((((𝟙 ×h X ×h Y) ×h X ×h Y) ×h X ×h Y) ×h X ×h Y)))).
@@ -908,7 +886,7 @@ Section PreservesBinProductConstant.
       use impl_intro.
       use weaken_right.
       use impl_intro.
-      simplify.
+      hypersimplify.
       pose (xy₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h X ×h Y) ×h X ×h Y) ×h X ×h Y))))).
       pose (xy₂ := π₂ (π₁ (tm_var (((𝟙 ×h X ×h Y) ×h X ×h Y) ×h X ×h Y)))).
       pose (xy₃ := π₂ (tm_var (((𝟙 ×h X ×h Y) ×h X ×h Y) ×h X ×h Y))).
@@ -927,7 +905,7 @@ Section PreservesBinProductConstant.
       use weaken_right.
       use exists_intro.
       + exact (π₂ (tm_var _)).
-      + simplify.
+      + hypersimplify.
         apply hyperdoctrine_refl.
   Qed.
 
@@ -981,8 +959,7 @@ Section PreservesBinProductConstant.
     - use (exists_elim (hyperdoctrine_hyp _)) ; cbn.
       use weaken_right.
       simplify_form.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (xy₁ := π₁ (π₁ (tm_var (((X ×h Y) ×h X ×h Y) ×h X ×h Y)))).
       pose (xy₂ := π₂ (π₁ (tm_var (((X ×h Y) ×h X ×h Y) ×h X ×h Y)))).
       pose (xy₃ := π₂ (tm_var (((X ×h Y) ×h X ×h Y) ×h X ×h Y))).
@@ -1009,7 +986,7 @@ Section PreservesBinProductConstant.
     - cbn.
       use exists_intro.
       + exact (π₁ (tm_var _)).
-      + simplify.
+      + hypersimplify.
         repeat (use conj_intro).
         * apply hyperdoctrine_refl.
         * use from_eq_in_eq_partial_setoid.
@@ -1048,8 +1025,7 @@ Section PreservesBinProductConstant.
     - use (exists_elim (hyperdoctrine_hyp _)) ; cbn.
       use weaken_right.
       simplify_form.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (xy₁ := π₁ (π₁ (tm_var (((X ×h Y) ×h X ×h Y) ×h X ×h Y)))).
       pose (xy₂ := π₂ (π₁ (tm_var (((X ×h Y) ×h X ×h Y) ×h X ×h Y)))).
       pose (xy₃ := π₂ (tm_var (((X ×h Y) ×h X ×h Y) ×h X ×h Y))).
@@ -1075,7 +1051,7 @@ Section PreservesBinProductConstant.
     - cbn.
       use exists_intro.
       + exact (π₁ (tm_var _)).
-      + simplify.
+      + hypersimplify.
         repeat (use conj_intro).
         * apply hyperdoctrine_refl.
         * apply hyperdoctrine_refl.

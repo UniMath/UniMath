@@ -109,7 +109,7 @@ Proposition tripos_in_subst
     ((x [ s ]tm) ∈ (P [ s ]tm)).
 Proof.
   unfold tripos_in.
-  simplify.
+  hypersimplify.
   apply idpath.
 Qed.
 
@@ -263,7 +263,7 @@ Proof.
   use forall_intro.
   use exists_intro.
   - exact ({{ R }} [ π₂ (tm_var _) ]tm).
-  - cbn ; simplify.
+  - cbn ; hypersimplify.
     use forall_intro.
     pose (x :=  π₂ (tm_var ((𝟙 ×h Γ) ×h X))).
     pose (γ := π₂ (π₁ (tm_var ((𝟙 ×h Γ) ×h X)))).
@@ -276,7 +276,7 @@ Proof.
                    ⟨ x , γ ⟩
                    (mor_to_tripos_power_b X Γ R _ (hyperdoctrine_hyp _)))).
       rewrite tripos_in_subst.
-      simplify.
+      hypersimplify.
       apply hyperdoctrine_hyp.
     + use weaken_right.
       refine (hyperdoctrine_cut
@@ -285,7 +285,7 @@ Proof.
                    (mor_to_tripos_power_f X Γ R _ (hyperdoctrine_hyp _)))
                 _).
       rewrite tripos_in_subst.
-      simplify.
+      hypersimplify.
       apply hyperdoctrine_hyp.
 Qed.
 
