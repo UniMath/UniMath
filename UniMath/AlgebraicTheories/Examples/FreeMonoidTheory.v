@@ -60,7 +60,7 @@ Definition op_el
 
 Definition unit_el
   : free_monoid_theory 0
-  := unel _.
+  := unel (free_monoid _).
 
 Definition free_monoid_theory_algebra_to_setwithbinop
   (A : algebra free_monoid_theory)
@@ -138,7 +138,7 @@ Proof.
   intros M M'.
   use isweq_iso.
   - refine (λ (f : algebra_morphism _ _), _).
-    exists f.
+    refine (make_monoidfun (f := f) _).
     abstract (
       use make_ismonoidfun;
       [ exact (λ m m', mor_action f op_el (weqvecfun _ [(m ; m')]))
@@ -146,12 +146,7 @@ Proof.
     ).
   - abstract (
       intro f;
-      apply subtypePath;
-      [ intro;
-        apply isapropdirprod;
-        repeat (apply impred_isaprop; intro);
-        apply setproperty
-      | apply idpath ]
+      now apply monoidfun_eq
     ).
   - abstract (
       intro f;
@@ -171,7 +166,7 @@ Lemma mor_action_ax_identity
 Proof.
   pose (A' := monoid_to_algebra (free_monoid_theory_algebra_to_monoid A) : algebra _).
   apply (list_ind (λ x, action (A := A') x a = action (A := A) x a)).
-  - exact (!(lift_constant_action (A := A) _ (unel _) a)).
+  - exact (!(lift_constant_action (A := A) _ (unel (free_monoid _)) a)).
   - intros i xs Haction.
     refine (subst_action A' op_el (weqvecfun _ [(free_monoid_unit i ; xs)]) a @ !_).
     refine (subst_action A op_el (weqvecfun _ [(free_monoid_unit i ; xs)]) a @ !_).
@@ -185,7 +180,7 @@ Definition monoid_algebra_equivalence
   : adj_equivalence_of_cats monoid_to_algebra.
 Proof.
   apply rad_equivalence_of_cats.
-  - apply monoid_category_is_univalent.
+  - apply is_univalent_monoid_category.
   - apply fully_faithful_monoid_to_algebra.
   - intro A.
     apply hinhpr.

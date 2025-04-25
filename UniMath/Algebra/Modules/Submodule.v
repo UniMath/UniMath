@@ -95,7 +95,7 @@ Definition submodule_incl {R : ring} {M : module R} (A : submodule M) : modulefu
 
 (* Kernel and image *)
 Lemma issubmodule_kernel {R : ring} {A B : module R} (f : modulefun A B) :
-  issubmodule (abgr_kernel_hsubtype (modulefun_to_monoidfun f)).
+  issubmodule (abgr_kernel_hsubtype (binopfun_to_abelian_group_morphism (modulefun_to_binopfun f))).
 Proof.
   split.
   - apply abgr_Kernel_subabgr_issubgr.
@@ -113,7 +113,7 @@ Definition module_kernel_eq {R : ring} {A B : module R} (f : modulefun A B) x :
   f (submodule_incl (module_kernel f) x) = unel B := (pr2 x).
 
 Lemma issubmodule_image {R : ring} {A B : module R} (f : modulefun A B) :
-  issubmodule (abgr_image_hsubtype (modulefun_to_monoidfun f)).
+  issubmodule (abgr_image_hsubtype (binopfun_to_abelian_group_morphism (modulefun_to_binopfun f))).
 Proof.
   split.
   - apply abgr_image_issubgr.

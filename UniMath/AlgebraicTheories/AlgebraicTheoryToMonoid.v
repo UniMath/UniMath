@@ -84,7 +84,7 @@ Section AlgebraicTheoryToMonoid.
 
     Definition algebraic_theory_morphism_to_monoidfun
       : monoidfun (algebraic_theory_to_monoid_ob T) (algebraic_theory_to_monoid_ob T')
-      := f 1 ,, algebraic_theory_morphism_to_ismonoidfun.
+      := make_monoidfun algebraic_theory_morphism_to_ismonoidfun.
 
   End Mor.
 
