@@ -126,7 +126,7 @@ jobs:
           ocaml_version: default
           custom_script: |
             startGroup "Install serapi"
-              opam install -j 2 coq-serapi
+              opam install -y coq-serapi
             endGroup
 
             startGroup "Install Alectryon"
