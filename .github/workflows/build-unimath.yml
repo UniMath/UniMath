@@ -102,7 +102,7 @@ jobs:
         run: sudo chown -R 1001:116 .
 
       - name: Upload the generated vo files
-        if: matrix.coq-version == 'latest'
+        if: matrix.coq-version == '8.20'
         uses: actions/upload-artifact@v4
         with:
           name: build
@@ -289,10 +289,10 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: alectryon-cache
-          key: UniMath-alectryon-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
+          key: UniMath-alectryon-${{ github.run_id }}-${{ github.run_number }}
           restore-keys: |
-            UniMath-alectryon-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}
-            UniMath-alectryon-${{ runner.os }}-coq-${{ matrix.coq-version }}-
+            UniMath-alectryon-${{ github.run_id }}
+            UniMath-alectryon-
 
       - name: Download the generated vo files
         uses: actions/download-artifact@v4
@@ -303,7 +303,7 @@ jobs:
       - name: Build the alectryon docs
         uses: coq-community/docker-coq-action@v1
         with:
-          coq_version: latest
+          coq_version: '8.20'
           ocaml_version: default
           custom_script: |
             startGroup "Install serapi"
@@ -354,7 +354,7 @@ jobs:
         if: always()
         with:
           path: alectryon-cache
-          key: UniMath-alectryon-${{ runner.os }}-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
+          key: UniMath-alectryon-${{ github.run_id }}-${{ github.run_number }}
 
   assemble-site:
     name: Assemble the site
