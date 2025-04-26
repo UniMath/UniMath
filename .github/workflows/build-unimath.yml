@@ -289,7 +289,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: alectryon-cache
-          key: UniMath-alectryon-${{ github.run_id }}-${{ github.run_number }}
+          # Hardcoded cache key, for transition between old and new keys. Should not make it to production
+          # key: UniMath-alectryon-${{ github.run_id }}-${{ github.run_number }}
+          key: UniMath-alectryon-Linux-coq--14678652794-3207
           restore-keys: |
             UniMath-alectryon-${{ github.run_id }}
             UniMath-alectryon-
