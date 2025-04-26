@@ -30,7 +30,7 @@ jobs:
       matrix:
         os: [ubuntu-22.04]
         # https://github.com/coq-community/docker-coq/wiki#ocaml-versions-policy
-        coq-version: ['latest']
+        coq-version: ['8.20']
         # (the following is obsolete:) coq-version: [8.16] or [latest, 8.16] (when 8.17 is released)
         ocaml-version: [default]
 
@@ -122,23 +122,26 @@ jobs:
       - name: Build Alectryon
         uses: coq-community/docker-coq-action@v1
         with:
-          coq_version: latest
+          coq_version: '8.20'
           ocaml_version: default
           custom_script: |
             startGroup "Install serapi"
               opam install -y coq-serapi
             endGroup
 
-            startGroup "Install Alectryon"
+            startGroup "Install python"
               sudo apt-get update
               sudo apt-get install -y --allow-unauthenticated python3-pip python3-venv
-              python3 -m venv myenv
-              source myenv/bin/activate
-              pip3 install --upgrade pip alectryon
             endGroup
 
             startGroup "Workaround permission issue"
               sudo chown -R 1000:1000 .
+            endGroup
+
+            startGroup "Install Alectryon"
+              python3 -m venv myenv
+              source myenv/bin/activate
+              pip3 install --upgrade pip alectryon
             endGroup
 
             startGroup "Build Alectryon"
