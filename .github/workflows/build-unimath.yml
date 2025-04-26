@@ -102,6 +102,7 @@ jobs:
         run: sudo chown -R 1001:116 .
 
       - name: Upload the generated vo files
+        if: matrix.coq-version == 'latest'
         uses: actions/upload-artifact@v4
         with:
           name: build
