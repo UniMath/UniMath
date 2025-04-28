@@ -53,12 +53,13 @@ Definition id_multimodulefun {I : UU} {rings : I -> ring} (MM : multimodule ring
 Definition ringfun_left_mult {R S : ring} (f : ringfun R S) (r : R)
 : ringofendabgr S.
 Proof.
-  refine
-  (* This is the actual definition of the function *)
-  ((λ x : S, (f r * x)),,
-   (* And this is the justification that it's a monoid morphism *)
-                       (λ _ _, _),, _).
-  apply (rigldistr S _ _ _). apply (rigmultx0 S).
+  use make_monoidfun.
+  - intro x.
+    exact (f r * x).
+  - apply make_ismonoidfun.
+    + do 2 intro.
+      apply (rigldistr S _ _ _).
+    + apply (rigmultx0 S).
 Defined.
 
 (** An important special case: the left action of a ring on itself *)
@@ -69,8 +70,8 @@ Example ring_left_mult {R : ring} : R -> ringofendabgr R :=
 (** A ring morphism R -> S defines an R-module structure on the additive abelian
     group of S *)
 Definition ringfun_module {R S : ring} (f : ringfun R S) : module R.
-  refine (@ringaddabgr S,, _).
-  apply (@mult_to_module_struct R S (pr1 ∘ ringfun_left_mult f)%functions);
+  apply (make_module (@ringaddabgr S)).
+  apply (@mult_to_module_struct R S (λ x, (ringfun_left_mult f x : monoidfun _ _)));
     unfold funcomp, pr1, ringfun_left_mult.
   - exact (fun r x y => ringldistr S x y (f r)).
   - exact (fun r s x => (maponpaths (λ x, x * _) ((pr1 (pr1 (pr2 f))) r s)) @

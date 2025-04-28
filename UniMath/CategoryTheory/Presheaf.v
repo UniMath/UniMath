@@ -28,7 +28,6 @@ Written by: Anders Mörtberg, 2017-2019
 
 Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.OrderTheory.Lattice.Lattice.
 Require Import UniMath.OrderTheory.Lattice.Bounded.
 
