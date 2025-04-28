@@ -18,6 +18,7 @@
   4. Transport along an adjoint equivalence
     [is_expDd0_adjunction_laws] [exponentials_through_adj_equivalence_univalent_cats]
   5. Exponentials are independent of the choice of the binary products
+  6. Preservation of is_exponentiable under isomorphisms
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -901,6 +902,7 @@ Section ExpIndependent.
   Defined.
 End ExpIndependent.
 
+(** * 6. IsExponentiableClosedUnderIso *)
 Section IsExponentiableClosedUnderIso.
 
   Definition z_iso_of_BinProduct_of_functors
