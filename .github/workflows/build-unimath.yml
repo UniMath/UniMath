@@ -227,7 +227,7 @@ jobs:
 
   rocqdoc:
     name: Rocqdoc
-    # if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     needs: build-Unimath-ubuntu
     runs-on: ubuntu-22.04
     steps:
@@ -279,7 +279,7 @@ jobs:
 
   alectryon:
     name: "Alectryon"
-    # if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     needs: build-Unimath-ubuntu
     runs-on: "ubuntu-22.04"
     steps:
