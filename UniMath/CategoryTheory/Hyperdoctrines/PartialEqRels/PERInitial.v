@@ -37,14 +37,14 @@ Section PartialEquivalenceRelationInitial.
   Proof.
     split.
     - unfold per_symm_axiom.
-      simplify.
+      hypersimplify.
       use forall_intro.
       use forall_intro.
       use impl_intro.
       use weaken_right.
       apply hyperdoctrine_hyp.
     - unfold per_trans_axiom.
-      simplify.
+      hypersimplify.
       do 3 use forall_intro.
       use impl_intro.
       use weaken_right.
@@ -71,7 +71,7 @@ Section PartialEquivalenceRelationInitial.
     : Δ ⊢ t₁ ~ t₂.
   Proof.
     unfold partial_setoid_formula ; cbn.
-    simplify.
+    hypersimplify.
     exact p.
   Qed.
 
@@ -84,7 +84,7 @@ Section PartialEquivalenceRelationInitial.
   Proof.
     refine (hyperdoctrine_cut p _).
     unfold partial_setoid_formula ; cbn.
-    simplify.
+    hypersimplify.
     apply hyperdoctrine_hyp.
   Qed.
 
@@ -96,7 +96,7 @@ Section PartialEquivalenceRelationInitial.
     repeat split.
     - unfold partial_setoid_mor_dom_defined_law.
       cbn.
-      simplify.
+      hypersimplify.
       do 2 use forall_intro.
       use impl_intro.
       use weaken_right.
@@ -104,7 +104,7 @@ Section PartialEquivalenceRelationInitial.
       apply hyperdoctrine_hyp.
     - unfold partial_setoid_mor_cod_defined_law.
       cbn.
-      simplify.
+      hypersimplify.
       do 2 use forall_intro.
       use impl_intro.
       use weaken_right.
@@ -112,7 +112,7 @@ Section PartialEquivalenceRelationInitial.
       apply hyperdoctrine_hyp.
     - unfold partial_setoid_mor_eq_defined_law.
       cbn.
-      simplify.
+      hypersimplify.
       do 4 use forall_intro.
       use impl_intro.
       use weaken_right.
@@ -121,7 +121,7 @@ Section PartialEquivalenceRelationInitial.
       apply hyperdoctrine_hyp.
     - unfold partial_setoid_mor_unique_im_law.
       cbn.
-      simplify.
+      hypersimplify.
       do 3 use forall_intro.
       use impl_intro.
       use weaken_right.
@@ -129,12 +129,12 @@ Section PartialEquivalenceRelationInitial.
       apply hyperdoctrine_hyp.
     - unfold partial_setoid_mor_hom_exists_law.
       cbn.
-      simplify.
+      hypersimplify.
       use forall_intro.
       use impl_intro.
       use weaken_right.
       unfold partial_setoid_formula ; cbn.
-      simplify.
+      hypersimplify.
       use false_elim.
       apply hyperdoctrine_hyp.
   Qed.
@@ -190,14 +190,14 @@ Section PartialEquivalenceRelationInitial.
     - cbn.
       use (exists_elim (hyperdoctrine_hyp _)).
       use weaken_right.
-      simplify_form.
+      hypersimplify_form.
       use false_elim.
       use weaken_right.
       apply hyperdoctrine_hyp.
     - cbn.
       use exists_intro.
       + exact !!.
-      + simplify.
+      + hypersimplify.
         use false_elim.
         pose (x₁ := π₁ (tm_var (X ×h X))).
         pose (x₂ := π₂ (tm_var (X ×h X))).
@@ -206,8 +206,7 @@ Section PartialEquivalenceRelationInitial.
         * exact x₁.
         * exact (partial_setoid_refl_l (hyperdoctrine_hyp _)).
         * unfold x₁, x₂ ; clear x₁ x₂.
-          rewrite partial_setoid_subst.
-          simplify.
+          hypersimplify.
           cbn.
           pose (x₁ := π₁ (π₁ (tm_var ((X ×h X) ×h 𝟙)))).
           pose (x₂ := π₂ (π₁ (tm_var ((X ×h X) ×h 𝟙)))).
