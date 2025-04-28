@@ -272,7 +272,7 @@ Section WeakEquivLiftsExponentialPreservation.
       use weqimplimpl.
       - intro pf.
         use (cancel_z_iso _ _ (nat_z_iso_pointwise_z_iso α _)).
-        use (cancel_z_iso' (BinProductOfIsos P₃ (pr2 (αinv_iso _)) (identity_is_z_iso _))).
+        use (cancel_z_iso' (binproduct_of_z_iso (P₃ _ _) (P₃ _ _) (αinv_iso _) (_ ,, identity_is_z_iso _))).
         refine (assoc _ _ _ @ pf @ _).
         clear pf.
         apply (equiv_of_binprodarrows_nat_eval_lr g₃).

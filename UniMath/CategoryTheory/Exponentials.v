@@ -3,7 +3,7 @@
    In [CategoryTheory/exponentials.v], the theory of exponential objects has been developed using the language of adjunctions.
    In this file, we develop exponentials using universal arrows.
    This is used, e.g., to construct Rezk completions for cartesian closed categories.
-   The characterization presented in this file, is necessary to obtain propositions (or at least, make some proofs easier).
+   The characterization presented in this file, allows to reason about exponents of pairs of objects, without assuming that an object is exponentiable (wrt to all objects).
 
    - [IsExponentiableObject]: Definition of exponentiability via universal arrows
    - The equivalence between the adjoint and universal arrow definitions is proven in [IsExponentiableAsHasRightAdjoint]
@@ -12,9 +12,10 @@
    - [ExponentiabilityTransportsAlongIso]: If x ≅ x', then Exponentiating with x is equivalent to exponentiang with x'.
    - [PreservationOfExponentialObjects]:
      In [exponentials.v], preservation of exponentials is defined via the existence of an inverse map to a canonical map. Here, preservation of exponentials is defined via saying that the image of an exponent is again an exponent.
+   - [ReflectionOfExponentialObjects]: Definition of reflection for exponential objects
 
    Remark:
-   Some code be refactored by having more lemma's about universal arrows.
+   Some code be refactored by having more lemma's about universal arrows (as defined in [CategoryTheory/Adjunctions/Core.v]).
 
  *)
 
@@ -30,91 +31,13 @@ Require Import UniMath.CategoryTheory.exponentials.
 
 Local Open Scope cat.
 
-Section PrelimUniversalArrowFrom.
-
-  Lemma is_universal_arrow_from_after_path_induction
-    {D C : category} (S : D ⟶ C) (c : C) (r : D) (f₁ f₂ : C⟦S r, c⟧) (p : f₁ = f₂)
-    : is_universal_arrow_from S c r f₁ → is_universal_arrow_from S c r f₂.
-  Proof.
-    induction p.
-    apply idfun.
-  Qed. (* or defined. *)
-
-
-End PrelimUniversalArrowFrom.
-
-Section PrelimTransport.
-
-  Lemma transportf_BinProductOfArrows_right
-    {C : category}
-    (P : BinProducts C)
-    {x y : C}
-    {x₁ x₂ : C}
-    (f : C⟦P x x₁, y⟧)
-    (p : x₁ = x₂)
-    : transportf (λ z : C, C ⟦ P x z, y⟧) p f =
-        BinProductOfArrows C (P x x₁) (P x x₂) (identity x) (idtoiso (! p)) · f.
-  Proof.
-    induction p.
-    cbn.
-    rewrite BinProductOfArrows_id.
-    exact (! id_left _).
-  Qed.
-
-End PrelimTransport.
-
-Section PrelimProducts.
-  (* This section has to be moved to Limits.BinProducts.v *)
-
-  Definition BinProductOfArrows_iso
-    {C : category}
-    {x x' y y' : C}
-    (P' : BinProduct _ x' y')
-    (P : BinProduct _ x y)
-    {fx : C⟦x, x'⟧} {fy : C⟦y, y'⟧}
-    (i_fx : is_z_isomorphism fx) (i_fy : is_z_isomorphism fy)
-    : is_z_isomorphism (BinProductOfArrows _ P' P fx fy).
-  Proof.
-    set (f_x_i := make_z_iso' _ i_fx).
-    set (f_y_i := make_z_iso' _ i_fy).
-
-    use make_is_z_isomorphism.
-    { exact (BinProductOfArrows _ _ _ (z_iso_inv f_x_i) (z_iso_inv f_y_i)). }
-    exact (binproduct_of_z_iso_inv P P' f_x_i f_y_i).
-  Defined.
-
-  Definition BinProductOfArrowsIsos'
-    {C : category}
-    {x x' y y' : C}
-    (P' : BinProduct _ x' y')
-    (P : BinProduct _ x y)
-    {fx : C⟦x, x'⟧} {fy : C⟦y, y'⟧}
-    (i_fx : is_z_isomorphism fx) (i_fy : is_z_isomorphism fy)
-    : z_iso _ _
-    := make_z_iso' _ (BinProductOfArrows_iso P' P i_fx i_fy).
-
-  Definition BinProductOf_isos
-    {C : category} (P : BinProducts C)
-    {x x' y y' : C} {fx : C⟦x, x'⟧} {fy : C⟦y, y'⟧}
-    (i_fx : is_z_isomorphism fx) (i_fy : is_z_isomorphism fy)
-    : is_z_isomorphism (BinProductOfArrows _ (P x' y') (P x y) fx fy).
-  Proof.
-    set (f_x_i := make_z_iso' _ i_fx).
-    set (f_y_i := make_z_iso' _ i_fy).
-
-    use make_is_z_isomorphism.
-    { exact (BinProductOfArrows _ _ _ (z_iso_inv f_x_i) (z_iso_inv f_y_i)). }
-    exact (binproduct_of_z_iso_inv (P x y) (P x' y') f_x_i f_y_i).
-  Defined.
-
-  Definition BinProductOfIsos
-    {C : category} (P : BinProducts C)
-    {x x' y y' : C} {fx : C⟦x, x'⟧} {fy : C⟦y, y'⟧}
-    (i_fx : is_z_isomorphism fx) (i_fy : is_z_isomorphism fy)
-    : z_iso (P x y) (P x' y')
-    := make_z_iso _ _ (BinProductOf_isos P i_fx i_fy).
-
-End PrelimProducts.
+Lemma is_universal_arrow_from_after_path_induction
+  {D C : category} (S : D ⟶ C) (c : C) (r : D) (f₁ f₂ : C⟦S r, c⟧) (p : f₁ = f₂)
+  : is_universal_arrow_from S c r f₁ → is_universal_arrow_from S c r f₂.
+Proof.
+  apply transportf.
+  exact p.
+Qed. (* or defined. *)
 
 Section IsExponentiableObject.
 

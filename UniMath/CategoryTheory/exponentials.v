@@ -903,20 +903,6 @@ End ExpIndependent.
 
 Section IsExponentiableClosedUnderIso.
 
-  Definition BinProductOfIsos
-    {C : category} (P : BinProducts C)
-    {x x' y y' : C} {fx : C⟦x, x'⟧} {fy : C⟦y, y'⟧}
-    (i_fx : is_z_isomorphism fx) (i_fy : is_z_isomorphism fy)
-    : is_z_isomorphism (BinProductOfArrows _ (P x' y') (P x y) fx fy).
-  Proof.
-    set (f_x_i := make_z_iso' _ i_fx).
-    set (f_y_i := make_z_iso' _ i_fy).
-
-    use make_is_z_isomorphism.
-    { exact (BinProductOfArrows _ _ _ (z_iso_inv f_x_i) (z_iso_inv f_y_i)). }
-    exact (binproduct_of_z_iso_inv (P x y) (P x' y') f_x_i f_y_i).
-  Defined.
-
   Definition z_iso_of_BinProduct_of_functors
     {C D : category}
     (P_D : BinProducts D)
@@ -932,8 +918,9 @@ Section IsExponentiableClosedUnderIso.
         apply binproduct_nat_trans_pr1.
       + use (nat_trans_comp _ _ _ _ β).
         apply binproduct_nat_trans_pr2.
-    - intro ;
-        use BinProductOfIsos ; apply nat_z_iso_pointwise_z_iso.
+    - intro.
+      use (pr2 (binproduct_of_z_iso (P_D _ _) (P_D _ _) (_,,_) (_,,_)))
+      ; apply nat_z_iso_pointwise_z_iso.
   Defined.
 
   Definition z_iso_of_constant_functors

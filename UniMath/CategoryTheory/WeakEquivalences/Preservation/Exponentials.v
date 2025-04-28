@@ -44,7 +44,7 @@ Section WeakEquivalencesPreserveExponentialObjects.
 
   Let i_p : z_iso (F (P₀ x₀ a₀)) (P₁ (F x₀) a₁).
   Proof.
-    refine (z_iso_comp _ (BinProductOfIsos P₁ (pr2 (identity_z_iso (F x₀))) (pr2 i₀))).
+    refine (z_iso_comp _ (binproduct_of_z_iso (P₁ _ _) (P₁ _ _) (identity_z_iso (F x₀)) i₀)).
     use preserves_binproduct_to_z_iso.
     exact (weak_equiv_preserves_binproducts F_weq).
   Defined.
@@ -172,7 +172,7 @@ Section WeakEquivalencesPreserveExponentialObjects.
     use cancel_z_iso'. (* P₁ (F x₀) a₁ ≅ F (P₀ x₀ a₀) *)
     { exact (P₁ (F x₀) a₁). }
     {
-      refine (z_iso_comp (BinProductOfIsos P₁ (pr2 (identity_z_iso _)) (pr2 (z_iso_inv i₀))) _).
+      refine (z_iso_comp (binproduct_of_z_iso (P₁ _ _) (P₁ _ _) (identity_z_iso _) (z_iso_inv i₀)) _).
       use z_iso_inv.
       apply (preserves_binproduct_to_z_iso _ (weak_equiv_preserves_binproducts F_weq) (P₀ x₀ a₀) (P₁ _ _)).
     }
