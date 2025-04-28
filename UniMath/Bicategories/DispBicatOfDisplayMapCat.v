@@ -1,10 +1,10 @@
 (** * Bicategory of Display Map Categories
     Contents:
     - Displayed Bicategory of Display Map Categories [disp_bicat_display_map_cat]
-      - TODO: Useful coercions
+      - Useful coercions
       - Univalence
     - Displayed Bicategory of Display Map Categories with Terminal Object [disp_bicat_terminal_display_map_cat]
-      - TODO: Useful coercions
+      - Useful coercions
       - Univalence
     - Pseudofunctor into the Bicategory of Full Comprehension Categories [psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat]
  *)
@@ -228,18 +228,19 @@ Definition bicat_terminal_display_map_cat := total_bicat disp_bicat_terminal_dis
 
 (** *** Coercions *)
 Definition terminal_display_map_cat : UU := bicat_terminal_display_map_cat.
-Coercion bicat_terminal_display_map_cat_ob_to_terminal_display_map_cat (D : ob bicat_terminal_display_map_cat) : terminal_display_map_cat := D.
-Coercion terminal_display_map_cat_to_univ_base_cat (D : terminal_display_map_cat) : univalent_category := pr1 D.
-Coercion terminal_display_map_cat_to_base_cat (D : terminal_display_map_cat) : category := pr11 D.
-Coercion terminal_display_map_cat_to_precat (D : terminal_display_map_cat) : precategory := pr111 D.
+
+Coercion terminal_display_map_cat_to_univ_base (D : terminal_display_map_cat) : univalent_category := pr1 D.
+
 Coercion terminal_display_map_cat_to_terminal (D : terminal_display_map_cat) : Terminal D := pr112 D.
+
 Coercion terminal_display_map_cat_to_display_map_class (D : terminal_display_map_cat) : display_map_class D := pr22 D.
 
 Definition terminal_display_map_functor (D₁ D₂ : bicat_terminal_display_map_cat) : UU := bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧.
+
 Coercion bicat_terminal_display_map_cat_1cell_to_terminal_display_map_functor {D₁ D₂ : bicat_terminal_display_map_cat} (F : bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧) : terminal_display_map_functor _ _ := F.
-Coercion terminal_display_map_functor_to_display_map_class_functor {D₁ D₂ : bicat_terminal_display_map_cat} (F : terminal_display_map_functor D₁ D₂) : display_map_class_functor D₁ D₂ := (pr1 F ,, pr22 F).
-Coercion terminal_display_map_functor_preserves_terminal {D₁ D₂ : bicat_terminal_display_map_cat} (F : terminal_display_map_functor D₁ D₂) : preserves_terminal F := pr212 F.
-(** TODO: figure out the issues with the coercions *)
+
+Coercion terminal_display_map_functor_to_display_map_class_functor {D₁ D₂ : terminal_display_map_cat} (F : terminal_display_map_functor D₁ D₂) : display_map_class_functor D₁ D₂ := (pr1 F ,, pr22 F).
+Coercion terminal_display_map_functor_preserves_terminal {D₁ D₂ : terminal_display_map_cat} (F : terminal_display_map_functor D₁ D₂) : preserves_terminal F := pr212 F.
 
 Definition terminal_display_map_nat_trans {D₁ D₂ : bicat_terminal_display_map_cat} (F G : bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧) : UU := prebicat_cells bicat_terminal_display_map_cat F G.
 Coercion bicat_terminal_display_map_cat_2cell_to_nat_trans {D₁ D₂ : bicat_terminal_display_map_cat} {F G : bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧} (θ : prebicat_cells bicat_terminal_display_map_cat F G) : terminal_display_map_nat_trans F G := θ.
@@ -305,11 +306,13 @@ Qed.
 Definition bicat_terminal_display_map_cat_to_bicat_full_comp_cat
   : bicat_terminal_display_map_cat → bicat_full_comp_cat.
 Proof.
-  intros D. use make_full_comp_cat.
+  (* intros D. use make_full_comp_cat. *)
+  refine (λ D : terminal_display_map_cat, _).
+  use make_full_comp_cat.
   - use make_comp_cat.
     + use make_cat_with_terminal_cleaving.
       * use make_cat_with_terminal_disp_cat.
-        -- exact (pr1 D). (* NOTE: I do not know why the coercion [terminal_display_map_cat_to_base_cat] does not work here. *)
+        -- exact D. (* NOTE: I do not know why the coercion [terminal_display_map_cat_to_base_cat] does not work here. *)
         -- exact D.
         -- exact (univalent_display_map_cat D).
       * exact display_map_cleaving.
@@ -514,14 +517,14 @@ Proof.
       * exact (nat_trans_id _).
       * exact (helper_id2_cell_bicat_terminal_display_map_cat_to_bicat_full_comp_cat _).
     + intros x dx; cbn in *. exact (idpath _).
-  - use tpair; use full_comp_nat_trans_eq; simpl.
-    + intros x. exact (id_left _).
-    + intros x dx. use eq_display_map_cat_mor. etrans;
-      [ apply transportf_display_map_mor | exact (id_left _)].
-    + intros x. exact (id_left _).
-    + intros x dx. use eq_display_map_cat_mor. etrans;
-      [ apply transportf_display_map_mor | exact (id_left _)].
-Qed.
+  - abstract (use tpair; use full_comp_nat_trans_eq;
+    [ intros x; exact (id_left _)
+    | intros x dx; use eq_display_map_cat_mor; etrans;
+      [ apply transportf_display_map_mor | exact (id_left _)]
+    | intros x; exact (id_left _)
+    | intros x dx; use eq_display_map_cat_mor; etrans;
+      [ apply transportf_display_map_mor | exact (id_left _)]]).
+Defined.
 
 Lemma helper_comp2_cell_bicat_terminal_display_map_cat_to_bicat_full_comp_cat
   (D₁ D₂ D₃ : bicat_terminal_display_map_cat) (F : bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧) (G : bicat_terminal_display_map_cat ⟦ D₂, D₃ ⟧)

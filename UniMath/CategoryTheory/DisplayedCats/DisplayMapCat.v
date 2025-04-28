@@ -506,7 +506,7 @@ Proof.
     + apply (preserves_maps_is_display_map_class_functor _ _ _ HG).
     + intro. apply propproperty.
     + intro. apply propproperty.
-Defined.
+Qed.
 
 Definition display_map_class_equiv_to_display_map_class_adjoint
   {C : category}
@@ -517,13 +517,11 @@ Definition display_map_class_equiv_to_display_map_class_adjoint
       ×
     (is_display_map_class_functor D' D (functor_identity C)).
 Proof.
-Set Printing Coercions.
   intros p. split; split.
   - intros x y f H. unfold display_map_class_to_data. rewrite <- p. apply H.
   - intros x y z f g Hf pb. apply pb.
   - intros x y f H. unfold display_map_class_to_data. rewrite -> p. apply H.
   - intros x y z f g Hf pb. apply pb.
-Unset Printing Coercions.
 Defined.
 
 Definition display_map_class_adjoint_to_display_map_class_equiv
@@ -615,7 +613,7 @@ Definition is_display_map_class_functor_composite
   {D₁ : display_map_class C₁} {D₂ : display_map_class C₂} {D₃ : display_map_class C₃}
   {F₁ : C₁ ⟶ C₂} {F₂ : C₂ ⟶ C₃}
   (HF₁ : is_display_map_class_functor D₁ D₂ F₁) (HF₂ : is_display_map_class_functor D₂ D₃ F₂)
-  : is_display_map_class_functor D₁ D₃ (functor_composite F₁ F₂).
+  : is_display_map_class_functor D₁ D₃ (F₁ ∙ F₂).
 Proof.
   split.
   - exact (λ _ _ _ tt, (pr1 HF₂) _ _ _ ((pr1 HF₁) _ _ _ tt)).
