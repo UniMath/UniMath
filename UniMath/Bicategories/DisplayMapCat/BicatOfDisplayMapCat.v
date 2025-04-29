@@ -1,4 +1,10 @@
 (** * Bicategory of Display Map Categories
+    NOTE: The displayed version of this category should be used instead of this.
+          Everything in this file is mirrored in that version.
+
+    This file contains a direct construction of the bicategory of display map categories with a terminal object in their base category.
+    It adds the terminal condition to make the construction of the pseudofunctor possible.
+
     Contents:
     - bicategory of display map categories [bicat_display_map_cat]
     - pseudofunctor into the bicategory of full comprehension categories [bicat_display_map_cat_to_bicat_full_comp_cat]
@@ -17,6 +23,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.DisplayMapCat.
 
 Require Import UniMath.Bicategories.Core.Bicat.
+Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
