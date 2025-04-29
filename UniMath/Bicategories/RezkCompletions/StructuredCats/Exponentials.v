@@ -1,4 +1,4 @@
-(*
+(**
 In this file, we show how the Rezk completion for categories with binary products lifts to those equipped with exponentials.
 *)
 

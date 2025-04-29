@@ -1,6 +1,6 @@
 (**
   The universal property of the Rezk completion states that for every functor F : C₁ → C₂, with C₂ univalent, extends along the (unit of the) Rezk completion to a functor F' : RC(C₁) → C₂.
-  In this file, we proof that if F preserves exponentials, then so does F'.
+  In this file, we prove that if F preserves exponentials, then so does F'.
  *)
 
 Require Import UniMath.Foundations.All.
