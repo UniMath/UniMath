@@ -1,40 +1,50 @@
 (**
- - Abelian groups
-  - Basic definitions
-  - Univalence for abelian groups
-  - Subobjects
-  - Kernels
-  - Quotient objects
-  - Direct products
-  - Abelian group of fractions of an abelian unitary monoid
-  - Abelian group of fractions and abelian monoid of fractions
-  - Canonical homomorphism to the abelian group of fractions
-  - Abelian group of fractions in the case when all elements are
-    cancelable
-  - Relations on the abelian group of fractions
-  - Relations and the canonical homomorphism to [abgrdiff]
-*)
-(** *** Abelian group of fractions of an abelian unitary monoid *)
 
+  Abelian (Commutative) Groups
+
+  Contents
+  1. Basic definitions
+  2. Subobjects
+  3. Kernels
+  4. Quotient objects
+  5. Direct products
+  6. Abelian group of fractions of an abelian unitary monoid
+  7. Abelian group of fractions and abelian monoid of fractions
+  8. Canonical homomorphism to the abelian group of fractions
+  9. Abelian group of fractions in the case when all elements are cancelable
+  10. Relations on the abelian group of fractions
+  11. Relations and the canonical homomorphism to [abgrdiff]
+
+ *)
 Require Import UniMath.MoreFoundations.Orders.
 Require Import UniMath.MoreFoundations.Subtypes.
+
+Require Import UniMath.CategoryTheory.Categories.Magma.
+Require Import UniMath.CategoryTheory.Core.Categories.
 
 Require Export UniMath.Algebra.Groups2.
 Require Export UniMath.Algebra.AbelianMonoids.
 
-(** ** Abelian groups *)
-
-(** *** Basic definitions *)
+(** * 1. Basic definitions *)
 
 Local Open Scope addmonoid.
 
-Definition abgr : UU := ∑ (X : setwithbinop), isabgrop (@op X).
+Definition abgr : UU := abelian_group_category.
 
 Definition make_abgr (X : setwithbinop) (is : isabgrop (@op X)) : abgr :=
   X ,, is.
 
-Definition abgrconstr (X : abmonoid) (inv0 : X → X) (is : isinv (@op X) 0 inv0) : abgr :=
-  make_abgr X (make_isgrop (pr2 X) (inv0 ,, is) ,, commax X).
+Definition abgrconstr (X : abmonoid) (inv0 : X → X) (is : isinv (@op X) 0 inv0) : abgr.
+Proof.
+  use make_abgr.
+  - exact X.
+  - use make_isabgrop.
+    + use make_isgrop.
+      * apply (make_ismonoidop (assocax X)).
+        exact (make_isunital (unel X) (unax X)).
+      * exact (make_invstruct inv0 is).
+    + exact (commax X).
+Defined.
 
 Definition abgrtogr : abgr → gr := λ X, make_gr (pr1 X) (pr1 (pr2 X)).
 Coercion abgrtogr : abgr >-> gr.
@@ -51,6 +61,96 @@ Delimit Scope abgr with abgr.
 Notation "x - y" := (op x (grinv _ y)) : abgr.
 Notation   "- y" := (grinv _ y) : abgr.
 
+Definition abelian_group_morphism
+  (X Y : abgr)
+  : UU
+  := abelian_group_category⟦X, Y⟧%cat.
+
+Definition abelian_group_morphism_to_group_morphism
+  {X Y : abgr}
+  (f : abelian_group_morphism X Y)
+  : group_morphism X Y
+  := pr1 f ,, pr12 f.
+
+Coercion abelian_group_morphism_to_group_morphism : abelian_group_morphism >-> group_morphism.
+
+Definition abelian_group_to_monoid_morphism
+  {X Y : abgr}
+  (f : abelian_group_morphism X Y)
+  : abelian_monoid_morphism X Y.
+Proof.
+  use make_abelian_monoid_morphism.
+  - exact f.
+  - apply make_ismonoidfun.
+    + apply binopfunisbinopfun.
+    + exact (monoidfununel f).
+Defined.
+
+Definition make_abelian_group_morphism
+  {X Y : abgr}
+  (f : X → Y)
+  (H : isbinopfun f)
+  : abelian_group_morphism X Y
+  := (f ,, H) ,, (((tt ,, binopfun_preserves_unit f H) ,, binopfun_preserves_inv f H) ,, tt).
+
+Definition binopfun_to_abelian_group_morphism
+  {X Y : abgr}
+  (f : binopfun X Y)
+  : abelian_group_morphism X Y
+  := make_abelian_group_morphism f (binopfunisbinopfun f).
+
+Lemma abelian_group_morphism_paths
+  {X Y : abgr}
+  (f g : abelian_group_morphism X Y)
+  (H : (f : X → Y) = g)
+  : f = g.
+Proof.
+  apply subtypePath.
+  {
+    refine (λ (h : magma_morphism _ _), _).
+    refine (isapropdirprod _ _ _ isapropunit).
+    apply (isapropdirprod _ (∏ x, (h (grinv X x) = grinv Y (h x)))).
+    - apply (isapropdirprod _ _ isapropunit).
+      apply setproperty.
+    - apply impred_isaprop.
+      intro.
+      apply setproperty.
+  }
+  apply binopfun_paths.
+  exact H.
+Qed.
+
+Definition abelian_group_morphism_eq
+  {X Y : abgr}
+  {f g : abelian_group_morphism X Y}
+  : (f = g) ≃ (∏ x, f x = g x).
+Proof.
+  use weqimplimpl.
+  - intros e x.
+    exact (maponpaths (λ (f : abelian_group_morphism _ _), f x) e).
+  - intro e.
+    apply abelian_group_morphism_paths, funextfun.
+    exact e.
+  - abstract apply homset_property.
+  - abstract (
+      apply impred_isaprop;
+      intro;
+      apply setproperty
+    ).
+Defined.
+
+Definition identity_abelian_group_morphism
+  (X : abgr)
+  : abelian_group_morphism X X
+  := identity X.
+
+Definition composite_abelian_group_morphism
+  {X Y Z : abgr}
+  (f : abelian_group_morphism X Y)
+  (g : abelian_group_morphism Y Z)
+  : abelian_group_morphism X Z
+  := (f · g)%cat.
+
 (** *** Construction of the trivial abgr consisting of one element given by unit. *)
 
 Definition unitabgr_isabgrop : isabgrop (@op unitabmonoid).
@@ -62,146 +162,84 @@ Qed.
 
 Definition unitabgr : abgr := make_abgr unitabmonoid unitabgr_isabgrop.
 
-Lemma abgrfuntounit_ismonoidfun (X : abgr) : ismonoidfun (Y := unitabgr) (λ x : X, 0).
-Proof.
-  use make_ismonoidfun.
-  - use make_isbinopfun. intros x x'. use isProofIrrelevantUnit.
-  - use isProofIrrelevantUnit.
-Qed.
-
-Definition abgrfuntounit (X : abgr) : monoidfun X unitabgr :=
-  monoidfunconstr (abgrfuntounit_ismonoidfun X).
-
-Lemma abgrfunfromunit_ismonoidfun (X : abgr) : ismonoidfun (Y := X) (λ x : unitabgr, 0).
-Proof.
-  use make_ismonoidfun.
-  - use make_isbinopfun. intros x x'. exact (!runax X _).
-  - use idpath.
-Qed.
-
-Definition abgrfunfromunit (X : abgr) : monoidfun unitabgr X :=
-  monoidfunconstr (abgrfunfromunit_ismonoidfun X).
-
-Lemma unelabgrfun_ismonoidfun (X Y : abgr) : ismonoidfun (Y := Y) (λ x : X, 0).
-Proof.
-  use make_ismonoidfun.
-  - use make_isbinopfun. intros x x'. exact (!lunax _ _).
-  - use idpath.
-Qed.
-
-Definition unelabgrfun (X Y : abgr) : monoidfun X Y :=
-  monoidfunconstr (unelgrfun_ismonoidfun X Y).
-
+Definition unel_abelian_group_morphism (X Y : abgr) : abelian_group_morphism X Y :=
+  binopfun_to_abelian_group_morphism (unelmonoidfun X Y).
 
 (** *** Abelian group structure on morphism between abelian groups *)
 
-Definition abgrshombinop_inv_ismonoidfun {X Y : abgr} (f : monoidfun X Y) :
-  ismonoidfun (λ x : X, grinv Y (pr1 f x)).
+Definition abgrshombinop
+  {X Y : abgr} (f g : abelian_group_morphism X Y)
+  : abelian_group_morphism X Y.
 Proof.
-  use make_ismonoidfun.
-  - use make_isbinopfun. intros x x'. cbn.
-    rewrite (pr1 (pr2 f)). rewrite (pr2 (pr2 Y)). use (grinvop Y).
-  - refine (maponpaths (grinv Y) (monoidfununel f) @ _).
-    use grinvunel.
+  apply binopfun_to_abelian_group_morphism.
+  exact (abmonoidshombinop (X := X) (Y := Y) f g).
+Defined.
+
+Definition abgrshombinop_inv_isbinopfun {X Y : abgr} (f : abelian_group_morphism X Y) :
+  isbinopfun (λ x : X, grinv Y (f x)).
+Proof.
+  apply make_isbinopfun. intros x x'. cbn.
+  rewrite (monoidfunmul f). rewrite (pr2 (pr2 Y)). apply (grinvop Y).
 Qed.
 
-Definition abgrshombinop_inv {X Y : abgr} (f : monoidfun X Y) : monoidfun X Y :=
-  monoidfunconstr (abgrshombinop_inv_ismonoidfun f).
+Definition abgrshombinop_inv {X Y : abgr} (f : abelian_group_morphism X Y) : abelian_group_morphism X Y :=
+  make_abelian_group_morphism _ (abgrshombinop_inv_isbinopfun f).
 
-Definition abgrshombinop_linvax {X Y : abgr} (f : monoidfun X Y) :
-  @abmonoidshombinop X Y (abgrshombinop_inv f) f = unelmonoidfun X Y.
+Definition abgrshombinop_linvax {X Y : abgr} (f : abelian_group_morphism X Y) :
+  abgrshombinop (abgrshombinop_inv f) f = unel_abelian_group_morphism X Y.
 Proof.
-  use monoidfun_paths. use funextfun. intros x. use (@grlinvax Y).
+  apply abelian_group_morphism_eq. intros x. apply (@grlinvax Y).
 Qed.
 
-Definition abgrshombinop_rinvax {X Y : abgr} (f : monoidfun X Y) :
-  @abmonoidshombinop X Y f (abgrshombinop_inv f) = unelmonoidfun X Y.
+Definition abgrshombinop_rinvax {X Y : abgr} (f : abelian_group_morphism X Y) :
+  abgrshombinop f (abgrshombinop_inv f) = unel_abelian_group_morphism X Y.
 Proof.
-  use monoidfun_paths. use funextfun. intros x. use (grrinvax Y).
+  apply abelian_group_morphism_eq. intros x. apply (grrinvax Y).
 Qed.
 
 Lemma abgrshomabgr_isabgrop (X Y : abgr) :
-  @isabgrop (abmonoidshomabmonoid X Y) (λ f g : monoidfun X Y, @abmonoidshombinop X Y f g).
+  isabgrop (abgrshombinop (X := X) (Y := Y)).
 Proof.
   use make_isabgrop.
   - use make_isgrop.
-    + exact (abmonoidshomabmonoid_ismonoidop X Y).
+    + apply make_ismonoidop.
+      * abstract (
+          do 3 intro;
+          apply abelian_group_morphism_eq;
+          intro;
+          apply assocax
+        ).
+      * apply (make_isunital (unel_abelian_group_morphism X Y));
+          abstract (
+            apply make_isunit;
+            intro;
+            apply abelian_group_morphism_eq;
+            intro;
+            [ apply lunax
+            | apply runax ]
+          ).
     + use make_invstruct.
       * intros f. exact (abgrshombinop_inv f).
       * use make_isinv.
           intros f. exact (abgrshombinop_linvax f).
           intros f. exact (abgrshombinop_rinvax f).
-  - intros f g. exact (abmonoidshombinop_comm f g).
+  - abstract (
+      intros f g;
+      apply abelian_group_morphism_eq;
+      intro;
+      apply (commax Y)
+    ).
 Defined.
 
 Definition abgrshomabgr (X Y : abgr) : abgr.
 Proof.
   use make_abgr.
-  - exact (abmonoidshomabmonoid X Y).
+  - exact (make_setwithbinop (homset X Y) abgrshombinop).
   - exact (abgrshomabgr_isabgrop X Y).
 Defined.
 
 
-(** *** (X = Y) ≃ (monoidiso X Y)
-   The idea is to use the following composition
-
-        (X = Y) ≃ (make_abgr' X = make_abgr' Y)
-                ≃ (pr1 (make_abgr' X) = pr1 (make_abgr' Y))
-                ≃ (monoidiso X Y)
-
-    We use abgr' so that we can use univalence for groups, [gr_univalence]. See
-    [abgr_univalence_weq3].
- *)
-
-Local Definition abgr' : UU :=
-  ∑ g : (∑ X : setwithbinop, isgrop (@op X)), iscomm (pr2 (pr1 g)).
-
-Local Definition make_abgr' (X : abgr) : abgr' :=
-  (pr1 X ,, dirprod_pr1 (pr2 X)) ,, dirprod_pr2 (pr2 X).
-
-Local Definition abgr_univalence_weq1 : abgr ≃ abgr' :=
-  weqtotal2asstol (λ Z : setwithbinop, isgrop (@op Z))
-                  (λ y : (∑ x : setwithbinop, isgrop (@op x)), iscomm (@op (pr1 y))).
-
-Definition abgr_univalence_weq1' (X Y : abgr) : (X = Y) ≃ (make_abgr' X = make_abgr' Y) :=
-  make_weq _ (@isweqmaponpaths abgr abgr' abgr_univalence_weq1 X Y).
-
-Definition abgr_univalence_weq2 (X Y : abgr) :
-  (make_abgr' X = make_abgr' Y) ≃ (pr1 (make_abgr' X) = pr1 (make_abgr' Y)).
-Proof.
-  use subtypeInjectivity.
-  intros w. use isapropiscomm.
-Defined.
-Opaque abgr_univalence_weq2.
-
-Definition abgr_univalence_weq3 (X Y : abgr) :
-  (pr1 (make_abgr' X) = pr1 (make_abgr' Y)) ≃ (monoidiso X Y) :=
-  gr_univalence (pr1 (make_abgr' X)) (pr1 (make_abgr' Y)).
-
-Definition abgr_univalence_map (X Y : abgr) : (X = Y) → (monoidiso X Y).
-Proof.
-  intro e. induction e. exact (idmonoidiso X).
-Defined.
-
-Lemma abgr_univalence_isweq (X Y : abgr) : isweq (abgr_univalence_map X Y).
-Proof.
-  use isweqhomot.
-  - exact (weqcomp (abgr_univalence_weq1' X Y)
-                   (weqcomp (abgr_univalence_weq2 X Y) (abgr_univalence_weq3 X Y))).
-  - intros e. induction e.
-    refine (weqcomp_to_funcomp_app @ _).
-    use weqcomp_to_funcomp_app.
-  - use weqproperty.
-Defined.
-Opaque abgr_univalence_isweq.
-
-Definition abgr_univalence (X Y : abgr) : (X = Y) ≃ (monoidiso X Y)
-  := make_weq
-    (abgr_univalence_map X Y)
-    (abgr_univalence_isweq X Y).
-
-
-(** *** Subobjects *)
+(** * 2. Subobjects *)
 
 Definition subabgr (X : abgr) := subgr X.
 Identity Coercion id_subabgr : subabgr >-> subgr.
@@ -213,29 +251,33 @@ Proof.
 Defined.
 
 Definition carrierofasubabgr {X : abgr} (A : subabgr X) : abgr.
-Proof. exists A. apply isabgrcarrier. Defined.
+Proof.
+  use make_abgr.
+  - exact A.
+  - apply isabgrcarrier.
+Defined.
 Coercion carrierofasubabgr : subabgr >-> abgr.
 
-Definition subabgr_incl {X : abgr} (A : subabgr X) : monoidfun A X :=
-  submonoid_incl A.
+Definition subabgr_incl {X : abgr} (A : subabgr X) : abelian_group_morphism A X :=
+  binopfun_to_abelian_group_morphism (X := A) (submonoid_incl A).
 
-Definition abgr_kernel_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtype A :=
+Definition abgr_kernel_hsubtype {A B : abgr} (f : abelian_group_morphism A B) : hsubtype A :=
   monoid_kernel_hsubtype f.
 
-Definition abgr_image_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtype B :=
+Definition abgr_image_hsubtype {A B : abgr} (f : abelian_group_morphism A B) : hsubtype B :=
   (λ y : B, ∃ x : A, (f x) = y).
 
-(** * Kernels
+(** * 3. Kernels
     Let f : X → Y be a morphism of abelian groups. A kernel of f is given by the subgroup of X
     consisting of elements x such that [f x = 0].
  *)
 
 (** ** Kernel as abelian group *)
 
-Definition abgr_Kernel_subabgr_issubgr {A B : abgr} (f : monoidfun A B) :
+Definition abgr_Kernel_subabgr_issubgr {A B : abgr} (f : abelian_group_morphism A B) :
   issubgr (abgr_kernel_hsubtype f).
 Proof.
-  use make_issubgr.
+  apply make_issubgr.
   - apply kernel_issubmonoid.
   - intros x a.
     apply (grrcan B (f x)).
@@ -246,31 +288,29 @@ Proof.
     exact a.
 Defined.
 
-Definition abgr_Kernel_subabgr {A B : abgr} (f : monoidfun A B) : @subabgr A :=
+Definition abgr_Kernel_subabgr {A B : abgr} (f : abelian_group_morphism A B) : @subabgr A :=
   subgrconstr (@abgr_kernel_hsubtype A B f) (abgr_Kernel_subabgr_issubgr f).
 
 (** ** The inclusion Kernel f --> X is a morphism of abelian groups *)
 
-Definition abgr_Kernel_monoidfun_ismonoidfun {A B : abgr} (f : monoidfun A B) :
-  @ismonoidfun (abgr_Kernel_subabgr f) A
+Definition abgr_Kernel_abelian_group_morphism_isbinopfun {A B : abgr} (f : abelian_group_morphism A B) :
+  isbinopfun (X := abgr_Kernel_subabgr f)
                (make_incl (pr1carrier (abgr_kernel_hsubtype f))
                          (isinclpr1carrier (abgr_kernel_hsubtype f))).
 Proof.
-  use make_ismonoidfun.
-  - use make_isbinopfun. intros x x'. use idpath.
-  - use idpath.
+  apply make_isbinopfun. intros x x'. apply idpath.
 Qed.
 
   (** ** Image of f is a subgroup *)
 
-Definition abgr_image_issubgr {A B : abgr} (f : monoidfun A B) : issubgr (abgr_image_hsubtype f).
+Definition abgr_image_issubgr {A B : abgr} (f : abelian_group_morphism A B) : issubgr (abgr_image_hsubtype f).
 Proof.
-  use make_issubgr.
-  - use make_issubmonoid.
+  apply make_issubgr.
+  - apply make_issubmonoid.
     + intros a a'.
-      use (hinhuniv _ (pr2 a)). intros ae.
-      use (hinhuniv _ (pr2 a')). intros a'e.
-      use hinhpr.
+      refine (hinhuniv _ (pr2 a)). intros ae.
+      refine (hinhuniv _ (pr2 a')). intros a'e.
+      apply hinhpr.
       use tpair.
       * exact (@op A (pr1 ae) (pr1 a'e)).
       * refine (binopfunisbinopfun f (pr1 ae) (pr1 a'e) @ _).
@@ -286,14 +326,14 @@ Proof.
     use tpair.
     + exact (grinv A (pr1 eb)).
     + refine (_ @ maponpaths (λ bb : B, (grinv B bb)) (pr2 eb)).
-      use monoidfuninvtoinv.
+      apply group_morphism_inv.
 Qed.
 
-Definition abgr_image {A B : abgr} (f : monoidfun A B) : @subabgr B :=
+Definition abgr_image {A B : abgr} (f : abelian_group_morphism A B) : @subabgr B :=
   @subgrconstr B (@abgr_image_hsubtype A B f) (abgr_image_issubgr f).
 
 
-(** *** Quotient objects *)
+(** * 4. Quotient objects *)
 
 Lemma isabgrquot {X : abgr} (R : binopeqrel X) : isabgrop (@op (setwithbinopquot R)).
 Proof.
@@ -305,7 +345,7 @@ Definition abgrquot {X : abgr} (R : binopeqrel X) : abgr.
 Proof. exists (setwithbinopquot R). apply isabgrquot. Defined.
 
 
-(** *** Direct products *)
+(** * 5. Direct products *)
 
 Lemma isabgrdirprod (X Y : abgr) : isabgrop (@op (setwithbinopdirprod X Y)).
 Proof.
@@ -318,6 +358,8 @@ Proof.
   exists (setwithbinopdirprod X Y).
   apply isabgrdirprod.
 Defined.
+
+(** * 6. Abelian group of fractions of an abelian unitary monoid *)
 
 Section Fractions.
 
@@ -420,7 +462,7 @@ Definition prabgrdiff (X : abmonoid) : X → X → abgrdiff X :=
   λ x x' : X, setquotpr (eqrelabgrdiff X) (x ,, x').
 
 
-(** *** Abelian group of fractions and abelian monoid of fractions *)
+(** * 7. Abelian group of fractions and abelian monoid of fractions *)
 
 Definition weqabgrdiffint (X : abmonoid) : weq (X × X) (X × totalsubtype X) :=
   weqdirprodf (idweq X) (invweq (weqtotalsubtype X)).
@@ -439,7 +481,7 @@ Proof.
 Defined.
 
 
-(** *** Canonical homomorphism to the abelian group of fractions *)
+(** * 8. Canonical homomorphism to the abelian group of fractions *)
 
 Definition toabgrdiff (X : abmonoid) (x : X) : abgrdiff X := setquotpr _ (x ,, 0).
 
@@ -454,14 +496,8 @@ Proof.
   - exact (!lunax X 0).
 Defined.
 
-Lemma isunitalfuntoabgrdiff (X : abmonoid) : toabgrdiff X 0 = 0.
-Proof. apply idpath. Defined.
 
-Definition ismonoidfuntoabgrdiff (X : abmonoid) : ismonoidfun (toabgrdiff X) :=
-  isbinopfuntoabgrdiff X ,, isunitalfuntoabgrdiff X.
-
-
-(** *** Abelian group of fractions in the case when all elements are cancelable *)
+(** * 9. Abelian group of fractions in the case when all elements are cancelable *)
 
 Lemma isinclprabgrdiff (X : abmonoid) (iscanc : ∏ x : X, isrcancelable (@op X) x) :
   ∏ x' : X, isincl (λ x, prabgrdiff X x x').
@@ -485,7 +521,7 @@ Proof.
 Defined.
 
 
-(** *** Relations on the abelian group of fractions *)
+(** * 10. Relations on the abelian group of fractions *)
 
 Definition abgrdiffrelint (X : abmonoid) (L : hrel X) : hrel (setwithbinopdirprod X X) :=
   λ xa yb, ∃ (c0 : X), L ((pr1 xa + pr2 yb) + c0) ((pr1 yb + pr2 xa) + c0).
@@ -767,7 +803,7 @@ Proof.
 Defined.
 
 
-(** *** Relations and the canonical homomorphism to [ abgrdiff ] *)
+(** * 11. Relations and the canonical homomorphism to [abgrdiff] *)
 
 Lemma iscomptoabgrdiff (X : abmonoid) {L : hrel X} (is : isbinophrel L) :
   iscomprelrelfun L (abgrdiffrel X is) (toabgrdiff X).

@@ -211,7 +211,7 @@ Lemma hr_to_NR_zero :
 Proof.
   unfold ringunel1, unel_is ; simpl.
   unfold hr_to_NR.
-  rewrite setquotunivcomm ; simpl.
+  refine (setquotunivcomm _ (_ ,, _) _ _ _ @ _) ; simpl.
   rewrite !minusNonnegativeReals_eq_zero.
   { reflexivity. }
   apply isrefl_leNonnegativeReals.
