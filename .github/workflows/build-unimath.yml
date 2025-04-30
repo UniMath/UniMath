@@ -102,7 +102,7 @@ jobs:
         run: sudo chown -R 1001:116 .
 
       - name: Upload the generated vo files
-        if: matrix.coq-version == '8.20'
+        if: github.ref == 'refs/heads/master' && matrix.coq-version == '8.20'
         uses: actions/upload-artifact@v4
         with:
           name: build
