@@ -18,55 +18,31 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.CategoryTheory.Categories.Magma.
+Require Import UniMath.CategoryTheory.Core.Categories.
 
 Local Open Scope addmonoid.
 
 (** * 1. The ring of endomorphisms of an abelian group *)
 
+(** The underlying set of the ring of endomorphisms of an abelian group *)
+
+Definition setofendabgr (G : abgr) : hSet := homset G G.
+
 (** Two binary operations on the set of endomorphisms of an abelian group *)
 
-Definition monoidfun_to_isbinopfun {G : abgr} (f : monoidfun G G) : isbinopfun f := binopfunisbinopfun f.
+Definition ringofendabgr_op1 {G: abgr}
+  : binop (abelian_group_morphism G G)
+  := abgrshombinop.
 
-Definition ringofendabgr_op1 {G: abgr} : binop (monoidfun G G).
+Definition ringofendabgr_op2 {G : abgr} : binop (abelian_group_morphism G G).
 Proof.
   intros f g.
-  apply (@make_monoidfun _ _ (λ x : G, f x + g x)).
-  apply make_ismonoidfun.
-  - intros x x'.
-    rewrite (monoidfun_to_isbinopfun f).
-    rewrite (monoidfun_to_isbinopfun g).
-    apply (abmonoidrer G).
-  - rewrite (monoidfununel f).
-    rewrite (monoidfununel g).
-    rewrite (lunax G).
-    reflexivity.
-Defined.
-
-Definition ringofendabgr_op2 {G : abgr} : binop (monoidfun G G).
-Proof.
-  intros f g.
-  apply (monoidfuncomp g f).
+  exact (composite_abelian_group_morphism g f).
 Defined.
 
 Declare Scope abgr_scope.
 Notation "f + g" := (ringofendabgr_op1 f g) : abgr_scope.
-
-(** The underlying set of the ring of endomorphisms of an abelian group *)
-
-Definition setofendabgr (G : abgr) : hSet :=
-   make_hSet (monoidfun G G) (isasetmonoidfun G G).
-
-(** A few access functions *)
-
-Definition pr1setofendabgr {G : abgr} (f : setofendabgr G) : G -> G := (f : monoidfun G G).
-
-Definition pr2setofendabgr {G : abgr} (f : setofendabgr G) : ismonoidfun (f : monoidfun G G) := ismonoidfun_monoidfun f.
-
-Definition setofendabgr_to_isbinopfun {G : abgr} (f : setofendabgr G) :
-  isbinopfun (pr1setofendabgr f) := binopfunisbinopfun (f : monoidfun _ _).
-
-Definition setofendabgr_to_unel {G : abgr} (f : setofendabgr G) : pr1setofendabgr f 0 = 0 :=
-  pr2 (pr2setofendabgr f).
 
 (** We endow setofendabgr with the two binary operations defined above *)
 
@@ -75,156 +51,31 @@ Definition setwith2binopofendabgr (G : abgr) : setwith2binop :=
 
 (** ringofendabgr_op1 G and ringofendabgr_op2 G are ring operations *)
 
-(** ringofendabgr_op1 is a monoid operation *)
-
-Local Open Scope abgr_scope.
-
-Lemma isassoc_ringofendabgr_op1 {G : abgr} : isassoc (@ringofendabgr_op1 G).
-Proof.
-  intros f g h.
-  apply monoidfun_paths.
-  apply funextfun.
-  intro.
-  apply assocax.
-Defined.
-
-Lemma setofendabgr_un0 {G: abgr} : monoidfun G G.
-Proof.
-  apply (@make_monoidfun _ _ (λ x : G, 0)).
-  apply make_dirprod.
-  - intros x x'.
-    rewrite (lunax G).
-    reflexivity.
-  - reflexivity.
-Defined.
-
-Lemma islunit_setofendabgr_un0 {G : abgr} : islunit (@ringofendabgr_op1 G) setofendabgr_un0.
-Proof.
-  intro f.
-  apply monoidfun_paths.
-  apply funextfun. intro x.
-  apply (lunax G (pr1setofendabgr f x)).
-Defined.
-
-Lemma isrunit_setofendabgr_un0 {G : abgr} : isrunit (@ringofendabgr_op1 G) setofendabgr_un0.
-Proof.
-  intros f.
-  apply monoidfun_paths.
-  apply funextfun. intro x.
-  apply (runax G (pr1setofendabgr f x)).
-Defined.
-
-Lemma isunit_setofendabgr_un0 {G : abgr} : isunit (@ringofendabgr_op1 G) setofendabgr_un0.
-Proof. exact (make_isunit islunit_setofendabgr_un0 isrunit_setofendabgr_un0). Defined.
-
-Lemma isunital_ringofendabgr_op1 {G : abgr} : isunital (@ringofendabgr_op1 G).
-Proof. exact (make_isunital setofendabgr_un0 isunit_setofendabgr_un0). Defined.
-
-Lemma ismonoidop_ringofendabgr_op1 {G : abgr} : ismonoidop (@ringofendabgr_op1 G).
-Proof. exact (make_ismonoidop isassoc_ringofendabgr_op1 isunital_ringofendabgr_op1). Defined.
-
-Local Close Scope abgr_scope.
-
-Local Open Scope abgr_scope.
-
-(** ringofendabgr_op1 is a group operation *)
-
-Definition setofendabgr_inv {G : abgr} : monoidfun G G -> monoidfun G G.
-Proof.
-  intro f.
-  apply (make_monoidfun (f := λ x, (-pr1setofendabgr f x)%abgr)).
-  abstract (
-    apply make_ismonoidfun;
-    [ intros x x';
-      rewrite (setofendabgr_to_isbinopfun f);
-      rewrite (grinvop G);
-      apply (commax G)
-    | rewrite (setofendabgr_to_unel f);
-      apply (grinvunel G) ]
-    ).
-Defined.
-
-Local Open Scope abgr_scope.
-
-Lemma islinv_setofendabgr_inv {G : abgr} :
-  islinv (@ringofendabgr_op1 G) (unel_is (@ismonoidop_ringofendabgr_op1 G)) setofendabgr_inv.
-Proof.
-  intro f.
-  apply monoidfun_paths.
-  apply funextfun. intro x.
-  apply (grlinvax G).
-Qed.
-
-Lemma isrinv_setofendabgr_inv {G : abgr} :
-  isrinv (@ringofendabgr_op1 G) (unel_is (@ismonoidop_ringofendabgr_op1 G)) setofendabgr_inv.
-Proof.
-  intro f.
-  apply monoidfun_paths.
-  apply funextfun. intro x.
-  apply (grrinvax G).
-Qed.
-
-Lemma isinv_setofendabgr_inv {G : abgr} :
-  isinv (@ringofendabgr_op1 G) (unel_is (@ismonoidop_ringofendabgr_op1 G)) setofendabgr_inv.
-Proof. exact (make_isinv islinv_setofendabgr_inv isrinv_setofendabgr_inv). Defined.
-
-Definition invstruct_setofendabgr_inv {G : abgr} :
-  invstruct (@ringofendabgr_op1 G) ismonoidop_ringofendabgr_op1.
-Proof. exact (make_invstruct (@setofendabgr_inv G) (@isinv_setofendabgr_inv G)). Defined.
-
-Lemma isgrop_ringofendabgr_op1 {G : abgr} : isgrop (@ringofendabgr_op1 G).
-Proof. exact (make_isgrop ismonoidop_ringofendabgr_op1 invstruct_setofendabgr_inv). Defined.
-
-Lemma iscomm_ringofendabgr_op1 {G : abgr} : iscomm (@ringofendabgr_op1 G).
-Proof.
-  intros f g.
-  apply monoidfun_paths.
-  apply funextfun. intro x.
-  apply (commax G).
-Qed.
-
-Lemma isabgrop_ringofendabgr_op1 {G : abgr} : isabgrop (@ringofendabgr_op1 G).
-Proof. exact (make_isabgrop isgrop_ringofendabgr_op1 iscomm_ringofendabgr_op1). Defined.
-
 (** ringofendabgr_op2 is a monoid operation *)
+
+Local Open Scope abgr_scope.
 
 Lemma isassoc_ringofendabgr_op2 {G : abgr} : isassoc (@ringofendabgr_op2 G).
 Proof.
   intros f g h.
-  apply monoidfun_paths.
-  reflexivity.
+  now apply abelian_group_morphism_eq.
 Qed.
 
-Definition setofendabgr_un1 {G: abgr} : monoidfun G G.
-Proof.
-  apply (@make_monoidfun _ _ (idfun G)).
-  apply make_dirprod.
-  - intros x x'. reflexivity.
-  - reflexivity.
-Defined.
+Definition setofendabgr_un1 {G: abgr}
+  : abelian_group_morphism G G
+  := identity_abelian_group_morphism G.
 
-Lemma islunit_setofendabgr_un1 {G : abgr} : islunit (@ringofendabgr_op2 G) setofendabgr_un1.
-Proof.
-  intro f.
-  apply monoidfun_paths.
-  reflexivity.
-Defined.
+Definition isunit_setofendabgr_un1 {G : abgr}
+  : isunit (@ringofendabgr_op2 G) setofendabgr_un1
+  := make_isunit (id_right (b := G)) (id_left (b := G)).
 
-Lemma isrunit_setofendabgr_un1 {G : abgr} : isrunit (@ringofendabgr_op2 G) setofendabgr_un1.
-Proof.
-  intros f.
-  apply monoidfun_paths.
-  reflexivity.
-Defined.
+Definition isunital_ringofendabgr_op2 {G : abgr}
+  : isunital (@ringofendabgr_op2 G)
+  := make_isunital setofendabgr_un1 isunit_setofendabgr_un1.
 
-Lemma isunit_setofendabgr_un1 {G : abgr} : isunit (@ringofendabgr_op2 G) setofendabgr_un1.
-Proof. exact (make_isunit islunit_setofendabgr_un1 isrunit_setofendabgr_un1). Defined.
-
-Lemma isunital_ringofendabgr_op2 {G : abgr} : isunital (@ringofendabgr_op2 G).
-Proof. exact (make_isunital setofendabgr_un1 isunit_setofendabgr_un1). Defined.
-
-Lemma ismonoidop_ringofendabgr_op2 {G : abgr} : ismonoidop (@ringofendabgr_op2 G).
-Proof. exact (make_ismonoidop isassoc_ringofendabgr_op2 isunital_ringofendabgr_op2). Defined.
+Definition ismonoidop_ringofendabgr_op2 {G : abgr}
+  : ismonoidop (@ringofendabgr_op2 G)
+  := make_ismonoidop isassoc_ringofendabgr_op2 isunital_ringofendabgr_op2.
 
 (** ringofendabgr_op2 is distributive over ringofendabgr_op1 *)
 
@@ -232,33 +83,30 @@ Lemma isldistr_setofendabgr_op {G : abgr} :
   isldistr (@ringofendabgr_op1 G) (@ringofendabgr_op2 G).
 Proof.
   intros f g h.
-  apply monoidfun_paths.
-  apply funextfun. intro x.
-  apply (setofendabgr_to_isbinopfun h).
+  apply abelian_group_morphism_eq.
+  intro x.
+  apply (binopfunisbinopfun h).
 Defined.
 
 Lemma isrdistr_setofendabgr_op {G : abgr} :
   isrdistr (@ringofendabgr_op1 G) (@ringofendabgr_op2 G).
 Proof.
   intros f g h.
-  apply monoidfun_paths.
-  reflexivity.
+  now apply abelian_group_morphism_eq.
 Defined.
 
-Lemma isdistr_setofendabgr_op {G : abgr} :
-  isdistr (@ringofendabgr_op1 G) (@ringofendabgr_op2 G).
-Proof. exact (make_dirprod isldistr_setofendabgr_op isrdistr_setofendabgr_op). Defined.
+Definition isdistr_setofendabgr_op {G : abgr}
+  : isdistr (@ringofendabgr_op1 G) (@ringofendabgr_op2 G)
+  := make_dirprod isldistr_setofendabgr_op isrdistr_setofendabgr_op.
 
-Lemma isringops_setofendabgr_op {G : abgr} :
-  isringops (@ringofendabgr_op1 G) (@ringofendabgr_op2 G).
-Proof.
-  exact (make_isringops isabgrop_ringofendabgr_op1 ismonoidop_ringofendabgr_op2 isdistr_setofendabgr_op).
-Defined.
+Definition isringops_setofendabgr_op {G : abgr}
+  : isringops (@ringofendabgr_op1 G) (@ringofendabgr_op2 G)
+  := make_isringops (abgrshomabgr_isabgrop G G) ismonoidop_ringofendabgr_op2 isdistr_setofendabgr_op.
 
 (** The set of endomorphisms of an abelian group is a ring *)
 
 Definition ringofendabgr (G : abgr) : ring :=
-  @make_ring (setwith2binopofendabgr G) (@isringops_setofendabgr_op G).
+  @make_ring (setwith2binopofendabgr G) isringops_setofendabgr_op.
 
 
 (** * 2. Modules: the definition of the small type of R-modules over a ring R  *)
@@ -276,9 +124,7 @@ Definition module_struct (R : ring) (G : abgr) : UU := ringfun R (ringofendabgr 
 
 Definition module (R : ring) : UU := ∑ G, module_struct R G.
 
-Definition pr1module {R : ring} (M : module R) : abgr := pr1 M.
-
-Coercion pr1module : module >-> abgr.
+Coercion pr1module {R : ring} (M : module R) : abgr := pr1 M.
 
 Definition pr2module {R : ring} (M : module R) : module_struct R (pr1module M) := pr2 M.
 
@@ -294,7 +140,7 @@ Defined.
 (** The ring action gives rise to a notion of multiplication. *)
 
 Definition module_mult {R : ring} (M : module R) : R -> M -> M :=
-  λ r : R, λ x : M, (pr1setofendabgr (pr2module M r) x).
+  λ r : R, λ x : M, (pr2module M r : abelian_group_morphism _ _) x.
 
 Declare Scope module_scope.
 Notation "r * x" := (module_mult _ r x) : module_scope.
@@ -316,21 +162,27 @@ Local Open Scope addmonoid.
 
 Lemma module_mult_is_ldistr {R : ring} {M : module R} (r : R) (x y : M) :
   r * (x + y) = r * x + r * y.
-Proof. exact (monoidfunmul (pr2module M r) x y). Defined.
+Proof. exact (monoidfunmul (pr2module M r : abelian_group_morphism _ _) x y). Defined.
 
 Lemma module_mult_is_rdistr {R : ring} {M : module R} (r s : R) (x : M) :
   (op1 r s) * x = r * x + s * x.
-Proof. exact (maponpaths (λ r, pr1setofendabgr r x) (pr1 (pr1 (pr2 (pr2module M))) r s)). Defined.
+Proof.
+  exact (abelian_group_morphism_eq (binopfunisbinopfun (rigaddfun (pr2module M : ringfun _ _)) r s) x).
+Defined.
 
 Lemma module_mult_assoc {R : ring} {M : module R} (r s : R) (x : M) :
   (op2 r s) * x = r * (s * x).
-Proof. exact (maponpaths (λ r, pr1setofendabgr r x) (pr1 (pr2 (pr2 (pr2module M))) r s)). Defined.
+Proof. exact (abelian_group_morphism_eq (binopfunisbinopfun (rigmultfun (pr2module M : ringfun _ _)) r s) x). Defined.
 
 Lemma module_mult_1 {R : ring} {M : module R} (r : R) : r * unel M = unel M.
-Proof. exact (pr2 (pr2 (pr2module M r))). Defined.
+Proof.
+  exact (monoidfununel (pr2module M r : abelian_group_morphism _ _)).
+Defined.
 
 Lemma module_mult_unel2 {R : ring} {M : module R} (m : M) : ringunel2 * m = m.
-Proof. exact (maponpaths (λ r, pr1setofendabgr r m) (pr2 (pr2 (pr2 (pr2module M))))). Defined.
+Proof.
+  exact (abelian_group_morphism_eq (monoidfununel (rigmultfun (pr2module M : ringfun _ _))) m).
+Defined.
 
 Lemma module_inv_mult {R : ring} {M : module R} (r : R) (x : M) :
   @grinv _ (r * x) = r * @grinv _ x.
@@ -376,15 +228,8 @@ Local Close Scope addmonoid.
 Definition mult_to_ringofendabgr {R : ring} {G : abgr} {m : R -> G -> G}
            (ax1 : mult_isldistr_wrt_grop m) (r : R) : ringofendabgr G.
 Proof.
-    use make_monoidfun.
-    intro x. exact (m r x).
-    apply make_dirprod.
-    + intros x y. apply ax1.
-    + apply (grlcan G (m r (unel G))).
-      rewrite runax.
-      rewrite <- (ax1 r (unel G) (unel G)).
-      rewrite runax.
-      apply idpath.
+  apply (make_abelian_group_morphism (λ x, m r x)).
+  intros x y. apply ax1.
 Defined.
 
 Definition mult_to_module_struct_fun {R : ring} {G : abgr} {m : R -> G -> G}
@@ -400,17 +245,17 @@ Proof.
   apply make_isrigfun.
   - apply make_ismonoidfun.
     + intros r s.
-      apply monoidfun_paths.
-      apply funextfun. intro x. apply ax2.
-    + apply monoidfun_paths.
-      apply funextfun. intro x. change (m ringunel1 x = unel G). apply (grlcan G (m (ringunel1) x)).
+      apply abelian_group_morphism_eq.
+      intro x. apply ax2.
+    + apply abelian_group_morphism_eq.
+      intro x. change (m ringunel1 x = unel G). apply (grlcan G (m (ringunel1) x)).
       rewrite runax. rewrite <- (ax2 ringunel1 ringunel1 x). rewrite ringrunax1. apply idpath.
   - apply make_ismonoidfun.
     + intros r s.
-      apply monoidfun_paths.
-      apply funextfun. intro x. apply ax3.
-    + apply monoidfun_paths.
-      apply funextfun. intro x. apply ax4.
+      apply abelian_group_morphism_eq.
+      intro x. apply ax3.
+    + apply abelian_group_morphism_eq.
+      intro x. apply ax4.
 Qed.
 
 Definition mult_to_module_struct {R : ring} {G : abgr} {m : R -> G -> G}
@@ -685,7 +530,7 @@ Definition modulehombinop_scalar_ismodulefun {R : commring} {M N : module R} (r 
            (f : R-mod(M, N)) : ismodulefun (λ m : M, r * (pr1 f m)).
 Proof.
   apply make_ismodulefun.
-  - apply make_isbinopfun. intros x x'. cbn.
+  - apply make_isbinopfun. intros x x'.
     rewrite (pr1 (pr2 f)). rewrite module_mult_is_ldistr. reflexivity.
   - intros r0 m. rewrite (modulefun_to_islinear f). do 2 rewrite <- module_mult_assoc.
     rewrite ringcomm2. reflexivity.
