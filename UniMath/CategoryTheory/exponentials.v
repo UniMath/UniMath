@@ -18,6 +18,7 @@
   4. Transport along an adjoint equivalence
     [is_expDd0_adjunction_laws] [exponentials_through_adj_equivalence_univalent_cats]
   5. Exponentials are independent of the choice of the binary products
+  6. Preservation of is_exponentiable under isomorphisms
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -900,3 +901,61 @@ Section ExpIndependent.
         * apply exponentials_independent_beta.
   Defined.
 End ExpIndependent.
+
+(** * 6. IsExponentiableClosedUnderIso *)
+Section IsExponentiableClosedUnderIso.
+
+  Definition z_iso_of_BinProduct_of_functors
+    {C D : category}
+    (P_D : BinProducts D)
+    {F F' G G' : functor C D}
+    (α : nat_z_iso F F')
+    (β : nat_z_iso G G')
+    : nat_z_iso (BinProduct_of_functors C _ P_D F G)
+        (BinProduct_of_functors C _ P_D F' G').
+  Proof.
+    use make_nat_z_iso.
+    - use binproduct_nat_trans.
+      + use (nat_trans_comp _ _ _ _ α).
+        apply binproduct_nat_trans_pr1.
+      + use (nat_trans_comp _ _ _ _ β).
+        apply binproduct_nat_trans_pr2.
+    - intro.
+      use (pr2 (binproduct_of_z_iso (P_D _ _) (P_D _ _) (_,,_) (_,,_)))
+      ; apply nat_z_iso_pointwise_z_iso.
+  Defined.
+
+  Definition z_iso_of_constant_functors
+    {C : category}
+    {x y : C} (i : z_iso x y)
+    : nat_z_iso (constant_functor C C x) (constant_functor C C y).
+  Proof.
+    use make_nat_z_iso.
+    - use make_nat_trans.
+      + exact (λ _, i).
+      + exact (λ _ _ _, id_left _ @ ! id_right _).
+    - intro ; apply z_iso_is_z_isomorphism.
+  Defined.
+
+  Context {C : category} (P : BinProducts C).
+  Context {x y : C} (i : z_iso x y).
+
+  Definition constprod_functor1_mod_iso
+    : nat_z_iso (constprod_functor1 P x) (constprod_functor1 P y).
+  Proof.
+    apply z_iso_of_BinProduct_of_functors.
+    - apply z_iso_of_constant_functors.
+      exact i.
+    - apply nat_z_iso_id.
+  Defined.
+
+  Lemma is_exponentiable_closed_under_iso
+    : is_exponentiable P x → is_exponentiable P y.
+  Proof.
+    intro ex.
+    use (is_left_adjoint_closed_under_iso _ _ _ ex).
+    use z_iso_from_nat_z_iso.
+    exact constprod_functor1_mod_iso.
+  Defined.
+
+End IsExponentiableClosedUnderIso.
