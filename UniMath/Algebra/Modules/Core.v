@@ -18,96 +18,15 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.Monoids.
-Require Import UniMath.CategoryTheory.Categories.Magma.
+Require Import UniMath.CategoryTheory.Categories.AbelianGroup.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Actions.
 
 Local Open Scope addmonoid.
 
 (** * 1. The ring of endomorphisms of an abelian group *)
 
-(** The underlying set of the ring of endomorphisms of an abelian group *)
-
-Definition setofendabgr (G : abgr) : hSet := homset G G.
-
-(** Two binary operations on the set of endomorphisms of an abelian group *)
-
-Definition ringofendabgr_op1 {G: abgr}
-  : binop (abelian_group_morphism G G)
-  := abgrshombinop.
-
-Definition ringofendabgr_op2 {G : abgr} : binop (abelian_group_morphism G G).
-Proof.
-  intros f g.
-  exact (composite_abelian_group_morphism g f).
-Defined.
-
-Declare Scope abgr_scope.
-Notation "f + g" := (ringofendabgr_op1 f g) : abgr_scope.
-
-(** We endow setofendabgr with the two binary operations defined above *)
-
-Definition setwith2binopofendabgr (G : abgr) : setwith2binop :=
-   make_setwith2binop (setofendabgr G) (make_dirprod (ringofendabgr_op1) (ringofendabgr_op2)).
-
-(** ringofendabgr_op1 G and ringofendabgr_op2 G are ring operations *)
-
-(** ringofendabgr_op2 is a monoid operation *)
-
-Local Open Scope abgr_scope.
-
-Lemma isassoc_ringofendabgr_op2 {G : abgr} : isassoc (@ringofendabgr_op2 G).
-Proof.
-  intros f g h.
-  now apply abelian_group_morphism_eq.
-Qed.
-
-Definition setofendabgr_un1 {G: abgr}
-  : abelian_group_morphism G G
-  := identity_abelian_group_morphism G.
-
-Definition isunit_setofendabgr_un1 {G : abgr}
-  : isunit (@ringofendabgr_op2 G) setofendabgr_un1
-  := make_isunit (id_right (b := G)) (id_left (b := G)).
-
-Definition isunital_ringofendabgr_op2 {G : abgr}
-  : isunital (@ringofendabgr_op2 G)
-  := make_isunital setofendabgr_un1 isunit_setofendabgr_un1.
-
-Definition ismonoidop_ringofendabgr_op2 {G : abgr}
-  : ismonoidop (@ringofendabgr_op2 G)
-  := make_ismonoidop isassoc_ringofendabgr_op2 isunital_ringofendabgr_op2.
-
-(** ringofendabgr_op2 is distributive over ringofendabgr_op1 *)
-
-Lemma isldistr_setofendabgr_op {G : abgr} :
-  isldistr (@ringofendabgr_op1 G) (@ringofendabgr_op2 G).
-Proof.
-  intros f g h.
-  apply abelian_group_morphism_eq.
-  intro x.
-  apply (binopfunisbinopfun h).
-Defined.
-
-Lemma isrdistr_setofendabgr_op {G : abgr} :
-  isrdistr (@ringofendabgr_op1 G) (@ringofendabgr_op2 G).
-Proof.
-  intros f g h.
-  now apply abelian_group_morphism_eq.
-Defined.
-
-Definition isdistr_setofendabgr_op {G : abgr}
-  : isdistr (@ringofendabgr_op1 G) (@ringofendabgr_op2 G)
-  := make_dirprod isldistr_setofendabgr_op isrdistr_setofendabgr_op.
-
-Definition isringops_setofendabgr_op {G : abgr}
-  : isringops (@ringofendabgr_op1 G) (@ringofendabgr_op2 G)
-  := make_isringops (abgrshomabgr_isabgrop G G) ismonoidop_ringofendabgr_op2 isdistr_setofendabgr_op.
-
-(** The set of endomorphisms of an abelian group is a ring *)
-
-Definition ringofendabgr (G : abgr) : ring :=
-  @make_ring (setwith2binopofendabgr G) isringops_setofendabgr_op.
-
+Definition ringofendabgr (G : abgr) : ring := opposite_ring (endomorphism_ring (C := abgr_AdditiveCategory) G).
 
 (** * 2. Modules: the definition of the small type of R-modules over a ring R  *)
 
