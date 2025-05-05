@@ -11,21 +11,20 @@
  - Additive structure
 *)
 
-Require Import UniMath.Algebra.Groups.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.Algebra.Modules.
+Require Import UniMath.Algebra.Modules.Examples.
 Require Import UniMath.Algebra.RigsAndRings.
+Require Import UniMath.CategoryTheory.Categories.AbelianGroup.
+Require Import UniMath.CategoryTheory.Categories.ModuleCore.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.Algebra.Modules.
-Require Import UniMath.Algebra.Modules.Examples.
-Require Import UniMath.CategoryTheory.Limits.Zero.
-Require Import UniMath.CategoryTheory.Categories.AbelianGroup.
-Require Import UniMath.CategoryTheory.Categories.ModuleCore.
-Require Import UniMath.CategoryTheory.Actions.
-
-Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.Limits.Zero.
 
 Local Open Scope cat.
 

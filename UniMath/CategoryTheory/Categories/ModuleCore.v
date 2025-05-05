@@ -7,22 +7,23 @@
 - The category of (left) R-modules ([mod_category])
 *)
 
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.AbelianGroups.
 Require Import UniMath.Algebra.RigsAndRings.
-Require Import UniMath.CategoryTheory.Categories.AbelianGroup.
 Require Import UniMath.CategoryTheory.Actions.
+Require Import UniMath.CategoryTheory.Categories.AbelianGroup.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.CategoryWithStructure.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
-Require Import DisplayedCats.Core.
-Require Import DisplayedCats.Constructions.CategoryWithStructure.
-Require Import DisplayedCats.Total.
+Local Open Scope cat.
 
 Definition group_endomorphism_ring (G : abgr)
   : ring
   := opposite_ring (endomorphism_ring (C := abgr_PreAdditive) G).
 
 Section Mod.
-
-  Local Open Scope cat.
 
   Context (R : ring).
 

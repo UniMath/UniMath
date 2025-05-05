@@ -1,16 +1,29 @@
-(** Authors Floris van Doorn, December 2017 *)
+(**
 
-Require Import UniMath.MoreFoundations.Subtypes.
-Require Import UniMath.Algebra.RigsAndRings.
-Require Import UniMath.Algebra.Monoids.
+  Submodules of Ring Modules
+
+  This file defines submodules of ring modules.
+
+  Contents
+  1. Subobjects of modules [submodule]
+  2. Kernels [module_kernel]
+  3. Images [module_image]
+
+  Originally written by Floris van Doorn, December 2017
+
+ *)
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.Modules.Core.
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.RigsAndRings.
 
-(** ** Contents
-- Subobjects of modules
-- Kernels
-- Images
-*)
+Local Open Scope abgr.
+Local Open Scope addmonoid.
+Local Open Scope module.
+
+(** * 1. Subobjects of modules *)
 
 Definition issubsetwithsmul {R : hSet} {M : hSet} (smul : R → M → M) (A : hsubtype M) : UU :=
   ∏ r m, A m → A (smul r m).
@@ -35,16 +48,14 @@ Proof.
     apply propproperty.
 Defined.
 
-(* Submodules *)
+Definition submodule {R : ring} (M : module R) : UU := ∑ (A : hsubtype M), issubmodule A.
 
-Definition submodule {R : ring} (M : module R) : UU := total2 (λ A : hsubtype M, issubmodule A).
+Definition make_submodule {R : ring} {M : module R}
+  (A : hsubtype M) (H : issubmodule A) : submodule M :=
+  A ,, H.
 
-Definition make_submodule {R : ring} {M : module R} :
-  ∏ (t : hsubtype M), (λ A : hsubtype M, issubmodule A) t → ∑ A : hsubtype M, issubmodule A :=
-  tpair (λ A : hsubtype M, issubmodule A).
-
-Definition submoduletosubabgr {R : ring} {M : module R} : submodule M -> @subabgr M :=
-  λ A : _, make_subgr (pr1 A) (pr1 (pr2 A)).
+Definition submoduletosubabgr {R : ring} {M : module R} (A : submodule M) : subabgr M :=
+  make_subgr (pr1 A) (pr1 (pr2 A)).
 Coercion submoduletosubabgr : submodule >-> subabgr.
 
 Definition submodule_to_issubsetwithsmul {R : ring} {M : module R} (A : submodule M) :
@@ -92,8 +103,8 @@ Defined.
 Definition submodule_incl {R : ring} {M : module R} (A : submodule M) : modulefun A M :=
   make_modulefun _ (ismodulefun_pr1 A).
 
+(** * 2. Kernels *)
 
-(* Kernel and image *)
 Lemma issubmodule_kernel {R : ring} {A B : module R} (f : modulefun A B) :
   issubmodule (abgr_kernel_hsubtype (binopfun_to_abelian_group_morphism (modulefun_to_binopfun f))).
 Proof.
@@ -111,12 +122,14 @@ Definition module_kernel {R : ring} {A B : module R} (f : modulefun A B) : submo
 Definition module_kernel_eq {R : ring} {A B : module R} (f : modulefun A B) x :
   f (submodule_incl (module_kernel f) x) = unel B := (pr2 x).
 
+(** * 3. Images *)
+
 Lemma issubmodule_image {R : ring} {A B : module R} (f : modulefun A B) :
   issubmodule (abgr_image_hsubtype (binopfun_to_abelian_group_morphism (modulefun_to_binopfun f))).
 Proof.
   split.
   - apply abgr_image_issubgr.
-  - intros r x. apply hinhfun. cbn. intro ap. induction ap as [a p].
+  - intros r x. apply hinhfun. intro ap. induction ap as [a p].
     split with (r * a). refine (modulefun_to_islinear f _ _ @ _).
     now rewrite <- p.
 Defined.
@@ -130,20 +143,15 @@ Section submodule_helpers.
           {M : module R}
           (A : submodule M).
 
-  Local Notation "x + y" := (@op _ x y).
-  Local Notation "x - y" := (@op _ x (grinv _ y)).
-
   Definition submoduleadd (x y : M) : A x -> A y -> A (x + y).
   Proof.
     intros ax ay.
     exact (pr1 (pr1 (pr1 (pr2 A))) (make_carrier A x ax) (make_carrier A y ay)).
   Defined.
 
-  Definition submodule0 : A (unel M) := pr2 (pr1 (pr1 (pr2 A))).
+  Definition submodule0 : A 0 := pr2 (pr1 (pr1 (pr2 A))).
 
-  Definition submoduleinv (x : M) : A x -> A (grinv _ x) := λ ax, (pr2 (pr1 (pr2 A)) x ax).
-
-  Local Open Scope module.
+  Definition submoduleinv (x : M) : A x -> A (- x) := λ ax, (pr2 (pr1 (pr2 A)) x ax).
 
   Definition submodulemult (r : R) (m : M) : A m -> A (r * m) := (pr2 (pr2 A) r m).
 

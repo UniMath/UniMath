@@ -1,29 +1,40 @@
-(** * Taking a quotient of a submodule of a module over a fixed ring
+(**
 
-Auke Booij, December 2017
-*)
+  Quotient Ring Modules
 
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.Algebra.RigsAndRings.
-Require Import UniMath.Algebra.Monoids.
+  This file constructs quotient ring modules from submodules or appropriate equivalence relations.
+
+  Contents
+  1. Preliminaries
+  1.1. Equivalence relations on a module that are closed under the module structure [module_eqrel]
+  1.2. Construction of an appropriate equivalence relation from a submodule [module_eqrelsubmodule]
+  2. The quotient module and its universal property
+  2.1. The module [quotmod]
+  2.2. The universal property [quotmoduniv]
+
+  Originally written by Auke Booij, December 2017
+
+ *)
+Require Import UniMath.Foundations.All.
+Require Import UniMath.CategoryTheory.Categories.ModuleCore.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.Modules.Core.
 Require Import UniMath.Algebra.Modules.Submodule.
-Require Import UniMath.CategoryTheory.Categories.ModuleCore.
+Require Import UniMath.Algebra.RigsAndRings.
 
-(** * Preliminaries: notion of an equivalence relation on a module that is closed under the module
-structure
-*)
+Local Open Scope abgr.
+Local Open Scope addmonoid.
+Local Open Scope module.
+
+(** * 1. Preliminaries *)
+(** ** 1.1. Equivalence relations on a module that are closed under the module structure *)
 Section quotmod_rel.
 
   Context {R : ring}
           (M : module R).
 
-
-  Local Open Scope module_scope.
   Definition isactionhrel (E : hrel M) : UU :=
-    ∏ r a b, E a b -> E (r * a) (r * b).
+    ∏ r a b, E a b → E (r * a) (r * b).
 
   Definition module_eqrel : UU :=
     ∑ E : eqrel M, isbinophrel E × isactionhrel E.
@@ -41,19 +52,12 @@ Section quotmod_rel.
 
 End quotmod_rel.
 
-(** * Preliminaries: construction of an appropriate equivalence relation from a submodule
-*)
+(** ** 1.2. Construction of an appropriate equivalence relation from a submodule *)
 Section quotmod_submodule.
 
   Context {R : ring}
           (M : module R)
           (A : submodule M).
-
-  Local Notation "x + y" := (@op _ x y).
-  Local Notation "x - y" := (@op _ x (grinv _ y)).
-  Local Notation "  - y" := (grinv _ y).
-  Local Notation "0" := (unel _).
-  Local Open Scope module_scope.
 
   Definition eqrelsubmodule : eqrel M.
   Proof.
@@ -62,7 +66,7 @@ Section quotmod_submodule.
     - intros x y z xy yz.
       assert (K := submoduleadd A (x - y) (y - z) xy yz).
       rewrite (assocax M) in K.
-      rewrite <- (assocax M (grinv _ y) y) in K.
+      rewrite <- (assocax M (-y) y) in K.
       rewrite grlinvax in K.
       rewrite lunax in K.
       exact K.
@@ -110,17 +114,14 @@ Section quotmod_submodule.
 
 End quotmod_submodule.
 
-(** * Construction of quotient module, as well as its universal property
-*)
+(** * 2. The quotient module and its universal property *)
 Section quotmod_def.
 
   Context {R : ring}
           (M : module R)
           (E : module_eqrel M).
 
-  Local Notation "x + y" := (@op _ x y).
-  Local Notation "x - y" := (@op _ x (grinv _ y)).
-  Local Open Scope module_scope.
+(** ** 2.1. The module *)
 
   Definition quotmod_abgr : abgr := abgrquot E.
 
@@ -193,6 +194,8 @@ Section quotmod_def.
   Defined.
   Notation "M / A" := (quotmod M (module_eqrelsubmodule M A)) : module_scope.
 
+(** ** 2.2. The universal property *)
+
   Notation "R-mod( M , N )" := (modulefun M N) : module_scope.
   Definition quotmod_quotmap : R-mod(M, quotmod).
   Proof.
@@ -241,7 +244,6 @@ Section from_submodule.
           (A : submodule M).
 
   Notation "R-mod( M , N )" := (modulefun M N) : module_scope.
-  Local Open Scope module_scope.
 
   Definition quotmoduniv_submodule
              (N : module R)

@@ -2,38 +2,34 @@
 
   Ring Modules
 
+  This file defines the small type of R-modules over a ring R as a ring homomorphism from R to the
+  ring of endomorphisms of an abelian group (in other words, a ring action on the abelian group).
+  Accessors and a constructor are given to and from the more common axiomatic definition.
+  Because a right module is equivalent to a left module over the opposite ring, we restrict
+  ourselves to left modules in this file.
+
   Contents
-  1. Modules (the definition of the small type of R-modules over a ring R)
+  1. Modules [module]
+  1.1. A module constructor that takes a left action satisfying four axioms [mult_to_module]
   2. R-module morphisms
-    2.1 Linearity
-    2.2 [modulefun]
-    2.3 R-module homomorphisms form an R-module
-    2.4 Isomorphisms ([moduleiso])
+  2.1 Linearity [islinear] [linearfun]
+  2.2 Module morphisms [modulefun]
+  2.3 R-module homomorphisms form an R-module [modulehommodule]
+  2.4 Isomorphisms [moduleiso]
 
   Originally written by Anthony Bordg and Floris van Doorn, February-December 2017
 
  *)
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.Algebra.RigsAndRings.
-Require Import UniMath.Algebra.Groups.
-Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Categories.ModuleCore.
-Require Import UniMath.CategoryTheory.Categories.AbelianGroup.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Actions.
+Require Import UniMath.Algebra.Groups.
+Require Import UniMath.Algebra.RigsAndRings.
 
 Local Open Scope addmonoid.
+Local Open Scope abgr.
 
-(** * 1. Modules: the definition of the small type of R-modules over a ring R  *)
-
-(** A module over R may be defined as a ring homomorphism from R to the ring of
-    endomorphisms of an Abelian group (in other words, a ring action on the
-    abelian group). An equivalence with the more common axiomatic definition is
-    established below.
-
-    In this development, we concern ourselves with left modules. Recall that a
-    right module is equivalent to a left module over the opposite ring.
- *)
+(** * 1. Modules *)
 
 Definition module_struct (R : ring) (G : abgr) : UU := ringfun R (group_endomorphism_ring G).
 
@@ -75,13 +71,13 @@ Lemma module_mult_is_ldistr {R : ring} {M : module R} (r : R) (x y : M) :
 Proof. exact (monoidfunmul (pr2module M r : abelian_group_morphism _ _) x y). Defined.
 
 Lemma module_mult_is_rdistr {R : ring} {M : module R} (r s : R) (x : M) :
-  (op1 r s) * x = r * x + s * x.
+  (r + s)%ring * x = r * x + s * x.
 Proof.
   exact (abelian_group_morphism_eq (binopfunisbinopfun (rigaddfun (pr2module M : ringfun _ _)) r s) x).
 Defined.
 
 Lemma module_mult_assoc {R : ring} {M : module R} (r s : R) (x : M) :
-  (op2 r s) * x = r * (s * x).
+  (r * s)%ring * x = r * (s * x).
 Proof.
   exact (abelian_group_morphism_eq (binopfunisbinopfun (rigmultfun (pr2module M : ringfun _ _)) r s) x).
 Defined.
@@ -97,12 +93,12 @@ Proof.
 Defined.
 
 Lemma module_inv_mult {R : ring} {M : module R} (r : R) (x : M) :
-  @grinv _ (r * x) = r * @grinv _ x.
+  -(r * x) = r * -x.
 Proof.
   apply grinv_path_from_op_path. now rewrite <- module_mult_is_ldistr, grrinvax, module_mult_1.
 Defined.
 
-Lemma module_mult_neg1 {R : ring} {M : module R} (x : M) : ringminus1 * x = @grinv _ x.
+Lemma module_mult_neg1 {R : ring} {M : module R} (x : M) : ringminus1 * x = -x.
 Proof.
   apply pathsinv0. apply grinv_path_from_op_path.
   refine (maponpaths (λ y, y * ((_ * x)%module))%multmonoid (!(module_mult_unel2 x)) @ _).
@@ -110,28 +106,28 @@ Proof.
 Defined.
 
 Lemma module_inv_mult_to_inv1 {R : ring} {M : module R} (r : R) (x : M) :
-  @grinv _ (r * x) = ringinv1 r * x.
+  -(r * x) = (-r)%ring * x.
 Proof.
   apply grinv_path_from_op_path.
   now rewrite <- module_mult_is_rdistr, ringrinvax1, module_mult_0_to_0.
 Defined.
 
 Lemma module_mult_inv_to_inv1 {R : ring} {M : module R} (r : R) (x : M) :
-  r * @grinv _ x = ringinv1 r * x.
+  r * -x = (-r)%ring * x.
 Proof.
   now rewrite <- module_inv_mult_to_inv1, module_inv_mult.
 Defined.
 
-(** To construct a module from a left action satisfying four axioms *)
+(** ** 1.1. A module constructor that takes a left action satisfying four axioms *)
 
 Definition mult_isldistr_wrt_grop {R : ring} {G : abgr} (m : R -> G -> G) : UU :=
   ∏ r : R, ∏ x y : G, m r (x + y) = (m r x) + (m r y).
 
 Definition mult_isrdistr_wrt_ringop1 {R : ring} {G : abgr} (m : R -> G -> G) : UU :=
-  ∏ r s : R, ∏ x : G, m (op1 r s) x = (m r x) + (m s x).
+  ∏ r s : R, ∏ x : G, m (r + s)%ring x = (m r x) + (m s x).
 
 Definition mult_isrdistr_wrt_ringop2 {R : ring} {G : abgr} (m : R -> G -> G) : UU :=
-  ∏ r s : R, ∏ x : G, m (op2 r s) x = m r (m s x).
+  ∏ r s : R, ∏ x : G, m (r * s)%ring x = m r (m s x).
 
 Definition mult_unel {R : ring} {G : abgr} (m : R -> G -> G) : UU := ∏ x : G, m ringunel2 x = x.
 
@@ -219,7 +215,6 @@ Proof.
    apply (setproperty N).
 Defined.
 
-(** ** 2.2. The type of linear functions M -> N is a set. *)
 Lemma isasetlinearfun {R : ring} (M N : module R) : isaset (linearfun M N).
 Proof.
   intros. apply (isasetsubset (@pr1linearfun R M N)).
@@ -231,7 +226,7 @@ Proof.
     apply isapropislinear.
 Defined.
 
-(** ** 2.3. [modulefun] *)
+(** ** 2.2. Module morphisms *)
 
 Definition ismodulefun {R : ring} {M N : module R} (f : M -> N) : UU :=
    (isbinopfun f) × (islinear f).
@@ -331,7 +326,8 @@ Lemma modulefun_paths2 {R : ring} {M N : module R} {f g : modulefun M N} (p : f 
   f = g.
 Proof. exact (modulefun_paths (funextfun _ _ p)). Defined.
 
-(* module structure of morphisms between modules *)
+(** ** 2.3 R-module homomorphisms form an R-module *)
+
 Lemma modulehombinop_ismodulefun {R : ring} {M N : module R} (f g : R-mod(M, N)) :
   @ismodulefun R M N (λ x : M, (f x * g x)%multmonoid).
 Proof.
@@ -392,7 +388,7 @@ Proof.
 Defined.
 
 Lemma modulehombinop_inv_ismodulefun {R : ring} {M N : module R} (f : R-mod(M, N)) :
-  ismodulefun (λ m : M, grinv N (f m)).
+  ismodulefun (λ m : M, -(f m)).
 Proof.
   apply make_ismodulefun.
   - apply make_isbinopfun. intros x x'. cbn.
@@ -469,7 +465,7 @@ Proof.
   - intros f. use modulefun_paths2. intros x. cbn. apply module_mult_unel2.
 Defined.
 
-(** ** 2.4. Isomorphisms ([moduleiso]) *)
+(** ** 2.4. Isomorphisms *)
 
 Definition moduleiso {R : ring} (M N : module R) : UU :=
   ∑ w : M ≃ N, ismodulefun w.
