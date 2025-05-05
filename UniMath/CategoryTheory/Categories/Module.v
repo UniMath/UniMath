@@ -1,16 +1,18 @@
-(** Authors:
- - Anthony Bordg, March-April 2017
- - Langston Barrett (@siddharthist), November-December 2017 *)
+(**
 
-(** * Contents:
+  Properties of the Category of R-Modules
 
-- Mod is a univalent category ([is_univalent_mod])
-- Abelian structure
- - Zero object and zero arrow
- - Preadditive structure
- - Additive structure
-*)
+  The category of R-modules is univalent.
+  It also has a zero object: the zero abelian group, considered as a module. Every morphism to and
+  from this object is exactly the zero map.
 
+  Contents
+  1. Univalence [is_univalent_module_category]
+  2. The zero object [module_category_Zero]
+
+  Originally written by Anthony Bordg, Langston Barrett (@siddharthist)
+
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Modules.
@@ -27,6 +29,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.Limits.Zero.
 
 Local Open Scope cat.
+
+(** * 1. Univalence *)
 
 Section ModuleCategory.
 
@@ -64,14 +68,7 @@ Section ModuleCategory.
     - apply is_univalent_module_disp_cat.
   Defined.
 
-  (** * Abelian structure *)
-
-  (** ** Zero object and zero arrow
-  - The zero object (0) is the zero abelian group, considered as a module.
-  - The type (hSet) Hom(0, M) is contractible, the center is the zero map.
-  *)
-
-  (** ** Zero in abelian category *)
+  (** * 2. The zero object *)
 
   (** The set of maps 0 -> M is contractible, it only contains the zero morphism. *)
   Lemma iscontrfromzero_module (M : module_category R) : iscontr (module_category R⟦zero_module R, M⟧).
@@ -101,9 +98,5 @@ Section ModuleCategory.
 
   Definition module_category_Zero : Zero (module_category R) :=
     make_Zero (zero_module _) isZero_zero_module.
-
-  (** ** Preadditive structure *)
-
-  (** ** Additive structure *)
 
 End ModuleCategory.

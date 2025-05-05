@@ -1,12 +1,17 @@
-(** Authors:
- - Anthony Bordg, March-April 2017
- - Langston Barrett (@siddharthist), November-December 2017 *)
+(**
 
-(** * Contents:
+  The Category of R-Modules
 
-- The category of (left) R-modules ([mod_category])
-*)
+  This file defines the category of ring modules for a fixed ring R via a displayed category over
+  the category of abelian groups. The data over a group G are the ring morphisms from R to the
+  (opposite) endomorphism ring of G.
 
+  Contents
+  1. The category of R-modules [module_category]
+
+  Originally written by Anthony Bordg, Langston Barrett (@siddharthist)
+
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.AbelianGroups.
@@ -18,6 +23,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
 Local Open Scope cat.
+
+(** * 1. The category of R-modules *)
 
 Definition group_endomorphism_ring (G : abgr)
   : ring
