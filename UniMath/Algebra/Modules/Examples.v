@@ -7,6 +7,7 @@ Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.CategoryTheory.Categories.ModuleCore.
 
 (** ** Contents
 - Morphisms
@@ -51,19 +52,17 @@ Definition id_multimodulefun {I : UU} {rings : I -> ring} (MM : multimodule ring
     See Bourbaki's Algebra, II §1.4, no. 1, Example 1.
  *)
 Definition ringfun_left_mult {R S : ring} (f : ringfun R S) (r : R)
-: ringofendabgr S.
+: group_endomorphism_ring S.
 Proof.
-  use make_monoidfun.
+  use make_abelian_group_morphism.
   - intro x.
     exact (f r * x).
-  - apply make_ismonoidfun.
-    + do 2 intro.
-      apply (rigldistr S _ _ _).
-    + apply (rigmultx0 S).
+  - do 2 intro.
+    apply (rigldistr S _ _ _).
 Defined.
 
 (** An important special case: the left action of a ring on itself *)
-Example ring_left_mult {R : ring} : R -> ringofendabgr R :=
+Example ring_left_mult {R : ring} : R -> group_endomorphism_ring R :=
   ringfun_left_mult (rigisotorigfun (idrigiso R)).
 
 
@@ -71,7 +70,7 @@ Example ring_left_mult {R : ring} : R -> ringofendabgr R :=
     group of S *)
 Definition ringfun_module {R S : ring} (f : ringfun R S) : module R.
   apply (make_module (@ringaddabgr S)).
-  apply (@mult_to_module_struct R S (λ x, (ringfun_left_mult f x : monoidfun _ _)));
+  apply (@mult_to_module_struct R S (λ x, (ringfun_left_mult f x : abelian_group_morphism _ _)));
     unfold funcomp, pr1, ringfun_left_mult.
   - exact (fun r x y => ringldistr S x y (f r)).
   - exact (fun r s x => (maponpaths (λ x, x * _) ((pr1 (pr1 (pr2 f))) r s)) @

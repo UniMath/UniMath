@@ -10,6 +10,7 @@ Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.Modules.Core.
 Require Import UniMath.Algebra.Modules.Submodule.
+Require Import UniMath.CategoryTheory.Categories.ModuleCore.
 
 (** * Preliminaries: notion of an equivalence relation on a module that is closed under the module
 structure
@@ -133,28 +134,24 @@ Section quotmod_def.
       now apply isactionhrelmodule_eqrel.
   Defined.
 
-  Definition quotmod_ringmap : R -> ringofendabgr quotmod_abgr.
+  Definition quotmod_ringmap : R -> group_endomorphism_ring quotmod_abgr.
   Proof.
-    intros r. use make_monoidfun.
+    intros r. use make_abelian_group_morphism.
     + exact (quotmod_ringact r).
-    + use make_ismonoidfun.
-      * use make_isbinopfun.
-        use (setquotuniv2prop E (λ a b, make_hProp _ _)); [use isasetsetquot|].
-        intros m m'.
-        unfold quotmod_ringact, setquotfun2;
-          rewrite (setquotunivcomm E), (setquotunivcomm E);
-          simpl; unfold setquotfun2;
-            rewrite (setquotuniv2comm E), (setquotuniv2comm E), (setquotunivcomm E).
-        apply weqpathsinsetquot.
-        assert (H : r * (m + m') = r * m + r * m') by use module_mult_is_ldistr.
-        simpl in H; rewrite H.
-        use eqrelrefl.
-      * unfold unel, quotmod_ringact; simpl; rewrite (setquotunivcomm E).
-        apply maponpaths.
-        apply module_mult_1.
+    + apply make_isbinopfun.
+      use (setquotuniv2prop E (λ a b, make_hProp _ _)); [use isasetsetquot|].
+      intros m m'.
+      unfold quotmod_ringact, setquotfun2;
+        rewrite (setquotunivcomm E), (setquotunivcomm E);
+        simpl; unfold setquotfun2;
+          rewrite (setquotuniv2comm E), (setquotuniv2comm E), (setquotunivcomm E).
+      apply weqpathsinsetquot.
+      assert (H : r * (m + m') = r * m + r * m') by use module_mult_is_ldistr.
+      simpl in H; rewrite H.
+      use eqrelrefl.
   Defined.
 
-  Definition quotmod_ringfun : ringfun R (ringofendabgr quotmod_abgr).
+  Definition quotmod_ringfun : ringfun R (group_endomorphism_ring quotmod_abgr).
   Proof.
     unfold ringfun, rigfun.
     use rigfunconstr.
@@ -168,7 +165,7 @@ Section quotmod_def.
         [ use make_isbinopfun; intros r r' | ].
       (* It suffices to prove the underlying maps of the resulting automorphism of our group are
       equal. *)
-      all: use monoidfun_paths; use funextfun.
+      all: apply abelian_group_morphism_eq.
       (* We show this using the universal property of the set quotient. *)
       all: use (setquotunivprop E (λ m, make_hProp _ _)); [use isasetsetquot|].
       (* Expand out some definitions. *)
@@ -214,7 +211,7 @@ Section quotmod_def.
     - now use (setquotuniv E _ f).
     - use make_ismodulefun.
       + use make_isbinopfun.
-        use (setquotuniv2prop E (λ m n, make_hProp _ _)); [use isasetmodule|].
+        use (setquotuniv2prop E (λ m n, make_hProp _ _)); [apply setproperty|].
         intros m m'.
         simpl.
         unfold op, setquotfun2.
@@ -222,13 +219,14 @@ Section quotmod_def.
         do 3 rewrite (setquotunivcomm E).
         apply modulefun_to_isbinopfun.
       + intros r.
-        use (setquotunivprop E (λ m, make_hProp _ _)); [use isasetmodule|].
+        use (setquotunivprop E (λ m, make_hProp _ _)); [apply setproperty|].
         intros m.
         assert (H : r * quotmod_quotmap m = quotmod_quotmap (r * m)) by
             use (! modulefun_to_islinear _ _ _).
         simpl in H. simpl.
-        rewrite H.
-        do 2 rewrite (setquotunivcomm E).
+        refine (maponpaths _ H @ _).
+        rewrite (setquotunivcomm E).
+        refine (setquotunivcomm E _ _ _ _ @ _).
         apply modulefun_to_islinear.
   Defined.
 

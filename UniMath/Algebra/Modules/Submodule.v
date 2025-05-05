@@ -32,7 +32,7 @@ Proof.
   - apply impred. intro x.
     apply impred. intro m.
     apply impred. intro a.
-    apply (pr2 (A _)).
+    apply propproperty.
 Defined.
 
 (* Submodules *)
@@ -56,8 +56,8 @@ Local Open Scope module_scope.
 Definition submodule_smul {R : ring} {M : module R} {A : submodule M} (r : R) (m : A) : A.
 Proof.
   use tpair.
-  - exact (r * pr1 m).
-  - exact (submodule_to_issubsetwithsmul A r (pr1 m) (pr2 m)).
+  - exact (r * pr1carrier _ m).
+  - exact (submodule_to_issubsetwithsmul A r (pr1carrier _ m) (pr2 m)).
 Defined.
 
 Definition carrierofasubmodule {R : ring} {M : module R} (A : submodule M) : module R.
@@ -78,15 +78,15 @@ Lemma intersection_submodule {R : ring} {M : module R} {I : UU} (S : I -> hsubty
 Proof.
   intros.
   use make_issubmodule.
-  - exact (intersection_subgr S (λ i, (pr1 (each_is_submodule i)))).
+  - exact (intersection_subgr S (λ i, pr1 (each_is_submodule i))).
   - intros r m a i. exact (pr2 (each_is_submodule i) r m (a i)).
 Qed.
 
 Lemma ismodulefun_pr1 {R : ring} {M : module R} (A : submodule M) : @ismodulefun R A M pr1.
 Proof.
-  use make_ismodulefun.
-  exact (pr1 (ismonoidfun_pr1 A)).
-  intros r a. reflexivity.
+  apply make_ismodulefun.
+  - exact (pr1 (ismonoidfun_pr1 A)).
+  - intros r a. reflexivity.
 Defined.
 
 Definition submodule_incl {R : ring} {M : module R} (A : submodule M) : modulefun A M :=
@@ -100,8 +100,7 @@ Proof.
   split.
   - apply abgr_Kernel_subabgr_issubgr.
   - intros r x p.
-    cbn.
-    rewrite (modulefun_to_islinear f).
+    refine (modulefun_to_islinear f r x @ _).
     rewrite <- (module_mult_1 r), <- p.
     reflexivity.
 Defined.
@@ -118,7 +117,8 @@ Proof.
   split.
   - apply abgr_image_issubgr.
   - intros r x. apply hinhfun. cbn. intro ap. induction ap as [a p].
-    split with (r * a). now rewrite (modulefun_to_islinear f), <- p.
+    split with (r * a). refine (modulefun_to_islinear f _ _ @ _).
+    now rewrite <- p.
 Defined.
 
 Definition module_image {R : ring} {A B : module R} (f : modulefun A B) : submodule B :=

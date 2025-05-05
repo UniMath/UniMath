@@ -3,13 +3,12 @@
   Ring Modules
 
   Contents
-  1. The ring of endomorphisms of an abelian group
-  2. Modules (the definition of the small type of R-modules over a ring R)
-  3. R-module morphisms
-    3.1 Linearity
-    3.2 [modulefun]
-    3.3 R-module homomorphisms form an R-module
-    3.4 Isomorphisms ([moduleiso])
+  1. Modules (the definition of the small type of R-modules over a ring R)
+  2. R-module morphisms
+    2.1 Linearity
+    2.2 [modulefun]
+    2.3 R-module homomorphisms form an R-module
+    2.4 Isomorphisms ([moduleiso])
 
   Originally written by Anthony Bordg and Floris van Doorn, February-December 2017
 
@@ -18,17 +17,14 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.CategoryTheory.Categories.ModuleCore.
 Require Import UniMath.CategoryTheory.Categories.AbelianGroup.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Actions.
 
 Local Open Scope addmonoid.
 
-(** * 1. The ring of endomorphisms of an abelian group *)
-
-Definition ringofendabgr (G : abgr) : ring := opposite_ring (endomorphism_ring (C := abgr_AdditiveCategory) G).
-
-(** * 2. Modules: the definition of the small type of R-modules over a ring R  *)
+(** * 1. Modules: the definition of the small type of R-modules over a ring R  *)
 
 (** A module over R may be defined as a ring homomorphism from R to the ring of
     endomorphisms of an Abelian group (in other words, a ring action on the
@@ -39,22 +35,17 @@ Definition ringofendabgr (G : abgr) : ring := opposite_ring (endomorphism_ring (
     right module is equivalent to a left module over the opposite ring.
  *)
 
-Definition module_struct (R : ring) (G : abgr) : UU := ringfun R (ringofendabgr G).
+Definition module_struct (R : ring) (G : abgr) : UU := ringfun R (group_endomorphism_ring G).
 
-Definition module (R : ring) : UU := ∑ G, module_struct R G.
+Definition module (R : ring) : UU := module_category R.
 
 Coercion pr1module {R : ring} (M : module R) : abgr := pr1 M.
 
-Definition pr2module {R : ring} (M : module R) : module_struct R (pr1module M) := pr2 M.
+Definition pr2module {R : ring} (M : module R) : module_struct R M := pr2 M.
 
 Identity Coercion id_module_struct : module_struct >-> ringfun.
 
 Definition make_module {R : ring} (G : abgr) (f : module_struct R G) : module R := G ,, f.
-
-Lemma isasetmodule {R : ring} (M : module R) : isaset M.
-Proof.
-  exact (pr2 (pr1 (pr1 (pr1 M)))).
-Defined.
 
 (** The ring action gives rise to a notion of multiplication. *)
 
@@ -71,7 +62,7 @@ Local Open Scope module.
 Lemma module_mult_0_to_0 {R : ring} {M : module R} (x : M) : ringunel1 * x = @unel M.
 Proof.
    unfold module_mult. cbn.
-   assert (pr2module M ringunel1 = @ringunel1 (ringofendabgr M)).
+   assert (pr2module M ringunel1 = @ringunel1 (group_endomorphism_ring M)).
    - exact (rigfun_to_unel_rigaddmonoid (pr2module M)).
    - rewrite X.
      reflexivity.
@@ -91,7 +82,9 @@ Defined.
 
 Lemma module_mult_assoc {R : ring} {M : module R} (r s : R) (x : M) :
   (op2 r s) * x = r * (s * x).
-Proof. exact (abelian_group_morphism_eq (binopfunisbinopfun (rigmultfun (pr2module M : ringfun _ _)) r s) x). Defined.
+Proof.
+  exact (abelian_group_morphism_eq (binopfunisbinopfun (rigmultfun (pr2module M : ringfun _ _)) r s) x).
+Defined.
 
 Lemma module_mult_1 {R : ring} {M : module R} (r : R) : r * unel M = unel M.
 Proof.
@@ -144,8 +137,8 @@ Definition mult_unel {R : ring} {G : abgr} (m : R -> G -> G) : UU := ∏ x : G, 
 
 Local Close Scope addmonoid.
 
-Definition mult_to_ringofendabgr {R : ring} {G : abgr} {m : R -> G -> G}
-           (ax1 : mult_isldistr_wrt_grop m) (r : R) : ringofendabgr G.
+Definition mult_to_group_endomorphism_ring {R : ring} {G : abgr} {m : R -> G -> G}
+           (ax1 : mult_isldistr_wrt_grop m) (r : R) : group_endomorphism_ring G.
 Proof.
   apply (make_abelian_group_morphism (λ x, m r x)).
   intros x y. apply ax1.
@@ -153,13 +146,13 @@ Defined.
 
 Definition mult_to_module_struct_fun {R : ring} {G : abgr} {m : R -> G -> G}
            (ax1 : mult_isldistr_wrt_grop m)
-           : R → ringofendabgr G
-           := mult_to_ringofendabgr ax1.
+           : R → group_endomorphism_ring G
+           := mult_to_group_endomorphism_ring ax1.
 
 Lemma mult_to_module_struct_ismonoidfun {R : ring} {G : abgr} {m : R -> G -> G}
            (ax1 : mult_isldistr_wrt_grop m) (ax2 : mult_isrdistr_wrt_ringop1 m)
            (ax3 : mult_isrdistr_wrt_ringop2 m) (ax4 : mult_unel m)
-  : isrigfun (X := R) (Y := ringofendabgr G) (mult_to_module_struct_fun ax1).
+  : isrigfun (X := R) (Y := group_endomorphism_ring G) (mult_to_module_struct_fun ax1).
 Proof.
   apply make_isrigfun.
   - apply make_ismonoidfun.
@@ -187,9 +180,9 @@ Definition mult_to_module {R : ring} {G : abgr} {m : R -> G -> G} (ax1 : mult_is
            (ax2 : mult_isrdistr_wrt_ringop1 m) (ax3 : mult_isrdistr_wrt_ringop2 m)
            (ax4 : mult_unel m) : module R := make_module G (mult_to_module_struct ax1 ax2 ax3 ax4).
 
-(** * 3. R-module morphisms *)
+(** * 2. R-module morphisms *)
 
-(** ** 3.1. Linearity *)
+(** ** 2.1. Linearity *)
 
 Definition islinear {R : ring} {M N : module R} (f : M -> N) :=
   ∏ r : R, ∏ x : M, f (r * x) = r * (f x).
@@ -226,7 +219,7 @@ Proof.
    apply (setproperty N).
 Defined.
 
-(** ** 3.2. The type of linear functions M -> N is a set. *)
+(** ** 2.2. The type of linear functions M -> N is a set. *)
 Lemma isasetlinearfun {R : ring} (M N : module R) : isaset (linearfun M N).
 Proof.
   intros. apply (isasetsubset (@pr1linearfun R M N)).
@@ -238,7 +231,7 @@ Proof.
     apply isapropislinear.
 Defined.
 
-(** ** 3.3. [modulefun] *)
+(** ** 2.3. [modulefun] *)
 
 Definition ismodulefun {R : ring} {M N : module R} (f : M -> N) : UU :=
    (isbinopfun f) × (islinear f).
@@ -254,46 +247,54 @@ Proof.
                             (isapropisbinopfun f) (isapropislinear f)).
 Defined.
 
-Definition modulefun {R : ring} (M N : module R) : UU := ∑ f : M -> N, ismodulefun f.
+Definition modulefun {R : ring} (M N : module R) : UU := module_category R⟦M, N⟧%cat.
 
-Definition make_modulefun {R : ring} {M N : module R} (f : M -> N) (is : ismodulefun f) :
-  modulefun M N := f ,, is.
+Definition make_modulefun {R : ring} {M N : module R} (f : M -> N) (is : ismodulefun f)
+  : modulefun M N.
+Proof.
+  exists (make_abelian_group_morphism f (pr1 is)).
+  abstract (
+    intro r;
+    apply abelian_group_morphism_eq;
+    exact (pr2 is r)
+  ).
+Defined.
 
 Local Notation "R-mod( M , N )" := (modulefun M N) : module_scope.
 
 Section accessors.
   Context {R : ring} {M N : module R} (f : R-mod(M, N)).
 
-  Definition pr1modulefun : M -> N := pr1 f.
+  Definition modulefun_to_abelian_group_morphism : abelian_group_morphism M N := pr1 f.
 
-  Definition modulefun_ismodulefun : ismodulefun pr1modulefun := pr2 f.
+  Definition modulefun_to_binopfun : binopfun M N := modulefun_to_abelian_group_morphism.
+
+  Definition pr1modulefun : M → N := modulefun_to_binopfun.
 
   Definition modulefun_to_isbinopfun : isbinopfun pr1modulefun :=
-    pr1 modulefun_ismodulefun.
+    binopfunisbinopfun modulefun_to_binopfun.
 
-  Definition modulefun_to_binopfun : binopfun M N :=
-    make_binopfun pr1modulefun modulefun_to_isbinopfun.
-
-  Definition modulefun_to_islinear : islinear pr1modulefun := pr2 modulefun_ismodulefun.
+  Lemma modulefun_to_islinear : islinear pr1modulefun.
+  Proof.
+    intro r.
+    exact (abelian_group_morphism_eq (pr2 f r)).
+  Qed.
 
   Definition modulefun_to_linearfun : linearfun M N :=
     make_linearfun pr1modulefun modulefun_to_islinear.
+
+  Definition modulefun_ismodulefun : ismodulefun pr1modulefun
+    := make_ismodulefun modulefun_to_isbinopfun modulefun_to_islinear.
+
 End accessors.
 
 Coercion pr1modulefun : modulefun >-> Funclass.
 
-Lemma ismodulefun_comp {R} {M N P : module R} (f : R-mod(M,N)) (g : R-mod(N,P)) :
-  ismodulefun (g ∘ f)%functions.
-Proof.
-  exact (make_dirprod (isbinopfuncomp (modulefun_to_binopfun f)
-                                     (modulefun_to_binopfun g))
-                     (islinearfuncomp (modulefun_to_linearfun f)
-                                      (modulefun_to_linearfun g))).
-Defined.
+Definition composite_modulefun
+  {R} {M N P : module R} (f : R-mod(M, N)) (g : R-mod(N,P)) : R-mod(M,P) := (f · g)%cat.
 
-Definition modulefun_comp
-  {R} {M N P : module R} (f : R-mod(M, N)) (g : R-mod(N,P)) : R-mod(M,P) :=
-  (funcomp f g,, ismodulefun_comp f g).
+Definition identity_modulefun
+  {R} (M : module R) : R-mod(M, M) := identity M.
 
 Lemma modulefun_unel {R : ring} {M N : module R} (f : R-mod(M, N)) : f (unel M) = unel N.
 Proof.
@@ -303,41 +304,36 @@ Proof.
    reflexivity.
 Defined.
 
-Definition moduletomonoid  {R : ring} (M : module R) : abmonoid := abgrtoabmonoid (pr1module M).
+Definition moduletomonoid  {R : ring} (M : module R) : abmonoid := abgrtoabmonoid M.
 
 Definition modulefun_to_monoidfun {R : ring} {M N : module R} (f : R-mod(M, N)) :
-  monoidfun (moduletomonoid M) (moduletomonoid N) :=
-  make_monoidfun (make_ismonoidfun (pr1 (pr2 f)) (modulefun_unel f)).
+  monoidfun (moduletomonoid M) (moduletomonoid N) := modulefun_to_abelian_group_morphism f.
 
-Definition modulefun_from_monoidfun {R : ring} {M N : module R} (f : R-mod(M, N))
-           (H : islinear (pr1 f)) : R-mod(M, N) :=
-  make_modulefun (pr1 f) (make_ismodulefun (pr1 (pr2 f)) H).
+Definition modulefun_from_monoidfun {R : ring} {M N : module R} (f : monoidfun M N)
+           (H : islinear f) : R-mod(M, N) :=
+  make_modulefun f (make_ismodulefun (binopfunisbinopfun f) H).
 
-Lemma modulefun_paths {R : ring} {M N : module R} {f g : R-mod(M, N)} (p : pr1 f = pr1 g) :
+Lemma modulefun_paths {R : ring} {M N : module R} {f g : R-mod(M, N)} (p : (f : _ → _) = g) :
   f = g.
 Proof.
-  use total2_paths_f.
-  - exact p.
-  - use proofirrelevance. use isapropismodulefun.
+  apply subtypePath.
+  {
+    intro.
+    apply impred_isaprop.
+    intro.
+    apply homset_property.
+  }
+  apply abelian_group_morphism_paths.
+  exact p.
 Defined.
 
-Lemma modulefun_paths2 {R : ring} {M N : module R} {f g : modulefun M N} (p : pr1 f ~ pr1 g) :
+Lemma modulefun_paths2 {R : ring} {M N : module R} {f g : modulefun M N} (p : f ~ g) :
   f = g.
 Proof. exact (modulefun_paths (funextfun _ _ p)). Defined.
 
-Lemma isasetmodulefun {R : ring} (M N : module R) : isaset (R-mod(M, N)).
-Proof.
-  intros. apply (isasetsubset (@pr1modulefun R M N)).
-  - change (isofhlevel 2 (M -> N)).
-    apply impred. intro.
-    apply (setproperty N).
-  - refine (isinclpr1 _ _). intro.
-    apply isapropismodulefun.
-Defined.
-
 (* module structure of morphisms between modules *)
 Lemma modulehombinop_ismodulefun {R : ring} {M N : module R} (f g : R-mod(M, N)) :
-  @ismodulefun R M N (λ x : pr1 M, (pr1 f x * pr1 g x)%multmonoid).
+  @ismodulefun R M N (λ x : M, (f x * g x)%multmonoid).
 Proof.
   use make_ismodulefun.
   -  exact (pr1 (abmonoidshombinop_ismonoidfun (modulefun_to_monoidfun f)
@@ -396,13 +392,15 @@ Proof.
 Defined.
 
 Lemma modulehombinop_inv_ismodulefun {R : ring} {M N : module R} (f : R-mod(M, N)) :
-  ismodulefun (λ m : M, grinv N (pr1 f m)).
+  ismodulefun (λ m : M, grinv N (f m)).
 Proof.
   apply make_ismodulefun.
   - apply make_isbinopfun. intros x x'. cbn.
-    rewrite (pr1 (pr2 f)). rewrite (pr2 (pr2 (pr1module N))). apply (grinvop N).
+    rewrite binopfunisbinopfun.
+    rewrite (commax N).
+    apply (grinvop N).
   - intros r m. rewrite <- module_inv_mult. apply maponpaths.
-    apply (pr2 f).
+    apply modulefun_to_islinear.
 Qed.
 
 Definition modulehombinop_inv {R : ring} {M N : module R} (f : R-mod(M, N)) : R-mod(M, N) :=
@@ -440,17 +438,17 @@ Proof.
   use make_setwithbinop.
   use make_hSet.
   - exact (R-mod(M, N)).
-  - exact (isasetmodulefun M N).
+  - exact (homset_property _ M N).
   - exact (@modulehombinop R M N).
   - exact (modulehomabgr_isabgrop M N).
 Defined.
 
 Definition modulehombinop_scalar_ismodulefun {R : commring} {M N : module R} (r : R)
-           (f : R-mod(M, N)) : ismodulefun (λ m : M, r * (pr1 f m)).
+           (f : R-mod(M, N)) : ismodulefun (λ m : M, r * f m).
 Proof.
   apply make_ismodulefun.
   - apply make_isbinopfun. intros x x'.
-    rewrite (pr1 (pr2 f)). rewrite module_mult_is_ldistr. reflexivity.
+    rewrite modulefun_to_isbinopfun. rewrite module_mult_is_ldistr. reflexivity.
   - intros r0 m. rewrite (modulefun_to_islinear f). do 2 rewrite <- module_mult_assoc.
     rewrite ringcomm2. reflexivity.
 Qed.
@@ -471,10 +469,10 @@ Proof.
   - intros f. use modulefun_paths2. intros x. cbn. apply module_mult_unel2.
 Defined.
 
-(** ** 3.4. Isomorphisms ([moduleiso]) *)
+(** ** 2.4. Isomorphisms ([moduleiso]) *)
 
 Definition moduleiso {R : ring} (M N : module R) : UU :=
-  ∑ w : pr1module M ≃ pr1module N, ismodulefun w.
+  ∑ w : M ≃ N, ismodulefun w.
 
 Section accessors_moduleiso.
   Context {R : ring} {M N : module R} (f : moduleiso M N).
@@ -482,7 +480,7 @@ Section accessors_moduleiso.
   Definition moduleiso_to_weq : (pr1module M) ≃ (pr1module N) := pr1 f.
   Definition moduleiso_ismodulefun : ismodulefun moduleiso_to_weq := pr2 f.
   Definition moduleiso_to_modulefun : R-mod(M, N) :=
-    make_modulefun (pr1weq moduleiso_to_weq) (pr2 f).
+    make_modulefun _ moduleiso_ismodulefun.
 End accessors_moduleiso.
 
 Coercion moduleiso_to_weq : moduleiso >-> weq.
@@ -493,36 +491,36 @@ Definition make_moduleiso {R} {M N : module R} f is : moduleiso M N := f ,, is.
 Lemma isbinopfuninvmap {R} {M N : module R} (f : moduleiso M N) :
   isbinopfun (invmap f).
 Proof.
-   intros x y.
-   apply (invmaponpathsweq f).
-   rewrite (homotweqinvweq f (op x y)).
-   apply pathsinv0.
-   transitivity (op ((moduleiso_to_weq f) (invmap f x)) ((moduleiso_to_weq f) (invmap f y))).
-   apply (modulefun_to_isbinopfun f (invmap f x) (invmap f y)).
-   rewrite 2 (homotweqinvweq f).
-   apply idpath.
+  intros x y.
+  apply (invmaponpathsweq f).
+  rewrite (homotweqinvweq f (op x y)).
+  apply pathsinv0.
+  transitivity (op ((moduleiso_to_weq f) (invmap f x)) ((moduleiso_to_weq f) (invmap f y))).
+  apply (modulefun_to_isbinopfun f (invmap f x) (invmap f y)).
+  rewrite 2 (homotweqinvweq f).
+  apply idpath.
 Defined.
 
 Lemma islinearinvmap {R} {M N : module R} (f : moduleiso M N) : islinear (invmap f).
 Proof.
-   intros r x.
-   apply (invmaponpathsweq f).
-   transitivity (module_mult N r x).
-   exact (homotweqinvweq f (module_mult N r x)).
-   transitivity (module_mult N r (moduleiso_to_weq f (invmap (moduleiso_to_weq f) x))).
-   rewrite (homotweqinvweq (moduleiso_to_weq f) x).
-   apply idpath.
-   apply pathsinv0.
-   apply (pr2 (moduleiso_ismodulefun f) r (invmap f x)).
+  intros r x.
+  apply (invmaponpathsweq f).
+  transitivity (module_mult N r x).
+  exact (homotweqinvweq f (module_mult N r x)).
+  transitivity (module_mult N r (moduleiso_to_weq f (invmap (moduleiso_to_weq f) x))).
+  rewrite (homotweqinvweq (moduleiso_to_weq f) x).
+  apply idpath.
+  apply pathsinv0.
+  apply (modulefun_to_islinear f).
 Defined.
 
 Definition invmoduleiso {R} {M N : module R} (f : moduleiso M N) : moduleiso N M.
 Proof.
-   use make_moduleiso.
-   - exact (invweq f).
-   - apply make_dirprod.
-     + exact (isbinopfuninvmap f).
-     + exact (islinearinvmap f).
+  use make_moduleiso.
+  - exact (invweq f).
+  - apply make_dirprod.
+    + exact (isbinopfuninvmap f).
+    + exact (islinearinvmap f).
 Defined.
 
 Definition moduleiso' {R} (M N : module R) : UU :=
@@ -531,25 +529,25 @@ Definition moduleiso' {R} (M N : module R) : UU :=
 Lemma moduleiso_to_moduleiso' {R} (M N : module R) :
   moduleiso M N -> moduleiso' M N.
 Proof.
-   intro w.
-   use tpair.
-   - use make_monoidiso.
-     + exact w.
-     + use make_ismonoidfun.
-       * exact (modulefun_to_isbinopfun w).
-       * apply (modulefun_unel w).
-   - exact (modulefun_to_islinear w).
+  intro w.
+  use tpair.
+  - use make_monoidiso.
+    + exact w.
+    + use make_ismonoidfun.
+      * exact (modulefun_to_isbinopfun w).
+      * apply (modulefun_unel w).
+  - exact (modulefun_to_islinear w).
 Defined.
 
 Lemma moduleiso'_to_moduleiso {R} (M N : module R) :
   moduleiso' M N -> moduleiso M N.
 Proof.
-   intro w.
-   use make_moduleiso.
-   - exact (pr1 w).
-   - apply make_dirprod.
-     + exact (pr1 (pr2 (pr1 w))).
-     + exact (pr2 w).
+  intro w.
+  use make_moduleiso.
+  - exact (pr1 w).
+  - apply make_dirprod.
+    + exact (pr121 w).
+    + exact (pr2 w).
 Defined.
 
 Lemma moduleiso'_to_moduleisweq_iso {R} (M N : module R) :
@@ -564,7 +562,9 @@ Proof.
       + reflexivity.
       + apply isapropismonoidfun.
     * apply isapropislinear.
- - reflexivity.
+ - intro y.
+  apply (maponpaths (λ x, _ ,, x)).
+  apply isapropismodulefun.
 Defined.
 
 Definition moduleiso'_to_moduleweq_iso {R} (M N : module R) : (moduleiso' M N) ≃ (moduleiso M N) :=

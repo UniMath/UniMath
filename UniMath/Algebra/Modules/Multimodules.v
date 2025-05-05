@@ -146,14 +146,9 @@ Definition pr1multimodulefun {I : UU} {rings : I -> ring}
 
 Coercion pr1multimodulefun : multimodulefun >-> Funclass.
 
-Definition ith_modulefun {I : UU} {rings : I -> ring} {MM NN : multimodule rings}
-           (f : multimodulefun MM NN) (i : I) :
-  modulefun (ith_module MM i) (ith_module NN i) :=
-  (pr1 f,, (make_dirprod (pr1 (pr2 f)) (pr2 (pr2 f) i))).
-
 Definition multimodulefun_to_isbinopfun {I : UU} {rings : I -> ring}
            {MM NN : multimodule rings} (f : multimodulefun MM NN) :
-  isbinopfun (pr1multimodulefun f) := pr1 (pr2 f).
+  isbinopfun f := pr12 f.
 
 Definition multimodulefun_to_binopfun {I : UU} {rings : I -> ring}
            {MM NN : multimodule rings} (f : multimodulefun MM NN) :
@@ -162,12 +157,18 @@ Definition multimodulefun_to_binopfun {I : UU} {rings : I -> ring}
 
 Definition multimodulefun_to_ith_islinear {I : UU} {rings : I -> ring}
            {MM NN : multimodule rings} (f : multimodulefun MM NN) (i : I) :
-  islinear (ith_modulefun f i) := pr2 (pr2 (ith_modulefun f i)).
+  islinear (M := ith_module MM i) (N := ith_module NN i) f := pr22 f i.
 
 Definition multimodulefun_to_ith_linearfun {I : UU} {rings : I -> ring}
            {MM NN : multimodule rings} (f : multimodulefun MM NN) (i : I) :
   linearfun (ith_module MM i) (ith_module NN i) :=
-  make_linearfun (ith_modulefun f i) (multimodulefun_to_ith_islinear f i).
+  make_linearfun (M := ith_module MM i) (N := ith_module NN i) f (multimodulefun_to_ith_islinear f i).
+
+Definition ith_modulefun {I : UU} {rings : I -> ring} {MM NN : multimodule rings}
+           (f : multimodulefun MM NN) (i : I) :
+  modulefun (ith_module MM i) (ith_module NN i)
+  := make_modulefun _
+    (make_ismodulefun (M := ith_module MM i) (N := ith_module NN i) (multimodulefun_to_isbinopfun f) (multimodulefun_to_ith_islinear f i)).
 
 (** Properties of the ring actions *)
 
