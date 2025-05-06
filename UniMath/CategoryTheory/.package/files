@@ -739,6 +739,8 @@ DaggerCategories/Univalence.v
 DaggerCategories/Functors.v
 DaggerCategories/Transformations.v
 
+Monoidal/DaggerMonoidal.v
+
 DaggerCategories/FunctorCategory.v
 
 DaggerCategories/Examples/Groupoids.v
