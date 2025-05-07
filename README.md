@@ -19,6 +19,8 @@ For instance, you can run the files from the [School on Univalent Mathematics](h
 
 See [the documentation](./documentation/Documentation.md) for [general information](./documentation/unimath/About-UniMath.md) about UniMath, [install instructions](./documentation/setup/Setup.md), [guides](./documentation/guides/Guides.md), [tutorials](./documentation/guides/tutorials/) and information about [contributing](./documentation/contributing/Contributing.md).
 
+See also the automatically generated [alectryon](http://unimath.github.io/UniMath/gen/alectryon/UniMath.Foundations.PartA) documentation, where you can step through the proofs, viewing the goals at every step, and the the [rocqdoc](https://unimath.github.io/UniMath/gen/rocqdoc/toc) documentation, where you can click on identifiers (like [`disp_cat`](https://unimath.github.io/UniMath/gen/rocqdoc/UniMath.CategoryTheory.DisplayedCats.Core#disp_cat)) to go to their definition. By replacing `rocqdoc` with `alectryon` in the url and vice versa, you can switch between the rocqdoc and alectryon documentation.
+
 ## Acknowledgments
 
 The UniMath development team gratefully acknowledges the great work by
