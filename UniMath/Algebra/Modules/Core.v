@@ -320,7 +320,7 @@ Proof.
   }
   apply abelian_group_morphism_paths.
   exact p.
-Defined.
+Qed.
 
 Lemma modulefun_paths2 {R : ring} {M N : module R} {f g : modulefun M N} (p : f ~ g) :
   f = g.
