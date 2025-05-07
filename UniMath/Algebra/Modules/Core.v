@@ -324,7 +324,7 @@ Defined.
 
 Lemma modulefun_paths2 {R : ring} {M N : module R} {f g : modulefun M N} (p : f ~ g) :
   f = g.
-Proof. exact (modulefun_paths (funextfun _ _ p)). Defined.
+Proof. exact (modulefun_paths (funextfun _ _ p)). Qed.
 
 (** ** 2.3 R-module homomorphisms form an R-module *)
 
