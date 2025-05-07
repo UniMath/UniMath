@@ -495,7 +495,7 @@ Proof.
   apply (modulefun_to_isbinopfun f (invmap f x) (invmap f y)).
   rewrite 2 (homotweqinvweq f).
   apply idpath.
-Defined.
+Qed.
 
 Lemma islinearinvmap {R} {M N : module R} (f : moduleiso M N) : islinear (invmap f).
 Proof.
