@@ -81,6 +81,8 @@ Section DaggerMonoidal.
     := pr1 C.
 
   Coercion mon_dag_cat_to_pre_dag_mon_cat (C : monoidal_dagger_category): pre_dag_monoid_cat := monoidal_dagger_cat_to_pre_dag_mon_cat C.
+
+  End DaggerMonoidal.
   
   Section DaggerBiproducts.
 
@@ -366,3 +368,4 @@ Section DaggerMonoidal.
     : UU
     := ∑ (N : nat), ∏ (n : nat)(p: n > N), (sum_effects (prob_set S a) op) n = identity I_{C}.
 
+  End QuantumNotation.
