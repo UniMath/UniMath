@@ -508,7 +508,7 @@ Proof.
   apply idpath.
   apply pathsinv0.
   apply (modulefun_to_islinear f).
-Defined.
+Qed.
 
 Definition invmoduleiso {R} {M N : module R} (f : moduleiso M N) : moduleiso N M.
 Proof.
