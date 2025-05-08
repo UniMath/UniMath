@@ -46,7 +46,7 @@ Proof.
     apply impred. intro m.
     apply impred. intro a.
     apply propproperty.
-Defined.
+Qed.
 
 Definition submodule {R : ring} (M : module R) : UU := ∑ (A : hsubtype M), issubmodule A.
 
@@ -76,10 +76,18 @@ Proof.
   use mult_to_module.
   - exact (carrierofasubabgr A).
   - exact (submodule_smul).
-  - intros r a b. apply (invmaponpathsincl _ (isinclpr1carrier A)). apply module_mult_is_ldistr.
-  - intros r s a. apply (invmaponpathsincl _ (isinclpr1carrier A)). apply module_mult_is_rdistr.
-  - intros r s a. apply (invmaponpathsincl _ (isinclpr1carrier A)). apply module_mult_assoc.
-  - intros f. apply (invmaponpathsincl _ (isinclpr1carrier A)). apply module_mult_unel2.
+  - abstract (
+      intros r a b; apply (invmaponpathsincl _ (isinclpr1carrier A)); apply module_mult_is_ldistr
+    ).
+  - abstract (
+      intros r s a; apply (invmaponpathsincl _ (isinclpr1carrier A)); apply module_mult_is_rdistr
+    ).
+  - abstract (
+      intros r s a; apply (invmaponpathsincl _ (isinclpr1carrier A)); apply module_mult_assoc
+    ).
+  - abstract (
+      intros f; apply (invmaponpathsincl _ (isinclpr1carrier A)); apply module_mult_unel2
+    ).
 Defined.
 
 Coercion carrierofasubmodule : submodule >-> module.
@@ -98,7 +106,7 @@ Proof.
   apply make_ismodulefun.
   - exact (pr1 (ismonoidfun_pr1 A)).
   - intros r a. reflexivity.
-Defined.
+Qed.
 
 Definition submodule_incl {R : ring} {M : module R} (A : submodule M) : modulefun A M :=
   make_modulefun _ (ismodulefun_pr1 A).
@@ -114,7 +122,7 @@ Proof.
     refine (modulefun_to_islinear f r x @ _).
     rewrite <- (module_mult_1 r), <- p.
     reflexivity.
-Defined.
+Qed.
 
 Definition module_kernel {R : ring} {A B : module R} (f : modulefun A B) : submodule A :=
   make_submodule _ (issubmodule_kernel f).
@@ -132,7 +140,7 @@ Proof.
   - intros r x. apply hinhfun. intro ap. induction ap as [a p].
     split with (r * a). refine (modulefun_to_islinear f _ _ @ _).
     now rewrite <- p.
-Defined.
+Qed.
 
 Definition module_image {R : ring} {A B : module R} (f : modulefun A B) : submodule B :=
   make_submodule _ (issubmodule_image f).
@@ -147,7 +155,7 @@ Section submodule_helpers.
   Proof.
     intros ax ay.
     exact (pr1 (pr1 (pr1 (pr2 A))) (make_carrier A x ax) (make_carrier A y ay)).
-  Defined.
+  Qed.
 
   Definition submodule0 : A 0 := pr2 (pr1 (pr1 (pr2 A))).
 

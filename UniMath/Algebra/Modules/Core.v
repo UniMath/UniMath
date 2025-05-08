@@ -554,13 +554,13 @@ Proof.
     unfold moduleiso'_to_moduleiso, moduleiso_to_moduleiso'. cbn.
     induction w as [w1 w2]; cbn.
     use total2_paths_f; cbn.
-    * use total2_paths_f; cbn.
-      + reflexivity.
-      + apply isapropismonoidfun.
-    * apply isapropislinear.
- - intro y.
-  apply (maponpaths (λ x, _ ,, x)).
-  apply isapropismodulefun.
+    + use total2_paths_f; cbn.
+      * reflexivity.
+      * apply isapropismonoidfun.
+    + apply isapropislinear.
+  - intro y.
+    apply (maponpaths (λ x, _ ,, x)).
+    apply isapropismodulefun.
 Defined.
 
 Definition moduleiso'_to_moduleweq_iso {R} (M N : module R) : (moduleiso' M N) ≃ (moduleiso M N) :=
