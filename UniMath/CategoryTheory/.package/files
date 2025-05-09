@@ -70,6 +70,7 @@ Limits/Terminal.v
 Limits/Zero.v
 Limits/BinCoproducts.v
 Limits/BinProducts.v
+Limits/BinBiproducts.v
 
 Limits/Graphs/BinCoproducts.v
 Limits/Graphs/Coproducts.v
@@ -224,6 +225,9 @@ Core/PosetCat.v
 
 WeakEquivalences/Core.v
 WeakEquivalences/Terminal.v
+WeakEquivalences/Initial.v
+WeakEquivalences/Mono.v
+WeakEquivalences/Preservation/Bincoproducts.v
 WeakEquivalences/Preservation/Binproducts.v
 WeakEquivalences/Reflection/BinProducts.v
 WeakEquivalences/Creation/BinProducts.v
@@ -236,6 +240,10 @@ WeakEquivalences/Preservation/Pullbacks.v
 WeakEquivalences/Reflection/Pullbacks.v
 WeakEquivalences/Creation/Pullbacks.v
 WeakEquivalences/LiftPreservation/Pullbacks.v
+WeakEquivalences/Preservation/SubobjectClassifier.v
+WeakEquivalences/Reflection/SubobjectClassifier.v
+WeakEquivalences/LiftPreservation/SubobjectClassifier.v
+WeakEquivalences/Preservation/NNO.v
 RezkCompletions/RezkCompletions.v
 RezkCompletions/Construction.v
 
@@ -275,16 +283,18 @@ Categories/CategoryOfSetGroupoids.v
 Limits/Examples/CategoryOfSetcategoriesLimits.v
 Limits/Examples/CategoryOfSetGroupoidsLimits.v
 Categories/SetWith2BinOp.v
+Categories/Magma.v
 Categories/Monoid.v
-Categories/Abmonoid.v
-Categories/Gr.v
-Categories/Abgr.v
+Categories/AbelianMonoid.v
+Categories/Group.v
+Categories/AbelianGroup.v
 Categories/Rig.v
 Categories/Commrig.v
 Categories/Ring.v
 Categories/Commring.v
 Categories/Intdom.v
 Categories/Fld.v
+Categories/ModuleCore.v
 Categories/Module.v
 Categories/StandardCategories.v
 Categories/PreorderCategory/Core.v
@@ -399,8 +409,8 @@ Monads/MonadAlgebras.v
 Monads/Comonads.v
 Monads/ComonadCoalgebras.v
 
-DisplayedCats/Limits.v
 DisplayedCats/Examples/Sigma.v
+DisplayedCats/Limits.v
 DisplayedCats/Examples.v
 DisplayedCats/Examples/UnitalBinop.v
 DisplayedCats/Examples/CategoryOfPosets.v
@@ -452,6 +462,7 @@ Categories/Rel.v
 
 Monoidal/WhiskeredBifunctors.v
 Monoidal/Categories.v
+Monoidal/CategoriesForQuantum.v
 Monoidal/StrongMonad.v
 
 Monoidal/Structure/Symmetric.v

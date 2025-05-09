@@ -1,231 +1,81 @@
-(** * Category of monoids *)
-(** ** Contents
-- Precategory of monoids
-- Category of monoids
-- Forgetful functor to [HSET]
-- Free functor from [HSET]
-- Free/forgetful adjunction
- *)
+(**
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.Foundations.UnivalenceAxiom.
+  The Univalent Category of Monoids
+
+  This file shows that the category of monoids, already defined in Magma.v, is univalent. It gives
+  the forgetful and free functors to and from the category of sets.
+
+  Contents
+  1. The univalent category of monoids [monoid_univalent_category]
+  2. The free and forgetful functors
+  2.1. The Forgetful functor [monoid_forgetful_functor]
+  2.2. The Free functor [monoid_free_functor]
+  2.3. The adjunction [monoid_free_forgetful_adjunction]
+
+ *)
+Require Import UniMath.Foundations.All.
 
 Require Import UniMath.Algebra.BinaryOperations.
-Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Monoids2.
 
 Require Import UniMath.Algebra.Free_Monoids_and_Groups.
 Require Import UniMath.Combinatorics.Lists.
 Require Import UniMath.Algebra.IteratedBinaryOperations.
 
-Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.Product.
 
 Local Open Scope cat.
 
-(** ** Precategory of monoids *)
+(** *  1. The univalent category of monoids *)
 
-Section def_monoid_precategory.
+Definition is_univalent_monoid_disp_cat
+  : is_univalent_disp monoid_disp_cat
+  := dirprod_disp_cat_is_univalent _ _
+    is_univalent_semigroup_disp_cat
+    is_univalent_unital_magma_disp_cat.
 
-  Definition monoid_fun_space (A B : monoid) : hSet :=
-    make_hSet (monoidfun A B) (isasetmonoidfun A B).
+Definition is_univalent_monoid_category
+  : is_univalent monoid_category
+  := is_univalent_total_category
+    is_univalent_magma_category
+    is_univalent_monoid_disp_cat.
 
-  Definition monoid_precategory_ob_mor : precategory_ob_mor :=
-    tpair (λ ob : UU, ob -> ob -> UU) monoid (λ A B : monoid, monoid_fun_space A B).
+Definition monoid_univalent_category : univalent_category
+  := make_univalent_category monoid_category is_univalent_monoid_category.
 
-  Definition monoid_precategory_data : precategory_data :=
-    make_precategory_data
-      monoid_precategory_ob_mor (λ (X : monoid), ((idmonoidiso X) : monoidfun X X))
-      (fun (X Y Z : monoid) (f : monoidfun X Y) (g : monoidfun Y Z) => monoidfuncomp f g).
+(** *  2. The free and forgetful functors *)
+(** **  2.1. The Forgetful functor *)
 
-  Local Lemma monoid_id_left {X Y : monoid} (f : monoidfun X Y) :
-    monoidfuncomp (idmonoidiso X) f = f.
-  Proof.
-    use monoidfun_paths. use idpath.
-  Defined.
-  Opaque monoid_id_left.
-
-  Local Lemma monoid_id_right {X Y : monoid} (f : monoidfun X Y) :
-    monoidfuncomp f (idmonoidiso Y) = f.
-  Proof.
-    use monoidfun_paths. use idpath.
-  Defined.
-  Opaque monoid_id_right.
-
-  Local Lemma monoid_assoc (X Y Z W : monoid) (f : monoidfun X Y) (g : monoidfun Y Z)
-        (h : monoidfun Z W) :
-    monoidfuncomp f (monoidfuncomp g h) = monoidfuncomp (monoidfuncomp f g) h.
-  Proof.
-    use monoidfun_paths. use idpath.
-  Defined.
-  Opaque monoid_assoc.
-
-  Lemma is_precategory_monoid_precategory_data : is_precategory monoid_precategory_data.
-  Proof.
-   use make_is_precategory_one_assoc.
-    - intros a b f. use monoid_id_left.
-    - intros a b f. use monoid_id_right.
-    - intros a b c d f g h. use monoid_assoc.
-  Qed.
-
-  Definition monoid_precategory : precategory :=
-    make_precategory monoid_precategory_data is_precategory_monoid_precategory_data.
-
-  Lemma has_homsets_monoid_precategory : has_homsets monoid_precategory.
-  Proof.
-    intros X Y. use isasetmonoidfun.
-  Qed.
-
-End def_monoid_precategory.
-
-
-(** ** Category of monoids *)
-Section def_monoid_category.
-
-  Definition monoid_category : category := make_category _ has_homsets_monoid_precategory.
-
-
-  (** ** (monoidiso X Y) ≃ (z_iso X Y) *)
-
-  Lemma monoid_z_iso_is_equiv (A B : ob monoid_category) (f : z_iso A B) : isweq (pr1 (pr1 f)).
-  Proof.
-    use isweq_iso.
-    - exact (pr1monoidfun _ _ (inv_from_z_iso f)).
-    - intros x.
-      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_inv_after_z_iso f)) x).
-      intros x0. use isapropismonoidfun.
-    - intros x.
-      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_after_z_iso_inv f)) x).
-      intros x0. use isapropismonoidfun.
-  Defined.
-  Opaque monoid_z_iso_is_equiv.
-
-  Lemma monoid_z_iso_equiv (X Y : ob monoid_category) : z_iso X Y -> monoidiso X Y.
-  Proof.
-    intro f.
-    use make_monoidiso.
-    - exact (make_weq (pr1 (pr1 f)) (monoid_z_iso_is_equiv X Y f)).
-    - exact (pr2 (pr1 f)).
-  Defined.
-
-  Lemma monoid_equiv_is_z_iso (X Y : ob monoid_category) (f : monoidiso X Y) :
-    @is_z_isomorphism monoid_precategory X Y (monoidfunconstr (pr2 f)).
-  Proof.
-    exists (monoidfunconstr (pr2 (invmonoidiso f))).
-    split.
-      - use monoidfun_paths. use funextfun. intros x. use homotinvweqweq.
-      - use monoidfun_paths. use funextfun. intros y. use homotweqinvweq.
-  Defined.
-  Opaque monoid_equiv_is_z_iso.
-
-  Lemma monoid_equiv_z_iso (X Y : ob monoid_category) : monoidiso X Y -> z_iso X Y.
-  Proof.
-    intros f. exact (_,,monoid_equiv_is_z_iso X Y f).
-  Defined.
-
-  Lemma monoid_z_iso_equiv_is_equiv (X Y : monoid_category) : isweq (monoid_z_iso_equiv X Y).
-  Proof.
-    use isweq_iso.
-    - exact (monoid_equiv_z_iso X Y).
-    - intros x. use z_iso_eq. use monoidfun_paths. use idpath.
-    - intros y. use monoidiso_paths. use subtypePath.
-      + intros x0. use isapropisweq.
-      + use idpath.
-  Defined.
-  Opaque monoid_z_iso_equiv_is_equiv.
-
-  Definition monoid_z_iso_equiv_weq (X Y : ob monoid_category) : (z_iso X Y) ≃ (monoidiso X Y).
-  Proof.
-    use make_weq.
-    - exact (monoid_z_iso_equiv X Y).
-    - exact (monoid_z_iso_equiv_is_equiv X Y).
-  Defined.
-
-  Lemma monoid_equiv_z_iso_is_equiv (X Y : ob monoid_category) : isweq (monoid_equiv_z_iso X Y).
-  Proof.
-    use isweq_iso.
-    - exact (monoid_z_iso_equiv X Y).
-    - intros y. use monoidiso_paths. use subtypePath.
-      + intros x0. use isapropisweq.
-      + use idpath.
-    - intros x. use z_iso_eq. use monoidfun_paths. use idpath.
-  Defined.
-  Opaque monoid_equiv_z_iso_is_equiv.
-
-  Definition monoid_equiv_weq_z_iso (X Y : ob monoid_precategory) : (monoidiso X Y) ≃ (z_iso X Y).
-  Proof.
-    use make_weq.
-    - exact (monoid_equiv_z_iso X Y).
-    - exact (monoid_equiv_z_iso_is_equiv X Y).
-  Defined.
-
-
-  (** ** Category of monoids *)
-
-  Definition monoid_category_isweq (X Y : ob monoid_category) :
-    isweq (λ p : X = Y, idtoiso p).
-  Proof.
-    use (@isweqhomot
-           (X = Y) (z_iso X Y)
-           (pr1weq (weqcomp (monoid_univalence X Y) (monoid_equiv_weq_z_iso X Y)))
-           _ _ (weqproperty (weqcomp (monoid_univalence X Y) (monoid_equiv_weq_z_iso X Y)))).
-    intros e. induction e.
-    use (pathscomp0 weqcomp_to_funcomp_app).
-    use total2_paths_f.
-    - use idpath.
-    - use proofirrelevance. use isaprop_is_z_isomorphism.
-  Defined.
-  Opaque monoid_category_isweq.
-
-
-  Definition monoid_category_is_univalent : is_univalent monoid_category.
-  Proof.
-    intros X Y. exact (monoid_category_isweq X Y).
-  Defined.
-
-  Definition monoid_univalent_category : univalent_category :=
-    make_univalent_category monoid_category monoid_category_is_univalent.
-
-End def_monoid_category.
-
-(** ** Forgetful functor to [HSET] *)
-
-Definition monoid_forgetful_functor : functor monoid_precategory HSET.
-Proof.
-  use make_functor.
-  - use make_functor_data.
-    + intro; exact (pr1setwithbinop (pr1monoid ltac:(assumption))).
-    + intros ? ? f; exact (pr1monoidfun _ _ f).
-  - split.
-    + (** Identity axiom *)
-      intro; reflexivity.
-    + (** Composition axiom *)
-      intros ? ? ? ? ?; reflexivity.
-Defined.
+Definition monoid_forgetful_functor
+  : functor monoid_category HSET
+  := pr1_category _ ∙ pr1_category _.
 
 Lemma monoid_forgetful_functor_is_faithful : faithful monoid_forgetful_functor.
 Proof.
-  unfold faithful.
-  intros ? ?.
-  apply isinclpr1.
-  apply isapropismonoidfun.
+  apply comp_faithful_is_faithful.
+  - apply faithful_pr1_category.
+    intros.
+    apply (isapropdirprod _ _ isapropunit).
+    apply setproperty.
+  - apply faithful_pr1_category.
+    intros.
+    apply isapropisbinopfun.
 Defined.
 
-(** ** Free functor from [HSET] *)
+(** **  2.2. The Free functor *)
 
-Definition monoid_free_functor : functor HSET monoid_precategory.
+Definition monoid_free_functor : functor HSET monoid_category.
 Proof.
   use make_functor.
   - use make_functor_data.
     + intros s; exact (free_monoid s).
     + intros ? ? f; exact (free_monoidfun f).
-  - split.
+  - apply make_is_functor.
     + (** Identity axiom *)
       intro.
       abstract (apply monoidfun_paths, funextfun; intro; apply map_idfun).
@@ -234,7 +84,7 @@ Proof.
       abstract (apply monoidfun_paths, funextfun, (free_monoidfun_comp_homot f g)).
 Defined.
 
-(** ** Free/forgetful adjunction *)
+(** **  2.3. The adjunction *)
 
 Local Definition singleton {A : UU} (x : A) := cons x Lists.nil.
 
@@ -276,7 +126,7 @@ Definition monoid_free_forgetful_counit :
 Proof.
   use make_nat_trans.
   - intro.
-    use tpair.
+    use make_monoidfun.
     + intro; apply iterop_list_mon; assumption.
     + split.
       * intros ? ?; apply iterop_list_mon_concatenate.
@@ -289,27 +139,27 @@ Defined.
 Definition monoid_free_forgetful_adjunction_data :
   adjunction_data HSET monoid_category .
 Proof.
-  use tpair; [|use tpair]. (* TODO: there should be a constructor for this *)
+  use make_adjunction_data.
   - exact monoid_free_functor.
   - exact monoid_forgetful_functor.
-  - split.
-    + exact monoid_free_forgetful_unit.
-    + exact monoid_free_forgetful_counit.
+  - exact monoid_free_forgetful_unit.
+  - exact monoid_free_forgetful_counit.
 Defined.
 
 Lemma monoid_free_forgetful_adjunction :
   form_adjunction' monoid_free_forgetful_adjunction_data.
 Proof.
-  split; intro.
+  apply make_form_adjunction;
+    intro.
   - apply monoidfun_paths.
     apply funextfun.
     simpl.
     unfold homot; apply list_ind; [reflexivity|].
     intros x xs ?.
+    unfold compose, identity.
     simpl.
     rewrite map_cons.
-    (* For some reason, the unifier needs a lot of help here... *)
-    refine (iterop_list_mon_step (_ : pr1hSet (free_monoid _)) _ @ _).
+    refine (iterop_list_mon_step (M := free_monoid _) _ _ @ _).
     apply maponpaths; assumption.
   - reflexivity.
 Qed.

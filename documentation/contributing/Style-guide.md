@@ -16,7 +16,7 @@ Here is a couple of guidelines for naming different things:
 ## Add comments to your code
 Keep the following guideline in mind: The top part is what you expect everybody to read. Comments in the middle are harder to find, so you should expect people to read them unless if they go very deeply into the file. Use some inline comments to explain interesting or hard parts of a proof. Regarding the header, it should tell a user what they can find inside the file. Here is a template:
 ```coq
-(**************************************************************************************************
+(**
 
   Title of one line
 
@@ -28,7 +28,7 @@ Keep the following guideline in mind: The top part is what you expect everybody 
   1.1. Explaining the layout of the file [layout]
   2. With the names of the main theorems or definitions in brackets [main_theorem]
 
- **************************************************************************************************)
+ *)
 ```
 Then make sure to refer back to the table of contents with headers inside your code, looking like this (the asterisks are to adhere to [coqdoc](https://coq.inria.fr/refman/using/tools/coqdoc.html#sections)):
 ```coq

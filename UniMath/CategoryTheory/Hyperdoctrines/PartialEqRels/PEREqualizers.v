@@ -72,7 +72,7 @@ Section PartialEquivalenceRelationEqualizer.
       simplify_form.
       rewrite !partial_setoid_subst.
       unfold x, x', y ; clear x x' y.
-      simplify.
+      hypersimplify.
       use conj_intro.
       + pose (x := π₂ (π₁ (tm_var ((𝟙 ×h X) ×h X)))).
         pose (x' := π₂ (tm_var ((𝟙 ×h X) ×h X))).
@@ -88,7 +88,7 @@ Section PartialEquivalenceRelationEqualizer.
         use weaken_left.
         use exists_intro.
         * exact (π₂ (tm_var _)).
-        * simplify.
+        * hypersimplify.
           pose (x := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h X) ×h X) ×h Y))))).
           pose (x' := π₂ (π₁ (tm_var (((𝟙 ×h X) ×h X) ×h Y)))).
           pose (y := π₂ (tm_var (((𝟙 ×h X) ×h X) ×h Y))).
@@ -115,8 +115,7 @@ Section PartialEquivalenceRelationEqualizer.
                  apply hyperdoctrine_hyp.
     - unfold per_trans_axiom.
       simplify_form.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (x₁ := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h X) ×h X) ×h X))))).
       pose (x₂ := π₂ (π₁ (tm_var (((𝟙 ×h X) ×h X) ×h X)))).
       pose (x₃ := π₂ (tm_var (((𝟙 ×h X) ×h X) ×h X))).
@@ -138,8 +137,7 @@ Section PartialEquivalenceRelationEqualizer.
       use weaken_right.
       use conj_intro.
       + unfold x₁, x₂, x₃ ; clear x₁ x₂ x₃.
-        rewrite !partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (x₁ := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var (((((𝟙 ×h X) ×h X) ×h X) ×h Y) ×h Y))))))).
         pose (x₂ := π₂ (π₁ (π₁ (π₁ (tm_var (((((𝟙 ×h X) ×h X) ×h X) ×h Y) ×h Y)))))).
         pose (x₃ := π₂ (π₁ (π₁ (tm_var (((((𝟙 ×h X) ×h X) ×h X) ×h Y) ×h Y))))).
@@ -157,8 +155,7 @@ Section PartialEquivalenceRelationEqualizer.
         * exact (π₂ (tm_var _)).
         * unfold x₁, x₂, x₃ ; clear x₁ x₂ x₃.
           simplify_form.
-          rewrite !partial_setoid_subst.
-          simplify.
+          hypersimplify.
           pose (x₁ := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var (((((𝟙 ×h X) ×h X) ×h X) ×h Y) ×h Y))))))).
           pose (x₂ := π₂ (π₁ (π₁ (π₁ (tm_var (((((𝟙 ×h X) ×h X) ×h X) ×h Y) ×h Y)))))).
           pose (x₃ := π₂ (π₁ (π₁ (tm_var (((((𝟙 ×h X) ×h X) ×h X) ×h Y) ×h Y))))).
@@ -235,8 +232,7 @@ Section PartialEquivalenceRelationEqualizer.
     unfold partial_setoid_formula ; cbn.
     unfold equalizer_per_form.
     simplify_form.
-    rewrite partial_setoid_subst.
-    simplify.
+    hypersimplify.
     use conj_intro.
     - use weaken_right.
       apply hyperdoctrine_hyp.
@@ -256,8 +252,7 @@ Section PartialEquivalenceRelationEqualizer.
     unfold equalizer_per_form.
     rewrite conj_subst.
     use weaken_left.
-    rewrite partial_setoid_subst.
-    simplify.
+    hypersimplify.
     apply hyperdoctrine_hyp.
   Qed.
 
@@ -275,7 +270,7 @@ Section PartialEquivalenceRelationEqualizer.
     unfold equalizer_per_form.
     rewrite conj_subst.
     use weaken_right.
-    simplify.
+    hypersimplify.
     apply hyperdoctrine_hyp.
   Qed.
 
@@ -301,8 +296,7 @@ Section PartialEquivalenceRelationEqualizer.
       unfold equalizer_partial_setoid_morphism_form.
       fold x y.
       cbn.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use forall_intro.
       use forall_intro.
       use impl_intro.
@@ -317,8 +311,7 @@ Section PartialEquivalenceRelationEqualizer.
       unfold equalizer_partial_setoid_morphism_form.
       fold x y.
       cbn.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use forall_intro.
       use forall_intro.
       use impl_intro.
@@ -338,8 +331,7 @@ Section PartialEquivalenceRelationEqualizer.
       unfold equalizer_partial_setoid_morphism_form.
       fold x₁ x₂ y₁ y₂.
       cbn.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       do 4 use forall_intro.
       use impl_intro.
       use weaken_right.
@@ -373,8 +365,7 @@ Section PartialEquivalenceRelationEqualizer.
       unfold equalizer_partial_setoid_morphism_form.
       fold x y₁ y₂.
       cbn.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       do 3 use forall_intro.
       use impl_intro.
       use weaken_right.
@@ -404,8 +395,7 @@ Section PartialEquivalenceRelationEqualizer.
       unfold equalizer_partial_setoid_morphism_form.
       fold x y.
       cbn.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use forall_intro.
       use impl_intro.
       use weaken_right.
@@ -415,8 +405,7 @@ Section PartialEquivalenceRelationEqualizer.
       }
       unfold x, y ; clear x y.
       simplify_form.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       cbn.
       pose (x := π₂ (tm_var (𝟙 ×h X))).
       fold x.
@@ -440,20 +429,17 @@ Section PartialEquivalenceRelationEqualizer.
     - use (exists_elim (hyperdoctrine_hyp _)).
       use weaken_right.
       simplify_form.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use (exists_elim
              (from_eq_in_equalizer_partial_setoid_ex
                 _ _
                 (weaken_left (hyperdoctrine_hyp _) _))).
       simplify_form.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use exists_intro.
       + exact (π₂ (π₁ (tm_var _))).
       + simplify_form.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify.
         cbn.
         pose (x₁ := π₁ (π₁ (π₁ (tm_var (((X ×h Y) ×h X) ×h Y))))).
         pose (y₁ := π₂ (π₁ (π₁ (tm_var (((X ×h Y) ×h X) ×h Y))))).
@@ -491,20 +477,17 @@ Section PartialEquivalenceRelationEqualizer.
     - use (exists_elim (hyperdoctrine_hyp _)).
       use weaken_right.
       simplify_form.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use (exists_elim
              (from_eq_in_equalizer_partial_setoid_ex
                 _ _
                 (weaken_left (hyperdoctrine_hyp _) _))).
       simplify_form.
-      rewrite !partial_setoid_subst.
-      simplify.
+      hypersimplify.
       use exists_intro.
       + exact (π₂ (π₁ (tm_var _))).
       + simplify_form.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify.
         cbn.
         pose (x₁ := π₁ (π₁ (π₁ (tm_var (((X ×h Y) ×h X) ×h Y))))).
         pose (y₁ := π₂ (π₁ (π₁ (tm_var (((X ×h Y) ×h X) ×h Y))))).
@@ -573,7 +556,7 @@ Section PartialEquivalenceRelationEqualizer.
       apply hyperdoctrine_hyp.
     }
     use (exists_elim (partial_setoid_mor_hom_exists φ r)).
-    simplify.
+    hypersimplify.
     pose (s := π₁ (tm_var (Γ ×h Y))).
     pose (y := π₂ (tm_var (Γ ×h Y))).
     pose (Δ := χ [⟨ w [s ]tm, x [s ]tm ⟩] ∧ φ [⟨ x [s ]tm, y ⟩]).
@@ -585,7 +568,7 @@ Section PartialEquivalenceRelationEqualizer.
       use exists_intro.
       * exact (x [ s ]tm).
       * unfold y, Δ.
-        simplify.
+        hypersimplify.
         apply hyperdoctrine_hyp.
     - cbn.
       simplify_form.
@@ -599,7 +582,7 @@ Section PartialEquivalenceRelationEqualizer.
       + exact (π₂ (π₁ (tm_var _))).
       + unfold Δ, s, y.
         clear Δ s y.
-        simplify.
+        hypersimplify.
         use conj_intro.
         * use weaken_left.
           use weaken_right.
@@ -634,7 +617,7 @@ Section PartialEquivalenceRelationEqualizer.
       do 2 use forall_intro.
       use impl_intro.
       use weaken_right.
-      simplify.
+      hypersimplify.
       pose (w := π₂ (π₁ (tm_var ((𝟙 ×h W) ×h X)))).
       pose (x := π₂ (tm_var ((𝟙 ×h W) ×h X))).
       fold w x.
@@ -644,7 +627,7 @@ Section PartialEquivalenceRelationEqualizer.
       do 2 use forall_intro.
       use impl_intro.
       use weaken_right.
-      simplify.
+      hypersimplify.
       pose (w := π₂ (π₁ (tm_var ((𝟙 ×h W) ×h X)))).
       pose (x := π₂ (tm_var ((𝟙 ×h W) ×h X))).
       fold w x.
@@ -657,7 +640,7 @@ Section PartialEquivalenceRelationEqualizer.
       use impl_intro.
       use weaken_right.
       do 2 use impl_intro.
-      simplify.
+      hypersimplify.
       pose (w₁ := π₂ (π₁ (π₁ (π₁ (tm_var ((((𝟙 ×h W) ×h W) ×h X) ×h X)))))).
       pose (w₂ := π₂ (π₁ (π₁ (tm_var ((((𝟙 ×h W) ×h W) ×h X) ×h X))))).
       pose (x₁ := π₂ (π₁ (tm_var ((((𝟙 ×h W) ×h W) ×h X) ×h X)))).
@@ -679,7 +662,7 @@ Section PartialEquivalenceRelationEqualizer.
       use impl_intro.
       use weaken_right.
       use impl_intro.
-      simplify.
+      hypersimplify.
       pose (w := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h W) ×h X) ×h X))))).
       pose (x₁ := π₂ (π₁ (tm_var (((𝟙 ×h W) ×h X) ×h X)))).
       pose (x₂ := π₂ (tm_var (((𝟙 ×h W) ×h X) ×h X))).
@@ -702,8 +685,7 @@ Section PartialEquivalenceRelationEqualizer.
       use exists_intro.
       + exact (π₂ (tm_var _)).
       + simplify_form.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify.
         pose (w := π₂ (π₁ (tm_var ((𝟙 ×h W) ×h X)))).
         pose (x := π₂ (tm_var ((𝟙 ×h W) ×h X))).
         fold w x.
@@ -730,8 +712,7 @@ Section PartialEquivalenceRelationEqualizer.
     - use (exists_elim (hyperdoctrine_hyp _)).
       use weaken_right.
       simplify_form.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
       pose (w := π₁ (π₁ (tm_var ((W ×h X) ×h X)))).
       pose (x₁ := π₂ (π₁ (tm_var ((W ×h X) ×h X)))).
       pose (x₂ := π₂ (tm_var ((W ×h X) ×h X))).
@@ -751,10 +732,9 @@ Section PartialEquivalenceRelationEqualizer.
     - use exists_intro.
       + exact (π₂ (tm_var _)).
       + simplify_form.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify.
         rewrite <- hyperdoctrine_pair_eta.
-        simplify.
+        hypersimplify.
         pose (w := π₁ (tm_var (W ×h X))).
         pose (x := π₂ (tm_var (W ×h X))).
         fold w x.
@@ -764,7 +744,7 @@ Section PartialEquivalenceRelationEqualizer.
           ** use (partial_setoid_mor_cod_defined χ w x).
              unfold w, x.
              rewrite <- hyperdoctrine_pair_eta.
-             simplify.
+             hypersimplify.
              apply hyperdoctrine_hyp.
           ** rewrite <- (hyperdoctrine_id_subst χ).
              rewrite (hyperdoctrine_pair_eta (tm_var (W ×h X))).
@@ -787,8 +767,7 @@ Section PartialEquivalenceRelationEqualizer.
       use exists_intro.
       + exact (π₂ (tm_var _)).
       + simplify_form.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify.
         rewrite <- hyperdoctrine_pair_eta.
         simplify_form.
         pose (w := π₁ (tm_var (W ×h X))).
@@ -811,12 +790,13 @@ Section PartialEquivalenceRelationEqualizer.
       use (exists_elim r).
       unfold w, x ; clear r w x.
       simplify_form.
-      rewrite partial_setoid_subst.
-      simplify.
+      hypersimplify.
+      (* simplify. *)
       pose (w := π₁ (π₁ (tm_var ((W ×h X) ×h X)))).
       pose (x₁ := π₂ (π₁ (tm_var ((W ×h X) ×h X)))).
       pose (x₂ := π₂ (tm_var ((W ×h X) ×h X))).
       fold w x₁ x₂.
+      change (π₂ (π₁ (tm_var ((W ×h X) ×h X)))) with x₁.
       rewrite (hyperdoctrine_pair_eta (π₁ (tm_var ((W ×h X) ×h X)))).
       fold w x₁.
       use weaken_right.

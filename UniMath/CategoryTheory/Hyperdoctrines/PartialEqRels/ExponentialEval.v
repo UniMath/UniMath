@@ -54,7 +54,7 @@ Section PEREvaluation.
       do 2 use forall_intro.
       use impl_intro.
       use weaken_right.
-      simplify.
+      hypersimplify.
       pose (x := π₁ (π₂ (π₁ (tm_var ((𝟙 ×h X ×h ℙ (X ×h Y)) ×h Y))))).
       pose (f := π₂ (π₂ (π₁ (tm_var ((𝟙 ×h X ×h ℙ (X ×h Y)) ×h Y))))).
       pose (y := π₂ (tm_var ((𝟙 ×h X ×h ℙ (X ×h Y)) ×h Y))).
@@ -74,7 +74,7 @@ Section PEREvaluation.
       do 2 use forall_intro.
       use impl_intro.
       use weaken_right.
-      simplify.
+      hypersimplify.
       pose (x := π₁ (π₂ (π₁ (tm_var ((𝟙 ×h X ×h ℙ (X ×h Y)) ×h Y))))).
       pose (f := π₂ (π₂ (π₁ (tm_var ((𝟙 ×h X ×h ℙ (X ×h Y)) ×h Y))))).
       pose (y := π₂ (tm_var ((𝟙 ×h X ×h ℙ (X ×h Y)) ×h Y))).
@@ -91,7 +91,7 @@ Section PEREvaluation.
       use impl_intro.
       use weaken_right.
       do 2 use impl_intro.
-      simplify.
+      hypersimplify.
       pose (Γ := (((𝟙 ×h X ×h ℙ (X ×h Y)) ×h X ×h ℙ (X ×h Y)) ×h Y) ×h Y).
       pose (f := π₂ (π₂ (π₁ (π₁ (π₁ (tm_var Γ)))))).
       pose (g := π₂ (π₂ (π₁ (π₁ (tm_var Γ))))).
@@ -147,7 +147,7 @@ Section PEREvaluation.
       use impl_intro.
       use weaken_right.
       use impl_intro.
-      simplify.
+      hypersimplify.
       pose (x := π₁ (π₂ (π₁ (π₁ (tm_var (((𝟙 ×h X ×h ℙ (X ×h Y)) ×h Y) ×h Y)))))).
       pose (f := π₂ (π₂ (π₁ (π₁ (tm_var (((𝟙 ×h X ×h ℙ (X ×h Y)) ×h Y) ×h Y)))))).
       pose (y := π₂ (π₁ (tm_var (((𝟙 ×h X ×h ℙ (X ×h Y)) ×h Y) ×h Y)))).
@@ -189,16 +189,15 @@ Section PEREvaluation.
       + use weaken_left.
         apply hyperdoctrine_hyp.
       + unfold x, f ; clear x f.
-        simplify_form.
-        rewrite partial_setoid_subst.
-        simplify.
+        hypersimplify_form.
+        hypersimplify.
         pose (x := π₁ (π₂ (π₁ (tm_var ((𝟙 ×h X ×h ℙ (X ×h Y)) ×h Y))))).
         pose (f := π₂ (π₂ (π₁ (tm_var ((𝟙 ×h X ×h ℙ (X ×h Y)) ×h Y))))).
         pose (y := π₂ (tm_var ((𝟙 ×h X ×h ℙ (X ×h Y)) ×h Y))).
         fold x f y.
         use exists_intro.
         * exact y.
-        * simplify.
+        * hypersimplify.
           fold x f.
           repeat use conj_intro.
           ** use weaken_left.
