@@ -1,30 +1,32 @@
-(** Authors Langston Barrett (@siddharthist), November-December 2017 *)
+(**
 
-Require Import UniMath.Algebra.Modules.Core.
-Require Import UniMath.Algebra.Groups.
-Require Import UniMath.Algebra.Monoids.
-Require Import UniMath.Algebra.RigsAndRings.
-Require Import UniMath.Foundations.Preamble.
-Require Import UniMath.Foundations.Sets.
+  Multimodules
 
-(** ** Contents
-- Definitions
- - Propositions
-- Multimodule morphisms
- - Multilinearity
- - Multimodule morphisms
-*)
+  This file defines multimodules: abelian groups with compatible R_i-actions for all i : I. This
+  is a generalization of R-S-bimodules, based on the following observation:
+  The definition of a compatible R-S-bimodule structure is phrased in terms of associativity for
+  left and right actions: (rm)s=r(ms). Modulo notation, this is really a statement about the actions
+  intertwining one another and in the same way, we can define a multimodule based on every action
+  being compatible.
 
-(** ** Definitions *)
+  Contents
+  1. Multimodules [multimodule]
+  2. Multimodule morphisms
+  2.1. Multilinearity [ismultilinear] [multilinearfun]
+  2.2. Multimodule morphisms [multimodulefun]
+  3. Properties of the ring actions
 
-(** The definition of a compatible R-S-bimodule structure is phrased in
-    terms of associativity for left and right actions, (rm)s=r(ms). Modulo
-    notation, this is really a statement about the actions intertwining one
-    another. More generally, we can define a multimodule based on every action
-    being compatible.
+  Originally written by Langston Barrett (@siddharthist), November-December 2017
 
-   Definition from Algebra by Bourbaki, II §1, no. 14.
  *)
+Require Import UniMath.Foundations.All.
+Require Import UniMath.Algebra.Groups.
+Require Import UniMath.Algebra.Modules.Core.
+Require Import UniMath.Algebra.RigsAndRings.
+
+(** ** 1. Multimodules *)
+
+(** Definition from Algebra by Bourbaki, II §1, no. 14. *)
 Definition arecompatibleactions {R S G}
            (mr : module_struct R G) (ms : module_struct S G) :=
   let m1 := module_mult (G,, mr) in
@@ -55,24 +57,17 @@ Definition pr3bimodule {I : UU} {rings : I -> ring} (MM : multimodule rings)
 Definition ith_module {I : UU} {rings : I -> ring} (MM : multimodule rings) (i : I)
   : module (rings i) := (pr1multimodule MM,, pr2multimodule MM i).
 
-(** **** Propositions *)
+(** Propositions *)
 
 Lemma isaproparecompatibleactions
       {R S G} (mr : module_struct R G) (ms : module_struct S G) :
   isaprop (arecompatibleactions mr ms).
 Proof.
-  apply (impredtwice 1); intros r s.
-
-  (* We'll prove that all the homotopies are identical *)
-  apply (isofhlevelweqb 1
-         (Y := (module_mult (G,, mr) r ∘ module_mult (G,, ms) s ~
-                module_mult (G,, ms) s ∘ module_mult (G,, mr) r))).
-  apply invweq.
-  apply weqfunextsec.
-
-  apply (impred 1); intros x.
-  apply (pr2 (pr1 (pr1 G))).
-Defined.
+  do 2 (apply impred_isaprop; intro).
+  refine ((_ : isaset _) _ _).
+  apply funspace_isaset.
+  apply setproperty.
+Qed.
 
 Lemma isapropmultimodule_struct {I : UU} {rings : I -> ring} {G : abgr}
                                 (structs : ∏ i : I, module_struct (rings i) G) :
@@ -81,11 +76,11 @@ Proof.
   apply (impredtwice 1); intros i1 i2.
   apply impredfun.
   apply isaproparecompatibleactions.
-Defined.
+Qed.
 
-(** *** Multimodule morphisms *)
+(** * 2. Multimodule morphisms *)
 
-(** **** Multilinearity*)
+(** ** 2.1. Multilinearity*)
 
 (** A function is multilinear precisely when it is linear for each module *)
 
@@ -119,7 +114,7 @@ Definition multilinearfuncomp {I : UU} {rings : I -> ring}
            (g : multilinearfun NN PP) : multilinearfun MM PP :=
   (funcomp f g,, ismultilinearfuncomp f g).
 
-(** **** Multimodule morphisms *)
+(** ** 2.2. Multimodule morphisms *)
 
 Definition ismultimodulefun {I : UU} {rings : I -> ring}
            {MM NN : multimodule rings} (f : MM -> NN) : UU :=
@@ -146,14 +141,9 @@ Definition pr1multimodulefun {I : UU} {rings : I -> ring}
 
 Coercion pr1multimodulefun : multimodulefun >-> Funclass.
 
-Definition ith_modulefun {I : UU} {rings : I -> ring} {MM NN : multimodule rings}
-           (f : multimodulefun MM NN) (i : I) :
-  modulefun (ith_module MM i) (ith_module NN i) :=
-  (pr1 f,, (make_dirprod (pr1 (pr2 f)) (pr2 (pr2 f) i))).
-
 Definition multimodulefun_to_isbinopfun {I : UU} {rings : I -> ring}
            {MM NN : multimodule rings} (f : multimodulefun MM NN) :
-  isbinopfun (pr1multimodulefun f) := pr1 (pr2 f).
+  isbinopfun f := pr12 f.
 
 Definition multimodulefun_to_binopfun {I : UU} {rings : I -> ring}
            {MM NN : multimodule rings} (f : multimodulefun MM NN) :
@@ -162,14 +152,20 @@ Definition multimodulefun_to_binopfun {I : UU} {rings : I -> ring}
 
 Definition multimodulefun_to_ith_islinear {I : UU} {rings : I -> ring}
            {MM NN : multimodule rings} (f : multimodulefun MM NN) (i : I) :
-  islinear (ith_modulefun f i) := pr2 (pr2 (ith_modulefun f i)).
+  islinear (M := ith_module MM i) (N := ith_module NN i) f := pr22 f i.
 
 Definition multimodulefun_to_ith_linearfun {I : UU} {rings : I -> ring}
            {MM NN : multimodule rings} (f : multimodulefun MM NN) (i : I) :
   linearfun (ith_module MM i) (ith_module NN i) :=
-  make_linearfun (ith_modulefun f i) (multimodulefun_to_ith_islinear f i).
+  make_linearfun (M := ith_module MM i) (N := ith_module NN i) f (multimodulefun_to_ith_islinear f i).
 
-(** Properties of the ring actions *)
+Definition ith_modulefun {I : UU} {rings : I -> ring} {MM NN : multimodule rings}
+           (f : multimodulefun MM NN) (i : I) :
+  modulefun (ith_module MM i) (ith_module NN i)
+  := make_modulefun _
+    (make_ismodulefun (M := ith_module MM i) (N := ith_module NN i) (multimodulefun_to_isbinopfun f) (multimodulefun_to_ith_islinear f i)).
+
+(** * 3. Properties of the ring actions *)
 
 Definition multimodule_ith_mult {I : UU} {rings : I -> ring}
            (MM : multimodule rings) (i : I) : (rings i) -> MM -> MM :=
@@ -177,11 +173,10 @@ Definition multimodule_ith_mult {I : UU} {rings : I -> ring}
 
 (** If you take the underlying group of the ith module, its the same as the
     underlying group of the multimodule. *)
-Lemma multimodule_same_abgrp {I : UU} {rings : I -> ring}
-      (MM : multimodule rings) (i : I) : @paths abgr MM (ith_module MM i).
-Proof.
-  reflexivity.
-Defined.
+Definition multimodule_same_abgrp {I : UU} {rings : I -> ring}
+  (MM : multimodule rings) (i : I)
+  : (MM : abgr) = (ith_module MM i)
+  := idpath _.
 
 (** Multiplying something by 0 always gives you the identity.
     Equationally, 0R * x = 0G for all x. *)
@@ -190,8 +185,7 @@ Definition multimodule_ith_mult_0_to_0 {I : UU} {rings : I -> ring}
   multimodule_ith_mult MM i (@ringunel1 (rings i)) x = @unel MM :=
   @module_mult_0_to_0 (rings i) (ith_module MM i) x.
 
-(* TODO *)
 Definition multimodulefun_unel {I : UU} {rings : I -> ring}
-           {MM NN : multimodule rings} (f : multimodulefun MM NN) :
-  f (unel MM) = unel NN.
-Abort.
+  {MM NN : multimodule rings} (f : multimodulefun MM NN)
+  : f (unel MM) = unel NN
+  := binopfun_preserves_unit f (multimodulefun_to_isbinopfun _).
