@@ -2498,6 +2498,17 @@ Section FiberFunctorCleavingIdenttiy.
            (id_disp xx)).
     apply id_is_z_iso_disp.
   Defined.
+
+  Definition nat_z_iso_fiber_functor_from_cleaving_identity
+    : nat_z_iso
+        (functor_identity _)
+        (fiber_functor_from_cleaving D HD (identity x)).
+  Proof.
+    use make_nat_z_iso.
+    - exact fiber_functor_from_cleaving_identity.
+    - exact is_nat_z_iso_fiber_functor_from_cleaving_identity.
+  Defined.
+
 End FiberFunctorCleavingIdenttiy.
 
 Arguments fiber_functor_from_cleaving_identity_data {C D} HD x /.

@@ -6,6 +6,9 @@
  functors. We also define terms (i.e., sections of projections), and we define several
  operations of terms.
 
+ Note that we consider coercions. Morphisms between types represent a (proof relevant)
+ subtyping
+
  Contents
  1. Notations and accessors for comprehension categories
  2. Notations and accessors for functors of comprehension categories
@@ -80,7 +83,7 @@ Definition comp_cat_comp_mor
            {C : comp_cat}
            {Γ : C}
            {A B : ty Γ}
-           (s : A <: B)
+           (s : A -->[ identity _ ] B)
   : Γ & A --> Γ & B
   := comprehension_functor_mor (comp_cat_comprehension C) s.
 
@@ -617,9 +620,7 @@ Definition id_subst_ty
   : z_iso (C := fiber_category _ _) A (A [[ identity _ ]]).
 Proof.
   exact (nat_z_iso_pointwise_z_iso
-           (make_nat_z_iso
-              _ _ _
-              (is_nat_z_iso_fiber_functor_from_cleaving_identity (cleaving_of_types C) Γ))
+           (nat_z_iso_fiber_functor_from_cleaving_identity (cleaving_of_types C) Γ)
            A).
 Defined.
 

@@ -279,6 +279,48 @@ Section Isos.
     exact (idtoiso_disp (idpath _) ee).
   Defined.
 
+  Definition z_iso_disp_transportf
+             {C : category}
+             {D : disp_cat C}
+             {x y : C}
+             {f g : z_iso x y}
+             {xx : D x}
+             {yy : D y}
+             (p : (f : x --> y) = g)
+             (ff : z_iso_disp f xx yy)
+    : z_iso_disp g xx yy.
+  Proof.
+    use make_z_iso_disp.
+    - exact (transportf (λ z, _ -->[ z ] _) p ff).
+    - simple refine (_ ,, _ ,, _).
+      + refine (transportf
+                  (λ z, _ -->[ z ] _)
+                  _
+                  (inv_mor_disp_from_z_iso ff)).
+        abstract
+          (use inv_z_iso_unique' ;
+           unfold precomp_with ; cbn ;
+           rewrite <- p ;
+           apply z_iso_inv_after_z_iso).
+      + abstract
+          (rewrite mor_disp_transportf_postwhisker ;
+           rewrite mor_disp_transportf_prewhisker ;
+           rewrite z_iso_disp_after_inv_mor ;
+           unfold transportb ;
+           rewrite !transport_f_f ;
+           apply maponpaths_2 ;
+           apply homset_property).
+      + abstract
+          (cbn ;
+           rewrite mor_disp_transportf_postwhisker ;
+           rewrite mor_disp_transportf_prewhisker ;
+           rewrite inv_mor_after_z_iso_disp ;
+           unfold transportb ;
+           rewrite !transport_f_f ;
+           apply maponpaths_2 ;
+           apply homset_property).
+  Defined.
+
 
   Lemma z_iso_disp_precomp {C : category} {D : disp_cat C}
         {x y : C} (f : z_iso x y)
