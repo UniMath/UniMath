@@ -10,6 +10,9 @@
  1. Notations and accessors for comprehension categories
  2. Notations and accessors for functors of comprehension categories
  3. Terms in comprehension categories
+ 4. Coercion of terms
+ 5. Substitution and coherence
+ 6. Variable rule
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -26,6 +29,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.IndexedCategories.IndexedCategory.
+Require Import UniMath.CategoryTheory.IndexedCategories.FibrationToIndexedCategory.
 Require Import UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
 
 Local Open Scope cat.
@@ -43,6 +48,15 @@ Definition comp_cat_ty
   := disp_cat_of_types C Γ.
 
 Notation "'ty'" := comp_cat_ty.
+
+Definition comp_cat_coercion
+           {C : comp_cat}
+           {Γ : C}
+           (A B : ty Γ)
+  : UU
+  := fiber_category _ _ ⟦ A , B ⟧.
+
+Notation "A <: B" := (comp_cat_coercion A B) (at level 55).
 
 Definition comp_cat_ext
            {C : comp_cat}
@@ -66,9 +80,46 @@ Definition comp_cat_comp_mor
            {C : comp_cat}
            {Γ : C}
            {A B : ty Γ}
-           (s : A -->[ identity _ ] B)
+           (s : A <: B)
   : Γ & A --> Γ & B
   := comprehension_functor_mor (comp_cat_comprehension C) s.
+
+Proposition comp_cat_comp_mor_comm
+            {C : comp_cat}
+            {Γ : C}
+            {A B : ty Γ}
+            (s : A <: B)
+  : comp_cat_comp_mor s · π B = π A.
+Proof.
+  refine (comprehension_functor_mor_comm _ s @ _).
+  apply id_right.
+Qed.
+
+Proposition comp_cat_comp_mor_id
+            {C : comp_cat}
+            {Γ : C}
+            (A : ty Γ)
+  : comp_cat_comp_mor (id_disp A) = identity _.
+Proof.
+  apply comprehension_functor_mor_id.
+Qed.
+
+Proposition comp_cat_comp_mor_comp
+            {C : comp_cat}
+            {Γ : C}
+            {A₁ A₂ A₃ : ty Γ}
+            (s₁ : A₁ <: A₂)
+            (s₂ : A₂ <: A₃)
+  : comp_cat_comp_mor (s₁ · s₂)
+    =
+    comp_cat_comp_mor s₁ · comp_cat_comp_mor s₂.
+Proof.
+  refine (_ @ comprehension_functor_mor_comp _ s₁ s₂).
+  cbn.
+  unfold comp_cat_comp_mor, comprehension_functor_mor.
+  rewrite disp_functor_transportf, transportf_cod_disp.
+  apply idpath.
+Qed.
 
 Definition comp_cat_comp_z_iso
            {C : comp_cat}
@@ -277,6 +328,12 @@ Proof.
     + use TerminalArrowEq.
 Defined.
 
+Definition comp_cat_functor_empty_context_z_iso
+           {C₁ C₂ : comp_cat}
+           (F : comp_cat_functor C₁ C₂)
+  : z_iso (F []) []
+  := _ ,, comp_cat_functor_empty_context_is_z_iso F.
+
 Definition comp_cat_functor_extension
            {C₁ C₂ : full_comp_cat}
            (F : full_comp_cat_functor C₁ C₂)
@@ -307,20 +364,22 @@ Definition comp_cat_tm
   : UU
   := ∑ (t : Γ --> Γ & A), t · π A = identity Γ.
 
+Notation "'tm'" := comp_cat_tm : comp_cat.
+
 Definition make_comp_cat_tm
            {C : comp_cat}
            {Γ : C}
            {A : ty Γ}
            (t : Γ --> Γ & A)
            (p : t · π A = identity Γ)
-  : comp_cat_tm Γ A
+  : tm Γ A
   := t ,, p.
 
 Coercion comp_cat_tm_to_mor
          {C : comp_cat}
          {Γ : C}
          {A : ty Γ}
-         (t : comp_cat_tm Γ A)
+         (t : tm Γ A)
   : Γ --> Γ & A.
 Proof.
   exact (pr1 t).
@@ -330,7 +389,7 @@ Proposition comp_cat_tm_eq
             {C : comp_cat}
             {Γ : C}
             {A : ty Γ}
-            (t : comp_cat_tm Γ A)
+            (t : tm Γ A)
   : t · π A = identity Γ.
 Proof.
   exact (pr2 t).
@@ -340,7 +399,7 @@ Proposition eq_comp_cat_tm
             {C : comp_cat}
             {Γ : C}
             {A : ty Γ}
-            {t₁ t₂ : comp_cat_tm Γ A}
+            {t₁ t₂ : tm Γ A}
             (p : comp_cat_tm_to_mor t₁ = comp_cat_tm_to_mor t₂)
   : t₁ = t₂.
 Proof.
@@ -357,16 +416,42 @@ Definition sub_to_extension
            {Γ Δ : C}
            {A : ty Γ}
            (s : Δ --> Γ)
-           (t : comp_cat_tm Δ (A [[ s ]]))
+           (t : tm Δ (A [[ s ]]))
   : Δ --> Γ & A
   := t · PullbackPr1 (comp_cat_pullback A s).
+
+Proposition sub_to_extension_pr
+            {C : comp_cat}
+            {Γ Δ : C}
+            {A : ty Γ}
+            (s : Δ --> Γ)
+            (t : tm Δ (A [[ s ]]))
+  : s = sub_to_extension s t · π A.
+Proof.
+  unfold sub_to_extension.
+  cbn.
+  rewrite !assoc'.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths.
+    apply comprehension_functor_mor_comm.
+  }
+  rewrite !assoc.
+  etrans.
+  {
+    apply maponpaths_2.
+    apply comp_cat_tm_eq.
+  }
+  apply id_left.
+Qed.
 
 Definition sub_to_extension_tm
            {C : comp_cat}
            {Γ Δ : C}
            {A : ty Γ}
            (s : Δ --> Γ & A)
-  : comp_cat_tm Δ (A [[ s · π _ ]]).
+  : tm Δ (A [[ s · π _ ]]).
 Proof.
   use make_comp_cat_tm.
   - use (PullbackArrow (comp_cat_pullback _ _)).
@@ -385,8 +470,8 @@ Definition transport_term_sub_eq
            {s₁ s₂ : Δ --> Γ}
            (p : s₁ = s₂)
            {A : ty Γ}
-           (t : comp_cat_tm Δ (A [[ s₁ ]]))
-  : comp_cat_tm Δ (A [[ s₂ ]]).
+           (t : tm Δ (A [[ s₁ ]]))
+  : tm Δ (A [[ s₂ ]]).
 Proof.
   use make_comp_cat_tm.
   - use (PullbackArrow (comp_cat_pullback _ _)).
@@ -429,13 +514,13 @@ Proof.
   apply (PullbackArrow_PullbackPr1 (comp_cat_pullback A (s₁ · π A))).
 Qed.
 
-Definition sub_comp_cat_tm
+Definition subst_comp_cat_tm
            {C : comp_cat}
            {Γ Δ : C}
            {A : ty Γ}
-           (t : comp_cat_tm Γ A)
+           (t : tm Γ A)
            (s : Δ --> Γ)
-  : comp_cat_tm Δ (A [[ s ]]).
+  : tm Δ (A [[ s ]]).
 Proof.
   use make_comp_cat_tm.
   - use (PullbackArrow (comp_cat_pullback A s)).
@@ -450,24 +535,566 @@ Proof.
       (apply (PullbackArrow_PullbackPr2 (comp_cat_pullback A s))).
 Defined.
 
-Proposition sub_comp_cat_tm_pr1
+Notation "t [[ s ]]tm" := (subst_comp_cat_tm t s) (at level 20).
+
+Proposition subst_comp_cat_tm_pr1
             {C : comp_cat}
             {Γ Δ : C}
             {A : ty Γ}
-            (t : comp_cat_tm Γ A)
+            (t : tm Γ A)
             (s : Δ --> Γ)
-  : sub_comp_cat_tm t s · PullbackPr1 (comp_cat_pullback A s) = s · t.
+  : t [[ s ]]tm · PullbackPr1 (comp_cat_pullback A s) = s · t.
 Proof.
   apply (PullbackArrow_PullbackPr1 (comp_cat_pullback A s)).
 Qed.
 
-Proposition sub_comp_cat_tm_pr2
+Proposition subst_comp_cat_tm_pr2
             {C : comp_cat}
             {Γ Δ : C}
             {A : ty Γ}
             (t : comp_cat_tm Γ A)
             (s : Δ --> Γ)
-  : sub_comp_cat_tm t s · π _ = identity _.
+  : t [[ s ]]tm · π _ = identity _.
 Proof.
   apply (PullbackArrow_PullbackPr2 (comp_cat_pullback A s)).
+Qed.
+
+(** * 4. Coercion of terms *)
+Definition coerce_comp_cat_tm
+           {C : comp_cat}
+           {Γ : C}
+           {A B : ty Γ}
+           (f : A <: B)
+           (t : tm Γ A)
+  : tm Γ B.
+Proof.
+  use make_comp_cat_tm.
+  - exact (t · comp_cat_comp_mor f).
+  - abstract
+      (rewrite !assoc' ;
+       rewrite comp_cat_comp_mor_comm ;
+       rewrite comp_cat_tm_eq ;
+       apply idpath).
+Defined.
+
+Notation "t ↑ f" := (coerce_comp_cat_tm f t) (at level 29, left associativity).
+
+Proposition id_coerce_comp_cat_tm
+            {C : comp_cat}
+            {Γ : C}
+            {A : ty Γ}
+            (t : tm Γ A)
+  : t ↑ id_disp _ = t.
+Proof.
+  use eq_comp_cat_tm ; cbn.
+  rewrite comp_cat_comp_mor_id.
+  apply id_right.
+Qed.
+
+Proposition comp_coerce_comp_cat_tm
+            {C : comp_cat}
+            {Γ : C}
+            {A₁ A₂ A₃ : ty Γ}
+            (f : A₁ <: A₂)
+            (g : A₂ <: A₃)
+            (t : tm Γ A₁)
+  : t ↑ f ↑ g
+    =
+    t ↑ (f · g).
+Proof.
+  use eq_comp_cat_tm ; cbn -[compose].
+  rewrite assoc'.
+  apply maponpaths.
+  refine (!_).
+  apply comp_cat_comp_mor_comp.
+Qed.
+
+(** * 5. Substitution and coherence *)
+Definition id_subst_ty
+           {C : comp_cat}
+           {Γ : C}
+           (A : ty Γ)
+  : z_iso (C := fiber_category _ _) A (A [[ identity _ ]]).
+Proof.
+  exact (nat_z_iso_pointwise_z_iso
+           (make_nat_z_iso
+              _ _ _
+              (is_nat_z_iso_fiber_functor_from_cleaving_identity (cleaving_of_types C) Γ))
+           A).
+Defined.
+
+Definition comp_subst_ty
+           {C : comp_cat}
+           {Γ₁ Γ₂ Γ₃ : C}
+           (s₁ : Γ₁ --> Γ₂)
+           (s₂ : Γ₂ --> Γ₃)
+           (A : ty Γ₃)
+  : z_iso
+      (C := fiber_category _ _)
+      (A [[ s₂ ]] [[ s₁ ]])
+      (A [[ s₁ · s₂ ]]).
+Proof.
+  exact (nat_z_iso_pointwise_z_iso
+           (fiber_functor_from_cleaving_comp_nat_z_iso (cleaving_of_types C) s₂ s₁)
+           A).
+Defined.
+
+Definition eq_subst_ty
+           {C : comp_cat}
+           {Γ₁ Γ₂ : C}
+           {s₁ s₂ : Γ₁ --> Γ₂}
+           (A : ty Γ₂)
+           (p : s₁ = s₂)
+  : z_iso (C := fiber_category _ _) (A [[ s₁ ]]) (A [[ s₂ ]]).
+Proof.
+  exact (nat_z_iso_pointwise_z_iso
+           (fiber_functor_on_eq_nat_z_iso (cleaving_of_types C) p)
+           A).
+Defined.
+
+Proposition eq_subst_ty_idpath
+            {C : comp_cat}
+            {Γ₁ Γ₂ : C}
+            {s : Γ₁ --> Γ₂}
+            (A : ty Γ₂)
+            (p : s = s)
+  : (eq_subst_ty A p : _ --> _) = identity _.
+Proof.
+  assert (p = idpath _) as ->.
+  {
+    apply homset_property.
+  }
+  cbn.
+  apply idpath.
+Qed.
+
+Proposition eq_subst_ty_concat
+            {C : comp_cat}
+            {Γ₁ Γ₂ : C}
+            {s₁ s₂ s₃ : Γ₁ --> Γ₂}
+            (A : ty Γ₂)
+            (p : s₁ = s₂)
+            (q : s₂ = s₃)
+  : eq_subst_ty A p · eq_subst_ty _ q = eq_subst_ty A (p @ q).
+Proof.
+  induction p, q ; cbn.
+  rewrite id_right_disp.
+  apply transportfbinv.
+Qed.
+
+Proposition eq_subst_ty_eq
+            {C : comp_cat}
+            {Γ₁ Γ₂ : C}
+            {s₁ s₂ : Γ₁ --> Γ₂}
+            (A : ty Γ₂)
+            (p q : s₁ = s₂)
+  : (eq_subst_ty A p : _ --> _) = eq_subst_ty A q.
+Proof.
+  assert (p = q) as ->.
+  {
+    apply homset_property.
+  }
+  apply idpath.
+Qed.
+
+Definition coerce_subst_ty
+           {C : comp_cat}
+           {Γ₁ Γ₂ : C}
+           (s : Γ₁ --> Γ₂)
+           {A B : ty Γ₂}
+           (f : A <: B)
+  : (fiber_category _ _) ⟦ A [[ s ]] , B [[ s ]] ⟧
+  := #(fiber_functor_from_cleaving _ (cleaving_of_types C) s) f.
+
+Proposition id_coerce_subst_ty
+            {C : comp_cat}
+            {Γ₁ Γ₂ : C}
+            (s : Γ₁ --> Γ₂)
+            (A : ty Γ₂)
+  : coerce_subst_ty s (identity (A : fiber_category _ _)) = identity _.
+Proof.
+  apply (functor_id (fiber_functor_from_cleaving _ (cleaving_of_types C) s)).
+Qed.
+
+Proposition comp_coerce_subst_ty
+            {C : comp_cat}
+            {Γ₁ Γ₂ : C}
+            (s : Γ₁ --> Γ₂)
+            {A₁ A₂ A₃ : ty Γ₂}
+            (f : A₁ <: A₂)
+            (g : A₂ <: A₃)
+  : coerce_subst_ty s (f · g)
+    =
+    coerce_subst_ty s f · coerce_subst_ty s g.
+Proof.
+  apply (functor_comp (fiber_functor_from_cleaving _ (cleaving_of_types C) s)).
+Qed.
+
+Proposition id_right_subst_ty
+            {C : comp_cat}
+            {Γ₁ Γ₂ : C}
+            (s : Γ₁ --> Γ₂)
+            (A : ty Γ₂)
+  : coerce_subst_ty s (id_subst_ty A : _ --> _)
+    · comp_subst_ty s (identity _) A
+    · eq_subst_ty A (id_right _)
+    =
+    identity _.
+Proof.
+  exact (!(indexed_cat_lunitor (cleaving_to_indexed_cat _ (cleaving_of_types C)) _ _)).
+Qed.
+
+Proposition id_left_subst_ty
+            {C : comp_cat}
+            {Γ₁ Γ₂ : C}
+            (s : Γ₁ --> Γ₂)
+            (A : ty Γ₂)
+  : id_subst_ty (A [[ s ]])
+    · comp_subst_ty (identity _) s A
+    · eq_subst_ty A (id_left _)
+    =
+    identity _.
+Proof.
+  exact (!(indexed_cat_runitor (cleaving_to_indexed_cat _ (cleaving_of_types C)) _ _)).
+Qed.
+
+Proposition assoc'_subst_ty
+            {C : comp_cat}
+            {Γ₁ Γ₂ Γ₃ Γ₄ : C}
+            (s₁ : Γ₁ --> Γ₂)
+            (s₂ : Γ₂ --> Γ₃)
+            (s₃ : Γ₃ --> Γ₄)
+            (A : ty Γ₄)
+  : comp_subst_ty s₁ s₂ (A [[ s₃ ]])
+    · comp_subst_ty (s₁ · s₂) s₃ A
+    · eq_subst_ty A (assoc' _ _ _)
+    =
+    coerce_subst_ty s₁ (comp_subst_ty s₂ s₃ A : _ --> _)
+    · comp_subst_ty s₁ (s₂ · s₃) A.
+Proof.
+  exact (indexed_cat_lassociator (cleaving_to_indexed_cat _ (cleaving_of_types C)) _ _ _ _).
+Qed.
+
+Proposition assoc_subst_ty
+            {C : comp_cat}
+            {Γ₁ Γ₂ Γ₃ Γ₄ : C}
+            (s₁ : Γ₁ --> Γ₂)
+            (s₂ : Γ₂ --> Γ₃)
+            (s₃ : Γ₃ --> Γ₄)
+            (A : ty Γ₄)
+  : comp_subst_ty s₁ s₂ (A [[ s₃ ]])
+    · comp_subst_ty (s₁ · s₂) s₃ A
+    =
+    coerce_subst_ty s₁ (comp_subst_ty s₂ s₃ A : _ --> _)
+    · comp_subst_ty s₁ (s₂ · s₃) A
+    · eq_subst_ty A (assoc _ _ _).
+Proof.
+  rewrite <- assoc'_subst_ty.
+  refine (!(id_right _) @ _ @ assoc _ _ _).
+  apply maponpaths.
+  rewrite eq_subst_ty_concat.
+  rewrite eq_subst_ty_idpath.
+  apply idpath.
+Qed.
+
+Proposition coerce_comp_subst_ty
+            {C : comp_cat}
+            {Γ₁ Γ₂ Γ₃ : C}
+            (s₁ : Γ₁ --> Γ₂)
+            (s₂ s₂' : Γ₂ --> Γ₃)
+            (p : s₂' = s₂)
+            (A : ty Γ₃)
+  : coerce_subst_ty s₁ (eq_subst_ty _ p : _ --> _) · comp_subst_ty _ s₂ A
+    =
+    comp_subst_ty _ _ A · eq_subst_ty _ (maponpaths (λ z, _ · z) p).
+Proof.
+  induction p.
+  refine (_ @ id_left _ @ !(id_right _)).
+  apply maponpaths_2.
+  apply id_coerce_subst_ty.
+Qed.
+
+Proposition id_sub_comp_cat_tm
+            {C : comp_cat}
+            {Γ : C}
+            {A : ty Γ}
+            (t : tm Γ A)
+  : t [[ identity _ ]]tm
+    =
+    t ↑ (id_subst_ty A : _ --> _).
+Proof.
+  use eq_comp_cat_tm ; cbn.
+  refine (!_).
+  use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback _ _))).
+  - cbn.
+    rewrite !assoc'.
+    rewrite id_left.
+    refine (_ @ id_right _).
+    apply maponpaths.
+    unfold comp_cat_comp_mor.
+    etrans.
+    {
+      refine (!_).
+      apply comprehension_functor_mor_comp.
+    }
+    rewrite cartesian_factorisation_commutes.
+    refine (_ @ comprehension_functor_mor_id _ _).
+    unfold comprehension_functor_mor, transportb.
+    rewrite disp_functor_transportf, transportf_cod_disp.
+    apply idpath.
+  - cbn.
+    rewrite !assoc'.
+    rewrite comp_cat_comp_mor_comm.
+    apply comp_cat_tm_eq.
+Qed.
+
+Proposition comp_sub_comp_cat_tm
+            {C : comp_cat}
+            {Γ₁ Γ₂ Γ₃ : C}
+            (s₁ : Γ₁ --> Γ₂)
+            (s₂ : Γ₂ --> Γ₃)
+            {A : ty Γ₃}
+            (t : tm Γ₃ A)
+  : t [[ s₁ · s₂ ]]tm
+    =
+    t [[ s₂ ]]tm [[ s₁ ]]tm ↑ (comp_subst_ty s₁ s₂ A : _ --> _).
+Proof.
+  use eq_comp_cat_tm ; cbn.
+  refine (!_).
+  use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback A _))).
+  - cbn.
+    unfold comp_cat_comp_mor.
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      refine (!_).
+      apply comprehension_functor_mor_comp.
+    }
+    rewrite cartesian_factorisation_commutes.
+    unfold comprehension_functor_mor, transportb.
+    rewrite disp_functor_transportf, transportf_cod_disp.
+    etrans.
+    {
+      apply maponpaths.
+      apply comprehension_functor_mor_comp.
+    }
+    rewrite !assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply (PullbackArrow_PullbackPr1 (comp_cat_pullback (A [[s₂]]) s₁)).
+    }
+    rewrite !assoc'.
+    apply maponpaths.
+    apply (PullbackArrow_PullbackPr1 (comp_cat_pullback A s₂)).
+  - cbn.
+    rewrite !assoc'.
+    rewrite comp_cat_comp_mor_comm.
+    apply (PullbackArrow_PullbackPr2 (comp_cat_pullback (A [[s₂]]) s₁)).
+Qed.
+
+Proposition subst_coerce_comp_cat_tm
+            {C : comp_cat}
+            {Γ₁ Γ₂ : C}
+            {A₁ A₂ : ty Γ₂}
+            (s : Γ₁ --> Γ₂)
+            (f : A₁ <: A₂)
+            (t : comp_cat_tm Γ₂ A₁)
+  : (t ↑ f) [[ s ]]tm
+    =
+    t [[ s ]]tm ↑ coerce_subst_ty s f.
+Proof.
+  use eq_comp_cat_tm.
+  cbn -[coerce_subst_ty].
+  refine (!_).
+  use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback A₂ s))).
+  - unfold comp_cat_comp_mor.
+    cbn -[coerce_subst_ty].
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      refine (!_).
+      apply comprehension_functor_mor_comp.
+    }
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply cartesian_factorisation_commutes.
+    }
+    rewrite comprehension_functor_mor_transportf.
+    etrans.
+    {
+      apply maponpaths.
+      apply comprehension_functor_mor_comp.
+    }
+    rewrite !assoc.
+    apply maponpaths_2.
+    apply (PullbackArrow_PullbackPr1 (comp_cat_pullback A₁ s)).
+  - rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      apply comp_cat_comp_mor_comm.
+    }
+    apply (PullbackArrow_PullbackPr2 (comp_cat_pullback A₁ s)).
+Qed.
+
+(** * 6. Variable rule *)
+Definition comp_cat_tm_var
+           {C : comp_cat}
+           (Γ : C)
+           (A : ty Γ)
+  : tm (Γ & A) (A [[ π _ ]]).
+Proof.
+  use make_comp_cat_tm.
+  - use (PullbackArrow (comp_cat_pullback _ _)).
+    + apply identity.
+    + apply identity.
+    + abstract
+        (rewrite !id_left ;
+         apply idpath).
+  - abstract
+      (apply (PullbackArrow_PullbackPr2 (comp_cat_pullback _ _))).
+Defined.
+
+Definition subst_comp_cat_tm_var_coerce
+           {C : comp_cat}
+           {Γ Δ : C}
+           {A : ty Γ}
+           (s : Δ --> Γ)
+           (t : tm Δ (A [[ s ]]))
+  : A [[s]] <: (A [[ π A ]]) [[ sub_to_extension s t ]].
+Proof.
+  refine (eq_subst_ty _ _ · inv_from_z_iso (comp_subst_ty _ _ _)).
+  apply sub_to_extension_pr.
+Defined.
+
+Lemma cleaving_of_types_eq
+      {C : comp_cat}
+      {Γ Δ : C}
+      {s s' : Δ --> Γ}
+      (p : s = s')
+      (A : ty Γ)
+  : (pr1 (idtoiso
+            (C := fiber_category _ _)
+            (maponpaths (λ z, pr1 (cleaving_of_types _ _ _ z _)) p))
+    ;; cleaving_of_types C Γ Δ s' A
+    =
+    transportf
+      (λ z, _ -->[ z ] _)
+      (p @ !(id_left _))
+      (cleaving_of_types C Γ Δ s A))%mor_disp.
+Proof.
+  induction p ; cbn.
+  rewrite id_left_disp.
+  apply idpath.
+Qed.
+
+Proposition subst_comp_cat_tm_var
+            {C : comp_cat}
+            {Γ Δ : C}
+            {A : ty Γ}
+            (s : Δ --> Γ)
+            (t : tm Δ (A [[ s ]]))
+  : comp_cat_tm_var Γ A [[ sub_to_extension s t ]]tm
+    =
+    t ↑ subst_comp_cat_tm_var_coerce s t.
+Proof.
+  use eq_comp_cat_tm.
+  refine (!_).
+  use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback _ _))).
+  - cbn -[eq_subst_ty comp_subst_ty compose].
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback (comp_cat_pullback A (π A)))).
+    + cbn -[eq_subst_ty comp_subst_ty compose].
+      rewrite !assoc'.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        apply (PullbackArrow_PullbackPr1 (comp_cat_pullback A (π A))).
+      }
+      rewrite id_right.
+      unfold sub_to_extension.
+      apply maponpaths.
+      cbn -[eq_subst_ty comp_subst_ty compose].
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        refine (!_).
+        apply comprehension_functor_mor_comp.
+      }
+      etrans.
+      {
+        refine (!_).
+        apply comprehension_functor_mor_comp.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite assoc_disp.
+        apply maponpaths.
+        cbn.
+        unfold fiber_functor_from_cleaving_comp_inv.
+        rewrite !mor_disp_transportf_postwhisker.
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths_2.
+          rewrite assoc_disp_var.
+          rewrite cartesian_factorisation_commutes.
+          apply idpath.
+        }
+        rewrite mor_disp_transportf_postwhisker.
+        apply maponpaths.
+        rewrite assoc_disp_var.
+        apply maponpaths.
+        rewrite cartesian_factorisation_commutes.
+        rewrite mor_disp_transportf_prewhisker.
+        apply idpath.
+      }
+      unfold transportb.
+      rewrite !comprehension_functor_mor_transportf.
+      etrans.
+      {
+        apply maponpaths.
+        apply cleaving_of_types_eq.
+      }
+      rewrite comprehension_functor_mor_transportf.
+      apply idpath.
+    + cbn -[eq_subst_ty comp_subst_ty compose].
+      rewrite !assoc'.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        apply comprehension_functor_mor_comm.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !assoc.
+        apply maponpaths_2.
+        apply comp_cat_comp_mor_comm.
+      }
+      rewrite !assoc.
+      rewrite comp_cat_tm_eq.
+      rewrite id_left.
+      refine (!_).
+      etrans.
+      {
+        rewrite !assoc'.
+        apply maponpaths.
+        apply (PullbackArrow_PullbackPr2 (comp_cat_pullback A (π A))).
+      }
+      apply id_right.
+  - cbn -[eq_subst_ty comp_subst_ty compose].
+    rewrite !assoc'.
+    etrans.
+    {
+      apply maponpaths.
+      apply comp_cat_comp_mor_comm.
+    }
+    apply comp_cat_tm_eq.
 Qed.
