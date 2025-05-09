@@ -869,6 +869,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DaggerCategories/Univalence.v](CategoryTheory/DaggerCategories/Univalence.v)
    - [DaggerCategories/Functors.v](CategoryTheory/DaggerCategories/Functors.v)
    - [DaggerCategories/Transformations.v](CategoryTheory/DaggerCategories/Transformations.v)
+   - [Monoidal/DaggerMonoidal.v](CategoryTheory/Monoidal/DaggerMonoidal.v)
    - [DaggerCategories/FunctorCategory.v](CategoryTheory/DaggerCategories/FunctorCategory.v)
    - [DaggerCategories/Examples/Groupoids.v](CategoryTheory/DaggerCategories/Examples/Groupoids.v)
    - [DaggerCategories/Examples/Relations.v](CategoryTheory/DaggerCategories/Examples/Relations.v)
