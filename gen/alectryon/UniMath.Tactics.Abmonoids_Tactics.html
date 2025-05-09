@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Abmonoids_Tactics.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** Author: Michael A. Warren.*)</span>
+<span class="sd">(** Date: Spring 2015.*)</span>
+<span class="sd">(** Description: Some tactics for abelian monoids.*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.Monoids.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.Groups.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="abmonoids-tactics-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="abmonoids-tactics-v-chk0"><span class="kn">Require Import</span> UniMath.Tactics.Monoids_Tactics.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">[Loading ML file number_string_notation_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file tauto_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file cc_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file firstorder_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file ltac2_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">Serlib plugin: coq-core.plugins.ltac2_ltac1 <span class="kr">is</span> not available: serlib support <span class="kr">is</span> missing.
+Incremental checking <span class="kr">for</span> commands <span class="kr">in</span> this plugin will be impacted.</blockquote><blockquote class="alectryon-message">[Loading ML file ltac2_ltac1_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Tactics.Utilities.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * I. Definitions.*)</span>
+
+<span class="sd">(** Because rewrite seems to have handling the two scopes multmonoid and addmonoid, the following definitions are for arbitrary commutative operations.*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">isabsemigrop</span> {<span class="nv">X</span> : hSet} (<span class="nv">opp</span> : binop X) :=
+  (isassoc opp) ** (iscomm opp).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">abmonoid_to_absemigr</span> (<span class="nv">M</span> : abmonoid) : isabsemigrop (@op M) :=
+  make_dirprod (@assocax M) (@commax M).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">absemigr_perm021</span> :
+  ∏ X : hSet, ∏ opp : binop X, ∏ <span class="kr">is</span> : isabsemigrop opp,
+  ∏ n0 n1 n2,
+    opp (opp n0 n1) n2 = opp (opp n0 n2) n1 :=
+  <span class="kr">λ</span> <span class="nv">X</span> <span class="nv">opp</span> <span class="nv">is</span> <span class="nv">n0</span> <span class="nv">n1</span> <span class="nv">n2</span>,
+    pathscomp0
+      (pathscomp0
+         ((pr1 <span class="kr">is</span>) n0 n1 n2)
+         (maponpaths (<span class="kr">λ</span> <span class="nv">z</span>, opp n0 z) ((pr2 <span class="kr">is</span>) n1 n2)))
+      (pathsinv0 ((pr1 <span class="kr">is</span>) n0 n2 n1)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">abmonoid_perm021</span> :=
+  <span class="kr">λ</span> <span class="nv">M</span> : abmonoid, absemigr_perm021 M (@op M) (abmonoid_to_absemigr M).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">absemigr_perm102</span> :
+  ∏ X : hSet, ∏ opp : binop X, ∏ <span class="kr">is</span> : isabsemigrop opp,
+  ∏ n0 n1 n2,
+    opp (opp n0 n1) n2 = opp (opp n1 n0) n2 :=
+  <span class="kr">λ</span> <span class="nv">X</span> <span class="nv">opp</span> <span class="nv">is</span> <span class="nv">n0</span> <span class="nv">n1</span> <span class="nv">n2</span>, maponpaths (<span class="kr">λ</span> <span class="nv">z</span>, opp z n2) ((pr2 <span class="kr">is</span>) n0 n1).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">abmonoid_perm102</span> :=
+  <span class="kr">λ</span> <span class="nv">M</span> : abmonoid, absemigr_perm102 M (@op M) (abmonoid_to_absemigr M).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">absemigr_perm120</span> :
+  ∏ X : hSet, ∏ opp : binop X, ∏ <span class="kr">is</span> : isabsemigrop opp,
+  ∏ n0 n1 n2,
+    opp (opp n0 n1) n2 = opp (opp n2 n0) n1 :=
+  <span class="kr">λ</span> <span class="nv">X</span> <span class="nv">opp</span> <span class="nv">is</span> <span class="nv">n0</span> <span class="nv">n1</span> <span class="nv">n2</span>,
+    pathscomp0 ((pr2 <span class="kr">is</span>) (opp n0 n1) n2) (pathsinv0 ((pr1 <span class="kr">is</span>) n2 n0 n1)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">abmonoid_perm120</span> :=
+  <span class="kr">λ</span> <span class="nv">M</span> : abmonoid, absemigr_perm120 M (@op M) (abmonoid_to_absemigr M).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">absemigr_perm201</span> :
+  ∏ X : hSet, ∏ opp : binop X, ∏ <span class="kr">is</span> : isabsemigrop opp,
+  ∏ n0 n1 n2,
+    opp (opp n0 n1) n2 = opp (opp n1 n2) n0 :=
+  <span class="kr">λ</span> <span class="nv">X</span> <span class="nv">opp</span> <span class="nv">is</span> <span class="nv">n0</span> <span class="nv">n1</span> <span class="nv">n2</span>,
+    pathscomp0 ((pr1 <span class="kr">is</span>) n0 n1 n2) ((pr2 <span class="kr">is</span>) n0 (opp n1 n2)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">abmonoid_perm201</span> :=
+  <span class="kr">λ</span> <span class="nv">M</span> : abmonoid, absemigr_perm201 M (@op M) (abmonoid_to_absemigr M).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">absemigr_perm210</span> :
+  ∏ X : hSet, ∏ opp : binop X, ∏ <span class="kr">is</span> : isabsemigrop opp,
+  ∏ n0 n1 n2,
+    opp (opp n0 n1) n2 = opp (opp n2 n1) n0 :=
+  <span class="kr">λ</span> <span class="nv">X</span> <span class="nv">opp</span> <span class="nv">is</span> <span class="nv">n0</span> <span class="nv">n1</span> <span class="nv">n2</span>,
+    pathscomp0 (absemigr_perm102 X opp <span class="kr">is</span> n0 n1 n2)
+               (absemigr_perm120 X opp <span class="kr">is</span> n1 n0 n2).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">abmonoid_perm210</span> :=
+  <span class="kr">λ</span> <span class="nv">M</span> : abmonoid, absemigr_perm210 M (@op M) (abmonoid_to_absemigr M).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * II. Tactics for rearranging words.*)</span>
+
+<span class="sd">(** We employ the following naming conventions.  By default a tactics given pertain only to equations and operate by default on the left-hand side of equations.  Those that operate on both left- and right-hand sides of the goal are suffixed with [_goal].  Tactics that operate on the left-hand side of equations occurring as hypotheses are suffixed with [_in].  Those that operate on both left- and right-hand sides of equations occurring as hypotheses are suffixed with [_both_in].  Those that opexrate on all sides of goals and hypotheses are suffixed with [_all].*)</span>
+
+<span class="sd">(** TODO: More general version.*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">absemigr_ternary_perm</span> X opp <span class="kr">is</span> s t u :=
+  <span class="kr">let</span> <span class="nv">f</span> := <span class="kp">eval</span> <span class="nb">hnf</span> <span class="kr">in</span> opp <span class="kr">in</span>
+      <span class="kr">match goal with</span>
+        | |- <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt;
+          <span class="kr">match</span> lhs <span class="kr">with</span>
+            | <span class="kp">context</span>[f (f t s) u] =&gt;
+              <span class="nb">rewrite</span> (absemigr_perm102 X f <span class="kr">is</span> t s u); <span class="kp">idtac</span>
+            | <span class="kp">context</span>[f (f t u) s] =&gt;
+              <span class="nb">rewrite</span> (absemigr_perm120 X f <span class="kr">is</span> t u s); <span class="kp">idtac</span>
+            | <span class="kp">context</span>[f (f u s) t] =&gt;
+              <span class="nb">rewrite</span> (absemigr_perm201 X f <span class="kr">is</span> u s t); <span class="kp">idtac</span>
+            | <span class="kp">context</span>[f (f u t) s] =&gt;
+              <span class="nb">rewrite</span> (absemigr_perm210 X f <span class="kr">is</span> u t s); <span class="kp">idtac</span>
+            | <span class="kp">context</span>[f (f s u) t] =&gt;
+              <span class="nb">rewrite</span> (absemigr_perm021 X f <span class="kr">is</span> s u t); <span class="kp">idtac</span>
+            | <span class="kp">context</span>[f (f (f <span class="nl">?x</span> t) s) u] =&gt;
+              <span class="nb">rewrite</span> (pr1 <span class="kr">is</span> x t s); <span class="nb">rewrite</span> (pr1 <span class="kr">is</span> x (f t s) u);
+              <span class="nb">rewrite</span> (absemigr_perm102 X f <span class="kr">is</span> t s u);
+              <span class="nb">rewrite</span> &lt;- (pr1 <span class="kr">is</span> x (f s t) u);
+              <span class="nb">rewrite</span> &lt;- (pr1 <span class="kr">is</span> x s t); <span class="kp">idtac</span>
+            | <span class="kp">context</span>[f (f (f <span class="nl">?x</span> t) u) s] =&gt;
+              <span class="nb">rewrite</span> (pr1 <span class="kr">is</span> x t u); <span class="nb">rewrite</span> (pr1 <span class="kr">is</span> x (f t u) s);
+              <span class="nb">rewrite</span> (absemigr_perm120 X f <span class="kr">is</span> t u s);
+              <span class="nb">rewrite</span> &lt;- (pr1 <span class="kr">is</span> x (f s t) u);
+              <span class="nb">rewrite</span> &lt;- (pr1 <span class="kr">is</span> x s t); <span class="kp">idtac</span>
+            | <span class="kp">context</span>[f (f (f <span class="nl">?x</span> u) s) t] =&gt;
+              <span class="nb">rewrite</span> (pr1 <span class="kr">is</span> x u s); <span class="nb">rewrite</span> (pr1 <span class="kr">is</span> x (f u s) t);
+              <span class="nb">rewrite</span> (absemigr_perm201 X f <span class="kr">is</span> u s t);
+              <span class="nb">rewrite</span> &lt;- (pr1 <span class="kr">is</span> x (f s t) u);
+              <span class="nb">rewrite</span> &lt;- (pr1 <span class="kr">is</span> x s t); <span class="kp">idtac</span>
+            | <span class="kp">context</span>[f (f (f <span class="nl">?x</span> u) t) s] =&gt;
+              <span class="nb">rewrite</span> (pr1 <span class="kr">is</span> x u t); <span class="nb">rewrite</span> (pr1 <span class="kr">is</span> x (f u t) s);
+              <span class="nb">rewrite</span> (absemigr_perm210 X f <span class="kr">is</span> u t s);
+              <span class="nb">rewrite</span> &lt;- (pr1 <span class="kr">is</span> x (f s t) u);
+              <span class="nb">rewrite</span> &lt;- (pr1 <span class="kr">is</span> x s t); <span class="kp">idtac</span>
+            | <span class="kp">context</span>[f (f (f <span class="nl">?x</span> s) u) t] =&gt;
+              <span class="nb">rewrite</span> (pr1 <span class="kr">is</span> x s u); <span class="nb">rewrite</span> (pr1 <span class="kr">is</span> x (f s u) t);
+              <span class="nb">rewrite</span> (absemigr_perm021 X f <span class="kr">is</span> s u t);
+              <span class="nb">rewrite</span> &lt;- (pr1 <span class="kr">is</span> x (f s t) u);
+              <span class="nb">rewrite</span> &lt;- (pr1 <span class="kr">is</span> x s t); <span class="kp">idtac</span>
+          <span class="kr">end</span>
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_ternary_perm</span> M :=
+  absemigr_ternary_perm M (@op M) (abmonoid_to_absemigr M).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> addmonoid.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_not_word</span> M s :=
+  <span class="kr">match</span> s <span class="kr">with</span>
+    | <span class="nl">?x</span> + <span class="nl">?y</span> =&gt; <span class="kp">fail</span> <span class="mi">1</span>
+    | _ =&gt; <span class="kp">idtac</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_not_at_front</span> M t s :=
+  <span class="kr">match</span> t <span class="kr">with</span>
+    | s =&gt; <span class="kp">fail</span> <span class="mi">1</span>
+    | <span class="kp">context</span>[s + <span class="nl">?x</span>] =&gt; <span class="kp">fail</span> <span class="mi">1</span>
+    | _ =&gt; <span class="kp">idtac</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_not_at_back</span> M t s :=
+  <span class="kr">match</span> t <span class="kr">with</span>
+    | s =&gt; <span class="kp">fail</span> <span class="mi">1</span>
+    | <span class="nl">?x</span> + s =&gt; <span class="kp">fail</span> <span class="mi">1</span>
+    | _ =&gt; <span class="kp">idtac</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_move_to_back</span> M s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">lhs</span> := get_current_lhs <span class="kr">in</span>
+    abmonoid_not_at_back M lhs s;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | s + <span class="nl">?x</span> =&gt; <span class="nb">rewrite</span> (commax M s x)
+        | <span class="kp">context</span>[<span class="nl">?x</span> + s + <span class="nl">?y</span>] =&gt;
+          <span class="nb">rewrite</span> (abmonoid_perm021 M x s y)
+        | <span class="kp">context</span>[s + <span class="nl">?x</span> + <span class="nl">?y</span>] =&gt;
+          <span class="nb">rewrite</span> (abmonoid_perm201 M s x y)
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_move_to_back_in</span> M H s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">lhs</span> := get_current_lhs_in H <span class="kr">in</span>
+    abmonoid_not_at_back M lhs s;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | s + <span class="nl">?x</span> =&gt; <span class="nb">rewrite</span> (commax M s x) <span class="kr">in</span> H
+        | <span class="kp">context</span>[<span class="nl">?x</span> + s + <span class="nl">?y</span>] =&gt;
+          <span class="nb">rewrite</span> (abmonoid_perm021 M x s y) <span class="kr">in</span> H
+        | <span class="kp">context</span>[s + <span class="nl">?x</span> + <span class="nl">?y</span>] =&gt;
+          <span class="nb">rewrite</span> (abmonoid_perm201 M s x y) <span class="kr">in</span> H
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_move_to_front</span> M s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">lhs</span> := get_current_lhs <span class="kr">in</span>
+    abmonoid_not_at_front M lhs s;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> + s] =&gt;
+          abmonoid_not_word M x; <span class="nb">rewrite</span> (commax M x s)
+        | <span class="kp">context</span>[<span class="nl">?x</span> + <span class="nl">?y</span> + s] =&gt; abmonoid_not_word M y;
+            <span class="nb">rewrite</span> (abmonoid_perm021 M x y s)
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_move_to_front_in</span> M H s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">lhs</span> := get_current_lhs_in H <span class="kr">in</span>
+    abmonoid_not_at_front M lhs s;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> + s] =&gt;
+          abmonoid_not_word M x; <span class="nb">rewrite</span> (commax M x s) <span class="kr">in</span> H
+        | <span class="kp">context</span>[<span class="nl">?x</span> + <span class="nl">?y</span> + s] =&gt; abmonoid_not_word M y;
+            <span class="nb">rewrite</span> (abmonoid_perm021 M x y s) <span class="kr">in</span> H
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_move_to_front_goal</span> M s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">rhs</span> := get_current_rhs <span class="kr">in</span>
+    abmonoid_not_at_front M rhs s;
+      <span class="kr">match</span> rhs <span class="kr">with</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> + s] =&gt;
+          abmonoid_not_word M x; <span class="nb">rewrite</span> (commax M x s)
+        | <span class="kp">context</span>[<span class="nl">?x</span> + <span class="nl">?y</span> + s] =&gt; abmonoid_not_word M y;
+            <span class="nb">rewrite</span> (abmonoid_perm021 M x y s)
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_move_to_front_both_in</span> M H s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">rhs</span> := get_current_rhs_in H <span class="kr">in</span>
+    abmonoid_not_at_front M rhs s;
+      <span class="kr">match</span> rhs <span class="kr">with</span>
+        | <span class="kp">context</span>[<span class="nl">?x</span> + s] =&gt;
+          abmonoid_not_word M x; <span class="nb">rewrite</span> (commax M x s) <span class="kr">in</span> H
+        | <span class="kp">context</span>[<span class="nl">?x</span> + <span class="nl">?y</span> + s] =&gt; abmonoid_not_word M y;
+            <span class="nb">rewrite</span> (abmonoid_perm021 M x y s) <span class="kr">in</span> H
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_move_to_back_goal</span> M s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">rhs</span> := get_current_rhs <span class="kr">in</span>
+    abmonoid_not_at_back M rhs s;
+      <span class="kr">match</span> rhs <span class="kr">with</span>
+        | <span class="kp">context</span> [s + <span class="nl">?x</span>] =&gt; <span class="nb">rewrite</span> (commax M s x)
+        | <span class="kp">context</span>[<span class="nl">?x</span> + s + <span class="nl">?y</span>] =&gt; abmonoid_not_word M y;
+            <span class="nb">rewrite</span> (abmonoid_perm021 M x s y)
+        | <span class="kp">context</span>[s + <span class="nl">?x</span> + <span class="nl">?y</span>] =&gt;
+          abmonoid_not_word M x; abmonoid_not_word M y;
+          <span class="nb">rewrite</span> (abmonoid_perm201 M s x y)
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_move_to_back_both_in</span> M H s :=
+  <span class="kp">repeat</span>
+    <span class="kr">let</span> <span class="nv">rhs</span> := get_current_rhs_in H <span class="kr">in</span>
+    abmonoid_not_at_back M rhs s;
+      <span class="kr">match</span> rhs <span class="kr">with</span>
+        | <span class="kp">context</span> [s + <span class="nl">?x</span>] =&gt; <span class="nb">rewrite</span> (commax M s x)
+        | <span class="kp">context</span>[<span class="nl">?x</span> + s + <span class="nl">?y</span>] =&gt; abmonoid_not_word M y;
+            <span class="nb">rewrite</span> (abmonoid_perm021 M x s y) <span class="kr">in</span> H
+        | <span class="kp">context</span>[s + <span class="nl">?x</span> + <span class="nl">?y</span>] =&gt;
+          abmonoid_not_word M x; abmonoid_not_word M y;
+          <span class="nb">rewrite</span> (abmonoid_perm201 M s x y) <span class="kr">in</span> H
+      <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_group</span> M s t :=
+  abmonoid_move_to_front M t; abmonoid_move_to_front M s.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_group_goal</span> M s t :=
+  abmonoid_move_to_front_goal M t; abmonoid_move_to_front_goal M s.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_group_in</span> M H s t :=
+  abmonoid_move_to_front_in M H t; abmonoid_move_to_front_in M H s.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_group_both_in</span> M H s t :=
+  abmonoid_move_to_front_both_in M H t; abmonoid_move_to_front_both_in M H s.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_group_all</span> M s t :=
+  abmonoid_group_goal M s t;
+  <span class="kp">repeat</span>
+    <span class="kr">match goal with</span>
+      | H : _ |- _ =&gt; abmonoid_group_both_in M H s t
+    <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+<span class="sd">(** t is a term of type M and abmonoid_group_as attempts to reorganize the lhs of the goal to include as a subterm t.*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_group_as</span> M t :=
+  <span class="kr">match</span> t <span class="kr">with</span>
+    | <span class="nl">?x</span> + <span class="nl">?y</span> =&gt;
+      abmonoid_not_word M y; abmonoid_move_to_front M y;
+      abmonoid_group_as M x
+    | <span class="nl">?x</span> =&gt; abmonoid_not_word M x; abmonoid_move_to_front M x
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** t is a term of type x = y for x, y : M and abmonoid_group_from attempts to reogranize the lhs of the goal to include as a subterm x.*)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_group_from</span> M t :=
+  <span class="kr">let</span> <span class="nv">T</span> := <span class="kp">type of</span> t <span class="kr">in</span>
+  <span class="kr">match</span> T <span class="kr">with</span>
+    | <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt; abmonoid_group_as M lhs
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_op_strip</span> M :=
+  <span class="kr">match goal with</span>
+    | |- <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | <span class="kp">context</span> [<span class="nl">?x</span>] =&gt;
+          <span class="kr">match</span> rhs <span class="kr">with</span>
+            | <span class="kp">context</span> [x] =&gt; abmonoid_move_to_back_goal M x;
+                <span class="nb">apply</span> (ap (<span class="kr">λ</span> <span class="nv">v</span>, v + x))
+          <span class="kr">end</span>
+      <span class="kr">end</span>
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_zap_body</span> M f :=
+  <span class="kr">match goal with</span>
+    | |- <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt;
+      <span class="kr">match</span> lhs <span class="kr">with</span>
+        | rhs =&gt; <span class="nb">apply</span> idpath
+        | <span class="mi">0</span> =&gt; <span class="nb">apply</span> pathsinv0; abmonoid_zap_body M f
+        | <span class="nl">?x</span> + <span class="nl">?y</span> =&gt;
+          <span class="kr">match</span> rhs <span class="kr">with</span>
+            | y + x =&gt; <span class="nb">apply</span> (commax M x y)
+          <span class="kr">end</span>
+        | _ =&gt; (abmonoid_op_strip M; abmonoid_zap_body M f)
+      <span class="kr">end</span>
+    | E : <span class="nl">?l</span> = <span class="nl">?r</span> |- <span class="nl">?lhs</span> = <span class="nl">?rhs</span> =&gt; f E;
+        <span class="kr">let</span> <span class="nv">g</span> := make_hyp_check E <span class="kr">in</span>
+        <span class="kr">let</span> <span class="nv">h</span> := check_cons g f <span class="kr">in</span>
+        abmonoid_group_from M E; matched_rewrite E; abmonoid_zap_body M h
+  <span class="kr">end</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Ltac</span> <span class="nf">abmonoid_zap</span> M := monoid_clean_all M; abmonoid_zap_body M id_check.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * TESTS *)</span>
+<span class="c">(*</span>
+<span class="c">Unset Ltac Debug.</span>
+
+<span class="c">Section Tests.</span>
+<span class="c">  Hypothesis M : abmonoid.</span>
+
+<span class="c">  Hypothesis x y z u v w : M.</span>
+
+<span class="c">  Lemma test_abmonoid_zap_1 (is : w = v): x + (y + w) = x + (v + y).</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. abmonoid_zap M.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_abmonoid_zap_2 (is : w = v):  x + (y + w) = v + (x + y).</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. abmonoid_zap M.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_abmonoid_zap_3 (t : x + (y + (u + z)) = (v + w) + u) :</span>
+<span class="c">    (((x + y) + z) + u) + w = v + (w + (u + w)).</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. abmonoid_zap M.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_abmonoid_zap_4 (t : x + (u + (z + y)) = (u + w) + v) :</span>
+<span class="c">    (((x + y) + z) + u) + w = (w + (u + w)) + v.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. abmonoid_zap M.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_abmonoid_zap_5 (t : x + ((u + z) + y) = (v + w) + u) :</span>
+<span class="c">    ((x + (y + z)) + u) + w = v + (w + (u + w)).</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. abmonoid_zap M.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_abmonoid_zap_6 (t : x + (y + (z + u)) = (v + w) + u) :</span>
+<span class="c">    ((u + (z + y)) + x) + w = w + (u + (w + v)).</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. abmonoid_zap M.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_monoid_zap_7 : x + y + x = x + x + y.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. abmonoid_zap M.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Lemma test_abmonoid_zap_8 (t : x + y = y + x) (i : z + x = @unel M) :</span>
+<span class="c">    x + (y + z) = y + (x + z).</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros. abmonoid_zap M.</span>
+<span class="c">  Qed.</span>
+
+<span class="c">  Close Scope addmonoid.</span>
+<span class="c">End Tests.</span>
+<span class="c">*)</span></span></pre>
+</div>
+</div></body>
+</html>

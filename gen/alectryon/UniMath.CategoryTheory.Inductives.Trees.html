@@ -1,0 +1,1219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Trees.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**</span>
+
+<span class="sd">Definition of binary trees ([Tree]) implemented similarily to lists as the initial algebra of the</span>
+<span class="sd">tree functor.</span>
+
+<span class="sd">Written by: Anders Mörtberg (2016)</span>
+
+<span class="sd">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.PartD.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.Propositions.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.Sets.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.NaturalNumbers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Colimits.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.exponentials.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Inductives.Lists.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * Binary trees *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">bintrees</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Variable</span> <span class="nv">A</span> : HSET.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cocont_functor_hset_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** The tree functor: F(X) = 1 + A * X * X *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">treeOmegaFunctor</span> : omega_cocont_functor HSET HSET := &#39;<span class="mi">1</span> + &#39;A * (Id * Id).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">treeFunctor</span> : functor HSET HSET := pr1 treeOmegaFunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">is_omega_cocont_treeFunctor</span> : is_omega_cocont treeFunctor := pr2 treeOmegaFunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk0"><span class="kn">Lemma</span> <span class="nf">treeFunctor_Initial</span> :
+  Initial (category_FunctorAlg treeFunctor).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Initial (category_FunctorAlg treeFunctor)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk1"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Initial (category_FunctorAlg treeFunctor)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (colimAlgInitial InitialHSET is_omega_cocont_treeFunctor (ColimCoconeHSET _ _)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** The type of binary trees *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">Tree</span> : HSET :=
+  alg_carrier _ (InitialObject treeFunctor_Initial).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">Tree_mor</span> : HSET⟦treeFunctor Tree,Tree⟧ :=
+  alg_map _ (InitialObject treeFunctor_Initial).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">Tree_alg</span> : algebra_ob treeFunctor :=
+  InitialObject treeFunctor_Initial.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk2"><span class="kn">Definition</span> <span class="nf">leaf_map</span> : HSET⟦unitHSET,Tree⟧.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">SET ⟦ <span class="mi">1</span>, Tree ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk3"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">SET ⟦ <span class="mi">1</span>, Tree ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk4"><span class="nb">simpl</span>; <span class="nb">intro</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">setquot
+  (Colimits.rel nat_graph
+     (initChain InitialHSET treeFunctor))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk5">use Tree_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>unit</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">treeFunctor Tree</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> inl, x.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">leaf</span> : pr1 Tree := leaf_map tt.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk6"><span class="kn">Definition</span> <span class="nf">node_map</span> : HSET⟦(A × (Tree × Tree))%<span class="nb">set</span>,Tree⟧.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">SET ⟦ (A × Tree × Tree)%<span class="nb">set</span>, Tree ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk7"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">SET ⟦ (A × Tree × Tree)%<span class="nb">set</span>, Tree ⟧</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk8"><span class="nb">intros</span> xs.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>xs</var><span class="hyp-type"><b>: </b><span>(A × Tree × Tree)%<span class="nb">set</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Tree</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk9">use Tree_mor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>xs</var><span class="hyp-type"><b>: </b><span>(A × Tree × Tree)%<span class="nb">set</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">treeFunctor Tree</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (inr xs).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">node</span> : pr1 A × (pr1 Tree × pr1 Tree) -&gt; pr1 Tree := node_map.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Get recursion/iteration scheme:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">     x : X           f : A × X × X -&gt; X</span>
+<span class="sd">  ------------------------------------</span>
+<span class="sd">        foldr x f : Tree A -&gt; X</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">*)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chka"><span class="kn">Definition</span> <span class="nf">make_treeAlgebra</span> (<span class="nv">X</span> : HSET) (<span class="nv">x</span> : pr1 X)
+  (<span class="nv">f</span> : HSET⟦(A × X × X)%<span class="nb">set</span>,X⟧) : algebra_ob treeFunctor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ (A × X × X)%<span class="nb">set</span>, X ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">algebra_ob treeFunctor</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chkb"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ (A × X × X)%<span class="nb">set</span>, X ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">algebra_ob treeFunctor</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chkc"><span class="nb">set</span> (x&#39; := <span class="kr">λ</span> (<span class="nv">_</span> : unit), x).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ (A × X × X)%<span class="nb">set</span>, X ⟧</span></span></span><br><span><var>x'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">_</span> : unit, x</span></span><span class="hyp-type"><b>: </b><span>unit → pr1 X</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">algebra_ob treeFunctor</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (tpair _ X (sumofmaps x&#39; f) : algebra_ob treeFunctor).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chkd"><span class="kn">Definition</span> <span class="nf">foldr_map</span> (<span class="nv">X</span> : HSET) (<span class="nv">x</span> : pr1 X) (<span class="nv">f</span> : HSET⟦(A × X × X)%<span class="nb">set</span>,X⟧) :
+  algebra_mor _ Tree_alg (make_treeAlgebra X x f).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ (A × X × X)%<span class="nb">set</span>, X ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">algebra_mor treeFunctor Tree_alg
+  (make_treeAlgebra X x f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chke"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>SET ⟦ (A × X × X)%<span class="nb">set</span>, X ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">algebra_mor treeFunctor Tree_alg
+  (make_treeAlgebra X x f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (InitialArrow treeFunctor_Initial (make_treeAlgebra X x f)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chkf"><span class="kn">Definition</span> <span class="nf">foldr</span> (<span class="nv">X</span> : HSET) (<span class="nv">x</span> : pr1 X)
+  (<span class="nv">f</span> : pr1 A × pr1 X × pr1 X -&gt; pr1 X) : pr1 Tree -&gt; pr1 X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>pr1 A × pr1 X × pr1 X → pr1 X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 Tree → pr1 X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk10"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>pr1 X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>pr1 A × pr1 X × pr1 X → pr1 X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 Tree → pr1 X</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (foldr_map _ x f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="c">(* Maybe quantify over &quot;λ _ : unit, x&quot; instead of nil? *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk11"><span class="kn">Lemma</span> <span class="nf">foldr_leaf</span> (<span class="nv">X</span> : hSet) (<span class="nv">x</span> : X) (<span class="nv">f</span> : pr1 A × X × X -&gt; X) : foldr X x f leaf = x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>pr1 A × X × X → X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">foldr X x f leaf = x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk12"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>pr1 A × X × X → X</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">foldr X x f leaf = x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk13"><span class="nb">assert</span> (F := maponpaths (<span class="kr">λ</span> <span class="nv">x</span>, BinCoproductIn1 (BinCoproductsHSET _ _) · x)
+                        (algebra_mor_commutes _ _ _ (foldr_map X x f))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>pr1 A × X × X → X</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">x0</span> : SET
+        ⟦ BinCoproductsHSET
+            (pr1
+               (PrecategoryBinProduct.pair_functor
+                  (pr1 (&#39; <span class="mi">1</span>))
+                  (pr1 (&#39; A * (Id * Id)))
+                  (PrecategoryBinProduct.bindelta_functor
+                     SET
+                     (alg_carrier treeFunctor
+                     Tree_alg))))
+            (pr2
+               (PrecategoryBinProduct.pair_functor
+                  (pr1 (&#39; <span class="mi">1</span>))
+                  (pr1 (&#39; A * (Id * Id)))
+                  (PrecategoryBinProduct.bindelta_functor
+                     SET
+                     (alg_carrier treeFunctor
+                     Tree_alg)))),
+        alg_carrier treeFunctor
+          (make_treeAlgebra X x f) ⟧,
+ BinCoproductIn1
+   (BinCoproductsHSET
+      (pr1
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg))))
+      (pr2
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg)))))
+ · x0)
+  (alg_map treeFunctor Tree_alg · foldr_map X x f) =
+(<span class="kr">λ</span> <span class="nv">x0</span> : SET
+        ⟦ BinCoproductsHSET
+            (pr1
+               (PrecategoryBinProduct.pair_functor
+                  (pr1 (&#39; <span class="mi">1</span>))
+                  (pr1 (&#39; A * (Id * Id)))
+                  (PrecategoryBinProduct.bindelta_functor
+                     SET
+                     (alg_carrier treeFunctor
+                     Tree_alg))))
+            (pr2
+               (PrecategoryBinProduct.pair_functor
+                  (pr1 (&#39; <span class="mi">1</span>))
+                  (pr1 (&#39; A * (Id * Id)))
+                  (PrecategoryBinProduct.bindelta_functor
+                     SET
+                     (alg_carrier treeFunctor
+                     Tree_alg)))),
+        alg_carrier treeFunctor
+          (make_treeAlgebra X x f) ⟧,
+ BinCoproductIn1
+   (BinCoproductsHSET
+      (pr1
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg))))
+      (pr2
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg)))))
+ · x0)
+  (# treeFunctor (foldr_map X x f)
+   · alg_map treeFunctor (make_treeAlgebra X x f))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">foldr X x f leaf = x</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (toforallpaths _ _ _ F tt).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk14"><span class="kn">Lemma</span> <span class="nf">foldr_node</span> (<span class="nv">X</span> : hSet) (<span class="nv">x</span> : X) (<span class="nv">f</span> : pr1 A × X × X -&gt; X)
+                 (<span class="nv">a</span> : pr1 A) (<span class="nv">l1</span> <span class="nv">l2</span> : pr1 Tree) :
+  foldr X x f (node (a,,l1,,l2)) = f (a,,foldr X x f l1,,foldr X x f l2).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>pr1 A × X × X → X</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>pr1 A</span></span></span><br><span><var>l1, l2</var><span class="hyp-type"><b>: </b><span>pr1 Tree</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">foldr X x f (node (a,, l1,, l2)) =
+f (a,, foldr X x f l1,, foldr X x f l2)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk15"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>pr1 A × X × X → X</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>pr1 A</span></span></span><br><span><var>l1, l2</var><span class="hyp-type"><b>: </b><span>pr1 Tree</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">foldr X x f (node (a,, l1,, l2)) =
+f (a,, foldr X x f l1,, foldr X x f l2)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk16"><span class="nb">assert</span> (F := maponpaths (<span class="kr">λ</span> <span class="nv">x</span>, BinCoproductIn2 (BinCoproductsHSET _ _)· x)
+                        (algebra_mor_commutes _ _ _ (foldr_map X x f))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>pr1 A × X × X → X</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>pr1 A</span></span></span><br><span><var>l1, l2</var><span class="hyp-type"><b>: </b><span>pr1 Tree</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">x0</span> : SET
+        ⟦ BinCoproductsHSET
+            (pr1
+               (PrecategoryBinProduct.pair_functor
+                  (pr1 (&#39; <span class="mi">1</span>))
+                  (pr1 (&#39; A * (Id * Id)))
+                  (PrecategoryBinProduct.bindelta_functor
+                     SET
+                     (alg_carrier treeFunctor
+                     Tree_alg))))
+            (pr2
+               (PrecategoryBinProduct.pair_functor
+                  (pr1 (&#39; <span class="mi">1</span>))
+                  (pr1 (&#39; A * (Id * Id)))
+                  (PrecategoryBinProduct.bindelta_functor
+                     SET
+                     (alg_carrier treeFunctor
+                     Tree_alg)))),
+        alg_carrier treeFunctor
+          (make_treeAlgebra X x f) ⟧,
+ BinCoproductIn2
+   (BinCoproductsHSET
+      (pr1
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg))))
+      (pr2
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg)))))
+ · x0)
+  (alg_map treeFunctor Tree_alg · foldr_map X x f) =
+(<span class="kr">λ</span> <span class="nv">x0</span> : SET
+        ⟦ BinCoproductsHSET
+            (pr1
+               (PrecategoryBinProduct.pair_functor
+                  (pr1 (&#39; <span class="mi">1</span>))
+                  (pr1 (&#39; A * (Id * Id)))
+                  (PrecategoryBinProduct.bindelta_functor
+                     SET
+                     (alg_carrier treeFunctor
+                     Tree_alg))))
+            (pr2
+               (PrecategoryBinProduct.pair_functor
+                  (pr1 (&#39; <span class="mi">1</span>))
+                  (pr1 (&#39; A * (Id * Id)))
+                  (PrecategoryBinProduct.bindelta_functor
+                     SET
+                     (alg_carrier treeFunctor
+                     Tree_alg)))),
+        alg_carrier treeFunctor
+          (make_treeAlgebra X x f) ⟧,
+ BinCoproductIn2
+   (BinCoproductsHSET
+      (pr1
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg))))
+      (pr2
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg)))))
+ · x0)
+  (# treeFunctor (foldr_map X x f)
+   · alg_map treeFunctor (make_treeAlgebra X x f))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">foldr X x f (node (a,, l1,, l2)) =
+f (a,, foldr X x f l1,, foldr X x f l2)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk17"><span class="nb">assert</span> (Fal := toforallpaths _ _ _ F (a,,l1,,l2)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>pr1 A × X × X → X</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>pr1 A</span></span></span><br><span><var>l1, l2</var><span class="hyp-type"><b>: </b><span>pr1 Tree</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">x0</span> : SET
+        ⟦ BinCoproductsHSET
+            (pr1
+               (PrecategoryBinProduct.pair_functor
+                  (pr1 (&#39; <span class="mi">1</span>))
+                  (pr1 (&#39; A * (Id * Id)))
+                  (PrecategoryBinProduct.bindelta_functor
+                     SET
+                     (alg_carrier treeFunctor
+                     Tree_alg))))
+            (pr2
+               (PrecategoryBinProduct.pair_functor
+                  (pr1 (&#39; <span class="mi">1</span>))
+                  (pr1 (&#39; A * (Id * Id)))
+                  (PrecategoryBinProduct.bindelta_functor
+                     SET
+                     (alg_carrier treeFunctor
+                     Tree_alg)))),
+        alg_carrier treeFunctor
+          (make_treeAlgebra X x f) ⟧,
+ BinCoproductIn2
+   (BinCoproductsHSET
+      (pr1
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg))))
+      (pr2
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg)))))
+ · x0)
+  (alg_map treeFunctor Tree_alg · foldr_map X x f) =
+(<span class="kr">λ</span> <span class="nv">x0</span> : SET
+        ⟦ BinCoproductsHSET
+            (pr1
+               (PrecategoryBinProduct.pair_functor
+                  (pr1 (&#39; <span class="mi">1</span>))
+                  (pr1 (&#39; A * (Id * Id)))
+                  (PrecategoryBinProduct.bindelta_functor
+                     SET
+                     (alg_carrier treeFunctor
+                     Tree_alg))))
+            (pr2
+               (PrecategoryBinProduct.pair_functor
+                  (pr1 (&#39; <span class="mi">1</span>))
+                  (pr1 (&#39; A * (Id * Id)))
+                  (PrecategoryBinProduct.bindelta_functor
+                     SET
+                     (alg_carrier treeFunctor
+                     Tree_alg)))),
+        alg_carrier treeFunctor
+          (make_treeAlgebra X x f) ⟧,
+ BinCoproductIn2
+   (BinCoproductsHSET
+      (pr1
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg))))
+      (pr2
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg)))))
+ · x0)
+  (# treeFunctor (foldr_map X x f)
+   · alg_map treeFunctor (make_treeAlgebra X x f))</span></span></span><br><span><var>Fal</var><span class="hyp-type"><b>: </b><span>(BinCoproductIn2
+   (BinCoproductsHSET
+      (pr1
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg))))
+      (pr2
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg)))))
+ · (alg_map treeFunctor Tree_alg
+    · foldr_map X x f)) 
+  (a,, l1,, l2) =
+(BinCoproductIn2
+   (BinCoproductsHSET
+      (pr1
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg))))
+      (pr2
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg)))))
+ · (# treeFunctor (foldr_map X x f)
+    · alg_map treeFunctor
+        (make_treeAlgebra X x f))) 
+  (a,, l1,, l2)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">foldr X x f (node (a,, l1,, l2)) =
+f (a,, foldr X x f l1,, foldr X x f l2)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk18"><span class="nb">clear</span> F.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>pr1 A × X × X → X</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>pr1 A</span></span></span><br><span><var>l1, l2</var><span class="hyp-type"><b>: </b><span>pr1 Tree</span></span></span><br><span><var>Fal</var><span class="hyp-type"><b>: </b><span>(BinCoproductIn2
+   (BinCoproductsHSET
+      (pr1
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg))))
+      (pr2
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg)))))
+ · (alg_map treeFunctor Tree_alg
+    · foldr_map X x f)) 
+  (a,, l1,, l2) =
+(BinCoproductIn2
+   (BinCoproductsHSET
+      (pr1
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg))))
+      (pr2
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) 
+            (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET
+               (alg_carrier treeFunctor Tree_alg)))))
+ · (# treeFunctor (foldr_map X x f)
+    · alg_map treeFunctor
+        (make_treeAlgebra X x f))) 
+  (a,, l1,, l2)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">foldr X x f (node (a,, l1,, l2)) =
+f (a,, foldr X x f l1,, foldr X x f l2)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* apply Fal. *)</span> <span class="c">(* This doesn&#39;t work here. why? *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk19"><span class="nb">unfold</span> compose <span class="kr">in</span> Fal.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>pr1 A × X × X → X</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>pr1 A</span></span></span><br><span><var>l1, l2</var><span class="hyp-type"><b>: </b><span>pr1 Tree</span></span></span><br><span><var>Fal</var><span class="hyp-type"><b>: </b><span>pr2 (pr2 SET)
+  (pr2
+     (PrecategoryBinProduct.pair_functor
+        (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+        (PrecategoryBinProduct.bindelta_functor
+           SET
+           (alg_carrier treeFunctor Tree_alg))))
+  (BinCoproductsHSET
+     (pr1
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) 
+           (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor
+              SET
+              (alg_carrier treeFunctor Tree_alg))))
+     (pr2
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) 
+           (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor
+              SET
+              (alg_carrier treeFunctor Tree_alg)))))
+  (alg_carrier treeFunctor
+     (make_treeAlgebra X x f))
+  (BinCoproductIn2
+     (BinCoproductsHSET
+        (pr1
+           (PrecategoryBinProduct.pair_functor
+              (pr1 (&#39; <span class="mi">1</span>))
+              (pr1 (&#39; A * (Id * Id)))
+              (PrecategoryBinProduct.bindelta_functor
+                 SET
+                 (alg_carrier treeFunctor
+                    Tree_alg))))
+        (pr2
+           (PrecategoryBinProduct.pair_functor
+              (pr1 (&#39; <span class="mi">1</span>))
+              (pr1 (&#39; A * (Id * Id)))
+              (PrecategoryBinProduct.bindelta_functor
+                 SET
+                 (alg_carrier treeFunctor
+                    Tree_alg))))))
+  (pr2 (pr2 SET)
+     (treeFunctor
+        (alg_carrier treeFunctor Tree_alg))
+     (alg_carrier treeFunctor Tree_alg)
+     (alg_carrier treeFunctor
+        (make_treeAlgebra X x f))
+     (alg_map treeFunctor Tree_alg)
+     (foldr_map X x f)) 
+  (a,, l1,, l2) =
+pr2 (pr2 SET)
+  (pr2
+     (PrecategoryBinProduct.pair_functor
+        (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+        (PrecategoryBinProduct.bindelta_functor
+           SET
+           (alg_carrier treeFunctor Tree_alg))))
+  (BinCoproductsHSET
+     (pr1
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) 
+           (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor
+              SET
+              (alg_carrier treeFunctor Tree_alg))))
+     (pr2
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) 
+           (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor
+              SET
+              (alg_carrier treeFunctor Tree_alg)))))
+  (alg_carrier treeFunctor
+     (make_treeAlgebra X x f))
+  (BinCoproductIn2
+     (BinCoproductsHSET
+        (pr1
+           (PrecategoryBinProduct.pair_functor
+              (pr1 (&#39; <span class="mi">1</span>))
+              (pr1 (&#39; A * (Id * Id)))
+              (PrecategoryBinProduct.bindelta_functor
+                 SET
+                 (alg_carrier treeFunctor
+                    Tree_alg))))
+        (pr2
+           (PrecategoryBinProduct.pair_functor
+              (pr1 (&#39; <span class="mi">1</span>))
+              (pr1 (&#39; A * (Id * Id)))
+              (PrecategoryBinProduct.bindelta_functor
+                 SET
+                 (alg_carrier treeFunctor
+                    Tree_alg))))))
+  (pr2 (pr2 SET)
+     (treeFunctor
+        (alg_carrier treeFunctor Tree_alg))
+     (treeFunctor
+        (alg_carrier treeFunctor
+           (make_treeAlgebra X x f)))
+     (alg_carrier treeFunctor
+        (make_treeAlgebra X x f))
+     (# treeFunctor (foldr_map X x f))
+     (alg_map treeFunctor
+        (make_treeAlgebra X x f))) 
+  (a,, l1,, l2)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">foldr X x f (node (a,, l1,, l2)) =
+f (a,, foldr X x f l1,, foldr X x f l2)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk1a"><span class="nb">simpl</span> <span class="kr">in</span> Fal.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>X</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>pr1 A × X × X → X</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>pr1 A</span></span></span><br><span><var>l1, l2</var><span class="hyp-type"><b>: </b><span>pr1 Tree</span></span></span><br><span><var>Fal</var><span class="hyp-type"><b>: </b><span>Adamek.ad InitialHSET
+  (ColimCoconeHSET nat_graph
+     (initChain InitialHSET treeFunctor))
+  (make_treeAlgebra X x f)
+  (colim_algebra_mor InitialHSET
+     is_omega_cocont_treeFunctor
+     (ColimCoconeHSET nat_graph
+        (initChain InitialHSET treeFunctor))
+     (BinCoproductIn2
+        (BinCoproductsHSET <span class="mi">1</span>
+           (BinProductsHSET A
+              (BinProductsHSET
+                 (colim
+                    (ColimCoconeHSET nat_graph
+                     (initChain InitialHSET
+                     treeFunctor)))
+                 (colim
+                    (ColimCoconeHSET nat_graph
+                     (initChain InitialHSET
+                     treeFunctor))))))
+        (a,, l1,, l2))) =
+f
+  (BinProductOfArrows SET
+     (BinProductsHSET A (BinProductsHSET X X))
+     (BinProductsHSET A
+        (BinProductsHSET
+           (colim
+              (ColimCoconeHSET nat_graph
+                 (initChain InitialHSET
+                    treeFunctor)))
+           (colim
+              (ColimCoconeHSET nat_graph
+                 (initChain InitialHSET
+                    treeFunctor)))))
+     (identity A)
+     (BinProductOfArrows SET
+        (BinProductsHSET X X)
+        (BinProductsHSET
+           (colim
+              (ColimCoconeHSET nat_graph
+                 (initChain InitialHSET
+                    treeFunctor)))
+           (colim
+              (ColimCoconeHSET nat_graph
+                 (initChain InitialHSET
+                    treeFunctor))))
+        (Adamek.ad InitialHSET
+           (ColimCoconeHSET nat_graph
+              (initChain InitialHSET treeFunctor))
+           (make_treeAlgebra X x f))
+        (Adamek.ad InitialHSET
+           (ColimCoconeHSET nat_graph
+              (initChain InitialHSET treeFunctor))
+           (make_treeAlgebra X x f)))
+     (a,, l1,, l2))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">foldr X x f (node (a,, l1,, l2)) =
+f (a,, foldr X x f l1,, foldr X x f l2)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> Fal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Opaque</span> foldr_map.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>. <span class="c">(* This Qed is slow unless foldr_map is Opaque *)</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Transparent</span> foldr_map.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** This defines the induction principle for trees using foldr *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">tree_induction</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Variables</span> (<span class="nv">P</span> : pr1 Tree -&gt; UU) (<span class="nv">PhSet</span> : ∏ l, isaset (P l)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Variables</span> (<span class="nv">P0</span> : P leaf)
+          (<span class="nv">Pc</span> : ∏ (a : pr1 A) (l1 l2 : pr1 Tree), P l1 -&gt; P l2 -&gt; P (node (a,,l1,,l2))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">P&#39;</span> : UU := ∑ l, P l.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">P0&#39;</span> : P&#39; := (leaf,, P0).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk1b"><span class="kn">Let</span> <span class="nf">Pc&#39;</span> : pr1 A × P&#39; × P&#39; -&gt; P&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 A × P&#39; × P&#39; → P&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk1c"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 A × P&#39; × P&#39; → P&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk1d"><span class="nb">intros</span> ap.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>ap</var><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">P&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk1e"><span class="nb">apply</span> (tpair _ (node (pr1 ap,,pr1 (pr1 (pr2 ap)),,pr1 (pr2 (pr2 ap))))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>ap</var><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">P
+  (node
+     (pr1 ap,, pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (Pc _ _ _ (pr2 (pr1 (pr2 ap))) (pr2 (pr2 (pr2 ap)))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  <span class="c">(* λ ap : pr1 A × P&#39; × P&#39;, node (pr1 ap,, pr1 (pr2 ap)),,Pc (pr1 ap) (pr1 (pr2 ap)) (pr2 (pr2 ap)). *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk1f"><span class="kn">Definition</span> <span class="nf">P&#39;HSET</span> : HSET.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">SET</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk20"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">SET</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk21"><span class="nb">apply</span> (tpair _ P&#39;).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset P&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span> (<span class="nb">apply</span> (isofhleveltotal2 <span class="mi">2</span>); [ <span class="nb">apply</span> setproperty | <span class="nb">intro</span> x; <span class="nb">apply</span> PhSet ]).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="c">(* This line is crucial for isalghom_pr1foldr to typecheck *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Opaque</span> is_omega_cocont_treeFunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk22"><span class="kn">Lemma</span> <span class="nf">isalghom_pr1foldr</span> :
+  is_algebra_mor _ Tree_alg Tree_alg (<span class="kr">λ</span> <span class="nv">l</span>, pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_algebra_mor treeFunctor Tree_alg Tree_alg
+  (<span class="kr">λ</span> <span class="nv">l</span> : alg_carrier treeFunctor Tree_alg,
+   pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk23"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_algebra_mor treeFunctor Tree_alg Tree_alg
+  (<span class="kr">λ</span> <span class="nv">l</span> : alg_carrier treeFunctor Tree_alg,
+   pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk24"><span class="nb">apply</span> BinCoproductArrow_eq_cor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">BinCoproductIn1
+  (BinCoproductsHSET
+     (pr1
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor SET
+              (alg_carrier treeFunctor Tree_alg))))
+     (pr2
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor SET
+              (alg_carrier treeFunctor Tree_alg)))))
+· (alg_map treeFunctor Tree_alg
+   · (<span class="kr">λ</span> <span class="nv">l</span> : alg_carrier treeFunctor Tree_alg,
+      pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l))) =
+BinCoproductIn1
+  (BinCoproductsHSET
+     (pr1
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor SET
+              (alg_carrier treeFunctor Tree_alg))))
+     (pr2
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor SET
+              (alg_carrier treeFunctor Tree_alg)))))
+· (# treeFunctor
+     (<span class="kr">λ</span> <span class="nv">l</span> : alg_carrier treeFunctor Tree_alg,
+      pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l))
+   · alg_map treeFunctor Tree_alg)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="trees-v-chk25" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br></div><label class="goal-separator" for="trees-v-chk25"><hr></label><div class="goal-conclusion">BinCoproductIn2
+  (BinCoproductsHSET
+     (pr1
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) 
+           (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor SET
+              (alg_carrier treeFunctor Tree_alg))))
+     (pr2
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) 
+           (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor SET
+              (alg_carrier treeFunctor Tree_alg)))))
+· (alg_map treeFunctor Tree_alg
+   · (<span class="kr">λ</span> <span class="nv">l</span> : alg_carrier treeFunctor Tree_alg,
+      pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l))) =
+BinCoproductIn2
+  (BinCoproductsHSET
+     (pr1
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) 
+           (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor SET
+              (alg_carrier treeFunctor Tree_alg))))
+     (pr2
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) 
+           (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor SET
+              (alg_carrier treeFunctor Tree_alg)))))
+· (# treeFunctor
+     (<span class="kr">λ</span> <span class="nv">l</span> : alg_carrier treeFunctor Tree_alg,
+      pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l))
+   · alg_map treeFunctor Tree_alg)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk26">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">BinCoproductIn1
+  (BinCoproductsHSET
+     (pr1
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor SET
+              (alg_carrier treeFunctor Tree_alg))))
+     (pr2
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor SET
+              (alg_carrier treeFunctor Tree_alg)))))
+· (alg_map treeFunctor Tree_alg
+   · (<span class="kr">λ</span> <span class="nv">l</span> : alg_carrier treeFunctor Tree_alg,
+      pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l))) =
+BinCoproductIn1
+  (BinCoproductsHSET
+     (pr1
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor SET
+              (alg_carrier treeFunctor Tree_alg))))
+     (pr2
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor SET
+              (alg_carrier treeFunctor Tree_alg)))))
+· (# treeFunctor
+     (<span class="kr">λ</span> <span class="nv">l</span> : alg_carrier treeFunctor Tree_alg,
+      pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l))
+   · alg_map treeFunctor Tree_alg)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk27"><span class="nb">apply</span> funextfun; <span class="nb">intro</span> x; <span class="nb">destruct</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(BinCoproductIn1
+   (BinCoproductsHSET
+      (pr1
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET (alg_carrier treeFunctor Tree_alg))))
+      (pr2
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET (alg_carrier treeFunctor Tree_alg)))))
+ · (alg_map treeFunctor Tree_alg
+    · (<span class="kr">λ</span> <span class="nv">l</span> : alg_carrier treeFunctor Tree_alg,
+       pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l)))) tt =
+(BinCoproductIn1
+   (BinCoproductsHSET
+      (pr1
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET (alg_carrier treeFunctor Tree_alg))))
+      (pr2
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET (alg_carrier treeFunctor Tree_alg)))))
+ · (# treeFunctor
+      (<span class="kr">λ</span> <span class="nv">l</span> : alg_carrier treeFunctor Tree_alg,
+       pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l))
+    · alg_map treeFunctor Tree_alg)) tt</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (maponpaths pr1 (foldr_leaf P&#39;HSET P0&#39; Pc&#39;)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk28">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">BinCoproductIn2
+  (BinCoproductsHSET
+     (pr1
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor SET
+              (alg_carrier treeFunctor Tree_alg))))
+     (pr2
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor SET
+              (alg_carrier treeFunctor Tree_alg)))))
+· (alg_map treeFunctor Tree_alg
+   · (<span class="kr">λ</span> <span class="nv">l</span> : alg_carrier treeFunctor Tree_alg,
+      pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l))) =
+BinCoproductIn2
+  (BinCoproductsHSET
+     (pr1
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor SET
+              (alg_carrier treeFunctor Tree_alg))))
+     (pr2
+        (PrecategoryBinProduct.pair_functor
+           (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+           (PrecategoryBinProduct.bindelta_functor SET
+              (alg_carrier treeFunctor Tree_alg)))))
+· (# treeFunctor
+     (<span class="kr">λ</span> <span class="nv">l</span> : alg_carrier treeFunctor Tree_alg,
+      pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l))
+   · alg_map treeFunctor Tree_alg)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk29"><span class="nb">apply</span> funextfun; <span class="nb">intro</span> x; <span class="nb">destruct</span> x <span class="kr">as</span> [a [l1 l2]].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>pr1
+  (PrecategoryBinProduct.pair_functor 
+     (pr1 (&#39; A)) (pr1 (Id * Id))
+     (PrecategoryBinProduct.bindelta_functor SET
+        (pr2
+           (PrecategoryBinProduct.bindelta_functor
+              SET
+              (alg_carrier treeFunctor Tree_alg)))))</span></span></span><br><span><var>l1</var><span class="hyp-type"><b>: </b><span>pr1
+  (PrecategoryBinProduct.pair_functor 
+     (pr1 Id) (pr1 Id)
+     (PrecategoryBinProduct.bindelta_functor SET
+        (pr2
+           (PrecategoryBinProduct.bindelta_functor
+              SET
+              (pr2
+                 (PrecategoryBinProduct.bindelta_functor
+                    SET
+                    (alg_carrier treeFunctor
+                     Tree_alg)))))))</span></span></span><br><span><var>l2</var><span class="hyp-type"><b>: </b><span>pr2
+  (PrecategoryBinProduct.pair_functor 
+     (pr1 Id) (pr1 Id)
+     (PrecategoryBinProduct.bindelta_functor SET
+        (pr2
+           (PrecategoryBinProduct.bindelta_functor
+              SET
+              (pr2
+                 (PrecategoryBinProduct.bindelta_functor
+                    SET
+                    (alg_carrier treeFunctor
+                     Tree_alg)))))))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(BinCoproductIn2
+   (BinCoproductsHSET
+      (pr1
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET (alg_carrier treeFunctor Tree_alg))))
+      (pr2
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET (alg_carrier treeFunctor Tree_alg)))))
+ · (alg_map treeFunctor Tree_alg
+    · (<span class="kr">λ</span> <span class="nv">l</span> : alg_carrier treeFunctor Tree_alg,
+       pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l)))) (a,, l1,, l2) =
+(BinCoproductIn2
+   (BinCoproductsHSET
+      (pr1
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET (alg_carrier treeFunctor Tree_alg))))
+      (pr2
+         (PrecategoryBinProduct.pair_functor
+            (pr1 (&#39; <span class="mi">1</span>)) (pr1 (&#39; A * (Id * Id)))
+            (PrecategoryBinProduct.bindelta_functor
+               SET (alg_carrier treeFunctor Tree_alg)))))
+ · (# treeFunctor
+      (<span class="kr">λ</span> <span class="nv">l</span> : alg_carrier treeFunctor Tree_alg,
+       pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l))
+    · alg_map treeFunctor Tree_alg)) (a,, l1,, l2)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (maponpaths pr1 (foldr_node P&#39;HSET P0&#39; Pc&#39; a l1 l2)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">pr1foldr_algmor</span> : algebra_mor _ Tree_alg Tree_alg :=
+  tpair _ _ isalghom_pr1foldr.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk2a"><span class="kn">Lemma</span> <span class="nf">pr1foldr_algmor_identity</span> : identity _ = pr1foldr_algmor.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity Tree_alg = pr1foldr_algmor</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk2b"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity Tree_alg = pr1foldr_algmor</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">now</span> <span class="nb">rewrite</span> (@InitialEndo_is_identity _ treeFunctor_Initial pr1foldr_algmor).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Transparent</span> is_omega_cocont_treeFunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk2c"><span class="kn">Lemma</span> <span class="nf">treeInd</span> <span class="nv">l</span> : P l.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>pr1 Tree</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">P l</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk2d"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>pr1 Tree</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">P l</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk2e"><span class="nb">assert</span> (H : pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l) = l).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>pr1 Tree</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l) = l</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="trees-v-chk2f" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>pr1 Tree</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l) = l</span></span></span><br></div><label class="goal-separator" for="trees-v-chk2f"><hr></label><div class="goal-conclusion">P l</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk30"><span class="nb">apply</span> (toforallpaths _ _ _ (maponpaths pr1 (!pr1foldr_algmor_identity)) l).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>pr1 Tree</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l) = l</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">P l</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk31"><span class="nb">rewrite</span> &lt;- H.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>PhSet</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaset (P l)</span></span></span><br><span><var>P0</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pc</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br><span><var>P'</var><span><span class="hyp-body"><b>:= </b><span>∑ l : pr1 Tree, P l</span></span><span class="hyp-type"><b>: </b><span>UU</span></span></span></span><br><span><var>P0'</var><span><span class="hyp-body"><b>:= </b><span>leaf,, P0</span></span><span class="hyp-type"><b>: </b><span>P&#39;</span></span></span></span><br><span><var>Pc'</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">ap</span> : pr1 A × P&#39; × P&#39;,
+node
+  (pr1 ap,,
+   pr1 (pr1 (pr2 ap)),, pr1 (pr2 (pr2 ap))),,
+Pc (pr1 ap) (pr1 (pr1 (pr2 ap)))
+  (pr1 (pr2 (pr2 ap))) 
+  (pr2 (pr1 (pr2 ap))) 
+  (pr2 (pr2 (pr2 ap)))</span></span><span class="hyp-type"><b>: </b><span>pr1 A × P&#39; × P&#39; → P&#39;</span></span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>pr1 Tree</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l) = l</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">P (pr1 (foldr P&#39;HSET P0&#39; Pc&#39; l))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (pr2 (foldr P&#39;HSET P0&#39; Pc&#39; l)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">tree_induction</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk32"><span class="kn">Lemma</span> <span class="nf">treeIndProp</span> (<span class="nv">P</span> : pr1 Tree -&gt; UU) (<span class="nv">HP</span> : ∏ l, isaprop (P l)) :
+  P leaf -&gt; (∏ a l1 l2, P l1 → P l2 → P (node (a,,l1,,l2))) -&gt; ∏ l, P l.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>HP</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaprop (P l)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">P leaf
+→ (∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+   P l1 → P l2 → P (node (a,, l1,, l2)))
+  → ∏ l : pr1 Tree, P l</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk33"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>HP</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaprop (P l)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">P leaf
+→ (∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+   P l1 → P l2 → P (node (a,, l1,, l2)))
+  → ∏ l : pr1 Tree, P l</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk34"><span class="nb">intros</span> Pnil Pcons.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>HP</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaprop (P l)</span></span></span><br><span><var>Pnil</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pcons</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ l : pr1 Tree, P l</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk35"><span class="nb">apply</span> treeInd; <span class="kp">try</span> <span class="bp">assumption</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr1 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>SET ⟶ SET</span></span></span></span><br><span><var>is_omega_cocont_treeFunctor</var><span><span class="hyp-body"><b>:= </b><span>pr2 treeOmegaFunctor</span></span><span class="hyp-type"><b>: </b><span>is_omega_cocont
+  treeFunctor</span></span></span></span><br><span><var>Tree_mor</var><span><span class="hyp-body"><b>:= </b><span>alg_map treeFunctor treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>SET ⟦ treeFunctor Tree, Tree ⟧</span></span></span></span><br><span><var>Tree_alg</var><span><span class="hyp-body"><b>:= </b><span>treeFunctor_Initial</span></span><span class="hyp-type"><b>: </b><span>algebra_ob treeFunctor</span></span></span></span><br><span><var>P</var><span class="hyp-type"><b>: </b><span>pr1 Tree → UU</span></span></span><br><span><var>HP</var><span class="hyp-type"><b>: </b><span>∏ l : pr1 Tree, isaprop (P l)</span></span></span><br><span><var>Pnil</var><span class="hyp-type"><b>: </b><span>P leaf</span></span></span><br><span><var>Pcons</var><span class="hyp-type"><b>: </b><span>∏ (a : pr1 A) (l1 l2 : pr1 Tree),
+P l1 → P l2 → P (node (a,, l1,, l2))</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ l : pr1 Tree, isaset (P l)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">intro</span> l; <span class="nb">apply</span> isasetaprop, HP.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">bintrees</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Some tests *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">nat_examples</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> nat_scope.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">size</span> : pr1 (Tree natHSET) -&gt; nat :=
+  foldr natHSET natHSET <span class="mi">0</span> (<span class="kr">λ</span> <span class="nv">x</span>, S (pr1 (pr2 x) + pr2 (pr2 x))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk36" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk36"><span class="kn">Lemma</span> <span class="nf">size_node</span> <span class="nv">a</span> <span class="nv">l1</span> <span class="nv">l2</span> : size (node natHSET (a,,l1,,l2)) = <span class="mi">1</span> + size l1 + size l2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>a</var><span class="hyp-type"><b>: </b><span>pr1 natHSET</span></span></span><br><span><var>l1</var><span class="hyp-type"><b>: </b><span>pr1 (Tree natHSET)</span></span></span><br><span><var>l2</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">_</span> : pr1 (Tree natHSET), pr1 (Tree natHSET)) l1</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">size (node natHSET (a,, l1,, l2)) =
+<span class="mi">1</span> + size l1 + size l2</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk37"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>a</var><span class="hyp-type"><b>: </b><span>pr1 natHSET</span></span></span><br><span><var>l1</var><span class="hyp-type"><b>: </b><span>pr1 (Tree natHSET)</span></span></span><br><span><var>l2</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">_</span> : pr1 (Tree natHSET), pr1 (Tree natHSET)) l1</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">size (node natHSET (a,, l1,, l2)) =
+<span class="mi">1</span> + size l1 + size l2</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk38"><span class="nb">unfold</span> size.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>a</var><span class="hyp-type"><b>: </b><span>pr1 natHSET</span></span></span><br><span><var>l1</var><span class="hyp-type"><b>: </b><span>pr1 (Tree natHSET)</span></span></span><br><span><var>l2</var><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">_</span> : pr1 (Tree natHSET), pr1 (Tree natHSET)) l1</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">foldr natHSET natHSET <span class="mi">0</span>
+  (<span class="kr">λ</span> <span class="nv">x</span> : pr1 natHSET × pr1 natHSET × pr1 natHSET,
+   S (pr1 (pr2 x) + pr2 (pr2 x)))
+  (node natHSET (a,, l1,, l2)) =
+<span class="mi">1</span> +
+foldr natHSET natHSET <span class="mi">0</span>
+  (<span class="kr">λ</span> <span class="nv">x</span> : pr1 natHSET × pr1 natHSET × pr1 natHSET,
+   S (pr1 (pr2 x) + pr2 (pr2 x))) l1 +
+foldr natHSET natHSET <span class="mi">0</span>
+  (<span class="kr">λ</span> <span class="nv">x</span> : pr1 natHSET × pr1 natHSET × pr1 natHSET,
+   S (pr1 (pr2 x) + pr2 (pr2 x))) l2</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">now</span> <span class="nb">rewrite</span> foldr_node.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">map</span> (<span class="nv">f</span> : nat -&gt; nat) (<span class="nv">l</span> : pr1 (Tree natHSET)) : pr1 (Tree natHSET) :=
+  foldr natHSET (Tree natHSET) (leaf natHSET)
+      (<span class="kr">λ</span> <span class="nv">a</span>, node natHSET (f (pr1 a),, pr1 (pr2 a),, pr2 (pr2 a))) l.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk39"><span class="kn">Lemma</span> <span class="nf">size_map</span> (<span class="nv">f</span> : nat -&gt; nat) : ∏ l, size (map f l) = size l.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>f</var><span class="hyp-type"><b>: </b><span>nat → nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ l : pr1 (Tree natHSET), size (map f l) = size l</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk3a" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk3a"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>f</var><span class="hyp-type"><b>: </b><span>nat → nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ l : pr1 (Tree natHSET), size (map f l) = size l</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk3b" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk3b"><span class="nb">apply</span> treeIndProp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>f</var><span class="hyp-type"><b>: </b><span>nat → nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ l : pr1 (Tree natHSET),
+isaprop (size (map f l) = size l)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="trees-v-chk3c" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>f</var><span class="hyp-type"><b>: </b><span>nat → nat</span></span></span><br></div><label class="goal-separator" for="trees-v-chk3c"><hr></label><div class="goal-conclusion">size (map f (leaf natHSET)) = size (leaf natHSET)</div></blockquote><input class="alectryon-extra-goal-toggle" id="trees-v-chk3d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>f</var><span class="hyp-type"><b>: </b><span>nat → nat</span></span></span><br></div><label class="goal-separator" for="trees-v-chk3d"><hr></label><div class="goal-conclusion">∏ (a : pr1 natHSET) (l1 l2 : pr1 (Tree natHSET)),
+size (map f l1) = size l1
+→ size (map f l2) = size l2
+  → size (map f (node natHSET (a,, l1,, l2))) =
+    size (node natHSET (a,, l1,, l2))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk3e" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk3e">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>f</var><span class="hyp-type"><b>: </b><span>nat → nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ l : pr1 (Tree natHSET),
+isaprop (size (map f l) = size l)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk3f" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk3f"><span class="nb">intros</span> l.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>f</var><span class="hyp-type"><b>: </b><span>nat → nat</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>pr1 (Tree natHSET)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (size (map f l) = size l)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isasetnat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk40" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk40">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>f</var><span class="hyp-type"><b>: </b><span>nat → nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">size (map f (leaf natHSET)) = size (leaf natHSET)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">now</span> <span class="nb">unfold</span> map; <span class="nb">rewrite</span> foldr_leaf.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk41" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk41">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>f</var><span class="hyp-type"><b>: </b><span>nat → nat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (a : pr1 natHSET) (l1 l2 : pr1 (Tree natHSET)),
+size (map f l1) = size l1
+→ size (map f l2) = size l2
+  → size (map f (node natHSET (a,, l1,, l2))) =
+    size (node natHSET (a,, l1,, l2))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk42" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk42"><span class="nb">intros</span> a l1 l2 ih1 ih2; <span class="nb">unfold</span> map.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>f</var><span class="hyp-type"><b>: </b><span>nat → nat</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>pr1 natHSET</span></span></span><br><span><var>l1, l2</var><span class="hyp-type"><b>: </b><span>pr1 (Tree natHSET)</span></span></span><br><span><var>ih1</var><span class="hyp-type"><b>: </b><span>size (map f l1) = size l1</span></span></span><br><span><var>ih2</var><span class="hyp-type"><b>: </b><span>size (map f l2) = size l2</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">size
+  (foldr natHSET (Tree natHSET) (leaf natHSET)
+     (<span class="kr">λ</span> <span class="nv">a</span> : pr1 natHSET
+            × pr1 (Tree natHSET) × pr1 (Tree natHSET),
+      node natHSET
+        (f (pr1 a),, pr1 (pr2 a),, pr2 (pr2 a)))
+     (node natHSET (a,, l1,, l2))) =
+size (node natHSET (a,, l1,, l2))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">now</span> <span class="nb">rewrite</span> foldr_node, !size_node, &lt;- ih1, &lt;- ih2.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">sum</span> : pr1 (Tree natHSET) -&gt; nat :=
+  foldr natHSET natHSET <span class="mi">0</span> (<span class="kr">λ</span> <span class="nv">x</span>, pr1 x + pr1 (pr2 x) + pr2 (pr2 x)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk43" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk43"><span class="kn">Definition</span> <span class="nf">testtree</span> : pr1 (Tree natHSET).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (Tree natHSET)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk44" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk44"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (Tree natHSET)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk45" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk45">use node_map; <span class="kp">repeat</span> <span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">natHSET</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">Tree natHSET</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">Tree natHSET</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk46" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk46">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">natHSET</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> <span class="mi">5</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk47" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk47">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">Tree natHSET</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk48" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk48">use node_map; <span class="kp">repeat</span> <span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">natHSET</div></blockquote><div class="alectryon-extra-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">Tree natHSET</div></blockquote><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">Tree natHSET</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk49" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk49">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">natHSET</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> <span class="mi">6</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk4a" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk4a">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">Tree natHSET</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (leaf_map _ tt).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk4b" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk4b">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">Tree natHSET</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (leaf_map _ tt).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk4c" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk4c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">Tree natHSET</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (leaf_map _ tt).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">nat_examples</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** ** Flattening of a tree into a list *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">&quot;a :: b&quot;</span> := (cons _ a b).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="c">(* Check concatenate. *)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk4d" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk4d"><span class="kn">Definition</span> <span class="nf">flatten</span> (<span class="nv">A</span> : HSET) : pr1 (Tree A) -&gt; List A.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (Tree A) → List A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk4e" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk4e"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (Tree A) → List A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk4f" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk4f"><span class="nb">intro</span> t.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>pr1 (Tree A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">List A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk50" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk50">use (foldr A).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>pr1 (Tree A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (μL_A A)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="trees-v-chk51" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>pr1 (Tree A)</span></span></span><br></div><label class="goal-separator" for="trees-v-chk51"><hr></label><div class="goal-conclusion">pr1 A × pr1 (μL_A A) × pr1 (μL_A A) → pr1 (μL_A A)</div></blockquote><input class="alectryon-extra-goal-toggle" id="trees-v-chk52" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>pr1 (Tree A)</span></span></span><br></div><label class="goal-separator" for="trees-v-chk52"><hr></label><div class="goal-conclusion">pr1 (Tree A)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk53" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk53">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>pr1 (Tree A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (μL_A A)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> nil.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk54" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk54">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>pr1 (Tree A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 A × pr1 (μL_A A) × pr1 (μL_A A) → pr1 (μL_A A)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk55" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk55"><span class="nb">intro</span> all&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>pr1 (Tree A)</span></span></span><br><span><var>all'</var><span class="hyp-type"><b>: </b><span>pr1 A × pr1 (μL_A A) × pr1 (μL_A A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (μL_A A)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk56" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk56"><span class="nb">set</span> (a := pr1 all&#39;).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>pr1 (Tree A)</span></span></span><br><span><var>all'</var><span class="hyp-type"><b>: </b><span>pr1 A × pr1 (μL_A A) × pr1 (μL_A A)</span></span></span><br><span><var>a</var><span><span class="hyp-body"><b>:= </b><span>pr1 all&#39;</span></span><span class="hyp-type"><b>: </b><span>pr1 A</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (μL_A A)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk57" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk57"><span class="nb">set</span> (l := pr1 (pr2 all&#39;)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>pr1 (Tree A)</span></span></span><br><span><var>all'</var><span class="hyp-type"><b>: </b><span>pr1 A × pr1 (μL_A A) × pr1 (μL_A A)</span></span></span><br><span><var>a</var><span><span class="hyp-body"><b>:= </b><span>pr1 all&#39;</span></span><span class="hyp-type"><b>: </b><span>pr1 A</span></span></span></span><br><span><var>l</var><span><span class="hyp-body"><b>:= </b><span>pr1 (pr2 all&#39;)</span></span><span class="hyp-type"><b>: </b><span>pr1 (μL_A A)</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (μL_A A)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk58" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk58"><span class="nb">set</span> (l&#39; := pr2 (pr2 all&#39;)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>pr1 (Tree A)</span></span></span><br><span><var>all'</var><span class="hyp-type"><b>: </b><span>pr1 A × pr1 (μL_A A) × pr1 (μL_A A)</span></span></span><br><span><var>a</var><span><span class="hyp-body"><b>:= </b><span>pr1 all&#39;</span></span><span class="hyp-type"><b>: </b><span>pr1 A</span></span></span></span><br><span><var>l</var><span><span class="hyp-body"><b>:= </b><span>pr1 (pr2 all&#39;)</span></span><span class="hyp-type"><b>: </b><span>pr1 (μL_A A)</span></span></span></span><br><span><var>l'</var><span><span class="hyp-body"><b>:= </b><span>pr2 (pr2 all&#39;)</span></span><span class="hyp-type"><b>: </b><span>(<span class="kr">λ</span> <span class="nv">_</span> : pr1 (μL_A A), pr1 (μL_A A))
+  (pr1 (pr2 all&#39;))</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (μL_A A)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk59" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk59"><span class="nb">cbn</span> beta <span class="kr">in</span> l&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>pr1 (Tree A)</span></span></span><br><span><var>all'</var><span class="hyp-type"><b>: </b><span>pr1 A × pr1 (μL_A A) × pr1 (μL_A A)</span></span></span><br><span><var>a</var><span><span class="hyp-body"><b>:= </b><span>pr1 all&#39;</span></span><span class="hyp-type"><b>: </b><span>pr1 A</span></span></span></span><br><span><var>l</var><span><span class="hyp-body"><b>:= </b><span>pr1 (pr2 all&#39;)</span></span><span class="hyp-type"><b>: </b><span>pr1 (μL_A A)</span></span></span></span><br><span><var>l'</var><span><span class="hyp-body"><b>:= </b><span>pr2 (pr2 all&#39;)</span></span><span class="hyp-type"><b>: </b><span>pr1 (μL_A A)</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (μL_A A)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (concatenate _ l (concatenate _ (a :: nil _ ) l&#39;)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk5a" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk5a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>SET</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>pr1 (Tree A)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 (Tree A)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> t.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="trees-v-chk5b" style="display: none" type="checkbox"><label class="alectryon-input" for="trees-v-chk5b"><span class="kn">Goal</span> Lists.sum (flatten _ testtree) = sum testtree.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">Lists.sum (flatten natHSET testtree) = sum testtree</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

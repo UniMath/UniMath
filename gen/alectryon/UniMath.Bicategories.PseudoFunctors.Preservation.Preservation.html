@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Preservation.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(***********************************************************************</span>
+
+<span class="sd"> Preservation of limits and colimits</span>
+
+<span class="sd"> In this file, we look at the preservation of some limits and colimits.</span>
+<span class="sd"> Our main focus is on final and initial objects and on products and</span>
+<span class="sd"> coproducts.</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Basic definitions</span>
+<span class="sd"> 2. The identity pseudofunctor preserves (co)limits</span>
+<span class="sd"> 3. Preservation of the composition</span>
+<span class="sd"> 4. Preservation of chosen (co)limits</span>
+
+<span class="sd"> ***********************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preservation-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="preservation-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> PseudoFunctor.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.Final.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.Products.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.Inserters.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Limits.Equifiers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Colimits.Initial.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Colimits.Coproducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 1. Basic definitions</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Preserves</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+          (<span class="nv">F</span> : psfunctor B₁ B₂).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">preserves_bifinal</span>
+    : UU
+    := ∏ (x : B₁),
+       is_bifinal x
+       →
+       is_bifinal (F x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">preserves_biinitial</span>
+    : UU
+    := ∏ (x : B₁),
+       is_biinitial x
+       →
+       is_biinitial (F x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">psfunctor_binprod_cone</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B₁}
+             (<span class="nv">p</span> : binprod_cone x y)
+    : binprod_cone (F x) (F y)
+    := make_binprod_cone
+         (F p)
+         (#F (binprod_cone_pr1 p))
+         (#F (binprod_cone_pr2 p)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">preserves_binprods</span>
+    : UU
+    := ∏ (x y : B₁)
+         (p : binprod_cone x y),
+       has_binprod_ump p
+       →
+       has_binprod_ump (psfunctor_binprod_cone p).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">psfunctor_bincoprod_cocone</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B₁}
+             (<span class="nv">p</span> : bincoprod_cocone x y)
+    : bincoprod_cocone (F x) (F y)
+    := make_bincoprod_cocone
+         (F p)
+         (#F (bincoprod_cocone_inl p))
+         (#F (bincoprod_cocone_inr p)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">preserves_bincoprods</span>
+    : UU
+    := ∏ (x y : B₁)
+         (p : bincoprod_cocone x y),
+       has_bincoprod_ump p
+       →
+       has_bincoprod_ump (psfunctor_bincoprod_cocone p).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">psfunctor_inserter_cone</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B₁}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             (<span class="nv">p</span> : inserter_cone f g)
+    : inserter_cone (#F f) (#F g)
+    := make_inserter_cone
+         (F p)
+         (#F (inserter_cone_pr1 p))
+         (psfunctor_comp F (inserter_cone_pr1 p) f
+          • ##F (inserter_cone_cell p)
+          • (psfunctor_comp F (inserter_cone_pr1 p) g)^-<span class="mi">1</span>).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">preserves_inserters</span>
+    : UU
+    := ∏ (x y : B₁)
+         (f g : x --&gt; y)
+         (p : inserter_cone f g),
+       has_inserter_ump p
+       →
+       has_inserter_ump (psfunctor_inserter_cone p).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preservation-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="preservation-v-chk1"><span class="kn">Definition</span> <span class="nf">psfunctor_equifier_cone</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B₁}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             {<span class="nv">α</span> <span class="nv">β</span> : f ==&gt; g}
+             (<span class="nv">p</span> : equifier_cone f g α β)
+    : equifier_cone (#F f) (#F g) (##F α) (##F β).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>B₁ ⟦ x, y ⟧</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>equifier_cone f g α β</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">equifier_cone (# F f) (# F g) (## F α) (## F β)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preservation-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="preservation-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>B₁ ⟦ x, y ⟧</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>equifier_cone f g α β</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">equifier_cone (# F f) (# F g) (## F α) (## F β)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preservation-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="preservation-v-chk3"><span class="nb">refine</span> (make_equifier_cone
+              (F p)
+              (#F (equifier_cone_pr1 p))
+              _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁, B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>B₁ ⟦ x, y ⟧</span></span></span><br><span><var>α, β</var><span class="hyp-type"><b>: </b><span>f ==&gt; g</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>equifier_cone f g α β</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># F (equifier_cone_pr1 p) ◃ ## F α =
+# F (equifier_cone_pr1 p) ◃ ## F β</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">abstract</span>
+      (<span class="nb">pose</span> (maponpaths
+               (<span class="kr">λ</span> <span class="nv">z</span>, psfunctor_comp F (equifier_cone_pr1 p) f
+                     • ##F z
+                     • (psfunctor_comp F (equifier_cone_pr1 p) g)^-<span class="mi">1</span>)
+               (equifier_cone_eq p)) <span class="kr">as</span> q ;
+       <span class="nb">cbn</span> -[psfunctor_comp] <span class="kr">in</span> q ;
+       <span class="nb">rewrite</span> !psfunctor_lwhisker <span class="kr">in</span> q ;
+       <span class="nb">rewrite</span> !vassocl <span class="kr">in</span> q ;
+       <span class="nb">rewrite</span> !vcomp_rinv <span class="kr">in</span> q ;
+       <span class="nb">rewrite</span> !id2_right <span class="kr">in</span> q ;
+       <span class="bp">exact</span> q).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">preserves_equifiers</span>
+    : UU
+    := ∏ (x y : B₁)
+         (f g : x --&gt; y)
+         (α β : f ==&gt; g)
+         (p : equifier_cone f g α β),
+       has_equifier_ump p
+       →
+       has_equifier_ump (psfunctor_equifier_cone p).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Preserves</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 2. The identity pseudofunctor preserves (co)limits</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">identity_preserves_bifinal</span>
+           (<span class="nv">B</span> : bicat)
+  : preserves_bifinal (id_psfunctor B)
+  := <span class="kr">λ</span> <span class="nv">x</span> <span class="nv">Hx</span>, Hx.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">identity_preserves_biinitial</span>
+           (<span class="nv">B</span> : bicat)
+  : preserves_biinitial (id_psfunctor B)
+  := <span class="kr">λ</span> <span class="nv">x</span> <span class="nv">Hx</span>, Hx.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">identity_preserves_binprods</span>
+           (<span class="nv">B</span> : bicat)
+  : preserves_binprods (id_psfunctor B)
+  := <span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">p</span> <span class="nv">Hp</span>, Hp.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">identity_preserves_bincoprods</span>
+           (<span class="nv">B</span> : bicat)
+  : preserves_bincoprods (id_psfunctor B)
+  := <span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">p</span> <span class="nv">Hp</span>, Hp.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 3. Preservation of the composition</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comp_psfunctor_preserves_bifinal</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">B₃</span> : bicat}
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">G</span> : psfunctor B₂ B₃}
+           (<span class="nv">HF</span> : preserves_bifinal F)
+           (<span class="nv">HG</span> : preserves_bifinal G)
+  : preserves_bifinal (comp_psfunctor G F)
+  := <span class="kr">λ</span> <span class="nv">x</span> <span class="nv">Hx</span>, HG _ (HF _ Hx).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comp_psfunctor_preserves_biinitial</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">B₃</span> : bicat}
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">G</span> : psfunctor B₂ B₃}
+           (<span class="nv">HF</span> : preserves_biinitial F)
+           (<span class="nv">HG</span> : preserves_biinitial G)
+  : preserves_biinitial (comp_psfunctor G F)
+  := <span class="kr">λ</span> <span class="nv">x</span> <span class="nv">Hx</span>, HG _ (HF _ Hx).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comp_psfunctor_preserves_binprods</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">B₃</span> : bicat}
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">G</span> : psfunctor B₂ B₃}
+           (<span class="nv">HF</span> : preserves_binprods F)
+           (<span class="nv">HG</span> : preserves_binprods G)
+  : preserves_binprods (comp_psfunctor G F)
+  := <span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">p</span> <span class="nv">Hp</span>, HG _ _ _ (HF _ _ _ Hp).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">comp_psfunctor_preserves_bincoprods</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">B₃</span> : bicat}
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">G</span> : psfunctor B₂ B₃}
+           (<span class="nv">HF</span> : preserves_bincoprods F)
+           (<span class="nv">HG</span> : preserves_bincoprods G)
+  : preserves_bincoprods (comp_psfunctor G F)
+  := <span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">p</span> <span class="nv">Hp</span>, HG _ _ _ (HF _ _ _ Hp).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(**</span>
+<span class="sd"> 4. Preservation of chosen (co)limits</span>
+<span class="sd"> *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">preserves_chosen_biinitial</span>
+           (<span class="nv">B₁</span> : bicat_with_biinitial)
+           {<span class="nv">B₂</span> : bicat}
+           (<span class="nv">F</span> : psfunctor B₁ B₂)
+  : UU
+  := is_biinitial (F (pr1 (biinitial_of B₁))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preservation-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="preservation-v-chk4"><span class="kn">Definition</span> <span class="nf">preserves_chosen_biinitial_to_preserve_biinitial</span>
+           (<span class="nv">B₁</span> : bicat_with_biinitial)
+           {<span class="nv">B₂</span> : bicat}
+           (<span class="nv">F</span> : psfunctor B₁ B₂)
+           (<span class="nv">HF</span> : preserves_chosen_biinitial B₁ F)
+  : preserves_biinitial F.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁</var><span class="hyp-type"><b>: </b><span>bicat_with_biinitial</span></span></span><br><span><var>B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_chosen_biinitial B₁ F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_biinitial F</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preservation-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="preservation-v-chk5"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁</var><span class="hyp-type"><b>: </b><span>bicat_with_biinitial</span></span></span><br><span><var>B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_chosen_biinitial B₁ F</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">preserves_biinitial F</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preservation-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="preservation-v-chk6"><span class="nb">intros</span> x Hx.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁</var><span class="hyp-type"><b>: </b><span>bicat_with_biinitial</span></span></span><br><span><var>B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_chosen_biinitial B₁ F</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br><span><var>Hx</var><span class="hyp-type"><b>: </b><span>is_biinitial x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_biinitial (F x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="preservation-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="preservation-v-chk7"><span class="nb">refine</span> (equiv_from_biinitial
+            _
+            (psfunctor_preserves_adjequiv&#39;
+               F
+               (biinitial_unique_adj_eqv
+                  Hx
+                  (pr2 (biinitial_of B₁))))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B₁</var><span class="hyp-type"><b>: </b><span>bicat_with_biinitial</span></span></span><br><span><var>B₂</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor B₁ B₂</span></span></span><br><span><var>HF</var><span class="hyp-type"><b>: </b><span>preserves_chosen_biinitial B₁ F</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>B₁</span></span></span><br><span><var>Hx</var><span class="hyp-type"><b>: </b><span>is_biinitial x</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_biinitial (F (pr1 (biinitial_of B₁)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> HF.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

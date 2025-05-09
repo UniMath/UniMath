@@ -1,0 +1,1173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>Equalizers.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**</span>
+<span class="sd">In this file, we show how the Rezk completion of a category has equalizers if the original category has equalizers.</span>
+<span class="sd">Hence, categories with equalizers admit a Rezk completion.</span>
+
+<span class="sd">Contents:</span>
+<span class="sd">1. [CategoriesWithEqualizersAdmitRezkCompletions]</span>
+<span class="sd">   A construction of the Rezk completion of categories (merely) having equalizers.</span>
+<span class="sd">2. [CategoriesWithChosenEqualizersAndPreservationUpToIsoHasRezkCompletions]</span>
+<span class="sd">   A construction of the Rezk completion of categories equipped with chosen equalizers.</span>
+<span class="sd">3. [CategoriesWithChosenEqualizersAndPreservationUpToIsoHasRezkCompletions]</span>
+<span class="sd">   A construction of the Rezk completion of categories equipped with chosen equalizers.</span>
+<span class="sd">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Preservation.Equalizers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Reflection.Equalizers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Creation.Equalizers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.LiftPreservation.Equalizers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.UniversalArrow.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> PseudoFunctor.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.BicatOfCatToUnivCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOnCatToUniv.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrow.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrowOnCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.RezkCompletions.DisplayedRezkCompletions.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Equalizers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">CategoriesWithEqualizersAndPreservationUpToIsoHasRezkCompletions</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">LUR</span> : left_universal_arrow univ_cats_to_cats).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">η_weak_equiv</span> : ∏ C : category, is_weak_equiv (pr12 LUR C)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk1"><span class="kn">Lemma</span> <span class="nf">disp_bicat_have_equalizers_has_RC</span>
+    : cat_with_struct_has_RC η_weak_equiv disp_bicat_have_equalizers.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  disp_bicat_have_equalizers</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  disp_bicat_have_equalizers</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk3"><span class="nb">simple refine</span> (_ ,, _ ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ C1 C2 : category,
+is_univalent C2
+→ ∏ F : C1 ⟶ C2,
+  is_weak_equiv F
+  → Core.ob_disp
+      (Core.disp_cat_ob_mor_from_disp_cat_data
+         disp_bicat_have_equalizers) C1
+    → Core.ob_disp
+        (Core.disp_cat_ob_mor_from_disp_cat_data
+           disp_bicat_have_equalizers) C2</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="equalizers-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><label class="goal-separator" for="equalizers-v-chk4"><hr></label><div class="goal-conclusion">∏ (C : category)
+(CC : Core.ob_disp
+        (Core.disp_cat_ob_mor_from_disp_cat_data
+           disp_bicat_have_equalizers) C),
+Core.mor_disp CC
+  (<span class="nl">?pr1</span> C ((<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, pr1 (pr1 LUR C0)) C)
+     (pr2 (pr1 LUR C)) 
+     ((pr12 LUR) C) (η_weak_equiv C) CC)
+  ((pr12 LUR) C)</div></blockquote><input class="alectryon-extra-goal-toggle" id="equalizers-v-chk5" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><label class="goal-separator" for="equalizers-v-chk5"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">_</span> : ∏ (C : category)
+       (CC : Core.ob_disp
+               (Core.disp_cat_ob_mor_from_disp_cat_data
+                  disp_bicat_have_equalizers) C),
+       Core.mor_disp CC
+         (<span class="nl">?pr1</span> C
+            ((<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, pr1 (pr1 LUR C0))
+               C) (pr2 (pr1 LUR C)) 
+            ((pr12 LUR) C) 
+            (η_weak_equiv C) CC) 
+         ((pr12 LUR) C),
+ ∏ (C1 : category) (C2 C3 : univalent_category)
+ (F : C1 ⟶ C3) (G : C1 ⟶ C2) 
+ (H : C2 ⟶ C3),
+ nat_z_iso (G ∙ H) F
+ → ∏
+   (CC1 : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               disp_bicat_have_equalizers) C1)
+   (CC2 : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               disp_bicat_have_equalizers) 
+            (pr1 C2))
+   (CC3 : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               disp_bicat_have_equalizers) 
+            (pr1 C3)),
+   is_weak_equiv G
+   → Core.mor_disp CC1 CC3 F → Core.mor_disp CC2 CC3 H)
+  <span class="nl">?pr10</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ C1 C2 : category,
+is_univalent C2
+→ ∏ F : C1 ⟶ C2,
+  is_weak_equiv F
+  → Core.ob_disp
+      (Core.disp_cat_ob_mor_from_disp_cat_data
+         disp_bicat_have_equalizers) C1
+    → Core.ob_disp
+        (Core.disp_cat_ob_mor_from_disp_cat_data
+           disp_bicat_have_equalizers) C2</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk7"><span class="nb">intros</span> C1 C2 C2_univ F Fw [E₁ _].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C1, C2</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C2_univ</var><span class="hyp-type"><b>: </b><span>is_univalent C2</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C1 ⟶ C2</span></span></span><br><span><var>Fw</var><span class="hyp-type"><b>: </b><span>is_weak_equiv F</span></span></span><br><span><var>E₁</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     (FullSub.disp_fullsubbicat bicat_of_cats
+        (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, hasEqualizers))) C1</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_have_equalizers) C2</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (weak_equiv_into_univ_creates_hasequalizers C2_univ Fw E₁ ,, tt).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk8">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (C : category)
+(CC : Core.ob_disp
+        (Core.disp_cat_ob_mor_from_disp_cat_data
+           disp_bicat_have_equalizers) C),
+Core.mor_disp CC
+  ((<span class="kr">λ</span> (<span class="nv">C1</span> <span class="nv">C2</span> : category) (<span class="nv">C2_univ</span> : is_univalent C2)
+    (<span class="nv">F</span> : C1 ⟶ C2) (<span class="nv">Fw</span> : is_weak_equiv F)
+    (<span class="nv">X</span> : Core.ob_disp
+           (Core.disp_cat_ob_mor_from_disp_cat_data
+              disp_bicat_have_equalizers) C1),
+    (<span class="kr">λ</span> (<span class="nv">E₁</span> : Core.ob_disp
+               (Core.disp_cat_ob_mor_from_disp_cat_data
+                  (FullSub.disp_fullsubbicat
+                     bicat_of_cats
+                     (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                      hasEqualizers))) C1)
+     (<span class="nv">_</span> : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               (Sub1Cell.disp_sub1cell_bicat
+                  (total_bicat
+                     (FullSub.disp_fullsubbicat
+                        bicat_of_cats
+                        (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                         hasEqualizers)))
+                  (<span class="kr">λ</span> (<span class="nv">x</span>
+                      <span class="nv">y</span> : total_bicat
+                            (FullSub.disp_fullsubbicat
+                               bicat_of_cats
+                               (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                                hasEqualizers)))
+                   (<span class="nv">f</span> : total_bicat
+                          (FullSub.disp_fullsubbicat
+                             bicat_of_cats
+                             (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                              hasEqualizers)) ⟦ x, y ⟧),
+                   preserves_equalizer (pr1 f))
+                  (<span class="kr">λ</span> <span class="nv">x</span> : total_bicat
+                           (FullSub.disp_fullsubbicat
+                              bicat_of_cats
+                              (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                               hasEqualizers)),
+                   identity_preserves_equalizer
+                     (pr1 x))
+                  (<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span>
+                      <span class="nv">z</span> : total_bicat
+                            (FullSub.disp_fullsubbicat
+                               bicat_of_cats
+                               (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                                hasEqualizers)))
+                   (<span class="nv">f</span> : total_bicat
+                          (FullSub.disp_fullsubbicat
+                             bicat_of_cats
+                             (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                              hasEqualizers)) ⟦ x, y ⟧)
+                   (<span class="nv">g</span> : total_bicat
+                          (FullSub.disp_fullsubbicat
+                             bicat_of_cats
+                             (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                              hasEqualizers)) ⟦ y, z ⟧)
+                   (<span class="nv">Pf</span> : preserves_equalizer (pr1 f))
+                   (<span class="nv">Pg</span> : preserves_equalizer (pr1 g)),
+                   composition_preserves_equalizer Pf
+                     Pg))) (C1,, E₁)),
+     weak_equiv_into_univ_creates_hasequalizers
+       C2_univ Fw E₁,, tt) (pr1 X) (pr2 X)) C
+     ((<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, pr1 (pr1 LUR C0)) C)
+     (pr2 (pr1 LUR C)) ((pr12 LUR) C) (η_weak_equiv C)
+     CC) ((pr12 LUR) C)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk9"><span class="nb">intros</span> C ?.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>CC</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_have_equalizers) C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Core.mor_disp CC
+  ((<span class="kr">λ</span> (<span class="nv">C1</span> <span class="nv">C2</span> : category) (<span class="nv">C2_univ</span> : is_univalent C2)
+    (<span class="nv">F</span> : C1 ⟶ C2) (<span class="nv">Fw</span> : is_weak_equiv F)
+    (<span class="nv">X</span> : Core.ob_disp
+           (Core.disp_cat_ob_mor_from_disp_cat_data
+              disp_bicat_have_equalizers) C1),
+    (<span class="kr">λ</span> (<span class="nv">E₁</span> : Core.ob_disp
+               (Core.disp_cat_ob_mor_from_disp_cat_data
+                  (FullSub.disp_fullsubbicat
+                     bicat_of_cats
+                     (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+                      hasEqualizers))) C1)
+     (<span class="nv">_</span> : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               (Sub1Cell.disp_sub1cell_bicat
+                  (total_bicat
+                     (FullSub.disp_fullsubbicat
+                        bicat_of_cats
+                        (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+                         hasEqualizers)))
+                  (<span class="kr">λ</span> (<span class="nv">x</span>
+                      <span class="nv">y</span> : total_bicat
+                            (FullSub.disp_fullsubbicat
+                               bicat_of_cats
+                               (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+                                hasEqualizers)))
+                   (<span class="nv">f</span> : total_bicat
+                          (FullSub.disp_fullsubbicat
+                             bicat_of_cats
+                             (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+                              hasEqualizers)) ⟦ x, y ⟧),
+                   preserves_equalizer (pr1 f))
+                  (<span class="kr">λ</span> <span class="nv">x</span> : total_bicat
+                           (FullSub.disp_fullsubbicat
+                              bicat_of_cats
+                              (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+                               hasEqualizers)),
+                   identity_preserves_equalizer
+                     (pr1 x))
+                  (<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span>
+                      <span class="nv">z</span> : total_bicat
+                            (FullSub.disp_fullsubbicat
+                               bicat_of_cats
+                               (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+                                hasEqualizers)))
+                   (<span class="nv">f</span> : total_bicat
+                          (FullSub.disp_fullsubbicat
+                             bicat_of_cats
+                             (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+                              hasEqualizers)) ⟦ x, y ⟧)
+                   (<span class="nv">g</span> : total_bicat
+                          (FullSub.disp_fullsubbicat
+                             bicat_of_cats
+                             (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats,
+                              hasEqualizers)) ⟦ y, z ⟧)
+                   (<span class="nv">Pf</span> : preserves_equalizer (pr1 f))
+                   (<span class="nv">Pg</span> : preserves_equalizer (pr1 g)),
+                   composition_preserves_equalizer Pf
+                     Pg))) (C1,, E₁)),
+     weak_equiv_into_univ_creates_hasequalizers
+       C2_univ Fw E₁,, tt) (pr1 X) (pr2 X)) C
+     ((<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, pr1 (pr1 LUR C)) C)
+     (pr2 (pr1 LUR C)) ((pr12 LUR) C) (η_weak_equiv C)
+     CC) ((pr12 LUR) C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">refine</span> (tt ,, weak_equiv_preserves_equalizers (η_weak_equiv C)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chka">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">_</span> : ∏ (C : category)
+       (CC : Core.ob_disp
+               (Core.disp_cat_ob_mor_from_disp_cat_data
+                  disp_bicat_have_equalizers) C),
+       Core.mor_disp CC
+         ((<span class="kr">λ</span> (<span class="nv">C1</span> <span class="nv">C2</span> : category)
+           (<span class="nv">C2_univ</span> : is_univalent C2) (<span class="nv">F</span> : C1 ⟶ C2)
+           (<span class="nv">Fw</span> : is_weak_equiv F)
+           (<span class="nv">X</span> : Core.ob_disp
+                  (Core.disp_cat_ob_mor_from_disp_cat_data
+                     disp_bicat_have_equalizers) C1),
+           (<span class="kr">λ</span> (<span class="nv">E₁</span> : Core.ob_disp
+                      (Core.disp_cat_ob_mor_from_disp_cat_data
+                         (FullSub.disp_fullsubbicat
+                            bicat_of_cats
+                            (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                             hasEqualizers))) C1)
+            (<span class="nv">_</span> : Core.ob_disp
+                   (Core.disp_cat_ob_mor_from_disp_cat_data
+                      (Sub1Cell.disp_sub1cell_bicat
+                         (total_bicat
+                            (FullSub.disp_fullsubbicat
+                               bicat_of_cats
+                               (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                                hasEqualizers)))
+                         (<span class="kr">λ</span> (<span class="nv">x</span>
+                             <span class="nv">y</span> : total_bicat
+                                   (FullSub.disp_fullsubbicat
+                                      bicat_of_cats
+                                      (<span class="kr">λ</span> ...,
+                                       hasEqualizers)))
+                          (<span class="nv">f</span> : total_bicat
+                                 (FullSub.disp_fullsubbicat
+                                    bicat_of_cats
+                                    (...)) ⟦ x, y ⟧),
+                          preserves_equalizer (pr1 f))
+                         (<span class="kr">λ</span> <span class="nv">x</span> : total_bicat
+                                  (FullSub.disp_fullsubbicat
+                                     bicat_of_cats
+                                     (<span class="kr">λ</span> ...,
+                                      hasEqualizers)),
+                          identity_preserves_equalizer
+                            (pr1 x))
+                         (<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span>
+                             <span class="nv">z</span> : total_bicat
+                                   (FullSub.disp_fullsubbicat
+                                      bicat_of_cats
+                                      (<span class="kr">λ</span> ...,
+                                       hasEqualizers)))
+                          (<span class="nv">f</span> : total_bicat
+                                 (FullSub.disp_fullsubbicat
+                                    bicat_of_cats
+                                    (...)) ⟦ x, y ⟧)
+                          (<span class="nv">g</span> : total_bicat
+                                 (FullSub.disp_fullsubbicat
+                                    bicat_of_cats
+                                    (...)) ⟦ y, z ⟧)
+                          (<span class="nv">Pf</span> : preserves_equalizer
+                                  (pr1 f))
+                          (<span class="nv">Pg</span> : preserves_equalizer
+                                  (pr1 g)),
+                          composition_preserves_equalizer
+                            Pf Pg))) (C1,, E₁)),
+            weak_equiv_into_univ_creates_hasequalizers
+              C2_univ Fw E₁,, tt) (pr1 X) (pr2 X)) C
+            ((<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, pr1 (pr1 LUR C0))
+               C) (pr2 (pr1 LUR C)) ((pr12 LUR) C)
+            (η_weak_equiv C) CC) ((pr12 LUR) C),
+ ∏ (C1 : category) (C2 C3 : univalent_category)
+ (F : C1 ⟶ C3) (G : C1 ⟶ C2) (H : C2 ⟶ C3),
+ nat_z_iso (G ∙ H) F
+ → ∏
+   (CC1 : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               disp_bicat_have_equalizers) C1)
+   (CC2 : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               disp_bicat_have_equalizers) (pr1 C2))
+   (CC3 : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               disp_bicat_have_equalizers) (pr1 C3)),
+   is_weak_equiv G
+   → Core.mor_disp CC1 CC3 F → Core.mor_disp CC2 CC3 H)
+  (<span class="kr">λ</span> (<span class="nv">C</span> : category)
+   (<span class="nv">CC</span> : Core.ob_disp
+           (Core.disp_cat_ob_mor_from_disp_cat_data
+              disp_bicat_have_equalizers) C),
+   tt,,
+   weak_equiv_preserves_equalizers (η_weak_equiv C))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chkb"><span class="nb">intros</span> C1 C2 C3 F G H α E₁ E₂ E₃ Gw [t Feq].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C1</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C2, C3</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C1 ⟶ C3</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C1 ⟶ C2</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C2 ⟶ C3</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>E₁</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_have_equalizers) C1</span></span></span><br><span><var>E₂</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_have_equalizers) 
+  (pr1 C2)</span></span></span><br><span><var>E₃</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_have_equalizers) 
+  (pr1 C3)</span></span></span><br><span><var>Gw</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>Core.mor_disp (pr1 E₁) (pr1 E₃) F</span></span></span><br><span><var>Feq</var><span class="hyp-type"><b>: </b><span>Core.mor_disp (pr2 E₁) (pr2 E₃) (F,, t)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Core.mor_disp E₂ E₃ H</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (tt ,, weak_equiv_lifts_preserves_equalizers C2 C3 α Gw Feq).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chkc"><span class="kn">Corollary</span> <span class="nf">disp_bicat_have_equalizers_has_Rezk_completions</span>
+    : cat_with_structure_has_RezkCompletion disp_bicat_have_equalizers.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_structure_has_RezkCompletion
+  disp_bicat_have_equalizers</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chkd"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_structure_has_RezkCompletion
+  disp_bicat_have_equalizers</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chke"><span class="nb">apply</span> (make_RezkCompletion_from_locally_contractible _ _ disp_bicat_have_equalizers_has_RC).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_have_equalizers</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_2cells_iscontr_have_equalizers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">CategoriesWithEqualizersAndPreservationUpToIsoHasRezkCompletions</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">CategoriesWithChosenEqualizersAndPreservationUpToEqualityHasRezkCompletions</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">LUR</span> : left_universal_arrow univ_cats_to_cats).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">η_weak_equiv</span> : ∏ C : category, is_weak_equiv (pr12 LUR C)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chkf"><span class="kn">Lemma</span> <span class="nf">disp_bicat_chosen_equalizers_has_RC</span>
+    : cat_with_struct_has_RC η_weak_equiv disp_bicat_chosen_equalizers.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  disp_bicat_chosen_equalizers</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk10"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  disp_bicat_chosen_equalizers</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk11"><span class="nb">simple refine</span> (_ ,, _ ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ C1 C2 : category,
+is_univalent C2
+→ ∏ F : C1 ⟶ C2,
+  is_weak_equiv F
+  → Core.ob_disp
+      (Core.disp_cat_ob_mor_from_disp_cat_data
+         disp_bicat_chosen_equalizers) C1
+    → Core.ob_disp
+        (Core.disp_cat_ob_mor_from_disp_cat_data
+           disp_bicat_chosen_equalizers) C2</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="equalizers-v-chk12" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><label class="goal-separator" for="equalizers-v-chk12"><hr></label><div class="goal-conclusion">∏ (C : category)
+(CC : Core.ob_disp
+        (Core.disp_cat_ob_mor_from_disp_cat_data
+           disp_bicat_chosen_equalizers) C),
+Core.mor_disp CC
+  (<span class="nl">?pr1</span> C ((<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, pr1 (pr1 LUR C0)) C)
+     (pr2 (pr1 LUR C)) 
+     ((pr12 LUR) C) (η_weak_equiv C) CC)
+  ((pr12 LUR) C)</div></blockquote><input class="alectryon-extra-goal-toggle" id="equalizers-v-chk13" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><label class="goal-separator" for="equalizers-v-chk13"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">_</span> : ∏ (C : category)
+       (CC : Core.ob_disp
+               (Core.disp_cat_ob_mor_from_disp_cat_data
+                  disp_bicat_chosen_equalizers) C),
+       Core.mor_disp CC
+         (<span class="nl">?pr1</span> C
+            ((<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, pr1 (pr1 LUR C0))
+               C) (pr2 (pr1 LUR C)) 
+            ((pr12 LUR) C) 
+            (η_weak_equiv C) CC) 
+         ((pr12 LUR) C),
+ ∏ (C1 : category) (C2 C3 : univalent_category)
+ (F : C1 ⟶ C3) (G : C1 ⟶ C2) 
+ (H : C2 ⟶ C3),
+ nat_z_iso (G ∙ H) F
+ → ∏
+   (CC1 : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               disp_bicat_chosen_equalizers) C1)
+   (CC2 : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               disp_bicat_chosen_equalizers) 
+            (pr1 C2))
+   (CC3 : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               disp_bicat_chosen_equalizers) 
+            (pr1 C3)),
+   is_weak_equiv G
+   → Core.mor_disp CC1 CC3 F → Core.mor_disp CC2 CC3 H)
+  <span class="nl">?pr10</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk14">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ C1 C2 : category,
+is_univalent C2
+→ ∏ F : C1 ⟶ C2,
+  is_weak_equiv F
+  → Core.ob_disp
+      (Core.disp_cat_ob_mor_from_disp_cat_data
+         disp_bicat_chosen_equalizers) C1
+    → Core.ob_disp
+        (Core.disp_cat_ob_mor_from_disp_cat_data
+           disp_bicat_chosen_equalizers) C2</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk15"><span class="nb">intros</span> C1 C2 C2_univ F Fw C1_prod.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C1, C2</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C2_univ</var><span class="hyp-type"><b>: </b><span>is_univalent C2</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C1 ⟶ C2</span></span></span><br><span><var>Fw</var><span class="hyp-type"><b>: </b><span>is_weak_equiv F</span></span></span><br><span><var>C1_prod</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_chosen_equalizers) C1</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_chosen_equalizers) C2</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (weak_equiv_into_univ_creates_equalizers C2_univ Fw (pr1 C1_prod) ,, tt).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk16">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (C : category)
+(CC : Core.ob_disp
+        (Core.disp_cat_ob_mor_from_disp_cat_data
+           disp_bicat_chosen_equalizers) C),
+Core.mor_disp CC
+  ((<span class="kr">λ</span> (<span class="nv">C1</span> <span class="nv">C2</span> : category) (<span class="nv">C2_univ</span> : is_univalent C2)
+    (<span class="nv">F</span> : C1 ⟶ C2) (<span class="nv">Fw</span> : is_weak_equiv F)
+    (<span class="nv">C1_prod</span> : Core.ob_disp
+                 (Core.disp_cat_ob_mor_from_disp_cat_data
+                    disp_bicat_chosen_equalizers) C1),
+    weak_equiv_into_univ_creates_equalizers C2_univ Fw
+      (pr1 C1_prod),, tt) C
+     ((<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, pr1 (pr1 LUR C0)) C)
+     (pr2 (pr1 LUR C)) ((pr12 LUR) C) (η_weak_equiv C)
+     CC) ((pr12 LUR) C)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk17"><span class="nb">intros</span> C E.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>E</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_chosen_equalizers) C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Core.mor_disp E
+  ((<span class="kr">λ</span> (<span class="nv">C1</span> <span class="nv">C2</span> : category) (<span class="nv">C2_univ</span> : is_univalent C2)
+    (<span class="nv">F</span> : C1 ⟶ C2) (<span class="nv">Fw</span> : is_weak_equiv F)
+    (<span class="nv">C1_prod</span> : Core.ob_disp
+                 (Core.disp_cat_ob_mor_from_disp_cat_data
+                    disp_bicat_chosen_equalizers) C1),
+    weak_equiv_into_univ_creates_equalizers C2_univ Fw
+      (pr1 C1_prod),, tt) C
+     ((<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, pr1 (pr1 LUR C)) C)
+     (pr2 (pr1 LUR C)) ((pr12 LUR) C) (η_weak_equiv C)
+     E) ((pr12 LUR) C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk18"><span class="kr">exists</span> <span class="nv">tt</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>E</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_chosen_equalizers) C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Core.mor_disp (pr2 E)
+  (pr2
+     (weak_equiv_into_univ_creates_equalizers
+        (pr2 (pr1 LUR C)) (η_weak_equiv C) (pr1 E),,
+      tt)) ((pr12 LUR) C,, tt)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (weak_equiv_preserves_equalizers_eq (η_weak_equiv C) (pr2 (pr1 LUR C))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk19">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">_</span> : ∏ (C : category)
+       (CC : Core.ob_disp
+               (Core.disp_cat_ob_mor_from_disp_cat_data
+                  disp_bicat_chosen_equalizers) C),
+       Core.mor_disp CC
+         ((<span class="kr">λ</span> (<span class="nv">C1</span> <span class="nv">C2</span> : category)
+           (<span class="nv">C2_univ</span> : is_univalent C2) (<span class="nv">F</span> : C1 ⟶ C2)
+           (<span class="nv">Fw</span> : is_weak_equiv F)
+           (<span class="nv">C1_prod</span> : Core.ob_disp
+                        (Core.disp_cat_ob_mor_from_disp_cat_data
+                           disp_bicat_chosen_equalizers)
+                        C1),
+           weak_equiv_into_univ_creates_equalizers
+             C2_univ Fw (pr1 C1_prod),, tt) C
+            ((<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, pr1 (pr1 LUR C0))
+               C) (pr2 (pr1 LUR C)) ((pr12 LUR) C)
+            (η_weak_equiv C) CC) ((pr12 LUR) C),
+ ∏ (C1 : category) (C2 C3 : univalent_category)
+ (F : C1 ⟶ C3) (G : C1 ⟶ C2) (H : C2 ⟶ C3),
+ nat_z_iso (G ∙ H) F
+ → ∏
+   (CC1 : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               disp_bicat_chosen_equalizers) C1)
+   (CC2 : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               disp_bicat_chosen_equalizers) (pr1 C2))
+   (CC3 : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               disp_bicat_chosen_equalizers) (pr1 C3)),
+   is_weak_equiv G
+   → Core.mor_disp CC1 CC3 F → Core.mor_disp CC2 CC3 H)
+  (<span class="kr">λ</span> (<span class="nv">C</span> : category)
+   (<span class="nv">E</span> : Core.ob_disp
+          (Core.disp_cat_ob_mor_from_disp_cat_data
+             disp_bicat_chosen_equalizers) C),
+   tt,,
+   weak_equiv_preserves_equalizers_eq (η_weak_equiv C)
+     (pr2 (pr1 LUR C)) (pr2 (C,, pr1 E))
+     (pr2
+        (pr1 (pr1 LUR C),,
+         pr1
+           (weak_equiv_into_univ_creates_equalizers
+              (pr2 (pr1 LUR C)) (η_weak_equiv C)
+              (pr1 E),, tt))))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk1a"><span class="nb">intros</span> C1 C2 C3 F G H α E₁ E₂ E₃ Gw.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C1</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C2, C3</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C1 ⟶ C3</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C1 ⟶ C2</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C2 ⟶ C3</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>E₁</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_chosen_equalizers) C1</span></span></span><br><span><var>E₂</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_chosen_equalizers) 
+  (pr1 C2)</span></span></span><br><span><var>E₃</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_chosen_equalizers) 
+  (pr1 C3)</span></span></span><br><span><var>Gw</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Core.mor_disp E₁ E₃ F → Core.mor_disp E₂ E₃ H</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk1b"><span class="nb">intros</span> [t Feq].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C1</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C2, C3</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C1 ⟶ C3</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C1 ⟶ C2</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C2 ⟶ C3</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>E₁</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_chosen_equalizers) C1</span></span></span><br><span><var>E₂</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_chosen_equalizers) 
+  (pr1 C2)</span></span></span><br><span><var>E₃</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_chosen_equalizers) 
+  (pr1 C3)</span></span></span><br><span><var>Gw</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>Core.mor_disp (pr1 E₁) (pr1 E₃) F</span></span></span><br><span><var>Feq</var><span class="hyp-type"><b>: </b><span>Core.mor_disp (pr2 E₁) (pr2 E₃) (F,, t)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Core.mor_disp E₂ E₃ H</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk1c"><span class="kr">exists</span> <span class="nv">tt</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C1</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C2, C3</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C1 ⟶ C3</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C1 ⟶ C2</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C2 ⟶ C3</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>E₁</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_chosen_equalizers) C1</span></span></span><br><span><var>E₂</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_chosen_equalizers) 
+  (pr1 C2)</span></span></span><br><span><var>E₃</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_chosen_equalizers) 
+  (pr1 C3)</span></span></span><br><span><var>Gw</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>Core.mor_disp (pr1 E₁) (pr1 E₃) F</span></span></span><br><span><var>Feq</var><span class="hyp-type"><b>: </b><span>Core.mor_disp (pr2 E₁) (pr2 E₃) (F,, t)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Core.mor_disp (pr2 E₂) (pr2 E₃) (H,, tt)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (weak_equiv_lifts_preserves_chosen_equalizers_eq C2 C3 α (pr1 E₁) (pr1 E₂) (pr1 E₃) Gw Feq).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk1d"><span class="kn">Corollary</span> <span class="nf">disp_bicat_chosen_equalizers_has_Rezk_completions</span>
+    : cat_with_structure_has_RezkCompletion disp_bicat_chosen_equalizers.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_structure_has_RezkCompletion
+  disp_bicat_chosen_equalizers</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk1e"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_structure_has_RezkCompletion
+  disp_bicat_chosen_equalizers</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk1f"><span class="nb">apply</span> (make_RezkCompletion_from_locally_contractible _ _ disp_bicat_chosen_equalizers_has_RC).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_chosen_equalizers</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_2cells_iscontr_chosen_equalizers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">CategoriesWithChosenEqualizersAndPreservationUpToEqualityHasRezkCompletions</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">CategoriesWithChosenEqualizersAndPreservationUpToIsoHasRezkCompletions</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">LUR</span> : left_universal_arrow univ_cats_to_cats}
+    (<span class="nv">η_weak_equiv</span> : ∏ C : category, is_weak_equiv (pr12 LUR C)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk20"><span class="kn">Lemma</span> <span class="nf">disp_bicat_equalizers_has_RC</span>
+    : cat_with_struct_has_RC η_weak_equiv disp_bicat_equalizers.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  disp_bicat_equalizers</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk21"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_struct_has_RC η_weak_equiv
+  disp_bicat_equalizers</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk22"><span class="nb">simple refine</span> (_ ,, _ ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ C1 C2 : category,
+is_univalent C2
+→ ∏ F : C1 ⟶ C2,
+  is_weak_equiv F
+  → Core.ob_disp
+      (Core.disp_cat_ob_mor_from_disp_cat_data
+         disp_bicat_equalizers) C1
+    → Core.ob_disp
+        (Core.disp_cat_ob_mor_from_disp_cat_data
+           disp_bicat_equalizers) C2</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="equalizers-v-chk23" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><label class="goal-separator" for="equalizers-v-chk23"><hr></label><div class="goal-conclusion">∏ (C : category)
+(CC : Core.ob_disp
+        (Core.disp_cat_ob_mor_from_disp_cat_data
+           disp_bicat_equalizers) C),
+Core.mor_disp CC
+  (<span class="nl">?pr1</span> C ((<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, pr1 (pr1 LUR C0)) C)
+     (pr2 (pr1 LUR C)) 
+     ((pr12 LUR) C) (η_weak_equiv C) CC)
+  ((pr12 LUR) C)</div></blockquote><input class="alectryon-extra-goal-toggle" id="equalizers-v-chk24" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><label class="goal-separator" for="equalizers-v-chk24"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">_</span> : ∏ (C : category)
+       (CC : Core.ob_disp
+               (Core.disp_cat_ob_mor_from_disp_cat_data
+                  disp_bicat_equalizers) C),
+       Core.mor_disp CC
+         (<span class="nl">?pr1</span> C
+            ((<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, pr1 (pr1 LUR C0))
+               C) (pr2 (pr1 LUR C)) 
+            ((pr12 LUR) C) 
+            (η_weak_equiv C) CC) 
+         ((pr12 LUR) C),
+ ∏ (C1 : category) (C2 C3 : univalent_category)
+ (F : C1 ⟶ C3) (G : C1 ⟶ C2) 
+ (H : C2 ⟶ C3),
+ nat_z_iso (G ∙ H) F
+ → ∏
+   (CC1 : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               disp_bicat_equalizers) C1)
+   (CC2 : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               disp_bicat_equalizers) 
+            (pr1 C2))
+   (CC3 : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               disp_bicat_equalizers) 
+            (pr1 C3)),
+   is_weak_equiv G
+   → Core.mor_disp CC1 CC3 F → Core.mor_disp CC2 CC3 H)
+  <span class="nl">?pr10</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk25">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ C1 C2 : category,
+is_univalent C2
+→ ∏ F : C1 ⟶ C2,
+  is_weak_equiv F
+  → Core.ob_disp
+      (Core.disp_cat_ob_mor_from_disp_cat_data
+         disp_bicat_equalizers) C1
+    → Core.ob_disp
+        (Core.disp_cat_ob_mor_from_disp_cat_data
+           disp_bicat_equalizers) C2</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk26"><span class="nb">intros</span> C1 C2 C2_univ F Fw [E1 ?].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C1, C2</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C2_univ</var><span class="hyp-type"><b>: </b><span>is_univalent C2</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C1 ⟶ C2</span></span></span><br><span><var>Fw</var><span class="hyp-type"><b>: </b><span>is_weak_equiv F</span></span></span><br><span><var>E1</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     (FullSub.disp_fullsubbicat bicat_of_cats
+        (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Equalizers C))) C1</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     (Sub1Cell.disp_sub1cell_bicat
+        (total_bicat
+           (FullSub.disp_fullsubbicat
+              bicat_of_cats
+              (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Equalizers C)))
+        (<span class="kr">λ</span> (<span class="nv">x</span>
+            <span class="nv">y</span> : total_bicat
+                  (FullSub.disp_fullsubbicat
+                    bicat_of_cats
+                    (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)))
+         (<span class="nv">f</span> : total_bicat
+                (FullSub.disp_fullsubbicat
+                   bicat_of_cats
+                   (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)) ⟦ x, y ⟧),
+         preserves_equalizer (pr1 f))
+        (<span class="kr">λ</span> <span class="nv">x</span> : total_bicat
+                 (FullSub.disp_fullsubbicat
+                    bicat_of_cats
+                    (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)),
+         identity_preserves_equalizer (pr1 x))
+        (<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span>
+            <span class="nv">z</span> : total_bicat
+                  (FullSub.disp_fullsubbicat
+                    bicat_of_cats
+                    (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)))
+         (<span class="nv">f</span> : total_bicat
+                (FullSub.disp_fullsubbicat
+                   bicat_of_cats
+                   (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)) ⟦ x, y ⟧)
+         (<span class="nv">g</span> : total_bicat
+                (FullSub.disp_fullsubbicat
+                   bicat_of_cats
+                   (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)) ⟦ y, z ⟧)
+         (<span class="nv">Pf</span> : preserves_equalizer (pr1 f))
+         (<span class="nv">Pg</span> : preserves_equalizer (pr1 g)),
+         composition_preserves_equalizer Pf Pg)))
+  (C1,, E1)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_equalizers) C2</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (weak_equiv_into_univ_creates_equalizers C2_univ Fw E1 ,, tt).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk27">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (C : category)
+(CC : Core.ob_disp
+        (Core.disp_cat_ob_mor_from_disp_cat_data
+           disp_bicat_equalizers) C),
+Core.mor_disp CC
+  ((<span class="kr">λ</span> (<span class="nv">C1</span> <span class="nv">C2</span> : category) (<span class="nv">C2_univ</span> : is_univalent C2)
+    (<span class="nv">F</span> : C1 ⟶ C2) (<span class="nv">Fw</span> : is_weak_equiv F)
+    (<span class="nv">X</span> : Core.ob_disp
+           (Core.disp_cat_ob_mor_from_disp_cat_data
+              disp_bicat_equalizers) C1),
+    (<span class="kr">λ</span> (<span class="nv">E1</span> : Core.ob_disp
+               (Core.disp_cat_ob_mor_from_disp_cat_data
+                  (FullSub.disp_fullsubbicat
+                     bicat_of_cats
+                     (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                      Equalizers C0))) C1)
+     (<span class="nv">_</span> : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               (Sub1Cell.disp_sub1cell_bicat
+                  (total_bicat
+                     (FullSub.disp_fullsubbicat
+                        bicat_of_cats
+                        (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                         Equalizers C0)))
+                  (<span class="kr">λ</span> (<span class="nv">x</span>
+                      <span class="nv">y</span> : total_bicat
+                            (FullSub.disp_fullsubbicat
+                               bicat_of_cats
+                               (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                                Equalizers C0)))
+                   (<span class="nv">f</span> : total_bicat
+                          (FullSub.disp_fullsubbicat
+                             bicat_of_cats
+                             (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                              Equalizers C0)) ⟦ x, y ⟧),
+                   preserves_equalizer (pr1 f))
+                  (<span class="kr">λ</span> <span class="nv">x</span> : total_bicat
+                           (FullSub.disp_fullsubbicat
+                              bicat_of_cats
+                              (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                               Equalizers C0)),
+                   identity_preserves_equalizer
+                     (pr1 x))
+                  (<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span>
+                      <span class="nv">z</span> : total_bicat
+                            (FullSub.disp_fullsubbicat
+                               bicat_of_cats
+                               (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                                Equalizers C0)))
+                   (<span class="nv">f</span> : total_bicat
+                          (FullSub.disp_fullsubbicat
+                             bicat_of_cats
+                             (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                              Equalizers C0)) ⟦ x, y ⟧)
+                   (<span class="nv">g</span> : total_bicat
+                          (FullSub.disp_fullsubbicat
+                             bicat_of_cats
+                             (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                              Equalizers C0)) ⟦ y, z ⟧)
+                   (<span class="nv">Pf</span> : preserves_equalizer (pr1 f))
+                   (<span class="nv">Pg</span> : preserves_equalizer (pr1 g)),
+                   composition_preserves_equalizer Pf
+                     Pg))) (C1,, E1)),
+     weak_equiv_into_univ_creates_equalizers C2_univ
+       Fw E1,, tt) (pr1 X) (pr2 X)) C
+     ((<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, pr1 (pr1 LUR C0)) C)
+     (pr2 (pr1 LUR C)) ((pr12 LUR) C) (η_weak_equiv C)
+     CC) ((pr12 LUR) C)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk28"><span class="nb">intros</span> C [E1 ?].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>E1</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     (FullSub.disp_fullsubbicat bicat_of_cats
+        (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Equalizers C))) C</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     (Sub1Cell.disp_sub1cell_bicat
+        (total_bicat
+           (FullSub.disp_fullsubbicat
+              bicat_of_cats
+              (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Equalizers C)))
+        (<span class="kr">λ</span> (<span class="nv">x</span>
+            <span class="nv">y</span> : total_bicat
+                  (FullSub.disp_fullsubbicat
+                    bicat_of_cats
+                    (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)))
+         (<span class="nv">f</span> : total_bicat
+                (FullSub.disp_fullsubbicat
+                   bicat_of_cats
+                   (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)) ⟦ x, y ⟧),
+         preserves_equalizer (pr1 f))
+        (<span class="kr">λ</span> <span class="nv">x</span> : total_bicat
+                 (FullSub.disp_fullsubbicat
+                    bicat_of_cats
+                    (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)),
+         identity_preserves_equalizer (pr1 x))
+        (<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span>
+            <span class="nv">z</span> : total_bicat
+                  (FullSub.disp_fullsubbicat
+                    bicat_of_cats
+                    (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)))
+         (<span class="nv">f</span> : total_bicat
+                (FullSub.disp_fullsubbicat
+                   bicat_of_cats
+                   (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)) ⟦ x, y ⟧)
+         (<span class="nv">g</span> : total_bicat
+                (FullSub.disp_fullsubbicat
+                   bicat_of_cats
+                   (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)) ⟦ y, z ⟧)
+         (<span class="nv">Pf</span> : preserves_equalizer (pr1 f))
+         (<span class="nv">Pg</span> : preserves_equalizer (pr1 g)),
+         composition_preserves_equalizer Pf Pg)))
+  (C,, E1)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Core.mor_disp (E1,, pr2)
+  (weak_equiv_into_univ_creates_equalizers
+     (Preamble.pr2 (pr1 LUR C)) (η_weak_equiv C) E1,,
+   tt) ((pr12 LUR) C)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk29"><span class="nb">refine</span> (tt ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>E1</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     (FullSub.disp_fullsubbicat bicat_of_cats
+        (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Equalizers C))) C</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     (Sub1Cell.disp_sub1cell_bicat
+        (total_bicat
+           (FullSub.disp_fullsubbicat
+              bicat_of_cats
+              (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Equalizers C)))
+        (<span class="kr">λ</span> (<span class="nv">x</span>
+            <span class="nv">y</span> : total_bicat
+                  (FullSub.disp_fullsubbicat
+                    bicat_of_cats
+                    (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)))
+         (<span class="nv">f</span> : total_bicat
+                (FullSub.disp_fullsubbicat
+                   bicat_of_cats
+                   (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)) ⟦ x, y ⟧),
+         preserves_equalizer (pr1 f))
+        (<span class="kr">λ</span> <span class="nv">x</span> : total_bicat
+                 (FullSub.disp_fullsubbicat
+                    bicat_of_cats
+                    (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)),
+         identity_preserves_equalizer (pr1 x))
+        (<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span>
+            <span class="nv">z</span> : total_bicat
+                  (FullSub.disp_fullsubbicat
+                    bicat_of_cats
+                    (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)))
+         (<span class="nv">f</span> : total_bicat
+                (FullSub.disp_fullsubbicat
+                   bicat_of_cats
+                   (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)) ⟦ x, y ⟧)
+         (<span class="nv">g</span> : total_bicat
+                (FullSub.disp_fullsubbicat
+                   bicat_of_cats
+                   (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)) ⟦ y, z ⟧)
+         (<span class="nv">Pf</span> : preserves_equalizer (pr1 f))
+         (<span class="nv">Pg</span> : preserves_equalizer (pr1 g)),
+         composition_preserves_equalizer Pf Pg)))
+  (C,, E1)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Core.mor_disp (Preamble.pr2 (E1,, pr2))
+  (Preamble.pr2
+     (weak_equiv_into_univ_creates_equalizers
+        (Preamble.pr2 (pr1 LUR C)) (η_weak_equiv C) E1,,
+      tt)) ((pr12 LUR) C,, tt)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk2a"><span class="nb">apply</span> weak_equiv_preserves_equalizers.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>E1</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     (FullSub.disp_fullsubbicat bicat_of_cats
+        (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Equalizers C))) C</span></span></span><br><span><var>pr2</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     (Sub1Cell.disp_sub1cell_bicat
+        (total_bicat
+           (FullSub.disp_fullsubbicat
+              bicat_of_cats
+              (<span class="kr">λ</span> <span class="nv">C</span> : bicat_of_cats, Equalizers C)))
+        (<span class="kr">λ</span> (<span class="nv">x</span>
+            <span class="nv">y</span> : total_bicat
+                  (FullSub.disp_fullsubbicat
+                    bicat_of_cats
+                    (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)))
+         (<span class="nv">f</span> : total_bicat
+                (FullSub.disp_fullsubbicat
+                   bicat_of_cats
+                   (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)) ⟦ x, y ⟧),
+         preserves_equalizer (pr1 f))
+        (<span class="kr">λ</span> <span class="nv">x</span> : total_bicat
+                 (FullSub.disp_fullsubbicat
+                    bicat_of_cats
+                    (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)),
+         identity_preserves_equalizer (pr1 x))
+        (<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span>
+            <span class="nv">z</span> : total_bicat
+                  (FullSub.disp_fullsubbicat
+                    bicat_of_cats
+                    (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)))
+         (<span class="nv">f</span> : total_bicat
+                (FullSub.disp_fullsubbicat
+                   bicat_of_cats
+                   (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)) ⟦ x, y ⟧)
+         (<span class="nv">g</span> : total_bicat
+                (FullSub.disp_fullsubbicat
+                   bicat_of_cats
+                   (<span class="kr">λ</span> 
+                    <span class="nv">C</span> : bicat_of_cats,
+                    Equalizers C)) ⟦ y, z ⟧)
+         (<span class="nv">Pf</span> : preserves_equalizer (pr1 f))
+         (<span class="nv">Pg</span> : preserves_equalizer (pr1 g)),
+         composition_preserves_equalizer Pf Pg)))
+  (C,, E1)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_weak_equiv (pr1 ((pr12 LUR) C,, tt))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> η_weak_equiv.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk2b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">_</span> : ∏ (C : category)
+       (CC : Core.ob_disp
+               (Core.disp_cat_ob_mor_from_disp_cat_data
+                  disp_bicat_equalizers) C),
+       Core.mor_disp CC
+         ((<span class="kr">λ</span> (<span class="nv">C1</span> <span class="nv">C2</span> : category)
+           (<span class="nv">C2_univ</span> : is_univalent C2) (<span class="nv">F</span> : C1 ⟶ C2)
+           (<span class="nv">Fw</span> : is_weak_equiv F)
+           (<span class="nv">X</span> : Core.ob_disp
+                  (Core.disp_cat_ob_mor_from_disp_cat_data
+                     disp_bicat_equalizers) C1),
+           (<span class="kr">λ</span> (<span class="nv">E1</span> : Core.ob_disp
+                      (Core.disp_cat_ob_mor_from_disp_cat_data
+                         (FullSub.disp_fullsubbicat
+                            bicat_of_cats
+                            (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                             Equalizers C0))) C1)
+            (<span class="nv">_</span> : Core.ob_disp
+                   (Core.disp_cat_ob_mor_from_disp_cat_data
+                      (Sub1Cell.disp_sub1cell_bicat
+                         (total_bicat
+                            (FullSub.disp_fullsubbicat
+                               bicat_of_cats
+                               (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                                Equalizers C0)))
+                         (<span class="kr">λ</span> (<span class="nv">x</span>
+                             <span class="nv">y</span> : total_bicat
+                                   (FullSub.disp_fullsubbicat
+                                      bicat_of_cats
+                                      (<span class="kr">λ</span> ..., ...)))
+                          (<span class="nv">f</span> : total_bicat
+                                 (FullSub.disp_fullsubbicat
+                                    bicat_of_cats
+                                    (...)) ⟦ x, y ⟧),
+                          preserves_equalizer (pr1 f))
+                         (<span class="kr">λ</span> <span class="nv">x</span> : total_bicat
+                                  (FullSub.disp_fullsubbicat
+                                     bicat_of_cats
+                                     (<span class="kr">λ</span> ..., ...)),
+                          identity_preserves_equalizer
+                            (pr1 x))
+                         (<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span>
+                             <span class="nv">z</span> : total_bicat
+                                   (FullSub.disp_fullsubbicat
+                                      bicat_of_cats
+                                      (<span class="kr">λ</span> ..., ...)))
+                          (<span class="nv">f</span> : total_bicat
+                                 (FullSub.disp_fullsubbicat
+                                    bicat_of_cats
+                                    (...)) ⟦ x, y ⟧)
+                          (<span class="nv">g</span> : total_bicat
+                                 (FullSub.disp_fullsubbicat
+                                    bicat_of_cats
+                                    (...)) ⟦ y, z ⟧)
+                          (<span class="nv">Pf</span> : preserves_equalizer
+                                  (pr1 f))
+                          (<span class="nv">Pg</span> : preserves_equalizer
+                                  (pr1 g)),
+                          composition_preserves_equalizer
+                            Pf Pg))) (C1,, E1)),
+            weak_equiv_into_univ_creates_equalizers
+              C2_univ Fw E1,, tt) (pr1 X) (pr2 X)) C
+            ((<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats, pr1 (pr1 LUR C0))
+               C) (pr2 (pr1 LUR C)) ((pr12 LUR) C)
+            (η_weak_equiv C) CC) ((pr12 LUR) C),
+ ∏ (C1 : category) (C2 C3 : univalent_category)
+ (F : C1 ⟶ C3) (G : C1 ⟶ C2) (H : C2 ⟶ C3),
+ nat_z_iso (G ∙ H) F
+ → ∏
+   (CC1 : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               disp_bicat_equalizers) C1)
+   (CC2 : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               disp_bicat_equalizers) (pr1 C2))
+   (CC3 : Core.ob_disp
+            (Core.disp_cat_ob_mor_from_disp_cat_data
+               disp_bicat_equalizers) (pr1 C3)),
+   is_weak_equiv G
+   → Core.mor_disp CC1 CC3 F → Core.mor_disp CC2 CC3 H)
+  (<span class="kr">λ</span> (<span class="nv">C</span> : category)
+   (<span class="nv">CC</span> : Core.ob_disp
+           (Core.disp_cat_ob_mor_from_disp_cat_data
+              disp_bicat_equalizers) C),
+   (<span class="kr">λ</span> (<span class="nv">E1</span> : Core.ob_disp
+              (Core.disp_cat_ob_mor_from_disp_cat_data
+                 (FullSub.disp_fullsubbicat
+                    bicat_of_cats
+                    (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                     Equalizers C0))) C)
+    (<span class="nv">pr2</span> : Core.ob_disp
+             (Core.disp_cat_ob_mor_from_disp_cat_data
+                (Sub1Cell.disp_sub1cell_bicat
+                   (total_bicat
+                      (FullSub.disp_fullsubbicat
+                         bicat_of_cats
+                         (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                          Equalizers C0)))
+                   (<span class="kr">λ</span> (<span class="nv">x</span>
+                       <span class="nv">y</span> : total_bicat
+                             (FullSub.disp_fullsubbicat
+                                bicat_of_cats
+                                (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                                 Equalizers C0)))
+                    (<span class="nv">f</span> : total_bicat
+                           (FullSub.disp_fullsubbicat
+                              bicat_of_cats
+                              (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                               Equalizers C0)) ⟦ x, y
+                         ⟧),
+                    preserves_equalizer (pr1 f))
+                   (<span class="kr">λ</span> <span class="nv">x</span> : total_bicat
+                            (FullSub.disp_fullsubbicat
+                               bicat_of_cats
+                               (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                                Equalizers C0)),
+                    identity_preserves_equalizer
+                      (pr1 x))
+                   (<span class="kr">λ</span> (<span class="nv">x</span> <span class="nv">y</span>
+                       <span class="nv">z</span> : total_bicat
+                             (FullSub.disp_fullsubbicat
+                                bicat_of_cats
+                                (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                                 Equalizers C0)))
+                    (<span class="nv">f</span> : total_bicat
+                           (FullSub.disp_fullsubbicat
+                              bicat_of_cats
+                              (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                               Equalizers C0)) ⟦ x, y
+                         ⟧)
+                    (<span class="nv">g</span> : total_bicat
+                           (FullSub.disp_fullsubbicat
+                              bicat_of_cats
+                              (<span class="kr">λ</span> <span class="nv">C0</span> : bicat_of_cats,
+                               Equalizers C0)) ⟦ y, z
+                         ⟧)
+                    (<span class="nv">Pf</span> : preserves_equalizer (pr1 f))
+                    (<span class="nv">Pg</span> : preserves_equalizer (pr1 g)),
+                    composition_preserves_equalizer Pf
+                      Pg))) (C,, E1)),
+    tt,,
+    weak_equiv_preserves_equalizers
+      (η_weak_equiv (pr1 (C,, pr1 (E1,, pr2)))))
+     (pr1 CC) (pr2 CC))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk2c"><span class="nb">intros</span> C1 C2 C3 F G H α E1 E2 E3 Gw.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C1</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C2, C3</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C1 ⟶ C3</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C1 ⟶ C2</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C2 ⟶ C3</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>E1</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_equalizers) C1</span></span></span><br><span><var>E2</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_equalizers) 
+  (pr1 C2)</span></span></span><br><span><var>E3</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_equalizers) 
+  (pr1 C3)</span></span></span><br><span><var>Gw</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Core.mor_disp E1 E3 F → Core.mor_disp E2 E3 H</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk2d"><span class="nb">intros</span> [t F_pe].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C1</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C2, C3</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C1 ⟶ C3</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C1 ⟶ C2</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C2 ⟶ C3</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>E1</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_equalizers) C1</span></span></span><br><span><var>E2</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_equalizers) 
+  (pr1 C2)</span></span></span><br><span><var>E3</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_equalizers) 
+  (pr1 C3)</span></span></span><br><span><var>Gw</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>Core.mor_disp (pr1 E1) (pr1 E3) F</span></span></span><br><span><var>F_pe</var><span class="hyp-type"><b>: </b><span>Core.mor_disp (pr2 E1) (pr2 E3) (F,, t)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Core.mor_disp E2 E3 H</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk2e"><span class="kr">exists</span> <span class="nv">tt</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br><span><var>C1</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>C2, C3</var><span class="hyp-type"><b>: </b><span>univalent_category</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>C1 ⟶ C3</span></span></span><br><span><var>G</var><span class="hyp-type"><b>: </b><span>C1 ⟶ C2</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>C2 ⟶ C3</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>nat_z_iso (G ∙ H) F</span></span></span><br><span><var>E1</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_equalizers) C1</span></span></span><br><span><var>E2</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_equalizers) 
+  (pr1 C2)</span></span></span><br><span><var>E3</var><span class="hyp-type"><b>: </b><span>Core.ob_disp
+  (Core.disp_cat_ob_mor_from_disp_cat_data
+     disp_bicat_equalizers) 
+  (pr1 C3)</span></span></span><br><span><var>Gw</var><span class="hyp-type"><b>: </b><span>is_weak_equiv G</span></span></span><br><span><var>t</var><span class="hyp-type"><b>: </b><span>Core.mor_disp (pr1 E1) (pr1 E3) F</span></span></span><br><span><var>F_pe</var><span class="hyp-type"><b>: </b><span>Core.mor_disp (pr2 E1) (pr2 E3) (F,, t)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Core.mor_disp (pr2 E2) (pr2 E3) (H,, tt)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (weak_equiv_lifts_preserves_equalizers C2 C3 α Gw F_pe).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk2f" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk2f"><span class="kn">Corollary</span> <span class="nf">disp_bicat_equalizers_has_Rezk_completions</span>
+    : cat_with_structure_has_RezkCompletion disp_bicat_equalizers.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_structure_has_RezkCompletion
+  disp_bicat_equalizers</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk30"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">cat_with_structure_has_RezkCompletion
+  disp_bicat_equalizers</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="equalizers-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="equalizers-v-chk31"><span class="nb">apply</span> (make_RezkCompletion_from_locally_contractible _ _ disp_bicat_equalizers_has_RC).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>LUR</var><span class="hyp-type"><b>: </b><span>left_universal_arrow univ_cats_to_cats</span></span></span><br><span><var>η_weak_equiv</var><span class="hyp-type"><b>: </b><span>∏ C : category,
+is_weak_equiv ((pr12 LUR) C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_2cells_iscontr disp_bicat_equalizers</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> disp_2cells_iscontr_equalizers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">CategoriesWithChosenEqualizersAndPreservationUpToIsoHasRezkCompletions</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

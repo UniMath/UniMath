@@ -1,0 +1,590 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>IndexedTransformationToTransformation.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(*************************************************************************</span>
+
+<span class="sd"> Indexed transformations give rise to displayed transformations</span>
+
+<span class="sd"> We show that every indexed transformation between indexed functors give</span>
+<span class="sd"> rise to a displayed natural transformation between their corresponding</span>
+<span class="sd"> cartesian functors.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The data</span>
+<span class="sd"> 2. The proof of naturality</span>
+<span class="sd"> 3. The displayed natural transformation</span>
+
+<span class="sd"> *************************************************************************)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedCategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedFunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedTransformation.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedCategoryToFibration.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">IndexedTransformationToDispNatTrans</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">Φ</span> <span class="nv">Ψ</span> : indexed_cat (C^opp)}
+          {<span class="nv">τ</span> <span class="nv">θ</span>: indexed_functor Φ Ψ}
+          (<span class="nv">m</span> : indexed_nat_trans τ θ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(**</span>
+<span class="sd">   1. The data</span>
+<span class="sd">   *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">indexed_nat_trans_to_disp_nat_trans_data</span>
+    : disp_nat_trans_data
+        (nat_trans_id _)
+        (indexed_functor_to_cartesian_disp_functor τ)
+        (indexed_functor_to_cartesian_disp_functor θ)
+    := <span class="kr">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, m x xx · indexed_cat_id Ψ _ (θ x xx).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(**</span>
+<span class="sd">   2. The proof of naturality</span>
+<span class="sd">   *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk1"><span class="kn">Proposition</span> <span class="nf">indexed_nat_trans_to_disp_nat_trans_axioms</span>
+    : disp_nat_trans_axioms indexed_nat_trans_to_disp_nat_trans_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_nat_trans_axioms
+  indexed_nat_trans_to_disp_nat_trans_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_nat_trans_axioms
+  indexed_nat_trans_to_disp_nat_trans_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk3"><span class="nb">intros</span> x y f xx yy ff ; <span class="nb">cbn</span> <span class="kr">in</span> *.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (τ x) ff
+· inv_from_z_iso
+    (indexed_functor_natural_z_iso τ f yy)
+· # (Ψ $ f)
+    (indexed_nat_trans_to_disp_nat_trans_data y yy)
+· indexed_cat_comp Ψ (identity y) f (θ y yy) =
+transportb (mor_disp (τ x xx) (θ y yy))
+  (is_nat_trans_id (functor_identity_data C) x y f)
+  (indexed_nat_trans_to_disp_nat_trans_data x xx
+   · # (Ψ $ identity x)
+       (# (θ x) ff
+        · inv_from_z_iso
+            (indexed_functor_natural_z_iso θ f yy))
+   · indexed_cat_comp Ψ f (identity x) (θ y yy))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk4"><span class="nb">unfold</span> transportb, indexed_nat_trans_to_disp_nat_trans_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (τ x) ff
+· inv_from_z_iso
+    (indexed_functor_natural_z_iso τ f yy)
+· # (Ψ $ f) (m y yy · indexed_cat_id Ψ y (θ y yy))
+· indexed_cat_comp Ψ (identity y) f (θ y yy) =
+transportf (mor_disp (τ x xx) (θ y yy))
+  (! is_nat_trans_id (functor_identity_data C) x y f)
+  (m x xx · indexed_cat_id Ψ x (θ x xx)
+   · # (Ψ $ identity x)
+       (# (θ x) ff
+        · inv_from_z_iso
+            (indexed_functor_natural_z_iso θ f yy))
+   · indexed_cat_comp Ψ f (identity x) (θ y yy))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk5"><span class="nb">rewrite</span> !functor_comp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (τ x) ff
+· inv_from_z_iso
+    (indexed_functor_natural_z_iso τ f yy)
+· (# (Ψ $ f) (m y yy)
+   · # (Ψ $ f) (indexed_cat_id Ψ y (θ y yy)))
+· indexed_cat_comp Ψ (identity y) f (θ y yy) =
+transportf (mor_disp (τ x xx) (θ y yy))
+  (! is_nat_trans_id (functor_identity_data C) x y f)
+  (m x xx · indexed_cat_id Ψ x (θ x xx)
+   · (# (Ψ $ identity x) (# (θ x) ff)
+      · # (Ψ $ identity x)
+          (inv_from_z_iso
+             (indexed_functor_natural_z_iso θ f yy)))
+   · indexed_cat_comp Ψ f (identity x) (θ y yy))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk6"><span class="nb">refine</span> (_ @ !(transportf_indexed_cat_to_disp_cat _ _ _)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (τ x) ff
+· inv_from_z_iso
+    (indexed_functor_natural_z_iso τ f yy)
+· (# (Ψ $ f) (m y yy)
+   · # (Ψ $ f) (indexed_cat_id Ψ y (θ y yy)))
+· indexed_cat_comp Ψ (identity y) f (θ y yy) =
+m x xx · indexed_cat_id Ψ x (θ x xx)
+· (# (Ψ $ identity x) (# (θ x) ff)
+   · # (Ψ $ identity x)
+       (inv_from_z_iso
+          (indexed_functor_natural_z_iso θ f yy)))
+· indexed_cat_comp Ψ f (identity x) (θ y yy)
+· idtoiso
+    (maponpaths
+       (<span class="kr">λ</span> <span class="nv">h</span> : C ^opp ⟦ y, x ⟧, (Ψ $ h) (θ y yy))
+       (! is_nat_trans_id (functor_identity_data C) x
+            y f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk7"><span class="nb">rewrite</span> !assoc&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (τ x) ff
+· (inv_from_z_iso
+     (indexed_functor_natural_z_iso τ f yy)
+   · (# (Ψ $ f) (m y yy)
+      · (# (Ψ $ f) (indexed_cat_id Ψ y (θ y yy))
+         · indexed_cat_comp Ψ (identity y) f (θ y yy)))) =
+m x xx
+· (indexed_cat_id Ψ x (θ x xx)
+   · (# (Ψ $ identity x) (# (θ x) ff)
+      · (# (Ψ $ identity x)
+           (inv_from_z_iso
+              (indexed_functor_natural_z_iso θ f yy))
+         · (indexed_cat_comp Ψ f (identity x) (θ y yy)
+            · idtoiso
+                (maponpaths
+                   (<span class="kr">λ</span> <span class="nv">h</span> : C ^opp ⟦ y, x ⟧,
+                    (Ψ $ h) (θ y yy))
+                   (! is_nat_trans_id
+                        (functor_identity_data C) x y
+                        f))))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk8">etrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (τ x) ff
+· (inv_from_z_iso
+     (indexed_functor_natural_z_iso τ f yy)
+   · (# (Ψ $ f) (m y yy)
+      · (# (Ψ $ f) (indexed_cat_id Ψ y (θ y yy))
+         · indexed_cat_comp Ψ (identity y) f (θ y yy)))) =
+<span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="indexedtransformationtotransformation-v-chk9" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><label class="goal-separator" for="indexedtransformationtotransformation-v-chk9"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> =
+m x xx
+· (indexed_cat_id Ψ x (θ x xx)
+   · (# (Ψ $ identity x) (# (θ x) ff)
+      · (# (Ψ $ identity x)
+           (inv_from_z_iso
+              (indexed_functor_natural_z_iso θ f yy))
+         · (indexed_cat_comp Ψ f (identity x) (θ y yy)
+            · idtoiso
+                (maponpaths
+                   (<span class="kr">λ</span> <span class="nv">h</span> : C ^opp ⟦ y, x ⟧,
+                    (Ψ $ h) (θ y yy))
+                   (! is_nat_trans_id
+                        (functor_identity_data C) x y
+                        f))))))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chka">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (τ x) ff
+· (inv_from_z_iso
+     (indexed_functor_natural_z_iso τ f yy)
+   · (# (Ψ $ f) (m y yy)
+      · (# (Ψ $ f) (indexed_cat_id Ψ y (θ y yy))
+         · indexed_cat_comp Ψ (identity y) f (θ y yy)))) =
+<span class="nl">?b</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chkb"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">inv_from_z_iso (indexed_functor_natural_z_iso τ f yy)
+· (# (Ψ $ f) (m y yy)
+   · (# (Ψ $ f) (indexed_cat_id Ψ y (θ y yy))
+      · indexed_cat_comp Ψ (identity y) f (θ y yy))) =
+<span class="nl">?t2</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chkc"><span class="nb">rewrite</span> !assoc.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">inv_from_z_iso (indexed_functor_natural_z_iso τ f yy)
+· # (Ψ $ f) (m y yy)
+· # (Ψ $ f) (indexed_cat_id Ψ y (θ y yy))
+· indexed_cat_comp Ψ (identity y) f (θ y yy) = <span class="nl">?t2</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chkd"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">inv_from_z_iso (indexed_functor_natural_z_iso τ f yy)
+· # (Ψ $ f) (m y yy) = <span class="nl">?y&#39;</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (!(indexed_nat_trans_natural_inv m f yy)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chke">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (τ x) ff
+· (m x ((Φ $ f) yy)
+   · inv_from_z_iso
+       (indexed_functor_natural_z_iso θ f yy)
+   · # (Ψ $ f) (indexed_cat_id Ψ y (θ y yy))
+   · indexed_cat_comp Ψ (identity y) f (θ y yy)) =
+m x xx
+· (indexed_cat_id Ψ x (θ x xx)
+   · (# (Ψ $ identity x) (# (θ x) ff)
+      · (# (Ψ $ identity x)
+           (inv_from_z_iso
+              (indexed_functor_natural_z_iso θ f yy))
+         · (indexed_cat_comp Ψ f (identity x) (θ y yy)
+            · idtoiso
+                (maponpaths
+                   (<span class="kr">λ</span> <span class="nv">h</span> : C ^opp ⟦ y, x ⟧,
+                    (Ψ $ h) (θ y yy))
+                   (! is_nat_trans_id
+                        (functor_identity_data C) x y
+                        f))))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chkf"><span class="nb">rewrite</span> !assoc.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (τ x) ff · m x ((Φ $ f) yy)
+· inv_from_z_iso
+    (indexed_functor_natural_z_iso θ f yy)
+· # (Ψ $ f) (indexed_cat_id Ψ y (θ y yy))
+· indexed_cat_comp Ψ (identity y) f (θ y yy) =
+m x xx · indexed_cat_id Ψ x (θ x xx)
+· # (Ψ $ identity x) (# (θ x) ff)
+· # (Ψ $ identity x)
+    (inv_from_z_iso
+       (indexed_functor_natural_z_iso θ f yy))
+· indexed_cat_comp Ψ f (identity x) (θ y yy)
+· idtoiso
+    (maponpaths
+       (<span class="kr">λ</span> <span class="nv">h</span> : C ^opp ⟦ y, x ⟧, (Ψ $ h) (θ y yy))
+       (! is_nat_trans_id (functor_identity_data C) x
+            y f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk10">etrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (τ x) ff · m x ((Φ $ f) yy)
+· inv_from_z_iso
+    (indexed_functor_natural_z_iso θ f yy)
+· # (Ψ $ f) (indexed_cat_id Ψ y (θ y yy))
+· indexed_cat_comp Ψ (identity y) f (θ y yy) = <span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="indexedtransformationtotransformation-v-chk11" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><label class="goal-separator" for="indexedtransformationtotransformation-v-chk11"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> =
+m x xx · indexed_cat_id Ψ x (θ x xx)
+· # (Ψ $ identity x) (# (θ x) ff)
+· # (Ψ $ identity x)
+    (inv_from_z_iso
+       (indexed_functor_natural_z_iso θ f yy))
+· indexed_cat_comp Ψ f (identity x) (θ y yy)
+· idtoiso
+    (maponpaths
+       (<span class="kr">λ</span> <span class="nv">h</span> : C ^opp ⟦ y, x ⟧, (Ψ $ h) (θ y yy))
+       (! is_nat_trans_id (functor_identity_data C) x
+            y f))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk12">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (τ x) ff · m x ((Φ $ f) yy)
+· inv_from_z_iso
+    (indexed_functor_natural_z_iso θ f yy)
+· # (Ψ $ f) (indexed_cat_id Ψ y (θ y yy))
+· indexed_cat_comp Ψ (identity y) f (θ y yy) = <span class="nl">?b</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk13"><span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (τ x) ff · m x ((Φ $ f) yy) = <span class="nl">?y&#39;</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (nat_trans_ax (m x)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk14">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">m x xx · # (θ x) ff
+· inv_from_z_iso
+    (indexed_functor_natural_z_iso θ f yy)
+· # (Ψ $ f) (indexed_cat_id Ψ y (θ y yy))
+· indexed_cat_comp Ψ (identity y) f (θ y yy) =
+m x xx · indexed_cat_id Ψ x (θ x xx)
+· # (Ψ $ identity x) (# (θ x) ff)
+· # (Ψ $ identity x)
+    (inv_from_z_iso
+       (indexed_functor_natural_z_iso θ f yy))
+· indexed_cat_comp Ψ f (identity x) (θ y yy)
+· idtoiso
+    (maponpaths
+       (<span class="kr">λ</span> <span class="nv">h</span> : C ^opp ⟦ y, x ⟧, (Ψ $ h) (θ y yy))
+       (! is_nat_trans_id (functor_identity_data C) x
+            y f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk15"><span class="nb">rewrite</span> !assoc&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">m x xx
+· (# (θ x) ff
+   · (inv_from_z_iso
+        (indexed_functor_natural_z_iso θ f yy)
+      · (# (Ψ $ f) (indexed_cat_id Ψ y (θ y yy))
+         · indexed_cat_comp Ψ (identity y) f (θ y yy)))) =
+m x xx
+· (indexed_cat_id Ψ x (θ x xx)
+   · (# (Ψ $ identity x) (# (θ x) ff)
+      · (# (Ψ $ identity x)
+           (inv_from_z_iso
+              (indexed_functor_natural_z_iso θ f yy))
+         · (indexed_cat_comp Ψ f (identity x) (θ y yy)
+            · idtoiso
+                (maponpaths
+                   (<span class="kr">λ</span> <span class="nv">h</span> : C ^opp ⟦ y, x ⟧,
+                    (Ψ $ h) (θ y yy))
+                   (! is_nat_trans_id
+                        (functor_identity_data C) x y
+                        f))))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk16"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (θ x) ff
+· (inv_from_z_iso
+     (indexed_functor_natural_z_iso θ f yy)
+   · (# (Ψ $ f) (indexed_cat_id Ψ y (θ y yy))
+      · indexed_cat_comp Ψ (identity y) f (θ y yy))) =
+indexed_cat_id Ψ x (θ x xx)
+· (# (Ψ $ identity x) (# (θ x) ff)
+   · (# (Ψ $ identity x)
+        (inv_from_z_iso
+           (indexed_functor_natural_z_iso θ f yy))
+      · (indexed_cat_comp Ψ f (identity x) (θ y yy)
+         · idtoiso
+             (maponpaths
+                (<span class="kr">λ</span> <span class="nv">h</span> : C ^opp ⟦ y, x ⟧,
+                 (Ψ $ h) (θ y yy))
+                (! is_nat_trans_id
+                     (functor_identity_data C) x y f)))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk17"><span class="nb">refine</span> (!_).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Ψ x (θ x xx)
+· (# (Ψ $ identity x) (# (θ x) ff)
+   · (# (Ψ $ identity x)
+        (inv_from_z_iso
+           (indexed_functor_natural_z_iso θ f yy))
+      · (indexed_cat_comp Ψ f (identity x) (θ y yy)
+         · idtoiso
+             (maponpaths
+                (<span class="kr">λ</span> <span class="nv">h</span> : C ^opp ⟦ y, x ⟧,
+                 (Ψ $ h) (θ y yy))
+                (! is_nat_trans_id
+                     (functor_identity_data C) x y f))))) =
+# (θ x) ff
+· (inv_from_z_iso
+     (indexed_functor_natural_z_iso θ f yy)
+   · (# (Ψ $ f) (indexed_cat_id Ψ y (θ y yy))
+      · indexed_cat_comp Ψ (identity y) f (θ y yy)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk18">etrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Ψ x (θ x xx)
+· (# (Ψ $ identity x) (# (θ x) ff)
+   · (# (Ψ $ identity x)
+        (inv_from_z_iso
+           (indexed_functor_natural_z_iso θ f yy))
+      · (indexed_cat_comp Ψ f (identity x) (θ y yy)
+         · idtoiso
+             (maponpaths
+                (<span class="kr">λ</span> <span class="nv">h</span> : C ^opp ⟦ y, x ⟧,
+                 (Ψ $ h) (θ y yy))
+                (! is_nat_trans_id
+                     (functor_identity_data C) x y f))))) =
+<span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="indexedtransformationtotransformation-v-chk19" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><label class="goal-separator" for="indexedtransformationtotransformation-v-chk19"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> =
+# (θ x) ff
+· (inv_from_z_iso
+     (indexed_functor_natural_z_iso θ f yy)
+   · (# (Ψ $ f) (indexed_cat_id Ψ y (θ y yy))
+      · indexed_cat_comp Ψ (identity y) f (θ y yy)))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk1a">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Ψ x (θ x xx)
+· (# (Ψ $ identity x) (# (θ x) ff)
+   · (# (Ψ $ identity x)
+        (inv_from_z_iso
+           (indexed_functor_natural_z_iso θ f yy))
+      · (indexed_cat_comp Ψ f (identity x) (θ y yy)
+         · idtoiso
+             (maponpaths
+                (<span class="kr">λ</span> <span class="nv">h</span> : C ^opp ⟦ y, x ⟧,
+                 (Ψ $ h) (θ y yy))
+                (! is_nat_trans_id
+                     (functor_identity_data C) x y f))))) =
+<span class="nl">?b</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk1b"><span class="nb">rewrite</span> !assoc.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Ψ x (θ x xx)
+· # (Ψ $ identity x) (# (θ x) ff)
+· # (Ψ $ identity x)
+    (inv_from_z_iso
+       (indexed_functor_natural_z_iso θ f yy))
+· indexed_cat_comp Ψ f (identity x) (θ y yy)
+· idtoiso
+    (maponpaths
+       (<span class="kr">λ</span> <span class="nv">h</span> : C ^opp ⟦ y, x ⟧, (Ψ $ h) (θ y yy))
+       (! is_nat_trans_id (functor_identity_data C) x
+            y f)) = <span class="nl">?b</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk1c"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Ψ x (θ x xx)
+· # (Ψ $ identity x) (# (θ x) ff)
+· # (Ψ $ identity x)
+    (inv_from_z_iso
+       (indexed_functor_natural_z_iso θ f yy)) = <span class="nl">?y&#39;</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk1d">etrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Ψ x (θ x xx)
+· # (Ψ $ identity x) (# (θ x) ff)
+· # (Ψ $ identity x)
+    (inv_from_z_iso
+       (indexed_functor_natural_z_iso θ f yy)) = <span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="indexedtransformationtotransformation-v-chk1e" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><label class="goal-separator" for="indexedtransformationtotransformation-v-chk1e"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> = <span class="nl">?y&#39;</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk1f">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Ψ x (θ x xx)
+· # (Ψ $ identity x) (# (θ x) ff)
+· # (Ψ $ identity x)
+    (inv_from_z_iso
+       (indexed_functor_natural_z_iso θ f yy)) = <span class="nl">?b</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk20"><span class="nb">apply</span> maponpaths_2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Ψ x (θ x xx)
+· # (Ψ $ identity x) (# (θ x) ff) = <span class="nl">?y&#39;0</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk21"><span class="nb">refine</span> (!_).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="nl">?y&#39;0</span> =
+indexed_cat_id Ψ x (θ x xx)
+· # (Ψ $ identity x) (# (θ x) ff)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (nat_trans_ax (indexed_cat_id Ψ x)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk22">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (functor_identity (Ψ x)) (# (θ x) ff)
+· indexed_cat_id Ψ x (θ x ((Φ $ f) yy))
+· # (Ψ $ identity x)
+    (inv_from_z_iso
+       (indexed_functor_natural_z_iso θ f yy)) = <span class="nl">?y&#39;</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk23"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (θ x) ff · indexed_cat_id Ψ x (θ x ((Φ $ f) yy))
+· # (Ψ $ identity x)
+    (inv_from_z_iso
+       (indexed_functor_natural_z_iso θ f yy)) = <span class="nl">?y&#39;</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk24"><span class="nb">rewrite</span> !assoc&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (θ x) ff
+· (indexed_cat_id Ψ x (θ x ((Φ $ f) yy))
+   · # (Ψ $ identity x)
+       (inv_from_z_iso
+          (indexed_functor_natural_z_iso θ f yy))) =
+<span class="nl">?y&#39;</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk25"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Ψ x (θ x ((Φ $ f) yy))
+· # (Ψ $ identity x)
+    (inv_from_z_iso
+       (indexed_functor_natural_z_iso θ f yy)) = <span class="nl">?t2</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk26"><span class="nb">refine</span> (!_).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="nl">?t2</span> =
+indexed_cat_id Ψ x (θ x ((Φ $ f) yy))
+· # (Ψ $ identity x)
+    (inv_from_z_iso
+       (indexed_functor_natural_z_iso θ f yy))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (nat_trans_ax (indexed_cat_id Ψ x)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk27">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (θ x) ff
+· (# (functor_identity (Ψ x))
+     (inv_from_z_iso
+        (indexed_functor_natural_z_iso θ f yy))
+   · indexed_cat_id Ψ x ((Ψ $ f) (θ y yy)))
+· indexed_cat_comp Ψ f (identity x) (θ y yy)
+· idtoiso
+    (maponpaths
+       (<span class="kr">λ</span> <span class="nv">h</span> : C ^opp ⟦ y, x ⟧, (Ψ $ h) (θ y yy))
+       (! is_nat_trans_id (functor_identity_data C) x
+            y f)) =
+# (θ x) ff
+· (inv_from_z_iso
+     (indexed_functor_natural_z_iso θ f yy)
+   · (# (Ψ $ f) (indexed_cat_id Ψ y (θ y yy))
+      · indexed_cat_comp Ψ (identity y) f (θ y yy)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk28"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (θ x) ff
+· (inv_from_z_iso
+     (indexed_functor_natural_z_iso θ f yy)
+   · indexed_cat_id Ψ x ((Ψ $ f) (θ y yy)))
+· indexed_cat_comp Ψ f (identity x) (θ y yy)
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">h</span> : C ⟦ x, y ⟧, (Ψ $ h) (θ y yy))
+       (! is_nat_trans_id (functor_identity_data C) x
+            y f)) =
+# (θ x) ff
+· (inv_from_z_iso
+     (indexed_functor_natural_z_iso θ f yy)
+   · (# (Ψ $ f) (indexed_cat_id Ψ y (θ y yy))
+      · indexed_cat_comp Ψ (identity y) f (θ y yy)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk29"><span class="nb">rewrite</span> !assoc&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (θ x) ff
+· (inv_from_z_iso
+     (indexed_functor_natural_z_iso θ f yy)
+   · (indexed_cat_id Ψ x ((Ψ $ f) (θ y yy))
+      · (indexed_cat_comp Ψ f (identity x) (θ y yy)
+         · idtoiso
+             (maponpaths
+                (<span class="kr">λ</span> <span class="nv">h</span> : C ⟦ x, y ⟧, (Ψ $ h) (θ y yy))
+                (! is_nat_trans_id
+                     (functor_identity_data C) x y f))))) =
+# (θ x) ff
+· (inv_from_z_iso
+     (indexed_functor_natural_z_iso θ f yy)
+   · (# (Ψ $ f) (indexed_cat_id Ψ y (θ y yy))
+      · indexed_cat_comp Ψ (identity y) f (θ y yy)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk2a"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Ψ x ((Ψ $ f) (θ y yy))
+· (indexed_cat_comp Ψ f (identity x) (θ y yy)
+   · idtoiso
+       (maponpaths
+          (<span class="kr">λ</span> <span class="nv">h</span> : C ⟦ x, y ⟧, (Ψ $ h) (θ y yy))
+          (! is_nat_trans_id (functor_identity_data C)
+               x y f))) =
+# (Ψ $ f) (indexed_cat_id Ψ y (θ y yy))
+· indexed_cat_comp Ψ (identity y) f (θ y yy)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk2b"><span class="nb">refine</span> (_ @ !(indexed_cat_lunitor_alt Ψ _ _)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Ψ x ((Ψ $ f) (θ y yy))
+· (indexed_cat_comp Ψ f (identity x) (θ y yy)
+   · idtoiso
+       (maponpaths
+          (<span class="kr">λ</span> <span class="nv">h</span> : C ⟦ x, y ⟧, (Ψ $ h) (θ y yy))
+          (! is_nat_trans_id (functor_identity_data C)
+               x y f))) =
+idtoiso
+  (maponpaths
+     (<span class="kr">λ</span> <span class="nv">g</span> : C ^opp ⟦ y, x ⟧, (Ψ $ g) (pr1 (θ y) yy))
+     (! id_left f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk2c"><span class="nb">rewrite</span> !assoc.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Ψ x ((Ψ $ f) (θ y yy))
+· indexed_cat_comp Ψ f (identity x) (θ y yy)
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">h</span> : C ⟦ x, y ⟧, (Ψ $ h) (θ y yy))
+       (! is_nat_trans_id (functor_identity_data C) x
+            y f)) =
+idtoiso
+  (maponpaths
+     (<span class="kr">λ</span> <span class="nv">g</span> : C ^opp ⟦ y, x ⟧, (Ψ $ g) (pr1 (θ y) yy))
+     (! id_left f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk2d">etrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Ψ x ((Ψ $ f) (θ y yy))
+· indexed_cat_comp Ψ f (identity x) (θ y yy)
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">h</span> : C ⟦ x, y ⟧, (Ψ $ h) (θ y yy))
+       (! is_nat_trans_id (functor_identity_data C) x
+            y f)) = <span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="indexedtransformationtotransformation-v-chk2e" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><label class="goal-separator" for="indexedtransformationtotransformation-v-chk2e"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> =
+idtoiso
+  (maponpaths
+     (<span class="kr">λ</span> <span class="nv">g</span> : C ^opp ⟦ y, x ⟧, (Ψ $ g) (pr1 (θ y) yy))
+     (! id_left f))</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk2f" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk2f">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Ψ x ((Ψ $ f) (θ y yy))
+· indexed_cat_comp Ψ f (identity x) (θ y yy)
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">h</span> : C ⟦ x, y ⟧, (Ψ $ h) (θ y yy))
+       (! is_nat_trans_id (functor_identity_data C) x
+            y f)) = <span class="nl">?b</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk30"><span class="nb">apply</span> maponpaths_2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">indexed_cat_id Ψ x ((Ψ $ f) (θ y yy))
+· indexed_cat_comp Ψ f (identity x) (θ y yy) = <span class="nl">?y&#39;</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (indexed_cat_runitor_alt Ψ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk31">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">idtoiso
+  (maponpaths
+     (<span class="kr">λ</span> <span class="nv">g</span> : C ^opp ⟦ y, x ⟧, (Ψ $ g) (θ y yy))
+     (! id_right f))
+· idtoiso
+    (maponpaths (<span class="kr">λ</span> <span class="nv">h</span> : C ⟦ x, y ⟧, (Ψ $ h) (θ y yy))
+       (! is_nat_trans_id (functor_identity_data C) x
+            y f)) =
+idtoiso
+  (maponpaths
+     (<span class="kr">λ</span> <span class="nv">g</span> : C ^opp ⟦ y, x ⟧, (Ψ $ g) (pr1 (θ y) yy))
+     (! id_left f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk32"><span class="nb">refine</span> (!(pr1_idtoiso_concat _ _) @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (idtoiso
+     (maponpaths
+        (<span class="kr">λ</span> <span class="nv">g</span> : C ^opp ⟦ y, x ⟧, (Ψ $ g) (θ y yy))
+        (! id_right f) @
+      maponpaths (<span class="kr">λ</span> <span class="nv">h</span> : C ⟦ x, y ⟧, (Ψ $ h) (θ y yy))
+        (! is_nat_trans_id (functor_identity_data C) x
+             y f))) =
+idtoiso
+  (maponpaths
+     (<span class="kr">λ</span> <span class="nv">g</span> : C ^opp ⟦ y, x ⟧, (Ψ $ g) (pr1 (θ y) yy))
+     (! id_left f))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk33"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ^opp ⟦ y, x ⟧, (Ψ $ g) (θ y yy))
+  (! id_right f) @
+maponpaths (<span class="kr">λ</span> <span class="nv">h</span> : C ⟦ x, y ⟧, (Ψ $ h) (θ y yy))
+  (! is_nat_trans_id (functor_identity_data C) x y f) =
+maponpaths
+  (<span class="kr">λ</span> <span class="nv">g</span> : C ^opp ⟦ y, x ⟧, (Ψ $ g) (pr1 (θ y) yy))
+  (! id_left f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk34"><span class="nb">refine</span> (!(maponpathscomp0 (<span class="kr">λ</span> <span class="nv">g</span>, (Ψ $ g) (θ y yy)) _ _) @ _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">maponpaths (<span class="kr">λ</span> <span class="nv">g</span> : C ^opp ⟦ y, x ⟧, (Ψ $ g) (θ y yy))
+  (! id_right f @
+   ! is_nat_trans_id (functor_identity_data C) x y f) =
+maponpaths
+  (<span class="kr">λ</span> <span class="nv">g</span> : C ^opp ⟦ y, x ⟧, (Ψ $ g) (pr1 (θ y) yy))
+  (! id_left f)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk35"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>xx</var><span class="hyp-type"><b>: </b><span>Φ x</span></span></span><br><span><var>yy</var><span class="hyp-type"><b>: </b><span>Φ y</span></span></span><br><span><var>ff</var><span class="hyp-type"><b>: </b><span>Φ x ⟦ xx, (Φ $ f) yy ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">! id_right f @
+! is_nat_trans_id (functor_identity_data C) x y f =
+! id_left f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> homset_property.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(**</span>
+<span class="sd">   3. The displayed natural transformation</span>
+<span class="sd">   *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk36" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk36"><span class="kn">Definition</span> <span class="nf">indexed_nat_trans_to_disp_nat_trans</span>
+    : disp_nat_trans
+        (nat_trans_id _)
+        (indexed_functor_to_cartesian_disp_functor τ)
+        (indexed_functor_to_cartesian_disp_functor θ).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_nat_trans (nat_trans_id (functor_identity C))
+  (indexed_functor_to_cartesian_disp_functor τ)
+  (indexed_functor_to_cartesian_disp_functor θ)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk37"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_nat_trans (nat_trans_id (functor_identity C))
+  (indexed_functor_to_cartesian_disp_functor τ)
+  (indexed_functor_to_cartesian_disp_functor θ)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk38"><span class="nb">simple refine</span> (_ ,, _).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_nat_trans_data
+  (nat_trans_id (functor_identity C))
+  (indexed_functor_to_cartesian_disp_functor τ)
+  (indexed_functor_to_cartesian_disp_functor θ)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="indexedtransformationtotransformation-v-chk39" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br></div><label class="goal-separator" for="indexedtransformationtotransformation-v-chk39"><hr></label><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">b</span> : disp_nat_trans_data
+         (nat_trans_id (functor_identity C))
+         (indexed_functor_to_cartesian_disp_functor τ)
+         (indexed_functor_to_cartesian_disp_functor θ),
+ disp_nat_trans_axioms b) <span class="nl">?pr1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk3a" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk3a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">disp_nat_trans_data
+  (nat_trans_id (functor_identity C))
+  (indexed_functor_to_cartesian_disp_functor τ)
+  (indexed_functor_to_cartesian_disp_functor θ)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> indexed_nat_trans_to_disp_nat_trans_data.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="indexedtransformationtotransformation-v-chk3b" style="display: none" type="checkbox"><label class="alectryon-input" for="indexedtransformationtotransformation-v-chk3b">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>Φ, Ψ</var><span class="hyp-type"><b>: </b><span>indexed_cat (C ^opp)</span></span></span><br><span><var>τ, θ</var><span class="hyp-type"><b>: </b><span>indexed_functor Φ Ψ</span></span></span><br><span><var>m</var><span class="hyp-type"><b>: </b><span>indexed_nat_trans τ θ</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(<span class="kr">λ</span> <span class="nv">b</span> : disp_nat_trans_data
+         (nat_trans_id (functor_identity C))
+         (indexed_functor_to_cartesian_disp_functor τ)
+         (indexed_functor_to_cartesian_disp_functor θ),
+ disp_nat_trans_axioms b)
+  indexed_nat_trans_to_disp_nat_trans_data</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> indexed_nat_trans_to_disp_nat_trans_axioms.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">IndexedTransformationToDispNatTrans</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> indexed_nat_trans_to_disp_nat_trans_data {C Φ Ψ τ θ} m /.</span></span></pre>
+</div>
+</div></body>
+</html>

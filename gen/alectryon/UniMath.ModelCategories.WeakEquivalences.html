@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>WeakEquivalences.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-sentence"><input class="alectryon-toggle" id="weakequivalences-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="weakequivalences-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.ModelCategories.MorphismClass.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">weakeqv</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> morcls.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> logic.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">weq_comp_ax</span> {<span class="nv">C</span> : category} (<span class="nv">W</span> : morphism_class C) : UU :=
+    <span class="kr">∀</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z),
+      (W _ _) f ⇒ (W _ _) g ⇒ (W _ _) (f · g).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">weq_cancel_left_ax</span> {<span class="nv">C</span> : category} (<span class="nv">W</span> : morphism_class C) : UU :=
+    <span class="kr">∀</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C) (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z),
+      (W _ _) f ⇒ (W _ _) (f · g) ⇒ (W _ _) g.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">weq_cancel_right_ax</span> {<span class="nv">C</span> : category} (<span class="nv">W</span> : morphism_class C) : UU :=
+    <span class="kr">∀</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C) (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z),
+      (W _ _) g ⇒ (W _ _) (f · g) ⇒ (W _ _) f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_weak_equivalences</span> {<span class="nv">C</span> : category} (<span class="nv">W</span> : morphism_class C) : UU :=
+    weq_comp_ax W × weq_cancel_left_ax W × weq_cancel_right_ax W.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">weak_equivalences</span> (<span class="nv">C</span> : category) : UU :=
+    ∑ (W : morphism_class C), is_weak_equivalences W.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">weq_class</span> {<span class="nv">C</span> : category} (<span class="nv">W</span> : weak_equivalences C) := pr1 W.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">weq_is_weq</span> {<span class="nv">C</span> : category} (<span class="nv">W</span> : weak_equivalences C) := (pr2 W).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_weq_comp</span> {<span class="nv">C</span> : category} {<span class="nv">W</span> : morphism_class C} (<span class="nv">weq</span> : is_weak_equivalences W) := (pr1 (weq)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_weq_cancel_left</span> {<span class="nv">C</span> : category} {<span class="nv">W</span> : morphism_class C} (<span class="nv">weq</span> : is_weak_equivalences W) := pr12 weq.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_weq_cancel_right</span> {<span class="nv">C</span> : category} {<span class="nv">W</span> : morphism_class C} (<span class="nv">weq</span> : is_weak_equivalences W) := pr22 weq.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">weq_comp</span> {<span class="nv">C</span> : category} (<span class="nv">W</span> : weak_equivalences C) := is_weq_comp (weq_is_weq W).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">weq_cancel_left</span> {<span class="nv">C</span> : category} (<span class="nv">W</span> : weak_equivalences C) := is_weq_cancel_left (weq_is_weq W).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">weq_cancel_right</span> {<span class="nv">C</span> : category} (<span class="nv">W</span> : weak_equivalences C) := is_weq_cancel_right (weq_is_weq W).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="weakequivalences-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="weakequivalences-v-chk1"><span class="kn">Lemma</span> <span class="nf">isaprop_is_weak_equivalences</span> {<span class="nv">C</span> : category} (<span class="nv">W</span> : morphism_class C) : isaprop (is_weak_equivalences W).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>W</var><span class="hyp-type"><b>: </b><span>morphism_class C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (is_weak_equivalences W)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="weakequivalences-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="weakequivalences-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>W</var><span class="hyp-type"><b>: </b><span>morphism_class C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (is_weak_equivalences W)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kp">idtac</span>;
+    <span class="kp">repeat</span> <span class="nb">apply</span> isapropdirprod;
+    <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>);
+    <span class="nb">apply</span> propproperty.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">weakeqv</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

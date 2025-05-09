@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>BinBiproducts.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(***************************************************************************</span>
+
+<span class="sd"> Implementation of Binary Biproducts</span>
+
+<span class="sd"> In this file we introduce the definition of a biproduct, along with accessors</span>
+<span class="sd"> for the biproduct axioms, and coercions into binary products and coproducts.</span>
+
+<span class="sd"> ***************************************************************************)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="binbiproducts-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="binbiproducts-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Zero.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">BinBiproducts</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">C</span> : category}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : C}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bin_biproduct_data</span>
+    : UU
+    := ∑ (P : C),
+      (P --&gt; A) ×
+      (P --&gt; B) ×
+      (A --&gt; P) ×
+      (B --&gt; P).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">bin_biproduct_object</span>
+    (P : bin_biproduct_data)
+    : C
+    := pr1 P.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_bin_biproduct_data</span>
+    (<span class="nv">P</span> : C)
+    (<span class="nv">pr1</span> : P --&gt; A)
+    (<span class="nv">pr2</span> : P --&gt; B)
+    (<span class="nv">i1</span> : A --&gt; P)
+    (<span class="nv">i2</span> : B --&gt; P)
+    : bin_biproduct_data
+    := P ,, pr1 ,, pr2 ,, i1 ,, i2.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Accessors</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">P</span> : bin_biproduct_data).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bin_biproduct_pr1</span>
+      : (pr1 P) --&gt; A
+      := pr12 P.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bin_biproduct_pr2</span>
+      : (pr1 P) --&gt; B
+      := pr122 P.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bin_biproduct_i1</span>
+      : A --&gt; (pr1 P)
+      := pr1 (pr222 P).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bin_biproduct_i2</span>
+      : B --&gt; (pr1 P)
+      := pr2 (pr222 P).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Accessors</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">Z</span> : Zero C}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Axioms</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">P</span> : bin_biproduct_data).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bin_biproduct_i1_pr1_ax</span>
+      : UU
+      := bin_biproduct_i1 P · bin_biproduct_pr1 P = identity A.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bin_biproduct_i1_pr2_ax</span>
+      : UU
+      := bin_biproduct_i1 P · bin_biproduct_pr2 P = ZeroArrow Z A B.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bin_biproduct_i2_pr2_ax</span>
+      : UU
+      := bin_biproduct_i2 P · bin_biproduct_pr2 P = identity B.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bin_biproduct_i2_pr1_ax</span>
+      : UU
+      := bin_biproduct_i2 P · bin_biproduct_pr1 P = ZeroArrow Z B A.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Axioms</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">is_bin_biproduct</span>
+    (<span class="nv">P</span> : bin_biproduct_data)
+    : UU
+    := (isBinProduct _ _ _ P (bin_biproduct_pr1 P) (bin_biproduct_pr2 P)) ×
+      (isBinCoproduct _ _ _ P (bin_biproduct_i1 P) (bin_biproduct_i2 P)) ×
+      (bin_biproduct_i1_pr1_ax P) ×
+      (bin_biproduct_i1_pr2_ax P) ×
+      (bin_biproduct_i2_pr1_ax P) ×
+      (bin_biproduct_i2_pr2_ax P).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_is_bin_biproduct</span>
+  (<span class="nv">P</span> : bin_biproduct_data)
+  (<span class="nv">H1</span> : isBinProduct _ _ _ P (bin_biproduct_pr1 P) (bin_biproduct_pr2 P))
+  (<span class="nv">H2</span> : isBinCoproduct _ _ _ P (bin_biproduct_i1 P) (bin_biproduct_i2 P))
+  (<span class="nv">H3</span> : bin_biproduct_i1_pr1_ax P)
+  (<span class="nv">H4</span> : bin_biproduct_i1_pr2_ax P)
+  (<span class="nv">H5</span> : bin_biproduct_i2_pr1_ax P)
+  (<span class="nv">H6</span> : bin_biproduct_i2_pr2_ax P)
+  : is_bin_biproduct P 
+  := H1 ,, H2 ,, H3 ,, H4 ,, H5 ,, H6.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bin_biproduct</span>
+    : UU
+    := ∑ P, is_bin_biproduct P.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">bin_biproduct_to_data</span>
+    (P : bin_biproduct)
+    : bin_biproduct_data
+    := pr1 P.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">bin_biproduct_to_bin_product</span>
+    (P : bin_biproduct)
+    : BinProduct C A B
+    := make_BinProduct _ _ _ P (bin_biproduct_pr1 P) (bin_biproduct_pr2 P) (pr12 P).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">bin_biproduct_to_bin_coproduct</span>
+    (P : bin_biproduct)
+    : BinCoproduct A B
+    := make_BinCoproduct _ _ _ P (bin_biproduct_i1 P) (bin_biproduct_i2 P) (pr122 P).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_bin_biproduct</span>
+    (<span class="nv">P</span> : bin_biproduct_data)
+    (<span class="nv">H0</span> : is_bin_biproduct P)
+    : bin_biproduct
+    := P ,, H0.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bin_biproduct_i1_pr1</span>
+    (<span class="nv">P</span> : bin_biproduct)
+    : bin_biproduct_i1_pr1_ax P
+    := pr1 (pr222 P).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bin_biproduct_i1_pr2</span>
+  (<span class="nv">P</span> : bin_biproduct)
+  : bin_biproduct_i1_pr2_ax P
+  := pr12 (pr222 P).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bin_biproduct_i2_pr1</span>
+  (<span class="nv">P</span> : bin_biproduct)
+  : bin_biproduct_i2_pr1_ax P
+  := pr122 (pr222 P).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">bin_biproduct_i2_pr2</span>
+  (<span class="nv">P</span> : bin_biproduct)
+  : bin_biproduct_i2_pr2_ax P
+  := pr222 (pr222 P).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">BinBiproducts</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> bin_biproduct_data {C} (A B).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> bin_biproduct_i2_pr1_ax {C} (A B) (Z).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> bin_biproduct_i1_pr2_ax {C} (A B) (Z).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Arguments</span> bin_biproduct {C} (A B) (Z).</span></span></pre>
+</div>
+</div></body>
+</html>

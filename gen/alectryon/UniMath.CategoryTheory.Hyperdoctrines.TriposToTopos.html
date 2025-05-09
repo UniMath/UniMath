@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>TriposToTopos.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> The tripos to topos construction</span>
+
+<span class="sd"> In this file, we show that every tripos gives rise to a topos.</span>
+
+<span class="sd"> Recall that a tripos is given by a first-order hyperdoctrine in which one can take powersets.</span>
+<span class="sd"> Intuitively, a tripos is a categorical structure in which one can interpret impredicative</span>
+<span class="sd"> higher-order intuitionistic logic. The first-order hyperdoctrine gives us a setting for</span>
+<span class="sd"> intuitionistic predicate logic, and by assuming that we can take powersets, we obtain</span>
+<span class="sd"> impredicativity. Every tripos gives rise to a generic object, which is the object of all</span>
+<span class="sd"> propositions in the hyperdoctrine. The generic object is defined to be the powerset of the</span>
+<span class="sd"> terminal object (compare to the fact that hProp is equivalent to the powerset of the unit type).</span>
+<span class="sd"> A precise definition of triposes can be found in &quot;Tripos Theory in Retrospect&quot; by Andrew Pitts</span>
+<span class="sd"> and in the file `Tripos.v`.</span>
+
+<span class="sd"> Every tripos gives rise to the following category.</span>
+<span class="sd"> - The objects of this category are partial setoids. These are given by an object in [C]</span>
+<span class="sd">   together with a partial equivalence relation (i.e., symmetric and transitive relation).</span>
+<span class="sd">   We denote these by [(X , ~)], and they are defined in the file `PartialEqRels.PERs.v`.</span>
+<span class="sd"> - The morphisms from [(X , ~)] to [(Y , ~)] are given by functional relations between [X]</span>
+<span class="sd">   and [Y]. We define these in the file `PartialEqRels.PERMorphisms.v` and we prove that this</span>
+<span class="sd">   data forms a category in `PartialEqRels.PERCategory.v`.</span>
+<span class="sd"> - To prove that this category has finite limits, we construct binary products, equalizers, and a</span>
+<span class="sd">   terminal object. The terminal object and binary products are constructed using the structure</span>
+<span class="sd">   of [C]. Here we use that the category [C] has a terminal object and binary products by</span>
+<span class="sd">   definition of first-order hyperdoctrines. To construct equalizers, we use the fact that</span>
+<span class="sd">   the equivalence relations are partial. We define these in the follows files:</span>
+<span class="sd">   + `PartialEqRels.PERBinProducts.v`</span>
+<span class="sd">   + `PartialEqRels.PEREqualizers.v`</span>
+<span class="sd">   + `PartialEqRels.PERTerminal.v`</span>
+<span class="sd"> - We construct exponentials by using that functions can be represented as relations that</span>
+<span class="sd">   satisfy certain properties (i.e., functions are relations of pairs). This is possible since</span>
+<span class="sd">   in a tripos, we can take powersets. The construction is split over several files, and the</span>
+<span class="sd">   relevant identifier is given in `PartialEqRels.PERExponentials.v`.</span>
+<span class="sd"> - The subobject classifier is constructed as the generic predicate (i.e., the powerset of the</span>
+<span class="sd">   terminal object) and we identify elements of the generic predicate if they are logically</span>
+<span class="sd">   equivalent. The construction is in `PartialEqRels.PERSubobjectClassifier.v`.</span>
+<span class="sd"> This shows that the category of partial setoids is a topos, and thus every tripos gives rise</span>
+<span class="sd"> to a topos.</span>
+
+<span class="sd"> Note that the tripos-to-topos construction satisfies a universal property. We have a</span>
+<span class="sd"> pseudofunctor from toposes to first-order hyperdoctrines, which sends every topos to the</span>
+<span class="sd"> first-order hyperdoctrine of subobjects. The tripos-to-topos construction gives a left</span>
+<span class="sd"> biadjoint to this pseudofunctor, see Theorem 3.6 in &quot;Tripos Theory in Retrospect&quot;.</span>
+
+<span class="sd"> There are several important instances of the tripos to topos construction, and these are</span>
+<span class="sd"> described in &quot;Tripos Theory in Retrospect&quot; by Andrew Pitts. First, the category of [H]-valued</span>
+<span class="sd"> sets can be constructed using the tripos to topos construction (here [H] is a Heyting algebra).</span>
+<span class="sd"> This construction is used in the context of forcing and independence proofs. Second,</span>
+<span class="sd"> realizability toposes can be constructed using the tripos to topos construction, see for</span>
+<span class="sd"> instance &quot;Realizability: an introduction to its categorical side&quot; by Jaap van Oosten. Note</span>
+<span class="sd"> that the tripos to topos construction does not necessarily give rise to a univalent category,</span>
+<span class="sd"> and thus one needs to take its Rezk completion in order to get a univalent topos.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - &quot;Tripos Theory in Retrospect&quot; by Andrew Pitts</span>
+<span class="sd"> - &quot;Realizability: an introduction to its categorical side&quot; by Jaap van Oosten</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="tripostotopos-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="tripostotopos-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.exponentials.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.PowerObject.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.ElementaryTopos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="tripostotopos-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="tripostotopos-v-chk1"><span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">Notations <span class="s2">&quot;_ [ _ , _ ]&quot;</span> defined <span class="kn">at level</span> <span class="mi">50</span>
+<span class="kr">with</span> arguments <span class="kn">constr at level</span> <span class="mi">50</span>, <span class="kp">constr</span>
+<span class="kn">and</span> <span class="s2">&quot;_ [ _ ]tm&quot;</span> defined <span class="kn">at level</span> <span class="mi">10</span> <span class="kr">with</span> arguments
+<span class="kn">constr at next level</span>, <span class="kp">constr</span>
+<span class="nb">have</span> incompatible prefixes.
+One of them will likely not work.
+[notation-incompatible-prefix,parsing,default]</blockquote><blockquote class="alectryon-message">Notations <span class="s2">&quot;_ [ _ , _ ]&quot;</span> defined <span class="kn">at level</span> <span class="mi">50</span>
+<span class="kr">with</span> arguments <span class="kn">constr at level</span> <span class="mi">50</span>, <span class="kp">constr</span>
+<span class="kn">and</span> <span class="s2">&quot;_ [ _ ]&quot;</span> defined <span class="kn">at level</span> <span class="mi">10</span> <span class="kr">with</span> arguments
+<span class="kn">constr at next level</span>, <span class="kp">constr</span>
+<span class="nb">have</span> incompatible prefixes.
+One of them will likely not work.
+[notation-incompatible-prefix,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="tripostotopos-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="tripostotopos-v-chk2"><span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message">[Loading ML file number_string_notation_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file tauto_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file cc_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file firstorder_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">[Loading ML file ltac2_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message">Serlib plugin: coq-core.plugins.ltac2_ltac1 <span class="kr">is</span> not available: serlib support <span class="kr">is</span> missing.
+Incremental checking <span class="kr">for</span> commands <span class="kr">in</span> this plugin will be impacted.</blockquote><blockquote class="alectryon-message">[Loading ML file ltac2_ltac1_plugin.cmxs (<span class="nb">using</span> legacy method) ... <span class="bp">done</span>]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;¬ _&quot;</span> was already used.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Tripos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.GenericPredicate.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERBinProducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PEREqualizers.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERTerminal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERSubobjectClassifier.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.ExponentialPER.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.ExponentialEval.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.ExponentialLam.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.ExponentialEqs.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Export</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERExponentials.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="tripostotopos-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="tripostotopos-v-chk3"><span class="kn">Definition</span> <span class="nf">tripos_to_topos</span>
+           (<span class="nv">H</span> : tripos)
+  : Topos.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Topos</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="tripostotopos-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="tripostotopos-v-chk4"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Topos</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="tripostotopos-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="tripostotopos-v-chk5">use make_Topos.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">category</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="tripostotopos-v-chk6" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><label class="goal-separator" for="tripostotopos-v-chk6"><hr></label><div class="goal-conclusion">Topos_Structure <span class="nl">?C</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="tripostotopos-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="tripostotopos-v-chk7">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">category</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (category_of_partial_setoids H).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="tripostotopos-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="tripostotopos-v-chk8">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Topos_Structure (category_of_partial_setoids H)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="tripostotopos-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="tripostotopos-v-chk9">use make_Topos_Structure.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Pullbacks (category_of_partial_setoids H)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="tripostotopos-v-chka" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><label class="goal-separator" for="tripostotopos-v-chka"><hr></label><div class="goal-conclusion">Terminal (category_of_partial_setoids H)</div></blockquote><input class="alectryon-extra-goal-toggle" id="tripostotopos-v-chkb" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><label class="goal-separator" for="tripostotopos-v-chkb"><hr></label><div class="goal-conclusion">subobject_classifier <span class="nl">?T</span></div></blockquote><input class="alectryon-extra-goal-toggle" id="tripostotopos-v-chkc" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><label class="goal-separator" for="tripostotopos-v-chkc"><hr></label><div class="goal-conclusion">PowerObject (BinProductsFromPullbacks <span class="nl">?PB</span> <span class="nl">?T</span>) <span class="nl">?Ω</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="tripostotopos-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="tripostotopos-v-chkd">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Pullbacks (category_of_partial_setoids H)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="tripostotopos-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="tripostotopos-v-chke">use Pullbacks_from_Equalizers_BinProducts.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">BinProducts (category_of_partial_setoids H)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="tripostotopos-v-chkf" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><label class="goal-separator" for="tripostotopos-v-chkf"><hr></label><div class="goal-conclusion">Equalizers (category_of_partial_setoids H)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="tripostotopos-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="tripostotopos-v-chk10">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">BinProducts (category_of_partial_setoids H)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (binproducts_partial_setoid H).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="tripostotopos-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="tripostotopos-v-chk11">*</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Equalizers (category_of_partial_setoids H)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (equalizers_partial_setoid H).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="tripostotopos-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="tripostotopos-v-chk12">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Terminal (category_of_partial_setoids H)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (terminal_partial_setoid H).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="tripostotopos-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="tripostotopos-v-chk13">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">subobject_classifier (terminal_partial_setoid H)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (subobject_classifier_partial_setoid H).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="tripostotopos-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="tripostotopos-v-chk14">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">PowerObject
+  (BinProductsFromPullbacks
+     (Pullbacks_from_Equalizers_BinProducts
+        (category_of_partial_setoids H)
+        (binproducts_partial_setoid H)
+        (equalizers_partial_setoid H))
+     (terminal_partial_setoid H))
+  (subobject_classifier_partial_setoid H)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="tripostotopos-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="tripostotopos-v-chk15">use PowerObject_from_exponentials.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>H</var><span class="hyp-type"><b>: </b><span>tripos</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Exponentials
+  (BinProductsFromPullbacks
+     (Pullbacks_from_Equalizers_BinProducts
+        (category_of_partial_setoids H)
+        (binproducts_partial_setoid H)
+        (equalizers_partial_setoid H))
+     (terminal_partial_setoid H))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (exponentials_independent _ _ (exponentials_partial_setoid H)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

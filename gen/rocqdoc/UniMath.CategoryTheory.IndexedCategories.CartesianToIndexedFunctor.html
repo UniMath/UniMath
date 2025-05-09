@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fibrations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiber</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.IndexedCategories.IndexedCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctor.html#"><span class="id" title="library">UniMath.CategoryTheory.IndexedCategories.IndexedFunctor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.FibrationToIndexedCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.IndexedCategories.FibrationToIndexedCategory</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="CartesianFunctorToIndexedFunctor" class="idref" href="#CartesianFunctorToIndexedFunctor"><span class="id" title="section">CartesianFunctorToIndexedFunctor</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="CartesianFunctorToIndexedFunctor.C" class="idref" href="#CartesianFunctorToIndexedFunctor.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="835802ce7f3bd3855b57dd85dff7ab61" class="idref" href="#835802ce7f3bd3855b57dd85dff7ab61"><span class="id" title="variable">D₁</span></a> <a id="07149944475d17cd9f6fcb5dd7eb5ffc" class="idref" href="#07149944475d17cd9f6fcb5dd7eb5ffc"><span class="id" title="variable">D₂</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Univalence.html#disp_univalent_category"><span class="id" title="definition">disp_univalent_category</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#C:1"><span class="id" title="variable">C</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="ae31b672b8dbb0ae0fa934f5d4972163" class="idref" href="#ae31b672b8dbb0ae0fa934f5d4972163"><span class="id" title="variable">HD₁</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#cleaving"><span class="id" title="definition">cleaving</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#b8f7fdda24af1b09c34c8fe96c79597a"><span class="id" title="variable">D₁</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="359a87ed00885de024201c20ca52d30c" class="idref" href="#359a87ed00885de024201c20ca52d30c"><span class="id" title="variable">HD₂</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#cleaving"><span class="id" title="definition">cleaving</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#1dd7cfab794934c767bd8552d52964c3"><span class="id" title="variable">D₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="CartesianFunctorToIndexedFunctor.F" class="idref" href="#CartesianFunctorToIndexedFunctor.F"><span class="id" title="variable">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#cartesian_disp_functor"><span class="id" title="definition">cartesian_disp_functor</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_identity"><span class="id" title="definition">functor_identity</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#C:1"><span class="id" title="variable">C</span></a>) <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#b8f7fdda24af1b09c34c8fe96c79597a"><span class="id" title="variable">D₁</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#1dd7cfab794934c767bd8552d52964c3"><span class="id" title="variable">D₂</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   1. The data
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="cartesian_disp_functor_to_indexed_functor_data" class="idref" href="#cartesian_disp_functor_to_indexed_functor_data"><span class="id" title="definition">cartesian_disp_functor_to_indexed_functor_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctor.html#indexed_functor_data"><span class="id" title="definition">indexed_functor_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.FibrationToIndexedCategory.html#cleaving_to_indexed_cat"><span class="id" title="definition">cleaving_to_indexed_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#835802ce7f3bd3855b57dd85dff7ab61"><span class="id" title="variable">D₁</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#ae31b672b8dbb0ae0fa934f5d4972163"><span class="id" title="variable">HD₁</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.FibrationToIndexedCategory.html#cleaving_to_indexed_cat"><span class="id" title="definition">cleaving_to_indexed_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#07149944475d17cd9f6fcb5dd7eb5ffc"><span class="id" title="variable">D₂</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#359a87ed00885de024201c20ca52d30c"><span class="id" title="variable">HD₂</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctor.html#make_indexed_functor_data"><span class="id" title="definition">make_indexed_functor_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#fiber_functor"><span class="id" title="definition">fiber_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#CartesianFunctorToIndexedFunctor.F"><span class="id" title="variable">F</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:7" class="idref" href="#x:7"><span class="id" title="binder"><span id="x:10" class="id">x</span></span></a> <a id="y:8" class="idref" href="#y:8"><span class="id" title="binder"><span id="y:11" class="id">y</span></span></a> <a id="f:9" class="idref" href="#f:9"><span class="id" title="binder"><span id="f:12" class="id">f</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#fiber_functor_natural_nat_z_iso"><span class="id" title="definition">fiber_functor_natural_nat_z_iso</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#ae31b672b8dbb0ae0fa934f5d4972163"><span class="id" title="variable">HD₁</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#359a87ed00885de024201c20ca52d30c"><span class="id" title="variable">HD₂</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#CartesianFunctorToIndexedFunctor.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#f:9"><span class="id" title="variable">f</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   2. The laws
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="cartesian_disp_functor_to_indexed_functor_laws" class="idref" href="#cartesian_disp_functor_to_indexed_functor_laws"><span class="id" title="lemma">cartesian_disp_functor_to_indexed_functor_laws</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctor.html#indexed_functor_laws"><span class="id" title="definition">indexed_functor_laws</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#cartesian_disp_functor_to_indexed_functor_data"><span class="id" title="definition">cartesian_disp_functor_to_indexed_functor_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">xx</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#cartesian_factorisation_unique"><span class="id" title="definition">cartesian_factorisation_unique</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#cartesian_disp_functor_on_cartesian"><span class="id" title="definition">cartesian_disp_functor_on_cartesian</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#CartesianFunctorToIndexedFunctor.F"><span class="id" title="variable">F</span></a> (<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#ae31b672b8dbb0ae0fa934f5d4972163"><span class="id" title="variable">HD₁</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#mor_disp_transportf_postwhisker"><span class="id" title="lemma">mor_disp_transportf_postwhisker</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#assoc_disp_var"><span class="id" title="definition">assoc_disp_var</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#cartesian_factorisation_commutes"><span class="id" title="definition">cartesian_factorisation_commutes</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#mor_disp_transportf_prewhisker"><span class="id" title="lemma">mor_disp_transportf_prewhisker</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#cartesian_factorisation_commutes"><span class="id" title="definition">cartesian_factorisation_commutes</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.PartA.html#transportb"><span class="id" title="definition">transportb</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#disp_functor_comp_var"><span class="id" title="definition">disp_functor_comp_var</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#CartesianFunctorToIndexedFunctor.F"><span class="id" title="variable">F</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#cartesian_factorisation_commutes"><span class="id" title="definition">cartesian_factorisation_commutes</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#disp_functor_transportf"><span class="id" title="lemma">disp_functor_transportf</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#disp_functor_id"><span class="id" title="definition">disp_functor_id</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.PartA.html#transportb"><span class="id" title="definition">transportb</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">xx</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#mor_disp_transportf_postwhisker"><span class="id" title="lemma">mor_disp_transportf_postwhisker</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#cartesian_factorisation_unique"><span class="id" title="definition">cartesian_factorisation_unique</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#cartesian_disp_functor_on_cartesian"><span class="id" title="definition">cartesian_disp_functor_on_cartesian</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#CartesianFunctorToIndexedFunctor.F"><span class="id" title="variable">F</span></a> (<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#ae31b672b8dbb0ae0fa934f5d4972163"><span class="id" title="variable">HD₁</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#mor_disp_transportf_postwhisker"><span class="id" title="lemma">mor_disp_transportf_postwhisker</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#assoc_disp_var"><span class="id" title="definition">assoc_disp_var</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#cartesian_factorisation_commutes"><span class="id" title="definition">cartesian_factorisation_commutes</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#mor_disp_transportf_prewhisker"><span class="id" title="lemma">mor_disp_transportf_prewhisker</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#cartesian_factorisation_commutes"><span class="id" title="definition">cartesian_factorisation_commutes</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.PartA.html#transportb"><span class="id" title="definition">transportb</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#assoc_disp_var"><span class="id" title="definition">assoc_disp_var</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#assoc_disp_var"><span class="id" title="definition">assoc_disp_var</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 3 <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#disp_functor_comp_var"><span class="id" title="definition">disp_functor_comp_var</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#CartesianFunctorToIndexedFunctor.F"><span class="id" title="variable">F</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#mor_disp_transportf_prewhisker"><span class="id" title="lemma">mor_disp_transportf_prewhisker</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#cartesian_factorisation_commutes"><span class="id" title="definition">cartesian_factorisation_commutes</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#disp_functor_transportf"><span class="id" title="lemma">disp_functor_transportf</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#mor_disp_transportf_prewhisker"><span class="id" title="lemma">mor_disp_transportf_prewhisker</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#disp_functor_comp"><span class="id" title="definition">disp_functor_comp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.PartA.html#transportb"><span class="id" title="definition">transportb</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#mor_disp_transportf_prewhisker"><span class="id" title="lemma">mor_disp_transportf_prewhisker</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#assoc_disp"><span class="id" title="definition">assoc_disp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.PartA.html#transportb"><span class="id" title="definition">transportb</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#mor_disp_transportf_prewhisker"><span class="id" title="lemma">mor_disp_transportf_prewhisker</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#cartesian_factorisation_commutes"><span class="id" title="definition">cartesian_factorisation_commutes</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#mor_disp_transportf_postwhisker"><span class="id" title="lemma">mor_disp_transportf_postwhisker</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#mor_disp_transportf_prewhisker"><span class="id" title="lemma">mor_disp_transportf_prewhisker</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#assoc_disp"><span class="id" title="definition">assoc_disp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.PartA.html#transportb"><span class="id" title="definition">transportb</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#cartesian_factorisation_commutes"><span class="id" title="definition">cartesian_factorisation_commutes</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#mor_disp_transportf_postwhisker"><span class="id" title="lemma">mor_disp_transportf_postwhisker</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#assoc_disp_var"><span class="id" title="definition">assoc_disp_var</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#cartesian_factorisation_commutes"><span class="id" title="definition">cartesian_factorisation_commutes</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#mor_disp_transportf_prewhisker"><span class="id" title="lemma">mor_disp_transportf_prewhisker</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transport_f_f"><span class="id" title="definition">transport_f_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   3. The indexed functor from a cartesian functor
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="cartesian_disp_functor_to_indexed_functor" class="idref" href="#cartesian_disp_functor_to_indexed_functor"><span class="id" title="definition">cartesian_disp_functor_to_indexed_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctor.html#indexed_functor"><span class="id" title="definition">indexed_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.FibrationToIndexedCategory.html#cleaving_to_indexed_cat"><span class="id" title="definition">cleaving_to_indexed_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#835802ce7f3bd3855b57dd85dff7ab61"><span class="id" title="variable">D₁</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#ae31b672b8dbb0ae0fa934f5d4972163"><span class="id" title="variable">HD₁</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.FibrationToIndexedCategory.html#cleaving_to_indexed_cat"><span class="id" title="definition">cleaving_to_indexed_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#07149944475d17cd9f6fcb5dd7eb5ffc"><span class="id" title="variable">D₂</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#359a87ed00885de024201c20ca52d30c"><span class="id" title="variable">HD₂</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctor.html#make_indexed_functor"><span class="id" title="definition">make_indexed_functor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#cartesian_disp_functor_to_indexed_functor_data"><span class="id" title="definition">cartesian_disp_functor_to_indexed_functor_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#cartesian_disp_functor_to_indexed_functor_laws"><span class="id" title="lemma">cartesian_disp_functor_to_indexed_functor_laws</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#CartesianFunctorToIndexedFunctor"><span class="id" title="section">CartesianFunctorToIndexedFunctor</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

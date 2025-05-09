@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>AlgebraMap.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="c">(* ******************************************************************************* *)</span>
+<span class="sd">(** Algebra map as pseudotransformation</span>
+<span class="sd"> ********************************************************************************* *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Base.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map1Cells.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map2Cells.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Identitor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Compositor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> PseudoFunctor.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Projection.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Algebras.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">var</span>
+           {<span class="nv">C</span> : bicat}
+           (<span class="nv">F</span> <span class="nv">S</span> : psfunctor C C)
+  : pstrans
+      (@comp_psfunctor
+         (total_bicat (disp_alg_bicat F)) C C
+         S (pr1_psfunctor (disp_alg_bicat F)))
+      (@comp_psfunctor
+         (total_bicat (disp_alg_bicat F)) C C
+         S (pr1_psfunctor (disp_alg_bicat F)))
+  := id₁ _.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk1"><span class="kn">Definition</span> <span class="nf">alg_map_data</span>
+           {<span class="nv">C</span> : bicat}
+           (<span class="nv">F</span> : psfunctor C C)
+  : pstrans_data
+      (@comp_psfunctor
+         (total_bicat (disp_alg_bicat F)) C C
+         F (pr1_psfunctor (disp_alg_bicat F)))
+      (@comp_psfunctor
+         (total_bicat (disp_alg_bicat F)) C C
+         (id_psfunctor C) (pr1_psfunctor (disp_alg_bicat F))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_data
+  (comp_psfunctor F (pr1_psfunctor (disp_alg_bicat F)))
+  (comp_psfunctor (id_psfunctor C)
+     (pr1_psfunctor (disp_alg_bicat F)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_data
+  (comp_psfunctor F (pr1_psfunctor (disp_alg_bicat F)))
+  (comp_psfunctor (id_psfunctor C)
+     (pr1_psfunctor (disp_alg_bicat F)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk3">use make_pstrans_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ X : total_bicat (disp_alg_bicat F),
+(C
+ ⟦ comp_psfunctor F (pr1_psfunctor (disp_alg_bicat F))
+     X,
+ comp_psfunctor (id_psfunctor C)
+   (pr1_psfunctor (disp_alg_bicat F)) X ⟧)%cat</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="algebramap-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><label class="goal-separator" for="algebramap-v-chk4"><hr></label><div class="goal-conclusion">∏ (X Y : total_bicat (disp_alg_bicat F))
+(f : (total_bicat (disp_alg_bicat F) ⟦ X, Y ⟧)%cat),
+invertible_2cell
+  (<span class="nl">?η₁</span> X
+   · # (comp_psfunctor (id_psfunctor C)
+          (pr1_psfunctor (disp_alg_bicat F))) f)%cat
+  (# (comp_psfunctor F
+        (pr1_psfunctor (disp_alg_bicat F))) f · <span class="nl">?η₁</span> Y)%cat</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk5">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ X : total_bicat (disp_alg_bicat F),
+(C
+ ⟦ comp_psfunctor F (pr1_psfunctor (disp_alg_bicat F))
+     X,
+ comp_psfunctor (id_psfunctor C)
+   (pr1_psfunctor (disp_alg_bicat F)) X ⟧)%cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk6"><span class="nb">intros</span> X ; <span class="nb">cbn</span> <span class="kr">in</span> *.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑
+x : ∑
+    x : ∑ x : C → C,
+        ∏ X Y : C,
+        (C ⟦ X, Y ⟧)%cat → (C ⟦ x X, x Y ⟧)%cat,
+    (∏ (X Y : C) (f g : (C ⟦ X, Y ⟧)%cat),
+     f ==&gt; g
+     → Map1Cells.Fmor x f ==&gt; Map1Cells.Fmor x g)
+    × (∏ X : C,
+       id₁ (Fobj x X) ==&gt; Map1Cells.Fmor x (id₁ X))
+      × (∏ (X Y Z : C) (f : (C ⟦ X, Y ⟧)%cat)
+         (g : (C ⟦ Y, Z ⟧)%cat),
+         (Map1Cells.Fmor x f · Map1Cells.Fmor x g)%cat ==&gt;
+         Map1Cells.Fmor x (f · g)%cat),
+is_psfunctor x</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>∑ x : C, (C ⟦ F x, x ⟧)%cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(C ⟦ F (pr1 X), pr1 X ⟧)%cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr2 X).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk7">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y : total_bicat (disp_alg_bicat F))
+(f : (total_bicat (disp_alg_bicat F) ⟦ X, Y ⟧)%cat),
+invertible_2cell
+  ((<span class="kr">λ</span> <span class="nv">X0</span> : total_bicat (disp_alg_bicat F),
+    pr2 X0
+    :
+    C
+    ⟦ comp_psfunctor F
+        (pr1_psfunctor (disp_alg_bicat F)) X0,
+    comp_psfunctor (id_psfunctor C)
+      (pr1_psfunctor (disp_alg_bicat F)) X0 ⟧) X
+   · # (comp_psfunctor (id_psfunctor C)
+          (pr1_psfunctor (disp_alg_bicat F))) f)%cat
+  (# (comp_psfunctor F
+        (pr1_psfunctor (disp_alg_bicat F))) f
+   · (<span class="kr">λ</span> <span class="nv">X0</span> : total_bicat (disp_alg_bicat F),
+      pr2 X0
+      :
+      C
+      ⟦ comp_psfunctor F
+          (pr1_psfunctor (disp_alg_bicat F)) X0,
+      comp_psfunctor (id_psfunctor C)
+        (pr1_psfunctor (disp_alg_bicat F)) X0 ⟧) Y)%cat</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk8"><span class="nb">intros</span> X Y f ; <span class="nb">cbn</span> <span class="kr">in</span> *.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>∑
+x : ∑
+    x : ∑ x : C → C,
+        ∏ X Y : C,
+        (C ⟦ X, Y ⟧)%cat → (C ⟦ x X, x Y ⟧)%cat,
+    (∏ (X Y : C) (f g : (C ⟦ X, Y ⟧)%cat),
+     f ==&gt; g
+     → Map1Cells.Fmor x f ==&gt; Map1Cells.Fmor x g)
+    × (∏ X : C,
+       id₁ (Fobj x X) ==&gt; Map1Cells.Fmor x (id₁ X))
+      × (∏ (X Y Z : C) (f : (C ⟦ X, Y ⟧)%cat)
+         (g : (C ⟦ Y, Z ⟧)%cat),
+         (Map1Cells.Fmor x f · Map1Cells.Fmor x g)%cat ==&gt;
+         Map1Cells.Fmor x (f · g)%cat),
+is_psfunctor x</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>∑ x : C, (C ⟦ F x, x ⟧)%cat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>∑ f : (C ⟦ pr1 X, pr1 Y ⟧)%cat,
+invertible_2cell (pr2 X · f)%cat
+  (# F f · pr2 Y)%cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">invertible_2cell (pr2 X · pr1 f)%cat
+  (# F (pr1 f) · pr2 Y)%cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr2 f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk9"><span class="kn">Definition</span> <span class="nf">alg_map_data_is_pstrans</span>
+           {<span class="nv">C</span> : bicat}
+           (<span class="nv">F</span> : psfunctor C C)
+  : is_pstrans (alg_map_data F).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_pstrans (alg_map_data F)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chka"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_pstrans (alg_map_data F)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chkb"><span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y : ∑ x : C, (C ⟦ F x, x ⟧)%cat)
+(f : ∑ f : (C ⟦ pr1 X, pr1 Y ⟧)%cat,
+     invertible_2cell (pr2 X · f)%cat
+       (# F f · pr2 Y)%cat)
+(g : ∑ f0 : (C ⟦ pr1 X, pr1 Y ⟧)%cat,
+     invertible_2cell (pr2 X · f0)%cat
+       (# F f0 · pr2 Y)%cat)
+(α : total_prebicat_cell_struct (disp_alg_prebicat F)
+       X Y f g),
+(pr2 X ◃ pr1 α) • pr2 g =
+pr2 f • (## F (pr1 α) ▹ pr2 Y)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="algebramap-v-chkc" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><label class="goal-separator" for="algebramap-v-chkc"><hr></label><div class="goal-conclusion">∏ X : ∑ x : C, (C ⟦ F x, x ⟧)%cat,
+(pr2 X ◃ (id₂ (id₁ (pr1 X)) • id₂ (id₁ (pr1 X))))
+• ((runitor (pr2 X) • linvunitor (pr2 X))
+   • ((pr122 (pr1 F)) (pr1 X) ▹ pr2 X)) =
+(runitor (pr2 X) • linvunitor (pr2 X))
+• (((pr122 (pr1 F)) (pr1 X) • ## F (id₂ (id₁ (pr1 X))))
+   ▹ pr2 X)</div></blockquote><input class="alectryon-extra-goal-toggle" id="algebramap-v-chkd" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><label class="goal-separator" for="algebramap-v-chkd"><hr></label><div class="goal-conclusion">∏ (X Y Z : ∑ x : C, (C ⟦ F x, x ⟧)%cat)
+(f : ∑ f : (C ⟦ pr1 X, pr1 Y ⟧)%cat,
+     invertible_2cell (pr2 X · f)%cat
+       (# F f · pr2 Y)%cat)
+(g : ∑ f0 : (C ⟦ pr1 Y, pr1 Z ⟧)%cat,
+     invertible_2cell (pr2 Y · f0)%cat
+       (# F f0 · pr2 Z)%cat),
+(pr2 X
+ ◃ (id₂ (pr1 f · pr1 g)%cat • id₂ (pr1 f · pr1 g)%cat))
+• (((((lassociator (pr2 X) (pr1 f) (pr1 g)
+       • (pr2 f ▹ pr1 g))
+      • rassociator ((# F)%cat (pr1 f)) (pr2 Y)
+          (pr1 g)) • ((# F)%cat (pr1 f) ◃ pr2 g))
+    • lassociator ((# F)%cat (pr1 f))
+        ((# F)%cat (pr1 g)) (pr2 Z))
+   • ((pr222 (pr1 F)) (pr1 X) (pr1 Y) (pr1 Z) (pr1 f)
+        (pr1 g) ▹ pr2 Z)) =
+((((lassociator (pr2 X) (pr1 f) (pr1 g)
+    • (pr2 f ▹ pr1 g))
+   • rassociator ((# F)%cat (pr1 f)) (pr2 Y) (pr1 g))
+  • ((# F)%cat (pr1 f) ◃ pr2 g))
+ • lassociator ((# F)%cat (pr1 f)) ((# F)%cat (pr1 g))
+     (pr2 Z))
+• (((pr222 (pr1 F)) (pr1 X) (pr1 Y) (pr1 Z) (pr1 f)
+      (pr1 g) • ## F (id₂ (pr1 f · pr1 g)%cat))
+   ▹ pr2 Z)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chke">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y : ∑ x : C, (C ⟦ F x, x ⟧)%cat)
+(f : ∑ f : (C ⟦ pr1 X, pr1 Y ⟧)%cat,
+     invertible_2cell (pr2 X · f)%cat
+       (# F f · pr2 Y)%cat)
+(g : ∑ f0 : (C ⟦ pr1 X, pr1 Y ⟧)%cat,
+     invertible_2cell (pr2 X · f0)%cat
+       (# F f0 · pr2 Y)%cat)
+(α : total_prebicat_cell_struct (disp_alg_prebicat F)
+       X Y f g),
+(pr2 X ◃ pr1 α) • pr2 g =
+pr2 f • (## F (pr1 α) ▹ pr2 Y)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chkf"><span class="nb">intros</span> X Y f g α.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br><span><var>X, Y</var><span class="hyp-type"><b>: </b><span>∑ x : C, (C ⟦ F x, x ⟧)%cat</span></span></span><br><span><var>f, g</var><span class="hyp-type"><b>: </b><span>∑ f : (C ⟦ pr1 X, pr1 Y ⟧)%cat,
+invertible_2cell (pr2 X · f)%cat
+  (# F f · pr2 Y)%cat</span></span></span><br><span><var>α</var><span class="hyp-type"><b>: </b><span>total_prebicat_cell_struct (disp_alg_prebicat F) X
+  Y f g</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(pr2 X ◃ pr1 α) • pr2 g =
+pr2 f • (## F (pr1 α) ▹ pr2 Y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> α.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk10">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ X : ∑ x : C, (C ⟦ F x, x ⟧)%cat,
+(pr2 X ◃ (id₂ (id₁ (pr1 X)) • id₂ (id₁ (pr1 X))))
+• ((runitor (pr2 X) • linvunitor (pr2 X))
+   • ((pr122 (pr1 F)) (pr1 X) ▹ pr2 X)) =
+(runitor (pr2 X) • linvunitor (pr2 X))
+• (((pr122 (pr1 F)) (pr1 X) • ## F (id₂ (id₁ (pr1 X))))
+   ▹ pr2 X)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk11"><span class="nb">intros</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>∑ x : C, (C ⟦ F x, x ⟧)%cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(pr2 X ◃ (id₂ (id₁ (pr1 X)) • id₂ (id₁ (pr1 X))))
+• ((runitor (pr2 X) • linvunitor (pr2 X))
+   • ((pr122 (pr1 F)) (pr1 X) ▹ pr2 X)) =
+(runitor (pr2 X) • linvunitor (pr2 X))
+• (((pr122 (pr1 F)) (pr1 X) • ## F (id₂ (id₁ (pr1 X))))
+   ▹ pr2 X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk12"><span class="nb">rewrite</span> !id2_left, lwhisker_id2, psfunctor_id2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>∑ x : C, (C ⟦ F x, x ⟧)%cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">id₂ (pr2 X · id₁ (pr1 X))%cat
+• ((runitor (pr2 X) • linvunitor (pr2 X))
+   • ((pr122 (pr1 F)) (pr1 X) ▹ pr2 X)) =
+(runitor (pr2 X) • linvunitor (pr2 X))
+• (((pr122 (pr1 F)) (pr1 X)
+    • id₂ ((# F)%cat (id₁ (pr1 X)))) ▹ pr2 X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk13"><span class="nb">rewrite</span> !id2_left, !id2_right.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>∑ x : C, (C ⟦ F x, x ⟧)%cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(runitor (pr2 X) • linvunitor (pr2 X))
+• ((pr122 (pr1 F)) (pr1 X) ▹ pr2 X) =
+(runitor (pr2 X) • linvunitor (pr2 X))
+• ((pr122 (pr1 F)) (pr1 X) ▹ pr2 X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk14">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X Y Z : ∑ x : C, (C ⟦ F x, x ⟧)%cat)
+(f : ∑ f : (C ⟦ pr1 X, pr1 Y ⟧)%cat,
+     invertible_2cell (pr2 X · f)%cat
+       (# F f · pr2 Y)%cat)
+(g : ∑ f0 : (C ⟦ pr1 Y, pr1 Z ⟧)%cat,
+     invertible_2cell (pr2 Y · f0)%cat
+       (# F f0 · pr2 Z)%cat),
+(pr2 X
+ ◃ (id₂ (pr1 f · pr1 g)%cat • id₂ (pr1 f · pr1 g)%cat))
+• (((((lassociator (pr2 X) (pr1 f) (pr1 g)
+       • (pr2 f ▹ pr1 g))
+      • rassociator ((# F)%cat (pr1 f)) (pr2 Y)
+          (pr1 g)) • ((# F)%cat (pr1 f) ◃ pr2 g))
+    • lassociator ((# F)%cat (pr1 f))
+        ((# F)%cat (pr1 g)) (pr2 Z))
+   • ((pr222 (pr1 F)) (pr1 X) (pr1 Y) (pr1 Z) (pr1 f)
+        (pr1 g) ▹ pr2 Z)) =
+((((lassociator (pr2 X) (pr1 f) (pr1 g)
+    • (pr2 f ▹ pr1 g))
+   • rassociator ((# F)%cat (pr1 f)) (pr2 Y) (pr1 g))
+  • ((# F)%cat (pr1 f) ◃ pr2 g))
+ • lassociator ((# F)%cat (pr1 f)) ((# F)%cat (pr1 g))
+     (pr2 Z))
+• (((pr222 (pr1 F)) (pr1 X) (pr1 Y) (pr1 Z) (pr1 f)
+      (pr1 g) • ## F (id₂ (pr1 f · pr1 g)%cat))
+   ▹ pr2 Z)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk15"><span class="nb">intros</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>∑ x : C, (C ⟦ F x, x ⟧)%cat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>∑ f : (C ⟦ pr1 X, pr1 Y ⟧)%cat,
+invertible_2cell (pr2 X · f)%cat
+  (# F f · pr2 Y)%cat</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>∑ f : (C ⟦ pr1 Y, pr1 Z ⟧)%cat,
+invertible_2cell (pr2 Y · f)%cat
+  (# F f · pr2 Z)%cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(pr2 X
+ ◃ (id₂ (pr1 f · pr1 g)%cat • id₂ (pr1 f · pr1 g)%cat))
+• (((((lassociator (pr2 X) (pr1 f) (pr1 g)
+       • (pr2 f ▹ pr1 g))
+      • rassociator ((# F)%cat (pr1 f)) (pr2 Y)
+          (pr1 g)) • ((# F)%cat (pr1 f) ◃ pr2 g))
+    • lassociator ((# F)%cat (pr1 f))
+        ((# F)%cat (pr1 g)) (pr2 Z))
+   • ((pr222 (pr1 F)) (pr1 X) (pr1 Y) (pr1 Z) (pr1 f)
+        (pr1 g) ▹ pr2 Z)) =
+((((lassociator (pr2 X) (pr1 f) (pr1 g)
+    • (pr2 f ▹ pr1 g))
+   • rassociator ((# F)%cat (pr1 f)) (pr2 Y) (pr1 g))
+  • ((# F)%cat (pr1 f) ◃ pr2 g))
+ • lassociator ((# F)%cat (pr1 f)) ((# F)%cat (pr1 g))
+     (pr2 Z))
+• (((pr222 (pr1 F)) (pr1 X) (pr1 Y) (pr1 Z) (pr1 f)
+      (pr1 g) • ## F (id₂ (pr1 f · pr1 g)%cat))
+   ▹ pr2 Z)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk16"><span class="nb">rewrite</span> !id2_left, lwhisker_id2, psfunctor_id2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>∑ x : C, (C ⟦ F x, x ⟧)%cat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>∑ f : (C ⟦ pr1 X, pr1 Y ⟧)%cat,
+invertible_2cell (pr2 X · f)%cat
+  (# F f · pr2 Y)%cat</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>∑ f : (C ⟦ pr1 Y, pr1 Z ⟧)%cat,
+invertible_2cell (pr2 Y · f)%cat
+  (# F f · pr2 Z)%cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">id₂ (pr2 X · (pr1 f · pr1 g))%cat
+• (((((lassociator (pr2 X) (pr1 f) (pr1 g)
+       • (pr2 f ▹ pr1 g))
+      • rassociator ((# F)%cat (pr1 f)) (pr2 Y)
+          (pr1 g)) • ((# F)%cat (pr1 f) ◃ pr2 g))
+    • lassociator ((# F)%cat (pr1 f))
+        ((# F)%cat (pr1 g)) (pr2 Z))
+   • ((pr222 (pr1 F)) (pr1 X) (pr1 Y) (pr1 Z) (pr1 f)
+        (pr1 g) ▹ pr2 Z)) =
+((((lassociator (pr2 X) (pr1 f) (pr1 g)
+    • (pr2 f ▹ pr1 g))
+   • rassociator ((# F)%cat (pr1 f)) (pr2 Y) (pr1 g))
+  • ((# F)%cat (pr1 f) ◃ pr2 g))
+ • lassociator ((# F)%cat (pr1 f)) ((# F)%cat (pr1 g))
+     (pr2 Z))
+• (((pr222 (pr1 F)) (pr1 X) (pr1 Y) (pr1 Z) (pr1 f)
+      (pr1 g) • id₂ ((# F)%cat (pr1 f · pr1 g)%cat))
+   ▹ pr2 Z)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk17"><span class="nb">rewrite</span> !id2_left, !id2_right.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br><span><var>X, Y, Z</var><span class="hyp-type"><b>: </b><span>∑ x : C, (C ⟦ F x, x ⟧)%cat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>∑ f : (C ⟦ pr1 X, pr1 Y ⟧)%cat,
+invertible_2cell (pr2 X · f)%cat
+  (# F f · pr2 Y)%cat</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>∑ f : (C ⟦ pr1 Y, pr1 Z ⟧)%cat,
+invertible_2cell (pr2 Y · f)%cat
+  (# F f · pr2 Z)%cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">((((lassociator (pr2 X) (pr1 f) (pr1 g)
+    • (pr2 f ▹ pr1 g))
+   • rassociator ((# F)%cat (pr1 f)) (pr2 Y) (pr1 g))
+  • ((# F)%cat (pr1 f) ◃ pr2 g))
+ • lassociator ((# F)%cat (pr1 f)) ((# F)%cat (pr1 g))
+     (pr2 Z))
+• ((pr222 (pr1 F)) (pr1 X) (pr1 Y) (pr1 Z) (pr1 f)
+     (pr1 g) ▹ pr2 Z) =
+((((lassociator (pr2 X) (pr1 f) (pr1 g)
+    • (pr2 f ▹ pr1 g))
+   • rassociator ((# F)%cat (pr1 f)) (pr2 Y) (pr1 g))
+  • ((# F)%cat (pr1 f) ◃ pr2 g))
+ • lassociator ((# F)%cat (pr1 f)) ((# F)%cat (pr1 g))
+     (pr2 Z))
+• ((pr222 (pr1 F)) (pr1 X) (pr1 Y) (pr1 Z) (pr1 f)
+     (pr1 g) ▹ pr2 Z)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk18"><span class="kn">Definition</span> <span class="nf">alg_map</span>
+           {<span class="nv">C</span> : bicat}
+           (<span class="nv">F</span> : psfunctor C C)
+  : pstrans
+      (@comp_psfunctor
+         (total_bicat (disp_alg_bicat F)) C C
+         F (pr1_psfunctor (disp_alg_bicat F)))
+      (@comp_psfunctor
+         (total_bicat (disp_alg_bicat F)) C C
+         (id_psfunctor C) (pr1_psfunctor (disp_alg_bicat F))).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans
+  (comp_psfunctor F (pr1_psfunctor (disp_alg_bicat F)))
+  (comp_psfunctor (id_psfunctor C)
+     (pr1_psfunctor (disp_alg_bicat F)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk19"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans
+  (comp_psfunctor F (pr1_psfunctor (disp_alg_bicat F)))
+  (comp_psfunctor (id_psfunctor C)
+     (pr1_psfunctor (disp_alg_bicat F)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk1a">use make_pstrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_data
+  (comp_psfunctor F (pr1_psfunctor (disp_alg_bicat F)))
+  (comp_psfunctor (id_psfunctor C)
+     (pr1_psfunctor (disp_alg_bicat F)))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="algebramap-v-chk1b" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><label class="goal-separator" for="algebramap-v-chk1b"><hr></label><div class="goal-conclusion">is_pstrans <span class="nl">?η</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk1c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pstrans_data
+  (comp_psfunctor F (pr1_psfunctor (disp_alg_bicat F)))
+  (comp_psfunctor (id_psfunctor C)
+     (pr1_psfunctor (disp_alg_bicat F)))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (alg_map_data F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="algebramap-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="algebramap-v-chk1d">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>F</var><span class="hyp-type"><b>: </b><span>psfunctor C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_pstrans (alg_map_data F)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (alg_map_data_is_pstrans F).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

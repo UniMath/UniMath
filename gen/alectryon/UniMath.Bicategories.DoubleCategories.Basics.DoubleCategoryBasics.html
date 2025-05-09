@@ -1,0 +1,1125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>DoubleCategoryBasics.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> Basics of double categories</span>
+
+<span class="sd"> In this file, we define the basic notions for double categories. There are a</span>
+<span class="sd"> couple of ideas behind the definition that we use:</span>
+<span class="sd"> - First of all, a double category is a category with extra structure. This extra</span>
+<span class="sd">   structure includes another collection of morphisms, and we use 2-sided displayed</span>
+<span class="sd">   categories to represent these.</span>
+<span class="sd"> - Second of all, ultimately, we use these definitions to define the bicategory of</span>
+<span class="sd">   double categories. This bicategory is defined by adding structure to the</span>
+<span class="sd">   bicategory of 2-sided displayed categories using the machinery of displayed</span>
+<span class="sd">   bicategories.</span>
+
+<span class="sd"> We identify which structure to add to a 2-sided displayed category in order to</span>
+<span class="sd"> obtain a double category.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Horizontal identities</span>
+<span class="sd"> 2. Horizontal composition</span>
+<span class="sd"> 3. Left unitor</span>
+<span class="sd"> 4. Right unitor</span>
+<span class="sd"> 5. Associator</span>
+<span class="sd"> 6. Triangle and pentagon laws</span>
+
+<span class="sd"> **********************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 1. Horizontal identities *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">hor_id_data</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">D</span> : twosided_disp_cat C C)
+  : UU
+  := ∑ (Im : ∏ (x : C), D x x),
+     ∏ (x y : C)
+       (f : x --&gt; y),
+     Im x --&gt;[ f ][ f ] Im y.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">double_id</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           (<span class="nv">I</span> : hor_id_data D)
+           (<span class="nv">x</span> : C)
+  : D x x
+  := pr1 I x.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">double_id_mor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           (<span class="nv">I</span> : hor_id_data D)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+  : double_id I x --&gt;[ f ][ f ] double_id I y
+  := pr2 I x y f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">hor_id_laws</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           (<span class="nv">I</span> : hor_id_data D)
+  : UU
+  := (∏ (x : C), double_id_mor I (identity x) = id_two_disp _)
+     ×
+     (∏ (x y z : C)
+        (f : x --&gt; y)
+        (g : y --&gt; z),
+      double_id_mor I (f · g)
+      =
+      double_id_mor I f ;;<span class="mi">2</span> double_id_mor I g).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk1"><span class="kn">Proposition</span> <span class="nf">isaprop_hor_id_laws</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            (<span class="nv">I</span> : hor_id_data D)
+  : isaprop (hor_id_laws I).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id_data D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (hor_id_laws I)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id_data D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (hor_id_laws I)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input">use isapropdirprod ; (<span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>)) ; <span class="nb">apply</span> isaset_disp_mor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">hor_id</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">D</span> : twosided_disp_cat C C)
+  : UU
+  := ∑ (I : hor_id_data D), hor_id_laws I.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">hor_id_to_data</span>
+         {C : category}
+         {D : twosided_disp_cat C C}
+         (I : hor_id D)
+  : hor_id_data D
+  := pr1 I.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk3"><span class="kn">Proposition</span> <span class="nf">double_id_mor_id</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            (<span class="nv">I</span> : hor_id D)
+            (<span class="nv">x</span> : C)
+  : double_id_mor I (identity x) = id_two_disp _.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_id_mor I (identity x) =
+id_two_disp (double_id I x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk4"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_id_mor I (identity x) =
+id_two_disp (double_id I x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr12 I x).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk5"><span class="kn">Definition</span> <span class="nf">double_id_mor_id_comp</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           (<span class="nv">I</span> : hor_id D)
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+           (<span class="nv">g</span> : y --&gt; z)
+  : double_id_mor I (f · g) = double_id_mor I f ;;<span class="mi">2</span> double_id_mor I g.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_id_mor I (f · g) =
+double_id_mor I f ;;<span class="mi">2</span> double_id_mor I g</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk6"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>C ⟦ x, y ⟧</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>C ⟦ y, z ⟧</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_id_mor I (f · g) =
+double_id_mor I f ;;<span class="mi">2</span> double_id_mor I g</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr22 I x y z f g).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_hor_id_data</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">D</span> : twosided_disp_cat C C)
+           (<span class="nv">I</span> : ∏ (x : C), D x x)
+           (<span class="nv">sI</span> : ∏ (x y : C) (f : x --&gt; y), I x --&gt;[ f ][ f] I y)
+  : hor_id_data D
+  := I ,, sI.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_hor_id</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">D</span> : twosided_disp_cat C C)
+           (<span class="nv">I</span> : hor_id_data D)
+           (<span class="nv">HI</span> : hor_id_laws I)
+  : hor_id D
+  := I ,, HI.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 2. Horizontal composition *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">hor_comp_data</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">D</span> : twosided_disp_cat C C)
+  : UU
+  := ∑ (Cm : ∏ (x y z : C), D x y → D y z → D x z),
+     ∏ (x₁ x₂ y₁ y₂ z₁ z₂ : C)
+       (v₁ : x₁ --&gt; x₂)
+       (v₂ : y₁ --&gt; y₂)
+       (v₃ : z₁ --&gt; z₂)
+       (h₁ : D x₁ y₁)
+       (h₂ : D y₁ z₁)
+       (k₁ : D x₂ y₂)
+       (k₂ : D y₂ z₂)
+       (s₁ : h₁ --&gt;[ v₁ ][ v₂ ] k₁)
+       (s₂ : h₂ --&gt;[ v₂ ][ v₃ ] k₂),
+     Cm _ _ _ h₁ h₂ --&gt;[ v₁ ][ v₃ ] Cm _ _ _ k₁ k₂.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">double_hor_comp</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           (<span class="nv">Cm</span> : hor_comp_data D)
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+           (<span class="nv">h₁</span> : D x y)
+           (<span class="nv">h₂</span> : D y z)
+  : D x z
+  := pr1 Cm x y z h₁ h₂.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">double_hor_comp_mor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           (<span class="nv">Cm</span> : hor_comp_data D)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : C}
+           {<span class="nv">v₁</span> : x₁ --&gt; x₂}
+           {<span class="nv">v₂</span> : y₁ --&gt; y₂}
+           {<span class="nv">v₃</span> : z₁ --&gt; z₂}
+           {<span class="nv">h₁</span> : D x₁ y₁}
+           {<span class="nv">h₂</span> : D y₁ z₁}
+           {<span class="nv">k₁</span> : D x₂ y₂}
+           {<span class="nv">k₂</span> : D y₂ z₂}
+           (<span class="nv">s₁</span> : h₁ --&gt;[ v₁ ][ v₂ ] k₁)
+           (<span class="nv">s₂</span> : h₂ --&gt;[ v₂ ][ v₃ ] k₂)
+  : double_hor_comp Cm h₁ h₂ --&gt;[ v₁ ][ v₃ ] double_hor_comp Cm k₁ k₂
+  := pr2 Cm x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ h₂ k₁ k₂ s₁ s₂.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">hor_comp_laws</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           (<span class="nv">Cm</span> : hor_comp_data D)
+  : UU
+  := (∏ (x y z : C)
+        (h₁ : D x y)
+        (h₂ : D y z),
+      double_hor_comp_mor Cm (id_two_disp h₁) (id_two_disp h₂)
+      =
+      id_two_disp (double_hor_comp Cm h₁ h₂))
+     ×
+     (∏ (x₁ x₂ x₃ y₁ y₂ y₃ z₁ z₂ z₃ : C)
+        (v₁ : x₁ --&gt; x₂) (v₁&#39; : x₂ --&gt; x₃)
+        (v₂ : y₁ --&gt; y₂) (v₂&#39; : y₂ --&gt; y₃)
+        (v₃ : z₁ --&gt; z₂) (v₃&#39; : z₂ --&gt; z₃)
+        (h₁ : D x₁ y₁)
+        (h₂ : D y₁ z₁)
+        (k₁ : D x₂ y₂)
+        (k₂ : D y₂ z₂)
+        (l₁ : D x₃ y₃)
+        (l₂ : D y₃ z₃)
+        (s₁ : h₁ --&gt;[ v₁ ][ v₂ ] k₁)
+        (s₁&#39; : k₁ --&gt;[ v₁&#39; ][ v₂&#39; ] l₁)
+        (s₂ : h₂ --&gt;[ v₂ ][ v₃ ] k₂)
+        (s₂&#39; : k₂ --&gt;[ v₂&#39; ][ v₃&#39; ] l₂),
+      double_hor_comp_mor Cm (s₁ ;;<span class="mi">2</span> s₁&#39;) (s₂ ;;<span class="mi">2</span> s₂&#39;)
+      =
+      double_hor_comp_mor Cm s₁ s₂ ;;<span class="mi">2</span> double_hor_comp_mor Cm s₁&#39; s₂&#39;).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk7"><span class="kn">Proposition</span> <span class="nf">isaprop_hor_comp_laws</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            (<span class="nv">Cm</span> : hor_comp_data D)
+  : isaprop (hor_comp_laws Cm).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp_data D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (hor_comp_laws Cm)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk8"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp_data D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (hor_comp_laws Cm)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input">use isapropdirprod ; (<span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>)) ; <span class="nb">apply</span> isaset_disp_mor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">hor_comp</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">D</span> : twosided_disp_cat C C)
+  : UU
+  := ∑ (Cm : hor_comp_data D), hor_comp_laws Cm.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">hor_comp_to_data</span>
+         {C : category}
+         {D : twosided_disp_cat C C}
+         (Cm : hor_comp D)
+  : hor_comp_data D
+  := pr1 Cm.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk9"><span class="kn">Proposition</span> <span class="nf">double_hor_comp_mor_id</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            (<span class="nv">Cm</span> : hor_comp D)
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            (<span class="nv">h₁</span> : D x y)
+            (<span class="nv">h₂</span> : D y z)
+  : double_hor_comp_mor Cm (id_two_disp h₁) (id_two_disp h₂)
+    =
+    id_two_disp (double_hor_comp Cm h₁ h₂).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x y</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y z</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm (id_two_disp h₁)
+  (id_two_disp h₂) =
+id_two_disp (double_hor_comp Cm h₁ h₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chka"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x, y, z</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x y</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y z</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm (id_two_disp h₁)
+  (id_two_disp h₂) =
+id_two_disp (double_hor_comp Cm h₁ h₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr12 Cm x y z h₁ h₂).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chkb"><span class="kn">Proposition</span> <span class="nf">double_hor_comp_mor_comp</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            (<span class="nv">Cm</span> : hor_comp D)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> <span class="nv">z₁</span> <span class="nv">z₂</span> <span class="nv">z₃</span> : C}
+            {<span class="nv">v₁</span> : x₁ --&gt; x₂} {<span class="nv">v₁&#39;</span> : x₂ --&gt; x₃}
+            {<span class="nv">v₂</span> : y₁ --&gt; y₂} {<span class="nv">v₂&#39;</span> : y₂ --&gt; y₃}
+            {<span class="nv">v₃</span> : z₁ --&gt; z₂} {<span class="nv">v₃&#39;</span> : z₂ --&gt; z₃}
+            {<span class="nv">h₁</span> : D x₁ y₁}
+            {<span class="nv">h₂</span> : D y₁ z₁}
+            {<span class="nv">k₁</span> : D x₂ y₂}
+            {<span class="nv">k₂</span> : D y₂ z₂}
+            {<span class="nv">l₁</span> : D x₃ y₃}
+            {<span class="nv">l₂</span> : D y₃ z₃}
+            (<span class="nv">s₁</span> : h₁ --&gt;[ v₁ ][ v₂ ] k₁)
+            (<span class="nv">s₁&#39;</span> : k₁ --&gt;[ v₁&#39; ][ v₂&#39; ] l₁)
+            (<span class="nv">s₂</span> : h₂ --&gt;[ v₂ ][ v₃ ] k₂)
+            (<span class="nv">s₂&#39;</span> : k₂ --&gt;[ v₂&#39; ][ v₃&#39; ] l₂)
+  : double_hor_comp_mor Cm (s₁ ;;<span class="mi">2</span> s₁&#39;) (s₂ ;;<span class="mi">2</span> s₂&#39;)
+    =
+    double_hor_comp_mor Cm s₁ s₂ ;;<span class="mi">2</span> double_hor_comp_mor Cm s₁&#39; s₂&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, x₃, y₁, y₂, y₃, z₁, z₂, z₃</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₁'</var><span class="hyp-type"><b>: </b><span>C ⟦ x₂, x₃ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>v₂'</var><span class="hyp-type"><b>: </b><span>C ⟦ y₂, y₃ ⟧</span></span></span><br><span><var>v₃</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>v₃'</var><span class="hyp-type"><b>: </b><span>C ⟦ z₂, z₃ ⟧</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>l₁</var><span class="hyp-type"><b>: </b><span>D x₃ y₃</span></span></span><br><span><var>l₂</var><span class="hyp-type"><b>: </b><span>D y₃ z₃</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] k₁</span></span></span><br><span><var>s₁'</var><span class="hyp-type"><b>: </b><span>k₁ --&gt;[ v₁&#39; ][ v₂&#39;] l₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br><span><var>s₂'</var><span class="hyp-type"><b>: </b><span>k₂ --&gt;[ v₂&#39; ][ v₃&#39;] l₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm (s₁ ;;<span class="mi">2</span> s₁&#39;) (s₂ ;;<span class="mi">2</span> s₂&#39;) =
+double_hor_comp_mor Cm s₁ s₂ ;;<span class="mi">2</span> double_hor_comp_mor
+                                   Cm s₁&#39; s₂&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chkc"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, x₃, y₁, y₂, y₃, z₁, z₂, z₃</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₁'</var><span class="hyp-type"><b>: </b><span>C ⟦ x₂, x₃ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>v₂'</var><span class="hyp-type"><b>: </b><span>C ⟦ y₂, y₃ ⟧</span></span></span><br><span><var>v₃</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>v₃'</var><span class="hyp-type"><b>: </b><span>C ⟦ z₂, z₃ ⟧</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>l₁</var><span class="hyp-type"><b>: </b><span>D x₃ y₃</span></span></span><br><span><var>l₂</var><span class="hyp-type"><b>: </b><span>D y₃ z₃</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] k₁</span></span></span><br><span><var>s₁'</var><span class="hyp-type"><b>: </b><span>k₁ --&gt;[ v₁&#39; ][ v₂&#39;] l₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br><span><var>s₂'</var><span class="hyp-type"><b>: </b><span>k₂ --&gt;[ v₂&#39; ][ v₃&#39;] l₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm (s₁ ;;<span class="mi">2</span> s₁&#39;) (s₂ ;;<span class="mi">2</span> s₂&#39;) =
+double_hor_comp_mor Cm s₁ s₂ ;;<span class="mi">2</span> double_hor_comp_mor
+                                   Cm s₁&#39; s₂&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> ((pr22 Cm)
+           x₁ x₂ x₃
+           y₁ y₂ y₃
+           z₁ z₂ z₃
+           v₁ v₁&#39;
+           v₂ v₂&#39;
+           v₃ v₃&#39;
+           h₁ h₂
+           k₁ k₂
+           l₁ l₂
+           s₁ s₁&#39; s₂ s₂&#39;).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_hor_comp_data</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           (<span class="nv">Cm</span> : ∏ (x y z : C), D x y → D y z → D x z)
+           (<span class="nv">sC</span> : ∏ (x₁ x₂ y₁ y₂ z₁ z₂ : C)
+                   (v₁ : x₁ --&gt; x₂)
+                   (v₂ : y₁ --&gt; y₂)
+                   (v₃ : z₁ --&gt; z₂)
+                   (h₁ : D x₁ y₁)
+                   (h₂ : D y₁ z₁)
+                   (k₁ : D x₂ y₂)
+                   (k₂ : D y₂ z₂)
+                   (s₁ : h₁ --&gt;[ v₁ ][ v₂ ] k₁)
+                   (s₂ : h₂ --&gt;[ v₂ ][ v₃ ] k₂),
+                 Cm _ _ _ h₁ h₂ --&gt;[ v₁ ][ v₃ ] Cm _ _ _ k₁ k₂)
+  : hor_comp_data D
+  := Cm ,, sC.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_hor_comp</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           (<span class="nv">Cm</span> : hor_comp_data D)
+           (<span class="nv">HC</span> : hor_comp_laws Cm)
+  : hor_comp D
+  := Cm ,, HC.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chkd"><span class="kn">Proposition</span> <span class="nf">double_hor_comp_mor_transportf_disp_mor2_left</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            (<span class="nv">Cm</span> : hor_comp D)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : C}
+            {<span class="nv">v₁</span> <span class="nv">v₁&#39;</span> : x₁ --&gt; x₂}
+            (<span class="nv">p</span> : v₁ = v₁&#39;)
+            {<span class="nv">v₂</span> <span class="nv">v₂&#39;</span> : y₁ --&gt; y₂}
+            (<span class="nv">q</span> : v₂ = v₂&#39;)
+            {<span class="nv">v₃</span> <span class="nv">v₃&#39;</span> : z₁ --&gt; z₂}
+            (<span class="nv">r</span> : v₃ = v₃&#39;)
+            {<span class="nv">h₁</span> : D x₁ y₁}
+            {<span class="nv">h₂</span> : D y₁ z₁}
+            {<span class="nv">k₁</span> : D x₂ y₂}
+            {<span class="nv">k₂</span> : D y₂ z₂}
+            (<span class="nv">s₁</span> : h₁ --&gt;[ v₁ ][ v₂ ] k₁)
+            (<span class="nv">s₂</span> : h₂ --&gt;[ v₂&#39; ][ v₃ ] k₂)
+  : double_hor_comp_mor
+      Cm
+      (transportf_disp_mor2 p q s₁)
+      s₂
+    =
+    transportf_disp_mor2
+      p
+      (!r)
+      (double_hor_comp_mor
+         Cm
+         s₁
+         (transportf_disp_mor2 (!q) r s₂)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, y₁, y₂, z₁, z₂</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁, v₁'</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>v₁ = v₁&#39;</span></span></span><br><span><var>v₂, v₂'</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>v₂ = v₂&#39;</span></span></span><br><span><var>v₃, v₃'</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>v₃ = v₃&#39;</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] k₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂&#39; ][ v₃] k₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm (trf₂ s₁) s₂ =
+trf₂ double_hor_comp_mor Cm s₁ (trf₂ s₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chke"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, y₁, y₂, z₁, z₂</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁, v₁'</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>v₁ = v₁&#39;</span></span></span><br><span><var>v₂, v₂'</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>v₂ = v₂&#39;</span></span></span><br><span><var>v₃, v₃'</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>v₃ = v₃&#39;</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] k₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂&#39; ][ v₃] k₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm (trf₂ s₁) s₂ =
+trf₂ double_hor_comp_mor Cm s₁ (trf₂ s₂)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chkf"><span class="nb">induction</span> p, q, r ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, y₁, y₂, z₁, z₂</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>v₃</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] k₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm s₁ s₂ =
+double_hor_comp_mor Cm s₁ s₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk10"><span class="kn">Proposition</span> <span class="nf">double_hor_comp_mor_transportf_disp_mor2_right_idpath</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            (<span class="nv">Cm</span> : hor_comp D)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : C}
+            {<span class="nv">v₁</span> : x₁ --&gt; x₂}
+            {<span class="nv">v₂</span> <span class="nv">v₂&#39;</span> : y₁ --&gt; y₂}
+            (<span class="nv">q</span> : v₂ = v₂&#39;)
+            {<span class="nv">v₃</span> <span class="nv">v₃&#39;</span> : z₁ --&gt; z₂}
+            (<span class="nv">r</span> : v₃ = v₃&#39;)
+            {<span class="nv">h₁</span> : D x₁ y₁}
+            {<span class="nv">h₂</span> : D y₁ z₁}
+            {<span class="nv">k₁</span> : D x₂ y₂}
+            {<span class="nv">k₂</span> : D y₂ z₂}
+            (<span class="nv">s₁</span> : h₁ --&gt;[ v₁ ][ v₂&#39; ] k₁)
+            (<span class="nv">s₂</span> : h₂ --&gt;[ v₂ ][ v₃ ] k₂)
+  : double_hor_comp_mor
+      Cm
+      s₁
+      (transportf_disp_mor2 q r s₂)
+    =
+    transportf_disp_mor2
+      (idpath _)
+      r
+      (double_hor_comp_mor
+         Cm
+         (transportf_disp_mor2 (idpath _) (!q) s₁)
+         s₂).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, y₁, y₂, z₁, z₂</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₂, v₂'</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>v₂ = v₂&#39;</span></span></span><br><span><var>v₃, v₃'</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>v₃ = v₃&#39;</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂&#39;] k₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm s₁ (trf₂ s₂) =
+trf₂ double_hor_comp_mor Cm (trf₂ s₁) s₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk11"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, y₁, y₂, z₁, z₂</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₂, v₂'</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>v₂ = v₂&#39;</span></span></span><br><span><var>v₃, v₃'</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>v₃ = v₃&#39;</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂&#39;] k₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm s₁ (trf₂ s₂) =
+trf₂ double_hor_comp_mor Cm (trf₂ s₁) s₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk12"><span class="nb">induction</span> q, r ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, y₁, y₂, z₁, z₂</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>v₃</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] k₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm s₁ s₂ =
+double_hor_comp_mor Cm s₁ s₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk13"><span class="kn">Proposition</span> <span class="nf">double_hor_comp_mor_transportf_disp_mor2_right</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            (<span class="nv">Cm</span> : hor_comp D)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : C}
+            {<span class="nv">v₁</span> <span class="nv">v₁&#39;</span> : x₁ --&gt; x₂}
+            (<span class="nv">p</span> : v₁&#39; = v₁)
+            {<span class="nv">v₂</span> <span class="nv">v₂&#39;</span> : y₁ --&gt; y₂}
+            (<span class="nv">q</span> : v₂ = v₂&#39;)
+            {<span class="nv">v₃</span> <span class="nv">v₃&#39;</span> : z₁ --&gt; z₂}
+            (<span class="nv">r</span> : v₃ = v₃&#39;)
+            {<span class="nv">h₁</span> : D x₁ y₁}
+            {<span class="nv">h₂</span> : D y₁ z₁}
+            {<span class="nv">k₁</span> : D x₂ y₂}
+            {<span class="nv">k₂</span> : D y₂ z₂}
+            (<span class="nv">s₁</span> : h₁ --&gt;[ v₁&#39; ][ v₂&#39; ] k₁)
+            (<span class="nv">s₂</span> : h₂ --&gt;[ v₂ ][ v₃ ] k₂)
+  : double_hor_comp_mor
+      Cm
+      s₁
+      (transportf_disp_mor2 q r s₂)
+    =
+    transportf_disp_mor2
+      (!p)
+      r
+      (double_hor_comp_mor
+         Cm
+         (transportf_disp_mor2 p (!q) s₁)
+         s₂).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, y₁, y₂, z₁, z₂</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁, v₁'</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>v₁&#39; = v₁</span></span></span><br><span><var>v₂, v₂'</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>v₂ = v₂&#39;</span></span></span><br><span><var>v₃, v₃'</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>v₃ = v₃&#39;</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁&#39; ][ v₂&#39;] k₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm s₁ (trf₂ s₂) =
+trf₂ double_hor_comp_mor Cm (trf₂ s₁) s₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk14"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, y₁, y₂, z₁, z₂</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁, v₁'</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>v₁&#39; = v₁</span></span></span><br><span><var>v₂, v₂'</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>v₂ = v₂&#39;</span></span></span><br><span><var>v₃, v₃'</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>v₃ = v₃&#39;</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁&#39; ][ v₂&#39;] k₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm s₁ (trf₂ s₂) =
+trf₂ double_hor_comp_mor Cm (trf₂ s₁) s₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk15"><span class="nb">induction</span> p, q, r ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, y₁, y₂, z₁, z₂</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁'</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>v₃</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁&#39; ][ v₂] k₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm s₁ s₂ =
+double_hor_comp_mor Cm s₁ s₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk16"><span class="kn">Proposition</span> <span class="nf">double_hor_comp_transport_mor</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            {<span class="nv">Cm</span> : hor_comp D}
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> <span class="nv">z₁</span> <span class="nv">z₂</span> <span class="nv">z₃</span> : C}
+            {<span class="nv">v₁</span> : x₁ --&gt; x₂} {<span class="nv">v₁&#39;</span> : x₂ --&gt; x₃}
+            {<span class="nv">v₂</span> : y₁ --&gt; y₂} {<span class="nv">v₂&#39;</span> : y₂ --&gt; y₃} {<span class="nv">v₂&#39;&#39;</span> : y₂ --&gt; y₃}
+            {<span class="nv">v₃</span> : z₁ --&gt; z₂} {<span class="nv">v₃&#39;</span> : z₂ --&gt; z₃}
+            {<span class="nv">u₁</span> : x₁ --&gt; x₃}
+            {<span class="nv">u₂</span> : y₁ --&gt; y₃}
+            {<span class="nv">u₃</span> : z₁ --&gt; z₃}
+            {<span class="nv">h₁</span> : D x₁ y₁} {<span class="nv">h₂</span> : D y₁ z₁}
+            {<span class="nv">k₁</span> : D x₂ y₂} {<span class="nv">k₂</span> : D y₂ z₂}
+            {<span class="nv">l₁</span> : D x₃ y₃} {<span class="nv">l₂</span> : D y₃ z₃}
+            (<span class="nv">s₁</span> : h₁ --&gt;[ v₁ ][ v₂ ] k₁)
+            (<span class="nv">s₁&#39;</span> : k₁ --&gt;[ v₁&#39; ][ v₂&#39;] l₁)
+            (<span class="nv">s₂</span> : h₂ --&gt;[ v₂ ][ v₃ ] k₂)
+            (<span class="nv">s₂&#39;</span> : k₂ --&gt;[ v₂&#39;&#39; ][ v₃&#39; ] l₂)
+            (<span class="nv">p</span> : v₁ · v₁&#39; = u₁)
+            (<span class="nv">q</span> : v₂ · v₂&#39; = u₂)
+            (<span class="nv">q&#39;</span> : v₂ · v₂&#39;&#39; = u₂)
+            (<span class="nv">s</span> : v₂&#39; = v₂&#39;&#39;)
+            (<span class="nv">r</span> : v₃ · v₃&#39; = u₃)
+  : double_hor_comp_mor
+      Cm
+      (transportf_disp_mor2
+         p
+         q
+         (s₁ ;;<span class="mi">2</span> s₁&#39;))
+      (transportf_disp_mor2
+         q&#39;
+         r
+         (s₂ ;;<span class="mi">2</span> s₂&#39;))
+    =
+    transportf_disp_mor2
+      p
+      r
+      (double_hor_comp_mor Cm s₁ s₂
+       ;;<span class="mi">2</span>
+       double_hor_comp_mor Cm (transportf_disp_mor2 (idpath _) s s₁&#39;) s₂&#39;).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, x₃, y₁, y₂, y₃, z₁, z₂, z₃</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₁'</var><span class="hyp-type"><b>: </b><span>C ⟦ x₂, x₃ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>v₂', v₂''</var><span class="hyp-type"><b>: </b><span>C ⟦ y₂, y₃ ⟧</span></span></span><br><span><var>v₃</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>v₃'</var><span class="hyp-type"><b>: </b><span>C ⟦ z₂, z₃ ⟧</span></span></span><br><span><var>u₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₃ ⟧</span></span></span><br><span><var>u₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₃ ⟧</span></span></span><br><span><var>u₃</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₃ ⟧</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>l₁</var><span class="hyp-type"><b>: </b><span>D x₃ y₃</span></span></span><br><span><var>l₂</var><span class="hyp-type"><b>: </b><span>D y₃ z₃</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] k₁</span></span></span><br><span><var>s₁'</var><span class="hyp-type"><b>: </b><span>k₁ --&gt;[ v₁&#39; ][ v₂&#39;] l₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br><span><var>s₂'</var><span class="hyp-type"><b>: </b><span>k₂ --&gt;[ v₂&#39;&#39; ][ v₃&#39;] l₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>v₁ · v₁&#39; = u₁</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>v₂ · v₂&#39; = u₂</span></span></span><br><span><var>q'</var><span class="hyp-type"><b>: </b><span>v₂ · v₂&#39;&#39; = u₂</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>v₂&#39; = v₂&#39;&#39;</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>v₃ · v₃&#39; = u₃</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm (trf₂ (s₁ ;;<span class="mi">2</span> s₁&#39;))
+  (trf₂ (s₂ ;;<span class="mi">2</span> s₂&#39;)) =
+trf₂ (double_hor_comp_mor Cm s₁ s₂ ;;<span class="mi">2</span> double_hor_comp_mor
+                                         Cm (trf₂ s₁&#39;)
+                                         s₂&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk17"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, x₃, y₁, y₂, y₃, z₁, z₂, z₃</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₁'</var><span class="hyp-type"><b>: </b><span>C ⟦ x₂, x₃ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>v₂', v₂''</var><span class="hyp-type"><b>: </b><span>C ⟦ y₂, y₃ ⟧</span></span></span><br><span><var>v₃</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>v₃'</var><span class="hyp-type"><b>: </b><span>C ⟦ z₂, z₃ ⟧</span></span></span><br><span><var>u₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₃ ⟧</span></span></span><br><span><var>u₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₃ ⟧</span></span></span><br><span><var>u₃</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₃ ⟧</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>l₁</var><span class="hyp-type"><b>: </b><span>D x₃ y₃</span></span></span><br><span><var>l₂</var><span class="hyp-type"><b>: </b><span>D y₃ z₃</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] k₁</span></span></span><br><span><var>s₁'</var><span class="hyp-type"><b>: </b><span>k₁ --&gt;[ v₁&#39; ][ v₂&#39;] l₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br><span><var>s₂'</var><span class="hyp-type"><b>: </b><span>k₂ --&gt;[ v₂&#39;&#39; ][ v₃&#39;] l₂</span></span></span><br><span><var>p</var><span class="hyp-type"><b>: </b><span>v₁ · v₁&#39; = u₁</span></span></span><br><span><var>q</var><span class="hyp-type"><b>: </b><span>v₂ · v₂&#39; = u₂</span></span></span><br><span><var>q'</var><span class="hyp-type"><b>: </b><span>v₂ · v₂&#39;&#39; = u₂</span></span></span><br><span><var>s</var><span class="hyp-type"><b>: </b><span>v₂&#39; = v₂&#39;&#39;</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>v₃ · v₃&#39; = u₃</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm (trf₂ (s₁ ;;<span class="mi">2</span> s₁&#39;))
+  (trf₂ (s₂ ;;<span class="mi">2</span> s₂&#39;)) =
+trf₂ (double_hor_comp_mor Cm s₁ s₂ ;;<span class="mi">2</span> 
+      double_hor_comp_mor Cm 
+        (trf₂ s₁&#39;) s₂&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk18"><span class="nb">induction</span> p, q, s, r.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, x₃, y₁, y₂, y₃, z₁, z₂, z₃</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₁'</var><span class="hyp-type"><b>: </b><span>C ⟦ x₂, x₃ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>v₂'</var><span class="hyp-type"><b>: </b><span>C ⟦ y₂, y₃ ⟧</span></span></span><br><span><var>v₃</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>v₃'</var><span class="hyp-type"><b>: </b><span>C ⟦ z₂, z₃ ⟧</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>l₁</var><span class="hyp-type"><b>: </b><span>D x₃ y₃</span></span></span><br><span><var>l₂</var><span class="hyp-type"><b>: </b><span>D y₃ z₃</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] k₁</span></span></span><br><span><var>s₁'</var><span class="hyp-type"><b>: </b><span>k₁ --&gt;[ v₁&#39; ][ v₂&#39;] l₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br><span><var>s₂'</var><span class="hyp-type"><b>: </b><span>k₂ --&gt;[ v₂&#39; ][ v₃&#39;] l₂</span></span></span><br><span><var>q'</var><span class="hyp-type"><b>: </b><span>v₂ · v₂&#39; = v₂ · v₂&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm (trf₂ (s₁ ;;<span class="mi">2</span> s₁&#39;))
+  (trf₂ (s₂ ;;<span class="mi">2</span> s₂&#39;)) =
+trf₂ (double_hor_comp_mor Cm s₁ s₂ ;;<span class="mi">2</span> 
+      double_hor_comp_mor Cm 
+        (trf₂ s₁&#39;) s₂&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk19"><span class="nb">assert</span> (q&#39; = idpath _) <span class="kr">as</span> H.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, x₃, y₁, y₂, y₃, z₁, z₂, z₃</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₁'</var><span class="hyp-type"><b>: </b><span>C ⟦ x₂, x₃ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>v₂'</var><span class="hyp-type"><b>: </b><span>C ⟦ y₂, y₃ ⟧</span></span></span><br><span><var>v₃</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>v₃'</var><span class="hyp-type"><b>: </b><span>C ⟦ z₂, z₃ ⟧</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>l₁</var><span class="hyp-type"><b>: </b><span>D x₃ y₃</span></span></span><br><span><var>l₂</var><span class="hyp-type"><b>: </b><span>D y₃ z₃</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] k₁</span></span></span><br><span><var>s₁'</var><span class="hyp-type"><b>: </b><span>k₁ --&gt;[ v₁&#39; ][ v₂&#39;] l₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br><span><var>s₂'</var><span class="hyp-type"><b>: </b><span>k₂ --&gt;[ v₂&#39; ][ v₃&#39;] l₂</span></span></span><br><span><var>q'</var><span class="hyp-type"><b>: </b><span>v₂ · v₂&#39; = v₂ · v₂&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">q&#39; = idpath (v₂ · v₂&#39;)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="doublecategorybasics-v-chk1a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, x₃, y₁, y₂, y₃, z₁, z₂, z₃</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₁'</var><span class="hyp-type"><b>: </b><span>C ⟦ x₂, x₃ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>v₂'</var><span class="hyp-type"><b>: </b><span>C ⟦ y₂, y₃ ⟧</span></span></span><br><span><var>v₃</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>v₃'</var><span class="hyp-type"><b>: </b><span>C ⟦ z₂, z₃ ⟧</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>l₁</var><span class="hyp-type"><b>: </b><span>D x₃ y₃</span></span></span><br><span><var>l₂</var><span class="hyp-type"><b>: </b><span>D y₃ z₃</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] k₁</span></span></span><br><span><var>s₁'</var><span class="hyp-type"><b>: </b><span>k₁ --&gt;[ v₁&#39; ][ v₂&#39;] l₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br><span><var>s₂'</var><span class="hyp-type"><b>: </b><span>k₂ --&gt;[ v₂&#39; ][ v₃&#39;] l₂</span></span></span><br><span><var>q'</var><span class="hyp-type"><b>: </b><span>v₂ · v₂&#39; = v₂ · v₂&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>q&#39; = idpath (v₂ · v₂&#39;)</span></span></span><br></div><label class="goal-separator" for="doublecategorybasics-v-chk1a"><hr></label><div class="goal-conclusion">double_hor_comp_mor Cm (trf₂ (s₁ ;;<span class="mi">2</span> s₁&#39;))
+  (trf₂ (s₂ ;;<span class="mi">2</span> s₂&#39;)) =
+trf₂ (double_hor_comp_mor Cm s₁ s₂ ;;<span class="mi">2</span> 
+      double_hor_comp_mor Cm 
+        (trf₂ s₁&#39;) s₂&#39;)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk1b">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, x₃, y₁, y₂, y₃, z₁, z₂, z₃</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₁'</var><span class="hyp-type"><b>: </b><span>C ⟦ x₂, x₃ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>v₂'</var><span class="hyp-type"><b>: </b><span>C ⟦ y₂, y₃ ⟧</span></span></span><br><span><var>v₃</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>v₃'</var><span class="hyp-type"><b>: </b><span>C ⟦ z₂, z₃ ⟧</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>l₁</var><span class="hyp-type"><b>: </b><span>D x₃ y₃</span></span></span><br><span><var>l₂</var><span class="hyp-type"><b>: </b><span>D y₃ z₃</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] k₁</span></span></span><br><span><var>s₁'</var><span class="hyp-type"><b>: </b><span>k₁ --&gt;[ v₁&#39; ][ v₂&#39;] l₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br><span><var>s₂'</var><span class="hyp-type"><b>: </b><span>k₂ --&gt;[ v₂&#39; ][ v₃&#39;] l₂</span></span></span><br><span><var>q'</var><span class="hyp-type"><b>: </b><span>v₂ · v₂&#39; = v₂ · v₂&#39;</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">q&#39; = idpath (v₂ · v₂&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> homset_property.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk1c">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, x₃, y₁, y₂, y₃, z₁, z₂, z₃</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₁'</var><span class="hyp-type"><b>: </b><span>C ⟦ x₂, x₃ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>v₂'</var><span class="hyp-type"><b>: </b><span>C ⟦ y₂, y₃ ⟧</span></span></span><br><span><var>v₃</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>v₃'</var><span class="hyp-type"><b>: </b><span>C ⟦ z₂, z₃ ⟧</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>l₁</var><span class="hyp-type"><b>: </b><span>D x₃ y₃</span></span></span><br><span><var>l₂</var><span class="hyp-type"><b>: </b><span>D y₃ z₃</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] k₁</span></span></span><br><span><var>s₁'</var><span class="hyp-type"><b>: </b><span>k₁ --&gt;[ v₁&#39; ][ v₂&#39;] l₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br><span><var>s₂'</var><span class="hyp-type"><b>: </b><span>k₂ --&gt;[ v₂&#39; ][ v₃&#39;] l₂</span></span></span><br><span><var>q'</var><span class="hyp-type"><b>: </b><span>v₂ · v₂&#39; = v₂ · v₂&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>q&#39; = idpath (v₂ · v₂&#39;)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm (trf₂ (s₁ ;;<span class="mi">2</span> s₁&#39;))
+  (trf₂ (s₂ ;;<span class="mi">2</span> s₂&#39;)) =
+trf₂ (double_hor_comp_mor Cm s₁ s₂ ;;<span class="mi">2</span> 
+      double_hor_comp_mor Cm 
+        (trf₂ s₁&#39;) s₂&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk1d"><span class="nb">rewrite</span> H.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, x₃, y₁, y₂, y₃, z₁, z₂, z₃</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₁'</var><span class="hyp-type"><b>: </b><span>C ⟦ x₂, x₃ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>v₂'</var><span class="hyp-type"><b>: </b><span>C ⟦ y₂, y₃ ⟧</span></span></span><br><span><var>v₃</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>v₃'</var><span class="hyp-type"><b>: </b><span>C ⟦ z₂, z₃ ⟧</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>l₁</var><span class="hyp-type"><b>: </b><span>D x₃ y₃</span></span></span><br><span><var>l₂</var><span class="hyp-type"><b>: </b><span>D y₃ z₃</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] k₁</span></span></span><br><span><var>s₁'</var><span class="hyp-type"><b>: </b><span>k₁ --&gt;[ v₁&#39; ][ v₂&#39;] l₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br><span><var>s₂'</var><span class="hyp-type"><b>: </b><span>k₂ --&gt;[ v₂&#39; ][ v₃&#39;] l₂</span></span></span><br><span><var>q'</var><span class="hyp-type"><b>: </b><span>v₂ · v₂&#39; = v₂ · v₂&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>q&#39; = idpath (v₂ · v₂&#39;)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm (trf₂ (s₁ ;;<span class="mi">2</span> s₁&#39;))
+  (trf₂ (s₂ ;;<span class="mi">2</span> s₂&#39;)) =
+trf₂ (double_hor_comp_mor Cm s₁ s₂ ;;<span class="mi">2</span> 
+      double_hor_comp_mor Cm 
+        (trf₂ s₁&#39;) s₂&#39;)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk1e"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, x₃, y₁, y₂, y₃, z₁, z₂, z₃</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₁'</var><span class="hyp-type"><b>: </b><span>C ⟦ x₂, x₃ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>v₂'</var><span class="hyp-type"><b>: </b><span>C ⟦ y₂, y₃ ⟧</span></span></span><br><span><var>v₃</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>v₃'</var><span class="hyp-type"><b>: </b><span>C ⟦ z₂, z₃ ⟧</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>l₁</var><span class="hyp-type"><b>: </b><span>D x₃ y₃</span></span></span><br><span><var>l₂</var><span class="hyp-type"><b>: </b><span>D y₃ z₃</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] k₁</span></span></span><br><span><var>s₁'</var><span class="hyp-type"><b>: </b><span>k₁ --&gt;[ v₁&#39; ][ v₂&#39;] l₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br><span><var>s₂'</var><span class="hyp-type"><b>: </b><span>k₂ --&gt;[ v₂&#39; ][ v₃&#39;] l₂</span></span></span><br><span><var>q'</var><span class="hyp-type"><b>: </b><span>v₂ · v₂&#39; = v₂ · v₂&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>q&#39; = idpath (v₂ · v₂&#39;)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm (s₁ ;;<span class="mi">2</span> s₁&#39;) (s₂ ;;<span class="mi">2</span> s₂&#39;) =
+double_hor_comp_mor Cm s₁ s₂ ;;<span class="mi">2</span> 
+double_hor_comp_mor Cm s₁&#39; s₂&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk1f"><span class="nb">rewrite</span> double_hor_comp_mor_comp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x₁, x₂, x₃, y₁, y₂, y₃, z₁, z₂, z₃</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₁'</var><span class="hyp-type"><b>: </b><span>C ⟦ x₂, x₃ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>v₂'</var><span class="hyp-type"><b>: </b><span>C ⟦ y₂, y₃ ⟧</span></span></span><br><span><var>v₃</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>v₃'</var><span class="hyp-type"><b>: </b><span>C ⟦ z₂, z₃ ⟧</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>l₁</var><span class="hyp-type"><b>: </b><span>D x₃ y₃</span></span></span><br><span><var>l₂</var><span class="hyp-type"><b>: </b><span>D y₃ z₃</span></span></span><br><span><var>s₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] k₁</span></span></span><br><span><var>s₁'</var><span class="hyp-type"><b>: </b><span>k₁ --&gt;[ v₁&#39; ][ v₂&#39;] l₁</span></span></span><br><span><var>s₂</var><span class="hyp-type"><b>: </b><span>h₂ --&gt;[ v₂ ][ v₃] k₂</span></span></span><br><span><var>s₂'</var><span class="hyp-type"><b>: </b><span>k₂ --&gt;[ v₂&#39; ][ v₃&#39;] l₂</span></span></span><br><span><var>q'</var><span class="hyp-type"><b>: </b><span>v₂ · v₂&#39; = v₂ · v₂&#39;</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>q&#39; = idpath (v₂ · v₂&#39;)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">double_hor_comp_mor Cm s₁ s₂ ;;<span class="mi">2</span> 
+double_hor_comp_mor Cm s₁&#39; s₂&#39; =
+double_hor_comp_mor Cm s₁ s₂ ;;<span class="mi">2</span> 
+double_hor_comp_mor Cm s₁&#39; s₂&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 3. Left unitor *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">double_lunitor_data</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           (<span class="nv">I</span> : hor_id D)
+           (<span class="nv">Cm</span> : hor_comp D)
+  : UU
+  := ∏ (x y : C)
+       (h : D x y),
+    iso_twosided_disp
+      (identity_z_iso x)
+      (identity_z_iso y)
+      (double_hor_comp Cm (double_id I x) h)
+      h.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk20"><span class="kn">Proposition</span> <span class="nf">isaset_double_lunitor_data</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            (<span class="nv">I</span> : hor_id D)
+            (<span class="nv">Cm</span> : hor_comp D)
+  : isaset (double_lunitor_data I Cm).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_lunitor_data I Cm)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk21"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_lunitor_data I Cm)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk22">use impred_isaset ; <span class="nb">intro</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset
+  ((<span class="kr">λ</span> <span class="nv">t</span> : C,
+    ∏ (y : C) (h : D t y),
+    iso_twosided_disp (identity_z_iso t)
+      (identity_z_iso y)
+      (double_hor_comp Cm (double_id I t) h) h) x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk23">use impred_isaset ; <span class="nb">intro</span> y.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset
+  ((<span class="kr">λ</span> <span class="nv">t</span> : C,
+    ∏ h : D x t,
+    iso_twosided_disp (identity_z_iso x)
+      (identity_z_iso t)
+      (double_hor_comp Cm (double_id I x) h) h) y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk24">use impred_isaset ; <span class="nb">intro</span> h.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>D x y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset
+  ((<span class="kr">λ</span> <span class="nv">t</span> : D x y,
+    iso_twosided_disp (identity_z_iso x)
+      (identity_z_iso y)
+      (double_hor_comp Cm (double_id I x) t) t) h)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaset_iso_twosided_disp.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">double_lunitor_laws</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           {<span class="nv">I</span> : hor_id D}
+           {<span class="nv">Cm</span> : hor_comp D}
+           (<span class="nv">l</span> : double_lunitor_data I Cm)
+  : UU
+  := ∏ (x₁ x₂ y₁ y₂ : C)
+       (h₁ : D x₁ y₁)
+       (h₂ : D x₂ y₂)
+       (v₁ : x₁ --&gt; x₂)
+       (v₂ : y₁ --&gt; y₂)
+       (τ : h₁ --&gt;[ v₁ ][ v₂ ] h₂),
+     transportb_disp_mor2
+       (id_right _ @ !(id_left _))
+       (id_right _ @ !(id_left _))
+       (l _ _ h₁ ;;<span class="mi">2</span> τ)
+     =
+     double_hor_comp_mor Cm (double_id_mor I _) τ ;;<span class="mi">2</span> l _ _ h₂.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk25"><span class="kn">Proposition</span> <span class="nf">isaprop_double_lunitor_laws</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            {<span class="nv">I</span> : hor_id D}
+            {<span class="nv">Cm</span> : hor_comp D}
+            (<span class="nv">l</span> : double_lunitor_data I Cm)
+  : isaprop (double_lunitor_laws l).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>double_lunitor_data I Cm</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (double_lunitor_laws l)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk26"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>double_lunitor_data I Cm</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (double_lunitor_laws l)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk27"><span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>double_lunitor_data I Cm</span></span></span><br><span><var>t, t0, t1, t2</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>t3</var><span class="hyp-type"><b>: </b><span>D t t1</span></span></span><br><span><var>t4</var><span class="hyp-type"><b>: </b><span>D t0 t2</span></span></span><br><span><var>t5</var><span class="hyp-type"><b>: </b><span>C ⟦ t, t0 ⟧</span></span></span><br><span><var>t6</var><span class="hyp-type"><b>: </b><span>C ⟦ t1, t2 ⟧</span></span></span><br><span><var>t7</var><span class="hyp-type"><b>: </b><span>t3 --&gt;[ t5 ][ t6] t4</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span>
+  ((<span class="kr">λ</span> <span class="nv">t7</span> : t3 --&gt;[ t5 ][ t6] t4,
+    trb₂ (l t t1 t3 ;;<span class="mi">2</span> t7) =
+    double_hor_comp_mor Cm (double_id_mor I t5) t7 ;;<span class="mi">2</span> 
+    l t0 t2 t4) t7)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaset_disp_mor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">double_cat_lunitor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           (<span class="nv">I</span> : hor_id D)
+           (<span class="nv">Cm</span> : hor_comp D)
+  : UU
+  := ∑ (l : double_lunitor_data I Cm), double_lunitor_laws l.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk28"><span class="kn">Proposition</span> <span class="nf">isaset_double_cat_lunitor</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            (<span class="nv">I</span> : hor_id D)
+            (<span class="nv">Cm</span> : hor_comp D)
+  : isaset (double_cat_lunitor I Cm).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_cat_lunitor I Cm)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk29"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_cat_lunitor I Cm)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk2a">use isaset_total2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_lunitor_data I Cm)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="doublecategorybasics-v-chk2b" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><label class="goal-separator" for="doublecategorybasics-v-chk2b"><hr></label><div class="goal-conclusion">∏ x : double_lunitor_data I Cm,
+isaset (double_lunitor_laws x)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk2c">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_lunitor_data I Cm)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaset_double_lunitor_data.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk2d">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : double_lunitor_data I Cm,
+isaset (double_lunitor_laws x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk2e"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>double_lunitor_data I Cm</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_lunitor_laws x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk2f" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk2f"><span class="nb">apply</span> isasetaprop.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>double_lunitor_data I Cm</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (double_lunitor_laws x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaprop_double_lunitor_laws.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_double_lunitor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           {<span class="nv">I</span> : hor_id D}
+           {<span class="nv">Cm</span> : hor_comp D}
+           (<span class="nv">l</span> : double_lunitor_data I Cm)
+           (<span class="nv">Hl</span> : double_lunitor_laws l)
+  : double_cat_lunitor I Cm
+  := l ,, Hl.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">double_lunitor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           {<span class="nv">I</span> : hor_id D}
+           {<span class="nv">Cm</span> : hor_comp D}
+           (<span class="nv">l</span> : double_cat_lunitor I Cm)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">h</span> : D x y)
+  : double_hor_comp Cm (double_id I x) h
+    --&gt;[ identity x ][ identity y ]
+    h
+  := pr1 l x y h.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk30"><span class="kn">Proposition</span> <span class="nf">double_lunitor_nat</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            {<span class="nv">I</span> : hor_id D}
+            {<span class="nv">Cm</span> : hor_comp D}
+            (<span class="nv">l</span> : double_cat_lunitor I Cm)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            {<span class="nv">h₁</span> : D x₁ y₁}
+            {<span class="nv">h₂</span> : D x₂ y₂}
+            {<span class="nv">v₁</span> : x₁ --&gt; x₂}
+            {<span class="nv">v₂</span> : y₁ --&gt; y₂}
+            (<span class="nv">τ</span> : h₁ --&gt;[ v₁ ][ v₂ ] h₂)
+  : transportb_disp_mor2
+      (id_right _ @ !(id_left _))
+      (id_right _ @ !(id_left _))
+      (double_lunitor l h₁ ;;<span class="mi">2</span> τ)
+    =
+    double_hor_comp_mor Cm (double_id_mor I _) τ ;;<span class="mi">2</span> double_lunitor l h₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>double_cat_lunitor I Cm</span></span></span><br><span><var>x₁, x₂, y₁, y₂</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] h₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">trb₂ (double_lunitor l h₁ ;;<span class="mi">2</span> τ) =
+double_hor_comp_mor Cm (double_id_mor I v₁) τ ;;<span class="mi">2</span> 
+double_lunitor l h₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk31"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>double_cat_lunitor I Cm</span></span></span><br><span><var>x₁, x₂, y₁, y₂</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] h₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">trb₂ (double_lunitor l h₁ ;;<span class="mi">2</span> τ) =
+double_hor_comp_mor Cm (double_id_mor I v₁) τ ;;<span class="mi">2</span> 
+double_lunitor l h₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr2 l x₁ x₂ y₁ y₂ h₁ h₂ v₁ v₂ τ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 4. Right unitor *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">double_runitor_data</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           (<span class="nv">I</span> : hor_id D)
+           (<span class="nv">Cm</span> : hor_comp D)
+  : UU
+  := ∏ (x y : C)
+       (h : D x y),
+    iso_twosided_disp
+      (identity_z_iso x)
+      (identity_z_iso y)
+      (double_hor_comp Cm h (double_id I y))
+      h.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk32"><span class="kn">Proposition</span> <span class="nf">isaset_double_runitor_data</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            (<span class="nv">I</span> : hor_id D)
+            (<span class="nv">Cm</span> : hor_comp D)
+  : isaset (double_runitor_data I Cm).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_runitor_data I Cm)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk33" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk33"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_runitor_data I Cm)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk34">use impred_isaset ; <span class="nb">intro</span> x.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset
+  ((<span class="kr">λ</span> <span class="nv">t</span> : C,
+    ∏ (y : C) (h : D t y),
+    iso_twosided_disp (identity_z_iso t)
+      (identity_z_iso y)
+      (double_hor_comp Cm h (double_id I y)) h) x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk35">use impred_isaset ; <span class="nb">intro</span> y.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset
+  ((<span class="kr">λ</span> <span class="nv">t</span> : C,
+    ∏ h : D x t,
+    iso_twosided_disp (identity_z_iso x)
+      (identity_z_iso t)
+      (double_hor_comp Cm h (double_id I t)) h) y)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk36" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk36">use impred_isaset ; <span class="nb">intro</span> h.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h</var><span class="hyp-type"><b>: </b><span>D x y</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset
+  ((<span class="kr">λ</span> <span class="nv">t</span> : D x y,
+    iso_twosided_disp (identity_z_iso x)
+      (identity_z_iso y)
+      (double_hor_comp Cm t (double_id I y)) t) h)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaset_iso_twosided_disp.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">double_runitor_laws</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           {<span class="nv">I</span> : hor_id D}
+           {<span class="nv">Cm</span> : hor_comp D}
+           (<span class="nv">r</span> : double_runitor_data I Cm)
+  : UU
+  := ∏ (x₁ x₂ y₁ y₂ : C)
+       (h₁ : D x₁ y₁)
+       (h₂ : D x₂ y₂)
+       (v₁ : x₁ --&gt; x₂)
+       (v₂ : y₁ --&gt; y₂)
+       (τ : h₁ --&gt;[ v₁ ][ v₂ ] h₂),
+     transportb_disp_mor2
+       (id_right _ @ !(id_left _))
+       (id_right _ @ !(id_left _))
+       (r _ _ h₁ ;;<span class="mi">2</span> τ)
+     =
+     double_hor_comp_mor Cm τ (double_id_mor I _) ;;<span class="mi">2</span> r _ _ h₂.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk37"><span class="kn">Proposition</span> <span class="nf">isaprop_double_runitor_laws</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            {<span class="nv">I</span> : hor_id D}
+            {<span class="nv">Cm</span> : hor_comp D}
+            (<span class="nv">r</span> : double_runitor_data I Cm)
+  : isaprop (double_runitor_laws r).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>double_runitor_data I Cm</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (double_runitor_laws r)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk38"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>double_runitor_data I Cm</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (double_runitor_laws r)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk39"><span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>double_runitor_data I Cm</span></span></span><br><span><var>t, t0, t1, t2</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>t3</var><span class="hyp-type"><b>: </b><span>D t t1</span></span></span><br><span><var>t4</var><span class="hyp-type"><b>: </b><span>D t0 t2</span></span></span><br><span><var>t5</var><span class="hyp-type"><b>: </b><span>C ⟦ t, t0 ⟧</span></span></span><br><span><var>t6</var><span class="hyp-type"><b>: </b><span>C ⟦ t1, t2 ⟧</span></span></span><br><span><var>t7</var><span class="hyp-type"><b>: </b><span>t3 --&gt;[ t5 ][ t6] t4</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span>
+  ((<span class="kr">λ</span> <span class="nv">t7</span> : t3 --&gt;[ t5 ][ t6] t4,
+    trb₂ (r t t1 t3 ;;<span class="mi">2</span> t7) =
+    double_hor_comp_mor Cm t7 (double_id_mor I t6) ;;<span class="mi">2</span> 
+    r t0 t2 t4) t7)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaset_disp_mor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">double_cat_runitor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           (<span class="nv">I</span> : hor_id D)
+           (<span class="nv">Cm</span> : hor_comp D)
+  : UU
+  := ∑ (r : double_runitor_data I Cm), double_runitor_laws r.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk3a" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk3a"><span class="kn">Proposition</span> <span class="nf">isaset_double_cat_runitor</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            (<span class="nv">I</span> : hor_id D)
+            (<span class="nv">Cm</span> : hor_comp D)
+  : isaset (double_cat_runitor I Cm).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_cat_runitor I Cm)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk3b" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk3b"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_cat_runitor I Cm)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk3c" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk3c">use isaset_total2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_runitor_data I Cm)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="doublecategorybasics-v-chk3d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><label class="goal-separator" for="doublecategorybasics-v-chk3d"><hr></label><div class="goal-conclusion">∏ x : double_runitor_data I Cm,
+isaset (double_runitor_laws x)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk3e" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk3e">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_runitor_data I Cm)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaset_double_runitor_data.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk3f" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk3f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : double_runitor_data I Cm,
+isaset (double_runitor_laws x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk40" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk40"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>double_runitor_data I Cm</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_runitor_laws x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk41" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk41"><span class="nb">apply</span> isasetaprop.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>double_runitor_data I Cm</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (double_runitor_laws x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaprop_double_runitor_laws.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_double_runitor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           {<span class="nv">I</span> : hor_id D}
+           {<span class="nv">Cm</span> : hor_comp D}
+           (<span class="nv">l</span> : double_runitor_data I Cm)
+           (<span class="nv">Hl</span> : double_runitor_laws l)
+  : double_cat_runitor I Cm
+  := l ,, Hl.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">double_runitor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           {<span class="nv">I</span> : hor_id D}
+           {<span class="nv">Cm</span> : hor_comp D}
+           (<span class="nv">r</span> : double_cat_runitor I Cm)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">h</span> : D x y)
+  : double_hor_comp Cm h (double_id I y)
+    --&gt;[ identity x ][ identity y ]
+    h
+  := pr1 r x y h.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk42" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk42"><span class="kn">Proposition</span> <span class="nf">double_runitor_nat</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            {<span class="nv">I</span> : hor_id D}
+            {<span class="nv">Cm</span> : hor_comp D}
+            (<span class="nv">r</span> : double_cat_runitor I Cm)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            {<span class="nv">h₁</span> : D x₁ y₁}
+            {<span class="nv">h₂</span> : D x₂ y₂}
+            {<span class="nv">v₁</span> : x₁ --&gt; x₂}
+            {<span class="nv">v₂</span> : y₁ --&gt; y₂}
+            (<span class="nv">τ</span> : h₁ --&gt;[ v₁ ][ v₂ ] h₂)
+  : transportb_disp_mor2
+      (id_right _ @ !(id_left _))
+      (id_right _ @ !(id_left _))
+      (double_runitor r h₁ ;;<span class="mi">2</span> τ)
+    =
+    double_hor_comp_mor Cm τ (double_id_mor I _) ;;<span class="mi">2</span> double_runitor r h₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>double_cat_runitor I Cm</span></span></span><br><span><var>x₁, x₂, y₁, y₂</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] h₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">trb₂ (double_runitor r h₁ ;;<span class="mi">2</span> τ) =
+double_hor_comp_mor Cm τ (double_id_mor I v₂) ;;<span class="mi">2</span> 
+double_runitor r h₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk43" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk43"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>double_cat_runitor I Cm</span></span></span><br><span><var>x₁, x₂, y₁, y₂</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>v₁</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>v₂</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>τ</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ v₁ ][ v₂] h₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">trb₂ (double_runitor r h₁ ;;<span class="mi">2</span> τ) =
+double_hor_comp_mor Cm τ (double_id_mor I v₂) ;;<span class="mi">2</span> 
+double_runitor r h₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (pr2 r x₁ x₂ y₁ y₂ h₁ h₂ v₁ v₂ τ).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 5. Associator *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">double_associator_data</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           (<span class="nv">Cm</span> : hor_comp D)
+  : UU
+  := ∏ (w x y z : C)
+       (h₁ : D w x)
+       (h₂ : D x y)
+       (h₃ : D y z),
+    iso_twosided_disp
+      (identity_z_iso w)
+      (identity_z_iso z)
+      (double_hor_comp
+         Cm
+         h₁
+         (double_hor_comp
+            Cm
+            h₂
+            h₃))
+      (double_hor_comp
+         Cm
+         (double_hor_comp
+            Cm
+            h₁
+            h₂)
+         h₃).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk44" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk44"><span class="kn">Proposition</span> <span class="nf">isaset_double_associator_data</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            (<span class="nv">Cm</span> : hor_comp D)
+  : isaset (double_associator_data Cm).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_associator_data Cm)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk45" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk45"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_associator_data Cm)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk46" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk46"><span class="kp">repeat</span> (use impred_isaset ; <span class="nb">intro</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>t, t0, t1, t2</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>t3</var><span class="hyp-type"><b>: </b><span>D t t0</span></span></span><br><span><var>t4</var><span class="hyp-type"><b>: </b><span>D t0 t1</span></span></span><br><span><var>t5</var><span class="hyp-type"><b>: </b><span>D t1 t2</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset
+  ((<span class="kr">λ</span> <span class="nv">t5</span> : D t1 t2,
+    iso_twosided_disp (identity_z_iso t)
+      (identity_z_iso t2)
+      (double_hor_comp Cm t3
+         (double_hor_comp Cm t4 t5))
+      (double_hor_comp Cm (double_hor_comp Cm t3 t4)
+         t5)) t5)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaset_iso_twosided_disp.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">double_associator_laws</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           {<span class="nv">Cm</span> : hor_comp D}
+           (<span class="nv">a</span> : double_associator_data Cm)
+  : UU
+  := ∏ (w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ : C)
+       (h₁ : D w₁ x₁)
+       (h₂ : D w₂ x₂)
+       (j₁ : D x₁ y₁)
+       (j₂ : D x₂ y₂)
+       (k₁ : D y₁ z₁)
+       (k₂ : D y₂ z₂)
+       (vw : w₁ --&gt; w₂)
+       (vx : x₁ --&gt; x₂)
+       (vy : y₁ --&gt; y₂)
+       (vz : z₁ --&gt; z₂)
+       (τ₁ : h₁ --&gt;[ vw ][ vx ] h₂)
+       (τ₂ : j₁ --&gt;[ vx ][ vy ] j₂)
+       (τ₃ : k₁ --&gt;[ vy ][ vz ] k₂),
+     transportb_disp_mor2
+       (id_right _ @ !(id_left _))
+       (id_right _ @ !(id_left _))
+       (a _ _ _ _ h₁ j₁ k₁ ;;<span class="mi">2</span> double_hor_comp_mor Cm (double_hor_comp_mor Cm τ₁ τ₂) τ₃)
+     =
+     double_hor_comp_mor Cm τ₁ (double_hor_comp_mor Cm τ₂ τ₃) ;;<span class="mi">2</span> a _ _ _ _ h₂ j₂ k₂.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk47" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk47"><span class="kn">Proposition</span> <span class="nf">isaprop_double_associator_laws</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            {<span class="nv">Cm</span> : hor_comp D}
+            (<span class="nv">a</span> : double_associator_data Cm)
+  : isaprop (double_associator_laws a).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>double_associator_data Cm</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (double_associator_laws a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk48" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk48"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>double_associator_data Cm</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (double_associator_laws a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk49" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk49"><span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>double_associator_data Cm</span></span></span><br><span><var>t, t0, t1, t2, t3, t4, t5, t6</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>t7</var><span class="hyp-type"><b>: </b><span>D t t1</span></span></span><br><span><var>t8</var><span class="hyp-type"><b>: </b><span>D t0 t2</span></span></span><br><span><var>t9</var><span class="hyp-type"><b>: </b><span>D t1 t3</span></span></span><br><span><var>t10</var><span class="hyp-type"><b>: </b><span>D t2 t4</span></span></span><br><span><var>t11</var><span class="hyp-type"><b>: </b><span>D t3 t5</span></span></span><br><span><var>t12</var><span class="hyp-type"><b>: </b><span>D t4 t6</span></span></span><br><span><var>t13</var><span class="hyp-type"><b>: </b><span>C ⟦ t, t0 ⟧</span></span></span><br><span><var>t14</var><span class="hyp-type"><b>: </b><span>C ⟦ t1, t2 ⟧</span></span></span><br><span><var>t15</var><span class="hyp-type"><b>: </b><span>C ⟦ t3, t4 ⟧</span></span></span><br><span><var>t16</var><span class="hyp-type"><b>: </b><span>C ⟦ t5, t6 ⟧</span></span></span><br><span><var>t17</var><span class="hyp-type"><b>: </b><span>t7 --&gt;[ t13 ][ t14] t8</span></span></span><br><span><var>t18</var><span class="hyp-type"><b>: </b><span>t9 --&gt;[ t14 ][ t15] t10</span></span></span><br><span><var>t19</var><span class="hyp-type"><b>: </b><span>t11 --&gt;[ t15 ][ t16] t12</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span>
+  ((<span class="kr">λ</span> <span class="nv">t19</span> : t11 --&gt;[ t15 ][ t16] t12,
+    trb₂ (a t t1 t3 t5 t7 t9 t11 ;;<span class="mi">2</span> double_hor_comp_mor
+                                       Cm
+                                       (double_hor_comp_mor
+                                          Cm t17 t18)
+                                       t19) =
+    double_hor_comp_mor Cm t17
+      (double_hor_comp_mor Cm t18 t19) ;;<span class="mi">2</span> a t0 t2 t4
+                                             t6 t8 t10
+                                             t12) t19)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaset_disp_mor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">double_cat_associator</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           (<span class="nv">Cm</span> : hor_comp D)
+  : UU
+  := ∑ (a : double_associator_data Cm), double_associator_laws a.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk4a" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk4a"><span class="kn">Proposition</span> <span class="nf">isaset_double_cat_associator</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            (<span class="nv">Cm</span> : hor_comp D)
+  : isaset (double_cat_associator Cm).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_cat_associator Cm)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk4b" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk4b"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_cat_associator Cm)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk4c" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk4c">use isaset_total2.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_associator_data Cm)</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="doublecategorybasics-v-chk4d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><label class="goal-separator" for="doublecategorybasics-v-chk4d"><hr></label><div class="goal-conclusion">∏ x : double_associator_data Cm,
+isaset (double_associator_laws x)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk4e" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk4e">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_associator_data Cm)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaset_double_associator_data.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk4f" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk4f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ x : double_associator_data Cm,
+isaset (double_associator_laws x)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk50" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk50"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>double_associator_data Cm</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaset (double_associator_laws x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk51" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk51"><span class="nb">apply</span> isasetaprop.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>x</var><span class="hyp-type"><b>: </b><span>double_associator_data Cm</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (double_associator_laws x)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaprop_double_associator_laws.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_double_associator</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           {<span class="nv">Cm</span> : hor_comp D}
+           (<span class="nv">a</span> : double_associator_data Cm)
+           (<span class="nv">Ha</span> : double_associator_laws a)
+  : double_cat_associator Cm
+  := a ,, Ha.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">double_associator</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           {<span class="nv">Cm</span> : hor_comp D}
+           (<span class="nv">a</span> : double_cat_associator Cm)
+           {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+           (<span class="nv">h₁</span> : D w x)
+           (<span class="nv">h₂</span> : D x y)
+           (<span class="nv">h₃</span> : D y z)
+  : double_hor_comp
+      Cm
+      h₁
+      (double_hor_comp
+         Cm
+         h₂
+         h₃)
+    --&gt;[ identity w ][ identity z ]
+    double_hor_comp
+      Cm
+      (double_hor_comp
+         Cm
+         h₁
+         h₂)
+      h₃
+  := pr1 a w x y z h₁ h₂ h₃.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk52" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk52"><span class="kn">Proposition</span> <span class="nf">double_associator_nat</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            {<span class="nv">Cm</span> : hor_comp D}
+            (<span class="nv">a</span> : double_cat_associator Cm)
+            {<span class="nv">w₁</span> <span class="nv">w₂</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : C}
+            {<span class="nv">h₁</span> : D w₁ x₁}
+            {<span class="nv">h₂</span> : D w₂ x₂}
+            {<span class="nv">j₁</span> : D x₁ y₁}
+            {<span class="nv">j₂</span> : D x₂ y₂}
+            {<span class="nv">k₁</span> : D y₁ z₁}
+            {<span class="nv">k₂</span> : D y₂ z₂}
+            {<span class="nv">vw</span> : w₁ --&gt; w₂}
+            {<span class="nv">vx</span> : x₁ --&gt; x₂}
+            {<span class="nv">vy</span> : y₁ --&gt; y₂}
+            {<span class="nv">vz</span> : z₁ --&gt; z₂}
+            (<span class="nv">τ₁</span> : h₁ --&gt;[ vw ][ vx ] h₂)
+            (<span class="nv">τ₂</span> : j₁ --&gt;[ vx ][ vy ] j₂)
+            (<span class="nv">τ₃</span> : k₁ --&gt;[ vy ][ vz ] k₂)
+  : transportb_disp_mor2
+      (id_right _ @ !(id_left _))
+      (id_right _ @ !(id_left _))
+      (double_associator a h₁ j₁ k₁
+       ;;<span class="mi">2</span>
+       double_hor_comp_mor Cm (double_hor_comp_mor Cm τ₁ τ₂) τ₃)
+    =
+    double_hor_comp_mor Cm τ₁ (double_hor_comp_mor Cm τ₂ τ₃)
+    ;;<span class="mi">2</span>
+    double_associator a h₂ j₂ k₂.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>double_cat_associator Cm</span></span></span><br><span><var>w₁, w₂, x₁, x₂, y₁, y₂, z₁, z₂</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D w₁ x₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D w₂ x₂</span></span></span><br><span><var>j₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>j₂</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>vw</var><span class="hyp-type"><b>: </b><span>C ⟦ w₁, w₂ ⟧</span></span></span><br><span><var>vx</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>vy</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>vz</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ vw ][ vx] h₂</span></span></span><br><span><var>τ₂</var><span class="hyp-type"><b>: </b><span>j₁ --&gt;[ vx ][ vy] j₂</span></span></span><br><span><var>τ₃</var><span class="hyp-type"><b>: </b><span>k₁ --&gt;[ vy ][ vz] k₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">trb₂ (double_associator a h₁ j₁ k₁ ;;<span class="mi">2</span> double_hor_comp_mor
+                                         Cm
+                                         (double_hor_comp_mor
+                                            Cm τ₁ τ₂)
+                                         τ₃) =
+double_hor_comp_mor Cm τ₁
+  (double_hor_comp_mor Cm τ₂ τ₃) ;;<span class="mi">2</span> double_associator
+                                       a h₂ j₂ k₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk53" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk53"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>double_cat_associator Cm</span></span></span><br><span><var>w₁, w₂, x₁, x₂, y₁, y₂, z₁, z₂</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>h₁</var><span class="hyp-type"><b>: </b><span>D w₁ x₁</span></span></span><br><span><var>h₂</var><span class="hyp-type"><b>: </b><span>D w₂ x₂</span></span></span><br><span><var>j₁</var><span class="hyp-type"><b>: </b><span>D x₁ y₁</span></span></span><br><span><var>j₂</var><span class="hyp-type"><b>: </b><span>D x₂ y₂</span></span></span><br><span><var>k₁</var><span class="hyp-type"><b>: </b><span>D y₁ z₁</span></span></span><br><span><var>k₂</var><span class="hyp-type"><b>: </b><span>D y₂ z₂</span></span></span><br><span><var>vw</var><span class="hyp-type"><b>: </b><span>C ⟦ w₁, w₂ ⟧</span></span></span><br><span><var>vx</var><span class="hyp-type"><b>: </b><span>C ⟦ x₁, x₂ ⟧</span></span></span><br><span><var>vy</var><span class="hyp-type"><b>: </b><span>C ⟦ y₁, y₂ ⟧</span></span></span><br><span><var>vz</var><span class="hyp-type"><b>: </b><span>C ⟦ z₁, z₂ ⟧</span></span></span><br><span><var>τ₁</var><span class="hyp-type"><b>: </b><span>h₁ --&gt;[ vw ][ vx] h₂</span></span></span><br><span><var>τ₂</var><span class="hyp-type"><b>: </b><span>j₁ --&gt;[ vx ][ vy] j₂</span></span></span><br><span><var>τ₃</var><span class="hyp-type"><b>: </b><span>k₁ --&gt;[ vy ][ vz] k₂</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">trb₂ (double_associator a h₁ j₁ k₁ ;;<span class="mi">2</span> double_hor_comp_mor
+                                         Cm
+                                         (double_hor_comp_mor
+                                            Cm τ₁ τ₂)
+                                         τ₃) =
+double_hor_comp_mor Cm τ₁
+  (double_hor_comp_mor Cm τ₂ τ₃) ;;<span class="mi">2</span> double_associator
+                                       a h₂ j₂ k₂</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (pr2 a).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 6. Triangle and pentagon laws *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">triangle_law</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           {<span class="nv">I</span> : hor_id D}
+           {<span class="nv">Cm</span> : hor_comp D}
+           (<span class="nv">l</span> : double_cat_lunitor I Cm)
+           (<span class="nv">r</span> : double_cat_runitor I Cm)
+           (<span class="nv">a</span> : double_cat_associator Cm)
+  : UU
+  := ∏ (x y z : C)
+       (h : D x y)
+       (k : D y z),
+     double_associator a h _ k
+     ;;<span class="mi">2</span>
+     double_hor_comp_mor Cm (double_runitor r h) (id_two_disp _)
+     =
+     transportb_disp_mor2
+       (id_left _)
+       (id_left _)
+       (double_hor_comp_mor Cm (id_two_disp _) (double_lunitor l k)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk54" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk54"><span class="kn">Proposition</span> <span class="nf">isaprop_triangle_law</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            {<span class="nv">I</span> : hor_id D}
+            {<span class="nv">Cm</span> : hor_comp D}
+            (<span class="nv">l</span> : double_cat_lunitor I Cm)
+            (<span class="nv">r</span> : double_cat_runitor I Cm)
+            (<span class="nv">a</span> : double_cat_associator Cm)
+  : isaprop (triangle_law l r a).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>double_cat_lunitor I Cm</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>double_cat_runitor I Cm</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>double_cat_associator Cm</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (triangle_law l r a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk55" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk55"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>double_cat_lunitor I Cm</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>double_cat_runitor I Cm</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>double_cat_associator Cm</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (triangle_law l r a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk56" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk56"><span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>I</var><span class="hyp-type"><b>: </b><span>hor_id D</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>l</var><span class="hyp-type"><b>: </b><span>double_cat_lunitor I Cm</span></span></span><br><span><var>r</var><span class="hyp-type"><b>: </b><span>double_cat_runitor I Cm</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>double_cat_associator Cm</span></span></span><br><span><var>t, t0, t1</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>t2</var><span class="hyp-type"><b>: </b><span>D t t0</span></span></span><br><span><var>t3</var><span class="hyp-type"><b>: </b><span>D t0 t1</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span>
+  ((<span class="kr">λ</span> <span class="nv">t3</span> : D t0 t1,
+    double_associator a t2 (double_id I t0) t3 ;;<span class="mi">2</span> 
+    double_hor_comp_mor Cm (double_runitor r t2)
+      (id_two_disp t3) =
+    trb₂ double_hor_comp_mor Cm (id_two_disp t2)
+           (double_lunitor l t3)) t3)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaset_disp_mor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">pentagon_law</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           {<span class="nv">Cm</span> : hor_comp D}
+           (<span class="nv">a</span> : double_cat_associator Cm)
+  : UU
+  := ∏ (v w x y z : C)
+       (h₁ : D v w)
+       (h₂ : D w x)
+       (h₃ : D x y)
+       (h₄ : D y z),
+     transportb_disp_mor2
+       (id_right _)
+       (id_right _)
+       (double_associator a h₁ h₂ (double_hor_comp Cm h₃ h₄)
+        ;;<span class="mi">2</span>
+        double_associator a (double_hor_comp Cm h₁ h₂) h₃ h₄)
+     =
+     double_hor_comp_mor Cm (id_two_disp _) (double_associator a h₂ h₃ h₄)
+     ;;<span class="mi">2</span> double_associator a h₁ (double_hor_comp Cm h₂ h₃) h₄
+     ;;<span class="mi">2</span> double_hor_comp_mor Cm (double_associator a h₁ h₂ h₃) (id_two_disp _).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk57" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk57"><span class="kn">Proposition</span> <span class="nf">isaprop_pentagon_law</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            {<span class="nv">Cm</span> : hor_comp D}
+            (<span class="nv">a</span> : double_cat_associator Cm)
+  : isaprop (pentagon_law a).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>double_cat_associator Cm</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (pentagon_law a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk58" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk58"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>double_cat_associator Cm</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isaprop (pentagon_law a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="doublecategorybasics-v-chk59" style="display: none" type="checkbox"><label class="alectryon-input" for="doublecategorybasics-v-chk59"><span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>D</var><span class="hyp-type"><b>: </b><span>twosided_disp_cat C C</span></span></span><br><span><var>Cm</var><span class="hyp-type"><b>: </b><span>hor_comp D</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>double_cat_associator Cm</span></span></span><br><span><var>t, t0, t1, t2, t3</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>t4</var><span class="hyp-type"><b>: </b><span>D t t0</span></span></span><br><span><var>t5</var><span class="hyp-type"><b>: </b><span>D t0 t1</span></span></span><br><span><var>t6</var><span class="hyp-type"><b>: </b><span>D t1 t2</span></span></span><br><span><var>t7</var><span class="hyp-type"><b>: </b><span>D t2 t3</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">isofhlevel <span class="mi">1</span>
+  ((<span class="kr">λ</span> <span class="nv">t7</span> : D t2 t3,
+    trb₂ (double_associator a t4 t5
+            (double_hor_comp Cm t6 t7) ;;<span class="mi">2</span> double_associator
+                                             a
+                                             (double_hor_comp
+                                                Cm t4
+                                                t5) t6
+                                             t7) =
+    double_hor_comp_mor Cm (id_two_disp t4)
+      (double_associator a t5 t6 t7) ;;<span class="mi">2</span> double_associator
+                                           a t4
+                                           (double_hor_comp
+                                              Cm t5 t6)
+                                           t7 ;;<span class="mi">2</span> 
+    double_hor_comp_mor Cm
+      (double_associator a t4 t5 t6) (id_two_disp t7))
+     t7)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> isaset_disp_mor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

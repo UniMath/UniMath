@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>ReflexiveObjects.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Reflexive Objects</span>
+
+<span class="sd">  A reflexive object is an object X with a retract onto the exponential object X^X. Here, we package</span>
+<span class="sd">  all the data together: the category with a terminal and binary products, the object with an</span>
+<span class="sd">  exponential, and the retraction. We define a constructor and accessors.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. Reflexive objects, with a constructor and accessors [reflexive_objects]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="reflexiveobjects-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="reflexiveobjects-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.exponentials.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">reflexive_object</span>
+  : UU
+  := ∑ (C : ∑ (C : category), Terminal C × BinProducts C)
+      (X : ∑ (X : pr1 C), is_exponentiable (pr22 C) X),
+      retraction (exp (pr2 X) (pr1 X)) (pr1 X).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_reflexive_object</span>
+  (<span class="nv">C</span> : category)
+  (<span class="nv">T</span> : Terminal C)
+  (<span class="nv">BP</span> : BinProducts C)
+  (<span class="nv">X</span> : C)
+  (<span class="nv">E</span> : is_exponentiable BP X)
+  (<span class="nv">abs</span> : C⟦exp E X, X⟧)
+  (<span class="nv">app</span> : C⟦X, exp E X⟧)
+  (<span class="nv">H</span> : is_retraction abs app)
+  : reflexive_object
+  := (C ,, T ,, BP) ,, (X ,, E) ,, (abs ,, app ,, H).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">reflexive_object_category</span>
+  (<span class="nv">X</span> : reflexive_object)
+  : category
+  := pr11 X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">reflexive_object_Terminal</span>
+  (<span class="nv">X</span> : reflexive_object)
+  : Terminal (reflexive_object_category X)
+  := pr121 X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">reflexive_object_BinProducts</span>
+  (<span class="nv">X</span> : reflexive_object)
+  : BinProducts (reflexive_object_category X)
+  := pr221 X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">reflexive_object_object</span>
+  (X : reflexive_object)
+  : reflexive_object_category X
+  := pr112 X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">reflexive_object_exponentiable</span>
+  (<span class="nv">X</span> : reflexive_object)
+  : is_exponentiable (reflexive_object_BinProducts X) X
+  := pr212 X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">reflexive_object_abs</span>
+  (<span class="nv">X</span> : reflexive_object)
+  : exp (reflexive_object_exponentiable X) X --&gt; X
+  := retraction_section (pr22 X).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">reflexive_object_app</span>
+  (<span class="nv">X</span> : reflexive_object)
+  : X --&gt; exp (reflexive_object_exponentiable X) X
+  := pr22 X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">reflexive_object_is_reflexive</span>
+  (<span class="nv">X</span> : reflexive_object)
+  : is_retraction (reflexive_object_abs X) (reflexive_object_app X)
+  := retraction_is_retraction (pr22 X).</span></span></pre>
+</div>
+</div></body>
+</html>

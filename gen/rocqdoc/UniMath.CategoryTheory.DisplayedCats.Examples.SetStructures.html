@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.DisplayedCats.Examples.SetStructures</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.DisplayedCats.Examples.SetStructures</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.All.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Equalizers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Products</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 1. The trivial structure
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="struct_plain_hset_data" class="idref" href="#struct_plain_hset_data"><span class="id" title="definition">struct_plain_hset_data</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_struct_data"><span class="id" title="definition">hset_struct_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:1" class="idref" href="#X:1"><span class="id" title="binder"><span id="X:2" class="id">X</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#unit"><span class="id" title="inductive">unit</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:3" class="idref" href="#X:3"><span class="id" title="binder"><span id="X:8" class="id">X</span></span></a> <a id="Y:4" class="idref" href="#Y:4"><span class="id" title="binder"><span id="Y:9" class="id">Y</span></span></a> <a id="x:5" class="idref" href="#x:5"><span class="id" title="binder"><span id="x:10" class="id">x</span></span></a> <a id="y:6" class="idref" href="#y:6"><span class="id" title="binder"><span id="y:11" class="id">y</span></span></a> <a id="f:7" class="idref" href="#f:7"><span class="id" title="binder"><span id="f:12" class="id">f</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#unit"><span class="id" title="inductive">unit</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="struct_plain_hset_laws" class="idref" href="#struct_plain_hset_laws"><span class="id" title="definition">struct_plain_hset_laws</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_struct_laws"><span class="id" title="definition">hset_struct_laws</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetStructures.html#struct_plain_hset_data"><span class="id" title="definition">struct_plain_hset_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">X</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">px</span> <span class="id" title="var">py</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">px</span> <span class="id" title="var">py</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="struct_plain_hset" class="idref" href="#struct_plain_hset"><span class="id" title="definition">struct_plain_hset</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_struct"><span class="id" title="definition">hset_struct</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetStructures.html#struct_plain_hset_data"><span class="id" title="definition">struct_plain_hset_data</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetStructures.html#struct_plain_hset_laws"><span class="id" title="definition">struct_plain_hset_laws</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 2. The trivial structure is cartesian
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="cartesian_struct_plain_hset_data" class="idref" href="#cartesian_struct_plain_hset_data"><span class="id" title="definition">cartesian_struct_plain_hset_data</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_cartesian_struct_data"><span class="id" title="definition">hset_cartesian_struct_data</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetStructures.html#struct_plain_hset"><span class="id" title="definition">struct_plain_hset</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="cartesian_struct_plain_hset_laws" class="idref" href="#cartesian_struct_plain_hset_laws"><span class="id" title="definition">cartesian_struct_plain_hset_laws</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_cartesian_struct_laws"><span class="id" title="definition">hset_cartesian_struct_laws</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetStructures.html#cartesian_struct_plain_hset_data"><span class="id" title="definition">cartesian_struct_plain_hset_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="cartesian_struct_plain_hset" class="idref" href="#cartesian_struct_plain_hset"><span class="id" title="definition">cartesian_struct_plain_hset</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_cartesian_struct"><span class="id" title="definition">hset_cartesian_struct</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetStructures.html#cartesian_struct_plain_hset_data"><span class="id" title="definition">cartesian_struct_plain_hset_data</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetStructures.html#cartesian_struct_plain_hset_laws"><span class="id" title="definition">cartesian_struct_plain_hset_laws</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 3. The trivial structure is cartesian closed
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="cartesian_closed_struct_plain_hset_data" class="idref" href="#cartesian_closed_struct_plain_hset_data"><span class="id" title="definition">cartesian_closed_struct_plain_hset_data</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#hset_cartesian_closed_struct_data"><span class="id" title="definition">hset_cartesian_closed_struct_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetStructures.html#cartesian_struct_plain_hset"><span class="id" title="definition">cartesian_struct_plain_hset</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="cartesian_closed_struct_plain_hset_laws" class="idref" href="#cartesian_closed_struct_plain_hset_laws"><span class="id" title="definition">cartesian_closed_struct_plain_hset_laws</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#closed_under_fun_laws"><span class="id" title="definition">closed_under_fun_laws</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetStructures.html#cartesian_closed_struct_plain_hset_data"><span class="id" title="definition">cartesian_closed_struct_plain_hset_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="cartesian_closed_struct_plain_hset" class="idref" href="#cartesian_closed_struct_plain_hset"><span class="id" title="definition">cartesian_closed_struct_plain_hset</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#hset_cartesian_closed_struct"><span class="id" title="definition">hset_cartesian_closed_struct</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetStructures.html#cartesian_closed_struct_plain_hset_data"><span class="id" title="definition">cartesian_closed_struct_plain_hset_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetStructures.html#cartesian_closed_struct_plain_hset_laws"><span class="id" title="definition">cartesian_closed_struct_plain_hset_laws</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 4. Some limits and colimits for trivial structures
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="equalizers_struct_plain_hset" class="idref" href="#equalizers_struct_plain_hset"><span class="id" title="definition">equalizers_struct_plain_hset</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#hset_equalizer_struct"><span class="id" title="definition">hset_equalizer_struct</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetStructures.html#struct_plain_hset"><span class="id" title="definition">struct_plain_hset</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="coequalizers_struct_plain_hset" class="idref" href="#coequalizers_struct_plain_hset"><span class="id" title="definition">coequalizers_struct_plain_hset</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#hset_coequalizer_struct"><span class="id" title="definition">hset_coequalizer_struct</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetStructures.html#struct_plain_hset"><span class="id" title="definition">struct_plain_hset</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="type_products_struct_plain_hset" class="idref" href="#type_products_struct_plain_hset"><span class="id" title="definition">type_products_struct_plain_hset</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="I:13" class="idref" href="#I:13"><span class="id" title="binder">I</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#hset_struct_type_prod"><span class="id" title="definition">hset_struct_type_prod</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetStructures.html#struct_plain_hset"><span class="id" title="definition">struct_plain_hset</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.SetStructures.html#I:13"><span class="id" title="variable">I</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

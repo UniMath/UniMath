@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>ListDataType.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** * Example of lists *)</span>
+<span class="sd">(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.MoreFoundations.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Combinatorics.MoreLists.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.Universal.Algebras.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Algebra.Universal.Terms.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> stn.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Indexes for the sorts. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">elem_sort_idx</span>: ⟦ <span class="mi">2</span> ⟧ := ●<span class="mi">0</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">list_sort_idx</span>: ⟦ <span class="mi">2</span> ⟧ := ●<span class="mi">1</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Signature for lists with two symbols: nil and cons constructors. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">list_signature</span>: signature_simple
+  := make_signature_simple
+      [ (nil ,, list_sort_idx) ;
+        ( [elem_sort_idx ; list_sort_idx] ,, list_sort_idx )
+      ]%list.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Names for the constructors. *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">nil_idx</span>: names list_signature := ●<span class="mi">0</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">cons_idx</span>: names list_signature := ●<span class="mi">1</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">list_algebra</span> (<span class="nv">A</span>: UU) : algebra list_signature
+  := make_algebra_simple&#39;
+       list_signature
+       [( A ; list A )]
+       [( nil ; cons )].</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** Correspondence between structures and operations in the universal algebra</span>
+<span class="sd">of lists and standard structures and operations on lists. *)</span>
+
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="listdatatype-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="listdatatype-v-chk0"><span class="kn">Lemma</span> <span class="nf">elem_sort_id</span> (<span class="nv">A</span>: hSet) : support (list_algebra A) elem_sort_idx = A.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">list_algebra A elem_sort_idx = A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="listdatatype-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="listdatatype-v-chk1"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">list_algebra A elem_sort_idx = A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="listdatatype-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="listdatatype-v-chk2"><span class="kn">Lemma</span> <span class="nf">list_sort_id</span> (<span class="nv">A</span>: hSet) : support (list_algebra A) list_sort_idx = listset A.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">list_algebra A list_sort_idx = listset A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="listdatatype-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="listdatatype-v-chk3"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">list_algebra A list_sort_idx = listset A</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">list_nil</span> (<span class="nv">A</span>: hSet) : listset A := ops&#39; (list_algebra A) nil_idx.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="listdatatype-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="listdatatype-v-chk4"><span class="kn">Lemma</span> <span class="nf">list_nil_id</span> : list_nil = @nil.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">list_nil = (<span class="kr">λ</span> <span class="nv">A</span> : hSet, []%list)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="listdatatype-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="listdatatype-v-chk5"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">list_nil = (<span class="kr">λ</span> <span class="nv">A</span> : hSet, []%list)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="listdatatype-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="listdatatype-v-chk6"><span class="kn">Lemma</span> <span class="nf">list_cons_dom_id</span> (<span class="nv">A</span>: hSet)
+  : dom (list_algebra A) cons_idx = dirprod A (dirprod (listset A) unit).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">dom (list_algebra A) cons_idx = (A × listset A × unit)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="listdatatype-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="listdatatype-v-chk7"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>hSet</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">dom (list_algebra A) cons_idx = (A × listset A × unit)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">list_cons</span> (<span class="nv">A</span>: hSet) : A → listset A → listset A
+  := ops&#39; (list_algebra A) cons_idx.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="listdatatype-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="listdatatype-v-chk8"><span class="kn">Lemma</span> <span class="nf">cons_nil_id</span> : list_cons = @cons.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">list_cons = (<span class="kr">λ</span> <span class="nv">A</span> : hSet, cons)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="listdatatype-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="listdatatype-v-chk9"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion">list_cons = (<span class="kr">λ</span> <span class="nv">A</span> : hSet, cons)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

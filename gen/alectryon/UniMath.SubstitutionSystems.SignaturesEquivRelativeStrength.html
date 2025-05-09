@@ -1,0 +1,1580 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>SignaturesEquivRelativeStrength.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** material that was previously located in [Signatures.v]</span>
+
+<span class="sd">the relation between (semantic) signatures and relative strength (considered in TYPES 2015 post-proceedings paper</span>
+<span class="sd">by Ahrens and Matthes)</span>
+
+<span class="sd"> *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.PartD.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.HorizontalComposition.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.BicatOfCatsElementary.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.SubstitutionSystems.<span class="kn">Notation</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.SubstitutionSystems.Signatures.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.ActionBasedStrength.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.PointedFunctorsMonoidal.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> subsys.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">homogeneous_case</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">C</span> : category).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk0"><span class="kn">Local Lemma</span> <span class="nf">auxH1</span> (<span class="nv">H</span> : functor [C, C] [C, C]) (<span class="nv">X</span> : functor C C) :
+  # H
+    (nat_trans_comp
+       (X
+        ∘ nat_z_iso_to_trans_inv
+            (make_nat_z_iso (functor_identity C) (functor_identity C)
+               (nat_trans_id (functor_identity_data C))
+               (is_nat_z_iso_nat_trans_id (functor_identity C))))
+       (nat_trans_id (pr1 X) ø functor_identity_data C)) =
+  identity (H (functor_identity C ∙ X)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>C ⟶ C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># H
+  (nat_trans_comp
+     (X
+      ∘ nat_z_iso_to_trans_inv
+          (make_nat_z_iso (functor_identity C)
+             (functor_identity C)
+             (nat_trans_id (functor_identity_data C))
+             (is_nat_z_iso_nat_trans_id
+                (functor_identity C))))
+     (nat_trans_id (pr1 X) ø functor_identity_data C)) =
+identity (H (functor_identity C ∙ X))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk1"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>C ⟶ C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># H
+  (nat_trans_comp
+     (X
+      ∘ nat_z_iso_to_trans_inv
+          (make_nat_z_iso (functor_identity C)
+             (functor_identity C)
+             (nat_trans_id (functor_identity_data C))
+             (is_nat_z_iso_nat_trans_id
+                (functor_identity C))))
+     (nat_trans_id (pr1 X) ø functor_identity_data C)) =
+identity (H (functor_identity C ∙ X))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk2"><span class="nb">apply</span> functor_id_id.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>C ⟶ C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_comp
+  (X
+   ∘ nat_z_iso_to_trans_inv
+       (make_nat_z_iso (functor_identity C)
+          (functor_identity C)
+          (nat_trans_id (functor_identity_data C))
+          (is_nat_z_iso_nat_trans_id
+             (functor_identity C))))
+  (nat_trans_id (pr1 X) ø functor_identity_data C) =
+identity (functor_identity C ∙ X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk3"><span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>C ⟶ C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_comp
+  (X
+   ∘ nat_z_iso_to_trans_inv
+       (make_nat_z_iso (functor_identity C)
+          (functor_identity C)
+          (nat_trans_id (functor_identity_data C))
+          (is_nat_z_iso_nat_trans_id
+             (functor_identity C))))
+  (nat_trans_id (pr1 X) ø functor_identity_data C) c =
+identity (functor_identity C ∙ X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk4"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>C ⟶ C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (pr1 X) (identity c) · identity (pr1 X c) =
+identity (X c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk5"><span class="nb">rewrite</span> id_right.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>C ⟶ C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (pr1 X) (identity c) = identity (X c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> functor_id.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk6"><span class="kn">Local Lemma</span> <span class="nf">auxH2aux</span> (<span class="nv">X</span> : functor C C) (<span class="nv">Z</span> <span class="nv">Z&#39;</span>: precategory_Ptd C):
+  nat_trans_comp
+       (X ∘ identity (functor_compose (pr1 Z) (pr1 Z&#39;)))
+       (identity(C:=[C, C]) (X) ø (pr1 (functor_compose (pr1 Z) (pr1 Z&#39;)))) =
+    identity (functor_compose (functor_compose (pr1 Z) (pr1 Z&#39;)) X).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>C ⟶ C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>precategory_Ptd C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_comp
+  (X ∘ identity (functor_compose (pr1 Z) (pr1 Z&#39;)))
+  (identity X ø pr1 (functor_compose (pr1 Z) (pr1 Z&#39;))) =
+identity
+  (functor_compose (functor_compose (pr1 Z) (pr1 Z&#39;))
+     X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk7"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>C ⟶ C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>precategory_Ptd C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_comp
+  (X ∘ identity (functor_compose (pr1 Z) (pr1 Z&#39;)))
+  (identity X ø pr1 (functor_compose (pr1 Z) (pr1 Z&#39;))) =
+identity
+  (functor_compose (functor_compose (pr1 Z) (pr1 Z&#39;))
+     X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk8"><span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">intro</span> c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>C ⟶ C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>precategory_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_comp
+  (X ∘ identity (functor_compose (pr1 Z) (pr1 Z&#39;)))
+  (identity X ø pr1 (functor_compose (pr1 Z) (pr1 Z&#39;)))
+  c =
+identity
+  (functor_compose (functor_compose (pr1 Z) (pr1 Z&#39;))
+     X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk9"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>C ⟶ C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>precategory_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (pr1 X) (identity (pr1 Z&#39; (pr1 Z c)))
+· identity (pr1 X (pr1 Z&#39; (pr1 Z c))) =
+identity (X (pr1 Z&#39; (pr1 Z c)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chka"><span class="nb">rewrite</span> id_right.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>C ⟶ C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>precategory_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># (pr1 X) (identity (pr1 Z&#39; (pr1 Z c))) =
+identity (X (pr1 Z&#39; (pr1 Z c)))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> functor_id.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Definition</span> <span class="nf">ptd</span> := monoidal_cat_of_pointedfunctors C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Definition</span> <span class="nf">endo</span> := monoidal_cat_of_endofunctors C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Definition</span> <span class="nf">forget</span> := forgetful_functor_from_ptd_as_strong_monoidal_functor C.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">relative_strength_instantiates_to_signature</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">H</span> : functor [C, C] [C, C])
+          (<span class="nv">rs</span> : rel_strength forget H).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Definition</span> <span class="nf">ϛ</span> : rel_strength_nat forget H := pr1 rs.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Definition</span> <span class="nf">ϛ_pentagon_eq</span> : rel_strength_pentagon_eq forget H ϛ
+    := pr1 (pr2 rs).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Definition</span> <span class="nf">ϛ_rectangle_eq</span> : rel_strength_rectangle_eq forget H ϛ
+    := pr2 (pr2 rs).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Definition</span> <span class="nf">θ</span> : θ_source H ⟹ θ_target H
+    := pre_whisker binswap_pair_functor ϛ.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chkb"><span class="kn">Lemma</span> <span class="nf">signature_from_rel_strength_laws</span> : θ_Strength1_int θ ×
+                                           θ_Strength2_int θ.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">θ_Strength1_int θ × θ_Strength2_int θ</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chkc"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">θ_Strength1_int θ × θ_Strength2_int θ</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chkd"><span class="nb">split</span>; <span class="nb">red</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ X : [C, C],
+θ (X ⊗ id_Ptd C)
+· # H
+    (lunitor_CAT
+       (pr2
+          (binswap_pair_functor
+             (pair_functor (functor_identity [C, C]) U
+                (X ⊗ id_Ptd C))))) =
+lunitor_CAT
+  (pr2
+     (binswap_pair_functor
+        (pair_functor H U (X ⊗ id_Ptd C))))</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="signaturesequivrelativestrength-v-chke" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br></div><label class="goal-separator" for="signaturesequivrelativestrength-v-chke"><hr></label><div class="goal-conclusion">∏ (X : [C, C]) (Z Z&#39; : category_Ptd C),
+θ (X ⊗ Z p• Z&#39;) · # H (rassociator_CAT (U Z) (U Z&#39;) X) =
+lassociator_CAT (U Z) (U Z&#39;) (H X) · θ (X ⊗ Z&#39;) •• U Z
+· θ (functor_compose (U Z&#39;) X ⊗ Z)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chkf">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ X : [C, C],
+θ (X ⊗ id_Ptd C)
+· # H
+    (lunitor_CAT
+       (pr2
+          (binswap_pair_functor
+             (pair_functor (functor_identity [C, C]) U
+                (X ⊗ id_Ptd C))))) =
+lunitor_CAT
+  (pr2
+     (binswap_pair_functor
+        (pair_functor H U (X ⊗ id_Ptd C))))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk10"><span class="nb">intro</span> X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">θ (X ⊗ id_Ptd C)
+· # H
+    (lunitor_CAT
+       (pr2
+          (binswap_pair_functor
+             (pair_functor (functor_identity [C, C]) U
+                (X ⊗ id_Ptd C))))) =
+lunitor_CAT
+  (pr2
+     (binswap_pair_functor
+        (pair_functor H U (X ⊗ id_Ptd C))))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk11"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_comp (pr1 ϛ (id_Ptd C ⊗ X))
+  (# H (lunitor_CAT X)) = lunitor_CAT (H X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk12"><span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_comp (pr1 ϛ (id_Ptd C ⊗ X))
+  (# H (lunitor_CAT X)) c = lunitor_CAT (H X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk13"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (id_Ptd C ⊗ X) c · # H (lunitor_CAT X) c =
+identity (H X c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk14"><span class="nb">assert</span> (Hyp := nat_trans_eq_weq (homset_property C) _ _ (ϛ_pentagon_eq X) c).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>(ϛ
+(MonoidalCategoriesTensored.monoidal_cat_unit
+(monoidal_cat_of_pointedfunctors C) ⊗ X)
+· # H
+(# ActionBasedStrength.timesV
+(catbinprodmor
+(MonoidalFunctorsTensored.strong_monoidal_functor_ϵ_inv forget)
+(identity X)))
+· # H
+(MonoidalCategoriesTensored.left_unitor_funclass
+(pr1 (pr2 (monoidal_cat_of_endofunctors C)))
+(pr1 (pr2 (pr2 (monoidal_cat_of_endofunctors C))))
+ActionBasedStrength.lambda X)) c =
+(# ActionBasedStrength.timesV
+(catbinprodmor
+(MonoidalFunctorsTensored.strong_monoidal_functor_ϵ_inv forget)
+(identity (H X)))
+· MonoidalCategoriesTensored.left_unitor_funclass
+(pr1 (pr2 (monoidal_cat_of_endofunctors C)))
+(pr1 (pr2 (pr2 (monoidal_cat_of_endofunctors C))))
+ActionBasedStrength.lambda (H X)) c</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (id_Ptd C ⊗ X) c · # H (lunitor_CAT X) c =
+identity (H X c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk15"><span class="nb">cbn</span> <span class="kr">in</span> Hyp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>ϛ (id_Ptd C ⊗ X) c
+· # H
+(nat_trans_comp
+(X
+∘ nat_z_iso_to_trans_inv
+(make_nat_z_iso (functor_identity C) (functor_identity C)
+(nat_trans_id (functor_identity_data C))
+(is_nat_z_iso_nat_trans_id (functor_identity_data C))))
+(nat_trans_id X ø functor_identity_data C)) c · # H (nat_trans_id X) c =
+# (pr1 (H X)) (identity c) · identity (H X c) · identity (H X c)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (id_Ptd C ⊗ X) c · # H (lunitor_CAT X) c =
+identity (H X c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk16"><span class="nb">rewrite</span> (functor_id (H X)) <span class="kr">in</span> Hyp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>ϛ (id_Ptd C ⊗ X) c
+· # H
+(nat_trans_comp
+(X
+∘ nat_z_iso_to_trans_inv
+(make_nat_z_iso (functor_identity C) (functor_identity C)
+(nat_trans_id (functor_identity_data C))
+(is_nat_z_iso_nat_trans_id (functor_identity_data C))))
+(nat_trans_id X ø functor_identity_data C)) c · # H (nat_trans_id X) c =
+identity (H X c) · identity (H X c) · identity (H X c)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (id_Ptd C ⊗ X) c · # H (lunitor_CAT X) c =
+identity (H X c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk17"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left <span class="kr">in</span> Hyp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>ϛ (id_Ptd C ⊗ X) c
+· # H
+(nat_trans_comp
+(X
+∘ nat_z_iso_to_trans_inv
+(make_nat_z_iso (functor_identity C) (functor_identity C)
+(nat_trans_id (functor_identity_data C))
+(is_nat_z_iso_nat_trans_id (functor_identity_data C))))
+(nat_trans_id X ø functor_identity_data C)) c · # H (nat_trans_id X) c =
+identity (H X c)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (id_Ptd C ⊗ X) c · # H (lunitor_CAT X) c =
+identity (H X c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk18">etrans; [| <span class="bp">exact</span> Hyp].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>ϛ (id_Ptd C ⊗ X) c
+· # H
+(nat_trans_comp
+(X
+∘ nat_z_iso_to_trans_inv
+(make_nat_z_iso (functor_identity C) (functor_identity C)
+(nat_trans_id (functor_identity_data C))
+(is_nat_z_iso_nat_trans_id (functor_identity_data C))))
+(nat_trans_id X ø functor_identity_data C)) c · # H (nat_trans_id X) c =
+identity (H X c)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (id_Ptd C ⊗ X) c · # H (lunitor_CAT X) c =
+ϛ (id_Ptd C ⊗ X) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_z_iso_to_trans_inv
+            (make_nat_z_iso (functor_identity C)
+               (functor_identity C)
+               (nat_trans_id (functor_identity_data C))
+               (is_nat_z_iso_nat_trans_id
+                  (functor_identity_data C))))
+       (nat_trans_id X ø functor_identity_data C)) c
+· # H (nat_trans_id X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk19"><span class="nb">clear</span> Hyp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (id_Ptd C ⊗ X) c · # H (lunitor_CAT X) c =
+ϛ (id_Ptd C ⊗ X) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_z_iso_to_trans_inv
+            (make_nat_z_iso (functor_identity C)
+               (functor_identity C)
+               (nat_trans_id (functor_identity_data C))
+               (is_nat_z_iso_nat_trans_id
+                  (functor_identity_data C))))
+       (nat_trans_id X ø functor_identity_data C)) c
+· # H (nat_trans_id X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk1a"><span class="nb">rewrite</span> &lt;- assoc.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (id_Ptd C ⊗ X) c · # H (lunitor_CAT X) c =
+ϛ (id_Ptd C ⊗ X) c
+· (# H
+     (nat_trans_comp
+        (X
+         ∘ nat_z_iso_to_trans_inv
+             (make_nat_z_iso (functor_identity C)
+                (functor_identity C)
+                (nat_trans_id
+                   (functor_identity_data C))
+                (is_nat_z_iso_nat_trans_id
+                   (functor_identity_data C))))
+        (nat_trans_id X ø functor_identity_data C)) c
+   · # H (nat_trans_id X) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk1b"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># H (lunitor_CAT X) c =
+# H
+  (nat_trans_comp
+     (X
+      ∘ nat_z_iso_to_trans_inv
+          (make_nat_z_iso (functor_identity C)
+             (functor_identity C)
+             (nat_trans_id (functor_identity_data C))
+             (is_nat_z_iso_nat_trans_id
+                (functor_identity_data C))))
+     (nat_trans_id X ø functor_identity_data C)) c
+· # H (nat_trans_id X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk1c">etrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># H (lunitor_CAT X) c = <span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="signaturesequivrelativestrength-v-chk1d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><label class="goal-separator" for="signaturesequivrelativestrength-v-chk1d"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> =
+# H
+  (nat_trans_comp
+     (X
+      ∘ nat_z_iso_to_trans_inv
+          (make_nat_z_iso (functor_identity C)
+             (functor_identity C)
+             (nat_trans_id (functor_identity_data C))
+             (is_nat_z_iso_nat_trans_id
+                (functor_identity_data C))))
+     (nat_trans_id X ø functor_identity_data C)) c
+· # H (nat_trans_id X) c</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk1e">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># H (lunitor_CAT X) c = <span class="nl">?b</span></div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk1f"><span class="nb">apply</span> pathsinv0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="nl">?b</span> = # H (lunitor_CAT X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> id_left.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk20">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity (H (functor_identity C ∙ X) c)
+· # H (lunitor_CAT X) c =
+# H
+  (nat_trans_comp
+     (X
+      ∘ nat_z_iso_to_trans_inv
+          (make_nat_z_iso (functor_identity C)
+             (functor_identity C)
+             (nat_trans_id (functor_identity_data C))
+             (is_nat_z_iso_nat_trans_id
+                (functor_identity_data C))))
+     (nat_trans_id X ø functor_identity_data C)) c
+· # H (nat_trans_id X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk21"><span class="nb">apply</span> cancel_postcomposition.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity (H (functor_identity C ∙ X) c) =
+# H
+  (nat_trans_comp
+     (X
+      ∘ nat_z_iso_to_trans_inv
+          (make_nat_z_iso (functor_identity C)
+             (functor_identity C)
+             (nat_trans_id (functor_identity_data C))
+             (is_nat_z_iso_nat_trans_id
+                (functor_identity_data C))))
+     (nat_trans_id X ø functor_identity_data C)) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk22"><span class="nb">apply</span> pathsinv0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># H
+  (nat_trans_comp
+     (X
+      ∘ nat_z_iso_to_trans_inv
+          (make_nat_z_iso (functor_identity C)
+             (functor_identity C)
+             (nat_trans_id (functor_identity_data C))
+             (is_nat_z_iso_nat_trans_id
+                (functor_identity_data C))))
+     (nat_trans_id X ø functor_identity_data C)) c =
+identity (H (functor_identity C ∙ X) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (nat_trans_eq_weq (homset_property C) _ _ (auxH1 H X) c).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk23">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">∏ (X : [C, C]) (Z Z&#39; : category_Ptd C),
+θ (X ⊗ Z p• Z&#39;) · # H (rassociator_CAT (U Z) (U Z&#39;) X) =
+lassociator_CAT (U Z) (U Z&#39;) (H X) · θ (X ⊗ Z&#39;) •• U Z
+· θ (functor_compose (U Z&#39;) X ⊗ Z)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk24"><span class="nb">intros</span> X Z Z&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">θ (X ⊗ Z p• Z&#39;) · # H (rassociator_CAT (U Z) (U Z&#39;) X) =
+lassociator_CAT (U Z) (U Z&#39;) (H X) · θ (X ⊗ Z&#39;) •• U Z
+· θ (functor_compose (U Z&#39;) X ⊗ Z)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk25"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_comp (pr1 ϛ (Z p• Z&#39; ⊗ X))
+  (# H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X)) =
+nat_trans_comp
+  (nat_trans_comp
+     (lassociator_CAT (pr1 Z) (pr1 Z&#39;) (H X))
+     (pre_whisker_in_funcat C C C (pr1 Z)
+        (pr1 ϛ (Z&#39; ⊗ X))))
+  (pr1 ϛ (Z ⊗ functor_compose (pr1 Z&#39;) X))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk26"><span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> homset_property; <span class="nb">intro</span> c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_comp (pr1 ϛ (Z p• Z&#39; ⊗ X))
+  (# H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X)) c =
+nat_trans_comp
+  (nat_trans_comp
+     (lassociator_CAT (pr1 Z) (pr1 Z&#39;) (H X))
+     (pre_whisker_in_funcat C C C (pr1 Z)
+        (pr1 ϛ (Z&#39; ⊗ X))))
+  (pr1 ϛ (Z ⊗ functor_compose (pr1 Z&#39;) X)) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk27" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk27"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (Z p• Z&#39; ⊗ X) c
+· # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c =
+identity (H X (pr1 Z&#39; (pr1 Z c)))
+· pr1 (pr1 ϛ (Z&#39; ⊗ X)) (pr1 (pr1 Z) c)
+· pr1 ϛ (Z ⊗ functor_compose (pr1 Z&#39;) X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk28" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk28"><span class="nb">rewrite</span> id_left.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (Z p• Z&#39; ⊗ X) c
+· # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c =
+pr1 (pr1 ϛ (Z&#39; ⊗ X)) (pr1 (pr1 Z) c)
+· pr1 ϛ (Z ⊗ functor_compose (pr1 Z&#39;) X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk29" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk29"><span class="nb">assert</span> (Hyp := nat_trans_eq_weq (homset_property C) _ _ (ϛ_rectangle_eq Z Z&#39; X) c).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>(ϛ (ActionBasedStrength.timesW (Z ⊗ Z&#39;) ⊗ X)
+· # H
+(# ActionBasedStrength.timesV
+(catbinprodmor
+(MonoidalFunctorsTensored.strong_monoidal_functor_μ_inv forget
+(Z ⊗ Z&#39;)) (identity X)))
+· # H
+(MonoidalCategoriesTensored.associator_funclass
+(pr1 (pr2 (monoidal_cat_of_endofunctors C)))
+ActionBasedStrength.alpha
+(MonoidalFunctorsTensored.lax_monoidal_functor_functor
+(monoidal_cat_of_pointedfunctors C)
+(monoidal_cat_of_endofunctors C)
+(MonoidalFunctorsTensored.strong_monoidal_functor_lax_monoidal_functor
+(monoidal_cat_of_pointedfunctors C)
+(monoidal_cat_of_endofunctors C) forget) Z
+⊗ MonoidalFunctorsTensored.lax_monoidal_functor_functor
+(monoidal_cat_of_pointedfunctors C)
+(monoidal_cat_of_endofunctors C)
+(MonoidalFunctorsTensored.strong_monoidal_functor_lax_monoidal_functor
+(monoidal_cat_of_pointedfunctors C)
+(monoidal_cat_of_endofunctors C) forget) Z&#39; ⊗ X))) c =
+(# ActionBasedStrength.timesV
+(catbinprodmor
+(MonoidalFunctorsTensored.strong_monoidal_functor_μ_inv forget (Z ⊗ Z&#39;))
+(identity (H X)))
+· MonoidalCategoriesTensored.associator_funclass
+(pr1 (pr2 (monoidal_cat_of_endofunctors C))) ActionBasedStrength.alpha
+(MonoidalFunctorsTensored.lax_monoidal_functor_functor
+(monoidal_cat_of_pointedfunctors C) (monoidal_cat_of_endofunctors C)
+(MonoidalFunctorsTensored.strong_monoidal_functor_lax_monoidal_functor
+(monoidal_cat_of_pointedfunctors C)
+(monoidal_cat_of_endofunctors C) forget) Z
+⊗ MonoidalFunctorsTensored.lax_monoidal_functor_functor
+(monoidal_cat_of_pointedfunctors C)
+(monoidal_cat_of_endofunctors C)
+(MonoidalFunctorsTensored.strong_monoidal_functor_lax_monoidal_functor
+(monoidal_cat_of_pointedfunctors C)
+(monoidal_cat_of_endofunctors C) forget) Z&#39; ⊗ H X)
+· # ActionBasedStrength.timesV
+(catbinprodmor
+(identity
+(MonoidalFunctorsTensored.lax_monoidal_functor_functor
+(monoidal_cat_of_pointedfunctors C)
+(monoidal_cat_of_endofunctors C)
+(MonoidalFunctorsTensored.strong_monoidal_functor_lax_monoidal_functor
+(monoidal_cat_of_pointedfunctors C)
+(monoidal_cat_of_endofunctors C) forget) Z)) (ϛ (Z&#39; ⊗ X)))
+· ϛ
+(Z
+⊗ ActionBasedStrength.timesV
+(MonoidalFunctorsTensored.lax_monoidal_functor_functor
+(monoidal_cat_of_pointedfunctors C)
+(monoidal_cat_of_endofunctors C)
+(MonoidalFunctorsTensored.strong_monoidal_functor_lax_monoidal_functor
+(monoidal_cat_of_pointedfunctors C)
+(monoidal_cat_of_endofunctors C) forget) Z&#39; ⊗ X))) c</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (Z p• Z&#39; ⊗ X) c
+· # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c =
+pr1 (pr1 ϛ (Z&#39; ⊗ X)) (pr1 (pr1 Z) c)
+· pr1 ϛ (Z ⊗ functor_compose (pr1 Z&#39;) X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk2a" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk2a"><span class="nb">cbn</span> <span class="kr">in</span> Hyp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>ϛ (Z p• Z&#39; ⊗ X) c
+· # H
+(nat_trans_comp
+(X ∘ nat_trans_id (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+(nat_trans_id X ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+(nat_trans_id
+(functor_composite_data (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+c =
+# (pr1 (H X)) (identity (pr1 Z&#39; (pr1 Z c)))
+· identity (H X (pr1 Z&#39; (pr1 Z c))) · identity (H X (pr1 Z&#39; (pr1 Z c)))
+· (# (H X) (# (pr1 Z&#39;) (identity (pr1 Z c)))
+· pr1 (ϛ (Z&#39; ⊗ X)) (pr1 (pr1 Z) c)) · ϛ (Z ⊗ pr1 Z&#39; ∙ X) c</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (Z p• Z&#39; ⊗ X) c
+· # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c =
+pr1 (pr1 ϛ (Z&#39; ⊗ X)) (pr1 (pr1 Z) c)
+· pr1 ϛ (Z ⊗ functor_compose (pr1 Z&#39;) X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk2b" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk2b"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_id <span class="kr">in</span> Hyp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>ϛ (Z p• Z&#39; ⊗ X) c
+· # H
+(nat_trans_comp
+(X ∘ nat_trans_id (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+(nat_trans_id X ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+(nat_trans_id
+(functor_composite_data (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+c =
+# (pr1 (H X)) (identity (pr1 Z&#39; (pr1 Z c)))
+· identity (H X (pr1 Z&#39; (pr1 Z c))) · identity (H X (pr1 Z&#39; (pr1 Z c)))
+· (identity (H X (pr1 Z&#39; (pr1 Z c))) · pr1 (ϛ (Z&#39; ⊗ X)) (pr1 (pr1 Z) c))
+· ϛ (Z ⊗ pr1 Z&#39; ∙ X) c</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (Z p• Z&#39; ⊗ X) c
+· # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c =
+pr1 (pr1 ϛ (Z&#39; ⊗ X)) (pr1 (pr1 Z) c)
+· pr1 ϛ (Z ⊗ functor_compose (pr1 Z&#39;) X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk2c" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk2c"><span class="nb">rewrite</span> (functor_id (H X)) <span class="kr">in</span> Hyp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>ϛ (Z p• Z&#39; ⊗ X) c
+· # H
+(nat_trans_comp
+(X ∘ nat_trans_id (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+(nat_trans_id X ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+(nat_trans_id
+(functor_composite_data (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+c =
+identity (H X (pr1 Z&#39; (pr1 Z c))) · identity (H X (pr1 Z&#39; (pr1 Z c)))
+· identity (H X (pr1 Z&#39; (pr1 Z c)))
+· (identity (H X (pr1 Z&#39; (pr1 Z c))) · pr1 (ϛ (Z&#39; ⊗ X)) (pr1 (pr1 Z) c))
+· ϛ (Z ⊗ pr1 Z&#39; ∙ X) c</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (Z p• Z&#39; ⊗ X) c
+· # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c =
+pr1 (pr1 ϛ (Z&#39; ⊗ X)) (pr1 (pr1 Z) c)
+· pr1 ϛ (Z ⊗ functor_compose (pr1 Z&#39;) X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk2d" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk2d"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right <span class="kr">in</span> Hyp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>ϛ (Z p• Z&#39; ⊗ X) c
+· # H
+(nat_trans_comp
+(X ∘ nat_trans_id (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+(nat_trans_id X ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+(nat_trans_id
+(functor_composite_data (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+c =
+identity (H X (pr1 Z&#39; (pr1 Z c)))
+· (identity (H X (pr1 Z&#39; (pr1 Z c))) · pr1 (ϛ (Z&#39; ⊗ X)) (pr1 (pr1 Z) c))
+· ϛ (Z ⊗ pr1 Z&#39; ∙ X) c</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (Z p• Z&#39; ⊗ X) c
+· # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c =
+pr1 (pr1 ϛ (Z&#39; ⊗ X)) (pr1 (pr1 Z) c)
+· pr1 ϛ (Z ⊗ functor_compose (pr1 Z&#39;) X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk2e" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk2e"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left <span class="kr">in</span> Hyp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>ϛ (Z p• Z&#39; ⊗ X) c
+· # H
+(nat_trans_comp
+(X ∘ nat_trans_id (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+(nat_trans_id X ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+(nat_trans_id
+(functor_composite_data (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+c = pr1 (ϛ (Z&#39; ⊗ X)) (pr1 (pr1 Z) c) · ϛ (Z ⊗ pr1 Z&#39; ∙ X) c</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (Z p• Z&#39; ⊗ X) c
+· # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c =
+pr1 (pr1 ϛ (Z&#39; ⊗ X)) (pr1 (pr1 Z) c)
+· pr1 ϛ (Z ⊗ functor_compose (pr1 Z&#39;) X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk2f" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk2f">etrans; [| <span class="bp">exact</span> Hyp ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>ϛ (Z p• Z&#39; ⊗ X) c
+· # H
+(nat_trans_comp
+(X ∘ nat_trans_id (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+(nat_trans_id X ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+(nat_trans_id
+(functor_composite_data (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+c = pr1 (ϛ (Z&#39; ⊗ X)) (pr1 (pr1 Z) c) · ϛ (Z ⊗ pr1 Z&#39; ∙ X) c</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (Z p• Z&#39; ⊗ X) c
+· # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c =
+ϛ (Z p• Z&#39; ⊗ X) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+    (nat_trans_id
+       (functor_composite_data
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+    c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk30" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk30"><span class="nb">clear</span> Hyp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (Z p• Z&#39; ⊗ X) c
+· # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c =
+ϛ (Z p• Z&#39; ⊗ X) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+    (nat_trans_id
+       (functor_composite_data
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+    c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk31" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk31"><span class="nb">apply</span> cancel_postcomposition.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (Z p• Z&#39; ⊗ X) c =
+ϛ (Z p• Z&#39; ⊗ X) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk32" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk32">etrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (Z p• Z&#39; ⊗ X) c = <span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="signaturesequivrelativestrength-v-chk33" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><label class="goal-separator" for="signaturesequivrelativestrength-v-chk33"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> =
+ϛ (Z p• Z&#39; ⊗ X) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk34" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk34">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (Z p• Z&#39; ⊗ X) c = <span class="nl">?b</span></div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk35" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk35"><span class="nb">apply</span> pathsinv0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="nl">?b</span> = pr1 ϛ (Z p• Z&#39; ⊗ X) c</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> id_right.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk36" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk36">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 ϛ (Z p• Z&#39; ⊗ X) c
+· identity
+    (H (functor_compose (pr1 Z) (pr1 Z&#39;) ∙ X) c) =
+ϛ (Z p• Z&#39; ⊗ X) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk37" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk37"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity (H (functor_compose (pr1 Z) (pr1 Z&#39;) ∙ X) c) =
+# H
+  (nat_trans_comp
+     (X
+      ∘ nat_trans_id
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+     (nat_trans_id X
+      ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk38" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk38"><span class="nb">apply</span> pathsinv0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># H
+  (nat_trans_comp
+     (X
+      ∘ nat_trans_id
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+     (nat_trans_id X
+      ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c =
+identity (H (functor_compose (pr1 Z) (pr1 Z&#39;) ∙ X) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk39" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk39">etrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># H
+  (nat_trans_comp
+     (X
+      ∘ nat_trans_id
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+     (nat_trans_id X
+      ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c =
+<span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="signaturesequivrelativestrength-v-chk3a" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><label class="goal-separator" for="signaturesequivrelativestrength-v-chk3a"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> =
+identity (H (functor_compose (pr1 Z) (pr1 Z&#39;) ∙ X) c)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk3b" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk3b">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># H
+  (nat_trans_comp
+     (X
+      ∘ nat_trans_id
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+     (nat_trans_id X
+      ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c =
+<span class="nl">?b</span></div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk3c" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk3c">use (maponpaths (<span class="kr">fun</span> <span class="nv">x</span> =&gt; pr1 (# H x) c)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C, C] ⟦ functor_compose (pr1 Z) (pr1 Z&#39;) ∙ X,
+functor_compose (pr1 Z) (pr1 Z&#39;) ∙ X ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="signaturesequivrelativestrength-v-chk3d" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><label class="goal-separator" for="signaturesequivrelativestrength-v-chk3d"><hr></label><div class="goal-conclusion">nat_trans_comp
+  (X
+   ∘ nat_trans_id
+       (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+  (nat_trans_id X
+   ø functor_composite_data (pr1 Z) (pr1 Z&#39;)) = <span class="nl">?t2</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk3e" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk3e">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C, C] ⟦ functor_compose (pr1 Z) (pr1 Z&#39;) ∙ X,
+functor_compose (pr1 Z) (pr1 Z&#39;) ∙ X ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (identity (functor_compose (functor_compose (pr1 Z) (pr1 Z&#39;)) X)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk3f" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk3f">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_comp
+  (X
+   ∘ nat_trans_id
+       (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+  (nat_trans_id X
+   ø functor_composite_data (pr1 Z) (pr1 Z&#39;)) =
+identity
+  (functor_compose (functor_compose (pr1 Z) (pr1 Z&#39;))
+     X)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> auxH2aux.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk40" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk40">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (# H
+     (identity
+        (functor_compose
+           (functor_compose (pr1 Z) (pr1 Z&#39;)) X))) c =
+identity (H (functor_compose (pr1 Z) (pr1 Z&#39;) ∙ X) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk41" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk41"><span class="nb">rewrite</span> functor_id.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>[C, C]</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>category_Ptd C</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (identity
+     (H
+        (functor_compose
+           (functor_compose (pr1 Z) (pr1 Z&#39;)) X))) c =
+identity (H (functor_compose (pr1 Z) (pr1 Z&#39;) ∙ X) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk42" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk42"><span class="kn">Definition</span> <span class="nf">signature_from_rel_strength</span> : Signature C C C.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Signature C C C</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk43" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk43"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">Signature C C C</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk44" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk44"><span class="kr">exists</span> <span class="nv">H</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">StrengthForSignature H</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk45" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk45"><span class="kr">exists</span> <span class="nv">θ</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>H</var><span class="hyp-type"><b>: </b><span>[C, C] ⟶ [C, C]</span></span></span><br><span><var>rs</var><span class="hyp-type"><b>: </b><span>rel_strength forget H</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">θ_Strength1_int θ × θ_Strength2_int θ</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> signature_from_rel_strength_laws.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">relative_strength_instantiates_to_signature</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">strength_in_signature_is_a_relative_strength</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">sig</span> : Signature C C C).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Definition</span> <span class="nf">H</span> := pr1 sig.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Definition</span> <span class="nf">θ&#39;</span> := pr1 (pr2 sig).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Definition</span> <span class="nf">ϛ&#39;</span> : rel_strength_nat forget H := pre_whisker binswap_pair_functor θ&#39;.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Definition</span> <span class="nf">θ&#39;_strength_law1</span> := Sig_strength_law1 sig.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local Definition</span> <span class="nf">θ&#39;_strength_law2</span> := Sig_strength_law2 sig.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk46" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk46"><span class="kn">Lemma</span> <span class="nf">rel_strength_from_signature_laws</span> : rel_strength_pentagon_eq forget H ϛ&#39; ×
+                                           rel_strength_rectangle_eq forget H ϛ&#39;.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">rel_strength_pentagon_eq forget H ϛ&#39;
+× rel_strength_rectangle_eq forget H ϛ&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk47" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk47"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">rel_strength_pentagon_eq forget H ϛ&#39;
+× rel_strength_rectangle_eq forget H ϛ&#39;</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk48" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk48"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">rel_strength_pentagon_eq forget H ϛ&#39;</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="signaturesequivrelativestrength-v-chk49" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br></div><label class="goal-separator" for="signaturesequivrelativestrength-v-chk49"><hr></label><div class="goal-conclusion">rel_strength_rectangle_eq forget H ϛ&#39;</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk4a" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk4a">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">rel_strength_pentagon_eq forget H ϛ&#39;</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk4b" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk4b"><span class="nb">intro</span> X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">ϛ&#39;
+  (MonoidalCategoriesTensored.monoidal_cat_unit
+     (monoidal_cat_of_pointedfunctors C) ⊗ X)
+· # H
+    (# ActionBasedStrength.timesV
+       (catbinprodmor
+          (MonoidalFunctorsTensored.strong_monoidal_functor_ϵ_inv
+             forget) (identity X)))
+· # H
+    (MonoidalCategoriesTensored.left_unitor_funclass
+       (pr1 (pr2 (monoidal_cat_of_endofunctors C)))
+       (pr1
+          (pr2 (pr2 (monoidal_cat_of_endofunctors C))))
+       ActionBasedStrength.lambda X) =
+# ActionBasedStrength.timesV
+  (catbinprodmor
+     (MonoidalFunctorsTensored.strong_monoidal_functor_ϵ_inv
+        forget) (identity (H X)))
+· MonoidalCategoriesTensored.left_unitor_funclass
+    (pr1 (pr2 (monoidal_cat_of_endofunctors C)))
+    (pr1 (pr2 (pr2 (monoidal_cat_of_endofunctors C))))
+    ActionBasedStrength.lambda (H X)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk4c" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk4c"><span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(ϛ&#39;
+   (MonoidalCategoriesTensored.monoidal_cat_unit
+      (monoidal_cat_of_pointedfunctors C) ⊗ X)
+ · # H
+     (# ActionBasedStrength.timesV
+        (catbinprodmor
+           (MonoidalFunctorsTensored.strong_monoidal_functor_ϵ_inv
+              forget) (identity X)))
+ · # H
+     (MonoidalCategoriesTensored.left_unitor_funclass
+        (pr1 (pr2 (monoidal_cat_of_endofunctors C)))
+        (pr1
+           (pr2 (pr2 (monoidal_cat_of_endofunctors C))))
+        ActionBasedStrength.lambda X)) c =
+(# ActionBasedStrength.timesV
+   (catbinprodmor
+      (MonoidalFunctorsTensored.strong_monoidal_functor_ϵ_inv
+         forget) (identity (H X)))
+ · MonoidalCategoriesTensored.left_unitor_funclass
+     (pr1 (pr2 (monoidal_cat_of_endofunctors C)))
+     (pr1 (pr2 (pr2 (monoidal_cat_of_endofunctors C))))
+     ActionBasedStrength.lambda (H X)) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk4d" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk4d"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39; (X ⊗ id_Ptd C) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_z_iso_to_trans_inv
+            (make_nat_z_iso (functor_identity C)
+               (functor_identity C)
+               (nat_trans_id (functor_identity_data C))
+               (is_nat_z_iso_nat_trans_id
+                  (functor_identity_data C))))
+       (nat_trans_id X ø functor_identity_data C)) c
+· # H (nat_trans_id X) c =
+# (pr1 (H X)) (identity c) · identity (H X c)
+· identity (H X c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk4e" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk4e"><span class="nb">assert</span> (Hyp := nat_trans_eq_weq (homset_property C) _ _ (θ&#39;_strength_law1 X) c).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>(pr1 (pr2 sig) (X ⊗ id_Ptd C)
+· # (pr1 sig)
+(lunitor_CAT
+(pr2
+(binswap_pair_functor
+(pair_functor (functor_identity [C, C]) U (X ⊗ id_Ptd C)))))) c =
+lunitor_CAT
+(pr2 (binswap_pair_functor (pair_functor (pr1 sig) U (X ⊗ id_Ptd C)))) c</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39; (X ⊗ id_Ptd C) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_z_iso_to_trans_inv
+            (make_nat_z_iso (functor_identity C)
+               (functor_identity C)
+               (nat_trans_id (functor_identity_data C))
+               (is_nat_z_iso_nat_trans_id
+                  (functor_identity_data C))))
+       (nat_trans_id X ø functor_identity_data C)) c
+· # H (nat_trans_id X) c =
+# (pr1 (H X)) (identity c) · identity (H X c)
+· identity (H X c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk4f" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk4f"><span class="nb">cbn</span> <span class="kr">in</span> Hyp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>pr1 (pr2 sig) (X ⊗ id_Ptd C) c · # (pr1 sig) (lunitor_CAT X) c =
+identity (pr1 sig X c)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39; (X ⊗ id_Ptd C) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_z_iso_to_trans_inv
+            (make_nat_z_iso (functor_identity C)
+               (functor_identity C)
+               (nat_trans_id (functor_identity_data C))
+               (is_nat_z_iso_nat_trans_id
+                  (functor_identity_data C))))
+       (nat_trans_id X ø functor_identity_data C)) c
+· # H (nat_trans_id X) c =
+# (pr1 (H X)) (identity c) · identity (H X c)
+· identity (H X c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk50" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk50"><span class="nb">fold</span> θ&#39; H <span class="kr">in</span> Hyp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>θ&#39; (X ⊗ id_Ptd C) c · # H (lunitor_CAT X) c = identity (H X c)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39; (X ⊗ id_Ptd C) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_z_iso_to_trans_inv
+            (make_nat_z_iso (functor_identity C)
+               (functor_identity C)
+               (nat_trans_id (functor_identity_data C))
+               (is_nat_z_iso_nat_trans_id
+                  (functor_identity_data C))))
+       (nat_trans_id X ø functor_identity_data C)) c
+· # H (nat_trans_id X) c =
+# (pr1 (H X)) (identity c) · identity (H X c)
+· identity (H X c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk51" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk51"><span class="nb">rewrite</span> (functor_id (H X)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>θ&#39; (X ⊗ id_Ptd C) c · # H (lunitor_CAT X) c = identity (H X c)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39; (X ⊗ id_Ptd C) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_z_iso_to_trans_inv
+            (make_nat_z_iso (functor_identity C)
+               (functor_identity C)
+               (nat_trans_id (functor_identity_data C))
+               (is_nat_z_iso_nat_trans_id
+                  (functor_identity_data C))))
+       (nat_trans_id X ø functor_identity_data C)) c
+· # H (nat_trans_id X) c =
+identity (H X c) · identity (H X c) · identity (H X c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk52" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk52"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>θ&#39; (X ⊗ id_Ptd C) c · # H (lunitor_CAT X) c = identity (H X c)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39; (X ⊗ id_Ptd C) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_z_iso_to_trans_inv
+            (make_nat_z_iso (functor_identity C)
+               (functor_identity C)
+               (nat_trans_id (functor_identity_data C))
+               (is_nat_z_iso_nat_trans_id
+                  (functor_identity_data C))))
+       (nat_trans_id X ø functor_identity_data C)) c
+· # H (nat_trans_id X) c = identity (H X c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk53" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk53">etrans; [| <span class="bp">exact</span> Hyp ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>θ&#39; (X ⊗ id_Ptd C) c · # H (lunitor_CAT X) c = identity (H X c)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39; (X ⊗ id_Ptd C) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_z_iso_to_trans_inv
+            (make_nat_z_iso (functor_identity C)
+               (functor_identity C)
+               (nat_trans_id (functor_identity_data C))
+               (is_nat_z_iso_nat_trans_id
+                  (functor_identity_data C))))
+       (nat_trans_id X ø functor_identity_data C)) c
+· # H (nat_trans_id X) c =
+θ&#39; (X ⊗ id_Ptd C) c · # H (lunitor_CAT X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk54" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk54"><span class="nb">clear</span> Hyp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39; (X ⊗ id_Ptd C) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_z_iso_to_trans_inv
+            (make_nat_z_iso (functor_identity C)
+               (functor_identity C)
+               (nat_trans_id (functor_identity_data C))
+               (is_nat_z_iso_nat_trans_id
+                  (functor_identity_data C))))
+       (nat_trans_id X ø functor_identity_data C)) c
+· # H (nat_trans_id X) c =
+θ&#39; (X ⊗ id_Ptd C) c · # H (lunitor_CAT X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk55" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk55"><span class="nb">rewrite</span> &lt;- assoc.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39; (X ⊗ id_Ptd C) c
+· (# H
+     (nat_trans_comp
+        (X
+         ∘ nat_z_iso_to_trans_inv
+             (make_nat_z_iso (functor_identity C)
+                (functor_identity C)
+                (nat_trans_id
+                   (functor_identity_data C))
+                (is_nat_z_iso_nat_trans_id
+                   (functor_identity_data C))))
+        (nat_trans_id X ø functor_identity_data C)) c
+   · # H (nat_trans_id X) c) =
+θ&#39; (X ⊗ id_Ptd C) c · # H (lunitor_CAT X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk56" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk56"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># H
+  (nat_trans_comp
+     (X
+      ∘ nat_z_iso_to_trans_inv
+          (make_nat_z_iso (functor_identity C)
+             (functor_identity C)
+             (nat_trans_id (functor_identity_data C))
+             (is_nat_z_iso_nat_trans_id
+                (functor_identity_data C))))
+     (nat_trans_id X ø functor_identity_data C)) c
+· # H (nat_trans_id X) c = # H (lunitor_CAT X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk57" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk57"><span class="nb">apply</span> pathsinv0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># H (lunitor_CAT X) c =
+# H
+  (nat_trans_comp
+     (X
+      ∘ nat_z_iso_to_trans_inv
+          (make_nat_z_iso (functor_identity C)
+             (functor_identity C)
+             (nat_trans_id (functor_identity_data C))
+             (is_nat_z_iso_nat_trans_id
+                (functor_identity_data C))))
+     (nat_trans_id X ø functor_identity_data C)) c
+· # H (nat_trans_id X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk58" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk58">etrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># H (lunitor_CAT X) c = <span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="signaturesequivrelativestrength-v-chk59" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><label class="goal-separator" for="signaturesequivrelativestrength-v-chk59"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> =
+# H
+  (nat_trans_comp
+     (X
+      ∘ nat_z_iso_to_trans_inv
+          (make_nat_z_iso (functor_identity C)
+             (functor_identity C)
+             (nat_trans_id (functor_identity_data C))
+             (is_nat_z_iso_nat_trans_id
+                (functor_identity_data C))))
+     (nat_trans_id X ø functor_identity_data C)) c
+· # H (nat_trans_id X) c</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk5a" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk5a">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># H (lunitor_CAT X) c = <span class="nl">?b</span></div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk5b" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk5b"><span class="nb">apply</span> pathsinv0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="nl">?b</span> = # H (lunitor_CAT X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> id_left.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk5c" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk5c">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity (H (functor_identity C ∙ X) c)
+· # H (lunitor_CAT X) c =
+# H
+  (nat_trans_comp
+     (X
+      ∘ nat_z_iso_to_trans_inv
+          (make_nat_z_iso (functor_identity C)
+             (functor_identity C)
+             (nat_trans_id (functor_identity_data C))
+             (is_nat_z_iso_nat_trans_id
+                (functor_identity_data C))))
+     (nat_trans_id X ø functor_identity_data C)) c
+· # H (nat_trans_id X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk5d" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk5d"><span class="nb">apply</span> cancel_postcomposition.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">identity (H (functor_identity C ∙ X) c) =
+# H
+  (nat_trans_comp
+     (X
+      ∘ nat_z_iso_to_trans_inv
+          (make_nat_z_iso (functor_identity C)
+             (functor_identity C)
+             (nat_trans_id (functor_identity_data C))
+             (is_nat_z_iso_nat_trans_id
+                (functor_identity_data C))))
+     (nat_trans_id X ø functor_identity_data C)) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk5e" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk5e"><span class="nb">apply</span> pathsinv0.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># H
+  (nat_trans_comp
+     (X
+      ∘ nat_z_iso_to_trans_inv
+          (make_nat_z_iso (functor_identity C)
+             (functor_identity C)
+             (nat_trans_id (functor_identity_data C))
+             (is_nat_z_iso_nat_trans_id
+                (functor_identity_data C))))
+     (nat_trans_id X ø functor_identity_data C)) c =
+identity (H (functor_identity C ∙ X) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (nat_trans_eq_weq (homset_property C) _ _ (auxH1 H X) c).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk5f" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk5f">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">rel_strength_rectangle_eq forget H ϛ&#39;</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk60" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk60"><span class="nb">intros</span> Z Z&#39; X.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">ϛ&#39; (ActionBasedStrength.timesW (Z ⊗ Z&#39;) ⊗ X)
+· # H
+    (# ActionBasedStrength.timesV
+       (catbinprodmor
+          (MonoidalFunctorsTensored.strong_monoidal_functor_μ_inv
+             forget (Z ⊗ Z&#39;)) (identity X)))
+· # H
+    (MonoidalCategoriesTensored.associator_funclass
+       (pr1 (pr2 (monoidal_cat_of_endofunctors C)))
+       ActionBasedStrength.alpha
+       (MonoidalFunctorsTensored.lax_monoidal_functor_functor
+          (monoidal_cat_of_pointedfunctors C)
+          (monoidal_cat_of_endofunctors C)
+          (MonoidalFunctorsTensored.strong_monoidal_functor_lax_monoidal_functor
+             (monoidal_cat_of_pointedfunctors C)
+             (monoidal_cat_of_endofunctors C) forget)
+          Z
+        ⊗ MonoidalFunctorsTensored.lax_monoidal_functor_functor
+            (monoidal_cat_of_pointedfunctors C)
+            (monoidal_cat_of_endofunctors C)
+            (MonoidalFunctorsTensored.strong_monoidal_functor_lax_monoidal_functor
+               (monoidal_cat_of_pointedfunctors C)
+               (monoidal_cat_of_endofunctors C) forget)
+            Z&#39; ⊗ X)) =
+# ActionBasedStrength.timesV
+  (catbinprodmor
+     (MonoidalFunctorsTensored.strong_monoidal_functor_μ_inv
+        forget (Z ⊗ Z&#39;)) (identity (H X)))
+· MonoidalCategoriesTensored.associator_funclass
+    (pr1 (pr2 (monoidal_cat_of_endofunctors C)))
+    ActionBasedStrength.alpha
+    (MonoidalFunctorsTensored.lax_monoidal_functor_functor
+       (monoidal_cat_of_pointedfunctors C)
+       (monoidal_cat_of_endofunctors C)
+       (MonoidalFunctorsTensored.strong_monoidal_functor_lax_monoidal_functor
+          (monoidal_cat_of_pointedfunctors C)
+          (monoidal_cat_of_endofunctors C) forget) Z
+     ⊗ MonoidalFunctorsTensored.lax_monoidal_functor_functor
+         (monoidal_cat_of_pointedfunctors C)
+         (monoidal_cat_of_endofunctors C)
+         (MonoidalFunctorsTensored.strong_monoidal_functor_lax_monoidal_functor
+            (monoidal_cat_of_pointedfunctors C)
+            (monoidal_cat_of_endofunctors C) forget)
+         Z&#39; ⊗ H X)
+· # ActionBasedStrength.timesV
+    (catbinprodmor
+       (identity
+          (MonoidalFunctorsTensored.lax_monoidal_functor_functor
+             (monoidal_cat_of_pointedfunctors C)
+             (monoidal_cat_of_endofunctors C)
+             (MonoidalFunctorsTensored.strong_monoidal_functor_lax_monoidal_functor
+                (monoidal_cat_of_pointedfunctors C)
+                (monoidal_cat_of_endofunctors C)
+                forget) Z)) (ϛ&#39; (Z&#39; ⊗ X)))
+· ϛ&#39;
+    (Z
+     ⊗ ActionBasedStrength.timesV
+         (MonoidalFunctorsTensored.lax_monoidal_functor_functor
+            (monoidal_cat_of_pointedfunctors C)
+            (monoidal_cat_of_endofunctors C)
+            (MonoidalFunctorsTensored.strong_monoidal_functor_lax_monoidal_functor
+               (monoidal_cat_of_pointedfunctors C)
+               (monoidal_cat_of_endofunctors C) forget)
+            Z&#39; ⊗ X))</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk61" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk61"><span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(ϛ&#39; (ActionBasedStrength.timesW (Z ⊗ Z&#39;) ⊗ X)
+ · # H
+     (# ActionBasedStrength.timesV
+        (catbinprodmor
+           (MonoidalFunctorsTensored.strong_monoidal_functor_μ_inv
+              forget (Z ⊗ Z&#39;)) (identity X)))
+ · # H
+     (MonoidalCategoriesTensored.associator_funclass
+        (pr1 (pr2 (monoidal_cat_of_endofunctors C)))
+        ActionBasedStrength.alpha
+        (MonoidalFunctorsTensored.lax_monoidal_functor_functor
+           (monoidal_cat_of_pointedfunctors C)
+           (monoidal_cat_of_endofunctors C)
+           (MonoidalFunctorsTensored.strong_monoidal_functor_lax_monoidal_functor
+              (monoidal_cat_of_pointedfunctors C)
+              (monoidal_cat_of_endofunctors C) forget)
+           Z
+         ⊗ MonoidalFunctorsTensored.lax_monoidal_functor_functor
+             (monoidal_cat_of_pointedfunctors C)
+             (monoidal_cat_of_endofunctors C)
+             (MonoidalFunctorsTensored.strong_monoidal_functor_lax_monoidal_functor
+                (monoidal_cat_of_pointedfunctors C)
+                (monoidal_cat_of_endofunctors C)
+                forget) Z&#39; ⊗ X))) c =
+(# ActionBasedStrength.timesV
+   (catbinprodmor
+      (MonoidalFunctorsTensored.strong_monoidal_functor_μ_inv
+         forget (Z ⊗ Z&#39;)) (identity (H X)))
+ · MonoidalCategoriesTensored.associator_funclass
+     (pr1 (pr2 (monoidal_cat_of_endofunctors C)))
+     ActionBasedStrength.alpha
+     (MonoidalFunctorsTensored.lax_monoidal_functor_functor
+        (monoidal_cat_of_pointedfunctors C)
+        (monoidal_cat_of_endofunctors C)
+        (MonoidalFunctorsTensored.strong_monoidal_functor_lax_monoidal_functor
+           (monoidal_cat_of_pointedfunctors C)
+           (monoidal_cat_of_endofunctors C) forget) Z
+      ⊗ MonoidalFunctorsTensored.lax_monoidal_functor_functor
+          (monoidal_cat_of_pointedfunctors C)
+          (monoidal_cat_of_endofunctors C)
+          (MonoidalFunctorsTensored.strong_monoidal_functor_lax_monoidal_functor
+             (monoidal_cat_of_pointedfunctors C)
+             (monoidal_cat_of_endofunctors C) forget)
+          Z&#39; ⊗ H X)
+ · # ActionBasedStrength.timesV
+     (catbinprodmor
+        (identity
+           (MonoidalFunctorsTensored.lax_monoidal_functor_functor
+              (monoidal_cat_of_pointedfunctors C)
+              (monoidal_cat_of_endofunctors C)
+              (MonoidalFunctorsTensored.strong_monoidal_functor_lax_monoidal_functor
+                 (monoidal_cat_of_pointedfunctors C)
+                 (monoidal_cat_of_endofunctors C)
+                 forget) Z)) (ϛ&#39; (Z&#39; ⊗ X)))
+ · ϛ&#39;
+     (Z
+      ⊗ ActionBasedStrength.timesV
+          (MonoidalFunctorsTensored.lax_monoidal_functor_functor
+             (monoidal_cat_of_pointedfunctors C)
+             (monoidal_cat_of_endofunctors C)
+             (MonoidalFunctorsTensored.strong_monoidal_functor_lax_monoidal_functor
+                (monoidal_cat_of_pointedfunctors C)
+                (monoidal_cat_of_endofunctors C)
+                forget) Z&#39; ⊗ X))) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk62" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk62"><span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39; (X ⊗ Z p• Z&#39;) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+    (nat_trans_id
+       (functor_composite_data
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+    c =
+# (pr1 (H X)) (identity (pr1 Z&#39; (pr1 Z c)))
+· identity (H X (pr1 Z&#39; (pr1 Z c)))
+· identity (H X (pr1 Z&#39; (pr1 Z c)))
+· (# (H X) (# (pr1 Z&#39;) (identity (pr1 Z c)))
+   · pr1 (pr1 θ&#39; (X ⊗ Z&#39;)) (pr1 (pr1 Z) c))
+· pr1 θ&#39; (pr1 Z&#39; ∙ X ⊗ Z) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk63" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk63"><span class="nb">unfold</span> PointedFunctorsComposition.ptd_compose.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39;
+  (X
+   ⊗ (functor_compose (pr1 Z) (pr1 Z&#39;),,
+      # (functorial_composition C C C)
+        (ptd_pt C Z,, ptd_pt C Z&#39;))) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+    (nat_trans_id
+       (functor_composite_data
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+    c =
+# (pr1 (H X)) (identity (pr1 Z&#39; (pr1 Z c)))
+· identity (H X (pr1 Z&#39; (pr1 Z c)))
+· identity (H X (pr1 Z&#39; (pr1 Z c)))
+· (# (H X) (# (pr1 Z&#39;) (identity (pr1 Z c)))
+   · pr1 (pr1 θ&#39; (X ⊗ Z&#39;)) (pr1 (pr1 Z) c))
+· pr1 θ&#39; (pr1 Z&#39; ∙ X ⊗ Z) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk64" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk64"><span class="nb">rewrite</span> functorial_composition_post_pre.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39;
+  (X
+   ⊗ (functor_compose (pr1 Z) (pr1 Z&#39;),,
+      # (post_comp_functor
+           (pr2
+              (functor_identity C,, functor_identity C)))
+        (ptd_pt C Z)
+      · # (pre_comp_functor (pr1 (pr1 Z,, pr1 Z&#39;)))
+          (ptd_pt C Z&#39;))) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+    (nat_trans_id
+       (functor_composite_data
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+    c =
+# (pr1 (H X)) (identity (pr1 Z&#39; (pr1 Z c)))
+· identity (H X (pr1 Z&#39; (pr1 Z c)))
+· identity (H X (pr1 Z&#39; (pr1 Z c)))
+· (# (H X) (# (pr1 Z&#39;) (identity (pr1 Z c)))
+   · pr1 (pr1 θ&#39; (X ⊗ Z&#39;)) (pr1 (pr1 Z) c))
+· pr1 θ&#39; (pr1 Z&#39; ∙ X ⊗ Z) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk65" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk65"><span class="nb">assert</span> (Hyp := nat_trans_eq_weq (homset_property C) _ _ (θ&#39;_strength_law2 X Z Z&#39;) c).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>(pr1 (pr2 sig) (X ⊗ Z p• Z&#39;) · # (pr1 sig) (rassociator_CAT (U Z) (U Z&#39;) X))
+c =
+((lassociator_CAT (U Z) (U Z&#39;) (pr1 sig X)
+:
+[C, C] ⟦ functor_compose (U Z ∙ U Z&#39;) (pr1 sig X), U Z ∙ (U Z&#39; ∙ pr1 sig X)
+⟧) · pr1 (pr2 sig) (X ⊗ Z&#39;) •• U Z
+· pr1 (pr2 sig) (functor_compose (U Z&#39;) X ⊗ Z)) c</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39;
+  (X
+   ⊗ (functor_compose (pr1 Z) (pr1 Z&#39;),,
+      # (post_comp_functor
+           (pr2
+              (functor_identity C,, functor_identity C)))
+        (ptd_pt C Z)
+      · # (pre_comp_functor (pr1 (pr1 Z,, pr1 Z&#39;)))
+          (ptd_pt C Z&#39;))) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+    (nat_trans_id
+       (functor_composite_data
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+    c =
+# (pr1 (H X)) (identity (pr1 Z&#39; (pr1 Z c)))
+· identity (H X (pr1 Z&#39; (pr1 Z c)))
+· identity (H X (pr1 Z&#39; (pr1 Z c)))
+· (# (H X) (# (pr1 Z&#39;) (identity (pr1 Z c)))
+   · pr1 (pr1 θ&#39; (X ⊗ Z&#39;)) (pr1 (pr1 Z) c))
+· pr1 θ&#39; (pr1 Z&#39; ∙ X ⊗ Z) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk66" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk66"><span class="nb">cbn</span> <span class="kr">in</span> Hyp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>pr1 (pr2 sig) (X ⊗ Z p• Z&#39;) c
+· # (pr1 sig) (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c =
+identity (pr1 sig X (pr1 Z&#39; (pr1 Z c)))
+· pr1 (pr1 (pr2 sig) (X ⊗ Z&#39;)) (pr1 (pr1 Z) c)
+· pr1 (pr2 sig) (functor_compose (pr1 Z&#39;) X ⊗ Z) c</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39;
+  (X
+   ⊗ (functor_compose (pr1 Z) (pr1 Z&#39;),,
+      # (post_comp_functor
+           (pr2
+              (functor_identity C,, functor_identity C)))
+        (ptd_pt C Z)
+      · # (pre_comp_functor (pr1 (pr1 Z,, pr1 Z&#39;)))
+          (ptd_pt C Z&#39;))) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+    (nat_trans_id
+       (functor_composite_data
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+    c =
+# (pr1 (H X)) (identity (pr1 Z&#39; (pr1 Z c)))
+· identity (H X (pr1 Z&#39; (pr1 Z c)))
+· identity (H X (pr1 Z&#39; (pr1 Z c)))
+· (# (H X) (# (pr1 Z&#39;) (identity (pr1 Z c)))
+   · pr1 (pr1 θ&#39; (X ⊗ Z&#39;)) (pr1 (pr1 Z) c))
+· pr1 θ&#39; (pr1 Z&#39; ∙ X ⊗ Z) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk67" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk67"><span class="nb">fold</span> θ&#39; H <span class="kr">in</span> Hyp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>θ&#39; (X ⊗ Z p• Z&#39;) c · # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c =
+identity (H X (pr1 Z&#39; (pr1 Z c))) · pr1 (θ&#39; (X ⊗ Z&#39;)) (pr1 (pr1 Z) c)
+· θ&#39; (functor_compose (pr1 Z&#39;) X ⊗ Z) c</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39;
+  (X
+   ⊗ (functor_compose (pr1 Z) (pr1 Z&#39;),,
+      # (post_comp_functor
+           (pr2
+              (functor_identity C,, functor_identity C)))
+        (ptd_pt C Z)
+      · # (pre_comp_functor (pr1 (pr1 Z,, pr1 Z&#39;)))
+          (ptd_pt C Z&#39;))) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+    (nat_trans_id
+       (functor_composite_data
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+    c =
+# (pr1 (H X)) (identity (pr1 Z&#39; (pr1 Z c)))
+· identity (H X (pr1 Z&#39; (pr1 Z c)))
+· identity (H X (pr1 Z&#39; (pr1 Z c)))
+· (# (H X) (# (pr1 Z&#39;) (identity (pr1 Z c)))
+   · pr1 (pr1 θ&#39; (X ⊗ Z&#39;)) (pr1 (pr1 Z) c))
+· pr1 θ&#39; (pr1 Z&#39; ∙ X ⊗ Z) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk68" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk68"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_id.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>θ&#39; (X ⊗ Z p• Z&#39;) c · # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c =
+identity (H X (pr1 Z&#39; (pr1 Z c))) · pr1 (θ&#39; (X ⊗ Z&#39;)) (pr1 (pr1 Z) c)
+· θ&#39; (functor_compose (pr1 Z&#39;) X ⊗ Z) c</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39;
+  (X
+   ⊗ (functor_compose (pr1 Z) (pr1 Z&#39;),,
+      # (post_comp_functor
+           (pr2
+              (functor_identity C,, functor_identity C)))
+        (ptd_pt C Z)
+      · # (pre_comp_functor (pr1 (pr1 Z,, pr1 Z&#39;)))
+          (ptd_pt C Z&#39;))) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+    (nat_trans_id
+       (functor_composite_data
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+    c =
+# (pr1 (H X)) (identity (pr1 Z&#39; (pr1 Z c)))
+· identity (H X (pr1 Z&#39; (pr1 Z c)))
+· identity (H X (pr1 Z&#39; (pr1 Z c)))
+· (identity (H X (pr1 Z&#39; (pr1 Z c)))
+   · pr1 (pr1 θ&#39; (X ⊗ Z&#39;)) (pr1 (pr1 Z) c))
+· pr1 θ&#39; (pr1 Z&#39; ∙ X ⊗ Z) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk69" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk69"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>θ&#39; (X ⊗ Z p• Z&#39;) c · # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c =
+identity (H X (pr1 Z&#39; (pr1 Z c))) · pr1 (θ&#39; (X ⊗ Z&#39;)) (pr1 (pr1 Z) c)
+· θ&#39; (functor_compose (pr1 Z&#39;) X ⊗ Z) c</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39;
+  (X
+   ⊗ (functor_compose (pr1 Z) (pr1 Z&#39;),,
+      # (post_comp_functor
+           (pr2
+              (functor_identity C,, functor_identity C)))
+        (ptd_pt C Z)
+      · # (pre_comp_functor (pr1 (pr1 Z,, pr1 Z&#39;)))
+          (ptd_pt C Z&#39;))) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+    (nat_trans_id
+       (functor_composite_data
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+    c =
+# (pr1 (H X)) (identity (pr1 Z&#39; (pr1 Z c)))
+· (identity (H X (pr1 Z&#39; (pr1 Z c)))
+   · pr1 (pr1 θ&#39; (X ⊗ Z&#39;)) (pr1 (pr1 Z) c))
+· pr1 θ&#39; (pr1 Z&#39; ∙ X ⊗ Z) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk6a" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk6a"><span class="nb">rewrite</span> (functor_id (H X)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>θ&#39; (X ⊗ Z p• Z&#39;) c · # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c =
+identity (H X (pr1 Z&#39; (pr1 Z c))) · pr1 (θ&#39; (X ⊗ Z&#39;)) (pr1 (pr1 Z) c)
+· θ&#39; (functor_compose (pr1 Z&#39;) X ⊗ Z) c</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39;
+  (X
+   ⊗ (functor_compose (pr1 Z) (pr1 Z&#39;),,
+      # (post_comp_functor
+           (pr2
+              (functor_identity C,, functor_identity C)))
+        (ptd_pt C Z)
+      · # (pre_comp_functor (pr1 (pr1 Z,, pr1 Z&#39;)))
+          (ptd_pt C Z&#39;))) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+    (nat_trans_id
+       (functor_composite_data
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+    c =
+identity (H X (pr1 Z&#39; (pr1 Z c)))
+· (identity (H X (pr1 Z&#39; (pr1 Z c)))
+   · pr1 (pr1 θ&#39; (X ⊗ Z&#39;)) (pr1 (pr1 Z) c))
+· pr1 θ&#39; (pr1 Z&#39; ∙ X ⊗ Z) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk6b" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk6b"><span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>θ&#39; (X ⊗ Z p• Z&#39;) c · # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c =
+identity (H X (pr1 Z&#39; (pr1 Z c))) · pr1 (θ&#39; (X ⊗ Z&#39;)) (pr1 (pr1 Z) c)
+· θ&#39; (functor_compose (pr1 Z&#39;) X ⊗ Z) c</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39;
+  (X
+   ⊗ (functor_compose (pr1 Z) (pr1 Z&#39;),,
+      # (post_comp_functor
+           (pr2
+              (functor_identity C,, functor_identity C)))
+        (ptd_pt C Z)
+      · # (pre_comp_functor (pr1 (pr1 Z,, pr1 Z&#39;)))
+          (ptd_pt C Z&#39;))) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+    (nat_trans_id
+       (functor_composite_data
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+    c =
+pr1 (pr1 θ&#39; (X ⊗ Z&#39;)) (pr1 (pr1 Z) c)
+· pr1 θ&#39; (pr1 Z&#39; ∙ X ⊗ Z) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk6c" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk6c"><span class="nb">rewrite</span> id_left <span class="kr">in</span> Hyp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>θ&#39; (X ⊗ Z p• Z&#39;) c · # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c =
+pr1 (θ&#39; (X ⊗ Z&#39;)) (pr1 (pr1 Z) c) · θ&#39; (functor_compose (pr1 Z&#39;) X ⊗ Z) c</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39;
+  (X
+   ⊗ (functor_compose (pr1 Z) (pr1 Z&#39;),,
+      # (post_comp_functor
+           (pr2
+              (functor_identity C,, functor_identity C)))
+        (ptd_pt C Z)
+      · # (pre_comp_functor (pr1 (pr1 Z,, pr1 Z&#39;)))
+          (ptd_pt C Z&#39;))) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+    (nat_trans_id
+       (functor_composite_data
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+    c =
+pr1 (pr1 θ&#39; (X ⊗ Z&#39;)) (pr1 (pr1 Z) c)
+· pr1 θ&#39; (pr1 Z&#39; ∙ X ⊗ Z) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk6d" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk6d">etrans; [| <span class="bp">exact</span> Hyp ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br><span><var>Hyp</var><span class="hyp-type"><b>: </b><span>θ&#39; (X ⊗ Z p• Z&#39;) c · # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c =
+pr1 (θ&#39; (X ⊗ Z&#39;)) (pr1 (pr1 Z) c) · θ&#39; (functor_compose (pr1 Z&#39;) X ⊗ Z) c</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39;
+  (X
+   ⊗ (functor_compose (pr1 Z) (pr1 Z&#39;),,
+      # (post_comp_functor
+           (pr2
+              (functor_identity C,, functor_identity C)))
+        (ptd_pt C Z)
+      · # (pre_comp_functor (pr1 (pr1 Z,, pr1 Z&#39;)))
+          (ptd_pt C Z&#39;))) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+    (nat_trans_id
+       (functor_composite_data
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+    c =
+θ&#39; (X ⊗ Z p• Z&#39;) c
+· # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk6e" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk6e"><span class="nb">clear</span> Hyp.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39;
+  (X
+   ⊗ (functor_compose (pr1 Z) (pr1 Z&#39;),,
+      # (post_comp_functor
+           (pr2
+              (functor_identity C,, functor_identity C)))
+        (ptd_pt C Z)
+      · # (pre_comp_functor (pr1 (pr1 Z,, pr1 Z&#39;)))
+          (ptd_pt C Z&#39;))) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c
+· # H
+    (nat_trans_id
+       (functor_composite_data
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)) X))
+    c =
+θ&#39; (X ⊗ Z p• Z&#39;) c
+· # H (rassociator_CAT (pr1 Z) (pr1 Z&#39;) X) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk6f" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk6f"><span class="nb">apply</span> cancel_postcomposition.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39;
+  (X
+   ⊗ (functor_compose (pr1 Z) (pr1 Z&#39;),,
+      # (post_comp_functor
+           (pr2
+              (functor_identity C,, functor_identity C)))
+        (ptd_pt C Z)
+      · # (pre_comp_functor (pr1 (pr1 Z,, pr1 Z&#39;)))
+          (ptd_pt C Z&#39;))) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c =
+θ&#39; (X ⊗ Z p• Z&#39;) c</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk70" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk70">etrans; [| <span class="nb">apply</span> id_right ].</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1 θ&#39;
+  (X
+   ⊗ (functor_compose (pr1 Z) (pr1 Z&#39;),,
+      # (post_comp_functor
+           (pr2
+              (functor_identity C,, functor_identity C)))
+        (ptd_pt C Z)
+      · # (pre_comp_functor (pr1 (pr1 Z,, pr1 Z&#39;)))
+          (ptd_pt C Z&#39;))) c
+· # H
+    (nat_trans_comp
+       (X
+        ∘ nat_trans_id
+            (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+       (nat_trans_id X
+        ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c =
+θ&#39; (X ⊗ Z p• Z&#39;) c
+· identity (H ((pr1 Z ∙ pr1 Z&#39;) ∙ X) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk71" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk71"><span class="nb">apply</span> maponpaths.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># H
+  (nat_trans_comp
+     (X
+      ∘ nat_trans_id
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+     (nat_trans_id X
+      ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c =
+identity (H ((pr1 Z ∙ pr1 Z&#39;) ∙ X) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      <span class="sd">(** now identical reasoning as in [signature_from_rel_strength_laws] *)</span>
+</span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk72" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk72">etrans.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># H
+  (nat_trans_comp
+     (X
+      ∘ nat_trans_id
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+     (nat_trans_id X
+      ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c =
+<span class="nl">?b</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="signaturesequivrelativestrength-v-chk73" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><label class="goal-separator" for="signaturesequivrelativestrength-v-chk73"><hr></label><div class="goal-conclusion"><span class="nl">?b</span> = identity (H ((pr1 Z ∙ pr1 Z&#39;) ∙ X) c)</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk74" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk74">{</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion"># H
+  (nat_trans_comp
+     (X
+      ∘ nat_trans_id
+          (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+     (nat_trans_id X
+      ø functor_composite_data (pr1 Z) (pr1 Z&#39;))) c =
+<span class="nl">?b</span></div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk75" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk75">use (maponpaths (<span class="kr">fun</span> <span class="nv">x</span> =&gt; pr1 (# H x) c)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C, C] ⟦ functor_compose (pr1 Z) (pr1 Z&#39;) ∙ X,
+(pr1 Z ∙ pr1 Z&#39;) ∙ X ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="signaturesequivrelativestrength-v-chk76" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><label class="goal-separator" for="signaturesequivrelativestrength-v-chk76"><hr></label><div class="goal-conclusion">nat_trans_comp
+  (X
+   ∘ nat_trans_id
+       (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+  (nat_trans_id X
+   ø functor_composite_data (pr1 Z) (pr1 Z&#39;)) = <span class="nl">?t2</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk77" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk77">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">[C, C] ⟦ functor_compose (pr1 Z) (pr1 Z&#39;) ∙ X,
+(pr1 Z ∙ pr1 Z&#39;) ∙ X ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (identity (functor_compose (functor_compose (pr1 Z) (pr1 Z&#39;)) X)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">        </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk78" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk78">+</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">nat_trans_comp
+  (X
+   ∘ nat_trans_id
+       (functor_composite_data (pr1 Z) (pr1 Z&#39;)))
+  (nat_trans_id X
+   ø functor_composite_data (pr1 Z) (pr1 Z&#39;)) =
+identity
+  (functor_compose (functor_compose (pr1 Z) (pr1 Z&#39;))
+     X)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> auxH2aux.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk79" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk79">}</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (# H
+     (identity
+        (functor_compose
+           (functor_compose (pr1 Z) (pr1 Z&#39;)) X))) c =
+identity (H ((pr1 Z ∙ pr1 Z&#39;) ∙ X) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="signaturesequivrelativestrength-v-chk7a" style="display: none" type="checkbox"><label class="alectryon-input" for="signaturesequivrelativestrength-v-chk7a"><span class="nb">rewrite</span> functor_id.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>C</var><span class="hyp-type"><b>: </b><span>category</span></span></span><br><span><var>sig</var><span class="hyp-type"><b>: </b><span>Signature C C C</span></span></span><br><span><var>Z, Z'</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_pointedfunctors C)</span></span></span><br><span><var>X</var><span class="hyp-type"><b>: </b><span>MonoidalCategoriesTensored.monoidal_cat_cat
+  (monoidal_cat_of_endofunctors C)</span></span></span><br><span><var>c</var><span class="hyp-type"><b>: </b><span>C</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">pr1
+  (identity
+     (H
+        (functor_compose
+           (functor_compose (pr1 Z) (pr1 Z&#39;)) X))) c =
+identity (H ((pr1 Z ∙ pr1 Z&#39;) ∙ X) c)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> idpath.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">rel_strength_from_signature</span> : rel_strength forget H := (ϛ&#39;,,rel_strength_from_signature_laws).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">strength_in_signature_is_a_relative_strength</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">homogeneous_case</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

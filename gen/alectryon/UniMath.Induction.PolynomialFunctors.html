@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>PolynomialFunctors.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** ** Polynomial functors</span>
+
+<span class="sd">    Using the formalism of a polynomial functor, one can build any functor</span>
+<span class="sd">    combining constant types, +, and ×, where the variable X is to the right</span>
+<span class="sd">    of the arrow →.</span>
+
+<span class="sd">    W-types are (up to isomorphism) initial algebras of polynomial functors,</span>
+<span class="sd">    whereas M-types are final coalgebras.</span>
+
+<span class="sd">    (Definition 2 in Ahrens, Capriotti, and Spadotti)</span>
+
+<span class="sd">    Author: Langston Barrett (@siddharthist)</span>
+<span class="sd">*)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.Preamble.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.PartA.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.UnivalenceAxiom.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Induction.FunctorAlgebras_legacy.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Induction.FunctorCoalgebras_legacy.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.<span class="kt">Type</span>.Core.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">PolynomialFunctors</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">A</span> : UU).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">B</span> : A → UU).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">polynomial_functor_obj</span> := <span class="kr">fun</span> (<span class="nv">X</span> : UU) =&gt; ∑ (a : A), B a → X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(** The action on arrows is defined by composition in the second projection. *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">polynomial_functor_arr</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X → Y) :
+    (polynomial_functor_obj X) → (polynomial_functor_obj Y) :=
+    <span class="kr">fun</span> <span class="nv">o</span> =&gt; (pr1 o,, (f ∘ pr2 o)%functions).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(** Polynomial functors aren&#39;t functors in the usual sense, since UU is an</span>
+<span class="sd">      (∞,1)-category. However, they are functors in the sense of UniMath&#39;s</span>
+<span class="sd">      definition. *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">polynomial_functor_data</span> : functor_data type_precat type_precat :=
+    functor_data_constr _ _
+                        (polynomial_functor_obj : type_precat → type_precat)
+                        (@polynomial_functor_arr).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="polynomialfunctors-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="polynomialfunctors-v-chk0"><span class="kn">Lemma</span> <span class="nf">polynomial_functor_is_functor</span> : is_functor polynomial_functor_data.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>A → UU</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_functor polynomial_functor_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="polynomialfunctors-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="polynomialfunctors-v-chk1"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>A → UU</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_functor polynomial_functor_data</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="polynomialfunctors-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="polynomialfunctors-v-chk2"><span class="nb">split</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>A → UU</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_idax polynomial_functor_data</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="polynomialfunctors-v-chk3" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>A → UU</span></span></span><br></div><label class="goal-separator" for="polynomialfunctors-v-chk3"><hr></label><div class="goal-conclusion">functor_compax polynomial_functor_data</div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="polynomialfunctors-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="polynomialfunctors-v-chk4">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>A → UU</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_idax polynomial_functor_data</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="polynomialfunctors-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="polynomialfunctors-v-chk5"><span class="nb">intro</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>A → UU</span></span></span><br><span><var>a</var><span class="hyp-type"><b>: </b><span>type_precat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(# polynomial_functor_data)%cat (identity a) =
+identity (polynomial_functor_data a)</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="polynomialfunctors-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="polynomialfunctors-v-chk6">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>A → UU</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">functor_compax polynomial_functor_data</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="polynomialfunctors-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="polynomialfunctors-v-chk7"><span class="nb">intros</span> ? ? ? ? ?.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>A → UU</span></span></span><br><span><var>a, b, c</var><span class="hyp-type"><b>: </b><span>type_precat</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>(type_precat ⟦ a, b ⟧)%cat</span></span></span><br><span><var>g</var><span class="hyp-type"><b>: </b><span>(type_precat ⟦ b, c ⟧)%cat</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">(# polynomial_functor_data)%cat (f · g)%cat =
+(# polynomial_functor_data f
+ · # polynomial_functor_data g)%cat</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">polynomial_functor</span> : functor type_precat type_precat :=
+    make_functor polynomial_functor_data polynomial_functor_is_functor.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(** An algebra with an uncurried structure map *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">polynomial_alg_uncurried</span> : UU :=
+    ∑ (X : ob type_precat), ∏ (a : A), (B a → X) → X.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+  <span class="sd">(** The uncurried and curried versions are equivalent *)</span>
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="polynomialfunctors-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="polynomialfunctors-v-chk8"><span class="kn">Lemma</span> <span class="nf">polynomial_alg_uncurried_equiv</span> :
+    polynomial_alg_uncurried ≃ (algebra_ob polynomial_functor).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>A → UU</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">polynomial_alg_uncurried
+≃ algebra_ob polynomial_functor</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="polynomialfunctors-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="polynomialfunctors-v-chk9"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>B</var><span class="hyp-type"><b>: </b><span>A → UU</span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">polynomial_alg_uncurried
+≃ algebra_ob polynomial_functor</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> (weq_iso (<span class="kr">λ</span> <span class="nv">p</span>, (pr1 p,, uncurry (pr2 p)))
+                   (<span class="kr">λ</span> <span class="nv">p</span>, (pr1 p,, curry (pr2 p))));
+      <span class="kp">try</span> <span class="bp">reflexivity</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">PolynomialFunctors</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

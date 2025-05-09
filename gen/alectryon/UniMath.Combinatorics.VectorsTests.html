@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>VectorsTests.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(** * Tests for vectors as iterated products. *)</span>
+<span class="sd">(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Combinatorics.Vectors.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> stn.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Tests_el</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">A</span> : UU} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span>:A}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">v</span> := vcons a (vcons b (vcons c (vcons d vnil))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vectorstests-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="vectorstests-v-chk0"><span class="kn">Goal</span> el v (●<span class="mi">0</span>) = a.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br><span><var>v</var><span><span class="hyp-body"><b>:= </b><span>[(a; b; c; d)]%vec</span></span><span class="hyp-type"><b>: </b><span>vec A <span class="mi">4</span></span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">el v (● <span class="mi">0</span>) = a</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vectorstests-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="vectorstests-v-chk1"><span class="kn">Goal</span> el v (●<span class="mi">1</span>) = b.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br><span><var>v</var><span><span class="hyp-body"><b>:= </b><span>[(a; b; c; d)]%vec</span></span><span class="hyp-type"><b>: </b><span>vec A <span class="mi">4</span></span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">el v (● <span class="mi">1</span>) = b</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vectorstests-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="vectorstests-v-chk2"><span class="kn">Goal</span> el v (●<span class="mi">2</span>) = c.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br><span><var>v</var><span><span class="hyp-body"><b>:= </b><span>[(a; b; c; d)]%vec</span></span><span class="hyp-type"><b>: </b><span>vec A <span class="mi">4</span></span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">el v (● <span class="mi">2</span>) = c</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vectorstests-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="vectorstests-v-chk3"><span class="kn">Goal</span> el v (●<span class="mi">3</span>) = d.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br><span><var>v</var><span><span class="hyp-body"><b>:= </b><span>[(a; b; c; d)]%vec</span></span><span class="hyp-type"><b>: </b><span>vec A <span class="mi">4</span></span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">el v (● <span class="mi">3</span>) = d</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vectorstests-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="vectorstests-v-chk4"><span class="kn">Goal</span> make_vec (el v) = v.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br><span><var>v</var><span><span class="hyp-body"><b>:= </b><span>[(a; b; c; d)]%vec</span></span><span class="hyp-type"><b>: </b><span>vec A <span class="mi">4</span></span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">make_vec (el v) = v</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">f</span> : ⟦ <span class="mi">4</span> ⟧ → A := <span class="kn">Eval</span> <span class="nb">compute</span> <span class="kr">in</span> (el v).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vectorstests-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="vectorstests-v-chk5"><span class="kn">Goal</span> (el (make_vec f) = f).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>a, b, c, d</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br><span><var>v</var><span><span class="hyp-body"><b>:= </b><span>[(a; b; c; d)]%vec</span></span><span class="hyp-type"><b>: </b><span>vec A <span class="mi">4</span></span></span></span></span><br><span><var>f</var><span><span class="hyp-body"><b>:= </b><span><span class="kr">λ</span> <span class="nv">i</span> : ∑ m : nat,
+      <span class="kr">match</span> m <span class="kr">with</span>
+      | S (S (S (S _))) =&gt; false
+      | _ =&gt; true
+      <span class="kr">end</span> = true,
+(<span class="kr">fix</span> F (n : nat) :
+     <span class="kr">match</span> n <span class="kr">with</span>
+     | S (S (S (S _))) =&gt; false
+     | _ =&gt; true
+     <span class="kr">end</span> = true → A :=
+   <span class="kr">match</span>
+     n <span class="kr">as</span> n0
+     <span class="kr">return</span>
+       (<span class="kr">match</span> n0 <span class="kr">with</span>
+        | S (S (S (S _))) =&gt; false
+        | _ =&gt; true
+        <span class="kr">end</span> = true → A)
+   <span class="kr">with</span>
+   | <span class="mi">0</span> =&gt; <span class="kr">λ</span> <span class="nv">_</span> : true = true, a
+   | S n0 =&gt;
+       <span class="kr">λ</span> <span class="nv">jlt</span> : <span class="kr">match</span> n0 <span class="kr">with</span>
+               | S (S (S _)) =&gt; false
+               | _ =&gt; true
+               <span class="kr">end</span> = true,
+       (<span class="kr">fix</span> F0 (n1 : nat) :
+            <span class="kr">match</span> n1 <span class="kr">with</span>
+            | S (S (S _)) =&gt; false
+            | _ =&gt; true
+            <span class="kr">end</span> = true → A :=
+          <span class="kr">match</span>
+            n1 <span class="kr">as</span> n2
+            <span class="kr">return</span>
+              (<span class="kr">match</span> n2 <span class="kr">with</span>
+               | S (S (S _)) =&gt; false
+               | _ =&gt; true
+               <span class="kr">end</span> = true → A)
+          <span class="kr">with</span>
+          | <span class="mi">0</span> =&gt; <span class="kr">λ</span> <span class="nv">_</span> : true = true, b
+          | S n2 =&gt;
+              <span class="kr">λ</span> <span class="nv">jlt0</span> : <span class="kr">match</span> n2 <span class="kr">with</span>
+                       | S (S _) =&gt; false
+                       | _ =&gt; true
+                       <span class="kr">end</span> = true,
+              (<span class="kr">fix</span> F1 (n3 : nat) :
+                   <span class="kr">match</span> n3 <span class="kr">with</span>
+                   | S (S _) =&gt; false
+                   | _ =&gt; true
+                   <span class="kr">end</span> = true → A :=
+                 <span class="kr">match</span>
+                   n3 <span class="kr">as</span> n4
+                   <span class="kr">return</span>
+                     (<span class="kr">match</span> n4 <span class="kr">with</span>
+                      | S ... =&gt; false
+                      | _ =&gt; true
+                      <span class="kr">end</span> = true → A)
+                 <span class="kr">with</span>
+                 | <span class="mi">0</span> =&gt; <span class="kr">λ</span> <span class="nv">_</span> : true = true, c
+                 | S n4 =&gt;
+                     <span class="kr">λ</span> <span class="nv">jlt1</span> : <span class="kr">match</span> n4 <span class="kr">with</span>
+                              | <span class="mi">0</span> =&gt; true
+                              | S _ =&gt; false
+                              <span class="kr">end</span> = true,
+                     (<span class="kr">fix</span> F2 (n5 : nat) :
+                          <span class="kr">match</span> ... <span class="kr">with</span>
+                          | ... true
+                          | ... false
+                          <span class="kr">end</span> = true → A :=
+                        <span class="kr">match</span>
+                          n5 <span class="kr">as</span> n6 <span class="kr">return</span> (...)
+                        <span class="kr">with</span>
+                        | <span class="mi">0</span> =&gt; <span class="kr">λ</span> <span class="nv">_</span> : true = true, d
+                        | S _ =&gt;
+                            <span class="kr">λ</span> <span class="nv">jlt2</span> : false = true,
+                            <span class="kr">match</span> ... <span class="kr">with</span>
+                            <span class="kr">end</span>
+                        <span class="kr">end</span>) n4 jlt1
+                 <span class="kr">end</span>) n2 jlt0
+          <span class="kr">end</span>) n0 jlt
+   <span class="kr">end</span>) (pr1 i) (pr2 i)</span></span><span class="hyp-type"><b>: </b><span>⟦ <span class="mi">4</span> ⟧ → A</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">el (make_vec f) = f</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Tests_el</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Test_vec_foldr</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">f</span> : A -&gt; B -&gt; B) (<span class="nv">b</span> : B) (<span class="nv">p</span> <span class="nv">q</span> <span class="nv">r</span> : A).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">v</span> := vcons p (vcons q (vcons r vnil)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vectorstests-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="vectorstests-v-chk6"><span class="kn">Goal</span> vec_foldr f b v = f p (f q (f r b)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A, B</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>A → B → B</span></span></span><br><span><var>b</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>p, q, r</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br><span><var>v</var><span><span class="hyp-body"><b>:= </b><span>[(p; q; r)]%vec</span></span><span class="hyp-type"><b>: </b><span>vec A <span class="mi">3</span></span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">vec_foldr f b v = f p (f q (f r b))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Test_vec_foldr</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Test_vec_foldr1</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">A</span> : UU} (<span class="nv">f</span> : A -&gt; A -&gt; A)  (<span class="nv">p</span> <span class="nv">q</span> <span class="nv">r</span> <span class="nv">t</span> : A).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">v</span> := vcons p (vcons q (vcons r (vcons t vnil))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vectorstests-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="vectorstests-v-chk7"><span class="kn">Goal</span> vec_foldr1 f v = f p (f q (f r t)).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>A → A → A</span></span></span><br><span><var>p, q, r, t</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br><span><var>v</var><span><span class="hyp-body"><b>:= </b><span>[(p; q; r; t)]%vec</span></span><span class="hyp-type"><b>: </b><span>vec A <span class="mi">4</span></span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">vec_foldr1 f v = f p (f q (f r t))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Test_vec_foldr1</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Test_vec_append</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">A</span> : UU} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : A}.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">u</span> := vcons a (vcons b (vcons c vnil)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">v</span> := vcons d (vcons e vnil).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">w</span> := vcons a (vcons b (vcons c (vcons d (vcons e vnil)))).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="vectorstests-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="vectorstests-v-chk8"><span class="kn">Goal</span> vec_append u v = w.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>A</var><span class="hyp-type"><b>: </b><span>UU</span></span></span><br><span><var>a, b, c, d, e</var><span class="hyp-type"><b>: </b><span>A</span></span></span><br><span><var>u</var><span><span class="hyp-body"><b>:= </b><span>[(a; b; c)]%vec</span></span><span class="hyp-type"><b>: </b><span>vec A <span class="mi">3</span></span></span></span></span><br><span><var>v</var><span><span class="hyp-body"><b>:= </b><span>[(d; e)]%vec</span></span><span class="hyp-type"><b>: </b><span>vec A <span class="mi">2</span></span></span></span></span><br><span><var>w</var><span><span class="hyp-body"><b>:= </b><span>[(a; b; c; d; e)]%vec</span></span><span class="hyp-type"><b>: </b><span>vec A <span class="mi">5</span></span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">vec_append u v = w</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">reflexivity</span>.</span><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Qed</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Test_vec_append</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

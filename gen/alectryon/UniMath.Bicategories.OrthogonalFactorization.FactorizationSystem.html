@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<title>FactorizationSystem.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.20.0+0.20.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="sd">(*****************************************************************************</span>
+
+<span class="sd"> Orthogonal factorization systems in bicategory</span>
+
+<span class="sd"> In this file, we define the notion of orthogonal factorization system in a</span>
+<span class="sd"> bicategory. An orthogonal factorization system consists of two classes of maps,</span>
+<span class="sd"> which we call `L` and `R` respectively. These classes of maps must satisfy</span>
+<span class="sd"> the following requirements:</span>
+<span class="sd"> - Each 1-cell can be factorized as a composition of a map in `L` followed by</span>
+<span class="sd">   a map in `R`. Note that we require strong existence for this factorization</span>
+<span class="sd">   (via a `∑`-type) instead of ordinary existence (via a `∃`-type).</span>
+<span class="sd"> - `L` and `R` are closed under invertible 2-cells.</span>
+<span class="sd"> - Maps in `L` and `R` are orthogonal to each other. This means that we can</span>
+<span class="sd">   solve lifting problems of the following shape</span>
+
+<span class="sd">&lt;&lt;</span>
+<span class="sd">         b₁ --------&gt; c₁</span>
+<span class="sd">         |            |</span>
+<span class="sd">    in L |            | in R</span>
+<span class="sd">         |            |</span>
+<span class="sd">         V            V</span>
+<span class="sd">         b₂ --------&gt; c₂</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd"> In an orthogonal factorization system, factorizations are unique up to unique</span>
+<span class="sd"> invertible 2-cell. As such, it does not matter whether we use strong existence</span>
+<span class="sd"> or ordinary existence for the factorizations. In a weak factorization (where</span>
+<span class="sd"> the factorization are not necessarily unique), this distinction does matter.</span>
+
+<span class="sd"> Note that in the literature, the second property (closure under invertible</span>
+<span class="sd"> 2-cells) is often formulated stronger. Suppose, that we have a diagram as</span>
+<span class="sd"> follows:</span>
+
+<span class="sd">&lt;&lt;</span>
+<span class="sd">         b₁ --------&gt; c₁</span>
+<span class="sd">         |            |</span>
+<span class="sd">    in L |            |</span>
+<span class="sd">         |            |</span>
+<span class="sd">         V            V</span>
+<span class="sd">         b₂ --------&gt; c₂</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd"> If `b₁ --&gt; c₁` and `b₂ --&gt; c₂` are adjoint equivalences, then this diagram</span>
+<span class="sd"> gives rise to an adjoint equivalence in the arrow bicategory. Usually, one</span>
+<span class="sd"> requires `L` and `R` to be closed under adjoint equivalences in the arrow</span>
+<span class="sd"> bicategory. However, by assuming univalence, we can simplify this requirement.</span>
+<span class="sd"> By using equivalence induction on both `b₁ --&gt; c₁` and `b₂ --&gt; c₂`, we can</span>
+<span class="sd"> assume that both the top and bottom morphism in this diagram are identities.</span>
+<span class="sd"> This way, we get that `L` and `R` must be closed under invertible 2-cells.</span>
+
+<span class="sd"> Finally, we show that every morphism that is both in `L` and `R` must also</span>
+<span class="sd"> be an adjoint equivalence.</span>
+
+<span class="sd"> A source for the definition of orthogonal factorization system in a bicategory</span>
+<span class="sd"> is &quot;Categorical notions of fibration&quot; by Loregian and Riehl.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Factorizations</span>
+<span class="sd"> 2. Orthogonal factorization systems</span>
+<span class="sd"> 3. Builder for orthogonal factorization systems</span>
+<span class="sd"> 4. Projections for orthogonal factorization systems</span>
+<span class="sd"> 5. Properties of orthogonal factorization systems</span>
+
+<span class="sd"> *****************************************************************************)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Foundations.All.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="factorizationsystem-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="factorizationsystem-v-chk0"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.</label><small class="alectryon-output"><div><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote><blockquote class="alectryon-message"><span class="kn">Notation</span> <span class="s2">&quot;_ ≠ _&quot;</span> was already used <span class="kr">in</span> scope nat_scope.
+[notation-overridden,parsing,default]</blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.CategoryTheory.IsoCommaCategory.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Import</span> Bicat.Notations.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Require Import</span> UniMath.Bicategories.OrthogonalFactorization.Orthogonality.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Local</span> <span class="kn">Open Scope</span> cat.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 1. Factorizations *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">factorization_1cell</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">L</span> <span class="nv">R</span> : ∏ (x y : B), x --&gt; y → hProp)
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           (<span class="nv">f</span> : x --&gt; y)
+  : UU
+  := ∑ (a : B)
+       (l : x --&gt; a)
+       (r : a --&gt; y),
+     L _ _ l
+     ×
+     R _ _ r
+     ×
+     invertible_2cell (l · r) f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_factorization_1cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">L</span> <span class="nv">R</span> : ∏ (x y : B), x --&gt; y → hProp}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> : x --&gt; y}
+           (<span class="nv">a</span> : B)
+           (<span class="nv">l</span> : x --&gt; a)
+           (<span class="nv">r</span> : a --&gt; y)
+           (<span class="nv">Ll</span> : L _ _ l)
+           (<span class="nv">Rr</span> : R _ _ r)
+           (<span class="nv">τ</span> : invertible_2cell (l · r) f)
+  : factorization_1cell L R f
+  := a ,, l ,, r ,, Ll ,, Rr ,, τ.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Coercion</span> <span class="nf">factorization_1cell_ob</span>
+         {B : bicat}
+         {L R : ∏ (x y : B), x --&gt; y → hProp}
+         {x y : B}
+         {f : x --&gt; y}
+         (fact : factorization_1cell L R f)
+  : B
+  := pr1 fact.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">ProjectionsFactorization</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">L</span> <span class="nv">R</span> : ∏ (x y : B), x --&gt; y → hProp}
+          {<span class="nv">x</span> <span class="nv">y</span> : B}
+          {<span class="nv">f</span> : x --&gt; y}
+          (<span class="nv">fact</span> : factorization_1cell L R f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">factorization_1cell_left</span>
+    : x --&gt; fact
+    := pr12 fact.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">factorization_1cell_right</span>
+    : fact --&gt; y
+    := pr122 fact.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">factorization_1cell_left_class</span>
+    : L _ _ factorization_1cell_left
+    := pr1 (pr222 fact).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">factorization_1cell_right_class</span>
+    : R _ _ factorization_1cell_right
+    := pr12 (pr222 fact).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">factorization_1cell_commutes</span>
+    : invertible_2cell
+        (factorization_1cell_left · factorization_1cell_right)
+        f
+    := pr22 (pr222 fact).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">ProjectionsFactorization</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 2. Orthogonal factorization systems *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">closed_under_invertible_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">P</span> : ∏ (x y : B), x --&gt; y → hProp)
+  : UU
+  := ∏ (x y : B)
+       (f g : x --&gt; y)
+       (τ : invertible_2cell f g),
+     P _ _ f
+     →
+     P _ _ g.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">orthogonal_maps</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">L</span> <span class="nv">R</span> : ∏ (x y : B), x --&gt; y → hProp)
+  : UU
+  := ∏ (b₁ b₂ c₁ c₂ : B)
+       (f : b₁ --&gt; b₂)
+       (g : c₁ --&gt; c₂),
+     L _ _ f
+     →
+     R _ _ g
+     →
+     f ⊥ g.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">orthogonal_factorization_system</span>
+           (<span class="nv">B</span> : bicat)
+  : UU
+  := ∑ (L R : ∏ (x y : B), x --&gt; y → hProp),
+     (∏ (x y : B) (f : x --&gt; y), factorization_1cell L R f)
+     ×
+     closed_under_invertible_2cell L
+     ×
+     closed_under_invertible_2cell R
+     ×
+     orthogonal_maps L R.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 3. Builder for orthogonal factorization systems *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">MakeFactorizationSystem</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">L</span> <span class="nv">R</span> : ∏ (x y : B), x --&gt; y → UU)
+          (<span class="nv">isapropL</span> : ∏ (x y : B) (f : x --&gt; y), isaprop (L _ _ f))
+          (<span class="nv">isapropR</span> : ∏ (x y : B) (f : x --&gt; y), isaprop (R _ _ f)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">L&#39;</span> : ∏ (x y : B), x --&gt; y → hProp := <span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, L x y f ,, isapropL x y f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">R&#39;</span> : ∏ (x y : B), x --&gt; y → hProp := <span class="kr">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, R x y f ,, isapropR x y f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> (<span class="nv">fact</span> : ∏ (x y : B) (f : x --&gt; y), factorization_1cell L&#39; R&#39; f)
+          (<span class="nv">HL</span> : closed_under_invertible_2cell L&#39;)
+          (<span class="nv">HR</span> : closed_under_invertible_2cell R&#39;)
+          (<span class="nv">LR</span> : orthogonal_maps L&#39; R&#39;).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">make_orthogonal_factorization_system</span>
+    : orthogonal_factorization_system B
+    := L&#39; ,, R&#39; ,, fact ,, HL ,, HR ,, LR.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">MakeFactorizationSystem</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 4. Projections for orthogonal factorization systems *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Projections</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">fact_B</span> : orthogonal_factorization_system B).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">orthogonal_left_class</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">f</span> : x --&gt; y)
+    : hProp
+    := pr1 fact_B x y f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">orthogonal_right_class</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">f</span> : x --&gt; y)
+    : hProp
+    := pr12 fact_B x y f.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">orthogonal_factorization_ob</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">f</span> : x --&gt; y)
+    : B
+    := factorization_1cell_ob (pr122 fact_B x y f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">orthogonal_factorization_left</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">f</span> : x --&gt; y)
+    : x --&gt; orthogonal_factorization_ob f
+    := factorization_1cell_left (pr122 fact_B x y f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">orthogonal_factorization_right</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">f</span> : x --&gt; y)
+    : orthogonal_factorization_ob f --&gt; y
+    := factorization_1cell_right (pr122 fact_B x y f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">orthogonal_factorization_left_class</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">f</span> : x --&gt; y)
+    : orthogonal_left_class (orthogonal_factorization_left f)
+    := factorization_1cell_left_class (pr122 fact_B x y f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">orthogonal_factorization_right_class</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">f</span> : x --&gt; y)
+    : orthogonal_right_class (orthogonal_factorization_right f)
+    := factorization_1cell_right_class (pr122 fact_B x y f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">orthogonal_factorization_commutes</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">f</span> : x --&gt; y)
+    : invertible_2cell
+        (orthogonal_factorization_left f · orthogonal_factorization_right f)
+        f
+    := factorization_1cell_commutes (pr122 fact_B x y f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">orthogonal_left_inv2cell</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+             (<span class="nv">τ</span> : invertible_2cell f g)
+             (<span class="nv">Lf</span> : orthogonal_left_class f)
+    : orthogonal_left_class g
+    := pr1 (pr222 fact_B) _ _ f g τ Lf.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">orthogonal_right_inv2cell</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+             (<span class="nv">τ</span> : invertible_2cell f g)
+             (<span class="nv">Lf</span> : orthogonal_right_class f)
+    : orthogonal_right_class g
+    := pr12 (pr222 fact_B) _ _ f g τ Lf.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Definition</span> <span class="nf">orthogonal_lifting</span>
+             {<span class="nv">b₁</span> <span class="nv">b₂</span> <span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+             (<span class="nv">f</span> : b₁ --&gt; b₂)
+             (<span class="nv">g</span> : c₁ --&gt; c₂)
+             (<span class="nv">Lf</span> : orthogonal_left_class f)
+             (<span class="nv">Rg</span> : orthogonal_right_class g)
+    : f ⊥ g
+    := pr22 (pr222 fact_B) _ _ _ _ f g Lf Rg.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Projections</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+<span class="sd">(** * 5. Properties of orthogonal factorization systems *)</span>
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Section</span> <span class="nf">Properties</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">fact_B</span> : orthogonal_factorization_system B)
+          {<span class="nv">x</span> <span class="nv">y</span> : B}
+          (<span class="nv">f</span> : x --&gt; y)
+          (<span class="nv">Lf</span> : orthogonal_left_class fact_B f)
+          (<span class="nv">Rf</span> : orthogonal_right_class fact_B f).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Let</span> <span class="nf">α</span> : invertible_2cell (id₁ _ · f) (f · id₁ _)
+    := comp_of_invertible_2cell
+         (lunitor_invertible_2cell _)
+         (rinvunitor_invertible_2cell _).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="factorizationsystem-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="factorizationsystem-v-chk1"><span class="kn">Definition</span> <span class="nf">orthogonal_left_right_to_equiv</span>
+    : left_equivalence f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>fact_B</var><span class="hyp-type"><b>: </b><span>orthogonal_factorization_system B</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, y ⟧</span></span></span><br><span><var>Lf</var><span class="hyp-type"><b>: </b><span>orthogonal_left_class fact_B f</span></span></span><br><span><var>Rf</var><span class="hyp-type"><b>: </b><span>orthogonal_right_class fact_B f</span></span></span><br><span><var>α</var><span><span class="hyp-body"><b>:= </b><span>comp_of_invertible_2cell
+  (lunitor_invertible_2cell f)
+  (rinvunitor_invertible_2cell f)</span></span><span class="hyp-type"><b>: </b><span>invertible_2cell (id₁ x · f) (f · id₁ y)</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">left_equivalence f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="factorizationsystem-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="factorizationsystem-v-chk2"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>fact_B</var><span class="hyp-type"><b>: </b><span>orthogonal_factorization_system B</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, y ⟧</span></span></span><br><span><var>Lf</var><span class="hyp-type"><b>: </b><span>orthogonal_left_class fact_B f</span></span></span><br><span><var>Rf</var><span class="hyp-type"><b>: </b><span>orthogonal_right_class fact_B f</span></span></span><br><span><var>α</var><span><span class="hyp-body"><b>:= </b><span>comp_of_invertible_2cell
+  (lunitor_invertible_2cell f)
+  (rinvunitor_invertible_2cell f)</span></span><span class="hyp-type"><b>: </b><span>invertible_2cell (id₁ x · f) (f · id₁ y)</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">left_equivalence f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="factorizationsystem-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="factorizationsystem-v-chk3"><span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, _ ,, _) ; <span class="nb">cbn</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>fact_B</var><span class="hyp-type"><b>: </b><span>orthogonal_factorization_system B</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, y ⟧</span></span></span><br><span><var>Lf</var><span class="hyp-type"><b>: </b><span>orthogonal_left_class fact_B f</span></span></span><br><span><var>Rf</var><span class="hyp-type"><b>: </b><span>orthogonal_right_class fact_B f</span></span></span><br><span><var>α</var><span><span class="hyp-body"><b>:= </b><span>comp_of_invertible_2cell
+  (lunitor_invertible_2cell f)
+  (rinvunitor_invertible_2cell f)</span></span><span class="hyp-type"><b>: </b><span>invertible_2cell (id₁ x · f) (f · id₁ y)</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">B ⟦ y, x ⟧</div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="factorizationsystem-v-chk4" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>fact_B</var><span class="hyp-type"><b>: </b><span>orthogonal_factorization_system B</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, y ⟧</span></span></span><br><span><var>Lf</var><span class="hyp-type"><b>: </b><span>orthogonal_left_class fact_B f</span></span></span><br><span><var>Rf</var><span class="hyp-type"><b>: </b><span>orthogonal_right_class fact_B f</span></span></span><br><span><var>α</var><span><span class="hyp-body"><b>:= </b><span>comp_of_invertible_2cell
+  (lunitor_invertible_2cell f)
+  (rinvunitor_invertible_2cell f)</span></span><span class="hyp-type"><b>: </b><span>invertible_2cell (id₁ x · f) (f · id₁ y)</span></span></span></span><br></div><label class="goal-separator" for="factorizationsystem-v-chk4"><hr></label><div class="goal-conclusion">id₁ x ==&gt; f · <span class="nl">?Goal</span></div></blockquote><input class="alectryon-extra-goal-toggle" id="factorizationsystem-v-chk5" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>fact_B</var><span class="hyp-type"><b>: </b><span>orthogonal_factorization_system B</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, y ⟧</span></span></span><br><span><var>Lf</var><span class="hyp-type"><b>: </b><span>orthogonal_left_class fact_B f</span></span></span><br><span><var>Rf</var><span class="hyp-type"><b>: </b><span>orthogonal_right_class fact_B f</span></span></span><br><span><var>α</var><span><span class="hyp-body"><b>:= </b><span>comp_of_invertible_2cell
+  (lunitor_invertible_2cell f)
+  (rinvunitor_invertible_2cell f)</span></span><span class="hyp-type"><b>: </b><span>invertible_2cell (id₁ x · f) (f · id₁ y)</span></span></span></span><br></div><label class="goal-separator" for="factorizationsystem-v-chk5"><hr></label><div class="goal-conclusion"><span class="nl">?Goal</span> · f ==&gt; id₁ y</div></blockquote><input class="alectryon-extra-goal-toggle" id="factorizationsystem-v-chk6" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>fact_B</var><span class="hyp-type"><b>: </b><span>orthogonal_factorization_system B</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, y ⟧</span></span></span><br><span><var>Lf</var><span class="hyp-type"><b>: </b><span>orthogonal_left_class fact_B f</span></span></span><br><span><var>Rf</var><span class="hyp-type"><b>: </b><span>orthogonal_right_class fact_B f</span></span></span><br><span><var>α</var><span><span class="hyp-body"><b>:= </b><span>comp_of_invertible_2cell
+  (lunitor_invertible_2cell f)
+  (rinvunitor_invertible_2cell f)</span></span><span class="hyp-type"><b>: </b><span>invertible_2cell (id₁ x · f) (f · id₁ y)</span></span></span></span><br></div><label class="goal-separator" for="factorizationsystem-v-chk6"><hr></label><div class="goal-conclusion">is_invertible_2cell <span class="nl">?Goal0</span></div></blockquote><input class="alectryon-extra-goal-toggle" id="factorizationsystem-v-chk7" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>fact_B</var><span class="hyp-type"><b>: </b><span>orthogonal_factorization_system B</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, y ⟧</span></span></span><br><span><var>Lf</var><span class="hyp-type"><b>: </b><span>orthogonal_left_class fact_B f</span></span></span><br><span><var>Rf</var><span class="hyp-type"><b>: </b><span>orthogonal_right_class fact_B f</span></span></span><br><span><var>α</var><span><span class="hyp-body"><b>:= </b><span>comp_of_invertible_2cell
+  (lunitor_invertible_2cell f)
+  (rinvunitor_invertible_2cell f)</span></span><span class="hyp-type"><b>: </b><span>invertible_2cell (id₁ x · f) (f · id₁ y)</span></span></span></span><br></div><label class="goal-separator" for="factorizationsystem-v-chk7"><hr></label><div class="goal-conclusion">is_invertible_2cell <span class="nl">?Goal1</span></div></blockquote></div></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="factorizationsystem-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="factorizationsystem-v-chk8">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>fact_B</var><span class="hyp-type"><b>: </b><span>orthogonal_factorization_system B</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, y ⟧</span></span></span><br><span><var>Lf</var><span class="hyp-type"><b>: </b><span>orthogonal_left_class fact_B f</span></span></span><br><span><var>Rf</var><span class="hyp-type"><b>: </b><span>orthogonal_right_class fact_B f</span></span></span><br><span><var>α</var><span><span class="hyp-body"><b>:= </b><span>comp_of_invertible_2cell
+  (lunitor_invertible_2cell f)
+  (rinvunitor_invertible_2cell f)</span></span><span class="hyp-type"><b>: </b><span>invertible_2cell (id₁ x · f) (f · id₁ y)</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">B ⟦ y, x ⟧</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="factorizationsystem-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="factorizationsystem-v-chk9"><span class="nb">refine</span> (orthogonal_lift_1 _ _ _ α).</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>fact_B</var><span class="hyp-type"><b>: </b><span>orthogonal_factorization_system B</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, y ⟧</span></span></span><br><span><var>Lf</var><span class="hyp-type"><b>: </b><span>orthogonal_left_class fact_B f</span></span></span><br><span><var>Rf</var><span class="hyp-type"><b>: </b><span>orthogonal_right_class fact_B f</span></span></span><br><span><var>α</var><span><span class="hyp-body"><b>:= </b><span>comp_of_invertible_2cell
+  (lunitor_invertible_2cell f)
+  (rinvunitor_invertible_2cell f)</span></span><span class="hyp-type"><b>: </b><span>invertible_2cell (id₁ x · f) (f · id₁ y)</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">f ⊥ f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">      </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (orthogonal_lifting fact_B f f Lf Rf).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="factorizationsystem-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="factorizationsystem-v-chka">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>fact_B</var><span class="hyp-type"><b>: </b><span>orthogonal_factorization_system B</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, y ⟧</span></span></span><br><span><var>Lf</var><span class="hyp-type"><b>: </b><span>orthogonal_left_class fact_B f</span></span></span><br><span><var>Rf</var><span class="hyp-type"><b>: </b><span>orthogonal_right_class fact_B f</span></span></span><br><span><var>α</var><span><span class="hyp-body"><b>:= </b><span>comp_of_invertible_2cell
+  (lunitor_invertible_2cell f)
+  (rinvunitor_invertible_2cell f)</span></span><span class="hyp-type"><b>: </b><span>invertible_2cell (id₁ x · f) (f · id₁ y)</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">id₁ x ==&gt;
+f
+· orthogonal_lift_1
+    (orthogonal_lifting fact_B f f Lf Rf) (id₁ x)
+    (id₁ y) α</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> (inv_of_invertible_2cell (orthogonal_lift_1_comm_left _ _ _ α)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="factorizationsystem-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="factorizationsystem-v-chkb">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>fact_B</var><span class="hyp-type"><b>: </b><span>orthogonal_factorization_system B</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, y ⟧</span></span></span><br><span><var>Lf</var><span class="hyp-type"><b>: </b><span>orthogonal_left_class fact_B f</span></span></span><br><span><var>Rf</var><span class="hyp-type"><b>: </b><span>orthogonal_right_class fact_B f</span></span></span><br><span><var>α</var><span><span class="hyp-body"><b>:= </b><span>comp_of_invertible_2cell
+  (lunitor_invertible_2cell f)
+  (rinvunitor_invertible_2cell f)</span></span><span class="hyp-type"><b>: </b><span>invertible_2cell (id₁ x · f) (f · id₁ y)</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">orthogonal_lift_1
+  (orthogonal_lifting fact_B f f Lf Rf) (id₁ x)
+  (id₁ y) α · f ==&gt; id₁ y</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> ((orthogonal_lift_1_comm_right _ _ _ α)).</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="factorizationsystem-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="factorizationsystem-v-chkc">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>fact_B</var><span class="hyp-type"><b>: </b><span>orthogonal_factorization_system B</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, y ⟧</span></span></span><br><span><var>Lf</var><span class="hyp-type"><b>: </b><span>orthogonal_left_class fact_B f</span></span></span><br><span><var>Rf</var><span class="hyp-type"><b>: </b><span>orthogonal_right_class fact_B f</span></span></span><br><span><var>α</var><span><span class="hyp-body"><b>:= </b><span>comp_of_invertible_2cell
+  (lunitor_invertible_2cell f)
+  (rinvunitor_invertible_2cell f)</span></span><span class="hyp-type"><b>: </b><span>invertible_2cell (id₁ x · f) (f · id₁ y)</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_invertible_2cell
+  (inv_of_invertible_2cell
+     (orthogonal_lift_1_comm_left
+        (orthogonal_lifting fact_B f f Lf Rf) (id₁ x)
+        (id₁ y) α))</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> property_from_invertible_2cell.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="factorizationsystem-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="factorizationsystem-v-chkd">-</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>fact_B</var><span class="hyp-type"><b>: </b><span>orthogonal_factorization_system B</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, y ⟧</span></span></span><br><span><var>Lf</var><span class="hyp-type"><b>: </b><span>orthogonal_left_class fact_B f</span></span></span><br><span><var>Rf</var><span class="hyp-type"><b>: </b><span>orthogonal_right_class fact_B f</span></span></span><br><span><var>α</var><span><span class="hyp-body"><b>:= </b><span>comp_of_invertible_2cell
+  (lunitor_invertible_2cell f)
+  (rinvunitor_invertible_2cell f)</span></span><span class="hyp-type"><b>: </b><span>invertible_2cell (id₁ x · f) (f · id₁ y)</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">is_invertible_2cell
+  (orthogonal_lift_1_comm_right
+     (orthogonal_lifting fact_B f f Lf Rf) (id₁ x)
+     (id₁ y) α)</div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="nb">apply</span> property_from_invertible_2cell.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">
+</span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="factorizationsystem-v-chke" style="display: none" type="checkbox"><label class="alectryon-input" for="factorizationsystem-v-chke"><span class="kn">Definition</span> <span class="nf">orthogonal_left_right_to_adjequiv</span>
+    : left_adjoint_equivalence f.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>fact_B</var><span class="hyp-type"><b>: </b><span>orthogonal_factorization_system B</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, y ⟧</span></span></span><br><span><var>Lf</var><span class="hyp-type"><b>: </b><span>orthogonal_left_class fact_B f</span></span></span><br><span><var>Rf</var><span class="hyp-type"><b>: </b><span>orthogonal_right_class fact_B f</span></span></span><br><span><var>α</var><span><span class="hyp-body"><b>:= </b><span>comp_of_invertible_2cell
+  (lunitor_invertible_2cell f)
+  (rinvunitor_invertible_2cell f)</span></span><span class="hyp-type"><b>: </b><span>invertible_2cell (id₁ x · f) (f · id₁ y)</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">left_adjoint_equivalence f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="factorizationsystem-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="factorizationsystem-v-chkf"><span class="kn">Proof</span>.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>fact_B</var><span class="hyp-type"><b>: </b><span>orthogonal_factorization_system B</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, y ⟧</span></span></span><br><span><var>Lf</var><span class="hyp-type"><b>: </b><span>orthogonal_left_class fact_B f</span></span></span><br><span><var>Rf</var><span class="hyp-type"><b>: </b><span>orthogonal_right_class fact_B f</span></span></span><br><span><var>α</var><span><span class="hyp-body"><b>:= </b><span>comp_of_invertible_2cell
+  (lunitor_invertible_2cell f)
+  (rinvunitor_invertible_2cell f)</span></span><span class="hyp-type"><b>: </b><span>invertible_2cell (id₁ x · f) (f · id₁ y)</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">left_adjoint_equivalence f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input class="alectryon-toggle" id="factorizationsystem-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="factorizationsystem-v-chk10">use equiv_to_adjequiv.</label><small class="alectryon-output"><div><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><span><var>B</var><span class="hyp-type"><b>: </b><span>bicat</span></span></span><br><span><var>fact_B</var><span class="hyp-type"><b>: </b><span>orthogonal_factorization_system B</span></span></span><br><span><var>x, y</var><span class="hyp-type"><b>: </b><span>B</span></span></span><br><span><var>f</var><span class="hyp-type"><b>: </b><span>B ⟦ x, y ⟧</span></span></span><br><span><var>Lf</var><span class="hyp-type"><b>: </b><span>orthogonal_left_class fact_B f</span></span></span><br><span><var>Rf</var><span class="hyp-type"><b>: </b><span>orthogonal_right_class fact_B f</span></span></span><br><span><var>α</var><span><span class="hyp-body"><b>:= </b><span>comp_of_invertible_2cell
+  (lunitor_invertible_2cell f)
+  (rinvunitor_invertible_2cell f)</span></span><span class="hyp-type"><b>: </b><span>invertible_2cell (id₁ x · f) (f · id₁ y)</span></span></span></span><br></div><span class="goal-separator"><hr></span><div class="goal-conclusion">left_equivalence f</div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="bp">exact</span> orthogonal_left_right_to_equiv.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Defined</span>.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">End</span> <span class="nf">Properties</span>.</span></span></pre>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.AlgebraicTheories.Examples.LambdaCalculus</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.AlgebraicTheories.Examples.LambdaCalculus</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.StandardFiniteSets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#"><span class="id" title="library">UniMath.AlgebraicTheories.AlgebraicTheories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaTheories.html#"><span class="id" title="library">UniMath.AlgebraicTheories.LambdaTheories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#"><span class="id" title="library">UniMath.AlgebraicTheories.LambdaCalculus</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.Tuples.html#"><span class="id" title="library">UniMath.Combinatorics.Tuples</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab437"></a><h1 class="section">1. The algebraic theory of the λ-calculus</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="LambdaCalculus" class="idref" href="#LambdaCalculus"><span class="id" title="section">LambdaCalculus</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Variable</span> <a id="LambdaCalculus.L" class="idref" href="#LambdaCalculus.L"><span class="id" title="variable">L</span></a> : <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#lambda_calculus"><span class="id" title="definition">lambda_calculus</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="lambda_calculus_algebraic_theory_data" class="idref" href="#lambda_calculus_algebraic_theory_data"><span class="id" title="definition">lambda_calculus_algebraic_theory_data</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#algebraic_theory_data"><span class="id" title="definition">algebraic_theory_data</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#make_algebraic_theory_data"><span class="id" title="definition">make_algebraic_theory_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.AlgebraicTheories.Examples.LambdaCalculus.html#LambdaCalculus.L"><span class="id" title="variable">L</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#var"><span class="id" title="definition">var</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a id="l:3" class="idref" href="#l:3"><span class="id" title="binder">l</span></a> <a id="targets:4" class="idref" href="#targets:4"><span class="id" title="binder">targets</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#subst"><span class="id" title="definition">subst</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.LambdaCalculus.html#l:3"><span class="id" title="variable">l</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.LambdaCalculus.html#targets:4"><span class="id" title="variable">targets</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="lambda_calculus_is_algebraic_theory" class="idref" href="#lambda_calculus_is_algebraic_theory"><span class="id" title="lemma">lambda_calculus_is_algebraic_theory</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#is_algebraic_theory"><span class="id" title="definition">is_algebraic_theory</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.LambdaCalculus.html#lambda_calculus_algebraic_theory_data"><span class="id" title="definition">lambda_calculus_algebraic_theory_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#make_is_algebraic_theory"><span class="id" title="definition">make_is_algebraic_theory</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">l</span> <span class="id" title="var">m</span> <span class="id" title="var">n</span> <span class="id" title="var">f_l</span> <span class="id" title="var">f_m</span> <span class="id" title="var">f_n</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">revert</span> <span class="id" title="var">l</span> <span class="id" title="var">f_l</span> <span class="id" title="var">m</span> <span class="id" title="var">f_m</span> <span class="id" title="var">n</span> <span class="id" title="var">f_n</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#lambda_calculus_ind_prop"><span class="id" title="definition">lambda_calculus_ind_prop</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>));<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> -[<a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">do</span> 4 (<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartD.html#impred"><span class="id" title="lemma">impred</span></a>; <span class="id" title="tactic">intro</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#var_subst"><span class="id" title="definition">var_subst</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> ? ? ? <span class="id" title="var">Hl</span> <span class="id" title="var">Hl'</span> ? ? ? ?.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 3 <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#subst_app"><span class="id" title="definition">subst_app</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <span class="id" title="var">Hl</span>, <span class="id" title="var">Hl'</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">l</span> <span class="id" title="var">f_l</span> <span class="id" title="var">Hl</span> <span class="id" title="var">m</span> <span class="id" title="var">f_m</span> <span class="id" title="var">n</span> <span class="id" title="var">f_n</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 3 <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#subst_abs"><span class="id" title="definition">subst_abs</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">Hl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><a class="idref" href="UniMath.Combinatorics.Tuples.html#extend_tuple_eq"><span class="id" title="lemma">extend_tuple_eq</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:5" class="idref" href="#x:5"><span class="id" title="binder"><span id="x:6" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#subst"><span class="id" title="definition">subst</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.LambdaCalculus.html#x:5"><span class="id" title="variable">x</span></a> <span class="id" title="var">_</span>) (<a class="idref" href="UniMath.Combinatorics.Tuples.html#extend_tuple_inl"><span class="id" title="lemma">extend_tuple_inl</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#inflate_subst"><span class="id" title="definition">inflate_subst</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#inflate"><span class="id" title="definition">inflate</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#subst_subst"><span class="id" title="definition">subst_subst</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#var_subst"><span class="id" title="definition">var_subst</span></a>, <a class="idref" href="UniMath.Combinatorics.Tuples.html#extend_tuple_inl"><span class="id" title="lemma">extend_tuple_inl</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Combinatorics.Tuples.html#extend_tuple_inr"><span class="id" title="lemma">extend_tuple_inr</span></a>, <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#var_subst"><span class="id" title="definition">var_subst</span></a>, <a class="idref" href="UniMath.Combinatorics.Tuples.html#extend_tuple_inr"><span class="id" title="lemma">extend_tuple_inr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">m</span> <span class="id" title="var">n</span> <span class="id" title="var">l</span> <span class="id" title="var">f</span> <span class="id" title="var">Hl</span> <span class="id" title="var">Hf</span> <span class="id" title="var">m'</span> <span class="id" title="var">f_m'</span> <span class="id" title="var">n'</span> <span class="id" title="var">f_n'</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">Hl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#subst_subst"><span class="id" title="definition">subst_subst</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">Hf</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">do</span> 4 <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#var_subst"><span class="id" title="definition">var_subst</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> (<a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#lambda_calculus_ind_prop"><span class="id" title="definition">lambda_calculus_ind_prop</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>));<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#subst_var"><span class="id" title="lemma">subst_var</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> ? ? ? <span class="id" title="var">Hl</span> <span class="id" title="var">Hl'</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#subst_app"><span class="id" title="definition">subst_app</span></a>, <span class="id" title="var">Hl</span>, <span class="id" title="var">Hl'</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">n'</span> <span class="id" title="var">l</span> <span class="id" title="var">Hl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#subst_abs"><span class="id" title="definition">subst_abs</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">Hl</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Combinatorics.Tuples.html#extend_tuple_eq"><span class="id" title="lemma">extend_tuple_eq</span></a> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#inflate_var"><span class="id" title="definition">inflate_var</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> ? ? ? ? <span class="id" title="var">Hl</span> <span class="id" title="var">Hf</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#subst_subst"><span class="id" title="definition">subst_subst</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">Hf</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="lambda_calculus_algebraic_theory" class="idref" href="#lambda_calculus_algebraic_theory"><span class="id" title="definition">lambda_calculus_algebraic_theory</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#algebraic_theory"><span class="id" title="definition">algebraic_theory</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.AlgebraicTheories.AlgebraicTheories.html#make_algebraic_theory"><span class="id" title="definition">make_algebraic_theory</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.AlgebraicTheories.Examples.LambdaCalculus.html#lambda_calculus_is_algebraic_theory"><span class="id" title="lemma">lambda_calculus_is_algebraic_theory</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab438"></a><h1 class="section">2. The λ-theory of the λ-calculus</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="lambda_calculus_lambda_theory_data" class="idref" href="#lambda_calculus_lambda_theory_data"><span class="id" title="definition">lambda_calculus_lambda_theory_data</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.AlgebraicTheories.LambdaTheories.html#lambda_theory_data"><span class="id" title="definition">lambda_theory_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.AlgebraicTheories.Examples.LambdaCalculus.html#lambda_calculus_algebraic_theory"><span class="id" title="definition">lambda_calculus_algebraic_theory</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> ? <span class="id" title="var">l</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#app"><span class="id" title="definition">app</span></a> (<a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#inflate"><span class="id" title="definition">inflate</span></a> <span class="id" title="var">l</span>) (<a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#var"><span class="id" title="definition">var</span></a> (<a class="idref" href="UniMath.Combinatorics.Tuples.html#stnweq"><span class="id" title="definition">stnweq</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>)))).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#abs"><span class="id" title="definition">abs</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="lambda_calculus_is_lambda_theory" class="idref" href="#lambda_calculus_is_lambda_theory"><span class="id" title="definition">lambda_calculus_is_lambda_theory</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.AlgebraicTheories.LambdaTheories.html#is_lambda_theory"><span class="id" title="definition">is_lambda_theory</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.LambdaCalculus.html#lambda_calculus_lambda_theory_data"><span class="id" title="definition">lambda_calculus_lambda_theory_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 4 <span class="id" title="tactic">intro</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> -[<a class="idref" href="UniMath.Combinatorics.Tuples.html#stnweq"><span class="id" title="definition">stnweq</span></a>];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#inflate"><span class="id" title="definition">inflate</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#subst_app"><span class="id" title="definition">subst_app</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#subst_subst"><span class="id" title="definition">subst_subst</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#var_subst"><span class="id" title="definition">var_subst</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Combinatorics.Tuples.html#extend_tuple_inr"><span class="id" title="lemma">extend_tuple_inr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:7" class="idref" href="#x:7"><span class="id" title="binder"><span id="x:8" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <span class="id" title="var">_</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.AlgebraicTheories.Examples.LambdaCalculus.html#x:7"><span class="id" title="variable">x</span></a>) <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#var_subst"><span class="id" title="definition">var_subst</span></a>, <a class="idref" href="UniMath.Combinatorics.Tuples.html#extend_tuple_inl"><span class="id" title="lemma">extend_tuple_inl</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#subst_abs"><span class="id" title="definition">subst_abs</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="lambda_calculus_lambda_theory" class="idref" href="#lambda_calculus_lambda_theory"><span class="id" title="definition">lambda_calculus_lambda_theory</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.AlgebraicTheories.LambdaTheories.html#lambda_theory"><span class="id" title="definition">lambda_theory</span></a><br/>
+&nbsp;&nbsp;:= <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.LambdaCalculus.html#lambda_calculus_is_lambda_theory"><span class="id" title="definition">lambda_calculus_is_lambda_theory</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab439"></a><h1 class="section">3. The λ-theory has β-equality</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="1d6f6b93b532caf94fefa421e6c75e82" class="idref" href="#1d6f6b93b532caf94fefa421e6c75e82"><span class="id" title="lemma">lambda_calculus_has_β</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.AlgebraicTheories.LambdaTheories.html#4a0f836533182461d718b4652cab7020"><span class="id" title="definition">has_β</span></a> <a class="idref" href="UniMath.AlgebraicTheories.Examples.LambdaCalculus.html#lambda_calculus_lambda_theory"><span class="id" title="definition">lambda_calculus_lambda_theory</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaTheories.html#4a0f836533182461d718b4652cab7020"><span class="id" title="definition">has_β</span></a>, <a class="idref" href="UniMath.AlgebraicTheories.LambdaTheories.html#app"><span class="id" title="definition">LambdaTheories.app</span></a>, <a class="idref" href="UniMath.AlgebraicTheories.LambdaTheories.html#abs"><span class="id" title="definition">LambdaTheories.abs</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">cbn</span> -[<a class="idref" href="UniMath.Combinatorics.Tuples.html#stnweq"><span class="id" title="definition">stnweq</span></a>].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">n</span> <span class="id" title="var">l</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#inflate_abs"><span class="id" title="definition">inflate_abs</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#beta_equality"><span class="id" title="definition">beta_equality</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#subst_subst"><span class="id" title="definition">subst_subst</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#subst_var"><span class="id" title="lemma">subst_var</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextfun"><span class="id" title="definition">funextfun</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- (<a class="idref" href="UniMath.Foundations.PartA.html#homotweqinvweq"><span class="id" title="definition">homotweqinvweq</span></a> <a class="idref" href="UniMath.Combinatorics.Tuples.html#stnweq"><span class="id" title="definition">stnweq</span></a> <span class="id" title="var">i</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> (<a class="idref" href="UniMath.Foundations.PartA.html#invmap"><span class="id" title="definition">invmap</span></a> <a class="idref" href="UniMath.Combinatorics.Tuples.html#stnweq"><span class="id" title="definition">stnweq</span></a> <span class="id" title="var">i</span>) <span class="id" title="keyword">as</span> [<span class="id" title="var">i'</span> | <span class="id" title="var">i'</span>].<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Combinatorics.Tuples.html#extend_tuple_inl"><span class="id" title="lemma">extend_tuple_inl</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#inflate_var"><span class="id" title="definition">inflate_var</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#var_subst"><span class="id" title="definition">var_subst</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Combinatorics.Tuples.html#extend_tuple_inl"><span class="id" title="lemma">extend_tuple_inl</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Combinatorics.Tuples.html#extend_tuple_inr"><span class="id" title="lemma">extend_tuple_inr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.AlgebraicTheories.LambdaCalculus.html#var_subst"><span class="id" title="definition">var_subst</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Combinatorics.Tuples.html#extend_tuple_inr"><span class="id" title="lemma">extend_tuple_inr</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.AlgebraicTheories.Examples.LambdaCalculus.html#LambdaCalculus"><span class="id" title="section">LambdaCalculus</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>
