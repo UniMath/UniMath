@@ -33,6 +33,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 Require Import UniMath.CategoryTheory.FunctorCategory.
@@ -148,11 +149,13 @@ End fix_T.
 (** Construction of right Kan extensions based on MacLane, CWM, X.3 (p. 233) *)
 Lemma RightKanExtension_from_limits : GlobalRightKanExtensionExists _ _ K A.
 Proof.
-unfold GlobalRightKanExtensionExists.
-use left_adjoint_from_partial.
-- apply R_functor.
-- apply eps.
-- intros T S α; simpl in *.
+  unfold GlobalRightKanExtensionExists.
+  use coreflections_to_is_left_adjoint.
+  intro T.
+  use make_coreflection.
+  - exists (R_functor T).
+    exact (eps T).
+  - intros [S α] ; simpl in *.
 
   transparent assert (cc : (∏ c, cone (QT T c) (S c))).
   { intro c.

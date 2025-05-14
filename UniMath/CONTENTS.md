@@ -263,6 +263,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [HomotopicalCategory.v](CategoryTheory/HomotopicalCategory.v)
    - [Adjunctions/Core.v](CategoryTheory/Adjunctions/Core.v)
    - [Adjunctions/AdjunctionMonics.v](CategoryTheory/Adjunctions/AdjunctionMonics.v)
+   - [Adjunctions/Reflections.v](CategoryTheory/Adjunctions/Reflections.v)
+   - [Adjunctions/Coreflections.v](CategoryTheory/Adjunctions/Coreflections.v)
    - [Monads/RelativeMonads.v](CategoryTheory/Monads/RelativeMonads.v)
    - [Monads/RelMonads_Coreflection.v](CategoryTheory/Monads/RelMonads_Coreflection.v)
    - [Monads/RelativeModules.v](CategoryTheory/Monads/RelativeModules.v)

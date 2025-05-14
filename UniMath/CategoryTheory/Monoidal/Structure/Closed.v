@@ -29,6 +29,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
@@ -120,13 +121,10 @@ Section Builder.
 
   Definition make_left_closed_universal
              (x y : V)
-    : is_universal_arrow_from
-        (rightwhiskering_functor V x)
-        y
-        (HomV x y)
-        (eval x y).
+    : is_coreflection
+        (make_coreflection_data (F := rightwhiskering_functor V x) (HomV x y) (eval x y)).
   Proof.
-    intros z f.
+    intros [z f].
     use iscontraprop1.
     - abstract
         (use invproofirrelevance ;
@@ -159,14 +157,8 @@ Section Builder.
     : monoidal_leftclosed V.
   Proof.
     intros x.
-    pose (right_adjoint_from_partial
-             (rightwhiskering_functor V x)
-             (HomV x)
-             (eval x)
-             (make_left_closed_universal x))
-      as A.
-    exists (Core.G _ _ _ (make_left_closed_universal x)).
-    exact (pr2 A).
+    exists (coreflections_to_functor (λ y, _ ,, make_left_closed_universal x y)).
+    apply coreflections_to_are_adjoints.
   Defined.
 
   Definition make_sym_mon_closed_cat
@@ -283,13 +275,10 @@ End Accessors.
 Definition sym_mon_closed_left_tensor_left_adjoint_universal
            (V : sym_mon_closed_cat)
            (x y : V)
-  : is_universal_arrow_from
-      (monoidal_left_tensor x)
-      y
-      (x ⊸ y)
-      (sym_mon_braiding V x (x ⊸ y) · internal_eval x y).
+  : is_coreflection
+      (make_coreflection_data (F := monoidal_left_tensor x) (x ⊸ y) (sym_mon_braiding V x (x ⊸ y) · internal_eval x y)).
 Proof.
-  intros z f.
+  intros [z f].
   use iscontraprop1.
   - abstract
       (use invproofirrelevance ;
@@ -323,22 +312,21 @@ Definition sym_mon_closed_left_tensor_left_adjoint
            (x : V)
   : is_left_adjoint (monoidal_left_tensor x).
 Proof.
-  use left_adjoint_from_partial.
-  - exact (λ y, x ⊸ y).
-  - exact (λ y, sym_mon_braiding V _ _ · internal_eval _ _).
-  - exact (sym_mon_closed_left_tensor_left_adjoint_universal V x).
+  use coreflections_to_is_left_adjoint.
+  intro y.
+  use make_coreflection.
+  - exists (x ⊸ y).
+    exact (sym_mon_braiding V _ _ · internal_eval _ _).
+  - exact (sym_mon_closed_left_tensor_left_adjoint_universal V x y).
 Defined.
 
 Definition sym_mon_closed_left_tensor_right_adjoint_universal
            (V : sym_mon_closed_cat)
            (x y : V)
-  : is_universal_arrow_from
-      (monoidal_right_tensor x)
-      y
-      (x ⊸ y)
-      (internal_eval x y).
+  : is_coreflection
+      (make_coreflection_data (F := monoidal_right_tensor x) (x ⊸ y) (internal_eval x y)).
 Proof.
-  intros z f.
+  intros [z f].
   use iscontraprop1.
   - abstract
       (use invproofirrelevance ;
@@ -359,10 +347,12 @@ Definition sym_mon_closed_right_tensor_left_adjoint
            (x : V)
   : is_left_adjoint (monoidal_right_tensor x).
 Proof.
-  use left_adjoint_from_partial.
-  - exact (λ y, x ⊸ y).
-  - exact (λ y, internal_eval _ _).
-  - exact (sym_mon_closed_left_tensor_right_adjoint_universal V x).
+  use coreflections_to_is_left_adjoint.
+  intro y.
+  use make_coreflection.
+  - exists (x ⊸ y).
+    exact (internal_eval _ _).
+  - exact (sym_mon_closed_left_tensor_right_adjoint_universal V x y).
 Defined.
 
 (**
