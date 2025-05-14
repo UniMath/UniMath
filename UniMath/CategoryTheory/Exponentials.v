@@ -128,17 +128,17 @@ Section ExponentiabilityTransportsAlongIso.
 
   Context {y : C} (e : Exponent P x y).
 
-  Let ev : C⟦P x' (pr1 e), y⟧
-      :=  BinProductOfArrows C (P x (pr1 e)) (P x' (pr1 e))
-            (z_iso_inv i) (identity (pr1 e)) · pr12 e.
+  Let ev : C⟦P x' (coreflection_data_object e), y⟧
+      :=  BinProductOfArrows C (P x (coreflection_data_object e)) (P x' (coreflection_data_object e))
+            (z_iso_inv i) (identity (coreflection_data_object e)) · e.
 
   Local Lemma equiv_of_mor
     {a : C}
     (f : C⟦P x' a, y⟧)
-    (g : C⟦a, pr1 e⟧)
-    : (f = BinProductOfArrows C (P x' (pr1 e)) (P x' a) (identity x') g · ev)
+    (g : C⟦a, coreflection_data_object e⟧)
+    : (f = BinProductOfArrows C (P x' (coreflection_data_object e)) (P x' a) (identity x') g · ev)
         ≃ (BinProductOfArrows C (P x' a) (P x a) i (identity a) · f
-           = BinProductOfArrows C (P x (pr1 e)) (P x a) (identity x) g · pr12 e).
+           = BinProductOfArrows C (P x (coreflection_data_object e)) (P x a) (identity x) g · e).
   Proof.
     use weqimplimpl.
     - intro pf.
@@ -196,14 +196,16 @@ Section ExponentiabilityTransportsAlongIso.
   Lemma Exponent_transport_along_iso
     : Exponent P x' y.
   Proof.
-    exists (pr1 e).
-    exists ev.
-    intros a f.
-    use (iscontrweqb' (pr22 e a (_ · f))).
-    - apply BinProductOfArrows.
-      + exact i.
-      + apply identity.
-    - use weqfibtototal ; intro ; apply equiv_of_mor.
+    use make_coreflection.
+    - use make_coreflection_data.
+      + exact (coreflection_data_object e).
+      + exact ev.
+    - intro f.
+      use (iscontrweqb' (coreflection_is_coreflection e (make_coreflection_data (coreflection_data_object f) (_ · f)))).
+      + apply BinProductOfArrows.
+        * exact i.
+        * apply identity.
+      + use weqfibtototal ; intro ; apply equiv_of_mor.
   Defined.
 
 End ExponentiabilityTransportsAlongIso.
@@ -220,9 +222,9 @@ Section ExponentiabilityTransportsAlongIso'.
   Lemma equiv_of_mor'
     {a : C}
     (f : C ⟦ P x a, y'⟧)
-    (g : C⟦a, pr1 e⟧)
-    :  f = BinProductOfArrows C (P x (pr1 e)) (P x a) (identity x) g · (pr12 e · j)
-             ≃ f · inv_from_z_iso j = BinProductOfArrows C (P x (pr1 e)) (P x a) (identity x) g · pr12 e.
+    (g : C⟦a, coreflection_data_object e⟧)
+    :  f = BinProductOfArrows C (P x (coreflection_data_object e)) (P x a) (identity x) g · (e · j)
+             ≃ f · inv_from_z_iso j = BinProductOfArrows C (P x (coreflection_data_object e)) (P x a) (identity x) g · e.
   Proof.
     use weqimplimpl.
     - intro p.
@@ -232,7 +234,7 @@ Section ExponentiabilityTransportsAlongIso'.
       now rewrite id_right.
     - intro p.
       rewrite assoc.
-      rewrite <- p.
+      refine (_ @ maponpaths (λ x, x · _) p).
       rewrite assoc'.
       rewrite z_iso_after_z_iso_inv.
       now rewrite id_right.
@@ -243,12 +245,14 @@ Section ExponentiabilityTransportsAlongIso'.
   Lemma Exponent_transport_along_iso'
     : Exponent P x' y'.
   Proof.
-    use (Exponent_transport_along_iso P i).
-    exists (pr1 e).
-    exists (pr12 e · j).
-    intros a f.
-    use (iscontrweqb' (pr22 e a (f · z_iso_inv j))).
-    use weqfibtototal ; intro ; apply equiv_of_mor'.
+    apply (Exponent_transport_along_iso P i).
+    use make_coreflection.
+    - use make_coreflection_data.
+      + exact (coreflection_data_object e).
+      + exact (e · j).
+    - intro f.
+      use (iscontrweqb' (coreflection_is_coreflection e (make_coreflection_data (coreflection_data_object f) (f · z_iso_inv j)))).
+      use weqfibtototal ; intro ; apply equiv_of_mor'.
   Defined.
 
 End ExponentiabilityTransportsAlongIso'.
@@ -289,8 +293,8 @@ Section IsExponentAlongIso.
     : is_exponentiable_alt_uvp P
         (BinProductOfArrows C (P x e) (P x e') (identity x) i · pr1 ee).
   Proof.
-    intros a f.
-    use (iscontrweqb' (pr2 ee a f)).
+    intro f.
+    use (iscontrweqb' (pr2 ee f)).
     use weqtotal2.
     { apply z_iso_comp_left_weq ; exact i. }
     intro.
@@ -340,7 +344,7 @@ Section EvaluationMapsDoNotFormAProposition.
   Proof.
     use tpair.
     - exact (exponentials_unique_up_to_iso P ev_uvp ev'_uvp).
-    - exact (pr2 (iscontrpr1 (ev'_uvp _ ev))).
+    - exact (pr2 (iscontrpr1 (ev'_uvp (make_coreflection_data (F := constprod_functor1 P x) _ ev)))).
   Defined.
 
   Lemma binproductofarrows_idtoiso {x y e : C} (f : C⟦P x e, y⟧) (p : e = e)
@@ -352,7 +356,11 @@ Section EvaluationMapsDoNotFormAProposition.
     : isaprop (is_Exponent P x y e).
   Proof.
     use isaproptotal2.
-    { intro ev ; do 2 (apply impred_isaprop ; intro) ; apply isapropiscontr. }
+    {
+      intro ev.
+      (apply impred_isaprop ; intro).
+      apply isapropiscontr.
+    }
     intros ev ev' ev_uvp ev'_uvp.
     set (q := evaluation_unique_up_to_iso ev_uvp ev'_uvp).
     induction q as [q₀ q₁].
@@ -380,8 +388,8 @@ Section PreservationOfExponentialObjects.
     : ∏ x y : C₀, Exponent P₀ x y → Exponent P₁ (F x) (F y).
   Proof.
     intros x y e.
-    set (t := F_pE x y (pr1 e) (pr12 e) (pr22 e)).
-    exact (_ ,, _ ,, t).
+    set (t := F_pE x y (coreflection_data_object e) e (coreflection_is_coreflection e)).
+    exact (make_coreflection _ t).
   Defined.
 
   Definition preserves_exponential_objects' (E₀ : Exponentials P₀) : UU
@@ -395,7 +403,7 @@ Section PreservationOfExponentialObjects.
   Proof.
     intros x y.
     set (t := F_pE x y).
-    exact (_ ,, _ ,, t).
+    exact (make_coreflection _ t).
   Defined.
 
   Definition preserves_exponential_objects_to_iso
@@ -405,8 +413,8 @@ Section PreservationOfExponentialObjects.
   Proof.
     refine (exponentials_unique_up_to_iso P₁ _ _).
     - apply F_pE.
-      exact (pr22 (is_exponentiable_to_is_exponentiable_alt P₀ x₀ (E₀ x₀) y₀)).
-    - exact (pr22 (is_exponentiable_to_is_exponentiable_alt P₁ (F x₀) (E₁ (F x₀)) (F y₀))).
+      exact (coreflection_is_coreflection (is_exponentiable_to_is_exponentiable_alt P₀ x₀ (E₀ x₀) y₀)).
+    - exact (coreflection_is_coreflection (is_exponentiable_to_is_exponentiable_alt P₁ (F x₀) (E₁ (F x₀)) (F y₀))).
   Defined.
 
   Definition preserves_exponential_objects_to_iso'
@@ -416,7 +424,7 @@ Section PreservationOfExponentialObjects.
   Proof.
     refine (exponentials_unique_up_to_iso P₁ _ _).
     - apply F_pE.
-    - exact (pr22 (is_exponentiable_to_is_exponentiable_alt P₁ (F x₀) (E₁ (F x₀)) (F y₀))).
+    - exact (coreflection_is_coreflection (is_exponentiable_to_is_exponentiable_alt P₁ (F x₀) (E₁ (F x₀)) (F y₀))).
   Defined.
 
   Lemma preserves_exponential_objects_to_preserves_exponentials
@@ -444,9 +452,9 @@ Section PreservationOfExponentialObjects.
     (E₀ : Exponentials P₀) (E₁ : Exponentials P₁)
     : preserves_exponentials E₀ E₁ F_pP → preserves_exponential_objects' E₀.
   Proof.
-    intros F_pE x y a₁ f₁.
-    set (e := _ ,, preserves_exponentials_to_exponent F_pE x y : Exponent P₁ (F x) (F y)).
-    use (iscontrweqb' (pr22 e a₁ f₁)).
+    intros F_pE x y f₁.
+    set (e := make_coreflection _ (pr2 (preserves_exponentials_to_exponent F_pE x y)) : Exponent P₁ (F x) (F y)).
+    use (iscontrweqb' (coreflection_is_coreflection e f₁)).
     use weqfibtototal.
     intro.
     use weqimplimpl.
@@ -489,11 +497,11 @@ Section PreservationOfExponentialObjects.
       etrans. { apply maponpaths, pathsinv0, functor_comp. }
       do 2 apply maponpaths.
       apply exp_beta.
-    - intros d f.
+    - intros f.
       set (ee := _ ,, F_pE x y : is_Exponent P₁ _ _ _).
       set (s := is_Exponent_along_iso_uvp  (functor_on_z_iso F (exponentials_unique_up_to_iso P₀ ev_uvp (is_exponentiable_to_uvp P₀ (E₀ x) y))) ee).
       rewrite assoc'.
-      exact (s d f).
+      exact (s f).
   Qed.
 
 End PreservationOfExponentialObjects.
