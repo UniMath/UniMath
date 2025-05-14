@@ -18,6 +18,7 @@ Require Import UniMath.CategoryTheory.WeakEquivalences.Creation.BinProducts.
 Require Import UniMath.CategoryTheory.WeakEquivalences.LiftPreservation.BinProducts.
 
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Exponentials.
 
@@ -155,7 +156,7 @@ Section WeakEquivalencesPreserveExponentialObjects.
     set (ψ₁ :=  invmap (weq_from_fully_faithful (ff_from_weak_equiv F F_weq) a₀ e₀) (i₀ · pr1 ϕ₁)).
     set (ψ₂ :=  invmap (weq_from_fully_faithful (ff_from_weak_equiv F F_weq) a₀ e₀) (i₀ · pr1 ϕ₂)).
 
-    set (t := is_exponentiable_to_uvp P₀ (E₀ x₀) y₀ a₀ (exp_app (E₀ _) ψ₁)).
+    set (t := is_exponentiable_to_uvp P₀ (E₀ x₀) y₀ (make_coreflection_data (F := (constprod_functor1 P₀ x₀)) a₀ (exp_app (E₀ _) ψ₁))).
     use (base_paths _ _ (proofirrelevancecontr t (ψ₁ ,, _) (ψ₂ ,, _))).
     {
       refine (pr21 t @ _).
@@ -358,8 +359,8 @@ Proposition weak_equiv_preserves_exponential_objects
       (weak_equiv_preserves_binproducts F_weq) E₀.
 Proof.
   intros x₀ y₀.
-  intros a₁ f₁.
-  use (factor_through_squash _ _ (pr1 F_weq a₁)).
+  intro f₁.
+  use (factor_through_squash _ _ (pr1 F_weq _)).
   { intro ; apply isapropiscontr. }
   intros [a₀ i₀].
   exact (weak_equiv_preserves_exponentiable_objects_uvp _ _ _ _ i₀).

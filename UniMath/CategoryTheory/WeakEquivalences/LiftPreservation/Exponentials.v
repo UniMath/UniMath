@@ -7,6 +7,7 @@ Require Import UniMath.Foundations.All.
 
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 
 Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
@@ -331,8 +332,9 @@ Section WeakEquivLiftsExponentialPreservation.
           (z_iso_inv (preserves_binproduct_to_z_iso H H_pP (P₂ (G x₁) (G e₁)) (P₃ (H (G x₁)) (H (G e₁)))) · # H ev₂).
     Proof.
       set (Fev_uvp := F_pE x₁ y₁ e₁ ev₁ ev₁_uvp).
-      intros d₃ f₃.
-      set (t := Fev_uvp d₃ (BinProductOfArrows _ (P₃ _ _) _ (nat_z_iso_inv α _) (identity _) ·  f₃ · α _)).
+      intros f₃.
+      set (t := Fev_uvp (make_coreflection_data (F := constprod_functor1 _ _) _
+        (BinProductOfArrows _ (P₃ _ _) _ (nat_z_iso_inv α _) (identity _) ·  f₃ · α _))).
       use (iscontrweqf _ t).
       use weqtotal2.
       - apply z_iso_comp_left_weq.
@@ -357,7 +359,7 @@ Section WeakEquivLiftsExponentialPreservation.
     intros e₂ ev₂ ev₂_uvp.
 
     use (factor_through_squash _ _ (eso_from_weak_equiv _ G_weq e₂)).
-    { do 2 (apply impred_isaprop ; intro) ; apply isapropiscontr. }
+    { (apply impred_isaprop ; intro) ; apply isapropiscontr. }
     intros [e₁ ie].
 
     set (px := isotoid _ (pr2 C₂) ix).

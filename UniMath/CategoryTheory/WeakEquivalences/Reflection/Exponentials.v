@@ -12,6 +12,7 @@ Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Exponentials.
@@ -37,15 +38,15 @@ Section WeakEquivReflectsExponentialObjects.
 
   Context {x₀ y₀ e₀ : C₀}
     (ev₀ : C₀⟦P₀ x₀ e₀, y₀⟧)
-    (ev_uvp :  is_universal_arrow_from (constprod_functor1 P₁ (F x₀)) (F y₀) (F e₀)
-                 (weak_equiv_z_iso_binprod _ _ · # F ev₀))
+    (ev_uvp : is_exponentiable_alt_uvp P₁ (weak_equiv_z_iso_binprod _ _ · # F ev₀))
     {a₀ : C₀}
     (f₀ : C₀⟦P₀ x₀ a₀, y₀⟧).
 
   Let f₁ : C₁⟦P₁ (F x₀) (F a₀), F y₀⟧ := weak_equiv_z_iso_binprod _ _ · #F f₀.
 
   Definition weak_equiv_reflect_exp_lam : C₀⟦a₀, e₀⟧
-    := (fully_faithful_inv_hom (pr2 F_weq) _ _ (pr11 (ev_uvp _ f₁))).
+    := fully_faithful_inv_hom (pr2 F_weq) _ _
+      (pr11 (ev_uvp (make_coreflection_data (F := constprod_functor1 _ _) _ f₁))).
 
   Lemma weak_equiv_reflect_exp_lam_helper (ψ : C₀⟦a₀, e₀⟧)
     :  BinProductOfArrows C₁ (P₁ _ _) (P₁ _ _)
@@ -68,7 +69,7 @@ Section WeakEquivReflectsExponentialObjects.
     : f₀ =
         BinProductOfArrows C₀ (P₀ x₀ e₀) (P₀ x₀ a₀) (identity x₀) weak_equiv_reflect_exp_lam · ev₀.
   Proof.
-    set(t := pr21 (ev_uvp _ f₁)).
+    set(t := pr21 (ev_uvp (make_coreflection_data (F := constprod_functor1 _ _) _ f₁))).
     simpl in t ; unfold BinProduct_of_functors_mor in t ; simpl in t.
 
     use (faithful_reflects_morphism_equality _ (pr2 F_weq)).
@@ -115,8 +116,8 @@ Section WeakEquivReflectsExponentialObjects.
       { intro ; apply homset_property. }
 
       use (faithful_reflects_morphism_equality _ (pr2 F_weq)).
-      set (t₁ := ! pr2 (ev_uvp (F a₀) f₁) (#F (pr1 ϕ₁) ,, bla ϕ₁)).
-      set (t₂ := ! pr2 (ev_uvp (F a₀) f₁) (#F (pr1 ϕ₂) ,, bla ϕ₂)).
+      set (t₁ := ! pr2 (ev_uvp (make_coreflection_data (F := constprod_functor1 _ _) (F a₀) f₁)) (#F (pr1 ϕ₁) ,, bla ϕ₁)).
+      set (t₂ := ! pr2 (ev_uvp (make_coreflection_data (F := constprod_functor1 _ _) (F a₀) f₁)) (#F (pr1 ϕ₂) ,, bla ϕ₂)).
       exact (! base_paths _ _ t₁ @ base_paths _ _ t₂).
     Qed.
 
@@ -139,7 +140,7 @@ Proposition weak_equiv_reflects_exponential_objects
   {F : functor C₀ C₁} (F_weq : is_weak_equiv F)
   : reflects_exponential_objects P₀ P₁ (weak_equiv_preserves_binproducts F_weq).
 Proof.
-  intros x₀ y₀ e₀ ev₀ ev_uvp a₀ f₀.
+  intros x₀ y₀ e₀ ev₀ ev_uvp f₀.
   apply (weak_equiv_reflects_exponential_objects_uvp P₀ P₁ F_weq).
   assumption.
 Defined.
