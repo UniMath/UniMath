@@ -359,7 +359,7 @@ Proposition weak_equiv_preserves_exponential_objects
       (weak_equiv_preserves_binproducts F_weq) E₀.
 Proof.
   intros x₀ y₀.
-  intros [a₁ f₁].
+  intro f₁.
   use (factor_through_squash _ _ (pr1 F_weq a₁)).
   { intro ; apply isapropiscontr. }
   intros [a₀ i₀].

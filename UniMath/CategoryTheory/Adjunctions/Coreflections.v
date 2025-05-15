@@ -281,9 +281,10 @@ Section Coreflections.
     {d : D}
     {F : C ⟶ D}
     (HC : is_univalent C)
-    (f f' : coreflection d F)
-    : f = f'.
+    : isaprop (coreflection d F).
   Proof.
+    apply invproofirrelevance.
+    intros f f'.
     use (coreflection_isotoid HC).
     - apply coreflection_uniqueness_iso.
     - apply coreflection_uniqueness_iso_commutes.

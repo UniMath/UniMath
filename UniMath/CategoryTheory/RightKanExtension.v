@@ -149,13 +149,16 @@ End fix_T.
 (** Construction of right Kan extensions based on MacLane, CWM, X.3 (p. 233) *)
 Lemma RightKanExtension_from_limits : GlobalRightKanExtensionExists _ _ K A.
 Proof.
-  unfold GlobalRightKanExtensionExists.
-  use coreflections_to_is_left_adjoint.
-  intro T.
-  use make_coreflection.
-  - exists (R_functor T).
-    exact (eps T).
-  - intros [S α] ; simpl in *.
+unfold GlobalRightKanExtensionExists.
+apply coreflections_to_is_left_adjoint.
+intro T.
+use make_coreflection.
+- use make_coreflection_data.
+  + exact (R_functor T).
+  + exact (eps T).
+- intro α'; simpl in *.
+  pose (S := coreflection_data_object α' : _ ⟶ _).
+  pose (α := (α' : _ --> _) : _ ⟹ _).
 
   transparent assert (cc : (∏ c, cone (QT T c) (S c))).
   { intro c.
@@ -210,8 +213,9 @@ Proof.
     apply limArrowUnique; intro u; simpl.
     destruct x as [t p]; simpl.
     assert (temp : α (pr1 u) = nat_trans_comp _ _ T (pre_whisker K t) (eps T) (pr1 u)).
-      now rewrite p.
-    rewrite temp; simpl.
+      unfold α; now rewrite p.
+    refine (_ @ !maponpaths _ temp).
+    simpl.
     destruct u as [n g]; simpl in *.
     apply pathsinv0; eapply pathscomp0;
     [rewrite assoc; apply cancel_postcomposition, (nat_trans_ax t _ _ g)|].

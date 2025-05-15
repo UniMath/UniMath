@@ -889,6 +889,21 @@ Section ExpIndependent.
     : Exponentials BC₂.
   Proof.
     intros x.
+(*
+    apply right_adjoint_weq_coreflections.
+    intro y.
+    use make_coreflection.
+    - use make_coreflection_data.
+      + exact (exp (E x) y).
+      + exact (iso_between_BinProduct (BC₂ x (exp (E x) y)) (BC₁ x (exp (E x) y))
+             · exp_eval (E x) y).
+    - intros f.
+      use make_coreflection_arrow.
+      + exact (exp_lam (E x) (z_iso_inv (iso_between_BinProduct (BC₂ x _) (BC₁ x _)) · f)).
+      + apply exponentials_independent_beta.
+      + intros g Hg.
+        exact (base_paths _ _ (proofirrelevance _ (exponentials_independent_eta f) (g ,, Hg) (_ ,, (exponentials_independent_beta _)))).
+*)
     use coreflections_to_is_left_adjoint.
     intro y.
     use make_coreflection.

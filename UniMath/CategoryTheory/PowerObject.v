@@ -83,7 +83,7 @@ Proof.
     exact (ExpFun b Ω).
   + intro b.
     use (ExpEv b).
-  + (*This proof should be generalized to any adjunction, it would essentialy be the inverse result of [[right_adjoint_from_partial]]*)
+  + (*This proof should be generalized to any adjunction, it would essentialy be the inverse result of [[reflections_to_is_right_adjoint]]*)
     intros c b f.
     use make_iscontr.
     - split with

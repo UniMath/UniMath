@@ -142,7 +142,7 @@ Proposition weak_equiv_reflects_exponential_objects
   {F : functor C₀ C₁} (F_weq : is_weak_equiv F)
   : reflects_exponential_objects P₀ P₁ (weak_equiv_preserves_binproducts F_weq).
 Proof.
-  intros x₀ y₀ e₀ ev₀ ev_uvp [a₀ f₀].
+  intros x₀ y₀ e₀ ev₀ ev_uvp f₀.
   apply (weak_equiv_reflects_exponential_objects_uvp P₀ P₁ F_weq).
   assumption.
 Defined.
