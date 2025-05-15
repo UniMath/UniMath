@@ -44,9 +44,11 @@ Section WeakEquivReflectsExponentialObjects.
 
   Let f₁ : C₁⟦P₁ (F x₀) (F a₀), F y₀⟧ := weak_equiv_z_iso_binprod _ _ · #F f₀.
 
+  Let f₁_corefl : coreflection_data (F y₀) (constprod_functor1 P₁ (F x₀))
+      := make_coreflection_data (F := constprod_functor1 _ _) _ f₁.
+
   Definition weak_equiv_reflect_exp_lam : C₀⟦a₀, e₀⟧
-    := fully_faithful_inv_hom (pr2 F_weq) _ _
-      (pr11 (ev_uvp (make_coreflection_data (F := constprod_functor1 _ _) _ f₁))).
+    := (fully_faithful_inv_hom (pr2 F_weq) _ _  (pr11 (ev_uvp f₁_corefl))).
 
   Lemma weak_equiv_reflect_exp_lam_helper (ψ : C₀⟦a₀, e₀⟧)
     :  BinProductOfArrows C₁ (P₁ _ _) (P₁ _ _)
@@ -69,7 +71,7 @@ Section WeakEquivReflectsExponentialObjects.
     : f₀ =
         BinProductOfArrows C₀ (P₀ x₀ e₀) (P₀ x₀ a₀) (identity x₀) weak_equiv_reflect_exp_lam · ev₀.
   Proof.
-    set(t := pr21 (ev_uvp (make_coreflection_data (F := constprod_functor1 _ _) _ f₁))).
+    set(t := pr21 (ev_uvp f₁_corefl)).
     simpl in t ; unfold BinProduct_of_functors_mor in t ; simpl in t.
 
     use (faithful_reflects_morphism_equality _ (pr2 F_weq)).
@@ -116,8 +118,8 @@ Section WeakEquivReflectsExponentialObjects.
       { intro ; apply homset_property. }
 
       use (faithful_reflects_morphism_equality _ (pr2 F_weq)).
-      set (t₁ := ! pr2 (ev_uvp (make_coreflection_data (F := constprod_functor1 _ _) (F a₀) f₁)) (#F (pr1 ϕ₁) ,, bla ϕ₁)).
-      set (t₂ := ! pr2 (ev_uvp (make_coreflection_data (F := constprod_functor1 _ _) (F a₀) f₁)) (#F (pr1 ϕ₂) ,, bla ϕ₂)).
+      set (t₁ := ! pr2 (ev_uvp (F a₀ ,, f₁)) (#F (pr1 ϕ₁) ,, bla ϕ₁)).
+      set (t₂ := ! pr2 (ev_uvp (F a₀ ,, f₁)) (#F (pr1 ϕ₂) ,, bla ϕ₂)).
       exact (! base_paths _ _ t₁ @ base_paths _ _ t₂).
     Qed.
 

@@ -156,7 +156,7 @@ Section WeakEquivalencesPreserveExponentialObjects.
     set (ψ₁ :=  invmap (weq_from_fully_faithful (ff_from_weak_equiv F F_weq) a₀ e₀) (i₀ · pr1 ϕ₁)).
     set (ψ₂ :=  invmap (weq_from_fully_faithful (ff_from_weak_equiv F F_weq) a₀ e₀) (i₀ · pr1 ϕ₂)).
 
-    set (t := is_exponentiable_to_uvp P₀ (E₀ x₀) y₀ (make_coreflection_data (F := (constprod_functor1 P₀ x₀)) a₀ (exp_app (E₀ _) ψ₁))).
+    set (t := is_exponentiable_to_uvp P₀ (E₀ x₀) y₀ (a₀ ,, (exp_app (E₀ _) ψ₁))).
     use (base_paths _ _ (proofirrelevancecontr t (ψ₁ ,, _) (ψ₂ ,, _))).
     {
       refine (pr21 t @ _).
@@ -360,7 +360,7 @@ Proposition weak_equiv_preserves_exponential_objects
 Proof.
   intros x₀ y₀.
   intro f₁.
-  use (factor_through_squash _ _ (pr1 F_weq _)).
+  use (factor_through_squash _ _ (pr1 F_weq a₁)).
   { intro ; apply isapropiscontr. }
   intros [a₀ i₀].
   exact (weak_equiv_preserves_exponentiable_objects_uvp _ _ _ _ i₀).
@@ -387,8 +387,10 @@ Section WeakEquivalencesIntoUnivalentCatsCreatesExponentials.
       exact C₁_univ.
     }
     intros [x₀ ix].
-    apply (is_exponentiable_alt_closed_under_iso _ ix).
     intro y₁.
+    use (Exponent_transport_along_iso' P₁ ix (identity_z_iso y₁)).
+    (* apply (is_exponentiable_alt_closed_under_iso _ ix).
+    intro y₁. *)
     use (factor_through_squash _ _ (pr1 F_weq y₁)).
     {
       apply isaprop_Exponent.

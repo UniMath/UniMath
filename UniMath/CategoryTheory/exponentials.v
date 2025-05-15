@@ -29,7 +29,6 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
-Require Import UniMath.CategoryTheory.Adjunctions.Reflections.
 Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.FunctorCategory.
@@ -890,6 +889,7 @@ Section ExpIndependent.
     : Exponentials BC₂.
   Proof.
     intros x.
+(*
     apply right_adjoint_weq_coreflections.
     intro y.
     use make_coreflection.
@@ -903,6 +903,19 @@ Section ExpIndependent.
       + apply exponentials_independent_beta.
       + intros g Hg.
         exact (base_paths _ _ (proofirrelevance _ (exponentials_independent_eta f) (g ,, Hg) (_ ,, (exponentials_independent_beta _)))).
+*)
+    use coreflections_to_is_left_adjoint.
+    intro y.
+    use make_coreflection.
+    - exists (exp (E x) y).
+      exact (iso_between_BinProduct (BC₂ x (exp (E x) y)) (BC₁ x (exp (E x) y))
+             · exp_eval (E x) y).
+    - intros [z f].
+      use iscontraprop1.
+      + apply exponentials_independent_eta.
+      + simple refine (_ ,, _).
+        * exact (exp_lam (E x) (z_iso_inv (iso_between_BinProduct (BC₂ x z) (BC₁ x z)) · f)).
+        * apply exponentials_independent_beta.
   Defined.
 End ExpIndependent.
 
