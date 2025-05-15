@@ -14,7 +14,6 @@ Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.Exponentials.
 
 Require Import UniMath.CategoryTheory.WeakEquivalences.Reflection.BinProducts.
 Require Import UniMath.CategoryTheory.WeakEquivalences.Preservation.Binproducts.
@@ -82,7 +81,7 @@ Section WeakEquivLiftsExponentialPreservation.
   Section LiftPreservationPointwise.
 
     Context {x₁ y₁ e₁ : C₁} {ev₂ : C₂⟦P₂ (G x₁) (G e₁), G y₁⟧}
-      (ev₂_uvp : is_exponentiable_alt_uvp P₂ ev₂).
+      (ev₂_uvp : is_exponent_uvp P₂ ev₂).
 
     Let ev₂' : C₂⟦G (P₁ x₁ e₁), G y₁⟧.
     Proof.
@@ -105,7 +104,7 @@ Section WeakEquivLiftsExponentialPreservation.
       apply z_iso_inv_after_z_iso.
     Qed.
 
-    Local Lemma ev₁_uvp : is_exponentiable_alt_uvp P₁ ev₁.
+    Local Lemma ev₁_uvp : is_exponent_uvp P₁ ev₁.
     Proof.
       apply (weak_equiv_reflects_exponential_objects P₁ P₂ G_weq x₁ y₁ e₁ ev₁).
       use (is_universal_arrow_from_after_path_induction _ _ _ _ _ _ ev₂_uvp).
@@ -328,7 +327,7 @@ Section WeakEquivLiftsExponentialPreservation.
     Qed.
 
     Lemma weak_equiv_lifts_preserves_exponential_objects₀
-      : is_exponentiable_alt_uvp P₃
+      : is_exponent_uvp P₃
           (z_iso_inv (preserves_binproduct_to_z_iso H H_pP (P₂ (G x₁) (G e₁)) (P₃ (H (G x₁)) (H (G e₁)))) · # H ev₂).
     Proof.
       set (Fev_uvp := F_pE x₁ y₁ e₁ ev₁ ev₁_uvp).

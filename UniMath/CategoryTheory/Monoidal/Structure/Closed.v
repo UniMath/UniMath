@@ -132,10 +132,9 @@ Section Builder.
              (x y : V)
     : is_coreflection (make_left_closed_coreflection_data x y).
   Proof.
-    (* use make_coreflection_arrow.
-    - exact (lam x y _ f). *)
-    intros [z f].
-    use iscontraprop1.
+    intro f.
+    use make_coreflection_arrow.
+    - exact (lam x y _ f).
     - abstract
         (refine (!betaEq x y _ f @ _) ; cbn ;
           apply maponpaths_2 ;
@@ -170,9 +169,6 @@ Section Builder.
     use make_coreflection.
     - apply make_left_closed_coreflection_data.
     - apply make_left_closed_universal.
-
-    (* exists (coreflections_to_functor (λ y, _ ,, make_left_closed_universal x y)).
-    apply coreflections_to_are_adjoints. *)
   Defined.
 
   Definition make_sym_mon_closed_cat
@@ -302,9 +298,8 @@ Definition sym_mon_closed_left_tensor_left_adjoint_universal
   : is_coreflection (sym_mon_closed_left_tensor_left_adjoint_coreflection_data x y).
 Proof.
   intro f.
-  (* use make_coreflection_arrow.
-  - exact (internal_lam (sym_mon_braiding V _ x · f)). *)
-  use iscontraprop1.
+  use make_coreflection_arrow.
+  - exact (internal_lam (sym_mon_braiding V _ x · f)).
   - abstract
       (cbn -[sym_mon_braiding] ;
        rewrite !assoc ;
@@ -330,7 +325,7 @@ Proof.
     ).
 Defined.
 
-(* Definition sym_mon_closed_left_tensor_left_adjoint
+Definition sym_mon_closed_left_tensor_left_adjoint
            (V : sym_mon_closed_cat)
            (x : V)
   : is_left_adjoint (monoidal_left_tensor x).
@@ -350,15 +345,7 @@ Proof.
   use make_coreflection_data.
   - exact (x ⊸ y).
   - exact (internal_eval x y).
-  (* --------- *)
-  use coreflections_to_is_left_adjoint.
-  intro y.
-  use make_coreflection.
-  - exists (x ⊸ y).
-    exact (sym_mon_braiding V _ _ · internal_eval _ _).
-  - exact (sym_mon_closed_left_tensor_left_adjoint_universal V x y).
-
-Defined. *)
+Defined.
 
 Definition sym_mon_closed_left_tensor_right_adjoint_universal
            (V : sym_mon_closed_cat)

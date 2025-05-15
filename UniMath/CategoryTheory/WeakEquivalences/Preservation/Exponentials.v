@@ -20,7 +20,6 @@ Require Import UniMath.CategoryTheory.WeakEquivalences.LiftPreservation.BinProdu
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.Exponentials.
 
 Local Open Scope cat.
 
@@ -360,7 +359,7 @@ Proposition weak_equiv_preserves_exponential_objects
 Proof.
   intros x₀ y₀.
   intro f₁.
-  use (factor_through_squash _ _ (pr1 F_weq a₁)).
+  use (factor_through_squash _ _ (pr1 F_weq _)).
   { intro ; apply isapropiscontr. }
   intros [a₀ i₀].
   exact (weak_equiv_preserves_exponentiable_objects_uvp _ _ _ _ i₀).

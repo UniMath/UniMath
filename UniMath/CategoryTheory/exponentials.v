@@ -19,6 +19,10 @@
     [is_expDd0_adjunction_laws] [exponentials_through_adj_equivalence_univalent_cats]
   5. Exponentials are independent of the choice of the binary products
   6. Preservation of is_exponentiable under isomorphisms
+  7. Exponents
+  8. Properties Of Exponents
+  9. Preservation (characterizations)
+  10. Reflection
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -976,3 +980,289 @@ Section IsExponentiableClosedUnderIso.
   Defined.
 
 End IsExponentiableClosedUnderIso.
+
+(** * 7. Exponents *)
+Section Exponents.
+
+  Context {C : category} (P : BinProducts C).
+
+  Definition is_exponent_uvp
+    {x y e : C} (ev : C⟦P x e, y⟧) : UU
+    := is_coreflection (make_coreflection_data (F := constprod_functor1 P x) e ev).
+
+  (* Evaluation map + universal property *)
+  Definition is_Exponent
+    (x y e : C) : UU
+    := ∑ (ev : C⟦P x e, y⟧), is_exponent_uvp ev.
+
+  (* The existence of the exponential [x,y] *)
+  Definition Exponent (x y : C) : UU
+    := coreflection y (constprod_functor1 P x).
+
+  Identity Coercion exponent_to_coreflection : Exponent >-> coreflection.
+
+  (* The existence of exponentials [x, -] *)
+  Definition is_exponentiable_alt (x : C) : UU
+    := ∏ (y : C), Exponent x y.
+
+  Lemma is_exponentiable_alt_to_is_exponentiable (x : C)
+    : is_exponentiable_alt x → is_exponentiable P x.
+  Proof.
+    apply coreflections_to_is_left_adjoint.
+  Defined.
+
+  Lemma is_exponentiable_to_uvp {x : C} (e: is_exponentiable P x)
+    : ∏ y : C, is_exponent_uvp (exp_eval e y).
+  Proof.
+    exact (λ y, coreflection_is_coreflection (right_adjoint_weq_coreflections _ e y)).
+  Defined.
+
+  Lemma is_exponentiable_to_is_exponentiable_alt (x : C)
+    : is_exponentiable P x → is_exponentiable_alt x.
+  Proof.
+    intros e y.
+    apply (right_adjoint_to_coreflection e).
+  Defined.
+
+End Exponents.
+
+(** * 8. Properties of Exponents *)
+Section ExponentsProperties.
+
+  Definition exponentials_unique_up_to_iso
+    {C : category} (P : BinProducts C)
+    {x y : C} {e e' : C}
+    {ev : C⟦P x e, y⟧} {ev' : C⟦P x e', y⟧}
+    (ev_uvp : is_exponent_uvp P ev)
+    (ev'_uvp : is_exponent_uvp P ev')
+    : z_iso e e'
+    := coreflection_uniqueness_iso (make_coreflection _ ev_uvp) (make_coreflection _ ev'_uvp).
+
+  Lemma isaprop_Exponent
+    {C : category} (P : BinProducts C)
+    (x y : C)
+    : is_univalent C → isaprop (Exponent P x y).
+  Proof.
+    intro C_univ.
+    exact (isaprop_coreflection C_univ).
+  Qed.
+
+  Lemma Exponent_transport_along_iso'
+    {C : category} (P : BinProducts C)
+    {x x' y y' : C}
+    (i : z_iso x x')
+    (j : z_iso y y')
+    (e : Exponent P x y)
+    : Exponent P x' y'.
+  Proof.
+    use (coreflection_transport_along_iso_ob_functor j (F := constprod_functor1 P x) _ e).
+    apply constprod_functor1_mod_iso.
+    exact i.
+  Defined.
+
+  Section IsExponentAlongIso.
+
+    Context {C : category} {P : BinProducts C}
+    {x y e' : C} (e : Exponent P x y) (i : z_iso e' (coreflection_data_object e)). (* (ee : is_Exponent P x y e). *)
+
+  Local Lemma commutativity_of_evaluation_along_iso
+    {a : C}
+    (f : C⟦constprod_functor1 P x a, y⟧)
+    (f' : C ⟦ a, e'⟧)
+    : f = BinProductOfArrows C (P x e') (P x a) (identity x) f'
+            · (BinProductOfArrows C (P x _) (P x e') (identity x) i · coreflection_data_arrow e)
+      → f = BinProductOfArrows C (P x _) (P x a) (identity x) (f' · i) · coreflection_data_arrow e.
+  Proof.
+    intro pf.
+    refine (pf @ _).
+    refine (assoc _ _ _ @ _).
+    apply maponpaths_2.
+    etrans. { apply BinProductOfArrows_comp. }
+    cbn ; unfold BinProduct_of_functors_mor ; cbn.
+    apply maponpaths_2.
+    apply id_right.
+  Qed.
+
+  Lemma is_Exponent_along_iso_uvp
+    : is_exponent_uvp P
+        (BinProductOfArrows C (P x _) (P x e') (identity x) i · coreflection_data_arrow e).
+  Proof.
+    intro f.
+    use (iscontrweqb' (coreflection_is_coreflection e f)).
+    use weqtotal2.
+    { apply z_iso_comp_left_weq ; exact i. }
+    intro.
+    use weqimplimpl.
+    - apply commutativity_of_evaluation_along_iso.
+    - intro pf.
+      refine (pf @ _).
+      apply pathsinv0.
+      apply commutativity_of_evaluation_along_iso.
+      cbn ; unfold BinProduct_of_functors_mor ; cbn.
+      apply idpath.
+    - apply homset_property.
+    - apply homset_property.
+  Qed.
+
+  Lemma is_Exponent_along_iso
+    : is_Exponent P x y e'.
+  Proof.
+    use tpair.
+    - refine (_ · coreflection_data_arrow e).
+      apply binproduct_of_z_iso.
+      + apply identity_z_iso.
+      + exact i.
+    - exact is_Exponent_along_iso_uvp.
+  Defined.
+
+  End IsExponentAlongIso.
+
+End ExponentsProperties.
+
+(** * 9. PreservationCharacterizations *)
+Section PreservationCharacterizations.
+
+  Context {C₀ C₁ : category} (P₀ : BinProducts C₀) (P₁ : BinProducts C₁)
+    {F : functor C₀ C₁} (F_pP : preserves_binproduct F).
+
+  Definition preserves_exponential_objects : UU
+    := ∏ (x y e : C₀) (ev : C₀⟦P₀ x e, y⟧),
+      is_exponent_uvp P₀ ev
+      → is_exponent_uvp P₁
+          (z_iso_inv (preserves_binproduct_to_z_iso _ F_pP (P₀ _ _) (P₁ _ _)) · #F ev).
+
+  Definition preserves_exponential_objects_to_exponent
+    (F_pE : preserves_exponential_objects)
+    : ∏ x y : C₀, Exponent P₀ x y → Exponent P₁ (F x) (F y).
+  Proof.
+    intros x y e.
+    set (t := F_pE x y (coreflection_data_object e) e (coreflection_is_coreflection e)).
+    exact (make_coreflection _ t).
+  Defined.
+
+  Definition preserves_exponential_objects' (E₀ : Exponentials P₀) : UU
+    := ∏ (x y : C₀), is_exponent_uvp P₁
+                       (z_iso_inv (preserves_binproduct_to_z_iso _ F_pP (P₀ _ _) (P₁ _ _))
+                          · #F (exp_eval (E₀ x) y)).
+
+  Definition preserves_exponential_objects_to_exponent' {E₀ : Exponentials P₀}
+    (F_pE : preserves_exponential_objects' E₀)
+    : ∏ x y : C₀, Exponent P₁ (F x) (F y).
+  Proof.
+    intros x y.
+    set (t := F_pE x y).
+    exact (make_coreflection _ t).
+  Defined.
+
+  Definition preserves_exponential_objects_to_iso
+    (E₀ : Exponentials P₀) (E₁ : Exponentials P₁)
+    (F_pE : preserves_exponential_objects) (x₀ y₀ : C₀)
+    : z_iso (F (exp (E₀ x₀) y₀)) (exp (E₁ (F x₀)) (F y₀)).
+  Proof.
+    refine (exponentials_unique_up_to_iso P₁ _ _).
+    - apply F_pE.
+      exact (coreflection_is_coreflection (is_exponentiable_to_is_exponentiable_alt P₀ x₀ (E₀ x₀) y₀)).
+    - exact (coreflection_is_coreflection (is_exponentiable_to_is_exponentiable_alt P₁ (F x₀) (E₁ (F x₀)) (F y₀))).
+  Defined.
+
+  Definition preserves_exponential_objects_to_iso'
+    (E₀ : Exponentials P₀) (E₁ : Exponentials P₁)
+    (F_pE : preserves_exponential_objects' E₀) (x₀ y₀ : C₀)
+    : z_iso (F (exp (E₀ x₀) y₀)) (exp (E₁ (F x₀)) (F y₀)).
+  Proof.
+    refine (exponentials_unique_up_to_iso P₁ _ _).
+    - apply F_pE.
+    - exact (coreflection_is_coreflection (is_exponentiable_to_is_exponentiable_alt P₁ (F x₀) (E₁ (F x₀)) (F y₀))).
+  Defined.
+
+  Lemma preserves_exponential_objects_to_preserves_exponentials
+    (E₀ : Exponentials P₀) (E₁ : Exponentials P₁)
+    : preserves_exponential_objects' E₀ → preserves_exponentials E₀ E₁ F_pP.
+  Proof.
+    intros F_pE x₀ y₀.
+    exact (is_z_isomorphism_path (idpath _)
+             (pr2 (preserves_exponential_objects_to_iso' E₀ E₁ F_pE x₀ y₀))).
+  Defined.
+
+  Lemma preserves_exponentials_to_exponent
+    {E₀ : Exponentials P₀} {E₁ : Exponentials P₁}
+    (F_pE : preserves_exponentials E₀ E₁ F_pP)
+    : ∏ x y : C₀, is_Exponent P₁ (F x) (F y) (F (exp (E₀ x) y)).
+  Proof.
+    intros x y.
+    set (i := make_z_iso' _ (F_pE x y)).
+    apply (is_Exponent_along_iso (right_adjoint_to_coreflection (E₁ _) _) i).
+  Defined.
+
+  Lemma preserves_exponentials_to_preserves_exponential_objects
+    (E₀ : Exponentials P₀) (E₁ : Exponentials P₁)
+    : preserves_exponentials E₀ E₁ F_pP → preserves_exponential_objects' E₀.
+  Proof.
+    intros F_pE x y f₁.
+    use (iscontrweqb' (pr2 (preserves_exponentials_to_exponent F_pE x y) f₁)).
+    use weqfibtototal.
+    intro.
+    use weqimplimpl.
+    - intro pf.
+      refine (pf @ _).
+      apply maponpaths.
+      apply pathsinv0, exp_beta.
+    - intro pf.
+      refine (pf @ _).
+      apply maponpaths.
+      apply exp_beta.
+    - apply homset_property.
+    - apply homset_property.
+  Qed.
+
+  Lemma preserves_exponential_objects'_to_preserves_exponential_objects
+    {E₀ : Exponentials P₀}
+    (F_pE : preserves_exponential_objects' E₀)
+    : preserves_exponential_objects.
+  Proof.
+    intros x y e ev ev_uvp.
+
+    use is_universal_arrow_from_after_path_induction.
+    - refine (_ · z_iso_inv
+          (preserves_binproduct_to_z_iso F F_pP (P₀ x (exp (E₀ x) y)) (P₁ (F x) (F (exp (E₀ x) y))))
+          · # F (exp_eval (E₀ x) y)).
+      apply BinProductOfArrows.
+      { apply identity. }
+      apply #F.
+      use (exponentials_unique_up_to_iso P₀ ev_uvp).
+      + apply exp_eval.
+      + apply is_exponentiable_to_uvp.
+    - rewrite <- functor_id.
+      etrans. {
+        apply maponpaths_2.
+        apply pathsinv0.
+        apply (preserves_binproduct_of_arrows F_pP (identity x) (exponentials_unique_up_to_iso P₀ ev_uvp (is_exponentiable_to_uvp P₀ (E₀ x) y))).
+      }
+      rewrite assoc'.
+      etrans. { apply maponpaths, pathsinv0, functor_comp. }
+      do 2 apply maponpaths.
+      apply exp_beta.
+    - intros f.
+      set (ee := _ ,, F_pE x y : is_Exponent P₁ _ _ _).
+      set (ee' := make_coreflection _ (F_pE x y) : Exponent P₁ _ _).
+
+      set (s := is_Exponent_along_iso_uvp ee' (functor_on_z_iso F (exponentials_unique_up_to_iso P₀ ev_uvp (is_exponentiable_to_uvp P₀ (E₀ x) y)))).
+      rewrite assoc'.
+      exact (s f).
+  Qed.
+
+End PreservationCharacterizations.
+
+(** * 10. Reflection *)
+Section Reflection.
+
+  Context {C₀ C₁ : category} (P₀ : BinProducts C₀) (P₁ : BinProducts C₁)
+    {F : functor C₀ C₁} (F_pP : preserves_binproduct F).
+
+  Definition reflects_exponential_objects : UU
+    := ∏ (x y e : C₀) (ev : C₀⟦P₀ x e, y⟧),
+      is_exponent_uvp P₁
+        (z_iso_inv (preserves_binproduct_to_z_iso _ F_pP (P₀ _ _) (P₁ _ _)) · #F ev)
+      → is_exponent_uvp P₀ ev.
+
+End Reflection.

@@ -449,7 +449,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [RezkCompletions/RezkCompletions.v](CategoryTheory/RezkCompletions/RezkCompletions.v)
    - [RezkCompletions/Construction.v](CategoryTheory/RezkCompletions/Construction.v)
    - [exponentials.v](CategoryTheory/exponentials.v)
-   - [Exponentials.v](CategoryTheory/Exponentials.v)
    - [WeakEquivalences/Preservation/Exponentials.v](CategoryTheory/WeakEquivalences/Preservation/Exponentials.v)
    - [WeakEquivalences/Reflection/Exponentials.v](CategoryTheory/WeakEquivalences/Reflection/Exponentials.v)
    - [WeakEquivalences/LiftPreservation/Exponentials.v](CategoryTheory/WeakEquivalences/LiftPreservation/Exponentials.v)

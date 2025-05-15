@@ -277,20 +277,19 @@ Section Coreflections.
       exact H.
   Qed.
 
-  Lemma isaprop_coreflection
+  Lemma isaprop_coreflection'
     {d : D}
     {F : C ⟶ D}
     (HC : is_univalent C)
-    : isaprop (coreflection d F).
+    (f f' : coreflection d F)
+    : f = f'.
   Proof.
-    apply invproofirrelevance.
-    intros f f'.
     use (coreflection_isotoid HC).
     - apply coreflection_uniqueness_iso.
     - apply coreflection_uniqueness_iso_commutes.
   Qed.
 
-  Lemma isaprop_coreflection'
+  Lemma isaprop_coreflection
     {d : D}
     {F : C ⟶ D}
     (HC : is_univalent C)
@@ -298,7 +297,7 @@ Section Coreflections.
   Proof.
     use invproofirrelevance.
     intros ϕ ψ.
-    use isaprop_coreflection.
+    use isaprop_coreflection'.
     exact HC.
   Qed.
 
@@ -655,3 +654,11 @@ Section CoreflectionsArePreservedUnderIsos.
   Defined.
 
 End CoreflectionsArePreservedUnderIsos.
+
+Lemma is_universal_arrow_from_after_path_induction
+  {D C : category} (S : D ⟶ C) (c : C) (r : D) (f₁ f₂ : C⟦S r, c⟧) (p : f₁ = f₂)
+  : is_coreflection (make_coreflection_data r f₁) → is_coreflection (make_coreflection_data r f₂).
+Proof.
+  use (transportf (λ g, is_coreflection (r ,, g))).
+  exact p.
+Qed. (* or defined. *)

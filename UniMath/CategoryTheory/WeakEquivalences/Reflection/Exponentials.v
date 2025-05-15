@@ -15,7 +15,6 @@ Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.Exponentials.
 
 Require Import UniMath.CategoryTheory.WeakEquivalences.Preservation.Binproducts.
 Require Import UniMath.CategoryTheory.WeakEquivalences.Reflection.BinProducts.
@@ -38,7 +37,7 @@ Section WeakEquivReflectsExponentialObjects.
 
   Context {x₀ y₀ e₀ : C₀}
     (ev₀ : C₀⟦P₀ x₀ e₀, y₀⟧)
-    (ev_uvp : is_exponentiable_alt_uvp P₁ (weak_equiv_z_iso_binprod _ _ · # F ev₀))
+    (ev_uvp : is_exponent_uvp P₁ (weak_equiv_z_iso_binprod _ _ · # F ev₀))
     {a₀ : C₀}
     (f₀ : C₀⟦P₀ x₀ a₀, y₀⟧).
 
