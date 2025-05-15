@@ -34,6 +34,8 @@ Require Import UniMath.CategoryTheory.Limits.Products.
 Require Import UniMath.CategoryTheory.Limits.Coequalizers.
 Require Import UniMath.CategoryTheory.Limits.Coproducts.
 Require Import UniMath.CategoryTheory.Limits.Pushouts.
+Require Import UniMath.CategoryTheory.OppositeCategory.Core.
+Require Import UniMath.CategoryTheory.Limits.Opp.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
 Local Open Scope cat.
@@ -1217,7 +1219,7 @@ Definition preserves_coequalizer
        (Fp : #F f · #F h = #F g · #F h),
      isCoequalizer f g h p
      →
-     isCoequalizer (#F f) (#F g) (#F h) Fp.
+       isCoequalizer (#F f) (#F g) (#F h) Fp.
 
 Definition identity_preserves_coequalizer
            (C : category)
@@ -1250,6 +1252,29 @@ Definition isaprop_preserves_coequalizer
 Proof.
   repeat (use impred ; intro).
   use isapropiscontr.
+Qed.
+
+Definition preserves_coequalizer_opp
+           {C₁ C₂ : category}
+           (F : C₁ ⟶ C₂)
+  : preserves_coequalizer F
+      ≃ preserves_equalizer (functor_op F).
+Proof.
+  use weqimplimpl.
+  - intro p_co.
+    intros x y e f g h p Fp p_e.
+    use isCoequalizer_opp.
+    set (Fp_e := isEqualizer_opp _ _ _ _ _ p_e).
+    apply (p_co _ _ _ _ _ _ _ _ Fp_e).
+  - intro p_coop.
+    intros x y e f g h p Fp p_e.
+    use (isEqualizer_opp (C₂^opp)).
+    use (p_coop).
+    + exact p.
+    + apply isCoequalizer_opp.
+      exact p_e.
+  - apply isaprop_preserves_coequalizer.
+  - apply isaprop_preserves_equalizer.
 Qed.
 
 Definition preserves_chosen_coequalizer
