@@ -239,6 +239,7 @@ WeakEquivalences/Preservation/Equalizers.v
 WeakEquivalences/Reflection/Equalizers.v
 WeakEquivalences/Creation/Equalizers.v
 WeakEquivalences/Coequalizers.v
+WeakEquivalences/RegularEpi.v
 WeakEquivalences/LiftPreservation/Equalizers.v
 WeakEquivalences/Preservation/Pullbacks.v
 WeakEquivalences/Reflection/Pullbacks.v
