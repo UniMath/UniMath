@@ -25,7 +25,8 @@
   4.3. The equivalence [right_adjoint_weq_coreflections]
   4.4. The interaction between [right_adjoint_weq_coreflections] and [φ_adj]
     [coreflections_to_are_adjoints_φ_adj]
-  5. Coreflections are preserved under isomorphisms
+  5. Coreflections are preserved under isomorphisms [coreflection_transport_along_iso_ob_functor]
+  6. An object isomorphic to a coreflector is a coreflector [is_coreflection_along_iso]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -655,10 +656,41 @@ Section CoreflectionsArePreservedUnderIsos.
 
 End CoreflectionsArePreservedUnderIsos.
 
+(** * 6. An object isomorphic to a coreflector is a coreflector *)
+Section IsCoreflectionAlongIso.
+
+  Context {X A : category} {F : functor X A}
+    {a : A} (r : coreflection a F)
+    {s : X} (i : z_iso s (coreflection_data_object r)).
+
+  Definition is_coreflection_along_iso
+    : is_coreflection (F := F) (make_coreflection_data s (functor_on_z_iso F i · coreflection_data_arrow r)).
+  Proof.
+    intro f.
+    use (iscontrweqb' (coreflection_is_coreflection r f)).
+    use weqtotal2.
+    { apply z_iso_comp_left_weq ; exact i. }
+    intro.
+    use weqimplimpl.
+    - simpl.
+      intro p.
+      rewrite assoc in p.
+      rewrite <- functor_comp in p.
+      exact p.
+    - simpl.
+      intro p.
+      rewrite assoc, <- functor_comp.
+      exact p.
+    - apply homset_property.
+    - apply homset_property.
+  Qed.
+
+End IsCoreflectionAlongIso.
+
 Lemma is_universal_arrow_from_after_path_induction
   {D C : category} (S : D ⟶ C) (c : C) (r : D) (f₁ f₂ : C⟦S r, c⟧) (p : f₁ = f₂)
   : is_coreflection (make_coreflection_data r f₁) → is_coreflection (make_coreflection_data r f₂).
 Proof.
   use (transportf (λ g, is_coreflection (r ,, g))).
   exact p.
-Qed. (* or defined. *)
+Qed.
