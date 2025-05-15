@@ -363,22 +363,6 @@ Proof.
       apply maponpaths;
       exact (!Hg)
     ).
-
-(* Proof.
-  intros [z f].
-  use iscontraprop1.
-  - abstract
-      (use invproofirrelevance ;
-       intros φ₁ φ₂ ;
-       use subtypePath ; [ intro ; apply homset_property | ] ;
-       refine (internal_eta _ @ _ @ !(internal_eta _)) ;
-       apply maponpaths ;
-       exact (!(pr2 φ₁) @ pr2 φ₂)).
-  - refine (internal_lam f ,, _).
-    abstract
-      (cbn ;
-       rewrite internal_beta ;
-       apply idpath). *)
 Defined.
 
 Definition sym_mon_closed_right_tensor_left_adjoint
@@ -390,8 +374,6 @@ Proof.
   intro y.
   use make_coreflection.
   - exact (sym_mon_closed_left_tensor_right_adjoint_coreflection_data x y).
-  (* - exists (x ⊸ y).
-    exact (internal_eval _ _). *)
   - exact (sym_mon_closed_left_tensor_right_adjoint_universal V x y).
 Defined.
 

@@ -1,5 +1,12 @@
 (**
+   Preservation Of Exponentials Along Weak Equivalences
+
    In this file, we show that an arbitrary weak equivalence F : C -> D preserves exponential objects.
+
+   Contents
+   1. The image of an exponent is again an exponent [weak_equiv_preserves_exponential_objects]
+   2. The codomain has exponentials [weak_equiv_into_univ_creates_exponentials]
+   3. A weak equivalence preserves all exponentials [weak_equiv_preserves_exponentials']
  *)
 
 Require Import UniMath.Foundations.All.
@@ -23,6 +30,7 @@ Require Import UniMath.CategoryTheory.exponentials.
 
 Local Open Scope cat.
 
+(** * 1.  Weak equivalences preserve exponential objects [weak_equiv_preserves_exponential_objects] *)
 Section WeakEquivalencesPreserveExponentialObjects.
 
   Context {C₀ C₁ : category}
@@ -365,6 +373,7 @@ Proof.
   exact (weak_equiv_preserves_exponentiable_objects_uvp _ _ _ _ i₀).
 Defined.
 
+(** * 2. Weak Equivalences Create Exponentials *)
 Section WeakEquivalencesIntoUnivalentCatsCreatesExponentials.
 
   Context {C₀ C₁ : category}
@@ -403,6 +412,7 @@ Section WeakEquivalencesIntoUnivalentCatsCreatesExponentials.
 
 End WeakEquivalencesIntoUnivalentCatsCreatesExponentials.
 
+(** * 3. Weak Equivalences Preserve Exponentials *)
 Section WeakEquivalencesIntoUnivalentCatsPreservesExponentials.
 
   Context {C₀ C₁ : category}

@@ -1,6 +1,10 @@
 (**
+   Preservation Of Exponentials Is Transported Along Weak Equivalences
+
   The universal property of the Rezk completion states that for every functor F : C₁ → C₂, with C₂ univalent, extends along the (unit of the) Rezk completion to a functor F' : RC(C₁) → C₂.
   In this file, we prove that if F preserves exponentials, then so does F'.
+
+  1. Preservation Of Exponentials Transports Along Weak Equivalences [weak_equiv_lifts_preserves_exponentials']
  *)
 
 Require Import UniMath.Foundations.All.
@@ -56,6 +60,7 @@ Section Prelim.
 
 End Prelim.
 
+(** * 1. Preservation Of Exponentials Transports Along Weak Equivalences *)
 Section WeakEquivLiftsExponentialPreservation.
 
   Context {C₁ : category}
@@ -70,8 +75,6 @@ Section WeakEquivLiftsExponentialPreservation.
     (G_weq : is_weak_equiv G)
     {F_pP : preserves_binproduct F}
     (F_pE : preserves_exponential_objects P₁ P₃ F_pP).
-
-  (* Context {E₁ : Exponentials P₁} (F_pE : preserves_exponential_objects' P₁ P₃ F_pP E₁). *)
 
   Let H_pP : preserves_binproduct H
       := weak_equiv_lifts_preserves_binproducts C₂ C₃ α G_weq F_pP.
@@ -404,161 +407,3 @@ Proof.
   set (t := preserves_exponentials_to_preserves_exponential_objects P₁ P₃ F_pP E₁ E₃ F_pE).
   exact (preserves_exponential_objects'_to_preserves_exponential_objects P₁ P₃ F_pP t).
 Qed.
-
-(**********************************************)
-
-(* Section ExponentialsPrelim.
-
-  Definition z_iso_exponent_map
-    {C : category} {P : BinProducts C} (E : Exponentials P)
-    {x x' y y' : C} (ix : z_iso x x') (iy : z_iso y y')
-    : C⟦exp (E x) y, exp (E x') y'⟧.
-  Proof.
-    apply exp_lam.
-    refine (_ · iy).
-    refine (_ · exp_eval (E x) y).
-    apply BinProductOfArrows.
-    - exact (z_iso_inv ix).
-    - apply identity.
-  Defined.
-
-  Lemma z_iso_exponent_map_is_inverse
-    {C : category} {P : BinProducts C} (E : Exponentials P)
-    {x x' y y' : C} (ix : z_iso x x') (iy : z_iso y y')
-    : z_iso_exponent_map E ix iy · z_iso_exponent_map E (z_iso_inv ix) (z_iso_inv iy)
-      = identity (exp (E x) y).
-  Proof.
-  Admitted.
-
-  Definition z_iso_exponent
-    {C : category} {P : BinProducts C} (E : Exponentials P)
-    {x x' y y' : C} (ix : z_iso x x') (iy : z_iso y y')
-    : z_iso (exp (E x) y) (exp (E x') y').
-  Proof.
-    use make_z_iso.
-    - apply z_iso_exponent_map ; [exact ix | exact iy].
-    - apply z_iso_exponent_map ; [exact (z_iso_inv ix) | exact (z_iso_inv iy)].
-    - split ; apply z_iso_exponent_map_is_inverse.
-  Defined.
-
-End ExponentialsPrelim.
-
-Section WeakEquivalencesLiftPreserveExponentials.
-
-  Context {C₁ : category}
-    (C₂ C₃ : univalent_category)
-    {F : C₁ ⟶ C₃}
-    {G : C₁ ⟶ C₂}
-    {H : C₂ ⟶ C₃}
-    (α : nat_z_iso (G ∙ H) F)
-    {P₁ : BinProducts C₁} (E₁ : Exponentials P₁)
-    {P₂ : BinProducts C₂} (E₂ : Exponentials P₂)
-    {P₃ : BinProducts C₃} (E₃ : Exponentials P₃)
-    (G_weq : is_weak_equiv G)
-    {F_pP : preserves_binproduct F}
-    (F_pE : preserves_exponentials E₁ E₃ F_pP).
-
-  (* Let E2 : Exponentials P₂ := weak_equiv_into_univ_creates_exponentials G_weq (pr2 C₂) E₁ P₂. *)
-  (* Let G_pP : preserves_binproduct G := weak_equiv_preserves_binproducts G_weq. *)
-  Let H_pP : preserves_binproduct H
-      := weak_equiv_lifts_preserves_binproducts C₂ C₃ α G_weq F_pP.
-
-  (*
-    H([x₂,y₂])
-    ≃ H( [G x₁, G y₁] )
-    ≃ G·H ([x₁,y₁])
-    ≃ F([x₁,y₁])
-    ≃ [F x₁, F y₁]
-    ≃ [G·H x₁, G·H y₁]
-    ≃ [H x₂, H y₂]
-   *)
-
-  Section Aux.
-
-    Context {x₁ y₁ : C₁} {x₂ y₂ : C₂}
-      (ix : z_iso (G x₁) x₂) (iy : z_iso (G y₁) y₂).
-
-    Let i₀ : z_iso (H (exp (E₂ x₂) y₂)) (H (exp (E₂ (G x₁)) (G y₁))).
-    Proof.
-      apply functor_on_z_iso.
-      apply z_iso_exponent.
-      - exact (z_iso_inv ix).
-      - exact (z_iso_inv iy).
-    Defined.
-
-    Let i₁ : z_iso (H (exp (E₂ (G x₁)) (G y₁))) (H(G(exp (E₁ x₁) y₁))).
-    Proof.
-      apply functor_on_z_iso.
-      exact (z_iso_inv (make_z_iso _ _ (weak_equiv_preserves_exponentials' G_weq (pr2 C₂) E₁ E₂ _ _))).
-    Defined.
-
-    Let i₂ : z_iso (H(G(exp (E₁ x₁) y₁))) (F(exp (E₁ x₁) y₁)).
-    Proof.
-      exact (nat_z_iso_pointwise_z_iso α (exp (E₁ x₁) y₁)).
-    Defined.
-
-    Let i₃ : z_iso (F (exp (E₁ x₁) y₁)) (exp (E₃ (F x₁)) (F y₁)).
-    Proof.
-      exact (make_z_iso _ _ (F_pE x₁ y₁)).
-    Defined.
-
-    Let i₄ : z_iso (exp (E₃ (F x₁)) (F y₁)) (exp (E₃ (H(G x₁))) (H(G y₁))).
-    Proof.
-      apply z_iso_exponent ; apply (nat_z_iso_pointwise_z_iso (nat_z_iso_inv α)).
-    Defined.
-
-    Let i₅ : z_iso (exp (E₃ (H(G x₁))) (H(G y₁))) (exp (E₃ (H x₂)) (H y₂)).
-    Proof.
-      apply z_iso_exponent ; apply functor_on_z_iso.
-      - exact ix.
-      - exact iy.
-    Defined.
-
-    Definition preserves_exponentials_map_factorization_weak_equiv
-      : z_iso (H (exp (E₂ x₂) y₂)) (exp (E₃ (H x₂)) (H y₂)).
-    Proof.
-      refine (z_iso_comp i₀ _).
-      refine (z_iso_comp i₁ _).
-      refine (z_iso_comp i₂ _).
-      refine (z_iso_comp i₃ _).
-      exact (z_iso_comp i₄ i₅).
-    Defined.
-
-
-    Lemma preserves_exponentials_map_factorization_weak_equiv_comm
-      : pr1 preserves_exponentials_map_factorization_weak_equiv
-        = preserves_exponentials_map E₂ E₃ H_pP x₂ y₂.
-    Proof.
-
-    Admitted.
-
-    Lemma preserves_exponentials_map_weak_equiv_is_iso
-      : is_z_isomorphism (preserves_exponentials_map E₂ E₃ H_pP x₂ y₂).
-    Proof.
-      (* use is_z_isomorphism_path.
-    - exact (preserves_exponentials_map_factorization_weak_equiv ix iy).
-    - apply preserves_exponentials_map_factorization_weak_equiv_comm.
-    - apply preserves_exponentials_map_factorization_weak_equiv. *)
-
-      (*
-      use make_is_z_isomorphism.
-      { exact (z_iso_inv preserves_exponentials_map_factorization_weak_equiv). }
-      split ; admit.*)
-    Admitted.
-
-  End Aux.
-
-  Lemma weak_equiv_lifts_preserves_exponentials
-    : preserves_exponentials E₂ E₃ H_pP.
-  Proof.
-    intros x₂ y₂.
-    use (factor_through_squash _ _ (eso_from_weak_equiv _ G_weq x₂)).
-    { apply isaprop_is_z_isomorphism. }
-    intros [x₁ ix].
-    use (factor_through_squash _ _ (eso_from_weak_equiv _ G_weq y₂)).
-    { apply isaprop_is_z_isomorphism. }
-    intros [y₁ iy].
-    exact (preserves_exponentials_map_weak_equiv_is_iso ix iy).
-  Qed.
-
-End WeakEquivalencesLiftPreserveExponentials. *)

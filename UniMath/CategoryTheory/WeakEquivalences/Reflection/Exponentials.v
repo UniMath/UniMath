@@ -1,5 +1,12 @@
 (**
+   Reflection Of Exponents
+
    In this file, we show how weak equivalences reflect exponential objects.
+   That is:
+   Let F : C₀ → C₁ be a weak equivalence. Then, to test whether an object in C₀ is an exponential, it suffices to prove that the image hereof is an exponential in C₁.
+
+   Contents
+   1. Weak Equivalences reflect exponential objects [weak_equiv_reflects_exponential_objects]
  *)
 
 Require Import UniMath.Foundations.All.
@@ -22,6 +29,7 @@ Require Import UniMath.CategoryTheory.WeakEquivalences.Preservation.Exponentials
 
 Local Open Scope cat.
 
+(** 1. Weak Equivalences Reflect Exponential Objects *)
 Section WeakEquivReflectsExponentialObjects.
 
   Context {C₀ C₁ : category}
