@@ -239,7 +239,6 @@ WeakEquivalences/Preservation/Equalizers.v
 WeakEquivalences/Reflection/Equalizers.v
 WeakEquivalences/Creation/Equalizers.v
 WeakEquivalences/Coequalizers.v
-WeakEquivalences/RegularEpi.v
 WeakEquivalences/LiftPreservation/Equalizers.v
 WeakEquivalences/Preservation/Pullbacks.v
 WeakEquivalences/Reflection/Pullbacks.v
@@ -248,6 +247,9 @@ WeakEquivalences/LiftPreservation/Pullbacks.v
 WeakEquivalences/Preservation/SubobjectClassifier.v
 WeakEquivalences/Reflection/SubobjectClassifier.v
 WeakEquivalences/LiftPreservation/SubobjectClassifier.v
+WeakEquivalences/RegularEpi.v
+WeakEquivalences/Regular.v
+WeakEquivalences/Exact.v
 WeakEquivalences/Preservation/NNO.v
 RezkCompletions/RezkCompletions.v
 RezkCompletions/Construction.v
