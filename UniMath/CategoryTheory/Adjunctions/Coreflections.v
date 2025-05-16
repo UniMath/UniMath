@@ -123,6 +123,15 @@ Section Coreflections.
     : coreflection d F
     := f ,, H.
 
+  Definition make_coreflection'
+    {d : D}
+    {F : C ⟶ D}
+    (c : C)
+    (f : F c --> d)
+    (H : is_coreflection (make_coreflection_data c f))
+    : coreflection d F
+    := _ ,, H.
+
   Coercion coreflection_to_coreflection_data
     {d : D}
     {F : C ⟶ D}

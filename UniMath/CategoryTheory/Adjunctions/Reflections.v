@@ -120,6 +120,15 @@ Section Reflections.
     : reflection d F
     := f ,, H.
 
+  Definition make_reflection'
+    {d : D}
+    {F : C ⟶ D}
+    (c : C)
+    (f : d --> F c)
+    (H : is_reflection (make_reflection_data c f))
+    : reflection d F
+    := _ ,, H.
+
   Coercion reflection_to_reflection_data
     {d : D}
     {F : C ⟶ D}
