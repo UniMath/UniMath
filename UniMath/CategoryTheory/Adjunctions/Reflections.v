@@ -17,13 +17,16 @@
     [identity_reflection_data] [reflection_arrow_eq]
   3. Reflections are unique
   3.1. The isomorphism between two reflections [reflection_uniqueness_iso]
-  3.2. The type of reflections becomes a proposition in a univalent category [isaprop_reflection]
+  3.2. The type of reflections becomes a proposition in a univalent category
+    [isaprop_reflection]
   4. Having a left adjoint to a functor F is equivalent to having reflections of every d along F
   4.1. The construction of reflections from a left adjoint [left_adjoint_to_reflection]
   4.2. The construction of a left adjoint from reflections [reflections_to_is_right_adjoint]
   4.3. The equivalence [left_adjoint_weq_reflections]
   4.4. The interaction between [left_adjoint_weq_reflections] and [φ_adj_inv]
     [reflections_to_are_adjoints_φ_adj_inv]
+  5. Reflections are preserved under isomorphisms [reflection_transport_along_iso_ob_functor]
+  6. An object isomorphic to a reflection is a reflection [is_reflection_along_iso]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -284,17 +287,28 @@ Section Reflections.
       exact H.
   Qed.
 
+  Lemma isaprop_reflection'
+    {d : D}
+    {F : C ⟶ D}
+    (HC : is_univalent C)
+    (f f' : reflection d F)
+    : f = f'.
+  Proof.
+    use (reflection_isotoid HC).
+    - apply reflection_uniqueness_iso.
+    - apply reflection_uniqueness_iso_commutes.
+  Qed.
+
   Lemma isaprop_reflection
     {d : D}
     {F : C ⟶ D}
     (HC : is_univalent C)
     : isaprop (reflection d F).
   Proof.
-    apply invproofirrelevance.
-    intros f f'.
-    use (reflection_isotoid HC).
-    - apply reflection_uniqueness_iso.
-    - apply reflection_uniqueness_iso_commutes.
+    use invproofirrelevance.
+    intros ϕ ψ.
+    use isaprop_reflection'.
+    exact HC.
   Qed.
 
 End Reflections.
@@ -536,4 +550,140 @@ Proof.
   refine (assoc' _ _ _ @ _).
   refine (!maponpaths _ (reflection_arrow_commutes _ (identity_reflection_data _ _)) @ _).
   apply id_right.
+Qed.
+
+(** * 5. Reflections are preserved under isomorphisms *)
+
+Section ReflectionsArePreservedUnderIsos.
+
+  Context {X A : category}.
+
+  Definition reflection_data_transport_along_iso_ob
+    {x x' : X}
+    (i : z_iso x x')
+    {F : functor A X}
+    (r : reflection_data x F)
+    : reflection_data x' F
+    := reflection_data_precompose (inv_from_z_iso i) r.
+
+  Context {x x' : X} (i : z_iso x x').
+
+  Definition reflection_transport_along_iso_ob
+    {F : functor A X} (r : reflection x F)
+    : reflection x' F.
+  Proof.
+    apply (make_reflection (reflection_data_transport_along_iso_ob i r)).
+    intro f.
+    pose (f' := reflection_data_precompose i f).
+    use make_reflection_arrow.
+    - exact (reflection_arrow r f').
+    - simpl.
+      rewrite <- assoc.
+      apply (z_iso_inv_to_left _ _ _ (z_iso_inv i)).
+      exact (reflection_arrow_commutes r f').
+    - intros g Hg.
+      apply (reflection_arrow_unique r f').
+      apply (z_iso_inv_on_right _ _ _ (z_iso_inv i)).
+      rewrite assoc.
+      exact Hg.
+  Defined.
+
+  Definition reflection_data_transport_along_iso_functor
+    {F G : functor A X} (α : nat_z_iso F G) (r : reflection_data x F)
+    : reflection_data x G.
+  Proof.
+    use make_reflection_data.
+    - exact (reflection_data_object r).
+    - exact (reflection_data_arrow r · α _).
+  Defined.
+
+  Context {F G : functor A X} (α : nat_z_iso F G).
+
+  Lemma reflection_transport_along_iso_ob_functor_uvp_equiv
+    {r : reflection x F}
+    {f : reflection_data x G}
+    (g : A⟦reflection_data_object r, reflection_data_object f⟧)
+    : (reflection_data_arrow f
+        = r · α (reflection_data_object r) · #G g)
+          ≃ (f · nat_z_iso_to_trans_inv α (reflection_data_object f) = r · # F g).
+  Proof.
+    use weqimplimpl.
+    - intro p.
+      rewrite p.
+      rewrite ! assoc'.
+      rewrite (nat_trans_ax (nat_z_iso_inv α)).
+      rewrite ! assoc.
+      apply maponpaths_2.
+      rewrite assoc'.
+      refine (_ @ id_right _).
+      apply maponpaths.
+      apply (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso α _)).
+    - intro p.
+      rewrite assoc'.
+      rewrite <- (nat_trans_ax α).
+      rewrite assoc.
+      etrans.
+      2: { apply maponpaths_2, p. }
+      rewrite assoc'.
+      refine (! id_right _ @ _).
+      apply maponpaths.
+      apply pathsinv0.
+      apply (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (nat_z_iso_inv α) _)).
+    - apply homset_property.
+    - apply homset_property.
+  Qed.
+
+  Definition reflection_transport_along_iso_ob_functor
+    (r : reflection x F)
+    : reflection x' G.
+  Proof.
+    use reflection_transport_along_iso_ob.
+    use (make_reflection (reflection_data_transport_along_iso_functor α r)).
+    intro f.
+    set (t := pr2 r (reflection_data_transport_along_iso_functor (nat_z_iso_inv α) f)).
+    use (iscontrweqb' t).
+    clear t.
+    use weqfibtototal.
+    intro g.
+    apply reflection_transport_along_iso_ob_functor_uvp_equiv.
+  Defined.
+
+End ReflectionsArePreservedUnderIsos.
+
+(** * 6. An object isomorphic to a reflection is a reflection *)
+Section IsReflectionAlongIso.
+
+  Context {X A : category} {F : functor X A}
+    {a : A} (r : reflection a F)
+    {s : X} (i : z_iso s (reflection_data_object r)).
+
+  Definition is_reflection_along_iso
+    : is_reflection (F := F) (reflection_data_postcompose r (z_iso_inv i)).
+  Proof.
+    intro f.
+    use make_reflection_arrow.
+    - exact (i · reflection_arrow r f).
+    - simpl.
+      rewrite assoc'.
+      rewrite <- functor_comp.
+      rewrite assoc.
+      rewrite z_iso_after_z_iso_inv.
+      rewrite id_left.
+      exact (reflection_arrow_commutes r f).
+    - intros g Hg.
+      apply z_iso_inv_to_left.
+      apply (reflection_arrow_unique r f).
+      rewrite functor_comp.
+      rewrite assoc.
+      exact Hg.
+  Qed.
+
+End IsReflectionAlongIso.
+
+Lemma is_universal_arrow_from_after_path_induction
+  {D C : category} (S : D ⟶ C) (c : C) (r : D) (f₁ f₂ : C⟦c, S r⟧) (p : f₁ = f₂)
+  : is_reflection (make_reflection_data r f₁) → is_reflection (make_reflection_data r f₂).
+Proof.
+  use (transportf (λ g, is_reflection (r ,, g))).
+  exact p.
 Qed.
