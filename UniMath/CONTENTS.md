@@ -260,7 +260,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monics.v](CategoryTheory/Monics.v)
    - [Epis.v](CategoryTheory/Epis.v)
    - [SplitMonicsAndEpis.v](CategoryTheory/SplitMonicsAndEpis.v)
-   - [HomotopicalCategory.v](CategoryTheory/HomotopicalCategory.v)
    - [Adjunctions/Core.v](CategoryTheory/Adjunctions/Core.v)
    - [Adjunctions/AdjunctionMonics.v](CategoryTheory/Adjunctions/AdjunctionMonics.v)
    - [Adjunctions/Reflections.v](CategoryTheory/Adjunctions/Reflections.v)

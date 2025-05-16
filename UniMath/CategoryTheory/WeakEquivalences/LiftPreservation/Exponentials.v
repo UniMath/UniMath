@@ -90,8 +90,8 @@ Section WeakEquivLiftsExponentialPreservation.
     Proof.
       refine (_ · ev₂).
       apply (z_iso_inv (preserves_binproduct_to_z_iso _ G_pP (P₁ x₁ e₁) (P₂ (G x₁) (G e₁)))).
-
     Defined.
+
     Let ev₁ := fully_faithful_inv_hom (pr2 G_weq) _ _ ev₂' : (C₁⟦P₁ x₁ e₁, y₁⟧).
 
     Local Lemma ev₂_is_img_of_ev₁
