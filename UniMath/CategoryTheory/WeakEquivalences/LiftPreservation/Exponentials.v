@@ -119,9 +119,10 @@ Section WeakEquivLiftsExponentialPreservation.
     Let αinv_iso (a : C₁) := nat_z_iso_pointwise_z_iso (nat_z_iso_inv α) a.
 
     Let HG_pP := composition_preserves_binproduct G_pP H_pP.
+
     Local Lemma img_of_unique_binprodarrow
-      : # H (z_iso_inv (preserves_binproduct_to_z_iso G G_pP (P₁ x₁ e₁) (P₂ (G x₁) (G e₁)))) =
-          z_iso_inv
+      : # H (z_iso_inv (preserves_binproduct_to_z_iso G G_pP (P₁ x₁ e₁) (P₂ (G x₁) (G e₁))))
+        = z_iso_inv
             (preserves_binproduct_to_z_iso (G ∙ H) HG_pP (P₁ x₁ e₁)
                (preserves_binproduct_to_binproduct H H_pP (P₂ (G x₁) (G e₁)))).
     Proof.
@@ -185,16 +186,15 @@ Section WeakEquivLiftsExponentialPreservation.
     Local Lemma equiv_of_binprodarrows_nat_eval_lr
       {d₃ : C₃}
       (g₃ : C₃⟦d₃, F e₁⟧)
-      :  BinProductOfArrows C₃ (P₃ (F x₁) (F e₁)) (P₃ (F x₁) d₃) (identity (F x₁)) g₃
-  · (BinProductArrow C₃ (preserves_binproduct_to_binproduct F F_pP (P₁ x₁ e₁))
-       (BinProductPr1 C₃ (P₃ (F x₁) (F e₁))) (BinProductPr2 C₃ (P₃ (F x₁) (F e₁)))
-     · # F ev₁) =
-  BinProductOfArrows C₃ (P₃ (H (G x₁)) d₃) (P₃ (F x₁) d₃) (αinv x₁) (identity d₃)
-  · (BinProductOfArrows C₃ (P₃ (H (G x₁)) (H (G e₁))) (P₃ (H (G x₁)) d₃) (identity (H (G x₁)))
-       (g₃ · αinv e₁)
-     · (BinProductArrow C₃ (preserves_binproduct_to_binproduct H H_pP (P₂ (G x₁) (G e₁)))
-          (BinProductPr1 C₃ (P₃ (H (G x₁)) (H (G e₁)))) (BinProductPr2 C₃ (P₃ (H (G x₁)) (H (G e₁))))
-          · # H ev₂) · α y₁).
+      : BinProductOfArrows C₃ (P₃ (F x₁) (F e₁)) (P₃ (F x₁) d₃) (identity (F x₁)) g₃
+           · (BinProductArrow C₃ (preserves_binproduct_to_binproduct F F_pP (P₁ x₁ e₁))
+                (BinProductPr1 C₃ (P₃ (F x₁) (F e₁))) (BinProductPr2 C₃ (P₃ (F x₁) (F e₁)))
+                · # F ev₁)
+         = BinProductOfArrows C₃ (P₃ (H (G x₁)) d₃) (P₃ (F x₁) d₃) (αinv x₁) (identity d₃)
+             · (BinProductOfArrows C₃ (P₃ (H (G x₁)) (H (G e₁))) (P₃ (H (G x₁)) d₃) (identity (H (G x₁))) (g₃ · αinv e₁)
+                  · (BinProductArrow C₃ (preserves_binproduct_to_binproduct H H_pP (P₂ (G x₁) (G e₁)))
+                       (BinProductPr1 C₃ (P₃ (H (G x₁)) (H (G e₁)))) (BinProductPr2 C₃ (P₃ (H (G x₁)) (H (G e₁))))
+                       · # H ev₂) · α y₁).
     Proof.
       apply pathsinv0.
       rewrite ev₂_is_img_of_ev₁.
@@ -257,20 +257,19 @@ Section WeakEquivLiftsExponentialPreservation.
       {d₃ : C₃}
       (f₃ : C₃⟦P₃ (H (G x₁)) d₃, H (G y₁)⟧)
       (g₃ : C₃⟦d₃, F e₁⟧)
-      : BinProductOfArrows C₃ (P₃ _ _) (P₃ _ _) (αinv x₁) (identity d₃)
-          · f₃ · α y₁
-        = BinProductOfArrows C₃ (P₃ _ _) (P₃ _ _) (identity (F x₁)) g₃
-            · (BinProductArrow C₃ (preserves_binproduct_to_binproduct F F_pP (P₁ x₁ e₁))
-                 (BinProductPr1 C₃ (P₃ (F x₁) (F e₁))) (BinProductPr2 C₃ (P₃ (F x₁) (F e₁)))
-                 · # F ev₁)
-            ≃
-            f₃ = BinProductOfArrows C₃ (P₃ (H (G x₁)) (H (G e₁))) (P₃ (H (G x₁)) d₃)
-                   (identity (H (G x₁))) (g₃ · αinv e₁)
-                   · (BinProductArrow C₃
-                        (preserves_binproduct_to_binproduct H H_pP (P₂ (G x₁) (G e₁)))
-                        (BinProductPr1 C₃ (P₃ (H (G x₁)) (H (G e₁))))
-                        (BinProductPr2 C₃ (P₃ (H (G x₁)) (H (G e₁))))
-                        · # H ev₂).
+      : (BinProductOfArrows C₃ (P₃ _ _) (P₃ _ _) (αinv x₁) (identity d₃) · f₃ · α y₁
+         = BinProductOfArrows C₃ (P₃ _ _) (P₃ _ _) (identity (F x₁)) g₃
+             · (BinProductArrow C₃ (preserves_binproduct_to_binproduct F F_pP (P₁ x₁ e₁))
+                  (BinProductPr1 C₃ (P₃ (F x₁) (F e₁))) (BinProductPr2 C₃ (P₃ (F x₁) (F e₁)))
+                  · # F ev₁))
+          ≃
+          (f₃ = BinProductOfArrows C₃ (P₃ (H (G x₁)) (H (G e₁))) (P₃ (H (G x₁)) d₃)
+                  (identity (H (G x₁))) (g₃ · αinv e₁)
+                  · (BinProductArrow C₃
+                       (preserves_binproduct_to_binproduct H H_pP (P₂ (G x₁) (G e₁)))
+                       (BinProductPr1 C₃ (P₃ (H (G x₁)) (H (G e₁))))
+                       (BinProductPr2 C₃ (P₃ (H (G x₁)) (H (G e₁))))
+                       · # H ev₂)).
     Proof.
       use weqimplimpl.
       - intro pf.
