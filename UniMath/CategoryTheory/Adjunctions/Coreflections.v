@@ -323,10 +323,9 @@ Definition right_adjoint_to_coreflection
   (a : A)
   : coreflection a F.
 Proof.
-  use make_coreflection.
-  - use make_coreflection_data.
-    + exact (right_adjoint G a).
-    + exact (counit_from_left_adjoint G a).
+  use make_coreflection'.
+  - exact (right_adjoint G a).
+  - exact (counit_from_left_adjoint G a).
   - intro f.
     use make_coreflection_arrow.
     + exact (adjunction_hom_weq (pr2 G) _ _ f).

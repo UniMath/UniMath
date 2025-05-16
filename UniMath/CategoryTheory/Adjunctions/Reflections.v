@@ -309,10 +309,9 @@ Definition left_adjoint_to_reflection
   (a : A)
   : reflection a G.
 Proof.
-  use make_reflection.
-  - use make_reflection_data.
-    + exact (left_adjoint F a).
-    + exact (unit_from_right_adjoint F a).
+  use make_reflection'.
+  - exact (left_adjoint F a).
+  - exact (unit_from_right_adjoint F a).
   - intro f.
     use make_reflection_arrow.
     + exact (invmap (adjunction_hom_weq (pr2 F) _ _) f).

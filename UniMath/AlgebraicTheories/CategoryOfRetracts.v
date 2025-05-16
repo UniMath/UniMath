@@ -1052,10 +1052,9 @@ Section Category.
       (B C : R)
       : coreflection C (constprod_functor2 R_binproducts B).
     Proof.
-      refine '(make_coreflection _ _).
-      - refine '(make_coreflection_data _ _).
-        + exact (exponential_ob B C).
-        + exact (eval_mor B C).
+      refine '(make_coreflection' _ _ _).
+      - exact (exponential_ob B C).
+      - exact (eval_mor B C).
       - intro h.
         refine '(make_coreflection_arrow _ _ _).
         + apply lifted_mor.

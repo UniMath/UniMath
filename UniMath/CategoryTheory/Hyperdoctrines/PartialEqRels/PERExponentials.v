@@ -35,10 +35,9 @@ Proof.
   intros X.
   apply right_adjoint_weq_coreflections.
   intro Y.
-  use make_coreflection.
-  - use make_coreflection_data.
-    + exact (exp_partial_setoid X Y).
-    + exact (eval_partial_setoid X Y).
+  use make_coreflection'.
+  - exact (exp_partial_setoid X Y).
+  - exact (eval_partial_setoid X Y).
   - intro φ.
     use make_coreflection_arrow.
     + exact (lam_partial_setoid (coreflection_data_arrow φ)).

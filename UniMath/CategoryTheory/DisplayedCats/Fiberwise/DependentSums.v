@@ -210,10 +210,9 @@ Section DependentSumPoset.
   Proof.
     apply reflections_to_is_right_adjoint.
     intro x.
-    use make_reflection.
-    - use make_reflection_data.
-      + exact (ex _ _ s x).
-      + exact (ex_i _ _ s x).
+    use make_reflection'.
+    - exact (ex _ _ s x).
+    - exact (ex_i _ _ s x).
     - intros p.
       use make_reflection_arrow.
       + apply ex_e.

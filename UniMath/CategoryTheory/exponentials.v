@@ -895,9 +895,9 @@ Section ExpIndependent.
     intros x.
     use coreflections_to_is_left_adjoint.
     intro y.
-    use make_coreflection.
-    - exists (exp (E x) y).
-      exact (iso_between_BinProduct (BC₂ x (exp (E x) y)) (BC₁ x (exp (E x) y))
+    use make_coreflection'.
+    - exact (exp (E x) y).
+    - exact (iso_between_BinProduct (BC₂ x (exp (E x) y)) (BC₁ x (exp (E x) y))
              · exp_eval (E x) y).
     - intros [z f].
       use iscontraprop1.

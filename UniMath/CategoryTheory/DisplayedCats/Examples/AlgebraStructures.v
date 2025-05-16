@@ -608,10 +608,9 @@ Section MonadToStruct.
   Proof.
     apply reflections_to_is_right_adjoint.
     intro X.
-    use make_reflection.
-    - use make_reflection_data.
-      + exact (monad_free_alg X).
-      + exact (η M X).
+    use make_reflection'.
+    - exact (monad_free_alg X).
+    - exact (η M X).
     - intro f.
       use make_reflection_arrow.
       + exact (monad_to_hset_struct_adj_lift _ (f : _ --> _)).

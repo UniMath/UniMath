@@ -120,10 +120,9 @@ Section FiberwiseExponentialsPoset.
     intro φ.
     apply coreflections_to_is_left_adjoint.
     intro ψ.
-    use make_coreflection.
-    - use make_coreflection_data.
-      + exact (imp _ φ ψ).
-      + exact (imp_e _ φ ψ).
+    use make_coreflection'.
+    - exact (imp _ φ ψ).
+    - exact (imp_e _ φ ψ).
     - intro p.
       use make_coreflection_arrow.
       + apply imp_i.

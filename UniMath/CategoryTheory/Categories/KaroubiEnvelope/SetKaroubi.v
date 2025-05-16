@@ -748,10 +748,9 @@ Section OppKaroubiEquiv.
   Proof.
     use coreflections_to_is_left_adjoint.
     intro X.
-    use make_coreflection.
-    - use make_coreflection_data.
-      + exact (opp_set_karoubi_ob_lift X).
-      + apply opp_set_karoubi_ob_lift_mor.
+    use make_coreflection'.
+    - exact (opp_set_karoubi_ob_lift X).
+    - apply opp_set_karoubi_ob_lift_mor.
     - intro f.
       use make_coreflection_arrow.
       + apply opp_set_karoubi_universal_mor.

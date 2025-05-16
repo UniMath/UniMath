@@ -284,10 +284,9 @@ Section Connectives.
   Proof.
     apply right_adjoint_weq_coreflections.
     intro ψ.
-    use make_coreflection.
-    - use make_coreflection_data.
-      + exact (per_subobject_forall φ ψ).
-      + exact (per_subobject_forall_elim φ ψ).
+    use make_coreflection'.
+    - exact (per_subobject_forall φ ψ).
+    - exact (per_subobject_forall_elim φ ψ).
     - intro p.
       use make_coreflection_arrow.
       + exact (per_subobject_forall_intro φ _ (coreflection_data_arrow p)).

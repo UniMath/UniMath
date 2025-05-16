@@ -209,10 +209,9 @@ Section DependentProductPoset.
   Proof.
     apply coreflections_to_is_left_adjoint.
     intro ψ.
-    use make_coreflection.
-    - use make_coreflection_data.
-      + exact (all _ _ s ψ).
-      + exact (all_e _ _ s ψ).
+    use make_coreflection'.
+    - exact (all _ _ s ψ).
+    - exact (all_e _ _ s ψ).
     - intro p.
       use make_coreflection_arrow.
       + apply all_i.
