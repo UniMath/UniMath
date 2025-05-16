@@ -61,13 +61,15 @@ Notation "1" := (unel _) : multmonoid.
 Definition unitmonoid_ismonoid : ismonoidop (λ x : unitset, λ y : unitset, x).
 Proof.
   use make_ismonoidop.
-  - intros x x' x''. use isProofIrrelevantUnit.
+  - abstract (intros x x' x''; use isProofIrrelevantUnit).
   - use make_isunital.
     + exact tt.
-    + use make_isunit.
-      * intros x. use isProofIrrelevantUnit.
-      * intros x. use isProofIrrelevantUnit.
-Qed.
+    + abstract (
+        apply make_isunit;
+        [ intros x; use isProofIrrelevantUnit
+        | intros x; use isProofIrrelevantUnit ]
+      ).
+Defined.
 
 Definition unitmonoid : monoid :=
   make_monoid (make_setwithbinop unitset (λ x : unitset, λ y : unitset, x))
