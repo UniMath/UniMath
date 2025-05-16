@@ -1,4 +1,4 @@
-(*
+(**
   In this file, we construct the (displayed) bicategory [disp_bicat_exponentials] whose objects are categories equipped with chosen binary products and exponentials, and whose morphisms are functors that preserve binary products and exponentials.
  *)
 
