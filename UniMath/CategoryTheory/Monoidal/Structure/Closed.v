@@ -29,6 +29,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Categories.
 Require Import UniMath.CategoryTheory.Monoidal.Structure.Symmetric.
@@ -118,55 +119,56 @@ Section Builder.
                    =
                    lam x y z (g #⊗ identity _ · eval x y)).
 
+  Definition make_left_closed_coreflection_data
+      (x y : V)
+    : coreflection_data y (rightwhiskering_functor V x).
+  Proof.
+    use make_coreflection_data.
+    - exact (HomV x y).
+    - exact (eval x y).
+  Defined.
+
   Definition make_left_closed_universal
              (x y : V)
-    : is_universal_arrow_from
-        (rightwhiskering_functor V x)
-        y
-        (HomV x y)
-        (eval x y).
+    : is_coreflection (make_left_closed_coreflection_data x y).
   Proof.
-    intros z f.
-    use iscontraprop1.
+    intro f.
+    use make_coreflection_arrow.
+    - exact (lam x y _ f).
     - abstract
-        (use invproofirrelevance ;
-         intros φ₁ φ₂ ;
-         use subtypePath ; [ intro ; apply homset_property | ] ;
-         refine (etaEq _ _ _ _ @ _ @ !(etaEq _ _ _ _)) ;
-         apply maponpaths ;
-         refine (_ @ !(pr2 φ₁) @ pr2 φ₂ @ !_) ;
-         apply maponpaths_2 ;
-         refine (_ @ id_right _) ;
-         unfold rightwhiskering_on_morphisms ;
-         unfold monoidal_cat_tensor_mor ;
-         unfold functoronmorphisms1 ;
-         apply maponpaths ;
-         apply (bifunctor_leftid V)).
-    - simple refine (_ ,, _).
-      + exact (lam x y z f).
-      + abstract
-          (refine (!(betaEq x y z f) @ _) ; cbn ;
-           apply maponpaths_2 ;
-           refine (_ @ id_right _) ;
-           unfold rightwhiskering_on_morphisms ;
-           unfold monoidal_cat_tensor_mor ;
-           unfold functoronmorphisms1 ;
-           apply maponpaths ;
-           apply (bifunctor_leftid V)).
+        (refine (!betaEq x y _ f @ _) ; cbn ;
+          apply maponpaths_2 ;
+          refine (_ @ id_right _) ;
+          unfold rightwhiskering_on_morphisms ;
+          unfold monoidal_cat_tensor_mor ;
+          unfold functoronmorphisms1 ;
+          apply maponpaths ;
+          apply (bifunctor_leftid V)).
+    - abstract (
+        intros g Hg;
+        refine (etaEq _ _ _ _ @ _ @ !(etaEq _ _ _ _));
+        apply maponpaths;
+        refine (_ @ !betaEq x y _ f);
+        refine (_ @ !Hg);
+        apply maponpaths_2;
+        refine (_ @ id_right _);
+        unfold rightwhiskering_on_morphisms;
+        unfold monoidal_cat_tensor_mor;
+        unfold functoronmorphisms1;
+        apply maponpaths;
+        apply (bifunctor_leftid V)
+      ).
   Defined.
 
   Definition make_monoidal_leftclosed
     : monoidal_leftclosed V.
   Proof.
-    intros x.
-    pose (right_adjoint_from_partial
-             (rightwhiskering_functor V x)
-             (HomV x)
-             (eval x)
-             (make_left_closed_universal x))
-      as A.
-    exists (Core.G _ _ _ (make_left_closed_universal x)).
-    exact (pr2 A).
+    intro x.
+    apply coreflections_to_is_left_adjoint.
+    intro y.
+    use make_coreflection.
+    - apply make_left_closed_coreflection_data.
+    - apply make_left_closed_universal.
   Defined.
 
   Definition make_sym_mon_closed_cat
@@ -280,33 +282,25 @@ Section Accessors.
   Qed.
 End Accessors.
 
+Definition sym_mon_closed_left_tensor_left_adjoint_coreflection_data
+  {V : sym_mon_closed_cat}
+  (x y : V)
+  : coreflection_data y (monoidal_left_tensor x).
+Proof.
+  use make_coreflection_data.
+  - exact (x ⊸ y).
+  - exact (sym_mon_braiding V x (x ⊸ y) · internal_eval x y).
+Defined.
+
 Definition sym_mon_closed_left_tensor_left_adjoint_universal
            (V : sym_mon_closed_cat)
            (x y : V)
-  : is_universal_arrow_from
-      (monoidal_left_tensor x)
-      y
-      (x ⊸ y)
-      (sym_mon_braiding V x (x ⊸ y) · internal_eval x y).
+  : is_coreflection (sym_mon_closed_left_tensor_left_adjoint_coreflection_data x y).
 Proof.
-  intros z f.
-  use iscontraprop1.
+  intro f.
+  use make_coreflection_arrow.
+  - exact (internal_lam (sym_mon_braiding V _ x · f)).
   - abstract
-      (use invproofirrelevance ;
-       intros φ₁ φ₂ ;
-       use subtypePath ; [ intro ; apply homset_property | ] ;
-       refine (internal_eta _ @ _ @ !(internal_eta _)) ;
-       apply maponpaths ;
-       refine (!(id_left _) @ _ @ id_left _) ;
-       rewrite <- !sym_mon_braiding_inv ;
-       rewrite !assoc' ;
-       apply maponpaths ;
-       rewrite !assoc ;
-       rewrite <- !tensor_sym_mon_braiding ;
-       rewrite !assoc' ;
-       exact (!(pr2 φ₁) @ pr2 φ₂)).
-  - refine (internal_lam (sym_mon_braiding V z x · f) ,, _).
-    abstract
       (cbn -[sym_mon_braiding] ;
        rewrite !assoc ;
        rewrite tensor_sym_mon_braiding ;
@@ -316,6 +310,19 @@ Proof.
        rewrite sym_mon_braiding_inv ;
        rewrite id_left ;
        apply idpath).
+  - abstract (
+      intros g Hg;
+      refine (internal_eta _ @ _);
+      apply maponpaths;
+      refine (!id_left _ @ _);
+      rewrite <- sym_mon_braiding_inv;
+      refine (assoc' _ _ _ @ _);
+      apply maponpaths;
+      refine (assoc _ _ _ @ _);
+      rewrite <- tensor_sym_mon_braiding;
+      refine (assoc' _ _ _ @ _);
+      exact (!Hg)
+    ).
 Defined.
 
 Definition sym_mon_closed_left_tensor_left_adjoint
@@ -323,35 +330,39 @@ Definition sym_mon_closed_left_tensor_left_adjoint
            (x : V)
   : is_left_adjoint (monoidal_left_tensor x).
 Proof.
-  use left_adjoint_from_partial.
-  - exact (λ y, x ⊸ y).
-  - exact (λ y, sym_mon_braiding V _ _ · internal_eval _ _).
-  - exact (sym_mon_closed_left_tensor_left_adjoint_universal V x).
+  apply coreflections_to_is_left_adjoint.
+  intro y.
+  use make_coreflection.
+  - exact (sym_mon_closed_left_tensor_left_adjoint_coreflection_data x y).
+  - exact (sym_mon_closed_left_tensor_left_adjoint_universal V x y).
+Defined.
+
+Definition sym_mon_closed_left_tensor_right_adjoint_coreflection_data
+  {V : sym_mon_closed_cat}
+  (x y : V)
+  : coreflection_data y (monoidal_right_tensor x).
+Proof.
+  use make_coreflection_data.
+  - exact (x ⊸ y).
+  - exact (internal_eval x y).
 Defined.
 
 Definition sym_mon_closed_left_tensor_right_adjoint_universal
            (V : sym_mon_closed_cat)
            (x y : V)
-  : is_universal_arrow_from
-      (monoidal_right_tensor x)
-      y
-      (x ⊸ y)
-      (internal_eval x y).
+  : is_coreflection (sym_mon_closed_left_tensor_right_adjoint_coreflection_data x y).
 Proof.
-  intros z f.
-  use iscontraprop1.
-  - abstract
-      (use invproofirrelevance ;
-       intros φ₁ φ₂ ;
-       use subtypePath ; [ intro ; apply homset_property | ] ;
-       refine (internal_eta _ @ _ @ !(internal_eta _)) ;
-       apply maponpaths ;
-       exact (!(pr2 φ₁) @ pr2 φ₂)).
-  - refine (internal_lam f ,, _).
-    abstract
-      (cbn ;
-       rewrite internal_beta ;
-       apply idpath).
+  intro f.
+  use make_coreflection_arrow.
+  - apply internal_lam.
+    exact f.
+  - abstract exact (!internal_beta _).
+  - abstract (
+      intros g Hg;
+      refine (internal_eta _ @ _);
+      apply maponpaths;
+      exact (!Hg)
+    ).
 Defined.
 
 Definition sym_mon_closed_right_tensor_left_adjoint
@@ -359,10 +370,11 @@ Definition sym_mon_closed_right_tensor_left_adjoint
            (x : V)
   : is_left_adjoint (monoidal_right_tensor x).
 Proof.
-  use left_adjoint_from_partial.
-  - exact (λ y, x ⊸ y).
-  - exact (λ y, internal_eval _ _).
-  - exact (sym_mon_closed_left_tensor_right_adjoint_universal V x).
+  apply coreflections_to_is_left_adjoint.
+  intro y.
+  use make_coreflection.
+  - exact (sym_mon_closed_left_tensor_right_adjoint_coreflection_data x y).
+  - exact (sym_mon_closed_left_tensor_right_adjoint_universal V x y).
 Defined.
 
 (**

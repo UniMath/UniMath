@@ -457,7 +457,7 @@ triangle_id_(left|right)_ad         (H : are_adjoints F G)
 ```
 <!-- triangle_(1|2)_statement_from_adjunction  (adj : adjunction A B) -->
 
-One "easy" way to show that a functor is an adjunction is using 'universal arrows' or '(co)reflections'. This construction is formalized as `(left|right)_adjoint_from_partial` (using reflections along the functor) and `(right|left)_adjoint_left_from_partial` (using coreflections along the functor).
+One "easy" way to show that a functor is an adjunction is using '(co)reflections' or 'universal arrows'. Having a left adjoint to a functor `F : C ⟶ D` is equivalent to having, for every `d : D`, a 'reflection' of `d` along `F`: an object `c : C` and an arrow `f : D⟦d, F c⟧` such that any other such pair `(c', f')` factors uniquely as `f' = f · #F g` for some `g : C⟦c, c'⟧`. Dually, having a right adjoint is equivalent to having coreflections. This construction is formalized as `(left|right)_adjoint_weq_(co)reflections`.
 
 Some `H : are_adjoints F G` gives an equivalence on homsets `adjunction_hom_weq H X Y : F X --> Y ≃ X --> G Y`, with the map given by `φ_adj H` and the inverse by `φ_adj_inv H`. Conversely, you can show `are_adjoints F G` from a natural equivalence on homsets using `adj_from_nathomweq`. Actually, these mappings between adjunctions and homset equivalences form an equivalence themselves (`adjunction_homsetiso_weq : are_adjoints F G ≃ natural_hom_weq F G`).
 

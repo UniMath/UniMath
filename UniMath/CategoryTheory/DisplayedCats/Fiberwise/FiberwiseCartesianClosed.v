@@ -19,6 +19,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
@@ -116,20 +117,22 @@ Section FiberwiseExponentialsPoset.
              (Γ : C)
     : Exponentials (pr1 P Γ).
   Proof.
-    intros φ.
-    use left_adjoint_from_partial.
-    - exact (λ ψ, imp _ φ ψ).
-    - exact (λ ψ, imp_e _ φ ψ).
-    - intros ψ χ p.
-      use iscontraprop1.
-      + abstract
-          (use invproofirrelevance ;
-           intros ζ₁ ζ₂ ;
-           use subtypePath ; [ intro ; apply homset_property | ] ;
-           apply HD').
-      + simple refine (_ ,, _) ; [ | apply HD' ].
-        apply imp_i.
+    intro φ.
+    apply coreflections_to_is_left_adjoint.
+    intro ψ.
+    use make_coreflection.
+    - use make_coreflection_data.
+      + exact (imp _ φ ψ).
+      + exact (imp_e _ φ ψ).
+    - intro p.
+      use make_coreflection_arrow.
+      + apply imp_i.
         exact p.
+      + abstract apply HD'.
+      + abstract (
+          intros g' Hg';
+          apply HD'
+        ).
   Defined.
 
   Definition make_fiberwise_exponentials_locally_propositional

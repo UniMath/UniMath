@@ -16,6 +16,7 @@
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.exponentials.
@@ -111,7 +112,7 @@ Section EndomorphismTheory.
       (is_exponentiable'_to_is_exponentiable'_lam _ _) @ _).
     refine '(maponpaths
       (λ (x : R _ _ ⟦_, _⟧), R_section L Lβ _ ∘ (R_mor_to_L _ x))
-      (φ_adj_from_partial _ _ _ (is_universal_arrow L Lβ _) _ _ f) @ _).
+      (coreflections_to_are_adjoints_φ_adj _ _) @ _).
     apply R_mor_is_mor_left.
     exact Lβ.
   Qed.

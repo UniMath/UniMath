@@ -22,6 +22,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
@@ -206,19 +207,21 @@ Section DependentProductPoset.
              (s : Γ₁ --> Γ₂)
     : dependent_product HD s.
   Proof.
-    use left_adjoint_from_partial.
-    - exact (all _ _ s).
-    - exact (all_e _ _ s).
-    - intros ψ χ p.
-      use iscontraprop1.
-      + abstract
-          (use invproofirrelevance ;
-           intros ζ₁ ζ₂ ;
-           use subtypePath ; [ intro ; apply homset_property | ] ;
-           apply HD').
-      + simple refine (_ ,, _) ; [ | apply HD' ].
-        apply all_i.
-        exact p.
+    apply coreflections_to_is_left_adjoint.
+    intro ψ.
+    use make_coreflection.
+    - use make_coreflection_data.
+      + exact (all _ _ s ψ).
+      + exact (all_e _ _ s ψ).
+    - intro p.
+      use make_coreflection_arrow.
+      + apply all_i.
+        exact (p : _ --> _).
+      + abstract apply HD'.
+      + abstract (
+          intros;
+          apply HD'
+        ).
   Defined.
 
   Definition make_has_dependent_products_poset

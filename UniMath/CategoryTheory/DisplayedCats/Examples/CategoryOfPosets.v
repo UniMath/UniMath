@@ -24,6 +24,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
@@ -208,23 +209,26 @@ Defined.
 Definition Exponentials_category_of_posets
   : Exponentials BinProducts_category_of_posets.
 Proof.
-  intros X.
-  use left_adjoint_from_partial.
-  - exact (λ Y, _ ,, monotone_function_PartialOrder (pr2 X) (pr2 Y)).
-  - exact (λ Y, eval_monotone_function (pr2 X) (pr2 Y)).
-  - refine (λ Y Z f, _).
-    use iscontraprop1.
-    + abstract
-        (use invproofirrelevance ;
-         intros g₁ g₂ ;
-         use subtypePath ; [ intro ; apply homset_property | ] ;
-         use eq_monotone_function ; intro z ;
-         use eq_monotone_function ; intro x ;
-         refine (!(eqtohomot (maponpaths pr1 (pr2 g₁)) (x ,, z)) @ _) ;
-         exact (eqtohomot (maponpaths pr1 (pr2 g₂)) (x ,, z))).
-    + simple refine (_ ,, _).
-      * exact (lam_monotone_function (pr2 X) (pr2 Y) f).
-      * abstract
-          (use subtypePath ; [ intro ; apply isaprop_is_monotone | ] ;
-           apply idpath).
+  intro X.
+  apply coreflections_to_is_left_adjoint.
+  intro Y.
+  use make_coreflection.
+  - use make_coreflection_data.
+    + exact (_ ,, monotone_function_PartialOrder (pr2 X) (pr2 Y)).
+    + exact (eval_monotone_function (pr2 X) (pr2 Y)).
+  - intro f.
+    use make_coreflection_arrow.
+    + exact (lam_monotone_function (pr2 X) (pr2 Y) (f : _ --> _)).
+    + abstract (
+        apply (maponpaths (tpair _ _));
+        apply isaprop_is_monotone
+      ).
+    + abstract (
+        intros g Hg;
+        apply eq_monotone_function;
+        intro z;
+        apply eq_monotone_function;
+        intro x;
+        exact (!eqtohomot (base_paths _ _ Hg) (x ,, z))
+      ).
 Defined.

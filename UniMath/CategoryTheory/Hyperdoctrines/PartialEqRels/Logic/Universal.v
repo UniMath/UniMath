@@ -22,6 +22,7 @@
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
@@ -281,19 +282,20 @@ Section Connectives.
              (φ : partial_setoid_morphism A B)
     : dependent_product (disp_cat_per_subobject_cleaving H) φ.
   Proof.
-    use left_adjoint_from_partial.
-    - exact (λ ψ, per_subobject_forall φ ψ).
-    - exact (λ ψ, per_subobject_forall_elim φ ψ).
-    - intros ψ χ p.
-      use iscontraprop1.
-      + abstract
-          (use invproofirrelevance ;
-           intros ζ₁ ζ₂ ;
-           use subtypePath ; [ intro ; apply homset_property | ] ;
-           apply locally_prop_disp_cat_per_subobject).
-      + simple refine (_ ,, _).
-        * exact (per_subobject_forall_intro φ ψ p).
-        * apply (@locally_prop_disp_cat_per_subobject H).
+    apply right_adjoint_weq_coreflections.
+    intro ψ.
+    use make_coreflection.
+    - use make_coreflection_data.
+      + exact (per_subobject_forall φ ψ).
+      + exact (per_subobject_forall_elim φ ψ).
+    - intro p.
+      use make_coreflection_arrow.
+      + exact (per_subobject_forall_intro φ _ (coreflection_data_arrow p)).
+      + apply (@locally_prop_disp_cat_per_subobject H).
+      + abstract (
+          intros;
+          apply proofirrelevance, (locally_prop_disp_cat_per_subobject B B)
+        ).
   Defined.
 
   Definition dependent_products_per_subobject
