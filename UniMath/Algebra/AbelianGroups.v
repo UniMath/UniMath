@@ -157,8 +157,8 @@ Definition unitabgr_isabgrop : isabgrop (@op unitabmonoid).
 Proof.
   use make_isabgrop.
   - exact unitgr_isgrop.
-  - exact (commax unitabmonoid).
-Qed.
+  - abstract exact (commax unitabmonoid).
+Defined.
 
 Definition unitabgr : abgr := make_abgr unitabmonoid unitabgr_isabgrop.
 

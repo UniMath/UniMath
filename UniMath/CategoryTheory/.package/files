@@ -299,6 +299,7 @@ Categories/Ring.v
 Categories/Commring.v
 Categories/Intdom.v
 Categories/Fld.v
+Categories/ModuleCore.v
 Categories/Module.v
 Categories/StandardCategories.v
 Categories/PreorderCategory/Core.v

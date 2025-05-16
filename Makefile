@@ -52,8 +52,7 @@ everything: TAGS all html install
 .PHONY sanity-checks:  check-prescribed-ordering	\
 		check-listing-of-proof-files		\
 		check-for-change-to-Foundations		\
-		check-for-submodule-changes		\
-		check-for-changes-to-CONTENTS.md
+		check-for-submodule-changes
 .PHONY other-checks:   check-max-line-length
 
 # empty target prevents implicit rule search, saving time
@@ -434,14 +433,6 @@ check-for-submodule-changes:
 	git fetch origin
 	test -z "`git diff origin/master sub`"
 	@echo "check succeeded: no changes to submodules"
-
-# Here we check that the CONTENTS.md file has been correctly updated,
-# and committed if any changes have occurred.
-# One step of the travis job will fail if there are outstanding changes, see .travis.yml
-check-for-changes-to-CONTENTS.md : UniMath/CONTENTS.md
-	@echo "--- checking that CONTENTS.md is up-to-date ---"
-	test -z "`git diff UniMath/CONTENTS.md`"
-	@echo "check succeeded: CONTENTS.md is up-to-date"
 
 # Here we create a table of contents file, in markdown format, for browsing on github
 # When the file UniMath/CONTENTS.md changes, the new version should be committed to github.

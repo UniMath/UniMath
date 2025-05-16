@@ -45,7 +45,6 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.catiso.
 
 (* For the endomorphism ring  *)
-Require Import UniMath.CategoryTheory.Additive.
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
@@ -89,8 +88,8 @@ Example symmetric_grp (X : hSet) := @automorphism_grp hset_category X.
 
 (** *** The endomorphism ring in an additive category *)
 
-Definition endomorphism_ring {C : AdditiveCategory}
-           (_ : ob (PreAdditive_categoryWithAbgrops C)) : ring.
+Definition endomorphism_ring {C : PreAdditive}
+           (X : ob (PreAdditive_categoryWithAbgrops C)) : ring.
 Proof.
   (** The multiplication operation is composition, we reuse the proof
       from the endomorphism monoid. The addition operation is the addition
@@ -388,7 +387,7 @@ Definition monaction_equivariant_map
 
 (** **** Ring actions *)
 
-Definition ringaction_as_morphism {C : AdditiveCategory } (R : ring) (X : ob C) :=
+Definition ringaction_as_morphism {C : PreAdditive } (R : ring) (X : ob C) :=
   ringfun R (endomorphism_ring X).
 
 (** *** As functors *)

@@ -180,10 +180,12 @@ Proof.
   - exact unitmonoid_ismonoid.
   - use make_invstruct.
     + intros i. exact i.
-    + use make_isinv.
-      * intros x. use isProofIrrelevantUnit.
-      * intros x. use isProofIrrelevantUnit.
-Qed.
+    + abstract (
+      apply make_isinv;
+      [ intros x; use isProofIrrelevantUnit
+      | intros x; use isProofIrrelevantUnit ]
+    ).
+Defined.
 
 Definition unitgr : gr := make_gr unitmonoid unitgr_isgrop.
 
