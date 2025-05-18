@@ -157,7 +157,7 @@ Section DaggerMonoidal.
   
   (* Accessors for dagger kernel *)
 
-  Definition ker_obj
+  Coercion ker_to_obj
     {C : dagger_category}
     {Z : Zero C}
     {A B : C}
@@ -172,7 +172,7 @@ Section DaggerMonoidal.
     {A B : C}
     {f : A --> B}
     (T : dagger_kernel Z f)
-    : (ker_obj T) --> A
+    : T --> A
     := pr12 T.
 
   Definition ker_isometry
@@ -190,7 +190,7 @@ Section DaggerMonoidal.
     {A B : C}
     {f : A --> B}
     (T : dagger_kernel Z f)
-    : ((ker_mor T) · f = ZeroArrow Z (ker_obj T) B)
+    : ((ker_mor T) · f = ZeroArrow Z T B)
     := pr1 (pr222 T).
 
   Definition ker_ax2
@@ -199,10 +199,10 @@ Section DaggerMonoidal.
     {A B : C}
     {f : A --> B}
     (T : dagger_kernel Z f)
-    : ∏ (X : C)(x : X --> A)(x1 : (x · f = ZeroArrow Z X B)),  ∑ (m : X --> (ker_obj T)), (m · (ker_mor T) = x).
-    Proof.
+    : ∏ (X : C)(x : X --> A)(x1 : (x · f = ZeroArrow Z X B)),  ∑ (m : X --> T), (m · (ker_mor T) = x).
+  Proof.
     exact (pr2 (pr222 T)).
-    Qed.
+  Qed.
 
   Lemma zero_dag
     {C : dagger_category}
@@ -210,10 +210,10 @@ Section DaggerMonoidal.
     {A B : C}
     : { ZeroArrow Z A B }_ C ^† = ZeroArrow Z B A.
   Proof.
-  unfold ZeroArrow.
-  rewrite dagger_to_law_comp.
-  rewrite ZeroArrowEq.
-  apply idpath.
+    unfold ZeroArrow.
+    rewrite dagger_to_law_comp.
+    rewrite ZeroArrowEq.
+    apply idpath.
   Qed.
 
   Lemma isometries_have_dag_ker
@@ -224,28 +224,28 @@ Section DaggerMonoidal.
     (f1 : is_isometry f)
     : ∑(K : C)(k : K --> A)(k1 : is_isometry k), is_dagger_kernel Z k k1 f.
   Proof.
-  use tpair.
-  exact (Z).
-  use tpair.
-  exact (ZeroArrow Z Z A).
-  use tpair.
-  unfold is_isometry.
-  rewrite zero_dag.
-  rewrite ZeroArrow_comp_left.
-  symmetry. exact (ZeroEndo_is_identity C Z (ZeroArrow Z Z Z)).
-  use tpair.
-  rewrite ZeroArrow_comp_left. apply idpath.
-  simpl.
-  intros.
-  use tpair.
-  exact (x · { ZeroArrow Z Z A }_ C ^†).
-  simpl. rewrite <- id_right.
-  rewrite <- f1.
-  rewrite assoc.
-  rewrite x1.
-  rewrite ZeroArrow_comp_left.
-  rewrite ZeroArrow_comp_right.
-  reflexivity.
+    use tpair.
+    exact (Z).
+    use tpair.
+    exact (ZeroArrow Z Z A).
+    use tpair.
+    unfold is_isometry.
+    rewrite zero_dag.
+    rewrite ZeroArrow_comp_left.
+    symmetry. exact (ZeroEndo_is_identity C Z (ZeroArrow Z Z Z)).
+    use tpair.
+    rewrite ZeroArrow_comp_left. apply idpath.
+    simpl.
+    intros.
+    use tpair.
+    exact (x · { ZeroArrow Z Z A }_ C ^†).
+    simpl. rewrite <- id_right.
+    rewrite <- f1.
+    rewrite assoc.
+    rewrite x1.
+    rewrite ZeroArrow_comp_left.
+    rewrite ZeroArrow_comp_right.
+    reflexivity.
   Qed.
 
   Lemma dag_ker_of_iso_is_zero
@@ -255,7 +255,7 @@ Section DaggerMonoidal.
     (f : A --> B)
     (f1 : is_isometry f)
     (T : dagger_kernel Z f)
-    : (ker_mor T) = ZeroArrow Z (ker_obj T) A.
+    : (ker_mor T) = ZeroArrow Z T A.
   Proof.
     symmetry. rewrite <- id_right.
     rewrite <- f1.
@@ -273,7 +273,7 @@ Section DaggerMonoidal.
     (T : ∏ (A1 B1 : C)(f1 : A1 --> B1), (dagger_kernel Z f1))
     (ax : f · {f}_ C ^† = ZeroArrow Z A A)
     : f = ZeroArrow Z A B.
-   Proof.
+  Proof.
     set (k := T B A {f}_ C ^†).
     set (k_ax := ker_ax2 k A f ax).
     rewrite <- (pr2 k_ax).
@@ -284,14 +284,14 @@ Section DaggerMonoidal.
     rewrite assoc.
     unfold m. rewrite (pr2 k_ax).
     set (k_ax1 := ker_ax1 k).
-    apply (maponpaths (C (ker_obj k) A)) in k_ax1.
+    apply (maponpaths (C k A)) in k_ax1.
     rewrite dagger_to_law_comp in k_ax1.
     rewrite dagger_to_law_idemp in k_ax1.
     rewrite k_ax1.
     rewrite zero_dag.
     rewrite ZeroArrow_comp_left.
     reflexivity.
-    Qed.
+  Qed.
   
   End Kernels.
 
@@ -330,10 +330,10 @@ Section DaggerMonoidal.
     (op : superpos_oper C)
     : ∏ (n : nat), (effects A).
   Proof.
-  intro n.
-  induction n.
-  exact (S 0).
-  exact (IHn +^{op} (S (n + 1))).
+    intro n.
+    induction n.
+    exact (S 0).
+    exact (IHn +^{op} (S (n + 1))).
   Defined.
 
   Definition prob_set
@@ -343,8 +343,8 @@ Section DaggerMonoidal.
     (a : states A)
     : ∏ (n : nat), C ⟦ I_{ C}, I_{ C} ⟧.
   Proof.
-  intro n.
-  exact (prob a (S n)).
+    intro n.
+    exact (prob a (S n)).
   Defined.
   
   Definition set_effects_is_finite
