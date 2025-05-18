@@ -36,7 +36,7 @@ Import MonoidalNotations.
 Local Open Scope cat.
 Local Open Scope moncat.
 
-Notation "{ f }_ C ^†" := (dagger_category_to_dagger C _ _ f).
+Notation "{ f }_ C ^†" := (dagger_category_to_dagger C _ _ f): cat.
 
 Section DaggerMonoidal.
 
