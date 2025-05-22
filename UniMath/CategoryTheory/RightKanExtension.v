@@ -152,10 +152,9 @@ Proof.
 unfold GlobalRightKanExtensionExists.
 apply coreflections_to_is_left_adjoint.
 intro T.
-use make_coreflection.
-- use make_coreflection_data.
-  + exact (R_functor T).
-  + exact (eps T).
+use make_coreflection'.
+- exact (R_functor T).
+- exact (eps T).
 - intro α'; simpl in *.
   pose (S := coreflection_data_object α' : _ ⟶ _).
   pose (α := (α' : _ --> _) : _ ⟹ _).

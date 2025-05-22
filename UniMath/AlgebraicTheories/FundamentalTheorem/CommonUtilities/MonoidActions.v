@@ -645,10 +645,9 @@ Definition is_exponentiable_monoid_action
 Proof.
   apply coreflections_to_is_left_adjoint.
   intro X'.
-  use make_coreflection.
-  - use make_coreflection_data.
-    + exact (exponential_object X X').
-    + apply exponential_object_morphism.
+  use make_coreflection'.
+  - exact (exponential_object X X').
+  - apply exponential_object_morphism.
   - intro f.
     use make_coreflection_arrow.
     + apply monoid_action_cat_induced_morphism.

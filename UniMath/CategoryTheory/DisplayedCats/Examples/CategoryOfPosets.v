@@ -212,10 +212,9 @@ Proof.
   intro X.
   apply coreflections_to_is_left_adjoint.
   intro Y.
-  use make_coreflection.
-  - use make_coreflection_data.
-    + exact (_ ,, monotone_function_PartialOrder (pr2 X) (pr2 Y)).
-    + exact (eval_monotone_function (pr2 X) (pr2 Y)).
+  use make_coreflection'.
+  - exact (_ ,, monotone_function_PartialOrder (pr2 X) (pr2 Y)).
+  - exact (eval_monotone_function (pr2 X) (pr2 Y)).
   - intro f.
     use make_coreflection_arrow.
     + exact (lam_monotone_function (pr2 X) (pr2 Y) (f : _ --> _)).

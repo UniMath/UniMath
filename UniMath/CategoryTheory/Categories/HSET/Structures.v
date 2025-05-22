@@ -204,10 +204,9 @@ Proof.
 intro P.
 use coreflections_to_is_left_adjoint.
 intro Q.
-use make_coreflection.
-- use make_coreflection_data.
-  + exact (exponential_functor_cat P Q).
-  + apply eval.
+use make_coreflection'.
+- exact (exponential_functor_cat P Q).
+- apply eval.
 - intros φ'.
   pose (R := coreflection_data_object φ' : _ ⟶ _).
   pose (φ := (φ' : _ --> _) : _ ⟹ _).

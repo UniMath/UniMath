@@ -222,10 +222,9 @@ Proof.
   intros PX.
   apply coreflections_to_is_left_adjoint.
   intro PY.
-  use make_coreflection.
-  - use make_coreflection_data.
-    + exact (_ ,, hset_struct_fun P (pr2 PX) (pr2 PY)).
-    + exact (_ ,, closed_under_fun_eval P _ _).
+  use make_coreflection'.
+  - exact (_ ,, hset_struct_fun P (pr2 PX) (pr2 PY)).
+  - exact (_ ,, closed_under_fun_eval P _ _).
   - intro f.
     use make_coreflection_arrow.
     + exact (_ ,, closed_under_fun_lam P (pr1 (f : _ --> _)) (pr2 (f : _ --> _))).

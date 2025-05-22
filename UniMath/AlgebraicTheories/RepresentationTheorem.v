@@ -276,11 +276,10 @@ Section RepresentationTheorem.
       apply is_exponentiable'_to_is_exponentiable.
       apply coreflections_to_is_left_adjoint.
       intro T.
-      use make_coreflection.
-      - use make_coreflection_data.
-        + apply plus_1_presheaf.
-          exact T.
-        + exact (presheaf_exponent_morphism T).
+      use make_coreflection'.
+      - apply plus_1_presheaf.
+        exact T.
+      - exact (presheaf_exponent_morphism T).
       - intro f.
         use make_coreflection_arrow.
         + apply presheaf_exponent_induced_morphism.

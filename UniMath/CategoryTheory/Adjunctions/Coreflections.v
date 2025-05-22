@@ -26,7 +26,7 @@
   4.4. The interaction between [right_adjoint_weq_coreflections] and [φ_adj]
     [coreflections_to_are_adjoints_φ_adj]
   5. Coreflections are preserved under isomorphisms [coreflection_transport_along_iso_ob_functor]
-  6. An object isomorphic to a coreflector is a coreflector [is_coreflection_along_iso]
+  6. An object isomorphic to a coreflection is a coreflection [is_coreflection_along_iso]
 
  **************************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -323,10 +323,9 @@ Definition right_adjoint_to_coreflection
   (a : A)
   : coreflection a F.
 Proof.
-  use make_coreflection.
-  - use make_coreflection_data.
-    + exact (right_adjoint G a).
-    + exact (counit_from_left_adjoint G a).
+  use make_coreflection'.
+  - exact (right_adjoint G a).
+  - exact (counit_from_left_adjoint G a).
   - intro f.
     use make_coreflection_arrow.
     + exact (adjunction_hom_weq (pr2 G) _ _ f).
@@ -398,9 +397,6 @@ Section CoreflectionsTorightAdjoint.
     apply (coreflection_arrow_eq _ (coreflection_data_postcompose (identity_coreflection_data _ _) (# F f))).
     do 2 refine (maponpaths (λ x, x · _) (functor_comp _ _ _) @ !_).
     do 2 refine (assoc' _ _ _ @ !_).
-    cbn.
-    unfold coreflections_to_unit_data.
-    cbn.
     refine (!maponpaths _ (coreflection_arrow_commutes _ (identity_coreflection_data b F)) @ _).
     refine (id_right _ @ !_).
     refine (!maponpaths _ (coreflection_arrow_commutes _ (coreflection_data_postcompose _ _)) @ _).
@@ -567,12 +563,8 @@ Section CoreflectionsArePreservedUnderIsos.
     (i : z_iso x x')
     {F : functor A X}
     (r : coreflection_data x F)
-    : coreflection_data x' F.
-  Proof.
-    use make_coreflection_data.
-    - exact (coreflection_data_object r).
-    - exact (coreflection_data_arrow r · i).
-  Defined.
+    : coreflection_data x' F
+    := coreflection_data_postcompose r i.
 
   Context {x x' : X} (i : z_iso x x').
 
@@ -582,25 +574,18 @@ Section CoreflectionsArePreservedUnderIsos.
   Proof.
     apply (make_coreflection (coreflection_data_transport_along_iso_ob i r)).
     intro f.
-    set (t := pr2 r (coreflection_data_transport_along_iso_ob (z_iso_inv i) f)).
-    use (iscontrweqb' t).
-    use weqfibtototal.
-    intro g.
-    use weqimplimpl ; simpl.
-    - intro p.
-      rewrite p.
-      rewrite ! assoc'.
-      rewrite z_iso_inv_after_z_iso.
-      now rewrite id_right.
-    - intro p.
+    pose (f' := coreflection_data_postcompose f (inv_from_z_iso i)).
+    use make_coreflection_arrow.
+    - exact (coreflection_arrow r f').
+    - simpl.
       rewrite assoc.
-      etrans.
-      2: { apply maponpaths_2. exact p. }
-      rewrite assoc'.
-      rewrite z_iso_after_z_iso_inv.
-      now rewrite id_right.
-    - apply homset_property.
-    - apply homset_property.
+      apply (z_iso_inv_on_left _ _ _ _ (z_iso_inv i)).
+      exact (!coreflection_arrow_commutes r f').
+    - intros g Hg.
+      apply (coreflection_arrow_unique r f').
+      apply (z_iso_inv_to_right _ _ _ _ (z_iso_inv i)).
+      rewrite <- assoc.
+      exact Hg.
   Defined.
 
   Definition coreflection_data_transport_along_iso_functor
@@ -619,8 +604,8 @@ Section CoreflectionsArePreservedUnderIsos.
     {f : coreflection_data x G}
     (g : A⟦coreflection_data_object f, coreflection_data_object r⟧)
     : (coreflection_data_arrow f
-       = #G g · (is_z_isomorphism_mor (pr2 α (coreflection_data_object r)) · r))
-        ≃ (α (coreflection_data_object f) · f = # F g · pr1 r).
+       = #G g · (nat_z_iso_to_trans_inv α (coreflection_data_object r) · r))
+        ≃ (α (coreflection_data_object f) · f = # F g · r).
   Proof.
     use weqimplimpl.
     - intro p.
@@ -665,7 +650,7 @@ Section CoreflectionsArePreservedUnderIsos.
 
 End CoreflectionsArePreservedUnderIsos.
 
-(** * 6. An object isomorphic to a coreflector is a coreflector *)
+(** * 6. An object isomorphic to a coreflection is a coreflection *)
 Section IsCoreflectionAlongIso.
 
   Context {X A : category} {F : functor X A}
@@ -676,22 +661,21 @@ Section IsCoreflectionAlongIso.
     : is_coreflection (F := F) (make_coreflection_data s (functor_on_z_iso F i · coreflection_data_arrow r)).
   Proof.
     intro f.
-    use (iscontrweqb' (coreflection_is_coreflection r f)).
-    use weqtotal2.
-    { apply z_iso_comp_left_weq ; exact i. }
-    intro.
-    use weqimplimpl.
+    use make_coreflection_arrow.
+    - exact (coreflection_arrow r f · inv_from_z_iso i).
     - simpl.
-      intro p.
-      rewrite assoc in p.
-      rewrite <- functor_comp in p.
-      exact p.
-    - simpl.
-      intro p.
-      rewrite assoc, <- functor_comp.
-      exact p.
-    - apply homset_property.
-    - apply homset_property.
+      rewrite assoc.
+      rewrite <- functor_comp.
+      rewrite assoc'.
+      rewrite z_iso_after_z_iso_inv.
+      rewrite id_right.
+      exact (coreflection_arrow_commutes r f).
+    - intros g Hg.
+      apply z_iso_inv_on_left.
+      refine (!coreflection_arrow_unique r f _ _).
+      rewrite functor_comp.
+      rewrite assoc'.
+      exact Hg.
   Qed.
 
 End IsCoreflectionAlongIso.

@@ -109,10 +109,9 @@ Definition is_left_adjoint_slice_dom
 Proof.
   use coreflections_to_is_left_adjoint.
   intro z.
-  use make_coreflection.
-  - use make_coreflection_data.
-    + exact (pr_cod_fib BP x z).
-    + exact (BinProductPr2 _ (BP x z)).
+  use make_coreflection'.
+  - exact (pr_cod_fib BP x z).
+  - exact (BinProductPr2 _ (BP x z)).
   - intro g.
     use iscontraprop1.
     + apply is_left_adjoint_slice_dom_unique.
