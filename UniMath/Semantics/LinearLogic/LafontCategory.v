@@ -78,7 +78,7 @@ Defined.
 (**
  3. Builder for Lafont categories
 
- Note: it is convenient to use `left_adjoint_from_partial` to
+ Note: it is convenient to use `coreflections_to_is_left_adjoint` to
  construct Lafont categories.
  *)
 Definition make_lafont_category

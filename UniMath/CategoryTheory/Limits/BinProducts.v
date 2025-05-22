@@ -1713,3 +1713,23 @@ Section BinProductOfIso.
   Defined.
 
 End BinProductOfIso.
+
+Section HelperLemmas.
+
+  Lemma transportf_BinProductOfArrows_right
+    {C : category}
+    (P : BinProducts C)
+    {x y : C}
+    {x₁ x₂ : C}
+    (f : C⟦P x x₁, y⟧)
+    (p : x₁ = x₂)
+    : transportf (λ z : C, C ⟦ P x z, y⟧) p f =
+        BinProductOfArrows C (P x x₁) (P x x₂) (identity x) (idtoiso (! p)) · f.
+  Proof.
+    induction p.
+    cbn.
+    rewrite BinProductOfArrows_id.
+    exact (! id_left _).
+  Qed.
+
+End HelperLemmas.
