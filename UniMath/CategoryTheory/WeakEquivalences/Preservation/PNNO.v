@@ -24,7 +24,68 @@ Require Import UniMath.CategoryTheory.WeakEquivalences.Creation.BinProducts.
 
 Local Open Scope cat.
 
-Lemma BinProductOfIsos {C : category} {x x' y y' : C} (i : C⟦x, x'⟧) (j : C⟦y,y'⟧)
+(* To be moved *)
+Lemma parameterized_NNO_independent_of_terminal
+  {C : category} {T : Terminal C} {P : BinProducts C} (N : parameterized_NNO T P) (T' : Terminal C)
+  : parameterized_NNO T' P.
+Proof.
+  use make_parameterized_NNO.
+  - exact N.
+  - refine (_ · parameterized_NNO_Z N).
+    apply z_iso_Terminals.
+  - exact (parameterized_NNO_S N).
+  - intros b y z s.
+    use (iscontrweqb' (pr222 N b y z s)).
+    use weqfibtototal.
+    intro f.
+    simpl.
+    use weqdirprodf.
+    + rewrite assoc.
+      assert (pf : TerminalArrow T' b · TerminalArrow T T' = TerminalArrow T b).
+      { use TerminalArrowUnique. }
+      rewrite pf.
+      apply idweq.
+    + apply idweq.
+Defined.
+
+Lemma parameterized_NNO_unique_up_to_iso
+  {C : category} {T : Terminal C} {P : BinProducts C} (N M : parameterized_NNO T P)
+  : z_iso N M.
+Proof.
+  exact (iso_between_NNO (parameterized_NNO_to_NNO N) (parameterized_NNO_to_NNO M)).
+Defined.
+
+Lemma parameterized_NNO_unique_up_to_iso'
+  {C : category} {T : Terminal C} {P : BinProducts C} (N M : parameterized_NNO T P)
+  : z_iso N M.
+Proof.
+  use make_z_iso.
+  - apply is_NNO_parameterized_NNO_mor ; apply M.
+  - apply is_NNO_parameterized_NNO_mor ; apply N.
+  - split.
+    + simpl ; use is_NNO_parameterized_NNO_unique ; (try apply N).
+      * simpl ; rewrite assoc.
+        now do 2 rewrite is_NNO_parameterized_NNO_mor_Z.
+      * simpl ; rewrite assoc.
+        rewrite is_NNO_parameterized_NNO_mor_S.
+        rewrite assoc'.
+        rewrite is_NNO_parameterized_NNO_mor_S.
+        now rewrite assoc.
+      * apply id_right.
+      * exact (id_right _ @ ! id_left _).
+    + simpl ; use is_NNO_parameterized_NNO_unique ; (try apply M).
+      * simpl ; rewrite assoc.
+        now do 2 rewrite is_NNO_parameterized_NNO_mor_Z.
+      * simpl ; rewrite assoc.
+        rewrite is_NNO_parameterized_NNO_mor_S.
+        rewrite assoc'.
+        rewrite is_NNO_parameterized_NNO_mor_S.
+        now rewrite assoc.
+      * apply id_right.
+      * exact (id_right _ @ ! id_left _).
+Defined.
+
+Lemma BinProductOfIsIsos {C : category} {x x' y y' : C} (i : C⟦x, x'⟧) (j : C⟦y,y'⟧)
                        (p : BinProduct _ x y) (p' : BinProduct _ x' y')
   : is_z_isomorphism i → is_z_isomorphism j → is_z_isomorphism (BinProductOfArrows _ p' p i j).
 Proof.
@@ -34,6 +95,7 @@ Proof.
   - exact (binproduct_of_z_iso_inv p p' (_,,ii) (_,,jj)).
 Defined.
 
+(** * 1. Image of a PNNO is a PNNO *)
 Section WeakEquivalencesPreserveNNOs.
 
   Context {C D : category}
@@ -76,7 +138,7 @@ Section WeakEquivalencesPreserveNNOs.
     : z_iso (F (P_C b N_C)) (P_D b' (F N_C)).
   Proof.
     exists (BinProductOfArrows D (P_D _ _) (P_D' _ _) i_b (identity _)).
-    apply (BinProductOfIsos _ _ (P_D' _ _) (P_D _ _) (pr2 i_b) (identity_is_z_iso _)).
+    apply (BinProductOfIsIsos _ _ (P_D' _ _) (P_D _ _) (pr2 i_b) (identity_is_z_iso _)).
   Defined.
 
   Let z : C⟦b, y⟧
@@ -421,66 +483,7 @@ Proof.
   - apply (weak_equiv_preserves_parameterized_NNO_existence F_weq N_C P_D z' s' i_b i_y).
 Qed.
 
-Lemma parameterized_NNO_independent_of_terminal
-  {C : category} {T : Terminal C} {P : BinProducts C} (N : parameterized_NNO T P) (T' : Terminal C)
-  : parameterized_NNO T' P.
-Proof.
-  use make_parameterized_NNO.
-  - exact N.
-  - refine (_ · parameterized_NNO_Z N).
-    apply z_iso_Terminals.
-  - exact (parameterized_NNO_S N).
-  - intros b y z s.
-    use (iscontrweqb' (pr222 N b y z s)).
-    use weqfibtototal.
-    intro f.
-    simpl.
-    use weqdirprodf.
-    + rewrite assoc.
-      assert (pf : TerminalArrow T' b · TerminalArrow T T' = TerminalArrow T b).
-      { use TerminalArrowUnique. }
-      rewrite pf.
-      apply idweq.
-    + apply idweq.
-Defined.
-
-Lemma parameterized_NNO_unique_up_to_iso
-  {C : category} {T : Terminal C} {P : BinProducts C} (N M : parameterized_NNO T P)
-  : z_iso N M.
-Proof.
-  exact (iso_between_NNO (parameterized_NNO_to_NNO N) (parameterized_NNO_to_NNO M)).
-Defined.
-
-Lemma parameterized_NNO_unique_up_to_iso'
-  {C : category} {T : Terminal C} {P : BinProducts C} (N M : parameterized_NNO T P)
-  : z_iso N M.
-Proof.
-  use make_z_iso.
-  - apply is_NNO_parameterized_NNO_mor ; apply M.
-  - apply is_NNO_parameterized_NNO_mor ; apply N.
-  - split.
-    + simpl ; use is_NNO_parameterized_NNO_unique ; (try apply N).
-      * simpl ; rewrite assoc.
-        now do 2 rewrite is_NNO_parameterized_NNO_mor_Z.
-      * simpl ; rewrite assoc.
-        rewrite is_NNO_parameterized_NNO_mor_S.
-        rewrite assoc'.
-        rewrite is_NNO_parameterized_NNO_mor_S.
-        now rewrite assoc.
-      * apply id_right.
-      * exact (id_right _ @ ! id_left _).
-    + simpl ; use is_NNO_parameterized_NNO_unique ; (try apply M).
-      * simpl ; rewrite assoc.
-        now do 2 rewrite is_NNO_parameterized_NNO_mor_Z.
-      * simpl ; rewrite assoc.
-        rewrite is_NNO_parameterized_NNO_mor_S.
-        rewrite assoc'.
-        rewrite is_NNO_parameterized_NNO_mor_S.
-        now rewrite assoc.
-      * apply id_right.
-      * exact (id_right _ @ ! id_left _).
-Defined.
-
+(** * 2. Weak equivalences preserve PNNNO's *)
 Proposition weak_equiv_preserves_parameterized_NNO'
   {C D : category} {F : C ⟶ D} (Fw : is_weak_equiv F)
   {T_C : Terminal C} {P_C : BinProducts C}
