@@ -116,7 +116,7 @@ Section DaggerCategories.
     := pr2 C.
   Coercion dagger_category_to_dagger : dagger_category >-> dagger.
 
-  Notation "{ f }_ C ^†" := (dagger_category_to_dagger C _ _ f).
+  Notation "{ f }_ C ^†" := (dagger_category_to_dagger C _ _ f): cat.
 
   Lemma dagger_category_equality (C1 C2 : dagger_category)
     : ∏ p : precategory_data_from_precategory C1 = precategory_data_from_precategory C2,
