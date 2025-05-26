@@ -523,3 +523,57 @@ Proof.
         exact Hg'
       ).
 Defined.
+
+Proposition coequalizer_stable_under_iso
+  {C : category} {x x' y y' : C} (f g : C⟦x, y⟧) (f' g' : C⟦x',y'⟧)
+  (i : z_iso x' x) (j : z_iso y' y) (z : Coequalizer f g)
+  (p : f' · j = i · f)
+  (q : g' · j = i · g)
+  : Coequalizer f' g'.
+Proof.
+
+  assert (pq :  f' · (j · CoequalizerArrow z) = g' · (j · CoequalizerArrow z)). {
+    rewrite assoc, p ;
+      rewrite assoc', CoequalizerEqAr ;
+      rewrite assoc, <- q ;
+      now rewrite assoc.
+  }
+
+  use make_Coequalizer.
+  - exact z.
+  - exact (j · CoequalizerArrow z).
+  - exact pq.
+  - intros w h pf.
+    use (iscontrweqb' (isCoequalizer_Coequalizer z w (inv_from_z_iso j · h) _)).
+    + do 2 rewrite assoc.
+      use (cancel_z_iso' i).
+      rewrite ! assoc.
+      rewrite <- p, <- q.
+      etrans. {
+        apply maponpaths_2.
+        rewrite assoc'.
+        apply maponpaths, z_iso_inv_after_z_iso.
+      }
+      etrans.
+      2: {
+        apply maponpaths_2.
+        rewrite assoc'.
+        apply maponpaths, pathsinv0, z_iso_inv_after_z_iso.
+      }
+      do 2 rewrite id_right.
+      exact pf.
+    + use weqfibtototal.
+      intro k.
+      simpl.
+      use weqimplimpl.
+      * intro pf'.
+        apply pathsinv0, z_iso_inv_on_right.
+        exact (! pf' @ assoc' _ _ _).
+      * intro pf'.
+        rewrite assoc'.
+        apply pathsinv0.
+        use z_iso_inv_to_left.
+        exact (! pf').
+      * apply homset_property.
+      * apply homset_property.
+Defined.

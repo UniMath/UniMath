@@ -43,6 +43,16 @@ Proof.
   exact Fw.
 Qed.
 
+Proposition weak_equiv_preserves_coequalizer
+  {C D : category} {F : C ⟶ D} (F_weq : is_weak_equiv F)
+  {x y : C} (f g : C⟦x, y⟧) (c : Coequalizer f g)
+  : Coequalizer (#F f) (#F g).
+Proof.
+  use (make_Coequalizer _ _ _ _
+         (weak_equiv_preserves_coequalizers F_weq x y c f g _ _ _ (isCoequalizer_Coequalizer c))).
+  abstract (do 2 rewrite <- functor_comp ; apply maponpaths ; apply CoequalizerEqAr).
+Defined.
+
 Corollary weak_equiv_preserves_chosen_coequalizers
   {C D : category} {F : C ⟶ D} (Fw : is_weak_equiv F) (BE : Coequalizers C)
   : preserves_chosen_coequalizer BE F.
