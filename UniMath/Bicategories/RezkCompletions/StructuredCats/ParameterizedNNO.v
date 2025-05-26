@@ -13,7 +13,7 @@ Require Import UniMath.CategoryTheory.Core.Prelude.
 
 Require Import UniMath.CategoryTheory.WeakEquivalences.Core.
 Require Import UniMath.CategoryTheory.WeakEquivalences.Terminal.
-Require Import UniMath.CategoryTheory.WeakEquivalences.Preservation.PNNO.
+Require Import UniMath.CategoryTheory.WeakEquivalences.PNNO.
 
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
