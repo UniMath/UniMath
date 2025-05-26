@@ -111,7 +111,7 @@ Section ReflectionOfRelations.
     - exact (weak_equiv_preserves_rel_mono_src (internal_relation_op R₁) _ pf_t).
   Defined.
 
-  Lemma tobenamed
+  Lemma weak_equiv_reflect_src_comm
     {w : C₀}
     (R₁ : internal_eqrel x₁)
     (i_R : z_iso (F R₀) R₁)
@@ -146,7 +146,7 @@ Section ReflectionOfRelations.
         · internal_relation_src (weak_equiv_reflect_rel R₁ i_R)
       = h.
   Proof.
-    apply tobenamed.
+    apply weak_equiv_reflect_src_comm.
     exact (pr12 (isrefl_internal_eqrel R₁ (F w) (#F h · i_x))).
   Qed.
 
@@ -208,8 +208,8 @@ Section ReflectionOfRelations.
     induction σ as [s₀ [p₀ q₀]].
     simple refine (_ ,, _ ,, _).
     - exact (fully_faithful_inv_hom F_weq _ _ (s₀ · z_iso_inv i_R)).
-    - exact (tobenamed R₁ i_R _ p₀).
-    - exact (tobenamed (internal_eqrel_op R₁) i_R _ q₀).
+    - exact (weak_equiv_reflect_src_comm R₁ i_R _ p₀).
+    - exact (weak_equiv_reflect_src_comm (internal_eqrel_op R₁) i_R _ q₀).
   Defined.
 
   Lemma weak_equiv_reflect_istrans (w : C₀)
@@ -224,8 +224,8 @@ Section ReflectionOfRelations.
     induction σ as [s₀ [p₀ q₀]].
     simple refine (_ ,, _ ,, _).
     - exact (fully_faithful_inv_hom F_weq _ _ (s₀ · z_iso_inv i_R)).
-    - exact (tobenamed R₁ i_R _ p₀).
-    - exact (tobenamed (internal_eqrel_op R₁) i_R _ q₀).
+    - exact (weak_equiv_reflect_src_comm R₁ i_R _ p₀).
+    - exact (weak_equiv_reflect_src_comm (internal_eqrel_op R₁) i_R _ q₀).
   Defined.
 
   Definition weak_equiv_reflect_eqrel
