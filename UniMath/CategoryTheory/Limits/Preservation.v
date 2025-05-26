@@ -1218,8 +1218,7 @@ Definition preserves_coequalizer
        (p : f · h = g · h)
        (Fp : #F f · #F h = #F g · #F h),
      isCoequalizer f g h p
-     →
-       isCoequalizer (#F f) (#F g) (#F h) Fp.
+     → isCoequalizer (#F f) (#F g) (#F h) Fp.
 
 Definition identity_preserves_coequalizer
            (C : category)

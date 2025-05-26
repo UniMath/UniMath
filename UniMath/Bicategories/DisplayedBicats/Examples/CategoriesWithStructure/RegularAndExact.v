@@ -1,5 +1,11 @@
 (*
+  Displayed Bicategories For Regular And Exact Categories
 
+  We define the bicategory of regular categories and regular functors as a (locally contractible) displayed bicategory over Cat, and its full subbicategory of exact categories.
+
+  Contents.
+  1. Definition disp_bicat for regular categories [disp_bicat_regular]
+  2. Definition disp_bicat for exact categories [disp_bicat_exact]
  *)
 
 Require Import UniMath.Foundations.All.
@@ -20,6 +26,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStruc
 
 Local Open Scope cat.
 
+(** * 1. Regular Categories *)
 Section RegularCategories.
 
   Definition disp_bicat_regular'

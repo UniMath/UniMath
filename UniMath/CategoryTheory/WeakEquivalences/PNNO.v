@@ -28,68 +28,6 @@ Require Import UniMath.CategoryTheory.WeakEquivalences.Creation.BinProducts.
 
 Local Open Scope cat.
 
-(* To be moved *)
-
-Lemma parameterized_NNO_independent_of_terminal
-  {C : category} {T : Terminal C} {P : BinProducts C} (N : parameterized_NNO T P) (T' : Terminal C)
-  : parameterized_NNO T' P.
-Proof.
-  use make_parameterized_NNO.
-  - exact N.
-  - refine (_ · parameterized_NNO_Z N).
-    apply z_iso_Terminals.
-  - exact (parameterized_NNO_S N).
-  - intros b y z s.
-    use (iscontrweqb' (pr222 N b y z s)).
-    use weqfibtototal.
-    intro f.
-    simpl.
-    use weqdirprodf.
-    + rewrite assoc.
-      assert (pf : TerminalArrow T' b · TerminalArrow T T' = TerminalArrow T b).
-      { use TerminalArrowUnique. }
-      rewrite pf.
-      apply idweq.
-    + apply idweq.
-Defined.
-
-Lemma parameterized_NNO_unique_up_to_iso
-  {C : category} {T : Terminal C} {P : BinProducts C} (N M : parameterized_NNO T P)
-  : z_iso N M.
-Proof.
-  exact (iso_between_NNO (parameterized_NNO_to_NNO N) (parameterized_NNO_to_NNO M)).
-Defined.
-
-Lemma parameterized_NNO_unique_up_to_iso'
-  {C : category} {T : Terminal C} {P : BinProducts C} (N M : parameterized_NNO T P)
-  : z_iso N M.
-Proof.
-  use make_z_iso.
-  - apply is_NNO_parameterized_NNO_mor ; apply M.
-  - apply is_NNO_parameterized_NNO_mor ; apply N.
-  - split.
-    + simpl ; use is_NNO_parameterized_NNO_unique ; (try apply N).
-      * simpl ; rewrite assoc.
-        now do 2 rewrite is_NNO_parameterized_NNO_mor_Z.
-      * simpl ; rewrite assoc.
-        rewrite is_NNO_parameterized_NNO_mor_S.
-        rewrite assoc'.
-        rewrite is_NNO_parameterized_NNO_mor_S.
-        now rewrite assoc.
-      * apply id_right.
-      * exact (id_right _ @ ! id_left _).
-    + simpl ; use is_NNO_parameterized_NNO_unique ; (try apply M).
-      * simpl ; rewrite assoc.
-        now do 2 rewrite is_NNO_parameterized_NNO_mor_Z.
-      * simpl ; rewrite assoc.
-        rewrite is_NNO_parameterized_NNO_mor_S.
-        rewrite assoc'.
-        rewrite is_NNO_parameterized_NNO_mor_S.
-        now rewrite assoc.
-      * apply id_right.
-      * exact (id_right _ @ ! id_left _).
-Defined.
-
 Lemma BinProductOfIsIsos {C : category} {x x' y y' : C} (i : C⟦x, x'⟧) (j : C⟦y,y'⟧)
                        (p : BinProduct _ x y) (p' : BinProduct _ x' y')
   : is_z_isomorphism i → is_z_isomorphism j → is_z_isomorphism (BinProductOfArrows _ p' p i j).
@@ -712,7 +650,6 @@ Section WeakEquivalencesLiftPreservesPNNO.
     {T1 : Terminal C1} {T3 : Terminal C3}
     {P1 : BinProducts C1} {P2 : BinProducts C2} {P3 : BinProducts C3}.
 
-  (* Let T2 := weak_equiv_creates_terminal G_weq T1. *)
   Context {T2 : Terminal C2}.
 
   Context (N1 : parameterized_NNO T1 P1) (N2 : parameterized_NNO T2 P2) (N3 : parameterized_NNO T3 P3).
@@ -721,8 +658,6 @@ Section WeakEquivalencesLiftPreservesPNNO.
   Let N2' : parameterized_NNO T2 P2.
   Proof.
     exact (weak_equiv_creates_parameterized_NNO G_weq N1 T2 P2).
-      (* := make_parameterized_NNO _ _ _
-           (weak_equiv_preserves_parameterized_NNO G_weq N1 P2). *)
   Defined.
 
   Let H_pt : preserves_terminal H

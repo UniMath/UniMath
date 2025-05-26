@@ -451,7 +451,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [WeakEquivalences/Regular.v](CategoryTheory/WeakEquivalences/Regular.v)
    - [WeakEquivalences/Exact.v](CategoryTheory/WeakEquivalences/Exact.v)
    - [WeakEquivalences/Preservation/NNO.v](CategoryTheory/WeakEquivalences/Preservation/NNO.v)
-   - [WeakEquivalences/Preservation/PNNO.v](CategoryTheory/WeakEquivalences/Preservation/PNNO.v)
+   - [WeakEquivalences/PNNO.v](CategoryTheory/WeakEquivalences/PNNO.v)
    - [RezkCompletions/RezkCompletions.v](CategoryTheory/RezkCompletions/RezkCompletions.v)
    - [RezkCompletions/Construction.v](CategoryTheory/RezkCompletions/Construction.v)
    - [exponentials.v](CategoryTheory/exponentials.v)
