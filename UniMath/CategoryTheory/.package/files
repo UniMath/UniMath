@@ -251,6 +251,7 @@ WeakEquivalences/RegularEpi.v
 WeakEquivalences/Regular.v
 WeakEquivalences/Exact.v
 WeakEquivalences/Preservation/NNO.v
+WeakEquivalences/Preservation/PNNO.v
 RezkCompletions/RezkCompletions.v
 RezkCompletions/Construction.v
 

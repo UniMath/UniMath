@@ -350,6 +350,6 @@ Proof.
   set (T₀ := is_regular_category_terminal R₀).
 
   use tpair.
-  - exact (Rezk_completion_is_regular F_weq C₁_univ T₀ P₀ (pr1 E₀)).
+  - exact (Rezk_completion_is_regular F_weq C₁_univ (pr1 E₀)).
   - exact (weak_equiv_effective_internal_eqrel F_weq C₁_univ P₀ (pr2 E₀)).
 Defined.

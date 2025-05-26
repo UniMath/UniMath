@@ -287,14 +287,13 @@ End RegularEpiPullbackStability.
 
 Definition Rezk_completion_is_regular
   {C₀ C₁ : category} {F : functor C₀ C₁} (F_weq : is_weak_equiv F) (C₁_univ : is_univalent C₁)
-    (T₀ : Terminal C₀) (P₀ : Pullbacks C₀) (R₀ : is_regular_category C₀)
+  (R₀ : is_regular_category C₀)
   : is_regular_category C₁.
 Proof.
+  induction R₀ as [T₀ [P₀ [A₀ B₀]]].
   repeat split.
   - exact (weak_equiv_creates_terminal F_weq T₀).
   - exact (weak_equiv_into_univ_creates_pullbacks C₁_univ F_weq P₀).
-  - apply (Rezk_completion_has_coeqs_of_kernel_pair F_weq C₁_univ P₀).
-    apply R₀.
-  - apply (Rezk_completion_regular_epi_pb_stable F_weq C₁_univ).
-    apply R₀.
+  - exact (Rezk_completion_has_coeqs_of_kernel_pair F_weq C₁_univ P₀ A₀).
+  - exact (Rezk_completion_regular_epi_pb_stable F_weq C₁_univ B₀).
 Defined.

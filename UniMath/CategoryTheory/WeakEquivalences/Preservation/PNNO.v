@@ -1,11 +1,15 @@
 (**
-   Preservation Of Parameterized Natural Numbers Objects, by Weak Equivalences.
+   Preservation And Reflection Of Parameterized Natural Numbers Objects, by Weak Equivalences.
 
    In this file, we show that any weak equivalence F : C -> D preserves a parameterized natural numbers object.
 
    Contents
    1. Image of a PNNO, under F, is a PNNO [weak_equiv_preserves_parameterized_NNO]
    2. Weak equivalences preserve PNNNO's, up to isomorphism [weak_equiv_preserves_parameterized_NNO']
+   3. Weak Equivalences reflect PNNNO's [weak_equiv_reflects_parameterized_NNO]
+   4. Preservation of PNNO lift along weak equivalences [weak_equiv_lifts_preserves_parameterized_NNO]
+
+   Remark: Observe that no univalence conditions are needed
  *)
 
 
@@ -25,6 +29,7 @@ Require Import UniMath.CategoryTheory.WeakEquivalences.Creation.BinProducts.
 Local Open Scope cat.
 
 (* To be moved *)
+
 Lemma parameterized_NNO_independent_of_terminal
   {C : category} {T : Terminal C} {P : BinProducts C} (N : parameterized_NNO T P) (T' : Terminal C)
   : parameterized_NNO T' P.
@@ -481,7 +486,20 @@ Proof.
   use iscontraprop1.
   - exact (img_of_nno_uvp_uniqueness F_weq N_C P_D z' s' i_b i_y).
   - apply (weak_equiv_preserves_parameterized_NNO_existence F_weq N_C P_D z' s' i_b i_y).
-Qed.
+Defined.
+
+Lemma weak_equiv_creates_parameterized_NNO
+  {C D : category}
+  {F : C ⟶ D} (F_weq : is_weak_equiv F)
+  {T_C : Terminal C} {P_C : BinProducts C} (N_C : parameterized_NNO T_C P_C)
+  (T_D : Terminal D) (P_D : BinProducts D)
+  : parameterized_NNO T_D P_D.
+Proof.
+  set (is_M_D := weak_equiv_preserves_parameterized_NNO F_weq N_C P_D).
+  set (M_D := make_parameterized_NNO _ _ _ is_M_D).
+  exact (parameterized_NNO_independent_of_terminal M_D T_D).
+Defined.
+
 
 (** * 2. Weak equivalences preserve PNNNO's *)
 Proposition weak_equiv_preserves_parameterized_NNO'
@@ -492,9 +510,326 @@ Proposition weak_equiv_preserves_parameterized_NNO'
   (N_D : parameterized_NNO T_D P_D)
   : preserves_parameterized_NNO N_C N_D _ (weak_equiv_preserves_terminal _ Fw).
 Proof.
-  set (is_M_D := weak_equiv_preserves_parameterized_NNO Fw N_C P_D).
-  set (M_D := make_parameterized_NNO _ _ _ is_M_D).
-  set (M_D' := parameterized_NNO_independent_of_terminal M_D T_D).
+  set (M_D' := weak_equiv_creates_parameterized_NNO Fw N_C T_D P_D).
   set (i := (parameterized_NNO_unique_up_to_iso' N_D M_D')).
   exact (is_z_isomorphism_path (idpath _) (pr2 i)).
 Defined.
+
+(** * 3. Weak Equivalences reflect PNNNO's *)
+Section WeakEquivalencesReflectPNNO.
+
+  Context  {C D : category} {F : C ⟶ D} (F_weq : is_weak_equiv F)
+    {T_C : Terminal C} {P_C : BinProducts C}
+    {P_D : BinProducts D}.
+
+  Context (N_C : C) (z_C : C⟦T_C, N_C⟧) (s_C : C⟦N_C, N_C⟧).
+
+  Let T_D : Terminal D
+      := weak_equiv_creates_terminal F_weq T_C.
+
+  Let N_D : D := F N_C.
+  Let z_D : D⟦T_D, N_D⟧ := #F z_C.
+  Let s_D : D⟦N_D, N_D⟧ := #F s_C.
+
+  Context (N_D_p : is_parameterized_NNO T_D P_D N_D z_D s_D).
+
+  Local Lemma equiv_on_zero_mor
+    {b y : C} {z' : C ⟦ b, y ⟧}
+    (f : C⟦P_C b N_C, y⟧)
+    : BinProductArrow C (P_C b N_C) (identity b) (TerminalArrow T_C b · z_C) · f = z'
+      <-> BinProductArrow D (P_D (F b) N_D) (identity (F b)) (TerminalArrow T_D (F b) · z_D)
+          · (BinProductArrow D
+               (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P_C b N_C)) (BinProductPr1 D (P_D (F b) N_D)) (BinProductPr2 D (P_D (F b) N_D)) · # F f) =
+          # F z'.
+  Proof.
+    split ; intro pf.
+    - etrans.
+      2: { apply maponpaths, pf. }
+      rewrite functor_comp.
+      rewrite assoc.
+      apply maponpaths_2.
+      etrans.
+      2: {
+        apply pathsinv0.
+        use (preserves_binproduct_to_preserves_arrow _ _ (P_C _ _) (P_D _ _)).
+      }
+      cbn.
+      apply maponpaths_2.
+      apply maponpaths_12.
+      + apply pathsinv0, functor_id.
+      + rewrite functor_comp.
+        apply maponpaths_2.
+        apply pathsinv0, (TerminalArrowUnique T_D).
+    - use (faithful_reflects_morphism_equality _ (pr2 F_weq)).
+      refine (_ @ pf).
+      rewrite functor_comp.
+      rewrite assoc.
+      apply maponpaths_2.
+      rewrite (preserves_binproduct_to_preserves_arrow _ (weak_equiv_preserves_binproducts F_weq) (P_C _ _) (P_D _ _)).
+      cbn.
+      apply maponpaths_2.
+      rewrite functor_id.
+      apply maponpaths.
+      rewrite functor_comp.
+      apply maponpaths_2.
+      apply (TerminalArrowUnique T_D).
+  Qed.
+
+  Local Lemma equiv_on_succ_mor
+    {b y : C} {s' : C⟦y, y⟧}
+    (f : C⟦P_C b N_C, y⟧)
+    : (BinProductOfArrows C (P_C b N_C) (P_C b N_C) (identity b) s_C · f = f · s')
+      <->
+        BinProductOfArrows D (P_D (F b) N_D) (P_D (F b) N_D) (identity (F b)) s_D
+          · (BinProductArrow D
+               (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P_C b N_C)) (BinProductPr1 D (P_D (F b) N_D)) (BinProductPr2 D (P_D (F b) N_D)) · # F f)
+        = BinProductArrow D (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P_C b N_C))
+            (BinProductPr1 D (P_D (F b) N_D)) (BinProductPr2 D (P_D (F b) N_D)) · # F f · # F s'.
+  Proof.
+    split.
+    - intro p_l.
+      set (q_r := maponpaths #F p_l).
+      do 2 rewrite functor_comp in q_r.
+      use cancel_z_iso'.
+      2: { apply (preserves_binproduct_to_z_iso _ (weak_equiv_preserves_binproducts F_weq)). }
+      refine (_ @ q_r @ _).
+      + rewrite ! assoc.
+        apply maponpaths_2.
+        etrans.
+        2: {
+          apply pathsinv0.
+          apply (preserves_binproduct_to_preserves_arrow _ _ (P_C _ _) (P_D _ _)).
+        }
+        cbn.
+        apply maponpaths_2.
+        rewrite postcompWithBinProductArrow.
+        apply maponpaths_12.
+        * now rewrite functor_comp, functor_id.
+        * now rewrite functor_comp.
+      + refine (! id_left _ @ _).
+        rewrite ! assoc.
+        do 2 apply maponpaths_2.
+        cbn.
+        set (p := preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P_C b N_C)).
+        apply (BinProductArrowsEq _ _ _ p) ; rewrite assoc'.
+        * etrans.
+          2: {
+            apply maponpaths, pathsinv0.
+            apply (BinProductPr1Commutes _ _ _ p).
+          }
+          rewrite BinProductPr1Commutes.
+          apply id_left.
+        * etrans.
+          2: {
+            apply maponpaths, pathsinv0.
+            apply (BinProductPr2Commutes _ _ _ p).
+          }
+          rewrite BinProductPr2Commutes.
+          apply id_left.
+    - intro q_r.
+      use (faithful_reflects_morphism_equality _ (pr2 F_weq)).
+      do 2 rewrite functor_comp.
+      use cancel_z_iso'.
+      2: { apply z_iso_inv, (preserves_binproduct_to_z_iso _ (weak_equiv_preserves_binproducts F_weq) (P_C _ _) (P_D _ _)). }
+
+      cbn.
+      rewrite ! assoc.
+      refine (_ @ q_r).
+      rewrite ! assoc.
+      apply maponpaths_2.
+      set (p := preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P_C b N_C)).
+      apply (BinProductArrowsEq _ _ _ p) ; cbn ; rewrite assoc', <- functor_comp.
+      + etrans. {
+          do 2 apply maponpaths.
+          apply BinProductOfArrowsPr1.
+        }
+        rewrite id_right.
+        rewrite assoc'.
+        etrans.
+        2: {
+          apply maponpaths, pathsinv0.
+          apply (BinProductPr1Commutes _ _ _ p).
+        }
+        etrans. {
+          apply (BinProductPr1Commutes _ _ _ p).
+        }
+        rewrite BinProductOfArrowsPr1.
+        apply pathsinv0, id_right.
+      + etrans. {
+          do 2 apply maponpaths.
+          apply BinProductOfArrowsPr2.
+        }
+        rewrite assoc'.
+        etrans.
+        2: {
+          apply maponpaths, pathsinv0.
+          apply (BinProductPr2Commutes _ _ _ p).
+        }
+        rewrite BinProductOfArrowsPr2.
+        rewrite functor_comp, assoc.
+        apply maponpaths_2.
+        apply (BinProductPr2Commutes _ _ _ p).
+  Qed.
+
+  Proposition weak_equiv_reflects_parameterized_NNO
+    : is_parameterized_NNO T_C P_C N_C z_C s_C.
+  Proof.
+    unfold is_parameterized_NNO.
+    intros b y z' s'.
+
+    set (q := N_D_p (F b) (F y) (#F z') (#F s')).
+    use (iscontrweqb' q).
+
+    use weq_subtypes'.
+    - refine (_ ∘ weq_from_fully_faithful (pr2 F_weq) _ _)%weq.
+      use z_iso_comp_right_weq.
+      apply z_iso_inv.
+      apply (preserves_binproduct_to_z_iso _ (weak_equiv_preserves_binproducts F_weq)).
+    - intro ; apply isapropdirprod ; apply homset_property.
+    - intro ; apply isapropdirprod ; apply homset_property.
+    - intro f.
+      split.
+      + intros [p_l p_r].
+        split.
+        * exact (pr1 (equiv_on_zero_mor f) p_l).
+        * exact (pr1 (equiv_on_succ_mor f) p_r).
+      + intros [p_l p_r].
+        split.
+        * exact (pr2 (equiv_on_zero_mor f) p_l).
+        * exact (pr2 (equiv_on_succ_mor f) p_r).
+  Defined.
+
+End WeakEquivalencesReflectPNNO.
+
+(** * 4. Weak Equivalences Lift Preservation of PNNO. *)
+Section WeakEquivalencesLiftPreservesPNNO.
+
+  Context {C1 C2 C3 : category}
+    {F : C1 ⟶ C3} {G : C1 ⟶ C2} {H : C2 ⟶ C3}
+    (α : nat_z_iso (G ∙ H) F)
+    (G_weq : is_weak_equiv G)
+    {Fpt : preserves_terminal F}
+    {T1 : Terminal C1} {T3 : Terminal C3}
+    {P1 : BinProducts C1} {P2 : BinProducts C2} {P3 : BinProducts C3}.
+
+  (* Let T2 := weak_equiv_creates_terminal G_weq T1. *)
+  Context {T2 : Terminal C2}.
+
+  Context (N1 : parameterized_NNO T1 P1) (N2 : parameterized_NNO T2 P2) (N3 : parameterized_NNO T3 P3).
+  Context (Fpn : preserves_parameterized_NNO N1 N3 F Fpt).
+
+  Let N2' : parameterized_NNO T2 P2.
+  Proof.
+    exact (weak_equiv_creates_parameterized_NNO G_weq N1 T2 P2).
+      (* := make_parameterized_NNO _ _ _
+           (weak_equiv_preserves_parameterized_NNO G_weq N1 P2). *)
+  Defined.
+
+  Let H_pt : preserves_terminal H
+      := weak_equiv_lifts_preserves_terminal α G_weq Fpt.
+
+  Let F_z := TerminalArrow (preserves_terminal_to_terminal F Fpt T1) T3 · # F (parameterized_NNO_Z N1).
+  Let F_s := (# F (parameterized_NNO_S N1)).
+  Let F_hn
+      := nat_z_iso_pointwise_z_iso (nat_z_iso_inv α) N1
+           · # H (parameterized_NNO_unique_up_to_iso' N2' N2).
+
+
+  Let H_z
+      := TerminalArrow (preserves_terminal_to_terminal H H_pt T2) T3 · # H (parameterized_NNO_Z N2).
+  Let H_s
+      := # H (parameterized_NNO_S N2).
+
+  Let T3' : Terminal C3.
+  Proof.
+    exists (H (G T1)).
+    apply H_pt.
+    apply weak_equiv_preserves_terminal.
+    - assumption.
+    - apply T1.
+  Defined.
+
+  Lemma weak_equiv_lifts_preserves_parameterized_NNO_comm
+    : parameterized_NNO_mor N3 T3 (F N1) F_z F_s · F_hn
+      = parameterized_NNO_mor N3 T3 (H N2) H_z H_s.
+  Proof.
+    use (parameterized_NNO_mor_unique N3).
+    - exact H_z.
+    - exact H_s.
+    - rewrite assoc.
+      rewrite parameterized_NNO_mor_Z.
+      unfold H_z, F_z, F_hn.
+      rewrite assoc.
+      etrans. {
+        apply maponpaths_2.
+        rewrite assoc'.
+        apply maponpaths.
+        apply nat_trans_ax.
+      }
+      cbn.
+      rewrite ! assoc'.
+      assert (tmp : # G (parameterized_NNO_Z N1)
+                      · is_NNO_parameterized_NNO_mor N2' N2 (pr12 N2) (pr122 N2)
+                    = TerminalArrow T2 (G T1) · parameterized_NNO_Z N2). {
+        etrans.
+        2: {
+          apply maponpaths.
+          apply (is_NNO_parameterized_NNO_mor_Z N2' N2 (pr12 N2) (pr122 N2)).
+        }
+        rewrite ! assoc.
+        apply maponpaths_2.
+        refine (_ @ assoc' _ _ _).
+        cbn ; unfold weak_equiv_preserves_parameterized_NNO_Z.
+        refine (! id_left _ @ _).
+        apply maponpaths_2.
+        use proofirrelevance.
+        apply isapropifcontr.
+        apply (weak_equiv_preserves_terminal _ G_weq _ (pr2 T1) _).
+      }
+
+      rewrite <- functor_comp.
+      etrans. {
+        do 3 apply maponpaths.
+        exact tmp.
+      }
+      rewrite functor_comp.
+      rewrite ! assoc.
+      apply maponpaths_2.
+      apply (TerminalArrowUnique (preserves_terminal_to_terminal _ H_pt T2)).
+    - rewrite assoc.
+      rewrite parameterized_NNO_mor_S.
+      rewrite ! assoc'.
+      apply maponpaths.
+      unfold F_s, F_hn, H_s.
+      rewrite assoc.
+      rewrite (nat_trans_ax (nat_z_iso_inv α)).
+      rewrite ! assoc'.
+      apply maponpaths.
+      cbn.
+      rewrite <- ! functor_comp.
+      apply maponpaths.
+      apply (is_NNO_parameterized_NNO_mor_S N2').
+    - apply parameterized_NNO_mor_Z.
+    - apply parameterized_NNO_mor_S.
+  Qed.
+
+  Proposition weak_equiv_lifts_preserves_parameterized_NNO
+    : preserves_parameterized_NNO N2 N3 H H_pt.
+  Proof.
+    use is_z_isomorphism_path.
+    - refine (preserves_parameterized_NNO_mor N1 N3 F Fpt · _).
+      refine (_ · #H (parameterized_NNO_unique_up_to_iso' N2' N2)).
+      exact (nat_z_iso_pointwise_z_iso (nat_z_iso_inv α) N1).
+    - unfold preserves_parameterized_NNO_mor, is_NNO_parameterized_NNO_mor.
+      rewrite ! assoc'.
+      apply maponpaths.
+      apply weak_equiv_lifts_preserves_parameterized_NNO_comm.
+    - use is_z_isomorphism_comp.
+      { apply Fpn. }
+      use is_z_isomorphism_comp.
+      + apply (nat_z_iso_pointwise_z_iso (nat_z_iso_inv α) N1).
+      + apply functor_on_is_z_isomorphism.
+        apply parameterized_NNO_unique_up_to_iso'.
+  Qed.
+
+End WeakEquivalencesLiftPreservesPNNO.
