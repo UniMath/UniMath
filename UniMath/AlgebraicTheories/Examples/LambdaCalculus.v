@@ -185,7 +185,7 @@ Definition lambda_calculus_β_lambda_theory
   : β_lambda_theory
   := make_β_lambda_theory lambda_calculus_lambda_theory lambda_calculus_has_β.
 
-(** * 4. The λ-theory is the initial λ-theory with β-equality *)
+(** * 4. The λ-calculus is the initial λ-theory with β-equality *)
 
 Section Initial.
 
