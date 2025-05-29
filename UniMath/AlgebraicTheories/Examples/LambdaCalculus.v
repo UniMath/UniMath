@@ -271,13 +271,17 @@ Section Initial.
       apply Hl'.
   Qed.
 
-  Definition lambda_calculus_is_initial
+  Definition lambda_calculus_unique_morphism
     : iscontr (β_lambda_theory_morphism lambda_calculus_β_lambda_theory L')
     := make_iscontr
       (make_β_lambda_theory_morphism lambda_calculus_initial_lambda_theory_morphism)
       lambda_calculus_initial_morphism_unique.
 
 End Initial.
+
+Definition lambda_calculus_is_initial
+  : isInitial β_lambda_theory_cat lambda_calculus_β_lambda_theory
+  := lambda_calculus_unique_morphism.
 
 Definition initial_lambda_calculus
   : Initial β_lambda_theory_cat
