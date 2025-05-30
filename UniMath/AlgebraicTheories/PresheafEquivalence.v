@@ -1,4 +1,4 @@
-(**************************************************************************************************
+(**
 
   The equivalence between presheaves on the monoid L1 and on the Lawvere theory L
 
@@ -26,7 +26,7 @@
     [algebraic_theory_lawvere_to_karoubi_after_theory_monoid_to_lawvere]
   3. The equivalence [lawvere_theory_presheaf_equiv_monoid_presheaf]
 
- **************************************************************************************************)
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.
@@ -92,12 +92,12 @@ Section Karoubi.
       + abstract (
           refine '(subst_is_compose _ Lβ _ _ @ _);
           apply maponpaths;
-          apply (R_mor_is_mor_right _ Lβ)
+          apply (R_mor_is_mor_right _)
         ).
       + abstract (
           refine '(subst_is_compose _ Lβ _ _ @ _);
           apply maponpaths;
-          apply (R_mor_is_mor_left _ Lβ)
+          apply (R_mor_is_mor_left _)
         ).
   Defined.
 
@@ -143,7 +143,7 @@ Section Karoubi.
     {A B: R L Lβ}
     (f : algebraic_theory_set_karoubi ⟦ algebraic_theory_retracts_to_set_karoubi A, algebraic_theory_retracts_to_set_karoubi B ⟧)
     : R L Lβ ⟦ A, B ⟧
-    := make_R_mor _
+    := make_R_mor' _ Lβ
       (algebraic_theory_retracts_to_set_karoubi_fully_faithful_mor_data f)
       (algebraic_theory_retracts_to_set_karoubi_fully_faithful_mor_is_mor f).
 

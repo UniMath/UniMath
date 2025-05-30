@@ -11,6 +11,7 @@
   2.1. The Forgetful functor [monoid_forgetful_functor]
   2.2. The Free functor [monoid_free_functor]
   2.3. The adjunction [monoid_free_forgetful_adjunction]
+  3. A constructor for monoid isomorphisms [make_monoid_z_iso]
 
  *)
 Require Import UniMath.Foundations.All.
@@ -162,4 +163,41 @@ Proof.
     refine (iterop_list_mon_step (M := free_monoid _) _ _ @ _).
     apply maponpaths; assumption.
   - reflexivity.
+Qed.
+
+(** * 3. A constructor for monoid isomorphisms *)
+
+Lemma ismonoidfun_z_iso_inv
+  {M N : monoid}
+  (f : z_iso (C := HSET) (M : hSet) (N : hSet))
+  (H : ismonoidfun (z_iso_mor f))
+  : ismonoidfun (inv_from_z_iso f).
+Proof.
+  apply make_ismonoidfun.
+  - intros n1 n2.
+    refine (_ @ eqtohomot (z_iso_inv_after_z_iso f) _).
+    apply (maponpaths (inv_from_z_iso f)).
+    refine (_ @ !ismonoidfunisbinopfun H (inv_from_z_iso f n1) (inv_from_z_iso f n2)).
+    refine (_ @ !maponpaths_2 _ (eqtohomot (z_iso_after_z_iso_inv f) _) _).
+    exact (!maponpaths _ (eqtohomot (z_iso_after_z_iso_inv f) _)).
+  - refine (_ @ eqtohomot (z_iso_inv_after_z_iso f) _).
+    apply (maponpaths (inv_from_z_iso f)).
+    exact (!ismonoidfununel H).
+Qed.
+
+Definition make_monoid_z_iso
+  {M N : monoid}
+  (f : z_iso (C := HSET) (M : hSet) (N : hSet))
+  (H : ismonoidfun (z_iso_mor f))
+  : z_iso M N.
+Proof.
+  use make_z_iso.
+  - exact (make_monoidfun H).
+  - exact (make_monoidfun (ismonoidfun_z_iso_inv f H)).
+  - abstract (
+      apply make_is_inverse_in_precat;
+      apply monoidfun_paths;
+      [ apply (z_iso_inv_after_z_iso f)
+      | apply (z_iso_after_z_iso_inv f) ]
+    ).
 Qed.

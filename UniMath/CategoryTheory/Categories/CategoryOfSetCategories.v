@@ -1,4 +1,4 @@
-(******************************************************************************************
+(**
 
  The category of strict categories
 
@@ -20,12 +20,12 @@
  [path_setcategory].
 
  Contents
- 1. The category of strict categories
+ 1. The category of strict categories [cat_of_setcategory]
  2. Isomorphisms of strict categories
- 3. The univalence of the category of strict categories
+ 3. The univalence of the category of strict categories [is_univalent_cat_of_setcategory]
  4. An isomorphism of strict categories gives an adjoint equivalence [z_iso_to_equivalence]
 
- ******************************************************************************************)
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
