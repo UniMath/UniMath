@@ -249,7 +249,7 @@ WeakEquivalences/Preservation/NNO.v
 RezkCompletions/RezkCompletions.v
 RezkCompletions/Construction.v
 
-exponentials.v
+Exponentials.v
 WeakEquivalences/Preservation/Exponentials.v
 WeakEquivalences/Reflection/Exponentials.v
 WeakEquivalences/LiftPreservation/Exponentials.v
