@@ -1,4 +1,4 @@
-(**************************************************************************************************
+(**
 
   The category of retracts of a λ-theory
 
@@ -21,7 +21,7 @@
   6. Every object is a retract of λ x, x [retraction_is_retraction]
   7. R is equivalent to the category given by the idempotents of L_1 [R_ob_weq_R']
 
- **************************************************************************************************)
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
@@ -82,38 +82,69 @@ Section Category.
     exact H.
   Qed.
 
-  Definition R_mor (A B : R_ob) : UU := ∑ (f : L n), B ∘ f ∘ A = f.
+  Definition R_mor (A B : R_ob) : UU := ∑ (f : L n), f ∘ A = f × B ∘ f = f.
   Coercion R_mor_to_L {A B : R_ob} (f : R_mor A B) : L n := pr1 f.
-  Definition R_mor_is_mor {A B : R_ob} (f : R_mor A B) : B ∘ f ∘ A = f := pr2 f.
+
+  Definition R_mor_is_mor_left
+    {A B : R_ob}
+    (f : R_mor A B)
+    : B ∘ f = f
+    := pr22 f.
+
+  Definition R_mor_is_mor_right
+    {A B : R_ob}
+    (f : R_mor A B)
+    : f ∘ A = f
+    := pr12 f.
+
+  Lemma R_mor_is_mor
+    {A B : R_ob}
+    (f : R_mor A B)
+    : B ∘ f ∘ A = f.
+  Proof.
+    exact (maponpaths_2 _ (R_mor_is_mor_left f) _ @ R_mor_is_mor_right _).
+  Qed.
+
+  Lemma split_is_R_mor
+    {A B : R_ob}
+    (f : L n)
+    (Hf : B ∘ f ∘ A = f)
+    : f ∘ A = f × B ∘ f = f.
+  Proof.
+    split.
+    - refine '(!maponpaths_2 _ Hf _ @ _).
+      refine '(!compose_assoc _ Lβ _ _ _ @ _).
+      refine '(maponpaths _ (R_ob_idempotent _) @ _).
+      apply Hf.
+    - refine '(!maponpaths _ Hf @ _).
+      refine '(compose_assoc _ Lβ _ _ _ @ _).
+      refine '(maponpaths_2 _ (compose_assoc _ Lβ _ _ _) _ @ _).
+      refine '(maponpaths (λ x, x ∘ _ ∘ _) (R_ob_idempotent _) @ _).
+      apply Hf.
+  Qed.
 
   Definition make_R_mor
     {A B : R_ob}
     (f : L n)
+    (Hright : f ∘ A = f)
+    (Hleft : B ∘ f = f)
+    : R_mor A B
+    := f ,, Hright ,, Hleft.
+
+  Definition make_R_mor'
+    {A B : R_ob}
+    (f : L n)
     (Hf : B ∘ f ∘ A = f)
     : R_mor A B
-    := f ,, Hf.
+    := f ,, split_is_R_mor f Hf.
 
-  Lemma R_mor_is_mor_left
+  Lemma isaprop_is_R_mor
     {A B : R_ob}
-    (f : R_mor A B)
-    : B ∘ f = f.
+    (f : L n)
+    : isaprop (f ∘ A = f × B ∘ f = f).
   Proof.
-    refine '(!maponpaths _ (R_mor_is_mor _) @ _).
-    refine '(compose_assoc _ Lβ _ _ _ @ _).
-    refine '(maponpaths (λ x, x ∘ _) (compose_assoc _ Lβ _ _ _) @ _).
-    refine '(maponpaths (λ x, x ∘ _ ∘ _) (R_ob_idempotent _) @ _).
-    apply R_mor_is_mor.
-  Qed.
-
-  Lemma R_mor_is_mor_right
-    {A B : R_ob}
-    (f : R_mor A B)
-    : f ∘ A = f.
-  Proof.
-    refine '(!maponpaths (λ x, x ∘ _) (R_mor_is_mor _) @ _).
-    refine '(!compose_assoc _ Lβ _ _ _ @ _).
-    refine '(maponpaths _ (R_ob_idempotent _) @ _).
-    apply R_mor_is_mor.
+    apply isapropdirprod;
+      apply setproperty.
   Qed.
 
   Lemma R_mor_eq
@@ -123,8 +154,7 @@ Section Category.
     : f = g.
   Proof.
     apply subtypePath.
-    - intro.
-      apply setproperty.
+    - exact isaprop_is_R_mor.
     - apply H.
   Qed.
 
@@ -137,17 +167,18 @@ Section Category.
           -- exact R_ob.
           -- exact R_mor.
         * refine '(λ (A : R_ob), _).
-          exists A.
+          apply (make_R_mor' A).
           abstract (exact (maponpaths (λ x, x ∘ _) (R_ob_idempotent A) @ R_ob_idempotent A)).
         * refine '(λ (A B C : R_ob) (f g : R_mor _ _), _).
-          exists (g ∘ f).
-          abstract (
-            refine '(maponpaths (λ x, x ∘ _) (compose_assoc _ Lβ _ _ _) @ _);
-            refine '(!compose_assoc _ Lβ _ _ _ @ _);
-            refine '(maponpaths (λ x, x ∘ _) _ @ maponpaths _ _) >
-            [ apply R_mor_is_mor_left
-            | apply R_mor_is_mor_right ]
-          ).
+          apply (make_R_mor (g ∘ f)).
+          -- abstract (
+              refine '(!compose_assoc _ Lβ _ _ _ @ _);
+              exact (maponpaths _ (R_mor_is_mor_right _))
+            ).
+          -- abstract (
+              refine '(compose_assoc _ Lβ _ _ _ @ _);
+              exact (maponpaths_2 _ (R_mor_is_mor_left _) _)
+            ).
       + abstract (
           apply make_is_precategory_one_assoc >
           [ intros A B f;
@@ -167,7 +198,7 @@ Section Category.
         [ apply setproperty
         | intro t;
           apply isasetaprop;
-          apply setproperty ]
+          apply isaprop_is_R_mor ]
       ).
   Defined.
 
@@ -219,7 +250,7 @@ Section Category.
 
       Definition terminal_arrow
         : R_mor A terminal
-        := terminal_arrow_term ,, terminal_arrow_is_mor.
+        := make_R_mor' terminal_arrow_term terminal_arrow_is_mor.
 
       Lemma terminal_arrow_unique
         (t : R_mor A terminal)
@@ -341,7 +372,7 @@ Section Category.
 
     Definition R_fixpoint
       : R_mor (TerminalObject R_terminal) B
-      := _ ,, fixpoint_is_mor.
+      := make_R_mor' _ fixpoint_is_mor.
 
   End Fixpoints.
 
@@ -392,7 +423,7 @@ Section Category.
 
     Definition p1
       : R_mor prod A
-      := p1_term ,, p1_is_mor.
+      := make_R_mor' p1_term p1_is_mor.
 
     Definition p2_term
       : L n
@@ -411,7 +442,7 @@ Section Category.
 
     Definition p2
       : R_mor prod B
-      := p2_term ,, p2_is_mor.
+      := make_R_mor' p2_term p2_is_mor.
 
     Section Arrow.
 
@@ -444,7 +475,7 @@ Section Category.
 
       Definition prod_arrow
         : R_mor C prod
-        := prod_arrow_term ,, prod_arrow_is_mor.
+        := make_R_mor' prod_arrow_term prod_arrow_is_mor.
 
       Definition p1_commutes
         : (prod_arrow : R⟦_, _⟧) · p1 = f.
@@ -745,7 +776,7 @@ Section Category.
 
       Definition eval_mor
         : R_mor (prod exponential_ob B) C
-        := eval_term ,, eval_is_mor.
+        := make_R_mor' eval_term eval_is_mor.
 
       Section Lambda.
 
@@ -879,7 +910,7 @@ Section Category.
 
         Definition lifted_mor
           : R_mor A exponential_ob
-          := lifted_term ,, lifted_is_mor.
+          := make_R_mor' lifted_term lifted_is_mor.
 
         Lemma lifted_mor_commutes
           : h = # (constprod_functor2 R_binproducts B) lifted_mor · eval_mor.
@@ -1093,6 +1124,11 @@ Section Category.
       exact (maponpaths (λ x, (abs x)) (extend_tuple_inr _ _ _)).
     Qed.
 
+    Definition inflate_U_term
+      {m : nat}
+      : inflate (U_term (m := m)) = U_term
+      := subst_U_term _.
+
     Lemma app_U
       {m : nat}
       (f : L m)
@@ -1153,7 +1189,7 @@ Section Category.
 
     Definition R_retraction
       : R_mor U A
-      := (A : L n) ,, R_retraction_is_mor.
+      := make_R_mor' A R_retraction_is_mor.
 
     Lemma R_section_is_mor
       : U ∘ A ∘ A = A.
@@ -1163,7 +1199,7 @@ Section Category.
 
     Definition R_section
       : R_mor A U
-      := (A : L n) ,, R_section_is_mor.
+      := make_R_mor' A R_section_is_mor.
 
     Lemma R_retraction_is_retraction
       : is_retraction (C := R) R_section R_retraction.
