@@ -130,14 +130,14 @@ Section Monoid.
   Definition lambda_theory_to_monoid
     : monoid
     := make_monoid
-      (make_setwithbinop
-          lambda_theory_to_monoid_set
-          lambda_theory_to_monoid_binop)
-      (make_ismonoidop
-        lambda_theory_to_monoid_assoc
-        (make_isunital
-          lambda_theory_to_monoid_unit
-          lambda_theory_to_monoid_isunit)).
+        (make_setwithbinop
+            lambda_theory_to_monoid_set
+            lambda_theory_to_monoid_binop)
+        (make_ismonoidop
+          lambda_theory_to_monoid_assoc
+          (make_isunital
+            lambda_theory_to_monoid_unit
+            lambda_theory_to_monoid_isunit)).
 
 (** * 2. The isomorphism with the algebraic theory monoid *)
 
@@ -152,7 +152,10 @@ Section Monoid.
     := make_lambda_theory_to_monoid_set (abs f) (abs_satisfies_η _).
 
   Lemma lambda_theory_to_monoid_iso_is_inverse
-    : is_inverse_in_precat (C := HSET) lambda_theory_to_monoid_iso_mor lambda_theory_to_monoid_iso_inv.
+    : is_inverse_in_precat
+        (C := HSET)
+        lambda_theory_to_monoid_iso_mor
+        lambda_theory_to_monoid_iso_inv.
   Proof.
     apply make_is_inverse_in_precat;
       apply funextfun;
@@ -185,11 +188,11 @@ Section Monoid.
   Definition lambda_theory_to_monoid_iso
     : z_iso lambda_theory_to_monoid (algebraic_theory_to_monoid (L : algebraic_theory))
     := make_monoid_z_iso
-      (make_z_iso (C := HSET)
-          lambda_theory_to_monoid_iso_mor
-          lambda_theory_to_monoid_iso_inv
-          lambda_theory_to_monoid_iso_is_inverse)
-      lambda_theory_to_monoid_is_monoidfun.
+        (make_z_iso (C := HSET)
+            lambda_theory_to_monoid_iso_mor
+            lambda_theory_to_monoid_iso_inv
+            lambda_theory_to_monoid_iso_is_inverse)
+        lambda_theory_to_monoid_is_monoidfun.
 
 (** ** 2.1. This induces an equivalence on the Karoubi envelopes *)
 
@@ -197,7 +200,7 @@ Section Monoid.
     : adj_equiv
       (set_set_karoubi (monoid_to_category lambda_theory_to_monoid))
       (set_set_karoubi (monoid_to_category (algebraic_theory_to_monoid (L : algebraic_theory))))
-      := z_iso_to_adj_equiv
+    := z_iso_to_adj_equiv
         (functor_on_z_iso set_karoubi_monad
           (functor_on_z_iso _
             lambda_theory_to_monoid_iso)).
@@ -244,15 +247,17 @@ Section Monoid.
   Definition lambda_theory_to_monoid_cat_equality_functor
     : R_setcategory ⟶ set_karoubi lambda_theory_to_monoid_cat
     := make_functor
-      lambda_theory_to_monoid_cat_equality_functor_data
-      lambda_theory_to_monoid_cat_equality_is_functor.
+        lambda_theory_to_monoid_cat_equality_functor_data
+        lambda_theory_to_monoid_cat_equality_is_functor.
 
   Section FullyFaithful.
 
     Context (A B : R_ob (n := 0) L).
 
     Definition lambda_theory_to_monoid_cat_equality_fully_faithful_inv
-      (f : set_karoubi_mor lambda_theory_to_monoid_cat (lambda_theory_to_monoid_cat_equality_functor A) (lambda_theory_to_monoid_cat_equality_functor B))
+      (f : set_karoubi_mor lambda_theory_to_monoid_cat
+            (lambda_theory_to_monoid_cat_equality_functor A)
+            (lambda_theory_to_monoid_cat_equality_functor B))
       : R_mor _ A B.
     Proof.
       apply (make_R_mor _ ((set_karoubi_mor_morphism _ f) : lambda_theory_to_monoid_set)).
@@ -262,14 +267,20 @@ Section Monoid.
 
     Lemma lambda_theory_to_monoid_cat_equality_fully_faithful_weqinvweq
       (f : R_setcategory⟦A, B⟧)
-      : lambda_theory_to_monoid_cat_equality_fully_faithful_inv (#lambda_theory_to_monoid_cat_equality_functor f) = f.
+      : lambda_theory_to_monoid_cat_equality_fully_faithful_inv
+          (#lambda_theory_to_monoid_cat_equality_functor f)
+        = f.
     Proof.
       now apply R_mor_eq.
     Qed.
 
     Lemma lambda_theory_to_monoid_cat_equality_fully_faithful_invweqweq
-      (f : set_karoubi lambda_theory_to_monoid_cat⟦lambda_theory_to_monoid_cat_equality_functor A, lambda_theory_to_monoid_cat_equality_functor B⟧)
-      : #lambda_theory_to_monoid_cat_equality_functor (lambda_theory_to_monoid_cat_equality_fully_faithful_inv f) = f.
+      (f : set_karoubi lambda_theory_to_monoid_cat⟦
+            lambda_theory_to_monoid_cat_equality_functor A,
+            lambda_theory_to_monoid_cat_equality_functor B⟧)
+      : #lambda_theory_to_monoid_cat_equality_functor
+          (lambda_theory_to_monoid_cat_equality_fully_faithful_inv f)
+        = f.
     Proof.
       apply set_karoubi_mor_eq.
       now apply lambda_theory_to_monoid_set_eq.
@@ -278,9 +289,9 @@ Section Monoid.
     Definition lambda_theory_to_monoid_cat_equality_fully_faithful
       : isweq (λ (f : R_setcategory⟦A, B⟧), #lambda_theory_to_monoid_cat_equality_functor f)
       := isweq_iso _
-        lambda_theory_to_monoid_cat_equality_fully_faithful_inv
-        lambda_theory_to_monoid_cat_equality_fully_faithful_weqinvweq
-        lambda_theory_to_monoid_cat_equality_fully_faithful_invweqweq.
+          lambda_theory_to_monoid_cat_equality_fully_faithful_inv
+          lambda_theory_to_monoid_cat_equality_fully_faithful_weqinvweq
+          lambda_theory_to_monoid_cat_equality_fully_faithful_invweqweq.
 
   End FullyFaithful.
 
@@ -294,14 +305,18 @@ Section Monoid.
 
   Lemma lambda_theory_to_monoid_cat_equality_object_equivalence_weqinvweq
     (A : R_setcategory)
-    : lambda_theory_to_monoid_cat_equality_object_equivalence_inv (lambda_theory_to_monoid_cat_equality_functor A) = A.
+    : lambda_theory_to_monoid_cat_equality_object_equivalence_inv
+        (lambda_theory_to_monoid_cat_equality_functor A)
+      = A.
   Proof.
     now apply R_ob_eq.
   Qed.
 
   Lemma lambda_theory_to_monoid_cat_equality_object_equivalence_invweqweq
     (A : set_karoubi lambda_theory_to_monoid_cat)
-    : lambda_theory_to_monoid_cat_equality_functor (lambda_theory_to_monoid_cat_equality_object_equivalence_inv  A) = A.
+    : lambda_theory_to_monoid_cat_equality_functor
+        (lambda_theory_to_monoid_cat_equality_object_equivalence_inv A)
+      = A.
   Proof.
     refine (pathsdirprod (Y := idempotent (tt : lambda_theory_to_monoid_cat)) _ _).
     - now induction (pr1 A).
@@ -321,14 +336,25 @@ Section Monoid.
         lambda_theory_to_monoid_cat_equality_object_equivalence_invweqweq.
 
   Definition lambda_theory_to_monoid_cat_equality_is_isomorphism
-    : is_z_isomorphism (C := cat_of_setcategory) (b := set_set_karoubi lambda_theory_to_monoid_cat) lambda_theory_to_monoid_cat_equality_functor
-    := is_catiso_weq_is_z_isomorphism (D := set_set_karoubi _) lambda_theory_to_monoid_cat_equality_functor (make_dirprod lambda_theory_to_monoid_cat_equality_fully_faithful lambda_theory_to_monoid_cat_equality_object_equivalence).
+    : is_z_isomorphism
+        (C := cat_of_setcategory)
+        (b := set_set_karoubi lambda_theory_to_monoid_cat)
+        lambda_theory_to_monoid_cat_equality_functor
+    := is_catiso_weq_is_z_isomorphism
+        (D := set_set_karoubi _)
+        lambda_theory_to_monoid_cat_equality_functor
+        (make_dirprod
+          lambda_theory_to_monoid_cat_equality_fully_faithful
+          lambda_theory_to_monoid_cat_equality_object_equivalence).
 
   Definition lambda_theory_to_monoid_cat_equality_iso
-    : z_iso (C := cat_of_setcategory) R_setcategory (set_set_karoubi lambda_theory_to_monoid_cat)
+    : z_iso
+        (C := cat_of_setcategory)
+        R_setcategory
+        (set_set_karoubi lambda_theory_to_monoid_cat)
     := make_z_iso' (C := cat_of_setcategory) (b := set_set_karoubi lambda_theory_to_monoid_cat)
-      lambda_theory_to_monoid_cat_equality_functor
-      lambda_theory_to_monoid_cat_equality_is_isomorphism.
+        lambda_theory_to_monoid_cat_equality_functor
+        lambda_theory_to_monoid_cat_equality_is_isomorphism.
 
   Definition lambda_theory_to_monoid_cat_equiv
     : adj_equiv R_setcategory (set_set_karoubi lambda_theory_to_monoid_cat)
