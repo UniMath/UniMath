@@ -26,7 +26,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Cartesian.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.

@@ -34,7 +34,7 @@ Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 
 Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Categories.HSET.Colimits.

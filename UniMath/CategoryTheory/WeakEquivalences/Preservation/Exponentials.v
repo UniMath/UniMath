@@ -26,7 +26,7 @@ Require Import UniMath.CategoryTheory.WeakEquivalences.LiftPreservation.BinProdu
 
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 
 Local Open Scope cat.
 

@@ -21,7 +21,7 @@ Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 
 Require Import UniMath.CategoryTheory.WeakEquivalences.Preservation.Binproducts.
 Require Import UniMath.CategoryTheory.WeakEquivalences.Reflection.BinProducts.

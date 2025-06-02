@@ -30,7 +30,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCoproduct
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 
 Local Open Scope cat.
 
