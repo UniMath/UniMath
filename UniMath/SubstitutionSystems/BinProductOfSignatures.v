@@ -29,7 +29,7 @@ Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.Chains.OmegaCocontFunctors.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 
 Section binproduct_of_signatures.
 

@@ -26,10 +26,11 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Products.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
@@ -1078,17 +1079,19 @@ Section Category.
 
     End Object.
 
-    Lemma is_universal_arrow
+    Definition R_exponential_coreflection
       (B C : R)
-      : is_universal_arrow_from (constprod_functor2 R_binproducts B) C (exponential_ob B C) (eval_mor B C).
+      : coreflection C (constprod_functor2 R_binproducts B).
     Proof.
-      intros A h.
-      refine '(unique_exists _ _ _ _).
-      + exact (lifted_mor B C A h).
-      + exact (lifted_mor_commutes B C A h).
-      + intro y.
-        apply homset_property.
-      + apply lifted_mor_unique.
+      refine '(make_coreflection' _ _ _).
+      - exact (exponential_ob B C).
+      - exact (eval_mor B C).
+      - intro h.
+        refine '(make_coreflection_arrow _ _ _).
+        + apply lifted_mor.
+          exact (h : _ --> _).
+        + exact (lifted_mor_commutes _ _ _ _).
+        + apply lifted_mor_unique.
     Defined.
 
     Definition R_exponentials
@@ -1096,10 +1099,8 @@ Section Category.
     Proof.
       intro B.
       apply is_exponentiable'_to_is_exponentiable.
-      refine '(left_adjoint_from_partial _ _ _ _).
-      - exact (exponential_ob B).
-      - exact (eval_mor B).
-      - apply is_universal_arrow.
+      apply coreflections_to_is_left_adjoint.
+      apply R_exponential_coreflection.
     Defined.
 
   End Exponentials.

@@ -45,7 +45,7 @@ Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.Chains.OmegaCocontFunctors.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 

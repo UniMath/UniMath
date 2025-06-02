@@ -34,6 +34,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
@@ -723,21 +724,14 @@ Section OppKaroubiEquiv.
       exact (invmap (weqdirprodcomm _ _)).
     Defined.
 
-    Lemma opp_set_karoubi_universal_eq
+    Lemma opp_set_karoubi_universal_commutes
       : f = # opp_set_karoubi_functor opp_set_karoubi_universal_mor · opp_set_karoubi_ob_lift_mor c.
     Proof.
       apply set_karoubi_mor_eq.
       exact (!set_karoubi_mor_commutes_right _ f).
     Qed.
 
-    Lemma opp_set_karoubi_universal_prop
-      (g : op_cat (set_karoubi_cat C) ⟦ c', opp_set_karoubi_ob_lift c ⟧)
-      : isaprop (f = # opp_set_karoubi_functor g · opp_set_karoubi_ob_lift_mor c).
-    Proof.
-      apply homset_property.
-    Qed.
-
-    Lemma opp_set_karoubi_universal_eq'
+    Lemma opp_set_karoubi_universal_eq
       (g: op_cat (set_karoubi_cat C) ⟦ c', opp_set_karoubi_ob_lift c ⟧)
       (H: f = # opp_set_karoubi_functor g · opp_set_karoubi_ob_lift_mor c)
       : g = opp_set_karoubi_universal_mor.
@@ -747,22 +741,23 @@ Section OppKaroubiEquiv.
       exact (!set_karoubi_mor_commutes_left _ g).
     Qed.
 
-    Definition opp_set_karoubi_universal
-      : ∃! f', f = # opp_set_karoubi_functor f' · opp_set_karoubi_ob_lift_mor c
-      := unique_exists
-        opp_set_karoubi_universal_mor
-        opp_set_karoubi_universal_eq
-        opp_set_karoubi_universal_prop
-        opp_set_karoubi_universal_eq'.
-
   End OppKaroubiOfLiftIsUniversalArrow.
 
   Definition opp_set_karoubi_is_adjoint
-    : is_left_adjoint opp_set_karoubi_functor
-    := left_adjoint_from_partial _
-      opp_set_karoubi_ob_lift
-      opp_set_karoubi_ob_lift_mor
-      opp_set_karoubi_universal.
+    : is_left_adjoint opp_set_karoubi_functor.
+  Proof.
+    use coreflections_to_is_left_adjoint.
+    intro X.
+    use make_coreflection'.
+    - exact (opp_set_karoubi_ob_lift X).
+    - apply opp_set_karoubi_ob_lift_mor.
+    - intro f.
+      use make_coreflection_arrow.
+      + apply opp_set_karoubi_universal_mor.
+        exact (f : _ --> _).
+      + apply opp_set_karoubi_universal_commutes.
+      + apply opp_set_karoubi_universal_eq.
+  Defined.
 
   Section OppKaroubiUnitIso.
 

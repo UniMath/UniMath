@@ -46,7 +46,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodColimits.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.CodLeftAdjoint.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.

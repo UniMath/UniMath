@@ -15,7 +15,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.

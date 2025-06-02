@@ -32,7 +32,7 @@ Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
 Require Import UniMath.CategoryTheory.Limits.Products.

@@ -31,10 +31,11 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Limits.Preservation.
@@ -618,23 +619,18 @@ Section ExponentialObject.
     Qed.
 
     Lemma monoid_action_cat_induced_morphism_unique
-      (t : ∑ (f' : monoid_action_morphism X'' exponential_object),
-        F = # (constprod_functor1 (binproducts_monoid_action_cat M) X) f'
+      (g : monoid_action_morphism X'' exponential_object)
+      (Hg : F = # (constprod_functor1 (binproducts_monoid_action_cat M) X) g
           · exponential_object_morphism)
-      : t = monoid_action_cat_induced_morphism ,, monoid_action_cat_induced_morphism_commutes.
+      : g = monoid_action_cat_induced_morphism.
     Proof.
-      use subtypePath.
-      {
-        intro.
-        apply (homset_property (monoid_action_cat M)).
-      }
       use monoid_action_morphism_eq.
       intro x''.
       use monoid_action_morphism_eq.
       intro x.
-      refine (!_ @ maponpaths (λ x, (x : monoid_action_morphism _ _) _) (!(pr2 t))).
+      refine (!_ @ maponpaths (λ x, (x : monoid_action_morphism _ _) _) (!Hg)).
       refine (maponpaths (λ x, (_ x) _) (mor_action _ _ _) @ _).
-      refine (maponpaths (λ x, (pr1 t x'' : monoid_action_morphism _ _) (x ,, _)) _).
+      refine (maponpaths (λ x, (g x'' : monoid_action_morphism _ _) (x ,, _)) _).
       apply runax.
     Qed.
 
@@ -647,15 +643,17 @@ Definition is_exponentiable_monoid_action
   (X : monoid_action_cat M)
   : is_exponentiable (binproducts_monoid_action_cat M) X.
 Proof.
-  use left_adjoint_from_partial.
-  - exact (exponential_object X).
-  - exact (exponential_object_morphism X).
-  - intros X' X'' F.
-    use make_iscontr.
-    + use tpair.
-      * exact (monoid_action_cat_induced_morphism _ _ F).
-      * exact (monoid_action_cat_induced_morphism_commutes _ _ F).
-    + exact (monoid_action_cat_induced_morphism_unique _ _ F).
+  apply coreflections_to_is_left_adjoint.
+  intro X'.
+  use make_coreflection'.
+  - exact (exponential_object X X').
+  - apply exponential_object_morphism.
+  - intro f.
+    use make_coreflection_arrow.
+    + apply monoid_action_cat_induced_morphism.
+      exact (f : _ --> _).
+    + apply monoid_action_cat_induced_morphism_commutes.
+    + apply monoid_action_cat_induced_morphism_unique.
 Defined.
 
 (** * 8. A characterization of isomorphisms *)

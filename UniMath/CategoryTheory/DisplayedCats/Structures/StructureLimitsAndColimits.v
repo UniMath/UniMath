@@ -30,13 +30,14 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.Categories.HSET.All.
 Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Coequalizers.
 Require Import UniMath.CategoryTheory.Limits.Products.
 Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
 Require Import UniMath.CategoryTheory.Limits.Coproducts.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Binproducts.
 Require Import UniMath.CategoryTheory.Monads.Monads.
@@ -219,25 +220,23 @@ Definition Exponentials_struct
   : Exponentials (BinProducts_category_of_hset_struct P).
 Proof.
   intros PX.
-  use left_adjoint_from_partial.
-  - exact (λ PY, _ ,, hset_struct_fun P (pr2 PX) (pr2 PY)).
-  - exact (λ PY, _ ,, closed_under_fun_eval P _ _).
-  - refine (λ Y Z f, _).
-    use iscontraprop1.
-    + abstract
-        (use invproofirrelevance ;
-         intros g₁ g₂ ;
-         use subtypePath ; [ intro ; apply homset_property | ] ;
-         use eq_mor_hset_struct ; intro z ;
-         use eq_mor_hset_struct ; intro x ;
-         refine (!(eqtohomot (maponpaths pr1 (pr2 g₁)) (x ,, z)) @ _) ;
-         exact (eqtohomot (maponpaths pr1 (pr2 g₂)) (x ,, z))).
-    + simple refine (_ ,, _).
-      * exact (_ ,, closed_under_fun_lam P (pr1 f) (pr2 f)).
-      * abstract
-          (use eq_mor_hset_struct ;
-           intro x ; cbn ;
-           apply idpath).
+  apply coreflections_to_is_left_adjoint.
+  intro PY.
+  use make_coreflection'.
+  - exact (_ ,, hset_struct_fun P (pr2 PX) (pr2 PY)).
+  - exact (_ ,, closed_under_fun_eval P _ _).
+  - intro f.
+    use make_coreflection_arrow.
+    + exact (_ ,, closed_under_fun_lam P (pr1 (f : _ --> _)) (pr2 (f : _ --> _))).
+    + abstract now use eq_mor_hset_struct.
+    + abstract (
+        intros g Hg;
+        use eq_mor_hset_struct;
+        intro z;
+        use eq_mor_hset_struct;
+        intro x;
+        exact (!eqtohomot (base_paths _ _ Hg) (x ,, z))
+      ).
 Defined.
 
 (**
