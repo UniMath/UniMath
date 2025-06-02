@@ -24,12 +24,12 @@
  1. Parameterized NNOs
  2. Accessors
  3. Every parameterized NNO is an NNO
- 4. Uniqueness of parameterized NNOs
- 5. Preservation of parameterized NNOs
- 6. Examples of functors that preserve parameterized NNOs
- 7. Independence of the choice of binary products
- 8. Independence of the choice of terminal object
- 9. Parameterized NNOs are unique up to isomorphism
+ 4. Parameterized NNOs are unique up to isomorphism
+ 5. Uniqueness of parameterized NNOs
+ 6. Preservation of parameterized NNOs
+ 7. Examples of functors that preserve parameterized NNOs
+ 8. Independence of the choice of binary products
+ 9. Independence of the choice of terminal object
 
  **********************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -338,7 +338,45 @@ Section ParameterizedNNO.
     Defined.
   End ParameterizedNNOToNNO.
 
-  (** * 4. Uniqueness of parameterized NNOs *)
+  (** * 4. Parameterized NNOs are unique up to isomorphism *)
+  Lemma parameterized_NNO_unique_up_to_iso
+    (N M : parameterized_NNO)
+    : z_iso N M.
+  Proof.
+    exact (iso_between_NNO (parameterized_NNO_to_NNO N) (parameterized_NNO_to_NNO M)).
+  Defined.
+
+  Lemma parameterized_NNO_unique_up_to_iso'
+    (N M : parameterized_NNO)
+    : z_iso N M.
+  Proof.
+    use make_z_iso.
+    - apply is_NNO_parameterized_NNO_mor ; apply M.
+    - apply is_NNO_parameterized_NNO_mor ; apply N.
+    - split.
+      + simpl ; use is_NNO_parameterized_NNO_unique ; (try apply N).
+        * simpl ; rewrite assoc.
+          now do 2 rewrite is_NNO_parameterized_NNO_mor_Z.
+        * simpl ; rewrite assoc.
+          rewrite is_NNO_parameterized_NNO_mor_S.
+          rewrite assoc'.
+          rewrite is_NNO_parameterized_NNO_mor_S.
+          now rewrite assoc.
+        * apply id_right.
+        * exact (id_right _ @ ! id_left _).
+      + simpl ; use is_NNO_parameterized_NNO_unique ; (try apply M).
+        * simpl ; rewrite assoc.
+          now do 2 rewrite is_NNO_parameterized_NNO_mor_Z.
+        * simpl ; rewrite assoc.
+          rewrite is_NNO_parameterized_NNO_mor_S.
+          rewrite assoc'.
+          rewrite is_NNO_parameterized_NNO_mor_S.
+          now rewrite assoc.
+        * apply id_right.
+        * exact (id_right _ @ ! id_left _).
+  Defined.
+
+  (** * 5. Uniqueness of parameterized NNOs *)
   Proposition parameterized_NNO_eq
               {N₁ N₂ : parameterized_NNO}
               (p : (N₁ : C) = N₂)
@@ -407,7 +445,7 @@ Proof.
   apply univalent_category_is_univalent.
 Qed.
 
-(** * 5. Preservation of parameterized NNOs *)
+(** * 6. Preservation of parameterized NNOs *)
 Section PreservationNNO.
   Context {C₁ C₂ : category}
           {T₁ : Terminal C₁}
@@ -456,7 +494,7 @@ Section PreservationNNO.
   Qed.
 End PreservationNNO.
 
-(** * 6. Examples of functors that preserve parameterized NNOs *)
+(** * 7. Examples of functors that preserve parameterized NNOs *)
 Proposition id_preserves_parameterized_NNO_eq
             {C : category}
             (T : Terminal C)
@@ -601,7 +639,7 @@ Section Composition.
   Defined.
 End Composition.
 
-(** * 7. Independence of the choice of binary products *)
+(** * 8. Independence of the choice of binary products *)
 Proposition is_parameterized_NNO_prod_independent
             {C : univalent_category}
             {T : Terminal C}
@@ -681,7 +719,25 @@ Proof.
     apply idpath.
 Qed.
 
-(** * 8. Independence of the choice of terminal *)
+(** * 9. Independence of the choice of terminal *)
+Lemma parameterized_NNO_independent_of_terminal_is_parameterized_NNO
+  {C : category} {T : Terminal C} {P : BinProducts C} (N : parameterized_NNO T P) (T' : Terminal C)
+  : is_parameterized_NNO T' P N (TerminalArrow T T' · parameterized_NNO_Z N) (parameterized_NNO_S N).
+Proof.
+  intros b y z s.
+  use (iscontrweqb' (pr222 N b y z s)).
+  use weqfibtototal.
+  intro f.
+  simpl.
+  use weqdirprodf.
+  - rewrite assoc.
+    assert (pf : TerminalArrow T' b · TerminalArrow T T' = TerminalArrow T b).
+    { use TerminalArrowUnique. }
+    rewrite pf.
+    apply idweq.
+  - apply idweq.
+Qed.
+
 Lemma parameterized_NNO_independent_of_terminal
   {C : category} {T : Terminal C} {P : BinProducts C} (N : parameterized_NNO T P) (T' : Terminal C)
   : parameterized_NNO T' P.
@@ -691,54 +747,5 @@ Proof.
   - refine (_ · parameterized_NNO_Z N).
     apply z_iso_Terminals.
   - exact (parameterized_NNO_S N).
-  - intros b y z s.
-    use (iscontrweqb' (pr222 N b y z s)).
-    use weqfibtototal.
-    intro f.
-    simpl.
-    use weqdirprodf.
-    + rewrite assoc.
-      assert (pf : TerminalArrow T' b · TerminalArrow T T' = TerminalArrow T b).
-      { use TerminalArrowUnique. }
-      rewrite pf.
-      apply idweq.
-    + apply idweq.
-Defined.
-
-(** * 9. Parameterized NNOs are unique up to isomorphism *)
-Lemma parameterized_NNO_unique_up_to_iso
-  {C : category} {T : Terminal C} {P : BinProducts C} (N M : parameterized_NNO T P)
-  : z_iso N M.
-Proof.
-  exact (iso_between_NNO (parameterized_NNO_to_NNO N) (parameterized_NNO_to_NNO M)).
-Defined.
-
-Lemma parameterized_NNO_unique_up_to_iso'
-  {C : category} {T : Terminal C} {P : BinProducts C} (N M : parameterized_NNO T P)
-  : z_iso N M.
-Proof.
-  use make_z_iso.
-  - apply is_NNO_parameterized_NNO_mor ; apply M.
-  - apply is_NNO_parameterized_NNO_mor ; apply N.
-  - split.
-    + simpl ; use is_NNO_parameterized_NNO_unique ; (try apply N).
-      * simpl ; rewrite assoc.
-        now do 2 rewrite is_NNO_parameterized_NNO_mor_Z.
-      * simpl ; rewrite assoc.
-        rewrite is_NNO_parameterized_NNO_mor_S.
-        rewrite assoc'.
-        rewrite is_NNO_parameterized_NNO_mor_S.
-        now rewrite assoc.
-      * apply id_right.
-      * exact (id_right _ @ ! id_left _).
-    + simpl ; use is_NNO_parameterized_NNO_unique ; (try apply M).
-      * simpl ; rewrite assoc.
-        now do 2 rewrite is_NNO_parameterized_NNO_mor_Z.
-      * simpl ; rewrite assoc.
-        rewrite is_NNO_parameterized_NNO_mor_S.
-        rewrite assoc'.
-        rewrite is_NNO_parameterized_NNO_mor_S.
-        now rewrite assoc.
-      * apply id_right.
-      * exact (id_right _ @ ! id_left _).
+  - apply parameterized_NNO_independent_of_terminal_is_parameterized_NNO.
 Defined.

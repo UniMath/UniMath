@@ -45,7 +45,7 @@ Proof.
   }
   exists p'.
   exact (weak_equiv_preserves_coequalizers F_weq _ _ _ _  _ _ _ p' pe).
-Defined.
+Qed.
 
 (** * 2. Reflection *)
 Lemma weak_equiv_reflects_regular_epi

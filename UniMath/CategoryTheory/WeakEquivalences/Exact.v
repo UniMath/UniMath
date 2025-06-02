@@ -73,11 +73,13 @@ Section ReflectionOfRelations.
   Definition weak_equiv_reflect_rel_src
     (R₁ : internal_relation x₁)
     (i_R : z_iso (F R₀) R₁)
-      := fully_faithful_inv_hom F_weq _ _ (i_R · internal_relation_src R₁ · inv_from_z_iso i_x).
+    : C₀⟦R₀, x₀⟧
+    := fully_faithful_inv_hom F_weq _ _ (i_R · internal_relation_src R₁ · inv_from_z_iso i_x).
 
   Definition weak_equiv_reflect_rel_tgt
     (R₁ : internal_relation x₁)
     (i_R : z_iso (F R₀) R₁)
+    : C₀⟦R₀, x₀⟧
     := fully_faithful_inv_hom F_weq _ _ (i_R · internal_relation_tar R₁ · inv_from_z_iso i_x).
 
   Lemma weak_equiv_preserves_rel_mono_src
@@ -276,24 +278,24 @@ Section PreservationOfEffectivity.
   Let R₀_eff := E₀ x₀ R₀.
   Let coE := weak_equiv_preserves_coequalizer F_weq _ _ (pr1 R₀_eff).
 
-  Let pB_pf
-      : # F (internal_relation_src R₀) · # F (CoequalizerArrow (pr1 R₀_eff))
-        = # F (internal_relation_tar R₀) · # F (CoequalizerArrow (pr1 R₀_eff)).
+  Local Lemma weak_equiv_preserves_coequalizer_cocone
+    : # F (internal_relation_src R₀) · # F (CoequalizerArrow (pr1 R₀_eff))
+      = # F (internal_relation_tar R₀) · # F (CoequalizerArrow (pr1 R₀_eff)).
   Proof.
     do 2 rewrite <- functor_comp.
     apply maponpaths.
     exact (CoequalizerEqAr (pr1 R₀_eff)).
     Qed.
-  Let pB := weak_equiv_preserves_pullbacks F_weq _ _ _ _ _ _ _ _ _ pB_pf (pr2 R₀_eff).
+  Let pB := weak_equiv_preserves_pullbacks F_weq _ _ _ _ _ _ _ _ _ weak_equiv_preserves_coequalizer_cocone (pr2 R₀_eff).
 
   Lemma weak_equiv_preserves_effectivity_coeq
     : Coequalizer (internal_relation_src R₁) (internal_relation_tar R₁).
   Proof.
     use (coequalizer_stable_under_iso _ _ _ _ _ _ coE).
-      - exact (z_iso_inv i_R).
-      - exact (z_iso_inv i_x).
-      - apply weak_equiv_preserves_eqrel_source.
-      - apply (weak_equiv_preserves_eqrel_source _ _ (internal_eqrel_op R₁)).
+    - exact (z_iso_inv i_R).
+    - exact (z_iso_inv i_x).
+    - apply weak_equiv_preserves_eqrel_source.
+    - apply (weak_equiv_preserves_eqrel_source _ _ (internal_eqrel_op R₁)).
   Defined.
 
   Lemma weak_equiv_preserves_effectivity_pb

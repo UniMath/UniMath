@@ -33,7 +33,7 @@ Section RegularCategories.
     : disp_bicat (total_bicat disp_bicat_limits).
   Proof.
     use disp_subbicat.
-    - exact (λ C, coeqs_of_kernel_pair (pr1 C) × RegularEpi.regular_epi_pb_stable (pr1 C)).
+    - exact (λ C, coeqs_of_kernel_pair (pr1 C) × regular_epi_pb_stable (pr1 C)).
     - exact (λ C₁ C₂ _ _ F, preserves_regular_epi (pr1 F)).
     - exact (λ _ _, id_preserves_regular_epi _).
     - exact (λ _ _ _ _ _ _ _ _ HF HG, comp_preserves_regular_epi HF HG).

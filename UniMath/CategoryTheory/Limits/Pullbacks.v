@@ -1934,37 +1934,40 @@ Proof.
   simple refine (_ ,, _ ,, (_ ,, _)).
   - exact (pullbacks_of_isos_to_iso' p q i j k pf pf').
   - apply (pullbacks_of_isos_to_iso' q p (z_iso_inv i) (z_iso_inv j) (z_iso_inv k)).
-    + abstract (use z_iso_inv_on_right;
-      rewrite assoc, pf;
-      rewrite assoc';
-      rewrite z_iso_inv_after_z_iso;
-      now rewrite id_right).
-    + abstract (use z_iso_inv_on_right;
-      rewrite assoc, pf';
-      rewrite assoc';
-      rewrite z_iso_inv_after_z_iso;
-      now rewrite id_right).
-  - unfold pullbacks_of_isos_to_iso'.
-    rewrite postCompWithPullbackArrow.
-    apply pathsinv0, PullbackArrowUnique'.
-    + rewrite id_left, assoc.
-      rewrite PullbackArrow_PullbackPr1.
-      rewrite assoc', z_iso_inv_after_z_iso.
-      now rewrite id_right.
-    + rewrite id_left, assoc.
-      rewrite PullbackArrow_PullbackPr2.
-      rewrite assoc', z_iso_inv_after_z_iso.
-      now rewrite id_right.
-  - cbn.
-    unfold pullbacks_of_isos_to_iso'.
-    rewrite postCompWithPullbackArrow.
-    apply pathsinv0, PullbackArrowUnique'.
-    + rewrite id_left, assoc.
-      rewrite PullbackArrow_PullbackPr1.
-      rewrite assoc', z_iso_inv_after_z_iso.
-      now rewrite id_right.
-    + rewrite id_left, assoc.
-      rewrite PullbackArrow_PullbackPr2.
-      rewrite assoc', z_iso_inv_after_z_iso.
-      now rewrite id_right.
+    + abstract (
+          use z_iso_inv_on_right;
+          rewrite assoc, pf;
+          rewrite assoc';
+          rewrite z_iso_inv_after_z_iso;
+          now rewrite id_right).
+    + abstract (
+          use z_iso_inv_on_right;
+          rewrite assoc, pf';
+          rewrite assoc';
+          rewrite z_iso_inv_after_z_iso;
+          now rewrite id_right).
+  - abstract (
+        unfold pullbacks_of_isos_to_iso';
+        rewrite postCompWithPullbackArrow;
+        apply pathsinv0, PullbackArrowUnique';
+        [ rewrite id_left, assoc ;
+          rewrite PullbackArrow_PullbackPr1 ;
+          rewrite assoc', z_iso_inv_after_z_iso ;
+          now rewrite id_right
+        | rewrite id_left, assoc;
+          rewrite PullbackArrow_PullbackPr2;
+          rewrite assoc', z_iso_inv_after_z_iso;
+          now rewrite id_right]).
+  - abstract (
+        unfold pullbacks_of_isos_to_iso';
+        rewrite postCompWithPullbackArrow;
+        apply pathsinv0, PullbackArrowUnique';
+        [ rewrite id_left, assoc ;
+          rewrite PullbackArrow_PullbackPr1 ;
+          rewrite assoc', z_iso_inv_after_z_iso ;
+          now rewrite id_right
+        | rewrite id_left, assoc;
+          rewrite PullbackArrow_PullbackPr2;
+          rewrite assoc', z_iso_inv_after_z_iso;
+          now rewrite id_right]).
 Defined.

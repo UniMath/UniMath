@@ -78,8 +78,8 @@ Section CoequalizersOfKernelPairs.
         apply maponpaths_2;
         apply z_iso_after_z_iso_inv).
     - exact (z_iso_inv i_x).
-    - apply pathsinv0, (PullbackArrow_PullbackPr1 F_pb).
-    - apply pathsinv0, (PullbackArrow_PullbackPr2 F_pb).
+    - abstract (apply pathsinv0, (PullbackArrow_PullbackPr1 F_pb)).
+    - abstract (apply pathsinv0, (PullbackArrow_PullbackPr2 F_pb)).
   Defined.
 
 End CoequalizersOfKernelPairs.
@@ -127,11 +127,11 @@ Section RegularEpiPullbackStability.
     apply (weak_equiv_preserves_regular_epi F_weq).
 
     assert (p₀ : π₁₀ · f₀ = π₂₀ · g₀). {
-      use (faithful_reflects_morphism_equality _ (pr2 F_weq));
-        do 2 rewrite functor_comp;
-        unfold π₁₀, f₀, π₂₀, g₀;
-        do 4 rewrite functor_on_fully_faithful_inv_hom;
-        exact p.
+      use (faithful_reflects_morphism_equality _ (pr2 F_weq)).
+      do 2 rewrite functor_comp.
+      unfold π₁₀, f₀, π₂₀, g₀.
+      do 4 rewrite functor_on_fully_faithful_inv_hom.
+      exact p.
     }
 
     use (C pb₀ x₀ y₀ z₀ f₀ g₀ π₁₀ π₂₀ p₀).
@@ -150,10 +150,14 @@ Definition Rezk_completion_is_regular
   (R₀ : is_regular_category C₀)
   : is_regular_category C₁.
 Proof.
-  induction R₀ as [T₀ [P₀ [A₀ B₀]]].
   repeat split.
-  - exact (weak_equiv_creates_terminal F_weq T₀).
-  - exact (weak_equiv_into_univ_creates_pullbacks C₁_univ F_weq P₀).
-  - exact (Rezk_completion_has_coeqs_of_kernel_pair F_weq C₁_univ P₀ A₀).
-  - exact (Rezk_completion_regular_epi_pb_stable F_weq C₁_univ B₀).
+  - apply (weak_equiv_creates_terminal F_weq).
+    exact (is_regular_category_terminal R₀).
+  - apply (weak_equiv_into_univ_creates_pullbacks C₁_univ F_weq).
+    exact (is_regular_category_pullbacks R₀).
+  - apply (Rezk_completion_has_coeqs_of_kernel_pair F_weq C₁_univ).
+    + exact (is_regular_category_pullbacks R₀).
+    + exact (is_regular_category_coeqs_of_kernel_pair R₀).
+  - apply (Rezk_completion_regular_epi_pb_stable F_weq C₁_univ).
+    exact (is_regular_category_regular_epi_pb_stable R₀).
 Defined.
