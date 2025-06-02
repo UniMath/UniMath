@@ -397,8 +397,6 @@ Section WeakEquivalencesIntoUnivalentCatsCreatesExponentials.
     intros [x₀ ix].
     intro y₁.
     use (Exponent_transport_along_iso' P₁ ix (identity_z_iso y₁)).
-    (* apply (is_exponentiable_alt_closed_under_iso _ ix).
-    intro y₁. *)
     use (factor_through_squash _ _ (pr1 F_weq y₁)).
     {
       apply isaprop_Exponent.
