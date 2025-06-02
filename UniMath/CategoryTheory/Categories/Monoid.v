@@ -200,4 +200,4 @@ Proof.
       [ apply (z_iso_inv_after_z_iso f)
       | apply (z_iso_after_z_iso_inv f) ]
     ).
-Qed.
+Defined.
