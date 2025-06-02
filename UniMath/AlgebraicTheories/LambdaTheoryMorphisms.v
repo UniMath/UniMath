@@ -1,4 +1,4 @@
-(**************************************************************************************************
+(**
 
   λ-theory morphisms
 
@@ -11,7 +11,7 @@
   3. Under the right circumstances, preservation of app and abs follow from each other
     [has_eta_has_beta_preserves_app] [has_beta_has_eta_preserves_abs]
 
- **************************************************************************************************)
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -56,6 +56,14 @@ Definition is_lambda_theory_morphism
   := (∏ n f, mor_app_ax F n f) ×
     (∏ n f, mor_abs_ax F n f).
 
+Definition make_is_lambda_theory_morphism
+  {L L' : lambda_theory}
+  (F : algebraic_theory_morphism L L')
+  (H1 : ∏ n f, mor_app_ax F n f)
+  (H2 : ∏ n f, mor_abs_ax F n f)
+  : is_lambda_theory_morphism F
+  := make_dirprod H1 H2.
+
 Definition make_lambda_theory_morphism
   {L L' : lambda_theory}
   (F : algebraic_theory_morphism L L')
@@ -69,7 +77,7 @@ Coercion lambda_theory_morphism_to_algebraic_theory_morphism
   : algebraic_theory_morphism L L'
   := pr11 F.
 
-Definition mor_app
+Definition mor_appx
   {L L' : lambda_theory}
   (F : lambda_theory_morphism L L')
   {n : nat}
@@ -84,6 +92,24 @@ Definition mor_abs
   (f : L (S n))
   : mor_abs_ax F n f
   := pr221 F n f.
+
+Lemma mor_app
+  {L L' : lambda_theory}
+  (F : lambda_theory_morphism L L')
+  {n : nat}
+  (f g : L n)
+  : F n (app f g) = app (F n f) (F n g).
+Proof.
+  refine (mor_subst _ _ _ @ _).
+  refine (maponpaths (λ x, x • _) (mor_appx _ _) @ _).
+  apply (maponpaths (λ x, appx _ • x)).
+  apply funextfun.
+  intro i.
+  unfold extend_tuple.
+  induction (invmap stnweq i).
+  - apply mor_var.
+  - reflexivity.
+Qed.
 
 Lemma lambda_theory_morphism_eq
   {L L' : lambda_theory}
