@@ -1,7 +1,7 @@
 (**
    Preservation And Reflection Of Parameterized Natural Numbers Objects, by Weak Equivalences.
 
-   In this file, we show that any weak equivalence F : C -> D preserves a parameterized natural numbers object.
+   In this file, we show that any weak equivalence F : C -> D preserves parameterized natural numbers objects.
 
    Contents
    1. Image of a PNNO, under F, is a PNNO [weak_equiv_preserves_parameterized_NNO]
