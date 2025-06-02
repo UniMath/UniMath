@@ -1,7 +1,7 @@
 (*
   The Displayed Bicategory Of Categories With A Parameterized Natural Numbers Object
 
-  In this file, we construct the displayed bicategory of finitely complete categories equipped with a natural numbers object.
+  In this file, we construct the displayed bicategory of finitely complete categories equipped with a parameterized natural numbers object.
 
   Contents
   1. Definition [disp_bicat_parameterized_NNO] and Locally Contractibility [disp_2cells_iscontr_parameterized_NNO]
