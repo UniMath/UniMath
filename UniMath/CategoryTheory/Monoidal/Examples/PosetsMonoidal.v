@@ -15,7 +15,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
 Require Import UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
 Require Import UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.

@@ -78,6 +78,7 @@ DisplayedBicats/Examples/CategoriesWithStructure/FiniteLimits.v
 DisplayedBicats/Examples/CategoriesWithStructure/SubobjectClassifier.v
 DisplayedBicats/Examples/CategoriesWithStructure/RegularAndExact.v
 DisplayedBicats/Examples/CategoriesWithStructure/ParameterizedNNO.v
+DisplayedBicats/Examples/CategoriesWithStructure/Exponentials.v
 
 MonoidalCategories/MonoidalFromBicategory.v
 MonoidalCategories/EndofunctorsMonoidal.v
@@ -504,5 +505,6 @@ RezkCompletions/StructuredCats/FiniteLimits.v
 RezkCompletions/StructuredCats/SubobjectClassifier.v
 RezkCompletions/StructuredCats/RegularAndExact.v
 RezkCompletions/StructuredCats/ParameterizedNNO.v
+RezkCompletions/StructuredCats/Exponentials.v
 
 DaggerCategories/BicatOfDaggerCats.v
