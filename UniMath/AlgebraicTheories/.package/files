@@ -42,6 +42,7 @@ PresheafEquivalence.v
 
 Combinators.v
 CategoryOfRetracts.v
+LambdaTheoryToMonoid.v
 OriginalRepresentationTheorem.v
 RepresentationTheorem.v
 RepresentationTheoremsRelation.v

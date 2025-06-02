@@ -1,4 +1,4 @@
-(**************************************************************************************************
+(**
 
   Scott's original representation theorem
 
@@ -13,7 +13,7 @@
   2. The isomorphism [representation_theorem_iso]
   3. The right inverse [endomorphism_theory_right_inverse]
 
- **************************************************************************************************)
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
@@ -113,7 +113,6 @@ Section EndomorphismTheory.
       (λ (x : R _ _ ⟦_, _⟧), R_section L Lβ _ ∘ (R_mor_to_L _ x))
       (φ_adj_from_partial _ _ _ (is_universal_arrow L Lβ _) _ _ f) @ _).
     apply R_mor_is_mor_left.
-    exact Lβ.
   Qed.
 
   Lemma E_app
@@ -128,7 +127,7 @@ Section EndomorphismTheory.
     refine '(ev_compose_pair_arrow _ Lβ _ _ (_ ∘ _ ∘ p1_term _ _) (U L Lβ ∘ p2_term _ (U L Lβ)) @ _).
     refine '(maponpaths (λ x, (abs (app _ (app (app (inflate x) _) _)))) (compose_assoc _ Lβ _ _ _) @ _).
     refine '(!maponpaths (λ x, (abs (app _ (app (app (inflate (x ∘ _)) _) _)))) (compose_assoc _ Lβ _ _ _) @ _).
-    refine '(maponpaths (λ x, (abs (app _ (app (app (inflate (_ ∘ x ∘ _)) _) _)))) (R_mor_is_mor_right _ Lβ _) @ _).
+    refine '(maponpaths (λ x, (abs (app _ (app (app (inflate (_ ∘ x ∘ _)) _) _)))) (R_mor_is_mor_right _ _) @ _).
     refine '(maponpaths (λ x, (abs (app _ (app _ (app _ (app (inflate x) _)))))) (compose_assoc _ Lβ _ _ _) @ _).
     refine '(maponpaths (λ x, (abs (app _ (app _ (app _ (app (inflate (x ∘ _)) _)))))) (R_ob_idempotent _ _) @ _).
     refine '(maponpaths (λ x, (abs (app _ (app (app x _) _)))) (inflate_compose _ _ _) @ _).
@@ -225,7 +224,7 @@ Section Isomorphism.
     {n : nat}
     (s : L n)
     : E n
-    := _ ,, representation_theorem_iso_inv_is_mor s.
+    := make_R_mor' _ Lβ _ (representation_theorem_iso_inv_is_mor s).
 
   Lemma representation_theorem_iso_inv_after_mor
     {n : nat}
@@ -236,7 +235,7 @@ Section Isomorphism.
     refine '(maponpaths (λ x, (abs x)) (subst_app _ _ _ _) @ _).
     refine '(maponpaths (λ x, (abs (app x _))) (subst_subst _ _ _ _) @ _).
     refine '(maponpaths (λ x, (abs (app _ x))) (subst_n_tuple _ _ _) @ _).
-    refine '(_ @ R_mor_is_mor_right _ Lβ s).
+    refine '(_ @ R_mor_is_mor_right _ s).
     refine '(_ @ !maponpaths (λ x, _ ∘ x) (R_power_object_is_n_tuple_arrow _ _ _)).
     refine '(_ @ !maponpaths (λ x, _ ∘ n_tuple_arrow x) (funextfun _ _ (λ i, U_compose_n_π _ _))).
     refine '(_ @ !maponpaths (λ x, abs (app _ (app x _))) (inflate_n_tuple_arrow _ _)).
