@@ -834,7 +834,7 @@ Proof.
   - apply isaset_set_karoubi.
 Defined.
 
-Definition setcategory_set_karoubi_functor_mor_data
+Definition set_karoubi_functor_mor_data
   {C D : setcategory}
   (F : C ⟶ D)
   : functor_data (set_set_karoubi C) (set_set_karoubi D).
@@ -858,10 +858,10 @@ Proof.
       ).
 Defined.
 
-Lemma setcategory_set_karoubi_functor_mor_is_functor
+Lemma set_karoubi_functor_mor_is_functor
   {C D : setcategory}
   (F : C ⟶ D)
-  : is_functor (setcategory_set_karoubi_functor_mor_data F).
+  : is_functor (set_karoubi_functor_mor_data F).
 Proof.
   apply make_is_functor.
   - intro c.
@@ -871,19 +871,19 @@ Proof.
     apply functor_comp.
 Qed.
 
-Definition setcategory_set_karoubi_functor_mor
+Definition set_karoubi_functor_mor
   {C D : setcategory}
   (F : C ⟶ D)
   : set_set_karoubi C ⟶ set_set_karoubi D
   := make_functor
-    (setcategory_set_karoubi_functor_mor_data F)
-    (setcategory_set_karoubi_functor_mor_is_functor F).
+    (set_karoubi_functor_mor_data F)
+    (set_karoubi_functor_mor_is_functor F).
 
-Definition setcategory_set_karoubi_functor_data
+Definition set_karoubi_functor_data
   : functor_data cat_of_setcategory cat_of_setcategory
   := make_functor_data (C := cat_of_setcategory) (C' := cat_of_setcategory)
     set_set_karoubi
-    (λ C D F, setcategory_set_karoubi_functor_mor F).
+    (λ C D F, set_karoubi_functor_mor F).
 
 Definition set_karoubi_functor_eq
   {C D : category}
@@ -918,8 +918,8 @@ Proof.
     exact (base_total2_paths _).
 Qed.
 
-Lemma setcategory_set_karoubi_is_functor
-  : is_functor setcategory_set_karoubi_functor_data.
+Lemma set_karoubi_is_functor
+  : is_functor set_karoubi_functor_data.
 Proof.
   apply make_is_functor.
   - refine (λ (C : setcategory), _).
@@ -928,16 +928,16 @@ Proof.
     now use set_karoubi_functor_eq.
 Qed.
 
-Definition setcategory_set_karoubi_functor
+Definition set_karoubi_functor
   : cat_of_setcategory ⟶ cat_of_setcategory
   := make_functor
-    setcategory_set_karoubi_functor_data
-    setcategory_set_karoubi_is_functor.
+    set_karoubi_functor_data
+    set_karoubi_is_functor.
 
-Definition setcategory_set_karoubi_monad_multiplication_data_data
+Definition set_karoubi_monad_multiplication_data_data
   (C : setcategory)
-  : functor_data (setcategory_set_karoubi_functor (setcategory_set_karoubi_functor C) : setcategory)
-  (setcategory_set_karoubi_functor C : setcategory).
+  : functor_data (set_karoubi_functor (set_karoubi_functor C) : setcategory)
+  (set_karoubi_functor C : setcategory).
 Proof.
   use make_functor_data.
   - intro c.
@@ -952,36 +952,36 @@ Proof.
     + exact (maponpaths (set_karoubi_mor_morphism _) (set_karoubi_mor_commutes_right _ f)).
 Defined.
 
-Lemma setcategory_set_karoubi_monad_multiplication_data_is_functor
+Lemma set_karoubi_monad_multiplication_data_is_functor
   (C : setcategory)
-  : is_functor (setcategory_set_karoubi_monad_multiplication_data_data C).
+  : is_functor (set_karoubi_monad_multiplication_data_data C).
 Proof.
   apply make_is_functor;
   repeat intro;
   now apply set_karoubi_mor_eq.
 Qed.
 
-Definition setcategory_set_karoubi_monad_multiplication_data
-  : nat_trans_data (setcategory_set_karoubi_functor ∙ setcategory_set_karoubi_functor) setcategory_set_karoubi_functor
+Definition set_karoubi_monad_multiplication_data
+  : nat_trans_data (set_karoubi_functor ∙ set_karoubi_functor) set_karoubi_functor
   := λ C, make_functor
-    (setcategory_set_karoubi_monad_multiplication_data_data C)
-    (setcategory_set_karoubi_monad_multiplication_data_is_functor C).
+    (set_karoubi_monad_multiplication_data_data C)
+    (set_karoubi_monad_multiplication_data_is_functor C).
 
-Lemma setcategory_set_karoubi_monad_multiplication_is_nat_trans
-  : is_nat_trans _ _ setcategory_set_karoubi_monad_multiplication_data.
+Lemma set_karoubi_monad_multiplication_is_nat_trans
+  : is_nat_trans _ _ set_karoubi_monad_multiplication_data.
 Proof.
   intros C D F.
   now use set_karoubi_functor_eq.
 Qed.
 
-Definition setcategory_set_karoubi_monad_multiplication
-  : setcategory_set_karoubi_functor ∙ setcategory_set_karoubi_functor ⟹ setcategory_set_karoubi_functor
+Definition set_karoubi_monad_multiplication
+  : set_karoubi_functor ∙ set_karoubi_functor ⟹ set_karoubi_functor
   := make_nat_trans _ _
-    setcategory_set_karoubi_monad_multiplication_data
-    setcategory_set_karoubi_monad_multiplication_is_nat_trans.
+    set_karoubi_monad_multiplication_data
+    set_karoubi_monad_multiplication_is_nat_trans.
 
-Definition setcategory_set_karoubi_monad_unit
-  : functor_identity cat_of_setcategory ⟹ setcategory_set_karoubi_functor.
+Definition set_karoubi_monad_unit
+  : functor_identity cat_of_setcategory ⟹ set_karoubi_functor.
 Proof.
   use make_nat_trans.
   - exact (λ (C : setcategory), set_karoubi_inclusion C).
@@ -994,21 +994,21 @@ Proof.
     ).
 Defined.
 
-Definition setcategory_set_karoubi_monad_data
-  : disp_Monad_data setcategory_set_karoubi_functor
-  := setcategory_set_karoubi_monad_multiplication ,,
-    setcategory_set_karoubi_monad_unit.
+Definition set_karoubi_monad_data
+  : disp_Monad_data set_karoubi_functor
+  := set_karoubi_monad_multiplication ,,
+    set_karoubi_monad_unit.
 
-Lemma setcategory_set_karoubi_is_monad
-  : disp_Monad_laws setcategory_set_karoubi_monad_data.
+Lemma set_karoubi_is_monad
+  : disp_Monad_laws set_karoubi_monad_data.
 Proof.
   repeat split;
     intro C;
     now use set_karoubi_functor_eq.
 Qed.
 
-Definition setcategory_set_karoubi_monad
+Definition set_karoubi_monad
   : Monad cat_of_setcategory
-  := setcategory_set_karoubi_functor ,,
-    setcategory_set_karoubi_monad_data ,,
-    setcategory_set_karoubi_is_monad.
+  := set_karoubi_functor ,,
+    set_karoubi_monad_data ,,
+    set_karoubi_is_monad.

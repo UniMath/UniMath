@@ -488,4 +488,8 @@ Section IsoToEquivalence.
       FG_form_adjunction
       FG_forms_equivalence.
 
+  Definition z_iso_to_adj_equiv
+    : adj_equiv A B
+    := _ ,, z_iso_to_equivalence.
+
 End IsoToEquivalence.

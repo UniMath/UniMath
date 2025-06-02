@@ -14,6 +14,7 @@
   Contents
   1. The monoid [lambda_theory_to_monoid]
   2. It is isomorphic to the algebraic theory monoid [lambda_theory_to_monoid_iso]
+  2.1. This induces an equivalence on the Karoubi envelopes [lambda_theory_to_monoid_karoubi_equiv]
   3. The setcategory Karoubi envelope is equal to the category of retracts
     [lambda_theory_to_monoid_cat_equality]
 
@@ -23,11 +24,13 @@ Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
+Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.Categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Categories.KaroubiEnvelope.SetKaroubi.
 Require Import UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.
 Require Import UniMath.CategoryTheory.Categories.Monoid.
 Require Import UniMath.CategoryTheory.Categories.MonoidToCategory.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
@@ -187,6 +190,17 @@ Section Monoid.
           lambda_theory_to_monoid_iso_inv
           lambda_theory_to_monoid_iso_is_inverse)
       lambda_theory_to_monoid_is_monoidfun.
+
+(** ** 2.1. This induces an equivalence on the Karoubi envelopes *)
+
+  Definition lambda_theory_to_monoid_karoubi_equiv
+    : adj_equiv
+      (set_set_karoubi (monoid_to_category lambda_theory_to_monoid))
+      (set_set_karoubi (monoid_to_category (algebraic_theory_to_monoid (L : algebraic_theory))))
+      := z_iso_to_adj_equiv
+        (functor_on_z_iso set_karoubi_monad
+          (functor_on_z_iso _
+            lambda_theory_to_monoid_iso)).
 
 (** * 3. The setcategory Karoubi envelope is equal to the category of retracts *)
 
