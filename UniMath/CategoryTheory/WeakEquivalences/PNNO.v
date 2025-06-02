@@ -450,7 +450,7 @@ Proposition weak_equiv_preserves_parameterized_NNO'
   : preserves_parameterized_NNO N_C N_D _ (weak_equiv_preserves_terminal _ Fw).
 Proof.
   set (M_D' := weak_equiv_creates_parameterized_NNO Fw N_C T_D P_D).
-  set (i := (parameterized_NNO_unique_up_to_iso' N_D M_D')).
+  set (i := (parameterized_NNO_unique_up_to_iso N_D M_D')).
   exact (is_z_isomorphism_path (idpath _) (pr2 i)).
 Defined.
 
@@ -670,7 +670,7 @@ Section WeakEquivalencesLiftPreservesPNNO.
 
   Let F_hn : C3⟦F N1, H N2⟧
       := nat_z_iso_pointwise_z_iso (nat_z_iso_inv α) N1
-           · # H (parameterized_NNO_unique_up_to_iso' N2' N2).
+           · # H (parameterized_NNO_unique_up_to_iso N2' N2).
 
   Let H_z : C3⟦T3, H N2⟧
       := TerminalArrow (preserves_terminal_to_terminal H H_pt T2) T3 · # H (parameterized_NNO_Z N2).
@@ -755,7 +755,7 @@ Section WeakEquivalencesLiftPreservesPNNO.
   Proof.
     use is_z_isomorphism_path.
     - refine (preserves_parameterized_NNO_mor N1 N3 F Fpt · _).
-      refine (_ · #H (parameterized_NNO_unique_up_to_iso' N2' N2)).
+      refine (_ · #H (parameterized_NNO_unique_up_to_iso N2' N2)).
       exact (nat_z_iso_pointwise_z_iso (nat_z_iso_inv α) N1).
     - unfold preserves_parameterized_NNO_mor, is_NNO_parameterized_NNO_mor.
       rewrite ! assoc'.
@@ -766,7 +766,7 @@ Section WeakEquivalencesLiftPreservesPNNO.
       use is_z_isomorphism_comp.
       + apply (nat_z_iso_pointwise_z_iso (nat_z_iso_inv α) N1).
       + apply functor_on_is_z_isomorphism.
-        apply parameterized_NNO_unique_up_to_iso'.
+        apply parameterized_NNO_unique_up_to_iso.
   Qed.
 
 End WeakEquivalencesLiftPreservesPNNO.

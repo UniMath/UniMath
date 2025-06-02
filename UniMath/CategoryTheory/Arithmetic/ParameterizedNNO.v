@@ -346,36 +346,6 @@ Section ParameterizedNNO.
     exact (iso_between_NNO (parameterized_NNO_to_NNO N) (parameterized_NNO_to_NNO M)).
   Defined.
 
-  Lemma parameterized_NNO_unique_up_to_iso'
-    (N M : parameterized_NNO)
-    : z_iso N M.
-  Proof.
-    use make_z_iso.
-    - apply is_NNO_parameterized_NNO_mor ; apply M.
-    - apply is_NNO_parameterized_NNO_mor ; apply N.
-    - split.
-      + simpl ; use is_NNO_parameterized_NNO_unique ; (try apply N).
-        * simpl ; rewrite assoc.
-          now do 2 rewrite is_NNO_parameterized_NNO_mor_Z.
-        * simpl ; rewrite assoc.
-          rewrite is_NNO_parameterized_NNO_mor_S.
-          rewrite assoc'.
-          rewrite is_NNO_parameterized_NNO_mor_S.
-          now rewrite assoc.
-        * apply id_right.
-        * exact (id_right _ @ ! id_left _).
-      + simpl ; use is_NNO_parameterized_NNO_unique ; (try apply M).
-        * simpl ; rewrite assoc.
-          now do 2 rewrite is_NNO_parameterized_NNO_mor_Z.
-        * simpl ; rewrite assoc.
-          rewrite is_NNO_parameterized_NNO_mor_S.
-          rewrite assoc'.
-          rewrite is_NNO_parameterized_NNO_mor_S.
-          now rewrite assoc.
-        * apply id_right.
-        * exact (id_right _ @ ! id_left _).
-  Defined.
-
   (** * 5. Uniqueness of parameterized NNOs *)
   Proposition parameterized_NNO_eq
               {N₁ N₂ : parameterized_NNO}

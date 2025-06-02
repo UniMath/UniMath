@@ -68,9 +68,9 @@ Proof.
     now rewrite id_right.
   }
 
-  use (isbincoproduct_of_isos _ is1 is2).
+  use (isbincoproduct_of_isos _ _ is1 is2).
   + use (make_BinCoproduct _ _ _ _ _ _ (Fprod _ _ _ _ _ (G_reflect π₁ π₂ _))).
-    exact (isbincoproduct_of_isos (make_BinCoproduct _ _ _ _ _ _ p_ispr) i1 i2 i _ _ pf1 pf2).
+    exact (isbincoproduct_of_isos (make_BinCoproduct _ _ _ _ _ _ p_ispr) _ i1 i2 i _ _ pf1 pf2).
   + exact (z_iso_comp (functor_on_z_iso H (z_iso_inv i)) (_ ,, pr2 α px)).
   + simpl.
     rewrite assoc'.
