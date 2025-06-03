@@ -37,7 +37,7 @@ Require Import Ltac2.Notations.
     list of sugboals. This is to keep track of the state of the algorithm, and should be None at the
     start.
   For example:
-    `(make_traversal (fun () => match! goal with | [|- (?a ∨ _ ) = _ ] => '(λ x, $a ∨ x ) end) "_ ∨ " "")`
+    [(make_traversal (fun () => match! goal with | [|- (?a ∨ _ ) = _ ] => '(λ x, $a ∨ x ) end) "_ ∨ " "")]
 *)
 Ltac2 Type rec t_traversal := {
   c : unit -> constr;
@@ -51,20 +51,20 @@ Ltac2 make_traversal (c : unit -> constr) (l : string) (r : string)
 
 (**
   A rewrite consists of
-  - A pattern `p`, describing the goal `p = _` where the rewrite activates;
-  - A (thunked) term `t` of an identity type, describing the rewrite;
-  - A string representation of `t`.
+  - A pattern [p], describing the goal [p = ...] where the rewrite activates;
+  - A (thunked) term [t] of an identity type, describing the rewrite;
+  - A string representation of [t].
   For example:
-    `(pn:((_ ∨ _)[_]), (fun () => '(disj_subst _ _ _)), "disj_subst _ _ _")`
+    [(pn:((_ ∨ _)[_]), (fun () => '(disj_subst _ _ _)), "disj_subst _ _ _")]
 *)
 Ltac2 Type t_rewrite := (pattern * (unit -> constr) * string).
 
 (**
-  While traversing, `n : navigation`, with preinpostfix deconstructed as (pre, in, post), gives the
-  contextual information for printing rewrites `rew`:
-    `refine (pre (λ x, ` + (join "(" reverse(left)) + ` x ` + (join ")" right) + `) in (rew) post)`
-  For example: `maponpaths (λ x, _ ∧ (x ~ _)) (_) @ _` or `transportf (λ x, (x ∨ _) ⊢ _) (_) _`.
-  The value `print` keeps track of whether we want to print rewrites or not.
+  While traversing, [n : navigation], with preinpostfix deconstructed as (pre, in, post), gives the
+  contextual information for printing rewrites [rew]:
+    "refine (pre (λ x, " + (join "(" reverse(left)) + " x " + (join ")" right) + ") in (rew) post)"
+  For example: [maponpaths (λ x, _ ∧ (x ~ _)) (_) @ _] or [transportf (λ x, (x ∨ _) ⊢ _) (_) _].
+  The value [print] keeps track of whether we want to print rewrites or not.
 *)
 Ltac2 Type navigation := {
   left: string list;
@@ -106,11 +106,11 @@ Ltac2 print_refine (n : navigation) (t : string) :=
 
 (** * 2. The traversal tactic *)
 
-(** Steps into a subterm, described by the traversal `t`, of the current goal. In this subterm,
-  execute `traverse`, with `first_traversals` set to the list `t.(t)`.
-  If the result of this is `Some x` (presumed to be the "remaining traversals" in the subterm),
-  returns the remaining traversals at this level. Else, the combination of `try_opt` and
-  `Option.get_bt` resets the goal to what it was at the start of the function. *)
+(** Steps into a subterm, described by the traversal [t], of the current goal. In this subterm,
+  execute [traverse], with [first_traversals] set to the list [t.(t)].
+  If the result of this is [Some x] (presumed to be the "remaining traversals" in the subterm),
+  returns the remaining traversals at this level. Else, the combination of [try_opt] and
+  [Option.get_bt] resets the goal to what it was at the start of the function. *)
 Ltac2 traverse_subterm
   (traverse : (t_traversal list) option -> navigation -> (t_traversal list) option)
   (n : navigation)
@@ -128,10 +128,10 @@ Ltac2 traverse_subterm
     ).
 
 (**
-  At each subterm of the left hand side of the goal, executes `preorder`, then recurses, and then
-  executes `postorder`. If either preorder or postorder returns true, stops executing and returns
+  At each subterm of the left hand side of the goal, executes [preorder], then recurses, and then
+  executes [postorder]. If either preorder or postorder returns true, stops executing and returns
   the remaining traversals at each level.
-  At this level, uses `first_traversals` if it has a value, and else uses `traversals`.
+  At this level, uses [first_traversals] if it has a value, and else uses [traversals].
 *)
 Ltac2 rec traverse
   (traversals : t_traversal list)
@@ -175,11 +175,11 @@ Ltac2 simplify_component
       (fun _ => false).
 
 (**
-  Uses `top_traversals` to get a goals of the form `[term] = _`, and tries to repeatedly rewrite the
+  Uses [top_traversals] to get a goals of the form [[term] = _], and tries to repeatedly rewrite the
   highest rewritable subterm of the left hand side of those goals.
 
-  If `rewrite_level` is supplied, the provided rewrites are first filtered, keeping only the
-  rewrites `(i, r)` where `i ≤ rewrite_level`. The rationale being that rewrites with a higher `i`
+  If [rewrite_level] is supplied, the provided rewrites are first filtered, keeping only the
+  rewrites [(i, r)] where [i ≤ rewrite_level]. The rationale being that rewrites with a higher [i]
   are more rarely used, or more complex.
 *)
 Ltac2 simplify
