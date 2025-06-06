@@ -166,7 +166,7 @@ Definition ctx_ext (ξ : sortToC) (s : sort) : sortToC
 (** the sigma-monoids for wellfounded and non-wellfounded syntax for STLC *)
 Context (IC : Initial C)
   (* (ProductsC : ∏ I : UU, Products.Products I C) *) (eqsetPC : forall (s s' : sort), Products.Products (s=s') C)
-  (EsortToC2 : exponentials.Exponentials BPsortToC2)
+  (EsortToC2 : Exponentials.Exponentials BPsortToC2)
   (ColimsC_of_shape_nat_graph : Colimits.Colims_of_shape nat_graph C).
 
 Let σind : SigmaMonoid θSTLC := pr1 (InitialSigmaMonoidOfMultiSortedSig_CAT sort Hsort C TC IC BP BC eqsetPC CC EsortToC2 ColimsC_of_shape_nat_graph STLC_Sig).

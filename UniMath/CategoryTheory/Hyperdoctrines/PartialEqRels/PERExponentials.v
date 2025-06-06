@@ -9,8 +9,9 @@
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.Limits.BinProducts.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.Tripos.
@@ -32,17 +33,14 @@ Definition exponentials_partial_setoid
   : Exponentials (binproducts_partial_setoid H).
 Proof.
   intros X.
-  use left_adjoint_from_partial.
-  - exact (λ Y, exp_partial_setoid X Y).
-  - exact (λ Y, eval_partial_setoid X Y).
-  - intros Y Z φ.
-    use make_iscontr.
-    + simple refine (_ ,, _).
-      * exact (lam_partial_setoid φ).
-      * exact (lam_partial_setoid_comm φ).
-    + abstract
-        (intros ψ ;
-         induction ψ as [ ψ p ] ;
-         use subtypePath ; [ intro ; apply homset_property | ] ; cbn ;
-         exact (lam_partial_setoid_unique φ ψ p)).
+  apply right_adjoint_weq_coreflections.
+  intro Y.
+  use make_coreflection'.
+  - exact (exp_partial_setoid X Y).
+  - exact (eval_partial_setoid X Y).
+  - intro φ.
+    use make_coreflection_arrow.
+    + exact (lam_partial_setoid (coreflection_data_arrow φ)).
+    + exact (lam_partial_setoid_comm (coreflection_data_arrow φ)).
+    + exact (lam_partial_setoid_unique (coreflection_data_arrow φ)).
 Defined.
