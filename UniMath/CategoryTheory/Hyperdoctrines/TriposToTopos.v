@@ -65,7 +65,7 @@ Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.PowerObject.
 Require Import UniMath.CategoryTheory.ElementaryTopos.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.

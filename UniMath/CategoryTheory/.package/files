@@ -43,6 +43,8 @@ SplitMonicsAndEpis.v
 HomotopicalCategory.v
 Adjunctions/Core.v
 Adjunctions/AdjunctionMonics.v
+Adjunctions/Reflections.v
+Adjunctions/Coreflections.v
 Monads/RelativeMonads.v
 Monads/RelMonads_Coreflection.v
 Monads/RelativeModules.v
@@ -247,7 +249,10 @@ WeakEquivalences/Preservation/NNO.v
 RezkCompletions/RezkCompletions.v
 RezkCompletions/Construction.v
 
-exponentials.v
+Exponentials.v
+WeakEquivalences/Preservation/Exponentials.v
+WeakEquivalences/Reflection/Exponentials.v
+WeakEquivalences/LiftPreservation/Exponentials.v
 slicecat.v
 Limits/PullbacksSliceProductsEquiv.v
 Additive.v
@@ -294,6 +299,7 @@ Categories/Ring.v
 Categories/Commring.v
 Categories/Intdom.v
 Categories/Fld.v
+Categories/ModuleCore.v
 Categories/Module.v
 Categories/StandardCategories.v
 Categories/PreorderCategory/Core.v

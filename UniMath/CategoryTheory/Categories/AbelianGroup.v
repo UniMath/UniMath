@@ -287,6 +287,18 @@ Defined.
 
 Definition abgr_Additive : CategoryWithAdditiveStructure := make_Additive abgr_PreAdditive abgr_AdditiveStructure.
 
+Definition abgr_AdditiveCategory
+  : AdditiveCategory.
+Proof.
+  exists abgr_PreAdditive.
+  split.
+  - apply hinhpr.
+    exact (Additive.to_Zero abgr_Additive).
+  - do 2 intro.
+    apply hinhpr.
+    apply (to_BinDirectSums abgr_Additive).
+Defined.
+
 (** * 3. Kernels and Cokernels *)
 (** ** 3.1. Kernels *)
 
