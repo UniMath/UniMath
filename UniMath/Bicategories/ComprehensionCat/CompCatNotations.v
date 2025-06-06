@@ -2,20 +2,23 @@
 
  Notations for comprehension categories
 
- We define a bunch of notations and nicer accessors for comprehension categories and their
- functors. We also define terms (i.e., sections of projections), and we define several
- operations of terms.
+ We define a bunch of notations and nicer accessors for comprehension categories, their
+ functors, and natural transformations. We also define terms (i.e., sections of projections),
+ and we define several operations of terms.
 
- Note that we consider coercions. Morphisms between types represent a (proof relevant)
- subtyping
+ In this development we consider the internal language of comprehension categories. We develop
+ this in the generality of comprehension categories that are not necessarily full. For this
+ reason, we consider coercions between types. In a comprehension category, there is a notion
+ of morphism between types, and this notion gives us a (proof relevant) subtyping relation.
 
  Contents
  1. Notations and accessors for comprehension categories
- 2. Notations and accessors for functors of comprehension categories
- 3. Terms in comprehension categories
- 4. Coercion of terms
- 5. Substitution and coherence
- 6. Variable rule
+ 2. Terms in comprehension categories
+ 3. Coercion of terms
+ 4. Substitution and coherence
+ 5. Variable rule
+ 6. Notations and accessors for functors of comprehension categories
+ 7. Notations and accessors for natural transformations of comprehension categories
 
  *******************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -25,6 +28,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
@@ -285,81 +289,96 @@ Proof.
   apply idpath.
 Qed.
 
-(** * 2. Notations and accessors for functors of comprehension categories *)
-Definition comp_cat_functor_empty_context_isTerminal
-           {C₁ C₂ : comp_cat}
-           (F : comp_cat_functor C₁ C₂)
-  : isTerminal _ (F [])
-  := comp_cat_functor_terminal F _ (pr2 []).
-
-Definition comp_cat_functor_empty_context
-           {C₁ C₂ : comp_cat}
-           (F : comp_cat_functor C₁ C₂)
-  : Terminal C₂.
+Definition subst_ty_iso
+           {C : comp_cat}
+           {Γ Δ Δ' : C}
+           (s : Γ --> Δ)
+           {A : ty Δ}
+           {B : ty Δ'}
+           (f : z_iso Δ Δ')
+           (ff : z_iso_disp f A B)
+  : z_iso_disp
+      (identity_z_iso _)
+      (A [[ s ]])
+      (B [[ s · f ]]).
 Proof.
-  use make_Terminal.
-  - exact (F []).
-  - exact (comp_cat_functor_empty_context_isTerminal F).
+  use make_z_iso_disp.
+  - use (cartesian_factorisation (cleaving_of_types C _ _ (s · f) B)).
+    exact (transportf
+             (λ z, _ -->[ z ] _)
+             (!(id_left _))
+             (comp_cat_subst A s ;; ff)%mor_disp).
+  - simple refine (_ ,, _ ,, _).
+    + use (cartesian_factorisation (cleaving_of_types C _ _ s A)).
+      refine (transportf
+                (λ z, _ -->[ z ] _)
+                _
+                (comp_cat_subst B (s · f) ;; inv_mor_disp_from_z_iso ff)%mor_disp).
+      abstract
+        (cbn ;
+         rewrite !assoc' ;
+         rewrite z_iso_inv_after_z_iso ;
+         rewrite id_left, id_right ;
+         apply idpath).
+    + abstract
+        (use (cartesian_factorisation_unique (cleaving_of_types C _ _ (s · f) B)) ;
+         unfold transportb ;
+         rewrite mor_disp_transportf_postwhisker ;
+         rewrite id_left_disp ;
+         unfold transportb ;
+         rewrite transport_f_f ;
+         rewrite assoc_disp_var ;
+         rewrite cartesian_factorisation_commutes ;
+         rewrite mor_disp_transportf_prewhisker ;
+         rewrite transport_f_f ;
+         unfold comp_cat_subst ;
+         rewrite assoc_disp ;
+         unfold transportb ;
+         rewrite transport_f_f ;
+         rewrite cartesian_factorisation_commutes ;
+         rewrite mor_disp_transportf_postwhisker ;
+         rewrite transport_f_f ;
+         rewrite assoc_disp_var ;
+         rewrite z_iso_disp_after_inv_mor ;
+         unfold transportb ;
+         rewrite mor_disp_transportf_prewhisker ;
+         rewrite !transport_f_f ;
+         rewrite id_right_disp ;
+         unfold transportb ;
+         rewrite transport_f_f ;
+         apply maponpaths_2 ;
+         apply homset_property).
+    + abstract
+        (use (cartesian_factorisation_unique (cleaving_of_types C _ _ s A)) ;
+         unfold transportb ;
+         rewrite mor_disp_transportf_postwhisker ;
+         rewrite id_left_disp ;
+         unfold transportb ;
+         rewrite transport_f_f ;
+         rewrite assoc_disp_var ;
+         rewrite (cartesian_factorisation_commutes (cleaving_of_types C Δ Γ s A)) ;
+         rewrite mor_disp_transportf_prewhisker ;
+         rewrite transport_f_f ;
+         unfold comp_cat_subst ;
+         rewrite assoc_disp ;
+         unfold transportb ;
+         rewrite transport_f_f ;
+         rewrite cartesian_factorisation_commutes ;
+         rewrite mor_disp_transportf_postwhisker ;
+         rewrite transport_f_f ;
+         rewrite assoc_disp_var ;
+         rewrite inv_mor_after_z_iso_disp ;
+         unfold transportb ;
+         rewrite mor_disp_transportf_prewhisker ;
+         rewrite !transport_f_f ;
+         rewrite id_right_disp ;
+         unfold transportb ;
+         rewrite transport_f_f ;
+         apply maponpaths_2 ;
+         apply homset_property).
 Defined.
 
-Definition comp_cat_functor_empty_context_arrow
-           {C₁ C₂ : comp_cat}
-           (F : comp_cat_functor C₁ C₂)
-           (Γ : C₂)
-  : Γ --> F []
-  := TerminalArrow (comp_cat_functor_empty_context F) Γ.
-
-Proposition comp_cat_functor_empty_context_arrow_eq
-            {C₁ C₂ : comp_cat}
-            (F : comp_cat_functor C₁ C₂)
-            {Γ : C₂}
-            (f g : Γ --> F [])
-  : f = g.
-Proof.
-  exact (TerminalArrowEq (T := comp_cat_functor_empty_context F) f g).
-Qed.
-
-Definition comp_cat_functor_empty_context_is_z_iso
-           {C₁ C₂ : comp_cat}
-           (F : comp_cat_functor C₁ C₂)
-  : is_z_isomorphism (TerminalArrow [] (F [])).
-Proof.
-  use make_is_z_isomorphism.
-  - exact (comp_cat_functor_empty_context_arrow F []).
-  - split.
-    + use comp_cat_functor_empty_context_arrow_eq.
-    + use TerminalArrowEq.
-Defined.
-
-Definition comp_cat_functor_empty_context_z_iso
-           {C₁ C₂ : comp_cat}
-           (F : comp_cat_functor C₁ C₂)
-  : z_iso (F []) []
-  := _ ,, comp_cat_functor_empty_context_is_z_iso F.
-
-Definition comp_cat_functor_extension
-           {C₁ C₂ : full_comp_cat}
-           (F : full_comp_cat_functor C₁ C₂)
-           (Γ : C₁)
-           (A : ty Γ)
-  : z_iso (F(Γ & A)) (F Γ & comp_cat_type_functor F Γ A).
-Proof.
-  refine (comprehension_nat_trans_mor (comp_cat_functor_comprehension F) A ,, _).
-  apply (full_comp_cat_functor_is_z_iso F).
-Defined.
-
-Definition comp_cat_functor_extension_mor
-           {C₁ C₂ : comp_cat}
-           (F : comp_cat_functor C₁ C₂)
-           {Γ : C₁}
-           {A₁ A₂ : ty Γ}
-           (f : A₁ -->[ identity _ ] A₂)
-  : F Γ & comp_cat_type_functor F Γ A₁ --> F Γ & comp_cat_type_functor F Γ A₂
-  := comprehension_functor_mor
-       (comp_cat_comprehension C₂)
-       ((♯ (comp_cat_type_functor F) f)%mor_disp).
-
-(** * 3. Terms in comprehension categories *)
+(** * 2. Terms in comprehension categories *)
 Definition comp_cat_tm
            {C : comp_cat}
            (Γ : C)
@@ -562,7 +581,7 @@ Proof.
   apply (PullbackArrow_PullbackPr2 (comp_cat_pullback A s)).
 Qed.
 
-(** * 4. Coercion of terms *)
+(** * 3. Coercion of terms *)
 Definition coerce_comp_cat_tm
            {C : comp_cat}
            {Γ : C}
@@ -612,8 +631,8 @@ Proof.
   apply comp_cat_comp_mor_comp.
 Qed.
 
-(** * 5. Substitution and coherence *)
-Definition id_subst_ty
+(** * 4. Substitution and coherence *)
+Definition id_subst_ty_iso
            {C : comp_cat}
            {Γ : C}
            (A : ty Γ)
@@ -624,7 +643,21 @@ Proof.
            A).
 Defined.
 
-Definition comp_subst_ty
+Definition id_subst_ty
+           {C : comp_cat}
+           {Γ : C}
+           (A : ty Γ)
+  : A <: A [[ identity _ ]]
+  := (id_subst_ty_iso A : _ --> _).
+
+Definition id_subst_ty_inv
+           {C : comp_cat}
+           {Γ : C}
+           (A : ty Γ)
+  : A [[ identity _ ]] <: A
+  := inv_from_z_iso (id_subst_ty_iso A).
+
+Definition comp_subst_ty_iso
            {C : comp_cat}
            {Γ₁ Γ₂ Γ₃ : C}
            (s₁ : Γ₁ --> Γ₂)
@@ -640,7 +673,25 @@ Proof.
            A).
 Defined.
 
-Definition eq_subst_ty
+Definition comp_subst_ty
+           {C : comp_cat}
+           {Γ₁ Γ₂ Γ₃ : C}
+           (s₁ : Γ₁ --> Γ₂)
+           (s₂ : Γ₂ --> Γ₃)
+           (A : ty Γ₃)
+  : A [[ s₂ ]] [[ s₁ ]] <: A [[ s₁ · s₂ ]]
+  := (comp_subst_ty_iso s₁ s₂ A : _ --> _).
+
+Definition comp_subst_ty_inv
+           {C : comp_cat}
+           {Γ₁ Γ₂ Γ₃ : C}
+           (s₁ : Γ₁ --> Γ₂)
+           (s₂ : Γ₂ --> Γ₃)
+           (A : ty Γ₃)
+  : A [[ s₁ · s₂ ]] <: A [[ s₂ ]] [[ s₁ ]]
+  := inv_from_z_iso (comp_subst_ty_iso s₁ s₂ A).
+
+Definition eq_subst_ty_iso
            {C : comp_cat}
            {Γ₁ Γ₂ : C}
            {s₁ s₂ : Γ₁ --> Γ₂}
@@ -653,13 +704,77 @@ Proof.
            A).
 Defined.
 
+Definition eq_subst_ty
+           {C : comp_cat}
+           {Γ₁ Γ₂ : C}
+           {s₁ s₂ : Γ₁ --> Γ₂}
+           (A : ty Γ₂)
+           (p : s₁ = s₂)
+  : A [[ s₁ ]] <: A [[ s₂ ]]
+  := (eq_subst_ty_iso A p : _ --> _).
+
+Definition subst_ty_eq_disp_iso
+           {C : comp_cat}
+           {Γ Δ : C}
+           {s s' : Γ --> Δ}
+           (A : ty Δ)
+           (p : s = s')
+  : z_iso_disp
+      (identity_z_iso _)
+      (A [[ s ]])
+      (A [[ s' ]]).
+Proof.
+  use z_iso_disp_from_z_iso_fiber.
+  exact (eq_subst_ty_iso A p).
+Defined.
+
+Proposition subst_ty_eq_disp_iso_comm
+            {C : comp_cat}
+            {Γ Δ : C}
+            {s s' : Γ --> Δ}
+            (p : s = s')
+            (A : ty Δ)
+  : (subst_ty_eq_disp_iso A p ;; cleaving_of_types C Δ Γ s' A)%mor_disp
+    =
+    transportf (λ z, _ -->[ z ] _) (p @ !(id_left _)) (cleaving_of_types C Δ Γ s A).
+Proof.
+  induction p ; cbn.
+  rewrite id_left_disp.
+  apply idpath.
+Qed.
+
+Proposition subst_ty_eq_disp_iso_inv_comm
+            {C : comp_cat}
+            {Γ Δ : C}
+            {s s' : Γ --> Δ}
+            (p : s' = s)
+            (A : ty Δ)
+  : (inv_mor_disp_from_z_iso (subst_ty_eq_disp_iso A p)
+     ;; cleaving_of_types C Δ Γ s' A)%mor_disp
+    =
+    transportf (λ z, _ -->[ z ] _) (!p @ !(id_left _)) (cleaving_of_types C Δ Γ s A).
+Proof.
+  induction p ; cbn.
+  rewrite id_left_disp.
+  apply idpath.
+Qed.
+
+Definition eq_subst_ty_inv
+           {C : comp_cat}
+           {Γ₁ Γ₂ : C}
+           {s₁ s₂ : Γ₁ --> Γ₂}
+           (A : ty Γ₂)
+           (p : s₁ = s₂)
+  : A [[ s₂ ]] <: A [[ s₁ ]]
+  := inv_from_z_iso (eq_subst_ty_iso A p).
+
 Proposition eq_subst_ty_idpath
             {C : comp_cat}
             {Γ₁ Γ₂ : C}
             {s : Γ₁ --> Γ₂}
             (A : ty Γ₂)
             (p : s = s)
-  : (eq_subst_ty A p : _ --> _) = identity _.
+  : eq_subst_ty A p = identity _.
 Proof.
   assert (p = idpath _) as ->.
   {
@@ -689,7 +804,7 @@ Proposition eq_subst_ty_eq
             {s₁ s₂ : Γ₁ --> Γ₂}
             (A : ty Γ₂)
             (p q : s₁ = s₂)
-  : (eq_subst_ty A p : _ --> _) = eq_subst_ty A q.
+  : eq_subst_ty A p = eq_subst_ty A q.
 Proof.
   assert (p = q) as ->.
   {
@@ -704,7 +819,7 @@ Definition coerce_subst_ty
            (s : Γ₁ --> Γ₂)
            {A B : ty Γ₂}
            (f : A <: B)
-  : (fiber_category _ _) ⟦ A [[ s ]] , B [[ s ]] ⟧
+  : A [[ s ]] <: B [[ s ]]
   := #(fiber_functor_from_cleaving _ (cleaving_of_types C) s) f.
 
 Proposition id_coerce_subst_ty
@@ -736,7 +851,7 @@ Proposition id_right_subst_ty
             {Γ₁ Γ₂ : C}
             (s : Γ₁ --> Γ₂)
             (A : ty Γ₂)
-  : coerce_subst_ty s (id_subst_ty A : _ --> _)
+  : coerce_subst_ty s (id_subst_ty A)
     · comp_subst_ty s (identity _) A
     · eq_subst_ty A (id_right _)
     =
@@ -770,7 +885,7 @@ Proposition assoc'_subst_ty
     · comp_subst_ty (s₁ · s₂) s₃ A
     · eq_subst_ty A (assoc' _ _ _)
     =
-    coerce_subst_ty s₁ (comp_subst_ty s₂ s₃ A : _ --> _)
+    coerce_subst_ty s₁ (comp_subst_ty s₂ s₃ A)
     · comp_subst_ty s₁ (s₂ · s₃) A.
 Proof.
   exact (indexed_cat_lassociator (cleaving_to_indexed_cat _ (cleaving_of_types C)) _ _ _ _).
@@ -786,7 +901,7 @@ Proposition assoc_subst_ty
   : comp_subst_ty s₁ s₂ (A [[ s₃ ]])
     · comp_subst_ty (s₁ · s₂) s₃ A
     =
-    coerce_subst_ty s₁ (comp_subst_ty s₂ s₃ A : _ --> _)
+    coerce_subst_ty s₁ (comp_subst_ty s₂ s₃ A)
     · comp_subst_ty s₁ (s₂ · s₃) A
     · eq_subst_ty A (assoc _ _ _).
 Proof.
@@ -805,7 +920,7 @@ Proposition coerce_comp_subst_ty
             (s₂ s₂' : Γ₂ --> Γ₃)
             (p : s₂' = s₂)
             (A : ty Γ₃)
-  : coerce_subst_ty s₁ (eq_subst_ty _ p : _ --> _) · comp_subst_ty _ s₂ A
+  : coerce_subst_ty s₁ (eq_subst_ty _ p) · comp_subst_ty _ s₂ A
     =
     comp_subst_ty _ _ A · eq_subst_ty _ (maponpaths (λ z, _ · z) p).
 Proof.
@@ -822,7 +937,7 @@ Proposition id_sub_comp_cat_tm
             (t : tm Γ A)
   : t [[ identity _ ]]tm
     =
-    t ↑ (id_subst_ty A : _ --> _).
+    t ↑ (id_subst_ty A).
 Proof.
   use eq_comp_cat_tm ; cbn.
   refine (!_).
@@ -858,7 +973,7 @@ Proposition comp_sub_comp_cat_tm
             (t : tm Γ₃ A)
   : t [[ s₁ · s₂ ]]tm
     =
-    t [[ s₂ ]]tm [[ s₁ ]]tm ↑ (comp_subst_ty s₁ s₂ A : _ --> _).
+    t [[ s₂ ]]tm [[ s₁ ]]tm ↑ (comp_subst_ty s₁ s₂ A).
 Proof.
   use eq_comp_cat_tm ; cbn.
   refine (!_).
@@ -942,7 +1057,7 @@ Proof.
     apply (PullbackArrow_PullbackPr2 (comp_cat_pullback A₁ s)).
 Qed.
 
-(** * 6. Variable rule *)
+(** * 5. Variable rule *)
 Definition comp_cat_tm_var
            {C : comp_cat}
            (Γ : C)
@@ -968,7 +1083,7 @@ Definition subst_comp_cat_tm_var_coerce
            (t : tm Δ (A [[ s ]]))
   : A [[s]] <: (A [[ π A ]]) [[ sub_to_extension s t ]].
 Proof.
-  refine (eq_subst_ty _ _ · inv_from_z_iso (comp_subst_ty _ _ _)).
+  refine (eq_subst_ty _ _ · comp_subst_ty_inv _ _ _).
   apply sub_to_extension_pr.
 Defined.
 
@@ -1097,5 +1212,603 @@ Proof.
       apply maponpaths.
       apply comp_cat_comp_mor_comm.
     }
+    apply comp_cat_tm_eq.
+Qed.
+
+(** * 6. Notations and accessors for functors of comprehension categories *)
+Definition comp_cat_functor_empty_context_isTerminal
+           {C₁ C₂ : comp_cat}
+           (F : comp_cat_functor C₁ C₂)
+  : isTerminal _ (F [])
+  := comp_cat_functor_terminal F _ (pr2 []).
+
+Definition comp_cat_functor_empty_context
+           {C₁ C₂ : comp_cat}
+           (F : comp_cat_functor C₁ C₂)
+  : Terminal C₂.
+Proof.
+  use make_Terminal.
+  - exact (F []).
+  - exact (comp_cat_functor_empty_context_isTerminal F).
+Defined.
+
+Definition comp_cat_functor_empty_context_arrow
+           {C₁ C₂ : comp_cat}
+           (F : comp_cat_functor C₁ C₂)
+           (Γ : C₂)
+  : Γ --> F []
+  := TerminalArrow (comp_cat_functor_empty_context F) Γ.
+
+Proposition comp_cat_functor_empty_context_arrow_eq
+            {C₁ C₂ : comp_cat}
+            (F : comp_cat_functor C₁ C₂)
+            {Γ : C₂}
+            (f g : Γ --> F [])
+  : f = g.
+Proof.
+  exact (TerminalArrowEq (T := comp_cat_functor_empty_context F) f g).
+Qed.
+
+Definition comp_cat_functor_empty_context_is_z_iso
+           {C₁ C₂ : comp_cat}
+           (F : comp_cat_functor C₁ C₂)
+  : is_z_isomorphism (TerminalArrow [] (F [])).
+Proof.
+  use make_is_z_isomorphism.
+  - exact (comp_cat_functor_empty_context_arrow F []).
+  - split.
+    + use comp_cat_functor_empty_context_arrow_eq.
+    + use TerminalArrowEq.
+Defined.
+
+Definition comp_cat_functor_empty_context_z_iso
+           {C₁ C₂ : comp_cat}
+           (F : comp_cat_functor C₁ C₂)
+  : z_iso (F []) []
+  := _ ,, comp_cat_functor_empty_context_is_z_iso F.
+
+Definition comp_cat_functor_extension
+           {C₁ C₂ : full_comp_cat}
+           (F : full_comp_cat_functor C₁ C₂)
+           (Γ : C₁)
+           (A : ty Γ)
+  : z_iso (F(Γ & A)) (F Γ & comp_cat_type_functor F Γ A).
+Proof.
+  refine (comprehension_nat_trans_mor (comp_cat_functor_comprehension F) A ,, _).
+  apply (full_comp_cat_functor_is_z_iso F).
+Defined.
+
+Definition comp_cat_functor_extension_mor
+           {C₁ C₂ : comp_cat}
+           (F : comp_cat_functor C₁ C₂)
+           {Γ : C₁}
+           {A₁ A₂ : ty Γ}
+           (f : A₁ -->[ identity _ ] A₂)
+  : F Γ & comp_cat_type_functor F Γ A₁ --> F Γ & comp_cat_type_functor F Γ A₂
+  := comprehension_functor_mor
+       (comp_cat_comprehension C₂)
+       ((♯ (comp_cat_type_functor F) f)%mor_disp).
+
+Definition comp_cat_functor_subst_ty
+           {C₁ C₂ : comp_cat}
+           (F : comp_cat_functor C₁ C₂)
+           {Γ Δ : C₁}
+           (s : Γ --> Δ)
+           (A : ty Δ)
+  : z_iso_disp
+      (identity_z_iso _)
+      (comp_cat_type_functor F _ (A [[ s ]]))
+      ((comp_cat_type_functor F _ A) [[ #F s ]]).
+Proof.
+  apply (cartesian_disp_functor_disp_z_iso
+           (cartesian_comp_cat_type_functor F)).
+Defined.
+
+Definition comp_cat_functor_subst_ty_z_iso
+           {C₁ C₂ : comp_cat}
+           (F : comp_cat_functor C₁ C₂)
+           {Γ Δ : C₁}
+           (s : Γ --> Δ)
+           (A : ty Δ)
+  : z_iso
+      (C := fiber_category _ _)
+      (comp_cat_type_functor F _ (A [[ s ]]))
+      ((comp_cat_type_functor F _ A) [[ #F s ]]).
+Proof.
+  use z_iso_fiber_from_z_iso_disp.
+  exact (comp_cat_functor_subst_ty F s A).
+Defined.
+
+Definition comp_cat_functor_subst_ty_coe
+           {C₁ C₂ : comp_cat}
+           (F : comp_cat_functor C₁ C₂)
+           {Γ Δ : C₁}
+           (s : Γ --> Δ)
+           (A : ty Δ)
+  : comp_cat_type_functor F _ (A [[ s ]]) <: (comp_cat_type_functor F _ A) [[ #F s ]]
+  := (comp_cat_functor_subst_ty_z_iso F s A : _ --> _).
+
+Definition comp_cat_functor_subst_ty_inv_coe
+           {C₁ C₂ : comp_cat}
+           (F : comp_cat_functor C₁ C₂)
+           {Γ Δ : C₁}
+           (s : Γ --> Δ)
+           (A : ty Δ)
+  : (comp_cat_type_functor F _ A) [[ #F s ]] <: comp_cat_type_functor F _ (A [[ s ]])
+  := inv_from_z_iso (comp_cat_functor_subst_ty_z_iso F s A).
+
+Definition comp_cat_functor_tm
+           {C₁ C₂ : comp_cat}
+           (F : comp_cat_functor C₁ C₂)
+           {Γ : C₁}
+           {A : ty Γ}
+           (t : tm Γ A)
+  : tm (F Γ) (comp_cat_type_functor F _ A).
+Proof.
+  use make_comp_cat_tm.
+  - exact (#F t · comprehension_nat_trans_mor (comp_cat_functor_comprehension F) A).
+  - abstract
+      (rewrite assoc' ;
+       refine (maponpaths (λ z, _ · z) (comprehension_nat_trans_mor_comm _ _ _) @ _) ;
+       rewrite <- functor_comp ;
+       rewrite <- functor_id ;
+       apply maponpaths ;
+       apply comp_cat_tm_eq).
+Defined.
+
+Proposition id_comp_cat_functor_tm
+            {C : comp_cat}
+            {Γ : C}
+            {A : ty Γ}
+            (t : tm Γ A)
+  : comp_cat_functor_tm (identity C) t = t.
+Proof.
+  use eq_comp_cat_tm ; cbn.
+  apply id_right.
+Qed.
+
+Definition comp_comp_cat_functor_tm
+           {C₁ C₂ C₃ : comp_cat}
+           (F : comp_cat_functor C₁ C₂)
+           (G : comp_cat_functor C₂ C₃)
+           {Γ : C₁}
+           {A : ty Γ}
+           (t : tm Γ A)
+  : comp_cat_functor_tm (F · G) t
+    =
+    comp_cat_functor_tm G (comp_cat_functor_tm F t).
+Proof.
+  use eq_comp_cat_tm ; cbn.
+  rewrite !assoc.
+  rewrite functor_comp.
+  apply idpath.
+Qed.
+
+Definition comp_cat_functor_coerce
+           {C₁ C₂ : comp_cat}
+           (F : comp_cat_functor C₁ C₂)
+           {Γ : C₁}
+           {A B : ty Γ}
+           (s : A <: B)
+  : comp_cat_type_functor F Γ A <: comp_cat_type_functor F Γ B
+  := #(fiber_functor (comp_cat_type_functor F) Γ) s.
+
+Proposition comp_cat_functor_coerce_on_id
+            {C₁ C₂ : comp_cat}
+            (F : comp_cat_functor C₁ C₂)
+            {Γ : C₁}
+            (A : ty Γ)
+  : comp_cat_functor_coerce F (identity (C := fiber_category _ _) A) = identity _.
+Proof.
+  apply (functor_id (fiber_functor (comp_cat_type_functor F) Γ)).
+Qed.
+
+Proposition comp_cat_functor_coerce_on_comp
+            {C₁ C₂ : comp_cat}
+            (F : comp_cat_functor C₁ C₂)
+            {Γ : C₁}
+            {A₁ A₂ A₃ : ty Γ}
+            (s₁ : A₁ <: A₂)
+            (s₂ : A₂ <: A₃)
+  : comp_cat_functor_coerce F (s₁ · s₂)
+    =
+    comp_cat_functor_coerce F s₁ · comp_cat_functor_coerce F s₂.
+Proof.
+  apply (functor_comp (fiber_functor (comp_cat_type_functor F) Γ)).
+Qed.
+
+Proposition comp_cat_functor_coerce_tm
+            {C₁ C₂ : comp_cat}
+            (F : comp_cat_functor C₁ C₂)
+            {Γ : C₁}
+            {A B : ty Γ}
+            (s : A <: B)
+            (t : tm Γ A)
+  : comp_cat_functor_tm F (t ↑ s)
+    =
+    comp_cat_functor_tm F t ↑ comp_cat_functor_coerce F s.
+Proof.
+  use eq_comp_cat_tm ; cbn.
+  rewrite functor_comp.
+  rewrite !assoc'.
+  apply maponpaths.
+  unfold comp_cat_comp_mor.
+  rewrite comprehension_functor_mor_transportf.
+  apply comprehension_nat_trans_comm.
+Qed.
+
+Proposition comp_cat_functor_subst_tm
+            {C₁ C₂ : comp_cat}
+            (F : comp_cat_functor C₁ C₂)
+            {Γ Δ : C₁}
+            {A : ty Δ}
+            (s : Γ --> Δ)
+            (t : tm Δ A)
+  : comp_cat_functor_tm F (t [[ s ]]tm) ↑ (comp_cat_functor_subst_ty_coe F s A)
+    =
+    comp_cat_functor_tm F t [[ #F s ]]tm.
+Proof.
+  use eq_comp_cat_tm.
+  use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback _ _))).
+  - cbn ; unfold comp_cat_comp_mor.
+    etrans.
+    {
+      rewrite !assoc'.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        refine (!_).
+        apply comprehension_functor_mor_comp.
+      }
+      etrans.
+      {
+        do 3 apply maponpaths.
+        apply cartesian_factorisation_commutes.
+      }
+      rewrite comprehension_functor_mor_transportf.
+      etrans.
+      {
+        apply maponpaths.
+        refine (!_).
+        apply comprehension_nat_trans_comm.
+      }
+      rewrite !assoc.
+      rewrite <- functor_comp.
+      apply maponpaths_2.
+      apply maponpaths.
+      apply (PullbackArrow_PullbackPr1 (comp_cat_pullback A s)).
+    }
+    rewrite functor_comp.
+    rewrite assoc'.
+    apply idpath.
+  - cbn ; unfold comp_cat_comp_mor.
+    etrans.
+    {
+      rewrite !assoc'.
+      etrans.
+      {
+        do 2 apply maponpaths.
+        apply comprehension_functor_mor_comm.
+      }
+      rewrite id_right.
+      etrans.
+      {
+        apply maponpaths.
+        apply comprehension_nat_trans_mor_comm.
+      }
+      rewrite <- functor_comp.
+      apply maponpaths.
+      apply (PullbackArrow_PullbackPr2 (comp_cat_pullback A s)).
+    }
+    apply functor_id.
+Qed.
+
+Proposition comp_cat_functor_subst_tm_alt
+            {C₁ C₂ : comp_cat}
+            (F : comp_cat_functor C₁ C₂)
+            {Γ Δ : C₁}
+            {A : ty Δ}
+            (s : Γ --> Δ)
+            (t : tm Δ A)
+  : comp_cat_functor_tm F (t [[ s ]]tm)
+    =
+    comp_cat_functor_tm F t [[ #F s ]]tm ↑ (comp_cat_functor_subst_ty_inv_coe F s A).
+Proof.
+  rewrite <- comp_cat_functor_subst_tm.
+  rewrite comp_coerce_comp_cat_tm.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths_2.
+    apply z_iso_inv_after_z_iso.
+  }
+  apply id_coerce_comp_cat_tm.
+Qed.
+
+Proposition id_comp_cat_functor_coerce
+            {C : comp_cat}
+            {Γ : C}
+            {A B : ty Γ}
+            (s : A <: B)
+  : comp_cat_functor_coerce (identity C) s = s.
+Proof.
+  apply idpath.
+Qed.
+
+Proposition id_comp_cat_functor_subst_ty_coe
+            {C : comp_cat}
+            {Γ Δ : C}
+            (s : Γ --> Δ)
+            (A : ty Δ)
+  : comp_cat_functor_subst_ty_coe (identity C) s A = identity _.
+Proof.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  cbn ; unfold fiber_functor_natural_inv ; cbn.
+  rewrite cartesian_factorisation_commutes.
+  rewrite id_left_disp.
+  unfold transportb.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+Proposition comp_comp_cat_functor_coerce
+            {C₁ C₂ C₃ : comp_cat}
+            (F : comp_cat_functor C₁ C₂)
+            (G : comp_cat_functor C₂ C₃)
+            {Γ : C₁}
+            {A B : ty Γ}
+            (s : A <: B)
+  : comp_cat_functor_coerce (F · G) s
+    =
+    comp_cat_functor_coerce G (comp_cat_functor_coerce F s).
+Proof.
+  cbn.
+  rewrite disp_functor_transportf.
+  rewrite transport_f_f.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+Proposition comp_comp_cat_functor_subst_ty_coe
+            {C₁ C₂ C₃ : comp_cat}
+            (F : comp_cat_functor C₁ C₂)
+            (G : comp_cat_functor C₂ C₃)
+            {Γ Δ : C₁}
+            (s : Γ --> Δ)
+            (A : ty Δ)
+  : comp_cat_functor_subst_ty_coe (F · G) s A
+    =
+    comp_cat_functor_coerce G (comp_cat_functor_subst_ty_coe F s A)
+    · comp_cat_functor_subst_ty_coe G (#F s) (comp_cat_type_functor F Δ A).
+Proof.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)) ; cbn.
+  unfold fiber_functor_natural_inv.
+  rewrite cartesian_factorisation_commutes.
+  rewrite !mor_disp_transportf_postwhisker.
+  rewrite !transport_f_f.
+  rewrite assoc_disp_var.
+  rewrite transport_f_f.
+  rewrite cartesian_factorisation_commutes.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite transport_f_f.
+  rewrite <- disp_functor_comp_var.
+  rewrite transport_f_f.
+  rewrite cartesian_factorisation_commutes.
+  rewrite disp_functor_transportf.
+  rewrite transport_f_f.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+Definition comp_cat_functor_subst_ty_natural
+           {C₁ C₂ : comp_cat}
+           (F : comp_cat_functor C₁ C₂)
+           {Γ Δ : C₁}
+           (s : Γ --> Δ)
+           {A B : ty Δ}
+           (f : A <: B)
+  : comp_cat_functor_coerce F (coerce_subst_ty s f)
+    · comp_cat_functor_subst_ty_coe F s B
+    =
+    comp_cat_functor_subst_ty_coe F s A
+    · coerce_subst_ty (#F s) (comp_cat_functor_coerce F f).
+Proof.
+  cbn.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  rewrite !mor_disp_transportf_postwhisker.
+  rewrite !assoc_disp_var.
+  rewrite !transport_f_f.
+  unfold fiber_functor_natural_inv.
+  rewrite !cartesian_factorisation_commutes.
+  rewrite !mor_disp_transportf_prewhisker.
+  rewrite !transport_f_f.
+  rewrite assoc_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  rewrite cartesian_factorisation_commutes.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  rewrite <- !disp_functor_comp_var.
+  rewrite transport_f_f.
+  rewrite cartesian_factorisation_commutes.
+  rewrite disp_functor_transportf.
+  rewrite !transport_f_f.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+(** * 7. Notations and accessors for natural transformations of comprehension categories *)
+Proposition comp_cat_nat_trans_subst_path
+            {C₁ C₂ : comp_cat}
+            {F G : comp_cat_functor C₁ C₂}
+            (τ : comp_cat_nat_trans F G)
+            {Γ Δ : C₁}
+            (s : Γ --> Δ)
+  : identity (F Γ) · # F s · τ Δ = τ Γ · identity (G Γ) · # G s.
+Proof.
+  rewrite id_left, id_right.
+  exact (nat_trans_ax τ _ _ s).
+Qed.
+
+Proposition comp_cat_nat_trans_subst
+            {C₁ C₂ : comp_cat}
+            {F G : comp_cat_functor C₁ C₂}
+            (τ : comp_cat_nat_trans F G)
+            {Γ Δ : C₁}
+            (s : Γ --> Δ)
+            (A : ty Δ)
+  : (comp_cat_type_nat_trans τ Γ (A [[ s ]])
+     ;; comp_cat_functor_subst_ty_coe G s A
+     ;; comp_cat_subst _ _)%mor_disp
+    =
+    transportf
+      (λ z, _ -->[ z ] _)
+      (comp_cat_nat_trans_subst_path τ s)
+      (comp_cat_functor_subst_ty_coe F s A
+       ;; comp_cat_subst _ _
+       ;; comp_cat_type_nat_trans τ Δ A)%mor_disp.
+Proof.
+  cbn.
+  unfold fiber_functor_natural_inv.
+  rewrite cartesian_factorisation_commutes.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  rewrite assoc_disp_var.
+  rewrite cartesian_factorisation_commutes.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite transport_f_f.
+  etrans.
+  {
+    apply maponpaths.
+    apply (disp_nat_trans_ax_var (comp_cat_type_nat_trans τ) (cleaving_of_types _ _ _ _ _)).
+  }
+  rewrite transport_f_f.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+Proposition comp_cat_nat_trans_subst_alt
+            {C₁ C₂ : comp_cat}
+            {F G : comp_cat_functor C₁ C₂}
+            (τ : comp_cat_nat_trans F G)
+            {Γ Δ : C₁}
+            (s : Γ --> Δ)
+            (A : ty Δ)
+  : (comp_cat_functor_subst_ty_coe F s A
+     ;; comp_cat_subst _ _
+     ;; comp_cat_type_nat_trans τ Δ A)%mor_disp
+    =
+    transportf
+      (λ z, _ -->[ z ] _)
+      (!(comp_cat_nat_trans_subst_path τ s))
+      (comp_cat_type_nat_trans τ Γ (A [[ s ]])
+       ;; comp_cat_functor_subst_ty_coe G s A
+       ;; comp_cat_subst _ _)%mor_disp.
+Proof.
+  rewrite comp_cat_nat_trans_subst.
+  rewrite transport_f_f.
+  refine (!_).
+  apply transportf_set.
+  apply homset_property.
+Qed.
+
+Definition comp_cat_type_fib_nat_trans
+           {C₁ C₂ : comp_cat}
+           {F G : comp_cat_functor C₁ C₂}
+           (τ : comp_cat_nat_trans F G)
+           {Γ : C₁}
+           (A : ty Γ)
+  : comp_cat_type_functor F Γ A <: comp_cat_type_functor G Γ A [[ τ Γ ]].
+Proof.
+  use (cartesian_factorisation (cleaving_of_types _ _ _ _ _)).
+  exact (transportf
+           (λ z, _ -->[ z ] _)
+           (!(id_left _))
+           (comp_cat_type_nat_trans τ Γ A)).
+Defined.
+
+Proposition comp_cat_type_fib_nat_trans_coerce
+            {C₁ C₂ : comp_cat}
+            {F G : comp_cat_functor C₁ C₂}
+            (τ : comp_cat_nat_trans F G)
+            {Γ : C₁}
+            {A B : ty Γ}
+            (s : A <: B)
+  : comp_cat_type_fib_nat_trans τ A
+    · coerce_subst_ty (τ Γ) (comp_cat_functor_coerce G s)
+    =
+    comp_cat_functor_coerce F s
+    · comp_cat_type_fib_nat_trans τ B.
+Proof.
+  cbn.
+  rewrite mor_disp_transportf_prewhisker.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite !transport_f_f.
+  use (cartesian_factorisation_unique (cleaving_of_types _ _ _ _ _)).
+  rewrite !mor_disp_transportf_postwhisker.
+  rewrite !assoc_disp_var.
+  rewrite !transport_f_f.
+  unfold comp_cat_type_fib_nat_trans.
+  rewrite !cartesian_factorisation_commutes.
+  rewrite !mor_disp_transportf_prewhisker.
+  rewrite !transport_f_f.
+  rewrite assoc_disp.
+  unfold transportb.
+  rewrite transport_f_f.
+  rewrite cartesian_factorisation_commutes.
+  rewrite mor_disp_transportf_postwhisker.
+  rewrite transport_f_f.
+  etrans.
+  {
+    apply maponpaths.
+    apply (disp_nat_trans_ax_var (comp_cat_type_nat_trans τ)).
+  }
+  rewrite transport_f_f.
+  apply maponpaths_2.
+  apply homset_property.
+Qed.
+
+Definition comp_cat_nat_trans_tm
+           {C₁ C₂ : comp_cat}
+           {F G : comp_cat_functor C₁ C₂}
+           (τ : comp_cat_nat_trans F G)
+           {Γ : C₁}
+           {A : ty Γ}
+           (t : tm Γ A)
+  : comp_cat_functor_tm F t ↑ comp_cat_type_fib_nat_trans τ A
+    =
+    comp_cat_functor_tm G t [[τ Γ ]]tm.
+Proof.
+  use eq_comp_cat_tm ; cbn.
+  use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback _ _))).
+  - cbn.
+    rewrite !assoc.
+    rewrite <- (nat_trans_ax τ _ _ t).
+    rewrite !assoc'.
+    apply maponpaths.
+    etrans.
+    {
+      apply maponpaths.
+      refine (!_).
+      apply comprehension_functor_mor_comp.
+    }
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply cartesian_factorisation_commutes.
+    }
+    rewrite comprehension_functor_mor_transportf.
+    exact (comp_cat_nat_trans_comprehension τ A).
+  - cbn.
+    rewrite !assoc'.
+    rewrite comp_cat_comp_mor_comm.
+    etrans.
+    {
+      apply maponpaths.
+      apply comprehension_nat_trans_mor_comm.
+    }
+    rewrite <- functor_comp.
+    rewrite <- functor_id.
+    apply maponpaths.
     apply comp_cat_tm_eq.
 Qed.

@@ -468,6 +468,9 @@ ComprehensionCat/Universes/CatWithUniv/UniverseInCat.v
 ComprehensionCat/Universes/CatWithUniv/UniverseAsMorphism.v
 ComprehensionCat/Universes/CatWithUniv/UniverseDispBicat.v
 
+ComprehensionCat/Universes/CompCatUniv/CompCatOb.v
+ComprehensionCat/Universes/CompCatUniv/UniverseType.v
+
 ComprehensionCat/Biequivalence/InternalLanguageTopos.v
 
 ComprehensionCat/SetGroupoidModel.v

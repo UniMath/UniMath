@@ -2873,6 +2873,30 @@ Section FiberFunctorNatural.
   Defined.
 End FiberFunctorNatural.
 
+Definition cartesian_disp_functor_disp_z_iso
+           {C₁ C₂ : category}
+           {F : C₁ ⟶ C₂}
+           {D₁ : disp_cat C₁}
+           {D₂ : disp_cat C₂}
+           (FF : cartesian_disp_functor F D₁ D₂)
+           (HD₁ : cleaving D₁)
+           (HD₂ : cleaving D₂)
+           {x y : C₁}
+           (f : x --> y)
+           (yy : D₁ y)
+  : z_iso_disp
+      (identity_z_iso _)
+      (FF x (HD₁ y x f yy))
+      (HD₂ _ _ (#F f)%cat (FF y yy)).
+Proof.
+  exact (z_iso_disp_from_z_iso_fiber
+           _ _ _ _
+           (z_iso_inv
+              (nat_z_iso_pointwise_z_iso
+                 (fiber_functor_natural_nat_z_iso HD₁ HD₂ FF f)
+                 yy))).
+Defined.
+
 Arguments fiber_functor_natural_data {C₁ C₂ F D₁ D₂} HD₁ HD₂ FF {x y} f /.
 
 Proposition fiber_functor_natural_nat_z_iso_eq
